@@ -1,0 +1,115 @@
+Fox : EBNF Grammar.
+
+// TO DO List for v2
+arrays
+const keyword
+ternaries
+one stmt blocks
+
+Modifications used in this grammar :
+$x means x is a term already recognized and identified by the lexer. e.g.
+	$id means a lexer-recognized id 
+	$const means a constant value, recognized by the lexer. Examples : 'c' "foo" 3.14 -1 true 
+
+Note about the typing discipline :
+It tends to be strongly typed, because a variable can't be converted (if you declared an int, you can't transform it in a string. If you attempt to store a string in a int,
+you'll be greeted with a warning, and the assignement will be ignored !) with the exception of the null value.
+A Variable declared like this "let x;" can change into anything later in the program, you can put an int/boo/string/etc. in it. BUT, once you gave it a type, it can't change anymore.
+Example :
+let x;		// x is null 
+x = 3.14; 	// x is now float
+x = "foo";	// Warning ! You're trying to store a string in x, and x is a float ! You can't set the value ! (Warning + assignement ignored)
+			// Also, when you declare a variable like this :
+let x : float;
+			// And use it later, it has a default value, here it's 0.
+Default values for the variables :
+int : 0
+float : 0
+char : \0
+bool : false
+string : ""
+null : null 
+
+##Base rule (The parsing process starts from this rule.)
+<fox_program>	= {<import_stmt>}*  {(<func_decl>	| <var_decl>)}+	// At least 1 function/variable declaration.
+
+##General Rules##
+
+<id> 			= $id
+<type> 			= "int" | "float" | "bool" | "char" | "string"	// Aside from the "written" types, null type exists too. It's the type of a variable declared like this : "let x;". 
+// to do : accept the "const" keyword. 
+<const>			= $const			// hard coded, raw constants.
+<as_kw> 		= "as"
+<lt_kw>			= "let"
+<fn_kw>			= "func"
+<if_kw>			= "if"
+<wh_kw>			= "while"
+<imp_kw>		= "import"			// Imports the package, nothing more
+<use_kw>		= "using"			// Import the package (if it isn't imported yet.), and auto-uses the namespace. You can just type "print" instead of "Fox.io.print" with this stmt.
+<el_kw>			= "else"
+<const_kw>		= "const"			// What can be const ? Variables declaration and args declaration 
+<rtr_kw>		= "return"
+
+<namespace> 	= {<id> '.'} 			// This designates namespaces, examples : "Fox." "Fox.io."
+<ext_id>		= [<namespace>] <id>		// External IDs, examples : "Fox.foo"	"Fox.io.print"
+										// You can also import packages that don't have sub packages (or import everything in the package at the same time !). "Fox" works here
+<general_id>	= <ext_id> | <id>
+<type_spec>		= ':' <type>				// Used later..
+<arg_type_spec>	= ':' ['&'] <type>			// the optional ampersand defines references (arguments can be modified.)
+<eoi>			= ';'						// End of instruction character. I use a separate rule for this, in case i want to modify it someday. (to use \n for instance)
+<block>			= '{' {<stmt>} '}'			// Statements delimited by curly brackets.
+				= <stmt>					// A block can also be just one statement.
+<stmt>			= <var_decl> | <var_assign> | <f_call_stmt> | <ctrl_flow>
+
+// Source for this grammar :http://blog.roboblob.com/2014/12/16/recursive-descent-parser-for-arithmetic-expressions-with-real-numbers/
+<expr> 			= <term>	{ <second_op> <term>	}		
+<term>			= <factor> 	{ (<prior_op> <factor> 	}
+<factor>		= ['!'] <value> [<as_kw> <type>] // Here i must use another nonterminal to support conversion to other types, and the '!' operator for inversions.
+<value> 		= <callable>
+				= <const>
+				= '(' <expr> ')'
+
+<callable>		= <id>
+				= <f_call>
+
+<second_op>		= '+' | '-' | <cond_join_op>
+<prior_op>		= '*' | '/' | <cond_op>
+
+##Importing Packages##
+<import_stmt>   = ( <imp_kw> | <use_kw> ) <ext_id> <eio>
+
+##Variables##
+
+<var_decl>		= <let_kw> [<const_kw>] <id> [<type_spec>] ['=' <expr>] <eoi> 	// You can define variables in a rust-like fashion, but you can specify the type of the variable. const variables can't be modified.
+<var_assign>	= <id> "=" <expr> <eoi>
+
+##Functions##
+
+<func_decl>		= <fn_kw> <id> <arg_list_decl> [<type_spec>] <block>	// Note about type_spec : if it is not present, the function is considered void (it will never return anything and return values will be discarded.)
+<arg_list_decl> = '(' [<arg_decl> {',' <arg_decl>}*] ')'
+<arg_decl>		=  <id> <arg_type_spec> 								// const argument are duplicated and don't affect the function, non const arguments are always passed by reference. 
+
+<f_call>		= <general_id> <expr_list>	// Function calls used in expressions, etc..
+<f_call_stmt>		= <f_call> <eoi>		// Standalone function calls.
+<expr_list>		= '(' [<expr> {',' <expr>}] ')'
+
+<rtr_stmt>		= <rtr_kw> <expr> <eoi>
+
+##Control Flow##
+<ctrl_flow>		= <cond_cf> | <while_cf>
+<cond_cf>		= <if_kw> {<elif_kw>}* [<else_branch>]?		
+<if_branch>		= <if_kw> 				'(' <expr> ')' <block>
+<elif_branch> 	= <el_kw> <if_kw>		'(' <expr> ')' <block>
+<else_branch>	= <el_kw>						       <block>
+<while_cf> 		= <wh_kw> 				'(' <expr> ')' <block> 
+
+<cond_join_op>		= ('&' '&') | ('|' '|')
+<cond_op>			= '<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 
+
+
+
+
+
+
+
+
