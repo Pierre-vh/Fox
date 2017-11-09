@@ -21,6 +21,9 @@
     <ClCompile Include="src\Moonshot\Common\Errors\Errors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Moonshot\Fox\Lexer\Lexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Moonshot\readme.md" />
@@ -34,6 +37,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Moonshot\Common\Errors\Errors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Moonshot\Fox\Lexer\Lexer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Moonshot\Fox\Lexer\Token.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

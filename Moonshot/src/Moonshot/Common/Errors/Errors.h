@@ -35,9 +35,9 @@ SOFTWARE.
 #include <string>	// << std::string <<
 
 #define E_LOG(y)		Moonshot::Errors::getInstance()->logInfo(y);
-#define E_WARNING(y)	Moonshot::Errors::getInstance()->reportWarning(__FILE__,__LINE__,y);
-#define E_ERROR(y)		Moonshot::Errors::getInstance()->reportError(__FILE__,__LINE__,y);
-#define E_CRITICAL(y)	Moonshot::Errors::getInstance()->reportCritical(__FILE__,__LINE__,y);
+#define E_WARNING(y)	Moonshot::Errors::getInstance()->reportWarning	(__FILE__,__LINE__,y);
+#define E_ERROR(y)		Moonshot::Errors::getInstance()->reportError	(__FILE__,__LINE__,y);
+#define E_CRITICAL(y)	Moonshot::Errors::getInstance()->reportCritical	(__FILE__,__LINE__,y);
 
 #define E_CHECKSTATE	*(Moonshot::Errors::getInstance())
 
@@ -48,8 +48,15 @@ SOFTWARE.
 
 namespace Moonshot
 {
-	typedef enum errstate { GOOD, WARNING, ERROR, CRITICAL } errstate;
+	enum errstate 
+	{
+		GOOD,
+		WARNING,
+		ERROR,
+		CRITICAL 
+	};
 
+	// SINGLETON
 	class Errors
 	{
 		public:
@@ -71,15 +78,17 @@ namespace Moonshot
 			operator bool() const;
 
 			struct {
+
 				bool muteLogs		= false;
 				bool muteWarnings	= false;
-			} options_;
+
+			} options;
 
 			~Errors();
 		private:
-			Errors(); // Prevent instancing
-			Errors(Errors const&);
-			Errors& operator=(Errors const&) {}
+			Errors();							 // Prevent instancing
+			Errors(Errors const&);				 // Prevent Copying
+			Errors& operator=(Errors const&) {}  // Prevent Assignement
 			static Errors* instance;
 
 			// Attributes

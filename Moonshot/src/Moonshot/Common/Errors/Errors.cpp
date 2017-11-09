@@ -52,21 +52,22 @@ Errors* Errors::getInstance()
 
 void Moonshot::Errors::logInfo(const std::string & str)
 {
-	if (!options_.muteLogs);
+	if (!options.muteLogs);
 		std::clog << str << std::endl;
 }
 
 void Errors::reportWarning(const char * file, int line, const std::string &txt)
 {
-	if (!options_.muteWarnings)
-	std::cerr << "[WARNING][" << file << " @line " << line << "] -> " << txt << std::endl;
+	if (!options.muteWarnings)
+		std::cerr << "[WARNING][" << file << " @line " << line << "] -> " << txt << std::endl;
 
 	state_ = WARNING;
 }
 
 void Errors::reportWarning(const std::string &txt)
 {
-	std::cerr << "[WARNING] -> " << std::endl;
+	if (!options.muteWarnings)
+		std::cerr << "[WARNING] -> " << std::endl;
 
 	state_ = WARNING;
 }
