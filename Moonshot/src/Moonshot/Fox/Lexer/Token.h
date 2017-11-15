@@ -203,7 +203,6 @@ namespace Moonshot
 
 			std::string showFormattedTokenData();
 
-
 		private:
 			void selfId();
 			bool idKeyword();

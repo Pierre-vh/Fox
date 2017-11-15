@@ -52,7 +52,7 @@ Errors* Errors::getInstance()
 
 void Moonshot::Errors::logInfo(const std::string & str)
 {
-	if (!options.muteLogs);
+	if (!options.muteLogs)
 		std::clog << str << std::endl;
 }
 
@@ -103,6 +103,8 @@ std::string Moonshot::Errors::getCurrentState_asStr() const
 			return "ERROR";
 		case CRITICAL:
 			return "CRITICAL";
+		default:
+			return "<DEFAULTED>";
 	}
 }
 

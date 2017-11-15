@@ -5,7 +5,7 @@ e-mail : pierre.vanhoutryve@gmail.com
 
 Description : Main class of the lexing process (lexical analysis)
 This class "cuts" the text into tokens to be processed by the parser ! It's a fairly simple recursive descent algorithm.
-
+It uses a Deterministic finite automaton.
 *************************************************************
 MIT License
 
@@ -31,18 +31,71 @@ SOFTWARE.
 *************************************************************/
 
 #pragma once
+
+#include <string>		// std::string
+#include <cctype>		// std::isspace
+
+#include "../../Common/Errors/Errors.h"
+#include "Token.h"
+#include <vector>	// std::vector
+
 namespace Moonshot
 {
+	namespace dfa
+	{
+		enum state
+		{
+			S0, S1, S2, S3, S4	// the dfa's state.
+		};
+	}
 	class Lexer
 	{
 		public:
 			Lexer();
 			~Lexer();
 
+			void lexStr(const std::string &data);
+			
+			token getToken(const size_t &vtpos);	// returns the n th token in result_
+			size_t resultSize();					// returns result_.size()
 		private:
-			struct state_
-			{
-				
-			};
+			// push a token to result_
+			void pushTok();
+			// a dfa cycle
+			void cycle();					// one dfa "cycle";
+			// DFA state behaviours. I split this into various functions to make the code more readable in the cycle() function.
+			void dfa_S0();
+			void dfa_S1();
+			void dfa_S2();
+			void dfa_S3();
+			void dfa_S4();
+			// Go to another state
+			void dfa_goto(const dfa::state &ns);
+
+			// Useful functions used in the lexer
+			char eatChar();										// returns the current char and go forward in the stream (returns str_[pos_] and do pos_+=1)
+			
+			void addToCurtok(const char &c);					// adds the current character to curtok_, except if(isspace())
+			bool isSep(const char &c) const;					// is the current char a separator? (= a sign. see lex::kSign_dict)
+			
+			char peekNext(const size_t &p) const;				//	returns the next char after pos p 
+			bool isEscaped(const size_t &p) const;				// checks whether the character before the current one is a backslash (escapes the current char)
+			bool isSpace(const size_t &p) const;				// is the current character a space?
+			// Overloads with no arguments (will assume p = pos_)
+			char peekNext() const;
+			bool isEscaped() const;
+			bool isSpace() const;
+
+
+			dfa::state cstate_ = dfa::S0;		// curren dfa state. begins at S0;
+
+			std::string str_;				// the input
+			size_t pos_ = 0;				// position in the input.
+
+			std::string curtok_;			// the token that's being constructed.
+
+			text_pos ccoord_ = text_pos(0,0);	// current coordinates.
+
+			std::vector<token>	result_;			// the lexer's output !
 	};
 }
