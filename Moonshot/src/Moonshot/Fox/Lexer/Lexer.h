@@ -40,6 +40,9 @@ namespace Moonshot
 			~Lexer();
 
 		private:
-			
+			struct state_
+			{
+				
+			};
 	};
 }

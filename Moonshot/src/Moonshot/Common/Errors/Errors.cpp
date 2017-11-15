@@ -59,7 +59,7 @@ void Moonshot::Errors::logInfo(const std::string & str)
 void Errors::reportWarning(const char * file, int line, const std::string &txt)
 {
 	if (!options.muteWarnings)
-		std::cerr << "[WARNING][" << file << " @line " << line << "] -> " << txt << std::endl;
+		std::cerr << "[WARNING][" << file << " @line " << line << "]\n" << txt << std::endl;
 
 	state_ = WARNING;
 }
@@ -74,14 +74,14 @@ void Errors::reportWarning(const std::string &txt)
 
 void Errors::reportError(const char * file, int line, const std::string &txt)
 {
-	std::cerr << "[ERROR][" << file << " @line " << line << "] -> " << txt << std::endl;
+	std::cerr << "[ERROR][" << file << " @line " << line << "]\n" << txt << std::endl;
 
 	state_ = ERROR;
 }
 
 void Errors::reportCritical(const char * file, int line, const std::string &txt)
 {
-	std::cerr << "[CRITICAL][" << file << " @line " << line << "] -> " << txt << std::endl;
+	std::cerr << "[CRITICAL][" << file << " @line " << line << "]\n" << txt << std::endl;
 
 	state_ = CRITICAL;
 }

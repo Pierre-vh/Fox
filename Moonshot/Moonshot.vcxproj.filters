@@ -24,6 +24,9 @@
     <ClCompile Include="src\Moonshot\Fox\Lexer\Lexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Moonshot\Fox\Lexer\Token.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Moonshot\readme.md" />

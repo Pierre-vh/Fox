@@ -77,11 +77,10 @@ namespace Moonshot
 
 			operator bool() const;
 
-			struct {
-
+			struct
+			{
 				bool muteLogs		= false;
 				bool muteWarnings	= false;
-
 			} options;
 
 			~Errors();

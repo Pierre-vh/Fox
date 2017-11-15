@@ -12,6 +12,7 @@ NAMING
 -> NORMAL VARIABLES : should be all lowercase, with a underscore between words.
 	e.g. my_variable
 -> ATTRIBUTES should be named like "normal" variable, but with a trailing underscore. example : "foo_"; (Except in option structures, see later.)
+	EXCEPTION : Public attributes should be named like normal variables.
 	e.g. my_variable_;
 -> CONSTANTS should use "mixed case" with a k as first character
 	e.g. const int kPi = 3.14;
