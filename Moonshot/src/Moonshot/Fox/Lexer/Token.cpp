@@ -2,7 +2,7 @@
 #include "../../Common/Errors/Errors.h"
 using namespace Moonshot;
 
-token::token(const std::string & data, const text_pos &tpos) : str(data),pos(tpos)
+token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
 {
 	// substract the token length's fron the column number given by the lexer.
 	pos.column -= data.length();
@@ -10,10 +10,10 @@ token::token(const std::string & data, const text_pos &tpos) : str(data),pos(tpo
 	selfId();
 }
 
-std::string Moonshot::token::showFormattedTokenData()
+std::string Moonshot::token::showFormattedTokenData() const
 {
 	std::stringstream ss;
-	ss << "[" << str << "][" << pos.asText() << "][";
+	ss << "[" << str << "]\t[" << pos.asText() << "]\t[";
 	int enum_info = -1;		// The information of the corresponding enumeration
 	switch (type)
 	{
@@ -46,21 +46,17 @@ void token::selfId()
 {
 	if (str.size() == 0)
 		E_CRITICAL("Found an empty token. [" + pos.asText() + "]")
-	else if (str.size() == 1)
-	{
-		if (idSign())
-			type = lex::TT_SIGN;
-		else
-			E_ERROR("Could not identify a token (char) : " + str + "\t[" + pos.asText() + "]")
-	}
+
+	if (idSign())
+		type = lex::TT_SIGN;
 	else
 	{
 		if (idKeyword())
 			type = lex::TT_KEYWORD;
-		else if (std::regex_match(str, lex::kId_regex))
-			type = lex::TT_IDENTIFIER;
 		else if (idValue())
 			type = lex::TT_VALUE;
+		else if (std::regex_match(str, lex::kId_regex))
+			type = lex::TT_IDENTIFIER;
 		else 
 			E_ERROR("Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]")
 	}
@@ -78,6 +74,8 @@ bool Moonshot::token::idKeyword()
 
 bool Moonshot::token::idSign()
 {
+	if (str.size() > 1)
+		return false;
 	auto i = lex::kSign_dict.find(str[0]);
 	if (i == lex::kSign_dict.end())
 		return true;
@@ -137,7 +135,7 @@ void Moonshot::text_pos::forward()
 	column += 1;
 }
 
-std::string Moonshot::text_pos::asText()
+std::string Moonshot::text_pos::asText() const
 {
 	std::stringstream ss;
 	ss << "L:" << line << " C:" << column;

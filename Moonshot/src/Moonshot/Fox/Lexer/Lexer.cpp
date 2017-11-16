@@ -29,6 +29,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 
+// TODO : The code is a bit messy : clean it up ! Maybe rework states and such ? But it works for now, so I keep it until a rework is needed (for performance reasons, or if i do a complete rewrite)
+
 #include "Lexer.h"
 
 using namespace Moonshot;
@@ -46,8 +48,22 @@ void Lexer::lexStr(const std::string & data)
 {
 	str_ = data;
 	pos_ = 0;
+	cstate_ = dfa::S0;
 	while(pos_ < data.size())
 		cycle();
+	E_LOG("Lexing finished. Tokens found: " + sizeToString(result_.size()))
+}
+
+void Moonshot::Lexer::iterateResults(std::function<void(const token&)> func)
+{
+	for (const token &tok : result_)
+		func(tok);
+}
+
+void Moonshot::Lexer::logAllTokens() const
+{
+	for (const token &tok : result_)
+		E_LOG(tok.showFormattedTokenData());
 }
 
 token Lexer::getToken(const size_t & vtpos)
@@ -64,13 +80,20 @@ size_t Lexer::resultSize()
 
 void Lexer::pushTok()
 {
-	token t(curtok_);
+	// this line was used for debug purposes.
+	//E_LOG("Pushing token \"" + curtok_ + "\"")
+	token t(curtok_,ccoord_);
 	result_.push_back(t);
 	curtok_ = "";
 }
 
 void Lexer::cycle()
 {
+	// update position
+	ccoord_.column += 1;
+	if (str_[pos_] == '\n')
+		ccoord_.newLine();
+	// execute proper state's function
 	switch (cstate_)
 	{
 		case dfa::S0:
@@ -93,46 +116,57 @@ void Lexer::cycle()
 
 void Lexer::dfa_S0()
 {
-	char c = eatChar();
+	char pk = peekNext();
+	char c = str_[pos_];	// Get current char without advancing in the stream
+
 	if (curtok_.size() != 0)	// simple error checking : the token should always be empty when we're in S0.
 	{
 		E_CRITICAL("ERROR. CURRENT TOKEN IS NOT EMPTY IN S0.");
 		return;
 	}
-
-	if (c == '/' && str_[pos_] == '/')
+	// IGNORE SPACES
+	if (std::isspace(c))
+		forward();
+	// HANDLE COMMENTS
+	else if (c == '/' && pk == '/')
 	{
-		pos_ += 1;					// update position
+		forward();
 		dfa_goto(dfa::S2);
 	}
-	else if (c == '/' && str_[pos_] == '*')
+	else if (c == '/' && pk == '*')
 	{
-		pos_ += 1;
+		forward();
 		dfa_goto(dfa::S3);
 	}
-	else if (isSep(c))				// is the current char a separator?
+	// HANDLE SINGLE SEPARATOR
+	else if (isSep(c))				// is the current char a separator, but not a space?
 	{
-		addToCurtok(c);
+		addToCurtok(eatChar());
 		pushTok();
 	}
-	else if (c == '\'' || c == '"')	// Delimiter?
+	// HANDLE STRINGS AND CHARS
+	else if (c == '\'')	// Delimiter?
 	{
-		addToCurtok(c);
+		addToCurtok(eatChar());
+		dfa_goto(dfa::S5);
+	}
+	else if (c == '"')
+	{
+		addToCurtok(eatChar());
 		dfa_goto(dfa::S1);
 	}
-	else							// else, we just assume it's a a-z / A-Z / _ character. if it's not, the token::selfId() method handle the error.
-	{
-		addToCurtok(c);
+	// HANDLE IDs
+	else 		
 		dfa_goto(dfa::S4);
-	}
+
 }
 
 void Lexer::dfa_S1()
 {
 	char c = eatChar();
-	if ((c == '"' || c == '\'') && !isEscaped(pos_-1))
+	addToCurtok(c);
+	if (c == '"' && !isEscaped())
 	{
-		addToCurtok(c);
 		pushTok();
 		dfa_goto(dfa::S0);
 	}
@@ -148,21 +182,31 @@ void Lexer::dfa_S3()
 {
 	if (eatChar() == '*' && str_[pos_] == '/')
 	{
-		pos_ += 1;
+		forward();
 		dfa_goto(dfa::S0);
 	}
 }
 
 void Lexer::dfa_S4()
 {
-	if (isSep(peekNext()))
+	if (isSep(str_[pos_]))
 	{
-		addToCurtok(eatChar());
 		pushTok();
 		dfa_goto(dfa::S0);
 	}
-	else
+	else 
 		addToCurtok(eatChar());
+}
+
+void Moonshot::Lexer::dfa_S5()
+{
+	char c = eatChar();
+	addToCurtok(c);
+	if (c == '\'' && !isEscaped())
+	{
+		pushTok();
+		dfa_goto(dfa::S0);
+	}
 }
 
 void Lexer::dfa_goto(const dfa::state & ns)
@@ -173,13 +217,13 @@ void Lexer::dfa_goto(const dfa::state & ns)
 char Moonshot::Lexer::eatChar()
 {
 	char c = str_[pos_];
-	pos_ += 1;
+	forward();
 	return c;
 }
 
 char Lexer::peekNext(const size_t &p) const
 {
-	if (p < (str_.size() - 1))	// checks if it's possible
+	if (p+1 >= (str_.size()))	// checks if it's possible
 		return ' ';
 	return str_[p + 1];
 }
@@ -194,19 +238,15 @@ bool Lexer::isEscaped(const size_t &p) const
 
 void Moonshot::Lexer::addToCurtok(const char & c)
 {
-	if (!std::isspace(c))
-		curtok_ += c;
+	curtok_ += c;
 }
 
 bool Lexer::isSep(const char &c) const
 {
+	if (c == '.' && std::isdigit(peekNext()))	// if we're inside a number, we shouldn't treat a dot as a separator.
+		return false;
 	auto i = lex::kSign_dict.find(c);
-	return (i != lex::kSign_dict.end()) || (c == ' ');
-}
-
-bool Lexer::isSpace(const size_t &p) const
-{
-	return (str_[p] == ' ');
+	return i != lex::kSign_dict.end() || std::isspace(c);
 }
 
 char Lexer::peekNext() const
@@ -219,8 +259,14 @@ bool Lexer::isEscaped() const
 	return isEscaped(pos_);
 }
 
-bool Lexer::isSpace() const
+void Moonshot::Lexer::forward()
 {
-	return isSpace(pos_);
+	pos_ += 1;
 }
 
+std::string Moonshot::Lexer::sizeToString(const size_t &s) const
+{
+	std::stringstream ss;
+	ss << s;
+	return ss.str();
+}

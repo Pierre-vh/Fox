@@ -81,6 +81,7 @@ namespace Moonshot
 			S_TILDE,			// ~
 			S_EXP,				// ^
 			S_PERCENT,			// %
+
 			// BRACKETS
 			B_CURLY_OPEN,		// {
 			B_CURLY_CLOSE,		// }
@@ -92,7 +93,9 @@ namespace Moonshot
 			P_SEMICOLON,		// ;
 			P_COLON,			// :
 			P_EXCL_MARK,		// !
-			P_INTER_MARK		// ?
+			P_INTER_MARK,		// ?
+			P_DOT,				// .
+			P_COMMA				// ,
 		};
 
 		enum keywords
@@ -121,7 +124,7 @@ namespace Moonshot
 		// Regular expression used for identification 
 		const std::regex kInt_regex("\\d+");
 		const std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
-		const std::regex kId_regex("([A-Z]|[a-z]|_)+");
+		const std::regex kId_regex("([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)+");	// if anyone has something better, tell me ! :)
 
 		// Dictionary used to identify keywords.
 		const std::map<std::string, lex::keywords> kWords_dict =
@@ -175,7 +178,9 @@ namespace Moonshot
 			{ ';'	, P_SEMICOLON		},
 			{ ':'	, P_COLON			},
 			{ '!'	, P_EXCL_MARK		},
-			{ '?'	, P_INTER_MARK		}
+			{ '?'	, P_INTER_MARK		},
+			{ '.'	, P_DOT				},
+			{ ','	, P_COMMA			}	
 		};
 	}
 	struct text_pos	// a structure to hold the position of a token in the input;
@@ -183,15 +188,15 @@ namespace Moonshot
 		text_pos(const int &l, const int &col);
 		void newLine();
 		void forward();
-		std::string asText();
+		std::string asText() const;
 
-		int line = 0;
+		int line = 1;
 		int column = 0;
 	};
 	struct token
 	{
 		public:
-			token(const std::string &data, const text_pos &tpos = text_pos(0,0));
+			token(std::string data, const text_pos &tpos = text_pos(0,0));
 			lex::tokentype type = lex::TT_ENUM_DEFAULT;
 			lex::keywords kw_type = lex::KW_ENUM_DEFAULT;
 			lex::values val_type = lex::VAL_ENUM_DEFAULT;
@@ -201,7 +206,7 @@ namespace Moonshot
 			text_pos pos;
 			std::variant<bool, int, float>	vals;
 
-			std::string showFormattedTokenData();
+			std::string showFormattedTokenData() const;
 
 		private:
 			void selfId();

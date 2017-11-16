@@ -45,6 +45,7 @@ Moonshot::Errors::Errors(Errors const &)
 
 Errors* Errors::getInstance()
 {
+
 	if (!instance)
 		instance = new Errors;
 	return instance;
@@ -53,7 +54,7 @@ Errors* Errors::getInstance()
 void Moonshot::Errors::logInfo(const std::string & str)
 {
 	if (!options.muteLogs)
-		std::clog << str << std::endl;
+		std::clog << "[LOG]\t" << str << std::endl;
 }
 
 void Errors::reportWarning(const char * file, int line, const std::string &txt)

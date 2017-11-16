@@ -34,10 +34,12 @@ SOFTWARE.
 
 #include <string>		// std::string
 #include <cctype>		// std::isspace
-
+#include <vector>		// std::vector
+#include <functional>	// std::function
+#include <sstream>		// std::stringstream (sizeToStr())
 #include "../../Common/Errors/Errors.h"
 #include "Token.h"
-#include <vector>	// std::vector
+
 
 namespace Moonshot
 {
@@ -45,7 +47,7 @@ namespace Moonshot
 	{
 		enum state
 		{
-			S0, S1, S2, S3, S4	// the dfa's state.
+			S0, S1, S2, S3, S4, S5	// the dfa's state.
 		};
 	}
 	class Lexer
@@ -56,6 +58,9 @@ namespace Moonshot
 
 			void lexStr(const std::string &data);
 			
+			void iterateResults(std::function<void(const token&)> func);
+			void logAllTokens() const;
+
 			token getToken(const size_t &vtpos);	// returns the n th token in result_
 			size_t resultSize();					// returns result_.size()
 		private:
@@ -69,33 +74,30 @@ namespace Moonshot
 			void dfa_S2();
 			void dfa_S3();
 			void dfa_S4();
+			void dfa_S5();
 			// Go to another state
 			void dfa_goto(const dfa::state &ns);
-
 			// Useful functions used in the lexer
 			char eatChar();										// returns the current char and go forward in the stream (returns str_[pos_] and do pos_+=1)
-			
 			void addToCurtok(const char &c);					// adds the current character to curtok_, except if(isspace())
 			bool isSep(const char &c) const;					// is the current char a separator? (= a sign. see lex::kSign_dict)
-			
 			char peekNext(const size_t &p) const;				//	returns the next char after pos p 
 			bool isEscaped(const size_t &p) const;				// checks whether the character before the current one is a backslash (escapes the current char)
-			bool isSpace(const size_t &p) const;				// is the current character a space?
 			// Overloads with no arguments (will assume p = pos_)
 			char peekNext() const;
 			bool isEscaped() const;
-			bool isSpace() const;
 
+			// This function's job is to increment pos_. Why use it ? Better readability in the code.
+			void forward();
 
+			//size_t to std::string
+			std::string sizeToString(const size_t &s) const;
+			// member variables
 			dfa::state cstate_ = dfa::S0;		// curren dfa state. begins at S0;
-
-			std::string str_;				// the input
-			size_t pos_ = 0;				// position in the input.
-
-			std::string curtok_;			// the token that's being constructed.
-
-			text_pos ccoord_ = text_pos(0,0);	// current coordinates.
-
-			std::vector<token>	result_;			// the lexer's output !
+			std::string str_;					// the input
+			size_t pos_ = 0;					// position in the input.
+			std::string curtok_;				// the token that's being constructed.
+			text_pos ccoord_ = text_pos(1,0);	// current coordinates.
+			std::vector<token>	result_;		// the lexer's output !
 	};
 }
