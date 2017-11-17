@@ -13,9 +13,10 @@ int main()
 	E_LOG("Starting..");
 	Errors *x = Errors::getInstance();
 
-	std::ifstream ifs("C:\\Users\\pierr\\Source\\Repos\\Moonshot---WIP\\x64\\Debug\\guess_game.fox");
+	//std::ifstream ifs("C:\\Users\\pierr\\Source\\Repos\\Moonshot---WIP\\x64\\Debug\\guess_game.fox");
+	std::ifstream ifs("C:\\Users\\pierre.vanhoutryve\\source\\repos\\Moonshot\\Moonshot\\res\\code_samples\\std_lib_tests\\guess_game.fox");
 	if (!ifs)
-		E_CRITICAL("Failed to open file.")
+		E_CRITICAL("Failed to open file ")
 	std::string content((std::istreambuf_iterator<char>(ifs)),
 		(std::istreambuf_iterator<char>()));
 	

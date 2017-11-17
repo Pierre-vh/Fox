@@ -37,9 +37,9 @@ SOFTWARE.
 #include <vector>		// std::vector
 #include <functional>	// std::function
 #include <sstream>		// std::stringstream (sizeToStr())
+#include <map>			// std::map
 #include "../../Common/Errors/Errors.h"
 #include "Token.h"
-
 
 namespace Moonshot
 {
@@ -75,6 +75,10 @@ namespace Moonshot
 			void dfa_S3();
 			void dfa_S4();
 			void dfa_S5();
+			const std::map<dfa::state, std::function<void(void)>> &kState_dict =
+			{};
+			// dfa function dictionary
+
 			// Go to another state
 			void dfa_goto(const dfa::state &ns);
 			// Useful functions used in the lexer
@@ -82,10 +86,8 @@ namespace Moonshot
 			void addToCurtok(const char &c);					// adds the current character to curtok_, except if(isspace())
 			bool isSep(const char &c) const;					// is the current char a separator? (= a sign. see lex::kSign_dict)
 			char peekNext(const size_t &p) const;				//	returns the next char after pos p 
-			bool isEscaped(const size_t &p) const;				// checks whether the character before the current one is a backslash (escapes the current char)
 			// Overloads with no arguments (will assume p = pos_)
 			char peekNext() const;
-			bool isEscaped() const;
 
 			// This function's job is to increment pos_. Why use it ? Better readability in the code.
 			void forward();
@@ -93,6 +95,7 @@ namespace Moonshot
 			//size_t to std::string
 			std::string sizeToString(const size_t &s) const;
 			// member variables
+			bool mustEscape = true;
 			dfa::state cstate_ = dfa::S0;		// curren dfa state. begins at S0;
 			std::string str_;					// the input
 			size_t pos_ = 0;					// position in the input.

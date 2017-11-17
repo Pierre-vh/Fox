@@ -11,7 +11,7 @@ func guess() : bool
 	else if (g < num)
 		print ("It's greater !");
 	else if (g > num)
-		print ("It's lower !");
+		print ("It's 'c' lower !"); 
 	return false;
 }
 func main()                                                                          // Here, main is void, but you can specify it

@@ -163,9 +163,10 @@ void Lexer::dfa_S0()
 
 void Lexer::dfa_S1()
 {
+	char bck = curtok_.back();
 	char c = eatChar();
 	addToCurtok(c);
-	if (c == '"' && !isEscaped())
+	if (c == '"' && bck != '\\')
 	{
 		pushTok();
 		dfa_goto(dfa::S0);
@@ -202,7 +203,7 @@ void Moonshot::Lexer::dfa_S5()
 {
 	char c = eatChar();
 	addToCurtok(c);
-	if (c == '\'' && !isEscaped())
+	if (c == '\'' && curtok_.back() != '\\')
 	{
 		pushTok();
 		dfa_goto(dfa::S0);
@@ -228,16 +229,19 @@ char Lexer::peekNext(const size_t &p) const
 	return str_[p + 1];
 }
 
-bool Lexer::isEscaped(const size_t &p) const
-{
-	if (p != 0)	// checks if we're not on the first character
-		if (str_[p - 1] == '\\')
-			return true;
-	return false;
-}
-
 void Moonshot::Lexer::addToCurtok(const char & c)
 {
+	if(curtok_.size() > 0)
+	if (curtok_.back() == '\\')
+	{
+		switch (c)
+		{
+			case '\'':
+			case '"':
+				curtok_.pop_back();
+				break;
+		}
+	}
 	curtok_ += c;
 }
 
@@ -252,11 +256,6 @@ bool Lexer::isSep(const char &c) const
 char Lexer::peekNext() const
 {
 	return peekNext(pos_);
-}
-
-bool Lexer::isEscaped() const
-{
-	return isEscaped(pos_);
 }
 
 void Moonshot::Lexer::forward()
