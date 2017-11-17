@@ -1,0 +1,21 @@
+using Fox;    
+
+func roll() : int
+{
+    return math.random(1,6);
+}
+func main()                                                                          // Here, main is void, but you can specify it
+{
+    io.print("Dice Rolling Program !");
+    let c = 'y';
+    io.print("First roll : " + roll());
+    while(c=='y')
+    {
+        io.print("\nRoll again (y/n) ? ");
+        c = io.input("char");
+        if(c=='y')
+            io.print("\nResult : " + roll());
+    }
+    io.print("\nBye!");
+	exit(1);                                                                         // Default function to terminate the script's execution. (Needs to be added to the symbols table by default.)
+}

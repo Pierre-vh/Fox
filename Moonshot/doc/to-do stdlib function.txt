@@ -1,0 +1,9 @@
+Fox.io
+    print(string msg)    -> cout << msg
+    input(string type)   -> return a data inputted, converted to the type "type"
+
+Fox.math
+    random(int a,int b)  -> return a random number between a min and a max.
+
+Fox.io.print()
+Fox.io::print():

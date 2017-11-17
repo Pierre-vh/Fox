@@ -1,0 +1,28 @@
+using Fox;    
+
+let num : int;
+
+func guess() : bool 
+{
+	print("Make a guess :");
+	let g = io.input("int");
+	if(g == num)
+		return true;
+	else if (g < num)
+		print ("It's greater !");
+	else if (g > num)
+		print ("It's lower !");
+	return false;
+}
+func main()                                                                          // Here, main is void, but you can specify it
+{
+	io.print("Hello, Guess the number !");
+    num = math.random(0,100);                                                        // Random number !
+    
+	while(!guess())
+		io.print("Wrong!");
+
+	io.print("Congrats!");
+
+	exit(1);                                                                         // Default function to terminate the script's execution. (Needs to be added to the symbols table by default.)
+}
