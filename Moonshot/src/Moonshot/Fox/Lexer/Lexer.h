@@ -75,8 +75,15 @@ namespace Moonshot
 			void dfa_S3();
 			void dfa_S4();
 			void dfa_S5();
-			const std::map<dfa::state, std::function<void(void)>> &kState_dict =
-			{};
+			const std::map<dfa::state, std::function<void(Lexer &)>> &kState_dict =
+			{ 
+				{	dfa::S0	,	&Lexer::dfa_S0 },
+				{	dfa::S1	,	&Lexer::dfa_S1 },
+				{	dfa::S2	,	&Lexer::dfa_S2 },
+				{	dfa::S3	,	&Lexer::dfa_S3 },
+				{	dfa::S4	,	&Lexer::dfa_S4 },
+				{	dfa::S5	,	&Lexer::dfa_S5 }
+			};
 			// dfa function dictionary
 
 			// Go to another state
@@ -95,7 +102,7 @@ namespace Moonshot
 			//size_t to std::string
 			std::string sizeToString(const size_t &s) const;
 			// member variables
-			bool mustEscape = true;
+			bool escapes_ = false;				// escaping with backslash
 			dfa::state cstate_ = dfa::S0;		// curren dfa state. begins at S0;
 			std::string str_;					// the input
 			size_t pos_ = 0;					// position in the input.

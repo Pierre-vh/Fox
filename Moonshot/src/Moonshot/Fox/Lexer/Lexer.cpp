@@ -49,7 +49,7 @@ void Lexer::lexStr(const std::string & data)
 	str_ = data;
 	pos_ = 0;
 	cstate_ = dfa::S0;
-	while(pos_ < data.size())
+	while(pos_ < data.size() && E_CHECKSTATE)
 		cycle();
 	E_LOG("Lexing finished. Tokens found: " + sizeToString(result_.size()))
 }
@@ -80,8 +80,6 @@ size_t Lexer::resultSize()
 
 void Lexer::pushTok()
 {
-	// this line was used for debug purposes.
-	//E_LOG("Pushing token \"" + curtok_ + "\"")
 	token t(curtok_,ccoord_);
 	result_.push_back(t);
 	curtok_ = "";
@@ -93,25 +91,14 @@ void Lexer::cycle()
 	ccoord_.column += 1;
 	if (str_[pos_] == '\n')
 		ccoord_.newLine();
-	// execute proper state's function
-	switch (cstate_)
+	// execute appropriate function
+	auto it = kState_dict.find(cstate_);
+	if (it != kState_dict.end())
 	{
-		case dfa::S0:
-			dfa_S0();
-			break;
-		case dfa::S1:
-			dfa_S1();
-			break;
-		case dfa::S2:
-			dfa_S2();
-			break;
-		case dfa::S3:
-			dfa_S3();
-			break;
-		case dfa::S4:
-			dfa_S4();
-			break;
+		auto fn = it->second;
+		fn(*this);
 	}
+	
 }
 
 void Lexer::dfa_S0()
@@ -125,8 +112,7 @@ void Lexer::dfa_S0()
 		return;
 	}
 	// IGNORE SPACES
-	if (std::isspace(c))
-		forward();
+	if (std::isspace(c)) forward();
 	// HANDLE COMMENTS
 	else if (c == '/' && pk == '/')
 	{
@@ -155,7 +141,7 @@ void Lexer::dfa_S0()
 		addToCurtok(eatChar());
 		dfa_goto(dfa::S1);
 	}
-	// HANDLE IDs
+	// HANDLE IDs & Everything Else
 	else 		
 		dfa_goto(dfa::S4);
 
@@ -163,14 +149,15 @@ void Lexer::dfa_S0()
 
 void Lexer::dfa_S1()
 {
-	char bck = curtok_.back();
 	char c = eatChar();
-	addToCurtok(c);
-	if (c == '"' && bck != '\\')
+	if (c == '"' && !escapes_)
 	{
+		addToCurtok(c);
 		pushTok();
 		dfa_goto(dfa::S0);
 	}
+	else 
+		addToCurtok(c);
 }
 
 void Lexer::dfa_S2()				// One line comment state.
@@ -202,12 +189,14 @@ void Lexer::dfa_S4()
 void Moonshot::Lexer::dfa_S5()
 {
 	char c = eatChar();
-	addToCurtok(c);
-	if (c == '\'' && curtok_.back() != '\\')
+	if (c == '\'' && !escapes_)
 	{
+		addToCurtok(c);
 		pushTok();
 		dfa_goto(dfa::S0);
 	}
+	else
+		addToCurtok(c);
 }
 
 void Lexer::dfa_goto(const dfa::state & ns)
@@ -231,18 +220,21 @@ char Lexer::peekNext(const size_t &p) const
 
 void Moonshot::Lexer::addToCurtok(const char & c)
 {
-	if(curtok_.size() > 0)
-	if (curtok_.back() == '\\')
+	if (c == '\\' && ((cstate_ == dfa::S1)||(cstate_ == dfa::S5)))
 	{
-		switch (c)
+		if (escapes_)
 		{
-			case '\'':
-			case '"':
-				curtok_.pop_back();
-				break;
+			curtok_ += c;
+			escapes_ = false;
 		}
+		else
+			escapes_ = true;
 	}
-	curtok_ += c;
+	else
+	{
+		curtok_ += c;
+		escapes_ = false;
+	}
 }
 
 bool Lexer::isSep(const char &c) const
