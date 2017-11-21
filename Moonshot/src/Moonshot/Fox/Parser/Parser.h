@@ -64,18 +64,10 @@ namespace Moonshot
 			Parser(Lexer *l);
 			~Parser();
 
-			ASTNode * matchExpr();
-			ASTNode * matchTerm();
-			ASTNode * matchFactor();
-			ASTNode * matchValue();
-
 		private:
 			// Private Methods;
 			token getToken() const;
 			token getToken(const size_t &d) const;
-			// Methods for EXPR Parser
-			std::pair<bool, parse::optype> parseSecondOp();
-			std::pair<bool, parse::optype> parseCondJoinOp();
 			// Member variables
 			size_t pos_ = 0;
 			Lexer *lex_ = 0;

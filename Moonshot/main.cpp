@@ -29,15 +29,7 @@ int main()
 			E_LOG(t.showFormattedTokenData());
 		});
 	}
-	Parser p(&l);
-	ASTNode * e = p.matchExpr();
-	ASTExpr * xpr = dynamic_cast<ASTExpr*>(e);
-	if (!xpr)
-	{
-		std::cout << "...";
-		std::cin.get();
-	}
-	xpr->showTree();
+
 	std::cin.get();
 	return 0;
 }

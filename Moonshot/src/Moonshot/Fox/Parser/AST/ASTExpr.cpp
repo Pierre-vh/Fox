@@ -56,6 +56,5 @@ void Moonshot::ASTExpr::showTree()
 		std::cout << "RIGHT : ";
 		right->showTree();
 	}
-
 }
 
