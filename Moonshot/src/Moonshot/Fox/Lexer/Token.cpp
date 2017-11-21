@@ -2,6 +2,9 @@
 #include "../../Common/Errors/Errors.h"
 using namespace Moonshot;
 
+token::token()
+{
+}
 token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
 {
 	// substract the token length's fron the column number given by the lexer.
@@ -10,7 +13,7 @@ token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
 	selfId();
 }
 
-std::string Moonshot::token::showFormattedTokenData() const
+std::string token::showFormattedTokenData() const
 {
 	std::stringstream ss;
 	ss << "[" << str << "]\t[" << pos.asText() << "]\t[";
@@ -62,7 +65,7 @@ void token::selfId()
 	}
 }
 
-bool Moonshot::token::idKeyword()
+bool token::idKeyword()
 {
 	auto i = lex::kWords_dict.find(str);
 	if (i == lex::kWords_dict.end())
@@ -72,9 +75,11 @@ bool Moonshot::token::idKeyword()
 	return true;
 }
 
-bool Moonshot::token::idSign()
+bool token::idSign()
 {
 	if (str.size() > 1)
+		return false;
+	if (isdigit(str[0]))
 		return false;
 	auto i = lex::kSign_dict.find(str[0]);
 	if (i == lex::kSign_dict.end())
@@ -84,7 +89,7 @@ bool Moonshot::token::idSign()
 	return true;
 }
 
-bool Moonshot::token::idValue()
+bool token::idValue()
 {
 	if (str[0] == '\'' && str.back() == '\'')
 	{
@@ -119,23 +124,27 @@ bool Moonshot::token::idValue()
 	return false;
 }
 
-Moonshot::text_pos::text_pos(const int & l, const int & col) : line(l), column(col)
+Moonshot::text_pos::text_pos()
+{
+}
+
+text_pos::text_pos(const int & l, const int & col) : line(l), column(col)
 {
 
 }
 
-void Moonshot::text_pos::newLine()
+void text_pos::newLine()
 {
 	line += 1;
 	column = 0;
 }
 
-void Moonshot::text_pos::forward()
+void text_pos::forward()
 {
 	column += 1;
 }
 
-std::string Moonshot::text_pos::asText() const
+std::string text_pos::asText() const
 {
 	std::stringstream ss;
 	ss << "L:" << line << " C:" << column;

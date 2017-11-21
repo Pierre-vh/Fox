@@ -32,19 +32,30 @@ SOFTWARE.
 
 #include "ASTExpr.h"
 
-ASTExpr::ASTExpr()
+using namespace Moonshot;
+
+Moonshot::ASTExpr::ASTExpr(const parse::optype & opt) : op(opt)
 {
 }
-
 
 ASTExpr::~ASTExpr()
 {
+
 }
 
-void ASTExpr::makeChild()
+void Moonshot::ASTExpr::showTree()
 {
+	std::cout << "OPTYPE: " << op << " -> CHILDS : " << (left ? "LEFT" : "") << (right ? "RIGHT" : "") << std::endl;
+	if (left)
+	{
+		std::cout << "LEFT : ";
+		left->showTree();
+	}
+	if (right)
+	{
+		std::cout << "RIGHT : ";
+		right->showTree();
+	}
+
 }
 
-void ASTExpr::execute()
-{
-}

@@ -31,11 +31,16 @@ SOFTWARE.
 *************************************************************/
 
 #pragma once
-
-class ASTNode
+namespace Moonshot
 {
-	public:
-		virtual void makeChild() = 0;
-		virtual void execute() = 0;
-};
+	struct ASTNode
+	{
+		public:
+			ASTNode();
+			virtual ~ASTNode() = 0;
+		private:
+			ASTNode(const ASTNode& other);
+			ASTNode& operator=(const ASTNode&);
+	};
+}
 

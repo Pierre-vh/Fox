@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{D61E8CAA-F635-431A-AEBA-A45AEBEAD240}</ProjectGuid>
     <RootNamespace>Moonshot</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -119,6 +119,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Moonshot\Fox\Parser\AST\ASTExpr.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\Parser\AST\ASTNode.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseExpr.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\Parser.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Lexer\Lexer.cpp" />
@@ -127,6 +128,7 @@
     <ClCompile Include="src\Moonshot\Fox\Lexer\Token.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\code_samples\expr_test_secondops.fox" />
     <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
     <None Include="src\Moonshot\Fox\readme.md" />

@@ -34,13 +34,34 @@ SOFTWARE.
 
 #include "ASTNode.h"
 
-class ASTExpr : public ASTNode
-{
-	public:
-		ASTExpr();
-		~ASTExpr();
+#include <iostream>
+#include <sstream> // std::stringstream
 
-		void makeChild();
-		void execute();
-};
+namespace Moonshot	
+{
+	namespace parse
+	{
+		enum optype
+		{
+			DEFAULT,
+			VALUE,
+			PASS,			// Just "pass" (return the value in L)
+			JOIN_AND,
+			JOIN_OR,
+			PLUS,
+			MINUS
+		};
+	}
+	struct ASTExpr : public ASTNode
+	{
+		public:
+			ASTExpr(const parse::optype &opt);
+			~ASTExpr();
+
+			void showTree();
+
+			ASTExpr * left = 0, *right = 0;
+			parse::optype op = parse::DEFAULT;
+	};
+}
 

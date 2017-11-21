@@ -66,14 +66,14 @@ void Moonshot::Lexer::logAllTokens() const
 		E_LOG(tok.showFormattedTokenData());
 }
 
-token Lexer::getToken(const size_t & vtpos)
+token Lexer::getToken(const size_t & vtpos) const
 {
 	if (vtpos < result_.size())
 		return result_[vtpos];
 	E_CRITICAL("Tried to access a position in result_ that was out of bounds.")
 }
 
-size_t Lexer::resultSize()
+size_t Lexer::resultSize() const
 {
 	return result_.size();
 }
@@ -239,6 +239,8 @@ void Moonshot::Lexer::addToCurtok(const char & c)
 
 bool Lexer::isSep(const char &c) const
 {
+	if (pos_ + 1 == str_.size())
+		return true;
 	if (c == '.' && std::isdigit(peekNext()))	// if we're inside a number, we shouldn't treat a dot as a separator.
 		return false;
 	auto i = lex::kSign_dict.find(c);

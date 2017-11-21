@@ -29,13 +29,55 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
+/*
+	matchXXX functions : Parse a NON-TERMINAL.
+		Theses function DON'T update the cursor BUT the cursor will be updated if the nonterminal is found, because the parseXXX function called will update it.
+	parseXXX functions : Parse a TERMINAL
+		Theses functions UPDATE the cursor.
 
+	HOW TO IMPLEMENT A GRAMMAR RULE:
+		1 - Check for the terminal or nonterminals of the rule
+			Case a : Matched all token 
+				Update the cursor, return a valid pointer
+			Case b : Matched no token
+				Don't update the cursor, return a null pointer
+			Case c : matched one or more token, but encountered an unexpected token
+				Don't update the cursor, return a null pointer, throw an error (with Error::reportError)
+
+*/
 #pragma once
+// Lexer
+#include "../Lexer/Lexer.h"
+// Error reporting
+#include "../../Common/Errors/Errors.h"
+// AST
+#include "AST\ASTNode.h"
+#include "AST\ASTExpr.h"
 
-class Parser
+#include <tuple>	// std::tuple, std::pair
+
+namespace Moonshot
 {
-	public:
-		Parser();
-		~Parser();
-};
+	class Parser
+	{
+		public:
+			Parser(Lexer *l);
+			~Parser();
 
+			ASTNode * matchExpr();
+			ASTNode * matchTerm();
+			ASTNode * matchFactor();
+			ASTNode * matchValue();
+
+		private:
+			// Private Methods;
+			token getToken() const;
+			token getToken(const size_t &d) const;
+			// Methods for EXPR Parser
+			std::pair<bool, parse::optype> parseSecondOp();
+			std::pair<bool, parse::optype> parseCondJoinOp();
+			// Member variables
+			size_t pos_ = 0;
+			Lexer *lex_ = 0;
+	};
+}

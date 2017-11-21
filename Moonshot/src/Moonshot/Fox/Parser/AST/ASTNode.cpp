@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : This class implements the Parser Class and the general parsing rules
+Description : The Main Node abstract class.
 
 *************************************************************
 MIT License
@@ -30,27 +30,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 
-#include "Parser.h"
+#include "ASTNode.h"
 
 using namespace Moonshot;
 
-Parser::Parser(Lexer *l) : lex_(l)
+ASTNode::ASTNode()
 {
+
 }
 
-Parser::~Parser()
+ASTNode::~ASTNode()
 {
-}
 
-token Parser::getToken() const
-{
-	return getToken(pos_);
-}
-
-token Parser::getToken(const size_t & d) const
-{
-	if (d < lex_->resultSize())
-		return lex_->getToken(d);
-	else
-		return token();
 }

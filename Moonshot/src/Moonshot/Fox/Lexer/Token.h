@@ -185,6 +185,7 @@ namespace Moonshot
 	}
 	struct text_pos	// a structure to hold the position of a token in the input;
 	{
+		text_pos();
 		text_pos(const int &l, const int &col);
 		void newLine();
 		void forward();
@@ -196,6 +197,7 @@ namespace Moonshot
 	struct token
 	{
 		public:
+			token();
 			token(std::string data, const text_pos &tpos = text_pos(0,0));
 			lex::tokentype type = lex::TT_ENUM_DEFAULT;
 			lex::keywords kw_type = lex::KW_ENUM_DEFAULT;
