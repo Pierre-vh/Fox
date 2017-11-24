@@ -210,7 +210,10 @@ namespace Moonshot
 
 			std::string showFormattedTokenData() const;
 
+			bool isValid() const;
+
 		private:
+			bool empty_ = false;
 			void selfId();
 			bool idKeyword();
 			bool idSign();

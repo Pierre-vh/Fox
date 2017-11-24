@@ -51,6 +51,7 @@ void Lexer::lexStr(const std::string & data)
 	cstate_ = dfa::S0;
 	while(pos_ < data.size() && E_CHECKSTATE)
 		cycle();
+	pushTok(); // Push the last token formed
 	E_LOG("Lexing finished. Tokens found: " + sizeToString(result_.size()))
 }
 
@@ -178,7 +179,7 @@ void Lexer::dfa_S3()
 void Lexer::dfa_S4()
 {
 	if (isSep(str_[pos_]))
-	{
+	{		
 		pushTok();
 		dfa_goto(dfa::S0);
 	}
@@ -239,8 +240,6 @@ void Moonshot::Lexer::addToCurtok(const char & c)
 
 bool Lexer::isSep(const char &c) const
 {
-	if (pos_ + 1 == str_.size())
-		return true;
 	if (c == '.' && std::isdigit(peekNext()))	// if we're inside a number, we shouldn't treat a dot as a separator.
 		return false;
 	auto i = lex::kSign_dict.find(c);

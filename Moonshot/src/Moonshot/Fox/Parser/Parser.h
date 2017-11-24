@@ -56,6 +56,8 @@ SOFTWARE.
 
 #include <tuple>	// std::tuple, std::pair
 
+#define NULL_UNIPTR(x) std::unique_ptr<x>(nullptr)
+
 namespace Moonshot
 {
 	class Parser
@@ -64,10 +66,33 @@ namespace Moonshot
 			Parser(Lexer *l);
 			~Parser();
 
+			// parseXXX() = "match" the rule XXX (attempts to find it. returns true if it was found, false if not. Sometimes it's a pair, so they can return the matched node too.)
+			// EXPR
+			std::unique_ptr<ASTExpr> parseExpr();
+			std::unique_ptr<ASTExpr> parseTerm();
+			std::unique_ptr<ASTExpr> parseFactor();		// parseFactor and parseValue must return a expr node. why ? because of the rule "(" <expr> ")". Sometimes it will parse a whole expression and return it !
+			std::unique_ptr<ASTExpr> parseValue();
+
 		private:
-			// Private Methods;
+			// OneUpNode is a function that ups the node one level.
+			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,parse::PLUS)
+			// oneUpNode will return a new node X, with the optype PLUS and N as left child.
+			std::unique_ptr<ASTExpr> oneUpNode(std::unique_ptr<ASTExpr> &node, const parse::optype &op);
+			// matchToken -> returns true if the token is matched, and increment pos, if the token isn't matched return false and don't increment
+			// MATCH BY TYPE
+			bool matchValue(const lex::values &v);		// match a TT_VALUE
+			bool matchID();
+			bool matchSign(const lex::signs &s);
+			bool matchKeyword(const lex::keywords &k);
+			// MATCH OPERATORS
+			std::pair<bool, parse::optype> matchSecondOp();
+			std::pair<bool, parse::optype> matchPriorOp();
+
+			// UTILITY METHODS
 			token getToken() const;
 			token getToken(const size_t &d) const;
+			// Make error message 
+			void errorExpected(const std::string &s);
 			// Member variables
 			size_t pos_ = 0;
 			Lexer *lex_ = 0;

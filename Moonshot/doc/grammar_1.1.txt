@@ -7,6 +7,7 @@ const keyword
 ternaries
 one stmt blocks
 
+
 Modifications used in this grammar :
 $x means x is a term already recognized and identified by the lexer. 
 	$id means a lexer-recognized id 
@@ -69,6 +70,9 @@ null : null
 <value> 		= <callable>
 				= <const>
 				= '(' <expr> ')'
+
+				Changer : traiter les opérateurs de jointure comme étant encore plus haut (tout ce qui est à gauche <cond_join_op> (tout cequi est à droite) avec la même regle de expr/term
+							Aussi : changer la priorité des opérateurs de comparaison pour avoir la même priorité que l'opérateur + ou -
 
 <callable>		= <id>
 				= <f_call>

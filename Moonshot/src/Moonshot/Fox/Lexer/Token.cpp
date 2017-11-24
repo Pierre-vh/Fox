@@ -4,6 +4,7 @@ using namespace Moonshot;
 
 token::token()
 {
+	empty_ = true;
 }
 token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
 {
@@ -44,6 +45,10 @@ std::string token::showFormattedTokenData() const
 	if (enum_info >= -1)
 		ss << "[E:" << enum_info << "]";
 	return ss.str();
+}
+bool Moonshot::token::isValid() const
+{
+	return !empty_;
 }
 void token::selfId()
 {

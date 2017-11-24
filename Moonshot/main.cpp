@@ -3,6 +3,8 @@
 #include "src\Moonshot\Fox\Lexer\Token.h"
 #include "src\Moonshot\Fox\Lexer\Lexer.h"
 #include "src\Moonshot\Fox\Parser\Parser.h"
+#include "src\Moonshot\Fox\Parser\AST\ASTNode.h"
+#include "src\Moonshot\Fox\Parser\AST\ASTExpr.h"
 #include <fstream>
 #include <string>
 using namespace Moonshot;
@@ -29,7 +31,9 @@ int main()
 			E_LOG(t.showFormattedTokenData());
 		});
 	}
-
+	Parser p(&l);
+	auto ae = p.parseExpr();
+	ae->showTree();
 	std::cin.get();
 	return 0;
 }

@@ -33,10 +33,11 @@ SOFTWARE.
 #pragma once
 namespace Moonshot
 {
-	struct ASTNode
+	class ASTNode
 	{
 		public:
 			ASTNode();
+		protected:
 			virtual ~ASTNode() = 0;
 		private:
 			ASTNode(const ASTNode& other);

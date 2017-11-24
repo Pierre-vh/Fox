@@ -33,3 +33,93 @@ SOFTWARE.
 #include "Parser.h"
 
 using namespace Moonshot;
+
+std::unique_ptr<ASTExpr> Parser::parseExpr()
+{
+	auto rtr = std::make_unique < ASTExpr>(parse::PASS);	// By default just set the operation to PASS (no op). We'll edit it later if other groups are found !
+	auto left = parseTerm();
+	// If a term wasn't matched, just return false
+	if (!left)
+		return NULL_UNIPTR(ASTExpr);
+	// Set as left child.
+	rtr->makeChild(parse::direction::LEFT, left);
+	// Match (<second_op> <term>) again and again until we can't find it anymore.
+	while (1)
+	{
+		parse::optype op;
+		bool matchResult;
+		std::tie(matchResult, op) = matchSecondOp();
+		if (!matchResult)
+			break;			// Found nothing interesting : break !
+		std::unique_ptr<ASTExpr> right = parseTerm();
+		if (!right)
+		{
+			errorExpected("Expected a term ");
+			break;
+		}
+		if (rtr->getOpType() == parse::PASS)
+		{
+			rtr->setOpType(op);
+			rtr->makeChild(parse::RIGHT, right);
+		}
+		else
+		{
+			rtr = oneUpNode(rtr, op);
+			rtr->makeChild(parse::RIGHT, right);
+		}
+	}
+	auto simple = rtr->getSimple();
+	if (simple)
+		return simple;
+	return rtr;
+}
+
+std::unique_ptr<ASTExpr> Parser::parseTerm()
+{
+	auto rtr = std::make_unique < ASTExpr>(parse::PASS);	// By default just set the operation to PASS (no op). We'll edit it later if other groups are found !
+	auto left = parseFactor();
+	// If a term wasn't matched, just return false
+	if (!left)
+		return NULL_UNIPTR(ASTExpr);
+	// Set as left child.
+	rtr->makeChild(parse::direction::LEFT, left);	// Match (<second_op> <term>) again and again until we can't find it anymore.
+	while (1)
+	{
+		parse::optype op;
+		bool matchResult;
+		std::tie(matchResult, op) = matchPriorOp();
+		if (!matchResult)
+			break;			// Found nothing interesting : break !
+		std::unique_ptr<ASTExpr> right = parseFactor();
+		if (!right)
+		{
+			errorExpected("BExpected a term ");
+			break;
+		}
+		if (rtr->getOpType() == parse::PASS)
+		{
+			rtr->setOpType(op);
+			rtr->makeChild(parse::RIGHT, right);
+		}
+		else
+		{
+			rtr = oneUpNode(rtr, op);
+			rtr->makeChild(parse::RIGHT, right);
+		}
+	}
+	auto simple = rtr->getSimple();
+	if (simple)
+		return simple;
+	return rtr; 
+}
+
+std::unique_ptr<ASTExpr> Parser::parseFactor()
+{
+	pos_ += 1;
+	return std::make_unique<ASTValue>(token("3.3"));
+}
+
+std::unique_ptr<ASTExpr> Parser::parseValue()
+{
+	return NULL_UNIPTR(ASTExpr);
+}
