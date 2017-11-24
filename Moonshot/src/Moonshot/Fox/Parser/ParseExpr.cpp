@@ -34,92 +34,211 @@ SOFTWARE.
 
 using namespace Moonshot;
 
-std::unique_ptr<ASTExpr> Parser::parseExpr()
+std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 {
-	auto rtr = std::make_unique < ASTExpr>(parse::PASS);	// By default just set the operation to PASS (no op). We'll edit it later if other groups are found !
-	auto left = parseTerm();
-	// If a term wasn't matched, just return false
-	if (!left)
+	auto rtr = std::make_unique<ASTExpr>(parse::optype::PASS);
+	std::unique_ptr<ASTExpr> left;
+
+	if (priority > 0)
+		left = parseExpr(priority - 1);	// Go down in the priority chain.
+	else 
+		left = parseTerm();	// We are at the lowest point ? Parse the term then !
+
+	if (!left)					// Check if it was found/parsed correctly. If not, return a null node.
 		return NULL_UNIPTR(ASTExpr);
-	// Set as left child.
-	rtr->makeChild(parse::direction::LEFT, left);
-	// Match (<second_op> <term>) again and again until we can't find it anymore.
-	while (1)
+
+	rtr->makeChild(parse::direction::LEFT, left);	// Make Left the left child of the return node !
+	while (true)
 	{
 		parse::optype op;
 		bool matchResult;
-		std::tie(matchResult, op) = matchSecondOp();
-		if (!matchResult)
-			break;			// Found nothing interesting : break !
-		std::unique_ptr<ASTExpr> right = parseTerm();
+		std::tie(matchResult, op) = matchBinaryOp(priority);
+		if (!matchResult) // No operator found : break.
+			break;
+		std::unique_ptr<ASTExpr> right;
+
+		if (priority > 0)
+			right = parseExpr(priority - 1);
+		else
+			right = parseTerm();
+		// Check for validity : we need a term. if we don't have one, we have an error !
 		if (!right)
 		{
-			errorExpected("Expected a term ");
+			errorExpected("Expected a term.");
 			break;
 		}
-		if (rtr->getOpType() == parse::PASS)
-		{
+		// Add the node to the tree.
+		if (rtr->getOpType() == parse::optype::PASS) // No right node ? Append directly to rtr.
 			rtr->setOpType(op);
-			rtr->makeChild(parse::RIGHT, right);
-		}
-		else
-		{
-			rtr = oneUpNode(rtr, op);
-			rtr->makeChild(parse::RIGHT, right);
-		}
+		else	// Already has one ? create a new node and make rtr its left child.
+			oneUpNode(rtr, op);
+		rtr->makeChild(parse::direction::RIGHT, right);
 	}
+
 	auto simple = rtr->getSimple();
 	if (simple)
 		return simple;
+
 	return rtr;
 }
 
 std::unique_ptr<ASTExpr> Parser::parseTerm()
 {
-	auto rtr = std::make_unique < ASTExpr>(parse::PASS);	// By default just set the operation to PASS (no op). We'll edit it later if other groups are found !
-	auto left = parseFactor();
-	// If a term wasn't matched, just return false
-	if (!left)
-		return NULL_UNIPTR(ASTExpr);
-	// Set as left child.
-	rtr->makeChild(parse::direction::LEFT, left);	// Match (<second_op> <term>) again and again until we can't find it anymore.
-	while (1)
-	{
-		parse::optype op;
-		bool matchResult;
-		std::tie(matchResult, op) = matchPriorOp();
-		if (!matchResult)
-			break;			// Found nothing interesting : break !
-		std::unique_ptr<ASTExpr> right = parseFactor();
-		if (!right)
-		{
-			errorExpected("BExpected a term ");
-			break;
-		}
-		if (rtr->getOpType() == parse::PASS)
-		{
-			rtr->setOpType(op);
-			rtr->makeChild(parse::RIGHT, right);
-		}
-		else
-		{
-			rtr = oneUpNode(rtr, op);
-			rtr->makeChild(parse::RIGHT, right);
-		}
-	}
-	auto simple = rtr->getSimple();
-	if (simple)
-		return simple;
-	return rtr; 
-}
+	// Search for a unary operator
+	bool uopResult;
+	parse::optype uopOp;
+	std::tie(uopResult, uopOp) = matchUnaryOp();
+	
+	// Search for a value
+	auto val = parseValue();
+	if (!val)
+		return NULL_UNIPTR(ASTExpr); // No value here? Return a null node.
 
-std::unique_ptr<ASTExpr> Parser::parseFactor()
-{
-	pos_ += 1;
-	return std::make_unique<ASTValue>(token("3.3"));
+	if (uopResult)
+		val->setOpType(uopOp);
+	// TO DO :
+	// <as_kw> <type> (create a matchCastExpr())
+
+	return val;
 }
 
 std::unique_ptr<ASTExpr> Parser::parseValue()
 {
+	auto cur = getToken();
+	
+	if (!cur.isValid())
+		return NULL_UNIPTR(ASTExpr);
+	// = <const>
+	if (cur.type == lex::tokentype::TT_VALUE) // if we have a value, return it packed in a ASTValue
+	{
+		pos_ += 1;
+		return std::make_unique<ASTValue>(cur);
+	}
+	// = '(' <expr> ')'
+	if (cur.sign_type == lex::signs::B_ROUND_OPEN)
+	{
+		pos_ += 1;
+		auto expr = parseExpr();
+		cur = getToken();		// update current token
+
+		if (cur.sign_type != lex::signs::B_ROUND_CLOSE)
+		{
+			errorExpected("Expected a closing bracket after expression !");
+			return NULL_UNIPTR(ASTExpr);
+		}
+		return expr;
+	}
+	// TO DO :
+	// <callable>
 	return NULL_UNIPTR(ASTExpr);
+}
+
+std::pair<bool, parse::optype> Moonshot::Parser::matchUnaryOp()
+{
+	// Avoid long & verbose lines.
+	using namespace lex;
+	using namespace parse;
+
+	auto cur = getToken();
+	if (!cur.isValid() || (cur.type != lex::tokentype::TT_SIGN))
+		return { false, parse::optype::PASS };
+
+	if (cur.sign_type == lex::signs::P_EXCL_MARK)
+	{
+		pos_ += 1;
+		return { true, parse::optype::INVERT };
+	}
+	if (cur.sign_type == lex::signs::S_MINUS)
+	{
+		pos_ += 1;
+		return { true, parse::optype::NEGATE};
+	}
+
+	return { false, parse::optype::PASS };
+}
+
+std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
+{
+	// Avoid long & verbose lines.
+	using namespace lex;
+	using namespace parse;
+
+	auto cur = getToken();
+	auto pk = getToken(pos_ + 1);
+	// Check current token validity
+	if (!cur.isValid() || (cur.type != tokentype::TT_SIGN))
+		return { false, optype::DEFAULT };
+	pos_ += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
+
+	switch (priority)
+	{
+		case 0: // * / %
+			if (cur.sign_type == signs::S_ASTERISK)
+				return { true, optype::MUL };
+			if (cur.sign_type == signs::S_SLASH)
+				return { true, optype::DIV };
+			if (cur.sign_type == signs::S_PERCENT)
+				return { true, MOD };
+			break;
+		case 1: // + -
+			if (cur.sign_type == signs::S_PLUS)
+				return { true, optype::ADD };
+			if (cur.sign_type == signs::S_MINUS)
+				return { true, optype::MINUS };
+			break;
+		case 2: // > >= < <=
+			if (cur.sign_type == signs::S_LESS_THAN)
+			{
+				if (pk.isValid() && (pk.sign_type == signs::S_EQUAL))
+				{
+					pos_ += 1;
+					return { true, optype::LESS_OR_EQUAL };
+				}
+				return { true, optype::LESS_THAN };
+			}
+			if (cur.sign_type == signs::S_GREATER_THAN)
+			{
+				if (pk.isValid() && (pk.sign_type == signs::S_EQUAL))
+				{
+					pos_ += 1;
+					return { true, optype::GREATER_OR_EQUAL };
+				}
+				return { true, optype::GREATER_THAN };
+			}
+			break;
+		case 3:	// == !=
+			if (pk.isValid() && (pk.sign_type == signs::S_EQUAL))
+			{
+				if (cur.sign_type == signs::S_EQUAL)
+				{
+					pos_ += 1;
+					return { true,optype::EQUAL };
+				}
+				if (cur.sign_type == signs::P_EXCL_MARK)
+				{
+					pos_ += 1;
+					return { true,optype::NOTEQUAL };
+				}
+			}
+			break;
+		case 4:
+			if (pk.isValid() && (pk.sign_type == signs::S_AND) && (cur.sign_type == signs::S_AND))
+			{
+				pos_ += 1;
+				return { true,optype::AND };
+			}
+			break;
+		case 5:
+			if (pk.isValid() && (pk.sign_type == signs::S_VBAR) && (cur.sign_type == signs::S_VBAR))
+			{
+				pos_ += 1;
+				return { true,optype::OR };
+			}
+			break;
+		default:
+			E_CRITICAL("Requested to match a Binary Operator with a non-existent priority.");
+			break;
+	}
+	pos_ -= 1;	// We did not find anything, decrement & return.
+	return { false, optype::DEFAULT };
 }

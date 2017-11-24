@@ -1,12 +1,9 @@
-Fox : EBNF Grammar.
-This grammar is not 100% EBNF Grammar. It does not really need to be strict EBNF because it is 
-designed to be implemented by hand using recursive descent.
+Fox Grammar version 1.1
 // To be added later 
 arrays
 const keyword
 ternaries
 one stmt blocks
-
 
 Modifications used in this grammar :
 $x means x is a term already recognized and identified by the lexer. 
@@ -49,7 +46,7 @@ null : null
 <imp_kw>		= "import"			// Imports the package, nothing more
 <use_kw>		= "using"			// Import the package (if it isn't imported yet.), and auto-uses the namespace. You can just type "print" instead of "Fox.io.print" with this stmt.
 <el_kw>			= "else"
-<const_kw>		= "const"			// What can be const ? Variables declaration and args declaration 
+<const_kw>		= "const"			// What can be const ? Variables declaratio// n and args declaration 
 <rtr_kw>		= "return"
 
 <namespace> 	= {<id> '.'} 			// This designates namespaces, examples : "Fox." "Fox.io."
@@ -63,22 +60,27 @@ null : null
 				= <stmt>					// A block can also be just one statement.
 <stmt>			= <var_decl> | <var_assign> | <f_call_stmt> | <ctrl_flow>
 
-// Source for this grammar :http://blog.roboblob.com/2014/12/16/recursive-descent-parser-for-arithmetic-expressions-with-real-numbers/
-<expr> 			= <term>	{ <second_op> <term>	}		
-<term>			= <factor> 	{ (<prior_op> <factor> 	}
-<factor>		= ['!' | '+' | '-'] <value> [<as_kw> <type>] // Here i must use another nonterminal to support conversion to other types and +- before expr, and the '!' operator for inversions.
+<expr> 			= <term> { <binary_operator> <term>	}		
+<term>			= [<unary_operator>] <value> [<as_kw> <type>] 
 <value> 		= <callable>
 				= <const>
 				= '(' <expr> ')'
 
-				Changer : traiter les opérateurs de jointure comme étant encore plus haut (tout ce qui est à gauche <cond_join_op> (tout cequi est à droite) avec la même regle de expr/term
-							Aussi : changer la priorité des opérateurs de comparaison pour avoir la même priorité que l'opérateur + ou -
-
 <callable>		= <id>
 				= <f_call>
 
-<second_op>		= '+' | '-' | <cond_join_op>
-<prior_op>		= '*' | '/' | <cond_op>
+<binary_operator> = '+' | '-' | '*' | '/' | '%' | ('&' '&') | ('|' '|') | ('<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 
+<unary_operator>	=  '!' | '-'  // inversion, negative
+
+/*
+	// Operator priority, in decreasing order :
+		0. * / % 
+		1. + -
+		2. < > <= >= 
+		3. == !=
+		4. &&
+		5. ||
+*/
 
 ##Importing Packages##
 <import_stmt>   = ( <imp_kw> | <use_kw> ) <ext_id> <eio>
@@ -107,6 +109,3 @@ null : null
 <elif_branch> 	= <el_kw> <if_kw>		'(' <expr> ')' <block>
 <else_branch>	= <el_kw>						       <block>
 <while_cf> 		= <wh_kw> 				'(' <expr> ')' <block> 
-
-<cond_join_op>		= ('&' '&') | ('|' '|')
-<cond_op>			= '<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 

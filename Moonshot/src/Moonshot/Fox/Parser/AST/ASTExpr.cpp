@@ -36,10 +36,12 @@ using namespace Moonshot;
 
 ASTExpr::ASTExpr()
 {
+
 }
 
 ASTExpr::ASTExpr(const parse::optype & opt) : op_(opt)
 {
+
 }
 ASTExpr::~ASTExpr()
 {
@@ -50,18 +52,18 @@ void ASTExpr::showTree()
 	std::cout << "OPERATON : " << op_ << std::endl;
 	if (left_)
 	{
-		std::cout << "LEFT : ";
+		std::cout << "->LEFT : ";
 		left_->showTree();
 	}
 	else
-		std::cout << "NO LEFT" << std::endl;
+		std::cout << "NO LEFT NODE" << std::endl;
 	if (right_)
 	{
-		std::cout << "RIGHT : ";
+		std::cout << "->RIGHT : ";
 		right_->showTree();
 	}
 	else
-		std::cout << "NO RIGHT" << std::endl;
+		std::cout << "NO RIGHT NODE" << std::endl;
 }
 
 void ASTExpr::makeChild(const parse::direction & d, std::unique_ptr<ASTExpr> &node)
@@ -99,8 +101,19 @@ parse::optype Moonshot::ASTExpr::getOpType() const
 	return op_;
 }
 
+void ASTExpr::setMustCast(const parse::types &casttype)
+{
+	totype_ = casttype;
+}
+
+parse::types ASTExpr::getToType() const
+{
+	return totype_;
+}
+
 ASTValue::ASTValue()
 {
+
 }
 
 ASTValue::ASTValue(const token & t)
@@ -128,11 +141,13 @@ ASTValue::ASTValue(const token & t)
 
 ASTValue::~ASTValue()
 {
+
 }
 
 void ASTValue::showTree()
 {
 	std::cout << "VALUE [" << str << "]" << std::endl;
 }
+
 
 

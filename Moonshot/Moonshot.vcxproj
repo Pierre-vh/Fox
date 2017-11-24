@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{D61E8CAA-F635-431A-AEBA-A45AEBEAD240}</ProjectGuid>
     <RootNamespace>Moonshot</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -126,6 +126,7 @@
     <ClCompile Include="src\Moonshot\Common\Errors\Errors.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Lexer\Token.cpp" />
+    <ClCompile Include="src\Moonshot\Common\Utils\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\code_samples\expr_test_secondops.fox" />
@@ -141,6 +142,7 @@
     <ClInclude Include="src\Moonshot\Fox\Lexer\Lexer.h" />
     <ClInclude Include="src\Moonshot\Common\Errors\Errors.h" />
     <ClInclude Include="src\Moonshot\Fox\Lexer\Token.h" />
+    <ClInclude Include="src\Moonshot\Common\Utils\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="doc\file_header.txt" />

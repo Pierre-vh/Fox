@@ -68,9 +68,8 @@ namespace Moonshot
 
 			// parseXXX() = "match" the rule XXX (attempts to find it. returns true if it was found, false if not. Sometimes it's a pair, so they can return the matched node too.)
 			// EXPR
-			std::unique_ptr<ASTExpr> parseExpr();
+			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 5); // Go from lowest priority to highest !
 			std::unique_ptr<ASTExpr> parseTerm();
-			std::unique_ptr<ASTExpr> parseFactor();		// parseFactor and parseValue must return a expr node. why ? because of the rule "(" <expr> ")". Sometimes it will parse a whole expression and return it !
 			std::unique_ptr<ASTExpr> parseValue();
 
 		private:
@@ -85,8 +84,8 @@ namespace Moonshot
 			bool matchSign(const lex::signs &s);
 			bool matchKeyword(const lex::keywords &k);
 			// MATCH OPERATORS
-			std::pair<bool, parse::optype> matchSecondOp();
-			std::pair<bool, parse::optype> matchPriorOp();
+			std::pair<bool, parse::optype> matchUnaryOp();
+			std::pair<bool, parse::optype> matchBinaryOp(const char &priority);
 
 			// UTILITY METHODS
 			token getToken() const;

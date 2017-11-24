@@ -51,7 +51,9 @@ void Lexer::lexStr(const std::string & data)
 	cstate_ = dfa::S0;
 	while(pos_ < data.size() && E_CHECKSTATE)
 		cycle();
-	pushTok(); // Push the last token formed
+	// Maybe theses 2 lines are useless. tests need to be done !
+	if(curtok_ != "")
+		pushTok(); // Push the last token formed, if it's not empty.
 	E_LOG("Lexing finished. Tokens found: " + sizeToString(result_.size()))
 }
 
@@ -81,6 +83,7 @@ size_t Lexer::resultSize() const
 
 void Lexer::pushTok()
 {
+	//std::cout << "Pushing token <" << curtok_ << ">"  << std::endl;
 	token t(curtok_,ccoord_);
 	result_.push_back(t);
 	curtok_ = "";
