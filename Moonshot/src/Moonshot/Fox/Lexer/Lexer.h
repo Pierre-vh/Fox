@@ -4,8 +4,8 @@ Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
 Description : Main class of the lexing process (lexical analysis)
-This class "cuts" the text into tokens to be processed by the parser ! It's a fairly simple recursive descent algorithm.
-It uses a Deterministic finite automaton.
+This class "cuts" the text into tokens to be processed by the parser ! 
+It uses a DFA with 6 states
 *************************************************************
 MIT License
 
