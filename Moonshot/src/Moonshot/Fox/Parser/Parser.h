@@ -30,9 +30,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 /*
-	matchXXX functions : Parse a NON-TERMINAL.
+	parseXXX functions : Parse a NON-TERMINAL.
 		Theses function DON'T update the cursor BUT the cursor will be updated if the nonterminal is found, because the parseXXX function called will update it.
-	parseXXX functions : Parse a TERMINAL
+	matchXXX functions : Parse a TERMINAL
 		Theses functions UPDATE the cursor.
 
 	HOW TO IMPLEMENT A GRAMMAR RULE:
@@ -66,7 +66,6 @@ namespace Moonshot
 			Parser(Lexer *l);
 			~Parser();
 
-			// parseXXX() = "match" the rule XXX (attempts to find it. returns true if it was found, false if not. Sometimes it's a pair, so they can return the matched node too.)
 			// EXPR
 			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 5); // Go from lowest priority to highest !
 			std::unique_ptr<ASTExpr> parseTerm();
