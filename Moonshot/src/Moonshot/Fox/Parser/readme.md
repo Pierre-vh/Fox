@@ -13,11 +13,10 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
  value    : Missing  callable    support
 
 ### TO BE IMPLEMENTED 
-Base rule:
+**Base rule**
  fox_program   
 
-General rules
-
+**General rules**
  namespace   
  ext_id   
  general_id   
@@ -28,17 +27,15 @@ General rules
  stmt   
  callable   
         
-Import:
-
+**Import**
  import_stmt   
 
-Variables
+**Variables**  
 
  var_decl   
  var_assign   
 
-Functions:
-
+**Functions**  
  func_decl   
  arg_list_decl   
  arg_decl   
@@ -47,8 +44,7 @@ Functions:
  expr_list   
  rtr_stmt   
 
-Control flow:
-
+**Control flow**  
  ctrl_flow   
  cond_cf   
  if_branch   
