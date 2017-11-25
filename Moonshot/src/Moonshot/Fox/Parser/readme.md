@@ -3,19 +3,16 @@
 Note : rules <xxx_kw>/<id>/<type> are already implemented through the "matchXXX" methods.
 
 ### IMPLEMENTED
-
 <expr>
 <binary_operator>
 <unary_operator>
 
 
 ### PARTIALLY IMPLEMENTED
-
 <term> : Missing "as <type>" (type conversion support. Note : already supported in ASTExpr. I just need to add it to the parser)
 <value> : Missing <callable> support
 
 ### TO BE IMPLEMENTED 
-
 Base rule:
 <fox_program>
 
