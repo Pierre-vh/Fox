@@ -12,11 +12,11 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
  term    : Missing "as  type   " (type conversion support. Note : already supported in ASTExpr. I just need to add it to the parser)
  value    : Missing  callable    support
 
-### TO BE IMPLEMENTED 
-**Base rule**   < /br>
+### TO BE IMPLEMENTED  
+**Base rule**  
  fox_program   
 
-**General rules**   < /br>
+**General rules**  
  namespace   
  ext_id   
  general_id   
@@ -27,14 +27,14 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
  stmt   
  callable   
         
-**Import**   < /br>
+**Import**  
  import_stmt   
 
-**Variables**   < /br>
+**Variables**  
  var_decl   
  var_assign   
 
-**Functions**   < /br>
+**Functions**  
  func_decl   
  arg_list_decl   
  arg_decl   
@@ -43,7 +43,7 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
  expr_list   
  rtr_stmt   
 
-**Control flow**   < /br>
+**Control flow**  
  ctrl_flow   
  cond_cf   
  if_branch   
