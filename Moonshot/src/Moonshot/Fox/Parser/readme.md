@@ -17,6 +17,7 @@ Base rule:
  fox_program   
 
 General rules
+
  namespace   
  ext_id   
  general_id   
@@ -28,13 +29,16 @@ General rules
  callable   
         
 Import:
+
  import_stmt   
 
 Variables
+
  var_decl   
  var_assign   
 
 Functions:
+
  func_decl   
  arg_list_decl   
  arg_decl   
@@ -44,6 +48,7 @@ Functions:
  rtr_stmt   
 
 Control flow:
+
  ctrl_flow   
  cond_cf   
  if_branch   
