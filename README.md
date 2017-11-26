@@ -9,6 +9,6 @@ Fox
 - Parser & AST : Work has begun, Maybe around 5-10% done.
 - Semantic Analyser : Work on it has not started yet.
 - AST Evaluator : Work on it has not started yet.
--- Symbols table manager
--- (etc)
+- - Symbols table manager
+- - (etc)
 
