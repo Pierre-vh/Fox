@@ -120,8 +120,16 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 		pos_ += 1;
 		auto expr = parseExpr();
 		cur = getToken();		// update current token
-
-		if (cur.sign_type != lex::signs::B_ROUND_CLOSE)
+		// check validity of the parsed expression
+		if(!expr)
+		{
+			errorExpected("Expected an expression after opening a bracket.");
+			return NULL_UNIPTR(ASTExpr);
+		}
+		// retrieve the closing bracket
+		if (cur.sign_type == lex::signs::B_ROUND_CLOSE)
+			pos += 1;
+		else
 		{
 			errorExpected("Expected a closing bracket after expression !");
 			return NULL_UNIPTR(ASTExpr);
