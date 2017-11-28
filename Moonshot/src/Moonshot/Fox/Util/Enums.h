@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : The Main Node abstract class.
+Description : Various enums in the namespaces lex/parse
 
 *************************************************************
 MIT License
@@ -31,18 +31,54 @@ SOFTWARE.
 *************************************************************/
 
 #pragma once
-
 namespace Moonshot
 {
-	class ASTNode
+	namespace parse
 	{
-		public :
-			ASTNode();
-		protected:
-			virtual ~ASTNode() = 0;
-		private:
-			ASTNode(const ASTNode& other);
-			ASTNode& operator=(const ASTNode&);
-	};
-}
+		enum types
+		{
+			NOCAST,
+			TYPE_VOID,
+			TYPE_INT,
+			TYPE_BOOL,
+			TYPE_FLOAT,
+			TYPE_STR,
+			TYPE_CHAR
+		};
 
+		enum optype
+		{
+			DEFAULT,
+			PASS,			// Just "pass" (return the value in L)
+
+			// Comparison "joining" operators (&& ||)
+			AND,
+			OR,
+
+			// Maths.
+			ADD,
+			MINUS,
+			MUL,
+			DIV,
+			MOD,
+			EXP,
+
+			// Comparison
+			LESS_OR_EQUAL,
+			GREATER_OR_EQUAL,
+			LESS_THAN,
+			GREATER_THAN,
+			EQUAL,
+			NOTEQUAL,
+
+			// Unary optypes
+			INVERT,		// ! 
+			NEGATE		// -
+		};
+
+		enum direction
+		{
+			LEFT, RIGHT
+		};
+	}
+}

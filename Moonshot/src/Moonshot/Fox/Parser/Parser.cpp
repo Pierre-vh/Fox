@@ -109,6 +109,6 @@ token Parser::getToken(const size_t & d) const
 void Moonshot::Parser::errorExpected(const std::string & s)
 {
 	std::stringstream ss;
-	ss << s << " after token (in position" << getToken().showFormattedTokenData() << ".)" << std::endl;
+	ss << s << " after token " << getToken().showFormattedTokenData() << std::endl;
 	E_ERROR(ss.str());
 }

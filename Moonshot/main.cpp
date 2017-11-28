@@ -5,10 +5,10 @@
 #include "src\Moonshot\Fox\Parser\Parser.h"
 #include "src\Moonshot\Fox\Parser\AST\ASTNode.h"
 #include "src\Moonshot\Fox\Parser\AST\ASTExpr.h"
+#include <variant>
 #include <fstream>
 #include <string>
 using namespace Moonshot;
-
 
 int main()
 {
@@ -33,7 +33,12 @@ int main()
 	}
 	Parser p(&l);
 	auto ae = p.parseExpr();
-	ae->showTree();
+	if (E_CHECKSTATE)
+	{
+		ae->showTree();
+	}
+	else
+		E_ERROR("Parsing failed.");
 	std::cin.get();
 	return 0;
 }

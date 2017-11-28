@@ -53,7 +53,8 @@ SOFTWARE.
 // AST
 #include "AST\ASTNode.h"
 #include "AST\ASTExpr.h"
-
+// Enum
+#include "../Util/Enums.h"
 #include <tuple>	// std::tuple, std::pair
 
 #define NULL_UNIPTR(x) std::unique_ptr<x>(nullptr)
@@ -66,7 +67,7 @@ namespace Moonshot
 			Parser(Lexer *l);
 			~Parser();
 
-			// parseXXX() = "match" the rule XXX (attempts to find it. returns true if it was found, false if not. Sometimes it's a pair, so they can return the matched node too.)
+			// parseXXX() = "match" the rule XXX (attempts to find it, if it found it, the method will return a valid pointer (if(ptr) will return true). if not, it will return a std::unique_ptr<(TYPE OF NODE)>(nullptr)
 			// EXPR
 			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 5); // Go from lowest priority to highest !
 			std::unique_ptr<ASTExpr> parseTerm();
@@ -76,9 +77,9 @@ namespace Moonshot
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,parse::PLUS)
 			// oneUpNode will return a new node X, with the optype PLUS and N as left child.
-			std::unique_ptr<ASTExpr> oneUpNode(std::unique_ptr<ASTExpr> &node, const parse::optype &op);
+			std::unique_ptr<ASTExpr> oneUpNode(std::unique_ptr<ASTExpr> &node, const parse::optype &op = parse::optype::PASS);
 			// matchToken -> returns true if the token is matched, and increment pos, if the token isn't matched return false and don't increment
-			// MATCH BY TYPE
+			// MATCH BY TYPE OF TOKEN
 			bool matchValue(const lex::values &v);		// match a TT_VALUE
 			bool matchID();
 			bool matchSign(const lex::signs &s);

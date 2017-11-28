@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : The Main Node abstract class.
+Description : typedef for FValue (in the future, helper functions will be added here.)
 
 *************************************************************
 MIT License
@@ -32,17 +32,7 @@ SOFTWARE.
 
 #pragma once
 
-namespace Moonshot
-{
-	class ASTNode
-	{
-		public :
-			ASTNode();
-		protected:
-			virtual ~ASTNode() = 0;
-		private:
-			ASTNode(const ASTNode& other);
-			ASTNode& operator=(const ASTNode&);
-	};
-}
+#include <variant> // std::variant
 
+// Alias for a variant holding every type possible in the interpreter.
+typedef std::variant<int, float, char, std::string, bool> FVal;

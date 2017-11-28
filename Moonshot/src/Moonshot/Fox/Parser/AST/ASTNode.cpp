@@ -36,7 +36,6 @@ using namespace Moonshot;
 
 ASTNode::ASTNode()
 {
-
 }
 
 ASTNode::~ASTNode()

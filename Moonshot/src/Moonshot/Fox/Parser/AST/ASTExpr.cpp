@@ -43,12 +43,15 @@ ASTExpr::ASTExpr(const parse::optype & opt) : op_(opt)
 {
 
 }
+
 ASTExpr::~ASTExpr()
 {
 
 }
+
 void ASTExpr::showTree()
 {
+
 	std::cout << "OPERATON : " << op_ << std::endl;
 	if (left_)
 	{
@@ -57,6 +60,7 @@ void ASTExpr::showTree()
 	}
 	else
 		std::cout << "NO LEFT NODE" << std::endl;
+
 	if (right_)
 	{
 		std::cout << "->RIGHT : ";
@@ -139,15 +143,15 @@ ASTValue::ASTValue(const token & t)
 	}
 }
 
-ASTValue::~ASTValue()
-{
-
-}
-
 void ASTValue::showTree()
 {
 	std::cout << "VALUE [" << str << "]" << std::endl;
 }
 
+
+ASTValue::~ASTValue()
+{
+
+}
 
 

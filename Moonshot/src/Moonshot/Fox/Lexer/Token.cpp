@@ -17,7 +17,7 @@ token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
 std::string token::showFormattedTokenData() const
 {
 	std::stringstream ss;
-	ss << "[" << str << "]\t[" << pos.asText() << "]\t[";
+	ss << "[str:\"" << str << "\"][pos:" << pos.asText() << "][type:";
 	int enum_info = -1;		// The information of the corresponding enumeration
 	switch (type)
 	{
@@ -41,9 +41,9 @@ std::string token::showFormattedTokenData() const
 			enum_info = val_type;
 			break;
 	}
-	ss << "]";
 	if (enum_info >= -1)
-		ss << "[E:" << enum_info << "]";
+		ss << " -> E:" << enum_info;
+	ss << "]";
 	return ss.str();
 }
 bool Moonshot::token::isValid() const

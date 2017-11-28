@@ -48,6 +48,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 		return NULL_UNIPTR(ASTExpr);
 
 	rtr->makeChild(parse::direction::LEFT, left);	// Make Left the left child of the return node !
+	
 	while (true)
 	{
 		parse::optype op;
@@ -64,7 +65,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 		// Check for validity : we need a term. if we don't have one, we have an error !
 		if (!right)
 		{
-			errorExpected("Expected a term.");
+			errorExpected("Expected a term");
 			break;
 		}
 		// Add the node to the tree.
@@ -96,6 +97,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 
 	if (uopResult)
 		val->setOpType(uopOp);
+
 	// TO DO :
 	// <as_kw> <type> (create a matchCastExpr())
 
@@ -123,7 +125,7 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 
 		if (cur.sign_type != lex::signs::B_ROUND_CLOSE)
 		{
-			errorExpected("Expected a closing bracket after expression !");
+			errorExpected("Expected a closing bracket after expression");
 			return NULL_UNIPTR(ASTExpr);
 		}
 		return expr;
@@ -178,7 +180,9 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 			if (cur.sign_type == signs::S_SLASH)
 				return { true, optype::DIV };
 			if (cur.sign_type == signs::S_PERCENT)
-				return { true, MOD };
+				return { true, optype::MOD };
+			if (cur.sign_type == signs::S_EXP)
+				return { true, optype::EXP };
 			break;
 		case 1: // + -
 			if (cur.sign_type == signs::S_PLUS)
@@ -236,7 +240,7 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 			}
 			break;
 		default:
-			E_CRITICAL("Requested to match a Binary Operator with a non-existent priority.");
+			E_CRITICAL("Requested to match a Binary Operator with a non-existent priority");
 			break;
 	}
 	pos_ -= 1;	// We did not find anything, decrement & return.
