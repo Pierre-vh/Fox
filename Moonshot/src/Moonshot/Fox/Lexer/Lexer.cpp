@@ -51,7 +51,6 @@ void Lexer::lexStr(const std::string & data)
 	cstate_ = dfa::S0;
 	while(pos_ < data.size() && E_CHECKSTATE)
 		cycle();
-	// Maybe theses 2 lines are useless. tests need to be done !
 	if(curtok_ != "")
 		pushTok(); // Push the last token formed, if it's not empty.
 	E_LOG("Lexing finished. Tokens found: " + sizeToString(result_.size()))
@@ -66,7 +65,7 @@ void Moonshot::Lexer::iterateResults(std::function<void(const token&)> func)
 void Moonshot::Lexer::logAllTokens() const
 {
 	for (const token &tok : result_)
-		E_LOG(tok.showFormattedTokenData());
+		E_LOG(tok.showFormattedTokenData())
 }
 
 token Lexer::getToken(const size_t & vtpos) const
@@ -74,6 +73,7 @@ token Lexer::getToken(const size_t & vtpos) const
 	if (vtpos < result_.size())
 		return result_[vtpos];
 	E_CRITICAL("Tried to access a position in result_ that was out of bounds.")
+	return token();
 }
 
 size_t Lexer::resultSize() const
@@ -112,7 +112,7 @@ void Lexer::dfa_S0()
 
 	if (curtok_.size() != 0)	// simple error checking : the token should always be empty when we're in S0.
 	{
-		E_CRITICAL("ERROR. CURRENT TOKEN IS NOT EMPTY IN S0.");
+		E_CRITICAL("ERROR. CURRENT TOKEN IS NOT EMPTY IN S0.")
 		return;
 	}
 	// IGNORE SPACES

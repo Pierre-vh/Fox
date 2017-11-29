@@ -128,7 +128,7 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 		}
 		// retrieve the closing bracket
 		if (cur.sign_type == lex::signs::B_ROUND_CLOSE)
-			pos += 1;
+			pos_ += 1;
 		else
 		{
 			errorExpected("Expected a closing bracket after expression !");

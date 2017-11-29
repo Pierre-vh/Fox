@@ -15,8 +15,8 @@ int main()
 	E_LOG("Starting..");
 	Errors *x = Errors::getInstance();
 
-	std::ifstream ifs("C:\\Users\\pierr\\Source\\Repos\\Moonshot---WIP\\Moonshot\\res\\code_samples\\expr_test_secondops.fox");
-	//std::ifstream ifs("C:\\Users\\pierre.vanhoutryve\\source\\repos\\Moonshot\\Moonshot\\res\\code_samples\\expr_test_secondops.fox");
+	//std::ifstream ifs("C:\\Users\\pierr\\Source\\Repos\\Moonshot---WIP\\Moonshot\\res\\code_samples\\expr_test_secondops.fox");
+	std::ifstream ifs("C:\\Users\\pierre.vanhoutryve\\source\\repos\\Moonshot\\Moonshot\\res\\code_samples\\expr_test_secondops.fox");
 	if (!ifs)
 		E_CRITICAL("Failed to open file ")
 	std::string content((std::istreambuf_iterator<char>(ifs)),
@@ -28,7 +28,7 @@ int main()
 	if (E_CHECKSTATE)
 	{
 		l.iterateResults([](const token &t){
-			E_LOG(t.showFormattedTokenData());
+			E_LOG(t.showFormattedTokenData())
 		});
 	}
 	Parser p(&l);
