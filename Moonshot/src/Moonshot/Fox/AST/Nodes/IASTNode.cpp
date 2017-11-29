@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : typedef for FValue (in the future, helper functions will be added here.)
+Description : The Main Node abstract class.
 
 *************************************************************
 MIT License
@@ -30,14 +30,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 
-#pragma once
+#include "IASTNode.h"
 
-#include <variant> // std::variant
+using namespace Moonshot;
 
-// Alias for a variant holding every type possible in the interpreter.
-typedef std::variant<int, float, char, std::string, bool> FVal;
-
-namespace Moonshot
+IASTNode::IASTNode()
 {
-	// todo : FVal mathematics (operations) & helper func
+}
+
+IASTNode::~IASTNode()
+{
+
 }

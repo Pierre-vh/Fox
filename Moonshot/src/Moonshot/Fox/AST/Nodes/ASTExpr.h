@@ -32,10 +32,12 @@ SOFTWARE.
 
 #pragma once
 
-#include "ASTNode.h"							// Abstract class that every node must inherit from.
+#include "IASTNode.h"							// Abstract class that every node must inherit from.
 #include "../../Lexer/Token.h"					// Lexer's token
-#include "../../../Common/Errors/Errors.h"		// error reporting
 #include "../../Util/Enums.h"					// enums
+
+#include "../../AST/Visitor/IVisitor.h"
+#include "../../../Common/Errors/Errors.h"		// error reporting
 #include "../../../Common/FValue/FValue.h"		// FValue alias
 
 #include <iostream> // std::cout for debug purposes
@@ -43,9 +45,11 @@ SOFTWARE.
 #include <sstream> // std::stringstream
 #include <variant>	// std::variant
 
+#define VISIT_THIS vis->visit(this);
+
 namespace Moonshot	
 {
-	class ASTExpr : public ASTNode
+	struct ASTExpr : public IASTNode
 	{
 		public:
 			ASTExpr();
@@ -63,19 +67,26 @@ namespace Moonshot
 
 			virtual void setOpType(const parse::optype &nop);
 			parse::optype getOpType() const;
-		private:
+
+			// Accept
+			virtual FVal accept(IVisitor *vis) override;
+
+			// NODE DATA
 			parse::types totype_ = parse::types::NOCAST; // By default, don't cast. If this is different than "NONE", then we must cast the result to the desired type.
 			parse::optype op_ = parse::DEFAULT;
 			std::unique_ptr<ASTExpr> left_ = 0, right_ = 0;
+
+
 	};
-	class ASTValue : public ASTExpr
+	struct ASTValue : public ASTExpr
 	{
 		public:
 			ASTValue();
 			ASTValue(const token &t);
 			~ASTValue();
 			void showTree();
-			std::string str;
+
+			FVal accept(IVisitor *vis) override;
 
 			// Delete useless methods (to provoke errors if we attempt to call them on this node type.)
 			void setMustCast(const parse::types &casttype)								= delete;
@@ -84,7 +95,8 @@ namespace Moonshot
 			bool hasNode(const parse::direction &d) const								= delete;
 			std::unique_ptr<ASTExpr> getNode(const parse::direction &d)					= delete;
 			std::unique_ptr<ASTExpr> getSimple()										= delete;
-	protected:
+			// NODE DATA
+			std::string str;
 			FVal val_;
 	};
 }

@@ -105,6 +105,13 @@ parse::optype Moonshot::ASTExpr::getOpType() const
 	return op_;
 }
 
+FVal ASTExpr::accept(IVisitor *vis)
+{
+	VISIT_THIS
+	return FVal();
+}
+
+
 void ASTExpr::setMustCast(const parse::types &casttype)
 {
 	totype_ = casttype;
@@ -148,6 +155,12 @@ void ASTValue::showTree()
 	std::cout << "VALUE [" << str << "]" << std::endl;
 }
 
+
+FVal ASTValue::accept(IVisitor * vis)
+{
+	VISIT_THIS
+	return FVal();
+}
 
 ASTValue::~ASTValue()
 {

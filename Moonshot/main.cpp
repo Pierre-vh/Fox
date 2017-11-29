@@ -1,10 +1,11 @@
 #include <iostream>
+#include "src\Moonshot\Common\FValue\FValue.h"
 #include "src\Moonshot\Common\Errors\Errors.h"
 #include "src\Moonshot\Fox\Lexer\Token.h"
 #include "src\Moonshot\Fox\Lexer\Lexer.h"
 #include "src\Moonshot\Fox\Parser\Parser.h"
-#include "src\Moonshot\Fox\Parser\AST\ASTNode.h"
-#include "src\Moonshot\Fox\Parser\AST\ASTExpr.h"
+#include "src\Moonshot\Fox\AST\Nodes\ASTExpr.h"
+#include "src\Moonshot\Fox\AST\Nodes\IASTNode.h"
 #include <variant>
 #include <fstream>
 #include <string>
@@ -39,6 +40,7 @@ int main()
 	}
 	else
 		E_ERROR("Parsing failed.");
+
 	std::cin.get();
 	return 0;
 }

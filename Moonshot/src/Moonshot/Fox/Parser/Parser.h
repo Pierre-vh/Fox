@@ -51,8 +51,8 @@ SOFTWARE.
 // Error reporting
 #include "../../Common/Errors/Errors.h"
 // AST
-#include "AST\ASTNode.h"
-#include "AST\ASTExpr.h"
+#include "../AST/Nodes/ASTExpr.h"
+#include "../AST/Nodes/IASTNode.h"
 // Enum
 #include "../Util/Enums.h"
 #include <tuple>	// std::tuple, std::pair

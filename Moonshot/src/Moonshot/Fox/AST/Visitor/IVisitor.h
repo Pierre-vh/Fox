@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : The Main Node abstract class.
+Description : Main Visitor Abstract class.
 
 *************************************************************
 MIT License
@@ -30,15 +30,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 
-#include "ASTNode.h"
+#pragma once
+//utils
+#include "../../../Common/Utils/Utils.h"
+#include "../../../Common/Errors/Errors.h"
+#include "../../../Common/FValue/FValue.h"
+//nodes
 
-using namespace Moonshot;
-
-ASTNode::ASTNode()
+namespace Moonshot
 {
+	struct ASTExpr;
+	struct ASTValue;
+	class IVisitor
+	{
+		public:
+			IVisitor();
+			~IVisitor();
+			
+			virtual FVal visit(ASTExpr *node) = 0;
+			virtual FVal visit(ASTValue *node) = 0;
+			
+	};
 }
 
-ASTNode::~ASTNode()
-{
 
-}

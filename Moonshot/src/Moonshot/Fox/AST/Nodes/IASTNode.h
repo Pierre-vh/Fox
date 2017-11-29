@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : typedef for FValue (in the future, helper functions will be added here.)
+Description : The Main Node abstract class.
 
 *************************************************************
 MIT License
@@ -32,12 +32,20 @@ SOFTWARE.
 
 #pragma once
 
-#include <variant> // std::variant
-
-// Alias for a variant holding every type possible in the interpreter.
-typedef std::variant<int, float, char, std::string, bool> FVal;
+#include "../../../Common/FValue/FValue.h"
+#include "../../AST/Visitor/IVisitor.h"
 
 namespace Moonshot
 {
-	// todo : FVal mathematics (operations) & helper func
+	struct IASTNode
+	{
+		public :
+			IASTNode();
+			~IASTNode();
+			virtual FVal accept(IVisitor *vis) = 0;
+		private:
+			IASTNode(const IASTNode& other);
+			IASTNode& operator=(const IASTNode&);
+	};
 }
+

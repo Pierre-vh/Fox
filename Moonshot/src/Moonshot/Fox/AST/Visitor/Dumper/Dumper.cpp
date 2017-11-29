@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : The Main Node abstract class.
+Description : See header
 
 *************************************************************
 MIT License
@@ -30,19 +30,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 
-#pragma once
+#include "Dumper.h"
 
-namespace Moonshot
+using namespace Moonshot;
+
+Dumper::Dumper()
 {
-	class ASTNode
-	{
-		public :
-			ASTNode();
-		protected:
-			virtual ~ASTNode() = 0;
-		private:
-			ASTNode(const ASTNode& other);
-			ASTNode& operator=(const ASTNode&);
-	};
 }
 
+
+Dumper::~Dumper()
+{
+}
+
+FVal Dumper::visit(ASTExpr * node)
+{
+	return FVal();
+}
+
+FVal Dumper::visit(ASTValue * node)
+{
+	return FVal();
+}

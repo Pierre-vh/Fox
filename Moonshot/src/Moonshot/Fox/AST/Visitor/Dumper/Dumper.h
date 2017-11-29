@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : typedef for FValue (in the future, helper functions will be added here.)
+Description : Dump(er) visitor. Dumps the node data, useful for debugging !
 
 *************************************************************
 MIT License
@@ -32,12 +32,20 @@ SOFTWARE.
 
 #pragma once
 
-#include <variant> // std::variant
-
-// Alias for a variant holding every type possible in the interpreter.
-typedef std::variant<int, float, char, std::string, bool> FVal;
+#include "../IVisitor.h"
 
 namespace Moonshot
 {
-	// todo : FVal mathematics (operations) & helper func
+	class Dumper : public IVisitor
+	{
+		public:
+			Dumper();
+			~Dumper();
+
+			// Inherited via IVisitor
+			virtual FVal visit(ASTExpr * node) override;
+			virtual FVal visit(ASTValue * node) override;
+	};
 }
+
+

@@ -74,6 +74,7 @@ token Lexer::getToken(const size_t & vtpos) const
 	if (vtpos < result_.size())
 		return result_[vtpos];
 	E_CRITICAL("Tried to access a position in result_ that was out of bounds.")
+	return token();
 }
 
 size_t Lexer::resultSize() const
