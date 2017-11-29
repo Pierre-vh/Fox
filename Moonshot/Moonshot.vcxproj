@@ -118,8 +118,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Moonshot\Fox\Parser\AST\ASTExpr.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\Parser\AST\ASTNode.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.cpp" />
+    <ClCompile Include="src\Moonshot\Common\FValue\FValue.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Visitor\IVisitor.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTExpr.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\IASTNode.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseExpr.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\Parser.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Lexer\Lexer.cpp" />
@@ -136,17 +139,22 @@
     <None Include="src\Moonshot\readme.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Moonshot\Fox\Parser\AST\ASTExpr.h" />
-    <ClInclude Include="src\Moonshot\Fox\Parser\AST\ASTNode.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\IVisitor.h" />
+    <ClInclude Include="src\Moonshot\Common\FValue\FValue.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTExpr.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTNode.h" />
     <ClInclude Include="src\Moonshot\Fox\Parser\Parser.h" />
     <ClInclude Include="src\Moonshot\Fox\Lexer\Lexer.h" />
     <ClInclude Include="src\Moonshot\Common\Errors\Errors.h" />
     <ClInclude Include="src\Moonshot\Fox\Lexer\Token.h" />
     <ClInclude Include="src\Moonshot\Common\Utils\Utils.h" />
+    <ClInclude Include="src\Moonshot\Fox\Util\Enums.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="doc\file_header.txt" />
     <Text Include="doc\guidelines.txt" />
+    <Text Include="res\code_samples\expr\todo.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

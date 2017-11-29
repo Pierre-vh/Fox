@@ -30,18 +30,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 
-#pragma once
-namespace Moonshot
+#include "IASTNode.h"
+
+using namespace Moonshot;
+
+IASTNode::IASTNode()
 {
-	class ASTNode
-	{
-		public:
-			ASTNode();
-		protected:
-			virtual ~ASTNode() = 0;
-		private:
-			ASTNode(const ASTNode& other);
-			ASTNode& operator=(const ASTNode&);
-	};
 }
 
+IASTNode::~IASTNode()
+{
+
+}

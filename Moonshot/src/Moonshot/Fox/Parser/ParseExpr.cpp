@@ -48,6 +48,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 		return NULL_UNIPTR(ASTExpr);
 
 	rtr->makeChild(parse::direction::LEFT, left);	// Make Left the left child of the return node !
+	
 	while (true)
 	{
 		parse::optype op;
@@ -64,12 +65,12 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 		// Check for validity : we need a term. if we don't have one, we have an error !
 		if (!right)
 		{
-			errorExpected("Expected a term.");
+			errorExpected("Expected a term");
 			break;
 		}
 		// Add the node to the tree.
-		if (rtr->getOpType() == parse::optype::PASS) // No right node ? Append directly to rtr.
-			rtr->setOpType(op);
+		if (rtr->op_ == parse::optype::PASS) // No right node ? Append directly to rtr.
+			rtr->op_ = op;
 		else	// Already has one ? create a new node and make rtr its left child.
 			oneUpNode(rtr, op);
 		rtr->makeChild(parse::direction::RIGHT, right);
@@ -95,7 +96,8 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 		return NULL_UNIPTR(ASTExpr); // No value here? Return a null node.
 
 	if (uopResult)
-		val->setOpType(uopOp);
+		val->op_ = uopOp;
+
 	// TO DO :
 	// <as_kw> <type> (create a matchCastExpr())
 
@@ -131,7 +133,7 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 			pos_ += 1;
 		else
 		{
-			errorExpected("Expected a closing bracket after expression !");
+			errorExpected("Expected a closing bracket after expression");
 			return NULL_UNIPTR(ASTExpr);
 		}
 		return expr;
@@ -186,7 +188,9 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 			if (cur.sign_type == signs::S_SLASH)
 				return { true, optype::DIV };
 			if (cur.sign_type == signs::S_PERCENT)
-				return { true, MOD };
+				return { true, optype::MOD };
+			if (cur.sign_type == signs::S_EXP)
+				return { true, optype::EXP };
 			break;
 		case 1: // + -
 			if (cur.sign_type == signs::S_PLUS)
@@ -244,7 +248,7 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 			}
 			break;
 		default:
-			E_CRITICAL("Requested to match a Binary Operator with a non-existent priority.");
+			E_CRITICAL("Requested to match a Binary Operator with a non-existent priority");
 			break;
 	}
 	pos_ -= 1;	// We did not find anything, decrement & return.

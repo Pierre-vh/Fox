@@ -30,9 +30,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 /*
-	parseXXX functions : Parse a NON-TERMINAL.
+	matchXXX functions : Parse a NON-TERMINAL.
 		Theses function DON'T update the cursor BUT the cursor will be updated if the nonterminal is found, because the parseXXX function called will update it.
-	matchXXX functions : Parse a TERMINAL
+	parseXXX functions : Parse a TERMINAL
 		Theses functions UPDATE the cursor.
 
 	HOW TO IMPLEMENT A GRAMMAR RULE:
@@ -51,9 +51,10 @@ SOFTWARE.
 // Error reporting
 #include "../../Common/Errors/Errors.h"
 // AST
-#include "AST\ASTNode.h"
-#include "AST\ASTExpr.h"
-
+#include "../AST/Nodes/ASTExpr.h"
+#include "../AST/Nodes/IASTNode.h"
+// Enum
+#include "../Util/Enums.h"
 #include <tuple>	// std::tuple, std::pair
 
 #define NULL_UNIPTR(x) std::unique_ptr<x>(nullptr)
@@ -66,6 +67,7 @@ namespace Moonshot
 			Parser(Lexer *l);
 			~Parser();
 
+			// parseXXX() = "match" the rule XXX (attempts to find it, if it found it, the method will return a valid pointer (if(ptr) will return true). if not, it will return a std::unique_ptr<(TYPE OF NODE)>(nullptr)
 			// EXPR
 			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 5); // Go from lowest priority to highest !
 			std::unique_ptr<ASTExpr> parseTerm();
@@ -75,9 +77,9 @@ namespace Moonshot
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,parse::PLUS)
 			// oneUpNode will return a new node X, with the optype PLUS and N as left child.
-			std::unique_ptr<ASTExpr> oneUpNode(std::unique_ptr<ASTExpr> &node, const parse::optype &op);
+			std::unique_ptr<ASTExpr> oneUpNode(std::unique_ptr<ASTExpr> &node, const parse::optype &op = parse::optype::PASS);
 			// matchToken -> returns true if the token is matched, and increment pos, if the token isn't matched return false and don't increment
-			// MATCH BY TYPE
+			// MATCH BY TYPE OF TOKEN
 			bool matchValue(const lex::values &v);		// match a TT_VALUE
 			bool matchID();
 			bool matchSign(const lex::signs &s);

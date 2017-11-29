@@ -43,27 +43,10 @@ ASTExpr::ASTExpr(const parse::optype & opt) : op_(opt)
 {
 
 }
+
 ASTExpr::~ASTExpr()
 {
 
-}
-void ASTExpr::showTree()
-{
-	std::cout << "OPERATON : " << op_ << std::endl;
-	if (left_)
-	{
-		std::cout << "->LEFT : ";
-		left_->showTree();
-	}
-	else
-		std::cout << "NO LEFT NODE" << std::endl;
-	if (right_)
-	{
-		std::cout << "->RIGHT : ";
-		right_->showTree();
-	}
-	else
-		std::cout << "NO RIGHT NODE" << std::endl;
 }
 
 void ASTExpr::makeChild(const parse::direction & d, std::unique_ptr<ASTExpr> &node)
@@ -72,11 +55,6 @@ void ASTExpr::makeChild(const parse::direction & d, std::unique_ptr<ASTExpr> &no
 		left_ = std::move(node);
 	else if (d == parse::direction::RIGHT)
 		right_ = std::move(node);
-}
-
-void Moonshot::ASTExpr::setOpType(const parse::optype & nop)
-{
-	op_ = nop;
 }
 
 bool Moonshot::ASTExpr::hasNode(const parse::direction & d) const
@@ -96,10 +74,12 @@ std::unique_ptr<ASTExpr> Moonshot::ASTExpr::getSimple()
 	return std::unique_ptr<ASTExpr>(nullptr);
 }
 
-parse::optype Moonshot::ASTExpr::getOpType() const
+FVal ASTExpr::accept(IVisitor *vis)
 {
-	return op_;
+	VISIT_THIS
+	return FVal();
 }
+
 
 void ASTExpr::setMustCast(const parse::types &casttype)
 {
@@ -139,15 +119,15 @@ ASTValue::ASTValue(const token & t)
 	}
 }
 
+FVal ASTValue::accept(IVisitor * vis)
+{
+	VISIT_THIS
+	return FVal();
+}
+
 ASTValue::~ASTValue()
 {
 
 }
-
-void ASTValue::showTree()
-{
-	std::cout << "VALUE [" << str << "]" << std::endl;
-}
-
 
 
