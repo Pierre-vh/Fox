@@ -35,7 +35,6 @@ SOFTWARE.
 #include "../../../Common/Utils/Utils.h"
 #include "../../../Common/Errors/Errors.h"
 #include "../../../Common/FValue/FValue.h"
-//nodes
 
 namespace Moonshot
 {

@@ -26,3 +26,21 @@ SOFTWARE.
 #include "FValue.h"
 
 using namespace std;
+
+std::string Moonshot::dumpFVal(const FVal & var)
+{
+	std::stringstream ss;
+	if (std::holds_alternative<int>(var))
+		ss << "Type : INT, Value : " << std::get<int>(var);
+	else if (std::holds_alternative<float>(var))
+		ss << "Type : FLOAT, Value : " << std::get<float>(var);
+	else if (std::holds_alternative<std::string>(var))
+		ss << "Type : STRING, Value : \"" << std::get<std::string>(var) << "\"";
+	else if (std::holds_alternative<bool>(var))
+		ss << "Type : BOOL, Value : " << std::get<bool>(var);
+	else if (std::holds_alternative<char>(var))
+		ss << "Type : CHAR, Value : " << std::get<char>(var);
+	else
+		E_CRITICAL("Illegal variant.");
+	return ss.str();
+}

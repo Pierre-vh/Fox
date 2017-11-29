@@ -33,6 +33,10 @@ SOFTWARE.
 #pragma once
 
 #include <variant> // std::variant
+#include <string> // std::string
+#include <sstream> // std::stringstream
+
+#include "../../Common/Errors/Errors.h"
 
 // Alias for a variant holding every type possible in the interpreter.
 typedef std::variant<int, float, char, std::string, bool> FVal;
@@ -40,4 +44,5 @@ typedef std::variant<int, float, char, std::string, bool> FVal;
 namespace Moonshot
 {
 	// todo : FVal mathematics (operations) & helper func
+	std::string dumpFVal(const FVal &var);
 }

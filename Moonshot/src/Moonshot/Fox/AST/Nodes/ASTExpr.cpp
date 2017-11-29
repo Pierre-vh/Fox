@@ -49,38 +49,12 @@ ASTExpr::~ASTExpr()
 
 }
 
-void ASTExpr::showTree()
-{
-
-	std::cout << "OPERATON : " << op_ << std::endl;
-	if (left_)
-	{
-		std::cout << "->LEFT : ";
-		left_->showTree();
-	}
-	else
-		std::cout << "NO LEFT NODE" << std::endl;
-
-	if (right_)
-	{
-		std::cout << "->RIGHT : ";
-		right_->showTree();
-	}
-	else
-		std::cout << "NO RIGHT NODE" << std::endl;
-}
-
 void ASTExpr::makeChild(const parse::direction & d, std::unique_ptr<ASTExpr> &node)
 {
 	if (d == parse::direction::LEFT)
 		left_ = std::move(node);
 	else if (d == parse::direction::RIGHT)
 		right_ = std::move(node);
-}
-
-void Moonshot::ASTExpr::setOpType(const parse::optype & nop)
-{
-	op_ = nop;
 }
 
 bool Moonshot::ASTExpr::hasNode(const parse::direction & d) const
@@ -98,11 +72,6 @@ std::unique_ptr<ASTExpr> Moonshot::ASTExpr::getSimple()
 		return ret;
 	}
 	return std::unique_ptr<ASTExpr>(nullptr);
-}
-
-parse::optype Moonshot::ASTExpr::getOpType() const
-{
-	return op_;
 }
 
 FVal ASTExpr::accept(IVisitor *vis)
@@ -149,12 +118,6 @@ ASTValue::ASTValue(const token & t)
 			std::cerr << err.what() << std::endl;
 	}
 }
-
-void ASTValue::showTree()
-{
-	std::cout << "VALUE [" << str << "]" << std::endl;
-}
-
 
 FVal ASTValue::accept(IVisitor * vis)
 {

@@ -31,8 +31,12 @@ SOFTWARE.
 *************************************************************/
 
 #pragma once
-
+// base class
 #include "../IVisitor.h"
+// FVal Utilities
+#include "../../../../Common/FValue/FValue.h"
+// Include nodes
+#include "../../Nodes/ASTExpr.h"
 
 namespace Moonshot
 {
@@ -45,6 +49,10 @@ namespace Moonshot
 			// Inherited via IVisitor
 			virtual FVal visit(ASTExpr * node) override;
 			virtual FVal visit(ASTValue * node) override;
+
+		private:
+			std::string tabs() const;
+			unsigned int tabcount = 1;
 	};
 }
 

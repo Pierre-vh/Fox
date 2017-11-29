@@ -1,4 +1,5 @@
 #include <iostream>
+#include "src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.h"
 #include "src\Moonshot\Common\FValue\FValue.h"
 #include "src\Moonshot\Common\Errors\Errors.h"
 #include "src\Moonshot\Fox\Lexer\Token.h"
@@ -36,7 +37,7 @@ int main()
 	auto ae = p.parseExpr();
 	if (E_CHECKSTATE)
 	{
-		ae->showTree();
+		ae->accept(new Dumper());
 	}
 	else
 		E_ERROR("Parsing failed.");

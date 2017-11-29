@@ -69,8 +69,8 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 			break;
 		}
 		// Add the node to the tree.
-		if (rtr->getOpType() == parse::optype::PASS) // No right node ? Append directly to rtr.
-			rtr->setOpType(op);
+		if (rtr->op_ == parse::optype::PASS) // No right node ? Append directly to rtr.
+			rtr->op_ = op;
 		else	// Already has one ? create a new node and make rtr its left child.
 			oneUpNode(rtr, op);
 		rtr->makeChild(parse::direction::RIGHT, right);
@@ -96,7 +96,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 		return NULL_UNIPTR(ASTExpr); // No value here? Return a null node.
 
 	if (uopResult)
-		val->setOpType(uopOp);
+		val->op_ = uopOp;
 
 	// TO DO :
 	// <as_kw> <type> (create a matchCastExpr())
