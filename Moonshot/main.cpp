@@ -8,19 +8,22 @@
 #include "src\Moonshot\Fox\AST\Nodes\ASTExpr.h"
 #include "src\Moonshot\Fox\AST\Nodes\IASTNode.h"
 #include <variant>
+#include <sstream>
 #include <fstream>
 #include <string>
 using namespace Moonshot;
 
-int main()
+int main(int argc, char* argv[])
 {
 	E_LOG("Starting..");
 	Errors *x = Errors::getInstance();
-
-	//std::ifstream ifs("C:\\Users\\pierr\\Source\\Repos\\Moonshot---WIP\\Moonshot\\res\\code_samples\\expr_test_secondops.fox");
-	std::ifstream ifs("C:\\Users\\pierre.vanhoutryve\\source\\repos\\Moonshot\\Moonshot\\res\\code_samples\\expr_test_secondops.fox");
+	std::ifstream ifs(".\\expr.fox");
 	if (!ifs)
-		E_CRITICAL("Failed to open file ")
+	{
+		std::stringstream ss;
+		ss << "Failed to open file from " << argv[0];
+		E_CRITICAL(ss.str())
+	}
 	std::string content((std::istreambuf_iterator<char>(ifs)),
 		(std::istreambuf_iterator<char>()));
 	std::cout << "Input : \n\t" << char(192) << "-> " << content << std::endl;

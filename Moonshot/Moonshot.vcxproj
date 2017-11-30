@@ -71,6 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>C:\Program Files (x86)\Windows Kits\10\Lib\10.0.10150.0\ucrt\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(solutiondir)Build\$(platform)\$(projectname)\$(configuration)</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -132,7 +133,6 @@
     <ClCompile Include="src\Moonshot\Common\Utils\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\code_samples\expr_test_secondops.fox" />
     <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
     <None Include="src\Moonshot\Fox\readme.md" />
