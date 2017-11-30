@@ -35,8 +35,10 @@ SOFTWARE.
 #include <variant> // std::variant
 #include <string> // std::string
 #include <sstream> // std::stringstream
+#include <type_traits> // std::is_same
 
 #include "../../Common/Errors/Errors.h"
+#include "../../Fox/Util/Enums.h"
 
 // Alias for a variant holding every type possible in the interpreter.
 typedef std::variant<int, float, char, std::string, bool> FVal;
@@ -45,4 +47,6 @@ namespace Moonshot
 {
 	// todo : FVal mathematics (operations) & helper func
 	std::string dumpFVal(const FVal &var);
+	// Perform an operation on a FVal.
+	FVal performOp(const FVal& left, const FVal& right);
 }

@@ -46,9 +46,9 @@ Dumper::~Dumper()
 
 FVal Dumper::visit(ASTExpr * node)
 {
-	std::cout << tabs() <<"ExpressionNode : Operator " << node->op_;
+	std::cout << tabs() <<"ExpressionNode-> Operator:" << node->op_;
 	if (node->totype_ != parse::types::NOCAST)
-		std::cout << ",Casts to : " << node->totype_;
+		std::cout << ",Casts to:" << node->totype_;
 	std::cout << std::endl;
 	if (node->left_)
 	{
@@ -69,7 +69,7 @@ FVal Dumper::visit(ASTExpr * node)
 
 FVal Dumper::visit(ASTValue * node)
 {
-	std::cout << tabs() << char(192) << "ExprValueNode : " << dumpFVal(node->val_) << std::endl;
+	std::cout << tabs() << char(192) << "ExprValueNode -> " << dumpFVal(node->val_) << std::endl;
 	return FVal();}
 
 std::string Moonshot::Dumper::tabs() const
