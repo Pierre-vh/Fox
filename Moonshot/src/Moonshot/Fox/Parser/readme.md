@@ -6,11 +6,10 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
  expr   
  binary_operator   
  unary_operator   
-
+ term
 
 ### PARTIALLY IMPLEMENTED
- term    : Missing "as  type   " (type conversion support. Note : already supported in ASTExpr. I just need to add it to the parser)
- value    : Missing  callable    support
+ value    : Missing  callable  support (Won't be implemented before a while, I need to fully implement variable before starting the callable object, and implement functions to completly finish the callable rule)
 
 ### TO BE IMPLEMENTED  
 **Base rule**  

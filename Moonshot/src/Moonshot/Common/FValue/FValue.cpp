@@ -25,29 +25,28 @@ SOFTWARE.
 
 #include "FValue.h"
 
-using namespace Moonshot;
+using namespace std;
 
 std::string Moonshot::dumpFVal(const FVal & var)
 {
 	std::stringstream ss;
-	ss << "VariantIndex:" << var.index() << " ";
 	if (std::holds_alternative<int>(var))
-		ss << " [INT] Value : " << std::get<int>(var);
+		ss << "Type : INT, Value : " << std::get<int>(var);
 	else if (std::holds_alternative<float>(var))
-		ss << " [FLOAT] Value : " << std::get<float>(var);
+		ss << "Type : FLOAT, Value : " << std::get<float>(var);
 	else if (std::holds_alternative<std::string>(var))
-		ss << " [STRING] Value : \"" << std::get<std::string>(var) << "\"";
+		ss << "Type : STRING, Value : \"" << std::get<std::string>(var) << "\"";
 	else if (std::holds_alternative<bool>(var))
-		ss << " [BOOL] Value : " << std::get<bool>(var);
+	{
+		bool v = std::get<bool>(var);
+		ss << "Type : BOOL, Value : " << (v ? "true" : "false");
+	}
 	else if (std::holds_alternative<char>(var))
-		ss << " [CHAR] Value : " << std::get<char>(var);
+	{
+		char x = std::get<char>(var);
+		ss << "Type : CHAR, Value : " << (int)x << "'" << x << "'";
+	}
 	else
 		E_CRITICAL("Illegal variant.");
 	return ss.str();
-}
-
-FVal performOp(const FVal & left, const FVal & right)
-{
-	// to do, perform operation on FVals and return another fval with the result.
-	return FVal();
 }

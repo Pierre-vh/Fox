@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : Various enums in the namespaces lex/parse
+Description : Various enums in the namespaces lex/parse + some dictionaries
 
 *************************************************************
 MIT License
@@ -31,6 +31,9 @@ SOFTWARE.
 *************************************************************/
 
 #pragma once
+
+#include <map>
+
 namespace Moonshot
 {
 	namespace parse
@@ -38,7 +41,6 @@ namespace Moonshot
 		enum types
 		{
 			NOCAST,
-			TYPE_VOID,
 			TYPE_INT,
 			TYPE_BOOL,
 			TYPE_FLOAT,
@@ -79,6 +81,36 @@ namespace Moonshot
 		enum direction
 		{
 			LEFT, RIGHT
+		};
+		const std::map<optype,std::string> kOptype_dict = 
+		{
+			{ DEFAULT	, "DEFAULT" },
+			{ PASS		, "PASS"	},
+			{ AND		, "AND"		},
+			{ OR		, "OR"		},
+			{ ADD		, "ADD"		},
+			{ MINUS		, "MINUS"	},
+			{ MUL		, "MUL"		},
+			{ DIV		, "DIV"		},
+			{ MOD		, "MOD"		},
+			{ EXP		, "EXP"		},
+			{ LESS_OR_EQUAL		, "LESS_OR_EQUAL"	},
+			{ GREATER_OR_EQUAL	, "GREATER_OR_EQUAL"},
+			{ LESS_THAN			, "LESS_THAN"		},
+			{ GREATER_THAN		, "GREATER_THAN"	},
+			{ EQUAL		, "EQUAL"	},
+			{ NOTEQUAL	, "NOTEQUAL"},
+			{ INVERT	, "INVERT"	},
+			{ NEGATE	, "NEGATE"	}
+		}; 
+		const std::map<types, std::string> kType_dict =
+		{
+			{ NOCAST	, "NOCAST"	},
+			{ TYPE_INT	, "INT"		},
+			{ TYPE_FLOAT, "FLOAT"	},
+			{ TYPE_CHAR	, "CHAR"	},
+			{ TYPE_BOOL	, "BOOL"	},
+			{ TYPE_STR	, "STRING"	}
 		};
 	}
 }

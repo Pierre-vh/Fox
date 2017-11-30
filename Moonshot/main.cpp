@@ -17,31 +17,22 @@ int main()
 	E_LOG("Starting..");
 	Errors *x = Errors::getInstance();
 
-	std::ifstream ifs("C:\\Users\\pierr\\Source\\Repos\\Moonshot---WIP\\Moonshot\\res\\code_samples\\expr_test_secondops.fox");
-	//std::ifstream ifs("C:\\Users\\pierre.vanhoutryve\\source\\repos\\Moonshot\\Moonshot\\res\\code_samples\\expr_test_secondops.fox");
+	//std::ifstream ifs("C:\\Users\\pierr\\Source\\Repos\\Moonshot---WIP\\Moonshot\\res\\code_samples\\expr_test_secondops.fox");
+	std::ifstream ifs("C:\\Users\\pierre.vanhoutryve\\source\\repos\\Moonshot\\Moonshot\\res\\code_samples\\expr_test_secondops.fox");
 	if (!ifs)
 		E_CRITICAL("Failed to open file ")
 	std::string content((std::istreambuf_iterator<char>(ifs)),
 		(std::istreambuf_iterator<char>()));
-	
+	std::cout << "Input : \n\t" << char(192) << "-> " << content << std::endl;
+
 	Lexer l;
 	l.lexStr(content);
-
-	if (E_CHECKSTATE)
-	{
-		l.iterateResults([](const token &t){
-			E_LOG(t.showFormattedTokenData());
-		});
-	}
 	Parser p(&l);
 	auto ae = p.parseExpr();
 	if (E_CHECKSTATE)
-	{
 		ae->accept(new Dumper());
-	}
 	else
-		E_ERROR("Parsing failed.");
-
+		E_ERROR("Parsing failed. Can't print the tree when the parser isn't in a healthy state.");
 	std::cin.get();
 	return 0;
 }

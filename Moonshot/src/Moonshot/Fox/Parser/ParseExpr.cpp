@@ -86,7 +86,8 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 std::unique_ptr<ASTExpr> Parser::parseTerm()
 {
 	// Search for a unary operator
-	bool uopResult;
+	bool uopResult = false, mustcastResult = false;
+	parse::types casttype = parse::types::NOCAST;
 	parse::optype uopOp;
 	std::tie(uopResult, uopOp) = matchUnaryOp();
 	
@@ -95,19 +96,31 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 	if (!val)
 		return NULL_UNIPTR(ASTExpr); // No value here? Return a null node.
 
+	// Search for a cast: "as" <type>
+	if (matchKeyword(lex::TC_AS))
+	{
+		std::tie(mustcastResult, casttype) = matchTypeKw();
+		if (!mustcastResult)
+			errorExpected("Expected a type keyword after \"as\"");
+	}
+	// Apply the unary operator (if found) to the node.
 	if (uopResult)
-		val->op_ = uopOp;
-
-	// TO DO :
-	// <as_kw> <type> (create a matchCastExpr())
-
+	{
+		if (val->op_ != parse::PASS) // If we already have an operation
+			val = oneUpNode(val, uopOp); // One up the node and set the new parent's operation to uopOp
+		else
+			val->op_ = uopOp; // Else, just set the op_ to uopOp;
+	}
+	// Apply the cast (if found) to the node
+	if (mustcastResult)
+		val->setMustCast(casttype);
 	return val;
 }
 
 std::unique_ptr<ASTExpr> Parser::parseValue()
 {
 	auto cur = getToken();
-	
+	// if the token is invalid, return directly a null node
 	if (!cur.isValid())
 		return NULL_UNIPTR(ASTExpr);
 	// = <const>
@@ -117,10 +130,9 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 		return std::make_unique<ASTValue>(cur);
 	}
 	// = '(' <expr> ')'
-	if (cur.sign_type == lex::signs::B_ROUND_OPEN)
+	if (matchSign(lex::B_ROUND_OPEN))
 	{
-		pos_ += 1;
-		auto expr = parseExpr();
+		auto expr = parseExpr(); // Parse the expression inside
 		cur = getToken();		// update current token
 		// check validity of the parsed expression
 		if(!expr)
@@ -128,10 +140,8 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 			errorExpected("Expected an expression after opening a bracket.");
 			return NULL_UNIPTR(ASTExpr);
 		}
-		// retrieve the closing bracket
-		if (cur.sign_type == lex::signs::B_ROUND_CLOSE)
-			pos_ += 1;
-		else
+		// retrieve the closing bracket, throw an error if we don't have one. 
+		if (!matchSign(lex::B_ROUND_CLOSE))
 		{
 			errorExpected("Expected a closing bracket after expression");
 			return NULL_UNIPTR(ASTExpr);
@@ -140,6 +150,7 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 	}
 	// TO DO :
 	// <callable>
+	errorUnexpected();
 	return NULL_UNIPTR(ASTExpr);
 }
 

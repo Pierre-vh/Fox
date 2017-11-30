@@ -41,6 +41,9 @@ SOFTWARE.
 #include "../../Common/Errors/Errors.h"
 #include "Token.h"
 
+#define LOG_PUSHEDTOKENS false
+#define LOG_TOTALTOKENSCOUNT true
+
 namespace Moonshot
 {
 	namespace dfa

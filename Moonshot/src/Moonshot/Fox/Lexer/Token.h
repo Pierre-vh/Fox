@@ -135,9 +135,10 @@ namespace Moonshot
 			{ "bool"	, T_BOOL	},
 			{ "string"	, T_STRING	},
 			{ "char"	, T_CHAR	},
+
 			{ "const"	, T_CONST },
 			// TYPE CONVERSION
-			{ "AS"		, TC_AS		},
+			{ "as"		, TC_AS		},
 			// DECLARATIONS
 			{ "let"		, D_LET		},
 			{ "func"	, D_FUNC	},

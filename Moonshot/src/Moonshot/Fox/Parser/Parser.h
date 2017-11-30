@@ -84,15 +84,16 @@ namespace Moonshot
 			bool matchID();
 			bool matchSign(const lex::signs &s);
 			bool matchKeyword(const lex::keywords &k);
+			std::pair<bool, parse::types> matchTypeKw();
 			// MATCH OPERATORS
 			std::pair<bool, parse::optype> matchUnaryOp();
 			std::pair<bool, parse::optype> matchBinaryOp(const char &priority);
-
 			// UTILITY METHODS
 			token getToken() const;
 			token getToken(const size_t &d) const;
 			// Make error message 
-			void errorExpected(const std::string &s);
+			void errorUnexpected();						// generic error message "unexpected token.."
+			void errorExpected(const std::string &s); // generic error message "expected token after.."
 			// Member variables
 			size_t pos_ = 0;
 			Lexer *lex_ = 0;
