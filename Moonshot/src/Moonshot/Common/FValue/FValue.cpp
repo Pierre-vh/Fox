@@ -37,9 +37,15 @@ std::string Moonshot::dumpFVal(const FVal & var)
 	else if (std::holds_alternative<std::string>(var))
 		ss << "Type : STRING, Value : \"" << std::get<std::string>(var) << "\"";
 	else if (std::holds_alternative<bool>(var))
-		ss << "Type : BOOL, Value : " << std::get<bool>(var);
+	{
+		bool v = std::get<bool>(var);
+		ss << "Type : BOOL, Value : " << (v ? "true" : "false");
+	}
 	else if (std::holds_alternative<char>(var))
-		ss << "Type : CHAR, Value : " << std::get<char>(var);
+	{
+		char x = std::get<char>(var);
+		ss << "Type : CHAR, Value : " << (int)x << "'" << x << "'";
+	}
 	else
 		E_CRITICAL("Illegal variant.");
 	return ss.str();

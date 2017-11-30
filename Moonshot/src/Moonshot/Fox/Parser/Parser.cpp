@@ -93,6 +93,39 @@ bool Parser::matchKeyword(const lex::keywords & k)
 	return false;
 }
 
+std::pair<bool, parse::types> Moonshot::Parser::matchTypeKw()
+{
+	token t = getToken();
+	if (t.type == lex::TT_KEYWORD)
+	{
+		parse::types rtr = parse::NOCAST;
+		switch (t.kw_type)
+		{
+			case lex::T_BOOL:
+				rtr = parse::TYPE_BOOL;
+				break;
+			case lex::T_INT:
+				rtr = parse::TYPE_INT;
+				break;
+			case lex::T_FLOAT:
+				rtr = parse::TYPE_FLOAT;
+				break;
+			case lex::T_CHAR:
+				rtr = parse::TYPE_CHAR;
+				break;
+			case lex::T_STRING:
+				rtr = parse::TYPE_STR;
+				break;
+		}
+		if (rtr != parse::NOCAST)
+		{
+			pos_ += 1;
+			return { true,rtr };
+		}
+	}
+	return { false, parse::NOCAST };
+}
+
 token Parser::getToken() const
 {
 	return getToken(pos_);
@@ -104,6 +137,13 @@ token Parser::getToken(const size_t & d) const
 		return lex_->getToken(d);
 	else
 		return token();
+}
+
+void Moonshot::Parser::errorUnexpected()
+{
+	std::stringstream ss;
+	ss << " Unexpected token " << getToken().showFormattedTokenData() << std::endl;
+	E_ERROR(ss.str());
 }
 
 void Moonshot::Parser::errorExpected(const std::string & s)

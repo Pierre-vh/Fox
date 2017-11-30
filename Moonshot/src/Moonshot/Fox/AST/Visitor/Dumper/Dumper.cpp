@@ -46,9 +46,24 @@ Dumper::~Dumper()
 
 FVal Dumper::visit(ASTExpr * node)
 {
-	std::cout << tabs() <<"ExpressionNode : Operator " << node->op_;
+	std::cout << tabs() << "ExpressionNode : Operator ";
+	// Attempts to print the operator in a str form
+	auto strOp = parse::kOptype_dict.find(node->op_);
+	if (strOp != parse::kOptype_dict.end())
+		std::cout << strOp->second;
+	else
+		std::cout << node->op_;
+
 	if (node->totype_ != parse::types::NOCAST)
-		std::cout << ",Casts to : " << node->totype_;
+	{
+		std::cout << ", Casts to : ";
+
+		auto castStr = parse::kType_dict.find(node->totype_);
+		if (castStr != parse::kType_dict.end())
+			std::cout << castStr->second;
+		else 
+			std::cout << node->totype_;
+	}
 	std::cout << std::endl;
 	if (node->left_)
 	{

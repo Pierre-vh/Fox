@@ -53,7 +53,8 @@ void Lexer::lexStr(const std::string & data)
 		cycle();
 	if(curtok_ != "")
 		pushTok(); // Push the last token formed, if it's not empty.
-	E_LOG("Lexing finished. Tokens found: " + sizeToString(result_.size()))
+	if(LOG_TOTALTOKENSCOUNT)
+		E_LOG("Lexing finished. Tokens found: " + sizeToString(result_.size()))
 }
 
 void Moonshot::Lexer::iterateResults(std::function<void(const token&)> func)
