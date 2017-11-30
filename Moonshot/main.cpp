@@ -10,7 +10,6 @@
 #include <variant>
 #include <fstream>
 #include <string>
-#include <typeinfo.h>
 using namespace Moonshot;
 
 int main()
