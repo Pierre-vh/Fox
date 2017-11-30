@@ -59,9 +59,13 @@ void Moonshot::Errors::logInfo(const std::string & str)
 
 void Errors::reportWarning(const char * file, int line, const std::string &txt)
 {
-	if (!options.muteWarnings)
-		std::cerr << "[WARNING][" << file << " @line " << line << "]\n" << txt << std::endl;
-
+	#ifdef _DEBUG
+		if (!options.muteWarnings)
+			std::cerr << "[WARNING][" << file << " @line " << line << "]\n" << txt << std::endl;
+	#else
+		if (!options.muteWarnings)
+			std::cerr << "[WARNING]\t" << txt << std::endl;
+	#endif
 	state_ = WARNING;
 }
 
@@ -69,21 +73,26 @@ void Errors::reportWarning(const std::string &txt)
 {
 	if (!options.muteWarnings)
 		std::cerr << "[WARNING] -> " << std::endl;
-
 	state_ = WARNING;
 }
 
 void Errors::reportError(const char * file, int line, const std::string &txt)
 {
-	std::cerr << "[ERROR][" << file << " @line " << line << "]\n" << txt << std::endl;
-
+	#ifdef _DEBUG
+		std::cerr << "[ERROR][" << file << " @line " << line << "]\n" << txt << std::endl;
+	#else 
+		std::cerr << "[ERROR]\t" << txt << std::endl;
+	#endif 
 	state_ = ERROR;
 }
 
 void Errors::reportCritical(const char * file, int line, const std::string &txt)
 {
-	std::cerr << "[CRITICAL][" << file << " @line " << line << "]\n" << txt << std::endl;
-
+	#ifdef _DEBUG
+		std::cerr << "[CRITICAL][" << file << " @line " << line << "]\n" << txt << std::endl;
+	#else 
+		std::cerr << "[CRITICAL]\t" << txt << std::endl;
+	#endif 
 	state_ = CRITICAL;
 }
 

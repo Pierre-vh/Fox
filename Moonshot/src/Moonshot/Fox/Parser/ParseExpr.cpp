@@ -120,7 +120,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 std::unique_ptr<ASTExpr> Parser::parseValue()
 {
 	auto cur = getToken();
-	
+	// if the token is invalid, return directly a null node
 	if (!cur.isValid())
 		return NULL_UNIPTR(ASTExpr);
 	// = <const>
@@ -130,10 +130,9 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 		return std::make_unique<ASTValue>(cur);
 	}
 	// = '(' <expr> ')'
-	if (cur.sign_type == lex::signs::B_ROUND_OPEN)
+	if (matchSign(lex::B_ROUND_OPEN))
 	{
-		pos_ += 1;
-		auto expr = parseExpr();
+		auto expr = parseExpr(); // Parse the expression inside
 		cur = getToken();		// update current token
 		// check validity of the parsed expression
 		if(!expr)
@@ -141,10 +140,8 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 			errorExpected("Expected an expression after opening a bracket.");
 			return NULL_UNIPTR(ASTExpr);
 		}
-		// retrieve the closing bracket
-		if (cur.sign_type == lex::signs::B_ROUND_CLOSE)
-			pos_ += 1;
-		else
+		// retrieve the closing bracket, throw an error if we don't have one. 
+		if (!matchSign(lex::B_ROUND_CLOSE))
 		{
 			errorExpected("Expected a closing bracket after expression");
 			return NULL_UNIPTR(ASTExpr);
