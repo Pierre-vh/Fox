@@ -46,9 +46,8 @@ namespace Moonshot
 			Dumper();
 			~Dumper();
 
-			// Inherited via IVisitor
-			virtual FVal visit(ASTExpr * node) override;
-			virtual FVal visit(ASTValue * node) override;
+			virtual void visit(ASTExpr * node) override;
+			virtual void visit(ASTValue * node) override;
 
 		private:
 			std::string tabs() const;

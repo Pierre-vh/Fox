@@ -44,7 +44,7 @@ Dumper::~Dumper()
 {
 }
 
-FVal Dumper::visit(ASTExpr * node)
+void Dumper::visit(ASTExpr * node)
 {
 	std::cout << tabs() << "ExpressionNode : Operator ";
 	// Attempts to print the operator in a str form
@@ -54,9 +54,9 @@ FVal Dumper::visit(ASTExpr * node)
 	else
 		std::cout << node->op_;
 
-	if (node->totype_ != parse::types::NOCAST)
+	if (node->totype_ != parse::types::NOTYPE)
 	{
-		std::cout << ", Casts to : ";
+		std::cout << ", Return type : ";
 
 		auto castStr = parse::kType_dict.find(node->totype_);
 		if (castStr != parse::kType_dict.end())
@@ -79,13 +79,12 @@ FVal Dumper::visit(ASTExpr * node)
 		node->right_->accept(this);
 		tabcount -= 1;
 	}
-	return FVal();
 }
 
-FVal Dumper::visit(ASTValue * node)
+void Dumper::visit(ASTValue * node)
 {
 	std::cout << tabs() << char(192) << "ExprValueNode : " << dumpFVal(node->val_) << std::endl;
-	return FVal();}
+}
 
 std::string Moonshot::Dumper::tabs() const
 {

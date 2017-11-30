@@ -46,8 +46,8 @@ namespace Moonshot
 			IVisitor();
 			~IVisitor();
 			
-			virtual FVal visit(ASTExpr *node) = 0;
-			virtual FVal visit(ASTValue *node) = 0;
+			virtual void visit(ASTExpr *node) = 0;
+			virtual void visit(ASTValue *node) = 0;
 			
 	};
 }

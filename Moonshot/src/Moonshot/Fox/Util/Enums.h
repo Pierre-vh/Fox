@@ -40,7 +40,7 @@ namespace Moonshot
 	{
 		enum types
 		{
-			NOCAST,
+			NOTYPE,
 			TYPE_INT,
 			TYPE_BOOL,
 			TYPE_FLOAT,
@@ -74,7 +74,7 @@ namespace Moonshot
 			NOTEQUAL,
 
 			// Unary optypes
-			INVERT,		// ! 
+			LOGICNOT,		// ! 
 			NEGATE		// -
 		};
 
@@ -100,12 +100,12 @@ namespace Moonshot
 			{ GREATER_THAN		, "GREATER_THAN"	},
 			{ EQUAL		, "EQUAL"	},
 			{ NOTEQUAL	, "NOTEQUAL"},
-			{ INVERT	, "INVERT"	},
+			{ LOGICNOT	, "LOGICNOT"	},
 			{ NEGATE	, "NEGATE"	}
 		}; 
 		const std::map<types, std::string> kType_dict =
 		{
-			{ NOCAST	, "NOCAST"	},
+			{ NOTYPE	, "NOTYPE"	},
 			{ TYPE_INT	, "INT"		},
 			{ TYPE_FLOAT, "FLOAT"	},
 			{ TYPE_CHAR	, "CHAR"	},

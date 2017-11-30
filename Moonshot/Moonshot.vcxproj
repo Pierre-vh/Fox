@@ -131,10 +131,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Lexer\Token.cpp" />
     <ClCompile Include="src\Moonshot\Common\Utils\Utils.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
+    <None Include="src\Moonshot\Fox\AST\Visitor\readme.md" />
     <None Include="src\Moonshot\Fox\readme.md" />
     <None Include="src\Moonshot\readme.md" />
   </ItemGroup>
@@ -150,6 +152,7 @@
     <ClInclude Include="src\Moonshot\Fox\Lexer\Token.h" />
     <ClInclude Include="src\Moonshot\Common\Utils\Utils.h" />
     <ClInclude Include="src\Moonshot\Fox\Util\Enums.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="doc\file_header.txt" />

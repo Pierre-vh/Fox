@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : typedef for FValue (in the future, helper functions will be added here.)
+Description : Type checking for expressions
 
 *************************************************************
 MIT License
@@ -31,21 +31,25 @@ SOFTWARE.
 *************************************************************/
 
 #pragma once
-
-#include <variant> // std::variant
-#include <string> // std::string
-#include <sstream> // std::stringstream
-#include <type_traits> // std::is_same
-
-#include "../../Common/Errors/Errors.h"
-#include "../../Fox/Util/Enums.h"
-
-// Alias for a variant holding every type possible in the interpreter.
-typedef std::variant<int, float, char, std::string, bool> FVal;
+// base class
+#include "../IVisitor.h"
+// FVal Utilities
+#include "../../../../Common/FValue/FValue.h"
+// Include nodes
+#include "../../Nodes/ASTExpr.h"
 
 namespace Moonshot
 {
-	// todo : FVal mathematics (operations) & helper func
-	std::string dumpFVal(const FVal &var);
-	parse::types getTypeFromFVal(const FVal &var);
+	class TypeCheck : public IVisitor
+	{
+		public:
+			TypeCheck();
+			~TypeCheck();
+
+			virtual void visit(ASTExpr * node) override;
+			virtual void visit(ASTValue * node) override;
+		private:
+			parse::types rtr_type_;		// Holding the last returned value for each call
+	};
 }
+

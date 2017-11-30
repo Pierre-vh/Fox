@@ -59,7 +59,7 @@ namespace Moonshot
 			void makeChild(const parse::direction &d,std::unique_ptr<ASTExpr> &node); // make (node) a child of this.
 			bool hasNode(const parse::direction &d) const;	// If the node posseses a left/right child, it will return true
 			
-			void setMustCast(const parse::types &casttype); // set totype_
+			void setReturnType(const parse::types &casttype); // set totype_
 			parse::types getToType() const;					// return totype_
 
 			std::unique_ptr<ASTExpr> getSimple();			// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
@@ -68,7 +68,11 @@ namespace Moonshot
 			virtual FVal accept(IVisitor *vis) override;
 
 			// NODE DATA
-			parse::types totype_ = parse::types::NOCAST;	// By default, don't cast. If this is different than "NONE", then we must cast the result to the desired type.
+			// Expression nodes hold 4 values :
+			// totype_ : the return type of the node
+			// op_ : the operation the node should perform
+			// left_ & right_ -> pointers to its children
+			parse::types totype_ = parse::types::NOTYPE;	// By default, don't cast. If this is different than "NONE", then we must cast the result to the desired type.
 			parse::optype op_ = parse::DEFAULT;
 			std::unique_ptr<ASTExpr> left_ = 0, right_ = 0;
 
@@ -83,15 +87,9 @@ namespace Moonshot
 
 			FVal accept(IVisitor *vis) override;
 
-			// Delete useless methods (to provoke errors if we attempt to call them on this node type.)
-			void setMustCast(const parse::types &casttype)								= delete;
-			parse::optype getOpType() const												= delete;
-			void makeChild(const parse::direction &d, std::unique_ptr<ASTExpr> &node)	= delete;
-			bool hasNode(const parse::direction &d) const								= delete;
-			std::unique_ptr<ASTExpr> getNode(const parse::direction &d)					= delete;
-			std::unique_ptr<ASTExpr> getSimple()										= delete;
 			// NODE DATA
-			std::string str;
+			// Value node holds 1 value : (inherited ones are never called and ignored.)
+			// val_ -> std::variant that holds the data of the node
 			FVal val_;
 	};
 }

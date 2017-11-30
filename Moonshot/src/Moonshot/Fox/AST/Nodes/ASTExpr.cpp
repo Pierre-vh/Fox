@@ -81,7 +81,7 @@ FVal ASTExpr::accept(IVisitor *vis)
 }
 
 
-void ASTExpr::setMustCast(const parse::types &casttype)
+void ASTExpr::setReturnType(const parse::types &casttype)
 {
 	totype_ = casttype;
 }
@@ -98,7 +98,6 @@ ASTValue::ASTValue()
 
 ASTValue::ASTValue(const token & t)
 {
-	str = t.str;
 	try
 	{
 		if (t.val_type == lex::VAL_STRING)

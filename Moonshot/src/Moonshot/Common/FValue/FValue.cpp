@@ -25,6 +25,7 @@ SOFTWARE.
 
 #include "FValue.h"
 
+
 std::string Moonshot::dumpFVal(const FVal & var)
 {
 	std::stringstream ss;
@@ -48,3 +49,21 @@ std::string Moonshot::dumpFVal(const FVal & var)
 		E_CRITICAL("Illegal variant.");
 	return ss.str();
 }
+
+Moonshot::parse::types Moonshot::getTypeFromFVal(const FVal & var)
+{
+	using namespace Moonshot;
+	if (std::holds_alternative<int>(var))
+		return parse::types::TYPE_INT;
+	if (std::holds_alternative<float>(var))
+		return parse::types::TYPE_FLOAT;
+	if (std::holds_alternative<std::string>(var))
+		return parse::types::TYPE_STR;
+	if (std::holds_alternative<bool>(var))
+		return parse::types::TYPE_BOOL;
+	if (std::holds_alternative<char>(var))
+		return parse::types::TYPE_CHAR;
+	else
+		return parse::types::NOTYPE;
+}
+

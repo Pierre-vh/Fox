@@ -98,7 +98,7 @@ std::pair<bool, parse::types> Moonshot::Parser::matchTypeKw()
 	token t = getToken();
 	if (t.type == lex::TT_KEYWORD)
 	{
-		parse::types rtr = parse::NOCAST;
+		parse::types rtr = parse::NOTYPE;
 		switch (t.kw_type)
 		{
 			case lex::T_BOOL:
@@ -117,13 +117,13 @@ std::pair<bool, parse::types> Moonshot::Parser::matchTypeKw()
 				rtr = parse::TYPE_STR;
 				break;
 		}
-		if (rtr != parse::NOCAST)
+		if (rtr != parse::NOTYPE)
 		{
 			pos_ += 1;
 			return { true,rtr };
 		}
 	}
-	return { false, parse::NOCAST };
+	return { false, parse::NOTYPE };
 }
 
 token Parser::getToken() const

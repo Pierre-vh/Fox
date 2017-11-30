@@ -87,7 +87,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 {
 	// Search for a unary operator
 	bool uopResult = false, mustcastResult = false;
-	parse::types casttype = parse::types::NOCAST;
+	parse::types casttype = parse::types::NOTYPE;
 	parse::optype uopOp;
 	std::tie(uopResult, uopOp) = matchUnaryOp();
 	
@@ -113,7 +113,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 	}
 	// Apply the cast (if found) to the node
 	if (mustcastResult)
-		val->setMustCast(casttype);
+		val->setReturnType(casttype);
 	return val;
 }
 
@@ -167,7 +167,7 @@ std::pair<bool, parse::optype> Moonshot::Parser::matchUnaryOp()
 	if (cur.sign_type == lex::signs::P_EXCL_MARK)
 	{
 		pos_ += 1;
-		return { true, parse::optype::INVERT };
+		return { true, parse::optype::LOGICNOT };
 	}
 	if (cur.sign_type == lex::signs::S_MINUS)
 	{
