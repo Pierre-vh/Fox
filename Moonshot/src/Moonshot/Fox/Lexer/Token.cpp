@@ -9,7 +9,7 @@ token::token()
 token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
 {
 	// substract the token length's fron the column number given by the lexer.
-	pos.column -= data.length();
+	pos.column -= (int)data.length();
 	// self id
 	selfId();
 }
