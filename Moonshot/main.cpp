@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 {
 	E_LOG("Starting..");
 	Errors *x = Errors::getInstance();
-	std::ifstream ifs(".\\expr.fox");
+	std::ifstream ifs(util::filepath_MoonshotProj("tests\\expr\\expr.fox"));
 	if (!ifs)
 	{
 		std::stringstream ss;

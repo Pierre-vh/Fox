@@ -25,8 +25,6 @@ SOFTWARE.
 
 #include "FValue.h"
 
-using namespace std;
-
 std::string Moonshot::dumpFVal(const FVal & var)
 {
 	std::stringstream ss;

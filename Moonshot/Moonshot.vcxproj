@@ -71,7 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>C:\Program Files (x86)\Windows Kits\10\Lib\10.0.10150.0\ucrt\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>$(solutiondir)Build\$(platform)\$(projectname)\$(configuration)</OutDir>
+    <OutDir>$(solutiondir)Build\$(platform)\$(projectname)\$(configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
