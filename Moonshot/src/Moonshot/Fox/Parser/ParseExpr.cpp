@@ -114,6 +114,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 	// Apply the cast (if found) to the node
 	if (mustcastResult)
 		val->setReturnType(casttype);
+
 	return val;
 }
 

@@ -83,7 +83,7 @@ void TypeCheck::visit(ASTExpr * node)
 			if(std::holds_alternative<std::string>(lefttype))
 			{
 				std::stringstream ss;
-				ss << "Can't perform unary operation " << getFromDict(parse::kOptype_dict, node->op_) << " on a string.`\nString:";
+				ss << "Can't perform unary operation " << getFromDict(parse::kOptype_dict, node->op_) << " on a string.";
 				E_ERROR(ss.str())
 			}
 			if (node->op_ == parse::LOGICNOT)
