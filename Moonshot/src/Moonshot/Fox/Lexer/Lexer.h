@@ -33,7 +33,7 @@ SOFTWARE.
 #pragma once
 
 #include <string>		// std::string
-#include <cctype>		// std::isspace
+#include <cwctype>		// std::iswspace
 #include <vector>		// std::vector
 #include <functional>	// std::function
 #include <sstream>		// std::stringstream (sizeToStr())

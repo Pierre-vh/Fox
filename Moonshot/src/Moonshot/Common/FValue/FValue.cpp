@@ -43,7 +43,7 @@ std::string Moonshot::dumpFVal(const FVal & var)
 	else if (std::holds_alternative<char>(var))
 	{
 		char x = std::get<char>(var);
-		ss << "Type : CHAR, Value : " << (int)x << "'" << x << "'";
+		ss << "Type : CHAR, Value : " << (int)x <<  " = '" << x << "'";
 	}
 	else
 		E_CRITICAL("Illegal variant.");

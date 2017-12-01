@@ -37,7 +37,6 @@ using namespace Moonshot;
 
 Lexer::Lexer()
 {
-
 }
 
 Lexer::~Lexer()
@@ -117,7 +116,7 @@ void Lexer::dfa_S0()
 		return;
 	}
 	// IGNORE SPACES
-	if (std::isspace(c)) forward();
+	if (std::iswspace(c)) forward();
 	// HANDLE COMMENTS
 	else if (c == '/' && pk == '/')
 	{
@@ -244,10 +243,10 @@ void Moonshot::Lexer::addToCurtok(const char & c)
 
 bool Lexer::isSep(const char &c) const
 {
-	if (c == '.' && std::isdigit(peekNext()))	// if we're inside a number, we shouldn't treat a dot as a separator.
+	if (c == '.' && std::iswdigit(peekNext()))	// if we're inside a number, we shouldn't treat a dot as a separator.
 		return false;
 	auto i = lex::kSign_dict.find(c);
-	return i != lex::kSign_dict.end() || std::isspace(c);
+	return i != lex::kSign_dict.end() || std::iswspace(c);
 }
 
 char Lexer::peekNext() const
