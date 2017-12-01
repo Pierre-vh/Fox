@@ -73,6 +73,9 @@
     <LibraryPath>C:\Program Files (x86)\Windows Kits\10\Lib\10.0.10150.0\ucrt\x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(solutiondir)Build\$(platform)\$(projectname)\$(configuration)\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(solutiondir)Build\$(platform)\$(projectname)\$(configuration)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -112,6 +115,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -132,6 +136,7 @@
     <ClCompile Include="src\Moonshot\Fox\Lexer\Token.cpp" />
     <ClCompile Include="src\Moonshot\Common\Utils\Utils.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\Util\Enums.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Moonshot\Badger\readme.md" />

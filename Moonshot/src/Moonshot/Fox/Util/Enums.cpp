@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : typedef for FValue (in the future, helper functions will be added here.)
+Description : Various enums in the namespaces lex/parse + some dictionaries
 
 *************************************************************
 MIT License
@@ -30,23 +30,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 
-#pragma once
+#include "Enums.h"
 
-#include <variant> // std::variant
-#include <string> // std::string
-#include <sstream> // std::stringstream
-#include <type_traits> // std::is_same
+using namespace Moonshot;
 
-#include "../../Common/Errors/Errors.h"
-#include "../../Fox/Util/Enums.h"
-
-// Alias for a variant holding every type possible in the interpreter.
-typedef std::variant<int, float, char, std::string, bool> FVal;
-
-namespace Moonshot
+bool parse::isCondition(const optype & op)
 {
-	// todo : FVal mathematics (operations) & helper func
-	std::string dumpFVal(const FVal &var);
-	parse::types getTypeFromFVal(const FVal &var);
-	FVal parseTypes_toFVal(const parse::types& p);
+	return (op >= 8) && (op <= 15); // Condition are between 8 and 15 in the enum.
+}
+
+bool Moonshot::parse::isUnary(const optype & op)
+{
+	return (op >= 17); // Above 17 are unaries (for now)
+}
+
+std::string Moonshot::getFromDict(const std::map<parse::optype, std::string>& m, const parse::optype& op)
+{
+	auto i = m.find(op);
+	if (i != m.end())
+		return i->second;
+	return "";
 }
