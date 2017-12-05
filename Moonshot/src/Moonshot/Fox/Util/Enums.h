@@ -53,10 +53,8 @@ namespace Moonshot
 			DEFAULT,
 			PASS,			// Just "pass" (return the value in L)
 
-			// Comparison "joining" operators (&& ||)
-			AND,
-			OR,
-
+			// str concat
+			CONCAT,
 			// Maths.
 			ADD,
 			MINUS,
@@ -65,6 +63,9 @@ namespace Moonshot
 			MOD,
 			EXP,
 
+			// Comparison "joining" operators (&& ||)
+			AND,
+			OR,
 			// Comparison
 			LESS_OR_EQUAL,
 			GREATER_OR_EQUAL,
@@ -78,15 +79,18 @@ namespace Moonshot
 			NEGATE		// -
 		};
 
+		bool isCondition(const optype& op);
+		bool isUnary(const optype& op);
 		enum direction
 		{
 			LEFT, RIGHT
 		};
-		const std::map<optype,std::string> kOptype_dict = 
+		const std::map<optype,std::string> kOptype_dict =
 		{
 			{ DEFAULT	, "DEFAULT" },
 			{ PASS		, "PASS"	},
 			{ AND		, "AND"		},
+			{ CONCAT	, "CONCAT"	},
 			{ OR		, "OR"		},
 			{ ADD		, "ADD"		},
 			{ MINUS		, "MINUS"	},
@@ -113,4 +117,5 @@ namespace Moonshot
 			{ TYPE_STR	, "STRING"	}
 		};
 	}
+	std::string getFromDict(const std::map<parse::optype,std::string>& m,const parse::optype& op);
 }

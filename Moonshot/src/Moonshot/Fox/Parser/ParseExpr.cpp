@@ -72,7 +72,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 		if (rtr->op_ == parse::optype::PASS) // No right node ? Append directly to rtr.
 			rtr->op_ = op;
 		else	// Already has one ? create a new node and make rtr its left child.
-			oneUpNode(rtr, op);
+			rtr = oneUpNode(rtr, op);
 		rtr->makeChild(parse::direction::RIGHT, right);
 	}
 
@@ -114,6 +114,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 	// Apply the cast (if found) to the node
 	if (mustcastResult)
 		val->setReturnType(casttype);
+
 	return val;
 }
 

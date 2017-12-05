@@ -43,7 +43,7 @@ std::string Moonshot::dumpFVal(const FVal & var)
 	else if (std::holds_alternative<char>(var))
 	{
 		char x = std::get<char>(var);
-		ss << "Type : CHAR, Value : " << (int)x << "'" << x << "'";
+		ss << "Type : CHAR, Value : " << (int)x <<  " = '" << x << "'";
 	}
 	else
 		E_CRITICAL("Illegal variant.");
@@ -67,3 +67,27 @@ Moonshot::parse::types Moonshot::getTypeFromFVal(const FVal & var)
 		return parse::types::NOTYPE;
 }
 
+FVal Moonshot::parseTypes_toFVal(const Moonshot::parse::types & p)
+{
+	using namespace Moonshot;
+	switch (p)
+	{
+		case parse::types::NOTYPE:
+			E_WARNING("Attempted to retrieve a FVal from a types::NOTYPE. Returned a empty FVal as a result")
+			return FVal();
+		case parse::types::TYPE_BOOL:
+			return FVal(false);
+		case parse::types::TYPE_CHAR:
+			return FVal((char)0);
+		case parse::types::TYPE_FLOAT:
+			return FVal((float)0.0f);
+		case parse::types::TYPE_INT:
+			return FVal((int)0);
+		case parse::types::TYPE_STR:
+			return FVal(std::string(""));
+		default:
+			E_CRITICAL("Illegal type.");
+			return FVal();
+	}
+
+}

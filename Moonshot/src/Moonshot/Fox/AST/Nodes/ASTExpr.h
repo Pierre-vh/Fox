@@ -75,8 +75,6 @@ namespace Moonshot
 			parse::types totype_ = parse::types::NOTYPE;	// By default, don't cast. If this is different than "NONE", then we must cast the result to the desired type.
 			parse::optype op_ = parse::DEFAULT;
 			std::unique_ptr<ASTExpr> left_ = 0, right_ = 0;
-
-
 	};
 	struct ASTValue : public ASTExpr
 	{
