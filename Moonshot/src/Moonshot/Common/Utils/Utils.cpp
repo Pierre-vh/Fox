@@ -15,5 +15,8 @@ util::dynamic_unique_ptr_cast(std::unique_ptr<Base, Del>&& p)
 
 std::string util::filepath_MoonshotProj(const std::string & s)
 {
-	return ".\\..\\..\\..\\..\\Moonshot\\" + s;
+	// Build path is \Moonshot\<config>\
+	// Moonshot source is:
+	// \Moonshot\Moonshot
+	return ".\\..\\Moonshot\\" + s;
 }
