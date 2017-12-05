@@ -42,7 +42,7 @@ SOFTWARE.
 #include "Token.h"
 
 #define LOG_PUSHEDTOKENS false
-#define LOG_TOTALTOKENSCOUNT true
+#define LOG_TOTALTOKENSCOUNT false
 
 namespace Moonshot
 {
@@ -97,7 +97,7 @@ namespace Moonshot
 			// Member Variables
 
 			// dfa function dictionary
-			const std::map<dfa::state, std::function<void(Lexer &)>> &kState_dict =
+			const std::map<dfa::state, std::function<void(Lexer &)>> kState_dict =
 			{ 
 				{	dfa::S0	,	&Lexer::dfa_S0 },
 				{	dfa::S1	,	&Lexer::dfa_S1 },

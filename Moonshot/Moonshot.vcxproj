@@ -101,6 +101,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -123,6 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="tests\testers\ExprTester.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.cpp" />
     <ClCompile Include="src\Moonshot\Common\FValue\FValue.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\IVisitor.cpp" />
@@ -137,6 +139,7 @@
     <ClCompile Include="src\Moonshot\Common\Utils\Utils.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Util\Enums.cpp" />
+    <ClCompile Include="tests\testers\ITest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Moonshot\Badger\readme.md" />
@@ -144,8 +147,11 @@
     <None Include="src\Moonshot\Fox\AST\Visitor\readme.md" />
     <None Include="src\Moonshot\Fox\readme.md" />
     <None Include="src\Moonshot\readme.md" />
+    <None Include="tests\expr\expr_bad.fox" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="tests\testers\ExprTester.h" />
+    <ClInclude Include="tests\testers\ITest.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\IVisitor.h" />
     <ClInclude Include="src\Moonshot\Common\FValue\FValue.h" />

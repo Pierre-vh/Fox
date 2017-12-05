@@ -49,7 +49,6 @@ void TypeCheck::visit(ASTExpr * node)
 		return;
 	if (node->left_ && node->right_) // We've got a normal node with 2 childrens
 	{
-		returnTypeHelper helper(node->op_);
 		// get left expr result type
 		node->left_->accept(this);
 		auto left = rtr_type_;
@@ -60,6 +59,7 @@ void TypeCheck::visit(ASTExpr * node)
 		if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right) && (node->op_ == parse::ADD))
 			node->op_ = parse::CONCAT;
 
+		returnTypeHelper helper(node->op_);
 		// Check if our operation means something? If yes, the result will be placed in rtr_type.
 		rtr_type_ = helper.getExprResultType(left, right);
 		return;

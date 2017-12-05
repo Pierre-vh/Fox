@@ -41,10 +41,12 @@ SOFTWARE.
 
 #define E_CHECKSTATE	*(Moonshot::Errors::getInstance())
 
-#define E_GETSTATE		MoonShot::Errors::getInstance()->getCurrentState()
-#define E_GETSTATE_STR	MoonShot::Errors::getInstance()->getCurrentState();
+#define E_GETSTATE		Moonshot::Errors::getInstance()->getCurrentState()
+#define E_GETSTATE_STR	Moonshot::Errors::getInstance()->getCurrentState()
 
+#define E_RESETSTATE	Moonshot::Errors::getInstance()->resetStatus();
 
+// Debug defines
 
 namespace Moonshot
 {
@@ -75,13 +77,18 @@ namespace Moonshot
 			errstate getCurrentState() const;
 			std::string getCurrentState_asStr() const;
 
+			void resetStatus();
+
 			operator bool() const;
 
-			struct
+			struct options_ 
 			{
+				void setAll(const bool &b);
 				bool muteLogs		= false;
 				bool muteWarnings	= false;
-			} options;
+				bool muteErrors		= false;
+				bool muteCriticals	= false;
+			}options;
 
 			~Errors();
 		private:

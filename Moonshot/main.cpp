@@ -1,4 +1,28 @@
 #include <iostream>
+
+#include "tests\testers\ExprTester.h"
+#include "src\Moonshot\Common\Errors\Errors.h"
+
+// New tests
+
+int main()
+{
+	auto err = Moonshot::Errors::getInstance();
+	ExprTester *testExpr = new ExprTester();
+	err->options.setAll(true); // Mute all 
+	std::cout << char(219) << " Expression testing..." << std::endl;
+
+	if (testExpr->run())
+		std::cout << char(219) << " All Expr tests finished " << char(175) << "SUCCESS" << std::endl;
+	else
+		std::cout << char(219) << " All Expr tests finished " << char(175) << "FAILURE" << std::endl;
+	delete(testExpr);
+	std::cin.get();
+	return 0;
+}
+
+// Old tests
+/*
 #include "src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.h"
 #include "src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.h"
 #include "src\Moonshot\Common\FValue\FValue.h"
@@ -18,6 +42,7 @@ using namespace Moonshot;
 
 int main(int argc, char* argv[])
 {
+	
 	// Note: Main is mostly personal tests. It's not definitive logic, and will change with nearly every commit.
 	E_LOG("Starting..");
 	Errors *x = Errors::getInstance();
@@ -56,7 +81,7 @@ int main(int argc, char* argv[])
 		std::cout << search->second << std::endl;
 	}
 	else
-		std::cout << "The tree has failed a typecheck." << std::endl;	
+		std::cout << "The tree has failed a typecheck." << std::endl;
 	std::cin.get();
 	return 0;
-}
+}*/

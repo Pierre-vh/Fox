@@ -59,40 +59,53 @@ void Moonshot::Errors::logInfo(const std::string & str)
 
 void Errors::reportWarning(const char * file, int line, const std::string &txt)
 {
-	#ifdef _DEBUG
-		if (!options.muteWarnings)
+	if (!options.muteWarnings)
+	{
+		#ifdef _DEBUG
 			std::cerr << "[WARNING][" << file << " @line " << line << "]\n" << txt << std::endl;
-	#else
-		if (!options.muteWarnings)
+		#else
 			std::cerr << "[WARNING]\t" << txt << std::endl;
-	#endif
+		#endif
+	}
 	state_ = WARNING;
 }
 
 void Errors::reportWarning(const std::string &txt)
 {
 	if (!options.muteWarnings)
-		std::cerr << "[WARNING] -> " << std::endl;
+	{
+		#ifdef _DEBUG
+			std::cerr << "[WARNING]\t" << txt << std::endl;
+		#else
+			std::cerr << "[WARNING]\t" << txt << std::endl;
+		#endif
+	}
 	state_ = WARNING;
 }
 
 void Errors::reportError(const char * file, int line, const std::string &txt)
 {
-	#ifdef _DEBUG
-		std::cerr << "[ERROR][" << file << " @line " << line << "]\n" << txt << std::endl;
-	#else 
-		std::cerr << "[ERROR]\t" << txt << std::endl;
-	#endif 
 	state_ = ERROR;
+	if (!options.muteErrors)
+	{
+		#ifdef _DEBUG
+			std::cerr << "[ERROR][" << file << " @line " << line << "]\n" << txt << std::endl;
+		#else 
+			std::cerr << "[ERROR]\t" << txt << std::endl;
+		#endif 
+	}
 }
 
 void Errors::reportCritical(const char * file, int line, const std::string &txt)
 {
-	#ifdef _DEBUG
-		std::cerr << "[CRITICAL][" << file << " @line " << line << "]\n" << txt << std::endl;
-	#else 
-		std::cerr << "[CRITICAL]\t" << txt << std::endl;
-	#endif 
+	if (!options.muteCriticals)
+	{
+		#ifdef _DEBUG
+			std::cerr << "[CRITICAL][" << file << " @line " << line << "]\n" << txt << std::endl;
+		#else 
+			std::cerr << "[CRITICAL]\t" << txt << std::endl;
+		#endif 
+	}
 	state_ = CRITICAL;
 }
 
@@ -118,6 +131,11 @@ std::string Moonshot::Errors::getCurrentState_asStr() const
 	}
 }
 
+void Moonshot::Errors::resetStatus()
+{
+	state_ = GOOD;
+}
+
 Moonshot::Errors::operator bool() const
 {
 	return state_ == GOOD || state_ == WARNING;		// Return true if we are not in a error/critical state.
@@ -127,4 +145,10 @@ Errors::~Errors()
 {
 }
 
-
+void Moonshot::Errors::options_::setAll(const bool &b)
+{
+	muteLogs = b;
+	muteWarnings = b;
+	muteErrors = b;
+	muteCriticals = b;
+}
