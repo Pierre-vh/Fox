@@ -60,7 +60,8 @@ namespace Moonshot
 			double fvalToDouble(const FVal &fval);
 			bool compareVal(const parse::optype &op, const FVal &l, const FVal &r);
 			double performOp(const parse::optype& op, const double &l, const double &r);
-	
+		
+			bool fitsInValue(const parse::types& typ, const double &d); // Determines if we should convert the result to a float when making an operation to avoid loss of information
 			class castHelper
 			{
 				public:

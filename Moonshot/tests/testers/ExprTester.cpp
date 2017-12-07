@@ -26,6 +26,9 @@ bool ExprTester::run()
 
 bool ExprTester::testFile(const std::string & fp, const bool & shouldFail)
 {
+	if (!E_CHECKSTATE)
+		return false;
+
 	std::ifstream file(fp); // Open file
 	if (!file)
 		std::cout << "Couldn't open file " << fp_ << std::endl;
@@ -42,15 +45,16 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 {
 	E_RESETSTATE
 
-	std::cout << std::endl << "Expression: " << str << std::endl;
+	std::cout << "Expression: " << str << std::endl;
 	
 	Lexer l;
 	l.lexStr(str);
+	l.logAllTokens();
 
 	if (!E_CHECKSTATE)
 	{
 		std::cout << "\t" << char(192) << "Test failed @ lexing." << std::endl;
-		return false;
+		return shouldFailTC;
 	}
 
 	Parser p(&l);
@@ -59,10 +63,21 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 	if (!E_CHECKSTATE)
 	{
 		std::cout << "\t" << char(192) << "Test failed @ parsing." << std::endl;
-		return false;
+		return shouldFailTC;
 	}
 	TypeCheck *tc_check = new TypeCheck();
 	root->accept(tc_check);
+
+	if (showAST && !shouldFailTC)
+		root->accept(new Dumper());
+	
+	if (!shouldFailTC && E_CHECKSTATE)
+	{
+		std::cout << "[RESULT]:";
+		RTExprVisitor *v = new RTExprVisitor();
+		FVal f = root->accept(v);
+		std::cout << dumpFVal(f) << std::endl;
+	}
 
 	if (!E_CHECKSTATE && !shouldFailTC)
 	{
@@ -72,17 +87,7 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 	else
 		std::cout << "\t" << char(192) << (shouldFailTC ? "Test failed as expected." : "Test passed successfully.") << std::endl;
 
-	if (showAST && !shouldFailTC)
-		root->accept(new Dumper());
 
-	std::cout << "result" << std::endl;
-	
-	if (!shouldFailTC && E_CHECKSTATE)
-	{
-		RTExprVisitor *v = new RTExprVisitor();
-		FVal f = root->accept(v);
-		std::cout << dumpFVal(f);
-	}
 	root.release();
 	delete(tc_check);
 

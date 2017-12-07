@@ -106,7 +106,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 	// Apply the unary operator (if found) to the node.
 	if (uopResult)
 	{
-		if (val->op_ != parse::PASS) // If we already have an operation
+		if ((val->op_ != parse::PASS) || (typeid(*val) == typeid(*std::make_unique<ASTValue>()))) // If we already have an operation OR the node is a value
 			val = oneUpNode(val, uopOp); // One up the node and set the new parent's operation to uopOp
 		else
 			val->op_ = uopOp; // Else, just set the op_ to uopOp;

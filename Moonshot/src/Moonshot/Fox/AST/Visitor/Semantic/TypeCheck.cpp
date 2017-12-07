@@ -58,17 +58,20 @@ void TypeCheck::visit(ASTExpr * node)
 		// strings concat check
 		if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right) && (node->op_ == parse::ADD))
 			node->op_ = parse::CONCAT;
-
+	
 		returnTypeHelper helper(node->op_);
 		// Check if our operation means something? If yes, the result will be placed in rtr_type.
 		rtr_type_ = helper.getExprResultType(left, right);
+
+		// Check if we have a division, in this case, we need to correct the return type to float.
+		if ((node->op_ == parse::optype::DIV) && E_CHECKSTATE) // Operation is possible ? Check for division, because divisions returns float. always.
+			rtr_type_ = FVal((float)0); // 
 	}
 	else if(node->left_)// We only have a left node
 	{
-		if (node->op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node.
+		if (node->op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node. We still visit child nodes tho
 		{
-			// Later, it might be useful to make a system like returnTypeHelper to check the validity of casts
-			// But for now, almost every cast is possible, and when a cast isn't possible (string->numeric type) a warning is emitted and a default value is returned with a warning, but that is done @ runtime.
+			node->left_->accept(this);
 			rtr_type_ = parseTypes_toFVal(node->totype_);
 		}
 		else if (parse::isUnary(node->op_))
@@ -95,7 +98,8 @@ void TypeCheck::visit(ASTExpr * node)
 		E_CRITICAL("Node was in an invalid state.")
 	}
 	node->totype_ = getTypeFromFVal(rtr_type_); // Sets the node optype to rtr_type_
-	return;
+	if (node->totype_ == parse::NOTYPE)
+		E_CRITICAL("Type was a notype.")
 }
 
 void TypeCheck::visit(ASTValue * node)
@@ -115,7 +119,6 @@ TypeCheck::returnTypeHelper::returnTypeHelper(const parse::optype & op) : op_(op
 
 FVal TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& f2)
 {
-	//std::cout << "Checking :" << dumpFVal(f1) << " AND " << dumpFVal(f2) << std::endl;
 	std::pair<bool, FVal> result;
 	// Double dispatch w/ std::visit
 	std::visit([&](const auto& a, const auto& b) {
@@ -161,7 +164,7 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 		{
 			if (((op_ == parse::AND) || (op_ == parse::OR)) && !isT1Num) // If we have a comp-join-op and strings, it's an error 
 				E_ERROR("Operation AND (&&) or OR(||) require types convertible to boolean on each side.");
-			return std::pair<bool, FVal>(true, FVal(false));	// If it's a condition, the return type will be a boolean.
+			return { true,FVal(false) };	//f it's a condition, the return type will be a boolean.
 		}
 		else if (!isT1Num && (op_ != parse::CONCAT)) // Strings can only be concatenated 
 		{

@@ -96,17 +96,35 @@ bool token::idSign()
 
 bool token::idValue()
 {
-	if (str[0] == '\'' && str.back() == '\'')
+	if (str[0] == '\'' )
 	{
-		str = str[1];
-		val_type = lex::VAL_CHAR;
-		return true;
+		if (str.back() == '\'')
+		{
+			str = str[1];
+			if (str == "\\" && str.size() == 4) // If we have a \n in a char or something
+				str += str[2];
+			val_type = lex::VAL_CHAR;
+			return true;
+		}
+		else
+		{
+			E_ERROR("Unclosed char " + str);
+			return false;
+		}
 	}
-	else if (str[0] == '"' && str.back() == '"')
+	else if (str[0] == '"')
 	{
-		str = str.substr(1, str.size() - 2);
-		val_type = lex::VAL_STRING;
-		return true;
+		if (str.back() == '"')
+		{
+			str = str.substr(1, str.size() - 2);
+			val_type = lex::VAL_STRING;
+			return true;
+		}
+		else
+		{
+			E_ERROR("Unclosed string: " + str);
+			return false;
+		}
 	}
 	else if (str == "true" | str == "false")
 	{

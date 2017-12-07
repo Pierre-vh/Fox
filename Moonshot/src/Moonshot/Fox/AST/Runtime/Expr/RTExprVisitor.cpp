@@ -113,7 +113,11 @@ FVal Moonshot::RTExprVisitor::visit(ASTExpr * node)
 		double dleftval = fvalToDouble(node->left_->accept(this));
 		double drightval = fvalToDouble(node->right_->accept(this));
 		double result = performOp(node->op_, dleftval, drightval);
-		return ch.castTo(node->totype_, result);		// Cast to result type
+
+		if (fitsInValue(node->totype_, result) || (node->op_ == parse::CAST)) // If the results fits or we desire to cast the result
+			return ch.castTo(node->totype_, result);		// Cast to result type
+		else
+			return ch.castTo(parse::TYPE_FLOAT, result);	// Cast to float instead to keep information from being lost.
 	}
 	return FVal();
 }
@@ -138,6 +142,8 @@ double Moonshot::RTExprVisitor::fvalToDouble(const FVal & fval)
 		E_CRITICAL("Can't convert str to double")
 		return 0.0;
 	}
+	E_CRITICAL("Reached end of function.Unimplemented type in FVal?")
+	return 0.0;
 }
 bool Moonshot::RTExprVisitor::compareVal(const parse::optype & op, const FVal & l, const FVal & r)
 {
@@ -163,11 +169,11 @@ bool Moonshot::RTExprVisitor::compareVal(const parse::optype & op, const FVal & 
 		case NOTEQUAL:
 			return lval != rval;
 		default:
-			E_CRITICAL("Defaulted.")
+			E_CRITICAL("Defaulted. Unimplemented condition operation?")
 			return false;
 	}
 }
-double Moonshot::RTExprVisitor::performOp(const parse::optype& op, const double & l, const double & r)
+double RTExprVisitor::performOp(const parse::optype& op, const double & l, const double & r)
 {
 	using namespace parse;
 	switch (op)
@@ -180,8 +186,12 @@ double Moonshot::RTExprVisitor::performOp(const parse::optype& op, const double 
 			return l * r;
 		case DIV:
 			if(r == 0)
+			{
 				E_ERROR("Division by zero.")
-			return l / r;
+				return 0.0;
+			}
+			else 
+				return l / r;
 		case MOD:
 			return fmod(l, r); // Modulus support floating point op
 		case EXP:
@@ -189,6 +199,32 @@ double Moonshot::RTExprVisitor::performOp(const parse::optype& op, const double 
 		default:
 			E_CRITICAL("Defaulted.")
 			return 0.0;
+	}
+}
+
+bool Moonshot::RTExprVisitor::fitsInValue(const parse::types & typ, const double & d)
+{
+	using namespace parse;
+	switch (typ)
+	{
+		case TYPE_BOOL:
+			return true; // When we want to cast to bool, we usually don't care to lose information, we just want a true/false result.
+		case TYPE_INT:
+			if (d > 32767 || d < -32767)
+				return false;
+			return true;
+		case TYPE_FLOAT:
+			return true;
+		case TYPE_CHAR:
+			if (d < -127 || d > 127)
+				return false;
+			return true;
+		case NOTYPE:
+			E_CRITICAL("type was a NOTYPE.")
+			break;
+		default:
+			E_CRITICAL("Defaulted. Unimplemented type? Or tried to convert to string?")
+			return false;
 	}
 }
 

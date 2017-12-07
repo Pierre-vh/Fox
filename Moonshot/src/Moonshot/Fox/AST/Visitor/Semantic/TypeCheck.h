@@ -38,6 +38,7 @@ SOFTWARE.
 #include <type_traits> // std::is_same
 #include <sstream> // std::stringstream
 #include <variant> // std::visit
+#include <typeinfo> // typeid
 #include "../IVisitor.h" // base class
 #include "../../../../Common/FValue/FValue.h" // FVal Utilities
 #include "../../Nodes/ASTExpr.h" // Include nodes
