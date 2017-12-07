@@ -36,7 +36,7 @@ using namespace Moonshot;
 
 bool parse::isCondition(const optype & op)
 {
-	return (op >= 8) && (op <= 15); // Condition are between 8 and 15 in the enum.
+	return (op >= 9) && (op <= 15); // Condition are between 8 and 15 in the enum.
 }
 
 bool Moonshot::parse::isUnary(const optype & op)

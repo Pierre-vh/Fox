@@ -62,16 +62,14 @@ void TypeCheck::visit(ASTExpr * node)
 		returnTypeHelper helper(node->op_);
 		// Check if our operation means something? If yes, the result will be placed in rtr_type.
 		rtr_type_ = helper.getExprResultType(left, right);
-		return;
 	}
 	else if(node->left_)// We only have a left node
 	{
-		if ((node->totype_ != parse::types::NOTYPE)) // this is a cast node, so the return type is the one of the cast node.
+		if (node->op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node.
 		{
 			// Later, it might be useful to make a system like returnTypeHelper to check the validity of casts
 			// But for now, almost every cast is possible, and when a cast isn't possible (string->numeric type) a warning is emitted and a default value is returned with a warning, but that is done @ runtime.
 			rtr_type_ = parseTypes_toFVal(node->totype_);
-			return;
 		}
 		else if (parse::isUnary(node->op_))
 		{
@@ -87,10 +85,7 @@ void TypeCheck::visit(ASTExpr * node)
 				E_ERROR(ss.str())
 			}
 			if (node->op_ == parse::LOGICNOT)
-			{
 				rtr_type_ = FVal(false); // Return type is a boolean
-				return;
-			}
 		}
 	}
 	else
@@ -99,6 +94,7 @@ void TypeCheck::visit(ASTExpr * node)
 		// getting in this branch means that we only have a right_ node.
 		E_CRITICAL("Node was in an invalid state.")
 	}
+	node->totype_ = getTypeFromFVal(rtr_type_); // Sets the node optype to rtr_type_
 	return;
 }
 
@@ -176,7 +172,11 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 	}
 	else if (!isT1Num || !isT2Num) // It's 2 different types, is one of them a string ? 
 		E_ERROR("Can't perform an operation on a string and a numeric type.") 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
-	
+	else
+	{
+		if (parse::isCondition(op_)) // If we have a condition, and the 2 types are arithmetic, it's doable and it returns a boolean
+			return { true, FVal(false) };
+	}
 	// Normal failure. We'll probably find a result when swapping T1 and T2 in getExprResultType
 	return { false ,FVal() }; 
 }

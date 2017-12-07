@@ -3,13 +3,15 @@
 #include "tests\testers\ExprTester.h"
 #include "src\Moonshot\Common\Errors\Errors.h"
 
-// New tests
-
+// TODO : change operations return type in typecheck.
+// Divisions should return float
+// Polish the overall expr evaluator
 int main()
 {
 	auto err = Moonshot::Errors::getInstance();
 	ExprTester *testExpr = new ExprTester();
-	err->options.setAll(true); // Mute all 
+	err->options.setAll(false); // Mute all 
+	testExpr->showAST = true;
 	std::cout << char(219) << " Expression testing..." << std::endl;
 
 	if (testExpr->run())

@@ -36,7 +36,6 @@ SOFTWARE.
 #include "../../Lexer/Token.h"					// Lexer's token
 #include "../../Util/Enums.h"					// enums
 
-#include "../../AST/Visitor/IVisitor.h"
 #include "../../../Common/Errors/Errors.h"		// error reporting
 #include "../../../Common/FValue/FValue.h"		// FValue alias
 
@@ -44,8 +43,6 @@ SOFTWARE.
 #include <memory>	// std::unique_ptr
 #include <sstream> // std::stringstream
 #include <variant>	// std::variant
-
-#define VISIT_THIS vis->visit(this);
 
 namespace Moonshot	
 {
@@ -65,15 +62,15 @@ namespace Moonshot
 			std::unique_ptr<ASTExpr> getSimple();			// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
 
 			// Accept
-			virtual FVal accept(IVisitor *vis) override;
-
+			virtual void accept(IVisitor *vis) override;
+			virtual FVal accept(IRTVisitor *vis) override;
 			// NODE DATA
 			// Expression nodes hold 4 values :
 			// totype_ : the return type of the node
 			// op_ : the operation the node should perform
 			// left_ & right_ -> pointers to its children
 			parse::types totype_ = parse::types::NOTYPE;	// By default, don't cast. If this is different than "NONE", then we must cast the result to the desired type.
-			parse::optype op_ = parse::DEFAULT;
+			parse::optype op_ = parse::PASS;
 			std::unique_ptr<ASTExpr> left_ = 0, right_ = 0;
 	};
 	struct ASTValue : public ASTExpr
@@ -83,8 +80,8 @@ namespace Moonshot
 			ASTValue(const token &t);
 			~ASTValue();
 
-			FVal accept(IVisitor *vis) override;
-
+			void accept(IVisitor *vis) override;
+			FVal accept(IRTVisitor *vis) override;
 			// NODE DATA
 			// Value node holds 1 value : (inherited ones are never called and ignored.)
 			// val_ -> std::variant that holds the data of the node

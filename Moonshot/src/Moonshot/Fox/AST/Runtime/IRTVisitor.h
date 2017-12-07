@@ -4,7 +4,9 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : The Main Node abstract class.
+Description : Runtime visitor abstract class.
+Used as a short-term solution before implementing a vm. 
+Will be removed once the badger implementation is complete!
 
 *************************************************************
 MIT License
@@ -31,25 +33,19 @@ SOFTWARE.
 *************************************************************/
 
 #pragma once
-
+//utils
+#include "../../../Common/Utils/Utils.h"
+#include "../../../Common/Errors/Errors.h"
 #include "../../../Common/FValue/FValue.h"
-#include "../Runtime/IRTVisitor.h"
-#include "../../AST/Visitor/IVisitor.h"
-
-#define VISIT_THIS vis->visit(this);
 
 namespace Moonshot
 {
-	struct IASTNode
+	struct ASTExpr;
+	struct ASTValue;
+	class IRTVisitor
 	{
 		public :
-			IASTNode();
-			~IASTNode();
-			virtual void accept(IVisitor *vis) = 0;
-			virtual FVal accept(IRTVisitor *vis) = 0;
-		private:
-			IASTNode(const IASTNode& other);
-			IASTNode& operator=(const IASTNode&);
+			virtual FVal visit(ASTExpr *node) = 0;
+			virtual FVal visit(ASTValue *node) = 0;
 	};
 }
-

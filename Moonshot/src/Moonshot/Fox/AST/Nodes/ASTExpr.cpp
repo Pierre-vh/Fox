@@ -74,12 +74,15 @@ std::unique_ptr<ASTExpr> Moonshot::ASTExpr::getSimple()
 	return std::unique_ptr<ASTExpr>(nullptr);
 }
 
-FVal ASTExpr::accept(IVisitor *vis)
+void ASTExpr::accept(IVisitor *vis)
 {
 	VISIT_THIS
-	return FVal();
 }
 
+FVal ASTExpr::accept(IRTVisitor *vis)
+{
+	return VISIT_THIS
+}
 
 void ASTExpr::setReturnType(const parse::types &casttype)
 {
@@ -118,10 +121,13 @@ ASTValue::ASTValue(const token & t)
 	}
 }
 
-FVal ASTValue::accept(IVisitor * vis)
+void ASTValue::accept(IVisitor * vis)
 {
 	VISIT_THIS
-	return FVal();
+}
+FVal ASTValue::accept(IRTVisitor *vis)
+{
+	return VISIT_THIS
 }
 
 ASTValue::~ASTValue()

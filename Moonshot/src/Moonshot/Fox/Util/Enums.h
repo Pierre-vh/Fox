@@ -50,9 +50,8 @@ namespace Moonshot
 
 		enum optype
 		{
-			DEFAULT,
 			PASS,			// Just "pass" (return the value in L)
-
+			CAST,			// "Cast" nodes
 			// str concat
 			CONCAT,
 			// Maths.
@@ -87,7 +86,7 @@ namespace Moonshot
 		};
 		const std::map<optype,std::string> kOptype_dict =
 		{
-			{ DEFAULT	, "DEFAULT" },
+			{ CAST		, "CAST" },
 			{ PASS		, "PASS"	},
 			{ AND		, "AND"		},
 			{ CONCAT	, "CONCAT"	},

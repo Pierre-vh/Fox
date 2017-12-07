@@ -113,7 +113,10 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 	}
 	// Apply the cast (if found) to the node
 	if (mustcastResult)
-		val->setReturnType(casttype);
+	{
+		val = oneUpNode(val, parse::optype::CAST); // Create a "cast" node
+		val->totype_ = casttype;
+	}
 
 	return val;
 }
@@ -189,7 +192,7 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 	auto pk = getToken(pos_ + 1);
 	// Check current token validity
 	if (!cur.isValid() || (cur.type != tokentype::TT_SIGN))
-		return { false, optype::DEFAULT };
+		return { false, optype::PASS };
 	pos_ += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
 
 	switch (priority)
@@ -264,5 +267,5 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 			break;
 	}
 	pos_ -= 1;	// We did not find anything, decrement & return.
-	return { false, optype::DEFAULT };
+	return { false, optype::PASS };
 }

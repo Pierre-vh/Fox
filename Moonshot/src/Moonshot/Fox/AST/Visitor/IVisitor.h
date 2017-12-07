@@ -43,9 +43,6 @@ namespace Moonshot
 	class IVisitor
 	{
 		public:
-			IVisitor();
-			~IVisitor();
-			
 			virtual void visit(ASTExpr *node) = 0;
 			virtual void visit(ASTValue *node) = 0;
 			

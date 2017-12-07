@@ -8,8 +8,7 @@ Description : Type checking for expressions
 This class checks the return type of the whole expression (and E_ERROR when it found a impossible operation)
 You can get the result using getReturnTypeOfExpr().
 
-The only thing this class changes about the AST is op_ when we have 2 strings and a + operator: it changes it to concat
-
+This class sets totype_ variable as the return type of the expression, and changes the ADD operation between 2 strings to concat.
 *************************************************************
 MIT License
 

@@ -42,7 +42,7 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 {
 	E_RESETSTATE
 
-	std::cout << "Expression: " << str << std::endl;
+	std::cout << std::endl << "Expression: " << str << std::endl;
 	
 	Lexer l;
 	l.lexStr(str);
@@ -61,9 +61,6 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 		std::cout << "\t" << char(192) << "Test failed @ parsing." << std::endl;
 		return false;
 	}
-	else if (showAST)
-		root->accept(new Dumper());
-
 	TypeCheck *tc_check = new TypeCheck();
 	root->accept(tc_check);
 
@@ -75,6 +72,17 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 	else
 		std::cout << "\t" << char(192) << (shouldFailTC ? "Test failed as expected." : "Test passed successfully.") << std::endl;
 
+	if (showAST && !shouldFailTC)
+		root->accept(new Dumper());
+
+	std::cout << "result" << std::endl;
+	
+	if (!shouldFailTC && E_CHECKSTATE)
+	{
+		RTExprVisitor *v = new RTExprVisitor();
+		FVal f = root->accept(v);
+		std::cout << dumpFVal(f);
+	}
 	root.release();
 	delete(tc_check);
 

@@ -8,7 +8,7 @@
 #include "../../src/Moonshot/Fox/AST/Visitor/Semantic/TypeCheck.h"
 #include "../../src/Moonshot/Fox/AST/Visitor/Dumper/Dumper.h"
 #include "../../src/Moonshot/Common/Utils/Utils.h"
-
+#include "../../src/Moonshot/Fox/AST/Runtime/Expr/RTExprVisitor.h"
 #include <sstream>
 #include <fstream>
 
