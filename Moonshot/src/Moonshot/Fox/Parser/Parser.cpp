@@ -142,13 +142,13 @@ token Parser::getToken(const size_t & d) const
 void Moonshot::Parser::errorUnexpected()
 {
 	std::stringstream ss;
-	ss << " Unexpected token " << getToken().showFormattedTokenData() << std::endl;
+	ss << "[PARSER] Unexpected token " << getToken().showFormattedTokenData() << std::endl;
 	E_ERROR(ss.str());
 }
 
 void Moonshot::Parser::errorExpected(const std::string & s)
 {
 	std::stringstream ss;
-	ss << s << " after token " << getToken().showFormattedTokenData() << std::endl;
+	ss << s << "[PARSER] after token " << getToken().showFormattedTokenData() << std::endl;
 	E_ERROR(ss.str());
 }

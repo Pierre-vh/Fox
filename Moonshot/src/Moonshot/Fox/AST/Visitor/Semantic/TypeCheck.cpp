@@ -84,7 +84,7 @@ void TypeCheck::visit(ASTExpr * node)
 			if(std::holds_alternative<std::string>(lefttype))
 			{
 				std::stringstream ss;
-				ss << "Can't perform unary operation " << getFromDict(parse::kOptype_dict, node->op_) << " on a string.";
+				ss << "[TYPECHECK] Can't perform unary operation " << getFromDict(parse::kOptype_dict, node->op_) << " on a string.";
 				E_ERROR(ss.str())
 			}
 			if (node->op_ == parse::LOGICNOT)
@@ -95,11 +95,11 @@ void TypeCheck::visit(ASTExpr * node)
 	{
 		// Okay, this is far-fetched, but can be possible if our parser is broken. It's better to check this here :
 		// getting in this branch means that we only have a right_ node.
-		E_CRITICAL("Node was in an invalid state.")
+		E_CRITICAL("[TYPECHECK] Node was in an invalid state.")
 	}
 	node->totype_ = getTypeFromFVal(rtr_type_); // Sets the node optype to rtr_type_
 	if (node->totype_ == parse::NOTYPE)
-		E_CRITICAL("Type was a notype.")
+		E_CRITICAL("[TYPECHECK] Type was a notype.")
 }
 
 void TypeCheck::visit(ASTValue * node)
@@ -136,14 +136,14 @@ FVal TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& 
 		if (result.first)
 			return result.second;
 		else
-			E_ERROR("Impossible operation found:");
+			E_ERROR("[TYPECHECK] Impossible operation found:");
 	}
 	// If error
 	if (!E_CHECKSTATE)
 	{
 		// make an error message :
 		std::stringstream ss;
-		ss << "Impossible operation : " << getFromDict(parse::kOptype_dict, op_);
+		ss << "[TYPECHECK] Impossible operation : " << getFromDict(parse::kOptype_dict, op_);
 		ss << " between " << std::endl;
 		ss << dumpFVal(f1) << std::endl << dumpFVal(f2);
 		E_ERROR(ss.str());

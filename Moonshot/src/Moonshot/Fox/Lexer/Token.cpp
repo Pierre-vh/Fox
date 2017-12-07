@@ -53,7 +53,7 @@ bool Moonshot::token::isValid() const
 void token::selfId()
 {
 	if (str.size() == 0)
-		E_CRITICAL("Found an empty token. [" + pos.asText() + "]")
+		E_CRITICAL("[LEX] Found an empty token. [" + pos.asText() + "]")
 
 	if (idSign())
 		type = lex::TT_SIGN;
@@ -66,7 +66,7 @@ void token::selfId()
 		else if (std::regex_match(str, lex::kId_regex))
 			type = lex::TT_IDENTIFIER;
 		else 
-			E_ERROR("Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]")
+			E_ERROR("[LEX] Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]")
 	}
 }
 
@@ -108,7 +108,7 @@ bool token::idValue()
 		}
 		else
 		{
-			E_ERROR("Unclosed char " + str);
+			E_ERROR("[LEX] Unclosed char " + str);
 			return false;
 		}
 	}
@@ -122,7 +122,7 @@ bool token::idValue()
 		}
 		else
 		{
-			E_ERROR("Unclosed string: " + str);
+			E_ERROR("[LEX] Unclosed string: " + str);
 			return false;
 		}
 	}

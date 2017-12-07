@@ -3,9 +3,8 @@
 #include "tests\testers\ExprTester.h"
 #include "src\Moonshot\Common\Errors\Errors.h"
 
-// TODO : change operations return type in typecheck.
-// Divisions should return float
-// Polish the overall expr evaluator
+// TODO LIST
+// Make more detailed error message with a more robust error detection system.
 int main()
 {
 	auto err = Moonshot::Errors::getInstance();
