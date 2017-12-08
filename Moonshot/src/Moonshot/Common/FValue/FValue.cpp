@@ -49,7 +49,29 @@ std::string Moonshot::dumpFVal(const FVal & var)
 		E_CRITICAL("Illegal variant.");
 	return ss.str();
 }
-
+FVal Moonshot::getSampleFValForIndex(const std::size_t & t)
+{
+	switch (t)
+	{
+		case fval_int:
+			return FVal((int)0);
+		case fval_float:
+			return FVal((float)0.0f);
+		case fval_char:
+			return FVal((char)0);
+		case fval_str:
+			return FVal(std::string(""));
+		case fval_bool:
+			return FVal((bool)false);
+		case invalid_index:
+			E_CRITICAL("Tried to get a sample FVal with an invalid index");
+			return FVal();
+		default:
+			E_CRITICAL("Defaulted while attempting to return a sample FVal for an index. -> Unknown index. Unimplemented type?");
+			return FVal();
+	}
+}
+/*
 Moonshot::parse::types Moonshot::getTypeFromFVal(const FVal & var)
 {
 	using namespace Moonshot;
@@ -90,4 +112,4 @@ FVal Moonshot::parseTypesToFVal(const Moonshot::parse::types & p)
 			return FVal();
 	}
 
-}
+}*/

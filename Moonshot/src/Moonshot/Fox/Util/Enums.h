@@ -33,21 +33,12 @@ SOFTWARE.
 #pragma once
 
 #include <map>
+#include <cstddef>	// std::size_t
 
 namespace Moonshot
 {
 	namespace parse
 	{
-		enum types
-		{
-			NOTYPE,
-			TYPE_INT,
-			TYPE_BOOL,
-			TYPE_FLOAT,
-			TYPE_STR,
-			TYPE_CHAR
-		};
-
 		enum optype
 		{
 			PASS,			// Just "pass" (return the value in L)
@@ -106,14 +97,13 @@ namespace Moonshot
 			{ LOGICNOT	, "LOGICNOT"	},
 			{ NEGATE	, "NEGATE"	}
 		}; 
-		const std::map<types, std::string> kType_dict =
+		const std::map<std::size_t, std::string> kType_dict =
 		{
-			{ NOTYPE	, "NOTYPE"	},
-			{ TYPE_INT	, "INT"		},
-			{ TYPE_FLOAT, "FLOAT"	},
-			{ TYPE_CHAR	, "CHAR"	},
-			{ TYPE_BOOL	, "BOOL"	},
-			{ TYPE_STR	, "STRING"	}
+			{ 0	, "INT"		},
+			{ 1, "FLOAT"	},
+			{ 2	, "CHAR"	},
+			{ 3	, "BOOL"	},
+			{ 4	, "STRING"	}
 		};
 	}
 	std::string getFromDict(const std::map<parse::optype,std::string>& m,const parse::optype& op);

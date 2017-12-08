@@ -56,8 +56,8 @@ namespace Moonshot
 			void makeChild(const parse::direction &d,std::unique_ptr<ASTExpr> &node); // make (node) a child of this.
 			bool hasNode(const parse::direction &d) const;	// If the node posseses a left/right child, it will return true
 			
-			void setReturnType(const parse::types &casttype); // set totype_
-			parse::types getToType() const;					// return totype_
+			void setReturnType(const std::size_t &casttype); // set totype_
+			std::size_t getToType() const;					// return totype_
 
 			std::unique_ptr<ASTExpr> getSimple();			// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
 
@@ -69,7 +69,7 @@ namespace Moonshot
 			// totype_ : the return type of the node
 			// op_ : the operation the node should perform
 			// left_ & right_ -> pointers to its children
-			parse::types totype_ = parse::types::NOTYPE;	// By default, don't cast. If this is different than "NONE", then we must cast the result to the desired type.
+			std::size_t totype_ = invalid_index;	// By default, don't cast (-1). If this is different , then we must cast the result to the desired type.
 			parse::optype op_ = parse::PASS;
 			std::unique_ptr<ASTExpr> left_ = 0, right_ = 0;
 	};

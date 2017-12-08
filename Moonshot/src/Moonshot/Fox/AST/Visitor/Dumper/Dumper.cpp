@@ -54,7 +54,7 @@ void Dumper::visit(ASTExpr * node)
 	else
 		std::cout << node->op_;
 
-	if (node->totype_ != parse::types::NOTYPE)
+	if (node->totype_ != invalid_index)
 	{
 		std::cout << ", Return type : ";
 

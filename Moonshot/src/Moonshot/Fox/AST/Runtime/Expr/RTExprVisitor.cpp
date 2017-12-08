@@ -117,7 +117,7 @@ FVal Moonshot::RTExprVisitor::visit(ASTExpr * node)
 		if (fitsInValue(node->totype_, result) || (node->op_ == parse::CAST)) // If the results fits or we desire to cast the result
 			return ch.castTo(node->totype_, result);		// Cast to result type
 		else
-			return ch.castTo(parse::TYPE_FLOAT, result);	// Cast to float instead to keep information from being lost.
+			return ch.castTo(fval_float, result);	// Cast to float instead to keep information from being lost.
 	}
 	return FVal();
 }
@@ -202,25 +202,25 @@ double RTExprVisitor::performOp(const parse::optype& op, const double & l, const
 	}
 }
 
-bool Moonshot::RTExprVisitor::fitsInValue(const parse::types & typ, const double & d)
+bool Moonshot::RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 {
 	using namespace parse;
 	switch (typ)
 	{
-		case TYPE_BOOL:
+		case fval_bool:
 			return true; // When we want to cast to bool, we usually don't care to lose information, we just want a true/false result.
-		case TYPE_INT:
+		case fval_int:
 			if (d > INT_MAX || d < INT_MIN)
 				return false;
 			return true;
-		case TYPE_FLOAT:
+		case fval_float:
 			return true;
-		case TYPE_CHAR:
+		case fval_char:
 			if (d < -127 || d > 127)
 				return false;
 			return true;
-		case NOTYPE:
-			E_CRITICAL("[RUNTIME] type was a NOTYPE.")
+		case invalid_index:
+			E_CRITICAL("[RUNTIME] Index was invalid")
 			return false;
 		default:
 			E_CRITICAL("[RUNTIME] Defaulted. Unimplemented type? Or tried to convert to string?")
@@ -285,12 +285,12 @@ std::pair<bool, FVal> Moonshot::RTExprVisitor::castHelper::castTypeTo(const GOAL
 		return { true, FVal((GOAL)v) };
 }
 
-FVal Moonshot::RTExprVisitor::castHelper::castTo(const parse::types & goal, const FVal & val)
+FVal Moonshot::RTExprVisitor::castHelper::castTo(const std::size_t& goal, const FVal & val)
 {
 	std::pair<bool, FVal> rtr = std::make_pair<bool, FVal>(false, FVal());
 	std::visit([&](const auto& a, const auto& b) {
 		rtr = castTypeTo(a, b);
-	}, parseTypesToFVal(goal), val);
+	},getSampleFValForIndex(goal), val);
 
 	if (rtr.first)
 		return rtr.second;
@@ -299,12 +299,12 @@ FVal Moonshot::RTExprVisitor::castHelper::castTo(const parse::types & goal, cons
 	return FVal();
 }
 
-FVal Moonshot::RTExprVisitor::castHelper::castTo(const parse::types & goal, const double & val)
+FVal Moonshot::RTExprVisitor::castHelper::castTo(const std::size_t& goal, const double & val)
 {
 	std::pair<bool, FVal> rtr;
 	std::visit([&](const auto& a) {
 		rtr = castTypeTo(a,val);
-	}, parseTypesToFVal(goal));
+	},getSampleFValForIndex(goal));
 	if (rtr.first)
 		return rtr.second;
 	E_ERROR("[RUNTIME] Failed typecast from double (TODO:Show detailed error message")

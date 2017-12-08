@@ -87,7 +87,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 {
 	// Search for a unary operator
 	bool uopResult = false, mustcastResult = false;
-	parse::types casttype = parse::types::NOTYPE;
+	std::size_t casttype = invalid_index;
 	parse::optype uopOp;
 	std::tie(uopResult, uopOp) = matchUnaryOp();
 	

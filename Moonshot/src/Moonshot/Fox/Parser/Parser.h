@@ -84,7 +84,7 @@ namespace Moonshot
 			bool matchID();
 			bool matchSign(const lex::signs &s);
 			bool matchKeyword(const lex::keywords &k);
-			std::pair<bool, parse::types> matchTypeKw();
+			std::pair<bool,std::size_t> matchTypeKw();
 			// MATCH OPERATORS
 			std::pair<bool, parse::optype> matchUnaryOp();
 			std::pair<bool, parse::optype> matchBinaryOp(const char &priority);

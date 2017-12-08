@@ -84,12 +84,12 @@ FVal ASTExpr::accept(IRTVisitor *vis)
 	return VISIT_THIS
 }
 
-void ASTExpr::setReturnType(const parse::types &casttype)
+void ASTExpr::setReturnType(const std::size_t &casttype)
 {
 	totype_ = casttype;
 }
 
-parse::types ASTExpr::getToType() const
+std::size_t ASTExpr::getToType() const
 {
 	return totype_;
 }

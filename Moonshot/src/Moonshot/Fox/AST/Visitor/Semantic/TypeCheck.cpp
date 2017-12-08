@@ -72,7 +72,7 @@ void TypeCheck::visit(ASTExpr * node)
 		if (node->op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node. We still visit child nodes tho
 		{
 			node->left_->accept(this);
-			rtr_type_ = parseTypesToFVal(node->totype_);
+			rtr_type_ = getSampleFValForIndex(node->totype_);
 		}
 		else if (parse::isUnary(node->op_))
 		{
@@ -97,9 +97,9 @@ void TypeCheck::visit(ASTExpr * node)
 		// getting in this branch means that we only have a right_ node.
 		E_CRITICAL("[TYPECHECK] Node was in an invalid state.")
 	}
-	node->totype_ = getTypeFromFVal(rtr_type_); // Sets the node optype to rtr_type_
-	if (node->totype_ == parse::NOTYPE)
-		E_CRITICAL("[TYPECHECK] Type was a notype.")
+	node->totype_ = rtr_type_.index();
+	if (node->totype_ == invalid_index)
+		E_CRITICAL("[TYPECHECK] Type was invalid.")
 }
 
 void TypeCheck::visit(ASTValue * node)

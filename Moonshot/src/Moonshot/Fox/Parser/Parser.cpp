@@ -93,37 +93,37 @@ bool Parser::matchKeyword(const lex::keywords & k)
 	return false;
 }
 
-std::pair<bool, parse::types> Moonshot::Parser::matchTypeKw()
+std::pair<bool, std::size_t> Moonshot::Parser::matchTypeKw()
 {
 	token t = getToken();
 	if (t.type == lex::TT_KEYWORD)
 	{
-		parse::types rtr = parse::NOTYPE;
+		std::size_t rtr = invalid_index;
 		switch (t.kw_type)
-		{
-			case lex::T_BOOL:
-				rtr = parse::TYPE_BOOL;
-				break;
+		{			
 			case lex::T_INT:
-				rtr = parse::TYPE_INT;
+				rtr = fval_int;
 				break;
 			case lex::T_FLOAT:
-				rtr = parse::TYPE_FLOAT;
+				rtr = fval_float;
 				break;
 			case lex::T_CHAR:
-				rtr = parse::TYPE_CHAR;
+				rtr = fval_char;
 				break;
 			case lex::T_STRING:
-				rtr = parse::TYPE_STR;
+				rtr = fval_str;
+				break;
+			case lex::T_BOOL:
+				rtr = fval_bool;
 				break;
 		}
-		if (rtr != parse::NOTYPE)
+		if (rtr != invalid_index)
 		{
 			pos_ += 1;
 			return { true,rtr };
 		}
 	}
-	return { false, parse::NOTYPE };
+	return { false, invalid_index };
 }
 
 token Parser::getToken() const
