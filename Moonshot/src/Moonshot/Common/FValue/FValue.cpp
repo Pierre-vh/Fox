@@ -67,7 +67,7 @@ Moonshot::parse::types Moonshot::getTypeFromFVal(const FVal & var)
 		return parse::types::NOTYPE;
 }
 
-FVal Moonshot::parseTypes_toFVal(const Moonshot::parse::types & p)
+FVal Moonshot::parseTypesToFVal(const Moonshot::parse::types & p)
 {
 	using namespace Moonshot;
 	switch (p)

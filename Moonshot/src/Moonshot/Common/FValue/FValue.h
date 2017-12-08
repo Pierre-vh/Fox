@@ -48,5 +48,5 @@ namespace Moonshot
 	// todo : FVal mathematics (operations) & helper func
 	std::string dumpFVal(const FVal &var);
 	parse::types getTypeFromFVal(const FVal &var);
-	FVal parseTypes_toFVal(const parse::types& p);
+	FVal parseTypesToFVal(const parse::types& p);
 }

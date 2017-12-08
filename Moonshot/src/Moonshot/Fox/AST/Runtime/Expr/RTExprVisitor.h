@@ -41,6 +41,7 @@ SOFTWARE.
 #include "../IRTVisitor.h"
 #include <math.h>       /* exp */
 #include <tuple>
+#include <climits>
 
 // Necessary?
 //#include <variant> // std::bad_variant_access

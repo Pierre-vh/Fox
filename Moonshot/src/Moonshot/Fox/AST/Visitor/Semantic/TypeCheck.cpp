@@ -72,7 +72,7 @@ void TypeCheck::visit(ASTExpr * node)
 		if (node->op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node. We still visit child nodes tho
 		{
 			node->left_->accept(this);
-			rtr_type_ = parseTypes_toFVal(node->totype_);
+			rtr_type_ = parseTypesToFVal(node->totype_);
 		}
 		else if (parse::isUnary(node->op_))
 		{

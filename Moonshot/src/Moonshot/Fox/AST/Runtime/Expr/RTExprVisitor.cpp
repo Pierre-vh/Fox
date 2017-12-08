@@ -210,7 +210,7 @@ bool Moonshot::RTExprVisitor::fitsInValue(const parse::types & typ, const double
 		case TYPE_BOOL:
 			return true; // When we want to cast to bool, we usually don't care to lose information, we just want a true/false result.
 		case TYPE_INT:
-			if (d > 32767 || d < -32767)
+			if (d > INT_MAX || d < INT_MIN)
 				return false;
 			return true;
 		case TYPE_FLOAT:
@@ -221,7 +221,7 @@ bool Moonshot::RTExprVisitor::fitsInValue(const parse::types & typ, const double
 			return true;
 		case NOTYPE:
 			E_CRITICAL("[RUNTIME] type was a NOTYPE.")
-			break;
+			return false;
 		default:
 			E_CRITICAL("[RUNTIME] Defaulted. Unimplemented type? Or tried to convert to string?")
 			return false;
@@ -290,7 +290,7 @@ FVal Moonshot::RTExprVisitor::castHelper::castTo(const parse::types & goal, cons
 	std::pair<bool, FVal> rtr = std::make_pair<bool, FVal>(false, FVal());
 	std::visit([&](const auto& a, const auto& b) {
 		rtr = castTypeTo(a, b);
-	}, parseTypes_toFVal(goal), val);
+	}, parseTypesToFVal(goal), val);
 
 	if (rtr.first)
 		return rtr.second;
@@ -304,7 +304,7 @@ FVal Moonshot::RTExprVisitor::castHelper::castTo(const parse::types & goal, cons
 	std::pair<bool, FVal> rtr;
 	std::visit([&](const auto& a) {
 		rtr = castTypeTo(a,val);
-	}, parseTypes_toFVal(goal));
+	}, parseTypesToFVal(goal));
 	if (rtr.first)
 		return rtr.second;
 	E_ERROR("[RUNTIME] Failed typecast from double (TODO:Show detailed error message")
