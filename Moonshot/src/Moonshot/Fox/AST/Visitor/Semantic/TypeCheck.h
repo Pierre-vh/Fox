@@ -42,6 +42,7 @@ SOFTWARE.
 #include "../IVisitor.h" // base class
 #include "../../../../Common/FValue/FValue.h" // FVal Utilities
 #include "../../Nodes/ASTExpr.h" // Include nodes
+#include "../../../Util/Enums.h" // enums
 
 // remember : typedef std::variant<int, float, char, std::string, bool> FVal;
 

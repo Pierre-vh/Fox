@@ -58,8 +58,8 @@ void Dumper::visit(ASTExpr * node)
 	{
 		std::cout << ", Return type : ";
 
-		auto castStr = parse::kType_dict.find(node->totype_);
-		if (castStr != parse::kType_dict.end())
+		auto castStr = kType_dict.find(node->totype_);
+		if (castStr != kType_dict.end())
 			std::cout << castStr->second;
 		else 
 			std::cout << node->totype_;

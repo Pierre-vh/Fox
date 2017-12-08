@@ -162,19 +162,32 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 		//If it's not, it's a string, and so is T2.
 		if (parse::isCondition(op_)) // Is it a condition?
 		{
-			if (((op_ == parse::AND) || (op_ == parse::OR)) && !isT1Num) // If we have a comp-join-op and strings, it's an error 
-				E_ERROR("Operation AND (&&) or OR(||) require types convertible to boolean on each side.");
+			if (((op_ == parse::AND) || (op_ == parse::OR))	&& !isT1Num	)											// If we have a comp-join-op and strings, it's an error 
+			{
+				E_ERROR("Operations AND (&&) and OR (||) require types convertible to boolean on each side.")
+				return { false, FVal() };
+			}
 			return { true,FVal(false) };	//f it's a condition, the return type will be a boolean.
 		}
 		else if (!isT1Num && (op_ != parse::CONCAT)) // Strings can only be concatenated 
 		{
-			E_ERROR("Can't perform operations other than addition (concatenation) on strings");
-			return { false, FVal() };
+			E_ERROR("[TYPECHECK] Can't perform operations other than addition (concatenation) on strings");
+			return	{ false, FVal() };
+		}
+		else if (std::is_same<bool, T1>::value && parse::isArithOp(op_))
+		{
+			// We have 2 booleans, the result of an arithmetic operation between them is a int!
+			std::stringstream ss;
+			ss	<< "[TYPECHECK] The result of an artihmetic operation between 2 boolean is an integer ! " 
+				<< std::endl 
+				<< "Operation concerned: [" << v1 << " " << getFromDict(parse::kOptype_dict, op_) << " " << v2 << "]" << std::endl;
+			E_WARNING(ss.str())
+			return	{ true, FVal() };
 		}
 		return { true, FVal(v1) };		//the type is kept if we make a legal operation between 2 values of the same type. so we return a variant holding a sample value (v1) of the type.
 	}
 	else if (!isT1Num || !isT2Num) // It's 2 different types, is one of them a string ? 
-		E_ERROR("Can't perform an operation on a string and a numeric type.") 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
+		E_ERROR("[TYPECHECK] Can't perform an operation on a string and a numeric type.") 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
 	else
 	{
 		if (parse::isCondition(op_)) // If we have a condition, and the 2 types are arithmetic, it's doable and it returns a boolean

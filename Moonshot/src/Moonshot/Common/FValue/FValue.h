@@ -45,20 +45,28 @@ SOFTWARE.
 // Alias for a variant holding every type possible in the interpreter.
 typedef std::variant<int, float, char, std::string, bool> FVal;
 
-// Found this neat trick on SO https://stackoverflow.com/a/37126153
-#define invalid_index std::numeric_limits<std::size_t>::max()
-// How to remember values of index
-#define fval_int 0
-#define fval_float 1
-#define fval_char 2
-#define fval_str 3
-#define fval_bool 4
-
 namespace Moonshot
 {
-	// todo : FVal mathematics (operations) & helper func
 	std::string dumpFVal(const FVal &var);
 	FVal getSampleFValForIndex(const std::size_t& t);
-	//parse::types getTypeFromFVal(const FVal &var);
-	//FVal parseTypesToFVal(const parse::types& p);
+
+	// Thanks, I guess ! This looks healthier than using -1 as invalid index. https://stackoverflow.com/a/37126153
+	static constexpr std::size_t invalid_index = std::numeric_limits<std::size_t>::max();
+	// How to remember values of index
+	static constexpr std::size_t fval_int = 0;
+	static constexpr std::size_t fval_float = 1;
+	static constexpr std::size_t fval_char = 2;
+	static constexpr std::size_t fval_str = 3;
+	static constexpr std::size_t fval_bool = 4;
+
+	const std::map<std::size_t, std::string> kType_dict =
+	{
+		{ fval_int				, "INT" },
+		{ fval_float			, "FLOAT" },
+		{ fval_char				, "CHAR" },
+		{ fval_bool				, "BOOL" },
+		{ fval_str				, "STRING" },
+		{ invalid_index			, "!INVALID_FVAL!" }
+	};
+
 }

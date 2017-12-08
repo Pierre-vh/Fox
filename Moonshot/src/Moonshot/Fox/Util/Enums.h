@@ -71,6 +71,7 @@ namespace Moonshot
 
 		bool isCondition(const optype& op);
 		bool isUnary(const optype& op);
+		bool isArithOp(const optype &op);
 		enum direction
 		{
 			LEFT, RIGHT
@@ -97,14 +98,6 @@ namespace Moonshot
 			{ LOGICNOT	, "LOGICNOT"	},
 			{ NEGATE	, "NEGATE"	}
 		}; 
-		const std::map<std::size_t, std::string> kType_dict =
-		{
-			{ 0	, "INT"		},
-			{ 1, "FLOAT"	},
-			{ 2	, "CHAR"	},
-			{ 3	, "BOOL"	},
-			{ 4	, "STRING"	}
-		};
 	}
 	std::string getFromDict(const std::map<parse::optype,std::string>& m,const parse::optype& op);
 }
