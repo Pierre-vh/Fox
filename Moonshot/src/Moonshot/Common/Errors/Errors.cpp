@@ -43,12 +43,12 @@ Moonshot::Errors::Errors(Errors const &)
 {
 }
 
-Errors* Errors::getInstance()
+Errors& Errors::getInstance()
 {
 
 	if (!instance)
 		instance = new Errors;
-	return instance;
+	return *instance;
 }
 
 void Moonshot::Errors::logInfo(const std::string & str)

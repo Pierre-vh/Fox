@@ -34,17 +34,17 @@ SOFTWARE.
 #include <iostream> // cerr
 #include <string>	// << std::string <<
 
-#define E_LOG(y)		Moonshot::Errors::getInstance()->logInfo(y);
-#define E_WARNING(y)	Moonshot::Errors::getInstance()->reportWarning	(__FILE__,__LINE__,y);
-#define E_ERROR(y)		Moonshot::Errors::getInstance()->reportError	(__FILE__,__LINE__,y);
-#define E_CRITICAL(y)	Moonshot::Errors::getInstance()->reportCritical	(__FILE__,__LINE__,y);
+#define E_LOG(y)		Moonshot::Errors::getInstance().logInfo(y);
+#define E_WARNING(y)	Moonshot::Errors::getInstance().reportWarning	(__FILE__,__LINE__,y);
+#define E_ERROR(y)		Moonshot::Errors::getInstance().reportError	(__FILE__,__LINE__,y);
+#define E_CRITICAL(y)	Moonshot::Errors::getInstance().reportCritical	(__FILE__,__LINE__,y);
 
-#define E_CHECKSTATE	*(Moonshot::Errors::getInstance())
+#define E_CHECKSTATE	Moonshot::Errors::getInstance()
 
-#define E_GETSTATE		Moonshot::Errors::getInstance()->getCurrentState()
-#define E_GETSTATE_STR	Moonshot::Errors::getInstance()->getCurrentState()
+#define E_GETSTATE		Moonshot::Errors::getInstance().getCurrentState()
+#define E_GETSTATE_STR	Moonshot::Errors::getInstance().getCurrentState()
 
-#define E_RESETSTATE	Moonshot::Errors::getInstance()->resetStatus();
+#define E_RESETSTATE	Moonshot::Errors::getInstance().resetStatus();
 
 // Debug defines
 
@@ -63,7 +63,7 @@ namespace Moonshot
 	{
 		public:
 
-			static Errors* getInstance();	 // get the instance
+			static Errors& getInstance();	 // get the instance
 
 			void logInfo(const std::string &str);
 

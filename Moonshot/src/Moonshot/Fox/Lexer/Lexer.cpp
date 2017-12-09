@@ -214,7 +214,7 @@ void Lexer::dfa_goto(const dfa::state & ns)
 
 char Moonshot::Lexer::eatChar()
 {
-	char c = str_[pos_];
+	const char c = str_[pos_];
 	forward();
 	return c;
 }

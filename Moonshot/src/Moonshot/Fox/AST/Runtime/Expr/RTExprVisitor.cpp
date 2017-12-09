@@ -148,8 +148,8 @@ double Moonshot::RTExprVisitor::fvalToDouble(const FVal & fval)
 bool Moonshot::RTExprVisitor::compareVal(const parse::optype & op, const FVal & l, const FVal & r)
 {
 	using namespace parse;
-	double lval = fvalToDouble(l);
-	double rval = fvalToDouble(r);
+	const double lval = fvalToDouble(l);
+	const double rval = fvalToDouble(r);
 	switch (op)
 	{
 		case AND:

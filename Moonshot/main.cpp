@@ -10,9 +10,9 @@
 // Remove the enum TT_TYPE competly. Use variant indexes instead.
 int main()
 {
-	auto err = Moonshot::Errors::getInstance();
+	auto &err = Moonshot::Errors::getInstance();
 	ExprTester *testExpr = new ExprTester();
-	err->options.muteLogs = true;
+	err.options.muteLogs = true;
 	testExpr->showAST = false; 
 	std::cout << char(219) << " Expression testing..." << std::endl;
 
