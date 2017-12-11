@@ -65,7 +65,7 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 		std::cout << "\t" << char(192) << "Test failed @ parsing." << std::endl;
 		return shouldFailTC;
 	}
-	TypeCheck *tc_check = new TypeCheck();
+	TypeCheck *tc_check = new TypeCheck;
 	root->accept(tc_check);
 
 	if (showAST && !shouldFailTC)
@@ -74,7 +74,7 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 	if (!shouldFailTC && E_CHECKSTATE)
 	{
 		std::cout << "[RESULT]:";
-		RTExprVisitor *v = new RTExprVisitor();
+		RTExprVisitor *v = new RTExprVisitor;
 		FVal f = root->accept(v);
 		std::cout << dumpFVal(f) << std::endl;
 	}

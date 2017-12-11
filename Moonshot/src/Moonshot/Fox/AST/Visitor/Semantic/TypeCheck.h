@@ -46,6 +46,11 @@ SOFTWARE.
 
 // remember : typedef std::variant<int, float, char, std::string, bool> FVal;
 
+// TO DO:
+// In the future, the way that the return type of an expression is guessed can be simplified a lot :
+// In Fox, in 90% of the time, the return type is of the type of the biggest of the 2 variables. If it doesn't fit, it returns a bigger variable that'll  hold the full result.
+
+
 #define DECL_GETRETURNTYPE(x,y)	template<>\
 									std::pair <bool, FVal> getReturnType(const x& v1, const y& v2);\
 

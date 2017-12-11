@@ -42,6 +42,7 @@ SOFTWARE.
 #include <math.h>       /* exp */
 #include <tuple>
 #include <climits>
+#include <cmath>
 
 // Necessary?
 //#include <variant> // std::bad_variant_access

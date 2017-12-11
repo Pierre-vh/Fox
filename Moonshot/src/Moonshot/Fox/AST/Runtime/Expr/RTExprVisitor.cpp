@@ -43,7 +43,7 @@ RTExprVisitor::~RTExprVisitor()
 {
 }
 
-FVal Moonshot::RTExprVisitor::visit(ASTExpr * node)
+FVal RTExprVisitor::visit(ASTExpr * node)
 {
 	castHelper ch;
 	if (node->op_ == parse::optype::CONCAT)
@@ -122,12 +122,12 @@ FVal Moonshot::RTExprVisitor::visit(ASTExpr * node)
 	return FVal();
 }
 
-FVal Moonshot::RTExprVisitor::visit(ASTValue * node)
+FVal RTExprVisitor::visit(ASTValue * node)
 {
 	return node->val_;
 }
 
-double Moonshot::RTExprVisitor::fvalToDouble(const FVal & fval)
+double RTExprVisitor::fvalToDouble(const FVal & fval)
 {
 	if (std::holds_alternative<int>(fval))
 		return (double)std::get<int>(fval);
@@ -145,7 +145,7 @@ double Moonshot::RTExprVisitor::fvalToDouble(const FVal & fval)
 	E_CRITICAL("[RUNTIME] Reached end of function.Unimplemented type in FVal?")
 	return 0.0;
 }
-bool Moonshot::RTExprVisitor::compareVal(const parse::optype & op, const FVal & l, const FVal & r)
+bool RTExprVisitor::compareVal(const parse::optype & op, const FVal & l, const FVal & r)
 {
 	using namespace parse;
 	const double lval = fvalToDouble(l);
@@ -193,9 +193,9 @@ double RTExprVisitor::performOp(const parse::optype& op, const double & l, const
 			else 
 				return l / r;
 		case MOD:
-			return fmod(l, r); // Modulus support floating point op
+			return std::fmod(l, r);
 		case EXP:
-			return pow(l, r); // Exponential
+			return std::pow(l, r);
 		default:
 			E_CRITICAL("[RUNTIME] Defaulted.")
 			return 0.0;
@@ -274,7 +274,7 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL
 }
 
 template<typename GOAL>
-std::pair<bool, FVal> Moonshot::RTExprVisitor::castHelper::castTypeTo(const GOAL & type,double v)
+std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL & type,double v)
 {
 	if constexpr(std::is_same<GOAL, std::string>::value)
 	{
@@ -285,12 +285,16 @@ std::pair<bool, FVal> Moonshot::RTExprVisitor::castHelper::castTypeTo(const GOAL
 		return { true, FVal((GOAL)v) };
 }
 
-FVal Moonshot::RTExprVisitor::castHelper::castTo(const std::size_t& goal, const FVal & val)
+FVal RTExprVisitor::castHelper::castTo(const std::size_t& goal, const FVal & val)
 {
 	std::pair<bool, FVal> rtr = std::make_pair<bool, FVal>(false, FVal());
-	std::visit([&](const auto& a, const auto& b) {
+	std::visit(
+	[&](const auto& a, const auto& b)
+	{
 		rtr = castTypeTo(a, b);
-	},getSampleFValForIndex(goal), val);
+	},
+		getSampleFValForIndex(goal), val
+	);
 
 	if (rtr.first)
 		return rtr.second;
@@ -299,12 +303,16 @@ FVal Moonshot::RTExprVisitor::castHelper::castTo(const std::size_t& goal, const 
 	return FVal();
 }
 
-FVal Moonshot::RTExprVisitor::castHelper::castTo(const std::size_t& goal, const double & val)
+FVal RTExprVisitor::castHelper::castTo(const std::size_t& goal, const double & val)
 {
 	std::pair<bool, FVal> rtr;
-	std::visit([&](const auto& a) {
+	std::visit(
+	[&](const auto& a)
+	{
 		rtr = castTypeTo(a,val);
-	},getSampleFValForIndex(goal));
+	},
+		getSampleFValForIndex(goal)
+	);
 	if (rtr.first)
 		return rtr.second;
 	E_ERROR("[RUNTIME] Failed typecast from double (TODO:Show detailed error message")
