@@ -49,6 +49,7 @@ namespace Moonshot
 {
 	std::string dumpFVal(const FVal &var);
 	FVal getSampleFValForIndex(const std::size_t& t);
+	std::string indexToTypeName(const std::size_t& t);
 
 	// Thanks, I guess ! This looks healthier than using -1 as invalid index. https://stackoverflow.com/a/37126153
 	static constexpr std::size_t invalid_index = std::numeric_limits<std::size_t>::max();

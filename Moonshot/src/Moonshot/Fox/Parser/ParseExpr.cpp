@@ -77,7 +77,9 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 			rtr->makeChild(parse::direction::RIGHT, second);
 		}									
 		// I Have to admit, this bit might have poor performance if you start to go really deep, like 2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2.. and so on, but who would do this anyway, right..right ?
-		// To be serious:there isn't really another way of doing this,except if I change completly my parsing algorithm to do both right to left and left to right parsing. Which is complicated, and not really useful for now, as <expr> is the only rule
+		// To be serious:there isn't really another way of doing this,except if I change completly my parsing algorithm to do both right to left and left to right parsing.
+		// OR if i implement the shunting yard algo, and that's even harder to do with my current system.
+		// Which is complicated, and not really useful for now, as <expr> is the only rule
 		// that might need right assoc.
 		else								// right associative nodes
 		{
@@ -106,14 +108,10 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 	{
 		if (rtr->getDeepestNode(parse::LEFT)->left_) // last node already has a left child?
 		{
-			E_CRITICAL("Last wasn't empty and the node already had a left child.");
-			std::cout << "last :" << std::endl;
-			last_->accept(new Dumper());
-			std::cout << "left" << std::endl;
-			rtr->left_->accept(new Dumper());
+			E_CRITICAL("Last wasn't empty and the deepest left node already had a left child.");
 			return NULL_UNIPTR(ASTExpr);
 		}
-		else // All good !
+		else // All good ! Set last_ as the left child of the Deepest left node
 		{
 			rtr->makeChildOfDeepestNode(parse::LEFT, last_);
 			last_ = 0;
@@ -122,7 +120,6 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 	auto simple = rtr->getSimple();
 	if (simple)
 		return simple;
-
 	return rtr;
 }
 

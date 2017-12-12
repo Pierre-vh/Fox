@@ -34,26 +34,6 @@ SOFTWARE.
 
 using namespace Moonshot;
 
-bool parse::isCondition(const optype & op)
-{
-	return (op >= 9) && (op <= 15); // Condition are between 8 and 15 in the enum.
-}
-
-bool parse::isUnary(const optype & op)
-{
-	return (op >= 17); // Above 17 are unaries (for now)
-}
-
-bool parse::isArithOp(const optype & op)
-{
-	return ((op >= 3 && op <= 8) || (op == 18));
-}
-
-bool parse::isRightAssoc(const optype & op)
-{
-	return (op == EXP);
-}
-
 std::string Moonshot::getFromDict(const std::map<parse::optype, std::string>& m, const parse::optype& op)
 {
 	auto i = m.find(op);

@@ -55,15 +55,7 @@ void Dumper::visit(ASTExpr * node)
 		std::cout << node->op_;
 
 	if (node->totype_ != invalid_index)
-	{
-		std::cout << ", Return type : ";
-
-		auto castStr = kType_dict.find(node->totype_);
-		if (castStr != kType_dict.end())
-			std::cout << castStr->second;
-		else 
-			std::cout << node->totype_;
-	}
+		std::cout << ", Return type : " << indexToTypeName(node->totype_);
 	std::cout << std::endl;
 	if (node->left_)
 	{

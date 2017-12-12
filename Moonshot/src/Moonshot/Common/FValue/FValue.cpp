@@ -71,3 +71,9 @@ FVal Moonshot::getSampleFValForIndex(const std::size_t & t)
 			return FVal();
 	}
 }
+
+std::string Moonshot::indexToTypeName(const std::size_t & t)
+{
+	auto a = kType_dict.find(t);
+	return (a != kType_dict.end()) ? a->second : "!IMPOSSIBLE_TYPE!";
+}

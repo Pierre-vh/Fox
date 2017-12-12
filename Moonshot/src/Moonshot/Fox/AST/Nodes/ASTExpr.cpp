@@ -91,16 +91,18 @@ ASTExpr* Moonshot::ASTExpr::getDeepestNode(const parse::direction & d)
 		else
 			return this;
 	}
+	E_CRITICAL("Unknown direction for ASTExpr node in getDeepestNode function.");
+	return nullptr;
 }
 
-bool Moonshot::ASTExpr::hasNode(const parse::direction & d) const
+bool ASTExpr::hasNode(const parse::direction & d) const
 {
 	if (((d == parse::LEFT) && left_) || ((d == parse::RIGHT) && right_))
 		return true;
 	return false;
 }
 
-std::unique_ptr<ASTExpr> Moonshot::ASTExpr::getSimple()
+std::unique_ptr<ASTExpr> ASTExpr::getSimple()
 {
 	if (left_ && !right_ && (op_ == parse::optype::PASS))		// If the right node is empty
 	{
@@ -130,7 +132,7 @@ std::size_t ASTExpr::getToType() const
 	return totype_;
 }
 
-void Moonshot::ASTExpr::swapChildren()
+void ASTExpr::swapChildren()
 {
 	std::swap(left_, right_);
 }

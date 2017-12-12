@@ -67,9 +67,7 @@ FVal RTExprVisitor::visit(ASTExpr * node)
 		}
 	}
 	else if (node->op_ == parse::optype::CAST)
-	{
 		return ch.castTo(node->totype_ , node->left_->accept(this));
-	}
 	else if (node->op_ == parse::optype::PASS)
 	{
 		if (!node->left_)
@@ -110,9 +108,9 @@ FVal RTExprVisitor::visit(ASTExpr * node)
 		if (!node->left_ || !node->right_)
 			E_CRITICAL("[RUNTIME] Tried to perform an operation on a node without a left_ and/or right child.")
 
-		double dleftval = fvalToDouble(node->left_->accept(this));
-		double drightval = fvalToDouble(node->right_->accept(this));
-		double result = performOp(node->op_, dleftval, drightval);
+		const double dleftval = fvalToDouble(node->left_->accept(this));
+		const double drightval = fvalToDouble(node->right_->accept(this));
+		const double result = performOp(node->op_, dleftval, drightval);
 
 		if (fitsInValue(node->totype_, result) || (node->op_ == parse::CAST)) // If the results fits or we desire to cast the result
 			return ch.castTo(node->totype_, result);		// Cast to result type
@@ -138,11 +136,9 @@ double RTExprVisitor::fvalToDouble(const FVal & fval)
 	else if (std::holds_alternative<bool>(fval))
 		return (double)std::get<bool>(fval);
 	else if (std::holds_alternative<std::string>(fval))
-	{
 		E_CRITICAL("[RUNTIME] Can't convert str to double")
-		return 0.0;
-	}
-	E_CRITICAL("[RUNTIME] Reached end of function.Unimplemented type in FVal?")
+	else
+		E_CRITICAL("[RUNTIME] Reached end of function.Unimplemented type in FVal?")
 	return 0.0;
 }
 bool RTExprVisitor::compareVal(const parse::optype & op, const FVal & l, const FVal & r)
@@ -202,7 +198,7 @@ double RTExprVisitor::performOp(const parse::optype& op, const double & l, const
 	}
 }
 
-bool Moonshot::RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
+bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 {
 	using namespace parse;
 	switch (typ)
@@ -233,25 +229,21 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL
 {
 	if constexpr(std::is_same<GOAL, VAL>::value) // Direct conversion
 		return { true , FVal(v) };
-	else if (b1 && b2)
-	{
+	else if constexpr (b1 && b2)
 		return { true, FVal(v) };
-	}
-	else if (std::is_same<VAL, std::string>::value)
+	else if constexpr (std::is_same<VAL, std::string>::value)
 	{
 		E_CRITICAL("[RUNTIME] Can't convert string to value")
 			return { false, FVal() };
 	}
-	else if (b1 || b2) // Goal is a string -> error if val != string
+	else if constexpr (b1 != b2) // Goal is a string -> error if val != string
 	{
 		std::stringstream ss;
 		ss << "[RUNTIME] Can't convert a string to an arithmetic type and vice versa. Value:" << v << std::endl;
 		E_ERROR(ss.str())
 	}
-	else if (std::is_same<FVal, VAL>::value)
-	{
+	else if constexpr (std::is_same<FVal, VAL>::value)
 		E_ERROR("[RUNTIME] FVAL ! What are you doing here!")
-	}
 	else // Conversion will work. Proceed !
 	{
 		if constexpr(std::is_same<VAL, std::string>::value)
@@ -260,11 +252,11 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL
 		{
 			if constexpr (std::is_same<int, GOAL>::value)
 				return { true,FVal((int)v) };
-			else if (std::is_same<float, GOAL>::value)
+			else if constexpr (std::is_same<float, GOAL>::value)
 				return { true,FVal((float)v) };
-			else if (std::is_same<char, GOAL>::value)
+			else if constexpr (std::is_same<char, GOAL>::value)
 				return { true,FVal((char)v) };
-			else if (std::is_same<bool, GOAL>::value)
+			else if constexpr (std::is_same<bool, GOAL>::value)
 				return { true,FVal((bool)v) };
 			else
 				E_CRITICAL("[RUNTIME] Failed cast");

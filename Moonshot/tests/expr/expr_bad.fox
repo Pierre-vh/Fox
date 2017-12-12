@@ -5,3 +5,5 @@
 !"Hi"
 22/7
 "hi
+-"hello"
+!(3.14 as string)

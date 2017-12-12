@@ -68,11 +68,29 @@ namespace Moonshot
 			LOGICNOT,		// ! 
 			NEGATE		// -
 		};
+		
+		// Template version of the other functions
 
-		bool isCondition(const optype& op);
-		bool isUnary(const optype& op);
-		bool isArithOp(const optype &op);
-		bool isRightAssoc(const optype &op);
+		inline bool isCondition(const optype & op) 
+		{
+			return (op >= 9) && (op <= 15); // Condition are between 8 and 15 in the enum.
+		}
+
+		inline bool isUnary(const optype & op)
+		{
+			return (op >= 17); // Above 17 are unaries (for now)
+		}
+
+		inline bool isArithOp(const optype & op)
+		{
+			return ((op >= 3 && op <= 8) || (op == 18));
+		}
+
+		inline constexpr bool isRightAssoc(const optype & op)
+		{
+			return (op == EXP);
+		}
+
 		enum direction
 		{
 			LEFT, RIGHT

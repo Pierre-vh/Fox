@@ -47,37 +47,47 @@ void TypeCheck::visit(ASTExpr * node)
 {
 	if (!E_CHECKSTATE) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
 		return;
-	if (node->left_ && node->right_) // We've got a normal node with 2 childrens
+	//////////////////////////////////
+	/////NODES WITH 2 CHILDREN////////
+	//////////////////////////////////
+	if (node->left_ && node->right_) 
 	{
+		// VISIT BOTH CHILDREN
 		// get left expr result type
 		node->left_->accept(this);
 		auto left = rtr_type_;
 		// get right expr result type
 		node->right_->accept(this);
 		auto right = rtr_type_;
-		// strings concat check
+		// CHECK IF THIS IS A CONCAT OP,CONVERT IT 
 		if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right) && (node->op_ == parse::ADD))
 			node->op_ = parse::CONCAT;
-	
+		// CREATE HELPER
 		returnTypeHelper helper(node->op_);
-		// Check if our operation means something? If yes, the result will be placed in rtr_type.
+		// CHECK VALIDITY OF EXPRESSION
 		rtr_type_ = helper.getExprResultType(left, right);
 
-		// Check if we have a division, in this case, we need to correct the return type to float.
+		// SPECIAL CASE: IS IT A DIVISION? IF SO,RETURN FLOAT.
 		if ((node->op_ == parse::optype::DIV) && E_CHECKSTATE) // Operation is possible ? Check for division, because divisions returns float. always.
 			rtr_type_ = FVal((float)0); // 
 	}
+	/////////////////////////////////////////
+	/////NODES WITH ONLY A LEFT CHILD////////
+	/////////////////////////////////////////
 	else if(node->left_)// We only have a left node
 	{
+		// CAST NODES
 		if (node->op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node. We still visit child nodes tho
 		{
+			// JUST VISIT CHILD, SET RTRTYPE TO THE CAST GOAL
 			node->left_->accept(this);
 			rtr_type_ = getSampleFValForIndex(node->totype_);
 		}
+		// UNARY OPS
 		else if (parse::isUnary(node->op_))
 		{
 			// We have a unary operation
-			// Get left's return type.
+			// Get left's return type. Don't change anything, as rtr_value is already set by the accept function.
 			node->left_->accept(this);
 			auto lefttype = rtr_type_;
 			// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATE on a string.
@@ -87,10 +97,20 @@ void TypeCheck::visit(ASTExpr * node)
 				ss << "[TYPECHECK] Can't perform unary operation " << getFromDict(parse::kOptype_dict, node->op_) << " on a string.";
 				E_ERROR(ss.str())
 			}
+			// SPECIAL CASES : (LOGICNOT)(NEGATE ON BOOLEANS)
 			if (node->op_ == parse::LOGICNOT)
 				rtr_type_ = FVal(false); // Return type is a boolean
+			else if ((node->op_ == parse::NEGATE) && (std::holds_alternative<bool>(rtr_type_))) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+				rtr_type_ = FVal((int)0);
+
+
 		}
+		else
+			E_CRITICAL("[TYPECHECK] A Node only had a left_ child, and wasn't a unary op.");
 	}
+	//////////////////////////////////
+	/////ERROR CASES//////////////////
+	//////////////////////////////////
 	else
 	{
 		// Okay, this is far-fetched, but can be possible if our parser is broken. It's better to check this here :
@@ -119,6 +139,8 @@ TypeCheck::returnTypeHelper::returnTypeHelper(const parse::optype & op) : op_(op
 
 FVal TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& f2)
 {
+	// This function will simply "visit" (using std::visit) both fval so we can call a function depending on the stored type.
+	// It'll do it twice, and invert the arguments for the second time. For instance, float,int might not be a recognized case, but int,float is.
 	std::pair<bool, FVal> result;
 	// Double dispatch w/ std::visit
 	std::visit([&](const auto& a, const auto& b) {
@@ -136,7 +158,7 @@ FVal TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& 
 		if (result.first)
 			return result.second;
 		else
-			E_ERROR("[TYPECHECK] Impossible operation found:");
+			E_ERROR("[TYPECHECK] Impossible operation found: Unimplemented type/operation?"); // It's 
 	}
 	// If error
 	if (!E_CHECKSTATE)
@@ -184,16 +206,14 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 			E_WARNING(ss.str())
 			return	{ true, FVal() };
 		}
+
 		return { true, FVal(v1) };		//the type is kept if we make a legal operation between 2 values of the same type. so we return a variant holding a sample value (v1) of the type.
 	}
-	else if (!isT1Num || !isT2Num) // It's 2 different types, is one of them a string ? 
+	else if constexpr (!isT1Num || !isT2Num) // It's 2 different types, is one of them a string ? 
 		E_ERROR("[TYPECHECK] Can't perform an operation on a string and a numeric type.") 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
-	else
-	{
-		if (parse::isCondition(op_)) // If we have a condition, and the 2 types are arithmetic, it's doable and it returns a boolean
-			return { true, FVal(false) };
-	}
-	// Normal failure. We'll probably find a result when swapping T1 and T2 in getExprResultType
+	else if (parse::isCondition(op_))
+		return { true, FVal(false) };
+	// Normal failure. We'll probably find a result when swapping T1 and T2 in getExprResultType.
 	return { false ,FVal() }; 
 }
 

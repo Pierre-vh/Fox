@@ -5,8 +5,7 @@
 2^64-1  // Testing large values
 2^16-1
 6/-2*(1+2)
-6-1*0+2/2
-(((4)as int) as bool) * true 
-3^3^3 /// testings exp operator priority
+3^2^1 /// testings exp operator priority
 3^3^3*2+2^3*2 // More complex case, should result ~1.525e13
-4*2+3*3 // Other tests
+(3^-(2*-(1/2)+2)--2+3^2%0.66+2)==-(-4.75333333) // Wtf ? If this parses okay, I think a lot of trivial expression will 
+(22/7 == 3.14) && (3.14 > 3) && ('a' < 'A') || -false
