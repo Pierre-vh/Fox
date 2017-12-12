@@ -197,23 +197,25 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 
 	switch (priority)
 	{
-		case 0: // * / %
+		case 0:
+			if (cur.sign_type == signs::S_EXP)
+				return { true, optype::EXP };
+			break;
+		case 1: // * / %
 			if (cur.sign_type == signs::S_ASTERISK)
 				return { true, optype::MUL };
 			if (cur.sign_type == signs::S_SLASH)
 				return { true, optype::DIV };
 			if (cur.sign_type == signs::S_PERCENT)
 				return { true, optype::MOD };
-			if (cur.sign_type == signs::S_EXP)
-				return { true, optype::EXP };
 			break;
-		case 1: // + -
+		case 2: // + -
 			if (cur.sign_type == signs::S_PLUS)
 				return { true, optype::ADD };
 			if (cur.sign_type == signs::S_MINUS)
 				return { true, optype::MINUS };
 			break;
-		case 2: // > >= < <=
+		case 3: // > >= < <=
 			if (cur.sign_type == signs::S_LESS_THAN)
 			{
 				if (pk.isValid() && (pk.sign_type == signs::S_EQUAL))
@@ -233,7 +235,7 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 				return { true, optype::GREATER_THAN };
 			}
 			break;
-		case 3:	// == !=
+		case 4:	// == !=
 			if (pk.isValid() && (pk.sign_type == signs::S_EQUAL))
 			{
 				if (cur.sign_type == signs::S_EQUAL)
@@ -248,14 +250,14 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 				}
 			}
 			break;
-		case 4:
+		case 5:
 			if (pk.isValid() && (pk.sign_type == signs::S_AND) && (cur.sign_type == signs::S_AND))
 			{
 				pos_ += 1;
 				return { true,optype::AND };
 			}
 			break;
-		case 5:
+		case 6:
 			if (pk.isValid() && (pk.sign_type == signs::S_VBAR) && (cur.sign_type == signs::S_VBAR))
 			{
 				pos_ += 1;

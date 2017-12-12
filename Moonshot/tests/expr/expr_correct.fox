@@ -2,10 +2,11 @@
 "it " + ( "really " + "works ") + "it's wonderful"
 10%3 == 1 && 10^5 < 10^4
 'c' > 'a' && !('C' > 'E')
-22/7
-2^64-1
-2^32-1
+22/7 // Testing int division returns float
+2^64-1  // Testing large values
+2^32-1 
 2^16-1
 6/-2*(1+2)
 6-1*0+2/2
-(((4)as int) as bool) * true
+(((4)as int) as bool) * true 
+3^10^2 /// testings exp operator priority

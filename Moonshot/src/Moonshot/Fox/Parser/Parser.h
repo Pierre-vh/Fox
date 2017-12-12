@@ -58,7 +58,7 @@ SOFTWARE.
 #include <tuple>	// std::tuple, std::pair
 
 #define NULL_UNIPTR(x) std::unique_ptr<x>(nullptr)
-
+// TODO: Parser needs a rework in order to support both left and right associativity.
 namespace Moonshot
 {
 	class Parser
@@ -69,7 +69,8 @@ namespace Moonshot
 
 			// parseXXX() = "match" the rule XXX (attempts to find it, if it found it, the method will return a valid pointer (if(ptr) will return true). if not, it will return a std::unique_ptr<(TYPE OF NODE)>(nullptr)
 			// EXPR
-			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 5); // Go from lowest priority to highest !
+			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 6); // Go from lowest priority to highest !
+
 			std::unique_ptr<ASTExpr> parseTerm();
 			std::unique_ptr<ASTExpr> parseValue();
 

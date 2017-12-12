@@ -49,6 +49,11 @@ bool parse::isArithOp(const optype & op)
 	return ((op >= 3 && op <= 8) || (op == 18));
 }
 
+bool Moonshot::parse::isRightAssoc(const optype & op)
+{
+	return (op == EXP);
+}
+
 std::string Moonshot::getFromDict(const std::map<parse::optype, std::string>& m, const parse::optype& op)
 {
 	auto i = m.find(op);

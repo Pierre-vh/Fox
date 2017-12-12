@@ -72,6 +72,7 @@ namespace Moonshot
 		bool isCondition(const optype& op);
 		bool isUnary(const optype& op);
 		bool isArithOp(const optype &op);
+		bool isRightAssoc(const optype &op);
 		enum direction
 		{
 			LEFT, RIGHT

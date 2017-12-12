@@ -50,7 +50,11 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 	Lexer l;
 	l.lexStr(str);
 	l.logAllTokens();
-
+	if (!l.resultSize())
+	{
+		std::cout << "Result size is 0. It was probably a comment, it was ignored." << std::endl;
+		return true;
+	}
 	if (!E_CHECKSTATE)
 	{
 		std::cout << "\t" << char(192) << "Test failed @ lexing." << std::endl;
@@ -66,6 +70,11 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 		return shouldFailTC;
 	}
 	TypeCheck *tc_check = new TypeCheck;
+	if (!root)
+	{
+		std::cout << "Root is invalid." << std::endl;
+		return shouldFailTC;
+	}
 	root->accept(tc_check);
 
 	if (showAST && !shouldFailTC)
