@@ -57,6 +57,42 @@ void ASTExpr::makeChild(const parse::direction & d, std::unique_ptr<ASTExpr> &no
 		right_ = std::move(node);
 }
 
+void Moonshot::ASTExpr::makeChildOfDeepestNode(const parse::direction & d, std::unique_ptr<ASTExpr>& node)
+{
+	if (d == parse::direction::LEFT)
+	{
+		if (!left_)						// we don't have a left child
+			this->makeChild(d, node);
+		else // we do
+			left_->makeChildOfDeepestNode(d, node);
+	}
+	else if (d == parse::direction::RIGHT)
+	{
+		if (!right_)						// we don't have a right child
+			this->makeChild(d, node);
+		else // we do
+			right_->makeChildOfDeepestNode(d, node);
+	}
+}
+
+ASTExpr* Moonshot::ASTExpr::getDeepestNode(const parse::direction & d)
+{
+	if (d == parse::direction::LEFT)
+	{
+		if (left_)
+			return left_->getDeepestNode(d);
+		else
+			return this;
+	}
+	else if (d == parse::direction::RIGHT)
+	{
+		if (right_)
+			return right_->getDeepestNode(d);
+		else
+			return this;
+	}
+}
+
 bool Moonshot::ASTExpr::hasNode(const parse::direction & d) const
 {
 	if (((d == parse::LEFT) && left_) || ((d == parse::RIGHT) && right_))
@@ -92,6 +128,11 @@ void ASTExpr::setReturnType(const std::size_t &casttype)
 std::size_t ASTExpr::getToType() const
 {
 	return totype_;
+}
+
+void Moonshot::ASTExpr::swapChildren()
+{
+	std::swap(left_, right_);
 }
 
 ASTValue::ASTValue()

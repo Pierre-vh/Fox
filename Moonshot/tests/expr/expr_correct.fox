@@ -1,12 +1,12 @@
 ('3' as float + '3' as float) as bool
 "it " + ( "really " + "works ") + "it's wonderful"
 10%3 == 1 && 10^5 < 10^4
-'c' > 'a' && !('C' > 'E')
 22/7 // Testing int division returns float
 2^64-1  // Testing large values
-2^32-1 
 2^16-1
 6/-2*(1+2)
 6-1*0+2/2
 (((4)as int) as bool) * true 
-3^10^2 /// testings exp operator priority
+3^3^3 /// testings exp operator priority
+3^3^3*2+2^3*2 // More complex case, should result ~1.525e13
+4*2+3*3 // Other tests

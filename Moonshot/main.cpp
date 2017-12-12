@@ -12,7 +12,7 @@ int main()
 {
 	auto &err = Moonshot::Errors::getInstance();
 	ExprTester *testExpr = new ExprTester();
-	err.options.muteLogs = true;
+	err.options.setAll(true);
 	testExpr->showAST = true;
 	std::cout << char(219) << " Expression testing..." << std::endl;
 

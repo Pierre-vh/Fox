@@ -195,7 +195,7 @@ double RTExprVisitor::performOp(const parse::optype& op, const double & l, const
 		case MOD:
 			return std::fmod(l, r);
 		case EXP:
-			return std::pow(l, r);
+			return std::pow(r, l); // RIGHT ASSOCIATIVE : RIGHT FIRST!
 		default:
 			E_CRITICAL("[RUNTIME] Defaulted.")
 			return 0.0;

@@ -49,7 +49,7 @@ bool parse::isArithOp(const optype & op)
 	return ((op >= 3 && op <= 8) || (op == 18));
 }
 
-bool Moonshot::parse::isRightAssoc(const optype & op)
+bool parse::isRightAssoc(const optype & op)
 {
 	return (op == EXP);
 }

@@ -37,45 +37,88 @@ using namespace Moonshot;
 std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 {
 	auto rtr = std::make_unique<ASTExpr>(parse::optype::PASS);
-	std::unique_ptr<ASTExpr> left;
+	std::unique_ptr<ASTExpr> first;
 
 	if (priority > 0)
-		left = parseExpr(priority - 1);	// Go down in the priority chain.
+		first = parseExpr(priority - 1);	// Go down in the priority chain.
 	else 
-		left = parseTerm();	// We are at the lowest point ? Parse the term then !
+		first = parseTerm();	// We are at the lowest point ? Parse the term then !
 
-	if (!left)					// Check if it was found/parsed correctly. If not, return a null node.
+	if (!first)					// Check if it was found/parsed correctly. If not, return a null node.
 		return NULL_UNIPTR(ASTExpr);
-
-	rtr->makeChild(parse::direction::LEFT, left);	// Make Left the left child of the return node !
-	
+	// IF RIGHT ASSOC : DIRECTION::RIGHT
+	rtr->makeChild(parse::direction::LEFT, first);	// Make Left the left child of the return node !
 	while (true)
 	{
 		parse::optype op;
-		bool matchResult;
-		std::tie(matchResult, op) = matchBinaryOp(priority);
+		bool matchResult, isrightass;
+		std::tie(matchResult, op) = matchBinaryOp(priority,isrightass);
 		if (!matchResult) // No operator found : break.
 			break;
-		std::unique_ptr<ASTExpr> right;
+		std::unique_ptr<ASTExpr> second;
 
 		if (priority > 0)
-			right = parseExpr(priority - 1);
+			second = parseExpr(priority - 1);
 		else
-			right = parseTerm();
+			second = parseTerm();
 		// Check for validity : we need a term. if we don't have one, we have an error !
-		if (!right)
+		if (!second)
 		{
 			errorExpected("[PARSER] Expected a term");
 			break;
 		}
-		// Add the node to the tree.
-		if (rtr->op_ == parse::optype::PASS) // No right node ? Append directly to rtr.
-			rtr->op_ = op;
-		else	// Already has one ? create a new node and make rtr its left child.
-			rtr = oneUpNode(rtr, op);
-		rtr->makeChild(parse::direction::RIGHT, right);
-	}
+		// Add the node to the tree but in different ways, depending on left or right assoc.
+		if (!parse::isRightAssoc(op))		// Left associative operator
+		{
+			if (rtr->op_ == parse::optype::PASS)
+				rtr->op_ = op;
+			else	// Already has one ? create a new node and make rtr its left child.
+				rtr = oneUpNode(rtr, op);
+			rtr->makeChild(parse::direction::RIGHT, second);
+		}									
+		// I Have to admit, this bit might have poor performance if you start to go really deep, like 2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2.. and so on, but who would do this anyway, right..right ?
+		// To be serious:there isn't really another way of doing this,except if I change completly my parsing algorithm to do both right to left and left to right parsing. Which is complicated, and not really useful for now, as <expr> is the only rule
+		// that might need right assoc.
+		else								// right associative nodes
+		{
+			// There's a member variable, last_ that will hold the last parsed "second" variable.
+			// First "loop" check.
+			if (rtr->op_ == parse::PASS)
+			{
+				rtr->swapChildren();		// Swap childrens, so our node is on the RIGHT
+				rtr->op_ = op;			
+			}
 
+			if (!last_) // Last is empty
+				last_ = std::move(second); // Set last_ to second.
+			else
+			{
+				auto newnode_op = std::make_unique<ASTExpr>(op); // Create a node with the op
+				newnode_op->makeChild(parse::RIGHT, last_); // Set last_ as right child.
+				last_ = std::move(second);// Set second as last
+				// Append newnode_op to rtr
+				// We need to make newnode a child of the deepest left node without a left child.
+				rtr->makeChildOfDeepestNode(parse::LEFT, newnode_op);
+			}
+		}
+	}
+	if (last_) // Last isn't empty
+	{
+		if (rtr->getDeepestNode(parse::LEFT)->left_) // last node already has a left child?
+		{
+			E_CRITICAL("Last wasn't empty and the node already had a left child.");
+			std::cout << "last :" << std::endl;
+			last_->accept(new Dumper());
+			std::cout << "left" << std::endl;
+			rtr->left_->accept(new Dumper());
+			return NULL_UNIPTR(ASTExpr);
+		}
+		else // All good !
+		{
+			rtr->makeChildOfDeepestNode(parse::LEFT, last_);
+			last_ = 0;
+		}
+	}
 	auto simple = rtr->getSimple();
 	if (simple)
 		return simple;
@@ -182,7 +225,7 @@ std::pair<bool, parse::optype> Moonshot::Parser::matchUnaryOp()
 	return { false, parse::optype::PASS };
 }
 
-std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
+std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority, bool &isrightass)
 {
 	// Avoid long & verbose lines.
 	using namespace lex;
@@ -190,6 +233,7 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 
 	auto cur = getToken();
 	auto pk = getToken(pos_ + 1);
+	isrightass = false; // Default answer
 	// Check current token validity
 	if (!cur.isValid() || (cur.type != tokentype::TT_SIGN))
 		return { false, optype::PASS };
@@ -199,7 +243,10 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 	{
 		case 0:
 			if (cur.sign_type == signs::S_EXP)
+			{
+				isrightass = true;
 				return { true, optype::EXP };
+			}
 			break;
 		case 1: // * / %
 			if (cur.sign_type == signs::S_ASTERISK)

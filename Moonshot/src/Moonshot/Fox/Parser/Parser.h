@@ -55,6 +55,8 @@ SOFTWARE.
 #include "../AST/Nodes/IASTNode.h"
 // Enum
 #include "../Util/Enums.h"
+#include "../AST/Visitor/Dumper/Dumper.h" // Debug use
+
 #include <tuple>	// std::tuple, std::pair
 
 #define NULL_UNIPTR(x) std::unique_ptr<x>(nullptr)
@@ -88,7 +90,7 @@ namespace Moonshot
 			std::pair<bool,std::size_t> matchTypeKw();
 			// MATCH OPERATORS
 			std::pair<bool, parse::optype> matchUnaryOp();
-			std::pair<bool, parse::optype> matchBinaryOp(const char &priority);
+			std::pair<bool, parse::optype> matchBinaryOp(const char &priority,bool &isrightass);
 			// UTILITY METHODS
 			token getToken() const;
 			token getToken(const size_t &d) const;
@@ -98,5 +100,10 @@ namespace Moonshot
 			// Member variables
 			size_t pos_ = 0;
 			Lexer *lex_ = 0;
+
+
+			// Rule-related variable
+			// parseExpr's last stored value
+			std::unique_ptr<ASTExpr> last_ = 0;
 	};
 }
