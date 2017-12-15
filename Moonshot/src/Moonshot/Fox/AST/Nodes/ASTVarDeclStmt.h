@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : Main Visitor Abstract class.
+Description : Variable Declaration Statement AST Node.
 
 *************************************************************
 MIT License
@@ -31,26 +31,44 @@ SOFTWARE.
 *************************************************************/
 
 #pragma once
-//utils
-#include "../../../Common/Utils/Utils.h"
-#include "../../../Common/Errors/Errors.h"
-#include "../../../Common/FValue/FValue.h"
 
-namespace Moonshot
+#include "IASTStmt.h"
+#include "ASTExpr.h"
+
+#include <string> // std::string
+#include <memory> // std::unique_ptr, std::make_unique
+
+namespace Moonshot 
 {
-	struct ASTExpr;
-	struct ASTValue;
+	namespace var
+	{
+		struct varattr // Struct holding a var's attributes
+		{
+			varattr();
+			varattr(const std::string &nm, const std::size_t &ty, const bool &isK = false);
+			operator bool() const;
+			// Variable's attribute
+			bool isConst = false;
+			std::string name = "";
+			std::size_t type = fval_void;
 
-	struct ASTVarDeclStmt;
-	class IVisitor
+			private:
+				bool wasInit_ = false;
+		};
+	}
+	struct ASTVarDeclStmt : public IASTStmt
 	{
 		public:
-			virtual ~IVisitor() = 0;
+			// Create a variable declaration statement by giving the constructor the variable's properties (name,is const and type) and, if there's one, an expression to initialize it.
+			ASTVarDeclStmt(const var::varattr &attr,std::unique_ptr<ASTExpr>& iExpr = std::make_unique<ASTExpr>(nullptr)); 
+			~ASTVarDeclStmt();
 
-			inline virtual void visit(ASTExpr *node){}
-			inline virtual void visit(ASTValue *node) {}
+			// Inherited via IASTStmt
+			virtual void accept(IVisitor * vis) override;
+			virtual FVal accept(IRTVisitor * vis) override;
 
-			inline virtual void visit(ASTVarDeclStmt *node) {}
+			var::varattr vattr_;
+			std::unique_ptr<ASTExpr> initExpr_;
 	};
 }
 

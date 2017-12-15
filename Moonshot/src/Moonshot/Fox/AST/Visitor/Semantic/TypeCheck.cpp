@@ -132,6 +132,26 @@ FVal TypeCheck::getReturnTypeOfExpr() const
 	return rtr_type_;
 }
 
+void TypeCheck::visit(ASTVarDeclStmt * node)
+{
+	// check for impossible/illegal assignements;
+	if (node->initExpr_) // If the node has an initExpr.
+	{
+		// get the init expression type.
+		node->initExpr_->accept(this);
+		auto iexpr_type = rtr_type_;
+		// check if it's possible.
+		if (!canAssign(
+			node->vattr_.type,
+			iexpr_type.index()
+		))
+		{
+			E_ERROR("Can't perform initialization of variable \"" + node->vattr_.name + "\"");
+		}
+	}
+	// Else, sadly, we can't really check anything @ compile time.
+}
+
 TypeCheck::returnTypeHelper::returnTypeHelper(const parse::optype & op) : op_(op)
 {
 

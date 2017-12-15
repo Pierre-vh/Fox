@@ -37,12 +37,13 @@ SOFTWARE.
 #include "../../../../Common/FValue/FValue.h"
 
 #include "../../Nodes/ASTExpr.h"
+#include "../../Nodes/ASTVarDeclStmt.h"
 
 #include "../IRTVisitor.h"
-#include <math.h>       /* exp */
-#include <tuple>
-#include <climits>
-#include <cmath>
+#include <tuple>		// Pair
+#include <climits>		// Variable limits
+#include <cmath>		// C++ math operations
+#include <variant>		// holds_alternative
 
 // Necessary?
 //#include <variant> // std::bad_variant_access

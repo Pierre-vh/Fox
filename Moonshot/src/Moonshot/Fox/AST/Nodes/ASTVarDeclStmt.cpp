@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : Main Visitor Abstract class.
+Description : See header.
 
 *************************************************************
 MIT License
@@ -30,28 +30,50 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 
-#pragma once
-//utils
-#include "../../../Common/Utils/Utils.h"
-#include "../../../Common/Errors/Errors.h"
-#include "../../../Common/FValue/FValue.h"
+#include "ASTVarDeclStmt.h"
 
-namespace Moonshot
+using namespace Moonshot;
+
+ASTVarDeclStmt::ASTVarDeclStmt(const var::varattr & attr, std::unique_ptr<ASTExpr>& iExpr)
 {
-	struct ASTExpr;
-	struct ASTValue;
-
-	struct ASTVarDeclStmt;
-	class IVisitor
+	if (attr)
 	{
-		public:
-			virtual ~IVisitor() = 0;
-
-			inline virtual void visit(ASTExpr *node){}
-			inline virtual void visit(ASTValue *node) {}
-
-			inline virtual void visit(ASTVarDeclStmt *node) {}
-	};
+		vattr_ = attr;
+		if (iExpr)
+			initExpr_ = std::move(iExpr);
+	}
+	else
+		E_CRITICAL("Supplied an empty var::varattr object to the constructor.")
 }
 
+ASTVarDeclStmt::~ASTVarDeclStmt()
+{
 
+}
+
+void ASTVarDeclStmt::accept(IVisitor * vis)
+{
+	VISIT_THIS
+}
+
+FVal ASTVarDeclStmt::accept(IRTVisitor * vis)
+{
+	VISIT_THIS
+	return FVal(); // Doesn't return a value, just return something empty.
+}
+
+// varattr
+
+var::varattr::varattr()
+{
+}
+
+var::varattr::varattr(const std::string & nm, const std::size_t & ty, const bool & isK) : name(nm), type(ty), isConst(isK)
+{
+	wasInit_ = true;
+}
+
+var::varattr::operator bool() const
+{
+	return (wasInit_ && (type != fval_void) && (type != invalid_index));
+}

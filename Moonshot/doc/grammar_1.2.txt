@@ -8,23 +8,8 @@ $x means x is a term already recognized and identified by the lexer.
 	$const means a constant value, recognized by the lexer. Examples : 'c' "foo" 3.14 -1 true (raw, hard coded constants)
 
 Note about the typing discipline :
-It tends to be strongly typed, because a variable can't be converted (if you declared an int, you can't transform it in a string. If you attempt to store a string in a int,
-you'll be greeted with a warning, and the assignement will be ignored !) with the exception of the null value.
-A Variable declared like this "let x;" can change into anything later in the program, you can put an int/boo/string/etc. in it. BUT, once you gave it a type, it can't change anymore.
-Example :
-let x;		// x is null 
-x = 3.14; 	// x is now float
-x = "foo";	// Warning ! You're trying to store a string in x, and x is a float ! You can't set the value ! (Warning + assignement ignored)
-			// Also, when you declare a variable like this :
-let x : float;
-			// And use it later, it has a default value, here it's 0.
-Default values for the variables :
-int : 0
-float : 0
-char : \0
-bool : false
-string : ""
-null : null 
+It tends to be strongly typed, because a variable can't be converted to another type.(if you declared an int, you can't transform it in a string. If you attempt to store a string in a int,
+you'll be greeted with an error!)
 
 ##Base rule (The parsing process starts from this rule.)
 <fox_program>	= {<import_stmt>}*  {(<func_decl> | <var_decl>)}+	// At least 1 function/variable declaration.
@@ -74,7 +59,7 @@ null : null
 
 ##Variables##
 
-<var_decl>		= <let_kw> [$const_kw] <id> [<type_spec>] ['=' <expr>] <eoi> 	// You can define variables in a rust-like fashion, but you can specify the type of the variable. const variables can't be modified.
+<var_decl>		= <let_kw> <id> <type_spec> ['=' <expr>] <eoi> 	// You can define variables in a rust-like fashion, but you can specify the type of the variable. const variables can't be modified.
 <var_assign>	= <id> "=" <expr> <eoi>
 
 ##Functions##

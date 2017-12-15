@@ -4,8 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : Main Visitor Abstract class.
-
+Description : Abstract class for AST Statement.
 *************************************************************
 MIT License
 
@@ -31,27 +30,16 @@ SOFTWARE.
 *************************************************************/
 
 #pragma once
-//utils
-#include "../../../Common/Utils/Utils.h"
-#include "../../../Common/Errors/Errors.h"
-#include "../../../Common/FValue/FValue.h"
+
+#include "IASTNode.h"
 
 namespace Moonshot
 {
-	struct ASTExpr;
-	struct ASTValue;
-
-	struct ASTVarDeclStmt;
-	class IVisitor
+	class IASTStmt : public IASTNode // implements IASTNode, but doesn't implement its pure virtual functions, making this class pure virtual too.
 	{
 		public:
-			virtual ~IVisitor() = 0;
-
-			inline virtual void visit(ASTExpr *node){}
-			inline virtual void visit(ASTValue *node) {}
-
-			inline virtual void visit(ASTVarDeclStmt *node) {}
+			IASTStmt();
+			virtual ~IASTStmt() = 0;
 	};
 }
-
 

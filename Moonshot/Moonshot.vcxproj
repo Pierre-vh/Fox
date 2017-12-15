@@ -130,7 +130,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Runtime\Expr\RTExprVisitor.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Runtime\IRTVisitor.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Visitor\IVisitor.cpp" />
     <ClCompile Include="tests\testers\ExprTester.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.cpp" />
     <ClCompile Include="src\Moonshot\Common\FValue\FValue.cpp" />
@@ -156,6 +160,8 @@
     <None Include="tests\expr\expr_bad.fox" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Runtime\Expr\RTExprVisitor.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Runtime\IRTVisitor.h" />
     <ClInclude Include="tests\testers\ExprTester.h" />

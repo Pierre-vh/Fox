@@ -41,7 +41,11 @@ SOFTWARE.
 #include <typeinfo> // typeid
 #include "../IVisitor.h" // base class
 #include "../../../../Common/FValue/FValue.h" // FVal Utilities
-#include "../../Nodes/ASTExpr.h" // Include nodes
+
+// Include nodes
+#include "../../Nodes/ASTExpr.h" 
+#include "../../Nodes/ASTVarDeclStmt.h" 
+
 #include "../../../Util/Enums.h" // enums
 
 // remember : typedef std::variant<int, float, char, std::string, bool> FVal;
@@ -68,6 +72,9 @@ namespace Moonshot
 
 			virtual void visit(ASTExpr * node) override;
 			virtual void visit(ASTValue * node) override;
+
+
+			virtual void visit(ASTVarDeclStmt * node) override;
 
 			FVal getReturnTypeOfExpr() const;
 		private:
@@ -107,7 +114,7 @@ namespace Moonshot
 
 						parse::optype op_;
 			};
-	};  
+	};
 
 }
 

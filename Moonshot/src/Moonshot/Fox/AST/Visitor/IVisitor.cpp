@@ -4,7 +4,7 @@ Author : Pierre van Houtryve
 Contact :
 e-mail : pierre.vanhoutryve@gmail.com
 
-Description : Main Visitor Abstract class.
+Description : See header
 
 *************************************************************
 MIT License
@@ -30,28 +30,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *************************************************************/
 
-#pragma once
-//utils
-#include "../../../Common/Utils/Utils.h"
-#include "../../../Common/Errors/Errors.h"
-#include "../../../Common/FValue/FValue.h"
 
-namespace Moonshot
+#include "IVisitor.h"
+
+using namespace Moonshot;
+
+IVisitor::~IVisitor()
 {
-	struct ASTExpr;
-	struct ASTValue;
-
-	struct ASTVarDeclStmt;
-	class IVisitor
-	{
-		public:
-			virtual ~IVisitor() = 0;
-
-			inline virtual void visit(ASTExpr *node){}
-			inline virtual void visit(ASTValue *node) {}
-
-			inline virtual void visit(ASTVarDeclStmt *node) {}
-	};
 }
-
-

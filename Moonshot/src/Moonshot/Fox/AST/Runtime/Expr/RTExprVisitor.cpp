@@ -45,6 +45,8 @@ RTExprVisitor::~RTExprVisitor()
 
 FVal RTExprVisitor::visit(ASTExpr * node)
 {
+	if (!E_CHECKSTATE) return FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
+
 	castHelper ch;
 	if (node->op_ == parse::optype::CONCAT)
 	{
@@ -82,17 +84,28 @@ FVal RTExprVisitor::visit(ASTExpr * node)
 
 		const FVal lfval = node->left_->accept(this);
 		const FVal rfval = node->right_->accept(this);
-		if ((lfval.index() == fval_str) || (rfval.index() == fval_str)) // is lhs/rhs a str?
+		if (std::holds_alternative<std::string>(lfval) || std::holds_alternative<std::string>(rfval)) // is lhs/rhs a str?
 		{
 			if (lfval.index() == rfval.index()) // if so, lhs/rhs must both be strings to compare them.
 			{
-				return FVal(
-					compareStr(
-						node->op_,
-						std::get<std::string>(lfval),
-						std::get<std::string>(rfval)
-					)
-				);
+				try {	// Safety' check
+					return FVal(
+						compareStr(
+							node->op_,
+							std::get<std::string>(lfval),
+							std::get<std::string>(rfval)
+						)
+					);
+				}
+				catch (std::bad_variant_access&)
+				{
+					E_CRITICAL("[RUNTIME] Critical error: Attempted to compare values while one of them wasn't a string.")
+				}
+			}
+			else
+			{
+				E_ERROR("[RUNTIME] Attempted to compare a string with an arithmetic type.");
+				return FVal();
 			}
 		}
 
@@ -274,6 +287,8 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL
 	{
 		if constexpr(std::is_same<VAL, std::string>::value)
 			E_CRITICAL("[RUNTIME] Can't convert string to value")
+		else if constexpr(std::is_same<FVAL_NULLTYPE,VAL>::value) // Using this to "prune" the else branch for the FVAL_NULLTYPE 
+			E_CRITICAL("[RUNTIME] type of VAL was FVAl_NULLTYPE.") 
 		else
 		{
 			if constexpr (std::is_same<int, GOAL>::value)
@@ -288,7 +303,7 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL
 				E_CRITICAL("[RUNTIME] Failed cast");
 		}
 	}
-	return { false,FVal(0) };
+	return { false,FVal() };
 }
 
 template<typename GOAL>
@@ -299,8 +314,11 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL & type,do
 		E_CRITICAL("[RUNTIME] Failed cast");
 		return { true,FVal() };
 	}
-	else	
+	else if constexpr (!std::is_same<FVAL_NULLTYPE, GOAL>::value)
 		return { true, FVal((GOAL)v) };
+	else
+		E_CRITICAL("[RUNTIME] What ? You really tried to convert something to a NULLTYPE?")
+	return { false,FVal() };
 }
 
 FVal RTExprVisitor::castHelper::castTo(const std::size_t& goal, const FVal & val)
