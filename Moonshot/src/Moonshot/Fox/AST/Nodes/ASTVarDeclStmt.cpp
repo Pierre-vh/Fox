@@ -19,14 +19,14 @@ ASTVarDeclStmt::~ASTVarDeclStmt()
 
 }
 
-void ASTVarDeclStmt::accept(IVisitor * vis)
+void ASTVarDeclStmt::accept(IVisitor& vis)
 {
-	VISIT_THIS
+	vis.visit(this);
 }
 
-FVal ASTVarDeclStmt::accept(IRTVisitor * vis)
+FVal ASTVarDeclStmt::accept(IRTVisitor& vis)
 {
-	VISIT_THIS
+	vis.visit(this);
 	return FVal(); // Doesn't return a value, just return something empty.
 }
 

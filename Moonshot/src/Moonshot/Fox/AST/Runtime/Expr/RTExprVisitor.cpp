@@ -23,11 +23,11 @@ FVal RTExprVisitor::visit(ASTExpr * node)
 			if (!node->left_)
 				E_CRITICAL("[RUNTIME] Tried to concat a node without a left_ child.")
 
-			auto leftstr = std::get<std::string>(node->left_->accept(this)); // get left str
+			auto leftstr = std::get<std::string>(node->left_->accept(*this)); // get left str
 			std::string rightstr = "";
 
 			if (node->right_)
-				rightstr = std::get<std::string>(node->right_->accept(this));
+				rightstr = std::get<std::string>(node->right_->accept(*this));
 			
 			return FVal(std::string(leftstr + rightstr));
 		}
@@ -37,21 +37,21 @@ FVal RTExprVisitor::visit(ASTExpr * node)
 		}
 	}
 	else if (node->op_ == parse::optype::CAST)
-		return ch.castTo(node->totype_ , node->left_->accept(this));
+		return ch.castTo(node->totype_ , node->left_->accept(*this));
 	else if (node->op_ == parse::optype::PASS)
 	{
 		if (!node->left_)
 			E_CRITICAL("[RUNTIME] Tried to pass a value to parent node, but the node did not have a left_ child.")
 
-		return node->left_->accept(this);
+		return node->left_->accept(*this);
 	}
 	else if (parse::isComparison(node->op_))
 	{
 		if (!node->left_ || !node->right_)
 			E_CRITICAL("[RUNTIME] Attempted to run a comparison operation on a node without 2 children")
 
-		const FVal lfval = node->left_->accept(this);
-		const FVal rfval = node->right_->accept(this);
+		const FVal lfval = node->left_->accept(*this);
+		const FVal rfval = node->right_->accept(*this);
 		if (std::holds_alternative<std::string>(lfval) || std::holds_alternative<std::string>(rfval)) // is lhs/rhs a str?
 		{
 			if (lfval.index() == rfval.index()) // if so, lhs/rhs must both be strings to compare them.
@@ -77,18 +77,18 @@ FVal RTExprVisitor::visit(ASTExpr * node)
 			}
 		}
 
-		double dleftval = fvalToDouble(node->left_->accept(this));
-		double drightval = fvalToDouble(node->right_->accept(this));
+		double dleftval = fvalToDouble(node->left_->accept(*this));
+		double drightval = fvalToDouble(node->right_->accept(*this));
 		return FVal(compareVal(
 			node->op_,
-			node->left_->accept(this),
-			node->right_->accept(this)
+			node->left_->accept(*this),
+			node->right_->accept(*this)
 		)
 		);
 	}
 	else if (node->op_ == parse::LOGICNOT || node->op_ == parse::NEGATE)
 	{
-		double lval = fvalToDouble(node->left_->accept(this));
+		double lval = fvalToDouble(node->left_->accept(*this));
 		if (node->op_ == parse::LOGICNOT)
 		{
 			return FVal(
@@ -106,8 +106,8 @@ FVal RTExprVisitor::visit(ASTExpr * node)
 		if (!node->left_ || !node->right_)
 			E_CRITICAL("[RUNTIME] Tried to perform an operation on a node without a left_ and/or right child.")
 
-		const double dleftval = fvalToDouble(node->left_->accept(this));
-		const double drightval = fvalToDouble(node->right_->accept(this));
+		const double dleftval = fvalToDouble(node->left_->accept(*this));
+		const double drightval = fvalToDouble(node->right_->accept(*this));
 		const double result = performOp(node->op_, dleftval, drightval);
 
 		if (fitsInValue(node->totype_, result) || (node->op_ == parse::CAST)) // If the results fits or we desire to cast the result

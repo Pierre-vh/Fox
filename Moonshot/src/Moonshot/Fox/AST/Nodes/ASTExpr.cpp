@@ -80,14 +80,14 @@ std::unique_ptr<ASTExpr> ASTExpr::getSimple()
 	return std::unique_ptr<ASTExpr>(nullptr);
 }
 
-void ASTExpr::accept(IVisitor *vis)
+void ASTExpr::accept(IVisitor& vis)
 {
-	VISIT_THIS
+	vis.visit(this);
 }
 
-FVal ASTExpr::accept(IRTVisitor *vis)
+FVal ASTExpr::accept(IRTVisitor& vis)
 {
-	return VISIT_THIS
+	return vis.visit(this);
 }
 
 void ASTExpr::setReturnType(const std::size_t &casttype)
@@ -132,13 +132,13 @@ ASTValue::ASTValue(const token & t)
 	}
 }
 
-void ASTValue::accept(IVisitor * vis)
+void ASTValue::accept(IVisitor& vis)
 {
-	VISIT_THIS
+	vis.visit(this);
 }
-FVal ASTValue::accept(IRTVisitor *vis)
+FVal ASTValue::accept(IRTVisitor& vis)
 {
-	return VISIT_THIS
+	return vis.visit(this);
 }
 
 ASTValue::~ASTValue()

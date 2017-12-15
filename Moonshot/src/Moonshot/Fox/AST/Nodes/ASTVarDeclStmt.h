@@ -32,8 +32,8 @@ namespace Moonshot
 			~ASTVarDeclStmt();
 
 			// Inherited via IASTStmt
-			virtual void accept(IVisitor * vis) override;
-			virtual FVal accept(IRTVisitor * vis) override;
+			virtual void accept(IVisitor& vis) override;
+			virtual FVal accept(IRTVisitor& vis) override;
 
 			var::varattr vattr_;
 			std::unique_ptr<ASTExpr> initExpr_;

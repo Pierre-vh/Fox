@@ -8,9 +8,10 @@
 #include "../../Common/Errors/Errors.h"
 #include "../../Fox/Util/Enums.h"
 
-#define FVAL_NULLTYPE void*
+
 
 // Alias for a variant holding every type possible in the interpreter.
+typedef void* FVAL_NULLTYPE;
 typedef std::variant<FVAL_NULLTYPE,int, float, char, std::string, bool> FVal;
 
 namespace Moonshot

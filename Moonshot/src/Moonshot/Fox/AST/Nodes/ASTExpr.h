@@ -37,8 +37,8 @@ namespace Moonshot
 			std::unique_ptr<ASTExpr> getSimple();			// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
 
 			// Accept
-			virtual void accept(IVisitor *vis) override;
-			virtual FVal accept(IRTVisitor *vis) override;
+			virtual void accept(IVisitor& vis) override;
+			virtual FVal accept(IRTVisitor& vis) override;
 			// NODE DATA
 			// Expression nodes hold 4 values :
 			// totype_ : the return type of the node
@@ -55,8 +55,8 @@ namespace Moonshot
 			ASTValue(const token &t);
 			~ASTValue();
 
-			void accept(IVisitor *vis) override;
-			FVal accept(IRTVisitor *vis) override;
+			void accept(IVisitor& vis) override;
+			FVal accept(IRTVisitor& vis) override;
 			// NODE DATA
 			// Value node holds 1 value : (inherited ones are never called and ignored.)
 			// val_ -> std::variant that holds the data of the node

@@ -22,10 +22,10 @@ void TypeCheck::visit(ASTExpr * node)
 	{
 		// VISIT BOTH CHILDREN
 		// get left expr result type
-		node->left_->accept(this);
+		node->left_->accept(*this);
 		auto left = rtr_type_;
 		// get right expr result type
-		node->right_->accept(this);
+		node->right_->accept(*this);
 		auto right = rtr_type_;
 		// CHECK IF THIS IS A CONCAT OP,CONVERT IT 
 		if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right) && (node->op_ == parse::ADD))
@@ -48,7 +48,7 @@ void TypeCheck::visit(ASTExpr * node)
 		if (node->op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node. We still visit child nodes tho
 		{
 			// JUST VISIT CHILD, SET RTRTYPE TO THE CAST GOAL
-			node->left_->accept(this);
+			node->left_->accept(*this);
 			rtr_type_ = getSampleFValForIndex(node->totype_);
 		}
 		// UNARY OPS
@@ -56,7 +56,7 @@ void TypeCheck::visit(ASTExpr * node)
 		{
 			// We have a unary operation
 			// Get left's return type. Don't change anything, as rtr_value is already set by the accept function.
-			node->left_->accept(this);
+			node->left_->accept(*this);
 			auto lefttype = rtr_type_;
 			// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATE on a string.
 			if(std::holds_alternative<std::string>(lefttype))
@@ -106,7 +106,7 @@ void TypeCheck::visit(ASTVarDeclStmt * node)
 	if (node->initExpr_) // If the node has an initExpr.
 	{
 		// get the init expression type.
-		node->initExpr_->accept(this);
+		node->initExpr_->accept(*this);
 		auto iexpr_type = rtr_type_;
 		// check if it's possible.
 		if (!canAssign(

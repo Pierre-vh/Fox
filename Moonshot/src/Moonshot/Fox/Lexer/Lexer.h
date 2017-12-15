@@ -9,6 +9,7 @@
 #include "../../Common/Errors/Errors.h"
 #include "Token.h"
 
+// Used only for debugging purposes.
 #define LOG_PUSHEDTOKENS false
 #define LOG_TOTALTOKENSCOUNT false
 

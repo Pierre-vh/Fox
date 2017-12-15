@@ -29,14 +29,14 @@ void Dumper::visit(ASTExpr * node)
 	{
 		std::cout << tabs() << char(192) << " Left child:" << tabs() << std::endl;
 		tabcount += 1;
-		node->left_->accept(this);
+		node->left_->accept(*this);
 		tabcount -= 1;
 	}
 	if (node->right_)
 	{
 		std::cout << tabs() << char(192) << " Right child:" << tabs() << std::endl;
 		tabcount += 1;
-		node->right_->accept(this);
+		node->right_->accept(*this);
 		tabcount -= 1;
 	}
 }
