@@ -1,35 +1,3 @@
-
-/************************************************************
-Author : Pierre van Houtryve
-Contact :
-e-mail : pierre.vanhoutryve@gmail.com
-
-Description : See header
-
-*************************************************************
-MIT License
-
-Copyright (c) 2017 Pierre van Houtryve
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*************************************************************/
-
 #include "TypeCheck.h"
 
 using namespace Moonshot;
@@ -93,9 +61,9 @@ void TypeCheck::visit(ASTExpr * node)
 			// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATE on a string.
 			if(std::holds_alternative<std::string>(lefttype))
 			{
-				std::stringstream ss;
-				ss << "[TYPECHECK] Can't perform unary operation " << getFromDict(parse::kOptype_dict, node->op_) << " on a string.";
-				E_ERROR(ss.str())
+				std::stringstream output;
+				output << "[TYPECHECK] Can't perform unary operation " << getFromDict(parse::kOptype_dict, node->op_) << " on a string.";
+				E_ERROR(output.str())
 			}
 			// SPECIAL CASES : (LOGICNOT)(NEGATE ON BOOLEANS)
 			if (node->op_ == parse::LOGICNOT)
@@ -184,11 +152,11 @@ FVal TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& 
 	if (!E_CHECKSTATE)
 	{
 		// make an error message :
-		std::stringstream ss;
-		ss << "[TYPECHECK] Impossible operation : " << getFromDict(parse::kOptype_dict, op_);
-		ss << " between " << std::endl;
-		ss << dumpFVal(f1) << std::endl << dumpFVal(f2);
-		E_ERROR(ss.str());
+		std::stringstream output;
+		output << "[TYPECHECK] Impossible operation : " << getFromDict(parse::kOptype_dict, op_);
+		output << " between " << std::endl;
+		output << dumpFVal(f1) << std::endl << dumpFVal(f2);
+		E_ERROR(output.str());
 	}
 	return FVal();
 }
@@ -219,11 +187,11 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 		else if (std::is_same<bool, T1>::value && parse::isArithOp(op_))
 		{
 			// We have 2 booleans, the result of an arithmetic operation between them is a int!
-			std::stringstream ss;
-			ss	<< "[TYPECHECK] The result of an artihmetic operation between 2 boolean is an integer ! " 
-				<< std::endl 
-				<< "Operation concerned: [" << v1 << " " << getFromDict(parse::kOptype_dict, op_) << " " << v2 << "]" << std::endl;
-			E_WARNING(ss.str())
+			std::stringstream output;
+			output	<< "[TYPECHECK] The result of an artihmetic operation between 2 boolean is an integer ! "
+					<< std::endl 
+					<< "Operation concerned: [" << v1 << " " << getFromDict(parse::kOptype_dict, op_) << " " << v2 << "]" << std::endl;
+			E_WARNING(output.str())
 			return	{ true, FVal() };
 		}
 

@@ -1,35 +1,3 @@
-
-/************************************************************
-Author : Pierre van Houtryve
-Contact :
-e-mail : pierre.vanhoutryve@gmail.com
-
-Description : This class implements the Parser Class and the general parsing rules
-
-*************************************************************
-MIT License
-
-Copyright (c) 2017 Pierre van Houtryve
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*************************************************************/
-
 #include "Parser.h"
 
 using namespace Moonshot;
@@ -141,14 +109,14 @@ token Parser::getToken(const size_t & d) const
 
 void Moonshot::Parser::errorUnexpected()
 {
-	std::stringstream ss;
-	ss << "[PARSER] Unexpected token " << getToken().showFormattedTokenData() << std::endl;
-	E_ERROR(ss.str());
+	std::stringstream output;
+	output << "[PARSER] Unexpected token " << getToken().showFormattedTokenData() << std::endl;
+	E_ERROR(output.str());
 }
 
 void Moonshot::Parser::errorExpected(const std::string & s)
 {
-	std::stringstream ss;
-	ss << s << "[PARSER] after token " << getToken().showFormattedTokenData() << std::endl;
-	E_ERROR(ss.str());
+	std::stringstream output;
+	output << s << "[PARSER] after token " << getToken().showFormattedTokenData() << std::endl;
+	E_ERROR(output.str());
 }

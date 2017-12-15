@@ -183,6 +183,7 @@
     <Text Include="doc\file_header.txt" />
     <Text Include="doc\guidelines.txt" />
     <Text Include="res\code_samples\expr\todo.txt" />
+    <Text Include="src\LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
