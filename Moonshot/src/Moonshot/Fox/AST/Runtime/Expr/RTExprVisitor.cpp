@@ -75,10 +75,27 @@ FVal RTExprVisitor::visit(ASTExpr * node)
 
 		return node->left_->accept(this);
 	}
-	else if (parse::isCondition(node->op_))
+	else if (parse::isComparison(node->op_))
 	{
-		if(!node->left_ || !node->right_)
+		if (!node->left_ || !node->right_)
 			E_CRITICAL("[RUNTIME] Attempted to run a comparison operation on a node without 2 children")
+
+		const FVal lfval = node->left_->accept(this);
+		const FVal rfval = node->right_->accept(this);
+		if ((lfval.index() == fval_str) || (rfval.index() == fval_str)) // is lhs/rhs a str?
+		{
+			if (lfval.index() == rfval.index()) // if so, lhs/rhs must both be strings to compare them.
+			{
+				return FVal(
+					compareStr(
+						node->op_,
+						std::get<std::string>(lfval),
+						std::get<std::string>(rfval)
+					)
+				);
+			}
+		}
+
 		double dleftval = fvalToDouble(node->left_->accept(this));
 		double drightval = fvalToDouble(node->right_->accept(this));
 		return FVal(compareVal(
@@ -169,17 +186,29 @@ bool RTExprVisitor::compareVal(const parse::optype & op, const FVal & l, const F
 			return false;
 	}
 }
+bool RTExprVisitor::compareStr(const parse::optype & op, const std::string & lhs, const std::string & rhs)
+{
+	using namespace parse;
+	switch (op)
+	{
+		case EQUAL:				return lhs == rhs;
+		case NOTEQUAL:			return lhs != rhs;
+		case LESS_THAN:			return lhs < rhs;
+		case GREATER_THAN:		return lhs > rhs;
+		case LESS_OR_EQUAL:		return lhs <= rhs;
+		case GREATER_OR_EQUAL:	return lhs > rhs;
+		default:				E_CRITICAL("[RUNTIME] Operation was not a condition.")
+			return false;
+	}
+}
 double RTExprVisitor::performOp(const parse::optype& op, const double & l, const double & r)
 {
 	using namespace parse;
 	switch (op)
 	{
-		case ADD:
-			return l + r;
-		case MINUS:
-			return l - r;
-		case MUL:
-			return l * r;
+		case ADD:	return l + r;
+		case MINUS:	return l - r;
+		case MUL:	return l * r;
 		case DIV:
 			if(r == 0)
 			{
@@ -188,12 +217,9 @@ double RTExprVisitor::performOp(const parse::optype& op, const double & l, const
 			}
 			else 
 				return l / r;
-		case MOD:
-			return std::fmod(l, r);
-		case EXP:
-			return std::pow(r, l); // RIGHT ASSOCIATIVE : RIGHT FIRST!
-		default:
-			E_CRITICAL("[RUNTIME] Defaulted.")
+		case MOD:	return std::fmod(l, r);
+		case EXP:	return std::pow(r, l); // RIGHT ASSOCIATIVE : RIGHT FIRST!
+		default:	E_CRITICAL("[RUNTIME] Defaulted.")
 			return 0.0;
 	}
 }

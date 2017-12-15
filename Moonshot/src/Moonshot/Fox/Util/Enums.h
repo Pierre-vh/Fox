@@ -71,9 +71,9 @@ namespace Moonshot
 		
 		// Template version of the other functions
 
-		inline bool isCondition(const optype & op) 
+		inline bool isComparison(const optype & op) 
 		{
-			return (op >= 9) && (op <= 15); // Condition are between 8 and 15 in the enum.
+			return (op >= 9) && (op <= 16); // Condition are between 8 and 15 in the enum.
 		}
 
 		inline bool isUnary(const optype & op)

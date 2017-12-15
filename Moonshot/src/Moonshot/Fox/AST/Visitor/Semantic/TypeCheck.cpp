@@ -182,7 +182,7 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 		// Note : Sometimes you'll see !isT1Num or isT1Num in this block of code to check if we face a string, why ?
 		// Because both types are the same, so if T1 is a string, T2 is too -> we can just check if T1 is a numeric type. 
 		//If it's not, it's a string, and so is T2.
-		if (parse::isCondition(op_)) // Is it a condition?
+		if (parse::isComparison(op_)) // Is it a condition?
 		{
 			if (((op_ == parse::AND) || (op_ == parse::OR))	&& !isT1Num	)											// If we have a comp-join-op and strings, it's an error 
 			{
@@ -191,7 +191,7 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 			}
 			return { true,FVal(false) };	//f it's a condition, the return type will be a boolean.
 		}
-		else if (!isT1Num && (op_ != parse::CONCAT)) // Strings can only be concatenated 
+		else if (!isT1Num && (op_ != parse::CONCAT)) // Strings can only be concatenated Or Compared.
 		{
 			E_ERROR("[TYPECHECK] Can't perform operations other than addition (concatenation) on strings");
 			return	{ false, FVal() };
@@ -211,7 +211,7 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 	}
 	else if constexpr (!isT1Num || !isT2Num) // It's 2 different types, is one of them a string ? 
 		E_ERROR("[TYPECHECK] Can't perform an operation on a string and a numeric type.") 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
-	else if (parse::isCondition(op_))
+	else if (parse::isComparison(op_))
 		return { true, FVal(false) };
 	// Normal failure. We'll probably find a result when swapping T1 and T2 in getExprResultType.
 	return { false ,FVal() }; 

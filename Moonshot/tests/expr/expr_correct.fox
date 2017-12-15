@@ -9,3 +9,7 @@
 3^3^3*2+2^3*2 // More complex case, should result ~1.525e13
 (3^-(2*-(1/2)+2)--2+3^2%0.66+2)==-(-4.75333333) // Wtf ? If this parses okay, I think a lot of trivial expression will 
 (22/7 == 3.14) && (3.14 > 3) && ('a' < 'A') || -false
+"aa" < "AA" // string comparisons
+"bb" == "bb"
+"cA" >= "cB"
+"Pretty Flower" != "Pretty tree"

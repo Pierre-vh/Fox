@@ -6,7 +6,7 @@ int main()
 {
 	auto &err = Moonshot::Errors::getInstance();
 	ExprTester *testExpr = new ExprTester();
-	err.options.setAll(true);
+	err.options.setAll(false);
 	testExpr->showAST = false;
 	std::cout << char(219) << " Expression testing..." << std::endl;
 
