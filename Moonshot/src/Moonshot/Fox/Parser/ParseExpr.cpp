@@ -67,23 +67,15 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 				newnode_op->makeChild(parse::RIGHT, last_); // Set last_ as right child.
 				last_ = std::move(second);// Set second as last
 				// Append newnode_op to rtr
-				// We need to make newnode a child of the deepest left node without a left child.
 				rtr->makeChildOfDeepestNode(parse::LEFT, newnode_op);
 			}
 		}
 	}
-	if (last_) // Last isn't empty
+
+	if (last_) // Last isn't empty -> make it the left child of our last node.
 	{
-		if (rtr->getDeepestNode(parse::LEFT)->left_) // last node already has a left child?
-		{
-			E_CRITICAL("Last wasn't empty and the deepest left node already had a left child.");
-			return NULL_UNIPTR(ASTExpr);
-		}
-		else // All good ! Set last_ as the left child of the Deepest left node
-		{
-			rtr->makeChildOfDeepestNode(parse::LEFT, last_);
-			last_ = 0;
-		}
+		rtr->makeChildOfDeepestNode(parse::LEFT, last_);
+		last_ = 0;
 	}
 	auto simple = rtr->getSimple();
 	if (simple)

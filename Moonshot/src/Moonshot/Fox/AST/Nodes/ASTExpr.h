@@ -26,8 +26,6 @@ namespace Moonshot
 			void makeChild(const parse::direction &d,std::unique_ptr<ASTExpr> &node); // make (node) a child of this.
 			void makeChildOfDeepestNode(const parse::direction &d, std::unique_ptr<ASTExpr> &node); // Make (node) a child of the deepest left/right path of our node. (continue until left/right = 0, then makechild.)
 			
-			ASTExpr* getDeepestNode(const parse::direction &d); // returns the deepest left/right child (always go left/right from first node)
-
 			bool hasNode(const parse::direction &d) const;	// If the node posseses a left/right child, it will return true
 			void setReturnType(const std::size_t &casttype); // set totype_
 			std::size_t getToType() const;					// return totype_
