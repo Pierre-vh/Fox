@@ -127,7 +127,7 @@ ASTValue::ASTValue(const token & t)
 	}
 	catch (const std::bad_variant_access &err)
 	{
-		E_CRITICAL("Tried to access a value in a variant that did not exists. ")
+		E_CRITICAL("Tried to access a value in a variant that did not exists. ");
 			std::cerr << err.what() << std::endl;
 	}
 }

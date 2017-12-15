@@ -53,7 +53,7 @@ bool Moonshot::token::isValid() const
 void token::selfId()
 {
 	if (str.size() == 0)
-		E_CRITICAL("[LEX] Found an empty token. [" + pos.asText() + "]")
+		E_CRITICAL("[LEX] Found an empty token. [" + pos.asText() + "]");
 
 	if (idSign())
 		type = lex::TT_SIGN;
@@ -65,8 +65,8 @@ void token::selfId()
 			type = lex::TT_VALUE;
 		else if (std::regex_match(str, lex::kId_regex))
 			type = lex::TT_IDENTIFIER;
-		else 
-			E_ERROR("[LEX] Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]")
+		else
+			E_ERROR("[LEX] Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]");
 	}
 }
 

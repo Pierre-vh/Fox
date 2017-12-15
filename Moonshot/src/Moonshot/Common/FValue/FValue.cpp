@@ -60,7 +60,7 @@ bool Moonshot::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 {
 	if ((rhs == fval_void) || (lhs == fval_void))
 	{
-		E_ERROR("[TYPECHECK] Can't assign a void expression to a variable.") 
+		E_ERROR("[TYPECHECK] Can't assign a void expression to a variable.");
 		return false;
 	}
 
@@ -69,7 +69,7 @@ bool Moonshot::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 	// From here, we know lhs and rhs are different.
 	else if ((lhs == fval_str) || (rhs == fval_str)) // one of them is a string, and the other isn't
 	{
-		E_ERROR("[TYPECHECK] Can't assign a string to an arithmetic type and vice versa.")
+		E_ERROR("[TYPECHECK] Can't assign a string to an arithmetic type and vice versa.");
 		return false;
 	}
 	// By default, everything else works.

@@ -63,7 +63,7 @@ void TypeCheck::visit(ASTExpr * node)
 			{
 				std::stringstream output;
 				output << "[TYPECHECK] Can't perform unary operation " << getFromDict(parse::kOptype_dict, node->op_) << " on a string.";
-				E_ERROR(output.str())
+				E_ERROR(output.str());
 			}
 			// SPECIAL CASES : (LOGICNOT)(NEGATE ON BOOLEANS)
 			if (node->op_ == parse::LOGICNOT)
@@ -83,11 +83,11 @@ void TypeCheck::visit(ASTExpr * node)
 	{
 		// Okay, this is far-fetched, but can be possible if our parser is broken. It's better to check this here :
 		// getting in this branch means that we only have a right_ node.
-		E_CRITICAL("[TYPECHECK] Node was in an invalid state.")
+		E_CRITICAL("[TYPECHECK] Node was in an invalid state.");
 	}
 	node->totype_ = rtr_type_.index();
 	if (node->totype_ == invalid_index)
-		E_CRITICAL("[TYPECHECK] Type was invalid.")
+		E_CRITICAL("[TYPECHECK] Type was invalid.");
 }
 
 void TypeCheck::visit(ASTValue * node)
@@ -172,9 +172,9 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 		//If it's not, it's a string, and so is T2.
 		if (parse::isComparison(op_)) // Is it a condition?
 		{
-			if (((op_ == parse::AND) || (op_ == parse::OR))	&& !isT1Num	)											// If we have a comp-join-op and strings, it's an error 
+			if (((op_ == parse::AND) || (op_ == parse::OR)) && !isT1Num)											// If we have a comp-join-op and strings, it's an error 
 			{
-				E_ERROR("Operations AND (&&) and OR (||) require types convertible to boolean on each side.")
+				E_ERROR("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
 				return { false, FVal() };
 			}
 			return { true,FVal(false) };	//f it's a condition, the return type will be a boolean.
@@ -188,17 +188,17 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 		{
 			// We have 2 booleans, the result of an arithmetic operation between them is a int!
 			std::stringstream output;
-			output	<< "[TYPECHECK] The result of an artihmetic operation between 2 boolean is an integer ! "
-					<< std::endl 
-					<< "Operation concerned: [" << v1 << " " << getFromDict(parse::kOptype_dict, op_) << " " << v2 << "]" << std::endl;
-			E_WARNING(output.str())
-			return	{ true, FVal() };
+			output << "[TYPECHECK] The result of an artihmetic operation between 2 boolean is an integer ! "
+				<< std::endl
+				<< "Operation concerned: [" << v1 << " " << getFromDict(parse::kOptype_dict, op_) << " " << v2 << "]" << std::endl;
+			E_WARNING(output.str());
+				return	{ true, FVal() };
 		}
 
 		return { true, FVal(v1) };		//the type is kept if we make a legal operation between 2 values of the same type. so we return a variant holding a sample value (v1) of the type.
 	}
 	else if constexpr (!isT1Num || !isT2Num) // It's 2 different types, is one of them a string ? 
-		E_ERROR("[TYPECHECK] Can't perform an operation on a string and a numeric type.") 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
+		E_ERROR("[TYPECHECK] Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
 	else if (parse::isComparison(op_))
 		return { true, FVal(false) };
 	// Normal failure. We'll probably find a result when swapping T1 and T2 in getExprResultType.

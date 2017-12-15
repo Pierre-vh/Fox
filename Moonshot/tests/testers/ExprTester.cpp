@@ -43,7 +43,7 @@ bool ExprTester::testFile(const std::string & fp, const bool & shouldFail)
 
 bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 {
-	E_RESETSTATE
+	E_RESETSTATE;
 
 	std::cout << "Expression: " << str << std::endl;
 	
