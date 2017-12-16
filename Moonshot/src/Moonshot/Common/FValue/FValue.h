@@ -17,8 +17,14 @@ typedef std::variant<FVAL_NULLTYPE,int, float, char, std::string, bool> FVal;
 namespace Moonshot
 {
 	std::string dumpFVal(const FVal &var);
+
 	FVal getSampleFValForIndex(const std::size_t& t);
+
 	std::string indexToTypeName(const std::size_t& t);
+
+	bool isBasic(const std::size_t& t); // Is the type a string/bool/char/int/float ?
+	bool isArithmetic(const std::size_t& t);
+
 	bool canAssign(const std::size_t &lhs, const std::size_t &rhs); // Checks if the lhs and rhs are compatible.
 	// Compatibility : 
 		// Arithmetic type <-> Arithmetic Type = ok

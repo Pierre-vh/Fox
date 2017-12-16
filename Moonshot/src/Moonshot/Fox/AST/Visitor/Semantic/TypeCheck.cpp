@@ -127,8 +127,16 @@ TypeCheck::returnTypeHelper::returnTypeHelper(const parse::optype & op) : op_(op
 
 FVal TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& f2)
 {
+	// first, quick, simple check : we can only verify results between 2 basic types.
+	if (!isBasic(f1.index()) || !isBasic(f2.index()))
+	{
+		if(!E_CHECKSTATE) // Don't throw an error twice.
+			E_ERROR("[TYPECHECK] Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
+		return FVal();
+	}
 	// This function will simply "visit" (using std::visit) both fval so we can call a function depending on the stored type.
 	// It'll do it twice, and invert the arguments for the second time. For instance, float,int might not be a recognized case, but int,float is.
+
 	std::pair<bool, FVal> result;
 	// Double dispatch w/ std::visit
 	std::visit([&](const auto& a, const auto& b) {

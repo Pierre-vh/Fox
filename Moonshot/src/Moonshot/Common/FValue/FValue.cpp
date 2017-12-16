@@ -56,6 +56,26 @@ std::string Moonshot::indexToTypeName(const std::size_t & t)
 	return (a != kType_dict.end()) ? a->second : "!IMPOSSIBLE_TYPE!";
 }
 
+bool Moonshot::isBasic(const std::size_t & t)
+{
+	switch (t)
+	{
+		case fval_int:
+		case fval_float:
+		case fval_char:
+		case fval_bool:
+		case fval_str:
+			return true;
+		default:
+			return false;
+	}
+}
+
+bool Moonshot::isArithmetic(const std::size_t & t)
+{
+	return (isBasic(t) && (t != fval_str));
+}
+
 bool Moonshot::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 {
 	if ((rhs == fval_void) || (lhs == fval_void))
@@ -63,15 +83,17 @@ bool Moonshot::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 		E_ERROR("[TYPECHECK] Can't assign a void expression to a variable.");
 		return false;
 	}
-
+	if (!isBasic(lhs) || !isBasic(rhs))
+		// If one of the types isn't basic, no assignement possible.
+		return false;
 	else if (lhs == rhs) // same type to same type = ok.
 		return true;
 	// From here, we know lhs and rhs are different.
-	else if ((lhs == fval_str) || (rhs == fval_str)) // one of them is a string, and the other isn't
+	else if (!isArithmetic(lhs) || isArithmetic(rhs)) // one of them is a string, and the other isn't
 	{
 		E_ERROR("[TYPECHECK] Can't assign a string to an arithmetic type and vice versa.");
 		return false;
 	}
-	// By default, everything else works.
+	// Else, we're good, return true.
 	return true;
 }
