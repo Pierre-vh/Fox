@@ -125,7 +125,11 @@ FVal RTExprVisitor::visit(ASTValue * node)
 
 double RTExprVisitor::fvalToDouble(const FVal & fval)
 {
-	if (std::holds_alternative<int>(fval))
+	if (!isBasic(fval.index()))
+		E_ERROR("[RUNTIME] Can't perform conversion to double on a non basic type.");
+	else if (!isArithmetic(fval.index()))
+		E_ERROR("[RUNTIME] Can't perform conversion to double on a non arithmetic type.");
+	else if (std::holds_alternative<int>(fval))
 		return (double)std::get<int>(fval);
 	else if (std::holds_alternative<float>(fval))
 		return (double)std::get<float>(fval);
@@ -133,8 +137,6 @@ double RTExprVisitor::fvalToDouble(const FVal & fval)
 		return (double)std::get<char>(fval);
 	else if (std::holds_alternative<bool>(fval))
 		return (double)std::get<bool>(fval);
-	else if (std::holds_alternative<std::string>(fval))
-		E_CRITICAL("[RUNTIME] Can't convert str to double");
 	else
 		E_CRITICAL("[RUNTIME] Reached end of function.Unimplemented type in FVal?");
 	return 0.0;
@@ -226,7 +228,10 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 			E_CRITICAL("[RUNTIME] Index was invalid");
 			return false;
 		default:
-			E_CRITICAL("[RUNTIME] Defaulted. Unimplemented type? Or tried to convert to string?");
+			if (!isBasic(typ))
+				E_CRITICAL("[RUNTIME] Can't make a \"fitInValue\" check on a non-basic type.");
+			else
+				E_CRITICAL("[RUNTIME] Switch defaulted. Unimplemented type?");
 			return false;
 	}
 }
