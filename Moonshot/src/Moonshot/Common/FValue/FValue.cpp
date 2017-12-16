@@ -1,6 +1,8 @@
 #include "FValue.h"
 
-std::string Moonshot::dumpFVal(const FVal & var)
+using namespace Moonshot;
+
+std::string fv_util::dumpFVal(const FVal & var)
 {
 	std::stringstream output;
 	if (std::holds_alternative<FVAL_NULLTYPE>(var))
@@ -25,7 +27,7 @@ std::string Moonshot::dumpFVal(const FVal & var)
 		E_CRITICAL("Illegal variant.");
 	return output.str();
 }
-FVal Moonshot::getSampleFValForIndex(const std::size_t & t)
+FVal fv_util::getSampleFValForIndex(const std::size_t & t)
 {
 	switch (t)
 	{
@@ -50,13 +52,13 @@ FVal Moonshot::getSampleFValForIndex(const std::size_t & t)
 	}
 }
 
-std::string Moonshot::indexToTypeName(const std::size_t & t)
+std::string fv_util::indexToTypeName(const std::size_t & t)
 {
 	auto a = kType_dict.find(t);
 	return (a != kType_dict.end()) ? a->second : "!IMPOSSIBLE_TYPE!";
 }
 
-bool Moonshot::isBasic(const std::size_t & t)
+bool fv_util::isBasic(const std::size_t & t)
 {
 	switch (t)
 	{
@@ -71,12 +73,12 @@ bool Moonshot::isBasic(const std::size_t & t)
 	}
 }
 
-bool Moonshot::isArithmetic(const std::size_t & t)
+bool fv_util::isArithmetic(const std::size_t & t)
 {
 	return (isBasic(t) && (t != fval_str));
 }
 
-bool Moonshot::canAssign(const std::size_t & lhs, const std::size_t & rhs)
+bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 {
 	if ((rhs == fval_void) || (lhs == fval_void))
 	{

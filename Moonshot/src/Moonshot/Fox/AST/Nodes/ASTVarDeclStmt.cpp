@@ -1,6 +1,7 @@
 #include "ASTVarDeclStmt.h"
 
 using namespace Moonshot;
+using namespace fv_util;
 
 ASTVarDeclStmt::ASTVarDeclStmt(const var::varattr & attr, std::unique_ptr<ASTExpr>& iExpr)
 {

@@ -1,6 +1,7 @@
 #include "ExprTester.h"
 
 using namespace Moonshot;
+using namespace fv_util;
 
 ExprTester::ExprTester()
 {

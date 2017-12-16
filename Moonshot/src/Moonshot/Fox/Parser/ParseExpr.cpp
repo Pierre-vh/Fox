@@ -1,6 +1,7 @@
 #include "Parser.h"
 
 using namespace Moonshot;
+using namespace fv_util;
 
 std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 {

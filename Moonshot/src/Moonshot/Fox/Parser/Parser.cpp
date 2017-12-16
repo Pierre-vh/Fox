@@ -1,6 +1,7 @@
 #include "Parser.h"
 
 using namespace Moonshot;
+using namespace fv_util;
 
 Parser::Parser(Lexer *l) : lex_(l)
 {

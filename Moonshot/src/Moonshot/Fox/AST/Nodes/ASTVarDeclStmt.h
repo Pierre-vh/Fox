@@ -18,7 +18,7 @@ namespace Moonshot
 			// Variable's attribute
 			bool isConst = false;
 			std::string name = "";
-			std::size_t type = fval_void;
+			std::size_t type = fv_util::fval_void;
 
 			private:
 				bool wasInit_ = false;

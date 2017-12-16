@@ -1,6 +1,7 @@
 #include "Dumper.h"
 
 using namespace Moonshot;
+using namespace fv_util;
 
 Dumper::Dumper()
 {

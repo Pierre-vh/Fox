@@ -1,6 +1,7 @@
 #include "RTExprVisitor.h"
 
 using namespace Moonshot;
+using namespace fv_util;
 
 RTExprVisitor::RTExprVisitor()
 {

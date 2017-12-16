@@ -42,7 +42,7 @@ namespace Moonshot
 			// totype_ : the return type of the node
 			// op_ : the operation the node should perform
 			// left_ & right_ -> pointers to its children
-			std::size_t totype_ = invalid_index;	// By default, don't cast (-1). If this is different , then we must cast the result to the desired type.
+			std::size_t totype_ = fv_util::invalid_index;	// By default, don't cast (-1). If this is different , then we must cast the result to the desired type.
 			parse::optype op_ = parse::PASS;
 			std::unique_ptr<ASTExpr> left_ = 0, right_ = 0;
 	};
