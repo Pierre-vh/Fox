@@ -244,42 +244,29 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 template<typename GOAL, typename VAL, bool b1, bool b2>
 std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL v)
 {
-	if constexpr(std::is_same<GOAL, VAL>::value) // Direct conversion
+	if constexpr (!fval_traits<GOAL>::isBasic || !fval_traits<VAL>::isBasic)
+		E_CRITICAL("[RUNTIME] Can't cast a basic type to a nonbasic type and vice versa.");
+	else if constexpr((std::is_same<GOAL, VAL>::value) || (b1 && b2)) // Direct conversion
 		return { true , FVal(v) };
-	else if constexpr (b1 && b2)
-		return { true, FVal(v) };
-	else if constexpr (std::is_same<VAL, std::string>::value)
-	{
-		E_CRITICAL("[RUNTIME] Can't convert string to value");
-		return { false, FVal() };
-	}
-	else if constexpr (b1 != b2) // Goal is a string -> error if val != string
+	else if constexpr (b1 != b2) // One of them is a string and the other isn't.
 	{
 		std::stringstream output;
 		output << "[RUNTIME] Can't convert a string to an arithmetic type and vice versa. Value:" << v << std::endl;
 		E_ERROR(output.str());
+		return { false, FVal() };
 	}
-	else if constexpr (std::is_same<FVal, VAL>::value)
-		E_ERROR("[RUNTIME] FVAL ! What are you doing here!");
-	else // Conversion will work. Proceed !
+	else // Conversion might work. Proceed !
 	{
-		if constexpr(std::is_same<VAL, std::string>::value)
-			E_CRITICAL("[RUNTIME] Can't convert string to value");
-		else if constexpr(std::is_same<FVAL_NULLTYPE, VAL>::value) // Using this to "prune" the else branch for the FVAL_NULLTYPE 
-			E_CRITICAL("[RUNTIME] type of VAL was FVAl_NULLTYPE.");
+		if constexpr (std::is_same<int, GOAL>::value)
+			return { true,FVal((int)v) };
+		else if constexpr (std::is_same<float, GOAL>::value)
+			return { true,FVal((float)v) };
+		else if constexpr (std::is_same<char, GOAL>::value)
+			return { true,FVal((char)v) };
+		else if constexpr (std::is_same<bool, GOAL>::value)
+			return { true,FVal((bool)v) };
 		else
-		{
-			if constexpr (std::is_same<int, GOAL>::value)
-				return { true,FVal((int)v) };
-			else if constexpr (std::is_same<float, GOAL>::value)
-				return { true,FVal((float)v) };
-			else if constexpr (std::is_same<char, GOAL>::value)
-				return { true,FVal((char)v) };
-			else if constexpr (std::is_same<bool, GOAL>::value)
-				return { true,FVal((bool)v) };
-			else
-				E_CRITICAL("[RUNTIME] Failed cast");
-		}
+			E_CRITICAL("[RUNTIME] Failed cast");
 	}
 	return { false,FVal() };
 }
