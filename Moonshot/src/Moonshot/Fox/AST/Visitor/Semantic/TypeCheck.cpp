@@ -12,6 +12,8 @@ TypeCheck::~TypeCheck()
 {
 }
 
+// TODO: Implement Assignement typechecking.
+
 void TypeCheck::visit(ASTExpr * node)
 {
 	if (!E_CHECKSTATE) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
@@ -169,6 +171,7 @@ FVal TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& 
 	}
 	return FVal();
 }
+
 
 template<typename T1, typename T2, bool isT1Num, bool isT2Num>
 std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, const T2 & v2)

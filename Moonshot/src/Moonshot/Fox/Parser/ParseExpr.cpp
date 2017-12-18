@@ -55,27 +55,24 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 			// There's a member variable, last_ that will hold the last parsed "second" variable.
 			// First "loop" check.
 			if (rtr->op_ == parse::PASS)
-			{
-				rtr->swapChildren();		// Swap childrens, so our node is on the RIGHT
 				rtr->op_ = op;			
-			}
 
 			if (!last_) // Last is empty
 				last_ = std::move(second); // Set last_ to second.
 			else
 			{
 				auto newnode_op = std::make_unique<ASTExpr>(op); // Create a node with the op
-				newnode_op->makeChild(parse::RIGHT, last_); // Set last_ as right child.
+				newnode_op->makeChild(parse::LEFT, last_); // Set last_ as left child.
 				last_ = std::move(second);// Set second as last
 				// Append newnode_op to rtr
-				rtr->makeChildOfDeepestNode(parse::LEFT, newnode_op);
+				rtr->makeChildOfDeepestNode(parse::RIGHT, newnode_op);
 			}
 		}
 	}
 
 	if (last_) // Last isn't empty -> make it the left child of our last node.
 	{
-		rtr->makeChildOfDeepestNode(parse::LEFT, last_);
+		rtr->makeChildOfDeepestNode(parse::RIGHT, last_);
 		last_ = 0;
 	}
 	auto simple = rtr->getSimple();
@@ -268,6 +265,12 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority, bool
 				pos_ += 1;
 				return { true,optype::OR };
 			}
+			break;
+		case 7:
+			if ((cur.sign_type == signs::S_EQUAL)
+				&&
+				!(pk.isValid() && (pk.sign_type == signs::S_EQUAL))) // Refuse if op is ==
+				return { true,optype::ASSIGN };
 			break;
 		default:
 			E_CRITICAL("[PARSER] Requested to match a Binary Operator with a non-existent priority");

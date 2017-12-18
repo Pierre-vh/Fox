@@ -46,6 +46,10 @@ FVal RTExprVisitor::visit(ASTExpr * node)
 
 		return node->left_->accept(*this);
 	}
+	else if (node->op_ == parse::optype::ASSIGN)
+	{
+		E_LOG("(ASSIGNEMENT OPERATION IS NOT YET IMPLEMENTED.)");
+	}
 	else if (parse::isComparison(node->op_))
 	{
 		if (!node->left_ || !node->right_)
@@ -185,7 +189,7 @@ bool RTExprVisitor::compareStr(const parse::optype & op, const std::string & lhs
 			return false;
 	}
 }
-double RTExprVisitor::performOp(const parse::optype& op, const double & l, const double & r)
+double RTExprVisitor::performOp(const parse::optype& op,double l,double r)
 {
 	using namespace parse;
 	switch (op)
@@ -202,7 +206,7 @@ double RTExprVisitor::performOp(const parse::optype& op, const double & l, const
 			else 
 				return l / r;
 		case MOD:	return std::fmod(l, r);
-		case EXP:	return std::pow(r, l); // RIGHT ASSOCIATIVE : RIGHT FIRST!
+		case EXP:	return std::pow(l, r);		
 		default:	E_CRITICAL("[RUNTIME] Defaulted.");
 			return 0.0;
 	}
@@ -285,13 +289,13 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL & type,do
 {
 	if constexpr(std::is_same<GOAL, std::string>::value)
 	{
-		E_CRITICAL("[RUNTIME] Failed cast");
+		E_CRITICAL("[RUNTIME] Failed cast - Attempted to cast to string.");
 		return { true,FVal() };
 	}
-	else if constexpr (!std::is_same<FVAL_NULLTYPE, GOAL>::value)
+	else if constexpr (fval_traits<GOAL>::isBasic) // Can only attempt to convert basic types.
 		return { true, FVal((GOAL)v) };
 	else
-		E_CRITICAL("[RUNTIME] What ? You really tried to convert something to a NULLTYPE?");
+		E_CRITICAL("[RUNTIME] castTypeTo defaulted. Unimplemented type?");
 	return { false,FVal() };
 }
 

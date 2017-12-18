@@ -34,7 +34,10 @@ namespace Moonshot
 
 			// Unary optypes
 			LOGICNOT,		// ! 
-			NEGATE		// -
+			NEGATE,		// -
+
+			// Assignement
+			ASSIGN
 		};
 		
 		// Template version of the other functions
@@ -56,7 +59,7 @@ namespace Moonshot
 
 		inline constexpr bool isRightAssoc(const optype & op)
 		{
-			return (op == EXP);
+			return (op == EXP) || (op == ASSIGN); // Only equal & exp op are right assoc.
 		}
 
 		enum direction
@@ -83,7 +86,8 @@ namespace Moonshot
 			{ EQUAL		, "EQUAL"	},
 			{ NOTEQUAL	, "NOTEQUAL"},
 			{ LOGICNOT	, "LOGICNOT"	},
-			{ NEGATE	, "NEGATE"	}
+			{ NEGATE	, "NEGATE"	},	
+			{ ASSIGN	, "ASSIGN"	}
 		}; 
 	}
 	std::string getFromDict(const std::map<parse::optype,std::string>& m,const parse::optype& op);

@@ -1,4 +1,4 @@
-#include "FValue.h"
+#include "Types.h"
 
 using namespace Moonshot;
 
@@ -98,4 +98,20 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 	}
 	// Else, we're good, return true.
 	return true;
+}
+
+// varattr
+
+var::varattr::varattr()
+{
+}
+
+var::varattr::varattr(const std::string & nm, const std::size_t & ty, const bool & isK) : name(nm), type(ty), isConst(isK)
+{
+	wasInit_ = true;
+}
+
+var::varattr::operator bool() const
+{
+	return (wasInit_ && (type != fv_util::fval_void) && (type != fv_util::invalid_index));
 }

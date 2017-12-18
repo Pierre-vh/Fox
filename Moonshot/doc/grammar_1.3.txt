@@ -1,6 +1,9 @@
-Fox Grammar version 1.2
+Fox Grammar version 1.3
 // Changelog:
 1.2 : Cleanup of the grammar.
+// 18/12/2017
+1.3 : Now using Expression Statements instead of f_call_stmt and var_ass_stmt.
+	> Added <expr_stmt> which replaces var_assign & f_call statements.
 
 Modifications used in this grammar :
 $x means x is a term already recognized and identified by the lexer. 
@@ -29,7 +32,9 @@ you'll be greeted with an error!)
 <eoi>			= ';'								// End of instruction character. I use a separate rule for this, in case i want to modify it someday. (to use \n for instance)
 <block>			= '{' {<stmt>} '}'						// Statements delimited by curly brackets.
 				= <stmt>							// A block can also be just one statement.
-<stmt>			= <var_decl> | <var_assign> | <f_call_stmt> | <ctrl_flow>
+<stmt>			= <var_decl> | <expr_stmt> | <ctrl_flow>
+
+<expr_stmt>		= <expr> <eoi>
 
 <expr> 			= <term> { <binary_operator> <term> }		
 <term>			= [<unary_operator>] <value> [<as_kw> <type>] 
@@ -40,7 +45,7 @@ you'll be greeted with an error!)
 <callable>		= <id>
 				= <f_call>
 
-<binary_operator> =  '+' | '-' | '*' | '/' | '%' | ('&' '&') | ('|' '|') | ('<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 
+<binary_operator> =  '=' | '+' | '-' | '*' | '/' | '%' | ('&' '&') | ('|' '|') | ('<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 
 <unary_operator>  =  '!' | '-'  // inversion, negative
 
 /*
@@ -52,6 +57,7 @@ you'll be greeted with an error!)
 		4. == !=
 		5. &&
 		6. ||
+		7. =				-> right associative
 */
 
 ##Importing Packages##
@@ -60,7 +66,6 @@ you'll be greeted with an error!)
 ##Variables##
 
 <var_decl>		= <let_kw> <id> <type_spec> ['=' <expr>] <eoi> 	// You can define variables in a rust-like fashion, but you can specify the type of the variable. const variables can't be modified.
-<var_assign>	= <id> "=" <expr> <eoi>
 
 ##Functions##
 
@@ -69,7 +74,6 @@ you'll be greeted with an error!)
 <arg_decl>		=  <id> <arg_type_spec> 				// argument are (by default) passed by value, the ampersand indicates passing by reference.
 
 <f_call>		= <general_id> <expr_list>				// Function calls used in expressions, etc..
-<f_call_stmt>		= <f_call> <eoi>					// Standalone function calls.
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
 
 <rtr_stmt>		= <rtr_kw> <expr> <eoi>

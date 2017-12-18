@@ -5,7 +5,7 @@
 #include "../../Util/Enums.h"					// enums
 
 #include "../../../Common/Errors/Errors.h"		// error reporting
-#include "../../../Common/FValue/FValue.h"		// FValue alias
+#include "../../../Common/Types/Types.h"		// FValue alias
 
 #include <algorithm> // swap
 #include <iostream> // std::cout for debug purposes

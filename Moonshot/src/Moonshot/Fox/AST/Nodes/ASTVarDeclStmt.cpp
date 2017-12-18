@@ -31,18 +31,3 @@ FVal ASTVarDeclStmt::accept(IRTVisitor& vis)
 	return FVal(); // Doesn't return a value, just return something empty.
 }
 
-// varattr
-
-var::varattr::varattr()
-{
-}
-
-var::varattr::varattr(const std::string & nm, const std::size_t & ty, const bool & isK) : name(nm), type(ty), isConst(isK)
-{
-	wasInit_ = true;
-}
-
-var::varattr::operator bool() const
-{
-	return (wasInit_ && (type != fval_void) && (type != invalid_index));
-}

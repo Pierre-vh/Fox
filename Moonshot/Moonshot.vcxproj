@@ -137,7 +137,7 @@
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\IVisitor.cpp" />
     <ClCompile Include="tests\testers\ExprTester.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.cpp" />
-    <ClCompile Include="src\Moonshot\Common\FValue\FValue.cpp" />
+    <ClCompile Include="src\Moonshot\Common\Types\Types.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTExpr.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\IASTNode.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseExpr.cpp" />
@@ -168,7 +168,7 @@
     <ClInclude Include="tests\testers\ITest.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\IVisitor.h" />
-    <ClInclude Include="src\Moonshot\Common\FValue\FValue.h" />
+    <ClInclude Include="src\Moonshot\Common\Types\Types.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTExpr.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTNode.h" />
     <ClInclude Include="src\Moonshot\Fox\Parser\Parser.h" />

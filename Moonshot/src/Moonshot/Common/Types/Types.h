@@ -8,16 +8,34 @@
 #include "../../Common/Errors/Errors.h"
 #include "../../Fox/Util/Enums.h"
 
+// fwd decl
+namespace Moonshot::var
+{
+	struct varattr;
+}
 
 
 // Alias for a variant holding every type possible in the interpreter.
 typedef void* FVAL_NULLTYPE;
-typedef std::variant<FVAL_NULLTYPE,int, float, char, std::string, bool> FVal;
+typedef std::variant<FVAL_NULLTYPE,int, float, char, std::string, bool, Moonshot::var::varattr> FVal;
+
 
 namespace Moonshot
 {
 	namespace fv_util
 	{
+		template <typename T>
+		struct fval_traits
+		{
+			constexpr static bool isBasic =
+					std::is_same<T,int>::value				||
+					std::is_same<T,float>::value			||
+					std::is_same<T,char>::value				||
+					std::is_same<T,std::string>::value		||
+					std::is_same<T,bool>::value
+				;
+			constexpr static bool isArithmetic = isBasic && !std::is_same<T, std::string>::value;
+		};
 		std::string dumpFVal(const FVal &var);
 
 		FVal getSampleFValForIndex(const std::size_t& t);
@@ -52,6 +70,23 @@ namespace Moonshot
 			{ fval_bool				, "BOOL" },
 			{ fval_str				, "STRING" },
 			{ invalid_index			, "!INVALID_FVAL!" }
+		};
+	}
+
+	namespace var
+	{
+		struct varattr // Struct holding a var's attributes
+		{
+			varattr();
+			varattr(const std::string &nm, const std::size_t &ty, const bool &isK = false);
+			operator bool() const;
+			// Variable's attribute
+			bool isConst = false;
+			std::string name = "";
+			std::size_t type = fv_util::fval_void;
+
+		private:
+			bool wasInit_ = false;
 		};
 	}
 }
