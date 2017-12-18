@@ -3,7 +3,7 @@
 2 + "2"
 -("Hello" + "World!")
 !"Hi"
-22/7
-"hi
+22/"7"
+"hi"*3
 -"hello"
 !(3.14 as string)

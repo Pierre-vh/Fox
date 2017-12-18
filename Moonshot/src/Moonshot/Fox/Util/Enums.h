@@ -46,7 +46,10 @@ namespace Moonshot
 		{
 			return (op >= 9) && (op <= 16); // Condition are between 8 and 15 in the enum.
 		}
-
+		inline bool isCompJoinOp(const optype & op)
+		{
+			return (op == AND) || (op == OR);
+		}
 		inline bool isUnary(const optype & op)
 		{
 			return (op >= 17); // Above 17 are unaries (for now)

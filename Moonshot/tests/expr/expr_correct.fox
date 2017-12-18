@@ -1,5 +1,8 @@
 "it " + ( "really " + "works ") + "it's wonderful"
 10%3 == 1 && 10^5 < 10^4
+3.14 + 3
+3 + 'c'
+'c' + true
 22/7 // Testing int division returns float
 2^64-1  // Testing large values
 6/-2*(1+2)

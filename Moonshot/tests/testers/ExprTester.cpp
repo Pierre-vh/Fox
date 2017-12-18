@@ -46,6 +46,7 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 {
 	E_RESETSTATE;
 
+	std::cout << std::endl << "###################" << std::endl <<  std::endl;
 	std::cout << "Expression: " << str << std::endl;
 	
 	Lexer l;

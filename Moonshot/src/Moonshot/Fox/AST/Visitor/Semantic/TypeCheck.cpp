@@ -34,16 +34,12 @@ void TypeCheck::visit(ASTExpr * node)
 		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right)  && (node->op_ == parse::ADD))
 			node->op_ = parse::CONCAT;
 		// CREATE HELPER
-		returnTypeHelper helper(node->op_);
 		// CHECK VALIDITY OF EXPRESSION
-		rtr_type_ = helper.getExprResultType(
-				getSampleFValForIndex(left)		// We convert the indexes to a sample FVal to take advantage of std::visit.
-			,	getSampleFValForIndex(right)
+		rtr_type_ = getExprResultType(
+				node->op_
+			,	left		
+			,	right
 			);
-
-		// SPECIAL CASE: IS IT A DIVISION? IF SO,RETURN FLOAT.
-		if ((node->op_ == parse::optype::DIV) && E_CHECKSTATE) // Operation is possible ? Check for division, because divisions returns float. always.
-			rtr_type_ = fval_float;
 	}
 	/////////////////////////////////////////
 	/////NODES WITH ONLY A LEFT CHILD////////
@@ -126,113 +122,54 @@ void TypeCheck::visit(ASTVarDeclStmt * node)
 	// Else, sadly, we can't really check anything @ compile time.
 }
 
-TypeCheck::returnTypeHelper::returnTypeHelper(const parse::optype & op) : op_(op)
-{
-
-}
-// TO DO : Maybe rework this part to use std::size_t s too ?
-// If I do it : make a function in Type.(h/cpp) to return the biggest of 2 indexes (only works with arithmetic types)
-// Perform normal checks like in getReturnType , but use index instead of T1/T2 and isArithmetic/basic.
-// + Add support for varattr !
-std::size_t TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& f2)
+std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& lhs, const std::size_t& rhs)
 {
 	// first, quick, simple check : we can only verify results between 2 basic types.
-	if (!isBasic(f1.index()) || !isBasic(f2.index()))
+	if (isBasic(lhs) && isBasic(rhs))
 	{
-		if(!E_CHECKSTATE) // Don't throw an error twice.
+		if (lhs == rhs) // Both sides are identical
+		{
+			if (parse::isComparison(op))
+			{
+				if (parse::isCompJoinOp(op) && !isArithmetic(lhs)) // If we have a compJoinOp and types aren't arithmetic : problem
+				{
+					E_ERROR("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
+					return invalid_index;
+				}
+				return fval_bool; // Else, it's normal, return type's a boolean.
+			}
+			else if (fval_traits<std::string>::isEqualTo(lhs) && (op != parse::CONCAT)) // We have strings and it's not a concat op :
+			{
+				E_ERROR("[TYPECHECK] Can't perform operations other than addition (concatenation) on strings");
+				return invalid_index;
+			}
+			else if (fval_traits<bool>::isEqualTo(lhs)) // We have bools and they're not compared : the result will be an integer.
+				return	fval_bool;
+			else
+				return (op == parse::DIV) ? fval_float : lhs; // Else, we just keep the type, unless it's a divison
+		}
+		else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // Two different types, and one of them is a string?
+		{
+			E_ERROR("[TYPECHECK] Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
+			return invalid_index;
+		}
+		else if (parse::isComparison(op)) // Comparing 2 arithmetic types ? return type's a boolean
+			return fval_bool;
+		else
+		{
+			if (op == parse::DIV)
+				return fval_float; // if op = division, return type's a float.
+			else
+				return getBiggest(lhs, rhs); // Else, it's just a normal operation, and the return type is the one of the "biggest" of the 2 sides
+		}
+		return invalid_index;
+	}
+	else // One of the types is a non-basic type.
+	{
+		if (lhs == fval_vattr)
+			E_ERROR("Assignements aren't supported by the typechecker just yet.");
+		else 
 			E_ERROR("[TYPECHECK] Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
 		return invalid_index;
 	}
-	// This function will simply "visit" (using std::visit) both fval so we can call a function depending on the stored type.
-	// It'll do it twice, and invert the arguments for the second time. For instance, float,int might not be a recognized case, but int,float is.
-
-	std::pair<bool, std::size_t> result;
-	// Double dispatch w/ std::visit
-	std::visit([&](const auto& a, const auto& b) {
-		result = getReturnType(a, b);
-	}, f1, f2);
-	// if success, return result.second
-	if (result.first)
-		return result.second;
-	else if(E_CHECKSTATE) // Try one more time if there was no error earlier, but swap the FVals
-	{
-		std::visit([&](const auto& a, const auto& b) {
-			result = getReturnType(a, b);
-		}, f2, f1); // Notice it's f2/f1 not f1/f2
-		// If success, return result.second
-		if (result.first)
-			return result.second;
-		else
-			E_ERROR("[TYPECHECK] Impossible operation found: Unimplemented type/operation?"); // It's 
-	}
-	// If error
-	if (!E_CHECKSTATE)
-	{
-		// make an error message :
-		std::stringstream output;
-		output << "[TYPECHECK] Impossible operation : " << getFromDict(parse::kOptype_dict, op_);
-		output << " between " << std::endl;
-		output << dumpFVal(f1) << std::endl << dumpFVal(f2);
-		E_ERROR(output.str());
-	}
-	return invalid_index;
 }
-
-
-template<typename T1, typename T2, bool isT1Num, bool isT2Num>
-std::pair<bool, std::size_t> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, const T2 & v2)
-{
-	// use of if constexpr, because when functions are generated by the template, the conditions can be "decided" directly.
-	if constexpr (std::is_same<T1, T2>()) // if it's the same type
-	{
-		// Note : Sometimes you'll see !isT1Num or isT1Num in this block of code to check if we face a string, why ?
-		// Because both types are the same, so if T1 is a string, T2 is too -> we can just check if T1 is a numeric type. 
-		//If it's not, it's a string, and so is T2.
-		if (parse::isComparison(op_)) // Is it a condition?
-		{
-			if (((op_ == parse::AND) || (op_ == parse::OR)) && !isT1Num)											// If we have a comp-join-op and strings, it's an error 
-			{
-				E_ERROR("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
-				return { false, invalid_index };
-			}
-			return { true, fval_bool };	//f it's a condition, the return type will be a boolean.
-		}
-		else if (!isT1Num && (op_ != parse::CONCAT)) // Strings can only be concatenated Or Compared.
-		{
-			E_ERROR("[TYPECHECK] Can't perform operations other than addition (concatenation) on strings");
-			return	{ false, invalid_index };
-		}
-		else if (std::is_same<bool, T1>::value && parse::isArithOp(op_))
-		{
-			// We have 2 booleans, the result of an arithmetic operation between them is a int!
-			std::stringstream output;
-			output << "[TYPECHECK] The result of an artihmetic operation between 2 boolean is an integer ! "
-				<< std::endl
-				<< "Operation concerned: [" << v1 << " " << getFromDict(parse::kOptype_dict, op_) << " " << v2 << "]" << std::endl;
-			E_WARNING(output.str());
-				return	{ true, invalid_index };
-		}
-
-		return { true, fval_traits<T1>::getIndex() };		//the type is kept if we make a legal operation between 2 values of the same type. so we return a variant holding a sample value (v1) of the type.
-	}
-	else if constexpr (!isT1Num || !isT2Num) // It's 2 different types, is one of them a string ? 
-		E_ERROR("[TYPECHECK] Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
-	else if (parse::isComparison(op_))
-		return { true, fval_bool};
-	// Normal failure. We'll probably find a result when swapping T1 and T2 in getExprResultType.
-	return { false ,invalid_index}; 
-}
-
-// Using macros for quick specialization ! Yay !
-IMPL_GETRETURNTYPE(bool	,int	,true	,fval_int	)
-
-IMPL_GETRETURNTYPE(bool	,float	,true	,fval_float	)
-
-IMPL_GETRETURNTYPE(bool	,char	,true	,fval_char	)
-
-IMPL_GETRETURNTYPE(int	,float	,true	,fval_float	)
-
-IMPL_GETRETURNTYPE(int	,char	,true	,fval_int	)
-
-IMPL_GETRETURNTYPE(char	,float	,true	,fval_float	)
-
