@@ -75,23 +75,31 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 		std::cout << "Root is invalid." << std::endl;
 		return shouldFailTC;
 	}
-	root->accept(TypeCheck());
+	TypeCheck tc_vis;
+	root->accept(tc_vis);
 
 	if (showAST && !shouldFailTC)
 		root->accept(Dumper());
 	
-	if (!shouldFailTC && E_CHECKSTATE)
-	{
-		std::cout << "[RESULT]:";
-		FVal f = root->accept(RTExprVisitor());
-		std::cout << dumpFVal(f) << std::endl;
-	}
-
 	if (!E_CHECKSTATE && !shouldFailTC)
 	{
 		std::cout << "\t" << char(192) << "Test failed @ typecheck." << std::endl;
 		return false;
 	}
+
+	if (!shouldFailTC && E_CHECKSTATE)
+	{
+		std::cout << "Typecheck successful, expression returns : " << indexToStr(tc_vis.getReturnTypeOfExpr()) << std::endl;
+		FVal f = root->accept(RTExprVisitor());
+		if (!E_CHECKSTATE)
+		{
+			std::cout << "\t" << char(192) << "Test failed @ runtime." << std::endl;
+			return shouldFailTC;
+		}
+		std::cout << "[RESULT]:";
+		std::cout << dumpFVal(f) << std::endl;
+	}
+
 	else
 		std::cout << "\t" << char(192) << (shouldFailTC ? "Test failed as expected." : "Test passed successfully.") << std::endl;
 

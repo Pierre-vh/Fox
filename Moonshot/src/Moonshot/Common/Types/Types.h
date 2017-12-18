@@ -35,7 +35,54 @@ namespace Moonshot
 					std::is_same<T,bool>::value
 				;
 			constexpr static bool isArithmetic = isBasic && !std::is_same<T, std::string>::value;
+		
+			inline static constexpr std::size_t getIndex()
+			{
+				if constexpr(std::is_same<T, FVAL_NULLTYPE>::value)
+					return fval_void;
+				else if constexpr(std::is_same<T, int>::value)
+					return fval_int;
+				else if constexpr(std::is_same<T, float>::value)
+					return fval_float;
+				else if constexpr(std::is_same<T, char>::value)
+					return fval_char;
+				else if constexpr(std::is_same<T, std::string>::value)
+					return fval_str;
+				else if constexpr(std::is_same<T, bool>::value)
+					return fval_bool;
+				else if constexpr(std::is_same<T, var::varattr>::value)
+					return fval_vattr;
+				else
+				{
+					E_CRITICAL("Defaulted");
+					return invalid_index;
+				}
+			}
+			constexpr static inline bool isEqualTo(const std::size_t& index) // Checks if T represent the same type as index
+			{
+				if constexpr(std::is_same<T, FVAL_NULLTYPE>::value)
+					return index == fval_void;
+				else if constexpr(std::is_same<T, int>::value)
+					return index == fval_int;
+				else if constexpr(std::is_same<T, float>::value)
+					return index == fval_float;
+				else if constexpr(std::is_same<T, char>::value)
+					return index == fval_char;
+				else if constexpr(std::is_same<T, std::string>::value)
+					return index == fval_str;
+				else if constexpr(std::is_same<T, bool>::value)
+					return index == fval_bool;
+				else if constexpr(std::is_same<T, var::varattr>::value)
+					return index == fval_vattr;
+				else
+				{
+					E_CRITICAL("Defaulted");
+					return false;
+				}
+			}
 		};
+		
+
 		std::string dumpFVal(const FVal &var);
 
 		FVal getSampleFValForIndex(const std::size_t& t);
@@ -73,6 +120,8 @@ namespace Moonshot
 			{ fval_vattr			, "VAR_ATTR (ref)"},
 			{ invalid_index			, "!INVALID_FVAL!" }
 		};
+
+		std::string indexToStr(const std::size_t& index);
 	}
 
 	namespace var

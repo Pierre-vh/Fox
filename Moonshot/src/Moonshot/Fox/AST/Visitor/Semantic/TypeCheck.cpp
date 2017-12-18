@@ -31,16 +31,19 @@ void TypeCheck::visit(ASTExpr * node)
 		node->right_->accept(*this);
 		auto right = rtr_type_;
 		// CHECK IF THIS IS A CONCAT OP,CONVERT IT 
-		if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right) && (node->op_ == parse::ADD))
+		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right)  && (node->op_ == parse::ADD))
 			node->op_ = parse::CONCAT;
 		// CREATE HELPER
 		returnTypeHelper helper(node->op_);
 		// CHECK VALIDITY OF EXPRESSION
-		rtr_type_ = helper.getExprResultType(left, right);
+		rtr_type_ = helper.getExprResultType(
+				getSampleFValForIndex(left)		// We convert the indexes to a sample FVal to take advantage of std::visit.
+			,	getSampleFValForIndex(right)
+			);
 
 		// SPECIAL CASE: IS IT A DIVISION? IF SO,RETURN FLOAT.
 		if ((node->op_ == parse::optype::DIV) && E_CHECKSTATE) // Operation is possible ? Check for division, because divisions returns float. always.
-			rtr_type_ = FVal((float)0); // 
+			rtr_type_ = fval_float;
 	}
 	/////////////////////////////////////////
 	/////NODES WITH ONLY A LEFT CHILD////////
@@ -52,7 +55,7 @@ void TypeCheck::visit(ASTExpr * node)
 		{
 			// JUST VISIT CHILD, SET RTRTYPE TO THE CAST GOAL
 			node->left_->accept(*this);
-			rtr_type_ = getSampleFValForIndex(node->totype_);
+			rtr_type_ = node->totype_;
 		}
 		// UNARY OPS
 		else if (parse::isUnary(node->op_))
@@ -62,7 +65,7 @@ void TypeCheck::visit(ASTExpr * node)
 			node->left_->accept(*this);
 			auto lefttype = rtr_type_;
 			// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATE on a string.
-			if(std::holds_alternative<std::string>(lefttype))
+			if(fval_traits<std::string>::isEqualTo(lefttype))
 			{
 				std::stringstream output;
 				output << "[TYPECHECK] Can't perform unary operation " << getFromDict(parse::kOptype_dict, node->op_) << " on a string.";
@@ -70,9 +73,9 @@ void TypeCheck::visit(ASTExpr * node)
 			}
 			// SPECIAL CASES : (LOGICNOT)(NEGATE ON BOOLEANS)
 			if (node->op_ == parse::LOGICNOT)
-				rtr_type_ = FVal(false); // Return type is a boolean
-			else if ((node->op_ == parse::NEGATE) && (std::holds_alternative<bool>(rtr_type_))) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
-				rtr_type_ = FVal((int)0);
+				rtr_type_ = fval_bool; // Return type is a boolean
+			else if ((node->op_ == parse::NEGATE) && fval_traits<bool>::isEqualTo(rtr_type_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+				rtr_type_ = fval_int;
 
 
 		}
@@ -88,17 +91,17 @@ void TypeCheck::visit(ASTExpr * node)
 		// getting in this branch means that we only have a right_ node.
 		E_CRITICAL("[TYPECHECK] Node was in an invalid state.");
 	}
-	node->totype_ = rtr_type_.index();
+	node->totype_ = rtr_type_;
 	if (node->totype_ == invalid_index)
 		E_CRITICAL("[TYPECHECK] Type was invalid.");
 }
 
 void TypeCheck::visit(ASTValue * node)
 {
-	rtr_type_ = node->val_;		// Just put the value in rtr->type.
+	rtr_type_ = node->val_.index();		// Just put the value in rtr->type.
 }
 
-FVal TypeCheck::getReturnTypeOfExpr() const
+std::size_t TypeCheck::getReturnTypeOfExpr() const
 {
 	return rtr_type_;
 }
@@ -114,7 +117,7 @@ void TypeCheck::visit(ASTVarDeclStmt * node)
 		// check if it's possible.
 		if (!canAssign(
 			node->vattr_.type,
-			iexpr_type.index()
+			iexpr_type
 		))
 		{
 			E_ERROR("Can't perform initialization of variable \"" + node->vattr_.name + "\"");
@@ -128,25 +131,25 @@ TypeCheck::returnTypeHelper::returnTypeHelper(const parse::optype & op) : op_(op
 
 }
 
-FVal TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& f2)
+std::size_t TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& f2)
 {
 	// first, quick, simple check : we can only verify results between 2 basic types.
 	if (!isBasic(f1.index()) || !isBasic(f2.index()))
 	{
 		if(!E_CHECKSTATE) // Don't throw an error twice.
 			E_ERROR("[TYPECHECK] Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
-		return FVal();
+		return invalid_index;
 	}
 	// This function will simply "visit" (using std::visit) both fval so we can call a function depending on the stored type.
 	// It'll do it twice, and invert the arguments for the second time. For instance, float,int might not be a recognized case, but int,float is.
 
-	std::pair<bool, FVal> result;
+	std::pair<bool, std::size_t> result;
 	// Double dispatch w/ std::visit
 	std::visit([&](const auto& a, const auto& b) {
 		result = getReturnType(a, b);
 	}, f1, f2);
 	// if success, return result.second
-	if (result.first) 
+	if (result.first)
 		return result.second;
 	else if(E_CHECKSTATE) // Try one more time if there was no error earlier, but swap the FVals
 	{
@@ -169,12 +172,12 @@ FVal TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& 
 		output << dumpFVal(f1) << std::endl << dumpFVal(f2);
 		E_ERROR(output.str());
 	}
-	return FVal();
+	return invalid_index;
 }
 
 
 template<typename T1, typename T2, bool isT1Num, bool isT2Num>
-std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, const T2 & v2)
+std::pair<bool, std::size_t> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, const T2 & v2)
 {
 	// use of if constexpr, because when functions are generated by the template, the conditions can be "decided" directly.
 	if constexpr (std::is_same<T1, T2>()) // if it's the same type
@@ -187,14 +190,14 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 			if (((op_ == parse::AND) || (op_ == parse::OR)) && !isT1Num)											// If we have a comp-join-op and strings, it's an error 
 			{
 				E_ERROR("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
-				return { false, FVal() };
+				return { false, invalid_index };
 			}
-			return { true,FVal(false) };	//f it's a condition, the return type will be a boolean.
+			return { true, fval_bool };	//f it's a condition, the return type will be a boolean.
 		}
 		else if (!isT1Num && (op_ != parse::CONCAT)) // Strings can only be concatenated Or Compared.
 		{
 			E_ERROR("[TYPECHECK] Can't perform operations other than addition (concatenation) on strings");
-			return	{ false, FVal() };
+			return	{ false, invalid_index };
 		}
 		else if (std::is_same<bool, T1>::value && parse::isArithOp(op_))
 		{
@@ -204,29 +207,29 @@ std::pair<bool, FVal> TypeCheck::returnTypeHelper::getReturnType(const T1 & v1, 
 				<< std::endl
 				<< "Operation concerned: [" << v1 << " " << getFromDict(parse::kOptype_dict, op_) << " " << v2 << "]" << std::endl;
 			E_WARNING(output.str());
-				return	{ true, FVal() };
+				return	{ true, invalid_index };
 		}
 
-		return { true, FVal(v1) };		//the type is kept if we make a legal operation between 2 values of the same type. so we return a variant holding a sample value (v1) of the type.
+		return { true, fval_traits<T1>::getIndex() };		//the type is kept if we make a legal operation between 2 values of the same type. so we return a variant holding a sample value (v1) of the type.
 	}
 	else if constexpr (!isT1Num || !isT2Num) // It's 2 different types, is one of them a string ? 
 		E_ERROR("[TYPECHECK] Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
 	else if (parse::isComparison(op_))
-		return { true, FVal(false) };
+		return { true, fval_bool};
 	// Normal failure. We'll probably find a result when swapping T1 and T2 in getExprResultType.
-	return { false ,FVal() }; 
+	return { false ,invalid_index}; 
 }
 
 // Using macros for quick specialization ! Yay !
-IMPL_GETRETURNTYPE(bool	,int	,true	,t_int_		)
+IMPL_GETRETURNTYPE(bool	,int	,true	,fval_int	)
 
-IMPL_GETRETURNTYPE(bool	,float	,true	,t_float_	)
+IMPL_GETRETURNTYPE(bool	,float	,true	,fval_float	)
 
-IMPL_GETRETURNTYPE(bool	,char	,true	,t_char_	)
+IMPL_GETRETURNTYPE(bool	,char	,true	,fval_char	)
 
-IMPL_GETRETURNTYPE(int	,float	,true	,t_float_	)
+IMPL_GETRETURNTYPE(int	,float	,true	,fval_float	)
 
-IMPL_GETRETURNTYPE(int	,char	,true	,t_int_		)
+IMPL_GETRETURNTYPE(int	,char	,true	,fval_int	)
 
-IMPL_GETRETURNTYPE(char	,float	,true	,t_float_	)
+IMPL_GETRETURNTYPE(char	,float	,true	,fval_float	)
 

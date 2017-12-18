@@ -55,6 +55,8 @@ FVal fv_util::getSampleFValForIndex(const std::size_t & t)
 			return FVal(std::string(""));
 		case fval_bool:
 			return FVal((bool)false);
+		case fval_vattr:
+			return FVal(var::varattr());
 		case invalid_index:
 			E_CRITICAL("Tried to get a sample FVal with an invalid index");
 			return FVal();
@@ -110,6 +112,15 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 	}
 	// Else, we're good, return true.
 	return true;
+}
+
+std::string Moonshot::fv_util::indexToStr(const std::size_t & index)
+{
+	auto it = kType_dict.find(index);
+	if (it != kType_dict.end())
+		return it->second;
+	else
+		return "<UNKNOWN>";
 }
 
 // varattr
