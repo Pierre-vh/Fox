@@ -7,6 +7,18 @@ std::string fv_util::dumpFVal(const FVal & var)
 	std::stringstream output;
 	if (std::holds_alternative<FVAL_NULLTYPE>(var))
 		output << "Type : VOID (null)";
+	else if (std::holds_alternative<var::varattr>(var))
+	{
+		auto vattr = std::get<var::varattr>(var);
+		output << "Type: varattr [name:\"" << vattr.name << "\" "
+			<< "type: " << (vattr.isConst ? "CONST " : "");
+		auto friendlyname = kType_dict.find(vattr.type);
+		if (friendlyname != kType_dict.end())
+			output << friendlyname->second;
+		else
+			output << "<UNKNOWN>";
+		output << "]";
+	}
 	else if (std::holds_alternative<int>(var))
 		output << "Type : INT, Value : " << std::get<int>(var);
 	else if (std::holds_alternative<float>(var))

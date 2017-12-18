@@ -60,6 +60,7 @@ namespace Moonshot
 		static constexpr std::size_t fval_char = 3;
 		static constexpr std::size_t fval_str = 4;
 		static constexpr std::size_t fval_bool = 5;
+		static constexpr std::size_t fval_vattr = 6;
 
 		const std::map<std::size_t, std::string> kType_dict =
 		{
@@ -69,6 +70,7 @@ namespace Moonshot
 			{ fval_char				, "CHAR" },
 			{ fval_bool				, "BOOL" },
 			{ fval_str				, "STRING" },
+			{ fval_vattr			, "VAR_ATTR (ref)"},
 			{ invalid_index			, "!INVALID_FVAL!" }
 		};
 	}

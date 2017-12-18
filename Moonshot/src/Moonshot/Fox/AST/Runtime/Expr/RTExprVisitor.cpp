@@ -48,7 +48,7 @@ FVal RTExprVisitor::visit(ASTExpr * node)
 	}
 	else if (node->op_ == parse::optype::ASSIGN)
 	{
-		E_LOG("(ASSIGNEMENT OPERATION IS NOT YET IMPLEMENTED.)");
+		std::cout << "/!\\/!\\ASSIGNEMENT OPERATOR IS NOT YET IMPLEMENTED : " << __FILE__ << " @ line " << __LINE__ << std::endl;
 	}
 	else if (parse::isComparison(node->op_))
 	{
