@@ -49,7 +49,7 @@ void TypeCheck::visit(ASTExpr * node)
 		// CAST NODES
 		if (node->op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node. We still visit child nodes tho
 		{
-			// JUST VISIT CHILD, SET RTRTYPE TO THE CAST GOAL
+			// JUST VISIT CHILD & SET RTRTYPE TO THE CAST GOAL
 			node->left_->accept(*this);
 			rtr_type_ = node->totype_;
 		}
@@ -72,8 +72,6 @@ void TypeCheck::visit(ASTExpr * node)
 				rtr_type_ = fval_bool; // Return type is a boolean
 			else if ((node->op_ == parse::NEGATE) && fval_traits<bool>::isEqualTo(rtr_type_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
 				rtr_type_ = fval_int;
-
-
 		}
 		else
 			E_CRITICAL("[TYPECHECK] A Node only had a left_ child, and wasn't a unary op.");
@@ -119,7 +117,7 @@ void TypeCheck::visit(ASTVarDeclStmt * node)
 			E_ERROR("Can't perform initialization of variable \"" + node->vattr_.name + "\"");
 		}
 	}
-	// Else, sadly, we can't really check anything @ compile time.
+	// Else, sadly, we can't really check anything more @ compile time.
 }
 
 std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& lhs, const std::size_t& rhs)
