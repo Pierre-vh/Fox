@@ -130,7 +130,10 @@ TypeCheck::returnTypeHelper::returnTypeHelper(const parse::optype & op) : op_(op
 {
 
 }
-
+// TO DO : Maybe rework this part to use std::size_t s too ?
+// If I do it : make a function in Type.(h/cpp) to return the biggest of 2 indexes (only works with arithmetic types)
+// Perform normal checks like in getReturnType , but use index instead of T1/T2 and isArithmetic/basic.
+// + Add support for varattr !
 std::size_t TypeCheck::returnTypeHelper::getExprResultType(const FVal& f1, const FVal& f2)
 {
 	// first, quick, simple check : we can only verify results between 2 basic types.

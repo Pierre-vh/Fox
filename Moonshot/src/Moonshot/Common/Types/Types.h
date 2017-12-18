@@ -98,6 +98,8 @@ namespace Moonshot
 																		// string <-> string = ok
 																		// else : error.
 
+		std::size_t getBiggest(const std::size_t &lhs, const std::size_t &rhs);
+
 		// Thanks, I guess ! This looks healthier than using -1 as invalid index. https://stackoverflow.com/a/37126153
 		static constexpr std::size_t invalid_index = std::numeric_limits<std::size_t>::max();
 		// How to remember values of index

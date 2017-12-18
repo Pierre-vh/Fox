@@ -114,6 +114,25 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 	return true;
 }
 
+std::size_t fv_util::getBiggest(const std::size_t & lhs, const std::size_t & rhs)
+{
+	if (isArithmetic(lhs) && isArithmetic(rhs))
+	{
+		if ((lhs == fval_float) || (rhs == fval_float))
+			return fval_float;
+		else if ((lhs == fval_int) || (rhs == fval_int))
+			return fval_int;
+		else if ((lhs == fval_char) || (rhs == fval_char))
+			return fval_char;
+		else
+			return fval_bool;
+	}
+	else
+	
+		E_CRITICAL("Can't return the biggest of two types when one of the two type isn't arithmetic.");
+	return invalid_index;
+}
+
 std::string Moonshot::fv_util::indexToStr(const std::size_t & index)
 {
 	auto it = kType_dict.find(index);
