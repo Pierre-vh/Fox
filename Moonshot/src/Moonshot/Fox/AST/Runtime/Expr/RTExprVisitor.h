@@ -40,7 +40,7 @@ namespace Moonshot
 					FVal castTo(const std::size_t& goal, const FVal& val);
 					FVal castTo(const std::size_t& goal, const double &val);
 				private:
-					template<typename GOAL,typename VAL, bool b1 = std::is_same<GOAL,std::string>::value,bool b2 = std::is_same<VAL,std::string>::value>
+					template<typename GOAL,typename VAL, bool isGOALstr = std::is_same<GOAL,std::string>::value,bool isVALstr = std::is_same<VAL,std::string>::value>
 					std::pair<bool, FVal> castTypeTo(const GOAL& type,VAL v); 
 
 					template<typename GOAL>

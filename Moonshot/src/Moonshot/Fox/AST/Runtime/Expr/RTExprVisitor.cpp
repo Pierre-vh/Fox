@@ -241,14 +241,14 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 	}
 }
 
-template<typename GOAL, typename VAL, bool b1, bool b2>
+template<typename GOAL, typename VAL, bool isGOALstr, bool isVALstr>
 std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL v)
 {
 	if constexpr (!fval_traits<GOAL>::isBasic || !fval_traits<VAL>::isBasic)
 		E_CRITICAL("[RUNTIME] Can't cast a basic type to a nonbasic type and vice versa.");
-	else if constexpr((std::is_same<GOAL, VAL>::value) || (b1 && b2)) // Direct conversion
+	else if constexpr((std::is_same<GOAL, VAL>::value) || (isGOALstr && isVALstr)) // Direct conversion
 		return { true , FVal(v) };
-	else if constexpr (b1 != b2) // One of them is a string and the other isn't.
+	else if constexpr (isGOALstr != isVALstr) // One of them is a string and the other isn't.
 	{
 		std::stringstream output;
 		output << "[RUNTIME] Can't convert a string to an arithmetic type and vice versa. Value:" << v << std::endl;

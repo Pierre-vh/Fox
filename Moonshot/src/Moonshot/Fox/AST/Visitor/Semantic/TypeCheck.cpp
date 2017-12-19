@@ -25,11 +25,9 @@ void TypeCheck::visit(ASTExpr * node)
 	{
 		// VISIT BOTH CHILDREN
 		// get left expr result type
-		node->left_->accept(*this);
-		auto left = rtr_type_;
+		auto left = visitAndGetResult(node->left_);
 		// get right expr result type
-		node->right_->accept(*this);
-		auto right = rtr_type_;
+		auto right = visitAndGetResult(node->right_);
 		// CHECK IF THIS IS A CONCAT OP,CONVERT IT 
 		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right)  && (node->op_ == parse::ADD))
 			node->op_ = parse::CONCAT;
@@ -58,8 +56,7 @@ void TypeCheck::visit(ASTExpr * node)
 		{
 			// We have a unary operation
 			// Get left's return type. Don't change anything, as rtr_value is already set by the accept function.
-			node->left_->accept(*this);
-			auto lefttype = rtr_type_;
+			auto lefttype = visitAndGetResult(node->left_);
 			// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATE on a string.
 			if(fval_traits<std::string>::isEqualTo(lefttype))
 			{

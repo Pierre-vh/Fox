@@ -30,10 +30,19 @@ namespace Moonshot
 
 			std::size_t getReturnTypeOfExpr() const;
 		private:
+			template<typename T>
+			inline std::size_t visitAndGetResult(std::unique_ptr<T>& node)
+			{
+				node->accept(*this);
+				return rtr_type_;
+			}
+
 			std::size_t rtr_type_; // Last returned type from visiting node (held here, because visit doesn't return anything :( )
 			std::size_t getExprResultType(const parse::optype& op, std::size_t& lhs, const std::size_t& rhs);
 
 	};
+
+	
 
 }
 
