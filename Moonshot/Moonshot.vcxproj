@@ -130,7 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="tests\testers\ASTExprStmt.cpp" />
+    <ClCompile Include="tests\testers\ExprStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Runtime\Expr\RTExprVisitor.cpp" />
@@ -160,10 +160,12 @@
     <None Include="src\Moonshot\Fox\AST\Visitor\readme.md" />
     <None Include="src\Moonshot\Fox\readme.md" />
     <None Include="src\Moonshot\readme.md" />
+    <None Include="tests\exprstmt\exprstmt_bad.fox" />
+    <None Include="tests\exprstmt\exprstmt_correct.fox" />
     <None Include="tests\expr\expr_bad.fox" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tests\testers\ASTExprStmt.h" />
+    <ClInclude Include="tests\testers\ExprStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Runtime\Expr\RTExprVisitor.h" />

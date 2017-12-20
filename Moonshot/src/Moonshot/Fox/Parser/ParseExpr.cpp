@@ -6,6 +6,7 @@ using namespace fv_util;
 std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 {
 	auto rtr = std::make_unique<ASTExpr>(parse::optype::PASS);
+	std::unique_ptr<ASTExpr> last_ = 0;
 	std::unique_ptr<ASTExpr> first;
 
 	if (priority > 0)
@@ -15,13 +16,13 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 
 	if (!first)					// Check if it was found/parsed correctly. If not, return a null node.
 		return NULL_UNIPTR(ASTExpr);
-	// IF RIGHT ASSOC : DIRECTION::RIGHT
+
 	rtr->makeChild(parse::direction::LEFT, first);	// Make Left the left child of the return node !
 	while (true)
 	{
 		parse::optype op;
-		bool matchResult, isrightass;
-		std::tie(matchResult, op) = matchBinaryOp(priority,isrightass);
+		bool matchResult;
+		std::tie(matchResult, op) = matchBinaryOp(priority);
 		if (!matchResult) // No operator found : break.
 			break;
 		std::unique_ptr<ASTExpr> second;
@@ -53,6 +54,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 		else								// right associative nodes
 		{
 			// There's a member variable, last_ that will hold the last parsed "second" variable.
+			
 			// First "loop" check.
 			if (rtr->op_ == parse::PASS)
 				rtr->op_ = op;			
@@ -61,6 +63,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 				last_ = std::move(second); // Set last_ to second.
 			else
 			{
+				_ASSERT(op != parse::PASS);
 				auto newnode_op = std::make_unique<ASTExpr>(op); // Create a node with the op
 				newnode_op->makeChild(parse::LEFT, last_); // Set last_ as left child.
 				last_ = std::move(second);// Set second as last
@@ -76,6 +79,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 		last_ = 0;
 	}
 	auto simple = rtr->getSimple();
+
 	if (simple)
 		return simple;
 	return rtr;
@@ -180,7 +184,7 @@ std::pair<bool, parse::optype> Moonshot::Parser::matchUnaryOp()
 	return { false, parse::optype::PASS };
 }
 
-std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority, bool &isrightass)
+std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority)
 {
 	// Avoid long & verbose lines.
 	using namespace lex;
@@ -188,7 +192,6 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority, bool
 
 	auto cur = getToken();
 	auto pk = getToken(pos_ + 1);
-	isrightass = false; // Default answer
 	// Check current token validity
 	if (!cur.isValid() || (cur.type != tokentype::TT_SIGN))
 		return { false, optype::PASS };
@@ -198,10 +201,7 @@ std::pair<bool, parse::optype> Parser::matchBinaryOp(const char & priority, bool
 	{
 		case 0:
 			if (cur.sign_type == signs::S_EXP)
-			{
-				isrightass = true;
 				return { true, optype::EXP };
-			}
 			break;
 		case 1: // * / %
 			if (cur.sign_type == signs::S_ASTERISK)

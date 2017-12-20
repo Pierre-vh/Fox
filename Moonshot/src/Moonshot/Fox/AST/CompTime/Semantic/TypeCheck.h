@@ -16,6 +16,7 @@
 
 namespace Moonshot
 {
+
 	class TypeCheck : public IVisitor
 	{
 		public:
@@ -41,8 +42,6 @@ namespace Moonshot
 			std::size_t getExprResultType(const parse::optype& op, std::size_t& lhs, const std::size_t& rhs);
 
 	};
-
-	
 
 }
 

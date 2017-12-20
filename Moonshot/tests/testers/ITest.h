@@ -2,7 +2,8 @@
 
 #include "../../src/Moonshot/Fox/Parser/Parser.h"
 #include "../../src/Moonshot/Fox/Lexer/Lexer.h"
-
+#include "../../src/Moonshot/Fox/AST/CompTime/Semantic/TypeCheck.h"
+#include "../../src/Moonshot/Fox/AST/Runtime/Expr/RTExprVisitor.h"
 #include "../../src/Moonshot/Fox/AST/Visitor/Dumper/Dumper.h"
 
 #include <iostream>

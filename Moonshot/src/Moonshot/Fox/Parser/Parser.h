@@ -71,7 +71,7 @@ namespace Moonshot
 			std::size_t matchTypeKw();
 			// MATCH OPERATORS
 			std::pair<bool, parse::optype> matchUnaryOp();
-			std::pair<bool, parse::optype> matchBinaryOp(const char &priority,bool &isrightass);
+			std::pair<bool, parse::optype> matchBinaryOp(const char &priority);
 			// UTILITY METHODS
 			token getToken() const;
 			token getToken(const size_t &d) const;
@@ -81,10 +81,5 @@ namespace Moonshot
 			// Member variables
 			size_t pos_ = 0;
 			Lexer *lex_ = 0;
-
-
-			// Rule-related variable
-			// parseExpr's last stored value
-			std::unique_ptr<ASTExpr> last_ = 0;
 	};
 }
