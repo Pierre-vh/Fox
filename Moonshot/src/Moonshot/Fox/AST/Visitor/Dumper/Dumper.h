@@ -5,6 +5,7 @@
 #include "../../../../Common/Types/Types.h"
 // Include nodes
 #include "../../Nodes/ASTExpr.h"
+#include "../../Nodes//ASTVarDeclStmt.h"
 
 namespace Moonshot
 {
@@ -16,6 +17,7 @@ namespace Moonshot
 
 			virtual void visit(ASTExpr * node) override;
 			virtual void visit(ASTValue * node) override;
+			virtual void visit(ASTVarDeclStmt * node) override;
 
 		private:
 			std::string tabs() const;

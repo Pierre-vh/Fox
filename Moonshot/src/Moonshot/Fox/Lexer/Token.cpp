@@ -87,11 +87,12 @@ bool token::idSign()
 	if (isdigit(str[0]))
 		return false;
 	auto i = lex::kSign_dict.find(str[0]);
-	if (i == lex::kSign_dict.end())
+	if (i != lex::kSign_dict.end())
+	{
+		sign_type = i->second;
 		return true;
-
-	sign_type = i->second;
-	return true;
+	}
+	return false;
 }
 
 bool token::idValue()

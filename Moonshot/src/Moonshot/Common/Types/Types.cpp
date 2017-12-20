@@ -10,14 +10,8 @@ std::string fv_util::dumpFVal(const FVal & var)
 	else if (std::holds_alternative<var::varattr>(var))
 	{
 		auto vattr = std::get<var::varattr>(var);
-		output << "Type: varattr [name:\"" << vattr.name << "\" "
-			<< "type: " << (vattr.isConst ? "CONST " : "");
-		auto friendlyname = kType_dict.find(vattr.type);
-		if (friendlyname != kType_dict.end())
-			output << friendlyname->second;
-		else
-			output << "<UNKNOWN>";
-		output << "]";
+		output << "Type : varattr, Value:";
+		output << dumpVAttr(vattr);
 	}
 	else if (std::holds_alternative<int>(var))
 		output << "Type : INT, Value : " << std::get<int>(var);
@@ -37,6 +31,19 @@ std::string fv_util::dumpFVal(const FVal & var)
 	}
 	else
 		E_CRITICAL("Illegal variant.");
+	return output.str();
+}
+std::string fv_util::dumpVAttr(const var::varattr & var)
+{
+	std::stringstream output;
+	output << "[name:\"" << var.name << "\" "
+		<< "type: " << (var.isConst ? "CONST " : "");
+	auto friendlyname = kType_dict.find(var.type);
+	if (friendlyname != kType_dict.end())
+		output << friendlyname->second;
+	else
+		output << "<UNKNOWN>";
+	output << "]";
 	return output.str();
 }
 FVal fv_util::getSampleFValForIndex(const std::size_t & t)
@@ -133,7 +140,16 @@ std::size_t fv_util::getBiggest(const std::size_t & lhs, const std::size_t & rhs
 	return invalid_index;
 }
 
-std::string Moonshot::fv_util::indexToStr(const std::size_t & index)
+std::size_t fv_util::typeKWtoSizeT(const lex::keywords & kw)
+{
+	auto it = kTypeKwToIndex_dict.find(kw);
+	if (it != kTypeKwToIndex_dict.end())
+		return it->second;
+	else
+		return invalid_index;
+}
+
+std::string fv_util::indexToStr(const std::size_t & index)
 {
 	auto it = kType_dict.find(index);
 	if (it != kType_dict.end())

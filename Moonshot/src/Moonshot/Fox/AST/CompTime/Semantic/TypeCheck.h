@@ -4,7 +4,7 @@
 #include <sstream> // std::stringstream
 #include <variant> // std::visit
 #include <typeinfo> // typeid
-#include "../IVisitor.h" // base class
+#include "../../Visitor/IVisitor.h" // base class
 #include "../../../../Common/Types/Types.h" // FVal Utilities
 
 // Include nodes

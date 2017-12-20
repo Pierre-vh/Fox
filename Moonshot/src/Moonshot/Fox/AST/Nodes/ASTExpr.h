@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IASTNode.h"							// Abstract class that every node must inherit from.
+#include "IASTStmt.h"							// Abstract class that every node must inherit from.
 #include "../../Lexer/Token.h"					// Lexer's token
 #include "../../Util/Enums.h"					// enums
 
@@ -16,7 +16,7 @@
 
 namespace Moonshot	
 {
-	struct ASTExpr : public IASTNode
+	struct ASTExpr : public IASTStmt
 	{
 		public:
 			ASTExpr();

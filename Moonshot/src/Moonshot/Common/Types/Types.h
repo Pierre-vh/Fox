@@ -6,6 +6,7 @@
 #include <type_traits> // std::is_same
 
 #include "../../Common/Errors/Errors.h"
+#include "../../Fox/Lexer/Token.h"
 #include "../../Fox/Util/Enums.h"
 
 // fwd decl
@@ -62,6 +63,7 @@ namespace Moonshot
 		
 
 		std::string dumpFVal(const FVal &var);
+		std::string dumpVAttr(const var::varattr &var);
 
 		FVal getSampleFValForIndex(const std::size_t& t);
 
@@ -88,6 +90,18 @@ namespace Moonshot
 		static constexpr std::size_t fval_str = 4;
 		static constexpr std::size_t fval_bool = 5;
 		static constexpr std::size_t fval_vattr = 6;
+
+		const std::map<lex::keywords, std::size_t> kTypeKwToIndex_dict =
+		{
+			{ lex::T_INT	, fval_int	},
+			{ lex::T_FLOAT	, fval_float},
+			{ lex::T_BOOL	, fval_bool },
+			{ lex::T_STRING , fval_str	},
+			{ lex::T_CHAR	, fval_char }
+
+		};
+
+		std::size_t typeKWtoSizeT(const lex::keywords& kw);
 
 		const std::map<std::size_t, std::string> kType_dict =
 		{

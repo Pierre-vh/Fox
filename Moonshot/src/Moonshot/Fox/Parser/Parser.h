@@ -22,6 +22,8 @@
 // AST
 #include "../AST/Nodes/ASTExpr.h"
 #include "../AST/Nodes/IASTNode.h"
+#include "../AST/Nodes/ASTVarDeclStmt.h"
+#include "../AST/Nodes/IASTStmt.h"
 // Enum
 #include "../Util/Enums.h"
 #include "../AST/Visitor/Dumper/Dumper.h" // Debug use
@@ -45,6 +47,13 @@ namespace Moonshot
 			std::unique_ptr<ASTExpr> parseTerm();
 			std::unique_ptr<ASTExpr> parseValue();
 
+			std::unique_ptr<IASTStmt> parseStmt();
+			
+			std::unique_ptr<IASTStmt> parseVarDeclStmt();
+			// Success flag, isConst, type of variable.
+			std::tuple<bool, bool, std::size_t> parseTypeSpec();
+
+			std::unique_ptr<IASTStmt> parseExprStmt();
 		private:
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,parse::PLUS)
@@ -53,10 +62,13 @@ namespace Moonshot
 			// matchToken -> returns true if the token is matched, and increment pos, if the token isn't matched return false and don't increment
 			// MATCH BY TYPE OF TOKEN
 			bool matchValue(const lex::values &v);		// match a TT_VALUE
-			bool matchID();
+			std::pair<bool, std::string> matchID();
 			bool matchSign(const lex::signs &s);
 			bool matchKeyword(const lex::keywords &k);
-			std::pair<bool,std::size_t> matchTypeKw();
+
+			bool matchEOI();
+			
+			std::size_t matchTypeKw();
 			// MATCH OPERATORS
 			std::pair<bool, parse::optype> matchUnaryOp();
 			std::pair<bool, parse::optype> matchBinaryOp(const char &priority,bool &isrightass);

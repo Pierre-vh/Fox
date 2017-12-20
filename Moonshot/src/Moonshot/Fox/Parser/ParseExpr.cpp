@@ -84,7 +84,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 std::unique_ptr<ASTExpr> Parser::parseTerm()
 {
 	// Search for a unary operator
-	bool uopResult = false, mustcastResult = false;
+	bool uopResult = false;
 	std::size_t casttype = invalid_index;
 	parse::optype uopOp;
 	std::tie(uopResult, uopOp) = matchUnaryOp();
@@ -97,8 +97,8 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 	// Search for a cast: "as" <type>
 	if (matchKeyword(lex::TC_AS))
 	{
-		std::tie(mustcastResult, casttype) = matchTypeKw();
-		if (!mustcastResult)
+		casttype = matchTypeKw();
+		if (casttype == invalid_index)
 			errorExpected("[PARSER] Expected a type keyword after \"as\"");
 	}
 	// Apply the unary operator (if found) to the node.
@@ -110,7 +110,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 			val->op_ = uopOp; // Else, just set the op_ to uopOp;
 	}
 	// Apply the cast (if found) to the node
-	if (mustcastResult)
+	if (casttype != invalid_index)
 	{
 		val = oneUpNode(val, parse::optype::CAST); // Create a "cast" node
 		val->totype_ = casttype;

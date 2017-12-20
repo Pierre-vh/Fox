@@ -15,7 +15,7 @@ Dumper::~Dumper()
 
 void Dumper::visit(ASTExpr * node)
 {
-	std::cout << tabs() << "ExpressionNode : Operator ";
+	std::cout << tabs() << "Expression : Operator ";
 	// Attempts to print the operator in a str form
 	auto strOp = parse::kOptype_dict.find(node->op_);
 	if (strOp != parse::kOptype_dict.end())
@@ -44,10 +44,23 @@ void Dumper::visit(ASTExpr * node)
 
 void Dumper::visit(ASTValue * node)
 {
-	std::cout << tabs() << char(192) << "ExprValueNode : " << dumpFVal(node->val_) << std::endl;
+	std::cout << tabs() << char(192) << "ExprValue: " << dumpFVal(node->val_) << std::endl;
 }
 
-std::string Moonshot::Dumper::tabs() const
+void Dumper::visit(ASTVarDeclStmt * node)
+{
+	std::cout << tabs() << "VarDeclStmt :" << dumpVAttr(node->vattr_) << std::endl;
+	if (node->initExpr_)
+	{
+		tabcount += 1;
+		std::cout << tabs() << char(192) << "InitExpr" << std::endl;
+		tabcount += 1;
+		node->initExpr_->accept(*this);
+		tabcount -= 2;
+	}
+}
+
+std::string Dumper::tabs() const
 {
 	std::string i;
 	for (unsigned int k(0); k < tabcount; k++)

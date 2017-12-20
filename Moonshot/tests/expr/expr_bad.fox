@@ -7,3 +7,6 @@
 "hi"*3
 -"hello"
 !(3.14 as string)
+'c' (as float)
+'c' + "hi"
+"hi" <> "hi"

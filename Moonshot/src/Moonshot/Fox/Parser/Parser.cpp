@@ -29,15 +29,15 @@ bool Parser::matchValue(const lex::values & v)
 	return false;
 }
 
-bool Parser::matchID()
+std::pair<bool, std::string> Parser::matchID()
 {
 	token t = getToken();
 	if (t.type == lex::TT_IDENTIFIER)
 	{
 		pos_ += 1;
-		return true;
+		return { true, t.str };
 	}
-	return false;
+	return { false, "" };
 }
 
 bool Parser::matchSign(const lex::signs & s)
@@ -62,37 +62,28 @@ bool Parser::matchKeyword(const lex::keywords & k)
 	return false;
 }
 
-std::pair<bool, std::size_t> Moonshot::Parser::matchTypeKw()
+bool Parser::matchEOI()
+{
+	return matchSign(lex::P_SEMICOLON);
+}
+
+std::size_t Moonshot::Parser::matchTypeKw()
 {
 	token t = getToken();
+	pos_ += 1;
 	if (t.type == lex::TT_KEYWORD)
 	{
-		std::size_t rtr = invalid_index;
 		switch (t.kw_type)
-		{			
-			case lex::T_INT:
-				rtr = fval_int;
-				break;
-			case lex::T_FLOAT:
-				rtr = fval_float;
-				break;
-			case lex::T_CHAR:
-				rtr = fval_char;
-				break;
-			case lex::T_STRING:
-				rtr = fval_str;
-				break;
-			case lex::T_BOOL:
-				rtr = fval_bool;
-				break;
-		}
-		if (rtr != invalid_index)
 		{
-			pos_ += 1;
-			return { true,rtr };
+			case lex::T_INT:	return fval_int;
+			case lex::T_FLOAT:	return fval_float;
+			case lex::T_CHAR:	return fval_char;
+			case lex::T_STRING:	return fval_str;
+			case lex::T_BOOL:	return fval_bool;
 		}
 	}
-	return { false, invalid_index };
+	pos_ -= 1;
+	return invalid_index;
 }
 
 token Parser::getToken() const
@@ -118,6 +109,6 @@ void Parser::errorUnexpected()
 void Parser::errorExpected(const std::string & s)
 {
 	std::stringstream output;
-	output << s << " after token " << getToken().showFormattedTokenData() << std::endl;
+	output << s << " [after token " << getToken().showFormattedTokenData() << "]" << std::endl;
 	E_ERROR(output.str());
 }

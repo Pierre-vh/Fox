@@ -91,7 +91,7 @@ namespace Moonshot
 		// Regular expression used for identification 
 		const std::regex kInt_regex("\\d+");
 		const std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
-		const std::regex kId_regex("([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)+");	// if anyone has something better, tell me ! :)
+		const std::regex kId_regex("(([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+");	// if anyone has something better, tell me ! :)
 
 		// Dictionary used to identify keywords.
 		const std::map<std::string, lex::keywords> kWords_dict =
