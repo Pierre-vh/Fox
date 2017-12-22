@@ -2,17 +2,11 @@
 
 #include "../Errors/Errors.h"
 
-// SINGLETON
+// Symbols table manager
 class Symbols
 {
 	public:
+		Symbols();
 		~Symbols();
-
-		static Symbols& getInstance();
-		
-	private:
-		Symbols(); // Prevent instancing
-		Symbols(Symbols const&); // Prevent copy @ construct
-		Symbols& operator=(Symbols const&) {} // Prevent copying/assignement
 };
 
