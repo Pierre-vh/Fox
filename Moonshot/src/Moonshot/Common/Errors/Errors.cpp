@@ -2,8 +2,6 @@
 
 using namespace Moonshot;
 
-Errors*	Errors::instance = 0;
-
 Errors::Errors()
 {
 }
@@ -14,10 +12,8 @@ Moonshot::Errors::Errors(Errors const &)
 
 Errors& Errors::getInstance()
 {
-
-	if (!instance)
-		instance = new Errors;
-	return *instance;
+	static Errors instance;
+	return instance;
 }
 
 void Moonshot::Errors::logInfo(const std::string & str)

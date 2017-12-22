@@ -26,3 +26,11 @@ bool ITest::testFile(const std::string & fp, const bool & shouldFail)
 	}
 	return true;
 }
+
+bool ITest::standardTest(const std::string & str, std::vector<Moonshot::IVisitor>& ct_vis, std::vector<Moonshot::IRTVisitor>& rt_vis)
+{
+	std::cout << "STR:" << str << std::endl;
+	// Iterate on visitors to run them on str
+	return false;
+}
+

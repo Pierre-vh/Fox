@@ -84,7 +84,7 @@ void TypeCheck::visit(ASTExpr * node)
 	}
 	node->totype_ = rtr_type_;
 	if (node->totype_ == invalid_index)
-		E_CRITICAL("[TYPECHECK] Type was invalid.");
+		E_ERROR("[TYPECHECK] Type was invalid.");
 }
 
 void TypeCheck::visit(ASTValue * node)

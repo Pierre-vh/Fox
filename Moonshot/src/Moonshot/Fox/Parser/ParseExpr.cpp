@@ -6,8 +6,7 @@ using namespace fv_util;
 std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 {
 	auto rtr = std::make_unique<ASTExpr>(parse::optype::PASS);
-	std::unique_ptr<ASTExpr> last_ = 0;
-	std::unique_ptr<ASTExpr> first;
+	std::unique_ptr<ASTExpr> first = 0, last = 0;
 
 	if (priority > 0)
 		first = parseExpr(priority - 1);	// Go down in the priority chain.
@@ -59,24 +58,24 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 			if (rtr->op_ == parse::PASS)
 				rtr->op_ = op;			
 
-			if (!last_) // Last is empty
-				last_ = std::move(second); // Set last_ to second.
+			if (!last) // Last is empty
+				last = std::move(second); // Set last_ to second.
 			else
 			{
 				_ASSERT(op != parse::PASS);
 				auto newnode_op = std::make_unique<ASTExpr>(op); // Create a node with the op
-				newnode_op->makeChild(parse::LEFT, last_); // Set last_ as left child.
-				last_ = std::move(second);// Set second as last
+				newnode_op->makeChild(parse::LEFT, last); // Set last_ as left child.
+				last = std::move(second);// Set second as last
 				// Append newnode_op to rtr
 				rtr->makeChildOfDeepestNode(parse::RIGHT, newnode_op);
 			}
 		}
 	}
 
-	if (last_) // Last isn't empty -> make it the left child of our last node.
+	if (last) // Last isn't empty -> make it the left child of our last node.
 	{
-		rtr->makeChildOfDeepestNode(parse::RIGHT, last_);
-		last_ = 0;
+		rtr->makeChildOfDeepestNode(parse::RIGHT, last);
+		last = 0;
 	}
 	auto simple = rtr->getSimple();
 
