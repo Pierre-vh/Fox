@@ -13,7 +13,6 @@
 
 #include "../../../Util/Enums.h" // enums
 
-
 namespace Moonshot
 {
 	class TypeCheck : public IVisitor

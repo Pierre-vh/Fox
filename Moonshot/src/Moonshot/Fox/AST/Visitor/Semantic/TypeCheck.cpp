@@ -80,11 +80,14 @@ void TypeCheck::visit(ASTExpr * node)
 	{
 		// Okay, this is far-fetched, but can be possible if our parser is broken. It's better to check this here :
 		// getting in this branch means that we only have a right_ node.
-		E_CRITICAL("[TYPECHECK] Node was in an invalid state.");
+		E_CRITICAL("[TYPECHECK] Node was in an (really) invalid state.");
 	}
+	// Set current's node return type to the guessed type.
 	node->totype_ = rtr_type_;
 	if (node->totype_ == invalid_index)
 		E_CRITICAL("[TYPECHECK] Type was invalid.");
+	else if (!isBasic(node->totype_))
+		E_CRITICAL("[TYPECHECK] node->totype was not a basic type.");
 }
 
 void TypeCheck::visit(ASTValue * node)
