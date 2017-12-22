@@ -1,38 +1,24 @@
-#include "ExprTester.h"
+#include "ExprStmt.h"
 
 using namespace Moonshot;
 using namespace fv_util;
 
-ExprTester::ExprTester()
+ExprStmt::ExprStmt()
 {
 }
 
 
-ExprTester::~ExprTester()
+ExprStmt::~ExprStmt()
 {
 }
 
-bool ExprTester::run()
-{
-	// run tests that should work successfully
-	fp_ = util::filepath_MoonshotProj("\\tests\\expr\\expr_correct.fox");
-	if (!testFile(fp_, false))
-		return false;
-	// run tests that are expected to fail
-	fp_ = util::filepath_MoonshotProj("\\tests\\expr\\expr_bad.fox");
-	if (!testFile(fp_, true))
-		return false;
-	return true;
-}
-
-
-bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
+bool ExprStmt::testStr(const std::string & str, const bool & shouldFailTC)
 {
 	E_RESETSTATE;
 
-	std::cout << std::endl << "###################" << std::endl <<  std::endl;
-	std::cout << "Expression: " << str << std::endl;
-	
+	std::cout << std::endl << "###################" << std::endl << std::endl;
+	std::cout << "ExprStmt: " << str << std::endl;
+
 	Lexer l;
 	l.lexStr(str);
 	l.logAllTokens();
@@ -48,7 +34,7 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 	}
 
 	Parser p(&l);
-	auto root = p.parseExpr();
+	auto root = p.parseExprStmt();
 
 	if (!E_CHECKSTATE)
 	{
@@ -63,7 +49,7 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 
 	if (showAST && !shouldFailTC)
 		root->accept(Dumper());
-	
+
 	TypeCheck tc_vis;
 	root->accept(tc_vis);
 
@@ -74,22 +60,27 @@ bool ExprTester::testStr(const std::string & str, const bool &shouldFailTC)
 	}
 
 	if (!shouldFailTC && E_CHECKSTATE)
-	{
 		std::cout << "Typecheck successful, expression returns : " << indexToStr(tc_vis.getReturnTypeOfExpr()) << std::endl;
-		FVal f = root->accept(RTExprVisitor());
-		if (!E_CHECKSTATE)
-		{
-			std::cout << "\t" << char(192) << "Test failed @ runtime." << std::endl;
-			return shouldFailTC;
-		}
-		std::cout << "[RESULT]:";
-		std::cout << dumpFVal(f) << std::endl;
-	}
 
-	else
-		std::cout << "\t" << char(192) << (shouldFailTC ? "Test failed as expected." : "Test passed successfully.") << std::endl;
+	std::cout << "\t" << char(192) << (shouldFailTC ? "Test failed as expected." : "Test passed successfully.") << std::endl;
 
 	root.release();
 	root.reset();
+
+	return true;
+}
+
+bool ExprStmt::run()
+{
+	std::cout << std::endl << std::endl << "###TEST THAT MUST SUCCEED###" << std::endl << std::endl;
+	// run tests that should work successfully
+	fp_ = util::filepath_MoonshotProj("\\tests\\exprstmt\\exprstmt_correct.fox");
+	if (!testFile(fp_, false))
+		return false;
+	std::cout << std::endl << std::endl << "###TEST THAT MUST FAIL###" << std::endl << std::endl;
+	// run tests that are expected to fail
+	fp_ = util::filepath_MoonshotProj("\\tests\\exprstmt\\exprstmt_bad.fox");
+	if (!testFile(fp_, true))
+		return false;
 	return true;
 }

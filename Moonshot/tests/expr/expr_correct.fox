@@ -1,12 +1,13 @@
-"it " + ( "really " + "works ") + "it's wonderful"
+"it " + ( "really " + "works ") + ((("it's wonderful")))
 10%3 == 1 && 10^5 < 10^4
 3.14 + 3
-3 + 'c'
+3=4*-3 % 5^6 / 7^2^1= 8 = 10 // BUGGED
+(3 + 'c') as char
 'c' + true
-22/7 // Testing int division returns float
+((22)/(7)) // Testing int division returns float
 2^64-1  // Testing large values
 6/-2*(1+2)
-3^2^1 /// testings exp operator priority
+4^3^2^1.5 /// testings exp operator priority. ~2.904e13
 3^3^3*2+2^3*2 // More complex case, should result ~1.525e13
 (3^-(2*-(1/2)+2)--2+3^2%0.66+2)==-(-4.75333333) // Wtf ? If this parses okay, I think a lot of trivial expression will 
 (22/7 == 3.14) && (3.14 > 3) && ('a' < 'A') || -false

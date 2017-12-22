@@ -8,7 +8,7 @@ ASTVarDeclStmt::ASTVarDeclStmt(const var::varattr & attr, std::unique_ptr<ASTExp
 	if (attr)
 	{
 		vattr_ = attr;
-		if (iExpr)
+		if (iExpr)						// if iexpr is valid, move it to our attribute.
 			initExpr_ = std::move(iExpr);
 	}
 	else

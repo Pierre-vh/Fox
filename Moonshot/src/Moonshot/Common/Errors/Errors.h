@@ -64,7 +64,6 @@ namespace Moonshot
 			Errors();							 // Prevent instancing
 			Errors(Errors const&);				 // Prevent Copying
 			Errors& operator=(Errors const&) {}  // Prevent Assignement
-			static Errors* instance;
 
 			// Attributes
 

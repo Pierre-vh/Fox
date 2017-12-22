@@ -4,7 +4,7 @@
 #include <sstream> // std::stringstream
 #include <variant> // std::visit
 #include <typeinfo> // typeid
-#include "../IVisitor.h" // base class
+#include "../../Visitor/IVisitor.h" // base class
 #include "../../../../Common/Types/Types.h" // FVal Utilities
 
 // Include nodes
@@ -15,6 +15,7 @@
 
 namespace Moonshot
 {
+
 	class TypeCheck : public IVisitor
 	{
 		public:
@@ -40,8 +41,6 @@ namespace Moonshot
 			std::size_t getExprResultType(const parse::optype& op, std::size_t& lhs, const std::size_t& rhs);
 
 	};
-
-	
 
 }
 
