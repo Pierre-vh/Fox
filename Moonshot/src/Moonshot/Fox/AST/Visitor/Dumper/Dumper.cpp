@@ -5,9 +5,8 @@ using namespace fv_util;
 
 Dumper::Dumper()
 {
-	std::cout << "Visitor \"Dumper\" Initialized. Dumping tree:" << std::endl;
+	//std::cout << "Visitor \"Dumper\" Initialized. Dumping tree:" << std::endl;
 }
-
 
 Dumper::~Dumper()
 {

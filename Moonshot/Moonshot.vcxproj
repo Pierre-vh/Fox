@@ -131,14 +131,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Moonshot\Common\Symbols\Symbols.cpp" />
-    <ClCompile Include="tests\testers\ExprStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Runtime\Expr\RTExprVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Runtime\IRTVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\IVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseStmt.cpp" />
-    <ClCompile Include="tests\testers\ExprTester.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\Types.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTExpr.cpp" />
@@ -152,8 +150,7 @@
     <ClCompile Include="src\Moonshot\Common\Utils\Utils.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\CompTime\Semantic\TypeCheck.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Util\Enums.cpp" />
-    <ClCompile Include="tests\testers\ITest.cpp" />
-    <ClCompile Include="tests\testers\VDeclTester.cpp" />
+    <ClCompile Include="tests\testers\Tester.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Moonshot\Badger\readme.md" />
@@ -167,13 +164,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Moonshot\Common\Symbols\Symbols.h" />
-    <ClInclude Include="tests\testers\ExprStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Runtime\Expr\RTExprVisitor.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Runtime\IRTVisitor.h" />
-    <ClInclude Include="tests\testers\ExprTester.h" />
-    <ClInclude Include="tests\testers\ITest.h" />
+    <ClInclude Include="tests\testers\Tester.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\IVisitor.h" />
     <ClInclude Include="src\Moonshot\Common\Types\Types.h" />
@@ -186,7 +181,6 @@
     <ClInclude Include="src\Moonshot\Common\Utils\Utils.h" />
     <ClInclude Include="src\Moonshot\Fox\Util\Enums.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\CompTime\Semantic\TypeCheck.h" />
-    <ClInclude Include="tests\testers\VDeclTester.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="doc\file_header.txt" />

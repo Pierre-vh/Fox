@@ -41,19 +41,21 @@ namespace Moonshot
 			~Parser();
 
 			// parseXXX() = "match" the rule XXX (attempts to find it, if it found it, the method will return a valid pointer (if(ptr) will return true). if not, it will return a std::unique_ptr<(TYPE OF NODE)>(nullptr)
+			
 			// EXPR
 			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 7); // Go from lowest priority to highest !
-
 			std::unique_ptr<ASTExpr> parseTerm();
 			std::unique_ptr<ASTExpr> parseValue();
 
+			// STMT
 			std::unique_ptr<IASTStmt> parseStmt();
 			
 			std::unique_ptr<IASTStmt> parseVarDeclStmt();
-			// Success flag, isConst, type of variable.
-			std::tuple<bool, bool, std::size_t> parseTypeSpec();
+			std::tuple<bool, bool, std::size_t> parseTypeSpec(); // Success flag, isConst, type of variable.
 
 			std::unique_ptr<IASTStmt> parseExprStmt();
+
+
 		private:
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,parse::PLUS)

@@ -83,10 +83,14 @@ void TypeCheck::visit(ASTExpr * node)
 		E_CRITICAL("[TYPECHECK] Node was in an invalid state.");
 	}
 	node->totype_ = rtr_type_;
-	if (node->totype_ == invalid_index)
-		E_ERROR("[TYPECHECK] Type was invalid.");
+
 	if (!isBasic(node->totype_))
-		E_CRITICAL("[TYPECHECK] node->totype was not a basic type.");
+	{
+		if (node->totype_ == invalid_index)
+			E_ERROR("[TYPECHECK] Type was invalid.");
+		else 
+			E_CRITICAL("[TYPECHECK] node->totype was not a basic type.");
+	}
 }
 
 void TypeCheck::visit(ASTValue * node)
