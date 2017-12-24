@@ -26,11 +26,10 @@ void Errors::reportWarning(const char * file, int line, const std::string &txt)
 {
 	if (!options.muteWarnings)
 	{
-		#ifdef _DEBUG
+		if constexpr (MOONSHOT_DETAILED_ERRORS)
 			std::cerr << "[WARNING][" << file << " @line " << line << "]\n" << txt << std::endl;
-		#else
+		else
 			std::cerr << "[WARNING]\t" << txt << std::endl;
-		#endif
 	}
 	state_ = WARNING;
 }
@@ -39,11 +38,10 @@ void Errors::reportWarning(const std::string &txt)
 {
 	if (!options.muteWarnings)
 	{
-		#ifdef _DEBUG
+		if constexpr (MOONSHOT_DETAILED_ERRORS)
 			std::cerr << "[WARNING]\t" << txt << std::endl;
-		#else
+		else
 			std::cerr << "[WARNING]\t" << txt << std::endl;
-		#endif
 	}
 	state_ = WARNING;
 }
@@ -53,11 +51,10 @@ void Errors::reportError(const char * file, int line, const std::string &txt)
 	state_ = ERROR;
 	if (!options.muteErrors)
 	{
-		#ifdef _DEBUG
+		if constexpr (MOONSHOT_DETAILED_ERRORS)
 			std::cerr << "[ERROR][" << file << " @line " << line << "]\n" << txt << std::endl;
-		#else 
+		else 
 			std::cerr << "[ERROR]\t" << txt << std::endl;
-		#endif 
 	}
 }
 
@@ -65,11 +62,10 @@ void Errors::reportCritical(const char * file, int line, const std::string &txt)
 {
 	if (!options.muteCriticals)
 	{
-		#ifdef _DEBUG
+		if constexpr (MOONSHOT_DETAILED_ERRORS)
 			std::cerr << "[CRITICAL][" << file << " @line " << line << "]\n" << txt << std::endl;
-		#else 
+		else 
 			std::cerr << "[CRITICAL]\t" << txt << std::endl;
-		#endif 
 	}
 	state_ = CRITICAL;
 }
@@ -110,7 +106,7 @@ Errors::~Errors()
 {
 }
 
-void Moonshot::Errors::options_::setAll(const bool &b)
+void Moonshot::Errors::options_::muteAll(const bool &b)
 {
 	muteLogs = b;
 	muteWarnings = b;

@@ -102,13 +102,13 @@ token Parser::getToken(const size_t & d) const
 void Parser::errorUnexpected()
 {
 	std::stringstream output;
-	output << " Unexpected token " << getToken().showFormattedTokenData() << std::endl;
+	output << "Unexpected token " << getToken().showFormattedTokenData() << std::endl;
 	E_ERROR(output.str());
 }
 
 void Parser::errorExpected(const std::string & s)
 {
 	std::stringstream output;
-	output << s << " [after token " << getToken().showFormattedTokenData() << "]" << std::endl;
+	output << s << "\n[after token " << getToken().showFormattedTokenData() << "]" << std::endl;
 	E_ERROR(output.str());
 }

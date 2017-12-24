@@ -163,6 +163,7 @@
     <None Include="tests\expr\expr_bad.fox" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Moonshot\Common\Options.h" />
     <ClInclude Include="src\Moonshot\Common\Symbols\Symbols.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.h" />

@@ -35,7 +35,8 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 
 		if (!successfulMatchFlag)
 		{
-			errorUnexpected();
+			if (E_CHECKSTATE)
+				errorUnexpected();
 			errorExpected("Expected an ID after \"let\" keyword");
 		}
 		// ##TYPESPEC##
@@ -45,7 +46,8 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		// index 2 -> type index if success
 		if (!std::get<0>(typespecResult))
 		{
-			errorUnexpected();
+			if (E_CHECKSTATE)
+				errorUnexpected();
 			errorExpected("Expected type specifier after ID");
 		}
 		else
@@ -62,14 +64,16 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 			initExpr = parseExpr();
 			if (!initExpr)
 			{
-				errorUnexpected();
+				if (E_CHECKSTATE)
+					errorUnexpected();
 				errorExpected("Expected expression after '=' sign");
 			}
 		}
 		// ##EOI##
 		if (!matchEOI())
 		{
-			errorUnexpected();
+			if(E_CHECKSTATE)
+				errorUnexpected();
 			errorExpected("Expected semicolon after expression in variable declaration");
 		}
 	}
@@ -97,7 +101,7 @@ std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 		// Now match the type specifier
 		if ((typ = matchTypeKw()) != invalid_index)
 			return { true , isConst , typ };
-		else
+		else if (E_CHECKSTATE)
 			errorExpected("Expected type keyword in type specifier.");
 	}
 	return { false, false, invalid_index };

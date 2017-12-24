@@ -2,6 +2,7 @@
 
 #include <iostream> // cerr
 #include <string>	// << std::string <<
+#include "../Options.h"
 
 #define E_LOG(y)		Moonshot::Errors::getInstance().logInfo(y)
 #define E_WARNING(y)	Moonshot::Errors::getInstance().reportWarning	(__FILE__,__LINE__,y)
@@ -52,7 +53,7 @@ namespace Moonshot
 
 			struct options_ 
 			{
-				void setAll(const bool &b);
+				void muteAll(const bool &b);
 				bool muteLogs		= false;
 				bool muteWarnings	= false;
 				bool muteErrors		= false;

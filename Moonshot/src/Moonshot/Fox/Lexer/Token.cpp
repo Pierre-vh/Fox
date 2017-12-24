@@ -8,8 +8,6 @@ token::token()
 }
 token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
 {
-	// substract the token length's fron the column number given by the lexer.
-	pos.column -= (int)data.length();
 	// self id
 	selfId();
 }
@@ -17,7 +15,7 @@ token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
 std::string token::showFormattedTokenData() const
 {
 	std::stringstream ss;
-	ss << "[str:\"" << str << "\"][pos:" << pos.asText() << "][type:";
+	ss << "[str:\"" << str << "\"][" << pos.asText() << "][type:";
 	int enum_info = -1;		// The information of the corresponding enumeration
 	switch (type)
 	{
@@ -52,8 +50,12 @@ bool Moonshot::token::isValid() const
 }
 void token::selfId()
 {
+
 	if (str.size() == 0)
 		E_CRITICAL("[LEX] Found an empty token. [" + pos.asText() + "]");
+
+	// substract the token length's fron the column number given by the lexer.
+	pos.column -= (int)str.length();
 
 	if (idSign())
 		type = lex::TT_SIGN;
@@ -160,17 +162,17 @@ text_pos::text_pos(const int & l, const int & col) : line(l), column(col)
 void text_pos::newLine()
 {
 	line += 1;
-	column = 0;
+//	column = 0;
 }
 
 void text_pos::forward()
 {
-	column += 1;
+//	column += 1;
 }
 
 std::string text_pos::asText() const
 {
 	std::stringstream ss;
-	ss << "L:" << line << " C:" << column;
+	ss << "LINE:" << line /*<< " C:" << column*/;
 	return ss.str();
 }
