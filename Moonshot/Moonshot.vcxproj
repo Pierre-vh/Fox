@@ -161,6 +161,7 @@
     <None Include="tests\exprstmt\exprstmt_bad.fox" />
     <None Include="tests\exprstmt\exprstmt_correct.fox" />
     <None Include="tests\expr\expr_bad.fox" />
+    <None Include="tests\lexer\lexer_bad.fox" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Moonshot\Common\Options.h" />

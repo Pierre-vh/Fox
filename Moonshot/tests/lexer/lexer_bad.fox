@@ -1,0 +1,10 @@
+// Main test for the lexer : this test should always fail
+
+"bad
+string"
+'b // bad char
+'
+/* unclosed comment
+
+                                                                    
+

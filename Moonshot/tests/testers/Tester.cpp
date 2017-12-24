@@ -3,8 +3,37 @@
 using namespace Moonshot;
 
 
+bool BasicTests::run_lexerMainTests()
+{
+	// Basic lexer tests.
+	Test_CommonUtilities::printTitle(" LEXER ");
+	auto test_correct = TesterHelper::readFile(
+		util::filepath_MoonshotProj("\\tests\\lexer\\lexer_correct.fox")
+	);
+
+	auto test_incorrect = TesterHelper::readFile(
+		util::filepath_MoonshotProj("\\tests\\lexer\\lexer_bad.fox")
+	);
+
+	std::cout << "Testing lexer with file :\n" << test_correct;
+	Lexer l_corr;
+	l_corr.lexStr(test_correct);
+	if (!E_CHECKSTATE)	return false; // correct tests have failed -> error
+	else std::cout << "\n>>NO ERRORS -> OK" << std::endl;
+
+	std::cout << Test_CommonUtilities::generateSpacer();
+
+	std::cout << "Testing lexer with (incorrect) file :\n" << test_incorrect;
+	Lexer l_bad;
+	l_bad.lexStr(test_incorrect);
+	if (E_CHECKSTATE) return false; // failed test have succeeded -> error
+	else std::cout << "\n>>ERRORS -> OK" << std::endl;
+	// else, ok
+	return true;
+}
+
 // TESTS
-// TO-Do : Find a way to generate a TH_*VIS_VEC with a initializer list.
+// TO-Do : Find a way to generate a TH_*VIS_VEC easily and clearly
 // The solution isn't simple because I need to use emplace_back.
 bool Moonshot::BasicTests::run_expressionTests(const bool& printAST)
 {
@@ -156,7 +185,11 @@ std::string TesterHelper::readFile(const std::string & fp)
 	return str;
 }
 
-bool TesterHelper::standardTest(const std::vector<std::string>& strs, const std::function<std::unique_ptr<Moonshot::IASTNode>(Moonshot::Parser*)>& fn, const bool & shouldFail, const TH_IVIS_VEC & ct_vis, const TH_RTVIS_VEC & rt_vis)
+bool TesterHelper::standardTest(const std::vector<std::string>& strs,
+	const std::function<std::unique_ptr<Moonshot::IASTNode>(Moonshot::Parser*)>& fn,
+	const bool & shouldFail, const TH_IVIS_VEC & ct_vis,
+	const TH_RTVIS_VEC & rt_vis)
+
 {
 	for (auto& elem : strs)
 	{
@@ -187,7 +220,7 @@ bool TesterHelper::standardTest(const std::string &str,
 	const TH_RTVIS_VEC& rt_vis)
 {
 	E_RESETSTATE; // Reset state for this test.
-	std::cout << Test_CommonUtilities::printSpacer();
+	std::cout << Test_CommonUtilities::generateSpacer();
 	std::cout << "Testing str : " << str << std::endl;
 	Lexer lexr;
 	lexr.lexStr(str);
@@ -223,7 +256,7 @@ bool TesterHelper::standardTest(const std::string &str,
 	return !shouldFail;
 }
 
-std::string Test_CommonUtilities::printSpacer(std::size_t  spacerSize)
+std::string Test_CommonUtilities::generateSpacer(std::size_t  spacerSize)
 {
 	std::string rtr;
 	for (; spacerSize > 0; spacerSize -= 1)

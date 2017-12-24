@@ -22,10 +22,10 @@ void Lexer::lexStr(const std::string & data)
 	if(curtok_ != "")
 		pushTok(); // Push the last token formed, if it's not empty.
 
-	if (cstate_ == dfa::S1 || cstate_ == dfa::S5) // If we were in the middle of lexing a string/char
+	if ((cstate_ == dfa::S1 || cstate_ == dfa::S5) && E_CHECKSTATE) // If we were in the middle of lexing a string/char
 		E_ERROR("[LEX] Met the end of the file before a closing delimiter for char/strings");
 
-	if (LOG_TOTALTOKENSCOUNT)
+	if constexpr (LOG_TOTALTOKENSCOUNT)
 		E_LOG("[LEX] Lexing finished. Tokens found: " + sizeToString(result_.size()));
 }
 
@@ -56,7 +56,8 @@ size_t Lexer::resultSize() const
 
 void Lexer::pushTok()
 {
-	//std::cout << "Pushing token <" << curtok_ << ">"  << std::endl;
+	if(LOG_PUSHEDTOKENS)
+		std::cout << "Pushing token <" << curtok_ << ">"  << std::endl;
 	token t(curtok_,ccoord_);
 	result_.push_back(t);
 	curtok_ = "";
@@ -64,6 +65,11 @@ void Lexer::pushTok()
 
 void Lexer::cycle()
 {
+	if (!E_CHECKSTATE)
+	{
+		E_ERROR("Errors found : stopping lexing process.");
+		return;
+	}
 	// update position
 	ccoord_.column += 1;
 	if (str_[pos_] == '\n')
@@ -133,6 +139,8 @@ void Lexer::dfa_S1()
 		pushTok();
 		dfa_goto(dfa::S0);
 	}
+	else if (c == '\n')
+		E_ERROR("[LEXER] Newline characters (\\n) in string values declarations are illegal.\nToken concerned:" + curtok_);
 	else
 		addToCurtok(c);
 }
@@ -172,6 +180,8 @@ void Moonshot::Lexer::dfa_S5()
 		pushTok();
 		dfa_goto(dfa::S0);
 	}
+	else if (c == '\n')
+		E_ERROR("[LEXER] Newline characters (\\n) in char values declarations are illegal.\nToken concerned:" + curtok_);
 	else
 		addToCurtok(c);
 }

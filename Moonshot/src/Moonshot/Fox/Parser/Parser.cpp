@@ -5,6 +5,7 @@ using namespace fv_util;
 
 Parser::Parser(Lexer *l) : lex_(l)
 {
+
 }
 
 Parser::~Parser()

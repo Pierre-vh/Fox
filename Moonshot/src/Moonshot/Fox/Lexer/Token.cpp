@@ -50,7 +50,11 @@ bool Moonshot::token::isValid() const
 }
 void token::selfId()
 {
-
+	if (!E_CHECKSTATE)
+	{
+		E_ERROR("[LEX] Errors happened earlier, as a result tokens can't be identified.");
+		return;
+	}
 	if (str.size() == 0)
 		E_CRITICAL("[LEX] Found an empty token. [" + pos.asText() + "]");
 

@@ -8,10 +8,8 @@
 #include <map>			// std::map
 #include "../../Common/Errors/Errors.h"
 #include "Token.h"
+#include "../../Common/Options.h"
 
-// Used only for debugging purposes.
-#define LOG_PUSHEDTOKENS false
-#define LOG_TOTALTOKENSCOUNT false
 
 namespace Moonshot
 {

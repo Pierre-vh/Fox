@@ -10,7 +10,12 @@ int main()
 	auto &err = Moonshot::Errors::getInstance();
 	bool flag = true;
 	
-	if (!BasicTests::run_expressionTests(false))
+	if (!BasicTests::run_lexerMainTests())
+	{
+		std::cout << "Test failed" << std::endl;
+		flag = false;
+	}
+	else if (!BasicTests::run_expressionTests(false))
 	{
 		std::cout << "Test failed" << std::endl;
 		flag = false;
