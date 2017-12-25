@@ -15,10 +15,10 @@ namespace Moonshot
 		public:
 			virtual ~IVisitor() = 0;
 
-			inline virtual void visit(ASTExpr *node){}
-			inline virtual void visit(ASTValue *node) {}
+			inline virtual void visit(ASTExpr &node){}
+			inline virtual void visit(ASTValue &node) {}
 
-			inline virtual void visit(ASTVarDeclStmt *node) {}
+			inline virtual void visit(ASTVarDeclStmt &node) {}
 	};
 }
 

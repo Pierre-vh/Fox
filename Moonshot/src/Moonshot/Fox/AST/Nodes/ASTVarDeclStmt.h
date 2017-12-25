@@ -23,6 +23,8 @@ namespace Moonshot
 
 			var::varattr vattr_;
 			std::unique_ptr<ASTExpr> initExpr_;
+		private:
+			DISALLOW_COPY_AND_ASSIGN(ASTVarDeclStmt) 
 	};
 }
 

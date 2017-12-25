@@ -45,6 +45,9 @@ namespace Moonshot
 			std::size_t totype_ = fv_util::invalid_index;	// By default, don't cast (-1). If this is different , then we must cast the result to the desired type.
 			parse::optype op_ = parse::PASS;
 			std::unique_ptr<ASTExpr> left_ = 0, right_ = 0;
+
+		private:
+			DISALLOW_COPY_AND_ASSIGN(ASTExpr)
 	};
 	struct ASTValue : public ASTExpr
 	{
@@ -59,6 +62,9 @@ namespace Moonshot
 			// Value node holds 1 value : (inherited ones are never called and ignored.)
 			// val_ -> std::variant that holds the data of the node
 			FVal val_;
+
+		private:
+			DISALLOW_COPY_AND_ASSIGN(ASTValue)
 	};
 }
 

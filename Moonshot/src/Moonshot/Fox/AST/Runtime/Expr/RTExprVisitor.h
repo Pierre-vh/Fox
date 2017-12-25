@@ -25,8 +25,8 @@ namespace Moonshot
 			~RTExprVisitor();
 
 			// Inherited via IRTVisitor
-			virtual FVal visit(ASTExpr * node) override;
-			virtual FVal visit(ASTValue * node) override;
+			virtual FVal visit(ASTExpr & node) override;
+			virtual FVal visit(ASTValue & node) override;
 		private:
 			double fvalToDouble(const FVal &fval);
 			bool compareVal(const parse::optype &op, const FVal &l, const FVal &r);

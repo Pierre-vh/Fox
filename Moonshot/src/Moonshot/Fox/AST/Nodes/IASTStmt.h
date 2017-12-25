@@ -9,6 +9,9 @@ namespace Moonshot
 		public:
 			IASTStmt();
 			virtual ~IASTStmt() = 0;
+
+		private:
+			DISALLOW_COPY_AND_ASSIGN(IASTStmt)
 	};
 }
 

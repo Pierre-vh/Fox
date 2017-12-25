@@ -22,11 +22,11 @@ namespace Moonshot
 			TypeCheck();
 			~TypeCheck();
 
-			virtual void visit(ASTExpr * node) override;
-			virtual void visit(ASTValue * node) override;
+			virtual void visit(ASTExpr & node) override;
+			virtual void visit(ASTValue & node) override;
 
 
-			virtual void visit(ASTVarDeclStmt * node) override;
+			virtual void visit(ASTVarDeclStmt & node) override;
 
 			std::size_t getReturnTypeOfExpr() const;
 		private:

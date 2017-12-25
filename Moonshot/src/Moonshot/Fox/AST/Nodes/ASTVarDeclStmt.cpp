@@ -22,12 +22,12 @@ ASTVarDeclStmt::~ASTVarDeclStmt()
 
 void ASTVarDeclStmt::accept(IVisitor& vis)
 {
-	vis.visit(this);
+	vis.visit(*this);
 }
 
 FVal ASTVarDeclStmt::accept(IRTVisitor& vis)
 {
-	vis.visit(this);
+	vis.visit(*this);
 	return FVal(); // Doesn't return a value, just return something empty.
 }
 

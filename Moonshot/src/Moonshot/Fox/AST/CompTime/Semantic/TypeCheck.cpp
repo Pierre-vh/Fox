@@ -14,27 +14,27 @@ TypeCheck::~TypeCheck()
 
 // TODO: Implement Assignement typechecking.
 
-void TypeCheck::visit(ASTExpr * node)
+void TypeCheck::visit(ASTExpr & node)
 {
 	if (!E_CHECKSTATE) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
 		return;
 	//////////////////////////////////
 	/////NODES WITH 2 CHILDREN////////
 	//////////////////////////////////
-	if (node->left_ && node->right_) 
+	if (node.left_ && node.right_) 
 	{
 		// VISIT BOTH CHILDREN
 		// get left expr result type
-		auto left = visitAndGetResult(node->left_);
+		auto left = visitAndGetResult(node.left_);
 		// get right expr result type
-		auto right = visitAndGetResult(node->right_);
+		auto right = visitAndGetResult(node.right_);
 		// CHECK IF THIS IS A CONCAT OP,CONVERT IT 
-		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right)  && (node->op_ == parse::ADD))
-			node->op_ = parse::CONCAT;
+		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right)  && (node.op_ == parse::ADD))
+			node.op_ = parse::CONCAT;
 		// CREATE HELPER
 		// CHECK VALIDITY OF EXPRESSION
 		rtr_type_ = getExprResultType(
-				node->op_
+				node.op_
 			,	left		
 			,	right
 			);
@@ -42,32 +42,32 @@ void TypeCheck::visit(ASTExpr * node)
 	/////////////////////////////////////////
 	/////NODES WITH ONLY A LEFT CHILD////////
 	/////////////////////////////////////////
-	else if(node->left_)// We only have a left node
+	else if(node.left_)// We only have a left node
 	{
 		// CAST NODES
-		if (node->op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node. We still visit child nodes tho
+		if (node.op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node. We still visit child nodes tho
 		{
 			// JUST VISIT CHILD & SET RTRTYPE TO THE CAST GOAL
-			node->left_->accept(*this);
-			rtr_type_ = node->totype_;
+			node.left_->accept(*this);
+			rtr_type_ = node.totype_;
 		}
 		// UNARY OPS
-		else if (parse::isUnary(node->op_))
+		else if (parse::isUnary(node.op_))
 		{
 			// We have a unary operation
 			// Get left's return type. Don't change anything, as rtr_value is already set by the accept function.
-			auto lefttype = visitAndGetResult(node->left_);
+			auto lefttype = visitAndGetResult(node.left_);
 			// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATE on a string.
 			if(fval_traits<std::string>::isEqualTo(lefttype))
 			{
 				std::stringstream output;
-				output << "[TYPECHECK] Can't perform unary operation " << getFromDict(parse::kOptype_dict, node->op_) << " on a string.";
+				output << "[TYPECHECK] Can't perform unary operation " << getFromDict(parse::kOptype_dict, node.op_) << " on a string.";
 				E_ERROR(output.str());
 			}
 			// SPECIAL CASES : (LOGICNOT)(NEGATE ON BOOLEANS)
-			if (node->op_ == parse::LOGICNOT)
+			if (node.op_ == parse::LOGICNOT)
 				rtr_type_ = fval_bool; // Return type is a boolean
-			else if ((node->op_ == parse::NEGATE) && fval_traits<bool>::isEqualTo(rtr_type_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+			else if ((node.op_ == parse::NEGATE) && fval_traits<bool>::isEqualTo(rtr_type_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
 				rtr_type_ = fval_int;
 		}
 		else
@@ -82,20 +82,20 @@ void TypeCheck::visit(ASTExpr * node)
 		// getting in this branch means that we only have a right_ node.
 		E_CRITICAL("[TYPECHECK] Node was in an invalid state.");
 	}
-	node->totype_ = rtr_type_;
+	node.totype_ = rtr_type_;
 
-	if (!isBasic(node->totype_))
+	if (!isBasic(node.totype_))
 	{
-		if (node->totype_ == invalid_index)
+		if (node.totype_ == invalid_index)
 			E_ERROR("[TYPECHECK] Type was invalid.");
 		else 
-			E_CRITICAL("[TYPECHECK] node->totype was not a basic type.");
+			E_CRITICAL("[TYPECHECK] node.totype was not a basic type.");
 	}
 }
 
-void TypeCheck::visit(ASTValue * node)
+void TypeCheck::visit(ASTValue & node)
 {
-	rtr_type_ = node->val_.index();		// Just put the value in rtr->type.
+	rtr_type_ = node.val_.index();		// Just put the value in rtr->type.
 }
 
 std::size_t TypeCheck::getReturnTypeOfExpr() const
@@ -103,21 +103,21 @@ std::size_t TypeCheck::getReturnTypeOfExpr() const
 	return rtr_type_;
 }
 
-void TypeCheck::visit(ASTVarDeclStmt * node)
+void TypeCheck::visit(ASTVarDeclStmt & node)
 {
 	// check for impossible/illegal assignements;
-	if (node->initExpr_) // If the node has an initExpr.
+	if (node.initExpr_) // If the node has an initExpr.
 	{
 		// get the init expression type.
-		node->initExpr_->accept(*this);
+		node.initExpr_->accept(*this);
 		auto iexpr_type = rtr_type_;
 		// check if it's possible.
 		if (!canAssign(
-			node->vattr_.type,
+			node.vattr_.type,
 			iexpr_type
 		))
 		{
-			E_ERROR("Can't perform initialization of variable \"" + node->vattr_.name + "\"");
+			E_ERROR("Can't perform initialization of variable \"" + node.vattr_.name + "\"");
 		}
 	}
 	// Else, sadly, we can't really check anything more @ compile time.
