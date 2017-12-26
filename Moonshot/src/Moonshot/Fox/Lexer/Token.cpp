@@ -14,6 +14,9 @@ token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
 
 std::string token::showFormattedTokenData() const
 {
+	if (type == lex::TT_ENUM_DEFAULT && str == "") // Token isn't initialized.
+		return ""; // return nothing.
+
 	std::stringstream ss;
 	ss << "[str:\"" << str << "\"][" << pos.asText() << "][type:";
 	int enum_info = -1;		// The information of the corresponding enumeration
@@ -52,11 +55,11 @@ void token::selfId()
 {
 	if (!E_CHECKSTATE)
 	{
-		E_ERROR("[LEX] Errors happened earlier, as a result tokens can't be identified.");
+		E_ERROR("Errors happened earlier, as a result tokens can't be identified.");
 		return;
 	}
 	if (str.size() == 0)
-		E_CRITICAL("[LEX] Found an empty token. [" + pos.asText() + "]");
+		E_CRITICAL("Found an empty token. [" + pos.asText() + "]");
 
 	// substract the token length's fron the column number given by the lexer.
 	pos.column -= (int)str.length();
@@ -72,7 +75,7 @@ void token::selfId()
 		else if (std::regex_match(str, lex::kId_regex))
 			type = lex::TT_IDENTIFIER;
 		else
-			E_ERROR("[LEX] Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]");
+			E_ERROR("Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]");
 	}
 }
 
@@ -115,7 +118,7 @@ bool token::idValue()
 		}
 		else
 		{
-			E_ERROR("[LEX] Unclosed char " + str);
+			E_ERROR("Unclosed char " + str);
 			return false;
 		}
 	}
@@ -129,7 +132,7 @@ bool token::idValue()
 		}
 		else
 		{
-			E_ERROR("[LEX] Unclosed string: " + str);
+			E_ERROR("Unclosed string: " + str);
 			return false;
 		}
 	}

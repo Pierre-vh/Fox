@@ -14,6 +14,8 @@ Lexer::~Lexer()
 
 void Lexer::lexStr(const std::string & data)
 {
+	E_SET_ERROR_CONTEXT("LEXING");
+
 	str_ = data;
 	pos_ = 0;
 	cstate_ = dfa::S0;
@@ -23,10 +25,12 @@ void Lexer::lexStr(const std::string & data)
 		pushTok(); // Push the last token formed, if it's not empty.
 
 	if ((cstate_ == dfa::S1 || cstate_ == dfa::S5) && E_CHECKSTATE) // If we were in the middle of lexing a string/char
-		E_ERROR("[LEX] Met the end of the file before a closing delimiter for char/strings");
+		E_ERROR("Met the end of the file before a closing delimiter for char/strings");
 
 	if constexpr (LOG_TOTALTOKENSCOUNT)
-		E_LOG("[LEX] Lexing finished. Tokens found: " + sizeToString(result_.size()));
+		E_LOG("Lexing finished. Tokens found: " + sizeToString(result_.size()));
+
+	E_RESET_ERROR_CONTEXT;
 }
 
 void Moonshot::Lexer::iterateResults(std::function<void(const token&)> func)
@@ -45,7 +49,7 @@ token Lexer::getToken(const size_t & vtpos) const
 {
 	if (vtpos < result_.size())
 		return result_[vtpos];
-	E_CRITICAL("[LEX] Tried to access a position in result_ that was out of bounds.");
+	E_CRITICAL("Tried to access a position in result_ that was out of bounds.");
 	return token();
 }
 
@@ -91,7 +95,7 @@ void Lexer::dfa_S0()
 
 	if (curtok_.size() != 0)	// simple error checking : the token should always be empty when we're in S0.
 	{
-		E_CRITICAL("[LEX] ERROR. CURRENT TOKEN IS NOT EMPTY IN S0. TOKEN IS:" + curtok_);
+		E_CRITICAL("ERROR. CURRENT TOKEN IS NOT EMPTY IN S0. TOKEN IS:" + curtok_);
 		return;
 	}
 	// IGNORE SPACES
@@ -140,7 +144,7 @@ void Lexer::dfa_S1()
 		dfa_goto(dfa::S0);
 	}
 	else if (c == '\n')
-		E_ERROR("[LEXER] Newline characters (\\n) in string values declarations are illegal.\nToken concerned:" + curtok_);
+		E_ERROR("Newline characters (\\n) in string values declarations are illegal.\nToken concerned:" + curtok_);
 	else
 		addToCurtok(c);
 }
@@ -181,7 +185,7 @@ void Moonshot::Lexer::dfa_S5()
 		dfa_goto(dfa::S0);
 	}
 	else if (c == '\n')
-		E_ERROR("[LEXER] Newline characters (\\n) in char values declarations are illegal.\nToken concerned:" + curtok_);
+		E_ERROR("Newline characters (\\n) in char values declarations are illegal.\nToken concerned:" + curtok_);
 	else
 		addToCurtok(c);
 }

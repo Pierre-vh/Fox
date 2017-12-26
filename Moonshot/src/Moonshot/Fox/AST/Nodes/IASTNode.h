@@ -15,7 +15,7 @@ namespace Moonshot
 			virtual void accept(IVisitor& vis) = 0;
 			virtual FVal accept(IRTVisitor& vis) = 0;
 		private:
-			DISALLOW_COPY_AND_ASSIGN(IASTNode)
+			DISALLOW_COPY_AND_ASSIGN(IASTNode);
 	};
 }
 

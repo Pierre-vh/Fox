@@ -4,6 +4,7 @@
 // Theses are mostly used for debugging.
 
 // MOONSHOT_DETAILED_ERRORS : Error singleton will show the file and line of file where the error took place
+// Useful for debugging, but in most cases you don't need it.
 #define MOONSHOT_DETAILED_ERRORS false
 
 

@@ -31,7 +31,6 @@
 #include <tuple>	// std::tuple, std::pair
 
 #define NULL_UNIPTR(x) std::unique_ptr<x>(nullptr)
-// TODO: Parser needs a rework in order to support both left and right associativity.
 namespace Moonshot
 {
 	class Parser

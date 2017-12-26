@@ -4,10 +4,7 @@ using namespace Moonshot;
 
 Errors::Errors()
 {
-}
 
-Moonshot::Errors::Errors(Errors const &)
-{
 }
 
 Errors& Errors::getInstance()
@@ -27,9 +24,9 @@ void Errors::reportWarning(const char * file, int line, const std::string &txt)
 	if (!options.muteWarnings)
 	{
 		if constexpr (MOONSHOT_DETAILED_ERRORS)
-			std::cerr << "[WARNING][" << file << " @line " << line << "]\n" << txt << std::endl;
+			std::cerr << "[WARNING][" << file << " @line " << line << "]\n" << context_ << txt << std::endl;
 		else
-			std::cerr << "[WARNING]\t" << txt << std::endl;
+			std::cerr << "[WARNING]" << context_  << txt << std::endl;
 	}
 	state_ = WARNING;
 }
@@ -38,10 +35,7 @@ void Errors::reportWarning(const std::string &txt)
 {
 	if (!options.muteWarnings)
 	{
-		if constexpr (MOONSHOT_DETAILED_ERRORS)
-			std::cerr << "[WARNING]\t" << txt << std::endl;
-		else
-			std::cerr << "[WARNING]\t" << txt << std::endl;
+		std::cerr << "[WARNING]" << context_  << txt << std::endl;
 	}
 	state_ = WARNING;
 }
@@ -52,9 +46,9 @@ void Errors::reportError(const char * file, int line, const std::string &txt)
 	if (!options.muteErrors)
 	{
 		if constexpr (MOONSHOT_DETAILED_ERRORS)
-			std::cerr << "[ERROR][" << file << " @line " << line << "]\n" << txt << std::endl;
+			std::cerr << "[ERROR][" << file << " @line " << line << "]\n" << context_  << txt << std::endl;
 		else 
-			std::cerr << "[ERROR]\t" << txt << std::endl;
+			std::cerr << "[ERROR]" << context_ << txt << std::endl;
 	}
 }
 
@@ -63,9 +57,9 @@ void Errors::reportCritical(const char * file, int line, const std::string &txt)
 	if (!options.muteCriticals)
 	{
 		if constexpr (MOONSHOT_DETAILED_ERRORS)
-			std::cerr << "[CRITICAL][" << file << " @line " << line << "]\n" << txt << std::endl;
+			std::cerr << "[CRITICAL][" << file << " @line " << line << "]\n" << context_   << txt << std::endl;
 		else 
-			std::cerr << "[CRITICAL]\t" << txt << std::endl;
+			std::cerr << "[CRITICAL]" << context_ << txt << std::endl;
 	}
 	state_ = CRITICAL;
 }

@@ -22,7 +22,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		try
 		{
 			if (!node.left_)
-				E_CRITICAL("[RUNTIME] Tried to concat a node without a left_ child.");
+				E_CRITICAL("Tried to concat a node without a left_ child.");
 
 			auto leftstr = std::get<std::string>(node.left_->accept(*this)); // get left str
 			std::string rightstr = "";
@@ -34,7 +34,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		}
 		catch (std::bad_variant_access&) 
 		{
-			E_CRITICAL("[RUNTIME] Critical error: Attempted to concat values while one of them wasn't a string.");
+			E_CRITICAL("Critical error: Attempted to concat values while one of them wasn't a string.");
 		}
 	}
 	else if (node.op_ == parse::optype::CAST)
@@ -42,7 +42,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 	else if (node.op_ == parse::optype::PASS)
 	{
 		if (!node.left_)
-			E_CRITICAL("[RUNTIME] Tried to pass a value to parent node, but the node did not have a left_ child.");
+			E_CRITICAL("Tried to pass a value to parent node, but the node did not have a left_ child.");
 
 		return node.left_->accept(*this);
 	}
@@ -53,7 +53,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 	else if (parse::isComparison(node.op_))
 	{
 		if (!node.left_ || !node.right_)
-			E_CRITICAL("[RUNTIME] Attempted to run a comparison operation on a node without 2 children");
+			E_CRITICAL("Attempted to run a comparison operation on a node without 2 children");
 
 		const FVal lfval = node.left_->accept(*this);
 		const FVal rfval = node.right_->accept(*this);
@@ -72,12 +72,12 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 				}
 				catch (std::bad_variant_access&)
 				{
-					E_CRITICAL("[RUNTIME] Critical error: Attempted to compare values while one of them wasn't a string.");
+					E_CRITICAL("Critical error: Attempted to compare values while one of them wasn't a string.");
 				}
 			}
 			else
 			{
-				E_ERROR("[RUNTIME] Attempted to compare a string with an arithmetic type.");
+				E_ERROR("Attempted to compare a string with an arithmetic type.");
 				return FVal();
 			}
 		}
@@ -109,7 +109,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 	else
 	{
 		if (!node.left_ || !node.right_)
-			E_CRITICAL("[RUNTIME] Tried to perform an operation on a node without a left_ and/or right child.");
+			E_CRITICAL("Tried to perform an operation on a node without a left_ and/or right child.");
 
 		const double dleftval = fvalToDouble(node.left_->accept(*this));
 		const double drightval = fvalToDouble(node.right_->accept(*this));
@@ -131,9 +131,9 @@ FVal RTExprVisitor::visit(ASTValue & node)
 double RTExprVisitor::fvalToDouble(const FVal & fval)
 {
 	if (!isBasic(fval.index()))
-		E_ERROR("[RUNTIME] Can't perform conversion to double on a non basic type.");
+		E_ERROR("Can't perform conversion to double on a non basic type.");
 	else if (!isArithmetic(fval.index()))
-		E_ERROR("[RUNTIME] Can't perform conversion to double on a non arithmetic type.");
+		E_ERROR("Can't perform conversion to double on a non arithmetic type.");
 	else if (std::holds_alternative<int>(fval))
 		return (double)std::get<int>(fval);
 	else if (std::holds_alternative<float>(fval))
@@ -143,7 +143,7 @@ double RTExprVisitor::fvalToDouble(const FVal & fval)
 	else if (std::holds_alternative<bool>(fval))
 		return (double)std::get<bool>(fval);
 	else
-		E_CRITICAL("[RUNTIME] Reached end of function.Unimplemented type in FVal?");
+		E_CRITICAL("Reached end of function.Unimplemented type in FVal?");
 	return 0.0;
 }
 bool RTExprVisitor::compareVal(const parse::optype & op, const FVal & l, const FVal & r)
@@ -170,7 +170,7 @@ bool RTExprVisitor::compareVal(const parse::optype & op, const FVal & l, const F
 		case NOTEQUAL:
 			return lval != rval;
 		default:
-			E_CRITICAL("[RUNTIME] Defaulted. Unimplemented condition operation?");
+			E_CRITICAL("Defaulted. Unimplemented condition operation?");
 			return false;
 	}
 }
@@ -185,7 +185,7 @@ bool RTExprVisitor::compareStr(const parse::optype & op, const std::string & lhs
 		case GREATER_THAN:		return lhs > rhs;
 		case LESS_OR_EQUAL:		return lhs <= rhs;
 		case GREATER_OR_EQUAL:	return lhs > rhs;
-		default:				E_CRITICAL("[RUNTIME] Operation was not a condition.");
+		default:				E_CRITICAL("Operation was not a condition.");
 			return false;
 	}
 }
@@ -200,14 +200,14 @@ double RTExprVisitor::performOp(const parse::optype& op,double l,double r)
 		case DIV:
 			if(r == 0)
 			{
-				E_ERROR("[RUNTIME] Division by zero.");
+				E_ERROR("Division by zero.");
 				return 0.0;
 			}
 			else 
 				return l / r;
 		case MOD:	return std::fmod(l, r);
 		case EXP:	return std::pow(l, r);		
-		default:	E_CRITICAL("[RUNTIME] Defaulted.");
+		default:	E_CRITICAL("Defaulted.");
 			return 0.0;
 	}
 }
@@ -230,13 +230,13 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 				return false;
 			return true;
 		case invalid_index:
-			E_CRITICAL("[RUNTIME] Index was invalid");
+			E_CRITICAL("Index was invalid");
 			return false;
 		default:
 			if (!isBasic(typ))
-				E_CRITICAL("[RUNTIME] Can't make a \"fitInValue\" check on a non-basic type.");
+				E_CRITICAL("Can't make a \"fitInValue\" check on a non-basic type.");
 			else
-				E_CRITICAL("[RUNTIME] Switch defaulted. Unimplemented type?");
+				E_CRITICAL("Switch defaulted. Unimplemented type?");
 			return false;
 	}
 }
@@ -245,13 +245,13 @@ template<typename GOAL, typename VAL, bool isGOALstr, bool isVALstr>
 std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL v)
 {
 	if constexpr (!fval_traits<GOAL>::isBasic || !fval_traits<VAL>::isBasic)
-		E_CRITICAL("[RUNTIME] Can't cast a basic type to a nonbasic type and vice versa.");
+		E_CRITICAL("Can't cast a basic type to a nonbasic type and vice versa.");
 	else if constexpr((std::is_same<GOAL, VAL>::value) || (isGOALstr && isVALstr)) // Direct conversion
 		return { true , FVal(v) };
 	else if constexpr (isGOALstr != isVALstr) // One of them is a string and the other isn't.
 	{
 		std::stringstream output;
-		output << "[RUNTIME] Can't convert a string to an arithmetic type and vice versa. Value:" << v << std::endl;
+		output << "Can't convert a string to an arithmetic type and vice versa. Value:" << v << std::endl;
 		E_ERROR(output.str());
 		return { false, FVal() };
 	}
@@ -266,7 +266,7 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL
 		else if constexpr (std::is_same<bool, GOAL>::value)
 			return { true,FVal((bool)v) };
 		else
-			E_CRITICAL("[RUNTIME] Failed cast");
+			E_CRITICAL("Failed cast");
 	}
 	return { false,FVal() };
 }
@@ -276,13 +276,13 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL & type,do
 {
 	if constexpr(std::is_same<GOAL, std::string>::value)
 	{
-		E_CRITICAL("[RUNTIME] Failed cast - Attempted to cast to string.");
+		E_CRITICAL("Failed cast - Attempted to cast to string.");
 		return { true,FVal() };
 	}
 	else if constexpr (fval_traits<GOAL>::isBasic) // Can only attempt to convert basic types.
 		return { true, FVal((GOAL)v) };
 	else
-		E_CRITICAL("[RUNTIME] castTypeTo defaulted. Unimplemented type?");
+		E_CRITICAL("castTypeTo defaulted. Unimplemented type?");
 	return { false,FVal() };
 }
 
@@ -300,7 +300,7 @@ FVal RTExprVisitor::castHelper::castTo(const std::size_t& goal, const FVal & val
 	if (rtr.first)
 		return rtr.second;
 	else
-		E_ERROR("[RUNTIME] Failed typecast (TODO:Show detailed error message");
+		E_ERROR("Failed typecast (TODO:Show detailed error message");
 	return FVal();
 }
 
@@ -316,6 +316,6 @@ FVal RTExprVisitor::castHelper::castTo(const std::size_t& goal, const double & v
 	);
 	if (rtr.first)
 		return rtr.second;
-	E_ERROR("[RUNTIME] Failed typecast from double (TODO:Show detailed error message");
+	E_ERROR("Failed typecast from double (TODO:Show detailed error message");
 	return FVal();
 }

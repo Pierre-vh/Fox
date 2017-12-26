@@ -15,11 +15,9 @@ namespace Moonshot::var
 	struct varattr;
 }
 
-
 // Alias for a variant holding every type possible in the interpreter.
 typedef void* FVAL_NULLTYPE;
 typedef std::variant<FVAL_NULLTYPE,int, float, char, std::string, bool, Moonshot::var::varattr> FVal;
-
 
 namespace Moonshot
 {
@@ -123,6 +121,7 @@ namespace Moonshot
 		struct varattr // Struct holding a var's attributes
 		{
 			varattr();
+			varattr(const std::string &nm);
 			varattr(const std::string &nm, const std::size_t &ty, const bool &isK = false);
 			operator bool() const;
 			// Variable's attribute
@@ -133,5 +132,9 @@ namespace Moonshot
 		private:
 			bool wasInit_ = false;
 		};
+		inline bool operator < (const varattr& lhs, const varattr& rhs)
+		{
+			return lhs.name < rhs.name; // We don't care about the rest, because you can only use a name once.
+		}
 	}
 }

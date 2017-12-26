@@ -3,6 +3,7 @@
 #include <iostream> // cerr
 #include <string>	// << std::string <<
 #include "../Options.h"
+#include "../Macros.h"
 
 #define E_LOG(y)		Moonshot::Errors::getInstance().logInfo(y)
 #define E_WARNING(y)	Moonshot::Errors::getInstance().reportWarning	(__FILE__,__LINE__,y)
@@ -16,7 +17,8 @@
 
 #define E_RESETSTATE	Moonshot::Errors::getInstance().resetStatus()
 
-// Debug defines
+#define E_RESET_ERROR_CONTEXT  Moonshot::Errors::getInstance().resetContext()
+#define E_SET_ERROR_CONTEXT(x) Moonshot::Errors::getInstance().updateContext(x);
 
 namespace Moonshot
 {
@@ -35,13 +37,20 @@ namespace Moonshot
 
 			static Errors& getInstance();	 // get the instance
 
+			inline void updateContext(const std::string &c_tag) // Update the "context" tag. (the name in square brackets before the errors.
+			{
+				context_ = "[" + c_tag + "]";
+			}
+			inline void resetContext() // Reset the context (don't use one anymore.)
+			{
+				context_ = "";
+			}
+
 			void logInfo(const std::string &str);
 
 			void reportWarning(const char *file, int line, const std::string &txt);	// Warnings
-			void reportWarning(const std::string &txt);	// Warnings
-
+			void reportWarning(const std::string &txt);	// Warning
 			void reportError(const char *file, int line, const std::string &txt);	// Errors that disrupt the interpretation process without being too grave. (Semantic,Syntaxic error,etc);
-			
 			void reportCritical(const char *file, int line, const std::string &txt); // CRITICAL ERRORS : Errors that should never happen in normal condition, either you're doing something very wrong when using Moonshot, or Moonshot has a bug !
 		
 			errstate getCurrentState() const;
@@ -63,10 +72,10 @@ namespace Moonshot
 			~Errors();
 		private:
 			Errors();							 // Prevent instancing
-			Errors(Errors const&);				 // Prevent Copying
-			Errors& operator=(Errors const&) {}  // Prevent Assignement
+			DISALLOW_COPY_AND_ASSIGN(Errors)
 
 			// Attributes
+			std::string context_ = "";
 
 			errstate state_ = GOOD;
 	};

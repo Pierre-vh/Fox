@@ -1,4 +1,4 @@
-Fox Grammar version 1.3
+vaFox Grammar version 1.3
 // Changelog:
 1.2 : Cleanup of the grammar.
 // 18/12/2017

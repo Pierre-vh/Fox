@@ -222,6 +222,7 @@ bool TesterHelper::standardTest(const std::string &str,
 	E_RESETSTATE; // Reset state for this test.
 	std::cout << Test_CommonUtilities::generateSpacer();
 	std::cout << "Testing str : " << str << std::endl;
+
 	Lexer lexr;
 	lexr.lexStr(str);
 	
@@ -232,11 +233,14 @@ bool TesterHelper::standardTest(const std::string &str,
 
 	if (!E_CHECKSTATE) return shouldFail;
 
+	E_SET_ERROR_CONTEXT("COMPILE_TIME");
 	for (auto& ivis : ct_vis)	// run IVIsitors
 	{
 		root->accept(*ivis);
 		if (!E_CHECKSTATE) return shouldFail;
 	}
+
+	E_SET_ERROR_CONTEXT("RUNTIME");
 	for (auto& rtvis : rt_vis)	// run IRTVIsitors
 	{
 		if (!E_CHECKSTATE) return shouldFail;
@@ -251,7 +255,7 @@ bool TesterHelper::standardTest(const std::string &str,
 			root->accept(*rtvis);
 		if (!E_CHECKSTATE) return shouldFail;
 	}
-
+	E_RESET_ERROR_CONTEXT;
 	std::cout << ">>Success" << std::endl;
 	return !shouldFail;
 }

@@ -61,7 +61,7 @@ void TypeCheck::visit(ASTExpr & node)
 			if(fval_traits<std::string>::isEqualTo(lefttype))
 			{
 				std::stringstream output;
-				output << "[TYPECHECK] Can't perform unary operation " << getFromDict(parse::kOptype_dict, node.op_) << " on a string.";
+				output << "Can't perform unary operation " << getFromDict(parse::kOptype_dict, node.op_) << " on a string.";
 				E_ERROR(output.str());
 			}
 			// SPECIAL CASES : (LOGICNOT)(NEGATE ON BOOLEANS)
@@ -71,7 +71,7 @@ void TypeCheck::visit(ASTExpr & node)
 				rtr_type_ = fval_int;
 		}
 		else
-			E_CRITICAL("[TYPECHECK] A Node only had a left_ child, and wasn't a unary op.");
+			E_CRITICAL("A Node only had a left_ child, and wasn't a unary op.");
 	}
 	//////////////////////////////////
 	/////ERROR CASES//////////////////
@@ -80,16 +80,16 @@ void TypeCheck::visit(ASTExpr & node)
 	{
 		// Okay, this is far-fetched, but can be possible if our parser is broken. It's better to check this here :
 		// getting in this branch means that we only have a right_ node.
-		E_CRITICAL("[TYPECHECK] Node was in an invalid state.");
+		E_CRITICAL("Node was in an invalid state.");
 	}
 	node.totype_ = rtr_type_;
 
-	if (!isBasic(node.totype_))
+	if (!isBasic(node.totype_) && E_CHECKSTATE)
 	{
 		if (node.totype_ == invalid_index)
-			E_ERROR("[TYPECHECK] Type was invalid.");
+			E_ERROR("Type was invalid.");
 		else 
-			E_CRITICAL("[TYPECHECK] node.totype was not a basic type.");
+			E_CRITICAL("node.totype was not a basic type.");
 	}
 }
 
@@ -141,7 +141,7 @@ std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& l
 			}
 			else if (fval_traits<std::string>::isEqualTo(lhs) && (op != parse::CONCAT)) // We have strings and it's not a concat op :
 			{
-				E_ERROR("[TYPECHECK] Can't perform operations other than addition (concatenation) on strings");
+				E_ERROR("Can't perform operations other than addition (concatenation) on strings");
 				return invalid_index;
 			}
 			else if (fval_traits<bool>::isEqualTo(lhs)) // We have bools and they're not compared : the result will be an integer.
@@ -151,7 +151,7 @@ std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& l
 		}
 		else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // Two different types, and one of them is a string?
 		{
-			E_ERROR("[TYPECHECK] Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
+			E_ERROR("Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
 			return invalid_index;
 		}
 		else if (parse::isComparison(op)) // Comparing 2 arithmetic types ? return type's a boolean
@@ -170,7 +170,7 @@ std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& l
 		if (lhs == fval_vattr)
 			E_ERROR("Assignements aren't supported by the typechecker just yet.");
 		else 
-			E_ERROR("[TYPECHECK] Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
+			E_ERROR("Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
 		return invalid_index;
 	}
 }

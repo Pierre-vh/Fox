@@ -164,6 +164,11 @@ var::varattr::varattr()
 {
 }
 
+var::varattr::varattr(const std::string & nm)
+{
+	name = nm; // Create a "dummy",unusable varattr with only a name.
+}
+
 var::varattr::varattr(const std::string & nm, const std::size_t & ty, const bool & isK) : name(nm), type(ty), isConst(isK)
 {
 	wasInit_ = true;

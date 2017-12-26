@@ -36,8 +36,10 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		if (!successfulMatchFlag)
 		{
 			if (E_CHECKSTATE)
+			{
 				errorUnexpected();
-			errorExpected("Expected an ID after \"let\" keyword");
+				errorExpected("Expected an ID after \"let\" keyword");
+			}
 		}
 		// ##TYPESPEC##
 		auto typespecResult = parseTypeSpec();
@@ -47,8 +49,10 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		if (!std::get<0>(typespecResult))
 		{
 			if (E_CHECKSTATE)
+			{
 				errorUnexpected();
-			errorExpected("Expected type specifier after ID");
+				errorExpected("Expected type specifier after ID");
+			}
 		}
 		else
 		{
@@ -65,16 +69,20 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 			if (!initExpr)
 			{
 				if (E_CHECKSTATE)
+				{
 					errorUnexpected();
-				errorExpected("Expected expression after '=' sign");
+					errorExpected("Expected expression after '=' sign");
+				}
 			}
 		}
 		// ##EOI##
 		if (!matchEOI())
 		{
-			if(E_CHECKSTATE)
+			if (E_CHECKSTATE)
+			{
 				errorUnexpected();
-			errorExpected("Expected semicolon after expression in variable declaration");
+				errorExpected("Expected semicolon after expression in variable declaration");
+			}
 		}
 	}
 

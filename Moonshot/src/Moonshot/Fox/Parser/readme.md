@@ -4,12 +4,16 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
 
 ### IMPLEMENTED
  expr   
+ expr_stmt
  binary_operator   
  unary_operator   
  term
+ var_decl
+ type_spec   
+ eoi
 
 ### PARTIALLY IMPLEMENTED
- value    : Missing  callable  support (Won't be implemented before a while, I need to fully implement variable before starting the callable object, and implement functions to completly finish the callable rule)
+ value		: Missing  callable  support (Won't be implemented before a while, I need to fully implement variable before starting the callable object, and implement functions to completly finish the callable rule)
 
 ### TO BE IMPLEMENTED  
 **Base rule**  
@@ -19,19 +23,14 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
  namespace   
  ext_id   
  general_id   
- type_spec   
  arg_type_spec   
- eoi   
+    
  block   
  stmt   
  callable   
         
 **Import**  
  import_stmt   
-
-**Variables**  
- var_decl   
- var_assign   
 
 **Functions**  
  func_decl   
