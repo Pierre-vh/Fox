@@ -13,7 +13,7 @@
 namespace Moonshot
 {
 	// Visits statements nodes : vardecl & exprstmt
-	class RTStmtVisitor : public IRTVisitor
+	class RTStmtVisitor : public RTExprVisitor // Inherits from the expression visitor, because of expression statements!
 	{
 		public:
 			RTStmtVisitor();
@@ -21,13 +21,7 @@ namespace Moonshot
 			~RTStmtVisitor();
 
 			virtual FVal visit(ASTVarDeclStmt & node) override;
-			virtual FVal visit(ASTExpr & node) override;
 
-			void setSymbolsTable(std::shared_ptr<SymbolsTable> symtab);
-		private:
-			RTExprVisitor exprvisitor_;
-			bool isSymbolsTableAvailable() const;
-			std::shared_ptr<SymbolsTable> symtab_;
 	};
 
 }

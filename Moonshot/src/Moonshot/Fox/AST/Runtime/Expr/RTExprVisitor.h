@@ -29,7 +29,7 @@ namespace Moonshot
 
 			void setSymbolsTable(std::shared_ptr<SymbolsTable> symtab);
 
-		private:
+		protected:
 			double fvalToDouble(const FVal &fval);
 			bool compareVal(const parse::optype &op, const FVal &l, const FVal &r);
 			bool compareStr(const parse::optype &op, const std::string &lhs, const std::string &rhs);
@@ -39,7 +39,7 @@ namespace Moonshot
 		
 			bool isSymbolsTableAvailable() const;
 			std::shared_ptr<SymbolsTable> symtab_;
-
+		private:
 			class castHelper
 			{
 				public:

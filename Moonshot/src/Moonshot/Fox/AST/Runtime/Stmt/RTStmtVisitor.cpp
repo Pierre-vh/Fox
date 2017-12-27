@@ -23,7 +23,7 @@ FVal RTStmtVisitor::visit(ASTVarDeclStmt & node)
 	{
 		if (node.initExpr_) // With init expr
 		{
-			auto iexpr = node.initExpr_->accept(exprvisitor_);
+			auto iexpr = node.initExpr_->accept(*this);
 			symtab_->declareValue(
 				node.vattr_,
 				iexpr
@@ -37,21 +37,4 @@ FVal RTStmtVisitor::visit(ASTVarDeclStmt & node)
 		}
 	}
 	return FVal(); // does not return anything.
-}
-
-FVal RTStmtVisitor::visit(ASTExpr & node)
-{
-	node.accept(exprvisitor_);
-	return FVal();
-}
-
-void RTStmtVisitor::setSymbolsTable(std::shared_ptr<SymbolsTable> symtab)
-{
-	symtab_ = symtab;
-	exprvisitor_.setSymbolsTable(symtab_);
-}
-
-bool RTStmtVisitor::isSymbolsTableAvailable() const
-{
-	return symtab_ ? true : false;
 }

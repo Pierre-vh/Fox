@@ -36,6 +36,8 @@ namespace Moonshot
 			template<typename T>
 			inline std::size_t visitAndGetResult(std::unique_ptr<T>& node,const parse::direction& dir = parse::direction::UNKNOWNDIR)
 			{
+				// curdir is a variable that's there to help some function behave. Like
+				// the ASTVarcall function overload that can use this to check if the variable is the subject of an assignement!
 				curdir_ = dir;
 				node->accept(*this);
 				curdir_ = parse::direction::UNKNOWNDIR; 

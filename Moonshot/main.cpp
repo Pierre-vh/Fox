@@ -3,7 +3,11 @@
 #include "tests\testers\Tester.h"
 
 using namespace Moonshot;
-
+/*
+	TO DO NEXt :
+		-> Blocks (parse Stmt in loop) -> parser + ast structure + evaluation structure (try to make a default in each visitior with a loop that calls visit on each member)
+		-> Control flow
+*/
 int main()
 {
 	
