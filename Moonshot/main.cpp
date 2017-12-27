@@ -15,17 +15,22 @@ int main()
 		std::cout << "Test failed" << std::endl;
 		flag = false;
 	}
-	else if (!BasicTests::run_expressionTests(false))
+	else if (!BasicTests::run_expressionTests(true))
 	{
 		std::cout << "Test failed" << std::endl;
 		flag = false;
 	}
-	else if (!BasicTests::run_expressionStmtTests(false))
+	else if (!BasicTests::run_expressionStmtTests(true))
 	{
 		std::cout << "Test failed" << std::endl;
 		flag = false;
 	}
 	else if (!BasicTests::run_varDeclStmtTests(false))
+	{
+		std::cout << "Test failed" << std::endl;
+		flag = false;
+	}
+	else if (!StmtTest::runVarStmtTests(false))
 	{
 		std::cout << "Test failed" << std::endl;
 		flag = false;

@@ -45,6 +45,8 @@ namespace Moonshot
 			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 7); // Go from lowest priority to highest !
 			std::unique_ptr<ASTExpr> parseTerm();
 			std::unique_ptr<ASTExpr> parseValue();
+				// Callables
+			std::unique_ptr<ASTExpr> parseCallable(); // values/functions calls.
 
 			// STMT
 			std::unique_ptr<IASTStmt> parseStmt();
@@ -62,7 +64,7 @@ namespace Moonshot
 			std::unique_ptr<ASTExpr> oneUpNode(std::unique_ptr<ASTExpr> &node, const parse::optype &op = parse::optype::PASS);
 			// matchToken -> returns true if the token is matched, and increment pos, if the token isn't matched return false and don't increment
 			// MATCH BY TYPE OF TOKEN
-			bool matchValue(const lex::values &v);		// match a TT_VALUE
+			std::pair<bool,token> matchValue();		// match a TT_VALUE
 			std::pair<bool, std::string> matchID();
 			bool matchSign(const lex::signs &s);
 			bool matchKeyword(const lex::keywords &k);

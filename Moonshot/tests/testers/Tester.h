@@ -10,6 +10,9 @@
 #include "../../src/Moonshot/Fox/AST/Visitor/Dumper/Dumper.h"
 #include "../../src/Moonshot/Fox/AST/CompTime/Semantic/TypeCheck.h"
 #include "../../src/Moonshot/Fox/AST/Runtime/Expr/RTExprVisitor.h"
+#include "../../src/Moonshot/Fox/AST/Runtime/Stmt/RTStmtVisitor.h"
+
+#include "../../src/Moonshot/Common/Symbols/Symbols.h"
 
 #include <iostream>
 #include <string>
@@ -33,6 +36,10 @@ namespace Moonshot
 		constexpr char kTitleSpacerChar = char(254);
 		constexpr std::size_t title_pad = 10; // the space to the left and right of the title
 		void printTitle(const std::string& title);
+	}
+	namespace StmtTest
+	{
+		bool runVarStmtTests(const bool& printAST = true);
 	}
 	namespace BasicTests
 	{

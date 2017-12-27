@@ -59,7 +59,7 @@ bool Moonshot::BasicTests::run_expressionTests(const bool& printAST)
 
 	// Prepare vectors
 	TH_IVIS_VEC ct_visitors;
-	ct_visitors.emplace_back(std::make_unique<TypeCheck>());
+	ct_visitors.emplace_back(std::make_unique<TypeCheck>(true /*test mode on*/));
 	if(printAST)	ct_visitors.emplace_back(std::make_unique<Dumper>());
 
 	TH_RTVIS_VEC rt_visitors;
@@ -104,7 +104,7 @@ bool BasicTests::run_expressionStmtTests(const bool& printAST)
 
 	// Prepare vectors
 	TH_IVIS_VEC ct_visitors;
-	ct_visitors.emplace_back(std::make_unique<TypeCheck>());
+	ct_visitors.emplace_back(std::make_unique<TypeCheck>(true /*test mode on*/));
 	if (printAST)	ct_visitors.emplace_back(std::make_unique<Dumper>());
 
 	TH_RTVIS_VEC rt_visitors;
@@ -171,6 +171,52 @@ bool BasicTests::run_varDeclStmtTests(const bool& printAST)
 	return true;
 }
 
+bool Moonshot::StmtTest::runVarStmtTests(const bool& printAST)
+{
+	E_RESETSTATE;
+	// Var Decl tests
+	// ASTVisitors needed :  TypeCheck,Dumper,RTStmtVisitor
+	// Parser entry point : parseStmt, looped for each lines.
+	Test_CommonUtilities::printTitle("VAR-RELATED STATEMENTS TESTS.");
+	auto tests_correct = TesterHelper::readFile_individualLines(
+		util::filepath_MoonshotProj("\\tests\\varstmts\\varstmts_correct.fox")
+	);
+	// dump file
+	std::cout << "File:" << std::endl;
+	for (auto& elem : tests_correct)
+		std::cout << "\t" << elem << std::endl;
+
+	std::shared_ptr<SymbolsTable> symTab = std::make_shared<SymbolsTable>();
+
+	TH_IVIS_VEC ct_visitors;
+	ct_visitors.emplace_back(std::make_unique<TypeCheck>(true /*test mode on*/));
+	if (printAST) ct_visitors.emplace_back(std::make_unique<Dumper>());
+
+
+	std::unique_ptr<IRTVisitor> rt_visitor = std::make_unique<RTStmtVisitor>(symTab);
+
+	for (auto& elem : tests_correct)
+	{
+		Lexer l;
+		l.lexStr(elem);
+		if (!E_CHECKSTATE) { std::cout << "Test failed @ lexing" << std::endl; return false; }
+		Parser p(&l);
+		auto res = p.parseStmt();
+		if (!E_CHECKSTATE) { std::cout << "Test failed @ parsing" << std::endl; return false; }
+		// Accept each ct_visitors
+		for (auto& vis : ct_visitors)
+		{
+			res->accept(*vis);
+		}
+		if (!E_CHECKSTATE) { std::cout << "Test failed @ compile time" << std::endl; return false; }
+		// Accept rt_vis
+		res->accept(*rt_visitor);
+		if (!E_CHECKSTATE) { std::cout << "Test failed @ runtime" << std::endl; return false; }
+	}
+	symTab->dumpSymbolsTable();
+	return true;
+}
+
 
 std::string TesterHelper::readFile(const std::string & fp)
 {
@@ -232,7 +278,8 @@ bool TesterHelper::standardTest(const std::string &str,
 	std::unique_ptr<IASTNode> root = fn(&parsr); // call parser entry point
 
 	if (!E_CHECKSTATE) return shouldFail;
-
+	if (!root) // Parsing failed (no rule matched)
+		return shouldFail;
 	E_SET_ERROR_CONTEXT("COMPILE_TIME");
 	for (auto& ivis : ct_vis)	// run IVIsitors
 	{

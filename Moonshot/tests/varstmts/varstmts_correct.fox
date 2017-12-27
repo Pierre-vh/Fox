@@ -1,0 +1,7 @@
+let pi : float = 3.1415;
+let val1 : float;
+let val2  : float;
+val2 = val1 = pi = 22/7;
+let foo : string = "Foo" + ("bar");
+let foob : const string = foo;
+foo = foob;

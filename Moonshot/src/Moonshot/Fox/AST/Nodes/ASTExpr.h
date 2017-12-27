@@ -49,12 +49,12 @@ namespace Moonshot
 		private:
 			DISALLOW_COPY_AND_ASSIGN(ASTExpr)
 	};
-	struct ASTValue : public ASTExpr
+	struct ASTRawValue : public ASTExpr // Stores hard coded constants. 3+3 -> 3 are Hard coded constants.
 	{
 		public:
-			ASTValue();
-			ASTValue(const token &t);
-			~ASTValue();
+			ASTRawValue();
+			ASTRawValue(const token &t);
+			~ASTRawValue();
 
 			void accept(IVisitor& vis) override;
 			FVal accept(IRTVisitor& vis) override;
@@ -64,7 +64,23 @@ namespace Moonshot
 			FVal val_;
 
 		private:
-			DISALLOW_COPY_AND_ASSIGN(ASTValue)
+			DISALLOW_COPY_AND_ASSIGN(ASTRawValue)
+	};
+	struct ASTVarCall : public ASTExpr // Store var calls : foo+3 -> foo is a var call;
+	{
+		public:
+			ASTVarCall();
+			ASTVarCall(const std::string& vname);
+			~ASTVarCall();
+
+			void accept(IVisitor& vis) override;
+			FVal accept(IRTVisitor& vis) override;
+			
+			//The varattr, which serves as a "reference" to the variable stored.
+			std::string varname_ = "";
+
+		private:
+			DISALLOW_COPY_AND_ASSIGN(ASTVarCall)
 	};
 }
 

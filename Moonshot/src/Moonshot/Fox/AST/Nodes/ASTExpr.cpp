@@ -85,12 +85,12 @@ void ASTExpr::swapChildren()
 	std::swap(left_, right_);
 }
 
-ASTValue::ASTValue()
+ASTRawValue::ASTRawValue()
 {
 
 }
 
-ASTValue::ASTValue(const token & t)
+ASTRawValue::ASTRawValue(const token & t)
 {
 	try
 	{
@@ -112,18 +112,40 @@ ASTValue::ASTValue(const token & t)
 	}
 }
 
-void ASTValue::accept(IVisitor& vis)
+void ASTRawValue::accept(IVisitor& vis)
 {
 	vis.visit(*this);
 }
-FVal ASTValue::accept(IRTVisitor& vis)
+FVal ASTRawValue::accept(IRTVisitor& vis)
 {
 	return vis.visit(*this);
 }
 
-ASTValue::~ASTValue()
+ASTRawValue::~ASTRawValue()
+{
+
+}
+// VCalls
+
+ASTVarCall::ASTVarCall()
+{
+}
+
+ASTVarCall::ASTVarCall(const std::string& vname) : varname_(vname)
+{
+}
+
+ASTVarCall::~ASTVarCall()
 {
 
 }
 
+void ASTVarCall::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
 
+FVal ASTVarCall::accept(IRTVisitor & vis)
+{
+	return vis.visit(*this);
+}

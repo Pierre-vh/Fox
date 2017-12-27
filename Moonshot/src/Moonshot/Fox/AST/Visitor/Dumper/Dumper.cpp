@@ -41,7 +41,7 @@ void Dumper::visit(ASTExpr & node)
 	}
 }
 
-void Dumper::visit(ASTValue & node)
+void Dumper::visit(ASTRawValue & node)
 {
 	std::cout << tabs() << char(192) << "ExprValue: " << dumpFVal(node.val_) << std::endl;
 }
@@ -57,6 +57,11 @@ void Dumper::visit(ASTVarDeclStmt & node)
 		node.initExpr_->accept(*this);
 		tabcount -= 2;
 	}
+}
+
+void Dumper::visit(ASTVarCall & node)
+{
+	std::cout << tabs() << char(192) << "VarCall: name: " << node.varname_ << std::endl;
 }
 
 std::string Dumper::tabs() const

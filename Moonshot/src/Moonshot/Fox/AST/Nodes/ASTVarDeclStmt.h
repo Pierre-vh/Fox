@@ -4,6 +4,7 @@
 #include "ASTExpr.h"
 
 #include "../../../Common/Types/Types.h"
+#include "../Visitor/Dumper/Dumper.h"
 
 #include <string> // std::string
 #include <memory> // std::unique_ptr, std::make_unique

@@ -7,6 +7,9 @@ RTExprVisitor::RTExprVisitor()
 {
 }
 
+RTExprVisitor::RTExprVisitor(std::shared_ptr<SymbolsTable> symtab) : symtab_(symtab)
+{
+}
 
 RTExprVisitor::~RTExprVisitor()
 {
@@ -37,18 +40,53 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 			E_CRITICAL("Critical error: Attempted to concat values while one of them wasn't a string.");
 		}
 	}
+	else if (node.op_ == parse::optype::ASSIGN)
+	{
+		if (isSymbolsTableAvailable())
+		{
+			auto left_res = node.left_->accept(*this);
+			auto right_res = node.right_->accept(*this);
+			if ((left_res.index() == fval_vattr) && isValue(right_res.index()))
+			{
+				symtab_->setValue(
+					std::get<var::varattr>(left_res).name,
+					right_res
+				);
+				return right_res;
+			}
+			else
+				E_ERROR("Impossible assignement between " + dumpFVal(left_res) + " and " + dumpFVal(right_res));
+		}
+		else
+			E_LOG("Can't perform assignement operations when the symbols table is unavailable.");
+	}
 	else if (node.op_ == parse::optype::CAST)
 		return ch.castTo(node.totype_ , node.left_->accept(*this));
 	else if (node.op_ == parse::optype::PASS)
 	{
 		if (!node.left_)
 			E_CRITICAL("Tried to pass a value to parent node, but the node did not have a left_ child.");
-
-		return node.left_->accept(*this);
+		else 
+			return node.left_->accept(*this);
 	}
 	else if (node.op_ == parse::optype::ASSIGN)
 	{
-		std::cout << "/!\\/!\\ASSIGNEMENT OPERATOR IS NOT YET IMPLEMENTED : " << __FILE__ << " @ line " << __LINE__ << std::endl;
+		if (isSymbolsTableAvailable())
+		{
+			auto vattr = node.left_->accept(*this);
+			if (vattr.index() == fval_vattr)
+			{
+				// Perform assignement
+				std::string vname = std::get<var::varattr>(vattr).name;
+				symtab_->setValue(vname, node.right_->accept(*this));
+			}
+			else
+				E_CRITICAL("Can't assign a value if lhs isn't a variable !");
+		}
+		else
+		{
+			E_LOG("Can't perform assignement operations when the symbols table isn't available.");
+		}
 	}
 	else if (parse::isComparison(node.op_))
 	{
@@ -123,9 +161,25 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 	return FVal();
 }
 
-FVal RTExprVisitor::visit(ASTValue & node)
+FVal RTExprVisitor::visit(ASTRawValue & node)
 {
 	return node.val_;
+}
+
+FVal RTExprVisitor::visit(ASTVarCall & node)
+{
+	if (isSymbolsTableAvailable())
+		return symtab_->retrieveVarAttr(node.varname_);
+	else
+	{
+		E_LOG("Can't retrieve values if the symbols table is not available.");
+		return FVal();
+	}
+}
+
+void RTExprVisitor::setSymbolsTable(std::shared_ptr<SymbolsTable> symtab)
+{
+	symtab_ = symtab;
 }
 
 double RTExprVisitor::fvalToDouble(const FVal & fval)
@@ -239,6 +293,11 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 				E_CRITICAL("Switch defaulted. Unimplemented type?");
 			return false;
 	}
+}
+
+bool RTExprVisitor::isSymbolsTableAvailable() const
+{
+	return (symtab_ ? true : false);
 }
 
 template<typename GOAL, typename VAL, bool isGOALstr, bool isVALstr>

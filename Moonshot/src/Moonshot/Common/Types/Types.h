@@ -69,6 +69,7 @@ namespace Moonshot
 
 		bool isBasic(const std::size_t& t); // Is the type a string/bool/char/int/float ?
 		bool isArithmetic(const std::size_t& t);
+		bool isValue(const std::size_t& t);
 
 		bool canAssign(const std::size_t &lhs, const std::size_t &rhs); // Checks if the lhs and rhs are compatible.
 																		// Compatibility : 
@@ -112,8 +113,6 @@ namespace Moonshot
 			{ fval_vattr			, "VAR_ATTR (ref)"},
 			{ invalid_index			, "!INVALID_FVAL!" }
 		};
-
-		std::string indexToStr(const std::size_t& index);
 	}
 
 	namespace var
@@ -135,6 +134,16 @@ namespace Moonshot
 		inline bool operator < (const varattr& lhs, const varattr& rhs)
 		{
 			return lhs.name < rhs.name; // We don't care about the rest, because you can only use a name once.
+		}
+		inline bool operator == (const varattr& lhs, const varattr& rhs)
+		{
+			return (lhs.name == rhs.name) &&
+				(lhs.isConst == rhs.isConst) &&
+				(lhs.type == rhs.type);
+		}
+		inline bool operator != (const varattr& lhs, const varattr& rhs)
+		{
+			return !(lhs == rhs);
 		}
 	}
 }

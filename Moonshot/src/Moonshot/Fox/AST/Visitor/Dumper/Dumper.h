@@ -16,9 +16,9 @@ namespace Moonshot
 			~Dumper();
 
 			virtual void visit(ASTExpr & node) override;
-			virtual void visit(ASTValue & node) override;
+			virtual void visit(ASTRawValue & node) override;
 			virtual void visit(ASTVarDeclStmt & node) override;
-
+			virtual void visit(ASTVarCall & node) override;
 		private:
 			std::string tabs() const;
 			unsigned int tabcount = 1;

@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Moonshot\Fox\AST\Runtime\Stmt\RTStmtVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Common\Symbols\Symbols.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.cpp" />
@@ -162,13 +163,16 @@
     <None Include="tests\exprstmt\exprstmt_correct.fox" />
     <None Include="tests\expr\expr_bad.fox" />
     <None Include="tests\lexer\lexer_bad.fox" />
+    <None Include="tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Moonshot\Fox\AST\Runtime\Stmt\RTStmtVisitor.h" />
     <ClInclude Include="src\Moonshot\Common\Macros.h" />
     <ClInclude Include="src\Moonshot\Common\Options.h" />
     <ClInclude Include="src\Moonshot\Common\Symbols\Symbols.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\NodesForwardDeclaration.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Runtime\Expr\RTExprVisitor.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Runtime\IRTVisitor.h" />
     <ClInclude Include="tests\testers\Tester.h" />

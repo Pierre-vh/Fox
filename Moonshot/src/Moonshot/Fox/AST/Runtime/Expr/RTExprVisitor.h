@@ -1,8 +1,8 @@
 #pragma once
-//utils
 #include "../../../../Common/Utils/Utils.h"
 #include "../../../../Common/Errors/Errors.h"
 #include "../../../../Common/Types/Types.h"
+#include "../../../../Common/Symbols/Symbols.h"
 
 #include "../../Nodes/ASTExpr.h"
 #include "../../Nodes/ASTVarDeclStmt.h"
@@ -13,20 +13,22 @@
 #include <cmath>		// C++ math operations
 #include <variant>		// holds_alternative
 
-// Necessary?
-//#include <variant> // std::bad_variant_access
 
 namespace Moonshot
 {
 	class RTExprVisitor : public IRTVisitor
 	{
 		public:
+			RTExprVisitor(std::shared_ptr<SymbolsTable> symtab);
 			RTExprVisitor();
 			~RTExprVisitor();
 
-			// Inherited via IRTVisitor
 			virtual FVal visit(ASTExpr & node) override;
-			virtual FVal visit(ASTValue & node) override;
+			virtual FVal visit(ASTRawValue & node) override;
+			virtual FVal visit(ASTVarCall & node) override;
+
+			void setSymbolsTable(std::shared_ptr<SymbolsTable> symtab);
+
 		private:
 			double fvalToDouble(const FVal &fval);
 			bool compareVal(const parse::optype &op, const FVal &l, const FVal &r);
@@ -34,6 +36,10 @@ namespace Moonshot
 			double performOp(const parse::optype& op, double l, double r);
 		
 			bool fitsInValue(const std::size_t& typ, const double &d); // Determines if we should convert the result to a float when making an operation to avoid loss of information
+		
+			bool isSymbolsTableAvailable() const;
+			std::shared_ptr<SymbolsTable> symtab_;
+
 			class castHelper
 			{
 				public:

@@ -91,8 +91,9 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		// If parsing was ok : 
 		var::varattr v_attr(varName, varType, isVarConst);
 		if (initExpr) // Has init expr?
-			return std::make_unique<ASTVarDeclStmt>(v_attr,initExpr);
-		return std::make_unique<ASTVarDeclStmt>(v_attr,NULL_UNIPTR(ASTExpr));
+			return std::make_unique<ASTVarDeclStmt>(v_attr, initExpr);
+		else
+			return std::make_unique<ASTVarDeclStmt>(v_attr,NULL_UNIPTR(ASTExpr));
 	}
 	return NULL_UNIPTR(IASTStmt);
 }

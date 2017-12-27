@@ -3,10 +3,14 @@
 using namespace Moonshot;
 using namespace fv_util;
 
-TypeCheck::TypeCheck()
+TypeCheck::TypeCheck(const bool& testmode) // if no symbols table
 {
+	if(testmode)
+	symtable_.declareValue(
+		var::varattr("TESTVALUE", fval_int, false),
+		FVal(0)
+	);
 }
-
 
 TypeCheck::~TypeCheck()
 {
@@ -18,6 +22,8 @@ void TypeCheck::visit(ASTExpr & node)
 {
 	if (!E_CHECKSTATE) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
 		return;
+	//// SET CUROP
+	curop_ = node.op_;
 	//////////////////////////////////
 	/////NODES WITH 2 CHILDREN////////
 	//////////////////////////////////
@@ -25,19 +31,23 @@ void TypeCheck::visit(ASTExpr & node)
 	{
 		// VISIT BOTH CHILDREN
 		// get left expr result type
-		auto left = visitAndGetResult(node.left_);
+		auto left = visitAndGetResult(node.left_,parse::direction::LEFT);
 		// get right expr result type
-		auto right = visitAndGetResult(node.right_);
-		// CHECK IF THIS IS A CONCAT OP,CONVERT IT 
+		auto right = visitAndGetResult(node.right_, parse::direction::RIGHT);
+		// SPECIAL CHECK 1: CHECK IF THIS IS A CONCAT OP,CONVERT IT 
 		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right)  && (node.op_ == parse::ADD))
 			node.op_ = parse::CONCAT;
-		// CREATE HELPER
 		// CHECK VALIDITY OF EXPRESSION
 		rtr_type_ = getExprResultType(
 				node.op_
 			,	left		
 			,	right
 			);
+		// IF ASSIGNEMENT : CHECK IF NOT CONST USING THE SYMBOLS TABLE
+		if (node.op_ == parse::ASSIGN)
+		{
+		
+		}
 	}
 	/////////////////////////////////////////
 	/////NODES WITH ONLY A LEFT CHILD////////
@@ -93,14 +103,9 @@ void TypeCheck::visit(ASTExpr & node)
 	}
 }
 
-void TypeCheck::visit(ASTValue & node)
+void TypeCheck::visit(ASTRawValue & node)
 {
 	rtr_type_ = node.val_.index();		// Just put the value in rtr->type.
-}
-
-std::size_t TypeCheck::getReturnTypeOfExpr() const
-{
-	return rtr_type_;
 }
 
 void TypeCheck::visit(ASTVarDeclStmt & node)
@@ -109,24 +114,52 @@ void TypeCheck::visit(ASTVarDeclStmt & node)
 	if (node.initExpr_) // If the node has an initExpr.
 	{
 		// get the init expression type.
-		node.initExpr_->accept(*this);
-		auto iexpr_type = rtr_type_;
+		auto iexpr_type = visitAndGetResult(node.initExpr_);
 		// check if it's possible.
 		if (!canAssign(
 			node.vattr_.type,
 			iexpr_type
 		))
 		{
-			E_ERROR("Can't perform initialization of variable \"" + node.vattr_.name + "\"");
+			E_ERROR("Can't perform initialization of variable \"" + node.vattr_.name + "\". Type of initialization expression is unassignable to the desired variable type.");
 		}
 	}
-	// Else, sadly, we can't really check anything more @ compile time.
+	symtable_.declareValue(
+		node.vattr_,
+		getSampleFValForIndex(node.vattr_.type) // Using a sample fval, so we don't need to store any "real" values in there.
+	);
+}
+
+void TypeCheck::visit(ASTVarCall & node)
+{
+	auto searchResult = symtable_.retrieveVarAttr(node.varname_);
+	if ((curdir_ == parse::direction::LEFT) && (curop_ == parse::optype::ASSIGN) && searchResult.isConst)
+	{
+		E_ERROR("Can't assign a value to const variable \"" + searchResult.name + "\"");
+		rtr_type_ = invalid_index;
+	}
+	else
+		rtr_type_ =  searchResult.type; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
 std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& lhs, const std::size_t& rhs)
 {
+	if (!E_CHECKSTATE) // If an error was thrown earlier, just return. 
+		return invalid_index;
 	// first, quick, simple check : we can only verify results between 2 basic types.
-	if (isBasic(lhs) && isBasic(rhs))
+	if (op == parse::ASSIGN)
+	{
+		if (canAssign(lhs, rhs))
+			return lhs; // Assignements return the value  of the lhs.
+		else
+		{
+			std::stringstream output;
+			output << "Can't assign a (lhs)" << indexToTypeName(lhs) << " to a (rhs)" << indexToTypeName(rhs) << std::endl;
+			E_ERROR(output.str());
+			return invalid_index;
+		}
+	}
+	else if (isBasic(lhs) && isBasic(rhs))
 	{
 		if (lhs == rhs) // Both sides are identical
 		{
@@ -167,10 +200,9 @@ std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& l
 	}
 	else // One of the types is a non-basic type.
 	{
-		if (lhs == fval_vattr)
-			E_ERROR("Assignements aren't supported by the typechecker just yet.");
-		else 
-			E_ERROR("Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
+		E_ERROR("Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
 		return invalid_index;
 	}
+	E_CRITICAL("getExprResultType() Defaulted.");
+	return invalid_index;
 }

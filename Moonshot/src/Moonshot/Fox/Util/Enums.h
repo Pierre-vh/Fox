@@ -67,7 +67,7 @@ namespace Moonshot
 
 		enum direction
 		{
-			LEFT, RIGHT
+			UNKNOWNDIR,LEFT, RIGHT
 		};
 		const std::map<optype,std::string> kOptype_dict =
 		{

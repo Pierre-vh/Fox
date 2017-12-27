@@ -99,6 +99,11 @@ bool fv_util::isArithmetic(const std::size_t & t)
 	return (isBasic(t) && (t != fval_str));
 }
 
+bool Moonshot::fv_util::isValue(const std::size_t & t)
+{
+	return isBasic(t) || (t == fval_vattr);
+}
+
 bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 {
 	if ((rhs == fval_void) || (lhs == fval_void))
@@ -148,16 +153,6 @@ std::size_t fv_util::typeKWtoSizeT(const lex::keywords & kw)
 	else
 		return invalid_index;
 }
-
-std::string fv_util::indexToStr(const std::size_t & index)
-{
-	auto it = kType_dict.find(index);
-	if (it != kType_dict.end())
-		return it->second;
-	else
-		return "<UNKNOWN>";
-}
-
 // varattr
 
 var::varattr::varattr()

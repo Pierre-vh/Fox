@@ -19,16 +19,18 @@ std::unique_ptr<ASTExpr> Parser::oneUpNode(std::unique_ptr<ASTExpr>& node, const
 	return newnode;
 }
 
-bool Parser::matchValue(const lex::values & v)
+std::pair<bool, token> Parser::matchValue()
 {
 	token t = getToken();
-	if(t.type == lex::TT_VALUE && t.val_type == v)
+	if (t.type == lex::TT_VALUE)
 	{
 		pos_ += 1;
-		return true;
+		return { true,t };
 	}
-	return false;
+	return { false,token() };
 }
+
+
 
 std::pair<bool, std::string> Parser::matchID()
 {

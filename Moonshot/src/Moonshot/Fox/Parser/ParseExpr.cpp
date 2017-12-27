@@ -106,7 +106,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 	// Apply the unary operator (if found) to the node.
 	if (uopResult)
 	{
-		if ((val->op_ != parse::PASS) || (typeid(*val) == typeid(*std::make_unique<ASTValue>()))) // If we already have an operation OR the node is a value
+		if ((val->op_ != parse::PASS) || (typeid(*val) == typeid(*std::make_unique<ASTRawValue>()))) // If we already have an operation OR the node is a value
 			val = oneUpNode(val, uopOp); // One up the node and set the new parent's operation to uopOp
 		else
 			val->op_ = uopOp; // Else, just set the op_ to uopOp;
@@ -123,23 +123,17 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 
 std::unique_ptr<ASTExpr> Parser::parseValue()
 {
-	auto cur = getToken();
 	// if the token is invalid, return directly a null node
-	if (!cur.isValid())
-		return NULL_UNIPTR(ASTExpr);
+
 	// = <const>
-	if (cur.type == lex::tokentype::TT_VALUE) // if we have a value, return it packed in a ASTValue
-	{
-		pos_ += 1;
-		return std::make_unique<ASTValue>(cur);
-	}
+	auto matchValue_result = matchValue();
+	if (matchValue_result.first) // if we have a value, return it packed in a ASTRawValue
+		return std::make_unique<ASTRawValue>(matchValue_result.second);
 	// = '(' <expr> ')'
-	if (matchSign(lex::B_ROUND_OPEN))
+	else if (matchSign(lex::B_ROUND_OPEN))
 	{
 		auto expr = parseExpr(); // Parse the expression inside
-		cur = getToken();		// update current token
-		// check validity of the parsed expression
-		if(!expr)
+		if(!expr) // check validity of the parsed expression
 		{
 			errorExpected("Expected an expression after opening a bracket.");
 			return NULL_UNIPTR(ASTExpr);
@@ -152,9 +146,19 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 		}
 		return expr;
 	}
+	else if (auto node = parseCallable()) // Callable?
+		return node;
 	// TO DO :
-	// <callable>
-	errorUnexpected();
+	// f_call
+	return NULL_UNIPTR(ASTExpr);
+}
+
+std::unique_ptr<ASTExpr> Parser::parseCallable()
+{
+	// = <id>
+	auto result = matchID();
+	if (result.first)
+		return std::make_unique<ASTVarCall>(result.second);
 	return NULL_UNIPTR(ASTExpr);
 }
 
