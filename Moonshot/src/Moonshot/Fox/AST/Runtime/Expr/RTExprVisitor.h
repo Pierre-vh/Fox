@@ -36,23 +36,18 @@ namespace Moonshot
 			double performOp(const parse::optype& op, double l, double r);
 		
 			bool fitsInValue(const std::size_t& typ, const double &d); // Determines if we should convert the result to a float when making an operation to avoid loss of information
-		
-			bool isSymbolsTableAvailable() const;
+			
 			std::shared_ptr<SymbolsTable> symtab_;
+			bool isSymbolsTableAvailable() const;
 		private:
-			class castHelper
-			{
-				public:
-					FVal castTo(const std::size_t& goal, const FVal& val);
-					FVal castTo(const std::size_t& goal, const double &val);
-				private:
-					template<typename GOAL,typename VAL, bool isGOALstr = std::is_same<GOAL,std::string>::value,bool isVALstr = std::is_same<VAL,std::string>::value>
-					std::pair<bool, FVal> castTypeTo(const GOAL& type,VAL v); 
+			FVal castTo(const std::size_t& goal, FVal val);
+			FVal castTo(const std::size_t& goal, const double &val);
 
-					template<typename GOAL>
-					std::pair<bool, FVal> castTypeTo(const GOAL& type,double v);
-					
-			};
+			template<typename GOAL,typename VAL, bool isGOALstr = std::is_same<GOAL,std::string>::value,bool isVALstr = std::is_same<VAL,std::string>::value>
+			std::pair<bool, FVal> castTypeTo(const GOAL& type,VAL v); 
+
+			template<typename GOAL>
+			std::pair<bool, FVal> castTypeTo(const GOAL& type,double v);
 	};
 
 }

@@ -3,7 +3,7 @@
 using namespace Moonshot;
 using namespace fv_util;
 
-TypeCheck::TypeCheck(const bool& testmode) // if no symbols table
+TypeCheck::TypeCheck(const bool& testmode)
 {
 	if(testmode)
 	symtable_.declareValue(
@@ -43,11 +43,6 @@ void TypeCheck::visit(ASTExpr & node)
 			,	left		
 			,	right
 			);
-		// IF ASSIGNEMENT : CHECK IF NOT CONST USING THE SYMBOLS TABLE
-		if (node.op_ == parse::ASSIGN)
-		{
-		
-		}
 	}
 	/////////////////////////////////////////
 	/////NODES WITH ONLY A LEFT CHILD////////
@@ -55,11 +50,16 @@ void TypeCheck::visit(ASTExpr & node)
 	else if(node.left_)// We only have a left node
 	{
 		// CAST NODES
-		if (node.op_ == parse::CAST) // this is a cast node, so the return type is the one of the cast node. We still visit child nodes tho
+		if (node.op_ == parse::CAST) // check validity of cast
 		{
-			// JUST VISIT CHILD & SET RTRTYPE TO THE CAST GOAL
-			node.left_->accept(*this);
-			rtr_type_ = node.totype_;
+			auto result = visitAndGetResult(node.left_);
+			if (!canCastTo(node.totype_, result))
+			{
+				E_ERROR("Can't perform cast : " + indexToTypeName(result) + " to " + indexToTypeName(node.totype_));
+				rtr_type_ = invalid_index;
+			}
+			else
+				rtr_type_ = node.totype_;
 		}
 		// UNARY OPS
 		else if (parse::isUnary(node.op_))
@@ -128,6 +128,7 @@ void TypeCheck::visit(ASTVarDeclStmt & node)
 		node.vattr_,
 		getSampleFValForIndex(node.vattr_.type) // Using a sample fval, so we don't need to store any "real" values in there.
 	);
+	// returns nothing
 }
 
 void TypeCheck::visit(ASTVarCall & node)
@@ -138,7 +139,7 @@ void TypeCheck::visit(ASTVarCall & node)
 		E_ERROR("Can't assign a value to const variable \"" + searchResult.name + "\"");
 		rtr_type_ = invalid_index;
 	}
-	else
+	else 
 		rtr_type_ =  searchResult.type; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
@@ -154,7 +155,7 @@ std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& l
 		else
 		{
 			std::stringstream output;
-			output << "Can't assign a (lhs)" << indexToTypeName(lhs) << " to a (rhs)" << indexToTypeName(rhs) << std::endl;
+			output << "Can't assign a " << indexToTypeName(rhs) << " to a variable of type " << indexToTypeName(lhs) << std::endl;
 			E_ERROR(output.str());
 			return invalid_index;
 		}

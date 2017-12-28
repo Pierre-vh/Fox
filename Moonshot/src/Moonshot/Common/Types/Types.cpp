@@ -126,6 +126,17 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 	return true;
 }
 
+bool fv_util::canCastTo(const std::size_t & goal, const std::size_t & basetype)
+{
+	if (isArithmetic(basetype)) // base type is arithmetic
+		return isBasic(goal); // arithmetic type -> basic type, allowed (even to strings)
+	else if (basetype == fval_str) // base type is a string
+		return goal == fval_str; // Strings can only be converted to strings (useless convertion anyway).
+	else if (basetype == fval_vattr) // converting a variable ?
+		return isBasic(goal); // Only to basic types !
+	return false;
+}
+
 std::size_t fv_util::getBiggest(const std::size_t & lhs, const std::size_t & rhs)
 {
 	if (isArithmetic(lhs) && isArithmetic(rhs))

@@ -18,8 +18,6 @@ RTExprVisitor::~RTExprVisitor()
 FVal RTExprVisitor::visit(ASTExpr & node)
 {
 	if (!E_CHECKSTATE) return FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
-
-	castHelper ch;
 	if (node.op_ == parse::optype::CONCAT)
 	{
 		try
@@ -54,14 +52,14 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 				);
 				return right_res;
 			}
-			else
+			else if(E_CHECKSTATE)
 				E_ERROR("Impossible assignement between " + dumpFVal(left_res) + " and " + dumpFVal(right_res));
 		}
 		else
 			E_LOG("Can't perform assignement operations when the symbols table is unavailable.");
 	}
 	else if (node.op_ == parse::optype::CAST)
-		return ch.castTo(node.totype_ , node.left_->accept(*this));
+		return castTo(node.totype_ , node.left_->accept(*this));
 	else if (node.op_ == parse::optype::PASS)
 	{
 		if (!node.left_)
@@ -141,7 +139,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		else
 		{
 			lval = -lval; // Negate the number
-			return ch.castTo(node.totype_, lval);		// Cast to result type
+			return castTo(node.totype_, lval);		// Cast to result type
 		}
 	}
 	else
@@ -154,9 +152,9 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		const double result = performOp(node.op_, dleftval, drightval);
 
 		if (fitsInValue(node.totype_, result) || (node.op_ == parse::CAST)) // If the results fits or we desire to cast the result
-			return ch.castTo(node.totype_, result);		// Cast to result type
+			return castTo(node.totype_, result);		// Cast to result type
 		else
-			return ch.castTo(fval_float, result);	// Cast to float instead to keep information from being lost.
+			return castTo(fval_float, result);	// Cast to float instead to keep information from being lost.
 	}
 	return FVal();
 }
@@ -301,16 +299,23 @@ bool RTExprVisitor::isSymbolsTableAvailable() const
 }
 
 template<typename GOAL, typename VAL, bool isGOALstr, bool isVALstr>
-std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL v)
+std::pair<bool, FVal> RTExprVisitor::castTypeTo(const GOAL& type,VAL v)
 {
 	if constexpr (!fval_traits<GOAL>::isBasic || !fval_traits<VAL>::isBasic)
 		E_CRITICAL("Can't cast a basic type to a nonbasic type and vice versa.");
 	else if constexpr((std::is_same<GOAL, VAL>::value) || (isGOALstr && isVALstr)) // Direct conversion
 		return { true , FVal(v) };
+	else if constexpr (isGOALstr && !isVALstr)
+	{
+		// Casting an arithmetic type to a string:
+		std::stringstream stream;
+		stream << v;
+		return { true, FVal(stream.str()) };
+	}
 	else if constexpr (isGOALstr != isVALstr) // One of them is a string and the other isn't.
 	{
 		std::stringstream output;
-		output << "Can't convert a string to an arithmetic type and vice versa. Value:" << v << std::endl;
+		output << "Can't convert a string to an arithmetic type and vice versa." << std::endl;
 		E_ERROR(output.str());
 		return { false, FVal() };
 	}
@@ -331,7 +336,7 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL& type,VAL
 }
 
 template<typename GOAL>
-std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL & type,double v)
+std::pair<bool, FVal> RTExprVisitor::castTypeTo(const GOAL & type,double v)
 {
 	if constexpr(std::is_same<GOAL, std::string>::value)
 	{
@@ -345,8 +350,19 @@ std::pair<bool, FVal> RTExprVisitor::castHelper::castTypeTo(const GOAL & type,do
 	return { false,FVal() };
 }
 
-FVal RTExprVisitor::castHelper::castTo(const std::size_t& goal, const FVal & val)
+FVal RTExprVisitor::castTo(const std::size_t& goal, FVal val)
 {
+	if (val.index() == fval_vattr) // if it's a varattr
+	{
+		try
+		{
+			val = symtab_->retrieveValue(std::get<var::varattr>(val).name); // set val as the variable's value !
+		}
+		catch (std::bad_variant_access)
+		{
+			E_CRITICAL("bad_variant_access thrown while attempting to retrieve the content of an FVal tagged as a var_attr! ");
+		}
+	}
 	std::pair<bool, FVal> rtr = std::make_pair<bool, FVal>(false, FVal());
 	std::visit(
 	[&](const auto& a, const auto& b)
@@ -359,11 +375,11 @@ FVal RTExprVisitor::castHelper::castTo(const std::size_t& goal, const FVal & val
 	if (rtr.first)
 		return rtr.second;
 	else
-		E_ERROR("Failed typecast (TODO:Show detailed error message");
+		E_ERROR("Failed typecast (TODO:Show detailed error message)");
 	return FVal();
 }
 
-FVal RTExprVisitor::castHelper::castTo(const std::size_t& goal, const double & val)
+FVal RTExprVisitor::castTo(const std::size_t& goal, const double & val)
 {
 	std::pair<bool, FVal> rtr;
 	std::visit(

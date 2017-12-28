@@ -76,6 +76,8 @@ namespace Moonshot
 																		// Arithmetic type <-> Arithmetic Type = ok
 																		// string <-> string = ok
 																		// else : error.
+		bool canCastTo(const std::size_t &goal, const std::size_t &basetype);
+
 
 		std::size_t getBiggest(const std::size_t &lhs, const std::size_t &rhs);
 
