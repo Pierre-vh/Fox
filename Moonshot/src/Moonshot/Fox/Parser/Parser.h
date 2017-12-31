@@ -45,42 +45,43 @@ namespace Moonshot
 			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 7); // Go from lowest priority to highest !
 			std::unique_ptr<ASTExpr> parseTerm();
 			std::unique_ptr<ASTExpr> parseValue();
-				// Callables
+			// Callables
 			std::unique_ptr<ASTExpr> parseCallable(); // values/functions calls.
 
 			// STMT
 			std::unique_ptr<IASTStmt> parseStmt();
-			
+			// Var Declaration Statement
 			std::unique_ptr<IASTStmt> parseVarDeclStmt();
-			std::tuple<bool, bool, std::size_t> parseTypeSpec(); // Success flag, isConst, type of variable.
-
+				// type spec (for vardecl)
+				std::tuple<bool, bool, std::size_t> parseTypeSpec(); // Success flag, isConst, type of variable.
+			// Expression statement
 			std::unique_ptr<IASTStmt> parseExprStmt();
-
 
 		private:
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,parse::PLUS)
 			// oneUpNode will return a new node X, with the optype PLUS and N as left child.
 			std::unique_ptr<ASTExpr> oneUpNode(std::unique_ptr<ASTExpr> &node, const parse::optype &op = parse::optype::PASS);
-			// matchToken -> returns true if the token is matched, and increment pos, if the token isn't matched return false and don't increment
+			// matchToken -> returns true if the token is matched, and increment pos_, if the token isn't matched return false
 			// MATCH BY TYPE OF TOKEN
-			std::pair<bool,token> matchValue();		// match a TT_VALUE
-			std::pair<bool, std::string> matchID();
-			bool matchSign(const lex::signs &s);
-			bool matchKeyword(const lex::keywords &k);
+			std::pair<bool,token> matchValue();				// match a TT_VALUE
+			std::pair<bool, std::string> matchID();			// match a ID
+			bool matchSign(const lex::signs &s);			// match any signs : ! : * etc.
+			bool matchKeyword(const lex::keywords &k);		// Match any keyword
 
-			bool matchEOI();
+			bool matchEOI();								// Match a EOI, currently a semicolon.
 			
+			// match a type keyword : int, float, etc.
 			std::size_t matchTypeKw();
 			// MATCH OPERATORS
-			std::pair<bool, parse::optype> matchUnaryOp();
-			std::pair<bool, parse::optype> matchBinaryOp(const char &priority);
+			std::pair<bool, parse::optype> matchUnaryOp(); // ! -
+			std::pair<bool, parse::optype> matchBinaryOp(const char &priority); // + - * / % ^ ...
 			// UTILITY METHODS
 			token getToken() const;
 			token getToken(const size_t &d) const;
 			// Make error message 
-			void errorUnexpected();						// generic error message "unexpected token.."
-			void errorExpected(const std::string &s); // generic error message "expected token after.."
+			void errorUnexpected();							// generic error message "unexpected token.."
+			void errorExpected(const std::string &s);		// generic error message "expected token after.."
 			// Member variables
 			size_t pos_ = 0;
 			Lexer *lex_ = 0;

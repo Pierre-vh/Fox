@@ -6,6 +6,7 @@ using namespace Moonshot;
 
 Lexer::Lexer()
 {
+	
 }
 
 Lexer::~Lexer()
@@ -25,7 +26,7 @@ void Lexer::lexStr(const std::string & data)
 		pushTok(); // Push the last token formed, if it's not empty.
 
 	if ((cstate_ == dfa::S1 || cstate_ == dfa::S5) && E_CHECKSTATE) // If we were in the middle of lexing a string/char
-		E_ERROR("Met the end of the file before a closing delimiter for char/strings");
+		reportLexerError("Met the end of the file before a closing delimiter for char/strings");
 
 	if constexpr (LOG_TOTALTOKENSCOUNT)
 		E_LOG("Lexing finished. Tokens found: " + sizeToString(result_.size()));
@@ -71,13 +72,11 @@ void Lexer::cycle()
 {
 	if (!E_CHECKSTATE)
 	{
-		E_ERROR("Errors found : stopping lexing process.");
+		reportLexerError("Errors found : stopping lexing process.");
 		return;
 	}
 	// update position
-	ccoord_.column += 1;
-	if (str_[pos_] == '\n')
-		ccoord_.newLine();
+	ccoord_.forward();
 	// execute appropriate function
 	auto it = kState_dict.find(cstate_);
 	if (it != kState_dict.end())
@@ -85,7 +84,11 @@ void Lexer::cycle()
 		auto fn = it->second;
 		fn(*this);
 	}
-	
+	// update line
+	if (str_[pos_] == '\n')
+	{
+		ccoord_.newLine();
+	}
 }
 
 void Lexer::dfa_S0()
@@ -144,7 +147,7 @@ void Lexer::dfa_S1()
 		dfa_goto(dfa::S0);
 	}
 	else if (c == '\n')
-		E_ERROR("Newline characters (\\n) in string values declarations are illegal.\nToken concerned:" + curtok_);
+		reportLexerError("Newline characters (\\n) in string values declarations are illegal.\nToken concerned:" + curtok_);
 	else
 		addToCurtok(c);
 }
@@ -185,7 +188,7 @@ void Moonshot::Lexer::dfa_S5()
 		dfa_goto(dfa::S0);
 	}
 	else if (c == '\n')
-		E_ERROR("Newline characters (\\n) in char values declarations are illegal.\nToken concerned:" + curtok_);
+		reportLexerError("Newline characters (\\n) in char values declarations are illegal.\nToken concerned:" + curtok_);
 	else
 		addToCurtok(c);
 }
@@ -246,7 +249,14 @@ void Moonshot::Lexer::forward()
 	pos_ += 1;
 }
 
-std::string Moonshot::Lexer::sizeToString(const size_t &s) const
+void Lexer::reportLexerError(const std::string & errmsg) const
+{
+	std::stringstream out;
+	out << errmsg << " at line " << ccoord_.line << std::endl; // Somehow I have to use line-1 to get the correct line count.
+	E_ERROR(out.str());
+}
+
+std::string Lexer::sizeToString(const size_t &s) const
 {
 	std::stringstream ss;
 	ss << s;

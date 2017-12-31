@@ -159,7 +159,7 @@ namespace Moonshot
 		void forward();
 		std::string asText() const;
 
-		int line = 1;
+		int line = 0;
 		int column = 0;
 	};
 	struct token

@@ -36,21 +36,18 @@ namespace Moonshot
 		private:
 			// Private Methods
 
-			// push a token to result_
-			void pushTok();
-			// a dfa cycle
+			void pushTok();					// push token
 			void cycle();					// one dfa "cycle";
-			// DFA state behaviours. I split this into various functions to make the code more readable in the cycle() function.
+			// DFA state functions. I split this into various functions to make the code more readable in the cycle() function.
 			void dfa_S0();
 			void dfa_S1();
 			void dfa_S2();
 			void dfa_S3();
 			void dfa_S4();
 			void dfa_S5();
+			void dfa_goto(const dfa::state &ns); 	// Go to state X
 
-			// Go to another state
-			void dfa_goto(const dfa::state &ns);
-			// Useful functions used in the lexer
+			// Useful functions 
 			char eatChar();										// returns the current char and go forward in the stream (returns str_[pos_] and do pos_+=1)
 			void addToCurtok(const char &c);					// adds the current character to curtok_, except if(isspace())
 			bool isSep(const char &c) const;					// is the current char a separator? (= a sign. see lex::kSign_dict)
@@ -60,6 +57,9 @@ namespace Moonshot
 
 			// This function's job is to increment pos_. Why use it ? Better readability in the code.
 			void forward();
+
+			// error management
+			void reportLexerError(const std::string& errmsg) const;
 
 			// Member Variables
 
@@ -79,9 +79,9 @@ namespace Moonshot
 			bool escapes_ = false;				// escaping with backslash
 			dfa::state cstate_ = dfa::S0;		// curren dfa state. begins at S0;
 			std::string str_;					// the input
-			size_t pos_ = 0;					// position in the input.
+			size_t pos_ = 0;					// position in the input string;
 			std::string curtok_;				// the token that's being constructed.
-			text_pos ccoord_ = text_pos(1,0);	// current coordinates.
+			text_pos ccoord_;					// current coordinates.
 			std::vector<token>	result_;		// the lexer's output !
 	};
 }

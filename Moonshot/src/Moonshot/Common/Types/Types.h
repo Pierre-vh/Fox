@@ -23,6 +23,7 @@ namespace Moonshot
 {
 	namespace fv_util
 	{
+		// FValue traits class, to use with templated functions.
 		template <typename T>
 		struct fval_traits
 		{
@@ -59,14 +60,17 @@ namespace Moonshot
 			}
 		};
 		
-
+		// Dump (debugging) functions
 		std::string dumpFVal(const FVal &var);
 		std::string dumpVAttr(const var::varattr &var);
 
+		// returns a sample fval for an index.
 		FVal getSampleFValForIndex(const std::size_t& t);
 
+		// Get a user friendly name for an index.
 		std::string indexToTypeName(const std::size_t& t);
 
+		// Index utility function
 		bool isBasic(const std::size_t& t); // Is the type a string/bool/char/int/float ?
 		bool isArithmetic(const std::size_t& t);
 		bool isValue(const std::size_t& t);
@@ -76,11 +80,17 @@ namespace Moonshot
 																		// Arithmetic type <-> Arithmetic Type = ok
 																		// string <-> string = ok
 																		// else : error.
+		// This function returns true if the type of basetype can be cast to the type of goal.
 		bool canCastTo(const std::size_t &goal, const std::size_t &basetype);
 
-
+		// returns the type of the biggest of the 2 arguments. 
+		// Example outputs : 
+		// lhs : fval_int
+		// rhs : fval_float
+		// output : fval_float.
 		std::size_t getBiggest(const std::size_t &lhs, const std::size_t &rhs);
 
+		// Variables : Indexes
 		// Thanks, I guess ! This looks healthier than using -1 as invalid index. https://stackoverflow.com/a/37126153
 		static constexpr std::size_t invalid_index = std::numeric_limits<std::size_t>::max();
 		// How to remember values of index
@@ -92,6 +102,7 @@ namespace Moonshot
 		static constexpr std::size_t fval_bool = 5;
 		static constexpr std::size_t fval_vattr = 6;
 
+		// Map for converting type kw to a FVal index.
 		const std::map<lex::keywords, std::size_t> kTypeKwToIndex_dict =
 		{
 			{ lex::T_INT	, fval_int	},

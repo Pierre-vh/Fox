@@ -157,7 +157,7 @@ bool token::idValue()
 	return false;
 }
 
-Moonshot::text_pos::text_pos()
+text_pos::text_pos()
 {
 }
 
@@ -168,8 +168,8 @@ text_pos::text_pos(const int & l, const int & col) : line(l), column(col)
 
 void text_pos::newLine()
 {
-	line += 1;
-//	column = 0;
+	line ++;
+	//	column = 0;
 }
 
 void text_pos::forward()
