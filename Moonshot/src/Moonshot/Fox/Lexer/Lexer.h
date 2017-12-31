@@ -6,6 +6,7 @@
 #include <functional>	// std::function
 #include <sstream>		// std::stringstream (sizeToStr())
 #include <map>			// std::map
+#include <memory>
 #include "../../Common/Errors/Errors.h"
 #include "Token.h"
 #include "../../Common/Options.h"
@@ -20,7 +21,7 @@ namespace Moonshot
 			S0, S1, S2, S3, S4, S5	// the dfa's state.
 		};
 	}
-	class Lexer
+	class Lexer 
 	{
 		public:
 			Lexer();

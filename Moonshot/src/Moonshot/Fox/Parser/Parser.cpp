@@ -3,9 +3,9 @@
 using namespace Moonshot;
 using namespace fv_util;
 
-Parser::Parser(Lexer *l) : lex_(l)
+Parser::Parser(const std::shared_ptr<Lexer>& l)
 {
-
+	lex_ = l;
 }
 
 Parser::~Parser()

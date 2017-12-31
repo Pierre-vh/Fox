@@ -197,10 +197,10 @@ bool Moonshot::StmtTest::runVarStmtTests(const bool& printAST)
 
 	for (auto& elem : tests_correct)
 	{
-		Lexer l;
-		l.lexStr(elem);
+		auto lexr = std::make_shared<Lexer>();
+		lexr->lexStr(elem);
 		if (!E_CHECKSTATE) { std::cout << "Test failed @ lexing" << std::endl; return false; }
-		Parser p(&l);
+		Parser p(lexr);
 		auto res = p.parseStmt();
 		if (!E_CHECKSTATE) { std::cout << "Test failed @ parsing" << std::endl; return false; }
 		// Accept each ct_visitors
@@ -269,12 +269,12 @@ bool TesterHelper::standardTest(const std::string &str,
 	std::cout << Test_CommonUtilities::generateSpacer();
 	std::cout << "Testing str : " << str << std::endl;
 
-	Lexer lexr;
-	lexr.lexStr(str);
+	std::shared_ptr<Lexer> lexr = std::make_shared<Lexer>();
+	lexr->lexStr(str);
 	
 	if (!E_CHECKSTATE) return shouldFail;
 
-	Parser parsr(&lexr);
+	Parser parsr(lexr);
 	std::unique_ptr<IASTNode> root = fn(&parsr); // call parser entry point
 
 	if (!E_CHECKSTATE) return shouldFail;

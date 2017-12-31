@@ -29,14 +29,16 @@
 #include "../AST/Visitor/Dumper/Dumper.h" // Debug use
 
 #include <tuple>	// std::tuple, std::pair
+#include <memory> // std::shared_ptr
 
 #define NULL_UNIPTR(x) std::unique_ptr<x>(nullptr)
+
 namespace Moonshot
 {
 	class Parser
 	{
 		public:
-			Parser(Lexer *l);
+			Parser(const std::shared_ptr<Lexer>& l);
 			~Parser();
 
 			// parseXXX() = "match" the rule XXX (attempts to find it, if it found it, the method will return a valid pointer (if(ptr) will return true). if not, it will return a std::unique_ptr<(TYPE OF NODE)>(nullptr)
@@ -84,6 +86,6 @@ namespace Moonshot
 			void errorExpected(const std::string &s);		// generic error message "expected token after.."
 			// Member variables
 			size_t pos_ = 0;
-			Lexer *lex_ = 0;
+			std::shared_ptr<Lexer> lex_;
 	};
 }
