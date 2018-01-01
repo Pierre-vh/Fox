@@ -17,6 +17,11 @@ using namespace Moonshot;
 			The IR class should be located in /Common/
 			Nothing from Fox should include files from Badger.
 		-> Start work on Badger.
+
+		Temporary visitor order :
+			1. Scope Checking
+			2. Type Checking.
+			(3. Evaluate Constant Expressions)
 */
 int main()
 {

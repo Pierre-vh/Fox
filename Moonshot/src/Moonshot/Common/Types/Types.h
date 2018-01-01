@@ -1,3 +1,16 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Types.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file declares most of the types used in the interpreter.
+// FVal, var_attr, etc.
+// 
+// This file also declares various helper function to analyze said types :
+// fval_traits, isBasic, etc.
+////------------------------------------------------------////
+
 #pragma once
 
 #include <variant> // std::variant

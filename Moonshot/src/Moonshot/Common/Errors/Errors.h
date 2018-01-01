@@ -1,3 +1,13 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Errors.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file declares the Error Singleton Class and Various macros used
+// for error reporting.
+////------------------------------------------------------////
+
 #pragma once
 
 #include <iostream> // cerr

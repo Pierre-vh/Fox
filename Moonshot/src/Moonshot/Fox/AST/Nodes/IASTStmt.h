@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : IASTStmt.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// Base Abstract class for Statement nodes.										
+////------------------------------------------------------////
+
 #pragma once
 
 #include "IASTNode.h"

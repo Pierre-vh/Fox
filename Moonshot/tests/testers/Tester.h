@@ -1,3 +1,14 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Tester.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// Test class.
+//
+// This class runs tests on various components of the interpreter.
+////------------------------------------------------------////
+
 #pragma once
 
 #include "../../src/Moonshot/Fox/Parser/Parser.h"

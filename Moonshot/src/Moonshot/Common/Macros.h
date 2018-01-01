@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Macros.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// Declares useful macros.										
+////------------------------------------------------------////
+
 #pragma once
 // This file defines various useful GENERAL macros.
 // Other macros are defined in their corresponding files, like in Error.h

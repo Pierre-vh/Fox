@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : TypeCheck.cpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			
+////------------------------------------------------------////
+
 #include "TypeCheck.h"
 
 using namespace Moonshot;
@@ -14,9 +23,8 @@ TypeCheck::TypeCheck(const bool& testmode)
 
 TypeCheck::~TypeCheck()
 {
-}
 
-// TODO: Implement Assignement typechecking.
+}
 
 void TypeCheck::visit(ASTExpr & node)
 {

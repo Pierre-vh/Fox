@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : ASTExpr.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// AST nodes for expressions											
+////------------------------------------------------------////
+
 #pragma once
 
 #include "IASTStmt.h"							// Abstract class that every node must inherit from.
@@ -44,7 +53,7 @@ namespace Moonshot
 			// left_ & right_ -> pointers to its children
 			std::size_t totype_ = fv_util::invalid_index;	// By default, don't cast (-1). If this is different , then we must cast the result to the desired type.
 			parse::optype op_ = parse::PASS;
-			std::unique_ptr<ASTExpr> left_ = 0, right_ = 0;
+			std::unique_ptr<ASTExpr> left_, right_;
 
 		private:
 			DISALLOW_COPY_AND_ASSIGN(ASTExpr)

@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : ASTVarDeclStmt.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// The AST Node for Variable Declaration Statements.											
+////------------------------------------------------------////
+
 #pragma once
 
 #include "IASTStmt.h"

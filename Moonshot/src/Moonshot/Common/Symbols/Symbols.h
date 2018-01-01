@@ -1,3 +1,13 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Symbols.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// The Symbols Table class. A Class encapsulating a hashtable (map) used to
+// manipulate the symbols table, and performs various checks on it.
+////------------------------------------------------------////
+
 #pragma once
 
 #include "../Types/Types.h"

@@ -1,3 +1,17 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : RTExprVisitor.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file evaluates Expression trees and retursna  FVal with the result.
+// It's simple ! At first it was used for debugging, but this class might
+// be used in a more definitive version of the project because it could
+// prove itself useful when doing "Constant Folding". 
+// I Just need to check whether the tree is a constant expression 
+// (Only const variable calls and raw values)
+////------------------------------------------------------////
+
 #pragma once
 #include "../../../../Common/Utils/Utils.h"
 #include "../../../../Common/Errors/Errors.h"

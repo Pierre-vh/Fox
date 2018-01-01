@@ -1,21 +1,33 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : TypeCheck.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// TypeCheck visitor.
+// This visitor checks for compatibility between operations :
+// e.g. can't multiply a string with a int
+//
+// This visitor also checks that with variables. It gather informations about them (in symtable_)
+// when they are declared, and when a variable is used it checks if it was declared
+// and if the type is compatible with the current operation.
+////------------------------------------------------------////
+
 #pragma once
+
 #include <string> // std::string
-#include <type_traits> // std::is_same
 #include <sstream> // std::stringstream
-#include <variant> // std::visit
-#include <map>
+#include <map> // std::map
 #include <typeinfo> // typeid
 #include "../../Visitor/IVisitor.h" // base class
 #include "../../../../Common/Types/Types.h" // FVal Utilities
-#include "../../../../Common/Symbols/Symbols.h"
+#include "../../../../Common/Symbols/Symbols.h" // symbols table
+
 // Include nodes
 #include "../../Nodes/ASTExpr.h" 
 #include "../../Nodes/ASTVarDeclStmt.h" 
 #include "../../../Util/Enums.h" // enums
-// Todo : add support for variable:
-// Assignement : check if type of lhs is assignable to the type of the rhs.
-// Declaration : check if the type of the variable declared is assignable to the type of the initexpr.
-// Var use : return the var type.
+
 namespace Moonshot
 {
 	class TypeCheck : public IVisitor
