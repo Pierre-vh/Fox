@@ -1,3 +1,13 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : RTStmtVisitor.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// Runtime visitor for statements.
+// Used for debugging purposes. When the VM will be done, this file
+// will probably be useless.
+////------------------------------------------------------////
 #pragma once
 #include "../../../../Common/Utils/Utils.h"
 #include "../../../../Common/Errors/Errors.h"

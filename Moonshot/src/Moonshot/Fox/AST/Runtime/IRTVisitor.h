@@ -1,3 +1,13 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : IRTVisitor.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// IRTVisitor is a abstract class used as a base for every Runtime Visitors.
+// This will likely not be used a lot in the future, except for evaluating
+// constant expression, to apply some kind of constant folding.
+////------------------------------------------------------////
 #pragma once
 //utils
 #include "../../../Common/Utils/Utils.h"

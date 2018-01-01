@@ -1,3 +1,13 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : RTStmtVisitor.cpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			
+// Implementation of the Runtime Statement Visitor.
+////------------------------------------------------------////
+
 #include "RTStmtVisitor.h"
 
 using namespace Moonshot;

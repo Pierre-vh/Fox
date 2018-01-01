@@ -1,9 +1,9 @@
 Source code for FOX.
 
-What is Fox ? Fox is the base of the interpreter. 
+What is Fox ? Fox is the base (front end) of the interpreter. 
 Fox includes :
 
 -> Lexical Analysis (Lexer)
 -> Syntaxic Analysis (Parser)
--> Intermediate representation (AST) 
--> And Others ! 
+-> AST
+-> Outputs the IR (Bytecode for Badger, a stack-based vm)
