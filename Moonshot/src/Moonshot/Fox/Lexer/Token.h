@@ -1,3 +1,17 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				//
+// See LICENSE.txt for license info.						//
+// File : Token.h											//
+// Author : Pierre van Houtryve								//
+////------------------------------------------------------//// 
+// This file contains some token enumeration declarations	//
+// And the Declaration of the Token and text_pos structs.	//
+//															//
+// This file also declares some const variables				//
+// holding regexes, and maps for getting a "friendly name"	//
+// for enumeration values.									//
+////------------------------------------------------------////
+
 #pragma once
 
 #include <map>		// std::map 
@@ -151,7 +165,7 @@ namespace Moonshot
 			{ ','	, P_COMMA			}	
 		};
 	}
-	struct text_pos	// a structure to hold the position of a token in the input;
+	struct text_pos	// a structure to hold the position of a token in the input, and interact with it.
 	{
 		text_pos();
 		text_pos(const int &l, const int &col);
@@ -162,7 +176,7 @@ namespace Moonshot
 		int line = 0;
 		int column = 0;
 	};
-	struct token
+	struct token // the token struct. The lexer outputs a std::vector<token>. Tokens are recognized bits of the original input : keywords,id,values,etc.
 	{
 		public:
 			token();

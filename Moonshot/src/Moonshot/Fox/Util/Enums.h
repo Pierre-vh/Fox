@@ -1,3 +1,14 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				//
+// See LICENSE.txt for license info.						//
+// File : Enums.h											//
+// Author : Pierre van Houtryve								//
+////------------------------------------------------------//// 
+// This file declares some enumerations used in the parse	//
+// namespace : optype and direction							//
+// and some helper functions, to help manipulate them		//
+////------------------------------------------------------////
+
 #pragma once
 
 #include <map>

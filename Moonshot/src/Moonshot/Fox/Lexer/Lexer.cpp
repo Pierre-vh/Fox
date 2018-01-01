@@ -1,4 +1,14 @@
-// TODO : The code is a bit messy : clean it up ! Maybe rework states and such ? But it works for now, so I keep it until a rework is needed (for performance reasons, or if i do a complete rewrite)
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				//
+// See LICENSE.txt for license info.						//
+// File : Lexer.cpp											//
+// Author : Pierre van Houtryve								//
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			//
+////------------------------------------------------------////
+
+// Note : For now the "escape" char system is working nicely, but the way i've done it is less than ideal.
+// Task : rework it, find a cleaner way to do it, or at least do a cleanup of the code !
 
 #include "Lexer.h"
 
@@ -6,7 +16,6 @@ using namespace Moonshot;
 
 Lexer::Lexer()
 {
-	
 }
 
 Lexer::~Lexer()
@@ -178,7 +187,7 @@ void Lexer::dfa_S4()
 		addToCurtok(eatChar());
 }
 
-void Moonshot::Lexer::dfa_S5()
+void Lexer::dfa_S5()
 {
 	char c = eatChar();
 	if (c == '\'' && !escapes_)
@@ -198,7 +207,7 @@ void Lexer::dfa_goto(const dfa::state & ns)
 	cstate_ = ns;
 }
 
-char Moonshot::Lexer::eatChar()
+char Lexer::eatChar()
 {
 	const char c = str_[pos_];
 	forward();

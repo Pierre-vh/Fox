@@ -1,4 +1,5 @@
 ## Parser : implementation of the grammar rules in the Parser and AST :
+### NOTE : This might not be 100% accurate ! But i'll try to keep it as accurate as possible.
 
 Note : rules  xxx_kw   / id   / type    are already implemented through the "matchXXX" methods.
 
@@ -13,7 +14,7 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
  eoi
 
 ### PARTIALLY IMPLEMENTED
- value		: Missing  callable  support (Won't be implemented before a while, I need to fully implement variable before starting the callable object, and implement functions to completly finish the callable rule)
+ value		: Missing  callable function support
 
 ### TO BE IMPLEMENTED  
 **Base rule**  
@@ -37,7 +38,6 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
  arg_list_decl   
  arg_decl   
  f_call   
- f_call_stmt   
  expr_list   
  rtr_stmt   
 

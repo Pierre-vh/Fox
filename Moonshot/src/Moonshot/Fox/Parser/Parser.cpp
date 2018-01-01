@@ -1,3 +1,13 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				//
+// See LICENSE.txt for license info.						//
+// File : Parser.cpp										//
+// Author : Pierre van Houtryve								//
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			//
+//	This file implements rule-agnostic methods				//
+////------------------------------------------------------////
+
 #include "Parser.h"
 
 using namespace Moonshot;
@@ -10,13 +20,6 @@ Parser::Parser(const std::shared_ptr<Lexer>& l)
 
 Parser::~Parser()
 {
-}
-
-std::unique_ptr<ASTExpr> Parser::oneUpNode(std::unique_ptr<ASTExpr>& node, const parse::optype & op)
-{
-	auto newnode = std::make_unique<ASTExpr>(op);
-	newnode->makeChild(parse::LEFT, node);
-	return newnode;
 }
 
 std::pair<bool, token> Parser::matchValue()

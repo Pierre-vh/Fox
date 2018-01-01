@@ -1,3 +1,13 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				//
+// See LICENSE.txt for license info.						//
+// File : ParseExpr.cpp										//
+// Author : Pierre van Houtryve								//
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			//
+// This file implements expressions related methods (rules)	//
+////------------------------------------------------------////
+
 #include "Parser.h"
 
 using namespace Moonshot;
@@ -160,6 +170,13 @@ std::unique_ptr<ASTExpr> Parser::parseCallable()
 	if (result.first)
 		return std::make_unique<ASTVarCall>(result.second);
 	return NULL_UNIPTR(ASTExpr);
+}
+
+std::unique_ptr<ASTExpr> Parser::oneUpNode(std::unique_ptr<ASTExpr>& node, const parse::optype & op)
+{
+	auto newnode = std::make_unique<ASTExpr>(op);
+	newnode->makeChild(parse::LEFT, node);
+	return newnode;
 }
 
 std::pair<bool, parse::optype> Moonshot::Parser::matchUnaryOp()

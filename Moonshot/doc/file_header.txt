@@ -1,65 +1,43 @@
-This is to be included in any Moonshot-related code file.
+This is to be included in any Header.
 
-/*************************************************************
-Author : (AUTHOR)
-Contact : 
-	e-mail : (EMAIL)
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				//
+// See LICENSE.txt for license info.						//
+// File : XXXX.h											//
+// Author : XXXX											//
+////------------------------------------------------------//// 
+// blah blah blah	->General description of the file		//
+////------------------------------------------------------////
 
-Description : (WHAT THIS FILE DOES)
+And Implementation (.cpp) :
 
-**************************************************************
-MIT License
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				//
+// See LICENSE.txt for license info.						//
+// File : XXXX.cpp											//
+// Author : XXXX											//
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			//
+////------------------------------------------------------////
 
-Copyright (c) 2017 (AUTHOR)
+Quick templates : Pierre van Houtryve :
+header:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				//
+// See LICENSE.txt for license info.						//
+// File : XXXX.h											//
+// Author : Pierre van Houtryve								//
+////------------------------------------------------------//// 
+// blah blah blah											//
+////------------------------------------------------------////
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*************************************************************/
-
-Pierre van Houtryve : 
-
-/************************************************************
-Author : Pierre van Houtryve
-Contact : 
-	e-mail : pierre.vanhoutryve@gmail.com
-
-Description : (WHAT THIS FILE DOES)
-
-*************************************************************
-MIT License
-
-Copyright (c) 2017 Pierre van Houtryve
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*************************************************************/
+impl
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				//
+// See LICENSE.txt for license info.						//
+// File : XXXX.cpp											//
+// Author : Pierre van Houtryve								//
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			//
+////------------------------------------------------------////
