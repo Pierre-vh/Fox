@@ -1,23 +1,19 @@
 ////------------------------------------------------------////
-// This file is a part of The Moonshot Project.				//
-// See LICENSE.txt for license info.						//
-// File : Lexer.h											//
-// Author : Pierre van Houtryve								//
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Lexer.h											
+// Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file declares the lexer class.						//
-//															//
-// The lexer is the 1st step of the interpretation process	//
-// It takes the source file, in the form of a string, as	//
-// input, and outputs a std::<vector> of token.				//
-//															//
-// It performs a lexical analysis. A Fairly simple one		//
-// in our case.
-//															//
-//															//
-// Tokens (see Token.h/.cpp for declaration and definition	//
-// is the dissected entry, separated in small bits			//
-// each "bit" is identified to recognize one of the main	//
-// types : keywords,identifiers,values,etc..				//
+// This file declares the lexer class.						
+//															
+// The lexer is the 1st step of the interpretation process.
+// It takes the source file, in the form of a string, as input, and outputs a std::<vector> of token.				
+//															
+// It performs a lexical analysis. A Fairly simple one in our case.
+//															
+//															
+// Tokens (see Token.h/.cpp for declaration and definition is the dissected entry, separated in small bits			
+// each "bit" is identified to recognize one of the main types : keywords,identifiers,values,etc..				
 ////------------------------------------------------------////
 
 #pragma once

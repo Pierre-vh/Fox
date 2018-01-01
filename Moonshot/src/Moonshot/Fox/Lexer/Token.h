@@ -1,15 +1,14 @@
 ////------------------------------------------------------////
-// This file is a part of The Moonshot Project.				//
-// See LICENSE.txt for license info.						//
-// File : Token.h											//
-// Author : Pierre van Houtryve								//
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Token.h											
+// Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file contains some token enumeration declarations	//
-// And the Declaration of the Token and text_pos structs.	//
-//															//
-// This file also declares some const variables				//
-// holding regexes, and maps for getting a "friendly name"	//
-// for enumeration values.									//
+// This file contains some token enumeration declarations	
+// And the Declaration of the Token and text_pos structs.	
+//															
+// This file also declares some const variables	holding regexes, 
+// and maps for getting a "friendly name" of enum values.									
 ////------------------------------------------------------////
 
 #pragma once

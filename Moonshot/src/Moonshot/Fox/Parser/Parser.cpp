@@ -1,11 +1,11 @@
 ////------------------------------------------------------////
-// This file is a part of The Moonshot Project.				//
-// See LICENSE.txt for license info.						//
-// File : Parser.cpp										//
-// Author : Pierre van Houtryve								//
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Parser.cpp										
+// Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-//			SEE HEADER FILE FOR MORE INFORMATION			//
-//	This file implements rule-agnostic methods				//
+//			SEE HEADER FILE FOR MORE INFORMATION			
+//	This file implements rule-agnostic methods				
 ////------------------------------------------------------////
 
 #include "Parser.h"

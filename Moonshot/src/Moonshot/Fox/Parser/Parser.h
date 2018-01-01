@@ -1,27 +1,24 @@
 ////------------------------------------------------------////
-// This file is a part of The Moonshot Project.				//
-// See LICENSE.txt for license info.						//
-// File : Parser.h											//
-// Author : Pierre van Houtryve								//
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Parser.h											
+// Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file implements the recursive descent parser.		//
-// The parser is implemented as a set of functions, each	//
-// function represents a rule in the parser.				//
-// Some extra functions, for instance matchXXX				//
-// are used to help in the parsing process.					//
-//															//
-// The grammar used can be found in							//
-// /doc/grammar_(major).(minor).txt							//
-//															//
-// The lexer is the second step of the interpr.	process		//
-// Lexer -> [PARSER] -> ...									//
-//															//
-// INPUT													//
-// It uses the data gathered and identified by the lexer	//
-// to build a representation of the source file (AST.)		//
-//															//
-// OUTPUT													//
-// The Abstract Syntax Tree, AST for short.					//
+// This file implements the recursive descent parser.		
+// The parser is implemented as a set of functions, each	
+// function represents a rule in the parser.				
+// Some extra functions, for instance matchXXX	are used to help in the parsing process.					
+//															
+// The grammar used can be found in	/doc/grammar_(major).(minor).txt							
+//															
+// The lexer is the second step of the interpretation process:
+// Lexer -> [PARSER] -> ...									
+//															
+// INPUT													
+// It uses the data gathered and identified by the lexer to build a representation of the source file (AST.)		
+//															
+// OUTPUT													
+// The Abstract Syntax Tree, AST for short.					
 ////------------------------------------------------------////
 
 /*

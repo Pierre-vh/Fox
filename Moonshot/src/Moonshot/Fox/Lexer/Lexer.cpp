@@ -1,10 +1,10 @@
 ////------------------------------------------------------////
-// This file is a part of The Moonshot Project.				//
-// See LICENSE.txt for license info.						//
-// File : Lexer.cpp											//
-// Author : Pierre van Houtryve								//
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Lexer.cpp											
+// Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-//			SEE HEADER FILE FOR MORE INFORMATION			//
+//			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
 // Note : For now the "escape" char system is working nicely, but the way i've done it is less than ideal.
