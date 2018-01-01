@@ -121,7 +121,7 @@ void TypeCheck::visit(ASTVarDeclStmt & node)
 			iexpr_type
 		))
 		{
-			E_ERROR("Can't perform initialization of variable \"" + node.vattr_.name + "\". Type of initialization expression is unassignable to the desired variable type.");
+			E_ERROR("Can't perform initialization of variable \"" + node.vattr_.name + "\". Type of initialization expression is unassignable to the desired variable type.\nFor further information, see the errors thrown earlier!");
 		}
 	}
 	symtable_.declareValue(

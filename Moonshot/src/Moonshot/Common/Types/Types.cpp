@@ -108,7 +108,7 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 {
 	if ((rhs == fval_void) || (lhs == fval_void))
 	{
-		E_ERROR("[TYPECHECK] Can't assign a void expression to a variable.");
+		E_ERROR("Can't assign a void expression to a variable.");
 		return false;
 	}
 	if (!isBasic(lhs) || !isBasic(rhs))
@@ -117,23 +117,25 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 	else if (lhs == rhs) // same type to same type = ok.
 		return true;
 	// From here, we know lhs and rhs are different.
-	else if (!isArithmetic(lhs) || isArithmetic(rhs)) // one of them is a string, and the other isn't
+	else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // one of them is a string
 	{
-		E_ERROR("[TYPECHECK] Can't assign a string to an arithmetic type and vice versa.");
+		E_ERROR("Can't assign a string to an arithmetic type and vice versa.");
 		return false;
 	}
 	// Else, we're good, return true.
 	return true;
 }
-
 bool fv_util::canCastTo(const std::size_t & goal, const std::size_t & basetype)
 {
+	if (!isBasic(basetype))
+	{
+		E_CRITICAL("Can't cast non basic types;");
+		return false;
+	}
 	if (isArithmetic(basetype)) // base type is arithmetic
 		return isBasic(goal); // arithmetic type -> basic type, allowed (even to strings)
 	else if (basetype == fval_str) // base type is a string
 		return goal == fval_str; // Strings can only be converted to strings (useless convertion anyway).
-	else if (basetype == fval_vattr) // converting a variable ?
-		return isBasic(goal); // Only to basic types !
 	return false;
 }
 

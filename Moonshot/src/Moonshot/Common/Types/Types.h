@@ -81,6 +81,10 @@ namespace Moonshot
 																		// string <-> string = ok
 																		// else : error.
 		// This function returns true if the type of basetype can be cast to the type of goal.
+		// if i want to implement explicit casts from strings to arithmetic type later, this can be done "easily" by adding
+		// const bool& isExplicit = false to the signature
+		// And, in the function body, add a check if(isExplicit && (basetype==fval_str) && isArithmetic(goal)) return true;
+		// For now, i leave it out, but it might be added later!
 		bool canCastTo(const std::size_t &goal, const std::size_t &basetype);
 
 		// returns the type of the biggest of the 2 arguments. 
