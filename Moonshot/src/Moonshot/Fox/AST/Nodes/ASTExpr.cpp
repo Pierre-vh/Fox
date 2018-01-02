@@ -91,24 +91,16 @@ void ASTExpr::swapChildren()
 
 ASTRawValue::ASTRawValue(const token & t)
 {
-	try
-	{
-		if (t.val_type == valueType::VAL_STRING)
-			val_ = t.str;
-		else if (t.val_type == valueType::VAL_CHAR)
-			val_ = (char)t.str[0];
-		else if (t.val_type == valueType::VAL_BOOL)
-			val_ = std::get<bool>(t.vals);
-		else if (t.val_type == valueType::VAL_INTEGER)
-			val_ = std::get<int>(t.vals);
-		else if (t.val_type == valueType::VAL_FLOAT)
-			val_ = std::get<float>(t.vals);
-	}
-	catch (const std::bad_variant_access &err)
-	{
-		E_CRITICAL("Tried to access a value in a variant that did not exists. ");
-		std::cerr << err.what() << std::endl;
-	}
+	if (t.val_type == valueType::VAL_STRING)
+		val_ = t.str;
+	else if (t.val_type == valueType::VAL_CHAR)
+		val_ = (char)t.str[0];
+	else if (t.val_type == valueType::VAL_BOOL)
+		val_ = std::get<bool>(t.vals);
+	else if (t.val_type == valueType::VAL_INTEGER)
+		val_ = std::get<int>(t.vals);
+	else if (t.val_type == valueType::VAL_FLOAT)
+		val_ = std::get<float>(t.vals);
 }
 
 void ASTRawValue::accept(IVisitor& vis)
