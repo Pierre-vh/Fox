@@ -19,3 +19,6 @@
 // Lexer :
 #define LOG_PUSHEDTOKENS false			// log every pushed token
 #define LOG_TOTALTOKENSCOUNT false		// log the total tokens count
+
+// Symbols table
+#define LOG_IMPLICIT_CASTS false		// log when a value had to be cast before being stored in memory

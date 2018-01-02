@@ -51,8 +51,6 @@ Note :
 #include <tuple>							// std::tuple, std::pair
 #include <memory>							// std::shared_ptr
 
-#define NULL_UNIPTR(x) std::unique_ptr<x>(nullptr)
-
 namespace Moonshot
 {
 	class Parser
@@ -81,24 +79,24 @@ namespace Moonshot
 
 		private:
 			// OneUpNode is a function that ups the node one level.
-			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,parse::PLUS)
-			// oneUpNode will return a new node X, with the optype PLUS and N as left child.
-			std::unique_ptr<ASTExpr> oneUpNode(std::unique_ptr<ASTExpr> &node, const parse::optype &op = parse::optype::PASS);
+			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,PLUS)
+			// oneUpNode will return a new node X, with the operation PLUS and N as left child.
+			std::unique_ptr<ASTExpr> oneUpNode(std::unique_ptr<ASTExpr> &node, const operation &op = operation::PASS);
 			
 			// matchToken -> returns true if the token is matched, and increment pos_, if the token isn't matched return false
 			
 			// MATCH BY TYPE OF TOKEN
 			std::pair<bool,token> matchValue();				// match a TT_VALUE
 			std::pair<bool, std::string> matchID();			// match a ID
-			bool matchSign(const lex::signs &s);			// match any signs : ! : * etc.
-			bool matchKeyword(const lex::keywords &k);		// Match any keyword
+			bool matchSign(const signType &s);			// match any signs : ! : * etc.
+			bool matchKeyword(const keywordType &k);		// Match any keyword
 
 			bool matchEOI();								// Match a EOI, currently a semicolon.
 			std::size_t matchTypeKw();						// match a type keyword : int, float, etc.
 			
 			// MATCH OPERATORS
-			std::pair<bool, parse::optype> matchUnaryOp(); // ! -
-			std::pair<bool, parse::optype> matchBinaryOp(const char &priority); // + - * / % ^ ...
+			std::pair<bool, operation> matchUnaryOp(); // ! -
+			std::pair<bool, operation> matchBinaryOp(const char &priority); // + - * / % ^ ...
 			
 			// UTILITY METHODS
 			token getToken() const;

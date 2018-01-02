@@ -12,6 +12,7 @@
 using namespace Moonshot;
 using namespace fv_util;
 
+
 TypeCheck::TypeCheck(const bool& testmode)
 {
 	if(testmode)
@@ -39,12 +40,12 @@ void TypeCheck::visit(ASTExpr & node)
 	{
 		// VISIT BOTH CHILDREN
 		// get left expr result type
-		auto left = visitAndGetResult(node.left_,parse::direction::LEFT);
+		auto left = visitAndGetResult(node.left_,dir::LEFT);
 		// get right expr result type
-		auto right = visitAndGetResult(node.right_, parse::direction::RIGHT);
+		auto right = visitAndGetResult(node.right_, dir::RIGHT);
 		// SPECIAL CHECK 1: CHECK IF THIS IS A CONCAT OP,CONVERT IT 
-		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right)  && (node.op_ == parse::ADD))
-			node.op_ = parse::CONCAT;
+		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right)  && (node.op_ == operation::ADD))
+			node.op_ = operation::CONCAT;
 		// CHECK VALIDITY OF EXPRESSION
 		rtr_type_ = getExprResultType(
 				node.op_
@@ -58,7 +59,7 @@ void TypeCheck::visit(ASTExpr & node)
 	else if(node.left_)// We only have a left node
 	{
 		// CAST NODES
-		if (node.op_ == parse::CAST) // check validity of cast
+		if (node.op_ == operation::CAST) // check validity of cast
 		{
 			auto result = visitAndGetResult(node.left_);
 			if (!canCastTo(node.totype_, result))
@@ -70,7 +71,7 @@ void TypeCheck::visit(ASTExpr & node)
 				rtr_type_ = node.totype_;
 		}
 		// UNARY OPS
-		else if (parse::isUnary(node.op_))
+		else if (isUnary(node.op_))
 		{
 			// We have a unary operation
 			// Get left's return type. Don't change anything, as rtr_value is already set by the accept function.
@@ -79,13 +80,13 @@ void TypeCheck::visit(ASTExpr & node)
 			if(fval_traits<std::string>::isEqualTo(lefttype))
 			{
 				std::stringstream output;
-				output << "Can't perform unary operation " << getFromDict(parse::kOptype_dict, node.op_) << " on a string.";
+				output << "Can't perform unary operation " << getFromDict(kOptype_dict, node.op_) << " on a string.";
 				E_ERROR(output.str());
 			}
 			// SPECIAL CASES : (LOGICNOT)(NEGATE ON BOOLEANS)
-			if (node.op_ == parse::LOGICNOT)
+			if (node.op_ == operation::LOGICNOT)
 				rtr_type_ = fval_bool; // Return type is a boolean
-			else if ((node.op_ == parse::NEGATE) && fval_traits<bool>::isEqualTo(rtr_type_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+			else if ((node.op_ == operation::NEGATE) && fval_traits<bool>::isEqualTo(rtr_type_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
 				rtr_type_ = fval_int;
 		}
 		else
@@ -142,7 +143,7 @@ void TypeCheck::visit(ASTVarDeclStmt & node)
 void TypeCheck::visit(ASTVarCall & node)
 {
 	auto searchResult = symtable_.retrieveVarAttr(node.varname_);
-	if ((curdir_ == parse::direction::LEFT) && (curop_ == parse::optype::ASSIGN) && searchResult.isConst)
+	if ((curdir_ == dir::LEFT) && (curop_ == operation::ASSIGN) && searchResult.isConst)
 	{
 		E_ERROR("Can't assign a value to const variable \"" + searchResult.name + "\"");
 		rtr_type_ = invalid_index;
@@ -151,12 +152,12 @@ void TypeCheck::visit(ASTVarCall & node)
 		rtr_type_ =  searchResult.type; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
-std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& lhs, const std::size_t& rhs)
+std::size_t TypeCheck::getExprResultType(const operation& op, std::size_t& lhs, const std::size_t& rhs)
 {
 	if (!E_CHECKSTATE) // If an error was thrown earlier, just return. 
 		return invalid_index;
 	// first, quick, simple check : we can only verify results between 2 basic types.
-	if (op == parse::ASSIGN)
+	if (op == operation::ASSIGN)
 	{
 		if (canAssign(lhs, rhs))
 			return lhs; // Assignements return the value  of the lhs.
@@ -172,16 +173,16 @@ std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& l
 	{
 		if (lhs == rhs) // Both sides are identical
 		{
-			if (parse::isComparison(op))
+			if (isComparison(op))
 			{
-				if (parse::isCompJoinOp(op) && !isArithmetic(lhs)) // If we have a compJoinOp and types aren't arithmetic : problem
+				if (isCompJoinOp(op) && !isArithmetic(lhs)) // If we have a compJoinOp and types aren't arithmetic : problem
 				{
 					E_ERROR("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
 					return invalid_index;
 				}
 				return fval_bool; // Else, it's normal, return type's a boolean.
 			}
-			else if (fval_traits<std::string>::isEqualTo(lhs) && (op != parse::CONCAT)) // We have strings and it's not a concat op :
+			else if (fval_traits<std::string>::isEqualTo(lhs) && (op != operation::CONCAT)) // We have strings and it's not a concat op :
 			{
 				E_ERROR("Can't perform operations other than addition (concatenation) on strings");
 				return invalid_index;
@@ -189,18 +190,18 @@ std::size_t TypeCheck::getExprResultType(const parse::optype& op, std::size_t& l
 			else if (fval_traits<bool>::isEqualTo(lhs)) // We have bools and they're not compared : the result will be an integer.
 				return	fval_bool;
 			else
-				return (op == parse::DIV) ? fval_float : lhs; // Else, we just keep the type, unless it's a divison
+				return (op == operation::DIV) ? fval_float : lhs; // Else, we just keep the type, unless it's a divison
 		}
 		else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // Two different types, and one of them is a string?
 		{
 			E_ERROR("Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
 			return invalid_index;
 		}
-		else if (parse::isComparison(op)) // Comparing 2 arithmetic types ? return type's a boolean
+		else if (isComparison(op)) // Comparing 2 arithmetic types ? return type's a boolean
 			return fval_bool;
 		else
 		{
-			if (op == parse::DIV)
+			if (op == operation::DIV)
 				return fval_float; // if op = division, return type's a float.
 			else
 				return getBiggest(lhs, rhs); // Else, it's just a normal operation, and the return type is the one of the "biggest" of the 2 sides

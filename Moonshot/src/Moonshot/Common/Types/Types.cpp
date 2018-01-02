@@ -14,13 +14,12 @@ using namespace Moonshot;
 std::string fv_util::dumpFVal(const FVal & var)
 {
 	std::stringstream output;
-	if (std::holds_alternative<FVAL_NULLTYPE>(var))
+	if (std::holds_alternative<NullType>(var))
 		output << "Type : VOID (null)";
-	else if (std::holds_alternative<var::varattr>(var))
+	else if (std::holds_alternative<var::varRef>(var))
 	{
-		auto vattr = std::get<var::varattr>(var);
-		output << "Type : varattr, Value:";
-		output << dumpVAttr(vattr);
+		auto vattr = std::get<var::varRef>(var);
+		output << "Type : varRef, Value:" << vattr.getName();
 	}
 	else if (std::holds_alternative<int>(var))
 		output << "Type : INT, Value : " << std::get<int>(var);
@@ -59,7 +58,7 @@ FVal fv_util::getSampleFValForIndex(const std::size_t & t)
 {
 	switch (t)
 	{
-		case fval_void:
+		case fval_null:
 			return FVal();
 		case fval_int:
 			return FVal((int)0);
@@ -71,7 +70,7 @@ FVal fv_util::getSampleFValForIndex(const std::size_t & t)
 			return FVal(std::string(""));
 		case fval_bool:
 			return FVal((bool)false);
-		case fval_vattr:
+		case fval_varRef:
 			return FVal(var::varattr());
 		case invalid_index:
 			E_CRITICAL("Tried to get a sample FVal with an invalid index");
@@ -110,12 +109,12 @@ bool fv_util::isArithmetic(const std::size_t & t)
 
 bool Moonshot::fv_util::isValue(const std::size_t & t)
 {
-	return isBasic(t) || (t == fval_vattr);
+	return isBasic(t) || (t == fval_varRef);
 }
 
 bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 {
-	if ((rhs == fval_void) || (lhs == fval_void))
+	if ((rhs == fval_null) || (lhs == fval_null))
 	{
 		E_ERROR("Can't assign a void expression to a variable.");
 		return false;
@@ -167,7 +166,7 @@ std::size_t fv_util::getBiggest(const std::size_t & lhs, const std::size_t & rhs
 	return invalid_index;
 }
 
-std::size_t fv_util::typeKWtoSizeT(const lex::keywords & kw)
+std::size_t fv_util::typeKWtoSizeT(const keywordType & kw)
 {
 	auto it = kTypeKwToIndex_dict.find(kw);
 	if (it != kTypeKwToIndex_dict.end())
@@ -175,8 +174,28 @@ std::size_t fv_util::typeKWtoSizeT(const lex::keywords & kw)
 	else
 		return invalid_index;
 }
-// varattr
+// varRef
+var::varRef::varRef(const std::string & vname)
+{
+	name_ = vname;
+}
 
+std::string var::varRef::getName() const
+{
+	return name_;
+}
+
+void var::varRef::setName(const std::string & newname)
+{
+	name_ = newname;
+}
+
+var::varRef::operator bool() const
+{
+	return (name_ != "");
+}
+
+// varattr
 var::varattr::varattr()
 {
 }
@@ -193,5 +212,10 @@ var::varattr::varattr(const std::string & nm, const std::size_t & ty, const bool
 
 var::varattr::operator bool() const
 {
-	return (wasInit_ && (type != fv_util::fval_void) && (type != fv_util::invalid_index));
+	return (wasInit_ && (type != fv_util::fval_null) && (type != fv_util::invalid_index));
+}
+
+var::varRef var::varattr::createRef() const
+{
+	return varRef(name);
 }

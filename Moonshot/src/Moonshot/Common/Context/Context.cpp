@@ -11,16 +11,6 @@
 
 using namespace Moonshot;
 
-Context::Context()
-{
-
-}
-
-Context::~Context()
-{
-
-}
-
 void Context::setOrigin(const std::string & origin)
 {
 	logsOrigin_ = origin;
@@ -51,7 +41,7 @@ void Context::reportError(const std::string & message)
 	curstate_ = ContextState::ERROR;
 }
 
-ContextState::ctxt_state Context::getState() const
+ContextState Context::getState() const
 {
 	return curstate_;
 }

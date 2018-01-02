@@ -12,6 +12,7 @@
 using namespace Moonshot;
 using namespace fv_util;
 
+
 RTExprVisitor::RTExprVisitor()
 {
 }
@@ -27,7 +28,7 @@ RTExprVisitor::~RTExprVisitor()
 FVal RTExprVisitor::visit(ASTExpr & node)
 {
 	if (!E_CHECKSTATE) return FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
-	if (node.op_ == parse::optype::CONCAT)
+	if (node.op_ == operation::CONCAT)
 	{
 		try
 		{
@@ -47,16 +48,16 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 			E_CRITICAL("Critical error: Attempted to concat values while one of them wasn't a string.");
 		}
 	}
-	else if (node.op_ == parse::optype::ASSIGN)
+	else if (node.op_ == operation::ASSIGN)
 	{
 		if (isSymbolsTableAvailable())
 		{
 			auto left_res = node.left_->accept(*this);
 			auto right_res = node.right_->accept(*this);
-			if ((left_res.index() == fval_vattr) && isValue(right_res.index()))
+			if ((left_res.index() == fval_varRef) && isValue(right_res.index()))
 			{
 				symtab_->setValue(
-					std::get<var::varattr>(left_res).name,
+					std::get<var::varRef>(left_res).getName(),
 					right_res
 				);
 				return right_res;
@@ -67,24 +68,24 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		else
 			E_LOG("Can't perform assignement operations when the symbols table is unavailable.");
 	}
-	else if (node.op_ == parse::optype::CAST)
-		return castTo(node.totype_ , node.left_->accept(*this));
-	else if (node.op_ == parse::optype::PASS)
+	else if (node.op_ == operation::CAST)
+		return castTo_withDeref(node.totype_ , node.left_->accept(*this));
+	else if (node.op_ == operation::PASS)
 	{
 		if (!node.left_)
 			E_CRITICAL("Tried to pass a value to parent node, but the node did not have a left_ child.");
 		else 
 			return node.left_->accept(*this);
 	}
-	else if (node.op_ == parse::optype::ASSIGN)
+	else if (node.op_ == operation::ASSIGN)
 	{
 		if (isSymbolsTableAvailable())
 		{
 			auto vattr = node.left_->accept(*this);
-			if (vattr.index() == fval_vattr)
+			if (vattr.index() == fval_varRef)
 			{
 				// Perform assignement
-				std::string vname = std::get<var::varattr>(vattr).name;
+				std::string vname = std::get<var::varRef>(vattr).getName();
 				symtab_->setValue(vname, node.right_->accept(*this));
 			}
 			else
@@ -95,7 +96,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 			E_LOG("Can't perform assignement operations when the symbols table isn't available.");
 		}
 	}
-	else if (parse::isComparison(node.op_))
+	else if (isComparison(node.op_))
 	{
 		if (!node.left_ || !node.right_)
 			E_CRITICAL("Attempted to run a comparison operation on a node without 2 children");
@@ -136,10 +137,10 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		)
 		);
 	}
-	else if (node.op_ == parse::LOGICNOT || node.op_ == parse::NEGATE)
+	else if (node.op_ == operation::LOGICNOT || node.op_ == operation::NEGATE)
 	{
 		double lval = fvalToDouble(node.left_->accept(*this));
-		if (node.op_ == parse::LOGICNOT)
+		if (node.op_ == operation::LOGICNOT)
 		{
 			return FVal(
 				lval == 0 // If the value differs equals zero, return true
@@ -160,7 +161,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		const double drightval = fvalToDouble(node.right_->accept(*this));
 		const double result = performOp(node.op_, dleftval, drightval);
 
-		if (fitsInValue(node.totype_, result) || (node.op_ == parse::CAST)) // If the results fits or we desire to cast the result
+		if (fitsInValue(node.totype_, result) || (node.op_ == operation::CAST)) // If the results fits or we desire to cast the result
 			return castTo(node.totype_, result);		// Cast to result type
 		else
 			return castTo(fval_float, result);	// Cast to float instead to keep information from being lost.
@@ -176,7 +177,7 @@ FVal RTExprVisitor::visit(ASTRawValue & node)
 FVal RTExprVisitor::visit(ASTVarCall & node)
 {
 	if (isSymbolsTableAvailable())
-		return symtab_->retrieveVarAttr(node.varname_);
+		return symtab_->retrieveVarAttr(node.varname_).createRef();
 	else
 	{
 		E_LOG("Can't retrieve values if the symbols table is not available.");
@@ -207,58 +208,58 @@ double RTExprVisitor::fvalToDouble(const FVal & fval)
 		E_CRITICAL("Reached end of function.Unimplemented type in FVal?");
 	return 0.0;
 }
-bool RTExprVisitor::compareVal(const parse::optype & op, const FVal & l, const FVal & r)
+bool RTExprVisitor::compareVal(const operation & op, const FVal & l, const FVal & r)
 {
-	using namespace parse;
+	
 	const double lval = fvalToDouble(l);
 	const double rval = fvalToDouble(r);
 	switch (op)
 	{
-		case AND:
+		case operation::AND:
 			return (lval != 0) && (rval != 0);
-		case OR:
+		case operation::OR:
 			return (lval != 0) || (rval != 0);
-		case LESS_OR_EQUAL:
+		case operation::LESS_OR_EQUAL:
 			return lval <= rval;
-		case GREATER_OR_EQUAL:
+		case operation::GREATER_OR_EQUAL:
 			return lval >= rval;
-		case LESS_THAN:
+		case operation::LESS_THAN:
 			return lval < rval;
-		case GREATER_THAN:
+		case operation::GREATER_THAN:
 			return lval > rval;
-		case EQUAL:
+		case operation::EQUAL:
 			return lval == rval;
-		case NOTEQUAL:
+		case operation::NOTEQUAL:
 			return lval != rval;
 		default:
 			E_CRITICAL("Defaulted. Unimplemented condition operation?");
 			return false;
 	}
 }
-bool RTExprVisitor::compareStr(const parse::optype & op, const std::string & lhs, const std::string & rhs)
+bool RTExprVisitor::compareStr(const operation & op, const std::string & lhs, const std::string & rhs)
 {
-	using namespace parse;
+	
 	switch (op)
 	{
-		case EQUAL:				return lhs == rhs;
-		case NOTEQUAL:			return lhs != rhs;
-		case LESS_THAN:			return lhs < rhs;
-		case GREATER_THAN:		return lhs > rhs;
-		case LESS_OR_EQUAL:		return lhs <= rhs;
-		case GREATER_OR_EQUAL:	return lhs > rhs;
+		case operation::EQUAL:				return lhs == rhs;
+		case operation::NOTEQUAL:			return lhs != rhs;
+		case operation::LESS_THAN:			return lhs < rhs;
+		case operation::GREATER_THAN:		return lhs > rhs;
+		case operation::LESS_OR_EQUAL:		return lhs <= rhs;
+		case operation::GREATER_OR_EQUAL:	return lhs > rhs;
 		default:				E_CRITICAL("Operation was not a condition.");
 			return false;
 	}
 }
-double RTExprVisitor::performOp(const parse::optype& op,double l,double r)
+double RTExprVisitor::performOp(const operation& op,double l,double r)
 {
-	using namespace parse;
+	
 	switch (op)
 	{
-		case ADD:	return l + r;
-		case MINUS:	return l - r;
-		case MUL:	return l * r;
-		case DIV:
+		case operation::ADD:	return l + r;
+		case operation::MINUS:	return l - r;
+		case operation::MUL:	return l * r;
+		case operation::DIV:
 			if(r == 0)
 			{
 				E_ERROR("Division by zero.");
@@ -266,8 +267,8 @@ double RTExprVisitor::performOp(const parse::optype& op,double l,double r)
 			}
 			else 
 				return l / r;
-		case MOD:	return std::fmod(l, r);
-		case EXP:	return std::pow(l, r);		
+		case operation::MOD:	return std::fmod(l, r);
+		case operation::EXP:	return std::pow(l, r);
 		default:	E_CRITICAL("Defaulted.");
 			return 0.0;
 	}
@@ -275,7 +276,7 @@ double RTExprVisitor::performOp(const parse::optype& op,double l,double r)
 
 bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 {
-	using namespace parse;
+	
 	switch (typ)
 	{
 		case fval_bool:
@@ -307,99 +308,17 @@ bool RTExprVisitor::isSymbolsTableAvailable() const
 	return (symtab_ ? true : false);
 }
 
-template<typename GOAL, typename VAL, bool isGOALstr, bool isVALstr>
-std::pair<bool, FVal> RTExprVisitor::castTypeTo(const GOAL& type,VAL v)
+FVal RTExprVisitor::castTo_withDeref(const std::size_t & goal, FVal val)
 {
-	if constexpr (!fval_traits<GOAL>::isBasic || !fval_traits<VAL>::isBasic)
-		E_CRITICAL("Can't cast a basic type to a nonbasic type and vice versa.");
-	else if constexpr((std::is_same<GOAL, VAL>::value) || (isGOALstr && isVALstr)) // Direct conversion
-		return { true , FVal(v) };
-	else if constexpr (isGOALstr && !isVALstr)
+	if (val.index() == fval_varRef)
 	{
-		// Casting an arithmetic type to a string:
-		std::stringstream stream;
-		stream << v;
-		return { true, FVal(stream.str()) };
+		auto ref = std::get<var::varRef>(val);
+		val = symtab_->retrieveValue(ref.getName());
 	}
-	else if constexpr (isGOALstr != isVALstr) // One of them is a string and the other isn't.
+	else if (!isBasic(goal))
 	{
-		std::stringstream output;
-		output << "Can't convert a string to an arithmetic type and vice versa." << std::endl;
-		E_ERROR(output.str());
-		return { false, FVal() };
+		E_CRITICAL("The Goal type was not a basic type.");
+		return FVal();
 	}
-	else // Conversion might work. Proceed !
-	{
-		if constexpr (std::is_same<int, GOAL>::value)
-			return { true,FVal((int)v) };
-		else if constexpr (std::is_same<float, GOAL>::value)
-			return { true,FVal((float)v) };
-		else if constexpr (std::is_same<char, GOAL>::value)
-			return { true,FVal((char)v) };
-		else if constexpr (std::is_same<bool, GOAL>::value)
-			return { true,FVal((bool)v) };
-		else
-			E_CRITICAL("Failed cast");
-	}
-	return { false,FVal() };
-}
-
-template<typename GOAL>
-std::pair<bool, FVal> RTExprVisitor::castTypeTo(const GOAL & type,double v)
-{
-	if constexpr(std::is_same<GOAL, std::string>::value)
-	{
-		E_CRITICAL("Failed cast - Attempted to cast to string.");
-		return { true,FVal() };
-	}
-	else if constexpr (fval_traits<GOAL>::isBasic) // Can only attempt to convert basic types.
-		return { true, FVal((GOAL)v) };
-	else
-		E_CRITICAL("castTypeTo defaulted. Unimplemented type?");
-	return { false,FVal() };
-}
-
-FVal RTExprVisitor::castTo(const std::size_t& goal, FVal val)
-{
-	if (val.index() == fval_vattr) // if it's a varattr
-	{
-		try
-		{
-			val = symtab_->retrieveValue(std::get<var::varattr>(val).name); // set val as the variable's value !
-		}
-		catch (std::bad_variant_access)
-		{
-			E_CRITICAL("bad_variant_access thrown while attempting to retrieve the content of an FVal tagged as a var_attr! ");
-		}
-	}
-	std::pair<bool, FVal> rtr = std::make_pair<bool, FVal>(false, FVal());
-	std::visit(
-	[&](const auto& a, const auto& b)
-	{
-		rtr = castTypeTo(a, b);
-	},
-		getSampleFValForIndex(goal), val
-	);
-
-	if (rtr.first)
-		return rtr.second;
-	else
-		E_ERROR("Failed typecast (TODO:Show detailed error message)");
-	return FVal();
-}
-
-FVal RTExprVisitor::castTo(const std::size_t& goal, const double & val)
-{
-	std::pair<bool, FVal> rtr;
-	std::visit(
-	[&](const auto& a)
-	{
-		rtr = castTypeTo(a,val);
-	},
-		getSampleFValForIndex(goal)
-	);
-	if (rtr.first)
-		return rtr.second;
-	E_ERROR("Failed typecast from double (TODO:Show detailed error message");
-	return FVal();
+	return castTo(goal, val);
 }

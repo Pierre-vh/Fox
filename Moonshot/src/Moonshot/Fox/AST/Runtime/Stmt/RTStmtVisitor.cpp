@@ -34,17 +34,26 @@ FVal RTStmtVisitor::visit(ASTVarDeclStmt & node)
 		if (node.initExpr_) // With init expr
 		{
 			auto iexpr = node.initExpr_->accept(*this);
-			symtab_->declareValue(
+			if (!symtab_declareValue_derefFirst(
 				node.vattr_,
 				iexpr
-			);
+			))
+				E_ERROR("Error while initializing variable " + node.vattr_.name);
 		}
 		else // without
 		{
-			symtab_->declareValue(
+			if(!symtab_declareValue_derefFirst(
 				node.vattr_
-			);
+			))
+			E_ERROR("Error while initializing variable " + node.vattr_.name);
 		}
 	}
 	return FVal(); // does not return anything.
+}
+
+bool RTStmtVisitor::symtab_declareValue_derefFirst(const var::varattr & vattr, FVal initval)
+{
+	if (initval.index() == fv_util::fval_varRef)
+		initval = symtab_->retrieveValue(std::get<var::varRef>(initval).getName());
+	return symtab_->declareValue(vattr, initval);;
 }

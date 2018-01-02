@@ -46,19 +46,19 @@ namespace Moonshot
 			// it is public so we can add anything we want to it for testing purposes.
 		private:
 			template<typename T>
-			inline std::size_t visitAndGetResult(std::unique_ptr<T>& node,const parse::direction& dir = parse::direction::UNKNOWNDIR)
+			inline std::size_t visitAndGetResult(std::unique_ptr<T>& node,const dir& dir = dir::UNKNOWNDIR)
 			{
 				// curdir is a variable that's there to help some function behave. Like
 				// the ASTVarcall function overload that can use this to check if the variable is the subject of an assignement!
 				curdir_ = dir;
 				node->accept(*this);
-				curdir_ = parse::direction::UNKNOWNDIR; 
+				curdir_ = dir::UNKNOWNDIR; 
 				return rtr_type_;
 			}
-			parse::optype curop_;
-			parse::direction curdir_;
+			operation curop_;
+			dir curdir_;
 			std::size_t rtr_type_; // Last returned type from visiting node (held here, because visit doesn't return anything :( )
-			std::size_t getExprResultType(const parse::optype& op, std::size_t& lhs, const std::size_t& rhs);
+			std::size_t getExprResultType(const operation& op, std::size_t& lhs, const std::size_t& rhs);
 
 	};
 

@@ -19,38 +19,34 @@
 
 namespace Moonshot
 {
-	namespace ContextState
+	enum class ContextState
 	{
-		enum ctxt_state
-		{
-			GOOD,
-			WARNING,
-			ERROR
-		};
-	}
+		GOOD,
+		WARNING,
+		ERROR
+	};
 	class Context
 	{
 		public:
-			Context();
-			~Context();
+			Context() = default;
 
-			inline bool isSafe_strict() const // Returns true ONLY if state == GOOD.
+			inline bool isSafe_strict() const 
 			{
 				return curstate_ == ContextState::GOOD;
 			}
-			inline bool isSafe() const // Returns true if (state == GOOD) || (state == WARNING)
+			inline bool isSafe() const 
 			{
 				return (curstate_ == ContextState::GOOD) || (curstate_ == ContextState::WARNING);
 			}
 
-			// logs are of the following form : [ORIGIN] Message
+			// logs are of the following form : [LOG/WARNING/ERROR][ORIGIN] Message
 			void setOrigin(const std::string& origin);
 
 			void logMessage(const std::string& message);
 			void reportWarning(const std::string& message);
 			void reportError(const std::string& message);
 
-			ContextState::ctxt_state getState() const;
+			ContextState getState() const;
 
 			void printLogs() const;		// print all logs to cout
 			std::string getLogs() const; // returns a string containing the error log.
@@ -64,7 +60,7 @@ namespace Moonshot
 			
 			std::string logsOrigin_;
 			std::vector<std::string> logs_;
-			ContextState::ctxt_state curstate_ = ContextState::GOOD;
+			ContextState curstate_ = ContextState::GOOD;
 
 	};
 }

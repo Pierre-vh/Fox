@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="src\Moonshot\Common\Context\Context.cpp" />
     <ClCompile Include="src\Moonshot\Common\Exceptions\Exceptions.cpp" />
+    <ClCompile Include="src\Moonshot\Common\Types\TypeCast.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Runtime\Stmt\RTStmtVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Common\Symbols\Symbols.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.cpp" />
@@ -170,6 +171,7 @@
   <ItemGroup>
     <ClInclude Include="src\Moonshot\Common\Context\Context.h" />
     <ClInclude Include="src\Moonshot\Common\Exceptions\Exceptions.h" />
+    <ClInclude Include="src\Moonshot\Common\Types\TypeCast.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Runtime\Stmt\RTStmtVisitor.h" />
     <ClInclude Include="src\Moonshot\Common\Macros.h" />
     <ClInclude Include="src\Moonshot\Common\Options.h" />

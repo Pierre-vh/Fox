@@ -25,12 +25,13 @@
 // fwd decl
 namespace Moonshot::var
 {
+	struct varRef;
 	struct varattr;
 }
 
 // Alias for a variant holding every type possible in the interpreter.
-typedef void* FVAL_NULLTYPE;
-typedef std::variant<FVAL_NULLTYPE,int, float, char, std::string, bool, Moonshot::var::varattr> FVal;
+struct NullType{};
+typedef std::variant<NullType,int, float, char, std::string, bool, Moonshot::var::varRef> FVal;
 
 namespace Moonshot
 {
@@ -51,8 +52,8 @@ namespace Moonshot
 		
 			constexpr static inline bool isEqualTo(const std::size_t& index) // Checks if T represent the same type as index
 			{
-				if constexpr(std::is_same<T, FVAL_NULLTYPE>::value)
-					return index == fval_void;
+				if constexpr(std::is_same<T, NullType>::value)
+					return index == fval_null;
 				else if constexpr(std::is_same<T, int>::value)
 					return index == fval_int;
 				else if constexpr(std::is_same<T, float>::value)
@@ -63,8 +64,8 @@ namespace Moonshot
 					return index == fval_str;
 				else if constexpr(std::is_same<T, bool>::value)
 					return index == fval_bool;
-				else if constexpr(std::is_same<T, var::varattr>::value)
-					return index == fval_vattr;
+				else if constexpr(std::is_same<T, var::varRef>::value)
+					return index == fval_varRef;
 				else
 				{
 					E_CRITICAL("Defaulted");
@@ -111,42 +112,52 @@ namespace Moonshot
 		// Thanks, I guess ! This looks healthier than using -1 as invalid index. https://stackoverflow.com/a/37126153
 		static constexpr std::size_t invalid_index = std::numeric_limits<std::size_t>::max();
 		// How to remember values of index
-		static constexpr std::size_t fval_void = 0;
-		static constexpr std::size_t fval_int = 1;
+		static constexpr std::size_t fval_null	= 0;
+		static constexpr std::size_t fval_int	= 1;
 		static constexpr std::size_t fval_float = 2;
-		static constexpr std::size_t fval_char = 3;
-		static constexpr std::size_t fval_str = 4;
-		static constexpr std::size_t fval_bool = 5;
-		static constexpr std::size_t fval_vattr = 6;
+		static constexpr std::size_t fval_char	= 3;
+		static constexpr std::size_t fval_str	= 4;
+		static constexpr std::size_t fval_bool  = 5;
+		static constexpr std::size_t fval_varRef = 6;
 
 		// Map for converting type kw to a FVal index.
-		const std::map<lex::keywords, std::size_t> kTypeKwToIndex_dict =
+		const std::map<keywordType, std::size_t> kTypeKwToIndex_dict =
 		{
-			{ lex::T_INT	, fval_int	},
-			{ lex::T_FLOAT	, fval_float},
-			{ lex::T_BOOL	, fval_bool },
-			{ lex::T_STRING , fval_str	},
-			{ lex::T_CHAR	, fval_char }
+			{ keywordType::T_INT	, fval_int	},
+			{ keywordType::T_FLOAT	, fval_float},
+			{ keywordType::T_BOOL	, fval_bool },
+			{ keywordType::T_STRING , fval_str	},
+			{ keywordType::T_CHAR	, fval_char }
 
 		};
 
-		std::size_t typeKWtoSizeT(const lex::keywords& kw);
+		std::size_t typeKWtoSizeT(const keywordType& kw);
 
 		const std::map<std::size_t, std::string> kType_dict =
 		{
-			{ fval_void				, "NULL" },
+			{ fval_null				, "NULL" },
 			{ fval_int				, "INT" },
 			{ fval_float			, "FLOAT" },
 			{ fval_char				, "CHAR" },
 			{ fval_bool				, "BOOL" },
 			{ fval_str				, "STRING" },
-			{ fval_vattr			, "VAR_ATTR (ref)"},
+			{ fval_varRef			, "VAR_ATTR (ref)"},
 			{ invalid_index			, "!INVALID_FVAL!" }
 		};
 	}
 
 	namespace var
 	{
+		struct varRef
+		{
+			public:
+				varRef(const std::string& vname = "");
+				std::string getName() const;
+				void setName(const std::string& newname);
+				operator bool() const;  // checks validity of reference (if name != "");
+			private:
+				std::string name_;
+		};
 		struct varattr // Struct holding a var's attributes
 		{
 			varattr();
@@ -156,7 +167,9 @@ namespace Moonshot
 			// Variable's attribute
 			bool isConst = false;
 			std::string name = "";
-			std::size_t type = fv_util::fval_void;
+			std::size_t type = fv_util::fval_null;
+
+			varRef createRef() const;
 
 		private:
 			bool wasInit_ = false;

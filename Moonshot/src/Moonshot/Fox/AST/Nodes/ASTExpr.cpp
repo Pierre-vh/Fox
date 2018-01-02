@@ -11,12 +11,7 @@
 
 using namespace Moonshot;
 
-ASTExpr::ASTExpr()
-{
-
-}
-
-ASTExpr::ASTExpr(const parse::optype & opt) : op_(opt)
+ASTExpr::ASTExpr(const operation & opt) : op_(opt)
 {
 
 }
@@ -26,24 +21,24 @@ ASTExpr::~ASTExpr()
 
 }
 
-void ASTExpr::makeChild(const parse::direction & d, std::unique_ptr<ASTExpr> &node)
+void ASTExpr::makeChild(const dir & d, std::unique_ptr<ASTExpr> &node)
 {
-	if (d == parse::direction::LEFT)
+	if (d == dir::LEFT)
 		left_ = std::move(node);
-	else if (d == parse::direction::RIGHT)
+	else if (d == dir::RIGHT)
 		right_ = std::move(node);
 }
 
-void ASTExpr::makeChildOfDeepestNode(const parse::direction & d, std::unique_ptr<ASTExpr>& node)
+void ASTExpr::makeChildOfDeepestNode(const dir & d, std::unique_ptr<ASTExpr>& node)
 {
-	if (d == parse::direction::LEFT)
+	if (d == dir::LEFT)
 	{
 		if (!left_)						// we don't have a left child
 			this->makeChild(d, node);
 		else // we do
 			left_->makeChildOfDeepestNode(d, node);
 	}
-	else if (d == parse::direction::RIGHT)
+	else if (d == dir::RIGHT)
 	{
 		if (!right_)						// we don't have a right child
 			this->makeChild(d, node);
@@ -52,16 +47,16 @@ void ASTExpr::makeChildOfDeepestNode(const parse::direction & d, std::unique_ptr
 	}
 }
 
-bool ASTExpr::hasNode(const parse::direction & d) const
+bool ASTExpr::hasNode(const dir & d) const
 {
-	if (((d == parse::LEFT) && left_) || ((d == parse::RIGHT) && right_))
+	if (((d == dir::LEFT) && left_) || ((d == dir::RIGHT) && right_))
 		return true;
 	return false;
 }
 
 std::unique_ptr<ASTExpr> ASTExpr::getSimple()
 {
-	if (left_ && !right_ && (op_ == parse::optype::PASS))		// If the right node is empty
+	if (left_ && !right_ && (op_ == operation::PASS))		// If the right node is empty
 	{
 		auto ret = std::move(left_);
 		return ret;
@@ -94,30 +89,25 @@ void ASTExpr::swapChildren()
 	std::swap(left_, right_);
 }
 
-ASTRawValue::ASTRawValue()
-{
-
-}
-
 ASTRawValue::ASTRawValue(const token & t)
 {
 	try
 	{
-		if (t.val_type == lex::VAL_STRING)
+		if (t.val_type == valueType::VAL_STRING)
 			val_ = t.str;
-		else if (t.val_type == lex::VAL_CHAR)
+		else if (t.val_type == valueType::VAL_CHAR)
 			val_ = (char)t.str[0];
-		else if (t.val_type == lex::VAL_BOOL)
+		else if (t.val_type == valueType::VAL_BOOL)
 			val_ = std::get<bool>(t.vals);
-		else if (t.val_type == lex::VAL_INTEGER)
+		else if (t.val_type == valueType::VAL_INTEGER)
 			val_ = std::get<int>(t.vals);
-		else if (t.val_type == lex::VAL_FLOAT)
+		else if (t.val_type == valueType::VAL_FLOAT)
 			val_ = std::get<float>(t.vals);
 	}
 	catch (const std::bad_variant_access &err)
 	{
 		E_CRITICAL("Tried to access a value in a variant that did not exists. ");
-			std::cerr << err.what() << std::endl;
+		std::cerr << err.what() << std::endl;
 	}
 }
 
@@ -135,11 +125,6 @@ ASTRawValue::~ASTRawValue()
 
 }
 // VCalls
-
-ASTVarCall::ASTVarCall()
-{
-}
-
 ASTVarCall::ASTVarCall(const std::string& vname) : varname_(vname)
 {
 }

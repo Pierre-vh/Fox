@@ -25,11 +25,11 @@ void Dumper::visit(ASTExpr & node)
 {
 	std::cout << tabs() << "Expression : Operator ";
 	// Attempts to print the operator in a str form
-	auto strOp = parse::kOptype_dict.find(node.op_);
-	if (strOp != parse::kOptype_dict.end())
+	auto strOp = kOptype_dict.find(node.op_);
+	if (strOp != kOptype_dict.end())
 		std::cout << strOp->second;
 	else
-		std::cout << node.op_;
+		std::cout << util::enumAsInt(node.op_);
 
 	if (node.totype_ != invalid_index)
 		std::cout << ", Return type : " << indexToTypeName(node.totype_);

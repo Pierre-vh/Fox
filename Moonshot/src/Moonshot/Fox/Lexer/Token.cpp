@@ -9,6 +9,7 @@
 
 #include "Token.h"
 #include "../../Common/Errors/Errors.h"
+
 using namespace Moonshot;
 
 token::token()
@@ -23,32 +24,32 @@ token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
 
 std::string token::showFormattedTokenData() const
 {
-	if (type == lex::TT_ENUM_DEFAULT && str == "") // Token isn't initialized.
-		return ""; // return nothing.
+	if (type == tokenType::TT_ENUM_DEFAULT && str == "") // Token isn't initialized.
+		return "<EMPTY TOKEN>"; // return nothing.
 
 	std::stringstream ss;
 	ss << "[str:\"" << str << "\"][" << pos.asText() << "][type:";
 	int enum_info = -1;		// The information of the corresponding enumeration
 	switch (type)
 	{
-		case lex::TT_ENUM_DEFAULT:
+		case tokenType::TT_ENUM_DEFAULT:
 			ss << "ENUM_DEFAULT";
 			break;
-		case lex::TT_IDENTIFIER:
+		case tokenType::TT_IDENTIFIER:
 			ss << "IDENTIFIER";
 			enum_info = -2;
 			break;
-		case lex::TT_KEYWORD:
+		case tokenType::TT_KEYWORD:
 			ss << "KEYWORD";
-			enum_info = kw_type;
+			enum_info = util::enumAsInt(kw_type);
 			break;
-		case lex::TT_SIGN:
+		case tokenType::TT_SIGN:
 			ss << "SIGN";
-			enum_info = sign_type;
+			enum_info = util::enumAsInt(sign_type);
 			break;
-		case lex::TT_VALUE:
+		case tokenType::TT_VALUE:
 			ss << "VALUE";
-			enum_info = val_type;
+			enum_info = util::enumAsInt(val_type);
 			break;
 	}
 	if (enum_info >= -1)
@@ -74,15 +75,15 @@ void token::selfId()
 	pos.column -= (int)str.length();
 
 	if (idSign())
-		type = lex::TT_SIGN;
+		type = tokenType::TT_SIGN;
 	else
 	{
 		if (idKeyword())
-			type = lex::TT_KEYWORD;
+			type = tokenType::TT_KEYWORD;
 		else if (idValue())
-			type = lex::TT_VALUE;
-		else if (std::regex_match(str, lex::kId_regex))
-			type = lex::TT_IDENTIFIER;
+			type = tokenType::TT_VALUE;
+		else if (std::regex_match(str, kId_regex))
+			type = tokenType::TT_IDENTIFIER;
 		else
 			E_ERROR("Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]");
 	}
@@ -90,8 +91,8 @@ void token::selfId()
 
 bool token::idKeyword()
 {
-	auto i = lex::kWords_dict.find(str);
-	if (i == lex::kWords_dict.end())
+	auto i = kWords_dict.find(str);
+	if (i == kWords_dict.end())
 		return false;
 	
 	kw_type = i->second;
@@ -104,8 +105,8 @@ bool token::idSign()
 		return false;
 	if (isdigit(str[0]))
 		return false;
-	auto i = lex::kSign_dict.find(str[0]);
-	if (i != lex::kSign_dict.end())
+	auto i = kSign_dict.find(str[0]);
+	if (i != kSign_dict.end())
 	{
 		sign_type = i->second;
 		return true;
@@ -122,7 +123,7 @@ bool token::idValue()
 			str = str[1];
 			if (str == "\\" && str.size() == 4) // If we have a \n in a char or something
 				str += str[2];
-			val_type = lex::VAL_CHAR;
+			val_type = valueType::VAL_CHAR;
 			return true;
 		}
 		else
@@ -136,7 +137,7 @@ bool token::idValue()
 		if (str.back() == '"')
 		{
 			str = str.substr(1, str.size() - 2);
-			val_type = lex::VAL_STRING;
+			val_type = valueType::VAL_STRING;
 			return true;
 		}
 		else
@@ -148,19 +149,19 @@ bool token::idValue()
 	else if (str == "true" | str == "false")
 	{
 		vals = (str == "true" ? true : false);
-		val_type = lex::VAL_BOOL;
+		val_type = valueType::VAL_BOOL;
 		return true;
 	}
-	else if (std::regex_match(str, lex::kInt_regex))
+	else if (std::regex_match(str, kInt_regex))
 	{
 		vals = std::stoi(str);
-		val_type = lex::VAL_INTEGER;
+		val_type = valueType::VAL_INTEGER;
 		return true;
 	}
-	else if (std::regex_match(str, lex::kFloat_regex))
+	else if (std::regex_match(str, kFloat_regex))
 	{
 		vals = std::stof(str);
-		val_type = lex::VAL_FLOAT;
+		val_type = valueType::VAL_FLOAT;
 		return true;
 	}
 	return false;

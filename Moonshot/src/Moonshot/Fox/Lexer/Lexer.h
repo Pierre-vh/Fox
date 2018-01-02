@@ -32,17 +32,14 @@
 
 namespace Moonshot
 {
-	namespace dfa
+	enum class dfaState
 	{
-		enum state
-		{
-			S0, S1, S2, S3, S4, S5	// the dfa's state.
-		};
-	}
+		S0, S1, S2, S3, S4, S5	// the dfa's state.
+	};
 	class Lexer 
 	{
 		public:
-			Lexer();
+			Lexer() = default;
 			~Lexer();
 
 			void lexStr(const std::string &data);		// Main function.
@@ -63,12 +60,12 @@ namespace Moonshot
 			void dfa_S3();
 			void dfa_S4();
 			void dfa_S5();
-			void dfa_goto(const dfa::state &ns); 	// Go to state X
+			void dfa_goto(const dfaState &ns); 	// Go to state X
 
 			// Useful functions 
 			char eatChar();										// returns the current char and go forward in the stream (returns str_[pos_] and do pos_+=1)
 			void addToCurtok(const char &c);					// adds the current character to curtok_, except if(isspace())
-			bool isSep(const char &c) const;					// is the current char a separator? (= a sign. see lex::kSign_dict)
+			bool isSep(const char &c) const;					// is the current char a separator? (= a sign. see kSign_dict)
 			char peekNext(const size_t &p) const;				//	returns the next char after pos p 
 			// Overloads with no arguments (will assume p = pos_)
 			char peekNext() const;
@@ -82,21 +79,21 @@ namespace Moonshot
 			// Member Variables
 
 			// dfa function dictionary : enum -> function
-			const std::map<dfa::state, std::function<void(Lexer &)>> kState_dict =
+			const std::map<dfaState, std::function<void(Lexer &)>> kState_dict =
 			{ 
-				{	dfa::S0	,	&Lexer::dfa_S0 },
-				{	dfa::S1	,	&Lexer::dfa_S1 },
-				{	dfa::S2	,	&Lexer::dfa_S2 },
-				{	dfa::S3	,	&Lexer::dfa_S3 },
-				{	dfa::S4	,	&Lexer::dfa_S4 },
-				{	dfa::S5	,	&Lexer::dfa_S5 }
+				{	dfaState::S0	,	&Lexer::dfa_S0 },
+				{	dfaState::S1	,	&Lexer::dfa_S1 },
+				{	dfaState::S2	,	&Lexer::dfa_S2 },
+				{	dfaState::S3	,	&Lexer::dfa_S3 },
+				{	dfaState::S4	,	&Lexer::dfa_S4 },
+				{	dfaState::S5	,	&Lexer::dfa_S5 }
 			};
 			//size_t to std::string
 			std::string sizeToString(const size_t &s) const;
 
 			// member variables
 			bool escapes_ = false;				// escaping with backslash
-			dfa::state cstate_ = dfa::S0;		// curren dfa state. begins at S0;
+			dfaState cstate_ = dfaState::S0;		// curren dfa state. begins at S0;
 			std::string str_;					// the input
 			size_t pos_ = 0;					// position in the input string;
 			std::string curtok_;				// the token that's being constructed.

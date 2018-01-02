@@ -11,7 +11,7 @@
 
 using namespace Moonshot;
 
-std::string Moonshot::getFromDict(const std::map<parse::optype, std::string>& m, const parse::optype& op)
+std::string Moonshot::getFromDict(const std::map<operation, std::string>& m, const operation& op)
 {
 	auto i = m.find(op);
 	if (i != m.end())

@@ -5,4 +5,5 @@ val2 = val1 = pi = 22/7;
 let foo : string = "Foo" + ("bar");
 let foob : const string = foo;
 foo = -(val2 as int) as string;
-let xtest : float = val2 = 3;
+let xtest : float = val2 = 96;
+let xbtest : const char = xtest;

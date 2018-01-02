@@ -28,14 +28,14 @@ namespace Moonshot
 	struct ASTExpr : public IASTStmt
 	{
 		public:
-			ASTExpr();
-			ASTExpr(const parse::optype &opt);
+			ASTExpr() = default;
+			ASTExpr(const operation &opt);
 			~ASTExpr();
 
-			void makeChild(const parse::direction &d,std::unique_ptr<ASTExpr> &node); // make (node) a child of this.
-			void makeChildOfDeepestNode(const parse::direction &d, std::unique_ptr<ASTExpr> &node); // Make (node) a child of the deepest left/right path of our node. (continue until left/right = 0, then makechild.)
+			void makeChild(const dir &d,std::unique_ptr<ASTExpr> &node); // make (node) a child of this.
+			void makeChildOfDeepestNode(const dir &d, std::unique_ptr<ASTExpr> &node); // Make (node) a child of the deepest left/right path of our node. (continue until left/right = 0, then makechild.)
 			
-			bool hasNode(const parse::direction &d) const;	// If the node posseses a left/right child, it will return true
+			bool hasNode(const dir &d) const;	// If the node posseses a left/right child, it will return true
 			void setReturnType(const std::size_t &casttype); // set totype_
 			std::size_t getToType() const;					// return totype_
 
@@ -52,7 +52,7 @@ namespace Moonshot
 			// op_ : the operation the node should perform
 			// left_ & right_ -> pointers to its children
 			std::size_t totype_ = fv_util::invalid_index;	// By default, don't cast (-1). If this is different , then we must cast the result to the desired type.
-			parse::optype op_ = parse::PASS;
+			operation op_ = operation::PASS;
 			std::unique_ptr<ASTExpr> left_, right_;
 
 		private:
@@ -61,7 +61,7 @@ namespace Moonshot
 	struct ASTRawValue : public ASTExpr // Stores hard coded constants. 3+3 -> 3 are Hard coded constants.
 	{
 		public:
-			ASTRawValue();
+			ASTRawValue() = default;
 			ASTRawValue(const token &t);
 			~ASTRawValue();
 
@@ -78,7 +78,7 @@ namespace Moonshot
 	struct ASTVarCall : public ASTExpr // Store var calls : foo+3 -> foo is a var call;
 	{
 		public:
-			ASTVarCall();
+			ASTVarCall() = default;
 			ASTVarCall(const std::string& vname);
 			~ASTVarCall();
 

@@ -13,6 +13,7 @@
 #include "../IVisitor.h"
 // FVal Utilities
 #include "../../../../Common/Types/Types.h"
+#include "../../../../Common/Utils/Utils.h" // for enumAsInt
 // Include nodes
 #include "../../Nodes/ASTExpr.h"
 #include "../../Nodes//ASTVarDeclStmt.h"

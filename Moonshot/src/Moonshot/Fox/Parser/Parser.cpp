@@ -25,7 +25,7 @@ Parser::~Parser()
 std::pair<bool, token> Parser::matchValue()
 {
 	token t = getToken();
-	if (t.type == lex::TT_VALUE)
+	if (t.type == tokenType::TT_VALUE)
 	{
 		pos_ += 1;
 		return { true,t };
@@ -38,7 +38,7 @@ std::pair<bool, token> Parser::matchValue()
 std::pair<bool, std::string> Parser::matchID()
 {
 	token t = getToken();
-	if (t.type == lex::TT_IDENTIFIER)
+	if (t.type == tokenType::TT_IDENTIFIER)
 	{
 		pos_ += 1;
 		return { true, t.str };
@@ -46,10 +46,10 @@ std::pair<bool, std::string> Parser::matchID()
 	return { false, "" };
 }
 
-bool Parser::matchSign(const lex::signs & s)
+bool Parser::matchSign(const signType & s)
 {
 	token t = getToken();
-	if (t.type == lex::TT_SIGN && t.sign_type == s)
+	if (t.type == tokenType::TT_SIGN && t.sign_type == s)
 	{
 		pos_ += 1;
 		return true;
@@ -57,10 +57,10 @@ bool Parser::matchSign(const lex::signs & s)
 	return false;
 }
 
-bool Parser::matchKeyword(const lex::keywords & k)
+bool Parser::matchKeyword(const keywordType & k)
 {
 	token t = getToken();
-	if (t.type == lex::TT_KEYWORD && t.kw_type == k)
+	if (t.type == tokenType::TT_KEYWORD && t.kw_type == k)
 	{
 		pos_ += 1;
 		return true;
@@ -70,22 +70,22 @@ bool Parser::matchKeyword(const lex::keywords & k)
 
 bool Parser::matchEOI()
 {
-	return matchSign(lex::P_SEMICOLON);
+	return matchSign(signType::P_SEMICOLON);
 }
 
 std::size_t Moonshot::Parser::matchTypeKw()
 {
 	token t = getToken();
 	pos_ += 1;
-	if (t.type == lex::TT_KEYWORD)
+	if (t.type == tokenType::TT_KEYWORD)
 	{
 		switch (t.kw_type)
 		{
-			case lex::T_INT:	return fval_int;
-			case lex::T_FLOAT:	return fval_float;
-			case lex::T_CHAR:	return fval_char;
-			case lex::T_STRING:	return fval_str;
-			case lex::T_BOOL:	return fval_bool;
+			case keywordType::T_INT:	return fval_int;
+			case keywordType::T_FLOAT:	return fval_float;
+			case keywordType::T_CHAR:	return fval_char;
+			case keywordType::T_STRING:	return fval_str;
+			case keywordType::T_BOOL:	return fval_bool;
 		}
 	}
 	pos_ -= 1;

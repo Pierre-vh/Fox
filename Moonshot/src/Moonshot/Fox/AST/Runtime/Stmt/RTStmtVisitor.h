@@ -32,6 +32,9 @@ namespace Moonshot
 
 			virtual FVal visit(ASTVarDeclStmt & node) override;
 
+		private:
+			// Declares the value, but deref initival if it's a reference.
+			bool symtab_declareValue_derefFirst(const var::varattr& vattr, FVal initval = FVal());
 	};
 
 }

@@ -11,7 +11,9 @@
 #pragma once
 
 #include "../Types/Types.h"
+#include "../Types/TypeCast.h"
 #include "../../Fox/AST/Nodes/ASTExpr.h"
+#include "../Options.h"
 
 #include <sstream> // std::stringstream
 #include <tuple> // std::pair
@@ -43,7 +45,7 @@ namespace Moonshot
 
 			// Getters/setters for the symbols table.
 			std::pair<var::varattr, FVal> symtable_getEntry(const std::string& str,bool& successFlag);
-			bool symtable_setEntry(const std::string& vname, const FVal& vvalue);
+			bool symtable_setEntry(const std::string& vname, const FVal& vvalue,const bool& isDecl = false);
 			bool symtable_addEntry(const var::varattr& vattr,FVal initval);
 
 			// Helper function : creates a key.

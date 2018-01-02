@@ -22,7 +22,7 @@ std::unique_ptr<IASTStmt> Parser::parseStmt()
 	else if (node = parseVarDeclStmt())
 		return node;
 	else
-		return NULL_UNIPTR(IASTStmt);
+		return nullptr;
 }
 
 std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
@@ -34,7 +34,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 	std::size_t varType = invalid_index;
 	std::string varName;
 
-	if (matchKeyword(lex::D_LET))
+	if (matchKeyword(keywordType::D_LET))
 	{
 		// ##ID##
 		bool successfulMatchFlag = false;
@@ -73,7 +73,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		
 		// ##ASSIGNEMENT##
 		// '=' <expr>
-		if (matchSign(lex::S_EQUAL))
+		if (matchSign(signType::S_EQUAL))
 		{
 			initExpr = parseExpr();
 			if (!initExpr)
@@ -103,19 +103,19 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		if (initExpr) // Has init expr?
 			return std::make_unique<ASTVarDeclStmt>(v_attr, initExpr);
 		else
-			return std::make_unique<ASTVarDeclStmt>(v_attr,NULL_UNIPTR(ASTExpr));
+			return std::make_unique<ASTVarDeclStmt>(v_attr, std::unique_ptr<ASTExpr>(nullptr));
 	}
-	return NULL_UNIPTR(IASTStmt);
+	return nullptr;
 }
 
 std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 {
 	bool isConst = false;
 	std::size_t typ;
-	if (matchSign(lex::P_COLON))
+	if (matchSign(signType::P_COLON))
 	{
 		// Match const kw
-		if (matchKeyword(lex::T_CONST))
+		if (matchKeyword(keywordType::T_CONST))
 			isConst = true;
 		// Now match the type specifier
 		if ((typ = matchTypeKw()) != invalid_index)
@@ -138,5 +138,5 @@ std::unique_ptr<IASTStmt> Parser::parseExprStmt()
 		else
 			errorExpected("Expected a semicolon after expression in expressionStatement.");
 	}
-	return NULL_UNIPTR(IASTStmt);
+	return nullptr;
 }

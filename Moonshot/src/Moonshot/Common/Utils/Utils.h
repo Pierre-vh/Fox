@@ -7,13 +7,13 @@ namespace Moonshot
 {
 	namespace util
 	{
-		// https://stackoverflow.com/questions/21174593/downcasting-unique-ptrbase-to-unique-ptrderived
-		template<typename Derived, typename Base, typename Del>
-		std::unique_ptr<Derived, Del>
-			dynamic_unique_ptr_cast(std::unique_ptr<Base, Del>&& p);
-
-
 		//open a file in the moonshot folder from the build folder
 		std::string filepath_MoonshotProj(const std::string &s);
+		// convert enum to integer
+		template<typename Enumeration>
+		inline auto enumAsInt(Enumeration const value) -> typename std::underlying_type<Enumeration>::type
+		{
+			return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+		}
 	}
 }
