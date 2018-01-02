@@ -62,7 +62,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 				);
 				return right_res;
 			}
-			else if(E_CHECKSTATE)
+			else 
 				E_ERROR("Impossible assignement between " + dumpFVal(left_res) + " and " + dumpFVal(right_res));
 		}
 		else
@@ -128,8 +128,8 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 			}
 		}
 
-		double dleftval = fvalToDouble(node.left_->accept(*this));
-		double drightval = fvalToDouble(node.right_->accept(*this));
+		double dleftval = fvalToDouble_withDeref(node.left_->accept(*this));
+		double drightval = fvalToDouble_withDeref(node.right_->accept(*this));
 		return FVal(compareVal(
 			node.op_,
 			node.left_->accept(*this),
@@ -139,7 +139,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 	}
 	else if (node.op_ == operation::LOGICNOT || node.op_ == operation::NEGATE)
 	{
-		double lval = fvalToDouble(node.left_->accept(*this));
+		double lval = fvalToDouble_withDeref(node.left_->accept(*this));
 		if (node.op_ == operation::LOGICNOT)
 		{
 			return FVal(
@@ -157,8 +157,8 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		if (!node.left_ || !node.right_)
 			E_CRITICAL("Tried to perform an operation on a node without a left_ and/or right child.");
 
-		const double dleftval = fvalToDouble(node.left_->accept(*this));
-		const double drightval = fvalToDouble(node.right_->accept(*this));
+		const double dleftval = fvalToDouble_withDeref(node.left_->accept(*this));
+		const double drightval = fvalToDouble_withDeref(node.right_->accept(*this));
 		const double result = performOp(node.op_, dleftval, drightval);
 
 		if (fitsInValue(node.totype_, result) || (node.op_ == operation::CAST)) // If the results fits or we desire to cast the result
@@ -177,7 +177,7 @@ FVal RTExprVisitor::visit(ASTRawValue & node)
 FVal RTExprVisitor::visit(ASTVarCall & node)
 {
 	if (isSymbolsTableAvailable())
-		return symtab_->retrieveVarAttr(node.varname_).createRef();
+		return symtab_->retrieveVarAttr(node.varname_).createRef(); // this returns a reference, because it's needed for assignement operations.
 	else
 	{
 		E_LOG("Can't retrieve values if the symbols table is not available.");
@@ -190,9 +190,21 @@ void RTExprVisitor::setSymbolsTable(std::shared_ptr<SymbolsTable> symtab)
 	symtab_ = symtab;
 }
 
-double RTExprVisitor::fvalToDouble(const FVal & fval)
+double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 {
-	if (!isBasic(fval.index()))
+	// If fval is a reference, dereference it first
+	if (fval.index() == fval_varRef)
+	{
+		if (isSymbolsTableAvailable())
+		{
+			fval = symtab_->retrieveValue(
+				std::get<var::varRef>(fval).getName()
+			);
+		}
+		else
+			E_LOG("Can't dereference variable if the symbols table is not available.");
+	}
+    if (!isBasic(fval.index()))
 		E_ERROR("Can't perform conversion to double on a non basic type.");
 	else if (!isArithmetic(fval.index()))
 		E_ERROR("Can't perform conversion to double on a non arithmetic type.");
@@ -211,8 +223,8 @@ double RTExprVisitor::fvalToDouble(const FVal & fval)
 bool RTExprVisitor::compareVal(const operation & op, const FVal & l, const FVal & r)
 {
 	
-	const double lval = fvalToDouble(l);
-	const double rval = fvalToDouble(r);
+	const double lval = fvalToDouble_withDeref(l);
+	const double rval = fvalToDouble_withDeref(r);
 	switch (op)
 	{
 		case operation::AND:

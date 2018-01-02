@@ -45,7 +45,8 @@ namespace Moonshot
 			void setSymbolsTable(std::shared_ptr<SymbolsTable> symtab);
 
 		protected:
-			double fvalToDouble(const FVal &fval);
+			// converts fval to double, but if fval is a varref, deref it first.
+			double fvalToDouble_withDeref(FVal fval);
 			bool compareVal(const operation &op, const FVal &l, const FVal &r);
 			bool compareStr(const operation &op, const std::string &lhs, const std::string &rhs);
 			double performOp(const operation& op, double l, double r);

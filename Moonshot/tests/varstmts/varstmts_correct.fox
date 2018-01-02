@@ -7,3 +7,4 @@ let foob : const string = foo;
 foo = -(val2 as int) as string;
 let xtest : float = val2 = 96;
 let xbtest : const char = xtest;
+let result : int = val1*val2--pi;

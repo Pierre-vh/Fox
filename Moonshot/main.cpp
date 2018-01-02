@@ -57,21 +57,6 @@ int main()
 	}
 	Test_CommonUtilities::printTitle(flag ? " SUCCESS " : " FAILURE ");
 
-	// other tests, simply ignore.
-	Context ctxt;
-	ctxt.reportError("Bad !");
-	if (!ctxt.isSafe())
-		ctxt.logMessage("Unsafe!");
-	ctxt.printLogs();
-
-	try {
-		throw Exceptions::lexer_critical_error("TEST");
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-
 	std::cout << "Finished. Press any key to continue." << std::endl;
 	std::cin.get();
 	return 0;
