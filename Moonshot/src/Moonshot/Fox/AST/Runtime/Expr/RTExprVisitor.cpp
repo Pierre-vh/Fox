@@ -54,7 +54,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		{
 			auto left_res = node.left_->accept(*this);
 			auto right_res = node.right_->accept(*this);
-			if ((left_res.index() == fval_varRef) && isValue(right_res.index()))
+			if (std::holds_alternative<var::varRef>(left_res) && isValue(right_res.index()))
 			{
 				symtab_->setValue(
 					std::get<var::varRef>(left_res).getName(),
@@ -82,7 +82,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		if (isSymbolsTableAvailable())
 		{
 			auto vattr = node.left_->accept(*this);
-			if (vattr.index() == fval_varRef)
+			if (std::holds_alternative<var::varRef>(vattr))
 			{
 				// Perform assignement
 				std::string vname = std::get<var::varRef>(vattr).getName();
@@ -193,7 +193,7 @@ void RTExprVisitor::setSymbolsTable(std::shared_ptr<SymbolsTable> symtab)
 double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 {
 	// If fval is a reference, dereference it first
-	if (fval.index() == fval_varRef)
+	if (std::holds_alternative<var::varRef>(fval))
 	{
 		if (isSymbolsTableAvailable())
 		{
@@ -322,7 +322,7 @@ bool RTExprVisitor::isSymbolsTableAvailable() const
 
 FVal RTExprVisitor::castTo_withDeref(const std::size_t & goal, FVal val)
 {
-	if (val.index() == fval_varRef)
+	if (std::holds_alternative<var::varRef>(val))
 	{
 		auto ref = std::get<var::varRef>(val);
 		val = symtab_->retrieveValue(ref.getName());

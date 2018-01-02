@@ -40,7 +40,7 @@ var::varattr SymbolsTable::retrieveVarAttr(const std::string & varname)
 
 bool SymbolsTable::declareValue(const var::varattr & v_attr, const FVal & initVal)
 {
-	if(initVal.index() == fv_util::fval_null)
+	if (std::holds_alternative<NullType>(initVal))
 		return symtable_addEntry(v_attr,fv_util::getSampleFValForIndex(v_attr.type)); // Init with a default value.
 	return symtable_addEntry(v_attr, initVal);
 }

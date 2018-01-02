@@ -53,7 +53,7 @@ FVal RTStmtVisitor::visit(ASTVarDeclStmt & node)
 
 bool RTStmtVisitor::symtab_declareValue_derefFirst(const var::varattr & vattr, FVal initval)
 {
-	if (initval.index() == fv_util::fval_varRef)
+	if (std::holds_alternative<var::varRef>(initval))
 		initval = symtab_->retrieveValue(std::get<var::varRef>(initval).getName());
 	return symtab_->declareValue(vattr, initval);;
 }
