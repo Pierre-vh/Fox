@@ -97,14 +97,13 @@ bool SymbolsTable::symtable_setEntry(const std::string & vname,const FVal& vvalu
 				return symtable_setEntry(vname,castVal,isDecl); // Proceed
 			return false; // Bad cast : abort
 		}
+		// Error cases
 		if (it->first.isConst && !isDecl) // if the variable is const, and we're not in a declaration
 			E_ERROR("Can't assign a value to const variable \"" + vname + "\". Const variables must be initialized at declaration and can't be changed later.");
+		// No error ? proceed.
 		else
 		{
-			if (vvalue.index() == fv_util::fval_varRef) // if we try to assign a var attr to a variable, it's because we try to copy values.
-				it->second = retrieveValue(std::get<var::varRef>(vvalue).getName());
-			else
-				it->second = vvalue; // update the value
+			it->second = vvalue; // update the value
 			return true;
 		}
 	}
