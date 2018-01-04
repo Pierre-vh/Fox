@@ -45,7 +45,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 
 		if (!successfulMatchFlag)
 		{
-			if (E_CHECKSTATE)
+			if (context_.isSafe())
 			{
 				errorUnexpected();
 				errorExpected("Expected an ID after \"let\" keyword");
@@ -58,7 +58,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		// index 2 -> type index if success
 		if (!std::get<0>(typespecResult))
 		{
-			if (E_CHECKSTATE)
+			if (context_.isSafe())
 			{
 				errorUnexpected();
 				errorExpected("Expected type specifier after ID");
@@ -78,7 +78,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 			initExpr = parseExpr();
 			if (!initExpr)
 			{
-				if (E_CHECKSTATE)
+				if (context_.isSafe())
 				{
 					errorUnexpected();
 					errorExpected("Expected expression after '=' sign");
@@ -88,7 +88,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		// ##EOI##
 		if (!matchEOI())
 		{
-			if (E_CHECKSTATE)
+			if (context_.isSafe())
 			{
 				errorUnexpected();
 				errorExpected("Expected semicolon after expression in variable declaration");
@@ -96,7 +96,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		}
 	}
 
-	if (E_CHECKSTATE)
+	if (context_.isSafe())
 	{
 		// If parsing was ok : 
 		var::varattr v_attr(varName, varType, isVarConst);
@@ -120,7 +120,7 @@ std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 		// Now match the type specifier
 		if ((typ = matchTypeKw()) != invalid_index)
 			return { true , isConst , typ };
-		else if (E_CHECKSTATE)
+		else if (context_.isSafe())
 			errorExpected("Expected type keyword in type specifier.");
 	}
 	return { false, false, invalid_index };

@@ -18,7 +18,8 @@
 #include <sstream> // std::stringstream
 #include <type_traits> // std::is_same
 
-#include "../../Common/Errors/Errors.h"
+#include "../../Common/Context/Context.h" // context
+#include "../../Common/Exceptions/Exceptions.h"
 #include "../../Fox/Lexer/Token.h"
 #include "../../Fox/Util/Enums.h"
 
@@ -68,7 +69,7 @@ namespace Moonshot
 					return index == fval_varRef;
 				else
 				{
-					E_CRITICAL("Defaulted");
+					throw std::logic_error("Defaulted");
 					return false;
 				}
 			}
@@ -89,7 +90,7 @@ namespace Moonshot
 		bool isArithmetic(const std::size_t& t);
 		bool isValue(const std::size_t& t);
 
-		bool canAssign(const std::size_t &lhs, const std::size_t &rhs); // Checks if the lhs and rhs are compatible.
+		bool canAssign(Context& context_,const std::size_t &lhs, const std::size_t &rhs); // Checks if the lhs and rhs are compatible.
 																		// Compatibility : 
 																		// Arithmetic type <-> Arithmetic Type = ok
 																		// string <-> string = ok

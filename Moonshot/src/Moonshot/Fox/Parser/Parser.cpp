@@ -13,9 +13,9 @@
 using namespace Moonshot;
 using namespace fv_util;
 
-Parser::Parser(const std::shared_ptr<Lexer>& l)
+Parser::Parser(Context& c, Lexer& l) : context_(c),lex_(l)
 {
-	lex_ = l;
+
 }
 
 Parser::~Parser()
@@ -30,7 +30,7 @@ std::pair<bool, token> Parser::matchValue()
 		pos_ += 1;
 		return { true,t };
 	}
-	return { false,token() };
+	return { false,token(Context()) };
 }
 
 
@@ -99,31 +99,30 @@ token Parser::getToken() const
 
 token Parser::getToken(const size_t & d) const
 {
-	if (d < lex_->resultSize())
-		return lex_->getToken(d);
+	if (d < lex_.resultSize())
+		return lex_.getToken(d);
 	else
-		return token();
+		return token(Context());
 }
 
 void Parser::errorUnexpected()
 {
-	E_SET_ERROR_CONTEXT("PARSING");
+	context_.setOrigin("Parser");
 
 	std::stringstream output;
 	output << "Unexpected token " << getToken().showFormattedTokenData() << std::endl;
-	E_ERROR(output.str());
+	context_.reportError(output.str());
 
-	E_RESET_ERROR_CONTEXT;
+	context_.resetOrigin();
 }
 
 void Parser::errorExpected(const std::string & s)
 {
-	E_SET_ERROR_CONTEXT("PARSING");
+	context_.setOrigin("Parser");
 
 	std::stringstream output;
 	output << s << "\n[after token " << getToken(pos_-1).showFormattedTokenData() << "]" << std::endl;
-	E_ERROR(output.str());
+	context_.reportError(output.str());
 
-	E_RESET_ERROR_CONTEXT;
-	
+	context_.resetOrigin();
 }

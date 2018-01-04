@@ -38,7 +38,7 @@ std::string fv_util::dumpFVal(const FVal & var)
 		output << "Type : CHAR, Value : " << (int)x <<  " = '" << x << "'";
 	}
 	else
-		E_CRITICAL("Illegal variant.");
+		throw std::logic_error("Illegal variant.");
 	return output.str();
 }
 std::string fv_util::dumpVAttr(const var::varattr & var)
@@ -73,10 +73,10 @@ FVal fv_util::getSampleFValForIndex(const std::size_t & t)
 		case fval_varRef:
 			return FVal(var::varattr());
 		case invalid_index:
-			E_CRITICAL("Tried to get a sample FVal with an invalid index");
+			throw std::logic_error("Tried to get a sample FVal with an invalid index");
 			return FVal();
 		default:
-			E_CRITICAL("Defaulted while attempting to return a sample FVal for an index. -> Unknown index. Unimplemented type?");
+			throw std::logic_error("Defaulted while attempting to return a sample FVal for an index. -> Unknown index. Unimplemented type?");
 			return FVal();
 	}
 }
@@ -112,11 +112,11 @@ bool Moonshot::fv_util::isValue(const std::size_t & t)
 	return isBasic(t) || (t == fval_varRef);
 }
 
-bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
+bool fv_util::canAssign(Context& context_,const std::size_t & lhs, const std::size_t & rhs)
 {
 	if ((rhs == fval_null) || (lhs == fval_null))
 	{
-		E_ERROR("Can't assign a void expression to a variable.");
+		context_.reportError("Can't assign a void expression to a variable.");
 		return false;
 	}
 	if (!isBasic(lhs) || !isBasic(rhs))
@@ -127,7 +127,7 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 	// From here, we know lhs and rhs are different.
 	else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // one of them is a string
 	{
-		E_ERROR("Can't assign a string to an arithmetic type and vice versa.");
+		context_.reportError("Can't assign a string to an arithmetic type and vice versa.");
 		return false;
 	}
 	// Else, we're good, return true.
@@ -137,7 +137,7 @@ bool fv_util::canCastTo(const std::size_t & goal, const std::size_t & basetype)
 {
 	if (!isBasic(basetype))
 	{
-		E_CRITICAL("Can't cast non basic types;");
+		throw std::logic_error("Can't cast non basic types;");
 		return false;
 	}
 	if (isArithmetic(basetype)) // base type is arithmetic
@@ -161,8 +161,7 @@ std::size_t fv_util::getBiggest(const std::size_t & lhs, const std::size_t & rhs
 			return fval_bool;
 	}
 	else
-	
-		E_CRITICAL("Can't return the biggest of two types when one of the two type isn't arithmetic.");
+		throw std::logic_error("Can't return the biggest of two types when one of the two type isn't arithmetic.");
 	return invalid_index;
 }
 

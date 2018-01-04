@@ -11,7 +11,7 @@
 
 using namespace Moonshot;
 
-SymbolsTable::SymbolsTable()
+SymbolsTable::SymbolsTable(Context& c) : context_(c)
 {
 }
 
@@ -69,7 +69,7 @@ std::pair<var::varattr, FVal> SymbolsTable::symtable_getEntry(const std::string 
 		successFlag = true;
 		return { it->first, it->second };
 	}
-	E_ERROR("Undeclared variable " + str);
+	context_.reportError("Undeclared variable " + str);
 	successFlag = false;
 	return std::pair<var::varattr, FVal>();
 }
@@ -90,16 +90,16 @@ bool SymbolsTable::symtable_setEntry(const std::string & vname,const FVal& vvalu
 				out << "Implicit cast : Attempted to store a " << fv_util::indexToTypeName(vvalue.index()) << " into the variable ";
 				out << vname << " (of type " << fv_util::indexToTypeName(it->first.type) << ")" << std::endl;
 				out << "Attempting cast to the desired type...";
-				E_LOG(out.str());
+				context_.logMessage(out.str());
 			}
-			auto castVal = castTo(it->first.type, vvalue);
-			if(E_CHECKSTATE)	// Cast went well
+			auto castVal = castTo(context_,it->first.type, vvalue);
+			if(context_.isSafe())	// Cast went well
 				return symtable_setEntry(vname,castVal,isDecl); // Proceed
 			return false; // Bad cast : abort
 		}
 		// Error cases
 		if (it->first.isConst && !isDecl) // if the variable is const, and we're not in a declaration
-			E_ERROR("Can't assign a value to const variable \"" + vname + "\". Const variables must be initialized at declaration and can't be changed later.");
+			context_.reportError("Can't assign a value to const variable \"" + vname + "\". Const variables must be initialized at declaration and can't be changed later.");
 		// No error ? proceed.
 		else
 		{
@@ -108,7 +108,7 @@ bool SymbolsTable::symtable_setEntry(const std::string & vname,const FVal& vvalu
 		}
 	}
 	else
-		E_ERROR("Unknown variable " + vname + "!");
+		context_.reportError("Unknown variable " + vname + "!");
 	return false; // No value found ? return false.
 }
 
@@ -118,7 +118,7 @@ bool SymbolsTable::symtable_addEntry(const var::varattr & vattr,FVal initval)
 	if (ret.second)
 		return symtable_setEntry(vattr.name, initval,true); 	// Attempt to assign the initial value
 	else 
-		E_ERROR("Variable " + vattr.name + " is already declared.");
+		context_.reportError("Variable " + vattr.name + " is already declared.");
 	return ret.second; // ret.second is a "flag" if the operation was successful.
 }
 

@@ -8,15 +8,14 @@
 ////------------------------------------------------------////
 
 #include "Token.h"
-#include "../../Common/Errors/Errors.h"
-
 using namespace Moonshot;
 
-token::token()
+
+token::token(Context & c) : context_(c)
 {
 	empty_ = true;
 }
-token::token(std::string data, const text_pos &tpos) : str(data),pos(tpos)
+token::token(Context & c,std::string data, const text_pos &tpos) : context_(c),str(data),pos(tpos)
 {
 	// self id
 	selfId();
@@ -57,19 +56,19 @@ std::string token::showFormattedTokenData() const
 	ss << "]";
 	return ss.str();
 }
-bool Moonshot::token::isValid() const
+bool token::isValid() const
 {
 	return !empty_;
 }
 void token::selfId()
 {
-	if (!E_CHECKSTATE)
+	if (!context_.isSafe())
 	{
-		E_ERROR("Errors happened earlier, as a result tokens can't be identified.");
+		context_.reportError("Errors happened earlier, as a result tokens can't be identified.");
 		return;
 	}
 	if (str.size() == 0)
-		E_CRITICAL("Found an empty token. [" + pos.asText() + "]");
+		throw Exceptions::lexer_critical_error("Found an empty token. [" + pos.asText() + "]");
 
 	// substract the token length's fron the column number given by the lexer.
 	pos.column -= (int)str.length();
@@ -85,7 +84,7 @@ void token::selfId()
 		else if (std::regex_match(str, kId_regex))
 			type = tokenType::TT_IDENTIFIER;
 		else
-			E_ERROR("Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]");
+			context_.reportError("Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]");
 	}
 }
 
@@ -128,7 +127,7 @@ bool token::idValue()
 		}
 		else
 		{
-			E_ERROR("Unclosed char " + str);
+			context_.reportError("Unclosed char " + str);
 			return false;
 		}
 	}
@@ -142,7 +141,7 @@ bool token::idValue()
 		}
 		else
 		{
-			E_ERROR("Unclosed string: " + str);
+			context_.reportError("Unclosed string: " + str);
 			return false;
 		}
 	}

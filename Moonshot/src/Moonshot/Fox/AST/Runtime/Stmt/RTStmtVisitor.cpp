@@ -12,11 +12,12 @@
 
 using namespace Moonshot;
 
-RTStmtVisitor::RTStmtVisitor()
+RTStmtVisitor::RTStmtVisitor(Context& c) : RTExprVisitor(c) // call superclass constructor
 {
+	
 }
 
-RTStmtVisitor::RTStmtVisitor(std::shared_ptr<SymbolsTable> symtab)
+RTStmtVisitor::RTStmtVisitor(Context& c,std::shared_ptr<SymbolsTable> symtab) : RTExprVisitor(c) // call superclass constructor
 {
 	setSymbolsTable(symtab);
 }
@@ -28,7 +29,7 @@ RTStmtVisitor::~RTStmtVisitor()
 FVal RTStmtVisitor::visit(ASTVarDeclStmt & node)
 {
 	if (!isSymbolsTableAvailable())
-		E_LOG("Can't Visit VarDeclStmt nodes when the symbols table is not available.");
+		context_.logMessage("Can't Visit VarDeclStmt nodes when the symbols table is not available.");
 	else
 	{
 		if (node.initExpr_) // With init expr
@@ -38,14 +39,14 @@ FVal RTStmtVisitor::visit(ASTVarDeclStmt & node)
 				node.vattr_,
 				iexpr
 			))
-				E_ERROR("Error while initializing variable " + node.vattr_.name);
+				context_.reportError("Error while initializing variable " + node.vattr_.name);
 		}
 		else // without
 		{
 			if(!symtab_declareValue_derefFirst(
 				node.vattr_
 			))
-			E_ERROR("Error while initializing variable " + node.vattr_.name);
+			context_.reportError("Error while initializing variable " + node.vattr_.name);
 		}
 	}
 	return FVal(); // does not return anything.

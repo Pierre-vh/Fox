@@ -13,13 +13,15 @@ using namespace Moonshot;
 using namespace fv_util;
 
 
-TypeCheck::TypeCheck(const bool& testmode)
+TypeCheck::TypeCheck(Context& c,const bool& testmode) : context_(c), symtable_(c)
 {
-	if(testmode)
-	symtable_.declareValue(
-		var::varattr("TESTVALUE", fval_int, false),
-		FVal(0)
-	);
+	if (testmode)
+	{
+		symtable_.declareValue(
+			var::varattr("TESTVALUE", fval_int, false),
+			FVal(0)
+		);
+	}
 }
 
 TypeCheck::~TypeCheck()
@@ -29,7 +31,7 @@ TypeCheck::~TypeCheck()
 
 void TypeCheck::visit(ASTExpr & node)
 {
-	if (!E_CHECKSTATE) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
+	if (!context_.isSafe()) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
 		return;
 	//// SET CUROP
 	curop_ = node.op_;
@@ -64,7 +66,7 @@ void TypeCheck::visit(ASTExpr & node)
 			auto result = visitAndGetResult(node.left_);
 			if (!canCastTo(node.totype_, result))
 			{
-				E_ERROR("Can't perform cast : " + indexToTypeName(result) + " to " + indexToTypeName(node.totype_));
+				context_.reportError("Can't perform cast : " + indexToTypeName(result) + " to " + indexToTypeName(node.totype_));
 				rtr_type_ = invalid_index;
 			}
 			else
@@ -81,7 +83,7 @@ void TypeCheck::visit(ASTExpr & node)
 			{
 				std::stringstream output;
 				output << "Can't perform unary operation " << getFromDict(kOptype_dict, node.op_) << " on a string.";
-				E_ERROR(output.str());
+				context_.reportError(output.str());
 			}
 			// SPECIAL CASES : (LOGICNOT)(NEGATE ON BOOLEANS)
 			if (node.op_ == operation::LOGICNOT)
@@ -90,7 +92,7 @@ void TypeCheck::visit(ASTExpr & node)
 				rtr_type_ = fval_int;
 		}
 		else
-			E_CRITICAL("A Node only had a left_ child, and wasn't a unary op.");
+			throw Exceptions::ast_malformation("A Node only had a left_ child, and wasn't a unary op.");
 	}
 	//////////////////////////////////
 	/////ERROR CASES//////////////////
@@ -99,16 +101,16 @@ void TypeCheck::visit(ASTExpr & node)
 	{
 		// Okay, this is far-fetched, but can be possible if our parser is broken. It's better to check this here :
 		// getting in this branch means that we only have a right_ node.
-		E_CRITICAL("Node was in an invalid state.");
+		throw Exceptions::ast_malformation("Node was in an invalid state.");
 	}
 	node.totype_ = rtr_type_;
 
-	if (!isBasic(node.totype_) && E_CHECKSTATE)
+	if (!isBasic(node.totype_) && context_.isSafe())
 	{
 		if (node.totype_ == invalid_index)
-			E_ERROR("Type was invalid.");
+			context_.reportError("Type was invalid.");
 		else 
-			E_CRITICAL("node.totype was not a basic type.");
+			throw Exceptions::ast_malformation("node.totype was not a basic type.");
 	}
 }
 
@@ -126,11 +128,12 @@ void TypeCheck::visit(ASTVarDeclStmt & node)
 		auto iexpr_type = visitAndGetResult(node.initExpr_);
 		// check if it's possible.
 		if (!canAssign(
+			context_,
 			node.vattr_.type,
 			iexpr_type
 		))
 		{
-			E_ERROR("Can't perform initialization of variable \"" + node.vattr_.name + "\". Type of initialization expression is unassignable to the desired variable type.\nFor further information, see the errors thrown earlier!");
+			context_.reportError("Can't perform initialization of variable \"" + node.vattr_.name + "\". Type of initialization expression is unassignable to the desired variable type.\nFor further information, see the errors thrown earlier!");
 		}
 	}
 	symtable_.declareValue(
@@ -145,7 +148,7 @@ void TypeCheck::visit(ASTVarCall & node)
 	auto searchResult = symtable_.retrieveVarAttr(node.varname_);
 	if ((curdir_ == dir::LEFT) && (curop_ == operation::ASSIGN) && searchResult.isConst)
 	{
-		E_ERROR("Can't assign a value to const variable \"" + searchResult.name + "\"");
+		context_.reportError("Can't assign a value to const variable \"" + searchResult.name + "\"");
 		rtr_type_ = invalid_index;
 	}
 	else 
@@ -154,18 +157,18 @@ void TypeCheck::visit(ASTVarCall & node)
 
 std::size_t TypeCheck::getExprResultType(const operation& op, std::size_t& lhs, const std::size_t& rhs)
 {
-	if (!E_CHECKSTATE) // If an error was thrown earlier, just return. 
+	if (!context_.isSafe()) // If an error was thrown earlier, just return. 
 		return invalid_index;
 	// first, quick, simple check : we can only verify results between 2 basic types.
 	if (op == operation::ASSIGN)
 	{
-		if (canAssign(lhs, rhs))
+		if (canAssign(context_,lhs, rhs))
 			return lhs; // Assignements return the value  of the lhs.
 		else
 		{
 			std::stringstream output;
 			output << "Can't assign a " << indexToTypeName(rhs) << " to a variable of type " << indexToTypeName(lhs) << std::endl;
-			E_ERROR(output.str());
+			context_.reportError(output.str());
 			return invalid_index;
 		}
 	}
@@ -177,14 +180,14 @@ std::size_t TypeCheck::getExprResultType(const operation& op, std::size_t& lhs, 
 			{
 				if (isCompJoinOp(op) && !isArithmetic(lhs)) // If we have a compJoinOp and types aren't arithmetic : problem
 				{
-					E_ERROR("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
+					context_.reportError("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
 					return invalid_index;
 				}
 				return fval_bool; // Else, it's normal, return type's a boolean.
 			}
 			else if (fval_traits<std::string>::isEqualTo(lhs) && (op != operation::CONCAT)) // We have strings and it's not a concat op :
 			{
-				E_ERROR("Can't perform operations other than addition (concatenation) on strings");
+				context_.reportError("Can't perform operations other than addition (concatenation) on strings");
 				return invalid_index;
 			}
 			else if (fval_traits<bool>::isEqualTo(lhs)) // We have bools and they're not compared : the result will be an integer.
@@ -194,7 +197,7 @@ std::size_t TypeCheck::getExprResultType(const operation& op, std::size_t& lhs, 
 		}
 		else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // Two different types, and one of them is a string?
 		{
-			E_ERROR("Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
+			context_.reportError("Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
 			return invalid_index;
 		}
 		else if (isComparison(op)) // Comparing 2 arithmetic types ? return type's a boolean
@@ -210,9 +213,9 @@ std::size_t TypeCheck::getExprResultType(const operation& op, std::size_t& lhs, 
 	}
 	else // One of the types is a non-basic type.
 	{
-		E_ERROR("Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
+		context_.reportError("Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
 		return invalid_index;
 	}
-	E_CRITICAL("getExprResultType() Defaulted.");
+	throw std::logic_error("getExprResultType() Defaulted.");
 	return invalid_index;
 }

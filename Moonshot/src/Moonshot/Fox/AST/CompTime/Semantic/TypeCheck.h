@@ -14,7 +14,8 @@
 ////------------------------------------------------------////
 
 #pragma once
-
+#include "../../../../Common/Context/Context.h" // context
+#include "../../../../Common/Exceptions/Exceptions.h" // exceptions
 #include <string> // std::string
 #include <sstream> // std::stringstream
 #include <map> // std::map
@@ -33,7 +34,7 @@ namespace Moonshot
 	class TypeCheck : public IVisitor
 	{
 		public:
-			TypeCheck(const bool& testmode = false);
+			TypeCheck(Context& c,const bool& testmode = false);
 			~TypeCheck();
 
 			virtual void visit(ASTExpr & node) override;
@@ -45,6 +46,8 @@ namespace Moonshot
 			SymbolsTable symtable_; // The symbols table used to track variable declarations and types.
 			// it is public so we can add anything we want to it for testing purposes.
 		private:
+			// Context
+			Context& context_;
 			template<typename T>
 			inline std::size_t visitAndGetResult(std::unique_ptr<T>& node,const dir& dir = dir::UNKNOWNDIR)
 			{

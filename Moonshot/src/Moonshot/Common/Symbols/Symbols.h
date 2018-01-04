@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "../Context/Context.h"
 #include "../Types/Types.h"
 #include "../Types/TypeCast.h"
 #include "../../Fox/AST/Nodes/ASTExpr.h"
@@ -24,7 +25,7 @@ namespace Moonshot
 	class SymbolsTable
 	{
 		public:
-			SymbolsTable();
+			SymbolsTable(Context& c);
 			~SymbolsTable();
 			// Retrieve a value (return it). Throws a critical error if the value isn't a basic type.
 			FVal retrieveValue(const std::string& varname);
@@ -40,6 +41,8 @@ namespace Moonshot
 
 			void dumpSymbolsTable() const;
 		private:
+			// Context
+			Context& context_;
 			// Further down the line, to manage contexts, create a vector of theses, and, when searching, search every table.
 			std::map<var::varattr, FVal> sym_table_;
 
@@ -53,8 +56,6 @@ namespace Moonshot
 			{
 				return var::varattr(v_name);
 			}
-
-			DISALLOW_COPY_AND_ASSIGN(SymbolsTable)		
 	};
 
 }

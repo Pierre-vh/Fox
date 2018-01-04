@@ -25,7 +25,10 @@
 #include <sstream>		// std::stringstream (sizeToStr())
 #include <map>			// std::map
 #include <memory>
-#include "../../Common/Errors/Errors.h"
+
+#include "../../Common/Context/Context.h"
+#include "../../Common/Exceptions/Exceptions.h"
+
 #include "Token.h"
 #include "../../Common/Options.h"
 
@@ -39,7 +42,7 @@ namespace Moonshot
 	class Lexer 
 	{
 		public:
-			Lexer() = default;
+			Lexer(Context& curctxt);
 			~Lexer();
 
 			void lexStr(const std::string &data);		// Main function.
@@ -51,6 +54,9 @@ namespace Moonshot
 			token getToken(const size_t &vtpos) const;	// returns the n th token in result_
 			size_t resultSize() const;					// returns result_.size()
 		private:
+			// Context
+			Context& context_;
+
 			void pushTok();					// push token
 			void cycle();					// one dfa "cycle";
 			// DFA state functions. I split this into various functions to make the code more readable in the cycle() function.

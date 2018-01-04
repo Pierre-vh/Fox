@@ -15,3 +15,11 @@ lexer_critical_error::lexer_critical_error(const std::string & msg)
 {
 	msg_ += "\n" + msg;
 }
+
+parser_critical_error::parser_critical_error(const std::string & msg) : msg_(msg)
+{
+}
+
+ast_malformation::ast_malformation(const std::string & msg) : msg_(msg)
+{
+}

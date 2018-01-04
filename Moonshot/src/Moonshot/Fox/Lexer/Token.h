@@ -20,6 +20,8 @@
 #include <sstream>	// std::stringstream (showFormattedToken())
 
 #include "../../Common/Utils/Utils.h"
+#include "../../Common/Context//Context.h"
+#include "../../Common/Exceptions/Exceptions.h"
 
 namespace Moonshot
 {
@@ -178,8 +180,8 @@ namespace Moonshot
 	struct token // the token struct. The lexer outputs a std::vector<token>. Tokens are recognized bits of the original input : keywords,id,values,etc.
 	{
 		public:
-			token();
-			token(std::string data, const text_pos &tpos = text_pos(0,0));
+			token(Context & c);
+			token(Context & c,std::string data, const text_pos &tpos = text_pos(0,0));
 			tokenType type =		tokenType::TT_ENUM_DEFAULT;
 			keywordType kw_type =	keywordType::KW_ENUM_DEFAULT;
 			valueType val_type =	valueType::VAL_ENUM_DEFAULT;
@@ -194,6 +196,7 @@ namespace Moonshot
 			bool isValid() const;
 
 		private:
+			Context& context_;
 			bool empty_ = false;
 			void selfId();
 			bool idKeyword();

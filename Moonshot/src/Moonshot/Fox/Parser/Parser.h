@@ -39,8 +39,11 @@ Note :
 
 */
 #pragma once
-#include "../Lexer/Lexer.h"					// Lexer
-#include "../../Common/Errors/Errors.h"		// Error reporting
+// Context and Exceptions
+#include "../../Common/Context/Context.h"
+#include "../../Common/Exceptions/Exceptions.h"
+// Lexer
+#include "../Lexer/Lexer.h"					
 // AST Nodes
 #include "../AST/Nodes/ASTExpr.h"
 #include "../AST/Nodes/IASTNode.h"
@@ -56,7 +59,7 @@ namespace Moonshot
 	class Parser
 	{
 		public:
-			Parser(const std::shared_ptr<Lexer>& l);
+			Parser(Context& c,Lexer& l);
 			~Parser();
 
 			// parseXXX() = "match" the rule XXX (attempts to find it, if it found it, the method will return a valid pointer (if(ptr) will return true). if not, it will return a std::unique_ptr<(TYPE OF NODE)>(nullptr)
@@ -110,6 +113,7 @@ namespace Moonshot
 
 			// Member variables
 			size_t pos_ = 0;								// current pos in the token vector.
-			std::shared_ptr<Lexer> lex_;					// reference to the lexer to access our tokens 
+			Context& context_;
+			Lexer& lex_;					// reference to the lexer to access our tokens 
 	};
 }

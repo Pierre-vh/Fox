@@ -21,7 +21,7 @@ ASTVarDeclStmt::ASTVarDeclStmt(const var::varattr & attr, std::unique_ptr<ASTExp
 			initExpr_ = std::move(iExpr);
 	}
 	else
-		E_CRITICAL("Supplied an empty var::varattr object to the constructor.");
+		throw std::logic_error("Supplied an empty var::varattr object to the constructor.");
 }
 
 ASTVarDeclStmt::~ASTVarDeclStmt()

@@ -291,7 +291,7 @@ std::pair<bool, operation> Parser::matchBinaryOp(const char & priority)
 				return { true,operation::ASSIGN };
 			break;
 		default:
-			E_CRITICAL("Requested to match a Binary Operator with a non-existent priority");
+			throw Exceptions::parser_critical_error("Requested to match a Binary Operator with a non-existent priority");
 			break;
 	}
 	pos_ -= 1;	// We did not find anything, decrement & return.

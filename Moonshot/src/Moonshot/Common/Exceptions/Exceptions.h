@@ -29,5 +29,29 @@ namespace Moonshot
 			private:
 				std::string msg_ = "The Lexer was in a corrupted state.";
 		};
+
+		class parser_critical_error : public std::exception
+		{
+			public:
+				parser_critical_error(const std::string& msg = "");
+				virtual const char* what() const throw()
+				{
+					return msg_.c_str();
+				}
+			private:
+				std::string msg_ = "The Parser encountered a critical error and had to terminate.";
+		};
+
+		class ast_malformation : public std::exception
+		{
+			public:
+				ast_malformation(const std::string& msg = "");
+				virtual const char* what() const throw()
+				{
+					return msg_.c_str();
+				}
+			private:
+				std::string msg_ = "A Visitor noticed that the AST was ill-formed.";
+		};
 	}
 }

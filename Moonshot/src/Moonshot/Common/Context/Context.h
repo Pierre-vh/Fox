@@ -15,6 +15,7 @@
 
 #include <iostream> // std::cout
 #include <vector> // std::vector
+#include <memory> // std::shared_ptr
 #include <sstream> // std::stringstream
 
 namespace Moonshot
@@ -25,32 +26,45 @@ namespace Moonshot
 		WARNING,
 		ERROR
 	};
+	enum class ContextMode
+	{
+		DIRECT_PRINT_AND_SAVE_TO_VECTOR,
+		DIRECT_PRINT,
+		SAVE_TO_VECTOR
+	};
 	class Context
 	{
 		public:
+			// Create the initial context
 			Context() = default;
 
-			inline bool isSafe_strict() const 
-			{
-				return curstate_ == ContextState::GOOD;
-			}
-			inline bool isSafe() const 
-			{
-				return (curstate_ == ContextState::GOOD) || (curstate_ == ContextState::WARNING);
-			}
-
+			// set mode : direct print to cout (default) or save to a vector.
+			void setMode(const ContextMode& newmode);
 			// logs are of the following form : [LOG/WARNING/ERROR][ORIGIN] Message
 			void setOrigin(const std::string& origin);
+			void resetOrigin();
 
 			void logMessage(const std::string& message);
 			void reportWarning(const std::string& message);
 			void reportError(const std::string& message);
 
 			ContextState getState() const;
+			void resetState();
 
 			void printLogs() const;		// print all logs to cout
 			std::string getLogs() const; // returns a string containing the error log.
+
+			// Inline functions
+			inline bool isSafe_strict() const
+			{
+				return curstate_ == ContextState::GOOD;
+			}
+			inline bool isSafe() const
+			{
+				return (curstate_ == ContextState::GOOD) || (curstate_ == ContextState::WARNING);
+			}
 		private:
+
 			void addLog(const std::string& message);
 			std::string makeLogMessage(const std::string& prefix, const std::string & message)const;
 
@@ -60,6 +74,8 @@ namespace Moonshot
 			
 			std::string logsOrigin_;
 			std::vector<std::string> logs_;
+
+			ContextMode curmode_ = ContextMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR;
 			ContextState curstate_ = ContextState::GOOD;
 
 	};

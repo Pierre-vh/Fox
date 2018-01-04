@@ -13,10 +13,14 @@
 ////------------------------------------------------------////
 
 #pragma once
+// Context & exceptions
+#include "../../../../Common/Context/Context.h"
+#include "../../../../Common/Exceptions/Exceptions.h"
+// Utils, types, typecast
 #include "../../../../Common/Utils/Utils.h"
-#include "../../../../Common/Errors/Errors.h"
 #include "../../../../Common/Types/Types.h"
 #include "../../../../Common/Types/TypeCast.h"
+// Symbols table
 #include "../../../../Common/Symbols/Symbols.h"
 
 #include "../../Nodes/ASTExpr.h"
@@ -34,8 +38,8 @@ namespace Moonshot
 	class RTExprVisitor : public IRTVisitor
 	{
 		public:
-			RTExprVisitor(std::shared_ptr<SymbolsTable> symtab);
-			RTExprVisitor();
+			RTExprVisitor(Context& c,std::shared_ptr<SymbolsTable> symtab);
+			RTExprVisitor(Context& c);
 			~RTExprVisitor();
 
 			virtual FVal visit(ASTExpr & node) override;
@@ -45,6 +49,8 @@ namespace Moonshot
 			void setSymbolsTable(std::shared_ptr<SymbolsTable> symtab);
 
 		protected:
+			// Context
+			Context& context_;
 			// converts fval to double, but if fval is a varref, deref it first.
 			double fvalToDouble_withDeref(FVal fval);
 			bool compareVal(const operation &op, const FVal &l, const FVal &r);
