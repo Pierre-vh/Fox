@@ -18,8 +18,11 @@ LexerMainTest::~LexerMainTest()
 
 bool LexerMainTest::runTest(Context & context)
 {
-	auto correct_test_str = readFileToString(context,"tests\\lexer\\lexer_correct.fox");
-	auto bad_test_str = readFileToString(context, "tests\\lexer\\lexer_bad.fox");
+	auto correct_test_str = readFileToString(context,"res\\tests\\lexer\\lexer_correct.fox");
+	auto bad_test_str = readFileToString(context, "res\\tests\\lexer\\lexer_bad.fox");
+
+	if (!context.isSafe())
+		return false;
 	// Run correct tests 
 	Lexer lex_corr(context);
 	lex_corr.lexStr(correct_test_str);

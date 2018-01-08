@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "tests\TestClasses\Manager\TestManager.h"
+#include "Tests/Manager/TestManager.h"
 
 using namespace Moonshot;
 /*
