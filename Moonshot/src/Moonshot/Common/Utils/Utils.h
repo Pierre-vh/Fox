@@ -1,3 +1,13 @@
+
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Utils.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// Defines some general utility variable/functions										
+////------------------------------------------------------////
+
 #pragma once
 
 #include <memory>
@@ -7,8 +17,8 @@ namespace Moonshot
 {
 	namespace util
 	{
-		//open a file in the moonshot folder from the build folder
-		std::string filepath_MoonshotProj(const std::string &s);
+		// Path to root
+		static constexpr char moonshotSrcPath[] = ".\\..\\Moonshot\\";
 		// convert enum to integer
 		template<typename Enumeration>
 		inline auto enumAsInt(Enumeration const value) -> typename std::underlying_type<Enumeration>::type

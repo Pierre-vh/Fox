@@ -11,7 +11,7 @@
 
 using namespace Moonshot;
 
-void Context::setMode(const ContextMode & newmode)
+void Context::setMode(const ContextLoggingMode & newmode)
 {
 	curmode_ = newmode;
 }
@@ -62,6 +62,16 @@ void Context::resetState()
 	logs_.push_back("[Context] The context's state has been reset.");
 }
 
+ContextBuildMode Context::getBuildMode() const
+{
+	return curbuildmode_;
+}
+
+void Context::setBuildMode(const ContextBuildMode & newbuildmode)
+{
+	curbuildmode_ = newbuildmode;
+}
+
 void Context::printLogs() const
 {
 	std::cout << getLogs();
@@ -81,30 +91,31 @@ void Context::addLog(const std::string & message)
 {
 	switch (curmode_)
 	{
-		case ContextMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR:
+		case ContextLoggingMode::SILENT:
+			break;
+		case ContextLoggingMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR:
 			std::cout << message << std::endl;
 			logs_.push_back(message);
 			break;
-		case ContextMode::DIRECT_PRINT:
+		case ContextLoggingMode::DIRECT_PRINT:
 			std::cout << message << std::endl;
 			break;
-		case ContextMode::SAVE_TO_VECTOR:
+		case ContextLoggingMode::SAVE_TO_VECTOR:
 			logs_.push_back(message);
 			break;
 		default:
-			throw std::logic_error("Defaulted : unknown ContextMode.");
+			throw std::logic_error("Defaulted : unknown ContextLoggingMode.");
 			break;
 	}
 }
 
 std::string Context::makeLogMessage(const std::string& prefix, const std::string & message) const
 {
-	std::string out;
+	std::stringstream out;
 	if (prefix != "")
-		out += '[' + prefix + "]\t";
+		out << '[' << prefix << "]\t";
 	if (logsOrigin_ != "")
-		out += '[' + logsOrigin_ + ']';
-	
-	out += message;
-	return out;
+		out << '[' << logsOrigin_ << "]\t";
+	out << message;
+	return out.str();
 }

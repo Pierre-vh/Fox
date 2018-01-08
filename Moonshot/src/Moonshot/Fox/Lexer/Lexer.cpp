@@ -235,6 +235,8 @@ void Moonshot::Lexer::addToCurtok(const char & c)
 		else
 			escapes_ = true;
 	}
+	else if (c == '\r') // Don't push carriage returns.
+		return;
 	else
 	{
 		curtok_ += c;
@@ -260,7 +262,7 @@ void Lexer::forward()
 	pos_ += 1;
 }
 
-void Lexer::reportLexerError(const std::string & errmsg) const
+void Lexer::reportLexerError(std::string errmsg) const
 {
 	std::stringstream out;
 	out << errmsg << " at line " << ccoord_.line; // Somehow I have to use line-1 to get the correct line count.

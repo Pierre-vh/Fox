@@ -80,7 +80,7 @@ namespace Moonshot
 			void forward();
 
 			// error management
-			void reportLexerError(const std::string& errmsg) const;
+			void reportLexerError(std::string errmsg) const;
 
 			// Member Variables
 

@@ -26,11 +26,16 @@ namespace Moonshot
 		WARNING,
 		ERROR
 	};
-	enum class ContextMode
+	enum class ContextLoggingMode
 	{
 		DIRECT_PRINT_AND_SAVE_TO_VECTOR,
 		DIRECT_PRINT,
-		SAVE_TO_VECTOR
+		SAVE_TO_VECTOR,
+		SILENT
+	};
+	enum class ContextBuildMode
+	{
+		RELEASE,DEBUG
 	};
 	class Context
 	{
@@ -39,7 +44,7 @@ namespace Moonshot
 			Context() = default;
 
 			// set mode : direct print to cout (default) or save to a vector.
-			void setMode(const ContextMode& newmode);
+			void setMode(const ContextLoggingMode& newmode);
 			// logs are of the following form : [LOG/WARNING/ERROR][ORIGIN] Message
 			void setOrigin(const std::string& origin);
 			void resetOrigin();
@@ -50,6 +55,9 @@ namespace Moonshot
 
 			ContextState getState() const;
 			void resetState();
+
+			ContextBuildMode getBuildMode() const;
+			void setBuildMode(const ContextBuildMode& newbuildmode);
 
 			void printLogs() const;		// print all logs to cout
 			std::string getLogs() const; // returns a string containing the error log.
@@ -75,8 +83,9 @@ namespace Moonshot
 			std::string logsOrigin_;
 			std::vector<std::string> logs_;
 
-			ContextMode curmode_ = ContextMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR;
+			ContextLoggingMode curmode_ = ContextLoggingMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR;
 			ContextState curstate_ = ContextState::GOOD;
+			ContextBuildMode curbuildmode_ = ContextBuildMode::DEBUG;
 
 	};
 }

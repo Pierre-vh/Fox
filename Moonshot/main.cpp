@@ -1,7 +1,6 @@
 #include <iostream>
 
-#include "src\Moonshot\Common\Exceptions\Exceptions.h"
-#include "src\Moonshot\Common\Context\Context.h"
+#include "tests\TestClasses\Manager\TestManager.h"
 
 using namespace Moonshot;
 /*
@@ -26,7 +25,10 @@ using namespace Moonshot;
 */
 int main()
 {
-	std::cout << "Tests must be reworked following the addition of the Context system." << std::endl;
+	Context context;
+	TestManager ts(context);
+	ts.addDefaultTests();
+	ts.runTests();
 	std::cout << "Finished. Press any key to continue." << std::endl;
 	std::cin.get();
 	return 0;

@@ -130,6 +130,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="tests\TestClasses\Manager\TestManager.cpp" />
+    <ClCompile Include="tests\TestClasses\Lexer\LexerMainTest.cpp" />
     <ClCompile Include="src\Moonshot\Common\Context\Context.cpp" />
     <ClCompile Include="src\Moonshot\Common\Exceptions\Exceptions.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\TypeCast.cpp" />
@@ -150,9 +152,9 @@
     <ClCompile Include="src\Moonshot\Fox\Lexer\Lexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Lexer\Token.cpp" />
-    <ClCompile Include="src\Moonshot\Common\Utils\Utils.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\CompTime\Semantic\TypeCheck.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Util\Enums.cpp" />
+    <ClCompile Include="tests\TestClasses\ITest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Moonshot\Badger\readme.md" />
@@ -167,6 +169,8 @@
     <None Include="tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="tests\TestClasses\Manager\TestManager.h" />
+    <ClInclude Include="tests\TestClasses\Lexer\LexerMainTest.h" />
     <ClInclude Include="src\Moonshot\Common\Context\Context.h" />
     <ClInclude Include="src\Moonshot\Common\Exceptions\Exceptions.h" />
     <ClInclude Include="src\Moonshot\Common\Types\TypeCast.h" />
@@ -190,6 +194,7 @@
     <ClInclude Include="src\Moonshot\Common\Utils\Utils.h" />
     <ClInclude Include="src\Moonshot\Fox\Util\Enums.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\CompTime\Semantic\TypeCheck.h" />
+    <ClInclude Include="tests\TestClasses\ITest.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="doc\file_header.txt" />
