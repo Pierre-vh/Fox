@@ -28,7 +28,7 @@ int main()
 	Context context;
 	TestManager ts(context);
 	ts.addDefaultTests();
-	ts.runTests();
+	ts.runTests(true);
 	std::cout << "Finished. Press any key to continue." << std::endl;
 	std::cin.get();
 	return 0;

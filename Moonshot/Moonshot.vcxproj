@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Moonshot\Tests\ExprTest\ExprTests.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Manager\TestManager.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Lexer\LexerMainTest.cpp" />
     <ClCompile Include="src\Moonshot\Common\Context\Context.cpp" />
@@ -169,6 +170,7 @@
     <None Include="res\tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Moonshot\Tests\ExprTest\ExprTests.h" />
     <ClInclude Include="src\Moonshot\Tests\Manager\TestManager.h" />
     <ClInclude Include="src\Moonshot\Tests\Lexer\LexerMainTest.h" />
     <ClInclude Include="src\Moonshot\Common\Context\Context.h" />

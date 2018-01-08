@@ -16,6 +16,7 @@
 
 // Include default tests
 #include "../Lexer/LexerMainTest.h"
+#include "../ExprTest/ExprTests.h"
 
 namespace Moonshot
 {
@@ -30,6 +31,13 @@ namespace Moonshot
 			void runTests(const bool& displayContextLog = false);
 
 		private:
+			template <typename T>
+			inline void addTestClass()
+			{
+				std::unique_ptr<T> ptr(new T);
+				addTest(std::move(ptr));
+			}
+
 			std::vector< std::unique_ptr<ITest> > tests_;
 			Context& context_;
 	};

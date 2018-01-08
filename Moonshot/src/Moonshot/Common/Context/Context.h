@@ -61,6 +61,7 @@ namespace Moonshot
 
 			void printLogs() const;		// print all logs to cout
 			std::string getLogs() const; // returns a string containing the error log.
+			void clearLogs();
 
 			// Inline functions
 			inline bool isSafe_strict() const

@@ -16,6 +16,7 @@ func fib(n : &int) : int
 func main()                                                                         // Here, main is void, but you can specify it
 {
 	print("Enter a number :");
+	let __testing__escape__char__ : const string = "\"''\\\"";
 	let n : int = input("int");       												// Fox.io.input is std::cin or scanf-like. It returns the value that was entered in the type specified 
 	print("The " + n + "th fib term is : " + fib(n));                               // Fox.io.print is std::cout or printf-like (write to standard output)
     let math : int = 4*2/23^4 as float || -4.313323245										// random expression

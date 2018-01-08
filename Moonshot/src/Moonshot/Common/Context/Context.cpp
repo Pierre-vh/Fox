@@ -87,6 +87,11 @@ std::string Context::getLogs() const
 	return output.str();
 }
 
+void Context::clearLogs()
+{
+	logs_.clear();
+}
+
 void Context::addLog(const std::string & message)
 {
 	switch (curmode_)

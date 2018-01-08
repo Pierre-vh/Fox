@@ -40,6 +40,6 @@ bool LexerMainTest::runTest(Context & context)
 
 std::string LexerMainTest::getTestName() const
 {
-	return "Lexer main test";
+	return "Lexer Main";
 }
 

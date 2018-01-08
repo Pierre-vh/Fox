@@ -4,7 +4,7 @@
 // File : TypeCheck.h											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// TypeCheck visitor.
+// TypeCheckVisitor visitor.
 // This visitor checks for compatibility between operations :
 // e.g. can't multiply a string with a int
 //
@@ -31,11 +31,11 @@
 
 namespace Moonshot
 {
-	class TypeCheck : public IVisitor
+	class TypeCheckVisitor : public IVisitor
 	{
 		public:
-			TypeCheck(Context& c,const bool& testmode = false);
-			~TypeCheck();
+			TypeCheckVisitor(Context& c,const bool& testmode = false);
+			~TypeCheckVisitor();
 
 			virtual void visit(ASTExpr & node) override;
 			virtual void visit(ASTRawValue & node) override;

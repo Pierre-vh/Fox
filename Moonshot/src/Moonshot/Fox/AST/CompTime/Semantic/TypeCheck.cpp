@@ -13,7 +13,7 @@ using namespace Moonshot;
 using namespace fv_util;
 
 
-TypeCheck::TypeCheck(Context& c,const bool& testmode) : context_(c), symtable_(c)
+TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c), symtable_(c)
 {
 	if (testmode)
 	{
@@ -24,12 +24,12 @@ TypeCheck::TypeCheck(Context& c,const bool& testmode) : context_(c), symtable_(c
 	}
 }
 
-TypeCheck::~TypeCheck()
+TypeCheckVisitor::~TypeCheckVisitor()
 {
 
 }
 
-void TypeCheck::visit(ASTExpr & node)
+void TypeCheckVisitor::visit(ASTExpr & node)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
 		return;
@@ -114,12 +114,12 @@ void TypeCheck::visit(ASTExpr & node)
 	}
 }
 
-void TypeCheck::visit(ASTRawValue & node)
+void TypeCheckVisitor::visit(ASTRawValue & node)
 {
 	rtr_type_ = node.val_.index();		// Just put the value in rtr->type.
 }
 
-void TypeCheck::visit(ASTVarDeclStmt & node)
+void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 {
 	// check for impossible/illegal assignements;
 	if (node.initExpr_) // If the node has an initExpr.
@@ -143,7 +143,7 @@ void TypeCheck::visit(ASTVarDeclStmt & node)
 	// returns nothing
 }
 
-void TypeCheck::visit(ASTVarCall & node)
+void TypeCheckVisitor::visit(ASTVarCall & node)
 {
 	auto searchResult = symtable_.retrieveVarAttr(node.varname_);
 	if ((curdir_ == dir::LEFT) && (curop_ == operation::ASSIGN) && searchResult.isConst)
@@ -155,7 +155,7 @@ void TypeCheck::visit(ASTVarCall & node)
 		rtr_type_ =  searchResult.type; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
-std::size_t TypeCheck::getExprResultType(const operation& op, std::size_t& lhs, const std::size_t& rhs)
+std::size_t TypeCheckVisitor::getExprResultType(const operation& op, std::size_t& lhs, const std::size_t& rhs)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. 
 		return invalid_index;

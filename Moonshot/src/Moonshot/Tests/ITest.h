@@ -9,16 +9,25 @@
 
 #pragma once
 
-#include "../../src/Moonshot/Common/Context/Context.h" // context
-#include "../../src/Moonshot/Common/Utils/Utils.h" // utils
+#include "../../Moonshot/Common/Context/Context.h" // context
+#include "../../Moonshot/Common/Utils/Utils.h" // utils
+#include "../../Moonshot/Common/Types/Types.h"
 
 
-#include "../../src/Moonshot/Fox/Lexer/Lexer.h"
-#include "../../src/Moonshot/Fox/Parser/Parser.h"
+#include "../../Moonshot/Fox/Lexer/Lexer.h"
+#include "../../Moonshot/Fox/Parser/Parser.h"
 
 // STL
 #include <fstream>
 #include <vector>
+
+#define RETURN_IF_ERR(zone) 	if (!context.isSafe())	\
+							{	\
+								std::cout << "Test failed at " << zone << std::endl;	\
+								return false;	\
+							}
+
+#define RETURN_SILENTLY_IF_ERR if(!context.isSafe()) return false;
 
 namespace Moonshot
 {
