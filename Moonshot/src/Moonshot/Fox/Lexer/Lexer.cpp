@@ -27,19 +27,16 @@ void Lexer::lexStr(const std::string & data)
 {
 	context_.setOrigin("LEXER");
 
-	str_ = data;
+	inputstr_ = data;
 	pos_ = 0;
 	cstate_ = dfaState::S0;
 	while(pos_ < data.size() && context_.isSafe())
 		cycle();
-	if(curtok_ != "")
-		pushTok(); // Push the last token formed, if it's not empty.
 
-	if ((cstate_ == dfaState::S1 || cstate_ == dfaState::S5) && context_.isSafe()) // If we were in the middle of lexing a string/char
-		reportLexerError("Met the end of the file before a closing delimiter for char/strings");
+	pushTok(); // Push the last token found.
 
-	if constexpr (LOG_TOTALTOKENSCOUNT)
-		context_.logMessage("Lexing finished. Tokens found: " + sizeToString(result_.size()));
+	if (options.logTotalTokensCount)
+		context_.logMessage("Lexing finished. Tokens found: " + (int)result_.size());
 
 	context_.resetOrigin();
 }
@@ -56,24 +53,32 @@ void Lexer::logAllTokens() const
 		context_.logMessage(tok.showFormattedTokenData());
 }
 
-token Lexer::getToken(const size_t & vtpos) const
+token Lexer::getToken(const std::size_t & vtpos) const
 {
 	if (vtpos < result_.size())
 		return result_[vtpos];
+
 	throw std::out_of_range("Tried to access a position in result_ that was out of bounds.");
-	
 	return token(context_); // return empty token
 }
 
-size_t Lexer::resultSize() const
+std::size_t Lexer::resultSize() const
 {
 	return result_.size();
 }
 
 void Lexer::pushTok()
 {
-	if(LOG_PUSHEDTOKENS)
-		std::cout << "Pushing token <" << curtok_ << ">"  << std::endl;
+	if (options.logPushedTokens) {
+		std::stringstream out;
+		out << "Pushing token \xAE" + curtok_ + "\xAF";
+		context_.logMessage(out.str());
+	}
+
+	if (curtok_ == "")	// Don't push empty tokens.
+		return;
+
+	// push token
 	token t(context_,curtok_,ccoord_);
 	result_.push_back(t);
 	curtok_ = "";
@@ -86,26 +91,49 @@ void Lexer::cycle()
 		reportLexerError("Errors found : stopping lexing process.");
 		return;
 	}
-	// update position
-	ccoord_.forward();
-	// execute appropriate function
-	auto it = kState_dict.find(cstate_);
-	if (it != kState_dict.end())
-	{
-		auto fn = it->second;
-		fn(*this);
-	}
-	// update line
-	if (str_[pos_] == '\n')
+	ccoord_.forward();				// update position
+	runStateFunc();					// execute appropriate function
+	if (inputstr_[pos_] == '\n')	// update line
 	{
 		ccoord_.newLine();
+	}
+}
+
+void Lexer::runFinalChecks()
+{
+	if ((cstate_ == dfaState::S1 || cstate_ == dfaState::S5) && context_.isSafe()) // If we were in the middle of lexing a string/char
+		reportLexerError("Met the end of the file before a closing delimiter for char/strings");
+}
+
+void Lexer::runStateFunc()
+{
+	switch (cstate_)
+	{
+		case dfaState::S0:
+			dfa_S0();
+			break;
+		case dfaState::S1:
+			dfa_S1();
+			break;
+		case dfaState::S2:
+			dfa_S2();
+			break;
+		case dfaState::S3:
+			dfa_S3();
+			break;
+		case dfaState::S4:
+			dfa_S4();
+			break;
+		case dfaState::S5:
+			dfa_S5();
+			break;
 	}
 }
 
 void Lexer::dfa_S0()
 {
 	char pk = peekNext();
-	char c = str_[pos_];	// Get current char without advancing in the stream
+	char c = inputstr_[pos_];	// Get current char without advancing in the stream
 
 	if (curtok_.size() != 0)	// simple error checking : the token should always be empty when we're in S0.
 	{
@@ -113,16 +141,16 @@ void Lexer::dfa_S0()
 		return;
 	}
 	// IGNORE SPACES
-	if (std::iswspace(c)) forward();
+	if (std::iswspace(c)) eatChar();
 	// HANDLE COMMENTS
 	else if (c == '/' && pk == '/')
 	{
-		forward();
+		eatChar();
 		dfa_goto(dfaState::S2);
 	}
 	else if (c == '/' && pk == '*')
 	{
-		forward();
+		eatChar();
 		dfa_goto(dfaState::S3);
 	}
 	// HANDLE SINGLE SEPARATOR
@@ -151,7 +179,7 @@ void Lexer::dfa_S0()
 void Lexer::dfa_S1()
 {
 	char c = eatChar();
-	if (c == '"' && !escapes_)
+	if (c == '"' && !escapeFlag_)
 	{
 		addToCurtok(c);
 		pushTok();
@@ -171,16 +199,16 @@ void Lexer::dfa_S2()				// One line comment state.
 
 void Lexer::dfa_S3()
 {
-	if (eatChar() == '*' && str_[pos_] == '/')
+	if (eatChar() == '*' && inputstr_[pos_] == '/')
 	{
-		forward();
+		eatChar();
 		dfa_goto(dfaState::S0);
 	}
 }
 
 void Lexer::dfa_S4()
 {
-	if (isSep(str_[pos_]))
+	if (isSep(inputstr_[pos_]))
 	{		
 		pushTok();
 		dfa_goto(dfaState::S0);
@@ -192,7 +220,7 @@ void Lexer::dfa_S4()
 void Lexer::dfa_S5()
 {
 	char c = eatChar();
-	if (c == '\'' && !escapes_)
+	if (c == '\'' && !escapeFlag_)
 	{
 		addToCurtok(c);
 		pushTok();
@@ -211,36 +239,34 @@ void Lexer::dfa_goto(const dfaState & ns)
 
 char Lexer::eatChar()
 {
-	const char c = str_[pos_];
-	forward();
+	const char c = inputstr_[pos_];
+	pos_ += 1;
 	return c;
 }
 
-char Lexer::peekNext(const size_t &p) const
+void Lexer::addToCurtok(const char & c)
 {
-	if (p+1 >= (str_.size()))	// checks if it's possible
-		return ' ';
-	return str_[p + 1];
-}
-
-void Moonshot::Lexer::addToCurtok(const char & c)
-{
-	if (c == '\\' && ((cstate_ == dfaState::S1)||(cstate_ == dfaState::S5)))
-	{
-		if (escapes_)
-		{
-			curtok_ += c;
-			escapes_ = false;
-		}
-		else
-			escapes_ = true;
-	}
-	else if (c == '\r') // Don't push carriage returns.
-		return;
-	else
+	if (isEscapeChar(c) && !escapeFlag_)
 	{
 		curtok_ += c;
-		escapes_ = false;
+		escapeFlag_ = true;
+	}
+	else if(!shouldIgnore(c))
+	{
+		if (escapeFlag_)	// last char was an escape char
+		{
+			switch (c)
+			{
+				// In case we want to only have the escaped char, and not the backslash too
+				case '\\':
+				case '\'':
+				case '"':
+					curtok_.pop_back();
+					break;
+			}
+		}
+		curtok_ += c;
+		escapeFlag_ = false;
 	}
 }
 
@@ -254,12 +280,19 @@ bool Lexer::isSep(const char &c) const
 
 char Lexer::peekNext() const
 {
-	return peekNext(pos_);
+	if (pos_ + 1 >= (inputstr_.size()))	// checks if it's possible
+		return '\0';
+	return inputstr_[pos_ + 1];
 }
 
-void Lexer::forward()
+bool Lexer::isEscapeChar(const char & c) const
 {
-	pos_ += 1;
+	return  (c == '\\') && ((cstate_ == dfaState::S1) || (cstate_ == dfaState::S5));
+}
+
+bool Lexer::shouldIgnore(const char & c) const
+{
+	return (c == '\r'); // don't push carriage returns
 }
 
 void Lexer::reportLexerError(std::string errmsg) const
@@ -269,9 +302,3 @@ void Lexer::reportLexerError(std::string errmsg) const
 	context_.reportError(out.str());
 }
 
-std::string Lexer::sizeToString(const size_t &s) const
-{
-	std::stringstream ss;
-	ss << s;
-	return ss.str();
-}

@@ -30,8 +30,6 @@
 #include "../../Common/Exceptions/Exceptions.h"
 
 #include "Token.h"
-#include "../../Common/Options.h"
-
 
 namespace Moonshot
 {
@@ -51,59 +49,53 @@ namespace Moonshot
 																			// The lambda will then be called with each token of the output, in order.
 			void logAllTokens() const;					// log all token using E_LOG. Useful for debugging.
 
-			token getToken(const size_t &vtpos) const;	// returns the n th token in result_
-			size_t resultSize() const;					// returns result_.size()
+			token getToken(const std::size_t &vtpos) const;	// returns the n th token in result_
+			std::size_t resultSize() const;					// returns result_.size()
+		
+			// Options struct
+			struct options_struct
+			{
+				bool logPushedTokens = false;
+				bool logTotalTokensCount = false;
+			}options;
 		private:
-			// Context
-			Context& context_;
 
 			void pushTok();					// push token
 			void cycle();					// one dfa "cycle";
+			void runFinalChecks();			// runs the final checks. this is called after the lexing process ended.
 			// DFA state functions. I split this into various functions to make the code more readable in the cycle() function.
+			void runStateFunc();			// call the correct function, depending on cstate_
+			void dfa_goto(const dfaState &ns); 	// Go to state X (changes cstate)
+			// States functions
 			void dfa_S0();
 			void dfa_S1();
 			void dfa_S2();
 			void dfa_S3();
 			void dfa_S4();
 			void dfa_S5();
-			void dfa_goto(const dfaState &ns); 	// Go to state X
 
-			// Useful functions 
-			char eatChar();										// returns the current char and go forward in the stream (returns str_[pos_] and do pos_+=1)
-			void addToCurtok(const char &c);					// adds the current character to curtok_, except if(isspace())
+			// Utils
+			char eatChar();										// returns the current char and run updatePos (returns inputstr_[pos_] and do pos_+=1)
+			void addToCurtok(const char &c);					// adds the current character to curtok_
 			bool isSep(const char &c) const;					// is the current char a separator? (= a sign. see kSign_dict)
-			char peekNext(const size_t &p) const;				//	returns the next char after pos p 
-			// Overloads with no arguments (will assume p = pos_)
-			char peekNext() const;
+			char peekNext() const;								// peeks the next character
+			bool isEscapeChar(const char& c) const;				// Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.
+			bool shouldIgnore(const char& c) const;				// Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
 
-			// This function's job is to increment pos_. Why use it ? Better readability in the code.
-			void forward();
-
-			// error management
+			// error management made easy
 			void reportLexerError(std::string errmsg) const;
 
 			// Member Variables
-
-			// dfa function dictionary : enum -> function
-			const std::map<dfaState, std::function<void(Lexer &)>> kState_dict =
-			{ 
-				{	dfaState::S0	,	&Lexer::dfa_S0 },
-				{	dfaState::S1	,	&Lexer::dfa_S1 },
-				{	dfaState::S2	,	&Lexer::dfa_S2 },
-				{	dfaState::S3	,	&Lexer::dfa_S3 },
-				{	dfaState::S4	,	&Lexer::dfa_S4 },
-				{	dfaState::S5	,	&Lexer::dfa_S5 }
-			};
-			//size_t to std::string
-			std::string sizeToString(const size_t &s) const;
-
-			// member variables
-			bool escapes_ = false;				// escaping with backslash
-			dfaState cstate_ = dfaState::S0;		// curren dfa state. begins at S0;
-			std::string str_;					// the input
-			size_t pos_ = 0;					// position in the input string;
-			std::string curtok_;				// the token that's being constructed.
-			text_pos ccoord_;					// current coordinates.
-			std::vector<token>	result_;		// the lexer's output !
+				// Context
+				Context& context_;
+				// Utilities
+				bool		escapeFlag_ = false;			// escaping with backslash flag
+				dfaState	cstate_ = dfaState::S0;		// curren dfa state. begins at S0;
+				std::string inputstr_;					// the input
+				size_t		pos_ = 0;					// position in the input string;
+				std::string curtok_;					// the token that's being constructed.
+				text_pos	ccoord_;					// current coordinates.
+				// Output
+				std::vector<token>	result_;		// the lexer's output !
 	};
 }

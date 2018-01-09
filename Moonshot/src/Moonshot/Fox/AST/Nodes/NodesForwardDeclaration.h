@@ -1,4 +1,4 @@
-// To avoid circular dependencies, i need to do a forward declaration of the nodes in the visitors.
+// To avoid circular dependencies, i need to do a updatePos declaration of the nodes in the visitors.
 
 #pragma once
 

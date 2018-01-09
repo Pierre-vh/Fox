@@ -104,8 +104,6 @@ namespace Moonshot
 		P_USING				// "using"
 	};
 	// Regular expression used for identification 
-	const std::regex kInt_regex("\\d+");
-	const std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
 	const std::regex kId_regex("(([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+");	// if anyone has something better, tell me ! :)
 
 	// Dictionary used to identify keywords.
@@ -198,10 +196,10 @@ namespace Moonshot
 		private:
 			Context& context_;
 			bool empty_ = false;
-			void selfId();
-			bool idKeyword();
-			bool idSign();
-			bool idValue();				// is a value (raw const)
+			void idToken();					// will id the tolen and call the specific evaluations functions if needed.
+			bool specific_idKeyword();
+			bool specific_idSign();
+			bool specific_idValue();				// is a value (raw const)
 										// this class will also put the value in the variant, with the exception of strings (it'll just trim the quotes and put it back in str)
 	};
 }

@@ -30,28 +30,53 @@ bool ExprTests::runTest(Context & context)
 	// read files
 	auto correct_test = readFileToVec(context, "res\\tests\\expr\\expr_correct.fox");
 	auto bad_test = readFileToVec(context, "res\\tests\\expr\\expr_bad.fox");
-	RETURN_SILENTLY_IF_ERR;
+	FAILED_RETURN_IF_ERR__SILENT;
 	// RUN CORRECT TESTS
+	std::cout << std::endl << "Part 1 : Correct tests :" << std::endl;
 	for (auto& elem : correct_test)
 	{
+		std::cout << "\t\xAF Expression :" << elem << std::endl;
 		Lexer l(context);
 		l.lexStr(elem);
-		RETURN_IF_ERR("lexing");
+		FAILED_RETURN_IF_ERR("lexing");
 
 		Parser p(context, l);
 		auto root = p.parseExpr();
-		RETURN_IF_ERR("parsing");
+		FAILED_RETURN_IF_ERR("parsing");
 
 		root->accept(TypeCheckVisitor(context,true));
-		RETURN_IF_ERR("typechecking");
+		FAILED_RETURN_IF_ERR("typechecking");
 
 		auto result = root->accept(RTExprVisitor(context));
-		RETURN_IF_ERR("evaluation");
-
-		std::cout << "\tExpression :" << elem << std::endl;
-		std::cout << "\t\tResult: " << fv_util::dumpFVal(result) << std::endl;
+		FAILED_RETURN_IF_ERR("evaluation");
+		std::cout << "\t\t\xC0 Result: " << fv_util::dumpFVal(result) << std::endl;
 	}
-	std::cout << std::endl;
-	// todo : add bad tests
+	// RUN INCORRECT TESTS
+	std::cout << std::endl << "Part 2 : Incorrect tests :" << std::endl;
+	for (auto& elem : bad_test)
+	{
+		context.resetState();
+		std::cout << "\t\xAF Expression :" << elem << std::endl;
+		Lexer l(context);
+		l.lexStr(elem);
+		SUCCESS_CONTINUE_IF_ERR;
+
+		Parser p(context, l);
+		auto root = p.parseExpr();
+		SUCCESS_CONTINUE_IF_ERR;
+
+		root->accept(TypeCheckVisitor(context,true));
+		SUCCESS_CONTINUE_IF_ERR;
+
+		auto result = root->accept(RTExprVisitor(context));
+		SUCCESS_CONTINUE_IF_ERR;
+
+		if (context.isSafe())
+		{
+			std::cout << "\t\tTest failed (The test was meant to fail, and completed successfully.)" << std::endl;
+			return false;
+		}
+	}
+	context.resetState();	// Because of incorrect tests, we need to reset the context.
 	return true;
 }

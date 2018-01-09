@@ -17,13 +17,12 @@ token::token(Context & c) : context_(c)
 }
 token::token(Context & c,std::string data, const text_pos &tpos) : context_(c),str(data),pos(tpos)
 {
-	// self id
-	selfId();
+	idToken(); // self id
 }
 
 std::string token::showFormattedTokenData() const
 {
-	if (type == tokenType::TT_ENUM_DEFAULT && str == "") // Token isn't initialized.
+	if (empty_) // Token is empty
 		return "<EMPTY TOKEN>"; // return nothing.
 
 	std::stringstream ss;
@@ -60,11 +59,11 @@ bool token::isValid() const
 {
 	return !empty_;
 }
-void token::selfId()
+void token::idToken()
 {
 	if (!context_.isSafe())
 	{
-		context_.reportError("Errors happened earlier, as a result tokens can't be identified.");
+		context_.reportError("Errors happened earlier, as a result tokens won't be identified.");
 		return;
 	}
 	if (str.size() == 0)
@@ -73,13 +72,13 @@ void token::selfId()
 	// substract the token length's fron the column number given by the lexer.
 	pos.column -= (int)str.length();
 
-	if (idSign())
+	if (specific_idSign())
 		type = tokenType::TT_SIGN;
 	else
 	{
-		if (idKeyword())
+		if (specific_idKeyword())
 			type = tokenType::TT_KEYWORD;
-		else if (idValue())
+		else if (specific_idValue())
 			type = tokenType::TT_VALUE;
 		else if (std::regex_match(str, kId_regex))
 			type = tokenType::TT_IDENTIFIER;
@@ -88,7 +87,7 @@ void token::selfId()
 	}
 }
 
-bool token::idKeyword()
+bool token::specific_idKeyword()
 {
 	auto i = kWords_dict.find(str);
 	if (i == kWords_dict.end())
@@ -98,7 +97,7 @@ bool token::idKeyword()
 	return true;
 }
 
-bool token::idSign()
+bool token::specific_idSign()
 {
 	if (str.size() > 1)
 		return false;
@@ -113,8 +112,12 @@ bool token::idSign()
 	return false;
 }
 
-bool token::idValue()
+bool token::specific_idValue()
 {
+	std::stringstream converter(str);
+	// temp values
+	int itmp;
+	float ftmp;
 	if (str[0] == '\'' )
 	{
 		if (str.back() == '\'')
@@ -151,13 +154,14 @@ bool token::idValue()
 		val_type = valueType::VAL_BOOL;
 		return true;
 	}
-	else if (std::regex_match(str, kInt_regex))
+	// Might rework this bit later because it's a bit ugly, but it works !
+	else if ((converter >> itmp) && (str.find(".") == std::string::npos)) // If the source is convertible to a int and doesn't contain a . (isn't a float) 
 	{
 		vals = std::stoi(str);
 		val_type = valueType::VAL_INTEGER;
 		return true;
 	}
-	else if (std::regex_match(str, kFloat_regex))
+	else if (converter >> ftmp) // If the source is a float
 	{
 		vals = std::stof(str);
 		val_type = valueType::VAL_FLOAT;

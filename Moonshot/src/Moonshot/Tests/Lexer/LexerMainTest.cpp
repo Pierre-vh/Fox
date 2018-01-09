@@ -25,9 +25,16 @@ bool LexerMainTest::runTest(Context & context)
 		return false;
 	// Run correct tests 
 	Lexer lex_corr(context);
+	lex_corr.options.logPushedTokens = true;
+
 	lex_corr.lexStr(correct_test_str);
-	if (!context.isSafe_strict()) // Should be 0 errors
+
+	if (!context.isSafe_strict()) // Should be 0 errors. return false if one is found
 		return false;
+
+	context.printLogs(); // Show pushed tokens
+	context.clearLogs(); // clear logs of all the clutter
+
 	// Run "bad" tests
 	Lexer lex_bad(context);
 	lex_bad.lexStr(bad_test_str); 

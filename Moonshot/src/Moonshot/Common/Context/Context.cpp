@@ -11,7 +11,7 @@
 
 using namespace Moonshot;
 
-void Context::setMode(const ContextLoggingMode & newmode)
+void Context::setLoggingMode(const ContextLoggingMode & newmode)
 {
 	curmode_ = newmode;
 }

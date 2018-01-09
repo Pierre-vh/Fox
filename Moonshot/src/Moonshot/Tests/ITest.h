@@ -21,20 +21,28 @@
 #include <fstream>
 #include <vector>
 
-#define RETURN_IF_ERR(zone) 	if (!context.isSafe())	\
+#define FAILED_RETURN_IF_ERR(zone) 	if (!context.isSafe())	\
 							{	\
 								std::cout << "Test failed at " << zone << std::endl;	\
 								return false;	\
 							}
 
-#define RETURN_SILENTLY_IF_ERR if(!context.isSafe()) return false;
+#define FAILED_RETURN_IF_ERR__SILENT if(!context.isSafe()) return false
 
+#define SUCCESS_CONTINUE_IF_ERR if (!context.isSafe()) \
+								{ \
+									std::cout << "\t\t\xC0 Success (Test Failed as Expected.)" << std::endl; \
+									continue; \
+								}
 namespace Moonshot
 {
 	namespace TestUtilities
 	{
 		std::string readFileToString(Context& context, const std::string& fp);
 		std::vector<std::string> readFileToVec(Context& context, const std::string& fp);
+
+		static constexpr char spacer_slim[] = "-------------------------------------------------";
+		static constexpr char spacer_large[] = "=================================================";
 	}
 	class ITest
 	{

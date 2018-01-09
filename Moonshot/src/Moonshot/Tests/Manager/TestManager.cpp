@@ -35,11 +35,11 @@ void TestManager::addTest(std::unique_ptr<ITest> test)
 
 void TestManager::runTests(const bool& displayContextLog)
 {
-	std::cout << "-------------------------------------------------" << std::endl;
-	context_.setMode(ContextLoggingMode::SAVE_TO_VECTOR);
+	std::cout << spacer_slim << std::endl;
+	context_.setLoggingMode(ContextLoggingMode::SAVE_TO_VECTOR);
 	bool failflag = false;
 	std::cout << "TestManager : Running tests..." << std::endl;
-	std::cout << "=================================================" << std::endl;
+	std::cout << spacer_large << std::endl;
 	for (auto& elem : tests_)
 	{
 		std::cout << "[" << elem->getTestName() << "]" << std::endl;
@@ -56,14 +56,14 @@ void TestManager::runTests(const bool& displayContextLog)
 			context_.printLogs();
 			context_.clearLogs();
 		}
-		std::cout << "-------------------------------------------------" << std::endl;
+		std::cout << spacer_slim << std::endl;
 	}
 	// Display summary
-	std::cout << "=================================================" << std::endl;
+	std::cout << spacer_large << std::endl;
 	std::cout << tests_.size() << " tests ran. Result: ";
 	if (failflag)
 		std::cout << "FAILURE";
 	else
 		std::cout << "SUCCESS";
-	std::cout << std::endl <<	"-------------------------------------------------" << std::endl;
+	std::cout << std::endl << spacer_slim << std::endl;
 }

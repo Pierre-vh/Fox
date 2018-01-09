@@ -40,11 +40,10 @@ namespace Moonshot
 	class Context
 	{
 		public:
-			// Create the initial context
 			Context() = default;
 
-			// set mode : direct print to cout (default) or save to a vector.
-			void setMode(const ContextLoggingMode& newmode);
+			void setLoggingMode(const ContextLoggingMode& newmode); // set mode : direct print to cout (default) or save to a vector.
+			
 			// logs are of the following form : [LOG/WARNING/ERROR][ORIGIN] Message
 			void setOrigin(const std::string& origin);
 			void resetOrigin();
@@ -63,7 +62,7 @@ namespace Moonshot
 			std::string getLogs() const; // returns a string containing the error log.
 			void clearLogs();
 
-			// Inline functions
+			// Inline functions : isSafe
 			inline bool isSafe_strict() const
 			{
 				return curstate_ == ContextState::GOOD;
