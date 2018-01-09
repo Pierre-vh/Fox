@@ -29,7 +29,7 @@ void Lexer::lexStr(const std::string & data)
 
 	inputstr_ = data;
 	pos_ = 0;
-	cstate_ = dfaState::S0;
+	cstate_ = dfaState::S_BASE;
 	while(pos_ < data.size() && context_.isSafe())
 		cycle();
 
@@ -101,7 +101,7 @@ void Lexer::cycle()
 
 void Lexer::runFinalChecks()
 {
-	if ((cstate_ == dfaState::S1 || cstate_ == dfaState::S5) && context_.isSafe()) // If we were in the middle of lexing a string/char
+	if ((cstate_ == dfaState::S_STR || cstate_ == dfaState::S_CHR) && context_.isSafe()) // If we were in the middle of lexing a string/char
 		reportLexerError("Met the end of the file before a closing delimiter for char/strings");
 }
 
@@ -109,35 +109,35 @@ void Lexer::runStateFunc()
 {
 	switch (cstate_)
 	{
-		case dfaState::S0:
-			dfa_S0();
+		case dfaState::S_BASE:
+			fn_S_BASE();
 			break;
-		case dfaState::S1:
-			dfa_S1();
+		case dfaState::S_STR:
+			fn_S_STR();
 			break;
-		case dfaState::S2:
-			dfa_S2();
+		case dfaState::S_LCOM:
+			fn_S_LCOM();
 			break;
-		case dfaState::S3:
-			dfa_S3();
+		case dfaState::S_MCOM:
+			fn_S_MCOM();
 			break;
-		case dfaState::S4:
-			dfa_S4();
+		case dfaState::S_WORDS:
+			fn_S_WORDS();
 			break;
-		case dfaState::S5:
-			dfa_S5();
+		case dfaState::S_CHR:
+			fn_S_CHR();
 			break;
 	}
 }
 
-void Lexer::dfa_S0()
+void Lexer::fn_S_BASE()
 {
 	char pk = peekNext();
 	char c = inputstr_[pos_];	// Get current char without advancing in the stream
 
-	if (curtok_.size() != 0)	// simple error checking : the token should always be empty when we're in S0.
+	if (curtok_.size() != 0)	// simple error checking : the token should always be empty when we're in S_BASE.
 	{
-		throw Exceptions::lexer_critical_error("Current token isn't empty in S0, current token :" + curtok_);
+		throw Exceptions::lexer_critical_error("Current token isn't empty in S_BASE, current token :" + curtok_);
 		return;
 	}
 	// IGNORE SPACES
@@ -146,12 +146,12 @@ void Lexer::dfa_S0()
 	else if (c == '/' && pk == '/')
 	{
 		eatChar();
-		dfa_goto(dfaState::S2);
+		dfa_goto(dfaState::S_LCOM);
 	}
 	else if (c == '/' && pk == '*')
 	{
 		eatChar();
-		dfa_goto(dfaState::S3);
+		dfa_goto(dfaState::S_MCOM);
 	}
 	// HANDLE SINGLE SEPARATOR
 	else if (isSep(c))				// is the current char a separator, but not a space?
@@ -163,71 +163,71 @@ void Lexer::dfa_S0()
 	else if (c == '\'')	// Delimiter?
 	{
 		addToCurtok(eatChar());
-		dfa_goto(dfaState::S5);
+		dfa_goto(dfaState::S_CHR);
 	}
 	else if (c == '"')
 	{
 		addToCurtok(eatChar());
-		dfa_goto(dfaState::S1);
+		dfa_goto(dfaState::S_STR);
 	}
 	// HANDLE IDs & Everything Else
 	else 		
-		dfa_goto(dfaState::S4);
+		dfa_goto(dfaState::S_WORDS);
 
 }
 
-void Lexer::dfa_S1()
+void Lexer::fn_S_STR()
 {
 	char c = eatChar();
 	if (c == '"' && !escapeFlag_)
 	{
 		addToCurtok(c);
 		pushTok();
-		dfa_goto(dfaState::S0);
+		dfa_goto(dfaState::S_BASE);
 	}
 	else if (c == '\n')
-		reportLexerError("Newline characters (\\n) in string values declarations are illegal. Token concerned:" + curtok_);
+		reportLexerError("Newline characters (\\n) in string literals are illegal. Token concerned:" + curtok_);
 	else
 		addToCurtok(c);
 }
 
-void Lexer::dfa_S2()				// One line comment state.
+void Lexer::fn_S_LCOM()				// One line comment state.
 {
 	if (eatChar() == '\n')			// Wait for new line
-		dfa_goto(dfaState::S0);			// then go back to S0.
+		dfa_goto(dfaState::S_BASE);			// then go back to S_BASE.
 }
 
-void Lexer::dfa_S3()
+void Lexer::fn_S_MCOM()
 {
 	if (eatChar() == '*' && inputstr_[pos_] == '/')
 	{
 		eatChar();
-		dfa_goto(dfaState::S0);
+		dfa_goto(dfaState::S_BASE);
 	}
 }
 
-void Lexer::dfa_S4()
+void Lexer::fn_S_WORDS()
 {
 	if (isSep(inputstr_[pos_]))
 	{		
 		pushTok();
-		dfa_goto(dfaState::S0);
+		dfa_goto(dfaState::S_BASE);
 	}
 	else 
 		addToCurtok(eatChar());
 }
 
-void Lexer::dfa_S5()
+void Lexer::fn_S_CHR()
 {
 	char c = eatChar();
 	if (c == '\'' && !escapeFlag_)
 	{
 		addToCurtok(c);
 		pushTok();
-		dfa_goto(dfaState::S0);
+		dfa_goto(dfaState::S_BASE);
 	}
 	else if (c == '\n')
-		reportLexerError("Newline characters (\\n) in char values declarations are illegal. Token concerned:" + curtok_);
+		reportLexerError("Newline characters (\\n) in char literals are illegal. Token concerned:" + curtok_);
 	else
 		addToCurtok(c);
 }
@@ -287,7 +287,7 @@ char Lexer::peekNext() const
 
 bool Lexer::isEscapeChar(const char & c) const
 {
-	return  (c == '\\') && ((cstate_ == dfaState::S1) || (cstate_ == dfaState::S5));
+	return  (c == '\\') && ((cstate_ == dfaState::S_STR) || (cstate_ == dfaState::S_CHR));
 }
 
 bool Lexer::shouldIgnore(const char & c) const
@@ -301,4 +301,3 @@ void Lexer::reportLexerError(std::string errmsg) const
 	out << errmsg << " at line " << ccoord_.line; // Somehow I have to use line-1 to get the correct line count.
 	context_.reportError(out.str());
 }
-

@@ -9,7 +9,7 @@
 // The lexer is the 1st step of the interpretation process.
 // It takes the source file, in the form of a string, as input, and outputs a std::<vector> of token.				
 //															
-// It performs a lexical analysis. A Fairly simple one in our case.
+// It performs a lexical analysis. A Fairly simple one in our case, using a DFA. (state machine)
 //															
 //															
 // Tokens (see Token.h/.cpp for declaration and definition is the dissected entry, separated in small bits			
@@ -35,7 +35,12 @@ namespace Moonshot
 {
 	enum class dfaState
 	{
-		S0, S1, S2, S3, S4, S5	// the dfa's state.
+		S_BASE, // basestate
+		S_STR,	// string literals
+		S_LCOM,	// line comment
+		S_MCOM,	// multiline comment
+		S_WORDS,// basic (keywords,signs) state
+		S_CHR	// char literals
 	};
 	class Lexer 
 	{
@@ -67,12 +72,12 @@ namespace Moonshot
 			void runStateFunc();			// call the correct function, depending on cstate_
 			void dfa_goto(const dfaState &ns); 	// Go to state X (changes cstate)
 			// States functions
-			void dfa_S0();
-			void dfa_S1();
-			void dfa_S2();
-			void dfa_S3();
-			void dfa_S4();
-			void dfa_S5();
+			void fn_S_BASE();
+			void fn_S_STR();	// string literals
+			void fn_S_LCOM();	// one line comment
+			void fn_S_MCOM();	// Multiple line comments
+			void fn_S_WORDS();	// "basic" state (push to tok until separator is met)
+			void fn_S_CHR();	// Char literals
 
 			// Utils
 			char eatChar();										// returns the current char and run updatePos (returns inputstr_[pos_] and do pos_+=1)
@@ -90,7 +95,7 @@ namespace Moonshot
 				Context& context_;
 				// Utilities
 				bool		escapeFlag_ = false;			// escaping with backslash flag
-				dfaState	cstate_ = dfaState::S0;		// curren dfa state. begins at S0;
+				dfaState	cstate_ = dfaState::S_BASE;		// curren dfa state. begins at S_BASE;
 				std::string inputstr_;					// the input
 				size_t		pos_ = 0;					// position in the input string;
 				std::string curtok_;					// the token that's being constructed.
