@@ -12,6 +12,7 @@
 
 #include <variant>		// std::variant
 #include <algorithm>	// std::transform
+
 // ParameterValue could be a wrapper around a std::variant
 // Having get<T> methods that returns the desired value, or a default one if the variant
 // isn't in the correct state.
@@ -47,7 +48,9 @@ namespace Moonshot
 			template<typename RTYPE>
 			inline RTYPE get() const
 			{
-				if constexpr (std::is_arithmetic<RTYPE>())
+				if (std::holds_alternative<RTYPE>(rawval_))
+					return std::get<RTYPE>(rawval_);
+				else if constexpr (std::is_arithmetic<RTYPE>())
 				{
 					RTYPE result;
 					std::visit([&](auto& arg){
@@ -55,8 +58,7 @@ namespace Moonshot
 					}, rawval_);
 					return result;
 				}
-				if (std::holds_alternative<RTYPE>(rawval_))
-					return std::get<RTYPE>(rawval_);
+				// return default
 				return RTYPE();
 			}
 
@@ -78,6 +80,8 @@ namespace Moonshot
 				}
 				rawval_ = val;
 			}
+
+			// Comparison operators
 			inline bool operator ==(const ParameterValue &b) const
 			{
 				return rawval_ == b.rawval_;
@@ -85,6 +89,12 @@ namespace Moonshot
 			inline bool operator !=(const ParameterValue &b) const
 			{
 				return !(operator==(b)); // uses == to compare
+			}
+
+			// Conversion
+			operator int() const
+			{
+
 			}
 		protected:
 			std::variant<std::monostate,int, bool> rawval_;

@@ -210,7 +210,7 @@
     <Text Include="src\LICENSE.txt" />
     <Text Include="res\tests\vdecl\vdecl_bad.fox" />
     <Text Include="res\tests\vdecl\vdecl_correct.fox" />
-    <Text Include="src\Moonshot\Common\Context\Options\OptionsList.txt" />
+    <Text Include="src\Moonshot\Common\Context\Options\OptionsList.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -20,46 +20,44 @@ OptionsManager::~OptionsManager()
 {
 }
 
-void OptionsManager::addAttr(const std::string & new_module_name, const std::string & new_attr_name, const ParameterValue& new_pval)
+void OptionsManager::addAttr(const OptionsList& optname, const ParameterValue& new_pval)
 {
 	parameters_.insert(
 		std::make_pair(
-			std::make_pair(
-				new_module_name,
-				new_attr_name
-			),
+			optname,
 			new_pval
 		)
 	);
 }
 
-void OptionsManager::setAttr(const std::string & module_name, const std::string & attr_name, const ParameterValue & new_pval)
+void OptionsManager::setAttr(const OptionsList& optname, const ParameterValue & new_pval)
 {
-	auto it = parameters_.find(std::make_pair(module_name,attr_name));
+	auto it = parameters_.find(optname);
 	if (it != parameters_.end())
 		it->second = new_pval;
 	else // attribute not found, add it !
-		addAttr(module_name, attr_name, new_pval);
+		addAttr(optname, new_pval);
 }
 
-void OptionsManager::deleteAttr(const std::string & module_name, const std::string & attr_name)
+void OptionsManager::deleteAttr(const OptionsList& optname)
 {
-	auto it = parameters_.find(std::make_pair(module_name, attr_name));
+	auto it = parameters_.find(optname);
 	if (it != parameters_.end()) // erase if element exists
 		parameters_.erase(it);
 }
 
-bool OptionsManager::hasAttr(const std::string & module_name, const std::string & attr_name) const
+bool OptionsManager::hasAttr(const OptionsList& optname) const
 {
-	auto reqresult = parameters_.find(std::make_pair(module_name, attr_name));
+	auto reqresult = parameters_.find(optname);
 	return (reqresult != parameters_.end());
 }
 
-ParameterValue OptionsManager::getAttr(const std::string & module_name, const std::string & attr_name) const
+std::optional<ParameterValue> OptionsManager::getAttr(const OptionsList& optname) const
 {
-	if (hasAttr(module_name, attr_name)) // hasAttr will do the checks needed. If it returns true, the value exists.
-		return parameters_.find(std::make_pair(module_name, attr_name))->second;
-	else
-		std::cout << "failed to retrieve attribute [" << module_name << "," << attr_name << "]" << std::endl;
-	return ParameterValue(false); // return "false"
+	if (hasAttr(optname)) // hasAttr will do the checks needed. If it returns true, the value exists.
+		return parameters_.find(optname)->second;
+	/*
+		Here, it would be great to have a way of knowing if this failed, with a warning or something.
+	*/
+	return { std::nullopt }; // return nullopt, meaning we did not find the requested value ! :(
 }

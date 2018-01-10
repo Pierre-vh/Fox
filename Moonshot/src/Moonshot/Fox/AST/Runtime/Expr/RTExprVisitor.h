@@ -12,6 +12,13 @@
 // (Only const variable calls and raw values)
 ////------------------------------------------------------////
 
+	// Notes about behaviour //
+// When evaluating variables calls, this class returns a reference to the variable.
+// This class will attempt to deref reference first at some points. When cast, it returns the value of the variable
+// and not a reference to it! 
+// So, in theory, this would fail (and that's normal, as variable types can not be changed)
+	// x as int = 3
+
 #pragma once
 // Context & exceptions
 #include "../../../../Common/Context/Context.h"

@@ -22,10 +22,14 @@
 #pragma once
 
 #include "ParameterValue.h"
+#include "OptionsList.h"
+
+#include <optional> // std::optional
 #include <iostream>
 #include <map>
 #include <string>
 #include <tuple> // std::pair
+
 
 namespace Moonshot
 {
@@ -35,20 +39,18 @@ namespace Moonshot
 			OptionsManager();
 			~OptionsManager();
 
-			void addAttr(const std::string& new_module_name, const std::string& new_attr_name, const ParameterValue& new_pval = ParameterValue());
-			void setAttr(const std::string& module_name, const std::string& attr_name, const ParameterValue& new_pval);
+			void addAttr(const OptionsList& optname, const ParameterValue& new_pval = ParameterValue());
+			void setAttr(const OptionsList& optname, const ParameterValue& new_pval);
 
-			void deleteAttr(const std::string& module_name, const std::string& attr_name);
+			void deleteAttr(const OptionsList& optname);
 
-			bool hasAttr(const std::string& module_name, const std::string& attr_name) const;
-			ParameterValue getAttr(const std::string& module_name, const std::string& attr_name) const;
+			bool hasAttr(const OptionsList& optname) const;
+
+			std::optional<ParameterValue> getAttr(const OptionsList& optname) const; // getAttr returns an optional ParameterValue. when using it, call getAttr().value_or(false).get<...>(); to fall back on something if needed
 
 		private:
 			std::map<
-				std::pair<
-				std::string,
-				std::string
-				>,
+				OptionsList,
 				ParameterValue
 			>	parameters_;
 	};

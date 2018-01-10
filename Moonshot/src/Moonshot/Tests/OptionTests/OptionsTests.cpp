@@ -37,41 +37,41 @@ bool OptionsTests::runTest(Context & context)
 bool OptionsTests::testOptManagerFunc(Context & context, OptionsManager & options)
 {
 	// Tests if the added attr's value is added correctly and preserved.
-	const std::string modname = "FOO", attrname = "BAR";
+	const OptionsList optname = OptionsList::TESTERCLASS_TESTOPT;
 	ParameterValue pval(46846886);
 	// store the boolean : ADD
-	options.addAttr(modname, attrname, pval);
+	options.addAttr(optname, pval);
 	// has attribute ? HAS
-	if (!options.hasAttr(modname, attrname))
+	if (!options.hasAttr(optname))
 	{
 		context.reportError("OptionsTest::testOptManagerFunc -> Failed. hasAttr returned false after insertion. addAttr or hasAttr is broken!");
 		return false;
 	}
 	// get attribute and compare : GET
-	if (pval != options.getAttr(modname, attrname))
+	if (pval != options.getAttr(optname))
 	{
 		context.reportError("OptionsTest::testOptManagerFunc -> Failed. getAttr returned a different value after insertion. getAttr or addAttr is broken!");
 		return false;
 	}
 	// set attribute
 	ParameterValue pval_bis(-1);
-	options.setAttr(modname, attrname, pval_bis);
+	options.setAttr(optname, pval_bis);
 	// check if we still have it
-	if (!options.hasAttr(modname, attrname))
+	if (!options.hasAttr(optname))
 	{
 		context.reportError("OptionsTest::testOptManagerFunc -> Failed. hasAttr returned false after setAttr. setAttr or hasAttr is broken!");
 		return false;
 	}
 	// check if it's still ok
-	if (pval_bis != options.getAttr(modname, attrname))
+	if (pval_bis != options.getAttr(optname))
 	{
-		context.reportError("OptionsTest::testOptManagerFunc -> Failed. getAttr returned a different value after setAttr. getAttr or setAttr is broken!");
+		context.reportError("OptionsTest::testOptManagerFunc -> Failed. getAttr returned a different value after setAttr. getAttr,setAttr or operator!= is broken!");
 		return false;
 	}
 	// delete it
-	options.deleteAttr(modname, attrname);
+	options.deleteAttr(optname);
 	// wow, we still have it in? broken.
-	if (options.hasAttr(modname, attrname)) 
+	if (options.hasAttr(optname)) 
 	{
 		context.reportError("OptionsTest::testOptManagerFunc -> Failed. Called deleteAttr, but hasAttr still returned true. deleteAttr or hasAttr is broken.");
 		return false;
