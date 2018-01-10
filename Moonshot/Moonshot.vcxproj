@@ -160,6 +160,7 @@
     <ClCompile Include="src\Moonshot\Tests\ITest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\tests\varstmts\varstmts_bad.fox" />
     <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
     <None Include="src\Moonshot\Fox\AST\Visitor\readme.md" />
