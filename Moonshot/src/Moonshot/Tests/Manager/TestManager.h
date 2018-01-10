@@ -17,6 +17,7 @@
 // Include default tests
 #include "../Lexer/LexerMainTest.h"
 #include "../ExprTest/ExprTests.h"
+#include "../OptionTests/OptionsTests.h"
 
 namespace Moonshot
 {

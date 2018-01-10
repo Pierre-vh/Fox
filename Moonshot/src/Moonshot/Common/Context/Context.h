@@ -4,12 +4,16 @@
 // File : Context.h											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This class declares a "Context" class used to track the current state of the interpreter.
+// This class declares a "Context" class used to track the current state of the interpreter, along with
+// other parameters !
 //
 // GOOD -> No Warning and No Errors
 // WARNING -> Must be used for errors that do not perturbate the interpretation process.
 // ERROR -> Used for normal errors. e.g. "Undeclared variable x",etc..
+//
+// This class also uses OptionsManager to store options.
 ////------------------------------------------------------////
+
 
 #pragma once
 
@@ -17,6 +21,8 @@
 #include <vector> // std::vector
 #include <memory> // std::shared_ptr
 #include <sstream> // std::stringstream
+
+#include "Options\OptionsManager.h"
 
 namespace Moonshot
 {
@@ -71,6 +77,8 @@ namespace Moonshot
 			{
 				return (curstate_ == ContextState::GOOD) || (curstate_ == ContextState::WARNING);
 			}
+
+			OptionsManager options; // The options manager.
 		private:
 
 			void addLog(const std::string& message);

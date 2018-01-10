@@ -57,12 +57,6 @@ namespace Moonshot
 			token getToken(const std::size_t &vtpos) const;	// returns the n th token in result_
 			std::size_t resultSize() const;					// returns result_.size()
 		
-			// Options struct
-			struct options_struct
-			{
-				bool logPushedTokens = false;
-				bool logTotalTokensCount = false;
-			}options;
 		private:
 
 			void pushTok();					// push token

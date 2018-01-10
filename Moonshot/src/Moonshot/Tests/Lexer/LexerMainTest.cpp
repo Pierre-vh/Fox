@@ -25,8 +25,8 @@ bool LexerMainTest::runTest(Context & context)
 		return false;
 	// Run correct tests 
 	Lexer lex_corr(context);
-	lex_corr.options.logPushedTokens = true;
-
+	context.options.setAttr("lexer", "log_pushed_tokens", ParameterValue(false));
+	context.options.setAttr("lexer", "log_total_tok_count", ParameterValue(true));
 	lex_corr.lexStr(correct_test_str);
 
 	if (!context.isSafe_strict()) // Should be 0 errors. return false if one is found

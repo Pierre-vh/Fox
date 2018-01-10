@@ -130,6 +130,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Moonshot\Tests\OptionTests\OptionsTests.cpp" />
+    <ClCompile Include="src\Moonshot\Common\Context\Options\OptionsManager.cpp" />
     <ClCompile Include="src\Moonshot\Tests\ExprTest\ExprTests.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Manager\TestManager.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Lexer\LexerMainTest.cpp" />
@@ -170,6 +172,9 @@
     <None Include="res\tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Moonshot\Tests\OptionTests\OptionsTests.h" />
+    <ClInclude Include="src\Moonshot\Common\Context\Options\ParameterValue.h" />
+    <ClInclude Include="src\Moonshot\Common\Context\Options\OptionsManager.h" />
     <ClInclude Include="src\Moonshot\Tests\ExprTest\ExprTests.h" />
     <ClInclude Include="src\Moonshot\Tests\Manager\TestManager.h" />
     <ClInclude Include="src\Moonshot\Tests\Lexer\LexerMainTest.h" />
@@ -205,6 +210,7 @@
     <Text Include="src\LICENSE.txt" />
     <Text Include="res\tests\vdecl\vdecl_bad.fox" />
     <Text Include="res\tests\vdecl\vdecl_correct.fox" />
+    <Text Include="src\Moonshot\Common\Context\Options\OptionsList.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
