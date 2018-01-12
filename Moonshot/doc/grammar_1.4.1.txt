@@ -1,4 +1,4 @@
-vaFox Grammar version 1.3
+Fox Grammar version 1.4.1
 // Changelog:
 1.2 : Cleanup of the grammar.
 // 18/12/2017
@@ -8,6 +8,7 @@ vaFox Grammar version 1.3
 	After some thinking, I realised that it will be a lot harder than I first thought to implement.
 	The feature is still planned, but not for now !
 	Same for includes, they're useless now, really.
+1.4.1 : <block> renamed to <compound_statement> for readability's sake. Using custom names has no benefits and is a bad habit i'm trying to ditch.
 
 Modifications used in this grammar :
 $x means x is a term already recognized and identified by the lexer. 
@@ -27,13 +28,13 @@ you'll be greeted with an error!)
 <type> 			= $int_kw 	| $float_kw 	| $bool_kw	| $string_kw 	| $char_kw | $void_kw
 <const>			= $int_val 	| $float_val 	| $bool_val 	| $string_val 	| $char_val
 
-<namespace> 		= {<id> '.'} 							// This designates namespaces, examples : "Fox." "Fox.io."
-											// You can also import packages that don't have sub packages (or import everything in the package at the same time !). "Fox" works here
-<type_spec>		= ':' [$const_kw] <type>					// Used later..
-<arg_type_spec>		= ':' ['&'] <type>						// the optional ampersand indicates pass by reference
-<eoi>			= ';'								// End of instruction character. I use a separate rule for this, in case i want to modify it someday. (to use \n for instance)
-<block>			= '{' {<stmt>} '}'						// Statements delimited by curly brackets.
-				= <stmt>							// A block can also be just one statement.
+<namespace> 		= {<id> '.'} 						// This designates namespaces, examples : "Fox." "Fox.io."
+														// You can also import packages that don't have sub packages (or import everything in the package at the same time !). "Fox" works here
+<type_spec>		= ':' [$const_kw] <type>				// Used later..
+<arg_type_spec>		= ':' ['&'] <type>					// the optional ampersand indicates pass by reference
+<eoi>			= ';'									// End of instruction character. I use a separate rule for this, in case i want to modify it someday. (to use \n for instance)
+<compound_statement>			= '{' {<stmt>} '}'		// Statements delimited by curly brackets.
+				= <stmt>								// A compound_statement can also be just one statement.
 <stmt>			= <var_decl> | <expr_stmt> | <ctrl_flow>
 
 <expr_stmt>		= <expr> <eoi>
@@ -70,11 +71,11 @@ you'll be greeted with an error!)
 
 ##Functions##
 
-<func_decl>		= <fn_kw> <id> <arg_list_decl> [<type_spec>] <block>	// Note about type_spec : if it is not present, the function is considered void (it will never return anything and return values will be discarded.)
+<func_decl>		= <fn_kw> <id> <arg_list_decl> [<type_spec>] <compound_statement>	// Note about type_spec : if it is not present, the function is considered void (it will never return anything and return values will be discarded.)
 <arg_list_decl> 	= '(' [<arg_decl> {',' <arg_decl>}*] ')'
 <arg_decl>		=  <id> <arg_type_spec> 				// argument are (by default) passed by value, the ampersand indicates passing by reference.
 
-<f_call>		= <id> <expr_list>				// Function calls used in expressions, etc..
+<f_call>		= <id> <expr_list>						// Function calls used in expressions, etc..
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
 
 <rtr_stmt>		= <rtr_kw> <expr> <eoi>
@@ -82,10 +83,10 @@ you'll be greeted with an error!)
 ##Control Flow##
 <ctrl_flow>		= <cond_cf> | <while_cf>
 <cond_cf>		= <if_kw> {<elif_kw>}* [<else_branch>]?		
-<if_branch>		= <if_kw> 		'(' <expr> ')' 	<block>
-<elif_branch> 	= <el_kw> <if_kw>	'(' <expr> ')' 	<block>
-<else_branch>	= <el_kw>				<block>
-<while_cf> 		= <wh_kw> 		'(' <expr> ')'	<block> 
+<if_branch>		= <if_kw> '(' <expr> ')'			<compound_statement>
+<elif_branch> 	= <el_kw> <if_kw> '(' <expr> ')' 	<compound_statement>
+<else_branch>	= <el_kw>							<compound_statement>
+<while_cf> 		= <wh_kw>  '(' <expr> ')'			<compound_statement> 
 
 ##SCRAPPED IDEA : MIGHT RETURN LATER##
 	<ext_id>		= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"

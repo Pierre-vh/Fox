@@ -91,7 +91,7 @@ namespace Moonshot
 			// matchToken -> returns true if the token is matched, and increment pos_, if the token isn't matched return false
 			
 			// MATCH BY TYPE OF TOKEN
-			std::pair<bool,token> matchValue();				// match a TT_VALUE
+			std::pair<bool,token> matchValue();				// match a TT_LITERAL
 			std::pair<bool, std::string> matchID();			// match a ID
 			bool matchSign(const signType &s);			// match any signs : ! : * etc.
 			bool matchKeyword(const keywordType &k);		// Match any keyword

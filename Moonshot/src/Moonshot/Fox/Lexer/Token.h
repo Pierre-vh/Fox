@@ -32,18 +32,18 @@ namespace Moonshot
 		TT_IDENTIFIER,		// User defined identifiers.	(Foo, bar ...)
 		TT_KEYWORD,			// Reserved keywords			(func,let ...)
 		TT_SIGN,			// + - ; ( ] ...
-		TT_VALUE			// value ("hello", 3.14, 'c', -1, ...)
+		TT_LITERAL			// value ("hello", 3.14, 'c', -1, ...)
 	};
 
-	enum class valueType
+	enum class literalType
 	{
-		VAL_ENUM_DEFAULT,		// Default value
+		LIT_ENUMDEFAULT,		// Default value
 
-		VAL_CHAR,
-		VAL_INTEGER,
-		VAL_FLOAT,
-		VAL_BOOL,
-		VAL_STRING
+		LIT_CHAR,
+		LIT_INTEGER,
+		LIT_FLOAT,
+		LIT_BOOL,
+		LIT_STRING
 	};
 
 	enum class signType
@@ -182,7 +182,7 @@ namespace Moonshot
 			token(Context & c,std::string data, const text_pos &tpos = text_pos(0,0));
 			tokenType type =		tokenType::TT_ENUM_DEFAULT;
 			keywordType kw_type =	keywordType::KW_ENUM_DEFAULT;
-			valueType val_type =	valueType::VAL_ENUM_DEFAULT;
+			literalType val_type =	literalType::LIT_ENUMDEFAULT;
 			signType sign_type =	signType::S_ENUM_DEFAULT;
 
 			std::string str;

@@ -45,7 +45,7 @@ std::string token::showFormattedTokenData() const
 			ss << "SIGN";
 			enum_info = util::enumAsInt(sign_type);
 			break;
-		case tokenType::TT_VALUE:
+		case tokenType::TT_LITERAL:
 			ss << "VALUE";
 			enum_info = util::enumAsInt(val_type);
 			break;
@@ -79,7 +79,7 @@ void token::idToken()
 		if (specific_idKeyword())
 			type = tokenType::TT_KEYWORD;
 		else if (specific_idValue())
-			type = tokenType::TT_VALUE;
+			type = tokenType::TT_LITERAL;
 		else if (std::regex_match(str, kId_regex))
 			type = tokenType::TT_IDENTIFIER;
 		else
@@ -125,7 +125,7 @@ bool token::specific_idValue()
 			str = str[1];
 			if (str == "\\" && str.size() == 4) // If we have a \n in a char or something
 				str += str[2];
-			val_type = valueType::VAL_CHAR;
+			val_type = literalType::LIT_CHAR;
 			return true;
 		}
 		else
@@ -139,7 +139,7 @@ bool token::specific_idValue()
 		if (str.back() == '"')
 		{
 			str = str.substr(1, str.size() - 2);
-			val_type = valueType::VAL_STRING;
+			val_type = literalType::LIT_STRING;
 			return true;
 		}
 		else
@@ -151,20 +151,20 @@ bool token::specific_idValue()
 	else if (str == "true" | str == "false")
 	{
 		vals = (str == "true" ? true : false);
-		val_type = valueType::VAL_BOOL;
+		val_type = literalType::LIT_BOOL;
 		return true;
 	}
 	// Might rework this bit later because it's a bit ugly, but it works !
 	else if ((converter >> itmp) && (str.find(".") == std::string::npos)) // If the source is convertible to a int and doesn't contain a . (isn't a float) 
 	{
 		vals = std::stoi(str);
-		val_type = valueType::VAL_INTEGER;
+		val_type = literalType::LIT_INTEGER;
 		return true;
 	}
 	else if (converter >> ftmp) // If the source is a float
 	{
 		vals = std::stof(str);
-		val_type = valueType::VAL_FLOAT;
+		val_type = literalType::LIT_FLOAT;
 		return true;
 	}
 	return false;

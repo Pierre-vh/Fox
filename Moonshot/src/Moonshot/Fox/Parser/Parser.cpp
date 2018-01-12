@@ -25,7 +25,7 @@ Parser::~Parser()
 std::pair<bool, token> Parser::matchValue()
 {
 	token t = getToken();
-	if (t.type == tokenType::TT_VALUE)
+	if (t.type == tokenType::TT_LITERAL)
 	{
 		pos_ += 1;
 		return { true,t };

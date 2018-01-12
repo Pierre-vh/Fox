@@ -52,7 +52,7 @@ void Dumper::visit(ASTExpr & node)
 
 void Dumper::visit(ASTLiteral & node)
 {
-	std::cout << tabs() << char(192) << "ExprValue: " << dumpFVal(node.val_) << std::endl;
+	std::cout << tabs() << char(192) << "Literal: " << dumpFVal(node.val_) << std::endl;
 }
 
 void Dumper::visit(ASTVarDeclStmt & node)
