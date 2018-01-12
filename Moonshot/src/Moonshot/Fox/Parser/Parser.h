@@ -29,13 +29,15 @@ Note :
 		Theses functions UPDATE the cursor.
 
 	HOW TO IMPLEMENT A GRAMMAR RULE:
-		1 - Check for the terminal or nonterminals of the rule
+		1 - Nonterminal rules
 			Case a : Matched all token 
-				Update the cursor, return a valid pointer
+				Return a valid pointer to the node. Cursor is updated through match function
 			Case b : Matched no token
-				Don't update the cursor, return a null pointer
+				 return a null pointer, cursor isn't updated
 			Case c : matched one or more token, but encountered an unexpected token
-				Don't update the cursor, return a null pointer, throw an error (with Error::reportError)
+				Don't update the cursor, return a null pointer, throw an error (with the context)
+		2 - Terminal rules
+			If the current token is the requested token, update the cursor.
 
 */
 #pragma once

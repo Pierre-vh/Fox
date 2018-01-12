@@ -24,7 +24,7 @@ namespace Moonshot
 			virtual ~IRTVisitor() = 0;
 
 			inline virtual FVal visit(ASTExpr &node)				{ return FVal(); }
-			inline virtual FVal visit(ASTRawValue &node)			{ return FVal(); }
+			inline virtual FVal visit(ASTLiteral &node)			{ return FVal(); }
 
 			inline virtual FVal visit(ASTVarDeclStmt &node)			{ return FVal(); }
 			inline virtual FVal visit(ASTVarCall& node)				{ return FVal(); }

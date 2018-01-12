@@ -26,7 +26,10 @@ namespace Moonshot
 			virtual bool runTest(Context & context) override;
 
 		private:
+			// Specific tests:
+			// OptionsManager
 			bool testOptManagerFunc(Context & context, OptionsManager & options);
+			// ParameterValue
 			bool testParamvalueFuncs(Context & context);
 	};
 }

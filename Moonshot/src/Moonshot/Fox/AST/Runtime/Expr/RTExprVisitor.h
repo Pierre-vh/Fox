@@ -50,7 +50,7 @@ namespace Moonshot
 			~RTExprVisitor();
 
 			virtual FVal visit(ASTExpr & node) override;
-			virtual FVal visit(ASTRawValue & node) override;
+			virtual FVal visit(ASTLiteral & node) override;
 			virtual FVal visit(ASTVarCall & node) override;
 
 			void setSymbolsTable(std::shared_ptr<SymbolsTable> symtab);

@@ -114,7 +114,7 @@ void TypeCheckVisitor::visit(ASTExpr & node)
 	}
 }
 
-void TypeCheckVisitor::visit(ASTRawValue & node)
+void TypeCheckVisitor::visit(ASTLiteral & node)
 {
 	rtr_type_ = node.val_.index();		// Just put the value in rtr->type.
 }

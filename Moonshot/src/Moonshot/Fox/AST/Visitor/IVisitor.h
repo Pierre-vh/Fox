@@ -31,7 +31,7 @@ namespace Moonshot
 			virtual ~IVisitor() = 0;
 
 			inline virtual void visit(ASTExpr &node)			{}
-			inline virtual void visit(ASTRawValue &node)		{}
+			inline virtual void visit(ASTLiteral &node)		{}
 
 			inline virtual void visit(ASTVarDeclStmt &node)		{}
 			inline virtual void visit(ASTVarCall& node)			{}

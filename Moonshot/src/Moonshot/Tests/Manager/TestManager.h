@@ -27,8 +27,11 @@ namespace Moonshot
 			TestManager(Context& context);
 			~TestManager();
 
+			// add a default test
 			void addDefaultTests();
+			// Add a specific test
 			void addTest(std::unique_ptr<ITest> test);
+			// Run all tests
 			void runTests(const bool& displayContextLog = false);
 
 		private:

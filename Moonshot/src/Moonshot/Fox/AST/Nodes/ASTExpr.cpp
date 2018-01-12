@@ -89,7 +89,7 @@ void ASTExpr::swapChildren()
 	std::swap(left_, right_);
 }
 
-ASTRawValue::ASTRawValue(const token & t)
+ASTLiteral::ASTLiteral(const token & t)
 {
 	if (t.val_type == valueType::VAL_STRING)
 		val_ = t.str;
@@ -103,16 +103,16 @@ ASTRawValue::ASTRawValue(const token & t)
 		val_ = std::get<float>(t.vals);
 }
 
-void ASTRawValue::accept(IVisitor& vis)
+void ASTLiteral::accept(IVisitor& vis)
 {
 	vis.visit(*this);
 }
-FVal ASTRawValue::accept(IRTVisitor& vis)
+FVal ASTLiteral::accept(IRTVisitor& vis)
 {
 	return vis.visit(*this);
 }
 
-ASTRawValue::~ASTRawValue()
+ASTLiteral::~ASTLiteral()
 {
 
 }

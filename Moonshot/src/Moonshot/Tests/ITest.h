@@ -50,7 +50,9 @@ namespace Moonshot
 			ITest() = default;
 			virtual ~ITest() = 0;
 
+			// Returns the test's name
 			virtual std::string getTestName() const = 0;
+			// Runs the test, return false in case of failure, true if test is a success
 			virtual bool runTest(Context& context) = 0;	// runs the test
 	};
 }

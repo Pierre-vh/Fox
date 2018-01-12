@@ -165,7 +165,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 	return FVal();
 }
 
-FVal RTExprVisitor::visit(ASTRawValue & node)
+FVal RTExprVisitor::visit(ASTLiteral & node)
 {
 	return node.val_;
 }

@@ -27,7 +27,7 @@ namespace Moonshot
 			~Dumper();
 
 			virtual void visit(ASTExpr & node) override;
-			virtual void visit(ASTRawValue & node) override;
+			virtual void visit(ASTLiteral & node) override;
 			virtual void visit(ASTVarDeclStmt & node) override;
 			virtual void visit(ASTVarCall & node) override;
 		private:

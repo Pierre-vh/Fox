@@ -117,7 +117,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 	// Apply the unary operator (if found) to the node.
 	if (uopResult)
 	{
-		if ((val->op_ != operation::PASS) || (typeid(*val) == typeid(*std::make_unique<ASTRawValue>()))) // If we already have an operation OR the node is a value
+		if ((val->op_ != operation::PASS) || (typeid(*val) == typeid(*std::make_unique<ASTLiteral>()))) // If we already have an operation OR the node is a value
 			val = oneUpNode(val, uopOp); // One up the node and set the new parent's operation to uopOp
 		else
 			val->op_ = uopOp; // Else, just set the op_ to uopOp;
@@ -138,8 +138,8 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 
 	// = <const>
 	auto matchValue_result = matchValue();
-	if (matchValue_result.first) // if we have a value, return it packed in a ASTRawValue
-		return std::make_unique<ASTRawValue>(matchValue_result.second);
+	if (matchValue_result.first) // if we have a value, return it packed in a ASTLiteral
+		return std::make_unique<ASTLiteral>(matchValue_result.second);
 	// = '(' <expr> ')'
 	else if (matchSign(signType::B_ROUND_OPEN))
 	{
