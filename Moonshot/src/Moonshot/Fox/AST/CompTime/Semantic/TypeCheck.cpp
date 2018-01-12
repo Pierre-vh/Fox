@@ -155,6 +155,12 @@ void TypeCheckVisitor::visit(ASTVarCall & node)
 		rtr_type_ =  searchResult.type; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
+bool TypeCheckVisitor::shouldOpReturnFloat(const operation & op) const
+{
+	// only div and exp are affected by this exception;
+	return (op == operation::DIV) || (op == operation::EXP);
+}
+
 std::size_t TypeCheckVisitor::getExprResultType(const operation& op, std::size_t& lhs, const std::size_t& rhs)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. 
@@ -193,7 +199,7 @@ std::size_t TypeCheckVisitor::getExprResultType(const operation& op, std::size_t
 			else if (fval_traits<bool>::isEqualTo(lhs)) // We have bools and they're not compared : the result will be an integer.
 				return	fval_bool;
 			else
-				return (op == operation::DIV) ? fval_float : lhs; // Else, we just keep the type, unless it's a divison
+				return shouldOpReturnFloat(op) ? fval_float : lhs; // Else, we just keep the type, unless it's a divison
 		}
 		else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // Two different types, and one of them is a string?
 		{
@@ -204,8 +210,8 @@ std::size_t TypeCheckVisitor::getExprResultType(const operation& op, std::size_t
 			return fval_bool;
 		else
 		{
-			if (op == operation::DIV)
-				return fval_float; // if op = division, return type's a float.
+			if (shouldOpReturnFloat(op))
+				return fval_float; // if op = division Or exp, return type's a float, because they may return floats under certain circumstances
 			else
 				return getBiggest(lhs, rhs); // Else, it's just a normal operation, and the return type is the one of the "biggest" of the 2 sides
 		}

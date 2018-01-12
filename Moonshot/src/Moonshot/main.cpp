@@ -23,6 +23,9 @@ using namespace Moonshot;
 			2. Type Checking.
 			(3. Evaluate Constant Expressions)
 */
+/*
+	Known bugs : Large int's arent recognized by the token id function. Might revert to a regex based one!
+*/
 int main()
 {
 	Context context;

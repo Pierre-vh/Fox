@@ -83,7 +83,7 @@ void token::idToken()
 		else if (std::regex_match(str, kId_regex))
 			type = tokenType::TT_IDENTIFIER;
 		else
-			context_.reportError("Could not identify a token (str) : " + str + "\t[" + pos.asText() + "]");
+			context_.reportError("Could not identify a token -> (str) : " + str + "\t[" + pos.asText() + "]");
 	}
 }
 
@@ -115,9 +115,6 @@ bool token::specific_idSign()
 bool token::specific_idValue()
 {
 	std::stringstream converter(str);
-	// temp values
-	int itmp;
-	float ftmp;
 	if (str[0] == '\'' )
 	{
 		if (str.back() == '\'')
@@ -155,13 +152,22 @@ bool token::specific_idValue()
 		return true;
 	}
 	// Might rework this bit later because it's a bit ugly, but it works !
-	else if ((converter >> itmp) && (str.find(".") == std::string::npos)) // If the source is convertible to a int and doesn't contain a . (isn't a float) 
+	else if (std::regex_match(str, kInt_regex))
 	{
-		vals = std::stoi(str);
-		val_type = literalType::LIT_INTEGER;
+		try
+		{
+			vals = std::stoi(str);
+			val_type = literalType::LIT_INTEGER;
+		}
+		catch (std::out_of_range&)
+		{
+			// If out of range, try to put the value in a float instead.
+			vals = std::stof(str);
+			val_type = literalType::LIT_FLOAT;
+		}
 		return true;
 	}
-	else if (converter >> ftmp) // If the source is a float
+	else if (std::regex_match(str, kFloat_regex))
 	{
 		vals = std::stof(str);
 		val_type = literalType::LIT_FLOAT;

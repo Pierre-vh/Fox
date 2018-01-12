@@ -1,35 +1,36 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ExprTests.cpp											
+// File : ExprStmtTest.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ExprTests.h"
+#include "ExprStmt.h"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;
 
-ExprTests::ExprTests()
+ExprStmtTest::ExprStmtTest()
 {
 }
 
-ExprTests::~ExprTests()
+
+ExprStmtTest::~ExprStmtTest()
 {
 }
 
-std::string Moonshot::ExprTests::getTestName() const
+std::string ExprStmtTest::getTestName() const
 {
-	return "Expressions Main (no variables)";
+	return "Expression Statements Tests.";
 }
 
-bool ExprTests::runTest(Context & context)
+bool ExprStmtTest::runTest(Context & context)
 {
 	// read files
-	auto correct_test = readFileToVec(context, "res\\tests\\expr\\expr_correct.fox");
-	auto bad_test = readFileToVec(context, "res\\tests\\expr\\expr_bad.fox");
+	auto correct_test = readFileToVec(context, "res\\tests\\exprstmt\\exprstmt_correct.fox");
+	auto bad_test = readFileToVec(context, "res\\tests\\exprstmt\\exprstmt_bad.fox");
 	FAILED_RETURN_IF_ERR__SILENT;
 	// RUN CORRECT TESTS
 	std::cout << std::endl << "Part 1 : Correct tests :" << std::endl;
@@ -41,10 +42,10 @@ bool ExprTests::runTest(Context & context)
 		FAILED_RETURN_IF_ERR("lexing");
 
 		Parser p(context, l);
-		auto root = p.parseExpr();
+		auto root = p.parseExprStmt();
 		FAILED_RETURN_IF_ERR("parsing");
 
-		root->accept(TypeCheckVisitor(context,true));
+		root->accept(TypeCheckVisitor(context, true));
 		FAILED_RETURN_IF_ERR("typechecking");
 
 		auto result = root->accept(RTExprVisitor(context));
@@ -55,6 +56,7 @@ bool ExprTests::runTest(Context & context)
 	std::cout << std::endl << "Part 2 : Incorrect tests :" << std::endl;
 	for (auto& elem : bad_test)
 	{
+		context.clearLogs();
 		context.resetState();
 		std::cout << "\t\xAF Expression :" << elem << std::endl;
 		Lexer l(context);
@@ -62,10 +64,12 @@ bool ExprTests::runTest(Context & context)
 		SUCCESS_CONTINUE_IF_ERR;
 
 		Parser p(context, l);
-		auto root = p.parseExpr();
-		SUCCESS_CONTINUE_IF_ERR;
+		auto root = p.parseExprStmt();
 
-		root->accept(TypeCheckVisitor(context,true));
+		SUCCESS_CONTINUE_IF_ERR;
+		SUCCESS_CONTINUE_IF(!root); // fail if root's false
+
+		root->accept(TypeCheckVisitor(context, true));
 		SUCCESS_CONTINUE_IF_ERR;
 
 		auto result = root->accept(RTExprVisitor(context));
@@ -77,6 +81,7 @@ bool ExprTests::runTest(Context & context)
 			return false;
 		}
 	}
-	context.resetState();	// Because of incorrect tests, we need to reset the context.
+
+	context.resetState();
 	return true;
 }

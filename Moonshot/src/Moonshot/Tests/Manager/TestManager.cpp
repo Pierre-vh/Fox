@@ -23,9 +23,11 @@ TestManager::~TestManager()
 
 void TestManager::addDefaultTests()
 {
+	addTestClass<OptionsTests>();
 	addTestClass<LexerMainTest>(); // Lexer Test
 	addTestClass<ExprTests>(); // Expression test
-	addTestClass<OptionsTests>();
+	addTestClass<ExprStmtTest>();
+	addTestClass<VarDeclarations>();
 }
 
 void TestManager::addTest(std::unique_ptr<ITest> test)
@@ -55,6 +57,7 @@ void TestManager::runTests(const bool& displayContextLog)
 		{
 			std::cout << std::endl << "Context log for this test:" << std::endl;
 			context_.printLogs();
+			break;
 		}
 		context_.resetState();
 		context_.clearLogs();

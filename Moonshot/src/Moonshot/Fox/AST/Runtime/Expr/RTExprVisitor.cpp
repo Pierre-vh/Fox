@@ -123,15 +123,18 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 				return FVal();
 			}
 		}
-
-		double dleftval = fvalToDouble_withDeref(node.left_->accept(*this));
-		double drightval = fvalToDouble_withDeref(node.right_->accept(*this));
-		return FVal(compareVal(
-			node.op_,
-			node.left_->accept(*this),
-			node.right_->accept(*this)
-		)
-		);
+		else
+		{
+			double dleftval = fvalToDouble_withDeref(node.left_->accept(*this));
+			double drightval = fvalToDouble_withDeref(node.right_->accept(*this));
+			//std::cout << "Compare: Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
+			return FVal(compareVal(
+				node.op_,
+				lfval,
+				rfval
+			)
+			);
+		}
 	}
 	else if (node.op_ == operation::LOGICNOT || node.op_ == operation::NEGATE)
 	{
@@ -155,6 +158,7 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 
 		const double dleftval = fvalToDouble_withDeref(node.left_->accept(*this));
 		const double drightval = fvalToDouble_withDeref(node.right_->accept(*this));
+		//std::cout << "Op: " << util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 		const double result = performOp(node.op_, dleftval, drightval);
 
 		if (fitsInValue(node.totype_, result) || (node.op_ == operation::CAST)) // If the results fits or we desire to cast the result
@@ -261,7 +265,6 @@ bool RTExprVisitor::compareStr(const operation & op, const std::string & lhs, co
 }
 double RTExprVisitor::performOp(const operation& op,double l,double r)
 {
-	
 	switch (op)
 	{
 		case operation::ADD:	return l + r;
@@ -275,8 +278,30 @@ double RTExprVisitor::performOp(const operation& op,double l,double r)
 			}
 			else 
 				return l / r;
-		case operation::MOD:	return std::fmod(l, r);
-		case operation::EXP:	return std::pow(l, r);
+		case operation::MOD:
+			// if the divisor is greater, it goes zero times in l, so we can directly return l
+			std::cout << "l:" << l << " r:" << r << std::endl;
+			if (l > r)
+			{
+				auto res = std::fmod(l, r);
+				if (res < 0)
+					return res + r;
+				return res;
+			}
+			else
+				return (l < 0) ? l + r : l;
+			// About the res < 0 -> res + r 
+			// and  (l < 0) ? l + r : l;
+			// parts, it's a tip from https://stackoverflow.com/a/12277233/3232822
+			// Thanks !
+		case operation::EXP:
+			// if exp < 0 perform 1/base^exp
+			if (r < 0)
+				return performOp(operation::DIV, 1, std::pow(l, -r));
+			else if (r == 0)
+				return 1; // Any number with exponent 0 equals 1, except 0
+			else
+				return std::pow(l, r);
 		default:	throw std::logic_error("Can't evaluate op.");
 			return 0.0;
 	}

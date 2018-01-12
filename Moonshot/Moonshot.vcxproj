@@ -130,9 +130,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Moonshot\Tests\OptionTests\OptionsTests.cpp" />
+    <ClCompile Include="src\Moonshot\Tests\ExprStmt\ExprStmt.cpp" />
+    <ClCompile Include="src\Moonshot\Tests\Options\OptionsTests.cpp" />
     <ClCompile Include="src\Moonshot\Common\Context\Options\OptionsManager.cpp" />
-    <ClCompile Include="src\Moonshot\Tests\ExprTest\ExprTests.cpp" />
+    <ClCompile Include="src\Moonshot\Tests\Expressions\ExprTests.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Manager\TestManager.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Lexer\LexerMainTest.cpp" />
     <ClCompile Include="src\Moonshot\Common\Context\Context.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="src\Moonshot\Fox\AST\CompTime\Semantic\TypeCheck.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Util\Enums.cpp" />
     <ClCompile Include="src\Moonshot\Tests\ITest.cpp" />
+    <ClCompile Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\tests\varstmts\varstmts_bad.fox" />
@@ -173,10 +175,11 @@
     <None Include="res\tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Moonshot\Tests\OptionTests\OptionsTests.h" />
+    <ClInclude Include="src\Moonshot\Tests\ExprStmt\ExprStmt.h" />
+    <ClInclude Include="src\Moonshot\Tests\Options\OptionsTests.h" />
     <ClInclude Include="src\Moonshot\Common\Context\Options\ParameterValue.h" />
     <ClInclude Include="src\Moonshot\Common\Context\Options\OptionsManager.h" />
-    <ClInclude Include="src\Moonshot\Tests\ExprTest\ExprTests.h" />
+    <ClInclude Include="src\Moonshot\Tests\Expressions\ExprTests.h" />
     <ClInclude Include="src\Moonshot\Tests\Manager\TestManager.h" />
     <ClInclude Include="src\Moonshot\Tests\Lexer\LexerMainTest.h" />
     <ClInclude Include="src\Moonshot\Common\Context\Context.h" />
@@ -203,11 +206,13 @@
     <ClInclude Include="src\Moonshot\Fox\Util\Enums.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\CompTime\Semantic\TypeCheck.h" />
     <ClInclude Include="src\Moonshot\Tests\ITest.h" />
+    <ClInclude Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="doc\file_header.txt" />
     <Text Include="doc\guidelines.txt" />
     <Text Include="misc\code_samples\expr\todo.txt" />
+    <Text Include="res\tests\expr\expr_tests_guide.txt" />
     <Text Include="src\LICENSE.txt" />
     <Text Include="res\tests\vdecl\vdecl_bad.fox" />
     <Text Include="res\tests\vdecl\vdecl_correct.fox" />

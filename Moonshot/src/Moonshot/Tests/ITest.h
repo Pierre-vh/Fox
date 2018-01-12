@@ -26,14 +26,26 @@
 								std::cout << "Test failed at " << zone << std::endl;	\
 								return false;	\
 							}
+#define FAILED_RETURN_IF(cond,zone) if (cond)	\
+									{	\
+										std::cout << "Test failed at " << zone << std::endl;	\
+										return false;	\
+									}
 
 #define FAILED_RETURN_IF_ERR__SILENT if(!context.isSafe()) return false
+
 
 #define SUCCESS_CONTINUE_IF_ERR if (!context.isSafe()) \
 								{ \
 									std::cout << "\t\t\xC0 Success (Test Failed as Expected.)" << std::endl; \
 									continue; \
 								}
+
+#define SUCCESS_CONTINUE_IF(x)		if (x) \
+									{ \
+										std::cout << "\t\t\xC0 Success (Test Failed as Expected.)" << std::endl; \
+										continue; \
+									}
 namespace Moonshot
 {
 	namespace TestUtilities

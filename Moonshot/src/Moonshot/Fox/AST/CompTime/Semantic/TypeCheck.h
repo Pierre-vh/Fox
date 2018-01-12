@@ -58,6 +58,9 @@ namespace Moonshot
 				curdir_ = dir::UNKNOWNDIR; 
 				return rtr_type_;
 			}
+
+			bool shouldOpReturnFloat(const operation& op) const; // used for operations that return float instead of normal values
+
 			operation curop_;
 			dir curdir_;
 			std::size_t rtr_type_; // Last returned type from visiting node (held here, because visit doesn't return anything :( )

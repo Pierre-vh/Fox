@@ -138,5 +138,9 @@ std::unique_ptr<IASTStmt> Parser::parseExprStmt()
 		else
 			errorExpected("Expected a semicolon after expression in expressionStatement.");
 	}
+	else if (matchEOI())
+	{
+		errorExpected("Expected an expression before semicolon.");
+	}
 	return nullptr;
 }

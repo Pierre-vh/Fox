@@ -1,16 +1,14 @@
-"it " + ( "really " + "works ") + ((("it's wonderful")))
-10%3 == 1 && 10^5 < 10^4
-3.14 + 3
-4*-3 % 5^6 / 7^2^1 + 10
-(3 + 'c') as char
-'c' + true
-((22)/(7)) // int division returns float
-2^64-1  // large value
-6/-2*(1+2)
-4^3^2^1.5 // ~2.904e13
-3^3^3*2+2^3*2 // More complex case, should result ~1.525e13
+"it " + ( "really " + "works ") + ((("it's wonderful"))) == "it really works it's wonderful"
+10%3 == 1 && 10^5 >= 10^4
+4*-3 % 5^6 ==15613
+(3 + 'c') as char == 'f'
+(4^-1^-1^4*(4^2^2^2))/2^16==16384 
+'c' + true == 'd'
+((((22)/(7))==(3.14285714)))
+(2^64)>(2^32) // large value
+(2^-(-2*16))==4294967296
 (3^-(2*-(1/2)+2)--2+3^2%0.66+2)==-(-4.75333333) 
-(22/7 == 3.14) && (3.14 > 3) && ('a' < 'A') || -false
-"aa" < "AA" // string comparisons
+(22/7 == 3.14) && (3.14 > 3) && ('a' > 'A') || !false
+"Africa" < "Bangladesh" // string comparisons
 "bb" == "bb"
 "Pretty Flower" != "Pretty tree"

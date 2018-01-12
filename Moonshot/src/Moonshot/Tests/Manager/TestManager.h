@@ -16,8 +16,10 @@
 
 // Include default tests
 #include "../Lexer/LexerMainTest.h"
-#include "../ExprTest/ExprTests.h"
-#include "../OptionTests/OptionsTests.h"
+#include "../Expressions/ExprTests.h"
+#include "../ExprStmt/ExprStmt.h"
+#include "../Options/OptionsTests.h"
+#include "../VarDeclarations/VarDeclarations.h"
 
 namespace Moonshot
 {
