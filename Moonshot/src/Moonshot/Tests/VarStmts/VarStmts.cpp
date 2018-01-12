@@ -1,41 +1,36 @@
-////------------------------------------------------------////
-// This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
-// File : VarDeclarations.cpp											
-// Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
-//			SEE HEADER FILE FOR MORE INFORMATION			
-////------------------------------------------------------////
-
-#include "VarDeclarations.h"
+#include "VarStmts.h"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;
 
-VarDeclarations::VarDeclarations()
+VarStmts::VarStmts()
 {
-
 }
 
 
-VarDeclarations::~VarDeclarations()
+VarStmts::~VarStmts()
 {
-
 }
 
-std::string VarDeclarations::getTestName() const
+std::string VarStmts::getTestName() const
 {
-	return "Variables Declarations";
+	return "Variable Statements (Declarations & Expressions, including assignements)";
 }
 
-bool VarDeclarations::runTest(Context & context)
+bool VarStmts::runTest(Context & context)
 {
 	// read files
-	auto correct_test = readFileToVec(context, "res\\tests\\vdecl\\vdecl_correct.fox");
-	auto bad_test = readFileToVec(context, "res\\tests\\vdecl\\vdecl_bad.fox");
+	auto correct_test = readFileToVec(context, "res\\tests\\varstmts\\varstmts_correct.fox");
+	auto bad_test = readFileToVec(context, "res\\tests\\varstmts\\varstmts_bad.fox");
 	FAILED_RETURN_IF_ERR__SILENT;
 	// RUN CORRECT TESTS
 	std::cout << std::endl << "Part 1 : Correct tests :" << std::endl;
+	TypeCheckVisitor tc_good(context); // shared typechecker to keep the symtab
+
+	auto symtab = std::make_shared<SymbolsTable>(context);
+	symtab->declareValue(var::varattr("TESTVALUE", fv_util::fval_int, false));
+
+	RTStmtVisitor rt_good(context,symtab);
 	for (auto& elem : correct_test)
 	{
 		std::cout << "\t\xAF Expression :" << elem << std::endl;
@@ -44,14 +39,23 @@ bool VarDeclarations::runTest(Context & context)
 		FAILED_RETURN_IF_ERR("lexing");
 
 		Parser p(context, l);
-		auto root = p.parseVarDeclStmt();
+		auto root = p.parseStmt();
 		FAILED_RETURN_IF_ERR("parsing");
 
-		root->accept(TypeCheckVisitor(context, true));
+		root->accept(tc_good);
 		FAILED_RETURN_IF_ERR("typechecking");
 
+		root->accept(rt_good);
+		FAILED_RETURN_IF_ERR("runtime execution");
+		context.clearLogs();
 	}
+	// If all was ok, dump the symbols table
+	symtab->dumpSymbolsTable();
+	context.printLogs();
+	context.clearLogs();
 	// RUN INCORRECT TESTS
+	TypeCheckVisitor tc_bad(context);
+	RTStmtVisitor rt_bad(context);
 	std::cout << std::endl << "Part 2 : Incorrect tests :" << std::endl;
 	for (auto& elem : bad_test)
 	{
@@ -63,12 +67,15 @@ bool VarDeclarations::runTest(Context & context)
 		SUCCESS_CONTINUE_IF_ERR;
 
 		Parser p(context, l);
-		auto root = p.parseVarDeclStmt();
+		auto root = p.parseStmt();
 
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root); // fail if root's false
 
-		root->accept(TypeCheckVisitor(context, true));
+		root->accept(tc_bad);
+		SUCCESS_CONTINUE_IF_ERR;
+
+		root->accept(rt_bad);
 		SUCCESS_CONTINUE_IF_ERR;
 
 		if (context.isSafe())

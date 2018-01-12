@@ -136,12 +136,9 @@ bool fv_util::canAssign(Context& context_,const std::size_t & lhs, const std::si
 bool fv_util::canCastTo(const std::size_t & goal, const std::size_t & basetype)
 {
 	if (!isBasic(basetype))
-	{
-		throw std::logic_error("Can't cast non basic types;");
 		return false;
-	}
 	if (isArithmetic(basetype)) // base type is arithmetic
-		return isBasic(goal); // arithmetic type -> basic type, allowed (even to strings)
+		return true; // arithmetic type -> basic type, allowed (and at this point we know it's a basic type due to 1st condition)
 	else if (basetype == fval_str) // base type is a string
 		return goal == fval_str; // Strings can only be converted to strings (useless convertion anyway).
 	return false;

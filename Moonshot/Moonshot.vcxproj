@@ -160,6 +160,7 @@
     <ClCompile Include="src\Moonshot\Fox\Util\Enums.cpp" />
     <ClCompile Include="src\Moonshot\Tests\ITest.cpp" />
     <ClCompile Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.cpp" />
+    <ClCompile Include="src\Moonshot\Tests\VarStmts\VarStmts.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\tests\varstmts\varstmts_bad.fox" />
@@ -207,6 +208,7 @@
     <ClInclude Include="src\Moonshot\Fox\AST\CompTime\Semantic\TypeCheck.h" />
     <ClInclude Include="src\Moonshot\Tests\ITest.h" />
     <ClInclude Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.h" />
+    <ClInclude Include="src\Moonshot\Tests\VarStmts\VarStmts.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="doc\file_header.txt" />

@@ -1,2 +1,1 @@
-let pee : float = -3.14;
-pee as int = 3;
+TESTVALUE as int = 3;

@@ -1,13 +1,10 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ExprStmt.h											
+// File : VarStmts.h											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-//
-// Expression statements tests
-// Uses test files /res/tests/exprstmt/exprstmt_[bad | correct].fox
-//
+// Var stmt tests : declarations and assignements/use of variables !										
 ////------------------------------------------------------////
 
 #pragma once
@@ -15,18 +12,19 @@
 #include "../ITest.h"
 
 #include "../../Fox/AST/CompTime/Semantic/TypeCheck.h"
-#include "../../Fox/AST/Runtime/Expr/RTExprVisitor.h"
+#include "../../Fox/AST/Runtime/Stmt/RTStmtVisitor.h"
 
 namespace Moonshot
 {
-	class ExprStmtTest : public ITest
+	class VarStmts : public ITest
 	{
 		public:
-			ExprStmtTest();
-			~ExprStmtTest();
+			VarStmts();
+			~VarStmts();
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;
 	};
 }
+
 

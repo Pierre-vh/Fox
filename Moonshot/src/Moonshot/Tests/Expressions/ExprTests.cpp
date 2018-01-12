@@ -48,7 +48,9 @@ bool ExprTests::runTest(Context & context)
 
 		root->accept(TypeCheckVisitor(context,true));
 		FAILED_RETURN_IF_ERR("typechecking");
-		root->accept(Dumper());
+
+		if (context.options.getAttr(OptionsList::EXPRTEST_print_ast).value_or(false).get<bool>())
+			root->accept(Dumper());
 
 		auto result = root->accept(RTExprVisitor(context));
 		FAILED_RETURN_IF_ERR("evaluation");

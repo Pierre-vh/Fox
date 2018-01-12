@@ -52,10 +52,14 @@ bool SymbolsTable::setValue(const std::string & varname, const FVal & newVal)
 
 void SymbolsTable::dumpSymbolsTable() const
 {
+	std::stringstream out;
+	out << "Dumping symbols table..." << std::endl;
 	for (auto& elem : sym_table_)
 	{
-		std::cout << "NAME: " << elem.first.name << " TYPE: " << fv_util::indexToTypeName(elem.first.type) << " ---> VALUE: " << fv_util::dumpFVal(elem.second) << std::endl;
+		out << "NAME: " << elem.first.name << " TYPE: " << fv_util::indexToTypeName(elem.first.type) << " ---> VALUE: " << fv_util::dumpFVal(elem.second) << std::endl;
 	}
+	context_.logMessage(out.str());
+	out.clear();
 }
 
 std::pair<var::varattr, FVal> SymbolsTable::symtable_getEntry(const std::string & str, bool& successFlag)

@@ -280,7 +280,7 @@ double RTExprVisitor::performOp(const operation& op,double l,double r)
 				return l / r;
 		case operation::MOD:
 			// if the divisor is greater, it goes zero times in l, so we can directly return l
-			std::cout << "l:" << l << " r:" << r << std::endl;
+			//std::cout << "l:" << l << " r:" << r << std::endl;
 			if (l > r)
 			{
 				auto res = std::fmod(l, r);

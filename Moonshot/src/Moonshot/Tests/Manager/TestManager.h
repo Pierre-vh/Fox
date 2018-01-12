@@ -20,6 +20,7 @@
 #include "../ExprStmt/ExprStmt.h"
 #include "../Options/OptionsTests.h"
 #include "../VarDeclarations/VarDeclarations.h"
+#include "../VarStmts/VarStmts.h"
 
 namespace Moonshot
 {

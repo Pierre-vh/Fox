@@ -13,6 +13,7 @@
 #include <variant>		// std::variant
 #include <algorithm>	// std::transform
 
+#include "../../Utils/Utils.h"
 // ParameterValue could be a wrapper around a std::variant
 // Having get<T> methods that returns the desired value, or a default one if the variant
 // isn't in the correct state.
@@ -25,6 +26,7 @@
 
 namespace Moonshot
 {
+	typedef std::variant<std::monostate, int, bool> ParamVal_Variant;
 	class ParameterValue
 	{
 		public:
@@ -79,6 +81,12 @@ namespace Moonshot
 						rawval_ = false;
 				}
 				rawval_ = val;
+				/*
+					Error guide :
+						If your compiler points to the line of code above this comment for an error, you might have :
+							1- Used options.getAttr(..).value_or(T).get<Y>() where T was a type not supported by this class! Check the typedef of 
+								the variant at line ~29 (above class) to see which types are available.
+				*/
 			}
 
 			// Comparison operators
@@ -91,15 +99,11 @@ namespace Moonshot
 				return !(operator==(b)); // uses == to compare
 			}
 
-			// Conversion
-			operator int() const
-			{
-
-			}
 		protected:
-			std::variant<std::monostate,int, bool> rawval_;
+			ParamVal_Variant rawval_;
 
 		private:
+
 			template<typename DESIRED,typename VTYPE>
 			DESIRED castHelp(const VTYPE& vcont)
 			{

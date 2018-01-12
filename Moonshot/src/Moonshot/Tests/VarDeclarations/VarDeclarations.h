@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : VarDeclarations.h											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// blah blah blah											
+////------------------------------------------------------////
+
 #pragma once
 
 #include "../ITest.h"

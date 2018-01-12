@@ -28,6 +28,7 @@ void TestManager::addDefaultTests()
 	addTestClass<ExprTests>(); // Expression test
 	addTestClass<ExprStmtTest>();
 	addTestClass<VarDeclarations>();
+	addTestClass<VarStmts>();
 }
 
 void TestManager::addTest(std::unique_ptr<ITest> test)
