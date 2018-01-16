@@ -1,0 +1,6 @@
+{
+	let foo : int = 3;
+	foo = 0;
+	foo = 2;
+	!foo;
+}

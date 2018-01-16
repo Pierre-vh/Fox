@@ -50,6 +50,7 @@ Note :
 #include "../AST/Nodes/ASTExpr.h"
 #include "../AST/Nodes/IASTNode.h"
 #include "../AST/Nodes/ASTVarDeclStmt.h"
+#include "../AST/Nodes/ASTCompStmt.h"
 #include "../AST/Nodes/IASTStmt.h"
 #include "../Util/Enums.h"					// Enum
 #include "../AST/Visitor/Dumper/Dumper.h"	// Dumper Visitor, for Debug use
@@ -70,17 +71,13 @@ namespace Moonshot
 			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 7); // Go from lowest priority to highest !
 			std::unique_ptr<ASTExpr> parseTerm();
 			std::unique_ptr<ASTExpr> parseValue();
-			// Callables
 			std::unique_ptr<ASTExpr> parseCallable(); // values/functions calls.
 
-			// STMT
-			std::unique_ptr<IASTStmt> parseStmt();
-			// Var Declaration Statement
-			std::unique_ptr<IASTStmt> parseVarDeclStmt();
-				// type spec (for vardecl)
-				std::tuple<bool, bool, std::size_t> parseTypeSpec(); // Success flag, isConst, type of variable.
-			// Expression statement
-			std::unique_ptr<IASTStmt> parseExprStmt();
+			std::unique_ptr<ASTCompStmt> parseCompoundStatement(); // Compound Statement
+			std::unique_ptr<IASTStmt> parseStmt(); // STMT
+			std::unique_ptr<IASTStmt> parseVarDeclStmt(); // Var Declaration Statement
+			std::tuple<bool, bool, std::size_t> parseTypeSpec(); // type spec (for vardecl). Tuple values: Success flag, isConst, type of variable.
+			std::unique_ptr<IASTStmt> parseExprStmt(); // Expression statement
 
 		private:
 			// OneUpNode is a function that ups the node one level.

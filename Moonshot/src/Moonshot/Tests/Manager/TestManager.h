@@ -21,6 +21,7 @@
 #include "../Options/OptionsTests.h"
 #include "../VarDeclarations/VarDeclarations.h"
 #include "../VarStmts/VarStmts.h"
+#include "../CompoundStatement/CompoundStatements.h"
 
 namespace Moonshot
 {

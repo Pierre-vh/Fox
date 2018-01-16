@@ -2,6 +2,7 @@
 
 #include "Tests/Manager/TestManager.h"
 
+#include <Windows.h>
 using namespace Moonshot;
 /*
 	ROADMAP :
@@ -28,6 +29,8 @@ using namespace Moonshot;
 */
 int main()
 {
+	SetConsoleOutputCP(CP_UTF8);
+
 	Context context;
 	TestManager ts(context);
 	ts.addDefaultTests();

@@ -1,4 +1,4 @@
-////------------------------------------------------------////
+﻿////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
 // File : Dumper.cpp											
@@ -36,14 +36,14 @@ void Dumper::visit(ASTExpr & node)
 	std::cout << std::endl;
 	if (node.left_)
 	{
-		std::cout << tabs() << char(192) << " Left child:" << tabs() << std::endl;
+		std::cout << tabs() << u8"┖Left child:" << tabs() << std::endl;
 		tabcount += 1;
 		node.left_->accept(*this);
 		tabcount -= 1;
 	}
 	if (node.right_)
 	{
-		std::cout << tabs() << char(192) << " Right child:" << tabs() << std::endl;
+		std::cout << tabs() << u8"┖Right child:" << tabs() << std::endl;
 		tabcount += 1;
 		node.right_->accept(*this);
 		tabcount -= 1;
@@ -52,7 +52,7 @@ void Dumper::visit(ASTExpr & node)
 
 void Dumper::visit(ASTLiteral & node)
 {
-	std::cout << tabs() << char(192) << "Literal: " << dumpFVal(node.val_) << std::endl;
+	std::cout << tabs() << u8"┖Literal: " << dumpFVal(node.val_) << std::endl;
 }
 
 void Dumper::visit(ASTVarDeclStmt & node)
@@ -61,7 +61,7 @@ void Dumper::visit(ASTVarDeclStmt & node)
 	if (node.initExpr_)
 	{
 		tabcount += 1;
-		std::cout << tabs() << char(192) << "InitExpr" << std::endl;
+		std::cout << tabs() << u8"┖InitExpr" << std::endl;
 		tabcount += 1;
 		node.initExpr_->accept(*this);
 		tabcount -= 2;
@@ -70,7 +70,19 @@ void Dumper::visit(ASTVarDeclStmt & node)
 
 void Dumper::visit(ASTVarCall & node)
 {
-	std::cout << tabs() << char(192) << "VarCall: name: " << node.varname_ << std::endl;
+	std::cout << tabs() << u8"┖VarCall: name: " << node.varname_ << std::endl;
+}
+
+void Dumper::visit(ASTCompStmt & node)
+{
+	std::cout << tabs() << "Compound Statement (Contains " << node.statements_.size() << " statements)" << std::endl;
+
+	tabcount += 1;
+
+	for (auto& elem : node.statements_)
+		elem->accept(*this);
+
+	tabcount -= 1;
 }
 
 std::string Dumper::tabs() const

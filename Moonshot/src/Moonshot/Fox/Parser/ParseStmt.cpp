@@ -13,6 +13,37 @@
 using namespace Moonshot;
 using namespace fv_util;
 
+std::unique_ptr<ASTCompStmt> Parser::parseCompoundStatement()
+{
+	/*
+		<compound_statement> = '{' {<stmt>} '}'		
+		| = <stmt>	
+	*/
+	auto rtr = std::make_unique<ASTCompStmt>();
+	if (matchSign(signType::B_CURLY_OPEN))
+	{
+		// Parse all statements
+		while (auto node = parseStmt())
+			rtr->statements_.push_back(std::move(node));
+		// Match the closing curly bracket
+		if (!matchSign(signType::B_CURLY_CLOSE))
+		{
+			errorUnexpected();
+			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement.");
+			return nullptr;
+		}
+		// Return
+		return rtr;
+	}
+	else if (auto node = parseStmt())
+	{
+		// parse the statement + return
+		rtr->statements_.push_back(std::move(node));
+		return rtr;
+	}
+	return nullptr;
+}
+
 std::unique_ptr<IASTStmt> Parser::parseStmt()
 {
 	// <stmt> = <var_decl> | <expr_stmt> | <ctrl_flow>
@@ -70,7 +101,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 			isVarConst = std::get<1>(typespecResult);
 			varType = std::get<2>(typespecResult);
 		}
-		
+
 		// ##ASSIGNEMENT##
 		// '=' <expr>
 		if (matchSign(signType::S_EQUAL))
@@ -94,16 +125,15 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 				errorExpected("Expected semicolon after expression in variable declaration");
 			}
 		}
-	}
-
-	if (context_.isSafe())
-	{
-		// If parsing was ok : 
-		var::varattr v_attr(varName, varType, isVarConst);
-		if (initExpr) // Has init expr?
-			return std::make_unique<ASTVarDeclStmt>(v_attr, initExpr);
-		else
-			return std::make_unique<ASTVarDeclStmt>(v_attr, std::unique_ptr<ASTExpr>(nullptr));
+		if (context_.isSafe())
+		{
+			// If parsing was ok : 
+			var::varattr v_attr(varName, varType, isVarConst);
+			if (initExpr) // Has init expr?
+				return std::make_unique<ASTVarDeclStmt>(v_attr, initExpr);
+			else
+				return std::make_unique<ASTVarDeclStmt>(v_attr, std::unique_ptr<ASTExpr>(nullptr));
+		}
 	}
 	return nullptr;
 }

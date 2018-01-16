@@ -29,6 +29,7 @@ void TestManager::addDefaultTests()
 	addTestClass<ExprStmtTest>();
 	addTestClass<VarDeclarations>();
 	addTestClass<VarStmts>();
+	addTestClass<CompoundStatements>();
 }
 
 void TestManager::addTest(std::unique_ptr<ITest> test)
