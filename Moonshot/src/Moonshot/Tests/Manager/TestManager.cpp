@@ -30,6 +30,7 @@ void TestManager::addDefaultTests()
 	addTestClass<VarDeclarations>();
 	addTestClass<VarStmts>();
 	addTestClass<CompoundStatements>();
+	addTestClass<Conditions>();
 }
 
 void TestManager::addTest(std::unique_ptr<ITest> test)

@@ -32,7 +32,7 @@ bool CompoundStatements::runTest(Context & context)
 	auto correct_test_2 = readFileToString(context, "res\\tests\\compstmt\\compstmt_correct_2.fox");
 	auto bad_test_1 = readFileToString(context, "res\\tests\\compstmt\\compstmt_bad_1.fox");
 	auto bad_test_2 = readFileToString(context, "res\\tests\\compstmt\\compstmt_bad_2.fox");
-
+	FAILED_RETURN_IF_ERR__SILENT;
 	FAILED_RETURN_IF(!parseFile_compoundStatement(context, correct_test_1), "correct_test_1");
 	FAILED_RETURN_IF(!parseFile_compoundStatement(context, correct_test_2), "correct_test_2");
 	FAILED_RETURN_IF(parseFile_compoundStatement(context, bad_test_1), "bad_test_1");

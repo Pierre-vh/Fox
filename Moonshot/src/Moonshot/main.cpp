@@ -27,6 +27,9 @@ using namespace Moonshot;
 /*
 	Known bugs : Large int's arent recognized by the token id function. Might revert to a regex based one!
 */
+/*
+	TO DO : Update dumper to support conditions.
+*/
 int main()
 {
 	SetConsoleOutputCP(CP_UTF8);

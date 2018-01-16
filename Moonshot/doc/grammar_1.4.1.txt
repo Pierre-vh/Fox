@@ -81,12 +81,12 @@ you'll be greeted with an error!)
 <rtr_stmt>		= <rtr_kw> <expr> <eoi>
 
 ##Control Flow##
-<ctrl_flow>		= <cond_cf> | <while_cf>
-<cond_cf>		= <if_kw> {<elif_kw>}* [<else_branch>]?		
+<ctrl_flow>		= <condition> | <while_loop>
+<condition>		= <if_kw> {<elif_kw>}* [<else_branch>]?		
 <if_branch>		= <if_kw> '(' <expr> ')'			<compound_statement>
 <elif_branch> 	= <el_kw> <if_kw> '(' <expr> ')' 	<compound_statement>
 <else_branch>	= <el_kw>							<compound_statement>
-<while_cf> 		= <wh_kw>  '(' <expr> ')'			<compound_statement> 
+<while_loop> 	= <wh_kw>  '(' <expr> ')'			<compound_statement> 
 
 ##SCRAPPED IDEA : MIGHT RETURN LATER##
 	<ext_id>		= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"

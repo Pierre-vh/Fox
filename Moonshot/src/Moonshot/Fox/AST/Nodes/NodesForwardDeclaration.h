@@ -7,4 +7,5 @@ struct ASTExpr; \
 struct ASTLiteral; \
 struct ASTVarDeclStmt;\
 struct ASTVarCall; \
-struct ASTCompStmt;
+struct ASTCompStmt; \
+struct ASTCondition;

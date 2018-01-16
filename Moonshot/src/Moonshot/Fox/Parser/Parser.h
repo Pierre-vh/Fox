@@ -51,6 +51,7 @@ Note :
 #include "../AST/Nodes/IASTNode.h"
 #include "../AST/Nodes/ASTVarDeclStmt.h"
 #include "../AST/Nodes/ASTCompStmt.h"
+#include "../AST/Nodes/ASTCondition.h"
 #include "../AST/Nodes/IASTStmt.h"
 #include "../Util/Enums.h"					// Enum
 #include "../AST/Visitor/Dumper/Dumper.h"	// Dumper Visitor, for Debug use
@@ -67,19 +68,25 @@ namespace Moonshot
 
 			// parseXXX() = "match" the rule XXX (attempts to find it, if it found it, the method will return a valid pointer (if(ptr) will return true). if not, it will return a std::unique_ptr<(TYPE OF NODE)>(nullptr)
 			
-			// EXPR
+			// EXPRESSIONS
 			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 7); // Go from lowest priority to highest !
 			std::unique_ptr<ASTExpr> parseTerm();
 			std::unique_ptr<ASTExpr> parseValue();
 			std::unique_ptr<ASTExpr> parseCallable(); // values/functions calls.
 
-			std::unique_ptr<ASTCompStmt> parseCompoundStatement(); // Compound Statement
-			std::unique_ptr<IASTStmt> parseStmt(); // STMT
+			// STATEMENTS
+			std::unique_ptr<IASTStmt> parseStmt(); // General Statement
 			std::unique_ptr<IASTStmt> parseVarDeclStmt(); // Var Declaration Statement
 			std::tuple<bool, bool, std::size_t> parseTypeSpec(); // type spec (for vardecl). Tuple values: Success flag, isConst, type of variable.
 			std::unique_ptr<IASTStmt> parseExprStmt(); // Expression statement
-
+			// STATEMENTS : COMPOUND STATEMENT
+			std::unique_ptr<ASTCompStmt> parseCompoundStatement(); // Compound Statement
+			// STATEMENTS : IF,ELSE IF,ELSE
+			std::unique_ptr<ASTCondition> parseCondition(); // Parse a  if-else if-else "block"
 		private:
+			// Private parse functions
+			ASTCondition::CondBlock parseCond_if();
+			ASTCondition::CondBlock parseCond_else_if();
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,PLUS)
 			// oneUpNode will return a new node X, with the operation PLUS and N as left child.

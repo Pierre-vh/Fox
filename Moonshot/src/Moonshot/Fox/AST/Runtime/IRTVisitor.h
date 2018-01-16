@@ -29,6 +29,6 @@ namespace Moonshot
 			inline virtual FVal visit(ASTVarDeclStmt &node)			{ return FVal(); }
 			inline virtual FVal visit(ASTVarCall& node)				{ return FVal(); }
 			inline virtual FVal visit(ASTCompStmt& node)			{ return FVal(); }
-
+			inline virtual FVal visit(ASTCondition& node)			{ return FVal(); }
 	};
 }

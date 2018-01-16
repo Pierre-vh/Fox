@@ -59,7 +59,7 @@ ContextState Context::getState() const
 void Context::resetState()
 {
 	curstate_ = ContextState::GOOD;
-	logs_.push_back("[Context] The context's state has been reset.");
+	//logs_.push_back("[Context] The context's state has been reset.");
 }
 
 ContextBuildMode Context::getBuildMode() const

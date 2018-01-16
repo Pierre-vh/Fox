@@ -110,7 +110,7 @@ void Parser::errorUnexpected()
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
-	output << "Unexpected token " << getToken().showFormattedTokenData() << std::endl;
+	output << "Unexpected token " << getToken().showFormattedTokenData();
 	context_.reportError(output.str());
 
 	context_.resetOrigin();
@@ -121,7 +121,7 @@ void Parser::errorExpected(const std::string & s)
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
-	output << s << "\n[after token " << getToken(pos_-1).showFormattedTokenData() << "]" << std::endl;
+	output << s << "\n[after token " << getToken(pos_-1).showFormattedTokenData() << "]";
 	context_.reportError(output.str());
 
 	context_.resetOrigin();

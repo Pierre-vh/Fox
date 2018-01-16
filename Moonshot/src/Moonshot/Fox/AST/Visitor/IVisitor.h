@@ -37,6 +37,7 @@ namespace Moonshot
 			inline virtual void visit(ASTVarCall& node)			{}
 
 			inline virtual void visit(ASTCompStmt& node)		{}
+			inline virtual void visit(ASTCondition& node)		{}
 	};
 }
 

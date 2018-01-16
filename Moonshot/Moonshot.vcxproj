@@ -130,6 +130,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.cpp" />
     <ClCompile Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.cpp" />
     <ClCompile Include="src\Moonshot\Tests\ExprStmt\ExprStmt.cpp" />
@@ -167,6 +169,7 @@
   <ItemGroup>
     <None Include="res\tests\compstmt\compstmt_bad_2.fox" />
     <None Include="res\tests\compstmt\compstmt_correct_1.fox" />
+    <None Include="res\tests\conditions\condition_correct_1.fox" />
     <None Include="res\tests\varstmts\varstmts_bad.fox" />
     <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
@@ -180,6 +183,8 @@
     <None Include="res\tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Moonshot\Tests\Condition\Conditions.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.h" />
     <ClInclude Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.h" />
     <ClInclude Include="src\Moonshot\Tests\ExprStmt\ExprStmt.h" />

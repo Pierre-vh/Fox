@@ -19,6 +19,7 @@ std::unique_ptr<ASTCompStmt> Parser::parseCompoundStatement()
 		<compound_statement> = '{' {<stmt>} '}'		
 		| = <stmt>	
 	*/
+	// return value
 	auto rtr = std::make_unique<ASTCompStmt>();
 	if (matchSign(signType::B_CURLY_OPEN))
 	{
@@ -43,6 +44,115 @@ std::unique_ptr<ASTCompStmt> Parser::parseCompoundStatement()
 	}
 	return nullptr;
 }
+
+std::unique_ptr<ASTCondition> Parser::parseCondition()
+{
+	auto rtr = std::make_unique<ASTCondition>();
+	auto result = parseCond_if();
+	if (result.first && result.second)
+	{
+		// we need to use moves to push the new values in
+		rtr->conditional_blocks_.push_back({
+			std::move(result.first),
+			std::move(result.second)
+		});
+		auto elif_res = parseCond_else_if();
+		while (elif_res.first && elif_res.second) // consume all elifs
+		{
+			// we need to use moves to push the new values in
+			rtr->conditional_blocks_.push_back({ 
+				std::move(elif_res.first),
+				std::move(elif_res.second) 
+			});
+			// try to find another elif
+			elif_res = parseCond_else_if();
+		}
+		if ((!elif_res.first) && elif_res.second) // it's a else
+			rtr->else_block_ = std::move(result.second);
+
+		return rtr;
+	}
+	else if (result.first || result.second)
+		throw Exceptions::parser_critical_error("parseCond_if() returned a invalid CondBlock!");
+	else
+		return nullptr;
+}
+
+ASTCondition::CondBlock Parser::parseCond_if()
+{
+	ASTCondition::CondBlock rtr;
+	// "if"
+	if (matchKeyword(keywordType::D_IF))
+	{
+		// '('
+		if (!matchSign(signType::B_ROUND_OPEN))
+		{
+			errorUnexpected();
+			errorExpected("Expected a round bracket '(' after \"if\" keyword.");
+			return { nullptr, nullptr };
+		}
+		// <expr>
+		if (auto node = parseExpr())
+			rtr.first = std::move(node);
+		else
+		{
+			errorUnexpected();
+			errorExpected("Expected an expression after '(' in condition.");
+			return { nullptr, nullptr };
+		}
+		// ')'
+		if (!matchSign(signType::B_ROUND_CLOSE))
+		{
+			errorUnexpected();
+			errorExpected("Expected a round bracket ')' after expression in condition.");
+			return { nullptr, nullptr };
+		}
+		// <compound_statement>
+		if (auto node = parseCompoundStatement())
+			rtr.second = std::move(node);
+		else
+		{
+			errorExpected("Expected compound statement in condition");
+			return { nullptr, nullptr };
+		}
+		// Finished, return.
+		return rtr;
+	}
+	return { nullptr, nullptr };
+}
+
+ASTCondition::CondBlock Parser::parseCond_else_if()
+{
+	ASTCondition::CondBlock rtr;
+	if (matchKeyword(keywordType::D_ELSE))
+	{
+		// else if
+		auto res = parseCond_if();
+		if (res.first && res.second) // parsed OK
+		{
+			rtr.first = std::move(res.first);
+			rtr.second = std::move(res.second);
+			return rtr;
+		}
+		else if (res.first || res.second)
+			throw Exceptions::parser_critical_error("parseCond_if() returned a invalid CondBlock!");
+		// Else
+		else if (auto node = parseCompoundStatement())
+		{
+			rtr.second = std::move(node);
+			return rtr;
+		}
+		// error case
+		else
+		{
+			errorUnexpected();
+			errorExpected("Expected a if condition OR a compound statement after \"else\" keyword.");
+			return { nullptr, nullptr };
+		}
+	}
+	return { nullptr, nullptr };
+}
+
 
 std::unique_ptr<IASTStmt> Parser::parseStmt()
 {
