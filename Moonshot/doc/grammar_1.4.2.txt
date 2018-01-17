@@ -9,6 +9,7 @@ Fox Grammar version 1.4.1
 	The feature is still planned, but not for now !
 	Same for includes, they're useless now, really.
 1.4.1 : <block> renamed to <compound_statement> for readability's sake. Using custom names has no benefits and is a bad habit i'm trying to ditch.
+1.4.2 : <return> : <expr> is now optional (to allow "return;" in void functions)
 
 Modifications used in this grammar :
 $x means x is a term already recognized and identified by the lexer. 
@@ -78,7 +79,7 @@ you'll be greeted with an error!)
 <f_call>		= <id> <expr_list>						// Function calls used in expressions, etc..
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
 
-<rtr_stmt>		= <rtr_kw> <expr> <eoi>
+<rtr_stmt>		= <rtr_kw> [<expr>] <eoi>
 
 ##Control Flow##
 <ctrl_flow>		= <condition> | <while_loop>
