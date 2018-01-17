@@ -12,39 +12,26 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
  var_decl
  type_spec   
  eoi
+ block   
+ stmt   
+ cond_cf   
+ if_branch   
+ elif_branch   
+ else_branch   
 
 ### PARTIALLY IMPLEMENTED
  value		: Missing  callable function support
 
-### TO BE IMPLEMENTED  
-**Base rule**  
+### TO BE IMPLEMENTED   
  fox_program   
-
-**General rules**  
- namespace   
- ext_id   
- general_id   
+ id   
  arg_type_spec   
-    
- block   
- stmt   
  callable   
-        
-**Import**  
- import_stmt   
-
-**Functions**  
  func_decl   
  arg_list_decl   
  arg_decl   
  f_call   
  expr_list   
  rtr_stmt   
-
-**Control flow**  
  ctrl_flow   
- cond_cf   
- if_branch   
- elif_branch   
- else_branch   
  while_cf   
