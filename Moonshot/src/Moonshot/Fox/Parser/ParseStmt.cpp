@@ -68,7 +68,7 @@ std::unique_ptr<ASTCondition> Parser::parseCondition()
 			elif_res = parseCond_else_if();
 		}
 		if ((!elif_res.first) && elif_res.second) // it's a else
-			rtr->else_block_ = std::move(result.second);
+			rtr->else_block_ = std::move(elif_res.second);
 
 		return rtr;
 	}
