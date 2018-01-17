@@ -85,6 +85,39 @@ void Dumper::visit(ASTCompStmt & node)
 	tabcount -= 1;
 }
 
+void Dumper::visit(ASTCondition & node)
+{
+	std::cout << tabs() << "Condition Branch" << std::endl;
+	int counter = 0;
+	// (else) ifs
+	for (auto& elem : node.conditional_blocks_)
+	{
+		tabcount++;
+		std::cout << tabs() << "Condition " << counter << std::endl;
+		std::cout << tabs() << "\tCondition Expression:" << std::endl;
+		tabcount+=2;
+
+		elem.first->accept(*this);
+		tabcount-=2;
+		std::cout << tabs() << "\tCondition Body:" << std::endl;
+
+		tabcount+=2;
+		elem.second->accept(*this);
+		tabcount -= 3;
+
+		counter++;
+	}
+	// has else?
+	if (node.else_block_)
+	{
+		tabcount++;
+		std::cout << tabs() << "\"Else\" Body:" << std::endl;
+		tabcount++;
+		node.else_block_->accept(*this);
+		tabcount -= 2;
+	}
+}
+
 std::string Dumper::tabs() const
 {
 	std::string i;

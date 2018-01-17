@@ -18,6 +18,7 @@
 #include "../../Nodes/ASTExpr.h"
 #include "../../Nodes//ASTVarDeclStmt.h"
 #include "../../Nodes/ASTCompStmt.h"
+#include "../../Nodes/ASTCondition.h"
 
 namespace Moonshot
 {
@@ -32,6 +33,7 @@ namespace Moonshot
 			virtual void visit(ASTVarDeclStmt & node) override;
 			virtual void visit(ASTVarCall & node) override;
 			virtual void visit(ASTCompStmt & node) override;
+			virtual void visit(ASTCondition & node) override;
 		private:
 			std::string tabs() const;
 			unsigned int tabcount = 1;
