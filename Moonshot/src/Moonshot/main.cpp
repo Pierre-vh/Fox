@@ -25,7 +25,7 @@ using namespace Moonshot;
 			(3. Evaluate Constant Expressions)
 */
 /*
-	Known bugs : Large int's arent recognized by the token id function. Might revert to a regex based one!
+	Known bugs : Large int's arent recognized by the Token id function. Might revert to a regex based one!
 */
 /*
 	TO DO : Update dumper to support conditions.

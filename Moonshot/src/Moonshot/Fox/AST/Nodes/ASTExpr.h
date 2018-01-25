@@ -10,7 +10,7 @@
 #pragma once
 
 #include "IASTStmt.h"							// Abstract class that every node must inherit from.
-#include "../../Lexer/Token.h"					// Lexer's token
+#include "../../Lexer/Token.h"					// Lexer's Token
 #include "../../Util/Enums.h"					// enums
 #include "../../../Common/Types/Types.h"		// FValue alias
 #include <algorithm> // swap
@@ -59,7 +59,7 @@ namespace Moonshot
 	{
 		public:
 			ASTLiteral() = default;
-			ASTLiteral(const token &t);
+			ASTLiteral(const Token &t);
 			~ASTLiteral();
 
 			void accept(IVisitor& vis) override;

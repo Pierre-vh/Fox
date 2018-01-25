@@ -13,7 +13,7 @@
 using namespace Moonshot;
 using namespace fv_util;
 
-Parser::Parser(Context& c, Lexer& l) : context_(c),lex_(l)
+Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
 {
 
 }
@@ -22,22 +22,22 @@ Parser::~Parser()
 {
 }
 
-std::pair<bool, token> Parser::matchValue()
+std::pair<bool, Token> Parser::matchValue()
 {
-	token t = getToken();
+	Token t = getToken();
 	if (t.type == tokenType::TT_LITERAL)
 	{
 		pos_ += 1;
 		return { true,t };
 	}
-	return { false,token(Context()) };
+	return { false,Token(Context()) };
 }
 
 
 
 std::pair<bool, std::string> Parser::matchID()
 {
-	token t = getToken();
+	Token t = getToken();
 	if (t.type == tokenType::TT_IDENTIFIER)
 	{
 		pos_ += 1;
@@ -48,7 +48,7 @@ std::pair<bool, std::string> Parser::matchID()
 
 bool Parser::matchSign(const signType & s)
 {
-	token t = getToken();
+	Token t = getToken();
 	if (t.type == tokenType::TT_SIGN && t.sign_type == s)
 	{
 		pos_ += 1;
@@ -59,7 +59,7 @@ bool Parser::matchSign(const signType & s)
 
 bool Parser::matchKeyword(const keywordType & k)
 {
-	token t = getToken();
+	Token t = getToken();
 	if (t.type == tokenType::TT_KEYWORD && t.kw_type == k)
 	{
 		pos_ += 1;
@@ -75,7 +75,7 @@ bool Parser::matchEOI()
 
 std::size_t Moonshot::Parser::matchTypeKw()
 {
-	token t = getToken();
+	Token t = getToken();
 	pos_ += 1;
 	if (t.type == tokenType::TT_KEYWORD)
 	{
@@ -92,17 +92,17 @@ std::size_t Moonshot::Parser::matchTypeKw()
 	return invalid_index;
 }
 
-token Parser::getToken() const
+Token Parser::getToken() const
 {
 	return getToken(pos_);
 }
 
-token Parser::getToken(const size_t & d) const
+Token Parser::getToken(const size_t & d) const
 {
-	if (d < lex_.resultSize())
-		return lex_.getToken(d);
+	if (d < tokens_.size())
+		return tokens_.at(d);
 	else
-		return token(Context());
+		return Token(Context());
 }
 
 void Parser::errorUnexpected()
@@ -110,7 +110,7 @@ void Parser::errorUnexpected()
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
-	output << "Unexpected token " << getToken().showFormattedTokenData();
+	output << "Unexpected Token " << getToken().showFormattedTokenData();
 	context_.reportError(output.str());
 
 	context_.resetOrigin();
@@ -121,7 +121,7 @@ void Parser::errorExpected(const std::string & s)
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
-	output << s << "\n[after token " << getToken(pos_-1).showFormattedTokenData() << "]";
+	output << s << "\n[after Token " << getToken(pos_-1).showFormattedTokenData() << "]";
 	context_.reportError(output.str());
 
 	context_.resetOrigin();

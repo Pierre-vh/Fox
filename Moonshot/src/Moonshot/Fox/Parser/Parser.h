@@ -30,22 +30,22 @@ Note :
 
 	HOW TO IMPLEMENT A GRAMMAR RULE:
 		1 - Nonterminal rules
-			Case a : Matched all token 
+			Case a : Matched all Token 
 				Return a valid pointer to the node. Cursor is updated through match function
-			Case b : Matched no token
+			Case b : Matched no Token
 				 return a null pointer, cursor isn't updated
-			Case c : matched one or more token, but encountered an unexpected token
+			Case c : matched one or more Token, but encountered an unexpected Token
 				Don't update the cursor, return a null pointer, throw an error (with the context)
 		2 - Terminal rules
-			If the current token is the requested token, update the cursor.
+			If the current Token is the requested Token, update the cursor.
 
 */
 #pragma once
 // Context and Exceptions
 #include "../../Common/Context/Context.h"
 #include "../../Common/Exceptions/Exceptions.h"
-// Lexer
-#include "../Lexer/Lexer.h"					
+// Tokens
+#include "../Lexer/Token.h"					
 // AST Nodes
 #include "../AST/Nodes/ASTExpr.h"
 #include "../AST/Nodes/IASTNode.h"
@@ -63,7 +63,7 @@ namespace Moonshot
 	class Parser
 	{
 		public:
-			Parser(Context& c,Lexer& l);
+			Parser(Context& c,TokenVector& l);
 			~Parser();
 
 			// parseXXX() = "match" the rule XXX (attempts to find it, if it found it, the method will return a valid pointer (if(ptr) will return true). if not, it will return a std::unique_ptr<(TYPE OF NODE)>(nullptr)
@@ -92,10 +92,10 @@ namespace Moonshot
 			// oneUpNode will return a new node X, with the operation PLUS and N as left child.
 			std::unique_ptr<ASTExpr> oneUpNode(std::unique_ptr<ASTExpr> &node, const operation &op = operation::PASS);
 			
-			// matchToken -> returns true if the token is matched, and increment pos_, if the token isn't matched return false
+			// matchToken -> returns true if the Token is matched, and increment pos_, if the Token isn't matched return false
 			
 			// MATCH BY TYPE OF TOKEN
-			std::pair<bool,token> matchValue();				// match a TT_LITERAL
+			std::pair<bool,Token> matchValue();				// match a TT_LITERAL
 			std::pair<bool, std::string> matchID();			// match a ID
 			bool matchSign(const signType &s);			// match any signs : ! : * etc.
 			bool matchKeyword(const keywordType &k);		// Match any keyword
@@ -108,18 +108,18 @@ namespace Moonshot
 			std::pair<bool, operation> matchBinaryOp(const char &priority); // + - * / % ^ ...
 			
 			// UTILITY METHODS
-			token getToken() const;
-			token getToken(const size_t &d) const;
+			Token getToken() const;
+			Token getToken(const size_t &d) const;
 
 			// Make error message :
-			// 2 Types of error messages in the parser : unexpected token and Expected a token.
-			void errorUnexpected();							// generic error message "unexpected token.."
-			void errorExpected(const std::string &s);		// generic error message "expected token after.."
+			// 2 Types of error messages in the parser : unexpected Token and Expected a Token.
+			void errorUnexpected();							// generic error message "unexpected Token.."
+			void errorExpected(const std::string &s);		// generic error message "expected Token after.."
 			
 
 			// Member variables
-			size_t pos_ = 0;								// current pos in the token vector.
+			size_t pos_ = 0;								// current pos in the Token vector.
 			Context& context_;
-			Lexer& lex_;					// reference to the lexer to access our tokens 
+			TokenVector& tokens_;					// reference to the lexer to access our tokens 
 	};
 }

@@ -63,6 +63,11 @@ bool Conditions::runTest(Context & context)
 		context.resetState();
 		auto data = readFileToString(context, elem);
 		FAILED_RETURN_IF_ERR__SILENT;
+		if (testCondFile(context, data))
+		{
+			std::cout << "\t\t\xC0 (Bad Test No " << badcount << ") Failure (Test was successful, but should have failed.)" << std::endl;
+			return false;
+		}
 		FAILED_RETURN_IF(testCondFile(context, data), elem);
 		if (!context.isSafe()) 
 		{ 
@@ -80,7 +85,7 @@ bool Conditions::testCondFile(Context & context, const std::string& str)
 	Lexer lex(context);
 	lex.lexStr(str);
 	FAILED_RETURN_IF_ERR__SILENT;
-	Parser parser(context, lex);
+	Parser parser(context, lex.getTokenVector());
 	auto node = parser.parseCondition();
 	FAILED_RETURN_IF_ERR__SILENT;
 	if (!node) return false;

@@ -134,7 +134,7 @@ std::unique_ptr<ASTExpr> Parser::parseTerm()
 
 std::unique_ptr<ASTExpr> Parser::parseValue()
 {
-	// if the token is invalid, return directly a null node
+	// if the Token is invalid, return directly a null node
 
 	// = <const>
 	auto matchValue_result = matchValue();
@@ -210,7 +210,7 @@ std::pair<bool, operation> Parser::matchBinaryOp(const char & priority)
 
 	auto cur = getToken();
 	auto pk = getToken(pos_ + 1);
-	// Check current token validity
+	// Check current Token validity
 	if (!cur.isValid() || (cur.type != tokenType::TT_SIGN))
 		return { false, operation::PASS };
 	pos_ += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.

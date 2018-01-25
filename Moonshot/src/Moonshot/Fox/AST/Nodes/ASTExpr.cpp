@@ -89,7 +89,7 @@ void ASTExpr::swapChildren()
 	std::swap(left_, right_);
 }
 
-ASTLiteral::ASTLiteral(const token & t)
+ASTLiteral::ASTLiteral(const Token & t)
 {
 	if (t.val_type == literalType::LIT_STRING)
 		val_ = t.str;

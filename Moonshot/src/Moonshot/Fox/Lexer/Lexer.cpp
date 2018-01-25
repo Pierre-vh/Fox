@@ -33,7 +33,7 @@ void Lexer::lexStr(const std::string & data)
 	while(pos_ < data.size() && context_.isSafe())
 		cycle();
 
-	pushTok(); // Push the last token found.
+	pushTok(); // Push the last Token found.
 
 	if (context_.options.getAttr(OptionsList::LEX_log_total_token_count).value_or(false).get<bool>())
 	{
@@ -44,25 +44,22 @@ void Lexer::lexStr(const std::string & data)
 	context_.resetOrigin();
 }
 
-void Lexer::iterateResults(std::function<void(const token&)> func)
+void Lexer::iterateResults(std::function<void(const Token&)> func)
 {
-	for (const token &tok : result_)
+	for (const Token &tok : result_)
 		func(tok);
 }
 
 void Lexer::logAllTokens() const
 {
-	for (const token &tok : result_)
+	for (const Token &tok : result_)
 		context_.logMessage(tok.showFormattedTokenData());
 }
 
-token Lexer::getToken(const std::size_t & vtpos) const
-{
-	if (vtpos < result_.size())
-		return result_[vtpos];
 
-	throw std::out_of_range("Tried to access a position in result_ that was out of bounds.");
-	return token(context_); // return empty token
+TokenVector & Moonshot::Lexer::getTokenVector()
+{
+	return result_; // return empty Token
 }
 
 std::size_t Lexer::resultSize() const
@@ -74,15 +71,15 @@ void Lexer::pushTok()
 {
 	if (context_.options.getAttr(OptionsList::LEX_log_pushed_token).value_or(false).get<bool>()) {
 		std::stringstream out;
-		out << "Pushing token \xAE" + curtok_ + "\xAF";
+		out << "Pushing Token \xAE" + curtok_ + "\xAF";
 		context_.logMessage(out.str());
 	}
 
 	if (curtok_ == "")	// Don't push empty tokens.
 		return;
 
-	// push token
-	token t(context_,curtok_,ccoord_);
+	// push Token
+	Token t(context_,curtok_,ccoord_);
 	result_.push_back(t);
 	curtok_ = "";
 }
@@ -138,9 +135,9 @@ void Lexer::fn_S_BASE()
 	char pk = peekNext();
 	char c = inputstr_[pos_];	// Get current char without advancing in the stream
 
-	if (curtok_.size() != 0)	// simple error checking : the token should always be empty when we're in S_BASE.
+	if (curtok_.size() != 0)	// simple error checking : the Token should always be empty when we're in S_BASE.
 	{
-		throw Exceptions::lexer_critical_error("Current token isn't empty in S_BASE, current token :" + curtok_);
+		throw Exceptions::lexer_critical_error("Current Token isn't empty in S_BASE, current Token :" + curtok_);
 		return;
 	}
 	// IGNORE SPACES

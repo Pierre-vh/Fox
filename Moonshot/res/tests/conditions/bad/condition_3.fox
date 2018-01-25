@@ -2,4 +2,3 @@ if(false)
 	foo = "if!";
 else if
 {
-}

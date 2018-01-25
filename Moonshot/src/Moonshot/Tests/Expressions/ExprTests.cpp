@@ -41,7 +41,7 @@ bool ExprTests::runTest(Context & context)
 		l.lexStr(elem);
 		FAILED_RETURN_IF_ERR("lexing");
 
-		Parser p(context, l);
+		 Parser p(context, l.getTokenVector());
 		auto root = p.parseExpr();
 		FAILED_RETURN_IF_ERR("parsing (parsing error)");
 		FAILED_RETURN_IF(!root,"parsing (null node)")
@@ -69,7 +69,7 @@ bool ExprTests::runTest(Context & context)
 		l.lexStr(elem);
 		SUCCESS_CONTINUE_IF_ERR;
 
-		Parser p(context, l);
+		 Parser p(context, l.getTokenVector());
 		auto root = p.parseExpr();
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root);

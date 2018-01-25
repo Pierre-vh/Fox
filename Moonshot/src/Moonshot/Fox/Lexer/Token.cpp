@@ -11,16 +11,16 @@
 using namespace Moonshot;
 
 
-token::token(Context & c) : context_(c)
+Token::Token(Context & c) : context_(c)
 {
 	empty_ = true;
 }
-token::token(Context & c,std::string data, const text_pos &tpos) : context_(c),str(data),pos(tpos)
+Token::Token(Context & c,std::string data, const text_pos &tpos) : context_(c),str(data),pos(tpos)
 {
 	idToken(); // self id
 }
 
-std::string token::showFormattedTokenData() const
+std::string Token::showFormattedTokenData() const
 {
 	if (empty_) // Token is empty
 		return "<EMPTY TOKEN>"; // return nothing.
@@ -55,11 +55,11 @@ std::string token::showFormattedTokenData() const
 	ss << "]";
 	return ss.str();
 }
-bool token::isValid() const
+bool Token::isValid() const
 {
 	return !empty_;
 }
-void token::idToken()
+void Token::idToken()
 {
 	if (!context_.isSafe())
 	{
@@ -67,9 +67,9 @@ void token::idToken()
 		return;
 	}
 	if (str.size() == 0)
-		throw Exceptions::lexer_critical_error("Found an empty token. [" + pos.asText() + "]");
+		throw Exceptions::lexer_critical_error("Found an empty Token. [" + pos.asText() + "]");
 
-	// substract the token length's fron the column number given by the lexer.
+	// substract the Token length's fron the column number given by the lexer.
 	pos.column -= (int)str.length();
 
 	if (specific_idSign())
@@ -83,11 +83,11 @@ void token::idToken()
 		else if (std::regex_match(str, kId_regex))
 			type = tokenType::TT_IDENTIFIER;
 		else
-			context_.reportError("Could not identify a token -> (str) : " + str + "\t[" + pos.asText() + "]");
+			context_.reportError("Could not identify a Token -> (str) : " + str + "\t[" + pos.asText() + "]");
 	}
 }
 
-bool token::specific_idKeyword()
+bool Token::specific_idKeyword()
 {
 	auto i = kWords_dict.find(str);
 	if (i == kWords_dict.end())
@@ -97,7 +97,7 @@ bool token::specific_idKeyword()
 	return true;
 }
 
-bool token::specific_idSign()
+bool Token::specific_idSign()
 {
 	if (str.size() > 1)
 		return false;
@@ -112,7 +112,7 @@ bool token::specific_idSign()
 	return false;
 }
 
-bool token::specific_idValue()
+bool Token::specific_idValue()
 {
 	std::stringstream converter(str);
 	if (str[0] == '\'' )

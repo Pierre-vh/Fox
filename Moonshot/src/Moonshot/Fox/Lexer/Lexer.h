@@ -7,7 +7,7 @@
 // This file declares the lexer class.						
 //															
 // The lexer is the 1st step of the interpretation process.
-// It takes the source file, in the form of a string, as input, and outputs a std::<vector> of token.				
+// It takes the source file, in the form of a string, as input, and outputs a std::<vector> of Token.				
 //															
 // It performs a lexical analysis. A Fairly simple one in our case, using a DFA. (state machine)
 //															
@@ -20,7 +20,6 @@
 
 #include <string>		// std::string
 #include <cwctype>		// std::iswspace
-#include <vector>		// std::vector
 #include <functional>	// std::function
 #include <sstream>		// std::stringstream (sizeToStr())
 #include <map>			// std::map
@@ -50,16 +49,16 @@ namespace Moonshot
 
 			void lexStr(const std::string &data);		// Main function.
 			
-			void iterateResults(std::function<void(const token&)> func);	// Some function that could be useful one day : takes a lambda with a token as argument.
-																			// The lambda will then be called with each token of the output, in order.
-			void logAllTokens() const;					// log all token using E_LOG. Useful for debugging.
+			void iterateResults(std::function<void(const Token&)> func);	// Some function that could be useful one day : takes a lambda with a Token as argument.
+																			// The lambda will then be called with each Token of the output, in order.
+			void logAllTokens() const;					// log all Token using E_LOG. Useful for debugging.
 
-			token getToken(const std::size_t &vtpos) const;	// returns the n th token in result_
+			TokenVector& getTokenVector();	// returns the n th Token in result_
 			std::size_t resultSize() const;					// returns result_.size()
 		
 		private:
 
-			void pushTok();					// push token
+			void pushTok();					// push Token
 			void cycle();					// one dfa "cycle";
 			void runFinalChecks();			// runs the final checks. this is called after the lexing process ended.
 			// DFA state functions. I split this into various functions to make the code more readable in the cycle() function.
@@ -92,9 +91,9 @@ namespace Moonshot
 				dfaState	cstate_ = dfaState::S_BASE;		// curren dfa state. begins at S_BASE;
 				std::string inputstr_;					// the input
 				size_t		pos_ = 0;					// position in the input string;
-				std::string curtok_;					// the token that's being constructed.
+				std::string curtok_;					// the Token that's being constructed.
 				text_pos	ccoord_;					// current coordinates.
 				// Output
-				std::vector<token>	result_;		// the lexer's output !
+				TokenVector	result_;		// the lexer's output !
 	};
 }

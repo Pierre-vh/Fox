@@ -47,7 +47,7 @@ bool CompoundStatements::parseFile_compoundStatement(Context& context, const std
 	Lexer lex(context);
 	lex.lexStr(str);
 	FAILED_RETURN_IF_ERR__SILENT;
-	Parser parser(context, lex);
+	Parser parser(context, lex.getTokenVector());
 	auto node = parser.parseCompoundStatement();
 	FAILED_RETURN_IF_ERR__SILENT;
 	if (node->statements_.size() != 0)

@@ -4,7 +4,7 @@
 // File : Token.h											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file contains some token enumeration declarations	
+// This file contains some Token enumeration declarations	
 // And the Declaration of the Token and text_pos structs.	
 //															
 // This file also declares some const variables	holding regexes, 
@@ -18,6 +18,7 @@
 #include <regex>	// std::regex, std::regex_match
 #include <string>	// std::stoi
 #include <sstream>	// std::stringstream (showFormattedToken())
+#include <vector>
 
 #include "../../Common/Utils/Utils.h"
 #include "../../Common/Context//Context.h"
@@ -25,6 +26,7 @@
 
 namespace Moonshot
 {
+
 	enum class tokenType
 	{
 		TT_ENUM_DEFAULT,	// Default value
@@ -166,7 +168,7 @@ namespace Moonshot
 		{ ','	, signType::P_COMMA			}
 	};
 
-	struct text_pos	// a structure to hold the position of a token in the input, and interact with it.
+	struct text_pos	// a structure to hold the position of a Token in the input, and interact with it.
 	{
 		text_pos();
 		text_pos(const int &l, const int &col);
@@ -177,11 +179,11 @@ namespace Moonshot
 		int line = 0;
 		int column = 0;
 	};
-	struct token // the token struct. The lexer outputs a std::vector<token>. Tokens are recognized bits of the original input : keywords,id,values,etc.
+	struct Token // the Token struct. The lexer outputs a std::vector<Token>. Tokens are recognized bits of the original input : keywords,id,values,etc.
 	{
 		public:
-			token(Context & c);
-			token(Context & c,std::string data, const text_pos &tpos = text_pos(0,0));
+			Token(Context & c);
+			Token(Context & c,std::string data, const text_pos &tpos = text_pos(0,0));
 			tokenType type =		tokenType::TT_ENUM_DEFAULT;
 			keywordType kw_type =	keywordType::KW_ENUM_DEFAULT;
 			literalType val_type =	literalType::LIT_ENUMDEFAULT;
@@ -204,4 +206,6 @@ namespace Moonshot
 			bool specific_idValue();				// is a value (raw const)
 										// this class will also put the value in the variant, with the exception of strings (it'll just trim the quotes and put it back in str)
 	};
+	// TokenVector typedef
+	typedef std::vector<Token> TokenVector;
 }

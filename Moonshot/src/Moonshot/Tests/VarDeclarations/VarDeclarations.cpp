@@ -43,7 +43,7 @@ bool VarDeclarations::runTest(Context & context)
 		l.lexStr(elem);
 		FAILED_RETURN_IF_ERR("lexing");
 
-		Parser p(context, l);
+		Parser p(context, l.getTokenVector());
 		auto root = p.parseVarDeclStmt();
 		FAILED_RETURN_IF_ERR("parsing");
 
@@ -62,7 +62,7 @@ bool VarDeclarations::runTest(Context & context)
 		l.lexStr(elem);
 		SUCCESS_CONTINUE_IF_ERR;
 
-		Parser p(context, l);
+		Parser p(context, l.getTokenVector());
 		auto root = p.parseVarDeclStmt();
 
 		SUCCESS_CONTINUE_IF_ERR;
