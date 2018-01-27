@@ -8,6 +8,7 @@ using namespace Moonshot;
 	ROADMAP :
 		-> Finish the parser and AST, as soon as possible.
 		-> Create the last Compile Time visitors needed : 
+			-> Update the typechecker to support functions checking
 			-> Scope checking (using the tree)
 			-> (...) Others if there's a need for them.
 		->	Create a "Front-End" class for Fox for fox, that
@@ -28,7 +29,7 @@ using namespace Moonshot;
 	Known bugs : Large int's arent recognized by the Token id function. Might revert to a regex based one!
 */
 /*
-	TO DO : Update dumper to support conditions.
+	TO DO : Add other expression tests with another criteria. (Current expression tests checks if the condition evaluates to true, add other ones to analyze expressions better.) (One test for each operator)
 */
 int main()
 {

@@ -167,7 +167,9 @@
     <ClCompile Include="src\Moonshot\Tests\VarStmts\VarStmts.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="misc\bytecode_tests\fizzbuzz.bc" />
     <None Include="misc\bytecode_tests\fizzbuzz.fox" />
+    <None Include="misc\bytecode_tests\fizzbuzz.optimized.bc" />
     <None Include="misc\bytecode_tests\readme.md" />
     <None Include="res\tests\compstmt\compstmt_bad_2.fox" />
     <None Include="res\tests\compstmt\compstmt_correct_1.fox" />
