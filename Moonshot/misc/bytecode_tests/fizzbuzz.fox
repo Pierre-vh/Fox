@@ -30,7 +30,7 @@ Bytecode translation example:
 10		mod
 11		const	0
 12		cmp_eq
-13		cond_jump 4	// goes to 13+2 = 15 if false
+13		cond_jump 4	// goes to 13+4 = 17 if false
 14		loadext 0	// load external function 0 (print)
 15		const "fizz"
 16		callf 1	// calls a function with 1 arg. 1 arg is pop'd + the func ref (loadext)
