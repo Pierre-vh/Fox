@@ -26,7 +26,7 @@ RTStmtVisitor::~RTStmtVisitor()
 {
 }
 
-FVal RTStmtVisitor::visit(ASTVarDeclStmt & node)
+void RTStmtVisitor::visit(ASTVarDeclStmt & node)
 {
 	if (!isSymbolsTableAvailable())
 		context_.logMessage("Can't Visit VarDeclStmt nodes when the symbols table is not available.");
@@ -34,7 +34,8 @@ FVal RTStmtVisitor::visit(ASTVarDeclStmt & node)
 	{
 		if (node.initExpr_) // With init expr
 		{
-			auto iexpr = node.initExpr_->accept(*this);
+			node.initExpr_->accept(*this);
+			auto iexpr = value_;
 			if (!symtab_declareValue_derefFirst(
 				node.vattr_,
 				iexpr
@@ -49,7 +50,7 @@ FVal RTStmtVisitor::visit(ASTVarDeclStmt & node)
 			context_.reportError("Error while initializing variable " + node.vattr_.name);
 		}
 	}
-	return FVal(); // does not return anything.
+	value_ = FVal(); // does not return anything.
 }
 
 bool RTStmtVisitor::symtab_declareValue_derefFirst(const var::varattr & vattr, FVal initval)

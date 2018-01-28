@@ -33,7 +33,7 @@
 #include "../../Nodes/ASTExpr.h"
 #include "../../Nodes/ASTVarDeclStmt.h"
 
-#include "../IRTVisitor.h"
+#include "../../Visitor/IVisitor.h"
 #include <tuple>		// Pair
 #include <climits>		// Variable limits
 #include <cmath>		// C++ math operations
@@ -42,20 +42,21 @@
 
 namespace Moonshot
 {
-	class RTExprVisitor : public IRTVisitor
+	class RTExprVisitor : public IVisitor
 	{
 		public:
 			RTExprVisitor(Context& c,std::shared_ptr<SymbolsTable> symtab);
 			RTExprVisitor(Context& c);
 			~RTExprVisitor();
 
-			virtual FVal visit(ASTExpr & node) override;
-			virtual FVal visit(ASTLiteral & node) override;
-			virtual FVal visit(ASTVarCall & node) override;
+			virtual void visit(ASTExpr & node) override;
+			virtual void visit(ASTLiteral & node) override;
+			virtual void visit(ASTVarCall & node) override;
 
 			void setSymbolsTable(std::shared_ptr<SymbolsTable> symtab);
-
+			FVal getResult() const;
 		protected:
+			FVal value_;
 			// Context
 			Context& context_;
 			// converts fval to double, but if fval is a varref, deref it first.

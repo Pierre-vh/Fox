@@ -25,11 +25,6 @@ void ASTCondition::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-FVal ASTCondition::accept(IRTVisitor & vis)
-{
-	return vis.visit(*this);
-}
-
 bool ASTCondition::hasElse() const
 {
 	return (else_block_ ? true : false);

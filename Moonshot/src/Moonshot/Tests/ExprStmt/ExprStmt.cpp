@@ -48,7 +48,9 @@ bool ExprStmtTest::runTest(Context & context)
 		root->accept(TypeCheckVisitor(context, true));
 		FAILED_RETURN_IF_ERR("typechecking");
 
-		auto result = root->accept(RTExprVisitor(context));
+		RTExprVisitor evaluator(context);
+		root->accept(RTExprVisitor(evaluator));
+		auto result = evaluator.getResult();
 		FAILED_RETURN_IF_ERR("evaluation");
 		std::cout << "\t\t\xC0 Result: " << fv_util::dumpFVal(result) << std::endl;
 	}
@@ -72,7 +74,9 @@ bool ExprStmtTest::runTest(Context & context)
 		root->accept(TypeCheckVisitor(context, true));
 		SUCCESS_CONTINUE_IF_ERR;
 
-		auto result = root->accept(RTExprVisitor(context));
+		RTExprVisitor evaluator(context);
+		root->accept(RTExprVisitor(evaluator));
+		auto result = evaluator.getResult();
 		SUCCESS_CONTINUE_IF_ERR;
 
 		if (context.isSafe())

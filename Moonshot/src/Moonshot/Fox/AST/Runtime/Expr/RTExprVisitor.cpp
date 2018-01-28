@@ -25,22 +25,29 @@ RTExprVisitor::~RTExprVisitor()
 {
 }
 
-FVal RTExprVisitor::visit(ASTExpr & node)
+void RTExprVisitor::visit(ASTExpr & node)
 {
-	if (!context_.isSafe()) return FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
+	if (!context_.isSafe())
+	{
+		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
+		return;
+	}
 	if (node.op_ == operation::CONCAT)
 	{
 		if (node.left_ && node.right_)
 		{
-			auto leftval = node.left_->accept(*this);
-			auto rightval = node.right_->accept(*this);
+			node.left_->accept(*this);
+			auto leftval = value_;
+			node.right_->accept(*this);
+			auto rightval = value_;
 			
 			if (std::holds_alternative<std::string>(leftval) &&
 				std::holds_alternative<std::string>(rightval))
 			{
 				auto leftstr = std::get<std::string>(leftval);
 				auto rightstr = std::get<std::string>(rightval);
-				return FVal(std::string(leftstr + rightstr));
+				value_ = FVal(std::string(leftstr + rightstr));
+				return;
 			}
 			else
 				// One of the 2 childs, or the child, does not produce strings.
@@ -55,15 +62,18 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 	{
 		if (isSymbolsTableAvailable())
 		{
-			auto left_res = node.left_->accept(*this);
-			auto right_res = node.right_->accept(*this);
+			node.left_->accept(*this);
+			auto left_res = value_;
+			node.right_->accept(*this);
+			auto right_res = value_;
 			if (std::holds_alternative<var::varRef>(left_res) && isValue(right_res.index()))
 			{
 				symtab_->setValue(
 					std::get<var::varRef>(left_res).getName(),
 					right_res
 				);
-				return right_res; // Assignement returns the value on the left !
+				value_ = right_res; // Assignement returns the value on the left !
+				return;
 			}
 			else 
 				context_.reportError("Impossible assignement between " + dumpFVal(left_res) + " and " + dumpFVal(right_res));
@@ -72,7 +82,11 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 			context_.logMessage("Can't perform assignement operations when the symbols table is unavailable.");
 	}
 	else if (node.op_ == operation::CAST)
-		return castTo_withDeref(node.totype_ , node.left_->accept(*this));
+	{
+		node.left_->accept(*this);
+		value_ = castTo_withDeref(node.totype_, value_);
+		return;
+	}
 	else if (node.op_ == operation::PASS)
 	{
 		if (!node.left_)
@@ -84,12 +98,14 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 	{
 		if (isSymbolsTableAvailable())
 		{
-			auto vattr = node.left_->accept(*this);
+			node.left_->accept(*this);
+			auto vattr = value_;
 			if (std::holds_alternative<var::varRef>(vattr))
 			{
 				// Perform assignement
 				std::string vname = std::get<var::varRef>(vattr).getName();
-				symtab_->setValue(vname, node.right_->accept(*this));
+				node.right_->accept(*this);
+				symtab_->setValue(vname, value_);
 			}
 			else
 				// this could use context_.error instead. On the long run, if this error happens often and malformed code is the source, use context_.error instead of a throw
@@ -103,52 +119,62 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		if (!node.left_ || !node.right_)
 			throw Exceptions::ast_malformation("Attempted to run a comparison operation on a node without 2 children");
 
-		const FVal lfval = node.left_->accept(*this);
-		const FVal rfval = node.right_->accept(*this);
+		node.left_->accept(*this);
+		const FVal lfval = value_;
+		node.right_->accept(*this);
+		const FVal rfval = value_;
 		if (std::holds_alternative<std::string>(lfval) && std::holds_alternative<std::string>(rfval)) // lhs/rhs str?
 		{
 			if (lfval.index() == rfval.index()) // if so, lhs/rhs must both be strings to compare them.
 			{
-				return FVal(
+				value_ = FVal(
 					compareStr(
 						node.op_,
 						std::get<std::string>(lfval),
 						std::get<std::string>(rfval)
 					)
 				);
+				return;
 			}
 			else
 			{
 				context_.reportError("Attempted to compare a string with an arithmetic type.");
-				return FVal();
+				value_ = FVal();
+				return;
 			}
 		}
 		else
 		{
-			double dleftval = fvalToDouble_withDeref(node.left_->accept(*this));
-			double drightval = fvalToDouble_withDeref(node.right_->accept(*this));
+			node.left_->accept(*this);
+			double dleftval = fvalToDouble_withDeref(value_);
+			node.right_->accept(*this);
+			double drightval = fvalToDouble_withDeref(value_);
 			//std::cout << "Compare: Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
-			return FVal(compareVal(
+			value_ = FVal(compareVal(
 				node.op_,
 				lfval,
 				rfval
 			)
 			);
+			return;
 		}
 	}
 	else if (node.op_ == operation::LOGICNOT || node.op_ == operation::NEGATE)
 	{
-		double lval = fvalToDouble_withDeref(node.left_->accept(*this));
+		node.left_->accept(*this);
+		double lval = fvalToDouble_withDeref(value_);
 		if (node.op_ == operation::LOGICNOT)
 		{
-			return FVal(
+			value_ = FVal(
 				lval == 0 // If the value differs equals zero, return true
 			);
+			return;
 		}
 		else
 		{
 			lval = -lval; // Negate the number
-			return castTo(context_,node.totype_, lval);		// Cast to result type
+			value_ = castTo(context_,node.totype_, lval);		// Cast to result type
+			return;
 		}
 	}
 	else
@@ -156,38 +182,51 @@ FVal RTExprVisitor::visit(ASTExpr & node)
 		if (!node.left_ || !node.right_)
 			throw Exceptions::ast_malformation("Tried to perform an operation on a node without a left_ and/or right child.");
 
-		const double dleftval = fvalToDouble_withDeref(node.left_->accept(*this));
-		const double drightval = fvalToDouble_withDeref(node.right_->accept(*this));
+		node.left_->accept(*this);
+		const double dleftval = fvalToDouble_withDeref(value_);
+		node.right_->accept(*this);
+		const double drightval = fvalToDouble_withDeref(value_);
 		//std::cout << "Op: " << util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 		const double result = performOp(node.op_, dleftval, drightval);
 
 		if (fitsInValue(node.totype_, result) || (node.op_ == operation::CAST)) // If the results fits or we desire to cast the result
-			return castTo(context_,node.totype_, result);		// Cast to result type
+			value_ = castTo(context_,node.totype_, result);		// Cast to result type
 		else
-			return castTo(context_,fval_float, result);	// Cast to float instead to keep information from being lost.
+			value_ = castTo(context_,fval_float, result);	// Cast to float instead to keep information from being lost.
+		return;
 	}
-	return FVal();
+	value_ = FVal();
 }
 
-FVal RTExprVisitor::visit(ASTLiteral & node)
+void RTExprVisitor::visit(ASTLiteral & node)
 {
-	return node.val_;
+	value_ = node.val_;
+	return;
 }
 
-FVal RTExprVisitor::visit(ASTVarCall & node)
+void RTExprVisitor::visit(ASTVarCall & node)
 {
 	if (isSymbolsTableAvailable())
-		return symtab_->retrieveVarAttr(node.varname_).createRef(); // this returns a reference, because it's needed for assignement operations.
+	{
+		value_ = symtab_->retrieveVarAttr(node.varname_).createRef(); // this returns a reference, because it's needed for assignement operations.
+		return;
+	}
 	else
 	{
 		context_.logMessage("Can't retrieve values if the symbols table is not available.");
-		return FVal();
+		value_ = FVal();
+		return;
 	}
 }
 
 void RTExprVisitor::setSymbolsTable(std::shared_ptr<SymbolsTable> symtab)
 {
 	symtab_ = symtab;
+}
+
+FVal RTExprVisitor::getResult() const
+{
+	return value_;
 }
 
 double RTExprVisitor::fvalToDouble_withDeref(FVal fval)

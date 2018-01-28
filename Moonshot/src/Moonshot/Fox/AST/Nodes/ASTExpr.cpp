@@ -69,11 +69,6 @@ void ASTExpr::accept(IVisitor& vis)
 	vis.visit(*this);
 }
 
-FVal ASTExpr::accept(IRTVisitor& vis)
-{
-	return vis.visit(*this);
-}
-
 void ASTExpr::setReturnType(const std::size_t &casttype)
 {
 	totype_ = casttype;
@@ -107,10 +102,6 @@ void ASTLiteral::accept(IVisitor& vis)
 {
 	vis.visit(*this);
 }
-FVal ASTLiteral::accept(IRTVisitor& vis)
-{
-	return vis.visit(*this);
-}
 
 ASTLiteral::~ASTLiteral()
 {
@@ -129,9 +120,4 @@ ASTVarCall::~ASTVarCall()
 void ASTVarCall::accept(IVisitor & vis)
 {
 	vis.visit(*this);
-}
-
-FVal ASTVarCall::accept(IRTVisitor & vis)
-{
-	return vis.visit(*this);
 }

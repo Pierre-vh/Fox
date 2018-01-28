@@ -148,7 +148,6 @@
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Runtime\Expr\RTExprVisitor.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\Runtime\IRTVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\IVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.cpp" />
@@ -209,7 +208,6 @@
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\NodesForwardDeclaration.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Runtime\Expr\RTExprVisitor.h" />
-    <ClInclude Include="src\Moonshot\Fox\AST\Runtime\IRTVisitor.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\IVisitor.h" />
     <ClInclude Include="src\Moonshot\Common\Types\Types.h" />

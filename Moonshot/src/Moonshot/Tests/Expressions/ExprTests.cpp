@@ -52,7 +52,10 @@ bool ExprTests::runTest(Context & context)
 		if (context.options.getAttr(OptionsList::EXPRTEST_print_ast).value_or(false).get<bool>())
 			root->accept(Dumper());
 
-		auto result = root->accept(RTExprVisitor(context));
+		RTExprVisitor evaluator(context);
+		root->accept(evaluator);
+		auto result = evaluator.getResult();
+
 		FAILED_RETURN_IF_ERR("evaluation");
 		std::cout << "\t\t\xC0 Result: " << fv_util::dumpFVal(result) << std::endl;
 		FAILED_RETURN_IF(!std::holds_alternative<bool>(result), "evaluation (result wasn't of the expected type)");
@@ -77,7 +80,9 @@ bool ExprTests::runTest(Context & context)
 		root->accept(TypeCheckVisitor(context,true));
 		SUCCESS_CONTINUE_IF_ERR;
 
-		auto result = root->accept(RTExprVisitor(context));
+		RTExprVisitor evaluator(context);
+		root->accept(evaluator);
+		auto result = evaluator.getResult();
 		SUCCESS_CONTINUE_IF_ERR;
 
 		if (context.isSafe())

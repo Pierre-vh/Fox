@@ -42,7 +42,6 @@ namespace Moonshot
 
 			// Accept
 			virtual void accept(IVisitor& vis) override;
-			virtual FVal accept(IRTVisitor& vis) override;
 			// NODE DATA
 			// Expression nodes hold 4 values :
 			// totype_ : the return type of the node
@@ -63,7 +62,6 @@ namespace Moonshot
 			~ASTLiteral();
 
 			void accept(IVisitor& vis) override;
-			FVal accept(IRTVisitor& vis) override;
 			// NODE DATA
 			// Value node holds 1 value : (inherited ones are never called and ignored.)
 			// val_ -> std::variant that holds the data of the node
@@ -80,7 +78,6 @@ namespace Moonshot
 			~ASTVarCall();
 
 			void accept(IVisitor& vis) override;
-			FVal accept(IRTVisitor& vis) override;
 			
 			//The varattr, which serves as a "reference" to the variable stored.
 			std::string varname_ = "";

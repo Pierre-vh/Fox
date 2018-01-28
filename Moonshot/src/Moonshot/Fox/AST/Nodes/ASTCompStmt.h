@@ -13,7 +13,6 @@ namespace Moonshot
 			~ASTCompStmt();
 
 			virtual void accept(IVisitor & vis) override;
-			virtual FVal accept(IRTVisitor & vis) override;
 
 			std::vector<std::unique_ptr<IASTStmt>> statements_;
 	};

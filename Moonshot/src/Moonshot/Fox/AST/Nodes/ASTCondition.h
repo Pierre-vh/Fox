@@ -27,7 +27,6 @@ namespace Moonshot
 			typedef std::pair<std::unique_ptr<ASTExpr>, std::unique_ptr<ASTCompStmt>> CondBlock;
 
 			virtual void accept(IVisitor & vis) override;
-			virtual FVal accept(IRTVisitor & vis) override;
 
 			bool hasElse() const;
 			bool hasElif() const;
