@@ -14,7 +14,7 @@
 
 #include "../ITest.h"
 
-#include "../../Fox/AST/CompTime/Semantic/TypeCheck.h"
+#include "../../Fox/AST/Visitor/Semantic/TypeCheck.h"
 #include "../../Fox/AST/Visitor/Eval/Expr/RTExprVisitor.h"
 
 namespace Moonshot

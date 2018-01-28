@@ -33,7 +33,9 @@ using namespace Moonshot;
 */
 int main()
 {
-	SetConsoleOutputCP(CP_UTF8);
+	// Currently there's a problem : the windows console stops displaying when you try
+	// to print UTF8 chars. find a solution ! :(
+	//SetConsoleOutputCP(65001);
 
 	Context context;
 	TestManager ts(context);

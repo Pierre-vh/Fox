@@ -20,6 +20,8 @@
 #include "../../Nodes/ASTCompStmt.h"
 #include "../../Nodes/ASTCondition.h"
 
+#include <Windows.h>
+
 namespace Moonshot
 {
 	class Dumper : public IVisitor

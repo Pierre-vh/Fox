@@ -35,7 +35,7 @@ void Lexer::lexStr(const std::string & data)
 
 	pushTok(); // Push the last Token found.
 
-	if (context_.options.getAttr(OptionsList::LEX_log_total_token_count).value_or(false).get<bool>())
+	if (context_.options.getAttr(OptionsList::LEX_logTotalTokenCount).value_or(false).get<bool>())
 	{
 		std::stringstream ss;
 		ss << "Lexing finished. Tokens found: " << result_.size();
@@ -69,7 +69,7 @@ std::size_t Lexer::resultSize() const
 
 void Lexer::pushTok()
 {
-	if (context_.options.getAttr(OptionsList::LEX_log_pushed_token).value_or(false).get<bool>()) {
+	if (context_.options.getAttr(OptionsList::LEX_logPushedTokens).value_or(false).get<bool>()) {
 		std::stringstream out;
 		out << "Pushing Token \xAE" + curtok_ + "\xAF";
 		context_.logMessage(out.str());

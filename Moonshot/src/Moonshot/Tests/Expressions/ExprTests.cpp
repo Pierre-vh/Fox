@@ -35,6 +35,7 @@ bool ExprTests::runTest(Context & context)
 	std::cout << std::endl << "Part 1 : Correct tests :" << std::endl;
 	for (auto& elem : correct_test)
 	{
+
 		context.clearLogs(); // clear logs of all the clutter
 		std::cout << "\t\xAF Expression :" << elem << std::endl;
 		Lexer l(context);
@@ -49,7 +50,7 @@ bool ExprTests::runTest(Context & context)
 		root->accept(TypeCheckVisitor(context,true));
 		FAILED_RETURN_IF_ERR("typechecking");
 
-		if (context.options.getAttr(OptionsList::EXPRTEST_print_ast).value_or(false).get<bool>())
+		if (context.options.getAttr(OptionsList::EXPRTEST_printAST).value_or(false).get<bool>())
 			root->accept(Dumper());
 
 		RTExprVisitor evaluator(context);

@@ -159,7 +159,7 @@
     <ClCompile Include="src\Moonshot\Fox\Lexer\Lexer.cpp" />
     <ClCompile Include="src\Moonshot\main.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Lexer\Token.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\CompTime\Semantic\TypeCheck.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Util\Enums.cpp" />
     <ClCompile Include="src\Moonshot\Tests\ITest.cpp" />
     <ClCompile Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.cpp" />
@@ -218,7 +218,7 @@
     <ClInclude Include="src\Moonshot\Fox\Lexer\Token.h" />
     <ClInclude Include="src\Moonshot\Common\Utils\Utils.h" />
     <ClInclude Include="src\Moonshot\Fox\Util\Enums.h" />
-    <ClInclude Include="src\Moonshot\Fox\AST\CompTime\Semantic\TypeCheck.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.h" />
     <ClInclude Include="src\Moonshot\Tests\ITest.h" />
     <ClInclude Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.h" />
     <ClInclude Include="src\Moonshot\Tests\VarStmts\VarStmts.h" />

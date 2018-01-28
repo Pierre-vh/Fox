@@ -36,23 +36,25 @@ void Dumper::visit(ASTExpr & node)
 	std::cout << std::endl;
 	if (node.left_)
 	{
-		std::cout << tabs() << u8"┖Left child:" << tabs() << std::endl;
-		tabcount += 1;
+		tabcount++;
+		std::cout << tabs() << "Left child:" << std::endl;
+		tabcount++;
 		node.left_->accept(*this);
-		tabcount -= 1;
+		tabcount -= 2;
 	}
 	if (node.right_)
 	{
-		std::cout << tabs() << u8"┖Right child:" << tabs() << std::endl;
-		tabcount += 1;
+		tabcount++;
+		std::cout << tabs() << "Right child:" << std::endl;
+		tabcount++;
 		node.right_->accept(*this);
-		tabcount -= 1;
+		tabcount -= 2;
 	}
 }
 
 void Dumper::visit(ASTLiteral & node)
 {
-	std::cout << tabs() << u8"┖Literal: " << dumpFVal(node.val_) << std::endl;
+	std::cout << tabs() << "Literal: " << dumpFVal(node.val_) << std::endl;
 }
 
 void Dumper::visit(ASTVarDeclStmt & node)
@@ -61,7 +63,7 @@ void Dumper::visit(ASTVarDeclStmt & node)
 	if (node.initExpr_)
 	{
 		tabcount += 1;
-		std::cout << tabs() << u8"┖InitExpr" << std::endl;
+		std::cout << tabs() << "InitExpr" << std::endl;
 		tabcount += 1;
 		node.initExpr_->accept(*this);
 		tabcount -= 2;
@@ -70,7 +72,7 @@ void Dumper::visit(ASTVarDeclStmt & node)
 
 void Dumper::visit(ASTVarCall & node)
 {
-	std::cout << tabs() << u8"┖VarCall: name: " << node.varname_ << std::endl;
+	std::cout << tabs() << "VarCall: name: " << node.varname_ << std::endl;
 }
 
 void Dumper::visit(ASTCompStmt & node)
@@ -94,16 +96,18 @@ void Dumper::visit(ASTCondition & node)
 	{
 		tabcount++;
 		std::cout << tabs() << "Condition " << counter << std::endl;
-		std::cout << tabs() << "\tCondition Expression:" << std::endl;
-		tabcount+=2;
+		tabcount++;
 
+		std::cout << tabs() << "Condition Expression:" << std::endl;
+		tabcount++;
 		elem.first->accept(*this);
-		tabcount-=2;
-		std::cout << tabs() << "\tCondition Body:" << std::endl;
+		tabcount--;
 
-		tabcount+=2;
+		std::cout << tabs() << "Condition Body:" << std::endl;
+
+		tabcount++;
 		elem.second->accept(*this);
-		tabcount -= 3;
+		tabcount-=3;
 
 		counter++;
 	}
@@ -123,6 +127,8 @@ std::string Dumper::tabs() const
 	std::string i;
 	for (unsigned int k(0); k < tabcount; k++)
 		i += '\t';
+	if (tabcount > 1)
+		i += '\xC0';
 	return i;
 }
 
