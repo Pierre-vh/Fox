@@ -41,7 +41,7 @@
 
 namespace Moonshot
 {
-	class RTExprVisitor : public IVisitor
+	class RTExprVisitor : public ITypedVisitor<FVal>
 	{
 		public:
 			RTExprVisitor(Context& c,std::shared_ptr<SymbolsTable> symtab);
@@ -55,7 +55,6 @@ namespace Moonshot
 			void setSymbolsTable(std::shared_ptr<SymbolsTable> symtab);
 			FVal getResult() const;
 		protected:
-			FVal value_;
 			// Context
 			Context& context_;
 			// converts fval to double, but if fval is a varref, deref it first.
@@ -71,14 +70,6 @@ namespace Moonshot
 
 			// This function calls castTo, but if the FVal is a varRef, it dereferences it once before proceeding.
 			FVal castTo_withDeref(const std::size_t& goal, FVal val);
-
-			//Visit & get result
-			template<typename VISITABLE>
-			FVal visitAndGetResult(VISITABLE& node)
-			{
-				node->accept(*this);
-				return value_;
-			}
 	};
 
 }

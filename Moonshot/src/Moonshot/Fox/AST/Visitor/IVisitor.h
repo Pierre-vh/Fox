@@ -39,6 +39,26 @@ namespace Moonshot
 			inline virtual void visit(ASTCompStmt& node)		{}
 			inline virtual void visit(ASTCondition& node)		{}
 	};
+
+	template<typename TYPE>
+	class ITypedVisitor : public IVisitor
+	{
+		public:
+			virtual ~ITypedVisitor() = 0
+			{
+
+			}
+		protected:
+			TYPE value_;
+
+			template<typename NODE,typename VISITOR>
+			FVal visitAndGetResult(std::unique_ptr<NODE>& node,VISITOR& visit)
+			{
+				node->accept(visit);
+				return value_;
+			}
+	};
+
 }
 
 
