@@ -12,7 +12,7 @@
 #include "../ITest.h"
 
 #include "../../Fox/AST/CompTime/Semantic/TypeCheck.h"
-#include "../../Fox/AST/Runtime/Stmt/RTStmtVisitor.h"
+#include "../../Fox/AST/Visitor/Eval/Stmt/RTStmtVisitor.h"
 
 namespace Moonshot
 {

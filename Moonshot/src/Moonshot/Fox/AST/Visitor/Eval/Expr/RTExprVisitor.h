@@ -21,19 +21,18 @@
 
 #pragma once
 // Context & exceptions
-#include "../../../../Common/Context/Context.h"
-#include "../../../../Common/Exceptions/Exceptions.h"
+#include "../../../../../Common/Context/Context.h"
+#include "../../../../../Common/Exceptions/Exceptions.h"
 // Utils, types, typecast
-#include "../../../../Common/Utils/Utils.h"
-#include "../../../../Common/Types/Types.h"
-#include "../../../../Common/Types/TypeCast.h"
+#include "../../../../../Common/Utils/Utils.h"
+#include "../../../../../Common/Types/Types.h"
+#include "../../../../../Common/Types/TypeCast.h"
 // Symbols table
-#include "../../../../Common/Symbols/Symbols.h"
+#include "../../../../../Common/Symbols/Symbols.h"
+#include "../../../Nodes/ASTExpr.h"
+#include "../../../Nodes/ASTVarDeclStmt.h"
+#include "../../IVisitor.h"
 
-#include "../../Nodes/ASTExpr.h"
-#include "../../Nodes/ASTVarDeclStmt.h"
-
-#include "../../Visitor/IVisitor.h"
 #include <tuple>		// Pair
 #include <climits>		// Variable limits
 #include <cmath>		// C++ math operations
