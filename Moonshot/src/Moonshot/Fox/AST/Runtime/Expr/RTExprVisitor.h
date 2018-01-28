@@ -72,6 +72,14 @@ namespace Moonshot
 
 			// This function calls castTo, but if the FVal is a varRef, it dereferences it once before proceeding.
 			FVal castTo_withDeref(const std::size_t& goal, FVal val);
+
+			//Visit & get result
+			template<typename VISITABLE>
+			FVal visitAndGetResult(VISITABLE& node)
+			{
+				node->accept(*this);
+				return value_;
+			}
 	};
 
 }

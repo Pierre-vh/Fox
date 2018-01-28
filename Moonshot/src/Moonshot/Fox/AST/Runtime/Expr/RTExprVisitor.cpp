@@ -36,10 +36,8 @@ void RTExprVisitor::visit(ASTExpr & node)
 	{
 		if (node.left_ && node.right_)
 		{
-			node.left_->accept(*this);
-			auto leftval = value_;
-			node.right_->accept(*this);
-			auto rightval = value_;
+			auto leftval = visitAndGetResult(node.left_);
+			auto rightval = visitAndGetResult(node.right_);
 			
 			if (std::holds_alternative<std::string>(leftval) &&
 				std::holds_alternative<std::string>(rightval))
@@ -62,10 +60,8 @@ void RTExprVisitor::visit(ASTExpr & node)
 	{
 		if (isSymbolsTableAvailable())
 		{
-			node.left_->accept(*this);
-			auto left_res = value_;
-			node.right_->accept(*this);
-			auto right_res = value_;
+			auto left_res = visitAndGetResult(node.left_);
+			auto right_res = visitAndGetResult(node.right_);
 			if (std::holds_alternative<var::varRef>(left_res) && isValue(right_res.index()))
 			{
 				symtab_->setValue(
@@ -83,23 +79,24 @@ void RTExprVisitor::visit(ASTExpr & node)
 	}
 	else if (node.op_ == operation::CAST)
 	{
-		node.left_->accept(*this);
-		value_ = castTo_withDeref(node.totype_, value_);
+		value_ = castTo_withDeref(node.totype_, visitAndGetResult(node.left_));
 		return;
 	}
 	else if (node.op_ == operation::PASS)
 	{
 		if (!node.left_)
 			throw Exceptions::ast_malformation("Tried to pass a value to parent node, but the node did not have a left_ child.");
-		else 
-			return node.left_->accept(*this);
+		else
+		{
+			node.left_->accept(*this);
+			return;
+		}
 	}
 	else if (node.op_ == operation::ASSIGN)
 	{
 		if (isSymbolsTableAvailable())
 		{
-			node.left_->accept(*this);
-			auto vattr = value_;
+			auto vattr = visitAndGetResult(node.left_);
 			if (std::holds_alternative<var::varRef>(vattr))
 			{
 				// Perform assignement
@@ -119,10 +116,8 @@ void RTExprVisitor::visit(ASTExpr & node)
 		if (!node.left_ || !node.right_)
 			throw Exceptions::ast_malformation("Attempted to run a comparison operation on a node without 2 children");
 
-		node.left_->accept(*this);
-		const FVal lfval = value_;
-		node.right_->accept(*this);
-		const FVal rfval = value_;
+		const FVal lfval = visitAndGetResult(node.left_);
+		const FVal rfval = visitAndGetResult(node.right_);
 		if (std::holds_alternative<std::string>(lfval) && std::holds_alternative<std::string>(rfval)) // lhs/rhs str?
 		{
 			if (lfval.index() == rfval.index()) // if so, lhs/rhs must both be strings to compare them.
@@ -145,10 +140,8 @@ void RTExprVisitor::visit(ASTExpr & node)
 		}
 		else
 		{
-			node.left_->accept(*this);
-			double dleftval = fvalToDouble_withDeref(value_);
-			node.right_->accept(*this);
-			double drightval = fvalToDouble_withDeref(value_);
+			double dleftval = fvalToDouble_withDeref(visitAndGetResult(node.left_));
+			double drightval = fvalToDouble_withDeref(visitAndGetResult(node.right_));
 			//std::cout << "Compare: Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			value_ = FVal(compareVal(
 				node.op_,
@@ -161,8 +154,7 @@ void RTExprVisitor::visit(ASTExpr & node)
 	}
 	else if (node.op_ == operation::LOGICNOT || node.op_ == operation::NEGATE)
 	{
-		node.left_->accept(*this);
-		double lval = fvalToDouble_withDeref(value_);
+		double lval = fvalToDouble_withDeref(visitAndGetResult(node.left_));
 		if (node.op_ == operation::LOGICNOT)
 		{
 			value_ = FVal(
@@ -182,10 +174,8 @@ void RTExprVisitor::visit(ASTExpr & node)
 		if (!node.left_ || !node.right_)
 			throw Exceptions::ast_malformation("Tried to perform an operation on a node without a left_ and/or right child.");
 
-		node.left_->accept(*this);
-		const double dleftval = fvalToDouble_withDeref(value_);
-		node.right_->accept(*this);
-		const double drightval = fvalToDouble_withDeref(value_);
+		const double dleftval = fvalToDouble_withDeref(visitAndGetResult(node.left_));
+		const double drightval = fvalToDouble_withDeref(visitAndGetResult(node.right_));
 		//std::cout << "Op: " << util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 		const double result = performOp(node.op_, dleftval, drightval);
 
