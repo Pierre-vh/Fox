@@ -34,7 +34,7 @@ void TypeCheckVisitor::visit(ASTExpr & node)
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
 		return;
 	//// SET CUROP
-	curop_ = node.op_;
+	node_ctxt_.op = node.op_;
 	//////////////////////////////////
 	/////NODES WITH 2 CHILDREN////////
 	//////////////////////////////////
@@ -49,7 +49,7 @@ void TypeCheckVisitor::visit(ASTExpr & node)
 		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right)  && (node.op_ == operation::ADD))
 			node.op_ = operation::CONCAT;
 		// CHECK VALIDITY OF EXPRESSION
-		rtr_type_ = getExprResultType(
+		value_ = getExprResultType(
 				node.op_
 			,	left		
 			,	right
@@ -67,10 +67,10 @@ void TypeCheckVisitor::visit(ASTExpr & node)
 			if (!canCastTo(node.totype_, result))
 			{
 				context_.reportError("Can't perform cast : " + indexToTypeName(result) + " to " + indexToTypeName(node.totype_));
-				rtr_type_ = invalid_index;
+				value_ = invalid_index;
 			}
 			else
-				rtr_type_ = node.totype_;
+				value_ = node.totype_;
 		}
 		// UNARY OPS
 		else if (isUnary(node.op_))
@@ -87,9 +87,9 @@ void TypeCheckVisitor::visit(ASTExpr & node)
 			}
 			// SPECIAL CASES : (LOGICNOT)(NEGATE ON BOOLEANS)
 			if (node.op_ == operation::LOGICNOT)
-				rtr_type_ = fval_bool; // Return type is a boolean
-			else if ((node.op_ == operation::NEGATE) && fval_traits<bool>::isEqualTo(rtr_type_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
-				rtr_type_ = fval_int;
+				value_ = fval_bool; // Return type is a boolean
+			else if ((node.op_ == operation::NEGATE) && fval_traits<bool>::isEqualTo(value_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+				value_ = fval_int;
 		}
 		else
 			throw Exceptions::ast_malformation("A Node only had a left_ child, and wasn't a unary op.");
@@ -103,7 +103,7 @@ void TypeCheckVisitor::visit(ASTExpr & node)
 		// getting in this branch means that we only have a right_ node.
 		throw Exceptions::ast_malformation("Node was in an invalid state.");
 	}
-	node.totype_ = rtr_type_;
+	node.totype_ = value_;
 
 	if (!isBasic(node.totype_) && context_.isSafe())
 	{
@@ -116,7 +116,7 @@ void TypeCheckVisitor::visit(ASTExpr & node)
 
 void TypeCheckVisitor::visit(ASTLiteral & node)
 {
-	rtr_type_ = node.val_.index();		// Just put the value in rtr->type.
+	value_ = node.val_.index();		// Just put the value in rtr->type.
 }
 
 void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
@@ -146,13 +146,13 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 void TypeCheckVisitor::visit(ASTVarCall & node)
 {
 	auto searchResult = symtable_.retrieveVarAttr(node.varname_);
-	if ((curdir_ == dir::LEFT) && (curop_ == operation::ASSIGN) && searchResult.isConst)
+	if ((node_ctxt_.dir == dir::LEFT) && (node_ctxt_.op == operation::ASSIGN) && searchResult.isConst)
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name + "\"");
-		rtr_type_ = invalid_index;
+		value_ = invalid_index;
 	}
 	else 
-		rtr_type_ =  searchResult.type; // The error will be thrown by the symbols table itself if the value doesn't exist.
+		value_ =  searchResult.type; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
 bool TypeCheckVisitor::shouldOpReturnFloat(const operation & op) const

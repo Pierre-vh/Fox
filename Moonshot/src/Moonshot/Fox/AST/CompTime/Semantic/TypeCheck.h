@@ -31,7 +31,7 @@
 
 namespace Moonshot
 {
-	class TypeCheckVisitor : public IVisitor
+	class TypeCheckVisitor : public ITypedVisitor<std::size_t> // size_t because we return indexes in FVal to represent types.
 	{
 		public:
 			TypeCheckVisitor(Context& c,const bool& testmode = false);
@@ -48,24 +48,25 @@ namespace Moonshot
 		private:
 			// Context
 			Context& context_;
+
+			// Utiliser un template aussi pour *this?
 			template<typename T>
 			inline std::size_t visitAndGetResult(std::unique_ptr<T>& node,const dir& dir = dir::UNKNOWNDIR)
 			{
-				// curdir is a variable that's there to help some function behave. Like
-				// the ASTVarcall function overload that can use this to check if the variable is the subject of an assignement!
-				curdir_ = dir;
+				node_ctxt_.dir = dir;
 				node->accept(*this);
-				curdir_ = dir::UNKNOWNDIR; 
-				return rtr_type_;
+				node_ctxt_.dir = dir::UNKNOWNDIR;
+				return value_;
 			}
 
 			bool shouldOpReturnFloat(const operation& op) const; // used for operations that return float instead of normal values
-
-			operation curop_;
-			dir curdir_;
-			std::size_t rtr_type_; // Last returned type from visiting node (held here, because visit doesn't return anything :( )
 			std::size_t getExprResultType(const operation& op, std::size_t& lhs, const std::size_t& rhs);
 
+			struct nodecontext
+			{
+				dir dir;
+				operation op;
+			} node_ctxt_;
 	};
 
 }
