@@ -53,7 +53,7 @@ bool SymbolsTable::setValue(const std::string & varname, const FVal & newVal)
 void SymbolsTable::dumpSymbolsTable() const
 {
 	std::stringstream out;
-	out << "Dumping symbols table..." << std::endl;
+	out << "Dumping symbols table...\n";
 	for (auto& elem : sym_table_)
 	{
 		out << "NAME: " << elem.first.name << " TYPE: " << fv_util::indexToTypeName(elem.first.type) << " ---> VALUE: " << fv_util::dumpFVal(elem.second) << std::endl;
@@ -92,7 +92,7 @@ bool SymbolsTable::symtable_setEntry(const std::string & vname,const FVal& vvalu
 			{
 				std::stringstream out;
 				out << "Implicit cast : Attempted to store a " << fv_util::indexToTypeName(vvalue.index()) << " into the variable ";
-				out << vname << " (of type " << fv_util::indexToTypeName(it->first.type) << ")" << std::endl;
+				out << vname << " (of type " << fv_util::indexToTypeName(it->first.type) << ")\n";
 				out << "Attempting cast to the desired type...";
 				context_.logMessage(out.str());
 			}

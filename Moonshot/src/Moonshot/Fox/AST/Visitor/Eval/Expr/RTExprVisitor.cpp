@@ -173,16 +173,25 @@ void RTExprVisitor::visit(ASTExpr & node)
 	{
 		if (!node.left_ || !node.right_)
 			throw Exceptions::ast_malformation("Tried to perform an operation on a node without a left_ and/or right child.");
-
-		const double dleftval = fvalToDouble_withDeref(visitAndGetResult(node.left_,*this));
-		const double drightval = fvalToDouble_withDeref(visitAndGetResult(node.right_,*this));
-		//std::cout << "Op: " << util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
-		const double result = performOp(node.op_, dleftval, drightval);
-
-		if (fitsInValue(node.totype_, result) || (node.op_ == operation::CAST)) // If the results fits or we desire to cast the result
-			value_ = castTo(context_,node.totype_, result);		// Cast to result type
+		auto left_res = visitAndGetResult(node.left_, *this);
+		auto right_res = visitAndGetResult(node.right_, *this);
+		// Check if we have a string somewhere.
+		if (std::holds_alternative<std::string>(left_res) || std::holds_alternative<std::string>(right_res))
+		{
+			context_.reportError("Can't perform an arithmetic operation on a string and an arithmetic type.");
+		}
 		else
-			value_ = castTo(context_,fval_float, result);	// Cast to float instead to keep information from being lost.
+		{
+			const double dleftval = fvalToDouble_withDeref(left_res);
+			const double drightval = fvalToDouble_withDeref(right_res);
+			//std::cout << "Op: " << util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
+			const double result = performOp(node.op_, dleftval, drightval);
+
+			if (fitsInValue(node.totype_, result) || (node.op_ == operation::CAST)) // If the results fits or we desire to cast the result
+				value_ = castTo(context_, node.totype_, result);		// Cast to result type
+			else
+				value_ = castTo(context_, fval_float, result);	// Cast to float instead to keep information from being lost.
+		}
 		return;
 	}
 	value_ = FVal();
@@ -338,7 +347,6 @@ double RTExprVisitor::performOp(const operation& op,double l,double r)
 
 bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 {
-	
 	switch (typ)
 	{
 		case fval_bool:
@@ -354,7 +362,7 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 				return false;
 			return true;
 		case invalid_index:
-			throw std::logic_error("Index was invalid");
+		    throw std::logic_error("Index was invalid");
 			return false;
 		default:
 			if (!isBasic(typ))

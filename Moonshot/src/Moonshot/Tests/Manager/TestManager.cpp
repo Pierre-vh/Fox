@@ -44,21 +44,21 @@ void TestManager::runTests(const bool& displayContextLog)
 	std::cout << spacer_slim << std::endl;
 	context_.setLoggingMode(ContextLoggingMode::SAVE_TO_VECTOR);
 	bool failflag = false;
-	std::cout << "TestManager : Running tests..." << std::endl;
+	std::cout << "TestManager : Running tests...\n";
 	std::cout << spacer_large << std::endl;
 	for (auto& elem : tests_)
 	{
-		std::cout << "[" << elem->getTestName() << "]" << std::endl;
+		std::cout << "[" << elem->getTestName() << "]\n";
 		if (elem->runTest(context_))
-			std::cout << "\tTest SUCCESSFUL" << std::endl;
+			std::cout << "\tTest SUCCESSFUL\n";
 		else
 		{
-			std::cout << "\tTest FAILED" << std::endl;
+			std::cout << "\tTest FAILED\n";
 			failflag = true;
 		}
 		if (displayContextLog && failflag)
 		{
-			std::cout << std::endl << "Context log for this test:" << std::endl;
+			std::cout << std::endl << "Context log for this test:\n";
 			context_.printLogs();
 			break;
 		}

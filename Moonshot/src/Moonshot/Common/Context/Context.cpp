@@ -48,7 +48,16 @@ void Context::reportError(const std::string & message)
 		makeLogMessage("ERROR",message)
 	);
 	// update state
-	curstate_ = ContextState::ERROR;
+	curstate_ = ContextState::UNSAFE;
+}
+
+void Context::reportFatalError(const std::string & message)
+{
+	addLog(
+		makeLogMessage("FATAL", message)
+	);
+	// update state
+	curstate_ = ContextState::CRITICAL;
 }
 
 ContextState Context::getState() const
@@ -58,7 +67,7 @@ ContextState Context::getState() const
 
 void Context::resetState()
 {
-	curstate_ = ContextState::GOOD;
+	curstate_ = ContextState::SAFE;
 	//logs_.push_back("[Context] The context's state has been reset.");
 }
 

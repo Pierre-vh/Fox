@@ -32,7 +32,7 @@ bool ExprTests::runTest(Context & context)
 	auto bad_test = readFileToVec(context, "res\\tests\\expr\\expr_bad.fox");
 	FAILED_RETURN_IF_ERR__SILENT;
 	// RUN CORRECT TESTS
-	std::cout << std::endl << "Part 1 : Correct tests :" << std::endl;
+	std::cout << std::endl << "Part 1 : Correct tests :\n";
 	for (auto& elem : correct_test)
 	{
 
@@ -50,7 +50,7 @@ bool ExprTests::runTest(Context & context)
 		root->accept(TypeCheckVisitor(context,true));
 		FAILED_RETURN_IF_ERR("typechecking");
 
-		if (context.options.getAttr(OptionsList::EXPRTEST_printAST).value_or(false).get<bool>())
+		if (context.options.getAttr(OptionsList::exprtest_printAST).value_or(false).get<bool>())
 			root->accept(Dumper());
 
 		RTExprVisitor evaluator(context);
@@ -63,7 +63,7 @@ bool ExprTests::runTest(Context & context)
 		FAILED_RETURN_IF(!std::get<bool>(result), "evaluation (result was false)");
 	}
 	// RUN INCORRECT TESTS
-	std::cout << std::endl << "Part 2 : Incorrect tests :" << std::endl;
+	std::cout << std::endl << "Part 2 : Incorrect tests :\n";
 	for (auto& elem : bad_test)
 	{
 		context.clearLogs();
@@ -73,7 +73,7 @@ bool ExprTests::runTest(Context & context)
 		l.lexStr(elem);
 		SUCCESS_CONTINUE_IF_ERR;
 
-		 Parser p(context, l.getTokenVector());
+		Parser p(context, l.getTokenVector());
 		auto root = p.parseExpr();
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root);
@@ -88,7 +88,7 @@ bool ExprTests::runTest(Context & context)
 
 		if (context.isSafe())
 		{
-			std::cout << "\t\tTest failed (The test was meant to fail, and completed successfully.)" << std::endl;
+			std::cout << "\t\tTest failed (The test was meant to fail, and completed successfully.)\n";
 			return false;
 		}
 	}

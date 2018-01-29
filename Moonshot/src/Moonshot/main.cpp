@@ -33,15 +33,16 @@ using namespace Moonshot;
 */
 int main()
 {
-	// Currently there's a problem : the windows console stops displaying when you try
-	// to print UTF8 chars. find a solution ! :(
+	// Currently there's a problem : the windows console stops displaying when you try to print UTF8 chars. find a solution ! :(
 	//SetConsoleOutputCP(65001);
 
+	std::ios_base::sync_with_stdio(false); // We don't use printf, so we don't need to sync with stdio (CppCoreGuidelines SL.io.10)
 	Context context;
+	context.options.addAttr(OptionsList::exprtest_printAST,false);
 	TestManager ts(context);
 	ts.addDefaultTests();
 	ts.runTests(true);
-	std::cout << "Finished. Press any key to continue." << std::endl;
+	std::cout << "Finished. Press any key to continue.\n";
 	std::cin.get();
 	return 0;
 }

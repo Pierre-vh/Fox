@@ -20,7 +20,7 @@ std::pair<bool, FVal> Moonshot::castTypeTo(Context& context_, const GOAL& type, 
 	else if constexpr (isGOALstr != isVALstr) // One of them is a string and the other isn't.
 	{
 		std::stringstream output;
-		output << "Can't convert a string to an arithmetic type and vice versa." << std::endl;
+		output << "Can't convert a string to an arithmetic type and vice versa.\n";
 		context_.reportError(output.str());
 		return { false, FVal() };
 	}

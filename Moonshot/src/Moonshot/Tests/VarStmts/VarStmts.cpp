@@ -24,7 +24,7 @@ bool VarStmts::runTest(Context & context)
 	auto bad_test = readFileToVec(context, "res\\tests\\varstmts\\varstmts_bad.fox");
 	FAILED_RETURN_IF_ERR__SILENT;
 	// RUN CORRECT TESTS
-	std::cout << std::endl << "Part 1 : Correct tests :" << std::endl;
+	std::cout << std::endl << "Part 1 : Correct tests :\n";
 	TypeCheckVisitor tc_good(context); // shared typechecker to keep the symtab
 
 	auto symtab = std::make_shared<SymbolsTable>(context);
@@ -56,7 +56,7 @@ bool VarStmts::runTest(Context & context)
 	// RUN INCORRECT TESTS
 	TypeCheckVisitor tc_bad(context);
 	RTStmtVisitor rt_bad(context);
-	std::cout << std::endl << "Part 2 : Incorrect tests :" << std::endl;
+	std::cout << std::endl << "Part 2 : Incorrect tests :\n";
 	for (auto& elem : bad_test)
 	{
 		context.clearLogs();
@@ -80,7 +80,7 @@ bool VarStmts::runTest(Context & context)
 
 		if (context.isSafe())
 		{
-			std::cout << "\t\tTest failed (The test was meant to fail, but completed successfully.)" << std::endl;
+			std::cout << "\t\tTest failed (The test was meant to fail, but completed successfully.)\n";
 			return false;
 		}
 	}

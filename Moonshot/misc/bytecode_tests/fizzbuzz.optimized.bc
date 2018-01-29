@@ -41,5 +41,6 @@
 		callf 1
 		incrloc 0	// increments local 0
 		goto 6 // end of loop
-		returnv	// return from function, pop frame, add return value to main stack (here, none, so nothing is added)
+		const (void)
+		return	// return from function, pop frame, add return value to main stack (here, none, so nothing is added)
 				// returnv returns void.

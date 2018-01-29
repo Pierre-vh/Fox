@@ -52,7 +52,7 @@ bool Conditions::runTest(Context & context)
 		auto data = readFileToString(context,elem);
 		FAILED_RETURN_IF_ERR__SILENT;
 		FAILED_RETURN_IF(!testCondFile(context, data),elem);
-		std::cout << "\t\t\xC0 (Correct Test No " << goodcount << ") Success" << std::endl; 
+		std::cout << "\t\t\xC0 (Correct Test No " << goodcount << ") Success\n"; 
 	}
 	// bad tests
 	int badcount = 0;
@@ -65,13 +65,13 @@ bool Conditions::runTest(Context & context)
 		FAILED_RETURN_IF_ERR__SILENT;
 		if (testCondFile(context, data))
 		{
-			std::cout << "\t\t\xC0 (Bad Test No " << badcount << ") Failure (Test was successful, but should have failed.)" << std::endl;
+			std::cout << "\t\t\xC0 (Bad Test No " << badcount << ") Failure (Test was successful, but should have failed.)\n";
 			return false;
 		}
 		FAILED_RETURN_IF(testCondFile(context, data), elem);
 		if (!context.isSafe()) 
 		{ 
-			std::cout << "\t\t\xC0 (Bad Test No " << badcount << ") Success (Test Failed as Expected.)" << std::endl; 
+			std::cout << "\t\t\xC0 (Bad Test No " << badcount << ") Success (Test Failed as Expected.)\n"; 
 			continue; 
 		}
 	}

@@ -37,13 +37,13 @@
 
 #define SUCCESS_CONTINUE_IF_ERR if (!context.isSafe()) \
 								{ \
-									std::cout << "\t\t\xC0 Success (Test Failed as Expected.)" << std::endl; \
+									std::cout << "\t\t\xC0 Success (Test Failed as Expected.)\n"; \
 									continue; \
 								}
 
 #define SUCCESS_CONTINUE_IF(x)		if (x) \
 									{ \
-										std::cout << "\t\t\xC0 Success (Test Failed as Expected.)" << std::endl; \
+										std::cout << "\t\t\xC0 Success (Test Failed as Expected.)\n"; \
 										continue; \
 									}
 namespace Moonshot

@@ -33,7 +33,7 @@ bool ExprStmtTest::runTest(Context & context)
 	auto bad_test = readFileToVec(context, "res\\tests\\exprstmt\\exprstmt_bad.fox");
 	FAILED_RETURN_IF_ERR__SILENT;
 	// RUN CORRECT TESTS
-	std::cout << std::endl << "Part 1 : Correct tests :" << std::endl;
+	std::cout << std::endl << "Part 1 : Correct tests :\n";
 	for (auto& elem : correct_test)
 	{
 		std::cout << "\t\xAF Expression :" << elem << std::endl;
@@ -55,7 +55,7 @@ bool ExprStmtTest::runTest(Context & context)
 		std::cout << "\t\t\xC0 Result: " << fv_util::dumpFVal(result) << std::endl;
 	}
 	// RUN INCORRECT TESTS
-	std::cout << std::endl << "Part 2 : Incorrect tests :" << std::endl;
+	std::cout << std::endl << "Part 2 : Incorrect tests :\n";
 	for (auto& elem : bad_test)
 	{
 		context.clearLogs();
@@ -81,7 +81,7 @@ bool ExprStmtTest::runTest(Context & context)
 
 		if (context.isSafe())
 		{
-			std::cout << "\t\tTest failed (The test was meant to fail, and completed successfully.)" << std::endl;
+			std::cout << "\t\tTest failed (The test was meant to fail, and completed successfully.)\n";
 			return false;
 		}
 	}

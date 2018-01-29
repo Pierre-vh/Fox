@@ -14,7 +14,7 @@ using namespace fv_util;
 
 Dumper::Dumper()
 {
-	//std::cout << "Visitor \"Dumper\" Initialized. Dumping tree:" << std::endl;
+	//std::cout << "Visitor \"Dumper\" Initialized. Dumping tree:\n";
 }
 
 Dumper::~Dumper()
@@ -37,7 +37,7 @@ void Dumper::visit(ASTExpr & node)
 	if (node.left_)
 	{
 		tabcount++;
-		std::cout << tabs() << "Left child:" << std::endl;
+		std::cout << tabs() << "Left child:\n";
 		tabcount++;
 		node.left_->accept(*this);
 		tabcount -= 2;
@@ -45,7 +45,7 @@ void Dumper::visit(ASTExpr & node)
 	if (node.right_)
 	{
 		tabcount++;
-		std::cout << tabs() << "Right child:" << std::endl;
+		std::cout << tabs() << "Right child:\n";
 		tabcount++;
 		node.right_->accept(*this);
 		tabcount -= 2;
@@ -54,7 +54,7 @@ void Dumper::visit(ASTExpr & node)
 
 void Dumper::visit(ASTLiteral & node)
 {
-	std::cout << tabs() << "Literal: " << dumpFVal(node.val_) << std::endl;
+	std::cout << tabs() << "Literal: " << dumpFVal(node.val_) << '\n';
 }
 
 void Dumper::visit(ASTVarDeclStmt & node)
@@ -63,7 +63,7 @@ void Dumper::visit(ASTVarDeclStmt & node)
 	if (node.initExpr_)
 	{
 		tabcount += 1;
-		std::cout << tabs() << "InitExpr" << std::endl;
+		std::cout << tabs() << "InitExpr\n";
 		tabcount += 1;
 		node.initExpr_->accept(*this);
 		tabcount -= 2;
@@ -77,7 +77,7 @@ void Dumper::visit(ASTVarCall & node)
 
 void Dumper::visit(ASTCompStmt & node)
 {
-	std::cout << tabs() << "Compound Statement (Contains " << node.statements_.size() << " statements)" << std::endl;
+	std::cout << tabs() << "Compound Statement (Contains " << node.statements_.size() << " statements)\n";
 
 	tabcount += 1;
 
@@ -89,7 +89,7 @@ void Dumper::visit(ASTCompStmt & node)
 
 void Dumper::visit(ASTCondition & node)
 {
-	std::cout << tabs() << "Condition Branch" << std::endl;
+	std::cout << tabs() << "Condition Branch\n";
 	int counter = 0;
 	// (else) ifs
 	for (auto& elem : node.conditional_blocks_)
@@ -98,12 +98,12 @@ void Dumper::visit(ASTCondition & node)
 		std::cout << tabs() << "Condition " << counter << std::endl;
 		tabcount++;
 
-		std::cout << tabs() << "Condition Expression:" << std::endl;
+		std::cout << tabs() << "Condition Expression:\n";
 		tabcount++;
 		elem.first->accept(*this);
 		tabcount--;
 
-		std::cout << tabs() << "Condition Body:" << std::endl;
+		std::cout << tabs() << "Condition Body:\n";
 
 		tabcount++;
 		elem.second->accept(*this);
@@ -115,7 +115,7 @@ void Dumper::visit(ASTCondition & node)
 	if (node.else_block_)
 	{
 		tabcount++;
-		std::cout << tabs() << "\"Else\" Body:" << std::endl;
+		std::cout << tabs() << "\"Else\" Body:\n";
 		tabcount++;
 		node.else_block_->accept(*this);
 		tabcount -= 2;
@@ -125,9 +125,9 @@ void Dumper::visit(ASTCondition & node)
 std::string Dumper::tabs() const
 {
 	std::string i;
-	for (unsigned int k(0); k < tabcount; k++)
+	for (unsigned char k(0); k < tabcount; k++)
 		i += '\t';
-	if (tabcount > 1)
+	if (tabcount > base_tabs_)
 		i += '\xC0';
 	return i;
 }

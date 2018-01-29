@@ -7,9 +7,9 @@
 // This class declares a "Context" class used to track the current state of the interpreter, along with
 // other parameters !
 //
-// GOOD -> No Warning and No Errors
+// SAFE -> No Warning and No Errors
 // WARNING -> Must be used for errors that do not perturbate the interpretation process.
-// ERROR -> Used for normal errors. e.g. "Undeclared variable x",etc..
+// UNSAFE -> Used for normal errors. e.g. "Undeclared variable x",etc..
 //
 // This class also uses OptionsManager to store options.
 ////------------------------------------------------------////
@@ -24,13 +24,18 @@
 
 #include "Options\OptionsManager.h" 
 
+// This is used to define the maximum errors you can have before the context goes critical.
+// Can be changed @ runtime with
+#define DEFAULT_MAX_TOLERATED_ERRORS 4
+
 namespace Moonshot
 {
 	enum class ContextState
 	{
-		GOOD,
+		SAFE,
 		WARNING,
-		ERROR
+		UNSAFE,
+		CRITICAL
 	};
 	enum class ContextLoggingMode
 	{
@@ -50,13 +55,14 @@ namespace Moonshot
 
 			void setLoggingMode(const ContextLoggingMode& newmode); // set mode : direct print to cout (default) or save to a vector.
 			
-			// logs are of the following form : [LOG/WARNING/ERROR][ORIGIN] Message
+			// logs are of the following form : [LOG/WARNING/UNSAFE][ORIGIN] Message
 			void setOrigin(const std::string& origin);
 			void resetOrigin();
 
 			void logMessage(const std::string& message);
 			void reportWarning(const std::string& message);
 			void reportError(const std::string& message);
+			void reportFatalError(const std::string& message);
 
 			ContextState getState() const;
 			void resetState();
@@ -69,13 +75,17 @@ namespace Moonshot
 			void clearLogs();
 
 			// Inline functions : isSafe
+			inline bool isCritical() const
+			{
+				return curstate_ == ContextState::CRITICAL;
+			}
 			inline bool isSafe_strict() const
 			{
-				return curstate_ == ContextState::GOOD;
+				return curstate_ == ContextState::SAFE;
 			}
 			inline bool isSafe() const
 			{
-				return (curstate_ == ContextState::GOOD) || (curstate_ == ContextState::WARNING);
+				return (curstate_ == ContextState::SAFE) || (curstate_ == ContextState::WARNING);
 			}
 
 			OptionsManager options; // The options manager.
@@ -92,9 +102,8 @@ namespace Moonshot
 			std::vector<std::string> logs_;
 
 			ContextLoggingMode curmode_ = ContextLoggingMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR;
-			ContextState curstate_ = ContextState::GOOD;
+			ContextState curstate_ = ContextState::SAFE;
 			ContextBuildMode curbuildmode_ = ContextBuildMode::DEBUG;
-
 	};
 }
 

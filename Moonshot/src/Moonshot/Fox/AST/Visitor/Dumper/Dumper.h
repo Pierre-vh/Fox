@@ -20,8 +20,6 @@
 #include "../../Nodes/ASTCompStmt.h"
 #include "../../Nodes/ASTCondition.h"
 
-#include <Windows.h>
-
 namespace Moonshot
 {
 	class Dumper : public IVisitor
@@ -37,8 +35,10 @@ namespace Moonshot
 			virtual void visit(ASTCompStmt & node) override;
 			virtual void visit(ASTCondition & node) override;
 		private:
+			static constexpr unsigned char base_tabs_ = 1; // set this number to a higher value to have a offset when dumping ast
+
 			std::string tabs() const;
-			unsigned int tabcount = 1;
+			unsigned char tabcount = base_tabs_; 
 	};
 }
 

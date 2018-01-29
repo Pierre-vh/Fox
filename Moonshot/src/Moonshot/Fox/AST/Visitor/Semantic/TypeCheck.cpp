@@ -95,7 +95,7 @@ void TypeCheckVisitor::visit(ASTExpr & node)
 			throw Exceptions::ast_malformation("A Node only had a left_ child, and wasn't a unary op.");
 	}
 	//////////////////////////////////
-	/////ERROR CASES//////////////////
+	/////UNSAFE CASES//////////////////
 	//////////////////////////////////
 	else
 	{
