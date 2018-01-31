@@ -30,8 +30,7 @@ namespace Moonshot::var
 }
 
 // Alias for a variant holding every type possible in the interpreter.
-struct NullType{};
-typedef std::variant<NullType,int, float, char, std::string, bool, Moonshot::var::varRef> FVal;
+typedef std::variant<std::monostate,int, float, char, std::string, bool, Moonshot::var::varRef> FVal;
 
 namespace Moonshot
 {
@@ -52,7 +51,7 @@ namespace Moonshot
 		
 			constexpr static inline bool isEqualTo(const std::size_t& index) // Checks if T represent the same type as index
 			{
-				if constexpr(std::is_same<T, NullType>::value)
+				if constexpr(std::is_same<T, std::monostate>::value)
 					return index == fval_null;
 				else if constexpr(std::is_same<T, int>::value)
 					return index == fval_int;

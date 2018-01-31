@@ -14,7 +14,7 @@ using namespace Moonshot;
 std::string fv_util::dumpFVal(const FVal & var)
 {
 	std::stringstream output;
-	if (std::holds_alternative<NullType>(var))
+	if (std::holds_alternative<std::monostate>(var))
 		output << "Type : VOID (null)";
 	else if (std::holds_alternative<var::varRef>(var))
 	{
