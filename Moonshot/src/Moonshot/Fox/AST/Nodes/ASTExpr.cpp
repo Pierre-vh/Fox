@@ -61,7 +61,7 @@ std::unique_ptr<ASTExpr> ASTExpr::getSimple()
 		auto ret = std::move(left_);
 		return ret;
 	}
-	return std::unique_ptr<ASTExpr>(nullptr);
+	return nullptr;
 }
 
 void ASTExpr::accept(IVisitor& vis)
