@@ -23,6 +23,7 @@
 #include "../VarStmts/VarStmts.h"
 #include "../CompoundStatement/CompoundStatements.h"
 #include "../Condition/Conditions.h"
+#include "../WhileLoop/WhileLoop.h"
 
 namespace Moonshot
 {

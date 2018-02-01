@@ -19,13 +19,14 @@
 #include "../../Nodes//ASTVarDeclStmt.h"
 #include "../../Nodes/ASTCompStmt.h"
 #include "../../Nodes/ASTCondition.h"
+#include "../../Nodes/ASTWhileLoop.h"
 
 namespace Moonshot
 {
 	class Dumper : public IVisitor
 	{
 		public:
-			Dumper();
+			Dumper() = default;
 			~Dumper();
 
 			virtual void visit(ASTExpr & node) override;
@@ -34,6 +35,7 @@ namespace Moonshot
 			virtual void visit(ASTVarCall & node) override;
 			virtual void visit(ASTCompStmt & node) override;
 			virtual void visit(ASTCondition & node) override;
+			virtual void visit(ASTWhileLoop & node) override;
 		private:
 			static constexpr unsigned char base_tabs_ = 1; // set this number to a higher value to have a offset when dumping ast
 

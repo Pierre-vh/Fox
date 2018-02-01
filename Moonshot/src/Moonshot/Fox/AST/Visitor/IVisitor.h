@@ -19,16 +19,20 @@
 #include "../../../Common/Utils/Utils.h"
 #include "../../../Common/Types/Types.h"
 
-#include "../Nodes/NodesForwardDeclaration.h"
-
-
 namespace Moonshot
 {
-	NODE_FORWARD_DECLARATION
+	struct ASTExpr; 
+	struct ASTLiteral; 
+	struct ASTVarDeclStmt; 
+	struct ASTVarCall; 
+	struct ASTCompStmt; 
+	struct ASTCondition;
+	struct ASTWhileLoop;
+
 	class IVisitor
 	{
 		public:
-			virtual ~IVisitor() = 0;
+			inline virtual ~IVisitor() = 0						{}
 
 			inline virtual void visit(ASTExpr &node)			{}
 			inline virtual void visit(ASTLiteral &node)			{}
@@ -38,6 +42,7 @@ namespace Moonshot
 
 			inline virtual void visit(ASTCompStmt& node)		{}
 			inline virtual void visit(ASTCondition& node)		{}
+			inline virtual void visit(ASTWhileLoop& node)		{}
 	};
 
 	template<typename TYPE>

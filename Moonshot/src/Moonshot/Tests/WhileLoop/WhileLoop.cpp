@@ -1,53 +1,48 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : Conditions.cpp											
+// File : WhileLoop.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Conditions.h"
+#include "WhileLoop.h"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;
 
-Conditions::~Conditions()
+WhileLoop::~WhileLoop()
 {
 }
 
-std::string Conditions::getTestName() const
+std::string WhileLoop::getTestName() const
 {
-	return "Conditions (if/else if/else)";
+	return "While Loops";
 }
 
-bool Conditions::runTest(Context & context)
+bool WhileLoop::runTest(Context & context)
 {
 	std::vector<std::string> good_tests_fp =
 	{
-		"res\\tests\\conditions\\correct\\condition_1.fox",
-		"res\\tests\\conditions\\correct\\condition_2.fox",
-		"res\\tests\\conditions\\correct\\condition_3.fox",
-		"res\\tests\\conditions\\correct\\condition_4.fox",
-		"res\\tests\\conditions\\correct\\condition_5.fox"
+		"res\\tests\\whileloop\\correct\\while_loop_1.fox",
+		"res\\tests\\whileloop\\correct\\while_loop_2.fox",
 	};
 	std::vector<std::string> bad_tests_fp =
 	{
-		"res\\tests\\conditions\\bad\\condition_1.fox",
-		"res\\tests\\conditions\\bad\\condition_2.fox",
-		"res\\tests\\conditions\\bad\\condition_3.fox",
-		"res\\tests\\conditions\\bad\\condition_4.fox",
-		"res\\tests\\conditions\\bad\\condition_5.fox"
+		"res\\tests\\whileloop\\bad\\while_loop_1.fox",
+		"res\\tests\\whileloop\\bad\\while_loop_2.fox",
+		"res\\tests\\whileloop\\bad\\while_loop_3.fox",
 	};
 	// good tests
 	int goodcount = 0;
 	for (auto& elem : good_tests_fp)
 	{
 		goodcount++;
-		auto data = readFileToString(context,elem);
+		auto data = readFileToString(context, elem);
 		FAILED_RETURN_IF_ERR__SILENT;
-		FAILED_RETURN_IF(!testCond(context, data),elem);
-		std::cout << "\t\t\xC0 (Correct Test No " << goodcount << ") Success\n"; 
+		FAILED_RETURN_IF(!testWhileLoop(context, data), elem);
+		std::cout << "\t\t\xC0 (Correct Test No " << goodcount << ") Success\n";
 	}
 	// bad tests
 	int badcount = 0;
@@ -58,21 +53,21 @@ bool Conditions::runTest(Context & context)
 		context.resetState();
 		auto data = readFileToString(context, elem);
 		FAILED_RETURN_IF_ERR__SILENT;
-		if (testCond(context, data))
+		if (testWhileLoop(context, data))
 		{
 			std::cout << "\t\t\xC0 (Bad Test No " << badcount << ") Failure (Test was successful, but should have failed.)\n";
 			return false;
 		}
-		else 
-		{ 
-			std::cout << "\t\t\xC0 (Bad Test No " << badcount << ") Success (Test Failed as Expected.)\n"; 
-			continue; 
+		else
+		{
+			std::cout << "\t\t\xC0 (Bad Test No " << badcount << ") Success (Test Failed as Expected.)\n";
+			continue;
 		}
 	}
 	return true;
 }
 
-bool Conditions::testCond(Context & context, const std::string& str)
+bool WhileLoop::testWhileLoop(Context & context, const std::string & str)
 {
 	context.clearLogs();
 	context.resetState();
@@ -80,7 +75,7 @@ bool Conditions::testCond(Context & context, const std::string& str)
 	lex.lexStr(str);
 	FAILED_RETURN_IF_ERR__SILENT;
 	Parser parser(context, lex.getTokenVector());
-	auto node = parser.parseCondition();
+	auto node = parser.parseWhileLoop();
 	FAILED_RETURN_IF_ERR__SILENT;
 	if (!node) return false;
 	node->accept(Dumper());

@@ -10,6 +10,7 @@ Fox Grammar version 1.4.1
 	Same for includes, they're useless now, really.
 1.4.1 : <block> renamed to <compound_statement> for readability's sake. Using custom names has no benefits and is a bad habit i'm trying to ditch.
 1.4.2 : <return> : <expr> is now optional (to allow "return;" in void functions)
+1.4.3 :		Deleted the <ctrl_flow> non-terminal and added | <condition> | <while_loop> to <stmt> rule.
 
 Modifications used in this grammar :
 $x means x is a term already recognized and identified by the lexer. 
@@ -36,7 +37,7 @@ you'll be greeted with an error!)
 <eoi>			= ';'									// End of instruction character. I use a separate rule for this, in case i want to modify it someday. (to use \n for instance)
 <compound_statement>			= '{' {<stmt>} '}'		// Statements delimited by curly brackets.
 				= <stmt>								// A compound_statement can also be just one statement.
-<stmt>			= <var_decl> | <expr_stmt> | <ctrl_flow>
+<stmt>			= <var_decl> | <expr_stmt> | <condition> | <while_loop>
 
 <expr_stmt>		= <expr> <eoi>
 
@@ -82,7 +83,6 @@ you'll be greeted with an error!)
 <rtr_stmt>		= <rtr_kw> [<expr>] <eoi>
 
 ##Control Flow##
-<ctrl_flow>		= <condition> | <while_loop>
 <condition>		= <if_kw> {<elif_kw>}* [<else_branch>]?		
 <if_branch>		= <if_kw> '(' <expr> ')'			<compound_statement>
 <elif_branch> 	= <el_kw> <if_kw> '(' <expr> ')' 	<compound_statement>

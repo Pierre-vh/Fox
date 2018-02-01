@@ -1,11 +1,10 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : Conditions.h											
+// File : WhileLoop.h											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// Test class for conditions (if/else if/else)
-// uses test file located in test/conditions/bad and /correct
+// Tests for While loop. Uses the test files located under /res/tests/whileloop										
 ////------------------------------------------------------////
 
 #pragma once
@@ -14,15 +13,15 @@
 
 namespace Moonshot
 {
-	class Conditions : public ITest
+	class WhileLoop : public ITest
 	{
 		public:
-			Conditions() = default;
-			~Conditions();
+			WhileLoop() = default;
+			~WhileLoop();
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;
 		private:
-			bool testCond(Context & context,const std::string& str);
+			bool testWhileLoop(Context& context, const std::string& str);
 	};
 }

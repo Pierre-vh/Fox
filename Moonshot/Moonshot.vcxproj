@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{D61E8CAA-F635-431A-AEBA-A45AEBEAD240}</ProjectGuid>
     <RootNamespace>Moonshot</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -87,6 +87,9 @@
       <SDLCheck>true</SDLCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
+    <Link>
+      <Profile>true</Profile>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -97,7 +100,11 @@
       <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\10\Include\10.0.10150.0\ucrt</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
+    <Link>
+      <Profile>true</Profile>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -111,6 +118,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -123,13 +131,16 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.cpp" />
     <ClCompile Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.cpp" />
@@ -148,7 +159,6 @@
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Eval\Expr\RTExprVisitor.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\Visitor\IVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\Types.cpp" />
@@ -164,6 +174,7 @@
     <ClCompile Include="src\Moonshot\Tests\ITest.cpp" />
     <ClCompile Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.cpp" />
     <ClCompile Include="src\Moonshot\Tests\VarStmts\VarStmts.cpp" />
+    <ClCompile Include="src\Moonshot\Tests\WhileLoop\WhileLoop.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="misc\bytecode_tests\fizzbuzz.bc" />
@@ -174,6 +185,11 @@
     <None Include="res\tests\compstmt\compstmt_correct_1.fox" />
     <None Include="res\tests\conditions\condition_correct_1.fox" />
     <None Include="res\tests\varstmts\varstmts_bad.fox" />
+    <None Include="res\tests\whileloop\bad\while_loop_1.fox" />
+    <None Include="res\tests\whileloop\bad\while_loop_2.fox" />
+    <None Include="res\tests\whileloop\bad\while_loop_3.fox" />
+    <None Include="res\tests\whileloop\correct\while_loop_1.fox" />
+    <None Include="res\tests\whileloop\correct\while_loop_2.fox" />
     <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
     <None Include="src\Moonshot\Fox\AST\Visitor\readme.md" />
@@ -186,6 +202,7 @@
     <None Include="res\tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.h" />
     <ClInclude Include="src\Moonshot\Tests\Condition\Conditions.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.h" />
     <ClInclude Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.h" />
@@ -206,7 +223,6 @@
     <ClInclude Include="src\Moonshot\Common\Symbols\Symbols.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.h" />
-    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\NodesForwardDeclaration.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Eval\Expr\RTExprVisitor.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\IVisitor.h" />
@@ -222,6 +238,7 @@
     <ClInclude Include="src\Moonshot\Tests\ITest.h" />
     <ClInclude Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.h" />
     <ClInclude Include="src\Moonshot\Tests\VarStmts\VarStmts.h" />
+    <ClInclude Include="src\Moonshot\Tests\WhileLoop\WhileLoop.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="doc\file_header.txt" />

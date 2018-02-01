@@ -15,10 +15,7 @@
 #include "../../../Common/Types/Types.h"		// FValue alias
 #include <algorithm> // swap
 #include <iostream> // std::cout for debug purposes
-#include <memory>	// std::unique_ptr
 #include <sstream> // std::stringstream
-#include <variant>	// std::variant
-#include <functional> // std:::function
 
 namespace Moonshot	
 {
@@ -50,9 +47,6 @@ namespace Moonshot
 			std::size_t totype_ = fv_util::invalid_index;	// By default, don't cast (-1). If this is different , then we must cast the result to the desired type.
 			operation op_ = operation::PASS;
 			std::unique_ptr<ASTExpr> left_, right_;
-
-		private:
-			DISALLOW_COPY_AND_ASSIGN(ASTExpr)
 	};
 	struct ASTLiteral : public ASTExpr // Stores hard coded constants. 3+3 -> 3 are Hard coded constants.
 	{
@@ -66,9 +60,6 @@ namespace Moonshot
 			// Value node holds 1 value : (inherited ones are never called and ignored.)
 			// val_ -> std::variant that holds the data of the node
 			FVal val_;
-
-		private:
-			DISALLOW_COPY_AND_ASSIGN(ASTLiteral)
 	};
 	struct ASTVarCall : public ASTExpr // Store var calls : foo+3 -> foo is a var call;
 	{
@@ -81,9 +72,6 @@ namespace Moonshot
 			
 			//The varattr, which serves as a "reference" to the variable stored.
 			std::string varname_ = "";
-
-		private:
-			DISALLOW_COPY_AND_ASSIGN(ASTVarCall)
 	};
 }
 

@@ -52,6 +52,7 @@ Note :
 #include "../AST/Nodes/ASTVarDeclStmt.h"
 #include "../AST/Nodes/ASTCompStmt.h"
 #include "../AST/Nodes/ASTCondition.h"
+#include "../AST/Nodes/ASTWhileLoop.h"
 #include "../AST/Nodes/IASTStmt.h"
 #include "../Util/Enums.h"					// Enum
 #include "../AST/Visitor/Dumper/Dumper.h"	// Dumper Visitor, for Debug use
@@ -82,9 +83,12 @@ namespace Moonshot
 			// STATEMENTS : COMPOUND STATEMENT
 			std::unique_ptr<ASTCompStmt> parseCompoundStatement(); // Compound Statement
 			// STATEMENTS : IF,ELSE IF,ELSE
-			std::unique_ptr<ASTCondition> parseCondition(); // Parse a  if-else if-else "block"
+			std::unique_ptr<IASTStmt> parseCondition(); // Parse a  if-else if-else "block"
+			// STATEMENTS : WHILE LOOP
+			std::unique_ptr<IASTStmt> parseWhileLoop();
 		private:
 			// Private parse functions
+			// ParseCondition helper functions
 			ASTCondition::CondBlock parseCond_if();
 			ASTCondition::CondBlock parseCond_else_if();
 			// OneUpNode is a function that ups the node one level.
@@ -95,7 +99,7 @@ namespace Moonshot
 			// matchToken -> returns true if the Token is matched, and increment pos_, if the Token isn't matched return false
 			
 			// MATCH BY TYPE OF TOKEN
-			std::pair<bool,Token> matchValue();				// match a TT_LITERAL
+			std::pair<bool,Token> matchLiteral();				// match a TT_LITERAL
 			std::pair<bool, std::string> matchID();			// match a ID
 			bool matchSign(const signType &s);			// match any signs : ! : * etc.
 			bool matchKeyword(const keywordType &k);		// Match any keyword

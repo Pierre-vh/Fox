@@ -29,7 +29,6 @@ std::unique_ptr<ASTCompStmt> Parser::parseCompoundStatement()
 		// Match the closing curly bracket
 		if (!matchSign(signType::B_CURLY_CLOSE))
 		{
-			errorUnexpected();
 			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement.");
 			return nullptr;
 		}
@@ -45,7 +44,7 @@ std::unique_ptr<ASTCompStmt> Parser::parseCompoundStatement()
 	return nullptr;
 }
 
-std::unique_ptr<ASTCondition> Parser::parseCondition()
+std::unique_ptr<IASTStmt> Parser::parseCondition()
 {
 	auto rtr = std::make_unique<ASTCondition>();
 	auto result = parseCond_if();
@@ -78,16 +77,55 @@ std::unique_ptr<ASTCondition> Parser::parseCondition()
 		return nullptr;
 }
 
+std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
+{
+	// Rule : <while_loop> 	= <wh_kw>  '(' <expr> ')'	<compound_statement> 
+	if (matchKeyword(keywordType::D_WHILE))
+	{
+		std::unique_ptr<ASTWhileLoop> rtr = std::make_unique<ASTWhileLoop>();
+		// (
+		if (!matchSign(signType::B_ROUND_OPEN))
+		{
+			errorExpected("Expected a round bracket '(' after \"while\" keyword.");
+			return nullptr;
+		}
+		// expr
+		if (auto node = parseExpr())
+			rtr->expr_ = std::move(node);
+		else
+		{
+			errorExpected("Expected an expression after '(' in \"while\" statement.");
+			return nullptr;
+		}
+		// )
+		if (!matchSign(signType::B_ROUND_CLOSE))
+		{
+			errorExpected("Expected a round bracket ')' after expression in while statement.");
+			return nullptr;
+		}
+		// <compound_statement>
+		if (auto node = parseCompoundStatement())
+			rtr->body_ = std::move(node);
+		else
+		{
+			errorExpected("Expected a Compound Statement after ')' in while loop declaration.");
+			return nullptr;
+		}
+		// Return
+		return rtr;
+	}
+	return nullptr;
+}
+
 ASTCondition::CondBlock Parser::parseCond_if()
 {
-	ASTCondition::CondBlock rtr;
 	// "if"
 	if (matchKeyword(keywordType::D_IF))
 	{
+		ASTCondition::CondBlock rtr;
 		// '('
 		if (!matchSign(signType::B_ROUND_OPEN))
 		{
-			errorUnexpected();
 			errorExpected("Expected a round bracket '(' after \"if\" keyword.");
 			return { nullptr, nullptr };
 		}
@@ -96,14 +134,12 @@ ASTCondition::CondBlock Parser::parseCond_if()
 			rtr.first = std::move(node);
 		else
 		{
-			errorUnexpected();
 			errorExpected("Expected an expression after '(' in condition.");
 			return { nullptr, nullptr };
 		}
 		// ')'
 		if (!matchSign(signType::B_ROUND_CLOSE))
 		{
-			errorUnexpected();
 			errorExpected("Expected a round bracket ')' after expression in condition.");
 			return { nullptr, nullptr };
 		}
@@ -139,13 +175,13 @@ ASTCondition::CondBlock Parser::parseCond_else_if()
 		// Else
 		else if (auto node = parseCompoundStatement())
 		{
+			// return only the second, that means only a else 
 			rtr.second = std::move(node);
 			return rtr;
 		}
 		// error case
 		else
 		{
-			errorUnexpected();
 			errorExpected("Expected a if condition OR a compound statement after \"else\" keyword.");
 			return { nullptr, nullptr };
 		}
@@ -156,11 +192,15 @@ ASTCondition::CondBlock Parser::parseCond_else_if()
 
 std::unique_ptr<IASTStmt> Parser::parseStmt()
 {
-	// <stmt> = <var_decl> | <expr_stmt> | <ctrl_flow>
+	// <stmt> = <var_decl> | <expr_stmt> | <condition> | <while_loop>
 	std::unique_ptr<IASTStmt> node;
 	if (node = parseExprStmt())
 		return node;
 	else if (node = parseVarDeclStmt())
+		return node;
+	else if (node = parseCondition())
+		return node;
+	else if (node = parseWhileLoop())
 		return node;
 	else
 		return nullptr;
@@ -186,11 +226,8 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 
 		if (!successfulMatchFlag)
 		{
-			if (context_.isSafe())
-			{
-				errorUnexpected();
-				errorExpected("Expected an ID after \"let\" keyword");
-			}
+			errorExpected("Expected an ID after \"let\" keyword");
+			return nullptr;
 		}
 		// ##TYPESPEC##
 		auto typespecResult = parseTypeSpec();
@@ -199,11 +236,8 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		// index 2 -> type index if success
 		if (!std::get<0>(typespecResult))
 		{
-			if (context_.isSafe())
-			{
-				errorUnexpected();
-				errorExpected("Expected type specifier after ID");
-			}
+			errorExpected("Expected type specifier after ID");
+			return nullptr;
 		}
 		else
 		{
@@ -219,31 +253,23 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 			initExpr = parseExpr();
 			if (!initExpr)
 			{
-				if (context_.isSafe())
-				{
-					errorUnexpected();
-					errorExpected("Expected expression after '=' sign");
-				}
+				errorExpected("Expected expression after '=' sign");
+				return nullptr;
 			}
 		}
 		// ##EOI##
 		if (!matchEOI())
 		{
-			if (context_.isSafe())
-			{
-				errorUnexpected();
-				errorExpected("Expected semicolon after expression in variable declaration");
-			}
+			errorExpected("Expected semicolon after expression in variable declaration");
+			return nullptr;
 		}
-		if (context_.isSafe())
-		{
-			// If parsing was ok : 
-			var::varattr v_attr(varName, varType, isVarConst);
-			if (initExpr) // Has init expr?
-				return std::make_unique<ASTVarDeclStmt>(v_attr, initExpr);
-			else
-				return std::make_unique<ASTVarDeclStmt>(v_attr, std::unique_ptr<ASTExpr>(nullptr));
-		}
+
+		// If parsing was ok : 
+		var::varattr v_attr(varName, varType, isVarConst);
+		if (initExpr) // Has init expr?
+			return std::make_unique<ASTVarDeclStmt>(v_attr, initExpr);
+		else
+			return std::make_unique<ASTVarDeclStmt>(v_attr, std::unique_ptr<ASTExpr>(nullptr));
 	}
 	return nullptr;
 }
@@ -257,11 +283,11 @@ std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 		// Match const kw
 		if (matchKeyword(keywordType::T_CONST))
 			isConst = true;
-		// Now match the type specifier
+		// Now match the type keyword
 		if ((typ = matchTypeKw()) != invalid_index)
 			return { true , isConst , typ };
-		else if (context_.isSafe())
-			errorExpected("Expected type keyword in type specifier.");
+
+		errorExpected("Expected a valid type keyword in type specifier.");
 	}
 	return { false, false, invalid_index };
 }
@@ -279,8 +305,7 @@ std::unique_ptr<IASTStmt> Parser::parseExprStmt()
 			errorExpected("Expected a semicolon after expression in expressionStatement.");
 	}
 	else if (matchEOI())
-	{
 		errorExpected("Expected an expression before semicolon.");
-	}
+
 	return nullptr;
 }

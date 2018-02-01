@@ -96,24 +96,28 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 
 std::unique_ptr<ASTExpr> Parser::parseTerm()
 {
-	// Search for a unary operator
+	// Search for a (optional) unary operator
 	bool uopResult = false;
 	std::size_t casttype = invalid_index;
 	operation uopOp;
-	std::tie(uopResult, uopOp) = matchUnaryOp();
+	std::tie(uopResult, uopOp) = matchUnaryOp(); // If an unary op is matched, uopResult will be set to true and pos_ updated.
 	
-	// Search for a value
+	// Search for a (mandatory) value
 	auto val = parseValue();
 	if (!val)
-		return nullptr; // No value here? Return a null node.
+		return nullptr; // No value here? return nullptr.
 
-	// Search for a cast: "as" <type>
+	// Search for a (optional) cast: "as" <type>
 	if (matchKeyword(keywordType::TC_AS))
 	{
 		casttype = matchTypeKw();
 		if (casttype == invalid_index)
+		{
 			errorExpected("Expected a type keyword after \"as\"");
+			return nullptr;
+		}
 	}
+
 	// Apply the unary operator (if found) to the node.
 	if (uopResult)
 	{
@@ -137,14 +141,16 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 	// if the Token is invalid, return directly a null node
 
 	// = <const>
-	auto matchValue_result = matchValue();
+	auto matchValue_result = matchLiteral();
 	if (matchValue_result.first) // if we have a value, return it packed in a ASTLiteral
 		return std::make_unique<ASTLiteral>(matchValue_result.second);
+	else if (auto node = parseCallable()) // Callable?
+		return node;
 	// = '(' <expr> ')'
 	else if (matchSign(signType::B_ROUND_OPEN))
 	{
 		auto expr = parseExpr(); // Parse the expression inside
-		if(!expr) // check validity of the parsed expression
+		if (!expr) // check validity of the parsed expression
 		{
 			errorExpected("Expected an expression after opening a bracket.");
 			return nullptr;
@@ -157,8 +163,6 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 		}
 		return expr;
 	}
-	else if (auto node = parseCallable()) // Callable?
-		return node;
 	// TO DO :
 	// f_call
 	return nullptr;

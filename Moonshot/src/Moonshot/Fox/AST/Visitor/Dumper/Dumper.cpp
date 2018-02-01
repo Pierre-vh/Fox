@@ -12,11 +12,6 @@
 using namespace Moonshot;
 using namespace fv_util;
 
-Dumper::Dumper()
-{
-	//std::cout << "Visitor \"Dumper\" Initialized. Dumping tree:\n";
-}
-
 Dumper::~Dumper()
 {
 }
@@ -120,6 +115,26 @@ void Dumper::visit(ASTCondition & node)
 		node.else_block_->accept(*this);
 		tabcount -= 2;
 	}
+}
+
+void Dumper::visit(ASTWhileLoop & node)
+{
+	std::cout << tabs() << "While Loop\n";
+
+	tabcount++;
+	std::cout << tabs() << "Expression:\n";
+
+	tabcount++;
+	node.expr_->accept(*this);
+	tabcount--;
+
+	std::cout << tabs() << "Body:\n";
+	
+	tabcount++;
+	node.body_->accept(*this);
+	tabcount--;
+
+	tabcount--;
 }
 
 std::string Dumper::tabs() const

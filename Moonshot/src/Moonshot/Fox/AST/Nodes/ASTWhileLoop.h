@@ -1,30 +1,31 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTCompStmt.h											
+// File : ASTWhileLoop.h											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// AST representation for Compound statements.									
+// The AST Node for While loops.
 ////------------------------------------------------------////
 
 #pragma once
 
-#include "IASTNode.h"
 #include "IASTStmt.h"
-#include <vector>
+#include "ASTExpr.h"
+#include "ASTCompStmt.h"
 
 namespace Moonshot
 {
-	struct ASTCompStmt : public IASTNode
+	struct ASTWhileLoop : public IASTStmt
 	{
 		public:
-			ASTCompStmt();
-			~ASTCompStmt();
+			ASTWhileLoop() = default;
+			~ASTWhileLoop();
 
 			virtual void accept(IVisitor & vis) override;
 
-			std::vector<std::unique_ptr<IASTStmt>> statements_;
+			bool isValid() const;
+
+			std::unique_ptr<ASTExpr> expr_;
+			std::unique_ptr<ASTCompStmt> body_;
 	};
 }
-
-

@@ -21,8 +21,6 @@ namespace Moonshot
 			IASTNode();
 			~IASTNode();
 			virtual void accept(IVisitor& vis) = 0;
-		private:
-			DISALLOW_COPY_AND_ASSIGN(IASTNode)
 	};
 }
 

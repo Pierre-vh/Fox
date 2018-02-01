@@ -1,8 +1,7 @@
 #include <iostream>
-
 #include "Tests/Manager/TestManager.h"
+//#include <Windows.h>
 
-#include <Windows.h>
 using namespace Moonshot;
 /*
 	ROADMAP (sort of):
@@ -58,7 +57,7 @@ int main()
 	// Currently there's a problem : the windows console stops displaying when you try to print UTF8 chars. find a solution ! :(
 	//SetConsoleOutputCP(65001);
 
-	std::ios_base::sync_with_stdio(false); // We don't use printf, so we don't need to sync with stdio (CppCoreGuidelines SL.io.10)
+	//std::ios_base::sync_with_stdio(false); // We don't use printf, so we don't need to sync with stdio (CppCoreGuidelines SL.io.10)
 	Context context;
 	context.options.addAttr(OptionsList::exprtest_printAST,false);
 	TestManager ts(context);

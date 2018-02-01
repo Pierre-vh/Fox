@@ -22,7 +22,7 @@ Parser::~Parser()
 {
 }
 
-std::pair<bool, Token> Parser::matchValue()
+std::pair<bool, Token> Parser::matchLiteral()
 {
 	Token t = getToken();
 	if (t.type == tokenType::TT_LITERAL)
@@ -118,6 +118,11 @@ void Parser::errorUnexpected()
 
 void Parser::errorExpected(const std::string & s)
 {
+	static std::size_t lastErrorPosition;
+	if (lastErrorPosition != pos_)
+		errorUnexpected();
+	lastErrorPosition = pos_;
+
 	context_.setOrigin("Parser");
 
 	std::stringstream output;

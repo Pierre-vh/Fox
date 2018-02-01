@@ -31,6 +31,7 @@ void TestManager::addDefaultTests()
 	addTestClass<VarStmts>();
 	addTestClass<CompoundStatements>();
 	addTestClass<Conditions>();
+	addTestClass<WhileLoop>();
 }
 
 void TestManager::addTest(std::unique_ptr<ITest> test)
