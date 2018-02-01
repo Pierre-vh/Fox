@@ -13,3 +13,6 @@
 "Africa" < "Bangladesh" // string comparisons
 "bb" == "bb"
 "Pretty Flower" != "Pretty tree"
+!!!false
+!!true && !!--3
+!(1---(1 as float) as bool)
