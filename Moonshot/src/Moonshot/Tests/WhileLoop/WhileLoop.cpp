@@ -76,6 +76,7 @@ bool WhileLoop::testWhileLoop(Context & context, const std::string & str)
 	FAILED_RETURN_IF_ERR__SILENT;
 	Parser parser(context, lex.getTokenVector());
 	auto node = parser.parseWhileLoop();
+	context.printLogs();
 	FAILED_RETURN_IF_ERR__SILENT;
 	if (!node) return false;
 	node->accept(Dumper());
