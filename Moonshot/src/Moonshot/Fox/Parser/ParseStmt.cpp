@@ -86,7 +86,7 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 		// (
 		if (!matchSign(signType::B_ROUND_OPEN))
 		{
-			errorExpected("Expected a round bracket '(' after \"while\" keyword.");
+			errorExpected("Expected a '(' after \"while\" keyword.");
 			return nullptr;
 		}
 		// expr
@@ -100,7 +100,7 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 		// )
 		if (!matchSign(signType::B_ROUND_CLOSE))
 		{
-			errorExpected("Expected a round bracket ')' after expression in while statement.");
+			errorExpected("Expected a ')' after expression in while statement.");
 			return nullptr;
 		}
 		// <compound_statement>

@@ -44,7 +44,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 		// Check for validity : we need a term. if we don't have one, we have an error !
 		if (!second)
 		{
-			errorExpected("Expected a term");
+			errorExpected("Expected an expression after binary operator.");
 			break;
 		}
 		// Add the node to the tree but in different ways, depending on left or right assoc.
@@ -132,13 +132,13 @@ std::unique_ptr<ASTExpr> Parser::parseCastExpr()
 			else
 			{
 				// If error (invalid keyword found, etc.)
-				errorExpected("Expected a type keyword after \"as\"");
+				errorExpected("Expected a type keyword after \"as\" in cast expression.");
 				return nullptr;
 			}
 		}
 		return node;
 	}
-	return nullptr;;
+	return nullptr;
 }
 
 std::unique_ptr<ASTExpr> Parser::parseValue()
@@ -157,13 +157,13 @@ std::unique_ptr<ASTExpr> Parser::parseValue()
 		auto expr = parseExpr(); // Parse the expression inside
 		if (!expr) // check validity of the parsed expression
 		{
-			errorExpected("Expected an expression after opening a bracket.");
+			errorExpected("Expected an expression after '('.");
 			return nullptr;
 		}
 		// retrieve the closing bracket, throw an error if we don't have one. 
 		if (!matchSign(signType::B_ROUND_CLOSE))
 		{
-			errorExpected("Expected a closing bracket after expression");
+			errorExpected("Expected a ')' after expression");
 			return nullptr;
 		}
 		return expr;
