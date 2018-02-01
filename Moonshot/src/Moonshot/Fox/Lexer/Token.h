@@ -176,7 +176,7 @@ namespace Moonshot
 		void forward();
 		std::string asText() const;
 
-		int line = 0;
+		int line = 1;
 		int column = 0;
 	};
 	struct Token // the Token struct. The lexer outputs a std::vector<Token>. Tokens are recognized bits of the original input : keywords,id,values,etc.
