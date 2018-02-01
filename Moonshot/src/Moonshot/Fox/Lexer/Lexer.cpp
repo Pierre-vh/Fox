@@ -223,6 +223,10 @@ void Lexer::fn_S_CHR()
 	if (c == '\'' && !escapeFlag_)
 	{
 		addToCurtok(c);
+
+		if (curtok_.size() == 2)
+			reportLexerError("Declared an empty char literal. Char literals must contain at least one character.");
+	
 		pushTok();
 		dfa_goto(dfaState::S_BASE);
 	}
@@ -244,7 +248,7 @@ char Lexer::eatChar()
 	return c;
 }
 
-void Lexer::addToCurtok(const char & c)
+void Lexer::addToCurtok(char c)
 {
 	if (isEscapeChar(c) && !escapeFlag_)
 	{
@@ -257,7 +261,18 @@ void Lexer::addToCurtok(const char & c)
 		{
 			switch (c)
 			{
-				// In case we want to only have the escaped char, and not the backslash too
+				case 't':
+					c = '\t';
+					curtok_.pop_back();
+					break;
+				case 'n':
+					c = '\n';
+					curtok_.pop_back();
+					break;
+				case 'r':
+					curtok_.pop_back();
+					c = '\r';
+					break;
 				case '\\':
 				case '\'':
 				case '"':

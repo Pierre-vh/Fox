@@ -189,9 +189,10 @@ namespace Moonshot
 			literalType val_type =	literalType::LIT_ENUMDEFAULT;
 			signType sign_type =	signType::S_ENUM_DEFAULT;
 
+			std::variant<int, bool, std::string, char, float> vals;
+
 			std::string str;
 			text_pos pos;
-			std::variant<bool, int, float>	vals;
 
 			std::string showFormattedTokenData() const;
 
@@ -199,6 +200,7 @@ namespace Moonshot
 
 		private:
 			Context& context_;
+
 			bool empty_ = false;
 			void idToken();					// will id the tolen and call the specific evaluations functions if needed.
 			bool specific_idKeyword();

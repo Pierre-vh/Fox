@@ -119,15 +119,13 @@ bool Token::specific_idValue()
 	{
 		if (str.back() == '\'')
 		{
-			str = str[1];
-			if (str == "\\" && str.size() == 4) // If we have a \n in a char or something
-				str += str[2];
+			vals = str[1]; // Get the char between ' ' (at index 1)
 			val_type = literalType::LIT_CHAR;
 			return true;
 		}
 		else
 		{
-			context_.reportError("Unclosed char " + str);
+			context_.reportError("Char literal was not correctly closed.");
 			return false;
 		}
 	}
@@ -135,13 +133,13 @@ bool Token::specific_idValue()
 	{
 		if (str.back() == '"')
 		{
-			str = str.substr(1, str.size() - 2);
+			vals = str.substr(1, str.size() - 2); // Get the str between " "
 			val_type = literalType::LIT_STRING;
 			return true;
 		}
 		else
 		{
-			context_.reportError("Unclosed string: " + str);
+			context_.reportError("String literal was not closed properly.");
 			return false;
 		}
 	}

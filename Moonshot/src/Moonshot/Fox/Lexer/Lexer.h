@@ -74,7 +74,7 @@ namespace Moonshot
 
 			// Utils
 			char eatChar();										// returns the current char and run updatePos (returns inputstr_[pos_] and do pos_+=1)
-			void addToCurtok(const char &c);					// adds the current character to curtok_
+			void addToCurtok(char c);							// adds the current character to curtok_
 			bool isSep(const char &c) const;					// is the current char a separator? (= a sign. see kSign_dict)
 			char peekNext() const;								// peeks the next character
 			bool isEscapeChar(const char& c) const;				// Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.

@@ -87,9 +87,9 @@ void ASTExpr::swapChildren()
 ASTLiteral::ASTLiteral(const Token & t)
 {
 	if (t.val_type == literalType::LIT_STRING)
-		val_ = t.str;
+		val_ = std::get<std::string>(t.vals);
 	else if (t.val_type == literalType::LIT_CHAR)
-		val_ = (char)t.str[0];
+		val_ = std::get<char>(t.vals);
 	else if (t.val_type == literalType::LIT_BOOL)
 		val_ = std::get<bool>(t.vals);
 	else if (t.val_type == literalType::LIT_INTEGER)
