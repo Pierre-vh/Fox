@@ -29,7 +29,7 @@ std::unique_ptr<ASTCompStmt> Parser::parseCompoundStatement()
 		// Match the closing curly bracket
 		if (!matchSign(signType::B_CURLY_CLOSE))
 		{
-			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement");
+			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
 			return nullptr;
 		}
 		// Return
@@ -126,7 +126,7 @@ ASTCondition::CondBlock Parser::parseCond_if()
 		// '('
 		if (!matchSign(signType::B_ROUND_OPEN))
 		{
-			errorExpected("Expected a round bracket '(' after \"if\" keyword");
+			errorExpected("Expected a '('");
 			return { nullptr, nullptr };
 		}
 		// <expr>
@@ -140,7 +140,7 @@ ASTCondition::CondBlock Parser::parseCond_if()
 		// ')'
 		if (!matchSign(signType::B_ROUND_CLOSE))
 		{
-			errorExpected("Expected a round bracket ')' after expression in condition");
+			errorExpected("Expected a ')' after expression in condition");
 			return { nullptr, nullptr };
 		}
 		// <compound_statement>
@@ -148,7 +148,7 @@ ASTCondition::CondBlock Parser::parseCond_if()
 			rtr.second = std::move(node);
 		else
 		{
-			errorExpected("Expected compound statement in condition");
+			errorExpected("Expected a compound statement in condition");
 			return { nullptr, nullptr };
 		}
 		// Finished, return.
@@ -182,12 +182,7 @@ ASTCondition::CondBlock Parser::parseCond_else_if()
 		// error case
 		else
 		{
-			errorExpected("Expected a \"if\" keyword or a compound statement after \"else\" keyword.",
-			{
-				"Did you try to declare a else if statement ? Try adding a \"if\" after the \"else\" followed by an expression between parens and a compound statement.",
-				"Did you try to declare a else statement ? Try adding a compound statement right after the else keyword.",
-			}
-				);
+			errorExpected("Expected a compound statement");
 			return { nullptr, nullptr };
 		}
 	}
@@ -231,7 +226,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 
 		if (!successfulMatchFlag)
 		{
-			errorExpected("Expected an ID after \"let\" keyword");
+			errorExpected("Expected an ID");
 			return nullptr;
 		}
 		// ##TYPESPEC##
@@ -241,7 +236,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		// index 2 -> type index if success
 		if (!std::get<0>(typespecResult))
 		{
-			errorExpected("Expected type specifier after ID");
+			errorExpected("Expected a type specifier (\": <type>\")");
 			return nullptr;
 		}
 		else
@@ -258,14 +253,14 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 			initExpr = parseExpr();
 			if (!initExpr)
 			{
-				errorExpected("Expected expression after '=' sign");
+				errorExpected("Expected an expression");
 				return nullptr;
 			}
 		}
 		// ##EOI##
 		if (!matchEOI())
 		{
-			errorExpected("Expected semicolon after expression in variable declaration");
+			errorExpected("Expected semicolon after expression in variable declaration,");
 			return nullptr;
 		}
 
@@ -292,7 +287,7 @@ std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 		if ((typ = matchTypeKw()) != invalid_index)
 			return { true , isConst , typ };
 
-		errorExpected("Expected a valid type keyword in type specifier.");
+		errorExpected("Expected a valid type keyword in type specifier");
 	}
 	return { false, false, invalid_index };
 }
@@ -310,7 +305,7 @@ std::unique_ptr<IASTStmt> Parser::parseExprStmt()
 			errorExpected("Expected a ';' in expression statement");
 	}
 	else if (matchEOI())
-		errorExpected("Expected an expression before semicolon.");
+		errorExpected("Expected an expression");
 
 	return nullptr;
 }

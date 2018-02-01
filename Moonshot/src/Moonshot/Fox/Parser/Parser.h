@@ -60,7 +60,7 @@ Note :
 #include <memory>							// std::shared_ptr
 
 
-#define DEFAULT__maxExpectedErrorsCount 1
+#define DEFAULT__maxExpectedErrorsCount 2
 #define DEFAULT__shouldPrintSuggestions true
 
 namespace Moonshot

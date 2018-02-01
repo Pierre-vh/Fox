@@ -140,9 +140,9 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 	std::stringstream output;
 	auto tok = getToken(pos_ - 1);
 	if(tok.str.size()==1)
-		output << s << " after char '" << tok.str << "' at line " << tok.pos.line;
+		output << s << " after '" << tok.str << "' at line " << tok.pos.line;
 	else 
-		output << s << " after token \xAF" << tok.str << "\xAE at line " << tok.pos.line;
+		output << s << " after \xAF" << tok.str << "\xAE at line " << tok.pos.line;
 
 	if (sugg.size())
 	{
