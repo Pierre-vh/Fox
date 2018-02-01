@@ -14,11 +14,13 @@
 #include "../Types/Types.h"
 #include "../Types/TypeCast.h"
 #include "../../Fox/AST/Nodes/ASTExpr.h"
-#include "../Options.h"
 
 #include <sstream> // std::stringstream
 #include <tuple> // std::pair
 #include <map> // std::map
+
+#define LOG_IMPLICIT_CASTS false
+
 // Symbols table manager
 namespace Moonshot
 {
