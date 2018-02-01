@@ -71,7 +71,8 @@ namespace Moonshot
 			
 			// EXPRESSIONS
 			std::unique_ptr<ASTExpr> parseExpr(const char &priority = 7); // Go from lowest priority to highest !
-			std::unique_ptr<ASTExpr> parseTerm();
+			std::unique_ptr<ASTExpr> parsePrefixExpr();
+			std::unique_ptr<ASTExpr> parseCastExpr();
 			std::unique_ptr<ASTExpr> parseValue();
 			std::unique_ptr<ASTExpr> parseCallable(); // values/functions calls.
 

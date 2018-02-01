@@ -22,7 +22,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 	if (priority > 0)
 		first = parseExpr(priority - 1);	// Go down in the priority chain.
 	else 
-		first = parseTerm();	// We are at the lowest point ? Parse the term then !
+		first = parseCastExpr();	// We are at the lowest point ? Parse the term then !
 
 	if (!first)					// Check if it was found/parsed correctly. If not, return a null node.
 		return nullptr;
@@ -40,7 +40,7 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 		if (priority > 0)
 			second = parseExpr(priority - 1);
 		else
-			second = parseTerm();
+			second = parseCastExpr();
 		// Check for validity : we need a term. if we don't have one, we have an error !
 		if (!second)
 		{
@@ -94,46 +94,51 @@ std::unique_ptr<ASTExpr> Parser::parseExpr(const char & priority)
 	return rtr;
 }
 
-std::unique_ptr<ASTExpr> Parser::parseTerm()
+std::unique_ptr<ASTExpr> Parser::parsePrefixExpr()
 {
-	// Search for a (optional) unary operator
 	bool uopResult = false;
-	std::size_t casttype = invalid_index;
 	operation uopOp;
+	std::size_t casttype = invalid_index;
 	std::tie(uopResult, uopOp) = matchUnaryOp(); // If an unary op is matched, uopResult will be set to true and pos_ updated.
-	
-	// Search for a (mandatory) value
-	auto val = parseValue();
-	if (!val)
-		return nullptr; // No value here? return nullptr.
-
-	// Search for a (optional) cast: "as" <type>
-	if (matchKeyword(keywordType::TC_AS))
+	if (uopResult)
 	{
-		casttype = matchTypeKw();
-		if (casttype == invalid_index)
+		if (auto node = parsePrefixExpr())
+			return oneUpNode(node, uopOp);
+		else
 		{
-			errorExpected("Expected a type keyword after \"as\"");
+			errorExpected("Expected an expression after unary operator in prefix expression.");
 			return nullptr;
 		}
 	}
+	else if (auto node = parseValue())
+		return node;
+	return nullptr;
+}
 
-	// Apply the unary operator (if found) to the node.
-	if (uopResult)
+std::unique_ptr<ASTExpr> Parser::parseCastExpr()
+{
+	if (auto node = parsePrefixExpr())
 	{
-		if ((val->op_ != operation::PASS) || (typeid(*val) == typeid(*std::make_unique<ASTLiteral>()))) // If we already have an operation OR the node is a value
-			val = oneUpNode(val, uopOp); // One up the node and set the new parent's operation to uopOp
-		else
-			val->op_ = uopOp; // Else, just set the op_ to uopOp;
+		std::size_t casttype = invalid_index;
+		// Search for a (optional) cast: "as" <type>
+		if (matchKeyword(keywordType::TC_AS))
+		{
+			if ((casttype = matchTypeKw()) != invalid_index)
+			{
+				// If found, apply it to current node.
+				node = oneUpNode(node, operation::CAST); // Create a "cast" node
+				node->totype_ = casttype;
+			}
+			else
+			{
+				// If error (invalid keyword found, etc.)
+				errorExpected("Expected a type keyword after \"as\"");
+				return nullptr;
+			}
+		}
+		return node;
 	}
-	// Apply the cast (if found) to the node
-	if (casttype != invalid_index)
-	{
-		val = oneUpNode(val, operation::CAST); // Create a "cast" node
-		val->totype_ = casttype;
-	}
-
-	return val;
+	return nullptr;;
 }
 
 std::unique_ptr<ASTExpr> Parser::parseValue()
