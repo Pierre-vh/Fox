@@ -59,6 +59,10 @@ Note :
 #include <tuple>							// std::tuple, std::pair
 #include <memory>							// std::shared_ptr
 
+
+#define DEFAULT__maxExpectedErrorsCount 1
+#define DEFAULT__shouldPrintSuggestions true
+
 namespace Moonshot
 {
 	class Parser
@@ -119,9 +123,11 @@ namespace Moonshot
 			// Make error message :
 			// 2 Types of error messages in the parser : unexpected Token and Expected a Token.
 			void errorUnexpected();							// generic error message "unexpected Token.."
-			void errorExpected(const std::string &s);		// generic error message "expected Token after.."
+			void errorExpected(const std::string &s, const std::vector<std::string>& sugg = {});		// generic error message "expected Token after.."
 			
-
+			int currentExpectedErrorsCount = 0;
+			int maxExpectedErrorCount = 0;
+			bool shouldPrintSuggestions;
 			// Member variables
 			size_t pos_ = 0;								// current pos in the Token vector.
 			Context& context_;

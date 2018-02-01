@@ -15,7 +15,8 @@ using namespace fv_util;
 
 Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
 {
-
+	maxExpectedErrorCount = context_.options.getAttr(OptionsList::parser_maxExpectedErrorCount).value_or(DEFAULT__maxExpectedErrorsCount).get<int>();
+	shouldPrintSuggestions = context_.options.getAttr(OptionsList::parser_printSuggestions).value_or(DEFAULT__shouldPrintSuggestions).get<bool>();
 }
 
 Parser::~Parser()
@@ -110,15 +111,26 @@ void Parser::errorUnexpected()
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
-	output << "Unexpected Token " << getToken().showFormattedTokenData();
-	context_.reportError(output.str());
+	auto tok = getToken();
+	if (tok.str.size())
+	{
+		if(tok.str.size() == 1)
+			output << "Unexpected char '" << tok.str << "' at line " << tok.pos.line;
+		else
+			output << "Unexpected Token \xAF" << tok.str << "\xAE at line " << tok.pos.line;
+		context_.reportError(output.str());
+	}
 
 	context_.resetOrigin();
 }
 
-void Parser::errorExpected(const std::string & s)
+void Parser::errorExpected(const std::string & s, const std::vector<std::string>& sugg)
 {
 	static std::size_t lastErrorPosition;
+
+	if (currentExpectedErrorsCount >= maxExpectedErrorCount)
+		return;
+
 	if (lastErrorPosition != pos_)
 		errorUnexpected();
 	lastErrorPosition = pos_;
@@ -126,8 +138,22 @@ void Parser::errorExpected(const std::string & s)
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
-	output << s << "\n[after Token " << getToken(pos_-1).showFormattedTokenData() << "]";
-	context_.reportError(output.str());
+	auto tok = getToken(pos_ - 1);
+	if(tok.str.size()==1)
+		output << s << " after char '" << tok.str << "' at line " << tok.pos.line;
+	else 
+		output << s << " after token \xAF" << tok.str << "\xAE at line " << tok.pos.line;
 
+	if (sugg.size())
+	{
+		output << "\n\tSuggestions:\n";
+		for (auto& elem : sugg)
+		{
+			output << "\t\t" << elem << "\n";
+		}
+	}
+
+	context_.reportError(output.str());
 	context_.resetOrigin();
+	currentExpectedErrorsCount++;
 }

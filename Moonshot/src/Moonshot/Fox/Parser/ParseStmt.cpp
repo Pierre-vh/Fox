@@ -29,7 +29,7 @@ std::unique_ptr<ASTCompStmt> Parser::parseCompoundStatement()
 		// Match the closing curly bracket
 		if (!matchSign(signType::B_CURLY_CLOSE))
 		{
-			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement.");
+			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement");
 			return nullptr;
 		}
 		// Return
@@ -86,7 +86,7 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 		// (
 		if (!matchSign(signType::B_ROUND_OPEN))
 		{
-			errorExpected("Expected a '(' after \"while\" keyword.");
+			errorExpected("Expected a '('");
 			return nullptr;
 		}
 		// expr
@@ -94,13 +94,13 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 			rtr->expr_ = std::move(node);
 		else
 		{
-			errorExpected("Expected an expression after '(' in \"while\" statement.");
+			errorExpected("Expected an expression after '(' in while loop declaration");
 			return nullptr;
 		}
 		// )
 		if (!matchSign(signType::B_ROUND_CLOSE))
 		{
-			errorExpected("Expected a ')' after expression in while statement.");
+			errorExpected("Expected a ')' after expression in while statement");
 			return nullptr;
 		}
 		// <compound_statement>
@@ -108,7 +108,7 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 			rtr->body_ = std::move(node);
 		else
 		{
-			errorExpected("Expected a Compound Statement after ')' in while loop declaration.");
+			errorExpected("Expected a Compound Statement after while loop declaration");
 			return nullptr;
 		}
 		// Return
@@ -126,7 +126,7 @@ ASTCondition::CondBlock Parser::parseCond_if()
 		// '('
 		if (!matchSign(signType::B_ROUND_OPEN))
 		{
-			errorExpected("Expected a round bracket '(' after \"if\" keyword.");
+			errorExpected("Expected a round bracket '(' after \"if\" keyword");
 			return { nullptr, nullptr };
 		}
 		// <expr>
@@ -134,13 +134,13 @@ ASTCondition::CondBlock Parser::parseCond_if()
 			rtr.first = std::move(node);
 		else
 		{
-			errorExpected("Expected an expression after '(' in condition.");
+			errorExpected("Expected an expression after '(' in condition");
 			return { nullptr, nullptr };
 		}
 		// ')'
 		if (!matchSign(signType::B_ROUND_CLOSE))
 		{
-			errorExpected("Expected a round bracket ')' after expression in condition.");
+			errorExpected("Expected a round bracket ')' after expression in condition");
 			return { nullptr, nullptr };
 		}
 		// <compound_statement>
@@ -182,7 +182,12 @@ ASTCondition::CondBlock Parser::parseCond_else_if()
 		// error case
 		else
 		{
-			errorExpected("Expected a if condition OR a compound statement after \"else\" keyword.");
+			errorExpected("Expected a \"if\" keyword or a compound statement after \"else\" keyword.",
+			{
+				"Did you try to declare a else if statement ? Try adding a \"if\" after the \"else\" followed by an expression between parens and a compound statement.",
+				"Did you try to declare a else statement ? Try adding a compound statement right after the else keyword.",
+			}
+				);
 			return { nullptr, nullptr };
 		}
 	}
@@ -302,7 +307,7 @@ std::unique_ptr<IASTStmt> Parser::parseExprStmt()
 		if (matchEOI())
 			return node;
 		else
-			errorExpected("Expected a semicolon after expression in expressionStatement.");
+			errorExpected("Expected a ';' in expression statement");
 	}
 	else if (matchEOI())
 		errorExpected("Expected an expression before semicolon.");
