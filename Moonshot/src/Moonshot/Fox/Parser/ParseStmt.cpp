@@ -209,7 +209,7 @@ std::unique_ptr<IASTStmt> Parser::parseStmt()
 std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 {
 	//<var_decl> = <let_kw> <id> <type_spec> ['=' <expr>] <eoi>
-	std::unique_ptr<ASTExpr> initExpr = 0;
+	std::unique_ptr<IASTExpr> initExpr = 0;
 
 	bool isVarConst = false;
 	std::size_t varType = invalid_index;
@@ -269,7 +269,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		if (initExpr) // Has init expr?
 			return std::make_unique<ASTVarDeclStmt>(v_attr, initExpr);
 		else
-			return std::make_unique<ASTVarDeclStmt>(v_attr, std::unique_ptr<ASTExpr>(nullptr));
+			return std::make_unique<ASTVarDeclStmt>(v_attr, std::unique_ptr<IASTExpr>(nullptr));
 	}
 	return nullptr;
 }

@@ -15,10 +15,9 @@
 
 namespace Moonshot
 {
-	enum class operation
+	enum class binaryOperation
 	{
 		PASS,			// Just "pass" (return the value in L)
-		CAST,			// "Cast" nodes
 		// str concat
 		CONCAT,
 		// Maths.
@@ -28,7 +27,6 @@ namespace Moonshot
 		DIV,
 		MOD,
 		EXP,
-
 		// Comparison "joining" operators (&& ||)
 		AND,
 		OR,
@@ -40,74 +38,82 @@ namespace Moonshot
 		EQUAL,
 		NOTEQUAL,
 
-		// Unary optypes
-		LOGICNOT,		// ! 
-		NEGATE,		// -
-
 		// Assignement
 		ASSIGN
+	};
+	enum class unaryOperation
+	{
+		DEFAULT,
+		LOGICNOT,		// ! 
+		NEGATE,			// -
 	};
 		
 	// Template version of the other functions
 
-	inline bool isComparison(const operation & op) 
+	inline bool isComparison(const binaryOperation & op) 
 	{
 		switch (op)
 		{
-			case operation::AND:
-			case operation::OR:
-			case operation::LESS_OR_EQUAL:
-			case operation::GREATER_OR_EQUAL:
-			case operation::LESS_THAN:
-			case operation::GREATER_THAN:
-			case operation::EQUAL:
-			case operation::NOTEQUAL:
+			case binaryOperation::AND:
+			case binaryOperation::OR:
+			case binaryOperation::LESS_OR_EQUAL:
+			case binaryOperation::GREATER_OR_EQUAL:
+			case binaryOperation::LESS_THAN:
+			case binaryOperation::GREATER_THAN:
+			case binaryOperation::EQUAL:
+			case binaryOperation::NOTEQUAL:
 				return true;
 			default:
 				return false;
 		}
 	}
-	inline bool isCompJoinOp(const operation & op)
+	inline bool isCompJoinOp(const binaryOperation & op)
 	{
-		return (op == operation::AND) || (op == operation::OR);
-	}
-	inline bool isUnary(const operation & op)
-	{
-		return (op == operation::LOGICNOT) || (op == operation::NEGATE); // Above 17 are unaries (for now)
+		return (op == binaryOperation::AND) || (op == binaryOperation::OR);
 	}
 
-	inline constexpr bool isRightAssoc(const operation & op)
+	inline constexpr bool isRightAssoc(const binaryOperation & op)
 	{
-		return (op == operation::EXP) || (op == operation::ASSIGN); // Only equal & exp op are right assoc.
+		return (op == binaryOperation::EXP) || (op == binaryOperation::ASSIGN); // Only equal & exp op are right assoc.
 	}
 
 	enum class dir
 	{
 		UNKNOWNDIR,LEFT, RIGHT
 	};
-	const std::map<operation,std::string> kOptype_dict =
+	const std::map<binaryOperation,std::string> kBinop_dict =
 	{
-		{ operation::CAST		, "CAST" },
-		{ operation::PASS		, "PASS"	},
-		{ operation::AND		, "AND"		},
-		{ operation::CONCAT	, "CONCAT"	},
-		{ operation::OR		, "OR"		},
-		{ operation::ADD		, "ADD"		},
-		{ operation::MINUS		, "MINUS"	},
-		{ operation::MUL		, "MUL"		},
-		{ operation::DIV		, "DIV"		},
-		{ operation::MOD		, "MOD"		},
-		{ operation::EXP		, "EXP"		},
-		{ operation::LESS_OR_EQUAL		, "LESS_OR_EQUAL"	},
-		{ operation::GREATER_OR_EQUAL	, "GREATER_OR_EQUAL"},
-		{ operation::LESS_THAN			, "LESS_THAN"		},
-		{ operation::GREATER_THAN		, "GREATER_THAN"	},
-		{ operation::EQUAL		, "EQUAL"	},
-		{ operation::NOTEQUAL	, "NOTEQUAL"},
-		{ operation::LOGICNOT	, "LOGICNOT"	},
-		{ operation::NEGATE	, "NEGATE"	},
-		{ operation::ASSIGN	, "ASSIGN"	}
+		{ binaryOperation::PASS		, "PASS"	},
+		{ binaryOperation::AND		, "AND"		},
+		{ binaryOperation::CONCAT	, "CONCAT"	},
+		{ binaryOperation::OR		, "OR"		},
+		{ binaryOperation::ADD		, "ADD"		},
+		{ binaryOperation::MINUS	, "MINUS"	},
+		{ binaryOperation::MUL		, "MUL"		},
+		{ binaryOperation::DIV		, "DIV"		},
+		{ binaryOperation::MOD		, "MOD"		},
+		{ binaryOperation::EXP		, "EXP"		},
+		{ binaryOperation::LESS_OR_EQUAL	,"LESS_OR_EQUAL"	},
+		{ binaryOperation::GREATER_OR_EQUAL	, "GREATER_OR_EQUAL"},
+		{ binaryOperation::LESS_THAN		, "LESS_THAN"		},
+		{ binaryOperation::GREATER_THAN		, "GREATER_THAN"	},
+		{ binaryOperation::EQUAL			, "EQUAL"	},
+		{ binaryOperation::NOTEQUAL			, "NOTEQUAL"},
+		{ binaryOperation::ASSIGN			, "ASSIGN"	}
 	}; 
+	const std::map<unaryOperation,std::string> kUop_dict =
+	{
+		{ unaryOperation::DEFAULT , "DEFAULT(ERROR)"},
+		{ unaryOperation::LOGICNOT , "LOGICNOT" },
+		{ unaryOperation::NEGATE, "NEGATE"}
+	};
 
-	std::string getFromDict(const std::map<operation,std::string>& m,const operation& op);
+	template<typename T>
+	inline std::string getFromDict(const std::map<T, std::string>& m, const T& op)
+	{
+		auto i = m.find(op);
+		if (i != m.end())
+			return i->second;
+		return "";
+	}
 }
