@@ -36,44 +36,8 @@ namespace Moonshot
 {
 	namespace fv_util
 	{
-		// FValue traits class, to use with templated functions.
-		template <typename T>
-		struct fval_traits
-		{
-			constexpr static bool isBasic =
-					std::is_same<T,int>::value				||
-					std::is_same<T,float>::value			||
-					std::is_same<T,char>::value				||
-					std::is_same<T,std::string>::value		||
-					std::is_same<T,bool>::value
-				;
-			constexpr static bool isArithmetic = isBasic && !std::is_same<T, std::string>::value;
 		
-			constexpr static inline bool isEqualTo(const std::size_t& index) // Checks if T represent the same type as index
-			{
-				if constexpr(std::is_same<T, std::monostate>::value)
-					return index == fval_null;
-				else if constexpr(std::is_same<T, int>::value)
-					return index == fval_int;
-				else if constexpr(std::is_same<T, float>::value)
-					return index == fval_float;
-				else if constexpr(std::is_same<T, char>::value)
-					return index == fval_char;
-				else if constexpr(std::is_same<T, std::string>::value)
-					return index == fval_str;
-				else if constexpr(std::is_same<T, bool>::value)
-					return index == fval_bool;
-				else if constexpr(std::is_same<T, var::varRef>::value)
-					return index == fval_varRef;
-				else
-				{
-					throw std::logic_error("Defaulted");
-					return false;
-				}
-			}
-		};
-		
-		// Dump (debugging) functions
+		// Dump functions
 		std::string dumpFVal(const FVal &var);
 		std::string dumpVAttr(const var::varattr &var);
 
@@ -88,45 +52,42 @@ namespace Moonshot
 		bool isArithmetic(const std::size_t& t);
 		bool isValue(const std::size_t& t);
 
+		// Checks if assignement is possible.
 		bool canAssign(Context& context_,const std::size_t &lhs, const std::size_t &rhs); // Checks if the lhs and rhs are compatible.
 																		// Compatibility : 
 																		// Arithmetic type <-> Arithmetic Type = ok
 																		// string <-> string = ok
 																		// else : error.
+
 		// This function returns true if the type of basetype can be cast to the type of goal.
-		// if i want to implement explicit casts from strings to arithmetic type later, this can be done "easily" by adding
-		// const bool& isExplicit = false to the signature
-		// And, in the function body, add a check if(isExplicit && (basetype==fval_str) && isArithmetic(goal)) return true;
-		// For now, i leave it out, but it might be added later!
 		bool canCastTo(const std::size_t &goal, const std::size_t &basetype);
 
-		// returns the type of the biggest of the 2 arguments. 
-		// Example outputs : 
-		// lhs : fval_int
-		// rhs : fval_float
-		// output : fval_float.
+		// returns the type of the biggest of the 2 arguments.
 		std::size_t getBiggest(const std::size_t &lhs, const std::size_t &rhs);
 
 		// Variables : Indexes
-		// Thanks, I guess ! This looks healthier than using -1 as invalid index. https://stackoverflow.com/a/37126153
-		static constexpr std::size_t invalid_index = std::numeric_limits<std::size_t>::max();
 		// How to remember values of index
-		static constexpr std::size_t fval_null	= 0;
-		static constexpr std::size_t fval_int	= 1;
-		static constexpr std::size_t fval_float = 2;
-		static constexpr std::size_t fval_char	= 3;
-		static constexpr std::size_t fval_str	= 4;
-		static constexpr std::size_t fval_bool  = 5;
-		static constexpr std::size_t fval_varRef = 6;
+		namespace indexes
+		{
+			static constexpr std::size_t invalid_index = std::numeric_limits<std::size_t>::max();
+
+			static constexpr std::size_t fval_null = 0;
+			static constexpr std::size_t fval_int = 1;
+			static constexpr std::size_t fval_float = 2;
+			static constexpr std::size_t fval_char = 3;
+			static constexpr std::size_t fval_str = 4;
+			static constexpr std::size_t fval_bool = 5;
+			static constexpr std::size_t fval_varRef = 6;
+		}
 
 		// Map for converting type kw to a FVal index.
 		const std::map<keywordType, std::size_t> kTypeKwToIndex_dict =
 		{
-			{ keywordType::T_INT	, fval_int	},
-			{ keywordType::T_FLOAT	, fval_float},
-			{ keywordType::T_BOOL	, fval_bool },
-			{ keywordType::T_STRING , fval_str	},
-			{ keywordType::T_CHAR	, fval_char }
+			{ keywordType::T_INT	, indexes::fval_int	},
+			{ keywordType::T_FLOAT	, indexes::fval_float},
+			{ keywordType::T_BOOL	, indexes::fval_bool },
+			{ keywordType::T_STRING , indexes::fval_str	},
+			{ keywordType::T_CHAR	, indexes::fval_char }
 
 		};
 
@@ -134,14 +95,14 @@ namespace Moonshot
 
 		const std::map<std::size_t, std::string> kType_dict =
 		{
-			{ fval_null				, "NULL" },
-			{ fval_int				, "INT" },
-			{ fval_float			, "FLOAT" },
-			{ fval_char				, "CHAR" },
-			{ fval_bool				, "BOOL" },
-			{ fval_str				, "STRING" },
-			{ fval_varRef			, "VAR_ATTR (ref)"},
-			{ invalid_index			, "!INVALID_FVAL!" }
+			{ indexes::fval_null				, "NULL" },
+			{ indexes::fval_int				, "INT" },
+			{ indexes::fval_float			, "FLOAT" },
+			{ indexes::fval_char				, "CHAR" },
+			{ indexes::fval_bool				, "BOOL" },
+			{ indexes::fval_str				, "STRING" },
+			{ indexes::fval_varRef			, "VAR_ATTR (ref)"},
+			{ indexes::invalid_index			, "!INVALID_FVAL!" }
 		};
 	}
 
@@ -166,7 +127,7 @@ namespace Moonshot
 			// Variable's attribute
 			bool isConst = false;
 			std::string name_ = "";
-			std::size_t type_ = fv_util::fval_null;
+			std::size_t type_ = fv_util::indexes::fval_null;
 
 			varRef createRef() const;
 

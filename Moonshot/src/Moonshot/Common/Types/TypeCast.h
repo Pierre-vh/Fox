@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Types.h"
+#include "FVTypeTraits.h"
 #include <variant> // std::visit
 
 namespace Moonshot

@@ -58,21 +58,21 @@ FVal fv_util::getSampleFValForIndex(const std::size_t & t)
 {
 	switch (t)
 	{
-		case fval_null:
+		case indexes::fval_null:
 			return FVal();
-		case fval_int:
+		case indexes::fval_int:
 			return FVal((int)0);
-		case fval_float:
+		case indexes::fval_float:
 			return FVal((float)0.0f);
-		case fval_char:
+		case indexes::fval_char:
 			return FVal((char)0);
-		case fval_str:
+		case indexes::fval_str:
 			return FVal(std::string(""));
-		case fval_bool:
+		case indexes::fval_bool:
 			return FVal((bool)false);
-		case fval_varRef:
+		case indexes::fval_varRef:
 			return FVal(var::varattr());
-		case invalid_index:
+		case indexes::invalid_index:
 			throw std::logic_error("Tried to get a sample FVal with an invalid index");
 			return FVal();
 		default:
@@ -93,11 +93,11 @@ bool fv_util::isBasic(const std::size_t & t)
 {
 	switch (t)
 	{
-		case fval_int:
-		case fval_float:
-		case fval_char:
-		case fval_bool:
-		case fval_str:
+		case indexes::fval_int:
+		case indexes::fval_float:
+		case indexes::fval_char:
+		case indexes::fval_bool:
+		case indexes::fval_str:
 			return true;
 		default:
 			return false;
@@ -106,17 +106,17 @@ bool fv_util::isBasic(const std::size_t & t)
 
 bool fv_util::isArithmetic(const std::size_t & t)
 {
-	return (isBasic(t) && (t != fval_str));
+	return (isBasic(t) && (t != indexes::fval_str));
 }
 
 bool Moonshot::fv_util::isValue(const std::size_t & t)
 {
-	return isBasic(t) || (t == fval_varRef);
+	return isBasic(t) || (t == indexes::fval_varRef);
 }
 
 bool fv_util::canAssign(Context& context_,const std::size_t & lhs, const std::size_t & rhs)
 {
-	if ((rhs == fval_null) || (lhs == fval_null))
+	if ((rhs == indexes::fval_null) || (lhs == indexes::fval_null))
 	{
 		context_.reportError("Can't assign a void expression to a variable.");
 		return false;
@@ -141,8 +141,8 @@ bool fv_util::canCastTo(const std::size_t & goal, const std::size_t & basetype)
 		return false;
 	if (isArithmetic(basetype)) // base type is arithmetic
 		return true; // arithmetic type -> basic type, allowed (and at this point we know it's a basic type due to 1st condition)
-	else if (basetype == fval_str) // base type is a string
-		return goal == fval_str; // Strings can only be converted to strings (useless convertion anyway).
+	else if (basetype == indexes::fval_str) // base type is a string
+		return goal == indexes::fval_str; // Strings can only be converted to strings (useless convertion anyway).
 	return false;
 }
 
@@ -150,18 +150,18 @@ std::size_t fv_util::getBiggest(const std::size_t & lhs, const std::size_t & rhs
 {
 	if (isArithmetic(lhs) && isArithmetic(rhs))
 	{
-		if ((lhs == fval_float) || (rhs == fval_float))
-			return fval_float;
-		else if ((lhs == fval_int) || (rhs == fval_int))
-			return fval_int;
-		else if ((lhs == fval_char) || (rhs == fval_char))
-			return fval_char;
+		if ((lhs == indexes::fval_float) || (rhs == indexes::fval_float))
+			return indexes::fval_float;
+		else if ((lhs == indexes::fval_int) || (rhs == indexes::fval_int))
+			return indexes::fval_int;
+		else if ((lhs == indexes::fval_char) || (rhs == indexes::fval_char))
+			return indexes::fval_char;
 		else
-			return fval_bool;
+			return indexes::fval_bool;
 	}
 	else
 		throw std::logic_error("Can't return the biggest of two types when one of the two type isn't arithmetic.");
-	return invalid_index;
+	return indexes::invalid_index;
 }
 
 std::size_t fv_util::typeKWtoSizeT(const keywordType & kw)
@@ -170,7 +170,7 @@ std::size_t fv_util::typeKWtoSizeT(const keywordType & kw)
 	if (it != kTypeKwToIndex_dict.end())
 		return it->second;
 	else
-		return invalid_index;
+		return indexes::invalid_index;
 }
 // varRef
 var::varRef::varRef(const std::string & vname)
@@ -210,7 +210,7 @@ var::varattr::varattr(const std::string & nm, const std::size_t & ty, const bool
 
 var::varattr::operator bool() const
 {
-	return (wasInit_ && (type_ != fv_util::fval_null) && (type_ != fv_util::invalid_index));
+	return (wasInit_ && (type_ != fv_util::indexes::fval_null) && (type_ != fv_util::indexes::invalid_index));
 }
 
 var::varRef var::varattr::createRef() const
