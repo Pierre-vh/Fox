@@ -212,7 +212,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 	std::unique_ptr<IASTExpr> initExpr = 0;
 
 	bool isVarConst = false;
-	std::size_t varType = invalid_index;
+	std::size_t varType = indexes::invalid_index;
 	std::string varName;
 
 	if (matchKeyword(keywordType::D_LET))
@@ -284,12 +284,12 @@ std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 		if (matchKeyword(keywordType::T_CONST))
 			isConst = true;
 		// Now match the type keyword
-		if ((typ = matchTypeKw()) != invalid_index)
+		if ((typ = matchTypeKw()) != indexes::invalid_index)
 			return { true , isConst , typ };
 
 		errorExpected("Expected a valid type keyword in type specifier");
 	}
-	return { false, false, invalid_index };
+	return { false, false, indexes::invalid_index };
 }
 
 std::unique_ptr<IASTStmt> Parser::parseExprStmt()

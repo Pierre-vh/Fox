@@ -102,7 +102,7 @@ std::unique_ptr<IASTExpr> Parser::parsePrefixExpr()
 {
 	bool uopResult = false;
 	unaryOperation uopOp;
-	std::size_t casttype = invalid_index;
+	std::size_t casttype = indexes::invalid_index;
 	std::tie(uopResult, uopOp) = matchUnaryOp(); // If an unary op is matched, uopResult will be set to true and pos_ updated.
 	if (uopResult)
 	{
@@ -128,11 +128,11 @@ std::unique_ptr<IASTExpr> Parser::parseCastExpr()
 {
 	if (auto node = parsePrefixExpr())
 	{
-		std::size_t casttype = invalid_index;
+		std::size_t casttype = indexes::invalid_index;
 		// Search for a (optional) cast: "as" <type>
 		if (matchKeyword(keywordType::TC_AS))
 		{
-			if ((casttype = matchTypeKw()) != invalid_index)
+			if ((casttype = matchTypeKw()) != indexes::invalid_index)
 			{
 				// If found, apply it to current node.
 				auto rtr = std::make_unique<ASTCastExpr>();

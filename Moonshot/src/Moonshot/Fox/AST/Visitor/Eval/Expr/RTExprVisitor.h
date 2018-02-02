@@ -26,6 +26,7 @@
 // Utils, types, typecast
 #include "../../../../../Common/Utils/Utils.h"
 #include "../../../../../Common/Types/Types.h"
+#include "../../../../../Common/Types/FVTypeTraits.h"
 #include "../../../../../Common/Types/TypeCast.h"
 // Symbols table
 #include "../../../../../Common/Symbols/Symbols.h"

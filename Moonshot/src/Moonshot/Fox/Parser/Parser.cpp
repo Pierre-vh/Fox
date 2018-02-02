@@ -82,15 +82,15 @@ std::size_t Moonshot::Parser::matchTypeKw()
 	{
 		switch (t.kw_type)
 		{
-			case keywordType::T_INT:	return fval_int;
-			case keywordType::T_FLOAT:	return fval_float;
-			case keywordType::T_CHAR:	return fval_char;
-			case keywordType::T_STRING:	return fval_str;
-			case keywordType::T_BOOL:	return fval_bool;
+			case keywordType::T_INT:	return indexes::fval_int;
+			case keywordType::T_FLOAT:	return indexes::fval_float;
+			case keywordType::T_CHAR:	return indexes::fval_char;
+			case keywordType::T_STRING:	return indexes::fval_str;
+			case keywordType::T_BOOL:	return indexes::fval_bool;
 		}
 	}
 	pos_ -= 1;
-	return invalid_index;
+	return indexes::invalid_index;
 }
 
 Token Parser::getToken() const

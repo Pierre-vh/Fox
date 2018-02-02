@@ -28,7 +28,7 @@ bool VarStmts::runTest(Context & context)
 	TypeCheckVisitor tc_good(context); // shared typechecker to keep the symtab
 
 	auto symtab = std::make_shared<SymbolsTable>(context);
-	symtab->declareValue(var::varattr("TESTVALUE", fv_util::fval_int, false));
+	symtab->declareValue(var::varattr("TESTVALUE", fv_util::indexes::fval_int, false));
 
 	RTStmtVisitor rt_good(context,symtab);
 	for (auto& elem : correct_test)

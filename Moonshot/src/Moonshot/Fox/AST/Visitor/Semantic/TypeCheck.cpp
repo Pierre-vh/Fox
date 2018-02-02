@@ -18,7 +18,7 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 	if (testmode)
 	{
 		symtable_.declareValue(
-			var::varattr("TESTVALUE", fval_int, false),
+			var::varattr("TESTVALUE", indexes::fval_int, false),
 			FVal(0)
 		);
 	}
@@ -42,7 +42,7 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 		// get right expr result type
 		auto right = visitAndGetResult(node.right_, dir::RIGHT,node.op_);
 		// SPECIAL CHECK 1: CHECK IF THIS IS A CONCAT OP,CONVERT IT 
-		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right) && (node.op_ == binaryOperation::ADD))
+		if ((left == indexes::fval_str) && (right == indexes::fval_str) && (node.op_ == binaryOperation::ADD))
 			node.op_ = binaryOperation::CONCAT;
 		// CHECK VALIDITY OF EXPRESSION
 		value_ = getExprResultType(
@@ -70,7 +70,7 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 	// Get the child's return type. Don't change anything, as rtr_value is already set by the accept function.
 	auto childttype = visitAndGetResult(node.child_);
 	// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATE on a string.
-	if (fval_traits<std::string>::isEqualTo(childttype))
+	if (childttype == indexes::fval_str)
 	{
 		// no unary op can be performed on a string
 		std::stringstream output;
@@ -79,9 +79,9 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 	}
 	// SPECIAL CASES : (LOGICNOT) and (NEGATE ON BOOLEANS)
 	if (node.op_ == unaryOperation::LOGICNOT)
-		value_ = fval_bool; // Return type is a boolean
-	else if ((node.op_ == unaryOperation::NEGATE) && fval_traits<bool>::isEqualTo(value_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
-		value_ = fval_int;
+		value_ = indexes::fval_bool; // Return type is a boolean
+	else if ((node.op_ == unaryOperation::NEGATE) && (value_ == indexes::fval_bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+		value_ = indexes::fval_int;
 
 	node.resultType_  = value_;
 }
@@ -99,7 +99,7 @@ void TypeCheckVisitor::visit(ASTCastExpr & node)
 	else
 	{
 		context_.reportError("Can't perform cast : " + indexToTypeName(result) + " to " + indexToTypeName(node.getCastGoal()));
-		value_ = invalid_index;
+		value_ = indexes::invalid_index;
 	}
 }
 
@@ -138,7 +138,7 @@ void TypeCheckVisitor::visit(ASTVarCall & node)
 	if ((node_ctxt_.dir == dir::LEFT) && (node_ctxt_.cur_binop == binaryOperation::ASSIGN) && searchResult.isConst)
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
-		value_ = invalid_index;
+		value_ = indexes::invalid_index;
 	}
 	else 
 		value_ =  searchResult.type_; // The error will be thrown by the symbols table itself if the value doesn't exist.
@@ -153,7 +153,7 @@ bool TypeCheckVisitor::shouldOpReturnFloat(const binaryOperation & op) const
 std::size_t TypeCheckVisitor::getExprResultType(const binaryOperation& op, std::size_t& lhs, const std::size_t& rhs)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. 
-		return invalid_index;
+		return indexes::invalid_index;
 	// first, quick, simple check : we can only verify results between 2 basic types.
 	if (op == binaryOperation::ASSIGN)
 	{
@@ -164,7 +164,7 @@ std::size_t TypeCheckVisitor::getExprResultType(const binaryOperation& op, std::
 			std::stringstream output;
 			output << "Can't assign a " << indexToTypeName(rhs) << " to a variable of type " << indexToTypeName(lhs) << std::endl;
 			context_.reportError(output.str());
-			return invalid_index;
+			return indexes::invalid_index;
 		}
 	}
 	else if (isBasic(lhs) && isBasic(rhs))
@@ -176,41 +176,41 @@ std::size_t TypeCheckVisitor::getExprResultType(const binaryOperation& op, std::
 				if (isCompJoinOp(op) && !isArithmetic(lhs)) // If we have a compJoinOp and types aren't arithmetic : problem
 				{
 					context_.reportError("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
-					return invalid_index;
+					return indexes::invalid_index;
 				}
-				return fval_bool; // Else, it's normal, return type's a boolean.
+				return indexes::fval_bool; // Else, it's normal, return type's a boolean.
 			}
-			else if (fval_traits<std::string>::isEqualTo(lhs) && (op != binaryOperation::CONCAT)) // We have strings and it's not a concat op :
+			else if ((lhs == indexes::fval_str) && (op != binaryOperation::CONCAT)) // We have strings and it's not a concat op :
 			{
 				context_.reportError("Can't perform operations other than addition (concatenation) on strings");
-				return invalid_index;
+				return indexes::invalid_index;
 			}
-			else if (fval_traits<bool>::isEqualTo(lhs)) // We have bools and they're not compared : the result will be an integer.
-				return	fval_bool;
+			else if (lhs == indexes::fval_bool) // We have bools and they're not compared : the result will be an integer.
+				return	indexes::fval_bool;
 			else
-				return shouldOpReturnFloat(op) ? fval_float : lhs; // Else, we just keep the type, unless it's a divison
+				return shouldOpReturnFloat(op) ? indexes::fval_float : lhs; // Else, we just keep the type, unless it's a divison
 		}
 		else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // Two different types, and one of them is a string?
 		{
 			context_.reportError("Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
-			return invalid_index;
+			return indexes::invalid_index;
 		}
 		else if (isComparison(op)) // Comparing 2 arithmetic types ? return type's a boolean
-			return fval_bool;
+			return indexes::fval_bool;
 		else
 		{
 			if (shouldOpReturnFloat(op))
-				return fval_float; // if op = division Or exp, return type's a float, because they may return floats under certain circumstances
+				return indexes::fval_float; // if op = division Or exp, return type's a float, because they may return floats under certain circumstances
 			else
 				return getBiggest(lhs, rhs); // Else, it's just a normal operation, and the return type is the one of the "biggest" of the 2 sides
 		}
-		return invalid_index;
+		return indexes::invalid_index;
 	}
 	else // One of the types is a non-basic type.
 	{
 		context_.reportError("Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
-		return invalid_index;
+		return indexes::invalid_index;
 	}
 	throw std::logic_error("getExprResultType() Defaulted.");
-	return invalid_index;
+	return indexes::invalid_index;
 }
