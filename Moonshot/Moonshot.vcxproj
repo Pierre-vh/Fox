@@ -157,7 +157,6 @@
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Eval\Stmt\RTStmtVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Common\Symbols\Symbols.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Eval\Expr\RTExprVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.cpp" />
@@ -170,7 +169,6 @@
     <ClCompile Include="src\Moonshot\main.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Lexer\Token.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\Util\Enums.cpp" />
     <ClCompile Include="src\Moonshot\Tests\ITest.cpp" />
     <ClCompile Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.cpp" />
     <ClCompile Include="src\Moonshot\Tests\VarStmts\VarStmts.cpp" />
