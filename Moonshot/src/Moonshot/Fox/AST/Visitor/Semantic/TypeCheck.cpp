@@ -118,7 +118,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 		// check if it's possible.
 		if (!canAssign(
 			context_,
-			node.vattr_.type,
+			node.vattr_.type_,
 			iexpr_type
 		))
 		{
@@ -127,7 +127,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 	}
 	symtable_.declareValue(
 		node.vattr_,
-		getSampleFValForIndex(node.vattr_.type) // Using a sample fval, so we don't need to store any "real" values in there.
+		getSampleFValForIndex(node.vattr_.type_) // Using a sample fval, so we don't need to store any "real" values in there.
 	);
 	// returns nothing
 }
@@ -141,7 +141,7 @@ void TypeCheckVisitor::visit(ASTVarCall & node)
 		value_ = invalid_index;
 	}
 	else 
-		value_ =  searchResult.type; // The error will be thrown by the symbols table itself if the value doesn't exist.
+		value_ =  searchResult.type_; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
 bool TypeCheckVisitor::shouldOpReturnFloat(const binaryOperation & op) const
