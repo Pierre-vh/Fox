@@ -56,7 +56,7 @@ void SymbolsTable::dumpSymbolsTable() const
 	out << "Dumping symbols table...\n";
 	for (auto& elem : sym_table_)
 	{
-		out << "NAME: " << elem.first.name << " TYPE: " << fv_util::indexToTypeName(elem.first.type) << " ---> VALUE: " << fv_util::dumpFVal(elem.second) << std::endl;
+		out << "NAME: " << elem.first.name_ << " TYPE: " << fv_util::indexToTypeName(elem.first.type) << " ---> VALUE: " << fv_util::dumpFVal(elem.second) << std::endl;
 	}
 	context_.logMessage(out.str());
 	out.clear();
@@ -120,9 +120,9 @@ bool SymbolsTable::symtable_addEntry(const var::varattr & vattr,FVal initval)
 {
 	auto ret = sym_table_.insert({ vattr,FVal() });
 	if (ret.second)
-		return symtable_setEntry(vattr.name, initval,true); 	// Attempt to assign the initial value
+		return symtable_setEntry(vattr.name_, initval,true); 	// Attempt to assign the initial value
 	else 
-		context_.reportError("Variable " + vattr.name + " is already declared.");
+		context_.reportError("Variable " + vattr.name_ + " is already declared.");
 	return ret.second; // ret.second is a "flag" if the operation was successful.
 }
 

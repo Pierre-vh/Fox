@@ -44,7 +44,7 @@ std::string fv_util::dumpFVal(const FVal & var)
 std::string fv_util::dumpVAttr(const var::varattr & var)
 {
 	std::stringstream output;
-	output << "[name:\"" << var.name << "\" "
+	output << "[name:\"" << var.name_ << "\" "
 		<< "type: " << (var.isConst ? "CONST " : "");
 	auto friendlyname = kType_dict.find(var.type);
 	if (friendlyname != kType_dict.end())
@@ -84,7 +84,9 @@ FVal fv_util::getSampleFValForIndex(const std::size_t & t)
 std::string fv_util::indexToTypeName(const std::size_t & t)
 {
 	auto a = kType_dict.find(t);
-	return (a != kType_dict.end()) ? a->second : "!IMPOSSIBLE_TYPE!";
+	if (a != kType_dict.end())
+		return a->second;
+	return "!IMPOSSIBLE_TYPE!";
 }
 
 bool fv_util::isBasic(const std::size_t & t)
@@ -173,22 +175,22 @@ std::size_t fv_util::typeKWtoSizeT(const keywordType & kw)
 // varRef
 var::varRef::varRef(const std::string & vname)
 {
-	name_ = vname;
+	name = vname;
 }
 
 std::string var::varRef::getName() const
 {
-	return name_;
+	return name;
 }
 
 void var::varRef::setName(const std::string & newname)
 {
-	name_ = newname;
+	name = newname;
 }
 
 var::varRef::operator bool() const
 {
-	return (name_ != "");
+	return (name != "");
 }
 
 // varattr
@@ -198,10 +200,10 @@ var::varattr::varattr()
 
 var::varattr::varattr(const std::string & nm)
 {
-	name = nm; // Create a "dummy",unusable varattr with only a name.
+	name_ = nm; // Create a "dummy",unusable varattr with only a name.
 }
 
-var::varattr::varattr(const std::string & nm, const std::size_t & ty, const bool & isK) : name(nm), type(ty), isConst(isK)
+var::varattr::varattr(const std::string & nm, const std::size_t & ty, const bool & isK) : name_(nm), type(ty), isConst(isK)
 {
 	wasInit_ = true;
 }
@@ -213,5 +215,5 @@ var::varattr::operator bool() const
 
 var::varRef var::varattr::createRef() const
 {
-	return varRef(name);
+	return varRef(name_);
 }

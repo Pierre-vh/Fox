@@ -155,7 +155,7 @@ namespace Moonshot
 				void setName(const std::string& newname);
 				operator bool() const;  // checks validity of reference (if name != "");
 			private:
-				std::string name_;
+				std::string name;
 		};
 		struct varattr // Struct holding a var's attributes
 		{
@@ -165,7 +165,7 @@ namespace Moonshot
 			operator bool() const;
 			// Variable's attribute
 			bool isConst = false;
-			std::string name = "";
+			std::string name_ = "";
 			std::size_t type = fv_util::fval_null;
 
 			varRef createRef() const;
@@ -175,11 +175,11 @@ namespace Moonshot
 		};
 		inline bool operator < (const varattr& lhs, const varattr& rhs)
 		{
-			return lhs.name < rhs.name; // We don't care about the rest, because you can only use a name once.
+			return lhs.name_ < rhs.name_; // We don't care about the rest, because you can only use a name once.
 		}
 		inline bool operator == (const varattr& lhs, const varattr& rhs)
 		{
-			return (lhs.name == rhs.name) &&
+			return (lhs.name_ == rhs.name_) &&
 				(lhs.isConst == rhs.isConst) &&
 				(lhs.type == rhs.type);
 		}
