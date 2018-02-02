@@ -37,7 +37,10 @@ namespace Moonshot
 			TypeCheckVisitor(Context& c,const bool& testmode = false);
 			~TypeCheckVisitor();
 
-			virtual void visit(ASTExpr & node) override;
+			virtual void visit(ASTBinaryExpr & node) override;
+			virtual void visit(ASTUnaryExpr & node) override;
+			virtual void visit(ASTCastExpr & node) override;
+
 			virtual void visit(ASTLiteral & node) override;
 
 			virtual void visit(ASTVarDeclStmt & node) override;
@@ -51,21 +54,25 @@ namespace Moonshot
 
 			// Utiliser un template aussi pour *this?
 			template<typename T>
-			inline std::size_t visitAndGetResult(std::unique_ptr<T>& node,const dir& dir = dir::UNKNOWNDIR)
+			inline std::size_t visitAndGetResult(std::unique_ptr<T>& node,const dir& dir = dir::UNKNOWNDIR, const binaryOperation& c_binop = binaryOperation::PASS)
 			{
+				node_ctxt_.cur_binop = c_binop;
 				node_ctxt_.dir = dir;
+
 				node->accept(*this);
+
+				node_ctxt_.cur_binop = binaryOperation::PASS;
 				node_ctxt_.dir = dir::UNKNOWNDIR;
 				return value_;
 			}
 
-			bool shouldOpReturnFloat(const operation& op) const; // used for operations that return float instead of normal values
-			std::size_t getExprResultType(const operation& op, std::size_t& lhs, const std::size_t& rhs);
+			bool shouldOpReturnFloat(const binaryOperation& op) const; // used for operations that return float instead of normal values
+			std::size_t getExprResultType(const binaryOperation& op, std::size_t& lhs, const std::size_t& rhs);
 
 			struct nodecontext
 			{
 				dir dir;
-				operation op;
+				binaryOperation cur_binop;
 			} node_ctxt_;
 	};
 

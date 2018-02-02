@@ -29,88 +29,77 @@ TypeCheckVisitor::~TypeCheckVisitor()
 
 }
 
-void TypeCheckVisitor::visit(ASTExpr & node)
+void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
 		return;
-	//// SET CUROP
-	node_ctxt_.op = node.op_;
-	//////////////////////////////////
-	/////NODES WITH 2 CHILDREN////////
-	//////////////////////////////////
-	if (node.left_ && node.right_) 
+
+	if (node.left_ && node.right_)
 	{
 		// VISIT BOTH CHILDREN
 		// get left expr result type
-		auto left = visitAndGetResult(node.left_,dir::LEFT);
+		auto left = visitAndGetResult(node.left_, dir::LEFT,node.op_);
 		// get right expr result type
-		auto right = visitAndGetResult(node.right_, dir::RIGHT);
+		auto right = visitAndGetResult(node.right_, dir::RIGHT,node.op_);
 		// SPECIAL CHECK 1: CHECK IF THIS IS A CONCAT OP,CONVERT IT 
-		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right)  && (node.op_ == operation::ADD))
-			node.op_ = operation::CONCAT;
+		if (fval_traits<std::string>::isEqualTo(left) && fval_traits<std::string>::isEqualTo(right) && (node.op_ == binaryOperation::ADD))
+			node.op_ = binaryOperation::CONCAT;
 		// CHECK VALIDITY OF EXPRESSION
 		value_ = getExprResultType(
-				node.op_
-			,	left		
-			,	right
-			);
+			node.op_
+			, left
+			, right
+		);
 	}
-	/////////////////////////////////////////
-	/////NODES WITH ONLY A LEFT CHILD////////
-	/////////////////////////////////////////
-	else if(node.left_)// We only have a left node
-	{
-		// CAST NODES
-		if (node.op_ == operation::CAST) // check validity of cast
-		{
-			auto result = visitAndGetResult(node.left_);
-			if (!canCastTo(node.totype_, result))
-			{
-				context_.reportError("Can't perform cast : " + indexToTypeName(result) + " to " + indexToTypeName(node.totype_));
-				value_ = invalid_index;
-			}
-			else
-				value_ = node.totype_;
-		}
-		// UNARY OPS
-		else if (isUnary(node.op_))
-		{
-			// We have a unary operation
-			// Get left's return type. Don't change anything, as rtr_value is already set by the accept function.
-			auto lefttype = visitAndGetResult(node.left_);
-			// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATE on a string.
-			if(fval_traits<std::string>::isEqualTo(lefttype))
-			{
-				std::stringstream output;
-				output << "Can't perform unary operation " << getFromDict(kOptype_dict, node.op_) << " on a string.";
-				context_.reportError(output.str());
-			}
-			// SPECIAL CASES : (LOGICNOT)(NEGATE ON BOOLEANS)
-			if (node.op_ == operation::LOGICNOT)
-				value_ = fval_bool; // Return type is a boolean
-			else if ((node.op_ == operation::NEGATE) && fval_traits<bool>::isEqualTo(value_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
-				value_ = fval_int;
-		}
-		else
-			throw Exceptions::ast_malformation("A Node only had a left_ child, and wasn't a unary op.");
-	}
-	//////////////////////////////////
-	/////UNSAFE CASES//////////////////
-	//////////////////////////////////
 	else
 	{
-		// Okay, this is far-fetched, but can be possible if our parser is broken. It's better to check this here :
-		// getting in this branch means that we only have a right_ node.
-		throw Exceptions::ast_malformation("Node was in an invalid state.");
+		throw Exceptions::ast_malformation("Binary Expression node was incomplete, it did not have both a left and right child.");
+		return;
 	}
-	node.totype_ = value_;
 
-	if (!isBasic(node.totype_) && context_.isSafe())
+	node.resultType_ = value_;
+}
+
+void TypeCheckVisitor::visit(ASTUnaryExpr & node)
+{
+	if (!context_.isSafe()) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
+		return;
+	if (!node.child_)
+		throw Exceptions::ast_malformation("UnaryExpression node did not have any child.");
+
+	// Get the child's return type. Don't change anything, as rtr_value is already set by the accept function.
+	auto childttype = visitAndGetResult(node.child_);
+	// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATE on a string.
+	if (fval_traits<std::string>::isEqualTo(childttype))
 	{
-		if (node.totype_ == invalid_index)
-			context_.reportError("Type was invalid.");
-		else 
-			throw Exceptions::ast_malformation("node.totype was not a basic type.");
+		// no unary op can be performed on a string
+		std::stringstream output;
+		output << "Can't perform unary operation " << getFromDict(kUop_dict, node.op_) << " on a string.";
+		context_.reportError(output.str());
+	}
+	// SPECIAL CASES : (LOGICNOT) and (NEGATE ON BOOLEANS)
+	if (node.op_ == unaryOperation::LOGICNOT)
+		value_ = fval_bool; // Return type is a boolean
+	else if ((node.op_ == unaryOperation::NEGATE) && fval_traits<bool>::isEqualTo(value_)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+		value_ = fval_int;
+
+	node.resultType_  = value_;
+}
+
+void TypeCheckVisitor::visit(ASTCastExpr & node)
+{
+	if (!context_.isSafe()) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
+		return;
+	if (!node.child_)
+		throw Exceptions::ast_malformation("CastExpression node did not have any child.");
+
+	auto result = visitAndGetResult(node.child_);
+	if (canCastTo(node.getCastGoal(), result))
+		value_ = node.getCastGoal();
+	else
+	{
+		context_.reportError("Can't perform cast : " + indexToTypeName(result) + " to " + indexToTypeName(node.getCastGoal()));
+		value_ = invalid_index;
 	}
 }
 
@@ -133,7 +122,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 			iexpr_type
 		))
 		{
-			context_.reportError("Can't perform initialization of variable \"" + node.vattr_.name + "\". Type of initialization expression is unassignable to the desired variable type.\nFor further information, see the errors thrown earlier!");
+			context_.reportError("Can't perform initialization of variable \"" + node.vattr_.name_ + "\". Type of initialization expression is unassignable to the desired variable type.\nFor further information, see the errors thrown earlier!");
 		}
 	}
 	symtable_.declareValue(
@@ -146,27 +135,27 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 void TypeCheckVisitor::visit(ASTVarCall & node)
 {
 	auto searchResult = symtable_.retrieveVarAttr(node.varname_);
-	if ((node_ctxt_.dir == dir::LEFT) && (node_ctxt_.op == operation::ASSIGN) && searchResult.isConst)
+	if ((node_ctxt_.dir == dir::LEFT) && (node_ctxt_.cur_binop == binaryOperation::ASSIGN) && searchResult.isConst)
 	{
-		context_.reportError("Can't assign a value to const variable \"" + searchResult.name + "\"");
+		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
 		value_ = invalid_index;
 	}
 	else 
 		value_ =  searchResult.type; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
-bool TypeCheckVisitor::shouldOpReturnFloat(const operation & op) const
+bool TypeCheckVisitor::shouldOpReturnFloat(const binaryOperation & op) const
 {
-	// only div and exp are affected by this exception;
-	return (op == operation::DIV) || (op == operation::EXP);
+	// only div and exp are affected by this exception. The exponent is because with negative ones it acts like a fraction.(
+	return (op == binaryOperation::DIV) || (op == binaryOperation::EXP);
 }
 
-std::size_t TypeCheckVisitor::getExprResultType(const operation& op, std::size_t& lhs, const std::size_t& rhs)
+std::size_t TypeCheckVisitor::getExprResultType(const binaryOperation& op, std::size_t& lhs, const std::size_t& rhs)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. 
 		return invalid_index;
 	// first, quick, simple check : we can only verify results between 2 basic types.
-	if (op == operation::ASSIGN)
+	if (op == binaryOperation::ASSIGN)
 	{
 		if (canAssign(context_,lhs, rhs))
 			return lhs; // Assignements return the value  of the lhs.
@@ -191,7 +180,7 @@ std::size_t TypeCheckVisitor::getExprResultType(const operation& op, std::size_t
 				}
 				return fval_bool; // Else, it's normal, return type's a boolean.
 			}
-			else if (fval_traits<std::string>::isEqualTo(lhs) && (op != operation::CONCAT)) // We have strings and it's not a concat op :
+			else if (fval_traits<std::string>::isEqualTo(lhs) && (op != binaryOperation::CONCAT)) // We have strings and it's not a concat op :
 			{
 				context_.reportError("Can't perform operations other than addition (concatenation) on strings");
 				return invalid_index;

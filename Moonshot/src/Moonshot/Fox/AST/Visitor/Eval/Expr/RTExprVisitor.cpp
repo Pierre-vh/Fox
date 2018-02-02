@@ -25,20 +25,31 @@ RTExprVisitor::~RTExprVisitor()
 {
 }
 
-void RTExprVisitor::visit(ASTExpr & node)
+void RTExprVisitor::visit(ASTBinaryExpr & node)
 {
 	if (!context_.isSafe())
 	{
 		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
-	if (node.op_ == operation::CONCAT)
+
+	if (node.op_ == binaryOperation::PASS)
+	{
+		if (!node.left_)
+			throw Exceptions::ast_malformation("Tried to pass a value to parent node, but the node did not have a left_ child.");
+		else
+		{
+			node.left_->accept(*this);
+			return;
+		}
+	}
+	else if (node.op_ == binaryOperation::CONCAT)
 	{
 		if (node.left_ && node.right_)
 		{
-			auto leftval = visitAndGetResult(node.left_,*this);
-			auto rightval = visitAndGetResult(node.right_,*this);
-			
+			auto leftval = visitAndGetResult(node.left_, *this);
+			auto rightval = visitAndGetResult(node.right_, *this);
+
 			if (std::holds_alternative<std::string>(leftval) &&
 				std::holds_alternative<std::string>(rightval))
 			{
@@ -56,12 +67,12 @@ void RTExprVisitor::visit(ASTExpr & node)
 			throw Exceptions::ast_malformation("Tried to concat a node without a left_ or right  child.");
 		}
 	}
-	else if (node.op_ == operation::ASSIGN)
+	else if (node.op_ == binaryOperation::ASSIGN)
 	{
 		if (isSymbolsTableAvailable())
 		{
-			auto left_res = visitAndGetResult(node.left_,*this);
-			auto right_res = visitAndGetResult(node.right_,*this);
+			auto left_res = visitAndGetResult(node.left_, *this);
+			auto right_res = visitAndGetResult(node.right_, *this);
 			if (std::holds_alternative<var::varRef>(left_res) && isValue(right_res.index()))
 			{
 				symtab_->setValue(
@@ -71,32 +82,17 @@ void RTExprVisitor::visit(ASTExpr & node)
 				value_ = right_res; // Assignement returns the value on the left !
 				return;
 			}
-			else 
+			else
 				context_.reportError("Impossible assignement between " + dumpFVal(left_res) + " and " + dumpFVal(right_res));
 		}
 		else
 			context_.logMessage("Can't perform assignement operations when the symbols table is unavailable.");
 	}
-	else if (node.op_ == operation::CAST)
-	{
-		value_ = castTo_withDeref(node.totype_, visitAndGetResult(node.left_,*this));
-		return;
-	}
-	else if (node.op_ == operation::PASS)
-	{
-		if (!node.left_)
-			throw Exceptions::ast_malformation("Tried to pass a value to parent node, but the node did not have a left_ child.");
-		else
-		{
-			node.left_->accept(*this);
-			return;
-		}
-	}
-	else if (node.op_ == operation::ASSIGN)
+	else if (node.op_ == binaryOperation::ASSIGN)
 	{
 		if (isSymbolsTableAvailable())
 		{
-			auto vattr = visitAndGetResult(node.left_,*this);
+			auto vattr = visitAndGetResult(node.left_, *this);
 			if (std::holds_alternative<var::varRef>(vattr))
 			{
 				// Perform assignement
@@ -116,8 +112,8 @@ void RTExprVisitor::visit(ASTExpr & node)
 		if (!node.left_ || !node.right_)
 			throw Exceptions::ast_malformation("Attempted to run a comparison operation on a node without 2 children");
 
-		const FVal lfval = visitAndGetResult(node.left_,*this);
-		const FVal rfval = visitAndGetResult(node.right_,*this);
+		const FVal lfval = visitAndGetResult(node.left_, *this);
+		const FVal rfval = visitAndGetResult(node.right_, *this);
 		if (std::holds_alternative<std::string>(lfval) && std::holds_alternative<std::string>(rfval)) // lhs/rhs str?
 		{
 			if (lfval.index() == rfval.index()) // if so, lhs/rhs must both be strings to compare them.
@@ -140,8 +136,8 @@ void RTExprVisitor::visit(ASTExpr & node)
 		}
 		else
 		{
-			double dleftval = fvalToDouble_withDeref(visitAndGetResult(node.left_,*this));
-			double drightval = fvalToDouble_withDeref(visitAndGetResult(node.right_,*this));
+			double dleftval = fvalToDouble_withDeref(visitAndGetResult(node.left_, *this));
+			double drightval = fvalToDouble_withDeref(visitAndGetResult(node.right_, *this));
 			//std::cout << "Compare: Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			value_ = FVal(compareVal(
 				node.op_,
@@ -152,27 +148,8 @@ void RTExprVisitor::visit(ASTExpr & node)
 			return;
 		}
 	}
-	else if (node.op_ == operation::LOGICNOT || node.op_ == operation::NEGATE)
-	{
-		double lval = fvalToDouble_withDeref(visitAndGetResult(node.left_,*this));
-		if (node.op_ == operation::LOGICNOT)
-		{
-			value_ = FVal(
-				lval == 0 // If the value differs equals zero, return true
-			);
-			return;
-		}
-		else
-		{
-			lval = -lval; // Negate the number
-			value_ = castTo(context_,node.totype_, lval);		// Cast to result type
-			return;
-		}
-	}
 	else
 	{
-		if (!node.left_ || !node.right_)
-			throw Exceptions::ast_malformation("Tried to perform an operation on a node without a left_ and/or right child.");
 		auto left_res = visitAndGetResult(node.left_, *this);
 		auto right_res = visitAndGetResult(node.right_, *this);
 		// Check if we have a string somewhere.
@@ -187,14 +164,50 @@ void RTExprVisitor::visit(ASTExpr & node)
 			//std::cout << "Op: " << util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			const double result = performOp(node.op_, dleftval, drightval);
 
-			if (fitsInValue(node.totype_, result) || (node.op_ == operation::CAST)) // If the results fits or we desire to cast the result
-				value_ = castTo(context_, node.totype_, result);		// Cast to result type
+			if (fitsInValue(node.resultType_, result)) // If the results fits or we desire to cast the result
+				value_ = castTo(context_, node.resultType_, result);		// Cast to result type
 			else
 				value_ = castTo(context_, fval_float, result);	// Cast to float instead to keep information from being lost.
 		}
 		return;
 	}
+	// default return
 	value_ = FVal();
+}
+
+void RTExprVisitor::visit(ASTUnaryExpr & node)
+{
+	if (!context_.isSafe())
+	{
+		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
+		return;
+	}
+
+	double lval = fvalToDouble_withDeref(visitAndGetResult(node.child_, *this));
+	// op == loginot
+	if (node.op_ == unaryOperation::LOGICNOT)
+	{
+		value_ = FVal(
+			(bool)(lval == 0) // If the value differs equals zero, return true
+		);
+		return;
+	}
+	else if (node.op_ == unaryOperation::NEGATE)
+		lval = -lval; // Negate the number
+
+	value_ = castTo(context_, node.resultType_, lval);		// Cast to result type
+	return;
+}
+
+void RTExprVisitor::visit(ASTCastExpr & node)
+{
+	if (!context_.isSafe())
+	{
+		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
+		return;
+	}
+	value_ = castTo_withDeref(node.getCastGoal(), visitAndGetResult(node.child_, *this));
+	return;
 }
 
 void RTExprVisitor::visit(ASTLiteral & node)
@@ -258,57 +271,57 @@ double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 		throw std::logic_error("Reached end of function.Unimplemented type in FVal?");
 	return 0.0;
 }
-bool RTExprVisitor::compareVal(const operation & op, const FVal & l, const FVal & r)
+bool RTExprVisitor::compareVal(const binaryOperation & op, const FVal & l, const FVal & r)
 {
 	
 	const double lval = fvalToDouble_withDeref(l);
 	const double rval = fvalToDouble_withDeref(r);
 	switch (op)
 	{
-		case operation::AND:
+		case binaryOperation::AND:
 			return (lval != 0) && (rval != 0);
-		case operation::OR:
+		case binaryOperation::OR:
 			return (lval != 0) || (rval != 0);
-		case operation::LESS_OR_EQUAL:
+		case binaryOperation::LESS_OR_EQUAL:
 			return lval <= rval;
-		case operation::GREATER_OR_EQUAL:
+		case binaryOperation::GREATER_OR_EQUAL:
 			return lval >= rval;
-		case operation::LESS_THAN:
+		case binaryOperation::LESS_THAN:
 			return lval < rval;
-		case operation::GREATER_THAN:
+		case binaryOperation::GREATER_THAN:
 			return lval > rval;
-		case operation::EQUAL:
+		case binaryOperation::EQUAL:
 			return lval == rval;
-		case operation::NOTEQUAL:
+		case binaryOperation::NOTEQUAL:
 			return lval != rval;
 		default:
 			throw std::logic_error("Defaulted. Unimplemented condition operation?");
 			return false;
 	}
 }
-bool RTExprVisitor::compareStr(const operation & op, const std::string & lhs, const std::string & rhs)
+bool RTExprVisitor::compareStr(const binaryOperation & op, const std::string & lhs, const std::string & rhs)
 {
 	
 	switch (op)
 	{
-		case operation::EQUAL:				return lhs == rhs;
-		case operation::NOTEQUAL:			return lhs != rhs;
-		case operation::LESS_THAN:			return lhs < rhs;
-		case operation::GREATER_THAN:		return lhs > rhs;
-		case operation::LESS_OR_EQUAL:		return lhs <= rhs;
-		case operation::GREATER_OR_EQUAL:	return lhs > rhs;
+		case binaryOperation::EQUAL:			return lhs == rhs;
+		case binaryOperation::NOTEQUAL:			return lhs != rhs;
+		case binaryOperation::LESS_THAN:		return lhs < rhs;
+		case binaryOperation::GREATER_THAN:		return lhs > rhs;
+		case binaryOperation::LESS_OR_EQUAL:	return lhs <= rhs;
+		case binaryOperation::GREATER_OR_EQUAL:	return lhs > rhs;
 		default:	throw std::logic_error("Operation was not a condition.");
 			return false;
 	}
 }
-double RTExprVisitor::performOp(const operation& op,double l,double r)
+double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
 {
 	switch (op)
 	{
-		case operation::ADD:	return l + r;
-		case operation::MINUS:	return l - r;
-		case operation::MUL:	return l * r;
-		case operation::DIV:
+		case binaryOperation::ADD:	return l + r;
+		case binaryOperation::MINUS:	return l - r;
+		case binaryOperation::MUL:	return l * r;
+		case binaryOperation::DIV:
 			if(r == 0)
 			{
 				context_.reportError("Division by zero.");
@@ -316,7 +329,7 @@ double RTExprVisitor::performOp(const operation& op,double l,double r)
 			}
 			else 
 				return l / r;
-		case operation::MOD:
+		case binaryOperation::MOD:
 			// if the divisor is greater, it goes zero times in l, so we can directly return l
 			//std::cout << "l:" << l << " r:" << r << std::endl;
 			if (l > r)
@@ -332,10 +345,10 @@ double RTExprVisitor::performOp(const operation& op,double l,double r)
 			// and  (l < 0) ? l + r : l;
 			// parts, it's a tip from https://stackoverflow.com/a/12277233/3232822
 			// Thanks !
-		case operation::EXP:
+		case binaryOperation::EXP:
 			// if exp < 0 perform 1/base^exp
 			if (r < 0)
-				return performOp(operation::DIV, 1, std::pow(l, -r));
+				return performOp(binaryOperation::DIV, 1, std::pow(l, -r));
 			else if (r == 0)
 				return 1; // Any number with exponent 0 equals 1, except 0
 			else

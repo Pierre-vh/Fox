@@ -19,41 +19,60 @@
 
 namespace Moonshot	
 {
-	struct ASTExpr : public IASTStmt
+	struct IASTExpr : public IASTStmt
 	{
 		public:
-			ASTExpr() = default;
-			ASTExpr(const operation &opt);
-			~ASTExpr();
+			IASTExpr() = default;
+			inline virtual ~IASTExpr() = 0 {}
 
-			void makeChild(const dir &d,std::unique_ptr<ASTExpr> &node); // make (node) a child of this.
-			void makeChildOfDeepestNode(const dir &d, std::unique_ptr<ASTExpr> &node); // Make (node) a child of the deepest left/right path of our node. (continue until left/right = 0, then makechild.)
-			
-			bool hasNode(const dir &d) const;	// If the node posseses a left/right child, it will return true
-			void setReturnType(const std::size_t &casttype); // set totype_
-			std::size_t getToType() const;					// return totype_
-
-			void swapChildren();
-
-			std::unique_ptr<ASTExpr> getSimple();			// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
-
-			// Accept
-			virtual void accept(IVisitor& vis) override;
-			// NODE DATA
-			// Expression nodes hold 4 values :
-			// totype_ : the return type of the node
-			// op_ : the operation the node should perform
-			// left_ & right_ -> pointers to its children
-			std::size_t totype_ = fv_util::invalid_index;	// By default, don't cast (-1). If this is different , then we must cast the result to the desired type.
-			operation op_ = operation::PASS;
-			std::unique_ptr<ASTExpr> left_, right_;
+			std::size_t resultType_ = 0; // The planified result type of the expression after execution. this is set by the typechecker.
 	};
-	struct ASTLiteral : public ASTExpr // Stores hard coded constants. 3+3 -> 3 are Hard coded constants.
+	struct ASTBinaryExpr : public IASTExpr
+	{
+		public:
+			ASTBinaryExpr() = default;
+			ASTBinaryExpr(const binaryOperation &opt);
+
+
+			std::unique_ptr<IASTExpr> left_, right_;
+			binaryOperation op_ = binaryOperation::PASS;
+			std::size_t resultType_ = 0; 
+
+			virtual void accept(IVisitor& vis) override;
+			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
+			void swapChildren();
+			void makeChild(const dir &d, std::unique_ptr<IASTExpr> &node); // make (node) a child of this.
+			void makeChildOfDeepestNode(const dir &d, std::unique_ptr<IASTExpr> &node); // Make (node) a child of the deepest left/right path of our node. (continue until left/right = 0, then makechild.)
+	};
+	struct ASTUnaryExpr : public IASTExpr
+	{
+		public: 
+			ASTUnaryExpr() = default;
+			ASTUnaryExpr(const unaryOperation& opt);
+			virtual void accept(IVisitor& vis) override;
+
+			std::unique_ptr<IASTExpr> child_;
+			unaryOperation op_ = unaryOperation::DEFAULT;
+			std::size_t resultType_ = 0; 
+	};
+	struct ASTCastExpr : public IASTExpr
+	{
+		public:
+			ASTCastExpr() = default;
+			ASTCastExpr(std::size_t castGoal);
+			virtual void accept(IVisitor& vis) override;
+
+			std::unique_ptr<IASTExpr> child_;
+			std::size_t resultType_ = 0;
+
+			void setCastGoal(const std::size_t& ncg);
+			std::size_t getCastGoal() const; 
+	};
+	struct ASTLiteral : public IASTExpr // Stores hard coded constants. 3+3 -> 3 are Hard coded constants.
 	{
 		public:
 			ASTLiteral() = default;
 			ASTLiteral(const Token &t);
-			~ASTLiteral();
 
 			void accept(IVisitor& vis) override;
 			// NODE DATA
@@ -61,12 +80,11 @@ namespace Moonshot
 			// val_ -> std::variant that holds the data of the node
 			FVal val_;
 	};
-	struct ASTVarCall : public ASTExpr // Store var calls : foo+3 -> foo is a var call;
+	struct ASTVarCall : public IASTExpr // Store var calls : foo+3 -> foo is a var call;
 	{
 		public:
 			ASTVarCall() = default;
 			ASTVarCall(const std::string& vname);
-			~ASTVarCall();
 
 			void accept(IVisitor& vis) override;
 			

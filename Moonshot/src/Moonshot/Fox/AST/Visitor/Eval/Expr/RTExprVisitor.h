@@ -48,7 +48,10 @@ namespace Moonshot
 			RTExprVisitor(Context& c);
 			~RTExprVisitor();
 
-			virtual void visit(ASTExpr & node) override;
+			virtual void visit(ASTBinaryExpr & node) override;
+			virtual void visit(ASTUnaryExpr & node) override;
+			virtual void visit(ASTCastExpr & node) override;
+
 			virtual void visit(ASTLiteral & node) override;
 			virtual void visit(ASTVarCall & node) override;
 
@@ -59,9 +62,9 @@ namespace Moonshot
 			Context& context_;
 			// converts fval to double, but if fval is a varref, deref it first.
 			double fvalToDouble_withDeref(FVal fval);
-			bool compareVal(const operation &op, const FVal &l, const FVal &r);
-			bool compareStr(const operation &op, const std::string &lhs, const std::string &rhs);
-			double performOp(const operation& op, double l, double r);
+			bool compareVal(const binaryOperation &op, const FVal &l, const FVal &r);
+			bool compareStr(const binaryOperation &op, const std::string &lhs, const std::string &rhs);
+			double performOp(const binaryOperation& op, double l, double r);
 		
 			bool fitsInValue(const std::size_t& typ, const double &d); // Determines if we should convert the result to a float when making an operation to avoid loss of information
 			

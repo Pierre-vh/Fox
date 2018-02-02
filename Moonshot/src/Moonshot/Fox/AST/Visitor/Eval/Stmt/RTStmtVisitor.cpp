@@ -40,14 +40,14 @@ void RTStmtVisitor::visit(ASTVarDeclStmt & node)
 				node.vattr_,
 				iexpr
 			))
-				context_.reportError("Error while initializing variable " + node.vattr_.name);
+				context_.reportError("Error while initializing variable " + node.vattr_.name_);
 		}
 		else // without
 		{
 			if(!symtab_declareValue_derefFirst(
 				node.vattr_
 			))
-			context_.reportError("Error while initializing variable " + node.vattr_.name);
+			context_.reportError("Error while initializing variable " + node.vattr_.name_);
 		}
 	}
 	value_ = FVal(); // does not return anything.

@@ -21,24 +21,28 @@
 
 namespace Moonshot
 {
-	struct ASTExpr; 
 	struct ASTLiteral; 
 	struct ASTVarDeclStmt; 
 	struct ASTVarCall; 
 	struct ASTCompStmt; 
 	struct ASTCondition;
 	struct ASTWhileLoop;
-
+	struct IASTExpr;
+	struct ASTBinaryExpr;
+	struct ASTUnaryExpr;
+	struct ASTCastExpr;
 	class IVisitor
 	{
 		public:
 			inline virtual ~IVisitor() = 0						{}
 
-			inline virtual void visit(ASTExpr &node)			{}
+			inline virtual void visit(ASTBinaryExpr &node)		{}
+			inline virtual void visit(ASTUnaryExpr &node)		{}
+			inline virtual void visit(ASTCastExpr &node)		{}
 			inline virtual void visit(ASTLiteral &node)			{}
+			inline virtual void visit(ASTVarCall& node) {}
 
 			inline virtual void visit(ASTVarDeclStmt &node)		{}
-			inline virtual void visit(ASTVarCall& node)			{}
 
 			inline virtual void visit(ASTCompStmt& node)		{}
 			inline virtual void visit(ASTCondition& node)		{}

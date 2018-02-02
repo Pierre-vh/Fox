@@ -24,7 +24,7 @@ namespace Moonshot
 			~ASTCondition();
 
 			// "CondBlock" = Expression + Compound Statement
-			typedef std::pair<std::unique_ptr<ASTExpr>, std::unique_ptr<ASTCompStmt>> CondBlock;
+			typedef std::pair<std::unique_ptr<IASTExpr>, std::unique_ptr<ASTCompStmt>> CondBlock;
 
 			virtual void accept(IVisitor & vis) override;
 

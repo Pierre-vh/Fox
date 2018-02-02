@@ -25,7 +25,7 @@ namespace Moonshot
 
 			bool isValid() const;
 
-			std::unique_ptr<ASTExpr> expr_;
+			std::unique_ptr<IASTExpr> expr_;
 			std::unique_ptr<ASTCompStmt> body_;
 	};
 }

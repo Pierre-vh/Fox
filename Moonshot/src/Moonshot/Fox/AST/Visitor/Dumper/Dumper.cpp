@@ -16,37 +16,88 @@ Dumper::~Dumper()
 {
 }
 
-void Dumper::visit(ASTExpr & node)
+void Dumper::visit(ASTBinaryExpr & node)
 {
-	std::cout << tabs() << "Expression : Operator ";
-	// Attempts to print the operator in a str form
-	auto strOp = kOptype_dict.find(node.op_);
-	if (strOp != kOptype_dict.end())
-		std::cout << strOp->second;
-	else
-		std::cout << util::enumAsInt(node.op_);
+	std::string op = getFromDict(kBinop_dict, node.op_);
+	if (op.size() == 0)
+		op = util::enumAsInt(node.op_);
 
-	if (node.totype_ != invalid_index)
-		std::cout << ", Return type : " << indexToTypeName(node.totype_);
-	std::cout << std::endl;
-	if (node.left_)
+	std::cout << tabs() << "BinaryExpression : Operator " << op;
+	// print planned result type if there's one
+	if (node.resultType_ != 0 && node.resultType_ != invalid_index)
+		std::cout << ", Return type : " << indexToTypeName(node.resultType_);
+	// newline
+	std::cout << "\n";
+
+	if (!node.right_ || !node.left_)
 	{
+		throw Exceptions::ast_malformation("BinaryExpression node did not have a left and right child.");
+		return;
+	}
+	else
+	{
+		// PRINT LEFT CHILD
 		tabcount++;
 		std::cout << tabs() << "Left child:\n";
 		tabcount++;
 		node.left_->accept(*this);
 		tabcount -= 2;
-	}
-	if (node.right_)
-	{
+		// PRINT RIGHT CHILD
 		tabcount++;
 		std::cout << tabs() << "Right child:\n";
 		tabcount++;
 		node.right_->accept(*this);
 		tabcount -= 2;
 	}
+	
 }
 
+void Dumper::visit(ASTUnaryExpr & node)
+{
+	std::string op = getFromDict(kUop_dict, node.op_);
+	if (op.size() == 0)
+		op = util::enumAsInt(node.op_);
+
+	std::cout << tabs() << "UnaryExpression : Operator " << op;
+
+	if (node.resultType_ > 10)
+		std::cout << "";
+
+	if (node.resultType_ != 0 && node.resultType_ != invalid_index)
+		std::cout << ", Return type : " << indexToTypeName(node.resultType_);
+
+	std::cout << "\n";
+
+	tabcount++;
+	std::cout << tabs() << "Child:\n";
+	tabcount++;
+
+	if (!node.child_)
+	{
+		throw Exceptions::ast_malformation("UnaryExpression node did not have a child.");
+		return;
+	}
+
+	node.child_->accept(*this);
+	tabcount -= 2;
+}
+
+void Dumper::visit(ASTCastExpr & node)
+{
+	std::cout << tabs() << "CastExpression : Cast Goal:" << indexToTypeName(node.getCastGoal()) << "\n";
+	tabcount++;
+	std::cout << tabs() << "Child:\n";
+	tabcount++;
+
+	if (!node.child_)
+	{
+		throw Exceptions::ast_malformation("CastExpression node did not have a child.");
+		return;
+	}
+
+	node.child_->accept(*this);
+	tabcount -= 2;
+}
 void Dumper::visit(ASTLiteral & node)
 {
 	std::cout << tabs() << "Literal: " << dumpFVal(node.val_) << '\n';

@@ -11,79 +11,6 @@
 
 using namespace Moonshot;
 
-ASTExpr::ASTExpr(const operation & opt) : op_(opt)
-{
-
-}
-
-ASTExpr::~ASTExpr()
-{
-
-}
-
-void ASTExpr::makeChild(const dir & d, std::unique_ptr<ASTExpr> &node)
-{
-	if (d == dir::LEFT)
-		left_ = std::move(node);
-	else if (d == dir::RIGHT)
-		right_ = std::move(node);
-}
-
-void ASTExpr::makeChildOfDeepestNode(const dir & d, std::unique_ptr<ASTExpr>& node)
-{
-	if (d == dir::LEFT)
-	{
-		if (!left_)						// we don't have a left child
-			this->makeChild(d, node);
-		else // we do
-			left_->makeChildOfDeepestNode(d, node);
-	}
-	else if (d == dir::RIGHT)
-	{
-		if (!right_)						// we don't have a right child
-			this->makeChild(d, node);
-		else // we do
-			right_->makeChildOfDeepestNode(d, node);
-	}
-}
-
-bool ASTExpr::hasNode(const dir & d) const
-{
-	if (((d == dir::LEFT) && left_) || ((d == dir::RIGHT) && right_))
-		return true;
-	return false;
-}
-
-std::unique_ptr<ASTExpr> ASTExpr::getSimple()
-{
-	if (left_ && !right_ && (op_ == operation::PASS))		// If the right node is empty
-	{
-		auto ret = std::move(left_);
-		return ret;
-	}
-	return nullptr;
-}
-
-void ASTExpr::accept(IVisitor& vis)
-{
-	vis.visit(*this);
-}
-
-void ASTExpr::setReturnType(const std::size_t &casttype)
-{
-	totype_ = casttype;
-}
-
-std::size_t ASTExpr::getToType() const
-{
-	return totype_;
-}
-
-void ASTExpr::swapChildren()
-{
-	std::swap(left_, right_);
-}
-
 ASTLiteral::ASTLiteral(const Token & t)
 {
 	if (t.val_type == literalType::LIT_STRING)
@@ -103,16 +30,8 @@ void ASTLiteral::accept(IVisitor& vis)
 	vis.visit(*this);
 }
 
-ASTLiteral::~ASTLiteral()
-{
-
-}
 // VCalls
 ASTVarCall::ASTVarCall(const std::string& vname) : varname_(vname)
-{
-}
-
-ASTVarCall::~ASTVarCall()
 {
 
 }
@@ -120,4 +39,91 @@ ASTVarCall::~ASTVarCall()
 void ASTVarCall::accept(IVisitor & vis)
 {
 	vis.visit(*this);
+}
+
+ASTBinaryExpr::ASTBinaryExpr(const binaryOperation & opt) : op_(opt)
+{
+
+}
+
+void ASTBinaryExpr::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
+
+std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
+{
+	if (left_ && !right_ && (op_ == binaryOperation::PASS))	 // If the right node is empty & op == pass
+	{
+		auto ret = std::move(left_);
+		return ret;
+	}
+	return nullptr;
+}
+
+void ASTBinaryExpr::swapChildren()
+{
+	std::swap(left_, right_);
+}
+
+void ASTBinaryExpr::makeChild(const dir & d, std::unique_ptr<IASTExpr>& node)
+{
+	if (d == dir::LEFT)
+		left_ = std::move(node);
+	else if (d == dir::RIGHT)
+		right_ = std::move(node);
+}
+
+void ASTBinaryExpr::makeChildOfDeepestNode(const dir & d, std::unique_ptr<IASTExpr>& node)
+{
+	if (d == dir::LEFT)
+	{
+		if (!left_)						// we don't have a left child
+			left_ = std::move(node);
+		else // we do
+		{
+			if(auto left_casted = dynamic_cast<ASTBinaryExpr*>(left_.get()))
+				left_casted->makeChildOfDeepestNode(d, node);
+		}
+	}
+	else if (d == dir::RIGHT)
+	{
+		if (!right_)						// we don't have a right child
+			right_ = std::move(node);
+		else // we do
+		{
+			if (auto right_casted = dynamic_cast<ASTBinaryExpr*>(right_.get()))
+				right_casted->makeChildOfDeepestNode(d, node);
+		}
+	}
+}
+
+ASTUnaryExpr::ASTUnaryExpr(const unaryOperation & opt) : op_(opt)
+{
+
+}
+
+void ASTUnaryExpr::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
+
+ASTCastExpr::ASTCastExpr(std::size_t castGoal)
+{
+	setCastGoal(castGoal);
+}
+
+void ASTCastExpr::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
+
+void ASTCastExpr::setCastGoal(const std::size_t& ncg)
+{
+	resultType_ = ncg;
+}
+
+std::size_t ASTCastExpr::getCastGoal() const
+{
+	return resultType_;
 }
