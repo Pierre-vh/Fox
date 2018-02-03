@@ -63,7 +63,7 @@ namespace Moonshot
 		S_GREATER_THAN,		// >
 		S_HASH,				// #
 		S_TILDE,			// ~
-		S_EXP,				// ^
+		S_CARET,				// ^
 		S_PERCENT,			// %
 
 		// BRACKETS
@@ -150,7 +150,7 @@ namespace Moonshot
 		{ '>'	, signType::S_GREATER_THAN	},
 		{ '#'	, signType::S_HASH			},
 		{ '~'	, signType::S_TILDE			},
-		{ '^'	, signType::S_EXP			},
+		{ '^'	, signType::S_CARET			},
 		{ '%'	, signType::S_PERCENT		},
 		// bracket
 		{ '{'	, signType::B_CURLY_OPEN	},
