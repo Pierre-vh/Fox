@@ -24,73 +24,68 @@ std::unique_ptr<IASTExpr> Parser::parseExpr(const char & priority)
 	if (priority > 0)
 		first = parseExpr(priority - 1);	// Go down in the priority chain.
 	else 
-		first = parseCastExpr();	// We are at the lowest point ? Parse the term then !
+		first = parseCastExpr();	// We are at 0 ? Parse the castExpr then 
 
-	if (!first)					// Check if it was found/parsed correctly. If not, return a null node.
+	if (!first)					// Check if it was found/parsed correctly. If not, return a null node, because this isn't an expression.
 		return nullptr;
 
-	rtr->makeChild(dir::LEFT, first);	// Make Left the left child of the return node !
+	rtr->setChild(dir::LEFT,first);	// Make first the left child of the return node !
 	while (true)
 	{
+		// Match binary operator
 		binaryOperation op;
 		bool matchResult;
 		std::tie(matchResult, op) = matchBinaryOp(priority);
 		if (!matchResult) // No operator found : break.
 			break;
 		
+		// Create a tmp node "second" that holds the RHS of the expression
 		std::unique_ptr<IASTExpr> second;
-
 		if (priority > 0) second = parseExpr(priority - 1);
 		else second = parseCastExpr();
 
-		// Check for validity : we need a term. if we don't have one, we have an error !
-		if (!second)
+		if (!second) // Check for validity : we need a rhs. if we don't have one, we have an error !
 		{
 			errorExpected("Expected an expression after binary operator.");
 			break;
 		}
+
 		// Add the node to the tree but in different ways, depending on left or right assoc.
 		if (!isRightAssoc(op))		// Left associative operator
 		{
 			if (rtr->op_ == binaryOperation::PASS)
 				rtr->op_ = op;
-			else	// Already has one ? create a new node and make rtr its left child.
+			else	// Already has one ? create a new node and make rtr its left child with oneUpNode
 				rtr = oneUpNode(rtr, op);
-			rtr->makeChild(dir::RIGHT, second);
+			rtr->setChild(dir::RIGHT,second); // Set second as the child of the new node
 		}									
-		// I Have to admit, this bit might have poor performance if you start to go really deep, like 2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2^2.. and so on, but who would do this anyway, right..right ?
-		// To be serious:there isn't really another way of doing this,except if I change completly my parsing algorithm to do both right to left and left to right parsing.
-		// OR if i implement the shunting yard algo, and that's even harder to do with my current system.
-		// Which is complicated, and not really useful for now, as <expr> is the only rule
-		// that might need right assoc.
-		else								// right associative nodes
-		{
-			// There's a member variable, last_ that will hold the last parsed "second" variable.
-			
-			// First "loop" check.
+		else	// right associative nodes
+		{			
+			// First "loop" check -> set rtr's op.
 			if (rtr->op_ == binaryOperation::PASS)
 				rtr->op_ = op;			
 
-			if (!tmp) // Last is empty
-				tmp = std::move(second); // Set last_ to second.
+			if (!tmp) // tmp is empty
+				tmp = std::move(second); // Set tmp to second.
 			else
 			{
-				_ASSERT(op != binaryOperation::PASS);
-				auto new_binop_node = std::make_unique<ASTBinaryExpr>(op);
-				new_binop_node->left_ = std::move(tmp);
-				std::unique_ptr<IASTExpr> newnode = std::move(new_binop_node); // Create a node with the op
-				
-				tmp = std::move(second);// Set second as tmp
+				auto new_binop_node = std::make_unique<ASTBinaryExpr>(op); 
+				new_binop_node->setChild(dir::LEFT,tmp); // set tmp as the left child of the new node
+
+				// Here I store new_binop_node into a IASTExpr unique ptr, so it can be passed as argument in "makeChildOfDeepestNode"
+				std::unique_ptr<IASTExpr> newnode = std::move(new_binop_node); 
+				tmp = std::move(second);// Set second as the new tmp
+				// make child
 				rtr->makeChildOfDeepestNode(dir::RIGHT, newnode);
 			}
 		}
 	}
-	if (tmp) // Last isn't empty -> make it the left child of our last node.
+	if (tmp) // Last isn't empty -> make it the right child of our last node.
 	{
-		// if last.op != op::pass || tmp.right_ -> throw ast malformation error
 		rtr->makeChildOfDeepestNode(dir::RIGHT, tmp);
 		tmp = 0;
 	}
+
 	// When we have simple node (PASS operation with only a value/expr as left child), we simplify it(only return the left child)
 	auto simple = rtr->getSimple();
 	if (simple)
@@ -225,9 +220,6 @@ std::pair<bool, unaryOperation> Moonshot::Parser::matchUnaryOp()
 
 std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 {
-	// Avoid long & verbose lines.
-	
-
 	auto cur = getToken();
 	auto pk = getToken(pos_ + 1);
 	// Check current Token validity
@@ -237,13 +229,22 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 
 	switch (priority)
 	{
-		case 0:
-			if (cur.sign_type == signType::S_EXP)
-				return { true, binaryOperation::EXP };
+		case 0: // **
+			if (cur.sign_type == signType::S_ASTERISK)
+			{
+				if (pk.isValid() && pk.sign_type == signType::S_ASTERISK)
+				{
+					pos_++;
+					return { true, binaryOperation::EXP };
+				}
+			}
 			break;
 		case 1: // * / %
 			if (cur.sign_type == signType::S_ASTERISK)
-				return { true, binaryOperation::MUL };
+			{
+				if (pk.sign_type != signType::S_ASTERISK) // Disambiguation between '**' and '*'
+					return { true, binaryOperation::MUL };
+			}
 			if (cur.sign_type == signType::S_SLASH)
 				return { true, binaryOperation::DIV };
 			if (cur.sign_type == signType::S_PERCENT)

@@ -116,7 +116,7 @@ namespace Moonshot
 			
 			// MATCH OPERATORS
 			std::pair<bool, unaryOperation> matchUnaryOp(); // ! -
-			std::pair<bool, binaryOperation> matchBinaryOp(const char &priority); // + - * / % ^ ...
+			std::pair<bool, binaryOperation> matchBinaryOp(const char &priority); // + - * / % ** ...
 			
 			// UTILITY METHODS
 			Token getToken() const;
