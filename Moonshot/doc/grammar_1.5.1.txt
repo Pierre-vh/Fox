@@ -12,6 +12,9 @@ Fox Grammar version 1.4.1
 1.4.2 : <return> : <expr> is now optional (to allow "return;" in void functions)
 1.4.3 :	Deleted the <ctrl_flow> non-terminal and added | <condition> | <while_loop> to <stmt> rule.
 1.5	: Expression rework. They're now far more flexible and support unary operation chaining, like !!false, !-3, etc.
+1.5.1 : Changed Exponent sign to "**" instead of '^' like in other languages ( python, fortran,.. )
+
+
 Modifications used in this grammar :
 $x means x is a term already recognized and identified by the lexer. 
 	$id means a lexer-recognized id 
@@ -41,7 +44,7 @@ you'll be greeted with an error!)
 
 <expr_stmt>		= <expr> <eoi>
 
-<value>         = <callable> |<const> | '(' <expr> ')'
+<value>         = <callable> | <const> | '(' <expr> ')'
 <prefix_expr>   = <unary_operator> <prefix_expr> | <value>
 <cast_expr>     = <prefix_expr> [<as_kw> <type>] 
 <expr> 			= <cast_expr> { <binary_operator> <cast_expr> }	
@@ -49,12 +52,12 @@ you'll be greeted with an error!)
 <callable>		= <id>
 				= <f_call>
 
-<binary_operator> =  '=' | '+' | '-' | '*' | '/' | '%' | ('&' '&') | ('|' '|') | ('<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 
+<binary_operator> =  '=' | '+' | '-' | ('*' '*') | '*' | '/' | '%' | ('&' '&') | ('|' '|') | ('<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 
 <unary_operator>  =  '!' | '-'  // inversion, negative
 
 /*
 	// Operator priority, in decreasing order :
-		0. ^				-> right associative
+		0. **				-> right associative
 		1. * / % 
 		2. + -
 		3. < > <= >= 
