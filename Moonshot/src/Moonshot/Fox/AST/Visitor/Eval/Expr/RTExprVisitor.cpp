@@ -346,7 +346,7 @@ double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
 			// parts, it's a tip from https://stackoverflow.com/a/12277233/3232822
 			// Thanks !
 		case binaryOperation::EXP:
-			// if exp < 0 perform 1/base^exp
+			// if exp < 0 perform 1/base**exp
 			if (r < 0)
 				return performOp(binaryOperation::DIV, 1, std::pow(l, -r));
 			else if (r == 0)

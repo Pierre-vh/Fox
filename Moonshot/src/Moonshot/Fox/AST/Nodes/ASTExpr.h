@@ -41,7 +41,8 @@ namespace Moonshot
 			virtual void accept(IVisitor& vis) override;
 			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
 			void swapChildren();
-			void makeChild(const dir &d, std::unique_ptr<IASTExpr> &node); // make (node) a child of this.
+
+			void setChild(const dir &d, std::unique_ptr<IASTExpr> &node); // make (node) a child of this.
 			void makeChildOfDeepestNode(const dir &d, std::unique_ptr<IASTExpr> &node); // Make (node) a child of the deepest left/right path of our node. (continue until left/right = 0, then makechild.)
 	};
 	struct ASTUnaryExpr : public IASTExpr
@@ -68,19 +69,17 @@ namespace Moonshot
 			void setCastGoal(const std::size_t& ncg);
 			std::size_t getCastGoal() const; 
 	};
-	struct ASTLiteral : public IASTExpr // Stores hard coded constants. 3+3 -> 3 are Hard coded constants.
+	struct ASTLiteral : public IASTExpr 
 	{
 		public:
 			ASTLiteral() = default;
 			ASTLiteral(const Token &t);
 
 			void accept(IVisitor& vis) override;
-			// NODE DATA
-			// Value node holds 1 value : (inherited ones are never called and ignored.)
-			// val_ -> std::variant that holds the data of the node
+
 			FVal val_;
 	};
-	struct ASTVarCall : public IASTExpr // Store var calls : foo+3 -> foo is a var call;
+	struct ASTVarCall : public IASTExpr 
 	{
 		public:
 			ASTVarCall() = default;

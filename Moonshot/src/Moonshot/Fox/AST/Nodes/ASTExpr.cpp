@@ -66,7 +66,7 @@ void ASTBinaryExpr::swapChildren()
 	std::swap(left_, right_);
 }
 
-void ASTBinaryExpr::makeChild(const dir & d, std::unique_ptr<IASTExpr>& node)
+void ASTBinaryExpr::setChild(const dir & d, std::unique_ptr<IASTExpr>& node)
 {
 	if (d == dir::LEFT)
 		left_ = std::move(node);
@@ -76,26 +76,24 @@ void ASTBinaryExpr::makeChild(const dir & d, std::unique_ptr<IASTExpr>& node)
 
 void ASTBinaryExpr::makeChildOfDeepestNode(const dir & d, std::unique_ptr<IASTExpr>& node)
 {
+	ASTBinaryExpr* cur = this;
 	if (d == dir::LEFT)
 	{
-		if (!left_)						// we don't have a left child
-			left_ = std::move(node);
-		else // we do
+		while (cur->left_)
 		{
-			if(auto left_casted = dynamic_cast<ASTBinaryExpr*>(left_.get()))
-				left_casted->makeChildOfDeepestNode(d, node);
+			if (auto isLeftBinop = dynamic_cast<ASTBinaryExpr*>(cur->left_.get()))
+				cur = isLeftBinop;
 		}
 	}
 	else if (d == dir::RIGHT)
 	{
-		if (!right_)						// we don't have a right child
-			right_ = std::move(node);
-		else // we do
+		while (cur->right_)
 		{
-			if (auto right_casted = dynamic_cast<ASTBinaryExpr*>(right_.get()))
-				right_casted->makeChildOfDeepestNode(d, node);
+			if (auto isRightBinop = dynamic_cast<ASTBinaryExpr*>(cur->right_.get()))
+				cur = isRightBinop;
 		}
 	}
+	cur->setChild(d, node);
 }
 
 ASTUnaryExpr::ASTUnaryExpr(const unaryOperation & opt) : op_(opt)
