@@ -74,13 +74,23 @@ namespace Moonshot
 			~Parser();
 
 			// parseXXX() = "match" the rule XXX (attempts to find it, if it found it, the method will return a valid pointer (if(ptr) will return true). if not, it will return a std::unique_ptr<(TYPE OF NODE)>(nullptr)
-			
+			/*	
+			<value>         = <callable> | <literal> | '(' <expr> ')'
+			<exp_expr>      = <value> [ <exponent_operator> <prefix_exp> ]
+			<prefix_expr>   = <unary_operator> <prefix_expr> | <exp_expr>
+			<cast_expr>     = <prefix_expr> [<as_kw> <type]
+			<binary_expr>   = <cast_expr> { <binary_operator> <cast_expr> }
+			<expr>          = <binary_expr> [<assign_operator> <expr>]
+			*/
 			// EXPRESSIONS
-			std::unique_ptr<IASTExpr> parseExpr(const char &priority = 7); // Go from lowest priority to highest !
+			std::unique_ptr<IASTExpr> parseCallable(); // values/functions calls.
+			std::unique_ptr<IASTExpr> parseValue();
+			std::unique_ptr<IASTExpr> parseExponentExpr();
 			std::unique_ptr<IASTExpr> parsePrefixExpr(); // unary prefix expressions
 			std::unique_ptr<IASTExpr> parseCastExpr();
-			std::unique_ptr<IASTExpr> parseValue();
-			std::unique_ptr<IASTExpr> parseCallable(); // values/functions calls.
+			std::unique_ptr<IASTExpr> parseBinaryExpr(const char &priority = 5);
+			std::unique_ptr<IASTExpr> parseExpr(); // Go from lowest priority to highest !
+
 
 			// STATEMENTS
 			std::unique_ptr<IASTStmt> parseStmt(); // General Statement
@@ -115,8 +125,10 @@ namespace Moonshot
 			std::size_t matchTypeKw();						// match a type keyword : int, float, etc.
 			
 			// MATCH OPERATORS
-			std::pair<bool, unaryOperation> matchUnaryOp(); // ! -
-			std::pair<bool, binaryOperation> matchBinaryOp(const char &priority); // + - * / % ** ...
+			bool								matchExponentOp(); // only **
+			std::pair<bool, binaryOperation>	matchAssignOp(); // only = for now.
+			std::pair<bool, unaryOperation>		matchUnaryOp(); // ! -
+			std::pair<bool, binaryOperation>	matchBinaryOp(const char &priority); // + - * / % ** ...
 			
 			// UTILITY METHODS
 			Token getToken() const;
