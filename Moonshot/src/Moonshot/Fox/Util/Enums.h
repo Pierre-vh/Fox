@@ -46,7 +46,7 @@ namespace Moonshot
 		DEFAULT,
 		LOGICNOT,		// ! 
 		NEGATIVE,			// -
-		POSITIVE,
+		POSITIVE
 	};
 		
 	// Template version of the other functions
@@ -106,7 +106,8 @@ namespace Moonshot
 	{
 		{ unaryOperation::DEFAULT , "DEFAULT(ERROR)"},
 		{ unaryOperation::LOGICNOT , "LOGICNOT" },
-		{ unaryOperation::NEGATIVE, "NEGATIVE"}
+		{ unaryOperation::NEGATIVE, "NEGATIVE"},
+		{ unaryOperation::POSITIVE, "POSITIVE"}
 	};
 
 	template<typename T>
