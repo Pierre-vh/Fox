@@ -255,10 +255,20 @@ double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 		else
 			context_.logMessage("Can't dereference variable if the symbols table is not available.");
 	}
-    if (!isBasic(fval.index()))
-		context_.reportError("Can't perform conversion to double on a non basic type.");
+	if (!isBasic(fval.index()))
+	{
+		std::stringstream out;
+		out << "Can't perform conversion to double on a non basic type.(FVal index:" << fval.index() << ")\n";
+		out << dumpFVal(fval);
+		context_.reportFatalError(out.str());
+	}
 	else if (!isArithmetic(fval.index()))
-		context_.reportError("Can't perform conversion to double on a non arithmetic type.");
+	{
+		std::stringstream out;
+		out << "Can't perform conversion to double on a non arithmetic type. (FVal index:" << fval.index() << ")\n";
+		out << dumpFVal(fval);
+		context_.reportFatalError(out.str());
+	}
 	else if (std::holds_alternative<int>(fval))
 		return (double)std::get<int>(fval);
 	else if (std::holds_alternative<float>(fval))
