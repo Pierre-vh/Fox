@@ -245,18 +245,18 @@ std::pair<bool, unaryOperation> Parser::matchUnaryOp()
 	auto cur = getToken();
 	if (!cur.isValid() || (cur.type != tokenType::TT_SIGN))
 		return { false, unaryOperation::DEFAULT };
+	pos_++;
 
 	if (cur.sign_type == signType::P_EXCL_MARK)
-	{
-		pos_ += 1;
 		return { true, unaryOperation::LOGICNOT };
-	}
-	if (cur.sign_type == signType::S_MINUS)
-	{
-		pos_ += 1;
-		return { true, unaryOperation::NEGATE};
-	}
 
+	if (cur.sign_type == signType::S_MINUS)
+		return { true, unaryOperation::NEGATIVE};
+
+	if (cur.sign_type == signType::S_PLUS)
+		return { true, unaryOperation::POSITIVE};
+
+	pos_--;
 	return { false, unaryOperation::DEFAULT };
 }
 
