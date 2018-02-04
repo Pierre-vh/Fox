@@ -19,7 +19,7 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 	{
 		symtable_.declareValue(
 			var::varattr("TESTVALUE", indexes::fval_int, false),
-			FVal(0)
+			FVal(FVInt())
 		);
 	}
 }

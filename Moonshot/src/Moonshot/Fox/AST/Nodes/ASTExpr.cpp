@@ -20,7 +20,7 @@ ASTLiteral::ASTLiteral(const Token & t)
 	else if (t.val_type == literalType::LIT_BOOL)
 		val_ = std::get<bool>(t.vals);
 	else if (t.val_type == literalType::LIT_INTEGER)
-		val_ = std::get<int>(t.vals);
+		val_ = std::get<FVInt>(t.vals);
 	else if (t.val_type == literalType::LIT_FLOAT)
 		val_ = std::get<float>(t.vals);
 }

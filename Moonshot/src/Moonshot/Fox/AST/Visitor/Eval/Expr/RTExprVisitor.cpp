@@ -275,8 +275,8 @@ double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 		out << dumpFVal(fval);
 		context_.reportFatalError(out.str());
 	}
-	else if (std::holds_alternative<int>(fval))
-		return (double)std::get<int>(fval);
+	else if (std::holds_alternative<FVInt>(fval))
+		return (double)std::get<FVInt>(fval);
 	else if (std::holds_alternative<float>(fval))
 		return (double)std::get<float>(fval);
 	else if (std::holds_alternative<char>(fval))
@@ -381,7 +381,7 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 		case indexes::fval_bool:
 			return true; // When we want to cast to bool, we usually don't care to lose information, we just want a true/false result.
 		case indexes::fval_int:
-			if (d > INT_MAX || d < INT_MIN)
+			if (d > INT64_MAX || d < INT64_MIN)
 				return false;
 			return true;
 		case indexes::fval_float:
