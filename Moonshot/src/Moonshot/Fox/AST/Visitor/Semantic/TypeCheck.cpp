@@ -36,6 +36,14 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 
 	if (node.left_ && node.right_)
 	{
+		if (node.op_ == binaryOperation::ASSIGN)
+		{
+			if (!isAssignable(node.left_))
+			{
+				context_.reportError("Assignement operation requires a assignable data type to the left of the operator !");
+				return;
+			}
+		}
 		// VISIT BOTH CHILDREN
 		// get left expr result type
 		auto left = visitAndGetResult(node.left_, dir::LEFT,node.op_);
@@ -142,6 +150,13 @@ void TypeCheckVisitor::visit(ASTVarCall & node)
 	}
 	else 
 		value_ =  searchResult.type_; // The error will be thrown by the symbols table itself if the value doesn't exist.
+}
+
+bool TypeCheckVisitor::isAssignable(const std::unique_ptr<IASTExpr>& op) const
+{
+	if (dynamic_cast<ASTVarCall*>(op.get())) // if the node's a ASTVarCall, it's assignable.
+		return true;
+	return false;
 }
 
 bool TypeCheckVisitor::shouldOpReturnFloat(const binaryOperation & op) const
