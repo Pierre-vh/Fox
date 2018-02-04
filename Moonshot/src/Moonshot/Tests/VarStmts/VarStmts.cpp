@@ -45,6 +45,8 @@ bool VarStmts::runTest(Context & context)
 		root->accept(tc_good);
 		FAILED_RETURN_IF_ERR("typechecking");
 
+		root->accept(Dumper());
+
 		root->accept(rt_good);
 		FAILED_RETURN_IF_ERR("runtime execution");
 		context.clearLogs();

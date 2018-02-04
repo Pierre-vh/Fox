@@ -12,12 +12,6 @@
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;
 
-VarDeclarations::VarDeclarations()
-{
-
-}
-
-
 VarDeclarations::~VarDeclarations()
 {
 

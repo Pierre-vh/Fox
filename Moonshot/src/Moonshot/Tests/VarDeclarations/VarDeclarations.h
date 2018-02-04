@@ -18,7 +18,7 @@ namespace Moonshot
 	class VarDeclarations : public ITest
 	{
 		public:
-			VarDeclarations();
+			VarDeclarations() = default;
 			~VarDeclarations();
 
 			virtual std::string getTestName() const override;
