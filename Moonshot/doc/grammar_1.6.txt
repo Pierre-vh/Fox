@@ -15,7 +15,8 @@ Fox Grammar version 1.4.1
 1.5.1 : Changed Exponent sign to "**" instead of '^' like in other languages ( python, fortran,.. )
 1.6	:	Final pass on the expressions : right associativity is directly specified in the grammar for exponent and = operators. 
 		Changed exponent operator's priority to be mathematically correct.
-		Renamed <const> to <literal>
+		Renamed <const> to <literal>*
+		Added '+' unary op
 
 
 Modifications used in this grammar :
@@ -60,7 +61,7 @@ you'll be greeted with an error!)
 <exponent_operator> = '*' '*'
 <assign_operator> = '='
 <binary_operator> =  '+' | '-' | '*' | '/' | '%' | ('&' '&') | ('|' '|') | ('<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 
-<unary_operator>  =  '!' | '-'  // inversion, negative
+<unary_operator>  =  '!' | '-' | '+'  // inversion, -,+ (+ is essentially a non op for now, it's syntaxic sugar)
 
 /*
 	Final operation priority
