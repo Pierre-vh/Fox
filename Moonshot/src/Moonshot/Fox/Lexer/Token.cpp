@@ -152,14 +152,19 @@ bool Token::specific_idValue()
 	// Might rework this bit later because it's a bit ugly, but it works !
 	else if (std::regex_match(str, kInt_regex))
 	{
-		try
+		std::istringstream ss(str);
+		int64_t tmp;
+		if(ss >> tmp)
 		{
-			vals = std::stoi(str);
+			vals = tmp;
 			val_type = literalType::LIT_INTEGER;
 		}
-		catch (std::out_of_range&)
+		else
 		{
 			// If out of range, try to put the value in a float instead.
+			std::stringstream out;
+			out << "The value \xAF" << str << "\xAE was interpreted as a float because it didn't fit a 64 Bit signed int.";
+			context_.reportWarning(out.str());
 			vals = std::stof(str);
 			val_type = literalType::LIT_FLOAT;
 		}

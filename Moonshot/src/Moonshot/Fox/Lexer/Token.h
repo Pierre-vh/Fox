@@ -16,7 +16,7 @@
 #include <map>		// std::map 
 #include <variant>	// std::variant
 #include <regex>	// std::regex, std::regex_match
-#include <string>	// std::stoi
+#include <string>	// std::stoi / stoll
 #include <sstream>	// std::stringstream (showFormattedToken())
 #include <vector>
 
@@ -189,7 +189,7 @@ namespace Moonshot
 			literalType val_type =	literalType::LIT_ENUMDEFAULT;
 			signType sign_type =	signType::S_ENUM_DEFAULT;
 
-			std::variant<int, bool, std::string, char, float> vals;
+			std::variant<int64_t, bool, std::string, char, float> vals;
 
 			std::string str;
 			text_pos pos;
