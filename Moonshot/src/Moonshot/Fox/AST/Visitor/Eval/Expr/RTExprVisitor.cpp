@@ -192,8 +192,14 @@ void RTExprVisitor::visit(ASTUnaryExpr & node)
 		);
 		return;
 	}
-	else if (node.op_ == unaryOperation::NEGATE)
+	else if (node.op_ == unaryOperation::NEGATIVE)
 		lval = -lval; // Negate the number
+	else if (node.op_ == unaryOperation::POSITIVE)
+	{
+		/*
+			For now, unary Positive is a nop.
+		*/
+	}
 
 	value_ = castTo(context_, node.resultType_, lval);		// Cast to result type
 	return;

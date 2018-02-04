@@ -77,7 +77,7 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 
 	// Get the child's return type. Don't change anything, as rtr_value is already set by the accept function.
 	auto childttype = visitAndGetResult(node.child_);
-	// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATE on a string.
+	// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATIVE on a string.
 	if (childttype == indexes::fval_str)
 	{
 		// no unary op can be performed on a string
@@ -85,10 +85,10 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 		output << "Can't perform unary operation " << getFromDict(kUop_dict, node.op_) << " on a string.";
 		context_.reportError(output.str());
 	}
-	// SPECIAL CASES : (LOGICNOT) and (NEGATE ON BOOLEANS)
+	// SPECIAL CASES : (LOGICNOT) and (NEGATIVE ON BOOLEANS)
 	if (node.op_ == unaryOperation::LOGICNOT)
 		value_ = indexes::fval_bool; // Return type is a boolean
-	else if ((node.op_ == unaryOperation::NEGATE) && (value_ == indexes::fval_bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+	else if ((node.op_ == unaryOperation::NEGATIVE) && (value_ == indexes::fval_bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
 		value_ = indexes::fval_int;
 
 	node.resultType_  = value_;
