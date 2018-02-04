@@ -16,6 +16,7 @@
 #include <string> // std::string
 #include <sstream> // std::stringstream
 #include <type_traits> // std::is_same
+#include <inttypes.h>
 
 #include "../../Common/Context/Context.h" // context
 #include "../../Common/Exceptions/Exceptions.h"
@@ -30,7 +31,8 @@ namespace Moonshot::var
 }
 
 // Alias for a variant holding every type possible in the interpreter.
-typedef std::variant<std::monostate,int, float, char, std::string, bool, Moonshot::var::varRef> FVal;
+typedef int64_t FVInt;
+typedef std::variant<std::monostate, FVInt, float, char, std::string, bool, Moonshot::var::varRef> FVal;
 
 namespace Moonshot
 {
@@ -88,21 +90,20 @@ namespace Moonshot
 			{ keywordType::T_BOOL	, indexes::fval_bool },
 			{ keywordType::T_STRING , indexes::fval_str	},
 			{ keywordType::T_CHAR	, indexes::fval_char }
-
 		};
 
 		std::size_t typeKWtoSizeT(const keywordType& kw);
 
 		const std::map<std::size_t, std::string> kType_dict =
 		{
-			{ indexes::fval_null				, "NULL" },
+			{ indexes::fval_null			, "NULL" },
 			{ indexes::fval_int				, "INT" },
 			{ indexes::fval_float			, "FLOAT" },
-			{ indexes::fval_char				, "CHAR" },
-			{ indexes::fval_bool				, "BOOL" },
+			{ indexes::fval_char			, "CHAR" },
+			{ indexes::fval_bool			, "BOOL" },
 			{ indexes::fval_str				, "STRING" },
 			{ indexes::fval_varRef			, "VAR_ATTR (ref)"},
-			{ indexes::invalid_index			, "!INVALID_FVAL!" }
+			{ indexes::invalid_index		, "!INVALID!" }
 		};
 	}
 

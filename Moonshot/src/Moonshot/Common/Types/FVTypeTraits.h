@@ -18,7 +18,7 @@ namespace Moonshot::fv_util
 	struct fval_traits
 	{
 		constexpr static bool isBasic =
-			std::is_same<T, int>::value ||
+			std::is_same<T, int64_t>::value ||
 			std::is_same<T, float>::value ||
 			std::is_same<T, char>::value ||
 			std::is_same<T, std::string>::value ||
@@ -30,7 +30,7 @@ namespace Moonshot::fv_util
 		{
 			if constexpr(std::is_same<T, std::monostate>::value)
 				return index == indexes::fval_null;
-			else if constexpr(std::is_same<T, int>::value)
+			else if constexpr(std::is_same<T, int64_t>::value)
 				return index == indexes::fval_int;
 			else if constexpr(std::is_same<T, float>::value)
 				return index == indexes::fval_float;

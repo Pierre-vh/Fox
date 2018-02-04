@@ -26,8 +26,8 @@ std::pair<bool, FVal> Moonshot::castTypeTo(Context& context_, const GOAL& type, 
 	}
 	else // Conversion might work. Proceed !
 	{
-		if constexpr (std::is_same<int, GOAL>::value)
-			return { true,FVal((int)v) };
+		if constexpr (std::is_same<FVInt, GOAL>::value)
+			return { true,FVal((FVInt)v) };
 		else if constexpr (std::is_same<float, GOAL>::value)
 			return { true,FVal((float)v) };
 		else if constexpr (std::is_same<char, GOAL>::value)

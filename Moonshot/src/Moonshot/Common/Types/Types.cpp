@@ -21,8 +21,8 @@ std::string fv_util::dumpFVal(const FVal & var)
 		auto vattr = std::get<var::varRef>(var);
 		output << "Type : varRef, Value:" << vattr.getName();
 	}
-	else if (std::holds_alternative<int>(var))
-		output << "Type : INT, Value : " << std::get<int>(var);
+	else if (std::holds_alternative<FVInt>(var))
+		output << "Type : INT, Value : " << std::get<FVInt>(var);
 	else if (std::holds_alternative<float>(var))
 		output << "Type : FLOAT, Value : " << std::get<float>(var);
 	else if (std::holds_alternative<std::string>(var))
@@ -61,7 +61,7 @@ FVal fv_util::getSampleFValForIndex(const std::size_t & t)
 		case indexes::fval_null:
 			return FVal();
 		case indexes::fval_int:
-			return FVal((int)0);
+			return FVal((FVInt)0);
 		case indexes::fval_float:
 			return FVal((float)0.0f);
 		case indexes::fval_char:
