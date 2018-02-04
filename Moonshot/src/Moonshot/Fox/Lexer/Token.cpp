@@ -47,7 +47,7 @@ std::string Token::showFormattedTokenData() const
 			break;
 		case tokenType::TT_LITERAL:
 			ss << "VALUE";
-			enum_info = util::enumAsInt(val_type);
+			enum_info = util::enumAsInt(lit_type);
 			break;
 	}
 	if (enum_info >= -1)
@@ -120,7 +120,7 @@ bool Token::specific_idValue()
 		if (str.back() == '\'')
 		{
 			vals = str[1]; // Get the char between ' ' (at index 1)
-			val_type = literalType::LIT_CHAR;
+			lit_type = literalType::LIT_CHAR;
 			return true;
 		}
 		else
@@ -134,7 +134,7 @@ bool Token::specific_idValue()
 		if (str.back() == '"')
 		{
 			vals = str.substr(1, str.size() - 2); // Get the str between " "
-			val_type = literalType::LIT_STRING;
+			lit_type = literalType::LIT_STRING;
 			return true;
 		}
 		else
@@ -146,7 +146,7 @@ bool Token::specific_idValue()
 	else if (str == "true" | str == "false")
 	{
 		vals = (str == "true" ? true : false);
-		val_type = literalType::LIT_BOOL;
+		lit_type = literalType::LIT_BOOL;
 		return true;
 	}
 	// Might rework this bit later because it's a bit ugly, but it works !
@@ -157,7 +157,7 @@ bool Token::specific_idValue()
 		if(ss >> tmp)
 		{
 			vals = tmp;
-			val_type = literalType::LIT_INTEGER;
+			lit_type = literalType::LIT_INTEGER;
 		}
 		else
 		{
@@ -166,14 +166,14 @@ bool Token::specific_idValue()
 			out << "The value \xAF" << str << "\xAE was interpreted as a float because it didn't fit a 64 Bit signed int.";
 			context_.reportWarning(out.str());
 			vals = std::stof(str);
-			val_type = literalType::LIT_FLOAT;
+			lit_type = literalType::LIT_FLOAT;
 		}
 		return true;
 	}
 	else if (std::regex_match(str, kFloat_regex))
 	{
 		vals = std::stof(str);
-		val_type = literalType::LIT_FLOAT;
+		lit_type = literalType::LIT_FLOAT;
 		return true;
 	}
 	return false;

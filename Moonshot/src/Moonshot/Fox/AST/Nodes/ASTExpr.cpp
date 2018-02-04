@@ -13,15 +13,15 @@ using namespace Moonshot;
 
 ASTLiteral::ASTLiteral(const Token & t)
 {
-	if (t.val_type == literalType::LIT_STRING)
+	if (t.lit_type == literalType::LIT_STRING)
 		val_ = std::get<std::string>(t.vals);
-	else if (t.val_type == literalType::LIT_CHAR)
+	else if (t.lit_type == literalType::LIT_CHAR)
 		val_ = std::get<char>(t.vals);
-	else if (t.val_type == literalType::LIT_BOOL)
+	else if (t.lit_type == literalType::LIT_BOOL)
 		val_ = std::get<bool>(t.vals);
-	else if (t.val_type == literalType::LIT_INTEGER)
+	else if (t.lit_type == literalType::LIT_INTEGER)
 		val_ = std::get<FVInt>(t.vals);
-	else if (t.val_type == literalType::LIT_FLOAT)
+	else if (t.lit_type == literalType::LIT_FLOAT)
 		val_ = std::get<float>(t.vals);
 }
 

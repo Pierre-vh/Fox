@@ -186,7 +186,7 @@ namespace Moonshot
 			Token(Context & c,std::string data, const text_pos &tpos = text_pos(0,0));
 			tokenType type =		tokenType::TT_ENUM_DEFAULT;
 			keywordType kw_type =	keywordType::KW_ENUM_DEFAULT;
-			literalType val_type =	literalType::LIT_ENUMDEFAULT;
+			literalType lit_type =	literalType::LIT_ENUMDEFAULT;
 			signType sign_type =	signType::S_ENUM_DEFAULT;
 
 			std::variant<int64_t, bool, std::string, char, float> vals;
