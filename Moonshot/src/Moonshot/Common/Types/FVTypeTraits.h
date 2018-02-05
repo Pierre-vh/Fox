@@ -20,7 +20,7 @@ namespace Moonshot::fv_util
 		constexpr static bool isBasic =
 			std::is_same<T, int64_t>::value ||
 			std::is_same<T, float>::value ||
-			std::is_same<T, char>::value ||
+			std::is_same<T, CharType>::value ||
 			std::is_same<T, std::string>::value ||
 			std::is_same<T, bool>::value
 			;
@@ -34,7 +34,7 @@ namespace Moonshot::fv_util
 				return index == indexes::fval_int;
 			else if constexpr(std::is_same<T, float>::value)
 				return index == indexes::fval_float;
-			else if constexpr(std::is_same<T, char>::value)
+			else if constexpr(std::is_same<T, CharType>::value)
 				return index == indexes::fval_char;
 			else if constexpr(std::is_same<T, std::string>::value)
 				return index == indexes::fval_str;

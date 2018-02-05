@@ -16,11 +16,11 @@ ASTLiteral::ASTLiteral(const Token & t)
 	if (t.lit_type == literalType::LIT_STRING)
 		val_ = std::get<std::string>(t.vals);
 	else if (t.lit_type == literalType::LIT_CHAR)
-		val_ = std::get<char>(t.vals);
+		val_ = std::get<CharType>(t.vals);
 	else if (t.lit_type == literalType::LIT_BOOL)
 		val_ = std::get<bool>(t.vals);
 	else if (t.lit_type == literalType::LIT_INTEGER)
-		val_ = std::get<FVInt>(t.vals);
+		val_ = std::get<IntType>(t.vals);
 	else if (t.lit_type == literalType::LIT_FLOAT)
 		val_ = std::get<float>(t.vals);
 }

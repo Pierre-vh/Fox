@@ -124,7 +124,7 @@ bool Token::specific_idValue()
 				context_.reportError("Char literal can only contain one character.\nIf you tried to use a non-ASCII char (e.g. a UTF8 character), please note that the char type doesn't support them.");
 				return false;
 			}
-			vals = str[1]; // Get the char between ' ' (at index 1)
+			vals = (CharType)(str[1]); // Get the char between ' ' (at index 1)
 			lit_type = literalType::LIT_CHAR;
 			return true;
 		}

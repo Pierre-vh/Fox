@@ -20,6 +20,7 @@
 #include <sstream>	// std::stringstream (showFormattedToken())
 #include <vector>
 
+#include "../../Common/Types/Types.h"
 #include "../../Common/Utils/Utils.h"
 #include "../../Common/Context//Context.h"
 #include "../../Common/Exceptions/Exceptions.h"
@@ -189,7 +190,7 @@ namespace Moonshot
 			literalType lit_type =	literalType::LIT_ENUMDEFAULT;
 			signType sign_type =	signType::S_ENUM_DEFAULT;
 
-			std::variant<int64_t, bool, std::string, char, float> vals;
+			std::variant<int64_t, bool, std::string, CharType, float> vals;
 
 			std::string str;
 			text_pos pos;

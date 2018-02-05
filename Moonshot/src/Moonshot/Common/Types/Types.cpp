@@ -21,8 +21,8 @@ std::string fv_util::dumpFVal(const FVal & var)
 		auto vattr = std::get<var::varRef>(var);
 		output << "Type : varRef, Value:" << vattr.getName();
 	}
-	else if (std::holds_alternative<FVInt>(var))
-		output << "Type : INT, Value : " << std::get<FVInt>(var);
+	else if (std::holds_alternative<IntType>(var))
+		output << "Type : INT, Value : " << std::get<IntType>(var);
 	else if (std::holds_alternative<float>(var))
 		output << "Type : FLOAT, Value : " << std::get<float>(var);
 	else if (std::holds_alternative<std::string>(var))
@@ -32,10 +32,10 @@ std::string fv_util::dumpFVal(const FVal & var)
 		bool v = std::get<bool>(var);
 		output << "Type : BOOL, Value : " << (v ? "true" : "false");
 	}
-	else if (std::holds_alternative<char>(var))
+	else if (std::holds_alternative<CharType>(var))
 	{
-		char x = std::get<char>(var);
-		output << "Type : CHAR, Value : " << (int)x <<  " = '" << x << "'";
+		CharType x = std::get<CharType>(var);
+		output << "Type : CHAR, Value : " << (int32_t)x <<  " = '" << x << "'";
 	}
 	else
 		throw std::logic_error("Illegal variant.");
@@ -61,11 +61,11 @@ FVal fv_util::getSampleFValForIndex(const std::size_t & t)
 		case indexes::fval_null:
 			return FVal();
 		case indexes::fval_int:
-			return FVal((FVInt)0);
+			return FVal((IntType)0);
 		case indexes::fval_float:
 			return FVal((float)0.0f);
 		case indexes::fval_char:
-			return FVal((char)0);
+			return FVal((CharType)0);
 		case indexes::fval_str:
 			return FVal(std::string(""));
 		case indexes::fval_bool:
@@ -164,14 +164,6 @@ std::size_t fv_util::getBiggest(const std::size_t & lhs, const std::size_t & rhs
 	return indexes::invalid_index;
 }
 
-std::size_t fv_util::typeKWtoSizeT(const keywordType & kw)
-{
-	auto it = kTypeKwToIndex_dict.find(kw);
-	if (it != kTypeKwToIndex_dict.end())
-		return it->second;
-	else
-		return indexes::invalid_index;
-}
 // varRef
 var::varRef::varRef(const std::string & vname)
 {

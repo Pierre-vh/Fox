@@ -20,7 +20,6 @@
 
 #include "../../Common/Context/Context.h" // context
 #include "../../Common/Exceptions/Exceptions.h"
-#include "../../Fox/Lexer/Token.h"
 #include "../../Fox/Util/Enums.h"
 
 // fwd decl
@@ -31,8 +30,9 @@ namespace Moonshot::var
 }
 
 // Alias for a variant holding every type possible in the interpreter.
-typedef int64_t FVInt;
-typedef std::variant<std::monostate, FVInt, float, char, std::string, bool, Moonshot::var::varRef> FVal;
+typedef int64_t IntType;
+typedef wchar_t CharType;
+typedef std::variant<std::monostate, IntType, float, CharType, std::string, bool, Moonshot::var::varRef> FVal;
 
 namespace Moonshot
 {
@@ -71,7 +71,7 @@ namespace Moonshot
 		// How to remember values of index
 		namespace indexes
 		{
-			static constexpr std::size_t invalid_index = std::numeric_limits<std::size_t>::max();
+			static constexpr std::size_t invalid_index = (std::numeric_limits<std::size_t>::max)();
 
 			static constexpr std::size_t fval_null = 0;
 			static constexpr std::size_t fval_int = 1;
@@ -81,18 +81,6 @@ namespace Moonshot
 			static constexpr std::size_t fval_bool = 5;
 			static constexpr std::size_t fval_varRef = 6;
 		}
-
-		// Map for converting type kw to a FVal index.
-		const std::map<keywordType, std::size_t> kTypeKwToIndex_dict =
-		{
-			{ keywordType::T_INT	, indexes::fval_int	},
-			{ keywordType::T_FLOAT	, indexes::fval_float},
-			{ keywordType::T_BOOL	, indexes::fval_bool },
-			{ keywordType::T_STRING , indexes::fval_str	},
-			{ keywordType::T_CHAR	, indexes::fval_char }
-		};
-
-		std::size_t typeKWtoSizeT(const keywordType& kw);
 
 		const std::map<std::size_t, std::string> kType_dict =
 		{
