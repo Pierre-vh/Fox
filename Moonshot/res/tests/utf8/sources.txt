@@ -1,0 +1,2 @@
+bronzehorseman.pushkin.txt http://www.columbia.edu/~fdc/utf8/index.html
+ascii.txt http://www.ascii-art.de/ascii/def/fox.txt
