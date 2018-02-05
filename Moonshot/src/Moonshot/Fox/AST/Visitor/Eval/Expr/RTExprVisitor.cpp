@@ -381,13 +381,13 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 		case indexes::fval_bool:
 			return true; // When we want to cast to bool, we usually don't care to lose information, we just want a true/false result.
 		case indexes::fval_int:
-			if (d < INT64_MIN || d > INT64_MAX )
+			if (d < limits::IntType_MIN || d > limits::IntType_MAX )
 				return false;
 			return true;
 		case indexes::fval_float:
 			return true;
 		case indexes::fval_char:
-			if (d < WCHAR_MIN || d > WCHAR_MAX)
+			if (d < limits::CharType_MIN || d > limits::CharType_MAX)
 				return false;
 			return true;
 		case indexes::invalid_index:
