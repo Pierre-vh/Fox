@@ -9,24 +9,7 @@
 ////------------------------------------------------------////
 
 #pragma once
-/*
-	StringManipulator:
-	setStr() : set the string to manipulate
-	reset() : reset the iterator to position 0
-	advance(x) : advance x characters forward
-	next() : advance 1 character in the stream
-	peekNext() : peek the next character
-	peekPrevious() : peek the previous character
-	size() : returns the string's size
-	goto() : goto nth codepoint
 
-	Needs a factory method inside Context, like makeStringManipulator()
-
-	Member struct:
-	IStringManipulatorFactory* strmanifac= StringManipulatorFactory<UTF8StringManipulator>;
-	// makeStringManipulator
-	return strmanifac->generate();
-*/
 #include <string>
 
 namespace Moonshot
