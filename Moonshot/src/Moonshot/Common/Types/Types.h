@@ -34,8 +34,18 @@ typedef int64_t IntType;
 typedef wchar_t CharType;
 typedef std::variant<std::monostate, IntType, float, CharType, std::string, bool, Moonshot::var::varRef> FVal;
 
+
+
+
 namespace Moonshot
 {
+	namespace limits
+	{
+		static constexpr IntType IntType_MAX = INT64_MAX;
+		static constexpr IntType IntType_MIN = INT64_MIN;
+		static constexpr CharType CharType_MAX = WCHAR_MAX;
+		static constexpr CharType CharType_MIN = WCHAR_MIN;
+	}
 	namespace fv_util
 	{
 		
