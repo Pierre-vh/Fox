@@ -21,13 +21,13 @@ std::unique_ptr<ASTCompStmt> Parser::parseCompoundStatement()
 	*/
 	// return value
 	auto rtr = std::make_unique<ASTCompStmt>();
-	if (matchSign(signType::B_CURLY_OPEN))
+	if (matchSign(sign::B_CURLY_OPEN))
 	{
 		// Parse all statements
 		while (auto node = parseStmt())
 			rtr->statements_.push_back(std::move(node));
 		// Match the closing curly bracket
-		if (!matchSign(signType::B_CURLY_CLOSE))
+		if (!matchSign(sign::B_CURLY_CLOSE))
 		{
 			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
 			return nullptr;
@@ -80,11 +80,11 @@ std::unique_ptr<IASTStmt> Parser::parseCondition()
 std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 {
 	// Rule : <while_loop> 	= <wh_kw>  '(' <expr> ')'	<compound_statement> 
-	if (matchKeyword(keywordType::D_WHILE))
+	if (matchKeyword(keyword::D_WHILE))
 	{
 		std::unique_ptr<ASTWhileLoop> rtr = std::make_unique<ASTWhileLoop>();
 		// (
-		if (!matchSign(signType::B_ROUND_OPEN))
+		if (!matchSign(sign::B_ROUND_OPEN))
 		{
 			errorExpected("Expected a '('");
 			return nullptr;
@@ -98,7 +98,7 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 			return nullptr;
 		}
 		// )
-		if (!matchSign(signType::B_ROUND_CLOSE))
+		if (!matchSign(sign::B_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')' after expression in while statement");
 			return nullptr;
@@ -120,11 +120,11 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 ASTCondition::CondBlock Parser::parseCond_if()
 {
 	// "if"
-	if (matchKeyword(keywordType::D_IF))
+	if (matchKeyword(keyword::D_IF))
 	{
 		ASTCondition::CondBlock rtr;
 		// '('
-		if (!matchSign(signType::B_ROUND_OPEN))
+		if (!matchSign(sign::B_ROUND_OPEN))
 		{
 			errorExpected("Expected a '('");
 			return { nullptr, nullptr };
@@ -138,7 +138,7 @@ ASTCondition::CondBlock Parser::parseCond_if()
 			return { nullptr, nullptr };
 		}
 		// ')'
-		if (!matchSign(signType::B_ROUND_CLOSE))
+		if (!matchSign(sign::B_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')' after expression in condition");
 			return { nullptr, nullptr };
@@ -160,7 +160,7 @@ ASTCondition::CondBlock Parser::parseCond_if()
 ASTCondition::CondBlock Parser::parseCond_else_if()
 {
 	ASTCondition::CondBlock rtr;
-	if (matchKeyword(keywordType::D_ELSE))
+	if (matchKeyword(keyword::D_ELSE))
 	{
 		// else if
 		auto res = parseCond_if();
@@ -215,7 +215,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 	std::size_t varType = indexes::invalid_index;
 	std::string varName;
 
-	if (matchKeyword(keywordType::D_LET))
+	if (matchKeyword(keyword::D_LET))
 	{
 		// ##ID##
 		bool successfulMatchFlag = false;
@@ -248,7 +248,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 
 		// ##ASSIGNEMENT##
 		// '=' <expr>
-		if (matchSign(signType::S_EQUAL))
+		if (matchSign(sign::S_EQUAL))
 		{
 			initExpr = parseExpr();
 			if (!initExpr)
@@ -278,10 +278,10 @@ std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 {
 	bool isConst = false;
 	std::size_t typ;
-	if (matchSign(signType::P_COLON))
+	if (matchSign(sign::P_COLON))
 	{
 		// Match const kw
-		if (matchKeyword(keywordType::T_CONST))
+		if (matchKeyword(keyword::T_CONST))
 			isConst = true;
 		// Now match the type keyword
 		if ((typ = matchTypeKw()) != indexes::invalid_index)

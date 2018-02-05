@@ -34,7 +34,7 @@ std::unique_ptr<IASTExpr> Parser::parseValue()
 	else if (auto node = parseCallable()) // Callable?
 		return node;
 	// = '(' <expr> ')'
-	else if (matchSign(signType::B_ROUND_OPEN))
+	else if (matchSign(sign::B_ROUND_OPEN))
 	{
 		auto expr = parseExpr(); // Parse the expression inside
 		if (!expr) // check validity of the parsed expression
@@ -43,7 +43,7 @@ std::unique_ptr<IASTExpr> Parser::parseValue()
 			return nullptr;
 		}
 		// retrieve the closing bracket, throw an error if we don't have one. 
-		if (!matchSign(signType::B_ROUND_CLOSE))
+		if (!matchSign(sign::B_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')' after expression");
 			return nullptr;
@@ -110,7 +110,7 @@ std::unique_ptr<IASTExpr> Parser::parseCastExpr()
 	{
 		std::size_t casttype = indexes::invalid_index;
 		// Search for a (optional) cast: "as" <type>
-		if (matchKeyword(keywordType::TC_AS))
+		if (matchKeyword(keyword::TC_AS))
 		{
 			if ((casttype = matchTypeKw()) != indexes::invalid_index)
 			{
@@ -219,9 +219,9 @@ bool Moonshot::Parser::matchExponentOp()
 {
 	auto cur = getToken();
 	auto pk = getToken(pos_ + 1);
-	if (cur.isValid() && cur.type == tokenType::TT_SIGN && cur.sign_type == signType::S_ASTERISK)
+	if (cur.isValid() && cur.type == tokenCat::TT_SIGN && cur.sign_type == sign::S_ASTERISK)
 	{
-		if (pk.isValid() && pk.type == tokenType::TT_SIGN && pk.sign_type == signType::S_ASTERISK)
+		if (pk.isValid() && pk.type == tokenCat::TT_SIGN && pk.sign_type == sign::S_ASTERISK)
 		{
 			pos_+=2;
 			return true;
@@ -234,7 +234,7 @@ std::pair<bool, binaryOperation> Parser::matchAssignOp()
 {
 	auto cur = getToken();
 	pos_++;
-	if (cur.isValid() && cur.type == tokenType::TT_SIGN && cur.sign_type == signType::S_EQUAL)
+	if (cur.isValid() && cur.type == tokenCat::TT_SIGN && cur.sign_type == sign::S_EQUAL)
 		return { true,binaryOperation::ASSIGN };
 	pos_--;
 	return { false,binaryOperation::PASS };
@@ -243,17 +243,17 @@ std::pair<bool, binaryOperation> Parser::matchAssignOp()
 std::pair<bool, unaryOperation> Parser::matchUnaryOp()
 {
 	auto cur = getToken();
-	if (!cur.isValid() || (cur.type != tokenType::TT_SIGN))
+	if (!cur.isValid() || (cur.type != tokenCat::TT_SIGN))
 		return { false, unaryOperation::DEFAULT };
 	pos_++;
 
-	if (cur.sign_type == signType::P_EXCL_MARK)
+	if (cur.sign_type == sign::P_EXCL_MARK)
 		return { true, unaryOperation::LOGICNOT };
 
-	if (cur.sign_type == signType::S_MINUS)
+	if (cur.sign_type == sign::S_MINUS)
 		return { true, unaryOperation::NEGATIVE};
 
-	if (cur.sign_type == signType::S_PLUS)
+	if (cur.sign_type == sign::S_PLUS)
 		return { true, unaryOperation::POSITIVE};
 
 	pos_--;
@@ -265,42 +265,42 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 	auto cur = getToken();
 	auto pk = getToken(pos_ + 1);
 	// Check current Token validity
-	if (!cur.isValid() || (cur.type != tokenType::TT_SIGN))
+	if (!cur.isValid() || (cur.type != tokenCat::TT_SIGN))
 		return { false, binaryOperation::PASS };
 	pos_ += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
 
 	switch (priority)
 	{
 		case 0: // * / %
-			if (cur.sign_type == signType::S_ASTERISK)
+			if (cur.sign_type == sign::S_ASTERISK)
 			{
-				if (pk.sign_type != signType::S_ASTERISK) // Disambiguation between '**' and '*'
+				if (pk.sign_type != sign::S_ASTERISK) // Disambiguation between '**' and '*'
 					return { true, binaryOperation::MUL };
 			}
-			if (cur.sign_type == signType::S_SLASH)
+			if (cur.sign_type == sign::S_SLASH)
 				return { true, binaryOperation::DIV };
-			if (cur.sign_type == signType::S_PERCENT)
+			if (cur.sign_type == sign::S_PERCENT)
 				return { true, binaryOperation::MOD };
 			break;
 		case 1: // + -
-			if (cur.sign_type == signType::S_PLUS)
+			if (cur.sign_type == sign::S_PLUS)
 				return { true, binaryOperation::ADD };
-			if (cur.sign_type == signType::S_MINUS)
+			if (cur.sign_type == sign::S_MINUS)
 				return { true, binaryOperation::MINUS };
 			break;
 		case 2: // > >= < <=
-			if (cur.sign_type == signType::S_LESS_THAN)
+			if (cur.sign_type == sign::S_LESS_THAN)
 			{
-				if (pk.isValid() && (pk.sign_type == signType::S_EQUAL))
+				if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
 				{
 					pos_ += 1;
 					return { true, binaryOperation::LESS_OR_EQUAL };
 				}
 				return { true, binaryOperation::LESS_THAN };
 			}
-			if (cur.sign_type == signType::S_GREATER_THAN)
+			if (cur.sign_type == sign::S_GREATER_THAN)
 			{
-				if (pk.isValid() && (pk.sign_type == signType::S_EQUAL))
+				if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
 				{
 					pos_ += 1;
 					return { true, binaryOperation::GREATER_OR_EQUAL };
@@ -309,14 +309,14 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 			}
 			break;
 		case 3:	// == !=
-			if (pk.isValid() && (pk.sign_type == signType::S_EQUAL))
+			if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
 			{
-				if (cur.sign_type == signType::S_EQUAL)
+				if (cur.sign_type == sign::S_EQUAL)
 				{
 					pos_ += 1;
 					return { true,binaryOperation::EQUAL };
 				}
-				if (cur.sign_type == signType::P_EXCL_MARK)
+				if (cur.sign_type == sign::P_EXCL_MARK)
 				{
 					pos_ += 1;
 					return { true,binaryOperation::NOTEQUAL };
@@ -324,14 +324,14 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 			}
 			break;
 		case 4:
-			if (pk.isValid() && (pk.sign_type == signType::S_AND) && (cur.sign_type == signType::S_AND))
+			if (pk.isValid() && (pk.sign_type == sign::S_AND) && (cur.sign_type == sign::S_AND))
 			{
 				pos_ += 1;
 				return { true,binaryOperation::AND };
 			}
 			break;
 		case 5:
-			if (pk.isValid() && (pk.sign_type == signType::S_VBAR) && (cur.sign_type == signType::S_VBAR))
+			if (pk.isValid() && (pk.sign_type == sign::S_VBAR) && (cur.sign_type == sign::S_VBAR))
 			{
 				pos_ += 1;
 				return { true,binaryOperation::OR };

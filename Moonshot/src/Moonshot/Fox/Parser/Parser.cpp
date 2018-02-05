@@ -26,7 +26,7 @@ Parser::~Parser()
 std::pair<bool, Token> Parser::matchLiteral()
 {
 	Token t = getToken();
-	if (t.type == tokenType::TT_LITERAL)
+	if (t.type == tokenCat::TT_LITERAL)
 	{
 		pos_ += 1;
 		return { true,t };
@@ -39,7 +39,7 @@ std::pair<bool, Token> Parser::matchLiteral()
 std::pair<bool, std::string> Parser::matchID()
 {
 	Token t = getToken();
-	if (t.type == tokenType::TT_IDENTIFIER)
+	if (t.type == tokenCat::TT_IDENTIFIER)
 	{
 		pos_ += 1;
 		return { true, t.str };
@@ -47,10 +47,10 @@ std::pair<bool, std::string> Parser::matchID()
 	return { false, "" };
 }
 
-bool Parser::matchSign(const signType & s)
+bool Parser::matchSign(const sign & s)
 {
 	Token t = getToken();
-	if (t.type == tokenType::TT_SIGN && t.sign_type == s)
+	if (t.type == tokenCat::TT_SIGN && t.sign_type == s)
 	{
 		pos_ += 1;
 		return true;
@@ -58,10 +58,10 @@ bool Parser::matchSign(const signType & s)
 	return false;
 }
 
-bool Parser::matchKeyword(const keywordType & k)
+bool Parser::matchKeyword(const keyword & k)
 {
 	Token t = getToken();
-	if (t.type == tokenType::TT_KEYWORD && t.kw_type == k)
+	if (t.type == tokenCat::TT_KEYWORD && t.kw_type == k)
 	{
 		pos_ += 1;
 		return true;
@@ -71,22 +71,22 @@ bool Parser::matchKeyword(const keywordType & k)
 
 bool Parser::matchEOI()
 {
-	return matchSign(signType::P_SEMICOLON);
+	return matchSign(sign::P_SEMICOLON);
 }
 
 std::size_t Moonshot::Parser::matchTypeKw()
 {
 	Token t = getToken();
 	pos_ += 1;
-	if (t.type == tokenType::TT_KEYWORD)
+	if (t.type == tokenCat::TT_KEYWORD)
 	{
 		switch (t.kw_type)
 		{
-			case keywordType::T_INT:	return indexes::fval_int;
-			case keywordType::T_FLOAT:	return indexes::fval_float;
-			case keywordType::T_CHAR:	return indexes::fval_char;
-			case keywordType::T_STRING:	return indexes::fval_str;
-			case keywordType::T_BOOL:	return indexes::fval_bool;
+			case keyword::T_INT:	return indexes::fval_int;
+			case keyword::T_FLOAT:	return indexes::fval_float;
+			case keyword::T_CHAR:	return indexes::fval_char;
+			case keyword::T_STRING:	return indexes::fval_str;
+			case keyword::T_BOOL:	return indexes::fval_bool;
 		}
 	}
 	pos_ -= 1;

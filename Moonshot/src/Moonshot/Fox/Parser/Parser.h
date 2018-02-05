@@ -118,8 +118,8 @@ namespace Moonshot
 			// MATCH BY TYPE OF TOKEN
 			std::pair<bool,Token> matchLiteral();				// match a TT_LITERAL
 			std::pair<bool, std::string> matchID();			// match a ID
-			bool matchSign(const signType &s);			// match any signs : ! : * etc.
-			bool matchKeyword(const keywordType &k);		// Match any keyword
+			bool matchSign(const sign &s);			// match any signs : ! : * etc.
+			bool matchKeyword(const keyword &k);		// Match any keyword
 
 			bool matchEOI();								// Match a EOI, currently a semicolon.
 			std::size_t matchTypeKw();						// match a type keyword : int, float, etc.

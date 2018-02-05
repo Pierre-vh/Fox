@@ -28,7 +28,7 @@
 namespace Moonshot
 {
 
-	enum class tokenType
+	enum class tokenCat
 	{
 		TT_ENUM_DEFAULT,	// Default value
 
@@ -38,7 +38,7 @@ namespace Moonshot
 		TT_LITERAL			// value ("hello", 3.14, 'c', -1, ...)
 	};
 
-	enum class literalType
+	enum class literal
 	{
 		LIT_ENUMDEFAULT,		// Default value
 
@@ -49,7 +49,7 @@ namespace Moonshot
 		LIT_STRING
 	};
 
-	enum class signType
+	enum class sign
 	{
 		S_ENUM_DEFAULT,			// Default value
 		// Signs
@@ -83,7 +83,7 @@ namespace Moonshot
 		P_COMMA				// ,
 	};
 
-	enum class keywordType
+	enum class keyword
 	{
 		KW_ENUM_DEFAULT,		// Default value
 		// TYPES
@@ -112,61 +112,61 @@ namespace Moonshot
 	const std::regex kId_regex("(([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+");	// if anyone has something better, tell me ! :)
 
 	// Dictionary used to identify keywords.
-	const std::map<std::string, keywordType> kWords_dict =
+	const std::map<std::string, keyword> kWords_dict =
 	{
 		// TYPES
-		{ "int"		, keywordType::T_INT		},
-		{ "float"	, keywordType::T_FLOAT	},
-		{ "bool"	, keywordType::T_BOOL	},
-		{ "string"	, keywordType::T_STRING	},
-		{ "char"	, keywordType::T_CHAR	},
+		{ "int"		, keyword::T_INT		},
+		{ "float"	, keyword::T_FLOAT	},
+		{ "bool"	, keyword::T_BOOL	},
+		{ "string"	, keyword::T_STRING	},
+		{ "char"	, keyword::T_CHAR	},
 
-		{ "const"	, keywordType::T_CONST },
+		{ "const"	, keyword::T_CONST },
 		// TYPE CONVERSION
-		{ "as"		, keywordType::TC_AS		},
+		{ "as"		, keyword::TC_AS		},
 		// DECLARATIONS
-		{ "let"		, keywordType::D_LET		},
-		{ "func"	, keywordType::D_FUNC	},
-		{ "if"		, keywordType::D_IF		},
-		{ "else"	, keywordType::D_ELSE	},
-		{ "while"	, keywordType::D_WHILE	},
-		{ "return"	, keywordType::D_RETURN	},
+		{ "let"		, keyword::D_LET		},
+		{ "func"	, keyword::D_FUNC	},
+		{ "if"		, keyword::D_IF		},
+		{ "else"	, keyword::D_ELSE	},
+		{ "while"	, keyword::D_WHILE	},
+		{ "return"	, keyword::D_RETURN	},
 		// PACKAGES
-		{ "import"	, keywordType::P_IMPORT	},
-		{ "using"	, keywordType::P_USING	}
+		{ "import"	, keyword::P_IMPORT	},
+		{ "using"	, keyword::P_USING	}
 
 	};
 
-	const std::map<char, signType> kSign_dict =
+	const std::map<char, sign> kSign_dict =
 	{
 		//signs
-		{ '='	, signType::S_EQUAL			},
-		{ '+'	, signType::S_PLUS			},
-		{ '-'	, signType::S_MINUS			},
-		{ '*'	, signType::S_ASTERISK		},
-		{ '/'	, signType::S_SLASH			},
-		{ '|'	, signType::S_VBAR			},
-		{ '&'	, signType::S_AND			},
-		{ '<'	, signType::S_LESS_THAN		},
-		{ '>'	, signType::S_GREATER_THAN	},
-		{ '#'	, signType::S_HASH			},
-		{ '~'	, signType::S_TILDE			},
-		{ '^'	, signType::S_CARET			},
-		{ '%'	, signType::S_PERCENT		},
+		{ '='	, sign::S_EQUAL			},
+		{ '+'	, sign::S_PLUS			},
+		{ '-'	, sign::S_MINUS			},
+		{ '*'	, sign::S_ASTERISK		},
+		{ '/'	, sign::S_SLASH			},
+		{ '|'	, sign::S_VBAR			},
+		{ '&'	, sign::S_AND			},
+		{ '<'	, sign::S_LESS_THAN		},
+		{ '>'	, sign::S_GREATER_THAN	},
+		{ '#'	, sign::S_HASH			},
+		{ '~'	, sign::S_TILDE			},
+		{ '^'	, sign::S_CARET			},
+		{ '%'	, sign::S_PERCENT		},
 		// bracket
-		{ '{'	, signType::B_CURLY_OPEN	},
-		{ '}'	, signType::B_CURLY_CLOSE	},
-		{ '['	, signType::B_SQ_OPEN		},
-		{ ']'	, signType::B_SQ_CLOSE		},
-		{ '('	, signType::B_ROUND_OPEN	},
-		{ ')'	, signType::B_ROUND_CLOSE	},
+		{ '{'	, sign::B_CURLY_OPEN	},
+		{ '}'	, sign::B_CURLY_CLOSE	},
+		{ '['	, sign::B_SQ_OPEN		},
+		{ ']'	, sign::B_SQ_CLOSE		},
+		{ '('	, sign::B_ROUND_OPEN	},
+		{ ')'	, sign::B_ROUND_CLOSE	},
 		// punctuation
-		{ ';'	, signType::P_SEMICOLON		},
-		{ ':'	, signType::P_COLON			},
-		{ '!'	, signType::P_EXCL_MARK		},
-		{ '?'	, signType::P_INTER_MARK	},
-		{ '.'	, signType::P_DOT			},
-		{ ','	, signType::P_COMMA			}
+		{ ';'	, sign::P_SEMICOLON		},
+		{ ':'	, sign::P_COLON			},
+		{ '!'	, sign::P_EXCL_MARK		},
+		{ '?'	, sign::P_INTER_MARK	},
+		{ '.'	, sign::P_DOT			},
+		{ ','	, sign::P_COMMA			}
 	};
 
 	struct text_pos	// a structure to hold the position of a Token in the input, and interact with it.
@@ -185,10 +185,10 @@ namespace Moonshot
 		public:
 			Token(Context & c);
 			Token(Context & c,std::string data, const text_pos &tpos = text_pos(0,0));
-			tokenType type =		tokenType::TT_ENUM_DEFAULT;
-			keywordType kw_type =	keywordType::KW_ENUM_DEFAULT;
-			literalType lit_type =	literalType::LIT_ENUMDEFAULT;
-			signType sign_type =	signType::S_ENUM_DEFAULT;
+			tokenCat type =		tokenCat::TT_ENUM_DEFAULT;
+			keyword kw_type =	keyword::KW_ENUM_DEFAULT;
+			literal lit_type =	literal::LIT_ENUMDEFAULT;
+			sign sign_type =	sign::S_ENUM_DEFAULT;
 
 			std::variant<int64_t, bool, std::string, CharType, float> vals;
 

@@ -30,22 +30,22 @@ std::string Token::showFormattedTokenData() const
 	int enum_info = -1;		// The information of the corresponding enumeration
 	switch (type)
 	{
-		case tokenType::TT_ENUM_DEFAULT:
+		case tokenCat::TT_ENUM_DEFAULT:
 			ss << "ENUM_DEFAULT";
 			break;
-		case tokenType::TT_IDENTIFIER:
+		case tokenCat::TT_IDENTIFIER:
 			ss << "IDENTIFIER";
 			enum_info = -2;
 			break;
-		case tokenType::TT_KEYWORD:
+		case tokenCat::TT_KEYWORD:
 			ss << "KEYWORD";
 			enum_info = util::enumAsInt(kw_type);
 			break;
-		case tokenType::TT_SIGN:
+		case tokenCat::TT_SIGN:
 			ss << "SIGN";
 			enum_info = util::enumAsInt(sign_type);
 			break;
-		case tokenType::TT_LITERAL:
+		case tokenCat::TT_LITERAL:
 			ss << "VALUE";
 			enum_info = util::enumAsInt(lit_type);
 			break;
@@ -73,15 +73,15 @@ void Token::idToken()
 	pos.column -= (int)str.length();
 
 	if (specific_idSign())
-		type = tokenType::TT_SIGN;
+		type = tokenCat::TT_SIGN;
 	else
 	{
 		if (specific_idKeyword())
-			type = tokenType::TT_KEYWORD;
+			type = tokenCat::TT_KEYWORD;
 		else if (specific_idValue())
-			type = tokenType::TT_LITERAL;
+			type = tokenCat::TT_LITERAL;
 		else if (std::regex_match(str, kId_regex))
-			type = tokenType::TT_IDENTIFIER;
+			type = tokenCat::TT_IDENTIFIER;
 		else
 			context_.reportError("Could not identify a Token -> (str) : " + str + "\t[" + pos.asText() + "]");
 	}
@@ -125,7 +125,7 @@ bool Token::specific_idValue()
 				return false;
 			}
 			vals = (CharType)(str[1]); // Get the char between ' ' (at index 1)
-			lit_type = literalType::LIT_CHAR;
+			lit_type = literal::LIT_CHAR;
 			return true;
 		}
 		else
@@ -139,7 +139,7 @@ bool Token::specific_idValue()
 		if (str.back() == '"')
 		{
 			vals = str.substr(1, str.size() - 2); // Get the str between " "
-			lit_type = literalType::LIT_STRING;
+			lit_type = literal::LIT_STRING;
 			return true;
 		}
 		else
@@ -151,7 +151,7 @@ bool Token::specific_idValue()
 	else if (str == "true" | str == "false")
 	{
 		vals = (str == "true" ? true : false);
-		lit_type = literalType::LIT_BOOL;
+		lit_type = literal::LIT_BOOL;
 		return true;
 	}
 	// Might rework this bit later because it's a bit ugly, but it works !
@@ -162,7 +162,7 @@ bool Token::specific_idValue()
 		if(ss >> tmp)
 		{
 			vals = tmp;
-			lit_type = literalType::LIT_INTEGER;
+			lit_type = literal::LIT_INTEGER;
 		}
 		else
 		{
@@ -171,14 +171,14 @@ bool Token::specific_idValue()
 			out << "The value \xAF" << str << "\xAE was interpreted as a float because it didn't fit a 64 Bit signed int.";
 			context_.reportWarning(out.str());
 			vals = std::stof(str);
-			lit_type = literalType::LIT_FLOAT;
+			lit_type = literal::LIT_FLOAT;
 		}
 		return true;
 	}
 	else if (std::regex_match(str, kFloat_regex))
 	{
 		vals = std::stof(str);
-		lit_type = literalType::LIT_FLOAT;
+		lit_type = literal::LIT_FLOAT;
 		return true;
 	}
 	return false;
