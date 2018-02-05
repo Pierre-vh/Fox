@@ -32,6 +32,7 @@ void TestManager::addDefaultTests()
 	addTestClass<CompoundStatements>();
 	addTestClass<Conditions>();
 	addTestClass<WhileLoop>();
+	addTestClass<U8StrManipTest>();
 }
 
 void TestManager::addTest(std::unique_ptr<ITest> test)

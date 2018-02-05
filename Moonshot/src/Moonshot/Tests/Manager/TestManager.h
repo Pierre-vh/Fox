@@ -24,6 +24,7 @@
 #include "../CompoundStatement/CompoundStatements.h"
 #include "../Condition/Conditions.h"
 #include "../WhileLoop/WhileLoop.h"
+#include "../U8StrManipTest/U8StrManipTest.h"
 
 namespace Moonshot
 {
@@ -44,7 +45,7 @@ namespace Moonshot
 			template <typename T>
 			inline void addTestClass()
 			{
-				std::unique_ptr<T> ptr(new T);
+				auto ptr = std::make_unique<T>();
 				addTest(std::move(ptr));
 			}
 
