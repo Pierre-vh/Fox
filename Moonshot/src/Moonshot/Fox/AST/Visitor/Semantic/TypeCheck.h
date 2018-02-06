@@ -21,7 +21,8 @@
 #include <map> // std::map
 #include <typeinfo> // typeid
 #include "../../Visitor/IVisitor.h" // base class
-#include "../../../../Common/Types/Types.h" // FVal Utilities
+#include "../../../../Common/Types/Types.h" // Types
+#include "../../../../Common/Types/TypesUtils.h" // Types Utilities
 #include "../../../../Common/Symbols/Symbols.h" // symbols table
 
 // Include nodes

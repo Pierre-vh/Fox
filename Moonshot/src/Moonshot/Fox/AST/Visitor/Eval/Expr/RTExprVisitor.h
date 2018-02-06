@@ -28,6 +28,7 @@
 #include "../../../../../Common/Types/Types.h"
 #include "../../../../../Common/Types/FVTypeTraits.h"
 #include "../../../../../Common/Types/TypeCast.h"
+#include "../../../../../Common/Types/TypesUtils.h"
 // Symbols table
 #include "../../../../../Common/Symbols/Symbols.h"
 #include "../../../Nodes/ASTExpr.h"
