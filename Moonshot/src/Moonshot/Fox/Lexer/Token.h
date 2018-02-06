@@ -137,7 +137,7 @@ namespace Moonshot
 
 	};
 
-	const std::map<CharType, sign> kSign_dict =
+	const std::map<char, sign> kSign_dict =
 	{
 		//signs
 		{ '='	, sign::S_EQUAL			},
@@ -190,7 +190,7 @@ namespace Moonshot
 			literal lit_type =	literal::LIT_ENUMDEFAULT;
 			sign sign_type =	sign::S_ENUM_DEFAULT;
 
-			FVal vals;
+			std::variant<int64_t, bool, std::string, CharType, float> vals;
 
 			std::string str;
 			text_pos pos;

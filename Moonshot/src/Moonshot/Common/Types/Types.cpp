@@ -35,7 +35,7 @@ std::string fv_util::dumpFVal(const FVal & var)
 	else if (std::holds_alternative<CharType>(var))
 	{
 		CharType x = std::get<CharType>(var);
-		output << "Type : CHAR, Value : " << (int32_t)x <<  " = '" << x  << "'";
+		output << "Type : CHAR, Value : " << (int32_t)x <<  " = '" << x << "'";
 	}
 	else
 		throw std::logic_error("Illegal variant.");
@@ -114,10 +114,13 @@ bool Moonshot::fv_util::isValue(const std::size_t & t)
 	return isBasic(t) || (t == indexes::fval_varRef);
 }
 
-bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
+bool fv_util::canAssign(Context& context_,const std::size_t & lhs, const std::size_t & rhs)
 {
 	if ((rhs == indexes::fval_null) || (lhs == indexes::fval_null))
-		return false; // Can't assign a void expression to a variable.
+	{
+		context_.reportError("Can't assign a void expression to a variable.");
+		return false;
+	}
 	if (!isBasic(lhs) || !isBasic(rhs))
 		// If one of the types isn't basic, no assignement possible.
 		return false;
@@ -125,7 +128,10 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 		return true;
 	// From here, we know lhs and rhs are different.
 	else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // one of them is a string
-		return false;  // Can't assign a string to an arithmetic type and vice versa.
+	{
+		context_.reportError("Can't assign a string to an arithmetic type and vice versa.");
+		return false;
+	}
 	// Else, we're good, return true.
 	return true;
 }

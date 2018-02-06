@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{D61E8CAA-F635-431A-AEBA-A45AEBEAD240}</ProjectGuid>
     <RootNamespace>Moonshot</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -203,7 +203,6 @@
     <None Include="res\tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Moonshot\Common\Context\EncodingsList.h" />
     <ClInclude Include="src\Moonshot\Common\StringManipulator\IStringManipulator.h" />
     <ClInclude Include="src\Moonshot\Common\Types\FVTypeTraits.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.h" />

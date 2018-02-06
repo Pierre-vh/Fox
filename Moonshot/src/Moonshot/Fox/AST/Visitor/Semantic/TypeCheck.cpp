@@ -125,6 +125,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 		auto iexpr_type = visitAndGetResult(node.initExpr_);
 		// check if it's possible.
 		if (!canAssign(
+			context_,
 			node.vattr_.type_,
 			iexpr_type
 		))
@@ -171,7 +172,7 @@ std::size_t TypeCheckVisitor::getExprResultType(const binaryOperation& op, std::
 	// first, quick, simple check : we can only verify results between 2 basic types.
 	if (op == binaryOperation::ASSIGN)
 	{
-		if (canAssign(lhs, rhs))
+		if (canAssign(context_,lhs, rhs))
 			return lhs; // Assignements return the value  of the lhs.
 		else
 		{

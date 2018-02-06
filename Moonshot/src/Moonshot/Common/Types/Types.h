@@ -16,8 +16,9 @@
 #include <string> // std::string
 #include <sstream> // std::stringstream
 #include <type_traits> // std::is_same
-#include <memory>
 #include <inttypes.h>
+
+#include "../../Common/Context/Context.h" // context
 #include "../../Common/Exceptions/Exceptions.h"
 #include "../../Fox/Util/Enums.h"
 
@@ -28,9 +29,13 @@ namespace Moonshot::var
 	struct varattr;
 }
 
+// Alias for a variant holding every type possible in the interpreter.
 typedef int64_t IntType;
 typedef wchar_t CharType;
 typedef std::variant<std::monostate, IntType, float, CharType, std::string, bool, Moonshot::var::varRef> FVal;
+
+
+
 
 namespace Moonshot
 {
@@ -60,7 +65,7 @@ namespace Moonshot
 		bool isValue(const std::size_t& t);
 
 		// Checks if assignement is possible.
-		bool canAssign(const std::size_t &lhs, const std::size_t &rhs); // Checks if the lhs and rhs are compatible.
+		bool canAssign(Context& context_,const std::size_t &lhs, const std::size_t &rhs); // Checks if the lhs and rhs are compatible.
 																		// Compatibility : 
 																		// Arithmetic type <-> Arithmetic Type = ok
 																		// string <-> string = ok

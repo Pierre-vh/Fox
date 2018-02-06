@@ -1,4 +1,4 @@
-﻿#include "U8StrManipTest.h"
+#include "U8StrManipTest.h"
 
 using namespace Moonshot;
 using namespace TestUtilities;
@@ -20,58 +20,14 @@ bool U8StrManipTest::runTest(Context & context)
 	if (!context.isSafe())
 		return false;
 	// charcount & spacecount from https://charcounter.com/en/
-	std::cout << ">bronzehorseman.pushkin.txt";
+	std::cout << "bronzehorseman.pushkin.txt\n";
 	if (!testStr(context,pushkin,11,278,44))
 		return false;
 	std::cout << "\tSUCCESS\n";
-	std::cout << ">ascii.txt";
+	std::cout << "ascii.txt\n";
 	if (!testStr(context, ascii, 18, 1190, (1190-343)))
 		return false;
 	std::cout << "\tSUCCESS\n";
-
-	std::cout << ">Append test:";
-	{
-		wchar_t u8ch = L'ш';
-		UTF8StringManipulator manip;
-		std::string str = "foo";
-		manip.append(str, u8ch);
-		str += "bar";
-		if (str != u8"fooшbar")
-		{
-			std::cout << "\tFailed to append, or append function doesn't work as intended.\n";
-			return false;
-		}
-		std::cout << "\tSUCCESS\n";
-	}
-
-	std::cout << ">Substr test:";
-	{
-		std::string str(u8"﻿Τη γλώσσα μου έδωσαν ελληνική");
-		std::string exp_sub(u8"γλώσσα μου");
-		UTF8StringManipulator manip;
-		manip.setStr(str);
-		std::string sub = manip.substring(3,10);
-		if (sub != exp_sub)
-		{
-			std::cout << "\tFailed. Substring was different from expected substring.\n\tExpected substring :\"" << exp_sub << "\", substring returned:\"" << sub << "\"\n";
-			std::cout << "Expected substr size in bytes:" << exp_sub.size() << " Substr size in byte:" << sub.size() << std::endl;
-			return false;
-		}
-		std::cout << "\tSUCCESS\n";
-	}
-
-	std::cout << ">getchar test:";
-	{
-		std::string str(u8"﻿Τη γλώσσα μου έδωσαν ελληνική");
-		UTF8StringManipulator manip;
-		manip.setStr(str);
-		if (L'ώ' != manip.getChar(5))
-		{
-			std::cout << "\t Failed, char returned was different from the one expected." << std::endl;
-			return false;
-		}
-		std::cout << "\tSUCCESS\n";
-	}
 	return true;
 }
 
@@ -85,7 +41,7 @@ bool U8StrManipTest::testStr(Context& context, const std::string& str, unsigned 
 	try {
 		while (!manip.isAtEndOfStr())
 		{
-			auto cur = manip.currentChar();
+			auto cur = manip.next();
 			if (cur == '\n')
 				linecount++;
 			else {
@@ -93,8 +49,6 @@ bool U8StrManipTest::testStr(Context& context, const std::string& str, unsigned 
 					spacecount++;
 				charcount++;
 			}
-
-			manip.advance();
 		}
 	}
 	catch (std::exception& e)
