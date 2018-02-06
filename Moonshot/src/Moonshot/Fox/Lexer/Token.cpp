@@ -115,19 +115,19 @@ bool Token::specific_idSign()
 bool Token::specific_idValue()
 {
 	std::stringstream converter(str);
-	auto strmanip = context_.createStringManipulator();
-	strmanip->setStr(str);
+	UTF8StringManipulator strmanip;
+	strmanip.setStr(str);
 
-	if (strmanip->peekFirst() == '\'')
+	if (strmanip.peekFirst() == '\'')
 	{
-		if (strmanip->peekBack() == '\'')
+		if (strmanip.peekBack() == '\'')
 		{
-			if (strmanip->getSize() > 3)
+			if (strmanip.getSize() > 3)
 			{
 				context_.reportError("Char literal can only contain one character.");
 				return false;
 			}
-			vals = strmanip->getChar(1);
+			vals = strmanip.getChar(1);
 			lit_type = literal::LIT_CHAR;
 			return true;
 		}
@@ -137,11 +137,11 @@ bool Token::specific_idValue()
 			return false;
 		}
 	}
-	else if (strmanip->peekFirst() == '"')
+	else if (strmanip.peekFirst() == '"')
 	{
-		if (strmanip->peekBack() == '"')
+		if (strmanip.peekBack() == '"')
 		{
-			vals = strmanip->substring(1,strmanip->getSize()-2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
+			vals = strmanip.substring(1,strmanip.getSize()-2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
 			lit_type = literal::LIT_STRING;
 			return true;
 		}

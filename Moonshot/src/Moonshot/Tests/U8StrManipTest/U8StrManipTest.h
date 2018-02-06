@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../ITest.h"
-#include "../../Common/StringManipulator/UTF8/UTF8StringManipulator.h"
+#include "../../Common/UTF8/UTF8StringManipulator.h"
 #include <cwctype>		// std::iswspace
 
 namespace Moonshot

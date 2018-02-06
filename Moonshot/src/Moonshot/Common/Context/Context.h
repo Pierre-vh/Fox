@@ -25,14 +25,9 @@
 #include "Options\OptionsManager.h" 
 #include "EncodingsList.h"
 
-#include "../StringManipulator/IStringManipulator.h"
-// Supported string manipulators
-#include "../StringManipulator/UTF8/UTF8StringManipulator.h"
-
 // This is used to define the maximum errors you can have before the context goes critical.
 // Can be changed @ runtime with
 #define DEFAULT_MAX_TOLERATED_ERRORS 4
-#define DEFAULT_ENCODING Encoding::UTF8
 
 namespace Moonshot
 {
@@ -59,10 +54,6 @@ namespace Moonshot
 		public:
 			// Default ctor
 			Context() = default;
-			// Ctor which takes an encoding as argument. The context's encoding can only be set at construction.
-			// When the interpreter will need to manipulate std::strings, like in the lexer/token struct it'll use a strmanip
-			// to access indiviual character.
-			Context(const Encoding& enc);
 
 			void setLoggingMode(const ContextLoggingMode& newmode); // set mode : direct print to cout (default) or save to a vector.
 			
@@ -80,10 +71,6 @@ namespace Moonshot
 
 			BuildMode getBuildMode() const;
 			void setBuildMode(const BuildMode& newbuildmode);
-
-			Encoding getCurrentEncoding() const;
-
-			std::unique_ptr<IStringManipulator> createStringManipulator() const;
 
 			void printLogs() const;		// print all logs to cout
 			std::string getLogs() const; // returns a string containing the error log.
@@ -119,7 +106,6 @@ namespace Moonshot
 			ContextLoggingMode curmode_ = ContextLoggingMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR;
 			ContextState curstate_ = ContextState::SAFE;
 			BuildMode curbuildmode_ = BuildMode::DEBUG;
-			Encoding curenc_ = DEFAULT_ENCODING;
 	};
 }
 

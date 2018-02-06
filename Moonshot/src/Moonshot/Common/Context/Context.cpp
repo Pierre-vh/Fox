@@ -11,11 +11,6 @@
 
 using namespace Moonshot;
 
-Context::Context(const Encoding & enc) : curenc_(enc)
-{
-
-}
-
 void Context::setLoggingMode(const ContextLoggingMode & newmode)
 {
 	curmode_ = newmode;
@@ -84,23 +79,6 @@ BuildMode Context::getBuildMode() const
 void Context::setBuildMode(const BuildMode & newbuildmode)
 {
 	curbuildmode_ = newbuildmode;
-}
-
-Encoding Context::getCurrentEncoding() const
-{
-	return curenc_;
-}
-
-std::unique_ptr<IStringManipulator> Context::createStringManipulator() const
-{
-	switch (curenc_)
-	{
-		case Encoding::UTF8:
-			return std::make_unique<UTF8StringManipulator>();
-		default:
-			throw std::invalid_argument("Unknown Encoding.");
-			return nullptr;
-	}
 }
 
 void Context::printLogs() const

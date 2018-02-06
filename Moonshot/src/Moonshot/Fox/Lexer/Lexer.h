@@ -26,6 +26,7 @@
 #include <memory>
 
 #include "../../Common/Types/Types.h"
+#include "../../Common/UTF8/UTF8StringManipulator.h"
 #include "../../Common/Context/Context.h"
 #include "../../Common/Exceptions/Exceptions.h"
 
@@ -97,6 +98,6 @@ namespace Moonshot
 			// Output
 			TokenVector	result_;		// the lexer's output !
 			//
-			std::unique_ptr<IStringManipulator> manip;
+			UTF8StringManipulator manip;
 	};
 }
