@@ -5,6 +5,21 @@
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // Implements a UTF-8 string manipulator based on the UTFCPP library.
+//
+// How it works :
+//
+// # = Current iterator iter_ position. It is always positioned at the end of the previous CP, and at the beginning of the current CP
+// CP = One codepoint. It's one or more bytes in the std::string.
+//		
+//													  currentChar()
+//															|
+//											  peekPrevious()|	peekNext()
+//													|	    |		|
+//							>	- - --------------------------------------------------------- - -
+//	str_(input string)		>		|	CP	|	CP	|	CP	#	CP	|	CP	|	CP	|	CP	|
+//							>	- - --------------------------------------------------------- - -
+//
+//
 ////------------------------------------------------------////
 
 #pragma once
