@@ -29,10 +29,10 @@ using namespace Moonshot;
 			Generally, find ways to simplify the ast as much as possible.
 */
 /*
-	TO DO: Implement UTF8 Properly in the lexer.
-		Add a encoding enum in context
-		Add a factory in Context : createStringManipulator(); which returns a polymorphic std::unique_ptr<IStringManipulator>, depending on the current encoding
-		Change the lexer & token accordingly.
+	TODO:
+		Make CharType non arithmetic.
+		Add operations (char-char = string) and (char-strings = string) too. (reuse the concat operation) Be careful about lhs/rhs order.
+		// update the typechecker & rtexprvisitor to match the new rule
 */
 int main()
 {
