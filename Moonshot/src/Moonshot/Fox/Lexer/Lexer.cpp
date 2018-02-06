@@ -53,7 +53,7 @@ void Lexer::logAllTokens() const
 }
 
 
-TokenVector & Moonshot::Lexer::getTokenVector()
+TokenVector & Lexer::getTokenVector()
 {
 	return result_; // return empty Token
 }
@@ -279,6 +279,7 @@ void Lexer::addToCurtok(CharType c)
 					curtok_.pop_back();
 					break;
 			}
+
 		}
 		manip.append(curtok_, c);
 		escapeFlag_ = false;
@@ -289,6 +290,7 @@ bool Lexer::isSep(const CharType &c) const
 {
 	if (c == '.' && std::iswdigit(manip.peekNext()))	// if we're inside a number, we shouldn't treat a dot as a separator.
 		return false;
+
 	auto i = kSign_dict.find(c);
 	return i != kSign_dict.end() || std::iswspace(c);
 }
