@@ -25,6 +25,8 @@ namespace Moonshot
 			std::string getStr() const;
 			void setStr(const std::string& str);
 
+			std::string wcharToStr(const wchar_t& wc) const;
+
 			void reset();
 			void advance(const std::size_t& ind = 1);
 			CharType currentChar();			

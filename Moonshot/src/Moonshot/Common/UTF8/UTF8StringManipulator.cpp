@@ -31,6 +31,13 @@ void UTF8StringManipulator::setStr(const std::string & str)
 	reset();
 }
 
+std::string Moonshot::UTF8StringManipulator::wcharToStr(const wchar_t & wc) const
+{
+	std::string rtr;
+	append(rtr, wc);
+	return rtr;
+}
+
 void UTF8StringManipulator::append(std::string & str, const CharType & ch) const
 {
 	utf8::append(ch, std::back_inserter(str));
