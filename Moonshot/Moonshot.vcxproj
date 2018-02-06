@@ -140,7 +140,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Moonshot\Common\StringManipulator\IStringManipulator.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.cpp" />
@@ -174,7 +173,7 @@
     <ClCompile Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.cpp" />
     <ClCompile Include="src\Moonshot\Tests\VarStmts\VarStmts.cpp" />
     <ClCompile Include="src\Moonshot\Tests\WhileLoop\WhileLoop.cpp" />
-    <ClCompile Include="src\Moonshot\Common\StringManipulator\UTF8\UTF8StringManipulator.cpp" />
+    <ClCompile Include="src\Moonshot\Common\UTF8\UTF8StringManipulator.cpp" />
     <ClCompile Include="src\Moonshot\Tests\U8StrManipTest\U8StrManipTest.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -204,7 +203,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Moonshot\Common\Context\EncodingsList.h" />
-    <ClInclude Include="src\Moonshot\Common\StringManipulator\IStringManipulator.h" />
     <ClInclude Include="src\Moonshot\Common\Types\FVTypeTraits.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.h" />
     <ClInclude Include="src\Moonshot\Tests\Condition\Conditions.h" />
@@ -242,7 +240,7 @@
     <ClInclude Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.h" />
     <ClInclude Include="src\Moonshot\Tests\VarStmts\VarStmts.h" />
     <ClInclude Include="src\Moonshot\Tests\WhileLoop\WhileLoop.h" />
-    <ClInclude Include="src\Moonshot\Common\StringManipulator\UTF8\UTF8StringManipulator.h" />
+    <ClInclude Include="src\Moonshot\Common\UTF8\UTF8StringManipulator.h" />
     <ClInclude Include="src\Moonshot\Tests\U8StrManipTest\U8StrManipTest.h" />
   </ItemGroup>
   <ItemGroup>
