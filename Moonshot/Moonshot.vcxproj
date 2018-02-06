@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Moonshot\Common\Types\TypesUtils.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.cpp" />
@@ -204,6 +205,7 @@
   <ItemGroup>
     <ClInclude Include="src\Moonshot\Common\Context\EncodingsList.h" />
     <ClInclude Include="src\Moonshot\Common\Types\FVTypeTraits.h" />
+    <ClInclude Include="src\Moonshot\Common\Types\TypesUtils.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.h" />
     <ClInclude Include="src\Moonshot\Tests\Condition\Conditions.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.h" />
