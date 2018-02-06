@@ -11,6 +11,8 @@ func fib(n : &int) : int
         {
             return fib(n-1) + fib (n-2);
         }
+	3.14.asInt(); // Example of expression function that's complex to parse/lex.
+	"Hello".substr(0,2).pop_back().toChar(0);
 }
 
 func main()                                                                         // Here, main is void, but you can specify it
