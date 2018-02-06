@@ -115,16 +115,19 @@ bool Token::specific_idSign()
 bool Token::specific_idValue()
 {
 	std::stringstream converter(str);
-	if (str[0] == '\'' )
+	auto strmanip = context_.createStringManipulator();
+	strmanip->setStr(str);
+
+	if (strmanip->peekFirst() == '\'')
 	{
-		if (str.back() == '\'')
+		if (strmanip->peekBack() == '\'')
 		{
-			if (str.size() > 3)
+			if (strmanip->getSize() > 3)
 			{
-				context_.reportError("Char literal can only contain one character.\nIf you tried to use a non-ASCII char (e.g. a UTF8 character), please note that the char type doesn't support them.");
+				context_.reportError("Char literal can only contain one character.");
 				return false;
 			}
-			vals = (CharType)(str[1]); // Get the char between ' ' (at index 1)
+			vals = strmanip->getChar(1);
 			lit_type = literal::LIT_CHAR;
 			return true;
 		}
@@ -134,17 +137,17 @@ bool Token::specific_idValue()
 			return false;
 		}
 	}
-	else if (str[0] == '"')
+	else if (strmanip->peekFirst() == '"')
 	{
-		if (str.back() == '"')
+		if (strmanip->peekBack() == '"')
 		{
-			vals = str.substr(1, str.size() - 2); // Get the str between " "
+			vals = strmanip->substring(1,strmanip->getSize()-2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
 			lit_type = literal::LIT_STRING;
 			return true;
 		}
 		else
 		{
-			context_.reportError("String literal was not closed properly.");
+			context_.reportError("String literal was not correctly closed.");
 			return false;
 		}
 	}

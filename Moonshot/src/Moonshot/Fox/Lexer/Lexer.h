@@ -25,6 +25,7 @@
 #include <map>			// std::map
 #include <memory>
 
+#include "../../Common/Types/Types.h"
 #include "../../Common/Context/Context.h"
 #include "../../Common/Exceptions/Exceptions.h"
 
@@ -56,6 +57,8 @@ namespace Moonshot
 			TokenVector& getTokenVector();	// returns the n th Token in result_
 			std::size_t resultSize() const;					// returns result_.size()
 		
+
+			void setStr(const std::string& str);
 		private:
 
 			void pushTok();					// push Token
@@ -73,27 +76,27 @@ namespace Moonshot
 			void fn_S_CHR();	// Char literals
 
 			// Utils
-			char eatChar();										// returns the current char and run updatePos (returns inputstr_[pos_] and do pos_+=1)
-			void addToCurtok(char c);							// adds the current character to curtok_
-			bool isSep(const char &c) const;					// is the current char a separator? (= a sign. see kSign_dict)
-			char peekNext() const;								// peeks the next character
-			bool isEscapeChar(const char& c) const;				// Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.
-			bool shouldIgnore(const char& c) const;				// Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
+			CharType eatChar();									// returns the current char and run updatePos (returns inputstr_[pos_] and do pos_+=1)
+			void addToCurtok(CharType c);						// adds the current character to curtok_
+			bool isSep(const CharType &c) const;				// is the current char a separator? (= a sign. see kSign_dict)
+			bool isEscapeChar(const CharType& c) const;			// Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.
+			bool shouldIgnore(const CharType& c) const;			// Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
 
 			// error management made easy
 			void reportLexerError(std::string errmsg) const;
 
 			// Member Variables
-				// Context
-				Context& context_;
-				// Utilities
-				bool		escapeFlag_ = false;			// escaping with backslash flag
-				dfaState	cstate_ = dfaState::S_BASE;		// curren dfa state. begins at S_BASE;
-				std::string inputstr_;					// the input
-				size_t		pos_ = 0;					// position in the input string;
-				std::string curtok_;					// the Token that's being constructed.
-				text_pos	ccoord_;					// current coordinates.
-				// Output
-				TokenVector	result_;		// the lexer's output !
+			// Context
+			Context& context_;
+			// Utilities
+			bool		escapeFlag_ = false;			// escaping with backslash flag
+			dfaState	cstate_ = dfaState::S_BASE;		// curren dfa state. begins at S_BASE;
+			std::string inputstr_;					// the input
+			std::string curtok_;					// the Token that's being constructed.
+			text_pos	ccoord_;					// current coordinates.
+			// Output
+			TokenVector	result_;		// the lexer's output !
+			//
+			std::unique_ptr<IStringManipulator> manip;
 	};
 }

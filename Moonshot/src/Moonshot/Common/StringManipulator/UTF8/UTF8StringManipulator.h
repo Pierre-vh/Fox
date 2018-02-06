@@ -10,6 +10,8 @@
 #pragma once
 
 #include "../IStringManipulator.h"
+#include <iterator>
+#include <iostream>
 #include "../../External/utfcpp/utf8.h"
 
 namespace Moonshot
@@ -24,14 +26,25 @@ namespace Moonshot
 			virtual void setStr(const std::string& str) override;
 
 			virtual void reset() override;
-			virtual wchar_t next() override;
-			virtual wchar_t peekNext() override;
-			virtual wchar_t peekPrevious() override;
+			virtual void advance(const std::size_t& ind = 1) override;
+			virtual CharType currentChar() override;			
+
+			virtual CharType getChar(std::size_t ind) const override;
+
+			virtual void append(std::string& str, const CharType& ch) const override;
+
+			virtual std::string substring(std::size_t beg, const std::size_t& leng) const;
+			
+			virtual CharType peekFirst() override;
+			virtual CharType peekNext() override;
+			virtual CharType peekPrevious() override;
+			virtual CharType peekBack() override;
+
 			virtual std::size_t getSize() const override;
 
 			virtual bool isAtEndOfStr() const override;
 		private:
-			std::string::iterator iter_;			
+			std::string::iterator iter_;
 	};
 }
 

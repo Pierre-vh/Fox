@@ -17,6 +17,7 @@ using namespace Moonshot;
 
 Lexer::Lexer(Context & curctxt) : context_(curctxt)
 {
+	manip = context_.createStringManipulator();
 }
 
 Lexer::~Lexer()
@@ -27,10 +28,11 @@ void Lexer::lexStr(const std::string & data)
 {
 	context_.setOrigin("LEXER");
 
-	inputstr_ = data;
-	pos_ = 0;
+	setStr(data);
+	manip->reset();
 	cstate_ = dfaState::S_BASE;
-	while(pos_ < data.size() && context_.isSafe())
+
+	while(!manip->isAtEndOfStr() && context_.isSafe())
 		cycle();
 
 	pushTok(); // Push the last Token found.
@@ -67,6 +69,12 @@ std::size_t Lexer::resultSize() const
 	return result_.size();
 }
 
+void Lexer::setStr(const std::string & str)
+{
+	inputstr_ = str;
+	manip->setStr(str);
+}
+
 void Lexer::pushTok()
 {
 	if (context_.options.getAttr(OptionsList::lexer_logPushedTokens).value_or(false).get<bool>()) {
@@ -93,10 +101,8 @@ void Lexer::cycle()
 	}
 	ccoord_.forward();				// update position
 	runStateFunc();					// execute appropriate function
-	if (inputstr_[pos_] == '\n')	// update line
-	{
+	if (manip->currentChar() == L'\n')	// update line
 		ccoord_.newLine();
-	}
 }
 
 void Lexer::runFinalChecks()
@@ -132,8 +138,8 @@ void Lexer::runStateFunc()
 
 void Lexer::fn_S_BASE()
 {
-	char pk = peekNext();
-	char c = inputstr_[pos_];	// Get current char without advancing in the stream
+	CharType pk = manip->peekNext();
+	CharType c = manip->currentChar();	// Get current char without advancing in the stream
 
 	if (curtok_.size() != 0)	// simple error checking : the Token should always be empty when we're in S_BASE.
 	{
@@ -178,7 +184,7 @@ void Lexer::fn_S_BASE()
 
 void Lexer::fn_S_STR()
 {
-	char c = eatChar();
+	CharType c = eatChar();
 	if (c == '"' && !escapeFlag_)
 	{
 		addToCurtok(c);
@@ -199,7 +205,7 @@ void Lexer::fn_S_LCOM()				// One line comment state.
 
 void Lexer::fn_S_MCOM()
 {
-	if (eatChar() == '*' && inputstr_[pos_] == '/')
+	if (eatChar() == '*' && manip->currentChar() == '/')
 	{
 		eatChar();
 		dfa_goto(dfaState::S_BASE);
@@ -208,7 +214,7 @@ void Lexer::fn_S_MCOM()
 
 void Lexer::fn_S_WORDS()
 {
-	if (isSep(inputstr_[pos_]))
+	if (isSep(manip->currentChar()))
 	{		
 		pushTok();
 		dfa_goto(dfaState::S_BASE);
@@ -219,7 +225,7 @@ void Lexer::fn_S_WORDS()
 
 void Lexer::fn_S_CHR()
 {
-	char c = eatChar();
+	CharType c = eatChar();
 	if (c == '\'' && !escapeFlag_)
 	{
 		addToCurtok(c);
@@ -241,18 +247,18 @@ void Lexer::dfa_goto(const dfaState & ns)
 	cstate_ = ns;
 }
 
-char Lexer::eatChar()
+CharType Lexer::eatChar()
 {
-	const char c = inputstr_[pos_];
-	pos_ += 1;
+	const CharType c = manip->currentChar();
+	manip->advance();
 	return c;
 }
 
-void Lexer::addToCurtok(char c)
+void Lexer::addToCurtok(CharType c)
 {
 	if (isEscapeChar(c) && !escapeFlag_)
 	{
-		curtok_ += c;
+		manip->append(curtok_, c);
 		escapeFlag_ = true;
 	}
 	else if(!shouldIgnore(c))
@@ -280,32 +286,25 @@ void Lexer::addToCurtok(char c)
 					break;
 			}
 		}
-		curtok_ += c;
+		manip->append(curtok_, c);
 		escapeFlag_ = false;
 	}
 }
 
-bool Lexer::isSep(const char &c) const
+bool Lexer::isSep(const CharType &c) const
 {
-	if (c == '.' && std::iswdigit(peekNext()))	// if we're inside a number, we shouldn't treat a dot as a separator.
+	if (c == '.' && std::iswdigit(manip->peekNext()))	// if we're inside a number, we shouldn't treat a dot as a separator.
 		return false;
 	auto i = kSign_dict.find(c);
 	return i != kSign_dict.end() || std::iswspace(c);
 }
 
-char Lexer::peekNext() const
-{
-	if (pos_ + 1 >= (inputstr_.size()))	// checks if it's possible
-		return '\0';
-	return inputstr_[pos_ + 1];
-}
-
-bool Lexer::isEscapeChar(const char & c) const
+bool Lexer::isEscapeChar(const CharType & c) const
 {
 	return  (c == '\\') && ((cstate_ == dfaState::S_STR) || (cstate_ == dfaState::S_CHR));
 }
 
-bool Lexer::shouldIgnore(const char & c) const
+bool Lexer::shouldIgnore(const CharType & c) const
 {
 	return (c == '\r'); // don't push carriage returns
 }
