@@ -27,16 +27,17 @@ bool LexerMainTest::runTest(Context & context)
 	Lexer lex_corr(context);
 	lex_corr.lexStr(correct_test_str);
 
-	if (!context.isSafe_strict()) // Should be 0 errors. return false if one is found
+	if (!context.isSafe()) // Should be 0 errors. return false if one is found
 		return false;
 
-	context.printLogs(); // Show pushed tokens
+	lex_corr.logAllTokens();
+	context.printLogs();
 	context.clearLogs(); // clear logs of all the clutter
 
 	// Run "bad" tests
 	Lexer lex_bad(context);
 	lex_bad.lexStr(bad_test_str); 
-	if (context.isSafe_strict()) // Should have errors
+	if (context.isSafe()) // Should have errors
 		return false;
 	// All went well, reset context state and return.
 	context.resetState();
