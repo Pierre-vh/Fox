@@ -20,6 +20,11 @@ UTF8StringManipulator::~UTF8StringManipulator()
 {
 }
 
+std::string UTF8StringManipulator::getStr() const
+{
+	return str_;
+}
+
 void UTF8StringManipulator::setStr(const std::string & str)
 {
 	str_ = str;
@@ -36,6 +41,9 @@ void UTF8StringManipulator::reset()
 	iter_ = str_.begin();
 	if (utf8::is_bom(iter_))
 		utf8::advance(iter_, 1, str_.end());
+
+	end_ = str_.end();
+	beg_ = str_.begin();
 }
 
 void UTF8StringManipulator::advance(const std::size_t & ind)
@@ -87,38 +95,39 @@ std::string UTF8StringManipulator::substring(std::size_t beg, const std::size_t 
 	return rtr;
 }
 
-CharType UTF8StringManipulator::peekFirst()
+CharType UTF8StringManipulator::peekFirst() const
 {
 	if (getSize()) // string needs at least 1 char
-		return utf8::peek_next(str_.begin(), str_.end());
+		return utf8::peek_next(beg_,end_);
 	return L'\0';
 }
 
-CharType UTF8StringManipulator::peekNext()
+CharType UTF8StringManipulator::peekNext() const
 {
 	if (isAtEndOfStr())
 		return L'\0';
 
 	auto tmpit = iter_;
-	utf8::advance(tmpit, 1,str_.end()); // peek_next in utfcpp returns what we expect to be the "next" character, so we need to advance
+	utf8::advance(tmpit, 1,end_); // peek_next in utfcpp returns what we expect to be the "next" character, so we need to advance
 	if(tmpit != str_.end())
-		return utf8::peek_next(tmpit, str_.end());
+		return utf8::peek_next(tmpit,end_);
 	return L'\0';
 }
 
-CharType UTF8StringManipulator::peekPrevious()
+CharType UTF8StringManipulator::peekPrevious() const
 {
 	if (iter_ == str_.begin())
 		return L'\0';
 
 	auto tmpiter = iter_;
-	return utf8::previous(tmpiter, str_.begin());
+	return utf8::previous(tmpiter,beg_);
 }
 
-CharType UTF8StringManipulator::peekBack()
+CharType UTF8StringManipulator::peekBack() const
 {
+	auto tmp = end_;
 	if (getSize()) // string needs at least 1 char
-		return utf8::prior(str_.end(), str_.begin());
+		return utf8::prior(tmp,beg_);
 	return L'\0';
 }
 
