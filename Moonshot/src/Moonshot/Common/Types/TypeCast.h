@@ -2,6 +2,7 @@
 
 #include "Types.h"
 #include "FVTypeTraits.h"
+#include "TypesUtils.h"
 #include "../Context/Context.h"
 #include <variant> // std::visit
 

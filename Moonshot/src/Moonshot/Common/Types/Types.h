@@ -15,8 +15,6 @@
 #include <variant> // std::variant
 #include <string> // std::string
 #include <sstream> // std::stringstream
-#include <type_traits> // std::is_same
-#include <memory>
 #include <inttypes.h>
 #include "../../Common/Exceptions/Exceptions.h"
 #include "../../Fox/Util/Enums.h"
@@ -43,37 +41,7 @@ namespace Moonshot
 	}
 	namespace fv_util
 	{
-		
-		// Dump functions
-		std::string dumpFVal(const FVal &var);
-		std::string dumpVAttr(const var::varattr &var);
-
-		// returns a sample fval for an index.
-		FVal getSampleFValForIndex(const std::size_t& t);
-
-		// Get a user friendly name for an index.
-		std::string indexToTypeName(const std::size_t& t);
-
-		// Index utility function
-		bool isBasic(const std::size_t& t); // Is the type a string/bool/char/int/float ?
-		bool isArithmetic(const std::size_t& t);
-		bool isValue(const std::size_t& t);
-
-		// Checks if assignement is possible.
-		bool canAssign(const std::size_t &lhs, const std::size_t &rhs); // Checks if the lhs and rhs are compatible.
-																		// Compatibility : 
-																		// Arithmetic type <-> Arithmetic Type = ok
-																		// string <-> string = ok
-																		// else : error.
-
-		// This function returns true if the type of basetype can be cast to the type of goal.
-		bool canCastTo(const std::size_t &goal, const std::size_t &basetype);
-
-		// returns the type of the biggest of the 2 arguments.
-		std::size_t getBiggest(const std::size_t &lhs, const std::size_t &rhs);
-
 		// Variables : Indexes
-		// How to remember values of index
 		namespace indexes
 		{
 			static constexpr std::size_t invalid_index = (std::numeric_limits<std::size_t>::max)();
@@ -86,20 +54,7 @@ namespace Moonshot
 			static constexpr std::size_t fval_bool = 5;
 			static constexpr std::size_t fval_varRef = 6;
 		}
-
-		const std::map<std::size_t, std::string> kType_dict =
-		{
-			{ indexes::fval_null			, "NULL" },
-			{ indexes::fval_int				, "INT" },
-			{ indexes::fval_float			, "FLOAT" },
-			{ indexes::fval_char			, "CHAR" },
-			{ indexes::fval_bool			, "BOOL" },
-			{ indexes::fval_str				, "STRING" },
-			{ indexes::fval_varRef			, "VAR_ATTR (ref)"},
-			{ indexes::invalid_index		, "!INVALID!" }
-		};
 	}
-
 	namespace var
 	{
 		struct varRef
