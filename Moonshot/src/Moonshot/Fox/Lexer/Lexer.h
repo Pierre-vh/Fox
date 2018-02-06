@@ -49,14 +49,15 @@ namespace Moonshot
 			Lexer(Context& curctxt);
 			~Lexer();
 
+			// input: data : a UTF-8 encoded std::string.
 			void lexStr(const std::string &data);		// Main function.
-			
-			void iterateResults(std::function<void(const Token&)> func);	// Some function that could be useful one day : takes a lambda with a Token as argument.
-																			// The lambda will then be called with each Token of the output, in order.
-			void logAllTokens() const;					// log all Token using E_LOG. Useful for debugging.
 
-			TokenVector& getTokenVector();	// returns the n th Token in result_
-			std::size_t resultSize() const;					// returns result_.size()
+			void logAllTokens() const;					// log all Tokens in output using context_.log . Useful for debugging.
+
+			// get the result
+			TokenVector& getTokenVector();				// returns the n th Token in result_
+			// get the number of tokens in the result
+			std::size_t resultSize() const;				// returns result_.size()
 		
 
 			void setStr(const std::string& str);

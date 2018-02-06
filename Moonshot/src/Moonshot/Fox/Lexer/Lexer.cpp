@@ -46,12 +46,6 @@ void Lexer::lexStr(const std::string & data)
 	context_.resetOrigin();
 }
 
-void Lexer::iterateResults(std::function<void(const Token&)> func)
-{
-	for (const Token &tok : result_)
-		func(tok);
-}
-
 void Lexer::logAllTokens() const
 {
 	for (const Token &tok : result_)
