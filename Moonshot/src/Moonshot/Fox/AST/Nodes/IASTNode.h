@@ -11,7 +11,6 @@
 
 #include "../../../Common/Types/Types.h"
 #include "../../AST/Visitor/IVisitor.h"
-#include "../../../Common/Macros.h"
 
 namespace Moonshot
 {
