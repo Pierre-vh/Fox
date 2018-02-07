@@ -17,13 +17,10 @@
 
 #pragma once
 
-#include <iostream> // std::cout
 #include <vector> // std::vector
 #include <memory> // std::shared_ptr
-#include <sstream> // std::stringstream
 
 #include "Options\OptionsManager.h" 
-#include "EncodingsList.h"
 
 // This is used to define the maximum errors you can have before the context goes critical.
 // Can be changed @ runtime with

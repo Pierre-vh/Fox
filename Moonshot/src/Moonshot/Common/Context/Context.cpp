@@ -9,6 +9,9 @@
 
 #include "Context.h"
 
+#include <iostream> // std::cout
+#include <sstream> // std::stringstream
+
 using namespace Moonshot;
 
 void Context::setLoggingMode(const ContextLoggingMode & newmode)
