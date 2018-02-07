@@ -9,6 +9,8 @@
 
 #include "OptionsManager.h"
 
+#include <iostream>
+
 using namespace Moonshot;
 
 OptionsManager::OptionsManager()

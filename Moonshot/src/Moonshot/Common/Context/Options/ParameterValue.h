@@ -11,7 +11,6 @@
 #pragma once
 
 #include <variant>		// std::variant
-#include <algorithm>	// std::transform
 
 #include "../../Utils/Utils.h"
 // ParameterValue could be a wrapper around a std::variant

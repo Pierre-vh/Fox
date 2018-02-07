@@ -203,7 +203,6 @@
     <None Include="res\tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Moonshot\Common\Context\EncodingsList.h" />
     <ClInclude Include="src\Moonshot\Common\Types\FVTypeTraits.h" />
     <ClInclude Include="src\Moonshot\Common\Types\TypesUtils.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.h" />
