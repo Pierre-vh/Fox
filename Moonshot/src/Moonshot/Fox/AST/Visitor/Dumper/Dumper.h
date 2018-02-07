@@ -11,16 +11,6 @@
 #pragma once
 // base class
 #include "../IVisitor.h"
-// FVal Utilities
-#include "../../../../Common/Types/Types.h"
-#include "../../../../Common/Types/TypesUtils.h"
-#include "../../../../Common/Utils/Utils.h" // for enumAsInt
-// Include nodes
-#include "../../Nodes/ASTExpr.h"
-#include "../../Nodes//ASTVarDeclStmt.h"
-#include "../../Nodes/ASTCompStmt.h"
-#include "../../Nodes/ASTCondition.h"
-#include "../../Nodes/ASTWhileLoop.h"
 
 namespace Moonshot
 {
