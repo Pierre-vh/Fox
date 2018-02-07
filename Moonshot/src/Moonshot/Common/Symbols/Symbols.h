@@ -12,11 +12,7 @@
 
 #include "../Context/Context.h"
 #include "../Types/Types.h"
-#include "../Types/TypesUtils.h"
-#include "../Types/TypeCast.h"
-#include "../../Fox/AST/Nodes/ASTExpr.h"
 
-#include <sstream> // std::stringstream
 #include <tuple> // std::pair
 #include <map> // std::map
 
