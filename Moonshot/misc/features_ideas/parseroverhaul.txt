@@ -1,0 +1,27 @@
+Add a "SymbolsTable", a wrapper around a std::map<std::string,type> 
+	types:
+		var_id // User defined variables 
+		func_id // User defined functions 
+		builtin_id // built-in functions  (expression functions id for instance)
+		(etc.)
+	functions inside the class:
+		isNew()
+		registerId(string,type)
+		getType(string)
+		(etc.)
+
+->	SymbolsTable conflicts with the SymbolsTable used by rt visitors. rename that one in "VarDataTable"
+	That is just temporary, because once the backend is complete this class will just be deleted.	
+
+The parser holds the symbols table, and asks the context to populate it with the builtin functions
+
+In the grammar remove ids and add the following:
+	<var_id> = User defined variable  ID
+	<func_id> = User defined function ID
+	<builtin_id> = ID of Functions from the "standard library" 
+	<new_id>	= a never seen before ID.
+
+Add groupings if needed, like
+	<general_func_id> = <builtin_id> | <func_id>
+
+Modify the grammar accordingly.
