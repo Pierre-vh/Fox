@@ -27,7 +27,6 @@
 #include <iterator>
 #include <iostream>
 #include "../Types/Types.h"
-#include "../External/utfcpp/utf8.h"
 
 namespace Moonshot::UTF8
 {

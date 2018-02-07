@@ -8,6 +8,7 @@
 ////------------------------------------------------------////
 
 #include "StringManipulator.h"
+#include "../External/utfcpp/utf8.h"
 
 using namespace Moonshot;
 
