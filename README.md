@@ -6,9 +6,9 @@ WORK IN PROGRESS:
 First version :  
 Fox  
 - Lexer : Done  
-- Parser & AST : Work has begun, Maybe around 5-10% done.
-- Semantic Analyser : Work on it has not started yet.
-- AST Evaluator : Work on it has not started yet.
+- Parser & AST : Work has begun, Maybe around 80-90% done.
+- Semantic Analyser : TypeChecker nearly complete, Scope checker and other have yet to come.
+- AST Evaluator : A Debug version is done, but far from ideal. It's just to evaluate the AST while the backend isn't available.
 - - Symbols table manager
 - - (etc)
 
