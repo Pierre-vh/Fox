@@ -16,33 +16,16 @@
 // When evaluating variables calls, this class returns a reference to the variable.
 // This class will attempt to deref reference first at some points. When cast, it returns the value of the variable
 // and not a reference to it! 
-// So, in theory, this would fail (and that's normal, as variable types can not be changed)
+// So, this would fail (and that's normal, as variable types can not be changed)
 	// x as int = 3
 
 #pragma once
-// Context & exceptions
-#include "../../../../../Common/Context/Context.h"
-#include "../../../../../Common/Exceptions/Exceptions.h"
-// Utils, types, typecast
-#include "../../../../../Common/Utils/Utils.h"
-#include "../../../../../Common/Types/Types.h"
-#include "../../../../../Common/Types/FVTypeTraits.h"
-#include "../../../../../Common/Types/TypeCast.h"
-#include "../../../../../Common/Types/TypesUtils.h"
-// Symbols table
-#include "../../../../../Common/Symbols/Symbols.h"
-#include "../../../Nodes/ASTExpr.h"
-#include "../../../Nodes/ASTVarDeclStmt.h"
 #include "../../IVisitor.h"
-
-#include <tuple>		// Pair
-#include <climits>		// Variable limits
-#include <cmath>		// C++ math operations
-#include <variant>		// holds_alternative
-
 
 namespace Moonshot
 {
+	class Context;
+	class SymbolsTable;
 	class RTExprVisitor : public ITypedVisitor<FVal>
 	{
 		public:

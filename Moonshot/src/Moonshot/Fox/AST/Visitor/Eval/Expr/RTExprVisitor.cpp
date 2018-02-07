@@ -9,9 +9,25 @@
 
 #include "RTExprVisitor.h"
 
+// Context & exceptions
+#include "../../../../../Common/Context/Context.h"
+#include "../../../../../Common/Exceptions/Exceptions.h"
+// Utils, types, typecast
+#include "../../../../../Common/Utils/Utils.h"
+#include "../../../../../Common/Types/Types.h"
+#include "../../../../../Common/Types/FVTypeTraits.h"
+#include "../../../../../Common/Types/TypeCast.h"
+#include "../../../../../Common/Types/TypesUtils.h"
+// symbols table
+#include "../../../../../Common/Symbols/Symbols.h"
+// Nodes needed
+#include "../../../Nodes/ASTExpr.h"
+#include "../../../Nodes/ASTVarDeclStmt.h"
+// math operations
+#include <cmath>		
+
 using namespace Moonshot;
 using namespace fv_util;
-
 
 RTExprVisitor::RTExprVisitor(Context& c) : context_(c)
 {
