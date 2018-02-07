@@ -50,6 +50,7 @@ namespace Moonshot
 			double fvalToDouble_withDeref(FVal fval);
 			bool compareVal(const binaryOperation &op, const FVal &l, const FVal &r);
 			bool compareStr(const binaryOperation &op, const std::string &lhs, const std::string &rhs);
+			bool compareChar(const binaryOperation &op, const CharType& lhs, const CharType& rhs);
 			FVal concat(const FVal& lhs, const FVal& rhs);
 			double performOp(const binaryOperation& op, double l, double r);
 		

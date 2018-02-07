@@ -119,9 +119,12 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 	{
 		if (!node.left_ || !node.right_)
 			throw Exceptions::ast_malformation("Attempted to run a comparison operation on a node without 2 children");
-
+		
 		const FVal lfval = visitAndGetResult(node.left_, *this);
 		const FVal rfval = visitAndGetResult(node.right_, *this);
+		/*
+			todo, deref the variables HERE, and remove the deref part of the functions _derefFirst.
+		*/
 		if (std::holds_alternative<std::string>(lfval) && std::holds_alternative<std::string>(rfval)) // lhs/rhs str?
 		{
 			if (lfval.index() == rfval.index()) // if so, lhs/rhs must both be strings to compare them.
@@ -142,7 +145,16 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 				return;
 			}
 		}
-		else
+		else if (std::holds_alternative<CharType>(lfval) && std::holds_alternative<CharType>(rfval))
+		{
+			value_ = FVal(compareChar(
+				node.op_,
+				std::get<CharType>(lfval),
+				std::get<CharType>(rfval)
+			));
+			return;
+		}
+		else 
 		{
 			double dleftval = fvalToDouble_withDeref(visitAndGetResult(node.left_, *this));
 			double drightval = fvalToDouble_withDeref(visitAndGetResult(node.right_, *this));
@@ -338,20 +350,50 @@ bool RTExprVisitor::compareStr(const binaryOperation & op, const std::string & l
 			return false;
 	}
 }
+bool RTExprVisitor::compareChar(const binaryOperation & op, const CharType & lhs, const CharType & rhs)
+{
+	switch (op)
+	{
+		case binaryOperation::AND:
+			return (lhs != 0) && (rhs != 0);
+		case binaryOperation::OR:
+			return (lhs != 0) || (rhs != 0);
+		case binaryOperation::LESS_OR_EQUAL:
+			return lhs <= rhs;
+		case binaryOperation::GREATER_OR_EQUAL:
+			return lhs >= rhs;
+		case binaryOperation::LESS_THAN:
+			return lhs < rhs;
+		case binaryOperation::GREATER_THAN:
+			return lhs > rhs;
+		case binaryOperation::EQUAL:
+			return lhs == rhs;
+		case binaryOperation::NOTEQUAL:
+			return lhs != rhs;
+		default:
+			throw std::logic_error("Defaulted. Unimplemented condition operation?");
+			return false;
+	}
+}
 FVal RTExprVisitor::concat(const FVal & lhs, const FVal & rhs)
 {
-	std::string rtr;
+	std::string rtr = "";
 	// lhs
 	if (std::holds_alternative<std::string>(lhs))
 		rtr += std::get<std::string>(lhs);
-	else if (std::holds_alternative<CharType>(rhs))
+	else if (std::holds_alternative<CharType>(lhs))
 		UTF8::append(rtr, std::get<CharType>(lhs));
 	else
-		// "Concat operation can't be performed if lhs/rhs isn't a string or a character."
 		throw std::logic_error("Invalid arguments to concat operations");
 
-	// do the same for rhs
-	// TO DO
+	if (std::holds_alternative<std::string>(rhs))
+		rtr += std::get<std::string>(rhs);
+	else if (std::holds_alternative<CharType>(rhs))
+		UTF8::append(rtr, std::get<CharType>(rhs));
+	else
+		throw std::logic_error("Invalid arguments to concat operations");
+
+	return FVal(rtr);
 }
 double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
 {

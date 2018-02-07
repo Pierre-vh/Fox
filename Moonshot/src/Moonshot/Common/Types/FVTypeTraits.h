@@ -31,7 +31,7 @@ namespace Moonshot::fv_util
 	}
 	inline constexpr bool isArithmetic(const std::size_t& t)
 	{
-		return (t == indexes::fval_int) || (t == indexes::fval_bool) || (t == indexes::fval_int);
+		return (t == indexes::fval_float) || (t == indexes::fval_bool) || (t == indexes::fval_int);
 	}
 	
 	inline constexpr bool isValue(const std::size_t& t)
@@ -46,11 +46,8 @@ namespace Moonshot::fv_util
 			switch (lhs)
 			{
 				case indexes::fval_char:
-					return	((lhs == rhs)				||	// char & char
-							(rhs == indexes::fval_str));	// char & str
 				case indexes::fval_str:
-					return	((lhs == rhs)				||	// str & str
-						(rhs == indexes::fval_char));		// str & char
+					return	(rhs == indexes::fval_char) || (rhs == indexes::fval_str);
 				default:
 					return false;
 			}

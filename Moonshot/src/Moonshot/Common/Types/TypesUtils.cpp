@@ -104,14 +104,17 @@ bool fv_util::canCastTo(const std::size_t & goal, const std::size_t & basetype)
 	/*
 		Convertsions:
 		Arith type -> Arith type
+		Arith type -> string type
 		char type -> string type
 		same type -> same type
 	*/
 	if (isBasic(basetype))
 	{
-		if (isArithmetic(goal) && isArithmetic(basetype)) // arithm -> arith
+		if (isArithmetic(goal) && isArithmetic(basetype)) // arith -> arith
 			return true;
-		else if ((basetype == indexes::fval_char) && (basetype == indexes::fval_str)) // char -> str
+		else if (isArithmetic(basetype) && (goal == indexes::fval_str)) // arith -> str
+			return true;
+		else if ((basetype == indexes::fval_char) && (goal == indexes::fval_str)) // char -> str
 			return true;
 		return (basetype == goal); // same type -> same type
 	}

@@ -27,7 +27,7 @@ std::pair<bool, FVal> Moonshot::castTypeTo(Context& context_, const GOAL& type, 
 			stream << v;
 			return { true, FVal(stream.str()) };
 		}
-		else if constexpr(std::is_same<CharType,VAL>::value) // char -> str
+		else if constexpr(std::is_same<CharType, VAL>::value) // char -> str
 		{
 			std::string rtr = "";
 			UTF8::append(rtr, v);
