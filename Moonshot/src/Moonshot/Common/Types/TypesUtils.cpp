@@ -1,5 +1,7 @@
 #include "TypesUtils.h"
 
+#include <sstream>
+
 using namespace Moonshot;
 
 std::string fv_util::dumpFVal(const FVal & var)
