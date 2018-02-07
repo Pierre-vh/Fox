@@ -252,7 +252,7 @@ void Lexer::addToCurtok(CharType c)
 {
 	if (isEscapeChar(c) && !escapeFlag_)
 	{
-		manip.append(curtok_, c);
+		UTF8::append(curtok_, c);
 		escapeFlag_ = true;
 	}
 	else if(!shouldIgnore(c))
@@ -281,7 +281,7 @@ void Lexer::addToCurtok(CharType c)
 			}
 
 		}
-		manip.append(curtok_, c);
+		UTF8::append(curtok_, c);
 		escapeFlag_ = false;
 	}
 }

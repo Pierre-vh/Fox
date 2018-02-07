@@ -32,9 +32,8 @@ bool U8StrManipTest::runTest(Context & context)
 	std::cout << ">Append test:";
 	{
 		wchar_t u8ch = L'ш';
-		UTF8::StringManipulator manip;
 		std::string str = "foo";
-		manip.append(str, u8ch);
+		UTF8::append(str, u8ch);
 		str += "bar";
 		if (str != u8"fooшbar")
 		{
