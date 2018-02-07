@@ -18,20 +18,18 @@ Note : rules  xxx_kw   / id   / type    are already implemented through the "mat
  if_branch   
  elif_branch   
  else_branch   
-
+ while_cf   
+ value
 ### PARTIALLY IMPLEMENTED
- value		: Missing  callable function support
+ callable (no functions in yet)
 
 ### TO BE IMPLEMENTED   
  fox_program   
  id   
  arg_type_spec   
- callable   
  func_decl   
  arg_list_decl   
  arg_decl   
  f_call   
  expr_list   
  rtr_stmt   
- ctrl_flow   
- while_cf   
