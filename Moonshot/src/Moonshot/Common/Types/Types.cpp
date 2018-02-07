@@ -9,6 +9,8 @@
 
 #include "Types.h"
 
+#include <sstream> // std::stringstream
+
 using namespace Moonshot;
 
 // varRef
