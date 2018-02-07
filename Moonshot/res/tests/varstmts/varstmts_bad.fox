@@ -1,1 +1,2 @@
-TESTVALUE as int = 3;
+let x : char = 3;
+let x : str = x**-2;

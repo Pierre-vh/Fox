@@ -1,5 +1,5 @@
 let x : float;
 let x : const string;
-let x : char =  ('c'+'c');
+let x : string =  ('c'+'c');
 let x : const bool = true;
 let x : int; // Last one
