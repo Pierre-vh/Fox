@@ -1,5 +1,9 @@
 #include "TypeCast.h"
 
+#include <variant> // std::visit
+#include "TypesUtils.h"
+#include "FVTypeTraits.h"
+
 using namespace Moonshot;
 using namespace fv_util;
 
