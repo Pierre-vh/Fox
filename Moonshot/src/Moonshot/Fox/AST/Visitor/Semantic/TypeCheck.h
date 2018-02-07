@@ -14,24 +14,15 @@
 ////------------------------------------------------------////
 
 #pragma once
-#include "../../../../Common/Context/Context.h" // context
-#include "../../../../Common/Exceptions/Exceptions.h" // exceptions
-#include <string> // std::string
-#include <sstream> // std::stringstream
-#include <map> // std::map
-#include <typeinfo> // typeid
-#include "../../Visitor/IVisitor.h" // base class
-#include "../../../../Common/Types/Types.h" // Types
-#include "../../../../Common/Types/TypesUtils.h" // Types Utilities
-#include "../../../../Common/Symbols/Symbols.h" // symbols table
 
-// Include nodes
-#include "../../Nodes/ASTExpr.h" 
-#include "../../Nodes/ASTVarDeclStmt.h" 
+#include "../../Visitor/IVisitor.h" // base class
 #include "../../../Util/Enums.h" // enums
+#include "../../../../Common/Symbols/Symbols.h" // symbols table
 
 namespace Moonshot
 {
+	enum class binaryOperation;
+	class Context;
 	class TypeCheckVisitor : public ITypedVisitor<std::size_t> // size_t because we return indexes in FVal to represent types.
 	{
 		public:
@@ -53,7 +44,6 @@ namespace Moonshot
 			// Context
 			Context& context_;
 
-			// Utiliser un template aussi pour *this?
 			template<typename T>
 			inline std::size_t visitAndGetResult(std::unique_ptr<T>& node,const dir& dir = dir::UNKNOWNDIR, const binaryOperation& c_binop = binaryOperation::PASS)
 			{

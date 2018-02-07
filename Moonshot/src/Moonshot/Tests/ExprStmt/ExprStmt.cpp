@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "ExprStmt.h"
-
+#include "../../Common/Types/TypesUtils.h"
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;
 

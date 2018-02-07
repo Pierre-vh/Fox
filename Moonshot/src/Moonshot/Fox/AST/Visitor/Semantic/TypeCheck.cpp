@@ -9,6 +9,16 @@
 
 #include "TypeCheck.h"
 
+// Include nodes
+#include "../../Nodes/ASTExpr.h" 
+#include "../../Nodes/ASTVarDeclStmt.h" 
+// Other
+#include "../../../../Common/Context/Context.h" // context
+#include "../../../../Common/Exceptions/Exceptions.h" // exceptions
+#include <sstream> // std::stringstream
+#include "../../../../Common/Types/Types.h" // Types
+#include "../../../../Common/Types/TypesUtils.h" // Types Utilities
+
 using namespace Moonshot;
 using namespace fv_util;
 

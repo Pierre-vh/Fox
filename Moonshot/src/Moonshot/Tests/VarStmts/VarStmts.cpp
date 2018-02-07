@@ -1,5 +1,7 @@
 #include "VarStmts.h"
 
+#include "../../Common/Symbols/Symbols.h"
+
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;
 
