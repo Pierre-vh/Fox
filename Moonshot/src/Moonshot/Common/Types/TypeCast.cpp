@@ -1,6 +1,7 @@
 #include "TypeCast.h"
 
 #include <variant> // std::visit
+#include <sstream>
 #include "TypesUtils.h"
 #include "FVTypeTraits.h"
 
