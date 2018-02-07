@@ -41,15 +41,15 @@ namespace Moonshot
 		// Variables : Indexes
 		namespace indexes
 		{
-			static constexpr std::size_t invalid_index = (std::numeric_limits<std::size_t>::max)();
+			static constexpr std::size_t invalid_index	= (std::numeric_limits<std::size_t>::max)();
 
-			static constexpr std::size_t fval_null = 0;
-			static constexpr std::size_t fval_int = 1;
-			static constexpr std::size_t fval_float = 2;
-			static constexpr std::size_t fval_char = 3;
-			static constexpr std::size_t fval_str = 4;
-			static constexpr std::size_t fval_bool = 5;
-			static constexpr std::size_t fval_varRef = 6;
+			static constexpr std::size_t fval_null		= 0;
+			static constexpr std::size_t fval_int		= 1;
+			static constexpr std::size_t fval_float		= 2;
+			static constexpr std::size_t fval_char		= 3;
+			static constexpr std::size_t fval_str		= 4;
+			static constexpr std::size_t fval_bool		= 5;
+			static constexpr std::size_t fval_varRef	= 6;
 		}
 	}
 	namespace var

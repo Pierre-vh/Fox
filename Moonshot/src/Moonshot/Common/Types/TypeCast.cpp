@@ -12,7 +12,7 @@ using namespace fv_util;
 template<typename GOAL, typename VAL, bool isGOALstr, bool isVALstr>
 std::pair<bool, FVal> Moonshot::castTypeTo(Context& context_, const GOAL& type, VAL v)
 {
-	if constexpr (!fval_traits<GOAL>::isBasic || !fval_traits<VAL>::isBasic)
+	if constexpr (!TypeTrait_FVal<GOAL>::is_basic || !TypeTrait_FVal<VAL>::is_basic)
 		throw std::logic_error("Can't cast a basic type to a nonbasic type and vice versa.");
 	else if constexpr((std::is_same<GOAL, VAL>::value) || (isGOALstr && isVALstr)) // Direct conversion
 		return { true , FVal(v) };
@@ -54,7 +54,7 @@ std::pair<bool, FVal> Moonshot::castTypeTo(Context& context_,const GOAL & type, 
 		throw std::logic_error("Failed cast - Attempted to cast to string.");
 		return { true,FVal() };
 	}
-	else if constexpr (fval_traits<GOAL>::isBasic) // Can only attempt to convert basic types.
+	else if constexpr (TypeTrait_FVal<GOAL>::is_basic) // Can only attempt to convert basic types.
 		return { true, FVal((GOAL)v) };
 	else
 		throw std::logic_error("castTypeTo defaulted. Unimplemented type?");

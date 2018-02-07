@@ -84,31 +84,6 @@ std::string fv_util::indexToTypeName(const std::size_t & t)
 	return "!IMPOSSIBLE_TYPE!";
 }
 
-bool fv_util::isBasic(const std::size_t & t)
-{
-	switch (t)
-	{
-	case indexes::fval_int:
-	case indexes::fval_float:
-	case indexes::fval_char:
-	case indexes::fval_bool:
-	case indexes::fval_str:
-		return true;
-	default:
-		return false;
-	}
-}
-
-bool fv_util::isArithmetic(const std::size_t & t)
-{
-	return (isBasic(t) && (t != indexes::fval_str));
-}
-
-bool Moonshot::fv_util::isValue(const std::size_t & t)
-{
-	return isBasic(t) || (t == indexes::fval_varRef);
-}
-
 bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 {
 	if ((rhs == indexes::fval_null) || (lhs == indexes::fval_null))

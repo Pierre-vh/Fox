@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Types.h"
+#include "FVTypeTraits.h"
 #include <map>
 namespace Moonshot::fv_util
 {
@@ -13,11 +14,6 @@ namespace Moonshot::fv_util
 
 	// Get a user friendly name for an index.
 	std::string indexToTypeName(const std::size_t& t);
-
-	// Index utility function
-	bool isBasic(const std::size_t& t); // Is the type a string/bool/char/int/float ?
-	bool isArithmetic(const std::size_t& t);
-	bool isValue(const std::size_t& t);
 
 	// Checks if assignement is possible.
 	bool canAssign(const std::size_t &lhs, const std::size_t &rhs); // Checks if the lhs and rhs are compatible.
