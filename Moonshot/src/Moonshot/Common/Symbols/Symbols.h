@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "../Context/Context.h"
 #include "../Types/Types.h"
 
 #include <tuple> // std::pair
@@ -21,6 +20,7 @@
 // Symbols table manager
 namespace Moonshot
 {
+	class Context;
 	class SymbolsTable
 	{
 		public:

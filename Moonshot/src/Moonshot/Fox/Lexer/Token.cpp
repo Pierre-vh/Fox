@@ -8,8 +8,22 @@
 ////------------------------------------------------------////
 
 #include "Token.h"
+
+#include <variant>	// std::variant
+#include <regex>	// std::regex, std::regex_match
+#include <string>	// std::stoi / stoll
+#include <sstream>	// std::stringstream (showFormattedToken())
+#include "../../Common/Utils/Utils.h"
+#include "../../Common/Context/Context.h"
+#include "../../Common/Exceptions/Exceptions.h"
+#include "../../Common/UTF8/StringManipulator.h"
+
 using namespace Moonshot;
 
+// Regular expression used for identification 
+std::regex kInt_regex("\\d+");
+std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
+std::regex kId_regex("(([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+");
 
 Token::Token(Context & c) : context_(c)
 {

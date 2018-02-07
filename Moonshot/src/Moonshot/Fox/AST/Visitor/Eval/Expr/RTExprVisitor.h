@@ -26,6 +26,7 @@ namespace Moonshot
 {
 	class Context;
 	class SymbolsTable;
+	enum class binaryOperation;
 	class RTExprVisitor : public ITypedVisitor<FVal>
 	{
 		public:

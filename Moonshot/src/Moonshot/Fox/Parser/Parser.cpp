@@ -10,6 +10,10 @@
 
 #include "Parser.h"
 
+// Context and Exceptions
+#include "../../Common/Context/Context.h"
+#include "../../Common/Exceptions/Exceptions.h"
+
 using namespace Moonshot;
 using namespace fv_util;
 

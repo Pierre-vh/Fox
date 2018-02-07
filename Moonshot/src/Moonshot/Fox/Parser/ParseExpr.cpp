@@ -13,6 +13,9 @@
 using namespace Moonshot;
 using namespace fv_util;
 
+// Context and Exceptions
+#include "../../Common/Context/Context.h"
+#include "../../Common/Exceptions/Exceptions.h"
 
 std::unique_ptr<IASTExpr> Parser::parseCallable()
 {

@@ -12,6 +12,15 @@
 
 #include "Lexer.h"
 
+#include <string>		// std::string
+#include <cwctype>		// std::iswspace
+#include <sstream>		// std::stringstream (sizeToStr())
+
+#include "../../Common/Types/Types.h"
+#include "../../Common/UTF8/StringManipulator.h"
+#include "../../Common/Context/Context.h"
+#include "../../Common/Exceptions/Exceptions.h"
+
 using namespace Moonshot;
 
 

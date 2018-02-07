@@ -41,32 +41,27 @@ Note :
 
 */
 #pragma once
-// Context and Exceptions
-#include "../../Common/Context/Context.h"
-#include "../../Common/Exceptions/Exceptions.h"
+
 // Tokens
 #include "../Lexer/Token.h"					
 // AST Nodes
 #include "../AST/Nodes/ASTExpr.h"
-#include "../AST/Nodes/IASTNode.h"
 #include "../AST/Nodes/ASTVarDeclStmt.h"
 #include "../AST/Nodes/ASTCompStmt.h"
 #include "../AST/Nodes/ASTCondition.h"
 #include "../AST/Nodes/ASTWhileLoop.h"
 #include "../AST/Nodes/IASTStmt.h"
 #include "../Util/Enums.h"					// Enum
-#include "../AST/Visitor/Dumper/Dumper.h"	// Dumper Visitor, for Debug use
 
-#include <vector>
 #include <tuple>							// std::tuple, std::pair
 #include <memory>							// std::shared_ptr
-
 
 #define DEFAULT__maxExpectedErrorsCount 2
 #define DEFAULT__shouldPrintSuggestions true
 
 namespace Moonshot
 {
+	class Context;
 	class Parser
 	{
 		public:

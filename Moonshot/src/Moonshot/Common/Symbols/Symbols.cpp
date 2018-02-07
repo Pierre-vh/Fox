@@ -11,13 +11,14 @@
 
 #include "../Types/TypesUtils.h"
 #include "../Types/TypeCast.h"
-
+#include "../Context/Context.h"
 #include <sstream> // std::stringstream
 
 using namespace Moonshot;
 
 SymbolsTable::SymbolsTable(Context& c) : context_(c)
 {
+
 }
 
 

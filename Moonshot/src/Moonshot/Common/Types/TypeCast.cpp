@@ -4,6 +4,7 @@
 #include <sstream>
 #include "TypesUtils.h"
 #include "FVTypeTraits.h"
+#include "../Context/Context.h"
 
 using namespace Moonshot;
 using namespace fv_util;

@@ -1,6 +1,7 @@
 #include "TypesUtils.h"
 
 #include <sstream>
+#include "../UTF8/StringManipulator.h"
 
 using namespace Moonshot;
 

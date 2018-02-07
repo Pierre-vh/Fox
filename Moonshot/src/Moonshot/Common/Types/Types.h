@@ -15,8 +15,6 @@
 #include <variant> // std::variant
 #include <string> // std::string
 #include <inttypes.h>
-#include "../../Common/Exceptions/Exceptions.h"
-#include "../../Fox/Util/Enums.h"
 
 // fwd decl
 namespace Moonshot::var

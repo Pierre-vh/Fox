@@ -18,19 +18,8 @@
 
 #pragma once
 
-#include <string>		// std::string
-#include <cwctype>		// std::iswspace
-#include <functional>	// std::function
-#include <sstream>		// std::stringstream (sizeToStr())
-#include <map>			// std::map
-#include <memory>
-
-#include "../../Common/Types/Types.h"
-#include "../../Common/UTF8/StringManipulator.h"
-#include "../../Common/Context/Context.h"
-#include "../../Common/Exceptions/Exceptions.h"
-
 #include "Token.h"
+#include "../../Common/UTF8/StringManipulator.h"
 
 namespace Moonshot
 {
@@ -43,6 +32,9 @@ namespace Moonshot
 		S_WORDS,// basic (keywords,signs) state
 		S_CHR	// char literals
 	};
+	// fwd decl
+	class Context;
+
 	class Lexer 
 	{
 		public:

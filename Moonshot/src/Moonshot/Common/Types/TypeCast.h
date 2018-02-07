@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Types.h"
-#include "../Context/Context.h"
 
 namespace Moonshot
 {
+	class Context;
+
 	FVal castTo(Context& context_,const std::size_t& goal, FVal val);
 	FVal castTo(Context& context_,const std::size_t& goal, const double &val);
 

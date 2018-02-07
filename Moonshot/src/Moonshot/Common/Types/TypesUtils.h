@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Types.h"
-#include "../UTF8/StringManipulator.h"
-
+#include <map>
 namespace Moonshot::fv_util
 {
 	// Dump functions

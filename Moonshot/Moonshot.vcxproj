@@ -206,6 +206,7 @@
     <ClInclude Include="src\Moonshot\Common\Types\FVTypeTraits.h" />
     <ClInclude Include="src\Moonshot\Common\Types\TypesUtils.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\NodesForwardDecl.h" />
     <ClInclude Include="src\Moonshot\Tests\Condition\Conditions.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.h" />
     <ClInclude Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.h" />

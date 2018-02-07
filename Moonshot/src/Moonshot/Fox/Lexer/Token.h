@@ -14,20 +14,13 @@
 #pragma once
 
 #include <map>		// std::map 
-#include <variant>	// std::variant
-#include <regex>	// std::regex, std::regex_match
-#include <string>	// std::stoi / stoll
-#include <sstream>	// std::stringstream (showFormattedToken())
-#include <vector>
-
-#include "../../Common/UTF8/StringManipulator.h"
 #include "../../Common/Types/Types.h"
-#include "../../Common/Utils/Utils.h"
-#include "../../Common/Context/Context.h"
-#include "../../Common/Exceptions/Exceptions.h"
+#include <vector>
 
 namespace Moonshot
 {
+	class Context;
+
 
 	enum class tokenCat
 	{
@@ -107,11 +100,7 @@ namespace Moonshot
 		P_IMPORT,			// "import"
 		P_USING				// "using"
 	};
-	// Regular expression used for identification 
-	const std::regex kInt_regex("\\d+");
-	const std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
-	const std::regex kId_regex("(([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+");	// if anyone has something better, tell me ! :)
-
+	
 	// Dictionary used to identify keywords.
 	const std::map<std::string, keyword> kWords_dict =
 	{
