@@ -10,6 +10,11 @@
 
 #include "RTStmtVisitor.h"
 
+#include "../../../../../Common/Utils/Utils.h"
+#include "../../../../../Common/Context/Context.h" // Context 
+#include "../../../../../Common/Symbols/Symbols.h" // Symbols table
+#include "../../../Nodes/ASTVarDeclStmt.h" // Nodes
+
 using namespace Moonshot;
 
 RTStmtVisitor::RTStmtVisitor(Context& c) : RTExprVisitor(c) // call superclass constructor

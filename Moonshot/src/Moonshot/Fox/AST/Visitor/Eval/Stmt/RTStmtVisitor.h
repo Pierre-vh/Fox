@@ -9,16 +9,14 @@
 // will probably be useless.
 ////------------------------------------------------------////
 #pragma once
-#include "../../../../../Common/Context/Context.h" // Context 
 // Types & utils
-#include "../../../../../Common/Utils/Utils.h"
 #include "../../../../../Common/Types/Types.h"
-#include "../../../../../Common/Symbols/Symbols.h" // Symbols table
-#include "../../../Nodes/ASTVarDeclStmt.h" // Nodes
 #include "../Expr/RTExprVisitor.h" //Superclass
 
 namespace Moonshot
 {
+	class Context;
+	class SymbolsTable;
 	// Visits statements nodes : vardecl & exprstmt
 	class RTStmtVisitor : public RTExprVisitor // Inherits from the expression visitor, because of expression statements!
 	{
