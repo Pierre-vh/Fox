@@ -39,22 +39,6 @@ namespace Moonshot::fv_util
 		return isBasic(t) || (t == indexes::fval_varRef);
 	}
 
-	inline constexpr bool canConcat(const std::size_t& lhs, const std::size_t& rhs)
-	{
-		if (isBasic(lhs) && isBasic(rhs))
-		{
-			switch (lhs)
-			{
-				case indexes::fval_char:
-				case indexes::fval_str:
-					return	(rhs == indexes::fval_char) || (rhs == indexes::fval_str);
-				default:
-					return false;
-			}
-		}
-		return false;
-	}
-
 	template <typename T>
 	struct typeIndex
 	{

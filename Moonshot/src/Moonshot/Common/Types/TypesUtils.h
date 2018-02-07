@@ -25,6 +25,21 @@ namespace Moonshot::fv_util
 																	// This function returns true if the type of basetype can be cast to the type of goal.
 	bool canCastTo(const std::size_t &goal, const std::size_t &basetype);
 
+	inline constexpr bool canConcat(const std::size_t& lhs, const std::size_t& rhs)
+	{
+		if (isBasic(lhs) && isBasic(rhs))
+		{
+			switch (lhs)
+			{
+			case indexes::fval_char:
+			case indexes::fval_str:
+				return	(rhs == indexes::fval_char) || (rhs == indexes::fval_str);
+			default:
+				return false;
+			}
+		}
+		return false;
+	}
 	// returns the type of the biggest of the 2 arguments.
 	std::size_t getBiggest(const std::size_t &lhs, const std::size_t &rhs);
 
