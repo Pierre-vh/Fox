@@ -31,11 +31,31 @@ namespace Moonshot::fv_util
 	}
 	inline constexpr bool isArithmetic(const std::size_t& t)
 	{
-		return (isBasic(t) && (t != indexes::fval_str));
+		return (t == indexes::fval_int) || (t == indexes::fval_bool) || (t == indexes::fval_int);
 	}
+	
 	inline constexpr bool isValue(const std::size_t& t)
 	{
 		return isBasic(t) || (t == indexes::fval_varRef);
+	}
+
+	inline constexpr bool canConcat(const std::size_t& lhs, const std::size_t& rhs)
+	{
+		if (isBasic(lhs) && isBasic(rhs))
+		{
+			switch (lhs)
+			{
+				case indexes::fval_char:
+					return	((lhs == rhs)				||	// char & char
+							(rhs == indexes::fval_str));	// char & str
+				case indexes::fval_str:
+					return	((lhs == rhs)				||	// str & str
+						(rhs == indexes::fval_char));		// str & char
+				default:
+					return false;
+			}
+		}
+		return false;
 	}
 
 	template <typename T>
@@ -48,7 +68,7 @@ namespace Moonshot::fv_util
 	template<>
 	struct typeIndex<std::monostate>
 	{
-		constexpr static std::size_t index = indexes::invalid_index;
+		constexpr static std::size_t index = indexes::fval_null;
 	};
 	// int
 	template<>
@@ -93,5 +113,6 @@ namespace Moonshot::fv_util
 		using typeIndex<T>::index;
 
 		constexpr static bool is_basic = isBasic(index);
+		constexpr static bool is_arithmetic = isArithmetic(index);
 	};
 }

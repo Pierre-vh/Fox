@@ -24,6 +24,8 @@
 #include "../../../Nodes/ASTVarDeclStmt.h"
 // math operations
 #include <cmath>		
+// string manip
+#include "../../../../../Common/UTF8/StringManipulator.h"
 
 using namespace Moonshot;
 using namespace fv_util;
@@ -65,17 +67,8 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			auto leftval = visitAndGetResult(node.left_, *this);
 			auto rightval = visitAndGetResult(node.right_, *this);
 
-			if (std::holds_alternative<std::string>(leftval) &&
-				std::holds_alternative<std::string>(rightval))
-			{
-				auto leftstr = std::get<std::string>(leftval);
-				auto rightstr = std::get<std::string>(rightval);
-				value_ = FVal(std::string(leftstr + rightstr));
-				return;
-			}
-			else
-				// One of the 2 childs, or the child, does not produce strings.
-				throw Exceptions::ast_malformation("A Node with a CONCAT operation did not have compatible types as left_ and/or right_ values.");
+			value_ = concat(leftval, rightval);
+			return;
 		}
 		else
 		{
@@ -344,6 +337,21 @@ bool RTExprVisitor::compareStr(const binaryOperation & op, const std::string & l
 		default:	throw std::logic_error("Operation was not a condition.");
 			return false;
 	}
+}
+FVal RTExprVisitor::concat(const FVal & lhs, const FVal & rhs)
+{
+	std::string rtr;
+	// lhs
+	if (std::holds_alternative<std::string>(lhs))
+		rtr += std::get<std::string>(lhs);
+	else if (std::holds_alternative<CharType>(rhs))
+		UTF8::append(rtr, std::get<CharType>(lhs));
+	else
+		// "Concat operation can't be performed if lhs/rhs isn't a string or a character."
+		throw std::logic_error("Invalid arguments to concat operations");
+
+	// do the same for rhs
+	// TO DO
 }
 double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
 {

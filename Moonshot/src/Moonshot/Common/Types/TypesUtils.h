@@ -19,7 +19,7 @@ namespace Moonshot::fv_util
 	bool canAssign(const std::size_t &lhs, const std::size_t &rhs); // Checks if the lhs and rhs are compatible.
 																	// Compatibility : 
 																	// Arithmetic type <-> Arithmetic Type = ok
-																	// string <-> string = ok
+																	// same type <-> same type = ok
 																	// else : error.
 
 																	// This function returns true if the type of basetype can be cast to the type of goal.

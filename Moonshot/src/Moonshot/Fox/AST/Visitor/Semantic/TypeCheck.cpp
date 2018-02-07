@@ -60,7 +60,7 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 		// get right expr result type
 		auto right = visitAndGetResult(node.right_, dir::RIGHT,node.op_);
 		// SPECIAL CHECK 1: CHECK IF THIS IS A CONCAT OP,CONVERT IT 
-		if ((left == indexes::fval_str) && (right == indexes::fval_str) && (node.op_ == binaryOperation::ADD))
+		if (canConcat(left,right))
 			node.op_ = binaryOperation::CONCAT;
 		// CHECK VALIDITY OF EXPRESSION
 		value_ = getExprResultType(

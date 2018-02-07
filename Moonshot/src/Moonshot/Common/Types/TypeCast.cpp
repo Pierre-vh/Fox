@@ -2,9 +2,11 @@
 
 #include <variant> // std::visit
 #include <sstream>
+#include "Types.h"
 #include "TypesUtils.h"
 #include "FVTypeTraits.h"
 #include "../Context/Context.h"
+#include "../UTF8/StringManipulator.h"
 
 using namespace Moonshot;
 using namespace fv_util;
@@ -14,14 +16,23 @@ std::pair<bool, FVal> Moonshot::castTypeTo(Context& context_, const GOAL& type, 
 {
 	if constexpr (!TypeTrait_FVal<GOAL>::is_basic || !TypeTrait_FVal<VAL>::is_basic)
 		throw std::logic_error("Can't cast a basic type to a nonbasic type and vice versa.");
-	else if constexpr((std::is_same<GOAL, VAL>::value) || (isGOALstr && isVALstr)) // Direct conversion
+	else if constexpr((std::is_same<GOAL, VAL>::value)) // Direct conversion
 		return { true , FVal(v) };
-	else if constexpr (isGOALstr && !isVALstr)
+	else if constexpr (isGOALstr && !isVALstr) // (type) -> str
 	{
-		// Casting an arithmetic type to a string:
-		std::stringstream stream;
-		stream << v;
-		return { true, FVal(stream.str()) };
+		if constexpr(TypeTrait_FVal<VAL>::is_arithmetic) // arith -> str
+		{
+			// Casting an arithmetic type to a string:
+			std::stringstream stream;
+			stream << v;
+			return { true, FVal(stream.str()) };
+		}
+		else if constexpr(std::is_same<CharType,VAL>::value) // char -> str
+		{
+			std::string rtr = "";
+			UTF8::append(rtr, v);
+			return { true,rtr };
+		}
 	}
 	else if constexpr (isGOALstr != isVALstr) // One of them is a string and the other isn't.
 	{
@@ -30,14 +41,12 @@ std::pair<bool, FVal> Moonshot::castTypeTo(Context& context_, const GOAL& type, 
 		context_.reportError(output.str());
 		return { false, FVal() };
 	}
-	else // Conversion might work. Proceed !
+	else if constexpr(TypeTrait_FVal<VAL>::is_arithmetic && TypeTrait_FVal<GOAL>::is_arithmetic) // Arith -> Arithm = conversion works!
 	{
 		if constexpr (std::is_same<IntType, GOAL>::value)
 			return { true,FVal((IntType)v) };
 		else if constexpr (std::is_same<float, GOAL>::value)
 			return { true,FVal((float)v) };
-		else if constexpr (std::is_same<CharType, GOAL>::value)
-			return { true,FVal((CharType)v) };
 		else if constexpr (std::is_same<bool, GOAL>::value)
 			return { true,FVal((bool)v) };
 		else

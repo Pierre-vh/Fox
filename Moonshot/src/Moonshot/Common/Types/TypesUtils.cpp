@@ -101,12 +101,20 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 }
 bool fv_util::canCastTo(const std::size_t & goal, const std::size_t & basetype)
 {
-	if (!isBasic(basetype))
-		return false;
-	if (isArithmetic(basetype)) // base type is arithmetic
-		return true; // arithmetic type -> basic type, allowed (and at this point we know it's a basic type due to 1st condition)
-	else if (basetype == indexes::fval_str) // base type is a string
-		return goal == indexes::fval_str; // Strings can only be converted to strings (useless convertion anyway).
+	/*
+		Convertsions:
+		Arith type -> Arith type
+		char type -> string type
+		same type -> same type
+	*/
+	if (isBasic(basetype))
+	{
+		if (isArithmetic(goal) && isArithmetic(basetype)) // arithm -> arith
+			return true;
+		else if ((basetype == indexes::fval_char) && (basetype == indexes::fval_str)) // char -> str
+			return true;
+		return (basetype == goal); // same type -> same type
+	}
 	return false;
 }
 
