@@ -115,7 +115,7 @@ bool Token::specific_idSign()
 bool Token::specific_idValue()
 {
 	std::stringstream converter(str);
-	UTF8StringManipulator strmanip;
+	UTF8::StringManipulator strmanip;
 	strmanip.setStr(str);
 
 	if (strmanip.peekFirst() == '\'')

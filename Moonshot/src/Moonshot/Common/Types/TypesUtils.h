@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Types.h"
-#include "../UTF8/UTF8StringManipulator.h"
+#include "../UTF8/StringManipulator.h"
 
 namespace Moonshot::fv_util
 {

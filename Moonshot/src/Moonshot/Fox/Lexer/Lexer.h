@@ -26,7 +26,7 @@
 #include <memory>
 
 #include "../../Common/Types/Types.h"
-#include "../../Common/UTF8/UTF8StringManipulator.h"
+#include "../../Common/UTF8/StringManipulator.h"
 #include "../../Common/Context/Context.h"
 #include "../../Common/Exceptions/Exceptions.h"
 
@@ -99,6 +99,6 @@ namespace Moonshot
 			// Output
 			TokenVector	result_;		// the lexer's output !
 			//
-			UTF8StringManipulator manip;
+			UTF8::StringManipulator manip;
 	};
 }

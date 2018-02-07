@@ -4,14 +4,14 @@
 // File : U8StrManipTest.h											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// Tests for the UTF8StringManipulator.
+// Tests for the StringManipulator.
 // Uses test file located under res/tests/utf8
 ////------------------------------------------------------////
 
 #pragma once
 
 #include "../ITest.h"
-#include "../../Common/UTF8/UTF8StringManipulator.h"
+#include "../../Common/UTF8/StringManipulator.h"
 #include <cwctype>		// std::iswspace
 
 namespace Moonshot

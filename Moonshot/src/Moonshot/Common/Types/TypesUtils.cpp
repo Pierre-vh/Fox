@@ -26,7 +26,7 @@ std::string fv_util::dumpFVal(const FVal & var)
 	else if (std::holds_alternative<CharType>(var))
 	{
 		CharType x = std::get<CharType>(var);
-		UTF8StringManipulator u8sm;
+		UTF8::StringManipulator u8sm;
 		output << "Type : CHAR, Value : " << (int32_t)x << " = '" << u8sm.wcharToStr(x) << "'";
 	}
 	else

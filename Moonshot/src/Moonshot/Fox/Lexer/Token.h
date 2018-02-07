@@ -20,7 +20,7 @@
 #include <sstream>	// std::stringstream (showFormattedToken())
 #include <vector>
 
-#include "../../Common/UTF8/UTF8StringManipulator.h"
+#include "../../Common/UTF8/StringManipulator.h"
 #include "../../Common/Types/Types.h"
 #include "../../Common/Utils/Utils.h"
 #include "../../Common/Context/Context.h"

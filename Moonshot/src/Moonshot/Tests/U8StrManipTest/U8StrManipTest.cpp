@@ -32,7 +32,7 @@ bool U8StrManipTest::runTest(Context & context)
 	std::cout << ">Append test:";
 	{
 		wchar_t u8ch = L'ш';
-		UTF8StringManipulator manip;
+		UTF8::StringManipulator manip;
 		std::string str = "foo";
 		manip.append(str, u8ch);
 		str += "bar";
@@ -48,7 +48,7 @@ bool U8StrManipTest::runTest(Context & context)
 	{
 		std::string str(u8"﻿Τη γλώσσα μου έδωσαν ελληνική");
 		std::string exp_sub(u8"γλώσσα μου");
-		UTF8StringManipulator manip;
+		UTF8::StringManipulator manip;
 		manip.setStr(str);
 		std::string sub = manip.substring(3,10);
 		if (sub != exp_sub)
@@ -63,7 +63,7 @@ bool U8StrManipTest::runTest(Context & context)
 	std::cout << ">getchar test:";
 	{
 		std::string str(u8"﻿Τη γλώσσα μου έδωσαν ελληνική");
-		UTF8StringManipulator manip;
+		UTF8::StringManipulator manip;
 		manip.setStr(str);
 		if (L'ώ' != manip.getChar(5))
 		{
@@ -79,7 +79,7 @@ bool U8StrManipTest::testStr(Context& context, const std::string& str, unsigned 
 {
 	unsigned int linecount = 1, charcount = 0, spacecount = 0;
 
-	UTF8StringManipulator manip;
+	UTF8::StringManipulator manip;
 
 	manip.setStr(str);
 	try {
