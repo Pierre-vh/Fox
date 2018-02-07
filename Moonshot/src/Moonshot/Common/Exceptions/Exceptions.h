@@ -9,8 +9,7 @@
 
 #pragma once
 
-#include <exception> // std::exception
-#include <stdexcept> // basic exceptions : out_of_range etc. so they're imported with this file.
+#include <stdexcept> // basic exceptions : out_of_range etc. so they're imported with this file + exception header
 #include <string> // std::string
 
 namespace Moonshot
