@@ -24,17 +24,17 @@ namespace Moonshot::var
 }
 
 typedef int64_t IntType;
-typedef wchar_t CharType;
+typedef char32_t CharType;
 typedef std::variant<std::monostate, IntType, float, CharType, std::string, bool, Moonshot::var::varRef> FVal;
 
 namespace Moonshot
 {
 	namespace limits
 	{
-		static constexpr IntType IntType_MAX = INT64_MAX;
-		static constexpr IntType IntType_MIN = INT64_MIN;
-		static constexpr CharType CharType_MAX = WCHAR_MAX;
-		static constexpr CharType CharType_MIN = WCHAR_MIN;
+		static constexpr IntType IntType_MAX = (std::numeric_limits<IntType>::max)();
+		static constexpr IntType IntType_MIN = (std::numeric_limits<IntType>::min)();
+		static constexpr CharType CharType_MAX = (std::numeric_limits<CharType>::max)();
+		static constexpr CharType CharType_MIN = (std::numeric_limits<CharType>::min)();
 	}
 	namespace fv_util
 	{
