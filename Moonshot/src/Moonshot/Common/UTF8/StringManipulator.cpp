@@ -9,63 +9,71 @@
 
 #include "StringManipulator.h"
 
-using namespace Moonshot::UTF8;
+using namespace Moonshot;
 
-StringManipulator::StringManipulator()
+void UTF8::skipBOM(std::string::iterator & it, std::string::iterator end)
+{
+	if (utf8::starts_with_bom(it, end))
+		utf8::next(it, end);
+}
+
+void UTF8::append(std::string & str, const CharType & ch)
+{
+	utf8::append(ch, std::back_inserter(str));
+}
+
+
+UTF8::StringManipulator::StringManipulator()
 {
 }
 
 
-StringManipulator::~StringManipulator()
+UTF8::StringManipulator::~StringManipulator()
 {
+
 }
 
-std::string StringManipulator::getStr() const
+std::string UTF8::StringManipulator::getStr() const
 {
 	return str_;
 }
 
-void StringManipulator::setStr(const std::string & str)
+void UTF8::StringManipulator::setStr(const std::string & str)
 {
 	str_ = str;
 	reset();
 }
 
-std::string StringManipulator::wcharToStr(const wchar_t & wc) const
+std::string UTF8::StringManipulator::wcharToStr(const wchar_t & wc) const
 {
 	std::string rtr;
 	append(rtr, wc);
 	return rtr;
 }
 
-void StringManipulator::append(std::string & str, const CharType & ch) const
+void UTF8::StringManipulator::reset()
 {
-	utf8::append(ch, std::back_inserter(str));
-}
-
-void StringManipulator::reset()
-{
+	// set iterators
 	iter_ = str_.begin();
-	if (utf8::is_bom(iter_))
-		utf8::advance(iter_, 1, str_.end());
-
 	end_ = str_.end();
 	beg_ = str_.begin();
+	// skip  bom if there is one
+	UTF8::skipBOM(iter_,end_);
 }
 
-void StringManipulator::advance(const std::size_t & ind)
+void UTF8::StringManipulator::advance(const std::size_t & ind)
 {
 	utf8::advance(iter_, ind, str_.end());
 }
 
-CharType StringManipulator::currentChar()
+CharType UTF8::StringManipulator::currentChar() const
 {
 	if (iter_ == str_.end())
 		return L'\0';
-	return utf8::peek_next(iter_, str_.end());
+	return utf8::peek_next(iter_,end_);
 }
 
-CharType StringManipulator::getChar(std::size_t ind) const
+CharType UTF8::StringManipulator::getChar(std::size_t ind) const
 {
 	std::string tmp = str_; // need a temp copy to get non const iterators!
 
@@ -81,13 +89,13 @@ CharType StringManipulator::getChar(std::size_t ind) const
 	return L'\0';
 }
 
-std::string StringManipulator::substring(std::size_t beg, const std::size_t & leng) const
+std::string UTF8::StringManipulator::substring(std::size_t beg, const std::size_t & leng) const
 {
 	std::string cpy = str_;
 
-	if (utf8::is_bom(cpy.begin())) beg += 1; // If str has a bom, skip it (set beg+=1 so utfcpp ignores the first codepoint)
-
 	std::string::iterator it = cpy.begin();
+	UTF8::skipBOM(it, cpy.end());
+	
 	utf8::advance(it, beg, cpy.end());
 
 	std::string rtr;
@@ -102,14 +110,14 @@ std::string StringManipulator::substring(std::size_t beg, const std::size_t & le
 	return rtr;
 }
 
-CharType StringManipulator::peekFirst() const
+CharType UTF8::StringManipulator::peekFirst() const
 {
 	if (getSize()) // string needs at least 1 char
 		return utf8::peek_next(beg_,end_);
 	return L'\0';
 }
 
-CharType StringManipulator::peekNext() const
+CharType UTF8::StringManipulator::peekNext() const
 {
 	if (isAtEndOfStr())
 		return L'\0';
@@ -121,7 +129,7 @@ CharType StringManipulator::peekNext() const
 	return L'\0';
 }
 
-CharType StringManipulator::peekPrevious() const
+CharType UTF8::StringManipulator::peekPrevious() const
 {
 	if (iter_ == str_.begin())
 		return L'\0';
@@ -130,7 +138,7 @@ CharType StringManipulator::peekPrevious() const
 	return utf8::previous(tmpiter,beg_);
 }
 
-CharType StringManipulator::peekBack() const
+CharType UTF8::StringManipulator::peekBack() const
 {
 	auto tmp = end_;
 	if (getSize()) // string needs at least 1 char
@@ -138,14 +146,12 @@ CharType StringManipulator::peekBack() const
 	return L'\0';
 }
 
-std::size_t StringManipulator::getSize() const
+std::size_t UTF8::StringManipulator::getSize() const
 {
 	return utf8::distance(str_.begin(), str_.end());
 }
 
-bool StringManipulator::isAtEndOfStr() const
+bool UTF8::StringManipulator::isAtEndOfStr() const
 {
 	return iter_ == str_.end();
 }
-
-

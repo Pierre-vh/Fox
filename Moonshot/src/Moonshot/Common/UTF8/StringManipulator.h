@@ -31,6 +31,8 @@
 
 namespace Moonshot::UTF8
 {
+	void skipBOM(std::string::iterator& it,std::string::iterator end);
+	void append(std::string& str, const CharType& ch);
 	class StringManipulator
 	{
 		public:
@@ -44,11 +46,9 @@ namespace Moonshot::UTF8
 
 			void reset();
 			void advance(const std::size_t& ind = 1);
-			CharType currentChar();			
+			CharType currentChar() const;			
 
 			CharType getChar(std::size_t ind) const;
-
-			void append(std::string& str, const CharType& ch) const;
 
 			std::string substring(std::size_t beg, const std::size_t& leng) const;
 			
