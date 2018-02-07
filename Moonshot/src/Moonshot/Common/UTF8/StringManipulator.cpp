@@ -45,7 +45,7 @@ void UTF8::StringManipulator::setStr(const std::string & str)
 	reset();
 }
 
-std::string UTF8::StringManipulator::wcharToStr(const wchar_t & wc) const
+std::string UTF8::StringManipulator::wcharToStr(const CharType & wc) const
 {
 	std::string rtr;
 	append(rtr, wc);

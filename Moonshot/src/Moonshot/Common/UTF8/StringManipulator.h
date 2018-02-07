@@ -41,7 +41,7 @@ namespace Moonshot::UTF8
 			std::string getStr() const;
 			void setStr(const std::string& str);
 
-			std::string wcharToStr(const wchar_t& wc) const;
+			std::string wcharToStr(const CharType& wc) const;
 
 			void reset();
 			void advance(const std::size_t& ind = 1);
