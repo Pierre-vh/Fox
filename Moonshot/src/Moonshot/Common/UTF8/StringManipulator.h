@@ -1,7 +1,7 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : UTF8StringManipulator.h											
+// File : StringManipulator.h											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // Implements a UTF-8 string manipulator based on the UTFCPP library.
@@ -29,13 +29,13 @@
 #include "../Types/Types.h"
 #include "../External/utfcpp/utf8.h"
 
-namespace Moonshot
+namespace Moonshot::UTF8
 {
-	class UTF8StringManipulator
+	class StringManipulator
 	{
 		public:
-			UTF8StringManipulator();
-			~UTF8StringManipulator();
+			StringManipulator();
+			~StringManipulator();
 
 			std::string getStr() const;
 			void setStr(const std::string& str);
