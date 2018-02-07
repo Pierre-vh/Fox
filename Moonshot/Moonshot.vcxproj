@@ -249,6 +249,7 @@
     <Text Include="doc\guidelines.txt" />
     <Text Include="misc\code_samples\expr\todo.txt" />
     <Text Include="misc\features_ideas\Expression Functions.txt" />
+    <Text Include="misc\features_ideas\parseroverhaul.txt" />
     <Text Include="misc\todo.txt" />
     <Text Include="res\tests\compstmt\compstmt_bad_1.fox" />
     <Text Include="res\tests\compstmt\compstmt_correct_2.fox" />
