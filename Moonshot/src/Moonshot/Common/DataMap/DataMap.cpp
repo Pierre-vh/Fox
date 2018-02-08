@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Symbols.h"
+#include "DataMap.h"
 
 #include "../Types/TypesUtils.h"
 #include "../Types/TypeCast.h"
@@ -16,47 +16,47 @@
 
 using namespace Moonshot;
 
-SymbolsTable::SymbolsTable(Context& c) : context_(c)
+DataMap::DataMap(Context& c) : context_(c)
 {
 
 }
 
 
-SymbolsTable::~SymbolsTable()
+DataMap::~DataMap()
 {
 }
 
-FVal SymbolsTable::retrieveValue(const std::string & varname)
+FVal DataMap::retrieveValue(const std::string & varname)
 {
 	bool successFlag;
-	auto res = symtable_getEntry(varname,successFlag);
+	auto res = map_getEntry(varname,successFlag);
 	if (successFlag)
 		return res.second;
 	return FVal();
 }
 
-var::varattr SymbolsTable::retrieveVarAttr(const std::string & varname)
+var::varattr DataMap::retrieveVarAttr(const std::string & varname)
 {
 	bool successFlag;
-	auto res = symtable_getEntry(varname, successFlag);
+	auto res = map_getEntry(varname, successFlag);
 	if (successFlag)
 		return res.first;
 	return var::varattr();
 }
 
-bool SymbolsTable::declareValue(const var::varattr & v_attr, const FVal & initVal)
+bool DataMap::declareValue(const var::varattr & v_attr, const FVal & initVal)
 {
 	if (std::holds_alternative<std::monostate>(initVal))
-		return symtable_addEntry(v_attr,fv_util::getSampleFValForIndex(v_attr.type_)); // Init with a default value.
-	return symtable_addEntry(v_attr, initVal);
+		return map_getEntry(v_attr,fv_util::getSampleFValForIndex(v_attr.type_)); // Init with a default value.
+	return map_getEntry(v_attr, initVal);
 }
 
-bool SymbolsTable::setValue(const std::string & varname, const FVal & newVal)
+bool DataMap::setValue(const std::string & varname, const FVal & newVal)
 {
-	return symtable_setEntry(varname, newVal);
+	return map_setEntry(varname, newVal);
 }
 
-void SymbolsTable::dumpSymbolsTable() const
+void DataMap::dump() const
 {
 	std::stringstream out;
 	out << "Dumping symbols table...\n";
@@ -68,7 +68,7 @@ void SymbolsTable::dumpSymbolsTable() const
 	out.clear();
 }
 
-std::pair<var::varattr, FVal> SymbolsTable::symtable_getEntry(const std::string & str, bool& successFlag)
+std::pair<var::varattr, FVal> DataMap::map_getEntry(const std::string & str, bool& successFlag)
 {
 	auto it = sym_table_.find(
 		createTempKey(str)
@@ -84,7 +84,7 @@ std::pair<var::varattr, FVal> SymbolsTable::symtable_getEntry(const std::string 
 	return std::pair<var::varattr, FVal>();
 }
 
-bool SymbolsTable::symtable_setEntry(const std::string & vname,const FVal& vvalue, const bool& isDecl)
+bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const bool& isDecl)
 {
 	auto it = sym_table_.find(
 		createTempKey(vname)
@@ -104,7 +104,7 @@ bool SymbolsTable::symtable_setEntry(const std::string & vname,const FVal& vvalu
 			}
 			auto castVal = castTo(context_,it->first.type_, vvalue);
 			if(context_.isSafe())	// Cast went well
-				return symtable_setEntry(vname,castVal,isDecl); // Proceed
+				return map_setEntry(vname,castVal,isDecl); // Proceed
 			return false; // Bad cast : abort
 		}
 		// Error cases
@@ -122,11 +122,11 @@ bool SymbolsTable::symtable_setEntry(const std::string & vname,const FVal& vvalu
 	return false; // No value found ? return false.
 }
 
-bool SymbolsTable::symtable_addEntry(const var::varattr & vattr,FVal initval)
+bool DataMap::map_getEntry(const var::varattr & vattr,FVal initval)
 {
 	auto ret = sym_table_.insert({ vattr,FVal() });
 	if (ret.second)
-		return symtable_setEntry(vattr.name_, initval,true); 	// Attempt to assign the initial value
+		return map_setEntry(vattr.name_, initval,true); 	// Attempt to assign the initial value
 	else 
 		context_.reportError("Variable " + vattr.name_ + " is already declared.");
 	return ret.second; // ret.second is a "flag" if the operation was successful.
