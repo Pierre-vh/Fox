@@ -25,12 +25,12 @@
 namespace Moonshot
 {
 	class Context;
-	class VarDataTable;
+	class SymbolsTable;
 	enum class binaryOperation;
 	class RTExprVisitor : public ITypedVisitor<FVal>
 	{
 		public:
-			RTExprVisitor(Context& c,std::shared_ptr<VarDataTable> symtab);
+			RTExprVisitor(Context& c,std::shared_ptr<SymbolsTable> symtab);
 			RTExprVisitor(Context& c);
 			~RTExprVisitor();
 
@@ -41,7 +41,7 @@ namespace Moonshot
 			virtual void visit(ASTLiteral & node) override;
 			virtual void visit(ASTVarCall & node) override;
 
-			void setSymbolsTable(std::shared_ptr<VarDataTable> symtab);
+			void setSymbolsTable(std::shared_ptr<SymbolsTable> symtab);
 			FVal getResult() const;
 		protected:
 			// Context
@@ -56,7 +56,7 @@ namespace Moonshot
 		
 			bool fitsInValue(const std::size_t& typ, const double &d); // Determines if we should convert the result to a float when making an operation to avoid loss of information
 			
-			std::shared_ptr<VarDataTable> symtab_;
+			std::shared_ptr<SymbolsTable> symtab_;
 			bool isSymbolsTableAvailable() const;
 
 			// This function calls castTo, but if the FVal is a varRef, it dereferences it once before proceeding.

@@ -17,7 +17,7 @@
 
 #include "../../Visitor/IVisitor.h" // base class
 #include "../../../Util/Enums.h" // enums
-#include "../../../VarDataTable/VarDataTable.h" // symbols table
+#include "../../../../Common/Symbols/Symbols.h" // symbols table
 
 namespace Moonshot
 {
@@ -38,7 +38,7 @@ namespace Moonshot
 			virtual void visit(ASTVarDeclStmt & node) override;
 			virtual void visit(ASTVarCall & node) override;
 
-			VarDataTable symtable_; // The symbols table used to track variable declarations and types.
+			SymbolsTable symtable_; // The symbols table used to track variable declarations and types.
 			// it is public so we can add anything we want to it for testing purposes.
 		private:
 			// Context
