@@ -1,6 +1,6 @@
 #include "VarStmts.h"
 
-#include "../../Common/Symbols/Symbols.h"
+#include "../../Fox/VarDataTable/VarDataTable.h"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;
@@ -29,7 +29,7 @@ bool VarStmts::runTest(Context & context)
 	std::cout << std::endl << "Part 1 : Correct tests :\n";
 	TypeCheckVisitor tc_good(context); // shared typechecker to keep the symtab
 
-	auto symtab = std::make_shared<SymbolsTable>(context);
+	auto symtab = std::make_shared<VarDataTable>(context);
 	symtab->declareValue(var::varattr("TESTVALUE", fv_util::indexes::fval_int, false));
 
 	RTStmtVisitor rt_good(context,symtab);
