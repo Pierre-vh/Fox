@@ -102,7 +102,7 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 bool fv_util::canCastTo(const std::size_t & goal, const std::size_t & basetype)
 {
 	/*
-		Convertsions:
+		Conversions:
 		Arith type -> Arith type
 		Arith type -> string type
 		char type -> string type
