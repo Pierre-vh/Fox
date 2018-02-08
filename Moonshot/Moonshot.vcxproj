@@ -182,6 +182,7 @@
     <None Include="misc\bytecode_tests\fizzbuzz.fox" />
     <None Include="misc\bytecode_tests\fizzbuzz.optimized.bc" />
     <None Include="misc\bytecode_tests\readme.md" />
+    <None Include="misc\import_examples\main.fox" />
     <None Include="res\tests\compstmt\compstmt_bad_2.fox" />
     <None Include="res\tests\compstmt\compstmt_correct_1.fox" />
     <None Include="res\tests\conditions\condition_correct_1.fox" />
