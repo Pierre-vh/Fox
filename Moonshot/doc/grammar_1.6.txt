@@ -29,7 +29,7 @@ It tends to be strongly typed, because a variable can't be converted to another 
 you'll be greeted with an error!)
 
 ##Base rule (The parsing process starts from this rule.)
-<fox_program>	= {(<func_decl> | <var_decl>)}+			// At least 1 function/variable declaration.
+<fox_file>	= {(<func_decl> | <var_decl>)}+			// At least 1 function/variable declaration.
 
 ##General Rules##
 
