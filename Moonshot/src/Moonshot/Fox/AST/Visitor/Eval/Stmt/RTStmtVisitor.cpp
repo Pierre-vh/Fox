@@ -12,7 +12,7 @@
 
 #include "../../../../../Common/Utils/Utils.h"
 #include "../../../../../Common/Context/Context.h" // Context 
-#include "../../../../../Common/Symbols/Symbols.h" // Symbols table
+#include "../../../../../Common/DataMap/DataMap.h" // Symbols table
 #include "../../../Nodes/ASTVarDeclStmt.h" // Nodes
 
 using namespace Moonshot;
@@ -22,7 +22,7 @@ RTStmtVisitor::RTStmtVisitor(Context& c) : RTExprVisitor(c) // call superclass c
 	
 }
 
-RTStmtVisitor::RTStmtVisitor(Context& c,std::shared_ptr<SymbolsTable> symtab) : RTExprVisitor(c) // call superclass constructor
+RTStmtVisitor::RTStmtVisitor(Context& c,std::shared_ptr<DataMap> symtab) : RTExprVisitor(c) // call superclass constructor
 {
 	setSymbolsTable(symtab);
 }

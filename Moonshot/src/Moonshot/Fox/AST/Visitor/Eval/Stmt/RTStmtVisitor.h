@@ -16,13 +16,13 @@
 namespace Moonshot
 {
 	class Context;
-	class SymbolsTable;
+	class DataMap;
 	// Visits statements nodes : vardecl & exprstmt
 	class RTStmtVisitor : public RTExprVisitor // Inherits from the expression visitor, because of expression statements!
 	{
 		public:
 			RTStmtVisitor(Context& c);
-			RTStmtVisitor(Context& c,std::shared_ptr<SymbolsTable> symtab);
+			RTStmtVisitor(Context& c,std::shared_ptr<DataMap> symtab);
 			~RTStmtVisitor();
 
 			virtual void visit(ASTVarDeclStmt & node) override;

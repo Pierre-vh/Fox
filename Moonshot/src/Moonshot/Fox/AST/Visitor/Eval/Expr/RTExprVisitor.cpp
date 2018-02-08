@@ -17,8 +17,8 @@
 #include "../../../../../Common/Types/FVTypeTraits.h"
 #include "../../../../../Common/Types/TypeCast.h"
 #include "../../../../../Common/Types/TypesUtils.h"
-// symbols table
-#include "../../../../../Common/Symbols/Symbols.h"
+// DataMap
+#include "../../../../../Common/DataMap/DataMap.h"
 // Nodes needed
 #include "../../../Nodes/ASTExpr.h"
 #include "../../../Nodes/ASTVarDeclStmt.h"
@@ -34,7 +34,7 @@ RTExprVisitor::RTExprVisitor(Context& c) : context_(c)
 {
 }
 
-RTExprVisitor::RTExprVisitor(Context& c, std::shared_ptr<SymbolsTable> symtab) : context_(c), symtab_(symtab)
+RTExprVisitor::RTExprVisitor(Context& c, std::shared_ptr<DataMap> symtab) : context_(c), symtab_(symtab)
 {
 }
 
@@ -257,7 +257,7 @@ void RTExprVisitor::visit(ASTVarCall & node)
 	}
 }
 
-void RTExprVisitor::setSymbolsTable(std::shared_ptr<SymbolsTable> symtab)
+void RTExprVisitor::setSymbolsTable(std::shared_ptr<DataMap> symtab)
 {
 	symtab_ = symtab;
 }

@@ -1,6 +1,6 @@
 #include "VarStmts.h"
 
-#include "../../Common/Symbols/Symbols.h"
+#include "../../Common/DataMap/DataMap.h"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;
@@ -29,7 +29,7 @@ bool VarStmts::runTest(Context & context)
 	std::cout << std::endl << "Part 1 : Correct tests :\n";
 	TypeCheckVisitor tc_good(context); // shared typechecker to keep the symtab
 
-	auto symtab = std::make_shared<SymbolsTable>(context);
+	auto symtab = std::make_shared<DataMap>(context);
 	symtab->declareValue(var::varattr("TESTVALUE", fv_util::indexes::fval_int, false));
 
 	RTStmtVisitor rt_good(context,symtab);
@@ -54,7 +54,7 @@ bool VarStmts::runTest(Context & context)
 		context.clearLogs();
 	}
 	// If all was ok, dump the symbols table
-	symtab->dumpSymbolsTable();
+	symtab->dump();
 	context.printLogs();
 	context.clearLogs();
 	// RUN INCORRECT TESTS
