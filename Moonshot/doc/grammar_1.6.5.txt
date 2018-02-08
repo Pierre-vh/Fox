@@ -1,4 +1,4 @@
-Fox Grammar version 1.4.1
+Fox Grammar version 1.6.5
 // Changelog:
 1.2 : Cleanup of the grammar.
 // 18/12/2017
@@ -17,6 +17,9 @@ Fox Grammar version 1.4.1
 		Changed exponent operator's priority to be mathematically correct.
 		Renamed <const> to <literal>*
 		Added '+' unary op
+1.6.5 : Changed <compound_statement> rule : removed <statement> as an option
+		Changed statement rule: added the <compound_statement> and <rtr_stmt> rule as options
+		Changed <compound_statement> in statements that used it before to just <statement>
 
 
 Modifications used in this grammar :
@@ -33,8 +36,8 @@ you'll be greeted with an error!)
 
 ##General Rules##
 
-<id> 			= $id
-<type> 			= $int_kw 	| $float_kw 	| $bool_kw	| $string_kw 	| $char_kw | $void_kw
+<id> 				= $id
+<type> 				= $int_kw 	| $float_kw 	| $bool_kw	| $string_kw 	| $char_kw | $void_kw
 <literal>			= $int_val 	| $float_val 	| $bool_val 	| $string_val 	| $char_val
 
 <namespace> 		= {<id> '.'} 						// This designates namespaces, examples : "Fox." "Fox.io."
@@ -42,9 +45,9 @@ you'll be greeted with an error!)
 <type_spec>			= ':' [$const_kw] <type>				// Used later..
 <arg_type_spec>		= ':' ['&'] <type>					// the optional ampersand indicates pass by reference
 <eoi>				= ';'									// End of instruction character. I use a separate rule for this, in case i want to modify it someday. (to use \n for instance)
-<compound_statement>			= '{' {<stmt>} '}'		// Statements delimited by curly brackets.
-				= <stmt>								// A compound_statement can also be just one statement.
-<stmt>			= <var_decl> | <expr_stmt> | <condition> | <while_loop>
+<compound_statement>= '{' {<stmt>} '}'		// Statements delimited by curly brackets.
+
+<stmt>			= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <compound_statement> | <rtr_stmt> 
 
 <expr_stmt>		= <expr> <eoi>
 
@@ -80,29 +83,26 @@ you'll be greeted with an error!)
 
 
 ##Variables##
-
 <var_decl>		= <let_kw> <id> <type_spec> ['=' <expr>] <eoi> 	// You can define variables in a rust-like fashion, but you can specify the type of the variable. const variables can't be modified.
 
 ##Functions##
-
 <func_decl>		= <fn_kw> <id> <arg_list_decl> [<type_spec>] <compound_statement>	// Note about type_spec : if it is not present, the function is considered void (it will never return anything and return values will be discarded.)
-<arg_list_decl> 	= '(' [<arg_decl> {',' <arg_decl>}*] ')'
+<arg_list_decl> = '(' [<arg_decl> {',' <arg_decl>}*] ')'
 <arg_decl>		=  <id> <arg_type_spec> 				// argument are (by default) passed by value, the ampersand indicates passing by reference.
-
 <f_call>		= <id> <expr_list>						// Function calls used in expressions, etc..
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
-
 <rtr_stmt>		= <rtr_kw> [<expr>] <eoi>
 
 ##Control Flow##
 <condition>		= <if_kw> {<elif_kw>}* [<else_branch>]?		
-<if_branch>		= <if_kw> '(' <expr> ')'			<compound_statement>
-<elif_branch> 	= <el_kw> <if_kw> '(' <expr> ')' 	<compound_statement>
-<else_branch>	= <el_kw>							<compound_statement>
-<while_loop> 	= <wh_kw>  '(' <expr> ')'			<compound_statement> 
+<if_branch>		= <if_kw> '(' <expr> ')'			<statement>
+<elif_branch> 	= <el_kw> <if_kw> '(' <expr> ')' 	<statement>
+<else_branch>	= <el_kw>							<statement>
+<while_loop> 	= <wh_kw>  '(' <expr> ')'			<statement> 
 
 ##SCRAPPED IDEA : MIGHT RETURN LATER##
+	// all of that package system will return at some point later, I just want to get the backend up and running before implementing multiple file support
 	<ext_id>		= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"
-	<general_id>		= <ext_id> | <id>
+	<general_id>	= <ext_id> | <id>
 	##Importing Packages##
 	<import_stmt>   = ( <imp_kw> | <use_kw> ) <ext_id> <eio>
