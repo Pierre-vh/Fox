@@ -140,7 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Moonshot\Common\Symbols\Symbols.cpp" />
+    <ClCompile Include="src\Moonshot\Common\DataMap\DataMap.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\TypesUtils.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
@@ -208,7 +208,7 @@
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\checked.h" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\core.h" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\unchecked.h" />
-    <ClInclude Include="src\Moonshot\Common\Symbols\Symbols.h" />
+    <ClInclude Include="src\Moonshot\Common\DataMap\DataMap.h" />
     <ClInclude Include="src\Moonshot\Common\Types\FVTypeTraits.h" />
     <ClInclude Include="src\Moonshot\Common\Types\TypesUtils.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.h" />
