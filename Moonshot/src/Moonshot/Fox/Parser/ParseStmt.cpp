@@ -17,14 +17,9 @@ using namespace fv_util;
 #include "../../Common/Context/Context.h"
 #include "../../Common/Exceptions/Exceptions.h"
 
-std::unique_ptr<ASTCompStmt> Parser::parseCompoundStatement()
+std::unique_ptr<IASTStmt> Parser::parseCompoundStatement()
 {
-	/*
-		<compound_statement> = '{' {<stmt>} '}'		
-		| = <stmt>	
-	*/
-	// return value
-	auto rtr = std::make_unique<ASTCompStmt>();
+	auto rtr = std::make_unique<ASTCompStmt>(); // return value
 	if (matchSign(sign::B_CURLY_OPEN))
 	{
 		// Parse all statements
@@ -36,13 +31,6 @@ std::unique_ptr<ASTCompStmt> Parser::parseCompoundStatement()
 			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
 			return nullptr;
 		}
-		// Return
-		return rtr;
-	}
-	else if (auto node = parseStmt())
-	{
-		// parse the statement + return
-		rtr->statements_.push_back(std::move(node));
 		return rtr;
 	}
 	return nullptr;
@@ -108,7 +96,7 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 			return nullptr;
 		}
 		// <compound_statement>
-		if (auto node = parseCompoundStatement())
+		if (auto node = parseStmt())
 			rtr->body_ = std::move(node);
 		else
 		{
@@ -148,7 +136,7 @@ ASTCondition::CondBlock Parser::parseCond_if()
 			return { nullptr, nullptr };
 		}
 		// <compound_statement>
-		if (auto node = parseCompoundStatement())
+		if (auto node = parseStmt())
 			rtr.second = std::move(node);
 		else
 		{
@@ -177,7 +165,7 @@ ASTCondition::CondBlock Parser::parseCond_else_if()
 		else if (res.first || res.second)
 			throw Exceptions::parser_critical_error("parseCond_if() returned a invalid CondBlock!");
 		// Else
-		else if (auto node = parseCompoundStatement())
+		else if (auto node = parseStmt())
 		{
 			// return only the second, that means only a else 
 			rtr.second = std::move(node);
@@ -196,7 +184,7 @@ ASTCondition::CondBlock Parser::parseCond_else_if()
 
 std::unique_ptr<IASTStmt> Parser::parseStmt()
 {
-	// <stmt> = <var_decl> | <expr_stmt> | <condition> | <while_loop>
+	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <compound_statement> | (<rtr_stmt> -> to be implemented)
 	std::unique_ptr<IASTStmt> node;
 	if (node = parseExprStmt())
 		return node;
@@ -205,6 +193,8 @@ std::unique_ptr<IASTStmt> Parser::parseStmt()
 	else if (node = parseCondition())
 		return node;
 	else if (node = parseWhileLoop())
+		return node;
+	else if (node = parseCompoundStatement())
 		return node;
 	else
 		return nullptr;

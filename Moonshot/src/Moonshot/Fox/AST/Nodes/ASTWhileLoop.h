@@ -11,7 +11,6 @@
 
 #include "IASTStmt.h"
 #include "ASTExpr.h"
-#include "ASTCompStmt.h"
 
 namespace Moonshot
 {
@@ -26,6 +25,6 @@ namespace Moonshot
 			bool isValid() const;
 
 			std::unique_ptr<IASTExpr> expr_;
-			std::unique_ptr<ASTCompStmt> body_;
+			std::unique_ptr<IASTStmt> body_;
 	};
 }

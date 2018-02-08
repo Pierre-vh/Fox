@@ -15,9 +15,9 @@ ASTCompStmt::ASTCompStmt()
 {
 }
 
-
 ASTCompStmt::~ASTCompStmt()
 {
+
 }
 
 void ASTCompStmt::accept(IVisitor & vis)

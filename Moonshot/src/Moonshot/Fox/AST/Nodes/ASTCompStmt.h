@@ -15,7 +15,7 @@
 
 namespace Moonshot
 {
-	struct ASTCompStmt : public IASTNode
+	struct ASTCompStmt : public IASTStmt
 	{
 		public:
 			ASTCompStmt();

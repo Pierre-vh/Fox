@@ -55,6 +55,7 @@ Note :
 
 #include <tuple>							// std::tuple, std::pair
 #include <memory>							// std::shared_ptr
+#include <stack>							// std::stack
 
 #define DEFAULT__maxExpectedErrorsCount 2
 #define DEFAULT__shouldPrintSuggestions true
@@ -68,15 +69,6 @@ namespace Moonshot
 			Parser(Context& c,TokenVector& l);
 			~Parser();
 
-			// parseXXX() = "match" the rule XXX (attempts to find it, if it found it, the method will return a valid pointer (if(ptr) will return true). if not, it will return a std::unique_ptr<(TYPE OF NODE)>(nullptr)
-			/*	
-			<value>         = <callable> | <literal> | '(' <expr> ')'
-			<exp_expr>      = <value> [ <exponent_operator> <prefix_exp> ]
-			<prefix_expr>   = <unary_operator> <prefix_expr> | <exp_expr>
-			<cast_expr>     = <prefix_expr> [<as_kw> <type]
-			<binary_expr>   = <cast_expr> { <binary_operator> <cast_expr> }
-			<expr>          = <binary_expr> [<assign_operator> <expr>]
-			*/
 			// EXPRESSIONS
 			std::unique_ptr<IASTExpr> parseCallable(); // values/functions calls.
 			std::unique_ptr<IASTExpr> parseValue();
@@ -86,16 +78,18 @@ namespace Moonshot
 			std::unique_ptr<IASTExpr> parseBinaryExpr(const char &priority = 5);
 			std::unique_ptr<IASTExpr> parseExpr(); // Go from lowest priority to highest !
 
-
 			// STATEMENTS
 			std::unique_ptr<IASTStmt> parseStmt(); // General Statement
 			std::unique_ptr<IASTStmt> parseVarDeclStmt(); // Var Declaration Statement
 			std::tuple<bool, bool, std::size_t> parseTypeSpec(); // type spec (for vardecl). Tuple values: Success flag, isConst, type of variable.
 			std::unique_ptr<IASTStmt> parseExprStmt(); // Expression statement
+
 			// STATEMENTS : COMPOUND STATEMENT
-			std::unique_ptr<ASTCompStmt> parseCompoundStatement(); // Compound Statement
+			std::unique_ptr<IASTStmt> parseCompoundStatement(); // Compound Statement
+
 			// STATEMENTS : IF,ELSE IF,ELSE
-			std::unique_ptr<IASTStmt> parseCondition(); // Parse a  if-else if-else "block"
+			std::unique_ptr<IASTStmt> parseCondition(); // Parse a  if-else if-else "block
+			
 			// STATEMENTS : WHILE LOOP
 			std::unique_ptr<IASTStmt> parseWhileLoop();
 		private:

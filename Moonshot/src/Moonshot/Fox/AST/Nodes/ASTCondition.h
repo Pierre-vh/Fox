@@ -10,7 +10,6 @@
 #pragma once
 
 #include "IASTStmt.h"
-#include "ASTCompStmt.h"
 #include "ASTExpr.h"
 #include <tuple>
 
@@ -24,7 +23,7 @@ namespace Moonshot
 			~ASTCondition();
 
 			// "CondBlock" = Expression + Compound Statement
-			typedef std::pair<std::unique_ptr<IASTExpr>, std::unique_ptr<ASTCompStmt>> CondBlock;
+			typedef std::pair<std::unique_ptr<IASTExpr>, std::unique_ptr<IASTStmt>> CondBlock;
 
 			virtual void accept(IVisitor & vis) override;
 
@@ -33,6 +32,6 @@ namespace Moonshot
 			bool isValid() const;
 
 			std::vector<CondBlock> conditional_blocks_; // First one is the if, all others are the elifs
-			std::unique_ptr<ASTCompStmt> else_block_; // final else.
+			std::unique_ptr<IASTStmt> else_block_; // final else.
 	};
 }
