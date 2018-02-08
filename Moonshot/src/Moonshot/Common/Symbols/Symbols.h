@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../../Common/Types/Types.h"
+#include "../Types/Types.h"
 
 #include <tuple> // std::pair
 #include <map> // std::map
@@ -21,11 +21,11 @@
 namespace Moonshot
 {
 	class Context;
-	class VarDataTable
+	class SymbolsTable
 	{
 		public:
-			VarDataTable(Context& c);
-			~VarDataTable();
+			SymbolsTable(Context& c);
+			~SymbolsTable();
 			// Retrieve a value (return it). Throws a critical error if the value isn't a basic type.
 			FVal retrieveValue(const std::string& varname);
 	
