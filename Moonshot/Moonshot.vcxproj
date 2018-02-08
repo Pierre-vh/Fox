@@ -156,7 +156,7 @@
     <ClCompile Include="src\Moonshot\Common\Exceptions\Exceptions.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\TypeCast.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Eval\Stmt\RTStmtVisitor.cpp" />
-    <ClCompile Include="src\Moonshot\Common\Symbols\Symbols.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\VarDataTable\VarDataTable.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Eval\Expr\RTExprVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseStmt.cpp" />
@@ -223,7 +223,7 @@
     <ClInclude Include="src\Moonshot\Common\Exceptions\Exceptions.h" />
     <ClInclude Include="src\Moonshot\Common\Types\TypeCast.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Eval\Stmt\RTStmtVisitor.h" />
-    <ClInclude Include="src\Moonshot\Common\Symbols\Symbols.h" />
+    <ClInclude Include="src\Moonshot\Fox\VarDataTable\VarDataTable.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Eval\Expr\RTExprVisitor.h" />
