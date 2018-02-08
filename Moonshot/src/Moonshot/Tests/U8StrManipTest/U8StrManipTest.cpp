@@ -88,7 +88,7 @@ bool U8StrManipTest::testStr(Context& context, const std::string& str, unsigned 
 			if (cur == '\n')
 				linecount++;
 			else {
-				if (std::iswspace(cur))
+				if (std::iswspace((wchar_t)cur))
 					spacecount++;
 				charcount++;
 			}
