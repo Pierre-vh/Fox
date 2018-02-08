@@ -36,3 +36,11 @@ Example of use
 Issues :
 	I doubt it's going to be that easy, there must be a problem somewhere!
 	Find a better name than expression function
+
+Further development:
+	Add the possibility for the user to create expression functions, with a syntax like this for instance
+	Eventually, all expression functions from the standard library should be moved and use that system.
+
+	[data:int] toFloat(): float{
+		return data as float;
+	}
