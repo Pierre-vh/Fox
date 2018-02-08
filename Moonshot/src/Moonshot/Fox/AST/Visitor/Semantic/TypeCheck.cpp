@@ -23,11 +23,11 @@ using namespace Moonshot;
 using namespace fv_util;
 
 
-TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c), symtable_(c)
+TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c), datamap_(c)
 {
 	if (testmode)
 	{
-		symtable_.declareValue(
+		datamap_.declareValue(
 			var::varattr("TESTVALUE", indexes::fval_int, false),
 			FVal(IntType())
 		);
@@ -142,7 +142,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 			context_.reportError("Can't perform initialization of variable \"" + node.vattr_.name_ + "\". Type of initialization expression is unassignable to the desired variable type.\nFor further information, see the errors thrown earlier!");
 		}
 	}
-	symtable_.declareValue(
+	datamap_.declareValue(
 		node.vattr_,
 		getSampleFValForIndex(node.vattr_.type_) // Using a sample fval, so we don't need to store any "real" values in there.
 	);
@@ -151,7 +151,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 
 void TypeCheckVisitor::visit(ASTVarCall & node)
 {
-	auto searchResult = symtable_.retrieveVarAttr(node.varname_);
+	auto searchResult = datamap_.retrieveVarAttr(node.varname_);
 	if ((node_ctxt_.dir == dir::LEFT) && (node_ctxt_.cur_binop == binaryOperation::ASSIGN) && searchResult.isConst)
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");

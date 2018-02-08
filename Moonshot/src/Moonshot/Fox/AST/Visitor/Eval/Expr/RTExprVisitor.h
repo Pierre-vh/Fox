@@ -12,13 +12,6 @@
 // (Only const variable calls and raw values)
 ////------------------------------------------------------////
 
-	// Notes about behaviour //
-// When evaluating variables calls, this class returns a reference to the variable.
-// This class will attempt to deref reference first at some points. When cast, it returns the value of the variable
-// and not a reference to it! 
-// So, this would fail (and that's normal, as variable types can not be changed)
-	// x as int = 3
-
 #pragma once
 #include "../../IVisitor.h"
 
@@ -41,7 +34,7 @@ namespace Moonshot
 			virtual void visit(ASTLiteral & node) override;
 			virtual void visit(ASTVarCall & node) override;
 
-			void setSymbolsTable(std::shared_ptr<DataMap> symtab);
+			void setDataMap(std::shared_ptr<DataMap> symtab);
 			FVal getResult() const;
 		protected:
 			// Context
@@ -57,7 +50,7 @@ namespace Moonshot
 			bool fitsInValue(const std::size_t& typ, const double &d); // Determines if we should convert the result to a float when making an operation to avoid loss of information
 			
 			std::shared_ptr<DataMap> symtab_;
-			bool isSymbolsTableAvailable() const;
+			bool isDataMapAvailable() const;
 
 			// This function calls castTo, but if the FVal is a varRef, it dereferences it once before proceeding.
 			FVal castTo_withDeref(const std::size_t& goal, FVal val);

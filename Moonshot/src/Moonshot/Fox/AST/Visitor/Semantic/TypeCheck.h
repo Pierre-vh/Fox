@@ -8,7 +8,7 @@
 // This visitor checks for compatibility between operations :
 // e.g. can't multiply a string with a int
 //
-// This visitor also checks that with variables. It gather informations about them (in symtable_)
+// This visitor also checks that with variables. It gather informations about them (in datamap_)
 // when they are declared, and when a variable is used it checks if it was declared
 // and if the type is compatible with the current operation.
 ////------------------------------------------------------////
@@ -17,7 +17,7 @@
 
 #include "../../Visitor/IVisitor.h" // base class
 #include "../../../Util/Enums.h" // enums
-#include "../../../../Common/DataMap/DataMap.h" // symbols table
+#include "../../../../Common/DataMap/DataMap.h" // DataMap used as a symbols table; It's only temporary, because at this stage I Don't have scopes, so this does the job. Inefficiently, but it does it.
 
 namespace Moonshot
 {
@@ -38,7 +38,7 @@ namespace Moonshot
 			virtual void visit(ASTVarDeclStmt & node) override;
 			virtual void visit(ASTVarCall & node) override;
 
-			DataMap symtable_; // The symbols table used to track variable declarations and types.
+			DataMap datamap_; // The symbols table used to track variable declarations and types.
 			// it is public so we can add anything we want to it for testing purposes.
 		private:
 			// Context

@@ -27,12 +27,12 @@ bool VarStmts::runTest(Context & context)
 	FAILED_RETURN_IF_ERR__SILENT;
 	// RUN CORRECT TESTS
 	std::cout << std::endl << "Part 1 : Correct tests :\n";
-	TypeCheckVisitor tc_good(context); // shared typechecker to keep the symtab
+	TypeCheckVisitor tc_good(context); // shared typechecker to keep the datamap
 
-	auto symtab = std::make_shared<DataMap>(context);
-	symtab->declareValue(var::varattr("TESTVALUE", fv_util::indexes::fval_int, false));
+	auto datamap = std::make_shared<DataMap>(context);
+	datamap->declareValue(var::varattr("TESTVALUE", fv_util::indexes::fval_int, false));
 
-	RTStmtVisitor rt_good(context,symtab);
+	RTStmtVisitor rt_good(context,datamap);
 	for (auto& elem : correct_test)
 	{
 		std::cout << "\t\xAF Expression :" << elem << std::endl;
@@ -54,7 +54,7 @@ bool VarStmts::runTest(Context & context)
 		context.clearLogs();
 	}
 	// If all was ok, dump the symbols table
-	symtab->dump();
+	datamap->dump();
 	context.printLogs();
 	context.clearLogs();
 	// RUN INCORRECT TESTS

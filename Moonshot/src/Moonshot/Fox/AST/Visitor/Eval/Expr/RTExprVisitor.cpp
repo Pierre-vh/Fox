@@ -77,7 +77,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 	}
 	else if (node.op_ == binaryOperation::ASSIGN)
 	{
-		if (isSymbolsTableAvailable())
+		if (isDataMapAvailable())
 		{
 			auto left_res = visitAndGetResult(node.left_, *this);
 			auto right_res = visitAndGetResult(node.right_, *this);
@@ -98,7 +98,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 	}
 	else if (node.op_ == binaryOperation::ASSIGN)
 	{
-		if (isSymbolsTableAvailable())
+		if (isDataMapAvailable())
 		{
 			auto vattr = visitAndGetResult(node.left_, *this);
 			if (std::holds_alternative<var::varRef>(vattr))
@@ -244,7 +244,7 @@ void RTExprVisitor::visit(ASTLiteral & node)
 
 void RTExprVisitor::visit(ASTVarCall & node)
 {
-	if (isSymbolsTableAvailable())
+	if (isDataMapAvailable())
 	{
 		value_ = symtab_->retrieveVarAttr(node.varname_).createRef(); // this returns a reference, because it's needed for assignement operations.
 		return;
@@ -257,7 +257,7 @@ void RTExprVisitor::visit(ASTVarCall & node)
 	}
 }
 
-void RTExprVisitor::setSymbolsTable(std::shared_ptr<DataMap> symtab)
+void RTExprVisitor::setDataMap(std::shared_ptr<DataMap> symtab)
 {
 	symtab_ = symtab;
 }
@@ -272,7 +272,7 @@ double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 	// If fval is a reference, dereference it first
 	if (std::holds_alternative<var::varRef>(fval))
 	{
-		if (isSymbolsTableAvailable())
+		if (isDataMapAvailable())
 		{
 			fval = symtab_->retrieveValue(
 				std::get<var::varRef>(fval).getName()
@@ -467,7 +467,7 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 	}
 }
 
-bool RTExprVisitor::isSymbolsTableAvailable() const
+bool RTExprVisitor::isDataMapAvailable() const
 {
 	return (symtab_ ? true : false);
 }

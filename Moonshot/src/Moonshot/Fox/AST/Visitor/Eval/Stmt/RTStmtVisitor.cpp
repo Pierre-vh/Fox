@@ -24,7 +24,7 @@ RTStmtVisitor::RTStmtVisitor(Context& c) : RTExprVisitor(c) // call superclass c
 
 RTStmtVisitor::RTStmtVisitor(Context& c,std::shared_ptr<DataMap> symtab) : RTExprVisitor(c) // call superclass constructor
 {
-	setSymbolsTable(symtab);
+	setDataMap(symtab);
 }
 
 RTStmtVisitor::~RTStmtVisitor()
@@ -33,7 +33,7 @@ RTStmtVisitor::~RTStmtVisitor()
 
 void RTStmtVisitor::visit(ASTVarDeclStmt & node)
 {
-	if (!isSymbolsTableAvailable())
+	if (!isDataMapAvailable())
 		context_.logMessage("Can't Visit VarDeclStmt nodes when the symbols table is not available.");
 	else
 	{
