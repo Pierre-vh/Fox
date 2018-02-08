@@ -100,7 +100,7 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 			rtr->body_ = std::move(node);
 		else
 		{
-			errorExpected("Expected a Compound Statement after while loop declaration");
+			errorExpected("Expected a Statement after while loop declaration");
 			return nullptr;
 		}
 		// Return
@@ -140,7 +140,7 @@ ASTCondition::CondBlock Parser::parseCond_if()
 			rtr.second = std::move(node);
 		else
 		{
-			errorExpected("Expected a compound statement in condition");
+			errorExpected("Expected a statement after condition declaration");
 			return { nullptr, nullptr };
 		}
 		// Finished, return.
@@ -174,7 +174,7 @@ ASTCondition::CondBlock Parser::parseCond_else_if()
 		// error case
 		else
 		{
-			errorExpected("Expected a compound statement");
+			errorExpected("Expected a statement after condition declaration");
 			return { nullptr, nullptr };
 		}
 	}
