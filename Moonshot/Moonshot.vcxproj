@@ -190,6 +190,7 @@
     <None Include="res\tests\compstmt\compstmt_bad_2.fox" />
     <None Include="res\tests\compstmt\compstmt_correct_1.fox" />
     <None Include="res\tests\conditions\condition_correct_1.fox" />
+    <None Include="res\tests\readme.md" />
     <None Include="res\tests\varstmts\varstmts_bad.fox" />
     <None Include="res\tests\whileloop\bad\while_loop_1.fox" />
     <None Include="res\tests\whileloop\bad\while_loop_2.fox" />
