@@ -16,10 +16,10 @@
 #include <cwctype>		// std::iswspace
 #include <sstream>		// std::stringstream (sizeToStr())
 
-#include "../../Common/Types/Types.hpp"
-#include "../../Common/UTF8/StringManipulator.hpp"
-#include "../../Common/Context/Context.hpp"
-#include "../../Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Common/Types/Types.hpp"
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
 
 using namespace Moonshot;
 

@@ -5,8 +5,8 @@
 #include "Types.hpp"
 #include "TypesUtils.hpp"
 #include "FVTypeTraits.hpp"
-#include "../Context/Context.hpp"
-#include "../UTF8/StringManipulator.hpp"
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
 using namespace fv_util;

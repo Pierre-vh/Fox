@@ -19,7 +19,7 @@
 #pragma once
 
 #include "Token.hpp"
-#include "../../Common/UTF8/StringManipulator.hpp"
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 namespace Moonshot
 {

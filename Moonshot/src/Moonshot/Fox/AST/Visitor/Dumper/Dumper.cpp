@@ -9,16 +9,18 @@
 
 #include "Dumper.hpp"
 // Exception
-#include "../../../../Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
 // FVal Utilities
-#include "../../../../Common/Types/TypesUtils.hpp"
-#include "../../../../Common/Utils/Utils.hpp" // for enumAsInt
+#include "Moonshot/Common/Types/TypesUtils.hpp"
+#include "Moonshot/Common/Utils/Utils.hpp" // for enumAsInt
 // Include nodes
-#include "../../Nodes/ASTExpr.hpp"
-#include "../../Nodes//ASTVarDeclStmt.hpp"
-#include "../../Nodes/ASTCompStmt.hpp"
-#include "../../Nodes/ASTCondition.hpp"
-#include "../../Nodes/ASTWhileLoop.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCompStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
+
+#include <iostream>
 
 using namespace Moonshot;
 using namespace fv_util;

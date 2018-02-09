@@ -8,16 +8,17 @@
 ////------------------------------------------------------////
 
 #include "TypeCheck.hpp"
-
 // Include nodes
-#include "../../Nodes/ASTExpr.hpp" 
-#include "../../Nodes/ASTVarDeclStmt.hpp" 
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp" 
+#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp" 
+
 // Other
-#include "../../../../Common/Context/Context.hpp" // context
-#include "../../../../Common/Exceptions/Exceptions.hpp" // exceptions
+#include "Moonshot/Common/Context/Context.hpp" // context
+#include "Moonshot/Common/Exceptions/Exceptions.hpp" // exceptions
+#include "Moonshot/Common/Types/Types.hpp" // Types
+#include "Moonshot/Common/Types/TypesUtils.hpp" // Types Utilities
+
 #include <sstream> // std::stringstream
-#include "../../../../Common/Types/Types.hpp" // Types
-#include "../../../../Common/Types/TypesUtils.hpp" // Types Utilities
 
 using namespace Moonshot;
 using namespace fv_util;

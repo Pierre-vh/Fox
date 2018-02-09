@@ -10,10 +10,10 @@
 
 #include "RTStmtVisitor.hpp"
 
-#include "../../../../../Common/Utils/Utils.hpp"
-#include "../../../../../Common/Context/Context.hpp" // Context 
-#include "../../../../../Common/DataMap/DataMap.hpp" // Symbols table
-#include "../../../Nodes/ASTVarDeclStmt.hpp" // Nodes
+#include "Moonshot/Common/Utils/Utils.hpp"
+#include "Moonshot/Common/Context/Context.hpp" // Context 
+#include "Moonshot/Common/DataMap/DataMap.hpp" // Symbols table
+#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp" // Nodes
 
 using namespace Moonshot;
 

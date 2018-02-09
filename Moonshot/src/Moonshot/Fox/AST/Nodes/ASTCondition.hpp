@@ -12,6 +12,7 @@
 #include "IASTStmt.hpp"
 #include "ASTExpr.hpp"
 #include <tuple>
+#include <vector>
 
 namespace Moonshot
 {

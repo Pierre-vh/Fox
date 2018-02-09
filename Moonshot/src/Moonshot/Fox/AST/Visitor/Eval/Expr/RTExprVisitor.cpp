@@ -10,22 +10,23 @@
 #include "RTExprVisitor.hpp"
 
 // Context & exceptions
-#include "../../../../../Common/Context/Context.hpp"
-#include "../../../../../Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
 // Utils, types, typecast
-#include "../../../../../Common/Utils/Utils.hpp"
-#include "../../../../../Common/Types/FVTypeTraits.hpp"
-#include "../../../../../Common/Types/TypeCast.hpp"
-#include "../../../../../Common/Types/TypesUtils.hpp"
+#include "Moonshot/Common/Utils/Utils.hpp"
+#include "Moonshot/Common/Types/FVTypeTraits.hpp"
+#include "Moonshot/Common/Types/TypeCast.hpp"
+#include "Moonshot/Common/Types/TypesUtils.hpp"
 // DataMap
-#include "../../../../../Common/DataMap/DataMap.hpp"
+#include "Moonshot/Common/DataMap/DataMap.hpp"
 // Nodes needed
-#include "../../../Nodes/ASTExpr.hpp"
-#include "../../../Nodes/ASTVarDeclStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
 // math operations
 #include <cmath>		
+#include <sstream>
 // string manip
-#include "../../../../../Common/UTF8/StringManipulator.hpp"
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
 using namespace fv_util;

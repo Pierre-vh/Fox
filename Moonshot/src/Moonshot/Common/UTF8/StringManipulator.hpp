@@ -26,7 +26,7 @@
 
 #include <iterator>
 #include <iostream>
-#include "../Types/Types.hpp"
+#include "Moonshot/Common/Types/Types.hpp"
 
 namespace Moonshot::UTF8
 {

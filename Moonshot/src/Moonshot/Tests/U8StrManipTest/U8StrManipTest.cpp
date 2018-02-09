@@ -1,5 +1,8 @@
 ﻿#include "U8StrManipTest.hpp"
 
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
+#include <cwctype>		// std::iswspace
+
 using namespace Moonshot;
 using namespace TestUtilities;
 

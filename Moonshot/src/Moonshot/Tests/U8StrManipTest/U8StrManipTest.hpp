@@ -11,8 +11,6 @@
 #pragma once
 
 #include "../ITest.hpp"
-#include "../../Common/UTF8/StringManipulator.hpp"
-#include <cwctype>		// std::iswspace
 
 namespace Moonshot
 {

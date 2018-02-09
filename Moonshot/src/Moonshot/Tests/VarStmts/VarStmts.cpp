@@ -1,6 +1,6 @@
 #include "VarStmts.hpp"
 
-#include "../../Common/DataMap/DataMap.hpp"
+#include "Moonshot/Common/DataMap/DataMap.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;

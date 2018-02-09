@@ -9,13 +9,9 @@
 
 #pragma once
 
-#include "IASTStmt.hpp"							// Abstract class that every node must inherit from.
-#include "../../Lexer/Token.hpp"					// Lexer's Token
+#include "IASTStmt.hpp"							
 #include "../../Util/Enums.hpp"					// enums
-#include "../../../Common/Types/Types.hpp"		// FValue alias
-#include <algorithm> // swap
-#include <iostream> // std::cout for debug purposes
-#include <sstream> // std::stringstream
+#include "../../../Common/Types/Types.hpp"		// FVal
 
 namespace Moonshot	
 {
@@ -40,7 +36,6 @@ namespace Moonshot
 
 			virtual void accept(IVisitor& vis) override;
 			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
-			void swapChildren();
 
 			void setChild(const dir &d, std::unique_ptr<IASTExpr> &node); // make (node) a child of this.
 			void makeChildOfDeepestNode(const dir &d, std::unique_ptr<IASTExpr> &node); // Make (node) a child of the deepest left/right path of our node. (continue until left/right = 0, then makechild.)
@@ -73,7 +68,7 @@ namespace Moonshot
 	{
 		public:
 			ASTLiteral() = default;
-			ASTLiteral(const Token &t);
+			ASTLiteral(const FVal &fv);
 
 			void accept(IVisitor& vis) override;
 

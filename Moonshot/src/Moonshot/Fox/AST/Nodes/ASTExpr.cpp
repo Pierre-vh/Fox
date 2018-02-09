@@ -9,20 +9,19 @@
 
 #include "ASTExpr.hpp"
 
+#include "Moonshot/Common/Types/FVTypeTraits.hpp"
+
+#include <iostream> // std::cout for debug purposes
+#include <sstream> // std::stringstream
+
 using namespace Moonshot;
 
-ASTLiteral::ASTLiteral(const Token & t)
+ASTLiteral::ASTLiteral(const FVal& fv)
 {
-	if (t.lit_type == literal::LIT_STRING)
-		val_ = std::get<std::string>(t.vals);
-	else if (t.lit_type == literal::LIT_CHAR)
-		val_ = std::get<CharType>(t.vals);
-	else if (t.lit_type == literal::LIT_BOOL)
-		val_ = std::get<bool>(t.vals);
-	else if (t.lit_type == literal::LIT_INTEGER)
-		val_ = std::get<IntType>(t.vals);
-	else if (t.lit_type == literal::LIT_FLOAT)
-		val_ = std::get<float>(t.vals);
+	if (fv_util::isBasic(fv.index()))
+		val_ = fv;
+	else
+		throw std::invalid_argument("ASTNodeLiteral constructor requires a basic type in the FVal");
 }
 
 void ASTLiteral::accept(IVisitor& vis)
@@ -59,11 +58,6 @@ std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
 		return ret;
 	}
 	return nullptr;
-}
-
-void ASTBinaryExpr::swapChildren()
-{
-	std::swap(left_, right_);
 }
 
 void ASTBinaryExpr::setChild(const dir & d, std::unique_ptr<IASTExpr>& node)

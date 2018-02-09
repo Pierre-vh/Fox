@@ -45,13 +45,13 @@ Note :
 // Tokens
 #include "../Lexer/Token.hpp"					
 // AST Nodes
-#include "../AST/Nodes/ASTExpr.hpp"
-#include "../AST/Nodes/ASTVarDeclStmt.hpp"
-#include "../AST/Nodes/ASTCompStmt.hpp"
-#include "../AST/Nodes/ASTCondition.hpp"
-#include "../AST/Nodes/ASTWhileLoop.hpp"
-#include "../AST/Nodes/IASTStmt.hpp"
-#include "../Util/Enums.hpp"					// Enum
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCompStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
+#include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
+#include "Moonshot/Fox/Util/Enums.hpp"			
 
 #include <tuple>							// std::tuple, std::pair
 #include <memory>							// std::shared_ptr

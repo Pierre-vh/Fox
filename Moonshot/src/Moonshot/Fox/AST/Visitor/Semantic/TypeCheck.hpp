@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include "../../Visitor/IVisitor.hpp" // base class
-#include "../../../Util/Enums.hpp" // enums
-#include "../../../../Common/DataMap/DataMap.hpp" // DataMap used as a symbols table; It's only temporary, because at this stage I Don't have scopes, so this does the job. Inefficiently, but it does it.
+#include "Moonshot/Fox/AST/Visitor/IVisitor.hpp" // base class
+#include "Moonshot/Fox/Util/Enums.hpp" // enums
+#include "Moonshot/Common/DataMap/DataMap.hpp" // DataMap used as a symbols table; It's only temporary, because at this stage I Don't have scopes, so this does the job. Inefficiently, but it does it.
 
 namespace Moonshot
 {

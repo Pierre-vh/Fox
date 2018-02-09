@@ -13,10 +13,11 @@
 #include <regex>	// std::regex, std::regex_match
 #include <string>	// std::stoi / stoll
 #include <sstream>	// std::stringstream (showFormattedToken())
-#include "../../Common/Utils/Utils.hpp"
-#include "../../Common/Context/Context.hpp"
-#include "../../Common/Exceptions/Exceptions.hpp"
-#include "../../Common/UTF8/StringManipulator.hpp"
+
+#include "Moonshot/Common/Utils/Utils.hpp"
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
 
@@ -143,7 +144,7 @@ bool Token::specific_idValue()
 				context_.reportError("Char literal can only contain one character.");
 				return false;
 			}
-			vals = strmanip.getChar(1);
+			lit_val = strmanip.getChar(1);
 			lit_type = literal::LIT_CHAR;
 			return true;
 		}
@@ -157,7 +158,7 @@ bool Token::specific_idValue()
 	{
 		if (strmanip.peekBack() == '"')
 		{
-			vals = strmanip.substring(1,strmanip.getSize()-2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
+			lit_val = strmanip.substring(1,strmanip.getSize()-2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
 			lit_type = literal::LIT_STRING;
 			return true;
 		}
@@ -169,7 +170,7 @@ bool Token::specific_idValue()
 	}
 	else if (str == "true" | str == "false")
 	{
-		vals = (str == "true" ? true : false);
+		lit_val = (str == "true" ? true : false);
 		lit_type = literal::LIT_BOOL;
 		return true;
 	}
@@ -180,7 +181,7 @@ bool Token::specific_idValue()
 		int64_t tmp;
 		if(ss >> tmp)
 		{
-			vals = tmp;
+			lit_val = tmp;
 			lit_type = literal::LIT_INTEGER;
 		}
 		else
@@ -189,14 +190,14 @@ bool Token::specific_idValue()
 			std::stringstream out;
 			out << "The value \xAF" << str << "\xAE was interpreted as a float because it didn't fit a 64 Bit signed int.";
 			context_.reportWarning(out.str());
-			vals = std::stof(str);
+			lit_val = std::stof(str);
 			lit_type = literal::LIT_FLOAT;
 		}
 		return true;
 	}
 	else if (std::regex_match(str, kFloat_regex))
 	{
-		vals = std::stof(str);
+		lit_val = std::stof(str);
 		lit_type = literal::LIT_FLOAT;
 		return true;
 	}

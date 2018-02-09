@@ -10,8 +10,8 @@
 ////------------------------------------------------------////
 #pragma once
 // Types & utils
-#include "../../../../../Common/Types/Types.hpp"
-#include "../Expr/RTExprVisitor.hpp" //Superclass
+#include "Moonshot/Common/Types/Types.hpp"
+#include "Moonshot/Fox/AST/Visitor/Eval/Expr/RTExprVisitor.hpp" //Superclass
 
 namespace Moonshot
 {

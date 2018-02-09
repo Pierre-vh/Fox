@@ -198,14 +198,14 @@
     <ClInclude Include="src\Moonshot\Common\DataMap\DataMap.hpp" />
     <ClInclude Include="src\Moonshot\Common\Exceptions\Exceptions.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8.h" />
-    <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8.hpp" />
+    <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\checked.h" />
-    <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\checked.hpp" />
+    <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8\checked.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\core.h" />
-    <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\core.hpp" />
+    <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8\core.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\unchecked.h" />
     <ClInclude Include="src\Moonshot\Common\DataMap\DataMap.h" />
-    <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\unchecked.hpp" />
+    <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8\unchecked.hpp" />
     <ClInclude Include="src\Moonshot\Common\Types\FVTypeTraits.h" />
     <ClInclude Include="src\Moonshot\Common\Types\FVTypeTraits.hpp" />
     <ClInclude Include="src\Moonshot\Common\Types\TypeCast.hpp" />
@@ -283,7 +283,7 @@
   <ItemGroup>
     <Text Include="src\LICENSE.txt" />
     <Text Include="src\Moonshot\Common\Context\Options\OptionsList.h" />
-    <Text Include="src\Moonshot\Common\External\utfcpp\utfcpp.txt" />
+    <Text Include="src\Moonshot\ThirdParty\utfcpp\utfcpp.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

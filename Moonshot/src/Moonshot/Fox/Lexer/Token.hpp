@@ -14,7 +14,7 @@
 #pragma once
 
 #include <map>		// std::map 
-#include "../../Common/Types/Types.hpp"
+#include "Moonshot/Common/Types/Types.hpp"
 #include <vector>
 
 namespace Moonshot
@@ -180,7 +180,7 @@ namespace Moonshot
 			literal lit_type =	literal::LIT_ENUMDEFAULT;
 			sign sign_type =	sign::S_ENUM_DEFAULT;
 
-			FVal vals;
+			FVal lit_val;
 
 			std::string str;
 			text_pos pos;

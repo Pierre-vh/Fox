@@ -10,9 +10,11 @@
 
 #include "Parser.hpp"
 
+// Stringstream
+#include <sstream>
 // Context and Exceptions
-#include "../../Common/Context/Context.hpp"
-#include "../../Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
 
 using namespace Moonshot;
 using namespace fv_util;
@@ -78,7 +80,7 @@ bool Parser::matchEOI()
 	return matchSign(sign::P_SEMICOLON);
 }
 
-std::size_t Moonshot::Parser::matchTypeKw()
+std::size_t Parser::matchTypeKw()
 {
 	Token t = getToken();
 	pos_ += 1;

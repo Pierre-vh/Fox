@@ -9,13 +9,12 @@
 
 #pragma once
 
-#include "../../Moonshot/Common/Context/Context.hpp" // context
-#include "../../Moonshot/Common/Utils/Utils.hpp" // utils
-#include "../../Moonshot/Common/Types/Types.hpp"
+#include "Moonshot/Common/Context/Context.hpp" // context
+#include "Moonshot/Common/Utils/Utils.hpp" // utils
+#include "Moonshot/Common/Types/Types.hpp"
 
-
-#include "../../Moonshot/Fox/Lexer/Lexer.hpp"
-#include "../../Moonshot/Fox/Parser/Parser.hpp"
+#include "Moonshot/Fox/Lexer/Lexer.hpp"
+#include "Moonshot/Fox/Parser/Parser.hpp"
 
 // STL
 #include <fstream>

@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "../Types/Types.hpp"
+#include "Moonshot/Common/Types/Types.hpp"
 
 #include <tuple> // std::pair
 #include <map> // std::map

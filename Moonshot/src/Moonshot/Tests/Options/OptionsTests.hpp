@@ -11,8 +11,8 @@
 
 #include "../ITest.hpp"
 
-#include "../../Common/Context/Options/OptionsManager.hpp"
-#include "../../Common/Context/Options/ParameterValue.hpp"
+#include "Moonshot/Common/Context/Options/OptionsManager.hpp"
+#include "Moonshot/Common/Context/Options/ParameterValue.hpp"
 
 namespace Moonshot
 {

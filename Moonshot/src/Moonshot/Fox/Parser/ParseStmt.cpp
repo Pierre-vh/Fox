@@ -14,8 +14,8 @@ using namespace Moonshot;
 using namespace fv_util;
 
 // Context and Exceptions
-#include "../../Common/Context/Context.hpp"
-#include "../../Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
 
 std::unique_ptr<IASTStmt> Parser::parseCompoundStatement()
 {

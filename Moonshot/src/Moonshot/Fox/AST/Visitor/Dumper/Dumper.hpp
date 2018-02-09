@@ -10,7 +10,7 @@
 
 #pragma once
 // base class
-#include "../IVisitor.hpp"
+#include "Moonshot/Fox/AST/Visitor/IVisitor.hpp"
 
 namespace Moonshot
 {

@@ -9,9 +9,10 @@
 
 #include "DataMap.hpp"
 
-#include "../Types/TypesUtils.hpp"
-#include "../Types/TypeCast.hpp"
-#include "../Context/Context.hpp"
+#include "Moonshot/Common/Types/TypesUtils.hpp"
+#include "Moonshot/Common/Types/TypeCast.hpp"
+#include "Moonshot/Common/Context/Context.hpp"
+
 #include <sstream> // std::stringstream
 
 using namespace Moonshot;

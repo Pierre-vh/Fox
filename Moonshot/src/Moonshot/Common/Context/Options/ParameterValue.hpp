@@ -12,7 +12,6 @@
 
 #include <variant>		// std::variant
 
-#include "../../Utils/Utils.hpp"
 // ParameterValue could be a wrapper around a std::variant
 // Having get<T> methods that returns the desired value, or a default one if the variant
 // isn't in the correct state.
@@ -20,8 +19,7 @@
 // Currently supported arguments value types
 	// int
 	// bool -> you can use strings in .set and if the string is true/True or false/False it'll convert it to bool for you
-// Only numeric type should be implemented here.
-// To store strings, use "blank" attributes (set an attribute without value and use hasAttr())
+// Only numeric types should be implemented here
 
 namespace Moonshot
 {

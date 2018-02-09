@@ -16,8 +16,8 @@
 
 #pragma once
 //utils
-#include "../../../Common/Utils/Utils.hpp"
-#include "../../../Common/Types/Types.hpp"
+#include "Moonshot/Common/Utils/Utils.hpp"
+#include "Moonshot/Common/Types/Types.hpp"
 
 namespace Moonshot
 {

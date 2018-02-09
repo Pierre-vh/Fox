@@ -9,6 +9,8 @@
 
 #include "OptionsTests.hpp"
 
+#include <sstream>
+
 using namespace Moonshot;
 
 OptionsTests::OptionsTests()
