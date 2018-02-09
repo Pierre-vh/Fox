@@ -1,9 +1,9 @@
+// This file is old and out of date, i'll need to come back here and add a lot more functions
+
 Fox.io
     print(string msg)    -> cout << msg
-    input(string type)   -> return a data inputted, converted to the type "type"
-
+    input()              -> return a line of text from the input (cin).
 Fox.math
     random(int a,int b)  -> return a random number between a min and a max.
 
 Fox.io.print()
-Fox.io::print():
