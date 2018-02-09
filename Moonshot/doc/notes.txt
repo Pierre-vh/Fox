@@ -1,3 +1,0 @@
-This is a list of the stuff that I need to add or take care of. It's a personal memo. Feel free to criticize it !
-
-> Remember to analyze every function declaration before analyzing functions in the semantic analysis. So, if a function is declared later in the program, it's still usable earlier in the program !
