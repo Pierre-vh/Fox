@@ -1,6 +1,7 @@
 // Main test for the lexer : this test should be good at all times
 using Fox.io;     // Import this package, and use its namespace
-
+using Fox0.io; // test to distinguish float from char
+using Fox0.math;
 func fib(n : &int) : int 
 {
 	if (n<=2)
