@@ -7,8 +7,8 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ExprStmt.h"
-#include "../../Common/Types/TypesUtils.h"
+#include "ExprStmt.hpp"
+#include "../../Common/Types/TypesUtils.hpp"
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;
 

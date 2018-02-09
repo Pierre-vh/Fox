@@ -7,8 +7,8 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ExprTests.h"
-#include "../../Common/Types/TypesUtils.h"
+#include "ExprTests.hpp"
+#include "../../Common/Types/TypesUtils.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;

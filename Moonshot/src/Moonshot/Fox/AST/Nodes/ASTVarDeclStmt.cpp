@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ASTVarDeclStmt.h"
+#include "ASTVarDeclStmt.hpp"
 
 using namespace Moonshot;
 using namespace fv_util;

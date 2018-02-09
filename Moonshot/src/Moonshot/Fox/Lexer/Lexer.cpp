@@ -10,16 +10,16 @@
 // Note : For now the "escape" char system is working nicely, but the way i've done it is less than ideal.
 // Task : rework it, find a cleaner way to do it, or at least do a cleanup of the code !
 
-#include "Lexer.h"
+#include "Lexer.hpp"
 
 #include <string>		// std::string
 #include <cwctype>		// std::iswspace
 #include <sstream>		// std::stringstream (sizeToStr())
 
-#include "../../Common/Types/Types.h"
-#include "../../Common/UTF8/StringManipulator.h"
-#include "../../Common/Context/Context.h"
-#include "../../Common/Exceptions/Exceptions.h"
+#include "../../Common/Types/Types.hpp"
+#include "../../Common/UTF8/StringManipulator.hpp"
+#include "../../Common/Context/Context.hpp"
+#include "../../Common/Exceptions/Exceptions.hpp"
 
 using namespace Moonshot;
 

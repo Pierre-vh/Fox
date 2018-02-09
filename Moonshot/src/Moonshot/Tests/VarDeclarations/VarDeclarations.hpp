@@ -1,0 +1,29 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : VarDeclarations.hpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// blah blah blah											
+////------------------------------------------------------////
+
+#pragma once
+
+#include "../ITest.hpp"
+#include "../../Fox/AST/Visitor/Semantic/TypeCheck.hpp"
+#include "../../Fox/AST/Visitor/Eval/Expr/RTExprVisitor.hpp"
+
+namespace Moonshot 
+{
+	class VarDeclarations : public ITest
+	{
+		public:
+			VarDeclarations() = default;
+			~VarDeclarations();
+
+			virtual std::string getTestName() const override;
+			virtual bool runTest(Context & context) override;
+	};
+}
+
+

@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "OptionsManager.h"
+#include "OptionsManager.hpp"
 
 #include <iostream>
 

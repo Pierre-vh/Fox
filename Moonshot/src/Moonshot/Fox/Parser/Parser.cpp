@@ -8,11 +8,11 @@
 //	This file implements rule-agnostic methods				
 ////------------------------------------------------------////
 
-#include "Parser.h"
+#include "Parser.hpp"
 
 // Context and Exceptions
-#include "../../Common/Context/Context.h"
-#include "../../Common/Exceptions/Exceptions.h"
+#include "../../Common/Context/Context.hpp"
+#include "../../Common/Exceptions/Exceptions.hpp"
 
 using namespace Moonshot;
 using namespace fv_util;

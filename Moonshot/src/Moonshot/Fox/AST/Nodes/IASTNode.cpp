@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "IASTNode.h"
+#include "IASTNode.hpp"
 
 using namespace Moonshot;
 

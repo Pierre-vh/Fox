@@ -7,11 +7,11 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "DataMap.h"
+#include "DataMap.hpp"
 
-#include "../Types/TypesUtils.h"
-#include "../Types/TypeCast.h"
-#include "../Context/Context.h"
+#include "../Types/TypesUtils.hpp"
+#include "../Types/TypeCast.hpp"
+#include "../Context/Context.hpp"
 #include <sstream> // std::stringstream
 
 using namespace Moonshot;

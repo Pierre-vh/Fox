@@ -1,12 +1,12 @@
-#include "TypeCast.h"
+#include "TypeCast.hpp"
 
 #include <variant> // std::visit
 #include <sstream>
-#include "Types.h"
-#include "TypesUtils.h"
-#include "FVTypeTraits.h"
-#include "../Context/Context.h"
-#include "../UTF8/StringManipulator.h"
+#include "Types.hpp"
+#include "TypesUtils.hpp"
+#include "FVTypeTraits.hpp"
+#include "../Context/Context.hpp"
+#include "../UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
 using namespace fv_util;

@@ -7,17 +7,17 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "TypeCheck.h"
+#include "TypeCheck.hpp"
 
 // Include nodes
-#include "../../Nodes/ASTExpr.h" 
-#include "../../Nodes/ASTVarDeclStmt.h" 
+#include "../../Nodes/ASTExpr.hpp" 
+#include "../../Nodes/ASTVarDeclStmt.hpp" 
 // Other
-#include "../../../../Common/Context/Context.h" // context
-#include "../../../../Common/Exceptions/Exceptions.h" // exceptions
+#include "../../../../Common/Context/Context.hpp" // context
+#include "../../../../Common/Exceptions/Exceptions.hpp" // exceptions
 #include <sstream> // std::stringstream
-#include "../../../../Common/Types/Types.h" // Types
-#include "../../../../Common/Types/TypesUtils.h" // Types Utilities
+#include "../../../../Common/Types/Types.hpp" // Types
+#include "../../../../Common/Types/TypesUtils.hpp" // Types Utilities
 
 using namespace Moonshot;
 using namespace fv_util;

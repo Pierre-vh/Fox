@@ -7,16 +7,16 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Token.h"
+#include "Token.hpp"
 
 #include <variant>	// std::variant
 #include <regex>	// std::regex, std::regex_match
 #include <string>	// std::stoi / stoll
 #include <sstream>	// std::stringstream (showFormattedToken())
-#include "../../Common/Utils/Utils.h"
-#include "../../Common/Context/Context.h"
-#include "../../Common/Exceptions/Exceptions.h"
-#include "../../Common/UTF8/StringManipulator.h"
+#include "../../Common/Utils/Utils.hpp"
+#include "../../Common/Context/Context.hpp"
+#include "../../Common/Exceptions/Exceptions.hpp"
+#include "../../Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
 

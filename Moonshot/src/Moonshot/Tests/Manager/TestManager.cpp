@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "TestManager.h"
+#include "TestManager.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;

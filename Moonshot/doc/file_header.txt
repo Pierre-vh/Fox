@@ -3,7 +3,7 @@ This is to be included in any Header.
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : XXXX.h											
+// File : XXXX.hpp											
 // Author : XXXX											
 ////------------------------------------------------------//// 
 // blah blah blah	->General description of the file		
@@ -26,7 +26,7 @@ header:
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : XXXX.h											
+// File : XXXX.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // blah blah blah											

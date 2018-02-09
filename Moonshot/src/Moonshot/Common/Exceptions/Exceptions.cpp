@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Exceptions.h"
+#include "Exceptions.hpp"
 
 using namespace Moonshot::Exceptions;
 

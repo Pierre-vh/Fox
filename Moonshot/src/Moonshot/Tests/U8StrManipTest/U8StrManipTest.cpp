@@ -1,4 +1,4 @@
-﻿#include "U8StrManipTest.h"
+﻿#include "U8StrManipTest.hpp"
 
 using namespace Moonshot;
 using namespace TestUtilities;

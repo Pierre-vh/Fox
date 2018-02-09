@@ -26,26 +26,22 @@ NAMING
 NAMESPACES
 -> Every class/struct/... should be inside the "Moonshot" namespace. You can use "using namespace Moonshot;" in your implementation to make the code less verbose. 
 -> Avoid other "using namespace" statements, unless it's really needed to make the code less verbose (don't forget to use stuff like auto and make macros to avoid doing it ! :p)
--> You can create new namespaces if you need to declare a  lot of structs and such that need to be used only by one class or two. (like in src/Moonshot/Fox/Lexer/Token.h)
+-> You can create new namespaces if you need to declare a  lot of structs and such that need to be used only by one class or two. (like in src/Moonshot/Fox/Lexer/Token.hpp)
 
 MACROS :
 -> use them to avoid really long, verbose lines.
 	e.g. #define E_WARNING(y)	Moonshot::Errors::getInstance()->reportWarning(__FILE__,__LINE__,y);
 		Macros like this make the code more readable, but avoid over using them. Also, don't put a semicolon at the end of a macro if it's not a full statement. (Here I used one, because it's a full statement)	
 
-CLASSES
--> You can use a struct named "options" to provide option to control the class (see src/Common/Errors/Errors.h for an exemple). It's one of the case where you shouldn't use an underscore for an attribute :)
-
 FUNCTIONS
 
 -> when possible, use constant reference when you don't need to modify an argument to avoid useless memory copies.
 
 ERROR REPORTING
--> Either use the Macros in src/Moonshot/Common/Errors.h to report your errors
-	or retrieve the instance of Moonshot::Errors and put it in a member variable to call the functions.
+-> Use the context's function to report errors.
 -> reportWarning should be used for small errors that don't stop the parsing process
 -> reportError should be used to report errors that can happen "normally", if the user does something wrong, etc.
--> reportCritical should be used ONLY for "grave" errors that shouldn't happen in normal use.
+-> reportFatal should be used for grave, fatal errors
 
 LOGGING
 -> To log something (give information to the user like "Parsing Done", etc..) use E_LOG(".."); or use the method logInfo() in src/Moonshot/Common/Errors.cpp
@@ -62,7 +58,7 @@ IDENTATION
 			void reportCritical(const char *file, int line, const std::string &txt);
 
 COMMENTS
--> Please use comments when declaring a function in a .H file. Keep it short and straight to the point. Add more detailed comment in the implementation if needed.
+-> Please use comments when declaring a function in a .hpp file. Keep it short and straight to the point. Add more detailed comment in the implementation if needed.
 -> When you declare special classes ,like a uncopyable class or a singleton, it's great to tell us just before the class definition like so :
 	// SINGLETON
 	class Errors 
@@ -71,4 +67,4 @@ COMMENTS
 	}
 
 ENUMERATIONS
--> Use all caps for enum values. also, try to use a prefix. (see src/Moonshot/Fox/Lexer/Token.h)
+-> Use all caps for enum values. also, try to use a prefix. (see src/Moonshot/Fox/Lexer/Token.hpp)

@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ITest.h"
+#include "ITest.hpp"
 
 using namespace Moonshot;
 

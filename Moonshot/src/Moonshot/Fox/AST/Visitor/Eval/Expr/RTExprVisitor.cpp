@@ -7,25 +7,25 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "RTExprVisitor.h"
+#include "RTExprVisitor.hpp"
 
 // Context & exceptions
-#include "../../../../../Common/Context/Context.h"
-#include "../../../../../Common/Exceptions/Exceptions.h"
+#include "../../../../../Common/Context/Context.hpp"
+#include "../../../../../Common/Exceptions/Exceptions.hpp"
 // Utils, types, typecast
-#include "../../../../../Common/Utils/Utils.h"
-#include "../../../../../Common/Types/FVTypeTraits.h"
-#include "../../../../../Common/Types/TypeCast.h"
-#include "../../../../../Common/Types/TypesUtils.h"
+#include "../../../../../Common/Utils/Utils.hpp"
+#include "../../../../../Common/Types/FVTypeTraits.hpp"
+#include "../../../../../Common/Types/TypeCast.hpp"
+#include "../../../../../Common/Types/TypesUtils.hpp"
 // DataMap
-#include "../../../../../Common/DataMap/DataMap.h"
+#include "../../../../../Common/DataMap/DataMap.hpp"
 // Nodes needed
-#include "../../../Nodes/ASTExpr.h"
-#include "../../../Nodes/ASTVarDeclStmt.h"
+#include "../../../Nodes/ASTExpr.hpp"
+#include "../../../Nodes/ASTVarDeclStmt.hpp"
 // math operations
 #include <cmath>		
 // string manip
-#include "../../../../../Common/UTF8/StringManipulator.h"
+#include "../../../../../Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
 using namespace fv_util;

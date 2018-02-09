@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "OptionsTests.h"
+#include "OptionsTests.hpp"
 
 using namespace Moonshot;
 

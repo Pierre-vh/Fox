@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ASTWhileLoop.h"
+#include "ASTWhileLoop.hpp"
 
 using namespace Moonshot;
 

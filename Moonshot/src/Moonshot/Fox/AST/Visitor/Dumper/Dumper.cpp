@@ -7,18 +7,18 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Dumper.h"
+#include "Dumper.hpp"
 // Exception
-#include "../../../../Common/Exceptions/Exceptions.h"
+#include "../../../../Common/Exceptions/Exceptions.hpp"
 // FVal Utilities
-#include "../../../../Common/Types/TypesUtils.h"
-#include "../../../../Common/Utils/Utils.h" // for enumAsInt
+#include "../../../../Common/Types/TypesUtils.hpp"
+#include "../../../../Common/Utils/Utils.hpp" // for enumAsInt
 // Include nodes
-#include "../../Nodes/ASTExpr.h"
-#include "../../Nodes//ASTVarDeclStmt.h"
-#include "../../Nodes/ASTCompStmt.h"
-#include "../../Nodes/ASTCondition.h"
-#include "../../Nodes/ASTWhileLoop.h"
+#include "../../Nodes/ASTExpr.hpp"
+#include "../../Nodes//ASTVarDeclStmt.hpp"
+#include "../../Nodes/ASTCompStmt.hpp"
+#include "../../Nodes/ASTCondition.hpp"
+#include "../../Nodes/ASTWhileLoop.hpp"
 
 using namespace Moonshot;
 using namespace fv_util;

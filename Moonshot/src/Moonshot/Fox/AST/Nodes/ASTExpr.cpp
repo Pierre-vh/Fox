@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ASTExpr.h"
+#include "ASTExpr.hpp"
 
 using namespace Moonshot;
 

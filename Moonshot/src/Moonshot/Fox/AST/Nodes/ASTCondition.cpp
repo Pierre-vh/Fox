@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ASTCondition.h"
+#include "ASTCondition.hpp"
 
 using namespace Moonshot;
 

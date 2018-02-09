@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "WhileLoop.h"
+#include "WhileLoop.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;

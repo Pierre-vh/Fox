@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Types.h"
+#include "Types.hpp"
 
 #include <sstream> // std::stringstream
 

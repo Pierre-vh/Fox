@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Context.h"
+#include "Context.hpp"
 
 #include <iostream> // std::cout
 #include <sstream> // std::stringstream

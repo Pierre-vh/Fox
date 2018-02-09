@@ -8,14 +8,14 @@
 //	This file implements statements rules. parseStmt, parseVarDeclstmt,etc.									
 ////------------------------------------------------------////
 
-#include "Parser.h"
+#include "Parser.hpp"
 
 using namespace Moonshot;
 using namespace fv_util;
 
 // Context and Exceptions
-#include "../../Common/Context/Context.h"
-#include "../../Common/Exceptions/Exceptions.h"
+#include "../../Common/Context/Context.hpp"
+#include "../../Common/Exceptions/Exceptions.hpp"
 
 std::unique_ptr<IASTStmt> Parser::parseCompoundStatement()
 {

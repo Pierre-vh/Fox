@@ -7,8 +7,8 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "StringManipulator.h"
-#include "../External/utfcpp/utf8.h"
+#include "StringManipulator.hpp"
+#include "../External/utfcpp/utf8.hpp"
 
 using namespace Moonshot;
 
