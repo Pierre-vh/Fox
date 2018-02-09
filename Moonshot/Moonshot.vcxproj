@@ -183,31 +183,12 @@
     <ClCompile Include="src\Moonshot\Tests\U8StrManipTest\U8StrManipTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="misc\bytecode_tests\fizzbuzz.bc" />
-    <None Include="misc\bytecode_tests\fizzbuzz.fox" />
-    <None Include="misc\bytecode_tests\fizzbuzz.optimized.bc" />
-    <None Include="misc\bytecode_tests\readme.md" />
-    <None Include="misc\import_examples\main.fox" />
-    <None Include="res\tests\compstmt\compstmt_bad_2.fox" />
-    <None Include="res\tests\compstmt\compstmt_correct_1.fox" />
     <None Include="res\tests\conditions\condition_correct_1.fox" />
-    <None Include="res\tests\readme.md" />
-    <None Include="res\tests\varstmts\varstmts_bad.fox" />
-    <None Include="res\tests\whileloop\bad\while_loop_1.fox" />
-    <None Include="res\tests\whileloop\bad\while_loop_2.fox" />
-    <None Include="res\tests\whileloop\bad\while_loop_3.fox" />
-    <None Include="res\tests\whileloop\correct\while_loop_1.fox" />
-    <None Include="res\tests\whileloop\correct\while_loop_2.fox" />
     <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
     <None Include="src\Moonshot\Fox\AST\Visitor\readme.md" />
     <None Include="src\Moonshot\Fox\readme.md" />
     <None Include="src\Moonshot\readme.md" />
-    <None Include="res\tests\exprstmt\exprstmt_bad.fox" />
-    <None Include="res\tests\exprstmt\exprstmt_correct.fox" />
-    <None Include="res\tests\expr\expr_bad.fox" />
-    <None Include="res\tests\lexer\lexer_bad.fox" />
-    <None Include="res\tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Moonshot\Common\Context\Context.hpp" />
@@ -300,19 +281,7 @@
     <ClInclude Include="src\Moonshot\Tests\WhileLoop\WhileLoop.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="misc\code_samples\expr\todo.txt" />
-    <Text Include="misc\features_ideas\Expression Functions.txt" />
-    <Text Include="misc\features_ideas\parseroverhaul.txt" />
-    <Text Include="misc\todo.txt" />
-    <Text Include="res\tests\compstmt\compstmt_bad_1.fox" />
-    <Text Include="res\tests\compstmt\compstmt_correct_2.fox" />
-    <Text Include="res\tests\expr\expr_tests_guide.txt" />
-    <Text Include="res\tests\utf8\ascii.txt" />
-    <Text Include="res\tests\utf8\bronzehorseman.pushkin.txt" />
-    <Text Include="res\tests\utf8\sources.txt" />
     <Text Include="src\LICENSE.txt" />
-    <Text Include="res\tests\vdecl\vdecl_bad.fox" />
-    <Text Include="res\tests\vdecl\vdecl_correct.fox" />
     <Text Include="src\Moonshot\Common\Context\Options\OptionsList.h" />
     <Text Include="src\Moonshot\Common\External\utfcpp\utfcpp.txt" />
   </ItemGroup>
