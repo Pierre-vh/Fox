@@ -104,6 +104,21 @@ void Context::clearLogs()
 	logs_.clear();
 }
 
+bool Context::isCritical() const
+{
+	return curstate_ == ContextState::CRITICAL;
+}
+
+bool Context::isSafe_strict() const
+{
+	return curstate_ == ContextState::SAFE;
+}
+
+bool Context::isSafe() const
+{
+	return (curstate_ == ContextState::SAFE) || (curstate_ == ContextState::WARNING);
+}
+
 void Context::addLog(const std::string & message)
 {
 	switch (curmode_)

@@ -30,13 +30,13 @@ namespace Moonshot
 	{
 		public:
 
-			inline ParameterValue()
+			ParameterValue()
 			{
 				rawval_ = std::monostate();
 			}
 
 			template<typename T>
-			inline ParameterValue(const T& val)
+			ParameterValue(const T& val)
 			{
 				set(val); // init with desired value
 			}
@@ -47,7 +47,7 @@ namespace Moonshot
 			}
 
 			template<typename RTYPE>
-			inline RTYPE get() const
+			RTYPE get() const
 			{
 				if (std::holds_alternative<RTYPE>(rawval_))
 					return std::get<RTYPE>(rawval_);
@@ -64,13 +64,13 @@ namespace Moonshot
 			}
 
 			template<typename T>
-			inline bool holdsType() const
+			bool holdsType() const
 			{
 				return std::holds_alternative<T>(rawval_); 
 			}
 			
 			template<typename T>
-			inline void set(const T& val)
+			void set(const T& val)
 			{
 				if constexpr(std::is_same<std::string, T>::value)
 				{
@@ -89,11 +89,11 @@ namespace Moonshot
 			}
 
 			// Comparison operators
-			inline bool operator ==(const ParameterValue &b) const
+			bool operator ==(const ParameterValue &b) const
 			{
 				return rawval_ == b.rawval_;
 			}
-			inline bool operator !=(const ParameterValue &b) const
+			bool operator !=(const ParameterValue &b) const
 			{
 				return !(operator==(b)); // uses == to compare
 			}

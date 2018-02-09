@@ -45,7 +45,7 @@ namespace Moonshot
 			Context& context_;
 
 			template<typename T>
-			inline std::size_t visitAndGetResult(std::unique_ptr<T>& node,const dir& dir = dir::UNKNOWNDIR, const binaryOperation& c_binop = binaryOperation::PASS)
+			std::size_t visitAndGetResult(std::unique_ptr<T>& node,const dir& dir = dir::UNKNOWNDIR, const binaryOperation& c_binop = binaryOperation::PASS)
 			{
 				node_ctxt_.cur_binop = c_binop;
 				node_ctxt_.dir = dir;

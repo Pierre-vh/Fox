@@ -50,10 +50,7 @@ namespace Moonshot
 			bool map_getEntry(const var::varattr& vattr,FVal initval);
 
 			// Helper function : creates a key.
-			inline var::varattr createTempKey(const std::string& v_name)
-			{
-				return var::varattr(v_name);
-			}
+			var::varattr createTempKey(const std::string& v_name);
 	};
 
 }

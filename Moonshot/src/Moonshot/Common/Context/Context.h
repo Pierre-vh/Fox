@@ -73,19 +73,10 @@ namespace Moonshot
 			std::string getLogs() const; // returns a string containing the error log.
 			void clearLogs();
 
-			// Inline functions : isSafe
-			inline bool isCritical() const
-			{
-				return curstate_ == ContextState::CRITICAL;
-			}
-			inline bool isSafe_strict() const
-			{
-				return curstate_ == ContextState::SAFE;
-			}
-			inline bool isSafe() const
-			{
-				return (curstate_ == ContextState::SAFE) || (curstate_ == ContextState::WARNING);
-			}
+			// issafe
+			bool isCritical() const;
+			bool isSafe_strict() const;
+			bool isSafe() const;
 
 			OptionsManager options; // The options manager.
 		private:

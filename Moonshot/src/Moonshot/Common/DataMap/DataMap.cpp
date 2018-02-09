@@ -132,3 +132,7 @@ bool DataMap::map_getEntry(const var::varattr & vattr,FVal initval)
 	return ret.second; // ret.second is a "flag" if the operation was successful.
 }
 
+var::varattr DataMap::createTempKey(const std::string& v_name)
+{
+	return var::varattr(v_name);
+}
