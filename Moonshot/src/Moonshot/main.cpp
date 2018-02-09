@@ -30,9 +30,13 @@ using namespace Moonshot;
 */
 /*
 	TODO:
-		Make CharType non arithmetic.
-		Add operations (char-char = string) and (char-strings = string) too. (reuse the concat operation) Be careful about lhs/rhs order.
-		// update the typechecker & rtexprvisitor to match the new rule
+		Rework the Condition parsing. Deducing we have a else just based on the presence of a expr_ is just...bad.
+		Divide parse else_if into 2 functions, else_if and else. Else returns a IASTStmt, the other returns a condblock still.
+
+		Also, add the empty statement ';'
+		Grammar of statement updated :
+			<stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <compound_statement> | <rtr_stmt> 
+			<expr_stmt> = <eoi> | <expr> <eoi>
 */
 int main()
 {

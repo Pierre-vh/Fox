@@ -18,6 +18,7 @@ namespace Moonshot
 {
 	struct ConditionalStatement
 	{
+		// Contains an expression and a statement.
 		std::unique_ptr<IASTExpr> expr_;
 		std::unique_ptr<IASTStmt> stmt_;
 
