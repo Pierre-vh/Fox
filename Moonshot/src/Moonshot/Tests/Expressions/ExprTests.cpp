@@ -9,6 +9,9 @@
 
 #include "ExprTests.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
+#include "Moonshot/Fox/AST/Visitor/Dumper/Dumper.hpp"
+#include "Moonshot/Fox/AST/Visitor/Semantic/TypeCheck.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;
@@ -46,13 +49,17 @@ bool ExprTests::runTest(Context & context)
 		 Parser p(context, l.getTokenVector());
 		auto root = p.parseExpr();
 		FAILED_RETURN_IF_ERR("parsing (parsing error)");
-		FAILED_RETURN_IF(!root,"parsing (null node)")
+		FAILED_RETURN_IF(!root, "parsing (null node)")
 
-		root->accept(TypeCheckVisitor(context,true));
+		TypeCheckVisitor tc(context, true);
+		root->accept(tc);
 		FAILED_RETURN_IF_ERR("typechecking");
 
 		if (context.options.getAttr(OptionsList::exprtest_printAST).value_or(false).get<bool>())
-			root->accept(Dumper());
+		{
+			Dumper dmp;
+			root->accept(dmp);
+		}
 
 		RTExprVisitor evaluator(context);
 		root->accept(evaluator);
@@ -79,7 +86,8 @@ bool ExprTests::runTest(Context & context)
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root);
 
-		root->accept(TypeCheckVisitor(context,true));
+		TypeCheckVisitor tc(context, true);
+		root->accept(tc);
 		SUCCESS_CONTINUE_IF_ERR;
 
 		RTExprVisitor evaluator(context);

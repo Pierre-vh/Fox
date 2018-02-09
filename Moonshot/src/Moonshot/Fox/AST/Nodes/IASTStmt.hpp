@@ -13,14 +13,11 @@
 
 namespace Moonshot
 {
-	struct IASTStmt : public IASTNode // implements IASTNode, but doesn't implement its pure virtual functions, making this class pure virtual too.
+	struct IASTStmt : public IASTNode 
 	{
 		public:
 			IASTStmt() = default;
-			inline virtual ~IASTStmt() = 0
-			{
-
-			}
+			virtual ~IASTStmt() = 0 {}
 	};
 }
 

@@ -1,29 +1,25 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTCompStmt.hpp											
+// File : IASTExpr.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// AST representation for Compound statements.									
+// Base abstract class for Expr nodes.									
 ////------------------------------------------------------////
 
 #pragma once
 
-#include "IASTStmt.hpp"
-#include <vector>
+#include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
+#include <cstddef>
 
 namespace Moonshot
 {
-	struct ASTCompStmt : public IASTStmt
+	struct IASTExpr : public IASTStmt
 	{
 		public:
-			ASTCompStmt();
-			~ASTCompStmt();
+			IASTExpr() = default;
+			inline virtual ~IASTExpr() = 0 {}
 
-			virtual void accept(IVisitor & vis) override;
-
-			std::vector<std::unique_ptr<IASTStmt>> statements_;
+			std::size_t resultType_ = 0; // The planified result type of the expression after execution. this is set by the typechecker.
 	};
 }
-
-

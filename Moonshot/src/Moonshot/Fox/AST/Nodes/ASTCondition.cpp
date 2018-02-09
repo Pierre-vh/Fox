@@ -27,15 +27,25 @@ void ASTCondition::accept(IVisitor & vis)
 
 bool ASTCondition::hasElse() const
 {
-	return (else_block_ ? true : false);
+	return (else_stmt_ ? true : false);
 }
 
 bool ASTCondition::hasElif() const
 {
-	return conditional_blocks_.size() > 1; 
+	return conditional_stmts_.size() > 1; 
 }
 
 bool ASTCondition::isValid() const
 {
 	return false;
+}
+
+bool ConditionalStatement::isComplete() const
+{
+	return expr_ && stmt_;
+}
+
+bool ConditionalStatement::hasOnlyStmt() const
+{
+	return stmt_ && !expr_;
 }

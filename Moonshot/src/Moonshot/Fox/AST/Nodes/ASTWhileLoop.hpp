@@ -10,10 +10,11 @@
 #pragma once
 
 #include "IASTStmt.hpp"
-#include "ASTExpr.hpp"
+#include "IASTExpr.hpp"
 
 namespace Moonshot
 {
+	struct IASTExpr;
 	struct ASTWhileLoop : public IASTStmt
 	{
 		public:

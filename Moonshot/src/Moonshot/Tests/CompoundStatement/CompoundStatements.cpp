@@ -8,6 +8,7 @@
 ////------------------------------------------------------////
 
 #include "CompoundStatements.hpp"
+#include "Moonshot/Fox/AST/Visitor/Dumper/Dumper.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::TestUtilities;

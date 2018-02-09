@@ -17,6 +17,13 @@ using namespace fv_util;
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 
+//Nodes
+#include "Moonshot/Fox/AST/Nodes/ASTCompStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
+
 std::unique_ptr<IASTStmt> Parser::parseCompoundStatement()
 {
 	auto rtr = std::make_unique<ASTCompStmt>(); // return value
@@ -40,31 +47,40 @@ std::unique_ptr<IASTStmt> Parser::parseCondition()
 {
 	auto rtr = std::make_unique<ASTCondition>();
 	auto result = parseCond_if();
-	if (result.first && result.second)
+
+	if (result.isComplete())
 	{
 		// we need to use moves to push the new values in
-		rtr->conditional_blocks_.push_back({
-			std::move(result.first),
-			std::move(result.second)
+		rtr->conditional_stmts_.push_back({
+			std::move(result.expr_),
+			std::move(result.stmt_)
 		});
 		auto elif_res = parseCond_else_if();
-		while (elif_res.first && elif_res.second) // consume all elifs
+		while (elif_res.isComplete()) // consume all elifs
 		{
 			// we need to use moves to push the new values in
-			rtr->conditional_blocks_.push_back({ 
-				std::move(elif_res.first),
-				std::move(elif_res.second) 
+			rtr->conditional_stmts_.push_back({ 
+				std::move(elif_res.expr_),
+				std::move(elif_res.stmt_) 
 			});
 			// try to find another elif
 			elif_res = parseCond_else_if();
 		}
-		if ((!elif_res.first) && elif_res.second) // it's a else
-			rtr->else_block_ = std::move(elif_res.second);
+		// Check if the last one parsed was a else
+		if (elif_res.hasOnlyStmt()) // it's a else
+		{
+			if (rtr->conditional_stmts_.size() == 0)
+			{
+				context_.reportError("\"else\" without \"if\"");
+				return nullptr;
+			}
+			rtr->else_stmt_ = std::move(elif_res.stmt_);
+		}
 
 		return rtr;
 	}
-	else if (result.first || result.second)
-		throw Exceptions::parser_critical_error("parseCond_if() returned a invalid CondBlock!");
+	else if (result.expr_ || result.stmt_)
+		throw Exceptions::parser_critical_error("parseCond_if() returned a invalid Conditional Statement!");
 	else
 		return nullptr;
 }
@@ -109,12 +125,12 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 	return nullptr;
 }
 
-ASTCondition::CondBlock Parser::parseCond_if()
+ConditionalStatement Parser::parseCond_if()
 {
 	// "if"
 	if (matchKeyword(keyword::D_IF))
 	{
-		ASTCondition::CondBlock rtr;
+		ConditionalStatement rtr;
 		// '('
 		if (!matchSign(sign::B_ROUND_OPEN))
 		{
@@ -123,7 +139,7 @@ ASTCondition::CondBlock Parser::parseCond_if()
 		}
 		// <expr>
 		if (auto node = parseExpr())
-			rtr.first = std::move(node);
+			rtr.expr_ = std::move(node);
 		else
 		{
 			errorExpected("Expected an expression after '(' in condition");
@@ -137,7 +153,7 @@ ASTCondition::CondBlock Parser::parseCond_if()
 		}
 		// <compound_statement>
 		if (auto node = parseStmt())
-			rtr.second = std::move(node);
+			rtr.stmt_ = std::move(node);
 		else
 		{
 			errorExpected("Expected a statement after condition declaration");
@@ -149,26 +165,26 @@ ASTCondition::CondBlock Parser::parseCond_if()
 	return { nullptr, nullptr };
 }
 
-ASTCondition::CondBlock Parser::parseCond_else_if()
+ConditionalStatement Parser::parseCond_else_if()
 {
-	ASTCondition::CondBlock rtr;
+	ConditionalStatement rtr;
 	if (matchKeyword(keyword::D_ELSE))
 	{
 		// else if
 		auto res = parseCond_if();
-		if (res.first && res.second) // parsed OK
+		if (res.isComplete()) // parsed OK
 		{
-			rtr.first = std::move(res.first);
-			rtr.second = std::move(res.second);
+			rtr.expr_ = std::move(res.expr_);
+			rtr.stmt_ = std::move(res.stmt_);
 			return rtr;
 		}
-		else if (res.first || res.second)
+		else if (res.expr_ || res.stmt_)
 			throw Exceptions::parser_critical_error("parseCond_if() returned a invalid CondBlock!");
 		// Else
 		else if (auto node = parseStmt())
 		{
 			// return only the second, that means only a else 
-			rtr.second = std::move(node);
+			rtr.stmt_ = std::move(node);
 			return rtr;
 		}
 		// error case

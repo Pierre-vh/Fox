@@ -19,18 +19,10 @@
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include "Moonshot/Common/Types/Types.hpp"
 
+#include "Moonshot/Fox/AST/Nodes/ForwardDeclarations.hpp"
+
 namespace Moonshot
 {
-	struct ASTLiteral; 
-	struct ASTVarDeclStmt; 
-	struct ASTVarCall; 
-	struct ASTCompStmt; 
-	struct ASTCondition;
-	struct ASTWhileLoop;
-	struct IASTExpr;
-	struct ASTBinaryExpr;
-	struct ASTUnaryExpr;
-	struct ASTCastExpr;
 	class IVisitor
 	{
 		public:

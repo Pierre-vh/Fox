@@ -16,15 +16,19 @@
 
 namespace Moonshot
 {
+	struct ConditionalStatement
+	{
+		std::unique_ptr<IASTExpr> expr_;
+		std::unique_ptr<IASTStmt> stmt_;
 
+		bool isComplete() const; // returns true if stmt_ && expr_
+		bool hasOnlyStmt() const; // returns true if (stmt_) && !(expr_)
+	};
 	struct ASTCondition : public IASTStmt
 	{
 		public:
 			ASTCondition();
 			~ASTCondition();
-
-			// "CondBlock" = Expression + Compound Statement
-			typedef std::pair<std::unique_ptr<IASTExpr>, std::unique_ptr<IASTStmt>> CondBlock;
 
 			virtual void accept(IVisitor & vis) override;
 
@@ -32,7 +36,7 @@ namespace Moonshot
 			bool hasElif() const;
 			bool isValid() const;
 
-			std::vector<CondBlock> conditional_blocks_; // First one is the if, all others are the elifs
-			std::unique_ptr<IASTStmt> else_block_; // final else.
+			std::vector<ConditionalStatement> conditional_stmts_; // First one is the if, all others are the elifs
+			std::unique_ptr<IASTStmt> else_stmt_; // final else.
 	};
 }

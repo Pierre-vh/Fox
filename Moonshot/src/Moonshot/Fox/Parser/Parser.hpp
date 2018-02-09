@@ -44,13 +44,10 @@ Note :
 
 // Tokens
 #include "../Lexer/Token.hpp"					
-// AST Nodes
-#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTCompStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
+// Include interfaces so the users of this class can manipulate 
+#include "Moonshot/Fox/AST/Nodes/IASTExpr.hpp"
 #include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ForwardDeclarations.hpp"
 #include "Moonshot/Fox/Util/Enums.hpp"			
 
 #include <tuple>							// std::tuple, std::pair
@@ -95,8 +92,9 @@ namespace Moonshot
 		private:
 			// Private parse functions
 			// ParseCondition helper functions
-			ASTCondition::CondBlock parseCond_if();
-			ASTCondition::CondBlock parseCond_else_if();
+			ConditionalStatement parseCond_if();	 // Parses a classic if statement.
+			ConditionalStatement parseCond_else_if(); // parses a else (returns just the second part of the pair) or else if (returns a complete pair)
+			
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,PLUS)
 			// oneUpNode will return a new node X, with the operation PLUS and N as left child.

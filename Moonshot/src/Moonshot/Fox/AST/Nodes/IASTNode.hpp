@@ -9,16 +9,16 @@
 
 #pragma once
 
-#include "../../../Common/Types/Types.hpp"
-#include "../../AST/Visitor/IVisitor.hpp"
+#include "Moonshot/Common/Types/Types.hpp"
+#include "Moonshot/Fox/AST/Visitor/IVisitor.hpp"
 
 namespace Moonshot
 {
 	struct IASTNode
 	{
 		public :
-			IASTNode();
-			~IASTNode();
+			IASTNode() = default;
+			virtual ~IASTNode() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
 	};
 }

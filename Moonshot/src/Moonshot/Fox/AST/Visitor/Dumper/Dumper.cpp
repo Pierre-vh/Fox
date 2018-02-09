@@ -151,7 +151,7 @@ void Dumper::visit(ASTCondition & node)
 	std::cout << tabs() << "Condition Branch\n";
 	int counter = 0;
 	// (else) ifs
-	for (auto& elem : node.conditional_blocks_)
+	for (auto& elem : node.conditional_stmts_)
 	{
 		tabcount++;
 		std::cout << tabs() << "Condition " << counter << std::endl;
@@ -159,24 +159,24 @@ void Dumper::visit(ASTCondition & node)
 
 		std::cout << tabs() << "Condition Expression:\n";
 		tabcount++;
-		elem.first->accept(*this);
+		elem.expr_->accept(*this);
 		tabcount--;
 
 		std::cout << tabs() << "Condition Body:\n";
 
 		tabcount++;
-		elem.second->accept(*this);
+		elem.stmt_->accept(*this);
 		tabcount-=3;
 
 		counter++;
 	}
 	// has else?
-	if (node.else_block_)
+	if (node.else_stmt_)
 	{
 		tabcount++;
 		std::cout << tabs() << "\"Else\" Body:\n";
 		tabcount++;
-		node.else_block_->accept(*this);
+		node.else_stmt_->accept(*this);
 		tabcount -= 2;
 	}
 }

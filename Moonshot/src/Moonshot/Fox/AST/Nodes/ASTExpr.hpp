@@ -9,20 +9,12 @@
 
 #pragma once
 
-#include "IASTStmt.hpp"							
-#include "../../Util/Enums.hpp"					// enums
-#include "../../../Common/Types/Types.hpp"		// FVal
+#include "IASTExpr.hpp"							
+#include "Moonshot/Fox/Util/Enums.hpp"			// enums
+#include "Moonshot/Common/Types/Types.hpp"		// FVal
 
 namespace Moonshot	
 {
-	struct IASTExpr : public IASTStmt
-	{
-		public:
-			IASTExpr() = default;
-			inline virtual ~IASTExpr() = 0 {}
-
-			std::size_t resultType_ = 0; // The planified result type of the expression after execution. this is set by the typechecker.
-	};
 	struct ASTBinaryExpr : public IASTExpr
 	{
 		public:

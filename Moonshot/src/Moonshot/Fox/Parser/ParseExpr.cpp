@@ -17,6 +17,8 @@ using namespace fv_util;
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
+
 std::unique_ptr<IASTExpr> Parser::parseCallable()
 {
 	// = <id>
