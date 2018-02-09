@@ -299,8 +299,6 @@
     <ClInclude Include="src\Moonshot\Tests\WhileLoop\WhileLoop.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="doc\file_header.txt" />
-    <Text Include="doc\guidelines.txt" />
     <Text Include="misc\code_samples\expr\todo.txt" />
     <Text Include="misc\features_ideas\Expression Functions.txt" />
     <Text Include="misc\features_ideas\parseroverhaul.txt" />
