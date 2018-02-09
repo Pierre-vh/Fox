@@ -218,7 +218,7 @@ std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr>&
 	return newnode;
 }
 
-bool Moonshot::Parser::matchExponentOp()
+bool Parser::matchExponentOp()
 {
 	auto cur = getToken();
 	auto pk = getToken(pos_ + 1);

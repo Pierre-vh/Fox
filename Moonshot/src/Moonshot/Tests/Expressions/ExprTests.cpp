@@ -21,7 +21,7 @@ ExprTests::~ExprTests()
 {
 }
 
-std::string Moonshot::ExprTests::getTestName() const
+std::string ExprTests::getTestName() const
 {
 	return "Expressions Main (no variables)";
 }
