@@ -75,11 +75,13 @@ bool Token::isValid() const
 }
 void Token::idToken()
 {
+	/*
 	if (!context_.isSafe())
 	{
 		context_.reportError("Errors happened earlier, as a result tokens won't be identified.");
 		return;
 	}
+	*/
 	if (str.size() == 0)
 		throw Exceptions::lexer_critical_error("Found an empty Token. [" + pos.asText() + "]");
 
@@ -97,7 +99,7 @@ void Token::idToken()
 		else if (std::regex_match(str, kId_regex))
 			type = tokenCat::TT_IDENTIFIER;
 		else
-			context_.reportError("Could not identify a Token -> (str) : " + str + "\t[" + pos.asText() + "]");
+			context_.reportError(" [" + pos.asText() + "]\tUnrecognized Token \"" + str + '"');
 	}
 }
 

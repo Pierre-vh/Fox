@@ -75,6 +75,7 @@ namespace Moonshot
 			bool isSep(const CharType &c) const;				// is the current char a separator? (= a sign. see kSign_dict)
 			bool isEscapeChar(const CharType& c) const;			// Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.
 			bool shouldIgnore(const CharType& c) const;			// Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
+			bool isCurtokNumber() const;
 
 			// error management made easy
 			void reportLexerError(std::string errmsg) const;
