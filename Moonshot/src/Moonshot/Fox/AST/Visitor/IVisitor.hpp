@@ -36,17 +36,17 @@ namespace Moonshot
 		public:
 			inline virtual ~IVisitor() = 0						{}
 
-			inline virtual void visit(ASTBinaryExpr &node)		{}
-			inline virtual void visit(ASTUnaryExpr &node)		{}
-			inline virtual void visit(ASTCastExpr &node)		{}
-			inline virtual void visit(ASTLiteral &node)			{}
-			inline virtual void visit(ASTVarCall& node) {}
+			inline virtual void visit(ASTBinaryExpr&)		{}
+			inline virtual void visit(ASTUnaryExpr&)		{}
+			inline virtual void visit(ASTCastExpr&)			{}
+			inline virtual void visit(ASTLiteral&)			{}
+			inline virtual void visit(ASTVarCall&)			{}
 
-			inline virtual void visit(ASTVarDeclStmt &node)		{}
+			inline virtual void visit(ASTVarDeclStmt&)		{}
 
-			inline virtual void visit(ASTCompStmt& node)		{}
-			inline virtual void visit(ASTCondition& node)		{}
-			inline virtual void visit(ASTWhileLoop& node)		{}
+			inline virtual void visit(ASTCompStmt&)			{}
+			inline virtual void visit(ASTCondition&)		{}
+			inline virtual void visit(ASTWhileLoop&)		{}
 	};
 
 	template<typename TYPE>

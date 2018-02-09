@@ -57,8 +57,6 @@ namespace Moonshot
 					}, rawval_);
 					return result;
 				}
-				// return default
-				return RTYPE();
 			}
 
 			template<typename T>

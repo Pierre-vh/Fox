@@ -10,7 +10,7 @@ namespace Moonshot
 	FVal castTo(Context& context_,const std::size_t& goal, const double &val);
 
 	template<typename GOAL, typename VAL, bool isGOALstr = std::is_same<GOAL, std::string>::value, bool isVALstr = std::is_same<VAL, std::string>::value>
-	inline std::pair<bool, FVal> castTypeTo(Context& context_,const GOAL& type, VAL v)
+	inline std::pair<bool, FVal> castTypeTo(Context& context_,const GOAL& type,VAL v)
 	{
 		if constexpr (!TypeTrait_FVal<GOAL>::is_basic || !TypeTrait_FVal<VAL>::is_basic)
 			throw std::logic_error("Can't cast a basic type to a nonbasic type and vice versa.");
@@ -50,22 +50,17 @@ namespace Moonshot
 			else
 				throw std::logic_error("Failed cast");
 		}
-		return { false,FVal() };
+		else
+			return { false,FVal() };
 	}
 
 	template<typename GOAL>
-	inline std::pair<bool, FVal> castTypeTo(Context& context_,const GOAL& type, double v)
+	inline std::pair<bool, FVal> castTypeTo(Context& context_,const GOAL&,double v)
 	{
-		if constexpr(std::is_same<GOAL, std::string>::value)
-		{
-			throw std::logic_error("Failed cast - Attempted to cast to string.");
-			return { true,FVal() };
-		}
-		else if constexpr (TypeTrait_FVal<GOAL>::is_basic) // Can only attempt to convert basic types.
+		if constexpr (TypeTrait_FVal<GOAL>::is_arithmetic) // Can only attempt to convert basic types.
 			return { true, FVal((GOAL)v) };
 		else
-			throw std::logic_error("castTypeTo defaulted. Unimplemented type?");
-		return { false,FVal() };
+			throw std::logic_error("An invalid type was passed as Cast goal.");
 	}
 
 }

@@ -81,10 +81,11 @@ CharType UTF8::StringManipulator::getChar(std::size_t ind) const
 	if (utf8::is_bom(tmp.begin())) // add +1 to skip bom if it has one
 		ind += 1;
 
-	std::size_t count = 0, size = getSize();
 	std::string::iterator it = tmp.begin(),
 		end = tmp.end();
+
 	utf8::advance(it, ind, tmp.end());
+
 	if (it != tmp.end())
 		return utf8::peek_next(it, tmp.end());
 	return L'\0';

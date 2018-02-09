@@ -2,6 +2,7 @@
 
 #include "Moonshot/Common/UTF8/StringManipulator.hpp"
 #include <cwctype>		// std::iswspace
+#include <sstream>
 
 using namespace Moonshot;
 using namespace TestUtilities;
@@ -101,24 +102,29 @@ bool U8StrManipTest::testStr(Context& context, const std::string& str, unsigned 
 	}
 	catch (std::exception& e)
 	{
-		std::cout << "Test failed, exception thrown while iterating through the string." << std::endl;
-		std::cout << e.what() << std::endl;
+		std::stringstream out;
+		out << "Test failed, exception thrown while iterating through the string." << "\n";
+		out << e.what() << "\n";
+		context.reportError(out.str());
 		return false;
 	}
 	if (linecount != explinecount)
 	{
-		std::cout << "Test failed, incorrect linecount. Expected " << explinecount << " lines, found " << linecount << std::endl;
-		return false;
+		std::stringstream out;
+		out << "Test failed, incorrect linecount. Expected " << explinecount << " lines, found " << linecount << "\n";
+		context.reportError(out.str());
 	}
 	if (charcount != expcharcount) 
 	{
-		std::cout << "Test failed, incorrect character count, expected " << expcharcount << " char, found " << charcount << std::endl;
-		return false;
+		std::stringstream out;
+		out << "Test failed, incorrect character count, expected " << expcharcount << " char, found " << charcount << "\n";
+		context.reportError(out.str());
 	}
 	if (spacecount != expspacecount) 
 	{
-		std::cout << "Test failed, incorrect space count, expected " << expspacecount << " spaces, found " << spacecount << std::endl;
-		return false;
+		std::stringstream out;
+		out << "Test failed, incorrect space count, expected " << expspacecount << " spaces, found " << spacecount << "\n";
+		context.reportError(out.str());
 	}
 	return true;
 }

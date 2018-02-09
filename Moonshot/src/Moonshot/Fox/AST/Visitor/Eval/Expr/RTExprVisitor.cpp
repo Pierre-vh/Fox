@@ -157,8 +157,6 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		}
 		else 
 		{
-			double dleftval = fvalToDouble_withDeref(visitAndGetResult(node.left_, *this));
-			double drightval = fvalToDouble_withDeref(visitAndGetResult(node.right_, *this));
 			//std::cout << "Compare: Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			value_ = FVal(compareVal(
 				node.op_,
@@ -333,7 +331,6 @@ bool RTExprVisitor::compareVal(const binaryOperation & op, const FVal & l, const
 			return lval != rval;
 		default:
 			throw std::logic_error("Defaulted. Unimplemented condition operation?");
-			return false;
 	}
 }
 bool RTExprVisitor::compareStr(const binaryOperation & op, const std::string & lhs, const std::string & rhs)
@@ -347,8 +344,7 @@ bool RTExprVisitor::compareStr(const binaryOperation & op, const std::string & l
 		case binaryOperation::GREATER_THAN:		return lhs > rhs;
 		case binaryOperation::LESS_OR_EQUAL:	return lhs <= rhs;
 		case binaryOperation::GREATER_OR_EQUAL:	return lhs > rhs;
-		default:	throw std::logic_error("Operation was not a condition.");
-			return false;
+		default:								throw std::logic_error("Operation was not a condition.");
 	}
 }
 bool RTExprVisitor::compareChar(const binaryOperation & op, const CharType & lhs, const CharType & rhs)
@@ -373,7 +369,6 @@ bool RTExprVisitor::compareChar(const binaryOperation & op, const CharType & lhs
 			return lhs != rhs;
 		default:
 			throw std::logic_error("Defaulted. Unimplemented condition operation?");
-			return false;
 	}
 }
 FVal RTExprVisitor::concat(const FVal & lhs, const FVal & rhs)
@@ -436,7 +431,6 @@ double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
 			else
 				return std::pow(l, r);
 		default:	throw std::logic_error("Can't evaluate op.");
-			return 0.0;
 	}
 }
 
@@ -458,13 +452,11 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 			return true;
 		case indexes::invalid_index:
 		    throw std::logic_error("Index was invalid");
-			return false;
 		default:
 			if (!isBasic(typ))
 				throw std::logic_error("Can't make a \"fitInValue\" check on a non-basic type.");
 			else
 				throw std::logic_error("Switch defaulted. Unimplemented type?");
-			return false;
 	}
 }
 
@@ -481,9 +473,7 @@ FVal RTExprVisitor::castTo_withDeref(const std::size_t & goal, FVal val)
 		val = symtab_->retrieveValue(ref.getName());
 	}
 	else if (!isBasic(goal))
-	{
 		throw std::logic_error("The Goal type was not a basic type.");
-		return FVal();
-	}
+
 	return castTo(context_,goal, val);
 }

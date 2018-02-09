@@ -239,5 +239,5 @@ std::size_t TypeCheckVisitor::getExprResultType(const binaryOperation& op, std::
 		return indexes::invalid_index;
 	}
 	throw std::logic_error("getExprResultType() Defaulted.");
-	return indexes::invalid_index;
+	// return indexes::invalid_index;
 }
