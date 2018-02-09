@@ -297,7 +297,7 @@ void Lexer::addToCurtok(CharType c)
 
 bool Lexer::isSep(const CharType &c) const
 {
-	if (c == '.' && isCurtokNumber())	// if we're inside a number, we shouldn't treat a dot as a separator.
+	if (c == '.' && std::iswdigit((wchar_t)manip.peekNext())) // if the next character is a digit, don't treat the dot as a separator.
 		return false;
 
 	auto i = kSign_dict.find(c);
@@ -312,21 +312,6 @@ bool Lexer::isEscapeChar(const CharType & c) const
 bool Lexer::shouldIgnore(const CharType & c) const
 {
 	return (c == '\r'); // don't push carriage returns
-}
-
-bool Lexer::isCurtokNumber() const
-{
-	// Iterate over string in search of something that's not a digit.
-	if (curtok_.length() > 0)
-	{
-		for (auto c : curtok_)
-		{
-			if (!isdigit(c))
-				return false;
-		}
-		return true;
-	}
-	return false;
 }
 
 void Lexer::reportLexerError(std::string errmsg) const
