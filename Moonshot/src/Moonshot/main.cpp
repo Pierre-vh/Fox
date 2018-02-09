@@ -31,12 +31,20 @@ using namespace Moonshot;
 /*
 	TODO:
 		Rework the Condition parsing. Deducing we have a else just based on the presence of a expr_ is just...bad.
-		Divide parse else_if into 2 functions, else_if and else. Else returns a IASTStmt, the other returns a condblock still.
+		Divide parse else_if into 2 functions, else_if and else. Else returns a IASTStmt, the other returns a condblock. Adapt ParseCondition accordingly.
 
-		Also, add the empty statement ';'
-		Grammar of statement updated :
-			<stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <compound_statement> | <rtr_stmt> 
-			<expr_stmt> = <eoi> | <expr> <eoi>
+		Grammar changes todo: (ALL CHANGES MUST BE DONE IN THE PARSER TOO. THE PARSER MUST BE AS CLOSE TO THE GRAMMAR AS POSSIBLE, EVEN IN NAMING)
+			remove <eoi> and just use the ';'. I'm probably never going to use another char, so let's not waste space or make the grammar more complex than it needs to be. 
+			rename and change rule (the current one is fucked up and doesn't even reflect what the real rule is like..)
+				<condition>			= <if> {<elif>} [<else>]
+				<cond_if>			= <if_kw>			'(' <expr> ')'	<statement>
+				<cond_elif>			= <el_kw> <if_kw>	'(' <expr> ')' 	<statement>
+				<cond_else>			= <el_kw>							<statement>
+
+			add the empty statement ';' to <expr_stmt>
+					<expr_stmt> = ';' | <expr> ';'
+
+			New grammar version after theses changes : 0.7.0
 */
 int main()
 {
