@@ -34,6 +34,23 @@ using namespace Moonshot;
 			* They didn't match the non terminal
 			* If they didn't match it, was it because they didn't find it, or because of an error?
 		This is needed to avoid flooding the console with useless, non important error messages.
+
+		Also, generate better error messages, and make the parser able to recover from unexpected token (with a limited number of retries).	
+		Functions : TryMatchToken() (tries once and return false if not) Require(<bool(lambda_function)>)  (retries the function x times before giving up with error message)
+			Example usage : Require({return TryMatchToken(sign::P_SEMICOLON);});
+			But this kind of looks ugly, maybe find a better system that's also flexible, and avoid function spamming like TryMatchLiteral,TryMatchID,RequireMatchLIteral,RequireMatchId,etc
+
+
+		Example of good error message
+		let foo : int = 3+3/*4);
+		"Unexpected token "*" at line 1"
+		"Unexpected token ")" at line 1"
+			Note that the parsing continued, and indicated further error messages, which is pretty useful to avoid recompiling a lot of time to fix every error.
+			That will be the main focus for the rework.
+
+		Rework goals:
+			* Better error messages, more user friendly : stop flooding, give more info.
+			* Parsing should continue after a unexpected token has been found, unless they can't find the desired token after X tentatives
 */
 int main()
 {
