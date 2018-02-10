@@ -25,7 +25,8 @@ namespace Moonshot::var
 
 typedef int64_t IntType;
 typedef char32_t CharType;
-typedef std::variant<std::monostate, IntType, float, CharType, std::string, bool, Moonshot::var::varRef> FVal;
+typedef std::monostate NullType;
+typedef std::variant<NullType, IntType, float, CharType, std::string, bool, Moonshot::var::varRef> FVal;
 
 namespace Moonshot
 {

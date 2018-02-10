@@ -47,7 +47,7 @@ namespace Moonshot::fv_util
 	// Specializations
 	// monostate
 	template<>
-	struct typeIndex<std::monostate>
+	struct typeIndex<NullType>
 	{
 		constexpr static std::size_t index = indexes::fval_null;
 	};

@@ -47,7 +47,7 @@ var::varattr DataMap::retrieveVarAttr(const std::string & varname)
 
 bool DataMap::declareValue(const var::varattr & v_attr, const FVal & initVal)
 {
-	if (std::holds_alternative<std::monostate>(initVal))
+	if (std::holds_alternative<NullType>(initVal))
 		return map_getEntry(v_attr,fv_util::getSampleFValForIndex(v_attr.type_)); // Init with a default value.
 	return map_getEntry(v_attr, initVal);
 }
