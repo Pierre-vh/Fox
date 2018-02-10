@@ -36,6 +36,7 @@ Example of use
 Issues :
 	I doubt it's going to be that easy, there must be a problem somewhere!
 	Find a better name than expression function
+	Maybe use '->' instead of '.' to avoid issues with floats, so this would be parsed without any issue : 0.2->asString();
 
 Further development:
 	Add the possibility for the user to create expression functions, with a syntax like this for instance
