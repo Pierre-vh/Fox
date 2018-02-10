@@ -199,6 +199,7 @@
     <ClInclude Include="src\Moonshot\Common\DataMap\DataMap.hpp" />
     <ClInclude Include="src\Moonshot\Common\Exceptions\Exceptions.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTNullStmt.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ForwardDeclarations.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTExpr.hpp" />
     <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8.hpp" />
