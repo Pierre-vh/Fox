@@ -2,4 +2,3 @@ if(false)
 	foo = "if!"; 
 else }
 	let var2: float;
-
