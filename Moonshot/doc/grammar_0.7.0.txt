@@ -1,4 +1,4 @@
-Fox Grammar version 0.6.5
+Fox Grammar version 0.7.0
 // Changelog:
 0.2 : Grammar cleanup
 0.3 : Now using Expression Statements instead of f_call_stmt and var_ass_stmt.
@@ -19,8 +19,11 @@ Fox Grammar version 0.6.5
 0.6.5 : Changed <compound_statement> rule : removed <statement> as an option
 		Changed statement rule: added the <compound_statement> and <rtr_stmt> rule as options
 		Changed <compound_statement> in statements that used it before to just <statement>
-
-
+0.7.0 :	Removed the <eoi> nonterminal. It was completly useless. I just replaced all of them with ';'
+		Changed (and corrected) the grammar for if/else if/else statements. It had a typo, and i've cleaned it up a bit to eliminate redudancy.
+		Added the empty ';' statement to the expression statement, like in C and C++.
+		Removed the namespace rule and added it to the scrapped idea part. It was already scrapped for now, I've just made it clear.
+		Removed the <xxx_kw> nonterminal, as it was useless. I replaced every <XXX_kw> rule by the proper keyword (e.g. <wh_kw> -> "while")
 Modifications used in this grammar :
 $x means x is a term already recognized and identified by the lexer. 
 	$id means a lexer-recognized id 
@@ -36,24 +39,21 @@ you'll be greeted with an error!)
 ##General Rules##
 
 <id> 				= $id
-<type> 				= $int_kw 	| $float_kw 	| $bool_kw	| $string_kw 	| $char_kw | $void_kw
-<literal>			= $int_val 	| $float_val 	| $bool_val 	| $string_val 	| $char_val
+<type> 				= "int 	| "float" | "bool" | "string" | "char"
+<literal>			= $int_val 	| $float_val 	| $bool_val | $string_val 	| $char_val
 
-<namespace> 		= {<id> '.'} 						// This designates namespaces, examples : "Fox." "Fox.io."
-														// You can also import packages that don't have sub packages (or import everything in the package at the same time !). "Fox" works here
-<type_spec>			= ':' [$const_kw] <type>				// Used later..
+<type_spec>			= ':' ["const"] <type>				
 <arg_type_spec>		= ':' ['&'] <type>					// the optional ampersand indicates pass by reference
-<eoi>				= ';'									// End of instruction character. I use a separate rule for this, in case i want to modify it someday. (to use \n for instance)
 <compound_statement>= '{' {<stmt>} '}'		// Statements delimited by curly brackets.
 
 <stmt>			= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <compound_statement> | <rtr_stmt> 
 
-<expr_stmt>		= <expr> <eoi>
+<expr_stmt>		= ';' | <expr> ';' 
 
 <value>         = <callable> | <literal> | '(' <expr> ')' 
 <exp_expr>      = <value> [ <exponent_operator> <prefix_exp> ]
 <prefix_expr>   = <unary_operator> <prefix_expr> | <exp_expr>
-<cast_expr>     = <prefix_expr> [<as_kw> <type]
+<cast_expr>     = <prefix_expr> ["as" <type]
 <binary_expr>   = <cast_expr> { <binary_operator> <cast_expr> }	
 <expr>          = <binary_expr> [<assign_operator> <expr>] 
 
@@ -82,26 +82,27 @@ you'll be greeted with an error!)
 
 
 ##Variables##
-<var_decl>		= <let_kw> <id> <type_spec> ['=' <expr>] <eoi> 	// You can define variables in a rust-like fashion, but you can specify the type of the variable. const variables can't be modified.
+<var_decl>		= "let" <id> <type_spec> ['=' <expr>] ';' 	// You can define variables in a rust-like fashion, but you can specify the type of the variable. const variables can't be modified.
 
 ##Functions##
-<func_decl>		= <fn_kw> <id> <arg_list_decl> [<type_spec>] <compound_statement>	// Note about type_spec : if it is not present, the function is considered void (it will never return anything and return values will be discarded.)
+<func_decl>		= "func" <id> <arg_list_decl> [<type_spec>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
 <arg_list_decl> = '(' [<arg_decl> {',' <arg_decl>}*] ')'
 <arg_decl>		=  <id> <arg_type_spec> 				// argument are (by default) passed by value, the ampersand indicates passing by reference.
-<f_call>		= <id> <expr_list>						// Function calls used in expressions, etc..
+<f_call>		=  <id> <expr_list>						// Function calls used in expressions, etc..
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
-<rtr_stmt>		= <rtr_kw> [<expr>] <eoi>
+<rtr_stmt>		= "return" [<expr>] ';'
 
 ##Control Flow##
-<condition>		= <if_kw> {<elif_kw>}* [<else_branch>]?		
-<if_branch>		= <if_kw> '(' <expr> ')'			<statement>
-<elif_branch> 	= <el_kw> <if_kw> '(' <expr> ')' 	<statement>
-<else_branch>	= <el_kw>							<statement>
-<while_loop> 	= <wh_kw>  '(' <expr> ')'			<statement> 
+<condition>			= <cond_if> {<cond_elseIf>} [<cond_else>]
+<cond_if>			= "if				'(' <expr> ')'	<statement>
+<cond_elseIf>		= "else" "if"		'(' <expr> ')'	<statement> 
+<cond_else>			= "else"							<statement>
+<while_loop> 		= "while"			'(' <expr> ')'	<statement> 
 
 ##SCRAPPED IDEA : MIGHT RETURN LATER##
+	<namespace> 		= {<id> '.'} 						// This designates namespaces, examples : "Fox." "Fox.io."
 	// all of that package system will return at some point later, I just want to get the backend up and running before implementing multiple file support
 	<ext_id>		= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"
 	<general_id>	= <ext_id> | <id>
 	##Importing Packages##
-	<import_stmt>   = ( <imp_kw> | <use_kw> ) <ext_id> <eio>
+	<import_stmt>   = ( "import" | "using" ) <ext_id> ';'
