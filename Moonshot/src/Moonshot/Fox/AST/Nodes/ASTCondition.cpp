@@ -35,17 +35,29 @@ bool ASTCondition::hasElif() const
 	return conditional_stmts_.size() > 1; 
 }
 
-bool ASTCondition::isValid() const
+ConditionalStatement::ConditionalStatement(std::unique_ptr<IASTExpr>& expr, std::unique_ptr<IASTStmt>& stmt)
 {
-	return false;
+	expr_ = std::move(expr);
+	stmt_ = std::move(stmt);
+}
+
+ConditionalStatement Moonshot::ConditionalStatement::resetAndReturnTmp()
+{
+	ConditionalStatement rtr;
+	rtr.expr_ = std::move(expr_);
+	rtr.stmt_ = std::move(stmt_);
+
+	expr_ = 0;
+	stmt_ = 0;
+	return rtr;
+}
+
+bool ConditionalStatement::isNull() const
+{
+	return (!stmt_ && !expr_);
 }
 
 bool ConditionalStatement::isComplete() const
 {
 	return expr_ && stmt_;
-}
-
-bool ConditionalStatement::hasOnlyStmt() const
-{
-	return stmt_ && !expr_;
 }

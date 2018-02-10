@@ -223,12 +223,12 @@ std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr>&
 bool Parser::matchExponentOp()
 {
 	auto cur = getToken();
-	auto pk = getToken(pos_ + 1);
+	auto pk = getToken(state_.pos + 1);
 	if (cur.isValid() && cur.type == tokenCat::TT_SIGN && cur.sign_type == sign::S_ASTERISK)
 	{
 		if (pk.isValid() && pk.type == tokenCat::TT_SIGN && pk.sign_type == sign::S_ASTERISK)
 		{
-			pos_+=2;
+			state_.pos+=2;
 			return true;
 		}
 	}
@@ -238,10 +238,10 @@ bool Parser::matchExponentOp()
 std::pair<bool, binaryOperation> Parser::matchAssignOp()
 {
 	auto cur = getToken();
-	pos_++;
+	state_.pos++;
 	if (cur.isValid() && cur.type == tokenCat::TT_SIGN && cur.sign_type == sign::S_EQUAL)
 		return { true,binaryOperation::ASSIGN };
-	pos_--;
+	state_.pos--;
 	return { false,binaryOperation::PASS };
 }
 
@@ -250,7 +250,7 @@ std::pair<bool, unaryOperation> Parser::matchUnaryOp()
 	auto cur = getToken();
 	if (!cur.isValid() || (cur.type != tokenCat::TT_SIGN))
 		return { false, unaryOperation::DEFAULT };
-	pos_++;
+	state_.pos++;
 
 	if (cur.sign_type == sign::P_EXCL_MARK)
 		return { true, unaryOperation::LOGICNOT };
@@ -261,18 +261,18 @@ std::pair<bool, unaryOperation> Parser::matchUnaryOp()
 	if (cur.sign_type == sign::S_PLUS)
 		return { true, unaryOperation::POSITIVE};
 
-	pos_--;
+	state_.pos--;
 	return { false, unaryOperation::DEFAULT };
 }
 
 std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 {
 	auto cur = getToken();
-	auto pk = getToken(pos_ + 1);
+	auto pk = getToken(state_.pos + 1);
 	// Check current Token validity
 	if (!cur.isValid() || (cur.type != tokenCat::TT_SIGN))
 		return { false, binaryOperation::PASS };
-	pos_ += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
+	state_.pos += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
 
 	switch (priority)
 	{
@@ -298,7 +298,7 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 			{
 				if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
 				{
-					pos_ += 1;
+					state_.pos += 1;
 					return { true, binaryOperation::LESS_OR_EQUAL };
 				}
 				return { true, binaryOperation::LESS_THAN };
@@ -307,7 +307,7 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 			{
 				if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
 				{
-					pos_ += 1;
+					state_.pos += 1;
 					return { true, binaryOperation::GREATER_OR_EQUAL };
 				}
 				return { true, binaryOperation::GREATER_THAN };
@@ -318,12 +318,12 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 			{
 				if (cur.sign_type == sign::S_EQUAL)
 				{
-					pos_ += 1;
+					state_.pos += 1;
 					return { true,binaryOperation::EQUAL };
 				}
 				if (cur.sign_type == sign::P_EXCL_MARK)
 				{
-					pos_ += 1;
+					state_.pos += 1;
 					return { true,binaryOperation::NOTEQUAL };
 				}
 			}
@@ -331,14 +331,14 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 		case 4:
 			if (pk.isValid() && (pk.sign_type == sign::S_AND) && (cur.sign_type == sign::S_AND))
 			{
-				pos_ += 1;
+				state_.pos += 1;
 				return { true,binaryOperation::AND };
 			}
 			break;
 		case 5:
 			if (pk.isValid() && (pk.sign_type == sign::S_VBAR) && (cur.sign_type == sign::S_VBAR))
 			{
-				pos_ += 1;
+				state_.pos += 1;
 				return { true,binaryOperation::OR };
 			}
 			break;
@@ -346,6 +346,6 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 			throw Exceptions::parser_critical_error("Requested to match a Binary Operator with a non-existent priority");
 			break;
 	}
-	pos_ -= 1;	// We did not find anything, decrement & return.
+	state_.pos -= 1;	// We did not find anything, decrement & return.
 	return { false, binaryOperation::PASS };
 }

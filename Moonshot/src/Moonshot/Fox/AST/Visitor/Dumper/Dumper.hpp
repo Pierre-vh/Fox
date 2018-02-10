@@ -29,6 +29,7 @@ namespace Moonshot
 			virtual void visit(ASTCompStmt & node) override;
 			virtual void visit(ASTCondition & node) override;
 			virtual void visit(ASTWhileLoop & node) override;
+			virtual void visit(ASTNullStmt& node) override;
 		private:
 			static constexpr unsigned char base_tabs_ = 1; // set this number to a higher value to have a offset when dumping ast
 

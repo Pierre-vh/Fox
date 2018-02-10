@@ -134,6 +134,11 @@ void Dumper::visit(ASTVarCall & node)
 	std::cout << tabs() << "VarCall: name: " << node.varname_ << std::endl;
 }
 
+void Dumper::visit(ASTNullStmt& node)
+{
+	std::cout << tabs() << "Null Statement\n";
+}
+
 void Dumper::visit(ASTCompStmt & node)
 {
 	std::cout << tabs() << "Compound Statement (Contains " << node.statements_.size() << " statements)\n";

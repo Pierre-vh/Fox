@@ -34,6 +34,7 @@ namespace Moonshot
 			inline virtual void visit(ASTLiteral&)			{}
 			inline virtual void visit(ASTVarCall&)			{}
 
+			inline virtual void visit(ASTNullStmt&)			{}
 			inline virtual void visit(ASTVarDeclStmt&)		{}
 
 			inline virtual void visit(ASTCompStmt&)			{}

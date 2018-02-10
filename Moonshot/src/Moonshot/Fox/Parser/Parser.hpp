@@ -43,7 +43,7 @@ Note :
 #pragma once
 
 // Tokens
-#include "../Lexer/Token.hpp"					
+#include "Moonshot/Fox/Lexer/Token.hpp"					
 // Include interfaces so the users of this class can manipulate 
 #include "Moonshot/Fox/AST/Nodes/IASTExpr.hpp"
 #include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
@@ -93,8 +93,8 @@ namespace Moonshot
 			// Private parse functions
 			// ParseCondition helper functions
 			ConditionalStatement parseCond_if();	 // Parses a classic if statement.
-			ConditionalStatement parseCond_else_if(); // parses a else (returns just the second part of the pair) or else if (returns a complete pair)
-			
+			ConditionalStatement parseCond_elseIf(); // Parses a else if
+			std::unique_ptr<IASTStmt> parseCond_else(); // parse a else
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,PLUS)
 			// oneUpNode will return a new node X, with the operation PLUS and N as left child.
@@ -103,12 +103,11 @@ namespace Moonshot
 			// matchToken -> returns true if the Token is matched, and increment pos_, if the Token isn't matched return false
 			
 			// MATCH BY TYPE OF TOKEN
-			std::pair<bool,Token> matchLiteral();				// match a TT_LITERAL
+			std::pair<bool,Token> matchLiteral();			// match a literal
 			std::pair<bool, std::string> matchID();			// match a ID
-			bool matchSign(const sign &s);			// match any signs : ! : * etc.
-			bool matchKeyword(const keyword &k);		// Match any keyword
+			bool matchSign(const sign &s);					// match any signs : ! : * etc.
+			bool matchKeyword(const keyword &k);			// Match any keyword
 
-			bool matchEOI();								// Match a EOI, currently a semicolon.
 			std::size_t matchTypeKw();						// match a type keyword : int, float, etc.
 			
 			// MATCH OPERATORS
@@ -126,11 +125,19 @@ namespace Moonshot
 			void errorUnexpected();							// generic error message "unexpected Token.."
 			void errorExpected(const std::string &s, const std::vector<std::string>& sugg = {});		// generic error message "expected Token after.."
 			
-			int currentExpectedErrorsCount = 0;
-			int maxExpectedErrorCount = 0;
-			bool shouldPrintSuggestions;
+			unsigned int maxExpectedErrorCount_;
+			bool shouldPrintSuggestions_; // unused for now
+
+			struct ParserState
+			{
+				std::size_t pos = 0;						// current pos in the Token vector.
+				unsigned int currentExpectedErrorsCount = 0;// Current "expected" error count, used to avoid "expected (x)" spam by the interpreter.currentExpectedErrorsCount
+			} state_;
+
+			ParserState createParserStateBackup() const;
+			void restoreParserStateFromBackup(const ParserState& st);
+
 			// Member variables
-			size_t pos_ = 0;								// current pos in the Token vector.
 			Context& context_;
 			TokenVector& tokens_;					// reference to the lexer to access our tokens 
 	};

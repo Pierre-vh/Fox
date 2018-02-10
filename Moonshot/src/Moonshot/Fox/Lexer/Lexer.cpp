@@ -317,6 +317,6 @@ bool Lexer::shouldIgnore(const CharType & c) const
 void Lexer::reportLexerError(std::string errmsg) const
 {
 	std::stringstream out;
-	out << errmsg << " at line " << ccoord_.line; // Somehow I have to use line-1 to get the correct line count.
+	out << errmsg << " at line " << ccoord_.line;
 	context_.reportError(out.str());
 }

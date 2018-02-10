@@ -23,6 +23,7 @@ using namespace fv_util;
 #include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTNullStmt.hpp"
 
 std::unique_ptr<IASTStmt> Parser::parseCompoundStatement()
 {
@@ -31,7 +32,16 @@ std::unique_ptr<IASTStmt> Parser::parseCompoundStatement()
 	{
 		// Parse all statements
 		while (auto node = parseStmt())
+		{
+			if (rtr->statements_.size())
+			{
+				// Don't push another null statement if the last statement is already a null one.
+				if (dynamic_cast<ASTNullStmt*>(rtr->statements_.back().get()) &&
+					dynamic_cast<ASTNullStmt*>(node.get()))
+					continue;
+			}
 			rtr->statements_.push_back(std::move(node));
+		}
 		// Match the closing curly bracket
 		if (!matchSign(sign::B_CURLY_CLOSE))
 		{
@@ -41,48 +51,6 @@ std::unique_ptr<IASTStmt> Parser::parseCompoundStatement()
 		return rtr;
 	}
 	return nullptr;
-}
-
-std::unique_ptr<IASTStmt> Parser::parseCondition()
-{
-	auto rtr = std::make_unique<ASTCondition>();
-	auto result = parseCond_if();
-
-	if (result.isComplete())
-	{
-		// we need to use moves to push the new values in
-		rtr->conditional_stmts_.push_back({
-			std::move(result.expr_),
-			std::move(result.stmt_)
-		});
-		auto elif_res = parseCond_else_if();
-		while (elif_res.isComplete()) // consume all elifs
-		{
-			// we need to use moves to push the new values in
-			rtr->conditional_stmts_.push_back({ 
-				std::move(elif_res.expr_),
-				std::move(elif_res.stmt_) 
-			});
-			// try to find another elif
-			elif_res = parseCond_else_if();
-		}
-		// Check if the last one parsed was a else
-		if (elif_res.hasOnlyStmt()) // it's a else
-		{
-			if (rtr->conditional_stmts_.size() == 0)
-			{
-				context_.reportError("\"else\" without \"if\"");
-				return nullptr;
-			}
-			rtr->else_stmt_ = std::move(elif_res.stmt_);
-		}
-
-		return rtr;
-	}
-	else if (result.expr_ || result.stmt_)
-		throw Exceptions::parser_critical_error("parseCond_if() returned a invalid Conditional Statement!");
-	else
-		return nullptr;
 }
 
 std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
@@ -125,6 +93,39 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 	return nullptr;
 }
 
+std::unique_ptr<IASTStmt> Parser::parseCondition()
+{
+	auto rtr = std::make_unique<ASTCondition>();
+	auto result = parseCond_if();
+
+	if (result.isComplete())
+	{
+		// <cond_if>
+		rtr->conditional_stmts_.push_back({
+			result.resetAndReturnTmp()
+		});
+		// <cond_elif>
+		auto elif_res = parseCond_elseIf();
+		while (elif_res.isComplete()) // consume all elifs
+		{
+			rtr->conditional_stmts_.push_back({
+				elif_res.resetAndReturnTmp()
+			});
+			// try to find another elif
+			elif_res = parseCond_elseIf();
+		}
+		// <cond_else>
+		if (auto node = parseCond_else()) // it's a else
+			rtr->else_stmt_ = std::move(node);
+
+		return rtr;
+	}
+	else if (result.expr_ || result.stmt_)
+		throw Exceptions::parser_critical_error("parseCond_if() returned a invalid Conditional Statement!");
+	else
+		return nullptr;
+}
+
 ConditionalStatement Parser::parseCond_if()
 {
 	// "if"
@@ -135,66 +136,97 @@ ConditionalStatement Parser::parseCond_if()
 		if (!matchSign(sign::B_ROUND_OPEN))
 		{
 			errorExpected("Expected a '('");
-			return { nullptr, nullptr };
+			return ConditionalStatement();
 		}
 		// <expr>
 		if (auto node = parseExpr())
 			rtr.expr_ = std::move(node);
 		else
 		{
-			errorExpected("Expected an expression after '(' in condition");
-			return { nullptr, nullptr };
+			errorExpected("Expected an expression after '(' in if condition,");
+			return ConditionalStatement();
 		}
 		// ')'
 		if (!matchSign(sign::B_ROUND_CLOSE))
 		{
-			errorExpected("Expected a ')' after expression in condition");
-			return { nullptr, nullptr };
+			errorExpected("Expected a ')' after expression in if condition,");
+			return ConditionalStatement();
 		}
 		// <compound_statement>
 		if (auto node = parseStmt())
 			rtr.stmt_ = std::move(node);
 		else
 		{
-			errorExpected("Expected a statement after condition declaration");
-			return { nullptr, nullptr };
+			errorExpected("Expected a statement after if condition,");
+			return ConditionalStatement();
 		}
 		// Finished, return.
 		return rtr;
 	}
-	return { nullptr, nullptr };
+	return ConditionalStatement();
 }
 
-ConditionalStatement Parser::parseCond_else_if()
+ConditionalStatement Parser::parseCond_elseIf()
 {
 	ConditionalStatement rtr;
+	auto bckp = createParserStateBackup();
 	if (matchKeyword(keyword::D_ELSE))
 	{
-		// else if
-		auto res = parseCond_if();
-		if (res.isComplete()) // parsed OK
+		if (matchKeyword(keyword::D_IF))
 		{
-			rtr.expr_ = std::move(res.expr_);
-			rtr.stmt_ = std::move(res.stmt_);
-			return rtr;
+			// '('
+			if (!matchSign(sign::B_ROUND_OPEN))
+			{
+				errorExpected("Expected a '('");
+				return ConditionalStatement();
+			}
+			// <expr>
+			if (auto node = parseExpr())
+				rtr.expr_ = std::move(node);
+			else
+			{
+				errorExpected("Expected an expression after '(' in else if condition,");
+				return ConditionalStatement();
+			}
+			// ')'
+			if (!matchSign(sign::B_ROUND_CLOSE))
+			{
+				errorExpected("Expected a ')' after expression in else if condition,");
+				return ConditionalStatement();
+			}
+			// <statement>
+			if (auto node = parseStmt())
+			{
+				rtr.stmt_ = std::move(node);
+				return rtr;
+			}
+			else 
+			{
+				errorExpected("Expected a statement after else if condition,");
+				return ConditionalStatement();
+			}
 		}
-		else if (res.expr_ || res.stmt_)
-			throw Exceptions::parser_critical_error("parseCond_if() returned a invalid CondBlock!");
-		// Else
-		else if (auto node = parseStmt())
-		{
-			// return only the second, that means only a else 
-			rtr.stmt_ = std::move(node);
-			return rtr;
-		}
-		// error case
+		// restore a backup, because if the leave the "else" consumed, it won't be picked up
+		// by the "parseCond_else" function later in parseCond.
+		restoreParserStateFromBackup(bckp);
+		return ConditionalStatement();
+	}
+	return ConditionalStatement();
+}
+
+std::unique_ptr<IASTStmt> Parser::parseCond_else()
+{
+	if (matchKeyword(keyword::D_ELSE))
+	{
+		if (auto node = parseStmt())
+			return node;
 		else
 		{
-			errorExpected("Expected a statement after condition declaration");
-			return { nullptr, nullptr };
+			errorExpected("Expected a statement");
+			return nullptr;
 		}
 	}
-	return { nullptr, nullptr };
+	return nullptr;
 }
 
 
@@ -267,8 +299,8 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 				return nullptr;
 			}
 		}
-		// ##EOI##
-		if (!matchEOI())
+		// ';'
+		if (!matchSign(sign::P_SEMICOLON))
 		{
 			errorExpected("Expected semicolon after expression in variable declaration,");
 			return nullptr;
@@ -304,18 +336,17 @@ std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 
 std::unique_ptr<IASTStmt> Parser::parseExprStmt()
 {
-	//<expr_stmt> = <expr> <eoi>
-	auto node = parseExpr();
-	if (node)
+	//<expr_stmt> = ';' |<expr> ';'
+	if (matchSign(sign::P_SEMICOLON))
+		return std::make_unique<ASTNullStmt>();
+	else if (auto node = parseExpr())
 	{
 		// Found node
-		if (matchEOI())
+		if (matchSign(sign::P_SEMICOLON))
 			return node;
 		else
 			errorExpected("Expected a ';' in expression statement");
 	}
-	else if (matchEOI())
-		errorExpected("Expected an expression");
 
 	return nullptr;
 }

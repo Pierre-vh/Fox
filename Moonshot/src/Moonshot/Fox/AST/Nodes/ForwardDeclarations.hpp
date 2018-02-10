@@ -24,6 +24,7 @@ namespace Moonshot
 	struct ASTBinaryExpr;
 	struct ASTUnaryExpr;
 	struct ASTCastExpr;
+	struct ASTNullStmt;
 
 	struct ConditionalStatement;
 }
