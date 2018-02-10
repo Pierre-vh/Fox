@@ -39,6 +39,8 @@ Issues :
 	*Maybe use '->' instead of '.' to avoid issues with floats, so this would be parsed without any issue : 0.2->asString(); Also, this would provide a way to separate expression functions from method calls if oop
 	is implemented
 
+	*Alternative to this idea : simply make theses functions in the standard library. toString, toFloat, etc..
+
 Further development:
 	Add the possibility for the user to create expression functions, with a syntax like this for instance
 	Eventually, all expression functions from the standard library should be moved and use that system.
