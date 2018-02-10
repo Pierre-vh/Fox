@@ -5,7 +5,7 @@
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file contains some Token enumeration declarations	
-// And the Declaration of the Token and text_pos structs.	
+// And the Declaration of the Token and TextPosition structs.	
 //															
 // This file also declares some const variables	holding regexes, 
 // and maps for getting a "friendly name" of enum values.									
@@ -22,7 +22,7 @@ namespace Moonshot
 	class Context;
 
 
-	enum class tokenCat
+	enum class tokenCat : char
 	{
 		TT_ENUM_DEFAULT,	// Default value
 
@@ -32,7 +32,7 @@ namespace Moonshot
 		TT_LITERAL			// value ("hello", 3.14, 'c', -1, ...)
 	};
 
-	enum class literal
+	enum class literal : char
 	{
 		LIT_ENUMDEFAULT,		// Default value
 
@@ -43,7 +43,7 @@ namespace Moonshot
 		LIT_STRING
 	};
 
-	enum class sign
+	enum class sign : char
 	{
 		S_ENUM_DEFAULT,			// Default value
 		// Signs
@@ -77,7 +77,7 @@ namespace Moonshot
 		P_COMMA				// ,
 	};
 
-	enum class keyword
+	enum class keyword : char
 	{
 		KW_ENUM_DEFAULT,		// Default value
 		// TYPES
@@ -159,22 +159,22 @@ namespace Moonshot
 		{ ','	, sign::P_COMMA			}
 	};
 
-	struct text_pos	// a structure to hold the position of a Token in the input, and interact with it.
+	struct TextPosition	// a structure to hold the position of a Token in the input, and interact with it.
 	{
-		text_pos();
-		text_pos(const int &l, const int &col);
+		TextPosition();
+		TextPosition(const int &l, const int &col);
 		void newLine();
 		void forward();
 		std::string asText() const;
 
-		int line = 1;
-		int column = 0;
+		unsigned int line = 1;
+		unsigned int column = 1;
 	};
 	struct Token // the Token struct. The lexer outputs a std::vector<Token>. Tokens are recognized bits of the original input : keywords,id,values,etc.
 	{
 		public:
 			Token(Context & c);
-			Token(Context & c,std::string data, const text_pos &tpos = text_pos(0,0));
+			Token(Context & c,std::string data, const TextPosition &tpos = TextPosition(0,0));
 			tokenCat type =		tokenCat::TT_ENUM_DEFAULT;
 			keyword kw_type =	keyword::KW_ENUM_DEFAULT;
 			literal lit_type =	literal::LIT_ENUMDEFAULT;
@@ -183,7 +183,7 @@ namespace Moonshot
 			FVal lit_val;
 
 			std::string str;
-			text_pos pos;
+			TextPosition pos;
 
 			std::string showFormattedTokenData() const;
 
@@ -192,7 +192,6 @@ namespace Moonshot
 		private:
 			Context& context_;
 
-			bool empty_ = false;
 			void idToken();					// will id the tolen and call the specific evaluations functions if needed.
 			bool specific_idKeyword();
 			bool specific_idSign();

@@ -28,16 +28,15 @@ std::regex kId_regex("(([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+");
 
 Token::Token(Context & c) : context_(c)
 {
-	empty_ = true;
 }
-Token::Token(Context & c,std::string data, const text_pos &tpos) : context_(c),str(data),pos(tpos)
+Token::Token(Context & c,std::string data, const TextPosition &tpos) : context_(c),str(data),pos(tpos)
 {
 	idToken(); // self id
 }
 
 std::string Token::showFormattedTokenData() const
 {
-	if (empty_) // Token is empty
+	if (str.size() == 0) // Token is empty
 		return "<EMPTY TOKEN>"; // return nothing.
 
 	std::stringstream ss;
@@ -72,7 +71,7 @@ std::string Token::showFormattedTokenData() const
 }
 bool Token::isValid() const
 {
-	return !empty_;
+	return str.size();
 }
 void Token::idToken()
 {
@@ -204,27 +203,27 @@ bool Token::specific_idValue()
 	return false;
 }
 
-text_pos::text_pos()
+TextPosition::TextPosition()
 {
 }
 
-text_pos::text_pos(const int & l, const int & col) : line(l), column(col)
+TextPosition::TextPosition(const int & l, const int & col) : line(l), column(col)
 {
 
 }
 
-void text_pos::newLine()
+void TextPosition::newLine()
 {
 	line ++;
 	//	column = 0;
 }
 
-void text_pos::forward()
+void TextPosition::forward()
 {
 //	column += 1;
 }
 
-std::string text_pos::asText() const
+std::string TextPosition::asText() const
 {
 	std::stringstream ss;
 	ss << "LINE:" << line /*<< " C:" << column*/;
