@@ -43,7 +43,7 @@ int main()
 
 	std::ios_base::sync_with_stdio(false); // We don't use printf, so we don't need to sync with stdio (CppCoreGuidelines SL.io.10)
 	Context context;
-	context.options.addAttr(OptionsList::exprtest_printAST,true);
+	context.optionsManager_.addAttr(OptionsList::exprtest_printAST,true);
 	TestManager ts(context);
 	ts.addDefaultTests();
 	ts.runTests(true);

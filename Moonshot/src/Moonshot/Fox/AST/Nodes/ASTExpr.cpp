@@ -60,36 +60,6 @@ std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
 	return nullptr;
 }
 
-void ASTBinaryExpr::setChild(const dir & d, std::unique_ptr<IASTExpr>& node)
-{
-	if (d == dir::LEFT)
-		left_ = std::move(node);
-	else if (d == dir::RIGHT)
-		right_ = std::move(node);
-}
-
-void ASTBinaryExpr::makeChildOfDeepestNode(const dir & d, std::unique_ptr<IASTExpr>& node)
-{
-	ASTBinaryExpr* cur = this;
-	if (d == dir::LEFT)
-	{
-		while (cur->left_)
-		{
-			if (auto isLeftBinop = dynamic_cast<ASTBinaryExpr*>(cur->left_.get()))
-				cur = isLeftBinop;
-		}
-	}
-	else if (d == dir::RIGHT)
-	{
-		while (cur->right_)
-		{
-			if (auto isRightBinop = dynamic_cast<ASTBinaryExpr*>(cur->right_.get()))
-				cur = isRightBinop;
-		}
-	}
-	cur->setChild(d, node);
-}
-
 ASTUnaryExpr::ASTUnaryExpr(const unaryOperation & opt) : op_(opt)
 {
 

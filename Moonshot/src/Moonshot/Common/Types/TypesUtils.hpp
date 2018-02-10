@@ -31,11 +31,11 @@ namespace Moonshot::fv_util
 		{
 			switch (lhs)
 			{
-			case indexes::fval_char:
-			case indexes::fval_str:
-				return	(rhs == indexes::fval_char) || (rhs == indexes::fval_str);
-			default:
-				return false;
+				case indexes::fval_char:
+				case indexes::fval_str:
+					return	(rhs == indexes::fval_char) || (rhs == indexes::fval_str);
+				default:
+					return false;
 			}
 		}
 		return false;

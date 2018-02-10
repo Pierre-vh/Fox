@@ -150,7 +150,7 @@ std::unique_ptr<IASTExpr> Parser::parseBinaryExpr(const char & priority)
 	if (!first)					
 		return nullptr;
 
-	rtr->setChild(dir::LEFT, first);	// Make first the left child of the return node !
+	rtr->left_ = std::move(first);	// Make first the left child of the return node !
 	while (true)
 	{
 		// Match binary operator
@@ -176,7 +176,7 @@ std::unique_ptr<IASTExpr> Parser::parseBinaryExpr(const char & priority)
 		else // if the node already has an operation
 			rtr = oneUpNode(rtr, op);
 
-		rtr->setChild(dir::RIGHT, second); // Set second as the child of the node.
+		rtr->right_ = std::move(second); // Set second as the child of the node.
 	}
 
 	// When we have simple node (PASS operation with only a value/expr as left child), we simplify it(only return the left child)

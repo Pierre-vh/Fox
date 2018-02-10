@@ -11,28 +11,9 @@
 
 using namespace Moonshot;
 
-ASTCondition::ASTCondition()
-{
-}
-
-
-ASTCondition::~ASTCondition()
-{
-}
-
 void ASTCondition::accept(IVisitor & vis)
 {
 	vis.visit(*this);
-}
-
-bool ASTCondition::hasElse() const
-{
-	return (else_stmt_ ? true : false);
-}
-
-bool ASTCondition::hasElif() const
-{
-	return conditional_stmts_.size() > 1; 
 }
 
 ConditionalStatement::ConditionalStatement(std::unique_ptr<IASTExpr>& expr, std::unique_ptr<IASTStmt>& stmt)

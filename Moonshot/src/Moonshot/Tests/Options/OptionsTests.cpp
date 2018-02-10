@@ -28,7 +28,7 @@ std::string OptionsTests::getTestName() const
 
 bool OptionsTests::runTest(Context & context)
 {
-	auto options = context.options; // Copy it so we don't modify the context's one
+	auto options = context.optionsManager_; // Copy it so we don't modify the context's one
 	if (!testOptManagerFunc(context, options))
 		return false;
 	if (!testParamvalueFuncs(context))

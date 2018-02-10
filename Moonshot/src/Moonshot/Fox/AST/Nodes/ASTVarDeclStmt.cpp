@@ -21,12 +21,7 @@ ASTVarDeclStmt::ASTVarDeclStmt(const var::varattr & attr, std::unique_ptr<IASTEx
 			initExpr_ = std::move(iExpr);
 	}
 	else
-		throw std::logic_error("Supplied an empty var::varattr object to the constructor.");
-}
-
-ASTVarDeclStmt::~ASTVarDeclStmt()
-{
-
+		throw std::invalid_argument("Supplied an empty var::varattr object to the constructor.");
 }
 
 void ASTVarDeclStmt::accept(IVisitor& vis)

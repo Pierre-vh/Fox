@@ -60,13 +60,19 @@ Note :
 namespace Moonshot
 {
 	/*
+	// put this in its own file! (.hpp, it needs to be header only because of template)
 	template<typename T>
-	struct parsingResult
+	struct ParsingResult
 	{
-		parsingResult() = default;
-		parsingResult(T& value); // sets wasSuccessful to true
-		T value;
-		bool wasSuccessful = false;
+		public:
+			parsingResult() = default;
+			parsingResult(T& value); // sets wasSuccessful to true. will probably have problems with value when it's a unique ptr
+									// use std::is_copy_construcitble with a constrexpr if/else + std::move in case it's not cpy constr?
+			bool wasSuccesful(); // return successful_ 
+			bool isResultValid();  // return result_ ? true : false
+		private:
+			T result_;
+			bool successful_ = false;
 	};
 
 	template<typename TYPE>
@@ -144,12 +150,12 @@ namespace Moonshot
 			void errorExpected(const std::string &s, const std::vector<std::string>& sugg = {});		// generic error message "expected Token after.."
 			
 			unsigned int maxExpectedErrorCount_;
+			unsigned int currentExpectedErrorsCount_ = 0; 	// Current "expected" error count, used to avoid "expected (x)" spam by the interpreter.
 			bool shouldPrintSuggestions_; // unused for now
 
 			struct ParserState
 			{
 				std::size_t pos = 0;						// current pos in the Token vector.
-				unsigned int currentExpectedErrorsCount = 0;// Current "expected" error count, used to avoid "expected (x)" spam by the interpreter.currentExpectedErrorsCount
 			} state_;
 
 			ParserState createParserStateBackup() const;

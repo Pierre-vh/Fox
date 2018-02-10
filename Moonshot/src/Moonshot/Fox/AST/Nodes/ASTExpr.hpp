@@ -15,6 +15,7 @@
 
 namespace Moonshot	
 {
+
 	struct ASTBinaryExpr : public IASTExpr
 	{
 		public:
@@ -24,14 +25,11 @@ namespace Moonshot
 
 			std::unique_ptr<IASTExpr> left_, right_;
 			binaryOperation op_ = binaryOperation::PASS;
-			std::size_t resultType_ = 0; 
 
 			virtual void accept(IVisitor& vis) override;
 			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
-
-			void setChild(const dir &d, std::unique_ptr<IASTExpr> &node); // make (node) a child of this.
-			void makeChildOfDeepestNode(const dir &d, std::unique_ptr<IASTExpr> &node); // Make (node) a child of the deepest left/right path of our node. (continue until left/right = 0, then makechild.)
 	};
+
 	struct ASTUnaryExpr : public IASTExpr
 	{
 		public: 
@@ -41,8 +39,8 @@ namespace Moonshot
 
 			std::unique_ptr<IASTExpr> child_;
 			unaryOperation op_ = unaryOperation::DEFAULT;
-			std::size_t resultType_ = 0; 
 	};
+
 	struct ASTCastExpr : public IASTExpr
 	{
 		public:
@@ -51,11 +49,11 @@ namespace Moonshot
 			virtual void accept(IVisitor& vis) override;
 
 			std::unique_ptr<IASTExpr> child_;
-			std::size_t resultType_ = 0;
 
 			void setCastGoal(const std::size_t& ncg);
 			std::size_t getCastGoal() const; 
 	};
+
 	struct ASTLiteral : public IASTExpr 
 	{
 		public:
@@ -66,6 +64,7 @@ namespace Moonshot
 
 			FVal val_;
 	};
+
 	struct ASTVarCall : public IASTExpr 
 	{
 		public:

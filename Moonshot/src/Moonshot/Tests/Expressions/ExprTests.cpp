@@ -55,7 +55,7 @@ bool ExprTests::runTest(Context & context)
 		root->accept(tc);
 		FAILED_RETURN_IF_ERR("typechecking");
 
-		if (context.options.getAttr(OptionsList::exprtest_printAST).value_or(false).get<bool>())
+		if (context.optionsManager_.getAttr(OptionsList::exprtest_printAST).value_or(false).get<bool>())
 		{
 			Dumper dmp;
 			root->accept(dmp);

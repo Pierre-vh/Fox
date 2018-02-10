@@ -33,8 +33,7 @@ namespace Moonshot
 	class OptionsManager
 	{
 		public:
-			OptionsManager();
-			~OptionsManager();
+			OptionsManager() = default;
 
 			void addAttr(const OptionsList& optname, const ParameterValue& new_pval = ParameterValue());
 			void setAttr(const OptionsList& optname, const ParameterValue& new_pval);

@@ -31,10 +31,9 @@ namespace Moonshot
 			virtual void visit(ASTWhileLoop & node) override;
 			virtual void visit(ASTNullStmt& node) override;
 		private:
-			static constexpr unsigned char base_tabs_ = 1; // set this number to a higher value to have a offset when dumping ast
 
 			std::string tabs() const;
-			unsigned char tabcount = base_tabs_; 
+			unsigned char tabcount_ = 1; 
 	};
 }
 

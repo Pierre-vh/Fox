@@ -33,13 +33,9 @@ namespace Moonshot
 	struct ASTCondition : public IASTStmt
 	{
 		public:
-			ASTCondition();
-			~ASTCondition();
+			ASTCondition() = default;
 
 			virtual void accept(IVisitor & vis) override;
-
-			bool hasElse() const;
-			bool hasElif() const;
 
 			std::vector<ConditionalStatement> conditional_stmts_; // First one is the if, all others are the elifs
 			std::unique_ptr<IASTStmt> else_stmt_; // final else.

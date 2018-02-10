@@ -19,11 +19,8 @@ namespace Moonshot
 	{
 		public:
 			ASTWhileLoop() = default;
-			~ASTWhileLoop();
 
 			virtual void accept(IVisitor & vis) override;
-
-			bool isValid() const;
 
 			std::unique_ptr<IASTExpr> expr_;
 			std::unique_ptr<IASTStmt> body_;

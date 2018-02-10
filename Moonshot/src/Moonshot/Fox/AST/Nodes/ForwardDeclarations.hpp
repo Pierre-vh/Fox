@@ -4,8 +4,8 @@
 // File : ForwardDeclarations.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// Contains forward declarations of every node to avoid having to include
-// every single node file in the parser/IVisitor classes.
+// Contains forward declarations of every node/class in this folder
+// to avoid having to include every single file in the parser/IVisitor classes.
 ////------------------------------------------------------////
 
 #pragma once

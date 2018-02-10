@@ -24,7 +24,6 @@ namespace Moonshot
 		public:
 			// Create a variable declaration statement by giving the constructor the variable's properties (name,is const and type) and, if there's one, an expression to initialize it.
 			ASTVarDeclStmt(const var::varattr &attr,std::unique_ptr<IASTExpr>& iExpr); 
-			~ASTVarDeclStmt();
 
 			// Inherited via IASTStmt
 			virtual void accept(IVisitor& vis) override;

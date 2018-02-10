@@ -17,8 +17,7 @@ namespace Moonshot
 	struct ASTCompStmt : public IASTStmt
 	{
 		public:
-			ASTCompStmt();
-			~ASTCompStmt();
+			ASTCompStmt() = default;
 
 			virtual void accept(IVisitor & vis) override;
 

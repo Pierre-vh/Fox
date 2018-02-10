@@ -78,7 +78,7 @@ namespace Moonshot
 			bool isSafe_strict() const;
 			bool isSafe() const;
 
-			OptionsManager options; // The options manager.
+			OptionsManager optionsManager_; // The options manager.
 		private:
 
 			void addLog(const std::string& message);

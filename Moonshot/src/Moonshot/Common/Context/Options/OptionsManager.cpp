@@ -13,15 +13,6 @@
 
 using namespace Moonshot;
 
-OptionsManager::OptionsManager()
-{
-}
-
-
-OptionsManager::~OptionsManager()
-{
-}
-
 void OptionsManager::addAttr(const OptionsList& optname, const ParameterValue& new_pval)
 {
 	parameters_.insert(

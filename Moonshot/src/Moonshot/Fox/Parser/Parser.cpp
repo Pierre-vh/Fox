@@ -21,8 +21,8 @@ using namespace fv_util;
 
 Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
 {
-	maxExpectedErrorCount_ = context_.options.getAttr(OptionsList::parser_maxExpectedErrorCount).value_or(DEFAULT__maxExpectedErrorsCount).get<int>();
-	shouldPrintSuggestions_ = context_.options.getAttr(OptionsList::parser_printSuggestions).value_or(DEFAULT__shouldPrintSuggestions).get<bool>();
+	maxExpectedErrorCount_ = context_.optionsManager_.getAttr(OptionsList::parser_maxExpectedErrorCount).value_or(DEFAULT__maxExpectedErrorsCount).get<int>();
+	shouldPrintSuggestions_ = context_.optionsManager_.getAttr(OptionsList::parser_printSuggestions).value_or(DEFAULT__shouldPrintSuggestions).get<bool>();
 }
 
 Parser::~Parser()
@@ -129,7 +129,7 @@ void Parser::errorUnexpected()
 void Parser::errorExpected(const std::string & s, const std::vector<std::string>& sugg)
 {
 	static std::size_t lastUnexpectedTokenPosition;
-	if (state_.currentExpectedErrorsCount > maxExpectedErrorCount_)
+	if (currentExpectedErrorsCount_ > maxExpectedErrorCount_)
 		return;
 	// If needed, print unexpected error message
 	if (lastUnexpectedTokenPosition != state_.pos)
@@ -157,7 +157,7 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 	context_.reportError(output.str());
 	context_.resetOrigin();
 
-	state_.currentExpectedErrorsCount++;
+	currentExpectedErrorsCount_++;
 }
 
 Parser::ParserState Parser::createParserStateBackup() const

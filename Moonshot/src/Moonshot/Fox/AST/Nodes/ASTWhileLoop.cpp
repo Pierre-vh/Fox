@@ -11,17 +11,7 @@
 
 using namespace Moonshot;
 
-ASTWhileLoop::~ASTWhileLoop()
-{
-
-}
-
 void ASTWhileLoop::accept(IVisitor & vis)
 {
 	vis.visit(*this);
-}
-
-bool ASTWhileLoop::isValid() const
-{
-	return (expr_ && body_);
 }
