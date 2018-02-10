@@ -59,6 +59,19 @@ Note :
 
 namespace Moonshot
 {
+	/*
+	template<typename T>
+	struct parsingResult
+	{
+		parsingResult() = default;
+		parsingResult(T& value); // sets wasSuccessful to true
+		T value;
+		bool wasSuccessful = false;
+	};
+
+	template<typename TYPE>
+	using parsingResult_uptr = parsingResult<std::unique_ptr<TYPE>>;
+	*/
 	class Context;
 	class Parser
 	{
@@ -78,7 +91,6 @@ namespace Moonshot
 			// STATEMENTS
 			std::unique_ptr<IASTStmt> parseStmt(); // General Statement
 			std::unique_ptr<IASTStmt> parseVarDeclStmt(); // Var Declaration Statement
-			std::tuple<bool, bool, std::size_t> parseTypeSpec(); // type spec (for vardecl). Tuple values: Success flag, isConst, type of variable.
 			std::unique_ptr<IASTStmt> parseExprStmt(); // Expression statement
 
 			// STATEMENTS : COMPOUND STATEMENT
@@ -91,10 +103,16 @@ namespace Moonshot
 			std::unique_ptr<IASTStmt> parseWhileLoop();
 		private:
 			// Private parse functions
+
+			// type spec (for vardecl).
+			std::tuple<bool, bool, std::size_t> parseTypeSpec(); // Tuple values: Success flag, isConst, type of variable.
+			
 			// ParseCondition helper functions
 			ConditionalStatement parseCond_if();	 // Parses a classic if statement.
 			ConditionalStatement parseCond_elseIf(); // Parses a else if
 			std::unique_ptr<IASTStmt> parseCond_else(); // parse a else
+
+
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,PLUS)
 			// oneUpNode will return a new node X, with the operation PLUS and N as left child.
