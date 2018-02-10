@@ -34,9 +34,10 @@ Example of use
 
 
 Issues :
-	I doubt it's going to be that easy, there must be a problem somewhere!
-	Find a better name than expression function
-	Maybe use '->' instead of '.' to avoid issues with floats, so this would be parsed without any issue : 0.2->asString();
+	*I doubt it's going to be that easy, there must be a problem somewhere!
+	*Find a better name than expression function
+	*Maybe use '->' instead of '.' to avoid issues with floats, so this would be parsed without any issue : 0.2->asString(); Also, this would provide a way to separate expression functions from method calls if oop
+	is implemented
 
 Further development:
 	Add the possibility for the user to create expression functions, with a syntax like this for instance
