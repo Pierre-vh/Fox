@@ -222,7 +222,7 @@ std::unique_ptr<IASTStmt> Parser::parseCond_else()
 	{
 		if (auto node = parseStmt())
 			return node;
-		else
+		else // if had errors, don't print this.
 		{
 			errorExpected("Expected a statement");
 			return nullptr;
