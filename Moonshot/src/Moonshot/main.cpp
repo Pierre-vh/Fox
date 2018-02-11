@@ -35,8 +35,13 @@ using namespace Moonshot;
 			* If they didn't match it, was it because they didn't find it, or because of an error?
 		This is needed to avoid flooding the console with useless, non important error messages.
 
-	TODO :Implement the system to detect if the parsing of a rule was successful or not to avoid error message flooding.
-		From there, judge if recovery functions can be useful in certain cases. (like in compound statement where the end '}' isn't found-> panic and recover)
+	TODO :
+		Implement the system to detect if the parsing of a rule was successful or not to avoid error message flooding. This is a big parser rework and will take a few hours to complete.
+		From there, judge if recovery functions can be useful in certain cases. (like in compound statement where the end '}' isn't found-> panic and recover). If yes:
+			Add an error counter to the Parser
+			When reporting an error, increment err_count
+			At the end of the error reporting function, if err_count exceeds a certain thresold, stop parsing (set pos_ to curtok_.size())
+			In certain cases, like if a } wasn't found at the end of the compound statement, panic and try to find it to resync. if resync is successful, reset err count. Implement that whenever needed.
 		Don't aim for a huge precision error messages, just a good compromise.
 */
 int main()
