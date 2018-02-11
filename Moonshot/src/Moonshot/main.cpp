@@ -29,21 +29,15 @@ using namespace Moonshot;
 			Generally, find ways to simplify the ast as much as possible.
 */
 /*
-	TODO:
+	Needed:
 		Rework the parser partially. I need functions to be capable of indicating that :
 			* They didn't match the non terminal
 			* If they didn't match it, was it because they didn't find it, or because of an error?
 		This is needed to avoid flooding the console with useless, non important error messages.
 
-		Example of good error message
-		let foo : int = 3+3/*4);
-		"Unexpected token "*" at line 1"
-		"Expected expression after binary operator, after "/" at line 1"
-
-		Rework goals:
-			* Better error messages, more user friendly : stop flooding, give more info.
-				* Make parsing function's return type more informative, with a way of knowing if the function found errors or if it was successful.
-			* Parsing should continue after a unexpected token has been found, unless they can't find the desired token after X tentatives (DONE!)
+	TODO :Implement the system to detect if the parsing of a rule was successful or not to avoid error message flooding.
+		From there, judge if recovery functions can be useful in certain cases. (like in compound statement where the end '}' isn't found-> panic and recover)
+		Don't aim for a huge precision error messages, just a good compromise.
 */
 int main()
 {
