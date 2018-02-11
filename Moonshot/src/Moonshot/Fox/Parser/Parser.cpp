@@ -108,20 +108,6 @@ Token Parser::getToken(const size_t & d) const
 		return Token(Context());
 }
 
-bool Parser::moveToNextStatement()
-{
-	for (; state_.pos < tokens_.size(); state_.pos++)
-	{
-		auto tok = getToken();
-		if	(tok.isValid() && (tok.type == tokenCat::TT_SIGN) && 
-			((tok.sign_type == sign::P_SEMICOLON ) || (tok.sign_type == sign::B_CURLY_CLOSE)))
-		{
-			state_.pos++;
-			return true;
-		}
-	}
-	return false;
-}
 
 void Parser::errorUnexpected()
 {
@@ -137,7 +123,6 @@ void Parser::errorUnexpected()
 			output << "Unexpected Token \xAF" << tok.str << "\xAE at line " << tok.pos.line;
 		context_.reportError(output.str());
 	}
-	moveToNextStatement();
 	context_.resetOrigin();
 }
 
@@ -151,8 +136,10 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 
 	// If needed, print unexpected error message
 	if (lastUnexpectedTokenPosition != state_.pos)
+	{
+		lastUnexpectedTokenPosition = state_.pos;
 		errorUnexpected();
-	lastUnexpectedTokenPosition = state_.pos;
+	}
 
 	context_.setOrigin("Parser");
 

@@ -143,11 +143,9 @@ namespace Moonshot
 			Token getToken() const;
 			Token getToken(const size_t &d) const;
 
-			bool moveToNextStatement(); // Moves the pos_ to the next statement, which means that this function will skip every token until it finds a } or a ;
-										// Returns true if it skipped successfuly, false if eof was met while skipping
 
 			// Make error message :
-			void errorUnexpected();	// generic error message "unexpected Token..". After printing the message, this function will use moveToNextStatement to find the next statement and continue parsing.
+			void errorUnexpected();	// generic error message "unexpected Token..". 
 			void errorExpected(const std::string &s, const std::vector<std::string>& sugg = {});		// generic error message "expected Token after.."
 			void genericError(const std::string &s); // just a normal, generic error
 
