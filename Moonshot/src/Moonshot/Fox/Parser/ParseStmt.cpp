@@ -120,10 +120,12 @@ std::unique_ptr<IASTStmt> Parser::parseCondition()
 
 		return rtr;
 	}
-	else if (result.expr_ || result.stmt_)
-		throw Exceptions::parser_critical_error("parseCond_if() returned a invalid Conditional Statement!");
-	else
-		return nullptr;
+	// change this bit in the new system to
+	else if (parseCond_elseIf().isComplete())		// if parsing of else if successful	
+		genericError("Else if without matching if.");
+	else if (auto node = parseCond_else())			// if parsing of else successful
+		genericError("Else without matching if.");
+	return nullptr;
 }
 
 ConditionalStatement Parser::parseCond_if()

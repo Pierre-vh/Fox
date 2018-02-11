@@ -167,7 +167,7 @@ std::unique_ptr<IASTExpr> Parser::parseBinaryExpr(const char & priority)
 
 		if (!second) // Check for validity : we need a rhs. if we don't have one, we have an error !
 		{
-			errorExpected("Expected an expression after binary operator.");
+			errorExpected("Expected an expression after binary operator,");
 			break;
 		}
 

@@ -108,6 +108,21 @@ Token Parser::getToken(const size_t & d) const
 		return Token(Context());
 }
 
+bool Parser::moveToNextStatement()
+{
+	for (; state_.pos < tokens_.size(); state_.pos++)
+	{
+		auto tok = getToken();
+		if	(tok.isValid() && (tok.type == tokenCat::TT_SIGN) && 
+			((tok.sign_type == sign::P_SEMICOLON ) || (tok.sign_type == sign::B_CURLY_CLOSE)))
+		{
+			state_.pos++;
+			return true;
+		}
+	}
+	return false;
+}
+
 void Parser::errorUnexpected()
 {
 	context_.setOrigin("Parser");
@@ -122,7 +137,7 @@ void Parser::errorUnexpected()
 			output << "Unexpected Token \xAF" << tok.str << "\xAE at line " << tok.pos.line;
 		context_.reportError(output.str());
 	}
-
+	moveToNextStatement();
 	context_.resetOrigin();
 }
 
@@ -131,6 +146,9 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 	static std::size_t lastUnexpectedTokenPosition;
 	if (currentExpectedErrorsCount_ > maxExpectedErrorCount_)
 		return;
+
+	auto lastTokenPos = state_.pos - 1;
+
 	// If needed, print unexpected error message
 	if (lastUnexpectedTokenPosition != state_.pos)
 		errorUnexpected();
@@ -139,7 +157,7 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
-	auto tok = getToken(state_.pos - 1);
+	auto tok = getToken(lastTokenPos);
 	if(tok.str.size()==1)
 		output << s << " after '" << tok.str << "' at line " << tok.pos.line;
 	else 
@@ -156,8 +174,14 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 
 	context_.reportError(output.str());
 	context_.resetOrigin();
-
 	currentExpectedErrorsCount_++;
+}
+
+void Parser::genericError(const std::string & s)
+{
+	context_.setOrigin("Parser");
+	context_.reportError(s);
+	context_.resetOrigin();
 }
 
 Parser::ParserState Parser::createParserStateBackup() const

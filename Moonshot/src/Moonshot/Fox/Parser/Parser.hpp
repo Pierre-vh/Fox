@@ -54,29 +54,28 @@ Note :
 #include <memory>							// std::shared_ptr
 #include <stack>							// std::stack
 
-#define DEFAULT__maxExpectedErrorsCount 2
+#define DEFAULT__maxExpectedErrorsCount 5
 #define DEFAULT__shouldPrintSuggestions true
 
 namespace Moonshot
 {
 	/*
-	// put this in its own file! (.hpp, it needs to be header only because of template)
-	template<typename T>
-	struct ParsingResult
-	{
-		public:
-			parsingResult() = default;
-			parsingResult(T& value); // sets wasSuccessful to true. will probably have problems with value when it's a unique ptr
-									// use std::is_copy_construcitble with a constrexpr if/else + std::move in case it's not cpy constr?
-			bool wasSuccesful(); // return successful_ 
-			bool isResultValid();  // return result_ ? true : false
-		private:
-			T result_;
-			bool successful_ = false;
-	};
+		// put this in its own file! (.hpp, it needs to be header only because of template)
+		template<typename T>
+		struct ParsingResult
+		{
+			public:
+				parsingResult() = default;
+				parsingResult(T& value); // sets wasSuccessful to true. will probably have problems with value when it's a unique ptr
+										// use std::is_copy_construcitble with a constrexpr if/else + std::move in case it's not cpy constr?
+				operator bool() const; //  successful_ accessor
+				T result_;
+			private:
+				bool successful_ = false;
+		};
 
-	template<typename TYPE>
-	using parsingResult_uptr = parsingResult<std::unique_ptr<TYPE>>;
+		template<typename TYPE>
+		using parsingResult_uptr = parsingResult<std::unique_ptr<TYPE>>;
 	*/
 	class Context;
 	class Parser
@@ -129,28 +128,31 @@ namespace Moonshot
 			// MATCH BY TYPE OF TOKEN
 			std::pair<bool,Token> matchLiteral();			// match a literal
 			std::pair<bool, std::string> matchID();			// match a ID
-			bool matchSign(const sign &s);					// match any signs : ! : * etc.
+			bool matchSign(const sign &s);					// match any signs : ; . ( ) 
 			bool matchKeyword(const keyword &k);			// Match any keyword
 
 			std::size_t matchTypeKw();						// match a type keyword : int, float, etc.
 			
 			// MATCH OPERATORS
-			bool								matchExponentOp(); // only **
-			std::pair<bool, binaryOperation>	matchAssignOp(); // only = for now.
-			std::pair<bool, unaryOperation>		matchUnaryOp(); // ! -
-			std::pair<bool, binaryOperation>	matchBinaryOp(const char &priority); // + - * / % ** ...
+			bool								matchExponentOp(); //  **
+			std::pair<bool, binaryOperation>	matchAssignOp(); // = 
+			std::pair<bool, unaryOperation>		matchUnaryOp(); // ! - +
+			std::pair<bool, binaryOperation>	matchBinaryOp(const char &priority); // + - * / % 
 			
 			// UTILITY METHODS
 			Token getToken() const;
 			Token getToken(const size_t &d) const;
 
+			bool moveToNextStatement(); // Moves the pos_ to the next statement, which means that this function will skip every token until it finds a } or a ;
+										// Returns true if it skipped successfuly, false if eof was met while skipping
+
 			// Make error message :
-			// 2 Types of error messages in the parser : unexpected Token and Expected a Token.
-			void errorUnexpected();							// generic error message "unexpected Token.."
+			void errorUnexpected();	// generic error message "unexpected Token..". After printing the message, this function will use moveToNextStatement to find the next statement and continue parsing.
 			void errorExpected(const std::string &s, const std::vector<std::string>& sugg = {});		// generic error message "expected Token after.."
-			
+			void genericError(const std::string &s); // just a normal, generic error
+
 			unsigned int maxExpectedErrorCount_;
-			unsigned int currentExpectedErrorsCount_ = 0; 	// Current "expected" error count, used to avoid "expected (x)" spam by the interpreter.
+			unsigned int currentExpectedErrorsCount_ = 0; 	// Current "expected" error count, used to avoid "expected (x)" spam by the interpreter. (Will be deleted with next rework)
 			bool shouldPrintSuggestions_; // unused for now
 
 			struct ParserState
