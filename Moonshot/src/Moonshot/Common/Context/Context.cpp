@@ -50,8 +50,13 @@ void Context::reportError(const std::string & message)
 	addLog(
 		makeLogMessage("ERROR",message)
 	);
+	// increment err count
+	curErrCount_++;
 	// update state
-	curstate_ = ContextState::UNSAFE;
+	if (curErrCount_ >= CONTEXT_maxErrorCount)
+		curstate_ = ContextState::CRITICAL;
+	else
+		curstate_ = ContextState::UNSAFE;
 }
 
 void Context::reportFatalError(const std::string & message)
@@ -63,6 +68,11 @@ void Context::reportFatalError(const std::string & message)
 	curstate_ = ContextState::CRITICAL;
 }
 
+void Context::resetErrorCount()
+{
+	curErrCount_ = 0;
+}
+
 ContextState Context::getState() const
 {
 	return curstate_;
@@ -71,6 +81,7 @@ ContextState Context::getState() const
 void Context::resetState()
 {
 	curstate_ = ContextState::SAFE;
+	resetErrorCount();
 	//logs_.push_back("[Context] The context's state has been reset.");
 }
 
@@ -107,11 +118,6 @@ void Context::clearLogs()
 bool Context::isCritical() const
 {
 	return curstate_ == ContextState::CRITICAL;
-}
-
-bool Context::isSafe_strict() const
-{
-	return curstate_ == ContextState::SAFE;
 }
 
 bool Context::isSafe() const

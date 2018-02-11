@@ -22,9 +22,7 @@
 
 #include "Options\OptionsManager.hpp" 
 
-// This is used to define the maximum errors you can have before the context goes critical.
-// Can be changed @ runtime with
-#define DEFAULT_MAX_TOLERATED_ERRORS 4
+#define CONTEXT_maxErrorCount 5 // Maximum number of errors accepted before the context goes critical
 
 namespace Moonshot
 {
@@ -63,6 +61,8 @@ namespace Moonshot
 			void reportError(const std::string& message);
 			void reportFatalError(const std::string& message);
 
+			void resetErrorCount();
+
 			ContextState getState() const;
 			void resetState();
 
@@ -75,7 +75,6 @@ namespace Moonshot
 
 			// issafe
 			bool isCritical() const;
-			bool isSafe_strict() const;
 			bool isSafe() const;
 
 			OptionsManager optionsManager_; // The options manager.
@@ -94,6 +93,8 @@ namespace Moonshot
 			ContextLoggingMode curmode_ = ContextLoggingMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR;
 			ContextState curstate_ = ContextState::SAFE;
 			BuildMode curbuildmode_ = BuildMode::DEBUG;
+
+			unsigned int curErrCount_ = 0;
 	};
 }
 
