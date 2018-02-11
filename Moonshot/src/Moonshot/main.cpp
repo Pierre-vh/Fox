@@ -9,13 +9,10 @@ using namespace Moonshot;
 			-> Update the typechecker to support functions checking
 			-> Scope checking
 			-> (...) Others if there's a need for them.
-		->	Create a "Front-End" class for Fox for fox, that
-			takes a string or a file as input and runs the Lexer,Parser and Visitors needed.
-			Do not make the class fully opaque, with just a function taking the str and outputting the std::vector<Instruction>
-			But create functions like : readFile(),readStr(),runCompileTimeChecks(),generateIR(),..
+		->	Create a Driver class for the frond end.
 		->	Design the IR, and create a CodeGen visitor.
-			The IR class should be located in /Common/
-			Nothing from Fox should include files from Badger.
+			The IR classes should be located in /Common/ (IR Dictionary, generator, etc)
+			Nothing from Fox should include files from Badger and vice versa
 		-> Start work on Badger.
 
 		Temporary visitor order :
