@@ -227,7 +227,7 @@ std::unique_ptr<IASTStmt> Parser::parseCond_else()
 	{
 		if (auto node = parseStmt())
 			return node;
-		else // if had errors, don't print this.
+		else
 		{
 			errorExpected("Expected a statement");
 			return nullptr;
@@ -257,7 +257,7 @@ std::unique_ptr<IASTStmt> Parser::parseStmt()
 
 std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 {
-	//<var_decl> = <let_kw> <id> <type_spec> ['=' <expr>] <eoi>
+	//<var_decl> = <let_kw> <id> <type_spec> ['=' <expr>] ';'
 	std::unique_ptr<IASTExpr> initExpr = 0;
 
 	bool isVarConst = false;
@@ -276,6 +276,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		if (!successfulMatchFlag)
 		{
 			errorExpected("Expected an ID");
+			resyncToDelimiter(sign::P_SEMICOLON);
 			return nullptr;
 		}
 		// ##TYPESPEC##
