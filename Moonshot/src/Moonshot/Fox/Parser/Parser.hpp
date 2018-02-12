@@ -143,6 +143,13 @@ namespace Moonshot
 			Token getToken() const;
 			Token getToken(const size_t &d) const;
 
+			// resync
+			// This function will skip every token until the appropriate "resync" token is found.
+			// Returns true if resync was successful.
+			bool resyncToDelimiter(const sign &s);
+
+			// die : sets the pos to tokens_.size() and sets isAlive to false. Indicates that the parsing is over and the parser has died because of a critical error.
+			void die();
 
 			// Make error message :
 			void errorUnexpected();	// generic error message "unexpected Token..". 
@@ -152,10 +159,12 @@ namespace Moonshot
 			unsigned int maxExpectedErrorCount_;
 			unsigned int currentExpectedErrorsCount_ = 0; 	// Current "expected" error count, used to avoid "expected (x)" spam by the interpreter. (Will be deleted with next rework)
 			bool shouldPrintSuggestions_; // unused for now
+			
 
 			struct ParserState
 			{
 				std::size_t pos = 0;						// current pos in the Token vector.
+				bool isAlive = true;						// is the parser "alive"?
 			} state_;
 
 			ParserState createParserStateBackup() const;

@@ -41,6 +41,7 @@ using namespace Moonshot;
 			In certain cases, like if a } wasn't found at the end of the compound statement, panic and try to find it to resync. if resync is successful, reset err count. Implement that whenever needed.
 		Don't aim for a huge precision error messages, just a good compromise.
 */
+
 int main()
 {
 

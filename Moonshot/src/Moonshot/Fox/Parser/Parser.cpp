@@ -19,6 +19,8 @@
 using namespace Moonshot;
 using namespace fv_util;
 
+#define RETURN_IF_DEAD 	if (!state_.isAlive) return
+
 Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
 {
 	maxExpectedErrorCount_ = context_.optionsManager_.getAttr(OptionsList::parser_maxExpectedErrorCount).value_or(DEFAULT__maxExpectedErrorsCount).get<int>();
@@ -109,8 +111,32 @@ Token Parser::getToken(const size_t & d) const
 }
 
 
+bool Parser::resyncToDelimiter(const sign & s)
+{
+	for (; state_.pos < tokens_.size(); state_.pos++)
+	{
+		if (getToken().sign_type == s)
+		{
+			state_.pos++;
+			return true;
+		}
+	}
+	die();
+	return false;
+}
+
+void Parser::die()
+{
+	genericError("Couldn't recover from error, stopping parsing.");
+
+	state_.pos = tokens_.size();
+	state_.isAlive = false;
+}
+
 void Parser::errorUnexpected()
 {
+	RETURN_IF_DEAD;
+
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
@@ -128,6 +154,8 @@ void Parser::errorUnexpected()
 
 void Parser::errorExpected(const std::string & s, const std::vector<std::string>& sugg)
 {
+	RETURN_IF_DEAD;
+
 	static std::size_t lastUnexpectedTokenPosition;
 	if (currentExpectedErrorsCount_ > maxExpectedErrorCount_)
 		return;
@@ -166,6 +194,8 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 
 void Parser::genericError(const std::string & s)
 {
+	RETURN_IF_DEAD;
+
 	context_.setOrigin("Parser");
 	context_.reportError(s);
 	context_.resetOrigin();

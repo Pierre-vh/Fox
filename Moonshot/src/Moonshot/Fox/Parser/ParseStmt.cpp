@@ -46,7 +46,8 @@ std::unique_ptr<IASTStmt> Parser::parseCompoundStatement()
 		if (!matchSign(sign::B_CURLY_CLOSE))
 		{
 			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
-			return nullptr;
+			if(!resyncToDelimiter(sign::B_CURLY_CLOSE))
+				return nullptr;
 		}
 		return rtr;
 	}
@@ -77,7 +78,8 @@ std::unique_ptr<IASTStmt> Parser::parseWhileLoop()
 		if (!matchSign(sign::B_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')' after expression in while statement");
-			return nullptr;
+			if(!resyncToDelimiter(sign::B_ROUND_CLOSE))
+				return nullptr;
 		}
 		// <compound_statement>
 		if (auto node = parseStmt())
@@ -152,9 +154,10 @@ ConditionalStatement Parser::parseCond_if()
 		if (!matchSign(sign::B_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')' after expression in if condition,");
-			return ConditionalStatement();
+			if(!resyncToDelimiter(sign::B_ROUND_CLOSE))
+				return ConditionalStatement();
 		}
-		// <compound_statement>
+		// <statement>
 		if (auto node = parseStmt())
 			rtr.stmt_ = std::move(node);
 		else
@@ -180,7 +183,8 @@ ConditionalStatement Parser::parseCond_elseIf()
 			if (!matchSign(sign::B_ROUND_OPEN))
 			{
 				errorExpected("Expected a '('");
-				return ConditionalStatement();
+				// Try to parse a statement to give further error messages.
+				parseStmt();
 			}
 			// <expr>
 			if (auto node = parseExpr())
@@ -194,7 +198,8 @@ ConditionalStatement Parser::parseCond_elseIf()
 			if (!matchSign(sign::B_ROUND_CLOSE))
 			{
 				errorExpected("Expected a ')' after expression in else if condition,");
-				return ConditionalStatement();
+				if(!resyncToDelimiter(sign::B_ROUND_CLOSE))
+					return ConditionalStatement();
 			}
 			// <statement>
 			if (auto node = parseStmt())
@@ -280,7 +285,8 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		// index 2 -> type index if success
 		if (!std::get<0>(typespecResult))
 		{
-			errorExpected("Expected a type specifier (\": <type>\")");
+			errorExpected("Expected a type specifier");
+			resyncToDelimiter(sign::P_SEMICOLON); // Resync to semicolon before returning
 			return nullptr;
 		}
 		else
@@ -298,6 +304,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 			if (!initExpr)
 			{
 				errorExpected("Expected an expression");
+				resyncToDelimiter(sign::P_SEMICOLON); // Resync to semicolon before returning
 				return nullptr;
 			}
 		}
@@ -305,6 +312,7 @@ std::unique_ptr<IASTStmt> Parser::parseVarDeclStmt()
 		if (!matchSign(sign::P_SEMICOLON))
 		{
 			errorExpected("Expected semicolon after expression in variable declaration,");
+			resyncToDelimiter(sign::P_SEMICOLON); // Resync to semicolon before returning
 			return nullptr;
 		}
 
@@ -347,7 +355,10 @@ std::unique_ptr<IASTStmt> Parser::parseExprStmt()
 		if (matchSign(sign::P_SEMICOLON))
 			return node;
 		else
+		{
 			errorExpected("Expected a ';' in expression statement");
+			resyncToDelimiter(sign::P_SEMICOLON); // Discard all tokens until it's found, and continue parsing.
+		}
 	}
 
 	return nullptr;
