@@ -94,7 +94,7 @@ void Token::idToken()
 	{
 		if (specific_idKeyword())
 			type = tokenCat::TT_KEYWORD;
-		else if (specific_idValue())
+		else if (specific_idLiteral())
 			type = tokenCat::TT_LITERAL;
 		else if (std::regex_match(str, kId_regex))
 			type = tokenCat::TT_IDENTIFIER;
@@ -128,7 +128,7 @@ bool Token::specific_idSign()
 	return false;
 }
 
-bool Token::specific_idValue()
+bool Token::specific_idLiteral()
 {
 	std::stringstream converter(str);
 	UTF8::StringManipulator strmanip;

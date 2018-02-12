@@ -195,8 +195,7 @@ namespace Moonshot
 			void idToken();					// will id the tolen and call the specific evaluations functions if needed.
 			bool specific_idKeyword();
 			bool specific_idSign();
-			bool specific_idValue();				// is a value (raw const)
-										// this class will also put the value in the variant, with the exception of strings (it'll just trim the quotes and put it back in str)
+			bool specific_idLiteral();				// is a literal
 	};
 	// TokenVector typedef
 	typedef std::vector<Token> TokenVector;
