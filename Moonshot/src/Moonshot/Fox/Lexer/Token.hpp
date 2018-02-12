@@ -124,7 +124,7 @@ namespace Moonshot
 		// PACKAGES
 		{ "import"	, keyword::P_IMPORT	},
 		{ "using"	, keyword::P_USING	}
-
+		// Before release, I might add more keywords that could be used later. e.g. : class, static, void, null,for,do,break,continue, etc.
 	};
 
 	const std::map<CharType, sign> kSign_dict =
