@@ -54,10 +54,6 @@ int main()
 	TestManager ts(context);
 	ts.addDefaultTests();
 	ts.runTests(true);
-	std::cout << "Tokensize:" << sizeof(Token) << std::endl;
-	std::cout << "TextPos:" << sizeof(TextPosition) << std::endl;
-	std::cout << "FVal:" << sizeof(FVal) << std::endl;
-	std::cout << "String:" << sizeof(std::string) << std::endl;
 	std::cout << "Finished. Press any key to continue.\n";
 	std::cin.get();
 	return 0;
