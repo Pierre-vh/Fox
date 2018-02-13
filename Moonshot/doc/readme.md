@@ -1,5 +1,3 @@
-Theses are mostly personal notes.
-
 ## File headers
 file_header.txt is the text that must be copy-pasted at the beginning of every file of the Moonshot project. 
 
@@ -12,26 +10,26 @@ after minor changes are made.
 * 0.1 ->	Reworked expressions, added one-stmt blocks and support for unary operators ! and - and type conversion.</br>
 * 0.2 ->	Grammar cleanup</br>
 * 0.3 ->	Now using Expression Statements instead of f_call_stmt and var_ass_stmt. </br>
-			Added <expr_stmt> which replaces var_assign & f_call statements.</br>
-* 0.4 ->	For simplicity's sake, i removed the namespace idea for now.</br>
-			After some thinking, I realised that it will be a lot harder than I first thought to implement.</br>
-			The feature is still planned, but not for now !</br>
-			Same for includes, until the multiple file and include system is added, it's useless.</br>
-* 0.4.1->	<block> renamed to <compound_statement>. </br>
+		Added <expr_stmt> which replaces var_assign & f_call statements.</br>
+* 0.4 ->	Namespaces removed
+* 0.4.1->	\<block> renamed to <compound_statement>. </br>
 * 0.4.2->	<return> : <expr> is now optional (to allow "return;" in void functions). </br>
-* 0.4.3->	Deleted the <ctrl_flow> non-terminal and added | <condition> | <while_loop> to <stmt> rule.</br>
+* 0.4.3->	Deleted the <ctrl_flow> non-terminal and added  \<condition> | \<while_loop> to \<stmt> rule.</br>
 * 0.5->		Expression rework. They're now far more flexible and support unary operation chaining, like !!false, !-3, etc.</br>
 * 0.5.1->	Changed Exponent sign to "**" instead of '^' like in other languages ( python, fortran,.. )</br>
-* 0.6	->	Final pass on the expressions : right associativity is directly specified in the grammar for exponent and = operators. </br>
+* 0.6->		</Br>
+	Final pass on the expressions : right associativity is directly specified in the grammar for exponent and = operators. </br>
 			Changed exponent operator's priority to be mathematically correct.</br>
 			Renamed <const> to <literal>*</br>
 			Added '+' unary op</br>
-* 0.6.5->	Changed <compound_statement> rule : removed <statement> as an option</br>
-			Changed statement rule: added the <compound_statement> and <rtr_stmt> rule as options</br>
-			Changed <compound_statement> in statements that used it before to just <statement></br>
-* 0.7.0->	Removed the <eoi> nonterminal. It was completly useless. I just replaced all of them with ';'</br>
-			Changed (and corrected) the grammar for if/else if/else statements. It had a typo, and i've cleaned it up a bit to eliminate redudancy.</br>
-			Added the empty ';' statement to the expression statement, like in C and C++.</br>
-			Removed the namespace rule and added it to the scrapped idea part. It was already scrapped for now, I've just made it clear.</br>
-			Removed the <xxx_kw> nonterminal, as it was useless. I replaced every <XXX_kw> rule by the proper keyword (e.g. <wh_kw> -> "while")</br>
+* 0.6.5-> </br>	
+		Changed <compound_statement> rule : removed <statement> as an option</br>
+		Changed statement rule: added the <compound_statement> and <rtr_stmt> rule as options</br>
+		Changed <compound_statement> in statements that used it before to just <statement></br>
+* 0.7.0->	</br>
+Removed the <eoi> nonterminal. It was completly useless. I just replaced all of them with ';'</br>
+		Changed (and corrected) the grammar for if/else if/else statements. It had a typo, and i've cleaned it up a bit to eliminate redudancy.</br>
+		Added the empty ';' statement to the expression statement, like in C and C++.</br>
+		Removed the namespace rule and added it to the scrapped idea category</br>
+		Removed the <xxx_kw> nonterminal, as it was useless. I replaced every <XXX_kw> rule by the proper keyword (e.g. <wh_kw> -> "while")</br>
 
