@@ -14,56 +14,64 @@
 namespace Moonshot
 {
 	enum class ParsingOutcome {
-		SUCCESS, FAILURE
+		SUCCESS, FAILED_AND_DIED, FAILED_BUT_RECOVERED
 	};
 
-	enum class ParserStatus {
-		RECOVERED, DEAD
-	};
 	template<typename PtrTy>
 	struct ParsingResult {
-	public:
-		ParsingResult(const ParsingOutcome& pc, const ParserStatus& ps, std::unique_ptr<PtrTy>& node) {
-			if (pc == ParsingOutcome::SUCCESS)
-				isvalid_ = true;
-			else if (pc == ParsingOutcome::FAILURE)
-				isvalid_ = false;
 
-			if (ps == ParserStatus::RECOVERED)
-				isparseralive_ = true;
-			else if (ps == ParserStatus::DEAD)
-				isparseralive_ = false;
+		public:
+			ParsingResult(const ParsingOutcome& pc, std::unique_ptr<PtrTy>& node) {
+				if (pc == ParsingOutcome::SUCCESS)
+				{
+					successFlag_ = true;
+					recovered_ = true;
+				}
+				else if (pc == ParsingOutcome::FAILED_AND_DIED)
+				{
+					successFlag_ = false;
+					recovered_ = false;
+				}
+				else if (pc == ParsingOutcome::FAILED_BUT_RECOVERED)
+				{
+					if (node)						// if the node is usable and the parser has recovered, that means the parsing function returned a valid, but probably incomplete result.
+						successFlag_ = true;		// this result can still be used in the ast. (even if the ast won't be used, this might reduce the number of errors later)
+					else
+						successFlag_ = true;
 
-			if (node)
-				node_ = std::move(node);
-			else
-				node_ = nullptr;
-		}
-		operator bool() const {
-			return wasSuccessful();
-		}
+					recovered_ = true;
+				}
 
-		bool wasSuccessful() const
-		{
-			return isvalid_;
-		}
+				if (node)
+					node_ = std::move(node);
+				else
+					node_ = nullptr;
+			}
 
-		bool hasRecovered() const {
-			return isparseralive_;
-		}
+			operator bool() const {
+				return wasSuccessful();
+			}
 
-		bool isNodeUsable() const
-		{
-			if (node_)
-				return true;
-			return false;
-		}
+			bool wasSuccessful() const
+			{
+				return isvalid_;
+			}
 
-		std::unique_ptr<PtrTy> node_ = nullptr;
+			bool hasRecovered() const {
+				return recovered_;
+			}
 
+			bool isNodeUsable() const
+			{
+				if (node_)
+					return true;
+				return false;
+			}
 
-	private:
-		bool isvalid_;
-		bool isparseralive_;
+			std::unique_ptr<PtrTy> node_ = nullptr;
+
+		private:
+			bool successFlag_;
+			bool recovered_ = true;
 	};
 }
