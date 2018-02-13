@@ -110,18 +110,21 @@ namespace Moonshot
 		{ "bool"	, keyword::T_BOOL	},
 		{ "string"	, keyword::T_STRING	},
 		{ "char"	, keyword::T_CHAR	},
-
+		// specifier
 		{ "const"	, keyword::T_CONST },
 		// TYPE CONVERSION
 		{ "as"		, keyword::TC_AS		},
 		// DECLARATIONS
 		{ "let"		, keyword::D_LET		},
 		{ "func"	, keyword::D_FUNC	},
+		{ "fn"		, keyword::D_FUNC	},
+		// Statements
 		{ "if"		, keyword::D_IF		},
 		{ "else"	, keyword::D_ELSE	},
 		{ "while"	, keyword::D_WHILE	},
+		// return
 		{ "return"	, keyword::D_RETURN	},
-		// PACKAGES
+		// import
 		{ "import"	, keyword::P_IMPORT	},
 		{ "using"	, keyword::P_USING	}
 		// Before release, I might add more keywords that could be used later. e.g. : class, static, void, null,for,do,break,continue, etc.
