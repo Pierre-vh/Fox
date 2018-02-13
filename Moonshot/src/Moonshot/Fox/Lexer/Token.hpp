@@ -58,7 +58,7 @@ namespace Moonshot
 		S_GREATER_THAN,		// >
 		S_HASH,				// #
 		S_TILDE,			// ~
-		S_CARET,				// ^
+		S_CARET,			// ^
 		S_PERCENT,			// %
 
 		// BRACKETS
