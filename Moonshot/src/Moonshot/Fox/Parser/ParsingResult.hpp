@@ -19,7 +19,6 @@ namespace Moonshot
 
 	template<typename PtrTy>
 	struct ParsingResult {
-
 		public:
 			ParsingResult(const ParsingOutcome& pc, std::unique_ptr<PtrTy>& node) {
 				if (pc == ParsingOutcome::SUCCESS)
@@ -68,10 +67,9 @@ namespace Moonshot
 				return false;
 			}
 
+			// The node returned by the parsing function
 			std::unique_ptr<PtrTy> node_ = nullptr;
-
 		private:
-			bool successFlag_;
-			bool recovered_ = true;
+			bool successFlag_ = false,recovered_ = true;
 	};
 }
