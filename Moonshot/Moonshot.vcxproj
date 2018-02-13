@@ -202,6 +202,7 @@
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTNullStmt.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ForwardDeclarations.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTExpr.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Parser\ParsingResult.hpp" />
     <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\checked.h" />
     <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8\checked.hpp" />
