@@ -2,21 +2,14 @@ Feature name:
 	Expression Functions
 
 Motivation:
-	Bring a way of interacting with data in an easy and comprehensible way.
+	Bring a way of interacting with basic data types in an easy and comprehensible way.
 
 Grammar:
-	I needs to support expressions on literals, callables and complete expressions, be of the highest precedence.
+	It needs to support expressions on literals, callables and complete expressions and be of the highest precedence.
 	AND it needs to support chaining.
 
 	This should work:
 	<values> {'.' <id> <expr_list>} (0+)
-
-	One advantage of this rule, with minor adjustements in the typechecks (check if the type of value is a primitive)
-	it totally support calling objects!
-	foo.bar(); would be parsed as 
-
-		EXPR_FUNC
-  FOO (expr)	BAR (the function's name)
 
 Where it would fit in the current grammar:
 	<value>         = <callable> | <literal> | '(' <expr> ')' 
@@ -28,23 +21,13 @@ Where it would fit in the current grammar:
 	<expr>          = <binary_expr> [assign_operator> <expr>] 
 	
 	
-
 Example of use
 	"Foo bar".substr(0,3).toChar(0); // Does a substring on "Foo bar", returning "Foo", then converts the first char (index 0) to a char.
 
-
-Issues :
-	*I doubt it's going to be that easy, there must be a problem somewhere!
-	*Find a better name than expression function
-	*Maybe use '->' instead of '.' to avoid issues with floats, so this would be parsed without any issue : 0.2->asString(); Also, this would provide a way to separate expression functions from method calls if oop
-	is implemented
-
-	*Alternative to this idea : simply make theses functions in the standard library. toString, toFloat, etc..
-
-Further development:
-	Add the possibility for the user to create expression functions, with a syntax like this for instance
-	Eventually, all expression functions from the standard library should be moved and use that system.
-
-	[data:int] toFloat(): float{
-		return data as float;
-	}
+Implementation:
+	This is still a WIP, but here's the base idea.
+		Expression Function Declaration:
+		[data:int] toString() 
+		{
+			return (data as string);
+		}

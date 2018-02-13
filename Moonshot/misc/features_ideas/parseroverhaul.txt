@@ -1,5 +1,0 @@
-Modify the grammar to make a distinction between expr_func_id and a normal id, to generate 
-a more appropriate tree structure.
-
-The expr_func_id table should be held within the context, populated by a utility
-class that "injects" all the necessary stdlib functions.
