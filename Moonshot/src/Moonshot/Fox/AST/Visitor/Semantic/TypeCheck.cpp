@@ -33,6 +33,8 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 			FVal(IntType())
 		);
 	}
+	node_ctxt_.cur_binop = binaryOperation::PASS;
+	node_ctxt_.dir = dir::UNKNOWNDIR;
 }
 
 TypeCheckVisitor::~TypeCheckVisitor()
@@ -87,7 +89,7 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 		throw Exceptions::ast_malformation("UnaryExpression node did not have any child.");
 
 	// Get the child's return type. Don't change anything, as rtr_value is already set by the accept function.
-	auto childttype = visitAndGetResult(node.child_);
+	const auto childttype = visitAndGetResult(node.child_);
 	// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATIVE on a string.
 	if (childttype == indexes::fval_str)
 	{
@@ -112,7 +114,7 @@ void TypeCheckVisitor::visit(ASTCastExpr & node)
 	if (!node.child_)
 		throw Exceptions::ast_malformation("CastExpression node did not have any child.");
 
-	auto result = visitAndGetResult(node.child_);
+	const auto result = visitAndGetResult(node.child_);
 	if (canCastTo(node.getCastGoal(), result))
 		value_ = node.getCastGoal();
 	else
@@ -133,7 +135,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 	if (node.initExpr_) // If the node has an initExpr.
 	{
 		// get the init expression type.
-		auto iexpr_type = visitAndGetResult(node.initExpr_);
+		const auto iexpr_type = visitAndGetResult(node.initExpr_);
 		// check if it's possible.
 		if (!canAssign(
 			node.vattr_.type_,
@@ -162,7 +164,7 @@ void TypeCheckVisitor::visit(ASTVarCall & node)
 		value_ =  searchResult.type_; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
-bool TypeCheckVisitor::isAssignable(const std::unique_ptr<IASTExpr>& op) const
+bool TypeCheckVisitor::isAssignable(std::unique_ptr<IASTExpr>& op) const
 {
 	if (dynamic_cast<ASTVarCall*>(op.get())) // if the node's a ASTVarCall, it's assignable.
 		return true;

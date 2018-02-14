@@ -86,7 +86,7 @@ void Token::idToken()
 		throw Exceptions::lexer_critical_error("Found an empty Token. [" + pos.asText() + "]");
 
 	// substract the Token length's fron the column number given by the lexer.
-	pos.column -= (int)str.length();
+	pos.column -= static_cast<unsigned int>(str.length());
 
 	if (specific_idSign())
 		type = tokenCat::TT_SIGN;

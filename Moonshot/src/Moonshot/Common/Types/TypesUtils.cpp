@@ -23,14 +23,14 @@ std::string fv_util::dumpFVal(const FVal & var)
 		output << "Type : STRING, Value : \"" << std::get<std::string>(var) << "\"";
 	else if (std::holds_alternative<bool>(var))
 	{
-		bool v = std::get<bool>(var);
+		const bool v = std::get<bool>(var);
 		output << "Type : BOOL, Value : " << (v ? "true" : "false");
 	}
 	else if (std::holds_alternative<CharType>(var))
 	{
 		CharType x = std::get<CharType>(var);
 		UTF8::StringManipulator u8sm;
-		output << "Type : CHAR, Value : " << (int32_t)x << " = '" << u8sm.wcharToStr(x) << "'";
+		output << "Type : CHAR, Value : " << x << " = '" << u8sm.wcharToStr(x) << "'";
 	}
 	else
 		throw std::logic_error("Illegal variant.");

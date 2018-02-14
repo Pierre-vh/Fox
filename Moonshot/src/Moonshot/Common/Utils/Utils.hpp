@@ -18,7 +18,7 @@ namespace Moonshot
 	namespace util
 	{
 		// Path to root
-		static constexpr char moonshotSrcPath[] = ".\\..\\Moonshot\\";
+		static const std::string moonshotSrcPath = ".\\..\\Moonshot\\";
 		// convert enum to integer
 		template<typename Enumeration>
 		inline auto enumAsInt(Enumeration const value) -> typename std::underlying_type<Enumeration>::type

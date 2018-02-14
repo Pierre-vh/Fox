@@ -411,7 +411,7 @@ double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
 			//std::cout << "l:" << l << " r:" << r << std::endl;
 			if (l > r)
 			{
-				auto res = std::fmod(l, r);
+				const auto res = std::fmod(l, r);
 				if (res < 0)
 					return res + r;
 				return res;

@@ -160,7 +160,7 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 	if (currentExpectedErrorsCount_ > maxExpectedErrorCount_)
 		return;
 
-	auto lastTokenPos = state_.pos - 1;
+	const auto lastTokenPos = state_.pos - 1;
 
 	// If needed, print unexpected error message
 	if (lastUnexpectedTokenPosition != state_.pos)

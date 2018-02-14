@@ -104,7 +104,7 @@ std::string UTF8::StringManipulator::substring(std::size_t beg, const std::size_
 
 	for (std::size_t ind(0); ind < leng; ind++)
 	{
-		auto ch = utf8::next(it, cpy.end());
+		const auto ch = utf8::next(it, cpy.end());
 		append(	rtr, 
 				ch
 			);

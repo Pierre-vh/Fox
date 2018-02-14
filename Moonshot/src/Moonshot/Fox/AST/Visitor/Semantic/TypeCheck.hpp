@@ -57,7 +57,7 @@ namespace Moonshot
 				return value_;
 			}
 
-			bool isAssignable(const std::unique_ptr<IASTExpr> &op) const;
+			bool isAssignable(std::unique_ptr<IASTExpr> &op) const;
 			bool shouldOpReturnFloat(const binaryOperation& op) const; // used for operations that return float instead of normal values
 			std::size_t getExprResultType(const binaryOperation& op, std::size_t& lhs, const std::size_t& rhs);
 

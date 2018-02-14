@@ -145,7 +145,7 @@ void Dumper::visit(ASTCompStmt & node)
 
 	tabcount_ += 1;
 
-	for (auto& elem : node.statements_)
+	for (const auto& elem : node.statements_)
 		elem->accept(*this);
 
 	tabcount_ -= 1;
@@ -156,7 +156,7 @@ void Dumper::visit(ASTCondition & node)
 	std::cout << tabs() << "Condition Branch\n";
 	int counter = 0;
 	// (else) ifs
-	for (auto& elem : node.conditional_stmts_)
+	for (const auto& elem : node.conditional_stmts_)
 	{
 		tabcount_++;
 		std::cout << tabs() << "Condition " << counter << std::endl;

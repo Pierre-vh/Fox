@@ -141,8 +141,8 @@ void Lexer::runStateFunc()
 
 void Lexer::fn_S_BASE()
 {
-	CharType pk = manip.peekNext();
-	CharType c = manip.currentChar();	// current char
+	const CharType pk = manip.peekNext();
+	const CharType c = manip.currentChar();	// current char
 
 	if (curtok_.size() != 0)	// simple error checking : the Token should always be empty when we're in S_BASE.
 	{
@@ -150,7 +150,7 @@ void Lexer::fn_S_BASE()
 		return;
 	}
 	// IGNORE SPACES
-	if (std::iswspace((wchar_t)c)) eatChar();
+	if (std::iswspace(static_cast<wchar_t>(c))) eatChar();
 	// HANDLE COMMENTS
 	else if (c == '/' && pk == '/')
 	{
@@ -297,7 +297,7 @@ void Lexer::addToCurtok(CharType c)
 
 bool Lexer::isSep(const CharType &c) const
 {
-	if (c == '.' && std::iswdigit((wchar_t)manip.peekNext())) // if the next character is a digit, don't treat the dot as a separator.
+	if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
 		return false;
 
 	auto i = kSign_dict.find(c);

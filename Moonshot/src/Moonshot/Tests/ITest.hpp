@@ -52,8 +52,8 @@ namespace Moonshot
 		std::string readFileToString(Context& context, const std::string& fp);
 		std::vector<std::string> readFileToVec(Context& context, const std::string& fp);
 
-		static constexpr char spacer_slim[] = "-------------------------------------------------";
-		static constexpr char spacer_large[] = "=================================================";
+		static const std::string spacer_slim = "-------------------------------------------------";
+		static const std::string spacer_large = "=================================================";
 	}
 	class ITest
 	{

@@ -86,8 +86,7 @@ std::unique_ptr<IASTExpr> Parser::parseExponentExpr()
 std::unique_ptr<IASTExpr> Parser::parsePrefixExpr()
 {
 	bool uopResult = false;
-	unaryOperation uopOp;
-	std::size_t casttype = indexes::invalid_index;
+	unaryOperation uopOp = unaryOperation::DEFAULT;
 	std::tie(uopResult, uopOp) = matchUnaryOp(); // If an unary op is matched, uopResult will be set to true and pos_ updated.
 	if (uopResult)
 	{

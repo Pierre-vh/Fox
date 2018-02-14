@@ -91,8 +91,8 @@ bool OptionsTests::testParamvalueFuncs(Context & context)
 	bool p1_expected = true;
 	int p2_expected = -34520;
 	// casted expected values
-	int p1_casted_expected = 1;
-	bool p2_casted_expected = true;
+	const int p1_casted_expected = 1;
+	const bool p2_casted_expected = true;
 	ParameterValue p1(p1_expected), p2(p2_expected);
 	// holds
 	if (!p1.holdsType<bool>())

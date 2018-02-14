@@ -54,7 +54,7 @@ namespace Moonshot
 			TYPE value_;
 
 			template<typename NODE,typename VISITOR>
-			TYPE visitAndGetResult(std::unique_ptr<NODE>& node,VISITOR& visit)
+			TYPE visitAndGetResult(const std::unique_ptr<NODE>& node,VISITOR& visit)
 			{
 				node->accept(visit);
 				return value_;

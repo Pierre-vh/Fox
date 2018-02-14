@@ -35,7 +35,7 @@ bool U8StrManipTest::runTest(Context & context)
 
 	std::cout << ">Append test:";
 	{
-		wchar_t u8ch = L'ш';
+		const char32_t u8ch = L'ш';
 		std::string str = "foo";
 		UTF8::append(str, u8ch);
 		str += "bar";
@@ -88,7 +88,7 @@ bool U8StrManipTest::testStr(Context& context, const std::string& str, unsigned 
 	try {
 		while (!manip.isAtEndOfStr())
 		{
-			auto cur = manip.currentChar();
+			const auto cur = manip.currentChar();
 			if (cur == '\n')
 				linecount++;
 			else {
