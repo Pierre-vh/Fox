@@ -44,7 +44,7 @@ void TestManager::addTest(std::unique_ptr<ITest> test)
 void TestManager::runTests(const bool& displayContextLog)
 {
 	std::cout << spacer_slim << std::endl;
-	context_.setLoggingMode(ContextLoggingMode::SAVE_TO_VECTOR);
+	context_.setLoggingMode(Context::LoggingMode::SAVE_TO_VECTOR);
 	bool failflag = false;
 	std::cout << "TestManager : Running tests...\n";
 	std::cout << spacer_large << std::endl;

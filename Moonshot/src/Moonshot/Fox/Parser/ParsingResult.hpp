@@ -20,7 +20,7 @@ namespace Moonshot
 	template<typename PtrTy>
 	struct ParsingResult {
 		public:
-			ParsingResult(const ParsingOutcome& pc, std::unique_ptr<PtrTy>& node) {
+			ParsingResult(const ParsingOutcome& pc, std::unique_ptr<PtrTy> node) {
 				if (pc == ParsingOutcome::SUCCESS)
 				{
 					successFlag_ = true;
@@ -33,11 +33,7 @@ namespace Moonshot
 				}
 				else if (pc == ParsingOutcome::FAILED_BUT_RECOVERED)
 				{
-					if (node)						// if the node is usable and the parser has recovered, that means the parsing function returned a valid, but probably incomplete result.
-						successFlag_ = true;		// this result can still be used in the ast. (even if the ast won't be used, this might reduce the number of errors later)
-					else
-						successFlag_ = true;
-
+					successFlag_ = isNodeUsable();
 					recovered_ = true;
 				}
 
