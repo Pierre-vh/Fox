@@ -137,7 +137,7 @@ namespace utf8
     uint32_t next(octet_iterator& it, octet_iterator end)
     {
         uint32_t cp = 0;
-        internal::utf_error err_code = utf8::internal::validate_next(it, end, cp);
+       const internal::utf_error err_code = utf8::internal::validate_next(it, end, cp);
         switch (err_code) {
             case internal::UTF8_OK :
                 break;

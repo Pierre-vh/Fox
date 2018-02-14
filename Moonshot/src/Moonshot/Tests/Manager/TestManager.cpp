@@ -48,7 +48,7 @@ void TestManager::runTests(const bool& displayContextLog)
 	bool failflag = false;
 	std::cout << "TestManager : Running tests...\n";
 	std::cout << spacer_large << std::endl;
-	for (auto& elem : tests_)
+	for (const auto& elem : tests_)
 	{
 		std::cout << "[" << elem->getTestName() << "]\n";
 		if (elem->runTest(context_))

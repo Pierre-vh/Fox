@@ -84,7 +84,7 @@ namespace internal
     }
 
     template <typename u16>
-    inline bool is_surrogate(u16 cp)
+    inline constexpr bool is_surrogate(u16 cp)
     {
         return (cp >= LEAD_SURROGATE_MIN && cp <= TRAIL_SURROGATE_MAX);
     }
@@ -99,7 +99,7 @@ namespace internal
     inline typename std::iterator_traits<octet_iterator>::difference_type
     sequence_length(octet_iterator lead_it)
     {
-        uint8_t lead = utf8::internal::mask8(*lead_it);
+        const uint8_t lead = utf8::internal::mask8(*lead_it);
         if (lead < 0x80)
             return 1;
         else if ((lead >> 5) == 0x6)
@@ -146,7 +146,7 @@ namespace internal
         return UTF8_OK;
     }
 
-    #define UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(IT, END) {utf_error ret = increase_safely(IT, END); if (ret != UTF8_OK) return ret;}    
+    #define UTF8_CPP_INCREASE_AND_RETURN_ON_ERROR(IT, END) {const utf_error ret = increase_safely(IT, END); if (ret != UTF8_OK) return ret;}    
 
     /// get_sequence_x functions decode utf-8 sequences of the length x
     template <typename octet_iterator>

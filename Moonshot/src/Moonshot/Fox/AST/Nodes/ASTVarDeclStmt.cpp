@@ -12,7 +12,7 @@
 using namespace Moonshot;
 using namespace fv_util;
 
-ASTVarDeclStmt::ASTVarDeclStmt(const var::varattr & attr, std::unique_ptr<IASTExpr>& iExpr)
+ASTVarDeclStmt::ASTVarDeclStmt(const var::varattr & attr, std::unique_ptr<IASTExpr> iExpr)
 {
 	if (attr)
 	{

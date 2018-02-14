@@ -65,8 +65,8 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 	{
 		if (node.left_ && node.right_)
 		{
-			auto leftval = visitAndGetResult(node.left_, *this);
-			auto rightval = visitAndGetResult(node.right_, *this);
+			auto leftval = visitAndGetResult(node.left_.get(), *this);
+			auto rightval = visitAndGetResult(node.right_.get(), *this);
 
 			value_ = concat(leftval, rightval);
 			return;
@@ -80,8 +80,8 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 	{
 		if (isDataMapAvailable())
 		{
-			auto left_res = visitAndGetResult(node.left_, *this);
-			auto right_res = visitAndGetResult(node.right_, *this);
+			auto left_res = visitAndGetResult(node.left_.get(), *this);
+			auto right_res = visitAndGetResult(node.right_.get(), *this);
 			if (std::holds_alternative<var::varRef>(left_res) && isValue(right_res.index()))
 			{
 				symtab_->setValue(
@@ -101,7 +101,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 	{
 		if (isDataMapAvailable())
 		{
-			auto vattr = visitAndGetResult(node.left_, *this);
+			auto vattr = visitAndGetResult(node.left_.get(), *this);
 			if (std::holds_alternative<var::varRef>(vattr))
 			{
 				// Perform assignement
@@ -121,8 +121,8 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		if (!node.left_ || !node.right_)
 			throw Exceptions::ast_malformation("Attempted to run a comparison operation on a node without 2 children");
 		
-		const FVal lfval = visitAndGetResult(node.left_, *this);
-		const FVal rfval = visitAndGetResult(node.right_, *this);
+		const FVal lfval = visitAndGetResult(node.left_.get(), *this);
+		const FVal rfval = visitAndGetResult(node.right_.get(), *this);
 		/*
 			todo, deref the variables HERE, and remove the deref part of the functions _derefFirst.
 		*/
@@ -169,8 +169,8 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 	}
 	else
 	{
-		auto left_res = visitAndGetResult(node.left_, *this);
-		auto right_res = visitAndGetResult(node.right_, *this);
+		auto left_res = visitAndGetResult(node.left_.get(), *this);
+		auto right_res = visitAndGetResult(node.right_.get(), *this);
 		// Check if we have a string somewhere.
 		if (std::holds_alternative<std::string>(left_res) || std::holds_alternative<std::string>(right_res))
 		{
@@ -202,7 +202,7 @@ void RTExprVisitor::visit(ASTUnaryExpr & node)
 		return;
 	}
 
-	double lval = fvalToDouble_withDeref(visitAndGetResult(node.child_, *this));
+	double lval = fvalToDouble_withDeref(visitAndGetResult(node.child_.get(), *this));
 	// op == loginot
 	if (node.op_ == unaryOperation::LOGICNOT)
 	{
@@ -231,7 +231,7 @@ void RTExprVisitor::visit(ASTCastExpr & node)
 		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
-	value_ = castTo_withDeref(node.getCastGoal(), visitAndGetResult(node.child_, *this));
+	value_ = castTo_withDeref(node.getCastGoal(), visitAndGetResult(node.child_.get(), *this));
 	return;
 }
 

@@ -21,11 +21,11 @@ namespace Moonshot
 		// This is a simple struct that eases the storage of a expression + statement pair.
 		ConditionalStatement() = default;
 		// /!\ This constructor moves the attributes passed as argument.
-		ConditionalStatement(std::unique_ptr<IASTExpr> &expr, std::unique_ptr<IASTStmt> &stmt);
+		ConditionalStatement(std::unique_ptr<IASTExpr> expr, std::unique_ptr<IASTStmt> stmt);
 		ConditionalStatement resetAndReturnTmp();
 		// Contains an expression and a statement.
-		std::unique_ptr<IASTExpr> expr_;
-		std::unique_ptr<IASTStmt> stmt_;
+		std::unique_ptr<IASTExpr> expr_ = nullptr;
+		std::unique_ptr<IASTStmt> stmt_ = nullptr;
 
 		bool isNull() const; // returns true if !stmt_ && !expr_
 		bool isComplete() const; // returns true if stmt_ && expr_

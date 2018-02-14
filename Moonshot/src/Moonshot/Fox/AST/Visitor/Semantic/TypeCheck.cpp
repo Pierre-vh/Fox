@@ -51,7 +51,7 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 	{
 		if (node.op_ == binaryOperation::ASSIGN)
 		{
-			if (!isAssignable(node.left_))
+			if (!isAssignable(node.left_.get()))
 			{
 				context_.reportError("Assignement operation requires a assignable data type to the left of the operator !");
 				return;
@@ -59,9 +59,9 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 		}
 		// VISIT BOTH CHILDREN
 		// get left expr result type
-		auto left = visitAndGetResult(node.left_, dir::LEFT,node.op_);
+		auto left = visitAndGetResult(node.left_.get(), dir::LEFT,node.op_);
 		// get right expr result type
-		auto right = visitAndGetResult(node.right_, dir::RIGHT,node.op_);
+		auto right = visitAndGetResult(node.right_.get(), dir::RIGHT,node.op_);
 		// SPECIAL CHECK 1: CHECK IF THIS IS A CONCAT OP,CONVERT IT 
 		if (canConcat(left,right) && (node.op_ == binaryOperation::ADD))
 			node.op_ = binaryOperation::CONCAT;
@@ -89,7 +89,7 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 		throw Exceptions::ast_malformation("UnaryExpression node did not have any child.");
 
 	// Get the child's return type. Don't change anything, as rtr_value is already set by the accept function.
-	const auto childttype = visitAndGetResult(node.child_);
+	const auto childttype = visitAndGetResult(node.child_.get());
 	// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATIVE on a string.
 	if (childttype == indexes::fval_str)
 	{
@@ -114,7 +114,7 @@ void TypeCheckVisitor::visit(ASTCastExpr & node)
 	if (!node.child_)
 		throw Exceptions::ast_malformation("CastExpression node did not have any child.");
 
-	const auto result = visitAndGetResult(node.child_);
+	const auto result = visitAndGetResult(node.child_.get());
 	if (canCastTo(node.getCastGoal(), result))
 		value_ = node.getCastGoal();
 	else
@@ -135,7 +135,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 	if (node.initExpr_) // If the node has an initExpr.
 	{
 		// get the init expression type.
-		const auto iexpr_type = visitAndGetResult(node.initExpr_);
+		const auto iexpr_type = visitAndGetResult(node.initExpr_.get());
 		// check if it's possible.
 		if (!canAssign(
 			node.vattr_.type_,
@@ -164,9 +164,9 @@ void TypeCheckVisitor::visit(ASTVarCall & node)
 		value_ =  searchResult.type_; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
-bool TypeCheckVisitor::isAssignable(std::unique_ptr<IASTExpr>& op) const
+bool TypeCheckVisitor::isAssignable(const IASTExpr* op) const
 {
-	if (dynamic_cast<ASTVarCall*>(op.get())) // if the node's a ASTVarCall, it's assignable.
+	if (dynamic_cast<const ASTVarCall*>(op)) // if the node's a ASTVarCall, it's assignable.
 		return true;
 	return false;
 }

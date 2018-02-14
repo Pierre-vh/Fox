@@ -51,10 +51,10 @@ namespace Moonshot
 
 			}
 		protected:
-			TYPE value_;
+			TYPE value_ = TYPE();
 
 			template<typename NODE,typename VISITOR>
-			TYPE visitAndGetResult(const std::unique_ptr<NODE>& node,VISITOR& visit)
+			TYPE visitAndGetResult(NODE* node,VISITOR& visit)
 			{
 				node->accept(visit);
 				return value_;

@@ -45,7 +45,7 @@ namespace Moonshot
 			Context& context_;
 
 			template<typename T>
-			std::size_t visitAndGetResult(std::unique_ptr<T>& node,const dir& dir = dir::UNKNOWNDIR, const binaryOperation& c_binop = binaryOperation::PASS)
+			std::size_t visitAndGetResult(T* node,const dir& dir = dir::UNKNOWNDIR, const binaryOperation& c_binop = binaryOperation::PASS)
 			{
 				node_ctxt_.cur_binop = c_binop;
 				node_ctxt_.dir = dir;
@@ -57,7 +57,7 @@ namespace Moonshot
 				return value_;
 			}
 
-			bool isAssignable(std::unique_ptr<IASTExpr> &op) const;
+			bool isAssignable(const IASTExpr* op) const;
 			bool shouldOpReturnFloat(const binaryOperation& op) const; // used for operations that return float instead of normal values
 			std::size_t getExprResultType(const binaryOperation& op, std::size_t& lhs, const std::size_t& rhs);
 

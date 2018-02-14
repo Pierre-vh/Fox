@@ -173,7 +173,7 @@ std::unique_ptr<IASTExpr> Parser::parseBinaryExpr(const char & priority)
 		if (rtr->op_ == binaryOperation::PASS) // if the node has still a "pass" operation
 				rtr->op_ = op;
 		else // if the node already has an operation
-			rtr = oneUpNode(rtr, op);
+			rtr = oneUpNode(std::move(rtr), op);
 
 		rtr->right_ = std::move(second); // Set second as the child of the node.
 	}
@@ -212,7 +212,7 @@ std::unique_ptr<IASTExpr> Parser::parseExpr()
 	return nullptr;
 }
 
-std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr>& node, const binaryOperation & op)
+std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperation & op)
 {
 	auto newnode = std::make_unique<ASTBinaryExpr>(op);
 	newnode->left_ = std::move(node);
