@@ -23,18 +23,7 @@
 
 namespace Moonshot
 {
-	enum class dfaState
-	{
-		S_BASE, // basestate
-		S_STR,	// string literals
-		S_LCOM,	// line comment
-		S_MCOM,	// multiline comment
-		S_WORDS,// basic (keywords,signs) state
-		S_CHR	// char literals
-	};
-	// fwd decl
 	class Context;
-
 	class Lexer 
 	{
 		public:
@@ -54,13 +43,23 @@ namespace Moonshot
 
 			void setStr(const std::string& str);
 		private:
+			// enum to keep track of the current state
+			enum class DFAState
+			{
+				S_BASE, // basestate
+				S_STR,	// string literals
+				S_LCOM,	// line comment
+				S_MCOM,	// multiline comment
+				S_WORDS,// basic (keywords,signs) state
+				S_CHR	// char literals
+			};
 
 			void pushTok();					// push Token
 			void cycle();					// one dfa "cycle";
 			void runFinalChecks();			// runs the final checks. this is called after the lexing process ended.
 			// DFA state functions. I split this into various functions to make the code more readable in the cycle() function.
 			void runStateFunc();			// call the correct function, depending on cstate_
-			void dfa_goto(const dfaState &ns); 	// Go to state X (changes cstate)
+			void dfa_goto(const DFAState &ns); 	// Go to state X (changes cstate)
 			// States functions
 			void fn_S_BASE();
 			void fn_S_STR();	// string literals
@@ -84,7 +83,7 @@ namespace Moonshot
 			Context& context_;
 			// Utilities
 			bool		escapeFlag_ = false;			// escaping with backslash flag
-			dfaState	cstate_ = dfaState::S_BASE;		// curren dfa state. begins at S_BASE;
+			DFAState	cstate_ = DFAState::S_BASE;		// curren dfa state. begins at S_BASE;
 			std::string inputstr_;					// the input
 			std::string curtok_;					// the Token that's being constructed.
 			TextPosition	ccoord_;					// current coordinates.

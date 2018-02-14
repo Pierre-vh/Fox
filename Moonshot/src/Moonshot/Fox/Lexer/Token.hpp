@@ -20,8 +20,6 @@
 namespace Moonshot
 {
 	class Context;
-
-
 	enum class tokenCat : char
 	{
 		DEFAULT,	// Default value
@@ -31,7 +29,6 @@ namespace Moonshot
 		SIGN,			// + - ; ( ] ...
 		LITERAL			// value ("hello", 3.14, 'c', -1, ...)
 	};
-
 	enum class literal : char
 	{
 		LIT_ENUMDEFAULT,		// Default value
@@ -42,7 +39,6 @@ namespace Moonshot
 		LIT_BOOL,
 		LIT_STRING
 	};
-
 	enum class sign : char
 	{
 		S_ENUM_DEFAULT,			// Default value
