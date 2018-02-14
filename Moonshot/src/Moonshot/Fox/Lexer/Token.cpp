@@ -44,22 +44,22 @@ std::string Token::showFormattedTokenData() const
 	int enum_info = -1;		// The information of the corresponding enumeration
 	switch (type)
 	{
-		case tokenCat::TT_ENUM_DEFAULT:
+		case tokenCat::DEFAULT:
 			ss << "ENUM_DEFAULT";
 			break;
-		case tokenCat::TT_IDENTIFIER:
+		case tokenCat::IDENTIFIER:
 			ss << "IDENTIFIER";
 			enum_info = -2;
 			break;
-		case tokenCat::TT_KEYWORD:
+		case tokenCat::KEYWORD:
 			ss << "KEYWORD";
 			enum_info = util::enumAsInt(kw_type);
 			break;
-		case tokenCat::TT_SIGN:
+		case tokenCat::SIGN:
 			ss << "SIGN";
 			enum_info = util::enumAsInt(sign_type);
 			break;
-		case tokenCat::TT_LITERAL:
+		case tokenCat::LITERAL:
 			ss << "VALUE";
 			enum_info = util::enumAsInt(lit_type);
 			break;
@@ -89,15 +89,15 @@ void Token::idToken()
 	pos.column -= static_cast<unsigned int>(str.length());
 
 	if (specific_idSign())
-		type = tokenCat::TT_SIGN;
+		type = tokenCat::SIGN;
 	else
 	{
 		if (specific_idKeyword())
-			type = tokenCat::TT_KEYWORD;
+			type = tokenCat::KEYWORD;
 		else if (specific_idLiteral())
-			type = tokenCat::TT_LITERAL;
+			type = tokenCat::LITERAL;
 		else if (std::regex_match(str, kId_regex))
-			type = tokenCat::TT_IDENTIFIER;
+			type = tokenCat::IDENTIFIER;
 		else
 			context_.reportError(" [" + pos.asText() + "]\tUnrecognized Token \"" + str + '"');
 	}
@@ -105,8 +105,8 @@ void Token::idToken()
 
 bool Token::specific_idKeyword()
 {
-	auto i = kWords_dict.find(str);
-	if (i == kWords_dict.end())
+	auto i = TokenDictionaries::kKeywords_dict.find(str);
+	if (i == TokenDictionaries::kKeywords_dict.end())
 		return false;
 	
 	kw_type = i->second;
@@ -119,8 +119,8 @@ bool Token::specific_idSign()
 		return false;
 	if (isdigit(str[0]))
 		return false;
-	auto i = kSign_dict.find(str[0]);
-	if (i != kSign_dict.end())
+	auto i = TokenDictionaries::kSign_dict.find(str[0]);
+	if (i != TokenDictionaries::kSign_dict.end())
 	{
 		sign_type = i->second;
 		return true;

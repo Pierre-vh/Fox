@@ -11,10 +11,8 @@
 
 #include "IASTStmt.hpp"
 #include "ASTExpr.hpp"
-
 #include "Moonshot/Common/Types/Types.hpp"
 
-#include <string> // std::string
 #include <memory> // std::unique_ptr, std::make_unique
 
 namespace Moonshot 

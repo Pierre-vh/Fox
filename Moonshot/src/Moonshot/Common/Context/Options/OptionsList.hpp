@@ -23,20 +23,23 @@ namespace Moonshot
 		parser_maxExpectedErrorCount,
 		parser_printSuggestions
 	};
-	const std::map<OptionsList,std::string> k_OptionsStrNames =
+	namespace Dicts
 	{
-		{ OptionsList::TESTERCLASS_TESTOPT , "TESTERCLASS_TESTOPT" },
-		{ OptionsList::exprtest_printAST , "exprtest_printAST,"},
-		{ OptionsList::lexer_logPushedTokens , "lexer_logPushedTokens" },
-		{ OptionsList::lexer_logTotalTokenCount , "lexer_logTotalTokenCount"},
-		{ OptionsList::astdump_useUTF8chars, "astdump_useUTF8chars"},
-		{ OptionsList::parser_maxExpectedErrorCount, "parser_maxExpectedErrorCount"},
-		{ OptionsList::parser_printSuggestions,"parser_printSuggestions"}
-	};
+		const std::map<OptionsList, std::string> k_OptionsStrNames =
+		{
+			{ OptionsList::TESTERCLASS_TESTOPT , "TESTERCLASS_TESTOPT" },
+			{ OptionsList::exprtest_printAST , "exprtest_printAST," },
+			{ OptionsList::lexer_logPushedTokens , "lexer_logPushedTokens" },
+			{ OptionsList::lexer_logTotalTokenCount , "lexer_logTotalTokenCount" },
+			{ OptionsList::astdump_useUTF8chars, "astdump_useUTF8chars" },
+			{ OptionsList::parser_maxExpectedErrorCount, "parser_maxExpectedErrorCount" },
+			{ OptionsList::parser_printSuggestions,"parser_printSuggestions" }
+		};
+	}
 	inline std::string getOptionName(const OptionsList& opt)
 	{
-		auto reqit = k_OptionsStrNames.find(opt);
-		if (reqit != k_OptionsStrNames.end())
+		auto reqit = Dicts::k_OptionsStrNames.find(opt);
+		if (reqit != Dicts::k_OptionsStrNames.end())
 			return reqit->second;
 		return "";
 	}

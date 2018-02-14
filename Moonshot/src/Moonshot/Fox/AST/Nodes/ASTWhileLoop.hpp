@@ -11,6 +11,7 @@
 
 #include "IASTStmt.hpp"
 #include "IASTExpr.hpp"
+#include <memory>
 
 namespace Moonshot
 {

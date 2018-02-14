@@ -14,7 +14,7 @@
 
 #pragma once
 #include "Moonshot/Fox/AST/Visitor/IVisitor.hpp"
-
+#include <memory>
 namespace Moonshot
 {
 	class Context;

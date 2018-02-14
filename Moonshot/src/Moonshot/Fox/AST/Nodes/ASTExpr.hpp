@@ -12,6 +12,7 @@
 #include "IASTExpr.hpp"							
 #include "Moonshot/Fox/Util/Enums.hpp"			// enums
 #include "Moonshot/Common/Types/Types.hpp"		// FVal
+#include <memory>
 
 namespace Moonshot	
 {

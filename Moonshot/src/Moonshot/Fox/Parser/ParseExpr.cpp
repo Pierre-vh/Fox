@@ -223,9 +223,9 @@ bool Parser::matchExponentOp()
 {
 	auto cur = getToken();
 	auto pk = getToken(state_.pos + 1);
-	if (cur.isValid() && cur.type == tokenCat::TT_SIGN && cur.sign_type == sign::S_ASTERISK)
+	if (cur.isValid() && cur.type == tokenCat::SIGN && cur.sign_type == sign::S_ASTERISK)
 	{
-		if (pk.isValid() && pk.type == tokenCat::TT_SIGN && pk.sign_type == sign::S_ASTERISK)
+		if (pk.isValid() && pk.type == tokenCat::SIGN && pk.sign_type == sign::S_ASTERISK)
 		{
 			state_.pos+=2;
 			return true;
@@ -238,7 +238,7 @@ std::pair<bool, binaryOperation> Parser::matchAssignOp()
 {
 	auto cur = getToken();
 	state_.pos++;
-	if (cur.isValid() && cur.type == tokenCat::TT_SIGN && cur.sign_type == sign::S_EQUAL)
+	if (cur.isValid() && cur.type == tokenCat::SIGN && cur.sign_type == sign::S_EQUAL)
 		return { true,binaryOperation::ASSIGN };
 	state_.pos--;
 	return { false,binaryOperation::PASS };
@@ -247,7 +247,7 @@ std::pair<bool, binaryOperation> Parser::matchAssignOp()
 std::pair<bool, unaryOperation> Parser::matchUnaryOp()
 {
 	auto cur = getToken();
-	if (!cur.isValid() || (cur.type != tokenCat::TT_SIGN))
+	if (!cur.isValid() || (cur.type != tokenCat::SIGN))
 		return { false, unaryOperation::DEFAULT };
 	state_.pos++;
 
@@ -269,7 +269,7 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 	auto cur = getToken();
 	auto pk = getToken(state_.pos + 1);
 	// Check current Token validity
-	if (!cur.isValid() || (cur.type != tokenCat::TT_SIGN))
+	if (!cur.isValid() || (cur.type != tokenCat::SIGN))
 		return { false, binaryOperation::PASS };
 	state_.pos += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
 

@@ -184,9 +184,9 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			const double result = performOp(node.op_, dleftval, drightval);
 
 			if (fitsInValue(node.resultType_, result)) // If the results fits or we desire to cast the result
-				value_ = castTo(context_, node.resultType_, result);		// Cast to result type
+				value_ = CastUtilities::castTo(context_, node.resultType_, result);		// Cast to result type
 			else
-				value_ = castTo(context_, indexes::fval_float, result);	// Cast to float instead to keep information from being lost.
+				value_ = CastUtilities::castTo(context_, indexes::fval_float, result);	// Cast to float instead to keep information from being lost.
 		}
 		return;
 	}
@@ -220,7 +220,7 @@ void RTExprVisitor::visit(ASTUnaryExpr & node)
 		*/
 	}
 
-	value_ = castTo(context_, node.resultType_, lval);		// Cast to result type
+	value_ = CastUtilities::castTo(context_, node.resultType_, lval);		// Cast to result type
 	return;
 }
 
@@ -475,5 +475,5 @@ FVal RTExprVisitor::castTo_withDeref(const std::size_t & goal, FVal val)
 	else if (!isBasic(goal))
 		throw std::logic_error("The Goal type was not a basic type.");
 
-	return castTo(context_,goal, val);
+	return CastUtilities::castTo(context_,goal, val);
 }

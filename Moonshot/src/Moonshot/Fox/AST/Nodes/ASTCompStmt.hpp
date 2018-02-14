@@ -11,6 +11,7 @@
 
 #include "IASTStmt.hpp"
 #include <vector>
+#include <memory>
 
 namespace Moonshot
 {

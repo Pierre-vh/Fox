@@ -34,7 +34,7 @@ Parser::~Parser()
 std::pair<bool, Token> Parser::matchLiteral()
 {
 	Token t = getToken();
-	if (t.type == tokenCat::TT_LITERAL)
+	if (t.type == tokenCat::LITERAL)
 	{
 		state_.pos += 1;
 		return { true,t };
@@ -47,7 +47,7 @@ std::pair<bool, Token> Parser::matchLiteral()
 std::pair<bool, std::string> Parser::matchID()
 {
 	Token t = getToken();
-	if (t.type == tokenCat::TT_IDENTIFIER)
+	if (t.type == tokenCat::IDENTIFIER)
 	{
 		state_.pos += 1;
 		return { true, t.str };
@@ -58,7 +58,7 @@ std::pair<bool, std::string> Parser::matchID()
 bool Parser::matchSign(const sign & s)
 {
 	Token t = getToken();
-	if (t.type == tokenCat::TT_SIGN && t.sign_type == s)
+	if (t.type == tokenCat::SIGN && t.sign_type == s)
 	{
 		state_.pos += 1;
 		return true;
@@ -69,7 +69,7 @@ bool Parser::matchSign(const sign & s)
 bool Parser::matchKeyword(const keyword & k)
 {
 	Token t = getToken();
-	if (t.type == tokenCat::TT_KEYWORD && t.kw_type == k)
+	if (t.type == tokenCat::KEYWORD && t.kw_type == k)
 	{
 		state_.pos += 1;
 		return true;
@@ -82,7 +82,7 @@ std::size_t Parser::matchTypeKw()
 {
 	Token t = getToken();
 	state_.pos += 1;
-	if (t.type == tokenCat::TT_KEYWORD)
+	if (t.type == tokenCat::KEYWORD)
 	{
 		switch (t.kw_type)
 		{

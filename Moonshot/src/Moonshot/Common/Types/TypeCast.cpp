@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : TypeCast.cpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			
+////------------------------------------------------------////
+
 #include "TypeCast.hpp"
 
 #include <variant> // std::visit
@@ -11,7 +20,7 @@
 using namespace Moonshot;
 using namespace fv_util;
 
-FVal Moonshot::castTo(Context& context_, const std::size_t& goal, FVal val)
+FVal CastUtilities::castTo(Context& context_, const std::size_t& goal, FVal val)
 {
 	std::pair<bool, FVal> rtr = std::make_pair<bool, FVal>(false, FVal());
 	std::visit(
@@ -29,7 +38,7 @@ FVal Moonshot::castTo(Context& context_, const std::size_t& goal, FVal val)
 	return FVal();
 }
 
-FVal Moonshot::castTo(Context& context_, const std::size_t& goal, const double & val)
+FVal CastUtilities::castTo(Context& context_, const std::size_t& goal, const double & val)
 {
 	std::pair<bool, FVal> rtr;
 	std::visit(
