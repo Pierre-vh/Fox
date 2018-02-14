@@ -21,7 +21,7 @@
 #include <sstream> // std::stringstream
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
 
 
 TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c), datamap_(c)

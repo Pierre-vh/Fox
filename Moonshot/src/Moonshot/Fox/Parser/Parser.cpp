@@ -17,7 +17,7 @@
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
 
 #define RETURN_IF_DEAD 	if (!state_.isAlive) return
 

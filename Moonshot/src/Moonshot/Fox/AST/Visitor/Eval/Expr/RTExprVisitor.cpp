@@ -29,7 +29,7 @@
 #include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
 
 RTExprVisitor::RTExprVisitor(Context& c) : context_(c)
 {

@@ -31,7 +31,7 @@ bool VarStmts::runTest(Context & context)
 	TypeCheckVisitor tc_good(context); // shared typechecker to keep the datamap
 
 	auto datamap = std::make_shared<DataMap>(context);
-	datamap->declareValue(var::varattr("TESTVALUE", fv_util::indexes::fval_int, false));
+	datamap->declareValue(var::varattr("TESTVALUE", TypeUtils::indexes::fval_int, false));
 
 	RTStmtVisitor rt_good(context,datamap);
 	for (auto& elem : correct_test)

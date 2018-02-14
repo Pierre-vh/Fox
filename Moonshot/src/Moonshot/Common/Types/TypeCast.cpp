@@ -18,7 +18,7 @@
 #include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
 
 FVal CastUtilities::castTo(Context& context_, const std::size_t& goal, FVal val)
 {

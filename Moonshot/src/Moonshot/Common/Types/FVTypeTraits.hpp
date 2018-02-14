@@ -12,7 +12,7 @@
 #include "Types.hpp"
 #include <type_traits>
 
-namespace Moonshot::fv_util
+namespace Moonshot::TypeUtils
 {
 	// Index utility function
 	inline constexpr bool isBasic(const std::size_t& t)

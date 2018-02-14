@@ -11,7 +11,7 @@
 #include "Parser.hpp"
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
 
 // Context and Exceptions
 #include "Moonshot/Common/Context/Context.hpp"

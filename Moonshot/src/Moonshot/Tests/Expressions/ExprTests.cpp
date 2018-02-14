@@ -66,7 +66,7 @@ bool ExprTests::runTest(Context & context)
 		auto result = evaluator.getResult();
 
 		FAILED_RETURN_IF_ERR("evaluation");
-		std::cout << "\t\t\xC0 Result: " << fv_util::dumpFVal(result) << std::endl;
+		std::cout << "\t\t\xC0 Result: " << TypeUtils::dumpFVal(result) << std::endl;
 		FAILED_RETURN_IF(!std::holds_alternative<bool>(result), "evaluation (result wasn't of the expected type)");
 		FAILED_RETURN_IF(!std::get<bool>(result), "evaluation (result was false)");
 	}

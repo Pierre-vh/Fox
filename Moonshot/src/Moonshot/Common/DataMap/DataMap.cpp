@@ -48,7 +48,7 @@ var::varattr DataMap::retrieveVarAttr(const std::string & varname)
 bool DataMap::declareValue(const var::varattr & v_attr, const FVal & initVal)
 {
 	if (std::holds_alternative<NullType>(initVal))
-		return map_getEntry(v_attr,fv_util::getSampleFValForIndex(v_attr.type_)); // Init with a default value.
+		return map_getEntry(v_attr,TypeUtils::getSampleFValForIndex(v_attr.type_)); // Init with a default value.
 	return map_getEntry(v_attr, initVal);
 }
 
@@ -63,7 +63,7 @@ void DataMap::dump() const
 	out << "Dumping symbols table...\n";
 	for (auto& elem : sym_table_)
 	{
-		out << "NAME: " << elem.first.name_ << " TYPE: " << fv_util::indexToTypeName(elem.first.type_) << " ---> VALUE: " << fv_util::dumpFVal(elem.second) << std::endl;
+		out << "NAME: " << elem.first.name_ << " TYPE: " << TypeUtils::indexToTypeName(elem.first.type_) << " ---> VALUE: " << TypeUtils::dumpFVal(elem.second) << std::endl;
 	}
 	context_.logMessage(out.str());
 	out.clear();
@@ -98,8 +98,8 @@ bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const b
 			if (LOG_IMPLICIT_CASTS)
 			{
 				std::stringstream out;
-				out << "Implicit cast : Attempted to store a " << fv_util::indexToTypeName(vvalue.index()) << " into the variable ";
-				out << vname << " (of type " << fv_util::indexToTypeName(it->first.type_) << ")\n";
+				out << "Implicit cast : Attempted to store a " << TypeUtils::indexToTypeName(vvalue.index()) << " into the variable ";
+				out << vname << " (of type " << TypeUtils::indexToTypeName(it->first.type_) << ")\n";
 				out << "Attempting cast to the desired type...";
 				context_.logMessage(out.str());
 			}

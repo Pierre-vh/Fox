@@ -37,7 +37,7 @@ namespace Moonshot
 		static constexpr CharType CharType_MAX = (std::numeric_limits<CharType>::max)();
 		static constexpr CharType CharType_MIN = (std::numeric_limits<CharType>::min)();
 	}
-	namespace fv_util
+	namespace TypeUtils
 	{
 		// Variables : Indexes
 		namespace indexes
@@ -74,7 +74,7 @@ namespace Moonshot
 			// Variable's attribute
 			bool isConst = false;
 			std::string name_ = "";
-			std::size_t type_ = fv_util::indexes::fval_null;
+			std::size_t type_ = TypeUtils::indexes::fval_null;
 
 			varRef createRef() const;
 

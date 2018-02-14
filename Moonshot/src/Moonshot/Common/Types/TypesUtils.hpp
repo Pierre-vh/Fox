@@ -3,7 +3,7 @@
 #include "Types.hpp"
 #include "FVTypeTraits.hpp"
 #include <map>
-namespace Moonshot::fv_util
+namespace Moonshot::TypeUtils
 {
 	// Dump functions
 	std::string dumpFVal(const FVal &var);

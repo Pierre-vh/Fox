@@ -23,7 +23,7 @@
 #include <iostream>
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
 
 Dumper::~Dumper()
 {

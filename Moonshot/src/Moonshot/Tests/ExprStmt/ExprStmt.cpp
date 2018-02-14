@@ -52,7 +52,7 @@ bool ExprStmtTest::runTest(Context & context)
 		root->accept(evaluator);
 		auto result = evaluator.getResult();
 		FAILED_RETURN_IF_ERR("evaluation");
-		std::cout << "\t\t\xC0 Result: " << fv_util::dumpFVal(result) << std::endl;
+		std::cout << "\t\t\xC0 Result: " << TypeUtils::dumpFVal(result) << std::endl;
 	}
 	// RUN INCORRECT TESTS
 	std::cout << std::endl << "Part 2 : Incorrect tests :\n";

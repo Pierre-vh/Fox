@@ -18,7 +18,7 @@ using namespace Moonshot;
 
 ASTLiteral::ASTLiteral(const FVal& fv)
 {
-	if (fv_util::isBasic(fv.index()))
+	if (TypeUtils::isBasic(fv.index()))
 		val_ = fv;
 	else
 		throw std::invalid_argument("ASTNodeLiteral constructor requires a basic type in the FVal");
