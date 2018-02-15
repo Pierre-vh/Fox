@@ -25,7 +25,7 @@ namespace Moonshot
 	};
 	namespace Dicts
 	{
-		const std::map<OptionsList, std::string> k_OptionsStrNames =
+		const std::map<OptionsList, std::string> kOptionsToStr_dict =
 		{
 			{ OptionsList::TESTERCLASS_TESTOPT , "TESTERCLASS_TESTOPT" },
 			{ OptionsList::exprtest_printAST , "exprtest_printAST," },
@@ -38,8 +38,8 @@ namespace Moonshot
 	}
 	inline std::string getOptionName(const OptionsList& opt)
 	{
-		auto reqit = Dicts::k_OptionsStrNames.find(opt);
-		if (reqit != Dicts::k_OptionsStrNames.end())
+		auto reqit = Dicts::kOptionsToStr_dict.find(opt);
+		if (reqit != Dicts::kOptionsToStr_dict.end())
 			return reqit->second;
 		return "";
 	}
