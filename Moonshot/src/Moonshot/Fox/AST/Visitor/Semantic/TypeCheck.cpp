@@ -11,13 +11,12 @@
 // Include nodes
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp" 
 #include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp" 
-
 // Other
 #include "Moonshot/Common/Context/Context.hpp" // context
 #include "Moonshot/Common/Exceptions/Exceptions.hpp" // exceptions
 #include "Moonshot/Common/Types/Types.hpp" // Types
 #include "Moonshot/Common/Types/TypesUtils.hpp" // Types Utilities
-
+#include "Moonshot/Common/Utils/Utils.hpp"
 #include <sstream> // std::stringstream
 
 using namespace Moonshot;
@@ -95,7 +94,7 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 	{
 		// no unary op can be performed on a string
 		std::stringstream output;
-		output << "Can't perform unary operation " << getFromDict(kUop_dict, node.op_) << " on a string.";
+		output << "Can't perform unary operation " << Util::getFromDict(kUop_dict, node.op_) << " on a string.";
 		context_.reportError(output.str());
 	}
 	// SPECIAL CASES : (LOGICNOT) and (NEGATIVE ON BOOLEANS)

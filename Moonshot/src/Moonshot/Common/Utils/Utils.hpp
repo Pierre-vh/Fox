@@ -11,7 +11,7 @@
 #pragma once
 
 #include <string>
-
+#include <map>
 namespace Moonshot
 {
 	namespace Util
@@ -23,6 +23,15 @@ namespace Moonshot
 		inline auto enumAsInt(Enumeration const value) -> typename std::underlying_type<Enumeration>::type
 		{
 			return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+		}
+
+		template<typename T>
+		inline std::string getFromDict(const std::map<T, std::string>& m, const T& op)
+		{
+			auto i = m.find(op);
+			if (i != m.end())
+				return i->second;
+			return "";
 		}
 	}
 }

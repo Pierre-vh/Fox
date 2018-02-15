@@ -103,13 +103,4 @@ namespace Moonshot
 		{ unaryOperation::NEGATIVE, "NEGATIVE"},
 		{ unaryOperation::POSITIVE, "POSITIVE"}
 	};
-
-	template<typename T>
-	inline std::string getFromDict(const std::map<T, std::string>& m, const T& op)
-	{
-		auto i = m.find(op);
-		if (i != m.end())
-			return i->second;
-		return "";
-	}
 }
