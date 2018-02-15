@@ -21,11 +21,11 @@ namespace Moonshot
 	{
 		public:
 			ASTBinaryExpr() = default;
-			ASTBinaryExpr(const binaryOperation &opt);
+			ASTBinaryExpr(const binaryOperator &opt);
 
 
 			std::unique_ptr<IASTExpr> left_, right_;
-			binaryOperation op_ = binaryOperation::PASS;
+			binaryOperator op_ = binaryOperator::PASS;
 
 			virtual void accept(IVisitor& vis) override;
 			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
@@ -35,11 +35,11 @@ namespace Moonshot
 	{
 		public: 
 			ASTUnaryExpr() = default;
-			ASTUnaryExpr(const unaryOperation& opt);
+			ASTUnaryExpr(const unaryOperator& opt);
 			virtual void accept(IVisitor& vis) override;
 
 			std::unique_ptr<IASTExpr> child_;
-			unaryOperation op_ = unaryOperation::DEFAULT;
+			unaryOperator op_ = unaryOperator::DEFAULT;
 	};
 
 	struct ASTCastExpr : public IASTExpr

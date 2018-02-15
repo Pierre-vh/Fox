@@ -21,7 +21,7 @@
 
 namespace Moonshot
 {
-	enum class binaryOperation;
+	enum class binaryOperator;
 	class Context;
 	class TypeCheckVisitor : public ITypedVisitor<std::size_t> // size_t because we return indexes in FVal to represent types.
 	{
@@ -50,26 +50,26 @@ namespace Moonshot
 			Context& context_;
 
 			template<typename T>
-			std::size_t visitAndGetResult(T* node,const directions& dir = directions::UNKNOWN, const binaryOperation& c_binop = binaryOperation::PASS)
+			std::size_t visitAndGetResult(T* node,const directions& dir = directions::UNKNOWN, const binaryOperator& c_binop = binaryOperator::PASS)
 			{
 				node_ctxt_.cur_binop = c_binop;
 				node_ctxt_.dir = dir;
 
 				node->accept(*this);
 
-				node_ctxt_.cur_binop = binaryOperation::PASS;
+				node_ctxt_.cur_binop = binaryOperator::PASS;
 				node_ctxt_.dir = directions::UNKNOWN;
 				return value_;
 			}
 
 			bool isAssignable(const IASTExpr* op) const;
-			bool shouldOpReturnFloat(const binaryOperation& op) const; // used for operations that return float instead of normal values
-			std::size_t getExprResultType(const binaryOperation& op, std::size_t& lhs, const std::size_t& rhs);
+			bool shouldOpReturnFloat(const binaryOperator& op) const; // used for operations that return float instead of normal values
+			std::size_t getExprResultType(const binaryOperator& op, std::size_t& lhs, const std::size_t& rhs);
 
 			struct nodecontext
 			{
 				directions dir;
-				binaryOperation cur_binop;
+				binaryOperator cur_binop;
 			} node_ctxt_;
 	};
 

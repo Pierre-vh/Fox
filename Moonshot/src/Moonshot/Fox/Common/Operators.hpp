@@ -13,7 +13,7 @@
 
 namespace Moonshot
 {
-	enum class binaryOperation
+	enum class binaryOperator
 	{
 		PASS,			// Just "pass" (return the value in L)
 		// str concat
@@ -39,67 +39,60 @@ namespace Moonshot
 		// Assignement
 		ASSIGN
 	};
-	enum class unaryOperation
+	enum class unaryOperator
 	{
 		DEFAULT,
 		LOGICNOT,		// ! 
-		NEGATIVE,			// -
-		POSITIVE
+		NEGATIVE,		// -
+		POSITIVE		// +
 	};
 
-	// Template version of the other functions
-
-	inline bool isComparison(const binaryOperation & op)
+	inline bool isComparison(const binaryOperator & op)
 	{
 		switch (op)
 		{
-		case binaryOperation::AND:
-		case binaryOperation::OR:
-		case binaryOperation::LESS_OR_EQUAL:
-		case binaryOperation::GREATER_OR_EQUAL:
-		case binaryOperation::LESS_THAN:
-		case binaryOperation::GREATER_THAN:
-		case binaryOperation::EQUAL:
-		case binaryOperation::NOTEQUAL:
-			return true;
-		default:
-			return false;
+			case binaryOperator::AND:
+			case binaryOperator::OR:
+			case binaryOperator::LESS_OR_EQUAL:
+			case binaryOperator::GREATER_OR_EQUAL:
+			case binaryOperator::LESS_THAN:
+			case binaryOperator::GREATER_THAN:
+			case binaryOperator::EQUAL:
+			case binaryOperator::NOTEQUAL:
+				return true;
+			default:
+				return false;
 		}
 	}
-	inline bool isCompJoinOp(const binaryOperation & op)
+	namespace Dicts
 	{
-		return (op == binaryOperation::AND) || (op == binaryOperation::OR);
-	}
+		const std::map<binaryOperator, std::string> kBinopToStr_dict =
+		{
+			{ binaryOperator::PASS		, "PASS" },
+			{ binaryOperator::AND		, "AND" },
+			{ binaryOperator::CONCAT	, "CONCAT" },
+			{ binaryOperator::OR		, "OR" },
+			{ binaryOperator::ADD		, "ADD" },
+			{ binaryOperator::MINUS		,	"MINUS" },
+			{ binaryOperator::MUL		, "MUL" },
+			{ binaryOperator::DIV		, "DIV" },
+			{ binaryOperator::MOD		, "MOD" },
+			{ binaryOperator::EXP		, "EXP" },
+			{ binaryOperator::LESS_OR_EQUAL		,"LESS_OR_EQUAL" },
+			{ binaryOperator::GREATER_OR_EQUAL	, "GREATER_OR_EQUAL" },
+			{ binaryOperator::LESS_THAN			, "LESS_THAN" },
+			{ binaryOperator::GREATER_THAN		, "GREATER_THAN" },
+			{ binaryOperator::EQUAL				, "EQUAL" },
+			{ binaryOperator::NOTEQUAL			, "NOTEQUAL" },
+			{ binaryOperator::ASSIGN			, "ASSIGN" }
+		};
 
-	inline constexpr bool isRightAssoc(const binaryOperation & op)
-	{
-		return (op == binaryOperation::EXP) || (op == binaryOperation::ASSIGN); // Only equal & exp op are right assoc.
+		const std::map<unaryOperator, std::string> kUnaryOpToStr_dict =
+		{
+			{ unaryOperator::DEFAULT	, "[DEFAULT]" },
+			{ unaryOperator::LOGICNOT	, "LOGICNOT" },
+			{ unaryOperator::NEGATIVE	, "NEGATIVE" },
+			{ unaryOperator::POSITIVE	, "POSITIVE" }
+		};
 	}
-	const std::map<binaryOperation, std::string> kBinop_dict =
-	{
-		{ binaryOperation::PASS		, "PASS"	},
-		{ binaryOperation::AND		, "AND"		},
-		{ binaryOperation::CONCAT	, "CONCAT"	},
-		{ binaryOperation::OR		, "OR"		},
-		{ binaryOperation::ADD		, "ADD"		},
-		{ binaryOperation::MINUS	, "MINUS"	},
-		{ binaryOperation::MUL		, "MUL"		},
-		{ binaryOperation::DIV		, "DIV"		},
-		{ binaryOperation::MOD		, "MOD"		},
-		{ binaryOperation::EXP		, "EXP"		},
-		{ binaryOperation::LESS_OR_EQUAL	,"LESS_OR_EQUAL"	},
-		{ binaryOperation::GREATER_OR_EQUAL	, "GREATER_OR_EQUAL"},
-		{ binaryOperation::LESS_THAN		, "LESS_THAN"		},
-		{ binaryOperation::GREATER_THAN		, "GREATER_THAN"	},
-		{ binaryOperation::EQUAL			, "EQUAL"	},
-		{ binaryOperation::NOTEQUAL			, "NOTEQUAL"},
-		{ binaryOperation::ASSIGN			, "ASSIGN"	}
-	};
-	const std::map<unaryOperation, std::string> kUop_dict =
-	{
-		{ unaryOperation::DEFAULT , "DEFAULT(ERROR)"},
-		{ unaryOperation::LOGICNOT , "LOGICNOT" },
-		{ unaryOperation::NEGATIVE, "NEGATIVE"},
-		{ unaryOperation::POSITIVE, "POSITIVE"}
-	};
 }

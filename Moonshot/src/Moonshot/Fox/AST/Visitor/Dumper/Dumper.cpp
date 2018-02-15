@@ -31,7 +31,7 @@ Dumper::~Dumper()
 
 void Dumper::visit(ASTBinaryExpr & node)
 {
-	std::string op = Util::getFromDict(kBinop_dict, node.op_);
+	std::string op = Util::getFromDict(Dicts::kBinopToStr_dict, node.op_);
 	if (op.size() == 0)
 		op = Util::enumAsInt(node.op_);
 
@@ -67,7 +67,7 @@ void Dumper::visit(ASTBinaryExpr & node)
 
 void Dumper::visit(ASTUnaryExpr & node)
 {
-	std::string op = Util::getFromDict(kUop_dict, node.op_);
+	std::string op = Util::getFromDict(Dicts::kUnaryOpToStr_dict, node.op_);
 	if (op.size() == 0)
 		op = Util::enumAsInt(node.op_);
 

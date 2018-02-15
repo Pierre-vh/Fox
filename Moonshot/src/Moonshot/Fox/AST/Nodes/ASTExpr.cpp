@@ -40,7 +40,7 @@ void ASTVarCall::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-ASTBinaryExpr::ASTBinaryExpr(const binaryOperation & opt) : op_(opt)
+ASTBinaryExpr::ASTBinaryExpr(const binaryOperator & opt) : op_(opt)
 {
 
 }
@@ -52,7 +52,7 @@ void ASTBinaryExpr::accept(IVisitor & vis)
 
 std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
 {
-	if (left_ && !right_ && (op_ == binaryOperation::PASS))	 // If the right node is empty & op == pass
+	if (left_ && !right_ && (op_ == binaryOperator::PASS))	 // If the right node is empty & op == pass
 	{
 		auto ret = std::move(left_);
 		return ret;
@@ -60,7 +60,7 @@ std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
 	return nullptr;
 }
 
-ASTUnaryExpr::ASTUnaryExpr(const unaryOperation & opt) : op_(opt)
+ASTUnaryExpr::ASTUnaryExpr(const unaryOperator & opt) : op_(opt)
 {
 
 }

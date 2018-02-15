@@ -54,7 +54,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		return;
 	}
 
-	if (node.op_ == binaryOperation::PASS)
+	if (node.op_ == binaryOperator::PASS)
 	{
 		if (!node.left_)
 			throw Exceptions::ast_malformation("Tried to pass a value to parent node, but the node did not have a left_ child.");
@@ -64,7 +64,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			return;
 		}
 	}
-	else if (node.op_ == binaryOperation::CONCAT)
+	else if (node.op_ == binaryOperator::CONCAT)
 	{
 		if (node.left_ && node.right_)
 		{
@@ -79,7 +79,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			throw Exceptions::ast_malformation("Tried to concat a node without a left_ or right  child.");
 		}
 	}
-	else if (node.op_ == binaryOperation::ASSIGN)
+	else if (node.op_ == binaryOperator::ASSIGN)
 	{
 		if (isDataMapAvailable())
 		{
@@ -100,7 +100,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		else
 			context_.logMessage("Can't perform assignement operations when the symbols table is unavailable.");
 	}
-	else if (node.op_ == binaryOperation::ASSIGN)
+	else if (node.op_ == binaryOperator::ASSIGN)
 	{
 		if (isDataMapAvailable())
 		{
@@ -207,16 +207,16 @@ void RTExprVisitor::visit(ASTUnaryExpr & node)
 
 	double lval = fvalToDouble_withDeref(visitAndGetResult(node.child_.get(), *this));
 	// op == loginot
-	if (node.op_ == unaryOperation::LOGICNOT)
+	if (node.op_ == unaryOperator::LOGICNOT)
 	{
 		value_ = FVal(
 			(bool)(lval == 0) // If the value differs equals zero, return true
 		);
 		return;
 	}
-	else if (node.op_ == unaryOperation::NEGATIVE)
+	else if (node.op_ == unaryOperator::NEGATIVE)
 		lval = -lval; // Negate the number
-	else if (node.op_ == unaryOperation::POSITIVE)
+	else if (node.op_ == unaryOperator::POSITIVE)
 	{
 		/*
 			For now, unary Positive is a nop.
@@ -309,66 +309,66 @@ double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 		throw std::logic_error("Reached end of function.Unimplemented type in FVal?");
 	return 0.0;
 }
-bool RTExprVisitor::compareVal(const binaryOperation & op, const FVal & l, const FVal & r)
+bool RTExprVisitor::compareVal(const binaryOperator & op, const FVal & l, const FVal & r)
 {
 	
 	const double lval = fvalToDouble_withDeref(l);
 	const double rval = fvalToDouble_withDeref(r);
 	switch (op)
 	{
-		case binaryOperation::AND:
+		case binaryOperator::AND:
 			return (lval != 0) && (rval != 0);
-		case binaryOperation::OR:
+		case binaryOperator::OR:
 			return (lval != 0) || (rval != 0);
-		case binaryOperation::LESS_OR_EQUAL:
+		case binaryOperator::LESS_OR_EQUAL:
 			return lval <= rval;
-		case binaryOperation::GREATER_OR_EQUAL:
+		case binaryOperator::GREATER_OR_EQUAL:
 			return lval >= rval;
-		case binaryOperation::LESS_THAN:
+		case binaryOperator::LESS_THAN:
 			return lval < rval;
-		case binaryOperation::GREATER_THAN:
+		case binaryOperator::GREATER_THAN:
 			return lval > rval;
-		case binaryOperation::EQUAL:
+		case binaryOperator::EQUAL:
 			return lval == rval;
-		case binaryOperation::NOTEQUAL:
+		case binaryOperator::NOTEQUAL:
 			return lval != rval;
 		default:
 			throw std::logic_error("Defaulted. Unimplemented condition operation?");
 	}
 }
-bool RTExprVisitor::compareStr(const binaryOperation & op, const std::string & lhs, const std::string & rhs)
+bool RTExprVisitor::compareStr(const binaryOperator & op, const std::string & lhs, const std::string & rhs)
 {
 	
 	switch (op)
 	{
-		case binaryOperation::EQUAL:			return lhs == rhs;
-		case binaryOperation::NOTEQUAL:			return lhs != rhs;
-		case binaryOperation::LESS_THAN:		return lhs < rhs;
-		case binaryOperation::GREATER_THAN:		return lhs > rhs;
-		case binaryOperation::LESS_OR_EQUAL:	return lhs <= rhs;
-		case binaryOperation::GREATER_OR_EQUAL:	return lhs > rhs;
+		case binaryOperator::EQUAL:			return lhs == rhs;
+		case binaryOperator::NOTEQUAL:			return lhs != rhs;
+		case binaryOperator::LESS_THAN:		return lhs < rhs;
+		case binaryOperator::GREATER_THAN:		return lhs > rhs;
+		case binaryOperator::LESS_OR_EQUAL:	return lhs <= rhs;
+		case binaryOperator::GREATER_OR_EQUAL:	return lhs > rhs;
 		default:								throw std::logic_error("Operation was not a condition.");
 	}
 }
-bool RTExprVisitor::compareChar(const binaryOperation & op, const CharType & lhs, const CharType & rhs)
+bool RTExprVisitor::compareChar(const binaryOperator & op, const CharType & lhs, const CharType & rhs)
 {
 	switch (op)
 	{
-		case binaryOperation::AND:
+		case binaryOperator::AND:
 			return (lhs != 0) && (rhs != 0);
-		case binaryOperation::OR:
+		case binaryOperator::OR:
 			return (lhs != 0) || (rhs != 0);
-		case binaryOperation::LESS_OR_EQUAL:
+		case binaryOperator::LESS_OR_EQUAL:
 			return lhs <= rhs;
-		case binaryOperation::GREATER_OR_EQUAL:
+		case binaryOperator::GREATER_OR_EQUAL:
 			return lhs >= rhs;
-		case binaryOperation::LESS_THAN:
+		case binaryOperator::LESS_THAN:
 			return lhs < rhs;
-		case binaryOperation::GREATER_THAN:
+		case binaryOperator::GREATER_THAN:
 			return lhs > rhs;
-		case binaryOperation::EQUAL:
+		case binaryOperator::EQUAL:
 			return lhs == rhs;
-		case binaryOperation::NOTEQUAL:
+		case binaryOperator::NOTEQUAL:
 			return lhs != rhs;
 		default:
 			throw std::logic_error("Defaulted. Unimplemented condition operation?");
@@ -394,14 +394,14 @@ FVal RTExprVisitor::concat(const FVal & lhs, const FVal & rhs)
 
 	return FVal(rtr);
 }
-double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
+double RTExprVisitor::performOp(const binaryOperator& op,double l,double r)
 {
 	switch (op)
 	{
-		case binaryOperation::ADD:	return l + r;
-		case binaryOperation::MINUS:	return l - r;
-		case binaryOperation::MUL:	return l * r;
-		case binaryOperation::DIV:
+		case binaryOperator::ADD:	return l + r;
+		case binaryOperator::MINUS:	return l - r;
+		case binaryOperator::MUL:	return l * r;
+		case binaryOperator::DIV:
 			if(r == 0)
 			{
 				context_.reportError("Division by zero.");
@@ -409,7 +409,7 @@ double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
 			}
 			else 
 				return l / r;
-		case binaryOperation::MOD:
+		case binaryOperator::MOD:
 			// if the divisor is greater, it goes zero times in l, so we can directly return l
 			//std::cout << "l:" << l << " r:" << r << std::endl;
 			if (l > r)
@@ -425,10 +425,10 @@ double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
 			// and  (l < 0) ? l + r : l;
 			// parts, it's a tip from https://stackoverflow.com/a/12277233/3232822
 			// Thanks !
-		case binaryOperation::EXP:
+		case binaryOperator::EXP:
 			// if exp < 0 perform 1/base**exp
 			if (r < 0)
-				return performOp(binaryOperation::DIV, 1, std::pow(l, -r));
+				return performOp(binaryOperator::DIV, 1, std::pow(l, -r));
 			else if (r == 0)
 				return 1; // Any number with exponent 0 equals 1, except 0
 			else
