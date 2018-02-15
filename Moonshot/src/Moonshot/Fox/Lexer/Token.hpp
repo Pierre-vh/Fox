@@ -134,7 +134,7 @@ namespace Moonshot
 			bool specific_idLiteral();				// is a literal
 	};
 
-	namespace TokenDictionaries
+	namespace TokenDicts
 	{
 		// Dictionary used to identify keywords.
 		const std::map<std::string, Token::keyword> kKeywords_dict =

@@ -301,8 +301,8 @@ bool Lexer::isSep(const CharType &c) const
 	if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
 		return false;
 	// To detect if C is a strings, we use the sign dictionary
-	auto i = TokenDictionaries::kSign_dict.find(c);
-	return i != TokenDictionaries::kSign_dict.end() || std::iswspace((wchar_t)c);
+	auto i = TokenDicts::kSign_dict.find(c);
+	return i != TokenDicts::kSign_dict.end() || std::iswspace((wchar_t)c);
 }
 
 bool Lexer::isEscapeChar(const CharType & c) const

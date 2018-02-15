@@ -105,8 +105,8 @@ void Token::idToken()
 
 bool Token::specific_idKeyword()
 {
-	auto i = TokenDictionaries::kKeywords_dict.find(str);
-	if (i == TokenDictionaries::kKeywords_dict.end())
+	auto i = TokenDicts::kKeywords_dict.find(str);
+	if (i == TokenDicts::kKeywords_dict.end())
 		return false;
 	
 	kw_type = i->second;
@@ -119,8 +119,8 @@ bool Token::specific_idSign()
 		return false;
 	if (isdigit(str[0]))
 		return false;
-	auto i = TokenDictionaries::kSign_dict.find(str[0]);
-	if (i != TokenDictionaries::kSign_dict.end())
+	auto i = TokenDicts::kSign_dict.find(str[0]);
+	if (i != TokenDicts::kSign_dict.end())
 	{
 		sign_type = i->second;
 		return true;
