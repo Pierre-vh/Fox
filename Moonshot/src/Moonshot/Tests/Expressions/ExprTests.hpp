@@ -15,7 +15,7 @@
 #include "Moonshot/Fox/AST/Visitor/Semantic/TypeCheck.hpp"
 #include "Moonshot/Fox/AST/Visitor/Eval/Expr/RTExprVisitor.hpp"
 
-namespace Moonshot
+namespace Moonshot::Test
 {
 	class ExprTests : public ITest
 	{

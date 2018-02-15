@@ -14,7 +14,7 @@
 
 namespace Moonshot
 {
-	namespace util
+	namespace Util
 	{
 		// Path to root
 		static const std::string moonshotSrcPath = ".\\..\\Moonshot\\";

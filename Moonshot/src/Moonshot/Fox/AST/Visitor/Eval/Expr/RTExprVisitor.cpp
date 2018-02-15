@@ -22,6 +22,8 @@
 // Nodes needed
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
+// Operators
+#include "Moonshot/Fox/Util/Enums.hpp"
 // math operations
 #include <cmath>		
 #include <sstream>
@@ -30,6 +32,7 @@
 
 using namespace Moonshot;
 using namespace TypeUtils;
+
 
 RTExprVisitor::RTExprVisitor(Context& c) : context_(c)
 {
@@ -180,7 +183,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		{
 			const double dleftval = fvalToDouble_withDeref(left_res);
 			const double drightval = fvalToDouble_withDeref(right_res);
-			//std::cout << "Op: " << util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
+			//std::cout << "Op: " << Util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			const double result = performOp(node.op_, dleftval, drightval);
 
 			if (fitsInValue(node.resultType_, result)) // If the results fits or we desire to cast the result

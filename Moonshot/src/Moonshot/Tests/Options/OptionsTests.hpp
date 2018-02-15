@@ -14,7 +14,7 @@
 #include "Moonshot/Common/Context/Options/OptionsManager.hpp"
 #include "Moonshot/Common/Context/Options/ParameterValue.hpp"
 
-namespace Moonshot
+namespace Moonshot::Test
 {
 	class OptionsTests : public ITest
 	{

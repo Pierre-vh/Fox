@@ -12,6 +12,8 @@
 #include <sstream>
 
 using namespace Moonshot;
+using namespace Moonshot::Test;
+using namespace Moonshot::Test::TestUtilities;
 
 OptionsTests::OptionsTests()
 {

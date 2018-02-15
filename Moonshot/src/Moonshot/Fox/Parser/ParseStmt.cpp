@@ -13,6 +13,9 @@
 using namespace Moonshot;
 using namespace TypeUtils;
 
+using sign = Token::sign;
+using keyword = Token::keyword;
+
 // Context and Exceptions
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"

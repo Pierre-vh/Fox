@@ -12,7 +12,7 @@
 
 #include "../ITest.hpp"
 
-namespace Moonshot
+namespace Moonshot::Test
 {
 	class Conditions : public ITest
 	{

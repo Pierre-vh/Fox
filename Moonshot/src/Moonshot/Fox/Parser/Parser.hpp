@@ -128,8 +128,8 @@ namespace Moonshot
 			// MATCH BY TYPE OF TOKEN
 			std::pair<bool,Token> matchLiteral();			// match a literal
 			std::pair<bool, std::string> matchID();			// match a ID
-			bool matchSign(const sign &s);					// match any signs : ; . ( ) 
-			bool matchKeyword(const keyword &k);			// Match any keyword
+			bool matchSign(const Token::sign &s);					// match any signs : ; . ( ) 
+			bool matchKeyword(const Token::keyword &k);			// Match any keyword
 
 			std::size_t matchTypeKw();						// match a type keyword : int, float, etc.
 			
@@ -141,12 +141,12 @@ namespace Moonshot
 			
 			// UTILITY METHODS
 			Token getToken() const;
-			Token getToken(const size_t &d) const;
+			Token getToken(const std::size_t &d) const;
 
 			// resync
 			// This function will skip every token until the appropriate "resync" token is found.
 			// Returns true if resync was successful.
-			bool resyncToDelimiter(const sign &s);
+			bool resyncToDelimiter(const Token::sign &s);
 
 			// die : sets the pos to tokens_.size() and sets isAlive to false. Indicates that the parsing is over and the parser has died because of a critical error.
 			void die();

@@ -47,24 +47,24 @@ namespace Moonshot
 		NEGATIVE,			// -
 		POSITIVE
 	};
-		
+
 	// Template version of the other functions
 
-	inline bool isComparison(const binaryOperation & op) 
+	inline bool isComparison(const binaryOperation & op)
 	{
 		switch (op)
 		{
-			case binaryOperation::AND:
-			case binaryOperation::OR:
-			case binaryOperation::LESS_OR_EQUAL:
-			case binaryOperation::GREATER_OR_EQUAL:
-			case binaryOperation::LESS_THAN:
-			case binaryOperation::GREATER_THAN:
-			case binaryOperation::EQUAL:
-			case binaryOperation::NOTEQUAL:
-				return true;
-			default:
-				return false;
+		case binaryOperation::AND:
+		case binaryOperation::OR:
+		case binaryOperation::LESS_OR_EQUAL:
+		case binaryOperation::GREATER_OR_EQUAL:
+		case binaryOperation::LESS_THAN:
+		case binaryOperation::GREATER_THAN:
+		case binaryOperation::EQUAL:
+		case binaryOperation::NOTEQUAL:
+			return true;
+		default:
+			return false;
 		}
 	}
 	inline bool isCompJoinOp(const binaryOperation & op)
@@ -77,11 +77,11 @@ namespace Moonshot
 		return (op == binaryOperation::EXP) || (op == binaryOperation::ASSIGN); // Only equal & exp op are right assoc.
 	}
 
-	enum class dir
+	enum class Direction
 	{
-		UNKNOWNDIR,LEFT, RIGHT
+		UNKNOWN, LEFT, RIGHT
 	};
-	const std::map<binaryOperation,std::string> kBinop_dict =
+	const std::map<binaryOperation, std::string> kBinop_dict =
 	{
 		{ binaryOperation::PASS		, "PASS"	},
 		{ binaryOperation::AND		, "AND"		},
@@ -100,8 +100,8 @@ namespace Moonshot
 		{ binaryOperation::EQUAL			, "EQUAL"	},
 		{ binaryOperation::NOTEQUAL			, "NOTEQUAL"},
 		{ binaryOperation::ASSIGN			, "ASSIGN"	}
-	}; 
-	const std::map<unaryOperation,std::string> kUop_dict =
+	};
+	const std::map<unaryOperation, std::string> kUop_dict =
 	{
 		{ unaryOperation::DEFAULT , "DEFAULT(ERROR)"},
 		{ unaryOperation::LOGICNOT , "LOGICNOT" },

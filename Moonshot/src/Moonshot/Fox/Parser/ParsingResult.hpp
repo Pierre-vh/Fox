@@ -13,25 +13,26 @@
 
 namespace Moonshot
 {
-	enum class ParsingOutcome {
-		SUCCESS, FAILED_AND_DIED, FAILED_BUT_RECOVERED
-	};
 
 	template<typename PtrTy>
 	struct ParsingResult {
 		public:
-			ParsingResult(const ParsingOutcome& pc, std::unique_ptr<PtrTy> node) {
-				if (pc == ParsingOutcome::SUCCESS)
+			enum class Outcome {
+				SUCCESS, FAILED_AND_DIED, FAILED_BUT_RECOVERED
+			};
+
+			ParsingResult(const Outcome& pc, std::unique_ptr<PtrTy> node) {
+				if (pc == Outcome::SUCCESS)
 				{
 					successFlag_ = true;
 					recovered_ = true;
 				}
-				else if (pc == ParsingOutcome::FAILED_AND_DIED)
+				else if (pc == Outcome::FAILED_AND_DIED)
 				{
 					successFlag_ = false;
 					recovered_ = false;
 				}
-				else if (pc == ParsingOutcome::FAILED_BUT_RECOVERED)
+				else if (pc == Outcome::FAILED_BUT_RECOVERED)
 				{
 					successFlag_ = isNodeUsable();
 					recovered_ = true;

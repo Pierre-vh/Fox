@@ -26,7 +26,7 @@
 #include "../WhileLoop/WhileLoop.hpp"
 #include "../U8StrManipTest/U8StrManipTest.hpp"
 
-namespace Moonshot
+namespace Moonshot::Test
 {
 	class TestManager
 	{

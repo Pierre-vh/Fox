@@ -45,7 +45,7 @@
 										std::cout << "\t\t\xC0 Success (Test Failed as Expected.)\n"; \
 										continue; \
 									}
-namespace Moonshot
+namespace Moonshot::Test
 {
 	namespace TestUtilities
 	{

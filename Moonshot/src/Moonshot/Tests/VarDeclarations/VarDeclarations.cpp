@@ -10,7 +10,8 @@
 #include "VarDeclarations.hpp"
 
 using namespace Moonshot;
-using namespace Moonshot::TestUtilities;
+using namespace Moonshot::Test;
+using namespace Moonshot::Test::TestUtilities;
 
 VarDeclarations::~VarDeclarations()
 {

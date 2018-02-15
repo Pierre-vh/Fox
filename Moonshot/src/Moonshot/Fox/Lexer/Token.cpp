@@ -44,24 +44,24 @@ std::string Token::showFormattedTokenData() const
 	int enum_info = -1;		// The information of the corresponding enumeration
 	switch (type)
 	{
-		case tokenCat::DEFAULT:
+		case category::DEFAULT:
 			ss << "ENUM_DEFAULT";
 			break;
-		case tokenCat::IDENTIFIER:
+		case category::IDENTIFIER:
 			ss << "IDENTIFIER";
 			enum_info = -2;
 			break;
-		case tokenCat::KEYWORD:
+		case category::KEYWORD:
 			ss << "KEYWORD";
-			enum_info = util::enumAsInt(kw_type);
+			enum_info = Util::enumAsInt(kw_type);
 			break;
-		case tokenCat::SIGN:
+		case category::SIGN:
 			ss << "SIGN";
-			enum_info = util::enumAsInt(sign_type);
+			enum_info = Util::enumAsInt(sign_type);
 			break;
-		case tokenCat::LITERAL:
+		case category::LITERAL:
 			ss << "VALUE";
-			enum_info = util::enumAsInt(lit_type);
+			enum_info = Util::enumAsInt(lit_type);
 			break;
 	}
 	if (enum_info >= -1)
@@ -89,15 +89,15 @@ void Token::idToken()
 	pos.column -= static_cast<unsigned int>(str.length());
 
 	if (specific_idSign())
-		type = tokenCat::SIGN;
+		type = category::SIGN;
 	else
 	{
 		if (specific_idKeyword())
-			type = tokenCat::KEYWORD;
+			type = category::KEYWORD;
 		else if (specific_idLiteral())
-			type = tokenCat::LITERAL;
+			type = category::LITERAL;
 		else if (std::regex_match(str, kId_regex))
-			type = tokenCat::IDENTIFIER;
+			type = category::IDENTIFIER;
 		else
 			context_.reportError(" [" + pos.asText() + "]\tUnrecognized Token \"" + str + '"');
 	}

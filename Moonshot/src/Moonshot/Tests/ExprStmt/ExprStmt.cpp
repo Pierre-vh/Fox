@@ -9,8 +9,10 @@
 
 #include "ExprStmt.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
+
 using namespace Moonshot;
-using namespace Moonshot::TestUtilities;
+using namespace Moonshot::Test;
+using namespace Moonshot::Test::TestUtilities;
 
 ExprStmtTest::ExprStmtTest()
 {

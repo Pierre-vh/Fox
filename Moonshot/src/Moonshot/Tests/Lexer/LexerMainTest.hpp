@@ -13,7 +13,7 @@
 
 #include "../ITest.hpp"
 
-namespace Moonshot
+namespace Moonshot::Test
 {
 	class LexerMainTest : public ITest
 	{

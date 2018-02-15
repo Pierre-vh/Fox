@@ -14,7 +14,7 @@
 #include "Moonshot/Fox/AST/Visitor/Semantic/TypeCheck.hpp"
 #include "Moonshot/Fox/AST/Visitor/Eval/Stmt/RTStmtVisitor.hpp"
 
-namespace Moonshot
+namespace Moonshot::Test
 {
 	class VarStmts : public ITest
 	{

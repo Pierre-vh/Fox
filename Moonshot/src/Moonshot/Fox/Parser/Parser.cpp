@@ -19,6 +19,10 @@
 using namespace Moonshot;
 using namespace TypeUtils;
 
+using category = Token::category;
+using sign = Token::sign;
+using keyword = Token::keyword;
+
 #define RETURN_IF_DEAD 	if (!state_.isAlive) return
 
 Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
@@ -34,7 +38,7 @@ Parser::~Parser()
 std::pair<bool, Token> Parser::matchLiteral()
 {
 	Token t = getToken();
-	if (t.type == tokenCat::LITERAL)
+	if (t.type == category::LITERAL)
 	{
 		state_.pos += 1;
 		return { true,t };
@@ -47,7 +51,7 @@ std::pair<bool, Token> Parser::matchLiteral()
 std::pair<bool, std::string> Parser::matchID()
 {
 	Token t = getToken();
-	if (t.type == tokenCat::IDENTIFIER)
+	if (t.type == category::IDENTIFIER)
 	{
 		state_.pos += 1;
 		return { true, t.str };
@@ -58,7 +62,7 @@ std::pair<bool, std::string> Parser::matchID()
 bool Parser::matchSign(const sign & s)
 {
 	Token t = getToken();
-	if (t.type == tokenCat::SIGN && t.sign_type == s)
+	if (t.type == category::SIGN && t.sign_type == s)
 	{
 		state_.pos += 1;
 		return true;
@@ -69,7 +73,7 @@ bool Parser::matchSign(const sign & s)
 bool Parser::matchKeyword(const keyword & k)
 {
 	Token t = getToken();
-	if (t.type == tokenCat::KEYWORD && t.kw_type == k)
+	if (t.type == category::KEYWORD && t.kw_type == k)
 	{
 		state_.pos += 1;
 		return true;
@@ -82,7 +86,7 @@ std::size_t Parser::matchTypeKw()
 {
 	Token t = getToken();
 	state_.pos += 1;
-	if (t.type == tokenCat::KEYWORD)
+	if (t.type == category::KEYWORD)
 	{
 		switch (t.kw_type)
 		{

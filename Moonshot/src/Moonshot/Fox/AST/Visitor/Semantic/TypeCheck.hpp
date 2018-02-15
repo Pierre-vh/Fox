@@ -45,7 +45,7 @@ namespace Moonshot
 			Context& context_;
 
 			template<typename T>
-			std::size_t visitAndGetResult(T* node,const dir& dir = dir::UNKNOWNDIR, const binaryOperation& c_binop = binaryOperation::PASS)
+			std::size_t visitAndGetResult(T* node,const Direction& dir = Direction::UNKNOWN, const binaryOperation& c_binop = binaryOperation::PASS)
 			{
 				node_ctxt_.cur_binop = c_binop;
 				node_ctxt_.dir = dir;
@@ -53,7 +53,7 @@ namespace Moonshot
 				node->accept(*this);
 
 				node_ctxt_.cur_binop = binaryOperation::PASS;
-				node_ctxt_.dir = dir::UNKNOWNDIR;
+				node_ctxt_.dir = Direction::UNKNOWN;
 				return value_;
 			}
 
@@ -63,7 +63,7 @@ namespace Moonshot
 
 			struct nodecontext
 			{
-				dir dir;
+				Direction dir;
 				binaryOperation cur_binop;
 			} node_ctxt_;
 	};

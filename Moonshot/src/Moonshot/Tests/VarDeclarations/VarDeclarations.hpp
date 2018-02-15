@@ -13,7 +13,7 @@
 #include "../../Fox/AST/Visitor/Semantic/TypeCheck.hpp"
 #include "../../Fox/AST/Visitor/Eval/Expr/RTExprVisitor.hpp"
 
-namespace Moonshot 
+namespace Moonshot::Test
 {
 	class VarDeclarations : public ITest
 	{
