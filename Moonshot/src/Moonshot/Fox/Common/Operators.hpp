@@ -4,8 +4,7 @@
 // File : Enums.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file declares some enumerations used in the parse	
-// namespace : optype and direction	and some helper functions, to help manipulate them		
+// This file declares the Operators enumeration with some utilities functions
 ////------------------------------------------------------////
 
 #pragma once

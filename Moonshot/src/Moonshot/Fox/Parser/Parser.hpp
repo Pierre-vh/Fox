@@ -48,7 +48,7 @@ Note :
 #include "Moonshot/Fox/AST/Nodes/IASTExpr.hpp"
 #include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ForwardDeclarations.hpp"
-#include "Moonshot/Fox/Util/Enums.hpp"			
+#include "Moonshot/Fox/Common/Operators.hpp"			
 
 #include <tuple>							// std::tuple, std::pair
 #include <memory>							// std::shared_ptr

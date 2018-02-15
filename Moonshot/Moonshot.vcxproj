@@ -236,7 +236,7 @@
     <ClInclude Include="src\Moonshot\Fox\Lexer\Lexer.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Lexer\Token.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Parser\Parser.hpp" />
-    <ClInclude Include="src\Moonshot\Fox\Util\Enums.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Common\Operators.hpp" />
     <ClInclude Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.hpp" />
     <ClInclude Include="src\Moonshot\Tests\Condition\Conditions.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.h" />

@@ -10,7 +10,7 @@
 #pragma once
 
 #include "IASTExpr.hpp"							
-#include "Moonshot/Fox/Util/Enums.hpp"			// enums
+#include "Moonshot/Fox/Common/Operators.hpp"			// enums
 #include "Moonshot/Common/Types/Types.hpp"		// FVal
 #include <memory>
 

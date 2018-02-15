@@ -23,7 +23,7 @@
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
 // Operators
-#include "Moonshot/Fox/Util/Enums.hpp"
+#include "Moonshot/Fox/Common/Operators.hpp"
 // math operations
 #include <cmath>		
 #include <sstream>
