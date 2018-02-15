@@ -41,11 +41,16 @@ namespace Moonshot
 			DataMap datamap_; // The symbols table used to track variable declarations and types.
 			// it is public so we can add anything we want to it for testing purposes.
 		private:
+			// Directions enum
+			enum class directions
+			{
+				UNKNOWN, LEFT, RIGHT
+			};
 			// Context
 			Context& context_;
 
 			template<typename T>
-			std::size_t visitAndGetResult(T* node,const Direction& dir = Direction::UNKNOWN, const binaryOperation& c_binop = binaryOperation::PASS)
+			std::size_t visitAndGetResult(T* node,const directions& dir = directions::UNKNOWN, const binaryOperation& c_binop = binaryOperation::PASS)
 			{
 				node_ctxt_.cur_binop = c_binop;
 				node_ctxt_.dir = dir;
@@ -53,7 +58,7 @@ namespace Moonshot
 				node->accept(*this);
 
 				node_ctxt_.cur_binop = binaryOperation::PASS;
-				node_ctxt_.dir = Direction::UNKNOWN;
+				node_ctxt_.dir = directions::UNKNOWN;
 				return value_;
 			}
 
@@ -63,7 +68,7 @@ namespace Moonshot
 
 			struct nodecontext
 			{
-				Direction dir;
+				directions dir;
 				binaryOperation cur_binop;
 			} node_ctxt_;
 	};

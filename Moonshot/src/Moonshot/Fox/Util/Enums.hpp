@@ -76,11 +76,6 @@ namespace Moonshot
 	{
 		return (op == binaryOperation::EXP) || (op == binaryOperation::ASSIGN); // Only equal & exp op are right assoc.
 	}
-
-	enum class Direction
-	{
-		UNKNOWN, LEFT, RIGHT
-	};
 	const std::map<binaryOperation, std::string> kBinop_dict =
 	{
 		{ binaryOperation::PASS		, "PASS"	},

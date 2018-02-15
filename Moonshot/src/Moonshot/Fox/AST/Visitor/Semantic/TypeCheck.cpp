@@ -34,7 +34,7 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 		);
 	}
 	node_ctxt_.cur_binop = binaryOperation::PASS;
-	node_ctxt_.dir = Direction::UNKNOWN;
+	node_ctxt_.dir = directions::UNKNOWN;
 }
 
 TypeCheckVisitor::~TypeCheckVisitor()
@@ -59,9 +59,9 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 		}
 		// VISIT BOTH CHILDREN
 		// get left expr result type
-		auto left = visitAndGetResult(node.left_.get(), Direction::LEFT,node.op_);
+		auto left = visitAndGetResult(node.left_.get(), directions::LEFT,node.op_);
 		// get right expr result type
-		auto right = visitAndGetResult(node.right_.get(), Direction::RIGHT,node.op_);
+		auto right = visitAndGetResult(node.right_.get(), directions::RIGHT,node.op_);
 		// SPECIAL CHECK 1: CHECK IF THIS IS A CONCAT OP,CONVERT IT 
 		if (canConcat(left,right) && (node.op_ == binaryOperation::ADD))
 			node.op_ = binaryOperation::CONCAT;
@@ -155,7 +155,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 void TypeCheckVisitor::visit(ASTVarCall & node)
 {
 	auto searchResult = datamap_.retrieveVarAttr(node.varname_);
-	if ((node_ctxt_.dir == Direction::LEFT) && (node_ctxt_.cur_binop == binaryOperation::ASSIGN) && searchResult.isConst)
+	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperation::ASSIGN) && searchResult.isConst)
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
 		value_ = indexes::invalid_index;
