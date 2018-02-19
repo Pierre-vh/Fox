@@ -7,10 +7,12 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Conditions.h"
+#include "Conditions.hpp"
+#include "Moonshot/Fox/AST/Visitor/Dumper/Dumper.hpp"
 
 using namespace Moonshot;
-using namespace Moonshot::TestUtilities;
+using namespace Moonshot::Test;
+using namespace Moonshot::Test::TestUtilities;
 
 Conditions::~Conditions()
 {
@@ -41,7 +43,7 @@ bool Conditions::runTest(Context & context)
 	};
 	// good tests
 	int goodcount = 0;
-	for (auto& elem : good_tests_fp)
+	for (const auto& elem : good_tests_fp)
 	{
 		goodcount++;
 		auto data = readFileToString(context,elem);
@@ -51,7 +53,7 @@ bool Conditions::runTest(Context & context)
 	}
 	// bad tests
 	int badcount = 0;
-	for (auto& elem : bad_tests_fp)
+	for (const auto& elem : bad_tests_fp)
 	{
 		badcount++;
 		context.clearLogs();

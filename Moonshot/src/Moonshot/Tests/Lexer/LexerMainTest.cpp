@@ -7,10 +7,11 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "LexerMainTest.h"
+#include "LexerMainTest.hpp"
 
 using namespace Moonshot;
-using namespace Moonshot::TestUtilities;
+using namespace Moonshot::Test;
+using namespace Moonshot::Test::TestUtilities;
 
 LexerMainTest::~LexerMainTest()
 {

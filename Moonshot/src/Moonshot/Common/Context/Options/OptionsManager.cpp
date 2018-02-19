@@ -7,20 +7,11 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "OptionsManager.h"
+#include "OptionsManager.hpp"
 
 #include <iostream>
 
 using namespace Moonshot;
-
-OptionsManager::OptionsManager()
-{
-}
-
-
-OptionsManager::~OptionsManager()
-{
-}
 
 void OptionsManager::addAttr(const OptionsList& optname, const ParameterValue& new_pval)
 {

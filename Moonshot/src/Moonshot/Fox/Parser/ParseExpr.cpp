@@ -8,14 +8,20 @@
 // This file implements expressions related methods (rules)	
 ////------------------------------------------------------////
 
-#include "Parser.h"
+#include "Parser.hpp"
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
+
+using category = Token::category;
+using sign = Token::sign;
+using keyword = Token::keyword;
 
 // Context and Exceptions
-#include "../../Common/Context/Context.h"
-#include "../../Common/Exceptions/Exceptions.h"
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
+
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 
 std::unique_ptr<IASTExpr> Parser::parseCallable()
 {
@@ -33,7 +39,7 @@ std::unique_ptr<IASTExpr> Parser::parseValue()
 	// = <const>
 	auto matchValue_result = matchLiteral();
 	if (matchValue_result.first) // if we have a value, return it packed in a ASTLiteral
-		return std::make_unique<ASTLiteral>(matchValue_result.second);
+		return std::make_unique<ASTLiteral>(matchValue_result.second.lit_val);
 	else if (auto node = parseCallable()) // Callable?
 		return node;
 	// = '(' <expr> ')'
@@ -71,7 +77,7 @@ std::unique_ptr<IASTExpr> Parser::parseExponentExpr()
 				return nullptr;
 			}
 			std::unique_ptr<ASTBinaryExpr> bin = std::make_unique<ASTBinaryExpr>();
-			bin->op_ = binaryOperation::EXP;
+			bin->op_ = binaryOperator::EXP;
 			bin->left_ = std::move(val);
 			bin->right_ = std::move(prefix_expr);
 			return bin;
@@ -84,8 +90,7 @@ std::unique_ptr<IASTExpr> Parser::parseExponentExpr()
 std::unique_ptr<IASTExpr> Parser::parsePrefixExpr()
 {
 	bool uopResult = false;
-	unaryOperation uopOp;
-	std::size_t casttype = indexes::invalid_index;
+	unaryOperator uopOp = unaryOperator::DEFAULT;
 	std::tie(uopResult, uopOp) = matchUnaryOp(); // If an unary op is matched, uopResult will be set to true and pos_ updated.
 	if (uopResult)
 	{
@@ -137,7 +142,7 @@ std::unique_ptr<IASTExpr> Parser::parseCastExpr()
 
 std::unique_ptr<IASTExpr> Parser::parseBinaryExpr(const char & priority)
 {
-	auto rtr = std::make_unique<ASTBinaryExpr>(binaryOperation::PASS);
+	auto rtr = std::make_unique<ASTBinaryExpr>(binaryOperator::PASS);
 
 	// change this to ASTBinaryExpr
 	std::unique_ptr<IASTExpr> first = 0;
@@ -148,11 +153,11 @@ std::unique_ptr<IASTExpr> Parser::parseBinaryExpr(const char & priority)
 	if (!first)					
 		return nullptr;
 
-	rtr->setChild(dir::LEFT, first);	// Make first the left child of the return node !
+	rtr->left_ = std::move(first);	// Make first the left child of the return node !
 	while (true)
 	{
 		// Match binary operator
-		binaryOperation op;
+		binaryOperator op;
 		bool matchResult;
 		std::tie(matchResult, op) = matchBinaryOp(priority);
 		if (!matchResult) // No operator found : break.
@@ -165,16 +170,16 @@ std::unique_ptr<IASTExpr> Parser::parseBinaryExpr(const char & priority)
 
 		if (!second) // Check for validity : we need a rhs. if we don't have one, we have an error !
 		{
-			errorExpected("Expected an expression after binary operator.");
+			errorExpected("Expected an expression after binary operator,");
 			break;
 		}
 
-		if (rtr->op_ == binaryOperation::PASS) // if the node has still a "pass" operation
+		if (rtr->op_ == binaryOperator::PASS) // if the node has still a "pass" operation
 				rtr->op_ = op;
 		else // if the node already has an operation
-			rtr = oneUpNode(rtr, op);
+			rtr = oneUpNode(std::move(rtr), op);
 
-		rtr->setChild(dir::RIGHT, second); // Set second as the child of the node.
+		rtr->right_ = std::move(second); // Set second as the child of the node.
 	}
 
 	// When we have simple node (PASS operation with only a value/expr as left child), we simplify it(only return the left child)
@@ -211,66 +216,66 @@ std::unique_ptr<IASTExpr> Parser::parseExpr()
 	return nullptr;
 }
 
-std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr>& node, const binaryOperation & op)
+std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator & op)
 {
 	auto newnode = std::make_unique<ASTBinaryExpr>(op);
 	newnode->left_ = std::move(node);
 	return newnode;
 }
 
-bool Moonshot::Parser::matchExponentOp()
+bool Parser::matchExponentOp()
 {
 	auto cur = getToken();
-	auto pk = getToken(pos_ + 1);
-	if (cur.isValid() && cur.type == tokenCat::TT_SIGN && cur.sign_type == sign::S_ASTERISK)
+	auto pk = getToken(state_.pos + 1);
+	if (cur.isValid() && cur.type == category::SIGN && cur.sign_type == sign::S_ASTERISK)
 	{
-		if (pk.isValid() && pk.type == tokenCat::TT_SIGN && pk.sign_type == sign::S_ASTERISK)
+		if (pk.isValid() && pk.type == category::SIGN && pk.sign_type == sign::S_ASTERISK)
 		{
-			pos_+=2;
+			state_.pos+=2;
 			return true;
 		}
 	}
 	return false;
 }
 
-std::pair<bool, binaryOperation> Parser::matchAssignOp()
+std::pair<bool, binaryOperator> Parser::matchAssignOp()
 {
 	auto cur = getToken();
-	pos_++;
-	if (cur.isValid() && cur.type == tokenCat::TT_SIGN && cur.sign_type == sign::S_EQUAL)
-		return { true,binaryOperation::ASSIGN };
-	pos_--;
-	return { false,binaryOperation::PASS };
+	state_.pos++;
+	if (cur.isValid() && cur.type == category::SIGN && cur.sign_type == sign::S_EQUAL)
+		return { true,binaryOperator::ASSIGN };
+	state_.pos--;
+	return { false,binaryOperator::PASS };
 }
 
-std::pair<bool, unaryOperation> Parser::matchUnaryOp()
+std::pair<bool, unaryOperator> Parser::matchUnaryOp()
 {
 	auto cur = getToken();
-	if (!cur.isValid() || (cur.type != tokenCat::TT_SIGN))
-		return { false, unaryOperation::DEFAULT };
-	pos_++;
+	if (!cur.isValid() || (cur.type != category::SIGN))
+		return { false, unaryOperator::DEFAULT };
+	state_.pos++;
 
 	if (cur.sign_type == sign::P_EXCL_MARK)
-		return { true, unaryOperation::LOGICNOT };
+		return { true, unaryOperator::LOGICNOT };
 
 	if (cur.sign_type == sign::S_MINUS)
-		return { true, unaryOperation::NEGATIVE};
+		return { true, unaryOperator::NEGATIVE};
 
 	if (cur.sign_type == sign::S_PLUS)
-		return { true, unaryOperation::POSITIVE};
+		return { true, unaryOperator::POSITIVE};
 
-	pos_--;
-	return { false, unaryOperation::DEFAULT };
+	state_.pos--;
+	return { false, unaryOperator::DEFAULT };
 }
 
-std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
+std::pair<bool, binaryOperator> Parser::matchBinaryOp(const char & priority)
 {
 	auto cur = getToken();
-	auto pk = getToken(pos_ + 1);
+	auto pk = getToken(state_.pos + 1);
 	// Check current Token validity
-	if (!cur.isValid() || (cur.type != tokenCat::TT_SIGN))
-		return { false, binaryOperation::PASS };
-	pos_ += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
+	if (!cur.isValid() || (cur.type != category::SIGN))
+		return { false, binaryOperator::PASS };
+	state_.pos += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
 
 	switch (priority)
 	{
@@ -278,37 +283,37 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 			if (cur.sign_type == sign::S_ASTERISK)
 			{
 				if (pk.sign_type != sign::S_ASTERISK) // Disambiguation between '**' and '*'
-					return { true, binaryOperation::MUL };
+					return { true, binaryOperator::MUL };
 			}
 			if (cur.sign_type == sign::S_SLASH)
-				return { true, binaryOperation::DIV };
+				return { true, binaryOperator::DIV };
 			if (cur.sign_type == sign::S_PERCENT)
-				return { true, binaryOperation::MOD };
+				return { true, binaryOperator::MOD };
 			break;
 		case 1: // + -
 			if (cur.sign_type == sign::S_PLUS)
-				return { true, binaryOperation::ADD };
+				return { true, binaryOperator::ADD };
 			if (cur.sign_type == sign::S_MINUS)
-				return { true, binaryOperation::MINUS };
+				return { true, binaryOperator::MINUS };
 			break;
 		case 2: // > >= < <=
 			if (cur.sign_type == sign::S_LESS_THAN)
 			{
 				if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
 				{
-					pos_ += 1;
-					return { true, binaryOperation::LESS_OR_EQUAL };
+					state_.pos += 1;
+					return { true, binaryOperator::LESS_OR_EQUAL };
 				}
-				return { true, binaryOperation::LESS_THAN };
+				return { true, binaryOperator::LESS_THAN };
 			}
 			if (cur.sign_type == sign::S_GREATER_THAN)
 			{
 				if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
 				{
-					pos_ += 1;
-					return { true, binaryOperation::GREATER_OR_EQUAL };
+					state_.pos += 1;
+					return { true, binaryOperator::GREATER_OR_EQUAL };
 				}
-				return { true, binaryOperation::GREATER_THAN };
+				return { true, binaryOperator::GREATER_THAN };
 			}
 			break;
 		case 3:	// == !=
@@ -316,34 +321,34 @@ std::pair<bool, binaryOperation> Parser::matchBinaryOp(const char & priority)
 			{
 				if (cur.sign_type == sign::S_EQUAL)
 				{
-					pos_ += 1;
-					return { true,binaryOperation::EQUAL };
+					state_.pos += 1;
+					return { true,binaryOperator::EQUAL };
 				}
 				if (cur.sign_type == sign::P_EXCL_MARK)
 				{
-					pos_ += 1;
-					return { true,binaryOperation::NOTEQUAL };
+					state_.pos += 1;
+					return { true,binaryOperator::NOTEQUAL };
 				}
 			}
 			break;
 		case 4:
 			if (pk.isValid() && (pk.sign_type == sign::S_AND) && (cur.sign_type == sign::S_AND))
 			{
-				pos_ += 1;
-				return { true,binaryOperation::AND };
+				state_.pos += 1;
+				return { true,binaryOperator::AND };
 			}
 			break;
 		case 5:
 			if (pk.isValid() && (pk.sign_type == sign::S_VBAR) && (cur.sign_type == sign::S_VBAR))
 			{
-				pos_ += 1;
-				return { true,binaryOperation::OR };
+				state_.pos += 1;
+				return { true,binaryOperator::OR };
 			}
 			break;
 		default:
 			throw Exceptions::parser_critical_error("Requested to match a Binary Operator with a non-existent priority");
 			break;
 	}
-	pos_ -= 1;	// We did not find anything, decrement & return.
-	return { false, binaryOperation::PASS };
+	state_.pos -= 1;	// We did not find anything, decrement & return.
+	return { false, binaryOperator::PASS };
 }

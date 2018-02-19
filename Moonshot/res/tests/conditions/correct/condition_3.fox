@@ -1,12 +1,6 @@
 if(false)
 	foo = "if!";
-else if(false)
-{
-	foo = "elif1";
-}
+else if(false);
 else if(true)
 	foo = "elif2!";
-else 
-{
-	"else!";
-}
+else;

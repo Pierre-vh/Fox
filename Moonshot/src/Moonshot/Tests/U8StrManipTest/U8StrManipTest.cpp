@@ -1,7 +1,12 @@
-﻿#include "U8StrManipTest.h"
+﻿#include "U8StrManipTest.hpp"
+
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
+#include <cwctype>		// std::iswspace
+#include <sstream>
 
 using namespace Moonshot;
-using namespace TestUtilities;
+using namespace Moonshot::Test;
+using namespace Moonshot::Test::TestUtilities;
 
 U8StrManipTest::~U8StrManipTest()
 {
@@ -31,7 +36,7 @@ bool U8StrManipTest::runTest(Context & context)
 
 	std::cout << ">Append test:";
 	{
-		wchar_t u8ch = L'ш';
+		const char32_t u8ch = L'ш';
 		std::string str = "foo";
 		UTF8::append(str, u8ch);
 		str += "bar";
@@ -84,11 +89,11 @@ bool U8StrManipTest::testStr(Context& context, const std::string& str, unsigned 
 	try {
 		while (!manip.isAtEndOfStr())
 		{
-			auto cur = manip.currentChar();
+			const auto cur = manip.currentChar();
 			if (cur == '\n')
 				linecount++;
 			else {
-				if (std::iswspace((wchar_t)cur))
+				if (std::iswspace(static_cast<wchar_t>(cur)))
 					spacecount++;
 				charcount++;
 			}
@@ -98,24 +103,29 @@ bool U8StrManipTest::testStr(Context& context, const std::string& str, unsigned 
 	}
 	catch (std::exception& e)
 	{
-		std::cout << "Test failed, exception thrown while iterating through the string." << std::endl;
-		std::cout << e.what() << std::endl;
+		std::stringstream out;
+		out << "Test failed, exception thrown while iterating through the string." << "\n";
+		out << e.what() << "\n";
+		context.reportError(out.str());
 		return false;
 	}
 	if (linecount != explinecount)
 	{
-		std::cout << "Test failed, incorrect linecount. Expected " << explinecount << " lines, found " << linecount << std::endl;
-		return false;
+		std::stringstream out;
+		out << "Test failed, incorrect linecount. Expected " << explinecount << " lines, found " << linecount << "\n";
+		context.reportError(out.str());
 	}
 	if (charcount != expcharcount) 
 	{
-		std::cout << "Test failed, incorrect character count, expected " << expcharcount << " char, found " << charcount << std::endl;
-		return false;
+		std::stringstream out;
+		out << "Test failed, incorrect character count, expected " << expcharcount << " char, found " << charcount << "\n";
+		context.reportError(out.str());
 	}
 	if (spacecount != expspacecount) 
 	{
-		std::cout << "Test failed, incorrect space count, expected " << expspacecount << " spaces, found " << spacecount << std::endl;
-		return false;
+		std::stringstream out;
+		out << "Test failed, incorrect space count, expected " << expspacecount << " spaces, found " << spacecount << "\n";
+		context.reportError(out.str());
 	}
 	return true;
 }

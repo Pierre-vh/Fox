@@ -1,9 +1,11 @@
-#include "VarStmts.h"
+#include "VarStmts.hpp"
 
-#include "../../Common/DataMap/DataMap.h"
+#include "Moonshot/Common/DataMap/DataMap.hpp"
+#include "Moonshot/Fox/AST/Visitor/Dumper/Dumper.hpp"
 
 using namespace Moonshot;
-using namespace Moonshot::TestUtilities;
+using namespace Moonshot::Test;
+using namespace Moonshot::Test::TestUtilities;
 
 VarStmts::VarStmts()
 {
@@ -30,7 +32,7 @@ bool VarStmts::runTest(Context & context)
 	TypeCheckVisitor tc_good(context); // shared typechecker to keep the datamap
 
 	auto datamap = std::make_shared<DataMap>(context);
-	datamap->declareValue(var::varattr("TESTVALUE", fv_util::indexes::fval_int, false));
+	datamap->declareValue(var::varattr("TESTVALUE", TypeUtils::indexes::fval_int, false));
 
 	RTStmtVisitor rt_good(context,datamap);
 	for (auto& elem : correct_test)

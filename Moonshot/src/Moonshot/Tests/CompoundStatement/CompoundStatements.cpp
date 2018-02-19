@@ -7,10 +7,12 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "CompoundStatements.h"
+#include "CompoundStatements.hpp"
+#include "Moonshot/Fox/AST/Visitor/Dumper/Dumper.hpp"
 
 using namespace Moonshot;
-using namespace Moonshot::TestUtilities;
+using namespace Moonshot::Test;
+using namespace Moonshot::Test::TestUtilities;
 
 CompoundStatements::CompoundStatements()
 {

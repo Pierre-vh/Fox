@@ -7,20 +7,20 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "TypeCheck.h"
-
+#include "TypeCheck.hpp"
 // Include nodes
-#include "../../Nodes/ASTExpr.h" 
-#include "../../Nodes/ASTVarDeclStmt.h" 
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp" 
+#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp" 
 // Other
-#include "../../../../Common/Context/Context.h" // context
-#include "../../../../Common/Exceptions/Exceptions.h" // exceptions
+#include "Moonshot/Common/Context/Context.hpp" // context
+#include "Moonshot/Common/Exceptions/Exceptions.hpp" // exceptions
+#include "Moonshot/Common/Types/Types.hpp" // Types
+#include "Moonshot/Common/Types/TypesUtils.hpp" // Types Utilities
+#include "Moonshot/Common/Utils/Utils.hpp"
 #include <sstream> // std::stringstream
-#include "../../../../Common/Types/Types.h" // Types
-#include "../../../../Common/Types/TypesUtils.h" // Types Utilities
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
 
 
 TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c), datamap_(c)
@@ -32,6 +32,8 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 			FVal(IntType())
 		);
 	}
+	node_ctxt_.cur_binop = binaryOperator::PASS;
+	node_ctxt_.dir = directions::UNKNOWN;
 }
 
 TypeCheckVisitor::~TypeCheckVisitor()
@@ -46,9 +48,9 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 
 	if (node.left_ && node.right_)
 	{
-		if (node.op_ == binaryOperation::ASSIGN)
+		if (node.op_ == binaryOperator::ASSIGN)
 		{
-			if (!isAssignable(node.left_))
+			if (!isAssignable(node.left_.get()))
 			{
 				context_.reportError("Assignement operation requires a assignable data type to the left of the operator !");
 				return;
@@ -56,12 +58,12 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 		}
 		// VISIT BOTH CHILDREN
 		// get left expr result type
-		auto left = visitAndGetResult(node.left_, dir::LEFT,node.op_);
+		auto left = visitAndGetResult(node.left_.get(), directions::LEFT,node.op_);
 		// get right expr result type
-		auto right = visitAndGetResult(node.right_, dir::RIGHT,node.op_);
+		auto right = visitAndGetResult(node.right_.get(), directions::RIGHT,node.op_);
 		// SPECIAL CHECK 1: CHECK IF THIS IS A CONCAT OP,CONVERT IT 
-		if (canConcat(left,right) && (node.op_ == binaryOperation::ADD))
-			node.op_ = binaryOperation::CONCAT;
+		if (canConcat(left,right) && (node.op_ == binaryOperator::ADD))
+			node.op_ = binaryOperator::CONCAT;
 		// CHECK VALIDITY OF EXPRESSION
 		value_ = getExprResultType(
 			node.op_
@@ -86,19 +88,19 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 		throw Exceptions::ast_malformation("UnaryExpression node did not have any child.");
 
 	// Get the child's return type. Don't change anything, as rtr_value is already set by the accept function.
-	auto childttype = visitAndGetResult(node.child_);
+	const auto childttype = visitAndGetResult(node.child_.get());
 	// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATIVE on a string.
 	if (childttype == indexes::fval_str)
 	{
 		// no unary op can be performed on a string
 		std::stringstream output;
-		output << "Can't perform unary operation " << getFromDict(kUop_dict, node.op_) << " on a string.";
+		output << "Can't perform unary operation " << Util::getFromDict(Dicts::kUnaryOpToStr_dict, node.op_) << " on a string.";
 		context_.reportError(output.str());
 	}
 	// SPECIAL CASES : (LOGICNOT) and (NEGATIVE ON BOOLEANS)
-	if (node.op_ == unaryOperation::LOGICNOT)
+	if (node.op_ == unaryOperator::LOGICNOT)
 		value_ = indexes::fval_bool; // Return type is a boolean
-	else if ((node.op_ == unaryOperation::NEGATIVE) && (value_ == indexes::fval_bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+	else if ((node.op_ == unaryOperator::NEGATIVE) && (value_ == indexes::fval_bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
 		value_ = indexes::fval_int;
 
 	node.resultType_  = value_;
@@ -111,7 +113,7 @@ void TypeCheckVisitor::visit(ASTCastExpr & node)
 	if (!node.child_)
 		throw Exceptions::ast_malformation("CastExpression node did not have any child.");
 
-	auto result = visitAndGetResult(node.child_);
+	const auto result = visitAndGetResult(node.child_.get());
 	if (canCastTo(node.getCastGoal(), result))
 		value_ = node.getCastGoal();
 	else
@@ -132,7 +134,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 	if (node.initExpr_) // If the node has an initExpr.
 	{
 		// get the init expression type.
-		auto iexpr_type = visitAndGetResult(node.initExpr_);
+		const auto iexpr_type = visitAndGetResult(node.initExpr_.get());
 		// check if it's possible.
 		if (!canAssign(
 			node.vattr_.type_,
@@ -152,7 +154,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 void TypeCheckVisitor::visit(ASTVarCall & node)
 {
 	auto searchResult = datamap_.retrieveVarAttr(node.varname_);
-	if ((node_ctxt_.dir == dir::LEFT) && (node_ctxt_.cur_binop == binaryOperation::ASSIGN) && searchResult.isConst)
+	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN) && searchResult.isConst)
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
 		value_ = indexes::invalid_index;
@@ -161,25 +163,25 @@ void TypeCheckVisitor::visit(ASTVarCall & node)
 		value_ =  searchResult.type_; // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
-bool TypeCheckVisitor::isAssignable(const std::unique_ptr<IASTExpr>& op) const
+bool TypeCheckVisitor::isAssignable(const IASTExpr* op) const
 {
-	if (dynamic_cast<ASTVarCall*>(op.get())) // if the node's a ASTVarCall, it's assignable.
+	if (dynamic_cast<const ASTVarCall*>(op)) // if the node's a ASTVarCall, it's assignable.
 		return true;
 	return false;
 }
 
-bool TypeCheckVisitor::shouldOpReturnFloat(const binaryOperation & op) const
+bool TypeCheckVisitor::shouldOpReturnFloat(const binaryOperator & op) const
 {
 	// only div and exp are affected by this exception. The exponent is because with negative ones it acts like a fraction.(
-	return (op == binaryOperation::DIV) || (op == binaryOperation::EXP);
+	return (op == binaryOperator::DIV) || (op == binaryOperator::EXP);
 }
 
-std::size_t TypeCheckVisitor::getExprResultType(const binaryOperation& op, std::size_t& lhs, const std::size_t& rhs)
+std::size_t TypeCheckVisitor::getExprResultType(const binaryOperator& op, std::size_t& lhs, const std::size_t& rhs)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. 
 		return indexes::invalid_index;
 	// first, quick, simple check : we can only verify results between 2 basic types.
-	if (op == binaryOperation::ASSIGN)
+	if (op == binaryOperator::ASSIGN)
 	{
 		if (canAssign(lhs, rhs))
 			return lhs; // Assignements return the value  of the lhs.
@@ -191,7 +193,7 @@ std::size_t TypeCheckVisitor::getExprResultType(const binaryOperation& op, std::
 			return indexes::invalid_index;
 		}
 	}
-	else if (op == binaryOperation::CONCAT)
+	else if (op == binaryOperator::CONCAT)
 		return indexes::fval_str;
 	else if (isBasic(lhs) && isBasic(rhs))
 	{
@@ -199,14 +201,15 @@ std::size_t TypeCheckVisitor::getExprResultType(const binaryOperation& op, std::
 		{
 			if (isComparison(op))
 			{
-				if (isCompJoinOp(op) && !isArithmetic(lhs)) // If we have a compJoinOp and types aren't arithmetic : problem
+				if (((op == binaryOperator::AND) || (op == binaryOperator::OR)) 
+					&& !isArithmetic(lhs)) // If we have a and/or and types aren't arithmetic : problem
 				{
 					context_.reportError("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
 					return indexes::invalid_index;
 				}
 				return indexes::fval_bool; // Else, it's normal, return type's a boolean.
 			}
-			else if ((lhs == indexes::fval_str) && (op != binaryOperation::CONCAT)) // We have strings and it's not a concat op :
+			else if ((lhs == indexes::fval_str) && (op != binaryOperator::CONCAT)) // We have strings and it's not a concat op :
 			{
 				context_.reportError("Can't perform operations other than addition (concatenation) on strings");
 				return indexes::invalid_index;
@@ -238,5 +241,5 @@ std::size_t TypeCheckVisitor::getExprResultType(const binaryOperation& op, std::
 		return indexes::invalid_index;
 	}
 	throw std::logic_error("getExprResultType() Defaulted.");
-	return indexes::invalid_index;
+	// return indexes::invalid_index;
 }

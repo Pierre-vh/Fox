@@ -71,14 +71,18 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>C:\Program Files (x86)\Windows Kits\10\Lib\10.0.10150.0\ucrt\x64;$(LibraryPath)</LibraryPath>
-    <CodeAnalysisRuleSet>NativeMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>cpp_all_codeanalysis_ruleset.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableCppCoreCheck>true</EnableCppCoreCheck>
+    <OutDir>$(SolutionDir)\Moonshot\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <CodeAnalysisRuleSet>NativeMinimumRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>cpp_all_codeanalysis_ruleset.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableCppCoreCheck>true</EnableCppCoreCheck>
+    <OutDir>$(SolutionDir)\Moonshot\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -97,10 +101,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Windows Kits\10\Include\10.0.10150.0\ucrt</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Moonshot\src\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <Profile>true</Profile>
@@ -131,7 +136,9 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnablePREfast>false</EnablePREfast>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Moonshot\src\</AdditionalIncludeDirectories>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -142,11 +149,11 @@
   <ItemGroup>
     <ClCompile Include="src\Moonshot\Common\DataMap\DataMap.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\TypesUtils.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.cpp" />
     <ClCompile Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.cpp" />
     <ClCompile Include="src\Moonshot\Tests\ExprStmt\ExprStmt.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Options\OptionsTests.cpp" />
     <ClCompile Include="src\Moonshot\Common\Context\Options\OptionsManager.cpp" />
@@ -163,7 +170,6 @@
     <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\Types.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTExpr.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\IASTNode.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseExpr.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\Parser.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Lexer\Lexer.cpp" />
@@ -178,46 +184,71 @@
     <ClCompile Include="src\Moonshot\Tests\U8StrManipTest\U8StrManipTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="misc\bytecode_tests\fizzbuzz.bc" />
-    <None Include="misc\bytecode_tests\fizzbuzz.fox" />
-    <None Include="misc\bytecode_tests\fizzbuzz.optimized.bc" />
-    <None Include="misc\bytecode_tests\readme.md" />
-    <None Include="misc\import_examples\main.fox" />
-    <None Include="res\tests\compstmt\compstmt_bad_2.fox" />
-    <None Include="res\tests\compstmt\compstmt_correct_1.fox" />
     <None Include="res\tests\conditions\condition_correct_1.fox" />
-    <None Include="res\tests\varstmts\varstmts_bad.fox" />
-    <None Include="res\tests\whileloop\bad\while_loop_1.fox" />
-    <None Include="res\tests\whileloop\bad\while_loop_2.fox" />
-    <None Include="res\tests\whileloop\bad\while_loop_3.fox" />
-    <None Include="res\tests\whileloop\correct\while_loop_1.fox" />
-    <None Include="res\tests\whileloop\correct\while_loop_2.fox" />
     <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
     <None Include="src\Moonshot\Fox\AST\Visitor\readme.md" />
     <None Include="src\Moonshot\Fox\readme.md" />
     <None Include="src\Moonshot\readme.md" />
-    <None Include="res\tests\exprstmt\exprstmt_bad.fox" />
-    <None Include="res\tests\exprstmt\exprstmt_correct.fox" />
-    <None Include="res\tests\expr\expr_bad.fox" />
-    <None Include="res\tests\lexer\lexer_bad.fox" />
-    <None Include="res\tests\varstmts\varstmts_correct.fox" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Moonshot\Common\Context\Context.hpp" />
+    <ClInclude Include="src\Moonshot\Common\Context\Options\OptionsList.hpp" />
+    <ClInclude Include="src\Moonshot\Common\Context\Options\OptionsManager.hpp" />
+    <ClInclude Include="src\Moonshot\Common\Context\Options\ParameterValue.hpp" />
+    <ClInclude Include="src\Moonshot\Common\DataMap\DataMap.hpp" />
+    <ClInclude Include="src\Moonshot\Common\Exceptions\Exceptions.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTNullStmt.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ForwardDeclarations.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTExpr.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Parser\ParsingResult.hpp" />
+    <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\checked.h" />
+    <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8\checked.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\core.h" />
+    <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8\core.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\unchecked.h" />
     <ClInclude Include="src\Moonshot\Common\DataMap\DataMap.h" />
+    <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8\unchecked.hpp" />
     <ClInclude Include="src\Moonshot\Common\Types\FVTypeTraits.h" />
+    <ClInclude Include="src\Moonshot\Common\Types\FVTypeTraits.hpp" />
+    <ClInclude Include="src\Moonshot\Common\Types\TypeCast.hpp" />
+    <ClInclude Include="src\Moonshot\Common\Types\Types.hpp" />
     <ClInclude Include="src\Moonshot\Common\Types\TypesUtils.h" />
+    <ClInclude Include="src\Moonshot\Common\Types\TypesUtils.hpp" />
+    <ClInclude Include="src\Moonshot\Common\UTF8\StringManipulator.hpp" />
+    <ClInclude Include="src\Moonshot\Common\Utils\Utils.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTExpr.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTNode.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Eval\Expr\RTExprVisitor.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Eval\Stmt\RTStmtVisitor.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\IVisitor.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\NodesForwardDecl.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Lexer\Lexer.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Lexer\Token.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Parser\Parser.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Common\Operators.hpp" />
+    <ClInclude Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.hpp" />
     <ClInclude Include="src\Moonshot\Tests\Condition\Conditions.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.h" />
     <ClInclude Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.h" />
+    <ClInclude Include="src\Moonshot\Tests\Condition\Conditions.hpp" />
+    <ClInclude Include="src\Moonshot\Tests\Expressions\ExprTests.hpp" />
     <ClInclude Include="src\Moonshot\Tests\ExprStmt\ExprStmt.h" />
+    <ClInclude Include="src\Moonshot\Tests\ExprStmt\ExprStmt.hpp" />
+    <ClInclude Include="src\Moonshot\Tests\ITest.hpp" />
+    <ClInclude Include="src\Moonshot\Tests\Lexer\LexerMainTest.hpp" />
+    <ClInclude Include="src\Moonshot\Tests\Manager\TestManager.hpp" />
     <ClInclude Include="src\Moonshot\Tests\Options\OptionsTests.h" />
     <ClInclude Include="src\Moonshot\Common\Context\Options\ParameterValue.h" />
     <ClInclude Include="src\Moonshot\Common\Context\Options\OptionsManager.h" />
@@ -243,30 +274,21 @@
     <ClInclude Include="src\Moonshot\Fox\Util\Enums.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.h" />
     <ClInclude Include="src\Moonshot\Tests\ITest.h" />
+    <ClInclude Include="src\Moonshot\Tests\Options\OptionsTests.hpp" />
+    <ClInclude Include="src\Moonshot\Tests\U8StrManipTest\U8StrManipTest.hpp" />
     <ClInclude Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.h" />
+    <ClInclude Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.hpp" />
     <ClInclude Include="src\Moonshot\Tests\VarStmts\VarStmts.h" />
+    <ClInclude Include="src\Moonshot\Tests\VarStmts\VarStmts.hpp" />
     <ClInclude Include="src\Moonshot\Tests\WhileLoop\WhileLoop.h" />
     <ClInclude Include="src\Moonshot\Common\UTF8\StringManipulator.h" />
     <ClInclude Include="src\Moonshot\Tests\U8StrManipTest\U8StrManipTest.h" />
+    <ClInclude Include="src\Moonshot\Tests\WhileLoop\WhileLoop.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="doc\file_header.txt" />
-    <Text Include="doc\guidelines.txt" />
-    <Text Include="misc\code_samples\expr\todo.txt" />
-    <Text Include="misc\features_ideas\Expression Functions.txt" />
-    <Text Include="misc\features_ideas\parseroverhaul.txt" />
-    <Text Include="misc\todo.txt" />
-    <Text Include="res\tests\compstmt\compstmt_bad_1.fox" />
-    <Text Include="res\tests\compstmt\compstmt_correct_2.fox" />
-    <Text Include="res\tests\expr\expr_tests_guide.txt" />
-    <Text Include="res\tests\utf8\ascii.txt" />
-    <Text Include="res\tests\utf8\bronzehorseman.pushkin.txt" />
-    <Text Include="res\tests\utf8\sources.txt" />
     <Text Include="src\LICENSE.txt" />
-    <Text Include="res\tests\vdecl\vdecl_bad.fox" />
-    <Text Include="res\tests\vdecl\vdecl_correct.fox" />
     <Text Include="src\Moonshot\Common\Context\Options\OptionsList.h" />
-    <Text Include="src\Moonshot\Common\External\utfcpp\utfcpp.txt" />
+    <Text Include="src\Moonshot\ThirdParty\utfcpp\utfcpp.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

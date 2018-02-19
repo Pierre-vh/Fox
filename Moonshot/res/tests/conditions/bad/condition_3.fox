@@ -2,3 +2,4 @@ if(false)
 	foo = "if!";
 else if
 {
+	let statement : int;

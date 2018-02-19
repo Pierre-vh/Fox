@@ -1,6 +1,6 @@
 #include <iostream>
 #include <Windows.h>
-#include "Tests/Manager/TestManager.h"
+#include "Moonshot/Tests/Manager/TestManager.hpp"
 using namespace Moonshot;
 /*
 	ROADMAP (sort of):
@@ -9,13 +9,10 @@ using namespace Moonshot;
 			-> Update the typechecker to support functions checking
 			-> Scope checking
 			-> (...) Others if there's a need for them.
-		->	Create a "Front-End" class for Fox for fox, that
-			takes a string or a file as input and runs the Lexer,Parser and Visitors needed.
-			Do not make the class fully opaque, with just a function taking the str and outputting the std::vector<Instruction>
-			But create functions like : readFile(),readStr(),runCompileTimeChecks(),generateIR(),..
+		->	Create a Driver class for the frond end.
 		->	Design the IR, and create a CodeGen visitor.
-			The IR class should be located in /Common/
-			Nothing from Fox should include files from Badger.
+			The IR classes should be located in /Common/ (IR Dictionary, generator, etc)
+			Nothing from Fox should include files from Badger and vice versa
 		-> Start work on Badger.
 
 		Temporary visitor order :
@@ -29,21 +26,32 @@ using namespace Moonshot;
 			Generally, find ways to simplify the ast as much as possible.
 */
 /*
-	TODO:
-		Make CharType non arithmetic.
-		Add operations (char-char = string) and (char-strings = string) too. (reuse the concat operation) Be careful about lhs/rhs order.
-		// update the typechecker & rtexprvisitor to match the new rule
+	Needed:
+		Rework the parser partially. I need functions to be capable of indicating that :
+			* They didn't match the non terminal
+			* If they didn't match it, was it because they didn't find it, or because of an error?
+		This is needed to avoid flooding the console with useless, non important error messages.
+
+	TODO :
+		Implement the system to detect if the parsing of a rule was successful or not to avoid error message flooding. This is a big parser rework and will take a few hours to complete.
+		From there, judge if recovery functions can be useful in certain cases. (like in compound statement where the end '}' isn't found-> panic and recover). If yes:
+			Add an error counter to the Parser
+			When reporting an error, increment err_count
+			At the end of the error reporting function, if err_count exceeds a certain thresold, stop parsing (set pos_ to curtok_.size())
+			In certain cases, like if a } wasn't found at the end of the compound statement, panic and try to find it to resync. if resync is successful, reset err count. Implement that whenever needed.
+		Don't aim for a huge precision error messages, just a good compromise.
 */
+
 int main()
 {
 
 	SetConsoleOutputCP(CP_UTF8);
 	setvbuf(stdout, nullptr, _IOFBF, 1000);
 
-	//std::ios_base::sync_with_stdio(false); // We don't use printf, so we don't need to sync with stdio (CppCoreGuidelines SL.io.10)
+	std::ios_base::sync_with_stdio(false); // We don't use printf, so we don't need to sync with stdio (CppCoreGuidelines SL.io.10)
 	Context context;
-	context.options.addAttr(OptionsList::exprtest_printAST,true);
-	TestManager ts(context);
+	context.optionsManager_.addAttr(OptionsList::exprtest_printAST,true);
+	Test::TestManager ts(context);
 	ts.addDefaultTests();
 	ts.runTests(true);
 	std::cout << "Finished. Press any key to continue.\n";

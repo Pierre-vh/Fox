@@ -7,11 +7,15 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ExprTests.h"
-#include "../../Common/Types/TypesUtils.h"
+#include "ExprTests.hpp"
+#include "Moonshot/Common/Types/TypesUtils.hpp"
+#include "Moonshot/Fox/AST/Visitor/Dumper/Dumper.hpp"
+#include "Moonshot/Fox/AST/Visitor/Semantic/TypeCheck.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 
 using namespace Moonshot;
-using namespace Moonshot::TestUtilities;
+using namespace Moonshot::Test;
+using namespace Moonshot::Test::TestUtilities;
 
 ExprTests::ExprTests()
 {
@@ -21,7 +25,7 @@ ExprTests::~ExprTests()
 {
 }
 
-std::string Moonshot::ExprTests::getTestName() const
+std::string ExprTests::getTestName() const
 {
 	return "Expressions Main (no variables)";
 }
@@ -46,20 +50,24 @@ bool ExprTests::runTest(Context & context)
 		 Parser p(context, l.getTokenVector());
 		auto root = p.parseExpr();
 		FAILED_RETURN_IF_ERR("parsing (parsing error)");
-		FAILED_RETURN_IF(!root,"parsing (null node)")
+		FAILED_RETURN_IF(!root, "parsing (null node)")
 
-		root->accept(TypeCheckVisitor(context,true));
+		TypeCheckVisitor tc(context, true);
+		root->accept(tc);
 		FAILED_RETURN_IF_ERR("typechecking");
 
-		if (context.options.getAttr(OptionsList::exprtest_printAST).value_or(false).get<bool>())
-			root->accept(Dumper());
+		if (context.optionsManager_.getAttr(OptionsList::exprtest_printAST).value_or(false).get<bool>())
+		{
+			Dumper dmp;
+			root->accept(dmp);
+		}
 
 		RTExprVisitor evaluator(context);
 		root->accept(evaluator);
 		auto result = evaluator.getResult();
 
 		FAILED_RETURN_IF_ERR("evaluation");
-		std::cout << "\t\t\xC0 Result: " << fv_util::dumpFVal(result) << std::endl;
+		std::cout << "\t\t\xC0 Result: " << TypeUtils::dumpFVal(result) << std::endl;
 		FAILED_RETURN_IF(!std::holds_alternative<bool>(result), "evaluation (result wasn't of the expected type)");
 		FAILED_RETURN_IF(!std::get<bool>(result), "evaluation (result was false)");
 	}
@@ -79,7 +87,8 @@ bool ExprTests::runTest(Context & context)
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root);
 
-		root->accept(TypeCheckVisitor(context,true));
+		TypeCheckVisitor tc(context, true);
+		root->accept(tc);
 		SUCCESS_CONTINUE_IF_ERR;
 
 		RTExprVisitor evaluator(context);

@@ -7,13 +7,14 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ITest.h"
+#include "ITest.hpp"
 
 using namespace Moonshot;
+using namespace Moonshot::Test;
 
 std::string TestUtilities::readFileToString(Context& context,const std::string& fp)
 {
-	std::string completePath = std::string(util::moonshotSrcPath) + fp; 	// Get complete Path
+	std::string completePath = std::string(Util::moonshotSrcPath) + fp; 	// Get complete Path
 	std::ifstream in(completePath, std::ios::binary); 	// read file
 	if (in)
 		return(std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>()));
@@ -26,7 +27,7 @@ std::string TestUtilities::readFileToString(Context& context,const std::string& 
 
 std::vector<std::string> TestUtilities::readFileToVec(Context & context, const std::string & fp)
 {
-	std::string completePath = std::string(util::moonshotSrcPath) + fp; 	// Get complete Path
+	std::string completePath = std::string(Util::moonshotSrcPath) + fp; 	// Get complete Path
 	std::ifstream in(completePath, std::ios::in | std::ios::binary); 	// open file
 	std::vector<std::string> vec; 	//create vector
 	std::string str; 	// temp str

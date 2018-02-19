@@ -7,9 +7,13 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "OptionsTests.h"
+#include "OptionsTests.hpp"
+
+#include <sstream>
 
 using namespace Moonshot;
+using namespace Moonshot::Test;
+using namespace Moonshot::Test::TestUtilities;
 
 OptionsTests::OptionsTests()
 {
@@ -26,7 +30,7 @@ std::string OptionsTests::getTestName() const
 
 bool OptionsTests::runTest(Context & context)
 {
-	auto options = context.options; // Copy it so we don't modify the context's one
+	auto options = context.optionsManager_; // Copy it so we don't modify the context's one
 	if (!testOptManagerFunc(context, options))
 		return false;
 	if (!testParamvalueFuncs(context))
@@ -89,8 +93,8 @@ bool OptionsTests::testParamvalueFuncs(Context & context)
 	bool p1_expected = true;
 	int p2_expected = -34520;
 	// casted expected values
-	int p1_casted_expected = 1;
-	bool p2_casted_expected = true;
+	const int p1_casted_expected = 1;
+	const bool p2_casted_expected = true;
 	ParameterValue p1(p1_expected), p2(p2_expected);
 	// holds
 	if (!p1.holdsType<bool>())

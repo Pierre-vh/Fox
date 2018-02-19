@@ -1,17 +1,26 @@
-#include "TypeCast.h"
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : TypeCast.cpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			
+////------------------------------------------------------////
+
+#include "TypeCast.hpp"
 
 #include <variant> // std::visit
 #include <sstream>
-#include "Types.h"
-#include "TypesUtils.h"
-#include "FVTypeTraits.h"
-#include "../Context/Context.h"
-#include "../UTF8/StringManipulator.h"
+#include "Types.hpp"
+#include "TypesUtils.hpp"
+#include "FVTypeTraits.hpp"
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
 
-FVal Moonshot::castTo(Context& context_, const std::size_t& goal, FVal val)
+FVal CastUtilities::castTo(Context& context_, const std::size_t& goal, FVal val)
 {
 	std::pair<bool, FVal> rtr = std::make_pair<bool, FVal>(false, FVal());
 	std::visit(
@@ -29,7 +38,7 @@ FVal Moonshot::castTo(Context& context_, const std::size_t& goal, FVal val)
 	return FVal();
 }
 
-FVal Moonshot::castTo(Context& context_, const std::size_t& goal, const double & val)
+FVal CastUtilities::castTo(Context& context_, const std::size_t& goal, const double & val)
 {
 	std::pair<bool, FVal> rtr;
 	std::visit(

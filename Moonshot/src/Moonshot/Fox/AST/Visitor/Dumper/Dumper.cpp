@@ -7,21 +7,23 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Dumper.h"
+#include "Dumper.hpp"
 // Exception
-#include "../../../../Common/Exceptions/Exceptions.h"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
 // FVal Utilities
-#include "../../../../Common/Types/TypesUtils.h"
-#include "../../../../Common/Utils/Utils.h" // for enumAsInt
+#include "Moonshot/Common/Types/TypesUtils.hpp"
+#include "Moonshot/Common/Utils/Utils.hpp" // for enumAsInt
 // Include nodes
-#include "../../Nodes/ASTExpr.h"
-#include "../../Nodes//ASTVarDeclStmt.h"
-#include "../../Nodes/ASTCompStmt.h"
-#include "../../Nodes/ASTCondition.h"
-#include "../../Nodes/ASTWhileLoop.h"
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCompStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
+#include "Moonshot/Common/Utils/Utils.hpp"
+#include <iostream>
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
 
 Dumper::~Dumper()
 {
@@ -29,9 +31,9 @@ Dumper::~Dumper()
 
 void Dumper::visit(ASTBinaryExpr & node)
 {
-	std::string op = getFromDict(kBinop_dict, node.op_);
+	std::string op = Util::getFromDict(Dicts::kBinopToStr_dict, node.op_);
 	if (op.size() == 0)
-		op = util::enumAsInt(node.op_);
+		op = Util::enumAsInt(node.op_);
 
 	std::cout << tabs() << "BinaryExpression : Operator " << op;
 	// print planned result type if there's one
@@ -48,26 +50,26 @@ void Dumper::visit(ASTBinaryExpr & node)
 	else
 	{
 		// PRINT LEFT CHILD
-		tabcount++;
+		tabcount_++;
 		std::cout << tabs() << "Left child:\n";
-		tabcount++;
+		tabcount_++;
 		node.left_->accept(*this);
-		tabcount -= 2;
+		tabcount_ -= 2;
 		// PRINT RIGHT CHILD
-		tabcount++;
+		tabcount_++;
 		std::cout << tabs() << "Right child:\n";
-		tabcount++;
+		tabcount_++;
 		node.right_->accept(*this);
-		tabcount -= 2;
+		tabcount_ -= 2;
 	}
 	
 }
 
 void Dumper::visit(ASTUnaryExpr & node)
 {
-	std::string op = getFromDict(kUop_dict, node.op_);
+	std::string op = Util::getFromDict(Dicts::kUnaryOpToStr_dict, node.op_);
 	if (op.size() == 0)
-		op = util::enumAsInt(node.op_);
+		op = Util::enumAsInt(node.op_);
 
 	std::cout << tabs() << "UnaryExpression : Operator " << op;
 
@@ -79,9 +81,9 @@ void Dumper::visit(ASTUnaryExpr & node)
 
 	std::cout << "\n";
 
-	tabcount++;
+	tabcount_++;
 	std::cout << tabs() << "Child:\n";
-	tabcount++;
+	tabcount_++;
 
 	if (!node.child_)
 	{
@@ -90,15 +92,15 @@ void Dumper::visit(ASTUnaryExpr & node)
 	}
 
 	node.child_->accept(*this);
-	tabcount -= 2;
+	tabcount_ -= 2;
 }
 
 void Dumper::visit(ASTCastExpr & node)
 {
 	std::cout << tabs() << "CastExpression : Cast Goal:" << indexToTypeName(node.getCastGoal()) << "\n";
-	tabcount++;
+	tabcount_++;
 	std::cout << tabs() << "Child:\n";
-	tabcount++;
+	tabcount_++;
 
 	if (!node.child_)
 	{
@@ -107,7 +109,7 @@ void Dumper::visit(ASTCastExpr & node)
 	}
 
 	node.child_->accept(*this);
-	tabcount -= 2;
+	tabcount_ -= 2;
 }
 void Dumper::visit(ASTLiteral & node)
 {
@@ -119,11 +121,11 @@ void Dumper::visit(ASTVarDeclStmt & node)
 	std::cout << tabs() << "VarDeclStmt :" << dumpVAttr(node.vattr_) << std::endl;
 	if (node.initExpr_)
 	{
-		tabcount += 1;
+		tabcount_ += 1;
 		std::cout << tabs() << "InitExpr\n";
-		tabcount += 1;
+		tabcount_ += 1;
 		node.initExpr_->accept(*this);
-		tabcount -= 2;
+		tabcount_ -= 2;
 	}
 }
 
@@ -132,16 +134,21 @@ void Dumper::visit(ASTVarCall & node)
 	std::cout << tabs() << "VarCall: name: " << node.varname_ << std::endl;
 }
 
+void Dumper::visit(ASTNullStmt& node)
+{
+	std::cout << tabs() << "Null Statement\n";
+}
+
 void Dumper::visit(ASTCompStmt & node)
 {
 	std::cout << tabs() << "Compound Statement (Contains " << node.statements_.size() << " statements)\n";
 
-	tabcount += 1;
+	tabcount_ += 1;
 
-	for (auto& elem : node.statements_)
+	for (const auto& elem : node.statements_)
 		elem->accept(*this);
 
-	tabcount -= 1;
+	tabcount_ -= 1;
 }
 
 void Dumper::visit(ASTCondition & node)
@@ -149,33 +156,33 @@ void Dumper::visit(ASTCondition & node)
 	std::cout << tabs() << "Condition Branch\n";
 	int counter = 0;
 	// (else) ifs
-	for (auto& elem : node.conditional_blocks_)
+	for (const auto& elem : node.conditional_stmts_)
 	{
-		tabcount++;
+		tabcount_++;
 		std::cout << tabs() << "Condition " << counter << std::endl;
-		tabcount++;
+		tabcount_++;
 
 		std::cout << tabs() << "Condition Expression:\n";
-		tabcount++;
-		elem.first->accept(*this);
-		tabcount--;
+		tabcount_++;
+		elem.expr_->accept(*this);
+		tabcount_--;
 
 		std::cout << tabs() << "Condition Body:\n";
 
-		tabcount++;
-		elem.second->accept(*this);
-		tabcount-=3;
+		tabcount_++;
+		elem.stmt_->accept(*this);
+		tabcount_-=3;
 
 		counter++;
 	}
 	// has else?
-	if (node.else_block_)
+	if (node.else_stmt_)
 	{
-		tabcount++;
+		tabcount_++;
 		std::cout << tabs() << "\"Else\" Body:\n";
-		tabcount++;
-		node.else_block_->accept(*this);
-		tabcount -= 2;
+		tabcount_++;
+		node.else_stmt_->accept(*this);
+		tabcount_ -= 2;
 	}
 }
 
@@ -183,28 +190,28 @@ void Dumper::visit(ASTWhileLoop & node)
 {
 	std::cout << tabs() << "While Loop\n";
 
-	tabcount++;
+	tabcount_++;
 	std::cout << tabs() << "Expression:\n";
 
-	tabcount++;
+	tabcount_++;
 	node.expr_->accept(*this);
-	tabcount--;
+	tabcount_--;
 
 	std::cout << tabs() << "Body:\n";
 	
-	tabcount++;
+	tabcount_++;
 	node.body_->accept(*this);
-	tabcount--;
+	tabcount_--;
 
-	tabcount--;
+	tabcount_--;
 }
 
 std::string Dumper::tabs() const
 {
 	std::string i;
-	for (unsigned char k(0); k < tabcount; k++)
+	for (unsigned char k(0); k < tabcount_; k++)
 		i += '\t';
-	if (tabcount > base_tabs_)
+	if (tabcount_ > 1)
 		i += '\xC0';
 	return i;
 }

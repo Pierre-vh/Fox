@@ -7,28 +7,32 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "RTExprVisitor.h"
+#include "RTExprVisitor.hpp"
 
 // Context & exceptions
-#include "../../../../../Common/Context/Context.h"
-#include "../../../../../Common/Exceptions/Exceptions.h"
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
 // Utils, types, typecast
-#include "../../../../../Common/Utils/Utils.h"
-#include "../../../../../Common/Types/FVTypeTraits.h"
-#include "../../../../../Common/Types/TypeCast.h"
-#include "../../../../../Common/Types/TypesUtils.h"
+#include "Moonshot/Common/Utils/Utils.hpp"
+#include "Moonshot/Common/Types/FVTypeTraits.hpp"
+#include "Moonshot/Common/Types/TypeCast.hpp"
+#include "Moonshot/Common/Types/TypesUtils.hpp"
 // DataMap
-#include "../../../../../Common/DataMap/DataMap.h"
+#include "Moonshot/Common/DataMap/DataMap.hpp"
 // Nodes needed
-#include "../../../Nodes/ASTExpr.h"
-#include "../../../Nodes/ASTVarDeclStmt.h"
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
+// Operators
+#include "Moonshot/Fox/Common/Operators.hpp"
 // math operations
 #include <cmath>		
+#include <sstream>
 // string manip
-#include "../../../../../Common/UTF8/StringManipulator.h"
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
-using namespace fv_util;
+using namespace TypeUtils;
+
 
 RTExprVisitor::RTExprVisitor(Context& c) : context_(c)
 {
@@ -50,7 +54,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		return;
 	}
 
-	if (node.op_ == binaryOperation::PASS)
+	if (node.op_ == binaryOperator::PASS)
 	{
 		if (!node.left_)
 			throw Exceptions::ast_malformation("Tried to pass a value to parent node, but the node did not have a left_ child.");
@@ -60,12 +64,12 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			return;
 		}
 	}
-	else if (node.op_ == binaryOperation::CONCAT)
+	else if (node.op_ == binaryOperator::CONCAT)
 	{
 		if (node.left_ && node.right_)
 		{
-			auto leftval = visitAndGetResult(node.left_, *this);
-			auto rightval = visitAndGetResult(node.right_, *this);
+			auto leftval = visitAndGetResult(node.left_.get(), *this);
+			auto rightval = visitAndGetResult(node.right_.get(), *this);
 
 			value_ = concat(leftval, rightval);
 			return;
@@ -75,12 +79,12 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			throw Exceptions::ast_malformation("Tried to concat a node without a left_ or right  child.");
 		}
 	}
-	else if (node.op_ == binaryOperation::ASSIGN)
+	else if (node.op_ == binaryOperator::ASSIGN)
 	{
 		if (isDataMapAvailable())
 		{
-			auto left_res = visitAndGetResult(node.left_, *this);
-			auto right_res = visitAndGetResult(node.right_, *this);
+			auto left_res = visitAndGetResult(node.left_.get(), *this);
+			auto right_res = visitAndGetResult(node.right_.get(), *this);
 			if (std::holds_alternative<var::varRef>(left_res) && isValue(right_res.index()))
 			{
 				symtab_->setValue(
@@ -96,11 +100,11 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		else
 			context_.logMessage("Can't perform assignement operations when the symbols table is unavailable.");
 	}
-	else if (node.op_ == binaryOperation::ASSIGN)
+	else if (node.op_ == binaryOperator::ASSIGN)
 	{
 		if (isDataMapAvailable())
 		{
-			auto vattr = visitAndGetResult(node.left_, *this);
+			auto vattr = visitAndGetResult(node.left_.get(), *this);
 			if (std::holds_alternative<var::varRef>(vattr))
 			{
 				// Perform assignement
@@ -120,8 +124,8 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		if (!node.left_ || !node.right_)
 			throw Exceptions::ast_malformation("Attempted to run a comparison operation on a node without 2 children");
 		
-		const FVal lfval = visitAndGetResult(node.left_, *this);
-		const FVal rfval = visitAndGetResult(node.right_, *this);
+		const FVal lfval = visitAndGetResult(node.left_.get(), *this);
+		const FVal rfval = visitAndGetResult(node.right_.get(), *this);
 		/*
 			todo, deref the variables HERE, and remove the deref part of the functions _derefFirst.
 		*/
@@ -156,8 +160,6 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		}
 		else 
 		{
-			double dleftval = fvalToDouble_withDeref(visitAndGetResult(node.left_, *this));
-			double drightval = fvalToDouble_withDeref(visitAndGetResult(node.right_, *this));
 			//std::cout << "Compare: Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			value_ = FVal(compareVal(
 				node.op_,
@@ -170,8 +172,8 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 	}
 	else
 	{
-		auto left_res = visitAndGetResult(node.left_, *this);
-		auto right_res = visitAndGetResult(node.right_, *this);
+		auto left_res = visitAndGetResult(node.left_.get(), *this);
+		auto right_res = visitAndGetResult(node.right_.get(), *this);
 		// Check if we have a string somewhere.
 		if (std::holds_alternative<std::string>(left_res) || std::holds_alternative<std::string>(right_res))
 		{
@@ -181,13 +183,13 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		{
 			const double dleftval = fvalToDouble_withDeref(left_res);
 			const double drightval = fvalToDouble_withDeref(right_res);
-			//std::cout << "Op: " << util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
+			//std::cout << "Op: " << Util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			const double result = performOp(node.op_, dleftval, drightval);
 
 			if (fitsInValue(node.resultType_, result)) // If the results fits or we desire to cast the result
-				value_ = castTo(context_, node.resultType_, result);		// Cast to result type
+				value_ = CastUtilities::castTo(context_, node.resultType_, result);		// Cast to result type
 			else
-				value_ = castTo(context_, indexes::fval_float, result);	// Cast to float instead to keep information from being lost.
+				value_ = CastUtilities::castTo(context_, indexes::fval_float, result);	// Cast to float instead to keep information from being lost.
 		}
 		return;
 	}
@@ -203,25 +205,25 @@ void RTExprVisitor::visit(ASTUnaryExpr & node)
 		return;
 	}
 
-	double lval = fvalToDouble_withDeref(visitAndGetResult(node.child_, *this));
+	double lval = fvalToDouble_withDeref(visitAndGetResult(node.child_.get(), *this));
 	// op == loginot
-	if (node.op_ == unaryOperation::LOGICNOT)
+	if (node.op_ == unaryOperator::LOGICNOT)
 	{
 		value_ = FVal(
 			(bool)(lval == 0) // If the value differs equals zero, return true
 		);
 		return;
 	}
-	else if (node.op_ == unaryOperation::NEGATIVE)
+	else if (node.op_ == unaryOperator::NEGATIVE)
 		lval = -lval; // Negate the number
-	else if (node.op_ == unaryOperation::POSITIVE)
+	else if (node.op_ == unaryOperator::POSITIVE)
 	{
 		/*
 			For now, unary Positive is a nop.
 		*/
 	}
 
-	value_ = castTo(context_, node.resultType_, lval);		// Cast to result type
+	value_ = CastUtilities::castTo(context_, node.resultType_, lval);		// Cast to result type
 	return;
 }
 
@@ -232,7 +234,7 @@ void RTExprVisitor::visit(ASTCastExpr & node)
 		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
-	value_ = castTo_withDeref(node.getCastGoal(), visitAndGetResult(node.child_, *this));
+	value_ = castTo_withDeref(node.getCastGoal(), visitAndGetResult(node.child_.get(), *this));
 	return;
 }
 
@@ -307,72 +309,69 @@ double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 		throw std::logic_error("Reached end of function.Unimplemented type in FVal?");
 	return 0.0;
 }
-bool RTExprVisitor::compareVal(const binaryOperation & op, const FVal & l, const FVal & r)
+bool RTExprVisitor::compareVal(const binaryOperator & op, const FVal & l, const FVal & r)
 {
 	
 	const double lval = fvalToDouble_withDeref(l);
 	const double rval = fvalToDouble_withDeref(r);
 	switch (op)
 	{
-		case binaryOperation::AND:
+		case binaryOperator::AND:
 			return (lval != 0) && (rval != 0);
-		case binaryOperation::OR:
+		case binaryOperator::OR:
 			return (lval != 0) || (rval != 0);
-		case binaryOperation::LESS_OR_EQUAL:
+		case binaryOperator::LESS_OR_EQUAL:
 			return lval <= rval;
-		case binaryOperation::GREATER_OR_EQUAL:
+		case binaryOperator::GREATER_OR_EQUAL:
 			return lval >= rval;
-		case binaryOperation::LESS_THAN:
+		case binaryOperator::LESS_THAN:
 			return lval < rval;
-		case binaryOperation::GREATER_THAN:
+		case binaryOperator::GREATER_THAN:
 			return lval > rval;
-		case binaryOperation::EQUAL:
+		case binaryOperator::EQUAL:
 			return lval == rval;
-		case binaryOperation::NOTEQUAL:
+		case binaryOperator::NOTEQUAL:
 			return lval != rval;
 		default:
 			throw std::logic_error("Defaulted. Unimplemented condition operation?");
-			return false;
 	}
 }
-bool RTExprVisitor::compareStr(const binaryOperation & op, const std::string & lhs, const std::string & rhs)
+bool RTExprVisitor::compareStr(const binaryOperator & op, const std::string & lhs, const std::string & rhs)
 {
 	
 	switch (op)
 	{
-		case binaryOperation::EQUAL:			return lhs == rhs;
-		case binaryOperation::NOTEQUAL:			return lhs != rhs;
-		case binaryOperation::LESS_THAN:		return lhs < rhs;
-		case binaryOperation::GREATER_THAN:		return lhs > rhs;
-		case binaryOperation::LESS_OR_EQUAL:	return lhs <= rhs;
-		case binaryOperation::GREATER_OR_EQUAL:	return lhs > rhs;
-		default:	throw std::logic_error("Operation was not a condition.");
-			return false;
+		case binaryOperator::EQUAL:			return lhs == rhs;
+		case binaryOperator::NOTEQUAL:			return lhs != rhs;
+		case binaryOperator::LESS_THAN:		return lhs < rhs;
+		case binaryOperator::GREATER_THAN:		return lhs > rhs;
+		case binaryOperator::LESS_OR_EQUAL:	return lhs <= rhs;
+		case binaryOperator::GREATER_OR_EQUAL:	return lhs > rhs;
+		default:								throw std::logic_error("Operation was not a condition.");
 	}
 }
-bool RTExprVisitor::compareChar(const binaryOperation & op, const CharType & lhs, const CharType & rhs)
+bool RTExprVisitor::compareChar(const binaryOperator & op, const CharType & lhs, const CharType & rhs)
 {
 	switch (op)
 	{
-		case binaryOperation::AND:
+		case binaryOperator::AND:
 			return (lhs != 0) && (rhs != 0);
-		case binaryOperation::OR:
+		case binaryOperator::OR:
 			return (lhs != 0) || (rhs != 0);
-		case binaryOperation::LESS_OR_EQUAL:
+		case binaryOperator::LESS_OR_EQUAL:
 			return lhs <= rhs;
-		case binaryOperation::GREATER_OR_EQUAL:
+		case binaryOperator::GREATER_OR_EQUAL:
 			return lhs >= rhs;
-		case binaryOperation::LESS_THAN:
+		case binaryOperator::LESS_THAN:
 			return lhs < rhs;
-		case binaryOperation::GREATER_THAN:
+		case binaryOperator::GREATER_THAN:
 			return lhs > rhs;
-		case binaryOperation::EQUAL:
+		case binaryOperator::EQUAL:
 			return lhs == rhs;
-		case binaryOperation::NOTEQUAL:
+		case binaryOperator::NOTEQUAL:
 			return lhs != rhs;
 		default:
 			throw std::logic_error("Defaulted. Unimplemented condition operation?");
-			return false;
 	}
 }
 FVal RTExprVisitor::concat(const FVal & lhs, const FVal & rhs)
@@ -395,14 +394,14 @@ FVal RTExprVisitor::concat(const FVal & lhs, const FVal & rhs)
 
 	return FVal(rtr);
 }
-double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
+double RTExprVisitor::performOp(const binaryOperator& op,double l,double r)
 {
 	switch (op)
 	{
-		case binaryOperation::ADD:	return l + r;
-		case binaryOperation::MINUS:	return l - r;
-		case binaryOperation::MUL:	return l * r;
-		case binaryOperation::DIV:
+		case binaryOperator::ADD:	return l + r;
+		case binaryOperator::MINUS:	return l - r;
+		case binaryOperator::MUL:	return l * r;
+		case binaryOperator::DIV:
 			if(r == 0)
 			{
 				context_.reportError("Division by zero.");
@@ -410,12 +409,12 @@ double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
 			}
 			else 
 				return l / r;
-		case binaryOperation::MOD:
+		case binaryOperator::MOD:
 			// if the divisor is greater, it goes zero times in l, so we can directly return l
 			//std::cout << "l:" << l << " r:" << r << std::endl;
 			if (l > r)
 			{
-				auto res = std::fmod(l, r);
+				const auto res = std::fmod(l, r);
 				if (res < 0)
 					return res + r;
 				return res;
@@ -426,16 +425,15 @@ double RTExprVisitor::performOp(const binaryOperation& op,double l,double r)
 			// and  (l < 0) ? l + r : l;
 			// parts, it's a tip from https://stackoverflow.com/a/12277233/3232822
 			// Thanks !
-		case binaryOperation::EXP:
+		case binaryOperator::EXP:
 			// if exp < 0 perform 1/base**exp
 			if (r < 0)
-				return performOp(binaryOperation::DIV, 1, std::pow(l, -r));
+				return performOp(binaryOperator::DIV, 1, std::pow(l, -r));
 			else if (r == 0)
 				return 1; // Any number with exponent 0 equals 1, except 0
 			else
 				return std::pow(l, r);
 		default:	throw std::logic_error("Can't evaluate op.");
-			return 0.0;
 	}
 }
 
@@ -457,13 +455,11 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 			return true;
 		case indexes::invalid_index:
 		    throw std::logic_error("Index was invalid");
-			return false;
 		default:
 			if (!isBasic(typ))
 				throw std::logic_error("Can't make a \"fitInValue\" check on a non-basic type.");
 			else
 				throw std::logic_error("Switch defaulted. Unimplemented type?");
-			return false;
 	}
 }
 
@@ -480,9 +476,7 @@ FVal RTExprVisitor::castTo_withDeref(const std::size_t & goal, FVal val)
 		val = symtab_->retrieveValue(ref.getName());
 	}
 	else if (!isBasic(goal))
-	{
 		throw std::logic_error("The Goal type was not a basic type.");
-		return FVal();
-	}
-	return castTo(context_,goal, val);
+
+	return CastUtilities::castTo(context_,goal, val);
 }

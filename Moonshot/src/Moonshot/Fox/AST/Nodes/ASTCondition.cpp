@@ -7,35 +7,34 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ASTCondition.h"
+#include "ASTCondition.hpp"
 
 using namespace Moonshot;
-
-ASTCondition::ASTCondition()
-{
-}
-
-
-ASTCondition::~ASTCondition()
-{
-}
 
 void ASTCondition::accept(IVisitor & vis)
 {
 	vis.visit(*this);
 }
 
-bool ASTCondition::hasElse() const
+ConditionalStatement::ConditionalStatement(std::unique_ptr<IASTExpr> expr, std::unique_ptr<IASTStmt> stmt)
 {
-	return (else_block_ ? true : false);
+	expr_ = std::move(expr);
+	stmt_ = std::move(stmt);
 }
 
-bool ASTCondition::hasElif() const
+ConditionalStatement ConditionalStatement::resetAndReturnTmp()
 {
-	return conditional_blocks_.size() > 1; 
+	ConditionalStatement rtr(std::move(expr_), std::move(stmt_));
+	expr_ = nullptr; stmt_ = nullptr;
+	return rtr;
 }
 
-bool ASTCondition::isValid() const
+bool ConditionalStatement::isNull() const
 {
-	return false;
+	return (!stmt_ && !expr_);
+}
+
+bool ConditionalStatement::isComplete() const
+{
+	return expr_ && stmt_;
 }

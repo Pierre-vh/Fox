@@ -8,12 +8,12 @@
 // Implementation of the Runtime Statement Visitor.
 ////------------------------------------------------------////
 
-#include "RTStmtVisitor.h"
+#include "RTStmtVisitor.hpp"
 
-#include "../../../../../Common/Utils/Utils.h"
-#include "../../../../../Common/Context/Context.h" // Context 
-#include "../../../../../Common/DataMap/DataMap.h" // Symbols table
-#include "../../../Nodes/ASTVarDeclStmt.h" // Nodes
+#include "Moonshot/Common/Utils/Utils.hpp"
+#include "Moonshot/Common/Context/Context.hpp" // Context 
+#include "Moonshot/Common/DataMap/DataMap.hpp" // Symbols table
+#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp" // Nodes
 
 using namespace Moonshot;
 

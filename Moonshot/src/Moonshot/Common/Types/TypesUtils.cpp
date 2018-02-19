@@ -1,14 +1,14 @@
-#include "TypesUtils.h"
+#include "TypesUtils.hpp"
 
 #include <sstream>
-#include "../UTF8/StringManipulator.h"
+#include "../UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
 
-std::string fv_util::dumpFVal(const FVal & var)
+std::string TypeUtils::dumpFVal(const FVal & var)
 {
 	std::stringstream output;
-	if (std::holds_alternative<std::monostate>(var))
+	if (std::holds_alternative<NullType>(var))
 		output << "Type : VOID (null)";
 	else if (std::holds_alternative<var::varRef>(var))
 	{
@@ -23,20 +23,20 @@ std::string fv_util::dumpFVal(const FVal & var)
 		output << "Type : STRING, Value : \"" << std::get<std::string>(var) << "\"";
 	else if (std::holds_alternative<bool>(var))
 	{
-		bool v = std::get<bool>(var);
+		const bool v = std::get<bool>(var);
 		output << "Type : BOOL, Value : " << (v ? "true" : "false");
 	}
 	else if (std::holds_alternative<CharType>(var))
 	{
 		CharType x = std::get<CharType>(var);
 		UTF8::StringManipulator u8sm;
-		output << "Type : CHAR, Value : " << (int32_t)x << " = '" << u8sm.wcharToStr(x) << "'";
+		output << "Type : CHAR, Value : " << x << " = '" << u8sm.wcharToStr(x) << "'";
 	}
 	else
 		throw std::logic_error("Illegal variant.");
 	return output.str();
 }
-std::string fv_util::dumpVAttr(const var::varattr & var)
+std::string TypeUtils::dumpVAttr(const var::varattr & var)
 {
 	std::stringstream output;
 	output << "[name:\"" << var.name_ << "\" "
@@ -49,7 +49,7 @@ std::string fv_util::dumpVAttr(const var::varattr & var)
 	output << "]";
 	return output.str();
 }
-FVal fv_util::getSampleFValForIndex(const std::size_t & t)
+FVal TypeUtils::getSampleFValForIndex(const std::size_t & t)
 {
 	switch (t)
 	{
@@ -76,7 +76,7 @@ FVal fv_util::getSampleFValForIndex(const std::size_t & t)
 	}
 }
 
-std::string fv_util::indexToTypeName(const std::size_t & t)
+std::string TypeUtils::indexToTypeName(const std::size_t & t)
 {
 	auto a = kType_dict.find(t);
 	if (a != kType_dict.end())
@@ -84,7 +84,7 @@ std::string fv_util::indexToTypeName(const std::size_t & t)
 	return "!IMPOSSIBLE_TYPE!";
 }
 
-bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
+bool TypeUtils::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 {
 	if ((rhs == indexes::fval_null) || (lhs == indexes::fval_null))
 		return false; // Can't assign a void expression to a variable.
@@ -99,7 +99,7 @@ bool fv_util::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 					   // Else, we're good, return true.
 	return true;
 }
-bool fv_util::canCastTo(const std::size_t & goal, const std::size_t & basetype)
+bool TypeUtils::canCastTo(const std::size_t & goal, const std::size_t & basetype)
 {
 	/*
 		Conversions:
@@ -121,7 +121,7 @@ bool fv_util::canCastTo(const std::size_t & goal, const std::size_t & basetype)
 	return false;
 }
 
-std::size_t fv_util::getBiggest(const std::size_t & lhs, const std::size_t & rhs)
+std::size_t TypeUtils::getBiggest(const std::size_t & lhs, const std::size_t & rhs)
 {
 	if (isArithmetic(lhs) && isArithmetic(rhs))
 	{

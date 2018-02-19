@@ -7,18 +7,9 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ASTCompStmt.h"
+#include "ASTCompStmt.hpp"
 
 using namespace Moonshot;
-
-ASTCompStmt::ASTCompStmt()
-{
-}
-
-ASTCompStmt::~ASTCompStmt()
-{
-
-}
 
 void ASTCompStmt::accept(IVisitor & vis)
 {

@@ -7,16 +7,17 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Token.h"
+#include "Token.hpp"
 
 #include <variant>	// std::variant
 #include <regex>	// std::regex, std::regex_match
 #include <string>	// std::stoi / stoll
 #include <sstream>	// std::stringstream (showFormattedToken())
-#include "../../Common/Utils/Utils.h"
-#include "../../Common/Context/Context.h"
-#include "../../Common/Exceptions/Exceptions.h"
-#include "../../Common/UTF8/StringManipulator.h"
+
+#include "Moonshot/Common/Utils/Utils.hpp"
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
 
@@ -27,16 +28,15 @@ std::regex kId_regex("(([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+");
 
 Token::Token(Context & c) : context_(c)
 {
-	empty_ = true;
 }
-Token::Token(Context & c,std::string data, const text_pos &tpos) : context_(c),str(data),pos(tpos)
+Token::Token(Context & c,std::string data, const TextPosition &tpos) : context_(c),str(data),pos(tpos)
 {
 	idToken(); // self id
 }
 
 std::string Token::showFormattedTokenData() const
 {
-	if (empty_) // Token is empty
+	if (str.size() == 0) // Token is empty
 		return "<EMPTY TOKEN>"; // return nothing.
 
 	std::stringstream ss;
@@ -44,24 +44,24 @@ std::string Token::showFormattedTokenData() const
 	int enum_info = -1;		// The information of the corresponding enumeration
 	switch (type)
 	{
-		case tokenCat::TT_ENUM_DEFAULT:
+		case category::DEFAULT:
 			ss << "ENUM_DEFAULT";
 			break;
-		case tokenCat::TT_IDENTIFIER:
+		case category::IDENTIFIER:
 			ss << "IDENTIFIER";
 			enum_info = -2;
 			break;
-		case tokenCat::TT_KEYWORD:
+		case category::KEYWORD:
 			ss << "KEYWORD";
-			enum_info = util::enumAsInt(kw_type);
+			enum_info = Util::enumAsInt(kw_type);
 			break;
-		case tokenCat::TT_SIGN:
+		case category::SIGN:
 			ss << "SIGN";
-			enum_info = util::enumAsInt(sign_type);
+			enum_info = Util::enumAsInt(sign_type);
 			break;
-		case tokenCat::TT_LITERAL:
+		case category::LITERAL:
 			ss << "VALUE";
-			enum_info = util::enumAsInt(lit_type);
+			enum_info = Util::enumAsInt(lit_type);
 			break;
 	}
 	if (enum_info >= -1)
@@ -71,40 +71,42 @@ std::string Token::showFormattedTokenData() const
 }
 bool Token::isValid() const
 {
-	return !empty_;
+	return str.size();
 }
 void Token::idToken()
 {
+	/*
 	if (!context_.isSafe())
 	{
 		context_.reportError("Errors happened earlier, as a result tokens won't be identified.");
 		return;
 	}
+	*/
 	if (str.size() == 0)
 		throw Exceptions::lexer_critical_error("Found an empty Token. [" + pos.asText() + "]");
 
 	// substract the Token length's fron the column number given by the lexer.
-	pos.column -= (int)str.length();
+	pos.column -= static_cast<unsigned int>(str.length());
 
 	if (specific_idSign())
-		type = tokenCat::TT_SIGN;
+		type = category::SIGN;
 	else
 	{
 		if (specific_idKeyword())
-			type = tokenCat::TT_KEYWORD;
-		else if (specific_idValue())
-			type = tokenCat::TT_LITERAL;
+			type = category::KEYWORD;
+		else if (specific_idLiteral())
+			type = category::LITERAL;
 		else if (std::regex_match(str, kId_regex))
-			type = tokenCat::TT_IDENTIFIER;
+			type = category::IDENTIFIER;
 		else
-			context_.reportError("Could not identify a Token -> (str) : " + str + "\t[" + pos.asText() + "]");
+			context_.reportError(" [" + pos.asText() + "]\tUnrecognized Token \"" + str + '"');
 	}
 }
 
 bool Token::specific_idKeyword()
 {
-	auto i = kWords_dict.find(str);
-	if (i == kWords_dict.end())
+	auto i = TokenDicts::kKeywords_dict.find(str);
+	if (i == TokenDicts::kKeywords_dict.end())
 		return false;
 	
 	kw_type = i->second;
@@ -117,8 +119,8 @@ bool Token::specific_idSign()
 		return false;
 	if (isdigit(str[0]))
 		return false;
-	auto i = kSign_dict.find(str[0]);
-	if (i != kSign_dict.end())
+	auto i = TokenDicts::kSign_dict.find(str[0]);
+	if (i != TokenDicts::kSign_dict.end())
 	{
 		sign_type = i->second;
 		return true;
@@ -126,7 +128,7 @@ bool Token::specific_idSign()
 	return false;
 }
 
-bool Token::specific_idValue()
+bool Token::specific_idLiteral()
 {
 	std::stringstream converter(str);
 	UTF8::StringManipulator strmanip;
@@ -141,7 +143,7 @@ bool Token::specific_idValue()
 				context_.reportError("Char literal can only contain one character.");
 				return false;
 			}
-			vals = strmanip.getChar(1);
+			lit_val = strmanip.getChar(1);
 			lit_type = literal::LIT_CHAR;
 			return true;
 		}
@@ -155,7 +157,7 @@ bool Token::specific_idValue()
 	{
 		if (strmanip.peekBack() == '"')
 		{
-			vals = strmanip.substring(1,strmanip.getSize()-2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
+			lit_val = strmanip.substring(1,strmanip.getSize()-2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
 			lit_type = literal::LIT_STRING;
 			return true;
 		}
@@ -167,7 +169,7 @@ bool Token::specific_idValue()
 	}
 	else if (str == "true" | str == "false")
 	{
-		vals = (str == "true" ? true : false);
+		lit_val = (str == "true" ? true : false);
 		lit_type = literal::LIT_BOOL;
 		return true;
 	}
@@ -178,7 +180,7 @@ bool Token::specific_idValue()
 		int64_t tmp;
 		if(ss >> tmp)
 		{
-			vals = tmp;
+			lit_val = tmp;
 			lit_type = literal::LIT_INTEGER;
 		}
 		else
@@ -187,41 +189,41 @@ bool Token::specific_idValue()
 			std::stringstream out;
 			out << "The value \xAF" << str << "\xAE was interpreted as a float because it didn't fit a 64 Bit signed int.";
 			context_.reportWarning(out.str());
-			vals = std::stof(str);
+			lit_val = std::stof(str);
 			lit_type = literal::LIT_FLOAT;
 		}
 		return true;
 	}
 	else if (std::regex_match(str, kFloat_regex))
 	{
-		vals = std::stof(str);
+		lit_val = std::stof(str);
 		lit_type = literal::LIT_FLOAT;
 		return true;
 	}
 	return false;
 }
 
-text_pos::text_pos()
+TextPosition::TextPosition()
 {
 }
 
-text_pos::text_pos(const int & l, const int & col) : line(l), column(col)
+TextPosition::TextPosition(const int & l, const int & col) : line(l), column(col)
 {
 
 }
 
-void text_pos::newLine()
+void TextPosition::newLine()
 {
 	line ++;
 	//	column = 0;
 }
 
-void text_pos::forward()
+void TextPosition::forward()
 {
 //	column += 1;
 }
 
-std::string text_pos::asText() const
+std::string TextPosition::asText() const
 {
 	std::stringstream ss;
 	ss << "LINE:" << line /*<< " C:" << column*/;
