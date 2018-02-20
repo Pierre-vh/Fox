@@ -13,7 +13,24 @@
 
 namespace Moonshot
 {
+	/*
+		Usage
+			* Parsing function finds all the tokens and return a fully formed node:
+			* Parsing function doesn't find the first token and just returns nullptr 
+				use SUCCESS flag
+				hasRecovered() returns true (but it's meaningless, you usually won't try to check it if the parsing was Successful)
+				wasSuccessful() returns true
 
+			* Parsing function finds the first tokens, but encounters an unexpected token and dies without recovering: 
+				use FAILED_AND_DIED flag
+				hasRecovered() returns true
+				wasSuccessful() returns false
+
+			* Parsing function finds the first tokens, but encounters an unexpected token and successfully recovers to the semicolon,parens or curly bracket.
+				use FAILED_AND_RECOVERED flag
+				hasRecovered() returns true
+				wasSuccessful() returns false
+	*/
 	template<typename PtrTy>
 	struct ParsingResult {
 		public:
@@ -34,7 +51,7 @@ namespace Moonshot
 				}
 				else if (pc == Outcome::FAILED_BUT_RECOVERED)
 				{
-					successFlag_ = isNodeUsable();
+					successFlag_ = isNodeNull();
 					recovered_ = true;
 				}
 
@@ -57,7 +74,7 @@ namespace Moonshot
 				return recovered_;
 			}
 
-			bool isNodeUsable() const
+			bool isNodeNull() const
 			{
 				if (node_)
 					return true;
