@@ -4,8 +4,8 @@
 // File : TypeCheck.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// TypeCheckVisitor visitor.
-// This visitor checks for compatibility between operations :
+// TypeCheck visitor.
+// This visitor checks for compatibility between operations, and general type-related semantics.
 // e.g. can't multiply a string with a int
 //
 // This visitor also checks that with variables. It gather informations about them (in datamap_)
@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "Moonshot/Fox/AST/Visitor/IVisitor.hpp" // base class
+#include "Moonshot/Fox/AST/IVisitor.hpp" // base class
 #include "Moonshot/Fox/Common/Operators.hpp" // enums
 #include "Moonshot/Common/DataMap/DataMap.hpp" // DataMap used as a symbols table; It's only temporary, because at this stage I Don't have scopes, so this does the job. Inefficiently, but it does it.
 

@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "Conditions.hpp"
-#include "Moonshot/Fox/AST/Visitor/Dumper/Dumper.hpp"
+#include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Test;

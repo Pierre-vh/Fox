@@ -9,8 +9,8 @@
 
 #include "ExprTests.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
-#include "Moonshot/Fox/AST/Visitor/Dumper/Dumper.hpp"
-#include "Moonshot/Fox/AST/Visitor/Semantic/TypeCheck.hpp"
+#include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
+#include "Moonshot/Fox/Semantic/TypeCheck.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 
 using namespace Moonshot;

@@ -13,7 +13,7 @@
 ////------------------------------------------------------////
 
 #pragma once
-#include "Moonshot/Fox/AST/Visitor/IVisitor.hpp"
+#include "Moonshot/Fox/AST/IVisitor.hpp"
 #include <memory>
 namespace Moonshot
 {

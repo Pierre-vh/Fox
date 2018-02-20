@@ -11,8 +11,8 @@
 
 #include "../ITest.hpp"
 
-#include "Moonshot/Fox/AST/Visitor/Semantic/TypeCheck.hpp"
-#include "Moonshot/Fox/AST/Visitor/Eval/Stmt/RTStmtVisitor.hpp"
+#include "Moonshot/Fox/Semantic/TypeCheck.hpp"
+#include "Moonshot/Fox/Eval/Stmt/RTStmtVisitor.hpp"
 
 namespace Moonshot::Test
 {
