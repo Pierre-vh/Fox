@@ -78,7 +78,11 @@ bool WhileLoop::testWhileLoop(Context & context, const std::string & str)
 	lex.lexStr(str);
 	FAILED_RETURN_IF_ERR__SILENT;
 	Parser parser(context, lex.getTokenVector());
-	auto node = parser.parseWhileLoop();
+
+	std::unique_ptr<IASTStmt> node;
+	if (auto parseres = parser.parseWhileLoop())
+		node = std::move(parseres.node_);
+
 	context.printLogs();
 	FAILED_RETURN_IF_ERR__SILENT;
 	if (!node) return false;

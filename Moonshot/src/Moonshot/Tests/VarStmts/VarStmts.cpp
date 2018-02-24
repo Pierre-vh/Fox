@@ -43,7 +43,11 @@ bool VarStmts::runTest(Context & context)
 		FAILED_RETURN_IF_ERR("lexing");
 
 		Parser p(context, l.getTokenVector());
-		auto root = p.parseStmt();
+
+		std::unique_ptr<IASTStmt> root;
+		if (auto parseres = p.parseStmt())
+			root = std::move(parseres.node_);
+
 		FAILED_RETURN_IF_ERR("parsing");
 
 		root->accept(tc_good);
@@ -73,7 +77,10 @@ bool VarStmts::runTest(Context & context)
 		SUCCESS_CONTINUE_IF_ERR;
 
 		Parser p(context, l.getTokenVector());
-		auto root = p.parseStmt();
+
+		std::unique_ptr<IASTStmt> root;
+		if (auto parseres = p.parseStmt())
+			root = std::move(parseres.node_);
 
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root); // fail if root's false

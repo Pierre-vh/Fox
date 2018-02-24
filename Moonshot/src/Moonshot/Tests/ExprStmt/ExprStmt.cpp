@@ -44,7 +44,11 @@ bool ExprStmtTest::runTest(Context & context)
 		FAILED_RETURN_IF_ERR("lexing");
 
 		 Parser p(context, l.getTokenVector());
-		auto root = p.parseExprStmt();
+
+		std::unique_ptr<IASTStmt> root;
+		if (auto parseres = p.parseExprStmt())
+			 root = std::move(parseres.node_);
+
 		FAILED_RETURN_IF_ERR("parsing");
 
 		root->accept(TypeCheckVisitor(context, true));
@@ -67,8 +71,11 @@ bool ExprStmtTest::runTest(Context & context)
 		l.lexStr(elem);
 		SUCCESS_CONTINUE_IF_ERR;
 
-		 Parser p(context, l.getTokenVector());
-		auto root = p.parseExprStmt();
+		Parser p(context, l.getTokenVector());
+
+		std::unique_ptr<IASTStmt> root;
+		if (auto parseres = p.parseExprStmt())
+			 root = std::move(parseres.node_);
 
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root); // fail if root's false
