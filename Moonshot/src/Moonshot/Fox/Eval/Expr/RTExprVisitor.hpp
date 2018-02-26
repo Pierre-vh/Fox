@@ -40,7 +40,7 @@ namespace Moonshot
 			// Context
 			Context& context_;
 			// converts fval to double, but if fval is a varref, deref it first.
-			double fvalToDouble_withDeref(FVal fval);
+			double fvalToDouble(FVal fval);
 			bool compareVal(const binaryOperator &op, const FVal &l, const FVal &r);
 			bool compareStr(const binaryOperator &op, const std::string &lhs, const std::string &rhs);
 			bool compareChar(const binaryOperator &op, const CharType& lhs, const CharType& rhs);

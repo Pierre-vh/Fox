@@ -181,8 +181,9 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		}
 		else
 		{
-			const double dleftval = fvalToDouble_withDeref(left_res);
-			const double drightval = fvalToDouble_withDeref(right_res);
+			deref(left_res), deref(right_res);
+			const double dleftval = fvalToDouble(left_res);
+			const double drightval = fvalToDouble(right_res);
 			//std::cout << "Op: " << Util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			const double result = performOp(node.op_, dleftval, drightval);
 
@@ -204,8 +205,9 @@ void RTExprVisitor::visit(ASTUnaryExpr & node)
 		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
-
-	double lval = fvalToDouble_withDeref(visitAndGetResult(node.child_.get(), *this));
+	auto res = visitAndGetResult(node.child_.get(), *this);
+	deref(res);
+	double lval = fvalToDouble(res);
 	// op == loginot
 	if (node.op_ == unaryOperator::LOGICNOT)
 	{
@@ -271,20 +273,8 @@ FVal RTExprVisitor::getResult() const
 	return value_;
 }
 
-double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
+double RTExprVisitor::fvalToDouble(FVal fval)
 {
-	// If fval is a reference, dereference it first
-	if (std::holds_alternative<var::varRef>(fval))
-	{
-		if (isDataMapAvailable())
-		{
-			fval = datamap_->retrieveValue(
-				std::get<var::varRef>(fval).getName()
-			);
-		}
-		else
-			context_.logMessage("Can't dereference variable if the symbols table is not available.");
-	}
 	if (!isBasic(fval.index()))
 	{
 		std::stringstream out;
@@ -313,9 +303,10 @@ double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 }
 bool RTExprVisitor::compareVal(const binaryOperator & op, const FVal & l, const FVal & r)
 {
-	
-	const double lval = fvalToDouble_withDeref(l);
-	const double rval = fvalToDouble_withDeref(r);
+	FVal lcpy = l, rcpy = r;
+	deref(lcpy), deref(rcpy);
+	const double lval = fvalToDouble(lcpy);
+	const double rval = fvalToDouble(rcpy);
 	switch (op)
 	{
 		case binaryOperator::AND:
