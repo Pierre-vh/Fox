@@ -25,3 +25,9 @@
 'ﬁ' + 'ﬁ' == "ﬁﬁ"
 'Ј'+"ЈЈ"+'Ј'=="ЈЈЈЈ"
 -2**--16==-65536
+3.14 as bool // float -> bool 
+'c' as string == "c" // char -> string 
+'c' as char == 'c' // char -> char (same types)
+3 as int == 3; // int -> int (same type)
+"3.14" as float == 3.14 // string->float
+3.14 as string == "3.14" // float->string

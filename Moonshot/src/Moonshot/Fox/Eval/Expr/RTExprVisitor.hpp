@@ -49,11 +49,10 @@ namespace Moonshot
 		
 			bool fitsInValue(const std::size_t& typ, const double &d); // Determines if we should convert the result to a float when making an operation to avoid loss of information
 			
-			std::shared_ptr<DataMap> symtab_;
+			std::shared_ptr<DataMap> datamap_;
 			bool isDataMapAvailable() const;
 
-			// This function calls castTo, but if the FVal is a varRef, it dereferences it once before proceeding.
-			FVal castTo_withDeref(const std::size_t& goal, FVal val);
+			void deref(FVal& val) const;
 	};
 
 }

@@ -1,6 +1,5 @@
 ﻿"3.14" ** 2
 "3.14" + 3.14
-"float" as float
 2 + "2"
 -("Hello" + "World!")
 !"Hi"
@@ -17,4 +16,7 @@
 'c' == 3
 "c" == 'c'
 "hi" || "oh"
-"hey" && 'c'
+"hey" && 'c' 
+'c' as float; // Impossible cast : char to float
+3.14 as char; // Impossible cast : float to char;
+string as bool

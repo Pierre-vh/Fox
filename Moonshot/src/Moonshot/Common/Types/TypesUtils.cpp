@@ -99,12 +99,11 @@ bool TypeUtils::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 					   // Else, we're good, return true.
 	return true;
 }
-bool TypeUtils::canCastTo(const std::size_t & goal, const std::size_t & basetype)
+bool TypeUtils::canImplicitelyCastTo(const std::size_t & goal, const std::size_t & basetype)
 {
 	/*
-		Conversions:
+		Implicit Conversions:
 		Arith type -> Arith type
-		Arith type -> string type
 		char type -> string type
 		same type -> same type
 	*/
@@ -112,11 +111,24 @@ bool TypeUtils::canCastTo(const std::size_t & goal, const std::size_t & basetype
 	{
 		if (isArithmetic(goal) && isArithmetic(basetype)) // arith -> arith
 			return true;
-		else if (isArithmetic(basetype) && (goal == indexes::fval_str)) // arith -> str
-			return true;
 		else if ((basetype == indexes::fval_char) && (goal == indexes::fval_str)) // char -> str
 			return true;
 		return (basetype == goal); // same type -> same type
+	}
+	return false;
+}
+
+bool TypeUtils::canExplicitelyCastTo(const std::size_t & goal, const std::size_t & basetype)
+{
+	/*
+		Implicit rules + strings <-> arith support (string as int to interpret it as int, int as string to convert it to string)
+	*/
+	if (canImplicitelyCastTo(goal, basetype))
+		return true;
+	else
+	{
+		return	((goal == indexes::fval_str) && isArithmetic(basetype)) || // arith -> str
+				(isArithmetic(goal) && (basetype == indexes::fval_str)); // str -> arith
 	}
 	return false;
 }

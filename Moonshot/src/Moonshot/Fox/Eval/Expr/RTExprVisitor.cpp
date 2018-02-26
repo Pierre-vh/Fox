@@ -38,7 +38,7 @@ RTExprVisitor::RTExprVisitor(Context& c) : context_(c)
 {
 }
 
-RTExprVisitor::RTExprVisitor(Context& c, std::shared_ptr<DataMap> symtab) : context_(c), symtab_(symtab)
+RTExprVisitor::RTExprVisitor(Context& c, std::shared_ptr<DataMap> symtab) : context_(c), datamap_(symtab)
 {
 }
 
@@ -87,7 +87,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			auto right_res = visitAndGetResult(node.right_.get(), *this);
 			if (std::holds_alternative<var::varRef>(left_res) && isValue(right_res.index()))
 			{
-				symtab_->setValue(
+				datamap_->setValue(
 					std::get<var::varRef>(left_res).getName(),
 					right_res
 				);
@@ -110,7 +110,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 				// Perform assignement
 				std::string vname = std::get<var::varRef>(vattr).getName();
 				node.right_->accept(*this);
-				symtab_->setValue(vname, value_);
+				datamap_->setValue(vname, value_);
 			}
 			else
 				// this could use context_.error instead. On the long run, if this error happens often and malformed code is the source, use context_.error instead of a throw
@@ -234,7 +234,9 @@ void RTExprVisitor::visit(ASTCastExpr & node)
 		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
-	value_ = castTo_withDeref(node.getCastGoal(), visitAndGetResult(node.child_.get(), *this));
+	FVal value = visitAndGetResult(node.child_.get(), *this);
+	deref(value);
+	value_ = CastUtilities::performExplicitCast(context_,node.getCastGoal(),value);
 	return;
 }
 
@@ -248,7 +250,7 @@ void RTExprVisitor::visit(ASTVarCall & node)
 {
 	if (isDataMapAvailable())
 	{
-		value_ = symtab_->retrieveVarAttr(node.varname_).createRef(); // this returns a reference, because it's needed for assignement operations.
+		value_ = datamap_->retrieveVarAttr(node.varname_).createRef(); // this returns a reference, because it's needed for assignement operations.
 		return;
 	}
 	else
@@ -261,7 +263,7 @@ void RTExprVisitor::visit(ASTVarCall & node)
 
 void RTExprVisitor::setDataMap(std::shared_ptr<DataMap> symtab)
 {
-	symtab_ = symtab;
+	datamap_ = symtab;
 }
 
 FVal RTExprVisitor::getResult() const
@@ -276,7 +278,7 @@ double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 	{
 		if (isDataMapAvailable())
 		{
-			fval = symtab_->retrieveValue(
+			fval = datamap_->retrieveValue(
 				std::get<var::varRef>(fval).getName()
 			);
 		}
@@ -465,18 +467,14 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 
 bool RTExprVisitor::isDataMapAvailable() const
 {
-	return (symtab_ ? true : false);
+	return (datamap_ ? true : false);
 }
 
-FVal RTExprVisitor::castTo_withDeref(const std::size_t & goal, FVal val)
+void RTExprVisitor::deref(FVal & val) const
 {
 	if (std::holds_alternative<var::varRef>(val))
 	{
 		auto ref = std::get<var::varRef>(val);
-		val = symtab_->retrieveValue(ref.getName());
+		val = datamap_->retrieveValue(ref.getName());
 	}
-	else if (!isBasic(goal))
-		throw std::logic_error("The Goal type was not a basic type.");
-
-	return CastUtilities::castTo(context_,goal, val);
 }

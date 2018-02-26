@@ -103,7 +103,7 @@ bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const b
 				out << "Attempting cast to the desired type...";
 				context_.logMessage(out.str());
 			}
-			auto castVal = CastUtilities::castTo(context_,it->first.type_, vvalue);
+			auto castVal = CastUtilities::performImplicitCast(context_,it->first.type_, vvalue);
 			if(context_.isSafe())	// Cast went well
 				return map_setEntry(vname,castVal,isDecl); // Proceed
 			return false; // Bad cast : abort
