@@ -56,7 +56,6 @@ Note :
 #include <memory>							// std::shared_ptr
 #include <stack>							// std::stack
 
-#define DEFAULT__maxExpectedErrorsCount 5
 #define DEFAULT__shouldPrintSuggestions true
 
 namespace Moonshot
@@ -140,11 +139,8 @@ namespace Moonshot
 			void errorExpected(const std::string &s, const std::vector<std::string>& sugg = {});		// generic error message "expected Token after.."
 			void genericError(const std::string &s); // just a normal, generic error
 
-			unsigned int maxExpectedErrorCount_;
-			unsigned int currentExpectedErrorsCount_ = 0; 	// Current "expected" error count, used to avoid "expected (x)" spam by the interpreter. (Will be deleted with next rework)
 			bool shouldPrintSuggestions_; // unused for now
 			
-
 			struct ParserState
 			{
 				std::size_t pos = 0;						// current pos in the Token vector.

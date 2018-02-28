@@ -27,7 +27,6 @@ using keyword = Token::keyword;
 
 Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
 {
-	maxExpectedErrorCount_ = context_.optionsManager_.getAttr(OptionsList::parser_maxExpectedErrorCount).value_or(DEFAULT__maxExpectedErrorsCount).get<int>();
 	shouldPrintSuggestions_ = context_.optionsManager_.getAttr(OptionsList::parser_printSuggestions).value_or(DEFAULT__shouldPrintSuggestions).get<bool>();
 }
 
@@ -158,12 +157,9 @@ void Parser::errorUnexpected()
 
 void Parser::errorExpected(const std::string & s, const std::vector<std::string>& sugg)
 {
-	RETURN_IF_DEAD;
-
 	static std::size_t lastUnexpectedTokenPosition;
-	if (currentExpectedErrorsCount_ > maxExpectedErrorCount_)
-		return;
 
+	RETURN_IF_DEAD;
 	const auto lastTokenPos = state_.pos - 1;
 
 	// If needed, print unexpected error message
@@ -193,7 +189,6 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 
 	context_.reportError(output.str());
 	context_.resetOrigin();
-	currentExpectedErrorsCount_++;
 }
 
 void Parser::genericError(const std::string & s)

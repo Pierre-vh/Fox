@@ -38,15 +38,14 @@ ParsingResult<IASTExpr> Parser::parseCallable()
 
 ParsingResult<IASTExpr>  Parser::parseValue()
 {
-	// if the Token is invalid, return directly a null node
-
 	// = <const>
 	auto matchValue_result = matchLiteral();
 	if (matchValue_result.first) // if we have a value, return it packed in a ASTLiteral
 		return ParsingResult<IASTExpr>(
-			ParsingOutcome::SUCCESS,
-			std::make_unique<ASTLiteral>(matchValue_result.second.lit_val)
+				ParsingOutcome::SUCCESS,
+				std::make_unique<ASTLiteral>(matchValue_result.second.lit_val)
 			);
+	// = <callable>
 	else if (auto res = parseCallable())	// Callable?
 		return res;							// In this case no transformation is needed, so just return the ParsingResult since it's the same thing we use.
 	// = '(' <expr> ')'
@@ -65,8 +64,6 @@ ParsingResult<IASTExpr>  Parser::parseValue()
 		}
 		return expr;
 	}
-	// TO DO :
-	// f_call
 	return ParsingResult<IASTExpr>(ParsingOutcome::NOTFOUND);
 }
 
@@ -96,7 +93,7 @@ ParsingResult<IASTExpr>  Parser::parseExponentExpr()
 	return ParsingResult<IASTExpr>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTExpr>  Parser::parsePrefixExpr()
+ParsingResult<IASTExpr> Parser::parsePrefixExpr()
 {
 	bool uopResult = false;
 	unaryOperator uopOp = unaryOperator::DEFAULT;

@@ -20,7 +20,6 @@ namespace Moonshot
 		lexer_logPushedTokens,		// <true/false> : the lexer will log whenever a Token is pushed
 		lexer_logTotalTokenCount,	// <true/false>	: the lexer will log the total Token found at the end of the lexing process
 		astdump_useUTF8chars,
-		parser_maxExpectedErrorCount,
 		parser_printSuggestions
 	};
 	namespace Dicts
@@ -32,7 +31,6 @@ namespace Moonshot
 			{ OptionsList::lexer_logPushedTokens , "lexer_logPushedTokens" },
 			{ OptionsList::lexer_logTotalTokenCount , "lexer_logTotalTokenCount" },
 			{ OptionsList::astdump_useUTF8chars, "astdump_useUTF8chars" },
-			{ OptionsList::parser_maxExpectedErrorCount, "parser_maxExpectedErrorCount" },
 			{ OptionsList::parser_printSuggestions,"parser_printSuggestions" }
 		};
 	}
