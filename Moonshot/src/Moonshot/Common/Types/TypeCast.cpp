@@ -20,13 +20,31 @@
 using namespace Moonshot;
 using namespace TypeUtils;
 
-FVal CastUtilities::castTo(Context& context_, const std::size_t& goal, FVal val)
+FVal CastUtilities::performImplicitCast(Context& context_, const std::size_t& goal, FVal val)
 {
 	std::pair<bool, FVal> rtr = std::make_pair<bool, FVal>(false, FVal());
 	std::visit(
 		[&](const auto& a, const auto& b)
 	{
-		rtr = castTypeTo(context_,a, b);
+		rtr = castTypeTo_implicit(context_,a, b);
+	},
+		getSampleFValForIndex(goal), val
+		);
+
+	if (rtr.first)
+		return rtr.second;
+	else
+		context_.reportError("Failed typecast (TODO:Show detailed error message)");
+	return FVal();
+}
+
+FVal CastUtilities::performExplicitCast(Context & context_, const std::size_t & goal, FVal val)
+{
+	auto rtr = std::make_pair<bool, FVal>(false, FVal());
+	std::visit(
+		[&](const auto& a, const auto& b)
+	{
+		rtr = castTypeTo_explicit(context_, a, b);
 	},
 		getSampleFValForIndex(goal), val
 		);
@@ -44,7 +62,7 @@ FVal CastUtilities::castTo(Context& context_, const std::size_t& goal, const dou
 	std::visit(
 		[&](const auto& a)
 	{
-		rtr = castTypeTo(context_,a, val);
+		rtr = castDoubleToArithType(context_,a, val);
 	},
 		getSampleFValForIndex(goal)
 		);

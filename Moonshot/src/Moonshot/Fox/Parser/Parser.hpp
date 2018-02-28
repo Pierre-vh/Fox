@@ -44,7 +44,9 @@ Note :
 
 // Tokens
 #include "Moonshot/Fox/Lexer/Token.hpp"					
-// Include interfaces so the users of this class can manipulate 
+// include ParsingResult class
+#include "Moonshot/Fox/Parser/ParsingResult.hpp"
+// Include interfaces so the users of this class can manipulate (also reduces the number of fwddecl required)
 #include "Moonshot/Fox/AST/Nodes/IASTExpr.hpp"
 #include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ForwardDeclarations.hpp"
@@ -59,24 +61,6 @@ Note :
 
 namespace Moonshot
 {
-	/*
-		// put this in its own file! (.hpp, it needs to be header only because of template)
-		template<typename T>
-		struct ParsingResult
-		{
-			public:
-				parsingResult() = default;
-				parsingResult(T& value); // sets wasSuccessful to true. will probably have problems with value when it's a unique ptr
-										// use std::is_copy_construcitble with a constrexpr if/else + std::move in case it's not cpy constr?
-				operator bool() const; //  successful_ accessor
-				T result_;
-			private:
-				bool successful_ = false;
-		};
-
-		template<typename TYPE>
-		using parsingResult_uptr = parsingResult<std::unique_ptr<TYPE>>;
-	*/
 	class Context;
 	class Parser
 	{
@@ -85,27 +69,27 @@ namespace Moonshot
 			~Parser();
 
 			// EXPRESSIONS
-			std::unique_ptr<IASTExpr> parseCallable(); // values/functions calls.
-			std::unique_ptr<IASTExpr> parseValue();
-			std::unique_ptr<IASTExpr> parseExponentExpr();
-			std::unique_ptr<IASTExpr> parsePrefixExpr(); // unary prefix expressions
-			std::unique_ptr<IASTExpr> parseCastExpr();
-			std::unique_ptr<IASTExpr> parseBinaryExpr(const char &priority = 5);
-			std::unique_ptr<IASTExpr> parseExpr(); // Go from lowest priority to highest !
+			ParsingResult<IASTExpr> parseCallable(); // values/functions calls.
+			ParsingResult<IASTExpr> parseValue();
+			ParsingResult<IASTExpr> parseExponentExpr();
+			ParsingResult<IASTExpr> parsePrefixExpr(); // unary prefix expressions
+			ParsingResult<IASTExpr> parseCastExpr();
+			ParsingResult<IASTExpr> parseBinaryExpr(const char &priority = 5);
+			ParsingResult<IASTExpr> parseExpr(); 
 
 			// STATEMENTS
-			std::unique_ptr<IASTStmt> parseStmt(); // General Statement
-			std::unique_ptr<IASTStmt> parseVarDeclStmt(); // Var Declaration Statement
-			std::unique_ptr<IASTStmt> parseExprStmt(); // Expression statement
+			ParsingResult<IASTStmt> parseStmt(); // General Statement
+			ParsingResult<IASTStmt> parseVarDeclStmt(); // Var Declaration Statement
+			ParsingResult<IASTStmt> parseExprStmt(); // Expression statement
 
 			// STATEMENTS : COMPOUND STATEMENT
-			std::unique_ptr<IASTStmt> parseCompoundStatement(); // Compound Statement
+			ParsingResult<IASTStmt> parseCompoundStatement(); // Compound Statement
 
 			// STATEMENTS : IF,ELSE IF,ELSE
-			std::unique_ptr<IASTStmt> parseCondition(); // Parse a  if-else if-else "block
+			ParsingResult<IASTStmt> parseCondition(); // Parse a  if-else if-else "block
 			
 			// STATEMENTS : WHILE LOOP
-			std::unique_ptr<IASTStmt> parseWhileLoop();
+			ParsingResult<IASTStmt> parseWhileLoop();
 		private:
 			// Private parse functions
 
@@ -113,9 +97,9 @@ namespace Moonshot
 			std::tuple<bool, bool, std::size_t> parseTypeSpec(); // Tuple values: Success flag, isConst, type of variable.
 			
 			// ParseCondition helper functions
-			ConditionalStatement parseCond_if();	 // Parses a classic if statement.
-			ConditionalStatement parseCond_elseIf(); // Parses a else if
-			std::unique_ptr<IASTStmt> parseCond_else(); // parse a else
+			ParsingResult<ConditionalStatement> parseCond_if();	 // Parses a classic if statement.
+			ParsingResult<ConditionalStatement> parseCond_elseIf(); // Parses a else if
+			ParsingResult<IASTStmt> parseCond_else(); // parse a else
 
 
 			// OneUpNode is a function that ups the node one level.
@@ -134,9 +118,9 @@ namespace Moonshot
 			std::size_t matchTypeKw();						// match a type keyword : int, float, etc.
 			
 			// MATCH OPERATORS
-			bool								matchExponentOp(); //  **
+			bool							matchExponentOp(); //  **
 			std::pair<bool, binaryOperator>	matchAssignOp(); // = 
-			std::pair<bool, unaryOperator>		matchUnaryOp(); // ! - +
+			std::pair<bool, unaryOperator>	matchUnaryOp(); // ! - +
 			std::pair<bool, binaryOperator>	matchBinaryOp(const char &priority); // + - * / % 
 			
 			// UTILITY METHODS

@@ -130,10 +130,8 @@ bool Token::specific_idSign()
 
 bool Token::specific_idLiteral()
 {
-	std::stringstream converter(str);
 	UTF8::StringManipulator strmanip;
 	strmanip.setStr(str);
-
 	if (strmanip.peekFirst() == '\'')
 	{
 		if (strmanip.peekBack() == '\'')

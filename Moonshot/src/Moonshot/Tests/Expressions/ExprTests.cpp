@@ -47,8 +47,10 @@ bool ExprTests::runTest(Context & context)
 		l.lexStr(elem);
 		FAILED_RETURN_IF_ERR("lexing");
 
-		 Parser p(context, l.getTokenVector());
-		auto root = p.parseExpr();
+		Parser p(context, l.getTokenVector());
+		std::unique_ptr<IASTExpr> root; 
+		if (auto parseres = p.parseExpr())
+			root = std::move(parseres.node_);
 		FAILED_RETURN_IF_ERR("parsing (parsing error)");
 		FAILED_RETURN_IF(!root, "parsing (null node)")
 
@@ -83,7 +85,9 @@ bool ExprTests::runTest(Context & context)
 		SUCCESS_CONTINUE_IF_ERR;
 
 		Parser p(context, l.getTokenVector());
-		auto root = p.parseExpr();
+		std::unique_ptr<IASTExpr> root;
+		if (auto parseres = p.parseExpr())
+			root = std::move(parseres.node_);
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root);
 

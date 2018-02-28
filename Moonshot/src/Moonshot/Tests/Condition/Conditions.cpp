@@ -82,7 +82,11 @@ bool Conditions::testCond(Context & context, const std::string& str)
 	lex.lexStr(str);
 	FAILED_RETURN_IF_ERR__SILENT;
 	Parser parser(context, lex.getTokenVector());
-	auto node = parser.parseCondition();
+
+	std::unique_ptr<IASTStmt> node;
+	if (auto parseres = parser.parseCondition())
+		node = std::move(parseres.node_);
+
 	context.printLogs();
 	FAILED_RETURN_IF_ERR__SILENT;
 	if (!node) return false;

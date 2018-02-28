@@ -114,7 +114,7 @@ void TypeCheckVisitor::visit(ASTCastExpr & node)
 		throw Exceptions::ast_malformation("CastExpression node did not have any child.");
 
 	const auto result = visitAndGetResult(node.child_.get());
-	if (canCastTo(node.getCastGoal(), result))
+	if (canExplicitelyCastTo(node.getCastGoal(), result))
 		value_ = node.getCastGoal();
 	else
 	{

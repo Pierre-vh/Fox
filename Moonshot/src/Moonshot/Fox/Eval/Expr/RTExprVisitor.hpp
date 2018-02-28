@@ -40,7 +40,7 @@ namespace Moonshot
 			// Context
 			Context& context_;
 			// converts fval to double, but if fval is a varref, deref it first.
-			double fvalToDouble_withDeref(FVal fval);
+			double fvalToDouble(FVal fval);
 			bool compareVal(const binaryOperator &op, const FVal &l, const FVal &r);
 			bool compareStr(const binaryOperator &op, const std::string &lhs, const std::string &rhs);
 			bool compareChar(const binaryOperator &op, const CharType& lhs, const CharType& rhs);
@@ -49,11 +49,10 @@ namespace Moonshot
 		
 			bool fitsInValue(const std::size_t& typ, const double &d); // Determines if we should convert the result to a float when making an operation to avoid loss of information
 			
-			std::shared_ptr<DataMap> symtab_;
+			std::shared_ptr<DataMap> datamap_;
 			bool isDataMapAvailable() const;
 
-			// This function calls castTo, but if the FVal is a varRef, it dereferences it once before proceeding.
-			FVal castTo_withDeref(const std::size_t& goal, FVal val);
+			void deref(FVal& val) const;
 	};
 
 }

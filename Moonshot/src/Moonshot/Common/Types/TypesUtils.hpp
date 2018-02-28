@@ -23,7 +23,8 @@ namespace Moonshot::TypeUtils
 																	// else : error.
 
 																	// This function returns true if the type of basetype can be cast to the type of goal.
-	bool canCastTo(const std::size_t &goal, const std::size_t &basetype);
+	bool canImplicitelyCastTo(const std::size_t &goal, const std::size_t &basetype);
+	bool canExplicitelyCastTo(const std::size_t &goal, const std::size_t &basetype);
 
 	inline constexpr bool canConcat(const std::size_t& lhs, const std::size_t& rhs)
 	{
