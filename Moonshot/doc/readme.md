@@ -34,5 +34,5 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 		Removed the <xxx_kw> nonterminal, as it was useless. I replaced every <XXX_kw> rule by the proper keyword (e.g. <wh_kw> -> "while")</br>
 
 * 0.8.0-> </br>
-		Balanced the <condition> grammar to use a C-like syntax, which is better for codegen and more stable. </br>
+		Balanced the <condition> grammar to use a C-like syntax, which is better for codegen and more stable, and also easier to parse! </br>
 		Added a <parens_expr> rule to avoid repetitions. </br>
