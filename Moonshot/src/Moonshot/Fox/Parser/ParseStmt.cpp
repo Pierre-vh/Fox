@@ -86,11 +86,10 @@ ParsingResult<IASTStmt> Parser::parseCondition()
 {
 	//<condition> = "if" <parens_expr> <statement> ["else" <statement>]
 	auto rtr = std::make_unique<ASTCondition>();
+	bool has_if = false;
 	// "if"
 	if (matchKeyword(keyword::D_IF))
 	{
-		auto rtr = std::make_unique<ASTCondition>();
-
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
 			rtr->condition_expr_ = std::move(parensExprRes.node_);
@@ -104,20 +103,24 @@ ParsingResult<IASTStmt> Parser::parseCondition()
 			errorExpected("Expected a statement after if condition,");
 			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
-		// "else"
-		if (matchKeyword(keyword::D_ELSE))
-		{
-			// <statement>
-			if (auto stmt = parseStmt())
-				rtr->else_stmt_ = std::move(stmt.node_);
-			else
-			{
-				errorExpected("Expected a statement after else,");
-				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
-			}
-		}
-		return ParsingResult<IASTStmt>(ParsingOutcome::SUCCESS, std::move(rtr));
+		has_if = true;
 	}
+	// "else"
+	if (matchKeyword(keyword::D_ELSE))
+	{
+		// <statement>
+		if (auto stmt = parseStmt())
+			rtr->else_stmt_ = std::move(stmt.node_);
+		else
+		{
+			errorExpected("Expected a statement after else,");
+			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+		}
+		if (!has_if)
+			genericError("Else without matching if.");
+	}
+	if(has_if)
+		return ParsingResult<IASTStmt>(ParsingOutcome::SUCCESS, std::move(rtr));
 	return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
 }
 
@@ -158,7 +161,7 @@ ParsingResult<IASTStmt> Parser::parseVarDeclStmt()
 
 		if (!successfulMatchFlag)
 		{
-			errorExpected("Expected an ID");
+			errorExpected("Expected an identifier");
 			if (resyncToDelimiter(sign::P_SEMICOLON))
 				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_AND_DIED);
@@ -170,7 +173,7 @@ ParsingResult<IASTStmt> Parser::parseVarDeclStmt()
 		// index 2 -> type index if success
 		if (!std::get<0>(typespecResult))
 		{
-			errorExpected("Expected a type specifier");
+			errorExpected("Expected a ':'");
 			if (resyncToDelimiter(sign::P_SEMICOLON))
 				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_AND_DIED);
@@ -234,7 +237,7 @@ std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 		if ((typ = matchTypeKw()) != indexes::invalid_index)
 			return { true , isConst , typ };
 
-		errorExpected("Expected a valid type keyword in type specifier");
+		errorExpected("Expected a type name");
 	}
 	return { false, false, indexes::invalid_index };
 }
