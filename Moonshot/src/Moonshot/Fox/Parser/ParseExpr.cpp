@@ -222,7 +222,7 @@ ParsingResult<IASTExpr>  Parser::parseBinaryExpr(const char & priority)
 	return ParsingResult<IASTExpr>(ParsingOutcome::SUCCESS, std::move(rtr));
 }
 
-ParsingResult<IASTExpr>  Parser::parseExpr()
+ParsingResult<IASTExpr> Parser::parseExpr()
 {
 	if (auto lhs_res = parseBinaryExpr())
 	{
@@ -247,6 +247,36 @@ ParsingResult<IASTExpr>  Parser::parseExpr()
 		return ParsingResult<IASTExpr>(ParsingOutcome::SUCCESS, std::move(lhs_res.node_));
 	}
 	return ParsingResult<IASTExpr>(ParsingOutcome::NOTFOUND);
+}
+
+ParsingResult<IASTExpr> Parser::parseParensExpr(bool isMandatory)
+{
+	if (matchSign(sign::B_ROUND_OPEN))
+	{
+		std::unique_ptr<IASTExpr> rtr;
+		if (auto parseres = parseExpr())
+			rtr = std::move(parseres.node_);
+		else
+			errorExpected("Expected an expression after '('");
+
+		if (!matchSign(sign::B_ROUND_CLOSE))
+		{
+			errorExpected("Expected a ')' after expression,");
+			if (!resyncToDelimiter(sign::B_ROUND_CLOSE))
+				return ParsingResult<IASTExpr>(ParsingOutcome::FAILED_AND_DIED);
+			return ParsingResult<IASTExpr>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(rtr));
+		}
+
+		return ParsingResult<IASTExpr>(ParsingOutcome::SUCCESS, std::move(rtr));
+	}
+	// failure
+	if (isMandatory)
+	{
+		errorExpected("Expected a '('");
+		return ParsingResult<IASTExpr>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+	}
+	else 
+		return ParsingResult<IASTExpr>(ParsingOutcome::NOTFOUND);
 }
 
 std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator & op)

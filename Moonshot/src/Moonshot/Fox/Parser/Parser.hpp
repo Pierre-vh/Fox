@@ -75,6 +75,8 @@ namespace Moonshot
 			ParsingResult<IASTExpr> parseCastExpr();
 			ParsingResult<IASTExpr> parseBinaryExpr(const char &priority = 5);
 			ParsingResult<IASTExpr> parseExpr(); 
+				// PARENS EXPR
+			ParsingResult<IASTExpr> parseParensExpr(bool isMandatory = false);
 
 			// STATEMENTS
 			ParsingResult<IASTStmt> parseStmt(); // General Statement
@@ -94,11 +96,6 @@ namespace Moonshot
 
 			// type spec (for vardecl).
 			std::tuple<bool, bool, std::size_t> parseTypeSpec(); // Tuple values: Success flag, isConst, type of variable.
-			
-			// ParseCondition helper functions
-			ParsingResult<ConditionalStatement> parseCond_if();	 // Parses a classic if statement.
-			ParsingResult<ConditionalStatement> parseCond_elseIf(); // Parses a else if
-			ParsingResult<IASTStmt> parseCond_else(); // parse a else
 
 
 			// OneUpNode is a function that ups the node one level.

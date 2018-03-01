@@ -30,14 +30,18 @@ namespace Moonshot
 				use NOTFOUND flag
 				hasRecovered() returns true 
 				wasSuccessful() returns true
-			* Parsing function finds the first tokens, but encounters an unexpected token and dies without recovering: 
+			* Parsing function finds the first tokens, but encounters an unexpected token and dies: 
 				use FAILED_AND_DIED flag
 				hasRecovered() returns true
 				wasSuccessful() returns false
 			* Parsing function finds the first tokens, but encounters an unexpected token and successfully recovers to the semicolon,parens or curly bracket.
 				use FAILED_AND_RECOVERED flag
-				hasRecovered() returns true
+				hasRecovered() returns true if the node is not null.
 				wasSuccessful() returns false
+			* Parsing function finds the first tokens, but encounters an unexpected token and successfully recovers to the semicolon,parens or curly bracket.
+				use FAILED_WITHOUT_ATTEMPTING_RECOVERY flag
+				hasRecovered() returns true if the node is not null.
+				wasSuccessful() false false
 	*/
 	template<typename PtrTy>
 	struct ParsingResult {
@@ -58,7 +62,7 @@ namespace Moonshot
 				else if (pc == ParsingOutcome::FAILED_BUT_RECOVERED || pc == ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
 				{
 					successFlag_ = isNodeNull();
-					recovered_ = true;
+					recovered_ = (pc == ParsingOutcome::FAILED_BUT_RECOVERED);
 				}
 
 				if (node)

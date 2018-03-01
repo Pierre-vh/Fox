@@ -154,36 +154,25 @@ void Dumper::visit(ASTCompStmt & node)
 void Dumper::visit(ASTCondition & node)
 {
 	std::cout << tabs() << "Condition Branch\n";
-	int counter = 0;
-	// (else) ifs
-	for (const auto& elem : node.conditional_stmts_)
-	{
-		tabcount_++;
-		std::cout << tabs() << "Condition " << counter << std::endl;
-		tabcount_++;
-
-		std::cout << tabs() << "Condition Expression:\n";
-		tabcount_++;
-		elem.expr_->accept(*this);
-		tabcount_--;
-
-		std::cout << tabs() << "Condition Body:\n";
-
-		tabcount_++;
-		elem.stmt_->accept(*this);
-		tabcount_-=3;
-
-		counter++;
-	}
+	tabcount_++;
+	// if
+	std::cout << tabs() << "Condition Expression:\n";
+	tabcount_++;
+	node.condition_expr_->accept(*this);
+	tabcount_--;
+	std::cout << tabs() << "Condition Body:\n";
+	tabcount_++;
+	node.condition_stmt_->accept(*this);
+	tabcount_--;
 	// has else?
 	if (node.else_stmt_)
 	{
-		tabcount_++;
-		std::cout << tabs() << "\"Else\" Body:\n";
+		std::cout << tabs() << "Else:\n";
 		tabcount_++;
 		node.else_stmt_->accept(*this);
-		tabcount_ -= 2;
+		tabcount_--;
 	}
+	tabcount_--;
 }
 
 void Dumper::visit(ASTWhileLoop & node)
@@ -212,7 +201,7 @@ std::string Dumper::tabs() const
 	for (unsigned char k(0); k < tabcount_; k++)
 		i += '\t';
 	if (tabcount_ > 1)
-		i += '\xC0';
+		i += u8"┗";
 	return i;
 }
 

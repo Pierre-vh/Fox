@@ -64,34 +64,16 @@ ParsingResult<IASTStmt> Parser::parseWhileLoop()
 	if (matchKeyword(keyword::D_WHILE))
 	{
 		std::unique_ptr<ASTWhileLoop> rtr = std::make_unique<ASTWhileLoop>();
-		// (
-		if (!matchSign(sign::B_ROUND_OPEN))
-		{
-			errorExpected("Expected a '('");
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
-		}
-		// expr
-		if (auto parseres = parseExpr())
-			rtr->expr_ = std::move(parseres.node_);
-		else
-		{
-			errorExpected("Expected an expression after '(' in while loop declaration");
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
-		}
-		// )
-		if (!matchSign(sign::B_ROUND_CLOSE))
-		{
-			errorExpected("Expected a ')' after expression in while statement");
-			if(!resyncToDelimiter(sign::B_ROUND_CLOSE))
-				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_AND_DIED);
-		}
+		// <parens_expr>
+		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
+			rtr->expr_ = std::move(parensExprRes.node_);
+			//  no need for failure cases, the function parseParensExpr manages failures by itself when the mandatory flag is set.
 		// <stmt>
 		if (auto parseres = parseStmt())
 			rtr->body_ = std::move(parseres.node_);
 		else
 		{
-			errorExpected("Expected a Statement after while loop declaration");
+			errorExpected("Expected a Statement after while loop declaration,");
 			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		// Return
@@ -102,164 +84,39 @@ ParsingResult<IASTStmt> Parser::parseWhileLoop()
 
 ParsingResult<IASTStmt> Parser::parseCondition()
 {
+	//<condition> = "if" <parens_expr> <statement> ["else" <statement>]
 	auto rtr = std::make_unique<ASTCondition>();
-	if(auto result = parseCond_if())
-	{
-		if (result.node_->isComplete())
-		{
-			// <cond_if>
-			rtr->conditional_stmts_.push_back({
-				result.node_->resetAndReturnTmp()
-				});
-			// <cond_elif>
-			auto elif_res = parseCond_elseIf();
-			while (elif_res && elif_res.node_->isComplete()) // consume all elifs
-			{
-				rtr->conditional_stmts_.push_back({
-					elif_res.node_->resetAndReturnTmp()
-					});
-				// try to find another elif
-				elif_res = parseCond_elseIf();
-			}
-			// <cond_else>
-			if (auto parseres = parseCond_else()) // it's a else
-				rtr->else_stmt_ = std::move(parseres.node_);
-
-			return ParsingResult<IASTStmt>(ParsingOutcome::SUCCESS, std::move(rtr));
-		}
-		return ParsingResult<IASTStmt>(result.getFlag());
-	}
-	// change this bit in the new system to
-	else if (parseCond_elseIf())		// if parsing of else if successful	
-	{
-		genericError("Else if without matching if.");
-		return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED,std::make_unique<ASTNullStmt>());
-	}
-	else if (parseCond_else())			// if parsing of else successful
-	{
-		genericError("Else without matching if.");
-		return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED, std::make_unique<ASTNullStmt>());
-	}
-	return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
-}
-
-ParsingResult<ConditionalStatement> Parser::parseCond_if()
-{
 	// "if"
 	if (matchKeyword(keyword::D_IF))
 	{
-		auto rtr = std::make_unique<ConditionalStatement>();
-		// '('
-		if (!matchSign(sign::B_ROUND_OPEN))
-		{
-			errorExpected("Expected a '('");
-			return ParsingResult<ConditionalStatement>(
-				ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY
-			);
-		}
-		// <expr>
-		if (auto parseres = parseExpr())
-			rtr->expr_ = std::move(parseres.node_);
-		else
-		{
-			errorExpected("Expected an expression after '(' in if condition,");
-			return ParsingResult<ConditionalStatement>(
-				ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY
-			);
-		}
-		// ')'
-		if (!matchSign(sign::B_ROUND_CLOSE))
-		{
-			errorExpected("Expected a ')' after expression in if condition,");
-			if(resyncToDelimiter(sign::B_ROUND_CLOSE))
-				return ParsingResult<ConditionalStatement>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<ConditionalStatement>(ParsingOutcome::FAILED_AND_DIED);
-		}
+		auto rtr = std::make_unique<ASTCondition>();
+
+		// <parens_expr>
+		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
+			rtr->condition_expr_ = std::move(parensExprRes.node_);
+
 		// <statement>
-		if (auto parseres = parseStmt())
-			rtr->stmt_ = std::move(parseres.node_);
+		auto ifStmtRes = parseStmt();
+		if (ifStmtRes)
+			rtr->condition_stmt_ = std::move(ifStmtRes.node_);
 		else
 		{
 			errorExpected("Expected a statement after if condition,");
-			return ParsingResult<ConditionalStatement>(
-				ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY
-			);
-		}
-		// Finished, return.
-		return ParsingResult<ConditionalStatement>(
-			ParsingOutcome::SUCCESS,
-			std::move(rtr)
-		);
-	}
-	return ParsingResult<ConditionalStatement>(ParsingOutcome::NOTFOUND);
-}
-
-ParsingResult<ConditionalStatement> Parser::parseCond_elseIf()
-{
-	if (matchKeyword(keyword::D_ELSE))
-	{
-		auto bckp = createParserStateBackup();
-
-		if (matchKeyword(keyword::D_IF))
-		{
-			auto rtr = std::make_unique<ConditionalStatement>();
-			// '('
-			if (!matchSign(sign::B_ROUND_OPEN))
-				errorExpected("Expected a '('");
-
-			// <expr>
-			if (auto parseres = parseExpr())
-				rtr->expr_ = std::move(parseres.node_);
-			else
-				errorExpected("Expected an expression after '(' in else if condition,");
-
-			// ')'
-			if (!matchSign(sign::B_ROUND_CLOSE))
-			{
-				errorExpected("Expected a ')' after expression in else if condition,");
-				if (!resyncToDelimiter(sign::B_ROUND_CLOSE))
-					return ParsingResult<ConditionalStatement>(ParsingOutcome::FAILED_AND_DIED);
-			}
-			// <stmt>
-			if (auto parseres = parseStmt())
-			{
-				rtr->stmt_ = std::move(parseres.node_);
-				return ParsingResult<ConditionalStatement>(
-					ParsingOutcome::SUCCESS,
-					std::move(rtr)
-				);
-			}
-			else 
-			{
-				errorExpected("Expected a statement after else if condition,");
-				return ParsingResult<ConditionalStatement>(
-					ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY
-				);
-			}
-		}
-		// restore a backup, because if the leave the "else" consumed, it won't be picked up
-		// by the "parseCond_else" function later in parseCond.
-		restoreParserStateFromBackup(bckp);
-		return ParsingResult<ConditionalStatement>(
-			ParsingOutcome::NOTFOUND
-		);
-	}
-	return ParsingResult<ConditionalStatement>(
-		ParsingOutcome::NOTFOUND
-	);
-}
-
-ParsingResult<IASTStmt> Parser::parseCond_else()
-{
-	if (matchKeyword(keyword::D_ELSE))
-	{
-		if (auto parseres = parseStmt())
-			return ParsingResult<IASTStmt>(ParsingOutcome::SUCCESS,std::move(parseres.node_));
-		else
-		{
-			errorExpected("Expected a statement");
 			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
+		// "else"
+		if (matchKeyword(keyword::D_ELSE))
+		{
+			// <statement>
+			if (auto stmt = parseStmt())
+				rtr->else_stmt_ = std::move(stmt.node_);
+			else
+			{
+				errorExpected("Expected a statement after else,");
+				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			}
+		}
+		return ParsingResult<IASTStmt>(ParsingOutcome::SUCCESS, std::move(rtr));
 	}
 	return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
 }
