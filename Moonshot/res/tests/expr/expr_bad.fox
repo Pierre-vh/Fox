@@ -20,3 +20,4 @@
 'c' as float; // Impossible cast : char to float
 3.14 as char; // Impossible cast : float to char;
 string as bool
+"b" as char == 'b'
