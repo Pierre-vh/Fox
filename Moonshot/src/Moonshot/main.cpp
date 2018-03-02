@@ -26,8 +26,16 @@ using namespace Moonshot;
 			Generally, find ways to simplify the ast as much as possible.
 */
 /*
-	Needed:
 	TODO :
+		Change the ParsingResult class behaviour:
+			If the type is a pointer, it uses a std::unique_ptr as type stored
+			If the type is not a pointer, it's data type is the same as the type's.
+
+		Improve the way the type is stored, add a "type" object which encapsulate an index. The type's object behaviour can be
+		changed if we need to store a user-defined type. The parser/typechecker should never pass std::size_t, just Type objects, and operate on them.
+
+		Implement the rest of the Parsing functions for the functions declarations
+
 		Finish to implement the parser + ast: functions + import (add it back to the grammar)
 		Add scope checks, finish typechecker
 		TAC IR (w/ Basic block detection, constant prop/fold at first) (this is going to be fun, kek)
