@@ -55,16 +55,13 @@ you'll be greeted with an error!)
 	=
 */
 
-
-
 ##Variables##
 <var_decl>		= "let" <id> <type_spec> ['=' <expr>] ';' 	// You can define variables in a rust-like fashion, but you can specify the type of the variable. const variables can't be modified.
 
 ##Functions##
-<func_decl>		= "func" <id> <arg_list_decl> [<type_spec>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
-<arg_list_decl> = '(' [<arg_decl> {',' <arg_decl>}*] ')'
-<arg_decl>		=  <id> <arg_type_spec> 				
-<arg_type_spec>	= ':' ["const"]['&'] <type>				// the optional ampersand indicates pass by reference, the const indicates const args
+<func_decl>		= "func" <id> '(' [<arg_list_decl>] ')'[':' <type>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
+<arg_list_decl> = [<arg_decl> {',' <arg_decl>}*]
+<arg_decl>		= <id> : ["const"]['&'] <type>
 <f_call>		=  <id> <expr_list>						// Function calls used in expressions, etc..
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
 <rtr_stmt>		= "return" [<expr>] ';'
@@ -75,7 +72,7 @@ you'll be greeted with an error!)
 
 ##SCRAPPED IDEA : MIGHT RETURN LATER##
 <namespace> 		= {<id> '.'} 						// This designates namespaces, examples : "Fox." "Fox.io."
-<ext_id>		= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"
-<general_id>	= <ext_id> | <id>
+<ext_id>			= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"
+<general_id>		= <ext_id> | <id>
 ##Importing Packages##
-<import_stmt>   = ( "import" | "using" ) <ext_id> ';'
+<import_stmt>		= ( "import" | "using" ) <ext_id> ';'
