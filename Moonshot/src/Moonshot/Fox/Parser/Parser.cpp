@@ -88,15 +88,15 @@ std::size_t Parser::matchTypeKw()
 	{
 		switch (t.kw_type)
 		{
-			case keyword::T_INT:	return Types::basic_Int;
-			case keyword::T_FLOAT:	return Types::basic_Float;
-			case keyword::T_CHAR:	return Types::basic_Char;
-			case keyword::T_STRING:	return Types::basic_String;
-			case keyword::T_BOOL:	return Types::basic_Bool;
+			case keyword::T_INT:	return TypeIndex::basic_Int;
+			case keyword::T_FLOAT:	return TypeIndex::basic_Float;
+			case keyword::T_CHAR:	return TypeIndex::basic_Char;
+			case keyword::T_STRING:	return TypeIndex::basic_String;
+			case keyword::T_BOOL:	return TypeIndex::basic_Bool;
 		}
 	}
 	state_.pos -= 1;
-	return Types::InvalidIndex;
+	return TypeIndex::InvalidIndex;
 }
 
 Token Parser::getToken() const

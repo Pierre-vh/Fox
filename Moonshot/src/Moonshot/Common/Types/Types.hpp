@@ -1,7 +1,7 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : Types.hpp											
+// File : TypeIndex.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file declares types/objects/typedefs specific to the interpreter.
@@ -38,42 +38,53 @@ namespace Moonshot
 			static constexpr CharType CharType_MAX = (std::numeric_limits<CharType>::max)();
 			static constexpr CharType CharType_MIN = (std::numeric_limits<CharType>::min)();
 	};
-	class Types
-	{
-		/*
-			Notes:
-				Basic = a basic type that is available to the users.
-				Builtin = a builtin type, that is available to the compiler to use, but not necessarily to the user.
+	/*
+		Notes:
+		Basic = a basic type that is available to the users.
+		Builtin = a builtin type, that is available to the compiler to use, but not necessarily to the user.
+		Strictly speaking ,every type within the compiler is builtin, but 
 
-				All basic types are builtin.
-				Not all builtin types are basic.
-		*/
+		All basic types are builtin.
+		Not all builtin types are basic.
+	*/
+	class TypeIndex
+	{
 		public:
 			static constexpr std::size_t InvalidIndex	= (std::numeric_limits<std::size_t>::max)();
-			static constexpr std::size_t builtin_Null		= 0;
+			static constexpr std::size_t Null_Type		= 0;
 			static constexpr std::size_t basic_Int		= 1;
 			static constexpr std::size_t basic_Float	= 2;
 			static constexpr std::size_t basic_Char		= 3;
 			static constexpr std::size_t basic_String	= 4;
 			static constexpr std::size_t basic_Bool		= 5;
-			static constexpr std::size_t builtin_VarRef	= 6;
+			static constexpr std::size_t VarRef	= 6;
 	};
+	// The base class you should use to carry type information around.
 	class FoxType
 	{
 		public:
 			FoxType() = default;
 			FoxType(const std::size_t &basicIndex);
 
-			bool isBuiltin() const;
 			bool isBasic() const;
+			bool isArithmetic() const;
 
 			void setType(const std::size_t& basicIndex);
 
 			std::size_t getBuiltInTypeIndex() const;
 
+			std::string getTypeName() const; // returns the name of the type.
+
+			// operators
 			FoxType& operator=(const std::size_t& basicIndex);
+			
+			bool operator==(const std::size_t& basicIndex) const;
+			bool operator==(const FoxType& other) const;
+
+			bool operator!=(const std::size_t& basicIndex) const;
+			bool operator!=(const FoxType& other) const;
 		private:
-			std::size_t builtin_type_index_ = Types::InvalidIndex;
+			std::size_t builtin_type_index_ = TypeIndex::InvalidIndex;
 	};
 	namespace var
 	{
@@ -91,15 +102,16 @@ namespace Moonshot
 		{
 			varattr();
 			varattr(const std::string &nm);
-			varattr(const std::string &nm, const std::size_t &ty, const bool &isK = false);
+			varattr(const std::string &nm, const FoxType &ty, const bool &isK = false);
 			operator bool() const;
 			// Variable's attribute
 			bool isConst_ = false;
 			std::string name_ = "";
-			std::size_t type_ = Types::builtin_Null;
+			FoxType type_ = TypeIndex::Null_Type;
 
 			varRef createRef() const;
 
+			std::string dump() const;
 			protected:
 				bool wasInit_ = false;
 		};

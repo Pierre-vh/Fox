@@ -42,6 +42,8 @@ Note :
 */
 #pragma once
 
+// types
+#include "Moonshot/Common/Types/Types.hpp"
 // Tokens
 #include "Moonshot/Fox/Lexer/Token.hpp"					
 // include ParsingResult class
@@ -99,7 +101,7 @@ namespace Moonshot
 			// Private parse functions
 
 			// type spec (for vardecl).
-			std::tuple<bool, bool, std::size_t> parseTypeSpec(); // Tuple values: Success flag, isConst, type of variable.
+			std::tuple<bool, bool,FoxType> parseTypeSpec(); // Tuple values: Success flag, isConst, type of variable.
 
 
 			// OneUpNode is a function that ups the node one level.

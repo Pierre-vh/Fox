@@ -10,6 +10,7 @@
 #include "DataMap.hpp"
 
 #include "Moonshot/Common/Types/TypesUtils.hpp"
+#include "Moonshot/Common/Types/FvalUtils.hpp"
 #include "Moonshot/Common/Types/TypeCast.hpp"
 #include "Moonshot/Common/Context/Context.hpp"
 
@@ -48,7 +49,7 @@ var::varattr DataMap::retrieveVarAttr(const std::string & varname)
 bool DataMap::declareValue(const var::varattr & v_attr, const FVal & initVal)
 {
 	if (std::holds_alternative<NullType>(initVal))
-		return map_getEntry(v_attr,TypeUtils::getSampleFValForIndex(v_attr.type_)); // Init with a default value.
+		return map_getEntry(v_attr,FValUtils::getSampleFValForIndex(v_attr.type_.getBuiltInTypeIndex())); // Init with a default value.
 	return map_getEntry(v_attr, initVal);
 }
 
@@ -63,7 +64,7 @@ void DataMap::dump() const
 	out << "Dumping symbols table...\n";
 	for (auto& elem : sym_table_)
 	{
-		out << "NAME: " << elem.first.name_ << " TYPE: " << TypeUtils::indexToTypeName(elem.first.type_) << " ---> VALUE: " << TypeUtils::dumpFVal(elem.second) << std::endl;
+		out << "NAME: " << elem.first.name_ << " TYPE: " << FValUtils::indexToTypeName(elem.first.type_.getBuiltInTypeIndex()) << " ---> VALUE: " << FValUtils::dumpFVal(elem.second) << std::endl;
 	}
 	context_.logMessage(out.str());
 	out.clear();
@@ -98,8 +99,8 @@ bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const b
 			if (LOG_IMPLICIT_CASTS)
 			{
 				std::stringstream out;
-				out << "Implicit cast : Attempted to store a " << TypeUtils::indexToTypeName(vvalue.index()) << " into the variable ";
-				out << vname << " (of type " << TypeUtils::indexToTypeName(it->first.type_) << ")\n";
+				out << "Implicit cast : Attempted to store a " << FValUtils::indexToTypeName(vvalue.index()) << " into the variable ";
+				out << vname << " (of type " << it->first.type_.getTypeName() << ")\n";
 				out << "Attempting cast to the desired type...";
 				context_.logMessage(out.str());
 			}

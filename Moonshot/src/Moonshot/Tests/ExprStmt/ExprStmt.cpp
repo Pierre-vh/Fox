@@ -9,6 +9,7 @@
 
 #include "ExprStmt.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
+#include "Moonshot/Common/Types/FValUtils.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Test;
@@ -58,7 +59,7 @@ bool ExprStmtTest::runTest(Context & context)
 		root->accept(evaluator);
 		auto result = evaluator.getResult();
 		FAILED_RETURN_IF_ERR("evaluation");
-		std::cout << "\t\t\xC0 Result: " << TypeUtils::dumpFVal(result) << std::endl;
+		std::cout << "\t\t\xC0 Result: " << FValUtils::dumpFVal(result) << std::endl;
 	}
 	// RUN INCORRECT TESTS
 	std::cout << std::endl << "Part 2 : Incorrect tests :\n";

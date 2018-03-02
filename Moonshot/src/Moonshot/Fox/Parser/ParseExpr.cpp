@@ -121,11 +121,11 @@ ParsingResult<IASTExpr>  Parser::parseCastExpr()
 {
 	if (auto parse_res = parsePrefixExpr())
 	{
-		std::size_t casttype = Types::InvalidIndex;
+		std::size_t casttype = TypeIndex::InvalidIndex;
 		// Search for a (optional) cast: "as" <type>
 		if (matchKeyword(keyword::TC_AS))
 		{
-			if ((casttype = matchTypeKw()) != Types::InvalidIndex)
+			if ((casttype = matchTypeKw()) != TypeIndex::InvalidIndex)
 			{
 				// If found, apply it to current node.
 				auto rtr = std::make_unique<ASTCastExpr>();

@@ -10,7 +10,7 @@
 #include "Dumper.hpp"
 // Exception
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
-// FVal Utilities
+#include "Moonshot/Common/Types/FValUtils.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
 #include "Moonshot/Common/Utils/Utils.hpp" // for enumAsInt
 // Include nodes
@@ -37,8 +37,8 @@ void Dumper::visit(ASTBinaryExpr & node)
 
 	std::cout << tabs() << "BinaryExpression : Operator " << op;
 	// print planned result type if there's one
-	if (node.resultType_ != 0 && node.resultType_ != Types::InvalidIndex)
-		std::cout << ", Return type : " << indexToTypeName(node.resultType_);
+	if (node.resultType_ != 0 && node.resultType_ != TypeIndex::InvalidIndex)
+		std::cout << ", Return type : " << node.resultType_.getTypeName();
 	// newline
 	std::cout << "\n";
 
@@ -73,11 +73,8 @@ void Dumper::visit(ASTUnaryExpr & node)
 
 	std::cout << tabs() << "UnaryExpression : Operator " << op;
 
-	if (node.resultType_ > 10)
-		std::cout << "";
-
-	if (node.resultType_ != 0 && node.resultType_ != Types::InvalidIndex)
-		std::cout << ", Return type : " << indexToTypeName(node.resultType_);
+	if (node.resultType_ != 0 && node.resultType_ != TypeIndex::InvalidIndex)
+		std::cout << ", Return type : " << node.resultType_.getTypeName();
 
 	std::cout << "\n";
 
@@ -97,7 +94,7 @@ void Dumper::visit(ASTUnaryExpr & node)
 
 void Dumper::visit(ASTCastExpr & node)
 {
-	std::cout << tabs() << "CastExpression : Cast Goal:" << indexToTypeName(node.getCastGoal()) << "\n";
+	std::cout << tabs() << "CastExpression : Cast Goal:" << node.getCastGoal().getTypeName() << "\n";
 	tabcount_++;
 	std::cout << tabs() << "Child:\n";
 	tabcount_++;
@@ -113,12 +110,12 @@ void Dumper::visit(ASTCastExpr & node)
 }
 void Dumper::visit(ASTLiteral & node)
 {
-	std::cout << tabs() << "Literal: " << dumpFVal(node.val_) << '\n';
+	std::cout << tabs() << "Literal: " << FValUtils::dumpFVal(node.val_) << '\n';
 }
 
 void Dumper::visit(ASTVarDeclStmt & node)
 {
-	std::cout << tabs() << "VarDeclStmt :" << dumpVAttr(node.vattr_) << std::endl;
+	std::cout << tabs() << "VarDeclStmt :" << node.vattr_.dump() << std::endl;
 	if (node.initExpr_)
 	{
 		tabcount_ += 1;

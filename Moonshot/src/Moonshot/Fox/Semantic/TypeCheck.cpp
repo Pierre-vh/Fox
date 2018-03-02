@@ -16,6 +16,7 @@
 #include "Moonshot/Common/Exceptions/Exceptions.hpp" // exceptions
 #include "Moonshot/Common/Types/Types.hpp" // Types
 #include "Moonshot/Common/Types/TypesUtils.hpp" // Types Utilities
+#include "Moonshot/Common/Types/FValUtils.hpp" // FVal Utils
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include <sstream> // std::stringstream
 
@@ -28,7 +29,7 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 	if (testmode)
 	{
 		datamap_.declareValue(
-			var::varattr("TESTVALUE", Types::basic_Int, false),
+			var::varattr("TESTVALUE", TypeIndex::basic_Int, false),
 			FVal(IntType())
 		);
 	}
@@ -62,8 +63,16 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 		// get right expr result type
 		auto right = visitAndGetResult(node.right_.get(), directions::RIGHT,node.op_);
 		// SPECIAL CHECK 1: CHECK IF THIS IS A CONCAT OP,CONVERT IT 
-		if (canConcat(left,right) && (node.op_ == binaryOperator::ADD))
+		if (canConcat(left, right) && (node.op_ == binaryOperator::ADD))
+		{
 			node.op_ = binaryOperator::CONCAT;
+		}
+		else
+		{
+			std::stringstream ss;
+			ss << "Can't use operator " << static_cast<int>(node.op_) << " with " << left.getTypeName() << " and " << right.getTypeName() << std::endl;
+			context_.logMessage(ss.str());
+		}
 		// CHECK VALIDITY OF EXPRESSION
 		value_ = getExprResultType(
 			node.op_
@@ -90,7 +99,7 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 	// Get the child's return type. Don't change anything, as rtr_value is already set by the accept function.
 	const auto childttype = visitAndGetResult(node.child_.get());
 	// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATIVE on a string.
-	if (childttype == Types::basic_String)
+	if (childttype == TypeIndex::basic_String)
 	{
 		// no unary op can be performed on a string
 		std::stringstream output;
@@ -99,9 +108,9 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 	}
 	// SPECIAL CASES : (LOGICNOT) and (NEGATIVE ON BOOLEANS)
 	if (node.op_ == unaryOperator::LOGICNOT)
-		value_ = Types::basic_Bool; // Return type is a boolean
-	else if ((node.op_ == unaryOperator::NEGATIVE) && (value_ == Types::basic_Bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
-		value_ = Types::basic_Int;
+		value_ = TypeIndex::basic_Bool; // Return type is a boolean
+	else if ((node.op_ == unaryOperator::NEGATIVE) && (value_ == TypeIndex::basic_Bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+		value_ = TypeIndex::basic_Int;
 
 	node.resultType_  = value_;
 }
@@ -118,8 +127,8 @@ void TypeCheckVisitor::visit(ASTCastExpr & node)
 		value_ = node.getCastGoal();
 	else
 	{
-		context_.reportError("Can't perform cast : " + indexToTypeName(result) + " to " + indexToTypeName(node.getCastGoal()));
-		value_ = Types::InvalidIndex;
+		context_.reportError("Can't perform cast : " + result.getTypeName() + " to " + node.getCastGoal().getTypeName());
+		value_ = TypeIndex::InvalidIndex;
 	}
 }
 
@@ -146,7 +155,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 	}
 	datamap_.declareValue(
 		node.vattr_,
-		getSampleFValForIndex(node.vattr_.type_) // Using a sample fval, so we don't need to store any "real" values in there.
+		FValUtils::getSampleFValForIndex(node.vattr_.type_.getBuiltInTypeIndex()) // Using a sample fval, so we don't need to store any "real" values in there.
 	);
 	// returns nothing
 }
@@ -157,7 +166,7 @@ void TypeCheckVisitor::visit(ASTVarCall & node)
 	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN) && searchResult.isConst_)
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
-		value_ = Types::InvalidIndex;
+		value_ = TypeIndex::InvalidIndex;
 	}
 	else 
 		value_ =  searchResult.type_; // The error will be thrown by the symbols table itself if the value doesn't exist.
@@ -176,10 +185,10 @@ bool TypeCheckVisitor::shouldOpReturnFloat(const binaryOperator & op) const
 	return (op == binaryOperator::DIV) || (op == binaryOperator::EXP);
 }
 
-std::size_t TypeCheckVisitor::getExprResultType(const binaryOperator& op, std::size_t& lhs, const std::size_t& rhs)
+FoxType TypeCheckVisitor::getExprResultType(const binaryOperator& op, FoxType& lhs, FoxType& rhs)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. 
-		return Types::InvalidIndex;
+		return TypeIndex::InvalidIndex;
 	// first, quick, simple check : we can only verify results between 2 basic types.
 	if (op == binaryOperator::ASSIGN)
 	{
@@ -188,58 +197,58 @@ std::size_t TypeCheckVisitor::getExprResultType(const binaryOperator& op, std::s
 		else
 		{
 			std::stringstream output;
-			output << "Can't assign a " << indexToTypeName(rhs) << " to a variable of type " << indexToTypeName(lhs) << std::endl;
+			output << "Can't assign a " << rhs.getTypeName() << " to a variable of type " << lhs.getTypeName() << std::endl;
 			context_.reportError(output.str());
-			return Types::InvalidIndex;
+			return TypeIndex::InvalidIndex;
 		}
 	}
 	else if (op == binaryOperator::CONCAT)
-		return Types::basic_String;
-	else if (isBasic(lhs) && isBasic(rhs))
+		return TypeIndex::basic_String;
+	else if (lhs.isBasic() && rhs.isBasic())
 	{
 		if (lhs == rhs) // Both sides are identical
 		{
 			if (isComparison(op))
 			{
 				if (((op == binaryOperator::AND) || (op == binaryOperator::OR)) 
-					&& !isArithmetic(lhs)) // If we have a and/or and types aren't arithmetic : problem
+					&& !lhs.isArithmetic()) // If we have a and/or and types aren't arithmetic : problem
 				{
 					context_.reportError("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
-					return Types::InvalidIndex;
+					return TypeIndex::InvalidIndex;
 				}
-				return Types::basic_Bool; // Else, it's normal, return type's a boolean.
+				return TypeIndex::basic_Bool; // Else, it's normal, return type's a boolean.
 			}
-			else if ((lhs == Types::basic_String) && (op != binaryOperator::CONCAT)) // We have strings and it's not a concat op :
+			else if ((lhs == TypeIndex::basic_String) && (op != binaryOperator::CONCAT)) // We have strings and it's not a concat op :
 			{
-				context_.reportError("Can't perform operations other than addition (concatenation) on strings");
-				return Types::InvalidIndex;
+				context_.reportError("Can't perform operations other than concatenation on strings");
+				return TypeIndex::InvalidIndex;
 			}
-			else if (lhs == Types::basic_Bool) // We have bools and they're not compared : the result will be an integer.
-				return	Types::basic_Bool;
+			else if (lhs == TypeIndex::basic_Bool) // We have bools and they're not compared : the result will be an integer.
+				return	TypeIndex::basic_Bool;
 			else
-				return shouldOpReturnFloat(op) ? Types::basic_Float : lhs; // Else, we just keep the type, unless it's a divison
+				return shouldOpReturnFloat(op) ? TypeIndex::basic_Float : lhs; // Else, we just keep the type, unless it's a divison
 		}
-		else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // Two different types, and one of them is a string?
+		else if (!lhs.isArithmetic() || !rhs.isArithmetic()) // Two different types, and one of them is a string?
 		{
 			context_.reportError("Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
-			return Types::InvalidIndex;
+			return TypeIndex::InvalidIndex;
 		}
 		else if (isComparison(op)) // Comparing 2 arithmetic types ? return type's a boolean
-			return Types::basic_Bool;
+			return TypeIndex::basic_Bool;
 		else
 		{
 			if (shouldOpReturnFloat(op))
-				return Types::basic_Float; // if op = division Or exp, return type's a float, because they may return floats under certain circumstances
+				return TypeIndex::basic_Float; // if op = division Or exp, return type's a float, because they may return floats under certain circumstances
 			else
-				return getBiggest(lhs, rhs); // Else, it's just a normal operation, and the return type is the one of the "biggest" of the 2 sides
+				return getBiggestType(lhs, rhs); // Else, it's just a normal operation, and the return type is the one of the "biggest" of the 2 sides
 		}
-		return Types::InvalidIndex;
+		return TypeIndex::InvalidIndex;
 	}
 	else // One of the types is a non-basic type.
 	{
 		context_.reportError("Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
-		return Types::InvalidIndex;
+		return TypeIndex::InvalidIndex;
 	}
 	throw std::logic_error("getExprResultType() Defaulted.");
-	// return Types::InvalidIndex;
+	// return TypeIndex::InvalidIndex;
 }

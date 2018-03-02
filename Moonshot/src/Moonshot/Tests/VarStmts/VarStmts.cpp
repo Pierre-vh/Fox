@@ -32,7 +32,7 @@ bool VarStmts::runTest(Context & context)
 	TypeCheckVisitor tc_good(context); // shared typechecker to keep the datamap
 
 	auto datamap = std::make_shared<DataMap>(context);
-	datamap->declareValue(var::varattr("TESTVALUE", Types::basic_Int, false));
+	datamap->declareValue(var::varattr("TESTVALUE", TypeIndex::basic_Int, false));
 
 	RTStmtVisitor rt_good(context,datamap);
 	for (auto& elem : correct_test)

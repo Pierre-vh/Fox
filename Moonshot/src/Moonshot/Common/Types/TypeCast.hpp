@@ -11,7 +11,6 @@
 
 #include "Types.hpp"
 #include "FVTypeTraits.hpp"
-#include "TypesUtils.hpp"
 #include <sstream>
 #include <string>
 
@@ -20,14 +19,14 @@ namespace Moonshot {
 	namespace CastUtilities
 	{
 		// todo : Add explicit casts, with string <-> arith support.
-		FVal performImplicitCast(Context& context_, const std::size_t& goal, FVal val);
-		FVal performExplicitCast(Context& context_, const std::size_t& goal, FVal val);
-		FVal castTo(Context& context_, const std::size_t& goal, const double &val);
+		FVal performImplicitCast(Context& context_, const FoxType& goal, FVal val);
+		FVal performExplicitCast(Context& context_, const FoxType& goal, FVal val);
+		FVal castTo(Context& context_, const FoxType& goal, const double &val);
 
 		template<typename GOAL, typename VAL, bool isGOALstr = std::is_same<GOAL, std::string>::value, bool isVALstr = std::is_same<VAL, std::string>::value>
 		inline std::pair<bool, FVal> castTypeTo_implicit(Context& context_, const GOAL& type, VAL v)
 		{
-			if constexpr (!TypeTrait_FVal<GOAL>::is_basic || !TypeTrait_FVal<VAL>::is_basic)
+			if constexpr (!Traits::FValTraits<GOAL>::is_basic || !Traits::FValTraits<VAL>::is_basic)
 				throw std::logic_error("Can't cast a basic type to a nonbasic type and vice versa.");
 			else if constexpr((std::is_same<GOAL, VAL>::value)) // Direct conversion (between the same types)
 				return { true , FVal(v) };
@@ -44,7 +43,7 @@ namespace Moonshot {
 				context_.reportError(output.str());
 				return { false, FVal() };
 			}
-			else if constexpr(TypeTrait_FVal<VAL>::is_arithmetic && TypeTrait_FVal<GOAL>::is_arithmetic) // Arith -> Arithm = conversion works!
+			else if constexpr(Traits::FValTraits<VAL>::is_arithmetic && Traits::FValTraits<GOAL>::is_arithmetic) // Arith -> Arithm = conversion works!
 			{
 				if constexpr (std::is_same<IntType, GOAL>::value)
 					return { true,FVal((IntType)v) };
@@ -61,7 +60,7 @@ namespace Moonshot {
 		template<typename GOAL, typename VAL, bool isGOALstr = std::is_same<GOAL, std::string>::value, bool isVALstr = std::is_same<VAL, std::string>::value>
 		inline std::pair<bool, FVal> castTypeTo_explicit(Context& context_, const GOAL& type, VAL v)
 		{
-			if constexpr (!TypeTrait_FVal<GOAL>::is_basic || !TypeTrait_FVal<VAL>::is_basic)
+			if constexpr (!Traits::FValTraits<GOAL>::is_basic || !Traits::FValTraits<VAL>::is_basic)
 				throw std::logic_error("Can't cast a basic type to a nonbasic type and vice versa.");
 			else if constexpr((std::is_same<GOAL, VAL>::value)) // Direct conversion (between the same types)
 				return { true , FVal(v) };
@@ -73,7 +72,7 @@ namespace Moonshot {
 			}
 			else if constexpr (isGOALstr != isVALstr) // One of them is a string and the other isn't.
 			{
-				if constexpr (isVALstr && TypeTrait_FVal<GOAL>::is_arithmetic) // str -> arith
+				if constexpr (isVALstr && Traits::FValTraits<GOAL>::is_arithmetic) // str -> arith
 				{
 					std::istringstream stream((std::string)v);
 					GOAL tmp;
@@ -82,12 +81,12 @@ namespace Moonshot {
 					else
 					{
 						std::stringstream warnmess;
-						warnmess << "Couldn't cast String \"" << (std::string)v << "\" to " << TypeUtils::indexToTypeName(TypeTrait_FVal<GOAL>::index) << ". Returning a base value: " << GOAL() << "\n";
+						warnmess << "Couldn't cast String \"" << (std::string)v << "\" to " << FValUtils::indexToTypeName(Traits::FValTraits<GOAL>::index) << ". Returning a base value: " << GOAL() << "\n";
 						context_.reportWarning(warnmess.str());
 						return { true,FVal(GOAL()) };
 					}
 				}
-				else if constexpr (isGOALstr && TypeTrait_FVal<VAL>::is_arithmetic) // arith -> str
+				else if constexpr (isGOALstr && Traits::FValTraits<VAL>::is_arithmetic) // arith -> str
 				{
 					std::stringstream stream;
 					stream << v;
@@ -96,7 +95,7 @@ namespace Moonshot {
 				else 
 					throw std::logic_error("Failed cast");
 			}
-			else if constexpr(TypeTrait_FVal<VAL>::is_arithmetic && TypeTrait_FVal<GOAL>::is_arithmetic) // Arith -> Arithm = conversion works!
+			else if constexpr(Traits::FValTraits<VAL>::is_arithmetic && Traits::FValTraits<GOAL>::is_arithmetic) // Arith -> Arithm = conversion works!
 			{
 				if constexpr (std::is_same<IntType, GOAL>::value)
 					return { true,FVal((IntType)v) };
@@ -113,7 +112,7 @@ namespace Moonshot {
 		template<typename GOAL>
 		inline std::pair<bool, FVal> castDoubleToArithType(Context& context_, const GOAL&, double v)
 		{
-			if constexpr (TypeTrait_FVal<GOAL>::is_arithmetic) // Can only attempt to convert basic types.
+			if constexpr (Traits::FValTraits<GOAL>::is_arithmetic) // Can only attempt to convert basic types.
 				return { true, FVal((GOAL)v) };
 			else
 				throw std::logic_error("An invalid type was passed as Cast goal.");

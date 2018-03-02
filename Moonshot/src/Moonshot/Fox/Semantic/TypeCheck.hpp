@@ -16,6 +16,7 @@
 #pragma once
 
 #include "Moonshot/Fox/AST/IVisitor.hpp" // base class
+#include "Moonshot/Common/Types/Types.hpp"
 #include "Moonshot/Fox/Common/Operators.hpp" // enums
 #include "Moonshot/Common/DataMap/DataMap.hpp" // DataMap used as a symbols table; It's only temporary, because at this stage I Don't have scopes, so this does the job. Inefficiently, but it does it.
 
@@ -23,7 +24,7 @@ namespace Moonshot
 {
 	enum class binaryOperator;
 	class Context;
-	class TypeCheckVisitor : public ITypedVisitor<std::size_t> // size_t because we return Types in FVal to represent types.
+	class TypeCheckVisitor : public ITypedVisitor<FoxType>
 	{
 		public:
 			TypeCheckVisitor(Context& c,const bool& testmode = false);
@@ -50,7 +51,7 @@ namespace Moonshot
 			Context& context_;
 
 			template<typename T>
-			std::size_t visitAndGetResult(T* node,const directions& dir = directions::UNKNOWN, const binaryOperator& c_binop = binaryOperator::PASS)
+			FoxType visitAndGetResult(T* node,const directions& dir = directions::UNKNOWN, const binaryOperator& c_binop = binaryOperator::PASS)
 			{
 				node_ctxt_.cur_binop = c_binop;
 				node_ctxt_.dir = dir;
@@ -64,7 +65,7 @@ namespace Moonshot
 
 			bool isAssignable(const IASTExpr* op) const;
 			bool shouldOpReturnFloat(const binaryOperator& op) const; // used for operations that return float instead of normal values
-			std::size_t getExprResultType(const binaryOperator& op, std::size_t& lhs, const std::size_t& rhs);
+			FoxType getExprResultType(const binaryOperator& op, FoxType& lhs, FoxType& rhs);
 
 			struct nodecontext
 			{

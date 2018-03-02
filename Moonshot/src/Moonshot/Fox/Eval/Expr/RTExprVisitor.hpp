@@ -19,6 +19,7 @@ namespace Moonshot
 {
 	class Context;
 	class DataMap;
+	class FoxType;
 	enum class binaryOperator;
 	class RTExprVisitor : public ITypedVisitor<FVal>
 	{
@@ -47,7 +48,7 @@ namespace Moonshot
 			FVal concat(const FVal& lhs, const FVal& rhs);
 			double performOp(const binaryOperator& op, double l, double r);
 		
-			bool fitsInValue(const std::size_t& typ, const double &d); // Determines if we should convert the result to a float when making an operation to avoid loss of information
+			bool fitsInValue(const FoxType& typ, const double &d); // Determines if we should convert the result to a float when making an operation to avoid loss of information
 			
 			std::shared_ptr<DataMap> datamap_;
 			bool isDataMapAvailable() const;

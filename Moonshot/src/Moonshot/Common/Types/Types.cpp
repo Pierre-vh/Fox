@@ -1,7 +1,7 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : Types.cpp											
+// File : TypeIndex.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
@@ -9,6 +9,8 @@
 
 #include "Types.hpp"
 #include "FVTypeTraits.hpp"
+#include "FValUtils.hpp"
+#include "TypesUtils.hpp"
 #include <sstream> // std::stringstream
 
 using namespace Moonshot;
@@ -44,14 +46,14 @@ var::varattr::varattr(const std::string & nm)
 	name_ = nm; // Create a "dummy",unusable varattr with only a name.
 }
 
-var::varattr::varattr(const std::string & nm, const std::size_t & ty, const bool & isK) : name_(nm), type_(ty), isConst_(isK)
+var::varattr::varattr(const std::string & nm, const FoxType & ty, const bool & isK) : name_(nm), type_(ty), isConst_(isK)
 {
 	wasInit_ = true;
 }
 
 var::varattr::operator bool() const
 {
-	return (wasInit_ && (type_ != Types::builtin_Null) && (type_ != Types::InvalidIndex));
+	return (wasInit_ && (type_ != TypeIndex::Null_Type) && (type_ != TypeIndex::InvalidIndex));
 }
 
 var::varRef var::varattr::createRef() const
@@ -59,21 +61,29 @@ var::varRef var::varattr::createRef() const
 	return varRef(name_);
 }
 
-// FoxType
+std::string var::varattr::dump() const
+{
+	std::stringstream output;
+	output << "[name:\"" << name_ << "\" "
+		<< "type: " << (isConst_ ? "CONST " : "");
+	output << FValUtils::indexToTypeName(type_.getBuiltInTypeIndex()) << "]";
+	return output.str();
+}
 
+// FoxType
 FoxType::FoxType(const std::size_t & basicIndex)
 {
 	setType(basicIndex);
 }
 
-bool FoxType::isBuiltin() const
-{
-	return (builtin_type_index_ != Types::InvalidIndex);
-}
-
 bool FoxType::isBasic() const
 {
-	return TypeUtils::isBasic(builtin_type_index_);
+	return IndexUtils::isBasic(builtin_type_index_);
+}
+
+bool FoxType::isArithmetic() const
+{
+	return IndexUtils::isArithmetic(builtin_type_index_);
 }
 
 void FoxType::setType(const std::size_t & basicIndex)
@@ -83,11 +93,36 @@ void FoxType::setType(const std::size_t & basicIndex)
 
 std::size_t FoxType::getBuiltInTypeIndex() const
 {
-	return std::size_t();
+	return builtin_type_index_;
+}
+
+std::string FoxType::getTypeName() const
+{
+	return FValUtils::indexToTypeName(builtin_type_index_);
 }
 
 FoxType & FoxType::operator=(const std::size_t & basicIndex)
 {
 	setType(basicIndex);
 	return *this;
+}
+
+bool FoxType::operator==(const std::size_t & basicIndex) const
+{
+	return builtin_type_index_ == basicIndex;
+}
+
+bool FoxType::operator==(const FoxType & other) const
+{
+	return builtin_type_index_ == other.builtin_type_index_;
+}
+
+bool FoxType::operator!=(const std::size_t & basicIndex) const
+{
+	return !(*this == basicIndex);
+}
+
+bool FoxType::operator!=(const FoxType & other) const
+{
+	return !(*this == other);
 }

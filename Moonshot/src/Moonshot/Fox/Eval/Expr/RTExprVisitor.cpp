@@ -9,30 +9,29 @@
 
 #include "RTExprVisitor.hpp"
 
-// Context & exceptions
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
-// Utils, types, typecast
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include "Moonshot/Common/Types/FVTypeTraits.hpp"
 #include "Moonshot/Common/Types/TypeCast.hpp"
+#include "Moonshot/Common/Types/Types.hpp"
+#include "Moonshot/Common/Types/FValUtils.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
-// DataMap
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 #include "Moonshot/Common/DataMap/DataMap.hpp"
-// Nodes needed
+
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
-// Operators
+
 #include "Moonshot/Fox/Common/Operators.hpp"
-// math operations
+
 #include <cmath>		
 #include <sstream>
 // string manip
-#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
 using namespace TypeUtils;
-
+using namespace FValUtils;
 
 RTExprVisitor::RTExprVisitor(Context& c) : context_(c)
 {
@@ -85,7 +84,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		{
 			auto left_res = visitAndGetResult(node.left_.get(), *this);
 			auto right_res = visitAndGetResult(node.right_.get(), *this);
-			if (std::holds_alternative<var::varRef>(left_res) && isValue(right_res.index()))
+			if (std::holds_alternative<var::varRef>(left_res) && IndexUtils::isValue(right_res.index()))
 			{
 				datamap_->setValue(
 					std::get<var::varRef>(left_res).getName(),
@@ -190,7 +189,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			if (fitsInValue(node.resultType_, result)) // If the results fits or we desire to cast the result
 				value_ = CastUtilities::castTo(context_, node.resultType_, result);		// Cast to result type
 			else
-				value_ = CastUtilities::castTo(context_, Types::basic_Float, result);	// Cast to float instead to keep information from being lost.
+				value_ = CastUtilities::castTo(context_, TypeIndex::basic_Float, result);	// Cast to float instead to keep information from being lost.
 		}
 		return;
 	}
@@ -275,14 +274,14 @@ FVal RTExprVisitor::getResult() const
 
 double RTExprVisitor::fvalToDouble(FVal fval)
 {
-	if (!isBasic(fval.index()))
+	if (!IndexUtils::isBasic(fval.index()))
 	{
 		std::stringstream out;
 		out << "Can't perform conversion to double on a non basic type.(FVal index:" << fval.index() << ")\n";
 		out << dumpFVal(fval);
 		context_.reportFatalError(out.str());
 	}
-	else if (!isArithmetic(fval.index()))
+	else if (!IndexUtils::isArithmetic(fval.index()))
 	{
 		std::stringstream out;
 		out << "Can't perform conversion to double on a non arithmetic type. (FVal index:" << fval.index() << ")\n";
@@ -430,26 +429,26 @@ double RTExprVisitor::performOp(const binaryOperator& op,double l,double r)
 	}
 }
 
-bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
+bool RTExprVisitor::fitsInValue(const FoxType& typ, const double & d)
 {
-	switch (typ)
+	switch (typ.getBuiltInTypeIndex())
 	{
-		case Types::basic_Bool:
+		case TypeIndex::basic_Bool:
 			return true; // When we want to cast to bool, we usually don't care to lose information, we just want a true/false result.
-		case Types::basic_Int:
+		case TypeIndex::basic_Int:
 			if (d < TypeLimits::IntType_MIN || d > TypeLimits::IntType_MAX )
 				return false;
 			return true;
-		case Types::basic_Float:
+		case TypeIndex::basic_Float:
 			return true;
-		case Types::basic_Char:
+		case TypeIndex::basic_Char:
 			if (d < TypeLimits::CharType_MIN || d > TypeLimits::CharType_MAX)
 				return false;
 			return true;
-		case Types::InvalidIndex:
+		case TypeIndex::InvalidIndex:
 		    throw std::logic_error("Index was invalid");
 		default:
-			if (!isBasic(typ))
+			if (!typ.isBasic())
 				throw std::logic_error("Can't make a \"fitInValue\" check on a non-basic type.");
 			else
 				throw std::logic_error("Switch defaulted. Unimplemented type?");

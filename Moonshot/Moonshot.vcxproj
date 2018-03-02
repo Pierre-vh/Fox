@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Moonshot\Common\DataMap\DataMap.cpp" />
+    <ClCompile Include="src\Moonshot\Common\Types\FValUtils.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\TypesUtils.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDeclaration.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="src\Moonshot\Common\DataMap\DataMap.hpp" />
     <ClInclude Include="src\Moonshot\Common\Exceptions\Exceptions.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8.h" />
+    <ClInclude Include="src\Moonshot\Common\Types\FValUtils.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDeclaration.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTNullStmt.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ForwardDeclarations.hpp" />

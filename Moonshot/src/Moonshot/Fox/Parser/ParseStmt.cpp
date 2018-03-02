@@ -157,7 +157,7 @@ ParsingResult<IASTStmt> Parser::parseVarDeclStmt()
 	std::unique_ptr<IASTExpr> initExpr = 0;
 
 	bool isVarConst = false;
-	std::size_t varType = Types::InvalidIndex;
+	FoxType varType = TypeIndex::InvalidIndex;
 	std::string varName;
 
 	if (matchKeyword(keyword::D_LET))
@@ -234,7 +234,7 @@ ParsingResult<IASTStmt> Parser::parseVarDeclStmt()
 	return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
 }
 
-std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
+std::tuple<bool, bool,FoxType> Parser::parseTypeSpec()
 {
 	bool isConst = false;
 	std::size_t typ;
@@ -244,12 +244,12 @@ std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 		if (matchKeyword(keyword::T_CONST))
 			isConst = true;
 		// Now match the type keyword
-		if ((typ = matchTypeKw()) != Types::InvalidIndex)
+		if ((typ = matchTypeKw()) != TypeIndex::InvalidIndex)
 			return { true , isConst , typ };
 
 		errorExpected("Expected a type name");
 	}
-	return { false, false, Types::InvalidIndex };
+	return { false, false, TypeIndex::InvalidIndex };
 }
 
 ParsingResult<IASTStmt> Parser::parseExprStmt()
