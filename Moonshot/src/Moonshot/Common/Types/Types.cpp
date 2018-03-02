@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "Types.hpp"
-
+#include "FVTypeTraits.hpp"
 #include <sstream> // std::stringstream
 
 using namespace Moonshot;
@@ -57,4 +57,37 @@ var::varattr::operator bool() const
 var::varRef var::varattr::createRef() const
 {
 	return varRef(name_);
+}
+
+// FoxType
+
+FoxType::FoxType(const std::size_t & basicIndex)
+{
+	setType(basicIndex);
+}
+
+bool FoxType::isBuiltin() const
+{
+	return (builtin_type_index_ != Types::InvalidIndex);
+}
+
+bool FoxType::isBasic() const
+{
+	return TypeUtils::isBasic(builtin_type_index_);
+}
+
+void FoxType::setType(const std::size_t & basicIndex)
+{
+	builtin_type_index_ = basicIndex;
+}
+
+std::size_t FoxType::getBuiltInTypeIndex() const
+{
+	return std::size_t();
+}
+
+FoxType & FoxType::operator=(const std::size_t & basicIndex)
+{
+	setType(basicIndex);
+	return *this;
 }

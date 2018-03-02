@@ -30,15 +30,6 @@ typedef std::variant<NullType, IntType, float, CharType, std::string, bool, Moon
 
 namespace Moonshot
 {
-	class FoxType
-	{
-		public:
-			FoxType() = default;
-			FoxType(const std::size_t &basicIndex);
-
-			bool isBuiltin() const;
-		private:
-	};
 	class TypeLimits
 	{
 		public:
@@ -66,6 +57,23 @@ namespace Moonshot
 			static constexpr std::size_t basic_String	= 4;
 			static constexpr std::size_t basic_Bool		= 5;
 			static constexpr std::size_t builtin_VarRef	= 6;
+	};
+	class FoxType
+	{
+		public:
+			FoxType() = default;
+			FoxType(const std::size_t &basicIndex);
+
+			bool isBuiltin() const;
+			bool isBasic() const;
+
+			void setType(const std::size_t& basicIndex);
+
+			std::size_t getBuiltInTypeIndex() const;
+
+			FoxType& operator=(const std::size_t& basicIndex);
+		private:
+			std::size_t builtin_type_index_ = Types::InvalidIndex;
 	};
 	namespace var
 	{
