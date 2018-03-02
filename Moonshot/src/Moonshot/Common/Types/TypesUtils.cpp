@@ -1,5 +1,13 @@
-#include "TypesUtils.hpp"
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : TypesUtils.cpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			
+////------------------------------------------------------////
 
+#include "TypesUtils.hpp"
 #include <sstream>
 #include "../UTF8/StringManipulator.hpp"
 
@@ -40,7 +48,7 @@ std::string TypeUtils::dumpVAttr(const var::varattr & var)
 {
 	std::stringstream output;
 	output << "[name:\"" << var.name_ << "\" "
-		<< "type: " << (var.isConst ? "CONST " : "");
+		<< "type: " << (var.isConst_ ? "CONST " : "");
 	auto friendlyname = kType_dict.find(var.type_);
 	if (friendlyname != kType_dict.end())
 		output << friendlyname->second;

@@ -109,7 +109,7 @@ bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const b
 			return false; // Bad cast : abort
 		}
 		// Error cases
-		if (it->first.isConst && !isDecl) // if the variable is const, and we're not in a declaration
+		if (it->first.isConst_ && !isDecl) // if the variable is const, and we're not in a declaration
 			context_.reportError("Can't assign a value to const variable \"" + vname + "\". Const variables must be initialized at declaration and can't be changed later.");
 		// No error ? proceed.
 		else

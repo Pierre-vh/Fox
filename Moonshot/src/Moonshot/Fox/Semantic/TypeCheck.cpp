@@ -154,7 +154,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 void TypeCheckVisitor::visit(ASTVarCall & node)
 {
 	auto searchResult = datamap_.retrieveVarAttr(node.varname_);
-	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN) && searchResult.isConst)
+	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN) && searchResult.isConst_)
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
 		value_ = indexes::invalid_index;

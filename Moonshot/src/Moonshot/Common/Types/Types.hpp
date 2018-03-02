@@ -72,13 +72,13 @@ namespace Moonshot
 			varattr(const std::string &nm, const std::size_t &ty, const bool &isK = false);
 			operator bool() const;
 			// Variable's attribute
-			bool isConst = false;
+			bool isConst_ = false;
 			std::string name_ = "";
 			std::size_t type_ = TypeUtils::indexes::fval_null;
 
 			varRef createRef() const;
 
-			private:
+			protected:
 				bool wasInit_ = false;
 		};
 		inline bool operator < (const varattr& lhs, const varattr& rhs)
@@ -87,9 +87,8 @@ namespace Moonshot
 		}
 		inline bool operator == (const varattr& lhs, const varattr& rhs)
 		{
-			return (lhs.name_ == rhs.name_) &&
-				(lhs.isConst == rhs.isConst) &&
-				(lhs.type_ == rhs.type_);
+			return	(lhs.name_ == rhs.name_) &&
+					(lhs.type_ == rhs.type_);
 		}
 		inline bool operator != (const varattr& lhs, const varattr& rhs)
 		{

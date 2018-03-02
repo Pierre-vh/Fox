@@ -40,6 +40,8 @@ namespace Moonshot
 			inline virtual void visit(ASTCompStmt&)			{}
 			inline virtual void visit(ASTCondition&)		{}
 			inline virtual void visit(ASTWhileLoop&)		{}
+
+			inline virtual void visit(ASTFunctionDeclaration&) {}
 	};
 
 	template<typename TYPE>

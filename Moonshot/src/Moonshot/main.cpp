@@ -28,8 +28,6 @@ using namespace Moonshot;
 /*
 	Needed:
 	TODO :
-		Implement the system to detect if the parsing of a rule was successful or not to avoid error message flooding. This is a big parser rework and will take a few hours to complete. (DONE)
-			>> Take a look at the parser code (reread it) and find situations where we can take advantages of this, and use it to attempt to recover more!
 		Finish to implement the parser + ast: functions + import (add it back to the grammar)
 		Add scope checks, finish typechecker
 		TAC IR (w/ Basic block detection, constant prop/fold at first) (this is going to be fun, kek)
