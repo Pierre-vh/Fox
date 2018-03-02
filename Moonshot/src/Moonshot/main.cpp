@@ -31,7 +31,7 @@ using namespace Moonshot;
 			If the type is a pointer, it uses a std::unique_ptr as type stored
 			If the type is not a pointer, it's data type is the same as the type's.
 
-		Improve the way the type is stored, add a "type" object which encapsulate an index. The type's object behaviour can be
+		Improve the way the type is stored, add a "FoxType" object which encapsulate an index. The type's object behaviour can be
 		changed if we need to store a user-defined type. The parser/typechecker should never pass std::size_t, just Type objects, and operate on them.
 
 		Implement the rest of the Parsing functions for the functions declarations
