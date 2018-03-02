@@ -61,7 +61,7 @@ FVal TypeUtils::getSampleFValForIndex(const std::size_t & t)
 {
 	switch (t)
 	{
-	case Types::basic_Null:
+	case Types::builtin_Null:
 		return FVal();
 	case Types::basic_Int:
 		return FVal((IntType)0);
@@ -73,7 +73,7 @@ FVal TypeUtils::getSampleFValForIndex(const std::size_t & t)
 		return FVal(std::string(""));
 	case Types::basic_Bool:
 		return FVal((bool)false);
-	case Types::basic_VarRef:
+	case Types::builtin_VarRef:
 		return FVal(var::varattr());
 	case Types::InvalidIndex:
 		throw std::logic_error("Tried to get a sample FVal with an invalid index");
@@ -94,7 +94,7 @@ std::string TypeUtils::indexToTypeName(const std::size_t & t)
 
 bool TypeUtils::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 {
-	if ((rhs == Types::basic_Null) || (lhs == Types::basic_Null))
+	if ((rhs == Types::builtin_Null) || (lhs == Types::builtin_Null))
 		return false; // Can't assign a void expression to a variable.
 	if (!isBasic(lhs) || !isBasic(rhs))
 		// If one of the types isn't basic, no assignement possible.

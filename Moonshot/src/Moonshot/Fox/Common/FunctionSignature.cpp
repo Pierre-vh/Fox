@@ -22,7 +22,7 @@ var::argattr::argattr(const std::string & nm, const std::size_t & ty, const bool
 
 var::argattr::operator bool() const
 {
-	return (wasInit_ && (type_ != Types::basic_Null) && (type_ != Types::InvalidIndex));
+	return (wasInit_ && (type_ != Types::builtin_Null) && (type_ != Types::InvalidIndex));
 }
 
 FunctionSignature::operator bool() const

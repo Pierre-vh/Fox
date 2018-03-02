@@ -36,7 +36,7 @@ namespace Moonshot::TypeUtils
 	
 	inline constexpr bool isValue(const std::size_t& t)
 	{
-		return isBasic(t) || (t == Types::basic_VarRef);
+		return isBasic(t) || (t == Types::builtin_VarRef);
 	}
 
 	template <typename T>
@@ -49,7 +49,7 @@ namespace Moonshot::TypeUtils
 	template<>
 	struct typeIndex<NullType>
 	{
-		constexpr static std::size_t index = Types::basic_Null;
+		constexpr static std::size_t index = Types::builtin_Null;
 	};
 	// int
 	template<>
@@ -85,7 +85,7 @@ namespace Moonshot::TypeUtils
 	template<>
 	struct typeIndex<Moonshot::var::varRef>
 	{
-		constexpr static std::size_t index = Types::basic_VarRef;
+		constexpr static std::size_t index = Types::builtin_VarRef;
 	};
 	// FValue traits class, to use with templated functions.
 	template <typename T>

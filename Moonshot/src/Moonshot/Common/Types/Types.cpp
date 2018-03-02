@@ -51,7 +51,7 @@ var::varattr::varattr(const std::string & nm, const std::size_t & ty, const bool
 
 var::varattr::operator bool() const
 {
-	return (wasInit_ && (type_ != Types::basic_Null) && (type_ != Types::InvalidIndex));
+	return (wasInit_ && (type_ != Types::builtin_Null) && (type_ != Types::InvalidIndex));
 }
 
 var::varRef var::varattr::createRef() const

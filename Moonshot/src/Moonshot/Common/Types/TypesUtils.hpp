@@ -46,13 +46,13 @@ namespace Moonshot::TypeUtils
 
 	const std::map<std::size_t, std::string> kType_dict =
 	{
-		{ Types::basic_Null			, "NULL" },
+		{ Types::builtin_Null			, "NULL" },
 		{ Types::basic_Int				, "INT" },
 		{ Types::basic_Float			, "FLOAT" },
 		{ Types::basic_Char			, "CHAR" },
 		{ Types::basic_Bool			, "BOOL" },
 		{ Types::basic_String				, "STRING" },
-		{ Types::basic_VarRef			, "VAR_ATTR (ref)" },
+		{ Types::builtin_VarRef			, "VAR_ATTR (ref)" },
 		{ Types::InvalidIndex		, "!INVALID!" }
 	};
 }

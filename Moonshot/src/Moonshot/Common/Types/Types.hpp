@@ -30,6 +30,15 @@ typedef std::variant<NullType, IntType, float, CharType, std::string, bool, Moon
 
 namespace Moonshot
 {
+	class FoxType
+	{
+		public:
+			FoxType() = default;
+			FoxType(const std::size_t &basicIndex);
+
+			bool isBuiltin() const;
+		private:
+	};
 	class TypeLimits
 	{
 		public:
@@ -40,15 +49,23 @@ namespace Moonshot
 	};
 	class Types
 	{
+		/*
+			Notes:
+				Basic = a basic type that is available to the users.
+				Builtin = a builtin type, that is available to the compiler to use, but not necessarily to the user.
+
+				All basic types are builtin.
+				Not all builtin types are basic.
+		*/
 		public:
 			static constexpr std::size_t InvalidIndex	= (std::numeric_limits<std::size_t>::max)();
-			static constexpr std::size_t basic_Null		= 0;
+			static constexpr std::size_t builtin_Null		= 0;
 			static constexpr std::size_t basic_Int		= 1;
 			static constexpr std::size_t basic_Float	= 2;
 			static constexpr std::size_t basic_Char		= 3;
 			static constexpr std::size_t basic_String	= 4;
 			static constexpr std::size_t basic_Bool		= 5;
-			static constexpr std::size_t basic_VarRef	= 6;
+			static constexpr std::size_t builtin_VarRef	= 6;
 	};
 	namespace var
 	{
@@ -71,7 +88,7 @@ namespace Moonshot
 			// Variable's attribute
 			bool isConst_ = false;
 			std::string name_ = "";
-			std::size_t type_ = Types::basic_Null;
+			std::size_t type_ = Types::builtin_Null;
 
 			varRef createRef() const;
 
