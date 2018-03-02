@@ -32,9 +32,9 @@ namespace Moonshot::TypeUtils
 		{
 			switch (lhs)
 			{
-				case indexes::fval_char:
-				case indexes::fval_str:
-					return	(rhs == indexes::fval_char) || (rhs == indexes::fval_str);
+				case Types::basic_Char:
+				case Types::basic_String:
+					return	(rhs == Types::basic_Char) || (rhs == Types::basic_String);
 				default:
 					return false;
 			}
@@ -46,13 +46,13 @@ namespace Moonshot::TypeUtils
 
 	const std::map<std::size_t, std::string> kType_dict =
 	{
-		{ indexes::fval_null			, "NULL" },
-		{ indexes::fval_int				, "INT" },
-		{ indexes::fval_float			, "FLOAT" },
-		{ indexes::fval_char			, "CHAR" },
-		{ indexes::fval_bool			, "BOOL" },
-		{ indexes::fval_str				, "STRING" },
-		{ indexes::fval_varRef			, "VAR_ATTR (ref)" },
-		{ indexes::invalid_index		, "!INVALID!" }
+		{ Types::basic_Null			, "NULL" },
+		{ Types::basic_Int				, "INT" },
+		{ Types::basic_Float			, "FLOAT" },
+		{ Types::basic_Char			, "CHAR" },
+		{ Types::basic_Bool			, "BOOL" },
+		{ Types::basic_String				, "STRING" },
+		{ Types::basic_VarRef			, "VAR_ATTR (ref)" },
+		{ Types::InvalidIndex		, "!INVALID!" }
 	};
 }

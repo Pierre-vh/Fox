@@ -17,7 +17,6 @@
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 
 using namespace Moonshot;
-using namespace TypeUtils;
 
 using category = Token::category;
 using sign = Token::sign;
@@ -89,15 +88,15 @@ std::size_t Parser::matchTypeKw()
 	{
 		switch (t.kw_type)
 		{
-			case keyword::T_INT:	return indexes::fval_int;
-			case keyword::T_FLOAT:	return indexes::fval_float;
-			case keyword::T_CHAR:	return indexes::fval_char;
-			case keyword::T_STRING:	return indexes::fval_str;
-			case keyword::T_BOOL:	return indexes::fval_bool;
+			case keyword::T_INT:	return Types::basic_Int;
+			case keyword::T_FLOAT:	return Types::basic_Float;
+			case keyword::T_CHAR:	return Types::basic_Char;
+			case keyword::T_STRING:	return Types::basic_String;
+			case keyword::T_BOOL:	return Types::basic_Bool;
 		}
 	}
 	state_.pos -= 1;
-	return indexes::invalid_index;
+	return Types::InvalidIndex;
 }
 
 Token Parser::getToken() const

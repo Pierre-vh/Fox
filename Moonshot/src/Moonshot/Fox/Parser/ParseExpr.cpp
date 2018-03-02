@@ -11,7 +11,6 @@
 #include "Parser.hpp"
 
 using namespace Moonshot;
-using namespace TypeUtils;
 
 using category = Token::category;
 using sign = Token::sign;
@@ -122,11 +121,11 @@ ParsingResult<IASTExpr>  Parser::parseCastExpr()
 {
 	if (auto parse_res = parsePrefixExpr())
 	{
-		std::size_t casttype = indexes::invalid_index;
+		std::size_t casttype = Types::InvalidIndex;
 		// Search for a (optional) cast: "as" <type>
 		if (matchKeyword(keyword::TC_AS))
 		{
-			if ((casttype = matchTypeKw()) != indexes::invalid_index)
+			if ((casttype = matchTypeKw()) != Types::InvalidIndex)
 			{
 				// If found, apply it to current node.
 				auto rtr = std::make_unique<ASTCastExpr>();

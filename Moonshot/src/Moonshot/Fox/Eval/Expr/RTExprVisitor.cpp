@@ -190,7 +190,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			if (fitsInValue(node.resultType_, result)) // If the results fits or we desire to cast the result
 				value_ = CastUtilities::castTo(context_, node.resultType_, result);		// Cast to result type
 			else
-				value_ = CastUtilities::castTo(context_, indexes::fval_float, result);	// Cast to float instead to keep information from being lost.
+				value_ = CastUtilities::castTo(context_, Types::basic_Float, result);	// Cast to float instead to keep information from being lost.
 		}
 		return;
 	}
@@ -434,19 +434,19 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 {
 	switch (typ)
 	{
-		case indexes::fval_bool:
+		case Types::basic_Bool:
 			return true; // When we want to cast to bool, we usually don't care to lose information, we just want a true/false result.
-		case indexes::fval_int:
-			if (d < limits::IntType_MIN || d > limits::IntType_MAX )
+		case Types::basic_Int:
+			if (d < TypeLimits::IntType_MIN || d > TypeLimits::IntType_MAX )
 				return false;
 			return true;
-		case indexes::fval_float:
+		case Types::basic_Float:
 			return true;
-		case indexes::fval_char:
-			if (d < limits::CharType_MIN || d > limits::CharType_MAX)
+		case Types::basic_Char:
+			if (d < TypeLimits::CharType_MIN || d > TypeLimits::CharType_MAX)
 				return false;
 			return true;
-		case indexes::invalid_index:
+		case Types::InvalidIndex:
 		    throw std::logic_error("Index was invalid");
 		default:
 			if (!isBasic(typ))

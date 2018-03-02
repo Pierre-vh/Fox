@@ -11,7 +11,6 @@
 #include "Parser.hpp"
 
 using namespace Moonshot;
-using namespace TypeUtils;
 
 using sign = Token::sign;
 using keyword = Token::keyword;
@@ -27,6 +26,7 @@ using keyword = Token::keyword;
 #include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTNullStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTFunctionDeclaration.hpp"
 
 ParsingResult<IASTStmt> Parser::parseCompoundStatement()
 {
@@ -89,6 +89,7 @@ ParsingResult<ASTFunctionDeclaration> Parser::parseFunctionDeclaration()
 		<arg_list_decl> = [<arg_decl> {',' <arg_decl>}*]
 		<arg_decl> = <id> : ["const"]['&'] <type>
 	*/
+	return ParsingResult<ASTFunctionDeclaration>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<IASTStmt> Parser::parseCondition()
@@ -156,7 +157,7 @@ ParsingResult<IASTStmt> Parser::parseVarDeclStmt()
 	std::unique_ptr<IASTExpr> initExpr = 0;
 
 	bool isVarConst = false;
-	std::size_t varType = indexes::invalid_index;
+	std::size_t varType = Types::InvalidIndex;
 	std::string varName;
 
 	if (matchKeyword(keyword::D_LET))
@@ -243,12 +244,12 @@ std::tuple<bool, bool, std::size_t> Parser::parseTypeSpec()
 		if (matchKeyword(keyword::T_CONST))
 			isConst = true;
 		// Now match the type keyword
-		if ((typ = matchTypeKw()) != indexes::invalid_index)
+		if ((typ = matchTypeKw()) != Types::InvalidIndex)
 			return { true , isConst , typ };
 
 		errorExpected("Expected a type name");
 	}
-	return { false, false, indexes::invalid_index };
+	return { false, false, Types::InvalidIndex };
 }
 
 ParsingResult<IASTStmt> Parser::parseExprStmt()

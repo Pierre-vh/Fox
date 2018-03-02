@@ -22,12 +22,12 @@ var::argattr::argattr(const std::string & nm, const std::size_t & ty, const bool
 
 var::argattr::operator bool() const
 {
-	return (wasInit_ && (type_ != TypeUtils::indexes::fval_null) && (type_ != TypeUtils::indexes::invalid_index));
+	return (wasInit_ && (type_ != Types::basic_Null) && (type_ != Types::InvalidIndex));
 }
 
 FunctionSignature::operator bool() const
 {
-	if ((name_ != "") && (returnType_ != TypeUtils::indexes::invalid_index))
+	if ((name_ != "") && (returnType_ != Types::InvalidIndex))
 	{
 		for (const auto& elem : args_)
 		{

@@ -37,7 +37,7 @@ void Dumper::visit(ASTBinaryExpr & node)
 
 	std::cout << tabs() << "BinaryExpression : Operator " << op;
 	// print planned result type if there's one
-	if (node.resultType_ != 0 && node.resultType_ != indexes::invalid_index)
+	if (node.resultType_ != 0 && node.resultType_ != Types::InvalidIndex)
 		std::cout << ", Return type : " << indexToTypeName(node.resultType_);
 	// newline
 	std::cout << "\n";
@@ -76,7 +76,7 @@ void Dumper::visit(ASTUnaryExpr & node)
 	if (node.resultType_ > 10)
 		std::cout << "";
 
-	if (node.resultType_ != 0 && node.resultType_ != indexes::invalid_index)
+	if (node.resultType_ != 0 && node.resultType_ != Types::InvalidIndex)
 		std::cout << ", Return type : " << indexToTypeName(node.resultType_);
 
 	std::cout << "\n";

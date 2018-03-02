@@ -61,21 +61,21 @@ FVal TypeUtils::getSampleFValForIndex(const std::size_t & t)
 {
 	switch (t)
 	{
-	case indexes::fval_null:
+	case Types::basic_Null:
 		return FVal();
-	case indexes::fval_int:
+	case Types::basic_Int:
 		return FVal((IntType)0);
-	case indexes::fval_float:
+	case Types::basic_Float:
 		return FVal((float)0.0f);
-	case indexes::fval_char:
+	case Types::basic_Char:
 		return FVal((CharType)0);
-	case indexes::fval_str:
+	case Types::basic_String:
 		return FVal(std::string(""));
-	case indexes::fval_bool:
+	case Types::basic_Bool:
 		return FVal((bool)false);
-	case indexes::fval_varRef:
+	case Types::basic_VarRef:
 		return FVal(var::varattr());
-	case indexes::invalid_index:
+	case Types::InvalidIndex:
 		throw std::logic_error("Tried to get a sample FVal with an invalid index");
 		return FVal();
 	default:
@@ -94,7 +94,7 @@ std::string TypeUtils::indexToTypeName(const std::size_t & t)
 
 bool TypeUtils::canAssign(const std::size_t & lhs, const std::size_t & rhs)
 {
-	if ((rhs == indexes::fval_null) || (lhs == indexes::fval_null))
+	if ((rhs == Types::basic_Null) || (lhs == Types::basic_Null))
 		return false; // Can't assign a void expression to a variable.
 	if (!isBasic(lhs) || !isBasic(rhs))
 		// If one of the types isn't basic, no assignement possible.
@@ -119,7 +119,7 @@ bool TypeUtils::canImplicitelyCastTo(const std::size_t & goal, const std::size_t
 	{
 		if (isArithmetic(goal) && isArithmetic(basetype)) // arith -> arith
 			return true;
-		else if ((basetype == indexes::fval_char) && (goal == indexes::fval_str)) // char -> str
+		else if ((basetype == Types::basic_Char) && (goal == Types::basic_String)) // char -> str
 			return true;
 		return (basetype == goal); // same type -> same type
 	}
@@ -135,8 +135,8 @@ bool TypeUtils::canExplicitelyCastTo(const std::size_t & goal, const std::size_t
 		return true;
 	else
 	{
-		return	((goal == indexes::fval_str) && isArithmetic(basetype)) || // arith -> str
-				(isArithmetic(goal) && (basetype == indexes::fval_str)); // str -> arith
+		return	((goal == Types::basic_String) && isArithmetic(basetype)) || // arith -> str
+				(isArithmetic(goal) && (basetype == Types::basic_String)); // str -> arith
 	}
 	return false;
 }
@@ -145,16 +145,16 @@ std::size_t TypeUtils::getBiggest(const std::size_t & lhs, const std::size_t & r
 {
 	if (isArithmetic(lhs) && isArithmetic(rhs))
 	{
-		if ((lhs == indexes::fval_float) || (rhs == indexes::fval_float))
-			return indexes::fval_float;
-		else if ((lhs == indexes::fval_int) || (rhs == indexes::fval_int))
-			return indexes::fval_int;
-		else if ((lhs == indexes::fval_char) || (rhs == indexes::fval_char))
-			return indexes::fval_char;
+		if ((lhs == Types::basic_Float) || (rhs == Types::basic_Float))
+			return Types::basic_Float;
+		else if ((lhs == Types::basic_Int) || (rhs == Types::basic_Int))
+			return Types::basic_Int;
+		else if ((lhs == Types::basic_Char) || (rhs == Types::basic_Char))
+			return Types::basic_Char;
 		else
-			return indexes::fval_bool;
+			return Types::basic_Bool;
 	}
 	else
 		throw std::logic_error("Can't return the biggest of two types when one of the two type isn't arithmetic.");
-	return indexes::invalid_index;
+	return Types::InvalidIndex;
 }

@@ -19,11 +19,11 @@ namespace Moonshot::TypeUtils
 	{
 		switch (t)
 		{
-			case indexes::fval_int:
-			case indexes::fval_float:
-			case indexes::fval_char:
-			case indexes::fval_bool:
-			case indexes::fval_str:
+			case Types::basic_Int:
+			case Types::basic_Float:
+			case Types::basic_Char:
+			case Types::basic_Bool:
+			case Types::basic_String:
 				return true;
 			default:
 				return false;
@@ -31,61 +31,61 @@ namespace Moonshot::TypeUtils
 	}
 	inline constexpr bool isArithmetic(const std::size_t& t)
 	{
-		return (t == indexes::fval_float) || (t == indexes::fval_bool) || (t == indexes::fval_int);
+		return (t == Types::basic_Float) || (t == Types::basic_Bool) || (t == Types::basic_Int);
 	}
 	
 	inline constexpr bool isValue(const std::size_t& t)
 	{
-		return isBasic(t) || (t == indexes::fval_varRef);
+		return isBasic(t) || (t == Types::basic_VarRef);
 	}
 
 	template <typename T>
 	struct typeIndex
 	{
-		constexpr static std::size_t index = indexes::invalid_index;
+		constexpr static std::size_t index = Types::InvalidIndex;
 	};
 	// Specializations
 	// monostate
 	template<>
 	struct typeIndex<NullType>
 	{
-		constexpr static std::size_t index = indexes::fval_null;
+		constexpr static std::size_t index = Types::basic_Null;
 	};
 	// int
 	template<>
 	struct typeIndex<IntType>
 	{
-		constexpr static std::size_t index = indexes::fval_int;
+		constexpr static std::size_t index = Types::basic_Int;
 	};
 	// float
 	template<>
 	struct typeIndex<float>
 	{
-		constexpr static std::size_t index = indexes::fval_float;
+		constexpr static std::size_t index = Types::basic_Float;
 	};
 	// char
 	template<>
 	struct typeIndex<CharType>
 	{
-		constexpr static std::size_t index = indexes::fval_char;
+		constexpr static std::size_t index = Types::basic_Char;
 	};
 	// string
 	template<>
 	struct typeIndex<std::string>
 	{
-		constexpr static std::size_t index = indexes::fval_str;
+		constexpr static std::size_t index = Types::basic_String;
 	};
 	// bool
 	template<>
 	struct typeIndex<bool>
 	{
-		constexpr static std::size_t index = indexes::fval_bool;
+		constexpr static std::size_t index = Types::basic_Bool;
 	};
 	// monostate
 	template<>
 	struct typeIndex<Moonshot::var::varRef>
 	{
-		constexpr static std::size_t index = indexes::fval_varRef;
+		constexpr static std::size_t index = Types::basic_VarRef;
 	};
 	// FValue traits class, to use with templated functions.
 	template <typename T>

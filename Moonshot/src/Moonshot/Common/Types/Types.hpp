@@ -30,29 +30,26 @@ typedef std::variant<NullType, IntType, float, CharType, std::string, bool, Moon
 
 namespace Moonshot
 {
-	namespace limits
+	class TypeLimits
 	{
-		static constexpr IntType IntType_MAX = (std::numeric_limits<IntType>::max)();
-		static constexpr IntType IntType_MIN = (std::numeric_limits<IntType>::min)();
-		static constexpr CharType CharType_MAX = (std::numeric_limits<CharType>::max)();
-		static constexpr CharType CharType_MIN = (std::numeric_limits<CharType>::min)();
-	}
-	namespace TypeUtils
+		public:
+			static constexpr IntType IntType_MAX = (std::numeric_limits<IntType>::max)();
+			static constexpr IntType IntType_MIN = (std::numeric_limits<IntType>::min)();
+			static constexpr CharType CharType_MAX = (std::numeric_limits<CharType>::max)();
+			static constexpr CharType CharType_MIN = (std::numeric_limits<CharType>::min)();
+	};
+	class Types
 	{
-		// Variables : Indexes
-		namespace indexes
-		{
-			static constexpr std::size_t invalid_index	= (std::numeric_limits<std::size_t>::max)();
-
-			static constexpr std::size_t fval_null		= 0;
-			static constexpr std::size_t fval_int		= 1;
-			static constexpr std::size_t fval_float		= 2;
-			static constexpr std::size_t fval_char		= 3;
-			static constexpr std::size_t fval_str		= 4;
-			static constexpr std::size_t fval_bool		= 5;
-			static constexpr std::size_t fval_varRef	= 6;
-		}
-	}
+		public:
+			static constexpr std::size_t InvalidIndex	= (std::numeric_limits<std::size_t>::max)();
+			static constexpr std::size_t basic_Null		= 0;
+			static constexpr std::size_t basic_Int		= 1;
+			static constexpr std::size_t basic_Float	= 2;
+			static constexpr std::size_t basic_Char		= 3;
+			static constexpr std::size_t basic_String	= 4;
+			static constexpr std::size_t basic_Bool		= 5;
+			static constexpr std::size_t basic_VarRef	= 6;
+	};
 	namespace var
 	{
 		struct varRef
@@ -74,7 +71,7 @@ namespace Moonshot
 			// Variable's attribute
 			bool isConst_ = false;
 			std::string name_ = "";
-			std::size_t type_ = TypeUtils::indexes::fval_null;
+			std::size_t type_ = Types::basic_Null;
 
 			varRef createRef() const;
 

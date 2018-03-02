@@ -23,7 +23,7 @@ namespace Moonshot
 {
 	enum class binaryOperator;
 	class Context;
-	class TypeCheckVisitor : public ITypedVisitor<std::size_t> // size_t because we return indexes in FVal to represent types.
+	class TypeCheckVisitor : public ITypedVisitor<std::size_t> // size_t because we return Types in FVal to represent types.
 	{
 		public:
 			TypeCheckVisitor(Context& c,const bool& testmode = false);

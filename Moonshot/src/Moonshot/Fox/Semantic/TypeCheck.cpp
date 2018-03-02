@@ -28,7 +28,7 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 	if (testmode)
 	{
 		datamap_.declareValue(
-			var::varattr("TESTVALUE", indexes::fval_int, false),
+			var::varattr("TESTVALUE", Types::basic_Int, false),
 			FVal(IntType())
 		);
 	}
@@ -90,7 +90,7 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 	// Get the child's return type. Don't change anything, as rtr_value is already set by the accept function.
 	const auto childttype = visitAndGetResult(node.child_.get());
 	// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATIVE on a string.
-	if (childttype == indexes::fval_str)
+	if (childttype == Types::basic_String)
 	{
 		// no unary op can be performed on a string
 		std::stringstream output;
@@ -99,9 +99,9 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 	}
 	// SPECIAL CASES : (LOGICNOT) and (NEGATIVE ON BOOLEANS)
 	if (node.op_ == unaryOperator::LOGICNOT)
-		value_ = indexes::fval_bool; // Return type is a boolean
-	else if ((node.op_ == unaryOperator::NEGATIVE) && (value_ == indexes::fval_bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
-		value_ = indexes::fval_int;
+		value_ = Types::basic_Bool; // Return type is a boolean
+	else if ((node.op_ == unaryOperator::NEGATIVE) && (value_ == Types::basic_Bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+		value_ = Types::basic_Int;
 
 	node.resultType_  = value_;
 }
@@ -119,7 +119,7 @@ void TypeCheckVisitor::visit(ASTCastExpr & node)
 	else
 	{
 		context_.reportError("Can't perform cast : " + indexToTypeName(result) + " to " + indexToTypeName(node.getCastGoal()));
-		value_ = indexes::invalid_index;
+		value_ = Types::InvalidIndex;
 	}
 }
 
@@ -157,7 +157,7 @@ void TypeCheckVisitor::visit(ASTVarCall & node)
 	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN) && searchResult.isConst_)
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
-		value_ = indexes::invalid_index;
+		value_ = Types::InvalidIndex;
 	}
 	else 
 		value_ =  searchResult.type_; // The error will be thrown by the symbols table itself if the value doesn't exist.
@@ -179,7 +179,7 @@ bool TypeCheckVisitor::shouldOpReturnFloat(const binaryOperator & op) const
 std::size_t TypeCheckVisitor::getExprResultType(const binaryOperator& op, std::size_t& lhs, const std::size_t& rhs)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. 
-		return indexes::invalid_index;
+		return Types::InvalidIndex;
 	// first, quick, simple check : we can only verify results between 2 basic types.
 	if (op == binaryOperator::ASSIGN)
 	{
@@ -190,11 +190,11 @@ std::size_t TypeCheckVisitor::getExprResultType(const binaryOperator& op, std::s
 			std::stringstream output;
 			output << "Can't assign a " << indexToTypeName(rhs) << " to a variable of type " << indexToTypeName(lhs) << std::endl;
 			context_.reportError(output.str());
-			return indexes::invalid_index;
+			return Types::InvalidIndex;
 		}
 	}
 	else if (op == binaryOperator::CONCAT)
-		return indexes::fval_str;
+		return Types::basic_String;
 	else if (isBasic(lhs) && isBasic(rhs))
 	{
 		if (lhs == rhs) // Both sides are identical
@@ -205,41 +205,41 @@ std::size_t TypeCheckVisitor::getExprResultType(const binaryOperator& op, std::s
 					&& !isArithmetic(lhs)) // If we have a and/or and types aren't arithmetic : problem
 				{
 					context_.reportError("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
-					return indexes::invalid_index;
+					return Types::InvalidIndex;
 				}
-				return indexes::fval_bool; // Else, it's normal, return type's a boolean.
+				return Types::basic_Bool; // Else, it's normal, return type's a boolean.
 			}
-			else if ((lhs == indexes::fval_str) && (op != binaryOperator::CONCAT)) // We have strings and it's not a concat op :
+			else if ((lhs == Types::basic_String) && (op != binaryOperator::CONCAT)) // We have strings and it's not a concat op :
 			{
 				context_.reportError("Can't perform operations other than addition (concatenation) on strings");
-				return indexes::invalid_index;
+				return Types::InvalidIndex;
 			}
-			else if (lhs == indexes::fval_bool) // We have bools and they're not compared : the result will be an integer.
-				return	indexes::fval_bool;
+			else if (lhs == Types::basic_Bool) // We have bools and they're not compared : the result will be an integer.
+				return	Types::basic_Bool;
 			else
-				return shouldOpReturnFloat(op) ? indexes::fval_float : lhs; // Else, we just keep the type, unless it's a divison
+				return shouldOpReturnFloat(op) ? Types::basic_Float : lhs; // Else, we just keep the type, unless it's a divison
 		}
 		else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // Two different types, and one of them is a string?
 		{
 			context_.reportError("Can't perform an operation on a string and a numeric type."); 		// We already know the type is different (see the first if) so we can logically assume that we have a string with a numeric type. Error!
-			return indexes::invalid_index;
+			return Types::InvalidIndex;
 		}
 		else if (isComparison(op)) // Comparing 2 arithmetic types ? return type's a boolean
-			return indexes::fval_bool;
+			return Types::basic_Bool;
 		else
 		{
 			if (shouldOpReturnFloat(op))
-				return indexes::fval_float; // if op = division Or exp, return type's a float, because they may return floats under certain circumstances
+				return Types::basic_Float; // if op = division Or exp, return type's a float, because they may return floats under certain circumstances
 			else
 				return getBiggest(lhs, rhs); // Else, it's just a normal operation, and the return type is the one of the "biggest" of the 2 sides
 		}
-		return indexes::invalid_index;
+		return Types::InvalidIndex;
 	}
 	else // One of the types is a non-basic type.
 	{
 		context_.reportError("Can't typecheck an expression where lhs,rhs or both sides aren't basic types (int/char/bool/string/float).");
-		return indexes::invalid_index;
+		return Types::InvalidIndex;
 	}
 	throw std::logic_error("getExprResultType() Defaulted.");
-	// return indexes::invalid_index;
+	// return Types::InvalidIndex;
 }
