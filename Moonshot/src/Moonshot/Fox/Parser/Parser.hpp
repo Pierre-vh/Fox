@@ -91,6 +91,10 @@ namespace Moonshot
 			
 			// STATEMENTS : WHILE LOOP
 			ParsingResult<IASTStmt> parseWhileLoop();
+
+			// FUNCTION DECLARATION
+			ParsingResult<ASTFunctionDeclaration> parseFunctionDeclaration();
+			
 		private:
 			// Private parse functions
 

@@ -82,6 +82,15 @@ ParsingResult<IASTStmt> Parser::parseWhileLoop()
 	return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
 }
 
+ParsingResult<ASTFunctionDeclaration> Parser::parseFunctionDeclaration()
+{
+	/* 
+		<func_decl> = "func" <id> '(' [<arg_list_decl>] ')'[':' <type>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
+		<arg_list_decl> = [<arg_decl> {',' <arg_decl>}*]
+		<arg_decl> = <id> : ["const"]['&'] <type>
+	*/
+}
+
 ParsingResult<IASTStmt> Parser::parseCondition()
 {
 	//<condition> = "if" <parens_expr> <statement> ["else" <statement>]
