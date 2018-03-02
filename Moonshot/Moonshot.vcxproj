@@ -211,6 +211,7 @@
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDeclaration.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTNullStmt.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ForwardDeclarations.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTDeclaration.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTExpr.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Common\FunctionSignature.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Parser\ParsingResult.hpp" />
