@@ -74,9 +74,8 @@ you'll be greeted with an error!)
 <while_loop> 		= "while" <parens_expr> <statement>
 
 ##SCRAPPED IDEA : MIGHT RETURN LATER##
-	<namespace> 		= {<id> '.'} 						// This designates namespaces, examples : "Fox." "Fox.io."
-	// all of that package system will return at some point later, I just want to get the backend up and running before implementing multiple file support
-	<ext_id>		= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"
-	<general_id>	= <ext_id> | <id>
-	##Importing Packages##
-	<import_stmt>   = ( "import" | "using" ) <ext_id> ';'
+<namespace> 		= {<id> '.'} 						// This designates namespaces, examples : "Fox." "Fox.io."
+<ext_id>		= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"
+<general_id>	= <ext_id> | <id>
+##Importing Packages##
+<import_stmt>   = ( "import" | "using" ) <ext_id> ';'
