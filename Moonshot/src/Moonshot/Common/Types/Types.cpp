@@ -66,7 +66,7 @@ std::string var::varattr::dump() const
 	std::stringstream output;
 	output << "[name:\"" << name_ << "\" "
 		<< "type: " << (isConst_ ? "CONST " : "");
-	output << FValUtils::indexToTypeName(type_.getBuiltInTypeIndex()) << "]";
+	output << type_.getTypeName() << "]";
 	return output.str();
 }
 
@@ -98,7 +98,7 @@ std::size_t FoxType::getBuiltInTypeIndex() const
 
 std::string FoxType::getTypeName() const
 {
-	return FValUtils::indexToTypeName(builtin_type_index_);
+	return FValUtils::getTypenameForIndex(builtin_type_index_);
 }
 
 FoxType & FoxType::operator=(const std::size_t & basicIndex)

@@ -30,13 +30,12 @@ typedef std::variant<NullType, IntType, float, CharType, std::string, bool, Moon
 
 namespace Moonshot
 {
-	class TypeLimits
+	namespace TypeLimits
 	{
-		public:
-			static constexpr IntType IntType_MAX = (std::numeric_limits<IntType>::max)();
-			static constexpr IntType IntType_MIN = (std::numeric_limits<IntType>::min)();
-			static constexpr CharType CharType_MAX = (std::numeric_limits<CharType>::max)();
-			static constexpr CharType CharType_MIN = (std::numeric_limits<CharType>::min)();
+		static constexpr IntType IntType_MAX = (std::numeric_limits<IntType>::max)();
+		static constexpr IntType IntType_MIN = (std::numeric_limits<IntType>::min)();
+		static constexpr CharType CharType_MAX = (std::numeric_limits<CharType>::max)();
+		static constexpr CharType CharType_MIN = (std::numeric_limits<CharType>::min)();
 	};
 	/*
 		Notes:
@@ -47,17 +46,16 @@ namespace Moonshot
 		All basic types are builtin.
 		Not all builtin types are basic.
 	*/
-	class TypeIndex
+	namespace TypeIndex
 	{
-		public:
-			static constexpr std::size_t InvalidIndex	= (std::numeric_limits<std::size_t>::max)();
-			static constexpr std::size_t Null_Type		= 0;
-			static constexpr std::size_t basic_Int		= 1;
-			static constexpr std::size_t basic_Float	= 2;
-			static constexpr std::size_t basic_Char		= 3;
-			static constexpr std::size_t basic_String	= 4;
-			static constexpr std::size_t basic_Bool		= 5;
-			static constexpr std::size_t VarRef	= 6;
+		static constexpr std::size_t InvalidIndex	= (std::numeric_limits<std::size_t>::max)();
+		static constexpr std::size_t Null_Type		= 0;
+		static constexpr std::size_t basic_Int		= 1;
+		static constexpr std::size_t basic_Float	= 2;
+		static constexpr std::size_t basic_Char		= 3;
+		static constexpr std::size_t basic_String	= 4;
+		static constexpr std::size_t basic_Bool		= 5;
+		static constexpr std::size_t VarRef	= 6;
 	};
 	// The base class you should use to carry type information around.
 	class FoxType

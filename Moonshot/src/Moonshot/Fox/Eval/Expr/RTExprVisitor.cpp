@@ -308,9 +308,9 @@ bool RTExprVisitor::compareVal(const binaryOperator & op, const FVal & l, const 
 	const double rval = fvalToDouble(rcpy);
 	switch (op)
 	{
-		case binaryOperator::AND:
+		case binaryOperator::LOGIC_AND:
 			return (lval != 0) && (rval != 0);
-		case binaryOperator::OR:
+		case binaryOperator::LOGIC_OR:
 			return (lval != 0) || (rval != 0);
 		case binaryOperator::LESS_OR_EQUAL:
 			return lval <= rval;
@@ -346,9 +346,9 @@ bool RTExprVisitor::compareChar(const binaryOperator & op, const CharType & lhs,
 {
 	switch (op)
 	{
-		case binaryOperator::AND:
+		case binaryOperator::LOGIC_AND:
 			return (lhs != 0) && (rhs != 0);
-		case binaryOperator::OR:
+		case binaryOperator::LOGIC_OR:
 			return (lhs != 0) || (rhs != 0);
 		case binaryOperator::LESS_OR_EQUAL:
 			return lhs <= rhs;

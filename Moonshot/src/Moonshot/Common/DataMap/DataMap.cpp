@@ -64,7 +64,7 @@ void DataMap::dump() const
 	out << "Dumping symbols table...\n";
 	for (auto& elem : sym_table_)
 	{
-		out << "NAME: " << elem.first.name_ << " TYPE: " << FValUtils::indexToTypeName(elem.first.type_.getBuiltInTypeIndex()) << " ---> VALUE: " << FValUtils::dumpFVal(elem.second) << std::endl;
+		out << "NAME: " << elem.first.name_ << " TYPE: " << elem.first.type_.getTypeName() << " ---> VALUE: " << FValUtils::dumpFVal(elem.second) << std::endl;
 	}
 	context_.logMessage(out.str());
 	out.clear();
@@ -93,13 +93,13 @@ bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const b
 	);
 	if (it != sym_table_.end())
 	{
-		if (it->first.type_ != vvalue.index()) //  trying to modify the type ? not on my watch.
+		if (it->first.type_ != FValUtils::FValToFoxType(vvalue)) //  trying to modify the type ? not on my watch.
 		{
 			// Implicit cast
 			if (LOG_IMPLICIT_CASTS)
 			{
 				std::stringstream out;
-				out << "Implicit cast : Attempted to store a " << FValUtils::indexToTypeName(vvalue.index()) << " into the variable ";
+				out << "Implicit cast : Attempted to store a FVal of type" << FValUtils::getFValTypeName(vvalue) << " into the variable ";
 				out << vname << " (of type " << it->first.type_.getTypeName() << ")\n";
 				out << "Attempting cast to the desired type...";
 				context_.logMessage(out.str());

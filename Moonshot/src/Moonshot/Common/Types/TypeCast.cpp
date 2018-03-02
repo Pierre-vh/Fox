@@ -29,7 +29,10 @@ FVal CastUtilities::performImplicitCast(Context& context_, const FoxType& goal, 
 	std::visit(
 		[&](const auto& a, const auto& b)
 		{
-			rtr = castTypeTo_implicit(context_,a, b);
+			using Ty = std::decay_t<decltype(a)>;
+			std::pair<bool,Ty> result = castTypeTo_implicit<Ty>(context_, b);
+			rtr.first = result.first;
+			rtr.second = FVal(result.second);
 		},
 			FValUtils::getSampleFValForIndex(goal.getBuiltInTypeIndex()), val
 		);
@@ -47,7 +50,10 @@ FVal CastUtilities::performExplicitCast(Context & context_, const FoxType& goal,
 	std::visit(
 		[&](const auto& a, const auto& b)
 		{
-			rtr = castTypeTo_explicit(context_, a, b);
+			using Ty = std::decay_t<decltype(a)>;
+			std::pair<bool, Ty> result = castTypeTo_explicit<Ty>(context_, b);
+			rtr.first = result.first;
+			rtr.second = FVal(result.second);
 		},
 			FValUtils::getSampleFValForIndex(goal.getBuiltInTypeIndex()), val
 		);

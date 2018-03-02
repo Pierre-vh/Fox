@@ -30,6 +30,11 @@ bool FValUtils::isValue(const FVal & fv)
 	return IndexUtils::isValue(fv.index());
 }
 
+FoxType FValUtils::FValToFoxType(const FVal & fv)
+{
+	return FoxType(fv.index());
+}
+
 std::string FValUtils::dumpFVal(const FVal & fv)
 {
 	std::stringstream output;
@@ -89,10 +94,16 @@ FVal FValUtils::getSampleFValForIndex(const std::size_t & t)
 	}
 }
 
-std::string FValUtils::indexToTypeName(const std::size_t & t)
+std::string FValUtils::getFValTypeName(const FVal & t)
 {
-	auto a = kBuiltinTypes_dict.find(t);
-	if (a != kBuiltinTypes_dict.end())
-		return a->second;
-	return "!INVALID_TYPE!";
+	return FValToFoxType(t).getTypeName();
+}
+
+std::string FValUtils::getTypenameForIndex(const std::size_t & ind)
+{
+	auto searchres = kBuiltinTypes_dict.find(ind);
+	if (searchres != kBuiltinTypes_dict.end())
+		return searchres->second;
+	else
+		throw std::invalid_argument("Unknown index in dictionary");
 }

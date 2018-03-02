@@ -397,14 +397,14 @@ std::pair<bool, binaryOperator> Parser::matchBinaryOp(const char & priority)
 			if (pk.isValid() && (pk.sign_type == sign::S_AND) && (cur.sign_type == sign::S_AND))
 			{
 				state_.pos += 1;
-				return { true,binaryOperator::AND };
+				return { true,binaryOperator::LOGIC_AND };
 			}
 			break;
 		case 5:
 			if (pk.isValid() && (pk.sign_type == sign::S_VBAR) && (cur.sign_type == sign::S_VBAR))
 			{
 				state_.pos += 1;
-				return { true,binaryOperator::OR };
+				return { true,binaryOperator::LOGIC_OR };
 			}
 			break;
 		default:

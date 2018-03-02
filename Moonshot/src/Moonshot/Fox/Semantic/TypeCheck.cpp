@@ -210,7 +210,7 @@ FoxType TypeCheckVisitor::getExprResultType(const binaryOperator& op, FoxType& l
 		{
 			if (isComparison(op))
 			{
-				if (((op == binaryOperator::AND) || (op == binaryOperator::OR)) 
+				if (((op == binaryOperator::LOGIC_AND) || (op == binaryOperator::LOGIC_OR)) 
 					&& !lhs.isArithmetic()) // If we have a and/or and types aren't arithmetic : problem
 				{
 					context_.reportError("Operations AND (&&) and OR (||) require types convertible to boolean on each side.");
