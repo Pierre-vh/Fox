@@ -160,7 +160,9 @@
     <ClCompile Include="src\Moonshot\Common\DataMap\DataMap.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\TypesUtils.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDeclaration.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\Common\FunctionSignature.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.cpp" />
     <ClCompile Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.cpp" />
@@ -197,7 +199,6 @@
     <None Include="res\tests\conditions\condition_correct_1.fox" />
     <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
-    <None Include="src\Moonshot\Fox\AST\Visitor\readme.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Moonshot\Common\Context\Context.hpp" />
@@ -207,9 +208,11 @@
     <ClInclude Include="src\Moonshot\Common\DataMap\DataMap.hpp" />
     <ClInclude Include="src\Moonshot\Common\Exceptions\Exceptions.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8.h" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDeclaration.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTNullStmt.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ForwardDeclarations.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTExpr.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Common\FunctionSignature.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Parser\ParsingResult.hpp" />
     <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\checked.h" />
