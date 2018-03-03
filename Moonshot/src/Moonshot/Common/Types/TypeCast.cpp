@@ -34,7 +34,7 @@ FVal CastUtilities::performImplicitCast(Context& context_, const FoxType& goal, 
 			rtr.first = result.first;
 			rtr.second = FVal(result.second);
 		},
-			FValUtils::getSampleFValForIndex(goal.getBuiltInTypeIndex()), val
+			FValUtils::getSampleFValForIndex(goal.getTypeIndex()), val
 		);
 
 	if (rtr.first)
@@ -55,7 +55,7 @@ FVal CastUtilities::performExplicitCast(Context & context_, const FoxType& goal,
 			rtr.first = result.first;
 			rtr.second = FVal(result.second);
 		},
-			FValUtils::getSampleFValForIndex(goal.getBuiltInTypeIndex()), val
+			FValUtils::getSampleFValForIndex(goal.getTypeIndex()), val
 		);
 
 	if (rtr.first)
@@ -73,7 +73,7 @@ FVal CastUtilities::castTo(Context& context_, const FoxType& goal, const double 
 		{
 			rtr = castDoubleToArithType(context_,a, val);
 		},
-			FValUtils::getSampleFValForIndex(goal.getBuiltInTypeIndex())
+			FValUtils::getSampleFValForIndex(goal.getTypeIndex())
 		);
 	if (rtr.first)
 		return rtr.second;

@@ -431,7 +431,7 @@ double RTExprVisitor::performOp(const binaryOperator& op,double l,double r)
 
 bool RTExprVisitor::fitsInValue(const FoxType& typ, const double & d)
 {
-	switch (typ.getBuiltInTypeIndex())
+	switch (typ.getTypeIndex())
 	{
 		case TypeIndex::basic_Bool:
 			return true; // When we want to cast to bool, we usually don't care to lose information, we just want a true/false result.

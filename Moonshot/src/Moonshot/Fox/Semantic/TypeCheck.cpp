@@ -29,7 +29,7 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 	if (testmode)
 	{
 		datamap_.declareValue(
-			var::varattr("TESTVALUE", TypeIndex::basic_Int, false),
+			var::varattr("TESTVALUE",FoxType(TypeIndex::basic_Int,true /*this is constant*/)),
 			FVal(IntType())
 		);
 	}
@@ -155,7 +155,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 	}
 	datamap_.declareValue(
 		node.vattr_,
-		FValUtils::getSampleFValForIndex(node.vattr_.type_.getBuiltInTypeIndex()) // Using a sample fval, so we don't need to store any "real" values in there.
+		FValUtils::getSampleFValForIndex(node.vattr_.type_.getTypeIndex()) // Using a sample fval, so we don't need to store any "real" values in there.
 	);
 	// returns nothing
 }
@@ -163,7 +163,7 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 void TypeCheckVisitor::visit(ASTVarCall & node)
 {
 	auto searchResult = datamap_.retrieveVarAttr(node.varname_);
-	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN) && searchResult.isConst_)
+	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN) && searchResult.type_.isConst())
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
 		value_ = TypeIndex::InvalidIndex;

@@ -15,7 +15,6 @@ argattr::argattr(const std::string & nm, const std::size_t & ty, const bool isK,
 {
 	name_ = nm;
 	type_ = ty;
-	isConst_ = isK;
 	isRef_ = isref;
 	wasInit_ = true;
 }

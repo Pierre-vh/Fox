@@ -17,15 +17,16 @@ using namespace Moonshot;
 bool TypeUtils::canAssign(const FoxType & lhs, const FoxType & rhs)
 {
 	if ((rhs == TypeIndex::Null_Type) || (lhs == TypeIndex::Null_Type))
-		return false; // Can't assign a void expression to a variable.
+		return false;							// Can't assign a void expression to a variable.
 	if (!lhs.isBasic() || !rhs.isBasic())
-		// If one of the types isn't basic, no assignement possible.
-		return false;
-	else if (lhs == rhs) // same type to same type = ok.
-		return true;
-	// From here, we know lhs and rhs are different.
-	else if (!lhs.isArithmetic() || !rhs.isArithmetic()) // one of them is a string
-		return false;  // Can't assign a string to an arithmetic type and vice versa.
+		return false;							// If one of the types isn't basic, no assignement possible.
+	else if (lhs.isConst())						// if the lhs (the assigned value) is a constant, we do a permissive check, because we can assign something to it even if (strictly speaking) the types are different.
+		return lhs.compareWith_permissive(rhs); // (of course,we assume it's a variable declaration scenario.)
+	else if (lhs == rhs)						// exact same type to exact same type
+		return true;							// = ok
+												// From here, we know lhs and rhs are different.
+	else if (!lhs.isArithmetic() || !rhs.isArithmetic()) // one of them is a string, the other isn't, nope!
+		return (lhs.is(TypeIndex::basic_String) && rhs.is(TypeIndex::basic_Char));  // if lhs = string and rhs=char it's ok, all other cases aren't.
 					   // Else, we're good, return true.
 	return true;
 }
@@ -67,7 +68,7 @@ bool TypeUtils::canConcat(const FoxType & lhs, const FoxType & rhs)
 {
 	if (lhs.isBasic() && rhs.isBasic())
 	{
-		switch (lhs.getBuiltInTypeIndex())
+		switch (lhs.getTypeIndex())
 		{
 			case TypeIndex::basic_Char:
 			case TypeIndex::basic_String:

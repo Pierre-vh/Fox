@@ -30,11 +30,6 @@ bool FValUtils::isValue(const FVal & fv)
 	return IndexUtils::isValue(fv.index());
 }
 
-FoxType FValUtils::FValToFoxType(const FVal & fv)
-{
-	return FoxType(fv.index());
-}
-
 std::string FValUtils::dumpFVal(const FVal & fv)
 {
 	std::stringstream output;
@@ -96,7 +91,7 @@ FVal FValUtils::getSampleFValForIndex(const std::size_t & t)
 
 std::string FValUtils::getFValTypeName(const FVal & t)
 {
-	return FValToFoxType(t).getTypeName();
+	return getTypenameForIndex(t.index());
 }
 
 std::string FValUtils::getTypenameForIndex(const std::size_t & ind)

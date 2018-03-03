@@ -16,8 +16,6 @@ namespace Moonshot::FValUtils
 	bool isArithmetic(const FVal& fv);
 	bool isValue(const FVal& fv);
 
-	FoxType FValToFoxType(const FVal& fv);
-
 	std::string dumpFVal(const FVal& fv);
 
 	// Get a FVal containing a sample value for an index

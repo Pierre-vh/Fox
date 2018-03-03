@@ -49,7 +49,7 @@ var::varattr DataMap::retrieveVarAttr(const std::string & varname)
 bool DataMap::declareValue(const var::varattr & v_attr, const FVal & initVal)
 {
 	if (std::holds_alternative<NullType>(initVal))
-		return map_getEntry(v_attr,FValUtils::getSampleFValForIndex(v_attr.type_.getBuiltInTypeIndex())); // Init with a default value.
+		return map_getEntry(v_attr,FValUtils::getSampleFValForIndex(v_attr.type_.getTypeIndex())); // Init with a default value.
 	return map_getEntry(v_attr, initVal);
 }
 
@@ -93,7 +93,7 @@ bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const b
 	);
 	if (it != sym_table_.end())
 	{
-		if (it->first.type_ != FValUtils::FValToFoxType(vvalue)) //  trying to modify the type ? not on my watch.
+		if (it->first.type_ != vvalue.index()) //  trying to modify the type ? not on my watch.
 		{
 			// Implicit cast
 			if (LOG_IMPLICIT_CASTS)
@@ -110,7 +110,7 @@ bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const b
 			return false; // Bad cast : abort
 		}
 		// Error cases
-		if (it->first.isConst_ && !isDecl) // if the variable is const, and we're not in a declaration
+		if (it->first.type_.isConst() && !isDecl) // if the variable is const, and we're not in a declaration
 			context_.reportError("Can't assign a value to const variable \"" + vname + "\". Const variables must be initialized at declaration and can't be changed later.");
 		// No error ? proceed.
 		else
