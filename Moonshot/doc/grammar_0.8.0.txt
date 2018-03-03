@@ -70,9 +70,9 @@ you'll be greeted with an error!)
 <condition>			= "if" <parens_expr> <statement> ["else" <statement>]
 <while_loop> 		= "while" <parens_expr> <statement>
 
-##SCRAPPED IDEA : MIGHT RETURN LATER##
-<namespace> 		= {<id> '.'} 						// This designates namespaces, examples : "Fox." "Fox.io."
-<ext_id>			= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"
-<general_id>		= <ext_id> | <id>
-##Importing Packages##
-<import_stmt>		= ( "import" | "using" ) <ext_id> ';'
+##PENDING CHANGES##
+<fq_id>				= <id> {'.' <id>}						// fully qualified id
+<import_stmt>		= ( "import" | "using" ) <fq_id> ';'	// import stmt
+
+<f_call>			=  <fq_id> '(' <expr_list> ')'		
+<expr_list>			=  [<expr> {',' <expr>}] 
