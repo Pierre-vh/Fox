@@ -20,46 +20,47 @@ namespace Moonshot
 		FAILED_AND_DIED, 
 		FAILED_BUT_RECOVERED
 	};
+
+	template<typename Ty>
+	struct ParsingResultDataType
+	{
+		typedef Ty type;
+	};
+
+	template<typename Ty>
+	struct ParsingResultDataType<Ty*>
+	{
+		typedef std::unique_ptr<Ty> type;
+	};
+
 	/*
 		Usage
-			* Parsing function finds all the tokens and return a fully formed node:
-				use SUCCESS flag
-				hasRecovered() returns true 
-				wasSuccessful() returns true
-			* Parsing function doesn't find the first token and just returns nullptr 
-				use NOTFOUND flag
-				hasRecovered() returns true 
-				wasSuccessful() returns true
-			* Parsing function finds the first tokens, but encounters an unexpected token and dies: 
-				use FAILED_AND_DIED flag
-				hasRecovered() returns true
-				wasSuccessful() returns false
-			* Parsing function finds the first tokens, but encounters an unexpected token and successfully recovers to the semicolon,parens or curly bracket.
-				use FAILED_AND_RECOVERED flag
-				hasRecovered() returns true if the node is not null.
-				wasSuccessful() returns false
-			* Parsing function finds the first tokens, but encounters an unexpected token and successfully recovers to the semicolon,parens or curly bracket.
-				use FAILED_WITHOUT_ATTEMPTING_RECOVERY flag
-				hasRecovered() returns true if the node is not null.
-				wasSuccessful() false false
+		* Parsing function finds all the tokens and return a fully formed node:
+		use SUCCESS flag
+		hasRecovered() returns true
+		wasSuccessful() returns true
+		* Parsing function doesn't find the first token and just returns nullptr
+		use NOTFOUND flag
+		hasRecovered() returns true
+		wasSuccessful() returns true
+		* Parsing function finds the first tokens, but encounters an unexpected token and dies:
+		use FAILED_AND_DIED flag
+		hasRecovered() returns true
+		wasSuccessful() returns false
+		* Parsing function finds the first tokens, but encounters an unexpected token and successfully recovers to the semicolon,parens or curly bracket.
+		use FAILED_AND_RECOVERED flag
+		hasRecovered() returns true if the node is not null.
+		wasSuccessful() returns false
+		* Parsing function finds the first tokens, but encounters an unexpected token and successfully recovers to the semicolon,parens or curly bracket.
+		use FAILED_WITHOUT_ATTEMPTING_RECOVERY flag
+		hasRecovered() returns true if the node is not null.
+		wasSuccessful() false false
 	*/
-	template<typename Ty>
-	struct ParsingResultData
-	{
-		Ty result_;
-	};
-
-	template<typename Ty>
-	struct ParsingResultData<Ty*>
-	{
-		std::unique_ptr<Ty> result_;
-	};
 
 	template<typename DataTy>
-	struct ParsingResult : ParsingResultData<DataTy> {
+	struct ParsingResult {
 		public:
-			using ParsingResultData<DataTy>::result_;
-			using ResultType = decltype(result_);
+			using ResultType = typename ParsingResultDataType<DataTy>::type;
 
 			ParsingResult(const ParsingOutcome& pc, ResultType res)
 			{
@@ -69,17 +70,17 @@ namespace Moonshot
 					if (res)
 					{
 						result_ = std::move(res);
-						isDataAvailable_ = true;
+						data_ok_ = true;
 					}
 					else
 					{
 						result_ = nullptr;
-						isDataAvailable_ = false;
+						data_ok_ = false;
 					}
 				}
 				else
 				{
-					isDataAvailable = true;
+					data_ok_ = true;
 					result_ = res;
 				}
 				// set flags
@@ -148,10 +149,12 @@ namespace Moonshot
 
 			bool isDataAvailable() const
 			{
-				return isDataAvailable_;
+				return data_ok_;
 			}
+
+			ResultType result_;
 		private:
 			ParsingOutcome enumflag_;
-			bool successFlag_ = false, recovered_ = true, isDataAvailable_ = false;
+			bool successFlag_ = false, recovered_ = true, data_ok_ = false;
 	};
 }

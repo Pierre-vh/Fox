@@ -177,22 +177,14 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 		// ##TYPESPEC##
-		auto typespecResult = parseTypeSpec();
-		// index 0 -> success flag
-		// index 1 -> isConst flag
-		// index 2 -> type index if success
-		if (!std::get<0>(typespecResult))
+		if (auto typespecResult = parseTypeSpec())
+			varType = typespecResult.result_;
+		else
 		{
 			errorExpected("Expected a ':'");
 			if (resyncToDelimiter(sign::P_SEMICOLON))
 				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
-		}
-		else
-		{
-			// set variables
-			isVarConst = std::get<1>(typespecResult);
-			varType = std::get<2>(typespecResult);
 		}
 
 		// ##ASSIGNEMENT##
@@ -219,7 +211,7 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 		}
 
 		// If parsing was ok : 
-		var::varattr v_attr(varName, varType, isVarConst);
+		var::varattr v_attr(varName, varType);
 		if (initExpr) // Has init expr?
 			return ParsingResult<IASTStmt*>(
 				ParsingOutcome::SUCCESS,
@@ -234,7 +226,7 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-std::tuple<bool, bool,FoxType> Parser::parseTypeSpec()
+ParsingResult<FoxType> Parser::parseTypeSpec()
 {
 	bool isConst = false;
 	std::size_t typ;
@@ -245,11 +237,11 @@ std::tuple<bool, bool,FoxType> Parser::parseTypeSpec()
 			isConst = true;
 		// Now match the type keyword
 		if ((typ = matchTypeKw()) != TypeIndex::InvalidIndex)
-			return { true , isConst , typ };
+			return ParsingResult<FoxType>(ParsingOutcome::SUCCESS, FoxType(typ, isConst));
 
 		errorExpected("Expected a type name");
 	}
-	return { false, false, TypeIndex::InvalidIndex };
+	return ParsingResult<FoxType>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<IASTStmt*> Parser::parseExprStmt()

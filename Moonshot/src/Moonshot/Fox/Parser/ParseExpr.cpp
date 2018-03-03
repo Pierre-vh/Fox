@@ -94,15 +94,12 @@ ParsingResult<IASTExpr*>  Parser::parseExponentExpr()
 
 ParsingResult<IASTExpr*> Parser::parsePrefixExpr()
 {
-	bool uopResult = false;
-	unaryOperator uopOp = unaryOperator::DEFAULT;
-	std::tie(uopResult, uopOp) = matchUnaryOp(); // If an unary op is matched, uopResult will be set to true and pos_ updated.
-	if (uopResult)
+	if (auto matchUop = matchUnaryOp())
 	{
 		if (auto parseres = parsePrefixExpr())
 		{
 			auto rtr = std::make_unique<ASTUnaryExpr>();
-			rtr->op_ = uopOp;
+			rtr->op_ = matchUop.result_;
 			rtr->child_ = std::move(parseres.result_);
 			return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS,std::move(rtr));
 		}
@@ -112,8 +109,8 @@ ParsingResult<IASTExpr*> Parser::parsePrefixExpr()
 			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 	}
-	else if (auto node = parseExponentExpr())
-		return node;
+	else if (auto expExpr = parseExponentExpr())
+		return expExpr;
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
@@ -179,9 +176,7 @@ ParsingResult<IASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 	while (true)
 	{
 		// Match binary operator
-		binaryOperator op;
-		bool matchResult;
-		std::tie(matchResult, op) = matchBinaryOp(priority);
+		auto matchResult = matchBinaryOp(priority);
 		if (!matchResult) // No operator found : break.
 			break;
 
@@ -207,9 +202,9 @@ ParsingResult<IASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 		}
 
 		if (rtr->op_ == binaryOperator::PASS) // if the node has still a "pass" operation
-				rtr->op_ = op;
+				rtr->op_ = matchResult.result_;
 		else // if the node already has an operation
-			rtr = oneUpNode(std::move(rtr), op);
+			rtr = oneUpNode(std::move(rtr), matchResult.result_);
 
 		rtr->right_ = std::move(second); // Set second as the child of the node.
 	}
@@ -226,7 +221,7 @@ ParsingResult<IASTExpr*> Parser::parseExpr()
 	if (auto lhs_res = parseBinaryExpr())
 	{
 		auto matchResult = matchAssignOp();
-		if (matchResult.first)
+		if (matchResult)
 		{
 			auto rhs_res = parseExpr();
 			if (!rhs_res)
@@ -237,7 +232,7 @@ ParsingResult<IASTExpr*> Parser::parseExpr()
 
 			std::unique_ptr<ASTBinaryExpr> binexpr = std::make_unique<ASTBinaryExpr>();
 		
-			binexpr->op_ = matchResult.second;
+			binexpr->op_ = matchResult.result_;
 			binexpr->left_ = std::move(lhs_res.result_);
 			binexpr->right_ = std::move(rhs_res.result_);
 
@@ -300,43 +295,41 @@ bool Parser::matchExponentOp()
 	return false;
 }
 
-std::pair<bool, binaryOperator> Parser::matchAssignOp()
+ParsingResult<binaryOperator> Parser::matchAssignOp()
 {
 	auto cur = getToken();
 	state_.pos++;
 	if (cur.isValid() && cur.type == category::SIGN && cur.sign_type == sign::S_EQUAL)
-		return { true,binaryOperator::ASSIGN };
+		return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::ASSIGN);
 	state_.pos--;
-	return { false,binaryOperator::PASS };
+	return ParsingResult<binaryOperator>(ParsingOutcome::NOTFOUND);
 }
 
-std::pair<bool, unaryOperator> Parser::matchUnaryOp()
+ParsingResult<unaryOperator> Parser::matchUnaryOp()
 {
 	auto cur = getToken();
-	if (!cur.isValid() || (cur.type != category::SIGN))
-		return { false, unaryOperator::DEFAULT };
 	state_.pos++;
 
 	if (cur.sign_type == sign::P_EXCL_MARK)
-		return { true, unaryOperator::LOGICNOT };
+		return ParsingResult<unaryOperator>(ParsingOutcome::SUCCESS, unaryOperator::LOGICNOT);
 
 	if (cur.sign_type == sign::S_MINUS)
-		return { true, unaryOperator::NEGATIVE};
+		return ParsingResult<unaryOperator>(ParsingOutcome::SUCCESS, unaryOperator::NEGATIVE);
 
 	if (cur.sign_type == sign::S_PLUS)
-		return { true, unaryOperator::POSITIVE};
+		return ParsingResult<unaryOperator>(ParsingOutcome::SUCCESS, unaryOperator::POSITIVE);
 
 	state_.pos--;
-	return { false, unaryOperator::DEFAULT };
+	return ParsingResult<unaryOperator>(ParsingOutcome::NOTFOUND);
 }
 
-std::pair<bool, binaryOperator> Parser::matchBinaryOp(const char & priority)
+ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 {
 	auto cur = getToken();
 	auto pk = getToken(state_.pos + 1);
 	// Check current Token validity
 	if (!cur.isValid() || (cur.type != category::SIGN))
-		return { false, binaryOperator::PASS };
+		return ParsingResult<binaryOperator>(ParsingOutcome::NOTFOUND);
 	state_.pos += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
 
 	switch (priority)
@@ -345,18 +338,18 @@ std::pair<bool, binaryOperator> Parser::matchBinaryOp(const char & priority)
 			if (cur.sign_type == sign::S_ASTERISK)
 			{
 				if (pk.sign_type != sign::S_ASTERISK) // Disambiguation between '**' and '*'
-					return { true, binaryOperator::MUL };
+					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::MUL );
 			}
 			if (cur.sign_type == sign::S_SLASH)
-				return { true, binaryOperator::DIV };
+				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::DIV);
 			if (cur.sign_type == sign::S_PERCENT)
-				return { true, binaryOperator::MOD };
+				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::MOD);
 			break;
 		case 1: // + -
 			if (cur.sign_type == sign::S_PLUS)
-				return { true, binaryOperator::ADD };
+				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::ADD );
 			if (cur.sign_type == sign::S_MINUS)
-				return { true, binaryOperator::MINUS };
+				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::MINUS);
 			break;
 		case 2: // > >= < <=
 			if (cur.sign_type == sign::S_LESS_THAN)
@@ -364,18 +357,18 @@ std::pair<bool, binaryOperator> Parser::matchBinaryOp(const char & priority)
 				if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
 				{
 					state_.pos += 1;
-					return { true, binaryOperator::LESS_OR_EQUAL };
+					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LESS_OR_EQUAL );
 				}
-				return { true, binaryOperator::LESS_THAN };
+				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LESS_THAN );
 			}
 			if (cur.sign_type == sign::S_GREATER_THAN)
 			{
 				if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
 				{
 					state_.pos += 1;
-					return { true, binaryOperator::GREATER_OR_EQUAL };
+					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::GREATER_OR_EQUAL );
 				}
-				return { true, binaryOperator::GREATER_THAN };
+				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::GREATER_THAN );
 			}
 			break;
 		case 3:	// == !=
@@ -384,12 +377,12 @@ std::pair<bool, binaryOperator> Parser::matchBinaryOp(const char & priority)
 				if (cur.sign_type == sign::S_EQUAL)
 				{
 					state_.pos += 1;
-					return { true,binaryOperator::EQUAL };
+					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::EQUAL );
 				}
 				if (cur.sign_type == sign::P_EXCL_MARK)
 				{
 					state_.pos += 1;
-					return { true,binaryOperator::NOTEQUAL };
+					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::NOTEQUAL );
 				}
 			}
 			break;
@@ -397,14 +390,14 @@ std::pair<bool, binaryOperator> Parser::matchBinaryOp(const char & priority)
 			if (pk.isValid() && (pk.sign_type == sign::S_AND) && (cur.sign_type == sign::S_AND))
 			{
 				state_.pos += 1;
-				return { true,binaryOperator::LOGIC_AND };
+				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LOGIC_AND);
 			}
 			break;
 		case 5:
 			if (pk.isValid() && (pk.sign_type == sign::S_VBAR) && (cur.sign_type == sign::S_VBAR))
 			{
 				state_.pos += 1;
-				return { true,binaryOperator::LOGIC_OR };
+				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LOGIC_OR);
 			}
 			break;
 		default:
@@ -412,5 +405,5 @@ std::pair<bool, binaryOperator> Parser::matchBinaryOp(const char & priority)
 			break;
 	}
 	state_.pos -= 1;	// We did not find anything, decrement & return.
-	return { false, binaryOperator::PASS };
+	return ParsingResult<binaryOperator>(ParsingOutcome::NOTFOUND);
 }

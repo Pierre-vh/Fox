@@ -101,7 +101,7 @@ namespace Moonshot
 			// Private parse functions
 
 			// type spec (for vardecl).
-			std::tuple<bool, bool,FoxType> parseTypeSpec(); // Tuple values: Success flag, isConst, type of variable.
+			ParsingResult<FoxType> parseTypeSpec(); // Tuple values: Success flag, isConst, type of variable.
 
 
 			// OneUpNode is a function that ups the node one level.
@@ -112,6 +112,7 @@ namespace Moonshot
 			// matchToken -> returns true if the Token is matched, and increment pos_, if the Token isn't matched return false
 			
 			// MATCH BY TYPE OF TOKEN
+			/* TODO : UPDATE BOTH OF THESES TO PARSINGRESULT! */
 			std::pair<bool,Token> matchLiteral();			// match a literal
 			std::pair<bool, std::string> matchID();			// match a ID
 			bool matchSign(const Token::sign &s);					// match any signs : ; . ( ) 
@@ -121,9 +122,9 @@ namespace Moonshot
 			
 			// MATCH OPERATORS
 			bool							matchExponentOp(); //  **
-			std::pair<bool, binaryOperator>	matchAssignOp(); // = 
-			std::pair<bool, unaryOperator>	matchUnaryOp(); // ! - +
-			std::pair<bool, binaryOperator>	matchBinaryOp(const char &priority); // + - * / % 
+			ParsingResult<binaryOperator>	matchAssignOp(); // = 
+			ParsingResult<unaryOperator>	matchUnaryOp(); // ! - +
+			ParsingResult<binaryOperator>	matchBinaryOp(const char &priority); // + - * / % 
 			
 			// UTILITY METHODS
 			Token getToken() const;
