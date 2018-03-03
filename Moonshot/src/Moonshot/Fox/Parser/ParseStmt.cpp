@@ -163,13 +163,12 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 	if (matchKeyword(keyword::D_LET))
 	{
 		// ##ID##
-		bool successfulMatchFlag = false;
-		std::tie(
-			successfulMatchFlag,
-			varName
-		) = matchID(); // get id
 
-		if (!successfulMatchFlag)
+		if (auto match = matchID())
+		{
+			varName = match.result_;
+		}
+		else
 		{
 			errorExpected("Expected an identifier");
 			if (resyncToDelimiter(sign::P_SEMICOLON))

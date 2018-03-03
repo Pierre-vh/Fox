@@ -33,28 +33,28 @@ Parser::~Parser()
 {
 }
 
-std::pair<bool, Token> Parser::matchLiteral()
+ParsingResult<FoxValue> Parser::matchLiteral()
 {
 	Token t = getToken();
 	if (t.type == category::LITERAL)
 	{
 		state_.pos += 1;
-		return { true,t };
+		return ParsingResult<FoxValue>(ParsingOutcome::SUCCESS, t.lit_val);
 	}
-	return { false,Token(Context()) };
+	return ParsingResult<FoxValue>(ParsingOutcome::NOTFOUND);
 }
 
 
 
-std::pair<bool, std::string> Parser::matchID()
+ParsingResult<std::string> Parser::matchID()
 {
 	Token t = getToken();
 	if (t.type == category::IDENTIFIER)
 	{
 		state_.pos += 1;
-		return { true, t.str };
+		return ParsingResult<std::string>(ParsingOutcome::SUCCESS, t.str);
 	}
-	return { false, "" };
+	return ParsingResult<std::string>(ParsingOutcome::NOTFOUND);
 }
 
 bool Parser::matchSign(const sign & s)

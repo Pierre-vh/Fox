@@ -108,7 +108,6 @@ namespace Moonshot
 				P_IMPORT,			// "import"
 				P_USING				// "using"
 			};
-
 			Token(Context & c);
 			Token(Context & c,std::string data, const TextPosition &tpos = TextPosition(0,0));
 			category type =		category::DEFAULT;

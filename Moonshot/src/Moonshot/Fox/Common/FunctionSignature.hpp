@@ -14,7 +14,7 @@ namespace Moonshot
 {
 	namespace fn
 	{
-		// Store a arg's attribute : name, if it's a reference, if it's a const, and it's type. It's the identity of a argument!
+		// Store a arg's attribute : name, type, and if it's a reference.
 		struct FnArgAttributes : public var::VariableAttributes
 		{
 		public:

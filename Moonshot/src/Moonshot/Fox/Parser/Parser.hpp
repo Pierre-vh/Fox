@@ -6,7 +6,7 @@
 ////------------------------------------------------------//// 
 // This file implements the recursive descent parser.		
 // The parser is implemented as a set of functions, each	
-// function represents a rule in the parser.				
+// function represents a rule in the grammar.				
 // Some extra functions, for instance matchXXX	are used to help in the parsing process.					
 //															
 // The grammar used can be found in	/doc/grammar_(major).(minor).txt							
@@ -18,28 +18,11 @@
 // It uses the data gathered and identified by the lexer to build a representation of the source file (AST.)		
 //															
 // OUTPUT													
-// The Abstract Syntax Tree, AST for short.					
+// The Abstract Syntax Tree, AST for short.				
+//
+// Status: Up to date with latest grammar changes, but isn't finished yet. Functions decl/call aren't in, and import/using statements too.
 ////------------------------------------------------------////
 
-/*
-Note :
-	matchXXX functions : Parse a NON-TERMINAL.
-		Theses function DON'T update the cursor BUT the cursor will be updated if the nonterminal is found, because the parseXXX function called will update it.
-	parseXXX functions : Parse a TERMINAL
-		Theses functions UPDATE the cursor.
-
-	HOW TO IMPLEMENT A GRAMMAR RULE:
-		1 - Nonterminal rules
-			Case a : Matched all Token 
-				Return a valid pointer to the node. Cursor is updated through match function
-			Case b : Matched no Token
-				 return a null pointer, cursor isn't updated
-			Case c : matched one or more Token, but encountered an unexpected Token
-				Don't update the cursor, return a null pointer, throw an error (with the context)
-		2 - Terminal rules
-			If the current Token is the requested Token, update the cursor.
-
-*/
 #pragma once
 
 // types
@@ -70,6 +53,7 @@ namespace Moonshot
 			~Parser();
 
 			// EXPRESSIONS
+			ParsingResult<IASTExpr*> parseLiteral();
 			ParsingResult<IASTExpr*> parseCallable(); // values/functions calls.
 			ParsingResult<IASTExpr*> parseValue();
 			ParsingResult<IASTExpr*> parseExponentExpr();
@@ -101,11 +85,10 @@ namespace Moonshot
 			// Private parse functions
 
 			// type spec (for vardecl).
-			ParsingResult<FoxType> parseTypeSpec(); // Tuple values: Success flag, isConst, type of variable.
-
+			ParsingResult<FoxType> parseTypeSpec(); 
 
 			// OneUpNode is a function that ups the node one level.
-			// Example: There is a node N, with A B (values) as child. You call oneUpNode like this : oneUpNode(N,PLUS)
+			// Example: There is a node N, with A and B as children. You call oneUpNode like this : oneUpNode(N,PLUS)
 			// oneUpNode will return a new node X, with the operation PLUS and N as left child.
 			std::unique_ptr<ASTBinaryExpr> oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator &op = binaryOperator::PASS);
 			
@@ -113,10 +96,10 @@ namespace Moonshot
 			
 			// MATCH BY TYPE OF TOKEN
 			/* TODO : UPDATE BOTH OF THESES TO PARSINGRESULT! */
-			std::pair<bool,Token> matchLiteral();			// match a literal
-			std::pair<bool, std::string> matchID();			// match a ID
-			bool matchSign(const Token::sign &s);					// match any signs : ; . ( ) 
-			bool matchKeyword(const Token::keyword &k);			// Match any keyword
+			ParsingResult<FoxValue> matchLiteral();			// match a literal
+			ParsingResult<std::string> matchID();			// match a ID
+			bool matchSign(const Token::sign &s);			// match any signs : ; . ( ) , returns true if success
+			bool matchKeyword(const Token::keyword &k);		// Match any keyword, returns true if success
 
 			std::size_t matchTypeKw();						// match a type keyword : int, float, etc.
 			
@@ -156,6 +139,6 @@ namespace Moonshot
 
 			// Member variables
 			Context& context_;
-			TokenVector& tokens_;					// reference to the lexer to access our tokens 
+			TokenVector& tokens_;					// reference to the the token's vector.
 	};
 }

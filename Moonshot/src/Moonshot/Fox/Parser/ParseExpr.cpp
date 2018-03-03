@@ -21,15 +21,21 @@ using keyword = Token::keyword;
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 
+ParsingResult<IASTExpr*> Parser::parseLiteral()
+{
+	if (auto matchres = matchLiteral())
+		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::make_unique<ASTLiteral>(matchres.result_));
+	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
+}
+
 ParsingResult<IASTExpr*> Parser::parseCallable()
 {
 	// = <id>
-	auto result = matchID();
-	if (result.first)
+	if (auto match = matchID())
 	{
 		return ParsingResult<IASTExpr*>(
 			ParsingOutcome::SUCCESS,
-			std::make_unique<ASTVarCall>(result.second)
+			std::make_unique<ASTVarCall>(match.result_)
 		);
 	}
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
@@ -37,13 +43,9 @@ ParsingResult<IASTExpr*> Parser::parseCallable()
 
 ParsingResult<IASTExpr*>  Parser::parseValue()
 {
-	// = <const>
-	auto matchValue_result = matchLiteral();
-	if (matchValue_result.first) // if we have a value, return it packed in a ASTLiteral
-		return ParsingResult<IASTExpr*>(
-				ParsingOutcome::SUCCESS,
-				std::make_unique<ASTLiteral>(matchValue_result.second.lit_val)
-			);
+	// = <literal>
+	if (auto matchres = parseLiteral()) // if we have a literal, return it packed in a ASTLiteral
+		return matchres;
 	// = <callable>
 	else if (auto res = parseCallable())	// Callable?
 		return res;							// In this case no transformation is needed, so just return the ParsingResult since it's the same thing we use.
