@@ -1,140 +1,98 @@
-#include "TypesUtils.hpp"
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : TypesUtils.cpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			
+////------------------------------------------------------////
 
-#include <sstream>
+#include "TypesUtils.hpp"
+#include "FVTypeTraits.hpp"
 #include "../UTF8/StringManipulator.hpp"
 
+#include <sstream>
 using namespace Moonshot;
 
-std::string TypeUtils::dumpFVal(const FVal & var)
+bool TypeUtils::canAssign(const FoxType & lhs, const FoxType & rhs)
 {
-	std::stringstream output;
-	if (std::holds_alternative<NullType>(var))
-		output << "Type : VOID (null)";
-	else if (std::holds_alternative<var::varRef>(var))
-	{
-		auto vattr = std::get<var::varRef>(var);
-		output << "Type : varRef, Value:" << vattr.getName();
-	}
-	else if (std::holds_alternative<IntType>(var))
-		output << "Type : INT, Value : " << std::get<IntType>(var);
-	else if (std::holds_alternative<float>(var))
-		output << "Type : FLOAT, Value : " << std::get<float>(var);
-	else if (std::holds_alternative<std::string>(var))
-		output << "Type : STRING, Value : \"" << std::get<std::string>(var) << "\"";
-	else if (std::holds_alternative<bool>(var))
-	{
-		const bool v = std::get<bool>(var);
-		output << "Type : BOOL, Value : " << (v ? "true" : "false");
-	}
-	else if (std::holds_alternative<CharType>(var))
-	{
-		CharType x = std::get<CharType>(var);
-		UTF8::StringManipulator u8sm;
-		output << "Type : CHAR, Value : " << x << " = '" << u8sm.wcharToStr(x) << "'";
-	}
-	else
-		throw std::logic_error("Illegal variant.");
-	return output.str();
-}
-std::string TypeUtils::dumpVAttr(const var::varattr & var)
-{
-	std::stringstream output;
-	output << "[name:\"" << var.name_ << "\" "
-		<< "type: " << (var.isConst ? "CONST " : "");
-	auto friendlyname = kType_dict.find(var.type_);
-	if (friendlyname != kType_dict.end())
-		output << friendlyname->second;
-	else
-		output << "<UNKNOWN>";
-	output << "]";
-	return output.str();
-}
-FVal TypeUtils::getSampleFValForIndex(const std::size_t & t)
-{
-	switch (t)
-	{
-	case indexes::fval_null:
-		return FVal();
-	case indexes::fval_int:
-		return FVal((IntType)0);
-	case indexes::fval_float:
-		return FVal((float)0.0f);
-	case indexes::fval_char:
-		return FVal((CharType)0);
-	case indexes::fval_str:
-		return FVal(std::string(""));
-	case indexes::fval_bool:
-		return FVal((bool)false);
-	case indexes::fval_varRef:
-		return FVal(var::varattr());
-	case indexes::invalid_index:
-		throw std::logic_error("Tried to get a sample FVal with an invalid index");
-		return FVal();
-	default:
-		throw std::logic_error("Defaulted while attempting to return a sample FVal for an index. -> Unknown index. Unimplemented type?");
-		return FVal();
-	}
-}
-
-std::string TypeUtils::indexToTypeName(const std::size_t & t)
-{
-	auto a = kType_dict.find(t);
-	if (a != kType_dict.end())
-		return a->second;
-	return "!IMPOSSIBLE_TYPE!";
-}
-
-bool TypeUtils::canAssign(const std::size_t & lhs, const std::size_t & rhs)
-{
-	if ((rhs == indexes::fval_null) || (lhs == indexes::fval_null))
+	if ((rhs == TypeIndex::Null_Type) || (lhs == TypeIndex::Null_Type))
 		return false; // Can't assign a void expression to a variable.
-	if (!isBasic(lhs) || !isBasic(rhs))
+	if (!lhs.isBasic() || !rhs.isBasic())
 		// If one of the types isn't basic, no assignement possible.
 		return false;
 	else if (lhs == rhs) // same type to same type = ok.
 		return true;
 	// From here, we know lhs and rhs are different.
-	else if (!isArithmetic(lhs) || !isArithmetic(rhs)) // one of them is a string
+	else if (!lhs.isArithmetic() || !rhs.isArithmetic()) // one of them is a string
 		return false;  // Can't assign a string to an arithmetic type and vice versa.
 					   // Else, we're good, return true.
 	return true;
 }
-bool TypeUtils::canCastTo(const std::size_t & goal, const std::size_t & basetype)
+bool TypeUtils::canImplicitelyCastTo(const FoxType & goal, const FoxType & basetype)
 {
 	/*
-		Conversions:
+		Implicit Conversions:
 		Arith type -> Arith type
-		Arith type -> string type
 		char type -> string type
 		same type -> same type
 	*/
-	if (isBasic(basetype))
+	if (basetype.isBasic())
 	{
-		if (isArithmetic(goal) && isArithmetic(basetype)) // arith -> arith
+		if (goal.isArithmetic() && basetype.isArithmetic()) // arith -> arith
 			return true;
-		else if (isArithmetic(basetype) && (goal == indexes::fval_str)) // arith -> str
-			return true;
-		else if ((basetype == indexes::fval_char) && (goal == indexes::fval_str)) // char -> str
+		else if ((basetype == TypeIndex::basic_Char) && (goal == TypeIndex::basic_String)) // char -> str
 			return true;
 		return (basetype == goal); // same type -> same type
 	}
 	return false;
 }
 
-std::size_t TypeUtils::getBiggest(const std::size_t & lhs, const std::size_t & rhs)
+bool TypeUtils::canExplicitelyCastTo(const FoxType & goal, const FoxType & basetype)
 {
-	if (isArithmetic(lhs) && isArithmetic(rhs))
+	/*
+		Implicit rules + strings <-> arith support (string as int to interpret it as int, int as string to convert it to string)
+	*/
+	if (canImplicitelyCastTo(goal, basetype))
+		return true;
+	else
 	{
-		if ((lhs == indexes::fval_float) || (rhs == indexes::fval_float))
-			return indexes::fval_float;
-		else if ((lhs == indexes::fval_int) || (rhs == indexes::fval_int))
-			return indexes::fval_int;
-		else if ((lhs == indexes::fval_char) || (rhs == indexes::fval_char))
-			return indexes::fval_char;
+		return	((goal == TypeIndex::basic_String) && basetype.isArithmetic()) || // arith -> str
+				(goal.isArithmetic() && (basetype == TypeIndex::basic_String)); // str -> arith
+	}
+	return false;
+}
+
+bool TypeUtils::canConcat(const FoxType & lhs, const FoxType & rhs)
+{
+	if (lhs.isBasic() && rhs.isBasic())
+	{
+		switch (lhs.getBuiltInTypeIndex())
+		{
+			case TypeIndex::basic_Char:
+			case TypeIndex::basic_String:
+				return	(rhs == TypeIndex::basic_Char) || (rhs == TypeIndex::basic_String);
+			default:
+				return false;
+		}
+	}
+	return false;
+}
+
+FoxType TypeUtils::getBiggestType(const FoxType & lhs, const FoxType & rhs)
+{
+	if (lhs.isArithmetic() && rhs.isArithmetic())
+	{
+		if ((lhs == TypeIndex::basic_Float) || (rhs == TypeIndex::basic_Float))
+			return TypeIndex::basic_Float;
+		else if ((lhs == TypeIndex::basic_Int) || (rhs == TypeIndex::basic_Int))
+			return TypeIndex::basic_Int;
+		else if ((lhs == TypeIndex::basic_Char) || (rhs == TypeIndex::basic_Char))
+			return TypeIndex::basic_Char;
 		else
-			return indexes::fval_bool;
+			return TypeIndex::basic_Bool;
 	}
 	else
 		throw std::logic_error("Can't return the biggest of two types when one of the two type isn't arithmetic.");
-	return indexes::invalid_index;
+	return TypeIndex::InvalidIndex;
 }

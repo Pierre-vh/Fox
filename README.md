@@ -1,8 +1,4 @@
-# Moonshot---WIP
-An easy to learn, embeddable programming language. 
+# Moonshot
+An easy to learn, embeddable programming language. Still a work in progress ! (Very early work in progress!)
 
-[WIP]
-Fox  
-- Lexer : Done  
-- Parser & AST : around 80-90% done.
-- Semantic Analyser : TypeChecker nearly complete, Scope checker and other have yet to come.
+Licensed under the terms of the MIT license.

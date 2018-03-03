@@ -25,9 +25,9 @@ namespace Moonshot
 		DIV,
 		MOD,
 		EXP,
-		// Comparison "joining" operators (&& ||)
-		AND,
-		OR,
+		// Logical and and or
+		LOGIC_AND,
+		LOGIC_OR,
 		// Comparison
 		LESS_OR_EQUAL,
 		GREATER_OR_EQUAL,
@@ -51,8 +51,8 @@ namespace Moonshot
 	{
 		switch (op)
 		{
-			case binaryOperator::AND:
-			case binaryOperator::OR:
+			case binaryOperator::LOGIC_AND:
+			case binaryOperator::LOGIC_OR:
 			case binaryOperator::LESS_OR_EQUAL:
 			case binaryOperator::GREATER_OR_EQUAL:
 			case binaryOperator::LESS_THAN:
@@ -69,9 +69,9 @@ namespace Moonshot
 		const std::map<binaryOperator, std::string> kBinopToStr_dict =
 		{
 			{ binaryOperator::PASS		, "PASS" },
-			{ binaryOperator::AND		, "AND" },
+			{ binaryOperator::LOGIC_AND		, "LOGIC_AND" },
 			{ binaryOperator::CONCAT	, "CONCAT" },
-			{ binaryOperator::OR		, "OR" },
+			{ binaryOperator::LOGIC_OR		, "LOGIC_OR" },
 			{ binaryOperator::ADD		, "ADD" },
 			{ binaryOperator::MINUS		,	"MINUS" },
 			{ binaryOperator::MUL		, "MUL" },

@@ -8,9 +8,9 @@
 ////------------------------------------------------------////
 
 #include "ExprTests.hpp"
-#include "Moonshot/Common/Types/TypesUtils.hpp"
-#include "Moonshot/Fox/AST/Visitor/Dumper/Dumper.hpp"
-#include "Moonshot/Fox/AST/Visitor/Semantic/TypeCheck.hpp"
+#include "Moonshot/Common/Types/FValUtils.hpp"
+#include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
+#include "Moonshot/Fox/Semantic/TypeCheck.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 
 using namespace Moonshot;
@@ -47,8 +47,10 @@ bool ExprTests::runTest(Context & context)
 		l.lexStr(elem);
 		FAILED_RETURN_IF_ERR("lexing");
 
-		 Parser p(context, l.getTokenVector());
-		auto root = p.parseExpr();
+		Parser p(context, l.getTokenVector());
+		std::unique_ptr<IASTExpr> root; 
+		if (auto parseres = p.parseExpr())
+			root = std::move(parseres.result_);
 		FAILED_RETURN_IF_ERR("parsing (parsing error)");
 		FAILED_RETURN_IF(!root, "parsing (null node)")
 
@@ -67,7 +69,7 @@ bool ExprTests::runTest(Context & context)
 		auto result = evaluator.getResult();
 
 		FAILED_RETURN_IF_ERR("evaluation");
-		std::cout << "\t\t\xC0 Result: " << TypeUtils::dumpFVal(result) << std::endl;
+		std::cout << "\t\t\xC0 Result: " << FValUtils::dumpFVal(result) << std::endl;
 		FAILED_RETURN_IF(!std::holds_alternative<bool>(result), "evaluation (result wasn't of the expected type)");
 		FAILED_RETURN_IF(!std::get<bool>(result), "evaluation (result was false)");
 	}
@@ -83,7 +85,9 @@ bool ExprTests::runTest(Context & context)
 		SUCCESS_CONTINUE_IF_ERR;
 
 		Parser p(context, l.getTokenVector());
-		auto root = p.parseExpr();
+		std::unique_ptr<IASTExpr> root;
+		if (auto parseres = p.parseExpr())
+			root = std::move(parseres.result_);
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root);
 

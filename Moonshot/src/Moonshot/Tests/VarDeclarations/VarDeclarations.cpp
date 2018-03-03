@@ -39,9 +39,12 @@ bool VarDeclarations::runTest(Context & context)
 		FAILED_RETURN_IF_ERR("lexing");
 
 		Parser p(context, l.getTokenVector());
-		auto root = p.parseVarDeclStmt();
-		FAILED_RETURN_IF_ERR("parsing");
 
+		std::unique_ptr<IASTStmt> root;
+		if (auto parseres = p.parseVarDeclStmt())
+			root = std::move(parseres.result_);
+
+		FAILED_RETURN_IF_ERR("parsing");
 		root->accept(TypeCheckVisitor(context, true));
 		FAILED_RETURN_IF_ERR("typechecking");
 
@@ -58,7 +61,9 @@ bool VarDeclarations::runTest(Context & context)
 		SUCCESS_CONTINUE_IF_ERR;
 
 		Parser p(context, l.getTokenVector());
-		auto root = p.parseVarDeclStmt();
+		std::unique_ptr<IASTStmt> root;
+		if (auto parseres = p.parseVarDeclStmt())
+			root = std::move(parseres.result_);
 
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root); // fail if root's false

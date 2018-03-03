@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
+#include "Moonshot/Common/Types/Types.hpp"
 #include <cstddef>
 
 namespace Moonshot
@@ -20,6 +21,6 @@ namespace Moonshot
 			IASTExpr() = default;
 			inline virtual ~IASTExpr() = 0 {}
 
-			std::size_t resultType_ = 0; // The planified result type of the expression after execution. this is set by the typechecker.
+			FoxType resultType_ = 0; // The planified result type of the expression after execution. this is set by the typechecker.
 	};
 }

@@ -17,7 +17,6 @@
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 
 using namespace Moonshot;
-using namespace TypeUtils;
 
 using category = Token::category;
 using sign = Token::sign;
@@ -27,7 +26,6 @@ using keyword = Token::keyword;
 
 Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
 {
-	maxExpectedErrorCount_ = context_.optionsManager_.getAttr(OptionsList::parser_maxExpectedErrorCount).value_or(DEFAULT__maxExpectedErrorsCount).get<int>();
 	shouldPrintSuggestions_ = context_.optionsManager_.getAttr(OptionsList::parser_printSuggestions).value_or(DEFAULT__shouldPrintSuggestions).get<bool>();
 }
 
@@ -90,15 +88,15 @@ std::size_t Parser::matchTypeKw()
 	{
 		switch (t.kw_type)
 		{
-			case keyword::T_INT:	return indexes::fval_int;
-			case keyword::T_FLOAT:	return indexes::fval_float;
-			case keyword::T_CHAR:	return indexes::fval_char;
-			case keyword::T_STRING:	return indexes::fval_str;
-			case keyword::T_BOOL:	return indexes::fval_bool;
+			case keyword::T_INT:	return TypeIndex::basic_Int;
+			case keyword::T_FLOAT:	return TypeIndex::basic_Float;
+			case keyword::T_CHAR:	return TypeIndex::basic_Char;
+			case keyword::T_STRING:	return TypeIndex::basic_String;
+			case keyword::T_BOOL:	return TypeIndex::basic_Bool;
 		}
 	}
 	state_.pos -= 1;
-	return indexes::invalid_index;
+	return TypeIndex::InvalidIndex;
 }
 
 Token Parser::getToken() const
@@ -158,12 +156,9 @@ void Parser::errorUnexpected()
 
 void Parser::errorExpected(const std::string & s, const std::vector<std::string>& sugg)
 {
-	RETURN_IF_DEAD;
-
 	static std::size_t lastUnexpectedTokenPosition;
-	if (currentExpectedErrorsCount_ > maxExpectedErrorCount_)
-		return;
 
+	RETURN_IF_DEAD;
 	const auto lastTokenPos = state_.pos - 1;
 
 	// If needed, print unexpected error message
@@ -193,7 +188,6 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 
 	context_.reportError(output.str());
 	context_.resetOrigin();
-	currentExpectedErrorsCount_++;
 }
 
 void Parser::genericError(const std::string & s)

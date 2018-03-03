@@ -10,6 +10,7 @@
 #include "DataMap.hpp"
 
 #include "Moonshot/Common/Types/TypesUtils.hpp"
+#include "Moonshot/Common/Types/FvalUtils.hpp"
 #include "Moonshot/Common/Types/TypeCast.hpp"
 #include "Moonshot/Common/Context/Context.hpp"
 
@@ -48,7 +49,7 @@ var::varattr DataMap::retrieveVarAttr(const std::string & varname)
 bool DataMap::declareValue(const var::varattr & v_attr, const FVal & initVal)
 {
 	if (std::holds_alternative<NullType>(initVal))
-		return map_getEntry(v_attr,TypeUtils::getSampleFValForIndex(v_attr.type_)); // Init with a default value.
+		return map_getEntry(v_attr,FValUtils::getSampleFValForIndex(v_attr.type_.getBuiltInTypeIndex())); // Init with a default value.
 	return map_getEntry(v_attr, initVal);
 }
 
@@ -63,7 +64,7 @@ void DataMap::dump() const
 	out << "Dumping symbols table...\n";
 	for (auto& elem : sym_table_)
 	{
-		out << "NAME: " << elem.first.name_ << " TYPE: " << TypeUtils::indexToTypeName(elem.first.type_) << " ---> VALUE: " << TypeUtils::dumpFVal(elem.second) << std::endl;
+		out << "NAME: " << elem.first.name_ << " TYPE: " << elem.first.type_.getTypeName() << " ---> VALUE: " << FValUtils::dumpFVal(elem.second) << std::endl;
 	}
 	context_.logMessage(out.str());
 	out.clear();
@@ -92,24 +93,24 @@ bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const b
 	);
 	if (it != sym_table_.end())
 	{
-		if (it->first.type_ != vvalue.index()) //  trying to modify the type ? not on my watch.
+		if (it->first.type_ != FValUtils::FValToFoxType(vvalue)) //  trying to modify the type ? not on my watch.
 		{
 			// Implicit cast
 			if (LOG_IMPLICIT_CASTS)
 			{
 				std::stringstream out;
-				out << "Implicit cast : Attempted to store a " << TypeUtils::indexToTypeName(vvalue.index()) << " into the variable ";
-				out << vname << " (of type " << TypeUtils::indexToTypeName(it->first.type_) << ")\n";
+				out << "Implicit cast : Attempted to store a FVal of type" << FValUtils::getFValTypeName(vvalue) << " into the variable ";
+				out << vname << " (of type " << it->first.type_.getTypeName() << ")\n";
 				out << "Attempting cast to the desired type...";
 				context_.logMessage(out.str());
 			}
-			auto castVal = CastUtilities::castTo(context_,it->first.type_, vvalue);
+			auto castVal = CastUtilities::performImplicitCast(context_,it->first.type_, vvalue);
 			if(context_.isSafe())	// Cast went well
 				return map_setEntry(vname,castVal,isDecl); // Proceed
 			return false; // Bad cast : abort
 		}
 		// Error cases
-		if (it->first.isConst && !isDecl) // if the variable is const, and we're not in a declaration
+		if (it->first.isConst_ && !isDecl) // if the variable is const, and we're not in a declaration
 			context_.reportError("Can't assign a value to const variable \"" + vname + "\". Const variables must be initialized at declaration and can't be changed later.");
 		// No error ? proceed.
 		else

@@ -1,7 +1,7 @@
 #include "VarStmts.hpp"
 
 #include "Moonshot/Common/DataMap/DataMap.hpp"
-#include "Moonshot/Fox/AST/Visitor/Dumper/Dumper.hpp"
+#include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Test;
@@ -32,7 +32,7 @@ bool VarStmts::runTest(Context & context)
 	TypeCheckVisitor tc_good(context); // shared typechecker to keep the datamap
 
 	auto datamap = std::make_shared<DataMap>(context);
-	datamap->declareValue(var::varattr("TESTVALUE", TypeUtils::indexes::fval_int, false));
+	datamap->declareValue(var::varattr("TESTVALUE", TypeIndex::basic_Int, false));
 
 	RTStmtVisitor rt_good(context,datamap);
 	for (auto& elem : correct_test)
@@ -43,7 +43,11 @@ bool VarStmts::runTest(Context & context)
 		FAILED_RETURN_IF_ERR("lexing");
 
 		Parser p(context, l.getTokenVector());
-		auto root = p.parseStmt();
+
+		std::unique_ptr<IASTStmt> root;
+		if (auto parseres = p.parseStmt())
+			root = std::move(parseres.result_);
+
 		FAILED_RETURN_IF_ERR("parsing");
 
 		root->accept(tc_good);
@@ -73,7 +77,10 @@ bool VarStmts::runTest(Context & context)
 		SUCCESS_CONTINUE_IF_ERR;
 
 		Parser p(context, l.getTokenVector());
-		auto root = p.parseStmt();
+
+		std::unique_ptr<IASTStmt> root;
+		if (auto parseres = p.parseStmt())
+			root = std::move(parseres.result_);
 
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root); // fail if root's false

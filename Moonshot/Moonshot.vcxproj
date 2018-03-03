@@ -29,14 +29,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -84,12 +84,21 @@
     <OutDir>$(SolutionDir)\Moonshot\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)\build\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\bin\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)\build\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\bin\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)/src/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <Profile>true</Profile>
@@ -119,6 +128,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)/src/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -148,9 +158,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Moonshot\Common\DataMap\DataMap.cpp" />
+    <ClCompile Include="src\Moonshot\Common\Types\FValUtils.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\TypesUtils.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDeclaration.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\Common\FunctionSignature.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.cpp" />
     <ClCompile Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.cpp" />
@@ -163,11 +176,11 @@
     <ClCompile Include="src\Moonshot\Common\Context\Context.cpp" />
     <ClCompile Include="src\Moonshot\Common\Exceptions\Exceptions.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\TypeCast.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Eval\Stmt\RTStmtVisitor.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\Eval\Stmt\RTStmtVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Eval\Expr\RTExprVisitor.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\Eval\Expr\RTExprVisitor.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseStmt.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Dumper\Dumper.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\Types.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTExpr.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Parser\ParseExpr.cpp" />
@@ -175,7 +188,7 @@
     <ClCompile Include="src\Moonshot\Fox\Lexer\Lexer.cpp" />
     <ClCompile Include="src\Moonshot\main.cpp" />
     <ClCompile Include="src\Moonshot\Fox\Lexer\Token.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\Semantic\TypeCheck.cpp" />
     <ClCompile Include="src\Moonshot\Tests\ITest.cpp" />
     <ClCompile Include="src\Moonshot\Tests\VarDeclarations\VarDeclarations.cpp" />
     <ClCompile Include="src\Moonshot\Tests\VarStmts\VarStmts.cpp" />
@@ -187,9 +200,6 @@
     <None Include="res\tests\conditions\condition_correct_1.fox" />
     <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
-    <None Include="src\Moonshot\Fox\AST\Visitor\readme.md" />
-    <None Include="src\Moonshot\Fox\readme.md" />
-    <None Include="src\Moonshot\readme.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Moonshot\Common\Context\Context.hpp" />
@@ -199,9 +209,13 @@
     <ClInclude Include="src\Moonshot\Common\DataMap\DataMap.hpp" />
     <ClInclude Include="src\Moonshot\Common\Exceptions\Exceptions.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8.h" />
+    <ClInclude Include="src\Moonshot\Common\Types\FValUtils.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDeclaration.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTNullStmt.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ForwardDeclarations.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTDeclaration.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTExpr.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Common\FunctionSignature.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Parser\ParsingResult.hpp" />
     <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\checked.h" />
@@ -227,12 +241,12 @@
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTNode.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.hpp" />
-    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Dumper\Dumper.hpp" />
-    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Eval\Expr\RTExprVisitor.hpp" />
-    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Eval\Stmt\RTStmtVisitor.hpp" />
-    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\IVisitor.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Dumper\Dumper.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Eval\Expr\RTExprVisitor.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Eval\Stmt\RTStmtVisitor.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\IVisitor.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Visitor\NodesForwardDecl.h" />
-    <ClInclude Include="src\Moonshot\Fox\AST\Visitor\Semantic\TypeCheck.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\Semantic\TypeCheck.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Lexer\Lexer.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Lexer\Token.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Parser\Parser.hpp" />

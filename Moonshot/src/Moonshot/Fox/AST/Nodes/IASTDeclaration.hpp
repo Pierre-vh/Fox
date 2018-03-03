@@ -1,17 +1,23 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTCondition.cpp											
+// File : IASTDeclaration.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-//			SEE HEADER FILE FOR MORE INFORMATION			
+// Base abstract class for nodes.											
 ////------------------------------------------------------////
 
-#include "ASTCondition.hpp"
+#pragma once
 
-using namespace Moonshot;
+#include "Moonshot/Fox/AST/Nodes/IASTNode.hpp"
 
-void ASTCondition::accept(IVisitor & vis)
+namespace Moonshot
 {
-	vis.visit(*this);
+	struct IASTDeclaration : public IASTNode
+	{
+		public:
+			IASTDeclaration() = default;
+			virtual ~IASTDeclaration() = 0 {}
+	};
 }
+

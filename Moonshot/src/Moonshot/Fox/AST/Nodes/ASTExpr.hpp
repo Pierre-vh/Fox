@@ -51,8 +51,8 @@ namespace Moonshot
 
 			std::unique_ptr<IASTExpr> child_;
 
-			void setCastGoal(const std::size_t& ncg);
-			std::size_t getCastGoal() const; 
+			void setCastGoal(const FoxType& ncg);
+			FoxType getCastGoal() const; 
 	};
 
 	struct ASTLiteral : public IASTExpr 

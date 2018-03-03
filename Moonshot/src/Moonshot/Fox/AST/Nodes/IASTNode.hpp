@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Moonshot/Common/Types/Types.hpp"
-#include "Moonshot/Fox/AST/Visitor/IVisitor.hpp"
+#include "Moonshot/Fox/AST/IVisitor.hpp"
 
 namespace Moonshot
 {

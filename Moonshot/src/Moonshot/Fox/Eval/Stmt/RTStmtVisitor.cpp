@@ -61,6 +61,6 @@ void RTStmtVisitor::visit(ASTVarDeclStmt & node)
 bool RTStmtVisitor::symtab_declareValue_derefFirst(const var::varattr & vattr, FVal initval)
 {
 	if (std::holds_alternative<var::varRef>(initval))
-		initval = symtab_->retrieveValue(std::get<var::varRef>(initval).getName());
-	return symtab_->declareValue(vattr, initval);;
+		initval = datamap_->retrieveValue(std::get<var::varRef>(initval).getName());
+	return datamap_->declareValue(vattr, initval);;
 }

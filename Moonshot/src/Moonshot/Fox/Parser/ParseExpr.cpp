@@ -11,7 +11,6 @@
 #include "Parser.hpp"
 
 using namespace Moonshot;
-using namespace TypeUtils;
 
 using category = Token::category;
 using sign = Token::sign;
@@ -20,51 +19,54 @@ using keyword = Token::keyword;
 // Context and Exceptions
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
-
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 
-std::unique_ptr<IASTExpr> Parser::parseCallable()
+ParsingResult<IASTExpr*> Parser::parseCallable()
 {
 	// = <id>
 	auto result = matchID();
 	if (result.first)
-		return std::make_unique<ASTVarCall>(result.second);
-	return nullptr;
+	{
+		return ParsingResult<IASTExpr*>(
+			ParsingOutcome::SUCCESS,
+			std::make_unique<ASTVarCall>(result.second)
+		);
+	}
+	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
-std::unique_ptr<IASTExpr> Parser::parseValue()
+ParsingResult<IASTExpr*>  Parser::parseValue()
 {
-	// if the Token is invalid, return directly a null node
-
 	// = <const>
 	auto matchValue_result = matchLiteral();
 	if (matchValue_result.first) // if we have a value, return it packed in a ASTLiteral
-		return std::make_unique<ASTLiteral>(matchValue_result.second.lit_val);
-	else if (auto node = parseCallable()) // Callable?
-		return node;
+		return ParsingResult<IASTExpr*>(
+				ParsingOutcome::SUCCESS,
+				std::make_unique<ASTLiteral>(matchValue_result.second.lit_val)
+			);
+	// = <callable>
+	else if (auto res = parseCallable())	// Callable?
+		return res;							// In this case no transformation is needed, so just return the ParsingResult since it's the same thing we use.
 	// = '(' <expr> ')'
 	else if (matchSign(sign::B_ROUND_OPEN))
 	{
 		auto expr = parseExpr(); // Parse the expression inside
 		if (!expr) // check validity of the parsed expression
-		{
-			errorExpected("Expected an expression after '('.");
-			return nullptr;
-		}
+			errorExpected("Expected an expression or a ')'");
 		// retrieve the closing bracket, throw an error if we don't have one. 
 		if (!matchSign(sign::B_ROUND_CLOSE))
 		{
-			errorExpected("Expected a ')' after expression");
-			return nullptr;
+			errorExpected("Expected ')'");
+			if (resyncToDelimiter(sign::B_ROUND_CLOSE))
+				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 		return expr;
 	}
-	// TO DO :
-	// f_call
-	return nullptr;
+	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
-std::unique_ptr<IASTExpr> Parser::parseExponentExpr()
+ParsingResult<IASTExpr*>  Parser::parseExponentExpr()
 {
 	if (auto val = parseValue())
 	{
@@ -74,84 +76,104 @@ std::unique_ptr<IASTExpr> Parser::parseExponentExpr()
 			if (!prefix_expr)
 			{
 				errorExpected("Expected an expression after exponent operator.");
-				return nullptr;
+				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 			}
 			std::unique_ptr<ASTBinaryExpr> bin = std::make_unique<ASTBinaryExpr>();
 			bin->op_ = binaryOperator::EXP;
-			bin->left_ = std::move(val);
-			bin->right_ = std::move(prefix_expr);
-			return bin;
+			bin->left_ = std::move(val.result_);
+			bin->right_ = std::move(prefix_expr.result_);
+			return ParsingResult<IASTExpr*>(
+				ParsingOutcome::SUCCESS,
+				std::move(bin)
+			);
 		}
 		return val;
 	}
-	return nullptr;
+	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
-std::unique_ptr<IASTExpr> Parser::parsePrefixExpr()
+ParsingResult<IASTExpr*> Parser::parsePrefixExpr()
 {
 	bool uopResult = false;
 	unaryOperator uopOp = unaryOperator::DEFAULT;
 	std::tie(uopResult, uopOp) = matchUnaryOp(); // If an unary op is matched, uopResult will be set to true and pos_ updated.
 	if (uopResult)
 	{
-		if (auto node = parsePrefixExpr())
+		if (auto parseres = parsePrefixExpr())
 		{
 			auto rtr = std::make_unique<ASTUnaryExpr>();
 			rtr->op_ = uopOp;
-			rtr->child_ = std::move(node);
-			return rtr;
+			rtr->child_ = std::move(parseres.result_);
+			return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS,std::move(rtr));
 		}
 		else
 		{
 			errorExpected("Expected an expression after unary operator in prefix expression.");
-			return nullptr;
+			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 	}
 	else if (auto node = parseExponentExpr())
 		return node;
-	return nullptr;
+	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
-std::unique_ptr<IASTExpr> Parser::parseCastExpr()
+ParsingResult<IASTExpr*>  Parser::parseCastExpr()
 {
-	if (auto node = parsePrefixExpr())
+	if (auto parse_res = parsePrefixExpr())
 	{
-		std::size_t casttype = indexes::invalid_index;
+		std::size_t casttype = TypeIndex::InvalidIndex;
 		// Search for a (optional) cast: "as" <type>
 		if (matchKeyword(keyword::TC_AS))
 		{
-			if ((casttype = matchTypeKw()) != indexes::invalid_index)
+			if ((casttype = matchTypeKw()) != TypeIndex::InvalidIndex)
 			{
 				// If found, apply it to current node.
 				auto rtr = std::make_unique<ASTCastExpr>();
 				rtr->setCastGoal(casttype);
-				rtr->child_ = std::move(node);
-				return rtr;
+				rtr->child_ = std::move(parse_res.result_);
+				return ParsingResult<IASTExpr*>(
+						ParsingOutcome::SUCCESS,
+						std::move(rtr)
+				);
 			}
 			else
 			{
 				// If error (invalid keyword found, etc.)
 				errorExpected("Expected a type keyword after \"as\" in cast expression.");
-				return nullptr;
+				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 			}
 		}
-		return node;
+		return ParsingResult<IASTExpr*>(
+				ParsingOutcome::SUCCESS,
+				std::move(parse_res.result_)
+		);
 	}
-	return nullptr;
+	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
-std::unique_ptr<IASTExpr> Parser::parseBinaryExpr(const char & priority)
+ParsingResult<IASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 {
+	if (priority < 0)
+		throw Exceptions::parser_critical_error("ParseBinaryExpr's first argument was lower than 0 (unknown priority.)");
+
 	auto rtr = std::make_unique<ASTBinaryExpr>(binaryOperator::PASS);
 
-	// change this to ASTBinaryExpr
-	std::unique_ptr<IASTExpr> first = 0;
-
-	if (priority > 0) first = parseBinaryExpr(priority - 1);	// Go down in precedence
-	else first = parseCastExpr();	// We are at 0 ? Parse the castExpr then 
+	std::unique_ptr<IASTExpr> first;
+	if (priority > 0)
+	{
+		auto res = parseBinaryExpr(priority - 1);
+		if (res)
+			first = std::move(res.result_);
+	}
+	else
+	{
+		auto res = parseCastExpr();
+		if (res)
+			first = std::move(res.result_);
+	}
 
 	if (!first)					
-		return nullptr;
+		return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 
 	rtr->left_ = std::move(first);	// Make first the left child of the return node !
 	while (true)
@@ -165,13 +187,23 @@ std::unique_ptr<IASTExpr> Parser::parseBinaryExpr(const char & priority)
 
 		// Create a node "second" that holds the RHS of the expression
 		std::unique_ptr<IASTExpr> second;
-		if (priority > 0) second = parseBinaryExpr(priority - 1);
-		else second = parseCastExpr();
+		if (priority > 0)
+		{
+			auto res = parseBinaryExpr(priority - 1);
+			if (res)
+				second = std::move(res.result_);
+		}
+		else
+		{
+			auto res = parseCastExpr();
+			if (res)
+				second = std::move(res.result_);
+		}
 
 		if (!second) // Check for validity : we need a rhs. if we don't have one, we have an error !
 		{
 			errorExpected("Expected an expression after binary operator,");
-			break;
+			break; // We break instead of returning, so we can return the expressions that were parsed correctly so we don't cause an error cascade for the user.
 		}
 
 		if (rtr->op_ == binaryOperator::PASS) // if the node has still a "pass" operation
@@ -185,35 +217,65 @@ std::unique_ptr<IASTExpr> Parser::parseBinaryExpr(const char & priority)
 	// When we have simple node (PASS operation with only a value/expr as left child), we simplify it(only return the left child)
 	auto simple = rtr->getSimple();
 	if (simple)
-		return simple;
-	return rtr;
+		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS,std::move(simple));
+	return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::move(rtr));
 }
 
-std::unique_ptr<IASTExpr> Parser::parseExpr()
+ParsingResult<IASTExpr*> Parser::parseExpr()
 {
-	if (auto lhs = parseBinaryExpr())
+	if (auto lhs_res = parseBinaryExpr())
 	{
 		auto matchResult = matchAssignOp();
 		if (matchResult.first)
 		{
-			auto rhs = parseExpr();
-			if (!rhs)
+			auto rhs_res = parseExpr();
+			if (!rhs_res)
 			{
 				errorExpected("Expected expression after assignement operator.");
-				return nullptr;
+				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 			}
 
 			std::unique_ptr<ASTBinaryExpr> binexpr = std::make_unique<ASTBinaryExpr>();
 		
 			binexpr->op_ = matchResult.second;
-			binexpr->left_ = std::move(lhs);
-			binexpr->right_ = std::move(rhs);
+			binexpr->left_ = std::move(lhs_res.result_);
+			binexpr->right_ = std::move(rhs_res.result_);
 
-			return binexpr;
+			return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS,std::move(binexpr));
 		}
-		return lhs;
+		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::move(lhs_res.result_));
 	}
-	return nullptr;
+	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
+}
+
+ParsingResult<IASTExpr*> Parser::parseParensExpr(bool isMandatory)
+{
+	if (matchSign(sign::B_ROUND_OPEN))
+	{
+		std::unique_ptr<IASTExpr> rtr;
+		if (auto parseres = parseExpr())
+			rtr = std::move(parseres.result_);
+		else
+			errorExpected("Expected an expression after '('");
+
+		if (!matchSign(sign::B_ROUND_CLOSE))
+		{
+			errorExpected("Expected a ')' after expression,");
+			if (!resyncToDelimiter(sign::B_ROUND_CLOSE))
+				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_AND_DIED);
+			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(rtr));
+		}
+
+		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::move(rtr));
+	}
+	// failure
+	if (isMandatory)
+	{
+		errorExpected("Expected a '('");
+		return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+	}
+	else 
+		return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
 std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator & op)
@@ -335,14 +397,14 @@ std::pair<bool, binaryOperator> Parser::matchBinaryOp(const char & priority)
 			if (pk.isValid() && (pk.sign_type == sign::S_AND) && (cur.sign_type == sign::S_AND))
 			{
 				state_.pos += 1;
-				return { true,binaryOperator::AND };
+				return { true,binaryOperator::LOGIC_AND };
 			}
 			break;
 		case 5:
 			if (pk.isValid() && (pk.sign_type == sign::S_VBAR) && (cur.sign_type == sign::S_VBAR))
 			{
 				state_.pos += 1;
-				return { true,binaryOperator::OR };
+				return { true,binaryOperator::LOGIC_OR };
 			}
 			break;
 		default:

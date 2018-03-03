@@ -18,7 +18,7 @@ using namespace Moonshot;
 
 ASTLiteral::ASTLiteral(const FVal& fv)
 {
-	if (TypeUtils::isBasic(fv.index()))
+	if (IndexUtils::isBasic(fv.index()))
 		val_ = fv;
 	else
 		throw std::invalid_argument("ASTNodeLiteral constructor requires a basic type in the FVal");
@@ -80,12 +80,12 @@ void ASTCastExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-void ASTCastExpr::setCastGoal(const std::size_t& ncg)
+void ASTCastExpr::setCastGoal(const FoxType& ncg)
 {
 	resultType_ = ncg;
 }
 
-std::size_t ASTCastExpr::getCastGoal() const
+FoxType ASTCastExpr::getCastGoal() const
 {
 	return resultType_;
 }

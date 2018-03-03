@@ -9,36 +9,35 @@
 
 #include "RTExprVisitor.hpp"
 
-// Context & exceptions
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
-// Utils, types, typecast
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include "Moonshot/Common/Types/FVTypeTraits.hpp"
 #include "Moonshot/Common/Types/TypeCast.hpp"
+#include "Moonshot/Common/Types/Types.hpp"
+#include "Moonshot/Common/Types/FValUtils.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
-// DataMap
+#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 #include "Moonshot/Common/DataMap/DataMap.hpp"
-// Nodes needed
+
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
-// Operators
+
 #include "Moonshot/Fox/Common/Operators.hpp"
-// math operations
+
 #include <cmath>		
 #include <sstream>
 // string manip
-#include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
 using namespace Moonshot;
 using namespace TypeUtils;
-
+using namespace FValUtils;
 
 RTExprVisitor::RTExprVisitor(Context& c) : context_(c)
 {
 }
 
-RTExprVisitor::RTExprVisitor(Context& c, std::shared_ptr<DataMap> symtab) : context_(c), symtab_(symtab)
+RTExprVisitor::RTExprVisitor(Context& c, std::shared_ptr<DataMap> symtab) : context_(c), datamap_(symtab)
 {
 }
 
@@ -85,9 +84,9 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		{
 			auto left_res = visitAndGetResult(node.left_.get(), *this);
 			auto right_res = visitAndGetResult(node.right_.get(), *this);
-			if (std::holds_alternative<var::varRef>(left_res) && isValue(right_res.index()))
+			if (std::holds_alternative<var::varRef>(left_res) && IndexUtils::isValue(right_res.index()))
 			{
-				symtab_->setValue(
+				datamap_->setValue(
 					std::get<var::varRef>(left_res).getName(),
 					right_res
 				);
@@ -110,7 +109,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 				// Perform assignement
 				std::string vname = std::get<var::varRef>(vattr).getName();
 				node.right_->accept(*this);
-				symtab_->setValue(vname, value_);
+				datamap_->setValue(vname, value_);
 			}
 			else
 				// this could use context_.error instead. On the long run, if this error happens often and malformed code is the source, use context_.error instead of a throw
@@ -181,15 +180,16 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		}
 		else
 		{
-			const double dleftval = fvalToDouble_withDeref(left_res);
-			const double drightval = fvalToDouble_withDeref(right_res);
+			deref(left_res), deref(right_res);
+			const double dleftval = fvalToDouble(left_res);
+			const double drightval = fvalToDouble(right_res);
 			//std::cout << "Op: " << Util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			const double result = performOp(node.op_, dleftval, drightval);
 
 			if (fitsInValue(node.resultType_, result)) // If the results fits or we desire to cast the result
 				value_ = CastUtilities::castTo(context_, node.resultType_, result);		// Cast to result type
 			else
-				value_ = CastUtilities::castTo(context_, indexes::fval_float, result);	// Cast to float instead to keep information from being lost.
+				value_ = CastUtilities::castTo(context_, TypeIndex::basic_Float, result);	// Cast to float instead to keep information from being lost.
 		}
 		return;
 	}
@@ -204,8 +204,9 @@ void RTExprVisitor::visit(ASTUnaryExpr & node)
 		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
-
-	double lval = fvalToDouble_withDeref(visitAndGetResult(node.child_.get(), *this));
+	auto res = visitAndGetResult(node.child_.get(), *this);
+	deref(res);
+	double lval = fvalToDouble(res);
 	// op == loginot
 	if (node.op_ == unaryOperator::LOGICNOT)
 	{
@@ -234,7 +235,9 @@ void RTExprVisitor::visit(ASTCastExpr & node)
 		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
-	value_ = castTo_withDeref(node.getCastGoal(), visitAndGetResult(node.child_.get(), *this));
+	FVal value = visitAndGetResult(node.child_.get(), *this);
+	deref(value);
+	value_ = CastUtilities::performExplicitCast(context_,node.getCastGoal(),value);
 	return;
 }
 
@@ -248,7 +251,7 @@ void RTExprVisitor::visit(ASTVarCall & node)
 {
 	if (isDataMapAvailable())
 	{
-		value_ = symtab_->retrieveVarAttr(node.varname_).createRef(); // this returns a reference, because it's needed for assignement operations.
+		value_ = datamap_->retrieveVarAttr(node.varname_).createRef(); // this returns a reference, because it's needed for assignement operations.
 		return;
 	}
 	else
@@ -261,7 +264,7 @@ void RTExprVisitor::visit(ASTVarCall & node)
 
 void RTExprVisitor::setDataMap(std::shared_ptr<DataMap> symtab)
 {
-	symtab_ = symtab;
+	datamap_ = symtab;
 }
 
 FVal RTExprVisitor::getResult() const
@@ -269,28 +272,16 @@ FVal RTExprVisitor::getResult() const
 	return value_;
 }
 
-double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
+double RTExprVisitor::fvalToDouble(FVal fval)
 {
-	// If fval is a reference, dereference it first
-	if (std::holds_alternative<var::varRef>(fval))
-	{
-		if (isDataMapAvailable())
-		{
-			fval = symtab_->retrieveValue(
-				std::get<var::varRef>(fval).getName()
-			);
-		}
-		else
-			context_.logMessage("Can't dereference variable if the symbols table is not available.");
-	}
-	if (!isBasic(fval.index()))
+	if (!IndexUtils::isBasic(fval.index()))
 	{
 		std::stringstream out;
 		out << "Can't perform conversion to double on a non basic type.(FVal index:" << fval.index() << ")\n";
 		out << dumpFVal(fval);
 		context_.reportFatalError(out.str());
 	}
-	else if (!isArithmetic(fval.index()))
+	else if (!IndexUtils::isArithmetic(fval.index()))
 	{
 		std::stringstream out;
 		out << "Can't perform conversion to double on a non arithmetic type. (FVal index:" << fval.index() << ")\n";
@@ -311,14 +302,15 @@ double RTExprVisitor::fvalToDouble_withDeref(FVal fval)
 }
 bool RTExprVisitor::compareVal(const binaryOperator & op, const FVal & l, const FVal & r)
 {
-	
-	const double lval = fvalToDouble_withDeref(l);
-	const double rval = fvalToDouble_withDeref(r);
+	FVal lcpy = l, rcpy = r;
+	deref(lcpy), deref(rcpy);
+	const double lval = fvalToDouble(lcpy);
+	const double rval = fvalToDouble(rcpy);
 	switch (op)
 	{
-		case binaryOperator::AND:
+		case binaryOperator::LOGIC_AND:
 			return (lval != 0) && (rval != 0);
-		case binaryOperator::OR:
+		case binaryOperator::LOGIC_OR:
 			return (lval != 0) || (rval != 0);
 		case binaryOperator::LESS_OR_EQUAL:
 			return lval <= rval;
@@ -354,9 +346,9 @@ bool RTExprVisitor::compareChar(const binaryOperator & op, const CharType & lhs,
 {
 	switch (op)
 	{
-		case binaryOperator::AND:
+		case binaryOperator::LOGIC_AND:
 			return (lhs != 0) && (rhs != 0);
-		case binaryOperator::OR:
+		case binaryOperator::LOGIC_OR:
 			return (lhs != 0) || (rhs != 0);
 		case binaryOperator::LESS_OR_EQUAL:
 			return lhs <= rhs;
@@ -437,26 +429,26 @@ double RTExprVisitor::performOp(const binaryOperator& op,double l,double r)
 	}
 }
 
-bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
+bool RTExprVisitor::fitsInValue(const FoxType& typ, const double & d)
 {
-	switch (typ)
+	switch (typ.getBuiltInTypeIndex())
 	{
-		case indexes::fval_bool:
+		case TypeIndex::basic_Bool:
 			return true; // When we want to cast to bool, we usually don't care to lose information, we just want a true/false result.
-		case indexes::fval_int:
-			if (d < limits::IntType_MIN || d > limits::IntType_MAX )
+		case TypeIndex::basic_Int:
+			if (d < TypeLimits::IntType_MIN || d > TypeLimits::IntType_MAX )
 				return false;
 			return true;
-		case indexes::fval_float:
+		case TypeIndex::basic_Float:
 			return true;
-		case indexes::fval_char:
-			if (d < limits::CharType_MIN || d > limits::CharType_MAX)
+		case TypeIndex::basic_Char:
+			if (d < TypeLimits::CharType_MIN || d > TypeLimits::CharType_MAX)
 				return false;
 			return true;
-		case indexes::invalid_index:
+		case TypeIndex::InvalidIndex:
 		    throw std::logic_error("Index was invalid");
 		default:
-			if (!isBasic(typ))
+			if (!typ.isBasic())
 				throw std::logic_error("Can't make a \"fitInValue\" check on a non-basic type.");
 			else
 				throw std::logic_error("Switch defaulted. Unimplemented type?");
@@ -465,18 +457,14 @@ bool RTExprVisitor::fitsInValue(const std::size_t& typ, const double & d)
 
 bool RTExprVisitor::isDataMapAvailable() const
 {
-	return (symtab_ ? true : false);
+	return (datamap_ ? true : false);
 }
 
-FVal RTExprVisitor::castTo_withDeref(const std::size_t & goal, FVal val)
+void RTExprVisitor::deref(FVal & val) const
 {
 	if (std::holds_alternative<var::varRef>(val))
 	{
 		auto ref = std::get<var::varRef>(val);
-		val = symtab_->retrieveValue(ref.getName());
+		val = datamap_->retrieveValue(ref.getName());
 	}
-	else if (!isBasic(goal))
-		throw std::logic_error("The Goal type was not a basic type.");
-
-	return CastUtilities::castTo(context_,goal, val);
 }

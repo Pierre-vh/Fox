@@ -10,7 +10,7 @@
 #include "Dumper.hpp"
 // Exception
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
-// FVal Utilities
+#include "Moonshot/Common/Types/FValUtils.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
 #include "Moonshot/Common/Utils/Utils.hpp" // for enumAsInt
 // Include nodes
@@ -37,8 +37,8 @@ void Dumper::visit(ASTBinaryExpr & node)
 
 	std::cout << tabs() << "BinaryExpression : Operator " << op;
 	// print planned result type if there's one
-	if (node.resultType_ != 0 && node.resultType_ != indexes::invalid_index)
-		std::cout << ", Return type : " << indexToTypeName(node.resultType_);
+	if (node.resultType_ != 0 && node.resultType_ != TypeIndex::InvalidIndex)
+		std::cout << ", Return type : " << node.resultType_.getTypeName();
 	// newline
 	std::cout << "\n";
 
@@ -73,11 +73,8 @@ void Dumper::visit(ASTUnaryExpr & node)
 
 	std::cout << tabs() << "UnaryExpression : Operator " << op;
 
-	if (node.resultType_ > 10)
-		std::cout << "";
-
-	if (node.resultType_ != 0 && node.resultType_ != indexes::invalid_index)
-		std::cout << ", Return type : " << indexToTypeName(node.resultType_);
+	if (node.resultType_ != 0 && node.resultType_ != TypeIndex::InvalidIndex)
+		std::cout << ", Return type : " << node.resultType_.getTypeName();
 
 	std::cout << "\n";
 
@@ -97,7 +94,7 @@ void Dumper::visit(ASTUnaryExpr & node)
 
 void Dumper::visit(ASTCastExpr & node)
 {
-	std::cout << tabs() << "CastExpression : Cast Goal:" << indexToTypeName(node.getCastGoal()) << "\n";
+	std::cout << tabs() << "CastExpression : Cast Goal:" << node.getCastGoal().getTypeName() << "\n";
 	tabcount_++;
 	std::cout << tabs() << "Child:\n";
 	tabcount_++;
@@ -113,12 +110,12 @@ void Dumper::visit(ASTCastExpr & node)
 }
 void Dumper::visit(ASTLiteral & node)
 {
-	std::cout << tabs() << "Literal: " << dumpFVal(node.val_) << '\n';
+	std::cout << tabs() << "Literal: " << FValUtils::dumpFVal(node.val_) << '\n';
 }
 
 void Dumper::visit(ASTVarDeclStmt & node)
 {
-	std::cout << tabs() << "VarDeclStmt :" << dumpVAttr(node.vattr_) << std::endl;
+	std::cout << tabs() << "VarDeclStmt :" << node.vattr_.dump() << std::endl;
 	if (node.initExpr_)
 	{
 		tabcount_ += 1;
@@ -153,37 +150,26 @@ void Dumper::visit(ASTCompStmt & node)
 
 void Dumper::visit(ASTCondition & node)
 {
-	std::cout << tabs() << "Condition Branch\n";
-	int counter = 0;
-	// (else) ifs
-	for (const auto& elem : node.conditional_stmts_)
-	{
-		tabcount_++;
-		std::cout << tabs() << "Condition " << counter << std::endl;
-		tabcount_++;
-
-		std::cout << tabs() << "Condition Expression:\n";
-		tabcount_++;
-		elem.expr_->accept(*this);
-		tabcount_--;
-
-		std::cout << tabs() << "Condition Body:\n";
-
-		tabcount_++;
-		elem.stmt_->accept(*this);
-		tabcount_-=3;
-
-		counter++;
-	}
+	std::cout << tabs() << "Condition\n";
+	tabcount_++;
+	// if
+	std::cout << tabs() << "Expression (Condition):\n";
+	tabcount_++;
+	node.condition_expr_->accept(*this);
+	tabcount_--;
+	std::cout << tabs() << "Body:\n";
+	tabcount_++;
+	node.condition_stmt_->accept(*this);
+	tabcount_--;
 	// has else?
 	if (node.else_stmt_)
 	{
-		tabcount_++;
-		std::cout << tabs() << "\"Else\" Body:\n";
+		std::cout << tabs() << "Else:\n";
 		tabcount_++;
 		node.else_stmt_->accept(*this);
-		tabcount_ -= 2;
+		tabcount_--;
 	}
+	tabcount_--;
 }
 
 void Dumper::visit(ASTWhileLoop & node)
@@ -212,7 +198,7 @@ std::string Dumper::tabs() const
 	for (unsigned char k(0); k < tabcount_; k++)
 		i += '\t';
 	if (tabcount_ > 1)
-		i += '\xC0';
+		i += u8"┗";
 	return i;
 }
 

@@ -16,15 +16,15 @@ you'll be greeted with an error!)
 
 <id> 				= $id
 <type> 				= "int 	| "float" | "bool" | "string" | "char"
-<literal>			= $int_val 	| $float_val 	| $bool_val | $string_val 	| $char_val
+<literal>			= $int_val 	| $float_val | $bool_val | $string_val 	| $char_val
 
 <type_spec>			= ':' ["const"] <type>				
-<arg_type_spec>		= ':' ['&'] <type>					// the optional ampersand indicates pass by reference
 <compound_statement>= '{' {<stmt>} '}'		// Statements delimited by curly brackets.
 
 <stmt>			= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <compound_statement> | <rtr_stmt> 
 
 <expr_stmt>		= ';' | <expr> ';' 
+<parens_expr>	= '(' <expr> ')'
 
 <value>         = <callable> | <literal> | '(' <expr> ')' 
 <exp_expr>      = <value> [ <exponent_operator> <prefix_exp> ]
@@ -55,30 +55,24 @@ you'll be greeted with an error!)
 	=
 */
 
-
-
 ##Variables##
 <var_decl>		= "let" <id> <type_spec> ['=' <expr>] ';' 	// You can define variables in a rust-like fashion, but you can specify the type of the variable. const variables can't be modified.
 
 ##Functions##
-<func_decl>		= "func" <id> <arg_list_decl> [<type_spec>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
-<arg_list_decl> = '(' [<arg_decl> {',' <arg_decl>}*] ')'
-<arg_decl>		=  <id> <arg_type_spec> 				// argument are (by default) passed by value, the ampersand indicates passing by reference.
+<func_decl>		= "func" <id> '(' [<arg_list_decl>] ')'[':' <type>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
+<arg_list_decl> = [<arg_decl> {',' <arg_decl>}*]
+<arg_decl>		= <id> : ["const"]['&'] <type>
 <f_call>		=  <id> <expr_list>						// Function calls used in expressions, etc..
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
 <rtr_stmt>		= "return" [<expr>] ';'
 
 ##Control Flow##
-<condition>			= <cond_if> {<cond_elseIf>} [<cond_else>]
-<cond_if>			= "if				'(' <expr> ')'	<statement>
-<cond_elseIf>		= "else" "if"		'(' <expr> ')'	<statement> 
-<cond_else>			= "else"							<statement>
-<while_loop> 		= "while"			'(' <expr> ')'	<statement> 
+<condition>			= "if" <parens_expr> <statement> ["else" <statement>]
+<while_loop> 		= "while" <parens_expr> <statement>
 
 ##SCRAPPED IDEA : MIGHT RETURN LATER##
-	<namespace> 		= {<id> '.'} 						// This designates namespaces, examples : "Fox." "Fox.io."
-	// all of that package system will return at some point later, I just want to get the backend up and running before implementing multiple file support
-	<ext_id>		= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"
-	<general_id>	= <ext_id> | <id>
-	##Importing Packages##
-	<import_stmt>   = ( "import" | "using" ) <ext_id> ';'
+<namespace> 		= {<id> '.'} 						// This designates namespaces, examples : "Fox." "Fox.io."
+<ext_id>			= [<namespace>] <id>						// External IDs, examples : "Fox.foo"	"Fox.io.print"
+<general_id>		= <ext_id> | <id>
+##Importing Packages##
+<import_stmt>		= ( "import" | "using" ) <ext_id> ';'

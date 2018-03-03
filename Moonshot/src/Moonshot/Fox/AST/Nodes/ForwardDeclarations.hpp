@@ -14,17 +14,18 @@ namespace Moonshot
 {
 	struct IASTNode;
 	struct IASTStmt;
+	struct IASTExpr;
+	struct IASTDeclaration;
+
 	struct ASTLiteral;
 	struct ASTVarDeclStmt;
 	struct ASTVarCall;
 	struct ASTCompStmt;
 	struct ASTCondition;
 	struct ASTWhileLoop;
-	struct IASTExpr;
 	struct ASTBinaryExpr;
 	struct ASTUnaryExpr;
 	struct ASTCastExpr;
 	struct ASTNullStmt;
-
-	struct ConditionalStatement;
+	struct ASTFunctionDeclaration;
 }

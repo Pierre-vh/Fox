@@ -11,7 +11,7 @@
 #pragma once
 // Types & utils
 #include "Moonshot/Common/Types/Types.hpp"
-#include "Moonshot/Fox/AST/Visitor/Eval/Expr/RTExprVisitor.hpp" //Superclass
+#include "Moonshot/Fox/Eval/Expr/RTExprVisitor.hpp" //Superclass
 
 namespace Moonshot
 {
