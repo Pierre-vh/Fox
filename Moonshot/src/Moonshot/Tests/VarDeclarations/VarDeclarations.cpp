@@ -42,7 +42,7 @@ bool VarDeclarations::runTest(Context & context)
 
 		std::unique_ptr<IASTStmt> root;
 		if (auto parseres = p.parseVarDeclStmt())
-			root = std::move(parseres.node_);
+			root = std::move(parseres.result_);
 
 		FAILED_RETURN_IF_ERR("parsing");
 		root->accept(TypeCheckVisitor(context, true));
@@ -63,7 +63,7 @@ bool VarDeclarations::runTest(Context & context)
 		Parser p(context, l.getTokenVector());
 		std::unique_ptr<IASTStmt> root;
 		if (auto parseres = p.parseVarDeclStmt())
-			root = std::move(parseres.node_);
+			root = std::move(parseres.result_);
 
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root); // fail if root's false

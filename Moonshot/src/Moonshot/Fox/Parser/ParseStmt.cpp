@@ -28,7 +28,7 @@ using keyword = Token::keyword;
 #include "Moonshot/Fox/AST/Nodes/ASTNullStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTFunctionDeclaration.hpp"
 
-ParsingResult<IASTStmt> Parser::parseCompoundStatement()
+ParsingResult<IASTStmt*> Parser::parseCompoundStatement()
 {
 	auto rtr = std::make_unique<ASTCompStmt>(); // return value
 	if (matchSign(sign::B_CURLY_OPEN))
@@ -40,25 +40,25 @@ ParsingResult<IASTStmt> Parser::parseCompoundStatement()
 			{
 				// Don't push another null statement if the last statement is already a null one.
 				if (dynamic_cast<ASTNullStmt*>(rtr->statements_.back().get()) &&
-					dynamic_cast<ASTNullStmt*>(parseres.node_.get()))
+					dynamic_cast<ASTNullStmt*>(parseres.result_.get()))
 					continue;
 			}
-			rtr->statements_.push_back(std::move(parseres.node_));
+			rtr->statements_.push_back(std::move(parseres.result_));
 		}
 		// Match the closing curly bracket
 		if (!matchSign(sign::B_CURLY_CLOSE))
 		{
 			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
 			if (resyncToDelimiter(sign::B_CURLY_CLOSE))
-				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
-		return ParsingResult<IASTStmt>(ParsingOutcome::SUCCESS,std::move(rtr));
+		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS,std::move(rtr));
 	}
-	return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTStmt> Parser::parseWhileLoop()
+ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 {
 	// Rule : <while_loop> 	= <wh_kw>  '(' <expr> ')'	<compound_statement> 
 	if (matchKeyword(keyword::D_WHILE))
@@ -66,33 +66,33 @@ ParsingResult<IASTStmt> Parser::parseWhileLoop()
 		std::unique_ptr<ASTWhileLoop> rtr = std::make_unique<ASTWhileLoop>();
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
-			rtr->expr_ = std::move(parensExprRes.node_);
+			rtr->expr_ = std::move(parensExprRes.result_);
 			//  no need for failure cases, the function parseParensExpr manages failures by itself when the mandatory flag is set.
 		// <stmt>
 		if (auto parseres = parseStmt())
-			rtr->body_ = std::move(parseres.node_);
+			rtr->body_ = std::move(parseres.result_);
 		else
 		{
 			errorExpected("Expected a Statement after while loop declaration,");
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		// Return
-		return ParsingResult<IASTStmt>(ParsingOutcome::SUCCESS, std::move(rtr));
+		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS, std::move(rtr));
 	}
-	return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<ASTFunctionDeclaration> Parser::parseFunctionDeclaration()
+ParsingResult<ASTFunctionDeclaration*> Parser::parseFunctionDeclaration()
 {
 	/* 
 		<func_decl> = "func" <id> '(' [<arg_list_decl>] ')'[':' <type>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
 		<arg_list_decl> = [<arg_decl> {',' <arg_decl>}*]
 		<arg_decl> = <id> : ["const"]['&'] <type>
 	*/
-	return ParsingResult<ASTFunctionDeclaration>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<ASTFunctionDeclaration*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTStmt> Parser::parseCondition()
+ParsingResult<IASTStmt*> Parser::parseCondition()
 {
 	//<condition> = "if" <parens_expr> <statement> ["else" <statement>]
 	auto rtr = std::make_unique<ASTCondition>();
@@ -102,16 +102,16 @@ ParsingResult<IASTStmt> Parser::parseCondition()
 	{
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
-			rtr->condition_expr_ = std::move(parensExprRes.node_);
+			rtr->condition_expr_ = std::move(parensExprRes.result_);
 
 		// <statement>
 		auto ifStmtRes = parseStmt();
 		if (ifStmtRes)
-			rtr->condition_stmt_ = std::move(ifStmtRes.node_);
+			rtr->condition_stmt_ = std::move(ifStmtRes.result_);
 		else
 		{
 			errorExpected("Expected a statement after if condition,");
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		has_if = true;
 	}
@@ -120,21 +120,21 @@ ParsingResult<IASTStmt> Parser::parseCondition()
 	{
 		// <statement>
 		if (auto stmt = parseStmt())
-			rtr->else_stmt_ = std::move(stmt.node_);
+			rtr->else_stmt_ = std::move(stmt.result_);
 		else
 		{
 			errorExpected("Expected a statement after else,");
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		if (!has_if)
 			genericError("Else without matching if.");
 	}
 	if(has_if)
-		return ParsingResult<IASTStmt>(ParsingOutcome::SUCCESS, std::move(rtr));
-	return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
+		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS, std::move(rtr));
+	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTStmt> Parser::parseStmt()
+ParsingResult<IASTStmt*> Parser::parseStmt()
 {
 	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <compound_statement> | (<rtr_stmt> -> to be implemented)
 	if (auto parseres = parseExprStmt())
@@ -148,10 +148,10 @@ ParsingResult<IASTStmt> Parser::parseStmt()
 	else if (auto parseres = parseCompoundStatement())
 		return parseres;
 	else
-		return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
+		return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTStmt> Parser::parseVarDeclStmt()
+ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 {
 	//<var_decl> = <let_kw> <id> <type_spec> ['=' <expr>] ';'
 	std::unique_ptr<IASTExpr> initExpr = 0;
@@ -173,8 +173,8 @@ ParsingResult<IASTStmt> Parser::parseVarDeclStmt()
 		{
 			errorExpected("Expected an identifier");
 			if (resyncToDelimiter(sign::P_SEMICOLON))
-				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 		// ##TYPESPEC##
 		auto typespecResult = parseTypeSpec();
@@ -185,8 +185,8 @@ ParsingResult<IASTStmt> Parser::parseVarDeclStmt()
 		{
 			errorExpected("Expected a ':'");
 			if (resyncToDelimiter(sign::P_SEMICOLON))
-				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 		else
 		{
@@ -200,13 +200,13 @@ ParsingResult<IASTStmt> Parser::parseVarDeclStmt()
 		if (matchSign(sign::S_EQUAL))
 		{
 			if (auto parseres = parseExpr())
-				initExpr = std::move(parseres.node_);
+				initExpr = std::move(parseres.result_);
 			else
 			{
 				errorExpected("Expected an expression");
 				if (resyncToDelimiter(sign::P_SEMICOLON))
-					return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED);
-				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_AND_DIED);
+					return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 			}
 		}
 		// ';'
@@ -214,24 +214,24 @@ ParsingResult<IASTStmt> Parser::parseVarDeclStmt()
 		{
 			errorExpected("Expected semicolon after expression in variable declaration,");
 			if (resyncToDelimiter(sign::P_SEMICOLON))
-				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 
 		// If parsing was ok : 
 		var::varattr v_attr(varName, varType, isVarConst);
 		if (initExpr) // Has init expr?
-			return ParsingResult<IASTStmt>(
+			return ParsingResult<IASTStmt*>(
 				ParsingOutcome::SUCCESS,
 				std::make_unique<ASTVarDeclStmt>(v_attr,std::move(initExpr))
 			);
 		else
-			return ParsingResult<IASTStmt>(
+			return ParsingResult<IASTStmt*>(
 				ParsingOutcome::SUCCESS,
 				std::make_unique<ASTVarDeclStmt>(v_attr, nullptr)
 			);
 	}
-	return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
 std::tuple<bool, bool,FoxType> Parser::parseTypeSpec()
@@ -252,25 +252,25 @@ std::tuple<bool, bool,FoxType> Parser::parseTypeSpec()
 	return { false, false, TypeIndex::InvalidIndex };
 }
 
-ParsingResult<IASTStmt> Parser::parseExprStmt()
+ParsingResult<IASTStmt*> Parser::parseExprStmt()
 {
 	//<expr_stmt> = ';' |<expr> ';'
 	if (matchSign(sign::P_SEMICOLON))
-		return ParsingResult<IASTStmt>(ParsingOutcome::SUCCESS,
+		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS,
 			std::make_unique<ASTNullStmt>()
 		);
 	else if (auto node = parseExpr())
 	{
 		// Found node
 		if (matchSign(sign::P_SEMICOLON))
-			return ParsingResult<IASTStmt>(ParsingOutcome::SUCCESS,std::move(node.node_));
+			return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS,std::move(node.result_));
 		else
 		{
 			errorExpected("Expected a ';' in expression statement");
 			if (resyncToDelimiter(sign::P_SEMICOLON))
-				return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 	}
-	return ParsingResult<IASTStmt>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }

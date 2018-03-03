@@ -48,7 +48,7 @@ bool ExprStmtTest::runTest(Context & context)
 
 		std::unique_ptr<IASTStmt> root;
 		if (auto parseres = p.parseExprStmt())
-			 root = std::move(parseres.node_);
+			 root = std::move(parseres.result_);
 
 		FAILED_RETURN_IF_ERR("parsing");
 
@@ -76,7 +76,7 @@ bool ExprStmtTest::runTest(Context & context)
 
 		std::unique_ptr<IASTStmt> root;
 		if (auto parseres = p.parseExprStmt())
-			 root = std::move(parseres.node_);
+			 root = std::move(parseres.result_);
 
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root); // fail if root's false

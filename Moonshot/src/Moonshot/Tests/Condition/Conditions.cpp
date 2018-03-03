@@ -85,7 +85,7 @@ bool Conditions::testCond(Context & context, const std::string& str)
 
 	std::unique_ptr<IASTStmt> node;
 	if (auto parseres = parser.parseCondition())
-		node = std::move(parseres.node_);
+		node = std::move(parseres.result_);
 
 	context.printLogs();
 	FAILED_RETURN_IF_ERR__SILENT;

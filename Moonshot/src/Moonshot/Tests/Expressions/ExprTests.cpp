@@ -50,7 +50,7 @@ bool ExprTests::runTest(Context & context)
 		Parser p(context, l.getTokenVector());
 		std::unique_ptr<IASTExpr> root; 
 		if (auto parseres = p.parseExpr())
-			root = std::move(parseres.node_);
+			root = std::move(parseres.result_);
 		FAILED_RETURN_IF_ERR("parsing (parsing error)");
 		FAILED_RETURN_IF(!root, "parsing (null node)")
 
@@ -87,7 +87,7 @@ bool ExprTests::runTest(Context & context)
 		Parser p(context, l.getTokenVector());
 		std::unique_ptr<IASTExpr> root;
 		if (auto parseres = p.parseExpr())
-			root = std::move(parseres.node_);
+			root = std::move(parseres.result_);
 		SUCCESS_CONTINUE_IF_ERR;
 		SUCCESS_CONTINUE_IF(!root);
 

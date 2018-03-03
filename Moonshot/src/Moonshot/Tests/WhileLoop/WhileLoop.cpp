@@ -81,7 +81,7 @@ bool WhileLoop::testWhileLoop(Context & context, const std::string & str)
 
 	std::unique_ptr<IASTStmt> node;
 	if (auto parseres = parser.parseWhileLoop())
-		node = std::move(parseres.node_);
+		node = std::move(parseres.result_);
 
 	context.printLogs();
 	FAILED_RETURN_IF_ERR__SILENT;

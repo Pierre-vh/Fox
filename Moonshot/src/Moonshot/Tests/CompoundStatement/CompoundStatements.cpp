@@ -53,7 +53,7 @@ bool CompoundStatements::parseFile_compoundStatement(Context& context, const std
 
 	std::unique_ptr<IASTStmt> node;
 	if (auto parseres = parser.parseCompoundStatement())
-		node = std::move(parseres.node_);
+		node = std::move(parseres.result_);
 
 	FAILED_RETURN_IF_ERR__SILENT;
 	if (node)

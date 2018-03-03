@@ -70,32 +70,32 @@ namespace Moonshot
 			~Parser();
 
 			// EXPRESSIONS
-			ParsingResult<IASTExpr> parseCallable(); // values/functions calls.
-			ParsingResult<IASTExpr> parseValue();
-			ParsingResult<IASTExpr> parseExponentExpr();
-			ParsingResult<IASTExpr> parsePrefixExpr(); // unary prefix expressions
-			ParsingResult<IASTExpr> parseCastExpr();
-			ParsingResult<IASTExpr> parseBinaryExpr(const char &priority = 5);
-			ParsingResult<IASTExpr> parseExpr(); 
+			ParsingResult<IASTExpr*> parseCallable(); // values/functions calls.
+			ParsingResult<IASTExpr*> parseValue();
+			ParsingResult<IASTExpr*> parseExponentExpr();
+			ParsingResult<IASTExpr*> parsePrefixExpr(); // unary prefix expressions
+			ParsingResult<IASTExpr*> parseCastExpr();
+			ParsingResult<IASTExpr*> parseBinaryExpr(const char &priority = 5);
+			ParsingResult<IASTExpr*> parseExpr(); 
 				// PARENS EXPR
-			ParsingResult<IASTExpr> parseParensExpr(bool isMandatory = false);
+			ParsingResult<IASTExpr*> parseParensExpr(bool isMandatory = false);
 
 			// STATEMENTS
-			ParsingResult<IASTStmt> parseStmt(); // General Statement
-			ParsingResult<IASTStmt> parseVarDeclStmt(); // Var Declaration Statement
-			ParsingResult<IASTStmt> parseExprStmt(); // Expression statement
+			ParsingResult<IASTStmt*> parseStmt(); // General Statement
+			ParsingResult<IASTStmt*> parseVarDeclStmt(); // Var Declaration Statement
+			ParsingResult<IASTStmt*> parseExprStmt(); // Expression statement
 
 			// STATEMENTS : COMPOUND STATEMENT
-			ParsingResult<IASTStmt> parseCompoundStatement(); // Compound Statement
+			ParsingResult<IASTStmt*> parseCompoundStatement(); // Compound Statement
 
 			// STATEMENTS : IF,ELSE IF,ELSE
-			ParsingResult<IASTStmt> parseCondition(); // Parse a  if-else if-else "block
+			ParsingResult<IASTStmt*> parseCondition(); // Parse a  if-else if-else "block
 			
 			// STATEMENTS : WHILE LOOP
-			ParsingResult<IASTStmt> parseWhileLoop();
+			ParsingResult<IASTStmt*> parseWhileLoop();
 
 			// FUNCTION DECLARATION
-			ParsingResult<ASTFunctionDeclaration> parseFunctionDeclaration();
+			ParsingResult<ASTFunctionDeclaration*> parseFunctionDeclaration();
 			
 		private:
 			// Private parse functions
