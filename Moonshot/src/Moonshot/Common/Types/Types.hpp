@@ -62,16 +62,22 @@ namespace Moonshot
 	{
 		public:
 			FoxType() = default;
-			FoxType(const std::size_t &basicIndex);
+			FoxType(const std::size_t &basicIndex,const bool &isConstant = false);
 
 			bool isBasic() const;
 			bool isArithmetic() const;
+			bool isConst() const;
+			bool is(const std::size_t& basicindex) const;
 
 			void setType(const std::size_t& basicIndex);
+			void setConstAttribute(const bool& val);
 
-			std::size_t getBuiltInTypeIndex() const;
+			std::size_t getTypeIndex() const;
 
 			std::string getTypeName() const; // returns the name of the type.
+
+			bool compareWith_permissive(const FoxType& other) const;	// Checks if the basic index is the same (types are compatible) without caring about the const flag.
+			bool compareWith_strict(const FoxType& other) const;		// Checks like permissive, but checks the const flag too.
 
 			// operators
 			FoxType& operator=(const std::size_t& basicIndex);
@@ -82,7 +88,8 @@ namespace Moonshot
 			bool operator!=(const std::size_t& basicIndex) const;
 			bool operator!=(const FoxType& other) const;
 		private:
-			std::size_t builtin_type_index_ = TypeIndex::InvalidIndex;
+			bool isconst_;
+			std::size_t type_index_ = TypeIndex::InvalidIndex;
 	};
 	namespace var
 	{
@@ -100,10 +107,9 @@ namespace Moonshot
 		{
 			varattr();
 			varattr(const std::string &nm);
-			varattr(const std::string &nm, const FoxType &ty, const bool &isK = false);
+			varattr(const std::string &nm, const FoxType &ty);
 			operator bool() const;
 			// Variable's attribute
-			bool isConst_ = false;
 			std::string name_ = "";
 			FoxType type_ = TypeIndex::Null_Type;
 

@@ -46,7 +46,7 @@ var::varattr::varattr(const std::string & nm)
 	name_ = nm; // Create a "dummy",unusable varattr with only a name.
 }
 
-var::varattr::varattr(const std::string & nm, const FoxType & ty, const bool & isK) : name_(nm), type_(ty), isConst_(isK)
+var::varattr::varattr(const std::string & nm, const FoxType & ty) : name_(nm), type_(ty)
 {
 	wasInit_ = true;
 }
@@ -64,41 +64,65 @@ var::varRef var::varattr::createRef() const
 std::string var::varattr::dump() const
 {
 	std::stringstream output;
-	output << "[name:\"" << name_ << "\" "
-		<< "type: " << (isConst_ ? "CONST " : "");
-	output << type_.getTypeName() << "]";
+	output << "[name:\"" << name_ << "\" type:" << type_.getTypeName() << "]";
 	return output.str();
 }
 
 // FoxType
-FoxType::FoxType(const std::size_t & basicIndex)
+FoxType::FoxType(const std::size_t & basicIndex,const bool& isConstant)
 {
+	isconst_ = isConstant;
 	setType(basicIndex);
 }
 
 bool FoxType::isBasic() const
 {
-	return IndexUtils::isBasic(builtin_type_index_);
+	return IndexUtils::isBasic(type_index_);
 }
 
 bool FoxType::isArithmetic() const
 {
-	return IndexUtils::isArithmetic(builtin_type_index_);
+	return IndexUtils::isArithmetic(type_index_);
+}
+
+bool FoxType::isConst() const
+{
+	return isconst_;
+}
+
+bool FoxType::is(const std::size_t & basicindex) const
+{
+	return type_index_ == basicindex;;
 }
 
 void FoxType::setType(const std::size_t & basicIndex)
 {
-	builtin_type_index_ = basicIndex;
+	type_index_ = basicIndex;
 }
 
-std::size_t FoxType::getBuiltInTypeIndex() const
+void FoxType::setConstAttribute(const bool & val)
 {
-	return builtin_type_index_;
+	isconst_ = val;
+}
+
+std::size_t FoxType::getTypeIndex() const
+{
+	return type_index_;
 }
 
 std::string FoxType::getTypeName() const
 {
-	return FValUtils::getTypenameForIndex(builtin_type_index_);
+	return (isconst_ ? "CONST " : "") + FValUtils::getTypenameForIndex(type_index_);
+}
+
+bool FoxType::compareWith_permissive(const FoxType & other) const
+{
+	return (type_index_ == other.type_index_);
+}
+
+bool FoxType::compareWith_strict(const FoxType & other) const
+{
+	return compareWith_permissive(other) && (isconst_ == other.isconst_);
 }
 
 FoxType & FoxType::operator=(const std::size_t & basicIndex)
@@ -109,12 +133,12 @@ FoxType & FoxType::operator=(const std::size_t & basicIndex)
 
 bool FoxType::operator==(const std::size_t & basicIndex) const
 {
-	return builtin_type_index_ == basicIndex;
+	return type_index_ == basicIndex;
 }
 
 bool FoxType::operator==(const FoxType & other) const
 {
-	return builtin_type_index_ == other.builtin_type_index_;
+	return compareWith_strict(other);
 }
 
 bool FoxType::operator!=(const std::size_t & basicIndex) const
