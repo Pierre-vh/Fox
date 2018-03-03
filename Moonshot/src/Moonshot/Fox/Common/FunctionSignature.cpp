@@ -11,7 +11,7 @@
 
 using namespace Moonshot::fn;
 
-argattr::argattr(const std::string & nm, const std::size_t & ty, const bool isK, const bool & isref)
+FnArgAttributes::FnArgAttributes(const std::string & nm, const std::size_t & ty, const bool isK, const bool & isref)
 {
 	name_ = nm;
 	type_ = ty;
@@ -19,7 +19,7 @@ argattr::argattr(const std::string & nm, const std::size_t & ty, const bool isK,
 	wasInit_ = true;
 }
 
-argattr::operator bool() const
+FnArgAttributes::operator bool() const
 {
 	return (wasInit_ && (type_ != TypeIndex::Null_Type) && (type_ != TypeIndex::InvalidIndex));
 }

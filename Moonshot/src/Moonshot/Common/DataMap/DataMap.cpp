@@ -10,7 +10,7 @@
 #include "DataMap.hpp"
 
 #include "Moonshot/Common/Types/TypesUtils.hpp"
-#include "Moonshot/Common/Types/FvalUtils.hpp"
+#include "Moonshot/Common/Types/FoxValueUtils.hpp"
 #include "Moonshot/Common/Types/TypeCast.hpp"
 #include "Moonshot/Common/Context/Context.hpp"
 
@@ -28,32 +28,32 @@ DataMap::~DataMap()
 {
 }
 
-FVal DataMap::retrieveValue(const std::string & varname)
+FoxValue DataMap::retrieveValue(const std::string & varname)
 {
 	bool successFlag;
 	auto res = map_getEntry(varname,successFlag);
 	if (successFlag)
 		return res.second;
-	return FVal();
+	return FoxValue();
 }
 
-var::varattr DataMap::retrieveVarAttr(const std::string & varname)
+var::VariableAttributes DataMap::retrieveVarAttr(const std::string & varname)
 {
 	bool successFlag;
 	auto res = map_getEntry(varname, successFlag);
 	if (successFlag)
 		return res.first;
-	return var::varattr();
+	return var::VariableAttributes();
 }
 
-bool DataMap::declareValue(const var::varattr & v_attr, const FVal & initVal)
+bool DataMap::declareValue(const var::VariableAttributes & v_attr, const FoxValue & initVal)
 {
 	if (std::holds_alternative<NullType>(initVal))
 		return map_getEntry(v_attr,FValUtils::getSampleFValForIndex(v_attr.type_.getTypeIndex())); // Init with a default value.
 	return map_getEntry(v_attr, initVal);
 }
 
-bool DataMap::setValue(const std::string & varname, const FVal & newVal)
+bool DataMap::setValue(const std::string & varname, const FoxValue & newVal)
 {
 	return map_setEntry(varname, newVal);
 }
@@ -70,7 +70,7 @@ void DataMap::dump() const
 	out.clear();
 }
 
-std::pair<var::varattr, FVal> DataMap::map_getEntry(const std::string & str, bool& successFlag)
+std::pair<var::VariableAttributes, FoxValue> DataMap::map_getEntry(const std::string & str, bool& successFlag)
 {
 	auto it = sym_table_.find(
 		createTempKey(str)
@@ -83,10 +83,10 @@ std::pair<var::varattr, FVal> DataMap::map_getEntry(const std::string & str, boo
 	}
 	context_.reportError("Undeclared variable " + str);
 	successFlag = false;
-	return std::pair<var::varattr, FVal>();
+	return std::pair<var::VariableAttributes, FoxValue>();
 }
 
-bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const bool& isDecl)
+bool DataMap::map_setEntry(const std::string & vname,const FoxValue& vvalue, const bool& isDecl)
 {
 	auto it = sym_table_.find(
 		createTempKey(vname)
@@ -99,7 +99,7 @@ bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const b
 			if (LOG_IMPLICIT_CASTS)
 			{
 				std::stringstream out;
-				out << "Implicit cast : Attempted to store a FVal of type" << FValUtils::getFValTypeName(vvalue) << " into the variable ";
+				out << "Implicit cast : Attempted to store a FoxValue of type" << FValUtils::getFValTypeName(vvalue) << " into the variable ";
 				out << vname << " (of type " << it->first.type_.getTypeName() << ")\n";
 				out << "Attempting cast to the desired type...";
 				context_.logMessage(out.str());
@@ -124,9 +124,9 @@ bool DataMap::map_setEntry(const std::string & vname,const FVal& vvalue, const b
 	return false; // No value found ? return false.
 }
 
-bool DataMap::map_getEntry(const var::varattr & vattr,FVal initval)
+bool DataMap::map_getEntry(const var::VariableAttributes & vattr,FoxValue initval)
 {
-	auto ret = sym_table_.insert({ vattr,FVal() });
+	auto ret = sym_table_.insert({ vattr,FoxValue() });
 	if (ret.second)
 		return map_setEntry(vattr.name_, initval,true); 	// Attempt to assign the initial value
 	else 
@@ -134,7 +134,7 @@ bool DataMap::map_getEntry(const var::varattr & vattr,FVal initval)
 	return ret.second; // ret.second is a "flag" if the operation was successful.
 }
 
-var::varattr DataMap::createTempKey(const std::string& v_name)
+var::VariableAttributes DataMap::createTempKey(const std::string& v_name)
 {
-	return var::varattr(v_name);
+	return var::VariableAttributes(v_name);
 }

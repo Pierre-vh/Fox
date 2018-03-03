@@ -211,7 +211,7 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 		}
 
 		// If parsing was ok : 
-		var::varattr v_attr(varName, varType);
+		var::VariableAttributes v_attr(varName, varType);
 		if (initExpr) // Has init expr?
 			return ParsingResult<IASTStmt*>(
 				ParsingOutcome::SUCCESS,

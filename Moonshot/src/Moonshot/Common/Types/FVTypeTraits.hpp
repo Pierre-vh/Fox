@@ -4,8 +4,8 @@
 // File : FVTypeTraits.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file contains the struct "FValTraits" which is used with std::visit
-// to determine the category of a templated type in a FVal. example : FValTraits<T>::is_basic
+// This file contains the struct "FoxValueTraits" which is used with std::visit
+// to determine the category of a templated type in a FoxValue. example : FoxValueTraits<T>::is_basic
 //
 // This also contains various Index-based functions and utilities.
 ////------------------------------------------------------////
@@ -89,14 +89,14 @@ namespace Moonshot
 		};
 		// monostate
 		template<>
-		struct typeIndex<Moonshot::var::varRef>
+		struct typeIndex<Moonshot::var::VariableReference>
 		{
 			constexpr static std::size_t index = TypeIndex::VarRef;
 		};
-		// FValue traits class, to use with templated functions.
-		// This class only operates on Indexes, and returns the index in the FVal of the type.
+		// FoxValue traits class, to use with templated functions.
+		// This class only operates on Indexes, and returns the index in the FoxValue of the type.
 		template <typename T>
-		struct FValTraits : public typeIndex<T>
+		struct FoxValueTraits : public typeIndex<T>
 		{
 			using typeIndex<T>::index;
 

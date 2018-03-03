@@ -15,7 +15,7 @@
 #include "Moonshot/Common/Types/FVTypeTraits.hpp"
 #include "Moonshot/Common/Types/TypeCast.hpp"
 #include "Moonshot/Common/Types/Types.hpp"
-#include "Moonshot/Common/Types/FValUtils.hpp"
+#include "Moonshot/Common/Types/FoxValueUtils.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
 #include "Moonshot/Common/UTF8/StringManipulator.hpp"
 #include "Moonshot/Common/DataMap/DataMap.hpp"
@@ -49,7 +49,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 {
 	if (!context_.isSafe())
 	{
-		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
+		value_ = FoxValue(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
 
@@ -84,10 +84,10 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		{
 			auto left_res = visitAndGetResult(node.left_.get(), *this);
 			auto right_res = visitAndGetResult(node.right_.get(), *this);
-			if (std::holds_alternative<var::varRef>(left_res) && IndexUtils::isValue(right_res.index()))
+			if (std::holds_alternative<var::VariableReference>(left_res) && IndexUtils::isValue(right_res.index()))
 			{
 				datamap_->setValue(
-					std::get<var::varRef>(left_res).getName(),
+					std::get<var::VariableReference>(left_res).getName(),
 					right_res
 				);
 				value_ = right_res; // Assignement returns the value on the left !
@@ -104,10 +104,10 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		if (isDataMapAvailable())
 		{
 			auto vattr = visitAndGetResult(node.left_.get(), *this);
-			if (std::holds_alternative<var::varRef>(vattr))
+			if (std::holds_alternative<var::VariableReference>(vattr))
 			{
 				// Perform assignement
-				std::string vname = std::get<var::varRef>(vattr).getName();
+				std::string vname = std::get<var::VariableReference>(vattr).getName();
 				node.right_->accept(*this);
 				datamap_->setValue(vname, value_);
 			}
@@ -123,8 +123,8 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		if (!node.left_ || !node.right_)
 			throw Exceptions::ast_malformation("Attempted to run a comparison operation on a node without 2 children");
 		
-		const FVal lfval = visitAndGetResult(node.left_.get(), *this);
-		const FVal rfval = visitAndGetResult(node.right_.get(), *this);
+		const FoxValue lfval = visitAndGetResult(node.left_.get(), *this);
+		const FoxValue rfval = visitAndGetResult(node.right_.get(), *this);
 		/*
 			todo, deref the variables HERE, and remove the deref part of the functions _derefFirst.
 		*/
@@ -132,7 +132,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		{
 			if (lfval.index() == rfval.index()) // if so, lhs/rhs must both be strings to compare them.
 			{
-				value_ = FVal(
+				value_ = FoxValue(
 					compareStr(
 						node.op_,
 						std::get<std::string>(lfval),
@@ -144,13 +144,13 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			else
 			{
 				context_.reportError("Attempted to compare a string with an arithmetic type.");
-				value_ = FVal();
+				value_ = FoxValue();
 				return;
 			}
 		}
 		else if (std::holds_alternative<CharType>(lfval) && std::holds_alternative<CharType>(rfval))
 		{
-			value_ = FVal(compareChar(
+			value_ = FoxValue(compareChar(
 				node.op_,
 				std::get<CharType>(lfval),
 				std::get<CharType>(rfval)
@@ -160,7 +160,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		else 
 		{
 			//std::cout << "Compare: Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
-			value_ = FVal(compareVal(
+			value_ = FoxValue(compareVal(
 				node.op_,
 				lfval,
 				rfval
@@ -194,14 +194,14 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		return;
 	}
 	// default return
-	value_ = FVal();
+	value_ = FoxValue();
 }
 
 void RTExprVisitor::visit(ASTUnaryExpr & node)
 {
 	if (!context_.isSafe())
 	{
-		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
+		value_ = FoxValue(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
 	auto res = visitAndGetResult(node.child_.get(), *this);
@@ -210,7 +210,7 @@ void RTExprVisitor::visit(ASTUnaryExpr & node)
 	// op == loginot
 	if (node.op_ == unaryOperator::LOGICNOT)
 	{
-		value_ = FVal(
+		value_ = FoxValue(
 			(bool)(lval == 0) // If the value differs equals zero, return true
 		);
 		return;
@@ -232,10 +232,10 @@ void RTExprVisitor::visit(ASTCastExpr & node)
 {
 	if (!context_.isSafe())
 	{
-		value_ = FVal(); // return directly if errors, don't waste time evaluating "sick" nodes.
+		value_ = FoxValue(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
-	FVal value = visitAndGetResult(node.child_.get(), *this);
+	FoxValue value = visitAndGetResult(node.child_.get(), *this);
 	deref(value);
 	value_ = CastUtilities::performExplicitCast(context_,node.getCastGoal(),value);
 	return;
@@ -257,7 +257,7 @@ void RTExprVisitor::visit(ASTVarCall & node)
 	else
 	{
 		context_.logMessage("Can't retrieve values if the symbols table is not available.");
-		value_ = FVal();
+		value_ = FoxValue();
 		return;
 	}
 }
@@ -267,24 +267,24 @@ void RTExprVisitor::setDataMap(std::shared_ptr<DataMap> symtab)
 	datamap_ = symtab;
 }
 
-FVal RTExprVisitor::getResult() const
+FoxValue RTExprVisitor::getResult() const
 {
 	return value_;
 }
 
-double RTExprVisitor::fvalToDouble(FVal fval)
+double RTExprVisitor::fvalToDouble(FoxValue fval)
 {
 	if (!IndexUtils::isBasic(fval.index()))
 	{
 		std::stringstream out;
-		out << "Can't perform conversion to double on a non basic type.(FVal index:" << fval.index() << ")\n";
+		out << "Can't perform conversion to double on a non basic type.(FoxValue index:" << fval.index() << ")\n";
 		out << dumpFVal(fval);
 		context_.reportFatalError(out.str());
 	}
 	else if (!IndexUtils::isArithmetic(fval.index()))
 	{
 		std::stringstream out;
-		out << "Can't perform conversion to double on a non arithmetic type. (FVal index:" << fval.index() << ")\n";
+		out << "Can't perform conversion to double on a non arithmetic type. (FoxValue index:" << fval.index() << ")\n";
 		out << dumpFVal(fval);
 		context_.reportFatalError(out.str());
 	}
@@ -297,12 +297,12 @@ double RTExprVisitor::fvalToDouble(FVal fval)
 	else if (std::holds_alternative<bool>(fval))
 		return (double)std::get<bool>(fval);
 	else
-		throw std::logic_error("Reached end of function.Unimplemented type in FVal?");
+		throw std::logic_error("Reached end of function.Unimplemented type in FoxValue?");
 	return 0.0;
 }
-bool RTExprVisitor::compareVal(const binaryOperator & op, const FVal & l, const FVal & r)
+bool RTExprVisitor::compareVal(const binaryOperator & op, const FoxValue & l, const FoxValue & r)
 {
-	FVal lcpy = l, rcpy = r;
+	FoxValue lcpy = l, rcpy = r;
 	deref(lcpy), deref(rcpy);
 	const double lval = fvalToDouble(lcpy);
 	const double rval = fvalToDouble(rcpy);
@@ -366,7 +366,7 @@ bool RTExprVisitor::compareChar(const binaryOperator & op, const CharType & lhs,
 			throw std::logic_error("Defaulted. Unimplemented condition operation?");
 	}
 }
-FVal RTExprVisitor::concat(const FVal & lhs, const FVal & rhs)
+FoxValue RTExprVisitor::concat(const FoxValue & lhs, const FoxValue & rhs)
 {
 	std::string rtr = "";
 	// lhs
@@ -384,7 +384,7 @@ FVal RTExprVisitor::concat(const FVal & lhs, const FVal & rhs)
 	else
 		throw std::logic_error("Invalid arguments to concat operations");
 
-	return FVal(rtr);
+	return FoxValue(rtr);
 }
 double RTExprVisitor::performOp(const binaryOperator& op,double l,double r)
 {
@@ -460,11 +460,11 @@ bool RTExprVisitor::isDataMapAvailable() const
 	return (datamap_ ? true : false);
 }
 
-void RTExprVisitor::deref(FVal & val) const
+void RTExprVisitor::deref(FoxValue & val) const
 {
-	if (std::holds_alternative<var::varRef>(val))
+	if (std::holds_alternative<var::VariableReference>(val))
 	{
-		auto ref = std::get<var::varRef>(val);
+		auto ref = std::get<var::VariableReference>(val);
 		val = datamap_->retrieveValue(ref.getName());
 	}
 }

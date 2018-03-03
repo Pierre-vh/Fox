@@ -5,7 +5,7 @@
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file declares types/objects/typedefs specific to the interpreter.
-// FVal, var_attr, etc.
+// FoxValue, var_attr, etc.
 // 
 // This file also declares various helper function to analyze said types 
 ////------------------------------------------------------////
@@ -19,14 +19,14 @@
 // fwd decl
 namespace Moonshot::var
 {
-	struct varRef;
-	struct varattr;
+	struct VariableReference;
+	struct VariableAttributes;
 }
 
 typedef int64_t IntType;
 typedef char32_t CharType;
 typedef std::monostate NullType;
-typedef std::variant<NullType, IntType, float, CharType, std::string, bool, Moonshot::var::varRef> FVal;
+typedef std::variant<NullType, IntType, float, CharType, std::string, bool, Moonshot::var::VariableReference> FoxValue; // The FoxValue, or FVal for short.
 
 namespace Moonshot
 {
@@ -37,15 +37,6 @@ namespace Moonshot
 		static constexpr CharType CharType_MAX = (std::numeric_limits<CharType>::max)();
 		static constexpr CharType CharType_MIN = (std::numeric_limits<CharType>::min)();
 	};
-	/*
-		Notes:
-		Basic = a basic type that is available to the users.
-		Builtin = a builtin type, that is available to the compiler to use, but not necessarily to the user.
-		Strictly speaking ,every type within the compiler is builtin, but 
-
-		All basic types are builtin.
-		Not all builtin types are basic.
-	*/
 	namespace TypeIndex
 	{
 		static constexpr std::size_t InvalidIndex	= (std::numeric_limits<std::size_t>::max)();
@@ -93,43 +84,44 @@ namespace Moonshot
 	};
 	namespace var
 	{
-		struct varRef
+		struct VariableReference
 		{
 			/* This class is dumb, and will be deleted futher in the development process in favor of something much cleaner */
 			public:
-				varRef(const std::string& vname = "");
+				VariableReference(const std::string& vname = "");
 				std::string getName() const;
 				void setName(const std::string& newname);
 				operator bool() const;  // checks validity of reference (if name != "");
 			private:
 				std::string name_;
 		};
-		struct varattr // Struct holding a var's attributes
+		struct VariableAttributes // Struct holding a var's attributes
 		{
-			varattr();
-			varattr(const std::string &nm);
-			varattr(const std::string &nm, const FoxType &ty);
-			operator bool() const;
-			// Variable's attribute
-			std::string name_ = "";
-			FoxType type_ = TypeIndex::Null_Type;
+			public:
+				VariableAttributes();
+				VariableAttributes(const std::string &nm);
+				VariableAttributes(const std::string &nm, const FoxType &ty);
+				operator bool() const;
+				// Variable's attribute
+				std::string name_ = "";
+				FoxType type_ = TypeIndex::Null_Type;
 
-			varRef createRef() const;
+				VariableReference createRef() const;
 
-			std::string dump() const;
+				std::string dump() const;
 			protected:
 				bool wasInit_ = false;
 		};
-		inline bool operator < (const varattr& lhs, const varattr& rhs)
+		inline bool operator < (const VariableAttributes& lhs, const VariableAttributes& rhs)
 		{
 			return lhs.name_ < rhs.name_; // We don't care about the rest, because you can only use a name once.
 		}
-		inline bool operator == (const varattr& lhs, const varattr& rhs)
+		inline bool operator == (const VariableAttributes& lhs, const VariableAttributes& rhs)
 		{
 			return	(lhs.name_ == rhs.name_) &&
 					(lhs.type_ == rhs.type_);
 		}
-		inline bool operator != (const varattr& lhs, const varattr& rhs)
+		inline bool operator != (const VariableAttributes& lhs, const VariableAttributes& rhs)
 		{
 			return !(lhs == rhs);
 		}

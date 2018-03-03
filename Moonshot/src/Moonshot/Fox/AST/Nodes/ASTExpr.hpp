@@ -11,7 +11,7 @@
 
 #include "IASTExpr.hpp"							
 #include "Moonshot/Fox/Common/Operators.hpp"			// enums
-#include "Moonshot/Common/Types/Types.hpp"		// FVal
+#include "Moonshot/Common/Types/Types.hpp"		// FoxValue
 #include <memory>
 
 namespace Moonshot	
@@ -59,11 +59,11 @@ namespace Moonshot
 	{
 		public:
 			ASTLiteral() = default;
-			ASTLiteral(const FVal &fv);
+			ASTLiteral(const FoxValue &fv);
 
 			void accept(IVisitor& vis) override;
 
-			FVal val_;
+			FoxValue val_;
 	};
 
 	struct ASTVarCall : public IASTExpr 
@@ -74,7 +74,6 @@ namespace Moonshot
 
 			void accept(IVisitor& vis) override;
 			
-			//The varattr, which serves as a "reference" to the variable stored.
 			std::string varname_ = "";
 	};
 }

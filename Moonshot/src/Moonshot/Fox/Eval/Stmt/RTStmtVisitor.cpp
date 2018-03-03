@@ -55,12 +55,12 @@ void RTStmtVisitor::visit(ASTVarDeclStmt & node)
 			context_.reportError("Error while initializing variable " + node.vattr_.name_);
 		}
 	}
-	value_ = FVal(); // does not return anything.
+	value_ = FoxValue(); // does not return anything.
 }
 
-bool RTStmtVisitor::symtab_declareValue_derefFirst(const var::varattr & vattr, FVal initval)
+bool RTStmtVisitor::symtab_declareValue_derefFirst(const var::VariableAttributes & vattr, FoxValue initval)
 {
-	if (std::holds_alternative<var::varRef>(initval))
-		initval = datamap_->retrieveValue(std::get<var::varRef>(initval).getName());
+	if (std::holds_alternative<var::VariableReference>(initval))
+		initval = datamap_->retrieveValue(std::get<var::VariableReference>(initval).getName());
 	return datamap_->declareValue(vattr, initval);;
 }

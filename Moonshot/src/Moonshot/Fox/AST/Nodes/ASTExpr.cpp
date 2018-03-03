@@ -16,12 +16,12 @@
 
 using namespace Moonshot;
 
-ASTLiteral::ASTLiteral(const FVal& fv)
+ASTLiteral::ASTLiteral(const FoxValue& fv)
 {
 	if (IndexUtils::isBasic(fv.index()))
 		val_ = fv;
 	else
-		throw std::invalid_argument("ASTNodeLiteral constructor requires a basic type in the FVal");
+		throw std::invalid_argument("ASTNodeLiteral constructor requires a basic type in the FoxValue");
 }
 
 void ASTLiteral::accept(IVisitor& vis)

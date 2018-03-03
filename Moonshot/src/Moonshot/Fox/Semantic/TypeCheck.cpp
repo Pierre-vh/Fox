@@ -16,7 +16,7 @@
 #include "Moonshot/Common/Exceptions/Exceptions.hpp" // exceptions
 #include "Moonshot/Common/Types/Types.hpp" // Types
 #include "Moonshot/Common/Types/TypesUtils.hpp" // Types Utilities
-#include "Moonshot/Common/Types/FValUtils.hpp" // FVal Utils
+#include "Moonshot/Common/Types/FoxValueUtils.hpp" // FoxValue Utils
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include <sstream> // std::stringstream
 
@@ -29,8 +29,8 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 	if (testmode)
 	{
 		datamap_.declareValue(
-			var::varattr("TESTVALUE",FoxType(TypeIndex::basic_Int,true /*this is constant*/)),
-			FVal(IntType())
+			var::VariableAttributes("TESTVALUE",FoxType(TypeIndex::basic_Int,true /*this is constant*/)),
+			FoxValue(IntType())
 		);
 	}
 	node_ctxt_.cur_binop = binaryOperator::PASS;

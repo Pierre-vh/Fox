@@ -9,59 +9,59 @@
 
 #include "Types.hpp"
 #include "FVTypeTraits.hpp"
-#include "FValUtils.hpp"
+#include "FoxValueUtils.hpp"
 #include "TypesUtils.hpp"
 #include <sstream> // std::stringstream
 
 using namespace Moonshot;
 
-// varRef
-var::varRef::varRef(const std::string & vname)
+// VariableReference
+var::VariableReference::VariableReference(const std::string & vname)
 {
 	name_ = vname;
 }
 
-std::string var::varRef::getName() const
+std::string var::VariableReference::getName() const
 {
 	return name_;
 }
 
-void var::varRef::setName(const std::string & newname)
+void var::VariableReference::setName(const std::string & newname)
 {
 	name_ = newname;
 }
 
-var::varRef::operator bool() const
+var::VariableReference::operator bool() const
 {
 	return (name_ != "");
 }
 
-// varattr
-var::varattr::varattr()
+// VariableAttributes
+var::VariableAttributes::VariableAttributes()
 {
 }
 
-var::varattr::varattr(const std::string & nm)
+var::VariableAttributes::VariableAttributes(const std::string & nm)
 {
-	name_ = nm; // Create a "dummy",unusable varattr with only a name.
+	name_ = nm; // Create a "dummy",unusable VariableAttributes with only a name.
 }
 
-var::varattr::varattr(const std::string & nm, const FoxType & ty) : name_(nm), type_(ty)
+var::VariableAttributes::VariableAttributes(const std::string & nm, const FoxType & ty) : name_(nm), type_(ty)
 {
 	wasInit_ = true;
 }
 
-var::varattr::operator bool() const
+var::VariableAttributes::operator bool() const
 {
 	return (wasInit_ && (type_ != TypeIndex::Null_Type) && (type_ != TypeIndex::InvalidIndex));
 }
 
-var::varRef var::varattr::createRef() const
+var::VariableReference var::VariableAttributes::createRef() const
 {
-	return varRef(name_);
+	return VariableReference(name_);
 }
 
-std::string var::varattr::dump() const
+std::string var::VariableAttributes::dump() const
 {
 	std::stringstream output;
 	output << "[name:\"" << name_ << "\" type:" << type_.getTypeName() << "]";

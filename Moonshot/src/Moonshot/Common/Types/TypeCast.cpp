@@ -13,7 +13,7 @@
 #include "Types.hpp"
 #include "TypesUtils.hpp"
 #include "FVTypeTraits.hpp"
-#include "FValUtils.hpp"
+#include "FoxValueUtils.hpp"
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/UTF8/StringManipulator.hpp"
 
@@ -23,16 +23,16 @@
 using namespace Moonshot;
 using namespace TypeUtils;
 
-FVal CastUtilities::performImplicitCast(Context& context_, const FoxType& goal, FVal val)
+FoxValue CastUtilities::performImplicitCast(Context& context_, const FoxType& goal, FoxValue val)
 {
-	std::pair<bool, FVal> rtr = std::make_pair<bool, FVal>(false, FVal());
+	std::pair<bool, FoxValue> rtr = std::make_pair<bool, FoxValue>(false, FoxValue());
 	std::visit(
 		[&](const auto& a, const auto& b)
 		{
 			using Ty = std::decay_t<decltype(a)>;
 			std::pair<bool,Ty> result = castTypeTo_implicit<Ty>(context_, b);
 			rtr.first = result.first;
-			rtr.second = FVal(result.second);
+			rtr.second = FoxValue(result.second);
 		},
 			FValUtils::getSampleFValForIndex(goal.getTypeIndex()), val
 		);
@@ -41,19 +41,19 @@ FVal CastUtilities::performImplicitCast(Context& context_, const FoxType& goal, 
 		return rtr.second;
 	else
 		context_.reportError("Failed typecast (TODO:Show detailed error message)");
-	return FVal();
+	return FoxValue();
 }
 
-FVal CastUtilities::performExplicitCast(Context & context_, const FoxType& goal, FVal val)
+FoxValue CastUtilities::performExplicitCast(Context & context_, const FoxType& goal, FoxValue val)
 {
-	auto rtr = std::make_pair<bool, FVal>(false, FVal());
+	auto rtr = std::make_pair<bool, FoxValue>(false, FoxValue());
 	std::visit(
 		[&](const auto& a, const auto& b)
 		{
 			using Ty = std::decay_t<decltype(a)>;
 			std::pair<bool, Ty> result = castTypeTo_explicit<Ty>(context_, b);
 			rtr.first = result.first;
-			rtr.second = FVal(result.second);
+			rtr.second = FoxValue(result.second);
 		},
 			FValUtils::getSampleFValForIndex(goal.getTypeIndex()), val
 		);
@@ -62,12 +62,12 @@ FVal CastUtilities::performExplicitCast(Context & context_, const FoxType& goal,
 		return rtr.second;
 	else
 		context_.reportError("Failed typecast (TODO:Show detailed error message)");
-	return FVal();
+	return FoxValue();
 }
 
-FVal CastUtilities::castTo(Context& context_, const FoxType& goal, const double & val)
+FoxValue CastUtilities::castTo(Context& context_, const FoxType& goal, const double & val)
 {
-	std::pair<bool, FVal> rtr;
+	std::pair<bool, FoxValue> rtr;
 	std::visit(
 		[&](const auto& a)
 		{
@@ -78,5 +78,5 @@ FVal CastUtilities::castTo(Context& context_, const FoxType& goal, const double 
 	if (rtr.first)
 		return rtr.second;
 	context_.reportError("Failed typecast from double (TODO:Show detailed error message");
-	return FVal();
+	return FoxValue();
 }

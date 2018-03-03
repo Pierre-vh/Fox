@@ -9,7 +9,7 @@
 
 #include "ExprStmt.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
-#include "Moonshot/Common/Types/FValUtils.hpp"
+#include "Moonshot/Common/Types/FoxValueUtils.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Test;

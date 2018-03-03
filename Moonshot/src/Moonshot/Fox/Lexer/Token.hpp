@@ -116,7 +116,7 @@ namespace Moonshot
 			literal lit_type =	literal::DEFAULT;
 			sign sign_type =	sign::DEFAULT;
 
-			FVal lit_val;
+			FoxValue lit_val;
 
 			std::string str;
 			TextPosition pos;

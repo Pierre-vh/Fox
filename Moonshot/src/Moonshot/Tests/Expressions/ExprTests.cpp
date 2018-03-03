@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "ExprTests.hpp"
-#include "Moonshot/Common/Types/FValUtils.hpp"
+#include "Moonshot/Common/Types/FoxValueUtils.hpp"
 #include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
 #include "Moonshot/Fox/Semantic/TypeCheck.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
