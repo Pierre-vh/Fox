@@ -95,6 +95,7 @@ namespace Moonshot
 	{
 		struct varRef
 		{
+			/* This class is dumb, and will be deleted futher in the development process in favor of something much cleaner */
 			public:
 				varRef(const std::string& vname = "");
 				std::string getName() const;
