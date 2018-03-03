@@ -150,14 +150,14 @@ void Dumper::visit(ASTCompStmt & node)
 
 void Dumper::visit(ASTCondition & node)
 {
-	std::cout << tabs() << "Condition Branch\n";
+	std::cout << tabs() << "Condition\n";
 	tabcount_++;
 	// if
-	std::cout << tabs() << "Condition Expression:\n";
+	std::cout << tabs() << "Expression (Condition):\n";
 	tabcount_++;
 	node.condition_expr_->accept(*this);
 	tabcount_--;
-	std::cout << tabs() << "Condition Body:\n";
+	std::cout << tabs() << "Body:\n";
 	tabcount_++;
 	node.condition_stmt_->accept(*this);
 	tabcount_--;
