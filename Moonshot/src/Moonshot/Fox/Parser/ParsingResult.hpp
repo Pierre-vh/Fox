@@ -43,10 +43,65 @@ namespace Moonshot
 				hasRecovered() returns true if the node is not null.
 				wasSuccessful() false false
 	*/
-	template<typename PtrTy>
-	struct ParsingResult {
+	template<typename Ty>
+	struct ParsingResultData
+	{
+		Ty result_;
+	};
+
+	template<typename Ty>
+	struct ParsingResultData<Ty*>
+	{
+		std::unique_ptr<Ty> result_;
+	};
+
+	template<typename DataTy>
+	struct ParsingResult : ParsingResultData<DataTy> {
 		public:
-			ParsingResult(const ParsingOutcome& pc, std::unique_ptr<PtrTy> node = nullptr)
+			using ParsingResultData<DataTy>::result_;
+			using ResultType = decltype(result_);
+
+			ParsingResult(const ParsingOutcome& pc, ResultType res)
+			{
+				// set data
+				if constexpr (std::is_pointer<DataTy>::value)
+				{
+					if (res)
+					{
+						result_ = std::move(res);
+						isDataAvailable_ = true;
+					}
+					else
+					{
+						result_ = nullptr;
+						isDataAvailable_ = false;
+					}
+				}
+				else
+				{
+					isDataAvailable = true;
+					result_ = res;
+				}
+				// set flags
+				enumflag_ = pc;
+				if (pc == ParsingOutcome::SUCCESS || pc == ParsingOutcome::NOTFOUND)
+				{
+					successFlag_ = true;
+					recovered_ = true;
+				}
+				else if (pc == ParsingOutcome::FAILED_AND_DIED)
+				{
+					successFlag_ = false;
+					recovered_ = false;
+				}
+				else if (pc == ParsingOutcome::FAILED_BUT_RECOVERED || pc == ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
+				{
+					successFlag_ = isDataAvailable();
+					recovered_ = (pc == ParsingOutcome::FAILED_BUT_RECOVERED);
+				}
+			}
+
+			ParsingResult(const ParsingOutcome& pc)
 			{
 				enumflag_ = pc;
 				if (pc == ParsingOutcome::SUCCESS || pc == ParsingOutcome::NOTFOUND)
@@ -61,19 +116,14 @@ namespace Moonshot
 				}
 				else if (pc == ParsingOutcome::FAILED_BUT_RECOVERED || pc == ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
 				{
-					successFlag_ = isNodeNull();
+					successFlag_ = false;
 					recovered_ = (pc == ParsingOutcome::FAILED_BUT_RECOVERED);
 				}
-
-				if (node)
-					node_ = std::move(node);
-				else
-					node_ = nullptr;
 			}
 
 			operator bool() const
 			{
-				return wasSuccessful() && node_;
+				return wasSuccessful() && isDataAvailable();
 			}
 
 			ParsingOutcome getFlag() const
@@ -91,17 +141,17 @@ namespace Moonshot
 				return recovered_;
 			}
 
-			bool isNodeNull() const
+			bool isPointer() const
 			{
-				if (node_)
-					return true;
-				return false;
+				return std::is_pointer<DataTy>::value;
 			}
 
-			// The node returned by the parsing function
-			std::unique_ptr<PtrTy> node_ = nullptr;
+			bool isDataAvailable() const
+			{
+				return isDataAvailable_;
+			}
 		private:
 			ParsingOutcome enumflag_;
-			bool successFlag_ = false,recovered_ = true;
+			bool successFlag_ = false, recovered_ = true, isDataAvailable_ = false;
 	};
 }
