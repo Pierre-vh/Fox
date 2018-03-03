@@ -8,3 +8,4 @@ foo = -(val2 as int) as string;
 let xtest : float = val2 = 96;
 let xbtest : const string = xtest as string;
 let result : int = val1*val2--pi;
+let _other_thing_that_tests_implicit_conversion_and_lengthy_variable_names_ : string = 'c';
