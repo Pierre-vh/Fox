@@ -11,7 +11,7 @@
 #include <stdexcept>
 using namespace Moonshot;
 
-ASTFunctionDeclaration::ASTFunctionDeclaration(const FunctionSignature & funcsign, std::unique_ptr<ASTCompStmt> funcbody)
+ASTFunctionDeclaration::ASTFunctionDeclaration(const fn::FunctionSignature & funcsign, std::unique_ptr<ASTCompStmt> funcbody)
 {
 	if (!signature_)
 		throw std::invalid_argument("the function signature provided is invalid/ill-formed.");

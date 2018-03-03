@@ -9,9 +9,9 @@
 
 #include "FunctionSignature.hpp"
 
-using namespace Moonshot;
+using namespace Moonshot::fn;
 
-var::argattr::argattr(const std::string & nm, const std::size_t & ty, const bool isK, const bool & isref)
+argattr::argattr(const std::string & nm, const std::size_t & ty, const bool isK, const bool & isref)
 {
 	name_ = nm;
 	type_ = ty;
@@ -20,7 +20,7 @@ var::argattr::argattr(const std::string & nm, const std::size_t & ty, const bool
 	wasInit_ = true;
 }
 
-var::argattr::operator bool() const
+argattr::operator bool() const
 {
 	return (wasInit_ && (type_ != TypeIndex::Null_Type) && (type_ != TypeIndex::InvalidIndex));
 }

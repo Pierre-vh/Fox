@@ -17,11 +17,11 @@ namespace Moonshot
 	struct ASTFunctionDeclaration : public IASTNode	
 	{
 		ASTFunctionDeclaration() = default;
-		ASTFunctionDeclaration(const FunctionSignature &funcsign, std::unique_ptr<ASTCompStmt> funcbody);
+		ASTFunctionDeclaration(const fn::FunctionSignature &funcsign, std::unique_ptr<ASTCompStmt> funcbody);
 
 		virtual void accept(IVisitor& vis) { vis.visit(*this); }
 
 		std::unique_ptr<ASTCompStmt> body_;
-		FunctionSignature signature_;
+		fn::FunctionSignature signature_;
 	};
 }
