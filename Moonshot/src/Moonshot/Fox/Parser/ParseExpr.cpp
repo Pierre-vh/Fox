@@ -50,21 +50,8 @@ ParsingResult<IASTExpr*>  Parser::parseValue()
 	else if (auto res = parseCallable())	// Callable?
 		return res;							// In this case no transformation is needed, so just return the ParsingResult since it's the same thing we use.
 	// = '(' <expr> ')'
-	else if (matchSign(sign::B_ROUND_OPEN))
-	{
-		auto expr = parseExpr(); // Parse the expression inside
-		if (!expr) // check validity of the parsed expression
-			errorExpected("Expected an expression or a ')'");
-		// retrieve the closing bracket, throw an error if we don't have one. 
-		if (!matchSign(sign::B_ROUND_CLOSE))
-		{
-			errorExpected("Expected ')'");
-			if (resyncToDelimiter(sign::B_ROUND_CLOSE))
-				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_AND_DIED);
-		}
-		return expr;
-	}
+	else if (auto res = parseParensExpr())
+		return res;
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
