@@ -48,10 +48,22 @@ namespace Moonshot
 	class ITypedVisitor : public IVisitor
 	{
 		public:
-			virtual ~ITypedVisitor() = 0
-			{
+			inline virtual void visit(ASTBinaryExpr&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTUnaryExpr&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTCastExpr&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTLiteral&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTVarCall&)		{ value_ = TYPE(); }
 
-			}
+			inline virtual void visit(ASTNullStmt&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTVarDeclStmt&)	{ value_ = TYPE(); }
+
+			inline virtual void visit(ASTCompStmt&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTCondition&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTWhileLoop&)	{ value_ = TYPE(); }
+
+			inline virtual void visit(ASTFunctionDeclaration&) { value_ = TYPE(); }
+
+			virtual ~ITypedVisitor() = 0	{}
 		protected:
 			TYPE value_ = TYPE();
 
