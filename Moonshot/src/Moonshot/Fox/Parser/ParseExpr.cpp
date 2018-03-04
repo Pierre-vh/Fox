@@ -139,9 +139,6 @@ ParsingResult<IASTExpr*>  Parser::parseCastExpr()
 
 ParsingResult<IASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 {
-	if (priority < 0)
-		throw Exceptions::parser_critical_error("ParseBinaryExpr's first argument was lower than 0 (unknown priority.)");
-
 	auto rtr = std::make_unique<ASTBinaryExpr>(binaryOperator::PASS);
 
 	std::unique_ptr<IASTExpr> first;
@@ -390,7 +387,7 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 			}
 			break;
 		default:
-			throw Exceptions::parser_critical_error("Requested to match a Binary Operator with a non-existent priority");
+			throw Exceptions::parser_critical_error("Requested to match a Binary Operator of unknown priority");
 			break;
 	}
 	state_.pos -= 1;	// We did not find anything, decrement & return.
