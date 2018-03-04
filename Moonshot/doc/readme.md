@@ -37,3 +37,6 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 		Balanced the <condition> grammar to use a C-like syntax, which is better for codegen and more stable, and also easier to parse! </br>
 		Added a <parens_expr> rule to avoid repetitions. </br>
 		Minor changes to function declaration rules (only rule changes, but they work exactly the same) </br>
+
+* 0.8.1 -> </br>
+		Changed the <value> rule to use the new <parens_expr> rule.
