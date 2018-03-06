@@ -33,11 +33,11 @@ bool FValUtils::isValue(const FoxValue & fv)
 std::string FValUtils::dumpFVal(const FoxValue & fv)
 {
 	std::stringstream output;
-	if (std::holds_alternative<NullType>(fv))
+	if (std::holds_alternative<VoidType>(fv))
 		output << "Type : VOID (null)";
-	else if (std::holds_alternative<var::VariableReference>(fv))
+	else if (std::holds_alternative<FoxVariableRef>(fv))
 	{
-		auto vattr = std::get<var::VariableReference>(fv);
+		auto vattr = std::get<FoxVariableRef>(fv);
 		output << "Type : fvRef, Value:" << vattr.getName();
 	}
 	else if (std::holds_alternative<IntType>(fv))
@@ -66,7 +66,7 @@ FoxValue FValUtils::getSampleFValForIndex(const std::size_t & t)
 {
 	switch (t)
 	{
-		case TypeIndex::Null_Type:
+		case TypeIndex::Void_Type:
 			return FoxValue();
 		case TypeIndex::basic_Int:
 			return FoxValue((IntType)0);
@@ -79,7 +79,7 @@ FoxValue FValUtils::getSampleFValForIndex(const std::size_t & t)
 		case TypeIndex::basic_Bool:
 			return FoxValue((bool)false);
 		case TypeIndex::VarRef:
-			return FoxValue(var::VariableAttributes());
+			return FoxValue(FoxVariableAttr());
 		case TypeIndex::InvalidIndex:
 			throw std::logic_error("Tried to get a sample FoxValue with an invalid index");
 			return FoxValue();

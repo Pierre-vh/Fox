@@ -53,9 +53,9 @@ namespace Moonshot
 		// Specializations
 		// monostate
 		template<>
-		struct typeIndex<NullType>
+		struct typeIndex<VoidType>
 		{
-			constexpr static std::size_t index = TypeIndex::Null_Type;
+			constexpr static std::size_t index = TypeIndex::Void_Type;
 		};
 		// int
 		template<>
@@ -89,7 +89,7 @@ namespace Moonshot
 		};
 		// monostate
 		template<>
-		struct typeIndex<Moonshot::var::VariableReference>
+		struct typeIndex<Moonshot::FoxVariableRef>
 		{
 			constexpr static std::size_t index = TypeIndex::VarRef;
 		};

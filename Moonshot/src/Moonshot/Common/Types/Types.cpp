@@ -15,53 +15,53 @@
 
 using namespace Moonshot;
 
-// VariableReference
-var::VariableReference::VariableReference(const std::string & vname)
+// FoxVariableRef
+FoxVariableRef::FoxVariableRef(const std::string & vname)
 {
 	name_ = vname;
 }
 
-std::string var::VariableReference::getName() const
+std::string FoxVariableRef::getName() const
 {
 	return name_;
 }
 
-void var::VariableReference::setName(const std::string & newname)
+void FoxVariableRef::setName(const std::string & newname)
 {
 	name_ = newname;
 }
 
-var::VariableReference::operator bool() const
+FoxVariableRef::operator bool() const
 {
 	return (name_ != "");
 }
 
-// VariableAttributes
-var::VariableAttributes::VariableAttributes()
+// FoxVariableAttr
+FoxVariableAttr::FoxVariableAttr()
 {
 }
 
-var::VariableAttributes::VariableAttributes(const std::string & nm)
+FoxVariableAttr::FoxVariableAttr(const std::string & nm)
 {
-	name_ = nm; // Create a "dummy",unusable VariableAttributes with only a name.
+	name_ = nm; // Create a "dummy",unusable FoxVariableAttr with only a name.
 }
 
-var::VariableAttributes::VariableAttributes(const std::string & nm, const FoxType & ty) : name_(nm), type_(ty)
+FoxVariableAttr::FoxVariableAttr(const std::string & nm, const FoxType & ty) : name_(nm), type_(ty)
 {
 	wasInit_ = true;
 }
 
-var::VariableAttributes::operator bool() const
+FoxVariableAttr::operator bool() const
 {
-	return (wasInit_ && (type_ != TypeIndex::Null_Type) && (type_ != TypeIndex::InvalidIndex));
+	return (wasInit_ && (type_ != TypeIndex::Void_Type) && (type_ != TypeIndex::InvalidIndex));
 }
 
-var::VariableReference var::VariableAttributes::createRef() const
+FoxVariableRef FoxVariableAttr::createRef() const
 {
-	return VariableReference(name_);
+	return FoxVariableRef(name_);
 }
 
-std::string var::VariableAttributes::dump() const
+std::string FoxVariableAttr::dump() const
 {
 	std::stringstream output;
 	output << "[name:\"" << name_ << "\" type:" << type_.getTypeName() << "]";

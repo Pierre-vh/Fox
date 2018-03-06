@@ -17,16 +17,16 @@
 #include <inttypes.h>
 
 // fwd decl
-namespace Moonshot::var
+namespace Moonshot
 {
-	struct VariableReference;
-	struct VariableAttributes;
+	struct FoxVariableRef;
+	struct FoxVariableAttr;
 }
 
 typedef int64_t IntType;
 typedef char32_t CharType;
-typedef std::monostate NullType;
-typedef std::variant<NullType, IntType, float, CharType, std::string, bool, Moonshot::var::VariableReference> FoxValue; // The FoxValue, or FVal for short.
+typedef std::monostate VoidType;
+typedef std::variant<VoidType, IntType, float, CharType, std::string, bool, Moonshot::FoxVariableRef> FoxValue; // The FoxValue, or FVal for short.
 
 namespace Moonshot
 {
@@ -40,7 +40,7 @@ namespace Moonshot
 	namespace TypeIndex
 	{
 		static constexpr std::size_t InvalidIndex	= (std::numeric_limits<std::size_t>::max)();
-		static constexpr std::size_t Null_Type		= 0;
+		static constexpr std::size_t Void_Type		= 0;
 		static constexpr std::size_t basic_Int		= 1;
 		static constexpr std::size_t basic_Float	= 2;
 		static constexpr std::size_t basic_Char		= 3;
@@ -82,48 +82,45 @@ namespace Moonshot
 			bool isconst_;
 			std::size_t type_index_ = TypeIndex::InvalidIndex;
 	};
-	namespace var
+	struct FoxVariableRef
 	{
-		struct VariableReference
-		{
-			/* This class is dumb, and will be deleted futher in the development process in favor of something much cleaner */
-			public:
-				VariableReference(const std::string& vname = "");
-				std::string getName() const;
-				void setName(const std::string& newname);
-				operator bool() const;  // checks validity of reference (if name != "");
-			private:
-				std::string name_;
-		};
-		struct VariableAttributes // Struct holding a var's attributes
-		{
-			public:
-				VariableAttributes();
-				VariableAttributes(const std::string &nm);
-				VariableAttributes(const std::string &nm, const FoxType &ty);
-				operator bool() const;
-				// Variable's attribute
-				std::string name_ = "";
-				FoxType type_ = TypeIndex::Null_Type;
+		/* This class is dumb, and will be deleted futher in the development process in favor of something much cleaner */
+		public:
+			FoxVariableRef(const std::string& vname = "");
+			std::string getName() const;
+			void setName(const std::string& newname);
+			operator bool() const;  // checks validity of reference (if name != "");
+		private:
+			std::string name_;
+	};
+	struct FoxVariableAttr // Struct holding a var's attributes
+	{
+		public:
+			FoxVariableAttr();
+			FoxVariableAttr(const std::string &nm);
+			FoxVariableAttr(const std::string &nm, const FoxType &ty);
+			operator bool() const;
+			// Variable's attribute
+			std::string name_ = "";
+			FoxType type_ = TypeIndex::Void_Type;
 
-				VariableReference createRef() const;
+			FoxVariableRef createRef() const;
 
-				std::string dump() const;
-			protected:
-				bool wasInit_ = false;
-		};
-		inline bool operator < (const VariableAttributes& lhs, const VariableAttributes& rhs)
-		{
-			return lhs.name_ < rhs.name_; // We don't care about the rest, because you can only use a name once.
-		}
-		inline bool operator == (const VariableAttributes& lhs, const VariableAttributes& rhs)
-		{
-			return	(lhs.name_ == rhs.name_) &&
-					(lhs.type_ == rhs.type_);
-		}
-		inline bool operator != (const VariableAttributes& lhs, const VariableAttributes& rhs)
-		{
-			return !(lhs == rhs);
-		}
+			std::string dump() const;
+		protected:
+			bool wasInit_ = false;
+	};
+	inline bool operator < (const FoxVariableAttr& lhs, const FoxVariableAttr& rhs)
+	{
+		return lhs.name_ < rhs.name_; // We don't care about the rest, because you can only use a name once.
+	}
+	inline bool operator == (const FoxVariableAttr& lhs, const FoxVariableAttr& rhs)
+	{
+		return	(lhs.name_ == rhs.name_) &&
+				(lhs.type_ == rhs.type_);
+	}
+	inline bool operator != (const FoxVariableAttr& lhs, const FoxVariableAttr& rhs)
+	{
+		return !(lhs == rhs);
 	}
 }

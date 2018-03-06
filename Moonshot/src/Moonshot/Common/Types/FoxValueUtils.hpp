@@ -27,7 +27,7 @@ namespace Moonshot::FValUtils
 
 	const std::map<std::size_t, std::string> kBuiltinTypes_dict =
 	{
-		{ TypeIndex::Null_Type			, "NULL" },
+		{ TypeIndex::Void_Type			, "VOID" },
 		{ TypeIndex::basic_Int			, "INT" },
 		{ TypeIndex::basic_Float		, "FLOAT" },
 		{ TypeIndex::basic_Char			, "CHAR" },

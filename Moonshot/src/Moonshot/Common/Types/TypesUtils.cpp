@@ -16,7 +16,7 @@ using namespace Moonshot;
 
 bool TypeUtils::canAssign(const FoxType & lhs, const FoxType & rhs)
 {
-	if ((rhs == TypeIndex::Null_Type) || (lhs == TypeIndex::Null_Type))
+	if ((rhs == TypeIndex::Void_Type) || (lhs == TypeIndex::Void_Type))
 		return false;							// Can't assign a void expression to a variable.
 	if (!lhs.isBasic() || !rhs.isBasic())
 		return false;							// If one of the types isn't basic, no assignement possible.
