@@ -18,7 +18,6 @@ using keyword = Token::keyword;
 // Context and Exceptions
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
-
 //Nodes
 #include "Moonshot/Fox/AST/Nodes/ASTCompStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
@@ -28,7 +27,7 @@ using keyword = Token::keyword;
 #include "Moonshot/Fox/AST/Nodes/ASTNullStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTFunctionDeclaration.hpp"
 
-ParsingResult<IASTStmt*> Parser::parseCompoundStatement()
+ParsingResult<ASTCompStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {
 	auto rtr = std::make_unique<ASTCompStmt>(); // return value
 	if (matchSign(sign::B_CURLY_OPEN))
@@ -50,12 +49,20 @@ ParsingResult<IASTStmt*> Parser::parseCompoundStatement()
 		{
 			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
 			if (resyncToDelimiter(sign::B_CURLY_CLOSE))
-				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<ASTCompStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+			return ParsingResult<ASTCompStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
-		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS,std::move(rtr));
+		return ParsingResult<ASTCompStmt*>(ParsingOutcome::SUCCESS,std::move(rtr));
 	}
-	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+	
+	if (isMandatory)
+	{
+		errorExpected("Expected a '{'");
+		if (resyncToDelimiter(sign::B_CURLY_CLOSE))
+			return ParsingResult<ASTCompStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+		return ParsingResult<ASTCompStmt*>(ParsingOutcome::FAILED_AND_DIED);
+	}
+	return ParsingResult<ASTCompStmt*>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<IASTStmt*> Parser::parseWhileLoop()
@@ -86,10 +93,127 @@ ParsingResult<ASTFunctionDeclaration*> Parser::parseFunctionDeclaration()
 {
 	/* 
 		<func_decl> = "func" <id> '(' [<arg_list_decl>] ')'[':' <type>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
-		<arg_list_decl> = [<arg_decl> {',' <arg_decl>}*]
-		<arg_decl> = <id> : ["const"]['&'] <type>
 	*/
+	// "func"
+	if (matchKeyword(keyword::D_FUNC))
+	{
+		auto rtr = std::make_unique<ASTFunctionDeclaration>();
+		// <id>
+		if (auto mID_res = matchID())
+			rtr->name_ = mID_res.result_;
+		else
+		{
+			rtr->name_ = "<noname>";
+			errorExpected("Expected an identifier");
+		}
+
+		// '('
+		if (matchSign(sign::B_ROUND_OPEN))
+		{
+			// [<arg_list_decl>]
+			auto pArgDeclList = parseArgDeclList();
+			if (pArgDeclList)
+				rtr->args_ = pArgDeclList.result_;
+			// ')'
+			if (!matchSign(sign::B_ROUND_CLOSE))
+			{
+				if (pArgDeclList.getFlag() != ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
+					errorExpected("Expected a ')'");
+				if(!resyncToDelimiter(sign::B_ROUND_CLOSE))
+					return ParsingResult<ASTFunctionDeclaration*>(ParsingOutcome::FAILED_AND_DIED);
+			}
+		}
+		else
+		{
+			errorExpected("Expected '('");
+			if (!resyncToDelimiter(sign::B_ROUND_CLOSE))
+				return ParsingResult<ASTFunctionDeclaration*>(ParsingOutcome::FAILED_AND_DIED);
+		}
+		// [':' <type>]
+		if (matchSign(sign::P_COLON))
+		{
+			if (auto tyMatchRes = matchTypeKw())
+				rtr->returnType_ = tyMatchRes.result_;
+			else
+				errorExpected("Expected a type keyword");
+		}
+		else
+			rtr->returnType_ = TypeIndex::Void_Type;
+
+		// <compound_statement>
+		if (auto cp_res = parseCompoundStatement(true))
+		{
+			rtr->body_ = std::move(cp_res.result_);
+			return ParsingResult<ASTFunctionDeclaration*>(ParsingOutcome::SUCCESS, std::move(rtr));
+		}
+		else
+			return ParsingResult<ASTFunctionDeclaration*>(cp_res.getFlag());
+	}
 	return ParsingResult<ASTFunctionDeclaration*>(ParsingOutcome::NOTFOUND);
+}
+
+ParsingResult<FoxFunctionArg> Parser::parseArgDecl()
+{
+	// <id>
+	if (auto mID_res = matchID())
+	{
+		FoxFunctionArg rtr;
+		rtr.name_ = mID_res.result_;
+		// ':'
+		if (!matchSign(sign::P_COLON))
+		{
+			errorExpected("Expected ':'");
+			return ParsingResult<FoxFunctionArg>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+		}
+		// ["const"]
+		if (matchKeyword(keyword::T_CONST))
+			rtr.type_.setConstAttribute(true);
+		// ['&']
+		if (matchSign(sign::S_AMPERSAND))
+			rtr.isRef_ = true;
+		else
+			rtr.isRef_ = false;
+
+		if (auto mty_res = matchTypeKw())
+		{
+			rtr.type_.setType(mty_res.result_);
+			return ParsingResult<FoxFunctionArg>(ParsingOutcome::SUCCESS, rtr);
+		}
+		else
+		{
+			errorExpected("Expected type name");
+			return ParsingResult<FoxFunctionArg>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+		}
+	}
+	return ParsingResult<FoxFunctionArg>(ParsingOutcome::NOTFOUND);
+}
+
+ParsingResult<std::vector<FoxFunctionArg>> Parser::parseArgDeclList()
+{
+	if (auto firstArg_res = parseArgDecl())
+	{
+		std::vector<FoxFunctionArg> rtr;
+		rtr.push_back(firstArg_res.result_);
+		while (true)
+		{
+			if (matchSign(sign::P_COMMA))
+			{
+				if (auto pArgDecl_res = parseArgDecl())
+					rtr.push_back(pArgDecl_res.result_);
+				else 
+				{
+					if (pArgDecl_res.getFlag() == ParsingOutcome::NOTFOUND)
+						errorExpected("Expected an argument declaration");
+					return ParsingResult<std::vector<FoxFunctionArg>>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+				}
+			}
+			else
+				break;
+		}
+		return ParsingResult<std::vector<FoxFunctionArg>>(ParsingOutcome::SUCCESS,rtr);
+	}
+	else 
+		return ParsingResult<std::vector<FoxFunctionArg>>(firstArg_res.getFlag());
 }
 
 ParsingResult<IASTStmt*> Parser::parseCondition()
@@ -146,7 +270,7 @@ ParsingResult<IASTStmt*> Parser::parseStmt()
 	else if (auto parseres = parseWhileLoop())
 		return parseres;
 	else if (auto parseres = parseCompoundStatement())
-		return parseres;
+		return ParsingResult<IASTStmt*>(parseres.getFlag(), std::move(parseres.result_));
 	else
 		return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
@@ -210,7 +334,7 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 		}
 
 		// If parsing was ok : 
-		var::VariableAttributes v_attr(varName, varType);
+		FoxVariableAttr v_attr(varName, varType);
 		if (initExpr) // Has init expr?
 			return ParsingResult<IASTStmt*>(
 				ParsingOutcome::SUCCESS,
@@ -228,15 +352,14 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 ParsingResult<FoxType> Parser::parseTypeSpec()
 {
 	bool isConst = false;
-	std::size_t typ;
 	if (matchSign(sign::P_COLON))
 	{
 		// Match const kw
 		if (matchKeyword(keyword::T_CONST))
 			isConst = true;
 		// Now match the type keyword
-		if ((typ = matchTypeKw()) != TypeIndex::InvalidIndex)
-			return ParsingResult<FoxType>(ParsingOutcome::SUCCESS, FoxType(typ, isConst));
+		if (auto mTy_res = matchTypeKw())
+			return ParsingResult<FoxType>(ParsingOutcome::SUCCESS, FoxType(mTy_res.result_, isConst));
 
 		errorExpected("Expected a type name");
 	}

@@ -111,11 +111,11 @@ ParsingResult<IASTExpr*>  Parser::parseCastExpr()
 		// Search for a (optional) cast: "as" <type>
 		if (matchKeyword(keyword::TC_AS))
 		{
-			if ((casttype = matchTypeKw()) != TypeIndex::InvalidIndex)
+			if (auto castType = matchTypeKw())
 			{
 				// If found, apply it to current node.
 				auto rtr = std::make_unique<ASTCastExpr>();
-				rtr->setCastGoal(casttype);
+				rtr->setCastGoal(castType.result_);
 				rtr->child_ = std::move(parse_res.result_);
 				return ParsingResult<IASTExpr*>(
 						ParsingOutcome::SUCCESS,
@@ -229,7 +229,7 @@ ParsingResult<IASTExpr*> Parser::parseExpr()
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTExpr*> Parser::parseParensExpr(bool isMandatory)
+ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 {
 	if (matchSign(sign::B_ROUND_OPEN))
 	{
@@ -253,7 +253,9 @@ ParsingResult<IASTExpr*> Parser::parseParensExpr(bool isMandatory)
 	if (isMandatory)
 	{
 		errorExpected("Expected a '('");
-		return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+		if(resyncToDelimiter(sign::B_ROUND_CLOSE))
+			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+		return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_AND_DIED);
 	}
 	else 
 		return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
@@ -373,7 +375,7 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 			}
 			break;
 		case 4:
-			if (pk.isValid() && (pk.sign_type == sign::S_AND) && (cur.sign_type == sign::S_AND))
+			if (pk.isValid() && (pk.sign_type == sign::S_AMPERSAND) && (cur.sign_type == sign::S_AMPERSAND))
 			{
 				state_.pos += 1;
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LOGIC_AND);

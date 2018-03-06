@@ -25,24 +25,31 @@
 
 #pragma once
 
-// types
 #include "Moonshot/Common/Types/Types.hpp"
-// Tokens
 #include "Moonshot/Fox/Lexer/Token.hpp"					
-// include ParsingResult class
 #include "Moonshot/Fox/Parser/ParsingResult.hpp"
-// Include interfaces so the users of this class can manipulate (also reduces the number of fwddecl required)
+
 #include "Moonshot/Fox/AST/Nodes/IASTExpr.hpp"
 #include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
+
 #include "Moonshot/Fox/AST/Nodes/ForwardDeclarations.hpp"
+
 #include "Moonshot/Fox/Common/Operators.hpp"			
 
 #include <tuple>							// std::tuple, std::pair
 #include <memory>							// std::shared_ptr
-#include <stack>							// std::stack
+#include <vector>							// std::vector
 
 #define DEFAULT__shouldPrintSuggestions true
 
+/*
+	Parser TODO:
+		Finish Function declaration rule
+		Implement New grammar changes in "pending"
+	Next:
+		Rework AST as planned
+		Implement new visitor system
+*/
 namespace Moonshot
 {
 	class Context;
@@ -62,7 +69,7 @@ namespace Moonshot
 			ParsingResult<IASTExpr*> parseBinaryExpr(const char &priority = 5);
 			ParsingResult<IASTExpr*> parseExpr(); 
 				// PARENS EXPR
-			ParsingResult<IASTExpr*> parseParensExpr(bool isMandatory = false);
+			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false);
 
 			// STATEMENTS
 			ParsingResult<IASTStmt*> parseStmt(); // General Statement
@@ -70,7 +77,7 @@ namespace Moonshot
 			ParsingResult<IASTStmt*> parseExprStmt(); // Expression statement
 
 			// STATEMENTS : COMPOUND STATEMENT
-			ParsingResult<IASTStmt*> parseCompoundStatement(); // Compound Statement
+			ParsingResult<ASTCompStmt*> parseCompoundStatement(const bool& isMandatory=false); // Compound Statement
 
 			// STATEMENTS : IF,ELSE IF,ELSE
 			ParsingResult<IASTStmt*> parseCondition(); // Parse a  if-else if-else "block
@@ -83,9 +90,12 @@ namespace Moonshot
 			
 		private:
 			// Private parse functions
-
+			// arg decl 
+			ParsingResult<FoxFunctionArg> parseArgDecl();
+			ParsingResult<std::vector<FoxFunctionArg>> parseArgDeclList();
 			// type spec (for vardecl).
-			ParsingResult<FoxType> parseTypeSpec(); 
+			ParsingResult<FoxType> parseTypeSpec();
+
 
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A and B as children. You call oneUpNode like this : oneUpNode(N,PLUS)
@@ -101,7 +111,7 @@ namespace Moonshot
 			bool matchSign(const Token::sign &s);			// match any signs : ; . ( ) , returns true if success
 			bool matchKeyword(const Token::keyword &k);		// Match any keyword, returns true if success
 
-			std::size_t matchTypeKw();						// match a type keyword : int, float, etc.
+			ParsingResult<std::size_t> matchTypeKw();		// match a type keyword : int, float, etc. and returns its index in the FValue
 			
 			// MATCH OPERATORS
 			bool							matchExponentOp(); //  **

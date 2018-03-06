@@ -80,7 +80,7 @@ bool Parser::matchKeyword(const keyword & k)
 }
 
 
-std::size_t Parser::matchTypeKw()
+ParsingResult<std::size_t> Parser::matchTypeKw()
 {
 	Token t = getToken();
 	state_.pos += 1;
@@ -88,15 +88,15 @@ std::size_t Parser::matchTypeKw()
 	{
 		switch (t.kw_type)
 		{
-			case keyword::T_INT:	return TypeIndex::basic_Int;
-			case keyword::T_FLOAT:	return TypeIndex::basic_Float;
-			case keyword::T_CHAR:	return TypeIndex::basic_Char;
-			case keyword::T_STRING:	return TypeIndex::basic_String;
-			case keyword::T_BOOL:	return TypeIndex::basic_Bool;
+			case keyword::T_INT:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Int);
+			case keyword::T_FLOAT:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Float);
+			case keyword::T_CHAR:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Char);
+			case keyword::T_STRING:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_String);
+			case keyword::T_BOOL:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS,TypeIndex::basic_Bool);
 		}
 	}
 	state_.pos -= 1;
-	return TypeIndex::InvalidIndex;
+	return ParsingResult<std::size_t>(ParsingOutcome::NOTFOUND);
 }
 
 Token Parser::getToken() const
