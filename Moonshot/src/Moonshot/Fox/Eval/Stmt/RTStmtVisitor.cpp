@@ -58,9 +58,9 @@ void RTStmtVisitor::visit(ASTVarDeclStmt & node)
 	value_ = FoxValue(); // does not return anything.
 }
 
-bool RTStmtVisitor::symtab_declareValue_derefFirst(const var::VariableAttributes & vattr, FoxValue initval)
+bool RTStmtVisitor::symtab_declareValue_derefFirst(const FoxVariableAttr & vattr, FoxValue initval)
 {
-	if (std::holds_alternative<var::VariableReference>(initval))
-		initval = datamap_->retrieveValue(std::get<var::VariableReference>(initval).getName());
+	if (std::holds_alternative<FoxVariableRef>(initval))
+		initval = datamap_->retrieveValue(std::get<FoxVariableRef>(initval).getName());
 	return datamap_->declareValue(vattr, initval);;
 }

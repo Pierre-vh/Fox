@@ -84,10 +84,10 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		{
 			auto left_res = visitAndGetResult(node.left_.get(), *this);
 			auto right_res = visitAndGetResult(node.right_.get(), *this);
-			if (std::holds_alternative<var::VariableReference>(left_res) && IndexUtils::isValue(right_res.index()))
+			if (std::holds_alternative<FoxVariableRef>(left_res) && IndexUtils::isValue(right_res.index()))
 			{
 				datamap_->setValue(
-					std::get<var::VariableReference>(left_res).getName(),
+					std::get<FoxVariableRef>(left_res).getName(),
 					right_res
 				);
 				value_ = right_res; // Assignement returns the value on the left !
@@ -104,10 +104,10 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		if (isDataMapAvailable())
 		{
 			auto vattr = visitAndGetResult(node.left_.get(), *this);
-			if (std::holds_alternative<var::VariableReference>(vattr))
+			if (std::holds_alternative<FoxVariableRef>(vattr))
 			{
 				// Perform assignement
-				std::string vname = std::get<var::VariableReference>(vattr).getName();
+				std::string vname = std::get<FoxVariableRef>(vattr).getName();
 				node.right_->accept(*this);
 				datamap_->setValue(vname, value_);
 			}
@@ -462,9 +462,9 @@ bool RTExprVisitor::isDataMapAvailable() const
 
 void RTExprVisitor::deref(FoxValue & val) const
 {
-	if (std::holds_alternative<var::VariableReference>(val))
+	if (std::holds_alternative<FoxVariableRef>(val))
 	{
-		auto ref = std::get<var::VariableReference>(val);
+		auto ref = std::get<FoxVariableRef>(val);
 		val = datamap_->retrieveValue(ref.getName());
 	}
 }

@@ -30,7 +30,7 @@ namespace Moonshot
 		private:
 			// Declares the value, but deref initival if it's a reference.
 			// This happens when you have statements such as let foo : int = bar;
-			bool symtab_declareValue_derefFirst(const var::VariableAttributes& vattr, FoxValue initval = FoxValue());
+			bool symtab_declareValue_derefFirst(const FoxVariableAttr& vattr, FoxValue initval = FoxValue());
 	};
 
 }
