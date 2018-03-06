@@ -37,18 +37,18 @@ FoxValue DataMap::retrieveValue(const std::string & varname)
 	return FoxValue();
 }
 
-var::VariableAttributes DataMap::retrieveVarAttr(const std::string & varname)
+FoxVariableAttr DataMap::retrieveVarAttr(const std::string & varname)
 {
 	bool successFlag;
 	auto res = map_getEntry(varname, successFlag);
 	if (successFlag)
 		return res.first;
-	return var::VariableAttributes();
+	return FoxVariableAttr();
 }
 
-bool DataMap::declareValue(const var::VariableAttributes & v_attr, const FoxValue & initVal)
+bool DataMap::declareValue(const FoxVariableAttr & v_attr, const FoxValue & initVal)
 {
-	if (std::holds_alternative<NullType>(initVal))
+	if (std::holds_alternative<VoidType>(initVal))
 		return map_getEntry(v_attr,FValUtils::getSampleFValForIndex(v_attr.type_.getTypeIndex())); // Init with a default value.
 	return map_getEntry(v_attr, initVal);
 }
@@ -70,7 +70,7 @@ void DataMap::dump() const
 	out.clear();
 }
 
-std::pair<var::VariableAttributes, FoxValue> DataMap::map_getEntry(const std::string & str, bool& successFlag)
+std::pair<FoxVariableAttr, FoxValue> DataMap::map_getEntry(const std::string & str, bool& successFlag)
 {
 	auto it = sym_table_.find(
 		createTempKey(str)
@@ -83,7 +83,7 @@ std::pair<var::VariableAttributes, FoxValue> DataMap::map_getEntry(const std::st
 	}
 	context_.reportError("Undeclared variable " + str);
 	successFlag = false;
-	return std::pair<var::VariableAttributes, FoxValue>();
+	return std::pair<FoxVariableAttr, FoxValue>();
 }
 
 bool DataMap::map_setEntry(const std::string & vname,const FoxValue& vvalue, const bool& isDecl)
@@ -124,7 +124,7 @@ bool DataMap::map_setEntry(const std::string & vname,const FoxValue& vvalue, con
 	return false; // No value found ? return false.
 }
 
-bool DataMap::map_getEntry(const var::VariableAttributes & vattr,FoxValue initval)
+bool DataMap::map_getEntry(const FoxVariableAttr & vattr,FoxValue initval)
 {
 	auto ret = sym_table_.insert({ vattr,FoxValue() });
 	if (ret.second)
@@ -134,7 +134,7 @@ bool DataMap::map_getEntry(const var::VariableAttributes & vattr,FoxValue initva
 	return ret.second; // ret.second is a "flag" if the operation was successful.
 }
 
-var::VariableAttributes DataMap::createTempKey(const std::string& v_name)
+FoxVariableAttr DataMap::createTempKey(const std::string& v_name)
 {
-	return var::VariableAttributes(v_name);
+	return FoxVariableAttr(v_name);
 }

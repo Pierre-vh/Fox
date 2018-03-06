@@ -29,10 +29,10 @@ namespace Moonshot
 			FoxValue retrieveValue(const std::string& varname);
 	
 			// getVAttr
-			var::VariableAttributes retrieveVarAttr(const std::string& varname);
+			FoxVariableAttr retrieveVarAttr(const std::string& varname);
 
 			// Declare a new value. Throws an error if v_attr.type != initVal.index()
-			bool declareValue(const var::VariableAttributes& v_attr,const FoxValue& initVal = FoxValue());
+			bool declareValue(const FoxVariableAttr& v_attr,const FoxValue& initVal = FoxValue());
 
 			// Sets a new value. Throws an error if the type is different, or the value is const.
 			bool setValue(const std::string& varname, const FoxValue& newVal);
@@ -42,15 +42,15 @@ namespace Moonshot
 			// Context
 			Context& context_;
 			// Further down the line, to manage contexts, create a vector of theses, and, when searching, search every table.
-			std::map<var::VariableAttributes, FoxValue> sym_table_;
+			std::map<FoxVariableAttr, FoxValue> sym_table_;
 
 			// Getters/setters for the symbols table.
-			std::pair<var::VariableAttributes, FoxValue> map_getEntry(const std::string& str,bool& successFlag);
+			std::pair<FoxVariableAttr, FoxValue> map_getEntry(const std::string& str,bool& successFlag);
 			bool map_setEntry(const std::string& vname, const FoxValue& vvalue,const bool& isDecl = false);
-			bool map_getEntry(const var::VariableAttributes& vattr,FoxValue initval);
+			bool map_getEntry(const FoxVariableAttr& vattr,FoxValue initval);
 
 			// Helper function : creates a key.
-			var::VariableAttributes createTempKey(const std::string& v_name);
+			FoxVariableAttr createTempKey(const std::string& v_name);
 	};
 
 }
