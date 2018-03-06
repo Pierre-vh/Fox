@@ -300,7 +300,7 @@ bool Lexer::isSep(const CharType &c) const
 	// Is separator ? Signs are the separators in the input. Separators mark the end and beginning of tokens, and are tokens themselves. Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
 	if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
 		return false;
-	// To detect if C is a strings, we use the sign dictionary
+	// To detect if C is a separator, we use the sign dictionary
 	auto i = TokenDicts::kSign_dict.find(c);
 	return i != TokenDicts::kSign_dict.end() || std::iswspace((wchar_t)c);
 }

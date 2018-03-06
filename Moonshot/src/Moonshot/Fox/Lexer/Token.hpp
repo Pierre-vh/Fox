@@ -62,7 +62,7 @@ namespace Moonshot
 				S_ASTERISK,			// *
 				S_SLASH,			// /
 				S_VBAR,				// |
-				S_AND,				// &
+				S_AMPERSAND,		// &
 				S_LESS_THAN,		// <
 				S_GREATER_THAN,		// >
 				S_HASH,				// #
@@ -173,7 +173,7 @@ namespace Moonshot
 			{ '*'	, Token::sign::S_ASTERISK },
 			{ '/'	, Token::sign::S_SLASH },
 			{ '|'	, Token::sign::S_VBAR },
-			{ '&'	, Token::sign::S_AND },
+			{ '&'	, Token::sign::S_AMPERSAND },
 			{ '<'	, Token::sign::S_LESS_THAN },
 			{ '>'	, Token::sign::S_GREATER_THAN },
 			{ '#'	, Token::sign::S_HASH },
