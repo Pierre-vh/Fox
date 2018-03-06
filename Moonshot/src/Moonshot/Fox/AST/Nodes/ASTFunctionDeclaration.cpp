@@ -9,13 +9,31 @@
 
 #include "ASTFunctionDeclaration.hpp"
 #include <stdexcept>
+#include <sstream>
 using namespace Moonshot;
 
-ASTFunctionDeclaration::ASTFunctionDeclaration(const fn::FunctionSignature & funcsign, std::unique_ptr<ASTCompStmt> funcbody)
+
+FoxFunctionArg::FoxFunctionArg(const std::string & nm, const std::size_t & ty, const bool isK, const bool & isref)
 {
-	if (!signature_)
-		throw std::invalid_argument("the function signature provided is invalid/ill-formed.");
-	
-	signature_ = funcsign;
-	body_ = std::move(funcbody);
+	name_ = nm;
+	type_ = ty;
+	isRef_ = isref;
+	wasInit_ = true;
+}
+
+std::string FoxFunctionArg::dump() const
+{
+	std::stringstream output;
+	output << "[name:\"" << name_ << "\" type:" << type_.getTypeName() << " isReference:" << (isRef_ ? "Yes" : "No") << "]";
+	return output.str();
+}
+
+FoxFunctionArg::operator bool() const
+{
+	return (wasInit_ && (type_ != TypeIndex::Void_Type) && (type_ != TypeIndex::InvalidIndex));
+}
+
+ASTFunctionDeclaration::ASTFunctionDeclaration(const FoxType & returnType, const std::string & name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompStmt> funcbody):
+	returnType_(returnType),name_(name),args_(args),body_(std::move(funcbody))
+{
 }
