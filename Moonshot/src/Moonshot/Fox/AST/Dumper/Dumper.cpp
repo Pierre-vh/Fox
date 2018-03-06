@@ -20,6 +20,7 @@
 #include "Moonshot/Fox/AST/Nodes/ASTCondStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTWhileStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTFunctionDecl.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTReturnStmt.h"
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include <iostream>
 
@@ -152,6 +153,17 @@ void Dumper::visit(ASTFunctionDecl & node)
 	tabcount_ += 1;
 	node.body_->accept(*this);
 	tabcount_ -= 2;
+}
+
+void Dumper::visit(ASTReturnStmt & node)
+{
+	std::cout << tabs() << "Return statement\n";
+	if (node.hasExpr())
+	{
+		tabcount_ += 1;
+		node.expr_->accept(*this);
+		tabcount_ -= 1;
+	}
 }
 
 void Dumper::visit(ASTCompoundStmt & node)

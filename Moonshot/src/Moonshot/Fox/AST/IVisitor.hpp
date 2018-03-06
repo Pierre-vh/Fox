@@ -26,22 +26,23 @@ namespace Moonshot
 	class IVisitor
 	{
 		public:
-			inline virtual ~IVisitor() = 0						{}
+			inline virtual ~IVisitor() = 0				{}
 
-			inline virtual void visit(ASTBinaryExpr&)		{}
-			inline virtual void visit(ASTUnaryExpr&)		{}
-			inline virtual void visit(ASTCastExpr&)			{}
-			inline virtual void visit(ASTLiteralExpr&)			{}
-			inline virtual void visit(ASTVarRefExpr&)			{}
+			inline virtual void visit(ASTBinaryExpr&)	{}
+			inline virtual void visit(ASTUnaryExpr&)	{}
+			inline virtual void visit(ASTCastExpr&)		{}
+			inline virtual void visit(ASTLiteralExpr&)	{}
+			inline virtual void visit(ASTVarRefExpr&)	{}
 
-			inline virtual void visit(ASTNullStmt&)			{}
+			inline virtual void visit(ASTNullStmt&)		{}
 			inline virtual void visit(ASTVarDecl&)		{}
 
-			inline virtual void visit(ASTCompoundStmt&)			{}
+			inline virtual void visit(ASTCompoundStmt&)	{}
 			inline virtual void visit(ASTCondStmt&)		{}
-			inline virtual void visit(ASTWhileStmt&)		{}
+			inline virtual void visit(ASTWhileStmt&)	{}
 
 			inline virtual void visit(ASTFunctionDecl&) {}
+			inline virtual void visit(ASTReturnStmt&)	{}
 	};
 
 	template<typename TYPE>
@@ -51,17 +52,18 @@ namespace Moonshot
 			inline virtual void visit(ASTBinaryExpr&)	{ value_ = TYPE(); }
 			inline virtual void visit(ASTUnaryExpr&)	{ value_ = TYPE(); }
 			inline virtual void visit(ASTCastExpr&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTLiteralExpr&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTVarRefExpr&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTLiteralExpr&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTVarRefExpr&)	{ value_ = TYPE(); }
 
 			inline virtual void visit(ASTNullStmt&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTVarDecl&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTVarDecl&)		{ value_ = TYPE(); }
 
-			inline virtual void visit(ASTCompoundStmt&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTCondStmt&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTCompoundStmt&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTCondStmt&)		{ value_ = TYPE(); }
 			inline virtual void visit(ASTWhileStmt&)	{ value_ = TYPE(); }
 
 			inline virtual void visit(ASTFunctionDecl&) { value_ = TYPE(); }
+			inline virtual void visit(ASTReturnStmt&)	{ value_ = TYPE(); }
 
 			virtual ~ITypedVisitor() = 0	{}
 		protected:

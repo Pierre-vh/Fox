@@ -1,10 +1,10 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTCondStmt.hpp											
+// File : ASTReturnStmt.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// AST nodes for conditions.								
+// AST Node for the return statement.			
 ////------------------------------------------------------////
 
 #pragma once
@@ -15,15 +15,14 @@
 
 namespace Moonshot
 {
-	struct ASTCondStmt : public IASTStmt
+	struct ASTReturnStmt : public IASTStmt	// A null statement, that doesn't do anything. It's going to be ignored most of the time, isn't that sad?
 	{
-		public:
-			ASTCondStmt() = default;
+		ASTReturnStmt() = default;
+		ASTReturnStmt(std::unique_ptr<IASTExpr> rtr_expr);
 
-			virtual void accept(IVisitor & vis) override;
+		virtual void accept(IVisitor& vis) override;
 
-			std::unique_ptr<IASTExpr> cond_;
-			std::unique_ptr<IASTStmt> then_; 
-			std::unique_ptr<IASTStmt> else_;
+		bool hasExpr() const;
+		std::unique_ptr<IASTExpr> expr_;
 	};
 }

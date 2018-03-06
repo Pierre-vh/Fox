@@ -28,5 +28,6 @@ namespace Moonshot
 	struct ASTCastExpr;
 	struct ASTNullStmt;
 	struct ASTFunctionDecl;
+	struct ASTReturnStmt;
 	struct FoxFunctionArg;
 }
