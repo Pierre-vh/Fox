@@ -44,7 +44,8 @@
 
 /*
 	Parser TODO:
-		Finish Function declaration rule
+		Finish Function declaration rule - DONE
+		Return Statement - YOU ARE HERE
 		Implement New grammar changes in "pending"
 	Next:
 		Rework AST as planned
