@@ -8,6 +8,7 @@
 ////------------------------------------------------------////
 
 #include "CompoundStatements.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCompStmt.hpp"
 #include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
 
 using namespace Moonshot;
@@ -51,7 +52,7 @@ bool CompoundStatements::parseFile_compoundStatement(Context& context, const std
 	FAILED_RETURN_IF_ERR__SILENT;
 	Parser parser(context, lex.getTokenVector());
 
-	std::unique_ptr<IASTStmt> node;
+	std::unique_ptr<ASTCompStmt> node;
 	if (auto parseres = parser.parseCompoundStatement())
 		node = std::move(parseres.result_);
 

@@ -9,6 +9,19 @@
 
 #include "TestManager.hpp"
 
+// Include default tests
+#include "../Lexer/LexerMainTest.hpp"
+#include "../Expressions/ExprTests.hpp"
+#include "../ExprStmt/ExprStmt.hpp"
+#include "../Options/OptionsTests.hpp"
+#include "../VarDeclarations/VarDeclarations.hpp"
+#include "../VarStmts/VarStmts.hpp"
+#include "../CompoundStatement/CompoundStatements.hpp"
+#include "../Condition/Conditions.hpp"
+#include "../WhileLoop/WhileLoop.hpp"
+#include "../U8StrManipTest/U8StrManipTest.hpp"
+#include "../FuncDecl/FuncDecl.hpp"
+
 using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
@@ -34,6 +47,7 @@ void TestManager::addDefaultTests()
 	addTestClass<Conditions>();
 	addTestClass<WhileLoop>();
 	addTestClass<U8StrManipTest>();
+	addTestClass<FuncDecl>();
 }
 
 void TestManager::addTest(std::unique_ptr<ITest> test)

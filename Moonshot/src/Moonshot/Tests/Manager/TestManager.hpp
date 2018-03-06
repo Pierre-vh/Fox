@@ -13,19 +13,6 @@
 #include <memory>
 #include <vector>
 
-
-// Include default tests
-#include "../Lexer/LexerMainTest.hpp"
-#include "../Expressions/ExprTests.hpp"
-#include "../ExprStmt/ExprStmt.hpp"
-#include "../Options/OptionsTests.hpp"
-#include "../VarDeclarations/VarDeclarations.hpp"
-#include "../VarStmts/VarStmts.hpp"
-#include "../CompoundStatement/CompoundStatements.hpp"
-#include "../Condition/Conditions.hpp"
-#include "../WhileLoop/WhileLoop.hpp"
-#include "../U8StrManipTest/U8StrManipTest.hpp"
-
 namespace Moonshot::Test
 {
 	class TestManager
