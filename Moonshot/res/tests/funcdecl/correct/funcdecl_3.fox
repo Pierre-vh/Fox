@@ -1,0 +1,7 @@
+func lengthyFunctionName (arg1 : const& int,arg2 : const& float){
+	let var1 : bool;
+	if(arg1)
+		var1 = arg1;
+	else 
+		var2 = arg2;
+}
