@@ -19,6 +19,7 @@
 #include "Moonshot/Fox/AST/Nodes/ASTCompStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTFunctionDeclaration.hpp"
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include <iostream>
 
@@ -134,6 +135,23 @@ void Dumper::visit(ASTVarCall & node)
 void Dumper::visit(ASTNullStmt& node)
 {
 	std::cout << tabs() << "Null Statement\n";
+}
+
+void Dumper::visit(ASTFunctionDeclaration & node)
+{
+	std::cout << tabs() << "Function Declaration : name:" << node.name_ << " return type:" << node.returnType_.getTypeName() << "\n";
+	tabcount_ += 2;
+	unsigned int counter = 0;
+	for (const auto& elem : node.args_)
+	{
+		std::cout << tabs() << "Arg" << counter << ":" << elem.dump() << std::endl;
+		counter += 1;
+	}
+	tabcount_ -= 1;
+	std::cout << tabs() << "Body:" << std::endl;
+	tabcount_ += 1;
+	node.body_->accept(*this);
+	tabcount_ -= 2;
 }
 
 void Dumper::visit(ASTCompStmt & node)

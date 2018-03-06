@@ -30,6 +30,7 @@ namespace Moonshot
 			virtual void visit(ASTCondition & node) override;
 			virtual void visit(ASTWhileLoop & node) override;
 			virtual void visit(ASTNullStmt& node) override;
+			virtual void visit(ASTFunctionDeclaration& node) override;
 		private:
 
 			std::string tabs() const;
