@@ -73,6 +73,7 @@ namespace Moonshot
 			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false);
 
 			// STATEMENTS
+			ParsingResult<IASTStmt*> parseReturnStmt();
 			ParsingResult<IASTStmt*> parseStmt(); // General Statement
 			ParsingResult<IASTStmt*> parseVarDeclStmt(); // Var Declaration Statement
 			ParsingResult<IASTStmt*> parseExprStmt(); // Expression statement
@@ -106,7 +107,6 @@ namespace Moonshot
 			// matchToken -> returns true if the Token is matched, and increment pos_, if the Token isn't matched return false
 			
 			// MATCH BY TYPE OF TOKEN
-			/* TODO : UPDATE BOTH OF THESES TO PARSINGRESULT! */
 			ParsingResult<FoxValue> matchLiteral();			// match a literal
 			ParsingResult<std::string> matchID();			// match a ID
 			bool matchSign(const Token::sign &s);			// match any signs : ; . ( ) , returns true if success
@@ -127,6 +127,10 @@ namespace Moonshot
 			// resync
 			// This function will skip every token until the appropriate "resync" token is found.
 			// Returns true if resync was successful.
+			/*
+				Note, this could use improvements, for instance a maximum thresold, or stop when a '}' is found to avoid matching to a semicolon out of the compound statement, etc.
+				This is a matter for another time, first I want to finish the interpreter up to v1.0, then i'll do a refactor to give better error messages before moving on to other features (arrays, oop, tuples)
+			*/
 			bool resyncToDelimiter(const Token::sign &s);
 
 			// die : sets the pos to tokens_.size() and sets isAlive to false. Indicates that the parsing is over and the parser has died because of a critical error.

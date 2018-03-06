@@ -26,6 +26,7 @@ using keyword = Token::keyword;
 #include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTNullStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTFunctionDecl.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTReturnStmt.h"
 
 ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {
@@ -258,6 +259,27 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
+ParsingResult<IASTStmt*> Parser::parseReturnStmt()
+{
+	// <rtr_stmt>	= "return" [<expr>] ';'
+	if (matchKeyword(keyword::D_RETURN))
+	{
+		auto rtr = std::make_unique<ASTReturnStmt>();
+		if (auto pExpr_res = parseExpr())
+			rtr->expr_ = std::move(pExpr_res.result_);
+
+		if (!matchSign(sign::P_SEMICOLON))
+		{
+			errorExpected("Expected a ';'");
+			if (!resyncToDelimiter(sign::P_SEMICOLON))
+				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
+		}
+
+		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS, std::move(rtr));
+	}
+	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+}
+
 ParsingResult<IASTStmt*> Parser::parseStmt()
 {
 	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <compound_statement> | (<rtr_stmt> -> to be implemented)
@@ -271,6 +293,8 @@ ParsingResult<IASTStmt*> Parser::parseStmt()
 		return parseres;
 	else if (auto parseres = parseCompoundStatement())
 		return ParsingResult<IASTStmt*>(parseres.getFlag(), std::move(parseres.result_));
+	else if (auto parseres = parseReturnStmt())
+		return parseres;
 	else
 		return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
