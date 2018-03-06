@@ -33,7 +33,7 @@ FoxFunctionArg::operator bool() const
 	return (wasInit_ && (type_ != TypeIndex::Void_Type) && (type_ != TypeIndex::InvalidIndex));
 }
 
-ASTFunctionDeclaration::ASTFunctionDeclaration(const FoxType & returnType, const std::string & name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompStmt> funcbody):
+ASTFunctionDeclaration::ASTFunctionDeclaration(const FoxType & returnType, const std::string & name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody):
 	returnType_(returnType),name_(name),args_(args),body_(std::move(funcbody))
 {
 }

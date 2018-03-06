@@ -19,7 +19,7 @@ using keyword = Token::keyword;
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 //Nodes
-#include "Moonshot/Fox/AST/Nodes/ASTCompStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCompoundStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
@@ -27,9 +27,9 @@ using keyword = Token::keyword;
 #include "Moonshot/Fox/AST/Nodes/ASTNullStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTFunctionDeclaration.hpp"
 
-ParsingResult<ASTCompStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
+ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {
-	auto rtr = std::make_unique<ASTCompStmt>(); // return value
+	auto rtr = std::make_unique<ASTCompoundStmt>(); // return value
 	if (matchSign(sign::B_CURLY_OPEN))
 	{
 		// Parse all statements
@@ -49,20 +49,20 @@ ParsingResult<ASTCompStmt*> Parser::parseCompoundStatement(const bool& isMandato
 		{
 			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
 			if (resyncToDelimiter(sign::B_CURLY_CLOSE))
-				return ParsingResult<ASTCompStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<ASTCompStmt*>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+			return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
-		return ParsingResult<ASTCompStmt*>(ParsingOutcome::SUCCESS,std::move(rtr));
+		return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::SUCCESS,std::move(rtr));
 	}
 	
 	if (isMandatory)
 	{
 		errorExpected("Expected a '{'");
 		if (resyncToDelimiter(sign::B_CURLY_CLOSE))
-			return ParsingResult<ASTCompStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-		return ParsingResult<ASTCompStmt*>(ParsingOutcome::FAILED_AND_DIED);
+			return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+		return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_AND_DIED);
 	}
-	return ParsingResult<ASTCompStmt*>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<IASTStmt*> Parser::parseWhileLoop()

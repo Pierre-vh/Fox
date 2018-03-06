@@ -160,7 +160,7 @@
     <ClCompile Include="src\Moonshot\Common\DataMap\DataMap.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\FoxValueUtils.cpp" />
     <ClCompile Include="src\Moonshot\Common\Types\TypesUtils.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCompoundStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDeclaration.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
@@ -233,7 +233,7 @@
     <ClInclude Include="src\Moonshot\Common\Types\TypesUtils.hpp" />
     <ClInclude Include="src\Moonshot\Common\UTF8\StringManipulator.hpp" />
     <ClInclude Include="src\Moonshot\Common\Utils\Utils.hpp" />
-    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCompoundStmt.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTExpr.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTVarDeclStmt.hpp" />

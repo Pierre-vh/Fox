@@ -16,7 +16,7 @@
 // Include nodes
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTCompStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCompoundStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTFunctionDeclaration.hpp"
@@ -154,7 +154,7 @@ void Dumper::visit(ASTFunctionDeclaration & node)
 	tabcount_ -= 2;
 }
 
-void Dumper::visit(ASTCompStmt & node)
+void Dumper::visit(ASTCompoundStmt & node)
 {
 	std::cout << tabs() << "Compound Statement (Contains " << node.statements_.size() << " statements)\n";
 

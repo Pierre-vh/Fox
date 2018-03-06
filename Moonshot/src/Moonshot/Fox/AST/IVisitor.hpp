@@ -37,7 +37,7 @@ namespace Moonshot
 			inline virtual void visit(ASTNullStmt&)			{}
 			inline virtual void visit(ASTVarDeclStmt&)		{}
 
-			inline virtual void visit(ASTCompStmt&)			{}
+			inline virtual void visit(ASTCompoundStmt&)			{}
 			inline virtual void visit(ASTCondition&)		{}
 			inline virtual void visit(ASTWhileLoop&)		{}
 
@@ -57,7 +57,7 @@ namespace Moonshot
 			inline virtual void visit(ASTNullStmt&)		{ value_ = TYPE(); }
 			inline virtual void visit(ASTVarDeclStmt&)	{ value_ = TYPE(); }
 
-			inline virtual void visit(ASTCompStmt&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTCompoundStmt&)		{ value_ = TYPE(); }
 			inline virtual void visit(ASTCondition&)	{ value_ = TYPE(); }
 			inline virtual void visit(ASTWhileLoop&)	{ value_ = TYPE(); }
 

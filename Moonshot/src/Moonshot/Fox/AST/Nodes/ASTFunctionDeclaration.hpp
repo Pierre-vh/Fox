@@ -9,7 +9,7 @@
 
 #pragma once
 #include "IASTDeclaration.hpp"
-#include "ASTCompStmt.hpp"
+#include "ASTCompoundStmt.hpp"
 #include "Moonshot/Common/Types/Types.hpp"
 
 namespace Moonshot
@@ -41,7 +41,7 @@ namespace Moonshot
 	struct ASTFunctionDeclaration : public IASTDeclaration	
 	{
 		ASTFunctionDeclaration() = default;
-		ASTFunctionDeclaration(const FoxType& returnType,const std::string& name,std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompStmt> funcbody);
+		ASTFunctionDeclaration(const FoxType& returnType,const std::string& name,std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 		virtual void accept(IVisitor& vis) { vis.visit(*this); }
 
@@ -49,6 +49,6 @@ namespace Moonshot
 		std::string name_;
 		std::vector<FoxFunctionArg> args_;
 
-		std::unique_ptr<ASTCompStmt> body_;
+		std::unique_ptr<ASTCompoundStmt> body_;
 	};
 }

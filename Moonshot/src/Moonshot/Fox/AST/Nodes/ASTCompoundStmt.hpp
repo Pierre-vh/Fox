@@ -1,7 +1,7 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTCompStmt.hpp											
+// File : ASTCompoundStmt.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // AST representation for Compound statements.									
@@ -15,10 +15,10 @@
 
 namespace Moonshot
 {
-	struct ASTCompStmt : public IASTStmt
+	struct ASTCompoundStmt : public IASTStmt
 	{
 		public:
-			ASTCompStmt() = default;
+			ASTCompoundStmt() = default;
 
 			virtual void accept(IVisitor & vis) override;
 

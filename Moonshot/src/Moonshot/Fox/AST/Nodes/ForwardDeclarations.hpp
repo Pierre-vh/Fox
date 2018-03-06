@@ -20,7 +20,7 @@ namespace Moonshot
 	struct ASTLiteral;
 	struct ASTVarDeclStmt;
 	struct ASTVarCall;
-	struct ASTCompStmt;
+	struct ASTCompoundStmt;
 	struct ASTCondition;
 	struct ASTWhileLoop;
 	struct ASTBinaryExpr;
