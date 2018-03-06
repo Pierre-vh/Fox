@@ -29,7 +29,7 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 	if (testmode)
 	{
 		datamap_.declareValue(
-			var::VariableAttributes("TESTVALUE",FoxType(TypeIndex::basic_Int,true /*this is constant*/)),
+			FoxVariableAttr("TESTVALUE",FoxType(TypeIndex::basic_Int,true /*this is constant*/)),
 			FoxValue(IntType())
 		);
 	}
