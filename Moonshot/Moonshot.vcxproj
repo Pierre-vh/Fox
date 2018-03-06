@@ -162,6 +162,7 @@
     <ClCompile Include="src\Moonshot\Common\Types\TypesUtils.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCompoundStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDecl.cpp" />
+    <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTReturnStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTWhileStmt.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCondStmt.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="src\Moonshot\Common\Types\FoxValueUtils.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDecl.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTNullStmt.hpp" />
+    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTReturnStmt.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ForwardDeclarations.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTDecl.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTExpr.hpp" />

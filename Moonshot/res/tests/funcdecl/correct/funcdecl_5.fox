@@ -1,1 +1,1 @@
-func foo (thisIsALongArgNameISntIt:const&bool):bool{;}
+func foo (thisIsALongArgNameISntIt:const&bool):bool{;return false;}

@@ -1,1 +1,1 @@
-func foo (thisIsALongArgNameISntIt &bool):{;}
+func foo (thisIsALongArgNameISntIt &bool):{return}
