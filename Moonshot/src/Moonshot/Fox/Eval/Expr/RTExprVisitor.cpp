@@ -241,17 +241,17 @@ void RTExprVisitor::visit(ASTCastExpr & node)
 	return;
 }
 
-void RTExprVisitor::visit(ASTLiteral & node)
+void RTExprVisitor::visit(ASTLiteralExpr & node)
 {
 	value_ = node.val_;
 	return;
 }
 
-void RTExprVisitor::visit(ASTIdentifier & node)
+void RTExprVisitor::visit(ASTVarRefExpr & node)
 {
 	if (isDataMapAvailable())
 	{
-		value_ = datamap_->retrieveVarAttr(node.identifier_str_).createRef(); // this returns a reference, because it's needed for assignement operations.
+		value_ = datamap_->retrieveVarAttr(node.var_name_).createRef(); // this returns a reference, because it's needed for assignement operations.
 		return;
 	}
 	else

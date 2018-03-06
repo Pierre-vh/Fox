@@ -24,7 +24,7 @@ using keyword = Token::keyword;
 ParsingResult<IASTExpr*> Parser::parseLiteral()
 {
 	if (auto matchres = matchLiteral())
-		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::make_unique<ASTLiteral>(matchres.result_));
+		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::make_unique<ASTLiteralExpr>(matchres.result_));
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
@@ -35,7 +35,7 @@ ParsingResult<IASTExpr*> Parser::parseCallable()
 	{
 		return ParsingResult<IASTExpr*>(
 			ParsingOutcome::SUCCESS,
-			std::make_unique<ASTIdentifier>(match.result_)
+			std::make_unique<ASTVarRefExpr>(match.result_)
 		);
 	}
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
@@ -44,7 +44,7 @@ ParsingResult<IASTExpr*> Parser::parseCallable()
 ParsingResult<IASTExpr*>  Parser::parseValue()
 {
 	// = <literal>
-	if (auto matchres = parseLiteral()) // if we have a literal, return it packed in a ASTLiteral
+	if (auto matchres = parseLiteral()) // if we have a literal, return it packed in a ASTLiteralExpr
 		return matchres;
 	// = <callable>
 	else if (auto res = parseCallable())	// Callable?

@@ -31,8 +31,8 @@ namespace Moonshot
 			inline virtual void visit(ASTBinaryExpr&)		{}
 			inline virtual void visit(ASTUnaryExpr&)		{}
 			inline virtual void visit(ASTCastExpr&)			{}
-			inline virtual void visit(ASTLiteral&)			{}
-			inline virtual void visit(ASTIdentifier&)			{}
+			inline virtual void visit(ASTLiteralExpr&)			{}
+			inline virtual void visit(ASTVarRefExpr&)			{}
 
 			inline virtual void visit(ASTNullStmt&)			{}
 			inline virtual void visit(ASTVarDecl&)		{}
@@ -51,8 +51,8 @@ namespace Moonshot
 			inline virtual void visit(ASTBinaryExpr&)	{ value_ = TYPE(); }
 			inline virtual void visit(ASTUnaryExpr&)	{ value_ = TYPE(); }
 			inline virtual void visit(ASTCastExpr&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTLiteral&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTIdentifier&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTLiteralExpr&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTVarRefExpr&)		{ value_ = TYPE(); }
 
 			inline virtual void visit(ASTNullStmt&)		{ value_ = TYPE(); }
 			inline virtual void visit(ASTVarDecl&)	{ value_ = TYPE(); }

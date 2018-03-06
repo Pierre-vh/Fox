@@ -109,7 +109,7 @@ void Dumper::visit(ASTCastExpr & node)
 	node.child_->accept(*this);
 	tabcount_ -= 2;
 }
-void Dumper::visit(ASTLiteral & node)
+void Dumper::visit(ASTLiteralExpr & node)
 {
 	std::cout << tabs() << "Literal: " << FValUtils::dumpFVal(node.val_) << '\n';
 }
@@ -127,9 +127,9 @@ void Dumper::visit(ASTVarDecl & node)
 	}
 }
 
-void Dumper::visit(ASTIdentifier & node)
+void Dumper::visit(ASTVarRefExpr & node)
 {
-	std::cout << tabs() << "VarCall: name: " << node.identifier_str_ << std::endl;
+	std::cout << tabs() << "VarCall: name: " << node.var_name_ << std::endl;
 }
 
 void Dumper::visit(ASTNullStmt& node)

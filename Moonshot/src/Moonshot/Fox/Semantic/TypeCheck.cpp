@@ -132,7 +132,7 @@ void TypeCheckVisitor::visit(ASTCastExpr & node)
 	}
 }
 
-void TypeCheckVisitor::visit(ASTLiteral & node)
+void TypeCheckVisitor::visit(ASTLiteralExpr & node)
 {
 	value_ = node.val_.index();		// Just put the value in rtr->type.
 }
@@ -160,9 +160,9 @@ void TypeCheckVisitor::visit(ASTVarDecl & node)
 	// returns nothing
 }
 
-void TypeCheckVisitor::visit(ASTIdentifier & node)
+void TypeCheckVisitor::visit(ASTVarRefExpr & node)
 {
-	auto searchResult = datamap_.retrieveVarAttr(node.identifier_str_);
+	auto searchResult = datamap_.retrieveVarAttr(node.var_name_);
 	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN) && searchResult.type_.isConst())
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
@@ -174,7 +174,7 @@ void TypeCheckVisitor::visit(ASTIdentifier & node)
 
 bool TypeCheckVisitor::isAssignable(const IASTExpr* op) const
 {
-	if (dynamic_cast<const ASTIdentifier*>(op)) // if the node's a ASTIdentifier, it's assignable.
+	if (dynamic_cast<const ASTVarRefExpr*>(op)) // if the node's a ASTVarRefExpr, it's assignable.
 		return true;
 	return false;
 }

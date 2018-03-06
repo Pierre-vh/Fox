@@ -16,7 +16,7 @@
 
 using namespace Moonshot;
 
-ASTLiteral::ASTLiteral(const FoxValue& fv)
+ASTLiteralExpr::ASTLiteralExpr(const FoxValue& fv)
 {
 	if (IndexUtils::isBasic(fv.index()))
 		val_ = fv;
@@ -24,18 +24,18 @@ ASTLiteral::ASTLiteral(const FoxValue& fv)
 		throw std::invalid_argument("ASTNodeLiteral constructor requires a basic type in the FoxValue");
 }
 
-void ASTLiteral::accept(IVisitor& vis)
+void ASTLiteralExpr::accept(IVisitor& vis)
 {
 	vis.visit(*this);
 }
 
 // VCalls
-ASTIdentifier::ASTIdentifier(const std::string& vname) : identifier_str_(vname)
+ASTVarRefExpr::ASTVarRefExpr(const std::string& vname) : var_name_(vname)
 {
 
 }
 
-void ASTIdentifier::accept(IVisitor & vis)
+void ASTVarRefExpr::accept(IVisitor & vis)
 {
 	vis.visit(*this);
 }

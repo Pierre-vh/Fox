@@ -16,7 +16,7 @@
 
 namespace Moonshot	
 {
-
+	// Represents a binary expression
 	struct ASTBinaryExpr : public IASTExpr
 	{
 		public:
@@ -28,9 +28,10 @@ namespace Moonshot
 			binaryOperator op_ = binaryOperator::PASS;
 
 			virtual void accept(IVisitor& vis) override;
-			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node (because this means that this "expr" node is useless.)
+			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node 
 	};
 
+	// Represents a unary expression
 	struct ASTUnaryExpr : public IASTExpr
 	{
 		public: 
@@ -42,6 +43,7 @@ namespace Moonshot
 			unaryOperator op_ = unaryOperator::DEFAULT;
 	};
 
+	// Represents a cast expression <expr> "as" <type>
 	struct ASTCastExpr : public IASTExpr
 	{
 		public:
@@ -55,26 +57,28 @@ namespace Moonshot
 			FoxType getCastGoal() const; 
 	};
 
-	struct ASTLiteral : public IASTExpr 
+	// Represents a literal
+	struct ASTLiteralExpr : public IASTExpr 
 	{
 		public:
-			ASTLiteral() = default;
-			ASTLiteral(const FoxValue &fv);
+			ASTLiteralExpr() = default;
+			ASTLiteralExpr(const FoxValue &fv);
 
 			void accept(IVisitor& vis) override;
 
 			FoxValue val_;
 	};
 
-	struct ASTIdentifier : public IASTExpr 
+	// Represents a reference to a variable
+	struct ASTVarRefExpr : public IASTExpr 
 	{
 		public:
-			ASTIdentifier() = default;
-			ASTIdentifier(const std::string& vname);
+			ASTVarRefExpr() = default;
+			ASTVarRefExpr(const std::string& vname);
 
 			void accept(IVisitor& vis) override;
 			
-			std::string identifier_str_ = "";
+			std::string var_name_ = "";
 	};
 }
 

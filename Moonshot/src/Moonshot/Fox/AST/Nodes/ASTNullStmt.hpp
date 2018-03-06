@@ -13,8 +13,7 @@
 
 namespace Moonshot
 {
-	struct ASTNullStmt : public IASTStmt	// A null statement, that doesn't do anything.
-											// That's used by the parser, but doesn't actually appear in the AST.
+	struct ASTNullStmt : public IASTStmt	// A null statement, that doesn't do anything. It's going to be ignored most of the time, isn't that sad?
 	{
 		virtual void accept(IVisitor& vis) { vis.visit(*this); }
 	};
