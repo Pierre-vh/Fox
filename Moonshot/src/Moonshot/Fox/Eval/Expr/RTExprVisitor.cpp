@@ -21,7 +21,7 @@
 #include "Moonshot/Common/DataMap/DataMap.hpp"
 
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp"
 
 #include "Moonshot/Fox/Common/Operators.hpp"
 
@@ -247,11 +247,11 @@ void RTExprVisitor::visit(ASTLiteral & node)
 	return;
 }
 
-void RTExprVisitor::visit(ASTVarCall & node)
+void RTExprVisitor::visit(ASTIdentifier & node)
 {
 	if (isDataMapAvailable())
 	{
-		value_ = datamap_->retrieveVarAttr(node.varname_).createRef(); // this returns a reference, because it's needed for assignement operations.
+		value_ = datamap_->retrieveVarAttr(node.identifier_str_).createRef(); // this returns a reference, because it's needed for assignement operations.
 		return;
 	}
 	else

@@ -21,11 +21,11 @@ using keyword = Token::keyword;
 //Nodes
 #include "Moonshot/Fox/AST/Nodes/ASTCompoundStmt.hpp"
 #include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCondStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTWhileStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTNullStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTFunctionDeclaration.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTFunctionDecl.hpp"
 
 ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {
@@ -70,7 +70,7 @@ ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 	// Rule : <while_loop> 	= <wh_kw>  '(' <expr> ')'	<compound_statement> 
 	if (matchKeyword(keyword::D_WHILE))
 	{
-		std::unique_ptr<ASTWhileLoop> rtr = std::make_unique<ASTWhileLoop>();
+		std::unique_ptr<ASTWhileStmt> rtr = std::make_unique<ASTWhileStmt>();
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
 			rtr->expr_ = std::move(parensExprRes.result_);
@@ -89,7 +89,7 @@ ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<ASTFunctionDeclaration*> Parser::parseFunctionDeclaration()
+ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 {
 	/* 
 		<func_decl> = "func" <id> '(' [<arg_list_decl>] ')'[':' <type>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
@@ -97,7 +97,7 @@ ParsingResult<ASTFunctionDeclaration*> Parser::parseFunctionDeclaration()
 	// "func"
 	if (matchKeyword(keyword::D_FUNC))
 	{
-		auto rtr = std::make_unique<ASTFunctionDeclaration>();
+		auto rtr = std::make_unique<ASTFunctionDecl>();
 		// <id>
 		if (auto mID_res = matchID())
 			rtr->name_ = mID_res.result_;
@@ -120,14 +120,14 @@ ParsingResult<ASTFunctionDeclaration*> Parser::parseFunctionDeclaration()
 				if (pArgDeclList.getFlag() != ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
 					errorExpected("Expected a ')'");
 				if(!resyncToDelimiter(sign::B_ROUND_CLOSE))
-					return ParsingResult<ASTFunctionDeclaration*>(ParsingOutcome::FAILED_AND_DIED);
+					return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::FAILED_AND_DIED);
 			}
 		}
 		else
 		{
 			errorExpected("Expected '('");
 			if (!resyncToDelimiter(sign::B_ROUND_CLOSE))
-				return ParsingResult<ASTFunctionDeclaration*>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 		// [':' <type>]
 		if (matchSign(sign::P_COLON))
@@ -144,12 +144,12 @@ ParsingResult<ASTFunctionDeclaration*> Parser::parseFunctionDeclaration()
 		if (auto cp_res = parseCompoundStatement(true))
 		{
 			rtr->body_ = std::move(cp_res.result_);
-			return ParsingResult<ASTFunctionDeclaration*>(ParsingOutcome::SUCCESS, std::move(rtr));
+			return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::SUCCESS, std::move(rtr));
 		}
 		else
-			return ParsingResult<ASTFunctionDeclaration*>(cp_res.getFlag());
+			return ParsingResult<ASTFunctionDecl*>(cp_res.getFlag());
 	}
-	return ParsingResult<ASTFunctionDeclaration*>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<FoxFunctionArg> Parser::parseArgDecl()
@@ -219,19 +219,19 @@ ParsingResult<std::vector<FoxFunctionArg>> Parser::parseArgDeclList()
 ParsingResult<IASTStmt*> Parser::parseCondition()
 {
 	//<condition> = "if" <parens_expr> <statement> ["else" <statement>]
-	auto rtr = std::make_unique<ASTCondition>();
+	auto rtr = std::make_unique<ASTCondStmt>();
 	bool has_if = false;
 	// "if"
 	if (matchKeyword(keyword::D_IF))
 	{
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
-			rtr->condition_expr_ = std::move(parensExprRes.result_);
+			rtr->cond_ = std::move(parensExprRes.result_);
 
 		// <statement>
 		auto ifStmtRes = parseStmt();
 		if (ifStmtRes)
-			rtr->condition_stmt_ = std::move(ifStmtRes.result_);
+			rtr->then_ = std::move(ifStmtRes.result_);
 		else
 		{
 			errorExpected("Expected a statement after if condition,");
@@ -244,7 +244,7 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 	{
 		// <statement>
 		if (auto stmt = parseStmt())
-			rtr->else_stmt_ = std::move(stmt.result_);
+			rtr->else_ = std::move(stmt.result_);
 		else
 		{
 			errorExpected("Expected a statement after else,");
@@ -338,12 +338,12 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 		if (initExpr) // Has init expr?
 			return ParsingResult<IASTStmt*>(
 				ParsingOutcome::SUCCESS,
-				std::make_unique<ASTVarDeclStmt>(v_attr,std::move(initExpr))
+				std::make_unique<ASTVarDecl>(v_attr,std::move(initExpr))
 			);
 		else
 			return ParsingResult<IASTStmt*>(
 				ParsingOutcome::SUCCESS,
-				std::make_unique<ASTVarDeclStmt>(v_attr, nullptr)
+				std::make_unique<ASTVarDecl>(v_attr, nullptr)
 			);
 	}
 	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);

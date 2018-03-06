@@ -1,17 +1,17 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTVarDeclStmt.cpp											
+// File : ASTVarDecl.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ASTVarDeclStmt.hpp"
+#include "ASTVarDecl.hpp"
 
 using namespace Moonshot;
 
-ASTVarDeclStmt::ASTVarDeclStmt(const FoxVariableAttr & attr, std::unique_ptr<IASTExpr> iExpr)
+ASTVarDecl::ASTVarDecl(const FoxVariableAttr & attr, std::unique_ptr<IASTExpr> iExpr)
 {
 	if (attr)
 	{
@@ -23,7 +23,7 @@ ASTVarDeclStmt::ASTVarDeclStmt(const FoxVariableAttr & attr, std::unique_ptr<IAS
 		throw std::invalid_argument("Supplied an empty FoxVariableAttr object to the constructor.");
 }
 
-void ASTVarDeclStmt::accept(IVisitor& vis)
+void ASTVarDecl::accept(IVisitor& vis)
 {
 	vis.visit(*this);
 }

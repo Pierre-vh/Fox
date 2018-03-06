@@ -9,7 +9,7 @@
 
 #include "FuncDecl.hpp"
 
-#include "Moonshot/Fox/AST/Nodes/ASTFunctionDeclaration.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTFunctionDecl.hpp"
 #include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
 
 using namespace Moonshot;
@@ -87,7 +87,7 @@ bool FuncDecl::testFuncDecl(Context & context, const std::string & str)
 	FAILED_RETURN_IF_ERR__SILENT;
 	Parser parser(context, lex.getTokenVector());
 
-	std::unique_ptr<ASTFunctionDeclaration> node;
+	std::unique_ptr<ASTFunctionDecl> node;
 	if (auto parseres = parser.parseFunctionDeclaration())
 		node = std::move(parseres.result_);
 

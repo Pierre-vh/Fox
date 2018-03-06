@@ -13,7 +13,7 @@
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include "Moonshot/Common/Context/Context.hpp" // Context 
 #include "Moonshot/Common/DataMap/DataMap.hpp" // Symbols table
-#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp" // Nodes
+#include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp" // Nodes
 
 using namespace Moonshot;
 
@@ -31,7 +31,7 @@ RTStmtVisitor::~RTStmtVisitor()
 {
 }
 
-void RTStmtVisitor::visit(ASTVarDeclStmt & node)
+void RTStmtVisitor::visit(ASTVarDecl & node)
 {
 	if (!isDataMapAvailable())
 		context_.logMessage("Can't Visit VarDeclStmt nodes when the symbols table is not available.");

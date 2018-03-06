@@ -32,16 +32,16 @@ namespace Moonshot
 			inline virtual void visit(ASTUnaryExpr&)		{}
 			inline virtual void visit(ASTCastExpr&)			{}
 			inline virtual void visit(ASTLiteral&)			{}
-			inline virtual void visit(ASTVarCall&)			{}
+			inline virtual void visit(ASTIdentifier&)			{}
 
 			inline virtual void visit(ASTNullStmt&)			{}
-			inline virtual void visit(ASTVarDeclStmt&)		{}
+			inline virtual void visit(ASTVarDecl&)		{}
 
 			inline virtual void visit(ASTCompoundStmt&)			{}
-			inline virtual void visit(ASTCondition&)		{}
-			inline virtual void visit(ASTWhileLoop&)		{}
+			inline virtual void visit(ASTCondStmt&)		{}
+			inline virtual void visit(ASTWhileStmt&)		{}
 
-			inline virtual void visit(ASTFunctionDeclaration&) {}
+			inline virtual void visit(ASTFunctionDecl&) {}
 	};
 
 	template<typename TYPE>
@@ -52,16 +52,16 @@ namespace Moonshot
 			inline virtual void visit(ASTUnaryExpr&)	{ value_ = TYPE(); }
 			inline virtual void visit(ASTCastExpr&)		{ value_ = TYPE(); }
 			inline virtual void visit(ASTLiteral&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTVarCall&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTIdentifier&)		{ value_ = TYPE(); }
 
 			inline virtual void visit(ASTNullStmt&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTVarDeclStmt&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTVarDecl&)	{ value_ = TYPE(); }
 
 			inline virtual void visit(ASTCompoundStmt&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTCondition&)	{ value_ = TYPE(); }
-			inline virtual void visit(ASTWhileLoop&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTCondStmt&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTWhileStmt&)	{ value_ = TYPE(); }
 
-			inline virtual void visit(ASTFunctionDeclaration&) { value_ = TYPE(); }
+			inline virtual void visit(ASTFunctionDecl&) { value_ = TYPE(); }
 
 			virtual ~ITypedVisitor() = 0	{}
 		protected:

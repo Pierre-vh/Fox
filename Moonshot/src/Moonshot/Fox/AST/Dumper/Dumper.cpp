@@ -15,11 +15,11 @@
 #include "Moonshot/Common/Utils/Utils.hpp" // for enumAsInt
 // Include nodes
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp"
 #include "Moonshot/Fox/AST/Nodes/ASTCompoundStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTCondition.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTWhileLoop.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTFunctionDeclaration.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTCondStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTWhileStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTFunctionDecl.hpp"
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include <iostream>
 
@@ -114,7 +114,7 @@ void Dumper::visit(ASTLiteral & node)
 	std::cout << tabs() << "Literal: " << FValUtils::dumpFVal(node.val_) << '\n';
 }
 
-void Dumper::visit(ASTVarDeclStmt & node)
+void Dumper::visit(ASTVarDecl & node)
 {
 	std::cout << tabs() << "VarDeclStmt :" << node.vattr_.dump() << std::endl;
 	if (node.initExpr_)
@@ -127,9 +127,9 @@ void Dumper::visit(ASTVarDeclStmt & node)
 	}
 }
 
-void Dumper::visit(ASTVarCall & node)
+void Dumper::visit(ASTIdentifier & node)
 {
-	std::cout << tabs() << "VarCall: name: " << node.varname_ << std::endl;
+	std::cout << tabs() << "VarCall: name: " << node.identifier_str_ << std::endl;
 }
 
 void Dumper::visit(ASTNullStmt& node)
@@ -137,7 +137,7 @@ void Dumper::visit(ASTNullStmt& node)
 	std::cout << tabs() << "Null Statement\n";
 }
 
-void Dumper::visit(ASTFunctionDeclaration & node)
+void Dumper::visit(ASTFunctionDecl & node)
 {
 	std::cout << tabs() << "Function Declaration : name:" << node.name_ << " return type:" << node.returnType_.getTypeName() << "\n";
 	tabcount_ += 2;
@@ -166,31 +166,31 @@ void Dumper::visit(ASTCompoundStmt & node)
 	tabcount_ -= 1;
 }
 
-void Dumper::visit(ASTCondition & node)
+void Dumper::visit(ASTCondStmt & node)
 {
 	std::cout << tabs() << "Condition\n";
 	tabcount_++;
 	// if
 	std::cout << tabs() << "Expression (Condition):\n";
 	tabcount_++;
-	node.condition_expr_->accept(*this);
+	node.cond_->accept(*this);
 	tabcount_--;
 	std::cout << tabs() << "Body:\n";
 	tabcount_++;
-	node.condition_stmt_->accept(*this);
+	node.then_->accept(*this);
 	tabcount_--;
 	// has else?
-	if (node.else_stmt_)
+	if (node.else_)
 	{
 		std::cout << tabs() << "Else:\n";
 		tabcount_++;
-		node.else_stmt_->accept(*this);
+		node.else_->accept(*this);
 		tabcount_--;
 	}
 	tabcount_--;
 }
 
-void Dumper::visit(ASTWhileLoop & node)
+void Dumper::visit(ASTWhileStmt & node)
 {
 	std::cout << tabs() << "While Loop\n";
 

@@ -30,12 +30,12 @@ void ASTLiteral::accept(IVisitor& vis)
 }
 
 // VCalls
-ASTVarCall::ASTVarCall(const std::string& vname) : varname_(vname)
+ASTIdentifier::ASTIdentifier(const std::string& vname) : identifier_str_(vname)
 {
 
 }
 
-void ASTVarCall::accept(IVisitor & vis)
+void ASTIdentifier::accept(IVisitor & vis)
 {
 	vis.visit(*this);
 }

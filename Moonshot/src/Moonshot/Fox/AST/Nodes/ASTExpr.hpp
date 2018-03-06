@@ -66,15 +66,15 @@ namespace Moonshot
 			FoxValue val_;
 	};
 
-	struct ASTVarCall : public IASTExpr 
+	struct ASTIdentifier : public IASTExpr 
 	{
 		public:
-			ASTVarCall() = default;
-			ASTVarCall(const std::string& vname);
+			ASTIdentifier() = default;
+			ASTIdentifier(const std::string& vname);
 
 			void accept(IVisitor& vis) override;
 			
-			std::string varname_ = "";
+			std::string identifier_str_ = "";
 	};
 }
 

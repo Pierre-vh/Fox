@@ -1,30 +1,29 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTCondition.hpp											
+// File : ASTWhileStmt.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// AST nodes for conditions.								
+// The AST Node for While loops.
 ////------------------------------------------------------////
 
 #pragma once
 
 #include "IASTStmt.hpp"
-#include "ASTExpr.hpp"
-#include <vector>
+#include "IASTExpr.hpp"
 #include <memory>
 
 namespace Moonshot
 {
-	struct ASTCondition : public IASTStmt
+	struct IASTExpr;
+	struct ASTWhileStmt : public IASTStmt
 	{
 		public:
-			ASTCondition() = default;
+			ASTWhileStmt() = default;
 
 			virtual void accept(IVisitor & vis) override;
 
-			std::unique_ptr<IASTExpr> condition_expr_;
-			std::unique_ptr<IASTStmt> condition_stmt_; // First one is the if, all others are the elifs
-			std::unique_ptr<IASTStmt> else_stmt_; // final else.
+			std::unique_ptr<IASTExpr> expr_;
+			std::unique_ptr<IASTStmt> body_;
 	};
 }

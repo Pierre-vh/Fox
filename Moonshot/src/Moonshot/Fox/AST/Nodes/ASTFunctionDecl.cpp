@@ -1,13 +1,13 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTFunctionDeclaration.cpp											
+// File : ASTFunctionDecl.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "ASTFunctionDeclaration.hpp"
+#include "ASTFunctionDecl.hpp"
 #include <stdexcept>
 #include <sstream>
 using namespace Moonshot;
@@ -33,7 +33,7 @@ FoxFunctionArg::operator bool() const
 	return (wasInit_ && (type_ != TypeIndex::Void_Type) && (type_ != TypeIndex::InvalidIndex));
 }
 
-ASTFunctionDeclaration::ASTFunctionDeclaration(const FoxType & returnType, const std::string & name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody):
+ASTFunctionDecl::ASTFunctionDecl(const FoxType & returnType, const std::string & name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody):
 	returnType_(returnType),name_(name),args_(args),body_(std::move(funcbody))
 {
 }

@@ -10,7 +10,7 @@
 #include "TypeCheck.hpp"
 // Include nodes
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp" 
-#include "Moonshot/Fox/AST/Nodes/ASTVarDeclStmt.hpp" 
+#include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp" 
 // Other
 #include "Moonshot/Common/Context/Context.hpp" // context
 #include "Moonshot/Common/Exceptions/Exceptions.hpp" // exceptions
@@ -137,7 +137,7 @@ void TypeCheckVisitor::visit(ASTLiteral & node)
 	value_ = node.val_.index();		// Just put the value in rtr->type.
 }
 
-void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
+void TypeCheckVisitor::visit(ASTVarDecl & node)
 {
 	// check for impossible/illegal assignements;
 	if (node.initExpr_) // If the node has an initExpr.
@@ -160,9 +160,9 @@ void TypeCheckVisitor::visit(ASTVarDeclStmt & node)
 	// returns nothing
 }
 
-void TypeCheckVisitor::visit(ASTVarCall & node)
+void TypeCheckVisitor::visit(ASTIdentifier & node)
 {
-	auto searchResult = datamap_.retrieveVarAttr(node.varname_);
+	auto searchResult = datamap_.retrieveVarAttr(node.identifier_str_);
 	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN) && searchResult.type_.isConst())
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
@@ -174,7 +174,7 @@ void TypeCheckVisitor::visit(ASTVarCall & node)
 
 bool TypeCheckVisitor::isAssignable(const IASTExpr* op) const
 {
-	if (dynamic_cast<const ASTVarCall*>(op)) // if the node's a ASTVarCall, it's assignable.
+	if (dynamic_cast<const ASTIdentifier*>(op)) // if the node's a ASTIdentifier, it's assignable.
 		return true;
 	return false;
 }

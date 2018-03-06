@@ -33,7 +33,7 @@ namespace Moonshot
 			virtual void visit(ASTCastExpr & node) override;
 
 			virtual void visit(ASTLiteral & node) override;
-			virtual void visit(ASTVarCall & node) override;
+			virtual void visit(ASTIdentifier & node) override;
 
 			void setDataMap(std::shared_ptr<DataMap> symtab);
 			FoxValue getResult() const;

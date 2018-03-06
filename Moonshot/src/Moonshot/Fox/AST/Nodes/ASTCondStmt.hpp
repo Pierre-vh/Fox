@@ -1,23 +1,30 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : IASTDeclaration.hpp											
+// File : ASTCondStmt.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// Base abstract class for nodes.											
+// AST nodes for conditions.								
 ////------------------------------------------------------////
 
 #pragma once
 
 #include "IASTStmt.hpp"
+#include "ASTExpr.hpp"
+#include <vector>
+#include <memory>
 
 namespace Moonshot
 {
-	struct IASTDeclaration : public IASTStmt
+	struct ASTCondStmt : public IASTStmt
 	{
 		public:
-			IASTDeclaration() = default;
-			virtual ~IASTDeclaration() = 0 {}
+			ASTCondStmt() = default;
+
+			virtual void accept(IVisitor & vis) override;
+
+			std::unique_ptr<IASTExpr> cond_;
+			std::unique_ptr<IASTStmt> then_; 
+			std::unique_ptr<IASTStmt> else_;
 	};
 }
-

@@ -25,7 +25,7 @@ namespace Moonshot
 			RTStmtVisitor(Context& c,std::shared_ptr<DataMap> symtab);
 			~RTStmtVisitor();
 
-			virtual void visit(ASTVarDeclStmt & node) override;
+			virtual void visit(ASTVarDecl & node) override;
 
 		private:
 			// Declares the value, but deref initival if it's a reference.

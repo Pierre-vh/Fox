@@ -1,14 +1,14 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTFunctionDeclaration.hpp											
+// File : ASTFunctionDecl.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // The AST Node for Function Declarations										
 ////------------------------------------------------------////
 
 #pragma once
-#include "IASTDeclaration.hpp"
+#include "IASTDecl.hpp"
 #include "ASTCompoundStmt.hpp"
 #include "Moonshot/Common/Types/Types.hpp"
 
@@ -38,10 +38,10 @@ namespace Moonshot
 		return !(lhs == rhs);
 	}
 
-	struct ASTFunctionDeclaration : public IASTDeclaration	
+	struct ASTFunctionDecl : public IASTDecl	
 	{
-		ASTFunctionDeclaration() = default;
-		ASTFunctionDeclaration(const FoxType& returnType,const std::string& name,std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
+		ASTFunctionDecl() = default;
+		ASTFunctionDecl(const FoxType& returnType,const std::string& name,std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 		virtual void accept(IVisitor& vis) { vis.visit(*this); }
 
