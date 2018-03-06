@@ -71,8 +71,12 @@ you'll be greeted with an error!)
 <while_loop> 		= "while" <parens_expr> <statement>
 
 ##PENDING CHANGES##
-<fq_id>				= <id> {'.' <id>}						// fully qualified id
-<import_stmt>		= ( "import" | "using" ) <fq_id> ';'	// import stmt
-
-<f_call>			=  <fq_id> '(' <expr_list> ')'		
-<expr_list>			=  [<expr> {',' <expr>}] 
+delete:
+	<f_call>
+add:
+    <import>        = ("import" | "using") <id> {'.' (<id> | '*')} ';' // Note: Stop (break loop) if '*' is found
+    
+    <value>         = <parens_expr> | <id> | <literal>
+    <trailer>       = '(' <expr_list> ')' | ('.' <id>)
+    <atom>          = <value> { <trailer> }
+    <exp_expr>      = <atom> [ <exponent_operator> <prefix_exp> ]
