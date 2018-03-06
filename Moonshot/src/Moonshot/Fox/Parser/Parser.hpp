@@ -45,11 +45,10 @@
 /*
 	Parser TODO:
 		Finish Function declaration rule - DONE
-		Return Statement - YOU ARE HERE
-		Implement New grammar changes in "pending"
+		Return Statement - DONE
+		Implement New grammar changes in "pending" - YOU ARE HERE
 	Next:
-		Rework AST as planned
-		Implement new visitor system
+		Rework the visitor system
 */
 namespace Moonshot
 {
