@@ -97,7 +97,7 @@ namespace Moonshot
 				T_CONST,			// "const"
 				// TYPE CONVERSION
 				TC_AS,				// "as"
-				// DECLARATION
+				// DECLARATION / STATEMENT
 				D_LET,				// "let"
 				D_FUNC,				// "func"
 				D_IF,				// "if"
