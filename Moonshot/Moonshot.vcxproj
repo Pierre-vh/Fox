@@ -163,11 +163,11 @@
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCompStmt.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTFunctionDeclaration.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.cpp" />
-    <ClCompile Include="src\Moonshot\Fox\Common\FunctionSignature.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Condition\Conditions.cpp" />
     <ClCompile Include="src\Moonshot\Fox\AST\Nodes\ASTCondition.cpp" />
     <ClCompile Include="src\Moonshot\Tests\CompoundStatement\CompoundStatements.cpp" />
     <ClCompile Include="src\Moonshot\Tests\ExprStmt\ExprStmt.cpp" />
+    <ClCompile Include="src\Moonshot\Tests\FuncDecl\FuncDecl.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Options\OptionsTests.cpp" />
     <ClCompile Include="src\Moonshot\Common\Context\Options\OptionsManager.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Expressions\ExprTests.cpp" />
@@ -215,8 +215,8 @@
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ForwardDeclarations.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTDeclaration.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTExpr.hpp" />
-    <ClInclude Include="src\Moonshot\Fox\Common\FunctionSignature.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Parser\ParsingResult.hpp" />
+    <ClInclude Include="src\Moonshot\Tests\FuncDecl\FuncDecl.hpp" />
     <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\checked.h" />
     <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8\checked.hpp" />
