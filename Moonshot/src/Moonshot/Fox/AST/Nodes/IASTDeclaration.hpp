@@ -9,11 +9,11 @@
 
 #pragma once
 
-#include "Moonshot/Fox/AST/Nodes/IASTNode.hpp"
+#include "IASTStmt.hpp"
 
 namespace Moonshot
 {
-	struct IASTDeclaration : public IASTNode
+	struct IASTDeclaration : public IASTStmt
 	{
 		public:
 			IASTDeclaration() = default;

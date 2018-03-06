@@ -11,7 +11,7 @@
 
 using namespace Moonshot;
 
-ASTVarDeclStmt::ASTVarDeclStmt(const var::VariableAttributes & attr, std::unique_ptr<IASTExpr> iExpr)
+ASTVarDeclStmt::ASTVarDeclStmt(const FoxVariableAttr & attr, std::unique_ptr<IASTExpr> iExpr)
 {
 	if (attr)
 	{
@@ -20,7 +20,7 @@ ASTVarDeclStmt::ASTVarDeclStmt(const var::VariableAttributes & attr, std::unique
 			initExpr_ = std::move(iExpr);
 	}
 	else
-		throw std::invalid_argument("Supplied an empty var::VariableAttributes object to the constructor.");
+		throw std::invalid_argument("Supplied an empty FoxVariableAttr object to the constructor.");
 }
 
 void ASTVarDeclStmt::accept(IVisitor& vis)
