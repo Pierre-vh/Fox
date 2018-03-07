@@ -1,4 +1,4 @@
-Fox Grammar version 0.7.0
+Fox Grammar version 0.9.0
 
 Modifications used in this grammar :
 $x means x is a term already recognized and identified by the lexer. 
@@ -21,7 +21,8 @@ you'll be greeted with an error!)
 <type_spec>			= ':' ["const"] <type>				
 <compound_statement>= '{' {<stmt>} '}'		// Statements delimited by curly brackets.
 
-<stmt>			= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <compound_statement> | <rtr_stmt> 
+<stmt>			= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
+<body>			= <stmt> | <compound_statement>
 
 <expr_stmt>		= ';' | <expr> ';' 
 <parens_expr>	= '(' <expr> ')'
@@ -62,13 +63,12 @@ you'll be greeted with an error!)
 <func_decl>		= "func" <id> '(' [<arg_decl_list>] ')'[':' <type>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
 <arg_decl_list> = [<arg_decl> {',' <arg_decl>}*]
 <arg_decl>		= <id> : ["const"]['&'] <type>
-<f_call>		=  <id> <expr_list>						// Function calls used in expressions, etc..
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
 <rtr_stmt>		= "return" [<expr>] ';'
 
 ##Control Flow##
-<condition>			= "if" <parens_expr> <statement> ["else" <statement>]
-<while_loop> 		= "while" <parens_expr> <statement>
+<condition>			= "if"		<parens_expr> <body> ["else" <body>]
+<while_loop> 		= "while"	<parens_expr> <body>
 
 ##PENDING CHANGES##
 delete:

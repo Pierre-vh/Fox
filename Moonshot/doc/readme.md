@@ -40,3 +40,14 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 
 * 0.8.1 -> </br>
 		Changed the <value> rule to use the new <parens_expr> rule.
+
+* 0.9.0	-> </br>
+		Removed <compound_statement> as an alternative in <stmt> rule
+		Created a new <body> rule that can either be a <stmt> or a <compound_stmt>
+		<condition> and <while_loop> now use <body> instead of <stmt>
+			Note: the only consequence of theses change is that it's now forbidden to have "free" compound statements. (not tied to a condition,loop,etc.)
+		Removed <f_call> rule
+		Removed <callable> as an alternative in <value>, now using <id> instead
+		Added a <trailer> rule	-> = '(' <expr_list> ')' | ('.' <id>)
+		Added a <atom> rule		-> <value> {<trailer>}
+		<exp_expr> rule modified to use <atom> instead of <value>
