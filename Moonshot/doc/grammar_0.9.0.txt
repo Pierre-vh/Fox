@@ -21,14 +21,18 @@ you'll be greeted with an error!)
 <type_spec>			= ':' ["const"] <type>				
 <compound_statement>= '{' {<stmt>} '}'		// Statements delimited by curly brackets.
 
+<import>        = ("import" | "using") <id> {'.' (<id> | '*')} ';' // Note: Stop (break loop) if '*' is found
+
 <stmt>			= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
 <body>			= <stmt> | <compound_statement>
 
 <expr_stmt>		= ';' | <expr> ';' 
 <parens_expr>	= '(' <expr> ')'
 
-<value>         = <callable> | <literal> | <parens_expr>
-<exp_expr>      = <value> [ <exponent_operator> <prefix_exp> ]
+<value>         = <parens_expr> | <id> | <literal>
+<trailer>       = '(' <expr_list> ')' | ('.' <id>)
+<atom>          = <value> { <trailer> }
+<exp_expr>      = <atom> [ <exponent_operator> <prefix_exp> ]
 <prefix_expr>   = <unary_operator> <prefix_expr> | <exp_expr>
 <cast_expr>     = <prefix_expr> ["as" <type]
 <binary_expr>   = <cast_expr> { <binary_operator> <cast_expr> }	
@@ -69,14 +73,3 @@ you'll be greeted with an error!)
 ##Control Flow##
 <condition>			= "if"		<parens_expr> <body> ["else" <body>]
 <while_loop> 		= "while"	<parens_expr> <body>
-
-##PENDING CHANGES##
-delete:
-	<f_call>
-add:
-    <import>        = ("import" | "using") <id> {'.' (<id> | '*')} ';' // Note: Stop (break loop) if '*' is found
-    
-    <value>         = <parens_expr> | <id> | <literal>
-    <trailer>       = '(' <expr_list> ')' | ('.' <id>)
-    <atom>          = <value> { <trailer> }
-    <exp_expr>      = <atom> [ <exponent_operator> <prefix_exp> ]
