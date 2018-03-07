@@ -76,7 +76,7 @@ ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
 			rtr->expr_ = std::move(parensExprRes.result_);
 			//  no need for failure cases, the function parseParensExpr manages failures by itself when the mandatory flag is set.
-		// <stmt>
+		// <body>
 		if (auto parseres = parseBody())
 			rtr->body_ = std::move(parseres.result_);
 		else
