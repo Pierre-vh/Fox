@@ -16,17 +16,20 @@ namespace Moonshot
 	struct IASTExpr;
 	struct IASTDecl;
 
-	struct ASTLiteralExpr;
-	struct ASTVarDecl;
-	struct ASTDeclRefExpr;
 	struct ASTCompoundStmt;
 	struct ASTCondStmt;
 	struct ASTWhileStmt;
+	struct ASTReturnStmt;
+	struct ASTNullStmt;
+
 	struct ASTBinaryExpr;
 	struct ASTUnaryExpr;
 	struct ASTCastExpr;
-	struct ASTNullStmt;
+	struct ASTLiteralExpr;
+	struct ASTDeclRefExpr;
+
 	struct ASTFunctionDecl;
-	struct ASTReturnStmt;
+	struct ASTVarDecl;
+
 	struct FoxFunctionArg;
 }
