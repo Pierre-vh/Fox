@@ -61,7 +61,6 @@ namespace Moonshot
 
 			// EXPRESSIONS
 			ParsingResult<IASTExpr*> parseLiteral();
-			ParsingResult<IASTExpr*> parseCallable(); // values/functions calls.
 			ParsingResult<IASTExpr*> parseValue();
 			ParsingResult<IASTExpr*> parseExponentExpr();
 			ParsingResult<IASTExpr*> parsePrefixExpr(); // unary prefix expressions

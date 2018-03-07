@@ -68,7 +68,7 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 
 ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 {
-	// Rule : <while_loop> 	= <wh_kw>  '(' <expr> ')'	<compound_statement> 
+	// Rule : <while_loop> 	= <wh_kw>  '(' <expr> ')' <body> 
 	if (matchKeyword(keyword::D_WHILE))
 	{
 		std::unique_ptr<ASTWhileStmt> rtr = std::make_unique<ASTWhileStmt>();
@@ -219,7 +219,7 @@ ParsingResult<std::vector<FoxFunctionArg>> Parser::parseArgDeclList()
 
 ParsingResult<IASTStmt*> Parser::parseCondition()
 {
-	//<condition> = "if" <parens_expr> <statement> ["else" <statement>]
+	//<condition> = "if" <parens_expr> <body> ["else" <statement>]
 	auto rtr = std::make_unique<ASTCondStmt>();
 	bool has_if = false;
 	// "if"
@@ -319,7 +319,6 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 	if (matchKeyword(keyword::D_LET))
 	{
 		// ##ID##
-
 		if (auto match = matchID())
 		{
 			varName = match.result_;

@@ -9,17 +9,17 @@
 ////------------------------------------------------------////
 
 #include "Parser.hpp"
-
+// Context and Exceptions
+#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 using namespace Moonshot;
 
 using category = Token::category;
 using sign = Token::sign;
 using keyword = Token::keyword;
 
-// Context and Exceptions
-#include "Moonshot/Common/Context/Context.hpp"
-#include "Moonshot/Common/Exceptions/Exceptions.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
+
 
 ParsingResult<IASTExpr*> Parser::parseLiteral()
 {
@@ -28,27 +28,19 @@ ParsingResult<IASTExpr*> Parser::parseLiteral()
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTExpr*> Parser::parseCallable()
-{
-	// = <id>
-	if (auto match = matchID())
-	{
-		return ParsingResult<IASTExpr*>(
-			ParsingOutcome::SUCCESS,
-			std::make_unique<ASTDeclRefExpr>(match.result_)
-		);
-	}
-	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
-}
-
 ParsingResult<IASTExpr*>  Parser::parseValue()
 {
 	// = <literal>
 	if (auto matchres = parseLiteral()) // if we have a literal, return it packed in a ASTLiteralExpr
 		return matchres;
-	// = <callable>
-	else if (auto res = parseCallable())	// Callable?
-		return res;							// In this case no transformation is needed, so just return the ParsingResult since it's the same thing we use.
+	// = <id>
+	else if (auto match = matchID())
+	{
+		return ParsingResult<IASTExpr*>(
+			ParsingOutcome::SUCCESS,
+			std::make_unique<ASTDeclRefExpr>(match.result_)
+			);
+	}					
 	// = '(' <expr> ')'
 	else if (auto res = parseParensExpr())
 		return res;
