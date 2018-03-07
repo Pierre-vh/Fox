@@ -9,15 +9,16 @@
 
 #pragma once
 
-#include "IASTNode.hpp"
+#include "Moonshot/Fox/AST/IVisitor.hpp"
 
 namespace Moonshot
 {
-	struct IASTStmt : public IASTNode 
+	struct IASTStmt 
 	{
 		public:
 			IASTStmt() = default;
 			virtual ~IASTStmt() = 0 {}
+			virtual void accept(IVisitor& vis) = 0;
 	};
 }
 

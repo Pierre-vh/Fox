@@ -241,7 +241,6 @@
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTVarDecl.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileLoop.h" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTWhileStmt.hpp" />
-    <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTNode.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\IASTStmt.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Dumper\Dumper.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Eval\Expr\RTExprVisitor.hpp" />

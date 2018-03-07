@@ -11,7 +11,6 @@
 
 #include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
 #include "Moonshot/Common/Types/Types.hpp"
-#include <cstddef>
 
 namespace Moonshot
 {
@@ -20,7 +19,7 @@ namespace Moonshot
 		public:
 			IASTExpr() = default;
 			inline virtual ~IASTExpr() = 0 {}
-
+			virtual void accept(IVisitor& vis) = 0;
 			FoxType resultType_ = 0; // The planified result type of the expression after execution. this is set by the typechecker.
 	};
 }

@@ -12,7 +12,6 @@
 
 namespace Moonshot
 {
-	struct IASTNode;
 	struct IASTStmt;
 	struct IASTExpr;
 	struct IASTDecl;

@@ -18,6 +18,7 @@ namespace Moonshot
 		public:
 			IASTDecl() = default;
 			virtual ~IASTDecl() = 0 {}
+			virtual void accept(IVisitor& vis) = 0;
 	};
 }
 
