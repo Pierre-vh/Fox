@@ -3,10 +3,4 @@
 	foo = 0;
 	foo = 2;
 	!foo;
-	{
-		{
-			let I_AM_NESTED : const bool = true;
-			!I_AM_NESTED;
-		}
-	}
 }
