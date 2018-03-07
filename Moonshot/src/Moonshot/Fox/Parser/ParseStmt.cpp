@@ -167,7 +167,7 @@ ParsingResult<FoxFunctionArg> Parser::parseArgDecl()
 			return ParsingResult<FoxFunctionArg>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		// ["const"]
-		if (matchKeyword(keyword::T_CONST))
+		if (matchKeyword(keyword::Q_CONST))
 			rtr.type_.setConstAttribute(true);
 		// ['&']
 		if (matchSign(sign::S_AMPERSAND))
@@ -386,7 +386,7 @@ ParsingResult<FoxType> Parser::parseTypeSpec()
 	if (matchSign(sign::P_COLON))
 	{
 		// Match const kw
-		if (matchKeyword(keyword::T_CONST))
+		if (matchKeyword(keyword::Q_CONST))
 			isConst = true;
 		// Now match the type keyword
 		if (auto mTy_res = matchTypeKw())
