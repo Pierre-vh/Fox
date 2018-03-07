@@ -17,6 +17,11 @@
 #include "Moonshot/Common/Types/Types.hpp"
 #include <vector>
 
+/*
+	Note for future rework : have all reserved keyword in the kKeyword_dict (including "true" and "false"
+	And make the Token & lexer system cleaner overall
+*/
+
 namespace Moonshot
 {
 	class Context;
@@ -94,7 +99,8 @@ namespace Moonshot
 				T_BOOL,				// "bool"
 				T_STRING,			// "string"
 				T_CHAR,				// "char"
-				T_CONST,			// "const"
+				// QUALIFIERS
+				Q_CONST,			// "const"
 				// TYPE CONVERSION
 				TC_AS,				// "as"
 				// DECLARATION / STATEMENT
@@ -145,7 +151,7 @@ namespace Moonshot
 			{ "string"	, Token::keyword::T_STRING },
 			{ "char"	, Token::keyword::T_CHAR },
 			// specifier
-			{ "const"	, Token::keyword::T_CONST },
+			{ "const"	, Token::keyword::Q_CONST },
 			// TYPE CONVERSION
 			{ "as"		, Token::keyword::TC_AS },
 			// DECLARATIONS
