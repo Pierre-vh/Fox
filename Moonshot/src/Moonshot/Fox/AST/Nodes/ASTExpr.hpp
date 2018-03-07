@@ -69,6 +69,12 @@ namespace Moonshot
 			FoxValue val_;
 	};
 
+	/*
+		Note: the AST needs to be adapted for theses 2 nodes. std::strings should be replaced by a pointer to a IASTIdentifier (or find a better name)
+		IASTIdentifier has 2 children : Unresolved ID and resolved ID. Unresolved ID are the raw strings produced by the parsing, and they're replaced by the 
+		Resolver in the Semantic analysis phase by Resolved IDs. Resolved IDs contain a pointer to an entry in the master symbols table.
+	*/
+
 	// Represents a reference to a declaration (namespace,variable,function) -> it's an identifier!
 	struct ASTDeclRefExpr : public IASTExpr 
 	{
@@ -79,6 +85,18 @@ namespace Moonshot
 			void accept(IVisitor& vis) override;
 			
 			std::string declname_ = "";
+	};
+
+	// Represents a member access operation on a namespace, struct or anything
+	// expr is the expression that is being accessed, id_ is the identifier to search.
+	struct ASTMemberAccessExpr : public IASTExpr
+	{
+		ASTMemberAccessExpr() = default;
+
+		// the expression that is being accessed
+		std::unique_ptr<IASTExpr> expr_;
+		// the identifier to search inside the namespace/object/etc.
+		std::string id_;
 	};
 }
 
