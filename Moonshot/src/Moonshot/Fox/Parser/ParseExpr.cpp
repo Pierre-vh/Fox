@@ -35,7 +35,7 @@ ParsingResult<IASTExpr*> Parser::parseCallable()
 	{
 		return ParsingResult<IASTExpr*>(
 			ParsingOutcome::SUCCESS,
-			std::make_unique<ASTVarRefExpr>(match.result_)
+			std::make_unique<ASTDeclRefExpr>(match.result_)
 		);
 	}
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);

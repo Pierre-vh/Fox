@@ -30,12 +30,12 @@ void ASTLiteralExpr::accept(IVisitor& vis)
 }
 
 // VCalls
-ASTVarRefExpr::ASTVarRefExpr(const std::string& vname) : var_name_(vname)
+ASTDeclRefExpr::ASTDeclRefExpr(const std::string& vname) : declname_(vname)
 {
 
 }
 
-void ASTVarRefExpr::accept(IVisitor & vis)
+void ASTDeclRefExpr::accept(IVisitor & vis)
 {
 	vis.visit(*this);
 }

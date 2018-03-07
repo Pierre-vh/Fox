@@ -128,9 +128,9 @@ void Dumper::visit(ASTVarDecl & node)
 	}
 }
 
-void Dumper::visit(ASTVarRefExpr & node)
+void Dumper::visit(ASTDeclRefExpr & node)
 {
-	std::cout << tabs() << "VarCall: name: " << node.var_name_ << std::endl;
+	std::cout << tabs() << "VarCall: name: " << node.declname_ << std::endl;
 }
 
 void Dumper::visit(ASTNullStmt& node)

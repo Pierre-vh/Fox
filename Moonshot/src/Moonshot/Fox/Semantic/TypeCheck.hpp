@@ -37,7 +37,7 @@ namespace Moonshot
 			virtual void visit(ASTLiteralExpr & node) override;
 
 			virtual void visit(ASTVarDecl & node) override;
-			virtual void visit(ASTVarRefExpr & node) override;
+			virtual void visit(ASTDeclRefExpr & node) override;
 
 			DataMap datamap_; // The symbols table used to track variable declarations and types.
 			// it is public so we can add anything we want to it for testing purposes.

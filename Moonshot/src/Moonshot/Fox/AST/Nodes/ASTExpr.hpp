@@ -69,16 +69,16 @@ namespace Moonshot
 			FoxValue val_;
 	};
 
-	// Represents a reference to a variable
-	struct ASTVarRefExpr : public IASTExpr 
+	// Represents a reference to a declaration (namespace,variable,function) -> it's an identifier!
+	struct ASTDeclRefExpr : public IASTExpr 
 	{
 		public:
-			ASTVarRefExpr() = default;
-			ASTVarRefExpr(const std::string& vname);
+			ASTDeclRefExpr() = default;
+			ASTDeclRefExpr(const std::string& vname);
 
 			void accept(IVisitor& vis) override;
 			
-			std::string var_name_ = "";
+			std::string declname_ = "";
 	};
 }
 
