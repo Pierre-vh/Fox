@@ -77,7 +77,7 @@ ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 			rtr->expr_ = std::move(parensExprRes.result_);
 			//  no need for failure cases, the function parseParensExpr manages failures by itself when the mandatory flag is set.
 		// <stmt>
-		if (auto parseres = parseStmt())
+		if (auto parseres = parseBody())
 			rtr->body_ = std::move(parseres.result_);
 		else
 		{
@@ -229,8 +229,8 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
 			rtr->cond_ = std::move(parensExprRes.result_);
 
-		// <statement>
-		auto ifStmtRes = parseStmt();
+		// <body>
+		auto ifStmtRes = parseBody();
 		if (ifStmtRes)
 			rtr->then_ = std::move(ifStmtRes.result_);
 		else
@@ -243,8 +243,8 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 	// "else"
 	if (matchKeyword(keyword::D_ELSE))
 	{
-		// <statement>
-		if (auto stmt = parseStmt())
+		// <body>
+		if (auto stmt = parseBody())
 			rtr->else_ = std::move(stmt.result_);
 		else
 		{
@@ -282,7 +282,7 @@ ParsingResult<IASTStmt*> Parser::parseReturnStmt()
 
 ParsingResult<IASTStmt*> Parser::parseStmt()
 {
-	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <compound_statement> | (<rtr_stmt> -> to be implemented)
+	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | | <rtr_stmt> 
 	if (auto parseres = parseExprStmt())
 		return parseres;
 	else if (auto parseres = parseVarDeclStmt())
@@ -291,12 +291,20 @@ ParsingResult<IASTStmt*> Parser::parseStmt()
 		return parseres;
 	else if (auto parseres = parseWhileLoop())
 		return parseres;
-	else if (auto parseres = parseCompoundStatement())
-		return ParsingResult<IASTStmt*>(parseres.getFlag(), std::move(parseres.result_));
+	
 	else if (auto parseres = parseReturnStmt())
 		return parseres;
 	else
 		return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+}
+
+ParsingResult<IASTStmt*> Parser::parseBody()
+{
+	if (auto parseres = parseStmt())
+		return parseres;
+	else if (auto parseres = parseCompoundStatement())
+		return ParsingResult<IASTStmt*>(parseres.getFlag(), std::move(parseres.result_));
+	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()

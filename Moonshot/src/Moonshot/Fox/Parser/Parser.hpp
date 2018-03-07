@@ -73,12 +73,11 @@ namespace Moonshot
 
 			// STATEMENTS
 			ParsingResult<IASTStmt*> parseReturnStmt();
-			ParsingResult<IASTStmt*> parseStmt(); // General Statement
 			ParsingResult<IASTStmt*> parseVarDeclStmt(); // Var Declaration Statement
 			ParsingResult<IASTStmt*> parseExprStmt(); // Expression statement
-
-			// STATEMENTS : COMPOUND STATEMENT
 			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); // Compound Statement
+			ParsingResult<IASTStmt*> parseStmt(); // General Statement
+			ParsingResult<IASTStmt*> parseBody(); // body for control flow
 
 			// STATEMENTS : IF,ELSE IF,ELSE
 			ParsingResult<IASTStmt*> parseCondition(); // Parse a  if-else if-else "block
