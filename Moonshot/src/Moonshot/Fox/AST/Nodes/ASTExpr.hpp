@@ -4,18 +4,28 @@
 // File : ASTExpr.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// AST nodes for expressions											
+// Declares the IASTExpr interface as well as derived nodes. 
 ////------------------------------------------------------////
 
 #pragma once
 
-#include "IASTExpr.hpp"							
+#include "ASTStmt.hpp"
+#include "Moonshot/Fox/AST/IVisitor.hpp"
 #include "Moonshot/Fox/Common/Operators.hpp"			// enums
 #include "Moonshot/Common/Types/Types.hpp"		// FoxValue
 #include <memory>
 
 namespace Moonshot	
 {
+	struct IASTExpr : public IASTStmt
+	{
+		public:
+			IASTExpr() = default;
+			inline virtual ~IASTExpr() = 0 {}
+			virtual void accept(IVisitor& vis) = 0;
+			FoxType resultType_ = 0; // The planified result type of the expression after execution. this is set by the typechecker.
+	};
+
 	// Represents a binary expression
 	struct ASTBinaryExpr : public IASTExpr
 	{

@@ -1,19 +1,32 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTFunctionDecl.hpp											
+// File : ASTDecl.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// The AST Node for Function Declarations										
+// Declares the IASTDecl interface as well as derived nodes.
 ////------------------------------------------------------////
 
 #pragma once
-#include "IASTDecl.hpp"
-#include "ASTCompoundStmt.hpp"
+
+#include "ASTStmt.hpp"
+#include "Moonshot/Fox/AST/IVisitor.hpp"
 #include "Moonshot/Common/Types/Types.hpp"
+#include <memory>
+#include <vector>
 
 namespace Moonshot
 {
+	struct IASTExpr;
+
+	struct IASTDecl : public IASTStmt
+	{
+		public:
+			IASTDecl() = default;
+			virtual ~IASTDecl() = 0 {}
+			virtual void accept(IVisitor& vis) = 0;
+	};
+
 	// Store a arg's attribute : name, type, and if it's a reference.
 	struct FoxFunctionArg : public FoxVariableAttr
 	{
@@ -38,10 +51,10 @@ namespace Moonshot
 		return !(lhs == rhs);
 	}
 
-	struct ASTFunctionDecl : public IASTDecl	
+	struct ASTFunctionDecl : public IASTDecl
 	{
 		ASTFunctionDecl() = default;
-		ASTFunctionDecl(const FoxType& returnType,const std::string& name,std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
+		ASTFunctionDecl(const FoxType& returnType, const std::string& name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 		virtual void accept(IVisitor& vis) { vis.visit(*this); }
 
@@ -51,4 +64,18 @@ namespace Moonshot
 
 		std::unique_ptr<ASTCompoundStmt> body_;
 	};
+
+	struct ASTVarDecl : public IASTDecl
+	{
+		public:
+			// Create a variable declaration statement by giving the constructor the variable's properties (name,is const and type) and, if there's one, an expression to initialize it.
+			ASTVarDecl(const FoxVariableAttr &attr, std::unique_ptr<IASTExpr> iExpr);
+
+			// Inherited via IASTStmt
+			virtual void accept(IVisitor& vis) override;
+
+			FoxVariableAttr vattr_;
+			std::unique_ptr<IASTExpr> initExpr_ = nullptr;
+	};
 }
+

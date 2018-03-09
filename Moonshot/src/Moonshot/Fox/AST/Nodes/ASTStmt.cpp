@@ -1,16 +1,21 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTReturnStmt.cpp											
+// File : ASTStmt.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-
-#include "ASTReturnStmt.h"
+#include "ASTStmt.hpp"
+#include "ASTExpr.hpp"
 
 using namespace Moonshot;
+
+void ASTNullStmt::accept(IVisitor& vis)
+{ 
+	vis.visit(*this);
+}
 
 ASTReturnStmt::ASTReturnStmt(std::unique_ptr<IASTExpr> rtr_expr)
 {
@@ -25,4 +30,19 @@ void ASTReturnStmt::accept(IVisitor & vis)
 bool ASTReturnStmt::hasExpr() const
 {
 	return (bool)expr_;
+}
+
+void ASTCondStmt::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
+
+void ASTCompoundStmt::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
+
+void ASTWhileStmt::accept(IVisitor & vis)
+{
+	vis.visit(*this);
 }
