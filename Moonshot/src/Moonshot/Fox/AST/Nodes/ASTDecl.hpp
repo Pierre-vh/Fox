@@ -8,7 +8,6 @@
 ////------------------------------------------------------////
 
 #pragma once
-
 #include "ASTStmt.hpp"
 #include "Moonshot/Fox/AST/IVisitor.hpp"
 #include "Moonshot/Common/Types/Types.hpp"
@@ -17,14 +16,22 @@
 
 namespace Moonshot
 {
+	// Forward declaration
 	struct IASTExpr;
-
-	struct IASTDecl : public IASTStmt
+	struct IASTStmt;
+	// Interface for Decl nodes.
+	struct IASTDecl
 	{
 		public:
 			IASTDecl() = default;
 			virtual ~IASTDecl() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
+	};
+
+	// "Adaptator" Interface for when a node is both a declaration and a statement (e.g. a variable declaration)
+	struct IASTDeclStmt : public virtual IASTDecl, public virtual IASTStmt
+	{
+		~IASTDeclStmt() = 0 {}
 	};
 
 	// Store a arg's attribute : name, type, and if it's a reference.
@@ -37,20 +44,13 @@ namespace Moonshot
 			bool isRef_;
 			std::string dump() const;
 			operator bool() const;
+			bool operator==(const FoxFunctionArg& other) const;
+			bool operator!=(const FoxFunctionArg& other) const;
 		private:
 			using FoxVariableAttr::wasInit_;
 	};
 
-	inline bool operator==(const FoxFunctionArg& lhs, const FoxFunctionArg& rhs)
-	{
-		return (lhs.name_ == rhs.name_) && (lhs.type_ == rhs.type_);
-	}
-
-	inline bool operator!=(const FoxFunctionArg& lhs, const FoxFunctionArg& rhs)
-	{
-		return !(lhs == rhs);
-	}
-
+	// a Function declaration node.
 	struct ASTFunctionDecl : public IASTDecl
 	{
 		ASTFunctionDecl() = default;
@@ -65,7 +65,8 @@ namespace Moonshot
 		std::unique_ptr<ASTCompoundStmt> body_;
 	};
 
-	struct ASTVarDecl : public IASTDecl
+	// A Variable declaration
+	struct ASTVarDecl : public IASTDeclStmt
 	{
 		public:
 			// Create a variable declaration statement by giving the constructor the variable's properties (name,is const and type) and, if there's one, an expression to initialize it.

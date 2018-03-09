@@ -33,6 +33,16 @@ FoxFunctionArg::operator bool() const
 	return (wasInit_ && (type_ != TypeIndex::Void_Type) && (type_ != TypeIndex::InvalidIndex));
 }
 
+bool FoxFunctionArg::operator==(const FoxFunctionArg & other) const
+{
+	return (name_ == other.name_) && (type_ == other.type_);
+}
+
+bool FoxFunctionArg::operator!=(const FoxFunctionArg & other) const
+{
+	return !(*this == other);
+}
+
 ASTFunctionDecl::ASTFunctionDecl(const FoxType & returnType, const std::string & name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody) :
 	returnType_(returnType), name_(name), args_(args), body_(std::move(funcbody))
 {
