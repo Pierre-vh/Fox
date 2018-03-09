@@ -6,6 +6,8 @@ using namespace Moonshot;
 /*
 		Implement the rest of the Parsing functions & AST Structure
 			- Member access
+			- Function calls
+			- Resolved/Unresolved IDs
 			- Import
 			- DeclContexts (Symbols table and friends)
 
