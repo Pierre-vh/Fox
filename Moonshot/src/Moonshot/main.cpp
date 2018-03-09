@@ -4,18 +4,30 @@
 using namespace Moonshot;
 
 /*
-	TODO :
-		Change the ParsingResult class behaviour:
-			If the type is a pointer, it uses a std::unique_ptr as type stored
-			If the type is not a pointer, it's data type is the same as the type's.
-		Implement the rest of the Parsing functions for the functions declarations
+		Implement the rest of the Parsing functions & AST Structure
+			- Member access
+			- Import
+			- DeclContexts (Symbols table and friends)
 
-		Rework Semantic check classes. See Fox's readme.md
+		Rework the visitor pattern, add ASTWalker, ASTVisitor, ASTTraversal. (use a clang/swift-like design pattern)
+		While doing so, refactor the whole project.
+			Delete /eval/ folder. The code contained in that is complete trash.
+			Delete the typecheck class in prevision of upcoming rewrite.
+			Delete /datamap/, it's filth.
+			Take a peek at everything inside /Common/Types to rename stuff that needs it, make names more explicit. On top of my head:
+				FoxValue can be deleted altogether, and just use different ASTLiteral nodes.
+				Look at everything that's not needed anymore an throw it in the trash too.
+			After that, the project will be purged and can start again on healthier grounds.
+
+		Rewrite the whole test system, possibily by using .def files and a whole macro metaprogramming system.
+
+		Recreate semantic analysis phase in a /sema/ folder
+			- Name Resolver
+			- Type Checker
 */
 
 int main()
 {
-
 	SetConsoleOutputCP(CP_UTF8);
 	setvbuf(stdout, nullptr, _IOFBF, 1000);
 
