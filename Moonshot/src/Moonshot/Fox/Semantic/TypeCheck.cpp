@@ -10,7 +10,7 @@
 #include "TypeCheck.hpp"
 // Include nodes
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp" 
-#include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp" 
+#include "Moonshot/Fox/AST/Nodes/ASTDecl.hpp"
 // Other
 #include "Moonshot/Common/Context/Context.hpp" // context
 #include "Moonshot/Common/Exceptions/Exceptions.hpp" // exceptions

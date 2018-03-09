@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "CompoundStatements.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTCompoundStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTStmt.hpp"
 #include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
 
 using namespace Moonshot;

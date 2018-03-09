@@ -38,9 +38,6 @@ you'll be greeted with an error!)
 <binary_expr>   = <cast_expr> { <binary_operator> <cast_expr> }	
 <expr>          = <binary_expr> [<assign_operator> <expr>] 
 
-<callable>		= <id>
-				= <f_call>
-
 <exponent_operator> = '*' '*'
 <assign_operator> = '='
 <binary_operator> =  '+' | '-' | '*' | '/' | '%' | ('&' '&') | ('|' '|') | ('<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 

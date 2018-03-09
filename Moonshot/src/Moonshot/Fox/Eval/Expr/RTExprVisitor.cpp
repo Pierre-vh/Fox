@@ -21,7 +21,6 @@
 #include "Moonshot/Common/DataMap/DataMap.hpp"
 
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp"
 
 #include "Moonshot/Fox/Common/Operators.hpp"
 

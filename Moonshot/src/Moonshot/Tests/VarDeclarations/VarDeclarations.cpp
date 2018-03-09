@@ -8,6 +8,7 @@
 ////------------------------------------------------------////
 
 #include "VarDeclarations.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTDecl.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Test;

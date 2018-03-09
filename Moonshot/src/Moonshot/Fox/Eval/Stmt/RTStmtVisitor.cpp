@@ -9,11 +9,11 @@
 ////------------------------------------------------------////
 
 #include "RTStmtVisitor.hpp"
-
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include "Moonshot/Common/Context/Context.hpp" // Context 
 #include "Moonshot/Common/DataMap/DataMap.hpp" // Symbols table
-#include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp" // Nodes
+#include "Moonshot/Fox/AST/Nodes/ASTDecl.hpp" // Nodes
 
 using namespace Moonshot;
 

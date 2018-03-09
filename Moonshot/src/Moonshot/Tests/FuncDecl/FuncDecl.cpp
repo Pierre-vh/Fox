@@ -9,7 +9,7 @@
 
 #include "FuncDecl.hpp"
 
-#include "Moonshot/Fox/AST/Nodes/ASTFunctionDecl.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
 
 using namespace Moonshot;
