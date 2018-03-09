@@ -19,14 +19,9 @@ using keyword = Token::keyword;
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 //Nodes
-#include "Moonshot/Fox/AST/Nodes/ASTCompoundStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/IASTStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTCondStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTWhileStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTNullStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTFunctionDecl.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTReturnStmt.h"
+#include "Moonshot/Fox/AST/Nodes/ASTStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTDecl.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
 
 ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {

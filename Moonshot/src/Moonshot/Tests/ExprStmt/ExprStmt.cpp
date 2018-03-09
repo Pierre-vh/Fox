@@ -8,6 +8,8 @@
 ////------------------------------------------------------////
 
 #include "ExprStmt.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTStmt.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
 #include "Moonshot/Common/Types/FoxValueUtils.hpp"
 

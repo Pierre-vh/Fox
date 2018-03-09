@@ -9,6 +9,7 @@
 
 #include "Conditions.hpp"
 #include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTStmt.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Test;

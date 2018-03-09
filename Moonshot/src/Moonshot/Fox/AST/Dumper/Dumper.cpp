@@ -10,18 +10,16 @@
 #include "Dumper.hpp"
 // Exception
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
+// type
 #include "Moonshot/Common/Types/FoxValueUtils.hpp"
 #include "Moonshot/Common/Types/TypesUtils.hpp"
-#include "Moonshot/Common/Utils/Utils.hpp" // for enumAsInt
 // Include nodes
 #include "Moonshot/Fox/AST/Nodes/ASTExpr.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTVarDecl.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTCompoundStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTCondStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTWhileStmt.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTFunctionDecl.hpp"
-#include "Moonshot/Fox/AST/Nodes/ASTReturnStmt.h"
+#include "Moonshot/Fox/AST/Nodes/ASTDecl.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTStmt.hpp"
+// utils
 #include "Moonshot/Common/Utils/Utils.hpp"
+#include "Moonshot/Common/Utils/Utils.hpp" // for enumAsInt
 #include <iostream>
 
 using namespace Moonshot;

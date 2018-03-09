@@ -2,6 +2,8 @@
 
 #include "Moonshot/Common/DataMap/DataMap.hpp"
 #include "Moonshot/Fox/AST/Dumper/Dumper.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTDecl.hpp"
+#include "Moonshot/Fox/AST/Nodes/ASTStmt.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Test;
