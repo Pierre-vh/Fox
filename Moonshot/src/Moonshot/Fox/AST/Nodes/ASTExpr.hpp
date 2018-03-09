@@ -94,6 +94,8 @@ namespace Moonshot
 		ASTMemberAccessExpr() = default;
 
 		// the expression that is being accessed
+		// /!\ is expr really what I need here? or should I split the node in ExprMemberAccess,IdMemberAccess?
+		// think about how name resolving will work and go from here.
 		std::unique_ptr<IASTExpr> expr_;
 		// the identifier to search inside the namespace/object/etc.
 		std::string id_;
