@@ -17,6 +17,7 @@ namespace Moonshot
 {
 	struct IASTExpr;
 
+	// IASTStmt interface
 	struct IASTStmt 
 	{
 		public:
@@ -25,12 +26,15 @@ namespace Moonshot
 			virtual void accept(IVisitor& vis) = 0;
 	};
 
-	struct ASTNullStmt : public IASTStmt	// A null statement, that doesn't do anything. It's going to be ignored most of the time, isn't that sad?
+	// A null statement, that doesn't do anything. (It's a placeholder)
+	// It's going to be ignored most of the time, isn't that sad?
+	struct ASTNullStmt : public IASTStmt	
 	{
 		ASTNullStmt() = default;
 		virtual void accept(IVisitor& vis) override;
 	};
 
+	// The return <expr> statement.
 	struct ASTReturnStmt : public IASTStmt	
 	{
 		ASTReturnStmt() = default;
@@ -42,6 +46,7 @@ namespace Moonshot
 		std::unique_ptr<IASTExpr> expr_;
 	};
 
+	// a if-then-else type condition.
 	struct ASTCondStmt : public IASTStmt
 	{
 		public:
@@ -54,6 +59,7 @@ namespace Moonshot
 			std::unique_ptr<IASTStmt> else_;
 	};
 
+	// A compound statement (statements between curly brackets)
 	struct ASTCompoundStmt : public IASTStmt
 	{
 		public:
@@ -64,6 +70,7 @@ namespace Moonshot
 			std::vector<std::unique_ptr<IASTStmt>> statements_;
 	};
 
+	// A while loop while(expr) <stmt>
 	struct ASTWhileStmt : public IASTStmt
 	{
 		public:

@@ -17,6 +17,7 @@
 
 namespace Moonshot	
 {
+	// base expression interface
 	struct IASTExpr : public IASTStmt
 	{
 		public:
@@ -26,7 +27,7 @@ namespace Moonshot
 			FoxType resultType_ = 0; // The planified result type of the expression after execution. this is set by the typechecker.
 	};
 
-	// Represents a binary expression
+	// Binary Expressions
 	struct ASTBinaryExpr : public IASTExpr
 	{
 		public:
@@ -41,7 +42,7 @@ namespace Moonshot
 			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node 
 	};
 
-	// Represents a unary expression
+	// Unary Expressions
 	struct ASTUnaryExpr : public IASTExpr
 	{
 		public: 
@@ -53,7 +54,7 @@ namespace Moonshot
 			unaryOperator op_ = unaryOperator::DEFAULT;
 	};
 
-	// Represents a cast expression <expr> "as" <type>
+	// Explicit Cast Expressions
 	struct ASTCastExpr : public IASTExpr
 	{
 		public:
@@ -67,7 +68,7 @@ namespace Moonshot
 			FoxType getCastGoal() const; 
 	};
 
-	// Represents a literal
+	// Literals
 	struct ASTLiteralExpr : public IASTExpr 
 	{
 		public:
