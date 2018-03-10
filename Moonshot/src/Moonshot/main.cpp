@@ -19,14 +19,17 @@ using namespace Moonshot;
 			Take a peek at everything inside /Common/Types to rename stuff that needs it, make names more explicit. On top of my head:
 				FoxValue can be deleted altogether, and just use different ASTLiteral nodes. 
 				Look at everything that's not needed anymore an throw it in the trash too.
-			Also, take a peek a the general Option system. Maybe let it use .def files too.
+			Also, take a peek a the general Option system. Maybe let it use .def files too. 
+			It should be really easy to add new options and Retrieve options. Not a pain in the ass as it is currently.
+				Options should all have int values.
+				Options should be easy to add and retrieve.
 
 			After that, the project will be purged and can start again on healthier grounds.
 			I'm also thinking about switching to a CMake build system and start coding on Linux a bit more.
 			This will make the project better in the long run I think (more people open to contribute)
 
 		Rework the visitor pattern, add ASTWalker, ASTVisitor, ASTTraversal. (use a clang/swift-like design pattern)
-		Rewrite the whole test system, possibily by using .def files and a whole macro metaprogramming system.
+		Rewrite the whole test system, possibily by using .def files.
 			- Separate tests in categories : lexer, parser, semantics, ...
 			- Add more control over tests individually: should it print the AST, should it just print "PASSED/FAILED", show them in condensed form.
 
