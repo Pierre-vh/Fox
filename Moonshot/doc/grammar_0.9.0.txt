@@ -30,7 +30,7 @@ you'll be greeted with an error!)
 <parens_expr>	= '(' <expr> ')'
 
 <value>         = <parens_expr> | <id> | <literal>
-<trailer>       = '(' <expr_list> ')' | ('.' <id>)
+<trailer>       = '.' <id> '(' <expr_list> ')'
 <atom>          = <value> { <trailer> }
 <exp_expr>      = <atom> [ <exponent_operator> <prefix_exp> ]
 <prefix_expr>   = <unary_operator> <prefix_expr> | <exp_expr>
@@ -70,3 +70,24 @@ you'll be greeted with an error!)
 ##Control Flow##
 <condition>			= "if"		<parens_expr> <body> ["else" <body>]
 <while_loop> 		= "while"	<parens_expr> <body>
+
+##PENDING##
+// New grammar version after this change: 0.9.5 
+// Changelong: 
+//	added <expr_list> rule (it was referenced in other rules, but not defined anywhere!)
+//	reworked <expr> grammar
+//		added <qualified_id> to represent namespaces
+//		added <decl_ref> to support both "primary" function and variable calls.
+//		<value> renamed to <primary>, removed <id> and added <decl_ref> instead
+//		deleted <atom> and <trailer> rule
+//	Added a optional <member_access> rule. Not need for now because I don't have oop, but will be useful later.
+
+// I'm going to test theses changes before implementing them. 
+
+<qualified_id>			= <id> { '.' <id }
+<expr_list>				= <expr> {',' <expr> }
+<decl_ref>				= <qualified_id> [ '(' <expr_list> ')' ] 
+// <member_access>	= <primary> { '.' <id> [ '(' <expr_list> ')' ] } // this part is for OOP (chaining, member access, etc). Won't be in for now.
+<primary>		= <literal> | <parens_expr> | <decl_ref>
+<exp_expr>      = <primary> [ <exponent_operator> <prefix_exp> ]
+
