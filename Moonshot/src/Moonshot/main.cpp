@@ -33,11 +33,15 @@ using namespace Moonshot;
 			This will make the project better in the long run I think (more people open to contribute, easier to build the project,etc)
 
 		Rework the visitor pattern, add ASTWalker, ASTVisitor, ASTTraversal. (use a clang/swift-like design pattern)
+			Quick thought: I might rework the AST a little bit, with removing access to the raw data and only use helper functions. This will
+			be decided at this step. It would require some modification to the parser and dumper, but nothing too hard. This would allow
+			for more control over the AST and it's behaviour.
+
 		Rewrite the whole test system, possibily by using .def files to automate their creation. I'll need to think about that a lot!
 			- Separate tests in categories : lexer, parser, semantics, ...
 			- Add more control over tests individually: should it print the AST, should it just print "PASSED/FAILED", show them in condensed form, etc.
 
-		Recreate semantic analysis phase in a /sema/ folder
+		Recreate semantic analysis phase in a /sema/ folder..
 			- Name Resolver
 			- Type Checker
 			- Other general AST Validation / Semantic checks.
