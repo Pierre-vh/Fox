@@ -73,7 +73,7 @@ you'll be greeted with an error!)
 
 ##PENDING##
 // New grammar version after this change: 0.9.5 
-// Changelong: 
+// Changelog: 
 //	added <expr_list> rule (it was referenced in other rules, but not defined anywhere!)
 //	reworked <expr> grammar
 //		added <qualified_id> to represent namespaces
@@ -91,3 +91,22 @@ you'll be greeted with an error!)
 <primary>		= <literal> | <parens_expr> | <decl_ref>
 <exp_expr>      = <primary> [ <exponent_operator> <prefix_exp> ]
 
+
+// Alternative version
+// This variation treats namespaces the same way as OO member access, etc.
+// It will complicate a bit the semantics checks and the name lookup phases, but is cleaner imo.
+// I' ll test and compare it to the other solution to see which one is more fitting. Changelog for this version:
+
+//	added <expr_list> rule (it was referenced in other rules, but not defined anywhere!)
+//	reworked <expr> grammar
+//		added <decl_ref> rule to represent both variable and function calls.
+//		<value> renamed to <primary>, removed <id> and added <decl_ref> instead
+//		deleted <atom> and <trailer> rule
+//		added <member_access> = <primary> { '.' <decl_ref> }
+//		Replaced the call to <atom> in <exp_expr> to <member_access>
+
+<expr_list>				= <expr> {',' <expr> }
+<decl_ref>	= <id> [ '(' <expr_ist> ')' ] 
+<primary>	= <literal> | <parens_expr> | <decl_ref>
+<member_access>	= <primary> { '.' <decl_ref> } 
+<exp_expr>		= <member_access> [ <exponent_operator> <prefix_expr> ]
