@@ -131,6 +131,30 @@ void Dumper::visit(ASTDeclRefExpr & node)
 	std::cout << tabs() << "VarCall: name: " << node.getDeclnameStr() << std::endl;
 }
 
+void Dumper::visit(ASTFunctionCallExpr & node)
+{
+	std::cout << tabs() << "Function Call\n";
+	tabcount_++;
+	std::cout << tabs() << "Function:\n";
+
+	tabcount_++;
+	node.getDeclRefExpr()->accept(*this);
+	tabcount_--;
+
+	std::cout << tabs() << "Args:\n";
+	tabcount_++;
+	auto begit = node.getExprList()->exprList_beg();
+	auto endit = node.getExprList()->exprList_end();
+	for (int count(0); begit != endit; begit++,count++)
+	{
+		std::cout << tabs() << "Arg" << count << '\n';
+		tabcount_++;
+		(*begit)->accept(*this);
+		tabcount_--;
+	}
+	tabcount_ -=2;
+}
+
 void Dumper::visit(ASTNullStmt& node)
 {
 	std::cout << tabs() << "Null Statement\n";
