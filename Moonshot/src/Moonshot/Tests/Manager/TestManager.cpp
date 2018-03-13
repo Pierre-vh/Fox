@@ -21,6 +21,7 @@
 #include "../WhileLoop/WhileLoop.hpp"
 #include "../U8StrManipTest/U8StrManipTest.hpp"
 #include "../FuncDecl/FuncDecl.hpp"
+#include "../FunctionCalls/FunctionCalls.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Test;
@@ -48,6 +49,7 @@ void TestManager::addDefaultTests()
 	addTestClass<WhileLoop>();
 	addTestClass<U8StrManipTest>();
 	addTestClass<FuncDecl>();
+	addTestClass<FunctionCalls>();
 }
 
 void TestManager::addTest(std::unique_ptr<ITest> test)

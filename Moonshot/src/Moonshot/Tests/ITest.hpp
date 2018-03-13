@@ -20,14 +20,14 @@
 #include <fstream>
 #include <vector>
 
+
 #define FAILED_RETURN_IF_ERR(zone) 	if (!context.isSafe())	\
 							{	\
-								std::cout << "Test failed at " << zone << std::endl;	\
-								return false;	\
+								std::cout << "\t\t\xC0Test failed at " << zone << std::endl;	\
 							}
 #define FAILED_RETURN_IF(cond,zone) if (cond)	\
 									{	\
-										std::cout << "Test failed at " << zone << std::endl;	\
+										std::cout << "\t\t\xC0Test failed at " << zone << std::endl;	\
 										return false;	\
 									}
 
