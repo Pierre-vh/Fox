@@ -1,0 +1,5 @@
+Fox.io.print()
+(Fox.io.someobject).asInt()
+(3+33).asFloat()
+"Hello".toInt()
+Test.attr.func().attr.attr.func()
