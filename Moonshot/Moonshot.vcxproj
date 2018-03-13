@@ -169,6 +169,7 @@
     <ClCompile Include="src\Moonshot\Tests\ExprStmt\ExprStmt.cpp" />
     <ClCompile Include="src\Moonshot\Tests\FuncDecl\FuncDecl.cpp" />
     <ClCompile Include="src\Moonshot\Tests\FunctionCalls\FunctionCalls.cpp" />
+    <ClCompile Include="src\Moonshot\Tests\MemberAccess\MemberAccess.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Options\OptionsTests.cpp" />
     <ClCompile Include="src\Moonshot\Common\Context\Options\OptionsManager.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Expressions\ExprTests.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="src\Moonshot\Fox\Parser\ParsingResult.hpp" />
     <ClInclude Include="src\Moonshot\Tests\FuncDecl\FuncDecl.hpp" />
     <ClInclude Include="src\Moonshot\Tests\FunctionCalls\FunctionCalls.hpp" />
+    <ClInclude Include="src\Moonshot\Tests\MemberAccess\MemberAccess.hpp" />
     <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\checked.h" />
     <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8\checked.hpp" />
@@ -296,6 +298,8 @@
     <Text Include="doc\grammar_changelog.txt" />
     <Text Include="res\tests\declcall_fn\bad.fox" />
     <Text Include="res\tests\declcall_fn\correct.fox" />
+    <Text Include="res\tests\memberaccess\bad.fox" />
+    <Text Include="res\tests\memberaccess\correct.fox" />
     <Text Include="src\LICENSE.txt" />
     <Text Include="src\Moonshot\Common\Context\Options\OptionsList.h" />
     <Text Include="src\Moonshot\ThirdParty\utfcpp\utfcpp.txt" />
