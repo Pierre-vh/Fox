@@ -14,6 +14,7 @@
 #include "Moonshot/Fox/Common/Operators.hpp"			// enums
 #include "Moonshot/Common/Types/Types.hpp"		// FoxValue
 #include <memory>
+#include <vector>
 
 namespace Moonshot	
 {
@@ -86,8 +87,11 @@ namespace Moonshot
 		Resolver in the Semantic analysis phase by Resolved IDs. Resolved IDs contain a pointer to an entry in the master symbols table.
 	*/
 
+	// interface for decl refs. Derived classes are references to a decl within this context (declref) and reference to member decls (memberref)
+	struct IASTDeclRef : public IASTExpr {};
+
 	// Represents a reference to a declaration (namespace,variable,function) -> it's an identifier!
-	struct ASTDeclRefExpr : public IASTExpr 
+	struct ASTDeclRefExpr : public IASTDeclRef
 	{
 		public:
 			ASTDeclRefExpr() = default;
@@ -95,19 +99,69 @@ namespace Moonshot
 
 			void accept(IVisitor& vis) override;
 			
+			std::string getDeclnameStr() const;
+			void setDeclnameStr(const std::string& str);
+		private:
 			std::string declname_ = "";
 	};
 
-	// Represents a member access operation on a namespace, struct or anything
+	// Represents a reference to a member : a namespace's, an object's field, etc.
 	// expr is the expression that is being accessed, id_ is the identifier to search.
-	struct ASTMemberAccessExpr : public IASTExpr
+	struct ASTMemberRefExpr : public IASTDeclRef
 	{
-		ASTMemberAccessExpr() = default;
+		public:
+			ASTMemberRefExpr() = default;
+			ASTMemberRefExpr(std::unique_ptr<IASTExpr> base, const std::string& membname);
 
-		// the expression that is being accessed
-		std::unique_ptr<IASTExpr> base_;
-		// the identifier to search inside the namespace/object/etc.
-		std::string memberid_;
+			void accept(IVisitor& vis) override;
+
+			const IASTExpr* getBase();
+			std::string getDeclnameAsStr() const;
+
+			void setBase(std::unique_ptr<IASTExpr> expr);
+			void setDeclname(const std::string& membname);
+		private:
+			// the expression that is being accessed
+			std::unique_ptr<IASTExpr> base_;
+			// the decl to search inside the expr
+			std::string memb_name_;
+	};
+
+	// Node/Helper struct that's a wrapper around a std::vector of std::unique_ptr to <IASTExpr>.
+	// used by function call nodes and the parser.
+	struct ExprList
+	{
+		public:
+			ExprList() = default;
+
+			void addExpr(std::unique_ptr<IASTExpr> expr);
+			const IASTExpr* getExpr(const std::size_t& ind);
+
+			bool isEmpty() const;
+			std::size_t getSize() const;
+
+		private:
+			std::vector<std::unique_ptr<IASTExpr>> exprs_;
+	};
+
+	// Function calls
+	struct ASTFunctionCallExpr : public IASTExpr
+	{
+		public:
+			ASTFunctionCallExpr() = default;
+
+			const IASTDeclRef* getDeclRefExpr();
+			const ExprList* getExprList();
+
+			void setExprList(std::unique_ptr<ExprList> elist);
+			void setDeclRef(std::unique_ptr<IASTDeclRef> dref);
+
+			void accept(IVisitor& vis) override;
+		private:
+			// the fn
+			std::unique_ptr<IASTDeclRef> declref_;
+			// it's args
+			std::unique_ptr<ExprList> args_;
 	};
 }
 

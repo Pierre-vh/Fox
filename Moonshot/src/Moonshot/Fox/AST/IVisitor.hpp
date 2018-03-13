@@ -33,6 +33,8 @@ namespace Moonshot
 			inline virtual void visit(ASTCastExpr&)		{}
 			inline virtual void visit(ASTLiteralExpr&)	{}
 			inline virtual void visit(ASTDeclRefExpr&)	{}
+			inline virtual void visit(ASTMemberRefExpr&)	{}
+			inline virtual void visit(ASTFunctionCallExpr&) {}
 
 			inline virtual void visit(ASTNullStmt&)		{}
 			inline virtual void visit(ASTVarDecl&)		{}
@@ -54,6 +56,8 @@ namespace Moonshot
 			inline virtual void visit(ASTCastExpr&)		{ value_ = TYPE(); }
 			inline virtual void visit(ASTLiteralExpr&)	{ value_ = TYPE(); }
 			inline virtual void visit(ASTDeclRefExpr&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTMemberRefExpr&) { value_ = TYPE(); }
+			inline virtual void visit(ASTFunctionCallExpr&) { value_ = TYPE(); }
 
 			inline virtual void visit(ASTNullStmt&)		{ value_ = TYPE(); }
 			inline virtual void visit(ASTVarDecl&)		{ value_ = TYPE(); }

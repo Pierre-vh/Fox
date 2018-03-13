@@ -14,8 +14,10 @@
 #include <iostream> // std::cout for debug purposes
 #include <sstream> // std::stringstream
 
+
 using namespace Moonshot;
 
+// Literal
 ASTLiteralExpr::ASTLiteralExpr(const FoxValue& fv)
 {
 	if (IndexUtils::isBasic(fv.index()))
@@ -29,17 +31,8 @@ void ASTLiteralExpr::accept(IVisitor& vis)
 	vis.visit(*this);
 }
 
-// VCalls
-ASTDeclRefExpr::ASTDeclRefExpr(const std::string& vname) : declname_(vname)
-{
 
-}
-
-void ASTDeclRefExpr::accept(IVisitor & vis)
-{
-	vis.visit(*this);
-}
-
+// BinaryExpr
 ASTBinaryExpr::ASTBinaryExpr(const binaryOperator & opt) : op_(opt)
 {
 
@@ -60,6 +53,7 @@ std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
 	return nullptr;
 }
 
+// UnaryExpr
 ASTUnaryExpr::ASTUnaryExpr(const unaryOperator & opt) : op_(opt)
 {
 
@@ -70,6 +64,7 @@ void ASTUnaryExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
+// CastExpr
 ASTCastExpr::ASTCastExpr(std::size_t castGoal)
 {
 	setCastGoal(castGoal);
@@ -88,4 +83,107 @@ void ASTCastExpr::setCastGoal(const FoxType& ncg)
 FoxType ASTCastExpr::getCastGoal() const
 {
 	return resultType_;
+}
+
+// DeclRefs
+ASTDeclRefExpr::ASTDeclRefExpr(const std::string& vname) : declname_(vname)
+{
+
+}
+
+void ASTDeclRefExpr::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
+
+std::string ASTDeclRefExpr::getDeclnameStr() const
+{
+	return declname_;
+}
+
+void ASTDeclRefExpr::setDeclnameStr(const std::string & str)
+{
+	declname_ = str;
+}
+
+// declref
+const IASTDeclRef * ASTFunctionCallExpr::getDeclRefExpr()
+{
+	return declref_.get();
+}
+
+const ExprList * ASTFunctionCallExpr::getExprList()
+{
+	return args_.get();
+}
+
+void ASTFunctionCallExpr::setExprList(std::unique_ptr<ExprList> elist)
+{
+	args_ = std::move(elist);
+}
+
+void ASTFunctionCallExpr::setDeclRef(std::unique_ptr<IASTDeclRef> dref)
+{
+	declref_ = std::move(dref);
+}
+
+void ASTFunctionCallExpr::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
+
+// MemberRefExpr
+ASTMemberRefExpr::ASTMemberRefExpr(std::unique_ptr<IASTExpr> base, const std::string & membname)
+{
+	base_ = std::move(base);
+	memb_name_ = membname;
+}
+
+void ASTMemberRefExpr::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
+
+const IASTExpr * ASTMemberRefExpr::getBase()
+{
+	return base_.get();
+}
+
+std::string ASTMemberRefExpr::getDeclnameAsStr() const
+{
+	return memb_name_;
+}
+
+void ASTMemberRefExpr::setBase(std::unique_ptr<IASTExpr> expr)
+{
+	base_ = std::move(expr);
+}
+
+void ASTMemberRefExpr::setDeclname(const std::string& membname)
+{
+	memb_name_ = membname;
+}
+
+// Expr list
+void ExprList::addExpr(std::unique_ptr<IASTExpr> expr)
+{
+	exprs_.emplace_back(std::move(expr));
+}
+
+const IASTExpr * ExprList::getExpr(const std::size_t & ind)
+{
+	if (ind > getSize())
+		throw std::out_of_range("Tried to access an out of bounds location in an expression list.");
+
+	return exprs_[ind].get();
+}
+
+bool ExprList::isEmpty() const
+{
+	return !exprs_.size();
+}
+
+std::size_t ExprList::getSize() const
+{
+	return exprs_.size();
 }
