@@ -8,7 +8,7 @@ After that and a backup to another branch, *armageddon*. This will come in diffe
 
 ## Deletion 
 </br>
-I'll delete a lot of code. A LOT, and rewrite it from scratch. 
+I'll delete a lot of code. A LOT.
 Most of that code is either obsolete, or trivial to rewrite, or ill-formed. (Overcomplicated, over engineered, bad design,etc.)
 </br>
 The folder/files that are going to be deleted include:</br>
