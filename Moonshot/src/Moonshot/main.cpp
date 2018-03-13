@@ -11,6 +11,18 @@ using namespace Moonshot;
 			- Resolved/Unresolved IDs
 			- Import
 			- DeclContexts (Symbols table and friends)
+			- ASTNamespaces (that need to be contexts too!)
+			- ASTContext
+			- ASTRoot (think about multiple files and namespaces)
+		// Notes: Lay out the whole ast while thinking about the namespace system and how the name resolver will handle that.
+		// Current idea : 
+								   ASTRoot
+								/			\
+						   Namespace	 Namespace
+							/					\
+						 File					File  (file inherits from namespace)
+
+		Primitive parser driver : Takes all the parsed ASTFiles and create a root node, ordering them by namespace (filepaths) to produce a full file.
 
 		Rework the visitor pattern, add ASTWalker, ASTVisitor, ASTTraversal. (use a clang/swift-like design pattern)
 		While doing so, refactor the whole project.
