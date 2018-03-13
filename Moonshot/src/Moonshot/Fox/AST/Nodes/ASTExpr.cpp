@@ -144,12 +144,12 @@ void ASTMemberOfExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-const IASTExpr * ASTMemberOfExpr::getBase()
+IASTExpr * ASTMemberOfExpr::getBase()
 {
 	return base_.get();
 }
 
-std::string ASTMemberOfExpr::getDeclnameAsStr() const
+std::string ASTMemberOfExpr::getMemberNameStr() const
 {
 	return memb_name_;
 }

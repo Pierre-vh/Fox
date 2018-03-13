@@ -115,8 +115,8 @@ namespace Moonshot
 
 			void accept(IVisitor& vis) override;
 
-			const IASTExpr* getBase();
-			std::string getDeclnameAsStr() const;
+			IASTExpr* getBase();
+			std::string getMemberNameStr() const;
 
 			void setBase(std::unique_ptr<IASTExpr> expr);
 			void setDeclname(const std::string& membname);
