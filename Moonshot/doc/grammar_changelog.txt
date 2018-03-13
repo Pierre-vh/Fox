@@ -59,7 +59,7 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 		Removed <callable>
 		Removed <callable> as an alternative in <value>, now using <decl_call> instead 
 		Reworked <expr> grammar 
-			Added <decl_ref> rule to represent both variable and function calls at "primary" level 
+			Added <decl_call> rule to represent both variable and function calls at "primary" level 
 			<value> renamed to <primary>, removed <id> and added <decl_call> instead 
 			Deleted <atom> and <trailer> rules 
 			Added <member_access> = <primary> { '.' <id> [ <parens_expr_list> ] } 
