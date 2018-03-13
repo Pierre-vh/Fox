@@ -31,7 +31,7 @@ Then, I'll apply some *band-aid* code to make the project compile again.
 Some of the code deleted earlier will need to be replaced. This is the tasklist:
 
 * New options system. Will use an .def file -generated enum class to generate the options. At first, there will only be Flags (flag is set or not set, no value held). Currently I don't need specific options values to tweak the interpreter. (My main focus right now is not customizability, but finishing the interpreter and start getting nice results!)
-* New test system. Design goals : ease of use, more customizable (show condensed, show detailed, show ASTs, etc)
+* New test system. Design goals : ease of use, more control over everything (show condensed, show detailed, show ASTs, etc) Desired behaviour: When a test is fine, only display the category and status, e.g.: `PARSER TESTS: SUCCESS` but when a test went wrong show the breakdown of what happened (Test that failed, filepath, context logs, phase that went wrong) to the specific test. Of course some flags will be added to have complete breakdown for every test, like "-detailed-tests" (to list every single test) "-show-tests-asts" (to call dumper on parsed tests nodes), etc.
 * New ASTLiteral nodes to express different literal types : string, char, float, int, bool
 
 
