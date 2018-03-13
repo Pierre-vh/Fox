@@ -126,6 +126,18 @@ void Dumper::visit(ASTVarDecl & node)
 	}
 }
 
+void Dumper::visit(ASTMemberOfExpr & node)
+{
+	std::cout << tabs() << "MemberOf Expr:\n";
+	tabcount_++;
+	std::cout << tabs() << "Base:\n";
+	tabcount_++;
+	node.getBase()->accept(*this);
+	tabcount_--;
+	std::cout << tabs() << "Member name:" << node.getMemberNameStr() << "\n";
+	tabcount_--;
+}
+
 void Dumper::visit(ASTDeclRefExpr & node)
 {
 	std::cout << tabs() << "VarCall: name: " << node.getDeclnameStr() << std::endl;
@@ -138,7 +150,8 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 	std::cout << tabs() << "Function:\n";
 
 	tabcount_++;
-	node.getDeclRefExpr()->accept(*this);
+	if(node.getDeclRefExpr())
+		node.getDeclRefExpr()->accept(*this);
 	tabcount_--;
 
 	// only show args if there's args
