@@ -24,25 +24,40 @@ using namespace Moonshot;
 
 		Primitive parser driver : Takes all the parsed ASTFiles and create a root node, ordering them by namespace (filepaths) to produce a full file.
 
-		Rework the visitor pattern, add ASTWalker, ASTVisitor, ASTTraversal. (use a clang/swift-like design pattern)
-		While doing so, refactor the whole project.
+		Rework the visitor pattern and adapt Dumper to support it. 
+		Refactor the whole project.
 			Delete /eval/ folder. The code contained in that is complete trash.
 			Delete the typecheck class in prevision of upcoming rewrite.
 			Delete /datamap/, it's filth.
 			Take a peek at everything inside /Common/Types to rename stuff that needs it, make names more explicit. On top of my head:
-				FoxValue can be deleted altogether, and just use different ASTLiteral nodes.
+				FoxValue can be deleted altogether, and just use different ASTLiteral nodes. 
 				Look at everything that's not needed anymore an throw it in the trash too.
-			Also, take a peek a the general Option system. Maybe let it use .def files too.
+			Also, take a peek a the general Option system. Maybe let it use .def files too. 
+			It should be really easy to add new options and Retrieve options. Not a pain in the ass as it is currently.
+				Options should all have int values.
+				Options should be easy to add and retrieve.
+			In general, mark stuff that should be reworked and delete things that need to be purged.
 
-			After that, the project will be purged and can start again on healthier grounds.
+			After that, the project will be able to start again on healthier grounds. This shouldn't be a huge setback, I'm
+			just throwing stuff in the trash to avoid building on it. I prefer to rewrite 2 to 3k sloc now than 10 to 30 later.
 
-		Rewrite the whole test system, possibily by using .def files and a whole macro metaprogramming system.
+			I'm also thinking about switching to a CMake build system and start coding on Linux a bit more.
+			This will make the project better in the long run I think (more people open to contribute, easier to build the project,etc)
+
+		Rework the visitor pattern, add ASTWalker, ASTVisitor, ASTTraversal. (use a clang/swift-like design pattern)
+			Quick thought: I might rework the AST a little bit, with removing access to the raw data and only use helper functions. This will
+			be decided at this step. It would require some modification to the parser and dumper, but nothing too hard. This would allow
+			for more control over the AST and it's behaviour.
+
+		Rewrite the whole test system, possibily by using .def files to automate their creation. I'll need to think about that a lot!
 			- Separate tests in categories : lexer, parser, semantics, ...
-			- Add more control over tests individually: should it print the AST, should it just print "PASSED/FAILED", show them in condensed form.
+			- Add more control over tests individually: should it print the AST, should it just print "PASSED/FAILED", show them in condensed form, etc.
 
-		Recreate semantic analysis phase in a /sema/ folder
+		Recreate semantic analysis phase in a /sema/ folder..
 			- Name Resolver
 			- Type Checker
+			- Other general AST Validation / Semantic checks.
+		After that, (it's very far from now!) start doing the IR gen phase.
 */
 
 int main()

@@ -115,6 +115,7 @@
       <EnablePREfast>false</EnablePREfast>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <Profile>true</Profile>
@@ -149,6 +150,7 @@
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(SolutionDir)\Moonshot\src\</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
