@@ -13,10 +13,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-LexerMainTest::~LexerMainTest()
-{
-}
-
 bool LexerMainTest::runTest(Context & context)
 {
 	auto correct_test_str = readFileToString(context,"res\\tests\\lexer\\lexer_correct.fox");

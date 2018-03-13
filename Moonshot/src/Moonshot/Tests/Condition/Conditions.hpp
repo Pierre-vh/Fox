@@ -18,7 +18,6 @@ namespace Moonshot::Test
 	{
 		public:
 			Conditions() = default;
-			~Conditions();
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;

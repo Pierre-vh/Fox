@@ -1,7 +1,7 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : FuncDecl.hpp											
+// File : FunctionsCalls.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // Tests for function declarations. Uses the test files located under /res/tests/funcdecl										
@@ -17,7 +17,6 @@ namespace Moonshot::Test
 	{
 		public:
 			FunctionCalls() = default;
-			~FunctionCalls();
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;

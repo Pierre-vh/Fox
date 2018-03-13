@@ -15,15 +15,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-CompoundStatements::CompoundStatements()
-{
-}
-
-
-CompoundStatements::~CompoundStatements()
-{
-}
-
 std::string CompoundStatements::getTestName() const
 {
 	return "Compound Statements Test";

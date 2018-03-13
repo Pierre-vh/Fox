@@ -19,7 +19,6 @@ namespace Moonshot::Test
 	{
 		public:
 			LexerMainTest() = default;
-			~LexerMainTest();
 
 			// Inherited via ITest
 			virtual bool runTest(Context & context) override;

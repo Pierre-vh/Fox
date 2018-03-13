@@ -1,7 +1,7 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : FuncDecl.cpp											
+// File : FunctionsCalls.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
@@ -15,10 +15,6 @@
 using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
-
-FunctionCalls::~FunctionCalls()
-{
-}
 
 std::string FunctionCalls::getTestName() const
 {

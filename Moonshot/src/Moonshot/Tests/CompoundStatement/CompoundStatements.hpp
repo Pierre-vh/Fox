@@ -17,8 +17,7 @@ namespace Moonshot::Test
 	class CompoundStatements : public ITest
 	{
 		public:
-			CompoundStatements();
-			~CompoundStatements();
+			CompoundStatements() = default;
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;

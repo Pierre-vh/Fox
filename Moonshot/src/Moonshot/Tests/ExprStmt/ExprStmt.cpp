@@ -17,15 +17,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-ExprStmtTest::ExprStmtTest()
-{
-}
-
-
-ExprStmtTest::~ExprStmtTest()
-{
-}
-
 std::string ExprStmtTest::getTestName() const
 {
 	return "Expression Statements Tests.";

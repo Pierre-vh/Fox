@@ -15,10 +15,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-Conditions::~Conditions()
-{
-}
-
 std::string Conditions::getTestName() const
 {
 	return "Conditions (if/else if/else)";

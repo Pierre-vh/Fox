@@ -9,15 +9,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-VarStmts::VarStmts()
-{
-}
-
-
-VarStmts::~VarStmts()
-{
-}
-
 std::string VarStmts::getTestName() const
 {
 	return "Variable Statements (Declarations & Expressions, including assignements)";

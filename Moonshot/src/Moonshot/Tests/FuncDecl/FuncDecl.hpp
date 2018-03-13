@@ -17,7 +17,6 @@ namespace Moonshot::Test
 	{
 		public:
 			FuncDecl() = default;
-			~FuncDecl();
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;

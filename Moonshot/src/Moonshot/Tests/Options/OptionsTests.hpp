@@ -19,8 +19,7 @@ namespace Moonshot::Test
 	class OptionsTests : public ITest
 	{
 		public:
-			OptionsTests();
-			~OptionsTests();
+			OptionsTests() = default;
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;

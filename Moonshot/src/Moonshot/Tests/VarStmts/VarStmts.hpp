@@ -19,8 +19,7 @@ namespace Moonshot::Test
 	class VarStmts : public ITest
 	{
 		public:
-			VarStmts();
-			~VarStmts();
+			VarStmts() = default;
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;

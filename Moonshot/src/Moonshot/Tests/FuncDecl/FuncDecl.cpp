@@ -16,10 +16,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-FuncDecl::~FuncDecl()
-{
-}
-
 std::string FuncDecl::getTestName() const
 {
 	return "Function Declarations";

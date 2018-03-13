@@ -19,7 +19,6 @@ namespace Moonshot::Test
 	{
 		public:
 			VarDeclarations() = default;
-			~VarDeclarations();
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;

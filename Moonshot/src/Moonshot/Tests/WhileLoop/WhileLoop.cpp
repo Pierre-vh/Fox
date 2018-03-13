@@ -15,10 +15,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-WhileLoop::~WhileLoop()
-{
-}
-
 std::string WhileLoop::getTestName() const
 {
 	return "While Loops";

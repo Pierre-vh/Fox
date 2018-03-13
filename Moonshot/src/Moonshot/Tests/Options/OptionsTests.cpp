@@ -15,14 +15,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-OptionsTests::OptionsTests()
-{
-}
-
-OptionsTests::~OptionsTests()
-{
-}
-
 std::string OptionsTests::getTestName() const
 {
 	return "OptionsManager and ParameterValue unit tests.";

@@ -14,11 +14,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-VarDeclarations::~VarDeclarations()
-{
-
-}
-
 std::string VarDeclarations::getTestName() const
 {
 	return "Variables Declarations";

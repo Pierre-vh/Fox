@@ -20,8 +20,7 @@ namespace Moonshot::Test
 	class ExprTests : public ITest
 	{
 		public:
-			ExprTests();
-			~ExprTests();
+			ExprTests() = default;
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;

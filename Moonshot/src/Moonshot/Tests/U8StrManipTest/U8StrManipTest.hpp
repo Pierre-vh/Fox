@@ -18,7 +18,6 @@ namespace Moonshot::Test
 	{
 		public:
 			U8StrManipTest() = default;
-			~U8StrManipTest();
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;

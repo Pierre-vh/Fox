@@ -17,7 +17,6 @@ namespace Moonshot::Test
 	{
 		public:
 			WhileLoop() = default;
-			~WhileLoop();
 
 			virtual std::string getTestName() const override;
 			virtual bool runTest(Context & context) override;

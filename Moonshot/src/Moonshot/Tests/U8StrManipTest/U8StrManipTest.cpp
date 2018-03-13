@@ -8,11 +8,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-U8StrManipTest::~U8StrManipTest()
-{
-
-}
-
 std::string U8StrManipTest::getTestName() const
 {
 	return "UTF8 Test";
