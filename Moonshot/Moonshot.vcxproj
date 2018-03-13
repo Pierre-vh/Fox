@@ -291,6 +291,7 @@
     <ClInclude Include="src\Moonshot\Tests\WhileLoop\WhileLoop.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="doc\grammar_changelog.txt" />
     <Text Include="src\LICENSE.txt" />
     <Text Include="src\Moonshot\Common\Context\Options\OptionsList.h" />
     <Text Include="src\Moonshot\ThirdParty\utfcpp\utfcpp.txt" />
