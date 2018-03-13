@@ -65,6 +65,7 @@ namespace Moonshot
 			// todo : find a better name than decl_ref
 			ParsingResult<IASTExpr*> parseLiteral();
 			ParsingResult<IASTExpr*> parsePrimary();
+			ParsingResult<IASTExpr*> parseMemberAccess();
 			ParsingResult<IASTExpr*> parseExponentExpr();
 			ParsingResult<IASTExpr*> parsePrefixExpr(); // unary prefix expressions
 			ParsingResult<IASTExpr*> parseCastExpr();
