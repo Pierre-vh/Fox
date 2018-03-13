@@ -30,7 +30,7 @@ Then, I'll apply some *band-aid* code to make the project compile again.
 
 Some of the code deleted earlier will need to be replaced. This is the tasklist:
 
-* New options system. Will use an .def file -generated enum class to generate the options. Every option will be a int (because i don't need anything else!)
+* New options system. Will use an .def file -generated enum class to generate the options. At first, there will only be Flags (flag is set or not set, no value held). Currently I don't need specific options values to tweak the interpreter. (My main focus right now is not customizability, but finishing the interpreter and start getting nice results!)
 * New test system. Design goals : ease of use, more customizable (show condensed, show detailed, show ASTs, etc)
 * New ASTLiteral nodes to express different literal types : string, char, float, int, bool
 
