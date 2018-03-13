@@ -51,3 +51,21 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 		Added a <trailer> rule	-> = '(' <expr_list> ')' | ('.' <id>)
 		Added a <atom> rule		-> <value> {<trailer>}
 		<exp_expr> rule modified to use <atom> instead of <value>
+
+* 0.9.5 -> </br>
+	This version is a fix for the 0.9.0's  ill-formed grammar. The changelong is a 0.8.1->0.9.5 changelog.
+	Removed useless description text at the top of the grammar
+		Removed <compound_statement> as an alternative in <stmt> rule
+		Created a new <body> rule that can either be a <stmt> or a <compound_stmt>
+		<condition> and <while_loop> now use <body> instead of <stmt>
+			Note: the only consequence of theses change is that it's now forbidden to have "free" compound statements. (not tied to a condition,loop,etc.)
+		Removed <f_call> rule
+		Added <expr_list> rule (it was referenced in other rules, but not defined anywhere!)
+			<expr_list> = <expr> {',' <expr> }
+		Added <parens_expr_list> = '(' [<expr_list> ] ')'
+		Reworked <expr> grammar
+			Added <decl_ref> rule to represent both variable and function calls at "primary" level
+			<value> renamed to <primary>, removed <id> and added <decl_ref> instead
+			Deleted <atom> and <trailer> rules
+			Added <member_access> = <primary> { '.' <id> [ <parens_expr_list> ] }
+			Replaced the call to <atom> in <exp_expr> to <member_access>
