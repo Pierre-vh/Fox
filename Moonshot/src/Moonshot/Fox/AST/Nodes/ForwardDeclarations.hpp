@@ -28,7 +28,7 @@ namespace Moonshot
 	struct ASTCastExpr;
 	struct ASTLiteralExpr;
 	struct ASTDeclRefExpr;
-	struct ASTMemberRefExpr;
+	struct ASTMemberOfExpr;
 	struct ASTFunctionCallExpr;
 
 	struct ASTFunctionDecl;
