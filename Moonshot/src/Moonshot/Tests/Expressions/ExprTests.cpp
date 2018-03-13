@@ -17,10 +17,6 @@ using namespace Moonshot;
 using namespace Moonshot::Test;
 using namespace Moonshot::Test::TestUtilities;
 
-ExprTests::ExprTests()
-{
-}
-
 std::string ExprTests::getTestName() const
 {
 	return "Expressions Main (no variables)";
