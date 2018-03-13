@@ -11,12 +11,9 @@ using namespace Moonshot;
 /*
 	This is a short term roadmap for the project.
 		Implement the rest of the Parsing functions & AST Structure
-			- Import
-			- ASTNamespaces (that need to be contexts!)
-			- ASTContext
-			- ASTRoot (think about multiple files and namespaces)
-
-		Primitive parser driver : Takes all the parsed ASTFiles and create a root node, ordering them by namespace (filepaths) to produce a full file.
+			- ASTUnit -> a file, contains the import directives
+				-> Once ASTUnit is in, finish the master rule and parser's done !
+			- ASTContext/ASTRoot
 
 		Rework the visitor pattern and adapt Dumper to support it. 
 		Refactor the whole project.
@@ -47,12 +44,16 @@ using namespace Moonshot;
 			- Separate tests in categories : lexer, parser, semantics, ...
 			- Add more control over tests individually: should it print the AST, should it just print "PASSED/FAILED", show them in condensed form, etc.
 
+		
 		Add declContext support (symbols table) + resolved/unresolved IDs
-		Recreate semantic analysis phase in a /sema/ folder
-			- Name Resolver
-			- Type Checker
-			- Other general AST Validation / Semantic checks.
-		After that, (it's very far from now!) start doing the IR gen phase.
+	
+	ASTNamespaceDecl & Parser Driver:
+		Primitive parser driver : Takes all the parsed ASTFiles and create a root node, ordering them by namespace (filepaths) to produce a full file.
+	Recreate semantic analysis phase in a /sema/ folder
+		- Name Resolver
+		- Type Checker
+		- Other general AST Validation / Semantic checks.
+	After that, (it's very far from now!) start doing the IR gen phase.
 */
 
 int main()
