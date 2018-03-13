@@ -39,14 +39,6 @@
 
 #define DEFAULT__shouldPrintSuggestions true
 
-/*
-	Parser TODO:
-		Finish Function declaration rule - DONE
-		Return Statement - DONE
-		Implement New grammar changes in "pending" - YOU ARE HERE
-	Next:
-		Rework the visitor system
-*/
 namespace Moonshot
 {
 	class Context;
