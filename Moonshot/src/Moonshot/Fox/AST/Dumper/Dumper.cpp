@@ -141,6 +141,8 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 	node.getDeclRefExpr()->accept(*this);
 	tabcount_--;
 
+	// only show args if there's args
+	// rename ->getSize of exprlist to size()
 	std::cout << tabs() << "Args:\n";
 	tabcount_++;
 	auto begit = node.getExprList()->exprList_beg();
