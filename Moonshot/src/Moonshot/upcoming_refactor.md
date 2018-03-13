@@ -44,7 +44,7 @@ New classes will include a AST Traversal class, a upgraded ASTVisitor class, AST
 
 </br>
 I might also switch to CMake build system, but I'm pretty unfamiliar with that so there's no guarantees on that side. </br>
-If I switch to CMake I might start coding on CMake more, heck, maybe even install Linux on my laptop and code more on linux!
+If I switch to CMake I might start coding on Linux more, heck, maybe even install Linux on my laptop as the main OS and code more on linux!
 
 
 ## Moving on
