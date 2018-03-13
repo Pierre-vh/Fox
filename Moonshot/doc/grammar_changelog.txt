@@ -56,6 +56,8 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 		Added <expr_list> rule (it was referenced in other rules, but not defined anywhere!) 
 			<expr_list> = <expr> {',' <expr> } 
 		Added <parens_expr_list> = '(' [<expr_list> ] ')' 
+		Removed <callable>
+		Removed <callable> as an alternative in <value>, now using <decl_ref> instead 
 		Reworked <expr> grammar 
 			Added <decl_ref> rule to represent both variable and function calls at "primary" level 
 			<value> renamed to <primary>, removed <id> and added <decl_ref> instead 
