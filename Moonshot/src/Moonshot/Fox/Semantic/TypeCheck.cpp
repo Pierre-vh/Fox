@@ -70,7 +70,7 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 		else
 		{
 			std::stringstream ss;
-			ss << "Can't use operator " << static_cast<int>(node.op_) << " with " << left.getTypeName() << " and " << right.getTypeName() << std::endl;
+			ss << "Can't use operator " << Util::getFromDict(Dicts::kBinopToStr_dict,node.op_) << " with " << left.getTypeName() << " and " << right.getTypeName() << std::endl;
 			context_.logMessage(ss.str());
 		}
 		// CHECK VALIDITY OF EXPRESSION
@@ -162,7 +162,7 @@ void TypeCheckVisitor::visit(ASTVarDecl & node)
 
 void TypeCheckVisitor::visit(ASTDeclRefExpr & node)
 {
-	auto searchResult = datamap_.retrieveVarAttr(node.declname_);
+	auto searchResult = datamap_.retrieveVarAttr(node.getDeclnameStr());
 	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN_BASIC) && searchResult.type_.isConst())
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");

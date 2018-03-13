@@ -81,7 +81,7 @@ std::pair<FoxVariableAttr, FoxValue> DataMap::map_getEntry(const std::string & s
 		successFlag = true;
 		return { it->first, it->second };
 	}
-	context_.reportError("Undeclared variable " + str);
+	context_.reportError("Undeclared variable \"" + str + '"');
 	successFlag = false;
 	return std::pair<FoxVariableAttr, FoxValue>();
 }

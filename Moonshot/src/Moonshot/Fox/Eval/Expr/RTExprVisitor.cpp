@@ -250,7 +250,7 @@ void RTExprVisitor::visit(ASTDeclRefExpr & node)
 {
 	if (isDataMapAvailable())
 	{
-		value_ = datamap_->retrieveVarAttr(node.declname_).createRef(); // this returns a reference, because it's needed for assignement operations.
+		value_ = datamap_->retrieveVarAttr(node.getDeclnameStr()).createRef(); // this returns a reference, because it's needed for assignement operations.
 		return;
 	}
 	else
