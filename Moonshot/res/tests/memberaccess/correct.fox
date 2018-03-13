@@ -1,5 +1,5 @@
-Fox.io.print()
+Fox.std.io.print
 (Fox.io.someobject).asInt()
 (3+33).asFloat()
-"Hello".toInt()
-Test.attr.func().attr.attr.func()
+"Hello".size
+Test.attr.test().attr.attr.test()
