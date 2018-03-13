@@ -57,15 +57,19 @@ namespace Moonshot
 			~Parser();
 
 			// EXPRESSIONS
+			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false);
+			ParsingResult<ExprList*> parseExprList();
+			ParsingResult<ExprList*> parseParensExprList();
+
+			ParsingResult<IASTExpr*> parseDeclCall(); // Parses a decl ref or a function call.
+			// todo : find a better name than decl_ref
 			ParsingResult<IASTExpr*> parseLiteral();
-			ParsingResult<IASTExpr*> parseValue();
+			ParsingResult<IASTExpr*> parsePrimary();
 			ParsingResult<IASTExpr*> parseExponentExpr();
 			ParsingResult<IASTExpr*> parsePrefixExpr(); // unary prefix expressions
 			ParsingResult<IASTExpr*> parseCastExpr();
 			ParsingResult<IASTExpr*> parseBinaryExpr(const char &priority = 5);
 			ParsingResult<IASTExpr*> parseExpr(); 
-				// PARENS EXPR
-			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false);
 
 			// STATEMENTS
 			ParsingResult<IASTStmt*> parseReturnStmt();

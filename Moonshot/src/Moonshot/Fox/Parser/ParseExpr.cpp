@@ -21,6 +21,24 @@ using keyword = Token::keyword;
 
 
 
+ParsingResult<IASTExpr*> Parser::parseDeclCall()
+{
+	if (auto id = matchID())
+	{
+		auto declref = std::make_unique<ASTDeclRefExpr>();
+		declref->setDeclnameStr(id.result_);
+		if (auto exprlist = parseParensExprList())
+		{
+			auto fcall = std::make_unique<ASTFunctionCallExpr>();
+			fcall->setDeclRef(std::move(declref));
+			fcall->setExprList(std::move(exprlist.result_));
+			return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS,std::move(fcall));
+		}
+		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::move(declref));
+	}
+	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
+}
+
 ParsingResult<IASTExpr*> Parser::parseLiteral()
 {
 	if (auto matchres = matchLiteral())
@@ -28,19 +46,14 @@ ParsingResult<IASTExpr*> Parser::parseLiteral()
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTExpr*>  Parser::parseValue()
+ParsingResult<IASTExpr*>  Parser::parsePrimary()
 {
 	// = <literal>
-	if (auto matchres = parseLiteral()) // if we have a literal, return it packed in a ASTLiteralExpr
-		return matchres;
-	// = <id>
-	else if (auto match = matchID())
-	{
-		return ParsingResult<IASTExpr*>(
-			ParsingOutcome::SUCCESS,
-			std::make_unique<ASTDeclRefExpr>(match.result_)
-			);
-	}					
+	if (auto match_lit = parseLiteral()) // if we have a literal, return it packed in a ASTLiteralExpr
+		return match_lit;
+	// = <decl_call>
+	else if (auto match_decl = parseDeclCall())
+		return match_decl;
 	// = '(' <expr> ')'
 	else if (auto res = parseParensExpr())
 		return res;
@@ -49,7 +62,7 @@ ParsingResult<IASTExpr*>  Parser::parseValue()
 
 ParsingResult<IASTExpr*>  Parser::parseExponentExpr()
 {
-	if (auto val = parseValue())
+	if (auto val = parsePrimary())
 	{
 		if (matchExponentOp())
 		{
@@ -244,6 +257,7 @@ ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 	// failure
 	if (isMandatory)
 	{
+		// attempt resync to )
 		errorExpected("Expected a '('");
 		if(resyncToDelimiter(sign::B_ROUND_CLOSE))
 			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_BUT_RECOVERED);
@@ -251,6 +265,51 @@ ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 	}
 	else 
 		return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
+}
+
+ParsingResult<ExprList*> Parser::parseExprList()
+{
+	// <expr_list> = <expr> {',' <expr> }
+	if (auto firstexpr = parseExpr())
+	{
+		auto exprlist = std::make_unique<ExprList>();
+		exprlist->addExpr(std::move(firstexpr.result_));
+		while (auto comma = matchSign(sign::P_COMMA))
+		{
+			if (auto expr = parseExpr())
+				exprlist->addExpr(std::move(expr.result_));
+			else
+			{
+				errorExpected("Expected an expression");
+				return ParsingResult<ExprList*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			}
+		}
+		return ParsingResult<ExprList*>(ParsingOutcome::SUCCESS, std::move(exprlist));
+	}
+	return ParsingResult<ExprList*>(ParsingOutcome::NOTFOUND);
+}
+
+ParsingResult<ExprList*> Parser::parseParensExprList()
+{
+	// <parens_expr_list>	= '(' [ <expr_list> ] ')'
+	if (auto op_rb = matchSign(sign::B_ROUND_OPEN))
+	{
+		auto exprlist = std::make_unique<ExprList>();
+		if (auto parsedlist = parseExprList())			// optional expr_list
+			exprlist = std::move(parsedlist.result_);
+
+		// mandatory ')'
+		if (!matchSign(sign::B_ROUND_CLOSE))
+		{
+			// attempt resync to )
+			errorExpected("Expected a ')'");
+			if (resyncToDelimiter(sign::B_ROUND_CLOSE))
+				return ParsingResult<ExprList*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+			return ParsingResult<ExprList*>(ParsingOutcome::FAILED_AND_DIED);
+		}
+		return ParsingResult<ExprList*>(ParsingOutcome::SUCCESS, std::move(exprlist));
+	}
+	return ParsingResult<ExprList*>(ParsingOutcome::NOTFOUND);
 }
 
 std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator & op)
