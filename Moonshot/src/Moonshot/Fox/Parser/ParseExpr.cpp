@@ -74,8 +74,6 @@ ParsingResult<IASTExpr*> Parser::parseMemberAccess()
 				auto mem_access_node = std::make_unique<ASTMemberOfExpr>();
 				mem_access_node->setBase(std::move(cur));
 				mem_access_node->setDeclname(id.result_);
-				cur = std::move(mem_access_node);
-
 
 				if (auto fn_arg = parseParensExprList())
 				{
@@ -84,10 +82,10 @@ ParsingResult<IASTExpr*> Parser::parseMemberAccess()
 					fn_call_node->setExprList(std::move(fn_arg.result_));
 					cur = std::move(fn_call_node);
 				}
-				else if (fn_arg.getFlag() != ParsingOutcome::NOTFOUND)	// if unknown error, propagate it above
-					return ParsingResult<IASTExpr*>(fn_arg.getFlag());
-				else 
+				else if (fn_arg.getFlag() == ParsingOutcome::NOTFOUND)	
 					cur = std::move(mem_access_node); // else just move the member access node.
+				else
+					return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 			}
 			else
 			{
@@ -100,7 +98,7 @@ ParsingResult<IASTExpr*> Parser::parseMemberAccess()
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTExpr*>  Parser::parseExponentExpr()
+ParsingResult<IASTExpr*> Parser::parseExponentExpr()
 {
 	if (auto val = parseMemberAccess())
 	{
@@ -281,8 +279,6 @@ ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 		std::unique_ptr<IASTExpr> rtr;
 		if (auto parseres = parseExpr())
 			rtr = std::move(parseres.result_);
-		else
-			errorExpected("Expected an expression after '('");
 
 		if (!matchSign(sign::B_ROUND_CLOSE))
 		{
