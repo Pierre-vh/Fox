@@ -3,24 +3,18 @@
 #include "Moonshot/Tests/Manager/TestManager.hpp"
 using namespace Moonshot;
 
+// Add tests for member access + dumper support to check if I didn't messed up while 
+// coding that (i probably did, it's just a matter to find where :))) )
+// Then move on to imports & master rule and parser's nearly done. I'll spend a few hours
+// tweaking it and improving it before moving on to the ParserDriver
+
 /*
 	This is a short term roadmap for the project.
 		Implement the rest of the Parsing functions & AST Structure
-			- Member access
-			- Function calls
-			- Resolved/Unresolved IDs
 			- Import
-			- DeclContexts (Symbols table and friends)
-			- ASTNamespaces (that need to be contexts too!)
+			- ASTNamespaces (that need to be contexts!)
 			- ASTContext
 			- ASTRoot (think about multiple files and namespaces)
-		// Notes: Lay out the whole ast while thinking about the namespace system and how the name resolver will handle that.
-		// Current idea : 
-								   ASTRoot
-								/			\
-						   Namespace	 Namespace
-							/					\
-						 File					File  (file inherits from namespace)
 
 		Primitive parser driver : Takes all the parsed ASTFiles and create a root node, ordering them by namespace (filepaths) to produce a full file.
 
@@ -53,7 +47,8 @@ using namespace Moonshot;
 			- Separate tests in categories : lexer, parser, semantics, ...
 			- Add more control over tests individually: should it print the AST, should it just print "PASSED/FAILED", show them in condensed form, etc.
 
-		Recreate semantic analysis phase in a /sema/ folder..
+		Add declContext support (symbols table) + resolved/unresolved IDs
+		Recreate semantic analysis phase in a /sema/ folder
 			- Name Resolver
 			- Type Checker
 			- Other general AST Validation / Semantic checks.
