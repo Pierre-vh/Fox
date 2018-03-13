@@ -107,11 +107,11 @@ namespace Moonshot
 
 	// Represents a reference to a member : a namespace's, an object's field, etc.
 	// expr is the expression that is being accessed, id_ is the identifier to search.
-	struct ASTMemberRefExpr : public IASTDeclRef
+	struct ASTMemberOfExpr : public IASTDeclRef
 	{
 		public:
-			ASTMemberRefExpr() = default;
-			ASTMemberRefExpr(std::unique_ptr<IASTExpr> base, const std::string& membname);
+			ASTMemberOfExpr() = default;
+			ASTMemberOfExpr(std::unique_ptr<IASTExpr> base, const std::string& membname);
 
 			void accept(IVisitor& vis) override;
 
@@ -131,6 +131,8 @@ namespace Moonshot
 	// used by function call nodes and the parser.
 	struct ExprList
 	{
+		private:
+			using expr_iter = std::vector<std::unique_ptr<IASTExpr>>::iterator;
 		public:
 			ExprList() = default;
 
@@ -140,6 +142,8 @@ namespace Moonshot
 			bool isEmpty() const;
 			std::size_t getSize() const;
 
+			expr_iter exprList_beg();
+			expr_iter exprList_end();
 		private:
 			std::vector<std::unique_ptr<IASTExpr>> exprs_;
 	};
@@ -150,8 +154,8 @@ namespace Moonshot
 		public:
 			ASTFunctionCallExpr() = default;
 
-			const IASTDeclRef* getDeclRefExpr();
-			const ExprList* getExprList();
+			IASTDeclRef* getDeclRefExpr();
+			ExprList* getExprList();
 
 			void setExprList(std::unique_ptr<ExprList> elist);
 			void setDeclRef(std::unique_ptr<IASTDeclRef> dref);

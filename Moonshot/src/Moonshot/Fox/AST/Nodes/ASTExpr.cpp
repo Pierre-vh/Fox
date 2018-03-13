@@ -107,12 +107,12 @@ void ASTDeclRefExpr::setDeclnameStr(const std::string & str)
 }
 
 // declref
-const IASTDeclRef * ASTFunctionCallExpr::getDeclRefExpr()
+IASTDeclRef * ASTFunctionCallExpr::getDeclRefExpr()
 {
 	return declref_.get();
 }
 
-const ExprList * ASTFunctionCallExpr::getExprList()
+ExprList * ASTFunctionCallExpr::getExprList()
 {
 	return args_.get();
 }
@@ -133,33 +133,33 @@ void ASTFunctionCallExpr::accept(IVisitor & vis)
 }
 
 // MemberRefExpr
-ASTMemberRefExpr::ASTMemberRefExpr(std::unique_ptr<IASTExpr> base, const std::string & membname)
+ASTMemberOfExpr::ASTMemberOfExpr(std::unique_ptr<IASTExpr> base, const std::string & membname)
 {
 	base_ = std::move(base);
 	memb_name_ = membname;
 }
 
-void ASTMemberRefExpr::accept(IVisitor & vis)
+void ASTMemberOfExpr::accept(IVisitor & vis)
 {
 	vis.visit(*this);
 }
 
-const IASTExpr * ASTMemberRefExpr::getBase()
+const IASTExpr * ASTMemberOfExpr::getBase()
 {
 	return base_.get();
 }
 
-std::string ASTMemberRefExpr::getDeclnameAsStr() const
+std::string ASTMemberOfExpr::getDeclnameAsStr() const
 {
 	return memb_name_;
 }
 
-void ASTMemberRefExpr::setBase(std::unique_ptr<IASTExpr> expr)
+void ASTMemberOfExpr::setBase(std::unique_ptr<IASTExpr> expr)
 {
 	base_ = std::move(expr);
 }
 
-void ASTMemberRefExpr::setDeclname(const std::string& membname)
+void ASTMemberOfExpr::setDeclname(const std::string& membname)
 {
 	memb_name_ = membname;
 }
@@ -186,4 +186,14 @@ bool ExprList::isEmpty() const
 std::size_t ExprList::getSize() const
 {
 	return exprs_.size();
+}
+
+ExprList::expr_iter ExprList::exprList_beg()
+{
+	return exprs_.begin();
+}
+
+ExprList::expr_iter ExprList::exprList_end()
+{
+	return exprs_.end();
 }
