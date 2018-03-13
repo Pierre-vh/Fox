@@ -57,10 +57,10 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 			<expr_list> = <expr> {',' <expr> } 
 		Added <parens_expr_list> = '(' [<expr_list> ] ')' 
 		Removed <callable>
-		Removed <callable> as an alternative in <value>, now using <decl_ref> instead 
+		Removed <callable> as an alternative in <value>, now using <decl_call> instead 
 		Reworked <expr> grammar 
 			Added <decl_ref> rule to represent both variable and function calls at "primary" level 
-			<value> renamed to <primary>, removed <id> and added <decl_ref> instead 
+			<value> renamed to <primary>, removed <id> and added <decl_call> instead 
 			Deleted <atom> and <trailer> rules 
 			Added <member_access> = <primary> { '.' <id> [ <parens_expr_list> ] } 
 			Replaced the call to <atom> in <exp_expr> to <member_access> 
