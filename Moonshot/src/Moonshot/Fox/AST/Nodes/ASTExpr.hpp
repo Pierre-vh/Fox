@@ -36,7 +36,7 @@ namespace Moonshot
 
 
 			std::unique_ptr<IASTExpr> left_, right_;
-			binaryOperator op_ = binaryOperator::PASS;
+			binaryOperator op_ = binaryOperator::DEFAULT;
 
 			virtual void accept(IVisitor& vis) override;
 			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node 
@@ -105,11 +105,9 @@ namespace Moonshot
 		ASTMemberAccessExpr() = default;
 
 		// the expression that is being accessed
-		// /!\ is expr really what I need here? or should I split the node in ExprMemberAccess,IdMemberAccess?
-		// think about how name resolving will work and go from here.
-		std::unique_ptr<IASTExpr> expr_;
+		std::unique_ptr<IASTExpr> base_;
 		// the identifier to search inside the namespace/object/etc.
-		std::string id_;
+		std::string memberid_;
 	};
 }
 

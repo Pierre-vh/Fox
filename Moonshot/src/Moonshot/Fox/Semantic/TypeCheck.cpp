@@ -33,7 +33,7 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 			FoxValue(IntType())
 		);
 	}
-	node_ctxt_.cur_binop = binaryOperator::PASS;
+	node_ctxt_.cur_binop = binaryOperator::DEFAULT;
 	node_ctxt_.dir = directions::UNKNOWN;
 }
 
@@ -49,7 +49,7 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 
 	if (node.left_ && node.right_)
 	{
-		if (node.op_ == binaryOperator::ASSIGN)
+		if (node.op_ == binaryOperator::ASSIGN_BASIC)
 		{
 			if (!isAssignable(node.left_.get()))
 			{
@@ -163,7 +163,7 @@ void TypeCheckVisitor::visit(ASTVarDecl & node)
 void TypeCheckVisitor::visit(ASTDeclRefExpr & node)
 {
 	auto searchResult = datamap_.retrieveVarAttr(node.declname_);
-	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN) && searchResult.type_.isConst())
+	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN_BASIC) && searchResult.type_.isConst())
 	{
 		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
 		value_ = TypeIndex::InvalidIndex;
@@ -190,7 +190,7 @@ FoxType TypeCheckVisitor::getExprResultType(const binaryOperator& op, FoxType& l
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. 
 		return TypeIndex::InvalidIndex;
 	// first, quick, simple check : we can only verify results between 2 basic types.
-	if (op == binaryOperator::ASSIGN)
+	if (op == binaryOperator::ASSIGN_BASIC)
 	{
 		if (canAssign(lhs, rhs))
 			return lhs; // Assignements return the value  of the lhs.

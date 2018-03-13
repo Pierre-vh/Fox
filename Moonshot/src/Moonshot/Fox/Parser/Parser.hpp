@@ -96,7 +96,7 @@ namespace Moonshot
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A and B as children. You call oneUpNode like this : oneUpNode(N,PLUS)
 			// oneUpNode will return a new node X, with the operation PLUS and N as left child.
-			std::unique_ptr<ASTBinaryExpr> oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator &op = binaryOperator::PASS);
+			std::unique_ptr<ASTBinaryExpr> oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator &op = binaryOperator::DEFAULT);
 			
 			// matchToken -> returns true if the Token is matched, and increment pos_, if the Token isn't matched return false
 			

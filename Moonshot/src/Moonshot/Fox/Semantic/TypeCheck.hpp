@@ -51,14 +51,14 @@ namespace Moonshot
 			Context& context_;
 
 			template<typename T>
-			FoxType visitAndGetResult(T* node,const directions& dir = directions::UNKNOWN, const binaryOperator& c_binop = binaryOperator::PASS)
+			FoxType visitAndGetResult(T* node,const directions& dir = directions::UNKNOWN, const binaryOperator& c_binop = binaryOperator::DEFAULT)
 			{
 				node_ctxt_.cur_binop = c_binop;
 				node_ctxt_.dir = dir;
 
 				node->accept(*this);
 
-				node_ctxt_.cur_binop = binaryOperator::PASS;
+				node_ctxt_.cur_binop = binaryOperator::DEFAULT;
 				node_ctxt_.dir = directions::UNKNOWN;
 				return value_;
 			}

@@ -52,7 +52,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		return;
 	}
 
-	if (node.op_ == binaryOperator::PASS)
+	if (node.op_ == binaryOperator::DEFAULT)
 	{
 		if (!node.left_)
 			throw Exceptions::ast_malformation("Tried to pass a value to parent node, but the node did not have a left_ child.");
@@ -77,7 +77,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			throw Exceptions::ast_malformation("Tried to concat a node without a left_ or right  child.");
 		}
 	}
-	else if (node.op_ == binaryOperator::ASSIGN)
+	else if (node.op_ == binaryOperator::ASSIGN_BASIC)
 	{
 		if (isDataMapAvailable())
 		{
@@ -98,7 +98,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		else
 			context_.logMessage("Can't perform assignement operations when the symbols table is unavailable.");
 	}
-	else if (node.op_ == binaryOperator::ASSIGN)
+	else if (node.op_ == binaryOperator::ASSIGN_BASIC)
 	{
 		if (isDataMapAvailable())
 		{

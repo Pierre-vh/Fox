@@ -52,7 +52,7 @@ void ASTBinaryExpr::accept(IVisitor & vis)
 
 std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
 {
-	if (left_ && !right_ && (op_ == binaryOperator::PASS))	 // If the right node is empty & op == pass
+	if (left_ && !right_ && (op_ == binaryOperator::DEFAULT))	 // If the right node is empty & op == pass
 	{
 		auto ret = std::move(left_);
 		return ret;

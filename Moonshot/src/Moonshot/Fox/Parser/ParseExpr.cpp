@@ -131,7 +131,7 @@ ParsingResult<IASTExpr*>  Parser::parseCastExpr()
 
 ParsingResult<IASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 {
-	auto rtr = std::make_unique<ASTBinaryExpr>(binaryOperator::PASS);
+	auto rtr = std::make_unique<ASTBinaryExpr>(binaryOperator::DEFAULT);
 
 	std::unique_ptr<IASTExpr> first;
 	if (priority > 0)
@@ -179,7 +179,7 @@ ParsingResult<IASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 			break; // We break instead of returning, so we can return the expressions that were parsed correctly so we don't cause an error cascade for the user.
 		}
 
-		if (rtr->op_ == binaryOperator::PASS) // if the node has still a "pass" operation
+		if (rtr->op_ == binaryOperator::DEFAULT) // if the node has still a "pass" operation
 				rtr->op_ = matchResult.result_;
 		else // if the node already has an operation
 			rtr = oneUpNode(std::move(rtr), matchResult.result_);
@@ -187,7 +187,7 @@ ParsingResult<IASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 		rtr->right_ = std::move(second); // Set second as the child of the node.
 	}
 
-	// When we have simple node (PASS operation with only a value/expr as left child), we simplify it(only return the left child)
+	// When we have simple node (DEFAULT operation with only a value/expr as left child), we simplify it(only return the left child)
 	auto simple = rtr->getSimple();
 	if (simple)
 		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS,std::move(simple));
@@ -280,7 +280,7 @@ ParsingResult<binaryOperator> Parser::matchAssignOp()
 	auto cur = getToken();
 	state_.pos++;
 	if (cur.isValid() && cur.type == category::SIGN && cur.sign_type == sign::S_EQUAL)
-		return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::ASSIGN);
+		return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::ASSIGN_BASIC);
 	state_.pos--;
 	return ParsingResult<binaryOperator>(ParsingOutcome::NOTFOUND);
 }

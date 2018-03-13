@@ -15,7 +15,7 @@ namespace Moonshot
 {
 	enum class binaryOperator
 	{
-		PASS,			// Just "pass" (return the value in L)
+		DEFAULT,			// Just "pass" (return the value in L)
 		// str concat
 		CONCAT,
 		// Maths.
@@ -37,7 +37,7 @@ namespace Moonshot
 		NOTEQUAL,
 
 		// Assignement
-		ASSIGN
+		ASSIGN_BASIC
 	};
 	enum class unaryOperator
 	{
@@ -68,7 +68,7 @@ namespace Moonshot
 	{
 		const std::map<binaryOperator, std::string> kBinopToStr_dict =
 		{
-			{ binaryOperator::PASS		, "PASS" },
+			{ binaryOperator::DEFAULT		, "DEFAULT" },
 			{ binaryOperator::LOGIC_AND		, "LOGIC_AND" },
 			{ binaryOperator::CONCAT	, "CONCAT" },
 			{ binaryOperator::LOGIC_OR		, "LOGIC_OR" },
@@ -84,7 +84,7 @@ namespace Moonshot
 			{ binaryOperator::GREATER_THAN		, "GREATER_THAN" },
 			{ binaryOperator::EQUAL				, "EQUAL" },
 			{ binaryOperator::NOTEQUAL			, "NOTEQUAL" },
-			{ binaryOperator::ASSIGN			, "ASSIGN" }
+			{ binaryOperator::ASSIGN_BASIC			, "ASSIGN_BASIC" }
 		};
 
 		const std::map<unaryOperator, std::string> kUnaryOpToStr_dict =
