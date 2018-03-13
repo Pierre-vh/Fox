@@ -5,9 +5,9 @@ Fox's Grammar Changelog :
 * 0.3 ->	Now using Expression Statements instead of f_call_stmt and var_ass_stmt. 
 		Added <expr_stmt> which replaces var_assign & f_call statements.
 * 0.4 ->	Namespaces removed
-* 0.4.1->	\<block> renamed to <compound_statement>. 
+* 0.4.1->	<block> renamed to <compound_statement>. 
 * 0.4.2->	<return> : <expr> is now optional (to allow "return;" in void functions). 
-* 0.4.3->	Deleted the <ctrl_flow> non-terminal and added  \<condition> | \<while_loop> to \<stmt> rule.
+* 0.4.3->	Deleted the <ctrl_flow> non-terminal and added  <condition> | <while_loop> to \<stmt> rule.
 * 0.5->		Expression rework. They're now far more flexible and support unary operation chaining, like !!false, !-3, etc.
 * 0.5.1->	Changed Exponent sign to "**" instead of '^' like in other languages ( python, fortran,.. )
 * 0.6->		
