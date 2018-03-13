@@ -22,6 +22,7 @@
 #include "../U8StrManipTest/U8StrManipTest.hpp"
 #include "../FuncDecl/FuncDecl.hpp"
 #include "../FunctionCalls/FunctionCalls.hpp"
+#include "../MemberAccess/MemberAccess.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Test;
@@ -39,8 +40,8 @@ TestManager::~TestManager()
 void TestManager::addDefaultTests()
 {
 	addTestClass<OptionsTests>();
-	addTestClass<LexerMainTest>(); // Lexer Test
-	addTestClass<ExprTests>(); // Expression test
+	addTestClass<LexerMainTest>();
+	addTestClass<ExprTests>();
 	addTestClass<ExprStmtTest>();
 	addTestClass<VarDeclarations>();
 	addTestClass<VarStmts>();
@@ -50,6 +51,7 @@ void TestManager::addDefaultTests()
 	addTestClass<U8StrManipTest>();
 	addTestClass<FuncDecl>();
 	addTestClass<FunctionCalls>();
+	addTestClass<MemberAccess>();
 }
 
 void TestManager::addTest(std::unique_ptr<ITest> test)
