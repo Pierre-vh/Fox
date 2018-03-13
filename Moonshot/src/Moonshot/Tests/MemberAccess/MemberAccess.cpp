@@ -18,7 +18,7 @@ using namespace Moonshot::Test::TestUtilities;
 
 std::string MemberAccess::getTestName() const
 {
-	return "Function Declarations";
+	return "Member Access";
 }
 
 bool MemberAccess::runTest(Context & context)
@@ -56,6 +56,7 @@ bool MemberAccess::runTest(Context & context)
 
 bool MemberAccess::testMembAccess(Context & context, const std::string & str)
 {
+	std::cout << "str:" << str << std::endl;
 	Lexer lex(context);
 	lex.lexStr(str);
 	FAILED_RETURN_IF_ERR__SILENT;
