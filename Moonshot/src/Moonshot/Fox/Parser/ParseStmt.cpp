@@ -96,10 +96,10 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		auto rtr = std::make_unique<ASTFunctionDecl>();
 		// <id>
 		if (auto mID_res = matchID())
-			rtr->name_ = mID_res.result_;
+			rtr->setName(mID_res.result_);
 		else
 		{
-			rtr->name_ = "<noname>";
+			rtr->setName("<noname>");
 			errorExpected("Expected an identifier");
 		}
 
@@ -109,7 +109,7 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 			// [<arg_list_decl>]
 			auto pArgDeclList = parseArgDeclList();
 			if (pArgDeclList)
-				rtr->args_ = pArgDeclList.result_;
+				rtr->setArgs(pArgDeclList.result_);
 			// ')'
 			if (!matchSign(sign::B_ROUND_CLOSE))
 			{
@@ -129,17 +129,17 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		if (matchSign(sign::P_COLON))
 		{
 			if (auto tyMatchRes = matchTypeKw())
-				rtr->returnType_ = tyMatchRes.result_;
+				rtr->setReturnType(tyMatchRes.result_);
 			else
 				errorExpected("Expected a type keyword");
 		}
 		else
-			rtr->returnType_ = TypeIndex::Void_Type;
+			rtr->setReturnType(TypeIndex::Void_Type);
 
 		// <compound_statement>
 		if (auto cp_res = parseCompoundStatement(true))
 		{
-			rtr->body_ = std::move(cp_res.result_);
+			rtr->setBody(std::move(cp_res.result_));
 			return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::SUCCESS, std::move(rtr));
 		}
 		else

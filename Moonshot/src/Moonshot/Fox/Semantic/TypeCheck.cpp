@@ -138,22 +138,22 @@ void TypeCheckVisitor::visit(ASTLiteralExpr & node)
 void TypeCheckVisitor::visit(ASTVarDecl & node)
 {
 	// check for impossible/illegal assignements;
-	if (node.initExpr_) // If the node has an initExpr.
+	if (node.hasInitExpr()) // If the node has an initExpr.
 	{
 		// get the init expression type.
-		const auto iexpr_type = visitAndGetResult(node.initExpr_.get());
+		const auto iexpr_type = visitAndGetResult(node.getInitExpr());
 		// check if it's possible.
 		if (!canAssign(
-			node.vattr_.type_,
+			node.getVarAttr().type_,
 			iexpr_type
 		))
 		{
-			context_.reportError("Can't perform initialization of variable \"" + node.vattr_.name_ + "\". Type of initialization expression is unassignable to the desired variable type.\nFor further information, see the errors thrown earlier!");
+			context_.reportError("Can't perform initialization of variable \"" + node.getVarAttr().name_ + "\". Type of initialization expression is unassignable to the desired variable type.\nFor further information, see the errors thrown earlier!");
 		}
 	}
 	datamap_.declareValue(
-		node.vattr_,
-		FValUtils::getSampleFValForIndex(node.vattr_.type_.getTypeIndex()) // Using a sample fval, so we don't need to store any "real" values in there.
+		node.getVarAttr(),
+		FValUtils::getSampleFValForIndex(node.getVarAttr().type_.getTypeIndex()) // Using a sample fval, so we don't need to store any "real" values in there.
 	);
 	// returns nothing
 }

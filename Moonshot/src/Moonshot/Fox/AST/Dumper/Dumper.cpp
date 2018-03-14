@@ -115,13 +115,13 @@ void Dumper::visit(ASTLiteralExpr & node)
 
 void Dumper::visit(ASTVarDecl & node)
 {
-	std::cout << tabs() << "VarDeclStmt :" << node.vattr_.dump() << std::endl;
-	if (node.initExpr_)
+	std::cout << tabs() << "VarDeclStmt :" << node.getVarAttr().dump() << std::endl;
+	if (node.hasInitExpr())
 	{
 		tabcount_ += 1;
 		std::cout << tabs() << "InitExpr\n";
 		tabcount_ += 1;
-		node.initExpr_->accept(*this);
+		node.getInitExpr()->accept(*this);
 		tabcount_ -= 2;
 	}
 }
@@ -182,18 +182,17 @@ void Dumper::visit(ASTNullStmt& node)
 
 void Dumper::visit(ASTFunctionDecl & node)
 {
-	std::cout << tabs() << "Function Declaration : name:" << node.name_ << " return type:" << node.returnType_.getTypeName() << "\n";
+	std::cout << tabs() << "Function Declaration : name:" << node.getName() << " return type:" << node.getReturnType().getTypeName() << "\n";
 	tabcount_ += 2;
-	unsigned int counter = 0;
-	for (const auto& elem : node.args_)
-	{
-		std::cout << tabs() << "Arg" << counter << ":" << elem.dump() << std::endl;
+	std::size_t counter = 0;
+	node.iterateArgs([&](auto argdecl){
+		std::cout << tabs() << "Arg" << counter << ":" << argdecl.dump() << std::endl;
 		counter += 1;
-	}
+	});
 	tabcount_ -= 1;
 	std::cout << tabs() << "Body:" << std::endl;
 	tabcount_ += 1;
-	node.body_->accept(*this);
+	node.getBody()->accept(*this);
 	tabcount_ -= 2;
 }
 
@@ -214,7 +213,7 @@ void Dumper::visit(ASTCompoundStmt & node)
 
 	tabcount_ += 1;
 
-	node.iterate([&](auto stmt) {
+	node.iterateStmts([&](auto stmt) {
 		stmt->accept(*this);
 	});
 

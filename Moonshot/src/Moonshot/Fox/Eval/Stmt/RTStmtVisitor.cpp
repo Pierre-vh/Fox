@@ -37,22 +37,22 @@ void RTStmtVisitor::visit(ASTVarDecl & node)
 		context_.logMessage("Can't Visit VarDeclStmt nodes when the symbols table is not available.");
 	else
 	{
-		if (node.initExpr_) // With init expr
+		if (node.hasInitExpr()) // With init expr
 		{
-			node.initExpr_->accept(*this);
+			node.getInitExpr()->accept(*this);
 			auto iexpr = value_;
 			if (!symtab_declareValue_derefFirst(
-				node.vattr_,
+				node.getVarAttr(),
 				iexpr
 			))
-				context_.reportError("Error while initializing variable " + node.vattr_.name_);
+				context_.reportError("Error while initializing variable " + node.getVarAttr().name_);
 		}
 		else // without
 		{
 			if(!symtab_declareValue_derefFirst(
-				node.vattr_
+				node.getVarAttr()
 			))
-			context_.reportError("Error while initializing variable " + node.vattr_.name_);
+			context_.reportError("Error while initializing variable " + node.getVarAttr().name_);
 		}
 	}
 	value_ = FoxValue(); // does not return anything.
