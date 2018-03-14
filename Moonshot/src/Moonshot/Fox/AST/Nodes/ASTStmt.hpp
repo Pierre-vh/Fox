@@ -94,9 +94,9 @@ namespace Moonshot
 			stmtvec::iterator stmtList_beg();
 			stmtvec::iterator stmtList_end();
 
-			void iterate(std::function<void(IASTStmt*)> fn);
+			void iterateStmts(std::function<void(IASTStmt*)> fn);
 		private:
-			stmtvec statements_;
+			stmtvec stmts_;
 	};
 
 	// A while loop while(expr) <stmt>

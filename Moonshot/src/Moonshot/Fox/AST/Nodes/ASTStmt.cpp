@@ -105,46 +105,46 @@ void ASTCompoundStmt::accept(IVisitor & vis)
 
 IASTStmt * ASTCompoundStmt::getStmt(const std::size_t & ind)
 {
-	if (ind > statements_.size())
+	if (ind > stmts_.size())
 		throw std::out_of_range("out of range");
 
-	return statements_[ind].get();
+	return stmts_[ind].get();
 }
 
 IASTStmt * ASTCompoundStmt::getBack()
 {
-	return statements_.back().get();
+	return stmts_.back().get();
 }
 
 void ASTCompoundStmt::addStmt(std::unique_ptr<IASTStmt> stmt)
 {
-	statements_.emplace_back(std::move(stmt));
+	stmts_.emplace_back(std::move(stmt));
 }
 
 bool ASTCompoundStmt::isEmpty() const
 {
-	return !(statements_.size());
+	return !(stmts_.size());
 }
 
 std::size_t ASTCompoundStmt::size() const
 {
-	return statements_.size();
+	return stmts_.size();
 }
 
 ASTCompoundStmt::stmtvec::iterator ASTCompoundStmt::stmtList_beg()
 {
-	return statements_.begin();
+	return stmts_.begin();
 }
 
 ASTCompoundStmt::stmtvec::iterator ASTCompoundStmt::stmtList_end()
 {
-	return statements_.end();
+	return stmts_.end();
 }
 
-void ASTCompoundStmt::iterate(std::function<void(IASTStmt*)> fn)
+void ASTCompoundStmt::iterateStmts(std::function<void(IASTStmt*)> fn)
 {
-	for (auto it = statements_.begin(); it != statements_.end(); it++)
-		fn((*it).get());
+	for (const auto& elem : stmts_)
+		fn(elem.get());
 }
 
 // While stmt
