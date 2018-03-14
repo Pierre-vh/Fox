@@ -200,19 +200,20 @@ void Dumper::visit(ASTReturnStmt & node)
 	if (node.hasExpr())
 	{
 		tabcount_ += 1;
-		node.expr_->accept(*this);
+		node.getExpr()->accept(*this);
 		tabcount_ -= 1;
 	}
 }
 
 void Dumper::visit(ASTCompoundStmt & node)
 {
-	std::cout << tabs() << "Compound Statement (Contains " << node.statements_.size() << " statements)\n";
+	std::cout << tabs() << "Compound Statement (Contains " << node.size() << " statements)\n";
 
 	tabcount_ += 1;
 
-	for (const auto& elem : node.statements_)
-		elem->accept(*this);
+	node.iterate([&](auto stmt) {
+		stmt->accept(*this);
+	});
 
 	tabcount_ -= 1;
 }
@@ -224,18 +225,18 @@ void Dumper::visit(ASTCondStmt & node)
 	// if
 	std::cout << tabs() << "Expression (Condition):\n";
 	tabcount_++;
-	node.cond_->accept(*this);
+	node.getCond()->accept(*this);
 	tabcount_--;
 	std::cout << tabs() << "Body:\n";
 	tabcount_++;
-	node.then_->accept(*this);
+	node.getThen()->accept(*this);
 	tabcount_--;
 	// has else?
-	if (node.else_)
+	if (node.getElse())
 	{
 		std::cout << tabs() << "Else:\n";
 		tabcount_++;
-		node.else_->accept(*this);
+		node.getElse()->accept(*this);
 		tabcount_--;
 	}
 	tabcount_--;
@@ -249,13 +250,13 @@ void Dumper::visit(ASTWhileStmt & node)
 	std::cout << tabs() << "Expression:\n";
 
 	tabcount_++;
-	node.expr_->accept(*this);
+	node.getCond()->accept(*this);
 	tabcount_--;
 
 	std::cout << tabs() << "Body:\n";
 	
 	tabcount_++;
-	node.body_->accept(*this);
+	node.getBody()->accept(*this);
 	tabcount_--;
 
 	tabcount_--;

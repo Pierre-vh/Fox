@@ -31,14 +31,14 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		// Parse all statements
 		while (auto parseres = parseStmt())
 		{
-			if (rtr->statements_.size())
+			if (!rtr->isEmpty())
 			{
 				// Don't push another null statement if the last statement is already a null one.
-				if (dynamic_cast<ASTNullStmt*>(rtr->statements_.back().get()) &&
+				if (dynamic_cast<ASTNullStmt*>(rtr->getBack()) &&
 					dynamic_cast<ASTNullStmt*>(parseres.result_.get()))
 					continue;
 			}
-			rtr->statements_.push_back(std::move(parseres.result_));
+			rtr->addStmt(std::move(parseres.result_));
 		}
 		// Match the closing curly bracket
 		if (!matchSign(sign::B_CURLY_CLOSE))
@@ -69,11 +69,11 @@ ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 		std::unique_ptr<ASTWhileStmt> rtr = std::make_unique<ASTWhileStmt>();
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
-			rtr->expr_ = std::move(parensExprRes.result_);
+			rtr->setCond(std::move(parensExprRes.result_));
 			//  no need for failure cases, the function parseParensExpr manages failures by itself when the mandatory flag is set.
 		// <body>
 		if (auto parseres = parseBody())
-			rtr->body_ = std::move(parseres.result_);
+			rtr->setBody(std::move(parseres.result_));
 		else
 		{
 			errorExpected("Expected a Statement after while loop declaration,");
@@ -222,12 +222,13 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 	{
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
-			rtr->cond_ = std::move(parensExprRes.result_);
+			rtr->setCond(std::move(parensExprRes.result_));
+		// no need for else since it manages error message in "mandatory" mode
 
 		// <body>
 		auto ifStmtRes = parseBody();
 		if (ifStmtRes)
-			rtr->then_ = std::move(ifStmtRes.result_);
+			rtr->setThen(std::move(ifStmtRes.result_));
 		else
 		{
 			errorExpected("Expected a statement after if condition,");
@@ -240,7 +241,7 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 	{
 		// <body>
 		if (auto stmt = parseBody())
-			rtr->else_ = std::move(stmt.result_);
+			rtr->setElse(std::move(stmt.result_));
 		else
 		{
 			errorExpected("Expected a statement after else,");
@@ -261,7 +262,7 @@ ParsingResult<IASTStmt*> Parser::parseReturnStmt()
 	{
 		auto rtr = std::make_unique<ASTReturnStmt>();
 		if (auto pExpr_res = parseExpr())
-			rtr->expr_ = std::move(pExpr_res.result_);
+			rtr->setExpr(std::move(pExpr_res.result_));
 
 		if (!matchSign(sign::P_SEMICOLON))
 		{
