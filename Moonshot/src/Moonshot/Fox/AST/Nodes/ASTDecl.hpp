@@ -13,6 +13,7 @@
 #include "Moonshot/Common/Types/Types.hpp"
 #include <memory>
 #include <vector>
+#include <functional>
 
 namespace Moonshot
 {
@@ -53,16 +54,30 @@ namespace Moonshot
 	// a Function declaration node.
 	struct ASTFunctionDecl : public IASTDecl
 	{
-		ASTFunctionDecl() = default;
-		ASTFunctionDecl(const FoxType& returnType, const std::string& name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
+		public:
+			ASTFunctionDecl() = default;
+			ASTFunctionDecl(const FoxType& returnType, const std::string& name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
 
-		virtual void accept(IVisitor& vis) { vis.visit(*this); }
+			virtual void accept(IVisitor& vis) { vis.visit(*this); }
+		
+			FoxType getReturnType() const;
+			std::string getName() const;
+			FoxFunctionArg getArg(const std::size_t &ind) const;
+			ASTCompoundStmt* getBody();
 
-		FoxType returnType_;
-		std::string name_;
-		std::vector<FoxFunctionArg> args_;
+			void setReturnType(const FoxType& ft);
+			void setName(const std::string& str);
+			void setArgs(const std::vector<FoxFunctionArg>& vec);
+			void addArg(const FoxFunctionArg& arg);
+			void setBody(std::unique_ptr<ASTCompoundStmt> arg);
+		
+			void iterateArgs(std::function<void(FoxFunctionArg)> fn);
+		private:
+			FoxType returnType_;
+			std::string name_;
+			std::vector<FoxFunctionArg> args_;
 
-		std::unique_ptr<ASTCompoundStmt> body_;
+			std::unique_ptr<ASTCompoundStmt> body_;
 	};
 
 	// A Variable declaration
@@ -70,11 +85,19 @@ namespace Moonshot
 	{
 		public:
 			// Create a variable declaration statement by giving the constructor the variable's properties (name,is const and type) and, if there's one, an expression to initialize it.
-			ASTVarDecl(const FoxVariableAttr &attr, std::unique_ptr<IASTExpr> iExpr);
+			ASTVarDecl(const FoxVariableAttr &attr, std::unique_ptr<IASTExpr> iExpr = nullptr);
 
 			// Inherited via IASTStmt
 			virtual void accept(IVisitor& vis) override;
 
+			FoxVariableAttr getVarAttr() const;
+			IASTExpr* getInitExpr();
+
+			bool hasInitExpr() const;
+
+			void setVarAttr(const FoxVariableAttr& vattr);
+			void setInitExpr(std::unique_ptr <IASTExpr> expr);
+		private:
 			FoxVariableAttr vattr_;
 			std::unique_ptr<IASTExpr> initExpr_ = nullptr;
 	};

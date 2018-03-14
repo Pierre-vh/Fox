@@ -43,19 +43,72 @@ bool FoxFunctionArg::operator!=(const FoxFunctionArg & other) const
 	return !(*this == other);
 }
 
-ASTFunctionDecl::ASTFunctionDecl(const FoxType & returnType, const std::string & name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody) :
-	returnType_(returnType), name_(name), args_(args), body_(std::move(funcbody))
+ASTFunctionDecl::ASTFunctionDecl(const FoxType & returnType, const std::string & name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody)
 {
-
+	setReturnType(returnType);
+	setName(name);
+	setBody(std::move(funcbody));
+	setArgs(args);
 }
 
+FoxType ASTFunctionDecl::getReturnType() const
+{
+	return returnType_;
+}
+
+std::string ASTFunctionDecl::getName() const
+{
+	return name_;
+}
+
+FoxFunctionArg ASTFunctionDecl::getArg(const std::size_t & ind) const
+{
+	return args_[ind];
+}
+
+ASTCompoundStmt * ASTFunctionDecl::getBody()
+{
+	return body_.get();
+}
+
+void ASTFunctionDecl::setReturnType(const FoxType & ft)
+{
+	returnType_ = ft;
+}
+
+void ASTFunctionDecl::setName(const std::string & str)
+{
+	name_ = str;
+}
+
+void ASTFunctionDecl::setArgs(const std::vector<FoxFunctionArg>& vec)
+{
+	args_ = vec;
+}
+
+void ASTFunctionDecl::addArg(const FoxFunctionArg & arg)
+{
+	args_.push_back(arg);
+}
+
+void ASTFunctionDecl::setBody(std::unique_ptr<ASTCompoundStmt> arg)
+{
+	body_ = std::move(arg);
+}
+
+void ASTFunctionDecl::iterateArgs(std::function<void(FoxFunctionArg)> fn)
+{
+	for (const auto& elem : args_)
+		fn(elem);
+}
+
+// VarDecl
 ASTVarDecl::ASTVarDecl(const FoxVariableAttr & attr, std::unique_ptr<IASTExpr> iExpr)
 {
 	if (attr)
 	{
 		vattr_ = attr;
-		if (iExpr)						// if iexpr is valid, move it to our attribute.
-			initExpr_ = std::move(iExpr);
+		setInitExpr(std::move(iExpr));
 	}
 	else
 		throw std::invalid_argument("Supplied an empty FoxVariableAttr object to the constructor.");
@@ -64,4 +117,29 @@ ASTVarDecl::ASTVarDecl(const FoxVariableAttr & attr, std::unique_ptr<IASTExpr> i
 void ASTVarDecl::accept(IVisitor& vis)
 {
 	vis.visit(*this);
+}
+
+FoxVariableAttr ASTVarDecl::getVarAttr() const
+{
+	return vattr_;
+}
+
+IASTExpr * ASTVarDecl::getInitExpr()
+{
+	return initExpr_.get();
+}
+
+bool ASTVarDecl::hasInitExpr() const
+{
+	return (bool)initExpr_;
+}
+
+void ASTVarDecl::setVarAttr(const FoxVariableAttr & vattr)
+{
+	vattr_ = vattr;
+}
+
+void ASTVarDecl::setInitExpr(std::unique_ptr<IASTExpr> expr)
+{
+	initExpr_ = std::move(expr);
 }
