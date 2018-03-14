@@ -95,6 +95,11 @@ void ASTBinaryExpr::setOp(const binaryOperator & op)
 	op_ = op;
 }
 
+bool ASTBinaryExpr::isComplete() const
+{
+	return left_ && right_ && (op_ != binaryOperator::DEFAULT);
+}
+
 // UnaryExpr
 ASTUnaryExpr::ASTUnaryExpr(const unaryOperator & opt, std::unique_ptr<IASTExpr> node) : op_(opt)
 {

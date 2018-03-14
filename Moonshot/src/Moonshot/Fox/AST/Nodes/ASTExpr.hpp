@@ -46,6 +46,9 @@ namespace Moonshot
 
 			binaryOperator getOp() const;
 			void setOp(const binaryOperator& op);
+
+			// Returns true if node has both a left_ and right_ child and op != default
+			bool isComplete() const; 
 		private:
 			std::unique_ptr<IASTExpr> left_, right_;
 			binaryOperator op_ = binaryOperator::DEFAULT;
