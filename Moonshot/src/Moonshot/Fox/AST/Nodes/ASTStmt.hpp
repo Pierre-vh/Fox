@@ -12,6 +12,7 @@
 #include "Moonshot/Fox/AST/IVisitor.hpp"
 #include <memory>
 #include <vector>
+#include <functional>
 
 namespace Moonshot
 {
@@ -37,23 +38,37 @@ namespace Moonshot
 	// The return <expr> statement.
 	struct ASTReturnStmt : public IASTStmt	
 	{
-		ASTReturnStmt() = default;
-		ASTReturnStmt(std::unique_ptr<IASTExpr> rtr_expr);
+		public:
+			ASTReturnStmt(std::unique_ptr<IASTExpr> rtr_expr = nullptr);
 
-		virtual void accept(IVisitor& vis) override;
+			virtual void accept(IVisitor& vis) override;
 
-		bool hasExpr() const;
-		std::unique_ptr<IASTExpr> expr_;
+			bool hasExpr() const;
+			IASTExpr* getExpr();
+			void setExpr(std::unique_ptr<IASTExpr> e);
+		private:
+			std::unique_ptr<IASTExpr> expr_;
 	};
 
 	// a if-then-else type condition.
 	struct ASTCondStmt : public IASTStmt
 	{
 		public:
-			ASTCondStmt() = default;
+			ASTCondStmt(std::unique_ptr<IASTExpr> cond = nullptr, std::unique_ptr<IASTStmt> then = nullptr, std::unique_ptr<IASTStmt> elsestmt = nullptr);
 
 			virtual void accept(IVisitor & vis) override;
 
+			bool isValid() const;
+			bool hasElse() const;
+
+			IASTExpr* getCond();
+			IASTStmt* getThen();
+			IASTStmt* getElse();
+
+			void setCond(std::unique_ptr<IASTExpr> expr);
+			void setThen(std::unique_ptr<IASTStmt> then);
+			void setElse(std::unique_ptr<IASTStmt> elsestmt);
+		private:
 			std::unique_ptr<IASTExpr> cond_;
 			std::unique_ptr<IASTStmt> then_;
 			std::unique_ptr<IASTStmt> else_;
@@ -62,23 +77,43 @@ namespace Moonshot
 	// A compound statement (statements between curly brackets)
 	struct ASTCompoundStmt : public IASTStmt
 	{
+		private:
+			using stmtvec = std::vector<std::unique_ptr<IASTStmt>>;
 		public:
 			ASTCompoundStmt() = default;
 
 			virtual void accept(IVisitor & vis) override;
 
-			std::vector<std::unique_ptr<IASTStmt>> statements_;
+			IASTStmt* getStmt(const std::size_t& ind);
+			IASTStmt* getBack(); // returns the .back() of the stmtvec
+			void addStmt(std::unique_ptr<IASTStmt> stmt);
+
+			bool isEmpty() const;
+			std::size_t size() const;
+
+			stmtvec::iterator stmtList_beg();
+			stmtvec::iterator stmtList_end();
+
+			void iterate(std::function<void(IASTStmt*)> fn);
+		private:
+			stmtvec statements_;
 	};
 
 	// A while loop while(expr) <stmt>
 	struct ASTWhileStmt : public IASTStmt
 	{
 		public:
-			ASTWhileStmt() = default;
+			ASTWhileStmt(std::unique_ptr<IASTExpr> cond = nullptr, std::unique_ptr<IASTStmt> body = nullptr);
 
 			virtual void accept(IVisitor & vis) override;
 
-			std::unique_ptr<IASTExpr> expr_;
+			IASTExpr* getCond();
+			IASTStmt* getBody();
+
+			void setCond(std::unique_ptr<IASTExpr> cond);
+			void setBody(std::unique_ptr<IASTStmt> body);
+		private:
+			std::unique_ptr<IASTExpr> cond_;
 			std::unique_ptr<IASTStmt> body_;
 	};
 }
