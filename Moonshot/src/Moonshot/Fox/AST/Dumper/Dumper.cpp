@@ -158,15 +158,18 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 	{
 		std::cout << tabs() << "Args:\n";
 		tabcount_++;
-		auto begit = node.getExprList()->exprList_beg();
-		auto endit = node.getExprList()->exprList_end();
-		for (int count(0); begit != endit; begit++, count++)
-		{
+
+		std::size_t count = 0;
+		node.getExprList()->iterate([&](auto arg) {
 			std::cout << tabs() << "Arg" << count << '\n';
+
 			tabcount_++;
-			(*begit)->accept(*this);
+			arg->accept(*this);
 			tabcount_--;
-		}
+
+			count++;
+		});
+
 		tabcount_--;
 	}
 	tabcount_--;
