@@ -64,7 +64,7 @@ std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
 }
 
 // UnaryExpr
-ASTUnaryExpr::ASTUnaryExpr(const unaryOperator & opt) : op_(opt)
+ASTUnaryExpr::ASTUnaryExpr(const unaryOperator & opt, std::unique_ptr<IASTExpr> node) : op_(opt), child_(std::move(node))
 {
 
 }
@@ -74,8 +74,28 @@ void ASTUnaryExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
+IASTExpr * ASTUnaryExpr::getChild()
+{
+	return child_.get();
+}
+
+void ASTUnaryExpr::setChild(std::unique_ptr<IASTExpr> nchild)
+{
+	child_ = std::move(nchild);
+}
+
+unaryOperator ASTUnaryExpr::getOp() const
+{
+	return op_;
+}
+
+void ASTUnaryExpr::setOp(const unaryOperator & nop)
+{
+	op_ = nop;
+}
+
 // CastExpr
-ASTCastExpr::ASTCastExpr(std::size_t castGoal)
+ASTCastExpr::ASTCastExpr(const FoxType& castGoal)
 {
 	setCastGoal(castGoal);
 }
