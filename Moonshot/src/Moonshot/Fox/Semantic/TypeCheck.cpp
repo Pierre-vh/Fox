@@ -93,23 +93,23 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
 		return;
-	if (!node.child_)
+	if (!node.getChild())
 		throw Exceptions::ast_malformation("UnaryExpression node did not have any child.");
 
 	// Get the child's return type. Don't change anything, as rtr_value is already set by the accept function.
-	const auto childttype = visitAndGetResult(node.child_.get());
+	const auto childttype = visitAndGetResult(node.getChild());
 	// Throw an error if it's a string. Why ? Because we can't apply the unary operators LOGICNOT or NEGATIVE on a string.
 	if (childttype == TypeIndex::basic_String)
 	{
 		// no unary op can be performed on a string
 		std::stringstream output;
-		output << "Can't perform unary operation " << Util::getFromDict(Dicts::kUnaryOpToStr_dict, node.op_) << " on a string.";
+		output << "Can't perform unary operation " << Util::getFromDict(Dicts::kUnaryOpToStr_dict, node.getOp()) << " on a string.";
 		context_.reportError(output.str());
 	}
 	// SPECIAL CASES : (LOGICNOT) and (NEGATIVE ON BOOLEANS)
-	if (node.op_ == unaryOperator::LOGICNOT)
+	if (node.getOp() == unaryOperator::LOGICNOT)
 		value_ = TypeIndex::basic_Bool; // Return type is a boolean
-	else if ((node.op_ == unaryOperator::NEGATIVE) && (value_ == TypeIndex::basic_Bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
+	else if ((node.getOp() == unaryOperator::NEGATIVE) && (value_ == TypeIndex::basic_Bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
 		value_ = TypeIndex::basic_Int;
 
 	node.resultType_  = value_;

@@ -203,20 +203,20 @@ void RTExprVisitor::visit(ASTUnaryExpr & node)
 		value_ = FoxValue(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
-	auto res = visitAndGetResult(node.child_.get(), *this);
+	auto res = visitAndGetResult(node.getChild(), *this);
 	deref(res);
 	double lval = fvalToDouble(res);
 	// op == loginot
-	if (node.op_ == unaryOperator::LOGICNOT)
+	if (node.getOp() == unaryOperator::LOGICNOT)
 	{
 		value_ = FoxValue(
 			(bool)(lval == 0) // If the value differs equals zero, return true
 		);
 		return;
 	}
-	else if (node.op_ == unaryOperator::NEGATIVE)
+	else if (node.getOp() == unaryOperator::NEGATIVE)
 		lval = -lval; // Negate the number
-	else if (node.op_ == unaryOperator::POSITIVE)
+	else if (node.getOp() == unaryOperator::POSITIVE)
 	{
 		/*
 			For now, unary Positive is a nop.

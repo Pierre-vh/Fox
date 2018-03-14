@@ -67,9 +67,9 @@ void Dumper::visit(ASTBinaryExpr & node)
 
 void Dumper::visit(ASTUnaryExpr & node)
 {
-	std::string op = Util::getFromDict(Dicts::kUnaryOpToStr_dict, node.op_);
+	std::string op = Util::getFromDict(Dicts::kUnaryOpToStr_dict, node.getOp());
 	if (op.size() == 0)
-		op = Util::enumAsInt(node.op_);
+		op = Util::enumAsInt(node.getOp());
 
 	std::cout << tabs() << "UnaryExpression : Operator " << op;
 
@@ -82,13 +82,13 @@ void Dumper::visit(ASTUnaryExpr & node)
 	std::cout << tabs() << "Child:\n";
 	tabcount_++;
 
-	if (!node.child_)
+	if (!node.getChild())
 	{
 		throw Exceptions::ast_malformation("UnaryExpression node did not have a child.");
 		return;
 	}
 
-	node.child_->accept(*this);
+	node.getChild()->accept(*this);
 	tabcount_ -= 2;
 }
 

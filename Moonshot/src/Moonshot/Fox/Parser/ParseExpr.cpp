@@ -130,10 +130,10 @@ ParsingResult<IASTExpr*> Parser::parsePrefixExpr()
 	{
 		if (auto parseres = parsePrefixExpr())
 		{
-			auto rtr = std::make_unique<ASTUnaryExpr>();
-			rtr->op_ = matchUop.result_;
-			rtr->child_ = std::move(parseres.result_);
-			return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS,std::move(rtr));
+			return ParsingResult<IASTExpr*>(
+				ParsingOutcome::SUCCESS,
+				std::make_unique<ASTUnaryExpr>(matchUop.result_, std::move(parseres.result_))
+			);
 		}
 		else
 		{
