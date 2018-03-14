@@ -33,14 +33,22 @@ namespace Moonshot
 	{
 		public:
 			ASTBinaryExpr() = default;
-			ASTBinaryExpr(const binaryOperator &opt);
-
-
-			std::unique_ptr<IASTExpr> left_, right_;
-			binaryOperator op_ = binaryOperator::DEFAULT;
+			ASTBinaryExpr(const binaryOperator &opt,std::unique_ptr<IASTExpr> lhs = nullptr,std::unique_ptr<IASTExpr> rhs = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
 			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node 
+
+			IASTExpr* getLHS();
+			IASTExpr* getRHS();
+
+			void setLHS(std::unique_ptr<IASTExpr> nlhs);
+			void setRHS(std::unique_ptr<IASTExpr> nrhs);
+
+			binaryOperator getOp() const;
+			void setOp(const binaryOperator& op);
+		private:
+			std::unique_ptr<IASTExpr> left_, right_;
+			binaryOperator op_ = binaryOperator::DEFAULT;
 	};
 
 	// Unary Expressions

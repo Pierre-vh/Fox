@@ -43,9 +43,11 @@ void ASTLiteralExpr::setVal(const FoxValue & nval)
 
 
 // BinaryExpr
-ASTBinaryExpr::ASTBinaryExpr(const binaryOperator & opt) : op_(opt)
+ASTBinaryExpr::ASTBinaryExpr(const binaryOperator & opt, std::unique_ptr<IASTExpr> lhs, std::unique_ptr<IASTExpr> rhs):
+	op_(opt)
 {
-
+	setLHS(std::move(lhs));
+	setRHS(std::move(rhs));
 }
 
 void ASTBinaryExpr::accept(IVisitor & vis)
@@ -63,10 +65,40 @@ std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
 	return nullptr;
 }
 
-// UnaryExpr
-ASTUnaryExpr::ASTUnaryExpr(const unaryOperator & opt, std::unique_ptr<IASTExpr> node) : op_(opt), child_(std::move(node))
+IASTExpr * ASTBinaryExpr::getLHS()
 {
+	return left_.get();
+}
 
+IASTExpr * ASTBinaryExpr::getRHS()
+{
+	return right_.get();
+}
+
+void ASTBinaryExpr::setLHS(std::unique_ptr<IASTExpr> nlhs)
+{
+	left_ = std::move(nlhs);
+}
+
+void ASTBinaryExpr::setRHS(std::unique_ptr<IASTExpr> nrhs)
+{
+	right_ = std::move(nrhs);
+}
+
+binaryOperator ASTBinaryExpr::getOp() const
+{
+	return op_;
+}
+
+void ASTBinaryExpr::setOp(const binaryOperator & op)
+{
+	op_ = op;
+}
+
+// UnaryExpr
+ASTUnaryExpr::ASTUnaryExpr(const unaryOperator & opt, std::unique_ptr<IASTExpr> node) : op_(opt)
+{
+	setChild(std::move(node));
 }
 
 void ASTUnaryExpr::accept(IVisitor & vis)
