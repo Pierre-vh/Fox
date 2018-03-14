@@ -17,6 +17,17 @@
 
 using namespace Moonshot;
 
+//IASTexpr
+FoxType IASTExpr::getResultType() const
+{
+	return resultType_;
+}
+
+void IASTExpr::setResultType(const FoxType & ft)
+{
+	resultType_ = ft;
+}
+
 // Literal
 ASTLiteralExpr::ASTLiteralExpr(const FoxValue& fv)
 {
@@ -264,3 +275,4 @@ ExprList::expr_iter ExprList::exprList_end()
 {
 	return exprs_.end();
 }
+

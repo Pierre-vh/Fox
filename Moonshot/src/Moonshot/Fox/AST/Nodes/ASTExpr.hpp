@@ -25,6 +25,10 @@ namespace Moonshot
 			IASTExpr() = default;
 			inline virtual ~IASTExpr() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
+
+			FoxType getResultType() const;
+			void setResultType(const FoxType& ft);
+		protected:
 			FoxType resultType_ = 0; // The planified result type of the expression after execution. this is set by the typechecker.
 	};
 
