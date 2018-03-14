@@ -71,6 +71,7 @@ namespace Moonshot
 
 			unaryOperator getOp() const;
 			void setOp(const unaryOperator& nop);
+
 		private:
 			std::unique_ptr<IASTExpr> child_;
 			unaryOperator op_ = unaryOperator::DEFAULT;
@@ -81,13 +82,16 @@ namespace Moonshot
 	{
 		public:
 			ASTCastExpr() = default;
-			ASTCastExpr(const FoxType& castGoal);
+			ASTCastExpr(const FoxType& castGoal,std::unique_ptr<IASTExpr> ch = nullptr);
 			virtual void accept(IVisitor& vis) override;
-
-			std::unique_ptr<IASTExpr> child_;
 
 			void setCastGoal(const FoxType& ncg);		// castgoal is stored inside
 			FoxType getCastGoal() const; 
+
+			IASTExpr* getChild();
+			void setChild(std::unique_ptr<IASTExpr> nc);
+		private:
+			std::unique_ptr<IASTExpr> child_;
 	};
 
 	// Literals

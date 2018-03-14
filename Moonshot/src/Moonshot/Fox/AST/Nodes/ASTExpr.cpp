@@ -143,9 +143,10 @@ void ASTUnaryExpr::setOp(const unaryOperator & nop)
 }
 
 // CastExpr
-ASTCastExpr::ASTCastExpr(const FoxType& castGoal)
+ASTCastExpr::ASTCastExpr(const FoxType& castGoal, std::unique_ptr<IASTExpr> nc)
 {
 	setCastGoal(castGoal);
+	setChild(std::move(nc));
 }
 
 void ASTCastExpr::accept(IVisitor & vis)
@@ -161,6 +162,16 @@ void ASTCastExpr::setCastGoal(const FoxType& ncg)
 FoxType ASTCastExpr::getCastGoal() const
 {
 	return resultType_;
+}
+
+IASTExpr * ASTCastExpr::getChild()
+{
+	return child_.get();
+}
+
+void ASTCastExpr::setChild(std::unique_ptr<IASTExpr> nc)
+{
+	child_ = std::move(nc);
 }
 
 // DeclRefs
