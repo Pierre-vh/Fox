@@ -45,14 +45,14 @@ void RTStmtVisitor::visit(ASTVarDecl & node)
 				node.getVarAttr(),
 				iexpr
 			))
-				context_.reportError("Error while initializing variable " + node.getVarAttr().name_);
+				context_.reportError("Error while initializing variable " + node.getVarAttr().getName());
 		}
 		else // without
 		{
 			if(!symtab_declareValue_derefFirst(
 				node.getVarAttr()
 			))
-			context_.reportError("Error while initializing variable " + node.getVarAttr().name_);
+			context_.reportError("Error while initializing variable " + node.getVarAttr().getName());
 		}
 	}
 	value_ = FoxValue(); // does not return anything.

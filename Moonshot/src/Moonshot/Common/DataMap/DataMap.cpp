@@ -49,8 +49,8 @@ FoxVariableAttr DataMap::retrieveVarAttr(const std::string & varname)
 bool DataMap::declareValue(const FoxVariableAttr & v_attr, const FoxValue & initVal)
 {
 	if (std::holds_alternative<VoidType>(initVal))
-		return map_getEntry(v_attr,FValUtils::getSampleFValForIndex(v_attr.type_.getTypeIndex())); // Init with a default value.
-	return map_getEntry(v_attr, initVal);
+		return map_addEntry(v_attr,FValUtils::getSampleFValForIndex(v_attr.getType().getTypeIndex())); // Init with a default value.
+	return map_addEntry(v_attr, initVal);
 }
 
 bool DataMap::setValue(const std::string & varname, const FoxValue & newVal)
@@ -64,7 +64,7 @@ void DataMap::dump() const
 	out << "Dumping symbols table...\n";
 	for (auto& elem : sym_table_)
 	{
-		out << "NAME: " << elem.first.name_ << " TYPE: " << elem.first.type_.getTypeName() << " ---> VALUE: " << FValUtils::dumpFVal(elem.second) << std::endl;
+		out << "NAME: " << elem.first.getName() << " TYPE: " << elem.first.getType().getTypeName() << " ---> VALUE: " << FValUtils::dumpFVal(elem.second) << std::endl;
 	}
 	context_.logMessage(out.str());
 	out.clear();
@@ -93,24 +93,24 @@ bool DataMap::map_setEntry(const std::string & vname,const FoxValue& vvalue, con
 	);
 	if (it != sym_table_.end())
 	{
-		if (it->first.type_ != vvalue.index()) //  trying to modify the type ? not on my watch.
+		if (it->first.getType() != vvalue.index()) //  trying to modify the type ? not on my watch.
 		{
 			// Implicit cast
 			if (LOG_IMPLICIT_CASTS)
 			{
 				std::stringstream out;
 				out << "Implicit cast : Attempted to store a FoxValue of type" << FValUtils::getFValTypeName(vvalue) << " into the variable ";
-				out << vname << " (of type " << it->first.type_.getTypeName() << ")\n";
+				out << vname << " (of type " << it->first.getType().getTypeName() << ")\n";
 				out << "Attempting cast to the desired type...";
 				context_.logMessage(out.str());
 			}
-			auto castVal = CastUtilities::performImplicitCast(context_,it->first.type_, vvalue);
+			auto castVal = CastUtilities::performImplicitCast(context_,it->first.getType(), vvalue);
 			if(context_.isSafe())	// Cast went well
 				return map_setEntry(vname,castVal,isDecl); // Proceed
 			return false; // Bad cast : abort
 		}
 		// Error cases
-		if (it->first.type_.isConst() && !isDecl) // if the variable is const, and we're not in a declaration
+		if (it->first.getType().isConst() && !isDecl) // if the variable is const, and we're not in a declaration
 			context_.reportError("Can't assign a value to const variable \"" + vname + "\". Const variables must be initialized at declaration and can't be changed later.");
 		// No error ? proceed.
 		else
@@ -120,17 +120,17 @@ bool DataMap::map_setEntry(const std::string & vname,const FoxValue& vvalue, con
 		}
 	}
 	else
-		context_.reportError("Unknown variable " + vname + "!");
+		context_.reportError("Unknown variable " + vname);
 	return false; // No value found ? return false.
 }
 
-bool DataMap::map_getEntry(const FoxVariableAttr & vattr,FoxValue initval)
+bool DataMap::map_addEntry(const FoxVariableAttr & vattr,FoxValue initval)
 {
 	auto ret = sym_table_.insert({ vattr,FoxValue() });
 	if (ret.second)
-		return map_setEntry(vattr.name_, initval,true); 	// Attempt to assign the initial value
-	else 
-		context_.reportError("Variable " + vattr.name_ + " is already declared.");
+		return map_setEntry(vattr.getName(), initval, true); 	// Attempt to assign the initial value
+	else
+		context_.reportError("Variable " + vattr.getName() + " is already declared.");
 	return ret.second; // ret.second is a "flag" if the operation was successful.
 }
 

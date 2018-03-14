@@ -41,7 +41,8 @@ bool VarDeclarations::runTest(Context & context)
 			root = std::move(parseres.result_);
 
 		FAILED_RETURN_IF_ERR("parsing");
-		root->accept(TypeCheckVisitor(context, true));
+		if (root)
+			root->accept(TypeCheckVisitor(context, true));
 		FAILED_RETURN_IF_ERR("typechecking");
 
 	}

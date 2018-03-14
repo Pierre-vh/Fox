@@ -154,7 +154,7 @@ ParsingResult<FoxFunctionArg> Parser::parseArgDecl()
 	if (auto mID_res = matchID())
 	{
 		FoxFunctionArg rtr;
-		rtr.name_ = mID_res.result_;
+		rtr.getName() = mID_res.result_;
 		// ':'
 		if (!matchSign(sign::P_COLON))
 		{
@@ -163,16 +163,16 @@ ParsingResult<FoxFunctionArg> Parser::parseArgDecl()
 		}
 		// ["const"]
 		if (matchKeyword(keyword::Q_CONST))
-			rtr.type_.setConstAttribute(true);
+			rtr.getType().setConstAttribute(true);
 		// ['&']
 		if (matchSign(sign::S_AMPERSAND))
-			rtr.isRef_ = true;
+			rtr.setIsRef(true);
 		else
-			rtr.isRef_ = false;
+			rtr.setIsRef(false);
 
 		if (auto mty_res = matchTypeKw())
 		{
-			rtr.type_.setType(mty_res.result_);
+			rtr.setType(mty_res.result_);
 			return ParsingResult<FoxFunctionArg>(ParsingOutcome::SUCCESS, rtr);
 		}
 		else

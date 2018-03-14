@@ -47,7 +47,7 @@ namespace Moonshot
 			// Getters/setters for the symbols table.
 			std::pair<FoxVariableAttr, FoxValue> map_getEntry(const std::string& str,bool& successFlag);
 			bool map_setEntry(const std::string& vname, const FoxValue& vvalue,const bool& isDecl = false);
-			bool map_getEntry(const FoxVariableAttr& vattr,FoxValue initval);
+			bool map_addEntry(const FoxVariableAttr& vattr,FoxValue initval);
 
 			// Helper function : creates a key.
 			FoxVariableAttr createTempKey(const std::string& v_name);

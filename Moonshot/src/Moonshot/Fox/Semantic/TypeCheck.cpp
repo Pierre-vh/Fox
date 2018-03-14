@@ -30,7 +30,7 @@ TypeCheckVisitor::TypeCheckVisitor(Context& c,const bool& testmode) : context_(c
 	{
 		datamap_.declareValue(
 			FoxVariableAttr("TESTVALUE",FoxType(TypeIndex::basic_Int,true /*this is constant*/)),
-			FoxValue(IntType())
+			FoxValue(IntType(0))
 		);
 	}
 	node_ctxt_.cur_binop = binaryOperator::DEFAULT;
@@ -144,16 +144,16 @@ void TypeCheckVisitor::visit(ASTVarDecl & node)
 		const auto iexpr_type = visitAndGetResult(node.getInitExpr());
 		// check if it's possible.
 		if (!canAssign(
-			node.getVarAttr().type_,
+			node.getVarAttr().getType(),
 			iexpr_type
 		))
 		{
-			context_.reportError("Can't perform initialization of variable \"" + node.getVarAttr().name_ + "\". Type of initialization expression is unassignable to the desired variable type.\nFor further information, see the errors thrown earlier!");
+			context_.reportError("Can't perform initialization of variable \"" + node.getVarAttr().getName() + "\". Type of initialization expression is unassignable to the desired variable type.\nFor further information, see the errors thrown earlier!");
 		}
 	}
 	datamap_.declareValue(
 		node.getVarAttr(),
-		FValUtils::getSampleFValForIndex(node.getVarAttr().type_.getTypeIndex()) // Using a sample fval, so we don't need to store any "real" values in there.
+		FValUtils::getSampleFValForIndex(node.getVarAttr().getType().getTypeIndex()) // Using a sample fval, so we don't need to store any "real" values in there.
 	);
 	// returns nothing
 }
@@ -161,13 +161,13 @@ void TypeCheckVisitor::visit(ASTVarDecl & node)
 void TypeCheckVisitor::visit(ASTDeclRefExpr & node)
 {
 	auto searchResult = datamap_.retrieveVarAttr(node.getDeclnameStr());
-	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN_BASIC) && searchResult.type_.isConst())
+	if ((node_ctxt_.dir == directions::LEFT) && (node_ctxt_.cur_binop == binaryOperator::ASSIGN_BASIC) && searchResult.getType().isConst())
 	{
-		context_.reportError("Can't assign a value to const variable \"" + searchResult.name_ + "\"");
+		context_.reportError("Can't assign a value to const variable \"" + searchResult.getName() + "\"");
 		value_ = TypeIndex::InvalidIndex;
 	}
 	else 
-		value_ =  searchResult.type_; // The error will be thrown by the symbols table itself if the value doesn't exist.
+		value_ =  searchResult.getType(); // The error will be thrown by the symbols table itself if the value doesn't exist.
 }
 
 bool TypeCheckVisitor::isAssignable(const IASTExpr* op) const
