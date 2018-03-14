@@ -154,20 +154,22 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 		node.getDeclRefExpr()->accept(*this);
 	tabcount_--;
 
-	// only show args if there's args
-	// rename ->getSize of exprlist to size()
-	std::cout << tabs() << "Args:\n";
-	tabcount_++;
-	auto begit = node.getExprList()->exprList_beg();
-	auto endit = node.getExprList()->exprList_end();
-	for (int count(0); begit != endit; begit++,count++)
+	if (node.getExprList()->size())
 	{
-		std::cout << tabs() << "Arg" << count << '\n';
+		std::cout << tabs() << "Args:\n";
 		tabcount_++;
-		(*begit)->accept(*this);
+		auto begit = node.getExprList()->exprList_beg();
+		auto endit = node.getExprList()->exprList_end();
+		for (int count(0); begit != endit; begit++, count++)
+		{
+			std::cout << tabs() << "Arg" << count << '\n';
+			tabcount_++;
+			(*begit)->accept(*this);
+			tabcount_--;
+		}
 		tabcount_--;
 	}
-	tabcount_ -=2;
+	tabcount_--;
 }
 
 void Dumper::visit(ASTNullStmt& node)
@@ -263,7 +265,7 @@ std::string Dumper::tabs() const
 {
 	std::string i;
 	for (unsigned char k(0); k < tabcount_; k++)
-		i += '\t';
+		i += "    ";
 	if (tabcount_ > 1)
 		i += u8"┗";
 	return i;
