@@ -140,7 +140,7 @@ void Dumper::visit(ASTMemberOfExpr & node)
 
 void Dumper::visit(ASTDeclRefExpr & node)
 {
-	std::cout << tabs() << "VarCall: name: " << node.getDeclnameStr() << std::endl;
+	std::cout << tabs() << "DeclRef: name: " << node.getDeclnameStr() << std::endl;
 }
 
 void Dumper::visit(ASTFunctionCallExpr & node)
