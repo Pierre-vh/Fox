@@ -37,8 +37,8 @@ void Dumper::visit(ASTBinaryExpr & node)
 
 	std::cout << tabs() << "BinaryExpression : Operator " << op;
 	// print planned result type if there's one
-	if (node.resultType_ != 0 && node.resultType_ != TypeIndex::InvalidIndex)
-		std::cout << ", Return type : " << node.resultType_.getTypeName();
+	if (node.getResultType() != 0 && node.getResultType() != TypeIndex::InvalidIndex)
+		std::cout << ", Return type : " << node.getResultType().getTypeName();
 	// newline
 	std::cout << "\n";
 
@@ -73,8 +73,8 @@ void Dumper::visit(ASTUnaryExpr & node)
 
 	std::cout << tabs() << "UnaryExpression : Operator " << op;
 
-	if (node.resultType_ != 0 && node.resultType_ != TypeIndex::InvalidIndex)
-		std::cout << ", Return type : " << node.resultType_.getTypeName();
+	if (node.getResultType() != 0 && node.getResultType() != TypeIndex::InvalidIndex)
+		std::cout << ", Return type : " << node.getResultType().getTypeName();
 
 	std::cout << "\n";
 

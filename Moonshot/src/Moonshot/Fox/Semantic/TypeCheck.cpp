@@ -84,7 +84,7 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 		return;
 	}
 
-	node.resultType_ = value_;
+	node.setResultType(value_);
 }
 
 void TypeCheckVisitor::visit(ASTUnaryExpr & node)
@@ -110,7 +110,7 @@ void TypeCheckVisitor::visit(ASTUnaryExpr & node)
 	else if ((node.getOp() == unaryOperator::NEGATIVE) && (value_ == TypeIndex::basic_Bool)) // If the subtree returns a boolean and we apply the negate operation, it'll return a int.
 		value_ = TypeIndex::basic_Int;
 
-	node.resultType_  = value_;
+	node.setResultType(value_);
 }
 
 void TypeCheckVisitor::visit(ASTCastExpr & node)

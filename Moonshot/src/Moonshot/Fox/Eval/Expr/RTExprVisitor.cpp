@@ -185,8 +185,8 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			//std::cout << "Op: " << Util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			const double result = performOp(node.getOp(), dleftval, drightval);
 
-			if (fitsInValue(node.resultType_, result)) // If the results fits or we desire to cast the result
-				value_ = CastUtilities::castTo(context_, node.resultType_, result);		// Cast to result type
+			if (fitsInValue(node.getResultType(), result)) // If the results fits or we desire to cast the result
+				value_ = CastUtilities::castTo(context_, node.getResultType(), result);		// Cast to result type
 			else
 				value_ = CastUtilities::castTo(context_, TypeIndex::basic_Float, result);	// Cast to float instead to keep information from being lost.
 		}
@@ -223,7 +223,7 @@ void RTExprVisitor::visit(ASTUnaryExpr & node)
 		*/
 	}
 
-	value_ = CastUtilities::castTo(context_, node.resultType_, lval);		// Cast to result type
+	value_ = CastUtilities::castTo(context_, node.getResultType(), lval);		// Cast to result type
 	return;
 }
 
