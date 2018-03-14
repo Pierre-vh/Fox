@@ -134,7 +134,7 @@ void TypeCheckVisitor::visit(ASTCastExpr & node)
 
 void TypeCheckVisitor::visit(ASTLiteralExpr & node)
 {
-	value_ = node.val_.index();		// Just put the value in rtr->type.
+	value_ = node.getVal().index();		// Just put the value in rtr->type.
 }
 
 void TypeCheckVisitor::visit(ASTVarDecl & node)

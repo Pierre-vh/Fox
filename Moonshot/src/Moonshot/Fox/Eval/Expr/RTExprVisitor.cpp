@@ -242,7 +242,7 @@ void RTExprVisitor::visit(ASTCastExpr & node)
 
 void RTExprVisitor::visit(ASTLiteralExpr & node)
 {
-	value_ = node.val_;
+	value_ = node.getVal();
 	return;
 }
 
