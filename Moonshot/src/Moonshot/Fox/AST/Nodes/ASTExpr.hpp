@@ -15,6 +15,7 @@
 #include "Moonshot/Common/Types/Types.hpp"		// FoxValue
 #include <memory>
 #include <vector>
+#include <functional>
 
 namespace Moonshot	
 {
@@ -173,6 +174,8 @@ namespace Moonshot
 
 			expr_iter exprList_beg();
 			expr_iter exprList_end();
+
+			void iterate(std::function<void(IASTExpr*)> fn);
 		private:
 			std::vector<std::unique_ptr<IASTExpr>> exprs_;
 	};

@@ -287,3 +287,9 @@ ExprList::expr_iter ExprList::exprList_end()
 	return exprs_.end();
 }
 
+void ExprList::iterate(std::function<void(IASTExpr*)> fn)
+{
+	for (auto it = exprs_.begin(); it != exprs_.end(); it++)
+		fn((*it).get());
+}
+
