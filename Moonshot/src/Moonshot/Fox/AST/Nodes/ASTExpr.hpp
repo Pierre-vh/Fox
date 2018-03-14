@@ -140,7 +140,7 @@ namespace Moonshot
 			const IASTExpr* getExpr(const std::size_t& ind);
 
 			bool isEmpty() const;
-			std::size_t getSize() const;
+			std::size_t size() const;
 
 			expr_iter exprList_beg();
 			expr_iter exprList_end();

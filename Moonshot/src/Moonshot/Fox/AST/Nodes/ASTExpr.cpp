@@ -172,7 +172,7 @@ void ExprList::addExpr(std::unique_ptr<IASTExpr> expr)
 
 const IASTExpr * ExprList::getExpr(const std::size_t & ind)
 {
-	if (ind > getSize())
+	if (ind > size())
 		throw std::out_of_range("Tried to access an out of bounds location in an expression list.");
 
 	return exprs_[ind].get();
@@ -183,7 +183,7 @@ bool ExprList::isEmpty() const
 	return !exprs_.size();
 }
 
-std::size_t ExprList::getSize() const
+std::size_t ExprList::size() const
 {
 	return exprs_.size();
 }
