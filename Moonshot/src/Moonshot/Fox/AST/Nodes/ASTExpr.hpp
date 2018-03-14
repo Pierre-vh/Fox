@@ -78,6 +78,10 @@ namespace Moonshot
 
 			void accept(IVisitor& vis) override;
 
+			FoxValue getVal() const;
+			void setVal(const FoxValue& nval);
+
+		private:
 			FoxValue val_;
 	};
 

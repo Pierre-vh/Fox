@@ -31,6 +31,16 @@ void ASTLiteralExpr::accept(IVisitor& vis)
 	vis.visit(*this);
 }
 
+FoxValue ASTLiteralExpr::getVal() const
+{
+	return val_;
+}
+
+void ASTLiteralExpr::setVal(const FoxValue & nval)
+{
+	val_ = nval;
+}
+
 
 // BinaryExpr
 ASTBinaryExpr::ASTBinaryExpr(const binaryOperator & opt) : op_(opt)
