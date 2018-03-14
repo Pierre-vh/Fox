@@ -99,13 +99,13 @@ void Dumper::visit(ASTCastExpr & node)
 	std::cout << tabs() << "Child:\n";
 	tabcount_++;
 
-	if (!node.child_)
+	if (!node.getChild())
 	{
 		throw Exceptions::ast_malformation("CastExpression node did not have a child.");
 		return;
 	}
 
-	node.child_->accept(*this);
+	node.getChild()->accept(*this);
 	tabcount_ -= 2;
 }
 void Dumper::visit(ASTLiteralExpr & node)

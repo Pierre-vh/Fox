@@ -157,13 +157,10 @@ ParsingResult<IASTExpr*>  Parser::parseCastExpr()
 			if (auto castType = matchTypeKw())
 			{
 				// If found, apply it to current node.
-				auto rtr = std::make_unique<ASTCastExpr>();
-				rtr->setCastGoal(castType.result_);
-				rtr->child_ = std::move(parse_res.result_);
 				return ParsingResult<IASTExpr*>(
-						ParsingOutcome::SUCCESS,
-						std::move(rtr)
-				);
+					ParsingOutcome::SUCCESS,
+					std::make_unique<ASTCastExpr>(castType.result_, std::move(parse_res.result_))
+					);
 			}
 			else
 			{

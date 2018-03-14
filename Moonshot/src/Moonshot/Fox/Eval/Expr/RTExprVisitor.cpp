@@ -234,7 +234,7 @@ void RTExprVisitor::visit(ASTCastExpr & node)
 		value_ = FoxValue(); // return directly if errors, don't waste time evaluating "sick" nodes.
 		return;
 	}
-	FoxValue value = visitAndGetResult(node.child_.get(), *this);
+	FoxValue value = visitAndGetResult(node.getChild(), *this);
 	deref(value);
 	value_ = CastUtilities::performExplicitCast(context_,node.getCastGoal(),value);
 	return;

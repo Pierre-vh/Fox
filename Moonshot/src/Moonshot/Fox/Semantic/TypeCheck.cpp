@@ -117,10 +117,10 @@ void TypeCheckVisitor::visit(ASTCastExpr & node)
 {
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
 		return;
-	if (!node.child_)
+	if (!node.getChild())
 		throw Exceptions::ast_malformation("CastExpression node did not have any child.");
 
-	const auto result = visitAndGetResult(node.child_.get());
+	const auto result = visitAndGetResult(node.getChild());
 	if (canExplicitelyCastTo(node.getCastGoal(), result))
 		value_ = node.getCastGoal();
 	else
