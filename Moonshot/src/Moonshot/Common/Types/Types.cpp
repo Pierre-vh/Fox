@@ -46,14 +46,36 @@ FoxVariableAttr::FoxVariableAttr(const std::string & nm)
 	name_ = nm; // Create a "dummy",unusable FoxVariableAttr with only a name.
 }
 
-FoxVariableAttr::FoxVariableAttr(const std::string & nm, const FoxType & ty) : name_(nm), type_(ty)
+FoxVariableAttr::FoxVariableAttr(const std::string & nm, const FoxType & ty) 
 {
+	setName(nm);
+	setType(ty);
 	wasInit_ = true;
 }
 
 FoxVariableAttr::operator bool() const
 {
 	return (wasInit_ && (type_ != TypeIndex::Void_Type) && (type_ != TypeIndex::InvalidIndex));
+}
+
+std::string FoxVariableAttr::getName() const
+{
+	return name_;
+}
+
+FoxType FoxVariableAttr::getType() const
+{
+	return type_;
+}
+
+void FoxVariableAttr::setName(const std::string & str)
+{
+	name_ = str;
+}
+
+void FoxVariableAttr::setType(const FoxType & type)
+{
+	type_ = type;
 }
 
 FoxVariableRef FoxVariableAttr::createRef() const

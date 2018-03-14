@@ -21,6 +21,16 @@ FoxFunctionArg::FoxFunctionArg(const std::string & nm, const std::size_t & ty, c
 	wasInit_ = true;
 }
 
+bool FoxFunctionArg::isRef() const
+{
+	return isRef_;
+}
+
+void FoxFunctionArg::setIsRef(const bool & nref)
+{
+	isRef_ = nref;
+}
+
 std::string FoxFunctionArg::dump() const
 {
 	std::stringstream output;

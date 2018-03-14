@@ -100,27 +100,22 @@ namespace Moonshot
 			FoxVariableAttr(const std::string &nm);
 			FoxVariableAttr(const std::string &nm, const FoxType &ty);
 			operator bool() const;
-			// Variable's attribute
-			std::string name_ = "";
-			FoxType type_ = TypeIndex::Void_Type;
+
+			std::string getName() const;
+			FoxType getType() const;
+
+			void setName(const std::string& str);
+			void setType(const FoxType& type);
 
 			FoxVariableRef createRef() const;
-
 			std::string dump() const;
 		protected:
+			std::string name_ = "";
+			FoxType type_ = TypeIndex::Void_Type;
 			bool wasInit_ = false;
 	};
 	inline bool operator < (const FoxVariableAttr& lhs, const FoxVariableAttr& rhs)
 	{
-		return lhs.name_ < rhs.name_; // We don't care about the rest, because you can only use a name once.
-	}
-	inline bool operator == (const FoxVariableAttr& lhs, const FoxVariableAttr& rhs)
-	{
-		return	(lhs.name_ == rhs.name_) &&
-				(lhs.type_ == rhs.type_);
-	}
-	inline bool operator != (const FoxVariableAttr& lhs, const FoxVariableAttr& rhs)
-	{
-		return !(lhs == rhs);
+		return lhs.getName() < rhs.getName();
 	}
 }

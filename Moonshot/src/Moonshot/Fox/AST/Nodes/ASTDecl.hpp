@@ -42,12 +42,15 @@ namespace Moonshot
 			FoxFunctionArg() = default;
 			FoxFunctionArg(const std::string &nm, const std::size_t &ty, const bool isK, const bool& isref);
 
-			bool isRef_;
+			bool isRef() const;
+			void setIsRef(const bool& nref);
+
 			std::string dump() const;
 			operator bool() const;
 			bool operator==(const FoxFunctionArg& other) const;
 			bool operator!=(const FoxFunctionArg& other) const;
 		private:
+			bool isRef_;
 			using FoxVariableAttr::wasInit_;
 	};
 
