@@ -47,11 +47,11 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 	if (!context_.isSafe()) // If an error was thrown earlier, just return. We can't check the tree if it's unhealthy (and it would be pointless anyways)
 		return;
 
-	if (node.left_ && node.right_)
+	if (node.isComplete())
 	{
-		if (node.op_ == binaryOperator::ASSIGN_BASIC)
+		if (node.getOp() == binaryOperator::ASSIGN_BASIC)
 		{
-			if (!isAssignable(node.left_.get()))
+			if (!isAssignable(node.getLHS()))
 			{
 				context_.reportError("Assignement operation requires a assignable data type to the left of the operator !");
 				return;
@@ -59,23 +59,21 @@ void TypeCheckVisitor::visit(ASTBinaryExpr & node)
 		}
 		// VISIT BOTH CHILDREN
 		// get left expr result type
-		auto left = visitAndGetResult(node.left_.get(), directions::LEFT,node.op_);
+		auto left = visitAndGetResult(node.getLHS(), directions::LEFT,node.getOp());
 		// get right expr result type
-		auto right = visitAndGetResult(node.right_.get(), directions::RIGHT,node.op_);
+		auto right = visitAndGetResult(node.getRHS(), directions::RIGHT,node.getOp());
 		// SPECIAL CHECK 1: CHECK IF THIS IS A CONCAT OP,CONVERT IT 
-		if (canConcat(left, right) && (node.op_ == binaryOperator::ADD))
-		{
-			node.op_ = binaryOperator::CONCAT;
-		}
+		if (canConcat(left, right) && (node.getOp() == binaryOperator::ADD))
+			node.setOp(binaryOperator::CONCAT);
 		else
 		{
 			std::stringstream ss;
-			ss << "Can't use operator " << Util::getFromDict(Dicts::kBinopToStr_dict,node.op_) << " with " << left.getTypeName() << " and " << right.getTypeName() << std::endl;
+			ss << "Can't use operator " << Util::getFromDict(Dicts::kBinopToStr_dict,node.getOp()) << " with " << left.getTypeName() << " and " << right.getTypeName() << std::endl;
 			context_.logMessage(ss.str());
 		}
 		// CHECK VALIDITY OF EXPRESSION
 		value_ = getExprResultType(
-			node.op_
+			node.getOp()
 			, left
 			, right
 		);

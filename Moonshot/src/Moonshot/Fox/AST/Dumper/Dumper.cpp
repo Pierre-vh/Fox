@@ -31,9 +31,9 @@ Dumper::~Dumper()
 
 void Dumper::visit(ASTBinaryExpr & node)
 {
-	std::string op = Util::getFromDict(Dicts::kBinopToStr_dict, node.op_);
+	std::string op = Util::getFromDict(Dicts::kBinopToStr_dict, node.getOp());
 	if (op.size() == 0)
-		op = Util::enumAsInt(node.op_);
+		op = Util::enumAsInt(node.getOp());
 
 	std::cout << tabs() << "BinaryExpression : Operator " << op;
 	// print planned result type if there's one
@@ -42,7 +42,7 @@ void Dumper::visit(ASTBinaryExpr & node)
 	// newline
 	std::cout << "\n";
 
-	if (!node.right_ || !node.left_)
+	if (!node.isComplete())
 	{
 		throw Exceptions::ast_malformation("BinaryExpression node did not have a left and right child.");
 		return;
@@ -53,13 +53,13 @@ void Dumper::visit(ASTBinaryExpr & node)
 		tabcount_++;
 		std::cout << tabs() << "Left child:\n";
 		tabcount_++;
-		node.left_->accept(*this);
+		node.getLHS()->accept(*this);
 		tabcount_ -= 2;
 		// PRINT RIGHT CHILD
 		tabcount_++;
 		std::cout << tabs() << "Right child:\n";
 		tabcount_++;
-		node.right_->accept(*this);
+		node.getRHS()->accept(*this);
 		tabcount_ -= 2;
 	}
 	

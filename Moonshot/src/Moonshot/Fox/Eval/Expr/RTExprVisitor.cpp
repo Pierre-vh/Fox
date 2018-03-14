@@ -52,22 +52,22 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		return;
 	}
 
-	if (node.op_ == binaryOperator::DEFAULT)
+	if (node.getOp() == binaryOperator::DEFAULT)
 	{
-		if (!node.left_)
+		if (!node.getLHS())
 			throw Exceptions::ast_malformation("Tried to pass a value to parent node, but the node did not have a left_ child.");
 		else
 		{
-			node.left_->accept(*this);
+			node.getLHS()->accept(*this);
 			return;
 		}
 	}
-	else if (node.op_ == binaryOperator::CONCAT)
+	else if (node.getOp() == binaryOperator::CONCAT)
 	{
-		if (node.left_ && node.right_)
+		if (node.isComplete())
 		{
-			auto leftval = visitAndGetResult(node.left_.get(), *this);
-			auto rightval = visitAndGetResult(node.right_.get(), *this);
+			auto leftval = visitAndGetResult(node.getLHS(), *this);
+			auto rightval = visitAndGetResult(node.getRHS(), *this);
 
 			value_ = concat(leftval, rightval);
 			return;
@@ -77,12 +77,12 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			throw Exceptions::ast_malformation("Tried to concat a node without a left_ or right  child.");
 		}
 	}
-	else if (node.op_ == binaryOperator::ASSIGN_BASIC)
+	else if (node.getOp() == binaryOperator::ASSIGN_BASIC)
 	{
 		if (isDataMapAvailable())
 		{
-			auto left_res = visitAndGetResult(node.left_.get(), *this);
-			auto right_res = visitAndGetResult(node.right_.get(), *this);
+			auto left_res = visitAndGetResult(node.getLHS(), *this);
+			auto right_res = visitAndGetResult(node.getRHS(), *this);
 			if (std::holds_alternative<FoxVariableRef>(left_res) && IndexUtils::isValue(right_res.index()))
 			{
 				datamap_->setValue(
@@ -98,16 +98,16 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		else
 			context_.logMessage("Can't perform assignement operations when the symbols table is unavailable.");
 	}
-	else if (node.op_ == binaryOperator::ASSIGN_BASIC)
+	else if (node.getOp() == binaryOperator::ASSIGN_BASIC)
 	{
 		if (isDataMapAvailable())
 		{
-			auto vattr = visitAndGetResult(node.left_.get(), *this);
+			auto vattr = visitAndGetResult(node.getLHS(), *this);
 			if (std::holds_alternative<FoxVariableRef>(vattr))
 			{
 				// Perform assignement
 				std::string vname = std::get<FoxVariableRef>(vattr).getName();
-				node.right_->accept(*this);
+				node.getRHS()->accept(*this);
 				datamap_->setValue(vname, value_);
 			}
 			else
@@ -117,13 +117,13 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		else
 			context_.logMessage("Can't perform assignement operations when the symbols table isn't available.");
 	}
-	else if (isComparison(node.op_))
+	else if (isComparison(node.getOp()))
 	{
-		if (!node.left_ || !node.right_)
+		if (!node.isComplete())
 			throw Exceptions::ast_malformation("Attempted to run a comparison operation on a node without 2 children");
 		
-		const FoxValue lfval = visitAndGetResult(node.left_.get(), *this);
-		const FoxValue rfval = visitAndGetResult(node.right_.get(), *this);
+		const FoxValue lfval = visitAndGetResult(node.getLHS(), *this);
+		const FoxValue rfval = visitAndGetResult(node.getRHS(), *this);
 		/*
 			todo, deref the variables HERE, and remove the deref part of the functions _derefFirst.
 		*/
@@ -133,7 +133,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			{
 				value_ = FoxValue(
 					compareStr(
-						node.op_,
+						node.getOp(),
 						std::get<std::string>(lfval),
 						std::get<std::string>(rfval)
 					)
@@ -150,7 +150,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		else if (std::holds_alternative<CharType>(lfval) && std::holds_alternative<CharType>(rfval))
 		{
 			value_ = FoxValue(compareChar(
-				node.op_,
+				node.getOp(),
 				std::get<CharType>(lfval),
 				std::get<CharType>(rfval)
 			));
@@ -160,7 +160,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 		{
 			//std::cout << "Compare: Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
 			value_ = FoxValue(compareVal(
-				node.op_,
+				node.getOp(),
 				lfval,
 				rfval
 			)
@@ -170,8 +170,8 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 	}
 	else
 	{
-		auto left_res = visitAndGetResult(node.left_.get(), *this);
-		auto right_res = visitAndGetResult(node.right_.get(), *this);
+		auto left_res = visitAndGetResult(node.getLHS(), *this);
+		auto right_res = visitAndGetResult(node.getRHS(), *this);
 		// Check if we have a string somewhere.
 		if (std::holds_alternative<std::string>(left_res) || std::holds_alternative<std::string>(right_res))
 		{
@@ -183,7 +183,7 @@ void RTExprVisitor::visit(ASTBinaryExpr & node)
 			const double dleftval = fvalToDouble(left_res);
 			const double drightval = fvalToDouble(right_res);
 			//std::cout << "Op: " << Util::enumAsInt(node.op_) << ",Converted lhs :" << dleftval << " converted rhs: " << drightval << std::endl;
-			const double result = performOp(node.op_, dleftval, drightval);
+			const double result = performOp(node.getOp(), dleftval, drightval);
 
 			if (fitsInValue(node.resultType_, result)) // If the results fits or we desire to cast the result
 				value_ = CastUtilities::castTo(context_, node.resultType_, result);		// Cast to result type

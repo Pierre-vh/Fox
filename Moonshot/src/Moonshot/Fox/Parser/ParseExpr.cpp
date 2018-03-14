@@ -110,13 +110,13 @@ ParsingResult<IASTExpr*> Parser::parseExponentExpr()
 				errorExpected("Expected an expression after exponent operator.");
 				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 			}
-			std::unique_ptr<ASTBinaryExpr> bin = std::make_unique<ASTBinaryExpr>();
-			bin->op_ = binaryOperator::EXP;
-			bin->left_ = std::move(val.result_);
-			bin->right_ = std::move(prefix_expr.result_);
 			return ParsingResult<IASTExpr*>(
 				ParsingOutcome::SUCCESS,
-				std::move(bin)
+				std::make_unique<ASTBinaryExpr>(
+						binaryOperator::EXP,
+						std::move(val.result_),
+						std::move(prefix_expr.result_)
+					)
 			);
 		}
 		return val;
@@ -201,7 +201,7 @@ ParsingResult<IASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 	if (!first)					
 		return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 
-	rtr->left_ = std::move(first);	// Make first the left child of the return node !
+	rtr->setLHS(std::move(first));	// Make first the left child of the return node !
 	while (true)
 	{
 		// Match binary operator
@@ -230,12 +230,12 @@ ParsingResult<IASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 			break; // We break instead of returning, so we can return the expressions that were parsed correctly so we don't cause an error cascade for the user.
 		}
 
-		if (rtr->op_ == binaryOperator::DEFAULT) // if the node has still a "pass" operation
-				rtr->op_ = matchResult.result_;
+		if (rtr->getOp() == binaryOperator::DEFAULT) // if the node has still a "pass" operation
+				rtr->setOp(matchResult.result_);
 		else // if the node already has an operation
 			rtr = oneUpNode(std::move(rtr), matchResult.result_);
 
-		rtr->right_ = std::move(second); // Set second as the child of the node.
+		rtr->setRHS(std::move(second)); // Set second as the child of the node.
 	}
 
 	// When we have simple node (DEFAULT operation with only a value/expr as left child), we simplify it(only return the left child)
@@ -259,13 +259,14 @@ ParsingResult<IASTExpr*> Parser::parseExpr()
 				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 			}
 
-			std::unique_ptr<ASTBinaryExpr> binexpr = std::make_unique<ASTBinaryExpr>();
-		
-			binexpr->op_ = matchResult.result_;
-			binexpr->left_ = std::move(lhs_res.result_);
-			binexpr->right_ = std::move(rhs_res.result_);
-
-			return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS,std::move(binexpr));
+			return ParsingResult<IASTExpr*>(
+					ParsingOutcome::SUCCESS,
+					std::make_unique<ASTBinaryExpr>(
+							matchResult.result_,
+							std::move(lhs_res.result_),
+							std::move(rhs_res.result_)
+						)
+				);
 		}
 		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::move(lhs_res.result_));
 	}
@@ -350,8 +351,7 @@ ParsingResult<ExprList*> Parser::parseParensExprList()
 
 std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator & op)
 {
-	auto newnode = std::make_unique<ASTBinaryExpr>(op);
-	newnode->left_ = std::move(node);
+	auto newnode = std::make_unique<ASTBinaryExpr>(op,std::move(node));
 	return newnode;
 }
 
