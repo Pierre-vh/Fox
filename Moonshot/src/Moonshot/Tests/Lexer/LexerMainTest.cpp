@@ -15,8 +15,8 @@ using namespace Moonshot::Test::TestUtilities;
 
 bool LexerMainTest::runTest(Context & context)
 {
-	auto correct_test_str = readFileToString(context,"res\\tests\\lexer\\lexer_correct.fox");
-	auto bad_test_str = readFileToString(context, "res\\tests\\lexer\\lexer_bad.fox");
+	auto correct_test_str = readFileToString(context,"res\\tests\\lexer\\correct_1.fox");
+	auto bad_test_str = readFileToString(context, "res\\tests\\lexer\\incorrect_1.fox");
 
 	if (!context.isSafe())
 		return false;
