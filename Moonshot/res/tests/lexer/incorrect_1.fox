@@ -1,10 +1,2 @@
-# Bad lexer tests. This file is read line by line and every line is fed to the lexer.
-# Every line should produce an error (unsafe context)
-"bad
-string"
-'b // bad char
-'
-/* unclosed comment
-
-                                                                    
-
+// unclosed string w/ newline in str
+"unclosed string
