@@ -1,23 +1,4 @@
-﻿"3.14" ** 2
-"3.14" + 3.14
-2 + "2"
--("Hello" + "World!")
-!"Hi"
-22/"7"
-"hi"*3
--"hello"
-!(3.14 as string)
-'c' + (as float)
-"hi" <> "hi"
-'Δ' + 1 == 'Ε'
-(3 + 'c') as char == 'f'
-'c' + true == 'd'
-'\t'+1 == '\n'
-'c' == 3
-"c" == 'c'
-"hi" || "oh"
-"hey" && 'c' 
-'c' as float; // Impossible cast : char to float
-3.14 as char; // Impossible cast : float to char;
-string as bool
-"b" as char == 'b'
+﻿3 +
+525252525252**(as int)
+3.14 as 3
+float as int
