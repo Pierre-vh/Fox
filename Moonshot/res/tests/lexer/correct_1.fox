@@ -1,4 +1,5 @@
-// Main test for the lexer : this test should be good at all times
+// Main test for the lexer : this test should always pass
+// Note that this isn't semantically or syntaxically correct, it's just to test some edge cases and try to break the lexer.
 using Fox.io;     // Import this package, and use its namespace
 using Fox0.io; // test to distinguish float from char
 using Fox0.math;
