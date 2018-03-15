@@ -1,6 +1,7 @@
 #include <iostream>
 #include <Windows.h>
 #include "Tests/Lexer/LexerTests.hpp"
+#include "Tests/Parser/ParserTests.hpp"
 
 using namespace Moonshot;
 
@@ -66,6 +67,9 @@ int main()
 
 	Tests::LexerTests lt;
 	lt.runTests(std::cout);
+
+	Tests::ParserTests pt;
+	pt.runTests(std::cout);
 
 	std::cout << "Finished. Press any key to continue.\n";
 	std::cin.get();
