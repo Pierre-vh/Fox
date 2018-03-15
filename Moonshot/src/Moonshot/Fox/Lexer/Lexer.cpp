@@ -45,12 +45,15 @@ void Lexer::lexStr(const std::string & data)
 		cycle();
 
 	pushTok(); // Push the last Token found.
-
-	if (context_.optionsManager_.getAttr(OptionsList::lexer_logTotalTokenCount).value_or(false).get<bool>())
+	runFinalChecks();
+	if (context_.isSafe())
 	{
-		std::stringstream ss;
-		ss << "Lexing finished. Tokens found: " << result_.size();
-		context_.logMessage(ss.str());
+		if (context_.optionsManager_.getAttr(OptionsList::lexer_logTotalTokenCount).value_or(false).get<bool>())
+		{
+			std::stringstream ss;
+			ss << "Lexing finished Successfully. Tokens found: " << result_.size();
+			context_.logMessage(ss.str());
+		}
 	}
 	context_.resetOrigin();
 }
@@ -110,8 +113,21 @@ void Lexer::cycle()
 
 void Lexer::runFinalChecks()
 {
-	if ((cstate_ == DFAState::S_STR || cstate_ == DFAState::S_CHR) && context_.isSafe()) // If we were in the middle of lexing a string/char
-		reportLexerError("Met the end of the file before a closing delimiter for char/strings");
+	if (context_.isSafe())
+	{
+		switch (cstate_)
+		{
+			case DFAState::S_STR:
+				reportLexerError("A String literal was still not closed when end of file was reached");
+				break;
+			case DFAState::S_CHR:
+				reportLexerError("A Char literal was still not closed when end of file was reached");
+				break;
+			case DFAState::S_MCOM:
+				reportLexerError("A Multiline comment was not closed when end of file was reached");
+				break;
+		}
+	}
 }
 
 void Lexer::runStateFunc()
