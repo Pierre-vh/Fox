@@ -14,12 +14,11 @@
 	#define LEXER_TEST_INCORRECT(FILE)
 #endif
 
-LEXER_TEST_CORRECT("lexer/correct_1.fox")
-
-LEXER_TEST_INCORRECT("lexer/incorrect_1.fox")
-LEXER_TEST_INCORRECT("lexer/incorrect_2.fox")
-LEXER_TEST_INCORRECT("lexer/incorrect_3.fox")
-LEXER_TEST_INCORRECT("lexer/incorrect_4.fox")
+LEXER_TEST_CORRECT("correct_1.fox")
+LEXER_TEST_INCORRECT("incorrect_1.fox")
+LEXER_TEST_INCORRECT("incorrect_2.fox")
+LEXER_TEST_INCORRECT("incorrect_3.fox")
+LEXER_TEST_INCORRECT("incorrect_4.fox")
 
 #undef LEXER_TEST_CORRECT
 #undef LEXER_TEST_INCORRECT

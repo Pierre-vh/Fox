@@ -1,0 +1,29 @@
+/*
+	This file is used to register tests using macro metaprogramming.
+
+	NOTE: Every file should undefine it's macro at the end of the file.
+	*/
+
+	// defines blank macros in case one of them isn't defined to avoid errors
+
+#ifndef PARSER_TEST_GROUP
+	#define PARSER_TEST_GROUP(GROUPNAME,GROUPID)
+#endif
+
+#ifndef PARSER_CORRECT_TEST
+	#define PARSER_CORRECT_TEST(GROUPID,MODE,FILEPATH,FUNC)
+#endif
+
+#ifndef PARSER_INCORRECT_TEST
+	#define PARSER_INCORRECT_TEST(GROUPID,MODE,FILEPATH,FUNC)
+#endif
+
+// Todo : register all tests
+
+PARSER_TEST_GROUP("Expressions", expr)
+	PARSER_CORRECT_TEST(expr, LINES, "expr/correct.fox", parseExpr())
+	PARSER_INCORRECT_TEST(expr, LINES, "expr/incorrect.fox", parseExpr())
+
+#undef PARSER_TEST_GROUP
+#undef PARSER_CORRECT_TEST
+#undef PARSER_INCORRECT_TEST

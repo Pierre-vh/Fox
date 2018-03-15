@@ -22,12 +22,12 @@ namespace Moonshot::Tests
 			*/
 			#define LEXER_TEST_CORRECT(FILE) FILE,
 			std::vector<std::string> correctFiles_ = {
-				#include "../def/lexer.def"
+				#include "Moonshot/Tests/def/lexer.def"
 			};
 
 			#define LEXER_TEST_INCORRECT(FILE) FILE,
 			std::vector<std::string> incorrectFiles_ = {
-				#include "../def/lexer.def"
+				#include "Moonshot/Tests/def/lexer.def"
 			};
 	};
 }

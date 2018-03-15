@@ -13,12 +13,12 @@ bool LexerTests::runTests(std::ostream & out, bool condensed)
 	out << "Lexer tests:\n";
 	if (runCorrectTests(out, condensed) && runIncorrectTests(out, condensed))
 	{
-		out << indent(1) << "ALL LEXER TESTS PASSED\n";
+		out << indent(1) << "ALL TESTS PASSED\n";
 		return true;
 	}
 	else
 	{
-		out << indent(1) << "ONE OR MORE LEXER TESTS FAILED\n";
+		out << indent(1) << "ONE OR MORE TESTS FAILED\n";
 		return false;
 	}
 }
@@ -32,7 +32,7 @@ bool LexerTests::runCorrectTests(std::ostream & out, bool condensed)
 		counter++;
 
 		std::string content;
-		if (!readFileToString(file, content))
+		if (!readFileToString("lexer/" + file, content))
 		{
 			out << indent(2) << counter << ". FAILED: Could not open file \"" << file << "\"";
 			successFlag = false;
@@ -69,7 +69,7 @@ bool LexerTests::runIncorrectTests(std::ostream & out, bool condensed)
 		counter++;
 
 		std::string content;
-		if (!readFileToString(file, content))
+		if (!readFileToString("lexer/" + file, content))
 		{
 			out << indent(2) << counter << ". FAILED: Could not open file \"" << file << "\"";
 			successFlag = false;
