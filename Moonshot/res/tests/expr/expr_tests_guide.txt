@@ -1,4 +1,0 @@
-expr_correct
-	-> The result must always be equal to true.
-	-> If you input an expression that has a defined result, use this : <expr> == <result>
-	-> You're free to add any tests ! The more the merrier for that thing!
