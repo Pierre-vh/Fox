@@ -15,10 +15,7 @@ bool Tests::readFileToVec(const std::string & filepath, std::vector<std::string>
 		return false;
 
 	while (getline(in, str))
-	{
-		if(str[0] != '#')			// lines that begin with a hashtag are considered comments and shouldn't be pushed
-			outvec.push_back(str);
-	}
+		outvec.push_back(str);
 	return true;
 }
 
