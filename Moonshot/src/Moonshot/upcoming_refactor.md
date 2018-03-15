@@ -46,13 +46,29 @@ New classes will include a AST Traversal class, a upgraded ASTVisitor class, AST
 I might also switch to CMake build system, but I'm pretty unfamiliar with that so there's no guarantees on that side. </br>
 If I switch to CMake I might start coding on Linux more, heck, maybe even install Linux on my laptop as the main OS and code more on linux!
 
+</br>
+Another rework planned is the Context's. I'll do it now because at this point because I'll remove a lot of place where it's used and will have much less code to rewrite.
+
+Essentially, the goals is : let the context be the context : It holds data, offers function to query it, and that's it. Don't put more than needed into it. Right now it's what I'd call a "god" class that does a lot of things but inefficiently.
+
+What I plan on doing:
+
+* Remove everything related to logging, and just give the Context a reference to a DiagEngine.
+* Remove everything related to options, and just give the Context a reference to a "OptionsManager" that holds the information about the flags/options
+* DiagEngine is going to be a class that produces Diagnostics. Currently, only "raw" diagnostics (print a string, with a source and a severity.) but in the future i'm going to upgrade that a bit. It's going to work sort of like Clang, but with some middlemans removed, because I don't need/want the extra complexity, and want to Keep It Simple Stupid.
+
+This shouldn't be too hard. After the rework, reporting an error should look like this:
+`context.getDiagEngine().emitDiag(Severity::Warning,Source::Parser,"Expected a semicolon after expression statement");`
+
+In the future, I'll add more overloads to accept Diagnostics ID, and help format the diag string. This will be done later, it's not a major focus. 
 
 ## Moving on
 
-Well, once I'm done I'll continue with the language implementation. That includes:
+Well, once I'm done I'll continue with the language implementation. That includes (not in any meaningful order)
 
 * ASTContext
 * ParserDriver 
+* A proper source loc system.
 * DeclContext (support for the symbols table)
 * Distinction between resolved/unresolved IDs in the nodes instead of just a string for everything
 * Name resolver, semantics checker for decl,stmt,expr.
