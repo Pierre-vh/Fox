@@ -1,8 +1,6 @@
 #include <iostream>
 #include <Windows.h>
-#include "Moonshot/Tests/Manager/TestManager.hpp"
-
-#include "Tests_Rework\Lexer\LexerTests.hpp"
+#include "Tests/Lexer/LexerTests.hpp"
 
 using namespace Moonshot;
 
@@ -65,11 +63,6 @@ int main()
 	setvbuf(stdout, nullptr, _IOFBF, 1000);
 
 	std::ios_base::sync_with_stdio(false); // We don't use printf, so we don't need to sync with stdio (CppCoreGuidelines SL.io.10)
-	Context context;
-	context.optionsManager_.addAttr(OptionsList::exprtest_printAST,true);
-	Test::TestManager ts(context);
-	ts.addDefaultTests();
-	ts.runTests(true);
 
 	Tests::LexerTests lt;
 	lt.runTests(std::cout);
