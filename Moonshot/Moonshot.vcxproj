@@ -182,6 +182,7 @@
     <ClCompile Include="src\Moonshot\Fox\Semantic\TypeCheck.cpp" />
     <ClCompile Include="src\Moonshot\Common\UTF8\StringManipulator.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Lexer\LexerTests.cpp" />
+    <ClCompile Include="src\Moonshot\Tests\Parser\ParserTests.cpp" />
     <ClCompile Include="src\Moonshot\Tests\Utils\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -202,6 +203,7 @@
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ForwardDeclarations.hpp" />
     <ClInclude Include="src\Moonshot\Fox\AST\Nodes\ASTDecl.hpp" />
     <ClInclude Include="src\Moonshot\Fox\Parser\ParsingResult.hpp" />
+    <ClInclude Include="src\Moonshot\Tests\Parser\ParserTests.hpp" />
     <ClInclude Include="src\Moonshot\Tests\Utils\Utils.hpp" />
     <ClInclude Include="src\Moonshot\ThirdParty\utfcpp\utf8.hpp" />
     <ClInclude Include="src\Moonshot\Common\External\utfcpp\utf8\checked.h" />
