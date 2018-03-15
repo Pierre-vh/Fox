@@ -1,6 +1,9 @@
 #include <iostream>
 #include <Windows.h>
 #include "Moonshot/Tests/Manager/TestManager.hpp"
+
+#include "Tests_Rework\Lexer\LexerTests.hpp"
+
 using namespace Moonshot;
 
 // Add tests for member access + dumper support to check if I didn't messed up while 
@@ -67,6 +70,10 @@ int main()
 	Test::TestManager ts(context);
 	ts.addDefaultTests();
 	ts.runTests(true);
+
+	Tests::LexerTests lt;
+	lt.runTests(std::cout);
+
 	std::cout << "Finished. Press any key to continue.\n";
 	std::cin.get();
 	return 0;
