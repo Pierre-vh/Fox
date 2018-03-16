@@ -1,3 +1,4 @@
+# random binops
 "it " + ( "really " + "works ") + ((("it's wonderful"))) == "it really works it's wonderful"
 "В тумане спрятанного солнца," == "В тумане спрятанного солнца,"
 10%3 == 1 && 10**5 >= 10**4
@@ -25,11 +26,18 @@
 'ﬁ' + 'ﬁ' == "ﬁﬁ"
 'Ј'+"ЈЈ"+'Ј'=="ЈЈЈЈ"
 -2**--16==-65536
+# cast syntax test
 3.14 as bool // float -> bool 
 'c' as string == "c" // char -> string 
-'c' as char == 'c' // char -> char (same types)
-3 as int == 3; // int -> int (same type)
-"3.14" as float == 3.14 // string->float
-3.14 as string == "3.14" // float->string
+'c' as char == 'c' 
+3 as int == 3; 
+"3.14" as float == 3.14 
+3.14 as string == "3.14" 
 'c' as string == "c"
 "a" < 'b' as string
+# member access syntax test
+Fox.std.io.print
+(Fox.io.someobject).asInt()
+(3+33).asFloat()
+"Hello".size
+Test.attr.test().attr.attr.test()
