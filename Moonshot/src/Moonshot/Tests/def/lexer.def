@@ -1,11 +1,16 @@
-/*
-	This file is used to register tests using macro metaprogramming.
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : lexer.def
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file is used to register tests using macro metaprogramming.
+//
+// NOTE: Every file should undefine it's macro at the end of the file.
+////------------------------------------------------------////
 
-	NOTE: Every file should undefine it's macro at the end of the file.
-*/
 
-// defines blank macros in case one of them isn't defined to avoid errors
-
+// define some blank macros in case one of them isn't defined to avoid errors
 #ifndef LEXER_TEST_CORRECT
 	#define LEXER_TEST_CORRECT(FILE)
 #endif

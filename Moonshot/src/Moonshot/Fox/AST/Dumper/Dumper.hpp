@@ -18,6 +18,7 @@ namespace Moonshot
 	{
 		public:
 			Dumper() = default;
+			Dumper(const unsigned char& offsetTabs);
 			~Dumper();
 
 			virtual void visit(ASTBinaryExpr & node) override;
@@ -36,8 +37,9 @@ namespace Moonshot
 			virtual void visit(ASTReturnStmt& node) override;
 		private:
 
-			std::string tabs() const;
-			unsigned char tabcount_ = 1; 
+			std::string getIndent() const;
+			std::string getOffsetTabs() const;
+			unsigned char curindent_ = 1,offsetTabs_ = 0; 
 	};
 }
 

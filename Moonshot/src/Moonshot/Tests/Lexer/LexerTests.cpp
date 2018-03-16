@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : LexerTests.cpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+//			SEE HEADER FILE FOR MORE INFORMATION			
+////------------------------------------------------------////
+
 #include "LexerTests.hpp"
 
 #include "Moonshot/Common/Context/Context.hpp"
@@ -8,7 +17,7 @@
 using namespace Moonshot;
 using namespace Moonshot::Tests;
 
-bool LexerTests::runTests(std::ostream & out, bool condensed)
+bool LexerTests::runTests(std::ostream & out,const bool& condensed)
 {
 	out << "Lexer tests:\n";
 	if (runCorrectTests(out, condensed) && runIncorrectTests(out, condensed))
@@ -23,10 +32,10 @@ bool LexerTests::runTests(std::ostream & out, bool condensed)
 	}
 }
 
-bool LexerTests::runCorrectTests(std::ostream & out, bool condensed)
+bool LexerTests::runCorrectTests(std::ostream & out,const bool& condensed)
 {
 	bool successFlag = true;
-	int counter = -1;
+	int counter = 0;
 	for (const auto& file : correctFiles_)
 	{
 		counter++;
@@ -60,7 +69,7 @@ bool LexerTests::runCorrectTests(std::ostream & out, bool condensed)
 	return successFlag;
 }
 
-bool LexerTests::runIncorrectTests(std::ostream & out, bool condensed)
+bool LexerTests::runIncorrectTests(std::ostream & out,const bool& condensed)
 {
 	bool successFlag = true;
 	int counter = -1;

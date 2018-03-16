@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : LexerTests.hpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file implements the lexer tests, using lexer.def to generate them.										
+////------------------------------------------------------////
+
 #pragma once
 
 #include <vector>
@@ -11,11 +20,11 @@ namespace Moonshot::Tests
 		public:
 			LexerTests() = default;
 
-			bool runTests(std::ostream& out,bool condensed = false);
+			bool runTests(std::ostream& out,const bool& condensed = false);
 
 		private:
-			bool runCorrectTests(std::ostream& out, bool condensed);
-			bool runIncorrectTests(std::ostream& out, bool condensed);
+			bool runCorrectTests(std::ostream& out,const bool& condensed);
+			bool runIncorrectTests(std::ostream& out,const bool& condensed);
 			/*
 				Each file to test is put in this vector.
 				Files are read into a string and that string is passed to the lexer.

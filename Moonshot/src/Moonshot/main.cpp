@@ -69,7 +69,7 @@ int main()
 	lt.runTests(std::cout);
 
 	Tests::ParserTests pt;
-	pt.runTests(std::cout);
+	pt.runTests(std::cout,false,true);
 
 	std::cout << "Finished. Press any key to continue.\n";
 	std::cin.get();
