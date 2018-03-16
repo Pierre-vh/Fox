@@ -274,8 +274,6 @@
     <Text Include="doc\grammar_changelog.txt" />
     <Text Include="res\tests\parser\declcall_functions\incorrect.fox" />
     <Text Include="res\tests\parser\declcall_functions\correct.fox" />
-    <Text Include="res\tests\parser\memberaccess\incorrect.fox" />
-    <Text Include="res\tests\parser\memberaccess\correct.fox" />
     <Text Include="src\LICENSE.txt" />
     <Text Include="src\Moonshot\Common\Context\Options\OptionsList.h" />
     <Text Include="src\Moonshot\ThirdParty\utfcpp\utfcpp.txt" />
