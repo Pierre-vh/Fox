@@ -120,6 +120,10 @@
     <Link>
       <Profile>true</Profile>
     </Link>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -157,6 +161,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <Profile>true</Profile>
     </Link>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Moonshot\Common\DataMap\DataMap.cpp" />
