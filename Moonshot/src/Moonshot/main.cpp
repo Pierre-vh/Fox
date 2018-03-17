@@ -5,11 +5,6 @@
 
 using namespace Moonshot;
 
-// Add tests for member access + dumper support to check if I didn't messed up while 
-// coding that (i probably did, it's just a matter to find where :))) )
-// Then move on to imports & master rule and parser's nearly done. I'll spend a few hours
-// tweaking it and improving it before moving on to the ParserDriver
-
 /*
 	This is a short term roadmap for the project.
 		Implement the rest of the Parsing functions & AST Structure
