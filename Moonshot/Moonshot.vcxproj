@@ -195,7 +195,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\tests\conditions\condition_correct_1.fox" />
-    <None Include="src\Moonshot\Badger\readme.md" />
     <None Include="src\Moonshot\Common\readme.md" />
   </ItemGroup>
   <ItemGroup>
