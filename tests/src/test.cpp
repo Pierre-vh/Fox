@@ -1,6 +1,7 @@
 #include <iostream>
+#include "gtest\gtest.h"
 
-int main()
+TEST(Hello, World)
 {
-	return 0;
+	ASSERT_TRUE("test");
 }
