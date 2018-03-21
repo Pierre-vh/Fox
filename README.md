@@ -5,8 +5,8 @@ Licensed under the terms of the MIT license.
 
 # Folders
 
-/src/ Complete source code of the Moonshot project  (.hpp and .cpp) compiles to libmoonshot.lib
-/tools/ Contains the main.cpp, compiles to moonshot.exe
-/tests/ Test-related resources & source fo the test executable
-/docs/ Useful documentation & resources
-/thirdparty/ contains the source code of external libraries used by the project.
+* /src/ Complete source code of the Moonshot project  (.hpp and .cpp) compiles to libmoonshot.lib
+* /tools/ Contains the main.cpp, compiles to moonshot.exe
+* /tests/ Test-related resources & source fo the test executable
+* /docs/ Useful documentation & resources
+* /thirdparty/ contains the source code of external libraries used by the project.
