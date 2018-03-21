@@ -55,8 +55,10 @@ void setConsoleEnv()
 	std::ios_base::sync_with_stdio(false); // We don't use printf, so we don't need to sync with stdio (CppCoreGuidelines SL.io.10)
 }
 
+// reminder : use ifndef NDEBUG to know if debug/release mode
 int main()
 {
+
 	setConsoleEnv();
 
 	Tests::LexerTests lt;
