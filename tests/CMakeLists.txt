@@ -33,6 +33,5 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                  EXCLUDE_FROM_ALL
                  )
 
-add_executable(moontests src/test.cpp)
-target_link_libraries(moontests libmoonshot gtest_main)
-
+add_executable(MoonshotTests src/test.cpp)
+target_link_libraries(MoonshotTests libmoonshot gtest_main)

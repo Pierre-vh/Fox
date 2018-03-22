@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(Moonshot)
 
-#Make test bool available
-option(test "Build all tests." OFF) 
-
 #set minimal C++ standard 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -31,8 +28,8 @@ add_subdirectory(tests)
 add_library(libmoonshot STATIC ${lib_src})
 
 # add executable target & link it with libmoonshot
-add_executable(moonshot ${tools_src})
-target_link_libraries(moonshot libmoonshot)
+add_executable(Moonshot ${tools_src})
+target_link_libraries(Moonshot libmoonshot)
 
 # add test resources path macro
 target_compile_definitions(libmoonshot PRIVATE TEST_RES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/tests/res/")
