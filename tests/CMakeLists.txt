@@ -42,3 +42,4 @@ target_link_libraries(MoonshotTests libmoonshot gtest_main)
 
 # add test resources path macro
 target_compile_definitions(MoonshotTests PRIVATE TEST_RES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/res/")
+add_test(NAME MoonshotTests COMMAND MoonshotTests)
