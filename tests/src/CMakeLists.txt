@@ -5,7 +5,8 @@ add_source(
 
 	TestUtils/TestUtils.cpp
 
-	LexerTests.cpp
-	UTF8Tests.cpp
-	ContextTests.cpp
+	FoxTests/LexerTests.cpp
+	FoxTests/UTF8Tests.cpp
+
+	CommonTests/ContextTests.cpp
 	)
