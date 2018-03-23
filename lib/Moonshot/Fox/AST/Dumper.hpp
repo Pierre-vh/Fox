@@ -10,6 +10,7 @@
 
 #pragma once
 // base class
+#include <iostream>
 #include "Moonshot/Fox/AST/IVisitor.hpp"
 
 namespace Moonshot
@@ -17,8 +18,7 @@ namespace Moonshot
 	class Dumper : public IVisitor
 	{
 		public:
-			Dumper() = default;
-			Dumper(const unsigned char& offsetTabs);
+			Dumper(std::ostream& outstream = std::cout,const unsigned char& offsettabs = 0);
 
 			virtual void visit(ASTBinaryExpr & node) override;
 			virtual void visit(ASTUnaryExpr & node) override;
@@ -35,7 +35,7 @@ namespace Moonshot
 			virtual void visit(ASTFunctionDecl& node) override;
 			virtual void visit(ASTReturnStmt& node) override;
 		private:
-
+			std::ostream &out_;
 			std::string getIndent() const;
 			std::string getOffsetTabs() const;
 			unsigned char curindent_ = 1,offsetTabs_ = 0; 

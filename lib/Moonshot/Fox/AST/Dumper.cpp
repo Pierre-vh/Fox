@@ -25,9 +25,9 @@
 using namespace Moonshot;
 using namespace TypeUtils;
 
-Dumper::Dumper(const unsigned char & offsetTabs)
+Dumper::Dumper(std::ostream & outstream, const unsigned char& offsettabs) : out_(outstream), offsetTabs_(offsettabs)
 {
-	offsetTabs_ = offsetTabs;
+
 }
 
 void Dumper::visit(ASTBinaryExpr & node)
@@ -36,12 +36,12 @@ void Dumper::visit(ASTBinaryExpr & node)
 	if (op.size() == 0)
 		op = Util::enumAsInt(node.getOp());
 
-	std::cout << getIndent() << "BinaryExpression : Operator " << op;
+	out_ << getIndent() << "BinaryExpression : Operator " << op;
 	// print planned result type if there's one
 	if (node.getResultType() != 0 && node.getResultType() != TypeIndex::InvalidIndex)
-		std::cout << ", Return type : " << node.getResultType().getTypeName();
+		out_ << ", Return type : " << node.getResultType().getTypeName();
 	// newline
-	std::cout << "\n";
+	out_ << "\n";
 
 	if (!node.isComplete())
 	{
@@ -52,13 +52,13 @@ void Dumper::visit(ASTBinaryExpr & node)
 	{
 		// PRINT LEFT CHILD
 		curindent_++;
-		std::cout << getIndent() << "Left child:\n";
+		out_ << getIndent() << "Left child:\n";
 		curindent_++;
 		node.getLHS()->accept(*this);
 		curindent_ -= 2;
 		// PRINT RIGHT CHILD
 		curindent_++;
-		std::cout << getIndent() << "Right child:\n";
+		out_ << getIndent() << "Right child:\n";
 		curindent_++;
 		node.getRHS()->accept(*this);
 		curindent_ -= 2;
@@ -72,15 +72,15 @@ void Dumper::visit(ASTUnaryExpr & node)
 	if (op.size() == 0)
 		op = Util::enumAsInt(node.getOp());
 
-	std::cout << getIndent() << "UnaryExpression : Operator " << op;
+	out_ << getIndent() << "UnaryExpression : Operator " << op;
 
 	if (node.getResultType() != 0 && node.getResultType() != TypeIndex::InvalidIndex)
-		std::cout << ", Return type : " << node.getResultType().getTypeName();
+		out_ << ", Return type : " << node.getResultType().getTypeName();
 
-	std::cout << "\n";
+	out_ << "\n";
 
 	curindent_++;
-	std::cout << getIndent() << "Child:\n";
+	out_ << getIndent() << "Child:\n";
 	curindent_++;
 
 	if (!node.getChild())
@@ -95,9 +95,9 @@ void Dumper::visit(ASTUnaryExpr & node)
 
 void Dumper::visit(ASTCastExpr & node)
 {
-	std::cout << getIndent() << "CastExpression : Cast Goal:" << node.getCastGoal().getTypeName() << "\n";
+	out_ << getIndent() << "CastExpression : Cast Goal:" << node.getCastGoal().getTypeName() << "\n";
 	curindent_++;
-	std::cout << getIndent() << "Child:\n";
+	out_ << getIndent() << "Child:\n";
 	curindent_++;
 
 	if (!node.getChild())
@@ -111,16 +111,16 @@ void Dumper::visit(ASTCastExpr & node)
 }
 void Dumper::visit(ASTLiteralExpr & node)
 {
-	std::cout << getIndent() << "Literal: " << FValUtils::dumpFVal(node.getVal()) << '\n';
+	out_ << getIndent() << "Literal: " << FValUtils::dumpFVal(node.getVal()) << '\n';
 }
 
 void Dumper::visit(ASTVarDecl & node)
 {
-	std::cout << getIndent() << "VarDeclStmt :" << node.getVarAttr().dump() << std::endl;
+	out_ << getIndent() << "VarDeclStmt :" << node.getVarAttr().dump() << std::endl;
 	if (node.hasInitExpr())
 	{
 		curindent_ += 1;
-		std::cout << getIndent() << "InitExpr\n";
+		out_ << getIndent() << "InitExpr\n";
 		curindent_ += 1;
 		node.getInitExpr()->accept(*this);
 		curindent_ -= 2;
@@ -129,26 +129,26 @@ void Dumper::visit(ASTVarDecl & node)
 
 void Dumper::visit(ASTMemberOfExpr & node)
 {
-	std::cout << getIndent() << "MemberOf Expr:\n";
+	out_ << getIndent() << "MemberOf Expr:\n";
 	curindent_++;
-	std::cout << getIndent() << "Base:\n";
+	out_ << getIndent() << "Base:\n";
 	curindent_++;
 	node.getBase()->accept(*this);
 	curindent_--;
-	std::cout << getIndent() << "Member name:" << node.getMemberNameStr() << "\n";
+	out_ << getIndent() << "Member name:" << node.getMemberNameStr() << "\n";
 	curindent_--;
 }
 
 void Dumper::visit(ASTDeclRefExpr & node)
 {
-	std::cout << getIndent() << "DeclRef: name: " << node.getDeclnameStr() << std::endl;
+	out_ << getIndent() << "DeclRef: name: " << node.getDeclnameStr() << std::endl;
 }
 
 void Dumper::visit(ASTFunctionCallExpr & node)
 {
-	std::cout << getIndent() << "Function Call\n";
+	out_ << getIndent() << "Function Call\n";
 	curindent_++;
-	std::cout << getIndent() << "Function:\n";
+	out_ << getIndent() << "Function:\n";
 
 	curindent_++;
 	if(node.getDeclRefExpr())
@@ -157,12 +157,12 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 
 	if (node.getExprList()->size())
 	{
-		std::cout << getIndent() << "Args:\n";
+		out_ << getIndent() << "Args:\n";
 		curindent_++;
 
 		std::size_t count = 0;
 		node.getExprList()->iterate([&](auto arg) {
-			std::cout << getIndent() << "Arg" << count << '\n';
+			out_ << getIndent() << "Arg" << count << '\n';
 
 			curindent_++;
 			arg->accept(*this);
@@ -178,20 +178,20 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 
 void Dumper::visit(ASTNullStmt& node)
 {
-	std::cout << getIndent() << "Null Statement\n";
+	out_ << getIndent() << "Null Statement\n";
 }
 
 void Dumper::visit(ASTFunctionDecl & node)
 {
-	std::cout << getIndent() << "Function Declaration : name:" << node.getName() << " return type:" << node.getReturnType().getTypeName() << "\n";
+	out_ << getIndent() << "Function Declaration : name:" << node.getName() << " return type:" << node.getReturnType().getTypeName() << "\n";
 	curindent_ += 2;
 	std::size_t counter = 0;
 	node.iterateArgs([&](auto argdecl){
-		std::cout << getIndent() << "Arg" << counter << ":" << argdecl.dump() << std::endl;
+		out_ << getIndent() << "Arg" << counter << ":" << argdecl.dump() << std::endl;
 		counter += 1;
 	});
 	curindent_ -= 1;
-	std::cout << getIndent() << "Body:" << std::endl;
+	out_ << getIndent() << "Body:" << std::endl;
 	curindent_ += 1;
 	node.getBody()->accept(*this);
 	curindent_ -= 2;
@@ -199,7 +199,7 @@ void Dumper::visit(ASTFunctionDecl & node)
 
 void Dumper::visit(ASTReturnStmt & node)
 {
-	std::cout << getIndent() << "Return statement\n";
+	out_ << getIndent() << "Return statement\n";
 	if (node.hasExpr())
 	{
 		curindent_ += 1;
@@ -210,7 +210,7 @@ void Dumper::visit(ASTReturnStmt & node)
 
 void Dumper::visit(ASTCompoundStmt & node)
 {
-	std::cout << getIndent() << "Compound Statement (Contains " << node.size() << " statements)\n";
+	out_ << getIndent() << "Compound Statement (Contains " << node.size() << " statements)\n";
 
 	curindent_ += 1;
 
@@ -223,21 +223,21 @@ void Dumper::visit(ASTCompoundStmt & node)
 
 void Dumper::visit(ASTCondStmt & node)
 {
-	std::cout << getIndent() << "Condition\n";
+	out_ << getIndent() << "Condition\n";
 	curindent_++;
 	// if
-	std::cout << getIndent() << "Expression (Condition):\n";
+	out_ << getIndent() << "Expression (Condition):\n";
 	curindent_++;
 	node.getCond()->accept(*this);
 	curindent_--;
-	std::cout << getIndent() << "Body:\n";
+	out_ << getIndent() << "Body:\n";
 	curindent_++;
 	node.getThen()->accept(*this);
 	curindent_--;
 	// has else?
 	if (node.getElse())
 	{
-		std::cout << getIndent() << "Else:\n";
+		out_ << getIndent() << "Else:\n";
 		curindent_++;
 		node.getElse()->accept(*this);
 		curindent_--;
@@ -247,16 +247,16 @@ void Dumper::visit(ASTCondStmt & node)
 
 void Dumper::visit(ASTWhileStmt & node)
 {
-	std::cout << getIndent() << "While Loop\n";
+	out_ << getIndent() << "While Loop\n";
 
 	curindent_++;
-	std::cout << getIndent() << "Expression:\n";
+	out_ << getIndent() << "Expression:\n";
 
 	curindent_++;
 	node.getCond()->accept(*this);
 	curindent_--;
 
-	std::cout << getIndent() << "Body:\n";
+	out_ << getIndent() << "Body:\n";
 	
 	curindent_++;
 	node.getBody()->accept(*this);
