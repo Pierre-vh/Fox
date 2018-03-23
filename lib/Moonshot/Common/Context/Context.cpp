@@ -14,6 +14,11 @@
 
 using namespace Moonshot;
 
+Context::Context(const LoggingMode & lm)
+{
+	setLoggingMode(lm);
+}
+
 void Context::setLoggingMode(const LoggingMode & newmode)
 {
 	curmode_ = newmode;
@@ -42,7 +47,8 @@ void Context::reportWarning(const std::string & message)
 		makeLogMessage("WARNING",message)
 	);
 	// update state
-	curstate_ = State::WARNING;
+	if(curstate_ == State::SAFE)
+		curstate_ = State::WARNING;
 }
 
 void Context::reportError(const std::string & message)
@@ -50,12 +56,8 @@ void Context::reportError(const std::string & message)
 	addLog(
 		makeLogMessage("ERROR",message)
 	);
-	// increment err count
-	curErrCount_++;
 	// update state
-	if (curErrCount_ >= CONTEXT_maxErrorCount)
-		curstate_ = State::CRITICAL;
-	else
+	if(curstate_ == State::SAFE || curstate_ == State::WARNING)
 		curstate_ = State::UNSAFE;
 }
 
@@ -65,12 +67,8 @@ void Context::reportFatalError(const std::string & message)
 		makeLogMessage("FATAL", message)
 	);
 	// update state
-	curstate_ = State::CRITICAL;
-}
-
-void Context::resetErrorCount()
-{
-	curErrCount_ = 0;
+	if(curstate_ != State::CRITICAL)
+		curstate_ = State::CRITICAL;
 }
 
 Context::State Context::getState() const
@@ -81,7 +79,6 @@ Context::State Context::getState() const
 void Context::resetState()
 {
 	curstate_ = State::SAFE;
-	resetErrorCount();
 	//logs_.push_back("[Context] The context's state has been reset.");
 }
 

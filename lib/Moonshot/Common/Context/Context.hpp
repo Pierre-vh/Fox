@@ -22,8 +22,6 @@
 
 #include "Options\OptionsManager.hpp" 
 
-#define CONTEXT_maxErrorCount 5 // Maximum number of errors accepted before the context goes critical
-
 namespace Moonshot
 {
 	class Context
@@ -51,6 +49,7 @@ namespace Moonshot
 			};
 			// Default ctor
 			Context() = default;
+			Context(const LoggingMode& lm);
 
 			void setLoggingMode(const LoggingMode& newmode); // set mode : direct print to cout (default) or save to a vector.
 			
@@ -62,8 +61,6 @@ namespace Moonshot
 			void reportWarning(const std::string& message);
 			void reportError(const std::string& message);
 			void reportFatalError(const std::string& message);
-
-			void resetErrorCount();
 
 			State getState() const;
 			void resetState();
@@ -95,8 +92,6 @@ namespace Moonshot
 			LoggingMode curmode_ = LoggingMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR;
 			State curstate_ = State::SAFE;
 			BuildMode curbuildmode_ = BuildMode::DEBUG;
-
-			unsigned int curErrCount_ = 0;
 	};
 }
 

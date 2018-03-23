@@ -33,5 +33,12 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                  EXCLUDE_FROM_ALL
                  )
 
-add_executable(MoonshotTests src/test.cpp)
+# Add test sources to access variable ${tests_src}
+add_subdirectory(src)
+
+# Add executable & link libmoonshot & gtest
+add_executable(MoonshotTests ${tests_src})
 target_link_libraries(MoonshotTests libmoonshot gtest_main)
+
+# add test resources path macro
+target_compile_definitions(MoonshotTests PRIVATE TEST_RES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/res/")
