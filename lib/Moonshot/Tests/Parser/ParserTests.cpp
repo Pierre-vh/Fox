@@ -37,7 +37,7 @@ bool handleParsingResult(const ParsingResult<Ty>& pt, const bool& show_ast)
 	if (pt && (pt.getFlag() != ParsingOutcome::NOTFOUND))
 	{
 		if (show_ast)
-			pt.result_->accept(Dumper(4));
+			pt.result_->accept(Dumper(std::cout,4));
 		return true;
 	}
 	return false;
