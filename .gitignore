@@ -23,6 +23,8 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+
+# Build files
 [Bb]uild/
 
 # Visual Studio 2015 cache/options directory
@@ -290,3 +292,6 @@ __pycache__/
 /Moonshot/cpp_all_codeanalysis_ruleset.ruleset
 /Moonshot/cpp_all_codeanalysis_ruleset.ruleset
 *.ruleset
+
+# test logs
+tests/logs/
