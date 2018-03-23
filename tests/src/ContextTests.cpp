@@ -22,7 +22,7 @@ TEST(ContextTests, Reset)
 	EXPECT_TRUE(ctxt.isSafe()) << "Context did not go back to a normal state even though reset was called.";
 }
 
-TEST(ContextTests, ClearLogs)
+TEST(ContextTests, SaveToVecMode)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
 	ctxt.reportError("Error!");
@@ -30,7 +30,13 @@ TEST(ContextTests, ClearLogs)
 	ctxt.reportWarning("Attention!");
 	EXPECT_TRUE(ctxt.getLogs().size()) << "Context::getLogs()::size() was 0 (no logs were saved)";
 	ctxt.clearLogs();
-	EXPECT_FALSE(ctxt.getLogs().size()) << "Context::getLogs()::size() wasn't null (logs were kept even though clearLogs was called)";
+	EXPECT_FALSE(ctxt.getLogs().size()) << "Context::getLogs()::size() wasn't 0 (logs were kept even though clearLogs was called)";
 }
 
-// Write tests for ContextLoggingModes
+TEST(ContextTests, SilentMode)
+{
+	Context ctxt(Context::LoggingMode::SILENT);
+	ctxt.reportError("Error!");
+	EXPECT_FALSE(ctxt.getLogs().size()) << "Context::getLogs()::size() was not 0 (logs were saved even though silent mode was active)";
+}
+
