@@ -3,8 +3,9 @@ This file contains a short term, rapidly changing road map. Essentially, if I ne
 Theses can be considered personal notes, and you shouldn't consider what's in this file as a true roadmap.
 
 -> Finish Parser test impl on googletest
-	-> Dumper should be able to output stuff to a sstream/fstream
-	-> Do normal parsing tests w/ logs output in /test/logs (add /test/logs to gitignore)
+	-> (DONE) Dumper should be able to output stuff to a sstream/fstream				
+	-> Implement every parser test in GTest
+	-> Output ast by default in /tests/logs. /test/logs should be in gitignore
 -> Delete /lib/Moonshot/tests 
 
 -> Context & DiagEngine revamp, Clang-like system
