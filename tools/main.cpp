@@ -1,12 +1,8 @@
 #include <iostream>
-#include "Moonshot/Tests/Lexer/LexerTests.hpp"
-#include "Moonshot/Tests/Parser/ParserTests.hpp"
 
 #ifdef _WIN32
 	#include <Windows.h>
 #endif
-
-using namespace Moonshot;
 
 // TODO:
 /*
@@ -58,14 +54,7 @@ void setConsoleEnv()
 // reminder : use ifndef NDEBUG to know if debug/release mode
 int main()
 {
-
 	setConsoleEnv();
-
-	Tests::LexerTests lt;
-	lt.runTests(std::cout);
-
-	Tests::ParserTests pt;
-	pt.runTests(std::cout,false,false);
 
 	std::cout << "Finished. Press any key to continue.\n";
 	std::cin.get();
