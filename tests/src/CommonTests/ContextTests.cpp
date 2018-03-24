@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : ContextTests.cpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+//	(Unit) Tests for the Context module.
+////------------------------------------------------------////
+
 #include "gtest/gtest.h"
 #include "Moonshot/Fox/Lexer/Lexer.hpp"
 #include "Moonshot/Common/Context/Context.hpp"

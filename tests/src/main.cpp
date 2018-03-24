@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : main.cpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// Entry point of the Test executable.
+////------------------------------------------------------////
+
 #include "gtest/gtest.h"
 #include <iostream>
 

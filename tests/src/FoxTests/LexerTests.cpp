@@ -1,3 +1,12 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : LexerTests.cpp											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+//	(Unit) Tests for the Lexer.
+////------------------------------------------------------////
+
 #include "gtest/gtest.h"
 #include "TestUtils/TestUtils.hpp"
 
@@ -28,7 +37,7 @@ TEST(LexerTests, IncorrectTest1)
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
 	Lexer lex(ctxt);
 	lex.lexStr(file_content);
-	ASSERT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
+	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
 }
 
 TEST(LexerTests, IncorrectTest2)
@@ -40,7 +49,7 @@ TEST(LexerTests, IncorrectTest2)
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
 	Lexer lex(ctxt);
 	lex.lexStr(file_content);
-	ASSERT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
+	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
 }
 
 TEST(LexerTests, IncorrectTest3)
@@ -52,7 +61,7 @@ TEST(LexerTests, IncorrectTest3)
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
 	Lexer lex(ctxt);
 	lex.lexStr(file_content);
-	ASSERT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
+	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
 }
 
 TEST(LexerTests, IncorrectTest4)
@@ -64,5 +73,5 @@ TEST(LexerTests, IncorrectTest4)
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
 	Lexer lex(ctxt);
 	lex.lexStr(file_content);
-	ASSERT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
+	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
 }
