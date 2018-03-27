@@ -1,3 +1,4 @@
+# Theses tests are just meant to test the expression parsing, and try to torture the parser. THEY ARE NOT SEMANTICALLY CORRECT, ONLY GRAMMATICALLY.
 # random binops
 "it " + ( "really " + "works ") + ((("it's wonderful"))) == "it really works it's wonderful"
 "В тумане спрятанного солнца," == "В тумане спрятанного солнца,"
@@ -41,3 +42,9 @@ Fox.std.io.print
 (3+33).asFloat()
 "Hello".size
 Test.attr.test().attr.attr.test()
+# more cast tests.
+'c' as bool
+"a string" as char
+"a int" as string
+"a float" as float
+"a var" as int
