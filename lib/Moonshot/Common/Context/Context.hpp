@@ -21,6 +21,7 @@
 #include <memory> // std::shared_ptr
 
 #include "Options\OptionsManager.hpp" 
+#include "Flags\Flags.hpp"
 
 namespace Moonshot
 {
@@ -72,13 +73,16 @@ namespace Moonshot
 			std::string getLogs() const; // returns a string containing the error log.
 			void clearLogs();
 
+			// Flags
+			Flags& getFlags();
+			const Flags& getFlags() const;
+
 			// issafe
 			bool isCritical() const;
 			bool isSafe() const;
 
 			OptionsManager optionsManager_; // The options manager.
 		private:
-
 			void addLog(const std::string& message);
 			std::string makeLogMessage(const std::string& prefix, const std::string & message)const;
 
@@ -88,6 +92,8 @@ namespace Moonshot
 			
 			std::string logsOrigin_;
 			std::vector<std::string> logs_;
+
+			Flags flags_;
 
 			LoggingMode curmode_ = LoggingMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR;
 			State curstate_ = State::SAFE;

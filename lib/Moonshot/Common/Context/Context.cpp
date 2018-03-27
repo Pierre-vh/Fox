@@ -112,6 +112,15 @@ void Context::clearLogs()
 	logs_.clear();
 }
 
+Flags& Context::getFlags()
+{
+	return flags_;
+}
+const Flags& Context::getFlags() const
+{
+	return flags_;
+}
+
 bool Context::isCritical() const
 {
 	return curstate_ == State::CRITICAL;
