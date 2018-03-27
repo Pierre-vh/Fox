@@ -122,6 +122,16 @@ bool Context::isSafe() const
 	return (curstate_ == State::SAFE) || (curstate_ == State::WARNING);
 }
 
+const FoxFlags & Context::getFoxFlags() const
+{
+	return foxflags_;
+}
+
+const CommonFlags & Context::getCommonFlags() const
+{
+	return comflags_;
+}
+
 void Context::addLog(const std::string & message)
 {
 	switch (curmode_)
