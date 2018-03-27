@@ -21,6 +21,7 @@ namespace Moonshot
 	struct FoxFlags
 	{
 		public:
+			FoxFlags() = default;
 			#define FLAG(FLAG_NAME,FLAG_BASE_VAL) bool FLAG_NAME = FLAG_BASE_VAL
 			#include "FoxFlags.def"
 		private:
@@ -31,6 +32,7 @@ namespace Moonshot
 	struct CommonFlags
 	{
 		public:
+			CommonFlags() = default;
 			#define FLAG(FLAG_NAME,FLAG_BASE_VAL) bool FLAG_NAME = FLAG_BASE_VAL
 			#include "CommonFlags.def"
 		private:
@@ -41,6 +43,7 @@ namespace Moonshot
 	struct Flags
 	{
 		public:
+			Flags() = default;
 			FoxFlags fox;
 			CommonFlags common;
 		private:
