@@ -30,7 +30,7 @@ void FlagsManager::set(const FoxFlag& ff)
 		throw std::out_of_range(UNKNOWN_KEY_EXCEPTION);
 }
 
-void FlagsManager::unSet(const FoxFlag& ff)
+void FlagsManager::unset(const FoxFlag& ff)
 {
 	if (existsInMap(fox_flags_, ff))
 		fox_flags_[ff] = false;
@@ -55,7 +55,7 @@ void FlagsManager::set(const CommonFlag& ff)
 		throw std::out_of_range(UNKNOWN_KEY_EXCEPTION);
 }
 
-void FlagsManager::unSet(const CommonFlag& ff)
+void FlagsManager::unset(const CommonFlag& ff)
 {
 	if (existsInMap(common_flags_, ff))
 		common_flags_[ff] = false;

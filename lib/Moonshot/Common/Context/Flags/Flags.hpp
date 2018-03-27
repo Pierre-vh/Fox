@@ -34,12 +34,12 @@ namespace Moonshot
 			// FoxFlags
 			bool isSet(const FoxFlag& ff) const;
 			void set(const FoxFlag& ff);
-			void unSet(const FoxFlag& ff);
+			void unset(const FoxFlag& ff);
 
 			// CommonFlag
 			bool isSet(const CommonFlag& ff) const;
 			void set(const CommonFlag& ff);
-			void unSet(const CommonFlag& ff);
+			void unset(const CommonFlag& ff);
 		private:
 			template<typename KEY, typename DATA>
 			inline bool existsInMap(const std::map<KEY, DATA> &mmap, const KEY& key) const
