@@ -13,7 +13,6 @@
 	#define FLAG(FLAG_NAME,FLAG_BASE_VAL)
 #endif
 
-// placeholder. For now, no flags are used, but I'll add some later.
-FLAG(placeholder,false)
+FLAG(unit_test_flag,false) // This flag is used by the unit tests.
 
 #undef FLAG
