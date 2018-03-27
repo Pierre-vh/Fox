@@ -73,14 +73,10 @@ namespace Moonshot
 			bool isCritical() const;
 			bool isSafe() const;
 
-			const FoxFlags& getFoxFlags() const;
-			const CommonFlags& getCommonFlags() const;
-
-		protected:
-			FoxFlags foxflags_;
-			CommonFlags comflags_;
-
+			FlagsManager& flagsManager();
 		private:
+			FlagsManager flagsManager_;
+
 			void addLog(const std::string& message);
 			std::string makeLogMessage(const std::string& prefix, const std::string & message)const;
 
