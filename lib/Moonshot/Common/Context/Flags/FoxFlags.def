@@ -13,7 +13,7 @@
 	#define FLAG(FLAG_NAME,FLAG_BASE_VAL)
 #endif
 
-// placeholder. For now, no flags are used, but I'll add some later.
-FLAG(placeholder,false);
+FLAG(lexer_logTotalTokenCount,false);
+FLAG(lexer_logOnPush,false);
 
 #undef FLAG
