@@ -39,8 +39,6 @@
 #include <memory>							// std::shared_ptr
 #include <vector>							// std::vector
 
-#define DEFAULT__shouldPrintSuggestions true
-
 namespace Moonshot
 {
 	class Context;
@@ -130,8 +128,6 @@ namespace Moonshot
 			void errorUnexpected();	// generic error message "unexpected Token..". 
 			void errorExpected(const std::string &s, const std::vector<std::string>& sugg = {});		// generic error message "expected Token after.."
 			void genericError(const std::string &s); // just a normal, generic error
-
-			bool shouldPrintSuggestions_; // unused for now
 			
 			struct ParserState
 			{

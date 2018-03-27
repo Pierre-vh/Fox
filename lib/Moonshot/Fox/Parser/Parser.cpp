@@ -26,7 +26,7 @@ using keyword = Token::keyword;
 
 Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
 {
-	shouldPrintSuggestions_ = context_.optionsManager_.getAttr(OptionsList::parser_printSuggestions).value_or(DEFAULT__shouldPrintSuggestions).get<bool>();
+
 }
 
 Parser::~Parser()
