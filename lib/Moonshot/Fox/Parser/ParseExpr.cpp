@@ -9,8 +9,7 @@
 ////------------------------------------------------------////
 
 #include "Parser.hpp"
-// Context and Exceptions
-#include "Moonshot/Common/Context/Context.hpp"
+
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 using namespace Moonshot;
@@ -18,8 +17,6 @@ using namespace Moonshot;
 using category = Token::category;
 using sign = Token::sign;
 using keyword = Token::keyword;
-
-
 
 ParsingResult<IASTExpr*> Parser::parseDeclCall()
 {

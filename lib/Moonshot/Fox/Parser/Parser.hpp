@@ -51,44 +51,41 @@ namespace Moonshot
 			~Parser();
 
 			// EXPRESSIONS
-			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false,const bool& isExprMandatory = false);
-			ParsingResult<ExprList*> parseExprList();
-			ParsingResult<ExprList*> parseParensExprList();
-
-			ParsingResult<IASTExpr*> parseDeclCall(); // Parses a decl ref or a function call.
-			// todo : find a better name than decl_ref
+			ParsingResult<IASTExpr*> parseDeclCall(); 
 			ParsingResult<IASTExpr*> parseLiteral();
 			ParsingResult<IASTExpr*> parsePrimary();
 			ParsingResult<IASTExpr*> parseMemberAccess();
 			ParsingResult<IASTExpr*> parseExponentExpr();
-			ParsingResult<IASTExpr*> parsePrefixExpr(); // unary prefix expressions
+			ParsingResult<IASTExpr*> parsePrefixExpr(); 
 			ParsingResult<IASTExpr*> parseCastExpr();
 			ParsingResult<IASTExpr*> parseBinaryExpr(const char &priority = 5);
 			ParsingResult<IASTExpr*> parseExpr(); 
 
 			// STATEMENTS
 			ParsingResult<IASTStmt*> parseReturnStmt();
-			ParsingResult<IASTStmt*> parseVarDeclStmt(); // Var Declaration Statement
 			ParsingResult<IASTStmt*> parseExprStmt(); // Expression statement
 			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); // Compound Statement
 			ParsingResult<IASTStmt*> parseStmt(); // General Statement
 			ParsingResult<IASTStmt*> parseBody(); // body for control flow
 
-			// STATEMENTS : IF,ELSE IF,ELSE
+			// STATEMENTS : CONDITION & LOOPS
 			ParsingResult<IASTStmt*> parseCondition(); // Parse a  if-else if-else "block
-			
-			// STATEMENTS : WHILE LOOP
 			ParsingResult<IASTStmt*> parseWhileLoop();
 
-			// FUNCTION DECLARATION
+			// DECLS-STMTS
+			ParsingResult<IASTStmt*> parseVarDeclStmt(); // Var Declaration Statement
+			// DECLS
 			ParsingResult<ASTFunctionDecl*> parseFunctionDeclaration();
 			
 		private:
-			// Private parse functions
-			// arg decl 
+			// expression helpers
+			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false, const bool& isExprMandatory = false);
+			ParsingResult<ExprList*> parseExprList();
+			ParsingResult<ExprList*> parseParensExprList();
+			// arg decl for functions
 			ParsingResult<FoxFunctionArg> parseArgDecl();
 			ParsingResult<std::vector<FoxFunctionArg>> parseArgDeclList();
-			// type spec (for vardecl).
+			// type spec for vardecl
 			ParsingResult<FoxType> parseTypeSpec();
 
 
