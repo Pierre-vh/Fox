@@ -73,15 +73,6 @@ namespace Moonshot
 			bool isCritical() const;
 			bool isSafe() const;
 
-			// TODO : Find a better way to let other classes access the flags without making the flags public
-			// or returning a reference to a private member.
-				// Who should be able to read this variable ? Everyone.
-				// Who should be able to write to this variable ? Only a few classes.
-			// Potential solution #1 :
-				// Make flags protected so friends can access it
-				//  and add a "const Flags& getFlags() const" method that's public for the other classes to read flags.
-			// Potential solution #2 : Change how the flag struct works, but that's not a good option imo. 
-			// I want to keep that struct as simple as possible.
 			const FoxFlags& getFoxFlags() const;
 			const CommonFlags& getCommonFlags() const;
 		protected:
