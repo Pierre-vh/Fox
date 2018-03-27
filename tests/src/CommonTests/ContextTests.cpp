@@ -49,3 +49,17 @@ TEST(ContextTests, SilentMode)
 	EXPECT_FALSE(ctxt.getLogs().size()) << "Context::getLogs()::size() was not 0 (logs were saved even though silent mode was active)";
 }
 
+// Flagtests
+TEST(ContextTests, FlagManager)
+{
+	// This test tests the 3 major functions of the flagmanager : isSet, set and unset
+	Context ctxt;
+	auto fm = ctxt.flagsManager();
+	// The base value of the test flag is false, so it's expected to be false.
+	EXPECT_FALSE(fm.isSet(CommonFlag::unit_test_flag));
+	fm.set(CommonFlag::unit_test_flag); // now it's set (true)
+	EXPECT_TRUE(fm.isSet(CommonFlag::unit_test_flag));
+	fm.unset(CommonFlag::unit_test_flag); // and unset again !
+	EXPECT_FALSE(fm.isSet(CommonFlag::unit_test_flag));
+
+}
