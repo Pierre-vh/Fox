@@ -75,9 +75,11 @@ namespace Moonshot
 
 			const FoxFlags& getFoxFlags() const;
 			const CommonFlags& getCommonFlags() const;
+
 		protected:
 			FoxFlags foxflags_;
 			CommonFlags comflags_;
+
 		private:
 			void addLog(const std::string& message);
 			std::string makeLogMessage(const std::string& prefix, const std::string & message)const;
