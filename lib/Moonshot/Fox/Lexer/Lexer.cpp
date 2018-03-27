@@ -43,7 +43,7 @@ void Lexer::lexStr(const std::string & data)
 	runFinalChecks();
 	if (context_.isSafe())
 	{
-		if (context_.getFoxFlags().lexer_logTotalTokenCount)
+		if (context_.flagsManager().isSet(FoxFlag::lexer_logTotalTokenCount))
 		{
 			std::stringstream ss;
 			ss << "Lexing finished Successfully. Tokens found: " << result_.size();
@@ -78,7 +78,7 @@ void Lexer::setStr(const std::string & str)
 
 void Lexer::pushTok()
 {
-	if (context_.getFoxFlags().lexer_logOnPush) {
+	if (context_.flagsManager().isSet(FoxFlag::lexer_logOnPush)) {
 		std::stringstream out;
 		out << "Pushing Token \xAE" + curtok_ + "\xAF";
 		context_.logMessage(out.str());
