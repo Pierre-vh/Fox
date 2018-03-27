@@ -66,11 +66,13 @@ ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 	// Rule : <while_loop> 	= <wh_kw>  '(' <expr> ')' <body> 
 	if (matchKeyword(keyword::D_WHILE))
 	{
+		ParsingOutcome ps = ParsingOutcome::SUCCESS;
 		std::unique_ptr<ASTWhileStmt> rtr = std::make_unique<ASTWhileStmt>();
 		// <parens_expr>
-		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
+		if (auto parensExprRes = parseParensExpr(true,true)) // true -> parensExpr is mandatory.
 			rtr->setCond(std::move(parensExprRes.result_));
-			//  no need for failure cases, the function parseParensExpr manages failures by itself when the mandatory flag is set.
+		else
+			ps = parensExprRes.getFlag();
 		// <body>
 		if (auto parseres = parseBody())
 			rtr->setBody(std::move(parseres.result_));
@@ -80,7 +82,7 @@ ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		// Return
-		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS, std::move(rtr));
+		return ParsingResult<IASTStmt*>(ps, std::move(rtr));
 	}
 	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
@@ -221,7 +223,7 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 	if (matchKeyword(keyword::D_IF))
 	{
 		// <parens_expr>
-		if (auto parensExprRes = parseParensExpr(true)) // true -> parensExpr is mandatory.
+		if (auto parensExprRes = parseParensExpr(true,true)) // true -> parensExpr is mandatory.
 			rtr->setCond(std::move(parensExprRes.result_));
 		// no need for else since it manages error message in "mandatory" mode
 

@@ -51,7 +51,7 @@ namespace Moonshot
 			~Parser();
 
 			// EXPRESSIONS
-			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false);
+			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false,const bool& isExprMandatory = false);
 			ParsingResult<ExprList*> parseExprList();
 			ParsingResult<ExprList*> parseParensExprList();
 

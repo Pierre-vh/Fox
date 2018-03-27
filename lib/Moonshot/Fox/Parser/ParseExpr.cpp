@@ -274,23 +274,29 @@ ParsingResult<IASTExpr*> Parser::parseExpr()
 		return ParsingResult<IASTExpr*>(lhs_res.getFlag());
 }
 
-ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
+ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory, const bool& isExprMandatory)
 {
 	if (matchSign(sign::B_ROUND_OPEN))
 	{
+		ParsingOutcome ps = ParsingOutcome::SUCCESS;
 		std::unique_ptr<IASTExpr> rtr;
 		if (auto parseres = parseExpr())
 			rtr = std::move(parseres.result_);
+		else if (isExprMandatory)
+		{
+			errorExpected("Expected an expression");
+			ps = ParsingOutcome::FAILED_BUT_RECOVERED;
+		}
 
 		if (!matchSign(sign::B_ROUND_CLOSE))
 		{
-			errorExpected("Expected a ')' after expression,");
+			errorExpected("Expected a ')' ,");
 			if (!resyncToDelimiter(sign::B_ROUND_CLOSE))
 				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_AND_DIED);
 			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(rtr));
 		}
 
-		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::move(rtr));
+		return ParsingResult<IASTExpr*>(ps, std::move(rtr));
 	}
 	// failure
 	if (isMandatory)
