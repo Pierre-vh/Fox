@@ -1,2 +1,0 @@
-- Add more escape sequences (\x at least)
-- Add optional type specification when declaring a variable (the type is deduced from the initexpr's type)

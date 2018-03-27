@@ -1,0 +1,19 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : FoxFlags.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file declares all the flags used by Fox, using macros.
+////------------------------------------------------------////
+
+// Typical flag macro is FLAG(name,defaultvalue)
+
+#ifndef FLAG
+	#define FLAG(FLAG_NAME,FLAG_BASE_VAL)
+#endif
+
+FLAG(testFlag,true);
+FLAG(anotherTestFlag,false);
+
+#undef FLAG

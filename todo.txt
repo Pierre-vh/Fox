@@ -1,0 +1,35 @@
+Disclaimer:
+This file contains a short term, rapidly changing road map. Essentially, if I need to get something done tomorrow, I'll write it here.
+Theses can be considered personal notes, and you shouldn't consider what's in this file as a true roadmap.
+
+-> Finish Parser test impl on googletest
+	-> (DONE) Dumper should be able to output stuff to a sstream/fstream				
+	-> Implement every parser test in GTest	(DONE)
+	-> Output ast by default in /tests/logs. /test/logs should be in gitignore (DELAYED - Will do it once Parser is done)
+		-> Example structure:
+			"logs/parsertests/" for all parser tests
+				"expr/correct/" for correct expr test, this folder would contain "logs.txt" and "ast.txt"
+			Generalized, it's /logs/parsertests/<test_type>/<file_name>/
+			Add an option to make the tests silent (not outputting logs). The tests should be silent by default?
+			Also, don't forget to erase every log file before writing new ones!
+-> Delete /lib/Moonshot/tests (DONE)
+
+-> Context & DiagEngine revamp, Clang-like system
+	-> DiagEngine, DiagConsumers, Diagnostic pieces
+	-> use a .def to register new diagnostics and a DiagnosticKind enum
+
+-> Add a FlagsManager class
+	-> use a .def file to register all possible flags
+	-> add flags by text or enum
+	-> access functions : isSet(flag) unSet(flag)
+
+-> AST Revamp
+	-> New visitor system
+	-> New ASTContext & Type nodes
+		-> Finish refactor in /Common/types
+
+-> Do a "polish pass" after all this code's done, meaning : Write unit tests, rewrite dirty code, find other stuff to fix
+
+-> Move on to Semantic analysis : Sema & Name resolution.
+
+-> Consider adding multiple source files support at this point, while doing so, plan the codegen phase and set on a final vm : Register or Stack based? Opcodes? etc.

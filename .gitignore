@@ -24,6 +24,9 @@ bld/
 [Oo]bj/
 [Ll]og/
 
+# Build files
+[Bb]uild/
+
 # Visual Studio 2015 cache/options directory
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
@@ -289,3 +292,6 @@ __pycache__/
 /Moonshot/cpp_all_codeanalysis_ruleset.ruleset
 /Moonshot/cpp_all_codeanalysis_ruleset.ruleset
 *.ruleset
+
+# test logs
+tests/logs/
