@@ -13,7 +13,7 @@
 	#define FLAG(FLAG_NAME,FLAG_BASE_VAL)
 #endif
 
-FLAG(testFlag,true);
-FLAG(anotherTestFlag,false);
+// placeholder. For now, no flags are used, but I'll add some later.
+FLAG(placeholder,false);
 
 #undef FLAG

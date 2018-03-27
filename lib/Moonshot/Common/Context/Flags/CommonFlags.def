@@ -1,0 +1,19 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : CommonFlags.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file declares all the flags used by the "Common" classes.
+////------------------------------------------------------////
+
+// Typical flag macro is FLAG(name,defaultvalue)
+
+#ifndef FLAG
+	#define FLAG(FLAG_NAME,FLAG_BASE_VAL)
+#endif
+
+// placeholder. For now, no flags are used, but I'll add some later.
+FLAG(placeholder,false);
+
+#undef FLAG

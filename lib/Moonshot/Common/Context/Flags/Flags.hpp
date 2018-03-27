@@ -17,18 +17,34 @@
 
 namespace Moonshot
 {
+	// Fox-specific flags.
 	struct FoxFlags
 	{
-		FoxFlags()
-		{
-			#define FLAG(FLAG_NAME,FLAG_BASE_VAL) FLAG_NAME = FLAG_BASE_VAL;
+		public:
+			#define FLAG(FLAG_NAME,FLAG_BASE_VAL) bool FLAG_NAME = FLAG_BASE_VAL
 			#include "FoxFlags.def"
-		}
-		#define FLAG(FLAG_NAME,FLAG_BASE_VAL) char FLAG_NAME : 1 
-		#include "FoxFlags.def"
+		private:
+			FoxFlags(const FoxFlags&) = delete;
+			FoxFlags& operator=(const FoxFlags&) = delete;
 	};
+	// Common flags
+	struct CommonFlags
+	{
+		public:
+			#define FLAG(FLAG_NAME,FLAG_BASE_VAL) bool FLAG_NAME = FLAG_BASE_VAL
+			#include "CommonFlags.def"
+		private:
+			CommonFlags(const CommonFlags&) = delete;
+			CommonFlags& operator=(const CommonFlags&) = delete;
+	};
+	// Struct that holds every flag. 
 	struct Flags
 	{
-		FoxFlags foxFlags;
+		public:
+			FoxFlags fox;
+			CommonFlags common;
+		private:
+			Flags(const Flags&) = delete;
+			Flags& operator=(const Flags&) = delete;
 	};
 }
