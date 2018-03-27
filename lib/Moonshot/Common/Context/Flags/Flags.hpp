@@ -39,15 +39,4 @@ namespace Moonshot
 			CommonFlags(const CommonFlags&) = delete;
 			CommonFlags& operator=(const CommonFlags&) = delete;
 	};
-	// Struct that holds every flag. 
-	struct Flags
-	{
-		public:
-			Flags() = default;
-			FoxFlags fox;
-			CommonFlags common;
-		private:
-			Flags(const Flags&) = delete;
-			Flags& operator=(const Flags&) = delete;
-	};
 }
