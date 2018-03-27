@@ -15,7 +15,7 @@ using namespace Moonshot;
 
 
 
-static const std::string testsPath = TEST_RES_PATH;
+const std::string testsPath = std::string(TEST_RES_PATH) + std::string("/res/");
 
 bool Tests::readFileToVec(const std::string & filepath, std::vector<std::string>& outvec)
 {

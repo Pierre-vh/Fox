@@ -4,7 +4,7 @@ Theses can be considered personal notes, and you shouldn't consider what's in th
 
 -> Finish Parser test impl on googletest
 	-> (DONE) Dumper should be able to output stuff to a sstream/fstream				
-	-> Implement every parser test in GTest
+	-> Implement every parser test in GTest	(DONE)
 	-> Output ast by default in /tests/logs. /test/logs should be in gitignore
 		-> Example structure:
 			"logs/parsertests/" for all parser tests
