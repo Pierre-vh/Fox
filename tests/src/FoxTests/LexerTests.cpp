@@ -19,7 +19,7 @@ using namespace Moonshot::Tests;
 TEST(LexerTests,CorrectTest1)
 {
 	std::string file_content, file_path;
-	file_path = "lexer/correct_1.fox";
+	file_path = "lexer/inputs/correct_1.fox";
 	ASSERT_TRUE(readFileToString(file_path,file_content)) << "Could not open test file \"" << file_path << '"';
 
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
@@ -31,7 +31,7 @@ TEST(LexerTests,CorrectTest1)
 TEST(LexerTests, IncorrectTest1)
 {
 	std::string file_content, file_path;
-	file_path = "lexer/incorrect_1.fox";
+	file_path = "lexer/inputs/incorrect_1.fox";
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
@@ -43,7 +43,7 @@ TEST(LexerTests, IncorrectTest1)
 TEST(LexerTests, IncorrectTest2)
 {
 	std::string file_content, file_path;
-	file_path = "lexer/incorrect_2.fox";
+	file_path = "lexer/inputs/incorrect_2.fox";
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
@@ -55,7 +55,7 @@ TEST(LexerTests, IncorrectTest2)
 TEST(LexerTests, IncorrectTest3)
 {
 	std::string file_content, file_path;
-	file_path = "lexer/incorrect_3.fox";
+	file_path = "lexer/inputs/incorrect_3.fox";
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
@@ -67,7 +67,7 @@ TEST(LexerTests, IncorrectTest3)
 TEST(LexerTests, IncorrectTest4)
 {
 	std::string file_content, file_path;
-	file_path = "lexer/incorrect_3.fox";
+	file_path = "lexer/inputs/incorrect_3.fox";
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
