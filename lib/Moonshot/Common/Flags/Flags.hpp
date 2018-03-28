@@ -10,6 +10,9 @@
 // a wide variety of flags used to change the interpreter's behaviour, but they won't always have a command line arg counterpart. Some might just be here
 // for tweaking or customizing the interpreter's behaviour.
 ////------------------------------------------------------////
+
+#pragma once
+
 #include <map>
 
 namespace Moonshot
