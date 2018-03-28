@@ -1,0 +1,3 @@
+> Add formatting functions to the Diagnostic to replace placeholders.
+> Add options to the DiagnosticEngine
+> Add the StreamDiagConsumer to print diagnostics to the cout, or a file, or a sstream.
