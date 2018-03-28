@@ -11,6 +11,10 @@
 #include "Moonshot/Fox/Lexer/Lexer.hpp"
 #include "Moonshot/Common/Context/Context.hpp"
 
+#include "TestDiagCons.hpp"
+#include "Moonshot/Common/Diagnostics/DiagnosticEngine.hpp"
+#include "Moonshot/Common/Diagnostics/Diagnostic.hpp"
+
 using namespace Moonshot;
 
 TEST(ContextTests, ErrorReporting)
@@ -50,7 +54,7 @@ TEST(ContextTests, SilentMode)
 }
 
 // Flagtests
-TEST(ContextTests, FlagManager)
+TEST(FlagManagerTest,FlagFunctions)
 {
 	// This test tests the 3 major functions of the flagmanager : isSet, set and unset
 	Context ctxt;
@@ -62,4 +66,53 @@ TEST(ContextTests, FlagManager)
 	fm.unset(CommonFlag::unit_test_flag); // and unset again !
 	EXPECT_FALSE(fm.isSet(CommonFlag::unit_test_flag));
 
+}
+
+// Diagnostic system
+TEST(Diagnostics, notes)
+{
+	DiagnosticEngine deg;
+	auto diag = deg.report(DiagsID::unittest_notetest);
+	EXPECT_EQ("Test note", diag.getDiagStr()) << "Diagnostic string did not match";
+	EXPECT_EQ(DiagSeverity::NOTE, diag.getDiagSeverity()) << "Diagnostic severity did not match";
+	EXPECT_EQ(DiagsID::unittest_notetest, diag.getDiagID()) << "Diagnostic id did not match";
+}
+
+TEST(Diagnostics, warnings)
+{
+	DiagnosticEngine deg;
+	auto diag = deg.report(DiagsID::unittest_warntest);
+	EXPECT_EQ("Test warning", diag.getDiagStr()) << "Diagnostic string did not match";
+	EXPECT_EQ(DiagSeverity::WARNING, diag.getDiagSeverity()) << "Diagnostic severity did not match";
+	EXPECT_EQ(DiagsID::unittest_warntest, diag.getDiagID()) << "Diagnostic id did not match";
+}
+
+TEST(Diagnostics, errors)
+{
+	DiagnosticEngine deg;
+	auto diag = deg.report(DiagsID::unittests_errtest);
+	EXPECT_EQ("Test error", diag.getDiagStr()) << "Diagnostic string did not match";
+	EXPECT_EQ(DiagSeverity::ERROR, diag.getDiagSeverity()) << "Diagnostic severity did not match";
+	EXPECT_EQ(DiagsID::unittests_errtest, diag.getDiagID()) << "Diagnostic id did not match";
+}
+
+TEST(Diagnostics, fatals)
+{
+	DiagnosticEngine deg;
+	auto diag = deg.report(DiagsID::unittest_fataltest);
+	EXPECT_EQ("Test fatal", diag.getDiagStr()) << "Diagnostic string did not match";
+	EXPECT_EQ(DiagSeverity::FATAL, diag.getDiagSeverity()) << "Diagnostic severity did not match";
+	EXPECT_EQ(DiagsID::unittest_fataltest, diag.getDiagID()) << "Diagnostic id did not match";
+}
+
+TEST(Diagnostics, emission)
+{
+	DiagnosticEngine deg(std::make_unique<StrDiagConsumer>());
+	StrDiagConsumer* cons = dynamic_cast<StrDiagConsumer*>(deg.getConsumer());
+	EXPECT_EQ("", cons->getStr()) << "Consumer str wasn't empty at first.";
+	// Test emission when diag goes out of scope
+	{
+		deg.report(DiagsID::unittest_fataltest);
+	}
+	EXPECT_EQ("Test fatal", cons->getStr()) << "Consumer string did not match.";
 }
