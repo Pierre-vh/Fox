@@ -3,12 +3,14 @@ The Diagnostic system is quite simple.
 ## The .def files
 
 The .def files lists every possible diagnostic using macros. A diagnostic
-is definition looks like this:
+is definition looks like this: DIAG(Severity,Id,Text)
 
-	`DIAG(Severity,Id,Text)`. Severity is a DiagSeverity enum member, id is the id of the diagnostic (logic) and
-	text is the text.. yeah. It's that simple. The text can have simple tags like `%0` to act like placeholders for arguments.
-	Placeholders are removed by a method `addArg`, which replaces the placeholder with a int, a string, anything! After processing ,the diagnostic
-	might look like `foo is not a variable name`
+	* Severity is a DiagSeverity enum member
+	* id is the id of the diagnostic. This is the id used to report the diag.
+	* Text is the diag's text.
+	
+It's that simple. The text can have simple tags like %0 to act like placeholders for arguments.
+Placeholders are removed by a method addArg, which replaces the placeholder with a int, a string, anything! After processing ,the diagnostic "%0 is not a variable name" might look like "foo is not a variable name"
 
 ## The DiagnosticEngine
 
