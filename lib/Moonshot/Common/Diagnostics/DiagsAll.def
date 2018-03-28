@@ -1,0 +1,10 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : DiagsAll.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file includes every diagnostics.
+////------------------------------------------------------////
+
+#include "DiagsCommon.def"
