@@ -1,4 +1,21 @@
+TODO:
 > Add formatting functions to the Diagnostic to replace placeholders.
-> Add options to the DiagnosticEngine
-> Add the StreamDiagConsumer to print diagnostics to the cout, or a file, or a sstream.
+	> At first, just replace %0, %1, %2, etc.. with any type supported by stringstream. This is just what I need, nothing more.
+> Add options to the DiagnosticEngine (allWarningsAreError,IgnoreWarnings,ignoreAll) + helpers (has(Warning/Error/Fatal error)occured ?)
+> Sourceloc system
+	> SourceManager (a class that keeps track of source file contents and assigns an ID to them)
+		> addFromFile() (returns the ID, -1 if failed to read source file)
+		> addFromString() (returns the ID, -1 if failed to add source file)
+		> getSourceForID() (returns a reference to the source, not the source directly, to avoid huge copies)
+	> SourceLoc object
+		> Contains an ID + Col + Line in file
+			> Challenge : find a way to keep this small, under 64 bits would be preferable. Maybe use a bitfield ?
+		> Add it to tokens & ast & diag
+
 > Write all the remaining tests needed.
+> Move all my current diagnostics message to the new system and delete the context's system primitive diag system.
+
+> Move on to AST 2.0
+
+DONE:
+> Add the StreamDiagConsumer to print diagnostics to the cout, or a file, or a sstream. 
