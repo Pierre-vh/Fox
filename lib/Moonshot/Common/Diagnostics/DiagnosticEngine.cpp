@@ -39,7 +39,7 @@ DiagnosticEngine::DiagnosticEngine(std::unique_ptr<IDiagConsumer> ncons): consum
 
 }
 
-Diagnostic DiagnosticEngine::report(const DiagsID & diagID)
+Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 {
 	const auto idx = Util::enumAsInt(diagID);
 	return Diagnostic(

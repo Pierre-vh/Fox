@@ -18,14 +18,14 @@
 namespace Moonshot
 {
 	class Diagnostic;
-	enum class DiagsID;
+	enum class DiagID;
 	class DiagnosticEngine
 	{
 		public:
 			DiagnosticEngine();
 			DiagnosticEngine(std::unique_ptr<IDiagConsumer> ncons);
 
-			Diagnostic report(const DiagsID& diagID);
+			Diagnostic report(const DiagID& diagID);
 
 			void setConsumer(std::unique_ptr<IDiagConsumer> ncons);
 			IDiagConsumer * getConsumer();
