@@ -31,7 +31,7 @@ static const DiagSeverity diagsSevs[] = {
 
 DiagnosticEngine::DiagnosticEngine()
 {
-	consumer_ = std::make_unique<StdIoDiagConsumer>(); // Default diag consumer outputs to cout
+	consumer_ = std::make_unique<StreamDiagConsumer>(); // Default diag consumer outputs to cout
 }
 
 DiagnosticEngine::DiagnosticEngine(std::unique_ptr<IDiagConsumer> ncons): consumer_(std::move(ncons))
