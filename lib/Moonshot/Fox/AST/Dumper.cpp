@@ -20,7 +20,6 @@
 // utils
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include "Moonshot/Common/Utils/Utils.hpp" // for enumAsInt
-#include <iostream>
 
 using namespace Moonshot;
 using namespace TypeUtils;
