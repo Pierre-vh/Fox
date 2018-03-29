@@ -9,10 +9,11 @@
 
 #include "Diagnostic.hpp"
 #include "IDiagConsumer.hpp"
+#include <iostream>
 
 using namespace Moonshot;
 
-Diagnostic::Diagnostic(IDiagConsumer * cons, const DiagsID & dID, const DiagSeverity & dSev, const std::string& dStr) :
+Diagnostic::Diagnostic(IDiagConsumer * cons, const DiagID & dID, const DiagSeverity & dSev, const std::string& dStr) :
 	consumer_(cons), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr)
 {
 
@@ -42,7 +43,7 @@ void Diagnostic::emit()
 	}
 }
 
-DiagsID Diagnostic::getDiagID() const
+DiagID Diagnostic::getDiagID() const
 {
 	return diagID_;
 }
@@ -60,6 +61,18 @@ DiagSeverity Diagnostic::getDiagSeverity() const
 bool Diagnostic::isActive() const
 {
 	return isActive_;
+}
+
+Diagnostic& Diagnostic::replacePlaceholder(const std::string & replacement, const unsigned char & index)
+{
+	std::string targetPH = "%" + std::to_string((int)index);
+	std::size_t n = 0;
+	while ((n = diagStr_.find(targetPH, n)) != std::string::npos)
+	{
+		diagStr_.replace(n, targetPH.size(), replacement);
+		n += replacement.size();
+	}
+	return *this;
 }
 
 void Diagnostic::kill()
