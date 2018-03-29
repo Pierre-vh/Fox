@@ -4,18 +4,28 @@
 // File : BuiltinDiagConsumers.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file declares several diag consumers that are used by the
-// base project.
+// This file declares diag consumers that are used by the
+// base project, mainly, the StreamDiagConsumer.
 ////------------------------------------------------------////
 
 #pragma once
 
 #include "IDiagConsumer.hpp"
 
+#include "Diagnostic.hpp"
+#include <string>
+#include <iostream>
+
 namespace Moonshot
 {
-	class StdIoDiagConsumer : public IDiagConsumer
+	class StreamDiagConsumer : public IDiagConsumer
 	{
-		virtual void consume(const Diagnostic& diag) override;
+		public:
+			StreamDiagConsumer(std::ostream& stream = std::cout); // Default outstream is cout (stdio)
+			virtual void consume(const Diagnostic& diag) override;
+		private:
+			std::string diagSevToString(const DiagSeverity& ds) const;
+
+			std::ostream &os;
 	};
 }
