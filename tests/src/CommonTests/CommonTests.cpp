@@ -72,37 +72,37 @@ TEST(FlagManagerTest,FlagFunctions)
 TEST(Diagnostics, notes)
 {
 	DiagnosticEngine deg;
-	auto diag = deg.report(DiagsID::unittest_notetest);
+	auto diag = deg.report(DiagID::unittest_notetest);
 	EXPECT_EQ("Test note", diag.getDiagStr()) << "Diagnostic string did not match";
 	EXPECT_EQ(DiagSeverity::NOTE, diag.getDiagSeverity()) << "Diagnostic severity did not match";
-	EXPECT_EQ(DiagsID::unittest_notetest, diag.getDiagID()) << "Diagnostic id did not match";
+	EXPECT_EQ(DiagID::unittest_notetest, diag.getDiagID()) << "Diagnostic id did not match";
 }
 
 TEST(Diagnostics, warnings)
 {
 	DiagnosticEngine deg;
-	auto diag = deg.report(DiagsID::unittest_warntest);
+	auto diag = deg.report(DiagID::unittest_warntest);
 	EXPECT_EQ("Test warning", diag.getDiagStr()) << "Diagnostic string did not match";
 	EXPECT_EQ(DiagSeverity::WARNING, diag.getDiagSeverity()) << "Diagnostic severity did not match";
-	EXPECT_EQ(DiagsID::unittest_warntest, diag.getDiagID()) << "Diagnostic id did not match";
+	EXPECT_EQ(DiagID::unittest_warntest, diag.getDiagID()) << "Diagnostic id did not match";
 }
 
 TEST(Diagnostics, errors)
 {
 	DiagnosticEngine deg;
-	auto diag = deg.report(DiagsID::unittests_errtest);
+	auto diag = deg.report(DiagID::unittests_errtest);
 	EXPECT_EQ("Test error", diag.getDiagStr()) << "Diagnostic string did not match";
 	EXPECT_EQ(DiagSeverity::ERROR, diag.getDiagSeverity()) << "Diagnostic severity did not match";
-	EXPECT_EQ(DiagsID::unittests_errtest, diag.getDiagID()) << "Diagnostic id did not match";
+	EXPECT_EQ(DiagID::unittests_errtest, diag.getDiagID()) << "Diagnostic id did not match";
 }
 
 TEST(Diagnostics, fatals)
 {
 	DiagnosticEngine deg;
-	auto diag = deg.report(DiagsID::unittest_fataltest);
+	auto diag = deg.report(DiagID::unittest_fataltest);
 	EXPECT_EQ("Test fatal", diag.getDiagStr()) << "Diagnostic string did not match";
 	EXPECT_EQ(DiagSeverity::FATAL, diag.getDiagSeverity()) << "Diagnostic severity did not match";
-	EXPECT_EQ(DiagsID::unittest_fataltest, diag.getDiagID()) << "Diagnostic id did not match";
+	EXPECT_EQ(DiagID::unittest_fataltest, diag.getDiagID()) << "Diagnostic id did not match";
 }
 
 TEST(Diagnostics, emission)
@@ -112,7 +112,39 @@ TEST(Diagnostics, emission)
 	EXPECT_EQ("", cons->getStr()) << "Consumer str wasn't empty at first.";
 	// Test emission when diag goes out of scope
 	{
-		deg.report(DiagsID::unittest_fataltest);
+		deg.report(DiagID::unittest_fataltest);
 	}
 	EXPECT_EQ("Test fatal", cons->getStr()) << "Consumer string did not match.";
+}
+
+// 	NOTE(unittest_placeholderremoval1, "[%0,%1]")
+TEST(Diagnostics, addArg1)
+{
+	DiagnosticEngine deg(std::make_unique<StrDiagConsumer>());
+	auto str = deg.report(DiagID::unittest_placeholderremoval1).addArg("foo").addArg(55.45f).getDiagStr();
+	EXPECT_EQ(str, "[foo,55.45]");
+}
+
+// 	NOTE(unittest_placeholderremoval2, "[%0%0%0]")
+TEST(Diagnostics, addArg2)
+{
+	DiagnosticEngine deg(std::make_unique<StrDiagConsumer>());
+	auto str = deg.report(DiagID::unittest_placeholderremoval2).addArg('a').getDiagStr();
+	EXPECT_EQ(str, "[aaa]");
+}
+
+// 	NOTE(unittest_placeholderremoval3, "[%5%4%3%2%1%0]")
+TEST(Diagnostics, addArg3)
+{
+	DiagnosticEngine deg(std::make_unique<StrDiagConsumer>());
+	auto str = deg.report(DiagID::unittest_placeholderremoval3).addArg('a').addArg('b').addArg('c').addArg('d').addArg('e').addArg('f').getDiagStr();
+	EXPECT_EQ(str, "[fedcba]");
+}
+
+// 	NOTE(unittest_placeholderremoval4, "Hello, %0")
+TEST(Diagnostics, addArg4)
+{
+	DiagnosticEngine deg(std::make_unique<StrDiagConsumer>());
+	auto str = deg.report(DiagID::unittest_placeholderremoval4).addArg("world").getDiagStr();
+	EXPECT_EQ(str, "Hello, world");
 }
