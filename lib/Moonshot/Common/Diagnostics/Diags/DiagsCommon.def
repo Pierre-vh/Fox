@@ -27,7 +27,7 @@
 	#define FATAL(ID,TEXT)		DIAG(FATAL,ID,TEXT)
 #endif
 
-//////////////////////////////////
+////////////////////////
 
 // Unit tests flags
 NOTE(unittest_notetest, "Test note")

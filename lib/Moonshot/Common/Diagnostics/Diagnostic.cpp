@@ -9,7 +9,9 @@
 
 #include "Diagnostic.hpp"
 #include "IDiagConsumer.hpp"
+
 #include <iostream>
+#include <cassert>
 
 using namespace Moonshot;
 
@@ -29,6 +31,11 @@ Diagnostic::Diagnostic(Diagnostic &other)
 	other.kill();
 }
 
+Diagnostic Diagnostic::createEmptyDiagnostic()
+{
+	return Diagnostic();
+}
+
 Diagnostic::~Diagnostic()
 {
 	emit();
@@ -36,8 +43,9 @@ Diagnostic::~Diagnostic()
 
 void Diagnostic::emit()
 {
-	if (isActive_)
+	if (isActive_ && (diagSeverity_ != DiagSeverity::IGNORE))
 	{
+		assert(consumer_ && "No consumer available!");
 		consumer_->consume(*this);
 		kill(); // kill this diag once it's consumed.
 	}
@@ -63,8 +71,23 @@ bool Diagnostic::isActive() const
 	return isActive_;
 }
 
+Diagnostic::Diagnostic()
+{
+	// a dummy diag is inactive by default
+	isActive_ = false;
+	// Init all members to a base value
+	diagID_ = DiagID::dummyDiag;
+	consumer_ = nullptr;
+	diagStr_ = "";
+	diagSeverity_ = DiagSeverity::IGNORE;
+}
+
 Diagnostic& Diagnostic::replacePlaceholder(const std::string & replacement, const unsigned char & index)
 {
+	/*
+	if (!isActive_)
+		return *this;
+	*/
 	std::string targetPH = "%" + std::to_string((int)index);
 	std::size_t n = 0;
 	while ((n = diagStr_.find(targetPH, n)) != std::string::npos)
@@ -77,7 +100,10 @@ Diagnostic& Diagnostic::replacePlaceholder(const std::string & replacement, cons
 
 void Diagnostic::kill()
 {
-	isActive_ = false;
-	consumer_ = 0;
-	diagStr_.clear();
+	if (isActive_)
+	{
+		isActive_ = false;
+		consumer_ = 0;
+		diagStr_.clear();
+	}
 }
