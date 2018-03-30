@@ -90,9 +90,6 @@ namespace Moonshot
 			// have too many errors occured
 			bool haveTooManyErrorOccured() const;
 
-			// Emits a typical "maxFatalErrorsOccured" diag message
-			void reportMaxFatalErrorsDiag();
-
 			// Member Variables //
 			/* Options to change how the DiagEngine behaves when an error is reported */
 			struct DiagOpts

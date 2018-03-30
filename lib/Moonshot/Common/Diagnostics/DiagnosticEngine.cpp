@@ -62,13 +62,21 @@ Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 	// If we are still here, update the internal counters
 	updateInternalCounters(sev);
 
-	// And Return the diag!
-	return Diagnostic(
+	if (haveTooManyErrorOccured() && (!hasFatalErrorOccured()))
+	{
+		// if the error count is too high and we're not in fatal mode yet, instead of the user requested diag, we return a maxErrOccured diag
+		return report(DiagID::diagengine_maxErrCountExceeded).addArg(errLimit_).freeze(); /* Freeze the diagnostic to prevent user modifications */
+	}
+	else
+	{
+		// If we're here, fine, return the user requested diag!
+		return Diagnostic(
 			consumer_.get(),
 			diagID,
 			sev,
 			str
 		);
+	}
 }
 
 void DiagnosticEngine::setConsumer(std::unique_ptr<IDiagConsumer> ncons)
@@ -228,6 +236,7 @@ DiagSeverity DiagnosticEngine::promoteSeverityIfNeeded(const DiagSeverity & ds) 
 		case DiagSeverity::FATAL:
 			return ds;
 	}
+	return ds;
 }
 
 bool DiagnosticEngine::shouldSilence(const DiagSeverity & df)
@@ -266,12 +275,13 @@ void DiagnosticEngine::updateInternalCounters(const DiagSeverity & ds)
 	{
 		case DiagSeverity::WARNING:
 			numWarnings_++;
+			break;
 		case DiagSeverity::ERROR:
 			numErrors_++;
+			break;
 		case DiagSeverity::FATAL:
 			hasFatalErrorOccured_ = true;
-		default:
-			return;
+			break;
 	}
 }
 
@@ -280,9 +290,4 @@ bool DiagnosticEngine::haveTooManyErrorOccured() const
 	if(errLimit_)
 		return numErrors_ > errLimit_;
 	return false;
-}
-
-void DiagnosticEngine::reportMaxFatalErrorsDiag()
-{
-	report(DiagID::diagengine_maxErrCountExceeded).addArg(errLimit_);
 }

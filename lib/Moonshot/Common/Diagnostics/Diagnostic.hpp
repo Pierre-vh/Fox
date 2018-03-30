@@ -20,6 +20,7 @@ namespace Moonshot
 	enum class DiagID
 	{
 		dummyDiag = -1,
+		// Important : first value must always be 0 to keep sync with the severities and strs arrays.
 		#define DIAG(SEVERITY,ID,TEXT) ID,
 		#define KEEP_DIAG_DEF
 			#include "Diags/DiagsAll.def"
@@ -86,9 +87,15 @@ namespace Moonshot
 			}
 
 			bool isActive() const;
+
+			// A Frozen diagnostic can't be edited any further. it's locked.
+			bool isFrozen() const;
+			Diagnostic& freeze();
 		private:
 			// Empty ctor to create dummy diagnostics objects.
+			// It's private so it's not abused by other classes or by automatic C++ constructions. But it's accessible through createEmptyDiagnostic()
 			Diagnostic();  
+
 			// replaces every occurence of "%(value of index)" in a string with the replacement.
 			// e.g: replacePlaceholder("foo",0) -> replaces every %0 in the string by foo
 			Diagnostic& replacePlaceholder(const std::string& replacement, const unsigned char& index);
@@ -98,6 +105,7 @@ namespace Moonshot
 			Diagnostic& operator=(const Diagnostic&) = delete;
 
 			bool isActive_ = true; // sets to false when emit is called. if this is false, the diagnostic shouldn't be used.
+			bool isFrozen_ = false; 
 
 			IDiagConsumer *consumer_ = nullptr;
 			DiagID diagID_;
