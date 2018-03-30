@@ -57,7 +57,7 @@ Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 
 	// Silence diag if needed
 	if (shouldSilence(sev))
-		return Diagnostic::createEmptyDiagnostic();
+		return Diagnostic::createDummyDiagnosticObject();
 
 	// If we are still here, update the internal counters
 	updateInternalCounters(sev);

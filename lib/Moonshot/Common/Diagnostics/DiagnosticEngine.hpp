@@ -21,8 +21,8 @@ namespace Moonshot
 {
 	class Diagnostic;
 	class FlagsManager;
-	enum class DiagSeverity;
-	enum class DiagID;
+	enum class DiagSeverity : int8_t;
+	enum class DiagID : int16_t;
 	class DiagnosticEngine
 	{
 		public:
