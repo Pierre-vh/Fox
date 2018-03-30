@@ -155,7 +155,7 @@ TEST(DiagnosticsTests, addArg4)
 }
 
 TEST(DiagnosticsTests, errLimit)
-*{
+{
 	auto diagEng = createDiagEngine();
 	diagEng.setErrorLimit(1);
 	EXPECT_FALSE(diagEng.hasFatalErrorOccured()) << "DiagnosticsEngine reported that a fatal error occured, but it was never used to report errors!";
