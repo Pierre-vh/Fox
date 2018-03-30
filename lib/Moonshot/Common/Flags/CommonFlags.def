@@ -15,4 +15,13 @@
 
 FLAG(unit_test_flag,false) // This flag is used by the unit tests.
 
+
+/* Diagnostic Engine Defaults */
+FLAG(diagengine_warningsAreErrors,false)
+FLAG(diagengine_errorsAreFatal,false)
+FLAG(diagengine_silenceWarnings,false)
+FLAG(diagengine_silenceNotes,false)
+FLAG(diagengine_silenceAllAfterFatalError,false)
+FLAG(diagengine_silenceAll,false)
+
 #undef FLAG
