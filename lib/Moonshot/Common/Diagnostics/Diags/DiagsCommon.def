@@ -40,6 +40,10 @@ NOTE(unittest_placeholderremoval2, "[%0%0%0]")
 NOTE(unittest_placeholderremoval3, "[%5%4%3%2%1%0]")
 NOTE(unittest_placeholderremoval4, "Hello, %0")
 
+
+// DiagnosticEngine self Diagnostics
+FATAL(diagengine_maxErrCountExceeded, "Current error count exceeded the maximum thresold of %0.")
+
 //////////////////////////////////
 
 #ifndef KEEP_DIAG_DEF
