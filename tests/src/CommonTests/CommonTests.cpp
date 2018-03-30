@@ -163,7 +163,41 @@ TEST(DiagnosticsTests, errLimitWorks)
 	diagEng.report(DiagID::unittests_errtest).emit();
 	EXPECT_FALSE(diagEng.hasFatalErrorOccured()) << "The DiagnosticsEngine reported a fatal error after 1 error.";
 
-	diagEng.report(DiagID::unittests_errtest).emit();
+	auto diag = diagEng.report(DiagID::unittests_errtest);
+	EXPECT_EQ(diag.getDiagID(), DiagID::diagengine_maxErrCountExceeded) << "The report function did not return the expected diagnostic";
+	EXPECT_EQ(diag.getDiagSeverity(), DiagSeverity::FATAL) << "The report function did not return a fatal diagnostic";
+	EXPECT_EQ("Current error count exceeded the maximum thresold of 1.", diag.getDiagStr()) << "Incorrect diagstr";
+	EXPECT_TRUE(diag.isFrozen()) << "Diag was supposed to be frozen to prevent user modifications!";
 
-	EXPECT_TRUE(diagEng.hasFatalErrorOccured()) << "Fatal error did not occur. Current error count:" << diagEng.getNumErrors() << " Error limit:" << diagEng.getErrorLimit();
+	// Emit the diag and perform final check.
+	diag.emit();
+	EXPECT_TRUE(diagEng.hasFatalErrorOccured()) << "Fatal error did not occur. Current error count: " << diagEng.getNumErrors() << "; Error limit: " << diagEng.getErrorLimit();
 }
+
+/* 
+Tests to write 
+Note: most of theses are implicitely proven to be working by the tests above, but i
+prefer to write more tests, so in the future if the projects gets more complicated I can
+find where the issue is much more quickly!
+
+	Diags:
+		- kill()
+		- freeze()
+		- createEmptyDiagnostic
+	DiagEngine:
+		- Check if flagmanager options are correctly applied by creating flagsmanager
+		with different configurations & creating DiagEngines with them and check the getters.
+		btw, check if resetAll works.
+		
+		- Tests for:
+			warningsAreErrors
+			errorsAreFatal
+			silenceWarnings
+			silenceNotes
+			silenceAllAfterFatalErrors
+			silenceAll
+			getNumWarnings & getNumErrors
+
+	Then finally move on to SourceManager & SourceLoc. This will be a bit long to do, but not much longer
+	than the DiagEngine I hope.
+*/
