@@ -17,7 +17,7 @@
 
 namespace Moonshot
 {
-	enum class DiagID
+	enum class DiagID : int16_t
 	{
 		dummyDiag = -1,
 		// Important : first value must always be 0 to keep sync with the severities and strs arrays.
@@ -28,7 +28,7 @@ namespace Moonshot
 		#undef KEEP_DIAG_DEF
 	};
 
-	enum class DiagSeverity
+	enum class DiagSeverity : int8_t
 	{
 		IGNORE,		// Ignore the diagnostic
 		NOTE,		// Present this diag as a note, a log entry.
@@ -47,7 +47,7 @@ namespace Moonshot
 
 			// Creates a silenced diagnostic object, which is a diagnostic of id SilencedDiag with no consumer, no str and a IGNORE severity.
 			// In short, it's a dummy!
-			static Diagnostic createEmptyDiagnostic(); 
+			static Diagnostic createDummyDiagnosticObject(); 
 
 			~Diagnostic();
 			
@@ -91,9 +91,12 @@ namespace Moonshot
 			// A Frozen diagnostic can't be edited any further. it's locked.
 			bool isFrozen() const;
 			Diagnostic& freeze();
+
+			// Does this diag possess a valid consumer?
+			bool hasValidConsumer() const;
 		private:
 			// Empty ctor to create dummy diagnostics objects.
-			// It's private so it's not abused by other classes or by automatic C++ constructions. But it's accessible through createEmptyDiagnostic()
+			// It's private so it's not abused by other classes or by automatic C++ constructions. But it's accessible through createDummyDiagnosticObject()
 			Diagnostic();  
 
 			// replaces every occurence of "%(value of index)" in a string with the replacement.
@@ -104,15 +107,15 @@ namespace Moonshot
 			
 			Diagnostic& operator=(const Diagnostic&) = delete;
 
-			bool isActive_ = true; // sets to false when emit is called. if this is false, the diagnostic shouldn't be used.
+			bool isActive_ = true; 
 			bool isFrozen_ = false; 
+			unsigned char curPHIndex_ = 0; 
+			DiagSeverity diagSeverity_; 
 
 			IDiagConsumer *consumer_ = nullptr;
 			DiagID diagID_;
 			std::string diagStr_;
-			DiagSeverity diagSeverity_;
 
-			// The next %x to replace.
-			unsigned char curPHIndex_ = 0;
+
 	};
 }

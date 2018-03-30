@@ -33,7 +33,7 @@ Diagnostic::Diagnostic(Diagnostic &other)
 	other.kill();
 }
 
-Diagnostic Diagnostic::createEmptyDiagnostic()
+Diagnostic Diagnostic::createDummyDiagnosticObject()
 {
 	return Diagnostic();
 }
@@ -75,10 +75,10 @@ bool Diagnostic::isActive() const
 
 Diagnostic::Diagnostic()
 {
-	// a dummy diag is inactive by default
+	// Diag starts frozen & inactive (won't be modified or emitted)
 	isActive_ = false;
 	isFrozen_ = true;
-	// Init all members to a base value
+	// Init all members to a default value
 	diagID_ = DiagID::dummyDiag;
 	consumer_ = nullptr;
 	diagStr_ = "";
@@ -118,4 +118,9 @@ Diagnostic& Diagnostic::freeze()
 {
 	isFrozen_ = true;
 	return *this;
+}
+
+bool Diagnostic::hasValidConsumer() const
+{
+	return (bool)consumer_;
 }
