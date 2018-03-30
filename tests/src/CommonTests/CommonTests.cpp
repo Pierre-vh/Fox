@@ -154,8 +154,8 @@ TEST(DiagnosticsTests, addArg4)
 	EXPECT_EQ(str, "Hello, world");
 }
 
-TEST(DiagnosticsTests, errLimitWorks)
-{
+TEST(DiagnosticsTests, errLimit)
+*{
 	auto diagEng = createDiagEngine();
 	diagEng.setErrorLimit(1);
 	EXPECT_FALSE(diagEng.hasFatalErrorOccured()) << "DiagnosticsEngine reported that a fatal error occured, but it was never used to report errors!";
@@ -174,16 +174,45 @@ TEST(DiagnosticsTests, errLimitWorks)
 	EXPECT_TRUE(diagEng.hasFatalErrorOccured()) << "Fatal error did not occur. Current error count: " << diagEng.getNumErrors() << "; Error limit: " << diagEng.getErrorLimit();
 }
 
+TEST(DiagnosticsTests, frozenAndDeadDiags)
+{
+	auto diagEng = createDiagEngine();
+	auto diag = diagEng.report(DiagID::unittest_placeholderremoval1);
+	EXPECT_EQ("[%0,%1]", diag.getDiagStr()) << "Diag str wasn't the one expected.";
+	diag.addArg("foo", 1);
+	EXPECT_EQ("[%0,foo]", diag.getDiagStr()) << "Diag str did not replace the expected placeholder.";
+	
+	// Freeze test
+	EXPECT_FALSE(diag.isFrozen()) << "Diag spawned frozen";
+	diag.freeze();
+	EXPECT_TRUE(diag.isFrozen()) << "Diag did not freeze as expected.";
+	diag.addArg("bar");
+	EXPECT_EQ("[%0,foo]", diag.getDiagStr()) << "Diag str might have replaced a placeholder, but the diagnostic was supposed to be frozen!";
+	
+	// Alive/dead
+	EXPECT_TRUE(diag.isActive()) << "Diag was inactive?";
+	diag.emit();
+	EXPECT_FALSE(diag.isActive()) << "Diag was active after being emitted?";
+}
+
+TEST(DiagnosticsTests, dummyDiags)
+{
+	auto diagEng = createDiagEngine();
+	auto diag = Diagnostic::createDummyDiagnosticObject();
+	// TESTS !
+	EXPECT_FALSE(diag.isActive())							<< "Diag was active, but was expected to spawn inactive.";
+	EXPECT_TRUE(diag.isFrozen())							<< "Diag wasn't frozen, but was expected to spawn frozen.";
+	EXPECT_EQ(diag.getDiagID(), DiagID::dummyDiag)			<< "DiagID was not the one expected!";
+	EXPECT_FALSE(diag.hasValidConsumer())					<< "Diag was supposed to not have any consumer set.";
+	EXPECT_EQ("", diag.getDiagStr())						<< "DiagStr was supposed to be a empty string \"\"";
+	EXPECT_EQ(DiagSeverity::IGNORE, diag.getDiagSeverity()) << "Diag's severity was supposed to be \"IGNORE\"";
+}
+
 /* 
 Tests to write 
 Note: most of theses are implicitely proven to be working by the tests above, but i
 prefer to write more tests, so in the future if the projects gets more complicated I can
 find where the issue is much more quickly!
-
-	Diags:
-		- kill()
-		- freeze()
-		- createEmptyDiagnostic
 	DiagEngine:
 		- Check if flagmanager options are correctly applied by creating flagsmanager
 		with different configurations & creating DiagEngines with them and check the getters.
