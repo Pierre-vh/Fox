@@ -9,5 +9,5 @@ add_source(
 	FoxTests/UTF8Tests.cpp
 	FoxTests/ParserTests.cpp
 
-	CommonTests/ContextTests.cpp
+	CommonTests/CommonTests.cpp
 	)

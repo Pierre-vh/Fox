@@ -1,19 +1,10 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : FoxFlags.def											
+// File : DiagsAll.def											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file declares all the flags used by Fox, using macros.
+// This file includes every diagnostics.
 ////------------------------------------------------------////
 
-// Typical flag macro is FLAG(name,defaultvalue)
-
-#ifndef FLAG
-	#define FLAG(FLAG_NAME,FLAG_BASE_VAL)
-#endif
-
-FLAG(lexer_logTotalTokenCount,false)
-FLAG(lexer_logOnPush,false)
-
-#undef FLAG
+#include "DiagsCommon.def"

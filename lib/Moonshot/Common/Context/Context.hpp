@@ -11,22 +11,19 @@
 // WARNING -> Must be used for errors that do not perturbate the interpretation process.
 // UNSAFE -> Used for normal errors. e.g. "Undeclared variable x",etc..
 //
-// This class also uses OptionsManager to store options.
+// This class also stores a public Flag and Option member to access the current context's flags and options.
 ////------------------------------------------------------////
 
 
 #pragma once
 
 #include <vector> // std::vector
-#include <memory> // std::shared_ptr
-
-#include "Options\OptionsManager.hpp" 
+#include "Moonshot/Common/Flags/Flags.hpp"
 
 namespace Moonshot
 {
 	class Context
 	{
-
 		public:
 			// Enums
 			enum class State
@@ -76,13 +73,14 @@ namespace Moonshot
 			bool isCritical() const;
 			bool isSafe() const;
 
-			OptionsManager optionsManager_; // The options manager.
+			FlagsManager& flagsManager();
 		private:
+			FlagsManager flagsManager_;
 
 			void addLog(const std::string& message);
 			std::string makeLogMessage(const std::string& prefix, const std::string & message)const;
 
-			// Make the context uncopyable and unassignable.
+			// Make the context uncopyable and unassignable. It needs to be unique!
 			Context(const Context&) = delete;      
 			void operator=(const Context&) = delete;
 			

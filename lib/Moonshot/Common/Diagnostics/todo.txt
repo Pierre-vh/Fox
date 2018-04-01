@@ -1,0 +1,26 @@
+TODO:
+> Sourceloc system
+	> SourceManager (a simple class that keeps track of source file contents and assigns an ID to them.)
+		> addFromFile() 
+		> addFromString() 
+			>	both of theses 2 functions will return a lightweight "Response", with a status indicating if the operation was a success and the index
+				of the source in the sourcemanager's internal vector
+		> getSourceForID() (do not return a copy of the source, but a reference/pointer)
+	> SourceLoc object
+		> Contains an ID + Col + Line in file
+			> Challenge : find a way to keep this small, under 64 bits would be preferable. Maybe use a bitfield ?
+			> Would also need a way of telling if a sourceloc is valid, maybe by using -1 as index or setting col/line to 0?
+				> This would be used to return "null" sourcelocs.
+		> Add it to tokens & ast & diag
+	> Update Diagnostics & DiagnosticsEngine to support sourceloc arguments.
+> Write all the remaining tests needed.
+
+> Move all my current diagnostics message to the new system and delete the context's system primitive diag system.
+
+> Move on to AST 2.0
+
+DONE:
+> Add the StreamDiagConsumer to print diagnostics to the cout, or a file, or a sstream. 
+> Add formatting functions to the Diagnostic to replace placeholders.
+	> At first, just replace %0, %1, %2, etc.. with any type supported by stringstream. This is just what I need, nothing more.
+> Add options to the DiagnosticEngine (allWarningsAreError,IgnoreWarnings,ignoreAll) + helpers (has(Warning/Error/Fatal error)occured ?)

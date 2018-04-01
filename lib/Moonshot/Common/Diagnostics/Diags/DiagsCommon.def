@@ -1,0 +1,57 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : DiagsCommon.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file registers the diagnostics messages for the Common classes.
+////------------------------------------------------------////
+
+#ifndef DIAG
+	#define DIAG(SEVERITY,ID,TEXT)
+#endif 
+
+#ifndef NOTE
+	#define NOTE(ID,TEXT)		DIAG(NOTE,ID,TEXT)
+#endif
+
+#ifndef WARNING
+	#define WARNING(ID,TEXT)	DIAG(WARNING,ID,TEXT)
+#endif
+
+#ifndef ERROR
+	#define ERROR(ID,TEXT)		DIAG(ERROR,ID,TEXT)
+#endif
+
+#ifndef FATAL
+	#define FATAL(ID,TEXT)		DIAG(FATAL,ID,TEXT)
+#endif
+
+////////////////////////
+
+// Unit tests flags
+NOTE(unittest_notetest, "Test note")
+WARNING(unittest_warntest, "Test warning")
+ERROR(unittest_errtest, "Test error")
+FATAL(unittest_fataltest, "Test fatal")
+
+NOTE(unittest_placeholderremoval1, "[%0,%1]")
+NOTE(unittest_placeholderremoval2, "[%0%0%0]")
+NOTE(unittest_placeholderremoval3, "[%5%4%3%2%1%0]")
+NOTE(unittest_placeholderremoval4, "Hello, %0")
+
+
+// DiagnosticEngine self Diagnostics
+FATAL(diagengine_maxErrCountExceeded, "Current error count exceeded the maximum thresold of %0.")
+
+//////////////////////////////////
+
+#ifndef KEEP_DIAG_DEF
+	#undef DIAG
+#endif
+
+#undef NOTE
+#undef WARNING
+#undef ERROR
+#undef FATAL
+
