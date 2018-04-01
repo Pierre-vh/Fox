@@ -32,7 +32,7 @@
 // Unit tests flags
 NOTE(unittest_notetest, "Test note")
 WARNING(unittest_warntest, "Test warning")
-ERROR(unittests_errtest, "Test error")
+ERROR(unittest_errtest, "Test error")
 FATAL(unittest_fataltest, "Test fatal")
 
 NOTE(unittest_placeholderremoval1, "[%0,%1]")
