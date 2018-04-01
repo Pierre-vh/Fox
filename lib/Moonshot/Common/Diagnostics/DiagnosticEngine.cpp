@@ -55,21 +55,24 @@ Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 	// Promote severity if needed
 	sev = promoteSeverityIfNeeded(sev);
 
-	// Silence diag if needed
-	if (shouldSilence(sev))
-		return Diagnostic::createDummyDiagnosticObject();
+	// We test if we need to silence this diag before updating the internal counters.
+	// This is needed so this diag isn't counted in the current statistics, and only the other 
+	// Diags stats are take in considerations.
+	bool silence = shouldSilence(sev);
 
-	// If we are still here, update the internal counters
+	// Update the internal counters
 	updateInternalCounters(sev);
 
-	if (haveTooManyErrorOccured() && (!hasFatalErrorOccured()))
+	// Silence diag if needed
+	if (silence)
+		return Diagnostic::createDummyDiagnosticObject();
+	else if (haveTooManyErrorOccured() && (!hasFatalErrorOccured())) 	// If the diag shouldn't be silenced, check if it needs to be overriden by a maxErrCount diag
 	{
 		// if the error count is too high and we're not in fatal mode yet, instead of the user requested diag, we return a maxErrOccured diag
 		return report(DiagID::diagengine_maxErrCountExceeded).addArg(errLimit_).freeze(); /* Freeze the diagnostic to prevent user modifications */
 	}
-	else
+	else	// If we're here, fine, return the user requested diag!
 	{
-		// If we're here, fine, return the user requested diag!
 		return Diagnostic(
 			consumer_.get(),
 			diagID,
@@ -92,6 +95,8 @@ IDiagConsumer* DiagnosticEngine::getConsumer()
 void DiagnosticEngine::setFlagsManager(FlagsManager * fm)
 {
 	flagsManager_ = fm;
+	if(fm)
+		updateOptionsFromFlags();
 }
 
 FlagsManager * const DiagnosticEngine::getFlagsManager()
