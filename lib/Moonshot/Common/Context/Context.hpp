@@ -18,7 +18,7 @@
 #pragma once
 
 #include <vector> // std::vector
-#include "Moonshot/Common/Flags/Flags.hpp"
+#include "Moonshot/Common/Flags/FlagsManager.hpp"
 
 namespace Moonshot
 {
