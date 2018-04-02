@@ -60,11 +60,11 @@ TEST(FlagManagerTest,FlagFunctions)
 	Context ctxt;
 	auto fm = ctxt.flagsManager();
 	// The base value of the test flag is false, so it's expected to be false.
-	EXPECT_FALSE(fm.isSet(CommonFlag::unit_test_flag));
-	fm.set(CommonFlag::unit_test_flag); // now it's set (true)
-	EXPECT_TRUE(fm.isSet(CommonFlag::unit_test_flag));
-	fm.unset(CommonFlag::unit_test_flag); // and unset again !
-	EXPECT_FALSE(fm.isSet(CommonFlag::unit_test_flag));
+	EXPECT_FALSE(fm.isSet(FlagID::unit_test_flag));
+	fm.set(FlagID::unit_test_flag); // now it's set (true)
+	EXPECT_TRUE(fm.isSet(FlagID::unit_test_flag));
+	fm.unset(FlagID::unit_test_flag); // and unset again !
+	EXPECT_FALSE(fm.isSet(FlagID::unit_test_flag));
 
 }
 
@@ -212,12 +212,12 @@ TEST(DiagnosticsTests, FlagsAreCorrectlyApplied)
 {
 	auto diagEng = createDiagEngine();
 	FlagsManager f1, f2;
-	f1.set(CommonFlag::diagengine_errorsAreFatal);
-	f2.set(CommonFlag::diagengine_silenceAll);
-	f1.set(CommonFlag::diagengine_silenceAllAfterFatalError);
-	f2.set(CommonFlag::diagengine_silenceNotes);
-	f1.set(CommonFlag::diagengine_silenceWarnings);
-	f2.set(CommonFlag::diagengine_warningsAreErrors);
+	f1.set(FlagID::diagengine_errorsAreFatal);
+	f2.set(FlagID::diagengine_silenceAll);
+	f1.set(FlagID::diagengine_silenceAllAfterFatalError);
+	f2.set(FlagID::diagengine_silenceNotes);
+	f1.set(FlagID::diagengine_silenceWarnings);
+	f2.set(FlagID::diagengine_warningsAreErrors);
 	
 	diagEng.setFlagsManager(&f1);
 	EXPECT_TRUE(diagEng.getErrorsAreFatal());
