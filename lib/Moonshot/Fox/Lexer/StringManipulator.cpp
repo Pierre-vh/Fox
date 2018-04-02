@@ -49,7 +49,16 @@ void UTF8::StringManipulator::setStr(const std::string & str)
 	reset();
 }
 
-std::string UTF8::StringManipulator::wcharToStr(const CharType & wc) const
+bool UTF8::StringManipulator::isUsingAPointer() const
+{
+	return std::holds_alternative<std::string*>(data_);
+}
+bool UTF8::StringManipulator::isUsingACopy() const
+{
+	return std::holds_alternative<std::string>(data_);
+}
+
+std::string UTF8::StringManipulator::wcharToStr(const CharType & wc)
 {
 	std::string rtr;
 	append(rtr, wc);

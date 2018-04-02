@@ -43,7 +43,13 @@ namespace Moonshot::UTF8
 			void setStr(const std::string& str);
 			void setStr(std::string* str);
 
-			std::string wcharToStr(const CharType& wc) const;
+			// Function to test data_ :
+			// One returns true if data_ holds a string*
+			// One returns true if data_ holds a string 
+			bool isUsingAPointer() const;
+			bool isUsingACopy() const;
+
+			static std::string wcharToStr(const CharType& wc);
 			std::size_t indexOfCurrentCharacter() const;
 
 			void reset();
