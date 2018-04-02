@@ -1,25 +1,26 @@
-Disclaimer:
-This file contains a short term, rapidly changing road map. Essentially, if I need to get something done tomorrow, I'll write it here.
-Theses can be considered personal notes, and you shouldn't consider what's in this file as a true roadmap.
+TODO:
+> Sourceloc system
+	> SourceManager (a simple class that keeps track of source file contents and assigns an ID to them.)
+		> addFromFile() 
+		> addFromString() 
+			>	both of theses 2 functions will return a lightweight "Response", with a status indicating if the operation was a success and the index
+				of the source in the sourcemanager's internal vector
+		> getSourceForID() (do not return a copy of the source, but a reference/pointer)
+	> SourceLoc object
+		> Contains an ID + Col + Line in file
+			> Challenge : find a way to keep this small, under 64 bits would be preferable. Maybe use a bitfield ?
+			> Would also need a way of telling if a sourceloc is valid, maybe by using -1 as index or setting col/line to 0?
+				> This would be used to return "null" sourcelocs.
+		> Add it to tokens & ast & diag
+	> Update Diagnostics & DiagnosticsEngine to support sourceloc arguments.
+> Write all the remaining tests needed.
 
--> Context & DiagEngine revamp, Clang-like system
-	-> DiagEngine, DiagConsumers, Diagnostic pieces
-	-> use a .def to register new diagnostics and a DiagnosticKind enum
+> Move all my current diagnostics message to the new system and delete the context's system primitive diag system.
 
--> Add a FlagsManager class	(DONE, it's Flags.hpp, and it's just a class)
-	-> Improve it by using an enum and isSet,Set and unSet functions to make the thing nicer to use.
-		e.g 
-			context.getFoxFlags().lexerIsDumb // BAD
-			context.flags().isSet(FoxFlags::lexerIsDumb) // Looks better, I think? But it's more verbose..
-			// I still need to think about what's the best thing to do.
+> Move on to AST 2.0
 
--> AST Revamp
-	-> New visitor system
-	-> New ASTContext & Type nodes
-		-> Finish refactor in /Common/types
-
--> Do a "polish pass" after all this code's done, meaning : Write unit tests, rewrite dirty code, find other stuff to fix
-
--> Move on to Semantic analysis : Sema & Name resolution.
-
--> Consider adding multiple source files support at this point, while doing so, plan the codegen phase and set on a final vm : Register or Stack based? Opcodes? etc.
+DONE:
+> Add the StreamDiagConsumer to print diagnostics to the cout, or a file, or a sstream. 
+> Add formatting functions to the Diagnostic to replace placeholders.
+	> At first, just replace %0, %1, %2, etc.. with any type supported by stringstream. This is just what I need, nothing more.
+> Add options to the DiagnosticEngine (allWarningsAreError,IgnoreWarnings,ignoreAll) + helpers (has(Warning/Error/Fatal error)occured ?)
