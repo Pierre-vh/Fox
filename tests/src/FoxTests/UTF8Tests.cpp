@@ -1,4 +1,4 @@
-////------------------------------------------------------////
+﻿////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
 // File : UTF8Tests.cpp											
@@ -50,7 +50,7 @@ TEST(UTF8Tests,BronzeHorseman)
 {
 	// Open test file
 	std::string file_content;
-	std::string file_path("lexer/utf8/bronzehorseman.pushkin.txt");
+	std::string file_path("lexer/utf8/bronzehorseman.txt");
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	// Prepare string manipulator & other variables
@@ -96,4 +96,50 @@ TEST(UTF8Tests, ASCIIDrawing)
 	EXPECT_EQ(18, linecount) << "Line count incorrect";
 	EXPECT_EQ(1190, charcount) << "Char count incorrect";
 	EXPECT_EQ(847, spacecount) << "Spaces count incorrect";
+}
+
+TEST(UTF8Tests, Substring)
+{
+	// Open test file : bronze
+	std::string bronze_content;
+	std::string bronze_path("lexer/utf8/bronzehorseman.txt");
+	ASSERT_TRUE(readFileToString(bronze_path, bronze_content)) << "Could not open test file \"" << bronze_path << '"';
+
+	// Open test file : substr
+	std::string expected_substr;
+	std::string substr_path("lexer/utf8/bronzehorseman.substr.txt");
+	ASSERT_TRUE(readFileToString(substr_path, expected_substr)) << "Could not open test file \"" << substr_path << '"';
+	UTF8::StringManipulator::removeBOM(expected_substr);
+
+	// Prepare string manipulator
+	UTF8::StringManipulator manip;
+	manip.setStr(&bronze_content);
+	ASSERT_TRUE(manip.isUsingAPointer()) << "A pointer was passed to manip, but it doesn't recognize it!";
+
+	std::string substr = manip.substring(10, 9);
+
+	EXPECT_EQ(expected_substr, substr) << "Substring was not correct";
+}
+
+TEST(UTF8Tests, IndexOfCurCharValidity)
+{
+	// Open test file : bronze
+	std::string bronze_content;
+	std::string bronze_path("lexer/utf8/bronzehorseman.txt");
+	ASSERT_TRUE(readFileToString(bronze_path, bronze_content)) << "Could not open test file \"" << bronze_path << '"';
+
+	
+	// Prepare string manipulator
+	UTF8::StringManipulator manip1,manip2;
+	manip1.setStr(bronze_content);
+	manip2.setStr(bronze_content);
+
+	for (auto k(0); k < 15; k++)
+		manip1.advance();
+
+	manip2.advance(15);
+
+	// test if index is valid
+	EXPECT_EQ(15, manip1.indexOfCurrentCharacter());
+	EXPECT_EQ(manip1.currentChar(), manip2.currentChar());
 }
