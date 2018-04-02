@@ -41,6 +41,11 @@ std::string UTF8::StringManipulator::wcharToStr(const CharType & wc) const
 	return rtr;
 }
 
+std::size_t UTF8::StringManipulator::indexOfCurrentCharacter() const
+{
+	return utf8::distance(beg_, iter_);
+}
+
 void UTF8::StringManipulator::reset()
 {
 	// set iterators
@@ -54,6 +59,12 @@ void UTF8::StringManipulator::reset()
 void UTF8::StringManipulator::advance(const std::size_t & ind)
 {
 	utf8::advance(iter_, ind, str_.end());
+}
+
+void UTF8::StringManipulator::goBack(const std::size_t & ind)
+{
+	for (std::size_t k = 0; k < ind; k++)
+		utf8::prior(iter_, beg_);
 }
 
 CharType UTF8::StringManipulator::currentChar() const
