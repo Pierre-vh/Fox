@@ -57,6 +57,7 @@ TEST(UTF8Tests,BronzeHorseman)
 	UTF8::StringManipulator manip;
 	unsigned int linecount = 1, charcount = 0, spacecount = 0;
 	manip.setStr(file_content);
+	ASSERT_TRUE(manip.isUsingACopy()) << "A copy was passed to manip, but it doesn't recognizes it!";
 	std::string exception_details;
 
 	// Get text statistics
@@ -81,7 +82,8 @@ TEST(UTF8Tests, ASCIIDrawing)
 	// Prepare string manipulator & other variables
 	UTF8::StringManipulator manip;
 	unsigned int linecount = 1, charcount = 0, spacecount = 0;
-	manip.setStr(file_content);
+	manip.setStr(&file_content);
+	ASSERT_TRUE(manip.isUsingAPointer()) << "A pointer was passed to manip, but it doesn't recognize it!";
 	std::string exception_details;
 
 	// Get text statistics
