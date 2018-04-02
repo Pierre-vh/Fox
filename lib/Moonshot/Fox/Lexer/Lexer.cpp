@@ -7,9 +7,6 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-// Note : For now the "escape" char system is working nicely, but the way i've done it is less than ideal.
-// Task : rework it, find a cleaner way to do it, or at least do a cleanup of the code !
-
 #include "Lexer.hpp"
 
 #include <string>		// std::string
