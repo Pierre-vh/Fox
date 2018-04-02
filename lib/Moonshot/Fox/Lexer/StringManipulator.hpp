@@ -25,7 +25,7 @@
 #pragma once
 
 #include <iterator>
-#include <iostream>
+#include <variant>
 #include "Moonshot/Common/Types/Types.hpp"
 
 namespace Moonshot::UTF8
@@ -37,8 +37,11 @@ namespace Moonshot::UTF8
 		public:
 			StringManipulator() = default;
 
-			std::string getStr() const;
+			std::string getStrCpy() const;			// Returns a copy of the internal string
+			const std::string* getStrPtr() const;	// Returns a pointer to the string (no copy performed)
+
 			void setStr(const std::string& str);
+			void setStr(std::string* str);
 
 			std::string wcharToStr(const CharType& wc) const;
 			std::size_t indexOfCurrentCharacter() const;
@@ -61,7 +64,10 @@ namespace Moonshot::UTF8
 
 			bool isAtEndOfStr() const;
 		private:
-			std::string str_;
+			std::string& str();
+			const std::string& str() const;
+
+			std::variant<std::string,std::string*> data_;
 			std::string::iterator iter_, end_, beg_;
 	};
 }
