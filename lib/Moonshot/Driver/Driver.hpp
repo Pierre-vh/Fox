@@ -9,7 +9,7 @@
 // At first, this driver will just take a file path as input and try
 // to compile it, emitting informations to a user-defined ostream.
 // (By try to compile it, I mean, with what's available. At the time of writing theses
-// lines, the driver attempts to parse a single function definition, It'll output
+// lines, the driver attempts to parse a single function definition and It'll output
 // the AST and other Diag informations.)
 ////------------------------------------------------------////
 

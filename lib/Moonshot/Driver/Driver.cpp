@@ -21,6 +21,7 @@ using namespace Moonshot;
 bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+
 	std::string filecontent;
 	if (!readFileToString(filepath, filecontent))
 	{
@@ -37,6 +38,8 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 		out << ctxt.getLogs();
 		return false;
 	}
+	else
+		out << "Lexing completed successfully." << lex.getTokenVector().size() << " tokens found.\n";
 
 	Parser psr(ctxt,lex.getTokenVector());
 	auto presult = psr.parseFunctionDeclaration();
@@ -47,8 +50,10 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 		out << ctxt.getLogs();
 		return false;
 	}
+	else
+		out << "Parsing successful ! \n";
 
-	out << "Success ! AST:\n";
+	out << "AST Dump:\n";
 	auto node = std::move(presult.result_);
 	Dumper dump(out,1);
 	node->accept(dump);
