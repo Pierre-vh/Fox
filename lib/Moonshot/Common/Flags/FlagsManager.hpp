@@ -17,16 +17,10 @@
 
 namespace Moonshot
 {
-	enum class FoxFlag
+	enum class FlagID
 	{
 		#define FLAG(FLAG_NAME,FLAG_BASE_VAL) FLAG_NAME,
-		#include "FoxFlags.def"	
-	};
-
-	enum class CommonFlag
-	{
-		#define FLAG(FLAG_NAME,FLAG_BASE_VAL) FLAG_NAME,
-		#include "CommonFlags.def"
+		#include "Flags/FlagsAll.def"	
 	};
 
 	class FlagsManager
@@ -34,15 +28,9 @@ namespace Moonshot
 		public:
 			FlagsManager() = default;
 
-			// FoxFlags
-			bool isSet(const FoxFlag& ff) const;
-			void set(const FoxFlag& ff);
-			void unset(const FoxFlag& ff);
-
-			// CommonFlag
-			bool isSet(const CommonFlag& ff) const;
-			void set(const CommonFlag& ff);
-			void unset(const CommonFlag& ff);
+			bool isSet(const FlagID& fid) const;
+			void set(const FlagID& fid);
+			void unset(const FlagID& fid);
 		private:
 			template<typename KEY, typename DATA>
 			inline bool existsInMap(const std::map<KEY, DATA> &mmap, const KEY& key) const
@@ -50,16 +38,10 @@ namespace Moonshot
 				return mmap.find(key) != mmap.end();
 			}
 
-			std::map<FoxFlag, bool> fox_flags_ = 
+			std::map<FlagID, bool> flags_ =
 			{
-				#define FLAG(FLAG_NAME,FLAG_BASE_VAL) { FoxFlag::FLAG_NAME, FLAG_BASE_VAL },
-				#include "FoxFlags.def"	
-			};
-
-			std::map<CommonFlag, bool> common_flags_ =
-			{
-				#define FLAG(FLAG_NAME,FLAG_BASE_VAL) { CommonFlag::FLAG_NAME, FLAG_BASE_VAL },
-				#include "CommonFlags.def"
+				#define FLAG(FLAG_NAME,FLAG_BASE_VAL) { FlagID::FLAG_NAME, FLAG_BASE_VAL },
+				#include "Flags/FlagsAll.def"	
 			};
 	};
 }
