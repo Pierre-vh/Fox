@@ -1,0 +1,32 @@
+This file describes what needs to be done for the SourceManager system:
+
+// FileID struct/class
+	// Wrapper around a 16 bit unsigned integer (an index) that locates a File inside the source manager.
+		// 0 = Invalid
+		// >0 = Valid file
+
+// SourceFile struct/class
+	// Class that contains information about a source file 
+		// if the source file comes from the disk:
+			// File path
+			// File Name 
+		// Else : return "" when getters/setters are called
+		// File content
+			// for the file content, getters/Setters return a reference to the string, and not the string itself, to avoid copies.
+
+// SourceManager
+	// Wrapper around a std::map<FileID,SourceFile>
+	// Provides helper functions :
+		// const SourceFile* getFile(FileID) 
+			// Quick reflexion : use a pointer or a reference ? Or even, an iterator? See https://stackoverflow.com/a/516041
+			// This says that a wrapper around an interator is the safest thing to do. Maybe pack in a end_ iterator in it too to check if the file's valid
+			// with operator bool();
+			// This ensures total safety of the pointer, and can also be helpful to check it's validity. 
+		// FileID addFileFromDisk(std::string filepath) // Returns the fileID of the newly registered file.
+		// FileID addFileFromString(std::string string) // same as above
+		// etc... as needed.
+
+// SourceLoc
+	// A Small struct used to locate a character in a SourceFile hosted by the SourceManager
+	// std::size_t idx -> index of the char (use StringManipulator::advance to get to it)
+	// FileID fileId -> id of the file.
