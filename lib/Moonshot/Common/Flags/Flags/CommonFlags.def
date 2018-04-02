@@ -24,4 +24,6 @@ FLAG(diagengine_silenceNotes,false)
 FLAG(diagengine_silenceAllAfterFatalError,false)
 FLAG(diagengine_silenceAll,false)
 
-#undef FLAG
+#ifndef KEEP_FLAG_DEFINITION
+	#undef FLAG
+#endif

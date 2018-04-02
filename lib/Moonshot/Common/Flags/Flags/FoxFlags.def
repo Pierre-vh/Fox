@@ -16,4 +16,6 @@
 FLAG(lexer_logTotalTokenCount,false)
 FLAG(lexer_logOnPush,false)
 
-#undef FLAG
+#ifndef KEEP_FLAG_DEFINITION
+	#undef FLAG
+#endif

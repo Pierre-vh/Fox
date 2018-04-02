@@ -1,0 +1,16 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : FlagsAll.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// Include file that includes every flag definition file.
+////------------------------------------------------------////
+
+#define KEEP_FLAG_DEFINITION
+
+#include "CommonFlags.def"
+#include "FoxFlags.def"
+
+#undef FLAG
+#undef KEEP_FLAG_DEFINITION
