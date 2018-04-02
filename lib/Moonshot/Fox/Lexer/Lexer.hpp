@@ -84,7 +84,6 @@ namespace Moonshot
 			// Utilities
 			bool		escapeFlag_ = false;			// escaping with backslash flag
 			DFAState	cstate_ = DFAState::S_BASE;		// curren dfa state. begins at S_BASE;
-			std::string inputstr_;					// the input
 			std::string curtok_;					// the Token that's being constructed.
 			TextPosition	ccoord_;					// current coordinates.
 			// Output

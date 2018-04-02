@@ -69,7 +69,6 @@ std::size_t Lexer::resultSize() const
 
 void Lexer::setStr(const std::string & str)
 {
-	inputstr_ = str;
 	manip.setStr(str);
 }
 
