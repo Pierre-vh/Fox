@@ -8,8 +8,7 @@
 ////------------------------------------------------------////
 
 #include "DiagnosticEngine.hpp"
-
-#include "Moonshot/Common/Flags/Flags.hpp"
+#include "Moonshot/Common/Flags/FlagsManager.hpp"
 #include "Diagnostic.hpp"
 #include "BuiltinDiagConsumers.hpp"
 #include <cassert>
@@ -108,12 +107,12 @@ bool DiagnosticEngine::updateOptionsFromFlags()
 {
 	if (flagsManager_)
 	{
-		diagOpts_.errorsAreFatal = flagsManager_->isSet(CommonFlag::diagengine_errorsAreFatal);
-		diagOpts_.silenceAll = flagsManager_->isSet(CommonFlag::diagengine_silenceAll);
-		diagOpts_.silenceAllAfterFatalError = flagsManager_->isSet(CommonFlag::diagengine_silenceAllAfterFatalError);
-		diagOpts_.silenceNotes = flagsManager_->isSet(CommonFlag::diagengine_silenceNotes);
-		diagOpts_.silenceWarnings = flagsManager_->isSet(CommonFlag::diagengine_silenceWarnings);
-		diagOpts_.warningsAreErrors = flagsManager_->isSet(CommonFlag::diagengine_warningsAreErrors);
+		diagOpts_.errorsAreFatal = flagsManager_->isSet(FlagID::diagengine_errorsAreFatal);
+		diagOpts_.silenceAll = flagsManager_->isSet(FlagID::diagengine_silenceAll);
+		diagOpts_.silenceAllAfterFatalError = flagsManager_->isSet(FlagID::diagengine_silenceAllAfterFatalError);
+		diagOpts_.silenceNotes = flagsManager_->isSet(FlagID::diagengine_silenceNotes);
+		diagOpts_.silenceWarnings = flagsManager_->isSet(FlagID::diagengine_silenceWarnings);
+		diagOpts_.warningsAreErrors = flagsManager_->isSet(FlagID::diagengine_warningsAreErrors);
 	}
 	return (bool)flagsManager_;
 }
