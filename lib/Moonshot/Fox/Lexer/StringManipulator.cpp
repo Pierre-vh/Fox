@@ -41,6 +41,7 @@ const std::string * UTF8::StringManipulator::getStrPtr() const
 void UTF8::StringManipulator::setStr(std::string * str)
 {
 	data_ = str;
+	reset();
 }
 
 void UTF8::StringManipulator::setStr(const std::string & str)
@@ -82,7 +83,7 @@ void UTF8::StringManipulator::reset()
 
 void UTF8::StringManipulator::advance(const std::size_t & ind)
 {
-	utf8::advance(iter_, ind, str().end());
+	utf8::advance(iter_, ind, end_);
 }
 
 void UTF8::StringManipulator::goBack(const std::size_t & ind)
@@ -93,25 +94,19 @@ void UTF8::StringManipulator::goBack(const std::size_t & ind)
 
 CharType UTF8::StringManipulator::currentChar() const
 {
-	if (iter_ == str().end())
+	if (iter_ == end_)
 		return L'\0';
 	return utf8::peek_next(iter_,end_);
 }
 
 CharType UTF8::StringManipulator::getChar(std::size_t ind) const
 {
-	std::string tmp = str(); // need a temp copy to get non const iterators!
+	std::string::iterator tmpit = beg_;
 
-	if (utf8::is_bom(tmp.begin())) // add +1 to skip bom if it has one
-		ind += 1;
+	utf8::advance(tmpit,ind, end_);
 
-	std::string::iterator it = tmp.begin(),
-		end = tmp.end();
-
-	utf8::advance(it, ind, tmp.end());
-
-	if (it != tmp.end())
-		return utf8::peek_next(it, tmp.end());
+	if (tmpit != end_);
+		return utf8::peek_next(tmpit, end_);
 	return L'\0';
 }
 
@@ -174,12 +169,12 @@ CharType UTF8::StringManipulator::peekBack() const
 
 std::size_t UTF8::StringManipulator::getSize() const
 {
-	return utf8::distance(str().begin(), str().end());
+	return utf8::distance(beg_,end_);
 }
 
 bool UTF8::StringManipulator::isAtEndOfStr() const
 {
-	return iter_ == str().end();
+	return iter_ == end_;
 }
 
 std::string & UTF8::StringManipulator::str()
@@ -192,7 +187,7 @@ std::string & UTF8::StringManipulator::str()
 		throw std::exception("unknown variant.");
 }
 
-const std::string & Moonshot::UTF8::StringManipulator::str() const
+const std::string & UTF8::StringManipulator::str() const
 {
 	if (std::holds_alternative<std::string>(data_))
 		return std::get<std::string>(data_);
