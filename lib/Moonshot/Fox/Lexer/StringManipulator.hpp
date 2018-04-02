@@ -30,44 +30,76 @@
 
 namespace Moonshot::UTF8
 {
-	void skipBOM(std::string::iterator& it,std::string::iterator end);
-	void append(std::string& str, const CharType& ch);
+
 	class StringManipulator
 	{
 		public:
+			// Default ctor
 			StringManipulator() = default;
 
-			std::string getStrCpy() const;			// Returns a copy of the internal string
-			const std::string* getStrPtr() const;	// Returns a pointer to the string (no copy performed)
+			// Returns a copy of the internal string
+			std::string getStrCpy() const;			
 
+			// Returns a pointer to the string (no copy performed)
+			const std::string* getStrPtr() const;	
+
+			// Set this SM's source to a copy of str
 			void setStr(const std::string& str);
+
+			// Set this SM's source to a the pointer str
 			void setStr(std::string* str);
 
-			// Function to test data_ :
-			// One returns true if data_ holds a string*
-			// One returns true if data_ holds a string 
+			// Returns true if this SM uses a std::string* as source.
 			bool isUsingAPointer() const;
+
+			// Returns true if this SM uses a copy of a string as source.
 			bool isUsingACopy() const;
 
+			// Convert a CharType to a utf8 encoded string
 			static std::string wcharToStr(const CharType& wc);
+
+			// Removes the BOM from a str
+			static void removeBOM(std::string& str);
+
+			// Given 2 iterators, places the iterator it at the beginning of the first codepoint, ignoring the Byte order mark
+			static void skipBOM(std::string::iterator& it, std::string::iterator end);
+
+			// Appends a CharType to a std::string.
+			static void append(std::string& str, const CharType& ch);
+
+			// Returns the index of the current character in codepoints. 
+			// THIS INDEX DIFFERS FROM THE STD::STRING'S OPERATOR [] EXPECTED INDEX.
+			// TO GET THE CODEPOINT,USE A STRING MANIPULATOR's ADVANCE METHOD.
 			std::size_t indexOfCurrentCharacter() const;
 
+			// Reset the iterators
 			void reset();
+
+			// Advance (ind) codepoints
 			void advance(const std::size_t& ind = 1);
+
+			// Go back (ind) codepoints
 			void goBack(const std::size_t& ind = 1);
+
+			// Get the current codepoint
 			CharType currentChar() const;			
 
+			// Get a codepoint at a precise location
 			CharType getChar(std::size_t ind) const;
 
+			// Extract a substring
 			std::string substring(std::size_t beg, const std::size_t& leng) const;
 			
+			// Peeking 
 			CharType peekFirst() const;
 			CharType peekNext() const;
 			CharType peekPrevious() const;
 			CharType peekBack() const;
 
+			// Return the number of codepoints in string
 			std::size_t getSize() const;
 
+			// Checks if the stringmanipulator has reached the end of the string
 			bool isAtEndOfStr() const;
 		private:
 			std::string& str();
