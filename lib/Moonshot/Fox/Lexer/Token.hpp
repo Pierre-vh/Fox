@@ -13,10 +13,11 @@
 
 #pragma once
 
-#include <map>		// std::map 
 #include "Moonshot/Common/Types/Types.hpp"
 #include <vector>
-
+#include <variant>
+#include <memory>
+#include <map>
 /*
 	Note for future rework : have all reserved keyword in the kKeyword_dict (including "true" and "false"
 	And make the Token & lexer system cleaner overall
@@ -37,172 +38,217 @@ namespace Moonshot
 		unsigned int line = 1;
 		unsigned int column = 1;
 	};
-	struct Token // the Token struct. The lexer outputs a std::vector<Token>. Tokens are recognized bits of the original input : keywords,id,values,etc.
+
+	enum class LiteralType : char
+	{
+		DEFAULT,
+		Ty_Bool,
+		Ty_Float,
+		Ty_Char,
+		Ty_String,
+		Ty_Int
+	};
+
+	struct LiteralInfo
 	{
 		public:
-			enum class category : char
-			{
-				DEFAULT,	// Default value
-				IDENTIFIER,		// User defined identifiers.	(Foo, bar ...)
-				KEYWORD,			// Reserved keywords			(func,let ...)
-				SIGN,			// + - ; ( ] ...
-				LITERAL			// value ("hello", 3.14, 'c', -1, ...)
-			};
-			enum class literal : char
-			{
-				DEFAULT,		// Default value
-				LIT_CHAR,
-				LIT_INTEGER,
-				LIT_FLOAT,
-				LIT_BOOL,
-				LIT_STRING
-			};
-			enum class sign : char
-			{
-				DEFAULT,			// Default value
-				// Signs
-				S_EQUAL,			// =
-				S_PLUS,				// +
-				S_MINUS,			// -
-				S_ASTERISK,			// *
-				S_SLASH,			// /
-				S_VBAR,				// |
-				S_AMPERSAND,		// &
-				S_LESS_THAN,		// <
-				S_GREATER_THAN,		// >
-				S_HASH,				// #
-				S_TILDE,			// ~
-				S_CARET,			// ^
-				S_PERCENT,			// %
+			LiteralInfo() = default;
+			LiteralInfo(const bool& bval);
+			LiteralInfo(const std::string& sval);
+			LiteralInfo(const float& fval);
+			LiteralInfo(const int64_t& ival);
+			LiteralInfo(const char32_t& cval);
 
-				// BRACKETS
-				B_CURLY_OPEN,		// {
-				B_CURLY_CLOSE,		// }
-				B_SQ_OPEN,			// [
-				B_SQ_CLOSE,			// ]
-				B_ROUND_OPEN,		// (
-				B_ROUND_CLOSE,		// )
-				// PUNCTUATION
-				P_SEMICOLON,		// ;
-				P_COLON,			// :
-				P_EXCL_MARK,		// !
-				P_INTER_MARK,		// ?
-				P_DOT,				// .
-				P_COMMA				// ,
-			};
-			enum class keyword : char
+			bool isNull() const;
+			operator bool() const;
+			LiteralType getType() const;
+			
+			template<typename Ty>
+			inline bool is() const
 			{
-				DEFAULT,		// Default value
-				// TYPES
-				T_INT,				// "int"
-				T_FLOAT,			// "float"
-				T_BOOL,				// "bool"
-				T_STRING,			// "string"
-				T_CHAR,				// "char"
-				// QUALIFIERS
-				Q_CONST,			// "const"
-				// TYPE CONVERSION
-				TC_AS,				// "as"
-				// DECLARATION / STATEMENT
-				D_LET,				// "let"
-				D_FUNC,				// "func"
-				D_IF,				// "if"
-				D_ELSE,				// "else"
-				D_WHILE,			// "while"
-				D_RETURN,			// "return"
-				// PACKAGE
-				P_IMPORT,			// "import"
-				P_USING				// "using"
-			};
-			Token(Context & c);
-			Token(Context & c,std::string data, const TextPosition &tpos = TextPosition(0,0));
-			category type =		category::DEFAULT;
-			keyword kw_type =	keyword::DEFAULT;
-			literal lit_type =	literal::DEFAULT;
-			sign sign_type =	sign::DEFAULT;
+				return std::holds_alternative<Ty>(val_);
+			}
 
-			FoxValue lit_val;
+			template<typename Ty>
+			inline Ty get() const
+			{
+				if (std::holds_alternative<Ty>(val_))
+					return std::get<Ty>(val_);
+				return Ty();
+			}
+		private:
+			std::variant<std::monostate,bool,std::string,float,int64_t,char32_t> val_;
+	};
+	
+	enum class SignType : char
+	{
+		DEFAULT,			// Default value
+		// Signs
+		S_EQUAL,			// =
+		S_PLUS,				// +
+		S_MINUS,			// -
+		S_ASTERISK,			// *
+		S_SLASH,			// /
+		S_VBAR,				// |
+		S_AMPERSAND,		// &
+		S_LESS_THAN,		// <
+		S_GREATER_THAN,		// >
+		S_HASH,				// #
+		S_TILDE,			// ~
+		S_CARET,			// ^
+		S_PERCENT,			// %
 
-			std::string str;
-			TextPosition pos;
+		// BRACKETS
+		S_CURLY_OPEN,		// {
+		S_CURLY_CLOSE,		// }
+		S_SQ_OPEN,			// [
+		S_SQ_CLOSE,			// ]
+		S_ROUND_OPEN,		// (
+		S_ROUND_CLOSE,		// )
+		// PUNCTUATION
+		S_SEMICOLON,		// ;
+		S_COLON,			// :
+		S_EXCL_MARK,		// !
+		S_INTER_MARK,		// ?
+		S_DOT,				// .
+		S_COMMA				// ,
+	};
+
+	enum class KeywordType : char
+	{
+		DEFAULT,		// Default value
+		// TYPES
+		KW_INT,				// "int"
+		KW_FLOAT,			// "float"
+		KW_BOOL,			// "bool"
+		KW_STRING,			// "string"
+		KW_CHAR,			// "char"
+		// QUALIFIERS
+		KW_CONST,			// "const"
+		// TYPE CONVERSION
+		KW_AS,				// "as"
+		// DECLARATION / STATEMENT
+		KW_LET,				// "let"
+		KW_FUNC,			// "func"
+		KW_IF,				// "if"
+		KW_ELSE,			// "else"
+		KW_WHILE,			// "while"
+		KW_RETURN,			// "return"
+		// PACKAGE
+		KW_IMPORT,			// "import"
+		KW_USING			// "using"
+	};
+
+	enum class TokenType : char
+	{
+		UNKNOWN,
+		LITERAL,
+		SIGN,
+		KEYWORD,
+		IDENTIFIER
+	};
+
+	struct Token 
+	{
+		public:
+			Token() = default;
+			Token(Context *ctxt,std::string data, const TextPosition &tpos = TextPosition(0, 0));
 
 			std::string showFormattedTokenData() const;
 
 			bool isValid() const;
+			operator bool() const;
 
+			bool isLiteral() const;
+			bool isIdentifier() const;
+			bool isSign() const;
+			bool isKeyword() const;
+
+			KeywordType getKeywordType() const;
+			SignType getSignType() const;
+			LiteralType getLiteralType() const;
+			LiteralInfo getLiteralInfo() const;
+
+			std::string getString() const;
+			std::string getTokenTypeFriendlyName() const;
+
+			TextPosition getPosition() const;
 		private:
-			Context& context_;
+			// Empty struct used to "mark" the variant when this token is an identifier.
+			struct Identifier{}; 
+
+			/* Member variables */
+			std::variant<std::monostate, KeywordType, SignType, LiteralInfo, Identifier> tokenInfo_;
+			std::string str_;
+			TextPosition position_;
+			Context *context_ = nullptr;
 
 			void idToken();					// will id the tolen and call the specific evaluations functions if needed.
 			bool specific_idKeyword();
 			bool specific_idSign();
 			bool specific_idLiteral();				// is a literal
 	};
-
-	namespace TokenDicts
+	namespace Dictionaries
 	{
-		// Dictionary used to identify keywords.
-		const std::map<std::string, Token::keyword> kKeywords_dict =
+		const std::map<std::string, KeywordType> kKeywords_dict =
 		{
 			// TYPES
-			{ "int"		, Token::keyword::T_INT },
-			{ "float"	, Token::keyword::T_FLOAT },
-			{ "bool"	, Token::keyword::T_BOOL },
-			{ "string"	, Token::keyword::T_STRING },
-			{ "char"	, Token::keyword::T_CHAR },
+			{ "int"		, KeywordType::KW_INT },
+			{ "float"	, KeywordType::KW_FLOAT },
+			{ "bool"	, KeywordType::KW_BOOL },
+			{ "string"	, KeywordType::KW_STRING },
+			{ "char"	, KeywordType::KW_CHAR },
 			// specifier
-			{ "const"	, Token::keyword::Q_CONST },
+			{ "const"	, KeywordType::KW_CONST },
 			// TYPE CONVERSION
-			{ "as"		, Token::keyword::TC_AS },
+			{ "as"		, KeywordType::KW_AS },
 			// DECLARATIONS
-			{ "let"		, Token::keyword::D_LET },
-			{ "func"	, Token::keyword::D_FUNC },
-			{ "fn"		, Token::keyword::D_FUNC },
+			{ "let"		, KeywordType::KW_LET },
+			{ "func"	, KeywordType::KW_FUNC },
+			{ "fn"		, KeywordType::KW_FUNC },
 			// Statements
-			{ "if"		, Token::keyword::D_IF },
-			{ "else"	, Token::keyword::D_ELSE },
-			{ "while"	, Token::keyword::D_WHILE },
+			{ "if"		, KeywordType::KW_IF },
+			{ "else"	, KeywordType::KW_ELSE },
+			{ "while"	, KeywordType::KW_WHILE },
 			// return
-			{ "return"	, Token::keyword::D_RETURN },
+			{ "return"	, KeywordType::KW_RETURN },
 			// import
-			{ "import"	, Token::keyword::P_IMPORT },
-			{ "using"	, Token::keyword::P_USING }
-			// Before release, I might add more keywords that could be used later. e.g. : class, static, void, null,for,do,break,continue, etc.
+			{ "import"	, KeywordType::KW_IMPORT },
+			{ "using"	, KeywordType::KW_USING }
 		};
 
-		const std::map<CharType, Token::sign> kSign_dict =
+		const std::map<CharType, SignType> kSign_dict =
 		{
 			//signs
-			{ '='	, Token::sign::S_EQUAL },
-			{ '+'	, Token::sign::S_PLUS },
-			{ '-'	, Token::sign::S_MINUS },
-			{ '*'	, Token::sign::S_ASTERISK },
-			{ '/'	, Token::sign::S_SLASH },
-			{ '|'	, Token::sign::S_VBAR },
-			{ '&'	, Token::sign::S_AMPERSAND },
-			{ '<'	, Token::sign::S_LESS_THAN },
-			{ '>'	, Token::sign::S_GREATER_THAN },
-			{ '#'	, Token::sign::S_HASH },
-			{ '~'	, Token::sign::S_TILDE },
-			{ '^'	, Token::sign::S_CARET },
-			{ '%'	, Token::sign::S_PERCENT },
+			{ '='	, SignType::S_EQUAL },
+			{ '+'	, SignType::S_PLUS },
+			{ '-'	, SignType::S_MINUS },
+			{ '*'	, SignType::S_ASTERISK },
+			{ '/'	, SignType::S_SLASH },
+			{ '|'	, SignType::S_VBAR },
+			{ '&'	, SignType::S_AMPERSAND },
+			{ '<'	, SignType::S_LESS_THAN },
+			{ '>'	, SignType::S_GREATER_THAN },
+			{ '#'	, SignType::S_HASH },
+			{ '~'	, SignType::S_TILDE },
+			{ '^'	, SignType::S_CARET },
+			{ '%'	, SignType::S_PERCENT },
 			// bracket
-			{ '{'	, Token::sign::B_CURLY_OPEN },
-			{ '}'	, Token::sign::B_CURLY_CLOSE },
-			{ '['	, Token::sign::B_SQ_OPEN },
-			{ ']'	, Token::sign::B_SQ_CLOSE },
-			{ '('	, Token::sign::B_ROUND_OPEN },
-			{ ')'	, Token::sign::B_ROUND_CLOSE },
+			{ '{'	, SignType::S_CURLY_OPEN },
+			{ '}'	, SignType::S_CURLY_CLOSE },
+			{ '['	, SignType::S_SQ_OPEN },
+			{ ']'	, SignType::S_SQ_CLOSE },
+			{ '('	, SignType::S_ROUND_OPEN },
+			{ ')'	, SignType::S_ROUND_CLOSE },
 			// punctuation
-			{ ';'	, Token::sign::P_SEMICOLON },
-			{ ':'	, Token::sign::P_COLON },
-			{ '!'	, Token::sign::P_EXCL_MARK },
-			{ '?'	, Token::sign::P_INTER_MARK },
-			{ '.'	, Token::sign::P_DOT },
-			{ ','	, Token::sign::P_COMMA }
+			{ ';'	, SignType::S_SEMICOLON },
+			{ ':'	, SignType::S_COLON },
+			{ '!'	, SignType::S_EXCL_MARK },
+			{ '?'	, SignType::S_INTER_MARK },
+			{ '.'	, SignType::S_DOT },
+			{ ','	, SignType::S_COMMA }
 		};
 	}
-
 	// TokenVector typedef
 	typedef std::vector<Token> TokenVector;
 }

@@ -10,196 +10,22 @@
 #include "Token.hpp"
 #include "StringManipulator.hpp"
 
-#include <variant>	// std::variant
 #include <regex>	// std::regex, std::regex_match
 #include <string>	// std::stoi / stoll
 #include <sstream>	// std::stringstream (showFormattedToken())
+#include <cassert>
 
-#include "Moonshot/Common/Utils/Utils.hpp"
 #include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Common/Utils/Utils.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 
 using namespace Moonshot;
+using namespace Moonshot::Dictionaries;
 
 // Regular expression used for identification 
 std::regex kInt_regex("\\d+");
 std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
 std::regex kId_regex("(([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+");
-
-Token::Token(Context & c) : context_(c)
-{
-}
-Token::Token(Context & c,std::string data, const TextPosition &tpos) : context_(c),str(data),pos(tpos)
-{
-	idToken(); // self id
-}
-
-std::string Token::showFormattedTokenData() const
-{
-	if (str.size() == 0) // Token is empty
-		return "<EMPTY TOKEN>"; // return nothing.
-
-	std::stringstream ss;
-	ss << "[str:\"" << str << "\"][" << pos.asText() << "][type:";
-	int enum_info = -1;		// The information of the corresponding enumeration
-	switch (type)
-	{
-		case category::DEFAULT:
-			ss << "ENUM_DEFAULT";
-			break;
-		case category::IDENTIFIER:
-			ss << "IDENTIFIER";
-			enum_info = -2;
-			break;
-		case category::KEYWORD:
-			ss << "KEYWORD";
-			enum_info = Util::enumAsInt(kw_type);
-			break;
-		case category::SIGN:
-			ss << "SIGN";
-			enum_info = Util::enumAsInt(sign_type);
-			break;
-		case category::LITERAL:
-			ss << "VALUE";
-			enum_info = Util::enumAsInt(lit_type);
-			break;
-	}
-	if (enum_info >= -1)
-		ss << " -> E:" << enum_info;
-	ss << "]";
-	return ss.str();
-}
-bool Token::isValid() const
-{
-	return str.size();
-}
-void Token::idToken()
-{
-	/*
-	if (!context_.isSafe())
-	{
-		context_.reportError("Errors happened earlier, as a result tokens won't be identified.");
-		return;
-	}
-	*/
-	if (str.size() == 0)
-		throw Exceptions::lexer_critical_error("Found an empty Token. [" + pos.asText() + "]");
-
-	// substract the Token length's fron the column number given by the lexer.
-	pos.column -= static_cast<unsigned int>(str.length());
-
-	if (specific_idSign())
-		type = category::SIGN;
-	else
-	{
-		if (specific_idKeyword())
-			type = category::KEYWORD;
-		else if (specific_idLiteral())
-			type = category::LITERAL;
-		else if (std::regex_match(str, kId_regex))
-			type = category::IDENTIFIER;
-		else
-			context_.reportError(" [" + pos.asText() + "]\tUnrecognized Token \"" + str + '"');
-	}
-}
-
-bool Token::specific_idKeyword()
-{
-	auto i = TokenDicts::kKeywords_dict.find(str);
-	if (i == TokenDicts::kKeywords_dict.end())
-		return false;
-	
-	kw_type = i->second;
-	return true;
-}
-
-bool Token::specific_idSign()
-{
-	if (str.size() > 1)
-		return false;
-	if (isdigit(str[0]))
-		return false;
-	auto i = TokenDicts::kSign_dict.find(str[0]);
-	if (i != TokenDicts::kSign_dict.end())
-	{
-		sign_type = i->second;
-		return true;
-	}
-	return false;
-}
-
-bool Token::specific_idLiteral()
-{
-	UTF8::StringManipulator strmanip;
-	strmanip.setStr(str);
-	if (strmanip.peekFirst() == '\'')
-	{
-		if (strmanip.peekBack() == '\'')
-		{
-			if (strmanip.getSize() > 3)
-			{
-				context_.reportError("Char literal can only contain one character.");
-				return false;
-			}
-			lit_val = strmanip.getChar(1);
-			lit_type = literal::LIT_CHAR;
-			return true;
-		}
-		else
-		{
-			context_.reportError("Char literal was not correctly closed.");
-			return false;
-		}
-	}
-	else if (strmanip.peekFirst() == '"')
-	{
-		if (strmanip.peekBack() == '"')
-		{
-			lit_val = strmanip.substring(1,strmanip.getSize()-2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
-			lit_type = literal::LIT_STRING;
-			return true;
-		}
-		else
-		{
-			context_.reportError("String literal was not correctly closed.");
-			return false;
-		}
-	}
-	else if (str == "true" | str == "false")
-	{
-		lit_val = (str == "true" ? true : false);
-		lit_type = literal::LIT_BOOL;
-		return true;
-	}
-	// Might rework this bit later because it's a bit ugly, but it works !
-	else if (std::regex_match(str, kInt_regex))
-	{
-		std::istringstream ss(str);
-		int64_t tmp;
-		if(ss >> tmp)
-		{
-			lit_val = tmp;
-			lit_type = literal::LIT_INTEGER;
-		}
-		else
-		{
-			// If out of range, try to put the value in a float instead.
-			std::stringstream out;
-			out << "The value \xAF" << str << "\xAE was interpreted as a float because it didn't fit a 64 Bit signed int.";
-			context_.reportWarning(out.str());
-			lit_val = std::stof(str);
-			lit_type = literal::LIT_FLOAT;
-		}
-		return true;
-	}
-	else if (std::regex_match(str, kFloat_regex))
-	{
-		lit_val = std::stof(str);
-		lit_type = literal::LIT_FLOAT;
-		return true;
-	}
-	return false;
-}
 
 TextPosition::TextPosition()
 {
@@ -226,4 +52,279 @@ std::string TextPosition::asText() const
 	std::stringstream ss;
 	ss << "LINE:" << line /*<< " C:" << column*/;
 	return ss.str();
+}
+
+LiteralType LiteralInfo::getType() const
+{
+	if (std::holds_alternative<bool>(val_))
+		return LiteralType::Ty_Bool;
+	else if (std::holds_alternative<std::string>(val_))
+		return LiteralType::Ty_String;
+	else if (std::holds_alternative<float>(val_))
+		return LiteralType::Ty_Float;
+	else if (std::holds_alternative<int64_t>(val_))
+		return LiteralType::Ty_Int;
+	else if (std::holds_alternative<char32_t>(val_))
+		return LiteralType::Ty_Char;
+	return LiteralType::DEFAULT;
+}
+
+LiteralInfo::LiteralInfo(const bool & bval)
+{
+	val_ = bval;
+}
+
+LiteralInfo::LiteralInfo(const std::string & sval)
+{
+	val_ = sval;
+}
+
+LiteralInfo::LiteralInfo(const float& fval)
+{
+	val_ = fval;
+}
+
+LiteralInfo::LiteralInfo(const int64_t& ival)
+{
+	val_ = ival;
+}
+
+LiteralInfo::LiteralInfo(const char32_t& cval)
+{
+	val_ = cval;
+}
+
+bool LiteralInfo::isNull() const
+{
+	return std::holds_alternative<std::monostate>(val_);
+}
+
+LiteralInfo::operator bool() const
+{
+	return !isNull();
+}
+
+Token::Token(Context *ctxt, std::string data, const TextPosition & tpos)
+{
+	// Check if ctxt isn't null
+	assert(ctxt && "Context ptr is null!");
+	context_ = ctxt;
+	str_ = data;
+	position_ = tpos;
+
+	idToken();
+}
+
+std::string Token::showFormattedTokenData() const
+{
+	if (!isValid())
+		return "<INVALID TOKEN>"; // return nothing.
+
+	std::stringstream ss;
+	ss << "[Token][String: \"" << str_ << "\"][Position: " << position_.asText() << "][Type: " << getTokenTypeFriendlyName();
+	int enumInfo = -1;
+
+	if (isKeyword())
+		enumInfo = Util::enumAsInt(std::get<KeywordType>(tokenInfo_));
+	else if (isLiteral())
+		enumInfo = Util::enumAsInt(std::get<LiteralInfo>(tokenInfo_).getType());
+	else if (isSign())
+		enumInfo = Util::enumAsInt(std::get<SignType>(tokenInfo_));
+
+	if (enumInfo >= 0)
+		ss << " (" << enumInfo << ")";
+
+	ss << "]";
+
+	return ss.str();
+}
+
+bool Token::isValid() const
+{
+	return !(std::holds_alternative<std::monostate>(tokenInfo_));
+}
+
+Token::operator bool() const
+{
+	return isValid();
+}
+
+bool Token::isLiteral() const
+{
+	return std::holds_alternative<LiteralInfo>(tokenInfo_);
+}
+
+bool Token::isIdentifier() const
+{
+	return std::holds_alternative<Identifier>(tokenInfo_);
+}
+
+bool Token::isSign() const
+{
+	return std::holds_alternative<SignType>(tokenInfo_);
+}
+
+bool Token::isKeyword() const
+{
+	return std::holds_alternative<KeywordType>(tokenInfo_);
+}
+
+KeywordType Token::getKeywordType() const
+{
+	if (isKeyword())
+		return std::get<KeywordType>(tokenInfo_);
+	return KeywordType::DEFAULT;
+}
+
+SignType Token::getSignType() const
+{
+	if (isSign())
+		return std::get<SignType>(tokenInfo_);
+	return SignType::DEFAULT;
+}
+
+std::string Token::getString() const
+{
+	return str_;
+}
+
+LiteralType Token::getLiteralType() const
+{
+	if (isLiteral())
+		return std::get<LiteralInfo>(tokenInfo_).getType();
+	return LiteralType::DEFAULT;
+}
+
+LiteralInfo Token::getLiteralInfo() const
+{
+	if (isLiteral())
+		return std::get<LiteralInfo>(tokenInfo_);
+	return LiteralInfo();
+}
+
+void Token::idToken()
+{
+	if (str_.size() == 0)
+		throw Exceptions::lexer_critical_error("Found an empty Token. [" + position_.asText() + "]");
+
+	// substract the Token length's fron the column number given by the lexer.
+	position_.column -= static_cast<unsigned int>(str_.length());
+
+	if (specific_idSign());
+	else if (specific_idKeyword());
+	else if (specific_idLiteral());
+	else if (std::regex_match(str_, kId_regex))
+		tokenInfo_ = Identifier();
+}
+
+bool Token::specific_idKeyword()
+{
+	auto i = kKeywords_dict.find(str_);
+	if (i == kKeywords_dict.end())
+		return false;
+
+	tokenInfo_ = i->second;
+	return true;
+}
+
+bool Token::specific_idSign()
+{
+	if ((str_.size() > 1) || isdigit(str_[0]))
+		return false;
+
+	auto i = kSign_dict.find(str_[0]);
+	if (i == kSign_dict.end())
+		return false;
+
+	tokenInfo_ = i->second;
+	return true;
+}
+
+
+bool Token::specific_idLiteral()
+{
+	assert(context_ && "Cannot attempt to identify a literal without a context.");
+
+	UTF8::StringManipulator strmanip;
+	strmanip.setStr(str_);
+	if (strmanip.peekFirst() == '\'')
+	{
+		if (strmanip.peekBack() == '\'')
+		{
+			if (strmanip.getSize() > 3)
+			{
+				context_->reportError("Char literal can only contain one character.");
+				return false;
+			}
+			auto charlit = strmanip.getChar(1);
+			tokenInfo_ = LiteralInfo(charlit);
+			return true;
+		}
+		else
+		{
+			context_->reportError("Char literal was not correctly closed.");
+			return false;
+		}
+	}
+	else if (strmanip.peekFirst() == '"')
+	{
+		if (strmanip.peekBack() == '"')
+		{
+
+			std::string strlit = strmanip.substring(1, strmanip.getSize() - 2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
+			tokenInfo_ = LiteralInfo(strlit);
+			return true;
+		}
+		else
+		{
+			context_->reportError("String literal was not correctly closed.");
+			return false;
+		}
+	}
+	else if (str_ == "true" | str_ == "false")
+	{
+		tokenInfo_ = LiteralInfo((str_ == "true" ? true : false));
+		return true;
+	}
+	// Might rework this bit later because it's a bit ugly, but it works !
+	else if (std::regex_match(str_, kInt_regex))
+	{
+		std::istringstream ss(str_);
+		int64_t tmp;
+		if (ss >> tmp)
+			tokenInfo_ = LiteralInfo(tmp);
+		else
+		{
+			// If out of range, try to put the value in a float instead.
+			std::stringstream out;
+			out << "The value \xAF" << str_ << "\xAE was interpreted as a float because it didn't fit a 64 Bit signed int.";
+			context_->reportWarning(out.str());
+			tokenInfo_ = LiteralInfo(std::stof(str_));
+		}
+		return true;
+	}
+	else if (std::regex_match(str_, kFloat_regex))
+	{
+		tokenInfo_ = LiteralInfo(std::stof(str_));
+		return true;
+	}
+	return false;
+}
+
+std::string Token::getTokenTypeFriendlyName() const
+{
+	if (isIdentifier())
+		return "Identifier";
+	else if (isKeyword())
+		return "Keyword";
+	else if (isLiteral())
+		return "Literal";
+	else if (isSign())
+		return "Sign";
+	return "Unknown Token Type";
+}
+
+TextPosition Token::getPosition() const
+{
+	return position_;
 }
