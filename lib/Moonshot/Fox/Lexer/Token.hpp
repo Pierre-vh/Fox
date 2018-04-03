@@ -18,10 +18,9 @@
 #include <variant>
 #include <memory>
 #include <map>
-/*
-	Note for future rework : have all reserved keyword in the kKeyword_dict (including "true" and "false"
-	And make the Token & lexer system cleaner overall
-*/
+
+// TODO : Do a code review on this whole system, finalize it a bit, make it clean.
+// Maybe find a way to avoid storing the whole LiteralInfo in the token to reduce it's size a bit.
 
 namespace Moonshot
 {
