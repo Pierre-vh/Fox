@@ -160,17 +160,19 @@ TEST(DiagnosticsTests, errLimit)
 	diagEng.setErrorLimit(1);
 	EXPECT_FALSE(diagEng.hasFatalErrorOccured()) << "DiagnosticsEngine reported that a fatal error occured, but it was never used to report errors!";
 
-	diagEng.report(DiagID::unittest_errtest).emit();
+	auto diag1 = diagEng.report(DiagID::unittest_errtest);
+	EXPECT_EQ("Test error", diag1.getDiagStr());
+	diag1.emit();
 	EXPECT_FALSE(diagEng.hasFatalErrorOccured()) << "The DiagnosticsEngine reported a fatal error after 1 error.";
 
-	auto diag = diagEng.report(DiagID::unittest_errtest);
-	EXPECT_EQ(diag.getDiagID(), DiagID::diagengine_maxErrCountExceeded) << "The report function did not return the expected diagnostic";
-	EXPECT_EQ(diag.getDiagSeverity(), DiagSeverity::FATAL) << "The report function did not return a fatal diagnostic";
-	EXPECT_EQ("Current error count exceeded the maximum thresold of 1.", diag.getDiagStr()) << "Incorrect diagstr";
-	EXPECT_TRUE(diag.isFrozen()) << "Diag was supposed to be frozen to prevent user modifications!";
+	auto diag2 = diagEng.report(DiagID::unittest_errtest);
+	EXPECT_EQ(diag2.getDiagID(), DiagID::diagengine_maxErrCountExceeded) << "The report function did not return the expected diagnostic";
+	EXPECT_EQ(diag2.getDiagSeverity(), DiagSeverity::FATAL) << "The report function did not return a fatal diagnostic";
+	EXPECT_EQ("Current error count exceeded the maximum thresold of 1.", diag2.getDiagStr()) << "Incorrect diagstr";
+	EXPECT_TRUE(diag2.isFrozen()) << "Diag was supposed to be frozen to prevent user modifications!";
 
 	// Emit the diag and perform final check.
-	diag.emit();
+	diag2.emit();
 	EXPECT_TRUE(diagEng.hasFatalErrorOccured()) << "Fatal error did not occur. Current error count: " << diagEng.getNumErrors() << "; Error limit: " << diagEng.getErrorLimit();
 }
 
