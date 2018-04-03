@@ -12,11 +12,9 @@
 
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
+
 using namespace Moonshot;
 
-using category = Token::category;
-using sign = Token::sign;
-using keyword = Token::keyword;
 
 ParsingResult<IASTExpr*> Parser::parseDeclCall()
 {
@@ -64,7 +62,7 @@ ParsingResult<IASTExpr*> Parser::parseMemberAccess()
 	{
 		std::unique_ptr<IASTExpr> cur = std::move(prim.result_);
 
-		while (auto dot = matchSign(sign::P_DOT))
+		while (auto dot = matchSign(SignType::S_DOT))
 		{
 			if (auto id = matchID())
 			{
@@ -149,7 +147,7 @@ ParsingResult<IASTExpr*>  Parser::parseCastExpr()
 	{
 		std::size_t casttype = TypeIndex::InvalidIndex;
 		// Search for a (optional) cast: "as" <type>
-		if (matchKeyword(keyword::TC_AS))
+		if (matchKeyword(KeywordType::KW_AS))
 		{
 			if (auto castType = matchTypeKw())
 			{
@@ -273,7 +271,7 @@ ParsingResult<IASTExpr*> Parser::parseExpr()
 
 ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory, const bool& isExprMandatory)
 {
-	if (matchSign(sign::B_ROUND_OPEN))
+	if (matchSign(SignType::S_ROUND_OPEN))
 	{
 		ParsingOutcome ps = ParsingOutcome::SUCCESS;
 		std::unique_ptr<IASTExpr> rtr;
@@ -285,10 +283,10 @@ ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory, const 
 			ps = ParsingOutcome::FAILED_BUT_RECOVERED;
 		}
 
-		if (!matchSign(sign::B_ROUND_CLOSE))
+		if (!matchSign(SignType::S_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')' ,");
-			if (!resyncToDelimiter(sign::B_ROUND_CLOSE))
+			if (!resyncToDelimiter(SignType::S_ROUND_CLOSE))
 				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_AND_DIED);
 			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(rtr));
 		}
@@ -300,7 +298,7 @@ ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory, const 
 	{
 		// attempt resync to )
 		errorExpected("Expected a '('");
-		if(resyncToDelimiter(sign::B_ROUND_CLOSE))
+		if(resyncToDelimiter(SignType::S_ROUND_CLOSE))
 			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 		return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_AND_DIED);
 	}
@@ -315,7 +313,7 @@ ParsingResult<ExprList*> Parser::parseExprList()
 	{
 		auto exprlist = std::make_unique<ExprList>();
 		exprlist->addExpr(std::move(firstexpr.result_));
-		while (auto comma = matchSign(sign::P_COMMA))
+		while (auto comma = matchSign(SignType::S_COMMA))
 		{
 			if (auto expr = parseExpr())
 				exprlist->addExpr(std::move(expr.result_));
@@ -333,18 +331,18 @@ ParsingResult<ExprList*> Parser::parseExprList()
 ParsingResult<ExprList*> Parser::parseParensExprList()
 {
 	// <parens_expr_list>	= '(' [ <expr_list> ] ')'
-	if (auto op_rb = matchSign(sign::B_ROUND_OPEN))
+	if (auto op_rb = matchSign(SignType::S_ROUND_OPEN))
 	{
 		auto exprlist = std::make_unique<ExprList>();
 		if (auto parsedlist = parseExprList())			// optional expr_list
 			exprlist = std::move(parsedlist.result_);
 
 		// mandatory ')'
-		if (!matchSign(sign::B_ROUND_CLOSE))
+		if (!matchSign(SignType::S_ROUND_CLOSE))
 		{
 			// attempt resync to )
 			errorExpected("Expected a ')'");
-			if (resyncToDelimiter(sign::B_ROUND_CLOSE))
+			if (resyncToDelimiter(SignType::S_ROUND_CLOSE))
 				return ParsingResult<ExprList*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<ExprList*>(ParsingOutcome::FAILED_AND_DIED);
 		}
@@ -363,9 +361,9 @@ bool Parser::matchExponentOp()
 {
 	auto cur = getToken();
 	auto pk = getToken(state_.pos + 1);
-	if (cur.isValid() && cur.type == category::SIGN && cur.sign_type == sign::S_ASTERISK)
+	if (cur.isValid() && cur.isSign() && (cur.getSignType() == SignType::S_ASTERISK))
 	{
-		if (pk.isValid() && pk.type == category::SIGN && pk.sign_type == sign::S_ASTERISK)
+		if (pk.isValid() && pk.isSign() && (pk.getSignType() == SignType::S_ASTERISK))
 		{
 			state_.pos+=2;
 			return true;
@@ -378,7 +376,7 @@ ParsingResult<binaryOperator> Parser::matchAssignOp()
 {
 	auto cur = getToken();
 	state_.pos++;
-	if (cur.isValid() && cur.type == category::SIGN && cur.sign_type == sign::S_EQUAL)
+	if (cur.isValid() && cur.isSign() && (cur.getSignType() == SignType::S_EQUAL))
 		return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::ASSIGN_BASIC);
 	state_.pos--;
 	return ParsingResult<binaryOperator>(ParsingOutcome::NOTFOUND);
@@ -389,13 +387,13 @@ ParsingResult<unaryOperator> Parser::matchUnaryOp()
 	auto cur = getToken();
 	state_.pos++;
 
-	if (cur.sign_type == sign::P_EXCL_MARK)
+	if (cur.getSignType() == SignType::S_EXCL_MARK)
 		return ParsingResult<unaryOperator>(ParsingOutcome::SUCCESS, unaryOperator::LOGICNOT);
 
-	if (cur.sign_type == sign::S_MINUS)
+	if (cur.getSignType() == SignType::S_MINUS)
 		return ParsingResult<unaryOperator>(ParsingOutcome::SUCCESS, unaryOperator::NEGATIVE);
 
-	if (cur.sign_type == sign::S_PLUS)
+	if (cur.getSignType() == SignType::S_PLUS)
 		return ParsingResult<unaryOperator>(ParsingOutcome::SUCCESS, unaryOperator::POSITIVE);
 
 	state_.pos--;
@@ -407,42 +405,42 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 	auto cur = getToken();
 	auto pk = getToken(state_.pos + 1);
 	// Check current Token validity
-	if (!cur.isValid() || (cur.type != category::SIGN))
+	if (!cur.isValid() || !cur.isSign())
 		return ParsingResult<binaryOperator>(ParsingOutcome::NOTFOUND);
 	state_.pos += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
 
 	switch (priority)
 	{
 		case 0: // * / %
-			if (cur.sign_type == sign::S_ASTERISK)
+			if (cur.getSignType() == SignType::S_ASTERISK)
 			{
-				if (pk.sign_type != sign::S_ASTERISK) // Disambiguation between '**' and '*'
+				if (pk.getSignType() != SignType::S_ASTERISK) // Disambiguation between '**' and '*'
 					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::MUL );
 			}
-			if (cur.sign_type == sign::S_SLASH)
+			if (cur.getSignType() == SignType::S_SLASH)
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::DIV);
-			if (cur.sign_type == sign::S_PERCENT)
+			if (cur.getSignType() == SignType::S_PERCENT)
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::MOD);
 			break;
 		case 1: // + -
-			if (cur.sign_type == sign::S_PLUS)
+			if (cur.getSignType() == SignType::S_PLUS)
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::ADD );
-			if (cur.sign_type == sign::S_MINUS)
+			if (cur.getSignType() == SignType::S_MINUS)
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::MINUS);
 			break;
 		case 2: // > >= < <=
-			if (cur.sign_type == sign::S_LESS_THAN)
+			if (cur.getSignType() == SignType::S_LESS_THAN)
 			{
-				if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
+				if (pk.isValid() && (pk.getSignType() == SignType::S_EQUAL))
 				{
 					state_.pos += 1;
 					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LESS_OR_EQUAL );
 				}
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LESS_THAN );
 			}
-			if (cur.sign_type == sign::S_GREATER_THAN)
+			if (cur.getSignType() == SignType::S_GREATER_THAN)
 			{
-				if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
+				if (pk.isValid() && (pk.getSignType() == SignType::S_EQUAL))
 				{
 					state_.pos += 1;
 					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::GREATER_OR_EQUAL );
@@ -451,14 +449,14 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 			}
 			break;
 		case 3:	// == !=
-			if (pk.isValid() && (pk.sign_type == sign::S_EQUAL))
+			if (pk.isValid() && (pk.getSignType() == SignType::S_EQUAL))
 			{
-				if (cur.sign_type == sign::S_EQUAL)
+				if (cur.getSignType() == SignType::S_EQUAL)
 				{
 					state_.pos += 1;
 					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::EQUAL );
 				}
-				if (cur.sign_type == sign::P_EXCL_MARK)
+				if (cur.getSignType() == SignType::S_EXCL_MARK)
 				{
 					state_.pos += 1;
 					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::NOTEQUAL );
@@ -466,14 +464,14 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 			}
 			break;
 		case 4:
-			if (pk.isValid() && (pk.sign_type == sign::S_AMPERSAND) && (cur.sign_type == sign::S_AMPERSAND))
+			if (pk.isValid() && (pk.getSignType() == SignType::S_AMPERSAND) && (cur.getSignType() == SignType::S_AMPERSAND))
 			{
 				state_.pos += 1;
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LOGIC_AND);
 			}
 			break;
 		case 5:
-			if (pk.isValid() && (pk.sign_type == sign::S_VBAR) && (cur.sign_type == sign::S_VBAR))
+			if (pk.isValid() && (pk.getSignType() == SignType::S_VBAR) && (cur.getSignType() == SignType::S_VBAR))
 			{
 				state_.pos += 1;
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LOGIC_OR);

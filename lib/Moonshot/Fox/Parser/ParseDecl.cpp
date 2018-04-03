@@ -16,17 +16,13 @@
 
 using namespace Moonshot;
 
-using category = Token::category;
-using sign = Token::sign;
-using keyword = Token::keyword;
-
 ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 {
 	/*
 		<func_decl> = "func" <id> '(' [<arg_list_decl>] ')'[':' <type>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
 	*/
 	// "func"
-	if (matchKeyword(keyword::D_FUNC))
+	if (matchKeyword(KeywordType::KW_FUNC))
 	{
 		auto rtr = std::make_unique<ASTFunctionDecl>();
 		// <id>
@@ -39,29 +35,29 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		}
 
 		// '('
-		if (matchSign(sign::B_ROUND_OPEN))
+		if (matchSign(SignType::S_ROUND_OPEN))
 		{
 			// [<arg_list_decl>]
 			auto pArgDeclList = parseArgDeclList();
 			if (pArgDeclList)
 				rtr->setArgs(pArgDeclList.result_);
 			// ')'
-			if (!matchSign(sign::B_ROUND_CLOSE))
+			if (!matchSign(SignType::S_ROUND_CLOSE))
 			{
 				if (pArgDeclList.getFlag() != ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
 					errorExpected("Expected a ')'");
-				if (!resyncToDelimiter(sign::B_ROUND_CLOSE))
+				if (!resyncToDelimiter(SignType::S_ROUND_CLOSE))
 					return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::FAILED_AND_DIED);
 			}
 		}
 		else
 		{
 			errorExpected("Expected '('");
-			if (!resyncToDelimiter(sign::B_ROUND_CLOSE))
+			if (!resyncToDelimiter(SignType::S_ROUND_CLOSE))
 				return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 		// [':' <type>]
-		if (matchSign(sign::P_COLON))
+		if (matchSign(SignType::S_COLON))
 		{
 			if (auto tyMatchRes = matchTypeKw())
 				rtr->setReturnType(tyMatchRes.result_);
@@ -91,16 +87,16 @@ ParsingResult<FoxFunctionArg> Parser::parseArgDecl()
 		FoxFunctionArg rtr;
 		rtr.getName() = mID_res.result_;
 		// ':'
-		if (!matchSign(sign::P_COLON))
+		if (!matchSign(SignType::S_COLON))
 		{
 			errorExpected("Expected ':'");
 			return ParsingResult<FoxFunctionArg>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		// ["const"]
-		if (matchKeyword(keyword::Q_CONST))
+		if (matchKeyword(KeywordType::KW_CONST))
 			rtr.getType().setConstAttribute(true);
 		// ['&']
-		if (matchSign(sign::S_AMPERSAND))
+		if (matchSign(SignType::S_AMPERSAND))
 			rtr.setIsRef(true);
 		else
 			rtr.setIsRef(false);
@@ -127,7 +123,7 @@ ParsingResult<std::vector<FoxFunctionArg>> Parser::parseArgDeclList()
 		rtr.push_back(firstArg_res.result_);
 		while (true)
 		{
-			if (matchSign(sign::P_COMMA))
+			if (matchSign(SignType::S_COMMA))
 			{
 				if (auto pArgDecl_res = parseArgDecl())
 					rtr.push_back(pArgDecl_res.result_);
@@ -156,7 +152,7 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 	FoxType varType = TypeIndex::InvalidIndex;
 	std::string varName;
 
-	if (matchKeyword(keyword::D_LET))
+	if (matchKeyword(KeywordType::KW_LET))
 	{
 		// ##ID##
 		if (auto match = matchID())
@@ -166,7 +162,7 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 		else
 		{
 			errorExpected("Expected an identifier");
-			if (resyncToDelimiter(sign::P_SEMICOLON))
+			if (resyncToDelimiter(SignType::S_SEMICOLON))
 				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
@@ -176,30 +172,30 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 		else
 		{
 			errorExpected("Expected a ':'");
-			if (resyncToDelimiter(sign::P_SEMICOLON))
+			if (resyncToDelimiter(SignType::S_SEMICOLON))
 				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 
 		// ##ASSIGNEMENT##
 		// '=' <expr>
-		if (matchSign(sign::S_EQUAL))
+		if (matchSign(SignType::S_EQUAL))
 		{
 			if (auto parseres = parseExpr())
 				initExpr = std::move(parseres.result_);
 			else
 			{
 				errorExpected("Expected an expression");
-				if (resyncToDelimiter(sign::P_SEMICOLON))
+				if (resyncToDelimiter(SignType::S_SEMICOLON))
 					return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 			}
 		}
 		// ';'
-		if (!matchSign(sign::P_SEMICOLON))
+		if (!matchSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected semicolon after expression in variable declaration,");
-			if (resyncToDelimiter(sign::P_SEMICOLON))
+			if (resyncToDelimiter(SignType::S_SEMICOLON))
 				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
@@ -223,10 +219,10 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 ParsingResult<FoxType> Parser::parseTypeSpec()
 {
 	bool isConst = false;
-	if (matchSign(sign::P_COLON))
+	if (matchSign(SignType::S_COLON))
 	{
 		// Match const kw
-		if (matchKeyword(keyword::Q_CONST))
+		if (matchKeyword(KeywordType::KW_CONST))
 			isConst = true;
 		// Now match the type keyword
 		if (auto mTy_res = matchTypeKw())

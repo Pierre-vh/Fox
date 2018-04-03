@@ -97,8 +97,8 @@ namespace Moonshot
 			// MATCH BY TYPE OF TOKEN
 			ParsingResult<FoxValue> matchLiteral();			// match a literal
 			ParsingResult<std::string> matchID();			// match a ID
-			bool matchSign(const Token::sign &s);			// match any signs : ; . ( ) , returns true if success
-			bool matchKeyword(const Token::keyword &k);		// Match any keyword, returns true if success
+			bool matchSign(const SignType& s);			// match any signs : ; . ( ) , returns true if success
+			bool matchKeyword(const KeywordType& k);		// Match any keyword, returns true if success
 
 			ParsingResult<std::size_t> matchTypeKw();		// match a type keyword : int, float, etc. and returns its index in the FValue
 			
@@ -119,7 +119,7 @@ namespace Moonshot
 				Note, this could use improvements, for instance a maximum thresold, or stop when a '}' is found to avoid matching to a semicolon out of the compound statement, etc.
 				This is a matter for another time, first I want to finish the interpreter up to v1.0, then i'll do a refactor to give better error messages before moving on to other features (arrays, oop, tuples)
 			*/
-			bool resyncToDelimiter(const Token::sign &s);
+			bool resyncToDelimiter(const SignType &s);
 
 			// die : sets the pos to tokens_.size() and sets isAlive to false. Indicates that the parsing is over and the parser has died because of a critical error.
 			void die();

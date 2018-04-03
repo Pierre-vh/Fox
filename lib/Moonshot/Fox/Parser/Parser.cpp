@@ -18,10 +18,6 @@
 
 using namespace Moonshot;
 
-using category = Token::category;
-using sign = Token::sign;
-using keyword = Token::keyword;
-
 #define RETURN_IF_DEAD 	if (!state_.isAlive) return
 
 Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
@@ -36,10 +32,29 @@ Parser::~Parser()
 ParsingResult<FoxValue> Parser::matchLiteral()
 {
 	Token t = getToken();
-	if (t.type == category::LITERAL)
+	if (t.isLiteral())
 	{
-		state_.pos += 1;
-		return ParsingResult<FoxValue>(ParsingOutcome::SUCCESS, t.lit_val);
+		if (auto litinfo = t.getLiteralInfo())
+		{
+			state_.pos += 1;
+
+			FoxValue fval;
+			// Convert to fval (temporary solution until ast & type rework)
+			if (litinfo.is<bool>())
+				fval = litinfo.get<bool>();
+			else if (litinfo.is<std::string>())
+				fval = litinfo.get<std::string>();
+			else if (litinfo.is<float>())
+				fval = litinfo.get<float>();
+			else if (litinfo.is<int64_t>())
+				fval = litinfo.get<int64_t>();
+			else if (litinfo.is<char32_t>())
+				fval = litinfo.get<char32_t>();
+
+			return ParsingResult<FoxValue>(ParsingOutcome::SUCCESS, fval);
+		}
+		else
+			throw std::exception("Returned an invalid litinfo when the token was a literal?");
 	}
 	return ParsingResult<FoxValue>(ParsingOutcome::NOTFOUND);
 }
@@ -49,18 +64,18 @@ ParsingResult<FoxValue> Parser::matchLiteral()
 ParsingResult<std::string> Parser::matchID()
 {
 	Token t = getToken();
-	if (t.type == category::IDENTIFIER)
+	if (t.isIdentifier())
 	{
 		state_.pos += 1;
-		return ParsingResult<std::string>(ParsingOutcome::SUCCESS, t.str);
+		return ParsingResult<std::string>(ParsingOutcome::SUCCESS, t.getString());
 	}
 	return ParsingResult<std::string>(ParsingOutcome::NOTFOUND);
 }
 
-bool Parser::matchSign(const sign & s)
+bool Parser::matchSign(const SignType & s)
 {
 	Token t = getToken();
-	if (t.type == category::SIGN && t.sign_type == s)
+	if (t.isSign() && (t.getSignType() == s))
 	{
 		state_.pos += 1;
 		return true;
@@ -68,10 +83,10 @@ bool Parser::matchSign(const sign & s)
 	return false;
 }
 
-bool Parser::matchKeyword(const keyword & k)
+bool Parser::matchKeyword(const KeywordType & k)
 {
 	Token t = getToken();
-	if (t.type == category::KEYWORD && t.kw_type == k)
+	if (t.isKeyword() && (t.getKeywordType() == k))
 	{
 		state_.pos += 1;
 		return true;
@@ -84,15 +99,15 @@ ParsingResult<std::size_t> Parser::matchTypeKw()
 {
 	Token t = getToken();
 	state_.pos += 1;
-	if (t.type == category::KEYWORD)
+	if (t.isKeyword())
 	{
-		switch (t.kw_type)
+		switch (t.getKeywordType())
 		{
-			case keyword::T_INT:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Int);
-			case keyword::T_FLOAT:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Float);
-			case keyword::T_CHAR:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Char);
-			case keyword::T_STRING:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_String);
-			case keyword::T_BOOL:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS,TypeIndex::basic_Bool);
+			case KeywordType::KW_INT:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Int);
+			case KeywordType::KW_FLOAT:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Float);
+			case KeywordType::KW_CHAR:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Char);
+			case KeywordType::KW_STRING:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_String);
+			case KeywordType::KW_BOOL:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS,TypeIndex::basic_Bool);
 		}
 	}
 	state_.pos -= 1;
@@ -109,15 +124,15 @@ Token Parser::getToken(const size_t & d) const
 	if (d < tokens_.size())
 		return tokens_.at(d);
 	else
-		return Token(Context());
+		return Token();
 }
 
-
-bool Parser::resyncToDelimiter(const sign & s)
+bool Parser::resyncToDelimiter(const SignType & s)
 {
 	for (; state_.pos < tokens_.size(); state_.pos++)
 	{
-		if (getToken().sign_type == s)
+		auto tok = getToken();
+		if (tok.isSign() && (tok.getSignType() == s))
 		{
 			state_.pos++;
 			return true;
@@ -143,12 +158,12 @@ void Parser::errorUnexpected()
 
 	std::stringstream output;
 	auto tok = getToken();
-	if (tok.str.size())
+	if (tok)
 	{
-		if(tok.str.size() == 1)
-			output << "Unexpected char '" << tok.str << "' at line " << tok.pos.line;
+		if (tok.getString().size() == 1)
+			output << "Unexpected char '" << tok.getString() << "' at line " << tok.getPosition().line;
 		else
-			output << "Unexpected Token \xAF" << tok.str << "\xAE at line " << tok.pos.line;
+			output << "Unexpected Token \xAF" << tok.getString() << "\xAE at line " << tok.getPosition().line;
 		context_.reportError(output.str());
 	}
 	context_.resetOrigin();
@@ -172,10 +187,7 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 
 	std::stringstream output;
 	auto tok = getToken(lastTokenPos);
-	if(tok.str.size()==1)
-		output << s << " after '" << tok.str << "' at line " << tok.pos.line;
-	else 
-		output << s << " after \xAF" << tok.str << "\xAE at line " << tok.pos.line;
+	output << s << " after \xAF" << tok.getString() << "\xAE at line " << tok.getPosition().line;
 
 	if (sugg.size())
 	{

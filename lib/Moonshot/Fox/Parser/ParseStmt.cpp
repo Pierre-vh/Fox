@@ -14,13 +14,10 @@
 
 using namespace Moonshot;
 
-using sign = Token::sign;
-using keyword = Token::keyword;
-
 ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {
 	auto rtr = std::make_unique<ASTCompoundStmt>(); // return value
-	if (matchSign(sign::B_CURLY_OPEN))
+	if (matchSign(SignType::S_CURLY_OPEN))
 	{
 		// Parse all statements
 		while (auto parseres = parseStmt())
@@ -35,10 +32,10 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 			rtr->addStmt(std::move(parseres.result_));
 		}
 		// Match the closing curly bracket
-		if (!matchSign(sign::B_CURLY_CLOSE))
+		if (!matchSign(SignType::S_CURLY_CLOSE))
 		{
 			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
-			if (resyncToDelimiter(sign::B_CURLY_CLOSE))
+			if (resyncToDelimiter(SignType::S_CURLY_CLOSE))
 				return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
@@ -48,7 +45,7 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 	if (isMandatory)
 	{
 		errorExpected("Expected a '{'");
-		if (resyncToDelimiter(sign::B_CURLY_CLOSE))
+		if (resyncToDelimiter(SignType::S_CURLY_CLOSE))
 			return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 		return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_AND_DIED);
 	}
@@ -58,7 +55,7 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 {
 	// Rule : <while_loop> 	= <wh_kw>  '(' <expr> ')' <body> 
-	if (matchKeyword(keyword::D_WHILE))
+	if (matchKeyword(KeywordType::KW_WHILE))
 	{
 		ParsingOutcome ps = ParsingOutcome::SUCCESS;
 		std::unique_ptr<ASTWhileStmt> rtr = std::make_unique<ASTWhileStmt>();
@@ -87,7 +84,7 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 	auto rtr = std::make_unique<ASTCondStmt>();
 	bool has_if = false;
 	// "if"
-	if (matchKeyword(keyword::D_IF))
+	if (matchKeyword(KeywordType::KW_IF))
 	{
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(true,true)) // true -> parensExpr is mandatory.
@@ -106,7 +103,7 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 		has_if = true;
 	}
 	// "else"
-	if (matchKeyword(keyword::D_ELSE))
+	if (matchKeyword(KeywordType::KW_ELSE))
 	{
 		// <body>
 		if (auto stmt = parseBody())
@@ -127,16 +124,16 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 ParsingResult<IASTStmt*> Parser::parseReturnStmt()
 {
 	// <rtr_stmt>	= "return" [<expr>] ';'
-	if (matchKeyword(keyword::D_RETURN))
+	if (matchKeyword(KeywordType::KW_RETURN))
 	{
 		auto rtr = std::make_unique<ASTReturnStmt>();
 		if (auto pExpr_res = parseExpr())
 			rtr->setExpr(std::move(pExpr_res.result_));
 
-		if (!matchSign(sign::P_SEMICOLON))
+		if (!matchSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected a ';'");
-			if (!resyncToDelimiter(sign::P_SEMICOLON))
+			if (!resyncToDelimiter(SignType::S_SEMICOLON))
 				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 
@@ -175,19 +172,19 @@ ParsingResult<IASTStmt*> Parser::parseBody()
 ParsingResult<IASTStmt*> Parser::parseExprStmt()
 {
 	//<expr_stmt> = ';' |<expr> ';'
-	if (matchSign(sign::P_SEMICOLON))
+	if (matchSign(SignType::S_SEMICOLON))
 		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS,
 			std::make_unique<ASTNullStmt>()
 		);
 	else if (auto node = parseExpr())
 	{
 		// Found node
-		if (matchSign(sign::P_SEMICOLON))
+		if (matchSign(SignType::S_SEMICOLON))
 			return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS,std::move(node.result_));
 		else
 		{
 			errorExpected("Expected a ';' in expression statement");
-			if (resyncToDelimiter(sign::P_SEMICOLON))
+			if (resyncToDelimiter(SignType::S_SEMICOLON))
 				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}

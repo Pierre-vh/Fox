@@ -12,13 +12,14 @@
 #include <string>		// std::string
 #include <cwctype>		// std::iswspace
 #include <sstream>		// std::stringstream (sizeToStr())
+#include <cassert>
 
 #include "Moonshot/Common/Types/Types.hpp"
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 
 using namespace Moonshot;
-
+using namespace Moonshot::Dictionaries;
 
 Lexer::Lexer(Context & curctxt) : context_(curctxt)
 {
@@ -84,8 +85,13 @@ void Lexer::pushTok()
 		return;
 
 	// push Token
-	Token t(context_,curtok_,ccoord_);
-	result_.push_back(t);
+	
+	Token t(&context_,curtok_,ccoord_);
+	// Check if token is valid, if invalid, don't push & report error
+	if (t)
+		result_.push_back(t);
+	else
+		context_.reportError("Couldn't identify token. See previous error messages for more information.");
 	curtok_ = "";
 }
 
@@ -307,9 +313,9 @@ bool Lexer::isSep(const CharType &c) const
 	// Is separator ? Signs are the separators in the input. Separators mark the end and beginning of tokens, and are tokens themselves. Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
 	if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
 		return false;
-	// To detect if C is a separator, we use the sign dictionary
-	auto i = TokenDicts::kSign_dict.find(c);
-	return i != TokenDicts::kSign_dict.end() || std::iswspace((wchar_t)c);
+	// To detect if C is a sign separator, we use the sign dictionary
+	auto i = kSign_dict.find(c);
+	return (i != kSign_dict.end()) || std::iswspace((wchar_t)c);
 }
 
 bool Lexer::isEscapeChar(const CharType & c) const
