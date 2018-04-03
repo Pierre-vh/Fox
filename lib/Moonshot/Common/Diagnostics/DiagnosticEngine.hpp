@@ -88,7 +88,8 @@ namespace Moonshot
 			void updateInternalCounters(const DiagSeverity& ds);
 
 			// have too many errors occured
-			bool haveTooManyErrorOccured() const;
+			bool haveTooManyErrorsOccured() const;
+			bool haveTooManyErrorsOccured(const DiagSeverity& sev) const;
 
 			// Member Variables //
 			/* Options to change how the DiagEngine behaves when an error is reported */
@@ -112,6 +113,7 @@ namespace Moonshot
 			unsigned int numErrors_		= 0;
 			unsigned int numWarnings_	= 0;
 			bool hasFatalErrorOccured_ = false;
+			bool hasReportedErrLimitExceededError_ = false;			// This flag is set to true when the diagengine has emitted the "max error" fatal error.
 
 			/* Observing pointer to a flagmanager, if there is one available */
 			FlagsManager* flagsManager_					= nullptr;

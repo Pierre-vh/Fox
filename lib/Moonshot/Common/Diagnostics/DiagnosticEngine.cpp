@@ -54,24 +54,21 @@ Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 	// Promote severity if needed
 	sev = promoteSeverityIfNeeded(sev);
 
-	// We test if we need to silence this diag before updating the internal counters.
-	// This is needed so this diag isn't counted in the current statistics, and only the other 
-	// Diags stats are take in considerations.
-	bool silence = shouldSilence(sev);
+	// Silence this diag if needed
+	if (shouldSilence(sev))
+		return Diagnostic::createDummyDiagnosticObject(); 
 
-	// Update the internal counters
-	updateInternalCounters(sev);
-
-	// Silence diag if needed
-	if (silence)
-		return Diagnostic::createDummyDiagnosticObject();
-	else if (haveTooManyErrorOccured() && (!hasFatalErrorOccured())) 	// If the diag shouldn't be silenced, check if it needs to be overriden by a maxErrCount diag
+	// Return
+	if (haveTooManyErrorsOccured(sev) && (!hasReportedErrLimitExceededError_)) 
 	{
-		// if the error count is too high and we're not in fatal mode yet, instead of the user requested diag, we return a maxErrOccured diag
+		// Override the diagnostic with a "Max error count exceeded" Diagnostic.
+		hasReportedErrLimitExceededError_ = true;
 		return report(DiagID::diagengine_maxErrCountExceeded).addArg(errLimit_).freeze(); /* Freeze the diagnostic to prevent user modifications */
 	}
-	else	// If we're here, fine, return the user requested diag!
+	else	
 	{
+		// If we return the user requested diagnostic, update the counters accordingly, then return.
+		updateInternalCounters(sev);
 		return Diagnostic(
 			consumer_.get(),
 			diagID,
@@ -263,9 +260,9 @@ bool DiagnosticEngine::shouldSilence(const DiagSeverity & df)
 		// Warnings are not emitted if silenceWarnings is active
 		case DiagSeverity::WARNING:
 			return getSilenceWarnings();
-		// Errors are no longer emitted if too many errors have occured
+		// Errors are no longer emitted if too many errors have occured and the "too many errors" fatal error has been emitted
 		case DiagSeverity::ERROR:
-			return haveTooManyErrorOccured();
+			return haveTooManyErrorsOccured() && hasReportedErrLimitExceededError_;
 		// Severe diagnostics are never ignored 
 		case DiagSeverity::FATAL:
 			return false;
@@ -289,9 +286,16 @@ void DiagnosticEngine::updateInternalCounters(const DiagSeverity & ds)
 	}
 }
 
-bool DiagnosticEngine::haveTooManyErrorOccured() const
+bool DiagnosticEngine::haveTooManyErrorsOccured() const
 {
+	return haveTooManyErrorsOccured(DiagSeverity::IGNORE);
+}
+
+bool DiagnosticEngine::haveTooManyErrorsOccured(const DiagSeverity& sev) const
+{
+	// If the sev is a ERROR, add +1 to the numErrors_ counter, to take that error in account too.
+	auto num_err = numErrors_ + (sev == DiagSeverity::ERROR ? 1 : 0);
 	if(errLimit_)
-		return numErrors_ > errLimit_;
+		return num_err > errLimit_;
 	return false;
 }
