@@ -89,7 +89,6 @@ namespace Moonshot
 
 			// have too many errors occured
 			bool haveTooManyErrorsOccured() const;
-			bool haveTooManyErrorsOccured(const DiagSeverity& sev) const;
 
 			// Member Variables //
 			/* Options to change how the DiagEngine behaves when an error is reported */

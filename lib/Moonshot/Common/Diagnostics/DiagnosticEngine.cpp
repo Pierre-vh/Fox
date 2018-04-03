@@ -59,7 +59,7 @@ Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 		return Diagnostic::createDummyDiagnosticObject(); 
 
 	// Return
-	if (haveTooManyErrorsOccured(sev) && (!hasReportedErrLimitExceededError_)) 
+	if (haveTooManyErrorsOccured() && (!hasReportedErrLimitExceededError_)) 
 	{
 		// Override the diagnostic with a "Max error count exceeded" Diagnostic.
 		hasReportedErrLimitExceededError_ = true;
@@ -288,14 +288,7 @@ void DiagnosticEngine::updateInternalCounters(const DiagSeverity & ds)
 
 bool DiagnosticEngine::haveTooManyErrorsOccured() const
 {
-	return haveTooManyErrorsOccured(DiagSeverity::IGNORE);
-}
-
-bool DiagnosticEngine::haveTooManyErrorsOccured(const DiagSeverity& sev) const
-{
-	// If the sev is a ERROR, add +1 to the numErrors_ counter, to take that error in account too.
-	auto num_err = numErrors_ + (sev == DiagSeverity::ERROR ? 1 : 0);
 	if(errLimit_)
-		return num_err > errLimit_;
+		return numErrors_ >= errLimit_;
 	return false;
 }
