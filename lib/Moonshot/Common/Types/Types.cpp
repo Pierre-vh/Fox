@@ -10,7 +10,6 @@
 #include "Types.hpp"
 #include "FVTypeTraits.hpp"
 #include "FoxValueUtils.hpp"
-#include "TypesUtils.hpp"
 #include <sstream> // std::stringstream
 
 using namespace Moonshot;
