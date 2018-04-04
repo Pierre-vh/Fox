@@ -59,14 +59,12 @@ ParsingResult<FoxValue> Parser::matchLiteral()
 	return ParsingResult<FoxValue>(ParsingOutcome::NOTFOUND);
 }
 
-
-
 ParsingResult<std::string> Parser::matchID()
 {
 	Token t = getToken();
 	if (t.isIdentifier())
 	{
-		state_.pos += 1;
+		incrementPosition();
 		return ParsingResult<std::string>(ParsingOutcome::SUCCESS, t.getString());
 	}
 	return ParsingResult<std::string>(ParsingOutcome::NOTFOUND);
@@ -74,10 +72,9 @@ ParsingResult<std::string> Parser::matchID()
 
 bool Parser::matchSign(const SignType & s)
 {
-	Token t = getToken();
-	if (t.isSign() && (t.getSignType() == s))
+	if (peekSign(getCurrentPosition(),s))
 	{
-		state_.pos += 1;
+		incrementPosition();
 		return true;
 	}
 	return false;
@@ -94,11 +91,10 @@ bool Parser::matchKeyword(const KeywordType & k)
 	return false;
 }
 
-
 ParsingResult<std::size_t> Parser::matchTypeKw()
 {
 	Token t = getToken();
-	state_.pos += 1;
+	incrementPosition();
 	if (t.isKeyword())
 	{
 		switch (t.getKeywordType())
@@ -110,8 +106,15 @@ ParsingResult<std::size_t> Parser::matchTypeKw()
 			case KeywordType::KW_BOOL:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS,TypeIndex::basic_Bool);
 		}
 	}
-	state_.pos -= 1;
+	decrementPosition();
 	return ParsingResult<std::size_t>(ParsingOutcome::NOTFOUND);
+}
+
+bool Parser::peekSign(const std::size_t & idx, const SignType & sign) const
+{
+	if (auto tok = getToken(idx))
+		return tok.isSign() && (tok.getSignType() == sign);
+	return false;
 }
 
 Token Parser::getToken() const
@@ -127,14 +130,33 @@ Token Parser::getToken(const size_t & d) const
 		return Token();
 }
 
+std::size_t Parser::getCurrentPosition() const
+{
+	return state_.pos;
+}
+
+std::size_t Parser::getNextPosition() const
+{
+	return state_.pos + 1;
+}
+
+void Parser::incrementPosition()
+{
+	state_.pos+=1;
+}
+
+void Parser::decrementPosition()
+{
+	state_.pos-=1;
+}
+
 bool Parser::resyncToDelimiter(const SignType & s)
 {
 	for (; state_.pos < tokens_.size(); state_.pos++)
 	{
-		auto tok = getToken();
-		if (tok.isSign() && (tok.getSignType() == s))
+		if (matchSign(s))
 		{
-			state_.pos++;
+			incrementPosition();
 			return true;
 		}
 	}
@@ -169,7 +191,7 @@ void Parser::errorUnexpected()
 	context_.resetOrigin();
 }
 
-void Parser::errorExpected(const std::string & s, const std::vector<std::string>& sugg)
+void Parser::errorExpected(const std::string & s)
 {
 	static std::size_t lastUnexpectedTokenPosition;
 
@@ -187,16 +209,7 @@ void Parser::errorExpected(const std::string & s, const std::vector<std::string>
 
 	std::stringstream output;
 	auto tok = getToken(lastTokenPos);
-	output << s << " after \xAF" << tok.getString() << "\xAE at line " << tok.getPosition().line;
-
-	if (sugg.size())
-	{
-		output << "\n\tSuggestions:\n";
-		for (auto& elem : sugg)
-		{
-			output << "\t\t" << elem << "\n";
-		}
-	}
+	output << s << " after \"" << tok.getString() << "\" at line " << tok.getPosition().line;
 
 	context_.reportError(output.str());
 	context_.resetOrigin();
@@ -220,3 +233,4 @@ void Parser::restoreParserStateFromBackup(const Parser::ParserState & st)
 {
 	state_ = st;
 }
+

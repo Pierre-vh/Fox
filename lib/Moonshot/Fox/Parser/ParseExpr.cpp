@@ -359,128 +359,117 @@ std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr> 
 
 bool Parser::matchExponentOp()
 {
-	auto cur = getToken();
-	auto pk = getToken(state_.pos + 1);
-	if (cur.isValid() && cur.isSign() && (cur.getSignType() == SignType::S_ASTERISK))
+	auto backup = createParserStateBackup();
+	if (matchSign(SignType::S_ASTERISK))
 	{
-		if (pk.isValid() && pk.isSign() && (pk.getSignType() == SignType::S_ASTERISK))
-		{
-			state_.pos+=2;
+		if (matchSign(SignType::S_ASTERISK))
 			return true;
-		}
+		restoreParserStateFromBackup(backup);
 	}
 	return false;
 }
 
 ParsingResult<binaryOperator> Parser::matchAssignOp()
 {
-	auto cur = getToken();
-	state_.pos++;
-	if (cur.isValid() && cur.isSign() && (cur.getSignType() == SignType::S_EQUAL))
-		return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::ASSIGN_BASIC);
-	state_.pos--;
+	auto backup = createParserStateBackup();
+	if (matchSign(SignType::S_EQUAL))
+	{
+		// Try to match a S_EQUAL. If failed, that means that the next token isn't a =
+		// If it succeeds, we founda '==', this is the comparison operator and we must backtrack to prevent errors.
+		if (!matchSign(SignType::S_EQUAL))
+			return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::ASSIGN_BASIC);
+		restoreParserStateFromBackup(backup);
+	}
 	return ParsingResult<binaryOperator>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<unaryOperator> Parser::matchUnaryOp()
 {
-	auto cur = getToken();
-	state_.pos++;
-
-	if (cur.getSignType() == SignType::S_EXCL_MARK)
+	if (matchSign(SignType::S_EXCL_MARK))
 		return ParsingResult<unaryOperator>(ParsingOutcome::SUCCESS, unaryOperator::LOGICNOT);
-
-	if (cur.getSignType() == SignType::S_MINUS)
+	else if (matchSign(SignType::S_MINUS))
 		return ParsingResult<unaryOperator>(ParsingOutcome::SUCCESS, unaryOperator::NEGATIVE);
-
-	if (cur.getSignType() == SignType::S_PLUS)
+	else if (matchSign(SignType::S_PLUS))
 		return ParsingResult<unaryOperator>(ParsingOutcome::SUCCESS, unaryOperator::POSITIVE);
-
-	state_.pos--;
 	return ParsingResult<unaryOperator>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 {
-	auto cur = getToken();
-	auto pk = getToken(state_.pos + 1);
-	// Check current Token validity
-	if (!cur.isValid() || !cur.isSign())
+	auto backup = createParserStateBackup();
+
+	// Check current Token validity, also check if it's a sign because if it isn't we can return directly!
+	if (!getToken().isValid() || !getToken().isSign())
 		return ParsingResult<binaryOperator>(ParsingOutcome::NOTFOUND);
-	state_.pos += 1; // We already increment once here in prevision of a matched operator. We'll decrease before returning the result if nothing was found, of course.
 
 	switch (priority)
 	{
 		case 0: // * / %
-			if (cur.getSignType() == SignType::S_ASTERISK)
+			if (matchSign(SignType::S_ASTERISK))
 			{
-				if (pk.getSignType() != SignType::S_ASTERISK) // Disambiguation between '**' and '*'
+				if (!peekSign(getCurrentPosition(),SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
 					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::MUL );
+				restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
 			}
-			if (cur.getSignType() == SignType::S_SLASH)
+			if (matchSign(SignType::S_SLASH))
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::DIV);
-			if (cur.getSignType() == SignType::S_PERCENT)
+			if (matchSign(SignType::S_PERCENT))
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::MOD);
 			break;
 		case 1: // + -
-			if (cur.getSignType() == SignType::S_PLUS)
+			if (matchSign(SignType::S_PLUS))
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::ADD );
-			if (cur.getSignType() == SignType::S_MINUS)
+			if (matchSign(SignType::S_MINUS))
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::MINUS);
 			break;
 		case 2: // > >= < <=
-			if (cur.getSignType() == SignType::S_LESS_THAN)
+			if (matchSign(SignType::S_LESS_THAN))
 			{
-				if (pk.isValid() && (pk.getSignType() == SignType::S_EQUAL))
-				{
-					state_.pos += 1;
+				if (matchSign(SignType::S_EQUAL))
 					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LESS_OR_EQUAL );
-				}
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LESS_THAN );
 			}
-			if (cur.getSignType() == SignType::S_GREATER_THAN)
+			if (matchSign(SignType::S_GREATER_THAN))
 			{
-				if (pk.isValid() && (pk.getSignType() == SignType::S_EQUAL))
-				{
-					state_.pos += 1;
+				if (matchSign(SignType::S_EQUAL))
 					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::GREATER_OR_EQUAL );
-				}
 				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::GREATER_THAN );
 			}
 			break;
 		case 3:	// == !=
-			if (pk.isValid() && (pk.getSignType() == SignType::S_EQUAL))
+			// try to match '=' twice.
+			if (matchSign(SignType::S_EQUAL))
 			{
-				if (cur.getSignType() == SignType::S_EQUAL)
-				{
-					state_.pos += 1;
+				if (matchSign(SignType::S_EQUAL))
 					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::EQUAL );
-				}
-				if (cur.getSignType() == SignType::S_EXCL_MARK)
-				{
-					state_.pos += 1;
-					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::NOTEQUAL );
-				}
+				restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
+			}
+			if (matchSign(SignType::S_EXCL_MARK))
+			{
+				if (matchSign(SignType::S_EQUAL))
+					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::NOTEQUAL);
+				restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
 			}
 			break;
-		case 4:
-			if (pk.isValid() && (pk.getSignType() == SignType::S_AMPERSAND) && (cur.getSignType() == SignType::S_AMPERSAND))
+		case 4: // &&
+			if (matchSign(SignType::S_AMPERSAND))
 			{
-				state_.pos += 1;
-				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LOGIC_AND);
+				if (matchSign(SignType::S_AMPERSAND))
+					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LOGIC_AND);
+				restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
 			}
 			break;
-		case 5:
-			if (pk.isValid() && (pk.getSignType() == SignType::S_VBAR) && (cur.getSignType() == SignType::S_VBAR))
+		case 5: // ||
+			if (matchSign(SignType::S_VBAR))
 			{
-				state_.pos += 1;
-				return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LOGIC_OR);
+				if (matchSign(SignType::S_VBAR))
+					return ParsingResult<binaryOperator>(ParsingOutcome::SUCCESS, binaryOperator::LOGIC_OR);
+				restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
 			}
 			break;
 		default:
 			throw Exceptions::parser_critical_error("Requested to match a Binary Operator of unknown priority");
 			break;
 	}
-	state_.pos -= 1;	// We did not find anything, decrement & return.
 	return ParsingResult<binaryOperator>(ParsingOutcome::NOTFOUND);
 }
