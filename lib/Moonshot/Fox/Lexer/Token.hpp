@@ -190,6 +190,9 @@ namespace Moonshot
 			bool specific_idKeyword();
 			bool specific_idSign();
 			bool specific_idLiteral();		// is a literal
+
+			// Helper
+			bool hasAtLeastOneLetter() const; // Checks if str_ has at least one upper/lower case letter.
 	};
 	namespace Dictionaries
 	{

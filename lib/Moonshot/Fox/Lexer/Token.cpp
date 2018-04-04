@@ -254,17 +254,24 @@ LiteralInfo Token::getLiteralInfo() const
 
 void Token::idToken()
 {
+	assert(context_ && "Cannot attempt to identify a token without a context.");
+
 	if (str_.size() == 0)
 		throw Exceptions::lexer_critical_error("Found an empty Token. [" + position_.asText() + "]");
 
 	// substract the Token length's fron the column number given by the lexer.
-	position_.column -= static_cast<unsigned int>(str_.length());
+	position_.column -= (unsigned)(str_.length());
 
 	if (specific_idSign());
 	else if (specific_idKeyword());
 	else if (specific_idLiteral());
 	else if (std::regex_match(str_, kId_regex))
-		tokenInfo_ = Identifier();
+	{
+		if (hasAtLeastOneLetter())
+			tokenInfo_ = Identifier();
+		else
+			context_->reportError("The identifier '" + str_ + "' does not contain a letter.");
+	}
 }
 
 bool Token::specific_idKeyword()
@@ -293,8 +300,6 @@ bool Token::specific_idSign()
 
 bool Token::specific_idLiteral()
 {
-	assert(context_ && "Cannot attempt to identify a literal without a context.");
-
 	UTF8::StringManipulator strmanip;
 	strmanip.setStr(str_);
 	if (strmanip.peekFirst() == '\'')
@@ -390,4 +395,9 @@ std::string Token::getTokenTypeFriendlyName() const
 TextPosition Token::getPosition() const
 {
 	return position_;
+}
+
+bool Token::hasAtLeastOneLetter() const
+{
+	return std::any_of(str_.begin(), str_.end(), ::isalpha);
 }
