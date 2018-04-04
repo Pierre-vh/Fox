@@ -39,18 +39,19 @@ Note : $ denotes a terminal, a token recognized by our lexer.
 <unary_operator>  =  '!' | '-' | '+'  // inversion, -,+ (+ is essentially a non op for now, it's syntaxic sugar)
 
 /*
-	Final operation priority
-	. (member acces) () (function call)
-	**
-	unary - ! +
-	cast "as"
-	* / % 
-	+ -
-	< > <= >= 
-	== !=
-	&&
-	||
-	=
+	OPERATION PRIORITY FROM HIGHEST TO LOWEST
+		Array Access "[]", Function call "()"
+		Member access "."
+		**
+		unary - ! +
+		cast "as"
+		* / % 
+		+ -
+		< > <= >= 
+		== !=
+		&&
+		||
+		= 
 */
 
 ##Variables##
