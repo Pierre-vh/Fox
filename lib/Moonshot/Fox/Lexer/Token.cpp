@@ -106,7 +106,7 @@ LiteralInfo::LiteralInfo(const std::string & sval)
 	val_ = sval;
 }
 
-LiteralInfo::LiteralInfo(const float& fval)
+LiteralInfo::LiteralInfo(const FloatType& fval)
 {
 	val_ = fval;
 }
