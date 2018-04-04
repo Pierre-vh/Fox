@@ -4,7 +4,19 @@
 // File : DiagsAll.def											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file includes every diagnostics.
+// This file is an include file used to group every diagnostic declaration in one file.
 ////------------------------------------------------------////
 
+
+#define KEEP_DIAG_DEF
+
+
+// Include all diagnostics declarations
 #include "DiagsCommon.def"
+
+#undef KEEP_DIAG_DEF
+#undef DIAG
+#undef NOTE
+#undef WARNING
+#undef ERROR
+#undef FATAL

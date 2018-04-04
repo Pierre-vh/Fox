@@ -22,10 +22,7 @@ namespace Moonshot
 		dummyDiag = -1,
 		// Important : first value must always be 0 to keep sync with the severities and strs arrays.
 		#define DIAG(SEVERITY,ID,TEXT) ID,
-		#define KEEP_DIAG_DEF
 			#include "Diags/DiagsAll.def"
-		#undef DIAG
-		#undef KEEP_DIAG_DEF
 	};
 
 	enum class DiagSeverity : int8_t

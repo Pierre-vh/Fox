@@ -48,10 +48,9 @@ FATAL(diagengine_maxErrCountExceeded, "Current error count exceeded the maximum 
 
 #ifndef KEEP_DIAG_DEF
 	#undef DIAG
+	#undef NOTE
+	#undef WARNING
+	#undef ERROR
+	#undef FATAL
 #endif
-
-#undef NOTE
-#undef WARNING
-#undef ERROR
-#undef FATAL
 

@@ -17,18 +17,12 @@ using namespace Moonshot;
 
 static const char* diagsStrs[] = {
 	#define DIAG(SEVERITY,ID,TEXT) TEXT,
-	#define KEEP_DIAG_DEF
 		#include "Diags/DiagsAll.def"
-	#undef DIAG
-	#undef KEEP_DIAG_DEF
 };
 
 static const DiagSeverity diagsSevs[] = {
 	#define DIAG(SEVERITY,ID,TEXT) DiagSeverity::SEVERITY,
-	#define KEEP_DIAG_DEF
 		#include "Diags/DiagsAll.def"
-	#undef DIAG
-	#undef KEEP_DIAG_DEF
 };
 
 DiagnosticEngine::DiagnosticEngine(FlagsManager *fm) : flagsManager_(fm)
