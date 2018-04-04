@@ -11,7 +11,7 @@
 #include <iostream>
 
 #include "Moonshot/Driver/Driver.hpp"
-#include "Moonshot/Common/Version.hpp"
+#include "Moonshot/Version.hpp"
 
 #ifdef _WIN32
 	#include <Windows.h>
