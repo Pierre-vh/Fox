@@ -4,16 +4,12 @@
 // File : Token.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file contains some Token enumeration declarations	
-// And the Declaration of the Token and TextPosition structs.	
-//															
-// This file also declares some const variables	holding regexes, 
-// and maps for getting a "friendly name" of enum values.									
+// This file contains the declaration of various Token-related structures and enumerations,
+// including the Token struct and LiteralInfo struct.
 ////------------------------------------------------------////
 
 #pragma once
 
-#include "Moonshot/Common/Types/Types.hpp"
 #include <vector>
 #include <variant>
 #include <memory>
@@ -216,7 +212,7 @@ namespace Moonshot
 			{ "using"	, KeywordType::KW_USING }
 		};
 
-		const std::map<CharType, SignType> kSign_dict =
+		const std::map<char32_t, SignType> kSign_dict =
 		{
 			//signs
 			{ '='	, SignType::S_EQUAL },

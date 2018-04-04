@@ -8,13 +8,14 @@
 ////------------------------------------------------------////
 
 #include "Token.hpp"
-#include "StringManipulator.hpp"
 
-#include <regex>	// std::regex, std::regex_match
-#include <string>	// std::stoi / stoll
-#include <sstream>	// std::stringstream (showFormattedToken())
+
+#include <regex>
+#include <string>
+#include <sstream>
 #include <cassert>
 
+#include "StringManipulator.hpp"
 #include "Moonshot/Common/Context/Context.hpp"
 #include "Moonshot/Common/Utils/Utils.hpp"
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
