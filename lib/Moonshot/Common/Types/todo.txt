@@ -1,9 +1,0 @@
-What to delete:
-	Everything FoxValue related. Except CharType typedef, put it in a "Typedefs.hpp" file along with other needed typedefs.
-	Delete files as a whole:
-		FoxValueUtils.hpp/.cpp
-		TypesUtils.hpp/.cpp
-		FVTypeTraits.hpp
-	Includes nearly everything in theses files:
-		Types.hpp
-		Types.cpp
