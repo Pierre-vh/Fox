@@ -306,6 +306,11 @@ bool Token::specific_idLiteral()
 				context_->reportError("Char literal can only contain one character.");
 				return false;
 			}
+			else if (strmanip.getSize() < 3)
+			{
+				context_->reportError("Empty char literal");
+				return false;
+			}
 			auto charlit = strmanip.getChar(1);
 			tokenInfo_ = Literal();
 			litInfo_ = std::make_unique<LiteralInfo>(charlit);
