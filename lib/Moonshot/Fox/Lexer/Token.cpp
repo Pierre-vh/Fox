@@ -61,14 +61,40 @@ LiteralType LiteralInfo::getType() const
 		return LiteralType::Ty_Bool;
 	else if (std::holds_alternative<std::string>(val_))
 		return LiteralType::Ty_String;
-	else if (std::holds_alternative<float>(val_))
+	else if (std::holds_alternative<FloatType>(val_))
 		return LiteralType::Ty_Float;
-	else if (std::holds_alternative<int64_t>(val_))
+	else if (std::holds_alternative<IntType>(val_))
 		return LiteralType::Ty_Int;
-	else if (std::holds_alternative<char32_t>(val_))
+	else if (std::holds_alternative<CharType>(val_))
 		return LiteralType::Ty_Char;
 	return LiteralType::DEFAULT;
 }
+
+bool LiteralInfo::isBool() const
+{
+	return std::holds_alternative<bool>(val_);
+}
+
+bool LiteralInfo::isString() const
+{
+	return std::holds_alternative<std::string>(val_);
+}
+
+bool LiteralInfo::isFloat() const
+{
+	return std::holds_alternative<FloatType>(val_);
+}
+
+bool LiteralInfo::isInt() const
+{
+	return std::holds_alternative<IntType>(val_);
+}
+
+bool LiteralInfo::isChar() const
+{
+	return std::holds_alternative<CharType>(val_);
+}
+
 
 LiteralInfo::LiteralInfo(const bool & bval)
 {
@@ -85,12 +111,12 @@ LiteralInfo::LiteralInfo(const float& fval)
 	val_ = fval;
 }
 
-LiteralInfo::LiteralInfo(const int64_t& ival)
+LiteralInfo::LiteralInfo(const IntType& ival)
 {
 	val_ = ival;
 }
 
-LiteralInfo::LiteralInfo(const char32_t& cval)
+LiteralInfo::LiteralInfo(const CharType& cval)
 {
 	val_ = cval;
 }
@@ -317,7 +343,7 @@ bool Token::specific_idLiteral()
 	else if (std::regex_match(str_, kInt_regex))
 	{
 		std::istringstream ss(str_);
-		int64_t tmp;
+		IntType tmp;
 		if (ss >> tmp)
 		{
 			tokenInfo_ = Literal();

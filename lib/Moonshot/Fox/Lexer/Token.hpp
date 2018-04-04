@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "Moonshot/Common/Types/Types.hpp"
+
 #include <vector>
 #include <variant>
 #include <memory>
@@ -47,14 +49,20 @@ namespace Moonshot
 			LiteralInfo() = default;
 			LiteralInfo(const bool& bval);
 			LiteralInfo(const std::string& sval);
-			LiteralInfo(const float& fval);
-			LiteralInfo(const int64_t& ival);
-			LiteralInfo(const char32_t& cval);
+			LiteralInfo(const FloatType& fval);
+			LiteralInfo(const IntType& ival);
+			LiteralInfo(const CharType& cval);
 
 			bool isNull() const;
 			operator bool() const;
 			LiteralType getType() const;
 			
+			bool isBool() const;
+			bool isString() const;
+			bool isFloat() const;
+			bool isInt() const;
+			bool isChar() const;
+
 			template<typename Ty>
 			inline bool is() const
 			{
@@ -69,7 +77,7 @@ namespace Moonshot
 				return Ty();
 			}
 		private:
-			std::variant<std::monostate,bool,std::string,float,int64_t,char32_t> val_;
+			std::variant<std::monostate,bool,std::string,FloatType,IntType,CharType> val_;
 	};
 	
 	enum class SignType : char
@@ -212,7 +220,7 @@ namespace Moonshot
 			{ "using"	, KeywordType::KW_USING }
 		};
 
-		const std::map<char32_t, SignType> kSign_dict =
+		const std::map<CharType, SignType> kSign_dict =
 		{
 			//signs
 			{ '='	, SignType::S_EQUAL },

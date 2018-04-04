@@ -24,6 +24,7 @@ namespace Moonshot
 
 typedef int64_t IntType;
 typedef char32_t CharType;
+typedef float FloatType;
 typedef std::monostate VoidType;
 typedef std::variant<VoidType, IntType, float, CharType, std::string, bool> FoxValue; // The FoxValue, or FVal for short.
 
