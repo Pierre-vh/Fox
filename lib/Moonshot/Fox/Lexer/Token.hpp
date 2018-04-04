@@ -19,9 +19,6 @@
 #include <memory>
 #include <map>
 
-// TODO : Do a code review on this whole system, finalize it a bit, make it clean.
-// Maybe find a way to avoid storing the whole LiteralInfo in the token to reduce it's size a bit.
-
 namespace Moonshot
 {
 	class Context;
@@ -151,6 +148,7 @@ namespace Moonshot
 	{
 		public:
 			Token() = default;
+			Token(const Token& cpy);
 			Token(Context *ctxt,std::string data, const TextPosition &tpos = TextPosition(0, 0));
 
 			std::string showFormattedTokenData() const;
@@ -173,11 +171,13 @@ namespace Moonshot
 
 			TextPosition getPosition() const;
 		private:
-			// Empty struct used to "mark" the variant when this token is an identifier.
+			// Empty struct used to "mark" the variant when this token is an identifier or a literal.
 			struct Identifier{}; 
+			struct Literal {};
 
 			/* Member variables */
-			std::variant<std::monostate, KeywordType, SignType, LiteralInfo, Identifier> tokenInfo_;
+			std::variant<std::monostate, KeywordType, SignType, Literal, Identifier> tokenInfo_;
+			std::unique_ptr<LiteralInfo> litInfo_ = nullptr;
 			std::string str_;
 			TextPosition position_;
 			Context *context_ = nullptr;
@@ -185,7 +185,7 @@ namespace Moonshot
 			void idToken();					// will id the tolen and call the specific evaluations functions if needed.
 			bool specific_idKeyword();
 			bool specific_idSign();
-			bool specific_idLiteral();				// is a literal
+			bool specific_idLiteral();		// is a literal
 	};
 	namespace Dictionaries
 	{

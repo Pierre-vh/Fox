@@ -115,6 +115,20 @@ Token::Token(Context *ctxt, std::string data, const TextPosition & tpos)
 	idToken();
 }
 
+Token::Token(const Token & cpy)
+{
+	context_ = cpy.context_;
+	str_ = cpy.str_;
+	position_ = cpy.position_;
+	tokenInfo_ = cpy.tokenInfo_;
+
+
+	if (cpy.litInfo_)
+		litInfo_ = std::make_unique<LiteralInfo>(*(cpy.litInfo_));
+	else
+		litInfo_ = nullptr;
+}
+
 std::string Token::showFormattedTokenData() const
 {
 	if (!isValid())
@@ -127,7 +141,10 @@ std::string Token::showFormattedTokenData() const
 	if (isKeyword())
 		enumInfo = Util::enumAsInt(std::get<KeywordType>(tokenInfo_));
 	else if (isLiteral())
-		enumInfo = Util::enumAsInt(std::get<LiteralInfo>(tokenInfo_).getType());
+	{
+		assert(litInfo_ && "Token is a literal but does not have a literalInfo?");
+		enumInfo = Util::enumAsInt(litInfo_->getType());
+	}
 	else if (isSign())
 		enumInfo = Util::enumAsInt(std::get<SignType>(tokenInfo_));
 
@@ -151,7 +168,7 @@ Token::operator bool() const
 
 bool Token::isLiteral() const
 {
-	return std::holds_alternative<LiteralInfo>(tokenInfo_);
+	return std::holds_alternative<Literal>(tokenInfo_);
 }
 
 bool Token::isIdentifier() const
@@ -191,14 +208,20 @@ std::string Token::getString() const
 LiteralType Token::getLiteralType() const
 {
 	if (isLiteral())
-		return std::get<LiteralInfo>(tokenInfo_).getType();
+	{
+		assert(litInfo_ && "Token is a literal but does not have a literalInfo?");
+		return litInfo_->getType();
+	}
 	return LiteralType::DEFAULT;
 }
 
 LiteralInfo Token::getLiteralInfo() const
 {
 	if (isLiteral())
-		return std::get<LiteralInfo>(tokenInfo_);
+	{
+		assert(litInfo_ && "Token is a literal but does not have a literalInfo?");
+		return *litInfo_;
+	}
 	return LiteralInfo();
 }
 
@@ -257,7 +280,8 @@ bool Token::specific_idLiteral()
 				return false;
 			}
 			auto charlit = strmanip.getChar(1);
-			tokenInfo_ = LiteralInfo(charlit);
+			tokenInfo_ = Literal();
+			litInfo_ = std::make_unique<LiteralInfo>(charlit);
 			return true;
 		}
 		else
@@ -272,7 +296,8 @@ bool Token::specific_idLiteral()
 		{
 
 			std::string strlit = strmanip.substring(1, strmanip.getSize() - 2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
-			tokenInfo_ = LiteralInfo(strlit);
+			tokenInfo_ = Literal();
+			litInfo_ = std::make_unique<LiteralInfo>(strlit);
 			return true;
 		}
 		else
@@ -283,7 +308,8 @@ bool Token::specific_idLiteral()
 	}
 	else if (str_ == "true" | str_ == "false")
 	{
-		tokenInfo_ = LiteralInfo((str_ == "true" ? true : false));
+		tokenInfo_ = Literal();
+		litInfo_ = std::make_unique<LiteralInfo>((str_ == "true" ? true : false));
 		return true;
 	}
 	// Might rework this bit later because it's a bit ugly, but it works !
@@ -292,20 +318,25 @@ bool Token::specific_idLiteral()
 		std::istringstream ss(str_);
 		int64_t tmp;
 		if (ss >> tmp)
-			tokenInfo_ = LiteralInfo(tmp);
+		{
+			tokenInfo_ = Literal();
+			litInfo_ = std::make_unique<LiteralInfo>(tmp);
+		}
 		else
 		{
 			// If out of range, try to put the value in a float instead.
 			std::stringstream out;
 			out << "The value \xAF" << str_ << "\xAE was interpreted as a float because it didn't fit a 64 Bit signed int.";
 			context_->reportWarning(out.str());
-			tokenInfo_ = LiteralInfo(std::stof(str_));
+			tokenInfo_ = Literal();
+			litInfo_ = std::make_unique<LiteralInfo>(std::stof(str_));
 		}
 		return true;
 	}
 	else if (std::regex_match(str_, kFloat_regex))
 	{
-		tokenInfo_ = LiteralInfo(std::stof(str_));
+		tokenInfo_ = Literal();
+		litInfo_ = std::make_unique<LiteralInfo>(std::stof(str_));
 		return true;
 	}
 	return false;
