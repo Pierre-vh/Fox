@@ -11,6 +11,7 @@
 #include "TestUtils/TestUtils.hpp"
 
 #include "Moonshot/Fox/Lexer/Lexer.hpp"
+#include "Moonshot/Fox/Lexer/Token.hpp"
 #include "Moonshot/Common/Context/Context.hpp"
 
 using namespace Moonshot;
@@ -74,4 +75,143 @@ TEST(LexerTests, IncorrectTest4)
 	Lexer lex(ctxt);
 	lex.lexStr(file_content);
 	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
+}
+
+TEST(TokenTests, FloatID)
+{
+	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+
+	Token tok1(&ctxt, "3.14");
+	Token tok2(&ctxt, "0.0");
+	Token tok3(&ctxt, "0.3333333333333");
+
+	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok3.isLiteral()) << "Logs:" << ctxt.getLogs();
+
+	LiteralInfo litInfo1 = tok1.getLiteralInfo();
+	LiteralInfo litInfo2 = tok2.getLiteralInfo();
+	LiteralInfo litInfo3 = tok3.getLiteralInfo();
+
+	ASSERT_TRUE(litInfo1) << "LiteralInfo was null?";
+	ASSERT_TRUE(litInfo2) << "LiteralInfo was null?";
+	ASSERT_TRUE(litInfo3) << "LiteralInfo was null?";
+
+	ASSERT_TRUE(litInfo1.isFloat() && litInfo1.is<FloatType>());
+	ASSERT_TRUE(litInfo2.isFloat() && litInfo2.is<FloatType>());
+	ASSERT_TRUE(litInfo3.isFloat() && litInfo3.is<FloatType>());
+
+	EXPECT_EQ(litInfo1.get<FloatType>(), 3.14f) << "Value was not the one expected.";
+	EXPECT_EQ(litInfo2.get<FloatType>(), 0.0f) << "Value was not the one expected.";
+	EXPECT_EQ(litInfo3.get<FloatType>(), 0.3333333333333f) << "Value was not the one expected.";
+}
+
+TEST(TokenTests, IntId)
+{
+	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+
+	Token tok1(&ctxt, "0");
+	Token tok2(&ctxt, "9223372036854775000");
+	Token tok3(&ctxt, "4242424242424242");
+
+	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok3.isLiteral()) << "Logs:" << ctxt.getLogs();
+
+	LiteralInfo litInfo1 = tok1.getLiteralInfo();
+	LiteralInfo litInfo2 = tok2.getLiteralInfo();
+	LiteralInfo litInfo3 = tok3.getLiteralInfo();
+
+	ASSERT_TRUE(litInfo1) << "LiteralInfo was null?";
+	ASSERT_TRUE(litInfo2) << "LiteralInfo was null?";
+	ASSERT_TRUE(litInfo3) << "LiteralInfo was null?";
+
+	ASSERT_TRUE(litInfo1.isInt() && litInfo1.is<IntType>());
+	ASSERT_TRUE(litInfo2.isInt() && litInfo2.is<IntType>());
+	ASSERT_TRUE(litInfo3.isInt() && litInfo3.is<IntType>());
+
+	EXPECT_EQ(litInfo1.get<IntType>(), 0) << "Value was not the one expected.";
+	EXPECT_EQ(litInfo2.get<IntType>(), 9223372036854775000) << "Value was not the one expected.";
+	EXPECT_EQ(litInfo3.get<IntType>(), 4242424242424242) << "Value was not the one expected.";
+}
+
+TEST(TokenTests, StringID)
+{
+	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+
+	Token tok1(&ctxt, "\"Hello, world!\"");
+	Token tok2(&ctxt, "\"\"");
+	Token tok3(&ctxt, "\"!\"");
+
+	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok3.isLiteral()) << "Logs:" << ctxt.getLogs();
+
+	LiteralInfo litInfo1 = tok1.getLiteralInfo();
+	LiteralInfo litInfo2 = tok2.getLiteralInfo();
+	LiteralInfo litInfo3 = tok3.getLiteralInfo();
+
+	ASSERT_TRUE(litInfo1) << "LiteralInfo was null?";
+	ASSERT_TRUE(litInfo2) << "LiteralInfo was null?";
+	ASSERT_TRUE(litInfo3) << "LiteralInfo was null?";
+
+	ASSERT_TRUE(litInfo1.isString() && litInfo1.is<std::string>());
+	ASSERT_TRUE(litInfo2.isString() && litInfo2.is<std::string>());
+	ASSERT_TRUE(litInfo3.isString() && litInfo3.is<std::string>());
+
+	EXPECT_EQ(litInfo1.get<std::string>(), "Hello, world!") << "Value was not the one expected.";
+	EXPECT_EQ(litInfo2.get<std::string>(), "") << "Value was not the one expected.";
+	EXPECT_EQ(litInfo3.get<std::string>(), "!") << "Value was not the one expected.";
+}
+
+TEST(TokenTests, CharID)
+{
+	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+
+	Token tok1(&ctxt, "'c'");
+	Token tok2(&ctxt, "' '");
+	Token tok3(&ctxt, "'!'");
+
+	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok3.isLiteral()) << "Logs:" << ctxt.getLogs();
+
+	LiteralInfo litInfo1 = tok1.getLiteralInfo();
+	LiteralInfo litInfo2 = tok2.getLiteralInfo();
+	LiteralInfo litInfo3 = tok3.getLiteralInfo();
+
+	ASSERT_TRUE(litInfo1) << "LiteralInfo was null?";
+	ASSERT_TRUE(litInfo2) << "LiteralInfo was null?";
+	ASSERT_TRUE(litInfo3) << "LiteralInfo was null?";
+
+	ASSERT_TRUE(litInfo1.isChar() && litInfo1.is<CharType>());
+	ASSERT_TRUE(litInfo2.isChar() && litInfo2.is<CharType>());
+	ASSERT_TRUE(litInfo3.isChar() && litInfo3.is<CharType>());
+
+	EXPECT_EQ(litInfo1.get<CharType>(), 'c') << "Value was not the one expected.";
+	EXPECT_EQ(litInfo2.get<CharType>(), ' ') << "Value was not the one expected.";
+	EXPECT_EQ(litInfo3.get<CharType>(), '!') << "Value was not the one expected.";
+}
+
+TEST(TokenTests, BoolID)
+{
+	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+
+	Token tok1(&ctxt, "true");
+	Token tok2(&ctxt, "false");
+
+	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
+
+	LiteralInfo litInfo1 = tok1.getLiteralInfo();
+	LiteralInfo litInfo2 = tok2.getLiteralInfo();
+
+	ASSERT_TRUE(litInfo1) << "LiteralInfo was null?";
+	ASSERT_TRUE(litInfo2) << "LiteralInfo was null?";
+
+	ASSERT_TRUE(litInfo1.isBool() && litInfo1.is<bool>());
+	ASSERT_TRUE(litInfo2.isBool() && litInfo2.is<bool>());
+
+	EXPECT_TRUE(litInfo1.get<bool>()) << "Value was not the one expected.";
+	EXPECT_FALSE(litInfo2.get<bool>()) << "Value was not the one expected.";
 }
