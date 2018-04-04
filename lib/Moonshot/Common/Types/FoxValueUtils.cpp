@@ -8,9 +8,9 @@
 ////------------------------------------------------------////
 
 #include "FoxValueUtils.hpp"
-#include "Moonshot/Common/Types/FVTypeTraits.hpp"
-#include "Moonshot/Fox/Lexer/StringManipulator.hpp"
 
+#include "Moonshot/Fox/Lexer/StringManipulator.hpp"
+#include <map>
 #include <sstream>
 
 using namespace Moonshot;
