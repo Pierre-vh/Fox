@@ -16,10 +16,12 @@
 
 using namespace Moonshot;
 
-FoxFunctionArg::FoxFunctionArg(const std::string & nm, const std::size_t & ty, const bool isK, const bool & isref)
+FoxFunctionArg::FoxFunctionArg(const std::string & nm, const std::size_t & ty, const bool &isK, const bool & isref)
 {
 	name_ = nm;
 	type_ = ty;
+	type_.setConstAttribute(isK);
+
 	isRef_ = isref;
 	wasInit_ = true;
 }
@@ -34,10 +36,20 @@ void FoxFunctionArg::setIsRef(const bool & nref)
 	isRef_ = nref;
 }
 
+bool FoxFunctionArg::isConst() const
+{
+	return type_.isConst();
+}
+
+void FoxFunctionArg::setConst(const bool & k)
+{
+	type_.setConstAttribute(k);
+}
+
 std::string FoxFunctionArg::dump() const
 {
 	std::stringstream output;
-	output << "[name:\"" << name_ << "\" type:" << type_.getTypeName() << " isReference:" << (isRef_ ? "Yes" : "No") << "]";
+	output << "Name:\"" << name_ << "\" Type:" << type_.getTypeName() << " isReference:" << (isRef_ ? "Yes" : "No") << "";
 	return output.str();
 }
 

@@ -85,7 +85,7 @@ ParsingResult<FoxFunctionArg> Parser::parseArgDecl()
 	if (auto mID_res = matchID())
 	{
 		FoxFunctionArg rtr;
-		rtr.getName() = mID_res.result_;
+		rtr.setName(mID_res.result_);
 		// ':'
 		if (!matchSign(SignType::S_COLON))
 		{
@@ -94,7 +94,7 @@ ParsingResult<FoxFunctionArg> Parser::parseArgDecl()
 		}
 		// ["const"]
 		if (matchKeyword(KeywordType::KW_CONST))
-			rtr.getType().setConstAttribute(true);
+			rtr.setConst(true);
 		// ['&']
 		if (matchSign(SignType::S_AMPERSAND))
 			rtr.setIsRef(true);

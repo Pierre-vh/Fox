@@ -44,10 +44,13 @@ namespace Moonshot
 	{
 		public:
 			FoxFunctionArg() = default;
-			FoxFunctionArg(const std::string &nm, const std::size_t &ty, const bool isK, const bool& isref);
+			FoxFunctionArg(const std::string &nm, const std::size_t &ty, const bool &isK, const bool& isref);
 
 			bool isRef() const;
 			void setIsRef(const bool& nref);
+
+			bool isConst() const;
+			void setConst(const bool& k);
 
 			std::string dump() const;
 			operator bool() const;

@@ -54,7 +54,7 @@ void FoxVariableAttr::setName(const std::string & str)
 
 void FoxVariableAttr::setType(const FoxType & type)
 {
-	type_ = type;
+	type_.setType(type.getTypeIndex());
 }
 
 std::string FoxVariableAttr::dump() const
