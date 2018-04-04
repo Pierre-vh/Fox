@@ -16,27 +16,17 @@
 #include <string> // std::string
 #include <inttypes.h>
 
+#include "Typedefs.hpp"
 // fwd decl
 namespace Moonshot
 {
 	struct FoxVariableAttr;
 }
 
-typedef int64_t IntType;
-typedef char32_t CharType;
-typedef float FloatType;
-typedef std::monostate VoidType;
 typedef std::variant<VoidType, IntType, float, CharType, std::string, bool> FoxValue; // The FoxValue, or FVal for short.
 
 namespace Moonshot
 {
-	namespace TypeLimits
-	{
-		static constexpr IntType IntType_MAX = (std::numeric_limits<IntType>::max)();
-		static constexpr IntType IntType_MIN = (std::numeric_limits<IntType>::min)();
-		static constexpr CharType CharType_MAX = (std::numeric_limits<CharType>::max)();
-		static constexpr CharType CharType_MIN = (std::numeric_limits<CharType>::min)();
-	};
 	namespace TypeIndex
 	{
 		static constexpr std::size_t InvalidIndex	= (std::numeric_limits<std::size_t>::max)();
