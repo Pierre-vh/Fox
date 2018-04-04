@@ -15,20 +15,16 @@
 
 using namespace Moonshot;
 
-bool FValUtils::isBasic(const FoxValue & fv)
+const std::map<std::size_t, std::string> kBuiltinTypes_dict =
 {
-	return IndexUtils::isBasic(fv.index());
-}
-
-bool FValUtils::isArithmetic(const FoxValue & fv)
-{
-	return IndexUtils::isArithmetic(fv.index());
-}
-
-bool FValUtils::isValue(const FoxValue & fv)
-{
-	return IndexUtils::isValue(fv.index());
-}
+	{ TypeIndex::Void_Type			, "VOID" },
+	{ TypeIndex::basic_Int			, "INT" },
+	{ TypeIndex::basic_Float		, "FLOAT" },
+	{ TypeIndex::basic_Char			, "CHAR" },
+	{ TypeIndex::basic_Bool			, "BOOL" },
+	{ TypeIndex::basic_String		, "STRING" },
+	{ TypeIndex::InvalidIndex		, "!INVALID!" }
+};
 
 std::string FValUtils::dumpFVal(const FoxValue & fv)
 {
@@ -55,36 +51,6 @@ std::string FValUtils::dumpFVal(const FoxValue & fv)
 	else
 		throw std::logic_error("Illegal fviant.");
 	return output.str();
-}
-
-FoxValue FValUtils::getSampleFValForIndex(const std::size_t & t)
-{
-	switch (t)
-	{
-		case TypeIndex::Void_Type:
-			return FoxValue();
-		case TypeIndex::basic_Int:
-			return FoxValue((IntType)0);
-		case TypeIndex::basic_Float:
-			return FoxValue((float)0.0f);
-		case TypeIndex::basic_Char:
-			return FoxValue((CharType)0);
-		case TypeIndex::basic_String:
-			return FoxValue(std::string(""));
-		case TypeIndex::basic_Bool:
-			return FoxValue((bool)false);
-		case TypeIndex::InvalidIndex:
-			throw std::logic_error("Tried to get a sample FoxValue with an invalid index");
-			return FoxValue();
-		default:
-			throw std::logic_error("Defaulted while attempting to return a sample FoxValue for an index. -> Unknown index. Unimplemented type?");
-			return FoxValue();
-	}
-}
-
-std::string FValUtils::getFValTypeName(const FoxValue & t)
-{
-	return getTypenameForIndex(t.index());
 }
 
 std::string FValUtils::getTypenameForIndex(const std::size_t & ind)
