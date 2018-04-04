@@ -12,7 +12,6 @@
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 // type
 #include "Moonshot/Common/Types/FoxValueUtils.hpp"
-#include "Moonshot/Common/Types/TypesUtils.hpp"
 // Include nodes
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
@@ -22,7 +21,6 @@
 #include "Moonshot/Common/Utils/Utils.hpp" // for enumAsInt
 
 using namespace Moonshot;
-using namespace TypeUtils;
 
 Dumper::Dumper(std::ostream & outstream, const unsigned char& offsettabs) : out_(outstream), offsetTabs_(offsettabs)
 {
