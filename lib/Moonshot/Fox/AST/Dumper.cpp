@@ -274,7 +274,7 @@ std::string Dumper::getIndent() const
 	return i;
 }
 
-std::string Moonshot::Dumper::getOffsetTabs() const
+std::string Dumper::getOffsetTabs() const
 {
 	std::string i;
 	for (unsigned char k(0); k < offsetTabs_; k++)
