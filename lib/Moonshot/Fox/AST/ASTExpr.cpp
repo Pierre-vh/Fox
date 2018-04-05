@@ -196,9 +196,9 @@ void ASTDeclRefExpr::setDeclnameStr(const std::string & str)
 }
 
 // declref
-IASTDeclRef * ASTFunctionCallExpr::getDeclRefExpr()
+std::string ASTFunctionCallExpr::getFunctionName() const
 {
-	return declref_.get();
+	return funcname_;
 }
 
 ExprList * ASTFunctionCallExpr::getExprList()
@@ -211,9 +211,9 @@ void ASTFunctionCallExpr::setExprList(std::unique_ptr<ExprList> elist)
 	args_ = std::move(elist);
 }
 
-void ASTFunctionCallExpr::setDeclRef(std::unique_ptr<IASTDeclRef> dref)
+void ASTFunctionCallExpr::setFunctionName(const std::string& fnname)
 {
-	declref_ = std::move(dref);
+	funcname_ = fnname;
 }
 
 void ASTFunctionCallExpr::accept(IVisitor & vis)
@@ -222,10 +222,10 @@ void ASTFunctionCallExpr::accept(IVisitor & vis)
 }
 
 // MemberRefExpr
-ASTMemberAccessExpr::ASTMemberAccessExpr(std::unique_ptr<IASTExpr> base, const std::string & membname)
+ASTMemberAccessExpr::ASTMemberAccessExpr(std::unique_ptr<IASTExpr> base, std::unique_ptr<IASTDeclRef> memb)
 {
 	base_ = std::move(base);
-	memb_name_ = membname;
+	member_ = std::move(memb);
 }
 
 void ASTMemberAccessExpr::accept(IVisitor & vis)
@@ -238,9 +238,9 @@ IASTExpr * ASTMemberAccessExpr::getBase()
 	return base_.get();
 }
 
-std::string ASTMemberAccessExpr::getMemberNameStr() const
+IASTDeclRef* ASTMemberAccessExpr::getMemberDeclRef() const
 {
-	return memb_name_;
+	return member_.get();
 }
 
 void ASTMemberAccessExpr::setBase(std::unique_ptr<IASTExpr> expr)
@@ -248,9 +248,40 @@ void ASTMemberAccessExpr::setBase(std::unique_ptr<IASTExpr> expr)
 	base_ = std::move(expr);
 }
 
-void ASTMemberAccessExpr::setDeclname(const std::string& membname)
+void ASTMemberAccessExpr::setMemberDeclRef(std::unique_ptr<IASTDeclRef> memb)
 {
-	memb_name_ = membname;
+	member_ = std::move(memb);
+}
+
+ASTArrayAccess::ASTArrayAccess(std::unique_ptr<IASTExpr> expr, std::unique_ptr<IASTExpr> idxexpr) :
+	base_(std::move(expr)), accessIdxExpr_(std::move(idxexpr))
+{
+	
+}
+
+void ASTArrayAccess::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
+
+void ASTArrayAccess::setBase(std::unique_ptr<IASTExpr> expr)
+{
+	base_ = std::move(expr);
+}
+
+void ASTArrayAccess::setAccessIndexExpr(std::unique_ptr<IASTExpr> expr)
+{
+	accessIdxExpr_ = std::move(expr);
+}
+
+IASTExpr* ASTArrayAccess::getBase()
+{
+	return base_.get();
+}
+
+IASTExpr* ASTArrayAccess::getAccessIndexExpr()
+{
+	return accessIdxExpr_.get();
 }
 
 // Expr list

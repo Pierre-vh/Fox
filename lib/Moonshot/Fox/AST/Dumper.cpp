@@ -132,8 +132,24 @@ void Dumper::visit(ASTMemberAccessExpr & node)
 	curindent_++;
 	node.getBase()->accept(*this);
 	curindent_--;
-	out_ << getIndent() << "Member name:" << node.getMemberNameStr() << "\n";
+	out_ << getIndent() << "Member:\n";
+	curindent_++;
+	node.getMemberDeclRef()->accept(*this);
+	curindent_ -= 2;
+}
+
+void Dumper::visit(ASTArrayAccess & node)
+{
+	out_ << getIndent() << "ArrayAccess Expr:\n";
+	curindent_++;
+	out_ << getIndent() << "Base:\n";
+	curindent_++;
+	node.getBase()->accept(*this);
 	curindent_--;
+	out_ << getIndent() << "Index expression:\n";
+	curindent_++;
+	node.getAccessIndexExpr()->accept(*this);
+	curindent_ -= 2;
 }
 
 void Dumper::visit(ASTDeclRefExpr & node)
@@ -145,12 +161,7 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 {
 	out_ << getIndent() << "Function Call\n";
 	curindent_++;
-	out_ << getIndent() << "Function:\n";
-
-	curindent_++;
-	if(node.getDeclRefExpr())
-		node.getDeclRefExpr()->accept(*this);
-	curindent_--;
+	out_ << getIndent() << "Function name :" << node.getFunctionName() << "\n";
 
 	if (node.getExprList()->size())
 	{

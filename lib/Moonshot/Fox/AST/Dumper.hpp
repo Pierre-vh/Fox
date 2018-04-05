@@ -26,6 +26,7 @@ namespace Moonshot
 			virtual void visit(ASTLiteralExpr & node) override;
 			virtual void visit(ASTVarDecl & node) override;
 			virtual void visit(ASTMemberAccessExpr & node) override;
+			virtual void visit(ASTArrayAccess & node) override;
 			virtual void visit(ASTDeclRefExpr & node) override;
 			virtual void visit(ASTFunctionCallExpr & node) override;
 			virtual void visit(ASTCompoundStmt & node) override;

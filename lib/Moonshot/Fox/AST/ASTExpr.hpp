@@ -119,7 +119,12 @@ namespace Moonshot
 	*/
 
 	// interface for decl refs. Derived classes are references to a decl within this context (declref) and reference to member decls (memberref)
-	struct IASTDeclRef : public IASTExpr {};
+	struct IASTDeclRef : public IASTExpr
+	{
+		// TODO After AST Upgrade/Rework
+		// ASTDecl* getOriginalDecl();
+		// void setDecl(ASTDecl* decl);
+	};
 
 	// Represents a reference to a declaration (namespace,variable,function) -> it's an identifier!
 	struct ASTDeclRefExpr : public IASTDeclRef
@@ -142,20 +147,37 @@ namespace Moonshot
 	{
 		public:
 			ASTMemberAccessExpr() = default;
-			ASTMemberAccessExpr(std::unique_ptr<IASTExpr> base, const std::string& membname);
+			ASTMemberAccessExpr(std::unique_ptr<IASTExpr> base, std::unique_ptr<IASTDeclRef> memb);
 
 			void accept(IVisitor& vis) override;
 
 			IASTExpr* getBase();
-			std::string getMemberNameStr() const;
+			IASTDeclRef* getMemberDeclRef() const;
 
 			void setBase(std::unique_ptr<IASTExpr> expr);
-			void setDeclname(const std::string& membname);
+			void setMemberDeclRef(std::unique_ptr<IASTDeclRef> memb);
 		private:
 			// the expression that is being accessed
 			std::unique_ptr<IASTExpr> base_;
 			// the decl to search inside the expr
-			std::string memb_name_;
+			std::unique_ptr<IASTDeclRef> member_;
+	};
+
+	struct ASTArrayAccess : public IASTDeclRef
+	{
+		public:
+			ASTArrayAccess(std::unique_ptr<IASTExpr> expr, std::unique_ptr<IASTExpr> idxexpr);
+			void accept(IVisitor& vis) override;
+
+			void setBase(std::unique_ptr<IASTExpr> expr);
+			void setAccessIndexExpr(std::unique_ptr<IASTExpr> expr);
+
+			IASTExpr* getBase() ;
+			IASTExpr* getAccessIndexExpr();
+		private:
+			// 2 Expr, the expression supposed to produce an array, and the expression contained within the square brackets that should produce the index.
+			std::unique_ptr<IASTExpr> base_;
+			std::unique_ptr<IASTExpr> accessIdxExpr_;
 	};
 
 	// Node/Helper struct that's a wrapper around a std::vector of std::unique_ptr to <IASTExpr>.
@@ -182,21 +204,21 @@ namespace Moonshot
 	};
 
 	// Function calls
-	struct ASTFunctionCallExpr : public IASTExpr
+	struct ASTFunctionCallExpr : public IASTDeclRef
 	{
 		public:
 			ASTFunctionCallExpr() = default;
 
-			IASTDeclRef* getDeclRefExpr();
+			std::string getFunctionName() const;
 			ExprList* getExprList();
 
 			void setExprList(std::unique_ptr<ExprList> elist);
-			void setDeclRef(std::unique_ptr<IASTDeclRef> dref);
+			void setFunctionName(const std::string& fnname);
 
 			void accept(IVisitor& vis) override;
 		private:
-			// the fn
-			std::unique_ptr<IASTDeclRef> declref_;
+			// the Function's name
+			std::string funcname_;
 			// it's args
 			std::unique_ptr<ExprList> args_;
 	};
