@@ -1,4 +1,4 @@
-Fox Grammar version 0.9.5
+Fox Grammar version 0.10.0
 
 // Note : { } means "0 or more", [ ] means "optional"
 
@@ -24,10 +24,10 @@ Fox Grammar version 0.9.5
 <expr_stmt>		= ';' | <expr> ';' 
 <parens_expr>	= '(' <expr> ')'
 
-<decl_call>		= <id> [ <parens_expr_list> ]
+<array_access>	= '[' <expr> ']'
+<decl_call>		= <id> [ <parens_expr_list> ] { <array_access> }
 <primary>		= <literal> | <parens_expr> | <decl_call>
-<member_access>	= <primary> { '.' <id> [ <parens_expr_list> ] }
-<exp_expr>		= <member_access> [ <exponent_operator> <prefix_expr> ]
+<member_access>	= <primary> { '.' <decl_call> }<exp_expr>		= <member_access> [ <exponent_operator> <prefix_expr> ]
 <prefix_expr>   = <unary_operator> <prefix_expr> | <exp_expr>
 <cast_expr>     = <prefix_expr> ["as" <type]
 <binary_expr>   = <cast_expr> { <binary_operator> <cast_expr> }	
