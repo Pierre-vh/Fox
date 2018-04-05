@@ -12,26 +12,86 @@
 
 #include "Moonshot/Common/Exceptions/Exceptions.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
+#include <cassert>
 
 using namespace Moonshot;
 
+ParsingResult<IASTDeclRef*> Parser::parseArrayAccess(std::unique_ptr<IASTDeclRef> base)
+{
+	// 	<array_access>	= '[' <expr> ']'
+	if (matchSign(SignType::S_SQ_OPEN))
+	{
+		if (auto expr = parseExpr())
+		{
+			if (matchSign(SignType::S_SQ_CLOSE))
+				return ParsingResult<IASTDeclRef*>(ParsingOutcome::SUCCESS, std::make_unique<ASTArrayAccess>(std::move(base), std::move(expr.result_)));
+			else
+			{
+				errorExpected("Expected a ']'");
+				if (resyncToDelimiter(SignType::S_SQ_CLOSE))
+					return ParsingResult<IASTDeclRef*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(base));
+				return ParsingResult<IASTDeclRef*>(ParsingOutcome::FAILED_AND_DIED);
+			}
+		}
+		else
+		{
+			errorExpected("Expected an expression");
+			if(matchSign(SignType::S_SQ_CLOSE))
+				// If failure, return the base so it isn't lost
+				return ParsingResult<IASTDeclRef*>(ParsingOutcome::FAILED_BUT_RECOVERED,std::move(base));
+			else
+			{
+				errorExpected("Expected a ']'");
+				if(resyncToDelimiter(SignType::S_SQ_CLOSE))
+					return ParsingResult<IASTDeclRef*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(base));
+				return ParsingResult<IASTDeclRef*>(ParsingOutcome::FAILED_AND_DIED);
+			}
+		}
+	}
+	return ParsingResult<IASTDeclRef*>(ParsingOutcome::NOTFOUND,std::move(base));
+}
 
-ParsingResult<IASTExpr*> Parser::parseDeclCall()
+ParsingResult<IASTDeclRef*> Parser::parseDeclCall()
 {
 	if (auto id = matchID())
 	{
-		auto declref = std::make_unique<ASTDeclRefExpr>();
-		declref->setDeclnameStr(id.result_);
+		std::unique_ptr<IASTDeclRef> expr = nullptr;
 		if (auto exprlist = parseParensExprList())
 		{
+			// if an expression list is found create a functioncall node and set expr to that node.
 			auto fcall = std::make_unique<ASTFunctionCallExpr>();
-			fcall->setDeclRef(std::move(declref));
+			fcall->setFunctionName(id.result_);
 			fcall->setExprList(std::move(exprlist.result_));
-			return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS,std::move(fcall));
+			expr = std::move(fcall);
 		}
-		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::move(declref));
+		else // if no expression list found, make expr a declref to the identifier.
+			expr = std::make_unique<ASTDeclRefExpr>(id.result_);
+
+		assert(expr && "Expr is not set?");
+
+		auto arrAcc = parseArrayAccess(std::move(expr));
+		while(arrAcc.getFlag() == ParsingOutcome::SUCCESS)
+		{
+			assert(arrAcc.result_ && "parseArrayAccess returned a null node on success?");
+			// Keep parsing with the latest result.
+			arrAcc = parseArrayAccess(std::move(arrAcc.result_));
+		}
+		
+		// Parsing array access done, extract the node.
+		if ((arrAcc.getFlag() == ParsingOutcome::NOTFOUND) ||
+			(arrAcc.getFlag() == ParsingOutcome::FAILED_BUT_RECOVERED))
+		{
+			assert(arrAcc.result_ && "parseArrayAccess did not return the base on failure?");
+			expr = std::move(arrAcc.result_);
+		}
+		else if (arrAcc.getFlag() == ParsingOutcome::FAILED_AND_DIED)
+			return ParsingResult<IASTDeclRef*>(ParsingOutcome::FAILED_AND_DIED);
+		else
+			throw std::exception("Unexpected  return type for parseArrayAccess");
+		
+		return ParsingResult<IASTDeclRef*>(ParsingOutcome::SUCCESS, std::move(expr));
 	}
-	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<IASTDeclRef*>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<IASTExpr*> Parser::parseLiteral()
@@ -44,11 +104,11 @@ ParsingResult<IASTExpr*> Parser::parseLiteral()
 ParsingResult<IASTExpr*>  Parser::parsePrimary()
 {
 	// = <literal>
-	if (auto match_lit = parseLiteral()) // if we have a literal, return it packed in a ASTLiteralExpr
+	if (auto match_lit = parseLiteral())
 		return match_lit;
 	// = <decl_call>
 	else if (auto match_decl = parseDeclCall())
-		return match_decl;
+		return ParsingResult<IASTExpr*>(match_decl.getFlag(),std::move(match_decl.result_));
 	// = '(' <expr> ')'
 	else if (auto res = parseParensExpr())
 		return res;
@@ -57,34 +117,17 @@ ParsingResult<IASTExpr*>  Parser::parsePrimary()
 
 ParsingResult<IASTExpr*> Parser::parseMemberAccess()
 {
-	// <member_access>	= <primary> { '.' <id> [ <parens_expr_list> ] }
+	// <member_access>	= <primary> { '.' <decl_call> }
 	if (auto prim = parsePrimary())
 	{
 		std::unique_ptr<IASTExpr> cur = std::move(prim.result_);
-
-		while (auto dot = matchSign(SignType::S_DOT))
+		while (matchSign(SignType::S_DOT))
 		{
-			if (auto id = matchID())
-			{
-				auto mem_access_node = std::make_unique<ASTMemberAccessExpr>();
-				mem_access_node->setBase(std::move(cur));
-				mem_access_node->setDeclname(id.result_);
-
-				if (auto fn_arg = parseParensExprList())
-				{
-					auto fn_call_node = std::make_unique<ASTFunctionCallExpr>();
-					fn_call_node->setDeclRef(std::move(mem_access_node));
-					fn_call_node->setExprList(std::move(fn_arg.result_));
-					cur = std::move(fn_call_node);
-				}
-				else if (fn_arg.getFlag() == ParsingOutcome::NOTFOUND)	
-					cur = std::move(mem_access_node); // else just move the member access node.
-				else
-					return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
-			}
+			if (auto declcall = parseDeclCall())
+				cur = std::make_unique<ASTMemberAccessExpr>(std::move(cur), std::move(declcall.result_));
 			else
 			{
-				errorExpected("Expected identifier");
+				errorExpected("Expected an identifier");
 				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 			}
 		}

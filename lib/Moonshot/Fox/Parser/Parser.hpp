@@ -49,7 +49,8 @@ namespace Moonshot
 			~Parser();
 
 			// EXPRESSIONS
-			ParsingResult<IASTExpr*> parseDeclCall(); 
+			ParsingResult<IASTDeclRef*> parseArrayAccess(std::unique_ptr<IASTDeclRef> base);
+			ParsingResult<IASTDeclRef*> parseDeclCall(); 
 			ParsingResult<IASTExpr*> parseLiteral();
 			ParsingResult<IASTExpr*> parsePrimary();
 			ParsingResult<IASTExpr*> parseMemberAccess();
