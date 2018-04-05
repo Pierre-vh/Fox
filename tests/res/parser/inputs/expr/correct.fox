@@ -48,3 +48,26 @@ Test.attr.test().attr.attr.test()
 "a int" as string
 "a float" as float
 "a var" as int
+#Array access tests
+arr[0]
+arr[0][1]
+arr[0][1][2]
+arr[0][1][2][3]
+arr[0][1][2][3][4]
+arr[0][1][2][3][4][5]
+#Function call test
+testfunc()
+testfunc("Arg1",2,'3')
+testfunc(false)
+#Array access on function call test
+testfunc()[0]
+testfunc()[0][1]
+testfunc()[0][1][2]
+testfunc()[0][1][2][3]
+testfunc()[0][1][2][3][4]
+testfunc()[0][1][2][3][4][5]
+#Complex Member accesses
+testfunc()[0][1].myField[1].myFunc()
+Fox.tests().arrayField[1].callFunc()
+#Extreme edge case
+foo()[0][1][2][3][4][5].lhs.bar()[0].foo().arr[0].hello
