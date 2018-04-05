@@ -35,10 +35,6 @@
 
 #include "Moonshot/Fox/AST/Operators.hpp"			
 
-#include <tuple>							// std::tuple, std::pair
-#include <memory>							// std::shared_ptr
-#include <vector>							// std::vector
-
 namespace Moonshot
 {
 	class Context;
