@@ -138,11 +138,11 @@ namespace Moonshot
 
 	// Represents a reference to a member : a namespace's, an object's field, etc.
 	// expr is the expression that is being accessed, id_ is the identifier to search.
-	struct ASTMemberOfExpr : public IASTDeclRef
+	struct ASTMemberAccessExpr : public IASTDeclRef
 	{
 		public:
-			ASTMemberOfExpr() = default;
-			ASTMemberOfExpr(std::unique_ptr<IASTExpr> base, const std::string& membname);
+			ASTMemberAccessExpr() = default;
+			ASTMemberAccessExpr(std::unique_ptr<IASTExpr> base, const std::string& membname);
 
 			void accept(IVisitor& vis) override;
 

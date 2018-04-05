@@ -66,7 +66,7 @@ ParsingResult<IASTExpr*> Parser::parseMemberAccess()
 		{
 			if (auto id = matchID())
 			{
-				auto mem_access_node = std::make_unique<ASTMemberOfExpr>();
+				auto mem_access_node = std::make_unique<ASTMemberAccessExpr>();
 				mem_access_node->setBase(std::move(cur));
 				mem_access_node->setDeclname(id.result_);
 

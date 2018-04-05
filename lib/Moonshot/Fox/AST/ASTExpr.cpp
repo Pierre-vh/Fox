@@ -222,33 +222,33 @@ void ASTFunctionCallExpr::accept(IVisitor & vis)
 }
 
 // MemberRefExpr
-ASTMemberOfExpr::ASTMemberOfExpr(std::unique_ptr<IASTExpr> base, const std::string & membname)
+ASTMemberAccessExpr::ASTMemberAccessExpr(std::unique_ptr<IASTExpr> base, const std::string & membname)
 {
 	base_ = std::move(base);
 	memb_name_ = membname;
 }
 
-void ASTMemberOfExpr::accept(IVisitor & vis)
+void ASTMemberAccessExpr::accept(IVisitor & vis)
 {
 	vis.visit(*this);
 }
 
-IASTExpr * ASTMemberOfExpr::getBase()
+IASTExpr * ASTMemberAccessExpr::getBase()
 {
 	return base_.get();
 }
 
-std::string ASTMemberOfExpr::getMemberNameStr() const
+std::string ASTMemberAccessExpr::getMemberNameStr() const
 {
 	return memb_name_;
 }
 
-void ASTMemberOfExpr::setBase(std::unique_ptr<IASTExpr> expr)
+void ASTMemberAccessExpr::setBase(std::unique_ptr<IASTExpr> expr)
 {
 	base_ = std::move(expr);
 }
 
-void ASTMemberOfExpr::setDeclname(const std::string& membname)
+void ASTMemberAccessExpr::setDeclname(const std::string& membname)
 {
 	memb_name_ = membname;
 }

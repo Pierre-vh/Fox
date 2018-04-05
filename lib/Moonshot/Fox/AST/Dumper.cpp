@@ -124,7 +124,7 @@ void Dumper::visit(ASTVarDecl & node)
 	}
 }
 
-void Dumper::visit(ASTMemberOfExpr & node)
+void Dumper::visit(ASTMemberAccessExpr & node)
 {
 	out_ << getIndent() << "MemberOf Expr:\n";
 	curindent_++;
