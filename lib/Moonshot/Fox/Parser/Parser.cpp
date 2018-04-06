@@ -5,7 +5,8 @@
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
-//	This file implements rule-agnostic methods				
+//	This file implements methods that aren't tied to Expression,
+//	Statements or Declarations.
 ////------------------------------------------------------////
 
 #include "Parser.hpp"
@@ -25,8 +26,75 @@ Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
 
 }
 
-Parser::~Parser()
+ParsingResult<ASTUnit*> Parser::parseUnit()
 {
+	// <fox_unit>	= {<declaration>}1+
+	// Note: unit "hard fails" if it did not find any declaration, since it's a mandatory rule for any file.
+	std::size_t counter = 0;
+	auto unit = std::make_unique<ASTUnit>();
+	// Parse declarations 
+	while (true)
+	{
+		// Parse a declaration
+		auto decl = parseDecl();
+		// If the declaration was parsed successfully : continue the cycle.
+		if (decl)
+		{
+			counter++;
+			unit->addDecl(std::move(decl.result_));
+			continue;
+		}
+		else
+		{
+			// Act differently depending on the failure type
+			if (decl.getFlag() == ParsingOutcome::NOTFOUND)
+			{
+				// if it didn't find it because we reached EOF, that means our job is done
+				if (hasReachedEndOfTokenStream())
+					break;
+				else // It didn't find a declaration and no eof
+				{
+					// Report an error
+					errorUnexpected();
+					genericError("Could not find a declaration. Attempting recovery to next function or variable declaration...");
+					// Try to go to the next decl
+					if (resyncToNextDeclKeyword())
+					{
+						genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
+						continue;
+					}
+					else	// Died, break.
+						break;
+				}
+			}
+			// Other error, and there's still stuff to parse, try to recover.
+			else if (!hasReachedEndOfTokenStream())
+			{
+				if (resyncToNextDeclKeyword())
+				{
+					genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
+					continue;
+				}
+				else	// Died, break.
+					break;
+			}
+			else // Other error and reached  eof, break.
+				break;
+		}
+
+	}
+	if (counter == 0)
+		genericError("Expected one or more declaration in unit.");
+
+	// Return !
+	if (isAlive() && counter) // If parser is alive and we got 1 or more decl
+		return ParsingResult<ASTUnit*>(ParsingOutcome::SUCCESS, std::move(unit));
+	else if (!isAlive()) // Died :(
+		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_AND_DIED);
+	else if (counter && hasReachedEndOfTokenStream()) // Parser is alive, we found 1 or more decl and we reached end of stream... we had errors but recovered successfuly.
+		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(unit));
+	else 
+		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 }
 
 ParsingResult<FoxValue> Parser::matchLiteral()
@@ -155,8 +223,20 @@ bool Parser::resyncToDelimiter(const SignType & s)
 	for (; state_.pos < tokens_.size(); state_.pos++)
 	{
 		if (matchSign(s))
+			return true;
+	}
+	die();
+	return false;
+}
+
+bool Parser::resyncToNextDeclKeyword()
+{
+	for (; state_.pos < tokens_.size(); state_.pos++)
+	{
+		if (matchKeyword(KeywordType::KW_FUNC) || matchKeyword(KeywordType::KW_LET))
 		{
-			incrementPosition();
+			// Decrement, so we reverse the token consuming and make the let/func available to be picked up by parseDecl
+			decrementPosition();
 			return true;
 		}
 	}
@@ -222,6 +302,16 @@ void Parser::genericError(const std::string & s)
 	context_.setOrigin("Parser");
 	context_.reportError(s);
 	context_.resetOrigin();
+}
+
+bool Parser::hasReachedEndOfTokenStream() const
+{
+	return (state_.pos >= tokens_.size());
+}
+
+bool Parser::isAlive() const
+{
+	return state_.isAlive;
 }
 
 Parser::ParserState Parser::createParserStateBackup() const

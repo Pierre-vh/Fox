@@ -143,7 +143,7 @@ ParsingResult<std::vector<FoxFunctionArg>> Parser::parseArgDeclList()
 		return ParsingResult<std::vector<FoxFunctionArg>>(firstArg_res.getFlag());
 }
 
-ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
+ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 {
 	//<var_decl> = <let_kw> <id> <type_spec> ['=' <expr>] ';'
 	std::unique_ptr<IASTExpr> initExpr = 0;
@@ -162,9 +162,7 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 		else
 		{
 			errorExpected("Expected an identifier");
-			if (resyncToDelimiter(SignType::S_SEMICOLON))
-				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
+			return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		// ##TYPESPEC##
 		if (auto typespecResult = parseTypeSpec())
@@ -172,9 +170,7 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 		else
 		{
 			errorExpected("Expected a ':'");
-			if (resyncToDelimiter(SignType::S_SEMICOLON))
-				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
+			return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 
 		// ##ASSIGNEMENT##
@@ -186,34 +182,30 @@ ParsingResult<IASTStmt*> Parser::parseVarDeclStmt()
 			else
 			{
 				errorExpected("Expected an expression");
-				if (resyncToDelimiter(SignType::S_SEMICOLON))
-					return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 			}
 		}
 		// ';'
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected semicolon after expression in variable declaration,");
-			if (resyncToDelimiter(SignType::S_SEMICOLON))
-				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
+			return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 
 		// If parsing was ok : 
 		FoxVariableAttr v_attr(varName, varType);
 		if (initExpr) // Has init expr?
-			return ParsingResult<IASTStmt*>(
+			return ParsingResult<ASTVarDecl*>(
 				ParsingOutcome::SUCCESS,
 				std::make_unique<ASTVarDecl>(v_attr, std::move(initExpr))
 				);
 		else
-			return ParsingResult<IASTStmt*>(
+			return ParsingResult<ASTVarDecl*>(
 				ParsingOutcome::SUCCESS,
 				std::make_unique<ASTVarDecl>(v_attr, nullptr)
 				);
 	}
-	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<ASTVarDecl*>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<FoxType> Parser::parseTypeSpec()
@@ -231,4 +223,14 @@ ParsingResult<FoxType> Parser::parseTypeSpec()
 		errorExpected("Expected a type name");
 	}
 	return ParsingResult<FoxType>(ParsingOutcome::NOTFOUND);
+}
+
+ParsingResult<IASTDecl*> Parser::parseDecl()
+{
+	// <declaration> = <var_decl> | <func_decl>
+	if (auto vdecl = parseVarDeclStmt())
+		return ParsingResult<IASTDecl*>(ParsingOutcome::SUCCESS, std::move(vdecl.result_));
+	else if(auto fdecl = parseFunctionDeclaration())
+		return ParsingResult<IASTDecl*>(ParsingOutcome::SUCCESS, std::move(fdecl.result_));
+	return ParsingResult<IASTDecl*>(ParsingOutcome::NOTFOUND);
 }

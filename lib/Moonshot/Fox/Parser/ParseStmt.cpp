@@ -35,9 +35,7 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		if (!matchSign(SignType::S_CURLY_CLOSE))
 		{
 			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
-			if (resyncToDelimiter(SignType::S_CURLY_CLOSE))
-				return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_AND_DIED);
+			return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::SUCCESS,std::move(rtr));
 	}
@@ -45,9 +43,7 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 	if (isMandatory)
 	{
 		errorExpected("Expected a '{'");
-		if (resyncToDelimiter(SignType::S_CURLY_CLOSE))
-			return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-		return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_AND_DIED);
+		return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 	}
 	return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::NOTFOUND);
 }
@@ -145,17 +141,16 @@ ParsingResult<IASTStmt*> Parser::parseReturnStmt()
 ParsingResult<IASTStmt*> Parser::parseStmt()
 {
 	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | | <rtr_stmt> 
-	if (auto parseres = parseExprStmt())
-		return parseres;
-	else if (auto parseres = parseVarDeclStmt())
-		return parseres;
-	else if (auto parseres = parseCondition())
-		return parseres;
-	else if (auto parseres = parseWhileLoop())
-		return parseres;
-	
-	else if (auto parseres = parseReturnStmt())
-		return parseres;
+	if (auto estmt = parseExprStmt())
+		return estmt;
+	else if (auto vdecl = parseVarDeclStmt())
+		return  ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS,std::move(vdecl.result_));
+	else if (auto cond = parseCondition())
+		return cond;
+	else if (auto wloop = parseWhileLoop())
+		return wloop;
+	else if (auto rtrstmt = parseReturnStmt())
+		return rtrstmt;
 	else
 		return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }

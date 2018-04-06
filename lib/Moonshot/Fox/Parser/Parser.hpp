@@ -32,6 +32,7 @@
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
+#include "Moonshot/Fox/AST/ASTUnit.hpp"
 
 #include "Moonshot/Fox/AST/Operators.hpp"			
 
@@ -42,7 +43,9 @@ namespace Moonshot
 	{
 		public:
 			Parser(Context& c,TokenVector& l);
-			~Parser();
+
+			// UNIT
+			ParsingResult<ASTUnit*>	parseUnit();
 
 			// EXPRESSIONS
 			ParsingResult<IASTDeclRef*> parseArrayAccess(std::unique_ptr<IASTDeclRef> base);
@@ -67,11 +70,11 @@ namespace Moonshot
 			ParsingResult<IASTStmt*> parseCondition(); // Parse a  if-else if-else "block
 			ParsingResult<IASTStmt*> parseWhileLoop();
 
-			// DECLS-STMTS
-			ParsingResult<IASTStmt*> parseVarDeclStmt(); // Var Declaration Statement
 			// DECLS
+			ParsingResult<ASTVarDecl*> parseVarDeclStmt(); // Var Declaration Statement
 			ParsingResult<ASTFunctionDecl*> parseFunctionDeclaration();
-			
+			ParsingResult<IASTDecl*> parseDecl();
+
 		private:
 			// expression helpers
 			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false, const bool& isExprMandatory = false);
@@ -133,6 +136,9 @@ namespace Moonshot
 			// Returns true if resync was successful.
 			bool resyncToDelimiter(const SignType &s);
 
+			// Same as resyncToDelimiter, except it works on "let" and "func" keywords
+			bool resyncToNextDeclKeyword();
+
 			// die : Indicates that the parsing is over and the parser has died because of a critical error. 
 			void die();
 
@@ -149,6 +155,13 @@ namespace Moonshot
 				std::size_t pos = 0;						// current pos in the Token vector.
 				bool isAlive = true;						// is the parser "alive"?
 			} state_;
+
+			// Interrogate parser state
+			// Returns true if pos >= tokens_.size()
+			bool hasReachedEndOfTokenStream() const;
+
+			// Returns isAlive
+			bool isAlive() const;
 
 			ParserState createParserStateBackup() const;
 			void restoreParserStateFromBackup(const ParserState& st);
