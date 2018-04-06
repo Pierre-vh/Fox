@@ -70,6 +70,7 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 			// Other error, and there's still stuff to parse, try to recover.
 			else if (!hasReachedEndOfTokenStream())
 			{
+				genericError("Attempting recovery to next function or variable declaration.");
 				if (resyncToNextDeclKeyword())
 				{
 					genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
