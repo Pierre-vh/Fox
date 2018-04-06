@@ -23,6 +23,22 @@
 // Status: Up to date with latest grammar changes, but isn't finished yet.
 ////------------------------------------------------------////
 
+/*
+	QUICK NOTE: State of the parser error recovery system as of April 2018
+		At top level (function/variable declarations at file level), the parser only tries to recover to the next declaration it can find if something went wrong.
+		The parsing function themselves are not allowed to attempt recovery. Upon error, they return the data if possible with a flag "FAILED_WITHOUT_ATTEMPTING_RECOVERY"
+
+		At "local" level (inside a function declaration and inside the function declaration's inner scopes), Compound statements and statements will attempt to recover to the next FREE ';', ')' or '}'
+		they can find. If they can't find one, the parsing ends. Note : FREE = for }, ) and ], the recovery function ignore matches if it found an opening {, ( or [  earlier. If you read the code of 
+		resyncToSign at line ~148 you will understand what I mean.
+
+		There's still a lot of work to do to get really good error messages, but currently the parser tries to give you decent error messages, and they should help you
+		find the error in the most common error cases. Fox's syntax isn't hard, so there should be really no complex case whatsoever.
+		If someone reads this and wants to contribute, you can try to find a better way of recovering errors that would produce less error cascades and would suit fox well.
+		If you find such a thing, don't hesitate to make a PR (if you implemented it), but try to contact me at pierre.vanhoutryve@gmail.com first to discuss the matter a bit !
+
+*/
+
 #pragma once
 
 #include "Moonshot/Common/Types/Types.hpp"
