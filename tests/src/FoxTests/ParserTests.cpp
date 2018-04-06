@@ -306,3 +306,34 @@ TEST(ParserTests, CompoundStmts)
 		EXPECT_TRUE(tester.runTest(true)) << tester.getLatestFailureMessage();
 	}
 }
+
+TEST(ParserTests, Unit)
+{
+	std::string corr_base_path = "parser/inputs/unit/correct_";
+	std::string bad_base_path = "parser/inputs/unit/incorrect_";
+
+	ParsingFunctionTester tester([&](Parser & parse) -> bool {
+		auto res = parse.parseUnit();
+		return res;
+	});
+
+	std::stringstream ss;
+	for (int k = 1; k <= 3; k++)
+	{
+		ss.str(std::string());
+		ss << corr_base_path << k << ".fox";
+		std::string cur_corr_path = ss.str();
+		ss.str(std::string());
+		ss << bad_base_path << k << ".fox";
+		std::string cur_bad_path = ss.str();
+
+		// correct test
+		tester.clearInputs();
+		ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::WHOLE_FILE, cur_corr_path)) << "Could not open file \"" << cur_corr_path << '"';
+		EXPECT_TRUE(tester.runTest()) << tester.getLatestFailureMessage();
+		// bad test
+		tester.clearInputs();
+		ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::WHOLE_FILE, cur_bad_path)) << "Could not open file \"" << cur_bad_path << '"';
+		EXPECT_TRUE(tester.runTest(true)) << tester.getLatestFailureMessage();
+	}
+}
