@@ -36,7 +36,7 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 	while (true)
 	{
 		// Parse a declaration
-		auto decl = parseDecl();
+		auto decl = parseTopLevelDecl();
 		// If the declaration was parsed successfully : continue the cycle.
 		if (decl)
 		{
@@ -56,7 +56,7 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 				{
 					// Report an error
 					errorUnexpected();
-					genericError("Could not find a declaration. Attempting recovery to next function or variable declaration...");
+					genericError("Could not find a declaration. Attempting recovery to next declaration...");
 					// Try to go to the next decl
 					if (resyncToNextDeclKeyword())
 					{
@@ -70,7 +70,13 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 			// Other error, and there's still stuff to parse, try to recover.
 			else if (!hasReachedEndOfTokenStream())
 			{
-				genericError("Attempting recovery to next function or variable declaration.");
+				// If the decl has error, but still managed to return something, make use of it!
+				if (decl.isDataAvailable())
+				{
+					counter++;
+					unit->addDecl(std::move(decl.result_));
+				}
+				genericError("Attempting recovery to next declaration.");
 				if (resyncToNextDeclKeyword())
 				{
 					genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
@@ -219,15 +225,57 @@ void Parser::decrementPosition()
 	state_.pos-=1;
 }
 
-bool Parser::resyncToDelimiter(const SignType & s)
+bool Parser::resyncToSign(const SignType & s)
 {
-	for (; state_.pos < tokens_.size(); state_.pos++)
+	if (isClosingDelimiter(s))
 	{
-		if (matchSign(s))
-			return true;
+		std::size_t counter = 0;
+		auto opener = getOppositeDelimiter(s);
+		for (; state_.pos < tokens_.size(); state_.pos++)
+		{
+			if (matchSign(opener))
+			{
+				counter++;
+				continue;
+			}
+			if (matchSign(s))
+			{
+				if (counter)
+					counter--;
+				else 
+					return true;
+			}
+		}
+	}
+	else
+	{
+		for (; state_.pos < tokens_.size(); state_.pos++)
+		{
+			if (matchSign(s))
+				return true;
+		}
 	}
 	die();
 	return false;
+}
+
+bool Parser::isClosingDelimiter(const SignType & s) const
+{
+	return (s == SignType::S_CURLY_CLOSE) || (s == SignType::S_ROUND_CLOSE) || (s == SignType::S_SQ_CLOSE);
+}
+
+SignType Parser::getOppositeDelimiter(const SignType & s)
+{
+	if (s == SignType::S_CURLY_CLOSE)
+		return SignType::S_CURLY_OPEN;
+
+	if (s == SignType::S_ROUND_CLOSE)
+		return SignType::S_ROUND_OPEN;
+
+	if (s == SignType::S_SQ_CLOSE)
+		return SignType::S_SQ_OPEN;
+
+	return SignType::DEFAULT;
 }
 
 bool Parser::resyncToNextDeclKeyword()

@@ -28,7 +28,7 @@ ParsingResult<IASTDeclRef*> Parser::parseArrayAccess(std::unique_ptr<IASTDeclRef
 			else
 			{
 				errorExpected("Expected a ']'");
-				if (resyncToDelimiter(SignType::S_SQ_CLOSE))
+				if (resyncToSign(SignType::S_SQ_CLOSE))
 					return ParsingResult<IASTDeclRef*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(base));
 				return ParsingResult<IASTDeclRef*>(ParsingOutcome::FAILED_AND_DIED);
 			}
@@ -42,7 +42,7 @@ ParsingResult<IASTDeclRef*> Parser::parseArrayAccess(std::unique_ptr<IASTDeclRef
 			else
 			{
 				errorExpected("Expected a ']'");
-				if(resyncToDelimiter(SignType::S_SQ_CLOSE))
+				if(resyncToSign(SignType::S_SQ_CLOSE))
 					return ParsingResult<IASTDeclRef*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(base));
 				return ParsingResult<IASTDeclRef*>(ParsingOutcome::FAILED_AND_DIED);
 			}
@@ -329,7 +329,7 @@ ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory, const 
 		if (!matchSign(SignType::S_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')' ,");
-			if (!resyncToDelimiter(SignType::S_ROUND_CLOSE))
+			if (!resyncToSign(SignType::S_ROUND_CLOSE))
 				return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_AND_DIED);
 			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(rtr));
 		}
@@ -341,7 +341,7 @@ ParsingResult<IASTExpr*> Parser::parseParensExpr(const bool& isMandatory, const 
 	{
 		// attempt resync to )
 		errorExpected("Expected a '('");
-		if(resyncToDelimiter(SignType::S_ROUND_CLOSE))
+		if(resyncToSign(SignType::S_ROUND_CLOSE))
 			return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 		return ParsingResult<IASTExpr*>(ParsingOutcome::FAILED_AND_DIED);
 	}
@@ -385,7 +385,7 @@ ParsingResult<ExprList*> Parser::parseParensExprList()
 		{
 			// attempt resync to )
 			errorExpected("Expected a ')'");
-			if (resyncToDelimiter(SignType::S_ROUND_CLOSE))
+			if (resyncToSign(SignType::S_ROUND_CLOSE))
 				return ParsingResult<ExprList*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<ExprList*>(ParsingOutcome::FAILED_AND_DIED);
 		}

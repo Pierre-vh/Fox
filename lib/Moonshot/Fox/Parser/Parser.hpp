@@ -20,7 +20,7 @@
 // OUTPUT													
 // The Abstract Syntax Tree, AST for short.				
 //
-// Status: Up to date with latest grammar changes, but isn't finished yet. Functions decl/call aren't in, and import/using statements too.
+// Status: Up to date with latest grammar changes, but isn't finished yet.
 ////------------------------------------------------------////
 
 #pragma once
@@ -62,7 +62,8 @@ namespace Moonshot
 			// STATEMENTS
 			ParsingResult<IASTStmt*> parseReturnStmt();
 			ParsingResult<IASTStmt*> parseExprStmt(); // Expression statement
-			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); // Compound Statement
+			ParsingResult<ASTCompoundStmt*> parseTopLevelCompoundStatement(const bool& isMandatory = false); // Top level compound statement : always mandatory and doesn't try to recover on error, since error handling is done by parseUnit
+			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); // Compound Statement, might be mandatory, and tries to recover to next } on error.
 			ParsingResult<IASTStmt*> parseStmt(); // General Statement
 			ParsingResult<IASTStmt*> parseBody(); // body for control flow
 
@@ -71,9 +72,10 @@ namespace Moonshot
 			ParsingResult<IASTStmt*> parseWhileLoop();
 
 			// DECLS
-			ParsingResult<ASTVarDecl*> parseVarDeclStmt(); // Var Declaration Statement
+			ParsingResult<ASTVarDecl*> parseTopLevelVarDeclStmt();	// Parses a var declaration, but doesn't attempt to recover when an error is met
+			ParsingResult<ASTVarDecl*> parseVarDeclStmt();			// Same as above, but tries to recover.
 			ParsingResult<ASTFunctionDecl*> parseFunctionDeclaration();
-			ParsingResult<IASTDecl*> parseDecl();
+			ParsingResult<IASTDecl*> parseTopLevelDecl();
 
 		private:
 			// expression helpers
@@ -85,7 +87,6 @@ namespace Moonshot
 			ParsingResult<std::vector<FoxFunctionArg>> parseArgDeclList();
 			// type spec for vardecl
 			ParsingResult<FoxType> parseTypeSpec();
-
 
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A and B as children. You call oneUpNode like this : oneUpNode(N,PLUS)
@@ -116,7 +117,6 @@ namespace Moonshot
 			Token getToken() const;
 			Token getToken(const std::size_t &d) const;
 
-
 			// Get state_.pos
 			std::size_t getCurrentPosition() const;
 			// Get state_.pos++
@@ -126,17 +126,16 @@ namespace Moonshot
 			// Decrement state_.pos
 			void decrementPosition();
 
-
-
 			/*
 				Note, this could use improvements, for instance a maximum thresold, or stop when a '}' is found to avoid matching to a semicolon out of the compound statement, etc.
 				This is a matter for another time, first I want to finish the interpreter up to v1.0, then i'll do a refactor to give better error messages before moving on to other features (arrays, oop, tuples)
 			*/
 			// This function will skip every token until the appropriate "resync" token is found.
 			// Returns true if resync was successful.
-			bool resyncToDelimiter(const SignType &s);
-
-			// Same as resyncToDelimiter, except it works on "let" and "func" keywords
+			bool resyncToSign(const SignType &s);
+			bool isClosingDelimiter(const SignType &s) const;			// Returns true if s is a } or ) or ]
+			SignType getOppositeDelimiter(const SignType &s);			// Returns [ for ], { for }, ( for )
+			// Same as resyncToSign, except it works on "let" and "func" keywords
 			bool resyncToNextDeclKeyword();
 
 			// die : Indicates that the parsing is over and the parser has died because of a critical error. 

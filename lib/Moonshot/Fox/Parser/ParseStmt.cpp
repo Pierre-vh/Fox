@@ -16,6 +16,22 @@ using namespace Moonshot;
 
 ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {
+	auto compstmt = parseTopLevelCompoundStatement(isMandatory);
+	if (compstmt.getFlag() == ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
+	{
+		if (resyncToSign(SignType::S_CURLY_CLOSE))
+		{
+			if (compstmt.isDataAvailable())
+				return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(compstmt.result_));
+			return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+		}
+		return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_AND_DIED);
+	}
+	return compstmt;
+}
+
+ParsingResult<ASTCompoundStmt*> Parser::parseTopLevelCompoundStatement(const bool& isMandatory)
+{
 	auto rtr = std::make_unique<ASTCompoundStmt>(); // return value
 	if (matchSign(SignType::S_CURLY_OPEN))
 	{
@@ -35,16 +51,13 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		if (!matchSign(SignType::S_CURLY_CLOSE))
 		{
 			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
-			return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY,std::move(rtr));
 		}
 		return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::SUCCESS,std::move(rtr));
 	}
-	
-	if (isMandatory)
-	{
+	else if (isMandatory)
 		errorExpected("Expected a '{'");
-		return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
-	}
+
 	return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::NOTFOUND);
 }
 
@@ -129,7 +142,7 @@ ParsingResult<IASTStmt*> Parser::parseReturnStmt()
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected a ';'");
-			if (!resyncToDelimiter(SignType::S_SEMICOLON))
+			if (!resyncToSign(SignType::S_SEMICOLON))
 				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 
@@ -141,18 +154,32 @@ ParsingResult<IASTStmt*> Parser::parseReturnStmt()
 ParsingResult<IASTStmt*> Parser::parseStmt()
 {
 	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | | <rtr_stmt> 
-	if (auto estmt = parseExprStmt())
-		return estmt;
-	else if (auto vdecl = parseVarDeclStmt())
-		return  ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS,std::move(vdecl.result_));
-	else if (auto cond = parseCondition())
+	// <expr_stmt>
+	auto exprstmt = parseExprStmt();
+	if (exprstmt.getFlag() != ParsingOutcome::NOTFOUND)
+		return exprstmt;
+	// <var_decl
+	auto vardecl = parseVarDeclStmt();
+	if (vardecl.getFlag() != ParsingOutcome::NOTFOUND)
+	{
+		if (vardecl.isDataAvailable())
+			return ParsingResult<IASTStmt*>(vardecl.getFlag(), std::move(vardecl.result_));
+		return ParsingResult<IASTStmt*>(vardecl.getFlag());
+	}
+	// <condition>
+	auto cond = parseCondition();
+	if(cond.getFlag() != ParsingOutcome::NOTFOUND)
 		return cond;
-	else if (auto wloop = parseWhileLoop())
+	// <while_loop>
+	auto wloop = parseWhileLoop();
+	if (wloop.getFlag() != ParsingOutcome::NOTFOUND)
 		return wloop;
-	else if (auto rtrstmt = parseReturnStmt())
+	// <return_stmt>
+	auto rtrstmt = parseReturnStmt();
+	if (rtrstmt.getFlag() != ParsingOutcome::NOTFOUND)
 		return rtrstmt;
-	else
-		return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+	// Else, not found..
+	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<IASTStmt*> Parser::parseBody()
@@ -179,7 +206,7 @@ ParsingResult<IASTStmt*> Parser::parseExprStmt()
 		else
 		{
 			errorExpected("Expected a ';' in expression statement");
-			if (resyncToDelimiter(SignType::S_SEMICOLON))
+			if (resyncToSign(SignType::S_SEMICOLON))
 				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
 			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}

@@ -46,14 +46,14 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 			{
 				if (pArgDeclList.getFlag() != ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
 					errorExpected("Expected a ')'");
-				if (!resyncToDelimiter(SignType::S_ROUND_CLOSE))
+				if (!resyncToSign(SignType::S_ROUND_CLOSE))
 					return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::FAILED_AND_DIED);
 			}
 		}
 		else
 		{
 			errorExpected("Expected '('");
-			if (!resyncToDelimiter(SignType::S_ROUND_CLOSE))
+			if (!resyncToSign(SignType::S_ROUND_CLOSE))
 				return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 		// [':' <type>]
@@ -68,13 +68,20 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 			rtr->setReturnType(TypeIndex::Void_Type);
 
 		// <compound_statement>
-		if (auto cp_res = parseCompoundStatement(true))
+		if (auto cp_res = parseTopLevelCompoundStatement(true))
 		{
 			rtr->setBody(std::move(cp_res.result_));
 			return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::SUCCESS, std::move(rtr));
 		}
 		else
+		{
+			if (cp_res.isDataAvailable())
+			{
+				rtr->setBody(std::move(cp_res.result_));
+				return ParsingResult<ASTFunctionDecl*>(cp_res.getFlag(), std::move(rtr));
+			}
 			return ParsingResult<ASTFunctionDecl*>(cp_res.getFlag());
+		}
 	}
 	return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::NOTFOUND);
 }
@@ -142,12 +149,28 @@ ParsingResult<std::vector<FoxFunctionArg>> Parser::parseArgDeclList()
 	else
 		return ParsingResult<std::vector<FoxFunctionArg>>(firstArg_res.getFlag());
 }
-
 ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
+{
+	auto node = parseTopLevelVarDeclStmt();
+	// If failed w/o recovery, try to recover.
+	if (node.getFlag() == ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
+	{
+		if (resyncToSign(SignType::S_SEMICOLON))
+		{
+			if(node.isDataAvailable())
+				return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(node.result_));
+			return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+		}
+		return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_AND_DIED);
+	}
+	return node;
+}
+
+ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 {
 	//<var_decl> = <let_kw> <id> <type_spec> ['=' <expr>] ';'
 	std::unique_ptr<IASTExpr> initExpr = 0;
-
+	ParsingOutcome flag = ParsingOutcome::SUCCESS;
 	bool isVarConst = false;
 	FoxType varType = TypeIndex::InvalidIndex;
 	std::string varName;
@@ -189,20 +212,20 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected semicolon after expression in variable declaration,");
-			return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			flag = ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY;
 		}
 
 		// If parsing was ok : 
 		FoxVariableAttr v_attr(varName, varType);
 		if (initExpr) // Has init expr?
 			return ParsingResult<ASTVarDecl*>(
-				ParsingOutcome::SUCCESS,
-				std::make_unique<ASTVarDecl>(v_attr, std::move(initExpr))
+				flag,
+					std::make_unique<ASTVarDecl>(v_attr, std::move(initExpr))
 				);
 		else
 			return ParsingResult<ASTVarDecl*>(
-				ParsingOutcome::SUCCESS,
-				std::make_unique<ASTVarDecl>(v_attr, nullptr)
+				flag,
+					std::make_unique<ASTVarDecl>(v_attr, nullptr)
 				);
 	}
 	return ParsingResult<ASTVarDecl*>(ParsingOutcome::NOTFOUND);
@@ -225,12 +248,25 @@ ParsingResult<FoxType> Parser::parseTypeSpec()
 	return ParsingResult<FoxType>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTDecl*> Parser::parseDecl()
+ParsingResult<IASTDecl*> Parser::parseTopLevelDecl()
 {
 	// <declaration> = <var_decl> | <func_decl>
-	if (auto vdecl = parseVarDeclStmt())
-		return ParsingResult<IASTDecl*>(ParsingOutcome::SUCCESS, std::move(vdecl.result_));
-	else if(auto fdecl = parseFunctionDeclaration())
-		return ParsingResult<IASTDecl*>(ParsingOutcome::SUCCESS, std::move(fdecl.result_));
+	// <var_decl>
+	auto vdecl = parseTopLevelVarDeclStmt();
+	if (vdecl.getFlag() != ParsingOutcome::NOTFOUND)
+	{
+		if (vdecl.isDataAvailable())
+			return ParsingResult<IASTDecl*>(vdecl.getFlag(), std::move(vdecl.result_));
+		return ParsingResult<IASTDecl*>(vdecl.getFlag());
+	}
+	// <func_decl>
+	auto fdecl = parseFunctionDeclaration();
+	if (fdecl.getFlag() != ParsingOutcome::NOTFOUND)
+	{
+		if(fdecl.isDataAvailable())
+			return ParsingResult<IASTDecl*>(fdecl.getFlag(), std::move(fdecl.result_));
+		return ParsingResult<IASTDecl*>(fdecl.getFlag());
+	}
+
 	return ParsingResult<IASTDecl*>(ParsingOutcome::NOTFOUND);
 }
