@@ -27,6 +27,15 @@ Dumper::Dumper(std::ostream & outstream, const unsigned char& offsettabs) : out_
 
 }
 
+void Dumper::dumpUnit(ASTUnit & unit)
+{
+	out_ << "ASTUnit containing " << unit.getDeclCount() << " declaration.\n";
+	curindent_++;
+	for (auto it = unit.decls_beg(); it != unit.decls_end(); it++)
+		(*it)->accept(*this);
+	curindent_--;
+}
+
 void Dumper::visit(ASTBinaryExpr & node)
 {
 	std::string op = Util::getFromDict(Dicts::kBinopToStr_dict, node.getOp());
