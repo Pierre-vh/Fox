@@ -50,13 +50,13 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 		out << ctxt.getLogs();
 		return false;
 	}
-	else if (ctxt.isSafe())
-		out << "Parsing successful ! \n";
 	else 
-		out << "Parsing had error but it looks like it recovered successfully.. logs:\n" << ctxt.getLogs() << "\n";
+		out << "Parsing successful ! \n";
+
+	out << ctxt.getLogs();
 	
 
-	out << "AST Dump:\n";
+	out << "\nAST Dump:\n";
 	Dumper dump(out,1);
 	dump.dumpUnit(*presult.result_);
 	return true;
