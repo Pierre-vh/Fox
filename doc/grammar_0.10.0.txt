@@ -3,8 +3,9 @@ Fox Grammar version 0.10.0
 // Note : { } means "0 or more", [ ] means "optional"
 
 ##Base rule (The parsing process starts from this rule.)
-<fox_unit>	= {<declaration>}1+
+<fox_unit>	= {<declaration>}1+	// Note, in the future I'll add the <import> too, but not yet. I'll implement them later.
 <declaration> = <func_decl> | <var_decl>
+
 ##General Rules##
 
 <id> 				= Any non-reserved keyword that is recognized by the following regular expression : (([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+ that contains at least one character.
