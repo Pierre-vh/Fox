@@ -5,6 +5,8 @@ TODO:
 		> parseDecl calls both function with FALSE. parseDecl should be renamed to parseTopLevelDecl
 			> parseVarDecl(shouldRecover) -> if true, recover to next semicolon on every error, else, just return "FAILED WITHOUT RECOVERING"
 			> parseFuncDecl(shouldRecover) -> if true, allow the compound statement to recover to the next } on error.
+		> Or another system: add a new variable to the parserstate that holds a "currentParsingContext" with either TOP_LEVEL and "FUNC_DECL" and decide weither to recover or not
+			based on that
 	> IdentifierTable & IdentifierInfo
 	> ASTContext : has an IdentifierTable, holds a single unit for now, available with "getMainUnit()"
 	> ASTContext : Types
