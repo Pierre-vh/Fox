@@ -1,6 +1,10 @@
 TODO:
 > AST 2.0
-	> ASTUnit : Represents a source file, contains declarations.
+	> ASTUnit : Represents a source file, contains declarations. (DONE)
+		> Re-implement error recovery in varDeclStmt with an optional boolean
+		> parseDecl calls both function with FALSE. parseDecl should be renamed to parseTopLevelDecl
+			> parseVarDecl(shouldRecover) -> if true, recover to next semicolon on every error, else, just return "FAILED WITHOUT RECOVERING"
+			> parseFuncDecl(shouldRecover) -> if true, allow the compound statement to recover to the next } on error.
 	> IdentifierTable & IdentifierInfo
 	> ASTContext : has an IdentifierTable, holds a single unit for now, available with "getMainUnit()"
 	> ASTContext : Types
