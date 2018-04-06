@@ -80,7 +80,13 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 				rtr->setBody(std::move(cp_res.result_));
 				return ParsingResult<ASTFunctionDecl*>(cp_res.getFlag(), std::move(rtr));
 			}
-			return ParsingResult<ASTFunctionDecl*>(cp_res.getFlag());
+			else
+			{
+				// Create an empty compound statement to still return something
+				rtr->setBody(std::make_unique<ASTCompoundStmt>());
+				return ParsingResult<ASTFunctionDecl*>(cp_res.getFlag(),std::move(rtr));
+
+			}
 		}
 	}
 	return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::NOTFOUND);

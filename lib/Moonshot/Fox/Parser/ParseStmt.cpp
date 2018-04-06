@@ -36,16 +36,21 @@ ParsingResult<ASTCompoundStmt*> Parser::parseTopLevelCompoundStatement(const boo
 	if (matchSign(SignType::S_CURLY_OPEN))
 	{
 		// Parse all statements
-		while (auto parseres = parseStmt())
+		auto parseres = parseStmt();
+		while (parseres.isDataAvailable())
 		{
 			if (!rtr->isEmpty())
 			{
-				// Don't push another null statement if the last statement is already a null one.
+				// Don't push another null statement if the last statement is already a null one, to avoid stacking them up.
 				if (dynamic_cast<ASTNullStmt*>(rtr->getBack()) &&
 					dynamic_cast<ASTNullStmt*>(parseres.result_.get()))
+				{
+					parseres = parseStmt();
 					continue;
+				}
 			}
 			rtr->addStmt(std::move(parseres.result_));
+			parseres = parseStmt();
 		}
 		// Match the closing curly bracket
 		if (!matchSign(SignType::S_CURLY_CLOSE))
@@ -98,7 +103,7 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(true,true)) // true -> parensExpr is mandatory.
 			rtr->setCond(std::move(parensExprRes.result_));
-		// no need for else since it manages error message in "mandatory" mode
+		// no need for else since it parseParensExpr error message in "mandatory" mode
 
 		// <body>
 		auto ifStmtRes = parseBody();

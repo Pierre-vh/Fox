@@ -56,7 +56,7 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 				{
 					// Report an error
 					errorUnexpected();
-					genericError("Could not find a declaration. Attempting recovery to next declaration...");
+					genericError("Attempting recovery to next declaration...");
 					// Try to go to the next decl
 					if (resyncToNextDeclKeyword())
 					{
@@ -94,14 +94,15 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 		genericError("Expected one or more declaration in unit.");
 
 	// Return !
+		// Note:  we always return the Unit, because even if it's incomplete, we might want to dump it to see what was parsed successfuly.
 	if (isAlive() && counter) // If parser is alive and we got 1 or more decl
 		return ParsingResult<ASTUnit*>(ParsingOutcome::SUCCESS, std::move(unit));
 	else if (!isAlive()) // Died :(
-		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_AND_DIED);
+		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_AND_DIED, std::move(unit));
 	else if (counter && hasReachedEndOfTokenStream()) // Parser is alive, we found 1 or more decl and we reached end of stream... we had errors but recovered successfuly.
 		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(unit));
 	else 
-		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY, std::move(unit));
 }
 
 ParsingResult<FoxValue> Parser::matchLiteral()
