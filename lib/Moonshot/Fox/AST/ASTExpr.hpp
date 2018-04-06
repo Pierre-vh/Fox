@@ -21,7 +21,7 @@ namespace Moonshot
 	class IVisitor;
 
 	// base expression 
-	struct IASTExpr : public IASTStmt
+	class IASTExpr : public IASTStmt
 	{
 		public:
 			IASTExpr() = default;
@@ -35,7 +35,7 @@ namespace Moonshot
 	};
 
 	// Binary Expressions
-	struct ASTBinaryExpr : public IASTExpr
+	class ASTBinaryExpr : public IASTExpr
 	{
 		public:
 			ASTBinaryExpr() = default;
@@ -61,7 +61,7 @@ namespace Moonshot
 	};
 
 	// Unary Expressions
-	struct ASTUnaryExpr : public IASTExpr
+	class ASTUnaryExpr : public IASTExpr
 	{
 		public: 
 			ASTUnaryExpr() = default;
@@ -80,7 +80,7 @@ namespace Moonshot
 	};
 
 	// Explicit Cast Expressions
-	struct ASTCastExpr : public IASTExpr
+	class ASTCastExpr : public IASTExpr
 	{
 		public:
 			ASTCastExpr() = default;
@@ -97,7 +97,7 @@ namespace Moonshot
 	};
 
 	// Literals
-	struct ASTLiteralExpr : public IASTExpr 
+	class ASTLiteralExpr : public IASTExpr
 	{
 		public:
 			ASTLiteralExpr() = default;
@@ -119,7 +119,7 @@ namespace Moonshot
 	*/
 
 	// interface for decl refs. Derived classes are references to a decl within this context (declref) and reference to member decls (memberref)
-	struct IASTDeclRef : public IASTExpr
+	class IASTDeclRef : public IASTExpr
 	{
 		// TODO After AST Upgrade/Rework
 		// ASTDecl* getOriginalDecl();
@@ -127,7 +127,7 @@ namespace Moonshot
 	};
 
 	// Represents a reference to a declaration (namespace,variable,function) -> it's an identifier!
-	struct ASTDeclRefExpr : public IASTDeclRef
+	class ASTDeclRefExpr : public IASTDeclRef
 	{
 		public:
 			ASTDeclRefExpr() = default;
@@ -143,7 +143,7 @@ namespace Moonshot
 
 	// Represents a reference to a member : a namespace's, an object's field, etc.
 	// expr is the expression that is being accessed, id_ is the identifier to search.
-	struct ASTMemberAccessExpr : public IASTDeclRef
+	class ASTMemberAccessExpr : public IASTDeclRef
 	{
 		public:
 			ASTMemberAccessExpr() = default;
@@ -163,7 +163,7 @@ namespace Moonshot
 			std::unique_ptr<IASTDeclRef> member_;
 	};
 
-	struct ASTArrayAccess : public IASTDeclRef
+	class ASTArrayAccess : public IASTDeclRef
 	{
 		public:
 			ASTArrayAccess(std::unique_ptr<IASTExpr> expr, std::unique_ptr<IASTExpr> idxexpr);
@@ -182,7 +182,7 @@ namespace Moonshot
 
 	// Node/Helper struct that's a wrapper around a std::vector of std::unique_ptr to <IASTExpr>.
 	// used by function call nodes and the parser.
-	struct ExprList
+	class ExprList
 	{
 		private:
 			using expr_iter = std::vector<std::unique_ptr<IASTExpr>>::iterator;
@@ -204,7 +204,7 @@ namespace Moonshot
 	};
 
 	// Function calls
-	struct ASTFunctionCallExpr : public IASTDeclRef
+	class ASTFunctionCallExpr : public IASTDeclRef
 	{
 		public:
 			ASTFunctionCallExpr() = default;

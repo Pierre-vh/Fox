@@ -20,12 +20,12 @@
 namespace Moonshot
 {
 	// Forward declaration
-	struct IASTExpr;
+	class IASTExpr;
 
 	class IVisitor;
 
 	// Interface for Decl nodes.
-	struct IASTDecl
+	class IASTDecl
 	{
 		public:
 			IASTDecl() = default;
@@ -34,13 +34,14 @@ namespace Moonshot
 	};
 
 	// "Adaptator" Interface for when a node is both a declaration and a statement (e.g. a variable declaration)
-	struct IASTDeclStmt : public virtual IASTDecl, public virtual IASTStmt
+	class IASTDeclStmt : public virtual IASTDecl, public virtual IASTStmt
 	{
-		~IASTDeclStmt() = 0 {}
+		public:
+			~IASTDeclStmt() = 0 {}
 	};
 
 	// Store a arg's attribute : name, type, and if it's a reference.
-	struct FoxFunctionArg : public FoxVariableAttr
+	class FoxFunctionArg : public FoxVariableAttr
 	{
 		public:
 			FoxFunctionArg() = default;
@@ -62,7 +63,7 @@ namespace Moonshot
 	};
 
 	// a Function declaration node.
-	struct ASTFunctionDecl : public IASTDecl
+	class ASTFunctionDecl : public IASTDecl
 	{
 		public:
 			ASTFunctionDecl() = default;
@@ -91,7 +92,7 @@ namespace Moonshot
 	};
 
 	// A Variable declaration
-	struct ASTVarDecl : public IASTDeclStmt
+	class ASTVarDecl : public IASTDeclStmt
 	{
 		public:
 			// Create a variable declaration statement by giving the constructor the variable's properties (name,is const and type) and, if there's one, an expression to initialize it.

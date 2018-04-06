@@ -1,7 +1,7 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : IASTStmt.hpp											
+// File : ASTStmt.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file declares the interface IASTStmt and it's derived classes.							
@@ -15,12 +15,11 @@
 
 namespace Moonshot
 {
-	struct IASTExpr;
-
+	class IASTExpr;
 	class IVisitor;
 
 	// IASTStmt interface
-	struct IASTStmt 
+	class IASTStmt
 	{
 		public:
 			IASTStmt() = default;
@@ -30,14 +29,15 @@ namespace Moonshot
 
 	// A null statement, that doesn't do anything. (It's a placeholder)
 	// It's going to be ignored most of the time, isn't that sad?
-	struct ASTNullStmt : public IASTStmt	
+	class ASTNullStmt : public IASTStmt
 	{
-		ASTNullStmt() = default;
-		virtual void accept(IVisitor& vis) override;
+		public:
+			ASTNullStmt() = default;
+			virtual void accept(IVisitor& vis) override;
 	};
 
 	// The return <expr> statement.
-	struct ASTReturnStmt : public IASTStmt	
+	class ASTReturnStmt : public IASTStmt
 	{
 		public:
 			ASTReturnStmt(std::unique_ptr<IASTExpr> rtr_expr = nullptr);
@@ -52,7 +52,7 @@ namespace Moonshot
 	};
 
 	// a if-then-else type condition.
-	struct ASTCondStmt : public IASTStmt
+	class ASTCondStmt : public IASTStmt
 	{
 		public:
 			ASTCondStmt(std::unique_ptr<IASTExpr> cond = nullptr, std::unique_ptr<IASTStmt> then = nullptr, std::unique_ptr<IASTStmt> elsestmt = nullptr);
@@ -76,7 +76,7 @@ namespace Moonshot
 	};
 
 	// A compound statement (statements between curly brackets)
-	struct ASTCompoundStmt : public IASTStmt
+	class ASTCompoundStmt : public IASTStmt
 	{
 		private:
 			using stmtvec = std::vector<std::unique_ptr<IASTStmt>>;
@@ -101,7 +101,7 @@ namespace Moonshot
 	};
 
 	// A while loop while(expr) <stmt>
-	struct ASTWhileStmt : public IASTStmt
+	class ASTWhileStmt : public IASTStmt
 	{
 		public:
 			ASTWhileStmt(std::unique_ptr<IASTExpr> cond = nullptr, std::unique_ptr<IASTStmt> body = nullptr);
