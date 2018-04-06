@@ -42,21 +42,23 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 		out << "Lexing completed successfully." << lex.getTokenVector().size() << " tokens found.\n";
 
 	Parser psr(ctxt,lex.getTokenVector());
-	auto presult = psr.parseFunctionDeclaration();
+	auto presult = psr.parseUnit();
 
-	if (!presult || (presult.getFlag() == ParsingOutcome::NOTFOUND) || !ctxt.isSafe())
+	if (!presult)
 	{
 		out << "Failed at parsing. Logs:\n";
 		out << ctxt.getLogs();
 		return false;
 	}
-	else
+	else if (ctxt.isSafe())
 		out << "Parsing successful ! \n";
+	else 
+		out << "Parsing had error but it looks like it recovered successfully.. logs:\n" << ctxt.getLogs() << "\n";
+	
 
 	out << "AST Dump:\n";
-	auto node = std::move(presult.result_);
 	Dumper dump(out,1);
-	node->accept(dump);
+	dump.dumpUnit(*presult.result_);
 	return true;
 }
 
