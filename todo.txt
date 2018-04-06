@@ -1,4 +1,20 @@
 TODO:
+> AST 2.0
+	> ASTUnit : Represents a source file, contains declarations.
+	> IdentifierTable & IdentifierInfo
+	> ASTContext : has an IdentifierTable, holds a single unit for now, available with "getMainUnit()"
+	> ASTContext : Types
+	> DeclRef nodes : add "getDecl()" to get the declaration, returns nullptr if not linked to a decl
+	> DeclContext, add it on nodes that need it (funcdecl,if/else/,loops,unit)
+		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" (climbs up)
+	> At this point if nothing broke down, write unit tests to catch bugs.
+		> Test DeclContext chaining : Does it work correctly?
+		> Does lookup work as intended 
+		> Uniqueness of identifiers
+		> Try to break the parser with some edge cases
+	> Visitor System rework
+	> Dumper Rewrite
+
 > Sourceloc system
 	> SourceManager (a simple class that keeps track of source file contents and assigns an ID to them.)
 		> addFromFile() 
@@ -17,7 +33,6 @@ TODO:
 
 > Move all my current diagnostics message to the new system and delete the context's system primitive diag system.
 
-> Move on to AST 2.0
 
 DONE:
 > Add the StreamDiagConsumer to print diagnostics to the cout, or a file, or a sstream. 
