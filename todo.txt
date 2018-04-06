@@ -32,10 +32,3 @@ TODO:
 > Write all the remaining tests needed.
 
 > Move all my current diagnostics message to the new system and delete the context's system primitive diag system.
-
-
-DONE:
-> Add the StreamDiagConsumer to print diagnostics to the cout, or a file, or a sstream. 
-> Add formatting functions to the Diagnostic to replace placeholders.
-	> At first, just replace %0, %1, %2, etc.. with any type supported by stringstream. This is just what I need, nothing more.
-> Add options to the DiagnosticEngine (allWarningsAreError,IgnoreWarnings,ignoreAll) + helpers (has(Warning/Error/Fatal error)occured ?)
