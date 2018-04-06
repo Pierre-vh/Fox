@@ -1,12 +1,6 @@
 TODO:
 > AST 2.0
 	> ASTUnit : Represents a source file, contains declarations. (DONE)
-	> Rework error recovery
-		> add a new state_ variable  "currentParsingContext_", an enum class that has is either "TOP_LEVEL" or "FUNC_DECL"
-		> Review the error recovery policy:
-			> No recovery allowed in TOP_LEVEL, since recovery is handled by parseUnit
-			> Attempt recovery in FUNC_DECL
-		> Check every single parsing function where recovery is possible and update it to the new policy.
 	> IdentifierTable & IdentifierInfo
 	> ASTContext : has an IdentifierTable, holds a single unit for now, available with "getMainUnit()"
 	> ASTContext : Types
