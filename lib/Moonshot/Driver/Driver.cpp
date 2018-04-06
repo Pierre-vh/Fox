@@ -48,12 +48,17 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 	{
 		out << "Failed at parsing. Logs:\n";
 		out << ctxt.getLogs();
-		return false;
+		if (!presult.isDataAvailable()) // no data? return now to avoid crash with dumper call.
+		{
+			out << "Parser returned no data.\n";
+			return false;
+		}
 	}
-	else 
-		out << "Parsing successful ! \n";
-
-	out << ctxt.getLogs();
+	else
+	{
+		out << "Parsing successful!\n";
+		out << ctxt.getLogs();
+	}
 	
 
 	out << "\nAST Dump:\n";
