@@ -81,6 +81,34 @@ std::size_t UTF8::StringManipulator::indexOfCurrentCharacter() const
 	return utf8::distance(beg_, iter_);
 }
 
+std::size_t UTF8::StringManipulator::rawIndexOfCurrentCharacter() const
+{
+	return std::distance(beg_, iter_);
+}
+
+std::pair<uint32_t, uint16_t> UTF8::StringManipulator::getLineAndColumnForIndex(const std::string & locstr, const std::size_t & idx)
+{
+	uint32_t line	= 1;
+	uint16_t col	= 0;
+	// Count the number of newlines
+	line += std::count(locstr.begin(), locstr.begin() + idx, '\n');
+
+	// Go backwards from idx and count the number of character until \n or beg of file to get the column
+	for (auto it = (locstr.begin() + idx); (*it != '\n') && (it != locstr.begin()); utf8::prior(it,locstr.begin()))
+	{
+		if (*it == '\t')
+			col += 4;
+		else
+			col++;
+	}
+	return { line,col };
+}
+
+std::pair<uint32_t, uint16_t> UTF8::StringManipulator::getLineAndColumnForCurrentCharacter() const
+{
+	return getLineAndColumnForIndex(str(), rawIndexOfCurrentCharacter());
+}
+
 void UTF8::StringManipulator::reset()
 {
 	// set iterators
@@ -103,7 +131,7 @@ void UTF8::StringManipulator::goBack(const std::size_t & ind)
 		utf8::prior(iter_, beg_);
 }
 
-CharType UTF8::StringManipulator::currentChar() const
+CharType UTF8::StringManipulator::getCurrentChar() const
 {
 	if (iter_ == end_)
 		return L'\0';

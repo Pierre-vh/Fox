@@ -11,7 +11,7 @@
 // # = Current iterator iter_ position. It is always positioned at the end of the previous CP, and at the beginning of the current CP
 // CP = One codepoint. It's one or more bytes in the std::string.
 //		
-//													  currentChar()
+//													  getCurrentChar()
 //															|
 //											  peekPrevious()|	peekNext()
 //													|	    |		|
@@ -26,6 +26,7 @@
 
 #include <iterator>
 #include <variant>
+#include <tuple>
 #include "Moonshot/Common/Types/Types.hpp"
 
 namespace Moonshot::UTF8
@@ -68,9 +69,17 @@ namespace Moonshot::UTF8
 			static void append(std::string& str, const CharType& ch);
 
 			// Returns the index of the current character in codepoints. 
-			// THIS INDEX DIFFERS FROM THE STD::STRING'S OPERATOR [] EXPECTED INDEX.
-			// TO GET THE CODEPOINT,USE A STRING MANIPULATOR's ADVANCE METHOD.
+			// So, to get the codepoint of idx, use this class's advance method, and not std::string operator[]
+			// because that would return a single byte located at a completely different location.
 			std::size_t indexOfCurrentCharacter() const;
+
+			// This returns the index in the std::string of the beginning of the current cp.
+			std::size_t rawIndexOfCurrentCharacter() const;
+
+			// Returns a pair containing the line and column for a position idx
+			static std::pair<uint32_t,uint16_t> getLineAndColumnForIndex(const std::string& str, const std::size_t &idx);
+
+			std::pair<uint32_t, uint16_t> getLineAndColumnForCurrentCharacter() const;
 
 			// Reset the iterators
 			void reset();
@@ -82,7 +91,7 @@ namespace Moonshot::UTF8
 			void goBack(const std::size_t& ind = 1);
 
 			// Get the current codepoint
-			CharType currentChar() const;			
+			CharType getCurrentChar() const;			
 
 			// Get a codepoint at a precise location
 			CharType getChar(std::size_t ind) const;
@@ -106,6 +115,7 @@ namespace Moonshot::UTF8
 			const std::string& str() const;
 
 			std::variant<std::string,std::string*> data_;
+
 			std::string::iterator iter_, end_, beg_;
 	};
 }
