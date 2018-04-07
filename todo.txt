@@ -2,8 +2,21 @@ TODO:
 > AST 2.0
 	> ASTUnit : Represents a source file, contains declarations. (DONE)
 	> IdentifierTable & IdentifierInfo
-	> ASTContext : has an IdentifierTable, holds a single unit for now, available with "getMainUnit()"
+		> IdentifierInfo: packs a string. That's it, maybe some additional info but mostly I'll be just a string
+			> Some helpers : getString, getStringRef (returns a reference to the string instead of a copy)
+		> IdentifierTable
+			> has an underlying std::set
+			> offers function to look for an id with a *IdentifierInfo or with a string.
+			> getUniqueIDForString(string)
+			> isStoredInTable(IdentifierInfo*)
+			> etc.
+	> ASTContext : has an IdentifierTable (maybe even derives from it?), holds a single unit for now, available with "getMainUnit()"
+	> Add the ASTContext to the Context. Accessible with getASTContext (returns a pointer), isASTAvailable (astcontext != nullptr), destroyAST(reset/release astcontext)
 	> ASTContext : Types
+	> When /Types is out of /Common, move
+		/Context, /Diagnostics/ Exceptions/ Flags/ Source/ Utils/ to Fox/Basic
+		This will be done for consistency's sake. Work on badger has not started yet, so I can't say what will need to be "common"
+		and what won't. When I'll start badger, I'll move whatever badger needs to /Common
 	> DeclRef nodes : add "getDecl()" to get the declaration, returns nullptr if not linked to a decl
 	> DeclContext, add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" (climbs up)
@@ -12,8 +25,7 @@ TODO:
 		> Does lookup work as intended 
 		> Uniqueness of identifiers
 		> Try to break the parser with some edge cases
-	> Visitor System rework
-	> Dumper Rewrite
+	> Visitor System rework & Dumper Rewrite
 
 > Sourceloc system
 	> SourceManager (a simple class that keeps track of source file contents and assigns an ID to them.)
