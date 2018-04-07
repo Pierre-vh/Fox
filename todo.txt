@@ -36,11 +36,17 @@ TODO:
 		> getSourceForID() (do not return a copy of the source, but a reference/pointer)
 	> SourceLoc object
 		> Contains an ID + Col + Line in file
-			> Challenge : find a way to keep this small, under 64 bits would be preferable. Maybe use a bitfield ?
-			> Would also need a way of telling if a sourceloc is valid, maybe by using -1 as index or setting col/line to 0?
+			> Challenge : find a way to keep this small, under 64 bits would be preferable. 
+				> Current idea : store the ID + a uint32_t for the index.
+			> Would also need a way of telling if a sourceloc is valid, maybe by setting the fileid to 0/-1 ?
 				> This would be used to return "null" sourcelocs.
-		> Add it to tokens & ast & diag
-	> Update Diagnostics & DiagnosticsEngine to support sourceloc arguments.
+	> SourceRange 
+		> Constructed from 2 sourcelocs
+		> Contains an ID and 2 cols/line, maybe find optimizations to make that type small. 
+			> Currently, my idea is to wrap a sourceloc and store a line/column offset for the range.
+		> add utility functions : getBeginningSourceLoc(), getEndingSourceLoc(), etc.
+	> Update lexer to add a sourcerange to every single token
+	> Update Diagnostics & DiagnosticsEngine to support a sourceloc/sourcerange arg.
 > Write all the remaining tests needed.
 
 > Move all my current diagnostics message to the new system and delete the context's system primitive diag system.
