@@ -104,7 +104,7 @@ void Lexer::cycle()
 	}
 	ccoord_.forward();				// update position
 	runStateFunc();					// execute appropriate function
-	if (manip.currentChar() == L'\n')	// update line
+	if (manip.getCurrentChar() == L'\n')	// update line
 		ccoord_.newLine();
 }
 
@@ -155,7 +155,7 @@ void Lexer::runStateFunc()
 void Lexer::fn_S_BASE()
 {
 	const CharType pk = manip.peekNext();
-	const CharType c = manip.currentChar();	// current char
+	const CharType c = manip.getCurrentChar();	// current char
 
 	if (curtok_.size() != 0)	// simple error checking : the Token should always be empty when we're in S_BASE.
 	{
@@ -221,7 +221,7 @@ void Lexer::fn_S_LCOM()				// One line comment state.
 
 void Lexer::fn_S_MCOM()
 {
-	if (eatChar() == '*' && manip.currentChar() == '/')
+	if (eatChar() == '*' && manip.getCurrentChar() == '/')
 	{
 		eatChar();
 		dfa_goto(DFAState::S_BASE);
@@ -230,7 +230,7 @@ void Lexer::fn_S_MCOM()
 
 void Lexer::fn_S_WORDS()
 {
-	if (isSep(manip.currentChar()))
+	if (isSep(manip.getCurrentChar()))
 	{		
 		pushTok();
 		dfa_goto(DFAState::S_BASE);
@@ -265,7 +265,7 @@ void Lexer::dfa_goto(const DFAState & ns)
 
 CharType Lexer::eatChar()
 {
-	const CharType c = manip.currentChar();
+	const CharType c = manip.getCurrentChar();
 	manip.advance();
 	return c;
 }
