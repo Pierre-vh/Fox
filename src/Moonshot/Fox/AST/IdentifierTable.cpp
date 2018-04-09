@@ -17,9 +17,9 @@ StringPtrInMap::StringPtrInMap(ItTy iter) : it_(iter)
 {
 }
 
-std::string StringPtrInMap::get() const
+const std::string& StringPtrInMap::get() const
 {
-	return it_->first;
+	return (it_->first);
 }
 
 IdentifierInfo::IdentifierInfo(StringPtrInMap::ItTy iter): mapIter_(iter)
@@ -27,7 +27,7 @@ IdentifierInfo::IdentifierInfo(StringPtrInMap::ItTy iter): mapIter_(iter)
 
 }
 
-std::string IdentifierInfo::getStr() const
+const std::string& IdentifierInfo::getStr() const
 {
 	return mapIter_.get();
 }
@@ -40,6 +40,26 @@ bool IdentifierInfo::operator<(const IdentifierInfo& id) const
 bool IdentifierInfo::operator<(const std::string& idstr) const
 {
 	return getStr() < idstr;
+}
+
+bool IdentifierInfo::operator==(const IdentifierInfo& id) const
+{
+	return getStr() == id.getStr();
+}
+
+bool IdentifierInfo::operator==(const std::string& str) const
+{
+	return getStr() == str;
+}
+
+bool IdentifierInfo::operator!=(const IdentifierInfo& id) const
+{
+	return !(*this == id);
+}
+
+bool IdentifierInfo::operator!=(const std::string& str) const
+{
+	return !(*this == str);
 }
 
 IdentifierInfo & IdentifierTable::getUniqueIDinfo(const std::string & id)
@@ -57,9 +77,11 @@ IdentifierInfo & IdentifierTable::getUniqueIDinfo(const std::string & id)
 	else
 	{
 		// Key does not exists, insert.
-
 		auto newIt = table_.insert(it, std::make_pair(id, IdentifierInfo(table_.end())));
-		// Important : Set iterator
+		
+		assert(newIt != table_.end() && "Fresh iterator was equal to .end() ?");
+
+		// /!\ Important : Set iterator
 		newIt->second.mapIter_.it_ = newIt;
 
 		return newIt->second;

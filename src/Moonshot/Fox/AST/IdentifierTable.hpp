@@ -28,7 +28,7 @@ namespace Moonshot
 
 			StringPtrInMap(ItTy iter);
 
-			std::string get() const;
+			const std::string& get() const;
 			ItTy it_;
 
 	};
@@ -39,13 +39,18 @@ namespace Moonshot
 	{
 		public:
 			IdentifierInfo(StringPtrInMap::ItTy iter);
-			std::string getStr() const;
+			const std::string& getStr() const;
 
 			// Comparison operators for use with STL containers.
-			// An extra comparison with a std::string is provided, so we can use std::string
-			// to search the IdentifierTable instead of being restricted to IdentifierInfos.
 			bool operator<(const IdentifierInfo& id) const;
 			bool operator<(const std::string& idstr) const;
+
+			// Other comparison operators
+			bool operator==(const IdentifierInfo& id) const;
+			bool operator==(const std::string& str) const;
+
+			bool operator!=(const IdentifierInfo& id) const;
+			bool operator!=(const std::string& str) const;
 		private:
 			friend class IdentifierTable;
 
