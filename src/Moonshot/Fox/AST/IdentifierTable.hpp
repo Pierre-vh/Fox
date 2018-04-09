@@ -70,6 +70,10 @@ namespace Moonshot
 			// If it does not exists, it creates a new entry into the table and returns it.
 			IdentifierInfo& getUniqueIDinfo(const std::string& id);
 
+			// Works the same as getUniqueIDinfo, but returns a pointer.
+			// The pointer is guaranteed to be non null.
+			IdentifierInfo* getUniqueIDInfoPtr(const std::string& id);
+
 			// Returns true if the identifier exists in the map, false otherwise.
 			bool exists(const std::string &id) const;
 

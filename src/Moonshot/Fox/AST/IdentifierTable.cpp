@@ -88,6 +88,13 @@ IdentifierInfo & IdentifierTable::getUniqueIDinfo(const std::string & id)
 	}
 }
 
+IdentifierInfo* IdentifierTable::getUniqueIDInfoPtr(const std::string& id)
+{
+	IdentifierInfo* ptr = &(getUniqueIDinfo(id));
+	assert(ptr && "Pointer was null!");
+	return ptr;
+}
+
 bool IdentifierTable::exists(const std::string & id) const
 {
 	// Return false if there is no identifier in the table
