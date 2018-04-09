@@ -50,7 +50,7 @@ namespace Moonshot
 	{
 		const std::map<binaryOperator, std::string> kBinopToStr_dict =
 		{
-			{ binaryOperator::DEFAULT	, "DEFAULT" },
+			{ binaryOperator::DEFAULT	, "[ENUM_DEFAULT]" },
 			{ binaryOperator::LOGIC_AND	, "LOGIC_AND" },
 			{ binaryOperator::CONCAT	, "CONCAT" },
 			{ binaryOperator::LOGIC_OR	, "LOGIC_OR" },
@@ -71,7 +71,7 @@ namespace Moonshot
 
 		const std::map<unaryOperator, std::string> kUnaryOpToStr_dict =
 		{
-			{ unaryOperator::DEFAULT	, "[DEFAULT]" },
+			{ unaryOperator::DEFAULT	, "[ENUM_DEFAULT]" },
 			{ unaryOperator::LOGICNOT	, "LOGICNOT" },
 			{ unaryOperator::NEGATIVE	, "NEGATIVE" },
 			{ unaryOperator::POSITIVE	, "POSITIVE" }
