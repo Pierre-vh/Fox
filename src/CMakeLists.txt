@@ -1,1 +1,1 @@
-add_source_dir(lib_src Moonshot)
+add_source_dir(moonshot_src Moonshot)
