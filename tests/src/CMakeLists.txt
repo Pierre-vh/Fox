@@ -8,6 +8,7 @@ add_source(
 	FoxTests/LexerTests.cpp
 	FoxTests/UTF8Tests.cpp
 	FoxTests/ParserTests.cpp
+	FoxTests/IdentifierTableTests.cpp
 
 	CommonTests/CommonTests.cpp
 	)
