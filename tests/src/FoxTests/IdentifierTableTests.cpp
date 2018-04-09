@@ -20,6 +20,8 @@ using namespace Moonshot;
 
 // Number of identifiers to insert into the table in the "randomIdentifierInsertion" test.
 #define RANDOM_ID_TEST_NUMBER_OF_ID 4200
+#define RANDOM_STRING_MIN_LENGTH 8
+#define RANDOM_STRING_MAX_LENGTH 64
 
 std::string generateRandomString();
 
@@ -98,7 +100,7 @@ std::string generateRandomString()
 	std::mt19937_64 mt(rd());
 	std::uniform_int_distribution<int> dist_char(0, idStrChars.size());
 
-	std::uniform_int_distribution<int> dist_length(16, 64); // Generate strings between 16 and 64 characters.
+	std::uniform_int_distribution<int> dist_length(RANDOM_STRING_MIN_LENGTH, RANDOM_STRING_MAX_LENGTH);
 	int strlen = dist_length(mt);
 
 	std::string output;
