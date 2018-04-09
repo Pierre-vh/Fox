@@ -79,11 +79,6 @@ namespace Moonshot
 			IdentifierTable(const IdentifierTable&) = delete;
 			IdentifierTable& operator=(const IdentifierTable&) = delete;
 
-			// Insert
-			// The insert function is very important, because it must always tie a valid iterator to the IdentifierInfo.
-			// This function will not check if the element already exists. This must be done before calling it.
-			IdentifierInfo& insert(const std::string& str);
-
 			// Member variables
 			std::map<std::string,IdentifierInfo> table_;
 	};

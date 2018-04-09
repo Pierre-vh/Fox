@@ -44,14 +44,26 @@ bool IdentifierInfo::operator<(const std::string& idstr) const
 
 IdentifierInfo & IdentifierTable::getUniqueIDinfo(const std::string & id)
 {
-	auto it = table_.find(id);
-	if (it != table_.end())
+	// Effective STL, Item 24 by Scott Meyers : https://stackoverflow.com/a/101980
+	auto it = table_.lower_bound(id);
+	if (it != table_.end() && !(table_.key_comp()(id,it->first)))
 	{
+		// Identifier already exists in table_, return ->second after some checks.
+
 		assert(it->second.mapIter_.it_ != table_.end() && "IdentifierInfo iterator was invalid");
+		assert(it->second.mapIter_.it_ == it && "Iterator was not correct!");
 		return it->second;
 	}
 	else
-		return insert(id);
+	{
+		// Key does not exists, insert.
+
+		auto newIt = table_.insert(it, std::make_pair(id, IdentifierInfo(table_.end())));
+		// Important : Set iterator
+		newIt->second.mapIter_.it_ = newIt;
+
+		return newIt->second;
+	}
 }
 
 bool IdentifierTable::exists(const std::string & id) const
@@ -83,19 +95,4 @@ IdentifierTable::IDTableConstIterator IdentifierTable::end() const
 IdentifierTable::IDTableIterator IdentifierTable::end()
 {
 	return table_.end();
-}
-
-IdentifierInfo & IdentifierTable::insert(const std::string& str)
-{
-	auto entry = table_.insert(std::make_pair(str, IdentifierInfo(table_.end())));
-	auto it = entry.first;
-
-	// Set the IdentifierInfo's iterator to the correct iterator.
-	it->second.mapIter_ = it;
-
-	// A little sanity check, just to be sure :)
-	assert((it->second.mapIter_.it_ != table_.end()) && "The IdentifierInfo's iterator is invalid!");
-	
-	// Return the new entry.
-	return it->second;
 }
