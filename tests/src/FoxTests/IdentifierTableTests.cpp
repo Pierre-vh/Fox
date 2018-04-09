@@ -75,7 +75,8 @@ TEST(IdentifierTableTests, randomIdentifierInsertion)
 	IdentifierTable idtab;
 	std::string id;
 
-	IdentifierInfo *ptr = nullptr;
+	IdentifierInfo *ptr = nullptr; // Last IdInfo's adress
+
 	for (std::size_t k(0); k < RANDOM_ID_TEST_NUMBER_OF_ID; k++)
 	{
 		id = generateRandomString();
@@ -83,12 +84,12 @@ TEST(IdentifierTableTests, randomIdentifierInsertion)
 		// Before inserting, a quick sanity check doesn't hurt!
 		ASSERT_FALSE(idtab.exists(id)) << "[Insertion " << k << "] The identifier \"" << id << "\" already exists";
 		
-		IdentifierInfo &idinfo = idtab.getUniqueIDinfo(id);
+		auto idinfo = idtab.getUniqueIDInfoPtr(id);
 		// Check if the string matches, and if the adress of this type is different from the last one used.
-		ASSERT_EQ(idinfo.getStr(), id) << "[Insertion " << k << "] Strings did not match";
+		ASSERT_EQ(idinfo->getStr(), id) << "[Insertion " << k << "] Strings did not match";
 		ASSERT_TRUE(idtab.exists(id)) << "[Insertion " << k << "] IdentifierTable is reporting that the identifier does not exists.";
-		ASSERT_NE(ptr, &idinfo) << "[Insertion " << k << "] Insertion returned a already in use pointer.";
-		ptr = &idinfo;
+		ASSERT_NE(ptr,idinfo) << "[Insertion " << k << "] Insertion returned a already in use pointer.";
+		ptr = idinfo;
 	}
 }
 
