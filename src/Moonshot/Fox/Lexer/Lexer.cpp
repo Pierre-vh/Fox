@@ -75,11 +75,7 @@ void Lexer::setStr(const std::string & str)
 
 void Lexer::pushTok()
 {
-	if (context_.flagsManager().isSet(FlagID::lexer_logOnPush)) {
-		std::stringstream out;
-		out << "Pushing Token \xAE" + curtok_ + "\xAF";
-		context_.logMessage(out.str());
-	}
+
 
 	if (curtok_ == "")	// Don't push empty tokens.
 		return;
@@ -93,6 +89,13 @@ void Lexer::pushTok()
 	else
 		context_.reportError("Couldn't identify token. See previous error messages for more information.");
 	curtok_ = "";
+
+	if (context_.flagsManager().isSet(FlagID::lexer_logOnPush)) {
+		std::stringstream out;
+		out << "Pushed token \"" << result_.back().getAsString() << '"';
+		context_.logMessage(out.str());
+	}
+
 }
 
 void Lexer::cycle()
