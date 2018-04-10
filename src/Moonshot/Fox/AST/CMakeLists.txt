@@ -4,6 +4,7 @@ add_source(
     ASTExpr.cpp
     ASTStmt.cpp
 	ASTUnit.cpp
+	ASTContext.cpp
     Dumper.cpp
 	IdentifierTable.cpp
 )
