@@ -21,6 +21,9 @@ using namespace Moonshot;
 bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	// Retrieve the astContext, which is created automatically by the Context.
+	ASTContext* astCtxt = ctxt.getASTContext();
+
 	ctxt.flagsManager().set(FlagID::lexer_logOnPush);
 	std::string filecontent;
 	if (!readFileToString(filepath, filecontent))
@@ -60,10 +63,12 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 		out << ctxt.getLogs();
 	}
 	
+	// set as main unit
+	astCtxt->setMainUnit(std::move(presult.result_));
 
-	out << "\nAST Dump:\n";
+	out << "\nMain Unit Dump:\n";
 	Dumper dump(out,1);
-	dump.dumpUnit(*presult.result_);
+	dump.dumpUnit(*(astCtxt->getMainUnit()));
 	return true;
 }
 
