@@ -4,8 +4,9 @@ TODO:
 	> IdentifierTable & IdentifierInfo (Done)
 	> ASTContext (Done)
 	> Add the ASTContext to the Context. (Done)
-	> ASTContext : Types
 	> Move stuf to /Fox/Basic (Done)
+
+	> ASTContext : Types (Next)
 	> DeclContext, add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" (climbs up)
 	> DeclRef nodes : add "getDecl()" to get the declaration, returns nullptr if not linked to a decl
@@ -41,3 +42,5 @@ TODO:
 > Write all the remaining tests needed.
 
 > Move all my current diagnostics message to the new system and delete the context's system primitive diag system.
+
+> Semantic Analysis time ! It's going to be fun (or not :) ) !
