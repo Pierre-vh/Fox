@@ -4,14 +4,9 @@
 // File : Context.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This class declares a "Context" class used to track the current state of the interpreter, along with
-// other parameters !
-//
-// SAFE -> No Warning and No Errors
-// WARNING -> Must be used for errors that do not perturbate the interpretation process.
-// UNSAFE -> Used for normal errors. e.g. "Undeclared variable x",etc..
-//
-// This class also stores a public Flag and Option member to access the current context's flags and options.
+// This file contains the "Compilation Context".
+// The compilation context owns a lot of things, like the
+// DiagnosticsEngine, FlagsManager, etc.
 ////------------------------------------------------------////
 
 

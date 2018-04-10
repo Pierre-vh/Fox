@@ -23,6 +23,7 @@ namespace Moonshot
 		public:
 			ASTUnit() = default;
 
+			// TODO : Replace that with a DeclContext when it's done.
 			void addDecl(std::unique_ptr<IASTDecl> decl);
 			const IASTDecl* getDecl(const std::size_t &idx);
 			std::size_t getDeclCount() const;
