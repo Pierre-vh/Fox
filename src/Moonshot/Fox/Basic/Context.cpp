@@ -137,6 +137,11 @@ ASTContext * Context::getASTContext()
 	return astCtxt_.get();
 }
 
+bool Context::isASTAvailable() const
+{
+	return (bool)astCtxt_;
+}
+
 FlagsManager& Context::flagsManager()
 {
 	return flagsManager_;

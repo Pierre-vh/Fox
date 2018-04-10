@@ -73,8 +73,13 @@ namespace Moonshot
 			// Releases (frees) the ASTContext (which means it frees the whole ast)
 			void releaseAST();
 
+			// Returns an observing pointer to the ASTContext. Returns nullptr if the ASTContext has been released and isn't available anymore.
 			ASTContext * getASTContext();
 
+			// Returns true if the AST is available : (ASTContext pointer != nullptr)
+			bool isASTAvailable() const;
+			
+			// Get the flagsManager.
 			FlagsManager& flagsManager();
 		private:
 			// The ASTContext 
