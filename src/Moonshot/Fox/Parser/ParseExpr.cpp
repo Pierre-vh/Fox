@@ -10,7 +10,7 @@
 
 #include "Parser.hpp"
 
-#include "Moonshot/Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Fox/Basic/Exceptions.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 #include <cassert>
 

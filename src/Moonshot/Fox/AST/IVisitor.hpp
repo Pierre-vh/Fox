@@ -16,7 +16,7 @@
 
 #pragma once
 //utils
-#include "Moonshot/Common/Utils/Utils.hpp"
+#include "Moonshot/Fox/Basic/Utils.hpp"
 #include "Moonshot/Common/Types/Types.hpp"
 
 #include "Moonshot/Fox/AST/ASTDecl.hpp"

@@ -12,7 +12,7 @@
 
 #include "Moonshot/Fox/Lexer/Lexer.hpp"
 #include "Moonshot/Fox/Lexer/Token.hpp"
-#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Fox/Basic/Context.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Tests;

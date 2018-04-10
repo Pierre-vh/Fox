@@ -9,7 +9,7 @@
 
 #include "Dumper.hpp"
 // Exception
-#include "Moonshot/Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Fox/Basic/Exceptions.hpp"
 // type
 #include "Moonshot/Common/Types/FoxValueUtils.hpp"
 // Include nodes
@@ -17,8 +17,7 @@
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
 // utils
-#include "Moonshot/Common/Utils/Utils.hpp"
-#include "Moonshot/Common/Utils/Utils.hpp" // for enumAsInt
+#include "Moonshot/Fox/Basic/Utils.hpp"
 
 using namespace Moonshot;
 

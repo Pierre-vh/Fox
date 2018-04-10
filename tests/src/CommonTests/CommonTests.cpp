@@ -9,11 +9,11 @@
 
 #include "gtest/gtest.h"
 #include "Moonshot/Fox/Lexer/Lexer.hpp"
-#include "Moonshot/Common/Context/Context.hpp"
+#include "Moonshot/Fox/Basic/Context.hpp"
 
 #include "TestDiagCons.hpp"
-#include "Moonshot/Common/Diagnostics/DiagnosticEngine.hpp"
-#include "Moonshot/Common/Diagnostics/Diagnostic.hpp"
+#include "Moonshot/Fox/Basic/DiagnosticEngine.hpp"
+#include "Moonshot/Fox/Basic/Diagnostic.hpp"
 
 using namespace Moonshot;
 

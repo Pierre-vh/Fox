@@ -15,8 +15,8 @@
 #include <cassert>
 
 #include "Moonshot/Common/Types/Types.hpp"
-#include "Moonshot/Common/Context/Context.hpp"
-#include "Moonshot/Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Fox/Basic/Context.hpp"
+#include "Moonshot/Fox/Basic/Exceptions.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Dictionaries;

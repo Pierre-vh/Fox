@@ -10,7 +10,7 @@
 #include "TestUtils.hpp"
 
 #include <fstream>
-#include "Moonshot/Common/Utils/Utils.hpp"
+#include "Moonshot/Fox/Basic/Utils.hpp"
 using namespace Moonshot;
 
 

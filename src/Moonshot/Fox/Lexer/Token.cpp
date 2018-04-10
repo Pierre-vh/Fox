@@ -16,9 +16,9 @@
 #include <cassert>
 
 #include "StringManipulator.hpp"
-#include "Moonshot/Common/Context/Context.hpp"
-#include "Moonshot/Common/Utils/Utils.hpp"
-#include "Moonshot/Common/Exceptions/Exceptions.hpp"
+#include "Moonshot/Fox/Basic/Context.hpp"
+#include "Moonshot/Fox/Basic/Utils.hpp"
+#include "Moonshot/Fox/Basic/Exceptions.hpp"
 #include "Moonshot/Fox/AST/IdentifierTable.hpp"
 
 using namespace Moonshot;
