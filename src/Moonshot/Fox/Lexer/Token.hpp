@@ -172,6 +172,9 @@ namespace Moonshot
 			LiteralType getLiteralType() const;
 			LiteralInfo getLiteralInfo() const;
 
+			std::string getIdentifierString() const;
+			IdentifierInfo* getIdentifierInfo();
+
 			std::string getAsString() const;
 			std::string getTokenTypeFriendlyName() const;
 

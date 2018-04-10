@@ -304,6 +304,28 @@ LiteralInfo Token::getLiteralInfo() const
 	return LiteralInfo();
 }
 
+std::string Token::getIdentifierString() const
+{
+	if (std::holds_alternative<IdentifierInfo*>(tokenInfo_))
+	{
+		auto ptr = std::get<IdentifierInfo*>(tokenInfo_);
+		assert(ptr && "tokenInfo's a IdentifierInfo* but the pointer is null?");
+		return ptr->getStr();
+	}
+	return "";
+}
+
+IdentifierInfo * Token::getIdentifierInfo()
+{
+	if (std::holds_alternative<IdentifierInfo*>(tokenInfo_))
+	{
+		auto ptr = std::get<IdentifierInfo*>(tokenInfo_);
+		assert(ptr && "tokenInfo's a IdentifierInfo* but the pointer is null?");
+		return ptr;
+	}
+	return nullptr;
+}
+
 void Token::idToken(const std::string& str)
 {
 	// A Context is mandatory to id a token.
