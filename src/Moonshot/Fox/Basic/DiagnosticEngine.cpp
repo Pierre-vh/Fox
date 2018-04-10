@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "DiagnosticEngine.hpp"
-#include "Moonshot/Common/Flags/FlagsManager.hpp"
+#include "Moonshot/Fox/Basic/FlagsManager.hpp"
 #include "Diagnostic.hpp"
 #include "BuiltinDiagConsumers.hpp"
 #include <cassert>

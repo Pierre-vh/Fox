@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "FlagsManager.hpp"
-#include "Moonshot/Common//Exceptions/Exceptions.hpp"
+#include "Moonshot/Fox/Basic/Exceptions.hpp"
 using namespace Moonshot;
 
 #define UNKNOWN_KEY_EXCEPTION "Enum value does not exists in map. This can happen if you add a new enum value without using the .def files!"
