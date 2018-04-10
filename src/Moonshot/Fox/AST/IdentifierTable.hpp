@@ -21,6 +21,8 @@
 // what I understand that they're doing to increase the quality of this compiler and learn more about how CLang works.
 ////------------------------------------------------------////
 
+#pragma once 
+
 #include <map>
 #include <string>
 
