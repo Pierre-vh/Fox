@@ -21,7 +21,7 @@ using namespace Moonshot;
 bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-
+	ctxt.flagsManager().set(FlagID::lexer_logOnPush);
 	std::string filecontent;
 	if (!readFileToString(filepath, filecontent))
 	{
