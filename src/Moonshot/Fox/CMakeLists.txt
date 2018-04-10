@@ -1,1 +1,6 @@
-add_source_dir(fox_src Lexer Parser AST)
+add_source_dir(fox_src 
+		Lexer 
+		Parser 
+		AST 
+		Basic
+	)
