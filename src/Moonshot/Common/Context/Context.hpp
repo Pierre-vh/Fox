@@ -13,6 +13,8 @@
 #pragma once
 
 #include <vector> // std::vector
+#include <memory> // std::unique_ptr
+#include "Moonshot/Fox/AST/ASTContext.hpp" // ASTContext
 #include "Moonshot/Common/Flags/FlagsManager.hpp"
 
 namespace Moonshot
@@ -40,7 +42,7 @@ namespace Moonshot
 				RELEASE, DEBUG
 			};
 			// Default ctor
-			Context() = default;
+			Context();
 			Context(const LoggingMode& lm);
 
 			void setLoggingMode(const LoggingMode& newmode); // set mode : direct print to cout (default) or save to a vector.
@@ -68,8 +70,16 @@ namespace Moonshot
 			bool isCritical() const;
 			bool isSafe() const;
 
+			// Releases (frees) the ASTContext (which means it frees the whole ast)
+			void releaseAST();
+
+			ASTContext * getASTContext();
+
 			FlagsManager& flagsManager();
 		private:
+			// The ASTContext 
+			std::unique_ptr<ASTContext> astCtxt_;
+
 			FlagsManager flagsManager_;
 
 			void addLog(const std::string& message);

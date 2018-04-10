@@ -8,13 +8,17 @@
 ////------------------------------------------------------////
 
 #include "Context.hpp"
-
 #include <iostream> // std::cout
 #include <sstream> // std::stringstream
 
 using namespace Moonshot;
 
-Context::Context(const LoggingMode & lm)
+Context::Context() : astCtxt_(std::make_unique<ASTContext>())
+{
+	
+}
+
+Context::Context(const LoggingMode & lm) : astCtxt_(std::make_unique<ASTContext>())
 {
 	setLoggingMode(lm);
 }
@@ -120,6 +124,17 @@ bool Context::isCritical() const
 bool Context::isSafe() const
 {
 	return (curstate_ == State::SAFE) || (curstate_ == State::WARNING);
+}
+
+void Context::releaseAST()
+{
+	if (astCtxt_)
+		astCtxt_.reset();
+}
+
+ASTContext * Context::getASTContext()
+{
+	return astCtxt_.get();
 }
 
 FlagsManager& Context::flagsManager()
