@@ -20,7 +20,7 @@
 namespace Moonshot
 {
 	class Context;
-
+	class IdentifierInfo;
 	struct TextPosition	// a structure to hold the position of a Token in the input, and interact with it.
 	{
 		TextPosition();
@@ -62,6 +62,8 @@ namespace Moonshot
 			bool isFloat() const;
 			bool isInt() const;
 			bool isChar() const;
+
+			std::string getAsString() const;
 
 			template<typename Ty>
 			inline bool is() const
@@ -153,7 +155,7 @@ namespace Moonshot
 		public:
 			Token() = default;
 			Token(const Token& cpy);
-			Token(Context *ctxt,std::string data, const TextPosition &tpos = TextPosition(0, 0));
+			Token(Context *ctxt,std::string tokstr, const TextPosition &tpos = TextPosition(0, 0));
 
 			std::string showFormattedTokenData() const;
 
@@ -170,29 +172,30 @@ namespace Moonshot
 			LiteralType getLiteralType() const;
 			LiteralInfo getLiteralInfo() const;
 
-			std::string getString() const;
+			std::string getAsString() const;
 			std::string getTokenTypeFriendlyName() const;
 
 			TextPosition getPosition() const;
 		private:
-			// Empty struct used to "mark" the variant when this token is an identifier or a literal.
-			struct Identifier{}; 
+			// Empty struct used to "mark" the variant when this token is a literal.
 			struct Literal {};
 
 			/* Member variables */
-			std::variant<std::monostate, KeywordType, SignType, Literal, Identifier> tokenInfo_;
+			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenInfo_;
 			std::unique_ptr<LiteralInfo> litInfo_ = nullptr;
-			std::string str_;
 			TextPosition position_;
 			Context *context_ = nullptr;
 
-			void idToken();					// will id the tolen and call the specific evaluations functions if needed.
-			bool specific_idKeyword();
-			bool specific_idSign();
-			bool specific_idLiteral();		// is a literal
+			/* Identification functions */
+			void idToken(const std::string& str);					
+			bool specific_idKeyword(const std::string& str);
+			bool specific_idSign(const std::string& str);
+			bool specific_idLiteral(const std::string& str);		
+			bool specific_idIdentifier(const std::string& str);
 
-			// Helper
-			bool hasAtLeastOneLetter() const; // Checks if str_ has at least one upper/lower case letter.
+			// Helper for idIdentifier
+			bool hasAtLeastOneLetter(const std::string &str) const; // Checks if str_ has at least one upper/lower case letter.
+	
 	};
 	namespace Dictionaries
 	{
