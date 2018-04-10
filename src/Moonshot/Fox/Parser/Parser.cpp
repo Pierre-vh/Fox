@@ -141,7 +141,7 @@ ParsingResult<std::string> Parser::matchID()
 	if (t.isIdentifier())
 	{
 		incrementPosition();
-		return ParsingResult<std::string>(ParsingOutcome::SUCCESS, t.getString());
+		return ParsingResult<std::string>(ParsingOutcome::SUCCESS, t.getIdentifierString());
 	}
 	return ParsingResult<std::string>(ParsingOutcome::NOTFOUND);
 }
@@ -312,10 +312,10 @@ void Parser::errorUnexpected()
 	auto tok = getToken();
 	if (tok)
 	{
-		if (tok.getString().size() == 1)
-			output << "Unexpected char '" << tok.getString() << "' at line " << tok.getPosition().line;
+		if (tok.getAsString().size() == 1)
+			output << "Unexpected char '" << tok.getAsString() << "' at line " << tok.getPosition().line;
 		else
-			output << "Unexpected Token \xAF" << tok.getString() << "\xAE at line " << tok.getPosition().line;
+			output << "Unexpected Token \xAF" << tok.getAsString() << "\xAE at line " << tok.getPosition().line;
 		context_.reportError(output.str());
 	}
 	context_.resetOrigin();
@@ -339,7 +339,7 @@ void Parser::errorExpected(const std::string & s)
 
 	std::stringstream output;
 	auto tok = getToken(lastTokenPos);
-	output << s << " after \"" << tok.getString() << "\" at line " << tok.getPosition().line;
+	output << s << " after \"" << tok.getAsString() << "\" at line " << tok.getPosition().line;
 
 	context_.reportError(output.str());
 	context_.resetOrigin();
