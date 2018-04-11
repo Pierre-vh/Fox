@@ -8,6 +8,10 @@ TODO:
 	> New type system & deletion of /Common/Types (Done!)
 
 	> Replace strings in the AST by IdentifierInfo* pointers (Next)
+	> Add parser support for arrays declarations 
+		>  Add a child node for variable declarations to support a "initialization" expression
+		   for arrays.
+		> Need to find a clever trick for the ParseFQTypeSpec return type to return the array initexpr if there is one. Maybe a pointer arg? or a custom return struct.
 
 	> DeclContext, add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" (climbs up)
