@@ -76,3 +76,12 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 		<decl_call>		= <id> [ <parens_expr_list> ] { <array_access> }
 	~ Modified <member_access>
 		<member_access>	= <primary> { '.' <decl_call> }
+
+* 0.11.0
+	Note : Lots of change to make the grammar less repetitive and to suit the new type system better.
+	+ Changed <type_spec> to <fq_type_spec>
+		<fq_type_spec>	= ':' ["const"] ['&'] <type>
+	- Removed <arg_type_spec>
+	~ Modified <var_decl> to use <fq_type_spec> instead of <type_spec>
+	~ Modified <arg_decl> to use <fq_type_spec>
+		<arg_decl>	= <id> <fq_type_spec>

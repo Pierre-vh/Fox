@@ -12,7 +12,9 @@ Fox Grammar version 0.10.0
 <type> 				= "int" 	| "float"		| "bool"	| "string"		| "char"
 <literal>			= One literal of the following type : Integer, Floating-point, Boolean, String, Char
 
-<type_spec>			= ':' ["const"] <type>				
+// Fully qualified type spec
+<fq_type_spec>	= ':' ["const"] ['&'] <type>
+
 <compound_statement>= '{' {<stmt>} '}'
 
 <import>        = ("import" | "using") <id> {'.' (<id> | '*')} ';' // Note: Stop (break loop) if '*' is found
@@ -56,12 +58,12 @@ Fox Grammar version 0.10.0
 */
 
 ##Variables##
-<var_decl>		= "let" <id> <type_spec> ['=' <expr>] ';' 	// You can define variables in a rust-like fashion, but you can specify the type of the variable. const variables can't be modified.
+<var_decl>		= "let" <id> <fq_type_spec> ['=' <expr>] ';' 
 
 ##Functions##
-<func_decl>		= "func" <id> '(' [<arg_decl_list>] ')'[':' <type>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
+<func_decl>		= "func" <id> '(' [<arg_decl_list>] ')'[':' <type>] <compound_statement>
 <arg_decl_list> = [<arg_decl> {',' <arg_decl>}*]
-<arg_decl>		= <id> : ["const"]['&'] <type>
+<arg_decl>		= <id> <fq_type_spec>
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
 <rtr_stmt>		= "return" [<expr>] ';'
 
