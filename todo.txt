@@ -3,7 +3,6 @@ TODO:
 	> ASTUnit : Represents a source file, contains declarations. (Done)
 	> IdentifierTable & IdentifierInfo (Done)
 	> ASTContext (Done)
-	> Add the ASTContext to the Context. (Done)
 	> Move stuf to /Fox/Basic (Done)
 
 	> ASTContext : Types (Next)
