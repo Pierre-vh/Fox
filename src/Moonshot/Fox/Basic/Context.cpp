@@ -13,12 +13,12 @@
 
 using namespace Moonshot;
 
-Context::Context() : astCtxt_(std::make_unique<ASTContext>())
+Context::Context()
 {
 	
 }
 
-Context::Context(const LoggingMode & lm) : astCtxt_(std::make_unique<ASTContext>())
+Context::Context(const LoggingMode & lm)
 {
 	setLoggingMode(lm);
 }
@@ -124,22 +124,6 @@ bool Context::isCritical() const
 bool Context::isSafe() const
 {
 	return (curstate_ == State::SAFE) || (curstate_ == State::WARNING);
-}
-
-void Context::releaseAST()
-{
-	if (astCtxt_)
-		astCtxt_.reset();
-}
-
-ASTContext * Context::getASTContext()
-{
-	return astCtxt_.get();
-}
-
-bool Context::isASTAvailable() const
-{
-	return (bool)astCtxt_;
 }
 
 FlagsManager& Context::flagsManager()
