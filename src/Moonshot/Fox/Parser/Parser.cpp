@@ -105,34 +105,18 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY, std::move(unit));
 }
 
-ParsingResult<FoxValue> Parser::matchLiteral()
+ParsingResult<LiteralInfo> Parser::matchLiteral()
 {
 	Token t = getToken();
 	if (t.isLiteral())
 	{
+		incrementPosition();
 		if (auto litinfo = t.getLiteralInfo())
-		{
-			state_.pos += 1;
-
-			FoxValue fval;
-			// Convert to fval (temporary solution until ast & type rework)
-			if (litinfo.is<bool>())
-				fval = litinfo.get<bool>();
-			else if (litinfo.is<std::string>())
-				fval = litinfo.get<std::string>();
-			else if (litinfo.is<float>())
-				fval = litinfo.get<float>();
-			else if (litinfo.is<int64_t>())
-				fval = litinfo.get<int64_t>();
-			else if (litinfo.is<char32_t>())
-				fval = litinfo.get<char32_t>();
-
-			return ParsingResult<FoxValue>(ParsingOutcome::SUCCESS, fval);
-		}
+			return ParsingResult<LiteralInfo>(ParsingOutcome::SUCCESS, litinfo);
 		else
 			throw std::exception("Returned an invalid litinfo when the token was a literal?");
 	}
-	return ParsingResult<FoxValue>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<LiteralInfo>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<std::string> Parser::matchID()

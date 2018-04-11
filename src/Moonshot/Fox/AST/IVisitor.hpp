@@ -33,10 +33,14 @@ namespace Moonshot
 			inline virtual void visit(ASTBinaryExpr&)	{}
 			inline virtual void visit(ASTUnaryExpr&)	{}
 			inline virtual void visit(ASTCastExpr&)		{}
-			inline virtual void visit(ASTLiteralExpr&)	{}
-			inline virtual void visit(ASTDeclRefExpr&)	{}
+			inline virtual void visit(ASTCharLiteralExpr&)		{}
+			inline virtual void visit(ASTIntegerLiteralExpr&)	{}
+			inline virtual void visit(ASTFloatLiteralExpr&)		{}
+			inline virtual void visit(ASTStringLiteralExpr&)	{}
+			inline virtual void visit(ASTBoolLiteralExpr&)		{}
+			inline virtual void visit(ASTDeclRefExpr&)		{}
 			inline virtual void visit(ASTMemberAccessExpr&)	{}
-			inline virtual void visit(ASTArrayAccess&)	{}
+			inline virtual void visit(ASTArrayAccess&)		{}
 			inline virtual void visit(ASTFunctionCallExpr&) {}
 
 			inline virtual void visit(ASTNullStmt&)		{}
@@ -57,10 +61,14 @@ namespace Moonshot
 			inline virtual void visit(ASTBinaryExpr&)	{ value_ = TYPE(); }
 			inline virtual void visit(ASTUnaryExpr&)	{ value_ = TYPE(); }
 			inline virtual void visit(ASTCastExpr&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTLiteralExpr&)	{ value_ = TYPE(); }
-			inline virtual void visit(ASTDeclRefExpr&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTCharLiteralExpr&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTIntegerLiteralExpr&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTFloatLiteralExpr&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTStringLiteralExpr&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTBoolLiteralExpr&)		{ value_ = TYPE(); }
+			inline virtual void visit(ASTDeclRefExpr&)		{ value_ = TYPE(); }
 			inline virtual void visit(ASTMemberAccessExpr&) { value_ = TYPE(); }
-			inline virtual void visit(ASTArrayAccess&)	{ value_ = TYPE(); }
+			inline virtual void visit(ASTArrayAccess&)		{ value_ = TYPE(); }
 			inline virtual void visit(ASTFunctionCallExpr&) { value_ = TYPE(); }
 
 			inline virtual void visit(ASTNullStmt&)		{ value_ = TYPE(); }

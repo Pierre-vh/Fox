@@ -10,8 +10,7 @@
 #include "Dumper.hpp"
 // Exception
 #include "Moonshot/Fox/Basic/Exceptions.hpp"
-// type
-#include "Moonshot/Common/Types/FoxValueUtils.hpp"
+#include "Moonshot/Fox/Lexer/StringManipulator.hpp"
 // Include nodes
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
@@ -42,9 +41,7 @@ void Dumper::visit(ASTBinaryExpr & node)
 		op = std::to_string(Util::enumAsInt(node.getOp()));
 
 	out_ << getIndent() << "BinaryExpression : Operator " << op;
-	// print planned result type if there's one
-	if (node.getResultType() != 0 && node.getResultType() != TypeIndex::InvalidIndex)
-		out_ << ", Return type : " << node.getResultType().getTypeName();
+
 	// newline
 	out_ << "\n";
 
@@ -77,12 +74,7 @@ void Dumper::visit(ASTUnaryExpr & node)
 	if (op.size() == 0)
 		op = std::to_string(Util::enumAsInt(node.getOp()));
 
-	out_ << getIndent() << "UnaryExpression : Operator " << op;
-
-	if (node.getResultType() != 0 && node.getResultType() != TypeIndex::InvalidIndex)
-		out_ << ", Return type : " << node.getResultType().getTypeName();
-
-	out_ << "\n";
+	out_ << getIndent() << "UnaryExpression : Operator " << op << "\n";
 
 	curindent_++;
 	out_ << getIndent() << "Child:\n";
@@ -114,10 +106,29 @@ void Dumper::visit(ASTCastExpr & node)
 	node.getChild()->accept(*this);
 	curindent_ -= 2;
 }
-void Dumper::visit(ASTLiteralExpr & node)
+void Dumper::visit(ASTCharLiteralExpr & node)
 {
-	out_ << getIndent() << "Literal: " << FValUtils::dumpFVal(node.getVal()) << '\n';
+	std::string str;
+	UTF8::StringManipulator::append(str, node.getVal());
+	out_ << getIndent() << "Char Literal: (" << node.getVal() << ")->'" << str << "'\n";
 }
+void Dumper::visit(ASTIntegerLiteralExpr & node)
+{
+	out_ << getIndent() << "Int Literal: " << node.getVal() << '\n';
+}
+void Dumper::visit(ASTFloatLiteralExpr & node)
+{
+	out_ << getIndent() << "Float Literal: " << node.getVal() << '\n';
+}
+void Dumper::visit(ASTStringLiteralExpr & node)
+{
+	out_ << getIndent() << "String Literal: \"" << node.getVal() << "\"\n";
+}
+void Dumper::visit(ASTBoolLiteralExpr & node)
+{
+	out_ << getIndent() << "Bool Literal: " << (node.getVal() ? "true" : "false") << '\n';
+}
+
 
 void Dumper::visit(ASTVarDecl & node)
 {

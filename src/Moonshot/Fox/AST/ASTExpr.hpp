@@ -27,11 +27,6 @@ namespace Moonshot
 			IASTExpr() = default;
 			inline virtual ~IASTExpr() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
-
-			FoxType getResultType() const;
-			void setResultType(const FoxType& ft);
-		protected:
-			FoxType resultType_ = 0; // The planified result type of the expression after execution. this is set by the typechecker.
 	};
 
 	// Binary Expressions
@@ -93,30 +88,80 @@ namespace Moonshot
 			IASTExpr* getChild();
 			void setChild(std::unique_ptr<IASTExpr> nc);
 		private:
+			FoxType goal_;
 			std::unique_ptr<IASTExpr> child_;
 	};
 
 	// Literals
-	class ASTLiteralExpr : public IASTExpr
+	class ASTCharLiteralExpr : public IASTExpr
 	{
 		public:
-			ASTLiteralExpr() = default;
-			ASTLiteralExpr(const FoxValue &fv);
+			ASTCharLiteralExpr() = default;
+			ASTCharLiteralExpr(const CharType &val);
 
-			void accept(IVisitor& vis) override;
+			void accept(IVisitor &vis) override;
 
-			FoxValue getVal() const;
-			void setVal(const FoxValue& nval);
-
+			CharType getVal() const;
+			void setVal(const CharType& val);
 		private:
-			FoxValue val_;
+			CharType val_ = ' ';
 	};
 
-	/*
-		Note: the AST needs to be adapted for theses 2 nodes. std::strings should be replaced by a pointer to a IASTIdentifier (or find a better name)
-		IASTIdentifier has 2 children : Unresolved ID and resolved ID. Unresolved ID are the raw strings produced by the parsing, and they're replaced by the 
-		Resolver in the Semantic analysis phase by Resolved IDs. Resolved IDs contain a pointer to an entry in the master symbols table.
-	*/
+	class ASTIntegerLiteralExpr : public IASTExpr
+	{
+		public:
+			ASTIntegerLiteralExpr() = default;
+			ASTIntegerLiteralExpr(const IntType &val);
+
+			void accept(IVisitor &vis) override;
+
+			IntType getVal() const;
+			void setVal(const IntType& val);
+		private:
+			IntType val_ = 0;
+	};
+
+	class ASTFloatLiteralExpr : public IASTExpr
+	{
+		public:
+			ASTFloatLiteralExpr() = default;
+			ASTFloatLiteralExpr(const FloatType &val);
+
+			void accept(IVisitor &vis) override;
+
+			FloatType getVal() const;
+			void setVal(const FloatType& val);
+		private:
+			FloatType val_ = 0.0f;
+	};
+
+	class ASTStringLiteralExpr : public IASTExpr
+	{
+		public:
+			ASTStringLiteralExpr() = default;
+			ASTStringLiteralExpr(const std::string &val);
+
+			void accept(IVisitor &vis) override;
+
+			std::string getVal() const;
+			void setVal(const std::string& val);
+		private:
+			std::string val_ = "";
+	};
+
+	class ASTBoolLiteralExpr : public IASTExpr
+	{
+		public:
+			ASTBoolLiteralExpr() = default;
+			ASTBoolLiteralExpr(const bool &val);
+
+			void accept(IVisitor &vis) override;
+
+			bool getVal() const;
+			void setVal(const bool& val);
+		private:
+			bool val_ = false;
+		};
 
 	// interface for decl refs. Derived classes are references to a decl within this context (declref) and reference to member decls (memberref)
 	class IASTDeclRef : public IASTExpr

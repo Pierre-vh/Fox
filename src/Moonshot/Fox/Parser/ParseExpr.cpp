@@ -97,7 +97,24 @@ ParsingResult<IASTDeclRef*> Parser::parseDeclCall()
 ParsingResult<IASTExpr*> Parser::parseLiteral()
 {
 	if (auto matchres = matchLiteral())
-		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::make_unique<ASTLiteralExpr>(matchres.result_));
+	{
+		auto litinfo = matchres.result_;
+		std::unique_ptr<IASTExpr> expr = nullptr;
+		if (litinfo.isBool())
+			expr = std::make_unique<ASTBoolLiteralExpr>(litinfo.get<bool>());
+		else if (litinfo.isString())
+			expr = std::make_unique<ASTStringLiteralExpr>(litinfo.get<std::string>());
+		else if (litinfo.isChar())
+			expr = std::make_unique<ASTCharLiteralExpr>(litinfo.get<CharType>());
+		else if (litinfo.isInt())
+			expr = std::make_unique<ASTIntegerLiteralExpr>(litinfo.get<IntType>());
+		else if (litinfo.isFloat())
+			expr = std::make_unique<ASTFloatLiteralExpr>(litinfo.get<FloatType>());
+		else
+			throw std::exception("Unknown literal type");
+
+		return ParsingResult<IASTExpr*>(ParsingOutcome::SUCCESS, std::move(expr));
+	}
 	return ParsingResult<IASTExpr*>(ParsingOutcome::NOTFOUND);
 }
 

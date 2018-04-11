@@ -17,41 +17,110 @@
 
 using namespace Moonshot;
 
-//IASTexpr
-FoxType IASTExpr::getResultType() const
+// Literals : Char literals
+ASTCharLiteralExpr::ASTCharLiteralExpr(const CharType & val) : val_(val)
 {
-	return resultType_;
+
 }
 
-void IASTExpr::setResultType(const FoxType & ft)
-{
-	resultType_ = ft;
-}
-
-// Literal
-ASTLiteralExpr::ASTLiteralExpr(const FoxValue& fv)
-{
-	if (IndexUtils::isBasic(fv.index()))
-		setVal(fv);
-	else
-		throw std::invalid_argument("ASTNodeLiteral constructor requires a basic type in the FoxValue");
-}
-
-void ASTLiteralExpr::accept(IVisitor& vis)
+void ASTCharLiteralExpr::accept(IVisitor& vis)
 {
 	vis.visit(*this);
 }
 
-FoxValue ASTLiteralExpr::getVal() const
+CharType ASTCharLiteralExpr::getVal() const
 {
 	return val_;
 }
 
-void ASTLiteralExpr::setVal(const FoxValue & nval)
+void ASTCharLiteralExpr::setVal(const CharType & val)
 {
-	val_ = nval;
+	val_ = val;
 }
 
+// Literals : Integer literals
+ASTIntegerLiteralExpr::ASTIntegerLiteralExpr(const IntType & val) : val_(val)
+{
+
+}
+
+void ASTIntegerLiteralExpr::accept(IVisitor& vis)
+{
+	vis.visit(*this);
+}
+
+IntType ASTIntegerLiteralExpr::getVal() const
+{
+	return val_;
+}
+
+void ASTIntegerLiteralExpr::setVal(const IntType & val)
+{
+	val_ = val;
+}
+
+// Literals : Float literals
+ASTFloatLiteralExpr::ASTFloatLiteralExpr(const FloatType & val) : val_(val)
+{
+
+}
+
+void ASTFloatLiteralExpr::accept(IVisitor& vis)
+{
+	vis.visit(*this);
+}
+
+FloatType ASTFloatLiteralExpr::getVal() const
+{
+	return val_;
+}
+
+void ASTFloatLiteralExpr::setVal(const FloatType & val)
+{
+	val_ = val;
+}
+
+// Literals : String literals
+ASTStringLiteralExpr::ASTStringLiteralExpr(const std::string & val) : val_(val)
+{
+
+}
+
+void ASTStringLiteralExpr::accept(IVisitor& vis)
+{
+	vis.visit(*this);
+}
+
+std::string ASTStringLiteralExpr::getVal() const
+{
+	return val_;
+}
+
+void ASTStringLiteralExpr::setVal(const std::string & val)
+{
+	val_ = val;
+}
+
+// Literals : Bool literals
+ASTBoolLiteralExpr::ASTBoolLiteralExpr(const bool & val) : val_(val)
+{
+
+}
+
+void ASTBoolLiteralExpr::accept(IVisitor& vis)
+{
+	vis.visit(*this);
+}
+
+bool ASTBoolLiteralExpr::getVal() const
+{
+	return val_;
+}
+
+void ASTBoolLiteralExpr::setVal(const bool & val)
+{
+	val_ = val;
+}
 
 // BinaryExpr
 ASTBinaryExpr::ASTBinaryExpr(const binaryOperator & opt, std::unique_ptr<IASTExpr> lhs, std::unique_ptr<IASTExpr> rhs):
@@ -156,12 +225,12 @@ void ASTCastExpr::accept(IVisitor & vis)
 
 void ASTCastExpr::setCastGoal(const FoxType& ncg)
 {
-	resultType_ = ncg;
+	goal_ = ncg;
 }
 
 FoxType ASTCastExpr::getCastGoal() const
 {
-	return resultType_;
+	return goal_;
 }
 
 IASTExpr * ASTCastExpr::getChild()

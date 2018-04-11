@@ -112,7 +112,7 @@ namespace Moonshot
 			// matchToken -> returns true if the Token is matched, and increment pos_, if the Token isn't matched return false
 			// Peek != Match, Peek tries to match a token, if it does, it returns true and DOES NOT increment the position. Match does the same but increments if found.
 			// Match
-			ParsingResult<FoxValue> matchLiteral();			// match a literal
+			ParsingResult<LiteralInfo> matchLiteral();			// match a literal
 			ParsingResult<std::string> matchID();			// match a ID
 			bool matchSign(const SignType& s);				// match any signs : ; . ( ) , returns true if success
 			bool matchKeyword(const KeywordType& k);		// Match any keyword, returns true if success
