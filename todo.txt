@@ -4,18 +4,22 @@ TODO:
 	> IdentifierTable & IdentifierInfo (Done)
 	> ASTContext (Done)
 	> Move stuf to /Fox/Basic (Done)
+	> ASTContext : Types (Done)
+	> New type system & deletion of /Common/Types (Done!)
 
-	> ASTContext : Types (Next)
+	> Replace strings in the AST by IdentifierInfo* pointers (Next)
+
 	> DeclContext, add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" (climbs up)
-	> DeclRef nodes : add "getDecl()" to get the declaration, returns nullptr if not linked to a decl
-		Also make the declRef nodes store a *IdentifierInfo instead of a std::string.
+	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc.
 
-	> At this point if nothing broke down, write unit tests to catch bugs.
+	> At this point if nothing caught fire, write unit tests to catch bugs and make things catch fire.
 		> Test DeclContext chaining : Does it work correctly?
+		> Type tests ? (Like, try to identify types by comparing ASTContext pointers, etc)
 		> Does lookup work as intended 
-		> Uniqueness of identifiers
-		> Try to break the parser with some edge cases
+		> Uniqueness of identifiers (Done)
+		> Try to break stuff with edge cases.
+
 	> Visitor System rework & Dumper Rewrite
 
 > Sourceloc system
