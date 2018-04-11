@@ -20,6 +20,7 @@
 #include "Moonshot/Fox/Basic/Utils.hpp"
 #include "Moonshot/Fox/Basic/Exceptions.hpp"
 #include "Moonshot/Fox/AST/IdentifierTable.hpp"
+#include "Moonshot/Fox/AST/ASTContext.hpp"
 
 using namespace Moonshot;
 using namespace Moonshot::Dictionaries;
@@ -150,14 +151,14 @@ LiteralInfo::operator bool() const
 	return !isNull();
 }
 
-Token::Token(Context *ctxt, std::string tokstr, const TextPosition & tpos)
+Token::Token(Context *ctxt, ASTContext *astctxt, std::string tokstr, const TextPosition & tpos)
 {
 	// Check if ctxt isn't null
 	assert(ctxt && "Context ptr is null!");
 	context_ = ctxt;
 	position_ = tpos;
 
-	idToken(tokstr);
+	idToken(astctxt,tokstr);
 }
 
 Token::Token(const Token & cpy)
@@ -326,7 +327,7 @@ IdentifierInfo * Token::getIdentifierInfo()
 	return nullptr;
 }
 
-void Token::idToken(const std::string& str)
+void Token::idToken(ASTContext* astctxt,const std::string& str)
 {
 	// A Context is mandatory to id a token.
 	assert(context_ && "Cannot attempt to identify a token without a context.");
@@ -339,7 +340,7 @@ void Token::idToken(const std::string& str)
 	if (specific_idSign(str));
 	else if (specific_idKeyword(str));
 	else if (specific_idLiteral(str));
-	else if (specific_idIdentifier(str));
+	else if (specific_idIdentifier(astctxt,str));
 	else
 		context_->reportError("Could not identify token \"" + str + "\"");
 }
@@ -448,14 +449,13 @@ bool Token::specific_idLiteral(const std::string& str)
 	return false;
 }
 
-bool Token::specific_idIdentifier(const std::string & str)
+bool Token::specific_idIdentifier(ASTContext* astctxt, const std::string & str)
 {
 	if (std::regex_match(str, kId_regex))
 	{
 		if (hasAtLeastOneLetter(str))
 		{
-			auto astctxt = context_->getASTContext();
-			assert(astctxt && "AST Must be available while lexing!");
+			assert(astctxt && "ASTContext must not be null!");
 			tokenInfo_ = astctxt->identifierTable().getUniqueIDInfoPtr(str);
 			return true;
 		}

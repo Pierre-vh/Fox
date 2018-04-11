@@ -14,6 +14,7 @@
 #include <sstream>		// std::stringstream (sizeToStr())
 #include <cassert>
 
+#include "Moonshot/Fox/AST/ASTContext.hpp"
 #include "Moonshot/Common/Types/Types.hpp"
 #include "Moonshot/Fox/Basic/Context.hpp"
 #include "Moonshot/Fox/Basic/Exceptions.hpp"
@@ -21,7 +22,7 @@
 using namespace Moonshot;
 using namespace Moonshot::Dictionaries;
 
-Lexer::Lexer(Context & curctxt) : context_(curctxt)
+Lexer::Lexer(Context & curctxt, ASTContext *astctxt) : context_(curctxt), astCtxt_(astctxt)
 {
 
 }
@@ -82,7 +83,7 @@ void Lexer::pushTok()
 
 	// push Token
 	
-	Token t(&context_,curtok_,ccoord_);
+	Token t(&context_,astCtxt_,curtok_,ccoord_);
 	// Check if token is valid, if invalid, don't push & report error
 	if (t)
 		result_.push_back(t);

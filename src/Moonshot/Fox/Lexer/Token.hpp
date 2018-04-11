@@ -20,6 +20,7 @@
 namespace Moonshot
 {
 	class Context;
+	class ASTContext;
 	class IdentifierInfo;
 	struct TextPosition	// a structure to hold the position of a Token in the input, and interact with it.
 	{
@@ -155,7 +156,7 @@ namespace Moonshot
 		public:
 			Token() = default;
 			Token(const Token& cpy);
-			Token(Context *ctxt,std::string tokstr, const TextPosition &tpos = TextPosition(0, 0));
+			Token(Context *ctxt,ASTContext *astctxt,std::string tokstr, const TextPosition &tpos = TextPosition(0, 0));
 
 			std::string showFormattedTokenData() const;
 
@@ -190,11 +191,11 @@ namespace Moonshot
 			Context *context_ = nullptr;
 
 			/* Identification functions */
-			void idToken(const std::string& str);					
+			void idToken(ASTContext* astctxt, const std::string& str);
 			bool specific_idKeyword(const std::string& str);
 			bool specific_idSign(const std::string& str);
 			bool specific_idLiteral(const std::string& str);		
-			bool specific_idIdentifier(const std::string& str);
+			bool specific_idIdentifier(ASTContext* astctxt,const std::string& str);
 
 			// Helper for idIdentifier
 			bool hasAtLeastOneLetter(const std::string &str) const; // Checks if str_ has at least one upper/lower case letter.

@@ -13,6 +13,7 @@
 #include "Moonshot/Fox/Lexer/Lexer.hpp"
 #include "Moonshot/Fox/Parser/Parser.hpp"
 #include "Moonshot/Fox/AST/Dumper.hpp"
+#include "Moonshot/Fox/AST/ASTContext.hpp"
 
 #include <fstream>
 
@@ -21,8 +22,8 @@ using namespace Moonshot;
 bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	// Retrieve the astContext, which is created automatically by the Context.
-	ASTContext* astCtxt = ctxt.getASTContext();
+	// Create a ASTContext
+	auto astCtxt = std::make_unique<ASTContext>();
 
 	ctxt.flagsManager().set(FlagID::lexer_logOnPush);
 	std::string filecontent;
@@ -32,7 +33,7 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 		return false;
 	}
 
-	Lexer lex(ctxt);
+	Lexer lex(ctxt,astCtxt.get());
 	lex.lexStr(filecontent);
 
 	if (!ctxt.isSafe())

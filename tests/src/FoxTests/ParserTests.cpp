@@ -13,6 +13,7 @@
 #include "Moonshot/Fox/Lexer/Lexer.hpp"
 #include "Moonshot/Fox/Parser/Parser.hpp"
 #include "Moonshot/Fox/Basic/Context.hpp"
+#include "Moonshot/Fox/AST/ASTContext.hpp"
 
 #include <vector>
 #include <string>
@@ -60,7 +61,8 @@ class ParsingFunctionTester
 				if (hashtagCommentsEnabled && (sample[0] == '#'))
 					continue;
 				Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-				Lexer lex(ctxt);
+				auto astCtxt = std::make_unique<ASTContext>();
+				Lexer lex(ctxt, astCtxt.get());
 				lex.lexStr(sample);
 				Parser parse(ctxt, lex.getTokenVector());
 				if (fn_(parse))
