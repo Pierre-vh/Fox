@@ -24,6 +24,15 @@ add_subdirectory(tools)
 # add test subdir
 add_subdirectory(tests)
 
+# force warnings /W4 on MSVC
+if(MSVC)
+  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  endif()
+endif()
+
 # add lib target
 add_library(libmoonshot STATIC ${moonshot_src})
 
