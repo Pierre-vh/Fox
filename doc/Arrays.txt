@@ -1,0 +1,51 @@
+Arrays : Declaration
+    let x : int[];
+    let x : int[] = [0,1,2,3,4,5,6];
+    let x : int[] = [0]*16;     // Fill the array with 16 Zeroes
+        // Optional, more flexible syntax could look like []*16 to reserve 16 slot in the array.
+    // Plus avancé
+    let x : int[] = [1,2,3]*16; // Fill the array with 16 times the pattern 1,2,3.
+
+So, to make this syntax real, what's needed?
+    Array literals.
+
+    Array literals would have the following syntax :
+    <literal>  = <basic_literal> | <array_lit>
+    <array_lit> = '[' [<expr> { ',' <expr> }] ']'
+
+    AST Representation :
+        ASTArrayLiteralExpr : Contains a vector of expression with one entry for each expression in the literal.
+
+    No operator would work on them, except the '*' operator, like shown above. 
+    Everything else's a semantic error.
+
+    Also, when they're implemented, write a lot of tests to find bugs, because 
+    it might create ambiguities with the array indexing operator.
+
+Also, where would arrays be allowed ? Everywhere : Function arg, function return type, etc.
+
+I think that overall this syntax is the cleanest and most user friendly! Let's have fun with it : 
+fill an array with the Nth first terms of the fibonnaci suite!
+
+func arrayFib(arr : &int[],n : int)
+{
+    if(n <= 0)
+        arr = [];
+    else if(n == 1)
+        arr = [1]; 
+    else if(n == 2)
+        arr = [1,1];
+    else 
+    {
+        arr = [1]*n;    // Fill the array with 1's 
+        n = n-2;        // Substract 2 of n, since the first 2 terms are 1
+        let idx : int = 2; // Start to fill at index 2
+        while(n)
+        {
+            arr[idx] = (arr[idx-1] + arr[idx-2]));
+            idx = idx+1;
+            n = n-1;
+        }
+    }
+}
+

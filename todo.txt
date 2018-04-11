@@ -8,13 +8,12 @@ TODO:
 	> New type system & deletion of /Common/Types (Done!)
 
 	> Replace strings in the AST by IdentifierInfo* pointers (Next)
-	> Add parser support for arrays declarations 
-		>  Add a child node for variable declarations to support a "initialization" expression
-		   for arrays.
-		> Need to find a clever trick for the ParseFQTypeSpec return type to return the array initexpr if there is one. Maybe a pointer arg? or a custom return struct.
+	> Add parser support for arrays declarations & Array literals. (Next)
 
-	> DeclContext, add it on nodes that need it (funcdecl,if/else/,loops,unit)
-		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" (climbs up)
+	> DeclContext : std::map<IdentifierInfo*,IASTDecl*>
+		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
+		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" call upper declcontexts to lookup and add lookupresults
+		> For the lookup system, I'll need "LookupResult" class that wraps around an array of std::pair<IdentifierInfo*,IASTDecl*> for all matching decls.
 	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc.
 
 	> At this point if nothing caught fire, write unit tests to catch bugs and make things catch fire.
@@ -24,7 +23,16 @@ TODO:
 		> Uniqueness of identifiers (Done)
 		> Try to break stuff with edge cases.
 
-	> Visitor System rework & Dumper Rewrite
+	> Visitor System rework, inspired by CLang/Swift.
+		> ASTVisitor (class that visits a tree however it likes to)
+		> Maybe an ASTWalker. It would be quite handy for Dumper and to create a Constant Folding visitor. 
+			See Swift's impl
+				https://github.com/apple/swift/blob/master/include/swift/AST/ASTWalker.h
+				https://github.com/apple/swift/blob/master/lib/AST/ASTWalker.cpp
+				It's quite complicated, maybe a simplified version would work.
+	> Delete old ASTVisitor & Dumper 
+	> Rewrite dumper under the new system
+	> Write tests for the new visitor system
 
 > Sourceloc system
 	> SourceManager (a simple class that keeps track of source file contents and assigns an ID to them.)
@@ -34,20 +42,15 @@ TODO:
 				of the source in the sourcemanager's internal vector
 		> getSourceForID() (do not return a copy of the source, but a reference/pointer)
 	> SourceLoc object
-		> Contains an ID + Col + Line in file
-			> Challenge : find a way to keep this small, under 64 bits would be preferable. 
-				> Current idea : store the ID + a uint32_t for the index.
-			> Would also need a way of telling if a sourceloc is valid, maybe by setting the fileid to 0/-1 ?
-				> This would be used to return "null" sourcelocs.
+		> Current idea : store the ID + a uint32_t for the character index.
 	> SourceRange 
-		> Constructed from 2 sourcelocs
-		> Contains an ID and 2 cols/line, maybe find optimizations to make that type small. 
-			> Currently, my idea is to wrap a sourceloc and store a line/column offset for the range.
-		> add utility functions : getBeginningSourceLoc(), getEndingSourceLoc(), etc.
-	> Update lexer to add a sourcerange to every single token
+		a Sourceloc + an offset (uint16)
+	> Update lexer to add a sourcerange/loc to every single token
+	> Update ast so all nodes have a sourceloc/range too !
 	> Update Diagnostics & DiagnosticsEngine to support a sourceloc/sourcerange arg.
 > Write all the remaining tests needed.
 
-> Move all my current diagnostics message to the new system and delete the context's system primitive diag system.
+> Move all of my current diagnostics message to the new system.
+> Delete the context's system primitive diag system.
 
 > Semantic Analysis time ! It's going to be fun (or not :) ) !
