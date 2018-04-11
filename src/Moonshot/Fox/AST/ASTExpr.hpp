@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #pragma once
-#include "Moonshot/Common/Types/Types.hpp"
+#include "Moonshot/Fox/Basic/Typedefs.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
 #include "Moonshot/Fox/AST/Types.hpp"
 #include "Moonshot/Fox/AST/Operators.hpp"			// enums

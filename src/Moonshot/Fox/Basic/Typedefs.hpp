@@ -13,6 +13,9 @@
 
 #pragma once
 
+#include <limits>
+#include <cstdint>
+
 // Typedefs for every type, except strings and bools, since they'll always stay that way.
 // Typedefs are only useful for type that might change later, or sort of complex typenames 
 // e.g. "CharType" is much more expressive and nice to read than char32_t, imo.
@@ -25,9 +28,6 @@ typedef char32_t		CharType;
 
 // 32 Bits Single Precision floating point number. Might become a 64 Bits one later if needed.
 typedef float			FloatType;
-
-// A Void, Empty Typename.
-typedef std::monostate	VoidType;
 
 namespace Moonshot
 {

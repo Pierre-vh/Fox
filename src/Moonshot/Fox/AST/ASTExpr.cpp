@@ -9,7 +9,6 @@
 
 #include "ASTExpr.hpp"
 #include "IVisitor.hpp"
-#include "Moonshot/Common/Types/FVTypeTraits.hpp"
 
 #include <sstream> 
 #include <cassert>

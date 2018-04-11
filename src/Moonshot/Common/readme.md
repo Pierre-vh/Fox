@@ -1,1 +1,0 @@
-TODO: Once the new type system is in, delete /Types and /Common !

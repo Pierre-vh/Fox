@@ -15,7 +15,6 @@
 #include <cassert>
 
 #include "Moonshot/Fox/AST/ASTContext.hpp"
-#include "Moonshot/Common/Types/Types.hpp"
 #include "Moonshot/Fox/Basic/Context.hpp"
 #include "Moonshot/Fox/Basic/Exceptions.hpp"
 
@@ -76,8 +75,6 @@ void Lexer::setStr(const std::string & str)
 
 void Lexer::pushTok()
 {
-
-
 	if (curtok_ == "")	// Don't push empty tokens.
 		return;
 

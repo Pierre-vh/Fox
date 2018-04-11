@@ -15,10 +15,7 @@
 ////------------------------------------------------------////
 
 #pragma once
-//utils
-#include "Moonshot/Fox/Basic/Utils.hpp"
-#include "Moonshot/Common/Types/Types.hpp"
-
+//nodes
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
