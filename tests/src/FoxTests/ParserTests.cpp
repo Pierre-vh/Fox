@@ -64,7 +64,7 @@ class ParsingFunctionTester
 				auto astCtxt = std::make_unique<ASTContext>();
 				Lexer lex(ctxt, astCtxt.get());
 				lex.lexStr(sample);
-				Parser parse(ctxt, lex.getTokenVector());
+				Parser parse(ctxt,astCtxt.get(), lex.getTokenVector());
 				if (fn_(parse))
 				{
 					if (ctxt.isSafe())
