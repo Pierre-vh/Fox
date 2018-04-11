@@ -92,7 +92,7 @@ void Dumper::visit(ASTUnaryExpr & node)
 
 void Dumper::visit(ASTCastExpr & node)
 {
-	out_ << getIndent() << "CastExpression : Cast Goal:" << node.getCastGoal().getTypeName() << "\n";
+	out_ << getIndent() << "CastExpression : Cast Goal:" << node.getCastGoal()->getPrettyTypeName() << "\n";
 	curindent_++;
 	out_ << getIndent() << "Child:\n";
 	curindent_++;
@@ -132,7 +132,7 @@ void Dumper::visit(ASTBoolLiteralExpr & node)
 
 void Dumper::visit(ASTVarDecl & node)
 {
-	out_ << getIndent() << "VarDeclStmt :" << node.getVarAttr().dump() << std::endl;
+	out_ << getIndent() << "VarDeclStmt : Name:" << node.getVarName() << " Type:" << node.getVarTy().getPrettyName() << "\n";
 	if (node.hasInitExpr())
 	{
 		curindent_ += 1;
@@ -210,13 +210,14 @@ void Dumper::visit(ASTNullStmt&)
 
 void Dumper::visit(ASTFunctionDecl & node)
 {
-	out_ << getIndent() << "Function Declaration : name:" << node.getName() << " return type:" << node.getReturnType().getTypeName() << "\n";
+	out_ << getIndent() << "Function Declaration : Name:" << node.getName() << " Return type:" << node.getReturnType()->getPrettyTypeName() << "\n";
 	curindent_ += 2;
 	std::size_t counter = 0;
-	node.iterateArgs([&](auto argdecl){
-		out_ << getIndent() << "Arg" << counter << ":" << argdecl.dump() << std::endl;
-		counter += 1;
-	});
+	for (auto it = node.args_begin(); it != node.args_end(); it++)
+	{
+		out_ << getIndent() << "Arg" << counter << " Name:" << it->getArgName() << " Type:" << it->getQualType().getPrettyName() << "\n";
+		counter++;
+	}
 	curindent_ -= 1;
 	out_ << getIndent() << "Body:" << std::endl;
 	curindent_ += 1;

@@ -8,14 +8,11 @@
 ////------------------------------------------------------////
 
 #pragma once
-
-#include "Moonshot/Common/Types/Types.hpp"
-
 #include "ASTStmt.hpp"
+#include "Types.hpp"
 
 #include <memory>
 #include <vector>
-#include <functional>
 
 namespace Moonshot
 {
@@ -40,53 +37,58 @@ namespace Moonshot
 			~IASTDeclStmt() = 0 {}
 	};
 
-	// Store a arg's attribute : name, type, and if it's a reference.
-	class FoxFunctionArg : public FoxVariableAttr
+	// Store a arg's attribute : it's name and QualType
+	class FunctionArg
 	{
 		public:
-			FoxFunctionArg() = default;
-			FoxFunctionArg(const std::string &nm, const std::size_t &ty, const bool &isK, const bool& isref);
+			FunctionArg() = default;
+			FunctionArg(const std::string& argName, const QualType& argType);
 
-			bool isRef() const;
-			void setIsRef(const bool& nref);
+			std::string getArgName() const;
+			void setArgName(const std::string& name);
 
-			bool isConst() const;
-			void setConst(const bool& k);
+			QualType getQualType() const;
+			void setQualType(const QualType& qt);
 
-			std::string dump() const;
-			operator bool() const;
-			bool operator==(const FoxFunctionArg& other) const;
-			bool operator!=(const FoxFunctionArg& other) const;
 		private:
-			bool isRef_;
-			using FoxVariableAttr::wasInit_;
+			QualType ty_;
+			std::string name_;
 	};
 
 	// a Function declaration node.
 	class ASTFunctionDecl : public IASTDecl
 	{
+		private:
+			using argIter = std::vector<FunctionArg>::iterator;
+			using argIter_const = std::vector<FunctionArg>::const_iterator;
 		public:
 			ASTFunctionDecl() = default;
-			ASTFunctionDecl(const FoxType& returnType, const std::string& name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
+			ASTFunctionDecl(IType* returnType, const std::string& name, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 			virtual void accept(IVisitor& vis) override;
 
-			FoxType getReturnType() const;
-			std::string getName() const;
-			FoxFunctionArg getArg(const std::size_t &ind) const;
-			ASTCompoundStmt* getBody();
+			void setReturnType(IType *ty);
+			IType* getReturnType();
 
-			void setReturnType(const FoxType& ft);
+			std::string getName() const;
 			void setName(const std::string& str);
-			void setArgs(const std::vector<FoxFunctionArg>& vec);
-			void addArg(const FoxFunctionArg& arg);
+
+			void setArgs(const std::vector<FunctionArg>& vec);
+			void addArg(const FunctionArg& arg);
+			FunctionArg getArg(const std::size_t &ind) const;
+
 			void setBody(std::unique_ptr<ASTCompoundStmt> arg);
-		
-			void iterateArgs(std::function<void(FoxFunctionArg)> fn);
+			ASTCompoundStmt* getBody();		
+
+			argIter args_begin();
+			argIter_const args_begin() const;
+
+			argIter args_end();
+			argIter_const args_end() const;
 		private:
-			FoxType returnType_;
+			IType * returnType_ = nullptr;
 			std::string name_;
-			std::vector<FoxFunctionArg> args_;
+			std::vector<FunctionArg> args_;
 
 			std::unique_ptr<ASTCompoundStmt> body_;
 	};
@@ -95,21 +97,23 @@ namespace Moonshot
 	class ASTVarDecl : public IASTDeclStmt
 	{
 		public:
-			// Create a variable declaration statement by giving the constructor the variable's properties (name,is const and type) and, if there's one, an expression to initialize it.
-			ASTVarDecl(const FoxVariableAttr &attr, std::unique_ptr<IASTExpr> iExpr = nullptr);
+			ASTVarDecl(const std::string& varname,const QualType& ty, std::unique_ptr<IASTExpr> iExpr = nullptr);
 
-			// Inherited via IASTStmt
 			virtual void accept(IVisitor& vis) override;
 
-			FoxVariableAttr getVarAttr() const;
+			QualType getVarTy();
 			IASTExpr* getInitExpr();
+
+			std::string getVarName() const;
+			void setVarName(const std::string& name);
 
 			bool hasInitExpr() const;
 
-			void setVarAttr(const FoxVariableAttr& vattr);
+			void setVarType(const QualType &ty);
 			void setInitExpr(std::unique_ptr <IASTExpr> expr);
 		private:
-			FoxVariableAttr vattr_;
+			QualType varTy_;
+			std::string varName_;
 			std::unique_ptr<IASTExpr> initExpr_ = nullptr;
 	};
 }

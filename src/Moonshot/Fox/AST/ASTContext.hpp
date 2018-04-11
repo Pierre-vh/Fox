@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "ASTUnit.hpp"
+#include "Types.hpp"
 #include "IdentifierTable.hpp"
 
 namespace Moonshot
@@ -33,7 +34,7 @@ namespace Moonshot
 	class ASTContext
 	{
 		public:
-			ASTContext() = default;
+			ASTContext();
 
 			// Returns an observing pointer to the unit containing the entry point of the module (if there is one)
 			ASTUnit* getMainUnit();
@@ -48,10 +49,18 @@ namespace Moonshot
 
 			IdentifierTable& identifierTable();
 
-
+			BuiltinType* getBuiltinIntType();
+			BuiltinType* getBuiltinFloatType();
+			BuiltinType* getBuiltinCharType();
+			BuiltinType* getBuiltinBoolType();
+			BuiltinType* getBuiltinStringType();
+			BuiltinType* getBuiltinVoidType();
 		private:
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
+
+			// Init all builtin types
+			void initBuiltinTypes();
 
 			// An observing pointer to a ASTUnit owned by the vector below that points to the main unit
 			// (= the unit that contains the entry point of this module)
@@ -62,5 +71,13 @@ namespace Moonshot
 
 			// Identifier table
 			IdentifierTable idents_;
+
+			// Built-in types
+			BuiltinType builtinVoid_;
+			BuiltinType builtinInt_;
+			BuiltinType builtinFloat_;
+			BuiltinType builtinBool_;
+			BuiltinType builtinChar_;
+			BuiltinType builtinString_;
 	};
 }

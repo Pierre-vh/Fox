@@ -41,10 +41,11 @@
 
 #pragma once
 
-#include "Moonshot/Common/Types/Types.hpp"
 #include "Moonshot/Fox/Lexer/Token.hpp"					
 #include "Moonshot/Fox/Parser/ParsingResult.hpp"
 
+#include "Moonshot/Fox/AST/ASTContext.hpp"
+#include "Moonshot/Fox/AST/Types.hpp"
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
@@ -58,7 +59,7 @@ namespace Moonshot
 	class Parser
 	{
 		public:
-			Parser(Context& c,TokenVector& l);
+			Parser(Context& c,ASTContext* astctxt,TokenVector& l);
 
 			// UNIT
 			ParsingResult<ASTUnit*>	parseUnit();
@@ -98,11 +99,14 @@ namespace Moonshot
 			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false, const bool& isExprMandatory = false);
 			ParsingResult<ExprList*> parseExprList();
 			ParsingResult<ExprList*> parseParensExprList();
-			// arg decl for functions
-			ParsingResult<FoxFunctionArg> parseArgDecl();
-			ParsingResult<std::vector<FoxFunctionArg>> parseArgDeclList();
-			// type spec for vardecl
-			ParsingResult<FoxType> parseTypeSpec();
+			// Arg decl & decl list
+			ParsingResult<FunctionArg> parseArgDecl();
+			ParsingResult<std::vector<FunctionArg>> parseArgDeclList();
+			// Type spec
+			ParsingResult<QualType> parseFQTypeSpec();
+			// Type keyword
+			// Note : Returns nullptr if no type keyword is found
+			IType* parseTypeKw();
 
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A and B as children. You call oneUpNode like this : oneUpNode(N,PLUS)
@@ -116,19 +120,13 @@ namespace Moonshot
 			ParsingResult<std::string> matchID();			// match a ID
 			bool matchSign(const SignType& s);				// match any signs : ; . ( ) , returns true if success
 			bool matchKeyword(const KeywordType& k);		// Match any keyword, returns true if success
-
-			// Peek : peek at index
 			bool peekSign(const std::size_t &idx, const SignType &sign) const;
-
-			ParsingResult<std::size_t> matchTypeKw();		// match a type keyword : int, float, etc. and returns its index in the FValue
 			
-			// MATCH OPERATORS
 			bool							matchExponentOp(); //  **
 			ParsingResult<binaryOperator>	matchAssignOp(); // = 
 			ParsingResult<unaryOperator>	matchUnaryOp(); // ! - +
 			ParsingResult<binaryOperator>	matchBinaryOp(const char &priority); // + - * / % 
 			
-			// UTILITY METHODS
 			// GetToken
 			Token getToken() const;
 			Token getToken(const std::size_t &d) const;
@@ -136,28 +134,24 @@ namespace Moonshot
 			// Get state_.pos
 			std::size_t getCurrentPosition() const;
 			// Get state_.pos++
-			std::size_t getNextPosition() const;
-			// Increment state_.pos
+			std::size_t getNextPosition() const; 
+
 			void incrementPosition();
-			// Decrement state_.pos
 			void decrementPosition();
 
-			/*
-				Note, this could use improvements, for instance a maximum thresold, or stop when a '}' is found to avoid matching to a semicolon out of the compound statement, etc.
-				This is a matter for another time, first I want to finish the interpreter up to v1.0, then i'll do a refactor to give better error messages before moving on to other features (arrays, oop, tuples)
-			*/
 			// This function will skip every token until the appropriate "resync" token is found.
 			// Returns true if resync was successful.
 			bool resyncToSign(const SignType &s);
-			bool isClosingDelimiter(const SignType &s) const;			// Returns true if s is a } or ) or ]
-			SignType getOppositeDelimiter(const SignType &s);			// Returns [ for ], { for }, ( for )
 			// Same as resyncToSign, except it works on "let" and "func" keywords
 			bool resyncToNextDeclKeyword();
+			// Helper for resyncToSign
+			bool isClosingDelimiter(const SignType &s) const;			// Returns true if s is a } or ) or ]
+			SignType getOppositeDelimiter(const SignType &s);			// Returns [ for ], { for }, ( for )
 
 			// die : Indicates that the parsing is over and the parser has died because of a critical error. 
 			void die();
 
-			// Typical parser error message functions:
+			// Typical parser error message helpers
 			// "Unexpected token x"
 			void errorUnexpected();
 			// "Expected x after y"
@@ -174,14 +168,14 @@ namespace Moonshot
 			// Interrogate parser state
 			// Returns true if pos >= tokens_.size()
 			bool hasReachedEndOfTokenStream() const;
-
-			// Returns isAlive
 			bool isAlive() const;
 
+			// Parser state backup
 			ParserState createParserStateBackup() const;
 			void restoreParserStateFromBackup(const ParserState& st);
 
 			// Member variables
+			ASTContext* astCtxt_ = nullptr;
 			Context& context_;
 			TokenVector& tokens_;					// reference to the the token's vector.
 	};

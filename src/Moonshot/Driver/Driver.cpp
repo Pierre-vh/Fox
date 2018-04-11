@@ -45,7 +45,7 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 	else
 		out << "Lexing completed successfully." << lex.getTokenVector().size() << " tokens found.\n";
 
-	Parser psr(ctxt,lex.getTokenVector());
+	Parser psr(ctxt,astCtxt.get(),lex.getTokenVector());
 	auto presult = psr.parseUnit();
 
 	if (!presult)

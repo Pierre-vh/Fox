@@ -1,10 +1,11 @@
 add_source( 
     ast_src
-    ASTDecl.cpp
-    ASTExpr.cpp
-    ASTStmt.cpp
-	ASTUnit.cpp
-	ASTContext.cpp
-    Dumper.cpp
-	IdentifierTable.cpp
+    "ASTDecl.cpp"
+    "ASTExpr.cpp"
+    "ASTStmt.cpp"
+	"ASTUnit.cpp"
+	"ASTContext.cpp"
+	"Types.cpp"
+	"Dumper.cpp"
+	"IdentifierTable.cpp"
 )

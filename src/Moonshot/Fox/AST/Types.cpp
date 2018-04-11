@@ -8,7 +8,9 @@
 ////------------------------------------------------------////
 
 #include "Types.hpp"
+
 #include <cassert>
+#include <sstream>
 #include <exception>
 
 using namespace Moonshot;
@@ -38,6 +40,8 @@ std::string BuiltinType::getPrettyTypeName() const
 			return "float";
 		case Kind::StringTy:
 			return "string";
+		case Kind::VoidTy:
+			return "void";
 		default:
 			throw std::exception("Unknown Builtin Type");
 	}
@@ -45,10 +49,11 @@ std::string BuiltinType::getPrettyTypeName() const
 
 bool BuiltinType::isBasic() const
 {
-	return true;
+	// Only basic if not void.
+	return !(builtinKind_ == Kind::VoidTy);
 }
 
-Kind BuiltinType::getKind() const
+BuiltinType::Kind BuiltinType::getKind() const
 {
 	return builtinKind_;
 }
@@ -61,6 +66,11 @@ bool BuiltinType::isArithmetic() const
 bool BuiltinType::isConcatenable() const
 {
 	return (builtinKind_ == Kind::CharTy) || (builtinKind_ == Kind::StringTy);
+}
+
+void BuiltinType::setBuiltinKind(const Kind & kd)
+{
+	builtinKind_ = kd;
 }
 
 /* Array type */
@@ -76,7 +86,7 @@ bool ArrayType::isBuiltin() const
 
 std::string ArrayType::getPrettyTypeName() const
 {
-	return itemsTy_->getTypeName() + "[]";
+	return itemsTy_->getPrettyTypeName() + "[]";
 }
 
 bool ArrayType::isBasic() const
@@ -94,4 +104,70 @@ bool ArrayType::isItemTypeBuiltin() const
 {
 	assert(itemsTy_ && "The Array item type cannot be null!");
 	return itemsTy_->isBuiltin();
+}
+
+/* QualType */
+QualType::QualType() : ty_(nullptr),isConst_(false), isRef_(false)
+{
+
+}
+
+QualType::QualType(IType * ty, const bool & isConstant, const bool &isReference) :
+	ty_(ty), isConst_(isConstant), isRef_(isReference)
+{
+	assert(ty && "Type cannot be null");
+}
+
+bool QualType::isConstant() const
+{
+	return isConst_;
+}
+
+void QualType::setConstAttribute(const bool & constattr)
+{
+	isConst_ = constattr;
+}
+
+bool QualType::isAReference() const
+{
+	return isRef_;
+}
+
+void QualType::setIsReference(const bool & refattr)
+{
+	isRef_ = refattr;
+}
+
+std::string QualType::getPrettyName() const
+{
+	std::stringstream out;
+	if (isConst_)
+		out << "const ";
+	if (isRef_)
+		out << "&";
+	assert(ty_ && "Type is null?");
+	out << ty_->getPrettyTypeName();
+	return out.str();
+}
+
+IType * QualType::getNonQualType()
+{
+	assert(ty_ && "Type is null?");
+	return ty_;
+}
+
+void QualType::setType(IType * ty)
+{
+	assert(ty && "Type is null?");
+	ty_ = ty;
+}
+
+bool QualType::isValid() const
+{
+	return (bool)ty_;
+}
+
+QualType::operator bool() const
+{
+	return isValid();
 }

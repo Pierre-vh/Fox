@@ -13,62 +13,36 @@
 #include "IVisitor.hpp"
 
 #include <sstream>
+#include <cassert>
 
 using namespace Moonshot;
 
-FoxFunctionArg::FoxFunctionArg(const std::string & nm, const std::size_t & ty, const bool &isK, const bool & isref)
+FunctionArg::FunctionArg(const std::string & argName, const QualType & argType) : name_(argName),ty_(argType)
 {
-	name_ = nm;
-	type_ = ty;
-	type_.setConstAttribute(isK);
 
-	isRef_ = isref;
-	wasInit_ = true;
 }
 
-bool FoxFunctionArg::isRef() const
+std::string FunctionArg::getArgName() const
 {
-	return isRef_;
+	return name_;
 }
 
-void FoxFunctionArg::setIsRef(const bool & nref)
+void FunctionArg::setArgName(const std::string & name)
 {
-	isRef_ = nref;
+	name_ = name;
 }
 
-bool FoxFunctionArg::isConst() const
+QualType FunctionArg::getQualType() const
 {
-	return type_.isConst();
+	return ty_;
 }
 
-void FoxFunctionArg::setConst(const bool & k)
+void FunctionArg::setQualType(const QualType & qt)
 {
-	type_.setConstAttribute(k);
+	ty_ = qt;
 }
 
-std::string FoxFunctionArg::dump() const
-{
-	std::stringstream output;
-	output << "Name:\"" << name_ << "\" Type:" << type_.getTypeName() << " isReference:" << (isRef_ ? "Yes" : "No") << "";
-	return output.str();
-}
-
-FoxFunctionArg::operator bool() const
-{
-	return (wasInit_ && (type_ != TypeIndex::Void_Type) && (type_ != TypeIndex::InvalidIndex));
-}
-
-bool FoxFunctionArg::operator==(const FoxFunctionArg & other) const
-{
-	return (name_ == other.name_) && (type_ == other.type_);
-}
-
-bool FoxFunctionArg::operator!=(const FoxFunctionArg & other) const
-{
-	return !(*this == other);
-}
-
-ASTFunctionDecl::ASTFunctionDecl(const FoxType & returnType, const std::string & name, std::vector<FoxFunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody)
+ASTFunctionDecl::ASTFunctionDecl(IType* returnType, const std::string& name, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody)
 {
 	setReturnType(returnType);
 	setName(name);
@@ -81,7 +55,7 @@ void ASTFunctionDecl::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-FoxType ASTFunctionDecl::getReturnType() const
+IType* ASTFunctionDecl::getReturnType()
 {
 	return returnType_;
 }
@@ -91,7 +65,7 @@ std::string ASTFunctionDecl::getName() const
 	return name_;
 }
 
-FoxFunctionArg ASTFunctionDecl::getArg(const std::size_t & ind) const
+FunctionArg ASTFunctionDecl::getArg(const std::size_t & ind) const
 {
 	return args_[ind];
 }
@@ -101,9 +75,10 @@ ASTCompoundStmt * ASTFunctionDecl::getBody()
 	return body_.get();
 }
 
-void ASTFunctionDecl::setReturnType(const FoxType & ft)
+void ASTFunctionDecl::setReturnType(IType *ty)
 {
-	returnType_ = ft;
+	assert(ty && "Type cannot be null!");
+	returnType_ = ty;
 }
 
 void ASTFunctionDecl::setName(const std::string & str)
@@ -111,12 +86,12 @@ void ASTFunctionDecl::setName(const std::string & str)
 	name_ = str;
 }
 
-void ASTFunctionDecl::setArgs(const std::vector<FoxFunctionArg>& vec)
+void ASTFunctionDecl::setArgs(const std::vector<FunctionArg>& vec)
 {
 	args_ = vec;
 }
 
-void ASTFunctionDecl::addArg(const FoxFunctionArg & arg)
+void ASTFunctionDecl::addArg(const FunctionArg & arg)
 {
 	args_.push_back(arg);
 }
@@ -126,22 +101,31 @@ void ASTFunctionDecl::setBody(std::unique_ptr<ASTCompoundStmt> arg)
 	body_ = std::move(arg);
 }
 
-void ASTFunctionDecl::iterateArgs(std::function<void(FoxFunctionArg)> fn)
+ASTFunctionDecl::argIter ASTFunctionDecl::args_begin()
 {
-	for (const auto& elem : args_)
-		fn(elem);
+	return args_.begin();
+}
+
+ASTFunctionDecl::argIter_const ASTFunctionDecl::args_begin() const
+{
+	return args_.begin();
+}
+
+ASTFunctionDecl::argIter ASTFunctionDecl::args_end()
+{
+	return args_.end();
+}
+
+ASTFunctionDecl::argIter_const ASTFunctionDecl::args_end() const
+{
+	return args_.end();
 }
 
 // VarDecl
-ASTVarDecl::ASTVarDecl(const FoxVariableAttr & attr, std::unique_ptr<IASTExpr> iExpr)
+ASTVarDecl::ASTVarDecl(const std::string& varname,const QualType& ty, std::unique_ptr<IASTExpr> iExpr) : varName_(varname), varTy_(ty)
 {
-	if (attr)
-	{
-		vattr_ = attr;
-		setInitExpr(std::move(iExpr));
-	}
-	else
-		throw std::invalid_argument("Supplied an empty FoxVariableAttr object to the constructor.");
+	if (iExpr)
+		initExpr_ = std::move(iExpr);
 }
 
 void ASTVarDecl::accept(IVisitor& vis)
@@ -149,9 +133,9 @@ void ASTVarDecl::accept(IVisitor& vis)
 	vis.visit(*this);
 }
 
-FoxVariableAttr ASTVarDecl::getVarAttr() const
+QualType ASTVarDecl::getVarTy()
 {
-	return vattr_;
+	return varTy_;
 }
 
 IASTExpr * ASTVarDecl::getInitExpr()
@@ -164,12 +148,23 @@ bool ASTVarDecl::hasInitExpr() const
 	return (bool)initExpr_;
 }
 
-void ASTVarDecl::setVarAttr(const FoxVariableAttr & vattr)
+std::string ASTVarDecl::getVarName() const
 {
-	vattr_ = vattr;
+	return varName_;
+}
+
+void ASTVarDecl::setVarName(const std::string & name)
+{
+	varName_ = name;
+}
+
+void ASTVarDecl::setVarType(const QualType &ty)
+{
+	varTy_ = ty;
 }
 
 void ASTVarDecl::setInitExpr(std::unique_ptr<IASTExpr> expr)
 {
-	initExpr_ = std::move(expr);
+	if(expr)
+		initExpr_ = std::move(expr);
 }

@@ -11,9 +11,8 @@
 #include "IVisitor.hpp"
 #include "Moonshot/Common/Types/FVTypeTraits.hpp"
 
-#include <iostream> // std::cout for debug purposes
-#include <sstream> // std::stringstream
-
+#include <sstream> 
+#include <cassert>
 
 using namespace Moonshot;
 
@@ -212,7 +211,7 @@ void ASTUnaryExpr::setOp(const unaryOperator & nop)
 }
 
 // CastExpr
-ASTCastExpr::ASTCastExpr(const FoxType& castGoal, std::unique_ptr<IASTExpr> nc)
+ASTCastExpr::ASTCastExpr(IType* castGoal, std::unique_ptr<IASTExpr> nc)
 {
 	setCastGoal(castGoal);
 	setChild(std::move(nc));
@@ -223,12 +222,13 @@ void ASTCastExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-void ASTCastExpr::setCastGoal(const FoxType& ncg)
+void ASTCastExpr::setCastGoal(IType* goal)
 {
-	goal_ = ncg;
+	assert(goal && "Goal type cannot be null!");
+	goal_ = goal;
 }
 
-FoxType ASTCastExpr::getCastGoal() const
+IType* ASTCastExpr::getCastGoal()
 {
 	return goal_;
 }

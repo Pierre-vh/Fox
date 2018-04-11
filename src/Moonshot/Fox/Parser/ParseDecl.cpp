@@ -59,13 +59,13 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		// [':' <type>]
 		if (matchSign(SignType::S_COLON))
 		{
-			if (auto tyMatchRes = matchTypeKw())
-				rtr->setReturnType(tyMatchRes.result_);
+			if (IType* rtrTy = parseTypeKw())
+				rtr->setReturnType(rtrTy);
 			else
 				errorExpected("Expected a type keyword");
 		}
-		else
-			rtr->setReturnType(TypeIndex::Void_Type);
+		else // if no return type, the function returns void.
+			rtr->setReturnType(astCtxt_->getBuiltinVoidType());
 
 		// <compound_statement>
 		if (auto cp_res = parseTopLevelCompoundStatement(true))
@@ -82,57 +82,39 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 			}
 			else
 			{
-				// Create an empty compound statement to still return something
+				// If there was an error, create an empty compound statement to still return something
 				rtr->setBody(std::make_unique<ASTCompoundStmt>());
 				return ParsingResult<ASTFunctionDecl*>(cp_res.getFlag(),std::move(rtr));
-
 			}
 		}
 	}
 	return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<FoxFunctionArg> Parser::parseArgDecl()
+ParsingResult<FunctionArg> Parser::parseArgDecl()
 {
+	// <arg_decl> = <id> <fq_type_spec>
 	// <id>
 	if (auto mID_res = matchID())
 	{
-		FoxFunctionArg rtr;
-		rtr.setName(mID_res.result_);
-		// ':'
-		if (!matchSign(SignType::S_COLON))
-		{
-			errorExpected("Expected ':'");
-			return ParsingResult<FoxFunctionArg>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
-		}
-		// ["const"]
-		if (matchKeyword(KeywordType::KW_CONST))
-			rtr.setConst(true);
-		// ['&']
-		if (matchSign(SignType::S_AMPERSAND))
-			rtr.setIsRef(true);
-		else
-			rtr.setIsRef(false);
+		// <fq_type_spec>
+		if (auto typeSpec_res = parseFQTypeSpec())
+			return ParsingResult<FunctionArg>(ParsingOutcome::SUCCESS, FunctionArg(mID_res.result_, typeSpec_res.result_));
 
-		if (auto mty_res = matchTypeKw())
-		{
-			rtr.setType(mty_res.result_);
-			return ParsingResult<FoxFunctionArg>(ParsingOutcome::SUCCESS, rtr);
-		}
-		else
-		{
-			errorExpected("Expected type name");
-			return ParsingResult<FoxFunctionArg>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
-		}
+		// failure cases
+		else if (typeSpec_res.getFlag() == ParsingOutcome::NOTFOUND)
+			errorExpected("Expected a ':'");
+
+		return ParsingResult<FunctionArg>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 	}
-	return ParsingResult<FoxFunctionArg>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<FunctionArg>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<std::vector<FoxFunctionArg>> Parser::parseArgDeclList()
+ParsingResult<std::vector<FunctionArg>> Parser::parseArgDeclList()
 {
 	if (auto firstArg_res = parseArgDecl())
 	{
-		std::vector<FoxFunctionArg> rtr;
+		std::vector<FunctionArg> rtr;
 		rtr.push_back(firstArg_res.result_);
 		while (true)
 		{
@@ -144,16 +126,16 @@ ParsingResult<std::vector<FoxFunctionArg>> Parser::parseArgDeclList()
 				{
 					if (pArgDecl_res.getFlag() == ParsingOutcome::NOTFOUND)
 						errorExpected("Expected an argument declaration");
-					return ParsingResult<std::vector<FoxFunctionArg>>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+					return ParsingResult<std::vector<FunctionArg>>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 				}
 			}
 			else
 				break;
 		}
-		return ParsingResult<std::vector<FoxFunctionArg>>(ParsingOutcome::SUCCESS, rtr);
+		return ParsingResult<std::vector<FunctionArg>>(ParsingOutcome::SUCCESS, rtr);
 	}
 	else
-		return ParsingResult<std::vector<FoxFunctionArg>>(firstArg_res.getFlag());
+		return ParsingResult<std::vector<FunctionArg>>(firstArg_res.getFlag());
 }
 ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 {
@@ -174,26 +156,26 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 
 ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 {
-	//<var_decl> = <let_kw> <id> <type_spec> ['=' <expr>] ';'
+	// <var_decl> = "let" <id> <fq_type_spec> ['=' <expr>] ';'
 	std::unique_ptr<IASTExpr> initExpr = 0;
 	ParsingOutcome flag = ParsingOutcome::SUCCESS;
-	FoxType varType = TypeIndex::InvalidIndex;
-	std::string varName;
 
+	QualType varType;
+	std::string varName;
+	// "let"
 	if (matchKeyword(KeywordType::KW_LET))
 	{
-		// ##ID##
+		// <id>
 		if (auto match = matchID())
-		{
 			varName = match.result_;
-		}
 		else
 		{
 			errorExpected("Expected an identifier");
 			return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
-		// ##TYPESPEC##
-		if (auto typespecResult = parseTypeSpec())
+
+		// <fq_type_spec>
+		if (auto typespecResult = parseFQTypeSpec())
 			varType = typespecResult.result_;
 		else
 		{
@@ -201,8 +183,7 @@ ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 			return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 
-		// ##ASSIGNEMENT##
-		// '=' <expr>
+		// ['=' <expr>]
 		if (matchSign(SignType::S_EQUAL))
 		{
 			if (auto parseres = parseExpr())
@@ -213,6 +194,7 @@ ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 				return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 			}
 		}
+
 		// ';'
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
@@ -221,36 +203,46 @@ ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 		}
 
 		// If parsing was ok : 
-		FoxVariableAttr v_attr(varName, varType);
 		if (initExpr) // Has init expr?
 			return ParsingResult<ASTVarDecl*>(
 				flag,
-					std::make_unique<ASTVarDecl>(v_attr, std::move(initExpr))
+					std::make_unique<ASTVarDecl>(varName,varType, std::move(initExpr))
 				);
 		else
 			return ParsingResult<ASTVarDecl*>(
 				flag,
-					std::make_unique<ASTVarDecl>(v_attr, nullptr)
+					std::make_unique<ASTVarDecl>(varName,varType, nullptr)
 				);
 	}
 	return ParsingResult<ASTVarDecl*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<FoxType> Parser::parseTypeSpec()
+ParsingResult<QualType> Parser::parseFQTypeSpec()
 {
-	bool isConst = false;
+	// 	<fq_type_spec>	= ':' ["const"] ['&'] <type>
 	if (matchSign(SignType::S_COLON))
 	{
-		// Match const kw
+		QualType ty;
+		// ["const"]
 		if (matchKeyword(KeywordType::KW_CONST))
-			isConst = true;
-		// Now match the type keyword
-		if (auto mTy_res = matchTypeKw())
-			return ParsingResult<FoxType>(ParsingOutcome::SUCCESS, FoxType(mTy_res.result_, isConst));
+			ty.setConstAttribute(true);
 
-		errorExpected("Expected a type name");
+		// ['&']
+		if (matchSign(SignType::S_AMPERSAND))
+			ty.setIsReference(true);
+
+		// <type>
+		if (auto type = parseTypeKw())
+			ty.setType(type);
+		else
+		{
+			errorExpected("Expected a type name");
+			return ParsingResult<QualType>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+		}
+
+		return ParsingResult<QualType>(ParsingOutcome::SUCCESS, ty);
 	}
-	return ParsingResult<FoxType>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<QualType>(ParsingOutcome::NOTFOUND);
 }
 
 ParsingResult<IASTDecl*> Parser::parseTopLevelDecl()

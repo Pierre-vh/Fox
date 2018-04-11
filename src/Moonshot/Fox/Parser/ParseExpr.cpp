@@ -208,12 +208,12 @@ ParsingResult<IASTExpr*>  Parser::parseCastExpr()
 		// Search for a (optional) cast: "as" <type>
 		if (matchKeyword(KeywordType::KW_AS))
 		{
-			if (auto castType = matchTypeKw())
+			if (auto castType = parseTypeKw())
 			{
 				// If found, apply it to current node.
 				return ParsingResult<IASTExpr*>(
 					ParsingOutcome::SUCCESS,
-					std::make_unique<ASTCastExpr>(castType.result_, std::move(parse_res.result_))
+					std::make_unique<ASTCastExpr>(castType, std::move(parse_res.result_))
 					);
 			}
 			else

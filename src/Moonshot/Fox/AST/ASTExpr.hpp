@@ -8,10 +8,10 @@
 ////------------------------------------------------------////
 
 #pragma once
-
+#include "Moonshot/Common/Types/Types.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
+#include "Moonshot/Fox/AST/Types.hpp"
 #include "Moonshot/Fox/AST/Operators.hpp"			// enums
-#include "Moonshot/Common/Types/Types.hpp"		// FoxValue
 #include <memory>
 #include <vector>
 #include <functional>
@@ -79,16 +79,17 @@ namespace Moonshot
 	{
 		public:
 			ASTCastExpr() = default;
-			ASTCastExpr(const FoxType& castGoal,std::unique_ptr<IASTExpr> ch = nullptr);
+			ASTCastExpr(IType* castGoal,std::unique_ptr<IASTExpr> ch = nullptr);
+			
 			virtual void accept(IVisitor& vis) override;
 
-			void setCastGoal(const FoxType& ncg);		// castgoal is stored inside
-			FoxType getCastGoal() const; 
+			void setCastGoal(IType* goal);
+			IType* getCastGoal();
 
 			IASTExpr* getChild();
 			void setChild(std::unique_ptr<IASTExpr> nc);
 		private:
-			FoxType goal_;
+			IType * goal_ = nullptr;
 			std::unique_ptr<IASTExpr> child_;
 	};
 

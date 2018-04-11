@@ -7,10 +7,11 @@
 // This file declares Typedefs for various types to ensure
 // consistency between types. 
 //
-// For instance, it would be terrible
-// if a class tried to store a int64_t, used by a literal token, in a
-// normal int ! To solve this, they both use "IntType" !
+// For instance, it would be terrible if a class tried to store a int64_t, used by a literal token, in a
+// normal int ! To solve this, they would both use "IntType" !
 ////------------------------------------------------------////
+
+#pragma once
 
 // Typedefs for every type, except strings and bools, since they'll always stay that way.
 // Typedefs are only useful for type that might change later, or sort of complex typenames 

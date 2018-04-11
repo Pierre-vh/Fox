@@ -11,9 +11,8 @@
 
 #include "Parser.hpp"
 
-// Stringstream
 #include <sstream>
-// Context and Exceptions
+#include <cassert>
 #include "Moonshot/Fox/Basic/Context.hpp"
 #include "Moonshot/Fox/Basic/Exceptions.hpp"
 
@@ -21,9 +20,9 @@ using namespace Moonshot;
 
 #define RETURN_IF_DEAD 	if (!state_.isAlive) return
 
-Parser::Parser(Context& c, TokenVector& l) : context_(c),tokens_(l)
+Parser::Parser(Context& c, ASTContext* astctxt, TokenVector& l) : context_(c), astCtxt_(astctxt), tokens_(l)
 {
-
+	assert(astctxt && "ASTContext cannot be null!");
 }
 
 ParsingResult<ASTUnit*> Parser::parseUnit()
@@ -151,7 +150,7 @@ bool Parser::matchKeyword(const KeywordType & k)
 	return false;
 }
 
-ParsingResult<std::size_t> Parser::matchTypeKw()
+IType* Parser::parseTypeKw()
 {
 	Token t = getToken();
 	incrementPosition();
@@ -159,15 +158,15 @@ ParsingResult<std::size_t> Parser::matchTypeKw()
 	{
 		switch (t.getKeywordType())
 		{
-			case KeywordType::KW_INT:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Int);
-			case KeywordType::KW_FLOAT:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Float);
-			case KeywordType::KW_CHAR:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_Char);
-			case KeywordType::KW_STRING:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS, TypeIndex::basic_String);
-			case KeywordType::KW_BOOL:	return  ParsingResult<std::size_t>(ParsingOutcome::SUCCESS,TypeIndex::basic_Bool);
+			case KeywordType::KW_INT:	return  astCtxt_->getBuiltinIntType();
+			case KeywordType::KW_FLOAT:	return  astCtxt_->getBuiltinFloatType();
+			case KeywordType::KW_CHAR:	return	astCtxt_->getBuiltinCharType();
+			case KeywordType::KW_STRING:return	astCtxt_->getBuiltinStringType();
+			case KeywordType::KW_BOOL:	return	astCtxt_->getBuiltinBoolType();
 		}
 	}
 	decrementPosition();
-	return ParsingResult<std::size_t>(ParsingOutcome::NOTFOUND);
+	return nullptr;
 }
 
 bool Parser::peekSign(const std::size_t & idx, const SignType & sign) const
