@@ -10,7 +10,9 @@
 ////------------------------------------------------------////
 
 #include "Parser.hpp"
-// Needed nodes
+
+#include "Moonshot/Fox/Basic/Context.hpp"
+
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
 
@@ -176,7 +178,15 @@ ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 
 		// <fq_type_spec>
 		if (auto typespecResult = parseFQTypeSpec())
-			varType = typespecResult.result_;
+		{
+			auto qualTy = typespecResult.result_;
+			if (qualTy.isAReference())
+			{
+				context_.reportWarning("Ignored reference qualifier '&' in variable declaration : Variables cannot be references.");
+				qualTy.setIsReference(false);
+			}
+			varType = qualTy;
+		}
 		else
 		{
 			errorExpected("Expected a ':'");
