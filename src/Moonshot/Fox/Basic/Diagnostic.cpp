@@ -35,7 +35,8 @@ Diagnostic::Diagnostic(Diagnostic &other)
 
 Diagnostic Diagnostic::createDummyDiagnosticObject()
 {
-	return Diagnostic();
+	Diagnostic diag;
+	return diag;
 }
 
 Diagnostic::~Diagnostic()

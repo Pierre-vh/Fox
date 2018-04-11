@@ -188,7 +188,6 @@ ParsingResult<IASTExpr*>  Parser::parseCastExpr()
 {
 	if (auto parse_res = parsePrefixExpr())
 	{
-		std::size_t casttype = TypeIndex::InvalidIndex;
 		// Search for a (optional) cast: "as" <type>
 		if (matchKeyword(KeywordType::KW_AS))
 		{

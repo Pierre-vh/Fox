@@ -39,7 +39,7 @@ void Dumper::visit(ASTBinaryExpr & node)
 {
 	std::string op = Util::getFromDict(Dicts::kBinopToStr_dict, node.getOp());
 	if (op.size() == 0)
-		op = Util::enumAsInt(node.getOp());
+		op = std::to_string(Util::enumAsInt(node.getOp()));
 
 	out_ << getIndent() << "BinaryExpression : Operator " << op;
 	// print planned result type if there's one
@@ -75,7 +75,7 @@ void Dumper::visit(ASTUnaryExpr & node)
 {
 	std::string op = Util::getFromDict(Dicts::kUnaryOpToStr_dict, node.getOp());
 	if (op.size() == 0)
-		op = Util::enumAsInt(node.getOp());
+		op = std::to_string(Util::enumAsInt(node.getOp()));
 
 	out_ << getIndent() << "UnaryExpression : Operator " << op;
 
@@ -192,7 +192,7 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 	curindent_--;
 }
 
-void Dumper::visit(ASTNullStmt& node)
+void Dumper::visit(ASTNullStmt&)
 {
 	out_ << getIndent() << "Null Statement\n";
 }

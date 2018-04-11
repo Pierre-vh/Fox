@@ -92,9 +92,15 @@ namespace Moonshot
 			// Does this diag possess a valid consumer?
 			bool hasValidConsumer() const;
 		private:
+			// friends
+			friend class DiagnosticEngine;
+
 			// Empty ctor to create dummy diagnostics objects.
 			// It's private so it's not abused by other classes or by automatic C++ constructions. But it's accessible through createDummyDiagnosticObject()
+			// and to friend classes
 			Diagnostic();  
+			// Deleted assignement operator
+			Diagnostic& operator=(const Diagnostic&) = delete;
 
 			// replaces every occurence of "%(value of index)" in a string with the replacement.
 			// e.g: replacePlaceholder("foo",0) -> replaces every %0 in the string by foo
@@ -102,7 +108,6 @@ namespace Moonshot
 
 			void kill(); // Kills this diagnostic (sets isActive to false and remove (frees) most of it's information)
 			
-			Diagnostic& operator=(const Diagnostic&) = delete;
 
 			bool isActive_ = true; 
 			bool isFrozen_ = false; 

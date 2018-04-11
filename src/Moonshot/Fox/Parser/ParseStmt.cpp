@@ -189,10 +189,10 @@ ParsingResult<IASTStmt*> Parser::parseStmt()
 
 ParsingResult<IASTStmt*> Parser::parseBody()
 {
-	if (auto parseres = parseStmt())
-		return parseres;
-	else if (auto parseres = parseCompoundStatement())
-		return ParsingResult<IASTStmt*>(parseres.getFlag(), std::move(parseres.result_));
+	if (auto stmt_res = parseStmt())
+		return stmt_res;
+	else if (auto compstmt_res = parseCompoundStatement())
+		return ParsingResult<IASTStmt*>(compstmt_res.getFlag(), std::move(compstmt_res.result_));
 	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 

@@ -50,7 +50,11 @@ Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 
 	// Silence this diag if needed
 	if (shouldSilence(sev))
-		return Diagnostic::createDummyDiagnosticObject(); 
+	{
+		// Create an empty diagnostic object by calling the default constructor
+		Diagnostic diag;
+		return diag;
+	}
 
 	// Return
 	if (haveTooManyErrorsOccured() && (!hasReportedErrLimitExceededError_)) 
@@ -63,12 +67,13 @@ Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 	{
 		// If we return the user requested diagnostic, update the counters accordingly, then return.
 		updateInternalCounters(sev);
-		return Diagnostic(
+		Diagnostic rtr_diag(
 			consumer_.get(),
 			diagID,
 			sev,
 			str
 		);
+		return rtr_diag;
 	}
 }
 

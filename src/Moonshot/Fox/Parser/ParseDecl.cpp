@@ -177,7 +177,6 @@ ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 	//<var_decl> = <let_kw> <id> <type_spec> ['=' <expr>] ';'
 	std::unique_ptr<IASTExpr> initExpr = 0;
 	ParsingOutcome flag = ParsingOutcome::SUCCESS;
-	bool isVarConst = false;
 	FoxType varType = TypeIndex::InvalidIndex;
 	std::string varName;
 
