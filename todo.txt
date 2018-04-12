@@ -6,8 +6,8 @@ TODO:
 	> Move stuf to /Fox/Basic (Done)
 	> ASTContext : Types (Done)
 	> New type system & deletion of /Common/Types (Done!)
+	> Replace strings in the AST by IdentifierInfo* pointers (Done)
 
-	> Replace strings in the AST by IdentifierInfo* pointers (Next)
 	> Add parser support for arrays declarations & Array literals. (Next)
 
 	> DeclContext : std::map<IdentifierInfo*,IASTDecl*>
