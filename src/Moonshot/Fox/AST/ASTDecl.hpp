@@ -16,9 +16,9 @@
 
 namespace Moonshot
 {
-	// Forward declaration
+	// Forward declarations
 	class ASTExpr;
-
+	class IdentifierInfo;
 	class IVisitor;
 
 	// Interface for Decl nodes.
@@ -42,17 +42,17 @@ namespace Moonshot
 	{
 		public:
 			FunctionArg() = default;
-			FunctionArg(const std::string& argName, const QualType& argType);
+			FunctionArg(IdentifierInfo* id, const QualType& argType);
 
-			std::string getArgName() const;
-			void setArgName(const std::string& name);
+			IdentifierInfo* getArgIdentifier();
+			void setArgIdentifier(IdentifierInfo* id);
 
 			QualType getQualType() const;
 			void setQualType(const QualType& qt);
 
 		private:
 			QualType ty_;
-			std::string name_;
+			IdentifierInfo *id_ = nullptr;
 	};
 
 	// a Function declaration node.
@@ -63,15 +63,15 @@ namespace Moonshot
 			using argIter_const = std::vector<FunctionArg>::const_iterator;
 		public:
 			ASTFunctionDecl() = default;
-			ASTFunctionDecl(Type* returnType, const std::string& name, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
+			ASTFunctionDecl(Type* returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 			virtual void accept(IVisitor& vis) override;
 
 			void setReturnType(Type *ty);
 			Type* getReturnType();
 
-			std::string getName() const;
-			void setName(const std::string& str);
+			IdentifierInfo* getFunctionIdentifier();
+			void setFunctionIdentifier(IdentifierInfo* id);
 
 			void setArgs(const std::vector<FunctionArg>& vec);
 			void addArg(const FunctionArg& arg);
@@ -87,7 +87,7 @@ namespace Moonshot
 			argIter_const args_end() const;
 		private:
 			Type * returnType_ = nullptr;
-			std::string name_;
+			IdentifierInfo *fnId_ = nullptr;
 			std::vector<FunctionArg> args_;
 
 			std::unique_ptr<ASTCompoundStmt> body_;
@@ -97,15 +97,15 @@ namespace Moonshot
 	class ASTVarDecl : public IASTDeclStmt
 	{
 		public:
-			ASTVarDecl(const std::string& varname,const QualType& ty, std::unique_ptr<ASTExpr> iExpr = nullptr);
+			ASTVarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<ASTExpr> iExpr = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
 
 			QualType getVarTy();
 			ASTExpr* getInitExpr();
 
-			std::string getVarName() const;
-			void setVarName(const std::string& name);
+			IdentifierInfo* getVarIdentifier();
+			void setVarIdentifier(IdentifierInfo* varId);
 
 			bool hasInitExpr() const;
 
@@ -113,7 +113,7 @@ namespace Moonshot
 			void setInitExpr(std::unique_ptr <ASTExpr> expr);
 		private:
 			QualType varTy_;
-			std::string varName_;
+			IdentifierInfo *varId_ = nullptr;
 			std::unique_ptr<ASTExpr> initExpr_ = nullptr;
 	};
 }

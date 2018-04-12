@@ -17,19 +17,19 @@
 
 using namespace Moonshot;
 
-FunctionArg::FunctionArg(const std::string & argName, const QualType & argType) : name_(argName),ty_(argType)
+FunctionArg::FunctionArg(IdentifierInfo* id, const QualType & argType) : id_(id),ty_(argType)
 {
 
 }
 
-std::string FunctionArg::getArgName() const
+IdentifierInfo* FunctionArg::getArgIdentifier()
 {
-	return name_;
+	return id_;
 }
 
-void FunctionArg::setArgName(const std::string & name)
+void FunctionArg::setArgIdentifier(IdentifierInfo* id)
 {
-	name_ = name;
+	id_ = id;
 }
 
 QualType FunctionArg::getQualType() const
@@ -42,10 +42,10 @@ void FunctionArg::setQualType(const QualType & qt)
 	ty_ = qt;
 }
 
-ASTFunctionDecl::ASTFunctionDecl(Type* returnType, const std::string& name, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody)
+ASTFunctionDecl::ASTFunctionDecl(Type* returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody)
 {
 	setReturnType(returnType);
-	setName(name);
+	setFunctionIdentifier(fnId);
 	setBody(std::move(funcbody));
 	setArgs(args);
 }
@@ -60,9 +60,14 @@ Type* ASTFunctionDecl::getReturnType()
 	return returnType_;
 }
 
-std::string ASTFunctionDecl::getName() const
+IdentifierInfo* ASTFunctionDecl::getFunctionIdentifier()
 {
-	return name_;
+	return fnId_;
+}
+
+void ASTFunctionDecl::setFunctionIdentifier(IdentifierInfo * id)
+{
+	fnId_ = id;
 }
 
 FunctionArg ASTFunctionDecl::getArg(const std::size_t & ind) const
@@ -79,11 +84,6 @@ void ASTFunctionDecl::setReturnType(Type *ty)
 {
 	assert(ty && "Type cannot be null!");
 	returnType_ = ty;
-}
-
-void ASTFunctionDecl::setName(const std::string & str)
-{
-	name_ = str;
 }
 
 void ASTFunctionDecl::setArgs(const std::vector<FunctionArg>& vec)
@@ -122,7 +122,7 @@ ASTFunctionDecl::argIter_const ASTFunctionDecl::args_end() const
 }
 
 // VarDecl
-ASTVarDecl::ASTVarDecl(const std::string& varname,const QualType& ty, std::unique_ptr<ASTExpr> iExpr) : varName_(varname), varTy_(ty)
+ASTVarDecl::ASTVarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<ASTExpr> iExpr) : varId_(varId), varTy_(ty)
 {
 	if (iExpr)
 		initExpr_ = std::move(iExpr);
@@ -148,14 +148,14 @@ bool ASTVarDecl::hasInitExpr() const
 	return (bool)initExpr_;
 }
 
-std::string ASTVarDecl::getVarName() const
+IdentifierInfo * Moonshot::ASTVarDecl::getVarIdentifier()
 {
-	return varName_;
+	return varId_;
 }
 
-void ASTVarDecl::setVarName(const std::string & name)
+void ASTVarDecl::setVarIdentifier(IdentifierInfo * varId)
 {
-	varName_ = name;
+	varId_ = varId;
 }
 
 void ASTVarDecl::setVarType(const QualType &ty)

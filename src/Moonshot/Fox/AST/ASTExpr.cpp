@@ -9,6 +9,7 @@
 
 #include "ASTExpr.hpp"
 #include "IVisitor.hpp"
+#include "IdentifierTable.hpp";
 
 #include <sstream> 
 #include <cassert>
@@ -243,7 +244,7 @@ void ASTCastExpr::setChild(std::unique_ptr<ASTExpr> nc)
 }
 
 // DeclRefs
-ASTDeclRefExpr::ASTDeclRefExpr(const std::string& vname) : declname_(vname)
+ASTDeclRefExpr::ASTDeclRefExpr(IdentifierInfo * declid) : declId_(declid)
 {
 
 }
@@ -253,20 +254,25 @@ void ASTDeclRefExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-std::string ASTDeclRefExpr::getDeclnameStr() const
+IdentifierInfo * ASTDeclRefExpr::getDeclIdentifier()
 {
-	return declname_;
+	return declId_;
 }
 
-void ASTDeclRefExpr::setDeclnameStr(const std::string & str)
+void ASTDeclRefExpr::setDeclIdentifier(IdentifierInfo * id)
 {
-	declname_ = str;
+	declId_ = id;
 }
 
-// declref
-std::string ASTFunctionCallExpr::getFunctionName() const
+// function call
+IdentifierInfo * ASTFunctionCallExpr::getFunctionIdentifier()
 {
-	return funcname_;
+	return fnId_;
+}
+
+void ASTFunctionCallExpr::setFunctionIdentifier(IdentifierInfo * fnId)
+{
+	fnId_ = fnId;
 }
 
 ExprList * ASTFunctionCallExpr::getExprList()
@@ -277,11 +283,6 @@ ExprList * ASTFunctionCallExpr::getExprList()
 void ASTFunctionCallExpr::setExprList(std::unique_ptr<ExprList> elist)
 {
 	args_ = std::move(elist);
-}
-
-void ASTFunctionCallExpr::setFunctionName(const std::string& fnname)
-{
-	funcname_ = fnname;
 }
 
 void ASTFunctionCallExpr::accept(IVisitor & vis)

@@ -19,7 +19,7 @@
 namespace Moonshot	
 {
 	class IVisitor;
-
+	class IdentifierInfo;
 	// base expression 
 	class ASTExpr : public ASTStmt
 	{
@@ -177,14 +177,14 @@ namespace Moonshot
 	{
 		public:
 			ASTDeclRefExpr() = default;
-			ASTDeclRefExpr(const std::string& vname);
+			ASTDeclRefExpr(IdentifierInfo * declid);
 
 			void accept(IVisitor& vis) override;
 			
-			std::string getDeclnameStr() const;
-			void setDeclnameStr(const std::string& str);
+			IdentifierInfo * getDeclIdentifier();
+			void setDeclIdentifier(IdentifierInfo * id);
 		private:
-			std::string declname_ = "";
+			IdentifierInfo * declId_;
 	};
 
 	// Represents a reference to a member : a namespace's, an object's field, etc.
@@ -255,16 +255,16 @@ namespace Moonshot
 		public:
 			ASTFunctionCallExpr() = default;
 
-			std::string getFunctionName() const;
-			ExprList* getExprList();
+			IdentifierInfo * getFunctionIdentifier() ;
+			void setFunctionIdentifier(IdentifierInfo * fnId);
 
+			ExprList* getExprList();
 			void setExprList(std::unique_ptr<ExprList> elist);
-			void setFunctionName(const std::string& fnname);
 
 			void accept(IVisitor& vis) override;
 		private:
 			// the Function's name
-			std::string funcname_;
+			IdentifierInfo * fnId_;
 			// it's args
 			std::unique_ptr<ExprList> args_;
 	};
