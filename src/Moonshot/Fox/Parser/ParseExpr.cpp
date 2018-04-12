@@ -53,19 +53,22 @@ ParsingResult<IASTDeclRef*> Parser::parseArrayAccess(std::unique_ptr<IASTDeclRef
 
 ParsingResult<IASTDeclRef*> Parser::parseDeclCall()
 {
-	if (auto id = matchID())
+	if (auto matchId_res = matchID())
 	{
+		IdentifierInfo* id = astCtxt_->identifierTable().getUniqueIDInfoPtr(matchId_res.result_);
+		assert(id && "Identifier is null?");
+
 		std::unique_ptr<IASTDeclRef> expr = nullptr;
 		if (auto exprlist = parseParensExprList())
 		{
 			// if an expression list is found create a functioncall node and set expr to that node.
 			auto fcall = std::make_unique<ASTFunctionCallExpr>();
-			fcall->setFunctionName(id.result_);
+			fcall->setFunctionIdentifier(id);
 			fcall->setExprList(std::move(exprlist.result_));
 			expr = std::move(fcall);
 		}
 		else // if no expression list found, make expr a declref to the identifier.
-			expr = std::make_unique<ASTDeclRefExpr>(id.result_);
+			expr = std::make_unique<ASTDeclRefExpr>(id);
 
 		assert(expr && "Expr is not set?");
 

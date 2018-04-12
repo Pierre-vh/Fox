@@ -8,14 +8,12 @@
 ////------------------------------------------------------////
 
 #include "Dumper.hpp"
-// Exception
 #include "Moonshot/Fox/Basic/Exceptions.hpp"
 #include "Moonshot/Fox/Lexer/StringManipulator.hpp"
-// Include nodes
+#include "Moonshot/Fox/AST//IdentifierTable.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
-// utils
 #include "Moonshot/Fox/Basic/Utils.hpp"
 
 using namespace Moonshot;
@@ -132,7 +130,7 @@ void Dumper::visit(ASTBoolLiteralExpr & node)
 
 void Dumper::visit(ASTVarDecl & node)
 {
-	out_ << getIndent() << "VarDeclStmt : Name:" << node.getVarName() << " Type:" << node.getVarTy().getPrettyName() << "\n";
+	out_ << getIndent() << "VarDeclStmt : Name:" << node.getVarIdentifier()->getStr() << " Type:" << node.getVarTy().getPrettyName() << "\n";
 	if (node.hasInitExpr())
 	{
 		curindent_ += 1;
@@ -173,14 +171,14 @@ void Dumper::visit(ASTArrayAccess & node)
 
 void Dumper::visit(ASTDeclRefExpr & node)
 {
-	out_ << getIndent() << "DeclRef: name: " << node.getDeclnameStr() << std::endl;
+	out_ << getIndent() << "DeclRef: name: " << node.getDeclIdentifier()->getStr() << std::endl;
 }
 
 void Dumper::visit(ASTFunctionCallExpr & node)
 {
 	out_ << getIndent() << "Function Call\n";
 	curindent_++;
-	out_ << getIndent() << "Function name :" << node.getFunctionName() << "\n";
+	out_ << getIndent() << "Function name :" << node.getFunctionIdentifier()->getStr() << "\n";
 
 	if (node.getExprList()->size())
 	{
@@ -210,12 +208,12 @@ void Dumper::visit(ASTNullStmt&)
 
 void Dumper::visit(ASTFunctionDecl & node)
 {
-	out_ << getIndent() << "Function Declaration : Name:" << node.getName() << " Return type:" << node.getReturnType()->getPrettyTypeName() << "\n";
+	out_ << getIndent() << "Function Declaration : Name:" << node.getFunctionIdentifier()->getStr() << " Return type:" << node.getReturnType()->getPrettyTypeName() << "\n";
 	curindent_ += 2;
 	std::size_t counter = 0;
 	for (auto it = node.args_begin(); it != node.args_end(); it++)
 	{
-		out_ << getIndent() << "Arg" << counter << " Name:" << it->getArgName() << " Type:" << it->getQualType().getPrettyName() << "\n";
+		out_ << getIndent() << "Arg" << counter << " Name:" << it->getArgIdentifier()->getStr() << " Type:" << it->getQualType().getPrettyName() << "\n";
 		counter++;
 	}
 	curindent_ -= 1;

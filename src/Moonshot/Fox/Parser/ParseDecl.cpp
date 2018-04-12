@@ -12,9 +12,11 @@
 #include "Parser.hpp"
 
 #include "Moonshot/Fox/Basic/Context.hpp"
-
+#include "Moonshot/Fox/AST/ASTContext.hpp"
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
+
+#include <cassert>
 
 using namespace Moonshot;
 
@@ -29,11 +31,15 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		auto rtr = std::make_unique<ASTFunctionDecl>();
 		// <id>
 		if (auto mID_res = matchID())
-			rtr->setName(mID_res.result_);
+		{
+			IdentifierInfo* id = astCtxt_->identifierTable().getUniqueIDInfoPtr(mID_res.result_);
+			assert(id && "IdentifierTable returned a null IdentifierInfo?");
+			rtr->setFunctionIdentifier(id);
+		}
 		else
 		{
-			rtr->setName("<noname>");
 			errorExpected("Expected an identifier");
+			return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 
 		// '('
@@ -99,9 +105,11 @@ ParsingResult<FunctionArg> Parser::parseArgDecl()
 	// <id>
 	if (auto mID_res = matchID())
 	{
+		IdentifierInfo* id = astCtxt_->identifierTable().getUniqueIDInfoPtr(mID_res.result_);
+		assert(id && "IdentifierTable returned a null IdentifierInfo?");
 		// <fq_type_spec>
 		if (auto typeSpec_res = parseFQTypeSpec())
-			return ParsingResult<FunctionArg>(ParsingOutcome::SUCCESS, FunctionArg(mID_res.result_, typeSpec_res.result_));
+			return ParsingResult<FunctionArg>(ParsingOutcome::SUCCESS, FunctionArg(id, typeSpec_res.result_));
 
 		// failure cases
 		else if (typeSpec_res.getFlag() == ParsingOutcome::NOTFOUND)
@@ -163,13 +171,13 @@ ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 	ParsingOutcome flag = ParsingOutcome::SUCCESS;
 
 	QualType varType;
-	std::string varName;
+	IdentifierInfo *varId = nullptr;
 	// "let"
 	if (matchKeyword(KeywordType::KW_LET))
 	{
 		// <id>
 		if (auto match = matchID())
-			varName = match.result_;
+			varId = astCtxt_->identifierTable().getUniqueIDInfoPtr(match.result_);
 		else
 		{
 			errorExpected("Expected an identifier");
@@ -216,12 +224,12 @@ ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 		if (initExpr) // Has init expr?
 			return ParsingResult<ASTVarDecl*>(
 				flag,
-					std::make_unique<ASTVarDecl>(varName,varType, std::move(initExpr))
+					std::make_unique<ASTVarDecl>(varId,varType, std::move(initExpr))
 				);
 		else
 			return ParsingResult<ASTVarDecl*>(
 				flag,
-					std::make_unique<ASTVarDecl>(varName,varType, nullptr)
+					std::make_unique<ASTVarDecl>(varId,varType, nullptr)
 				);
 	}
 	return ParsingResult<ASTVarDecl*>(ParsingOutcome::NOTFOUND);

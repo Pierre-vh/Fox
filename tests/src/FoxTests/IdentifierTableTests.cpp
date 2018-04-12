@@ -19,7 +19,7 @@
 using namespace Moonshot;
 
 // Number of identifiers to insert into the table in the "randomIdentifierInsertion" test.
-#define RANDOM_ID_TEST_NUMBER_OF_ID 4200
+#define RANDOM_ID_TEST_NUMBER_OF_ID 10000
 #define RANDOM_STRING_MIN_LENGTH 8
 #define RANDOM_STRING_MAX_LENGTH 64
 
@@ -76,11 +76,14 @@ TEST(IdentifierTableTests, randomIdentifierInsertion)
 	std::string id;
 
 	IdentifierInfo *ptr = nullptr; // Last IdInfo's adress
+	
+	std::vector<IdentifierInfo*> alldIdInfoPtrs;
+	std::vector<std::string> allIdStrs;
 
 	for (std::size_t k(0); k < RANDOM_ID_TEST_NUMBER_OF_ID; k++)
 	{
 		id = generateRandomString();
-
+		
 		// Before inserting, a quick sanity check doesn't hurt!
 		ASSERT_FALSE(idtab.exists(id)) << "[Insertion " << k << "] The identifier \"" << id << "\" already exists";
 		
@@ -89,7 +92,21 @@ TEST(IdentifierTableTests, randomIdentifierInsertion)
 		ASSERT_EQ(idinfo->getStr(), id) << "[Insertion " << k << "] Strings did not match";
 		ASSERT_TRUE(idtab.exists(id)) << "[Insertion " << k << "] IdentifierTable is reporting that the identifier does not exists.";
 		ASSERT_NE(ptr,idinfo) << "[Insertion " << k << "] Insertion returned a already in use pointer.";
+		
 		ptr = idinfo;
+		
+		allIdStrs.push_back(id);
+		alldIdInfoPtrs.push_back(idinfo);
+	}
+
+	// Now, iterate over all identifierinfo to check if they're still valid even after that much insertions.
+	for (std::size_t idx(0);idx < alldIdInfoPtrs.size(); idx++)
+	{
+		ASSERT_TRUE(alldIdInfoPtrs[idx] != nullptr) << "Pointer was null?";
+		ASSERT_EQ(
+			allIdStrs[idx],
+			alldIdInfoPtrs[idx]->getStr()
+		) << "Bad identifierInfo?";
 	}
 }
 
