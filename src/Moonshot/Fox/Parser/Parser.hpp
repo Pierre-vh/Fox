@@ -105,8 +105,8 @@ namespace Moonshot
 			// Type spec
 			ParsingResult<QualType> parseFQTypeSpec();
 			// Type keyword
-			// Note : Returns nullptr if no type keyword is found
-			Type* parseTypeKw();
+			// Note : Returns a nullptr if no type keyword is found
+			TypePtr parseTypeKw();
 
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A and B as children. You call oneUpNode like this : oneUpNode(N,PLUS)

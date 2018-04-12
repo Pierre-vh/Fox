@@ -74,9 +74,20 @@ void BuiltinType::setBuiltinKind(const Kind & kd)
 }
 
 /* Array type */
-ArrayType::ArrayType(Type * ty) : itemsTy_(ty)
+ArrayType::ArrayType(TypePtr ty) : itemTy_(std::move(ty))
 {
 	assert(ty && "The Array item type cannot be null!");
+}
+
+TypePtr ArrayType::getItemTy()
+{
+	return itemTy_;
+}
+
+void ArrayType::setItemType(TypePtr ptr)
+{
+	assert(ptr && "The Array item type cannot be null!");
+	itemTy_ = std::move(ptr);
 }
 
 bool ArrayType::isBuiltin() const
@@ -86,7 +97,7 @@ bool ArrayType::isBuiltin() const
 
 std::string ArrayType::getPrettyTypeName() const
 {
-	return itemsTy_->getPrettyTypeName() + "[]";
+	return itemTy_->getPrettyTypeName() + "[]";
 }
 
 bool ArrayType::isBasic() const
@@ -96,14 +107,14 @@ bool ArrayType::isBasic() const
 
 bool ArrayType::isItemTypeBasic() const
 {
-	assert(itemsTy_ && "The Array item type cannot be null!");
-	return itemsTy_->isBasic();
+	assert(itemTy_ && "The Array item type cannot be null!");
+	return itemTy_->isBasic();
 }
 
 bool ArrayType::isItemTypeBuiltin() const
 {
-	assert(itemsTy_ && "The Array item type cannot be null!");
-	return itemsTy_->isBuiltin();
+	assert(itemTy_ && "The Array item type cannot be null!");
+	return itemTy_->isBuiltin();
 }
 
 /* QualType */
@@ -112,8 +123,8 @@ QualType::QualType() : ty_(nullptr),isConst_(false), isRef_(false)
 
 }
 
-QualType::QualType(Type * ty, const bool & isConstant, const bool &isReference) :
-	ty_(ty), isConst_(isConstant), isRef_(isReference)
+QualType::QualType(TypePtr ty, const bool & isConstant, const bool &isReference) :
+	ty_(std::move(ty)), isConst_(isConstant), isRef_(isReference)
 {
 	assert(ty && "Type cannot be null");
 }
@@ -150,16 +161,16 @@ std::string QualType::getPrettyName() const
 	return out.str();
 }
 
-Type * QualType::getNonQualType()
+TypePtr QualType::getNonQualType()
 {
 	assert(ty_ && "Type is null?");
 	return ty_;
 }
 
-void QualType::setType(Type * ty)
+void QualType::setType(TypePtr ty)
 {
 	assert(ty && "Type is null?");
-	ty_ = ty;
+	ty_ = std::move(ty);
 }
 
 bool QualType::isValid() const

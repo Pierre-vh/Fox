@@ -42,12 +42,10 @@ void FunctionArg::setQualType(const QualType & qt)
 	ty_ = qt;
 }
 
-ASTFunctionDecl::ASTFunctionDecl(Type* returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody)
+ASTFunctionDecl::ASTFunctionDecl(TypePtr returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody) :
+	returnType_(std::move(returnType)), fnId_(fnId), body_(std::move(funcbody)), args_(args)
 {
-	setReturnType(returnType);
-	setFunctionIdentifier(fnId);
-	setBody(std::move(funcbody));
-	setArgs(args);
+
 }
 
 void ASTFunctionDecl::accept(IVisitor & vis)
@@ -55,9 +53,15 @@ void ASTFunctionDecl::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-Type* ASTFunctionDecl::getReturnType()
+TypePtr ASTFunctionDecl::getReturnType()
 {
-	return returnType_;
+	return TypePtr(returnType_);
+}
+
+void ASTFunctionDecl::setReturnType(TypePtr ty)
+{
+	assert(ty && "Type cannot be null!");
+	returnType_ = std::move(ty);
 }
 
 IdentifierInfo* ASTFunctionDecl::getFunctionIdentifier()
@@ -78,12 +82,6 @@ FunctionArg ASTFunctionDecl::getArg(const std::size_t & ind) const
 ASTCompoundStmt * ASTFunctionDecl::getBody()
 {
 	return body_.get();
-}
-
-void ASTFunctionDecl::setReturnType(Type *ty)
-{
-	assert(ty && "Type cannot be null!");
-	returnType_ = ty;
 }
 
 void ASTFunctionDecl::setArgs(const std::vector<FunctionArg>& vec)
@@ -148,7 +146,7 @@ bool ASTVarDecl::hasInitExpr() const
 	return (bool)initExpr_;
 }
 
-IdentifierInfo * Moonshot::ASTVarDecl::getVarIdentifier()
+IdentifierInfo * ASTVarDecl::getVarIdentifier()
 {
 	return varId_;
 }

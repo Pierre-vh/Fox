@@ -63,12 +63,12 @@ namespace Moonshot
 			using argIter_const = std::vector<FunctionArg>::const_iterator;
 		public:
 			ASTFunctionDecl() = default;
-			ASTFunctionDecl(Type* returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
+			ASTFunctionDecl(TypePtr returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 			virtual void accept(IVisitor& vis) override;
 
-			void setReturnType(Type *ty);
-			Type* getReturnType();
+			void setReturnType(TypePtr ty);
+			TypePtr getReturnType();
 
 			IdentifierInfo* getFunctionIdentifier();
 			void setFunctionIdentifier(IdentifierInfo* id);
@@ -86,7 +86,7 @@ namespace Moonshot
 			argIter args_end();
 			argIter_const args_end() const;
 		private:
-			Type * returnType_ = nullptr;
+			TypePtr returnType_ = nullptr;
 			IdentifierInfo *fnId_ = nullptr;
 			std::vector<FunctionArg> args_;
 

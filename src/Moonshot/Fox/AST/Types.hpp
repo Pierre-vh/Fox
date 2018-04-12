@@ -10,6 +10,8 @@
 #pragma once
 
 #include <string>
+#include <memory>
+
 namespace Moonshot
 {
 	// Base class for every Type node.
@@ -26,6 +28,17 @@ namespace Moonshot
 			/* Should return the type's name in a user friendly form, e.g. "int", "string" */
 			virtual std::string getPrettyTypeName() const = 0;
 	};
+
+	/* A Pointer to a Type object */
+	/* TypePtr should ALWAYS be used, and never raw Type pointers.*/
+	typedef std::shared_ptr<Type> TypePtr;
+
+	// Side note : Why shared_ptr? So a TypePtr can own the type it points to. Currently, this never happens since I only have builtin types, but
+	// in the future I'll probably add structs or even enumerations, and at parsing, I'll only have an identifier, and no "resolved" type name. 
+	// This means that I'll need to create a "UnresolvedType" that wraps a IdentifierInfo, and UnresolvedTypes won't be stored within the ASTContext,
+	// they'll be local, placeholder types until the type can be resolved. 
+	// TL;DR : Using std::shared_ptr instead of a raw pointer lets any "TypePtr" own it's type while ensuring that no memory gets leaked!
+
 
 	//	Builtin Types
 	//	Builtin types are:
@@ -79,7 +92,10 @@ namespace Moonshot
 	class ArrayType : public Type
 	{
 		public:
-			ArrayType(Type *ty);
+			ArrayType(TypePtr ty);
+
+			TypePtr getItemTy();
+			void setItemType(TypePtr ptr);
 
 			virtual bool isBuiltin() const override;
 			virtual std::string getPrettyTypeName() const override;
@@ -88,7 +104,7 @@ namespace Moonshot
 			bool isItemTypeBasic() const;
 			bool isItemTypeBuiltin() const;
 		private:
-			Type * itemsTy_ = nullptr;
+			TypePtr itemTy_= nullptr;
 	};
 
 	// QualType is a class that groups a pointer to a Type as well as qualifiers 
@@ -97,7 +113,7 @@ namespace Moonshot
 	{
 		public:
 			QualType();
-			QualType(Type *ty, const bool& isConstant,const bool &isReference);
+			QualType(TypePtr ty, const bool& isConstant,const bool &isReference);
 
 			// Const
 			bool isConstant() const;
@@ -112,14 +128,14 @@ namespace Moonshot
 			std::string getPrettyName() const;
 
 			// Returns the Type pointer (the type without its qualifiers)
-			Type* getNonQualType();
-			void setType(Type * ty);
+			TypePtr getNonQualType();
+			void setType(TypePtr ty);
 
 			// Checks if this QualType is valid (ty_ != nullptr)
 			bool isValid() const;
 			operator bool() const;
 		private:
-			Type * ty_;
+			TypePtr ty_;
 			bool isConst_ : 1;
 			bool isRef_ : 1;
 	};

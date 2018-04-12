@@ -79,17 +79,17 @@ namespace Moonshot
 	{
 		public:
 			ASTCastExpr() = default;
-			ASTCastExpr(Type* castGoal,std::unique_ptr<ASTExpr> ch = nullptr);
+			ASTCastExpr(TypePtr castGoal,std::unique_ptr<ASTExpr> child);
 			
 			virtual void accept(IVisitor& vis) override;
 
-			void setCastGoal(Type* goal);
-			Type* getCastGoal();
+			void setCastGoal(TypePtr goal);
+			TypePtr getCastGoal();
 
 			ASTExpr* getChild();
 			void setChild(std::unique_ptr<ASTExpr> nc);
 		private:
-			Type * goal_ = nullptr;
+			TypePtr goal_ = nullptr;
 			std::unique_ptr<ASTExpr> child_;
 	};
 

@@ -67,7 +67,7 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		// [':' <type>]
 		if (matchSign(SignType::S_COLON))
 		{
-			if (Type* rtrTy = parseTypeKw())
+			if (auto rtrTy = parseTypeKw())
 				rtr->setReturnType(rtrTy);
 			else
 				errorExpected("Expected a type keyword");

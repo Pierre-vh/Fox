@@ -39,44 +39,44 @@ IdentifierTable & ASTContext::identifierTable()
 	return idents_;
 }
 
-BuiltinType * ASTContext::getBuiltinIntType()
+TypePtr ASTContext::getBuiltinIntType()
 {
-	return &builtinInt_;
+	return builtinInt_;
 }
 
-BuiltinType * ASTContext::getBuiltinFloatType()
+TypePtr ASTContext::getBuiltinFloatType()
 {
-	return &builtinFloat_;
+	return builtinFloat_;
 }
 
-BuiltinType * ASTContext::getBuiltinCharType()
+TypePtr ASTContext::getBuiltinCharType()
 {
-	return &builtinChar_;
+	return builtinChar_;
 }
 
-BuiltinType * ASTContext::getBuiltinBoolType()
+TypePtr ASTContext::getBuiltinBoolType()
 {
-	return &builtinBool_;
+	return builtinBool_;
 }
 
-BuiltinType * ASTContext::getBuiltinStringType()
+TypePtr ASTContext::getBuiltinStringType()
 {
-	return &builtinString_;
+	return builtinString_;
 }
 
-BuiltinType * Moonshot::ASTContext::getBuiltinVoidType()
+TypePtr ASTContext::getBuiltinVoidType()
 {
-	return &builtinVoid_;
+	return builtinVoid_;
 }
 
 void ASTContext::initBuiltinTypes()
 {
-	builtinVoid_.setBuiltinKind(BuiltinType::Kind::VoidTy);
+	builtinVoid_	= std::make_shared<BuiltinType>(BuiltinType::Kind::VoidTy);
 
-	builtinInt_.setBuiltinKind(BuiltinType::Kind::IntTy);
-	builtinFloat_.setBuiltinKind(BuiltinType::Kind::FloatTy);
-	builtinBool_.setBuiltinKind(BuiltinType::Kind::BoolTy);
+	builtinInt_		= std::make_shared<BuiltinType>(BuiltinType::Kind::IntTy);
+	builtinFloat_	= std::make_shared<BuiltinType>(BuiltinType::Kind::FloatTy);
+	builtinBool_	= std::make_shared<BuiltinType>(BuiltinType::Kind::BoolTy);
 
-	builtinString_.setBuiltinKind(BuiltinType::Kind::StringTy);
-	builtinChar_.setBuiltinKind(BuiltinType::Kind::CharTy);
+	builtinString_	= std::make_shared<BuiltinType>(BuiltinType::Kind::StringTy);
+	builtinChar_	= std::make_shared<BuiltinType>(BuiltinType::Kind::CharTy);
 }
