@@ -21,7 +21,7 @@ void ASTNullStmt::accept(IVisitor& vis)
 }
 
 // return stmt
-ASTReturnStmt::ASTReturnStmt(std::unique_ptr<IASTExpr> rtr_expr)
+ASTReturnStmt::ASTReturnStmt(std::unique_ptr<ASTExpr> rtr_expr)
 {
 	expr_ = std::move(rtr_expr);
 }
@@ -36,18 +36,18 @@ bool ASTReturnStmt::hasExpr() const
 	return (bool)expr_;
 }
 
-IASTExpr * ASTReturnStmt::getExpr()
+ASTExpr * ASTReturnStmt::getExpr()
 {
 	return expr_.get();
 }
 
-void ASTReturnStmt::setExpr(std::unique_ptr<IASTExpr> e)
+void ASTReturnStmt::setExpr(std::unique_ptr<ASTExpr> e)
 {
 	expr_ = std::move(e);
 }
 
 // cond stmt
-ASTCondStmt::ASTCondStmt(std::unique_ptr<IASTExpr> cond, std::unique_ptr<IASTStmt> then, std::unique_ptr<IASTStmt> elsestmt)
+ASTCondStmt::ASTCondStmt(std::unique_ptr<ASTExpr> cond, std::unique_ptr<ASTStmt> then, std::unique_ptr<ASTStmt> elsestmt)
 {
 	setCond(std::move(cond));
 	setThen(std::move(then));
@@ -69,32 +69,32 @@ bool ASTCondStmt::hasElse() const
 	return (bool)else_;
 }
 
-IASTExpr * ASTCondStmt::getCond()
+ASTExpr * ASTCondStmt::getCond()
 {
 	return cond_.get();
 }
 
-IASTStmt * ASTCondStmt::getThen()
+ASTStmt * ASTCondStmt::getThen()
 {
 	return then_.get();
 }
 
-IASTStmt * ASTCondStmt::getElse()
+ASTStmt * ASTCondStmt::getElse()
 {
 	return else_.get();
 }
 
-void ASTCondStmt::setCond(std::unique_ptr<IASTExpr> expr)
+void ASTCondStmt::setCond(std::unique_ptr<ASTExpr> expr)
 {
 	cond_ = std::move(expr);
 }
 
-void ASTCondStmt::setThen(std::unique_ptr<IASTStmt> then)
+void ASTCondStmt::setThen(std::unique_ptr<ASTStmt> then)
 {
 	then_ = std::move(then);
 }
 
-void ASTCondStmt::setElse(std::unique_ptr<IASTStmt> elsestmt)
+void ASTCondStmt::setElse(std::unique_ptr<ASTStmt> elsestmt)
 {
 	else_ = std::move(elsestmt);
 }
@@ -105,7 +105,7 @@ void ASTCompoundStmt::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-IASTStmt * ASTCompoundStmt::getStmt(const std::size_t & ind)
+ASTStmt * ASTCompoundStmt::getStmt(const std::size_t & ind)
 {
 	if (ind > stmts_.size())
 		throw std::out_of_range("out of range");
@@ -113,12 +113,12 @@ IASTStmt * ASTCompoundStmt::getStmt(const std::size_t & ind)
 	return stmts_[ind].get();
 }
 
-IASTStmt * ASTCompoundStmt::getBack()
+ASTStmt * ASTCompoundStmt::getBack()
 {
 	return stmts_.back().get();
 }
 
-void ASTCompoundStmt::addStmt(std::unique_ptr<IASTStmt> stmt)
+void ASTCompoundStmt::addStmt(std::unique_ptr<ASTStmt> stmt)
 {
 	stmts_.emplace_back(std::move(stmt));
 }
@@ -143,14 +143,14 @@ ASTCompoundStmt::stmtvec::iterator ASTCompoundStmt::stmtList_end()
 	return stmts_.end();
 }
 
-void ASTCompoundStmt::iterateStmts(std::function<void(IASTStmt*)> fn)
+void ASTCompoundStmt::iterateStmts(std::function<void(ASTStmt*)> fn)
 {
 	for (const auto& elem : stmts_)
 		fn(elem.get());
 }
 
 // While stmt
-ASTWhileStmt::ASTWhileStmt(std::unique_ptr<IASTExpr> cond, std::unique_ptr<IASTStmt> body)
+ASTWhileStmt::ASTWhileStmt(std::unique_ptr<ASTExpr> cond, std::unique_ptr<ASTStmt> body)
 {
 	setCond(std::move(cond));
 	setBody(std::move(body));
@@ -161,22 +161,22 @@ void ASTWhileStmt::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-IASTExpr * ASTWhileStmt::getCond()
+ASTExpr * ASTWhileStmt::getCond()
 {
 	return cond_.get();
 }
 
-IASTStmt * ASTWhileStmt::getBody()
+ASTStmt * ASTWhileStmt::getBody()
 {
 	return body_.get();
 }
 
-void ASTWhileStmt::setCond(std::unique_ptr<IASTExpr> cond)
+void ASTWhileStmt::setCond(std::unique_ptr<ASTExpr> cond)
 {
 	cond_ = std::move(cond);
 }
 
-void ASTWhileStmt::setBody(std::unique_ptr<IASTStmt> body)
+void ASTWhileStmt::setBody(std::unique_ptr<ASTStmt> body)
 {
 	body_ = std::move(body);
 }

@@ -4,7 +4,7 @@
 // File : ASTDecl.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// Declares the IASTDecl interface as well as derived nodes.
+// Declares the ASTDecl interface as well as derived nodes.
 ////------------------------------------------------------////
 
 #pragma once
@@ -17,21 +17,21 @@
 namespace Moonshot
 {
 	// Forward declaration
-	class IASTExpr;
+	class ASTExpr;
 
 	class IVisitor;
 
 	// Interface for Decl nodes.
-	class IASTDecl
+	class ASTDecl
 	{
 		public:
-			IASTDecl() = default;
-			virtual ~IASTDecl() = 0 {}
+			ASTDecl() = default;
+			virtual ~ASTDecl() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
 	};
 
 	// "Adaptator" Interface for when a node is both a declaration and a statement (e.g. a variable declaration)
-	class IASTDeclStmt : public virtual IASTDecl, public virtual IASTStmt
+	class IASTDeclStmt : public virtual ASTDecl, public virtual ASTStmt
 	{
 		public:
 			~IASTDeclStmt() = 0 {}
@@ -56,19 +56,19 @@ namespace Moonshot
 	};
 
 	// a Function declaration node.
-	class ASTFunctionDecl : public IASTDecl
+	class ASTFunctionDecl : public ASTDecl
 	{
 		private:
 			using argIter = std::vector<FunctionArg>::iterator;
 			using argIter_const = std::vector<FunctionArg>::const_iterator;
 		public:
 			ASTFunctionDecl() = default;
-			ASTFunctionDecl(IType* returnType, const std::string& name, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
+			ASTFunctionDecl(Type* returnType, const std::string& name, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 			virtual void accept(IVisitor& vis) override;
 
-			void setReturnType(IType *ty);
-			IType* getReturnType();
+			void setReturnType(Type *ty);
+			Type* getReturnType();
 
 			std::string getName() const;
 			void setName(const std::string& str);
@@ -86,7 +86,7 @@ namespace Moonshot
 			argIter args_end();
 			argIter_const args_end() const;
 		private:
-			IType * returnType_ = nullptr;
+			Type * returnType_ = nullptr;
 			std::string name_;
 			std::vector<FunctionArg> args_;
 
@@ -97,12 +97,12 @@ namespace Moonshot
 	class ASTVarDecl : public IASTDeclStmt
 	{
 		public:
-			ASTVarDecl(const std::string& varname,const QualType& ty, std::unique_ptr<IASTExpr> iExpr = nullptr);
+			ASTVarDecl(const std::string& varname,const QualType& ty, std::unique_ptr<ASTExpr> iExpr = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
 
 			QualType getVarTy();
-			IASTExpr* getInitExpr();
+			ASTExpr* getInitExpr();
 
 			std::string getVarName() const;
 			void setVarName(const std::string& name);
@@ -110,11 +110,11 @@ namespace Moonshot
 			bool hasInitExpr() const;
 
 			void setVarType(const QualType &ty);
-			void setInitExpr(std::unique_ptr <IASTExpr> expr);
+			void setInitExpr(std::unique_ptr <ASTExpr> expr);
 		private:
 			QualType varTy_;
 			std::string varName_;
-			std::unique_ptr<IASTExpr> initExpr_ = nullptr;
+			std::unique_ptr<ASTExpr> initExpr_ = nullptr;
 	};
 }
 

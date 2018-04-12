@@ -1,13 +1,14 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : BuiltinDiagConsumers.cpp											
+// File : DiagnosticConsumers.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "BuiltinDiagConsumers.hpp"
+#include "DiagnosticConsumers.hpp"
+#include "Diagnostic.hpp"
 #include <iostream>
 
 using namespace Moonshot;

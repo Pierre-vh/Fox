@@ -34,12 +34,12 @@ namespace Moonshot
 		FATAL		// "					" Fatal error, which means an error grave enough that it stopped the compilation
 	};
 
-	class IDiagConsumer;
+	class DiagnosticConsumer;
 
 	class Diagnostic
 	{
 		public:
-			Diagnostic(IDiagConsumer *cons, const DiagID& dID, const DiagSeverity& dSev,const std::string& dStr);
+			Diagnostic(DiagnosticConsumer *cons, const DiagID& dID, const DiagSeverity& dSev,const std::string& dStr);
 			Diagnostic(Diagnostic &other);
 
 			// Creates a silenced diagnostic object, which is a diagnostic of id SilencedDiag with no consumer, no str and a IGNORE severity.
@@ -114,7 +114,7 @@ namespace Moonshot
 			unsigned char curPHIndex_ = 0; 
 			DiagSeverity diagSeverity_; 
 
-			IDiagConsumer *consumer_ = nullptr;
+			DiagnosticConsumer *consumer_ = nullptr;
 			DiagID diagID_;
 			std::string diagStr_;
 

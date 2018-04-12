@@ -13,7 +13,7 @@
 namespace Moonshot
 {
 	// Base class for every Type node.
-	class IType
+	class Type
 	{
 		public:
 			/* Should return true if the type is a builtin type*/
@@ -32,7 +32,7 @@ namespace Moonshot
 	//		One of the following : int, float, char, string, bool
 	//		Basic (if not void)
 	//		Builtin
-	class BuiltinType : public IType
+	class BuiltinType : public Type
 	{
 		public:
 			enum class Kind
@@ -49,7 +49,7 @@ namespace Moonshot
 			BuiltinType() = default;
 			BuiltinType(const Kind& kd);
 
-			// Methods inherited from IType
+			// Methods inherited from Type
 			virtual bool isBuiltin() const override;
 			virtual std::string getPrettyTypeName() const override;
 			virtual bool isBasic() const override;
@@ -76,10 +76,10 @@ namespace Moonshot
 	// Arrays are:
 	//		Builtin
 	//		Non-Basic
-	class ArrayType : public IType
+	class ArrayType : public Type
 	{
 		public:
-			ArrayType(IType *ty);
+			ArrayType(Type *ty);
 
 			virtual bool isBuiltin() const override;
 			virtual std::string getPrettyTypeName() const override;
@@ -88,16 +88,16 @@ namespace Moonshot
 			bool isItemTypeBasic() const;
 			bool isItemTypeBuiltin() const;
 		private:
-			IType * itemsTy_ = nullptr;
+			Type * itemsTy_ = nullptr;
 	};
 
-	// QualType is a class that groups a pointer to a IType as well as qualifiers 
+	// QualType is a class that groups a pointer to a Type as well as qualifiers 
 	// Qualifiers include : const (true/false) and reference (true/false)
 	class QualType
 	{
 		public:
 			QualType();
-			QualType(IType *ty, const bool& isConstant,const bool &isReference);
+			QualType(Type *ty, const bool& isConstant,const bool &isReference);
 
 			// Const
 			bool isConstant() const;
@@ -111,15 +111,15 @@ namespace Moonshot
 			// for outputting the type to the user in a dump or in a diag.
 			std::string getPrettyName() const;
 
-			// Returns the IType pointer (the type without its qualifiers)
-			IType* getNonQualType();
-			void setType(IType * ty);
+			// Returns the Type pointer (the type without its qualifiers)
+			Type* getNonQualType();
+			void setType(Type * ty);
 
 			// Checks if this QualType is valid (ty_ != nullptr)
 			bool isValid() const;
 			operator bool() const;
 		private:
-			IType * ty_;
+			Type * ty_;
 			bool isConst_ : 1;
 			bool isRef_ : 1;
 	};

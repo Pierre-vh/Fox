@@ -4,5 +4,5 @@ add_source(basic_src
 	"FlagsManager.cpp"
 	"Diagnostic.cpp"
 	"DiagnosticEngine.cpp"
-	"BuiltinDiagConsumers.cpp"
+	"DiagnosticConsumers.cpp"
 )

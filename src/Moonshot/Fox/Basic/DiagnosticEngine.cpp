@@ -8,9 +8,12 @@
 ////------------------------------------------------------////
 
 #include "DiagnosticEngine.hpp"
+
 #include "Moonshot/Fox/Basic/FlagsManager.hpp"
+
 #include "Diagnostic.hpp"
-#include "BuiltinDiagConsumers.hpp"
+#include "DiagnosticConsumers.hpp"
+
 #include <cassert>
 
 using namespace Moonshot;
@@ -32,7 +35,7 @@ DiagnosticEngine::DiagnosticEngine(FlagsManager *fm) : flagsManager_(fm)
 	setupDiagOpts();
 }
 
-DiagnosticEngine::DiagnosticEngine(std::unique_ptr<IDiagConsumer> ncons,FlagsManager *fm): consumer_(std::move(ncons)), flagsManager_(fm)
+DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons,FlagsManager *fm): consumer_(std::move(ncons)), flagsManager_(fm)
 {
 	setupDiagOpts();
 }
@@ -77,12 +80,12 @@ Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 	}
 }
 
-void DiagnosticEngine::setConsumer(std::unique_ptr<IDiagConsumer> ncons)
+void DiagnosticEngine::setConsumer(std::unique_ptr<DiagnosticConsumer> ncons)
 {
 	consumer_ = std::move(ncons);
 }
 
-IDiagConsumer* DiagnosticEngine::getConsumer()
+DiagnosticConsumer* DiagnosticEngine::getConsumer()
 {
 	return consumer_.get();
 }

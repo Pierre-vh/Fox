@@ -121,7 +121,7 @@ void ASTBoolLiteralExpr::setVal(const bool & val)
 }
 
 // BinaryExpr
-ASTBinaryExpr::ASTBinaryExpr(const binaryOperator & opt, std::unique_ptr<IASTExpr> lhs, std::unique_ptr<IASTExpr> rhs):
+ASTBinaryExpr::ASTBinaryExpr(const binaryOperator & opt, std::unique_ptr<ASTExpr> lhs, std::unique_ptr<ASTExpr> rhs):
 	op_(opt)
 {
 	setLHS(std::move(lhs));
@@ -133,7 +133,7 @@ void ASTBinaryExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
+std::unique_ptr<ASTExpr> ASTBinaryExpr::getSimple()
 {
 	if (left_ && !right_ && (op_ == binaryOperator::DEFAULT))	 // If the right node is empty & op == pass
 	{
@@ -143,22 +143,22 @@ std::unique_ptr<IASTExpr> ASTBinaryExpr::getSimple()
 	return nullptr;
 }
 
-IASTExpr * ASTBinaryExpr::getLHS()
+ASTExpr * ASTBinaryExpr::getLHS()
 {
 	return left_.get();
 }
 
-IASTExpr * ASTBinaryExpr::getRHS()
+ASTExpr * ASTBinaryExpr::getRHS()
 {
 	return right_.get();
 }
 
-void ASTBinaryExpr::setLHS(std::unique_ptr<IASTExpr> nlhs)
+void ASTBinaryExpr::setLHS(std::unique_ptr<ASTExpr> nlhs)
 {
 	left_ = std::move(nlhs);
 }
 
-void ASTBinaryExpr::setRHS(std::unique_ptr<IASTExpr> nrhs)
+void ASTBinaryExpr::setRHS(std::unique_ptr<ASTExpr> nrhs)
 {
 	right_ = std::move(nrhs);
 }
@@ -179,7 +179,7 @@ bool ASTBinaryExpr::isComplete() const
 }
 
 // UnaryExpr
-ASTUnaryExpr::ASTUnaryExpr(const unaryOperator & opt, std::unique_ptr<IASTExpr> node) : op_(opt)
+ASTUnaryExpr::ASTUnaryExpr(const unaryOperator & opt, std::unique_ptr<ASTExpr> node) : op_(opt)
 {
 	setChild(std::move(node));
 }
@@ -189,12 +189,12 @@ void ASTUnaryExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-IASTExpr * ASTUnaryExpr::getChild()
+ASTExpr * ASTUnaryExpr::getChild()
 {
 	return child_.get();
 }
 
-void ASTUnaryExpr::setChild(std::unique_ptr<IASTExpr> nchild)
+void ASTUnaryExpr::setChild(std::unique_ptr<ASTExpr> nchild)
 {
 	child_ = std::move(nchild);
 }
@@ -210,7 +210,7 @@ void ASTUnaryExpr::setOp(const unaryOperator & nop)
 }
 
 // CastExpr
-ASTCastExpr::ASTCastExpr(IType* castGoal, std::unique_ptr<IASTExpr> nc)
+ASTCastExpr::ASTCastExpr(Type* castGoal, std::unique_ptr<ASTExpr> nc)
 {
 	setCastGoal(castGoal);
 	setChild(std::move(nc));
@@ -221,23 +221,23 @@ void ASTCastExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-void ASTCastExpr::setCastGoal(IType* goal)
+void ASTCastExpr::setCastGoal(Type* goal)
 {
 	assert(goal && "Goal type cannot be null!");
 	goal_ = goal;
 }
 
-IType* ASTCastExpr::getCastGoal()
+Type* ASTCastExpr::getCastGoal()
 {
 	return goal_;
 }
 
-IASTExpr * ASTCastExpr::getChild()
+ASTExpr * ASTCastExpr::getChild()
 {
 	return child_.get();
 }
 
-void ASTCastExpr::setChild(std::unique_ptr<IASTExpr> nc)
+void ASTCastExpr::setChild(std::unique_ptr<ASTExpr> nc)
 {
 	child_ = std::move(nc);
 }
@@ -290,7 +290,7 @@ void ASTFunctionCallExpr::accept(IVisitor & vis)
 }
 
 // MemberRefExpr
-ASTMemberAccessExpr::ASTMemberAccessExpr(std::unique_ptr<IASTExpr> base, std::unique_ptr<IASTDeclRef> memb)
+ASTMemberAccessExpr::ASTMemberAccessExpr(std::unique_ptr<ASTExpr> base, std::unique_ptr<IASTDeclRef> memb)
 {
 	base_ = std::move(base);
 	member_ = std::move(memb);
@@ -301,7 +301,7 @@ void ASTMemberAccessExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-IASTExpr * ASTMemberAccessExpr::getBase()
+ASTExpr * ASTMemberAccessExpr::getBase()
 {
 	return base_.get();
 }
@@ -311,7 +311,7 @@ IASTDeclRef* ASTMemberAccessExpr::getMemberDeclRef() const
 	return member_.get();
 }
 
-void ASTMemberAccessExpr::setBase(std::unique_ptr<IASTExpr> expr)
+void ASTMemberAccessExpr::setBase(std::unique_ptr<ASTExpr> expr)
 {
 	base_ = std::move(expr);
 }
@@ -321,7 +321,7 @@ void ASTMemberAccessExpr::setMemberDeclRef(std::unique_ptr<IASTDeclRef> memb)
 	member_ = std::move(memb);
 }
 
-ASTArrayAccess::ASTArrayAccess(std::unique_ptr<IASTExpr> expr, std::unique_ptr<IASTExpr> idxexpr) :
+ASTArrayAccess::ASTArrayAccess(std::unique_ptr<ASTExpr> expr, std::unique_ptr<ASTExpr> idxexpr) :
 	base_(std::move(expr)), accessIdxExpr_(std::move(idxexpr))
 {
 	
@@ -332,33 +332,33 @@ void ASTArrayAccess::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-void ASTArrayAccess::setBase(std::unique_ptr<IASTExpr> expr)
+void ASTArrayAccess::setBase(std::unique_ptr<ASTExpr> expr)
 {
 	base_ = std::move(expr);
 }
 
-void ASTArrayAccess::setAccessIndexExpr(std::unique_ptr<IASTExpr> expr)
+void ASTArrayAccess::setAccessIndexExpr(std::unique_ptr<ASTExpr> expr)
 {
 	accessIdxExpr_ = std::move(expr);
 }
 
-IASTExpr* ASTArrayAccess::getBase()
+ASTExpr* ASTArrayAccess::getBase()
 {
 	return base_.get();
 }
 
-IASTExpr* ASTArrayAccess::getAccessIndexExpr()
+ASTExpr* ASTArrayAccess::getAccessIndexExpr()
 {
 	return accessIdxExpr_.get();
 }
 
 // Expr list
-void ExprList::addExpr(std::unique_ptr<IASTExpr> expr)
+void ExprList::addExpr(std::unique_ptr<ASTExpr> expr)
 {
 	exprs_.emplace_back(std::move(expr));
 }
 
-const IASTExpr * ExprList::getExpr(const std::size_t & ind)
+const ASTExpr * ExprList::getExpr(const std::size_t & ind)
 {
 	if (ind > size())
 		throw std::out_of_range("Tried to access an out of bounds location in an expression list.");
@@ -386,7 +386,7 @@ ExprList::expr_iter ExprList::exprList_end()
 	return exprs_.end();
 }
 
-void ExprList::iterate(std::function<void(IASTExpr*)> fn)
+void ExprList::iterate(std::function<void(ASTExpr*)> fn)
 {
 	for (const auto& elem : exprs_)
 		fn(elem.get());

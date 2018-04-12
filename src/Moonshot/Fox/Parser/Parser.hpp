@@ -67,36 +67,36 @@ namespace Moonshot
 			// EXPRESSIONS
 			ParsingResult<IASTDeclRef*> parseArrayAccess(std::unique_ptr<IASTDeclRef> base);
 			ParsingResult<IASTDeclRef*> parseDeclCall(); 
-			ParsingResult<IASTExpr*> parseLiteral();
-			ParsingResult<IASTExpr*> parsePrimary();
-			ParsingResult<IASTExpr*> parseMemberAccess();
-			ParsingResult<IASTExpr*> parseExponentExpr();
-			ParsingResult<IASTExpr*> parsePrefixExpr(); 
-			ParsingResult<IASTExpr*> parseCastExpr();
-			ParsingResult<IASTExpr*> parseBinaryExpr(const char &priority = 5);
-			ParsingResult<IASTExpr*> parseExpr(); 
+			ParsingResult<ASTExpr*> parseLiteral();
+			ParsingResult<ASTExpr*> parsePrimary();
+			ParsingResult<ASTExpr*> parseMemberAccess();
+			ParsingResult<ASTExpr*> parseExponentExpr();
+			ParsingResult<ASTExpr*> parsePrefixExpr(); 
+			ParsingResult<ASTExpr*> parseCastExpr();
+			ParsingResult<ASTExpr*> parseBinaryExpr(const char &priority = 5);
+			ParsingResult<ASTExpr*> parseExpr(); 
 
 			// STATEMENTS
-			ParsingResult<IASTStmt*> parseReturnStmt();
-			ParsingResult<IASTStmt*> parseExprStmt(); // Expression statement
+			ParsingResult<ASTStmt*> parseReturnStmt();
+			ParsingResult<ASTStmt*> parseExprStmt(); // Expression statement
 			ParsingResult<ASTCompoundStmt*> parseTopLevelCompoundStatement(const bool& isMandatory = false); // Top level compound statement : always mandatory and doesn't try to recover on error, since error handling is done by parseUnit
 			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); // Compound Statement, might be mandatory, and tries to recover to next } on error.
-			ParsingResult<IASTStmt*> parseStmt(); // General Statement
-			ParsingResult<IASTStmt*> parseBody(); // body for control flow
+			ParsingResult<ASTStmt*> parseStmt(); // General Statement
+			ParsingResult<ASTStmt*> parseBody(); // body for control flow
 
 			// STATEMENTS : CONDITION & LOOPS
-			ParsingResult<IASTStmt*> parseCondition(); // Parse a  if-else if-else "block
-			ParsingResult<IASTStmt*> parseWhileLoop();
+			ParsingResult<ASTStmt*> parseCondition(); // Parse a  if-else if-else "block
+			ParsingResult<ASTStmt*> parseWhileLoop();
 
 			// DECLS
 			ParsingResult<ASTVarDecl*> parseTopLevelVarDeclStmt();	// Parses a var declaration, but doesn't attempt to recover when an error is met
 			ParsingResult<ASTVarDecl*> parseVarDeclStmt();			// Same as above, but tries to recover.
 			ParsingResult<ASTFunctionDecl*> parseFunctionDeclaration();
-			ParsingResult<IASTDecl*> parseTopLevelDecl();
+			ParsingResult<ASTDecl*> parseTopLevelDecl();
 
 		private:
 			// expression helpers
-			ParsingResult<IASTExpr*> parseParensExpr(const bool& isMandatory = false, const bool& isExprMandatory = false);
+			ParsingResult<ASTExpr*> parseParensExpr(const bool& isMandatory = false, const bool& isExprMandatory = false);
 			ParsingResult<ExprList*> parseExprList();
 			ParsingResult<ExprList*> parseParensExprList();
 			// Arg decl & decl list
@@ -106,7 +106,7 @@ namespace Moonshot
 			ParsingResult<QualType> parseFQTypeSpec();
 			// Type keyword
 			// Note : Returns nullptr if no type keyword is found
-			IType* parseTypeKw();
+			Type* parseTypeKw();
 
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A and B as children. You call oneUpNode like this : oneUpNode(N,PLUS)

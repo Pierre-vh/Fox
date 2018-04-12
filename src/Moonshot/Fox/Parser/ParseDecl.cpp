@@ -61,7 +61,7 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		// [':' <type>]
 		if (matchSign(SignType::S_COLON))
 		{
-			if (IType* rtrTy = parseTypeKw())
+			if (Type* rtrTy = parseTypeKw())
 				rtr->setReturnType(rtrTy);
 			else
 				errorExpected("Expected a type keyword");
@@ -159,7 +159,7 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 {
 	// <var_decl> = "let" <id> <fq_type_spec> ['=' <expr>] ';'
-	std::unique_ptr<IASTExpr> initExpr = 0;
+	std::unique_ptr<ASTExpr> initExpr = 0;
 	ParsingOutcome flag = ParsingOutcome::SUCCESS;
 
 	QualType varType;
@@ -255,7 +255,7 @@ ParsingResult<QualType> Parser::parseFQTypeSpec()
 	return ParsingResult<QualType>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTDecl*> Parser::parseTopLevelDecl()
+ParsingResult<ASTDecl*> Parser::parseTopLevelDecl()
 {
 	// <declaration> = <var_decl> | <func_decl>
 	// <var_decl>
@@ -263,17 +263,17 @@ ParsingResult<IASTDecl*> Parser::parseTopLevelDecl()
 	if (vdecl.getFlag() != ParsingOutcome::NOTFOUND)
 	{
 		if (vdecl.isDataAvailable())
-			return ParsingResult<IASTDecl*>(vdecl.getFlag(), std::move(vdecl.result_));
-		return ParsingResult<IASTDecl*>(vdecl.getFlag());
+			return ParsingResult<ASTDecl*>(vdecl.getFlag(), std::move(vdecl.result_));
+		return ParsingResult<ASTDecl*>(vdecl.getFlag());
 	}
 	// <func_decl>
 	auto fdecl = parseFunctionDeclaration();
 	if (fdecl.getFlag() != ParsingOutcome::NOTFOUND)
 	{
 		if(fdecl.isDataAvailable())
-			return ParsingResult<IASTDecl*>(fdecl.getFlag(), std::move(fdecl.result_));
-		return ParsingResult<IASTDecl*>(fdecl.getFlag());
+			return ParsingResult<ASTDecl*>(fdecl.getFlag(), std::move(fdecl.result_));
+		return ParsingResult<ASTDecl*>(fdecl.getFlag());
 	}
 
-	return ParsingResult<IASTDecl*>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<ASTDecl*>(ParsingOutcome::NOTFOUND);
 }

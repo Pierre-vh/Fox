@@ -42,7 +42,7 @@ void FunctionArg::setQualType(const QualType & qt)
 	ty_ = qt;
 }
 
-ASTFunctionDecl::ASTFunctionDecl(IType* returnType, const std::string& name, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody)
+ASTFunctionDecl::ASTFunctionDecl(Type* returnType, const std::string& name, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody)
 {
 	setReturnType(returnType);
 	setName(name);
@@ -55,7 +55,7 @@ void ASTFunctionDecl::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-IType* ASTFunctionDecl::getReturnType()
+Type* ASTFunctionDecl::getReturnType()
 {
 	return returnType_;
 }
@@ -75,7 +75,7 @@ ASTCompoundStmt * ASTFunctionDecl::getBody()
 	return body_.get();
 }
 
-void ASTFunctionDecl::setReturnType(IType *ty)
+void ASTFunctionDecl::setReturnType(Type *ty)
 {
 	assert(ty && "Type cannot be null!");
 	returnType_ = ty;
@@ -122,7 +122,7 @@ ASTFunctionDecl::argIter_const ASTFunctionDecl::args_end() const
 }
 
 // VarDecl
-ASTVarDecl::ASTVarDecl(const std::string& varname,const QualType& ty, std::unique_ptr<IASTExpr> iExpr) : varName_(varname), varTy_(ty)
+ASTVarDecl::ASTVarDecl(const std::string& varname,const QualType& ty, std::unique_ptr<ASTExpr> iExpr) : varName_(varname), varTy_(ty)
 {
 	if (iExpr)
 		initExpr_ = std::move(iExpr);
@@ -138,7 +138,7 @@ QualType ASTVarDecl::getVarTy()
 	return varTy_;
 }
 
-IASTExpr * ASTVarDecl::getInitExpr()
+ASTExpr * ASTVarDecl::getInitExpr()
 {
 	return initExpr_.get();
 }
@@ -163,7 +163,7 @@ void ASTVarDecl::setVarType(const QualType &ty)
 	varTy_ = ty;
 }
 
-void ASTVarDecl::setInitExpr(std::unique_ptr<IASTExpr> expr)
+void ASTVarDecl::setInitExpr(std::unique_ptr<ASTExpr> expr)
 {
 	if(expr)
 		initExpr_ = std::move(expr);

@@ -150,7 +150,7 @@ bool Parser::matchKeyword(const KeywordType & k)
 	return false;
 }
 
-IType* Parser::parseTypeKw()
+Type* Parser::parseTypeKw()
 {
 	Token t = getToken();
 	incrementPosition();

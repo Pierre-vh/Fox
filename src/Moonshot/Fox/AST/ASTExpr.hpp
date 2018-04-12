@@ -4,7 +4,7 @@
 // File : ASTExpr.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// Declares the IASTExpr interface as well as derived nodes. 
+// Declares the ASTExpr interface as well as derived nodes. 
 ////------------------------------------------------------////
 
 #pragma once
@@ -21,29 +21,29 @@ namespace Moonshot
 	class IVisitor;
 
 	// base expression 
-	class IASTExpr : public IASTStmt
+	class ASTExpr : public ASTStmt
 	{
 		public:
-			IASTExpr() = default;
-			inline virtual ~IASTExpr() = 0 {}
+			ASTExpr() = default;
+			inline virtual ~ASTExpr() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
 	};
 
 	// Binary Expressions
-	class ASTBinaryExpr : public IASTExpr
+	class ASTBinaryExpr : public ASTExpr
 	{
 		public:
 			ASTBinaryExpr() = default;
-			ASTBinaryExpr(const binaryOperator &opt,std::unique_ptr<IASTExpr> lhs = nullptr,std::unique_ptr<IASTExpr> rhs = nullptr);
+			ASTBinaryExpr(const binaryOperator &opt,std::unique_ptr<ASTExpr> lhs = nullptr,std::unique_ptr<ASTExpr> rhs = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
-			std::unique_ptr<IASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node 
+			std::unique_ptr<ASTExpr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node 
 
-			IASTExpr* getLHS();
-			IASTExpr* getRHS();
+			ASTExpr* getLHS();
+			ASTExpr* getRHS();
 
-			void setLHS(std::unique_ptr<IASTExpr> nlhs);
-			void setRHS(std::unique_ptr<IASTExpr> nrhs);
+			void setLHS(std::unique_ptr<ASTExpr> nlhs);
+			void setRHS(std::unique_ptr<ASTExpr> nrhs);
 
 			binaryOperator getOp() const;
 			void setOp(const binaryOperator& op);
@@ -51,50 +51,50 @@ namespace Moonshot
 			// Returns true if node has both a left_ and right_ child and op != default
 			bool isComplete() const; 
 		private:
-			std::unique_ptr<IASTExpr> left_, right_;
+			std::unique_ptr<ASTExpr> left_, right_;
 			binaryOperator op_ = binaryOperator::DEFAULT;
 	};
 
 	// Unary Expressions
-	class ASTUnaryExpr : public IASTExpr
+	class ASTUnaryExpr : public ASTExpr
 	{
 		public: 
 			ASTUnaryExpr() = default;
-			ASTUnaryExpr(const unaryOperator& opt,std::unique_ptr<IASTExpr> node = nullptr);
+			ASTUnaryExpr(const unaryOperator& opt,std::unique_ptr<ASTExpr> node = nullptr);
 			virtual void accept(IVisitor& vis) override;
 
-			IASTExpr* getChild();
-			void setChild(std::unique_ptr<IASTExpr> nchild);
+			ASTExpr* getChild();
+			void setChild(std::unique_ptr<ASTExpr> nchild);
 
 			unaryOperator getOp() const;
 			void setOp(const unaryOperator& nop);
 
 		private:
-			std::unique_ptr<IASTExpr> child_;
+			std::unique_ptr<ASTExpr> child_;
 			unaryOperator op_ = unaryOperator::DEFAULT;
 	};
 
 	// Explicit Cast Expressions
-	class ASTCastExpr : public IASTExpr
+	class ASTCastExpr : public ASTExpr
 	{
 		public:
 			ASTCastExpr() = default;
-			ASTCastExpr(IType* castGoal,std::unique_ptr<IASTExpr> ch = nullptr);
+			ASTCastExpr(Type* castGoal,std::unique_ptr<ASTExpr> ch = nullptr);
 			
 			virtual void accept(IVisitor& vis) override;
 
-			void setCastGoal(IType* goal);
-			IType* getCastGoal();
+			void setCastGoal(Type* goal);
+			Type* getCastGoal();
 
-			IASTExpr* getChild();
-			void setChild(std::unique_ptr<IASTExpr> nc);
+			ASTExpr* getChild();
+			void setChild(std::unique_ptr<ASTExpr> nc);
 		private:
-			IType * goal_ = nullptr;
-			std::unique_ptr<IASTExpr> child_;
+			Type * goal_ = nullptr;
+			std::unique_ptr<ASTExpr> child_;
 	};
 
 	// Literals
-	class ASTCharLiteralExpr : public IASTExpr
+	class ASTCharLiteralExpr : public ASTExpr
 	{
 		public:
 			ASTCharLiteralExpr() = default;
@@ -108,7 +108,7 @@ namespace Moonshot
 			CharType val_ = ' ';
 	};
 
-	class ASTIntegerLiteralExpr : public IASTExpr
+	class ASTIntegerLiteralExpr : public ASTExpr
 	{
 		public:
 			ASTIntegerLiteralExpr() = default;
@@ -122,7 +122,7 @@ namespace Moonshot
 			IntType val_ = 0;
 	};
 
-	class ASTFloatLiteralExpr : public IASTExpr
+	class ASTFloatLiteralExpr : public ASTExpr
 	{
 		public:
 			ASTFloatLiteralExpr() = default;
@@ -136,7 +136,7 @@ namespace Moonshot
 			FloatType val_ = 0.0f;
 	};
 
-	class ASTStringLiteralExpr : public IASTExpr
+	class ASTStringLiteralExpr : public ASTExpr
 	{
 		public:
 			ASTStringLiteralExpr() = default;
@@ -150,7 +150,7 @@ namespace Moonshot
 			std::string val_ = "";
 	};
 
-	class ASTBoolLiteralExpr : public IASTExpr
+	class ASTBoolLiteralExpr : public ASTExpr
 	{
 		public:
 			ASTBoolLiteralExpr() = default;
@@ -165,7 +165,7 @@ namespace Moonshot
 		};
 
 	// interface for decl refs. Derived classes are references to a decl within this context (declref) and reference to member decls (memberref)
-	class IASTDeclRef : public IASTExpr
+	class IASTDeclRef : public ASTExpr
 	{
 		// TODO After AST Upgrade/Rework
 		// ASTDecl* getOriginalDecl();
@@ -193,18 +193,18 @@ namespace Moonshot
 	{
 		public:
 			ASTMemberAccessExpr() = default;
-			ASTMemberAccessExpr(std::unique_ptr<IASTExpr> base, std::unique_ptr<IASTDeclRef> memb);
+			ASTMemberAccessExpr(std::unique_ptr<ASTExpr> base, std::unique_ptr<IASTDeclRef> memb);
 
 			void accept(IVisitor& vis) override;
 
-			IASTExpr* getBase();
+			ASTExpr* getBase();
 			IASTDeclRef* getMemberDeclRef() const;
 
-			void setBase(std::unique_ptr<IASTExpr> expr);
+			void setBase(std::unique_ptr<ASTExpr> expr);
 			void setMemberDeclRef(std::unique_ptr<IASTDeclRef> memb);
 		private:
 			// the expression that is being accessed
-			std::unique_ptr<IASTExpr> base_;
+			std::unique_ptr<ASTExpr> base_;
 			// the decl to search inside the expr
 			std::unique_ptr<IASTDeclRef> member_;
 	};
@@ -212,31 +212,31 @@ namespace Moonshot
 	class ASTArrayAccess : public IASTDeclRef
 	{
 		public:
-			ASTArrayAccess(std::unique_ptr<IASTExpr> expr, std::unique_ptr<IASTExpr> idxexpr);
+			ASTArrayAccess(std::unique_ptr<ASTExpr> expr, std::unique_ptr<ASTExpr> idxexpr);
 			void accept(IVisitor& vis) override;
 
-			void setBase(std::unique_ptr<IASTExpr> expr);
-			void setAccessIndexExpr(std::unique_ptr<IASTExpr> expr);
+			void setBase(std::unique_ptr<ASTExpr> expr);
+			void setAccessIndexExpr(std::unique_ptr<ASTExpr> expr);
 
-			IASTExpr* getBase() ;
-			IASTExpr* getAccessIndexExpr();
+			ASTExpr* getBase() ;
+			ASTExpr* getAccessIndexExpr();
 		private:
 			// 2 Expr, the expression supposed to produce an array, and the expression contained within the square brackets that should produce the index.
-			std::unique_ptr<IASTExpr> base_;
-			std::unique_ptr<IASTExpr> accessIdxExpr_;
+			std::unique_ptr<ASTExpr> base_;
+			std::unique_ptr<ASTExpr> accessIdxExpr_;
 	};
 
-	// Node/Helper struct that's a wrapper around a std::vector of std::unique_ptr to <IASTExpr>.
+	// Node/Helper struct that's a wrapper around a std::vector of std::unique_ptr to <ASTExpr>.
 	// used by function call nodes and the parser.
 	class ExprList
 	{
 		private:
-			using expr_iter = std::vector<std::unique_ptr<IASTExpr>>::iterator;
+			using expr_iter = std::vector<std::unique_ptr<ASTExpr>>::iterator;
 		public:
 			ExprList() = default;
 
-			void addExpr(std::unique_ptr<IASTExpr> expr);
-			const IASTExpr* getExpr(const std::size_t& ind);
+			void addExpr(std::unique_ptr<ASTExpr> expr);
+			const ASTExpr* getExpr(const std::size_t& ind);
 
 			bool isEmpty() const;
 			std::size_t size() const;
@@ -244,9 +244,9 @@ namespace Moonshot
 			expr_iter exprList_beg();
 			expr_iter exprList_end();
 
-			void iterate(std::function<void(IASTExpr*)> fn);
+			void iterate(std::function<void(ASTExpr*)> fn);
 		private:
-			std::vector<std::unique_ptr<IASTExpr>> exprs_;
+			std::vector<std::unique_ptr<ASTExpr>> exprs_;
 	};
 
 	// Function calls

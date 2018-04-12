@@ -66,7 +66,7 @@ ParsingResult<ASTCompoundStmt*> Parser::parseTopLevelCompoundStatement(const boo
 	return ParsingResult<ASTCompoundStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTStmt*> Parser::parseWhileLoop()
+ParsingResult<ASTStmt*> Parser::parseWhileLoop()
 {
 	// Rule : <while_loop> 	= <wh_kw>  '(' <expr> ')' <body> 
 	if (matchKeyword(KeywordType::KW_WHILE))
@@ -84,15 +84,15 @@ ParsingResult<IASTStmt*> Parser::parseWhileLoop()
 		else
 		{
 			errorExpected("Expected a Statement after while loop declaration,");
-			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			return ParsingResult<ASTStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		// Return
-		return ParsingResult<IASTStmt*>(ps, std::move(rtr));
+		return ParsingResult<ASTStmt*>(ps, std::move(rtr));
 	}
-	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<ASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTStmt*> Parser::parseCondition()
+ParsingResult<ASTStmt*> Parser::parseCondition()
 {
 	//<condition> = "if" <parens_expr> <body> ["else" <statement>]
 	auto rtr = std::make_unique<ASTCondStmt>();
@@ -112,7 +112,7 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 		else
 		{
 			errorExpected("Expected a statement after if condition,");
-			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			return ParsingResult<ASTStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		has_if = true;
 	}
@@ -125,17 +125,17 @@ ParsingResult<IASTStmt*> Parser::parseCondition()
 		else
 		{
 			errorExpected("Expected a statement after else,");
-			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			return ParsingResult<ASTStmt*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
 		}
 		if (!has_if)
 			genericError("Else without matching if.");
 	}
 	if(has_if)
-		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS, std::move(rtr));
-	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+		return ParsingResult<ASTStmt*>(ParsingOutcome::SUCCESS, std::move(rtr));
+	return ParsingResult<ASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTStmt*> Parser::parseReturnStmt()
+ParsingResult<ASTStmt*> Parser::parseReturnStmt()
 {
 	// <rtr_stmt>	= "return" [<expr>] ';'
 	if (matchKeyword(KeywordType::KW_RETURN))
@@ -148,15 +148,15 @@ ParsingResult<IASTStmt*> Parser::parseReturnStmt()
 		{
 			errorExpected("Expected a ';'");
 			if (!resyncToSign(SignType::S_SEMICOLON))
-				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<ASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 
-		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS, std::move(rtr));
+		return ParsingResult<ASTStmt*>(ParsingOutcome::SUCCESS, std::move(rtr));
 	}
-	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<ASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTStmt*> Parser::parseStmt()
+ParsingResult<ASTStmt*> Parser::parseStmt()
 {
 	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | | <rtr_stmt> 
 	// <expr_stmt>
@@ -168,8 +168,8 @@ ParsingResult<IASTStmt*> Parser::parseStmt()
 	if (vardecl.getFlag() != ParsingOutcome::NOTFOUND)
 	{
 		if (vardecl.isDataAvailable())
-			return ParsingResult<IASTStmt*>(vardecl.getFlag(), std::move(vardecl.result_));
-		return ParsingResult<IASTStmt*>(vardecl.getFlag());
+			return ParsingResult<ASTStmt*>(vardecl.getFlag(), std::move(vardecl.result_));
+		return ParsingResult<ASTStmt*>(vardecl.getFlag());
 	}
 	// <condition>
 	auto cond = parseCondition();
@@ -184,37 +184,37 @@ ParsingResult<IASTStmt*> Parser::parseStmt()
 	if (rtrstmt.getFlag() != ParsingOutcome::NOTFOUND)
 		return rtrstmt;
 	// Else, not found..
-	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<ASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTStmt*> Parser::parseBody()
+ParsingResult<ASTStmt*> Parser::parseBody()
 {
 	if (auto stmt_res = parseStmt())
 		return stmt_res;
 	else if (auto compstmt_res = parseCompoundStatement())
-		return ParsingResult<IASTStmt*>(compstmt_res.getFlag(), std::move(compstmt_res.result_));
-	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+		return ParsingResult<ASTStmt*>(compstmt_res.getFlag(), std::move(compstmt_res.result_));
+	return ParsingResult<ASTStmt*>(ParsingOutcome::NOTFOUND);
 }
 
-ParsingResult<IASTStmt*> Parser::parseExprStmt()
+ParsingResult<ASTStmt*> Parser::parseExprStmt()
 {
 	//<expr_stmt> = ';' |<expr> ';'
 	if (matchSign(SignType::S_SEMICOLON))
-		return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS,
+		return ParsingResult<ASTStmt*>(ParsingOutcome::SUCCESS,
 			std::make_unique<ASTNullStmt>()
 		);
 	else if (auto node = parseExpr())
 	{
 		// Found node
 		if (matchSign(SignType::S_SEMICOLON))
-			return ParsingResult<IASTStmt*>(ParsingOutcome::SUCCESS,std::move(node.result_));
+			return ParsingResult<ASTStmt*>(ParsingOutcome::SUCCESS,std::move(node.result_));
 		else
 		{
 			errorExpected("Expected a ';' in expression statement");
 			if (resyncToSign(SignType::S_SEMICOLON))
-				return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-			return ParsingResult<IASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
+				return ParsingResult<ASTStmt*>(ParsingOutcome::FAILED_BUT_RECOVERED);
+			return ParsingResult<ASTStmt*>(ParsingOutcome::FAILED_AND_DIED);
 		}
 	}
-	return ParsingResult<IASTStmt*>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<ASTStmt*>(ParsingOutcome::NOTFOUND);
 }

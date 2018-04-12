@@ -8,14 +8,15 @@
 ////------------------------------------------------------////
 
 #include "Diagnostic.hpp"
-#include "IDiagConsumer.hpp"
+
+#include "DiagnosticConsumers.hpp"
 
 #include <iostream>
 #include <cassert>
 
 using namespace Moonshot;
 
-Diagnostic::Diagnostic(IDiagConsumer * cons, const DiagID & dID, const DiagSeverity & dSev, const std::string& dStr) :
+Diagnostic::Diagnostic(DiagnosticConsumer * cons, const DiagID & dID, const DiagSeverity & dSev, const std::string& dStr) :
 	consumer_(cons), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr)
 {
 

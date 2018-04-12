@@ -74,7 +74,7 @@ void BuiltinType::setBuiltinKind(const Kind & kd)
 }
 
 /* Array type */
-ArrayType::ArrayType(IType * ty) : itemsTy_(ty)
+ArrayType::ArrayType(Type * ty) : itemsTy_(ty)
 {
 	assert(ty && "The Array item type cannot be null!");
 }
@@ -112,7 +112,7 @@ QualType::QualType() : ty_(nullptr),isConst_(false), isRef_(false)
 
 }
 
-QualType::QualType(IType * ty, const bool & isConstant, const bool &isReference) :
+QualType::QualType(Type * ty, const bool & isConstant, const bool &isReference) :
 	ty_(ty), isConst_(isConstant), isRef_(isReference)
 {
 	assert(ty && "Type cannot be null");
@@ -150,13 +150,13 @@ std::string QualType::getPrettyName() const
 	return out.str();
 }
 
-IType * QualType::getNonQualType()
+Type * QualType::getNonQualType()
 {
 	assert(ty_ && "Type is null?");
 	return ty_;
 }
 
-void QualType::setType(IType * ty)
+void QualType::setType(Type * ty)
 {
 	assert(ty && "Type is null?");
 	ty_ = ty;

@@ -9,14 +9,14 @@
 
 #pragma once
 
-#include "Moonshot/Fox/Basic/IDiagConsumer.hpp"
+#include "Moonshot/Fox/Basic/DiagnosticConsumers.hpp"
 #include "Moonshot/Fox/Basic/Diagnostic.hpp"
 
 #include <string>
 
 namespace Moonshot
 {
-	class StrDiagConsumer : public IDiagConsumer
+	class StrDiagConsumer : public DiagnosticConsumer
 	{
 		public:
 			inline virtual void consume(const Diagnostic& diag) override

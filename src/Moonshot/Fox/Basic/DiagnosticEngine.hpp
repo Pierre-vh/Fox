@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "IDiagConsumer.hpp"
+#include "DiagnosticConsumers.hpp"
 #include "Moonshot/Fox/Basic/Utils.hpp"
 
 #include <memory>
@@ -27,12 +27,12 @@ namespace Moonshot
 	{
 		public:
 			DiagnosticEngine(FlagsManager *fm = nullptr);
-			DiagnosticEngine(std::unique_ptr<IDiagConsumer> ncons, FlagsManager *fm = nullptr);
+			DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons, FlagsManager *fm = nullptr);
 
 			Diagnostic report(const DiagID& diagID);
 
-			void setConsumer(std::unique_ptr<IDiagConsumer> ncons);
-			IDiagConsumer * getConsumer();
+			void setConsumer(std::unique_ptr<DiagnosticConsumer> ncons);
+			DiagnosticConsumer * getConsumer();
 
 			void setFlagsManager(FlagsManager *fm);
 		    FlagsManager * const getFlagsManager();
@@ -116,6 +116,6 @@ namespace Moonshot
 
 			/* Observing pointer to a flagmanager, if there is one available */
 			FlagsManager* flagsManager_					= nullptr;
-			std::unique_ptr<IDiagConsumer> consumer_	= nullptr;
+			std::unique_ptr<DiagnosticConsumer> consumer_	= nullptr;
 	};
 }

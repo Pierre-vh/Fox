@@ -11,12 +11,12 @@
 
 using namespace Moonshot;
 
-void ASTUnit::addDecl(std::unique_ptr<IASTDecl> decl)
+void ASTUnit::addDecl(std::unique_ptr<ASTDecl> decl)
 {
 	decls_.emplace_back(std::move(decl));
 }
 
-const IASTDecl * ASTUnit::getDecl(const std::size_t & idx)
+const ASTDecl * ASTUnit::getDecl(const std::size_t & idx)
 {
 	if (idx < decls_.size())
 		return decls_[idx].get();
