@@ -9,7 +9,7 @@
 
 #include "ASTExpr.hpp"
 #include "IVisitor.hpp"
-#include "IdentifierTable.hpp";
+#include "IdentifierTable.hpp"
 
 #include <sstream> 
 #include <cassert>
