@@ -36,14 +36,14 @@ namespace Moonshot
 		public:
 			ASTContext();
 
-			// Returns an observing pointer to the unit containing the entry point of the module (if there is one)
+			// Returns a observing pointer to the unit containing the entry point of the module (if there is one)
 			ASTUnit* getMainUnit();
 			
 			// Take ownership of the unit, and mark it as the main unit. 
 			// Once it took ownership, it returns a observing pointer to that unit.
 			ASTUnit* setMainUnit(std::unique_ptr<ASTUnit> unit);
 
-			// Take ownership of the unit.
+			// Takes ownership of the unit.
 			// Once ownership is taken, it returns a observing pointer to that unit.
 			ASTUnit* addUnit(std::unique_ptr<ASTUnit> unit);
 
@@ -73,7 +73,7 @@ namespace Moonshot
 			IdentifierTable idents_;
 
 			// Built-in types
-				// Theses are all initialized to nullptr, but are properly se by
+				// Theses are all initialized to nullptr, but are properly set by
 				// initBuiltinTypes().
 			TypePtr builtinVoid_	= nullptr;
 			TypePtr builtinInt_		= nullptr;
