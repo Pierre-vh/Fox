@@ -11,7 +11,7 @@ So, to make this syntax real, what's needed?
     Numerous things still need to be solved for array literals. I need to come up with a syntax
 	that allows to make them explicit or implicit, has support for multidimensional arrays, etc.
 	A Simple compromise:
-	<array_literal> = '(' [<type>] ')' '[' [<expr>  { ',' <expr> }']'
+	<array_literal> = ['(' [<type>] ')'] '[' [<expr>  { ',' <expr> }']'
 	Note that this syntax might be a problem for the <parens_expr>. <parens_expr> would
 	need some tweaking to return "not found" if it parses a '(' <type> ')'. Same for <array_lit>, if it doesn't find a type name after '(' it should safely return "not found" and backtrack!
 
