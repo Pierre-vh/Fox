@@ -33,30 +33,15 @@ namespace Moonshot
 		typedef std::unique_ptr<Ty> type;
 	};
 
-	/*
-		Usage
-		* Parsing function finds all the tokens and return a fully formed node:
-		use SUCCESS flag
-		hasRecovered() returns true
-		wasSuccessful() returns true
-		* Parsing function doesn't find the first token and just returns nullptr
-		use NOTFOUND flag
-		hasRecovered() returns true
-		wasSuccessful() returns true
-		* Parsing function finds the first tokens, but encounters an unexpected token and dies:
-		use FAILED_AND_DIED flag
-		hasRecovered() returns true
-		wasSuccessful() returns false
-		* Parsing function finds the first tokens, but encounters an unexpected token and successfully recovers to the semicolon,parens or curly bracket.
-		use FAILED_AND_RECOVERED flag
-		hasRecovered() returns true if the node is not null.
-		wasSuccessful() returns false
-		* Parsing function finds the first tokens, but encounters an unexpected token and successfully recovers to the semicolon,parens or curly bracket.
-		use FAILED_WITHOUT_ATTEMPTING_RECOVERY flag
-		hasRecovered() returns true if the node is not null.
-		wasSuccessful() false false
-	*/
-
+	// Note : This is trash, and could use a rework.
+	// First, simplify the ParsingOutcomes to just 2 : SUCCESS/FAILED
+	// Second remove some useless information, like "hasRecovered", we know if it has recovered or not already with the success flag.
+		// success & no data -> not found, isUsable return false
+		// success & data -> found something, we don't care how, it just completed successfuly, isUsable returns true
+		// failure & (we don't care) -> failed, hasn't recovered, panic!
+	// then, make another overload of this class with "isPointer" to true
+	// template<typename DataTy,bool isPtr = std::is_pointer<DataTy>::value>
+	// and the specialization for <DataTy,true> has extra function like isNull(), etc.
 	template<typename DataTy>
 	struct ParsingResult {
 		public:
