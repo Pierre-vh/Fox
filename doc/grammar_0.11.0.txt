@@ -32,7 +32,7 @@ Fox Grammar version 0.10.0
 <primary>		= <literal> | <parens_expr> | <decl_call>
 <member_access>	= <primary> { '.' <decl_call> }<exp_expr>		= <member_access> [ <exponent_operator> <prefix_expr> ]
 <prefix_expr>   = <unary_operator> <prefix_expr> | <exp_expr>
-<cast_expr>     = <prefix_expr> ["as" <type]
+<cast_expr>     = <prefix_expr> ["as" <type>]
 <binary_expr>   = <cast_expr> { <binary_operator> <cast_expr> }	// note about this rule: use precedence-climbing to manage priority of operation ! (see ParseExpr.cpp, line 237+ to see how it's handled)
 <expr>          = <binary_expr> [<assign_operator> <expr>] 
 
