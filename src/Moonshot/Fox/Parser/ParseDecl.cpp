@@ -147,9 +147,6 @@ ParsingResult<std::vector<FunctionArg>> Parser::parseArgDeclList()
 ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnError)
 {
 	// <var_decl> = "let" <id> <fq_type_spec> ['=' <expr>] ';'
-	std::unique_ptr<ASTExpr> initExpr = 0;
-
-	QualType varType;
 	// "let"
 	if (matchKeyword(KeywordType::KW_LET))
 	{
@@ -170,13 +167,13 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnE
 		// <fq_type_spec>
 		if (auto typespecResult = parseFQTypeSpec())
 		{
-			auto qualTy = typespecResult.result;
-			if (qualTy.isAReference())
+			QualType ty = std::move(typespecResult.result);
+			if (ty.isAReference())
 			{
 				context_.reportWarning("Ignored reference qualifier '&' in variable declaration : Variables cannot be references.");
-				qualTy.setIsReference(false);
+				ty.setIsReference(false);
 			}
-			varType = qualTy;
+			rtr->setVarType(std::move(ty));
 		}
 		else
 		{
@@ -191,7 +188,7 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnE
 		if (matchSign(SignType::S_EQUAL))
 		{
 			if (auto parseres = parseExpr())
-				initExpr = std::move(parseres.result);
+				rtr->setInitExpr(std::move(parseres.result));
 			else
 			{
 				if(parseres.wasSuccessful())

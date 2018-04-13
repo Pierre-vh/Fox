@@ -101,17 +101,20 @@ namespace Moonshot
 			ASTVarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<ASTExpr> iExpr = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
+			
+			// Get a reference (or a copy) of the varType
+			QualType& varType();
+			void setVarType(const QualType &ty);
 
-			QualType getVarTy();
+			// Get an observing pointer to the initexpr
 			ASTExpr* getInitExpr();
+			void setInitExpr(std::unique_ptr <ASTExpr> expr);
 
 			IdentifierInfo* getVarIdentifier();
 			void setVarIdentifier(IdentifierInfo* varId);
 
 			bool hasInitExpr() const;
 
-			void setVarType(const QualType &ty);
-			void setInitExpr(std::unique_ptr <ASTExpr> expr);
 		private:
 			QualType varTy_;
 			IdentifierInfo *varId_ = nullptr;

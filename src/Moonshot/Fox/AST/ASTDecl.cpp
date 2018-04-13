@@ -131,7 +131,7 @@ void ASTVarDecl::accept(IVisitor& vis)
 	vis.visit(*this);
 }
 
-QualType ASTVarDecl::getVarTy()
+QualType& ASTVarDecl::varType()
 {
 	return varTy_;
 }

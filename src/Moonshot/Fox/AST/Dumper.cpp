@@ -130,7 +130,7 @@ void Dumper::visit(ASTBoolLiteralExpr & node)
 
 void Dumper::visit(ASTVarDecl & node)
 {
-	out_ << getIndent() << "VarDeclStmt : Name:" << node.getVarIdentifier()->getStr() << " Type:" << node.getVarTy().getPrettyName() << "\n";
+	out_ << getIndent() << "VarDeclStmt : Name:" << node.getVarIdentifier()->getStr() << " Type:" << node.varType().getPrettyName() << "\n";
 	if (node.hasInitExpr())
 	{
 		curindent_ += 1;

@@ -12,6 +12,10 @@
 #include <string>
 #include <memory>
 
+// Note: Re-evaluate the need for shared_ptr everywhere. 
+// Shared ptr are only useful for nodes, but I think that QualType should hold a weak_ptr.
+// Think about it a bit.
+
 namespace Moonshot
 {
 	// Base class for every Type node.
