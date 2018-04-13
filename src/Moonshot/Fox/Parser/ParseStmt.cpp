@@ -58,9 +58,8 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		errorExpected("Expected a '{'");
 		// Note, we could attempt recovery here, but I don't think that's needed, we can let the caller handle the recovery.
 	}
-	// not found & not mandatory
-	else
-		return ParsingResult<ASTCompoundStmt*>();
+
+	return ParsingResult<ASTCompoundStmt*>();
 }
 
 ParsingResult<ASTStmt*> Parser::parseWhileLoop()

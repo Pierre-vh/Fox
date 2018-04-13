@@ -150,8 +150,6 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnE
 	std::unique_ptr<ASTExpr> initExpr = 0;
 
 	QualType varType;
-	IdentifierInfo *varId = nullptr;
-
 	// "let"
 	if (matchKeyword(KeywordType::KW_LET))
 	{

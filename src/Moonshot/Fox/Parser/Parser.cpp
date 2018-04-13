@@ -108,6 +108,8 @@ IdentifierInfo* Parser::matchID()
 	Token t = getToken();
 	if (t.isIdentifier())
 	{
+		incrementPosition();
+
 		IdentifierInfo* ptr = t.getIdentifierInfo();;
 		assert(ptr && "Token's an identifier but contains a nullptr IdentifierInfo?");
 		return ptr;

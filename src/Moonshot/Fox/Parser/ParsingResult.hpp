@@ -23,14 +23,14 @@ namespace Moonshot
 			{
 				successFlag_ = true;
 				hasData_ = true;
-				data_ = res;
+				result = res;
 			}
 
 			ParsingResult(const bool &wasSuccessful = true)
 			{
 				hasData_ = false;
 				successFlag_ = wasSuccessful;
-				data_ = DataTy();
+				result = DataTy();
 			}
 
 			operator bool() const
@@ -47,7 +47,7 @@ namespace Moonshot
 			// Returns true if this ParsingResult contains usable data.
 			bool isUsable() const
 			{
-				return successFlag  && hasData_;
+				return successFlag_  && hasData_;
 			}
 
 			// The result's data
@@ -60,38 +60,38 @@ namespace Moonshot
 	// Special overload for pointer types
 	template<typename DataTy>
 	struct ParsingResult<DataTy*> {
-	public:
-		ParsingResult(std::unique_ptr<DataTy> res)
-		{
-			successFlag_ = true;
-			result = std::move(res);
-		}
+		public:
+			ParsingResult(std::unique_ptr<DataTy> res)
+			{
+				successFlag_ = true;
+				result = std::move(res);
+			}
 
-		ParsingResult(const bool &wasSuccessful = true)
-		{
-			successFlag_ = wasSuccessful;
-			data_ = nullptr;
-		}
+			ParsingResult(const bool &wasSuccessful = true)
+			{
+				successFlag_ = wasSuccessful;
+				result = nullptr;
+			}
 
-		operator bool() const
-		{
-			return isUsable();
-		}
+			operator bool() const
+			{
+				return isUsable();
+			}
 
-		// Returns true if the Parsing function reported a successful parsing, or a failure.
-		bool wasSuccessful() const
-		{
-			return successFlag_;
-		}
+			// Returns true if the Parsing function reported a successful parsing, or a failure.
+			bool wasSuccessful() const
+			{
+				return successFlag_;
+			}
 
-		// Returns true if this ParsingResult contains usable data.
-		bool isUsable() const
-		{
-			return successFlag && (bool)result;
-		}
+			// Returns true if this ParsingResult contains usable data.
+			bool isUsable() const
+			{
+				return successFlag_ && (bool)result;
+			}
 
-		// The pointer
-		std::unique_ptr<DataTy> result;
+			// The pointer
+			std::unique_ptr<DataTy> result;
 		private:
 			bool successFlag_ : 1;
 	};
