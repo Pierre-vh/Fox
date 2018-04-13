@@ -5,29 +5,18 @@ Arrays : Declaration
         // Optional, more flexible syntax could look like []*16 to reserve 16 slot in the array.
     let x : int[] = [1,2,3]*16; // Fill the array with 16 times the pattern 1,2,3.
 
-So, to make this syntax real, what's needed?
-    Array literals.
+Final Array Literals syntax :
 
-    Numerous things still need to be solved for array literals. I need to come up with a syntax
-	that allows to make them explicit or implicit, has support for multidimensional arrays, etc.
-	A Simple compromise:
-	<array_literal> = ['(' [<type>] ')'] '[' [<expr>  { ',' <expr> }']'
-	Note that this syntax might be a problem for the <parens_expr>. <parens_expr> would
-	need some tweaking to return "not found" if it parses a '(' <type> ')'. Same for <array_lit>, if it doesn't find a type name after '(' it should safely return "not found" and backtrack!
+<type> will be changed to <typename>
+the new <type> rule to replace the old will be :
+<type> = <typename> { '[]' } to create arrays.
+	int[] is a 1d array
+	int[][] is a 2d array,
+	int[][][] is a 3d array, etc.
 
-	Another solution would be to try and find a new syntax that's less ambiguous. Maybe by changing to {} or <> ?
-	or double [<type>][]. I'll think about it and try to find a solution.
+<array_lit>	= '[' [<expr_list>] ']'
 
-    AST Representation :
-        ASTArrayLiteralExpr : Contains a vector of expression with one entry for each expression in the literal.
-
-    No operator would work on them, except the '*' operator, like shown above. 
-    Everything else's a semantic error.
-
-    Also, when they're implemented, write a lot of tests to find bugs, because 
-    it might create ambiguities with the array indexing operator.
-
-Also, where would arrays be allowed ? Everywhere : Function arg, function return type, etc.
+But where's the type of the array literal you say? It's not used. The type of the array literal is inferred from the context.
 
 I think that overall this syntax is the cleanest and most user friendly! Let's have fun with it : 
 fill an array with the Nth first terms of the fibonnaci suite!
