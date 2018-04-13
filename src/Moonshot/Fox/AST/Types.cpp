@@ -94,12 +94,6 @@ TypePtr ArrayType::getItemTy()
 	return itemTy_;
 }
 
-void ArrayType::setItemType(TypePtr ptr)
-{
-	assert(ptr && "The Array item type cannot be null!");
-	itemTy_ = std::move(ptr);
-}
-
 bool ArrayType::isBuiltin() const
 {
 	return true;
