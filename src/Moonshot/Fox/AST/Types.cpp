@@ -15,18 +15,29 @@
 
 using namespace Moonshot;
 
-/* Builtin Types */
-BuiltinType::BuiltinType(const Kind & kd) : builtinKind_(kd)
+/* Type */
+bool Type::isPrimitive() const
+{
+	return false;
+}
+
+/* Primitive Types */
+PrimitiveType::PrimitiveType(const Kind & kd) : builtinKind_(kd)
 {
 
 }
 
-bool BuiltinType::isBuiltin() const
+bool PrimitiveType::isBuiltin() const
 {
 	return true;
 }
 
-std::string BuiltinType::getPrettyTypeName() const
+bool PrimitiveType::isPrimitive() const
+{
+	return true;
+} 
+
+std::string PrimitiveType::getPrettyTypeName() const
 {
 	switch (builtinKind_)
 	{
@@ -47,28 +58,27 @@ std::string BuiltinType::getPrettyTypeName() const
 	}
 }
 
-bool BuiltinType::isBasic() const
-{
-	// Only basic if not void.
-	return !(builtinKind_ == Kind::VoidTy);
-}
-
-BuiltinType::Kind BuiltinType::getKind() const
+PrimitiveType::Kind PrimitiveType::getKind() const
 {
 	return builtinKind_;
 }
 
-bool BuiltinType::isArithmetic() const
+bool PrimitiveType::isArithmetic() const
 {
 	return (builtinKind_ == Kind::IntTy) || (builtinKind_ == Kind::BoolTy) || (builtinKind_ == Kind::FloatTy);
 }
 
-bool BuiltinType::isConcatenable() const
+bool PrimitiveType::isConcatenable() const
 {
 	return (builtinKind_ == Kind::CharTy) || (builtinKind_ == Kind::StringTy);
 }
 
-void BuiltinType::setBuiltinKind(const Kind & kd)
+bool PrimitiveType::isVoid() const
+{
+	return (builtinKind_ == Kind::VoidTy);
+}
+
+void PrimitiveType::setBuiltinKind(const Kind & kd)
 {
 	builtinKind_ = kd;
 }
@@ -100,15 +110,10 @@ std::string ArrayType::getPrettyTypeName() const
 	return itemTy_->getPrettyTypeName() + "[]";
 }
 
-bool ArrayType::isBasic() const
-{
-	return false;
-}
-
-bool ArrayType::isItemTypeBasic() const
+bool ArrayType::isItemTypePrimitive() const
 {
 	assert(itemTy_ && "The Array item type cannot be null!");
-	return itemTy_->isBasic();
+	return itemTy_->isPrimitive();
 }
 
 bool ArrayType::isItemTypeBuiltin() const

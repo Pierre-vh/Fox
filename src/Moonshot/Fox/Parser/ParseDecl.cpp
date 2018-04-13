@@ -73,7 +73,7 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 				errorExpected("Expected a type keyword");
 		}
 		else // if no return type, the function returns void.
-			rtr->setReturnType(astCtxt_->getBuiltinVoidType());
+			rtr->setReturnType(astCtxt_->getPrimitiveVoidType());
 
 		// <compound_statement>
 		if (auto cp_res = parseTopLevelCompoundStatement(true))

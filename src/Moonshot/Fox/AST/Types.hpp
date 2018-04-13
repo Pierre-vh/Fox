@@ -18,12 +18,12 @@ namespace Moonshot
 	class Type
 	{
 		public:
-			/* Should return true if the type is a builtin type*/
+			/* Should return true if the type is a builtin type (= compiler builtin, not user defined)*/
 			virtual bool isBuiltin() const = 0;
 
-			/* Should return true if this type is basic. */
-			/* Basic = Builtin Types that are not arrays or void.*/
-			virtual bool isBasic() const = 0;
+			/* Should return true if the type is a primitive type */
+			/* Primitives types are the types contained in the PrimitiveType class */
+			virtual bool isPrimitive() const;
 
 			/* Should return the type's name in a user friendly form, e.g. "int", "string" */
 			virtual std::string getPrettyTypeName() const = 0;
@@ -43,9 +43,10 @@ namespace Moonshot
 	//	Builtin Types
 	//	Builtin types are:
 	//		One of the following : int, float, char, string, bool
-	//		Basic (if not void)
+	//		Basic 
+	//		Primitive
 	//		Builtin
-	class BuiltinType : public Type
+	class PrimitiveType : public Type
 	{
 		public:
 			enum class Kind
@@ -59,13 +60,13 @@ namespace Moonshot
 			};
 
 			// Ctor
-			BuiltinType() = default;
-			BuiltinType(const Kind& kd);
+			PrimitiveType() = default;
+			PrimitiveType(const Kind& kd);
 
 			// Methods inherited from Type
 			virtual bool isBuiltin() const override;
+			virtual bool isPrimitive() const override;
 			virtual std::string getPrettyTypeName() const override;
-			virtual bool isBasic() const override;
 
 			// return the kind of this builtin
 			Kind getKind() const;
@@ -77,6 +78,9 @@ namespace Moonshot
 			// Returns true if a concatenation operator can be applied to this type
 			// Returns true iff builtinKind_ == StringTy or CharTy
 			bool isConcatenable() const;
+
+			// Returns true iff builtinKind_ == Kind::VoidTy
+			bool isVoid() const;
 		private:
 			friend class ASTContext;
 
@@ -88,7 +92,6 @@ namespace Moonshot
 	// Array types
 	// Arrays are:
 	//		Builtin
-	//		Non-Basic
 	class ArrayType : public Type
 	{
 		public:
@@ -99,9 +102,8 @@ namespace Moonshot
 
 			virtual bool isBuiltin() const override;
 			virtual std::string getPrettyTypeName() const override;
-			virtual bool isBasic() const override;
 
-			bool isItemTypeBasic() const;
+			bool isItemTypePrimitive() const;
 			bool isItemTypeBuiltin() const;
 		private:
 			TypePtr itemTy_= nullptr;
@@ -127,7 +129,7 @@ namespace Moonshot
 			// for outputting the type to the user in a dump or in a diag.
 			std::string getPrettyName() const;
 
-			// Returns the Type pointer (the type without its qualifiers)
+			// Returns the Type pointer (ty_)
 			TypePtr getNonQualType();
 			void setType(TypePtr ty);
 

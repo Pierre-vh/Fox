@@ -49,12 +49,12 @@ namespace Moonshot
 
 			IdentifierTable& identifierTable();
 
-			TypePtr getBuiltinIntType();
-			TypePtr getBuiltinFloatType();
-			TypePtr getBuiltinCharType();
-			TypePtr getBuiltinBoolType();
-			TypePtr getBuiltinStringType();
-			TypePtr getBuiltinVoidType();
+			TypePtr getPrimitiveIntType();
+			TypePtr getPrimitiveFloatType();
+			TypePtr getPrimitiveCharType();
+			TypePtr getPrimitiveBoolType();
+			TypePtr getPrimitiveStringType();
+			TypePtr getPrimitiveVoidType();
 		private:
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
@@ -75,11 +75,11 @@ namespace Moonshot
 			// Built-in types
 				// Theses are all initialized to nullptr, but are properly set by
 				// initBuiltinTypes().
-			TypePtr builtinVoid_	= nullptr;
-			TypePtr builtinInt_		= nullptr;
-			TypePtr builtinFloat_	= nullptr;
-			TypePtr builtinBool_	= nullptr;
-			TypePtr builtinChar_	= nullptr;
-			TypePtr builtinString_	= nullptr;
+			TypePtr primitiveVoidTy_	= nullptr;
+			TypePtr primitiveIntTy_		= nullptr;
+			TypePtr primitiveFloatTy_	= nullptr;
+			TypePtr primitiveBoolTy_	= nullptr;
+			TypePtr primitiveCharTy_	= nullptr;
+			TypePtr primitiveStringTy	= nullptr;
 	};
 }

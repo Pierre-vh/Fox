@@ -158,11 +158,11 @@ TypePtr Parser::parseTypeKw()
 	{
 		switch (t.getKeywordType())
 		{
-			case KeywordType::KW_INT:	return  astCtxt_->getBuiltinIntType();
-			case KeywordType::KW_FLOAT:	return  astCtxt_->getBuiltinFloatType();
-			case KeywordType::KW_CHAR:	return	astCtxt_->getBuiltinCharType();
-			case KeywordType::KW_STRING:return	astCtxt_->getBuiltinStringType();
-			case KeywordType::KW_BOOL:	return	astCtxt_->getBuiltinBoolType();
+			case KeywordType::KW_INT:	return  astCtxt_->getPrimitiveIntType();
+			case KeywordType::KW_FLOAT:	return  astCtxt_->getPrimitiveFloatType();
+			case KeywordType::KW_CHAR:	return	astCtxt_->getPrimitiveCharType();
+			case KeywordType::KW_STRING:return	astCtxt_->getPrimitiveStringType();
+			case KeywordType::KW_BOOL:	return	astCtxt_->getPrimitiveBoolType();
 		}
 	}
 	decrementPosition();

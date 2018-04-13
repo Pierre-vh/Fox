@@ -7,9 +7,10 @@ TODO:
 	> ASTContext : Types (Done)
 	> New type system & deletion of /Common/Types (Done!)
 	> Replace strings in the AST by IdentifierInfo* pointers (Done)
+	
+	> ParsingResult rework (Next)
 
-	> Add parser support for arrays declarations & Array literals. (Next)
-
+	> Add parser support for arrays types & Array literals. 
 	> DeclContext : std::map<IdentifierInfo*,IASTDecl*>
 		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" call upper declcontexts to lookup and add lookupresults
