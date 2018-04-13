@@ -86,8 +86,9 @@ namespace Moonshot
 			ParsingResult<std::vector<FunctionArg>> parseArgDeclList();
 			// Type spec
 			ParsingResult<QualType> parseFQTypeSpec();
+
 			// Type keyword
-			// Note : Returns a nullptr if no type keyword is found
+			// Returns a nullptr if no type keyword is found
 			TypePtr parseTypeKw();
 
 			// OneUpNode is a function that ups the node one level.
@@ -95,19 +96,16 @@ namespace Moonshot
 			// oneUpNode will return a new node X, with the operation PLUS and N as left child.
 			std::unique_ptr<ASTBinaryExpr> oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator &op = binaryOperator::DEFAULT);
 			
-			// matchToken -> returns true if the Token is matched, and increment pos_, if the Token isn't matched return false
-			// Peek != Match, Peek tries to match a token, if it does, it returns true and DOES NOT increment the position. Match does the same but increments if found.
-			// Match
 			ParsingResult<LiteralInfo> matchLiteral();		// match a literal
 			IdentifierInfo* matchID();						// match a ID. Returns the IdentifierInfo* if found, nullptr if not.
 			bool matchSign(const SignType& s);				// match any signs : ; . ( ) , returns true if success
 			bool matchKeyword(const KeywordType& k);		// match any keyword, returns true if success
 			bool peekSign(const std::size_t &idx, const SignType &sign) const;
 			
-			bool							matchExponentOp(); //  **
-			ParsingResult<binaryOperator>	matchAssignOp(); // = 
-			ParsingResult<unaryOperator>	matchUnaryOp(); // ! - +
-			ParsingResult<binaryOperator>	matchBinaryOp(const char &priority); // + - * / % 
+			bool matchExponentOp(); //  **
+			ParsingResult<binaryOperator> matchAssignOp();						// = 
+			ParsingResult<unaryOperator>  matchUnaryOp();						// ! - +
+			ParsingResult<binaryOperator> matchBinaryOp(const char &priority);	// + - * / % 
 			
 			// GetToken
 			Token getToken() const;
@@ -115,8 +113,6 @@ namespace Moonshot
 
 			// Get state_.pos
 			std::size_t getCurrentPosition() const;
-			// Get state_.pos++
-			std::size_t getNextPosition() const; 
 
 			void incrementPosition();
 			void decrementPosition();
@@ -133,12 +129,9 @@ namespace Moonshot
 			// die : Indicates that the parsing is over and the parser has died because of a critical error. 
 			void die();
 
-			// Typical parser error message helpers
-			// "Unexpected token x"
+			// Error helpers
 			void errorUnexpected();
-			// "Expected x after y"
 			void errorExpected(const std::string &s);
-			// Any error
 			void genericError(const std::string &s); 
 			
 			struct ParserState
@@ -159,6 +152,6 @@ namespace Moonshot
 			// Member variables
 			ASTContext* astCtxt_ = nullptr;
 			Context& context_;
-			TokenVector& tokens_;					// reference to the the token's vector.
+			TokenVector& tokens_;	
 	};
 }

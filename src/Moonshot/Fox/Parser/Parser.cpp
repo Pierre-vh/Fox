@@ -182,11 +182,6 @@ std::size_t Parser::getCurrentPosition() const
 	return state_.pos;
 }
 
-std::size_t Parser::getNextPosition() const
-{
-	return state_.pos + 1;
-}
-
 void Parser::incrementPosition()
 {
 	state_.pos+=1;
