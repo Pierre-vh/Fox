@@ -52,7 +52,7 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 	{
 		out << "Failed at parsing. Logs:\n";
 		out << ctxt.getLogs();
-		if (!presult.isDataAvailable()) // no data? return now. Nothing to do anymore!
+		if (!presult) // no usable data? return now.
 		{
 			out << "Parser returned no data.\n";
 			return false;
@@ -65,7 +65,7 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 	}
 	
 	// set as main unit
-	astCtxt->setMainUnit(std::move(presult.result_));
+	astCtxt->setMainUnit(std::move(presult.result));
 
 	out << "\nMain Unit Dump:\n";
 	Dumper dump(out,1);

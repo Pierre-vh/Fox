@@ -127,7 +127,7 @@ TEST(ParserTests,Expressions)
 	std::string bad_path = "parser/inputs/expr/incorrect.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseExpr();
-		return res && res.result_; // Parsing result is valid & node is not null
+		return res.isUsable();
 	});
 	// Correct inputs
 	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::INDIVIDUAL_LINES, corr_path)) << "Could not open file \"" << corr_path << '"';
@@ -146,7 +146,7 @@ TEST(ParserTests,ExpressionsStmt)
 	std::string bad_path = "parser/inputs/exprstmt/incorrect.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseExprStmt();
-		return res && res.result_; // Parsing result is valid & node is not null
+		return res.isUsable();
 	});
 	// Correct inputs
 	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::INDIVIDUAL_LINES, corr_path)) << "Could not open file \"" << corr_path << '"';
@@ -164,7 +164,7 @@ TEST(ParserTests, DeclCall)
 	std::string bad_path = "parser/inputs/declcall/incorrect.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseDeclCall();
-		return res && res.result_; // Parsing result is valid & node is not null
+		return res.isUsable();
 	});
 	// Correct inputs
 	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::INDIVIDUAL_LINES, corr_path)) << "Could not open file \"" << corr_path << '"';
@@ -182,7 +182,7 @@ TEST(ParserTests, VarDecl)
 	std::string bad_path = "parser/inputs/var_decls/incorrect.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseVarDeclStmt();
-		return res && res.result_; // Parsing result is valid & node is not null
+		return res.isUsable();
 	});
 	// Correct inputs
 	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::INDIVIDUAL_LINES, corr_path)) << "Could not open file \"" << corr_path << '"';
@@ -199,7 +199,7 @@ TEST(ParserTests, FuncDecl)
 	std::string bad_base_path = "parser/inputs/funcdecl/incorrect_";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseFunctionDeclaration();
-		return res && res.result_; // Parsing result is valid & node is not null
+		return res.isUsable();
 	});
 	std::stringstream ss;
 	for (int k = 1; k <= 6; k++)
@@ -228,7 +228,7 @@ TEST(ParserTests, Conditions)
 	std::string bad_base_path = "parser/inputs/condition/incorrect_";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseCondition();
-		return res && res.result_; // Parsing result is valid & node is not null
+		return res.isUsable();
 	});
 	std::stringstream ss;
 	for (int k = 1; k <= 5; k++)
@@ -257,7 +257,7 @@ TEST(ParserTests, WhileLoops)
 	std::string bad_base_path = "parser/inputs/whileloop/incorrect_";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseWhileLoop();
-		return res && res.result_; // Parsing result is valid & node is not null
+		return res.isUsable();
 	});
 	std::stringstream ss;
 	for (int k = 1; k <= 4; k++)
@@ -286,7 +286,7 @@ TEST(ParserTests, CompoundStmts)
 	std::string bad_base_path = "parser/inputs/compoundstmt/incorrect_";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseCompoundStatement();
-		return res && res.result_; // Parsing result is valid & node is not null
+		return res.isUsable();
 	});
 	std::stringstream ss;
 	for (int k = 1; k <= 2; k++)
