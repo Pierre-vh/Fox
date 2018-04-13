@@ -84,12 +84,12 @@ void PrimitiveType::setBuiltinKind(const Kind & kd)
 }
 
 /* Array type */
-ArrayType::ArrayType(TypePtr ty) : itemTy_(std::move(ty))
+ArrayType::ArrayType(Type* ty) : itemTy_(std::move(ty))
 {
 	assert(ty && "The Array item type cannot be null!");
 }
 
-TypePtr ArrayType::getItemTy()
+const Type* ArrayType::getItemTy() const
 {
 	return itemTy_;
 }
@@ -122,10 +122,10 @@ QualType::QualType() : ty_(nullptr),isConst_(false), isRef_(false)
 
 }
 
-QualType::QualType(TypePtr ty, const bool & isConstant, const bool &isReference) :
-	ty_(std::move(ty)), isConst_(isConstant), isRef_(isReference)
+QualType::QualType(Type* ty, const bool & isConstant, const bool &isReference) :
+	ty_(ty), isConst_(isConstant), isRef_(isReference)
 {
-	assert(ty && "Type cannot be null");
+	assert(ty_ && "The Type cannot be null!");
 }
 
 bool QualType::isConstant() const
@@ -155,21 +155,20 @@ std::string QualType::getPrettyName() const
 		out << "const ";
 	if (isRef_)
 		out << "&";
-	assert(ty_ && "Type is null?");
+
+	assert(ty_ && "Can't call this on a null type!");
 	out << ty_->getPrettyTypeName();
 	return out.str();
 }
 
-TypePtr QualType::getNonQualType()
+const Type* QualType::getType() const
 {
-	assert(ty_ && "Type is null?");
 	return ty_;
 }
 
-void QualType::setType(TypePtr ty)
+void QualType::setType(Type* ty)
 {
-	assert(ty && "Type is null?");
-	ty_ = std::move(ty);
+	ty_ = ty;
 }
 
 bool QualType::isValid() const

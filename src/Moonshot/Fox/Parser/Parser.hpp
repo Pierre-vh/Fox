@@ -89,7 +89,7 @@ namespace Moonshot
 
 			// Type keyword
 			// Returns a nullptr if no type keyword is found
-			TypePtr parseTypeKw();
+			Type* parseTypeKw();
 
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A and B as children. You call oneUpNode like this : oneUpNode(N,PLUS)

@@ -211,8 +211,8 @@ void ASTUnaryExpr::setOp(const unaryOperator & nop)
 }
 
 // CastExpr
-ASTCastExpr::ASTCastExpr(TypePtr castGoal, std::unique_ptr<ASTExpr> child):
-	goal_(std::move(castGoal)), child_(std::move(child))
+ASTCastExpr::ASTCastExpr(Type* castGoal, std::unique_ptr<ASTExpr> child):
+	goal_(castGoal), child_(std::move(child))
 {
 
 }
@@ -222,15 +222,15 @@ void ASTCastExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-void ASTCastExpr::setCastGoal(TypePtr goal)
+void ASTCastExpr::setCastGoal(Type* goal)
 {
 	assert(goal && "Goal type cannot be null!");
-	goal_ = std::move(goal);
+	goal_ = goal;
 }
 
-TypePtr ASTCastExpr::getCastGoal()
+const Type* ASTCastExpr::getCastGoal() const
 {
-	return TypePtr(goal_);
+	return goal_;
 }
 
 ASTExpr * ASTCastExpr::getChild()

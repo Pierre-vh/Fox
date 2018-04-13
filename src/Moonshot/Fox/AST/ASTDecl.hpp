@@ -63,12 +63,12 @@ namespace Moonshot
 			using argIter_const = std::vector<FunctionArg>::const_iterator;
 		public:
 			ASTFunctionDecl() = default;
-			ASTFunctionDecl(TypePtr returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
+			ASTFunctionDecl(Type* returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 			virtual void accept(IVisitor& vis) override;
 
-			void setReturnType(TypePtr ty);
-			TypePtr getReturnType();
+			void setReturnType(Type* ty);
+			Type* getReturnType();
 
 			IdentifierInfo* getFunctionIdentifier();
 			void setFunctionIdentifier(IdentifierInfo* id);
@@ -86,7 +86,7 @@ namespace Moonshot
 			argIter args_end();
 			argIter_const args_end() const;
 		private:
-			TypePtr returnType_ = nullptr;
+			Type* returnType_ = nullptr;
 			IdentifierInfo *fnId_ = nullptr;
 			std::vector<FunctionArg> args_;
 
@@ -102,13 +102,12 @@ namespace Moonshot
 
 			virtual void accept(IVisitor& vis) override;
 			
-			// Get a reference (or a copy) of the varType
+			// Get a reference to the varType
 			QualType& varType();
 			void setVarType(const QualType &ty);
 
-			// Get an observing pointer to the initexpr
 			ASTExpr* getInitExpr();
-			void setInitExpr(std::unique_ptr <ASTExpr> expr);
+			void setInitExpr(std::unique_ptr<ASTExpr> expr);
 
 			IdentifierInfo* getVarIdentifier();
 			void setVarIdentifier(IdentifierInfo* varId);

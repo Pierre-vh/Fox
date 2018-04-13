@@ -42,8 +42,8 @@ void FunctionArg::setQualType(const QualType & qt)
 	ty_ = qt;
 }
 
-ASTFunctionDecl::ASTFunctionDecl(TypePtr returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody) :
-	returnType_(std::move(returnType)), fnId_(fnId), body_(std::move(funcbody)), args_(args)
+ASTFunctionDecl::ASTFunctionDecl(Type* returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody) :
+	returnType_(returnType), fnId_(fnId), body_(std::move(funcbody)), args_(args)
 {
 
 }
@@ -53,12 +53,12 @@ void ASTFunctionDecl::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-TypePtr ASTFunctionDecl::getReturnType()
+Type* ASTFunctionDecl::getReturnType()
 {
-	return TypePtr(returnType_);
+	return returnType_;
 }
 
-void ASTFunctionDecl::setReturnType(TypePtr ty)
+void ASTFunctionDecl::setReturnType(Type* ty)
 {
 	assert(ty && "Type cannot be null!");
 	returnType_ = std::move(ty);

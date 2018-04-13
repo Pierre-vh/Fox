@@ -49,12 +49,13 @@ namespace Moonshot
 
 			IdentifierTable& identifierTable();
 
-			TypePtr getPrimitiveIntType();
-			TypePtr getPrimitiveFloatType();
-			TypePtr getPrimitiveCharType();
-			TypePtr getPrimitiveBoolType();
-			TypePtr getPrimitiveStringType();
-			TypePtr getPrimitiveVoidType();
+			Type* getPrimitiveIntType();
+			Type* getPrimitiveFloatType();
+			Type* getPrimitiveCharType();
+			Type* getPrimitiveBoolType();
+			Type* getPrimitiveStringType();
+			Type* getPrimitiveVoidType();
+
 		private:
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
@@ -75,11 +76,11 @@ namespace Moonshot
 			// Built-in types
 				// Theses are all initialized to nullptr, but are properly set by
 				// initBuiltinTypes().
-			TypePtr primitiveVoidTy_	= nullptr;
-			TypePtr primitiveIntTy_		= nullptr;
-			TypePtr primitiveFloatTy_	= nullptr;
-			TypePtr primitiveBoolTy_	= nullptr;
-			TypePtr primitiveCharTy_	= nullptr;
-			TypePtr primitiveStringTy	= nullptr;
+			std::unique_ptr<Type> primitiveVoidTy_	= nullptr;
+			std::unique_ptr<Type> primitiveIntTy_	= nullptr;
+			std::unique_ptr<Type> primitiveFloatTy_	= nullptr;
+			std::unique_ptr<Type> primitiveBoolTy_	= nullptr;
+			std::unique_ptr<Type> primitiveCharTy_	= nullptr;
+			std::unique_ptr<Type> primitiveStringTy	= nullptr;
 	};
 }

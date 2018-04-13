@@ -39,44 +39,44 @@ IdentifierTable & ASTContext::identifierTable()
 	return idents_;
 }
 
-TypePtr ASTContext::getPrimitiveIntType()
+Type* ASTContext::getPrimitiveIntType()
 {
-	return primitiveIntTy_;
+	return primitiveIntTy_.get();
 }
 
-TypePtr ASTContext::getPrimitiveFloatType()
+Type* ASTContext::getPrimitiveFloatType()
 {
-	return primitiveFloatTy_;
+	return primitiveFloatTy_.get();
 }
 
-TypePtr ASTContext::getPrimitiveCharType()
+Type* ASTContext::getPrimitiveCharType()
 {
-	return primitiveCharTy_;
+	return primitiveCharTy_.get();
 }
 
-TypePtr ASTContext::getPrimitiveBoolType()
+Type* ASTContext::getPrimitiveBoolType()
 {
-	return primitiveBoolTy_;
+	return primitiveBoolTy_.get();
 }
 
-TypePtr ASTContext::getPrimitiveStringType()
+Type* ASTContext::getPrimitiveStringType()
 {
-	return primitiveStringTy;
+	return primitiveStringTy.get();
 }
 
-TypePtr ASTContext::getPrimitiveVoidType()
+Type* ASTContext::getPrimitiveVoidType()
 {
-	return primitiveVoidTy_;
+	return primitiveVoidTy_.get();
 }
 
 void ASTContext::initBuiltinTypes()
 {
-	primitiveVoidTy_	= std::make_shared<PrimitiveType>(PrimitiveType::Kind::VoidTy);
+	primitiveVoidTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::VoidTy);
 
-	primitiveIntTy_		= std::make_shared<PrimitiveType>(PrimitiveType::Kind::IntTy);
-	primitiveFloatTy_	= std::make_shared<PrimitiveType>(PrimitiveType::Kind::FloatTy);
-	primitiveBoolTy_	= std::make_shared<PrimitiveType>(PrimitiveType::Kind::BoolTy);
+	primitiveIntTy_		= std::make_unique<PrimitiveType>(PrimitiveType::Kind::IntTy);
+	primitiveFloatTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::FloatTy);
+	primitiveBoolTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::BoolTy);
 
-	primitiveStringTy	= std::make_shared<PrimitiveType>(PrimitiveType::Kind::StringTy);
-	primitiveCharTy_	= std::make_shared<PrimitiveType>(PrimitiveType::Kind::CharTy);
+	primitiveStringTy	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::StringTy);
+	primitiveCharTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::CharTy);
 }
