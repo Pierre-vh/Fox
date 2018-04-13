@@ -13,133 +13,86 @@
 
 namespace Moonshot
 {
-	enum class ParsingOutcome {
-		SUCCESS, 
-		NOTFOUND,
-		FAILED_WITHOUT_ATTEMPTING_RECOVERY,
-		FAILED_AND_DIED, 
-		FAILED_BUT_RECOVERED
-	};
-
-	template<typename Ty>
-	struct ParsingResultDataType
-	{
-		typedef Ty type;
-	};
-
-	template<typename Ty>
-	struct ParsingResultDataType<Ty*>
-	{
-		typedef std::unique_ptr<Ty> type;
-	};
-
-	// Note : This is trash, and could use a rework.
-	// First, simplify the ParsingOutcomes to just 2 : SUCCESS/FAILED
-	// Second remove some useless information, like "hasRecovered", we know if it has recovered or not already with the success flag.
-		// success & no data -> not found, isUsable return false
-		// success & data -> found something, we don't care how, it just completed successfuly, isUsable returns true
-		// failure & (we don't care) -> failed, hasn't recovered, panic!
-	// then, make another overload of this class with "isPointer" to true
-	// template<typename DataTy,bool isPtr = std::is_pointer<DataTy>::value>
-	// and the specialization for <DataTy,true> has extra function like isNull(), etc.
+	// ParsingResult provides 2 specialization, one for
+	// "normal" objects, and one of pointers. The one for pointer 
+	// manages it using a std::unique_ptr.
 	template<typename DataTy>
 	struct ParsingResult {
 		public:
-			using ResultType = typename ParsingResultDataType<DataTy>::type;
-
-			ParsingResult(const ParsingOutcome& pc, ResultType res)
+			ParsingResult(const DataTy& res)
 			{
-				// set data
-				if constexpr (std::is_pointer<DataTy>::value)
-				{
-					if (res)
-					{
-						result_ = std::move(res);
-						data_ok_ = true;
-					}
-					else
-					{
-						result_ = nullptr;
-						data_ok_ = false;
-					}
-				}
-				else
-				{
-					data_ok_ = true;
-					result_ = res;
-				}
-				// set flags
-				enumflag_ = pc;
-				if (pc == ParsingOutcome::SUCCESS || pc == ParsingOutcome::NOTFOUND)
-				{
-					successFlag_ = true;
-					recovered_ = true;
-				}
-				else if (pc == ParsingOutcome::FAILED_AND_DIED)
-				{
-					successFlag_ = false;
-					recovered_ = false;
-				}
-				else if (pc == ParsingOutcome::FAILED_BUT_RECOVERED || pc == ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
-				{
-					successFlag_ = false;
-					recovered_ = (pc == ParsingOutcome::FAILED_BUT_RECOVERED);
-				}
+				successFlag_ = true;
+				hasData_ = true;
+				data_ = res;
 			}
 
-			ParsingResult(const ParsingOutcome& pc)
+			ParsingResult(const bool &wasSuccessful = true)
 			{
-				enumflag_ = pc;
-				if (pc == ParsingOutcome::SUCCESS || pc == ParsingOutcome::NOTFOUND)
-				{
-					successFlag_ = true;
-					recovered_ = true;
-				}
-				else if (pc == ParsingOutcome::FAILED_AND_DIED)
-				{
-					successFlag_ = false;
-					recovered_ = false;
-				}
-				else if (pc == ParsingOutcome::FAILED_BUT_RECOVERED || pc == ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
-				{
-					successFlag_ = false;
-					recovered_ = (pc == ParsingOutcome::FAILED_BUT_RECOVERED);
-				}
+				hasData_ = false;
+				successFlag_ = wasSuccessful;
+				data_ = DataTy();
 			}
 
 			operator bool() const
 			{
-				return wasSuccessful() && isDataAvailable();
+				return isUsable();
 			}
 
-			ParsingOutcome getFlag() const
-			{
-				return enumflag_;
-			}
-
+			// Returns true if the Parsing function reported a successful parsing, or a failure.
 			bool wasSuccessful() const
 			{
 				return successFlag_;
 			}
-
-			bool hasRecovered() const
+			
+			// Returns true if this ParsingResult contains usable data.
+			bool isUsable() const
 			{
-				return recovered_;
+				return successFlag  && hasData_;
 			}
 
-			bool isPointer() const
-			{
-				return std::is_pointer<DataTy>::value;
-			}
-
-			bool isDataAvailable() const
-			{
-				return data_ok_;
-			}
-
-			ResultType result_;
+			// The result's data
+			DataTy result;
 		private:
-			ParsingOutcome enumflag_;
-			bool successFlag_ = false, recovered_ = true, data_ok_ = false;
+			bool successFlag_ : 1;
+			bool hasData_ : 1;
+	};
+
+	// Special overload for pointer types
+	template<typename DataTy>
+	struct ParsingResult<DataTy*> {
+	public:
+		ParsingResult(std::unique_ptr<DataTy> res)
+		{
+			successFlag_ = true;
+			result = std::move(res);
+		}
+
+		ParsingResult(const bool &wasSuccessful = true)
+		{
+			successFlag_ = wasSuccessful;
+			data_ = nullptr;
+		}
+
+		operator bool() const
+		{
+			return isUsable();
+		}
+
+		// Returns true if the Parsing function reported a successful parsing, or a failure.
+		bool wasSuccessful() const
+		{
+			return successFlag_;
+		}
+
+		// Returns true if this ParsingResult contains usable data.
+		bool isUsable() const
+		{
+			return successFlag && (bool)result;
+		}
+
+		// The pointer
+		std::unique_ptr<DataTy> result;
+		private:
+			bool successFlag_ : 1;
 	};
 }

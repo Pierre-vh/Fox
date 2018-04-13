@@ -13,6 +13,7 @@
 
 #include <sstream>
 #include <cassert>
+#include "Moonshot/Fox/AST/IdentifierTable.hpp"
 #include "Moonshot/Fox/Basic/Context.hpp"
 #include "Moonshot/Fox/Basic/Exceptions.hpp"
 
@@ -28,80 +29,64 @@ Parser::Parser(Context& c, ASTContext* astctxt, TokenVector& l) : context_(c), a
 ParsingResult<ASTUnit*> Parser::parseUnit()
 {
 	// <fox_unit>	= {<declaration>}1+
-	// Note: unit "hard fails" if it did not find any declaration, since it's a mandatory rule for any file.
-	std::size_t counter = 0;
 	auto unit = std::make_unique<ASTUnit>();
 	// Parse declarations 
 	while (true)
 	{
 		// Parse a declaration
-		auto decl = parseTopLevelDecl();
+		auto decl = parseDecl();
 		// If the declaration was parsed successfully : continue the cycle.
 		if (decl)
 		{
-			counter++;
-			unit->addDecl(std::move(decl.result_));
+			unit->addDecl(std::move(decl.result));
 			continue;
 		}
 		else
 		{
-			// Act differently depending on the failure type
-			if (decl.getFlag() == ParsingOutcome::NOTFOUND)
+			// If the ParsingResult is not usable, but the parsing was successful
+			if (decl.wasSuccessful()) 
 			{
-				// if it didn't find it because we reached EOF, that means our job is done
+				// Parsing was successful & EOF -> Job's done !
 				if (hasReachedEndOfTokenStream())
 					break;
-				else // It didn't find a declaration and no eof
+				// No EOF? There's an unexpected token on the way, report it & recover!
+				else //
 				{
-					// Report an error
 					errorUnexpected();
-					genericError("Attempting recovery to next declaration...");
-					// Try to go to the next decl
+					genericError("Attempting recovery to next declaration.");
 					if (resyncToNextDeclKeyword())
 					{
 						genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
 						continue;
 					}
-					else	// Died, break.
-						break;
+					else	// Died, report unsuccessful parsing.
+						return ParsingResult<ASTUnit*>(false);
 				}
 			}
-			// Other error, and there's still stuff to parse, try to recover.
-			else if (!hasReachedEndOfTokenStream())
+			// Parsing failed ? Try to recover!
+			else 
 			{
-				// If the decl has error, but still managed to return something, make use of it!
-				if (decl.isDataAvailable())
-				{
-					counter++;
-					unit->addDecl(std::move(decl.result_));
-				}
 				genericError("Attempting recovery to next declaration.");
 				if (resyncToNextDeclKeyword())
 				{
 					genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
 					continue;
 				}
-				else	// Died, break.
-					break;
+				else	// Died, report unsuccessful parsing.
+					return ParsingResult<ASTUnit*>(false);
 			}
-			else // Other error and reached  eof, break.
-				break;
 		}
 
 	}
-	if (counter == 0)
+	if (unit->getDeclCount() == 0)
+	{
+		// Unit reports an error if notfound, because it's a mandatory rule.
 		genericError("Expected one or more declaration in unit.");
-
-	// Return !
-		// Note:  we always return the Unit, because even if it's incomplete, we might want to dump it to see what was parsed successfuly.
-	if (isAlive() && counter) // If parser is alive and we got 1 or more decl
-		return ParsingResult<ASTUnit*>(ParsingOutcome::SUCCESS, std::move(unit));
-	else if (!isAlive()) // Died :(
-		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_AND_DIED, std::move(unit));
-	else if (counter && hasReachedEndOfTokenStream()) // Parser is alive, we found 1 or more decl and we reached end of stream... we had errors but recovered successfuly.
-		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(unit));
-	else 
-		return ParsingResult<ASTUnit*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY, std::move(unit));
+		// Return empty result
+		return ParsingResult<ASTUnit*>();
+	}
+	else
+		return ParsingResult<ASTUnit*>(std::move(unit));
 }
 
 ParsingResult<LiteralInfo> Parser::matchLiteral()
@@ -111,22 +96,23 @@ ParsingResult<LiteralInfo> Parser::matchLiteral()
 	{
 		incrementPosition();
 		if (auto litinfo = t.getLiteralInfo())
-			return ParsingResult<LiteralInfo>(ParsingOutcome::SUCCESS, litinfo);
+			return ParsingResult<LiteralInfo>(litinfo);
 		else
 			throw std::exception("Returned an invalid litinfo when the token was a literal?");
 	}
-	return ParsingResult<LiteralInfo>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<LiteralInfo>();
 }
 
-ParsingResult<std::string> Parser::matchID()
+IdentifierInfo* Parser::matchID()
 {
 	Token t = getToken();
 	if (t.isIdentifier())
 	{
-		incrementPosition();
-		return ParsingResult<std::string>(ParsingOutcome::SUCCESS, t.getIdentifierString());
+		IdentifierInfo* ptr = t.getIdentifierInfo();;
+		assert(ptr && "Token's an identifier but contains a nullptr IdentifierInfo?");
+		return ptr;
 	}
-	return ParsingResult<std::string>(ParsingOutcome::NOTFOUND);
+	return nullptr;
 }
 
 bool Parser::matchSign(const SignType & s)
@@ -209,7 +195,7 @@ void Parser::decrementPosition()
 	state_.pos-=1;
 }
 
-bool Parser::resyncToSign(const SignType & s)
+bool Parser::resyncToSign(const SignType & s, const bool& consumeToken)
 {
 	if (isClosingDelimiter(s))
 	{
@@ -226,8 +212,18 @@ bool Parser::resyncToSign(const SignType & s)
 			{
 				if (counter)
 					counter--;
-				else 
-					return true;
+				else
+				{
+					if(consumeToken)
+						return true;
+					else
+					{
+						// if the token shouldn't be consumed, go back 1 token and return, so the token
+						// is left to be picked up by another parsing function
+						decrementPosition();
+						return true;
+					}
+				}
 			}
 		}
 	}

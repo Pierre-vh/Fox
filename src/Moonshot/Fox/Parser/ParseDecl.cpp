@@ -23,171 +23,156 @@ using namespace Moonshot;
 ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 {
 	/*
-		<func_decl> = "func" <id> '(' [<arg_list_decl>] ')'[':' <type>] <compound_statement>	// Note about type_spec : if it is not present, the function returns void.
+		<func_decl>		= "func" <id> '(' [<arg_decl_list>] ')'[':' <type>] <compound_statement>
+		// Note about [':' <type>], if it isn't present, the function returns void
 	*/
+
 	// "func"
 	if (matchKeyword(KeywordType::KW_FUNC))
 	{
 		auto rtr = std::make_unique<ASTFunctionDecl>();
 		// <id>
-		if (auto mID_res = matchID())
-		{
-			IdentifierInfo* id = astCtxt_->identifierTable().getUniqueIDInfoPtr(mID_res.result_);
-			assert(id && "IdentifierTable returned a null IdentifierInfo?");
+		if (auto id = matchID())
 			rtr->setFunctionIdentifier(id);
-		}
 		else
 		{
 			errorExpected("Expected an identifier");
-			return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			return ParsingResult<ASTFunctionDecl*>(false);
 		}
 
 		// '('
-		if (matchSign(SignType::S_ROUND_OPEN))
-		{
-			// [<arg_list_decl>]
-			auto pArgDeclList = parseArgDeclList();
-			if (pArgDeclList)
-				rtr->setArgs(pArgDeclList.result_);
-			// ')'
-			if (!matchSign(SignType::S_ROUND_CLOSE))
-			{
-				if (pArgDeclList.getFlag() != ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
-					errorExpected("Expected a ')'");
-				if (!resyncToSign(SignType::S_ROUND_CLOSE))
-					return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::FAILED_AND_DIED);
-			}
-		}
-		else
+		if (!matchSign(SignType::S_ROUND_OPEN))
 		{
 			errorExpected("Expected '('");
-			if (!resyncToSign(SignType::S_ROUND_CLOSE))
-				return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::FAILED_AND_DIED);
+			// try to resync to a ')' without consuming it
+			if (!resyncToSign(SignType::S_ROUND_CLOSE,/*consumeToken*/false))
+				return ParsingResult<ASTFunctionDecl*>(false);
 		}
+
+		// [<arg_list_decl>]
+		if (auto pArgDeclList = parseArgDeclList())
+			rtr->setArgs(pArgDeclList.result);
+
+		// ')'
+		if (!matchSign(SignType::S_ROUND_CLOSE))
+		{
+			errorExpected("Expected a ')'");
+			if (!resyncToSign(SignType::S_ROUND_CLOSE))
+				return ParsingResult<ASTFunctionDecl*>(false);
+		}
+	
 		// [':' <type>]
 		if (matchSign(SignType::S_COLON))
 		{
 			if (auto rtrTy = parseTypeKw())
 				rtr->setReturnType(rtrTy);
-			else
+			else // no type found? we expected one after the colon!
+			{
 				errorExpected("Expected a type keyword");
+				rtr->setReturnType(astCtxt_->getPrimitiveVoidType());
+				// don't return just yet, wait to see if a { can be found so we can still return something.
+				// return ParsingResult<ASTFunctionDecl*>(false);
+			}
 		}
 		else // if no return type, the function returns void.
 			rtr->setReturnType(astCtxt_->getPrimitiveVoidType());
 
 		// <compound_statement>
-		if (auto cp_res = parseTopLevelCompoundStatement(true))
+		if (auto compstmt_res = parseCompoundStatement(/* mandatory = yes */ true, /* shouldn't attempt to recover (because recovery is handled by parseUnit)*/ false))
 		{
-			rtr->setBody(std::move(cp_res.result_));
-			return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::SUCCESS, std::move(rtr));
+			rtr->setBody(std::move(compstmt_res.result));
+			// Success, nothing more to see here!
+			return ParsingResult<ASTFunctionDecl*>(std::move(rtr));
 		}
-		else
+		else 
 		{
-			if (cp_res.isDataAvailable())
-			{
-				rtr->setBody(std::move(cp_res.result_));
-				return ParsingResult<ASTFunctionDecl*>(cp_res.getFlag(), std::move(rtr));
-			}
-			else
-			{
-				// If there was an error, create an empty compound statement to still return something
-				rtr->setBody(std::make_unique<ASTCompoundStmt>());
-				return ParsingResult<ASTFunctionDecl*>(cp_res.getFlag(),std::move(rtr));
-			}
+			if (compstmt_res.wasSuccessful())
+				errorExpected("Expected a {");
+			return ParsingResult<ASTFunctionDecl*>(false);
 		}
 	}
-	return ParsingResult<ASTFunctionDecl*>(ParsingOutcome::NOTFOUND);
+	// not found
+	return ParsingResult<ASTFunctionDecl*>();
 }
 
 ParsingResult<FunctionArg> Parser::parseArgDecl()
 {
 	// <arg_decl> = <id> <fq_type_spec>
 	// <id>
-	if (auto mID_res = matchID())
+	if (auto id = matchID())
 	{
-		IdentifierInfo* id = astCtxt_->identifierTable().getUniqueIDInfoPtr(mID_res.result_);
-		assert(id && "IdentifierTable returned a null IdentifierInfo?");
 		// <fq_type_spec>
-		if (auto typeSpec_res = parseFQTypeSpec())
-			return ParsingResult<FunctionArg>(ParsingOutcome::SUCCESS, FunctionArg(id, typeSpec_res.result_));
-
-		// failure cases
-		else if (typeSpec_res.getFlag() == ParsingOutcome::NOTFOUND)
-			errorExpected("Expected a ':'");
-
-		return ParsingResult<FunctionArg>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+		if (auto typespec_res = parseFQTypeSpec())
+			return ParsingResult<FunctionArg>(FunctionArg(id, typespec_res.result));
+		else
+		{
+			if(typespec_res.wasSuccessful())		// not found, report an error
+				errorExpected("Expected a ':'");
+			// in both case (not found or error) return an error
+			return ParsingResult<FunctionArg>(false);
+		}
 	}
-	return ParsingResult<FunctionArg>(ParsingOutcome::NOTFOUND);
+	return ParsingResult<FunctionArg>();
 }
 
 ParsingResult<std::vector<FunctionArg>> Parser::parseArgDeclList()
 {
-	if (auto firstArg_res = parseArgDecl())
+	// <arg_decl_list> = [<arg_decl> {',' <arg_decl>}*]
+	if (auto firstarg_res = parseArgDecl())
 	{
 		std::vector<FunctionArg> rtr;
-		rtr.push_back(firstArg_res.result_);
+		rtr.push_back(firstarg_res.result);
+		// try to parse the rest
 		while (true)
 		{
 			if (matchSign(SignType::S_COMMA))
 			{
-				if (auto pArgDecl_res = parseArgDecl())
-					rtr.push_back(pArgDecl_res.result_);
+				if (auto argdecl_res = parseArgDecl())
+					rtr.push_back(argdecl_res.result);
 				else
 				{
-					if (pArgDecl_res.getFlag() == ParsingOutcome::NOTFOUND)
+					if (argdecl_res.wasSuccessful()) // not found?
 						errorExpected("Expected an argument declaration");
-					return ParsingResult<std::vector<FunctionArg>>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+					return ParsingResult<std::vector<FunctionArg>>(false);
 				}
 			}
 			else
 				break;
 		}
-		return ParsingResult<std::vector<FunctionArg>>(ParsingOutcome::SUCCESS, rtr);
+		return ParsingResult<std::vector<FunctionArg>>(rtr);
 	}
 	else
-		return ParsingResult<std::vector<FunctionArg>>(firstArg_res.getFlag());
+		return ParsingResult<std::vector<FunctionArg>>(firstarg_res.wasSuccessful());
 }
-ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
-{
-	auto node = parseTopLevelVarDeclStmt();
-	// If failed w/o recovery, try to recover.
-	if (node.getFlag() == ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY)
-	{
-		if (resyncToSign(SignType::S_SEMICOLON))
-		{
-			if(node.isDataAvailable())
-				return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_BUT_RECOVERED, std::move(node.result_));
-			return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_BUT_RECOVERED);
-		}
-		return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_AND_DIED);
-	}
-	return node;
-}
-
-ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
+ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnError)
 {
 	// <var_decl> = "let" <id> <fq_type_spec> ['=' <expr>] ';'
 	std::unique_ptr<ASTExpr> initExpr = 0;
-	ParsingOutcome flag = ParsingOutcome::SUCCESS;
 
 	QualType varType;
 	IdentifierInfo *varId = nullptr;
+
 	// "let"
 	if (matchKeyword(KeywordType::KW_LET))
 	{
+		auto rtr = std::make_unique<ASTVarDecl>();
+
 		// <id>
-		if (auto match = matchID())
-			varId = astCtxt_->identifierTable().getUniqueIDInfoPtr(match.result_);
+		if (auto id = matchID())
+			rtr->setVarIdentifier(id);
 		else
 		{
 			errorExpected("Expected an identifier");
-			return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			// Recover to semicolon if allowed & return error
+			if (recoverToSemiOnError)
+				resyncToSign(SignType::S_SEMICOLON);
+			return ParsingResult<ASTVarDecl*>(false);
 		}
 
 		// <fq_type_spec>
 		if (auto typespecResult = parseFQTypeSpec())
 		{
-			auto qualTy = typespecResult.result_;
+			auto qualTy = typespecResult.result;
 			if (qualTy.isAReference())
 			{
 				context_.reportWarning("Ignored reference qualifier '&' in variable declaration : Variables cannot be references.");
@@ -198,18 +183,25 @@ ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 		else
 		{
 			errorExpected("Expected a ':'");
-			return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			// Recover to semicolon if allowed & return error
+			if (recoverToSemiOnError)
+				resyncToSign(SignType::S_SEMICOLON);
+			return ParsingResult<ASTVarDecl*>(false);
 		}
 
 		// ['=' <expr>]
 		if (matchSign(SignType::S_EQUAL))
 		{
 			if (auto parseres = parseExpr())
-				initExpr = std::move(parseres.result_);
+				initExpr = std::move(parseres.result);
 			else
 			{
-				errorExpected("Expected an expression");
-				return ParsingResult<ASTVarDecl*>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+				if(parseres.wasSuccessful())
+					errorExpected("Expected an expression");
+				// Recover to semicolon if allowed & return error
+				if (recoverToSemiOnError)
+					resyncToSign(SignType::S_SEMICOLON);
+				return ParsingResult<ASTVarDecl*>(false);
 			}
 		}
 
@@ -217,22 +209,16 @@ ParsingResult<ASTVarDecl*> Parser::parseTopLevelVarDeclStmt()
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected semicolon after expression in variable declaration,");
-			flag = ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY;
+			// Recover to semicolon if allowed & return error
+			if (recoverToSemiOnError)
+				resyncToSign(SignType::S_SEMICOLON);
+			return ParsingResult<ASTVarDecl*>(false);
 		}
-
-		// If parsing was ok : 
-		if (initExpr) // Has init expr?
-			return ParsingResult<ASTVarDecl*>(
-				flag,
-					std::make_unique<ASTVarDecl>(varId,varType, std::move(initExpr))
-				);
-		else
-			return ParsingResult<ASTVarDecl*>(
-				flag,
-					std::make_unique<ASTVarDecl>(varId,varType, nullptr)
-				);
+		// If we're here -> success
+		return ParsingResult<ASTVarDecl*>(std::move(rtr));
 	}
-	return ParsingResult<ASTVarDecl*>(ParsingOutcome::NOTFOUND);
+	// not found
+	return ParsingResult<ASTVarDecl*>();
 }
 
 ParsingResult<QualType> Parser::parseFQTypeSpec()
@@ -255,33 +241,31 @@ ParsingResult<QualType> Parser::parseFQTypeSpec()
 		else
 		{
 			errorExpected("Expected a type name");
-			return ParsingResult<QualType>(ParsingOutcome::FAILED_WITHOUT_ATTEMPTING_RECOVERY);
+			return ParsingResult<QualType>(false);
 		}
 
-		return ParsingResult<QualType>(ParsingOutcome::SUCCESS, ty);
+		// Success!
+		return ParsingResult<QualType>(ty);
 	}
-	return ParsingResult<QualType>(ParsingOutcome::NOTFOUND);
+	// not found!
+	return ParsingResult<QualType>();
 }
 
-ParsingResult<ASTDecl*> Parser::parseTopLevelDecl()
+ParsingResult<ASTDecl*> Parser::parseDecl()
 {
 	// <declaration> = <var_decl> | <func_decl>
-	// <var_decl>
-	auto vdecl = parseTopLevelVarDeclStmt();
-	if (vdecl.getFlag() != ParsingOutcome::NOTFOUND)
-	{
-		if (vdecl.isDataAvailable())
-			return ParsingResult<ASTDecl*>(vdecl.getFlag(), std::move(vdecl.result_));
-		return ParsingResult<ASTDecl*>(vdecl.getFlag());
-	}
-	// <func_decl>
-	auto fdecl = parseFunctionDeclaration();
-	if (fdecl.getFlag() != ParsingOutcome::NOTFOUND)
-	{
-		if(fdecl.isDataAvailable())
-			return ParsingResult<ASTDecl*>(fdecl.getFlag(), std::move(fdecl.result_));
-		return ParsingResult<ASTDecl*>(fdecl.getFlag());
-	}
 
-	return ParsingResult<ASTDecl*>(ParsingOutcome::NOTFOUND);
+	// <var_decl>
+	if (auto vdecl = parseVarDeclStmt(/* Don't recover on error */ false)) // we don't recover on error because recovery is handled by parseUnit.
+		return ParsingResult<ASTDecl*>(std::move(vdecl.result));
+	else if (!vdecl.wasSuccessful())
+		return ParsingResult<ASTDecl*>(false);
+
+	// <func_decl>
+	if (auto fdecl = parseFunctionDeclaration())
+		return ParsingResult<ASTDecl*>(std::move(fdecl.result));
+	else if (!fdecl.wasSuccessful())
+		return ParsingResult<ASTDecl*>(false);
+
+	return ParsingResult<ASTDecl*>();
 }

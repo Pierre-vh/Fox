@@ -79,8 +79,7 @@ namespace Moonshot
 			// STATEMENTS
 			ParsingResult<ASTStmt*> parseReturnStmt();
 			ParsingResult<ASTStmt*> parseExprStmt(); // Expression statement
-			ParsingResult<ASTCompoundStmt*> parseTopLevelCompoundStatement(const bool& isMandatory = false); // Top level compound statement : always mandatory and doesn't try to recover on error, since error handling is done by parseUnit
-			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); // Compound Statement, might be mandatory, and tries to recover to next } on error.
+			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false, const bool& recoverOnError = false); 
 			ParsingResult<ASTStmt*> parseStmt(); // General Statement
 			ParsingResult<ASTStmt*> parseBody(); // body for control flow
 
@@ -89,14 +88,13 @@ namespace Moonshot
 			ParsingResult<ASTStmt*> parseWhileLoop();
 
 			// DECLS
-			ParsingResult<ASTVarDecl*> parseTopLevelVarDeclStmt();	// Parses a var declaration, but doesn't attempt to recover when an error is met
-			ParsingResult<ASTVarDecl*> parseVarDeclStmt();			// Same as above, but tries to recover.
+			ParsingResult<ASTVarDecl*> parseVarDeclStmt(const bool& recoverToSemiOnError = true);
 			ParsingResult<ASTFunctionDecl*> parseFunctionDeclaration();
-			ParsingResult<ASTDecl*> parseTopLevelDecl();
+			ParsingResult<ASTDecl*> parseDecl();
 
 		private:
 			// expression helpers
-			ParsingResult<ASTExpr*> parseParensExpr(const bool& isMandatory = false, const bool& isExprMandatory = false);
+			ParsingResult<ASTExpr*> parseParensExpr(const bool& isMandatory = false);
 			ParsingResult<ExprList*> parseExprList();
 			ParsingResult<ExprList*> parseParensExprList();
 			// Arg decl & decl list
@@ -116,10 +114,10 @@ namespace Moonshot
 			// matchToken -> returns true if the Token is matched, and increment pos_, if the Token isn't matched return false
 			// Peek != Match, Peek tries to match a token, if it does, it returns true and DOES NOT increment the position. Match does the same but increments if found.
 			// Match
-			ParsingResult<LiteralInfo> matchLiteral();			// match a literal
-			ParsingResult<std::string> matchID();			// match a ID
+			ParsingResult<LiteralInfo> matchLiteral();		// match a literal
+			IdentifierInfo* matchID();						// match a ID. Returns the IdentifierInfo* if found, nullptr if not.
 			bool matchSign(const SignType& s);				// match any signs : ; . ( ) , returns true if success
-			bool matchKeyword(const KeywordType& k);		// Match any keyword, returns true if success
+			bool matchKeyword(const KeywordType& k);		// match any keyword, returns true if success
 			bool peekSign(const std::size_t &idx, const SignType &sign) const;
 			
 			bool							matchExponentOp(); //  **
@@ -139,9 +137,9 @@ namespace Moonshot
 			void incrementPosition();
 			void decrementPosition();
 
-			// This function will skip every token until the appropriate "resync" token is found.
+			// This function will skip every token until the appropriate "resync" token is found. if consumeToken is set to false, the token won't be consumed.
 			// Returns true if resync was successful.
-			bool resyncToSign(const SignType &s);
+			bool resyncToSign(const SignType &s,const bool& consumeToken = true);
 			// Same as resyncToSign, except it works on "let" and "func" keywords
 			bool resyncToNextDeclKeyword();
 			// Helper for resyncToSign

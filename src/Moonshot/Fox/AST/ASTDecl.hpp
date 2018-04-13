@@ -97,6 +97,7 @@ namespace Moonshot
 	class ASTVarDecl : public IASTDeclStmt
 	{
 		public:
+			ASTVarDecl() = default;
 			ASTVarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<ASTExpr> iExpr = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
