@@ -61,13 +61,14 @@ namespace Moonshot
 			ASTContext& operator=(const ASTContext&) = delete;
 
 			// Init all builtin types
+				// /!\ This must be called prior to using any getType function ! -> This should be called in the Constructor !
 			void initBuiltinTypes();
 
 			// An observing pointer to a ASTUnit owned by the vector below that points to the main unit
 			// (= the unit that contains the entry point of this module)
 			ASTUnit* mainUnit_ = nullptr;
 
-			// All of the units that makes the current program.
+			// All of the units that makes the current module.
 			std::vector<std::unique_ptr<ASTUnit>> units_;
 
 			// Identifier table
