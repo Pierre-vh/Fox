@@ -206,8 +206,12 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnE
 			errorExpected("Expected semicolon after expression in variable declaration,");
 			// Recover to semicolon if allowed & return error
 			if (recoverToSemiOnError)
-				resyncToSign(SignType::S_SEMICOLON);
-			return ParsingResult<ASTVarDecl*>(false);
+			{
+				if(!resyncToSign(SignType::S_SEMICOLON))
+					return ParsingResult<ASTVarDecl*>(false);
+			}
+			else
+				return ParsingResult<ASTVarDecl*>(false);
 		}
 		// If we're here -> success
 		return ParsingResult<ASTVarDecl*>(std::move(rtr));
