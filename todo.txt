@@ -16,6 +16,21 @@ TODO:
 		>  Parser needs modification for <type> rule, it needs to be replaced, and the old <type> will be renamed to <typename>
 		>  AST needs an ArrayLiteral that wraps around an expressionlist.
 			> Note, arrayLiteral's type will be deduced by the typechecker.
+		> Change ast ArrayAccess to accept expressions and not only declrefs
+		> Change grammar of expressions to :	
+			<primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
+			<array_literal>		= '[' [<expr_list>] ']'
+			<literal>			= <primitive_literal> | <array_literal>
+
+			<decl_call>		= <id> [ <parens_expr_list> ]
+			<primary>		= <literal> | <parens_expr> | <decl_call>
+			<array_access>	= <primary> {'[' <expr> ']'}
+			<member_access>	= <array_access> { '.' <decl_call> }
+
+			This allows expressions of the form [1,2,3][0] // prints 1
+				However, I fear that this might create some ambiguities with the arrayaccess operator, even if it shouldn't
+				some tests might be welcome!
+
 	> DeclContext : std::map<IdentifierInfo*,IASTDecl*>
 		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" call upper declcontexts to lookup and add lookupresults
