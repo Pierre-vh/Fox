@@ -16,7 +16,7 @@
 using namespace Moonshot;
 
 // Tests isPrimitive, isArray, isBuiltin
-TEST(ASTTests, BaseTypeFunctions)
+TEST(ASTTests, TypeFunctions)
 {
 	ASTContext astContext;
 
@@ -24,11 +24,14 @@ TEST(ASTTests, BaseTypeFunctions)
 	ASSERT_TRUE(intTy) << "Ptr is null?";
 	
 
-	EXPECT_TRUE(intTy->isBuiltinType()) << "Primitive does not register as builtin";
-	EXPECT_TRUE(intTy->isPrimitiveType()) << "Primitive does not register as primitive";
+	EXPECT_TRUE(intTy->isBuiltinType());
+	EXPECT_TRUE(intTy->isPrimitiveType());
+	EXPECT_FALSE(intTy->isArrayType());
 
 	std::unique_ptr<Type>  arrInt = std::make_unique<ArrayType>(intTy);
-	EXPECT_TRUE(arrInt->isArrayType()) << "Array does not register as array";
+	EXPECT_TRUE(arrInt->isArrayType());
+	EXPECT_TRUE(arrInt->isBuiltinType());
+	EXPECT_FALSE(arrInt->isPrimitiveType());
 }
 
 // Tests that the ASTContext gives correct builtin
