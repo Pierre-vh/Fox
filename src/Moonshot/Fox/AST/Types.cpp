@@ -37,7 +37,7 @@ bool PrimitiveType::isPrimitive() const
 	return true;
 } 
 
-std::string PrimitiveType::getPrettyTypeName() const
+std::string PrimitiveType::getString() const
 {
 	switch (builtinKind_)
 	{
@@ -99,9 +99,9 @@ bool ArrayType::isBuiltin() const
 	return true;
 }
 
-std::string ArrayType::getPrettyTypeName() const
+std::string ArrayType::getString() const
 {
-	return itemTy_->getPrettyTypeName() + "[]";
+	return itemTy_->getString() + "[]";
 }
 
 bool ArrayType::isItemTypePrimitive() const
@@ -157,7 +157,7 @@ std::string QualType::getPrettyName() const
 		out << "&";
 
 	assert(ty_ && "Can't call this on a null type!");
-	out << ty_->getPrettyTypeName();
+	out << ty_->getString();
 	return out.str();
 }
 

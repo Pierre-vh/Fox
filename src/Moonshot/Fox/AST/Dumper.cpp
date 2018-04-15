@@ -90,7 +90,7 @@ void Dumper::visit(ASTUnaryExpr & node)
 
 void Dumper::visit(ASTCastExpr & node)
 {
-	out_ << getIndent() << "CastExpression : Cast Goal:" << node.getCastGoal()->getPrettyTypeName() << "\n";
+	out_ << getIndent() << "CastExpression : Cast Goal:" << node.getCastGoal()->getString() << "\n";
 	curindent_++;
 	out_ << getIndent() << "Child:\n";
 	curindent_++;
@@ -208,7 +208,7 @@ void Dumper::visit(ASTNullStmt&)
 
 void Dumper::visit(ASTFunctionDecl & node)
 {
-	out_ << getIndent() << "Function Declaration : Name:" << node.getFunctionIdentifier()->getStr() << " Return type:" << node.getReturnType()->getPrettyTypeName() << "\n";
+	out_ << getIndent() << "Function Declaration : Name:" << node.getFunctionIdentifier()->getStr() << " Return type:" << node.getReturnType()->getString() << "\n";
 	curindent_ += 2;
 	std::size_t counter = 0;
 	for (auto it = node.args_begin(); it != node.args_end(); it++)

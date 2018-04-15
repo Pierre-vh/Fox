@@ -26,7 +26,7 @@ namespace Moonshot
 			virtual bool isPrimitive() const;
 
 			/* Should return the type's name in a user friendly form, e.g. "int", "string" */
-			virtual std::string getPrettyTypeName() const = 0;
+			virtual std::string getString() const = 0;
 	};
 
 	//	Builtin Types
@@ -55,7 +55,7 @@ namespace Moonshot
 			// Methods inherited from Type
 			virtual bool isBuiltin() const override;
 			virtual bool isPrimitive() const override;
-			virtual std::string getPrettyTypeName() const override;
+			virtual std::string getString() const override;
 
 			// return the kind of this builtin
 			Kind getKind() const;
@@ -87,7 +87,7 @@ namespace Moonshot
 			ArrayType(Type* itemsTy);
 
 			virtual bool isBuiltin() const override;
-			virtual std::string getPrettyTypeName() const override;
+			virtual std::string getString() const override;
 
 			const Type* getItemTy() const;
 			bool isItemTypePrimitive() const;
