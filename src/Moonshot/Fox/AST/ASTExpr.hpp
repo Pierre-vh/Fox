@@ -84,7 +84,7 @@ namespace Moonshot
 			virtual void accept(IVisitor& vis) override;
 
 			void setCastGoal(Type* goal);
-			const Type* getCastGoal() const;
+			Type* getCastGoal();
 
 			ASTExpr* getChild();
 			void setChild(std::unique_ptr<ASTExpr> nc);

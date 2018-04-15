@@ -115,7 +115,7 @@ std::string ArrayType::getString() const
 	return itemTy_->getString() + "[]";
 }
 
-const Type* ArrayType::getItemTy() const
+Type* ArrayType::getItemTy()
 {
 	return itemTy_;
 }
@@ -178,7 +178,7 @@ std::string QualType::getString() const
 	return out.str();
 }
 
-const Type* QualType::getType() const
+Type* QualType::getType()
 {
 	return ty_;
 }

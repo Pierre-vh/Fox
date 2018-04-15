@@ -228,7 +228,7 @@ void ASTCastExpr::setCastGoal(Type* goal)
 	goal_ = goal;
 }
 
-const Type* ASTCastExpr::getCastGoal() const
+Type* ASTCastExpr::getCastGoal()
 {
 	return goal_;
 }

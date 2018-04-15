@@ -85,13 +85,12 @@ namespace Moonshot
 			virtual bool isArrayType() const override;
 			virtual std::string getString() const override;
 
-			const Type* getItemTy() const;
+			Type* getItemTy();
 
 			bool isItemTypePrimitive() const;
 			bool isItemTypeBuiltin() const;
-
-			// Returns true if the itemType is an ArrayType.
 			bool isItemTypeArray() const; 
+
 		private:
 			Type* itemTy_= nullptr;
 	};
@@ -117,7 +116,7 @@ namespace Moonshot
 			std::string getString() const;
 
 			// Returns the Type pointer (ty_)
-			const Type* getType() const;
+			Type* getType();
 			void setType(Type* ty);
 
 			// Checks if this QualType is valid (ty_ != nullptr)
