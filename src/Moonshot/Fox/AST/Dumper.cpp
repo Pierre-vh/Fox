@@ -130,7 +130,7 @@ void Dumper::visit(ASTBoolLiteralExpr & node)
 
 void Dumper::visit(ASTVarDecl & node)
 {
-	out_ << getIndent() << "VarDeclStmt : Name:" << node.getVarIdentifier()->getStr() << " Type:" << node.varType().getPrettyName() << "\n";
+	out_ << getIndent() << "VarDeclStmt : Name:" << node.getVarIdentifier()->getStr() << " Type:" << node.varType().getString() << "\n";
 	if (node.hasInitExpr())
 	{
 		curindent_ += 1;
@@ -213,7 +213,7 @@ void Dumper::visit(ASTFunctionDecl & node)
 	std::size_t counter = 0;
 	for (auto it = node.args_begin(); it != node.args_end(); it++)
 	{
-		out_ << getIndent() << "Arg" << counter << " Name:" << it->getArgIdentifier()->getStr() << " Type:" << it->getQualType().getPrettyName() << "\n";
+		out_ << getIndent() << "Arg" << counter << " Name:" << it->getArgIdentifier()->getStr() << " Type:" << it->getQualType().getString() << "\n";
 		counter++;
 	}
 	curindent_ -= 1;
