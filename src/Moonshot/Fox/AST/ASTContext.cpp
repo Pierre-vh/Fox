@@ -39,32 +39,32 @@ IdentifierTable & ASTContext::identifierTable()
 	return idents_;
 }
 
-Type* ASTContext::getPrimitiveIntType()
+PrimitiveType* ASTContext::getPrimitiveIntType()
 {
 	return primitiveIntTy_.get();
 }
 
-Type* ASTContext::getPrimitiveFloatType()
+PrimitiveType* ASTContext::getPrimitiveFloatType()
 {
 	return primitiveFloatTy_.get();
 }
 
-Type* ASTContext::getPrimitiveCharType()
+PrimitiveType* ASTContext::getPrimitiveCharType()
 {
 	return primitiveCharTy_.get();
 }
 
-Type* ASTContext::getPrimitiveBoolType()
+PrimitiveType* ASTContext::getPrimitiveBoolType()
 {
 	return primitiveBoolTy_.get();
 }
 
-Type* ASTContext::getPrimitiveStringType()
+PrimitiveType* ASTContext::getPrimitiveStringType()
 {
 	return primitiveStringTy.get();
 }
 
-Type* ASTContext::getPrimitiveVoidType()
+PrimitiveType* ASTContext::getPrimitiveVoidType()
 {
 	return primitiveVoidTy_.get();
 }
