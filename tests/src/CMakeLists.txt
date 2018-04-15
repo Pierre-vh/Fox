@@ -1,14 +1,15 @@
 add_source(
 	tests_src 
 
-	main.cpp
+	"main.cpp"
 
-	TestUtils/TestUtils.cpp
+	"TestUtils/TestUtils.cpp"
 
-	FoxTests/LexerTests.cpp
-	FoxTests/UTF8Tests.cpp
-	FoxTests/ParserTests.cpp
-	FoxTests/IdentifierTableTests.cpp
+	"FoxTests/LexerTests.cpp"
+	"FoxTests/UTF8Tests.cpp"
+	"FoxTests/ParserTests.cpp"
+	"FoxTests/IdentifierTableTests.cpp"
+	"FoxTests/ASTTests.cpp"
 
-	CommonTests/CommonTests.cpp
+	"CommonTests/CommonTests.cpp"
 	)
