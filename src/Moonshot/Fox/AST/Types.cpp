@@ -16,9 +16,35 @@
 using namespace Moonshot;
 
 /* Type */
-bool Type::isPrimitive() const
+Type::~Type()
+{
+
+}
+
+bool Type::isPrimitiveType() const
 {
 	return false;
+}
+
+bool Type::isBuiltinType() const
+{
+	return false;
+}
+
+bool Type::isArrayType() const
+{
+	return false;
+}
+
+/* BuiltinType */
+BuiltinType::~BuiltinType()
+{
+
+}
+
+bool BuiltinType::isBuiltinType() const
+{
+	return true;
 }
 
 /* Primitive Types */
@@ -27,15 +53,10 @@ PrimitiveType::PrimitiveType(const Kind & kd) : builtinKind_(kd)
 
 }
 
-bool PrimitiveType::isBuiltin() const
+bool PrimitiveType::isPrimitiveType() const
 {
 	return true;
 }
-
-bool PrimitiveType::isPrimitive() const
-{
-	return true;
-} 
 
 std::string PrimitiveType::getString() const
 {
@@ -58,7 +79,7 @@ std::string PrimitiveType::getString() const
 	}
 }
 
-PrimitiveType::Kind PrimitiveType::getKind() const
+PrimitiveType::Kind PrimitiveType::getBuiltinKind() const
 {
 	return builtinKind_;
 }
@@ -78,23 +99,13 @@ bool PrimitiveType::isVoid() const
 	return (builtinKind_ == Kind::VoidTy);
 }
 
-void PrimitiveType::setBuiltinKind(const Kind & kd)
-{
-	builtinKind_ = kd;
-}
-
 /* Array type */
 ArrayType::ArrayType(Type* ty) : itemTy_(std::move(ty))
 {
 	assert(ty && "The Array item type cannot be null!");
 }
 
-const Type* ArrayType::getItemTy() const
-{
-	return itemTy_;
-}
-
-bool ArrayType::isBuiltin() const
+bool ArrayType::isArrayType() const
 {
 	return true;
 }
@@ -104,24 +115,30 @@ std::string ArrayType::getString() const
 	return itemTy_->getString() + "[]";
 }
 
+const Type* ArrayType::getItemTy() const
+{
+	return itemTy_;
+}
+
 bool ArrayType::isItemTypePrimitive() const
 {
 	assert(itemTy_ && "The Array item type cannot be null!");
-	return itemTy_->isPrimitive();
+	return itemTy_->isPrimitiveType();
 }
 
 bool ArrayType::isItemTypeBuiltin() const
 {
 	assert(itemTy_ && "The Array item type cannot be null!");
-	return itemTy_->isBuiltin();
+	return itemTy_->isBuiltinType();
+}
+
+bool ArrayType::isItemTypeArray() const
+{
+	assert(itemTy_ && "The Array item type cannot be null!");
+	return itemTy_->isArrayType();
 }
 
 /* QualType */
-QualType::QualType() : ty_(nullptr),isConst_(false), isRef_(false)
-{
-
-}
-
 QualType::QualType(Type* ty, const bool & isConstant, const bool &isReference) :
 	ty_(ty), isConst_(isConstant), isRef_(isReference)
 {
@@ -148,7 +165,7 @@ void QualType::setIsReference(const bool & refattr)
 	isRef_ = refattr;
 }
 
-std::string QualType::getPrettyName() const
+std::string QualType::getString() const
 {
 	std::stringstream out;
 	if (isConst_)
