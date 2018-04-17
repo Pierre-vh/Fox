@@ -23,7 +23,7 @@ using namespace Moonshot;
 ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 {
 	/*
-		<func_decl>		= "func" <id> '(' [<arg_decl_list>] ')'[':' <type>] <compound_statement>
+		<func_decl>		= "func" <id> '(' [<arg_decl> {',' <arg_decl>}*] ')'[':' <type>] <compound_statement>
 		// Note about [':' <type>], if it isn't present, the function returns void
 	*/
 
@@ -33,7 +33,7 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		auto rtr = std::make_unique<ASTFunctionDecl>();
 		// <id>
 		if (auto id = matchID())
-			rtr->setFunctionIdentifier(id);
+			rtr->setDeclName(id);
 		else
 		{
 			errorExpected("Expected an identifier");
@@ -49,9 +49,31 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 				return ParsingResult<ASTFunctionDecl*>(false);
 		}
 
-		// [<arg_list_decl>]
-		if (auto pArgDeclList = parseArgDeclList())
-			rtr->setArgs(pArgDeclList.result);
+		// [<arg_decl> {',' <arg_decl>}*]
+		if (auto firstarg_res = parseArgDecl())
+		{
+			// Note, here, in the 2 places I've marked with (1) and (2), we can possibly
+			// add error management, however, I don't think that's necessary since
+			// the matchSign below will attempt to "panic and recover" if it doesn't find the )
+			rtr->addArg(std::move(firstarg_res.result));
+			while (true)
+			{
+				if (matchSign(SignType::S_COMMA))
+				{
+					if (auto argdecl_res = parseArgDecl())
+						rtr->addArg(std::move(argdecl_res.result));
+					else
+					{
+						if (argdecl_res.wasSuccessful()) // not found?
+							errorExpected("Expected an argument declaration");
+						// (1)
+					}
+				}
+				else
+					break;
+			}
+		}
+		// (2)
 
 		// ')'
 		if (!matchSign(SignType::S_ROUND_CLOSE))
@@ -95,7 +117,7 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 	return ParsingResult<ASTFunctionDecl*>();
 }
 
-ParsingResult<FunctionArg> Parser::parseArgDecl()
+ParsingResult<ASTArgDecl*> Parser::parseArgDecl()
 {
 	// <arg_decl> = <id> <fq_type_spec>
 	// <id>
@@ -103,47 +125,20 @@ ParsingResult<FunctionArg> Parser::parseArgDecl()
 	{
 		// <fq_type_spec>
 		if (auto typespec_res = parseFQTypeSpec())
-			return ParsingResult<FunctionArg>(FunctionArg(id, typespec_res.result));
+			return ParsingResult<ASTArgDecl*>(
+					std::make_unique<ASTArgDecl>(id,typespec_res.result)
+				);
 		else
 		{
 			if(typespec_res.wasSuccessful())		// not found, report an error
 				errorExpected("Expected a ':'");
 			// in both case (not found or error) return an error
-			return ParsingResult<FunctionArg>(false);
+			return ParsingResult<ASTArgDecl*>(false);
 		}
 	}
-	return ParsingResult<FunctionArg>();
+	return ParsingResult<ASTArgDecl*>();
 }
 
-ParsingResult<std::vector<FunctionArg>> Parser::parseArgDeclList()
-{
-	// <arg_decl_list> = [<arg_decl> {',' <arg_decl>}*]
-	if (auto firstarg_res = parseArgDecl())
-	{
-		std::vector<FunctionArg> rtr;
-		rtr.push_back(firstarg_res.result);
-		// try to parse the rest
-		while (true)
-		{
-			if (matchSign(SignType::S_COMMA))
-			{
-				if (auto argdecl_res = parseArgDecl())
-					rtr.push_back(argdecl_res.result);
-				else
-				{
-					if (argdecl_res.wasSuccessful()) // not found?
-						errorExpected("Expected an argument declaration");
-					return ParsingResult<std::vector<FunctionArg>>(false);
-				}
-			}
-			else
-				break;
-		}
-		return ParsingResult<std::vector<FunctionArg>>(rtr);
-	}
-	else
-		return ParsingResult<std::vector<FunctionArg>>(firstarg_res.wasSuccessful());
-}
 ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnError)
 {
 	// <var_decl> = "let" <id> <fq_type_spec> ['=' <expr>] ';'
@@ -167,13 +162,13 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnE
 		// <fq_type_spec>
 		if (auto typespecResult = parseFQTypeSpec())
 		{
-			QualType ty = std::move(typespecResult.result);
+			QualType ty = typespecResult.result;
 			if (ty.isAReference())
 			{
 				context_.reportWarning("Ignored reference qualifier '&' in variable declaration : Variables cannot be references.");
 				ty.setIsReference(false);
 			}
-			rtr->setVarType(std::move(ty));
+			rtr->setType(ty);
 		}
 		else
 		{
