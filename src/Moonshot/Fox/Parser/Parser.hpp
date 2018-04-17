@@ -46,7 +46,7 @@ namespace Moonshot
 			Parser(Context& c,ASTContext* astctxt,TokenVector& l);
 
 			// UNIT
-			ParsingResult<ASTUnit*>	parseUnit();
+			UnitParsingResult	parseUnit();
 
 			// EXPRESSIONS
 			ParsingResult<IASTDeclRef*> parseArrayAccess(std::unique_ptr<IASTDeclRef> &base);
@@ -79,11 +79,10 @@ namespace Moonshot
 		private:
 			// expression helpers
 			ParsingResult<ASTExpr*> parseParensExpr(const bool& isMandatory = false);
-			ParsingResult<ExprList*> parseExprList();
-			ParsingResult<ExprList*> parseParensExprList();
+			ParsingResult<ASTExprList*> parseExprList();
+			ParsingResult<ASTExprList*> parseParensExprList();
 			// Arg decl & decl list
-			ParsingResult<FunctionArg> parseArgDecl();
-			ParsingResult<std::vector<FunctionArg>> parseArgDeclList();
+			ParsingResult<ASTArgDecl*> parseArgDecl();
 			// Type spec
 			ParsingResult<QualType> parseFQTypeSpec();
 
