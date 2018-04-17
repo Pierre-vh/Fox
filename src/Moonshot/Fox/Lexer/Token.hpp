@@ -218,7 +218,6 @@ namespace Moonshot
 			// DECLARATIONS
 			{ "let"		, KeywordType::KW_LET },
 			{ "func"	, KeywordType::KW_FUNC },
-			{ "fn"		, KeywordType::KW_FUNC },
 			// Statements
 			{ "if"		, KeywordType::KW_IF },
 			{ "else"	, KeywordType::KW_ELSE },
