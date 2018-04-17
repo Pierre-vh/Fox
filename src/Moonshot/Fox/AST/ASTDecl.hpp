@@ -37,48 +37,58 @@ namespace Moonshot
 			~IASTDeclStmt() = 0 {}
 	};
 
-	// Store a arg's attribute : it's name and QualType
-	class FunctionArg
+	// Base class for Declarations that have names, e.g. : var/arg/func decl,..
+	class ASTNamedDecl : public ASTDecl
 	{
 		public:
-			FunctionArg() = default;
-			FunctionArg(IdentifierInfo* id, const QualType& argType);
+			ASTNamedDecl() = default;
+			ASTNamedDecl(IdentifierInfo* name);
 
-			IdentifierInfo* getArgIdentifier();
-			void setArgIdentifier(IdentifierInfo* id);
+			IdentifierInfo * getDeclName() const;
+			void setDeclName(IdentifierInfo* nname);
+		private:
+			IdentifierInfo * declName_;
+	};
 
-			QualType getQualType() const;
-			void setQualType(const QualType& qt);
+	// A Function Argument declaration
+	class ASTArgDecl : public ASTNamedDecl
+	{
+		public:
+			ASTArgDecl() = default;
+			ASTArgDecl(IdentifierInfo* id, const QualType& argType);
 
+			QualType getType() const;
+			void setType(const QualType& qt);
+
+			virtual void accept(IVisitor &vis);
 		private:
 			QualType ty_;
-			IdentifierInfo *id_ = nullptr;
 	};
 
 	// a Function declaration node.
-	class ASTFunctionDecl : public ASTDecl
+	class ASTFunctionDecl : public ASTNamedDecl
 	{
 		private:
-			using argIter = std::vector<FunctionArg>::iterator;
-			using argIter_const = std::vector<FunctionArg>::const_iterator;
+			using ArgVecTy = std::vector<std::unique_ptr<ASTArgDecl>>;
+
+			using argIter = ArgVecTy::iterator;
+			using argIter_const = ArgVecTy::const_iterator;
 		public:
 			ASTFunctionDecl() = default;
-			ASTFunctionDecl(Type* returnType, IdentifierInfo* fnId, std::vector<FunctionArg> args, std::unique_ptr<ASTCompoundStmt> funcbody);
+			ASTFunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 			virtual void accept(IVisitor& vis) override;
 
-			void setReturnType(Type* ty);
-			Type* getReturnType();
-
-			IdentifierInfo* getFunctionIdentifier();
-			void setFunctionIdentifier(IdentifierInfo* id);
-
-			void setArgs(const std::vector<FunctionArg>& vec);
-			void addArg(const FunctionArg& arg);
-			FunctionArg getArg(const std::size_t &ind) const;
+			void setReturnType(const Type* ty);
+			const Type* getReturnType() const;
 
 			void setBody(std::unique_ptr<ASTCompoundStmt> arg);
 			ASTCompoundStmt* getBody();		
+
+			const ASTArgDecl* getArg(const std::size_t & ind) const;
+			void addArg(std::unique_ptr<ASTArgDecl> arg);
+			std::size_t argsSize() const;
+
 
 			argIter args_begin();
 			argIter_const args_begin() const;
@@ -86,10 +96,8 @@ namespace Moonshot
 			argIter args_end();
 			argIter_const args_end() const;
 		private:
-			Type* returnType_ = nullptr;
-			IdentifierInfo *fnId_ = nullptr;
-			std::vector<FunctionArg> args_;
-
+			const Type* returnType_ = nullptr;
+			ArgVecTy args_;
 			std::unique_ptr<ASTCompoundStmt> body_;
 	};
 
@@ -103,8 +111,8 @@ namespace Moonshot
 			virtual void accept(IVisitor& vis) override;
 			
 			// Get a reference to the varType
-			QualType& varType();
-			void setVarType(const QualType &ty);
+			QualType getType() const;
+			void setType(const QualType &ty);
 
 			ASTExpr* getInitExpr();
 			void setInitExpr(std::unique_ptr<ASTExpr> expr);

@@ -11,10 +11,9 @@
 #include "Moonshot/Fox/Basic/Typedefs.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
 #include "Moonshot/Fox/AST/Types.hpp"
-#include "Moonshot/Fox/AST/Operators.hpp"			// enums
+#include "Moonshot/Fox/AST/Operators.hpp"
 #include <memory>
 #include <vector>
-#include <functional>
 
 namespace Moonshot	
 {
@@ -84,7 +83,7 @@ namespace Moonshot
 			virtual void accept(IVisitor& vis) override;
 
 			void setCastGoal(Type* goal);
-			Type* getCastGoal();
+			const Type* getCastGoal() const;
 
 			ASTExpr* getChild();
 			void setChild(std::unique_ptr<ASTExpr> nc);
@@ -226,27 +225,30 @@ namespace Moonshot
 			std::unique_ptr<ASTExpr> accessIdxExpr_;
 	};
 
-	// Node/Helper struct that's a wrapper around a std::vector of std::unique_ptr to <ASTExpr>.
-	// used by function call nodes and the parser.
-	class ExprList
+	// Node Representing an Expression List
+	class ASTExprList
 	{
 		private:
-			using expr_iter = std::vector<std::unique_ptr<ASTExpr>>::iterator;
+			using ExprListTy = std::vector<std::unique_ptr<ASTExpr>>;
+
+			using ExprListIter = ExprListTy::iterator;
+			using ExprListIter_const = ExprListTy::const_iterator;
 		public:
-			ExprList() = default;
+			ASTExprList() = default;
 
 			void addExpr(std::unique_ptr<ASTExpr> expr);
-			const ASTExpr* getExpr(const std::size_t& ind);
+			ASTExpr* getExpr(const std::size_t& ind);
 
 			bool isEmpty() const;
 			std::size_t size() const;
 
-			expr_iter exprList_beg();
-			expr_iter exprList_end();
+			ExprListIter begin();
+			ExprListIter end();
 
-			void iterate(std::function<void(ASTExpr*)> fn);
+			ExprListIter_const begin() const;
+			ExprListIter_const end()const;
 		private:
-			std::vector<std::unique_ptr<ASTExpr>> exprs_;
+			ExprListTy exprs_;
 	};
 
 	// Function calls
@@ -258,15 +260,15 @@ namespace Moonshot
 			IdentifierInfo * getFunctionIdentifier() ;
 			void setFunctionIdentifier(IdentifierInfo * fnId);
 
-			ExprList* getExprList();
-			void setExprList(std::unique_ptr<ExprList> elist);
+			ASTExprList* getExprList();
+			void setExprList(std::unique_ptr<ASTExprList> elist);
 
 			void accept(IVisitor& vis) override;
 		private:
 			// the Function's name
 			IdentifierInfo * fnId_;
 			// it's args
-			std::unique_ptr<ExprList> args_;
+			std::unique_ptr<ASTExprList> args_;
 	};
 }
 
