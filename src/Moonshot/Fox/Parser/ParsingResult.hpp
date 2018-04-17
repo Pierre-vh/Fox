@@ -95,4 +95,26 @@ namespace Moonshot
 		private:
 			bool successFlag_ : 1;
 	};
+
+	// Forward decl ASTUnit
+	class ASTUnit;
+	// Parsing Result Specific to Units.
+		// Unit Parsing result is trivial, because it attempts
+		// to return the Unit even on failure. 
+		// Success/Failure is deduced from the value of the unit pointer (nullptr = failure)
+	class UnitParsingResult
+	{
+		public:
+			UnitParsingResult(std::unique_ptr<ASTUnit> parsedUnit= nullptr)
+			{
+				unit = std::move(parsedUnit);
+			}
+
+			operator bool() const
+			{
+				return (bool)unit;
+			}
+
+			std::unique_ptr<ASTUnit> unit;
+	};
 }
