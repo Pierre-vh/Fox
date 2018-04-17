@@ -39,7 +39,7 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		// Match the closing curly bracket
 		if (!matchSign(SignType::S_CURLY_CLOSE))
 		{
-			errorExpected("Expected a closing curly bracket '}' at the end of the compound statement,");
+			errorExpected("Expected a '}' at the end of the compound statement,");
 			if (recoverOnError)
 			{
 				if (!resyncToSign(SignType::S_CURLY_CLOSE))
