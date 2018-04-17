@@ -40,6 +40,7 @@ namespace Moonshot
 			virtual void visit(ASTCondStmt & node) override;
 			virtual void visit(ASTWhileStmt & node) override;
 			virtual void visit(ASTNullStmt&) override;
+			virtual void visit(ASTArgDecl& node) override;
 			virtual void visit(ASTFunctionDecl& node) override;
 			virtual void visit(ASTReturnStmt& node) override;
 		private:

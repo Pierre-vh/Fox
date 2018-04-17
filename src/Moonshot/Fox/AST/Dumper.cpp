@@ -130,7 +130,7 @@ void Dumper::visit(ASTBoolLiteralExpr & node)
 
 void Dumper::visit(ASTVarDecl & node)
 {
-	out_ << getIndent() << "VarDeclStmt : Name:" << node.getVarIdentifier()->getStr() << " Type:" << node.varType().getString() << "\n";
+	out_ << getIndent() << "VarDeclStmt : Name:" << node.getVarIdentifier()->getStr() << " Type:" << node.getType().getString() << "\n";
 	if (node.hasInitExpr())
 	{
 		curindent_ += 1;
@@ -186,15 +186,17 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 		curindent_++;
 
 		std::size_t count = 0;
-		node.getExprList()->iterate([&](auto arg) {
+		auto exprList = node.getExprList();
+		for(auto it = exprList->begin(); it != exprList->end(); it++)
+		{
 			out_ << getIndent() << "Arg" << count << '\n';
 
 			curindent_++;
-			arg->accept(*this);
+			(*it)->accept(*this);
 			curindent_--;
 
 			count++;
-		});
+		}
 
 		curindent_--;
 	}
@@ -206,16 +208,19 @@ void Dumper::visit(ASTNullStmt&)
 	out_ << getIndent() << "Null Statement\n";
 }
 
+void Dumper::visit(ASTArgDecl & node)
+{
+	out_ << getIndent() << "Arg Declaration: Name:" << node.getDeclName()->getStr() << " Type:" << node.getType().getString() << "\n";
+}
+
 void Dumper::visit(ASTFunctionDecl & node)
 {
-	out_ << getIndent() << "Function Declaration : Name:" << node.getFunctionIdentifier()->getStr() << " Return type:" << node.getReturnType()->getString() << "\n";
+	out_ << getIndent() << "Function Declaration : Name:" << node.getDeclName()->getStr() << " Return type:" << node.getReturnType()->getString() << "\n";
 	curindent_ += 2;
-	std::size_t counter = 0;
+
 	for (auto it = node.args_begin(); it != node.args_end(); it++)
-	{
-		out_ << getIndent() << "Arg" << counter << " Name:" << it->getArgIdentifier()->getStr() << " Type:" << it->getQualType().getString() << "\n";
-		counter++;
-	}
+		(*it)->accept(*this);
+
 	curindent_ -= 1;
 	out_ << getIndent() << "Body:" << std::endl;
 	curindent_ += 1;
