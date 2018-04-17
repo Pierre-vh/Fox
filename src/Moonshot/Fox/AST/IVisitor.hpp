@@ -47,49 +47,10 @@ namespace Moonshot
 			inline virtual void visit(ASTCondStmt&)		{}
 			inline virtual void visit(ASTWhileStmt&)	{}
 
+			inline virtual void visit(ASTArgDecl&)		{}
 			inline virtual void visit(ASTFunctionDecl&) {}
 			inline virtual void visit(ASTReturnStmt&)	{}
 	};
-
-	template<typename TYPE>
-	class ITypedVisitor : public IVisitor
-	{
-		public:
-			inline virtual void visit(ASTBinaryExpr&)	{ value_ = TYPE(); }
-			inline virtual void visit(ASTUnaryExpr&)	{ value_ = TYPE(); }
-			inline virtual void visit(ASTCastExpr&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTCharLiteralExpr&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTIntegerLiteralExpr&)	{ value_ = TYPE(); }
-			inline virtual void visit(ASTFloatLiteralExpr&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTStringLiteralExpr&)	{ value_ = TYPE(); }
-			inline virtual void visit(ASTBoolLiteralExpr&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTDeclRefExpr&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTMemberAccessExpr&) { value_ = TYPE(); }
-			inline virtual void visit(ASTArrayAccess&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTFunctionCallExpr&) { value_ = TYPE(); }
-
-			inline virtual void visit(ASTNullStmt&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTVarDecl&)		{ value_ = TYPE(); }
-
-			inline virtual void visit(ASTCompoundStmt&)	{ value_ = TYPE(); }
-			inline virtual void visit(ASTCondStmt&)		{ value_ = TYPE(); }
-			inline virtual void visit(ASTWhileStmt&)	{ value_ = TYPE(); }
-
-			inline virtual void visit(ASTFunctionDecl&) { value_ = TYPE(); }
-			inline virtual void visit(ASTReturnStmt&)	{ value_ = TYPE(); }
-
-			virtual ~ITypedVisitor() = 0	{}
-		protected:
-			TYPE value_ = TYPE();
-
-			template<typename NODE,typename VISITOR>
-			TYPE visitAndGetResult(NODE* node,VISITOR& visit)
-			{
-				node->accept(visit);
-				return value_;
-			}
-	};
-
 }
 
 
