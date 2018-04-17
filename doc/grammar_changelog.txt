@@ -85,3 +85,24 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 	~ Modified <var_decl> to use <fq_type_spec> instead of <type_spec>
 	~ Modified <arg_decl> to use <fq_type_spec>
 		<arg_decl>	= <id> <fq_type_spec>
+
+* 0.12.0
+	Note: Implementing Array literals & Array types declaration.
+	~ Renamed <type> to <typename>, but non-terminals using the <type> rule still use a rule <type>, defined below.
+		<typename> = "int" |  "float" | "char" | "bool" | "string"
+	+ Added new <type> rule
+		<type> = <typename> '[' ']'
+	~ Renamed <literal> to <primitive_literal> rule, but non-terminals using the <literal> rule still use a <literal> rule, defined below.
+		<primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
+	+ Added <array_literal> rule 
+		<array_literal>	= '[' [<expr_list>] ']'
+	~ Changed <literal> rule:
+		<literal> = <primitive_literal> | <array_literal>
+	~ Changed <decl_call> rule:
+		<decl_call>	= <id> [ <parens_expr_list> ]
+	+ Added <suffix> rule
+		<suffix> = "." <decl_call> | '[' <expr> ']'
+	~ Changed <array_access> rule
+		<array_or_member_access>	= <primary> { <suffix> }
+	~ Changed <member_access> rule
+		<member_access>	= <array_or_member_access> { '.' <decl_call> }

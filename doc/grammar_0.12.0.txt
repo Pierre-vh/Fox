@@ -1,4 +1,4 @@
-Fox Grammar version 0.10.0
+Fox Grammar version 0.12.0
 
 // Note : { } means "0 or more", [ ] means "optional"
 
@@ -9,8 +9,11 @@ Fox Grammar version 0.10.0
 ##General Rules##
 
 <id> 				= Any non-reserved keyword that is recognized by the following regular expression : (([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+ that contains at least one character.
-<type> 				= "int" 	| "float"		| "bool"	| "string"		| "char"
-<literal>			= One literal of the following type : Integer, Floating-point, Boolean, String, Char
+<typename> 			= "int" 	| "float"		| "bool"	| "string"		| "char"
+<primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
+
+// a Type
+<type> = <typename> '[' ']'
 
 // Fully qualified type spec
 <fq_type_spec>	= ':' ["const"] ['&'] <type>
@@ -27,11 +30,12 @@ Fox Grammar version 0.10.0
 <expr_stmt>		= ';' | <expr> ';' 
 <parens_expr>	= '(' <expr> ')'
 
-<array_access>	= '[' <expr> ']'
-<decl_call>		= <id> [ <parens_expr_list> ] { <array_access> }
+<suffix>		= "." <decl_call> | '[' <expr> ']'
+<literal>		= <primitive_literal> | <array_literal>
+<decl_call>		= <id> [ <parens_expr_list> ]
 <primary>		= <literal> | <parens_expr> | <decl_call>
-<member_access>	= <primary> { '.' <decl_call> }
-<exp_expr>		= <member_access> [ <exponent_operator> <prefix_expr> ]
+<array_or_member_access>	= <primary> { <suffix> }
+<exp_expr>		= <array_or_member_access> [ <exponent_operator> <prefix_expr> ]
 <prefix_expr>   = <unary_operator> <prefix_expr> | <exp_expr>
 <cast_expr>     = <prefix_expr> ["as" <type>]
 <binary_expr>   = <cast_expr> { <binary_operator> <cast_expr> }	// note about this rule: use precedence-climbing to manage priority of operation ! (see ParseExpr.cpp, line 237+ to see how it's handled)
@@ -44,8 +48,8 @@ Fox Grammar version 0.10.0
 
 /*
 	OPERATION PRIORITY FROM HIGHEST TO LOWEST
-		Array Access "[]", Function call "()"
-		Member access "."
+		Function call "()"
+		Member access ".", Array Access "[]"
 		**
 		unary - ! +
 		cast "as"
@@ -62,7 +66,7 @@ Fox Grammar version 0.10.0
 <var_decl>		= "let" <id> <fq_type_spec> ['=' <expr>] ';' 
 
 ##Functions##
-<func_decl>		= "func" <id> '(' [<arg_decl> {',' <arg_decl>}*] ')'[':' <type>] <compound_statement>
+<func_decl>		= "func" <id> '(' [<arg_decl> {',' <arg_decl>}] ')'[':' <type>] <compound_statement>
 <arg_decl>		= <id> <fq_type_spec>
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
 <rtr_stmt>		= "return" [<expr>] ';'
