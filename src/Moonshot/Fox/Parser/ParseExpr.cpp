@@ -376,12 +376,12 @@ ParsingResult<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 	return ParsingResult<ASTExpr*>();
 }
 
-ParsingResult<ExprList*> Parser::parseExprList()
+ParsingResult<ASTExprList*> Parser::parseExprList()
 {
 	// <expr_list> = <expr> {',' <expr> }
 	if (auto firstexpr = parseExpr())
 	{
-		auto exprlist = std::make_unique<ExprList>();
+		auto exprlist = std::make_unique<ASTExprList>();
 		exprlist->addExpr(std::move(firstexpr.result));
 		while (auto comma = matchSign(SignType::S_COMMA))
 		{
@@ -391,26 +391,26 @@ ParsingResult<ExprList*> Parser::parseExprList()
 			{
 				if(expr.wasSuccessful())
 					errorExpected("Expected an expression");
-				return ParsingResult<ExprList*>(false);
+				return ParsingResult<ASTExprList*>(false);
 			}
 		}
-		return ParsingResult<ExprList*>(std::move(exprlist));
+		return ParsingResult<ASTExprList*>(std::move(exprlist));
 	}
-	return ParsingResult<ExprList*>();
+	return ParsingResult<ASTExprList*>();
 }
 
-ParsingResult<ExprList*> Parser::parseParensExprList()
+ParsingResult<ASTExprList*> Parser::parseParensExprList()
 {
 	// <parens_expr_list>	= '(' [ <expr_list> ] ')'
 	// '('
 	if (auto openPar_res = matchSign(SignType::S_ROUND_OPEN))
 	{
-		auto exprlist = std::make_unique<ExprList>();
+		auto exprlist = std::make_unique<ASTExprList>();
 		//  [ <expr_list> ]
 		if (auto parsedlist = parseExprList())			
 			exprlist = std::move(parsedlist.result);
 		else if(!parsedlist.wasSuccessful())
-			return ParsingResult<ExprList*>(false);
+			return ParsingResult<ASTExprList*>(false);
 
 		// ')'
 		if (!matchSign(SignType::S_ROUND_CLOSE))
@@ -418,12 +418,12 @@ ParsingResult<ExprList*> Parser::parseParensExprList()
 			errorExpected("Expected a ')'");
 			// attempt resync if error
 			if (!resyncToSign(SignType::S_ROUND_CLOSE))
-				return ParsingResult<ExprList*>(false);
+				return ParsingResult<ASTExprList*>(false);
 		}
-		return ParsingResult<ExprList*>(std::move(exprlist));
+		return ParsingResult<ASTExprList*>(std::move(exprlist));
 	}
 
-	return ParsingResult<ExprList*>();
+	return ParsingResult<ASTExprList*>();
 }
 
 std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator & op)
