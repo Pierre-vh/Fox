@@ -53,6 +53,12 @@ TEST(ASTTests, ASTContextBuiltins)
 	ASSERT_TRUE(primString) << "Ptr is null?";
 	ASSERT_TRUE(primVoid)	<< "Ptr is null?";
 
+	// Checks that they're all different
+	EXPECT_NE(primBool, primFloat);
+	EXPECT_NE(primFloat, primInt);
+	EXPECT_NE(primInt, primChar);
+	EXPECT_NE(primChar, primString);
+	EXPECT_NE(primString, primVoid);
 
 	// Test that the types have the correct properties
 	// Bools
@@ -90,4 +96,49 @@ TEST(ASTTests, ASTContextBuiltins)
 	EXPECT_TRUE(primVoid->isVoid());
 	EXPECT_FALSE(primVoid->isConcatenable());
 	EXPECT_FALSE(primVoid->isArithmetic());
+}
+
+TEST(ASTTests, ASTContextArrayTypes)
+{
+	ASTContext actxt;
+
+	PrimitiveType*  primBool = actxt.getPrimitiveBoolType();
+	PrimitiveType*  primFloat = actxt.getPrimitiveFloatType();
+	PrimitiveType*  primInt = actxt.getPrimitiveIntType();
+	PrimitiveType*  primChar = actxt.getPrimitiveCharType();
+	PrimitiveType*  primString = actxt.getPrimitiveStringType();
+
+	ArrayType* boolArr	= actxt.getArrayTypeForType(primBool);
+	ArrayType* floatArr = actxt.getArrayTypeForType(primFloat);
+	ArrayType* intArr	= actxt.getArrayTypeForType(primInt);
+	ArrayType* charArr	= actxt.getArrayTypeForType(primChar);
+	ArrayType* strArr	= actxt.getArrayTypeForType(primString);
+
+
+	// Check that pointers aren't null
+	ASSERT_TRUE(boolArr)	<< "Pointer is null";
+	ASSERT_TRUE(floatArr)	<< "Pointer is null";
+	ASSERT_TRUE(intArr)		<< "Pointer is null";
+	ASSERT_TRUE(charArr)	<< "Pointer is null";
+	ASSERT_TRUE(strArr)		<< "Pointer is null";
+
+	// Check that itemTypes are correct
+	EXPECT_EQ(boolArr->getItemTy(), primBool);
+	EXPECT_EQ(floatArr->getItemTy(), primFloat);
+	EXPECT_EQ(intArr->getItemTy(), primInt);
+	EXPECT_EQ(charArr->getItemTy(), primChar);
+	EXPECT_EQ(strArr->getItemTy(), primString);
+
+	// Checks that they're different
+	EXPECT_NE(boolArr, floatArr);
+	EXPECT_NE(floatArr, intArr);
+	EXPECT_NE(intArr, charArr);
+	EXPECT_NE(charArr, strArr);
+
+	// Check that uniqueness works by getting the arraytype for int 100 times.
+	// Everytime the pointer is returned it must be equal to intArr
+	for (unsigned k = 0; k < 100; k++)
+	{
+		EXPECT_EQ(actxt.getArrayTypeForType(primInt), intArr);
+	}
 }
