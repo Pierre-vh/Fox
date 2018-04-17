@@ -456,7 +456,7 @@ bool Token::specific_idIdentifier(ASTContext* astctxt, const std::string & str)
 		if (hasAtLeastOneLetter(str))
 		{
 			assert(astctxt && "ASTContext must not be null!");
-			tokenInfo_ = astctxt->identifierTable().getUniqueIDInfoPtr(str);
+			tokenInfo_ = astctxt->identifiers.getUniqueIDInfoPtr(str);
 			return true;
 		}
 		else

@@ -34,11 +34,6 @@ ASTUnit * ASTContext::addUnit(std::unique_ptr<ASTUnit> unit)
 	return units_.back().get();
 }
 
-IdentifierTable & ASTContext::identifierTable()
-{
-	return idents_;
-}
-
 const PrimitiveType* ASTContext::getPrimitiveIntType() const
 {
 	return primitiveIntTy_.get();

@@ -48,8 +48,6 @@ namespace Moonshot
 			// Once ownership is taken, it returns a observing pointer to that unit.
 			ASTUnit* addUnit(std::unique_ptr<ASTUnit> unit);
 
-			IdentifierTable& identifierTable();
-
 			const PrimitiveType* getPrimitiveIntType() const;
 			const PrimitiveType* getPrimitiveFloatType() const;
 			const PrimitiveType* getPrimitiveCharType() const;
@@ -59,6 +57,11 @@ namespace Moonshot
 
 			// Returns an ArrayType for a given type.
 			const ArrayType* getArrayTypeForType(const Type* ty);
+
+			// The Identifier table.
+			// It's public because it should be accessible by everyone.
+			IdentifierTable identifiers;
+
 		private:
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
@@ -73,9 +76,6 @@ namespace Moonshot
 
 			// All of the units that makes the current module.
 			std::vector<std::unique_ptr<ASTUnit>> units_;
-
-			// Identifier table
-			IdentifierTable idents_;
 
 			// Built-in types
 				// Theses are all initialized to nullptr, but are properly set by
