@@ -62,8 +62,7 @@ Fox Grammar version 0.10.0
 <var_decl>		= "let" <id> <fq_type_spec> ['=' <expr>] ';' 
 
 ##Functions##
-<func_decl>		= "func" <id> '(' [<arg_decl_list>] ')'[':' <type>] <compound_statement>
-<arg_decl_list> = [<arg_decl> {',' <arg_decl>}*]
+<func_decl>		= "func" <id> '(' [<arg_decl> {',' <arg_decl>}*] ')'[':' <type>] <compound_statement>
 <arg_decl>		= <id> <fq_type_spec>
 <expr_list>		= '(' [<expr> {',' <expr>}] ')'
 <rtr_stmt>		= "return" [<expr>] ';'
