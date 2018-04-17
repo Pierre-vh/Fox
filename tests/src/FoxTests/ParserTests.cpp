@@ -61,10 +61,10 @@ class ParsingFunctionTester
 				if (hashtagCommentsEnabled && (sample[0] == '#'))
 					continue;
 				Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-				auto astCtxt = std::make_unique<ASTContext>();
-				Lexer lex(ctxt, astCtxt.get());
+				ASTContext astctxt;
+				Lexer lex(ctxt, astctxt);
 				lex.lexStr(sample);
-				Parser parse(ctxt,astCtxt.get(), lex.getTokenVector());
+				Parser parse(ctxt, astctxt, lex.getTokenVector());
 				if (fn_(parse))
 				{
 					if (ctxt.isSafe())

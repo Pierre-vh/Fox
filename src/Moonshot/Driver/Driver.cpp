@@ -23,7 +23,7 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
 	// Create a ASTContext
-	auto astCtxt = std::make_unique<ASTContext>();
+	ASTContext astCtxt;
 
 	ctxt.flagsManager().set(FlagID::lexer_logOnPush);
 	std::string filecontent;
@@ -33,7 +33,7 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 		return false;
 	}
 
-	Lexer lex(ctxt,astCtxt.get());
+	Lexer lex(ctxt,astCtxt);
 	lex.lexStr(filecontent);
 
 	if (!ctxt.isSafe())
@@ -45,7 +45,7 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 	else
 		out << "Lexing completed successfully." << lex.getTokenVector().size() << " tokens found.\n";
 
-	Parser psr(ctxt,astCtxt.get(),lex.getTokenVector());
+	Parser psr(ctxt,astCtxt,lex.getTokenVector());
 	auto presult = psr.parseUnit();
 
 	if (!presult)
@@ -65,11 +65,11 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 	}
 	
 	// set as main unit
-	astCtxt->setMainUnit(std::move(presult.unit));
+	astCtxt.setMainUnit(std::move(presult.unit));
 
 	out << "\nMain Unit Dump:\n";
 	Dumper dump(out,1);
-	dump.dumpUnit(*(astCtxt->getMainUnit()));
+	dump.dumpUnit(*(astCtxt.getMainUnit()));
 	return true;
 }
 

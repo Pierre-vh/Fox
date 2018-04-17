@@ -28,8 +28,8 @@ TEST(LexerTests,CorrectTest1)
 	ASSERT_TRUE(readFileToString(file_path,file_content)) << "Could not open test file \"" << file_path << '"';
 
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	auto astCtxt = std::make_unique<ASTContext>();
-	Lexer lex(ctxt,astCtxt.get());
+	ASTContext astctxt;
+	Lexer lex(ctxt, astctxt);
 	lex.lexStr(file_content);
 	ASSERT_TRUE(ctxt.isSafe()) << "Context reported one or more errors while lexing the file. Context log:\n" << ctxt.getLogs();
 }
@@ -41,8 +41,8 @@ TEST(LexerTests, IncorrectTest1)
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	auto astCtxt = std::make_unique<ASTContext>();
-	Lexer lex(ctxt, astCtxt.get());
+	ASTContext astctxt;
+	Lexer lex(ctxt, astctxt);
 	lex.lexStr(file_content);
 	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
 }
@@ -54,8 +54,8 @@ TEST(LexerTests, IncorrectTest2)
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	auto astCtxt = std::make_unique<ASTContext>();
-	Lexer lex(ctxt, astCtxt.get());
+	ASTContext astctxt;
+	Lexer lex(ctxt, astctxt);
 	lex.lexStr(file_content);
 	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
 }
@@ -67,8 +67,8 @@ TEST(LexerTests, IncorrectTest3)
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	auto astCtxt = std::make_unique<ASTContext>();
-	Lexer lex(ctxt, astCtxt.get());
+	ASTContext astctxt;
+	Lexer lex(ctxt, astctxt);
 	lex.lexStr(file_content);
 	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
 }
@@ -80,8 +80,8 @@ TEST(LexerTests, IncorrectTest4)
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	auto astCtxt = std::make_unique<ASTContext>();
-	Lexer lex(ctxt, astCtxt.get());
+	ASTContext astctxt;
+	Lexer lex(ctxt, astctxt);
 	lex.lexStr(file_content);
 	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
 }
@@ -89,11 +89,11 @@ TEST(LexerTests, IncorrectTest4)
 TEST(TokenTests, FloatID)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	auto astCtxt = std::make_unique<ASTContext>();
+	ASTContext astctxt;
 
-	Token tok1(&ctxt, astCtxt.get(), "3.14");
-	Token tok2(&ctxt, astCtxt.get(), "0.0");
-	Token tok3(&ctxt, astCtxt.get(), "0.3333333333333");
+	Token tok1(ctxt, astctxt, "3.14");
+	Token tok2(ctxt, astctxt, "0.0");
+	Token tok3(ctxt, astctxt, "0.3333333333333");
 
 	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
 	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
@@ -119,11 +119,11 @@ TEST(TokenTests, FloatID)
 TEST(TokenTests, IntId)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	auto astCtxt = std::make_unique<ASTContext>();
+	ASTContext astctxt;
 
-	Token tok1(&ctxt, astCtxt.get(),"0");
-	Token tok2(&ctxt, astCtxt.get(),"9223372036854775000");
-	Token tok3(&ctxt, astCtxt.get(),"4242424242424242");
+	Token tok1(ctxt, astctxt,"0");
+	Token tok2(ctxt, astctxt,"9223372036854775000");
+	Token tok3(ctxt, astctxt,"4242424242424242");
 
 	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
 	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
@@ -149,11 +149,11 @@ TEST(TokenTests, IntId)
 TEST(TokenTests, StringID)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	auto astCtxt = std::make_unique<ASTContext>();
+	ASTContext astctxt;
 
-	Token tok1(&ctxt, astCtxt.get(),"\"Hello, world!\"");
-	Token tok2(&ctxt, astCtxt.get(),"\"\"");
-	Token tok3(&ctxt, astCtxt.get(),"\"!\"");
+	Token tok1(ctxt, astctxt,"\"Hello, world!\"");
+	Token tok2(ctxt, astctxt,"\"\"");
+	Token tok3(ctxt, astctxt,"\"!\"");
 
 	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
 	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
@@ -179,11 +179,11 @@ TEST(TokenTests, StringID)
 TEST(TokenTests, CharID)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	auto astCtxt = std::make_unique<ASTContext>();
+	ASTContext astctxt;
 
-	Token tok1(&ctxt, astCtxt.get(),"'c'");
-	Token tok2(&ctxt, astCtxt.get(),"' '");
-	Token tok3(&ctxt, astCtxt.get(),"'!'");
+	Token tok1(ctxt, astctxt,"'c'");
+	Token tok2(ctxt, astctxt,"' '");
+	Token tok3(ctxt, astctxt,"'!'");
 
 	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
 	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
@@ -209,10 +209,10 @@ TEST(TokenTests, CharID)
 TEST(TokenTests, BoolID)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	auto astCtxt = std::make_unique<ASTContext>();
+	ASTContext astctxt;
 
-	Token tok1(&ctxt, astCtxt.get(),"true");
-	Token tok2(&ctxt, astCtxt.get(),"false");
+	Token tok1(ctxt, astctxt,"true");
+	Token tok2(ctxt, astctxt,"false");
 
 	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
 	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
