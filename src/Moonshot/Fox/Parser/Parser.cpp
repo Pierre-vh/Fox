@@ -13,6 +13,7 @@
 
 #include <sstream>
 #include <cassert>
+#include <iostream>
 #include "Moonshot/Fox/AST/IdentifierTable.hpp"
 #include "Moonshot/Fox/Basic/Context.hpp"
 #include "Moonshot/Fox/Basic/Exceptions.hpp"
@@ -26,7 +27,7 @@ Parser::Parser(Context& c, ASTContext* astctxt, TokenVector& l) : context_(c), a
 	assert(astctxt && "ASTContext cannot be null!");
 }
 
-ParsingResult<ASTUnit*> Parser::parseUnit()
+UnitParsingResult Parser::parseUnit()
 {
 	// <fox_unit>	= {<declaration>}1+
 	auto unit = std::make_unique<ASTUnit>();
@@ -38,6 +39,7 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 		// If the declaration was parsed successfully : continue the cycle.
 		if (decl)
 		{
+			std::cout << "pushed decl\n";
 			unit->addDecl(std::move(decl.result));
 			continue;
 		}
@@ -50,7 +52,7 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 				if (hasReachedEndOfTokenStream())
 					break;
 				// No EOF? There's an unexpected token on the way, report it & recover!
-				else //
+				else
 				{
 					errorUnexpected();
 					genericError("Attempting recovery to next declaration.");
@@ -59,8 +61,8 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 						genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
 						continue;
 					}
-					else	// Died, report unsuccessful parsing.
-						return ParsingResult<ASTUnit*>(false);
+					else // Break so we can return
+						break;
 				}
 			}
 			// Parsing failed ? Try to recover!
@@ -72,21 +74,24 @@ ParsingResult<ASTUnit*> Parser::parseUnit()
 					genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
 					continue;
 				}
-				else	// Died, report unsuccessful parsing.
-					return ParsingResult<ASTUnit*>(false);
+				else // Break so we can return.
+					break;
 			}
 		}
 
 	}
+
+	// Return nothing if no declaration was found to report a failure.
 	if (unit->getDeclCount() == 0)
 	{
 		// Unit reports an error if notfound, because it's a mandatory rule.
 		genericError("Expected one or more declaration in unit.");
 		// Return empty result
-		return ParsingResult<ASTUnit*>();
+		return UnitParsingResult();
 	}
+	// Return the unit if it's valid.
 	else
-		return ParsingResult<ASTUnit*>(std::move(unit));
+		return UnitParsingResult(std::move(unit));
 }
 
 ParsingResult<LiteralInfo> Parser::matchLiteral()
