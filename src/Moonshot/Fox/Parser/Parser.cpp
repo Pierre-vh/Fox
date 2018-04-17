@@ -22,9 +22,9 @@ using namespace Moonshot;
 
 #define RETURN_IF_DEAD 	if (!state_.isAlive) return
 
-Parser::Parser(Context& c, ASTContext* astctxt, TokenVector& l) : context_(c), astCtxt_(astctxt), tokens_(l)
+Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l) : context_(c), astcontext_(astctxt), tokens_(l)
 {
-	assert(astctxt && "ASTContext cannot be null!");
+
 }
 
 UnitParsingResult Parser::parseUnit()
@@ -151,11 +151,11 @@ const Type* Parser::parseTypeKw()
 	{
 		switch (t.getKeywordType())
 		{
-			case KeywordType::KW_INT:	return  astCtxt_->getPrimitiveIntType();
-			case KeywordType::KW_FLOAT:	return  astCtxt_->getPrimitiveFloatType();
-			case KeywordType::KW_CHAR:	return	astCtxt_->getPrimitiveCharType();
-			case KeywordType::KW_STRING:return	astCtxt_->getPrimitiveStringType();
-			case KeywordType::KW_BOOL:	return	astCtxt_->getPrimitiveBoolType();
+			case KeywordType::KW_INT:	return  astcontext_.getPrimitiveIntType();
+			case KeywordType::KW_FLOAT:	return  astcontext_.getPrimitiveFloatType();
+			case KeywordType::KW_CHAR:	return	astcontext_.getPrimitiveCharType();
+			case KeywordType::KW_STRING:return	astcontext_.getPrimitiveStringType();
+			case KeywordType::KW_BOOL:	return	astcontext_.getPrimitiveBoolType();
 		}
 	}
 	decrementPosition();

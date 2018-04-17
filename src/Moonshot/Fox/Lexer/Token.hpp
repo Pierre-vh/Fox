@@ -156,7 +156,7 @@ namespace Moonshot
 		public:
 			Token() = default;
 			Token(const Token& cpy);
-			Token(Context *ctxt,ASTContext *astctxt,std::string tokstr, const TextPosition &tpos = TextPosition(0, 0));
+			Token(Context &ctxt,ASTContext &astctxt,std::string tokstr, const TextPosition &tpos = TextPosition(0, 0));
 
 			std::string showFormattedTokenData() const;
 
@@ -188,14 +188,13 @@ namespace Moonshot
 			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenInfo_;
 			std::unique_ptr<LiteralInfo> litInfo_ = nullptr;
 			TextPosition position_;
-			Context *context_ = nullptr;
 
 			/* Identification functions */
-			void idToken(ASTContext* astctxt, const std::string& str);
+			void idToken(Context& ctxt,ASTContext& astctxt, const std::string& str);
 			bool specific_idKeyword(const std::string& str);
 			bool specific_idSign(const std::string& str);
-			bool specific_idLiteral(const std::string& str);		
-			bool specific_idIdentifier(ASTContext* astctxt,const std::string& str);
+			bool specific_idLiteral(Context& ctxt, const std::string& str);
+			bool specific_idIdentifier(Context& ctxt,ASTContext& astctxt,const std::string& str);
 
 			// Helper for idIdentifier
 			bool hasAtLeastOneLetter(const std::string &str) const; // Checks if str_ has at least one upper/lower case letter.

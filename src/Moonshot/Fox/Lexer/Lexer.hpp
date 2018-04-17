@@ -28,7 +28,7 @@ namespace Moonshot
 	class Lexer 
 	{
 		public:
-			Lexer(Context& curctxt,ASTContext *astctxt);
+			Lexer(Context& curctxt,ASTContext &astctxt);
 
 			// input: data : a UTF-8 encoded std::string.
 			void lexStr(const std::string &data);		// Main function.
@@ -80,7 +80,7 @@ namespace Moonshot
 
 			// Member Variables
 			// ASTContext
-			ASTContext *astCtxt_ = nullptr;
+			ASTContext &astcontext_;
 			// Context
 			Context& context_;
 			// Utilities

@@ -151,22 +151,16 @@ LiteralInfo::operator bool() const
 	return !isNull();
 }
 
-Token::Token(Context *ctxt, ASTContext *astctxt, std::string tokstr, const TextPosition & tpos)
+Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr, const TextPosition & tpos)
 {
-	// Check if ctxt isn't null
-	assert(ctxt && "Context ptr is null!");
-	context_ = ctxt;
 	position_ = tpos;
-
-	idToken(astctxt,tokstr);
+	idToken(ctxt,astctxt,tokstr);
 }
 
 Token::Token(const Token & cpy)
 {
-	context_ = cpy.context_;
 	position_ = cpy.position_;
 	tokenInfo_ = cpy.tokenInfo_;
-
 
 	if (cpy.litInfo_)
 		litInfo_ = std::make_unique<LiteralInfo>(*(cpy.litInfo_));
@@ -327,10 +321,8 @@ IdentifierInfo * Token::getIdentifierInfo()
 	return nullptr;
 }
 
-void Token::idToken(ASTContext* astctxt,const std::string& str)
+void Token::idToken(Context& ctxt,ASTContext& astctxt,const std::string& str)
 {
-	// A Context is mandatory to id a token.
-	assert(context_ && "Cannot attempt to identify a token without a context.");
 	// If the token is empty, this means our lexer might be broken!
 	assert(str.size() && "Token cannot be empty!");
 
@@ -339,10 +331,10 @@ void Token::idToken(ASTContext* astctxt,const std::string& str)
 
 	if (specific_idSign(str));
 	else if (specific_idKeyword(str));
-	else if (specific_idLiteral(str));
-	else if (specific_idIdentifier(astctxt,str));
+	else if (specific_idLiteral(ctxt,str));
+	else if (specific_idIdentifier(ctxt,astctxt,str));
 	else
-		context_->reportError("Could not identify token \"" + str + "\"");
+		ctxt.reportError("Could not identify token \"" + str + "\"");
 }
 
 bool Token::specific_idKeyword(const std::string& str)
@@ -368,7 +360,7 @@ bool Token::specific_idSign(const std::string& str)
 	return true;
 }
 
-bool Token::specific_idLiteral(const std::string& str)
+bool Token::specific_idLiteral(Context& ctxt,const std::string& str)
 {
 	UTF8::StringManipulator strmanip;
 	strmanip.setStr(str);
@@ -378,12 +370,12 @@ bool Token::specific_idLiteral(const std::string& str)
 		{
 			if (strmanip.getSize() > 3)
 			{
-				context_->reportError("Char literal can only contain one character.");
+				ctxt.reportError("Char literal can only contain one character.");
 				return false;
 			}
 			else if (strmanip.getSize() < 3)
 			{
-				context_->reportError("Empty char literal");
+				ctxt.reportError("Empty char literal");
 				return false;
 			}
 			auto charlit = strmanip.getChar(1);
@@ -393,7 +385,7 @@ bool Token::specific_idLiteral(const std::string& str)
 		}
 		else
 		{
-			context_->reportError("Char literal was not correctly closed.");
+			ctxt.reportError("Char literal was not correctly closed.");
 			return false;
 		}
 	}
@@ -409,7 +401,7 @@ bool Token::specific_idLiteral(const std::string& str)
 		}
 		else
 		{
-			context_->reportError("String literal was not correctly closed.");
+			ctxt.reportError("String literal was not correctly closed.");
 			return false;
 		}
 	}
@@ -434,7 +426,7 @@ bool Token::specific_idLiteral(const std::string& str)
 			// If out of range, try to put the value in a float instead.
 			std::stringstream out;
 			out << "The value \"" << str << "\" was interpreted as a float because it didn't fit a 64 Bit signed int.";
-			context_->reportWarning(out.str());
+			ctxt.reportWarning(out.str());
 			tokenInfo_ = Literal();
 			litInfo_ = std::make_unique<LiteralInfo>(std::stof(str));
 		}
@@ -449,18 +441,17 @@ bool Token::specific_idLiteral(const std::string& str)
 	return false;
 }
 
-bool Token::specific_idIdentifier(ASTContext* astctxt, const std::string & str)
+bool Token::specific_idIdentifier(Context& ctxt,ASTContext& astctxt, const std::string & str)
 {
 	if (std::regex_match(str, kId_regex))
 	{
 		if (hasAtLeastOneLetter(str))
 		{
-			assert(astctxt && "ASTContext must not be null!");
-			tokenInfo_ = astctxt->identifiers.getUniqueIDInfoPtr(str);
+			tokenInfo_ = astctxt.identifiers.getUniqueIDInfoPtr(str);
 			return true;
 		}
 		else
-			context_->reportError("The identifier '" + str + "' must contain at least a upper/lowercase letter.");
+			ctxt.reportError("The identifier '" + str + "' must contain at least a upper/lowercase letter.");
 	}
 	return false;
 }

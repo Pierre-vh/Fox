@@ -43,7 +43,7 @@ namespace Moonshot
 	class Parser
 	{
 		public:
-			Parser(Context& c,ASTContext* astctxt,TokenVector& l);
+			Parser(Context& c,ASTContext& astctxt,TokenVector& l);
 
 			// UNIT
 			UnitParsingResult	parseUnit();
@@ -149,7 +149,7 @@ namespace Moonshot
 			void restoreParserStateFromBackup(const ParserState& st);
 
 			// Member variables
-			ASTContext* astCtxt_ = nullptr;
+			ASTContext& astcontext_;
 			Context& context_;
 			TokenVector& tokens_;	
 	};

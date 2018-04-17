@@ -21,7 +21,7 @@
 using namespace Moonshot;
 using namespace Moonshot::Dictionaries;
 
-Lexer::Lexer(Context & curctxt, ASTContext *astctxt) : context_(curctxt), astCtxt_(astctxt)
+Lexer::Lexer(Context & curctxt, ASTContext &astctxt) : context_(curctxt), astcontext_(astctxt)
 {
 
 }
@@ -80,7 +80,7 @@ void Lexer::pushTok()
 
 	// push Token
 	
-	Token t(&context_,astCtxt_,curtok_,ccoord_);
+	Token t(context_,astcontext_,curtok_,ccoord_);
 	// Check if token is valid, if invalid, don't push & report error
 	if (t)
 		result_.push_back(t);

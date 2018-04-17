@@ -91,13 +91,13 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 			else // no type found? we expected one after the colon!
 			{
 				errorExpected("Expected a type keyword");
-				rtr->setReturnType(astCtxt_->getPrimitiveVoidType());
+				rtr->setReturnType(astcontext_.getPrimitiveVoidType());
 				// don't return just yet, wait to see if a { can be found so we can still return something.
 				// return ParsingResult<ASTFunctionDecl*>(false);
 			}
 		}
 		else // if no return type, the function returns void.
-			rtr->setReturnType(astCtxt_->getPrimitiveVoidType());
+			rtr->setReturnType(astcontext_.getPrimitiveVoidType());
 
 		// <compound_statement>
 		if (auto compstmt_res = parseCompoundStatement(/* mandatory = yes */ true, /* shouldn't attempt to recover (because recovery is handled by parseUnit)*/ false))
