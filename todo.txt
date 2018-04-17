@@ -8,6 +8,7 @@ TODO:
 	> New type system & deletion of /Common/Types (Done!)
 	> Replace strings in the AST by IdentifierInfo* pointers (Done)	
 	> ParsingResult rework (Done)
+	> AST Improvements (Done)
 
 	> Add ASTContext,parser & ast support for arrays types & Array literals. (next)
 		> ASTContext needs a way to "register" and unique' array types, like in a set.
