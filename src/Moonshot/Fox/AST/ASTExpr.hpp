@@ -78,17 +78,17 @@ namespace Moonshot
 	{
 		public:
 			ASTCastExpr() = default;
-			ASTCastExpr(Type* castGoal,std::unique_ptr<ASTExpr> child);
+			ASTCastExpr(const Type* castGoal,std::unique_ptr<ASTExpr> child);
 			
 			virtual void accept(IVisitor& vis) override;
 
-			void setCastGoal(Type* goal);
+			void setCastGoal(const Type* goal);
 			const Type* getCastGoal() const;
 
 			ASTExpr* getChild();
 			void setChild(std::unique_ptr<ASTExpr> nc);
 		private:
-			Type* goal_ = nullptr;
+			const Type* goal_ = nullptr;
 			std::unique_ptr<ASTExpr> child_;
 	};
 
@@ -225,7 +225,9 @@ namespace Moonshot
 			std::unique_ptr<ASTExpr> accessIdxExpr_;
 	};
 
-	// Node Representing an Expression List
+	// Node Representing an Expression List.
+		// Note: This is not a "normal" node (not visitable!), it's more of a wrapper around a std::vector<std::unique_ptr<ASTExpr>>, so we can pass a list of 
+		// expressions around easily.
 	class ASTExprList
 	{
 		private:

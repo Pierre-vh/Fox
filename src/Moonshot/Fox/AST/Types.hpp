@@ -15,6 +15,7 @@
 namespace Moonshot
 {
 	// Base abstract class for every Type node.
+	// Types are immutable once created. As a result, every member function of type classes are marked "const".
 	class Type
 	{
 		public:
@@ -80,19 +81,19 @@ namespace Moonshot
 	class ArrayType : public BuiltinType
 	{
 		public:
-			ArrayType(Type* itemsTy);
+			ArrayType(const Type* itemsTy);
 
 			virtual bool isArrayType() const override;
 			virtual std::string getString() const override;
 
-			Type* getItemTy();
+			const Type* getItemTy() const;
 
 			bool isItemTypePrimitive() const;
 			bool isItemTypeBuiltin() const;
 			bool isItemTypeArray() const; 
 
 		private:
-			Type* itemTy_= nullptr;
+			const Type* itemTy_= nullptr;
 	};
 
 	// QualType is a class that groups a pointer to a Type as well as qualifiers 
@@ -101,7 +102,7 @@ namespace Moonshot
 	{
 		public:
 			QualType() = default;
-			QualType(Type* ty, const bool& isConstant = false,const bool &isReference = false);
+			QualType(const Type* ty, const bool& isConstant = false,const bool &isReference = false);
 
 			// Const
 			bool isConstant() const;
@@ -116,14 +117,14 @@ namespace Moonshot
 			std::string getString() const;
 
 			// Returns the Type pointer (ty_)
-			Type* getType();
-			void setType(Type* ty);
+			const Type* getType() const;
+			void setType(const Type* ty);
 
 			// Checks if this QualType is valid (ty_ != nullptr)
 			bool isValid() const;
 			operator bool() const;
 		private:
-			Type* ty_ = nullptr;
+			const Type* ty_ = nullptr;
 			bool isConst_ : 1;
 			bool isRef_ : 1;
 	};

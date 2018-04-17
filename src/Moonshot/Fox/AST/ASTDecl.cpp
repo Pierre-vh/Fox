@@ -57,7 +57,7 @@ void ASTArgDecl::accept(Moonshot::IVisitor &vis)
 }
 
 // Function Declaration
-ASTFunctionDecl::ASTFunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<ASTCompoundStmt> funcbody) :
+ASTFunctionDecl::ASTFunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<ASTCompoundStmt> funcbody) :
 	returnType_(returnType), ASTNamedDecl(fnId), body_(std::move(funcbody))
 {
 

@@ -75,7 +75,7 @@ namespace Moonshot
 			using argIter_const = ArgVecTy::const_iterator;
 		public:
 			ASTFunctionDecl() = default;
-			ASTFunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<ASTCompoundStmt> funcbody);
+			ASTFunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 			virtual void accept(IVisitor& vis) override;
 
