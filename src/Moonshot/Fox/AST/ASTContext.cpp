@@ -61,7 +61,7 @@ PrimitiveType* ASTContext::getPrimitiveBoolType()
 
 PrimitiveType* ASTContext::getPrimitiveStringType()
 {
-	return primitiveStringTy.get();
+	return primitiveStringTy_.get();
 }
 
 PrimitiveType* ASTContext::getPrimitiveVoidType()
@@ -77,6 +77,23 @@ void ASTContext::initBuiltinTypes()
 	primitiveFloatTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::FloatTy);
 	primitiveBoolTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::BoolTy);
 
-	primitiveStringTy	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::StringTy);
+	primitiveStringTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::StringTy);
 	primitiveCharTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::CharTy);
+}
+
+ArrayType * ASTContext::getArrayTypeForType(const Type * ty)
+{
+	// Effective STL, Item 24 by Scott Meyers : https://stackoverflow.com/a/101980
+	auto lb = arrayTypes_.lower_bound(ty);
+	if (lb != arrayTypes_.end() && !(arrayTypes_.key_comp()(ty, lb->first)))
+	{
+		// Key already exists, return lb->second.get()
+		return (lb->second).get();
+	}
+	else
+	{
+		// Key does not exists, insert & return.
+		auto insertionResult = arrayTypes_.insert(lb,{ ty, std::make_unique<ArrayType>(ty) });
+		return (insertionResult->second).get();
+	}
 }

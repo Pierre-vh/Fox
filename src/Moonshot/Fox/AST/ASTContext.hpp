@@ -24,6 +24,7 @@
 
 #include <memory>
 #include <vector>
+#include <map>
 
 #include "ASTUnit.hpp"
 #include "Types.hpp"
@@ -56,6 +57,8 @@ namespace Moonshot
 			PrimitiveType* getPrimitiveStringType();
 			PrimitiveType* getPrimitiveVoidType();
 
+			// Returns an ArrayType for a given type.
+			ArrayType* getArrayTypeForType(const Type* ty);
 		private:
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
@@ -82,6 +85,9 @@ namespace Moonshot
 			std::unique_ptr<PrimitiveType> primitiveFloatTy_= nullptr;
 			std::unique_ptr<PrimitiveType> primitiveBoolTy_	= nullptr;
 			std::unique_ptr<PrimitiveType> primitiveCharTy_	= nullptr;
-			std::unique_ptr<PrimitiveType> primitiveStringTy= nullptr;
+			std::unique_ptr<PrimitiveType> primitiveStringTy_ = nullptr;
+
+			// Array types
+			std::map<const Type*, std::unique_ptr<ArrayType>> arrayTypes_;
 	};
 }
