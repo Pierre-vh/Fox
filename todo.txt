@@ -10,31 +10,13 @@ TODO:
 	> ParsingResult rework (Done)
 	> AST Improvements (Done)
 
-	> Add ASTContext,parser & ast support for arrays types & Array literals. (next)
-		> ASTContext needs a way to "register" and unique' array types, like in a set.
-			> Find a way to make array types unique. Possibly create an helper class that wraps around a std::map<type*,std::unique_ptr<ArrayType>> to make code cleaner
-				within the astcontext.
-		>  Parser needs modification for <type> rule, it needs to be replaced, and the old <type> will be renamed to <typename>
-			<typename> = "int" |  "float" | "char" | "bool" | "string"
-			<type> = <typename> { '[' ']' }0+
-		>  AST needs an ArrayLiteral that wraps around an expressionlist.
-			> Note, arrayLiteral's type will be deduced by the typechecker.
-		> Change ast ArrayAccess to accept expressions and not only declrefs
-		> Change grammar of expressions to :	
-			<primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
-			<array_literal>		= '[' [<expr_list>] ']'
-			<literal>			= <primitive_literal> | <array_literal>
+	> Add ASTContext,parser & ast support for arrays types & Array literals. (In progress)
+		> ASTContext needs a way to "register" and unique' array types, like in a map(done)
+		> AST needs an ArrayLiteral that wraps around an expressionlist. (Next)
+		> Change ast ArrayAccess to accept expressions and not only declrefs (Next)
+		> Implement grammar changes (Next)
 
-			<decl_call>		= <id> [ <parens_expr_list> ]
-			<primary>		= <literal> | <parens_expr> | <decl_call>
-			<array_access>	= <primary> {'[' <expr> ']'}
-			<member_access>	= <array_access> { '.' <decl_call> }
-
-			This allows expressions of the form [1,2,3][0] // prints 1
-				However, I fear that this might create some ambiguities with the arrayaccess operator, even if it shouldn't
-				some tests might be welcome!
-
-	> DeclContext : std::map<IdentifierInfo*,IASTDecl*>
+	> DeclContext : ASTDecl abstract node wrapper around std::map<IdentifierInfo*,ASTDecl*>
 		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" call upper declcontexts to lookup and add lookupresults
 		> For the lookup system, I'll need "LookupResult" class that wraps around an array of std::pair<IdentifierInfo*,IASTDecl*> for all matching decls.
