@@ -33,27 +33,6 @@ TODO:
 				However, I fear that this might create some ambiguities with the arrayaccess operator, even if it shouldn't
 				some tests might be welcome!
 
-	> Change AST Hierarchy to make it more expressive.
-		This needs to be done prior to the visitor rework and semantic analysis implementation.
-		> Types 
-			> Add "BuiltinType" base class for all current types
-			> Rethink what the Type base class needs. 
-				abstract "getString" function
-				a isPrimitive function that checks if it's a primitive using static_cast<PrimitiveType*>(this);
-				a isBuiltin function that works the same as isPrimitive
-				etc.
-
-			> Add "NamedDecl" node as base class of ASTFunctionDecl and ASTVarDecl
-				has function like getDeclIdentifier()
-			
-			> See if ASTExpr & ASTStmt could use more nodes, but I don't think they need that.
-
-			> Change the way ASTFuncDecl stores the args by adding a "ASTFunctionArgDecl" node, so each arg has it's own declaration, which will be
-			  useful to register function args in a declcontext.
-			  The ASTFunctionDecl will store a vector of theses as childrens.
-
-			> Globally, take a long look at my current ASTStructure to see what could be improved.
-
 	> DeclContext : std::map<IdentifierInfo*,IASTDecl*>
 		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" call upper declcontexts to lookup and add lookupresults
