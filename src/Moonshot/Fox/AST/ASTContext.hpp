@@ -50,15 +50,15 @@ namespace Moonshot
 
 			IdentifierTable& identifierTable();
 
-			PrimitiveType* getPrimitiveIntType();
-			PrimitiveType* getPrimitiveFloatType();
-			PrimitiveType* getPrimitiveCharType();
-			PrimitiveType* getPrimitiveBoolType();
-			PrimitiveType* getPrimitiveStringType();
-			PrimitiveType* getPrimitiveVoidType();
+			const PrimitiveType* getPrimitiveIntType() const;
+			const PrimitiveType* getPrimitiveFloatType() const;
+			const PrimitiveType* getPrimitiveCharType() const;
+			const PrimitiveType* getPrimitiveBoolType() const;
+			const PrimitiveType* getPrimitiveStringType() const;
+			const PrimitiveType* getPrimitiveVoidType() const;
 
 			// Returns an ArrayType for a given type.
-			ArrayType* getArrayTypeForType(const Type* ty);
+			const ArrayType* getArrayTypeForType(const Type* ty);
 		private:
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;

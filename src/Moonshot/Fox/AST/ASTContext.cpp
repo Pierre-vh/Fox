@@ -39,32 +39,32 @@ IdentifierTable & ASTContext::identifierTable()
 	return idents_;
 }
 
-PrimitiveType* ASTContext::getPrimitiveIntType()
+const PrimitiveType* ASTContext::getPrimitiveIntType() const
 {
 	return primitiveIntTy_.get();
 }
 
-PrimitiveType* ASTContext::getPrimitiveFloatType()
+const PrimitiveType* ASTContext::getPrimitiveFloatType() const
 {
 	return primitiveFloatTy_.get();
 }
 
-PrimitiveType* ASTContext::getPrimitiveCharType()
+const PrimitiveType* ASTContext::getPrimitiveCharType() const
 {
 	return primitiveCharTy_.get();
 }
 
-PrimitiveType* ASTContext::getPrimitiveBoolType()
+const PrimitiveType* ASTContext::getPrimitiveBoolType() const
 {
 	return primitiveBoolTy_.get();
 }
 
-PrimitiveType* ASTContext::getPrimitiveStringType()
+const PrimitiveType* ASTContext::getPrimitiveStringType() const
 {
 	return primitiveStringTy_.get();
 }
 
-PrimitiveType* ASTContext::getPrimitiveVoidType()
+const PrimitiveType* ASTContext::getPrimitiveVoidType() const
 {
 	return primitiveVoidTy_.get();
 }
@@ -81,7 +81,7 @@ void ASTContext::initBuiltinTypes()
 	primitiveCharTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::CharTy);
 }
 
-ArrayType * ASTContext::getArrayTypeForType(const Type * ty)
+const ArrayType * ASTContext::getArrayTypeForType(const Type * ty)
 {
 	// Effective STL, Item 24 by Scott Meyers : https://stackoverflow.com/a/101980
 	auto lb = arrayTypes_.lower_bound(ty);

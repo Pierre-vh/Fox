@@ -20,7 +20,7 @@ TEST(ASTTests, TypeFunctions)
 {
 	ASTContext astContext;
 
-	Type* intTy = astContext.getPrimitiveIntType();
+	const Type* intTy = astContext.getPrimitiveIntType();
 	ASSERT_TRUE(intTy) << "Ptr is null?";
 	
 
@@ -39,12 +39,12 @@ TEST(ASTTests, ASTContextBuiltins)
 {
 	ASTContext actxt;
 
-	PrimitiveType*  primBool	= actxt.getPrimitiveBoolType();
-	PrimitiveType*  primFloat	= actxt.getPrimitiveFloatType();
-	PrimitiveType*  primInt		= actxt.getPrimitiveIntType();
-	PrimitiveType*  primChar	= actxt.getPrimitiveCharType();
-	PrimitiveType*  primString	= actxt.getPrimitiveStringType();
-	PrimitiveType*  primVoid	= actxt.getPrimitiveVoidType();
+	auto primBool	= actxt.getPrimitiveBoolType();
+	auto primFloat	= actxt.getPrimitiveFloatType();
+	auto primInt	= actxt.getPrimitiveIntType();
+	auto primChar	= actxt.getPrimitiveCharType();
+	auto primString = actxt.getPrimitiveStringType();
+	auto primVoid	= actxt.getPrimitiveVoidType();
 
 	ASSERT_TRUE(primBool)	<< "Ptr is null?";
 	ASSERT_TRUE(primFloat)	<< "Ptr is null?";
@@ -102,17 +102,17 @@ TEST(ASTTests, ASTContextArrayTypes)
 {
 	ASTContext actxt;
 
-	PrimitiveType*  primBool = actxt.getPrimitiveBoolType();
-	PrimitiveType*  primFloat = actxt.getPrimitiveFloatType();
-	PrimitiveType*  primInt = actxt.getPrimitiveIntType();
-	PrimitiveType*  primChar = actxt.getPrimitiveCharType();
-	PrimitiveType*  primString = actxt.getPrimitiveStringType();
+	auto primBool = actxt.getPrimitiveBoolType();
+	auto primFloat = actxt.getPrimitiveFloatType();
+	auto primInt = actxt.getPrimitiveIntType();
+	auto primChar = actxt.getPrimitiveCharType();
+	auto primString = actxt.getPrimitiveStringType();
 
-	ArrayType* boolArr	= actxt.getArrayTypeForType(primBool);
-	ArrayType* floatArr = actxt.getArrayTypeForType(primFloat);
-	ArrayType* intArr	= actxt.getArrayTypeForType(primInt);
-	ArrayType* charArr	= actxt.getArrayTypeForType(primChar);
-	ArrayType* strArr	= actxt.getArrayTypeForType(primString);
+	auto boolArr	= actxt.getArrayTypeForType(primBool);
+	auto floatArr	= actxt.getArrayTypeForType(primFloat);
+	auto intArr		= actxt.getArrayTypeForType(primInt);
+	auto charArr	= actxt.getArrayTypeForType(primChar);
+	auto strArr		= actxt.getArrayTypeForType(primString);
 
 
 	// Check that pointers aren't null
