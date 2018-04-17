@@ -63,6 +63,7 @@ namespace Moonshot
 			IdentifierTable identifiers;
 
 		private:
+			// Context shouldn't be copyable.
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
 
