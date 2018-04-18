@@ -205,9 +205,13 @@ std::pair<const Type*, bool> Parser::parseType()
 			{
 				errorExpected("Expected ']'");
 				// if we can't recover, report an error.
-				if (!resyncToSign(SignType::S_SQ_CLOSE))
-					return { nullptr , false };
-				// if we recovered, continue like nothing has happened
+				if (auto rres = resyncToSignInStatement(SignType::S_SQ_CLOSE))
+				{
+					// if recovered on requested token, continue..
+					if (rres.hasRecoveredOnRequestedToken())
+						continue;
+				}
+				return { nullptr , false };
 			}
 		}
 		// found, return
@@ -252,63 +256,139 @@ void Parser::decrementPosition()
 	parserState_.pos-=1;
 }
 
-bool Parser::resyncToSign(const SignType & s, const bool& consumeToken)
+//Skips every token until the sign s,a semicolon, "func", eof or a token marking the beginning of a statement is found.
+ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & consumeToken)
 {
-	// Check if recovery is allowed 
+	// Abort if recovery is forbidden
 	if (!parserState_.isRecoveryAllowed)
-		return false;
+		return ResyncResult(false); 
 
-	if (isClosingDelimiter(s))
+	std::size_t counter = 0;
+	auto opener = getOppositeDelimiter(s);
+	bool hasOpener = isClosingDelimiter(s);
+	bool isRequestingSemi = (s == SignType::S_SEMICOLON);
+	for (; parserState_.pos < tokens_.size(); parserState_.pos++)
 	{
-		std::size_t counter = 0;
-		auto opener = getOppositeDelimiter(s);
-		for (; parserState_.pos < tokens_.size(); parserState_.pos++)
+		auto tok = getToken();
+		if (tok.isKeyword())
 		{
-			if (matchSign(opener))
+			auto kwTy = tok.getKeywordType();
+			if (isBeginningOfStatementKeyword(kwTy) || (kwTy == KeywordType::KW_FUNC))
 			{
-				counter++;
-				continue;
+				// if the user requests a semicolon, we return a success, because we found another "statement delimiter"
+				// if he wasn't requesting one, that's just a match failure.
+				return ResyncResult(isRequestingSemi, false);
 			}
-			else if (matchSign(s))
+		}
+		else if(tok.isSign())
+		{
+			auto signTy = tok.getSignType();
+			if (signTy == SignType::S_SEMICOLON)
 			{
-				if (counter)
+				if (isRequestingSemi && consumeToken) 
+					incrementPosition();
+				// if the user is requesting a semicolon and we match one, it's a success (true,true)
+				// if the user isn't requesting to match a semi, that's considered a failure (false,false)
+				return ResyncResult(isRequestingSemi, isRequestingSemi);
+			}
+			else if (signTy == s)
+			{
+				if (hasOpener && counter)
 					counter--;
 				else
 				{
-					if(!consumeToken)
-						decrementPosition();
-					return true;
+					if (consumeToken) 
+						incrementPosition();
+					return ResyncResult(true, true);
 				}
-			}
-			// if we find a "func", stop recovery with a failure
-			// and don't consume it, so we don't "invade" another function.
-			else if (matchKeyword(KeywordType::KW_FUNC))
-			{
-				decrementPosition();
-				return false;
-			}
+			}	
+			else if (hasOpener && (signTy == opener))
+				counter++;
 		}
 	}
-	else
+	die();
+	return ResyncResult(false);
+}
+
+//Skips every token until the sign s, "func" or eof is found.
+ResyncResult Parser::resyncToSignInFunction(const SignType & s, const bool & consumeToken)
+{
+	// Abort if recovery is forbidden
+	if (!parserState_.isRecoveryAllowed)
+		return false;
+
+	std::size_t counter = 0;
+	auto opener = getOppositeDelimiter(s);
+	bool hasOpener = isClosingDelimiter(s);
+
+	for (; parserState_.pos < tokens_.size(); parserState_.pos++)
 	{
-		for (; parserState_.pos < tokens_.size(); parserState_.pos++)
+		auto tok = getToken();
+		if (tok.isKeyword())
 		{
-			if (matchSign(s))
+			auto kwTy = tok.getKeywordType();
+			if (kwTy == KeywordType::KW_FUNC)
 			{
-				if (!consumeToken)
-					decrementPosition();
-				return true;
+				// Return false if a func is found, because that means that we couldn't recover.
+				return ResyncResult(false);
 			}
-			// same as above
-			else if (matchKeyword(KeywordType::KW_FUNC))
+		}
+		else if (tok.isSign())
+		{
+			auto signTy = tok.getSignType();
+			if (hasOpener && (signTy == opener))
+				counter++;
+			else if (signTy == s)
 			{
-				decrementPosition();
-				return false;
+				if (hasOpener && counter)
+					counter--;
+				else
+				{
+					if (consumeToken) 
+						incrementPosition();
+					return ResyncResult(true,true);
+				}
 			}
 		}
 	}
 	die();
-	return false;
+	return ResyncResult(false);
+}
+
+ResyncResult Parser::resyncToNextDeclKeyword()
+{
+	// Check if recovery is allowed 
+	if (!parserState_.isRecoveryAllowed)
+		return ResyncResult(false);
+
+	for (; parserState_.pos < tokens_.size(); parserState_.pos++)
+	{
+		if (matchKeyword(KeywordType::KW_FUNC) || matchKeyword(KeywordType::KW_LET))
+		{
+			// Decrement, so we reverse the token consuming and make the let/func available to be picked up by parseDecl
+			decrementPosition();
+			return ResyncResult(true,true);
+		}
+	}
+	die();
+	return ResyncResult(false);
+}
+
+bool Parser::isBeginningOfStatementKeyword(const KeywordType & kw)
+{
+	// Returns true if kw is on of "let", "if", "else", "while", "return" or "func"
+	switch (kw)
+	{
+		case KeywordType::KW_LET:
+		case KeywordType::KW_IF:
+		case KeywordType::KW_ELSE:
+		case KeywordType::KW_WHILE:
+		case KeywordType::KW_RETURN:
+		case KeywordType::KW_FUNC:
+			return true;
+		default:
+			return false;
+	}
 }
 
 bool Parser::isClosingDelimiter(const SignType & s) const
@@ -328,25 +408,6 @@ SignType Parser::getOppositeDelimiter(const SignType & s)
 		return SignType::S_SQ_OPEN;
 
 	return SignType::DEFAULT;
-}
-
-bool Parser::resyncToNextDeclKeyword()
-{
-	// Check if recovery is allowed 
-	if (!parserState_.isRecoveryAllowed)
-		return false;
-
-	for (; parserState_.pos < tokens_.size(); parserState_.pos++)
-	{
-		if (matchKeyword(KeywordType::KW_FUNC) || matchKeyword(KeywordType::KW_LET))
-		{
-			// Decrement, so we reverse the token consuming and make the let/func available to be picked up by parseDecl
-			decrementPosition();
-			return true;
-		}
-	}
-	die();
-	return false;
 }
 
 void Parser::die()

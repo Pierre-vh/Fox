@@ -44,8 +44,8 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		if (!matchSign(SignType::S_ROUND_OPEN))
 		{
 			errorExpected("Expected '('");
-			// try to resync to a ')' without consuming it
-			if (!resyncToSign(SignType::S_ROUND_CLOSE,/*consumeToken*/false))
+			// try to resync to a ) without consuming it.
+			if(!resyncToSignInFunction(SignType::S_ROUND_CLOSE,false))
 				return ParsingResult<ASTFunctionDecl*>(false);
 		}
 
@@ -79,7 +79,7 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		if (!matchSign(SignType::S_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')'");
-			if (!resyncToSign(SignType::S_ROUND_CLOSE))
+			if (!resyncToSignInFunction(SignType::S_ROUND_CLOSE))
 				return ParsingResult<ASTFunctionDecl*>(false);
 		}
 	
@@ -159,7 +159,7 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 		{
 			errorExpected("Expected an identifier");
 			return ParsingResult<ASTVarDecl*>(
-					resyncToSign(SignType::S_SEMICOLON) // Attempt to recover. If the recovery happened, the ParsingResult will just report a "not found" to let parsing continue, if the recovery
+					resyncToSignInStatement(SignType::S_SEMICOLON) // Attempt to recover. If the recovery happened, the ParsingResult will just report a "not found" to let parsing continue, if the recovery
 														// did not happend or the parser died, it'll report a failure.
 				);
 			// Note : we do not try to continue even if recovery was successful, as not enough information was gathered to return a valid node.
@@ -179,8 +179,10 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 		else
 		{
 			errorExpected("Expected a ':'");
+			if (resyncToSignInStatement(SignType::S_SEMICOLON))
+				#pragma message("Here, change the return notfound to return a ASTParserRecovery node if it resynced successfully .");
 			return ParsingResult<ASTVarDecl*>(
-					resyncToSign(SignType::S_SEMICOLON) // See comment above, lines 162,163,165
+					resyncToSignInStatement(SignType::S_SEMICOLON) // See comment above, lines 162,163,165
 				);
 		}
 
@@ -196,7 +198,7 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 				if(parseres.wasSuccessful())
 					errorExpected("Expected an expression");
 				// Recover to semicolon, return if recovery wasn't successful 
-				if (!resyncToSign(SignType::S_SEMICOLON, /* do not consume the semi, so it can be picked up below */false))
+				if (!resyncToSignInStatement(SignType::S_SEMICOLON, /* do not consume the semi, so it can be picked up below */false))
 					return ParsingResult<ASTVarDecl*>(false);
 				// else, recovery was successful, act like we did not find any expression and let matchSign below match the semi & return;
 				initializerHadErrors = !parseres.wasSuccessful();
@@ -210,7 +212,7 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 				errorExpected("Expected semicolon after expression in variable declaration,");
 			
 			// Try recovery if allowed. 
-			if(!resyncToSign(SignType::S_SEMICOLON))
+			if(!resyncToSignInStatement(SignType::S_SEMICOLON))
 				return ParsingResult<ASTVarDecl*>(false);
 			// else, recovery was successful, let the function return normally below.
 		}

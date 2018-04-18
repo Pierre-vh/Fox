@@ -40,7 +40,7 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		{
 			errorExpected("Expected a '}'");
 			// try to recover, if recovery wasn't successful, report an error.
-			if (!resyncToSign(SignType::S_CURLY_CLOSE))
+			if (!resyncToSignInFunction(SignType::S_CURLY_CLOSE))
 				return ParsingResult<ASTCompoundStmt*>(false);
 		}
 
@@ -142,7 +142,7 @@ ParsingResult<ASTStmt*> Parser::parseReturnStmt()
 		{
 			errorExpected("Expected a ';'");
 			// Recover to semi, if recovery wasn't successful, report an error.
-			if (!resyncToSign(SignType::S_SEMICOLON))
+			if (!resyncToSignInStatement(SignType::S_SEMICOLON))
 				return ParsingResult<ASTStmt*>(false); // failed & died
 		}
 		// success, return
@@ -232,7 +232,7 @@ ParsingResult<ASTStmt*> Parser::parseExprStmt()
 		{
 			errorExpected("Expected a ';' in expression statement");
 			// attempt recovery, return error if couldn't recover.
-			if (!resyncToSign(SignType::S_SEMICOLON))
+			if (!resyncToSignInStatement(SignType::S_SEMICOLON))
 				return ParsingResult<ASTStmt*>(false);
 			// if recovery was successful, just return like nothing has happened!
 		}

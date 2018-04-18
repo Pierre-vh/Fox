@@ -122,12 +122,17 @@ namespace Moonshot
 			void incrementPosition();
 			void decrementPosition();
 
-			// This function will skip every token until the appropriate "resync" token is found. if consumeToken is set to false, the token won't be consumed.
-			// Returns true if resync was successful, false if parser died or recovery is not allowed here.
-			bool resyncToSign(const SignType &s,const bool& consumeToken = true);
-			// Same as resyncToSign, except it works on "let" and "func" keywords
-			bool resyncToNextDeclKeyword();
-			// Helper for resyncToSign
+			// 3 Types of resync functions:
+			// Note, the first 2 always take care of the opening parentheses if we ask to match a ) } or ], so they don't match a parenthese that belongs
+			// to something else.
+			// All 3 won't work if parser isn't allowed to recover.
+				// Skips every token until the sign s,a semicolon, "func", eof or a token marking the beginning of a statement is found.
+			ResyncResult resyncToSignInStatement(const SignType &s,const bool& consumeToken = true);
+				// Skips every token until the sign s, "func" or eof is found.
+			ResyncResult resyncToSignInFunction(const SignType &s, const bool& consumeToken = true);
+			ResyncResult resyncToNextDeclKeyword();
+			// helpers for resync funcs
+			bool isBeginningOfStatementKeyword(const KeywordType& kw);	// Returns true if kw is on of "let", "if", "else", "while", "return" or "func"
 			bool isClosingDelimiter(const SignType &s) const;			// Returns true if s is a } or ) or ]
 			SignType getOppositeDelimiter(const SignType &s);			// Returns [ for ], { for }, ( for )
 

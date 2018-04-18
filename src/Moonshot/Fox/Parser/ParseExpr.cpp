@@ -53,7 +53,7 @@ ParsingResult<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 			{
 				errorExpected("Expected a ']'");
 				// try recovery if possible.
-				if (!resyncToSign(SignType::S_SQ_CLOSE))
+				if (!resyncToSignInStatement(SignType::S_SQ_CLOSE))
 					return ParsingResult<IASTDeclRef*>(false);
 				// Recovery was successful, return below.
 			}
@@ -62,7 +62,7 @@ ParsingResult<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 		else
 		{
 			errorExpected("Expected an expression");
-			if (resyncToSign(SignType::S_SQ_CLOSE))
+			if (resyncToSignInStatement(SignType::S_SQ_CLOSE))
 			{
 				// Return a node with a "dummy" expr, so we return something and avoid error cascades.
 				return ParsingResult<ASTExpr*>(std::make_unique<ASTArrayAccess>(
@@ -147,7 +147,7 @@ ParsingResult<ASTExpr*> Parser::parseArrayLiteral()
 		if (!matchSign(SignType::S_SQ_CLOSE))
 		{
 			// Resync. If resync wasn't successful, report the error.
-			if (!resyncToSign(SignType::S_SQ_CLOSE))
+			if (!resyncToSignInStatement(SignType::S_SQ_CLOSE))
 				return ParsingResult<ASTExpr*>(false);
 		}
 		return ParsingResult<ASTExpr*>(std::move(rtr));
@@ -408,7 +408,7 @@ ParsingResult<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 			// no expr, handle error & attempt to recover if it's allowed.
 			if(parseres.wasSuccessful())
 				errorExpected("Expected an expression");
-			if (resyncToSign(SignType::S_ROUND_CLOSE,false /* don't consume the token so it's picked up below */)) 
+			if (resyncToSignInStatement(SignType::S_ROUND_CLOSE,false /* don't consume the token so it's picked up below */)) 
 			{
 				// if resync was successful, set rtr to be a "dummy" expression, so the function
 				// can return something. this helps to avoid an error cascade!
@@ -426,7 +426,7 @@ ParsingResult<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 		{
 			// no ), handle error & attempt to recover if it's allowed.
 			errorExpected("Expected a ')'");
-			if (!resyncToSign(SignType::S_ROUND_CLOSE))
+			if (!resyncToSignInStatement(SignType::S_ROUND_CLOSE))
 			{
 				// Couldn't resync successfully, return an error.
 				return ParsingResult<ASTExpr*>(false);
@@ -435,11 +435,10 @@ ParsingResult<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 
 		return ParsingResult<ASTExpr*>(std::move(rtr));
 	}
-	// failure to match ( while expression was mandatory -> try to recover to a ) + error
+	// failure to match ( while expression was mandatory -> error
 	else if (isMandatory)
 	{
 		errorExpected("Expected a '('");
-		resyncToSign(SignType::S_ROUND_CLOSE);
 		return ParsingResult<ASTExpr*>(false);
 	}
 	// notfound
@@ -487,7 +486,7 @@ ParsingResult<ExprList*> Parser::parseParensExprList()
 		{
 			errorExpected("Expected a ')'");
 			// attempt resync if error
-			if (!resyncToSign(SignType::S_ROUND_CLOSE))
+			if (!resyncToSignInStatement(SignType::S_ROUND_CLOSE))
 				return ParsingResult<ExprList*>(false); // Recovery wasn't successful, return an error.
 			// Recovery was successful, just return.
 		}
