@@ -161,7 +161,7 @@ namespace Moonshot
 			void setVal(const bool& val);
 		private:
 			bool val_ = false;
-		};
+	};
 
 	// interface for decl refs. Derived classes are references to a decl within this context (declref) and reference to member decls (memberref)
 	class IASTDeclRef : public ASTExpr
@@ -228,7 +228,7 @@ namespace Moonshot
 	// Node Representing an Expression List.
 		// Note: This is not a "normal" node (not visitable!), it's more of a wrapper around a std::vector<std::unique_ptr<ASTExpr>>, so we can pass a list of 
 		// expressions around easily.
-	class ASTExprList
+	class ExprList
 	{
 		private:
 			using ExprListTy = std::vector<std::unique_ptr<ASTExpr>>;
@@ -236,7 +236,7 @@ namespace Moonshot
 			using ExprListIter = ExprListTy::iterator;
 			using ExprListIter_const = ExprListTy::const_iterator;
 		public:
-			ASTExprList() = default;
+			ExprList() = default;
 
 			void addExpr(std::unique_ptr<ASTExpr> expr);
 			ASTExpr* getExpr(const std::size_t& ind);
@@ -262,15 +262,15 @@ namespace Moonshot
 			IdentifierInfo * getFunctionIdentifier() ;
 			void setFunctionIdentifier(IdentifierInfo * fnId);
 
-			ASTExprList* getExprList();
-			void setExprList(std::unique_ptr<ASTExprList> elist);
+			ExprList* getExprList();
+			void setExprList(std::unique_ptr<ExprList> elist);
 
 			void accept(IVisitor& vis) override;
 		private:
 			// the Function's name
 			IdentifierInfo * fnId_;
 			// it's args
-			std::unique_ptr<ASTExprList> args_;
+			std::unique_ptr<ExprList> args_;
 	};
 }
 

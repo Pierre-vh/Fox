@@ -275,12 +275,12 @@ void ASTFunctionCallExpr::setFunctionIdentifier(IdentifierInfo * fnId)
 	fnId_ = fnId;
 }
 
-ASTExprList * ASTFunctionCallExpr::getExprList()
+ExprList * ASTFunctionCallExpr::getExprList()
 {
 	return args_.get();
 }
 
-void ASTFunctionCallExpr::setExprList(std::unique_ptr<ASTExprList> elist)
+void ASTFunctionCallExpr::setExprList(std::unique_ptr<ExprList> elist)
 {
 	args_ = std::move(elist);
 }
@@ -354,12 +354,12 @@ ASTExpr* ASTArrayAccess::getAccessIndexExpr()
 }
 
 // Expr list
-void ASTExprList::addExpr(std::unique_ptr<ASTExpr> expr)
+void ExprList::addExpr(std::unique_ptr<ASTExpr> expr)
 {
 	exprs_.emplace_back(std::move(expr));
 }
 
-ASTExpr * ASTExprList::getExpr(const std::size_t & ind)
+ASTExpr * ExprList::getExpr(const std::size_t & ind)
 {
 	if (ind > size())
 		throw std::out_of_range("Tried to access an out of bounds location in an expression list.");
@@ -367,32 +367,32 @@ ASTExpr * ASTExprList::getExpr(const std::size_t & ind)
 	return exprs_[ind].get();
 }
 
-bool ASTExprList::isEmpty() const
+bool ExprList::isEmpty() const
 {
 	return !exprs_.size();
 }
 
-std::size_t ASTExprList::size() const
+std::size_t ExprList::size() const
 {
 	return exprs_.size();
 }
 
-ASTExprList::ExprListIter ASTExprList::begin()
+ExprList::ExprListIter ExprList::begin()
 {
 	return exprs_.begin();
 }
 
-ASTExprList::ExprListIter ASTExprList::end()
+ExprList::ExprListIter ExprList::end()
 {
 	return exprs_.end();
 }
 
-ASTExprList::ExprListIter_const ASTExprList::begin() const
+ExprList::ExprListIter_const ExprList::begin() const
 {
 	return exprs_.begin();
 }
 
-ASTExprList::ExprListIter_const ASTExprList::end() const
+ExprList::ExprListIter_const ExprList::end() const
 {
 	return exprs_.end();
 }

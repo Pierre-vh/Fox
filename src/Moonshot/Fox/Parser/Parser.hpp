@@ -79,8 +79,8 @@ namespace Moonshot
 		private:
 			// expression helpers
 			ParsingResult<ASTExpr*> parseParensExpr(const bool& isMandatory = false);
-			ParsingResult<ASTExprList*> parseExprList();
-			ParsingResult<ASTExprList*> parseParensExprList();
+			ParsingResult<ExprList*> parseExprList();
+			ParsingResult<ExprList*> parseParensExprList();
 			// Arg decl & decl list
 			ParsingResult<ASTArgDecl*> parseArgDecl();
 			// Type spec
