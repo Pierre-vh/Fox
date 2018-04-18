@@ -33,6 +33,9 @@ UnitParsingResult Parser::parseUnit()
 	// Create recovery "lock" object, since recovery is disabled for top level declarations.
 	auto lock = createRecoveryDisabler();
 
+	// Gather some flags
+	const bool showRecoveryMessages = context_.flagsManager().isSet(FlagID::parser_showRecoveryMessages);
+
 	// Parse declarations 
 	while (true)
 	{
@@ -56,28 +59,49 @@ UnitParsingResult Parser::parseUnit()
 				// No EOF? There's an unexpected token on the way, report it & recover!
 				else
 				{
+					// Unlock, so we're allowed to recover here.
+					auto unlock = createRecoveryEnabler();
+
 					errorUnexpected();
-					genericError("Attempting recovery to next declaration.");
+
+					if (showRecoveryMessages)
+						genericError("Attempting recovery to next declaration.");
+
 					if (resyncToNextDeclKeyword())
 					{
-						genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
+						if(showRecoveryMessages)
+							genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
 						continue;
 					}
-					else // Break so we can return
+					else
+					{
+						if(showRecoveryMessages)
+							genericError("Couldn't recover.");
 						break;
+					}
 				}
 			}
 			// Parsing failed ? Try to recover!
 			else 
 			{
-				genericError("Attempting recovery to next declaration.");
+				// Unlock, so we're allowed to recover here.
+				auto unlock = createRecoveryEnabler();
+
+				if(showRecoveryMessages)
+					genericError("Attempting recovery to next declaration.");
+
 				if (resyncToNextDeclKeyword())
 				{
-					genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
+					if(showRecoveryMessages)
+						genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
 					continue;
 				}
-				else // Break so we can return.
+				else
+				{
+					if(showRecoveryMessages)
+						genericError("Couldn't recover.");
 					break;
+				}
 			}
 		}
 
@@ -245,22 +269,23 @@ bool Parser::resyncToSign(const SignType & s, const bool& consumeToken)
 				counter++;
 				continue;
 			}
-			if (matchSign(s))
+			else if (matchSign(s))
 			{
 				if (counter)
 					counter--;
 				else
 				{
-					if(consumeToken)
-						return true;
-					else
-					{
-						// if the token shouldn't be consumed, go back 1 token and return, so the token
-						// is left to be picked up by another parsing function
+					if(!consumeToken)
 						decrementPosition();
-						return true;
-					}
+					return true;
 				}
+			}
+			// if we find a "func", stop recovery with a failure
+			// and don't consume it, so we don't "invade" another function.
+			else if (matchKeyword(KeywordType::KW_FUNC))
+			{
+				decrementPosition();
+				return false;
 			}
 		}
 	}
@@ -269,7 +294,17 @@ bool Parser::resyncToSign(const SignType & s, const bool& consumeToken)
 		for (; parserState_.pos < tokens_.size(); parserState_.pos++)
 		{
 			if (matchSign(s))
+			{
+				if (!consumeToken)
+					decrementPosition();
 				return true;
+			}
+			// same as above
+			else if (matchKeyword(KeywordType::KW_FUNC))
+			{
+				decrementPosition();
+				return false;
+			}
 		}
 	}
 	die();
@@ -316,7 +351,8 @@ bool Parser::resyncToNextDeclKeyword()
 
 void Parser::die()
 {
-	genericError("Couldn't recover from error, stopping parsing.");
+	if(context_.flagsManager().isSet(FlagID::parser_showRecoveryMessages))
+		genericError("Couldn't recover from error, stopping parsing.");
 
 	parserState_.pos = tokens_.size();
 	parserState_.isAlive = false;

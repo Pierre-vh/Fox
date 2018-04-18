@@ -217,16 +217,16 @@ ParsingResult<ASTExpr*> Parser::parseExponentExpr()
 {
 	// <exp_expr>	= <array_or_member_access> [ <exponent_operator> <prefix_expr> ]
 	// <member_access>
-	if (auto rhs = parseArrayOrMemberAccess())
+	if (auto lhs = parseArrayOrMemberAccess())
 	{
 		// <exponent_operator> 
 		if (matchExponentOp())
 		{
 			// <prefix_expr>
-			auto lhs = parsePrefixExpr();
-			if (!lhs)
+			auto rhs = parsePrefixExpr();
+			if (!rhs)
 			{
-				if(lhs.wasSuccessful())
+				if(rhs.wasSuccessful())
 					errorExpected("Expected an expression after exponent operator.");
 				return ParsingResult<ASTExpr*>(false);
 			}
@@ -239,10 +239,10 @@ ParsingResult<ASTExpr*> Parser::parseExponentExpr()
 			);
 		}
 		// only <member_access>
-		return rhs;
+		return lhs;
 	}
 	else
-		return ParsingResult<ASTExpr*>(rhs.wasSuccessful());
+		return ParsingResult<ASTExpr*>(lhs.wasSuccessful());
 }
 
 ParsingResult<ASTExpr*> Parser::parsePrefixExpr()
@@ -260,7 +260,8 @@ ParsingResult<ASTExpr*> Parser::parsePrefixExpr()
 		}
 		else
 		{
-			errorExpected("Expected an expression after unary operator in prefix expression.");
+			if(parseres.wasSuccessful())
+				errorExpected("Expected an expression after unary operator in prefix expression.");
 			return ParsingResult<ASTExpr*>(false);
 		}
 	}
@@ -298,10 +299,11 @@ ParsingResult<ASTExpr*>  Parser::parseCastExpr()
 				std::move(parse_res.result)
 		);
 	}
-	return ParsingResult<ASTExpr*>();
+	else
+		return ParsingResult<ASTExpr*>(parse_res.wasSuccessful());
 }
 
-ParsingResult<ASTExpr*>  Parser::parseBinaryExpr(const char & priority)
+ParsingResult<ASTExpr*> Parser::parseBinaryExpr(const char & priority)
 {
 	// <binary_expr>  = <cast_expr> { <binary_operator> <cast_expr> }	
 	auto rtr = std::make_unique<ASTBinaryExpr>(binaryOperator::DEFAULT);
@@ -340,7 +342,7 @@ ParsingResult<ASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 		{
 			if(rhs_res.wasSuccessful())
 				errorExpected("Expected an expression after binary operator,");
-			return ParsingResult<ASTExpr*>(lhs_res.wasSuccessful());
+			return ParsingResult<ASTExpr*>(rhs_res.wasSuccessful());
 		}
 
 		if (rtr->getOp() == binaryOperator::DEFAULT) // if the node has still no operation set, set it
@@ -353,6 +355,7 @@ ParsingResult<ASTExpr*>  Parser::parseBinaryExpr(const char & priority)
 
 	// When we have simple node (DEFAULT operation with only a value/expr as left child), we simplify it(only return the left child)
 	auto simple = rtr->getSimple();
+
 	if (simple)
 		return ParsingResult<ASTExpr*>(std::move(simple));
 	return ParsingResult<ASTExpr*>(std::move(rtr));
@@ -369,7 +372,8 @@ ParsingResult<ASTExpr*> Parser::parseExpr()
 			auto rhs_res = parseExpr();
 			if (!rhs_res)
 			{
-				errorExpected("Expected expression after assignement operator.");
+				if(rhs_res.wasSuccessful())
+					errorExpected("Expected expression after assignement operator.");
 				return ParsingResult<ASTExpr*>(false);
 			}
 

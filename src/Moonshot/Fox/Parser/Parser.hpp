@@ -66,13 +66,13 @@ namespace Moonshot
 
 			// STATEMENTS
 			ParsingResult<ASTStmt*> parseReturnStmt();
-			ParsingResult<ASTStmt*> parseExprStmt(); // Expression statement
+			ParsingResult<ASTStmt*> parseExprStmt(); 
 			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); 
-			ParsingResult<ASTStmt*> parseStmt(); // General Statement
-			ParsingResult<ASTStmt*> parseBody(); // body for control flow
+			ParsingResult<ASTStmt*> parseStmt();
+			ParsingResult<ASTStmt*> parseBody();
 
 			// STATEMENTS : CONDITION & LOOPS
-			ParsingResult<ASTStmt*> parseCondition(); // Parse a  if-else if-else "block
+			ParsingResult<ASTStmt*> parseCondition();
 			ParsingResult<ASTStmt*> parseWhileLoop();
 
 			// DECLS
