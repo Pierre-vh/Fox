@@ -15,7 +15,6 @@ TODO:
 		> Create a "RecoveryExpr" node, which is a null expression used for recovery purposes.
 		   Maybe give it an error message as attribute, or an enum to specify the recovery origin?
 		> Write a new "state of the parser recovery" note in Parser.hpp
-	> FlagsManager : stop using pointers, use references because FlagsManager is mandatory.
 
 	> DeclContext : ASTDecl abstract node wrapper around std::map<IdentifierInfo*,ASTDecl*>
 		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
