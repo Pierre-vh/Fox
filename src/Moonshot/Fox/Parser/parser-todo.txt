@@ -7,3 +7,20 @@ This arg would default to the current position.
 
 Also, adding a custom "matchResult" class to encapsulate a position would be great.
 It would need to hold a position & the result of the match (true/false)
+
+Ideas to improve parser error recovery :
+	>	Give more variety to resync functions:
+			resyncInStatement -> stops at func, let, ';', EOF or requested char.
+				When it stops are a character different from the one requested, it is treated as a failure, unless an argument "endOfLineMeansFailure" is set to false.
+				This would stop endless recovery resulting in a "death", e.g. when a ']' is missing in a array index suffix.
+			resyncInFunc -> stops at func, EOF or requested char
+				Same as above, if it stops at func, it's considered a failure unless an option says it wont.
+				Would work the same as the current one.
+				This would help situation where there's a missing } at the end of a function body by recovering on the "func" keyword, and treating everything between { and "func" as the body of the function.
+	>	Re-read every line of the parser, and find where recovery could be improved.
+	>	Extend the "ASTParserRecoveryNode" to work on statements, and use it on other rules to help recovery and avoid error cascades.
+		If that's done, putting it in a separate file (header only since there isn't that many functions) might be a good idea. 
+		Also, creating a "RecoverySources.def" file to register every source possible would be great.
+	>	(Advanced) - Create special recovery function for different circumstances. Theses function would try to recover by guessing common errors.
+					examples:
+						On missing rhs: if the next token is ';', just use a recovery node to replace the rhs and continue parsing. If it's another operator, ignore it and try to rematch another rhs, etc.
