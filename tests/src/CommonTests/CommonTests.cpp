@@ -58,7 +58,7 @@ TEST(FlagManagerTest,FlagFunctions)
 {
 	// This test tests the 3 major functions of the flagmanager : isSet, set and unset
 	Context ctxt;
-	auto fm = ctxt.flagsManager();
+	auto fm = ctxt.flagsManager;
 	// The base value of the test flag is false, so it's expected to be false.
 	EXPECT_FALSE(fm.isSet(FlagID::unit_test_flag));
 	fm.set(FlagID::unit_test_flag); // now it's set (true)
