@@ -9,11 +9,11 @@ Fox Grammar version 0.12.0
 ##General Rules##
 
 <id> 				= Any non-reserved keyword that is recognized by the following regular expression : (([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+ that contains at least one character.
-<typename> 			= "int" 	| "float"		| "bool"	| "string"		| "char"
+<builtin_type_name> 			= "int" 	| "float"		| "bool"	| "string"		| "char"
 <primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
 
 // a Type
-<type> = <typename> '[' ']'
+<type> = <builtin_type_name> { '[' ']' }
 
 // Fully qualified type spec
 <fq_type_spec>	= ':' ["const"] ['&'] <type>
@@ -30,7 +30,8 @@ Fox Grammar version 0.12.0
 <expr_stmt>		= ';' | <expr> ';' 
 <parens_expr>	= '(' <expr> ')'
 
-<suffix>		= "." <decl_call> | '[' <expr> ']'
+<suffix>		= '.' <decl_call> | '[' <expr> ']'
+<array_literal>	= '[' [<expr_list>] ']'
 <literal>		= <primitive_literal> | <array_literal>
 <decl_call>		= <id> [ <parens_expr_list> ]
 <primary>		= <literal> | <parens_expr> | <decl_call>

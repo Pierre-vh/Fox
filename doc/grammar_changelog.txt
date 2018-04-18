@@ -89,9 +89,10 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 * 0.12.0
 	Note: Implementing Array literals & Array types declaration.
 	~ Renamed <type> to <typename>, but non-terminals using the <type> rule still use a rule <type>, defined below.
-		<typename> = "int" |  "float" | "char" | "bool" | "string"
+		<builtin_type_name> = "int" |  "float" | "char" | "bool" | "string"
+	- Removed <array_access> rule
 	+ Added new <type> rule
-		<type> = <typename> '[' ']'
+		<type> = <builtin_type_name> { '[' ']' }
 	~ Renamed <literal> to <primitive_literal> rule, but non-terminals using the <literal> rule still use a <literal> rule, defined below.
 		<primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
 	+ Added <array_literal> rule 
@@ -102,7 +103,7 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 		<decl_call>	= <id> [ <parens_expr_list> ]
 	+ Added <suffix> rule
 		<suffix> = "." <decl_call> | '[' <expr> ']'
-	~ Changed <array_access> rule
+	~ Changed and renamed <array_access> rule
 		<array_or_member_access>	= <primary> { <suffix> }
-	~ Changed <member_access> rule
-		<member_access>	= <array_or_member_access> { '.' <decl_call> }
+	~ Changed <exp_expr> rule
+		<exp_expr>	= <array_or_member_access> [ <exponent_operator> <prefix_expr> ]
