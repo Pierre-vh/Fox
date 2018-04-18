@@ -126,11 +126,6 @@ bool Context::isSafe() const
 	return (curstate_ == State::SAFE) || (curstate_ == State::WARNING);
 }
 
-FlagsManager& Context::flagsManager()
-{
-	return flagsManager_;
-}
-
 void Context::addLog(const std::string & message)
 {
 	switch (curmode_)

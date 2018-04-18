@@ -69,11 +69,10 @@ namespace Moonshot
 			bool isCritical() const;
 			bool isSafe() const;
 			
-			// Get the flagsManager.
-			FlagsManager& flagsManager();
+			// the FlagsManager
+			FlagsManager flagsManager;
 		private:
 
-			FlagsManager flagsManager_;
 
 			void addLog(const std::string& message);
 			std::string makeLogMessage(const std::string& prefix, const std::string & message)const;
