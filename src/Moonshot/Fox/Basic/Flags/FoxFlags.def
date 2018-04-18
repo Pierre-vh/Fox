@@ -13,8 +13,22 @@
 	#define FLAG(FLAG_NAME,FLAG_BASE_VAL)
 #endif
 
+FLAG(unit_test_flag,false) // This flag is used by the unit tests.
+
+/* Diagnostic Engine  */
+FLAG(diagengine_warningsAreErrors,false)
+FLAG(diagengine_errorsAreFatal,false)
+FLAG(diagengine_silenceWarnings,false)
+FLAG(diagengine_silenceNotes,false)
+FLAG(diagengine_silenceAllAfterFatalError,false)
+FLAG(diagengine_silenceAll,false)
+
+/* Lexer */
 FLAG(lexer_logTotalTokenCount,false)
 FLAG(lexer_logOnPush,false)
+
+/* Parser */
+FLAG(parser_showRecoveryMessages, false)
 
 #ifndef KEEP_FLAG_DEFINITION
 	#undef FLAG

@@ -9,7 +9,6 @@
 
 #define KEEP_FLAG_DEFINITION
 
-#include "CommonFlags.def"
 #include "FoxFlags.def"
 
 #undef FLAG
