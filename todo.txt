@@ -9,12 +9,7 @@ TODO:
 	> Replace strings in the AST by IdentifierInfo* pointers (Done)	
 	> ParsingResult rework (Done)
 	> AST Improvements (Done)
-
-	> Add ASTContext,parser & ast support for arrays types & Array literals. (In progress)
-		> ASTContext needs a way to "register" and unique' array types, like in a map(done)
-		> AST needs an ArrayLiteral that wraps around an expressionlist. (Next)
-		> Change ast ArrayAccess to accept expressions and not only declrefs (Next)
-		> Implement grammar changes (Next)
+	> Add ASTContext,parser & ast support for arrays types & Array literals. (Done)
 
 	> DeclContext : ASTDecl abstract node wrapper around std::map<IdentifierInfo*,ASTDecl*>
 		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
