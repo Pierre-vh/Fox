@@ -86,11 +86,13 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		// [':' <type>]
 		if (matchSign(SignType::S_COLON))
 		{
-			if (auto rtrTy = parseTypeKw())
-				rtr->setReturnType(rtrTy);
+			auto rtrTy = parseType();
+			if (rtrTy.first)
+				rtr->setReturnType(rtrTy.first);
 			else // no type found? we expected one after the colon!
 			{
-				errorExpected("Expected a type keyword");
+				if(rtrTy.second)
+					errorExpected("Expected a type keyword");
 				rtr->setReturnType(astcontext_.getPrimitiveVoidType());
 				// don't return just yet, wait to see if a { can be found so we can still return something.
 				// return ParsingResult<ASTFunctionDecl*>(false);
@@ -230,11 +232,13 @@ ParsingResult<QualType> Parser::parseFQTypeSpec()
 			ty.setIsReference(true);
 
 		// <type>
-		if (auto type = parseTypeKw())
-			ty.setType(type);
+		auto type = parseType();
+		if (type.first)
+			ty.setType(type.first);
 		else
 		{
-			errorExpected("Expected a type name");
+			if(type.second) // if not found, return an error from us
+				errorExpected("Expected a type");
 			return ParsingResult<QualType>(false);
 		}
 

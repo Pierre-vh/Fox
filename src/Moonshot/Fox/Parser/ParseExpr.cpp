@@ -17,11 +17,33 @@
 using namespace Moonshot;
 
 // note, here the unique_ptr is passed by reference because it will be consumed (moved -> nulled) only if a '[' is found, else, it's left untouched.
-ParsingResult<IASTDeclRef*> Parser::parseArrayAccess(std::unique_ptr<IASTDeclRef>& base)
+ParsingResult<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 {
-	// 	<array_access>	= '[' <expr> ']'
+	// <suffix>	 = '.' <decl_call> | '[' <expr> ']'
+
+	// "." <decl_call> 
+	// '.'
+	if (matchSign(SignType::S_DOT))
+	{
+		// <decl_call>
+		if (auto dc = parseDeclCall())
+		{
+			// found, return
+			return ParsingResult<ASTExpr*>(
+				std::make_unique<ASTMemberAccessExpr>(std::move(base), std::move(dc.result))
+			);
+		}
+		else 
+		{
+			// not found
+			if (!dc.wasSuccessful())
+				errorExpected("Expected an identifier");
+			return ParsingResult<ASTExpr*>(false);
+		}
+	}
+	// '[' <expr> ']
 	// '['
-	if (matchSign(SignType::S_SQ_OPEN))
+	else if (matchSign(SignType::S_SQ_OPEN))
 	{
 		// <expr>
 		if (auto expr = parseExpr())
@@ -33,21 +55,22 @@ ParsingResult<IASTDeclRef*> Parser::parseArrayAccess(std::unique_ptr<IASTDeclRef
 				if (!resyncToSign(SignType::S_SQ_CLOSE))
 					return ParsingResult<IASTDeclRef*>(false);
 			}
-			return ParsingResult<IASTDeclRef*>(std::make_unique<ASTArrayAccess>(std::move(base), std::move(expr.result)));
+			return ParsingResult<ASTExpr*>(std::make_unique<ASTArrayAccess>(std::move(base), std::move(expr.result)));
 		}
 		else
 		{
 			errorExpected("Expected an expression");
 			resyncToSign(SignType::S_SQ_CLOSE); // try to resync, but we don't catch the result because we'll return false anyway.
-			return ParsingResult<IASTDeclRef*>(false);
+			return ParsingResult<ASTExpr*>(false);
 		}
 	}
-	return ParsingResult<IASTDeclRef*>();
+
+	return ParsingResult<ASTExpr*>();
 }
 
 ParsingResult<IASTDeclRef*> Parser::parseDeclCall()
 {
-	// <decl_call>		= <id> [ <parens_expr_list> ] { <array_access> }
+	// <decl_call>		= <id> [ <parens_expr_list> ]
 
 	// <id>
 	if (auto id = matchID())
@@ -62,36 +85,20 @@ ParsingResult<IASTDeclRef*> Parser::parseDeclCall()
 			fcall->setExprList(std::move(exprlist.result));
 			expr = std::move(fcall);
 		}
+		else if(!exprlist.wasSuccessful()) // error on parseParensExprList, propagate it.
+			return ParsingResult<IASTDeclRef*>(false);
 		else // if no expression list found, make expr a declref to the identifier.
 			expr = std::make_unique<ASTDeclRefExpr>(id);
-
-		// { <array_access> }
-		auto arrAcc = parseArrayAccess(expr);
-		while(arrAcc)
-		{
-			expr = std::move(arrAcc.result);
-			arrAcc = parseArrayAccess(expr);
-
-			if (arrAcc.wasSuccessful() && !arrAcc.isUsable()) // "not found"
-			{
-				// when the parseArrayAccess method doesn't find anything, it should leave it's argument in place
-				// and not move it! 
-				// We're checking that this behaviour is respected with this assert.
-				assert(expr && "parseArrayAccess consumed the expr without a success?");
-			}
-		}
 		
-		
-		if(!arrAcc.wasSuccessful()) // parseArrayAccess ended on an error
-			return ParsingResult<IASTDeclRef*>(false);
-		else // ended on a "not found" -> normal behaviour, return.
-			return ParsingResult<IASTDeclRef*>(std::move(expr));
+		assert(expr && "Expr is null?");
+		return ParsingResult<IASTDeclRef*>(std::move(expr));
 	}
 	return ParsingResult<IASTDeclRef*>();
 }
 
-ParsingResult<ASTExpr*> Parser::parseLiteral()
+ParsingResult<ASTExpr*> Parser::parsePrimitiveLiteral()
 {
+	// <primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
 	if (auto matchres = matchLiteral())
 	{
 		auto litinfo = matchres.result;
@@ -111,6 +118,45 @@ ParsingResult<ASTExpr*> Parser::parseLiteral()
 
 		return ParsingResult<ASTExpr*>(std::move(expr));
 	}
+	return ParsingResult<ASTExpr*>();
+}
+
+ParsingResult<ASTExpr*> Parser::parseArrayLiteral()
+{
+	// <array_literal>	= '[' [<expr_list>] ']'
+	if (matchSign(SignType::S_SQ_OPEN))
+	{
+		auto rtr = std::make_unique<ASTArrayLiteralExpr>();
+		// [<expr_list>]
+		if (auto elist = parseExprList())
+			rtr->setExprList(std::move(elist.result));
+		// ']'
+		if (!matchSign(SignType::S_SQ_CLOSE))
+		{
+			if (!resyncToSign(SignType::S_SQ_CLOSE))
+				return ParsingResult<ASTExpr*>(false);
+		}
+		return ParsingResult<ASTExpr*>(std::move(rtr));
+	}
+	return ParsingResult<ASTExpr*>();
+}
+
+ParsingResult<ASTExpr*> Parser::parseLiteral()
+{
+	// <literal>	= <primitive_literal> | <array_literal>
+
+	// <primitive_literal>
+	if (auto prim = parsePrimitiveLiteral())
+		return prim;
+	else if (!prim.wasSuccessful())
+		return ParsingResult<ASTExpr*>(false);
+
+	// <array_literal>
+	if (auto arr = parseArrayLiteral())
+		return arr;
+	else if (!arr.wasSuccessful())
+		return ParsingResult<ASTExpr*>(false);
+
 	return ParsingResult<ASTExpr*>();
 }
 
@@ -137,23 +183,17 @@ ParsingResult<ASTExpr*>  Parser::parsePrimary()
 	return ParsingResult<ASTExpr*>();
 }
 
-ParsingResult<ASTExpr*> Parser::parseMemberAccess()
+ParsingResult<ASTExpr*> Parser::parseArrayOrMemberAccess()
 {
-	// <member_access>	= <primary> { '.' <decl_call> }
+	// <array_or_member_access>	= <primary> { <suffix> }
 	if (auto prim = parsePrimary())
 	{
 		std::unique_ptr<ASTExpr> lhs = std::move(prim.result);
-		// '.'
-		while (matchSign(SignType::S_DOT))
+		while (auto suffix = parseSuffix(lhs))
 		{
-			// <decl_call>
-			if (auto rhs = parseDeclCall())
-				lhs = std::make_unique<ASTMemberAccessExpr>(std::move(lhs), std::move(rhs.result));
-			else
-			{
-				errorExpected("Expected an identifier");
-				return ParsingResult<ASTExpr*>(false);
-			}
+			// if suffix is usable, assert that lhs is now null
+			assert((!lhs) && "LHS should have been moved by parseSuffix!");
+			lhs = std::move(suffix.result);
 		}
 		return ParsingResult<ASTExpr*>(std::move(lhs));
 	}
@@ -163,9 +203,9 @@ ParsingResult<ASTExpr*> Parser::parseMemberAccess()
 
 ParsingResult<ASTExpr*> Parser::parseExponentExpr()
 {
-	// <exp_expr>	= <member_access> [ <exponent_operator> <prefix_expr> ]
+	// <exp_expr>	= <array_or_member_access> [ <exponent_operator> <prefix_expr> ]
 	// <member_access>
-	if (auto rhs = parseMemberAccess())
+	if (auto rhs = parseArrayOrMemberAccess())
 	{
 		// <exponent_operator> 
 		if (matchExponentOp())
@@ -230,7 +270,7 @@ ParsingResult<ASTExpr*>  Parser::parseCastExpr()
 		if (matchKeyword(KeywordType::KW_AS))
 		{
 			// <type>
-			if (auto castType = parseTypeKw())
+			if (auto castType = parseBuiltinTypename())
 			{
 				return ParsingResult<ASTExpr*>(
 						std::make_unique<ASTCastExpr>(castType, std::move(parse_res.result))

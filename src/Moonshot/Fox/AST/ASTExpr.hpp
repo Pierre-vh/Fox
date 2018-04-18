@@ -163,6 +163,25 @@ namespace Moonshot
 			bool val_ = false;
 	};
 
+	class ExprList;
+	// Array literals
+	class ASTArrayLiteralExpr : public ASTExpr
+	{
+		public:
+			ASTArrayLiteralExpr() = default;
+			ASTArrayLiteralExpr(std::unique_ptr<ExprList> exprs);
+
+			ExprList* getExprList();
+			void setExprList(std::unique_ptr<ExprList> elist);
+			bool hasExprList() const; 
+
+			bool isEmpty() const;
+
+			virtual void accept(IVisitor &vis);
+		private:
+			std::unique_ptr<ExprList> exprs_;
+	};
+
 	// interface for decl refs. Derived classes are references to a decl within this context (declref) and reference to member decls (memberref)
 	class IASTDeclRef : public ASTExpr
 	{

@@ -143,8 +143,9 @@ bool Parser::matchKeyword(const KeywordType & k)
 	return false;
 }
 
-const Type* Parser::parseTypeKw()
+const Type* Parser::parseBuiltinTypename()
 {
+	// <builtin_type_name> 	= "int" | "float" | "bool" | "string" | "char"
 	Token t = getToken();
 	incrementPosition();
 	if (t.isKeyword())
@@ -160,6 +161,46 @@ const Type* Parser::parseTypeKw()
 	}
 	decrementPosition();
 	return nullptr;
+}
+
+std::pair<const Type*, bool> Parser::parseType(const bool& recoveryAllowed)
+{
+	// <type> = <builtin_type_name> { '[' ']' }
+	// <builtin_type_name> 
+	if (auto ty = parseBuiltinTypename())
+	{
+		//  { '[' ']' }
+		while (matchSign(SignType::S_SQ_OPEN))
+		{
+			// ']'
+			if (matchSign(SignType::S_SQ_CLOSE))
+			{
+				// Found ']'
+				// Nest the array one more level
+				ty = astcontext_.getArrayTypeForType(ty);
+			}
+			else
+			{
+				errorExpected("Expected ']'");
+				// not found, try resync if allowed
+				if (recoveryAllowed)
+				{
+					// if resync, good
+					if (resyncToSign(SignType::S_SQ_CLOSE))
+						ty = astcontext_.getArrayTypeForType(ty);
+					else // if can't resync, error.
+						return { nullptr , false };
+				}
+				else // if not allowed to resync, return error now.
+					return { nullptr , false };
+			}
+
+		}
+		// found, return
+		return { ty, true };
+	}
+	// notfound, return
+	return { nullptr, true };
 }
 
 bool Parser::peekSign(const std::size_t & idx, const SignType & sign) const

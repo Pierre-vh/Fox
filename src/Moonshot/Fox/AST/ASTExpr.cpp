@@ -121,6 +121,40 @@ void ASTBoolLiteralExpr::setVal(const bool & val)
 	val_ = val;
 }
 
+// Literals: Array literals
+ASTArrayLiteralExpr::ASTArrayLiteralExpr(std::unique_ptr<ExprList> exprs) : exprs_(std::move(exprs))
+{
+
+}
+
+ExprList * ASTArrayLiteralExpr::getExprList()
+{
+	return exprs_.get();
+}
+
+void ASTArrayLiteralExpr::setExprList(std::unique_ptr<ExprList> elist)
+{
+	exprs_ = std::move(elist);
+}
+
+bool ASTArrayLiteralExpr::hasExprList() const
+{
+	return (bool)exprs_;
+}
+
+bool ASTArrayLiteralExpr::isEmpty() const
+{
+	if (exprs_)
+		return (exprs_->size() == 0); // -> has exprs but size == 0 -> empty
+	return false; // No exprs -> it's empty
+}
+
+void ASTArrayLiteralExpr::accept(IVisitor &vis)
+{
+	vis.visit(*this);
+}
+
+
 // BinaryExpr
 ASTBinaryExpr::ASTBinaryExpr(const binaryOperator & opt, std::unique_ptr<ASTExpr> lhs, std::unique_ptr<ASTExpr> rhs):
 	op_(opt)
@@ -396,5 +430,3 @@ ExprList::ExprListIter_const ExprList::end() const
 {
 	return exprs_.end();
 }
-
-

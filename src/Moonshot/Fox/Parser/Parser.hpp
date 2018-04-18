@@ -37,6 +37,8 @@
 
 #include "Moonshot/Fox/AST/Operators.hpp"			
 
+#include <tuple>
+
 namespace Moonshot
 {
 	class Context;
@@ -49,11 +51,13 @@ namespace Moonshot
 			UnitParsingResult	parseUnit();
 
 			// EXPRESSIONS
-			ParsingResult<IASTDeclRef*> parseArrayAccess(std::unique_ptr<IASTDeclRef> &base);
+			ParsingResult<ASTExpr*> parseSuffix(std::unique_ptr<ASTExpr> &base);
 			ParsingResult<IASTDeclRef*> parseDeclCall(); 
+			ParsingResult<ASTExpr*> parsePrimitiveLiteral();
+			ParsingResult<ASTExpr*> parseArrayLiteral();
 			ParsingResult<ASTExpr*> parseLiteral();
 			ParsingResult<ASTExpr*> parsePrimary();
-			ParsingResult<ASTExpr*> parseMemberAccess();
+			ParsingResult<ASTExpr*> parseArrayOrMemberAccess();
 			ParsingResult<ASTExpr*> parseExponentExpr();
 			ParsingResult<ASTExpr*> parsePrefixExpr(); 
 			ParsingResult<ASTExpr*> parseCastExpr();
@@ -88,7 +92,9 @@ namespace Moonshot
 
 			// Type keyword
 			// Returns a nullptr if no type keyword is found
-			const Type* parseTypeKw();
+			const Type* parseBuiltinTypename();
+			// returns a pair : first -> the type, null if none was found. second -> false on error.
+			std::pair<const Type*,bool> parseType(const bool& recoveryAllowed = true); 
 
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A and B as children. You call oneUpNode like this : oneUpNode(N,PLUS)
