@@ -35,6 +35,7 @@ namespace Moonshot
 			inline virtual void visit(ASTFloatLiteralExpr&)		{}
 			inline virtual void visit(ASTStringLiteralExpr&)	{}
 			inline virtual void visit(ASTBoolLiteralExpr&)		{}
+			inline virtual void visit(ASTArrayLiteralExpr&) {}
 			inline virtual void visit(ASTDeclRefExpr&)		{}
 			inline virtual void visit(ASTMemberAccessExpr&)	{}
 			inline virtual void visit(ASTArrayAccess&)		{}

@@ -127,6 +127,27 @@ void Dumper::visit(ASTBoolLiteralExpr & node)
 	out_ << getIndent() << "Bool Literal: " << (node.getVal() ? "true" : "false") << '\n';
 }
 
+void Dumper::visit(ASTArrayLiteralExpr & node)
+{
+	out_ << getIndent() << "Array Literal";
+	if (!node.isEmpty() && node.hasExprList())
+	{
+		out_ << "(" << node.getExprList()->size() << " elements):\n";
+		auto elist = node.getExprList();
+		curindent_++;
+		std::size_t count = 0;
+		for (auto it = elist->begin(); it != elist->end(); it++)
+		{
+			out_ << getIndent() << "Element " << count << ":\n";
+			curindent_++;
+			(*it)->accept(*this);
+			curindent_--;
+		}
+		curindent_--;
+	}
+	else
+		out_ << " (empty)\n";
+}
 
 void Dumper::visit(ASTVarDecl & node)
 {
