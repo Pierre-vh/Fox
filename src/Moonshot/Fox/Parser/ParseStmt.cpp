@@ -22,17 +22,9 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		// Parse all statements
 		while (auto parseres = parseStmt())
 		{
-			if (!rtr->isEmpty())
-			{
-				// Don't push another null statement if the last statement is already a null one, to avoid stacking them up.
-				if (dynamic_cast<ASTNullStmt*>(rtr->getBack()) &&
-					dynamic_cast<ASTNullStmt*>(parseres.result.get()))
-				{
-					parseres = parseStmt();
-					continue;
-				}
-			}
-			rtr->addStmt(std::move(parseres.result));
+			// Push only if we don't have a null statement.
+			if (!(dynamic_cast<ASTNullStmt*>(parseres.result.get())))
+				rtr->addStmt(std::move(parseres.result));
 			parseres = parseStmt();
 		}
 		// Match the closing curly bracket
