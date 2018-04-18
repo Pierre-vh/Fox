@@ -68,6 +68,21 @@ testfunc()[0][1][2][3][4]
 testfunc()[0][1][2][3][4][5]
 #Complex Member accesses
 testfunc()[0][1].myField[1].myFunc()
-Fox.tests().arrayField[1].callFunc()
+Fox.tests()[0].arrayField[1].callFunc()
 #Extreme edge case
 foo()[0][1][2][3][4][5].lhs.bar()[0].foo().arr[0].hello
+#array literals with inner literals
+["hello","world","nice","to","meet","you"]
+[0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4,0,1,2,3,4]
+[true,false,true,false,true]
+[]
+[false]
+['a','b','c']
+# nested array literals
+[ [0,1,2], [0,1,2], [0,1,2], [0,1,2], [0,1,2] ]
+[ [ [0,1,2], [0,1,2], [0,1,2], [0,1,2], [0,1,2] ],[ [0,1,2], [0,1,2], [0,1,2], [0,1,2], [0,1,2] ],[ [0,1,2], [0,1,2], [0,1,2], [0,1,2], [0,1,2] ]]
+[[], [], []]
+[[[], [], []],[[], [], []],[[], [], []]]
+[ [0], [1], [2], [3]]
+# complex expressions within the literals
+[ callF()[0], foo[0][1][2], (Fox.io.someobject).asInt(), (3**-(2*-(1/2)+2)--2+3**2%0.66+2)==-(-4.75333333) ]
