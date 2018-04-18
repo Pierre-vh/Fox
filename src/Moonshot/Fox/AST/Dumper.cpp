@@ -32,7 +32,7 @@ void Dumper::dumpUnit(ASTUnit & unit)
 	curindent_--;
 }
 
-void Dumper::visit(ASTParserRecoveryExpr & node)
+void Dumper::visit(ASTParserRecoveryNode & node)
 {
 	out_ << getIndent() << "Parser Recovery Node :" << node.getOriginAsString() << "\n";
 }

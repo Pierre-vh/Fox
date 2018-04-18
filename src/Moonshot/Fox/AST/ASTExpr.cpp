@@ -16,16 +16,16 @@
 
 using namespace Moonshot;
 
-ASTParserRecoveryExpr::ASTParserRecoveryExpr(const Origin & og) : og_(og)
+ASTParserRecoveryNode::ASTParserRecoveryNode(const Origin & og) : og_(og)
 {
 }
 
-ASTParserRecoveryExpr::Origin ASTParserRecoveryExpr::getOrigin() const
+ASTParserRecoveryNode::Origin ASTParserRecoveryNode::getOrigin() const
 {
 	return og_;
 }
 
-std::string ASTParserRecoveryExpr::getOriginAsString() const
+std::string ASTParserRecoveryNode::getOriginAsString() const
 {
 	switch (og_)
 	{
@@ -36,7 +36,7 @@ std::string ASTParserRecoveryExpr::getOriginAsString() const
 	}
 }
 
-void ASTParserRecoveryExpr::accept(IVisitor & vis)
+void ASTParserRecoveryNode::accept(IVisitor & vis)
 {
 	vis.visit(*this);
 }

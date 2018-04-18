@@ -31,7 +31,7 @@ namespace Moonshot
 	// A "Recovery" node for the parser, this acts like an expression, but doesn't really hold
 	// any information besides a simple enum to know the origin.
 	// It is used to still return something when the parser recovered from a situation but couldn't find any information to return.
-	class ASTParserRecoveryExpr : public ASTExpr
+	class ASTParserRecoveryNode : public ASTExpr
 	{
 		public:
 			enum class Origin : char
@@ -40,7 +40,7 @@ namespace Moonshot
 				MISSING_ARRAYIDX_EXPR
 			};
 
-			ASTParserRecoveryExpr(const Origin& og);
+			ASTParserRecoveryNode(const Origin& og);
 			Origin getOrigin() const;
 			std::string getOriginAsString() const;
 
