@@ -1,0 +1,9 @@
+The recovery of the parser is pretty primitive for now, but will be improved in the future.
+	> For instance, try to find common error cases and recover from them directly.
+
+The parser error messages are pretty primitive for now, when doing the diagnostics upgrade later, I need
+to add a position (idx) arg to errorExpected, so it prints a correct "expected x after (token at position idx)"
+This arg would default to the current position.
+
+Also, adding a custom "matchResult" class to encapsulate a position would be great.
+It would need to hold a position & the result of the match (true/false)
