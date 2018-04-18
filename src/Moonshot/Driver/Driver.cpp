@@ -25,7 +25,6 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 	// Create a ASTContext
 	ASTContext astCtxt;
 
-	ctxt.flagsManager.set(FlagID::lexer_logOnPush);
 	std::string filecontent;
 	if (!readFileToString(filepath, filecontent))
 	{
