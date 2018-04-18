@@ -67,7 +67,7 @@ ParsingResult<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 				// Return a node with a "dummy" expr, so we return something and avoid error cascades.
 				return ParsingResult<ASTExpr*>(std::make_unique<ASTArrayAccess>(
 						std::move(base),
-						std::make_unique<ASTParserRecoveryExpr>(ASTParserRecoveryExpr::Origin::MISSING_ARRAYIDX_EXPR))
+						std::make_unique<ASTParserRecoveryNode>(ASTParserRecoveryNode::Origin::MISSING_ARRAYIDX_EXPR))
 					);
 			}
 			else
@@ -412,7 +412,7 @@ ParsingResult<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 			{
 				// if resync was successful, set rtr to be a "dummy" expression, so the function
 				// can return something. this helps to avoid an error cascade!
-				rtr = std::make_unique<ASTParserRecoveryExpr>(ASTParserRecoveryExpr::Origin::MISSING_PARENSEXPR_EXPR);
+				rtr = std::make_unique<ASTParserRecoveryNode>(ASTParserRecoveryNode::Origin::MISSING_PARENSEXPR_EXPR);
 			}
 			else
 				return ParsingResult<ASTExpr*>(false); // return if no resync
