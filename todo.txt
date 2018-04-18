@@ -10,9 +10,21 @@ TODO:
 	> ParsingResult rework (Done)
 	> AST Improvements (Done)
 	> Add ASTContext,parser & ast support for arrays types & Array literals. (Done)
-	> Parser recovery improvements (Done)
+	> Parser recovery improvements part 1(Done)
 
-	> Maybe write a note explaining how the parser recovery works and how it could be improved
+	> Parser recovery improvements part 2 :
+		> Put "ParsingRecoveryNode" in a  .hpp/.cpp within /Parser/
+			> Use a .def to generate the recovery reasons
+		> Analyze every single parsing function to take advantage of new recovery techniques
+			> Never return "not found" if we matched some tokens. Always return an error if no recovery, and a partial node/recovery node if recovered.
+			> If a function uses a "mandatory = true" parameter, it might be a good idea to try to recover to the last expected  token, if it works, return a empty node.
+			  if it doesn't , backtrack and return an error.
+			> If a nonterminal resyncs to a token but can't continue, return a recovery node or a partially-formed node.
+		> Write test files and save them in a /res/ folder or something, each test showcases a common error problem. Run each of them in the command line toy to see if the parser handles it nicely.
+			> Bonus points : give the Driver a special command to run each of them. e.g. "run-error-test-files"
+		> Once that's done, we got 3 out of 4 suggestions for recovery down ! Write a nice doc explaining
+		  how the parser reacts to missing token in various circumstances and how it deals with it.
+
 	> DeclContext : ASTDecl abstract node wrapper around std::map<IdentifierInfo*,ASTDecl*>
 		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" call upper declcontexts to lookup and add lookupresults
