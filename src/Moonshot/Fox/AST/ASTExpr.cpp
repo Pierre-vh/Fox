@@ -16,6 +16,30 @@
 
 using namespace Moonshot;
 
+ASTParserRecoveryExpr::ASTParserRecoveryExpr(const Origin & og) : og_(og)
+{
+}
+
+ASTParserRecoveryExpr::Origin ASTParserRecoveryExpr::getOrigin() const
+{
+	return og_;
+}
+
+std::string ASTParserRecoveryExpr::getOriginAsString() const
+{
+	switch (og_)
+	{
+		case Origin::MISSING_PARENSEXPR_EXPR:
+			return "No expression in () when one was required.";
+		case Origin::MISSING_ARRAYIDX_EXPR:
+			return "No expression in [] suffix.";
+	}
+}
+
+void ASTParserRecoveryExpr::accept(IVisitor & vis)
+{
+	vis.visit(*this);
+}
 // Literals : Char literals
 ASTCharLiteralExpr::ASTCharLiteralExpr(const CharType & val) : val_(val)
 {

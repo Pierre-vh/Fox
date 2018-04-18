@@ -28,6 +28,27 @@ namespace Moonshot
 			virtual void accept(IVisitor& vis) = 0;
 	};
 
+	// A "Recovery" node for the parser, this acts like an expression, but doesn't really hold
+	// any information besides a simple enum to know the origin.
+	// It is used to still return something when the parser recovered from a situation but couldn't find any information to return.
+	class ASTParserRecoveryExpr : public ASTExpr
+	{
+		public:
+			enum class Origin : char
+			{
+				MISSING_PARENSEXPR_EXPR,
+				MISSING_ARRAYIDX_EXPR
+			};
+
+			ASTParserRecoveryExpr(const Origin& og);
+			Origin getOrigin() const;
+			std::string getOriginAsString() const;
+
+			virtual void accept(IVisitor& vis) override;
+		private:
+			Origin og_;
+	};
+
 	// Binary Expressions
 	class ASTBinaryExpr : public ASTExpr
 	{

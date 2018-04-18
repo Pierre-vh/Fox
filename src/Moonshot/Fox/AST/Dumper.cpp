@@ -32,6 +32,11 @@ void Dumper::dumpUnit(ASTUnit & unit)
 	curindent_--;
 }
 
+void Dumper::visit(ASTParserRecoveryExpr & node)
+{
+	out_ << getIndent() << "Parser Recovery Node :" << node.getOriginAsString() << "\n";
+}
+
 void Dumper::visit(ASTBinaryExpr & node)
 {
 	std::string op = Util::getFromDict(Dicts::kBinopToStr_dict, node.getOp());
