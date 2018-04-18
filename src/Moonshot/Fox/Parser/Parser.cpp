@@ -20,8 +20,6 @@
 
 using namespace Moonshot;
 
-#define RETURN_IF_DEAD 	if (!state_.isAlive) return
-
 Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l) : context_(c), astcontext_(astctxt), tokens_(l)
 {
 
@@ -31,6 +29,10 @@ UnitParsingResult Parser::parseUnit()
 {
 	// <fox_unit>	= {<declaration>}1+
 	auto unit = std::make_unique<ASTUnit>();
+
+	// Create recovery "lock" object, since recovery is disabled for top level declarations.
+	auto lock = createRecoveryDisabler();
+
 	// Parse declarations 
 	while (true)
 	{
@@ -137,7 +139,7 @@ bool Parser::matchKeyword(const KeywordType & k)
 	Token t = getToken();
 	if (t.isKeyword() && (t.getKeywordType() == k))
 	{
-		state_.pos += 1;
+		parserState_.pos += 1;
 		return true;
 	}
 	return false;
@@ -163,7 +165,7 @@ const Type* Parser::parseBuiltinTypename()
 	return nullptr;
 }
 
-std::pair<const Type*, bool> Parser::parseType(const bool& recoveryAllowed)
+std::pair<const Type*, bool> Parser::parseType()
 {
 	// <type> = <builtin_type_name> { '[' ']' }
 	// <builtin_type_name> 
@@ -172,29 +174,17 @@ std::pair<const Type*, bool> Parser::parseType(const bool& recoveryAllowed)
 		//  { '[' ']' }
 		while (matchSign(SignType::S_SQ_OPEN))
 		{
+			// Set ty to the ArrayType of ty.
+			ty = astcontext_.getArrayTypeForType(ty);
 			// ']'
-			if (matchSign(SignType::S_SQ_CLOSE))
-			{
-				// Found ']'
-				// Nest the array one more level
-				ty = astcontext_.getArrayTypeForType(ty);
-			}
-			else
+			if (!matchSign(SignType::S_SQ_CLOSE))
 			{
 				errorExpected("Expected ']'");
-				// not found, try resync if allowed
-				if (recoveryAllowed)
-				{
-					// if resync, good
-					if (resyncToSign(SignType::S_SQ_CLOSE))
-						ty = astcontext_.getArrayTypeForType(ty);
-					else // if can't resync, error.
-						return { nullptr , false };
-				}
-				else // if not allowed to resync, return error now.
+				// if we can't recover, report an error.
+				if (!resyncToSign(SignType::S_SQ_CLOSE))
 					return { nullptr , false };
+				// if we recovered, continue like nothing has happened
 			}
-
 		}
 		// found, return
 		return { ty, true };
@@ -212,7 +202,7 @@ bool Parser::peekSign(const std::size_t & idx, const SignType & sign) const
 
 Token Parser::getToken() const
 {
-	return getToken(state_.pos);
+	return getToken(parserState_.pos);
 }
 
 Token Parser::getToken(const size_t & d) const
@@ -225,26 +215,30 @@ Token Parser::getToken(const size_t & d) const
 
 std::size_t Parser::getCurrentPosition() const
 {
-	return state_.pos;
+	return parserState_.pos;
 }
 
 void Parser::incrementPosition()
 {
-	state_.pos+=1;
+	parserState_.pos+=1;
 }
 
 void Parser::decrementPosition()
 {
-	state_.pos-=1;
+	parserState_.pos-=1;
 }
 
 bool Parser::resyncToSign(const SignType & s, const bool& consumeToken)
 {
+	// Check if recovery is allowed 
+	if (!parserState_.isRecoveryAllowed)
+		return false;
+
 	if (isClosingDelimiter(s))
 	{
 		std::size_t counter = 0;
 		auto opener = getOppositeDelimiter(s);
-		for (; state_.pos < tokens_.size(); state_.pos++)
+		for (; parserState_.pos < tokens_.size(); parserState_.pos++)
 		{
 			if (matchSign(opener))
 			{
@@ -272,7 +266,7 @@ bool Parser::resyncToSign(const SignType & s, const bool& consumeToken)
 	}
 	else
 	{
-		for (; state_.pos < tokens_.size(); state_.pos++)
+		for (; parserState_.pos < tokens_.size(); parserState_.pos++)
 		{
 			if (matchSign(s))
 				return true;
@@ -303,7 +297,11 @@ SignType Parser::getOppositeDelimiter(const SignType & s)
 
 bool Parser::resyncToNextDeclKeyword()
 {
-	for (; state_.pos < tokens_.size(); state_.pos++)
+	// Check if recovery is allowed 
+	if (!parserState_.isRecoveryAllowed)
+		return false;
+
+	for (; parserState_.pos < tokens_.size(); parserState_.pos++)
 	{
 		if (matchKeyword(KeywordType::KW_FUNC) || matchKeyword(KeywordType::KW_LET))
 		{
@@ -320,13 +318,13 @@ void Parser::die()
 {
 	genericError("Couldn't recover from error, stopping parsing.");
 
-	state_.pos = tokens_.size();
-	state_.isAlive = false;
+	parserState_.pos = tokens_.size();
+	parserState_.isAlive = false;
 }
 
 void Parser::errorUnexpected()
 {
-	RETURN_IF_DEAD;
+	if (!parserState_.isAlive) return;
 
 	context_.setOrigin("Parser");
 
@@ -347,13 +345,14 @@ void Parser::errorExpected(const std::string & s)
 {
 	static std::size_t lastUnexpectedTokenPosition;
 
-	RETURN_IF_DEAD;
-	const auto lastTokenPos = state_.pos - 1;
+	if (!parserState_.isAlive) return;
+
+	const auto lastTokenPos = parserState_.pos - 1;
 
 	// If needed, print unexpected error message
-	if (lastUnexpectedTokenPosition != state_.pos)
+	if (lastUnexpectedTokenPosition != parserState_.pos)
 	{
-		lastUnexpectedTokenPosition = state_.pos;
+		lastUnexpectedTokenPosition = parserState_.pos;
 		errorUnexpected();
 	}
 
@@ -369,7 +368,7 @@ void Parser::errorExpected(const std::string & s)
 
 void Parser::genericError(const std::string & s)
 {
-	RETURN_IF_DEAD;
+	if (!parserState_.isAlive) return;
 
 	context_.setOrigin("Parser");
 	context_.reportError(s);
@@ -378,21 +377,51 @@ void Parser::genericError(const std::string & s)
 
 bool Parser::hasReachedEndOfTokenStream() const
 {
-	return (state_.pos >= tokens_.size());
+	return (parserState_.pos >= tokens_.size());
 }
 
 bool Parser::isAlive() const
 {
-	return state_.isAlive;
+	return parserState_.isAlive;
 }
 
 Parser::ParserState Parser::createParserStateBackup() const
 {
-	return state_;
+	return parserState_;
 }
 
 void Parser::restoreParserStateFromBackup(const Parser::ParserState & st)
 {
-	state_ = st;
+	parserState_ = st;
 }
 
+// ParserState
+Parser::ParserState::ParserState() : isAlive(true), isRecoveryAllowed(false), pos(0)
+{
+
+}
+
+// RAIIRecoveryManager
+
+Parser::RAIIRecoveryManager::RAIIRecoveryManager(Parser * parser, const bool & allowsRecovery) : parser_(parser)
+{
+	assert(parser_ && "Parser instance pointer cannot be null!");
+	recoveryAllowedBackup_ = parser_->parserState_.isRecoveryAllowed;
+	parser_->parserState_.isRecoveryAllowed = allowsRecovery;
+}
+
+Parser::RAIIRecoveryManager::~RAIIRecoveryManager()
+{
+	assert(parser_ && "Parser instance pointer cannot be null!");
+	parser_->parserState_.isRecoveryAllowed = recoveryAllowedBackup_;
+}
+
+Parser::RAIIRecoveryManager Parser::createRecoveryEnabler()
+{
+	return RAIIRecoveryManager(this,true);
+}
+
+Parser:: RAIIRecoveryManager Parser::createRecoveryDisabler()
+{
+	return RAIIRecoveryManager(this, false);
+}

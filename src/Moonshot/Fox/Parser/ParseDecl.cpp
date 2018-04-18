@@ -101,8 +101,11 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		else // if no return type, the function returns void.
 			rtr->setReturnType(astcontext_.getPrimitiveVoidType());
 
+		// Create recovery "enabling" object, since recovery is allowed for function bodies
+		auto lock = createRecoveryEnabler();
+
 		// <compound_statement>
-		if (auto compstmt_res = parseCompoundStatement(/* mandatory = yes */ true, /* shouldn't attempt to recover (because recovery is handled by parseUnit)*/ false))
+		if (auto compstmt_res = parseCompoundStatement(/* mandatory = yes */ true))
 		{
 			rtr->setBody(std::move(compstmt_res.result));
 			// Success, nothing more to see here!
@@ -141,7 +144,7 @@ ParsingResult<ASTArgDecl*> Parser::parseArgDecl()
 	return ParsingResult<ASTArgDecl*>();
 }
 
-ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnError)
+ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 {
 	// <var_decl> = "let" <id> <fq_type_spec> ['=' <expr>] ';'
 	// "let"
@@ -155,10 +158,11 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnE
 		else
 		{
 			errorExpected("Expected an identifier");
-			// Recover to semicolon if allowed & return error
-			if (recoverToSemiOnError)
-				resyncToSign(SignType::S_SEMICOLON);
-			return ParsingResult<ASTVarDecl*>(false);
+			return ParsingResult<ASTVarDecl*>(
+					resyncToSign(SignType::S_SEMICOLON) // Attempt to recover. If the recovery happened, the ParsingResult will just report a "not found" to let parsing continue, if the recovery
+														// did not happend or the parser died, it'll report a failure.
+				);
+			// Note : we do not try to continue even if recovery was successful, as not enough information was gathered to return a valid node.
 		}
 
 		// <fq_type_spec>
@@ -175,10 +179,9 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnE
 		else
 		{
 			errorExpected("Expected a ':'");
-			// Recover to semicolon if allowed & return error
-			if (recoverToSemiOnError)
-				resyncToSign(SignType::S_SEMICOLON);
-			return ParsingResult<ASTVarDecl*>(false);
+			return ParsingResult<ASTVarDecl*>(
+					resyncToSign(SignType::S_SEMICOLON) // See comment above, lines 162,163,165
+				);
 		}
 
 		// ['=' <expr>]
@@ -190,10 +193,10 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnE
 			{
 				if(parseres.wasSuccessful())
 					errorExpected("Expected an expression");
-				// Recover to semicolon if allowed & return error
-				if (recoverToSemiOnError)
-					resyncToSign(SignType::S_SEMICOLON);
-				return ParsingResult<ASTVarDecl*>(false);
+				// Recover to semicolon, return if recovery wasn't successful 
+				if (!resyncToSign(SignType::S_SEMICOLON, /* do not consume the semi, so it can be picked up below */false))
+					return ParsingResult<ASTVarDecl*>(false);
+				// else, recovery was successful, act like we did not find any expression and let matchSign below match the semi & return;
 			}
 		}
 
@@ -201,14 +204,11 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt(const bool& recoverToSemiOnE
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected semicolon after expression in variable declaration,");
-			// Recover to semicolon if allowed & return error
-			if (recoverToSemiOnError)
-			{
-				if(!resyncToSign(SignType::S_SEMICOLON))
-					return ParsingResult<ASTVarDecl*>(false);
-			}
-			else
+			
+			// Try recovery if allowed. 
+			if(!resyncToSign(SignType::S_SEMICOLON))
 				return ParsingResult<ASTVarDecl*>(false);
+			// else, recovery was successful, let the function return normally below.
 		}
 		// If we're here -> success
 		return ParsingResult<ASTVarDecl*>(std::move(rtr));
@@ -254,7 +254,7 @@ ParsingResult<ASTDecl*> Parser::parseDecl()
 	// <declaration> = <var_decl> | <func_decl>
 
 	// <var_decl>
-	if (auto vdecl = parseVarDeclStmt(/* Don't recover on error */ false)) // we don't recover on error because recovery is handled by parseUnit.
+	if (auto vdecl = parseVarDeclStmt()) // we don't recover on error because recovery is handled by parseUnit.
 		return ParsingResult<ASTDecl*>(std::move(vdecl.result));
 	else if (!vdecl.wasSuccessful())
 		return ParsingResult<ASTDecl*>(false);

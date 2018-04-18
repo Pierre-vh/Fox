@@ -14,7 +14,7 @@
 
 using namespace Moonshot;
 
-ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory, const bool& recoverOnError)
+ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {
 	auto rtr = std::make_unique<ASTCompoundStmt>(); // return value
 	if (matchSign(SignType::S_CURLY_OPEN))
@@ -40,14 +40,11 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		if (!matchSign(SignType::S_CURLY_CLOSE))
 		{
 			errorExpected("Expected a '}' at the end of the compound statement,");
-			if (recoverOnError)
-			{
-				if (!resyncToSign(SignType::S_CURLY_CLOSE))
-					return ParsingResult<ASTCompoundStmt*>(false);
-			}
-			else
+			// try to recover, if recovery wasn't successful, report an error.
+			if (!resyncToSign(SignType::S_CURLY_CLOSE))
 				return ParsingResult<ASTCompoundStmt*>(false);
 		}
+
 		// if everything's alright, return the result
 		return ParsingResult<ASTCompoundStmt*>(std::move(rtr));
 	}
@@ -56,7 +53,7 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 	{
 		// Emit an error if it's mandatory.
 		errorExpected("Expected a '{'");
-		// Note, we could attempt recovery here, but I don't think that's needed, we can let the caller handle the recovery.
+		return ParsingResult<ASTCompoundStmt*>(false);
 	}
 
 	return ParsingResult<ASTCompoundStmt*>();
@@ -145,6 +142,7 @@ ParsingResult<ASTStmt*> Parser::parseReturnStmt()
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected a ';'");
+			// Recover to semi, if recovery wasn't successful, report an error.
 			if (!resyncToSign(SignType::S_SEMICOLON))
 				return ParsingResult<ASTStmt*>(false); // failed & died
 		}
@@ -194,6 +192,7 @@ ParsingResult<ASTStmt*> Parser::parseStmt()
 		return rtrstmt;
 	else if(!rtrstmt.wasSuccessful())
 		return ParsingResult<ASTStmt*>(false);
+
 	// Else, not found..
 	return ParsingResult<ASTStmt*>();
 }
@@ -236,6 +235,7 @@ ParsingResult<ASTStmt*> Parser::parseExprStmt()
 			// attempt recovery, return error if couldn't recover.
 			if (!resyncToSign(SignType::S_SEMICOLON))
 				return ParsingResult<ASTStmt*>(false);
+			// if recovery was successful, just return like nothing has happened!
 		}
 
 		return ParsingResult<ASTStmt*>(std::move(node.result));

@@ -52,16 +52,27 @@ ParsingResult<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 			if (!matchSign(SignType::S_SQ_CLOSE))
 			{
 				errorExpected("Expected a ']'");
+				// try recovery if possible.
 				if (!resyncToSign(SignType::S_SQ_CLOSE))
 					return ParsingResult<IASTDeclRef*>(false);
+				// Recovery was successful, return below.
 			}
 			return ParsingResult<ASTExpr*>(std::make_unique<ASTArrayAccess>(std::move(base), std::move(expr.result)));
 		}
 		else
 		{
 			errorExpected("Expected an expression");
-			resyncToSign(SignType::S_SQ_CLOSE); // try to resync, but we don't catch the result because we'll return false anyway.
-			return ParsingResult<ASTExpr*>(false);
+			if (resyncToSign(SignType::S_SQ_CLOSE))
+			{
+				// Return a node with a "dummy" expr, so we return something and avoid error cascades.
+				#pragma message("Replace the ASTLiteralExpr with a NullExpr")
+				return ParsingResult<ASTExpr*>(std::make_unique<ASTArrayAccess>(std::move(base), std::make_unique<ASTIntegerLiteralExpr>(0)));
+			}
+			else
+			{
+				// recovery wasn't successful, return error.
+				return ParsingResult<ASTExpr*>(false);
+			}
 		}
 	}
 
@@ -133,6 +144,7 @@ ParsingResult<ASTExpr*> Parser::parseArrayLiteral()
 		// ']'
 		if (!matchSign(SignType::S_SQ_CLOSE))
 		{
+			// Resync. If resync wasn't successful, report the error.
 			if (!resyncToSign(SignType::S_SQ_CLOSE))
 				return ParsingResult<ASTExpr*>(false);
 		}
@@ -387,23 +399,36 @@ ParsingResult<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 			rtr = std::move(parseres.result);
 		else 
 		{
+			// no expr, handle error & attempt to recover if it's allowed.
 			if(parseres.wasSuccessful())
 				errorExpected("Expected an expression");
-			if (!resyncToSign(SignType::S_ROUND_CLOSE, /*don't consume the ) so it can be picked up below*/ false))
-				return ParsingResult<ASTExpr*>(false);
+			if (resyncToSign(SignType::S_ROUND_CLOSE,false /* don't consume the token so it's picked up below */)) 
+			{
+				// if resync was successful, set rtr to be a "dummy" expression, so the function
+				// can return something. this helps to avoid an error cascade!
+				#pragma message("Replace the ASTLiteralExpr with a NullExpr")
+				rtr = std::make_unique<ASTIntegerLiteralExpr>(0);
+			}
+			else
+				return ParsingResult<ASTExpr*>(false); // return if no resync
 		}
+		// Normally, the return value shouldn't be null, error should have been handled, but this
+		// assert's here for bug-catching purposes.
+		assert(rtr && "The return value shouldn't be null at this stage!");
 
 		// ')'
 		if (!matchSign(SignType::S_ROUND_CLOSE))
 		{
-			errorExpected("Expected a ')' ,");
+			// no ), handle error & attempt to recover if it's allowed.
+			errorExpected("Expected a ')'");
 			if (!resyncToSign(SignType::S_ROUND_CLOSE))
+			{
+				// Couldn't resync successfully, return an error.
 				return ParsingResult<ASTExpr*>(false);
-			// don't return yet, if we recovered, we can return the expression if there's one
+			}
 		}
-		if(rtr)
-			return ParsingResult<ASTExpr*>(std::move(rtr));
-		return ParsingResult<ASTExpr*>(false);
+
+		return ParsingResult<ASTExpr*>(std::move(rtr));
 	}
 	// failure to match ( while expression was mandatory -> try to recover to a ) + error
 	else if (isMandatory)
@@ -449,7 +474,7 @@ ParsingResult<ExprList*> Parser::parseParensExprList()
 		//  [ <expr_list> ]
 		if (auto parsedlist = parseExprList())			
 			exprlist = std::move(parsedlist.result);
-		else if(!parsedlist.wasSuccessful())
+		else if(!parsedlist.wasSuccessful())			// error? propagate it.
 			return ParsingResult<ExprList*>(false);
 
 		// ')'
@@ -458,7 +483,8 @@ ParsingResult<ExprList*> Parser::parseParensExprList()
 			errorExpected("Expected a ')'");
 			// attempt resync if error
 			if (!resyncToSign(SignType::S_ROUND_CLOSE))
-				return ParsingResult<ExprList*>(false);
+				return ParsingResult<ExprList*>(false); // Recovery wasn't successful, return an error.
+			// Recovery was successful, just return.
 		}
 		return ParsingResult<ExprList*>(std::move(exprlist));
 	}

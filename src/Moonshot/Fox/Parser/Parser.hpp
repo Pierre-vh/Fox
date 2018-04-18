@@ -67,7 +67,7 @@ namespace Moonshot
 			// STATEMENTS
 			ParsingResult<ASTStmt*> parseReturnStmt();
 			ParsingResult<ASTStmt*> parseExprStmt(); // Expression statement
-			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false, const bool& recoverOnError = false); 
+			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); 
 			ParsingResult<ASTStmt*> parseStmt(); // General Statement
 			ParsingResult<ASTStmt*> parseBody(); // body for control flow
 
@@ -76,7 +76,7 @@ namespace Moonshot
 			ParsingResult<ASTStmt*> parseWhileLoop();
 
 			// DECLS
-			ParsingResult<ASTVarDecl*> parseVarDeclStmt(const bool& recoverToSemiOnError = true);
+			ParsingResult<ASTVarDecl*> parseVarDeclStmt();
 			ParsingResult<ASTFunctionDecl*> parseFunctionDeclaration();
 			ParsingResult<ASTDecl*> parseDecl();
 
@@ -94,7 +94,7 @@ namespace Moonshot
 			// Returns a nullptr if no type keyword is found
 			const Type* parseBuiltinTypename();
 			// returns a pair : first -> the type, null if none was found. second -> false on error.
-			std::pair<const Type*,bool> parseType(const bool& recoveryAllowed = true); 
+			std::pair<const Type*,bool> parseType(); 
 
 			// OneUpNode is a function that ups the node one level.
 			// Example: There is a node N, with A and B as children. You call oneUpNode like this : oneUpNode(N,PLUS)
@@ -116,14 +116,14 @@ namespace Moonshot
 			Token getToken() const;
 			Token getToken(const std::size_t &d) const;
 
-			// Get state_.pos
+			// Get parserState_.pos
 			std::size_t getCurrentPosition() const;
 
 			void incrementPosition();
 			void decrementPosition();
 
 			// This function will skip every token until the appropriate "resync" token is found. if consumeToken is set to false, the token won't be consumed.
-			// Returns true if resync was successful.
+			// Returns true if resync was successful, false if parser died or recovery is not allowed here.
 			bool resyncToSign(const SignType &s,const bool& consumeToken = true);
 			// Same as resyncToSign, except it works on "let" and "func" keywords
 			bool resyncToNextDeclKeyword();
@@ -141,16 +141,40 @@ namespace Moonshot
 			
 			struct ParserState
 			{
+				ParserState();
+
 				std::size_t pos = 0;						// current pos in the Token vector.
-				bool isAlive = true;						// is the parser "alive"?
-			} state_;
+				bool isAlive : 1;						// is the parser "alive"?
+				bool isRecoveryAllowed : 1;
+			} parserState_;
+
+			// This class manages the recovery of the parser using a RAII idiom.
+				// The constructor makes a backup of the parser instance's parserState_.isRecoveryAllowed variable, and replaces parserState_.isRecoveryAllowed with the value desired.
+				// The constructor restores the parserState_.isRecoveryAllowed variable to it's original value using the backup.
+			class RAIIRecoveryManager
+			{
+				public:
+					explicit RAIIRecoveryManager(Parser *parser,const bool& allowsRecovery);
+					~RAIIRecoveryManager();
+				private:
+					Parser *parser_;
+					bool recoveryAllowedBackup_ : 1;
+			};
+
+			// Creates a RAII object that authorizes recovery within the parser while it's alive.
+			RAIIRecoveryManager createRecoveryEnabler();
+			// Creates a RAII object that forbids recovery wihin the parser while it's alive.
+			RAIIRecoveryManager createRecoveryDisabler();
+			
 
 			// Interrogate parser state
 			// Returns true if pos >= tokens_.size()
 			bool hasReachedEndOfTokenStream() const;
+
+			// Returns true if parserState_.isAlive
 			bool isAlive() const;
 
-			// Parser state backup
+			// Parser state backup utilities
 			ParserState createParserStateBackup() const;
 			void restoreParserStateFromBackup(const ParserState& st);
 
