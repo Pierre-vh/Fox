@@ -13,8 +13,10 @@ TODO:
 	> Parser recovery improvements part 1(Done)
 
 	> Parser recovery improvements part 2 :
-		> Put "ParsingRecoveryNode" in a  .hpp/.cpp within /Parser/
-			> Use a .def to generate the recovery reasons
+		> Stop using ParsingRecoveryNode, do it more cleanly
+			For Expr, use a new "ASTNullExpr" node.
+			For Stmt, generate an empty statement, using ASTNullStmts.
+			For Decls, either return a special node or an incomplete node on recovery. It's still to be decided.
 		> Analyze every single parsing function to take advantage of new recovery techniques
 			> Never return "not found" if we matched some tokens. Always return an error if no recovery, and a partial node/recovery node if recovered.
 			> If a function uses a "mandatory = true" parameter, it might be a good idea to try to recover to the last expected  token, if it works, return a empty node.
