@@ -97,11 +97,6 @@ void DiagnosticEngine::setFlagsManager(FlagsManager * fm)
 		updateOptionsFromFlags();
 }
 
-FlagsManager * const DiagnosticEngine::getFlagsManager()
-{
-	return flagsManager_;
-}
-
 bool DiagnosticEngine::updateOptionsFromFlags()
 {
 	if (flagsManager_)

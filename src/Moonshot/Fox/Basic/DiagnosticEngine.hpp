@@ -35,7 +35,6 @@ namespace Moonshot
 			DiagnosticConsumer * getConsumer();
 
 			void setFlagsManager(FlagsManager *fm);
-		    FlagsManager * const getFlagsManager();
 
 			// Update the DiagOpts from the corresponding flags status (set/unset)
 			// Returns true if the flagmanager was available and the operation was a success.
