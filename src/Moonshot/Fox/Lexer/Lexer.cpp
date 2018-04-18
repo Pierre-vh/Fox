@@ -41,7 +41,7 @@ void Lexer::lexStr(const std::string & data)
 	runFinalChecks();
 	if (context_.isSafe())
 	{
-		if (context_.flagsManager().isSet(FlagID::lexer_logTotalTokenCount))
+		if (context_.flagsManager.isSet(FlagID::lexer_logTotalTokenCount))
 		{
 			std::stringstream ss;
 			ss << "Lexing finished Successfully. Tokens found: " << result_.size();
@@ -88,7 +88,7 @@ void Lexer::pushTok()
 		context_.reportError("Couldn't identify token. See previous error messages for more information.");
 	curtok_ = "";
 
-	if (context_.flagsManager().isSet(FlagID::lexer_logOnPush)) {
+	if (context_.flagsManager.isSet(FlagID::lexer_logOnPush)) {
 		std::stringstream out;
 		out << "Pushed token \"" << result_.back().getAsString() << '"';
 		context_.logMessage(out.str());

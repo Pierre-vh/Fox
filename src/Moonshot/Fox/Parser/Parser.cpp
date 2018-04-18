@@ -34,7 +34,7 @@ UnitParsingResult Parser::parseUnit()
 	auto lock = createRecoveryDisabler();
 
 	// Gather some flags
-	const bool showRecoveryMessages = context_.flagsManager().isSet(FlagID::parser_showRecoveryMessages);
+	const bool showRecoveryMessages = context_.flagsManager.isSet(FlagID::parser_showRecoveryMessages);
 
 	// Parse declarations 
 	while (true)
@@ -351,7 +351,7 @@ bool Parser::resyncToNextDeclKeyword()
 
 void Parser::die()
 {
-	if(context_.flagsManager().isSet(FlagID::parser_showRecoveryMessages))
+	if(context_.flagsManager.isSet(FlagID::parser_showRecoveryMessages))
 		genericError("Couldn't recover from error, stopping parsing.");
 
 	parserState_.pos = tokens_.size();
