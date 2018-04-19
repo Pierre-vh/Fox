@@ -310,7 +310,7 @@ ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & co
 	return ResyncResult(false);
 }
 
-//Skips every token until the sign s, "func" or eof is found.
+//Skips every token until the sign s, a free }, "func" or eof is found.
 ResyncResult Parser::resyncToSignInFunction(const SignType & s, const bool & consumeToken)
 {
 	// Abort if recovery is forbidden
@@ -320,6 +320,7 @@ ResyncResult Parser::resyncToSignInFunction(const SignType & s, const bool & con
 	std::size_t counter = 0;
 	auto opener = getOppositeDelimiter(s);
 	bool hasOpener = isClosingDelimiter(s);
+	bool isLookingForCurlyBrace = (s == SignType::S_CURLY_CLOSE);
 
 	for (; parserState_.pos < tokens_.size(); parserState_.pos++)
 	{
@@ -336,17 +337,36 @@ ResyncResult Parser::resyncToSignInFunction(const SignType & s, const bool & con
 		else if (tok.isSign())
 		{
 			auto signTy = tok.getSignType();
-			if (hasOpener && (signTy == opener))
-				counter++;
-			else if (signTy == s)
+			if (isLookingForCurlyBrace)
 			{
-				if (hasOpener && counter)
-					counter--;
-				else
+				if (s == SignType::S_CURLY_OPEN)
+					counter++;
+				else if(s == SignType::S_CURLY_CLOSE)
 				{
-					if (consumeToken) 
-						incrementPosition();
-					return ResyncResult(true,true);
+					if (counter)
+						counter--;
+					else
+					{
+						if (consumeToken)
+							incrementPosition();
+						return ResyncResult(true, true);
+					}
+				}
+			}
+			else
+			{
+				if (hasOpener && (signTy == opener))
+					counter++;
+				else if (signTy == s)
+				{
+					if (hasOpener && counter)
+						counter--;
+					else
+					{
+						if (consumeToken)
+							incrementPosition();
+						return ResyncResult(true, true);
+					}
 				}
 			}
 		}
