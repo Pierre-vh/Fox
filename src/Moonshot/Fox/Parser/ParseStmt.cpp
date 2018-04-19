@@ -20,12 +20,12 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 	if (matchSign(SignType::S_CURLY_OPEN))
 	{
 		// Parse all statements
-		while (auto parseres = parseStmt())
+		ParsingResult<ASTStmt*> parseres;
+		while (parseres = parseStmt())
 		{
 			// Push only if we don't have a null expr.
 			if (!(dynamic_cast<ASTNullExpr*>(parseres.result.get())))
 				rtr->addStmt(std::move(parseres.result));
-			parseres = parseStmt();
 		}
 		// Match the closing curly bracket
 		if (!matchSign(SignType::S_CURLY_CLOSE))
@@ -79,7 +79,7 @@ ParsingResult<ASTStmt*> Parser::parseWhileLoop()
 		{
 			if(parseres.wasSuccessful())
 				errorExpected("Expected a statement");
-			return ParsingResult<ASTStmt*>(false);
+			rtr->setBody(std::make_unique<ASTNullExpr>());
 		}
 		// Return if everything's alright
 		return ParsingResult<ASTStmt*>(std::move(rtr));
@@ -247,13 +247,13 @@ ParsingResult<ASTStmt*> Parser::parseExprStmt()
 
 	// <expr> ';' 
 	// <expr>
-	if (auto expr = parseExpr())
+	else if (auto expr = parseExpr())
 	{
 		// ';'
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
 			if(expr.wasSuccessful())
-				errorExpected("Expected a ';' in expression statement");
+				errorExpected("Expected a ';'");
 
 			if (!resyncToSignInStatement(SignType::S_SEMICOLON))
 				return ParsingResult<ASTStmt*>(false);
@@ -265,9 +265,9 @@ ParsingResult<ASTStmt*> Parser::parseExprStmt()
 	else if(!expr.wasSuccessful())
 	{
 		// if the expression had an error, ignore it and try to recover to a semi.
-		if (!resyncToSignInStatement(SignType::S_SEMICOLON))
-			return ParsingResult<ASTStmt*>(false);
-		return ParsingResult<ASTStmt*>(std::make_unique<ASTNullExpr>());
+		if (resyncToSignInStatement(SignType::S_SEMICOLON))
+			return ParsingResult<ASTStmt*>(std::make_unique<ASTNullExpr>());
+		return ParsingResult<ASTStmt*>(false);
 	}
 
 	return ParsingResult<ASTStmt*>();
