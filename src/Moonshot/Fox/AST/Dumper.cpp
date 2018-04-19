@@ -32,11 +32,6 @@ void Dumper::dumpUnit(ASTUnit & unit)
 	curindent_--;
 }
 
-void Dumper::visit(ASTParserRecoveryNode & node)
-{
-	out_ << getIndent() << "Parser Recovery Node :" << node.getOriginAsString() << "\n";
-}
-
 void Dumper::visit(ASTBinaryExpr & node)
 {
 	std::string op = Util::getFromDict(Dicts::kBinopToStr_dict, node.getOp());
@@ -156,7 +151,7 @@ void Dumper::visit(ASTArrayLiteralExpr & node)
 
 void Dumper::visit(ASTVarDecl & node)
 {
-	out_ << getIndent() << "VarDeclStmt : Name:" << node.getVarIdentifier()->getStr() << " Type:" << node.getType().getString() << "\n";
+	out_ << getIndent() << "VarDeclStmt : Name:" << node.getDeclName()->getStr() << " Type:" << node.getType().getString() << "\n";
 	if (node.hasInitExpr())
 	{
 		curindent_ += 1;
@@ -229,9 +224,9 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 	curindent_--;
 }
 
-void Dumper::visit(ASTNullStmt&)
+void Dumper::visit(ASTNullExpr&)
 {
-	out_ << getIndent() << "Null Statement\n";
+	out_ << getIndent() << "Null\n";
 }
 
 void Dumper::visit(ASTArgDecl & node)

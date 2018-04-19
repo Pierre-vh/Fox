@@ -27,7 +27,6 @@ namespace Moonshot
 		public:
 			inline virtual ~IVisitor() = 0						{}
 
-			inline virtual void visit(ASTParserRecoveryNode&)	{}
 			inline virtual void visit(ASTBinaryExpr&)			{}
 			inline virtual void visit(ASTUnaryExpr&)			{}
 			inline virtual void visit(ASTCastExpr&)				{}
@@ -42,7 +41,7 @@ namespace Moonshot
 			inline virtual void visit(ASTArrayAccess&)		{}
 			inline virtual void visit(ASTFunctionCallExpr&) {}
 
-			inline virtual void visit(ASTNullStmt&)		{}
+			inline virtual void visit(ASTNullExpr&)		{}
 			inline virtual void visit(ASTVarDecl&)		{}
 
 			inline virtual void visit(ASTCompoundStmt&)	{}

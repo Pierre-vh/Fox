@@ -23,7 +23,6 @@ namespace Moonshot
 
 			void dumpUnit(ASTUnit & unit);
 
-			virtual void visit(ASTParserRecoveryNode &node) override;
 			virtual void visit(ASTBinaryExpr & node) override;
 			virtual void visit(ASTUnaryExpr & node) override;
 			virtual void visit(ASTCastExpr & node) override;
@@ -41,7 +40,7 @@ namespace Moonshot
 			virtual void visit(ASTCompoundStmt & node) override;
 			virtual void visit(ASTCondStmt & node) override;
 			virtual void visit(ASTWhileStmt & node) override;
-			virtual void visit(ASTNullStmt&) override;
+			virtual void visit(ASTNullExpr&) override;
 			virtual void visit(ASTArgDecl& node) override;
 			virtual void visit(ASTFunctionDecl& node) override;
 			virtual void visit(ASTReturnStmt& node) override;
