@@ -186,8 +186,6 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 				);
 		}
 
-		bool initializerHadErrors = false;
-
 		// ['=' <expr>]
 		if (matchSign(SignType::S_EQUAL))
 		{
@@ -200,16 +198,13 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 				// Recover to semicolon, return if recovery wasn't successful 
 				if (!resyncToSignInStatement(SignType::S_SEMICOLON, /* do not consume the semi, so it can be picked up below */false))
 					return ParsingResult<ASTVarDecl*>(false);
-				// else, recovery was successful, act like we did not find any expression and let matchSign below match the semi & return;
-				initializerHadErrors = !parseres.wasSuccessful();
 			}
 		}
 
 		// ';'
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
-			if(!initializerHadErrors)
-				errorExpected("Expected semicolon after expression in variable declaration,");
+			errorExpected("Expected ';'");
 			
 			// Try recovery if allowed. 
 			if(!resyncToSignInStatement(SignType::S_SEMICOLON))

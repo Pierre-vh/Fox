@@ -344,7 +344,7 @@ ParsingResult<ASTExpr*> Parser::parseBinaryExpr(const char & priority)
 		{
 			if(rhs_res.wasSuccessful())
 				errorExpected("Expected an expression after binary operator,");
-			return ParsingResult<ASTExpr*>(rhs_res.wasSuccessful());
+			return ParsingResult<ASTExpr*>(false);
 		}
 
 		if (rtr->getOp() == binaryOperator::DEFAULT) // if the node has still no operation set, set it

@@ -256,14 +256,14 @@ void Parser::decrementPosition()
 	parserState_.pos-=1;
 }
 
-//Skips every token until the sign s,a semicolon, "func", eof or a token marking the beginning of a statement is found.
+// Skips every token until the sign s,a semicolon, a free }, eof or a token marking the beginning of a statement is found.
 ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & consumeToken)
 {
 	// Abort if recovery is forbidden
 	if (!parserState_.isRecoveryAllowed)
 		return ResyncResult(false); 
 
-	std::size_t counter = 0;
+	std::size_t counter = 0,curlycounter = 0;
 	auto opener = getOppositeDelimiter(s);
 	bool hasOpener = isClosingDelimiter(s);
 	bool isRequestingSemi = (s == SignType::S_SEMICOLON);
@@ -290,6 +290,16 @@ ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & co
 				// if the user is requesting a semicolon and we match one, it's a success (true,true)
 				// if the user isn't requesting to match a semi, that's considered a failure (false,false)
 				return ResyncResult(isRequestingSemi, isRequestingSemi);
+			}
+			else if (signTy == SignType::S_CURLY_OPEN)
+				curlycounter++;
+			else if (signTy == SignType::S_CURLY_CLOSE)
+			{
+				if (curlycounter)
+					curlycounter--;
+				// if we found a free }, that counts a "end of statement" token, so we
+				// return. We'll return true if the user requested to match a semi, false otherwise.
+				return ResyncResult(isRequestingSemi, (s == SignType::S_CURLY_CLOSE));
 			}
 			else if (signTy == s)
 			{

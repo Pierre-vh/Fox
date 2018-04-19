@@ -126,7 +126,7 @@ namespace Moonshot
 			// Note, the first 2 always take care of the opening parentheses if we ask to match a ) } or ], so they don't match a parenthese that belongs
 			// to something else.
 			// All 3 won't work if parser isn't allowed to recover.
-				// Skips every token until the sign s,a semicolon, "func", eof or a token marking the beginning of a statement is found.
+				// Skips every token until the sign s,a semicolon, a free }, eof or a token marking the beginning of a statement is found.
 			ResyncResult resyncToSignInStatement(const SignType &s,const bool& consumeToken = true);
 				//Skips every token until the sign s, a free }, "func" or eof is found
 			ResyncResult resyncToSignInFunction(const SignType &s, const bool& consumeToken = true);
