@@ -11,21 +11,7 @@ TODO:
 	> AST Improvements (Done)
 	> Add ASTContext,parser & ast support for arrays types & Array literals. (Done)
 	> Parser recovery improvements part 1(Done)
-
-	> Parser recovery improvements part 2 :
-		> Stop using ParsingRecoveryNode, do it more cleanly
-			For Expr, use a new "ASTNullExpr" node.
-			For Stmt, Create an "ASTNullStmt" if recovery was possible but we can't return anything useful. For while/ifs -> create a cond/loop node with a ASTNullExpr and a ASTNullStmt
-			For Decls, add "isValid" functions to the base Decl class, this function checks that a declaration is valid and can be used.
-		> Analyze every single parsing function to take advantage of new recovery techniques
-			> Never return "not found" if we matched some tokens and modified the state. Always return an error if no recovery, and a partial node/recovery node if recovered.
-			> If a function uses a "mandatory = true" parameter, it might be a good idea to try to recover to the last expected token (e.g ')'), if it works, return a empty node.
-			  if it doesn't , backtrack and return an error.
-			> If a nonterminal resyncs to a token but can't continue, return a recovery node or a partially-formed node.
-		> Write test files and save them in a /res/ folder or something, each test showcases a common error problem. Run each of them in the command line toy to see if the parser handles it nicely.
-			> Bonus points : give the Driver a special command to run each of them. e.g. "run-error-test-files"
-		> Once that's done, we got 3 out of 4 suggestions for recovery down ! Write a nice doc explaining
-		  how the parser reacts to missing token in various circumstances and how it deals with it.
+	> Parser recovery improvements part 2 (Done)
 
 	> DeclContext : ASTDecl abstract node wrapper around std::map<IdentifierInfo*,ASTDecl*>
 		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
