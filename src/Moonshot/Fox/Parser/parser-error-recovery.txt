@@ -1,0 +1,32 @@
+General Behaviour of Error Recovery in the Parser
+	For now, the only error case that exists is an unexpected token on the way. 
+	Depending on the situation, the parser might or might not try to recover.
+		If we're parsing a "top level" Declaration, like a global variable or function declaration,
+		the parser will not try to recover from the missing token, It'll instead ignore the declaration as a whole and
+		try to recover to the next declaration and try to find another one.
+
+		If we're parsing something contained in a function body, things gets more interesting. The parser will try to recover
+		using 2 methods : in statement recovery, and in function recovery.
+			"resyncToSignInStatement" will skip every token it finds until it finds the one it's looking for OR a statement delimiter, which is a keyword (let/func/if/else/while/return), a
+			semicolon, a free } or EOF.
+
+			"resyncToSignInFunction" skips every token until it finds the one it's looking for, a free }, "func" or EOF.
+
+		When a Parsing function can't recover (because recovery isn't allowed or it just couldn't), it will return an error, error that will be "propagated" up to the top level declaration, which will
+		then be ignored most the time. Note that if one parsing function fails, the propagation might be stopped by another function.
+			e.g; : "let x : int = foo+;"
+				-> Missing RHS of +
+				-> parseExpr returns an error
+				-> parseVarDecl notices it and attempts to recover
+				-> parseVarDecl successfully recovers and decides to ignore the initializer. the statement is interpreted like this:
+					let x : int;
+
+		When it can recover from a situation, it will attempt to return a partial/incomplete result, or return a "placeholder" result, like a "ASTNullExpr", a "ASTNullStmt", or a incomplete (invalid) declaration node for decls.
+			todo: ajouter un "isValid" à toutes les déclarations comme méthode virtuelle pure
+			todo: ajouter un check pour voir si on peut match un { ou un : dans une décl de fn où le ( manque, dans ce cas, continuer
+			le parsing et retourner une déclaration valide d'une fonction sans arguments et qui retourne void
+
+		So, the current Parser error recovery mechanism is pretty primitive, but works for most simple cases. I'm still trying to tweak it on my free time,
+		adding special cases for recovery, fixing bugs, but it's a complex topic. I also think that Fox does not need a parser with incredible error recovery. Fox's a simple, lightweight language
+		so recompiling multiple times to try and solve compilation errors shouldn't be a problem for the user. Most of the time Fox programs will be simple and not too long and thus won't take a
+		long time to recompile.
