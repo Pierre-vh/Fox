@@ -56,6 +56,12 @@ void ASTArgDecl::accept(Moonshot::IVisitor &vis)
 	vis.visit(*this);
 }
 
+bool ASTArgDecl::isValid()
+{
+	// Node is valid if it has a declName_ and a valid type.
+	return declName_ && ty_;
+}
+
 // Function Declaration
 ASTFunctionDecl::ASTFunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<ASTCompoundStmt> funcbody) :
 	returnType_(returnType), ASTNamedDecl(fnId), body_(std::move(funcbody))
@@ -66,6 +72,12 @@ ASTFunctionDecl::ASTFunctionDecl(const Type* returnType, IdentifierInfo* fnId, s
 void ASTFunctionDecl::accept(IVisitor & vis)
 {
 	vis.visit(*this);
+}
+
+bool ASTFunctionDecl::isValid()
+{
+	// must has a body, a return type and a name.
+	return returnType_ && body_ && declName_;
 }
 
 void ASTFunctionDecl::setReturnType(const Type* ty)
@@ -129,7 +141,7 @@ ASTFunctionDecl::argIter_const ASTFunctionDecl::args_end() const
 }
 
 // VarDecl
-ASTVarDecl::ASTVarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<ASTExpr> iExpr) : varId_(varId), varTy_(ty)
+ASTVarDecl::ASTVarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<ASTExpr> iExpr) : ASTNamedDecl(varId), varTy_(ty)
 {
 	if (iExpr)
 		initExpr_ = std::move(iExpr);
@@ -138,6 +150,12 @@ ASTVarDecl::ASTVarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_pt
 void ASTVarDecl::accept(IVisitor& vis)
 {
 	vis.visit(*this);
+}
+
+bool ASTVarDecl::isValid()
+{
+	// must have a type and name to be valid.
+	return declName_ && varTy_;
 }
 
 QualType ASTVarDecl::getType() const
@@ -153,16 +171,6 @@ ASTExpr * ASTVarDecl::getInitExpr()
 bool ASTVarDecl::hasInitExpr() const
 {
 	return (bool)initExpr_;
-}
-
-IdentifierInfo * ASTVarDecl::getVarIdentifier()
-{
-	return varId_;
-}
-
-void ASTVarDecl::setVarIdentifier(IdentifierInfo * varId)
-{
-	varId_ = varId;
 }
 
 void ASTVarDecl::setType(const QualType &ty)

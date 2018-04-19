@@ -28,17 +28,13 @@ namespace Moonshot
 			ASTDecl() = default;
 			virtual ~ASTDecl() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
-	};
 
-	// "Adaptator" Interface for when a node is both a declaration and a statement (e.g. a variable declaration)
-	class IASTDeclStmt : public virtual ASTDecl, public virtual ASTStmt
-	{
-		public:
-			~IASTDeclStmt() = 0 {}
+			// This function should return true if the declaration node is valid (usable)
+			virtual bool isValid() = 0; 
 	};
 
 	// Base class for Declarations that have names, e.g. : var/arg/func decl,..
-	class ASTNamedDecl : public ASTDecl
+	class ASTNamedDecl : public virtual ASTDecl
 	{
 		public:
 			ASTNamedDecl() = default;
@@ -46,7 +42,7 @@ namespace Moonshot
 
 			IdentifierInfo * getDeclName() const;
 			void setDeclName(IdentifierInfo* nname);
-		private:
+		protected:
 			IdentifierInfo * declName_;
 	};
 
@@ -61,12 +57,13 @@ namespace Moonshot
 			void setType(const QualType& qt);
 
 			virtual void accept(IVisitor &vis);
+			virtual bool isValid() override;
 		private:
 			QualType ty_;
 	};
 
 	// a Function declaration node.
-	class ASTFunctionDecl : public ASTNamedDecl
+	class ASTFunctionDecl : public ASTNamedDecl, public ASTStmt
 	{
 		private:
 			using ArgVecTy = std::vector<std::unique_ptr<ASTArgDecl>>;
@@ -78,6 +75,7 @@ namespace Moonshot
 			ASTFunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<ASTCompoundStmt> funcbody);
 
 			virtual void accept(IVisitor& vis) override;
+			virtual bool isValid() override;
 
 			void setReturnType(const Type* ty);
 			const Type* getReturnType() const;
@@ -88,7 +86,6 @@ namespace Moonshot
 			const ASTArgDecl* getArg(const std::size_t & ind) const;
 			void addArg(std::unique_ptr<ASTArgDecl> arg);
 			std::size_t argsSize() const;
-
 
 			argIter args_begin();
 			argIter_const args_begin() const;
@@ -102,14 +99,15 @@ namespace Moonshot
 	};
 
 	// A Variable declaration
-	class ASTVarDecl : public IASTDeclStmt
+	class ASTVarDecl : public ASTNamedDecl, public ASTStmt
 	{
 		public:
 			ASTVarDecl() = default;
 			ASTVarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<ASTExpr> iExpr = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
-			
+			virtual bool isValid() override;
+
 			// Get a reference to the varType
 			QualType getType() const;
 			void setType(const QualType &ty);
@@ -117,14 +115,10 @@ namespace Moonshot
 			ASTExpr* getInitExpr();
 			void setInitExpr(std::unique_ptr<ASTExpr> expr);
 
-			IdentifierInfo* getVarIdentifier();
-			void setVarIdentifier(IdentifierInfo* varId);
-
 			bool hasInitExpr() const;
 
 		private:
 			QualType varTy_;
-			IdentifierInfo *varId_ = nullptr;
 			std::unique_ptr<ASTExpr> initExpr_ = nullptr;
 	};
 }
