@@ -63,7 +63,7 @@ namespace Moonshot
 	};
 
 	// a Function declaration node.
-	class ASTFunctionDecl : public ASTNamedDecl, public ASTStmt
+	class ASTFunctionDecl : public ASTNamedDecl
 	{
 		private:
 			using ArgVecTy = std::vector<std::unique_ptr<ASTArgDecl>>;
