@@ -42,9 +42,8 @@ UnitParsingResult Parser::parseUnit()
 		// Parse a declaration
 		auto decl = parseDecl();
 		// If the declaration was parsed successfully : continue the cycle.
-		if (decl)
+		if (decl.isUsable())
 		{
-			std::cout << "pushed decl\n";
 			unit->addDecl(std::move(decl.result));
 			continue;
 		}
