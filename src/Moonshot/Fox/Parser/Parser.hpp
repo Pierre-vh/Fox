@@ -105,6 +105,8 @@ namespace Moonshot
 			IdentifierInfo* matchID();						// match a ID. Returns the IdentifierInfo* if found, nullptr if not.
 			bool matchSign(const SignType& s);				// match any signs : ; . ( ) , returns true if success
 			bool matchKeyword(const KeywordType& k);		// match any keyword, returns true if success
+		
+			bool peekKeyword(const std::size_t &idx, const KeywordType &kw) const;
 			bool peekSign(const std::size_t &idx, const SignType &sign) const;
 			
 			bool matchExponentOp(); //  **
@@ -120,6 +122,7 @@ namespace Moonshot
 			std::size_t getCurrentPosition() const;
 
 			void incrementPosition();
+			void setPosition(const std::size_t &pos);
 			void decrementPosition();
 
 			// 3 Types of resync functions:

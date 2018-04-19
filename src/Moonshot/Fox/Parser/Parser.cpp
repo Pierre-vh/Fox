@@ -211,6 +211,7 @@ std::pair<const Type*, bool> Parser::parseType()
 					if (rres.hasRecoveredOnRequestedToken())
 						continue;
 				}
+				// else, return an error.
 				return { nullptr , false };
 			}
 		}
@@ -225,6 +226,13 @@ bool Parser::peekSign(const std::size_t & idx, const SignType & sign) const
 {
 	if (auto tok = getToken(idx))
 		return tok.isSign() && (tok.getSignType() == sign);
+	return false;
+}
+
+bool Parser::peekKeyword(const std::size_t & idx, const KeywordType & kw) const
+{
+	if (auto tok = getToken(idx))
+		return tok.isKeyword() && (tok.getKeywordType() == kw);
 	return false;
 }
 
@@ -249,6 +257,11 @@ std::size_t Parser::getCurrentPosition() const
 void Parser::incrementPosition()
 {
 	parserState_.pos+=1;
+}
+
+void Parser::setPosition(const std::size_t & pos)
+{
+	parserState_.pos = pos;
 }
 
 void Parser::decrementPosition()
@@ -297,7 +310,7 @@ ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & co
 			{
 				if (curlycounter)
 					curlycounter--;
-				// if we found a free }, that counts a "end of statement" token, so we
+				// if we found a free }, that counts a "end of statement" token like ';', so we
 				// return. We'll return true if the user requested to match a semi, false otherwise.
 				return ResyncResult(isRequestingSemi, (s == SignType::S_CURLY_CLOSE));
 			}

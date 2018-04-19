@@ -52,22 +52,23 @@ ParsingResult<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 			if (!matchSign(SignType::S_SQ_CLOSE))
 			{
 				errorExpected("Expected a ']'");
-				// try recovery if possible.
+				// try recovery if possible. if failed to recover, return.
 				if (!resyncToSignInStatement(SignType::S_SQ_CLOSE))
 					return ParsingResult<IASTDeclRef*>(false);
-				// Recovery was successful, return below.
 			}
 			return ParsingResult<ASTExpr*>(std::make_unique<ASTArrayAccess>(std::move(base), std::move(expr.result)));
 		}
 		else
 		{
-			errorExpected("Expected an expression");
+			if(expr.wasSuccessful())
+				errorExpected("Expected an expression");
+
 			if (resyncToSignInStatement(SignType::S_SQ_CLOSE))
 			{
-				// Return a node with a "dummy" expr, so we return something and avoid error cascades.
+				// Return a node with a null expr, so we return something and avoid error cascades.
 				return ParsingResult<ASTExpr*>(std::make_unique<ASTArrayAccess>(
 						std::move(base),
-						std::make_unique<ASTParserRecoveryNode>(ASTParserRecoveryNode::Origin::MISSING_ARRAYIDX_EXPR))
+						std::make_unique<ASTNullExpr>())
 					);
 			}
 			else
@@ -98,9 +99,9 @@ ParsingResult<IASTDeclRef*> Parser::parseDeclCall()
 			fcall->setExprList(std::move(exprlist.result));
 			expr = std::move(fcall);
 		}
-		else if(!exprlist.wasSuccessful()) // error on parseParensExprList, propagate it.
+		else if(!exprlist.wasSuccessful())
 			return ParsingResult<IASTDeclRef*>(false);
-		else // if no expression list found, make expr a declref to the identifier.
+		else // it's just an identifier
 			expr = std::make_unique<ASTDeclRefExpr>(id);
 		
 		assert(expr && "Expr is null?");
@@ -410,9 +411,8 @@ ParsingResult<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 				errorExpected("Expected an expression");
 			if (resyncToSignInStatement(SignType::S_ROUND_CLOSE,false /* don't consume the token so it's picked up below */)) 
 			{
-				// if resync was successful, set rtr to be a "dummy" expression, so the function
-				// can return something. this helps to avoid an error cascade!
-				rtr = std::make_unique<ASTParserRecoveryNode>(ASTParserRecoveryNode::Origin::MISSING_PARENSEXPR_EXPR);
+				// Return a null expr in case of a successful recovery.
+				rtr = std::make_unique<ASTNullExpr>();
 			}
 			else
 				return ParsingResult<ASTExpr*>(false); // return if no resync
@@ -439,7 +439,20 @@ ParsingResult<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 	else if (isMandatory)
 	{
 		errorExpected("Expected a '('");
-		return ParsingResult<ASTExpr*>(false);
+
+		// Same thing as parseCompoundStatement, lines 49->56,
+		// we attempt recovery, if it's successful, we return a null expr.
+		// if it wasn't, we backtrack and return "not found".
+
+		auto backup = createParserStateBackup();
+		auto resyncres = resyncToSignInStatement(SignType::S_ROUND_CLOSE);
+
+		if (resyncres.hasRecoveredOnRequestedToken())
+			return ParsingResult<ASTExpr*>(std::make_unique<ASTNullExpr>());
+
+		restoreParserStateFromBackup(backup);
+
+		return ParsingResult<ASTExpr*>();
 	}
 	// notfound
 	return ParsingResult<ASTExpr*>();
@@ -452,14 +465,22 @@ ParsingResult<ExprList*> Parser::parseExprList()
 	{
 		auto exprlist = std::make_unique<ExprList>();
 		exprlist->addExpr(std::move(firstexpr.result));
+		std::size_t latestCommaPosition;
 		while (auto comma = matchSign(SignType::S_COMMA))
 		{
+			latestCommaPosition = getCurrentPosition() - 1;
 			if (auto expr = parseExpr())
 				exprlist->addExpr(std::move(expr.result));
 			else
 			{
-				if(expr.wasSuccessful())
-					errorExpected("Expected an expression");
+				if (expr.wasSuccessful())
+				{
+					// if the expression was just not found, revert the "comma consuming" and
+					// let the caller deal with the extra comma.
+					setPosition(latestCommaPosition);
+					break;
+				}
+				// else, if there was an error, "propagate" it.
 				return ParsingResult<ExprList*>(false);
 			}
 		}
@@ -478,14 +499,21 @@ ParsingResult<ExprList*> Parser::parseParensExprList()
 		//  [ <expr_list> ]
 		if (auto parsedlist = parseExprList())			
 			exprlist = std::move(parsedlist.result);
-		else if(!parsedlist.wasSuccessful())			// error? propagate it.
-			return ParsingResult<ExprList*>(false);
+		else if (!parsedlist.wasSuccessful())		
+		{
+			// error? Try to recover from it, if success, just discard the expr list,
+			// if no success return error.
+			if (resyncToSignInStatement(SignType::S_ROUND_CLOSE))
+				return ParsingResult<ExprList*>(std::move(exprlist));
+			else 
+				return ParsingResult<ExprList*>(false);
+		}
 
 		// ')'
 		if (!matchSign(SignType::S_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')'");
-			// attempt resync if error
+
 			if (!resyncToSignInStatement(SignType::S_ROUND_CLOSE))
 				return ParsingResult<ExprList*>(false); // Recovery wasn't successful, return an error.
 			// Recovery was successful, just return.
@@ -554,7 +582,6 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 			{
 				if (!peekSign(getCurrentPosition(),SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
 					return ParsingResult<binaryOperator>(binaryOperator::MUL );
-				restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
 			}
 			if (matchSign(SignType::S_SLASH))
 				return ParsingResult<binaryOperator>(binaryOperator::DIV);
@@ -587,13 +614,11 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 			{
 				if (matchSign(SignType::S_EQUAL))
 					return ParsingResult<binaryOperator>(binaryOperator::EQUAL );
-				restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
 			}
 			if (matchSign(SignType::S_EXCL_MARK))
 			{
 				if (matchSign(SignType::S_EQUAL))
 					return ParsingResult<binaryOperator>(binaryOperator::NOTEQUAL);
-				restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
 			}
 			break;
 		case 4: // &&
@@ -601,7 +626,6 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 			{
 				if (matchSign(SignType::S_AMPERSAND))
 					return ParsingResult<binaryOperator>(binaryOperator::LOGIC_AND);
-				restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
 			}
 			break;
 		case 5: // ||
@@ -609,12 +633,12 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 			{
 				if (matchSign(SignType::S_VBAR))
 					return ParsingResult<binaryOperator>(binaryOperator::LOGIC_OR);
-				restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
 			}
 			break;
 		default:
 			throw Exceptions::parser_critical_error("Requested to match a Binary Operator of unknown priority");
 			break;
 	}
+	restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
 	return ParsingResult<binaryOperator>();
 }

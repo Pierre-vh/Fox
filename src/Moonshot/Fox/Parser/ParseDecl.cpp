@@ -31,6 +31,7 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 	if (matchKeyword(KeywordType::KW_FUNC))
 	{
 		auto rtr = std::make_unique<ASTFunctionDecl>();
+		char ignoreNext = 0;
 		// <id>
 		if (auto id = matchID())
 			rtr->setDeclName(id);
@@ -45,8 +46,24 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		{
 			errorExpected("Expected '('");
 			// try to resync to a ) without consuming it.
-			if(!resyncToSignInFunction(SignType::S_ROUND_CLOSE,false))
-				return ParsingResult<ASTFunctionDecl*>(false);
+			if (matchSign(SignType::S_COLON)) // if we got a colon 
+			{
+				// if the user typed "func foo : etc.. {", we recognize it and attempt to continue parsing.
+				decrementPosition(); // Revert the token consume
+				ignoreNext = 1; // Ignore the parenthesis
+			}
+			else if (matchSign(SignType::S_CURLY_OPEN))
+			{
+				// if the user typed "func foo {", we recognize it and attempt to continue parsing.
+				decrementPosition(); // Revert the token consume
+				ignoreNext = 2; // ignore parens + typespec
+			}
+			else
+			{
+				// try resync if possible
+				if (!resyncToSignInFunction(SignType::S_ROUND_CLOSE, false))
+					return ParsingResult<ASTFunctionDecl*>(false);
+			}
 		}
 
 		// [<arg_decl> {',' <arg_decl>}*]
@@ -76,22 +93,27 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		// (2)
 
 		// ')'
-		if (!matchSign(SignType::S_ROUND_CLOSE))
+		if (!ignoreNext)
 		{
-			errorExpected("Expected a ')'");
-			if (!resyncToSignInFunction(SignType::S_ROUND_CLOSE))
-				return ParsingResult<ASTFunctionDecl*>(false);
+			if (!matchSign(SignType::S_ROUND_CLOSE))
+			{
+				errorExpected("Expected a ')'");
+				if (!resyncToSignInFunction(SignType::S_ROUND_CLOSE))
+					return ParsingResult<ASTFunctionDecl*>(false);
+			}
 		}
+		else
+			ignoreNext--;
 	
 		// [':' <type>]
-		if (matchSign(SignType::S_COLON))
+		if (!ignoreNext && matchSign(SignType::S_COLON))
 		{
 			auto rtrTy = parseType();
 			if (rtrTy.first)
 				rtr->setReturnType(rtrTy.first);
 			else // no type found? we expected one after the colon!
 			{
-				if(rtrTy.second)
+				if (rtrTy.second)
 					errorExpected("Expected a type keyword");
 				rtr->setReturnType(astcontext_.getPrimitiveVoidType());
 				// don't return just yet, wait to see if a { can be found so we can still return something.
@@ -99,7 +121,12 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 			}
 		}
 		else // if no return type, the function returns void.
+		{
+			if (!ignoreNext)
+				ignoreNext--;
+
 			rtr->setReturnType(astcontext_.getPrimitiveVoidType());
+		}
 
 		// Create recovery "enabling" object, since recovery is allowed for function bodies
 		auto lock = createRecoveryEnabler();
@@ -109,12 +136,14 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		{
 			rtr->setBody(std::move(compstmt_res.result));
 			// Success, nothing more to see here!
+			assert(rtr->isValid() && "Declaration is invalid but parsing function completed successfully?");
 			return ParsingResult<ASTFunctionDecl*>(std::move(rtr));
 		}
 		else 
 		{
-			if (compstmt_res.wasSuccessful())
-				errorExpected("Expected a {");
+			// Return an error if there was no compound statement.
+			// We don't need to print an error, parseCompoundStatement will already have printed one
+			// in mandatory mode.
 			return ParsingResult<ASTFunctionDecl*>(false);
 		}
 	}
@@ -135,9 +164,8 @@ ParsingResult<ASTArgDecl*> Parser::parseArgDecl()
 				);
 		else
 		{
-			if(typespec_res.wasSuccessful())		// not found, report an error
+			if(typespec_res.wasSuccessful())		
 				errorExpected("Expected a ':'");
-			// in both case (not found or error) return an error
 			return ParsingResult<ASTArgDecl*>(false);
 		}
 	}
@@ -154,15 +182,18 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 
 		// <id>
 		if (auto id = matchID())
-			rtr->setVarIdentifier(id);
+			rtr->setDeclName(id);
 		else
 		{
 			errorExpected("Expected an identifier");
-			return ParsingResult<ASTVarDecl*>(
-					resyncToSignInStatement(SignType::S_SEMICOLON) // Attempt to recover. If the recovery happened, the ParsingResult will just report a "not found" to let parsing continue, if the recovery
-														// did not happend or the parser died, it'll report a failure.
-				);
-			// Note : we do not try to continue even if recovery was successful, as not enough information was gathered to return a valid node.
+			if (auto res = resyncToSignInStatement(SignType::S_SEMICOLON))
+			{
+				if (res.hasRecoveredOnRequestedToken())
+					return ParsingResult<ASTVarDecl*>(
+							std::make_unique<ASTVarDecl>()	// If we recovered, return an empty (invalid) var decl.
+						);
+			}
+			return ParsingResult<ASTVarDecl*>(false);
 		}
 
 		// <fq_type_spec>
@@ -179,11 +210,14 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 		else
 		{
 			errorExpected("Expected a ':'");
-			if (resyncToSignInStatement(SignType::S_SEMICOLON))
-				#pragma message("Here, change the return notfound to return a ASTParserRecovery node if it resynced successfully .");
-			return ParsingResult<ASTVarDecl*>(
-					resyncToSignInStatement(SignType::S_SEMICOLON) // See comment above, lines 162,163,165
-				);
+			if (auto res = resyncToSignInStatement(SignType::S_SEMICOLON))
+			{
+				if (res.hasRecoveredOnRequestedToken())
+					return ParsingResult<ASTVarDecl*>(
+							std::make_unique<ASTVarDecl>()	// If we recovered, return an empty (invalid) var decl.
+						);
+			}
+			return ParsingResult<ASTVarDecl*>(false);
 		}
 
 		// ['=' <expr>]
@@ -206,12 +240,12 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 		{
 			errorExpected("Expected ';'");
 			
-			// Try recovery if allowed. 
 			if(!resyncToSignInStatement(SignType::S_SEMICOLON))
 				return ParsingResult<ASTVarDecl*>(false);
-			// else, recovery was successful, let the function return normally below.
+			// erecovery was successful, let the function return normally below.
 		}
 		// If we're here -> success
+		assert(rtr->isValid() && "Declaration is invalid but parsing function completed successfully?");
 		return ParsingResult<ASTVarDecl*>(std::move(rtr));
 	}
 	// not found
@@ -234,11 +268,13 @@ ParsingResult<QualType> Parser::parseFQTypeSpec()
 
 		// <type>
 		auto type = parseType();
+		// parseType returns a tuple of <const Type*, bool>. the first is the type, null on notfound,
+		// the second is true on success, false on error.
 		if (type.first)
 			ty.setType(type.first);
 		else
 		{
-			if(type.second) // if not found, return an error from us
+			if(!type.second) 
 				errorExpected("Expected a type");
 			return ParsingResult<QualType>(false);
 		}

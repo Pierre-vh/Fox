@@ -22,8 +22,8 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		// Parse all statements
 		while (auto parseres = parseStmt())
 		{
-			// Push only if we don't have a null statement.
-			if (!(dynamic_cast<ASTNullStmt*>(parseres.result.get())))
+			// Push only if we don't have a null expr.
+			if (!(dynamic_cast<ASTNullExpr*>(parseres.result.get())))
 				rtr->addStmt(std::move(parseres.result));
 			parseres = parseStmt();
 		}
@@ -44,7 +44,16 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 	{
 		// Emit an error if it's mandatory.
 		errorExpected("Expected a '{'");
-		return ParsingResult<ASTCompoundStmt*>(false);
+
+		// Here, we'll attempt to recover to a } and return an empty compound statement if we found one,
+		// if we can't recover, we restore the backup and return "not found"
+		auto backup = createParserStateBackup();
+		auto resyncres = resyncToSignInFunction(SignType::S_CURLY_CLOSE);
+		if (resyncres.hasRecoveredOnRequestedToken())
+			return ParsingResult<ASTCompoundStmt*>(std::make_unique<ASTCompoundStmt>());
+		
+		restoreParserStateFromBackup(backup);
+		return ParsingResult<ASTCompoundStmt*>();
 	}
 
 	return ParsingResult<ASTCompoundStmt*>();
@@ -58,15 +67,18 @@ ParsingResult<ASTStmt*> Parser::parseWhileLoop()
 	{
 		std::unique_ptr<ASTWhileStmt> rtr = std::make_unique<ASTWhileStmt>();
 		// <parens_expr>
-		if (auto parensExprRes = parseParensExpr(/* The ParensExpr is mandatory */ true)) 
+		if (auto parensExprRes = parseParensExpr(/* The ParensExpr is mandatory */ true))
 			rtr->setCond(std::move(parensExprRes.result));
+		else
+			return ParsingResult<ASTStmt*>(false);
 
 		// <body>
 		if (auto parseres = parseBody())
 			rtr->setBody(std::move(parseres.result));
 		else
 		{
-			errorExpected("Expected a Statement after while loop declaration,");
+			if(parseres.wasSuccessful())
+				errorExpected("Expected a statement");
 			return ParsingResult<ASTStmt*>(false);
 		}
 		// Return if everything's alright
@@ -87,14 +99,22 @@ ParsingResult<ASTStmt*> Parser::parseCondition()
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(/* The ParensExpr is mandatory */ true)) 
 			rtr->setCond(std::move(parensExprRes.result));
-
+		else
+			return ParsingResult<ASTStmt*>(false);
+		
 		// <body>
 		if (auto ifStmtRes = parseBody())
 			rtr->setThen(std::move(ifStmtRes.result));
 		else
 		{
-			errorExpected("Expected a statement after if condition,");
-			return ParsingResult<ASTStmt*>(false);
+			if (peekKeyword(getCurrentPosition(), KeywordType::KW_ELSE)) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
+				rtr->setThen(std::make_unique<ASTNullExpr>());
+			else
+			{
+				if (ifStmtRes.wasSuccessful())
+					errorExpected("Expected a statement after if condition,");
+				return ParsingResult<ASTStmt*>(false);
+			}
 		}
 		has_if = true;
 	}
@@ -106,12 +126,14 @@ ParsingResult<ASTStmt*> Parser::parseCondition()
 			rtr->setElse(std::move(stmt.result));
 		else
 		{
-			errorExpected("Expected a statement after else,");
+			if(stmt.wasSuccessful())
+				errorExpected("Expected a statement after else,");
 			return ParsingResult<ASTStmt*>(false);
 		}
+
 		// Else but no if?
 		if (!has_if)
-			genericError("Else without matching if ignored.");
+			genericError("Else without matching if.");
 	}
 
 	if(has_if)
@@ -129,13 +151,21 @@ ParsingResult<ASTStmt*> Parser::parseReturnStmt()
 		// [<expr>]
 		if (auto pExpr_res = parseExpr())
 			rtr->setExpr(std::move(pExpr_res.result));
+		else if(!pExpr_res.wasSuccessful())
+		{
+			// expr failed?
+			if (!resyncToSignInStatement(SignType::S_SEMICOLON,/* do not consume */ false))
+				return ParsingResult<ASTStmt*>(false);
+		}
+
+		// ';'
 
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected a ';'");
 			// Recover to semi, if recovery wasn't successful, report an error.
 			if (!resyncToSignInStatement(SignType::S_SEMICOLON))
-				return ParsingResult<ASTStmt*>(false); // failed & died
+				return ParsingResult<ASTStmt*>(false);
 		}
 		// success, return
 		return ParsingResult<ASTStmt*>(std::move(rtr));
@@ -213,26 +243,32 @@ ParsingResult<ASTStmt*> Parser::parseExprStmt()
 
 	// ';'
 	if (matchSign(SignType::S_SEMICOLON))
-		return ParsingResult<ASTStmt*>( std::make_unique<ASTNullStmt>() );
+		return ParsingResult<ASTStmt*>( std::make_unique<ASTNullExpr>() );
 
 	// <expr> ';' 
 	// <expr>
-	if (auto node = parseExpr())
+	if (auto expr = parseExpr())
 	{
 		// ';'
 		if (!matchSign(SignType::S_SEMICOLON))
 		{
-			errorExpected("Expected a ';' in expression statement");
-			// attempt recovery, return error if couldn't recover.
+			if(expr.wasSuccessful())
+				errorExpected("Expected a ';' in expression statement");
+
 			if (!resyncToSignInStatement(SignType::S_SEMICOLON))
 				return ParsingResult<ASTStmt*>(false);
 			// if recovery was successful, just return like nothing has happened!
 		}
 
-		return ParsingResult<ASTStmt*>(std::move(node.result));
+		return ParsingResult<ASTStmt*>(std::move(expr.result));
 	}
-	else if(!node.wasSuccessful())
-		return ParsingResult<ASTStmt*>(false);
+	else if(!expr.wasSuccessful())
+	{
+		// if the expression had an error, ignore it and try to recover to a semi.
+		if (!resyncToSignInStatement(SignType::S_SEMICOLON))
+			return ParsingResult<ASTStmt*>(false);
+		return ParsingResult<ASTStmt*>(std::make_unique<ASTNullExpr>());
+	}
 
 	return ParsingResult<ASTStmt*>();
 }
