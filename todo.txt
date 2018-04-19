@@ -13,10 +13,12 @@ TODO:
 	> Parser recovery improvements part 1(Done)
 	> Parser recovery improvements part 2 (Done)
 
-	> DeclContext : ASTDecl abstract node wrapper around std::map<IdentifierInfo*,ASTDecl*>
+	> Test some typical recovery situations to try tuning the parser a bit (Next)
+	> DeclContext : ASTDecl abstract node wrapper around std::map<IdentifierInfo*,ASTDecl*> (Next)
 		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" call upper declcontexts to lookup and add lookupresults
 		> For the lookup system, I'll need "LookupResult" class that wraps around an array of std::pair<IdentifierInfo*,IASTDecl*> for all matching decls.
+
 	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc.
 
 	> At this point if nothing caught fire, write unit tests to catch bugs and make things catch fire.
