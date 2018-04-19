@@ -27,15 +27,6 @@ namespace Moonshot
 			virtual void accept(IVisitor& vis) = 0;
 	};
 
-	// A null statement, that doesn't do anything. (It's a placeholder)
-	// It's going to be ignored most of the time, isn't that sad?
-	class ASTNullStmt : public ASTStmt
-	{
-		public:
-			ASTNullStmt() = default;
-			virtual void accept(IVisitor& vis) override;
-	};
-
 	// The return <expr> statement.
 	class ASTReturnStmt : public ASTStmt
 	{

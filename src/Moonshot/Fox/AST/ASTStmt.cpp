@@ -14,12 +14,6 @@
 
 using namespace Moonshot;
 
-// null stmt
-void ASTNullStmt::accept(IVisitor& vis)
-{ 
-	vis.visit(*this);
-}
-
 // return stmt
 ASTReturnStmt::ASTReturnStmt(std::unique_ptr<ASTExpr> rtr_expr)
 {
