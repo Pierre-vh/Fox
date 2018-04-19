@@ -31,7 +31,6 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 	if (matchKeyword(KeywordType::KW_FUNC))
 	{
 		auto rtr = std::make_unique<ASTFunctionDecl>();
-		char ignoreNext = 0;
 		// <id>
 		if (auto id = matchID())
 			rtr->setDeclName(id);
@@ -46,24 +45,8 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		{
 			errorExpected("Expected '('");
 			// try to resync to a ) without consuming it.
-			if (matchSign(SignType::S_COLON)) // if we got a colon 
-			{
-				// if the user typed "func foo : etc.. {", we recognize it and attempt to continue parsing.
-				decrementPosition(); // Revert the token consume
-				ignoreNext = 1; // Ignore the parenthesis
-			}
-			else if (matchSign(SignType::S_CURLY_OPEN))
-			{
-				// if the user typed "func foo {", we recognize it and attempt to continue parsing.
-				decrementPosition(); // Revert the token consume
-				ignoreNext = 2; // ignore parens + typespec
-			}
-			else
-			{
-				// try resync if possible
-				if (!resyncToSignInFunction(SignType::S_ROUND_CLOSE, false))
-					return ParsingResult<ASTFunctionDecl*>(false);
-			}
+			if (!resyncToSignInFunction(SignType::S_ROUND_CLOSE, false))
+				return ParsingResult<ASTFunctionDecl*>(false);
 		}
 
 		// [<arg_decl> {',' <arg_decl>}*]
@@ -93,20 +76,16 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		// (2)
 
 		// ')'
-		if (!ignoreNext)
+		if (!matchSign(SignType::S_ROUND_CLOSE))
 		{
-			if (!matchSign(SignType::S_ROUND_CLOSE))
-			{
-				errorExpected("Expected a ')'");
-				if (!resyncToSignInFunction(SignType::S_ROUND_CLOSE))
-					return ParsingResult<ASTFunctionDecl*>(false);
-			}
+			errorExpected("Expected a ')'");
+			if (!resyncToSignInFunction(SignType::S_ROUND_CLOSE))
+				return ParsingResult<ASTFunctionDecl*>(false);
 		}
-		else
-			ignoreNext--;
+
 	
 		// [':' <type>]
-		if (!ignoreNext && matchSign(SignType::S_COLON))
+		if (matchSign(SignType::S_COLON))
 		{
 			auto rtrTy = parseType();
 			if (rtrTy.first)
@@ -122,9 +101,6 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		}
 		else // if no return type, the function returns void.
 		{
-			if (!ignoreNext)
-				ignoreNext--;
-
 			rtr->setReturnType(astcontext_.getPrimitiveVoidType());
 		}
 
