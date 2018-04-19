@@ -36,7 +36,7 @@ func arrayFib(arr : &int[],n : int)
         let idx : int = 2; // Start to fill at index 2
         while(n)
         {
-            arr[idx] = (arr[idx-1] + arr[idx-2]));
+            arr[idx] = (arr[idx-1] + arr[idx-2]);
             idx = idx+1;
             n = n-1;
         }
