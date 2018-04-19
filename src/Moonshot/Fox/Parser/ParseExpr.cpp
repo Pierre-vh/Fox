@@ -203,14 +203,15 @@ ParsingResult<ASTExpr*> Parser::parseArrayOrMemberAccess()
 	// <array_or_member_access>	= <primary> { <suffix> }
 	if (auto prim = parsePrimary())
 	{
-		std::unique_ptr<ASTExpr> lhs = std::move(prim.result);
-		while (auto suffix = parseSuffix(lhs))
+		std::unique_ptr<ASTExpr> base = std::move(prim.result);
+		while (auto suffix = parseSuffix(base))
 		{
 			// if suffix is usable, assert that lhs is now null
-			assert((!lhs) && "LHS should have been moved by parseSuffix!");
-			lhs = std::move(suffix.result);
+			assert((!base) && "base should have been moved by parseSuffix!");
+			assert(suffix.result && "Suffix's result should be null!");
+			base = std::move(suffix.result);
 		}
-		return ParsingResult<ASTExpr*>(std::move(lhs));
+		return ParsingResult<ASTExpr*>(std::move(base));
 	}
 	else
 		return ParsingResult<ASTExpr*>(prim.wasSuccessful());
