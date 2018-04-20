@@ -41,11 +41,11 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		}
 
 		// '('
-		if (!matchSign(SignType::S_ROUND_OPEN))
+		if (!matchBracket(SignType::S_ROUND_OPEN))
 		{
 			errorExpected("Expected '('");
 			// try to resync to a ) without consuming it.
-			if (!resyncToSignInFunction(SignType::S_ROUND_CLOSE, false))
+			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 				return ParsingResult<ASTFunctionDecl*>(false);
 		}
 
@@ -54,7 +54,7 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		{
 			// Note, here, in the 2 places I've marked with (1) and (2), we can possibly
 			// add error management, however, I don't think that's necessary since
-			// the matchSign below will attempt to "panic and recover" if it doesn't find the )
+			// the matchBracket below will attempt to "panic and recover" if it doesn't find the )
 			rtr->addArg(std::move(firstarg_res.result));
 			while (true)
 			{
@@ -76,10 +76,10 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		// (2)
 
 		// ')'
-		if (!matchSign(SignType::S_ROUND_CLOSE))
+		if (!matchBracket(SignType::S_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')'");
-			if (!resyncToSignInFunction(SignType::S_ROUND_CLOSE))
+			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
 				return ParsingResult<ASTFunctionDecl*>(false);
 		}
 
@@ -100,9 +100,7 @@ ParsingResult<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 			}
 		}
 		else // if no return type, the function returns void.
-		{
 			rtr->setReturnType(astcontext_.getPrimitiveVoidType());
-		}
 
 		// Create recovery "enabling" object, since recovery is allowed for function bodies
 		auto lock = createRecoveryEnabler();
@@ -162,12 +160,11 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 		else
 		{
 			errorExpected("Expected an identifier");
-			if (auto res = resyncToSignInStatement(SignType::S_SEMICOLON))
+			if (auto res = resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ false, /*consumeToken*/ true))
 			{
-				if (res.hasRecoveredOnRequestedToken())
-					return ParsingResult<ASTVarDecl*>(
-							std::make_unique<ASTVarDecl>()	// If we recovered, return an empty (invalid) var decl.
-						);
+				return ParsingResult<ASTVarDecl*>(
+						std::make_unique<ASTVarDecl>()	// If we recovered, return an empty (invalid) var decl.
+					);
 			}
 			return ParsingResult<ASTVarDecl*>(false);
 		}
@@ -185,13 +182,13 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 		}
 		else
 		{
-			errorExpected("Expected a ':'");
-			if (auto res = resyncToSignInStatement(SignType::S_SEMICOLON))
+			if(typespecResult.wasSuccessful())
+				errorExpected("Expected a ':'");
+			if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ true, /*consumeToken*/ true))
 			{
-				if (res.hasRecoveredOnRequestedToken())
-					return ParsingResult<ASTVarDecl*>(
-							std::make_unique<ASTVarDecl>()	// If we recovered, return an empty (invalid) var decl.
-						);
+				return ParsingResult<ASTVarDecl*>(
+						std::make_unique<ASTVarDecl>()	// If we recovered, return an empty (invalid) var decl.
+					);
 			}
 			return ParsingResult<ASTVarDecl*>(false);
 		}
@@ -206,7 +203,7 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 				if(parseres.wasSuccessful())
 					errorExpected("Expected an expression");
 				// Recover to semicolon, return if recovery wasn't successful 
-				if (!resyncToSignInStatement(SignType::S_SEMICOLON, /* do not consume the semi, so it can be picked up below */false))
+				if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ false))
 					return ParsingResult<ASTVarDecl*>(false);
 			}
 		}
@@ -216,9 +213,8 @@ ParsingResult<ASTVarDecl*> Parser::parseVarDeclStmt()
 		{
 			errorExpected("Expected ';'");
 			
-			if(!resyncToSignInStatement(SignType::S_SEMICOLON))
+			if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ true))
 				return ParsingResult<ASTVarDecl*>(false);
-			// erecovery was successful, let the function return normally below.
 		}
 		// If we're here -> success
 		assert(rtr->isValid() && "Declaration is invalid but parsing function completed successfully?");
@@ -250,7 +246,7 @@ ParsingResult<QualType> Parser::parseFQTypeSpec()
 			ty.setType(type.first);
 		else
 		{
-			if(!type.second) 
+			if(type.second) 
 				errorExpected("Expected a type");
 			return ParsingResult<QualType>(false);
 		}

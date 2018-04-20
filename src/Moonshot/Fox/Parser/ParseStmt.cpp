@@ -17,23 +17,64 @@ using namespace Moonshot;
 ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {
 	auto rtr = std::make_unique<ASTCompoundStmt>(); // return value
-	if (matchSign(SignType::S_CURLY_OPEN))
+	if (matchBracket(SignType::S_CURLY_OPEN))
 	{
-		// Parse all statements
-		ParsingResult<ASTStmt*> parseres;
-		while (parseres = parseStmt())
+		bool hasMatchedCurlyClose = false;
+		while (!hasReachedEndOfTokenStream())
 		{
-			// Push only if we don't have a null expr.
-			if (!(dynamic_cast<ASTNullExpr*>(parseres.result.get())))
-				rtr->addStmt(std::move(parseres.result));
+			if (matchBracket(SignType::S_CURLY_CLOSE))
+			{
+				hasMatchedCurlyClose = true;
+				break;
+			}
+
+			// try to parse a statement
+
+			// success
+			if(auto parseres = parseStmt())
+			{
+				// Push only if we don't have a null expr.
+				// this is done to avoid stacking them up, and since they're a no-op in all cases
+				// it's meaningless to ignore them.
+				if (!(dynamic_cast<ASTNullExpr*>(parseres.result.get())))
+					rtr->addStmt(std::move(parseres.result));
+			}
+			// failure
+			else
+			{
+				// if not found, report an error
+				if (parseres.wasSuccessful())
+					errorExpected("Expected a Statement!");
+				// In both case, attempt recovery to nearest semicolon.
+				if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi -> meaningless here*/ false, /*shouldConsumeToken*/ true))
+				{
+					// Successfully resynced, continue parsing.
+					continue;
+				}
+				else
+				{
+					// Recovery might have stopped for 3 reasons (in order of likelihood), the first is that it found a unmatched }, which is ours.
+					if (matchBracket(SignType::S_CURLY_CLOSE))
+					{
+						hasMatchedCurlyClose = true;
+						break;
+					}
+					// The second is that it found EOF or something that doesn't belong to us, like a unmatched ']' or ')'
+					else
+					{
+						// (in this case, just return an error)
+						return ParsingResult<ASTCompoundStmt*>(false);
+					}
+
+				}
+			}
 		}
 		// Match the closing curly bracket
-		if (!matchSign(SignType::S_CURLY_CLOSE))
+		if (!hasMatchedCurlyClose)
 		{
 			errorExpected("Expected a '}'");
-			// try to recover, if recovery wasn't successful, report an error.
-			if (!resyncToSignInFunction(SignType::S_CURLY_CLOSE))
-				return ParsingResult<ASTCompoundStmt*>(false);
+			// We can't recover since we reached EOF. return an error!
+			return ParsingResult<ASTCompoundStmt*>(false);
 		}
 
 		// if everything's alright, return the result
@@ -48,8 +89,8 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		// Here, we'll attempt to recover to a } and return an empty compound statement if we found one,
 		// if we can't recover, we restore the backup and return "not found"
 		auto backup = createParserStateBackup();
-		auto resyncres = resyncToSignInFunction(SignType::S_CURLY_CLOSE);
-		if (resyncres.hasRecoveredOnRequestedToken())
+
+		if (resyncToSign(SignType::S_CURLY_CLOSE, /* stopAtSemi */ false, /*consumeToken*/ true))
 			return ParsingResult<ASTCompoundStmt*>(std::make_unique<ASTCompoundStmt>());
 		
 		restoreParserStateFromBackup(backup);
@@ -154,8 +195,8 @@ ParsingResult<ASTStmt*> Parser::parseReturnStmt()
 			rtr->setExpr(std::move(pExpr_res.result));
 		else if(!pExpr_res.wasSuccessful())
 		{
-			// expr failed?
-			if (!resyncToSignInStatement(SignType::S_SEMICOLON,/* do not consume */ false))
+			// expr failed? try to resync if possible. 
+			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
 				return ParsingResult<ASTStmt*>(false);
 		}
 
@@ -165,7 +206,7 @@ ParsingResult<ASTStmt*> Parser::parseReturnStmt()
 		{
 			errorExpected("Expected a ';'");
 			// Recover to semi, if recovery wasn't successful, report an error.
-			if (!resyncToSignInStatement(SignType::S_SEMICOLON))
+			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
 				return ParsingResult<ASTStmt*>(false);
 		}
 		// success, return
@@ -256,7 +297,7 @@ ParsingResult<ASTStmt*> Parser::parseExprStmt()
 			if(expr.wasSuccessful())
 				errorExpected("Expected a ';'");
 
-			if (!resyncToSignInStatement(SignType::S_SEMICOLON))
+			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
 				return ParsingResult<ASTStmt*>(false);
 			// if recovery was successful, just return like nothing has happened!
 		}
@@ -266,7 +307,7 @@ ParsingResult<ASTStmt*> Parser::parseExprStmt()
 	else if(!expr.wasSuccessful())
 	{
 		// if the expression had an error, ignore it and try to recover to a semi.
-		if (resyncToSignInStatement(SignType::S_SEMICOLON))
+		if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
 			return ParsingResult<ASTStmt*>(std::make_unique<ASTNullExpr>());
 		return ParsingResult<ASTStmt*>(false);
 	}

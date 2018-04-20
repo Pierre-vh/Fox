@@ -30,7 +30,8 @@ UnitParsingResult Parser::parseUnit()
 	// <fox_unit>	= {<declaration>}1+
 	auto unit = std::make_unique<ASTUnit>();
 
-	// Create recovery "lock" object, since recovery is disabled for top level declarations.
+	// Create recovery "lock" object, since recovery is disabled for top level declarations. 
+	// It'll be re-enabled by parseFunctionDeclaration
 	auto lock = createRecoveryDisabler();
 
 	// Gather some flags
@@ -49,47 +50,23 @@ UnitParsingResult Parser::parseUnit()
 		}
 		else
 		{
-			// If the ParsingResult is not usable, but the parsing was successful
-			if (decl.wasSuccessful()) 
-			{
-				// Parsing was successful & EOF -> Job's done !
-				if (hasReachedEndOfTokenStream())
-					break;
-				// No EOF? There's an unexpected token on the way, report it & recover!
-				else
-				{
-					// Unlock, so we're allowed to recover here.
-					auto unlock = createRecoveryEnabler();
-
-					errorUnexpected();
-
-					if (showRecoveryMessages)
-						genericError("Attempting recovery to next declaration.");
-
-					if (resyncToNextDeclKeyword())
-					{
-						if(showRecoveryMessages)
-							genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
-						continue;
-					}
-					else
-					{
-						if(showRecoveryMessages)
-							genericError("Couldn't recover.");
-						break;
-					}
-				}
-			}
-			// Parsing failed ? Try to recover!
-			else 
+			// Parsing was successful & EOF -> Job's done !
+			if (hasReachedEndOfTokenStream())
+				break;
+			// No EOF? There's an unexpected token on the way, report it & recover!
+			else
 			{
 				// Unlock, so we're allowed to recover here.
 				auto unlock = createRecoveryEnabler();
 
-				if(showRecoveryMessages)
+				// Report an error in case of "not found";
+				if (decl.wasSuccessful())	
+					errorExpected("Expected a declaration");
+
+				if (showRecoveryMessages)
 					genericError("Attempting recovery to next declaration.");
 
-				if (resyncToNextDeclKeyword())
+				if (resyncToNextDecl())
 				{
 					if(showRecoveryMessages)
 						genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
@@ -106,7 +83,15 @@ UnitParsingResult Parser::parseUnit()
 
 	}
 
-	// Return nothing if no declaration was found to report a failure.
+	if (parserState_.curlyBracketsCount)
+		genericError(std::to_string(parserState_.curlyBracketsCount) + " '}' still missing after parsing this unit.");
+
+	if (parserState_.roundBracketsCount)
+		genericError(std::to_string(parserState_.roundBracketsCount) + " ')' still missing after parsing this unit.");
+
+	if (parserState_.squareBracketsCount)
+		genericError(std::to_string(parserState_.squareBracketsCount) + " ']' still missing after parsing this unit.");
+
 	if (unit->getDeclCount() == 0)
 	{
 		// Unit reports an error if notfound, because it's a mandatory rule.
@@ -114,7 +99,6 @@ UnitParsingResult Parser::parseUnit()
 		// Return empty result
 		return UnitParsingResult();
 	}
-	// Return the unit if it's valid.
 	else
 		return UnitParsingResult(std::move(unit));
 }
@@ -135,9 +119,49 @@ IdentifierInfo* Parser::matchID()
 
 bool Parser::matchSign(const SignType & s)
 {
-	Token t = getToken();
-	if (t.isSign() && t.getSignType() == s)
+	assert(!isBracket(s) && "This method shouldn't be used to match brackets ! Use matchBracket instead!");
+	if (getToken().is(s))
 	{
+		consumeToken();
+		return true;
+	}
+	return false;
+}
+
+bool Parser::matchBracket(const SignType & s)
+{
+	assert(isBracket(s) && "This method should only be used on brackets ! Use matchSign to match instead!");
+	auto tok = getToken();
+	if (tok.isSign())
+	{
+		if (!tok.is(s))
+			return false;
+		switch (s)
+		{
+			case SignType::S_CURLY_OPEN:
+				parserState_.curlyBracketsCount++;
+				break;
+			case SignType::S_CURLY_CLOSE:
+				if (parserState_.curlyBracketsCount)		// Don't let unbalanced parentheses create an underflow.
+					parserState_.curlyBracketsCount--;
+				break;
+			case SignType::S_SQ_OPEN:
+				parserState_.squareBracketsCount++;
+				break;
+			case SignType::S_SQ_CLOSE:
+				if (parserState_.squareBracketsCount)		// Don't let unbalanced parentheses create an underflow.
+					parserState_.squareBracketsCount--;
+				break;
+			case SignType::S_ROUND_OPEN:
+				parserState_.roundBracketsCount++;
+				break;
+			case SignType::S_ROUND_CLOSE:
+				if (parserState_.roundBracketsCount)		// Don't let unbalanced parentheses create an underflow.
+					parserState_.roundBracketsCount--;
+				break;
+			default:
+				throw std::exception("Unknown bracket type"); // Should be unreachable.
+		}
 		consumeToken();
 		return true;
 	}
@@ -146,22 +170,37 @@ bool Parser::matchSign(const SignType & s)
 
 bool Parser::matchKeyword(const KeywordType & k)
 {
-	Token t = getToken();
-	if (t.isKeyword() && (t.getKeywordType() == k))
+	if (getToken().is(k))
 	{
-		parserState_.pos += 1;
+		consumeToken();
 		return true;
 	}
 	return false;
+}
+
+bool Parser::isBracket(const SignType & s) const
+{
+	switch (s)
+	{
+		case SignType::S_CURLY_OPEN:
+		case SignType::S_CURLY_CLOSE:
+		case SignType::S_SQ_OPEN:
+		case SignType::S_SQ_CLOSE:
+		case SignType::S_ROUND_OPEN:
+		case SignType::S_ROUND_CLOSE:
+			return true;
+		default:
+			return false;
+	}
 }
 
 const Type* Parser::parseBuiltinTypename()
 {
 	// <builtin_type_name> 	= "int" | "float" | "bool" | "string" | "char"
 	Token t = getToken();
-	consumeToken();
 	if (t.isKeyword())
 	{
+		consumeToken();
 		switch (t.getKeywordType())
 		{
 			case KeywordType::KW_INT:	return  astcontext_.getPrimitiveIntType();
@@ -170,8 +209,8 @@ const Type* Parser::parseBuiltinTypename()
 			case KeywordType::KW_STRING:return	astcontext_.getPrimitiveStringType();
 			case KeywordType::KW_BOOL:	return	astcontext_.getPrimitiveBoolType();
 		}
+		revertConsume();
 	}
-	revertConsume();
 	return nullptr;
 }
 
@@ -182,21 +221,17 @@ std::pair<const Type*, bool> Parser::parseType()
 	if (auto ty = parseBuiltinTypename())
 	{
 		//  { '[' ']' }
-		while (matchSign(SignType::S_SQ_OPEN))
+		while (matchBracket(SignType::S_SQ_OPEN))
 		{
 			// Set ty to the ArrayType of ty.
 			ty = astcontext_.getArrayTypeForType(ty);
 			// ']'
-			if (!matchSign(SignType::S_SQ_CLOSE))
+			if (!matchBracket(SignType::S_SQ_CLOSE))
 			{
 				errorExpected("Expected ']'");
-				// if we can't recover, report an error.
-				if (auto rres = resyncToSignInStatement(SignType::S_SQ_CLOSE))
-				{
-					// if recovered on requested token, continue..
-					if (rres.hasRecoveredOnRequestedToken())
-						continue;
-				}
+				// Try to recover
+				if (resyncToSign(SignType::S_SQ_CLOSE,/*stopAtSemi */ true ,/*shouldConsumeToken*/ true))
+					continue;
 				// else, return an error.
 				return { nullptr , false };
 			}
@@ -241,188 +276,143 @@ void Parser::revertConsume()
 	parserState_.pos-=1;
 }
 
-// Skips every token until the sign s,a semicolon, a free }, eof or a token marking the beginning of a statement is found.
-ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & shouldConsumeToken)
+bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const bool & shouldConsumeToken)
 {
-	// Abort if recovery is forbidden
-	if (!parserState_.isRecoveryAllowed)
-		return ResyncResult(false); 
-
-	std::size_t counter = 0,curlycounter = 0;
-	auto opener = getOppositeDelimiter(s);
-	bool hasOpener = isClosingDelimiter(s);
-	bool isRequestingSemi = (s == SignType::S_SEMICOLON);
-	for (; parserState_.pos < tokens_.size(); parserState_.pos++)
-	{
-		auto tok = getToken();
-		if (tok.isKeyword())
-		{
-			auto kwTy = tok.getKeywordType();
-			if (isBeginningOfStatementKeyword(kwTy) || (kwTy == KeywordType::KW_FUNC))
-			{
-				// if the user requests a semicolon, we return a success, because we found another "statement delimiter"
-				// if he wasn't requesting one, that's just a match failure.
-				return ResyncResult(isRequestingSemi, false);
-			}
-		}
-		else if(tok.isSign())
-		{
-			auto signTy = tok.getSignType();
-			if (signTy == SignType::S_SEMICOLON)
-			{
-				if (isRequestingSemi && shouldConsumeToken)
-					consumeToken();
-				// if the user is requesting a semicolon and we match one, it's a success (true,true)
-				// if the user isn't requesting to match a semi, that's considered a failure (false,false)
-				return ResyncResult(isRequestingSemi, isRequestingSemi);
-			}
-			else if (signTy == SignType::S_CURLY_OPEN)
-				curlycounter++;
-			else if (signTy == SignType::S_CURLY_CLOSE)
-			{
-				if (curlycounter)
-					curlycounter--;
-				// if we found a free }, that counts a "end of statement" token like ';', so we
-				// return. We'll return true if the user requested to match a semi, false otherwise.
-				return ResyncResult(isRequestingSemi, (s == SignType::S_CURLY_CLOSE));
-			}
-			else if (signTy == s)
-			{
-				if (hasOpener && counter)
-					counter--;
-				else
-				{
-					if (shouldConsumeToken)
-						consumeToken();
-					return ResyncResult(true, true);
-				}
-			}	
-			else if (hasOpener && (signTy == opener))
-				counter++;
-		}
-	}
-	die();
-	return ResyncResult(false);
+	return resyncToSign(std::vector<SignType>({ sign }), stopAtSemi, shouldConsumeToken);
 }
 
-//Skips every token until the sign s, a free }, "func" or eof is found.
-ResyncResult Parser::resyncToSignInFunction(const SignType & s, const bool & shouldConsumeToken)
+bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopAtSemi, const bool & shouldConsumeToken)
 {
-	// Abort if recovery is forbidden
+	// Note, this function is heavily based on CLang's http://clang.llvm.org/doxygen/Parse_2Parser_8cpp_source.html#l00245
+
+	// Return immediately if recovery is not allowed
 	if (!parserState_.isRecoveryAllowed)
 		return false;
 
-	std::size_t counter = 0;
-	auto opener = getOppositeDelimiter(s);
-	bool hasOpener = isClosingDelimiter(s);
-	bool isLookingForCurlyBrace = (s == SignType::S_CURLY_CLOSE);
+	// Always skip the first token if it's not in signs
+	bool isFirst = true;
+	// Keep going until we reach EOF.
+	for(;!hasReachedEndOfTokenStream();consumeToken())
+	{
+		// Check curtok
+		auto tok = getToken();
+		for (auto it = signs.begin(); it != signs.end(); it++)
+		{
+			if (tok.is(*it))
+			{
+				if (shouldConsumeToken)
+				{
+					// if it's a bracket, pay attention to it!
+					if (isBracket(*it))
+						matchBracket(*it);
+					else
+						consumeToken();
+				}
+				return true;
+			}
+		}
+		// Check isFirst
+		if (isFirst)
+		{
+			isFirst = false;
+			continue;
+		}
 
-	for (; parserState_.pos < tokens_.size(); parserState_.pos++)
+		// Check if it's a sign for special behaviours
+		if (tok.isSign())
+		{
+			switch (tok.getSignType())
+			{
+				// If we find a '(', '{' or '[', call this function recursively to match it's counterpart
+				case SignType::S_CURLY_OPEN:
+					resyncToSign(SignType::S_CURLY_CLOSE, false, true);
+					break;
+				case SignType::S_SQ_OPEN:
+					resyncToSign(SignType::S_SQ_CLOSE, false, true);
+					break;
+				case SignType::S_ROUND_OPEN:
+					resyncToSign(SignType::S_ROUND_CLOSE, false, true);
+					break;
+				// If we find a ')', '}' or ']' we  :
+					// Check if it belongs to a unmatched counterpart, if so, stop resync attempt.
+					// If it doesn't have an opening counterpart skip it.
+				case SignType::S_CURLY_CLOSE:
+					if (parserState_.curlyBracketsCount)
+						return false;
+					matchBracket(SignType::S_CURLY_CLOSE);
+					break;
+				case SignType::S_SQ_CLOSE:
+					if (parserState_.squareBracketsCount)
+						return false;
+					matchBracket(SignType::S_SQ_CLOSE);
+					break;
+				case SignType::S_ROUND_CLOSE:
+					if (parserState_.roundBracketsCount)
+						return false;
+					matchBracket(SignType::S_ROUND_CLOSE);
+					break;
+				case SignType::S_SEMICOLON:
+					if (stopAtSemi)
+						return false;
+					break;
+			}
+		}
+	}
+	// If reached eof, die & return false.
+	die();
+	return false;
+}
+
+bool Parser::resyncToNextDecl()
+{
+	// This method skips everything until it finds a "let" or a "func".
+
+	// Return immediately if recovery is not allowed
+	if (!parserState_.isRecoveryAllowed)
+		return false;
+
+	// Keep on going until we find a "func" or "let"
+	for (; !hasReachedEndOfTokenStream(); consumeToken())
 	{
 		auto tok = getToken();
+		// if it's let/func, return.
 		if (tok.isKeyword())
 		{
-			auto kwTy = tok.getKeywordType();
-			if (kwTy == KeywordType::KW_FUNC)
-			{
-				// Return false if a func is found, because that means that we couldn't recover.
-				return ResyncResult(false);
-			}
+			if ((tok.getKeywordType() == KeywordType::KW_FUNC) && (tok.getKeywordType() == KeywordType::KW_LET))
+				return true;
 		}
-		else if (tok.isSign())
+
+		// Check if it's a sign for special brackets-related actions
+		if (tok.isSign())
 		{
-			auto signTy = tok.getSignType();
-			if (isLookingForCurlyBrace)
+			switch (tok.getSignType())
 			{
-				if (s == SignType::S_CURLY_OPEN)
-					counter++;
-				else if(s == SignType::S_CURLY_CLOSE)
-				{
-					if (counter)
-						counter--;
-					else
-					{
-						if (shouldConsumeToken)
-							consumeToken();
-						return ResyncResult(true, true);
-					}
-				}
-			}
-			else
-			{
-				if (hasOpener && (signTy == opener))
-					counter++;
-				else if (signTy == s)
-				{
-					if (hasOpener && counter)
-						counter--;
-					else
-					{
-						if (shouldConsumeToken)
-							consumeToken();
-						return ResyncResult(true, true);
-					}
-				}
+				// If we find a '(', '{' or '[', call resyncToSign to match it's counterpart
+				case SignType::S_CURLY_OPEN:
+					resyncToSign(SignType::S_CURLY_CLOSE, false, true);
+					break;
+				case SignType::S_SQ_OPEN:
+					resyncToSign(SignType::S_SQ_CLOSE, false, true);
+					break;
+				case SignType::S_ROUND_OPEN:
+					resyncToSign(SignType::S_ROUND_CLOSE, false, true);
+					break;
+				// If we find a ')', '}' or ']' we match (consume) it.
+				case SignType::S_CURLY_CLOSE:
+					matchBracket(SignType::S_CURLY_CLOSE);
+					break;
+				case SignType::S_SQ_CLOSE:
+					matchBracket(SignType::S_SQ_CLOSE);
+					break;
+				case SignType::S_ROUND_CLOSE:
+					matchBracket(SignType::S_ROUND_CLOSE);
+					break;
 			}
 		}
 	}
+	// If reached eof, die & return false.
 	die();
-	return ResyncResult(false);
-}
-
-ResyncResult Parser::resyncToNextDeclKeyword()
-{
-	// Check if recovery is allowed 
-	if (!parserState_.isRecoveryAllowed)
-		return ResyncResult(false);
-
-	for (; parserState_.pos < tokens_.size(); parserState_.pos++)
-	{
-		if (matchKeyword(KeywordType::KW_FUNC) || matchKeyword(KeywordType::KW_LET))
-		{
-			// Decrement, so we reverse the token consuming and make the let/func available to be picked up by parseDecl
-			revertConsume();
-			return ResyncResult(true,true);
-		}
-	}
-	die();
-	return ResyncResult(false);
-}
-
-bool Parser::isBeginningOfStatementKeyword(const KeywordType & kw)
-{
-	// Returns true if kw is on of "let", "if", "else", "while", "return" or "func"
-	switch (kw)
-	{
-		case KeywordType::KW_LET:
-		case KeywordType::KW_IF:
-		case KeywordType::KW_ELSE:
-		case KeywordType::KW_WHILE:
-		case KeywordType::KW_RETURN:
-		case KeywordType::KW_FUNC:
-			return true;
-		default:
-			return false;
-	}
-}
-
-bool Parser::isClosingDelimiter(const SignType & s) const
-{
-	return (s == SignType::S_CURLY_CLOSE) || (s == SignType::S_ROUND_CLOSE) || (s == SignType::S_SQ_CLOSE);
-}
-
-SignType Parser::getOppositeDelimiter(const SignType & s)
-{
-	if (s == SignType::S_CURLY_CLOSE)
-		return SignType::S_CURLY_OPEN;
-
-	if (s == SignType::S_ROUND_CLOSE)
-		return SignType::S_ROUND_OPEN;
-
-	if (s == SignType::S_SQ_CLOSE)
-		return SignType::S_SQ_OPEN;
-
-	return SignType::DEFAULT;
+	return false;
 }
 
 void Parser::die()
@@ -455,16 +445,14 @@ void Parser::errorUnexpected()
 
 void Parser::errorExpected(const std::string & s)
 {
-	static std::size_t lastUnexpectedTokenPosition;
-
 	if (!parserState_.isAlive) return;
 
 	const auto lastTokenPos = parserState_.pos - 1;
 
 	// If needed, print unexpected error message
-	if (lastUnexpectedTokenPosition != parserState_.pos)
+	if (lastUnexpectedTokenPosition_ != parserState_.pos)
 	{
-		lastUnexpectedTokenPosition = parserState_.pos;
+		lastUnexpectedTokenPosition_ = parserState_.pos;
 		errorUnexpected();
 	}
 
@@ -514,26 +502,23 @@ Parser::ParserState::ParserState() : isAlive(true), isRecoveryAllowed(false), po
 }
 
 // RAIIRecoveryManager
-
-Parser::RAIIRecoveryManager::RAIIRecoveryManager(Parser * parser, const bool & allowsRecovery) : parser_(parser)
+Parser::RAIIRecoveryManager::RAIIRecoveryManager(Parser &parser, const bool & allowsRecovery) : parser_(parser)
 {
-	assert(parser_ && "Parser instance pointer cannot be null!");
-	recoveryAllowedBackup_ = parser_->parserState_.isRecoveryAllowed;
-	parser_->parserState_.isRecoveryAllowed = allowsRecovery;
+	recoveryAllowedBackup_ = parser_.parserState_.isRecoveryAllowed;
+	parser_.parserState_.isRecoveryAllowed = allowsRecovery;
 }
 
 Parser::RAIIRecoveryManager::~RAIIRecoveryManager()
 {
-	assert(parser_ && "Parser instance pointer cannot be null!");
-	parser_->parserState_.isRecoveryAllowed = recoveryAllowedBackup_;
+	parser_.parserState_.isRecoveryAllowed = recoveryAllowedBackup_;
 }
 
 Parser::RAIIRecoveryManager Parser::createRecoveryEnabler()
 {
-	return RAIIRecoveryManager(this,true);
+	return RAIIRecoveryManager(*this,true);
 }
 
 Parser:: RAIIRecoveryManager Parser::createRecoveryDisabler()
 {
-	return RAIIRecoveryManager(this, false);
+	return RAIIRecoveryManager(*this, false);
 }
