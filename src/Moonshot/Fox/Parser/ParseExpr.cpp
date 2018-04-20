@@ -54,7 +54,7 @@ ParsingResult<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 				errorExpected("Expected a ']'");
 
 				if (!resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-					return ParsingResult<IASTDeclRef*>(false);
+					return ParsingResult<ASTDeclRef*>(false);
 			}
 			return ParsingResult<ASTExpr*>(std::make_unique<ASTArrayAccess>(std::move(base), std::move(expr.result)));
 		}
@@ -82,7 +82,7 @@ ParsingResult<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 	return ParsingResult<ASTExpr*>();
 }
 
-ParsingResult<IASTDeclRef*> Parser::parseDeclCall()
+ParsingResult<ASTDeclRef*> Parser::parseDeclCall()
 {
 	// <decl_call>		= <id> [ <parens_expr_list> ]
 
@@ -90,7 +90,7 @@ ParsingResult<IASTDeclRef*> Parser::parseDeclCall()
 	if (auto id = matchID())
 	{
 		// [ <parens_expr_list> ]
-		std::unique_ptr<IASTDeclRef> expr = nullptr;
+		std::unique_ptr<ASTDeclRef> expr = nullptr;
 		if (auto exprlist = parseParensExprList())
 		{
 			// if an expression list is found create a functioncall node and set expr to that node.
@@ -100,14 +100,14 @@ ParsingResult<IASTDeclRef*> Parser::parseDeclCall()
 			expr = std::move(fcall);
 		}
 		else if(!exprlist.wasSuccessful())
-			return ParsingResult<IASTDeclRef*>(false);
+			return ParsingResult<ASTDeclRef*>(false);
 		else // it's just an identifier
 			expr = std::make_unique<ASTDeclRefExpr>(id);
 		
 		assert(expr && "Expr is null?");
-		return ParsingResult<IASTDeclRef*>(std::move(expr));
+		return ParsingResult<ASTDeclRef*>(std::move(expr));
 	}
-	return ParsingResult<IASTDeclRef*>();
+	return ParsingResult<ASTDeclRef*>();
 }
 
 ParsingResult<ASTExpr*> Parser::parsePrimitiveLiteral()

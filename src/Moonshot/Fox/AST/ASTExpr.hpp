@@ -193,7 +193,7 @@ namespace Moonshot
 	};
 
 	// interface for decl refs. Derived classes are references to a decl within this context (declref) and reference to member decls (memberref)
-	class IASTDeclRef : public ASTExpr
+	class ASTDeclRef : public ASTExpr
 	{
 		// TODO After AST Upgrade/Rework
 		// ASTDecl* getOriginalDecl();
@@ -201,7 +201,7 @@ namespace Moonshot
 	};
 
 	// Represents a reference to a declaration (namespace,variable,function) -> it's an identifier!
-	class ASTDeclRefExpr : public IASTDeclRef
+	class ASTDeclRefExpr : public ASTDeclRef
 	{
 		public:
 			ASTDeclRefExpr() = default;
@@ -216,28 +216,30 @@ namespace Moonshot
 	};
 
 	// Represents a reference to a member : a namespace's, an object's field, etc.
-	// expr is the expression that is being accessed, id_ is the identifier to search.
-	class ASTMemberAccessExpr : public IASTDeclRef
+	// expr is the expression that is being accessed, member_ is the declref to search.
+		// For semantic analysis of this, we first check the base, and see if it produces a type "castable" do ASTDeclContext, if true, we do Semantic Analysis of member_
+		// with the restricted context of the casted base_ result, if false, it's an error
+	class ASTMemberAccessExpr : public ASTDeclRef
 	{
 		public:
 			ASTMemberAccessExpr() = default;
-			ASTMemberAccessExpr(std::unique_ptr<ASTExpr> base, std::unique_ptr<IASTDeclRef> memb);
+			ASTMemberAccessExpr(std::unique_ptr<ASTExpr> base, std::unique_ptr<ASTDeclRef> memb);
 
 			void accept(IVisitor& vis) override;
 
 			ASTExpr* getBase();
-			IASTDeclRef* getMemberDeclRef() const;
+			ASTDeclRef* getMemberDeclRef() const;
 
 			void setBase(std::unique_ptr<ASTExpr> expr);
-			void setMemberDeclRef(std::unique_ptr<IASTDeclRef> memb);
+			void setMemberDeclRef(std::unique_ptr<ASTDeclRef> memb);
 		private:
 			// the expression that is being accessed
 			std::unique_ptr<ASTExpr> base_;
 			// the decl to search inside the expr
-			std::unique_ptr<IASTDeclRef> member_;
+			std::unique_ptr<ASTDeclRef> member_;
 	};
 
-	class ASTArrayAccess : public IASTDeclRef
+	class ASTArrayAccess : public ASTExpr
 	{
 		public:
 			ASTArrayAccess(std::unique_ptr<ASTExpr> expr, std::unique_ptr<ASTExpr> idxexpr);
@@ -283,7 +285,7 @@ namespace Moonshot
 	};
 
 	// Function calls
-	class ASTFunctionCallExpr : public IASTDeclRef
+	class ASTFunctionCallExpr : public ASTDeclRef
 	{
 		public:
 			ASTFunctionCallExpr() = default;

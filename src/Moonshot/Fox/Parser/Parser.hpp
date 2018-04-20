@@ -68,7 +68,7 @@ namespace Moonshot
 
 			// EXPRESSIONS
 			ParsingResult<ASTExpr*>		parseSuffix(std::unique_ptr<ASTExpr> &base);
-			ParsingResult<IASTDeclRef*> parseDeclCall(); 
+			ParsingResult<ASTDeclRef*> parseDeclCall(); 
 			ParsingResult<ASTExpr*> parsePrimitiveLiteral();
 			ParsingResult<ASTExpr*> parseArrayLiteral();
 			ParsingResult<ASTExpr*> parseLiteral();
