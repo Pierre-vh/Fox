@@ -151,14 +151,21 @@ void Dumper::visit(ASTArrayLiteralExpr & node)
 
 void Dumper::visit(ASTVarDecl & node)
 {
-	out_ << getIndent() << "VarDeclStmt : Name:" << node.getDeclName()->getStr() << " Type:" << node.getType().getString() << "\n";
-	if (node.hasInitExpr())
+	if (node.isValid())
 	{
-		curindent_ += 1;
-		out_ << getIndent() << "InitExpr\n";
-		curindent_ += 1;
-		node.getInitExpr()->accept(*this);
-		curindent_ -= 2;
+		out_ << getIndent() << "VarDeclStmt : Name:" << node.getDeclName()->getStr() << " Type:" << node.getType().getString() << "\n";
+		if (node.hasInitExpr())
+		{
+			curindent_ += 1;
+			out_ << getIndent() << "InitExpr\n";
+			curindent_ += 1;
+			node.getInitExpr()->accept(*this);
+			curindent_ -= 2;
+		}
+	}
+	else
+	{
+		out_ << getIndent() << "Invalid VarDeclStmt\n";
 	}
 }
 
@@ -236,17 +243,22 @@ void Dumper::visit(ASTArgDecl & node)
 
 void Dumper::visit(ASTFunctionDecl & node)
 {
-	out_ << getIndent() << "Function Declaration : Name:" << node.getDeclName()->getStr() << " Return type:" << node.getReturnType()->getString() << "\n";
-	curindent_ += 2;
+	if (node.isValid())
+	{
+		out_ << getIndent() << "FunctionDecl : Name:" << node.getDeclName()->getStr() << " Return type:" << node.getReturnType()->getString() << "\n";
+		curindent_ += 2;
 
-	for (auto it = node.args_begin(); it != node.args_end(); it++)
-		(*it)->accept(*this);
+		for (auto it = node.args_begin(); it != node.args_end(); it++)
+			(*it)->accept(*this);
 
-	curindent_ -= 1;
-	out_ << getIndent() << "Body:" << std::endl;
-	curindent_ += 1;
-	node.getBody()->accept(*this);
-	curindent_ -= 2;
+		curindent_ -= 1;
+		out_ << getIndent() << "Body:" << std::endl;
+		curindent_ += 1;
+		node.getBody()->accept(*this);
+		curindent_ -= 2;
+	}
+	else
+		out_ << getIndent() << "Invalid FunctionDecl\n";
 }
 
 void Dumper::visit(ASTReturnStmt & node)
