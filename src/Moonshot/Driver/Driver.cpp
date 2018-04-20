@@ -47,10 +47,10 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 	Parser psr(ctxt,astCtxt,lex.getTokenVector());
 	auto presult = psr.parseUnit();
 
+	out << ctxt.getLogs();
 	if (!presult)
 	{
-		out << "Failed at parsing. Logs:\n";
-		out << ctxt.getLogs();
+		out << "Failed at parsing.";
 		if (!presult) // no usable data? return now.
 		{
 			out << "Failed to parse unit.\n";
@@ -58,10 +58,8 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 		}
 	}
 	else
-	{
 		out << "Parsing successful!\n";
-		out << ctxt.getLogs();
-	}
+
 	
 	// set as main unit
 	astCtxt.setMainUnit(std::move(presult.unit));
