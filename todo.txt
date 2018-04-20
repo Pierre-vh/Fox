@@ -12,12 +12,17 @@ TODO:
 	> Add ASTContext,parser & ast support for arrays types & Array literals. (Done)
 	> Parser recovery improvements part 1(Done)
 	> Parser recovery improvements part 2 (Done)
+	> Parser recovery improvements part 3 : Reworked it entirely again! (Done)
 
-	> Test some typical recovery situations to try tuning the parser a bit (Next)
-	> DeclContext : ASTDecl abstract node wrapper around std::map<IdentifierInfo*,ASTDecl*> (Next)
+	> Do the ParsingResult "rework" & check how error recovery behaves in some situations. See Parser.hpp's header. (Next)
+
+
+	> DeclContext : ASTDecl abstract node wrapper around std::multimap<IdentifierInfo*,ASTDecl*> 
 		> Add it on nodes that need it (funcdecl,if/else/,loops,unit)
 		> Lookup system with "restrictedLookup" (only this declcontext) and "fullLookup" call upper declcontexts to lookup and add lookupresults
 		> For the lookup system, I'll need "LookupResult" class that wraps around an array of std::pair<IdentifierInfo*,IASTDecl*> for all matching decls.
+
+	> Parser support for DeclContext with a RAIIContext object. The parser needs to register every decl in the current declcontext ! (But linking DeclRefs to a decl is postponed until sema analysis)
 
 	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc.
 
