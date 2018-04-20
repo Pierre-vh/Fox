@@ -218,7 +218,7 @@ namespace Moonshot
 	// Represents a reference to a member : a namespace's, an object's field, etc.
 	// expr is the expression that is being accessed, member_ is the declref to search.
 		// For semantic analysis of this, we first check the base, and see if it produces a type "castable" do ASTDeclContext, if true, we do Semantic Analysis of member_
-		// with the restricted context of the casted base_ result, if false, it's an error
+		// with the "restricted" context of the casted base_ result, if false, it's an error (e.g. "Expression must be a namespace")
 	class ASTMemberAccessExpr : public ASTDeclRef
 	{
 		public:
