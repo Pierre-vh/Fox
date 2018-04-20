@@ -168,6 +168,10 @@ namespace Moonshot
 			bool isSign() const;
 			bool isKeyword() const;
 
+			bool is(const KeywordType &ty);
+			bool is(const SignType &ty);
+			bool is(const LiteralType& ty);
+
 			KeywordType getKeywordType() const;
 			SignType getSignType() const;
 			LiteralType getLiteralType() const;

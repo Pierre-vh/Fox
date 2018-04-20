@@ -225,6 +225,27 @@ bool Token::isKeyword() const
 	return std::holds_alternative<KeywordType>(tokenInfo_);
 }
 
+bool Token::is(const KeywordType & ty)
+{
+	if (isKeyword())
+		return getKeywordType() == ty;
+	return false;
+}
+
+bool Token::is(const SignType & ty)
+{
+	if (isSign())
+		return getSignType() == ty;
+	return false;
+}
+
+bool Token::is(const LiteralType & ty)
+{
+	if (isLiteral())
+		return getLiteralType() == ty;
+	return false;
+}
+
 KeywordType Token::getKeywordType() const
 {
 	if (isKeyword())
