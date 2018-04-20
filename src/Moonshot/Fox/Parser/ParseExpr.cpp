@@ -113,10 +113,14 @@ ParsingResult<IASTDeclRef*> Parser::parseDeclCall()
 ParsingResult<ASTExpr*> Parser::parsePrimitiveLiteral()
 {
 	// <primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
-	if (auto matchres = matchLiteral())
+	auto tok = getToken();
+	if (tok.isLiteral())
 	{
-		auto litinfo = matchres.result;
+		consumeToken();
+
+		auto litinfo = tok.getLiteralInfo();
 		std::unique_ptr<ASTExpr> expr = nullptr;
+
 		if (litinfo.isBool())
 			expr = std::make_unique<ASTBoolLiteralExpr>(litinfo.get<bool>());
 		else if (litinfo.isString())
@@ -351,8 +355,8 @@ ParsingResult<ASTExpr*> Parser::parseBinaryExpr(const char & priority)
 
 		if (rtr->getOp() == binaryOperator::DEFAULT) // if the node has still no operation set, set it
 			rtr->setOp(binop_res.result);
-		else // else, one up it 
-			rtr = oneUpNode(std::move(rtr), binop_res.result);
+		else 
+			rtr = std::make_unique<ASTBinaryExpr>(binop_res.result,std::move(rtr));
 
 		rtr->setRHS(std::move(rhs_res.result)); // Set second as the child of the node.
 	}
@@ -525,12 +529,6 @@ ParsingResult<ExprList*> Parser::parseParensExprList()
 	return ParsingResult<ExprList*>();
 }
 
-std::unique_ptr<ASTBinaryExpr> Parser::oneUpNode(std::unique_ptr<ASTBinaryExpr> node, const binaryOperator & op)
-{
-	auto newnode = std::make_unique<ASTBinaryExpr>(op,std::move(node));
-	return newnode;
-}
-
 bool Parser::matchExponentOp()
 {
 	auto backup = createParserStateBackup();
@@ -581,18 +579,20 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 		case 0: // * / %
 			if (matchSign(SignType::S_ASTERISK))
 			{
-				if (!peekSign(getCurrentPosition(),SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
+				if (!matchSign(SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
 					return ParsingResult<binaryOperator>(binaryOperator::MUL );
+				// else, we matched a *. No worries because at the end of the function
+				// we backtrack before returning.
 			}
-			if (matchSign(SignType::S_SLASH))
+			else if (matchSign(SignType::S_SLASH))
 				return ParsingResult<binaryOperator>(binaryOperator::DIV);
-			if (matchSign(SignType::S_PERCENT))
+			else if (matchSign(SignType::S_PERCENT))
 				return ParsingResult<binaryOperator>(binaryOperator::MOD);
 			break;
 		case 1: // + -
 			if (matchSign(SignType::S_PLUS))
 				return ParsingResult<binaryOperator>(binaryOperator::ADD );
-			if (matchSign(SignType::S_MINUS))
+			else if (matchSign(SignType::S_MINUS))
 				return ParsingResult<binaryOperator>(binaryOperator::MINUS);
 			break;
 		case 2: // > >= < <=
@@ -602,7 +602,7 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 					return ParsingResult<binaryOperator>(binaryOperator::LESS_OR_EQUAL );
 				return ParsingResult<binaryOperator>(binaryOperator::LESS_THAN );
 			}
-			if (matchSign(SignType::S_GREATER_THAN))
+			else if (matchSign(SignType::S_GREATER_THAN))
 			{
 				if (matchSign(SignType::S_EQUAL))
 					return ParsingResult<binaryOperator>(binaryOperator::GREATER_OR_EQUAL );
@@ -616,7 +616,7 @@ ParsingResult<binaryOperator> Parser::matchBinaryOp(const char & priority)
 				if (matchSign(SignType::S_EQUAL))
 					return ParsingResult<binaryOperator>(binaryOperator::EQUAL );
 			}
-			if (matchSign(SignType::S_EXCL_MARK))
+			else if (matchSign(SignType::S_EXCL_MARK))
 			{
 				if (matchSign(SignType::S_EQUAL))
 					return ParsingResult<binaryOperator>(binaryOperator::NOTEQUAL);

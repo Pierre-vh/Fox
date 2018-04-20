@@ -119,26 +119,12 @@ UnitParsingResult Parser::parseUnit()
 		return UnitParsingResult(std::move(unit));
 }
 
-ParsingResult<LiteralInfo> Parser::matchLiteral()
-{
-	Token t = getToken();
-	if (t.isLiteral())
-	{
-		incrementPosition();
-		if (auto litinfo = t.getLiteralInfo())
-			return ParsingResult<LiteralInfo>(litinfo);
-		else
-			throw std::exception("Returned an invalid litinfo when the token was a literal?");
-	}
-	return ParsingResult<LiteralInfo>();
-}
-
 IdentifierInfo* Parser::matchID()
 {
 	Token t = getToken();
 	if (t.isIdentifier())
 	{
-		incrementPosition();
+		consumeToken();
 
 		IdentifierInfo* ptr = t.getIdentifierInfo();;
 		assert(ptr && "Token's an identifier but contains a nullptr IdentifierInfo?");
@@ -149,9 +135,10 @@ IdentifierInfo* Parser::matchID()
 
 bool Parser::matchSign(const SignType & s)
 {
-	if (peekSign(getCurrentPosition(),s))
+	Token t = getToken();
+	if (t.isSign() && t.getSignType() == s)
 	{
-		incrementPosition();
+		consumeToken();
 		return true;
 	}
 	return false;
@@ -172,7 +159,7 @@ const Type* Parser::parseBuiltinTypename()
 {
 	// <builtin_type_name> 	= "int" | "float" | "bool" | "string" | "char"
 	Token t = getToken();
-	incrementPosition();
+	consumeToken();
 	if (t.isKeyword())
 	{
 		switch (t.getKeywordType())
@@ -184,7 +171,7 @@ const Type* Parser::parseBuiltinTypename()
 			case KeywordType::KW_BOOL:	return	astcontext_.getPrimitiveBoolType();
 		}
 	}
-	decrementPosition();
+	revertConsume();
 	return nullptr;
 }
 
@@ -221,20 +208,6 @@ std::pair<const Type*, bool> Parser::parseType()
 	return { nullptr, true };
 }
 
-bool Parser::peekSign(const std::size_t & idx, const SignType & sign) const
-{
-	if (auto tok = getToken(idx))
-		return tok.isSign() && (tok.getSignType() == sign);
-	return false;
-}
-
-bool Parser::peekKeyword(const std::size_t & idx, const KeywordType & kw) const
-{
-	if (auto tok = getToken(idx))
-		return tok.isKeyword() && (tok.getKeywordType() == kw);
-	return false;
-}
-
 Token Parser::getToken() const
 {
 	return getToken(parserState_.pos);
@@ -253,7 +226,7 @@ std::size_t Parser::getCurrentPosition() const
 	return parserState_.pos;
 }
 
-void Parser::incrementPosition()
+void Parser::consumeToken()
 {
 	parserState_.pos+=1;
 }
@@ -263,13 +236,13 @@ void Parser::setPosition(const std::size_t & pos)
 	parserState_.pos = pos;
 }
 
-void Parser::decrementPosition()
+void Parser::revertConsume()
 {
 	parserState_.pos-=1;
 }
 
 // Skips every token until the sign s,a semicolon, a free }, eof or a token marking the beginning of a statement is found.
-ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & consumeToken)
+ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & shouldConsumeToken)
 {
 	// Abort if recovery is forbidden
 	if (!parserState_.isRecoveryAllowed)
@@ -297,8 +270,8 @@ ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & co
 			auto signTy = tok.getSignType();
 			if (signTy == SignType::S_SEMICOLON)
 			{
-				if (isRequestingSemi && consumeToken) 
-					incrementPosition();
+				if (isRequestingSemi && shouldConsumeToken)
+					consumeToken();
 				// if the user is requesting a semicolon and we match one, it's a success (true,true)
 				// if the user isn't requesting to match a semi, that's considered a failure (false,false)
 				return ResyncResult(isRequestingSemi, isRequestingSemi);
@@ -319,8 +292,8 @@ ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & co
 					counter--;
 				else
 				{
-					if (consumeToken) 
-						incrementPosition();
+					if (shouldConsumeToken)
+						consumeToken();
 					return ResyncResult(true, true);
 				}
 			}	
@@ -333,7 +306,7 @@ ResyncResult Parser::resyncToSignInStatement(const SignType & s, const bool & co
 }
 
 //Skips every token until the sign s, a free }, "func" or eof is found.
-ResyncResult Parser::resyncToSignInFunction(const SignType & s, const bool & consumeToken)
+ResyncResult Parser::resyncToSignInFunction(const SignType & s, const bool & shouldConsumeToken)
 {
 	// Abort if recovery is forbidden
 	if (!parserState_.isRecoveryAllowed)
@@ -369,8 +342,8 @@ ResyncResult Parser::resyncToSignInFunction(const SignType & s, const bool & con
 						counter--;
 					else
 					{
-						if (consumeToken)
-							incrementPosition();
+						if (shouldConsumeToken)
+							consumeToken();
 						return ResyncResult(true, true);
 					}
 				}
@@ -385,8 +358,8 @@ ResyncResult Parser::resyncToSignInFunction(const SignType & s, const bool & con
 						counter--;
 					else
 					{
-						if (consumeToken)
-							incrementPosition();
+						if (shouldConsumeToken)
+							consumeToken();
 						return ResyncResult(true, true);
 					}
 				}
@@ -408,7 +381,7 @@ ResyncResult Parser::resyncToNextDeclKeyword()
 		if (matchKeyword(KeywordType::KW_FUNC) || matchKeyword(KeywordType::KW_LET))
 		{
 			// Decrement, so we reverse the token consuming and make the let/func available to be picked up by parseDecl
-			decrementPosition();
+			revertConsume();
 			return ResyncResult(true,true);
 		}
 	}

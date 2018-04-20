@@ -107,7 +107,8 @@ ParsingResult<ASTStmt*> Parser::parseCondition()
 			rtr->setThen(std::move(ifStmtRes.result));
 		else
 		{
-			if (peekKeyword(getCurrentPosition(), KeywordType::KW_ELSE)) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
+			auto tok = getToken();
+			if (tok.isKeyword() && tok.getKeywordType() == KeywordType::KW_ELSE) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
 				rtr->setThen(std::make_unique<ASTNullExpr>());
 			else
 			{
