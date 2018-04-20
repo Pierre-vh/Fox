@@ -10,7 +10,10 @@
 //															
 // The grammar can be found in	/doc/																		
 //
-// Status: Up to date with latest grammar changes, but isn't finished yet.
+// Note :	I've dug a lot into CLang's parser to try and see how to handle complex cases with elegance,
+//			so some stuff you'll see here looks a lot like clang's parser, simplified of course.
+// 
+// Status: Up to date with latest grammar changes, except import/using rules that aren't implemented yet.
 //
 //		Potential Areas of improvement
 //			Recovery Efficiency
@@ -21,6 +24,9 @@
 // 
 //		Next modifications planned
 //			Add better error recovey with common cases support in if/while parsing & function declaration
+//
+//			Remove match methods, and instead use consume methods that work everywhere. There's just no need to split token consumeToken and match functions.
+//			just add a consumeAny() to skip a token.
 //
 //			Remove the ParsingResult's functionality of automatically using a unique_ptr when DataTy is a pointer type. This is confusing and makes it impossible to use raw pointers in a parsing result.
 //			Instead:
