@@ -112,19 +112,4 @@ namespace Moonshot
 			// the parsed unit
 			std::unique_ptr<ASTUnit> unit;
 	};
-
-	// Resync results
-	class ResyncResult
-	{
-		public:
-			// First parameter is true/false for if recovery succeeded, second is for if it has recovered on the requested token.
-			ResyncResult(const bool& succeeded, const bool& onRequestedToken = false);
-
-			operator bool();
-			bool hasRecovered() const;
-			bool hasRecoveredOnRequestedToken() const;
-		private:
-			bool resynced_ : 1;
-			bool resyncedOnRequestedToken_ : 1;
-	};
 }
