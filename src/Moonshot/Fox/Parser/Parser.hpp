@@ -23,11 +23,9 @@
 //				> Not for now. I'm going to make it work, make it right, then (maybe) make it fast. 
 // 
 //		Parser "to-do" list. Important stuff is marked with (*)
-//
-//			(*) /!\ There's a bug that makes the recovery unable to match the requested token if it's after a bracket. e.g. if the parser tries to recover to the semi at the end of this : "let x : int[] = [];" it just won't work.
-//			review how the resync function works and fix this. I'll probably need to have different "skipToken" (the actual consumeAny) and consumeAny will consume by dispatching to the appropriate function.
-//			also, my current for loop is a bit weird, I should double check that.
 //		
+//			Rewrite "resyncToNextDecl" based on resyncToSign 
+//
 //			Add better error recovey with common cases support in if/while parsing & function declaration
 //
 //			Rethink the ParserState system : it works kinda well, but it's a bit verbose to access, isn't it?
@@ -144,9 +142,12 @@ namespace Moonshot
 			// Consumes a keyword. Returns false if the keyword was not found.
 			bool consumeKeyword(const KeywordType& k);
 
-			// Skips 1 token (increments the iterator)
+			// Dispatch to the appriate consume method
 			void consumeAny();		
-		
+
+			// Skips one token
+			void skipToken();
+
 			// Revert the last consume operation (decrements the iterator)
 			void revertConsume();	
 

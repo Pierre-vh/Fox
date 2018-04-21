@@ -115,7 +115,7 @@ IdentifierInfo* Parser::consumeIdentifier()
 	{
 		IdentifierInfo* ptr = tok.getIdentifierInfo();
 		assert(ptr && "Token's an identifier but contains a nullptr IdentifierInfo?");
-		consumeAny();
+		skipToken();
 		return ptr;
 	}
 	return nullptr;
@@ -126,7 +126,7 @@ bool Parser::consumeSign(const SignType & s)
 	assert(!isBracket(s) && "This method shouldn't be used to match brackets ! Use consumeBracket instead!");
 	if (getCurtok().is(s))
 	{
-		consumeAny();
+		skipToken();
 		return true;
 	}
 	return false;
@@ -172,7 +172,7 @@ bool Parser::consumeBracket(const SignType & s)
 			default:
 				throw std::exception("Unknown bracket type"); // Should be unreachable.
 		}
-		consumeAny();
+		skipToken();
 		return true;
 	}
 	return false;
@@ -182,7 +182,7 @@ bool Parser::consumeKeyword(const KeywordType & k)
 {
 	if (getCurtok().is(k))
 	{
-		consumeAny();
+		skipToken();
 		return true;
 	}
 	return false;
@@ -190,7 +190,19 @@ bool Parser::consumeKeyword(const KeywordType & k)
 
 void Parser::consumeAny()
 {
-	if(state_.tokenIterator != tokens_.end())
+	Token tok = getCurtok();
+	if (tok.isSign() && isBracket(tok.getSignType()))
+		consumeBracket(tok.getSignType());
+	else
+	{
+		// In all other cases, we can just skip the token, since there's no particular thing to do for other token types.
+		skipToken();
+	}
+}
+
+void Parser::skipToken()
+{
+	if (state_.tokenIterator != tokens_.end())
 		state_.tokenIterator++;
 }
 
@@ -222,7 +234,7 @@ const Type* Parser::parseBuiltinTypename()
 	Token t = getCurtok();
 	if (t.isKeyword())
 	{
-		consumeAny();
+		skipToken();
 		switch (t.getKeywordType())
 		{
 			case KeywordType::KW_INT:	return  astcontext_.getPrimitiveIntType();
@@ -296,7 +308,7 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 	// Always skip the first token if it's not in signs
 	bool isFirst = true;
 	// Keep going until we reach EOF.
-	for(;!isDone();consumeAny())
+	while(!isDone())
 	{
 		// Check curtok
 		auto tok = getCurtok();
@@ -305,20 +317,15 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 			if (tok.is(*it))
 			{
 				if (shouldConsumeToken)
-				{
-					// if it's a bracket, pay attention to it!
-					if (isBracket(*it))
-						consumeBracket(*it);
-					else
-						consumeAny();
-				}
+					consumeAny();
 				return true;
 			}
 		}
-		// Check isFirst
+		// If it's the first token and it's not in T, skip it.
 		if (isFirst)
 		{
 			isFirst = false;
+			consumeAny();
 			continue;
 		}
 
@@ -327,12 +334,10 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 		{
 			switch (tok.getSignType())
 			{
-				// I think the problem is here: when I loop again, I "skip" the semicolon we're looking for!
-
-				// If we find a '(', '{' or '[', call this function recursively to match it's counterpart
+					// If we find a '(', '{' or '[', call this function recursively to skip to it's counterpart.
 				case SignType::S_CURLY_OPEN:
 					consumeBracket(SignType::S_CURLY_OPEN);
-					resyncToSign(SignType::S_CURLY_CLOSE,false, true);
+					resyncToSign(SignType::S_CURLY_CLOSE, false, true);
 					break;
 				case SignType::S_SQ_OPEN:
 					consumeBracket(SignType::S_SQ_OPEN);
@@ -342,9 +347,9 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 					consumeBracket(SignType::S_ROUND_OPEN);
 					resyncToSign(SignType::S_ROUND_CLOSE, false, true);
 					break;
-				// If we find a ')', '}' or ']' we  :
-					// Check if it belongs to a unmatched counterpart, if so, stop resync attempt.
-					// If it doesn't have an opening counterpart skip it.
+					// If we find a ')', '}' or ']' we  :
+						// Check if it belongs to a unmatched counterpart, if so, stop resync attempt.
+						// If it doesn't have an opening counterpart, skip it.
 				case SignType::S_CURLY_CLOSE:
 					if (state_.curlyBracketsCount)
 						return false;
@@ -363,9 +368,14 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 				case SignType::S_SEMICOLON:
 					if (stopAtSemi)
 						return false;
+					// Intentional fallthrough
+				default:
+					consumeAny();
 					break;
 			}
-		}
+		} // (tok.isSign())
+		else 
+			consumeAny();
 	}
 	// If reached eof, die & return false.
 	die();

@@ -116,7 +116,7 @@ ParseRes<ASTExpr*> Parser::parsePrimitiveLiteral()
 	auto tok = getCurtok();
 	if (tok.isLiteral())
 	{
-		consumeAny();
+		skipToken();
 
 		auto litinfo = tok.getLiteralInfo();
 		std::unique_ptr<ASTExpr> expr = nullptr;
