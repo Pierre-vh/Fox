@@ -44,7 +44,7 @@ ParseRes<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandator
 			{
 				// if not found, report an error
 				if (parseres.wasSuccessful())
-					errorExpected("Expected a Statement!");
+					errorExpected("Expected a Statement");
 				// In both case, attempt recovery to nearest semicolon.
 				if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi -> meaningless here*/ false, /*shouldConsumeToken*/ true))
 				{
@@ -53,7 +53,7 @@ ParseRes<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandator
 				}
 				else
 				{
-					// Recovery might have stopped for 3 reasons (in order of likelihood), the first is that it found a unmatched }, which is ours.
+					// Recovery might have stopped for 2 reasons, the first is that it found a unmatched }, which is ours.
 					if (consumeBracket(SignType::S_CURLY_CLOSE))
 					{
 						hasMatchedCurlyClose = true;
@@ -148,15 +148,16 @@ ParseRes<ASTStmt*> Parser::parseCondition()
 			rtr->setThen(std::move(ifStmtRes.result));
 		else
 		{
-			auto tok = getCurtok();
-			if (tok.isKeyword() && tok.getKeywordType() == KeywordType::KW_ELSE) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
-				rtr->setThen(std::make_unique<ASTNullExpr>());
-			else
+			if (ifStmtRes.wasSuccessful())
+				errorExpected("Expected a statement after if condition,");
+
+			if (consumeKeyword(KeywordType::KW_ELSE)) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
 			{
-				if (ifStmtRes.wasSuccessful())
-					errorExpected("Expected a statement after if condition,");
-				return ParseRes<ASTStmt*>(false);
+				revertConsume();
+				rtr->setThen(std::make_unique<ASTNullExpr>());
 			}
+			else
+				return ParseRes<ASTStmt*>(false);
 		}
 		has_if = true;
 	}
