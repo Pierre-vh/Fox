@@ -105,7 +105,7 @@ void Parser::setupParser()
 {
 	// Setup iterators
 	state_.tokenIterator = tokens_.begin();
-	lastUnexpectedTokenIt_ = tokens_.begin();
+	state_.lastUnexpectedTokenIt = tokens_.begin();
 }
 
 IdentifierInfo* Parser::consumeIdentifier()
@@ -267,8 +267,16 @@ std::pair<const Type*, bool> Parser::parseType()
 
 Token Parser::getCurtok() const
 {
-	if (!isDone())
-		return *(state_.tokenIterator);
+	if (state_.tokenIterator != tokens_.end())
+		return *state_.tokenIterator;
+	return Token();
+}
+
+Token Parser::getPreviousToken() const
+{
+	auto it = state_.tokenIterator;
+	if (it != tokens_.begin())
+		return *(--it);
 	return Token();
 }
 
@@ -319,14 +327,19 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 		{
 			switch (tok.getSignType())
 			{
+				// I think the problem is here: when I loop again, I "skip" the semicolon we're looking for!
+
 				// If we find a '(', '{' or '[', call this function recursively to match it's counterpart
 				case SignType::S_CURLY_OPEN:
-					resyncToSign(SignType::S_CURLY_CLOSE, false, true);
+					consumeBracket(SignType::S_CURLY_OPEN);
+					resyncToSign(SignType::S_CURLY_CLOSE,false, true);
 					break;
 				case SignType::S_SQ_OPEN:
+					consumeBracket(SignType::S_SQ_OPEN);
 					resyncToSign(SignType::S_SQ_CLOSE, false, true);
 					break;
 				case SignType::S_ROUND_OPEN:
+					consumeBracket(SignType::S_ROUND_OPEN);
 					resyncToSign(SignType::S_ROUND_CLOSE, false, true);
 					break;
 				// If we find a ')', '}' or ']' we  :
@@ -383,16 +396,22 @@ bool Parser::resyncToNextDecl()
 		{
 			switch (tok.getSignType())
 			{
-				// If we find a '(', '{' or '[', call resyncToSign to match it's counterpart
+
+				// If we find a '(', '{' or '[', call this function recursively to match it's counterpart
 				case SignType::S_CURLY_OPEN:
+					consumeBracket(SignType::S_CURLY_OPEN);
 					resyncToSign(SignType::S_CURLY_CLOSE, false, true);
 					break;
 				case SignType::S_SQ_OPEN:
+					consumeBracket(SignType::S_SQ_OPEN);
 					resyncToSign(SignType::S_SQ_CLOSE, false, true);
 					break;
 				case SignType::S_ROUND_OPEN:
+					consumeBracket(SignType::S_ROUND_OPEN);
 					resyncToSign(SignType::S_ROUND_CLOSE, false, true);
 					break;
+				// note: this piece of code below might be useless
+
 				// If we find a ')', '}' or ']' we match (consume) it.
 				case SignType::S_CURLY_CLOSE:
 					consumeBracket(SignType::S_CURLY_CLOSE);
@@ -414,7 +433,7 @@ bool Parser::resyncToNextDecl()
 void Parser::die()
 {
 	if(context_.flagsManager.isSet(FlagID::parser_showRecoveryMessages))
-		genericError("Couldn't recover from error, stopping parsing.");
+		genericError("Couldn't recover from errors, stopping parsing.");
 
 	state_.tokenIterator = tokens_.end();
 	state_.isAlive = false;
@@ -423,6 +442,9 @@ void Parser::die()
 void Parser::errorUnexpected()
 {
 	if (!state_.isAlive) return;
+	if (isLastUnexpectedToken(state_.tokenIterator)) return;
+
+	markAsLastUnexpectedToken(state_.lastUnexpectedTokenIt);
 
 	context_.setOrigin("Parser");
 
@@ -440,22 +462,23 @@ void Parser::errorExpected(const std::string & s)
 {
 	if (!state_.isAlive) return;
 
-	TokenIteratorTy lastTokenIter = state_.tokenIterator;
-	if (lastTokenIter != tokens_.begin())
-		lastTokenIter--;
+	// Print "unexpected token" error.
+	errorUnexpected();
 
-	// If needed, print unexpected error message
-	if (lastUnexpectedTokenIt_ != state_.tokenIterator)
-	{
-		lastUnexpectedTokenIt_ = state_.tokenIterator;
-		errorUnexpected();
-	}
-
+	// set error origin
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
 	
-	output << s << " after \"" << lastTokenIter->getAsString() << "\" at line " << lastTokenIter->getPosition().line;
+	if (auto prevtok = getPreviousToken())
+		output << s << " after \"" << prevtok.getAsString() << "\" at line " << prevtok.getPosition().line;
+	else
+	{
+		// We expect a token as first token (?!), print a "before token" error instead of "after" 
+		auto tok = getCurtok();
+		assert(tok && "Both getPreviousToken() and getCurtok() return invalid tokens?");
+		output << s << " before \"" << tok.getAsString() << "\" at line " << tok.getPosition().line;
+	}
 
 	context_.reportError(output.str());
 	context_.resetOrigin();
@@ -470,9 +493,19 @@ void Parser::genericError(const std::string & s)
 	context_.resetOrigin();
 }
 
+bool Parser::isLastUnexpectedToken(TokenIteratorTy it) const
+{
+	return (it == state_.lastUnexpectedTokenIt);
+}
+
+void Parser::markAsLastUnexpectedToken(TokenIteratorTy it)
+{
+	state_.lastUnexpectedTokenIt = it;
+}
+
 bool Parser::isDone() const
 {
-	return (state_.tokenIterator == tokens_.end());
+	return (state_.tokenIterator == tokens_.end()) || (!isAlive());
 }
 
 bool Parser::isAlive() const

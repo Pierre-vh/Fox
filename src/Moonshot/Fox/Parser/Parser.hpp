@@ -23,9 +23,14 @@
 //				> Not for now. I'm going to make it work, make it right, then (maybe) make it fast. 
 // 
 //		Parser "to-do" list. Important stuff is marked with (*)
+//
+//			(*) /!\ There's a bug that makes the recovery unable to match the requested token if it's after a bracket. e.g. if the parser tries to recover to the semi at the end of this : "let x : int[] = [];" it just won't work.
+//			review how the resync function works and fix this. I'll probably need to have different "skipToken" (the actual consumeAny) and consumeAny will consume by dispatching to the appropriate function.
+//			also, my current for loop is a bit weird, I should double check that.
+//		
 //			Add better error recovey with common cases support in if/while parsing & function declaration
 //
-//			(*) Review a bit the ParserState system, because right now accessing anything in it is pretty verbose. Maybe drop the trailing _ and just use "state" as the variable name?
+//			Rethink the ParserState system : it works kinda well, but it's a bit verbose to access, isn't it?
 //
 //			(*) Review the code that manipulates iterator to check that they verify boudaries correctly, and that iterators aren't mishandled anywhere.
 //			
@@ -149,6 +154,7 @@ namespace Moonshot
 			bool isBracket(const SignType& s) const;
 
 			Token getCurtok() const;
+			Token getPreviousToken() const;
 			
 			/*-------------- Error Recovery --------------*/
 			bool resyncToSign(const SignType& sign, const bool& stopAtSemi, const bool& shouldConsumeToken);
@@ -160,19 +166,27 @@ namespace Moonshot
 			void errorExpected(const std::string &s);
 			void genericError(const std::string &s); 
 
-			// This variable keeps track of the latest token that was the target of "errorUnexpected" to 
-			// avoid printing multiple "unexpected" errors for the same token.
-			TokenIteratorTy lastUnexpectedTokenIt_;
+			// Returns (it == state_.lastUnexpectedTokenIt)
+			bool isLastUnexpectedToken(TokenIteratorTy it) const;
+			// Sets state_.lastUnexpectedTokenIt
+			void markAsLastUnexpectedToken(TokenIteratorTy it);
 
 			/*-------------- Parser State --------------*/
 			struct ParserState
 			{
 				ParserState();
 
+				// The current token
 				TokenIteratorTy tokenIterator;
-				bool isAlive : 1;
+
+				// The last token that was the target of the "unexpected token" error.
+				// This is saved to avoid printing the "unexpected token x" multiple time for the same token.
+				TokenIteratorTy lastUnexpectedTokenIt;
+
+				bool isAlive : 1;				// This is set to false when the parser dies (gives up)
 				bool isRecoveryAllowed : 1;
 			
+				// Brackets counters
 				uint8_t curlyBracketsCount  = 0;
 				uint8_t roundBracketsCount  = 0;
 				uint8_t squareBracketsCount	= 0;
