@@ -83,14 +83,14 @@ UnitParsingResult Parser::parseUnit()
 
 	}
 
-	if (parserState_.curlyBracketsCount)
-		genericError(std::to_string(parserState_.curlyBracketsCount) + " '}' still missing after parsing this unit.");
+	if (state_.curlyBracketsCount)
+		genericError(std::to_string(state_.curlyBracketsCount) + " '}' still missing after parsing this unit.");
 
-	if (parserState_.roundBracketsCount)
-		genericError(std::to_string(parserState_.roundBracketsCount) + " ')' still missing after parsing this unit.");
+	if (state_.roundBracketsCount)
+		genericError(std::to_string(state_.roundBracketsCount) + " ')' still missing after parsing this unit.");
 
-	if (parserState_.squareBracketsCount)
-		genericError(std::to_string(parserState_.squareBracketsCount) + " ']' still missing after parsing this unit.");
+	if (state_.squareBracketsCount)
+		genericError(std::to_string(state_.squareBracketsCount) + " ']' still missing after parsing this unit.");
 
 	if (unit->getDeclCount() == 0)
 	{
@@ -105,7 +105,7 @@ UnitParsingResult Parser::parseUnit()
 
 void Parser::setupParser()
 {
-	parserState_.tokenIterator = tokens_.begin();
+	state_.tokenIterator = tokens_.begin();
 	lastUnexpectedTokenIt_ = tokens_.begin();
 }
 
@@ -145,34 +145,34 @@ bool Parser::consumeBracket(const SignType & s)
 		switch (s)
 		{
 			case SignType::S_CURLY_OPEN:
-				if (parserState_.curlyBracketsCount < kMaxBraceDepth)
-					parserState_.curlyBracketsCount++;
+				if (state_.curlyBracketsCount < kMaxBraceDepth)
+					state_.curlyBracketsCount++;
 				else
 					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_CURLY_CLOSE:
-				if (parserState_.curlyBracketsCount)		// Don't let unbalanced parentheses create an underflow.
-					parserState_.curlyBracketsCount--;
+				if (state_.curlyBracketsCount)		// Don't let unbalanced parentheses create an underflow.
+					state_.curlyBracketsCount--;
 				break;
 			case SignType::S_SQ_OPEN:
-				if (parserState_.squareBracketsCount < kMaxBraceDepth)
-					parserState_.squareBracketsCount++;
+				if (state_.squareBracketsCount < kMaxBraceDepth)
+					state_.squareBracketsCount++;
 				else
 					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_SQ_CLOSE:
-				if (parserState_.squareBracketsCount)		// Don't let unbalanced parentheses create an underflow.
-					parserState_.squareBracketsCount--;
+				if (state_.squareBracketsCount)		// Don't let unbalanced parentheses create an underflow.
+					state_.squareBracketsCount--;
 				break;
 			case SignType::S_ROUND_OPEN:
-				if (parserState_.roundBracketsCount < kMaxBraceDepth)
-					parserState_.roundBracketsCount++;
+				if (state_.roundBracketsCount < kMaxBraceDepth)
+					state_.roundBracketsCount++;
 				else
 					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_ROUND_CLOSE:
-				if (parserState_.roundBracketsCount)		// Don't let unbalanced parentheses create an underflow.
-					parserState_.roundBracketsCount--;
+				if (state_.roundBracketsCount)		// Don't let unbalanced parentheses create an underflow.
+					state_.roundBracketsCount--;
 				break;
 			default:
 				throw std::exception("Unknown bracket type"); // Should be unreachable.
@@ -195,14 +195,14 @@ bool Parser::consumeKeyword(const KeywordType & k)
 
 void Parser::consumeAny(char n)
 {
-	for (; (n > 0) && (parserState_.tokenIterator != tokens_.end());n--)
-		parserState_.tokenIterator++;
+	for (; (n > 0) && (state_.tokenIterator != tokens_.end());n--)
+		state_.tokenIterator++;
 }
 
 void Parser::revertConsume(char n)
 {
-	for (; (n > 0) && (parserState_.tokenIterator != tokens_.begin()); n--)
-		parserState_.tokenIterator--;
+	for (; (n > 0) && (state_.tokenIterator != tokens_.begin()); n--)
+		state_.tokenIterator--;
 }
 
 bool Parser::isBracket(const SignType & s) const
@@ -273,7 +273,7 @@ std::pair<const Type*, bool> Parser::parseType()
 Token& Parser::getCurtok()
 {
 	if (!isDone())
-		return *(parserState_.tokenIterator);
+		return *(state_.tokenIterator);
 	return nullTok_;
 }
 
@@ -287,7 +287,7 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 	// Note, this function is heavily based on CLang's http://clang.llvm.org/doxygen/Parse_2Parser_8cpp_source.html#l00245
 
 	// Return immediately if recovery is not allowed
-	if (!parserState_.isRecoveryAllowed)
+	if (!state_.isRecoveryAllowed)
 		return false;
 
 	// Always skip the first token if it's not in signs
@@ -338,17 +338,17 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 					// Check if it belongs to a unmatched counterpart, if so, stop resync attempt.
 					// If it doesn't have an opening counterpart skip it.
 				case SignType::S_CURLY_CLOSE:
-					if (parserState_.curlyBracketsCount)
+					if (state_.curlyBracketsCount)
 						return false;
 					consumeBracket(SignType::S_CURLY_CLOSE);
 					break;
 				case SignType::S_SQ_CLOSE:
-					if (parserState_.squareBracketsCount)
+					if (state_.squareBracketsCount)
 						return false;
 					consumeBracket(SignType::S_SQ_CLOSE);
 					break;
 				case SignType::S_ROUND_CLOSE:
-					if (parserState_.roundBracketsCount)
+					if (state_.roundBracketsCount)
 						return false;
 					consumeBracket(SignType::S_ROUND_CLOSE);
 					break;
@@ -369,7 +369,7 @@ bool Parser::resyncToNextDecl()
 	// This method skips everything until it finds a "let" or a "func".
 
 	// Return immediately if recovery is not allowed
-	if (!parserState_.isRecoveryAllowed)
+	if (!state_.isRecoveryAllowed)
 		return false;
 
 	// Keep on going until we find a "func" or "let"
@@ -421,13 +421,13 @@ void Parser::die()
 	if(context_.flagsManager.isSet(FlagID::parser_showRecoveryMessages))
 		genericError("Couldn't recover from error, stopping parsing.");
 
-	parserState_.tokenIterator = tokens_.end();
-	parserState_.isAlive = false;
+	state_.tokenIterator = tokens_.end();
+	state_.isAlive = false;
 }
 
 void Parser::errorUnexpected()
 {
-	if (!parserState_.isAlive) return;
+	if (!state_.isAlive) return;
 
 	context_.setOrigin("Parser");
 
@@ -443,16 +443,16 @@ void Parser::errorUnexpected()
 
 void Parser::errorExpected(const std::string & s)
 {
-	if (!parserState_.isAlive) return;
+	if (!state_.isAlive) return;
 
-	TokenIteratorTy lastTokenIter = parserState_.tokenIterator;
+	TokenIteratorTy lastTokenIter = state_.tokenIterator;
 	if (lastTokenIter != tokens_.begin())
 		lastTokenIter--;
 
 	// If needed, print unexpected error message
-	if (lastUnexpectedTokenIt_ != parserState_.tokenIterator)
+	if (lastUnexpectedTokenIt_ != state_.tokenIterator)
 	{
-		lastUnexpectedTokenIt_ = parserState_.tokenIterator;
+		lastUnexpectedTokenIt_ = state_.tokenIterator;
 		errorUnexpected();
 	}
 
@@ -468,7 +468,7 @@ void Parser::errorExpected(const std::string & s)
 
 void Parser::genericError(const std::string & s)
 {
-	if (!parserState_.isAlive) return;
+	if (!state_.isAlive) return;
 
 	context_.setOrigin("Parser");
 	context_.reportError(s);
@@ -477,22 +477,22 @@ void Parser::genericError(const std::string & s)
 
 bool Parser::isDone() const
 {
-	return (parserState_.tokenIterator == tokens_.end());
+	return (state_.tokenIterator == tokens_.end());
 }
 
 bool Parser::isAlive() const
 {
-	return parserState_.isAlive;
+	return state_.isAlive;
 }
 
 Parser::ParserState Parser::createParserStateBackup() const
 {
-	return parserState_;
+	return state_;
 }
 
 void Parser::restoreParserStateFromBackup(const Parser::ParserState & st)
 {
-	parserState_ = st;
+	state_ = st;
 }
 
 // ParserState
@@ -504,13 +504,13 @@ Parser::ParserState::ParserState() : isAlive(true), isRecoveryAllowed(false)
 // RAIIRecoveryManager
 Parser::RAIIRecoveryManager::RAIIRecoveryManager(Parser &parser, const bool & allowsRecovery) : parser_(parser)
 {
-	recoveryAllowedBackup_ = parser_.parserState_.isRecoveryAllowed;
-	parser_.parserState_.isRecoveryAllowed = allowsRecovery;
+	recoveryAllowedBackup_ = parser_.state_.isRecoveryAllowed;
+	parser_.state_.isRecoveryAllowed = allowsRecovery;
 }
 
 Parser::RAIIRecoveryManager::~RAIIRecoveryManager()
 {
-	parser_.parserState_.isRecoveryAllowed = recoveryAllowedBackup_;
+	parser_.state_.isRecoveryAllowed = recoveryAllowedBackup_;
 }
 
 Parser::RAIIRecoveryManager Parser::createRecoveryEnabler()

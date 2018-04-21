@@ -175,22 +175,22 @@ namespace Moonshot
 				uint8_t curlyBracketsCount  = 0;
 				uint8_t roundBracketsCount  = 0;
 				uint8_t squareBracketsCount	= 0;
-			} parserState_;
+			} state_;
 
-			// Interrogate parserState_
+			// Interrogate state_
 			bool isDone() const;
 			bool isAlive() const;
 			void die();
 
-			// Backup parserState_
+			// Backup state_
 			ParserState createParserStateBackup() const;
 			void restoreParserStateFromBackup(const ParserState& st);
 
 
 			/*-------------- RAIIRecoveryManager --------------*/
 				// This class manages the recovery of the parser
-				// The constructor makes a backup of the parser instance's parserState_.isRecoveryAllowed variable, and replaces parserState_.isRecoveryAllowed with the value desired.
-				// The constructor restores the parserState_.isRecoveryAllowed variable to it's original value using the backup.
+				// The constructor makes a backup of the parser instance's state_.isRecoveryAllowed variable, and replaces state_.isRecoveryAllowed with the value desired.
+				// The constructor restores the state_.isRecoveryAllowed variable to it's original value using the backup.
 			class RAIIRecoveryManager
 			{
 				public:
