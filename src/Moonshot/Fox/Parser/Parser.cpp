@@ -22,7 +22,7 @@ using namespace Moonshot;
 
 Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l) : context_(c), astcontext_(astctxt), tokens_(l)
 {
-
+	setupParser();
 }
 
 UnitParsingResult Parser::parseUnit()
@@ -51,7 +51,7 @@ UnitParsingResult Parser::parseUnit()
 		else
 		{
 			// Parsing was successful & EOF -> Job's done !
-			if (hasReachedEndOfTokenStream())
+			if (isDone())
 				break;
 			// No EOF? There's an unexpected token on the way, report it & recover!
 			else
@@ -103,12 +103,18 @@ UnitParsingResult Parser::parseUnit()
 		return UnitParsingResult(std::move(unit));
 }
 
-IdentifierInfo* Parser::matchID()
+void Parser::setupParser()
 {
-	Token t = getToken();
+	parserState_.tokenIterator = tokens_.begin();
+	lastUnexpectedTokenIt_ = tokens_.begin();
+}
+
+IdentifierInfo* Parser::consumeIdentifier()
+{
+	Token t = getCurtok();
 	if (t.isIdentifier())
 	{
-		consumeToken();
+		consumeAny();
 
 		IdentifierInfo* ptr = t.getIdentifierInfo();;
 		assert(ptr && "Token's an identifier but contains a nullptr IdentifierInfo?");
@@ -117,21 +123,21 @@ IdentifierInfo* Parser::matchID()
 	return nullptr;
 }
 
-bool Parser::matchSign(const SignType & s)
+bool Parser::consumeSign(const SignType & s)
 {
-	assert(!isBracket(s) && "This method shouldn't be used to match brackets ! Use matchBracket instead!");
-	if (getToken().is(s))
+	assert(!isBracket(s) && "This method shouldn't be used to match brackets ! Use consumeBracket instead!");
+	if (getCurtok().is(s))
 	{
-		consumeToken();
+		consumeAny();
 		return true;
 	}
 	return false;
 }
 
-bool Parser::matchBracket(const SignType & s)
+bool Parser::consumeBracket(const SignType & s)
 {
-	assert(isBracket(s) && "This method should only be used on brackets ! Use matchSign to match instead!");
-	auto tok = getToken();
+	assert(isBracket(s) && "This method should only be used on brackets ! Use consumeSign to match instead!");
+	auto tok = getCurtok();
 	if (tok.isSign())
 	{
 		if (!tok.is(s))
@@ -139,21 +145,30 @@ bool Parser::matchBracket(const SignType & s)
 		switch (s)
 		{
 			case SignType::S_CURLY_OPEN:
-				parserState_.curlyBracketsCount++;
+				if (parserState_.curlyBracketsCount < kMaxBraceDepth)
+					parserState_.curlyBracketsCount++;
+				else
+					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_CURLY_CLOSE:
 				if (parserState_.curlyBracketsCount)		// Don't let unbalanced parentheses create an underflow.
 					parserState_.curlyBracketsCount--;
 				break;
 			case SignType::S_SQ_OPEN:
-				parserState_.squareBracketsCount++;
+				if (parserState_.squareBracketsCount < kMaxBraceDepth)
+					parserState_.squareBracketsCount++;
+				else
+					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_SQ_CLOSE:
 				if (parserState_.squareBracketsCount)		// Don't let unbalanced parentheses create an underflow.
 					parserState_.squareBracketsCount--;
 				break;
 			case SignType::S_ROUND_OPEN:
-				parserState_.roundBracketsCount++;
+				if (parserState_.roundBracketsCount < kMaxBraceDepth)
+					parserState_.roundBracketsCount++;
+				else
+					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_ROUND_CLOSE:
 				if (parserState_.roundBracketsCount)		// Don't let unbalanced parentheses create an underflow.
@@ -162,20 +177,32 @@ bool Parser::matchBracket(const SignType & s)
 			default:
 				throw std::exception("Unknown bracket type"); // Should be unreachable.
 		}
-		consumeToken();
+		consumeAny();
 		return true;
 	}
 	return false;
 }
 
-bool Parser::matchKeyword(const KeywordType & k)
+bool Parser::consumeKeyword(const KeywordType & k)
 {
-	if (getToken().is(k))
+	if (getCurtok().is(k))
 	{
-		consumeToken();
+		consumeAny();
 		return true;
 	}
 	return false;
+}
+
+void Parser::consumeAny(char n)
+{
+	for (; (n > 0) && (parserState_.tokenIterator != tokens_.end());n--)
+		parserState_.tokenIterator++;
+}
+
+void Parser::revertConsume(char n)
+{
+	for (; (n > 0) && (parserState_.tokenIterator != tokens_.begin()); n--)
+		parserState_.tokenIterator--;
 }
 
 bool Parser::isBracket(const SignType & s) const
@@ -197,10 +224,10 @@ bool Parser::isBracket(const SignType & s) const
 const Type* Parser::parseBuiltinTypename()
 {
 	// <builtin_type_name> 	= "int" | "float" | "bool" | "string" | "char"
-	Token t = getToken();
+	Token t = getCurtok();
 	if (t.isKeyword())
 	{
-		consumeToken();
+		consumeAny();
 		switch (t.getKeywordType())
 		{
 			case KeywordType::KW_INT:	return  astcontext_.getPrimitiveIntType();
@@ -221,12 +248,12 @@ std::pair<const Type*, bool> Parser::parseType()
 	if (auto ty = parseBuiltinTypename())
 	{
 		//  { '[' ']' }
-		while (matchBracket(SignType::S_SQ_OPEN))
+		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
 			// Set ty to the ArrayType of ty.
 			ty = astcontext_.getArrayTypeForType(ty);
 			// ']'
-			if (!matchBracket(SignType::S_SQ_CLOSE))
+			if (!consumeBracket(SignType::S_SQ_CLOSE))
 			{
 				errorExpected("Expected ']'");
 				// Try to recover
@@ -243,37 +270,11 @@ std::pair<const Type*, bool> Parser::parseType()
 	return { nullptr, true };
 }
 
-Token Parser::getToken() const
+Token& Parser::getCurtok()
 {
-	return getToken(parserState_.pos);
-}
-
-Token Parser::getToken(const size_t & d) const
-{
-	if (d < tokens_.size())
-		return tokens_.at(d);
-	else
-		return Token();
-}
-
-std::size_t Parser::getCurrentPosition() const
-{
-	return parserState_.pos;
-}
-
-void Parser::consumeToken()
-{
-	parserState_.pos+=1;
-}
-
-void Parser::setPosition(const std::size_t & pos)
-{
-	parserState_.pos = pos;
-}
-
-void Parser::revertConsume()
-{
-	parserState_.pos-=1;
+	if (!isDone())
+		return *(parserState_.tokenIterator);
+	return nullTok_;
 }
 
 bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const bool & shouldConsumeToken)
@@ -292,10 +293,10 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 	// Always skip the first token if it's not in signs
 	bool isFirst = true;
 	// Keep going until we reach EOF.
-	for(;!hasReachedEndOfTokenStream();consumeToken())
+	for(;!isDone();consumeAny())
 	{
 		// Check curtok
-		auto tok = getToken();
+		auto tok = getCurtok();
 		for (auto it = signs.begin(); it != signs.end(); it++)
 		{
 			if (tok.is(*it))
@@ -304,9 +305,9 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 				{
 					// if it's a bracket, pay attention to it!
 					if (isBracket(*it))
-						matchBracket(*it);
+						consumeBracket(*it);
 					else
-						consumeToken();
+						consumeAny();
 				}
 				return true;
 			}
@@ -339,17 +340,17 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 				case SignType::S_CURLY_CLOSE:
 					if (parserState_.curlyBracketsCount)
 						return false;
-					matchBracket(SignType::S_CURLY_CLOSE);
+					consumeBracket(SignType::S_CURLY_CLOSE);
 					break;
 				case SignType::S_SQ_CLOSE:
 					if (parserState_.squareBracketsCount)
 						return false;
-					matchBracket(SignType::S_SQ_CLOSE);
+					consumeBracket(SignType::S_SQ_CLOSE);
 					break;
 				case SignType::S_ROUND_CLOSE:
 					if (parserState_.roundBracketsCount)
 						return false;
-					matchBracket(SignType::S_ROUND_CLOSE);
+					consumeBracket(SignType::S_ROUND_CLOSE);
 					break;
 				case SignType::S_SEMICOLON:
 					if (stopAtSemi)
@@ -372,9 +373,9 @@ bool Parser::resyncToNextDecl()
 		return false;
 
 	// Keep on going until we find a "func" or "let"
-	for (; !hasReachedEndOfTokenStream(); consumeToken())
+	for (; !isDone(); consumeAny())
 	{
-		auto tok = getToken();
+		auto tok = getCurtok();
 		// if it's let/func, return.
 		if (tok.isKeyword())
 		{
@@ -399,13 +400,13 @@ bool Parser::resyncToNextDecl()
 					break;
 				// If we find a ')', '}' or ']' we match (consume) it.
 				case SignType::S_CURLY_CLOSE:
-					matchBracket(SignType::S_CURLY_CLOSE);
+					consumeBracket(SignType::S_CURLY_CLOSE);
 					break;
 				case SignType::S_SQ_CLOSE:
-					matchBracket(SignType::S_SQ_CLOSE);
+					consumeBracket(SignType::S_SQ_CLOSE);
 					break;
 				case SignType::S_ROUND_CLOSE:
-					matchBracket(SignType::S_ROUND_CLOSE);
+					consumeBracket(SignType::S_ROUND_CLOSE);
 					break;
 			}
 		}
@@ -420,7 +421,7 @@ void Parser::die()
 	if(context_.flagsManager.isSet(FlagID::parser_showRecoveryMessages))
 		genericError("Couldn't recover from error, stopping parsing.");
 
-	parserState_.pos = tokens_.size();
+	parserState_.tokenIterator = tokens_.end();
 	parserState_.isAlive = false;
 }
 
@@ -431,13 +432,10 @@ void Parser::errorUnexpected()
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
-	auto tok = getToken();
+	auto tok = getCurtok();
 	if (tok)
 	{
-		if (tok.getAsString().size() == 1)
-			output << "Unexpected char '" << tok.getAsString() << "' at line " << tok.getPosition().line;
-		else
-			output << "Unexpected Token \xAF" << tok.getAsString() << "\xAE at line " << tok.getPosition().line;
+		output << "Unexpected token \"" << tok.getAsString() << "\" at line " << tok.getPosition().line;
 		context_.reportError(output.str());
 	}
 	context_.resetOrigin();
@@ -447,20 +445,22 @@ void Parser::errorExpected(const std::string & s)
 {
 	if (!parserState_.isAlive) return;
 
-	const auto lastTokenPos = parserState_.pos - 1;
+	TokenIteratorTy lastTokenIter = parserState_.tokenIterator;
+	if (lastTokenIter != tokens_.begin())
+		lastTokenIter--;
 
 	// If needed, print unexpected error message
-	if (lastUnexpectedTokenPosition_ != parserState_.pos)
+	if (lastUnexpectedTokenIt_ != parserState_.tokenIterator)
 	{
-		lastUnexpectedTokenPosition_ = parserState_.pos;
+		lastUnexpectedTokenIt_ = parserState_.tokenIterator;
 		errorUnexpected();
 	}
 
 	context_.setOrigin("Parser");
 
 	std::stringstream output;
-	auto tok = getToken(lastTokenPos);
-	output << s << " after \"" << tok.getAsString() << "\" at line " << tok.getPosition().line;
+	
+	output << s << " after \"" << lastTokenIter->getAsString() << "\" at line " << lastTokenIter->getPosition().line;
 
 	context_.reportError(output.str());
 	context_.resetOrigin();
@@ -475,9 +475,9 @@ void Parser::genericError(const std::string & s)
 	context_.resetOrigin();
 }
 
-bool Parser::hasReachedEndOfTokenStream() const
+bool Parser::isDone() const
 {
-	return (parserState_.pos >= tokens_.size());
+	return (parserState_.tokenIterator == tokens_.end());
 }
 
 bool Parser::isAlive() const
@@ -496,7 +496,7 @@ void Parser::restoreParserStateFromBackup(const Parser::ParserState & st)
 }
 
 // ParserState
-Parser::ParserState::ParserState() : isAlive(true), isRecoveryAllowed(false), pos(0)
+Parser::ParserState::ParserState() : isAlive(true), isRecoveryAllowed(false)
 {
 
 }

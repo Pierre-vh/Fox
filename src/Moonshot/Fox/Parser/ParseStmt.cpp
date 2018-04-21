@@ -17,12 +17,12 @@ using namespace Moonshot;
 ParseRes<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {
 	auto rtr = std::make_unique<ASTCompoundStmt>(); // return value
-	if (matchBracket(SignType::S_CURLY_OPEN))
+	if (consumeBracket(SignType::S_CURLY_OPEN))
 	{
 		bool hasMatchedCurlyClose = false;
-		while (!hasReachedEndOfTokenStream())
+		while (!isDone())
 		{
-			if (matchBracket(SignType::S_CURLY_CLOSE))
+			if (consumeBracket(SignType::S_CURLY_CLOSE))
 			{
 				hasMatchedCurlyClose = true;
 				break;
@@ -54,7 +54,7 @@ ParseRes<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandator
 				else
 				{
 					// Recovery might have stopped for 3 reasons (in order of likelihood), the first is that it found a unmatched }, which is ours.
-					if (matchBracket(SignType::S_CURLY_CLOSE))
+					if (consumeBracket(SignType::S_CURLY_CLOSE))
 					{
 						hasMatchedCurlyClose = true;
 						break;
@@ -104,7 +104,7 @@ ParseRes<ASTStmt*> Parser::parseWhileLoop()
 {
 	// <while_loop>  = "while"	<parens_expr> <body>
 	// "while"
-	if (matchKeyword(KeywordType::KW_WHILE))
+	if (consumeKeyword(KeywordType::KW_WHILE))
 	{
 		std::unique_ptr<ASTWhileStmt> rtr = std::make_unique<ASTWhileStmt>();
 		// <parens_expr>
@@ -135,7 +135,7 @@ ParseRes<ASTStmt*> Parser::parseCondition()
 	auto rtr = std::make_unique<ASTCondStmt>();
 	bool has_if = false;
 	// "if"
-	if (matchKeyword(KeywordType::KW_IF))
+	if (consumeKeyword(KeywordType::KW_IF))
 	{
 		// <parens_expr>
 		if (auto parensExprRes = parseParensExpr(/* The ParensExpr is mandatory */ true)) 
@@ -148,7 +148,7 @@ ParseRes<ASTStmt*> Parser::parseCondition()
 			rtr->setThen(std::move(ifStmtRes.result));
 		else
 		{
-			auto tok = getToken();
+			auto tok = getCurtok();
 			if (tok.isKeyword() && tok.getKeywordType() == KeywordType::KW_ELSE) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
 				rtr->setThen(std::make_unique<ASTNullExpr>());
 			else
@@ -161,7 +161,7 @@ ParseRes<ASTStmt*> Parser::parseCondition()
 		has_if = true;
 	}
 	// "else"
-	if (matchKeyword(KeywordType::KW_ELSE))
+	if (consumeKeyword(KeywordType::KW_ELSE))
 	{
 		// <body>
 		if (auto stmt = parseBody())
@@ -187,7 +187,7 @@ ParseRes<ASTStmt*> Parser::parseReturnStmt()
 {
 	// <rtr_stmt> = "return" [<expr>] ';'
 	// "return"
-	if (matchKeyword(KeywordType::KW_RETURN))
+	if (consumeKeyword(KeywordType::KW_RETURN))
 	{
 		auto rtr = std::make_unique<ASTReturnStmt>();
 		// [<expr>]
@@ -202,7 +202,7 @@ ParseRes<ASTStmt*> Parser::parseReturnStmt()
 
 		// ';'
 
-		if (!matchSign(SignType::S_SEMICOLON))
+		if (!consumeSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected a ';'");
 			// Recover to semi, if recovery wasn't successful, report an error.
@@ -284,7 +284,7 @@ ParseRes<ASTStmt*> Parser::parseExprStmt()
 	// <expr_stmt>	= ';' | <expr> ';' 
 
 	// ';'
-	if (matchSign(SignType::S_SEMICOLON))
+	if (consumeSign(SignType::S_SEMICOLON))
 		return ParseRes<ASTStmt*>( std::make_unique<ASTNullExpr>() );
 
 	// <expr> ';' 
@@ -292,7 +292,7 @@ ParseRes<ASTStmt*> Parser::parseExprStmt()
 	else if (auto expr = parseExpr())
 	{
 		// ';'
-		if (!matchSign(SignType::S_SEMICOLON))
+		if (!consumeSign(SignType::S_SEMICOLON))
 		{
 			if(expr.wasSuccessful())
 				errorExpected("Expected a ';'");

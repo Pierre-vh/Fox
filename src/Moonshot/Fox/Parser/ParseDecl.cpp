@@ -28,11 +28,11 @@ ParseRes<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 	*/
 
 	// "func"
-	if (matchKeyword(KeywordType::KW_FUNC))
+	if (consumeKeyword(KeywordType::KW_FUNC))
 	{
 		auto rtr = std::make_unique<ASTFunctionDecl>();
 		// <id>
-		if (auto id = matchID())
+		if (auto id = consumeIdentifier())
 			rtr->setDeclName(id);
 		else
 		{
@@ -41,7 +41,7 @@ ParseRes<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		}
 
 		// '('
-		if (!matchBracket(SignType::S_ROUND_OPEN))
+		if (!consumeBracket(SignType::S_ROUND_OPEN))
 		{
 			errorExpected("Expected '('");
 			// try to resync to a ) without consuming it.
@@ -54,11 +54,11 @@ ParseRes<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		{
 			// Note, here, in the 2 places I've marked with (1) and (2), we can possibly
 			// add error management, however, I don't think that's necessary since
-			// the matchBracket below will attempt to "panic and recover" if it doesn't find the )
+			// the consumeBracket below will attempt to "panic and recover" if it doesn't find the )
 			rtr->addArg(std::move(firstarg_res.result));
 			while (true)
 			{
-				if (matchSign(SignType::S_COMMA))
+				if (consumeSign(SignType::S_COMMA))
 				{
 					if (auto argdecl_res = parseArgDecl())
 						rtr->addArg(std::move(argdecl_res.result));
@@ -76,7 +76,7 @@ ParseRes<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 		// (2)
 
 		// ')'
-		if (!matchBracket(SignType::S_ROUND_CLOSE))
+		if (!consumeBracket(SignType::S_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')'");
 			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
@@ -85,7 +85,7 @@ ParseRes<ASTFunctionDecl*> Parser::parseFunctionDeclaration()
 
 	
 		// [':' <type>]
-		if (matchSign(SignType::S_COLON))
+		if (consumeSign(SignType::S_COLON))
 		{
 			auto rtrTy = parseType();
 			if (rtrTy.first)
@@ -129,7 +129,7 @@ ParseRes<ASTArgDecl*> Parser::parseArgDecl()
 {
 	// <arg_decl> = <id> <fq_type_spec>
 	// <id>
-	if (auto id = matchID())
+	if (auto id = consumeIdentifier())
 	{
 		// <fq_type_spec>
 		if (auto typespec_res = parseFQTypeSpec())
@@ -150,12 +150,12 @@ ParseRes<ASTVarDecl*> Parser::parseVarDeclStmt()
 {
 	// <var_decl> = "let" <id> <fq_type_spec> ['=' <expr>] ';'
 	// "let"
-	if (matchKeyword(KeywordType::KW_LET))
+	if (consumeKeyword(KeywordType::KW_LET))
 	{
 		auto rtr = std::make_unique<ASTVarDecl>();
 
 		// <id>
-		if (auto id = matchID())
+		if (auto id = consumeIdentifier())
 			rtr->setDeclName(id);
 		else
 		{
@@ -194,7 +194,7 @@ ParseRes<ASTVarDecl*> Parser::parseVarDeclStmt()
 		}
 
 		// ['=' <expr>]
-		if (matchSign(SignType::S_EQUAL))
+		if (consumeSign(SignType::S_EQUAL))
 		{
 			if (auto parseres = parseExpr())
 				rtr->setInitExpr(std::move(parseres.result));
@@ -209,7 +209,7 @@ ParseRes<ASTVarDecl*> Parser::parseVarDeclStmt()
 		}
 
 		// ';'
-		if (!matchSign(SignType::S_SEMICOLON))
+		if (!consumeSign(SignType::S_SEMICOLON))
 		{
 			errorExpected("Expected ';'");
 			
@@ -227,15 +227,15 @@ ParseRes<ASTVarDecl*> Parser::parseVarDeclStmt()
 ParseRes<QualType> Parser::parseFQTypeSpec()
 {
 	// 	<fq_type_spec>	= ':' ["const"] ['&'] <type>
-	if (matchSign(SignType::S_COLON))
+	if (consumeSign(SignType::S_COLON))
 	{
 		QualType ty;
 		// ["const"]
-		if (matchKeyword(KeywordType::KW_CONST))
+		if (consumeKeyword(KeywordType::KW_CONST))
 			ty.setConstAttribute(true);
 
 		// ['&']
-		if (matchSign(SignType::S_AMPERSAND))
+		if (consumeSign(SignType::S_AMPERSAND))
 			ty.setIsReference(true);
 
 		// <type>

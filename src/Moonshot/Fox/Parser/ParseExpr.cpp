@@ -23,7 +23,7 @@ ParseRes<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 
 	// "." <decl_call> 
 	// '.'
-	if (matchSign(SignType::S_DOT))
+	if (consumeSign(SignType::S_DOT))
 	{
 		// <decl_call>
 		if (auto dc = parseDeclCall())
@@ -43,13 +43,13 @@ ParseRes<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 	}
 	// '[' <expr> ']
 	// '['
-	else if (matchBracket(SignType::S_SQ_OPEN))
+	else if (consumeBracket(SignType::S_SQ_OPEN))
 	{
 		// <expr>
 		if (auto expr = parseExpr())
 		{
 			// ']'
-			if (!matchBracket(SignType::S_SQ_CLOSE))
+			if (!consumeBracket(SignType::S_SQ_CLOSE))
 			{
 				errorExpected("Expected a ']'");
 
@@ -87,7 +87,7 @@ ParseRes<ASTDeclRef*> Parser::parseDeclCall()
 	// <decl_call>		= <id> [ <parens_expr_list> ]
 
 	// <id>
-	if (auto id = matchID())
+	if (auto id = consumeIdentifier())
 	{
 		// [ <parens_expr_list> ]
 		std::unique_ptr<ASTDeclRef> expr = nullptr;
@@ -113,10 +113,10 @@ ParseRes<ASTDeclRef*> Parser::parseDeclCall()
 ParseRes<ASTExpr*> Parser::parsePrimitiveLiteral()
 {
 	// <primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
-	auto tok = getToken();
+	auto tok = getCurtok();
 	if (tok.isLiteral())
 	{
-		consumeToken();
+		consumeAny();
 
 		auto litinfo = tok.getLiteralInfo();
 		std::unique_ptr<ASTExpr> expr = nullptr;
@@ -142,14 +142,14 @@ ParseRes<ASTExpr*> Parser::parsePrimitiveLiteral()
 ParseRes<ASTExpr*> Parser::parseArrayLiteral()
 {
 	// <array_literal>	= '[' [<expr_list>] ']'
-	if (matchBracket(SignType::S_SQ_OPEN))
+	if (consumeBracket(SignType::S_SQ_OPEN))
 	{
 		auto rtr = std::make_unique<ASTArrayLiteralExpr>();
 		// [<expr_list>]
 		if (auto elist = parseExprList())
 			rtr->setExprList(std::move(elist.result));
 		// ']'
-		if (!matchBracket(SignType::S_SQ_CLOSE))
+		if (!consumeBracket(SignType::S_SQ_CLOSE))
 		{
 			// Resync. If resync wasn't successful, report the error.
 			if (!resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
@@ -288,7 +288,7 @@ ParseRes<ASTExpr*>  Parser::parseCastExpr()
 	if (auto parse_res = parsePrefixExpr())
 	{
 		// ["as" <type>]
-		if (matchKeyword(KeywordType::KW_AS))
+		if (consumeKeyword(KeywordType::KW_AS))
 		{
 			// <type>
 			if (auto castType = parseBuiltinTypename())
@@ -403,7 +403,7 @@ ParseRes<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 {
 	// <parens_expr> = '(' <expr> ')'
 	// '('
-	if (matchBracket(SignType::S_ROUND_OPEN))
+	if (consumeBracket(SignType::S_ROUND_OPEN))
 	{
 		std::unique_ptr<ASTExpr> rtr = nullptr;
 		// <expr>
@@ -427,7 +427,7 @@ ParseRes<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 		assert(rtr && "The return value shouldn't be null at this stage!");
 
 		// ')'
-		if (!matchBracket(SignType::S_ROUND_CLOSE))
+		if (!consumeBracket(SignType::S_ROUND_CLOSE))
 		{
 			// no ), handle error & attempt to recover if it's allowed.
 			errorExpected("Expected a ')'");
@@ -472,22 +472,20 @@ ParseRes<ExprList*> Parser::parseExprList()
 	{
 		auto exprlist = std::make_unique<ExprList>();
 		exprlist->addExpr(std::move(firstexpr.result));
-		std::size_t latestCommaPosition;
-		while (auto comma = matchSign(SignType::S_COMMA))
+		while (auto comma = consumeSign(SignType::S_COMMA))
 		{
-			latestCommaPosition = getCurrentPosition() - 1;
 			if (auto expr = parseExpr())
 				exprlist->addExpr(std::move(expr.result));
 			else
 			{
 				if (expr.wasSuccessful())
 				{
-					// if the expression was just not found, revert the "comma consuming" and
-					// let the caller deal with the extra comma.
-					setPosition(latestCommaPosition);
+					// if the expression was just not found, revert the comma consuming and
+					// let the caller deal with the extra comma after the expression list.
+					revertConsume();
 					break;
 				}
-				// else, if there was an error, "propagate" it.
+				// else, if there was an error, just return.
 				return ParseRes<ExprList*>(false);
 			}
 		}
@@ -500,7 +498,7 @@ ParseRes<ExprList*> Parser::parseParensExprList()
 {
 	// <parens_expr_list>	= '(' [ <expr_list> ] ')'
 	// '('
-	if (matchBracket(SignType::S_ROUND_OPEN))
+	if (consumeBracket(SignType::S_ROUND_OPEN))
 	{
 		auto exprlist = std::make_unique<ExprList>();
 		//  [ <expr_list> ]
@@ -517,7 +515,7 @@ ParseRes<ExprList*> Parser::parseParensExprList()
 		}
 
 		// ')'
-		if (!matchBracket(SignType::S_ROUND_CLOSE))
+		if (!consumeBracket(SignType::S_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')'");
 
@@ -533,9 +531,9 @@ ParseRes<ExprList*> Parser::parseParensExprList()
 bool Parser::parseExponentOp()
 {
 	auto backup = createParserStateBackup();
-	if (matchSign(SignType::S_ASTERISK))
+	if (consumeSign(SignType::S_ASTERISK))
 	{
-		if (matchSign(SignType::S_ASTERISK))
+		if (consumeSign(SignType::S_ASTERISK))
 			return true;
 		restoreParserStateFromBackup(backup);
 	}
@@ -545,11 +543,11 @@ bool Parser::parseExponentOp()
 ParseRes<binaryOperator> Parser::parseAssignOp()
 {
 	auto backup = createParserStateBackup();
-	if (matchSign(SignType::S_EQUAL))
+	if (consumeSign(SignType::S_EQUAL))
 	{
 		// Try to match a S_EQUAL. If failed, that means that the next token isn't a =
 		// If it succeeds, we founda '==', this is the comparison operator and we must backtrack to prevent errors.
-		if (!matchSign(SignType::S_EQUAL))
+		if (!consumeSign(SignType::S_EQUAL))
 			return ParseRes<binaryOperator>(binaryOperator::ASSIGN_BASIC);
 		restoreParserStateFromBackup(backup);
 	}
@@ -558,82 +556,82 @@ ParseRes<binaryOperator> Parser::parseAssignOp()
 
 ParseRes<unaryOperator> Parser::parseUnaryOp()
 {
-	if (matchSign(SignType::S_EXCL_MARK))
+	if (consumeSign(SignType::S_EXCL_MARK))
 		return ParseRes<unaryOperator>(unaryOperator::LOGICNOT);
-	else if (matchSign(SignType::S_MINUS))
+	else if (consumeSign(SignType::S_MINUS))
 		return ParseRes<unaryOperator>(unaryOperator::NEGATIVE);
-	else if (matchSign(SignType::S_PLUS))
+	else if (consumeSign(SignType::S_PLUS))
 		return ParseRes<unaryOperator>(unaryOperator::POSITIVE);
 	return ParseRes<unaryOperator>();
 }
 
 ParseRes<binaryOperator> Parser::parseBinaryOp(const char & priority)
 {
-	auto backup = createParserStateBackup();
-
 	// Check current Token validity, also check if it's a sign because if it isn't we can return directly!
-	if (!getToken().isValid() || !getToken().isSign())
+	if (!getCurtok().isValid() || !getCurtok().isSign())
 		return ParseRes<binaryOperator>();
+
+	auto backup = createParserStateBackup();
 
 	switch (priority)
 	{
 		case 0: // * / %
-			if (matchSign(SignType::S_ASTERISK))
+			if (consumeSign(SignType::S_ASTERISK))
 			{
-				if (!matchSign(SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
+				if (!consumeSign(SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
 					return ParseRes<binaryOperator>(binaryOperator::MUL );
 				// else, we matched a *. No worries because at the end of the function
 				// we backtrack before returning.
 			}
-			else if (matchSign(SignType::S_SLASH))
+			else if (consumeSign(SignType::S_SLASH))
 				return ParseRes<binaryOperator>(binaryOperator::DIV);
-			else if (matchSign(SignType::S_PERCENT))
+			else if (consumeSign(SignType::S_PERCENT))
 				return ParseRes<binaryOperator>(binaryOperator::MOD);
 			break;
 		case 1: // + -
-			if (matchSign(SignType::S_PLUS))
+			if (consumeSign(SignType::S_PLUS))
 				return ParseRes<binaryOperator>(binaryOperator::ADD );
-			else if (matchSign(SignType::S_MINUS))
+			else if (consumeSign(SignType::S_MINUS))
 				return ParseRes<binaryOperator>(binaryOperator::MINUS);
 			break;
 		case 2: // > >= < <=
-			if (matchSign(SignType::S_LESS_THAN))
+			if (consumeSign(SignType::S_LESS_THAN))
 			{
-				if (matchSign(SignType::S_EQUAL))
+				if (consumeSign(SignType::S_EQUAL))
 					return ParseRes<binaryOperator>(binaryOperator::LESS_OR_EQUAL );
 				return ParseRes<binaryOperator>(binaryOperator::LESS_THAN );
 			}
-			else if (matchSign(SignType::S_GREATER_THAN))
+			else if (consumeSign(SignType::S_GREATER_THAN))
 			{
-				if (matchSign(SignType::S_EQUAL))
+				if (consumeSign(SignType::S_EQUAL))
 					return ParseRes<binaryOperator>(binaryOperator::GREATER_OR_EQUAL );
 				return ParseRes<binaryOperator>(binaryOperator::GREATER_THAN );
 			}
 			break;
 		case 3:	// == !=
 			// try to match '=' twice.
-			if (matchSign(SignType::S_EQUAL))
+			if (consumeSign(SignType::S_EQUAL))
 			{
-				if (matchSign(SignType::S_EQUAL))
+				if (consumeSign(SignType::S_EQUAL))
 					return ParseRes<binaryOperator>(binaryOperator::EQUAL );
 			}
-			else if (matchSign(SignType::S_EXCL_MARK))
+			else if (consumeSign(SignType::S_EXCL_MARK))
 			{
-				if (matchSign(SignType::S_EQUAL))
+				if (consumeSign(SignType::S_EQUAL))
 					return ParseRes<binaryOperator>(binaryOperator::NOTEQUAL);
 			}
 			break;
 		case 4: // &&
-			if (matchSign(SignType::S_AMPERSAND))
+			if (consumeSign(SignType::S_AMPERSAND))
 			{
-				if (matchSign(SignType::S_AMPERSAND))
+				if (consumeSign(SignType::S_AMPERSAND))
 					return ParseRes<binaryOperator>(binaryOperator::LOGIC_AND);
 			}
 			break;
 		case 5: // ||
-			if (matchSign(SignType::S_VBAR))
+			if (consumeSign(SignType::S_VBAR))
 			{
-				if (matchSign(SignType::S_VBAR))
+				if (consumeSign(SignType::S_VBAR))
 					return ParseRes<binaryOperator>(binaryOperator::LOGIC_OR);
 			}
 			break;

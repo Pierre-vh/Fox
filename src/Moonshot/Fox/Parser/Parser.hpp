@@ -22,14 +22,16 @@
 //			Speed
 //				> Not for now. I'm going to make it work, make it right, then (maybe) make it fast. 
 // 
-//		Next modifications planned
+//		Parser "to-do" list. Important stuff is marked with (*)
 //			Add better error recovey with common cases support in if/while parsing & function declaration
 //
-//			Remove match methods, and instead use consume methods that work everywhere. There's just no need to split token consumeToken and match functions.
-//			just add a consumeAny() to skip a token.
+//			(*) Review a bit the ParserState system, because right now accessing anything in it is pretty verbose. Maybe drop the trailing _ and just use "state" as the variable name?
 //
-//			Remove the ParseRes's functionality of automatically using a unique_ptr when DataTy is a pointer type. This is confusing and makes it impossible to use raw pointers in a parsing result.
-//			Instead, create a "UniqueParseRes" class that holds it's data as a unique_ptr.
+//			(*) Review the code that manipulates iterator to check that they verify boudaries correctly. Also, add a end_ and begin_ member variable with tokens_.begin() and tokens_.end(), and
+//			make a generic iteratorIncrement and iteratorDecrement function in Utils.hpp, that decrements the iterator while checking that it doesn't drop below begin/above end.
+//			
+//			(*) Remove the ParseRes's functionality of automatically using a unique_ptr when DataTy is a pointer type. This is confusing and makes it impossible to use raw pointers in a parsing result.
+//			Instead, create a "UniqueParseRes" class that holds it's data as a unique_ptr. However, typing "UniqueParseRes<ASTExpr>" each time is really long. Maybe cut it down using "usings" or typedefs?
 //
 //			When SourceLoc system is added, match functions should return a SourceLoc instead, and a Invalid sourceloc if it doesn't match anything.
 //			SourceLoc will need to overload operator bool(), which will check it's validity.
@@ -58,15 +60,21 @@ namespace Moonshot
 	class Context;
 	class Parser
 	{
+		private:
+			using TokenIteratorTy = TokenVector::iterator;
 		public:
 			Parser(Context& c,ASTContext& astctxt,TokenVector& l);
 
+			/*-------------- Parsing Methods --------------*/
 			// UNIT
 			UnitParsingResult parseUnit();
 
 			// EXPRESSIONS
-			ParseRes<ASTExpr*>		parseSuffix(std::unique_ptr<ASTExpr> &base);
-			ParseRes<ASTDeclRef*>	parseDeclCall(); 
+			ParseRes<ExprList*>	parseExprList();
+			ParseRes<ExprList*>	parseParensExprList();
+			ParseRes<ASTExpr*>	parseParensExpr(const bool& isMandatory = false);
+			ParseRes<ASTExpr*>	parseSuffix(std::unique_ptr<ASTExpr> &base);
+			ParseRes<ASTDeclRef*> parseDeclCall(); 
 			ParseRes<ASTExpr*> parsePrimitiveLiteral();
 			ParseRes<ASTExpr*> parseArrayLiteral();
 			ParseRes<ASTExpr*> parseLiteral();
@@ -88,74 +96,80 @@ namespace Moonshot
 			ParseRes<ASTStmt*> parseWhileLoop();
 
 			// DECLS
-			ParseRes<ASTVarDecl*>		parseVarDeclStmt();
+			ParseRes<ASTArgDecl*> parseArgDecl();
+			ParseRes<ASTVarDecl*> parseVarDeclStmt();
 			ParseRes<ASTFunctionDecl*> parseFunctionDeclaration();
-			ParseRes<ASTDecl*>			parseDecl();
+			ParseRes<ASTDecl*> parseDecl();
 
 		private:
-			// Parsing helpers
-			ParseRes<ASTExpr*>		parseParensExpr(const bool& isMandatory = false);
-			ParseRes<ExprList*>	parseExprList();
-			ParseRes<ExprList*>	parseParensExprList();
+			/*-------------- Parser Setup --------------*/
+			void setupParser();
 
-			ParseRes<ASTArgDecl*>	parseArgDecl();
+			/*-------------- "Basic" Parse Methods --------------*/
+			// Returns a nullptr if no type keyword is found
+			const Type* parseBuiltinTypename();	
 
-			const Type* parseBuiltinTypename();									// Returns a nullptr if no type keyword is found
-			std::pair<const Type*,bool> parseType();							// first -> The Type* (nullptr if not found), second -> False if error
-			ParseRes<QualType>		parseFQTypeSpec();
+			// first -> The Type* (nullptr if not found), second -> False if error
+			std::pair<const Type*,bool> parseType();
+
+			// Parses a QualType (Full Type Spec)
+			ParseRes<QualType>	parseFQTypeSpec();
 
 			ParseRes<binaryOperator> parseAssignOp();						// = 
 			ParseRes<unaryOperator>  parseUnaryOp();						// ! - +
 			ParseRes<binaryOperator> parseBinaryOp(const char &priority);	// + - * / % 
-			bool parseExponentOp();												//  **
+			bool parseExponentOp();											//  **
 
-			/*
-				Match methods :
-					Match methods are designed to match a single keyword/sign. If they find it, they consume it and return true, if they don't, they return false;
+			/*-------------- Token Consuming --------------*/
+			/*	
+				Consume methods all return a boolean if the "consume" operation finished successfully 
+				(found the requested token), false otherwise
 			*/
 
-			// Match an Identifier, returns nullptr if not found.
-			IdentifierInfo* matchID();					
+			// Match an Identifier, (returns nullptr if not found)	
+			IdentifierInfo* consumeIdentifier();
+
 			// Matches any sign but brackets.
-			bool matchSign(const SignType& s);		
+			bool consumeSign(const SignType& s);
+
 			// Matches a bracket and keeps the bracket count up to date.
-			bool matchBracket(const SignType& s);	
-			// Helper for matchSign & matchBracket
+			bool consumeBracket(const SignType& s);
+
+			// Matches a keyword.
+			bool consumeKeyword(const KeywordType& k);
+
+			// increases the iterator by n, effectively "skipping" token
+			void consumeAny(char n = 1);		
+		
+			// decreases the iterator by n
+			void revertConsume(char n = 1);	
+
+			// Helper for consumeSign & consumeBracket
 			bool isBracket(const SignType& s) const;
-			// Matches a single keyword.
-			bool matchKeyword(const KeywordType& k);		
 
-
-			Token getToken() const;
-			Token getToken(const std::size_t &d) const;
-
-			void consumeToken();						// Increments parserState_.pos
-			void setPosition(const std::size_t &pos);	// Sets parserState_.pos
-			void revertConsume();						// Decrement parserState_.pos
-
+			Token& getCurtok();
 			
-			// "Panic" methods to resync to a specific sign, or a sign in a set of signs
+			/*-------------- Error Recovery --------------*/
 			bool resyncToSign(const SignType& sign, const bool& stopAtSemi, const bool& shouldConsumeToken);
 			bool resyncToSign(const std::vector<SignType>& signs, const bool& stopAtSemi, const bool& shouldConsumeToken);
-			// Methods to resync to the next declaration.
 			bool resyncToNextDecl();
 
-			// Indicates that the parsing is over.
-			void die();
-
+			/*-------------- Error Reporting --------------*/
 			void errorUnexpected();
 			void errorExpected(const std::string &s);
 			void genericError(const std::string &s); 
 
-			// error member variables
-			std::size_t lastUnexpectedTokenPosition_;
-			
+			// This variable keeps track of the latest token that was the target of "errorUnexpected" to 
+			// avoid printing multiple "unexpected" errors for the same token.
+			TokenIteratorTy lastUnexpectedTokenIt_;
+
+			/*-------------- Parser State --------------*/
 			struct ParserState
 			{
 				ParserState();
 
-				std::size_t pos = 0;						// current pos in the Token vector.
-				bool isAlive : 1;							// is the parser "alive"?
+				TokenIteratorTy tokenIterator;
+				bool isAlive : 1;
 				bool isRecoveryAllowed : 1;
 			
 				uint8_t curlyBracketsCount  = 0;
@@ -164,15 +178,17 @@ namespace Moonshot
 			} parserState_;
 
 			// Interrogate parserState_
-			bool hasReachedEndOfTokenStream() const;
+			bool isDone() const;
 			bool isAlive() const;
-			std::size_t getCurrentPosition() const;
+			void die();
 
 			// Backup parserState_
 			ParserState createParserStateBackup() const;
 			void restoreParserStateFromBackup(const ParserState& st);
 
-			// This class manages the recovery of the parser
+
+			/*-------------- RAIIRecoveryManager --------------*/
+				// This class manages the recovery of the parser
 				// The constructor makes a backup of the parser instance's parserState_.isRecoveryAllowed variable, and replaces parserState_.isRecoveryAllowed with the value desired.
 				// The constructor restores the parserState_.isRecoveryAllowed variable to it's original value using the backup.
 			class RAIIRecoveryManager
@@ -188,12 +204,13 @@ namespace Moonshot
 			RAIIRecoveryManager createRecoveryEnabler();
 			RAIIRecoveryManager createRecoveryDisabler();
 
-
+			/*-------------- Member Variables --------------*/
 			ASTContext& astcontext_;
 			Context& context_;
-			TokenVector& tokens_;	
+			TokenVector& tokens_;
+			Token nullTok_;			// null tok is an empty token used by getToken() to return an empty/null token reference.
 
-			// constants
+			/*-------------- Constants --------------*/
 			static constexpr uint8_t kMaxBraceDepth = (std::numeric_limits<uint8_t>::max)();
 	};
 }
