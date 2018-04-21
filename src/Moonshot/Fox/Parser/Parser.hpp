@@ -28,16 +28,8 @@
 //			Remove match methods, and instead use consume methods that work everywhere. There's just no need to split token consumeToken and match functions.
 //			just add a consumeAny() to skip a token.
 //
-//			Remove the ParsingResult's functionality of automatically using a unique_ptr when DataTy is a pointer type. This is confusing and makes it impossible to use raw pointers in a parsing result.
-//			Instead:
-//				Split ParsingResult in UniqueParsingResult and ParsingResult.
-//					UniqueParsingResult would have helper functions like "isa" to check if it's unique ptr is dynamic_cast-able to the desired type, and 
-//					a getAs which would move the ptr and return it, casted to the desired type.
-//
-//					Create usings in the Parser for exprs,stmts and decls.
-//						using ExprParsingResult = UniqueParsingResult<ASTExpr>
-//						using ExprParsingError	= UniqueParsingResult<ASTExpr>(false)
-//					TODO:Maybe find better names? Think about it a bit.
+//			Remove the ParseRes's functionality of automatically using a unique_ptr when DataTy is a pointer type. This is confusing and makes it impossible to use raw pointers in a parsing result.
+//			Instead, create a "UniqueParseRes" class that holds it's data as a unique_ptr.
 //
 //			When SourceLoc system is added, match functions should return a SourceLoc instead, and a Invalid sourceloc if it doesn't match anything.
 //			SourceLoc will need to overload operator bool(), which will check it's validity.
@@ -73,48 +65,48 @@ namespace Moonshot
 			UnitParsingResult parseUnit();
 
 			// EXPRESSIONS
-			ParsingResult<ASTExpr*>		parseSuffix(std::unique_ptr<ASTExpr> &base);
-			ParsingResult<ASTDeclRef*> parseDeclCall(); 
-			ParsingResult<ASTExpr*> parsePrimitiveLiteral();
-			ParsingResult<ASTExpr*> parseArrayLiteral();
-			ParsingResult<ASTExpr*> parseLiteral();
-			ParsingResult<ASTExpr*> parsePrimary();
-			ParsingResult<ASTExpr*> parseArrayOrMemberAccess();
-			ParsingResult<ASTExpr*> parseExponentExpr();
-			ParsingResult<ASTExpr*> parsePrefixExpr(); 
-			ParsingResult<ASTExpr*> parseCastExpr();
-			ParsingResult<ASTExpr*> parseBinaryExpr(const char &priority = 5);
-			ParsingResult<ASTExpr*> parseExpr(); 
+			ParseRes<ASTExpr*>		parseSuffix(std::unique_ptr<ASTExpr> &base);
+			ParseRes<ASTDeclRef*>	parseDeclCall(); 
+			ParseRes<ASTExpr*> parsePrimitiveLiteral();
+			ParseRes<ASTExpr*> parseArrayLiteral();
+			ParseRes<ASTExpr*> parseLiteral();
+			ParseRes<ASTExpr*> parsePrimary();
+			ParseRes<ASTExpr*> parseArrayOrMemberAccess();
+			ParseRes<ASTExpr*> parseExponentExpr();
+			ParseRes<ASTExpr*> parsePrefixExpr(); 
+			ParseRes<ASTExpr*> parseCastExpr();
+			ParseRes<ASTExpr*> parseBinaryExpr(const char &priority = 5);
+			ParseRes<ASTExpr*> parseExpr(); 
 
 			// STATEMENTS
-			ParsingResult<ASTStmt*> parseReturnStmt();
-			ParsingResult<ASTStmt*> parseExprStmt(); 
-			ParsingResult<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); 
-			ParsingResult<ASTStmt*> parseStmt();
-			ParsingResult<ASTStmt*> parseBody();
-			ParsingResult<ASTStmt*> parseCondition();
-			ParsingResult<ASTStmt*> parseWhileLoop();
+			ParseRes<ASTStmt*> parseReturnStmt();
+			ParseRes<ASTStmt*> parseExprStmt(); 
+			ParseRes<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); 
+			ParseRes<ASTStmt*> parseStmt();
+			ParseRes<ASTStmt*> parseBody();
+			ParseRes<ASTStmt*> parseCondition();
+			ParseRes<ASTStmt*> parseWhileLoop();
 
 			// DECLS
-			ParsingResult<ASTVarDecl*>		parseVarDeclStmt();
-			ParsingResult<ASTFunctionDecl*> parseFunctionDeclaration();
-			ParsingResult<ASTDecl*>			parseDecl();
+			ParseRes<ASTVarDecl*>		parseVarDeclStmt();
+			ParseRes<ASTFunctionDecl*> parseFunctionDeclaration();
+			ParseRes<ASTDecl*>			parseDecl();
 
 		private:
 			// Parsing helpers
-			ParsingResult<ASTExpr*>		parseParensExpr(const bool& isMandatory = false);
-			ParsingResult<ExprList*>	parseExprList();
-			ParsingResult<ExprList*>	parseParensExprList();
+			ParseRes<ASTExpr*>		parseParensExpr(const bool& isMandatory = false);
+			ParseRes<ExprList*>	parseExprList();
+			ParseRes<ExprList*>	parseParensExprList();
 
-			ParsingResult<ASTArgDecl*>	parseArgDecl();
+			ParseRes<ASTArgDecl*>	parseArgDecl();
 
 			const Type* parseBuiltinTypename();									// Returns a nullptr if no type keyword is found
 			std::pair<const Type*,bool> parseType();							// first -> The Type* (nullptr if not found), second -> False if error
-			ParsingResult<QualType>		parseFQTypeSpec();
+			ParseRes<QualType>		parseFQTypeSpec();
 
-			ParsingResult<binaryOperator> parseAssignOp();						// = 
-			ParsingResult<unaryOperator>  parseUnaryOp();						// ! - +
-			ParsingResult<binaryOperator> parseBinaryOp(const char &priority);	// + - * / % 
+			ParseRes<binaryOperator> parseAssignOp();						// = 
+			ParseRes<unaryOperator>  parseUnaryOp();						// ! - +
+			ParseRes<binaryOperator> parseBinaryOp(const char &priority);	// + - * / % 
 			bool parseExponentOp();												//  **
 
 			/*

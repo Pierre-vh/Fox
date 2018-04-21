@@ -14,7 +14,7 @@
 
 using namespace Moonshot;
 
-ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
+ParseRes<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
 {
 	auto rtr = std::make_unique<ASTCompoundStmt>(); // return value
 	if (matchBracket(SignType::S_CURLY_OPEN))
@@ -63,7 +63,7 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 					else
 					{
 						// (in this case, just return an error)
-						return ParsingResult<ASTCompoundStmt*>(false);
+						return ParseRes<ASTCompoundStmt*>(false);
 					}
 
 				}
@@ -74,11 +74,11 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		{
 			errorExpected("Expected a '}'");
 			// We can't recover since we reached EOF. return an error!
-			return ParsingResult<ASTCompoundStmt*>(false);
+			return ParseRes<ASTCompoundStmt*>(false);
 		}
 
 		// if everything's alright, return the result
-		return ParsingResult<ASTCompoundStmt*>(std::move(rtr));
+		return ParseRes<ASTCompoundStmt*>(std::move(rtr));
 	}
 	// not found & mandatory
 	else if (isMandatory)
@@ -91,16 +91,16 @@ ParsingResult<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMan
 		auto backup = createParserStateBackup();
 
 		if (resyncToSign(SignType::S_CURLY_CLOSE, /* stopAtSemi */ false, /*consumeToken*/ true))
-			return ParsingResult<ASTCompoundStmt*>(std::make_unique<ASTCompoundStmt>());
+			return ParseRes<ASTCompoundStmt*>(std::make_unique<ASTCompoundStmt>());
 		
 		restoreParserStateFromBackup(backup);
-		return ParsingResult<ASTCompoundStmt*>();
+		return ParseRes<ASTCompoundStmt*>();
 	}
 
-	return ParsingResult<ASTCompoundStmt*>();
+	return ParseRes<ASTCompoundStmt*>();
 }
 
-ParsingResult<ASTStmt*> Parser::parseWhileLoop()
+ParseRes<ASTStmt*> Parser::parseWhileLoop()
 {
 	// <while_loop>  = "while"	<parens_expr> <body>
 	// "while"
@@ -111,7 +111,7 @@ ParsingResult<ASTStmt*> Parser::parseWhileLoop()
 		if (auto parensExprRes = parseParensExpr(/* The ParensExpr is mandatory */ true))
 			rtr->setCond(std::move(parensExprRes.result));
 		else
-			return ParsingResult<ASTStmt*>(false);
+			return ParseRes<ASTStmt*>(false);
 
 		// <body>
 		if (auto parseres = parseBody())
@@ -123,13 +123,13 @@ ParsingResult<ASTStmt*> Parser::parseWhileLoop()
 			rtr->setBody(std::make_unique<ASTNullExpr>());
 		}
 		// Return if everything's alright
-		return ParsingResult<ASTStmt*>(std::move(rtr));
+		return ParseRes<ASTStmt*>(std::move(rtr));
 	}
 	// not found
-	return ParsingResult<ASTStmt*>();
+	return ParseRes<ASTStmt*>();
 }
 
-ParsingResult<ASTStmt*> Parser::parseCondition()
+ParseRes<ASTStmt*> Parser::parseCondition()
 {
 	// <condition>	= "if"	<parens_expr> <body> ["else" <body>]
 	auto rtr = std::make_unique<ASTCondStmt>();
@@ -141,7 +141,7 @@ ParsingResult<ASTStmt*> Parser::parseCondition()
 		if (auto parensExprRes = parseParensExpr(/* The ParensExpr is mandatory */ true)) 
 			rtr->setCond(std::move(parensExprRes.result));
 		else
-			return ParsingResult<ASTStmt*>(false);
+			return ParseRes<ASTStmt*>(false);
 		
 		// <body>
 		if (auto ifStmtRes = parseBody())
@@ -155,7 +155,7 @@ ParsingResult<ASTStmt*> Parser::parseCondition()
 			{
 				if (ifStmtRes.wasSuccessful())
 					errorExpected("Expected a statement after if condition,");
-				return ParsingResult<ASTStmt*>(false);
+				return ParseRes<ASTStmt*>(false);
 			}
 		}
 		has_if = true;
@@ -170,7 +170,7 @@ ParsingResult<ASTStmt*> Parser::parseCondition()
 		{
 			if(stmt.wasSuccessful())
 				errorExpected("Expected a statement after else,");
-			return ParsingResult<ASTStmt*>(false);
+			return ParseRes<ASTStmt*>(false);
 		}
 
 		// Else but no if?
@@ -179,11 +179,11 @@ ParsingResult<ASTStmt*> Parser::parseCondition()
 	}
 
 	if(has_if)
-		return ParsingResult<ASTStmt*>(std::move(rtr)); // success
-	return ParsingResult<ASTStmt*>(); // not found
+		return ParseRes<ASTStmt*>(std::move(rtr)); // success
+	return ParseRes<ASTStmt*>(); // not found
 }
 
-ParsingResult<ASTStmt*> Parser::parseReturnStmt()
+ParseRes<ASTStmt*> Parser::parseReturnStmt()
 {
 	// <rtr_stmt> = "return" [<expr>] ';'
 	// "return"
@@ -197,7 +197,7 @@ ParsingResult<ASTStmt*> Parser::parseReturnStmt()
 		{
 			// expr failed? try to resync if possible. 
 			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-				return ParsingResult<ASTStmt*>(false);
+				return ParseRes<ASTStmt*>(false);
 		}
 
 		// ';'
@@ -207,16 +207,16 @@ ParsingResult<ASTStmt*> Parser::parseReturnStmt()
 			errorExpected("Expected a ';'");
 			// Recover to semi, if recovery wasn't successful, report an error.
 			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-				return ParsingResult<ASTStmt*>(false);
+				return ParseRes<ASTStmt*>(false);
 		}
 		// success, return
-		return ParsingResult<ASTStmt*>(std::move(rtr));
+		return ParseRes<ASTStmt*>(std::move(rtr));
 	}
 	// not found
-	return ParsingResult<ASTStmt*>();
+	return ParseRes<ASTStmt*>();
 }
 
-ParsingResult<ASTStmt*> Parser::parseStmt()
+ParseRes<ASTStmt*> Parser::parseStmt()
 {
 	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
 
@@ -228,39 +228,39 @@ ParsingResult<ASTStmt*> Parser::parseStmt()
 
 	// <var_decl
 	if (auto vardecl = parseVarDeclStmt())
-		return ParsingResult<ASTStmt*>(std::move(vardecl.result));
+		return ParseRes<ASTStmt*>(std::move(vardecl.result));
 	else if (!vardecl.wasSuccessful())
-		return ParsingResult<ASTStmt*>(false);
+		return ParseRes<ASTStmt*>(false);
 
 	// <expr_stmt>
 	if (auto exprstmt = parseExprStmt())
 		return exprstmt;
 	else if (!exprstmt.wasSuccessful())
-		return ParsingResult<ASTStmt*>(false);
+		return ParseRes<ASTStmt*>(false);
 
 	// <condition>
 	if(auto cond = parseCondition())
 		return cond;
 	else if (!cond.wasSuccessful())
-		return ParsingResult<ASTStmt*>(false);
+		return ParseRes<ASTStmt*>(false);
 
 	// <while_loop>
 	if (auto wloop = parseWhileLoop())
 		return wloop;
 	else if(!wloop.wasSuccessful())
-		return ParsingResult<ASTStmt*>(false);
+		return ParseRes<ASTStmt*>(false);
 
 	// <return_stmt>
 	if (auto rtrstmt = parseReturnStmt())
 		return rtrstmt;
 	else if(!rtrstmt.wasSuccessful())
-		return ParsingResult<ASTStmt*>(false);
+		return ParseRes<ASTStmt*>(false);
 
 	// Else, not found..
-	return ParsingResult<ASTStmt*>();
+	return ParseRes<ASTStmt*>();
 }
 
-ParsingResult<ASTStmt*> Parser::parseBody()
+ParseRes<ASTStmt*> Parser::parseBody()
 {
 	// <body>	= <stmt> | <compound_statement>
 
@@ -268,24 +268,24 @@ ParsingResult<ASTStmt*> Parser::parseBody()
 	if (auto stmt_res = parseStmt())
 		return stmt_res;
 	else if(!stmt_res.wasSuccessful())
-		return ParsingResult<ASTStmt*>(false);
+		return ParseRes<ASTStmt*>(false);
 
 	// <compound_statement>
 	if (auto compstmt_res = parseCompoundStatement())
-		return ParsingResult<ASTStmt*>(std::move(compstmt_res.result));
+		return ParseRes<ASTStmt*>(std::move(compstmt_res.result));
 	else if(!compstmt_res.wasSuccessful())
-		return ParsingResult<ASTStmt*>(false);
+		return ParseRes<ASTStmt*>(false);
 
-	return ParsingResult<ASTStmt*>();
+	return ParseRes<ASTStmt*>();
 }
 
-ParsingResult<ASTStmt*> Parser::parseExprStmt()
+ParseRes<ASTStmt*> Parser::parseExprStmt()
 {
 	// <expr_stmt>	= ';' | <expr> ';' 
 
 	// ';'
 	if (matchSign(SignType::S_SEMICOLON))
-		return ParsingResult<ASTStmt*>( std::make_unique<ASTNullExpr>() );
+		return ParseRes<ASTStmt*>( std::make_unique<ASTNullExpr>() );
 
 	// <expr> ';' 
 	// <expr>
@@ -298,19 +298,19 @@ ParsingResult<ASTStmt*> Parser::parseExprStmt()
 				errorExpected("Expected a ';'");
 
 			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-				return ParsingResult<ASTStmt*>(false);
+				return ParseRes<ASTStmt*>(false);
 			// if recovery was successful, just return like nothing has happened!
 		}
 
-		return ParsingResult<ASTStmt*>(std::move(expr.result));
+		return ParseRes<ASTStmt*>(std::move(expr.result));
 	}
 	else if(!expr.wasSuccessful())
 	{
 		// if the expression had an error, ignore it and try to recover to a semi.
 		if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-			return ParsingResult<ASTStmt*>(std::make_unique<ASTNullExpr>());
-		return ParsingResult<ASTStmt*>(false);
+			return ParseRes<ASTStmt*>(std::make_unique<ASTNullExpr>());
+		return ParseRes<ASTStmt*>(false);
 	}
 
-	return ParsingResult<ASTStmt*>();
+	return ParseRes<ASTStmt*>();
 }

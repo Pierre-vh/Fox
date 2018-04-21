@@ -13,20 +13,20 @@
 
 namespace Moonshot
 {
-	// ParsingResult provides 2 specialization, one for
+	// ParseRes provides 2 specialization, one for
 	// "normal" objects, and one of pointers. The one for pointer 
 	// manages it using a std::unique_ptr.
 	template<typename DataTy>
-	struct ParsingResult {
+	struct ParseRes {
 		public:
-			ParsingResult(const DataTy& res)
+			ParseRes(const DataTy& res)
 			{
 				successFlag_ = true;
 				hasData_ = true;
 				result = res;
 			}
 
-			ParsingResult(const bool &wasSuccessful = true)
+			ParseRes(const bool &wasSuccessful = true)
 			{
 				hasData_ = false;
 				successFlag_ = wasSuccessful;
@@ -44,7 +44,7 @@ namespace Moonshot
 				return successFlag_;
 			}
 			
-			// Returns true if this ParsingResult contains usable data.
+			// Returns true if this ParseRes contains usable data.
 			bool isUsable() const
 			{
 				return successFlag_  && hasData_;
@@ -59,15 +59,15 @@ namespace Moonshot
 
 	// Special overload for pointer types
 	template<typename DataTy>
-	struct ParsingResult<DataTy*> {
+	struct ParseRes<DataTy*> {
 		public:
-			ParsingResult(std::unique_ptr<DataTy> res)
+			ParseRes(std::unique_ptr<DataTy> res)
 			{
 				successFlag_ = true;
 				result = std::move(res);
 			}
 
-			ParsingResult(const bool &wasSuccessful = true)
+			ParseRes(const bool &wasSuccessful = true)
 			{
 				successFlag_ = wasSuccessful;
 				result = nullptr;
@@ -84,7 +84,7 @@ namespace Moonshot
 				return successFlag_;
 			}
 
-			// Returns true if this ParsingResult contains usable data.
+			// Returns true if this ParseRes contains usable data.
 			bool isUsable() const
 			{
 				return successFlag_ && (bool)result;
@@ -99,15 +99,20 @@ namespace Moonshot
 	// Forward decl ASTUnit
 	class ASTUnit;
 	// Parsing Result Specific to Units.
-		// Unit Parsing result is trivial, because it attempts
-		// to return the Unit even on failure. 
 		// Success/Failure is deduced from the value of the unit pointer (nullptr = failure)
 	class UnitParsingResult
 	{
 		public:
 
-			UnitParsingResult(std::unique_ptr<ASTUnit> parsedUnit = nullptr);
-			operator bool() const;
+			UnitParsingResult(std::unique_ptr<ASTUnit> parsedUnit = nullptr)
+			{
+				unit = std::move(parsedUnit);
+			}
+
+			operator bool() const
+			{
+				return (bool)(unit);
+			}
 
 			// the parsed unit
 			std::unique_ptr<ASTUnit> unit;
