@@ -24,11 +24,9 @@
 // 
 //		Parser "to-do" list. Important stuff is marked with (*)
 //		
-//			Rewrite "resyncToNextDecl" based on resyncToSign 
+//			(*) Test resync functions to see if they work as intended.
 //
 //			Add better error recovey with common cases support in if/while parsing & function declaration
-//
-//			Rethink the ParserState system : it works kinda well, but it's a bit verbose to access, isn't it?
 //
 //			(*) Review the code that manipulates iterator to check that they verify boudaries correctly, and that iterators aren't mishandled anywhere.
 //			

@@ -299,10 +299,12 @@ bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const 
 
 bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopAtSemi, const bool & shouldConsumeToken)
 {
-	// Note, this function is heavily based on CLang's http://clang.llvm.org/doxygen/Parse_2Parser_8cpp_source.html#l00245
+	// Note, this function is heavily based on (read: nearly copy pasted from) CLang's http://clang.llvm.org/doxygen/Parse_2Parser_8cpp_source.html#l00245
+	// This is CLang's license https://github.com/llvm-mirror/clang/blob/master/LICENSE.TXT. As this is not a pure copy-paste but more of a translation I don't think
+	// I need to link it, but here is it anyways.
 
-	// Return immediately if recovery is not allowed
-	if (!state_.isRecoveryAllowed)
+	// Return immediately if recovery is not allowed, or the parser isn't alive anymore.
+	if (!state_.isRecoveryAllowed || !isAlive())
 		return false;
 
 	// Always skip the first token if it's not in signs
@@ -386,12 +388,11 @@ bool Parser::resyncToNextDecl()
 {
 	// This method skips everything until it finds a "let" or a "func".
 
-	// Return immediately if recovery is not allowed
-	if (!state_.isRecoveryAllowed)
+	// Return immediately if recovery is not allowed, or the parser isn't alive anymore.
+	if (!state_.isRecoveryAllowed || !isAlive())
 		return false;
 
-	// Keep on going until we find a "func" or "let"
-	for (; !isDone(); consumeAny())
+	while(!isDone())
 	{
 		auto tok = getCurtok();
 		// if it's let/func, return.
@@ -401,13 +402,11 @@ bool Parser::resyncToNextDecl()
 				return true;
 		}
 
-		// Check if it's a sign for special brackets-related actions
 		if (tok.isSign())
 		{
 			switch (tok.getSignType())
 			{
-
-				// If we find a '(', '{' or '[', call this function recursively to match it's counterpart
+				// We still use this switch to skip whole brackets
 				case SignType::S_CURLY_OPEN:
 					consumeBracket(SignType::S_CURLY_OPEN);
 					resyncToSign(SignType::S_CURLY_CLOSE, false, true);
@@ -420,20 +419,15 @@ bool Parser::resyncToNextDecl()
 					consumeBracket(SignType::S_ROUND_OPEN);
 					resyncToSign(SignType::S_ROUND_CLOSE, false, true);
 					break;
-				// note: this piece of code below might be useless
-
-				// If we find a ')', '}' or ']' we match (consume) it.
-				case SignType::S_CURLY_CLOSE:
-					consumeBracket(SignType::S_CURLY_CLOSE);
-					break;
-				case SignType::S_SQ_CLOSE:
-					consumeBracket(SignType::S_SQ_CLOSE);
-					break;
-				case SignType::S_ROUND_CLOSE:
-					consumeBracket(SignType::S_ROUND_CLOSE);
+				// Here, we don't really care and we just consume anything.
+				// Our only goal is to resync to another declaration.
+				default:
+					consumeAny();
 					break;
 			}
-		}
+		} // (tok.isSign())
+		else
+			consumeAny();
 	}
 	// If reached eof, die & return false.
 	die();
