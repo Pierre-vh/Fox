@@ -94,10 +94,8 @@ UnitParsingResult Parser::parseUnit()
 
 	if (unit->getDeclCount() == 0)
 	{
-		// Unit reports an error if notfound, because it's a mandatory rule.
 		genericError("Expected one or more declaration in unit.");
-		// Return empty result
-		return UnitParsingResult();
+		return UnitParsingResult(false);
 	}
 	else
 		return UnitParsingResult(std::move(unit));
@@ -105,19 +103,19 @@ UnitParsingResult Parser::parseUnit()
 
 void Parser::setupParser()
 {
+	// Setup iterators
 	state_.tokenIterator = tokens_.begin();
 	lastUnexpectedTokenIt_ = tokens_.begin();
 }
 
 IdentifierInfo* Parser::consumeIdentifier()
 {
-	Token t = getCurtok();
-	if (t.isIdentifier())
+	Token tok = getCurtok();
+	if (tok.isIdentifier())
 	{
-		consumeAny();
-
-		IdentifierInfo* ptr = t.getIdentifierInfo();;
+		IdentifierInfo* ptr = tok.getIdentifierInfo();
 		assert(ptr && "Token's an identifier but contains a nullptr IdentifierInfo?");
+		consumeAny();
 		return ptr;
 	}
 	return nullptr;
@@ -137,11 +135,8 @@ bool Parser::consumeSign(const SignType & s)
 bool Parser::consumeBracket(const SignType & s)
 {
 	assert(isBracket(s) && "This method should only be used on brackets ! Use consumeSign to match instead!");
-	auto tok = getCurtok();
-	if (tok.isSign())
+	if (getCurtok().is(s))
 	{
-		if (!tok.is(s))
-			return false;
 		switch (s)
 		{
 			case SignType::S_CURLY_OPEN:
@@ -193,15 +188,15 @@ bool Parser::consumeKeyword(const KeywordType & k)
 	return false;
 }
 
-void Parser::consumeAny(char n)
+void Parser::consumeAny()
 {
-	for (; (n > 0) && (state_.tokenIterator != tokens_.end());n--)
+	if(state_.tokenIterator != tokens_.end())
 		state_.tokenIterator++;
 }
 
-void Parser::revertConsume(char n)
+void Parser::revertConsume()
 {
-	for (; (n > 0) && (state_.tokenIterator != tokens_.begin()); n--)
+	if (state_.tokenIterator != tokens_.begin())
 		state_.tokenIterator--;
 }
 
@@ -270,11 +265,11 @@ std::pair<const Type*, bool> Parser::parseType()
 	return { nullptr, true };
 }
 
-Token& Parser::getCurtok()
+Token Parser::getCurtok() const
 {
 	if (!isDone())
 		return *(state_.tokenIterator);
-	return nullTok_;
+	return Token();
 }
 
 bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const bool & shouldConsumeToken)

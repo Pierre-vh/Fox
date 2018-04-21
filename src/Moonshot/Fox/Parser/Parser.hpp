@@ -27,8 +27,7 @@
 //
 //			(*) Review a bit the ParserState system, because right now accessing anything in it is pretty verbose. Maybe drop the trailing _ and just use "state" as the variable name?
 //
-//			(*) Review the code that manipulates iterator to check that they verify boudaries correctly. Also, add a end_ and begin_ member variable with tokens_.begin() and tokens_.end(), and
-//			make a generic iteratorIncrement and iteratorDecrement function in Utils.hpp, that decrements the iterator while checking that it doesn't drop below begin/above end.
+//			(*) Review the code that manipulates iterator to check that they verify boudaries correctly, and that iterators aren't mishandled anywhere.
 //			
 //			(*) Remove the ParseRes's functionality of automatically using a unique_ptr when DataTy is a pointer type. This is confusing and makes it impossible to use raw pointers in a parsing result.
 //			Instead, create a "UniqueParseRes" class that holds it's data as a unique_ptr. However, typing "UniqueParseRes<ASTExpr>" each time is really long. Maybe cut it down using "usings" or typedefs?
@@ -51,6 +50,8 @@
 #include "Moonshot/Fox/AST/ASTUnit.hpp"
 
 #include "Moonshot/Fox/AST/Operators.hpp"			
+
+#include "Moonshot/Fox/Basic/Utils.hpp"
 
 #include <tuple>
 #include <functional>
@@ -126,28 +127,28 @@ namespace Moonshot
 				(found the requested token), false otherwise
 			*/
 
-			// Match an Identifier, (returns nullptr if not found)	
+			// Consumes an Identifier, Returns nullptr if the Identifier was not found.
 			IdentifierInfo* consumeIdentifier();
 
-			// Matches any sign but brackets.
+			// Consumes any sign but brackets. Returns false if the bracket was not found.
 			bool consumeSign(const SignType& s);
 
-			// Matches a bracket and keeps the bracket count up to date.
+			// Consumes a bracket and keeps the bracket count up to date. Returns false if the bracket was not found.
 			bool consumeBracket(const SignType& s);
 
-			// Matches a keyword.
+			// Consumes a keyword. Returns false if the keyword was not found.
 			bool consumeKeyword(const KeywordType& k);
 
-			// increases the iterator by n, effectively "skipping" token
-			void consumeAny(char n = 1);		
+			// Skips 1 token (increments the iterator)
+			void consumeAny();		
 		
-			// decreases the iterator by n
-			void revertConsume(char n = 1);	
+			// Revert the last consume operation (decrements the iterator)
+			void revertConsume();	
 
 			// Helper for consumeSign & consumeBracket
 			bool isBracket(const SignType& s) const;
 
-			Token& getCurtok();
+			Token getCurtok() const;
 			
 			/*-------------- Error Recovery --------------*/
 			bool resyncToSign(const SignType& sign, const bool& stopAtSemi, const bool& shouldConsumeToken);
@@ -208,7 +209,6 @@ namespace Moonshot
 			ASTContext& astcontext_;
 			Context& context_;
 			TokenVector& tokens_;
-			Token nullTok_;			// null tok is an empty token used by getToken() to return an empty/null token reference.
 
 			/*-------------- Constants --------------*/
 			static constexpr uint8_t kMaxBraceDepth = (std::numeric_limits<uint8_t>::max)();
