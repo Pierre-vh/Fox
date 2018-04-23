@@ -45,24 +45,20 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 		out << "Lexing completed successfully." << lex.getTokenVector().size() << " tokens found.\n";
 
 	Parser psr(ctxt,astCtxt,lex.getTokenVector());
-	auto presult = psr.parseUnit();
+	auto unit = psr.parseUnit();
 
 	out << ctxt.getLogs();
-	if (!presult)
+	if (!unit)
 	{
 		out << "Failed at parsing.";
-		if (!presult) // no usable data? return now.
-		{
-			out << "Failed to parse unit.\n";
-			return false;
-		}
+		return false;
 	}
 	else
 		out << "Parsing successful!\n";
 
 	
 	// set as main unit
-	astCtxt.setMainUnit(std::move(presult.unit));
+	astCtxt.setMainUnit(unit.move());
 
 	out << "\nMain Unit Dump:\n";
 	Dumper dump(out,1);
