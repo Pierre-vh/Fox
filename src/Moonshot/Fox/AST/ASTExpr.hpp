@@ -173,23 +173,23 @@ namespace Moonshot
 			bool val_ = false;
 	};
 
-	class ExprList;
+	class ASTExprList;
 	// Array literals
 	class ASTArrayLiteralExpr : public ASTExpr
 	{
 		public:
 			ASTArrayLiteralExpr() = default;
-			ASTArrayLiteralExpr(std::unique_ptr<ExprList> exprs);
+			ASTArrayLiteralExpr(std::unique_ptr<ASTExprList> exprs);
 
-			ExprList* getExprList();
-			void setExprList(std::unique_ptr<ExprList> elist);
+			ASTExprList* getExprList();
+			void setExprList(std::unique_ptr<ASTExprList> elist);
 			bool hasExprList() const; 
 
 			bool isEmpty() const;
 
 			virtual void accept(IVisitor &vis);
 		private:
-			std::unique_ptr<ExprList> exprs_;
+			std::unique_ptr<ASTExprList> exprs_;
 	};
 
 	// interface for decl refs. Derived classes are references to a decl within this context (declref) and reference to member decls (memberref)
@@ -257,9 +257,9 @@ namespace Moonshot
 	};
 
 	// Node Representing an Expression List.
-		// Note: This is not a "normal" node (not visitable!), it's more of a wrapper around a std::vector<std::unique_ptr<ASTExpr>>, so we can pass a list of 
+		// Note: This is not a "normal" node (not visitable), it's more of a wrapper around a std::vector<std::unique_ptr<ASTExpr>>, so we can pass a list of 
 		// expressions around easily.
-	class ExprList
+	class ASTExprList
 	{
 		private:
 			using ExprListTy = std::vector<std::unique_ptr<ASTExpr>>;
@@ -267,7 +267,7 @@ namespace Moonshot
 			using ExprListIter = ExprListTy::iterator;
 			using ExprListIter_const = ExprListTy::const_iterator;
 		public:
-			ExprList() = default;
+			ASTExprList() = default;
 
 			void addExpr(std::unique_ptr<ASTExpr> expr);
 			ASTExpr* getExpr(const std::size_t& ind);
@@ -293,15 +293,15 @@ namespace Moonshot
 			IdentifierInfo * getFunctionIdentifier() ;
 			void setFunctionIdentifier(IdentifierInfo * fnId);
 
-			ExprList* getExprList();
-			void setExprList(std::unique_ptr<ExprList> elist);
+			ASTExprList* getExprList();
+			void setExprList(std::unique_ptr<ASTExprList> elist);
 
 			void accept(IVisitor& vis) override;
 		private:
 			// the Function's name
 			IdentifierInfo * fnId_;
 			// it's args
-			std::unique_ptr<ExprList> args_;
+			std::unique_ptr<ASTExprList> args_;
 	};
 }
 

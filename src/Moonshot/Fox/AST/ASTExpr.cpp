@@ -128,17 +128,17 @@ void ASTBoolLiteralExpr::setVal(const bool & val)
 }
 
 // Literals: Array literals
-ASTArrayLiteralExpr::ASTArrayLiteralExpr(std::unique_ptr<ExprList> exprs) : exprs_(std::move(exprs))
+ASTArrayLiteralExpr::ASTArrayLiteralExpr(std::unique_ptr<ASTExprList> exprs) : exprs_(std::move(exprs))
 {
 
 }
 
-ExprList * ASTArrayLiteralExpr::getExprList()
+ASTExprList * ASTArrayLiteralExpr::getExprList()
 {
 	return exprs_.get();
 }
 
-void ASTArrayLiteralExpr::setExprList(std::unique_ptr<ExprList> elist)
+void ASTArrayLiteralExpr::setExprList(std::unique_ptr<ASTExprList> elist)
 {
 	exprs_ = std::move(elist);
 }
@@ -315,12 +315,12 @@ void ASTFunctionCallExpr::setFunctionIdentifier(IdentifierInfo * fnId)
 	fnId_ = fnId;
 }
 
-ExprList * ASTFunctionCallExpr::getExprList()
+ASTExprList * ASTFunctionCallExpr::getExprList()
 {
 	return args_.get();
 }
 
-void ASTFunctionCallExpr::setExprList(std::unique_ptr<ExprList> elist)
+void ASTFunctionCallExpr::setExprList(std::unique_ptr<ASTExprList> elist)
 {
 	args_ = std::move(elist);
 }
@@ -394,12 +394,12 @@ ASTExpr* ASTArrayAccess::getAccessIndexExpr()
 }
 
 // Expr list
-void ExprList::addExpr(std::unique_ptr<ASTExpr> expr)
+void ASTExprList::addExpr(std::unique_ptr<ASTExpr> expr)
 {
 	exprs_.emplace_back(std::move(expr));
 }
 
-ASTExpr * ExprList::getExpr(const std::size_t & ind)
+ASTExpr * ASTExprList::getExpr(const std::size_t & ind)
 {
 	if (ind > size())
 		throw std::out_of_range("Tried to access an out of bounds location in an expression list.");
@@ -407,32 +407,32 @@ ASTExpr * ExprList::getExpr(const std::size_t & ind)
 	return exprs_[ind].get();
 }
 
-bool ExprList::isEmpty() const
+bool ASTExprList::isEmpty() const
 {
 	return !exprs_.size();
 }
 
-std::size_t ExprList::size() const
+std::size_t ASTExprList::size() const
 {
 	return exprs_.size();
 }
 
-ExprList::ExprListIter ExprList::begin()
+ASTExprList::ExprListIter ASTExprList::begin()
 {
 	return exprs_.begin();
 }
 
-ExprList::ExprListIter ExprList::end()
+ASTExprList::ExprListIter ASTExprList::end()
 {
 	return exprs_.end();
 }
 
-ExprList::ExprListIter_const ExprList::begin() const
+ASTExprList::ExprListIter_const ASTExprList::begin() const
 {
 	return exprs_.begin();
 }
 
-ExprList::ExprListIter_const ExprList::end() const
+ASTExprList::ExprListIter_const ASTExprList::end() const
 {
 	return exprs_.end();
 }
