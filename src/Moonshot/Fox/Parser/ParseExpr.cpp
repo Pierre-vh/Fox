@@ -17,7 +17,7 @@
 using namespace Moonshot;
 
 // note, here the unique_ptr is passed by reference because it will be consumed (moved -> nulled) only if a '[' is found, else, it's left untouched.
-ParseRes<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
+Parser::ExprResult Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 {
 	// <suffix>	 = '.' <decl_call> | '[' <expr> ']'
 
@@ -26,19 +26,19 @@ ParseRes<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 	if (consumeSign(SignType::S_DOT))
 	{
 		// <decl_call>
-		if (auto dc = parseDeclCall())
+		if (auto decl_call = parseDeclCall())
 		{
 			// found, return
-			return ParseRes<ASTExpr*>(
-				std::make_unique<ASTMemberAccessExpr>(std::move(base), std::move(dc.result))
+			return ExprResult(
+				std::make_unique<ASTMemberAccessExpr>(std::move(base), decl_call.moveAs<ASTDeclRef>())
 			);
 		}
 		else 
 		{
 			// not found
-			if (!dc.wasSuccessful())
+			if (!decl_call.wasSuccessful())
 				errorExpected("Expected an identifier");
-			return ParseRes<ASTExpr*>(false);
+			return ExprResult::Error();
 		}
 	}
 	// '[' <expr> ']
@@ -54,9 +54,9 @@ ParseRes<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 				errorExpected("Expected a ']'");
 
 				if (!resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-					return ParseRes<ASTDeclRef*>(false);
+					return ExprResult::Error();
 			}
-			return ParseRes<ASTExpr*>(std::make_unique<ASTArrayAccess>(std::move(base), std::move(expr.result)));
+			return ExprResult(std::make_unique<ASTArrayAccess>(std::move(base), expr.move()));
 		}
 		else
 		{
@@ -66,7 +66,7 @@ ParseRes<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 			if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
 			{
 				// Return a node with a null expr, so we return something and avoid error cascades.
-				return ParseRes<ASTExpr*>(std::make_unique<ASTArrayAccess>(
+				return ExprResult(std::make_unique<ASTArrayAccess>(
 						std::move(base),
 						std::make_unique<ASTNullExpr>())
 					);
@@ -74,15 +74,15 @@ ParseRes<ASTExpr*> Parser::parseSuffix(std::unique_ptr<ASTExpr>& base)
 			else
 			{
 				// recovery wasn't successful, return error.
-				return ParseRes<ASTExpr*>(false);
+				return ExprResult::Error();
 			}
 		}
 	}
 
-	return ParseRes<ASTExpr*>();
+	return ExprResult::NotFound();
 }
 
-ParseRes<ASTDeclRef*> Parser::parseDeclCall()
+Parser::ExprResult Parser::parseDeclCall()
 {
 	// <decl_call>		= <id> [ <parens_expr_list> ]
 
@@ -96,21 +96,21 @@ ParseRes<ASTDeclRef*> Parser::parseDeclCall()
 			// if an expression list is found create a functioncall node and set expr to that node.
 			auto fcall = std::make_unique<ASTFunctionCallExpr>();
 			fcall->setFunctionIdentifier(id);
-			fcall->setExprList(std::move(exprlist.result));
+			fcall->setExprList(exprlist.move());
 			expr = std::move(fcall);
 		}
-		else if(!exprlist.wasSuccessful())
-			return ParseRes<ASTDeclRef*>(false);
-		else // it's just an identifier
+		else if (!exprlist.wasSuccessful())
+			return ExprResult::Error();
+		else // not expr list -> it's just an identifier!
 			expr = std::make_unique<ASTDeclRefExpr>(id);
 		
 		assert(expr && "Expr is null?");
-		return ParseRes<ASTDeclRef*>(std::move(expr));
+		return ExprResult(std::move(expr));
 	}
-	return ParseRes<ASTDeclRef*>();
+	return ExprResult::NotFound();
 }
 
-ParseRes<ASTExpr*> Parser::parsePrimitiveLiteral()
+Parser::ExprResult Parser::parsePrimitiveLiteral()
 {
 	// <primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
 	auto tok = getCurtok();
@@ -134,12 +134,12 @@ ParseRes<ASTExpr*> Parser::parsePrimitiveLiteral()
 		else
 			throw std::exception("Unknown literal type");
 
-		return ParseRes<ASTExpr*>(std::move(expr));
+		return ExprResult(std::move(expr));
 	}
-	return ParseRes<ASTExpr*>();
+	return ExprResult::NotFound();
 }
 
-ParseRes<ASTExpr*> Parser::parseArrayLiteral()
+Parser::ExprResult Parser::parseArrayLiteral()
 {
 	// <array_literal>	= '[' [<expr_list>] ']'
 	if (consumeBracket(SignType::S_SQ_OPEN))
@@ -147,20 +147,20 @@ ParseRes<ASTExpr*> Parser::parseArrayLiteral()
 		auto rtr = std::make_unique<ASTArrayLiteralExpr>();
 		// [<expr_list>]
 		if (auto elist = parseExprList())
-			rtr->setExprList(std::move(elist.result));
+			rtr->setExprList(elist.move());
 		// ']'
 		if (!consumeBracket(SignType::S_SQ_CLOSE))
 		{
 			// Resync. If resync wasn't successful, report the error.
 			if (!resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-				return ParseRes<ASTExpr*>(false);
+				return ExprResult::Error();
 		}
-		return ParseRes<ASTExpr*>(std::move(rtr));
+		return ExprResult(std::move(rtr));
 	}
-	return ParseRes<ASTExpr*>();
+	return ExprResult::NotFound();
 }
 
-ParseRes<ASTExpr*> Parser::parseLiteral()
+Parser::ExprResult Parser::parseLiteral()
 {
 	// <literal>	= <primitive_literal> | <array_literal>
 
@@ -168,60 +168,63 @@ ParseRes<ASTExpr*> Parser::parseLiteral()
 	if (auto prim = parsePrimitiveLiteral())
 		return prim;
 	else if (!prim.wasSuccessful())
-		return ParseRes<ASTExpr*>(false);
+		return ExprResult::Error();
 
 	// <array_literal>
 	if (auto arr = parseArrayLiteral())
 		return arr;
 	else if (!arr.wasSuccessful())
-		return ParseRes<ASTExpr*>(false);
+		return ExprResult::Error();
 
-	return ParseRes<ASTExpr*>();
+	return ExprResult::NotFound();
 }
 
-ParseRes<ASTExpr*>  Parser::parsePrimary()
+Parser::ExprResult Parser::parsePrimary()
 {
 	// = <literal>
-	if (auto match_lit = parseLiteral())
-		return match_lit;
-	else if(!match_lit.wasSuccessful())
-		return ParseRes<ASTExpr*>(false);
+	if (auto lit = parseLiteral())
+		return lit;
+	else if(!lit.wasSuccessful())
+		return ExprResult::Error();
 
 	// = <decl_call>
-	if (auto match_decl = parseDeclCall())
-		return ParseRes<ASTExpr*>(std::move(match_decl.result));
-	else if(!match_decl.wasSuccessful())
-		return ParseRes<ASTExpr*>(false);
+	if (auto declcall = parseDeclCall())
+		return declcall;
+	else if(!declcall.wasSuccessful())
+		return ExprResult::Error();
 
 	// = '(' <expr> ')'
 	if (auto parens_expr = parseParensExpr())
 		return parens_expr;
 	else if (!parens_expr.wasSuccessful())
-		return ParseRes<ASTExpr*>(false);
+		return ExprResult::Error();
 
-	return ParseRes<ASTExpr*>();
+	return ExprResult::NotFound();
 }
 
-ParseRes<ASTExpr*> Parser::parseArrayOrMemberAccess()
+Parser::ExprResult Parser::parseArrayOrMemberAccess()
 {
 	// <array_or_member_access>	= <primary> { <suffix> }
 	if (auto prim = parsePrimary())
 	{
-		std::unique_ptr<ASTExpr> base = std::move(prim.result);
+		std::unique_ptr<ASTExpr> base = prim.move();
 		while (auto suffix = parseSuffix(base))
 		{
 			// if suffix is usable, assert that lhs is now null
 			assert((!base) && "base should have been moved by parseSuffix!");
-			assert(suffix.result && "Suffix's result should be null!");
-			base = std::move(suffix.result);
+			base = std::move(suffix.move());
 		}
-		return ParseRes<ASTExpr*>(std::move(base));
+		return ExprResult(std::move(base));
 	}
 	else
-		return ParseRes<ASTExpr*>(prim.wasSuccessful());
+	{
+		if (!prim.wasSuccessful())
+			return ExprResult::Error();
+		return ExprResult::NotFound();
+	}
 }
 
-ParseRes<ASTExpr*> Parser::parseExponentExpr()
+Parser::ExprResult Parser::parseExponentExpr()
 {
 	// <exp_expr>	= <array_or_member_access> [ <exponent_operator> <prefix_expr> ]
 	// <member_access>
@@ -236,13 +239,13 @@ ParseRes<ASTExpr*> Parser::parseExponentExpr()
 			{
 				if(rhs.wasSuccessful())
 					errorExpected("Expected an expression after exponent operator.");
-				return ParseRes<ASTExpr*>(false);
+				return ExprResult::Error();
 			}
-			return ParseRes<ASTExpr*>(
+			return ExprResult(
 				std::make_unique<ASTBinaryExpr>(
 						binaryOperator::EXP,
-						std::move(lhs.result),
-						std::move(rhs.result)
+						lhs.move(),
+						rhs.move()
 					)
 			);
 		}
@@ -250,42 +253,48 @@ ParseRes<ASTExpr*> Parser::parseExponentExpr()
 		return lhs;
 	}
 	else
-		return ParseRes<ASTExpr*>(lhs.wasSuccessful());
+	{
+		if (!lhs.wasSuccessful())
+			return ExprResult::Error();
+		return ExprResult::NotFound();
+	}
 }
 
-ParseRes<ASTExpr*> Parser::parsePrefixExpr()
+Parser::ExprResult Parser::parsePrefixExpr()
 {
 	// <prefix_expr>  = <unary_operator> <prefix_expr> | <exp_expr>
 
 	// <unary_operator> <prefix_expr> 
-	if (auto matchUop = parseUnaryOp()) // <unary_operator>
+	if (auto uop = parseUnaryOp()) // <unary_operator>
 	{
-		if (auto parseres = parsePrefixExpr())
+		if (auto prefixexpr = parsePrefixExpr())
 		{
-			return ParseRes<ASTExpr*>(
-				std::make_unique<ASTUnaryExpr>(matchUop.result, std::move(parseres.result))
+			return ExprResult(
+				std::make_unique<ASTUnaryExpr>(uop.get(),prefixexpr.move())
 			);
 		}
 		else
 		{
-			if(parseres.wasSuccessful())
+			if(prefixexpr.wasSuccessful())
 				errorExpected("Expected an expression after unary operator in prefix expression.");
-			return ParseRes<ASTExpr*>(false);
+			return ExprResult::Error();
 		}
 	}
 
 	// <exp_expr>
 	if (auto expExpr = parseExponentExpr())
 		return expExpr;
-	else
-		return ParseRes<ASTExpr*>(expExpr.wasSuccessful());
+	else if (!expExpr.wasSuccessful())
+		return ExprResult::Error();
+
+	return ExprResult::NotFound();
 }
 
-ParseRes<ASTExpr*>  Parser::parseCastExpr()
+Parser::ExprResult Parser::parseCastExpr()
 {
 	// <cast_expr>  = <prefix_expr> ["as" <type>]
 	// <cast_expr>
-	if (auto parse_res = parsePrefixExpr())
+	if (auto prefixexpr = parsePrefixExpr())
 	{
 		// ["as" <type>]
 		if (consumeKeyword(KeywordType::KW_AS))
@@ -293,40 +302,48 @@ ParseRes<ASTExpr*>  Parser::parseCastExpr()
 			// <type>
 			if (auto castType = parseBuiltinTypename())
 			{
-				return ParseRes<ASTExpr*>(
-						std::make_unique<ASTCastExpr>(castType, std::move(parse_res.result))
+				return ExprResult(
+						std::make_unique<ASTCastExpr>(castType,prefixexpr.move())
 					);
 			}
 			else
 			{
 				errorExpected("Expected a type keyword after \"as\" in cast expression.");
-				return ParseRes<ASTExpr*>(false);
+				return ExprResult::Error();
 			}
 		}
-		return ParseRes<ASTExpr*>(
-				std::move(parse_res.result)
+		return ExprResult(
+			prefixexpr.move()
 		);
 	}
 	else
-		return ParseRes<ASTExpr*>(parse_res.wasSuccessful());
+	{
+		if (!prefixexpr.wasSuccessful())
+			return ExprResult::Error();
+		return ExprResult::NotFound();
+	}
 }
 
-ParseRes<ASTExpr*> Parser::parseBinaryExpr(const char & priority)
+Parser::ExprResult Parser::parseBinaryExpr(const char & priority)
 {
 	// <binary_expr>  = <cast_expr> { <binary_operator> <cast_expr> }	
 	auto rtr = std::make_unique<ASTBinaryExpr>(binaryOperator::DEFAULT);
 
 	// <cast_expr> OR a binaryExpr of inferior priority.
-	ParseRes<ASTExpr*> lhs_res;
+	ExprResult lhs;
 	if (priority > 0)
-		lhs_res = parseBinaryExpr(priority - 1);
+		lhs = parseBinaryExpr(priority - 1);
 	else
-		lhs_res = parseCastExpr();
+		lhs = parseCastExpr();
 
-	if (!lhs_res)
-		return ParseRes<ASTExpr*>(lhs_res.wasSuccessful());
+	if (!lhs)
+	{
+		if (!lhs.wasSuccessful())
+			return ExprResult::Error();
+		return ExprResult::NotFound();
+	}
 
-	rtr->setLHS(std::move(lhs_res.result));	
+	rtr->setLHS(lhs.move());
 
 	// { <binary_operator> <cast_expr> }	
 	while (true)
@@ -337,69 +354,72 @@ ParseRes<ASTExpr*> Parser::parseBinaryExpr(const char & priority)
 			break;
 
 		// <cast_expr> OR a binaryExpr of inferior priority.
-		ParseRes<ASTExpr*> rhs_res;
+		ExprResult rhs;
 		if (priority > 0)
-			rhs_res = parseBinaryExpr(priority - 1);
+			rhs = parseBinaryExpr(priority - 1);
 		else
-			rhs_res = parseCastExpr();
+			rhs = parseCastExpr();
 
 
 		// Handle results appropriately
 
-		if (!rhs_res) // Check for validity : we need a rhs. if we don't have one, we have an error !
+		if (!rhs) // Check for validity : we need a rhs. if we don't have one, we have an error !
 		{
-			if(rhs_res.wasSuccessful())
+			if(rhs.wasSuccessful())
 				errorExpected("Expected an expression after binary operator,");
-			return ParseRes<ASTExpr*>(false);
+			return ExprResult::Error();
 		}
 
 		if (rtr->getOp() == binaryOperator::DEFAULT) // if the node has still no operation set, set it
-			rtr->setOp(binop_res.result);
+			rtr->setOp(binop_res.get());
 		else 
-			rtr = std::make_unique<ASTBinaryExpr>(binop_res.result,std::move(rtr));
+			rtr = std::make_unique<ASTBinaryExpr>(binop_res.get(),std::move(rtr));
 
-		rtr->setRHS(std::move(rhs_res.result)); // Set second as the child of the node.
+		rtr->setRHS(rhs.move()); // Set second as the child of the node.
 	}
 
 	// When we have simple node (DEFAULT operation with only a value/expr as left child), we simplify it(only return the left child)
 	auto simple = rtr->getSimple();
 
 	if (simple)
-		return ParseRes<ASTExpr*>(std::move(simple));
-	return ParseRes<ASTExpr*>(std::move(rtr));
+		return ExprResult(std::move(simple));
+	return ExprResult(std::move(rtr));
 }
 
-ParseRes<ASTExpr*> Parser::parseExpr()
+Parser::ExprResult Parser::parseExpr()
 {
 	//  <expr> = <binary_expr> [<assign_operator> <expr>] 
-	if (auto lhs_res = parseBinaryExpr())
+	if (auto lhs = parseBinaryExpr())
 	{
-		auto matchResult = parseAssignOp();
-		if (matchResult)
+		if (auto op = parseAssignOp())
 		{
-			auto rhs_res = parseExpr();
-			if (!rhs_res)
+			auto rhs = parseExpr();
+			if (!rhs)
 			{
-				if(rhs_res.wasSuccessful())
+				if(rhs.wasSuccessful())
 					errorExpected("Expected expression after assignement operator.");
-				return ParseRes<ASTExpr*>(false);
+				return ExprResult::Error();
 			}
 
-			return ParseRes<ASTExpr*>(
+			return ExprResult(
 					std::make_unique<ASTBinaryExpr>(
-							matchResult.result,
-							std::move(lhs_res.result),
-							std::move(rhs_res.result)
+							op.get(),
+							lhs.move(),
+							rhs.move()
 						)
 				);
 		}
-		return ParseRes<ASTExpr*>(std::move(lhs_res.result));
+		return ExprResult(lhs.move());
 	}
-	else 
-		return ParseRes<ASTExpr*>(lhs_res.wasSuccessful()); // return true if lhs_res was simply not found (wasSuccessful returns true), and false if lhs_res had an error.
+	else
+	{
+		if (!lhs.wasSuccessful())
+			return ExprResult::Error();
+		return ExprResult::NotFound();
+	}
 }
 
-ParseRes<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
+Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory)
 {
 	// <parens_expr> = '(' <expr> ')'
 	// '('
@@ -407,12 +427,12 @@ ParseRes<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 	{
 		std::unique_ptr<ASTExpr> rtr = nullptr;
 		// <expr>
-		if (auto parseres = parseExpr())
-			rtr = std::move(parseres.result);
+		if (auto expr = parseExpr())
+			rtr = expr.move();
 		else 
 		{
 			// no expr, handle error & attempt to recover if it's allowed.
-			if(parseres.wasSuccessful())
+			if(expr.wasSuccessful())
 				errorExpected("Expected an expression");
 			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
 			{
@@ -420,7 +440,7 @@ ParseRes<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 				rtr = std::make_unique<ASTNullExpr>();
 			}
 			else
-				return ParseRes<ASTExpr*>(false); // return if no resync
+				return ExprResult::Error();
 		}
 		// Normally, the return value shouldn't be null, error should have been handled, but this
 		// assert's here for bug-catching purposes.
@@ -432,22 +452,19 @@ ParseRes<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 			// no ), handle error & attempt to recover if it's allowed.
 			errorExpected("Expected a ')'");
 			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-			{
-				// Couldn't resync successfully, return an error.
-				return ParseRes<ASTExpr*>(false);
-			}
+				return ExprResult::Error();
 		}
 
-		return ParseRes<ASTExpr*>(std::move(rtr));
+		return ExprResult(std::move(rtr));
 	}
 	// failure to match ( while expression was mandatory -> error
 	else if (isMandatory)
 	{
 		errorExpected("Expected a '('");
 
-		// Same thing as parseCompoundStatement, lines 49->56,
+		// Same thing as parseCompoundStatemen
 		// we attempt recovery, if it's successful, we return a null expr.
-		// if it isn't, we backtrack and return "not found".
+		// if it isn't, we backtrack and return "not found". (since the CompoundStatement is entirely missing)
 
 		// Note : We could totally return an error on both cases, but the current callers
 		// don't care if we had a notfound/error and abandon their parsing directly after anyways.
@@ -455,27 +472,24 @@ ParseRes<ASTExpr*> Parser::parseParensExpr(const bool& isMandatory)
 		auto backup = createParserStateBackup();
 
 		if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-			return ParseRes<ASTExpr*>(std::make_unique<ASTNullExpr>());
+			return ExprResult(std::make_unique<ASTNullExpr>());
 
 		restoreParserStateFromBackup(backup);
-
-		return ParseRes<ASTExpr*>();
 	}
-	// notfound
-	return ParseRes<ASTExpr*>();
+	return ExprResult::NotFound();
 }
 
-ParseRes<ExprList*> Parser::parseExprList()
+Parser::ExprListResult Parser::parseExprList()
 {
 	// <expr_list> = <expr> {',' <expr> }
 	if (auto firstexpr = parseExpr())
 	{
-		auto exprlist = std::make_unique<ExprList>();
-		exprlist->addExpr(std::move(firstexpr.result));
+		auto exprlist = std::make_unique<ASTExprList>();
+		exprlist->addExpr(firstexpr.move());
 		while (auto comma = consumeSign(SignType::S_COMMA))
 		{
 			if (auto expr = parseExpr())
-				exprlist->addExpr(std::move(expr.result));
+				exprlist->addExpr(expr.move());
 			else
 			{
 				if (expr.wasSuccessful())
@@ -485,33 +499,33 @@ ParseRes<ExprList*> Parser::parseExprList()
 					revertConsume();
 					break;
 				}
-				// else, if there was an error, just return.
-				return ParseRes<ExprList*>(false);
+
+				return ExprListResult::Error();
 			}
 		}
-		return ParseRes<ExprList*>(std::move(exprlist));
+		return ExprListResult(std::move(exprlist));
 	}
-	return ParseRes<ExprList*>();
+	return ExprListResult::NotFound();
 }
 
-ParseRes<ExprList*> Parser::parseParensExprList()
+Parser::ExprListResult Parser::parseParensExprList()
 {
 	// <parens_expr_list>	= '(' [ <expr_list> ] ')'
 	// '('
 	if (consumeBracket(SignType::S_ROUND_OPEN))
 	{
-		auto exprlist = std::make_unique<ExprList>();
+		auto expr_list = std::make_unique<ASTExprList>();
 		//  [ <expr_list> ]
-		if (auto parsedlist = parseExprList())			
-			exprlist = std::move(parsedlist.result);
-		else if (!parsedlist.wasSuccessful())		
+		if (auto elist = parseExprList())
+			elist = elist.move();
+		else if (!elist.wasSuccessful())
 		{
 			// error? Try to recover from it, if success, just discard the expr list,
 			// if no success return error.
 			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-				return ParseRes<ExprList*>(std::move(exprlist));
-			else 
-				return ParseRes<ExprList*>(false);
+				return ExprListResult(std::make_unique<ASTExprList>()); // if recovery is successful, return an empty expression list.
+			else
+				return ExprListResult::Error();
 		}
 
 		// ')'
@@ -520,12 +534,12 @@ ParseRes<ExprList*> Parser::parseParensExprList()
 			errorExpected("Expected a ')'");
 
 			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-				return ParseRes<ExprList*>(false); // Recovery wasn't successful, return an error.
+				return ExprListResult::Error(); 
 		}
-		return ParseRes<ExprList*>(std::move(exprlist));
+		return ExprListResult(std::move(expr_list));
 	}
 
-	return ParseRes<ExprList*>();
+	return ExprListResult::NotFound();
 }
 
 bool Parser::parseExponentOp()
@@ -540,7 +554,7 @@ bool Parser::parseExponentOp()
 	return false;
 }
 
-ParseRes<binaryOperator> Parser::parseAssignOp()
+Parser::Result<binaryOperator> Parser::parseAssignOp()
 {
 	auto backup = createParserStateBackup();
 	if (consumeSign(SignType::S_EQUAL))
@@ -548,28 +562,28 @@ ParseRes<binaryOperator> Parser::parseAssignOp()
 		// Try to match a S_EQUAL. If failed, that means that the next token isn't a =
 		// If it succeeds, we founda '==', this is the comparison operator and we must backtrack to prevent errors.
 		if (!consumeSign(SignType::S_EQUAL))
-			return ParseRes<binaryOperator>(binaryOperator::ASSIGN_BASIC);
+			return Result<binaryOperator>(binaryOperator::ASSIGN_BASIC);
 		restoreParserStateFromBackup(backup);
 	}
-	return ParseRes<binaryOperator>();
+	return Result<binaryOperator>::NotFound();
 }
 
-ParseRes<unaryOperator> Parser::parseUnaryOp()
+Parser::Result<unaryOperator> Parser::parseUnaryOp()
 {
 	if (consumeSign(SignType::S_EXCL_MARK))
-		return ParseRes<unaryOperator>(unaryOperator::LOGICNOT);
+		return Result<unaryOperator>(unaryOperator::LOGICNOT);
 	else if (consumeSign(SignType::S_MINUS))
-		return ParseRes<unaryOperator>(unaryOperator::NEGATIVE);
+		return Result<unaryOperator>(unaryOperator::NEGATIVE);
 	else if (consumeSign(SignType::S_PLUS))
-		return ParseRes<unaryOperator>(unaryOperator::POSITIVE);
-	return ParseRes<unaryOperator>();
+		return Result<unaryOperator>(unaryOperator::POSITIVE);
+	return Result<unaryOperator>::NotFound();
 }
 
-ParseRes<binaryOperator> Parser::parseBinaryOp(const char & priority)
+Parser::Result<binaryOperator> Parser::parseBinaryOp(const char & priority)
 {
 	// Check current Token validity, also check if it's a sign because if it isn't we can return directly!
 	if (!getCurtok().isValid() || !getCurtok().isSign())
-		return ParseRes<binaryOperator>();
+		return Result<binaryOperator>::NotFound();
 
 	auto backup = createParserStateBackup();
 
@@ -579,33 +593,31 @@ ParseRes<binaryOperator> Parser::parseBinaryOp(const char & priority)
 			if (consumeSign(SignType::S_ASTERISK))
 			{
 				if (!consumeSign(SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
-					return ParseRes<binaryOperator>(binaryOperator::MUL );
-				// else, we matched a *. No worries because at the end of the function
-				// we backtrack before returning.
+					return Result<binaryOperator>(binaryOperator::MUL );
 			}
 			else if (consumeSign(SignType::S_SLASH))
-				return ParseRes<binaryOperator>(binaryOperator::DIV);
+				return Result<binaryOperator>(binaryOperator::DIV);
 			else if (consumeSign(SignType::S_PERCENT))
-				return ParseRes<binaryOperator>(binaryOperator::MOD);
+				return Result<binaryOperator>(binaryOperator::MOD);
 			break;
 		case 1: // + -
 			if (consumeSign(SignType::S_PLUS))
-				return ParseRes<binaryOperator>(binaryOperator::ADD );
+				return Result<binaryOperator>(binaryOperator::ADD );
 			else if (consumeSign(SignType::S_MINUS))
-				return ParseRes<binaryOperator>(binaryOperator::MINUS);
+				return Result<binaryOperator>(binaryOperator::MINUS);
 			break;
 		case 2: // > >= < <=
 			if (consumeSign(SignType::S_LESS_THAN))
 			{
 				if (consumeSign(SignType::S_EQUAL))
-					return ParseRes<binaryOperator>(binaryOperator::LESS_OR_EQUAL );
-				return ParseRes<binaryOperator>(binaryOperator::LESS_THAN );
+					return Result<binaryOperator>(binaryOperator::LESS_OR_EQUAL );
+				return Result<binaryOperator>(binaryOperator::LESS_THAN );
 			}
 			else if (consumeSign(SignType::S_GREATER_THAN))
 			{
 				if (consumeSign(SignType::S_EQUAL))
-					return ParseRes<binaryOperator>(binaryOperator::GREATER_OR_EQUAL );
-				return ParseRes<binaryOperator>(binaryOperator::GREATER_THAN );
+					return Result<binaryOperator>(binaryOperator::GREATER_OR_EQUAL );
+				return Result<binaryOperator>(binaryOperator::GREATER_THAN );
 			}
 			break;
 		case 3:	// == !=
@@ -613,26 +625,26 @@ ParseRes<binaryOperator> Parser::parseBinaryOp(const char & priority)
 			if (consumeSign(SignType::S_EQUAL))
 			{
 				if (consumeSign(SignType::S_EQUAL))
-					return ParseRes<binaryOperator>(binaryOperator::EQUAL );
+					return Result<binaryOperator>(binaryOperator::EQUAL );
 			}
 			else if (consumeSign(SignType::S_EXCL_MARK))
 			{
 				if (consumeSign(SignType::S_EQUAL))
-					return ParseRes<binaryOperator>(binaryOperator::NOTEQUAL);
+					return Result<binaryOperator>(binaryOperator::NOTEQUAL);
 			}
 			break;
 		case 4: // &&
 			if (consumeSign(SignType::S_AMPERSAND))
 			{
 				if (consumeSign(SignType::S_AMPERSAND))
-					return ParseRes<binaryOperator>(binaryOperator::LOGIC_AND);
+					return Result<binaryOperator>(binaryOperator::LOGIC_AND);
 			}
 			break;
 		case 5: // ||
 			if (consumeSign(SignType::S_VBAR))
 			{
 				if (consumeSign(SignType::S_VBAR))
-					return ParseRes<binaryOperator>(binaryOperator::LOGIC_OR);
+					return Result<binaryOperator>(binaryOperator::LOGIC_OR);
 			}
 			break;
 		default:
@@ -640,5 +652,5 @@ ParseRes<binaryOperator> Parser::parseBinaryOp(const char & priority)
 			break;
 	}
 	restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
-	return ParseRes<binaryOperator>();
+	return Result<binaryOperator>::NotFound();
 }

@@ -41,8 +41,6 @@
 #pragma once
 
 #include "Moonshot/Fox/Lexer/Token.hpp"					
-#include "Moonshot/Fox/Parser/ParsingResult.hpp"
-
 #include "Moonshot/Fox/AST/ASTContext.hpp"
 #include "Moonshot/Fox/AST/Types.hpp"
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
@@ -52,16 +50,30 @@
 
 #include "Moonshot/Fox/AST/Operators.hpp"			
 
-#include "Moonshot/Fox/Basic/Utils.hpp"
-
-#include <tuple>
-#include <functional>
+#include <cassert>
 
 namespace Moonshot
 {
 	class Context;
 	class Parser
 	{
+		public:
+			/*-------------- Forward Declarations --------------*/
+			template<typename DataTy>
+			class Result;
+
+			template<typename DataTy>
+			class UniqueResult;
+
+			/*-------------- Usings --------------*/
+
+			// Bunch of usings & helper functions for parsing functions. Theses are public
+			// so external classes can use them.
+			using ExprResult		= UniqueResult<ASTExpr>;
+			using ExprListResult	= UniqueResult<ASTExprList>;
+			using DeclResult		= UniqueResult<ASTDecl>;
+			using StmtResult		= UniqueResult<ASTStmt>;
+			using UnitResult		= UniqueResult<ASTUnit>;
 		private:
 			using TokenIteratorTy = TokenVector::iterator;
 		public:
@@ -69,39 +81,39 @@ namespace Moonshot
 
 			/*-------------- Parsing Methods --------------*/
 			// UNIT
-			UnitParsingResult parseUnit();
+			UnitResult parseUnit();
 
 			// EXPRESSIONS
-			ParseRes<ExprList*>	parseExprList();
-			ParseRes<ExprList*>	parseParensExprList();
-			ParseRes<ASTExpr*>	parseParensExpr(const bool& isMandatory = false);
-			ParseRes<ASTExpr*>	parseSuffix(std::unique_ptr<ASTExpr> &base);
-			ParseRes<ASTDeclRef*> parseDeclCall(); 
-			ParseRes<ASTExpr*> parsePrimitiveLiteral();
-			ParseRes<ASTExpr*> parseArrayLiteral();
-			ParseRes<ASTExpr*> parseLiteral();
-			ParseRes<ASTExpr*> parsePrimary();
-			ParseRes<ASTExpr*> parseArrayOrMemberAccess();
-			ParseRes<ASTExpr*> parseExponentExpr();
-			ParseRes<ASTExpr*> parsePrefixExpr(); 
-			ParseRes<ASTExpr*> parseCastExpr();
-			ParseRes<ASTExpr*> parseBinaryExpr(const char &priority = 5);
-			ParseRes<ASTExpr*> parseExpr(); 
+			ExprListResult parseExprList();
+			ExprListResult parseParensExprList();
+			ExprResult parseParensExpr(const bool& isMandatory = false);
+			ExprResult parseSuffix(std::unique_ptr<ASTExpr> &base);
+			ExprResult parseDeclCall();
+			ExprResult parsePrimitiveLiteral();
+			ExprResult parseArrayLiteral();
+			ExprResult parseLiteral();
+			ExprResult parsePrimary();
+			ExprResult parseArrayOrMemberAccess();
+			ExprResult parseExponentExpr();
+			ExprResult parsePrefixExpr();
+			ExprResult parseCastExpr();
+			ExprResult parseBinaryExpr(const char &priority = 5);
+			ExprResult parseExpr(); 
 
 			// STATEMENTS
-			ParseRes<ASTStmt*> parseReturnStmt();
-			ParseRes<ASTStmt*> parseExprStmt(); 
-			ParseRes<ASTCompoundStmt*> parseCompoundStatement(const bool& isMandatory=false); 
-			ParseRes<ASTStmt*> parseStmt();
-			ParseRes<ASTStmt*> parseBody();
-			ParseRes<ASTStmt*> parseCondition();
-			ParseRes<ASTStmt*> parseWhileLoop();
+			StmtResult parseReturnStmt();
+			StmtResult parseExprStmt();
+			StmtResult parseCompoundStatement(const bool& isMandatory=false);
+			StmtResult parseStmt();
+			StmtResult parseBody();
+			StmtResult parseCondition();
+			StmtResult parseWhileLoop();
 
 			// DECLS
-			ParseRes<ASTArgDecl*> parseArgDecl();
-			ParseRes<ASTVarDecl*> parseVarDeclStmt();
-			ParseRes<ASTFunctionDecl*> parseFunctionDeclaration();
-			ParseRes<ASTDecl*> parseDecl();
+			DeclResult parseArgDecl();
+			DeclResult parseVarDecl();
+			DeclResult parseFunctionDeclaration();
+			DeclResult parseDecl();
 
 		private:
 			/*-------------- Parser Setup --------------*/
@@ -112,14 +124,14 @@ namespace Moonshot
 			const Type* parseBuiltinTypename();	
 
 			// first -> The Type* (nullptr if not found), second -> False if error
-			std::pair<const Type*,bool> parseType();
+			Result<const Type*> parseType();
 
 			// Parses a QualType (Full Type Spec)
-			ParseRes<QualType>	parseFQTypeSpec();
+			Result<QualType> parseFQTypeSpec();
 
-			ParseRes<binaryOperator> parseAssignOp();						// = 
-			ParseRes<unaryOperator>  parseUnaryOp();						// ! - +
-			ParseRes<binaryOperator> parseBinaryOp(const char &priority);	// + - * / % 
+			Result<binaryOperator> parseAssignOp();						// = 
+			Result<unaryOperator>  parseUnaryOp();						// ! - +
+			Result<binaryOperator> parseBinaryOp(const char &priority);	// + - * / % 
 			bool parseExponentOp();											//  **
 
 			/*-------------- Token Consuming --------------*/
@@ -225,5 +237,131 @@ namespace Moonshot
 
 			/*-------------- Constants --------------*/
 			static constexpr uint8_t kMaxBraceDepth = (std::numeric_limits<uint8_t>::max)();
+
+		public:
+			/*-------------- Result Classes --------------*/
+			// Class for encapsulating a parsing function's result.
+			template<typename DataTy>
+			class Result
+			{
+				public:
+					Result(DataTy res) : result_(res), hasData_(true), successFlag_(true)
+					{
+
+					}
+
+					Result(const bool& wasSuccessful = true) : hasData_(false), successFlag_(wasSuccessful)
+					{
+
+					}
+
+					operator bool() const
+					{
+						return isUsable();
+					}
+
+					bool wasSuccessful() const
+					{
+						return successFlag_;
+					}
+
+					bool isUsable() const
+					{
+						return successFlag_ && hasData_;
+					}
+
+					DataTy get() const
+					{
+						return result_;
+					}
+
+					// Helper methods 
+					static Result<DataTy> Error()
+					{
+						return Result<DataTy>(false);
+					}
+
+					static Result<DataTy> NotFound()
+					{
+						return Result<DataTy>(true);
+					}
+
+				private:
+					bool hasData_ : 1;
+					bool successFlag_ : 1;
+					DataTy result_;
+			};
+
+			// Result class that holds it's information as a unique_ptr.
+			template<typename DataTy>
+			class UniqueResult
+			{
+				public:
+					UniqueResult(std::unique_ptr<DataTy> res) : result_(std::move(res)), successFlag_(true)
+					{
+
+					}
+
+					UniqueResult(const bool& wasSuccessful = true) : result_(nullptr), successFlag_(wasSuccessful)
+					{
+
+					}
+
+					operator bool() const
+					{
+						return isUsable();
+					}
+
+					bool wasSuccessful() const
+					{
+						return successFlag_;
+					}
+
+					bool isUsable() const
+					{
+						return successFlag_ && result_;
+					}
+
+					// Helper methods 
+					static UniqueResult<DataTy> Error()
+					{
+						return UniqueResult<DataTy>(false);
+					}
+
+					static UniqueResult<DataTy> NotFound()
+					{
+						return UniqueResult<DataTy>(true);
+					}
+
+					// Moves the content of the ParsingResult as a derived class.
+					// Asserts that result_ isn't null, check with is() or isUsable() before using if you're unsure.
+					// Note that the type is asserted to be castable to the desired type.
+					template<typename Derived>
+					std::unique_ptr<Derived> moveAs()
+					{
+						assert(result_ && "Result was null, or has already been moved!");
+						Derived *ptr = dynamic_cast<Derived*>(result_.get());
+						assert(ptr && "Can't cast to desired type");
+						result_.release();
+						return std::unique_ptr<Derived>(ptr);
+					}
+
+					// Classic move. Asserts that result_ isn't null, check with is() or isUsable() before using if you're unsure.
+					std::unique_ptr<DataTy> move()
+					{
+						assert(result_ && "Result was null, or has already been moved!");
+						return std::move(result_);
+					}
+
+					// Checks that Derived can be cast to the correct type.
+					template<typename Derived>
+					bool is() const
+					{
+						return (bool)(dynamic_cast<Derived*>(result_.get()));
+					}
+				private:
+					bool successFlag_ : 1;
+					std::unique_ptr<DataTy> result_;
+			};
 	};
 }

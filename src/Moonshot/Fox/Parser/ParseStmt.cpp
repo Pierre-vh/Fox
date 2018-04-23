@@ -14,7 +14,7 @@
 
 using namespace Moonshot;
 
-ParseRes<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandatory)
+Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 {
 	auto rtr = std::make_unique<ASTCompoundStmt>(); // return value
 	if (consumeBracket(SignType::S_CURLY_OPEN))
@@ -31,19 +31,19 @@ ParseRes<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandator
 			// try to parse a statement
 
 			// success
-			if(auto parseres = parseStmt())
+			if(auto stmt = parseStmt())
 			{
 				// Push only if we don't have a null expr.
 				// this is done to avoid stacking them up, and since they're a no-op in all cases
 				// it's meaningless to ignore them.
-				if (!(dynamic_cast<ASTNullExpr*>(parseres.result.get())))
-					rtr->addStmt(std::move(parseres.result));
+				if (!stmt.is<ASTNullExpr>())
+					rtr->addStmt(std::move(stmt.move()));
 			}
 			// failure
 			else
 			{
 				// if not found, report an error
-				if (parseres.wasSuccessful())
+				if (stmt.wasSuccessful())
 					errorExpected("Expected a Statement");
 				// In both case, attempt recovery to nearest semicolon.
 				if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi -> meaningless here*/ false, /*shouldConsumeToken*/ true))
@@ -63,7 +63,7 @@ ParseRes<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandator
 					else
 					{
 						// (in this case, just return an error)
-						return ParseRes<ASTCompoundStmt*>(false);
+						return StmtResult::Error();
 					}
 
 				}
@@ -74,11 +74,11 @@ ParseRes<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandator
 		{
 			errorExpected("Expected a '}'");
 			// We can't recover since we reached EOF. return an error!
-			return ParseRes<ASTCompoundStmt*>(false);
+			return StmtResult::Error();
 		}
 
 		// if everything's alright, return the result
-		return ParseRes<ASTCompoundStmt*>(std::move(rtr));
+		return StmtResult(std::move(rtr));
 	}
 	// not found & mandatory
 	else if (isMandatory)
@@ -91,16 +91,14 @@ ParseRes<ASTCompoundStmt*> Parser::parseCompoundStatement(const bool& isMandator
 		auto backup = createParserStateBackup();
 
 		if (resyncToSign(SignType::S_CURLY_CLOSE, /* stopAtSemi */ false, /*consumeToken*/ true))
-			return ParseRes<ASTCompoundStmt*>(std::make_unique<ASTCompoundStmt>());
+			return StmtResult(std::make_unique<ASTCompoundStmt>());
 		
 		restoreParserStateFromBackup(backup);
-		return ParseRes<ASTCompoundStmt*>();
 	}
-
-	return ParseRes<ASTCompoundStmt*>();
+	return StmtResult::NotFound();
 }
 
-ParseRes<ASTStmt*> Parser::parseWhileLoop()
+Parser::StmtResult Parser::parseWhileLoop()
 {
 	// <while_loop>  = "while"	<parens_expr> <body>
 	// "while"
@@ -108,28 +106,28 @@ ParseRes<ASTStmt*> Parser::parseWhileLoop()
 	{
 		std::unique_ptr<ASTWhileStmt> rtr = std::make_unique<ASTWhileStmt>();
 		// <parens_expr>
-		if (auto parensExprRes = parseParensExpr(/* The ParensExpr is mandatory */ true))
-			rtr->setCond(std::move(parensExprRes.result));
+		if (auto parensexpr = parseParensExpr(/* The ParensExpr is mandatory */ true))
+			rtr->setCond(parensexpr.move());
 		else
-			return ParseRes<ASTStmt*>(false);
+			return StmtResult::Error();
 
 		// <body>
-		if (auto parseres = parseBody())
-			rtr->setBody(std::move(parseres.result));
+		if (auto body = parseBody())
+			rtr->setBody(body.move());
 		else
 		{
-			if(parseres.wasSuccessful())
+			if(body.wasSuccessful())
 				errorExpected("Expected a statement");
 			rtr->setBody(std::make_unique<ASTNullExpr>());
 		}
 		// Return if everything's alright
-		return ParseRes<ASTStmt*>(std::move(rtr));
+		return StmtResult(std::move(rtr));
 	}
 	// not found
-	return ParseRes<ASTStmt*>();
+	return StmtResult::NotFound();
 }
 
-ParseRes<ASTStmt*> Parser::parseCondition()
+Parser::StmtResult Parser::parseCondition()
 {
 	// <condition>	= "if"	<parens_expr> <body> ["else" <body>]
 	auto rtr = std::make_unique<ASTCondStmt>();
@@ -138,17 +136,17 @@ ParseRes<ASTStmt*> Parser::parseCondition()
 	if (consumeKeyword(KeywordType::KW_IF))
 	{
 		// <parens_expr>
-		if (auto parensExprRes = parseParensExpr(/* The ParensExpr is mandatory */ true)) 
-			rtr->setCond(std::move(parensExprRes.result));
+		if (auto parensexpr = parseParensExpr(/* The ParensExpr is mandatory */ true))
+			rtr->setCond(parensexpr.move());
 		else
-			return ParseRes<ASTStmt*>(false);
+			return StmtResult::Error();
 		
 		// <body>
-		if (auto ifStmtRes = parseBody())
-			rtr->setThen(std::move(ifStmtRes.result));
+		if (auto body = parseBody())
+			rtr->setThen(body.move());
 		else
 		{
-			if (ifStmtRes.wasSuccessful())
+			if (body.wasSuccessful())
 				errorExpected("Expected a statement after if condition,");
 
 			if (consumeKeyword(KeywordType::KW_ELSE)) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
@@ -157,7 +155,7 @@ ParseRes<ASTStmt*> Parser::parseCondition()
 				rtr->setThen(std::make_unique<ASTNullExpr>());
 			}
 			else
-				return ParseRes<ASTStmt*>(false);
+				return StmtResult::Error();
 		}
 		has_if = true;
 	}
@@ -166,12 +164,12 @@ ParseRes<ASTStmt*> Parser::parseCondition()
 	{
 		// <body>
 		if (auto stmt = parseBody())
-			rtr->setElse(std::move(stmt.result));
+			rtr->setElse(stmt.move());
 		else
 		{
 			if(stmt.wasSuccessful())
 				errorExpected("Expected a statement after else,");
-			return ParseRes<ASTStmt*>(false);
+			return StmtResult::Error();
 		}
 
 		// Else but no if?
@@ -179,12 +177,13 @@ ParseRes<ASTStmt*> Parser::parseCondition()
 			genericError("Else without matching if.");
 	}
 
-	if(has_if)
-		return ParseRes<ASTStmt*>(std::move(rtr)); // success
-	return ParseRes<ASTStmt*>(); // not found
+	if (has_if)
+		return StmtResult(std::move(rtr));
+
+	return StmtResult::NotFound();
 }
 
-ParseRes<ASTStmt*> Parser::parseReturnStmt()
+Parser::StmtResult Parser::parseReturnStmt()
 {
 	// <rtr_stmt> = "return" [<expr>] ';'
 	// "return"
@@ -192,13 +191,13 @@ ParseRes<ASTStmt*> Parser::parseReturnStmt()
 	{
 		auto rtr = std::make_unique<ASTReturnStmt>();
 		// [<expr>]
-		if (auto pExpr_res = parseExpr())
-			rtr->setExpr(std::move(pExpr_res.result));
-		else if(!pExpr_res.wasSuccessful())
+		if (auto expr = parseExpr())
+			rtr->setExpr(expr.move());
+		else if(!expr.wasSuccessful())
 		{
 			// expr failed? try to resync if possible. 
 			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-				return ParseRes<ASTStmt*>(false);
+				return StmtResult::Error();
 		}
 
 		// ';'
@@ -208,16 +207,15 @@ ParseRes<ASTStmt*> Parser::parseReturnStmt()
 			errorExpected("Expected a ';'");
 			// Recover to semi, if recovery wasn't successful, report an error.
 			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-				return ParseRes<ASTStmt*>(false);
+				return StmtResult::Error();
 		}
-		// success, return
-		return ParseRes<ASTStmt*>(std::move(rtr));
+
+		return StmtResult(std::move(rtr));
 	}
-	// not found
-	return ParseRes<ASTStmt*>();
+	return StmtResult::NotFound();
 }
 
-ParseRes<ASTStmt*> Parser::parseStmt()
+Parser::StmtResult Parser::parseStmt()
 {
 	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
 
@@ -228,65 +226,64 @@ ParseRes<ASTStmt*> Parser::parseStmt()
 	//		return error
 
 	// <var_decl
-	if (auto vardecl = parseVarDeclStmt())
-		return ParseRes<ASTStmt*>(std::move(vardecl.result));
+	if (auto vardecl = parseVarDecl())
+		return StmtResult(vardecl.moveAs<ASTVarDecl>());
 	else if (!vardecl.wasSuccessful())
-		return ParseRes<ASTStmt*>(false);
+		return StmtResult::Error();
 
 	// <expr_stmt>
 	if (auto exprstmt = parseExprStmt())
 		return exprstmt;
 	else if (!exprstmt.wasSuccessful())
-		return ParseRes<ASTStmt*>(false);
+		return StmtResult::Error();
 
 	// <condition>
 	if(auto cond = parseCondition())
 		return cond;
 	else if (!cond.wasSuccessful())
-		return ParseRes<ASTStmt*>(false);
+		return StmtResult::Error();
 
 	// <while_loop>
 	if (auto wloop = parseWhileLoop())
 		return wloop;
 	else if(!wloop.wasSuccessful())
-		return ParseRes<ASTStmt*>(false);
+		return StmtResult::Error();
 
 	// <return_stmt>
 	if (auto rtrstmt = parseReturnStmt())
 		return rtrstmt;
 	else if(!rtrstmt.wasSuccessful())
-		return ParseRes<ASTStmt*>(false);
+		return StmtResult::Error();
 
-	// Else, not found..
-	return ParseRes<ASTStmt*>();
+	return StmtResult::NotFound();
 }
 
-ParseRes<ASTStmt*> Parser::parseBody()
+Parser::StmtResult Parser::parseBody()
 {
 	// <body>	= <stmt> | <compound_statement>
 
 	// <stmt>
-	if (auto stmt_res = parseStmt())
-		return stmt_res;
-	else if(!stmt_res.wasSuccessful())
-		return ParseRes<ASTStmt*>(false);
+	if (auto stmt = parseStmt())
+		return stmt;
+	else if (!stmt.wasSuccessful())
+		return StmtResult::Error();
 
 	// <compound_statement>
-	if (auto compstmt_res = parseCompoundStatement())
-		return ParseRes<ASTStmt*>(std::move(compstmt_res.result));
-	else if(!compstmt_res.wasSuccessful())
-		return ParseRes<ASTStmt*>(false);
+	if (auto compoundstmt = parseCompoundStatement())
+		return compoundstmt;
+	else if (!compoundstmt.wasSuccessful())
+		return StmtResult::Error();
 
-	return ParseRes<ASTStmt*>();
+	return StmtResult::NotFound();
 }
 
-ParseRes<ASTStmt*> Parser::parseExprStmt()
+Parser::StmtResult Parser::parseExprStmt()
 {
 	// <expr_stmt>	= ';' | <expr> ';' 
 
 	// ';'
 	if (consumeSign(SignType::S_SEMICOLON))
-		return ParseRes<ASTStmt*>( std::make_unique<ASTNullExpr>() );
+		return StmtResult(std::make_unique<ASTNullExpr>());
 
 	// <expr> ';' 
 	// <expr>
@@ -299,19 +296,19 @@ ParseRes<ASTStmt*> Parser::parseExprStmt()
 				errorExpected("Expected a ';'");
 
 			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-				return ParseRes<ASTStmt*>(false);
+				return StmtResult::Error();
 			// if recovery was successful, just return like nothing has happened!
 		}
 
-		return ParseRes<ASTStmt*>(std::move(expr.result));
+		return StmtResult(expr.move());
 	}
 	else if(!expr.wasSuccessful())
 	{
 		// if the expression had an error, ignore it and try to recover to a semi.
 		if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-			return ParseRes<ASTStmt*>(std::make_unique<ASTNullExpr>());
-		return ParseRes<ASTStmt*>(false);
+			return StmtResult(std::make_unique<ASTNullExpr>());
+		return StmtResult::Error();
 	}
 
-	return ParseRes<ASTStmt*>();
+	return StmtResult::NotFound();
 }

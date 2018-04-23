@@ -25,7 +25,7 @@ Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l) : context_(c), a
 	setupParser();
 }
 
-UnitParsingResult Parser::parseUnit()
+Parser::UnitResult Parser::parseUnit()
 {
 	// <fox_unit>	= {<declaration>}1+
 	auto unit = std::make_unique<ASTUnit>();
@@ -45,7 +45,7 @@ UnitParsingResult Parser::parseUnit()
 		// If the declaration was parsed successfully : continue the cycle.
 		if (decl.isUsable())
 		{
-			unit->addDecl(std::move(decl.result));
+			unit->addDecl(decl.move());
 			continue;
 		}
 		else
@@ -95,10 +95,10 @@ UnitParsingResult Parser::parseUnit()
 	if (unit->getDeclCount() == 0)
 	{
 		genericError("Expected one or more declaration in unit.");
-		return UnitParsingResult(false);
+		return UnitResult::Error();
 	}
 	else
-		return UnitParsingResult(std::move(unit));
+		return UnitResult(std::move(unit));
 }
 
 void Parser::setupParser()
@@ -248,7 +248,7 @@ const Type* Parser::parseBuiltinTypename()
 	return nullptr;
 }
 
-std::pair<const Type*, bool> Parser::parseType()
+Parser::Result<const Type*> Parser::parseType()
 {
 	// <type> = <builtin_type_name> { '[' ']' }
 	// <builtin_type_name> 
@@ -257,24 +257,21 @@ std::pair<const Type*, bool> Parser::parseType()
 		//  { '[' ']' }
 		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
-			// Set ty to the ArrayType of ty.
 			ty = astcontext_.getArrayTypeForType(ty);
 			// ']'
 			if (!consumeBracket(SignType::S_SQ_CLOSE))
 			{
 				errorExpected("Expected ']'");
-				// Try to recover
+
 				if (resyncToSign(SignType::S_SQ_CLOSE,/*stopAtSemi */ true ,/*shouldConsumeToken*/ true))
 					continue;
-				// else, return an error.
-				return { nullptr , false };
+
+				return Result<const Type*>::Error();
 			}
 		}
-		// found, return
-		return { ty, true };
+		return Result<const Type*>(ty);
 	}
-	// notfound, return
-	return { nullptr, true };
+	return Result<const Type*>::NotFound();
 }
 
 Token Parser::getCurtok() const
