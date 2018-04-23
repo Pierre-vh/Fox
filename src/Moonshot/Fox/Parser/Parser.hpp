@@ -177,8 +177,8 @@ namespace Moonshot
 			void errorExpected(const std::string &s);
 			void genericError(const std::string &s); 
 
-			// Returns (it == state_.lastUnexpectedTokenIt)
-			bool isLastUnexpectedToken(TokenIteratorTy it) const;
+			// Returns (state_.tokenIterator == state_.lastUnexpectedTokenIt)
+			bool isCurrentTokenLastUnexpectedToken() const;
 			// Sets state_.lastUnexpectedTokenIt
 			void markAsLastUnexpectedToken(TokenIteratorTy it);
 
@@ -204,14 +204,17 @@ namespace Moonshot
 			} state_;
 
 			// Interrogate state_
+				// isDone returns false if( (state_.tokenIterator == tokens_.end) or !isAlive())
 			bool isDone() const;
+				// Returns state_.isAlive
 			bool isAlive() const;
+				// Kills Parsing (stops it)
 			void die();
 
-			// Backup state_
+			// Creates a state_ backup
 			ParserState createParserStateBackup() const;
+			// Restores state_ from a backup.
 			void restoreParserStateFromBackup(const ParserState& st);
-
 
 			/*-------------- RAIIRecoveryManager --------------*/
 				// This class manages the recovery of the parser

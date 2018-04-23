@@ -276,7 +276,7 @@ Parser::Result<const Type*> Parser::parseType()
 
 Token Parser::getCurtok() const
 {
-	if (state_.tokenIterator != tokens_.end())
+	if (!isDone())
 		return *state_.tokenIterator;
 	return Token();
 }
@@ -443,7 +443,7 @@ void Parser::die()
 void Parser::errorUnexpected()
 {
 	if (!state_.isAlive) return;
-	if (isLastUnexpectedToken(state_.tokenIterator)) return;
+	if (isCurrentTokenLastUnexpectedToken()) return;
 
 	markAsLastUnexpectedToken(state_.lastUnexpectedTokenIt);
 
@@ -494,9 +494,9 @@ void Parser::genericError(const std::string & s)
 	context_.resetOrigin();
 }
 
-bool Parser::isLastUnexpectedToken(TokenIteratorTy it) const
+bool Parser::isCurrentTokenLastUnexpectedToken() const
 {
-	return (it == state_.lastUnexpectedTokenIt);
+	return (state_.tokenIterator == state_.lastUnexpectedTokenIt);
 }
 
 void Parser::markAsLastUnexpectedToken(TokenIteratorTy it)
