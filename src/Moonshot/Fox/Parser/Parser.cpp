@@ -297,8 +297,8 @@ bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const 
 bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopAtSemi, const bool & shouldConsumeToken)
 {
 	// Note, this function is heavily based on (read: nearly copy pasted from) CLang's http://clang.llvm.org/doxygen/Parse_2Parser_8cpp_source.html#l00245
-	// This is CLang's license https://github.com/llvm-mirror/clang/blob/master/LICENSE.TXT. As this is not a pure copy-paste but more of a translation I don't think
-	// I need to link it, but here is it anyways.
+	// This is CLang's license https://github.com/llvm-mirror/clang/blob/master/LICENSE.TXT. 
+	// As this is not a pure copy-paste but more of a translation & adaptation I don't think I need to link it, but here is it anyways.
 
 	// Return immediately if recovery is not allowed, or the parser isn't alive anymore.
 	if (!state_.isRecoveryAllowed || !isAlive())
@@ -319,13 +319,6 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 					consumeAny();
 				return true;
 			}
-		}
-		// If it's the first token and it's not in T, skip it.
-		if (isFirst)
-		{
-			isFirst = false;
-			consumeAny();
-			continue;
 		}
 
 		// Check if it's a sign for special behaviours
@@ -350,17 +343,17 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 						// Check if it belongs to a unmatched counterpart, if so, stop resync attempt.
 						// If it doesn't have an opening counterpart, skip it.
 				case SignType::S_CURLY_CLOSE:
-					if (state_.curlyBracketsCount)
+					if (state_.curlyBracketsCount && !isFirst)
 						return false;
 					consumeBracket(SignType::S_CURLY_CLOSE);
 					break;
 				case SignType::S_SQ_CLOSE:
-					if (state_.squareBracketsCount)
+					if (state_.squareBracketsCount && !isFirst)
 						return false;
 					consumeBracket(SignType::S_SQ_CLOSE);
 					break;
 				case SignType::S_ROUND_CLOSE:
-					if (state_.roundBracketsCount)
+					if (state_.roundBracketsCount && !isFirst)
 						return false;
 					consumeBracket(SignType::S_ROUND_CLOSE);
 					break;
@@ -375,6 +368,8 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 		} // (tok.isSign())
 		else 
 			consumeAny();
+
+		isFirst = false;
 	}
 	// If reached eof, die & return false.
 	die();
