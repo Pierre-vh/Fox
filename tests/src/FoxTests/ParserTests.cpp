@@ -181,7 +181,7 @@ TEST(ParserTests, VarDecl)
 	std::string corr_path = "parser/inputs/var_decls/correct.fox";
 	std::string bad_path = "parser/inputs/var_decls/incorrect.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
-		auto res = parse.parseVarDeclStmt();
+		auto res = parse.parseVarDecl();
 		return res.isUsable();
 	});
 	// Correct inputs
