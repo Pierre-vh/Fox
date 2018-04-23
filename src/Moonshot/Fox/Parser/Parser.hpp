@@ -11,7 +11,8 @@
 // The grammar can be found in	/doc/																		
 //
 // Note :	I've dug a lot into CLang's parser to try and see how to handle complex cases with elegance,
-//			so some stuff you'll see here looks a lot like clang's parser, simplified of course.
+//			so some stuff (algorithms, names) you'll see here looks a lot like clang's parser, simplified of course.
+//			Again, I don't think that's an issue, but here's CLang's license anyways : 
 // 
 // Status: Up to date with latest grammar changes, except import/using rules that aren't implemented yet.
 //
@@ -20,18 +21,15 @@
 //				> Tweak it by running different test situations and adding special recovery cases wherever needed.
 //				> Find flaws in the current system and fix them!
 //			Speed
-//				> Not for now. I'm going to make it work, make it right, then (maybe) make it fast. 
+//				> Not for now. I'm going to make it work, make it right, then (maybe) make it fast, but in the future I think I can do some token peekings in some functions
+//					to avoid calling a parse function.
 // 
 //		Parser "to-do" list. Important stuff is marked with (*)
 //		
-//			(*) Test resync functions to see if they work as intended.
+//			(*) Rewrite resyncToDecl -> I still need to verify, but in every case where it might be called It'll always be called to resync to the nearest let/func
+//				without taking care of brackets or anything, so we're just doing a bunch of unnecessary checks here!
 //
 //			Add better error recovey with common cases support in if/while parsing & function declaration
-//
-//			(*) Review the code that manipulates iterator to check that they verify boudaries correctly, and that iterators aren't mishandled anywhere.
-//			
-//			(*) Remove the ParseRes's functionality of automatically using a unique_ptr when DataTy is a pointer type. This is confusing and makes it impossible to use raw pointers in a parsing result.
-//			Instead, create a "UniqueParseRes" class that holds it's data as a unique_ptr. However, typing "UniqueParseRes<ASTExpr>" each time is really long. Maybe cut it down using "usings" or typedefs?
 //
 //			When SourceLoc system is added, match functions should return a SourceLoc instead, and a Invalid sourceloc if it doesn't match anything.
 //			SourceLoc will need to overload operator bool(), which will check it's validity.
