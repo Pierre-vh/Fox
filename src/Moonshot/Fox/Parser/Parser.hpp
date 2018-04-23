@@ -145,6 +145,7 @@ namespace Moonshot
 			bool consumeSign(const SignType& s);
 
 			// Consumes a bracket and keeps the bracket count up to date. Returns false if the bracket was not found.
+			// Note : In the US, a Bracket is a [], however I'm using the bracket noun in the strict sense, where Round B. = (), Square B. = [] and Curly B. = {}
 			bool consumeBracket(const SignType& s);
 
 			// Consumes a keyword. Returns false if the keyword was not found.
@@ -160,6 +161,7 @@ namespace Moonshot
 			void revertConsume();	
 
 			// Helper for consumeSign & consumeBracket
+			// Brackets are one of the following : '(' ')' '[' ']' '{' '}'
 			bool isBracket(const SignType& s) const;
 
 			Token getCurtok() const;
