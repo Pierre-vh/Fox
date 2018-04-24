@@ -65,6 +65,12 @@ class ParsingFunctionTester
 				Lexer lex(ctxt, astctxt);
 				lex.lexStr(sample);
 				Parser parse(ctxt, astctxt, lex.getTokenVector());
+
+				// Important : Make the parser aware that we're running a test.
+				// This disables some assertions that are not needed to be verified when running a test
+				// that calls individual parsing functions.
+				parse.enableTestMode();
+
 				if (fn_(parse))
 				{
 					if (ctxt.isSafe())
@@ -198,7 +204,7 @@ TEST(ParserTests, FuncDecl)
 	std::string corr_base_path = "parser/inputs/funcdecl/correct_";
 	std::string bad_base_path = "parser/inputs/funcdecl/incorrect_";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
-		auto res = parse.parseFunctionDeclaration();
+		auto res = parse.parseFunctionDecl();
 		return res.isUsable();
 	});
 	std::stringstream ss;
