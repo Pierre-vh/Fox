@@ -8,4 +8,5 @@ add_source(
 	"Types.cpp"
 	"Dumper.cpp"
 	"IdentifierTable.cpp"
+	"DeclRecorder.cpp"
 )
