@@ -53,6 +53,7 @@
 namespace Moonshot
 {
 	class Context;
+	class DeclRecorder;
 	class Parser
 	{
 		public:
@@ -75,7 +76,9 @@ namespace Moonshot
 		private:
 			using TokenIteratorTy = TokenVector::iterator;
 		public:
-			Parser(Context& c,ASTContext& astctxt,TokenVector& l);
+			// Note : the parser now takes an optional DeclRecorder* argument,
+			// This will be used as the base DeclRecorder.
+			Parser(Context& c,ASTContext& astctxt,TokenVector& l,DeclRecorder* dr = nullptr);
 
 			/*-------------- Parsing Methods --------------*/
 			// UNIT
@@ -201,6 +204,9 @@ namespace Moonshot
 				uint8_t curlyBracketsCount  = 0;
 				uint8_t roundBracketsCount  = 0;
 				uint8_t squareBracketsCount	= 0;
+
+				// Current Decl Recorder
+				DeclRecorder *declRecorder = nullptr;
 			} state_;
 
 			// Interrogate state_
@@ -210,6 +216,9 @@ namespace Moonshot
 			bool isAlive() const;
 				// Kills Parsing (stops it)
 			void die();
+
+			// Register a declaration in state_.declRecorder, asserting that it's not null.
+			void recordDecl(ASTNamedDecl *nameddecl);
 
 			// Creates a state_ backup
 			ParserState createParserStateBackup() const;
@@ -232,12 +241,25 @@ namespace Moonshot
 
 			RAIIRecoveryManager createRecoveryEnabler();
 			RAIIRecoveryManager createRecoveryDisabler();
+			/*-------------- RAIIDeclRecorder --------------*/
+			// This class sets the current DeclRecorder at construction, and restores the last
+			// one at destruction.
+			// It assists in registering Decl in the appropriate DeclRecorder.
+			class RAIIDeclRecorder
+			{
+				public:
+					RAIIDeclRecorder(Parser &p,DeclRecorder *dr);
+					~RAIIDeclRecorder();
+				private:
+					Parser & parser;
+					DeclRecorder * old_dc = nullptr;
+			};
 
 			/*-------------- Member Variables --------------*/
 			ASTContext& astcontext_;
 			Context& context_;
 			TokenVector& tokens_;
-
+			
 			/*-------------- Constants --------------*/
 			static constexpr uint8_t kMaxBraceDepth = (std::numeric_limits<uint8_t>::max)();
 

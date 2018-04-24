@@ -20,15 +20,22 @@
 
 using namespace Moonshot;
 
-Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l) : context_(c), astcontext_(astctxt), tokens_(l)
+Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l,DeclRecorder *dr) : context_(c), astcontext_(astctxt), tokens_(l)
 {
+	if (dr)
+		state_.declRecorder = dr;
 	setupParser();
 }
 
 Parser::UnitResult Parser::parseUnit()
 {
 	// <fox_unit>	= {<declaration>}1+
+
+	// Create the unit
 	auto unit = std::make_unique<ASTUnit>();
+
+	// Create a RAIIDeclRecorder
+	RAIIDeclRecorder raiidr(*this,unit.get());
 
 	// Create recovery "lock" object, since recovery is disabled for top level declarations. 
 	// It'll be re-enabled by parseFunctionDeclaration
@@ -437,6 +444,15 @@ void Parser::die()
 	state_.isAlive = false;
 }
 
+void Parser::recordDecl(ASTNamedDecl * nameddecl)
+{
+	#pragma message("When we're not in test mode, we shouldn't assert,but when we are in a real situation, we should. What to do?")
+	//assert(state_.declRecorder && "Decl Recorder cannot be null when parsing a Declaration!");
+	assert(nameddecl && "The decl cannot be null!");
+	if(state_.declRecorder)
+		state_.declRecorder->recordDecl(nameddecl);
+}
+
 void Parser::errorUnexpected()
 {
 	if (!state_.isAlive) return;
@@ -547,4 +563,16 @@ Parser::RAIIRecoveryManager Parser::createRecoveryEnabler()
 Parser:: RAIIRecoveryManager Parser::createRecoveryDisabler()
 {
 	return RAIIRecoveryManager(*this, false);
+}
+
+// RAIIDeclRecorder
+Parser::RAIIDeclRecorder::RAIIDeclRecorder(Parser &p, DeclRecorder *dr) : parser(p)
+{
+	old_dc = parser.state_.declRecorder;
+	parser.state_.declRecorder = dr;
+}
+
+Parser::RAIIDeclRecorder::~RAIIDeclRecorder()
+{
+	parser.state_.declRecorder = old_dc;
 }

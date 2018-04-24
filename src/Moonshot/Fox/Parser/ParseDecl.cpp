@@ -31,6 +31,7 @@ Parser::DeclResult Parser::parseFunctionDeclaration()
 	if (consumeKeyword(KeywordType::KW_FUNC))
 	{
 		auto rtr = std::make_unique<ASTFunctionDecl>();
+
 		bool isValid = true;
 		// <id>
 		if (auto id = consumeIdentifier())
@@ -40,6 +41,13 @@ Parser::DeclResult Parser::parseFunctionDeclaration()
 			errorExpected("Expected an identifier");
 			isValid = false;
 		}
+
+		// Before creating a RAIIDeclRecorder, record this function in the last DeclRecorder
+		if(isValid)
+			recordDecl(rtr.get());
+		// Create a RAIIDeclRecorder to record every decl that happens within this
+		// function parsing.
+		RAIIDeclRecorder raiidr(*this, rtr.get());
 
 		// '('
 		if (!consumeBracket(SignType::S_ROUND_OPEN))
@@ -132,9 +140,11 @@ Parser::DeclResult Parser::parseArgDecl()
 	{
 		// <fq_type_spec>
 		if (auto typespec_res = parseFQTypeSpec())
-			return DeclResult(
-					std::make_unique<ASTArgDecl>(id,typespec_res.get())
-				);
+		{
+			auto rtr = std::make_unique<ASTArgDecl>(id, typespec_res.get());
+			recordDecl(rtr.get());
+			return DeclResult(std::move(rtr));
+		}
 		else
 		{
 			if(typespec_res.wasSuccessful())		
@@ -164,6 +174,7 @@ Parser::DeclResult Parser::parseVarDecl()
 				return DeclResult(
 						std::make_unique<ASTVarDecl>()	// If we recovered, return an empty (invalid) var decl.
 					);
+				// Note : we don't record this decl, since it's invalid and can't be used.
 			}
 			return DeclResult::Error();
 		}
@@ -188,6 +199,7 @@ Parser::DeclResult Parser::parseVarDecl()
 				return DeclResult(
 						std::make_unique<ASTVarDecl>()	// If we recovered, return an empty (invalid) var decl.
 					);
+				// Note : we don't record this decl, since it's invalid and can't be used.
 			}
 			return DeclResult::Error();
 		}
@@ -215,8 +227,11 @@ Parser::DeclResult Parser::parseVarDecl()
 			if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ true))
 				return DeclResult::Error();
 		}
-		// If we're here -> success
+		// If we're here, assert that the node is valid.
 		assert(rtr->isValid() && "Declaration is invalid but parsing function completed successfully?");
+		// Record the decl
+		recordDecl(rtr.get());
+		// return
 		return DeclResult(std::move(rtr));
 	}
 	// not found
