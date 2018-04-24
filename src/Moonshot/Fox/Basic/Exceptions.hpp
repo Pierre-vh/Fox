@@ -19,7 +19,10 @@ namespace Moonshot
 		class lexer_critical_error : public std::exception
 		{
 			public:
-				lexer_critical_error(const std::string& msg = "");
+				inline lexer_critical_error(const std::string& msg = "")
+				{
+					msg_ += "\n" + msg;
+				}
 				virtual const char* what() const throw()
 				{
 					return msg_.c_str();
@@ -31,7 +34,10 @@ namespace Moonshot
 		class parser_critical_error : public std::exception
 		{
 			public:
-				parser_critical_error(const std::string& msg = "");
+				inline parser_critical_error(const std::string& msg = "")
+				{
+					msg_ += "\n" + msg;
+				}
 				virtual const char* what() const throw()
 				{
 					return msg_.c_str();
@@ -43,7 +49,10 @@ namespace Moonshot
 		class ast_malformation : public std::exception
 		{
 			public:
-				ast_malformation(const std::string& msg = "");
+				inline ast_malformation(const std::string& msg = "")
+				{
+					msg_ += "\n" + msg;
+				}
 				virtual const char* what() const throw()
 				{
 					return msg_.c_str();
