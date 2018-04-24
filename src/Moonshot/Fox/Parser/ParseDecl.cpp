@@ -116,7 +116,7 @@ Parser::DeclResult Parser::parseFunctionDeclaration()
 		{
 			// Return an error if there was no compound statement.
 			// We don't need to print an error for the missing compound statement
-			// parseCompoundStatement will already have printed one in mandatory mode.
+			// because parseCompoundStatement will already have printed one in mandatory mode.
 			return DeclResult::Error();
 		}
 	}
