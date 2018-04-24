@@ -28,12 +28,22 @@ std::size_t ASTUnit::getDeclCount() const
 	return decls_.size();
 }
 
-ASTUnit::decl_iter ASTUnit::decls_beg()
+ASTUnit::DeclVecIter ASTUnit::decls_beg()
 {
 	return decls_.begin();
 }
 
-ASTUnit::decl_iter ASTUnit::decls_end()
+ASTUnit::DeclVecIter ASTUnit::decls_end()
+{
+	return decls_.end();
+}
+
+ASTUnit::DeclVecConstIter ASTUnit::decls_beg() const
+{
+	return decls_.begin();
+}
+
+ASTUnit::DeclVecConstIter ASTUnit::decls_end() const
 {
 	return decls_.end();
 }
