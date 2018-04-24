@@ -10,6 +10,8 @@
 // identifier is linked to one or more declaration in a specific place of the AST.
 ////------------------------------------------------------////
 
+#pragma once
+
 #include <map>
 #include <vector>
 
