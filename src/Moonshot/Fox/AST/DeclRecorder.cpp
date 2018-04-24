@@ -23,8 +23,10 @@ DeclRecorder::DeclRecorder(DeclRecorder * upperDR) : parent_(upperDR)
 
 void DeclRecorder::recordDecl(ASTNamedDecl * decl)
 {
-	assert(decl && "Declaration cannot be null!");
-	namedDecls_.insert(std::make_pair(decl->getDeclName(), decl));
+	assert(decl	&& "Declaration cannot be null!");
+	IdentifierInfo* name = decl->getDeclName();
+	assert(name	&& "Declaration must have a valid name (IdentifierInfo*) to be recorded!");
+	namedDecls_.insert(std::make_pair(name, decl));
 }
 
 LookupResult DeclRecorder::restrictedLookup(IdentifierInfo * id) const
