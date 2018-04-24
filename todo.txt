@@ -15,8 +15,12 @@ TODO:
 	> Parser recovery improvements part 3 : Reworked it entirely again! (Done)
 	> Parsing Result Rework & Parser Improvements Part 4 : Final part (Done)
 	> Create a "DeclarationRecorder", which is a wrapper around a std::multimap<IdentifierInfo*,ASTNamedDecl*> (Done)
+	> Parser support for DeclRecorder with a RAIIContext object. (Done)
 
-	> Parser support for DeclRecorder with a RAIIContext object.
+	> Test DeclRecorder
+	> Create a "UniquePtrVector" class that acts a wrapper around a vector of std::unique_ptr and provides raw pointers to each
+	unique_ptr content. This will make it easier to work with vectors of unique_ptr while providing safe iterators that hides the implementation.
+
 	
 	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc.
 
