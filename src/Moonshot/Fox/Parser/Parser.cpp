@@ -24,6 +24,9 @@ Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l,DeclRecorder *dr)
 {
 	if (dr)
 		state_.declRecorder = dr;
+
+	isTestMode_ = false;
+
 	setupParser();
 }
 
@@ -38,7 +41,7 @@ Parser::UnitResult Parser::parseUnit()
 	RAIIDeclRecorder raiidr(*this,unit.get());
 
 	// Create recovery "lock" object, since recovery is disabled for top level declarations. 
-	// It'll be re-enabled by parseFunctionDeclaration
+	// It'll be re-enabled by parseFunctionDecl
 	auto lock = createRecoveryDisabler();
 
 	// Gather some flags
@@ -103,6 +106,16 @@ Parser::UnitResult Parser::parseUnit()
 	}
 	else
 		return UnitResult(std::move(unit));
+}
+
+void Parser::enableTestMode()
+{
+	isTestMode_ = true;
+}
+
+void Parser::disableTestMode()
+{
+	isTestMode_ = false;
 }
 
 void Parser::setupParser()
@@ -446,9 +459,14 @@ void Parser::die()
 
 void Parser::recordDecl(ASTNamedDecl * nameddecl)
 {
-	#pragma message("When we're not in test mode, we shouldn't assert,but when we are in a real situation, we should. What to do?")
-	//assert(state_.declRecorder && "Decl Recorder cannot be null when parsing a Declaration!");
-	assert(nameddecl && "The decl cannot be null!");
+	// Only assert when we're not in test mode.
+	// Tests may call individual parsing function, and won't care about if a DeclRecorder is active or not.
+
+	if (!isTestMode_)
+	{
+		assert(state_.declRecorder && "Decl Recorder cannot be null when parsing a Declaration!");
+	}
+
 	if(state_.declRecorder)
 		state_.declRecorder->recordDecl(nameddecl);
 }
