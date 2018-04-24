@@ -10,7 +10,7 @@
 #pragma once
 #include "ASTStmt.hpp"
 #include "Types.hpp"
-
+#include "DeclRecorder.hpp"
 #include <memory>
 #include <vector>
 
@@ -20,7 +20,6 @@ namespace Moonshot
 	class ASTExpr;
 	class IdentifierInfo;
 	class IVisitor;
-
 	// Interface for Decl nodes.
 	class ASTDecl
 	{
@@ -63,7 +62,7 @@ namespace Moonshot
 	};
 
 	// a Function declaration node.
-	class ASTFunctionDecl : public ASTNamedDecl
+	class ASTFunctionDecl : public ASTNamedDecl, public DeclRecorder
 	{
 		private:
 			using ArgVecTy = std::vector<std::unique_ptr<ASTArgDecl>>;

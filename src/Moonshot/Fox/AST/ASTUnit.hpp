@@ -10,28 +10,33 @@
 #pragma once
 
 #include "ASTDecl.hpp"
-
+#include "DeclRecorder.hpp"
 #include <vector>
 #include <memory>
 
 namespace Moonshot
 {
-	class ASTUnit
+	class ASTUnit : public DeclRecorder
 	{
 		private:
-			using decl_iter = std::vector<std::unique_ptr<ASTDecl>>::iterator;
+			using DelVecTy = std::vector<std::unique_ptr<ASTDecl>>;
+			using DeclVecIter	= DelVecTy::iterator;
+			using DeclVecConstIter = DelVecTy::const_iterator;
 		public:
 			ASTUnit() = default;
 
-			// TODO : Replace that with a DeclContext when it's done.
 			void addDecl(std::unique_ptr<ASTDecl> decl);
 			const ASTDecl* getDecl(const std::size_t &idx);
 			std::size_t getDeclCount() const;
 
-			decl_iter decls_beg();
-			decl_iter decls_end();
+			DeclVecIter decls_beg();
+			DeclVecIter decls_end();
+
+			DeclVecConstIter decls_beg() const;
+			DeclVecConstIter decls_end() const;
+
 		private:
 			// The decls contained within this unit.
-			std::vector<std::unique_ptr<ASTDecl>> decls_;
+			DelVecTy decls_;
 	};
 }
