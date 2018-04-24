@@ -40,20 +40,17 @@ Parser::UnitResult Parser::parseUnit()
 	// Parse declarations 
 	while (true)
 	{
-		// Parse a declaration
-		auto decl = parseDecl();
-		// If the declaration was parsed successfully : continue the cycle.
-		if (decl.isUsable())
+		if (auto decl = parseDecl())
 		{
 			unit->addDecl(decl.move());
 			continue;
 		}
 		else
 		{
-			// Parsing was successful & EOF -> Job's done !
+			// EOF/Died -> Break.
 			if (isDone())
 				break;
-			// No EOF? There's an unexpected token on the way, report it & recover!
+			// No EOF? There's an unexpected token on the way that prevents us from finding the decl.
 			else
 			{
 				// Unlock, so we're allowed to recover here.
@@ -388,17 +385,14 @@ bool Parser::resyncToNextDecl()
 	{
 		auto tok = getCurtok();
 		// if it's let/func, return.
-		if (tok.isKeyword())
-		{
-			if ((tok.getKeywordType() == KeywordType::KW_FUNC) && (tok.getKeywordType() == KeywordType::KW_LET))
-				return true;
-		}
-
+		if (tok.is(KeywordType::KW_FUNC) || tok.is(KeywordType::KW_LET))
+			return true;
+		// Check if it's a sign for special behaviours
 		if (tok.isSign())
 		{
 			switch (tok.getSignType())
 			{
-				// We still use this switch to skip whole brackets
+					// If we find a '(', '{' or '[', call this function recursively to skip to it's counterpart.
 				case SignType::S_CURLY_OPEN:
 					consumeBracket(SignType::S_CURLY_OPEN);
 					resyncToSign(SignType::S_CURLY_CLOSE, false, true);
@@ -411,15 +405,23 @@ bool Parser::resyncToNextDecl()
 					consumeBracket(SignType::S_ROUND_OPEN);
 					resyncToSign(SignType::S_ROUND_CLOSE, false, true);
 					break;
-				// Here, we don't really care and we just consume anything.
-				// Our only goal is to resync to another declaration.
+					// If we find a ')', '}' or ']' we just consume it.
+				case SignType::S_CURLY_CLOSE:
+					consumeBracket(SignType::S_CURLY_CLOSE);
+					break;
+				case SignType::S_SQ_CLOSE:
+					consumeBracket(SignType::S_SQ_CLOSE);
+					break;
+				case SignType::S_ROUND_CLOSE:
+					consumeBracket(SignType::S_ROUND_CLOSE);
+					break;
 				default:
 					consumeAny();
 					break;
 			}
 		} // (tok.isSign())
-		else
-			consumeAny();
+
+		consumeAny();
 	}
 	// If reached eof, die & return false.
 	die();
