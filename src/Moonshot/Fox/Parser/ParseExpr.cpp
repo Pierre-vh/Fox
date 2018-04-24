@@ -426,6 +426,7 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory)
 	if (consumeBracket(SignType::S_ROUND_OPEN))
 	{
 		std::unique_ptr<ASTExpr> rtr = nullptr;
+		
 		// <expr>
 		if (auto expr = parseExpr())
 			rtr = expr.move();
@@ -434,7 +435,7 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory)
 			// no expr, handle error & attempt to recover if it's allowed.
 			if(expr.wasSuccessful())
 				errorExpected("Expected an expression");
-			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
+			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 			{
 				// Return a null expr in case of a successful recovery.
 				rtr = std::make_unique<ASTNullExpr>();
