@@ -20,7 +20,7 @@
 
 using namespace Moonshot;
 
-Parser::DeclResult Parser::parseFunctionDeclaration()
+Parser::DeclResult Parser::parseFunctionDecl()
 {
 	/*
 		<func_decl>		= "func" <id> '(' [<arg_decl> {',' <arg_decl>}*] ')'[':' <type>] <compound_statement>
@@ -280,7 +280,7 @@ Parser::DeclResult Parser::parseDecl()
 		return DeclResult::Error();
 
 	// <func_decl>
-	if (auto fdecl = parseFunctionDeclaration())
+	if (auto fdecl = parseFunctionDecl())
 		return fdecl;
 	else if (!fdecl.wasSuccessful())
 		return DeclResult::Error();

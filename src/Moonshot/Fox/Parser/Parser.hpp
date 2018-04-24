@@ -113,9 +113,12 @@ namespace Moonshot
 			// DECLS
 			DeclResult parseArgDecl();
 			DeclResult parseVarDecl();
-			DeclResult parseFunctionDeclaration();
+			DeclResult parseFunctionDecl();
 			DeclResult parseDecl();
 
+			// OTHERS
+			void enableTestMode();
+			void disableTestMode();
 		private:
 			/*-------------- Parser Setup --------------*/
 			void setupParser();
@@ -259,6 +262,7 @@ namespace Moonshot
 			ASTContext& astcontext_;
 			Context& context_;
 			TokenVector& tokens_;
+			bool isTestMode_ : 1;
 			
 			/*-------------- Constants --------------*/
 			static constexpr uint8_t kMaxBraceDepth = (std::numeric_limits<uint8_t>::max)();
