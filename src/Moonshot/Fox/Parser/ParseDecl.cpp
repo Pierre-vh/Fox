@@ -31,13 +31,14 @@ Parser::DeclResult Parser::parseFunctionDeclaration()
 	if (consumeKeyword(KeywordType::KW_FUNC))
 	{
 		auto rtr = std::make_unique<ASTFunctionDecl>();
+		bool isValid = true;
 		// <id>
 		if (auto id = consumeIdentifier())
 			rtr->setDeclName(id);
 		else
 		{
 			errorExpected("Expected an identifier");
-			return DeclResult::Error();
+			isValid = false;
 		}
 
 		// '('
@@ -94,8 +95,11 @@ Parser::DeclResult Parser::parseFunctionDeclaration()
 				if (rtrTy.wasSuccessful())
 					errorExpected("Expected a type keyword");
 				rtr->setReturnType(astcontext_.getPrimitiveVoidType());
-				// don't return just yet, wait to see if a { can be found so we can still return something.
-				// return ParseRes<ASTFunctionDecl*>(false);
+
+				// Try to resync to a { so we can keep on parsing.
+				// We'll stop at a semicolon or eof if we can't find one, and just return an error.
+				if (!resyncToSign(SignType::S_CURLY_CLOSE, true, false))
+					return DeclResult::Error();
 			}
 		}
 		else // if no return type, the function returns void.
@@ -109,16 +113,13 @@ Parser::DeclResult Parser::parseFunctionDeclaration()
 		{
 			rtr->setBody(compoundstmt.moveAs<ASTCompoundStmt>());
 			// Success, nothing more to see here!
-			assert(rtr->isValid() && "Declaration is invalid but parsing function completed successfully?");
-			return DeclResult(std::move(rtr));
+			if (isValid)
+			{
+				assert(rtr->isValid() && "Declaration is invalid but parsing function completed successfully?");
+				return DeclResult(std::move(rtr));
+			}
 		}
-		else 
-		{
-			// Return an error if there was no compound statement.
-			// We don't need to print an error for the missing compound statement
-			// because parseCompoundStatement will already have printed one in mandatory mode.
-			return DeclResult::Error();
-		}
+		return DeclResult::Error();
 	}
 	return DeclResult::NotFound();
 }
