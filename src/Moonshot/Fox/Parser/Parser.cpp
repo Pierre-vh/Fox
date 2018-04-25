@@ -412,7 +412,7 @@ bool Parser::resyncToNextDecl()
 		{
 			switch (tok.getSignType())
 			{
-					// If we find a '(', '{' or '[', call this function recursively to skip to it's counterpart.
+					// If we find a '(', '{' or '[', call resyncToSign to skip to it's counterpart.
 				case SignType::S_CURLY_OPEN:
 					consumeBracket(SignType::S_CURLY_OPEN);
 					resyncToSign(SignType::S_CURLY_CLOSE, false, true);
@@ -440,8 +440,8 @@ bool Parser::resyncToNextDecl()
 					break;
 			}
 		} // (tok.isSign())
-
-		consumeAny();
+		else 
+			consumeAny();
 	}
 	// If reached eof, die & return false.
 	die();
