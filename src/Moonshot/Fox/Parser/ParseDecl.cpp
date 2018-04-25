@@ -40,6 +40,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		{
 			errorExpected("Expected an identifier");
 			isValid = false;
+			// Here, continue parsing. This might generate an error cascade but we need to try and parse more things before giving up definitely.
 		}
 
 		// Before creating a RAIIDeclRecorder, record this function in the parent DeclRecorder
@@ -64,6 +65,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 			// Note, here, in the 2 places I've marked with (1) and (2), we can possibly
 			// add error management, however, I don't think that's necessary since
 			// the consumeBracket below will attempt to "panic and recover" if it doesn't find the )
+			// About (1), maybe a break could be added there, but I think it's just better to ignore and try to parse more.
 			rtr->addArg(firstarg.moveAs<ASTArgDecl>());
 			while (true)
 			{
