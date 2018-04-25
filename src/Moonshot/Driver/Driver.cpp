@@ -62,7 +62,7 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 
 	out << "\nMain Unit Dump:\n";
 	Dumper dump(out,1);
-	dump.dumpUnit(*(astCtxt.getMainUnit()));
+	astCtxt.getMainUnit()->accept(dump);
 	return true;
 }
 
