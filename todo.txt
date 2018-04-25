@@ -16,11 +16,8 @@ TODO:
 	> Parsing Result Rework & Parser Improvements Part 4 : Final part (Done)
 	> Create a "DeclarationRecorder", which is a wrapper around a std::multimap<IdentifierInfo*,ASTNamedDecl*> (Done)
 	> Parser support for DeclRecorder with a RAIIContext object. (Done)
+	> UniquePtrVector & DereferenceIterators + Minimizing interaction with unique pointers for AST Visitors(Done)
 
-	> Create a "UniquePtrVector" class that acts a wrapper around a vector of std::unique_ptr and provides raw pointers to each
-	unique_ptr content. This will make it easier to work with vectors of unique_ptr while providing safe iterators that hides the implementation.
-	> Do a small review of the AST interaction with Unique pointers, and try to minimize interactions with callers. Ideally, no AST "user" should ever have
-		access to a unique_ptr. That's why "UniquePtrVector" needs to exist.
 
 	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc.
 
