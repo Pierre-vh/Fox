@@ -45,7 +45,8 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 		out << "Lexing completed successfully." << lex.getTokenVector().size() << " tokens found.\n";
 
 	Parser psr(ctxt,astCtxt,lex.getTokenVector());
-	auto unit = psr.parseUnit();
+	// Todo: extract the name of the file and use that instead of "TestUnit"
+	auto unit = psr.parseUnit(astCtxt.identifiers.getUniqueIdentifierInfo("TestUnit"));
 
 	out << ctxt.getLogs();
 	if (!unit)
