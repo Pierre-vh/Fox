@@ -81,7 +81,9 @@ namespace Moonshot
 
 			/*-------------- Parsing Methods --------------*/
 			// UNIT
-			UnitResult parseUnit();
+			// Generally, this will be the entry point of the parsing process.
+			// unitName = the name of the unit that we're parsing.
+			UnitResult parseUnit(IdentifierInfo* unitName);
 
 			// EXPRESSIONS
 			ExprListResult parseExprList();
@@ -118,6 +120,10 @@ namespace Moonshot
 			// OTHERS
 			void enableTestMode();
 			void disableTestMode();
+
+			// Getters
+			ASTContext& getASTContext();
+			Context& getContext();
 		private:
 			/*-------------- Parser Setup --------------*/
 			void setupParser();

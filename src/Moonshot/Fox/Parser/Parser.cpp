@@ -30,12 +30,15 @@ Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l,DeclRecorder *dr)
 	setupParser();
 }
 
-Parser::UnitResult Parser::parseUnit()
+Parser::UnitResult Parser::parseUnit(IdentifierInfo* unitName)
 {
 	// <fox_unit>	= {<declaration>}1+
 
+	// Assert that unitName != nullptr
+	assert(unitName && "Unit name cannot be nullptr!");
+
 	// Create the unit
-	auto unit = std::make_unique<ASTUnitDecl>();
+	auto unit = std::make_unique<ASTUnitDecl>(unitName);
 
 	// Create a RAIIDeclRecorder
 	RAIIDeclRecorder raiidr(*this,unit.get());
@@ -112,6 +115,16 @@ void Parser::enableTestMode()
 void Parser::disableTestMode()
 {
 	isTestMode_ = false;
+}
+
+ASTContext & Parser::getASTContext()
+{
+	return astcontext_;
+}
+
+Context & Parser::getContext()
+{
+	return context_;
 }
 
 void Parser::setupParser()
