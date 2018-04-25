@@ -25,9 +25,9 @@
 //					to avoid calling a parse function.
 // 
 //		Parser "to-do" list. Important stuff is marked with (*)
-//		
-//			(*) Rewrite resyncToDecl -> I still need to verify, but in every case where it might be called It'll always be called to resync to the nearest let/func
-//				without taking care of brackets or anything, so we're just doing a bunch of unnecessary checks here!
+//
+//			Remove RAIIRecoveryManager, isRecoveryAllowed an friends and allow recovery everywhere since the recovery
+//			algorithm is pretty decent now.
 //
 //			Add better error recovey with common cases support in if/while parsing & function declaration
 //
