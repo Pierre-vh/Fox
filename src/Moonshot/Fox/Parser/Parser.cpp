@@ -40,9 +40,8 @@ Parser::UnitResult Parser::parseUnit()
 	// Create a RAIIDeclRecorder
 	RAIIDeclRecorder raiidr(*this,unit.get());
 
-	// Create recovery "lock" object, since recovery is disabled for top level declarations. 
-	// It'll be re-enabled by parseFunctionDecl
-	auto lock = createRecoveryDisabler();
+	// Create recovery enabler.
+	auto enabler = createRecoveryEnabler();
 
 	// Gather some flags
 	const bool showRecoveryMessages = context_.flagsManager.isSet(FlagID::parser_showRecoveryMessages);
@@ -62,10 +61,7 @@ Parser::UnitResult Parser::parseUnit()
 				break;
 			// No EOF? There's an unexpected token on the way that prevents us from finding the decl.
 			else
-			{
-				// Unlock, so we're allowed to recover here.
-				auto unlock = createRecoveryEnabler();
-
+			{			
 				// Report an error in case of "not found";
 				if (decl.wasSuccessful())	
 					errorExpected("Expected a declaration");
@@ -587,6 +583,15 @@ Parser:: RAIIRecoveryManager Parser::createRecoveryDisabler()
 Parser::RAIIDeclRecorder::RAIIDeclRecorder(Parser &p, DeclRecorder *dr) : parser(p)
 {
 	old_dc = parser.state_.declRecorder;
+
+	// If old_dc isn't null, mark it as the parent of the new dr
+	if (old_dc)
+	{
+		// Assert that we're not overwriting a parent. If such a thing happens, that could indicate a bug!
+		assert(!dr->hasParentDeclRecorder() && "New DeclRecorder already has a parent?");
+		dr->setParentDeclRecorder(old_dc);
+	}
+
 	parser.state_.declRecorder = dr;
 }
 
