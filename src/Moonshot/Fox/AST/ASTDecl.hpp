@@ -40,6 +40,7 @@ namespace Moonshot
 
 			IdentifierInfo * getDeclName() const;
 			void setDeclName(IdentifierInfo* nname);
+			bool hasDeclName() const;
 		protected:
 			IdentifierInfo * declName_;
 	};
@@ -121,14 +122,15 @@ namespace Moonshot
 	};
 
 	// A Unit declaration. A Unit = a source file.
-	class ASTUnitDecl : public ASTDecl, public DeclRecorder
+		// Unit names?
+	class ASTUnitDecl : public ASTNamedDecl, public DeclRecorder
 	{
 		private:
 			using DelVecTy = UniquePtrVector<ASTDecl>;
 			using DeclVecIter = DereferenceIterator<DelVecTy::iterator>;
 			using DeclVecConstIter = DereferenceIterator<DelVecTy::const_iterator>;
 		public:
-			ASTUnitDecl() = default;
+			ASTUnitDecl(IdentifierInfo *id);
 
 			void addDecl(std::unique_ptr<ASTDecl> decl);
 			ASTDecl* getDecl(const std::size_t &idx);
