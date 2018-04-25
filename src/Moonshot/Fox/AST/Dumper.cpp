@@ -25,19 +25,24 @@ Dumper::Dumper(std::ostream & outstream, const unsigned char& offsettabs) : out_
 
 void Dumper::visit(ASTUnitDecl & node)
 {
-	out_ << getIndent() << "ASTUnit containing " << node.getDeclCount() << " declaration.\n";
-	curindent_++;
-	for (auto it = node.decls_beg(); it != node.decls_end(); it++)
-		it->accept(*this);
-
-	curindent_--;
-	out_ << getIndent() << "This unit recorded " << node.getNumberOfRecordedDecls() << " declaration \n";
-	curindent_++;
-	for (auto it = node.recordedDecls_begin(); it != node.recordedDecls_end(); it++)
+	if (node.isValid())
 	{
-		out_ << getIndent() << "> Declaration with name: " << it->first->getStr() << "\n";
+		out_ << getIndent() << "ASTUnit \"" << node.getDeclName()->getStr() << "\" containing " << node.getDeclCount() << " declaration.\n";
+		curindent_++;
+		for (auto it = node.decls_beg(); it != node.decls_end(); it++)
+			it->accept(*this);
+
+		curindent_--;
+		out_ << getIndent() << "This unit recorded " << node.getNumberOfRecordedDecls() << " declaration \n";
+		curindent_++;
+		for (auto it = node.recordedDecls_begin(); it != node.recordedDecls_end(); it++)
+		{
+			out_ << getIndent() << "> Declaration with name: " << it->first->getStr() << "\n";
+		}
+		curindent_--;
 	}
-	curindent_--;
+	else
+		out_ << getIndent() << "Invalid ASTUnit\n";
 }
 
 void Dumper::visit(ASTBinaryExpr & node)
