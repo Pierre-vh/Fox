@@ -17,7 +17,6 @@
 #pragma once
 //nodes
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
-#include "Moonshot/Fox/AST/ASTUnit.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
 
@@ -28,7 +27,7 @@ namespace Moonshot
 		public:
 			inline virtual ~IVisitor() = 0						{}
 
-			inline virtual void visit(ASTUnit&)					{}
+			inline virtual void visit(ASTUnitDecl&)				{}
 			
 			inline virtual void visit(ASTBinaryExpr&)			{}
 			inline virtual void visit(ASTUnaryExpr&)			{}

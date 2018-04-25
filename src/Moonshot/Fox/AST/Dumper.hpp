@@ -11,7 +11,6 @@
 #pragma once
 // base class
 #include <iostream>
-#include "ASTUnit.hpp"
 #include "Moonshot/Fox/AST/IVisitor.hpp"
 
 namespace Moonshot
@@ -21,7 +20,7 @@ namespace Moonshot
 		public:
 			Dumper(std::ostream& outstream = std::cout,const unsigned char& offsettabs = 0);
 
-			void dumpUnit(ASTUnit & unit);
+			virtual void visit(ASTUnitDecl & node) override;
 
 			virtual void visit(ASTBinaryExpr & node) override;
 			virtual void visit(ASTUnaryExpr & node) override;

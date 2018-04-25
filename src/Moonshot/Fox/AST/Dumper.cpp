@@ -23,12 +23,12 @@ Dumper::Dumper(std::ostream & outstream, const unsigned char& offsettabs) : out_
 
 }
 
-void Dumper::dumpUnit(ASTUnit & unit)
+void Dumper::visit(ASTUnitDecl & node)
 {
-	out_ << "ASTUnit containing " << unit.getDeclCount() << " declaration.\n";
+	out_ << "ASTUnit containing " << node.getDeclCount() << " declaration.\n";
 	curindent_++;
-	for (auto it = unit.decls_beg(); it != unit.decls_end(); it++)
-		(*it)->accept(*this);
+	for (auto it = node.decls_beg(); it != node.decls_end(); it++)
+		it->accept(*this);
 	curindent_--;
 }
 
@@ -140,7 +140,7 @@ void Dumper::visit(ASTArrayLiteralExpr & node)
 		{
 			out_ << getIndent() << "Element " << count << ":\n";
 			curindent_++;
-			(*it)->accept(*this);
+			it->accept(*this);
 			curindent_--;
 		}
 		curindent_--;
@@ -220,7 +220,7 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 			out_ << getIndent() << "Arg" << count << '\n';
 
 			curindent_++;
-			(*it)->accept(*this);
+			it->accept(*this);
 			curindent_--;
 
 			count++;
@@ -249,7 +249,7 @@ void Dumper::visit(ASTFunctionDecl & node)
 		curindent_ += 2;
 
 		for (auto it = node.args_begin(); it != node.args_end(); it++)
-			(*it)->accept(*this);
+			it->accept(*this);
 
 		curindent_ -= 1;
 		out_ << getIndent() << "Body:" << std::endl;
@@ -278,9 +278,8 @@ void Dumper::visit(ASTCompoundStmt & node)
 
 	curindent_ += 1;
 
-	node.iterateStmts([&](auto stmt) {
-		stmt->accept(*this);
-	});
+	for (auto it = node.stmts_beg(); it != node.stmts_end(); it++)
+		it->accept(*this);
 
 	curindent_ -= 1;
 }
