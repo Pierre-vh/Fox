@@ -3,7 +3,6 @@ add_source(
     "ASTDecl.cpp"
     "ASTExpr.cpp"
     "ASTStmt.cpp"
-	"ASTUnit.cpp"
 	"ASTContext.cpp"
 	"Types.cpp"
 	"Dumper.cpp"
