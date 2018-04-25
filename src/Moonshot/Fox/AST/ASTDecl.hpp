@@ -11,8 +11,7 @@
 #include "ASTStmt.hpp"
 #include "Types.hpp"
 #include "DeclRecorder.hpp"
-#include <memory>
-#include <vector>
+#include "Moonshot/Fox/Basic/Memory.hpp"
 
 namespace Moonshot
 {
@@ -65,10 +64,10 @@ namespace Moonshot
 	class ASTFunctionDecl : public ASTNamedDecl, public DeclRecorder
 	{
 		private:
-			using ArgVecTy = std::vector<std::unique_ptr<ASTArgDecl>>;
+			using ArgVecTy = UniquePtrVector<ASTArgDecl>;
 
-			using argIter = ArgVecTy::iterator;
-			using argIter_const = ArgVecTy::const_iterator;
+			using ArgVecIter = DereferenceIterator<ArgVecTy::iterator>;
+			using ArgVecConstIter = DereferenceIterator<ArgVecTy::const_iterator>;
 		public:
 			ASTFunctionDecl() = default;
 			ASTFunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<ASTCompoundStmt> funcbody);
@@ -82,15 +81,15 @@ namespace Moonshot
 			void setBody(std::unique_ptr<ASTCompoundStmt> arg);
 			ASTCompoundStmt* getBody();		
 
-			const ASTArgDecl* getArg(const std::size_t & ind) const;
+			ASTArgDecl* getArg(const std::size_t & ind);
 			void addArg(std::unique_ptr<ASTArgDecl> arg);
 			std::size_t argsSize() const;
 
-			argIter args_begin();
-			argIter_const args_begin() const;
+			ArgVecIter args_begin();
+			ArgVecConstIter args_begin() const;
 
-			argIter args_end();
-			argIter_const args_end() const;
+			ArgVecIter args_end();
+			ArgVecConstIter args_end() const;
 		private:
 			const Type* returnType_ = nullptr;
 			ArgVecTy args_;
@@ -119,6 +118,34 @@ namespace Moonshot
 		private:
 			QualType varTy_;
 			std::unique_ptr<ASTExpr> initExpr_ = nullptr;
+	};
+
+	// A Unit declaration. A Unit = a source file.
+	class ASTUnitDecl : public ASTDecl, public DeclRecorder
+	{
+		private:
+			using DelVecTy = UniquePtrVector<ASTDecl>;
+			using DeclVecIter = DereferenceIterator<DelVecTy::iterator>;
+			using DeclVecConstIter = DereferenceIterator<DelVecTy::const_iterator>;
+		public:
+			ASTUnitDecl() = default;
+
+			void addDecl(std::unique_ptr<ASTDecl> decl);
+			ASTDecl* getDecl(const std::size_t &idx);
+			std::size_t getDeclCount() const;
+
+			virtual bool isValid() override;
+			virtual void accept(IVisitor &vis);
+
+			DeclVecIter decls_beg();
+			DeclVecIter decls_end();
+
+			DeclVecConstIter decls_beg() const;
+			DeclVecConstIter decls_end() const;
+
+		private:
+			// The decls contained within this unit.
+			DelVecTy decls_;
 	};
 }
 

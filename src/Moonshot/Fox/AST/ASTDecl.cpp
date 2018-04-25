@@ -102,7 +102,7 @@ void ASTFunctionDecl::setBody(std::unique_ptr<ASTCompoundStmt> arg)
 	body_ = std::move(arg);
 }
 
-const ASTArgDecl* ASTFunctionDecl::getArg(const std::size_t & ind) const
+ASTArgDecl* ASTFunctionDecl::getArg(const std::size_t & ind)
 {
 	if (ind >= args_.size())
 		throw std::out_of_range("Arg does not exists");
@@ -120,22 +120,22 @@ std::size_t ASTFunctionDecl::argsSize() const
 	return args_.size();
 }
 
-ASTFunctionDecl::argIter ASTFunctionDecl::args_begin()
+ASTFunctionDecl::ArgVecIter ASTFunctionDecl::args_begin()
 {
 	return args_.begin();
 }
 
-ASTFunctionDecl::argIter_const ASTFunctionDecl::args_begin() const
+ASTFunctionDecl::ArgVecConstIter ASTFunctionDecl::args_begin() const
 {
 	return args_.begin();
 }
 
-ASTFunctionDecl::argIter ASTFunctionDecl::args_end()
+ASTFunctionDecl::ArgVecIter ASTFunctionDecl::args_end()
 {
 	return args_.end();
 }
 
-ASTFunctionDecl::argIter_const ASTFunctionDecl::args_end() const
+ASTFunctionDecl::ArgVecConstIter ASTFunctionDecl::args_end() const
 {
 	return args_.end();
 }
@@ -183,3 +183,53 @@ void ASTVarDecl::setInitExpr(std::unique_ptr<ASTExpr> expr)
 	if(expr)
 		initExpr_ = std::move(expr);
 }
+
+// ASTUnit
+void ASTUnitDecl::addDecl(std::unique_ptr<ASTDecl> decl)
+{
+	decls_.emplace_back(std::move(decl));
+}
+
+ASTDecl * ASTUnitDecl::getDecl(const std::size_t & idx)
+{
+	if (idx < decls_.size())
+		return decls_[idx].get();
+	return nullptr;
+}
+
+std::size_t ASTUnitDecl::getDeclCount() const
+{
+	return decls_.size();
+}
+
+bool ASTUnitDecl::isValid()
+{
+	// Valid if decl number >0
+	return decls_.size();
+}
+
+void ASTUnitDecl::accept(IVisitor &vis)
+{
+	vis.visit(*this);
+}
+
+ASTUnitDecl::DeclVecIter ASTUnitDecl::decls_beg()
+{
+	return decls_.begin();
+}
+
+ASTUnitDecl::DeclVecIter ASTUnitDecl::decls_end()
+{
+	return decls_.end();
+}
+
+ASTUnitDecl::DeclVecConstIter ASTUnitDecl::decls_beg() const
+{
+	return decls_.begin();
+}
+
+ASTUnitDecl::DeclVecConstIter ASTUnitDecl::decls_end() const
+{
+	return decls_.end();
+}
+
