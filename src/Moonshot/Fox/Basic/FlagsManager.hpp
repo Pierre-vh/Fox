@@ -14,6 +14,7 @@
 #pragma once
 
 #include <map>
+#include "Moonshot/Fox/Basic/Exceptions.hpp"
 
 namespace Moonshot
 {
@@ -22,15 +23,35 @@ namespace Moonshot
 		#define FLAG(FLAG_NAME,FLAG_BASE_VAL) FLAG_NAME,
 		#include "Flags/FlagsAll.def"	
 	};
-
+	#define UNKNOWN_KEY_EXCEPTION "Enum value does not exists in map. This can happen if you add a new enum value without using the .def files!"
 	class FlagsManager
 	{
 		public:
 			FlagsManager() = default;
 
-			bool isSet(const FlagID& fid) const;
-			void set(const FlagID& fid);
-			void unset(const FlagID& fid);
+			inline bool isSet(const FlagID& fid) const
+			{
+				if (existsInMap(flags_, fid))
+					return flags_.find(fid)->second;
+				else
+					throw std::out_of_range(UNKNOWN_KEY_EXCEPTION);
+			}
+
+			inline void set(const FlagID& fid)
+			{
+				if (existsInMap(flags_, fid))
+					flags_[fid] = true;
+				else
+					throw std::out_of_range(UNKNOWN_KEY_EXCEPTION);
+			}
+			
+			void unset(const FlagID& fid)
+			{
+				if (existsInMap(flags_, fid))
+					flags_[fid] = false;
+				else
+					throw std::out_of_range(UNKNOWN_KEY_EXCEPTION);
+			}
 		private:
 			template<typename KEY, typename DATA>
 			inline bool existsInMap(const std::map<KEY, DATA> &mmap, const KEY& key) const
@@ -42,6 +63,8 @@ namespace Moonshot
 			{
 				#define FLAG(FLAG_NAME,FLAG_BASE_VAL) { FlagID::FLAG_NAME, FLAG_BASE_VAL },
 				#include "Flags/FlagsAll.def"	
+		
 			};
 	};
+	#undef UNKNOWN_KEY_EXCEPTION
 }
