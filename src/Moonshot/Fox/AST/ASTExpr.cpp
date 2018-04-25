@@ -427,12 +427,12 @@ ASTExprList::ExprListIter ASTExprList::end()
 	return exprs_.end();
 }
 
-ASTExprList::ExprListIter_const ASTExprList::begin() const
+ASTExprList::ExprListConstIter ASTExprList::begin() const
 {
 	return exprs_.begin();
 }
 
-ASTExprList::ExprListIter_const ASTExprList::end() const
+ASTExprList::ExprListConstIter ASTExprList::end() const
 {
 	return exprs_.end();
 }

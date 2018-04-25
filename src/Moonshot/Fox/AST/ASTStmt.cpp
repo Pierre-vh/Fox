@@ -127,20 +127,24 @@ std::size_t ASTCompoundStmt::size() const
 	return stmts_.size();
 }
 
-ASTCompoundStmt::stmtvec::iterator ASTCompoundStmt::stmtList_beg()
+ASTCompoundStmt::StmtVecIter ASTCompoundStmt::stmts_beg()
 {
 	return stmts_.begin();
 }
 
-ASTCompoundStmt::stmtvec::iterator ASTCompoundStmt::stmtList_end()
+ASTCompoundStmt::StmtVecIter ASTCompoundStmt::stmts_end()
 {
 	return stmts_.end();
 }
 
-void ASTCompoundStmt::iterateStmts(std::function<void(ASTStmt*)> fn)
+ASTCompoundStmt::StmtVecConstIter ASTCompoundStmt::stmts_beg() const
 {
-	for (const auto& elem : stmts_)
-		fn(elem.get());
+	return stmts_.begin();
+}
+
+ASTCompoundStmt::StmtVecConstIter ASTCompoundStmt::stmts_end() const
+{
+	return stmts_.end();
 }
 
 // While stmt

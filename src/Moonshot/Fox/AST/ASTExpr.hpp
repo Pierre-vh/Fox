@@ -12,8 +12,7 @@
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
 #include "Moonshot/Fox/AST/Types.hpp"
 #include "Moonshot/Fox/AST/Operators.hpp"
-#include <memory>
-#include <vector>
+#include "Moonshot/Fox/Basic/Memory.hpp"
 
 namespace Moonshot	
 {
@@ -262,10 +261,10 @@ namespace Moonshot
 	class ASTExprList
 	{
 		private:
-			using ExprListTy = std::vector<std::unique_ptr<ASTExpr>>;
+			using ExprListTy = UniquePtrVector<ASTExpr>;
 
-			using ExprListIter = ExprListTy::iterator;
-			using ExprListIter_const = ExprListTy::const_iterator;
+			using ExprListIter = DereferenceIterator<ExprListTy::iterator>;
+			using ExprListConstIter = DereferenceIterator<ExprListTy::const_iterator>;
 		public:
 			ASTExprList() = default;
 
@@ -278,8 +277,8 @@ namespace Moonshot
 			ExprListIter begin();
 			ExprListIter end();
 
-			ExprListIter_const begin() const;
-			ExprListIter_const end()const;
+			ExprListConstIter begin() const;
+			ExprListConstIter end()const;
 		private:
 			ExprListTy exprs_;
 	};

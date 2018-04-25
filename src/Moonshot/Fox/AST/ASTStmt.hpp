@@ -9,9 +9,7 @@
 
 #pragma once
 
-#include <memory>
-#include <vector>
-#include <functional>
+#include "Moonshot/Fox/Basic/Memory.hpp"
 
 namespace Moonshot
 {
@@ -70,25 +68,29 @@ namespace Moonshot
 	class ASTCompoundStmt : public ASTStmt
 	{
 		private:
-			using stmtvec = std::vector<std::unique_ptr<ASTStmt>>;
+			using StmtVecTy = UniquePtrVector<ASTStmt>;
+			using StmtVecIter = DereferenceIterator<StmtVecTy::iterator>;
+			using StmtVecConstIter = DereferenceIterator < StmtVecTy::const_iterator>;
 		public:
 			ASTCompoundStmt() = default;
 
 			virtual void accept(IVisitor & vis) override;
 
 			ASTStmt* getStmt(const std::size_t& ind);
-			ASTStmt* getBack(); // returns the .back() of the stmtvec
+			ASTStmt* getBack();
 			void addStmt(std::unique_ptr<ASTStmt> stmt);
 
 			bool isEmpty() const;
 			std::size_t size() const;
 
-			stmtvec::iterator stmtList_beg();
-			stmtvec::iterator stmtList_end();
+			StmtVecIter stmts_beg();
+			StmtVecIter stmts_end();
 
-			void iterateStmts(std::function<void(ASTStmt*)> fn);
+			StmtVecConstIter stmts_beg() const;
+			StmtVecConstIter stmts_end() const;
+
 		private:
-			stmtvec stmts_;
+			StmtVecTy stmts_;
 	};
 
 	// A while loop while(expr) <stmt>
