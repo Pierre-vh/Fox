@@ -35,7 +35,7 @@ Parser::UnitResult Parser::parseUnit()
 	// <fox_unit>	= {<declaration>}1+
 
 	// Create the unit
-	auto unit = std::make_unique<ASTUnit>();
+	auto unit = std::make_unique<ASTUnitDecl>();
 
 	// Create a RAIIDeclRecorder
 	RAIIDeclRecorder raiidr(*this,unit.get());

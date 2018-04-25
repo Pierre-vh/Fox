@@ -44,7 +44,6 @@
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
-#include "Moonshot/Fox/AST/ASTUnit.hpp"
 
 #include "Moonshot/Fox/AST/Operators.hpp"			
 
@@ -68,11 +67,11 @@ namespace Moonshot
 
 			// Bunch of usings & helper functions for parsing functions. Theses are public
 			// so external classes can use them.
-			using ExprResult		= UniqueResult<ASTExpr>;
-			using ExprListResult	= UniqueResult<ASTExprList>;
-			using DeclResult		= UniqueResult<ASTDecl>;
-			using StmtResult		= UniqueResult<ASTStmt>;
-			using UnitResult		= UniqueResult<ASTUnit>;
+			using ExprResult = UniqueResult<ASTExpr>;
+			using ExprListResult = UniqueResult<ASTExprList>;
+			using DeclResult = UniqueResult<ASTDecl>;
+			using StmtResult = UniqueResult<ASTStmt>;
+			using UnitResult = UniqueResult<ASTUnitDecl>;
 		private:
 			using TokenIteratorTy = TokenVector::iterator;
 		public:
