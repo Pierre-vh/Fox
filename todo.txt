@@ -18,7 +18,8 @@ TODO:
 	> Parser support for DeclRecorder with a RAIIContext object. (Done)
 	> UniquePtrVector & DereferenceIterators + Minimizing interaction with unique pointers for AST Visitors(Done)
 
-
+	>	Token : Stop using Regex for identifier analysis, just use a loop/iterate over characters, because std::regex is really, really slow.
+		applying the regex to one id seems to be slower than lexing a whole file!
 	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc.
 
 	> At this point if nothing caught fire, write unit tests to catch bugs and make things catch fire.
