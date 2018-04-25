@@ -28,7 +28,7 @@ namespace Moonshot
 			using NamedDeclsMapIter = NamedDeclsMapTy::iterator;
 			using NamedDeclsMapConstIter = NamedDeclsMapTy::const_iterator;
 		public:
-			DeclRecorder(DeclRecorder* upperDR = nullptr);
+			DeclRecorder(DeclRecorder * parent = nullptr);
 
 			// "Record" a declaration within this DeclRecorder
 			void recordDecl(ASTNamedDecl* decl);
@@ -44,6 +44,10 @@ namespace Moonshot
 			bool hasParentDeclRecorder() const;
 			DeclRecorder* getParentDeclRecorder();
 			void setParentDeclRecorder(DeclRecorder *dr);
+			void resetParentDeclRecorder();
+
+			// Get information
+			std::size_t getNumberOfRecordedDecls()  const;
 
 			NamedDeclsMapIter recordedDecls_begin();
 			NamedDeclsMapIter recordedDecls_end();

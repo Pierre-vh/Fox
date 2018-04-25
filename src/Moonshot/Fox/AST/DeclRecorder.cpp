@@ -16,7 +16,7 @@
 
 using namespace Moonshot;
 
-DeclRecorder::DeclRecorder(DeclRecorder * upperDR) : parent_(upperDR)
+DeclRecorder::DeclRecorder(DeclRecorder * parent) : parent_(parent)
 {
 
 }
@@ -63,7 +63,18 @@ DeclRecorder * DeclRecorder::getParentDeclRecorder()
 
 void DeclRecorder::setParentDeclRecorder(DeclRecorder * dr)
 {
+	assert(dr && "Can't a null parent! Use resetParent() for that!");
 	parent_ = dr;
+}
+
+void DeclRecorder::resetParentDeclRecorder()
+{
+	parent_ = nullptr;
+}
+
+std::size_t DeclRecorder::getNumberOfRecordedDecls() const
+{
+	return namedDecls_.size();
 }
 
 DeclRecorder::NamedDeclsMapIter DeclRecorder::recordedDecls_begin()
@@ -73,12 +84,12 @@ DeclRecorder::NamedDeclsMapIter DeclRecorder::recordedDecls_begin()
 
 DeclRecorder::NamedDeclsMapIter DeclRecorder::recordedDecls_end()
 {
-	return namedDecls_.begin();
+	return namedDecls_.end();
 }
 
 DeclRecorder::NamedDeclsMapConstIter DeclRecorder::recordedDecls_begin() const
 {
-	return namedDecls_.end();
+	return namedDecls_.begin();
 }
 
 DeclRecorder::NamedDeclsMapConstIter DeclRecorder::recordedDecls_end() const
