@@ -20,6 +20,8 @@ TODO:
 
 	>	Token : Stop using Regex for identifier analysis, just use a loop/iterate over characters, because std::regex is really, really slow.
 		applying the regex to one id seems to be slower than lexing a whole file!
+	>	Add Anonymous Identifiers to IdentifierTable. An anonymous identifier is an identifie with a empty string "", this can be useful
+		to make NamedDecls invisible to lookup & stuff
 	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc.
 
 	> At this point if nothing caught fire, write unit tests to catch bugs and make things catch fire.
