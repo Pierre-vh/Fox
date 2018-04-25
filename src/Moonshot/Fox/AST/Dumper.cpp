@@ -25,10 +25,18 @@ Dumper::Dumper(std::ostream & outstream, const unsigned char& offsettabs) : out_
 
 void Dumper::visit(ASTUnitDecl & node)
 {
-	out_ << "ASTUnit containing " << node.getDeclCount() << " declaration.\n";
+	out_ << getIndent() << "ASTUnit containing " << node.getDeclCount() << " declaration.\n";
 	curindent_++;
 	for (auto it = node.decls_beg(); it != node.decls_end(); it++)
 		it->accept(*this);
+
+	curindent_--;
+	out_ << getIndent() << "This unit recorded " << node.getNumberOfRecordedDecls() << " declaration \n";
+	curindent_++;
+	for (auto it = node.recordedDecls_begin(); it != node.recordedDecls_end(); it++)
+	{
+		out_ << getIndent() << "> Declaration with name: " << it->first->getStr() << "\n";
+	}
 	curindent_--;
 }
 
@@ -255,7 +263,19 @@ void Dumper::visit(ASTFunctionDecl & node)
 		out_ << getIndent() << "Body:" << std::endl;
 		curindent_ += 1;
 		node.getBody()->accept(*this);
-		curindent_ -= 2;
+		curindent_ --;
+
+
+		out_ << getIndent() << "This Function Declaration recorded " << node.getNumberOfRecordedDecls() << " declarations ";
+		if (node.hasParentDeclRecorder())
+			out_ << "(It has a parent DeclRecorder)";
+		out_ << "\n";
+		curindent_++;
+		for (auto it = node.recordedDecls_begin(); it != node.recordedDecls_end(); it++)
+		{
+			out_ << getIndent() << "> Declaration with name: " << it->first->getStr() << "\n";
+		}
+		curindent_-=2;
 	}
 	else
 		out_ << getIndent() << "Invalid FunctionDecl\n";
