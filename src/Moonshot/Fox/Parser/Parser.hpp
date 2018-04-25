@@ -231,6 +231,7 @@ namespace Moonshot
 				// This class manages the recovery of the parser
 				// The constructor makes a backup of the parser instance's state_.isRecoveryAllowed variable, and replaces state_.isRecoveryAllowed with the value desired.
 				// The constructor restores the state_.isRecoveryAllowed variable to it's original value using the backup.
+				// Note: It's currently unused, but it's a class that could one day prove useful, so i'm keeping it for now.
 			class RAIIRecoveryManager
 			{
 				public:
@@ -246,6 +247,7 @@ namespace Moonshot
 			/*-------------- RAIIDeclRecorder --------------*/
 			// This class sets the current DeclRecorder at construction, and restores the last
 			// one at destruction.
+			// If the DeclRecorder that was here before isn't null, it's marked as being the parent of the DeclRecorder passed as argument to the constructor.
 			// It assists in registering Decl in the appropriate DeclRecorder.
 			class RAIIDeclRecorder
 			{
