@@ -35,24 +35,11 @@ TEST(IdentifierTableTests, areIdentifiersUnique)
 	ASSERT_NE(rawIdA, rawIdB) << "The 2 randomly generated identifiers were the same ! Is the generator function broken?";
 
 	IdentifierTable idtab;
-	IdentifierInfo& idA = idtab.getUniqueIDinfo(rawIdA);
-	IdentifierInfo& idB = idtab.getUniqueIDinfo(rawIdB);
+	IdentifierInfo* idA = idtab.getUniqueIdentifierInfo(rawIdA);
+	IdentifierInfo* idB = idtab.getUniqueIdentifierInfo(rawIdB);
 
-	ASSERT_NE(&idA, &idB) << "The 2 references point to the same IdentifierInfo!";
-	ASSERT_NE(idA.getStr(), idB.getStr()) << "The 2 strings are not the same!";
-
-	// try to get them again and compare again
-	IdentifierInfo& idA_2 = idtab.getUniqueIDinfo(rawIdA);
-	IdentifierInfo& idB_2 = idtab.getUniqueIDinfo(rawIdB);
-
-	EXPECT_NE(&idA_2, &idB_2) << "The 2 references point to the same IdentifierInfo!";
-	EXPECT_NE(idA_2.getStr(), idB_2.getStr()) << "The 2 strings are not the same!";
-
-	EXPECT_EQ(&idA, &idA_2) << "The IdentifierTable did not return the expected IdentifierInfo!";
-	EXPECT_EQ(idA.getStr(),idA_2.getStr()) << "The IdentifierInfo did not return the expected string!";
-
-	EXPECT_EQ(&idB, &idB_2) << "The IdentifierTable did not return the expected IdentifierInfo!";
-	EXPECT_EQ(idB.getStr(), idB_2.getStr()) << "The IdentifierInfo did not return the expected string!";
+	ASSERT_NE(idA, idB);
+	ASSERT_NE(idA->getStr(), idB->getStr()) << "The 2 strings are not the same!";
 }
 
 // Checks if the exists function works correctly.
@@ -64,7 +51,7 @@ TEST(IdentifierTableTests, exists)
 
 	EXPECT_FALSE(idtab.exists(randID));
 
-	idtab.getUniqueIDinfo(randID);
+	idtab.getUniqueIdentifierInfo(randID);
 
 	EXPECT_TRUE(idtab.exists(randID));
 }
@@ -87,7 +74,7 @@ TEST(IdentifierTableTests, randomIdentifierInsertion)
 		// Before inserting, a quick sanity check doesn't hurt!
 		ASSERT_FALSE(idtab.exists(id)) << "[Insertion " << k << "] The identifier \"" << id << "\" already exists";
 		
-		auto idinfo = idtab.getUniqueIDInfoPtr(id);
+		auto idinfo = idtab.getUniqueIdentifierInfo(id);
 		// Check if the string matches, and if the adress of this type is different from the last one used.
 		ASSERT_EQ(idinfo->getStr(), id) << "[Insertion " << k << "] Strings did not match";
 		ASSERT_TRUE(idtab.exists(id)) << "[Insertion " << k << "] IdentifierTable is reporting that the identifier does not exists.";

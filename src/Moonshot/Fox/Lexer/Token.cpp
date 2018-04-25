@@ -468,7 +468,7 @@ bool Token::specific_idIdentifier(Context& ctxt,ASTContext& astctxt, const std::
 	{
 		if (hasAtLeastOneLetter(str))
 		{
-			tokenInfo_ = astctxt.identifiers.getUniqueIDInfoPtr(str);
+			tokenInfo_ = astctxt.identifiers.getUniqueIdentifierInfo(str);
 			return true;
 		}
 		else
