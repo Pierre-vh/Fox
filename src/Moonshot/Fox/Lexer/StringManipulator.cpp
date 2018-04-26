@@ -12,6 +12,11 @@
 
 using namespace Moonshot;
 
+UTF8::StringManipulator::StringManipulator(const std::string & str)
+{
+	setStr(str);
+}
+
 std::string UTF8::StringManipulator::getStrCpy() const
 {
 	return str();

@@ -37,6 +37,7 @@ namespace Moonshot::UTF8
 		public:
 			// Default ctor
 			StringManipulator() = default;
+			StringManipulator(const std::string& str);
 
 			// Returns a copy of the internal string
 			std::string getStrCpy() const;			
