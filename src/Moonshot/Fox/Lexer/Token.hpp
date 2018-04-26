@@ -199,7 +199,7 @@ namespace Moonshot
 			bool specific_idSign(const std::string& str);
 			bool specific_idLiteral(Context& ctxt, const std::string& str);
 			bool specific_idIdentifier(Context& ctxt,ASTContext& astctxt,const std::string& str);
-
+			bool validateIdentifier(Context& ctxt,const std::string& str) const;
 			// Helper for idIdentifier
 			bool hasAtLeastOneLetter(const std::string &str) const; // Checks if str_ has at least one upper/lower case letter.
 	

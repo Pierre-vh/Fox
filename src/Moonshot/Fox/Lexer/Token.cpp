@@ -28,7 +28,8 @@ using namespace Moonshot::Dictionaries;
 // Regular expression used for identification 
 std::regex kInt_regex("\\d+");
 std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
-std::regex kId_regex("(([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+");
+
+
 
 TextPosition::TextPosition()
 {
@@ -464,15 +465,33 @@ bool Token::specific_idLiteral(Context& ctxt,const std::string& str)
 
 bool Token::specific_idIdentifier(Context& ctxt,ASTContext& astctxt, const std::string & str)
 {
-	if (std::regex_match(str, kId_regex))
+	if (validateIdentifier(ctxt,str))
 	{
-		if (hasAtLeastOneLetter(str))
+		tokenInfo_ = astctxt.identifiers.getUniqueIDInfoPtr(str);
+		return true;
+	}
+	return false;
+}
+
+bool Token::validateIdentifier(Context& ctxt,const std::string & str) const
+{
+	// Identifiers : An Identifier's first letter must always be a underscore or an alphabetic letter
+	// The first character can then be followed by an underscore, a letter or a number.
+	UTF8::StringManipulator manip(str);
+	auto first_ch = manip.getCurrentChar();
+	if ((first_ch == '_') || isalpha(first_ch))
+	{
+		// First character is ok, proceed to identify the rest of the string
+		for (manip.advance() /* skip first char*/; !manip.isAtEndOfStr(); manip.advance())
 		{
-			tokenInfo_ = astctxt.identifiers.getUniqueIDInfoPtr(str);
-			return true;
+			auto ch = manip.getCurrentChar();
+			if ((ch != '_') && !isalnum(ch))
+			{
+				ctxt.reportError("The identifier \"" + str + "\" contains invalid characters.");
+				return false;
+			}
 		}
-		else
-			ctxt.reportError("The identifier '" + str + "' must contain at least a upper/lowercase letter.");
+		return true;
 	}
 	return false;
 }
