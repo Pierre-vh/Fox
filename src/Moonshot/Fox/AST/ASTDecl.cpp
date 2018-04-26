@@ -19,24 +19,24 @@ using namespace Moonshot;
 
 // Decl name
 
-ASTNamedDecl::ASTNamedDecl(IdentifierInfo * name) : declName_(name)
+ASTNamedDecl::ASTNamedDecl(IdentifierInfo * name) : Ident_(name)
 {
 
 }
 
-IdentifierInfo * ASTNamedDecl::getDeclName() const
+IdentifierInfo * ASTNamedDecl::getIdentifier() const
 {
-	return declName_;;
+	return Ident_;;
 }
 
-void ASTNamedDecl::setDeclName(IdentifierInfo * nname)
+void ASTNamedDecl::setIdentifier(IdentifierInfo * nname)
 {
-	declName_ = nname;
+	Ident_ = nname;
 }
 
-bool ASTNamedDecl::hasDeclName() const
+bool ASTNamedDecl::hasIdentifier() const
 {
-	return (bool)declName_;
+	return (bool)Ident_;
 }
 
 // Function arg
@@ -62,8 +62,8 @@ void ASTArgDecl::accept(Moonshot::IVisitor &vis)
 
 bool ASTArgDecl::isValid()
 {
-	// Node is valid if it has a declName_ and a valid type.
-	return declName_ && ty_;
+	// Node is valid if it has a Ident_ and a valid type.
+	return this->hasIdentifier() && ty_;
 }
 
 // Function Declaration
@@ -80,8 +80,8 @@ void ASTFunctionDecl::accept(IVisitor & vis)
 
 bool ASTFunctionDecl::isValid()
 {
-	// must has a body, a return type and a name.
-	return returnType_ && body_ && declName_;
+	// must has a body, a return type and an identifier.
+	return returnType_ && body_ && this->hasIdentifier();
 }
 
 void ASTFunctionDecl::setReturnType(const Type* ty)
@@ -158,8 +158,8 @@ void ASTVarDecl::accept(IVisitor& vis)
 
 bool ASTVarDecl::isValid()
 {
-	// must have a type and name to be valid.
-	return declName_ && varTy_;
+	// must have a type and id to be valid.
+	return this->hasIdentifier() && varTy_;
 }
 
 QualType ASTVarDecl::getType() const
@@ -212,8 +212,8 @@ std::size_t ASTUnitDecl::getDeclCount() const
 
 bool ASTUnitDecl::isValid()
 {
-	// Valid if decl number >0 && has name
-	return decls_.size() && declName_;
+	// Valid if decl number >0 && has an identifier
+	return decls_.size() && this->hasIdentifier();
 }
 
 void ASTUnitDecl::accept(IVisitor &vis)

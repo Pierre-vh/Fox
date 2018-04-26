@@ -35,7 +35,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		bool isValid = true;
 		// <id>
 		if (auto id = consumeIdentifier())
-			rtr->setDeclName(id);
+			rtr->setIdentifier(id);
 		else
 		{
 			errorExpected("Expected an identifier");
@@ -163,7 +163,7 @@ Parser::DeclResult Parser::parseVarDecl()
 
 		// <id>
 		if (auto id = consumeIdentifier())
-			rtr->setDeclName(id);
+			rtr->setIdentifier(id);
 		else
 		{
 			errorExpected("Expected an identifier");
