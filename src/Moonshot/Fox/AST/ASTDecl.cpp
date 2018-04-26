@@ -19,24 +19,24 @@ using namespace Moonshot;
 
 // Decl name
 
-ASTNamedDecl::ASTNamedDecl(IdentifierInfo * name) : Ident_(name)
+ASTNamedDecl::ASTNamedDecl(IdentifierInfo * name) : identifier_(name)
 {
 
 }
 
 IdentifierInfo * ASTNamedDecl::getIdentifier() const
 {
-	return Ident_;;
+	return identifier_;;
 }
 
 void ASTNamedDecl::setIdentifier(IdentifierInfo * nname)
 {
-	Ident_ = nname;
+	identifier_ = nname;
 }
 
 bool ASTNamedDecl::hasIdentifier() const
 {
-	return (bool)Ident_;
+	return (bool)identifier_;
 }
 
 // Function arg
@@ -62,7 +62,7 @@ void ASTArgDecl::accept(Moonshot::IVisitor &vis)
 
 bool ASTArgDecl::isValid()
 {
-	// Node is valid if it has a Ident_ and a valid type.
+	// Node is valid if it has a identifier_ and a valid type.
 	return this->hasIdentifier() && ty_;
 }
 

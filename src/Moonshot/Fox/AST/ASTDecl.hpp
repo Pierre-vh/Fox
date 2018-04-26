@@ -42,7 +42,7 @@ namespace Moonshot
 			void setIdentifier(IdentifierInfo* nname);
 			bool hasIdentifier() const;
 		private:
-			IdentifierInfo * Ident_;
+			IdentifierInfo * identifier_;
 	};
 
 	// A Function Argument declaration
