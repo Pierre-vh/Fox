@@ -20,8 +20,10 @@ using namespace Moonshot;
 
 // Number of identifiers to insert into the table in the "randomIdentifierInsertion" test.
 #define RANDOM_ID_TEST_NUMBER_OF_ID 10000
-#define RANDOM_STRING_MIN_LENGTH 8
-#define RANDOM_STRING_MAX_LENGTH 64
+// Note, if theses values are too low, the test might fail sometimes because there's a change that the randomly generated
+// identifier is already taken. Using high values make the test longer, but also a lot less unlikely to fail!
+#define RANDOM_STRING_MIN_LENGTH 64
+#define RANDOM_STRING_MAX_LENGTH 128
 
 std::string generateRandomString();
 
