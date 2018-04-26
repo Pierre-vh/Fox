@@ -18,10 +18,10 @@ TODO:
 	> Parser support for DeclRecorder with a RAIIContext object. (Done)
 	> UniquePtrVector & DereferenceIterators + Minimizing interaction with unique pointers for AST Visitors(Done)
 
-	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc.
+	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc. (Maybe?)
 
-	> At this point if nothing caught fire, write unit tests to catch bugs and make things catch fire.
-		> Test DeclRecorder chaining : Does it work correctly?
+	> At this point if nothing caught fire, write unit tests to catch bugs and make things catch fire. (Next)
+		> Test DeclRecorder chaining : Does it work correctly?	(First tests say it does, but I need to make a proper unit test)
 		> Type tests ? (Like, try to identify types by comparing ASTContext pointers, etc)	(Done)
 		> Does lookup work as intended 
 		> Uniqueness of identifiers (Done)
