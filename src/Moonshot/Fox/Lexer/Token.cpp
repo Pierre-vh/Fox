@@ -467,7 +467,7 @@ bool Token::specific_idIdentifier(Context& ctxt,ASTContext& astctxt, const std::
 {
 	if (validateIdentifier(ctxt,str))
 	{
-		tokenInfo_ = astctxt.identifiers.getUniqueIDInfoPtr(str);
+		tokenInfo_ = astctxt.identifiers.getUniqueIdentifierInfo(str);
 		return true;
 	}
 	return false;
@@ -479,13 +479,13 @@ bool Token::validateIdentifier(Context& ctxt,const std::string & str) const
 	// The first character can then be followed by an underscore, a letter or a number.
 	UTF8::StringManipulator manip(str);
 	auto first_ch = manip.getCurrentChar();
-	if ((first_ch == '_') || iswalpha(first_ch))
+	if ((first_ch == '_') || iswalpha((char)first_ch))
 	{
 		// First character is ok, proceed to identify the rest of the string
 		for (manip.advance() /* skip first char*/; !manip.isAtEndOfStr(); manip.advance())
 		{
 			auto ch = manip.getCurrentChar();
-			if ((ch != '_') && !iswalnum(ch))
+			if ((ch != '_') && !iswalnum((char)ch))
 			{
 				ctxt.reportError("The identifier \"" + str + "\" contains invalid characters.");
 				return false;
