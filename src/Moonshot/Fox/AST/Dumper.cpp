@@ -33,7 +33,15 @@ void Dumper::visit(ASTUnitDecl & node)
 			it->accept(*this);
 
 		curindent_--;
-		out_ << getIndent() << "This unit recorded " << node.getNumberOfRecordedDecls() << " declaration \n";
+		out_ << getIndent() << "This unit recorded " << node.getNumberOfRecordedDecls() << " declarations ";
+		if (node.hasParentDeclRecorder())
+		{
+			if (auto ptr = dynamic_cast<ASTNamedDecl*>(node.getParentDeclRecorder()))
+				out_ << "(It has a parent DeclRecorder named " << ptr->getDeclName()->getStr() << ")";
+			else 
+				out_ << "(It has a parent DeclRecorder)";
+		}
+		out_ << "\n";
 		curindent_++;
 		for (auto it = node.recordedDecls_begin(); it != node.recordedDecls_end(); it++)
 		{
@@ -273,7 +281,12 @@ void Dumper::visit(ASTFunctionDecl & node)
 
 		out_ << getIndent() << "This Function Declaration recorded " << node.getNumberOfRecordedDecls() << " declarations ";
 		if (node.hasParentDeclRecorder())
-			out_ << "(It has a parent DeclRecorder)";
+		{
+			if (auto ptr = dynamic_cast<ASTNamedDecl*>(node.getParentDeclRecorder()))
+				out_ << "(It has a parent DeclRecorder named " << ptr->getDeclName()->getStr() << ")";
+			else
+				out_ << "(It has a parent DeclRecorder)";
+		}
 		out_ << "\n";
 		curindent_++;
 		for (auto it = node.recordedDecls_begin(); it != node.recordedDecls_end(); it++)
