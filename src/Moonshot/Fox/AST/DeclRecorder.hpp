@@ -29,6 +29,7 @@ namespace Moonshot
 			using NamedDeclsMapConstIter = NamedDeclsMapTy::const_iterator;
 		public:
 			DeclRecorder(DeclRecorder * parent = nullptr);
+			inline virtual ~DeclRecorder() {}
 
 			// "Record" a declaration within this DeclRecorder
 			void recordDecl(ASTNamedDecl* decl);
