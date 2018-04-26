@@ -90,7 +90,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		if (!consumeBracket(SignType::S_ROUND_CLOSE))
 		{
 			errorExpected("Expected a ')'");
-			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
+			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ false, /*consumeToken*/ true))
 				return DeclResult::Error();
 		}
 
@@ -107,7 +107,6 @@ Parser::DeclResult Parser::parseFunctionDecl()
 				rtr->setReturnType(astcontext_.getPrimitiveVoidType());
 
 				// Try to resync to a { so we can keep on parsing.
-				// We'll stop at a semicolon or eof if we can't find one, and just return an error.
 				if (!resyncToSign(SignType::S_CURLY_OPEN, false, false))
 					return DeclResult::Error();
 			}
