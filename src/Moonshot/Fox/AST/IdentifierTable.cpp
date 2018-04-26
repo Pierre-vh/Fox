@@ -62,37 +62,30 @@ bool IdentifierInfo::operator!=(const std::string& str) const
 	return !(*this == str);
 }
 
-IdentifierInfo & IdentifierTable::getUniqueIDinfo(const std::string & id)
+IdentifierInfo* IdentifierTable::getUniqueIdentifierInfo(const std::string& id)
 {
 	// Effective STL, Item 24 by Scott Meyers : https://stackoverflow.com/a/101980
 	auto it = table_.lower_bound(id);
-	if (it != table_.end() && !(table_.key_comp()(id,it->first)))
+	if (it != table_.end() && !(table_.key_comp()(id, it->first)))
 	{
 		// Identifier already exists in table_, return ->second after some checks.
 
 		assert(it->second.mapIter_.it_ != table_.end() && "IdentifierInfo iterator was invalid");
 		assert(it->second.mapIter_.it_ == it && "Iterator was not correct!");
-		return it->second;
+		return &(it->second);
 	}
 	else
 	{
 		// Key does not exists, insert.
 		auto newIt = table_.insert(it, std::make_pair(id, IdentifierInfo(table_.end())));
-		
+
 		assert(newIt != table_.end() && "Fresh iterator was equal to .end() ?");
 
 		// /!\ Important : Set iterator
 		newIt->second.mapIter_.it_ = newIt;
 
-		return newIt->second;
+		return &(newIt->second);
 	}
-}
-
-IdentifierInfo* IdentifierTable::getUniqueIDInfoPtr(const std::string& id)
-{
-	IdentifierInfo* ptr = &(getUniqueIDinfo(id));
-	assert(ptr && "Pointer was null!");
-	return ptr;
 }
 
 bool IdentifierTable::exists(const std::string & id) const

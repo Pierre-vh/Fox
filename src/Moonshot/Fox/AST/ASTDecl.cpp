@@ -34,6 +34,10 @@ void ASTNamedDecl::setDeclName(IdentifierInfo * nname)
 	declName_ = nname;
 }
 
+bool ASTNamedDecl::hasDeclName() const
+{
+	return (bool)declName_;
+}
 
 // Function arg
 ASTArgDecl::ASTArgDecl(IdentifierInfo* id, const QualType & argType) : ASTNamedDecl(id), ty_(argType)
@@ -185,6 +189,10 @@ void ASTVarDecl::setInitExpr(std::unique_ptr<ASTExpr> expr)
 }
 
 // ASTUnit
+ASTUnitDecl::ASTUnitDecl(IdentifierInfo * id): ASTNamedDecl(id)
+{
+}
+
 void ASTUnitDecl::addDecl(std::unique_ptr<ASTDecl> decl)
 {
 	decls_.emplace_back(std::move(decl));
@@ -204,8 +212,8 @@ std::size_t ASTUnitDecl::getDeclCount() const
 
 bool ASTUnitDecl::isValid()
 {
-	// Valid if decl number >0
-	return decls_.size();
+	// Valid if decl number >0 && has name
+	return decls_.size() && declName_;
 }
 
 void ASTUnitDecl::accept(IVisitor &vis)

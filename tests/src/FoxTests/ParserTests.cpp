@@ -320,8 +320,12 @@ TEST(ParserTests, Unit)
 	std::string corr_base_path = "parser/inputs/unit/correct_";
 	std::string bad_base_path = "parser/inputs/unit/incorrect_";
 
+
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
-		auto res = parse.parseUnit();
+		
+		auto res = parse.parseUnit(
+			parse.getASTContext().identifiers.getUniqueIdentifierInfo("Test Unit")
+		);
 		return res;
 	});
 

@@ -88,6 +88,7 @@ Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 
 		// Here, we'll attempt to recover to a } and return an empty compound statement if we found one,
 		// if we can't recover, we restore the backup and return "not found"
+		// It's unlikely that one would forget both {}, but who knows!
 		auto backup = createParserStateBackup();
 
 		if (resyncToSign(SignType::S_CURLY_CLOSE, /* stopAtSemi */ false, /*consumeToken*/ true))

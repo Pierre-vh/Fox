@@ -30,19 +30,21 @@ Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l,DeclRecorder *dr)
 	setupParser();
 }
 
-Parser::UnitResult Parser::parseUnit()
+Parser::UnitResult Parser::parseUnit(IdentifierInfo* unitName)
 {
 	// <fox_unit>	= {<declaration>}1+
 
+	// Assert that unitName != nullptr
+	assert(unitName && "Unit name cannot be nullptr!");
+
 	// Create the unit
-	auto unit = std::make_unique<ASTUnitDecl>();
+	auto unit = std::make_unique<ASTUnitDecl>(unitName);
 
 	// Create a RAIIDeclRecorder
 	RAIIDeclRecorder raiidr(*this,unit.get());
 
-	// Create recovery "lock" object, since recovery is disabled for top level declarations. 
-	// It'll be re-enabled by parseFunctionDecl
-	auto lock = createRecoveryDisabler();
+	// Create recovery enabler.
+	auto enabler = createRecoveryEnabler();
 
 	// Gather some flags
 	const bool showRecoveryMessages = context_.flagsManager.isSet(FlagID::parser_showRecoveryMessages);
@@ -62,10 +64,7 @@ Parser::UnitResult Parser::parseUnit()
 				break;
 			// No EOF? There's an unexpected token on the way that prevents us from finding the decl.
 			else
-			{
-				// Unlock, so we're allowed to recover here.
-				auto unlock = createRecoveryEnabler();
-
+			{			
 				// Report an error in case of "not found";
 				if (decl.wasSuccessful())	
 					errorExpected("Expected a declaration");
@@ -116,6 +115,16 @@ void Parser::enableTestMode()
 void Parser::disableTestMode()
 {
 	isTestMode_ = false;
+}
+
+ASTContext & Parser::getASTContext()
+{
+	return astcontext_;
+}
+
+Context & Parser::getContext()
+{
+	return context_;
 }
 
 void Parser::setupParser()
@@ -587,6 +596,15 @@ Parser:: RAIIRecoveryManager Parser::createRecoveryDisabler()
 Parser::RAIIDeclRecorder::RAIIDeclRecorder(Parser &p, DeclRecorder *dr) : parser(p)
 {
 	old_dc = parser.state_.declRecorder;
+
+	// If old_dc isn't null, mark it as the parent of the new dr
+	if (old_dc)
+	{
+		// Assert that we're not overwriting a parent. If such a thing happens, that could indicate a bug!
+		assert(!dr->hasParentDeclRecorder() && "New DeclRecorder already has a parent?");
+		dr->setParentDeclRecorder(old_dc);
+	}
+
 	parser.state_.declRecorder = dr;
 }
 

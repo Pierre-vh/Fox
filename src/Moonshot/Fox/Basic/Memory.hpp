@@ -31,7 +31,7 @@ namespace Moonshot
 			using pointer = value_type * ;
 			using reference = value_type & ;
 
-			DereferenceIterator(BaseIterator baseIt) : BaseIterator(baseIt)
+			DereferenceIterator(const BaseIterator &baseIt) : BaseIterator(baseIt)
 			{
 
 			}

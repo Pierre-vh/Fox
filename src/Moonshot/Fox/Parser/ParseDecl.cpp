@@ -40,9 +40,10 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		{
 			errorExpected("Expected an identifier");
 			isValid = false;
+			// Here, continue parsing. This might generate an error cascade but we need to try and parse more things before giving up definitely.
 		}
 
-		// Before creating a RAIIDeclRecorder, record this function in the last DeclRecorder
+		// Before creating a RAIIDeclRecorder, record this function in the parent DeclRecorder
 		if(isValid)
 			recordDecl(rtr.get());
 		// Create a RAIIDeclRecorder to record every decl that happens within this
@@ -64,6 +65,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 			// Note, here, in the 2 places I've marked with (1) and (2), we can possibly
 			// add error management, however, I don't think that's necessary since
 			// the consumeBracket below will attempt to "panic and recover" if it doesn't find the )
+			// About (1), maybe a break could be added there, but I think it's just better to ignore and try to parse more.
 			rtr->addArg(firstarg.moveAs<ASTArgDecl>());
 			while (true)
 			{
@@ -106,15 +108,12 @@ Parser::DeclResult Parser::parseFunctionDecl()
 
 				// Try to resync to a { so we can keep on parsing.
 				// We'll stop at a semicolon or eof if we can't find one, and just return an error.
-				if (!resyncToSign(SignType::S_CURLY_CLOSE, true, false))
+				if (!resyncToSign(SignType::S_CURLY_OPEN, false, false))
 					return DeclResult::Error();
 			}
 		}
 		else // if no return type, the function returns void.
 			rtr->setReturnType(astcontext_.getPrimitiveVoidType());
-
-		// Create recovery "enabling" object, since recovery is allowed for function bodies
-		auto lock = createRecoveryEnabler();
 
 		// <compound_statement>
 		if (auto compoundstmt = parseCompoundStatement(/* mandatory = yes */ true))
