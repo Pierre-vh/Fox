@@ -84,8 +84,7 @@ void Lexer::pushTok()
 	// Check if token is valid, if invalid, don't push & report error
 	if (t)
 		result_.push_back(t);
-	else
-		context_.reportError("Couldn't identify token. See previous error messages for more information.");
+
 	curtok_ = "";
 
 	if (context_.flagsManager.isSet(FlagID::lexer_logOnPush)) {
