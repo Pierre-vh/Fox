@@ -26,9 +26,6 @@
 // 
 //		Parser "to-do" list. Important stuff is marked with (*)
 //
-//			Remove RAIIRecoveryManager, isRecoveryAllowed an friends and allow recovery everywhere since the recovery
-//			algorithm is pretty decent now.
-//
 //			Add better error recovey with common cases support in if/while parsing & function declaration
 //
 //			When SourceLoc system is added, match functions should return a SourceLoc instead, and a Invalid sourceloc if it doesn't match anything.
