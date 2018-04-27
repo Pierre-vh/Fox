@@ -9,7 +9,8 @@
 
 #include "gtest/gtest.h"
 #include "TestUtils/TestUtils.hpp"
-
+#include "Moonshot/Fox/AST/Decl.hpp"
+#include "Moonshot/Fox/AST/Expr.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
 #include "Moonshot/Fox/AST/Types.hpp"
 
@@ -141,4 +142,115 @@ TEST(ASTTests, ASTContextArrayTypes)
 	{
 		EXPECT_EQ(actxt.getArrayTypeForType(primInt), intArr);
 	}
+}
+
+// Create a variable with a random type
+std::unique_ptr<VarDecl> makeVarDecl(ASTContext& ctxt, const std::string &name, const Type* ty)
+{
+	return std::make_unique<VarDecl>(ctxt.identifiers.getUniqueIdentifierInfo(name), ty);
+}
+
+std::unique_ptr<FunctionDecl> makeFuncDecl(ASTContext& ctxt, const std::string& name)
+{
+	return std::make_unique<FunctionDecl>(ctxt.getPrimitiveVoidType(), ctxt.identifiers.getUniqueIdentifierInfo(name), std::make_unique<CompoundStmt>());
+}
+
+bool testLookup(ASTContext &ctxt,DeclRecorder *dr, const std::string& name, Decl* decl,std::string& err)
+{
+	auto lookupResult = dr->restrictedLookup(ctxt.identifiers.getUniqueIdentifierInfo(name));
+	
+	if (!lookupResult)
+	{
+		err = "No result found";
+		return false;
+	}
+
+	if (!lookupResult.isUnique())
+	{
+		err = "Multiple results found";
+		return false;
+	}
+
+	if (lookupResult.getResultIfUnique() == decl)
+		return true;
+	else
+	{
+		err = "Result isn't the one expected";
+		return false;
+	}
+}
+
+TEST(ASTTests, DeclRecorderTests)
+{
+	ASTContext astctxt;
+
+	auto var1 = makeVarDecl(astctxt, "Variable_1", astctxt.getPrimitiveBoolType());
+	auto var2 = makeVarDecl(astctxt, "Variable_2", astctxt.getPrimitiveCharType());
+	auto var3 = makeVarDecl(astctxt, "Variable_3", astctxt.getPrimitiveFloatType());
+	auto var4 = makeVarDecl(astctxt, "Variable_4", astctxt.getPrimitiveStringType());
+	auto var5 = makeVarDecl(astctxt, "Variable_5", astctxt.getPrimitiveIntType());
+
+	auto func = makeFuncDecl(astctxt, "Foo");
+
+	func->recordDecl(var1.get());
+	func->recordDecl(var2.get());
+	func->recordDecl(var3.get());
+	func->recordDecl(var4.get());
+	func->recordDecl(var5.get());
+
+	// Iterate over all the recorded decl and check that they were added in the correct order with the correct names.
+	bool v1_ok, v2_ok, v3_ok, v4_ok, v5_ok;
+	v1_ok = v2_ok = v3_ok = v4_ok = v5_ok = false;
+	for (auto it = func->recordedDecls_begin(); it != func->recordedDecls_end(); it++)
+	{
+		if (it->first->getStr() == "Variable_1")
+		{
+			EXPECT_EQ(it->first, var1->getIdentifier()) << "Mismatch : " << it->first->getStr() << " != " << var1->getIdentifier()->getStr();
+			EXPECT_EQ(it->second, var1.get());
+			ASSERT_FALSE(v1_ok) << "Variable_1 found twice?";
+			v1_ok = true;
+		}
+		else if (it->first->getStr() == "Variable_2")
+		{
+			EXPECT_EQ(it->first, var2->getIdentifier()) << "Mismatch : " << it->first->getStr() << " != " << var2->getIdentifier()->getStr();
+			EXPECT_EQ(it->second, var2.get());
+			ASSERT_FALSE(v2_ok) << "Variable_2 found twice?";
+			v2_ok = true;
+		}
+		else if (it->first->getStr() == "Variable_3")
+		{
+			EXPECT_EQ(it->first, var3->getIdentifier()) << "Mismatch : " << it->first->getStr() << " != " << var3->getIdentifier()->getStr();
+			EXPECT_EQ(it->second, var3.get());
+			ASSERT_FALSE(v3_ok) << "Variable_3 found twice?";
+			v3_ok = true;
+		}
+		else if (it->first->getStr() == "Variable_4")
+		{
+			EXPECT_EQ(it->first, var4->getIdentifier()) << "Mismatch : " << it->first->getStr() << " != " << var4->getIdentifier()->getStr();
+			EXPECT_EQ(it->second, var4.get());
+			ASSERT_FALSE(v4_ok) << "Variable_4 found twice?";
+			v4_ok = true;
+		}
+		else if (it->first->getStr() == "Variable_5")
+		{
+			EXPECT_EQ(it->first, var5->getIdentifier()) << "Mismatch : " << it->first->getStr() << " != " << var5->getIdentifier()->getStr();
+			EXPECT_EQ(it->second, var5.get());
+			ASSERT_FALSE(v5_ok) << "Variable_5 found twice?";
+			v5_ok = true;
+		}
+		else
+		{
+			FAIL() << "No decl found";
+		}
+	}
+	EXPECT_TRUE(v1_ok && v2_ok && v3_ok && v4_ok && v5_ok) << "One or more variable was not found.";
+
+	// Lookup tests
+	std::string lasterr = "";
+	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_1", var1.get(), lasterr)) << lasterr;
+	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_2", var2.get(), lasterr)) << lasterr;
+	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_3", var3.get(), lasterr)) << lasterr;
+	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_4", var4.get(), lasterr)) << lasterr;
+	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_5", var5.get(), lasterr)) << lasterr;
+
 }
