@@ -228,7 +228,7 @@ Parser::StmtResult Parser::parseStmt()
 
 	// <var_decl
 	if (auto vardecl = parseVarDecl())
-		return StmtResult(vardecl.moveAs<VarDecl>());
+		return StmtResult(std::make_unique<DeclStmt>(vardecl.move()));
 	else if (!vardecl.wasSuccessful())
 		return StmtResult::Error();
 
