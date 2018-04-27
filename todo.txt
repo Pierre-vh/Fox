@@ -17,23 +17,19 @@ TODO:
 	> Create a "DeclarationRecorder", which is a wrapper around a std::multimap<IdentifierInfo*,ASTNamedDecl*> (Done)
 	> Parser support for DeclRecorder with a RAIIContext object. (Done)
 	> UniquePtrVector & DereferenceIterators + Minimizing interaction with unique pointers for AST Visitors(Done)
+	> Major AST "Cleanup" in preparation for Visitor pattern rework (Done)
+	> Write more Unit tests (Done)
 
-	> DeclRef nodes : getDecl(), hasBeenLinkedToDeclaration(), etc. (Maybe?)
+	Next:
+		> Re-evaluate DeclRecorder : Maybe a Source-centric view of the declarations could be useful.
+		> Maybe create a "MapDataIterator", which would give an iterator to the data only, and not the useless identifierInfo* too.
+		> Visitor System rework, inspired by CLang/Swift. (Next)
+			Todo, in order:
+			> Create DeclNodes,ExprNodes,TypeNodes and StmtNodes.def files
+			> Add the "Kind" to every expr/type/decl/stmt node
+			> ASTVisitor (class that visits a tree however it likes to)
+			> Maybe an ASTWalker.
 
-	> At this point if nothing caught fire, write unit tests to catch bugs and make things catch fire. (Next)
-		> Test DeclRecorder chaining : Does it work correctly?	(First tests say it does, but I need to make a proper unit test)
-		> Type tests ? (Like, try to identify types by comparing ASTContext pointers, etc)	(Done)
-		> Does lookup work as intended 
-		> Uniqueness of identifiers (Done)
-		> Try to break stuff with edge cases. 
-
-	> Visitor System rework, inspired by CLang/Swift.
-		> ASTVisitor (class that visits a tree however it likes to)
-		> Maybe an ASTWalker. It would be quite handy for Dumper and to create a Constant Folding visitor. 
-			See Swift's impl
-				https://github.com/apple/swift/blob/master/include/swift/AST/ASTWalker.h
-				https://github.com/apple/swift/blob/master/lib/AST/ASTWalker.cpp
-				It's quite complicated, maybe a simplified version would work.
 	> Delete old ASTVisitor & Dumper 
 	> Rewrite dumper under the new system
 	> Write tests for the new visitor system
