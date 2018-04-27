@@ -11,9 +11,9 @@
 #include "Moonshot/Fox/Common/Exceptions.hpp"
 #include "Moonshot/Fox/Lexer/StringManipulator.hpp"
 #include "Moonshot/Fox/AST//IdentifierTable.hpp"
-#include "Moonshot/Fox/AST/ASTExpr.hpp"
-#include "Moonshot/Fox/AST/ASTDecl.hpp"
-#include "Moonshot/Fox/AST/ASTStmt.hpp"
+#include "Moonshot/Fox/AST/Expr.hpp"
+#include "Moonshot/Fox/AST/Decl.hpp"
+#include "Moonshot/Fox/AST/Stmt.hpp"
 #include "Moonshot/Fox/Common/Utils.hpp"
 
 using namespace Moonshot;
@@ -23,7 +23,7 @@ Dumper::Dumper(std::ostream & outstream, const unsigned char& offsettabs) : out_
 
 }
 
-void Dumper::visit(ASTUnitDecl & node)
+void Dumper::visit(UnitDecl & node)
 {
 	if (node.isValid())
 	{
@@ -36,7 +36,7 @@ void Dumper::visit(ASTUnitDecl & node)
 		out_ << getIndent() << "This unit recorded " << node.getNumberOfRecordedDecls() << " declarations ";
 		if (node.hasParentDeclRecorder())
 		{
-			if (auto ptr = dynamic_cast<ASTNamedDecl*>(node.getParentDeclRecorder()))
+			if (auto ptr = dynamic_cast<NamedDecl*>(node.getParentDeclRecorder()))
 				out_ << "(It has a parent DeclRecorder named " << ptr->getIdentifier()->getStr() << ")";
 			else 
 				out_ << "(It has a parent DeclRecorder)";
@@ -53,7 +53,7 @@ void Dumper::visit(ASTUnitDecl & node)
 		out_ << getIndent() << "Invalid ASTUnit\n";
 }
 
-void Dumper::visit(ASTBinaryExpr & node)
+void Dumper::visit(BinaryExpr & node)
 {
 	std::string op = Util::getFromDict(Dicts::kBinopToStr_dict, node.getOp());
 	if (op.size() == 0)
@@ -87,7 +87,7 @@ void Dumper::visit(ASTBinaryExpr & node)
 	
 }
 
-void Dumper::visit(ASTUnaryExpr & node)
+void Dumper::visit(UnaryExpr & node)
 {
 	std::string op = Util::getFromDict(Dicts::kUnaryOpToStr_dict, node.getOp());
 	if (op.size() == 0)
@@ -109,7 +109,7 @@ void Dumper::visit(ASTUnaryExpr & node)
 	curindent_ -= 2;
 }
 
-void Dumper::visit(ASTCastExpr & node)
+void Dumper::visit(CastExpr & node)
 {
 	out_ << getIndent() << "CastExpression : Cast Goal:" << node.getCastGoal()->getString() << "\n";
 	curindent_++;
@@ -125,30 +125,30 @@ void Dumper::visit(ASTCastExpr & node)
 	node.getChild()->accept(*this);
 	curindent_ -= 2;
 }
-void Dumper::visit(ASTCharLiteralExpr & node)
+void Dumper::visit(CharLiteralExpr & node)
 {
 	std::string str;
 	UTF8::StringManipulator::append(str, node.getVal());
 	out_ << getIndent() << "Char Literal: (" << node.getVal() << ")->'" << str << "'\n";
 }
-void Dumper::visit(ASTIntegerLiteralExpr & node)
+void Dumper::visit(IntegerLiteralExpr & node)
 {
 	out_ << getIndent() << "Int Literal: " << node.getVal() << '\n';
 }
-void Dumper::visit(ASTFloatLiteralExpr & node)
+void Dumper::visit(FloatLiteralExpr & node)
 {
 	out_ << getIndent() << "Float Literal: " << node.getVal() << '\n';
 }
-void Dumper::visit(ASTStringLiteralExpr & node)
+void Dumper::visit(StringLiteralExpr & node)
 {
 	out_ << getIndent() << "String Literal: \"" << node.getVal() << "\"\n";
 }
-void Dumper::visit(ASTBoolLiteralExpr & node)
+void Dumper::visit(BoolLiteralExpr & node)
 {
 	out_ << getIndent() << "Bool Literal: " << (node.getVal() ? "true" : "false") << '\n';
 }
 
-void Dumper::visit(ASTArrayLiteralExpr & node)
+void Dumper::visit(ArrayLiteralExpr & node)
 {
 	out_ << getIndent() << "Array Literal";
 	if (!node.isEmpty() && node.hasExprList())
@@ -170,7 +170,7 @@ void Dumper::visit(ASTArrayLiteralExpr & node)
 		out_ << " (empty)\n";
 }
 
-void Dumper::visit(ASTVarDecl & node)
+void Dumper::visit(VarDecl & node)
 {
 	if (node.isValid())
 	{
@@ -190,21 +190,7 @@ void Dumper::visit(ASTVarDecl & node)
 	}
 }
 
-void Dumper::visit(ASTMemberAccessExpr & node)
-{
-	out_ << getIndent() << "MemberOf Expr:\n";
-	curindent_++;
-	out_ << getIndent() << "Base:\n";
-	curindent_++;
-	node.getBase()->accept(*this);
-	curindent_--;
-	out_ << getIndent() << "Member:\n";
-	curindent_++;
-	node.getMemberDeclRef()->accept(*this);
-	curindent_ -= 2;
-}
-
-void Dumper::visit(ASTArrayAccess & node)
+void Dumper::visit(ArrayAccessExpr & node)
 {
 	out_ << getIndent() << "ArrayAccess Expr:\n";
 	curindent_++;
@@ -218,12 +204,12 @@ void Dumper::visit(ASTArrayAccess & node)
 	curindent_ -= 2;
 }
 
-void Dumper::visit(ASTDeclRefExpr & node)
+void Dumper::visit(DeclRefExpr & node)
 {
 	out_ << getIndent() << "DeclRef: name: " << node.getDeclIdentifier()->getStr() << std::endl;
 }
 
-void Dumper::visit(ASTFunctionCallExpr & node)
+void Dumper::visit(FunctionCallExpr & node)
 {
 	out_ << getIndent() << "Function Call\n";
 	curindent_++;
@@ -252,17 +238,17 @@ void Dumper::visit(ASTFunctionCallExpr & node)
 	curindent_--;
 }
 
-void Dumper::visit(ASTNullExpr&)
+void Dumper::visit(NullExpr&)
 {
 	out_ << getIndent() << "Null\n";
 }
 
-void Dumper::visit(ASTArgDecl & node)
+void Dumper::visit(ArgDecl & node)
 {
 	out_ << getIndent() << "Arg Declaration: Name:" << node.getIdentifier()->getStr() << " Type:" << node.getType().getString() << "\n";
 }
 
-void Dumper::visit(ASTFunctionDecl & node)
+void Dumper::visit(FunctionDecl & node)
 {
 	if (node.isValid())
 	{
@@ -282,7 +268,7 @@ void Dumper::visit(ASTFunctionDecl & node)
 		out_ << getIndent() << "This Function Declaration recorded " << node.getNumberOfRecordedDecls() << " declarations ";
 		if (node.hasParentDeclRecorder())
 		{
-			if (auto ptr = dynamic_cast<ASTNamedDecl*>(node.getParentDeclRecorder()))
+			if (auto ptr = dynamic_cast<NamedDecl*>(node.getParentDeclRecorder()))
 				out_ << "(It has a parent DeclRecorder named " << ptr->getIdentifier()->getStr() << ")";
 			else
 				out_ << "(It has a parent DeclRecorder)";
@@ -299,7 +285,7 @@ void Dumper::visit(ASTFunctionDecl & node)
 		out_ << getIndent() << "Invalid FunctionDecl\n";
 }
 
-void Dumper::visit(ASTReturnStmt & node)
+void Dumper::visit(ReturnStmt & node)
 {
 	out_ << getIndent() << "Return statement\n";
 	if (node.hasExpr())
@@ -310,7 +296,7 @@ void Dumper::visit(ASTReturnStmt & node)
 	}
 }
 
-void Dumper::visit(ASTCompoundStmt & node)
+void Dumper::visit(CompoundStmt & node)
 {
 	out_ << getIndent() << "Compound Statement (Contains " << node.size() << " statements)\n";
 
@@ -322,7 +308,7 @@ void Dumper::visit(ASTCompoundStmt & node)
 	curindent_ -= 1;
 }
 
-void Dumper::visit(ASTCondStmt & node)
+void Dumper::visit(ConditionStmt & node)
 {
 	out_ << getIndent() << "Condition\n";
 	curindent_++;
@@ -346,7 +332,7 @@ void Dumper::visit(ASTCondStmt & node)
 	curindent_--;
 }
 
-void Dumper::visit(ASTWhileStmt & node)
+void Dumper::visit(WhileStmt & node)
 {
 	out_ << getIndent() << "While Loop\n";
 

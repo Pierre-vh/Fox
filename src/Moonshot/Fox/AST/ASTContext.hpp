@@ -26,7 +26,7 @@
 #include <map>
 
 #include "Moonshot/Fox/Common/Memory.hpp"
-#include "ASTDecl.hpp"
+#include "Decl.hpp"
 #include "Types.hpp"
 #include "IdentifierTable.hpp"
 
@@ -38,15 +38,15 @@ namespace Moonshot
 			ASTContext();
 
 			// Returns a observing pointer to the unit containing the entry point of the module (if there is one)
-			ASTUnitDecl* getMainUnit();
+			UnitDecl* getMainUnit();
 			
 			// Take ownership of the unit, and mark it as the main unit. 
 			// Once it took ownership, it returns a observing pointer to that unit.
-			ASTUnitDecl* setMainUnit(std::unique_ptr<ASTUnitDecl> unit);
+			UnitDecl* setMainUnit(std::unique_ptr<UnitDecl> unit);
 
 			// Takes ownership of the unit.
 			// Once ownership is taken, it returns a observing pointer to that unit.
-			ASTUnitDecl* addUnit(std::unique_ptr<ASTUnitDecl> unit);
+			UnitDecl* addUnit(std::unique_ptr<UnitDecl> unit);
 
 			const PrimitiveType* getPrimitiveIntType() const;
 			const PrimitiveType* getPrimitiveFloatType() const;
@@ -73,10 +73,10 @@ namespace Moonshot
 
 			// An observing pointer to a ASTUnit owned by the vector below that points to the main unit
 			// (= the unit that contains the entry point of this module)
-			ASTUnitDecl* mainUnit_ = nullptr;
+			UnitDecl* mainUnit_ = nullptr;
 
 			// All of the units that makes the current module.
-			std::vector<std::unique_ptr<ASTUnitDecl>> units_;
+			std::vector<std::unique_ptr<UnitDecl>> units_;
 
 			// Built-in types
 				// Theses are all initialized to nullptr, but are properly set by

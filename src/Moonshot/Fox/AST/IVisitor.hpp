@@ -16,9 +16,9 @@
 
 #pragma once
 //nodes
-#include "Moonshot/Fox/AST/ASTDecl.hpp"
-#include "Moonshot/Fox/AST/ASTExpr.hpp"
-#include "Moonshot/Fox/AST/ASTStmt.hpp"
+#include "Moonshot/Fox/AST/Decl.hpp"
+#include "Moonshot/Fox/AST/Expr.hpp"
+#include "Moonshot/Fox/AST/Stmt.hpp"
 
 namespace Moonshot
 {
@@ -27,32 +27,31 @@ namespace Moonshot
 		public:
 			inline virtual ~IVisitor() = 0						{}
 
-			inline virtual void visit(ASTUnitDecl&)				{}
+			inline virtual void visit(UnitDecl&)				{}
 			
-			inline virtual void visit(ASTBinaryExpr&)			{}
-			inline virtual void visit(ASTUnaryExpr&)			{}
-			inline virtual void visit(ASTCastExpr&)				{}
-			inline virtual void visit(ASTCharLiteralExpr&)		{}
-			inline virtual void visit(ASTIntegerLiteralExpr&)	{}
-			inline virtual void visit(ASTFloatLiteralExpr&)		{}
-			inline virtual void visit(ASTStringLiteralExpr&)	{}
-			inline virtual void visit(ASTBoolLiteralExpr&)		{}
-			inline virtual void visit(ASTArrayLiteralExpr&) {}
-			inline virtual void visit(ASTDeclRefExpr&)		{}
-			inline virtual void visit(ASTMemberAccessExpr&)	{}
-			inline virtual void visit(ASTArrayAccess&)		{}
-			inline virtual void visit(ASTFunctionCallExpr&) {}
+			inline virtual void visit(BinaryExpr&)			{}
+			inline virtual void visit(UnaryExpr&)			{}
+			inline virtual void visit(CastExpr&)				{}
+			inline virtual void visit(CharLiteralExpr&)		{}
+			inline virtual void visit(IntegerLiteralExpr&)	{}
+			inline virtual void visit(FloatLiteralExpr&)		{}
+			inline virtual void visit(StringLiteralExpr&)	{}
+			inline virtual void visit(BoolLiteralExpr&)		{}
+			inline virtual void visit(ArrayLiteralExpr&) {}
+			inline virtual void visit(DeclRefExpr&)		{}
+			inline virtual void visit(ArrayAccessExpr&)		{}
+			inline virtual void visit(FunctionCallExpr&) {}
 
-			inline virtual void visit(ASTNullExpr&)		{}
-			inline virtual void visit(ASTVarDecl&)		{}
+			inline virtual void visit(NullExpr&)		{}
+			inline virtual void visit(VarDecl&)		{}
 
-			inline virtual void visit(ASTCompoundStmt&)	{}
-			inline virtual void visit(ASTCondStmt&)		{}
-			inline virtual void visit(ASTWhileStmt&)	{}
+			inline virtual void visit(CompoundStmt&)	{}
+			inline virtual void visit(ConditionStmt&)		{}
+			inline virtual void visit(WhileStmt&)	{}
 
-			inline virtual void visit(ASTArgDecl&)		{}
-			inline virtual void visit(ASTFunctionDecl&) {}
-			inline virtual void visit(ASTReturnStmt&)	{}
+			inline virtual void visit(ArgDecl&)		{}
+			inline virtual void visit(FunctionDecl&) {}
+			inline virtual void visit(ReturnStmt&)	{}
 	};
 }
 

@@ -30,13 +30,16 @@ namespace Moonshot
 		// Comparison
 		LESS_OR_EQUAL,		// <=
 		GREATER_OR_EQUAL,	// >=
-		LESS_THAN,		// <
-		GREATER_THAN,	// >
-		EQUAL,			// ==
-		NOTEQUAL,		// !=
+		LESS_THAN,			// <
+		GREATER_THAN,		// >
+		EQUAL,				// ==
+		NOTEQUAL,			// !=
 
 		// Assignement
-		ASSIGN_BASIC	// =
+		ASSIGN_BASIC,		// =
+
+		// Member access
+		DOT_MEMBER_ACCESS	// .
 	};
 	enum class unaryOperator
 	{
@@ -50,23 +53,24 @@ namespace Moonshot
 	{
 		const std::map<binaryOperator, std::string> kBinopToStr_dict =
 		{
-			{ binaryOperator::DEFAULT	, "[ENUM_DEFAULT]" },
-			{ binaryOperator::LOGIC_AND	, "LOGIC_AND" },
-			{ binaryOperator::CONCAT	, "CONCAT" },
-			{ binaryOperator::LOGIC_OR	, "LOGIC_OR" },
-			{ binaryOperator::ADD		, "ADD" },
-			{ binaryOperator::MINUS		, "MINUS" },
-			{ binaryOperator::MUL		, "MUL" },
-			{ binaryOperator::DIV		, "DIV" },
-			{ binaryOperator::MOD		, "MOD" },
-			{ binaryOperator::EXP		, "EXP" },
-			{ binaryOperator::LESS_OR_EQUAL		,"LESS_OR_EQUAL" },
+			{ binaryOperator::DEFAULT			, "[ENUM_DEFAULT]" },
+			{ binaryOperator::LOGIC_AND			, "LOGIC_AND" },
+			{ binaryOperator::CONCAT			, "CONCAT" },
+			{ binaryOperator::LOGIC_OR			, "LOGIC_OR" },
+			{ binaryOperator::ADD				, "ADD" },
+			{ binaryOperator::MINUS				, "MINUS" },
+			{ binaryOperator::MUL				, "MUL" },
+			{ binaryOperator::DIV				, "DIV" },
+			{ binaryOperator::MOD				, "MOD" },
+			{ binaryOperator::EXP				, "EXP" },
+			{ binaryOperator::LESS_OR_EQUAL		, "LESS_OR_EQUAL" },
 			{ binaryOperator::GREATER_OR_EQUAL	, "GREATER_OR_EQUAL" },
 			{ binaryOperator::LESS_THAN			, "LESS_THAN" },
 			{ binaryOperator::GREATER_THAN		, "GREATER_THAN" },
 			{ binaryOperator::EQUAL				, "EQUAL" },
 			{ binaryOperator::NOTEQUAL			, "NOTEQUAL" },
-			{ binaryOperator::ASSIGN_BASIC		, "ASSIGN_BASIC" }
+			{ binaryOperator::ASSIGN_BASIC		, "ASSIGN_BASIC" },
+			{ binaryOperator::DOT_MEMBER_ACCESS , "DOT_MEMBER_ACCESS" }
 		};
 
 		const std::map<unaryOperator, std::string> kUnaryOpToStr_dict =

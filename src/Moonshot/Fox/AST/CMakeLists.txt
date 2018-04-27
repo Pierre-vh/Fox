@@ -1,8 +1,8 @@
 add_source( 
     ast_src
-    "ASTDecl.cpp"
-    "ASTExpr.cpp"
-    "ASTStmt.cpp"
+    "Decl.cpp"
+    "Expr.cpp"
+    "Stmt.cpp"
 	"ASTContext.cpp"
 	"Types.cpp"
 	"Dumper.cpp"

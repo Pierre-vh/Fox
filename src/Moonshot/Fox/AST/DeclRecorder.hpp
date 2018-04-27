@@ -17,14 +17,14 @@
 
 namespace Moonshot
 {
-	class ASTDecl;
-	class ASTNamedDecl;
+	class Decl;
+	class NamedDecl;
 	class IdentifierInfo;
 	class LookupResult;
 	class DeclRecorder
 	{
 		private:
-			using NamedDeclsMapTy = std::multimap<IdentifierInfo*, ASTNamedDecl*>;
+			using NamedDeclsMapTy = std::multimap<IdentifierInfo*, NamedDecl*>;
 			using NamedDeclsMapIter = NamedDeclsMapTy::iterator;
 			using NamedDeclsMapConstIter = NamedDeclsMapTy::const_iterator;
 		public:
@@ -32,7 +32,7 @@ namespace Moonshot
 			inline virtual ~DeclRecorder() {}
 
 			// "Record" a declaration within this DeclRecorder
-			void recordDecl(ASTNamedDecl* decl);
+			void recordDecl(NamedDecl* decl);
 
 			// Searches for every NamedDecl whose identifier == id in this DeclRecorder
 			LookupResult restrictedLookup(IdentifierInfo *id) const;
@@ -67,7 +67,7 @@ namespace Moonshot
 	class LookupResult
 	{
 		private:
-			using ResultVecTy = std::vector<ASTDecl*>;
+			using ResultVecTy = std::vector<Decl*>;
 			using ResultVecIter = ResultVecTy::iterator;
 			using ResultVecConstIter = ResultVecTy::const_iterator;
 		public:
@@ -80,7 +80,7 @@ namespace Moonshot
 			bool isUnique() const;
 
 			// If this LookupResult contains only one result, returns it, else, returns a nullptr.
-			ASTNamedDecl* getResultIfUnique() const;
+			NamedDecl* getResultIfUnique() const;
 
 			// Returns true if this LookupResult contains at least one function declaration.
 			bool containsFunctionDecls() const;
@@ -98,13 +98,13 @@ namespace Moonshot
 			friend class DeclRecorder;
 
 			// Add another lookup result.
-			void addResult(ASTNamedDecl* decl);
+			void addResult(NamedDecl* decl);
 			// Clear this LookupResult
 			void clear();
 			// Copies all of the results from target into this lookupresult then clears the target.
 			void merge(LookupResult &target);
 		private:
-			std::vector<ASTNamedDecl*> results_;
+			std::vector<NamedDecl*> results_;
 
 			// Theses flags are set to keep track of the "diversity" of named decls contained in this lookupresult.
 			bool containsFuncDecl_		: 1;	// Contains at least 1 func decl

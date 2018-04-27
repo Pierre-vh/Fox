@@ -20,29 +20,28 @@ namespace Moonshot
 		public:
 			Dumper(std::ostream& outstream = std::cout,const unsigned char& offsettabs = 0);
 
-			virtual void visit(ASTUnitDecl & node) override;
+			virtual void visit(UnitDecl & node) override;
 
-			virtual void visit(ASTBinaryExpr & node) override;
-			virtual void visit(ASTUnaryExpr & node) override;
-			virtual void visit(ASTCastExpr & node) override;
-			virtual void visit(ASTCharLiteralExpr & node) override;
-			virtual void visit(ASTIntegerLiteralExpr & node) override;
-			virtual void visit(ASTFloatLiteralExpr & node) override;
-			virtual void visit(ASTStringLiteralExpr & node) override;
-			virtual void visit(ASTBoolLiteralExpr & node) override;
-			virtual void visit(ASTArrayLiteralExpr& node) override;
-			virtual void visit(ASTVarDecl & node) override;
-			virtual void visit(ASTMemberAccessExpr & node) override;
-			virtual void visit(ASTArrayAccess & node) override;
-			virtual void visit(ASTDeclRefExpr & node) override;
-			virtual void visit(ASTFunctionCallExpr & node) override;
-			virtual void visit(ASTCompoundStmt & node) override;
-			virtual void visit(ASTCondStmt & node) override;
-			virtual void visit(ASTWhileStmt & node) override;
-			virtual void visit(ASTNullExpr&) override;
-			virtual void visit(ASTArgDecl& node) override;
-			virtual void visit(ASTFunctionDecl& node) override;
-			virtual void visit(ASTReturnStmt& node) override;
+			virtual void visit(BinaryExpr & node) override;
+			virtual void visit(UnaryExpr & node) override;
+			virtual void visit(CastExpr & node) override;
+			virtual void visit(CharLiteralExpr & node) override;
+			virtual void visit(IntegerLiteralExpr & node) override;
+			virtual void visit(FloatLiteralExpr & node) override;
+			virtual void visit(StringLiteralExpr & node) override;
+			virtual void visit(BoolLiteralExpr & node) override;
+			virtual void visit(ArrayLiteralExpr& node) override;
+			virtual void visit(VarDecl & node) override;
+			virtual void visit(ArrayAccessExpr & node) override;
+			virtual void visit(DeclRefExpr & node) override;
+			virtual void visit(FunctionCallExpr & node) override;
+			virtual void visit(CompoundStmt & node) override;
+			virtual void visit(ConditionStmt & node) override;
+			virtual void visit(WhileStmt & node) override;
+			virtual void visit(NullExpr&) override;
+			virtual void visit(ArgDecl& node) override;
+			virtual void visit(FunctionDecl& node) override;
+			virtual void visit(ReturnStmt& node) override;
 		private:
 			std::ostream &out_;
 			std::string getIndent() const;

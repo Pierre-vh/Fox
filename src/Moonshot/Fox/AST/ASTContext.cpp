@@ -17,18 +17,18 @@ ASTContext::ASTContext()
 	initBuiltinTypes();
 }
 
-ASTUnitDecl * ASTContext::getMainUnit()
+UnitDecl * ASTContext::getMainUnit()
 {
 	return mainUnit_;
 }
 
-ASTUnitDecl * ASTContext::setMainUnit(std::unique_ptr<ASTUnitDecl> unit)
+UnitDecl * ASTContext::setMainUnit(std::unique_ptr<UnitDecl> unit)
 {
 	mainUnit_ = addUnit(std::move(unit));
 	return mainUnit_;
 }
 
-ASTUnitDecl * ASTContext::addUnit(std::unique_ptr<ASTUnitDecl> unit)
+UnitDecl * ASTContext::addUnit(std::unique_ptr<UnitDecl> unit)
 {
 	units_.emplace_back(std::move(unit));
 	return units_.back().get();

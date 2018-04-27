@@ -9,7 +9,7 @@
 
 
 #include "DeclRecorder.hpp"
-#include "ASTDecl.hpp"
+#include "Decl.hpp"
 
 #include "Moonshot/Fox/Common/Exceptions.hpp"
 #include <cassert>
@@ -21,7 +21,7 @@ DeclRecorder::DeclRecorder(DeclRecorder * parent) : parent_(parent)
 
 }
 
-void DeclRecorder::recordDecl(ASTNamedDecl * decl)
+void DeclRecorder::recordDecl(NamedDecl * decl)
 {
 	assert(decl	&& "Declaration cannot be null!");
 	IdentifierInfo* name = decl->getIdentifier();
@@ -114,7 +114,7 @@ bool LookupResult::isUnique() const
 	return (results_.size() == 1);
 }
 
-ASTNamedDecl * LookupResult::getResultIfUnique() const
+NamedDecl * LookupResult::getResultIfUnique() const
 {
 	return (results_.size() == 1) ? results_[0] : nullptr;
 }
@@ -133,8 +133,8 @@ bool LookupResult::onlyContainsFunctionDecls() const
 {
 	for (auto it = results_.begin(); it != results_.end(); it++)
 	{
-		// Return false if one of the results can't be dynamic_cast to a ASTFunctionDecl*
-		if (!dynamic_cast<ASTFunctionDecl*>(*it))
+		// Return false if one of the results can't be dynamic_cast to a FunctionDecl*
+		if (!dynamic_cast<FunctionDecl*>(*it))
 			return false;
 	}
 	// Only returns true if there's at least one result.
@@ -146,14 +146,14 @@ LookupResult::operator bool() const
 	return !isEmpty();
 }
 
-void LookupResult::addResult(ASTNamedDecl * decl)
+void LookupResult::addResult(NamedDecl * decl)
 {
 	if (results_.size())
 		assert((results_.back()->getIdentifier() == decl->getIdentifier()) && "A LookupResult can only contain NamedDecl that share the same identifier.");
 
-	if (dynamic_cast<ASTFunctionDecl*>(decl))
+	if (dynamic_cast<FunctionDecl*>(decl))
 		containsFuncDecl_ = true;
-	else if (dynamic_cast<ASTVarDecl*>(decl))
+	else if (dynamic_cast<VarDecl*>(decl))
 		containsVarDecl_ = true;
 
 	results_.push_back(decl);

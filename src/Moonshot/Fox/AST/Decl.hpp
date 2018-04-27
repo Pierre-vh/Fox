@@ -1,14 +1,14 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ASTDecl.hpp											
+// File : Decl.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// Declares the ASTDecl interface as well as derived nodes.
+// Declares the Decl interface as well as derived nodes.
 ////------------------------------------------------------////
 
 #pragma once
-#include "ASTStmt.hpp"
+#include "Stmt.hpp"
 #include "Types.hpp"
 #include "DeclRecorder.hpp"
 #include "Moonshot/Fox/Common/Memory.hpp"
@@ -16,15 +16,15 @@
 namespace Moonshot
 {
 	// Forward declarations
-	class ASTExpr;
+	class Expr;
 	class IdentifierInfo;
 	class IVisitor;
 	// Interface for Decl nodes.
-	class ASTDecl
+	class Decl
 	{
 		public:
-			ASTDecl() = default;
-			virtual ~ASTDecl() = 0 {}
+			Decl() = default;
+			virtual ~Decl() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
 
 			// This function should return true if the declaration node is valid (usable)
@@ -32,11 +32,11 @@ namespace Moonshot
 	};
 
 	// Base class for Declarations that have names, e.g. : var/arg/func decl,..
-	class ASTNamedDecl : public virtual ASTDecl
+	class NamedDecl : public virtual Decl
 	{
 		public:
-			ASTNamedDecl() = default;
-			ASTNamedDecl(IdentifierInfo* name);
+			NamedDecl() = default;
+			NamedDecl(IdentifierInfo* name);
 
 			IdentifierInfo * getIdentifier() const;
 			void setIdentifier(IdentifierInfo* nname);
@@ -46,11 +46,11 @@ namespace Moonshot
 	};
 
 	// A Function Argument declaration
-	class ASTArgDecl : public ASTNamedDecl
+	class ArgDecl : public NamedDecl
 	{
 		public:
-			ASTArgDecl() = default;
-			ASTArgDecl(IdentifierInfo* id, const QualType& argType);
+			ArgDecl() = default;
+			ArgDecl(IdentifierInfo* id, const QualType& argType);
 
 			QualType getType() const;
 			void setType(const QualType& qt);
@@ -62,16 +62,16 @@ namespace Moonshot
 	};
 
 	// a Function declaration node.
-	class ASTFunctionDecl : public ASTNamedDecl, public DeclRecorder
+	class FunctionDecl : public NamedDecl, public DeclRecorder
 	{
 		private:
-			using ArgVecTy = UniquePtrVector<ASTArgDecl>;
+			using ArgVecTy = UniquePtrVector<ArgDecl>;
 
 			using ArgVecIter = DereferenceIterator<ArgVecTy::iterator>;
 			using ArgVecConstIter = DereferenceIterator<ArgVecTy::const_iterator>;
 		public:
-			ASTFunctionDecl() = default;
-			ASTFunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<ASTCompoundStmt> funcbody);
+			FunctionDecl() = default;
+			FunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody);
 
 			virtual void accept(IVisitor& vis) override;
 			virtual bool isValid() override;
@@ -79,11 +79,11 @@ namespace Moonshot
 			void setReturnType(const Type* ty);
 			const Type* getReturnType() const;
 
-			void setBody(std::unique_ptr<ASTCompoundStmt> arg);
-			ASTCompoundStmt* getBody();		
+			void setBody(std::unique_ptr<CompoundStmt> arg);
+			CompoundStmt* getBody();		
 
-			ASTArgDecl* getArg(const std::size_t & ind);
-			void addArg(std::unique_ptr<ASTArgDecl> arg);
+			ArgDecl* getArg(const std::size_t & ind);
+			void addArg(std::unique_ptr<ArgDecl> arg);
 			std::size_t argsSize() const;
 
 			ArgVecIter args_begin();
@@ -94,15 +94,15 @@ namespace Moonshot
 		private:
 			const Type* returnType_ = nullptr;
 			ArgVecTy args_;
-			std::unique_ptr<ASTCompoundStmt> body_;
+			std::unique_ptr<CompoundStmt> body_;
 	};
 
 	// A Variable declaration
-	class ASTVarDecl : public ASTNamedDecl, public ASTStmt
+	class VarDecl : public NamedDecl, public Stmt
 	{
 		public:
-			ASTVarDecl() = default;
-			ASTVarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<ASTExpr> iExpr = nullptr);
+			VarDecl() = default;
+			VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
 			virtual bool isValid() override;
@@ -111,29 +111,29 @@ namespace Moonshot
 			QualType getType() const;
 			void setType(const QualType &ty);
 
-			ASTExpr* getInitExpr();
-			void setInitExpr(std::unique_ptr<ASTExpr> expr);
+			Expr* getInitExpr();
+			void setInitExpr(std::unique_ptr<Expr> expr);
 
 			bool hasInitExpr() const;
 
 		private:
 			QualType varTy_;
-			std::unique_ptr<ASTExpr> initExpr_ = nullptr;
+			std::unique_ptr<Expr> initExpr_ = nullptr;
 	};
 
 	// A Unit declaration. A Unit = a source file.
 		// Unit names?
-	class ASTUnitDecl : public ASTNamedDecl, public DeclRecorder
+	class UnitDecl : public NamedDecl, public DeclRecorder
 	{
 		private:
-			using DelVecTy = UniquePtrVector<ASTDecl>;
+			using DelVecTy = UniquePtrVector<Decl>;
 			using DeclVecIter = DereferenceIterator<DelVecTy::iterator>;
 			using DeclVecConstIter = DereferenceIterator<DelVecTy::const_iterator>;
 		public:
-			ASTUnitDecl(IdentifierInfo *id);
+			UnitDecl(IdentifierInfo *id);
 
-			void addDecl(std::unique_ptr<ASTDecl> decl);
-			ASTDecl* getDecl(const std::size_t &idx);
+			void addDecl(std::unique_ptr<Decl> decl);
+			Decl* getDecl(const std::size_t &idx);
 			std::size_t getDeclCount() const;
 
 			virtual bool isValid() override;
