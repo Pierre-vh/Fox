@@ -24,7 +24,7 @@ DeclRecorder::DeclRecorder(DeclRecorder * parent) : parent_(parent)
 void DeclRecorder::recordDecl(ASTNamedDecl * decl)
 {
 	assert(decl	&& "Declaration cannot be null!");
-	IdentifierInfo* name = decl->getDeclName();
+	IdentifierInfo* name = decl->getIdentifier();
 	assert(name	&& "Declaration must have a valid name (IdentifierInfo*) to be recorded!");
 	namedDecls_.insert(std::make_pair(name, decl));
 }
@@ -149,7 +149,7 @@ LookupResult::operator bool() const
 void LookupResult::addResult(ASTNamedDecl * decl)
 {
 	if (results_.size())
-		assert((results_.back()->getDeclName() == decl->getDeclName()) && "A LookupResult can only contain NamedDecl that share the same identifier.");
+		assert((results_.back()->getIdentifier() == decl->getIdentifier()) && "A LookupResult can only contain NamedDecl that share the same identifier.");
 
 	if (dynamic_cast<ASTFunctionDecl*>(decl))
 		containsFuncDecl_ = true;

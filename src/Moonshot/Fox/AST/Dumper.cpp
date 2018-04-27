@@ -27,7 +27,7 @@ void Dumper::visit(ASTUnitDecl & node)
 {
 	if (node.isValid())
 	{
-		out_ << getIndent() << "ASTUnit \"" << node.getDeclName()->getStr() << "\" containing " << node.getDeclCount() << " declaration.\n";
+		out_ << getIndent() << "ASTUnit \"" << node.getIdentifier()->getStr() << "\" containing " << node.getDeclCount() << " declaration.\n";
 		curindent_++;
 		for (auto it = node.decls_beg(); it != node.decls_end(); it++)
 			it->accept(*this);
@@ -37,7 +37,7 @@ void Dumper::visit(ASTUnitDecl & node)
 		if (node.hasParentDeclRecorder())
 		{
 			if (auto ptr = dynamic_cast<ASTNamedDecl*>(node.getParentDeclRecorder()))
-				out_ << "(It has a parent DeclRecorder named " << ptr->getDeclName()->getStr() << ")";
+				out_ << "(It has a parent DeclRecorder named " << ptr->getIdentifier()->getStr() << ")";
 			else 
 				out_ << "(It has a parent DeclRecorder)";
 		}
@@ -174,7 +174,7 @@ void Dumper::visit(ASTVarDecl & node)
 {
 	if (node.isValid())
 	{
-		out_ << getIndent() << "VarDeclStmt : Name:" << node.getDeclName()->getStr() << " Type:" << node.getType().getString() << "\n";
+		out_ << getIndent() << "VarDeclStmt : Name:" << node.getIdentifier()->getStr() << " Type:" << node.getType().getString() << "\n";
 		if (node.hasInitExpr())
 		{
 			curindent_ += 1;
@@ -259,14 +259,14 @@ void Dumper::visit(ASTNullExpr&)
 
 void Dumper::visit(ASTArgDecl & node)
 {
-	out_ << getIndent() << "Arg Declaration: Name:" << node.getDeclName()->getStr() << " Type:" << node.getType().getString() << "\n";
+	out_ << getIndent() << "Arg Declaration: Name:" << node.getIdentifier()->getStr() << " Type:" << node.getType().getString() << "\n";
 }
 
 void Dumper::visit(ASTFunctionDecl & node)
 {
 	if (node.isValid())
 	{
-		out_ << getIndent() << "FunctionDecl : Name:" << node.getDeclName()->getStr() << " Return type:" << node.getReturnType()->getString() << "\n";
+		out_ << getIndent() << "FunctionDecl : Name:" << node.getIdentifier()->getStr() << " Return type:" << node.getReturnType()->getString() << "\n";
 		curindent_ += 2;
 
 		for (auto it = node.args_begin(); it != node.args_end(); it++)
@@ -283,7 +283,7 @@ void Dumper::visit(ASTFunctionDecl & node)
 		if (node.hasParentDeclRecorder())
 		{
 			if (auto ptr = dynamic_cast<ASTNamedDecl*>(node.getParentDeclRecorder()))
-				out_ << "(It has a parent DeclRecorder named " << ptr->getDeclName()->getStr() << ")";
+				out_ << "(It has a parent DeclRecorder named " << ptr->getIdentifier()->getStr() << ")";
 			else
 				out_ << "(It has a parent DeclRecorder)";
 		}

@@ -38,11 +38,11 @@ namespace Moonshot
 			ASTNamedDecl() = default;
 			ASTNamedDecl(IdentifierInfo* name);
 
-			IdentifierInfo * getDeclName() const;
-			void setDeclName(IdentifierInfo* nname);
-			bool hasDeclName() const;
-		protected:
-			IdentifierInfo * declName_;
+			IdentifierInfo * getIdentifier() const;
+			void setIdentifier(IdentifierInfo* nname);
+			bool hasIdentifier() const;
+		private:
+			IdentifierInfo * identifier_;
 	};
 
 	// A Function Argument declaration
