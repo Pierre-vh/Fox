@@ -12,7 +12,7 @@
 
 #include "Moonshot/Fox/Lexer/Lexer.hpp"
 #include "Moonshot/Fox/Parser/Parser.hpp"
-#include "Moonshot/Fox/Basic/Context.hpp"
+#include "Moonshot/Fox/Common/Context.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
 
 #include <vector>

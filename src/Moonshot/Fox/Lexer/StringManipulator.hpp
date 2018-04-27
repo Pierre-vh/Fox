@@ -27,7 +27,7 @@
 #include <iterator>
 #include <variant>
 #include <tuple>
-#include "Moonshot/Fox/Basic/Typedefs.hpp"
+#include "Moonshot/Fox/Common/Typedefs.hpp"
 
 namespace Moonshot::UTF8
 {

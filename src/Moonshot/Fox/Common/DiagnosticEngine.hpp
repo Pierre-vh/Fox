@@ -11,7 +11,7 @@
 #pragma once
 
 #include "DiagnosticConsumers.hpp"
-#include "Moonshot/Fox/Basic/Utils.hpp"
+#include "Moonshot/Fox/Common/Utils.hpp"
 
 #include <memory>
 

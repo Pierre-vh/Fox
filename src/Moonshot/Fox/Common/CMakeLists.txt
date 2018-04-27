@@ -1,4 +1,4 @@
-add_source(basic_src
+add_source(common_src
 	"Context.cpp"
 	"Diagnostic.cpp"
 	"DiagnosticEngine.cpp"

@@ -14,7 +14,7 @@
 #pragma once
 
 #include <map>
-#include "Moonshot/Fox/Basic/Exceptions.hpp"
+#include "Moonshot/Fox/Common/Exceptions.hpp"
 
 namespace Moonshot
 {

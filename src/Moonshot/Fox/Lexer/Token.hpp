@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "Moonshot/Fox/Basic/Typedefs.hpp"
+#include "Moonshot/Fox/Common/Typedefs.hpp"
 
 #include <vector>
 #include <variant>

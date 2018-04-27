@@ -11,7 +11,7 @@
 
 #include "Parser.hpp"
 
-#include "Moonshot/Fox/Basic/Context.hpp"
+#include "Moonshot/Fox/Common/Context.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"

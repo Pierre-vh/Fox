@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "Moonshot/Fox/Basic/DiagnosticConsumers.hpp"
-#include "Moonshot/Fox/Basic/Diagnostic.hpp"
+#include "Moonshot/Fox/Common/DiagnosticConsumers.hpp"
+#include "Moonshot/Fox/Common/Diagnostic.hpp"
 
 #include <string>
 

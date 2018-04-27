@@ -11,7 +11,7 @@
 #include "ASTStmt.hpp"
 #include "Types.hpp"
 #include "DeclRecorder.hpp"
-#include "Moonshot/Fox/Basic/Memory.hpp"
+#include "Moonshot/Fox/Common/Memory.hpp"
 
 namespace Moonshot
 {

@@ -8,13 +8,13 @@
 ////------------------------------------------------------////
 
 #include "Dumper.hpp"
-#include "Moonshot/Fox/Basic/Exceptions.hpp"
+#include "Moonshot/Fox/Common/Exceptions.hpp"
 #include "Moonshot/Fox/Lexer/StringManipulator.hpp"
 #include "Moonshot/Fox/AST//IdentifierTable.hpp"
 #include "Moonshot/Fox/AST/ASTExpr.hpp"
 #include "Moonshot/Fox/AST/ASTDecl.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
-#include "Moonshot/Fox/Basic/Utils.hpp"
+#include "Moonshot/Fox/Common/Utils.hpp"
 
 using namespace Moonshot;
 

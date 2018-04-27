@@ -25,7 +25,7 @@
 
 #include <map>
 
-#include "Moonshot/Fox/Basic/Memory.hpp"
+#include "Moonshot/Fox/Common/Memory.hpp"
 #include "ASTDecl.hpp"
 #include "Types.hpp"
 #include "IdentifierTable.hpp"

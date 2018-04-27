@@ -9,7 +9,7 @@
 
 #include "DiagnosticEngine.hpp"
 
-#include "Moonshot/Fox/Basic/FlagsManager.hpp"
+#include "Moonshot/Fox/Common/FlagsManager.hpp"
 
 #include "Diagnostic.hpp"
 #include "DiagnosticConsumers.hpp"

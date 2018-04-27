@@ -14,7 +14,7 @@
 
 #include <vector> // std::vector
 #include <memory> // std::unique_ptr
-#include "Moonshot/Fox/Basic/FlagsManager.hpp"
+#include "Moonshot/Fox/Common/FlagsManager.hpp"
 
 namespace Moonshot
 {

@@ -8,11 +8,11 @@
 ////------------------------------------------------------////
 
 #pragma once
-#include "Moonshot/Fox/Basic/Typedefs.hpp"
+#include "Moonshot/Fox/Common/Typedefs.hpp"
 #include "Moonshot/Fox/AST/ASTStmt.hpp"
 #include "Moonshot/Fox/AST/Types.hpp"
 #include "Moonshot/Fox/AST/Operators.hpp"
-#include "Moonshot/Fox/Basic/Memory.hpp"
+#include "Moonshot/Fox/Common/Memory.hpp"
 
 namespace Moonshot	
 {

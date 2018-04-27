@@ -11,7 +11,7 @@
 #include "DeclRecorder.hpp"
 #include "ASTDecl.hpp"
 
-#include "Moonshot/Fox/Basic/Exceptions.hpp"
+#include "Moonshot/Fox/Common/Exceptions.hpp"
 #include <cassert>
 
 using namespace Moonshot;
