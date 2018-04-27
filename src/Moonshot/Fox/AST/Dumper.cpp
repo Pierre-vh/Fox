@@ -206,14 +206,17 @@ void Dumper::visit(ArrayAccessExpr & node)
 
 void Dumper::visit(DeclRefExpr & node)
 {
-	out_ << getIndent() << "DeclRef: name: " << node.getDeclIdentifier()->getStr() << std::endl;
+	out_ << getIndent() << "DeclRef: " << node.getDeclIdentifier()->getStr() << std::endl;
 }
 
 void Dumper::visit(FunctionCallExpr & node)
 {
 	out_ << getIndent() << "Function Call\n";
 	curindent_++;
-	out_ << getIndent() << "Function name :" << node.getFunctionIdentifier()->getStr() << "\n";
+	out_ << getIndent() << "Callee :\n";
+	curindent_++;
+	node.getCallee()->accept(*this);
+	curindent_--;
 
 	if (node.getExprList()->size())
 	{
@@ -378,5 +381,3 @@ std::string Dumper::getOffsetTabs() const
 		i += '\t';
 	return i;
 }
-
-

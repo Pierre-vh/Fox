@@ -90,22 +90,19 @@ Parser::ExprResult Parser::parseDeclCall()
 	if (auto id = consumeIdentifier())
 	{
 		// [ <parens_expr_list> ]
-		std::unique_ptr<Expr> expr = nullptr;
+		auto declref = std::make_unique<DeclRefExpr>(id);
 		if (auto exprlist = parseParensExprList())
 		{
-			// if an expression list is found create a functioncall node and set expr to that node.
-			auto fcall = std::make_unique<FunctionCallExpr>();
-			fcall->setFunctionIdentifier(id);
-			fcall->setExprList(exprlist.move());
-			expr = std::move(fcall);
+			return ExprResult(std::make_unique<FunctionCallExpr>(
+				std::move(declref),
+				exprlist.move()
+				));
 		}
 		else if (!exprlist.wasSuccessful())
 			return ExprResult::Error();
 		else // not expr list -> it's just an identifier!
-			expr = std::make_unique<DeclRefExpr>(id);
-		
-		assert(expr && "Expr is null?");
-		return ExprResult(std::move(expr));
+			return ExprResult(std::move(declref));
+
 	}
 	return ExprResult::NotFound();
 }
