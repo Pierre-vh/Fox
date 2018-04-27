@@ -178,3 +178,29 @@ void WhileStmt::setBody(std::unique_ptr<Stmt> body)
 {
 	body_ = std::move(body);
 }
+
+// DeclStmt
+DeclStmt::DeclStmt(std::unique_ptr<Decl> decl) : decl_(std::move(decl))
+{
+
+}
+
+bool DeclStmt::hasDecl() const
+{
+	return (bool)decl_;
+}
+
+Decl * DeclStmt::getDecl()
+{
+	return decl_.get();
+}
+
+void DeclStmt::setDecl(std::unique_ptr<Decl> decl)
+{
+	decl_ = std::move(decl);
+}
+
+void DeclStmt::accept(IVisitor &vis)
+{
+	vis.visit(*this);
+}

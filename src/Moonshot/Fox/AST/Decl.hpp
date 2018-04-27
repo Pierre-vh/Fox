@@ -8,8 +8,8 @@
 ////------------------------------------------------------////
 
 #pragma once
-#include "Stmt.hpp"
 #include "Types.hpp"
+#include "Stmt.hpp"
 #include "DeclRecorder.hpp"
 #include "Moonshot/Fox/Common/Memory.hpp"
 
@@ -98,7 +98,7 @@ namespace Moonshot
 	};
 
 	// A Variable declaration
-	class VarDecl : public NamedDecl, public Stmt
+	class VarDecl : public NamedDecl
 	{
 		public:
 			VarDecl() = default;
@@ -122,7 +122,7 @@ namespace Moonshot
 	};
 
 	// A Unit declaration. A Unit = a source file.
-		// Unit names?
+	// Unit names?
 	class UnitDecl : public NamedDecl, public DeclRecorder
 	{
 		private:

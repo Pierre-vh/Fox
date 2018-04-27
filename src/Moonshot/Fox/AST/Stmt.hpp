@@ -14,6 +14,7 @@
 namespace Moonshot
 {
 	class Expr;
+	class Decl;
 	class IVisitor;
 
 	// Stmt interface
@@ -109,6 +110,22 @@ namespace Moonshot
 		private:
 			std::unique_ptr<Expr> cond_;
 			std::unique_ptr<Stmt> body_;
+	};
+
+	// Class used to mix Declarations & Statements without having decl inherit from stmt.
+	// This is just a wrapper around a std::unique_ptr<Decl>
+	class DeclStmt : public Stmt
+	{
+		public:
+			DeclStmt(std::unique_ptr<Decl> decl = nullptr);
+
+			bool hasDecl() const;
+			Decl* getDecl();
+			void setDecl(std::unique_ptr<Decl> decl);
+
+			virtual void accept(IVisitor &vis);
+		private:
+			std::unique_ptr<Decl> decl_ = nullptr;			
 	};
 }
 
