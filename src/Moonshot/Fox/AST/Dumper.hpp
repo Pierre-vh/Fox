@@ -38,6 +38,7 @@ namespace Moonshot
 			virtual void visit(CompoundStmt & node) override;
 			virtual void visit(ConditionStmt & node) override;
 			virtual void visit(WhileStmt & node) override;
+			virtual void visit(DeclStmt & node)	override;
 			virtual void visit(NullExpr&) override;
 			virtual void visit(ArgDecl& node) override;
 			virtual void visit(FunctionDecl& node) override;

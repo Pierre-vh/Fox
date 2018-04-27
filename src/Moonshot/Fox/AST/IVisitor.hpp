@@ -48,6 +48,7 @@ namespace Moonshot
 			inline virtual void visit(CompoundStmt&)	{}
 			inline virtual void visit(ConditionStmt&)		{}
 			inline virtual void visit(WhileStmt&)	{}
+			inline virtual void visit(DeclStmt&)	{}
 
 			inline virtual void visit(ArgDecl&)		{}
 			inline virtual void visit(FunctionDecl&) {}

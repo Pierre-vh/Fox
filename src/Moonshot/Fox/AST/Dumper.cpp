@@ -352,6 +352,15 @@ void Dumper::visit(WhileStmt & node)
 	curindent_--;
 }
 
+void Dumper::visit(DeclStmt & node)
+{
+	// just visit the decl if there is one
+	if (node.hasDecl())
+		node.getDecl()->accept(*this);
+	else
+		out_ << getIndent() << "Empty Declaration Statement";
+}
+
 std::string Dumper::getIndent() const
 {
 	std::string i = getOffsetTabs();
