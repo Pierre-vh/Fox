@@ -6,14 +6,21 @@
 ////------------------------------------------------------//// 
 // DeclRecorder acts as a Declaration Recorder. While parsing, the 
 // parser "registers" every declaration in the most recent declaration recorder found.
-// DeclRecorder assists during name resolution to find members of a unit, or just to find if a
-// identifier is linked to one or more declaration in a specific place of the AST.
+// DeclRecorder assists during name resolution to find members of a unit (or, in the future, Class/Namespaces/etc), or just to find if a
+// identifier is linked to one or more declaration in a specific scope.
+//
+// This class has no notion of scope, it doesn't care about compound statements and stuff, this will be managed by the semantic analysis phase
+// to confirm "Visibility" of a variable.
+//
+//	Potential area of improvements:
+//
 ////------------------------------------------------------////
 
 #pragma once
 
 #include <map>
 #include <vector>
+#include <type_traits>
 
 namespace Moonshot
 {
@@ -21,6 +28,29 @@ namespace Moonshot
 	class NamedDecl;
 	class IdentifierInfo;
 	class LookupResult;
+
+	// WIP - Doesn't work yet
+	/*
+	template <typename BaseIterator>
+	class DeclRecorderIterator : public BaseIterator
+	{
+		public:
+			using value_type = std::remove_pointer<typename BaseIterator::mapped_type>::type;
+			using pointer = value_type * ;
+			using reference = value_type & ;
+
+			DeclRecorderIterator(const BaseIterator &baseIt) : BaseIterator(baseIt)
+			{
+
+			}
+
+			reference operator*() const { return *(this->BaseIterator::operator*().second); }
+			pointer operator->() const { return (this->BaseIterator::operator*().second); }
+			reference operator[](size_t n) const {
+				return *(this->BaseIterator::operator[](n).second);
+			}
+	};
+	*/
 	class DeclRecorder
 	{
 		private:
