@@ -305,14 +305,19 @@ void DeclRefExpr::setDeclIdentifier(IdentifierInfo * id)
 }
 
 // function call
-IdentifierInfo * FunctionCallExpr::getFunctionIdentifier()
+FunctionCallExpr::FunctionCallExpr(std::unique_ptr<DeclRefExpr> base, std::unique_ptr<ExprList> elist):
+	callee_(std::move(base)), args_(std::move(elist))
 {
-	return fnId_;
 }
 
-void FunctionCallExpr::setFunctionIdentifier(IdentifierInfo * fnId)
+DeclRefExpr * FunctionCallExpr::getCallee()
 {
-	fnId_ = fnId;
+	return callee_.get();
+}
+
+void FunctionCallExpr::setCallee(std::unique_ptr<DeclRefExpr> base)
+{
+	callee_ = std::move(base);
 }
 
 ExprList * FunctionCallExpr::getExprList()

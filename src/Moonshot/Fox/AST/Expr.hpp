@@ -256,9 +256,10 @@ namespace Moonshot
 	{
 		public:
 			FunctionCallExpr() = default;
+			FunctionCallExpr(std::unique_ptr<DeclRefExpr> base, std::unique_ptr<ExprList> elist = nullptr);
 
-			IdentifierInfo * getFunctionIdentifier() ;
-			void setFunctionIdentifier(IdentifierInfo * fnId);
+			DeclRefExpr * getCallee() ;
+			void setCallee(std::unique_ptr<DeclRefExpr> base);
 
 			ExprList* getExprList();
 			void setExprList(std::unique_ptr<ExprList> elist);
@@ -266,7 +267,7 @@ namespace Moonshot
 			void accept(IVisitor& vis) override;
 		private:
 			// the Function's name
-			IdentifierInfo * fnId_;
+			std::unique_ptr<DeclRefExpr> callee_;
 			// it's args
 			std::unique_ptr<ExprList> args_;
 	};
