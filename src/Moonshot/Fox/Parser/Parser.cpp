@@ -38,7 +38,7 @@ Parser::UnitResult Parser::parseUnit(IdentifierInfo* unitName)
 	assert(unitName && "Unit name cannot be nullptr!");
 
 	// Create the unit
-	auto unit = std::make_unique<ASTUnitDecl>(unitName);
+	auto unit = std::make_unique<UnitDecl>(unitName);
 
 	// Create a RAIIDeclRecorder
 	RAIIDeclRecorder raiidr(*this,unit.get());
@@ -466,7 +466,7 @@ void Parser::die()
 	state_.isAlive = false;
 }
 
-void Parser::recordDecl(ASTNamedDecl * nameddecl)
+void Parser::recordDecl(NamedDecl * nameddecl)
 {
 	// Only assert when we're not in test mode.
 	// Tests may call individual parsing function, and won't care about if a DeclRecorder is active or not.

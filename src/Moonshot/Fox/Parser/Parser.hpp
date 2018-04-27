@@ -38,9 +38,9 @@
 #include "Moonshot/Fox/Lexer/Token.hpp"					
 #include "Moonshot/Fox/AST/ASTContext.hpp"
 #include "Moonshot/Fox/AST/Types.hpp"
-#include "Moonshot/Fox/AST/ASTDecl.hpp"
-#include "Moonshot/Fox/AST/ASTExpr.hpp"
-#include "Moonshot/Fox/AST/ASTStmt.hpp"
+#include "Moonshot/Fox/AST/Decl.hpp"
+#include "Moonshot/Fox/AST/Expr.hpp"
+#include "Moonshot/Fox/AST/Stmt.hpp"
 
 #include "Moonshot/Fox/AST/Operators.hpp"			
 
@@ -64,11 +64,11 @@ namespace Moonshot
 
 			// Bunch of usings & helper functions for parsing functions. Theses are public
 			// so external classes can use them.
-			using ExprResult = UniqueResult<ASTExpr>;
-			using ExprListResult = UniqueResult<ASTExprList>;
-			using DeclResult = UniqueResult<ASTDecl>;
-			using StmtResult = UniqueResult<ASTStmt>;
-			using UnitResult = UniqueResult<ASTUnitDecl>;
+			using ExprResult = UniqueResult<Expr>;
+			using ExprListResult = UniqueResult<ExprList>;
+			using DeclResult = UniqueResult<Decl>;
+			using StmtResult = UniqueResult<Stmt>;
+			using UnitResult = UniqueResult<UnitDecl>;
 		private:
 			using TokenIteratorTy = TokenVector::iterator;
 		public:
@@ -86,7 +86,7 @@ namespace Moonshot
 			ExprListResult parseExprList();
 			ExprListResult parseParensExprList();
 			ExprResult parseParensExpr(const bool& isMandatory = false);
-			ExprResult parseSuffix(std::unique_ptr<ASTExpr> &base);
+			ExprResult parseSuffix(std::unique_ptr<Expr> &base);
 			ExprResult parseDeclCall();
 			ExprResult parsePrimitiveLiteral();
 			ExprResult parseArrayLiteral();
@@ -223,7 +223,7 @@ namespace Moonshot
 			void die();
 
 			// Register a declaration in state_.declRecorder, asserting that it's not null.
-			void recordDecl(ASTNamedDecl *nameddecl);
+			void recordDecl(NamedDecl *nameddecl);
 
 			// Creates a state_ backup
 			ParserState createParserStateBackup() const;

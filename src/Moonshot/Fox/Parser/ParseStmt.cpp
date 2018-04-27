@@ -10,13 +10,13 @@
 
 #include "Parser.hpp"
 //Nodes
-#include "Moonshot/Fox/AST/ASTStmt.hpp"
+#include "Moonshot/Fox/AST/Stmt.hpp"
 
 using namespace Moonshot;
 
 Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 {
-	auto rtr = std::make_unique<ASTCompoundStmt>(); // return value
+	auto rtr = std::make_unique<CompoundStmt>(); // return value
 	if (consumeBracket(SignType::S_CURLY_OPEN))
 	{
 		bool hasMatchedCurlyClose = false;
@@ -36,7 +36,7 @@ Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 				// Push only if we don't have a null expr.
 				// this is done to avoid stacking them up, and since they're a no-op in all cases
 				// it's meaningless to ignore them.
-				if (!stmt.is<ASTNullExpr>())
+				if (!stmt.is<NullExpr>())
 					rtr->addStmt(std::move(stmt.move()));
 			}
 			// failure
@@ -92,7 +92,7 @@ Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 		auto backup = createParserStateBackup();
 
 		if (resyncToSign(SignType::S_CURLY_CLOSE, /* stopAtSemi */ false, /*consumeToken*/ true))
-			return StmtResult(std::make_unique<ASTCompoundStmt>());
+			return StmtResult(std::make_unique<CompoundStmt>());
 		
 		restoreParserStateFromBackup(backup);
 	}
@@ -105,7 +105,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 	// "while"
 	if (consumeKeyword(KeywordType::KW_WHILE))
 	{
-		std::unique_ptr<ASTWhileStmt> rtr = std::make_unique<ASTWhileStmt>();
+		std::unique_ptr<WhileStmt> rtr = std::make_unique<WhileStmt>();
 		// <parens_expr>
 		if (auto parensexpr = parseParensExpr(/* The ParensExpr is mandatory */ true))
 			rtr->setCond(parensexpr.move());
@@ -119,7 +119,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 		{
 			if(body.wasSuccessful())
 				errorExpected("Expected a statement");
-			rtr->setBody(std::make_unique<ASTNullExpr>());
+			rtr->setBody(std::make_unique<NullExpr>());
 		}
 		// Return if everything's alright
 		return StmtResult(std::move(rtr));
@@ -131,7 +131,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 Parser::StmtResult Parser::parseCondition()
 {
 	// <condition>	= "if"	<parens_expr> <body> ["else" <body>]
-	auto rtr = std::make_unique<ASTCondStmt>();
+	auto rtr = std::make_unique<ConditionStmt>();
 	bool has_if = false;
 	// "if"
 	if (consumeKeyword(KeywordType::KW_IF))
@@ -153,7 +153,7 @@ Parser::StmtResult Parser::parseCondition()
 			if (consumeKeyword(KeywordType::KW_ELSE)) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
 			{
 				revertConsume();
-				rtr->setThen(std::make_unique<ASTNullExpr>());
+				rtr->setThen(std::make_unique<NullExpr>());
 			}
 			else
 				return StmtResult::Error();
@@ -190,7 +190,7 @@ Parser::StmtResult Parser::parseReturnStmt()
 	// "return"
 	if (consumeKeyword(KeywordType::KW_RETURN))
 	{
-		auto rtr = std::make_unique<ASTReturnStmt>();
+		auto rtr = std::make_unique<ReturnStmt>();
 		// [<expr>]
 		if (auto expr = parseExpr())
 			rtr->setExpr(expr.move());
@@ -228,7 +228,7 @@ Parser::StmtResult Parser::parseStmt()
 
 	// <var_decl
 	if (auto vardecl = parseVarDecl())
-		return StmtResult(vardecl.moveAs<ASTVarDecl>());
+		return StmtResult(vardecl.moveAs<VarDecl>());
 	else if (!vardecl.wasSuccessful())
 		return StmtResult::Error();
 
@@ -284,7 +284,7 @@ Parser::StmtResult Parser::parseExprStmt()
 
 	// ';'
 	if (consumeSign(SignType::S_SEMICOLON))
-		return StmtResult(std::make_unique<ASTNullExpr>());
+		return StmtResult(std::make_unique<NullExpr>());
 
 	// <expr> ';' 
 	// <expr>
@@ -307,7 +307,7 @@ Parser::StmtResult Parser::parseExprStmt()
 	{
 		// if the expression had an error, ignore it and try to recover to a semi.
 		if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-			return StmtResult(std::make_unique<ASTNullExpr>());
+			return StmtResult(std::make_unique<NullExpr>());
 		return StmtResult::Error();
 	}
 

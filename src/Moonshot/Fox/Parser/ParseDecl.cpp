@@ -13,8 +13,8 @@
 
 #include "Moonshot/Fox/Common/Context.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
-#include "Moonshot/Fox/AST/ASTDecl.hpp"
-#include "Moonshot/Fox/AST/ASTStmt.hpp"
+#include "Moonshot/Fox/AST/Decl.hpp"
+#include "Moonshot/Fox/AST/Stmt.hpp"
 
 #include <cassert>
 
@@ -30,7 +30,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 	// "func"
 	if (consumeKeyword(KeywordType::KW_FUNC))
 	{
-		auto rtr = std::make_unique<ASTFunctionDecl>();
+		auto rtr = std::make_unique<FunctionDecl>();
 
 		bool isValid = true;
 		// <id>
@@ -66,13 +66,13 @@ Parser::DeclResult Parser::parseFunctionDecl()
 			// add error management, however, I don't think that's necessary since
 			// the consumeBracket below will attempt to "panic and recover" if it doesn't find the )
 			// About (1), maybe a break could be added there, but I think it's just better to ignore and try to parse more.
-			rtr->addArg(firstarg.moveAs<ASTArgDecl>());
+			rtr->addArg(firstarg.moveAs<ArgDecl>());
 			while (true)
 			{
 				if (consumeSign(SignType::S_COMMA))
 				{
 					if (auto arg = parseArgDecl())
-						rtr->addArg(arg.moveAs<ASTArgDecl>());
+						rtr->addArg(arg.moveAs<ArgDecl>());
 					else
 					{
 						if (arg.wasSuccessful()) // not found?
@@ -117,7 +117,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		// <compound_statement>
 		if (auto compoundstmt = parseCompoundStatement(/* mandatory = yes */ true))
 		{
-			rtr->setBody(compoundstmt.moveAs<ASTCompoundStmt>());
+			rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
 			// Success, nothing more to see here!
 			if (isValid)
 			{
@@ -139,7 +139,7 @@ Parser::DeclResult Parser::parseArgDecl()
 		// <fq_type_spec>
 		if (auto typespec_res = parseFQTypeSpec())
 		{
-			auto rtr = std::make_unique<ASTArgDecl>(id, typespec_res.get());
+			auto rtr = std::make_unique<ArgDecl>(id, typespec_res.get());
 			recordDecl(rtr.get());
 			return DeclResult(std::move(rtr));
 		}
@@ -159,7 +159,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	// "let"
 	if (consumeKeyword(KeywordType::KW_LET))
 	{
-		auto rtr = std::make_unique<ASTVarDecl>();
+		auto rtr = std::make_unique<VarDecl>();
 
 		// <id>
 		if (auto id = consumeIdentifier())
@@ -170,7 +170,7 @@ Parser::DeclResult Parser::parseVarDecl()
 			if (auto res = resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ false, /*consumeToken*/ true))
 			{
 				return DeclResult(
-						std::make_unique<ASTVarDecl>()	// If we recovered, return an empty (invalid) var decl.
+						std::make_unique<VarDecl>()	// If we recovered, return an empty (invalid) var decl.
 					);
 				// Note : we don't record this decl, since it's invalid and can't be used.
 			}
@@ -195,7 +195,7 @@ Parser::DeclResult Parser::parseVarDecl()
 			if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ true, /*consumeToken*/ true))
 			{
 				return DeclResult(
-						std::make_unique<ASTVarDecl>()	// If we recovered, return an empty (invalid) var decl.
+						std::make_unique<VarDecl>()	// If we recovered, return an empty (invalid) var decl.
 					);
 				// Note : we don't record this decl, since it's invalid and can't be used.
 			}
