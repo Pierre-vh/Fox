@@ -22,6 +22,9 @@ TODO:
 
 	Next:
 		> Re-evaluate DeclRecorder : Maybe a Source-centric view of the declarations could be useful.
+			> Currently, DeclRecorder uses a multimap which sorts the decls, so, they aren't in their original position, however,
+			  maybe having a way of getting a "source accurate" list of declaration would be nice. I still need to think about if it would be useful.
+			  for now, I don't see any use case. I think I'll keep this idea in mind, maybe I'll implement it later if there's a real need for it.
 		> Maybe create a "MapDataIterator", which would give an iterator to the data only, and not the useless identifierInfo* too.
 		> Visitor System rework, inspired by CLang/Swift. (Next)
 			Todo, in order:
