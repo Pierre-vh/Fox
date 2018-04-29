@@ -257,3 +257,13 @@ TEST(ASTTests, DeclRecorderTests)
 	EXPECT_FALSE(testLookup(astctxt, func.get(), "Variable_6", var5.get(), lasterr)) << lasterr;
 
 }
+
+TEST(ASTTests, TypeKinds)
+{
+	ASTContext astctxt;
+	auto intTy = astctxt.getPrimitiveIntType();
+	auto arrIntTy = astctxt.getArrayTypeForType(intTy);
+
+	EXPECT_EQ(intTy->getKind(), TypeKind::Primitive);
+	EXPECT_EQ(arrIntTy->getKind(), TypeKind::Array);
+}
