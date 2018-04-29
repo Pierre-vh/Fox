@@ -29,9 +29,13 @@ namespace Moonshot
 	class Expr : public Stmt
 	{
 		public:
-			Expr() = default;
+			Expr(const ExprKind& ekind);
 			inline virtual ~Expr() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
+
+			ExprKind getKind() const;
+		private:
+			ExprKind kind_;
 	};
 
 	// A Null expression that's just a placeholder.
@@ -40,7 +44,7 @@ namespace Moonshot
 	class NullExpr : public Expr
 	{
 		public:
-			NullExpr() = default;
+			NullExpr();
 			virtual void accept(IVisitor &vis) override;
 	};
 
@@ -93,8 +97,7 @@ namespace Moonshot
 	class CastExpr : public Expr
 	{
 		public:
-			CastExpr() = default;
-			CastExpr(const Type* castGoal,std::unique_ptr<Expr> child);
+			CastExpr(const Type* castGoal,std::unique_ptr<Expr> child = nullptr);
 			
 			virtual void accept(IVisitor& vis) override;
 
@@ -112,7 +115,6 @@ namespace Moonshot
 	class CharLiteralExpr : public Expr
 	{
 		public:
-			CharLiteralExpr() = default;
 			CharLiteralExpr(const CharType &val);
 
 			void accept(IVisitor &vis) override;
@@ -184,8 +186,7 @@ namespace Moonshot
 	class ArrayLiteralExpr : public Expr
 	{
 		public:
-			ArrayLiteralExpr() = default;
-			ArrayLiteralExpr(std::unique_ptr<ExprList> exprs);
+			ArrayLiteralExpr(std::unique_ptr<ExprList> exprs = nullptr);
 
 			ExprList* getExprList();
 			void setExprList(std::unique_ptr<ExprList> elist);
@@ -202,7 +203,6 @@ namespace Moonshot
 	class DeclRefExpr : public Expr
 	{
 		public:
-			DeclRefExpr() = default;
 			DeclRefExpr(IdentifierInfo * declid);
 
 			void accept(IVisitor& vis) override;
@@ -213,6 +213,7 @@ namespace Moonshot
 			IdentifierInfo * declId_;
 	};
 
+	// Arrays accesses : foo[0], etc.
 	class ArrayAccessExpr : public Expr
 	{
 		public:
@@ -231,7 +232,8 @@ namespace Moonshot
 	};
 
 	// Node Representing an Expression List.
-		// Note: This is not a "normal" node (not visitable), it's more of a wrapper around a std::vector<std::unique_ptr<Expr>>, so we can pass a list of 
+		// Note: This is not a "normal" node (not visitable nor inherited from expr), 
+		// it's more of a wrapper around a std::vector<std::unique_ptr<Expr>>, so we can pass a list of 
 		// expressions around easily.
 	class ExprList
 	{
