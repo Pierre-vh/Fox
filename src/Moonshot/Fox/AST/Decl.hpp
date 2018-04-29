@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #pragma once
-#include "Types.hpp"
+#include "Type.hpp"
 #include "Stmt.hpp"
 #include "DeclRecorder.hpp"
 #include "Moonshot/Fox/Common/Memory.hpp"
