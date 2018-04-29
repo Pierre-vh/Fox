@@ -21,16 +21,14 @@ TODO:
 	> Write more Unit tests (Done)
 
 	Next:
-		> Re-evaluate DeclRecorder : Maybe a Source-centric view of the declarations could be useful.
-			> Currently, DeclRecorder uses a multimap which sorts the decls, so, they aren't in their original position, however,
-			  maybe having a way of getting a "source accurate" list of declaration would be nice. I still need to think about if it would be useful.
-			  for now, I don't see any use case. I think I'll keep this idea in mind, maybe I'll implement it later if there's a real need for it.
-		> Maybe create a "MapDataIterator", which would give an iterator to the data only, and not the useless identifierInfo* too.
+		> Make "MapDataIterator" work (next)
 		> Visitor System rework, inspired by CLang/Swift. (Next)
 			Todo, in order:
-			> Create DeclNodes,ExprNodes,TypeNodes and StmtNodes.def files
-			> Add the "Kind" to every expr/type/decl/stmt node
+			> Create DeclNodes,ExprNodes,TypeNodes and StmtNodes.def files (Done)
+			> Add the "Kind" to every expr/type/decl/stmt node (Done)
 			> ASTVisitor (class that visits a tree however it likes to)
+			> TODO: Delete the "Default" constructors of VarDecl and FuncDecl, change the parser so it doesn't call them anymore. 
+			  For now I've left them just as a temporary fix.
 			> Maybe an ASTWalker.
 
 	> Delete old ASTVisitor & Dumper 
