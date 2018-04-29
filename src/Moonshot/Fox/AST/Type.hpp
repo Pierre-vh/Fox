@@ -30,6 +30,7 @@ namespace Moonshot
 	class Type
 	{
 		public:
+			Type(const TypeKind& tc);
 			virtual ~Type() = 0;
 
 			/* Should return true if the type is a PrimitiveType */
@@ -43,12 +44,18 @@ namespace Moonshot
 
 			/* Should return the type's name in a user friendly form, e.g. "int", "string" */
 			virtual std::string getString() const = 0;
+
+			// Returns the kind of this type.
+			TypeKind getKind() const;
+		private:
+			TypeKind kind_;
 	};
 
 	// Base abstract class for every builtin type.
 	class BuiltinType : public Type
 	{
 		public:	
+			BuiltinType(const TypeKind& tc);
 			virtual ~BuiltinType() = 0;
 
 			virtual bool isBuiltinType() const;

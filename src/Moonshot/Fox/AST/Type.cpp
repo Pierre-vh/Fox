@@ -16,6 +16,11 @@
 using namespace Moonshot;
 
 /* Type */
+Type::Type(const TypeKind & tc) : kind_(tc)
+{
+
+}
+
 Type::~Type()
 {
 
@@ -36,7 +41,17 @@ bool Type::isArrayType() const
 	return false;
 }
 
+TypeKind Type::getKind() const
+{
+	return kind_;
+}
+
 /* BuiltinType */
+BuiltinType::BuiltinType(const TypeKind & tc) : Type(tc)
+{
+
+}
+
 BuiltinType::~BuiltinType()
 {
 
@@ -48,7 +63,7 @@ bool BuiltinType::isBuiltinType() const
 }
 
 /* Primitive Types */
-PrimitiveType::PrimitiveType(const Kind & kd) : builtinKind_(kd)
+PrimitiveType::PrimitiveType(const Kind & kd) : builtinKind_(kd), BuiltinType(TypeKind::Primitive)
 {
 
 }
@@ -100,7 +115,7 @@ bool PrimitiveType::isVoid() const
 }
 
 /* Array type */
-ArrayType::ArrayType(const Type* ty) : itemTy_(std::move(ty))
+ArrayType::ArrayType(const Type* ty) : itemTy_(ty), BuiltinType(TypeKind::Array)
 {
 	assert(ty && "The Array item type cannot be null!");
 }
