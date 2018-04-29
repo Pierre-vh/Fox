@@ -253,4 +253,7 @@ TEST(ASTTests, DeclRecorderTests)
 	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_4", var4.get(), lasterr)) << lasterr;
 	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_5", var5.get(), lasterr)) << lasterr;
 
+	// Bad lookup tests
+	EXPECT_FALSE(testLookup(astctxt, func.get(), "Variable_6", var5.get(), lasterr)) << lasterr;
+
 }
