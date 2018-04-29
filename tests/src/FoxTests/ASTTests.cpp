@@ -267,3 +267,54 @@ TEST(ASTTests, TypeKinds)
 	EXPECT_EQ(intTy->getKind(), TypeKind::Primitive);
 	EXPECT_EQ(arrIntTy->getKind(), TypeKind::Array);
 }
+
+TEST(ASTTests, ExprKinds)
+{
+	ASTContext astctxt;
+
+	// Null exprs
+	NullExpr nullExpr;
+	EXPECT_EQ(nullExpr.getKind(), ExprKind::Null);
+
+	// Binary Exprs
+	BinaryExpr binexpr(binaryOperator::ADD);
+	EXPECT_EQ(binexpr.getKind(), ExprKind::Binary);
+
+	// Unary Exprs
+	UnaryExpr unaryexpr(unaryOperator::LOGICNOT);
+	EXPECT_EQ(unaryexpr.getKind(), ExprKind::Unary);
+
+	// Cast Exprs
+	CastExpr castexpr(astctxt.getPrimitiveIntType());
+	EXPECT_EQ(castexpr.getKind(), ExprKind::Cast);
+
+	// Literals
+	CharLiteralExpr		charlit(0);
+	IntegerLiteralExpr	intlit(0);
+	FloatLiteralExpr	floatlit(0);
+	StringLiteralExpr	strlit("");
+	BoolLiteralExpr		boollit(false);
+	ArrayLiteralExpr	arrlit;
+
+	EXPECT_EQ(charlit.getKind(), ExprKind::CharLiteral);
+	EXPECT_EQ(intlit.getKind(),  ExprKind::IntegerLiteral);
+	EXPECT_EQ(floatlit.getKind(),ExprKind::FloatLiteral);
+	EXPECT_EQ(strlit.getKind(),  ExprKind::StringLiteral);
+	EXPECT_EQ(boollit.getKind(), ExprKind::BoolLiteral);
+	EXPECT_EQ(arrlit.getKind(),  ExprKind::ArrayLiteral);
+
+	// Helper
+	auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
+
+	// DeclRef
+	DeclRefExpr declref(fooid);
+	EXPECT_EQ(declref.getKind(), ExprKind::DeclRef);
+
+	// Array Access
+	ArrayAccessExpr arracc(std::make_unique<NullExpr>(), std::make_unique<NullExpr>());
+	EXPECT_EQ(arracc.getKind(), ExprKind::ArrayAccess);
+
+	// Function calls
+	FunctionCallExpr callexpr(std::make_unique<DeclRefExpr>(fooid));
+	EXPECT_EQ(callexpr.getKind(), ExprKind::FunctionCall);
+}
