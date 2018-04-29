@@ -32,6 +32,8 @@ namespace Moonshot
 			virtual ~Stmt() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
 
+			virtual bool isExpr() const;
+
 			StmtKind getKind() const;
 		private:
 			StmtKind kind_;

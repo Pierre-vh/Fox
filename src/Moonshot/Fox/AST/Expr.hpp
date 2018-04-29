@@ -25,6 +25,8 @@ namespace Moonshot
 			Expr(const StmtKind& kind);
 			inline virtual ~Expr() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
+
+			virtual bool isExpr() const override;
 	};
 
 	// A Null expression that's just a placeholder.

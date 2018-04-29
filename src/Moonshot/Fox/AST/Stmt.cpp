@@ -19,6 +19,11 @@ Stmt::Stmt(const StmtKind & skind) : kind_(skind)
 {
 }
 
+bool Stmt::isExpr() const
+{
+	return false;
+}
+
 StmtKind Stmt::getKind() const
 {
 	return kind_;
