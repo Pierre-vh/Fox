@@ -264,8 +264,8 @@ TEST(ASTTests, TypeKinds)
 	auto intTy = astctxt.getPrimitiveIntType();
 	auto arrIntTy = astctxt.getArrayTypeForType(intTy);
 
-	EXPECT_EQ(intTy->getKind(), TypeKind::Primitive);
-	EXPECT_EQ(arrIntTy->getKind(), TypeKind::Array);
+	EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
+	EXPECT_EQ(arrIntTy->getKind(), TypeKind::ArrayType);
 }
 
 TEST(ASTTests, ExprKinds)
@@ -274,19 +274,19 @@ TEST(ASTTests, ExprKinds)
 
 	// Null exprs
 	NullExpr nullExpr;
-	EXPECT_EQ(nullExpr.getKind(), ExprKind::Null);
+	EXPECT_EQ(nullExpr.getKind(), StmtKind::NullExpr);
 
 	// Binary Exprs
 	BinaryExpr binexpr(binaryOperator::ADD);
-	EXPECT_EQ(binexpr.getKind(), ExprKind::Binary);
+	EXPECT_EQ(binexpr.getKind(), StmtKind::BinaryExpr);
 
 	// Unary Exprs
 	UnaryExpr unaryexpr(unaryOperator::LOGICNOT);
-	EXPECT_EQ(unaryexpr.getKind(), ExprKind::Unary);
+	EXPECT_EQ(unaryexpr.getKind(), StmtKind::UnaryExpr);
 
 	// Cast Exprs
 	CastExpr castexpr(astctxt.getPrimitiveIntType());
-	EXPECT_EQ(castexpr.getKind(), ExprKind::Cast);
+	EXPECT_EQ(castexpr.getKind(), StmtKind::CastExpr);
 
 	// Literals
 	CharLiteralExpr		charlit(0);
@@ -296,25 +296,71 @@ TEST(ASTTests, ExprKinds)
 	BoolLiteralExpr		boollit(false);
 	ArrayLiteralExpr	arrlit;
 
-	EXPECT_EQ(charlit.getKind(), ExprKind::CharLiteral);
-	EXPECT_EQ(intlit.getKind(),  ExprKind::IntegerLiteral);
-	EXPECT_EQ(floatlit.getKind(),ExprKind::FloatLiteral);
-	EXPECT_EQ(strlit.getKind(),  ExprKind::StringLiteral);
-	EXPECT_EQ(boollit.getKind(), ExprKind::BoolLiteral);
-	EXPECT_EQ(arrlit.getKind(),  ExprKind::ArrayLiteral);
+	EXPECT_EQ(charlit.getKind(), StmtKind::CharLiteralExpr);
+	EXPECT_EQ(intlit.getKind(),  StmtKind::IntegerLiteralExpr);
+	EXPECT_EQ(floatlit.getKind(),StmtKind::FloatLiteralExpr);
+	EXPECT_EQ(strlit.getKind(),  StmtKind::StringLiteralExpr);
+	EXPECT_EQ(boollit.getKind(), StmtKind::BoolLiteralExpr);
+	EXPECT_EQ(arrlit.getKind(),  StmtKind::ArrayLiteralExpr);
 
 	// Helper
 	auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
 
 	// DeclRef
 	DeclRefExpr declref(fooid);
-	EXPECT_EQ(declref.getKind(), ExprKind::DeclRef);
+	EXPECT_EQ(declref.getKind(), StmtKind::DeclRef);
 
 	// Array Access
 	ArrayAccessExpr arracc(std::make_unique<NullExpr>(), std::make_unique<NullExpr>());
-	EXPECT_EQ(arracc.getKind(), ExprKind::ArrayAccess);
+	EXPECT_EQ(arracc.getKind(), StmtKind::ArrayAccessExpr);
 
 	// Function calls
 	FunctionCallExpr callexpr(std::make_unique<DeclRefExpr>(fooid));
-	EXPECT_EQ(callexpr.getKind(), ExprKind::FunctionCall);
+	EXPECT_EQ(callexpr.getKind(), StmtKind::FunctionCallExpr);
+}
+
+TEST(ASTTests, StmtKinds)
+{
+	// Return stmt
+	ReturnStmt rtr;
+	EXPECT_EQ(rtr.getKind(), StmtKind::ReturnStmt);
+
+	// Condition
+	ConditionStmt cond(std::make_unique<NullExpr>(), std::make_unique<NullExpr>());
+	EXPECT_EQ(cond.getKind(), StmtKind::ConditionStmt);
+
+	// Compound
+	CompoundStmt compound;
+	EXPECT_EQ(compound.getKind(), StmtKind::CompoundStmt);
+
+	// While
+	WhileStmt whilestmt(std::make_unique<NullExpr>(), std::make_unique<NullExpr>());
+	EXPECT_EQ(whilestmt.getKind(), StmtKind::WhileStmt);
+
+	// declstmt
+	DeclStmt declstmt;
+	EXPECT_EQ(declstmt.getKind(), StmtKind::DeclStmt);
+}
+
+TEST(ASTTests, DeclKinds)
+{
+	ASTContext astctxt;
+	auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
+	auto intty = astctxt.getPrimitiveIntType();
+
+	// Arg
+	ArgDecl argdecl(fooid, QualType(intty));
+	EXPECT_EQ(argdecl.getKind(), DeclKind::ArgDecl);
+
+	// Func
+	FunctionDecl fndecl(intty, fooid, nullptr);
+	EXPECT_EQ(fndecl.getKind(), DeclKind::FunctionDecl);
+
+	// Var
+	VarDecl vdecl(fooid, QualType(intty));
+	EXPECT_EQ(vdecl.getKind(), DeclKind::VarDecl);
+
+	// Unit
+	UnitDecl udecl(fooid);
+	EXPECT_EQ(udecl.getKind(), DeclKind::UnitDecl);
 }
