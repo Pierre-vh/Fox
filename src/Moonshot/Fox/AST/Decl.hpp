@@ -15,6 +15,13 @@
 
 namespace Moonshot
 {
+	// The DeclKind enum
+	enum class DeclKind : char
+	{
+		#define DECL(ID,PARENT) ID,
+		#include "DeclNodes.def"
+	};
+
 	// Forward declarations
 	class Expr;
 	class IdentifierInfo;

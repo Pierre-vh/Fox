@@ -18,6 +18,13 @@
 
 namespace Moonshot
 {
+	// The TypeKind enum
+	enum class TypeKind : char
+	{
+		#define TYPE(ID,PARENT) ID,
+		#include "TypeNodes.def"
+	};
+
 	// Base abstract class for every Type node.
 	// Types are immutable once created. As a result, every member function of type classes are marked "const".
 	class Type

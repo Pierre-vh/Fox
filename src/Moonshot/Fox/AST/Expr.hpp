@@ -16,6 +16,13 @@
 
 namespace Moonshot	
 {
+	// The ExprKind enum
+	enum class ExprKind : char
+	{
+		#define EXPR(ID,PARENT) ID,
+		#include "ExprNodes.def"
+	};
+
 	class IVisitor;
 	class IdentifierInfo;
 	// base expression 

@@ -13,6 +13,13 @@
 
 namespace Moonshot
 {
+	// The StmtKind enum
+	enum class StmtKind : char
+	{
+		#define STMT(ID,PARENT) ID,
+		#include "StmtNodes.def"
+	};
+
 	class Expr;
 	class Decl;
 	class IVisitor;
