@@ -76,10 +76,6 @@ bool ArgDecl::isValid()
 }
 
 // Function Declaration
-FunctionDecl::FunctionDecl() : NamedDecl(DeclKind::FunctionDecl, nullptr)
-{
-}
-
 FunctionDecl::FunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody) :
 	returnType_(returnType), NamedDecl(DeclKind::FunctionDecl,fnId), body_(std::move(funcbody))
 {
@@ -113,7 +109,6 @@ CompoundStmt * FunctionDecl::getBody()
 	return body_.get();
 }
 
-// Function Declaration
 void FunctionDecl::setBody(std::unique_ptr<CompoundStmt> arg)
 {
 	body_ = std::move(arg);
@@ -158,11 +153,6 @@ FunctionDecl::ArgVecConstIter FunctionDecl::args_end() const
 }
 
 // VarDecl
-VarDecl::VarDecl() : NamedDecl(DeclKind::UnitDecl, nullptr)
-{
-	
-}
-
 VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr) : 
 	NamedDecl(DeclKind::VarDecl, varId), varTy_(ty)
 {

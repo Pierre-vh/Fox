@@ -79,8 +79,7 @@ namespace Moonshot
 			using ArgVecIter = DereferenceIterator<ArgVecTy::iterator>;
 			using ArgVecConstIter = DereferenceIterator<ArgVecTy::const_iterator>;
 		public:
-			FunctionDecl();
-			FunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody);
+			FunctionDecl(const Type* returnType = nullptr, IdentifierInfo* fnId = nullptr, std::unique_ptr<CompoundStmt> funcbody = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
 			virtual bool isValid() override;
@@ -110,8 +109,7 @@ namespace Moonshot
 	class VarDecl : public NamedDecl
 	{
 		public:
-			VarDecl();
-			VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr = nullptr);
+			VarDecl(IdentifierInfo * varId = nullptr,const QualType& ty = QualType(), std::unique_ptr<Expr> iExpr = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
 			virtual bool isValid() override;
