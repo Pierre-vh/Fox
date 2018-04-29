@@ -1,0 +1,44 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : ExprNodes.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file uses Macro to "register" every Expr nodes
+// When including this file, the user can define custom macros to gather various informations
+// about the nodes.
+////------------------------------------------------------////
+
+// Base macro for concrete classes of Expr.
+// The Kind of the expr is ExprKind::ID
+// The class is ID##Expr and it's parent is PARENT
+#ifndef EXPR
+	#define EXPR(ID,PARENT)
+#endif
+
+/* Macros */
+
+// Null (empty) expr.
+EXPR(Null,Expr)
+
+// Basic operations
+EXPR(Binary,Expr)
+EXPR(Unary,Expr)
+EXPR(Cast,Expr)
+EXPR(ArrayAccess,Expr)
+
+// Literals
+EXPR(CharLiteral,Expr)
+EXPR(BoolLiteral,Expr)
+EXPR(IntegerLiteral,Expr)
+EXPR(FloatLiteral,Expr)
+EXPR(StringLiteral,Expr)
+EXPR(ArrayLiteral,Expr)
+
+// DeclRef & Function calls
+EXPR(DeclRef,Expr)
+EXPR(FunctionCall,Expr)
+
+/* Undef */
+
+#undef EXPR
