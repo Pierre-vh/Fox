@@ -17,18 +17,13 @@
 using namespace Moonshot;
 
 // Expr
-Expr::Expr(const ExprKind & ekind) : kind_(ekind)
+Expr::Expr(const StmtKind & ekind) : Stmt(ekind)
 {
 
-}
-
-ExprKind Expr::getKind() const
-{
-	return kind_;
 }
 
 // nullexpr
-NullExpr::NullExpr() : Expr(ExprKind::Null)
+NullExpr::NullExpr() : Expr(StmtKind::NullExpr)
 {
 
 }
@@ -39,7 +34,7 @@ void NullExpr::accept(IVisitor &vis)
 }
 
 // Literals : Char literals
-CharLiteralExpr::CharLiteralExpr(const CharType & val) : val_(val), Expr(ExprKind::CharLiteral)
+CharLiteralExpr::CharLiteralExpr(const CharType & val) : val_(val), Expr(StmtKind::CharLiteralExpr)
 {
 
 }
@@ -60,7 +55,7 @@ void CharLiteralExpr::setVal(const CharType & val)
 }
 
 // Literals : Integer literals
-IntegerLiteralExpr::IntegerLiteralExpr(const IntType & val) : val_(val), Expr(ExprKind::IntegerLiteral)
+IntegerLiteralExpr::IntegerLiteralExpr(const IntType & val) : val_(val), Expr(StmtKind::IntegerLiteralExpr)
 {
 
 }
@@ -81,7 +76,7 @@ void IntegerLiteralExpr::setVal(const IntType & val)
 }
 
 // Literals : Float literals
-FloatLiteralExpr::FloatLiteralExpr(const FloatType & val) : val_(val), Expr(ExprKind::FloatLiteral)
+FloatLiteralExpr::FloatLiteralExpr(const FloatType & val) : val_(val), Expr(StmtKind::FloatLiteralExpr)
 {
 
 }
@@ -102,7 +97,7 @@ void FloatLiteralExpr::setVal(const FloatType & val)
 }
 
 // Literals : String literals
-StringLiteralExpr::StringLiteralExpr(const std::string & val) : val_(val), Expr(ExprKind::StringLiteral)
+StringLiteralExpr::StringLiteralExpr(const std::string & val) : val_(val), Expr(StmtKind::StringLiteralExpr)
 {
 
 }
@@ -123,7 +118,7 @@ void StringLiteralExpr::setVal(const std::string & val)
 }
 
 // Literals : Bool literals
-BoolLiteralExpr::BoolLiteralExpr(const bool & val) : val_(val), Expr(ExprKind::BoolLiteral)
+BoolLiteralExpr::BoolLiteralExpr(const bool & val) : val_(val), Expr(StmtKind::BoolLiteralExpr)
 {
 
 }
@@ -144,7 +139,7 @@ void BoolLiteralExpr::setVal(const bool & val)
 }
 
 // Literals: Array literals
-ArrayLiteralExpr::ArrayLiteralExpr(std::unique_ptr<ExprList> exprs) : exprs_(std::move(exprs)), Expr(ExprKind::ArrayLiteral)
+ArrayLiteralExpr::ArrayLiteralExpr(std::unique_ptr<ExprList> exprs) : exprs_(std::move(exprs)), Expr(StmtKind::ArrayLiteralExpr)
 {
 
 }
@@ -179,7 +174,7 @@ void ArrayLiteralExpr::accept(IVisitor &vis)
 
 // BinaryExpr
 BinaryExpr::BinaryExpr(const binaryOperator & opt, std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs):
-	op_(opt), Expr(ExprKind::Binary)
+	op_(opt), Expr(StmtKind::BinaryExpr)
 {
 	setLHS(std::move(lhs));
 	setRHS(std::move(rhs));
@@ -236,7 +231,7 @@ bool BinaryExpr::isComplete() const
 }
 
 // UnaryExpr
-UnaryExpr::UnaryExpr(const unaryOperator & opt, std::unique_ptr<Expr> node) : op_(opt), Expr(ExprKind::Unary)
+UnaryExpr::UnaryExpr(const unaryOperator & opt, std::unique_ptr<Expr> node) : op_(opt), Expr(StmtKind::UnaryExpr)
 {
 	setChild(std::move(node));
 }
@@ -268,7 +263,7 @@ void UnaryExpr::setOp(const unaryOperator & nop)
 
 // CastExpr
 CastExpr::CastExpr(const Type* castGoal, std::unique_ptr<Expr> child):
-	goal_(castGoal), child_(std::move(child)), Expr(ExprKind::Cast)
+	goal_(castGoal), child_(std::move(child)), Expr(StmtKind::CastExpr)
 {
 
 }
@@ -300,7 +295,7 @@ void CastExpr::setChild(std::unique_ptr<Expr> nc)
 }
 
 // DeclRefs
-DeclRefExpr::DeclRefExpr(IdentifierInfo * declid) : declId_(declid), Expr(ExprKind::DeclRef)
+DeclRefExpr::DeclRefExpr(IdentifierInfo * declid) : declId_(declid), Expr(StmtKind::DeclRef)
 {
 
 }
@@ -322,7 +317,7 @@ void DeclRefExpr::setDeclIdentifier(IdentifierInfo * id)
 
 // function call
 FunctionCallExpr::FunctionCallExpr(std::unique_ptr<DeclRefExpr> base, std::unique_ptr<ExprList> elist):
-	callee_(std::move(base)), args_(std::move(elist)), Expr(ExprKind::FunctionCall)
+	callee_(std::move(base)), args_(std::move(elist)), Expr(StmtKind::FunctionCallExpr)
 {
 }
 
@@ -352,7 +347,7 @@ void FunctionCallExpr::accept(IVisitor & vis)
 }
 
 ArrayAccessExpr::ArrayAccessExpr(std::unique_ptr<Expr> expr, std::unique_ptr<Expr> idxexpr) :
-	base_(std::move(expr)), accessIdxExpr_(std::move(idxexpr)), Expr(ExprKind::ArrayAccess)
+	base_(std::move(expr)), accessIdxExpr_(std::move(idxexpr)), Expr(StmtKind::ArrayAccessExpr)
 {
 	
 }

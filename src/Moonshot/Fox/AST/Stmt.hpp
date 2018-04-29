@@ -28,9 +28,13 @@ namespace Moonshot
 	class Stmt
 	{
 		public:
-			Stmt() = default;
+			Stmt(const StmtKind& skind);
 			virtual ~Stmt() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
+
+			StmtKind getKind() const;
+		private:
+			StmtKind kind_;
 	};
 
 	// The return <expr> statement.
@@ -80,7 +84,7 @@ namespace Moonshot
 			using StmtVecIter = DereferenceIterator<StmtVecTy::iterator>;
 			using StmtVecConstIter = DereferenceIterator < StmtVecTy::const_iterator>;
 		public:
-			CompoundStmt() = default;
+			CompoundStmt();
 
 			virtual void accept(IVisitor & vis) override;
 

@@ -16,26 +16,15 @@
 
 namespace Moonshot	
 {
-	// The ExprKind enum
-	enum class ExprKind : char
-	{
-		#define EXPR(ID,PARENT) ID,
-		#include "ExprNodes.def"
-	};
-
 	class IVisitor;
 	class IdentifierInfo;
 	// base expression 
 	class Expr : public Stmt
 	{
 		public:
-			Expr(const ExprKind& ekind);
+			Expr(const StmtKind& kind);
 			inline virtual ~Expr() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
-
-			ExprKind getKind() const;
-		private:
-			ExprKind kind_;
 	};
 
 	// A Null expression that's just a placeholder.

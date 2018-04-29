@@ -16,9 +16,19 @@
 
 using namespace Moonshot;
 
-// Decl name
+// Decl
+Decl::Decl(const DeclKind & dkind) : kind_(dkind)
+{
 
-NamedDecl::NamedDecl(IdentifierInfo * name) : identifier_(name)
+}
+
+DeclKind Decl::getKind() const
+{
+	return kind_;
+}
+
+// NamedDecl
+NamedDecl::NamedDecl(const DeclKind& dkind, IdentifierInfo * name) : Decl(dkind), identifier_(name)
 {
 
 }
@@ -39,7 +49,7 @@ bool NamedDecl::hasIdentifier() const
 }
 
 // Function arg
-ArgDecl::ArgDecl(IdentifierInfo* id, const QualType & argType) : NamedDecl(id), ty_(argType)
+ArgDecl::ArgDecl(IdentifierInfo* id, const QualType & argType) : NamedDecl(DeclKind::ArgDecl,id), ty_(argType)
 {
 
 }
@@ -66,8 +76,12 @@ bool ArgDecl::isValid()
 }
 
 // Function Declaration
+FunctionDecl::FunctionDecl() : NamedDecl(DeclKind::FunctionDecl, nullptr)
+{
+}
+
 FunctionDecl::FunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody) :
-	returnType_(returnType), NamedDecl(fnId), body_(std::move(funcbody))
+	returnType_(returnType), NamedDecl(DeclKind::FunctionDecl,fnId), body_(std::move(funcbody))
 {
 
 }
@@ -144,7 +158,13 @@ FunctionDecl::ArgVecConstIter FunctionDecl::args_end() const
 }
 
 // VarDecl
-VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr) : NamedDecl(varId), varTy_(ty)
+VarDecl::VarDecl() : NamedDecl(DeclKind::UnitDecl, nullptr)
+{
+	
+}
+
+VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr) : 
+	NamedDecl(DeclKind::VarDecl, varId), varTy_(ty)
 {
 	if (iExpr)
 		initExpr_ = std::move(iExpr);
@@ -188,7 +208,7 @@ void VarDecl::setInitExpr(std::unique_ptr<Expr> expr)
 }
 
 // ASTUnit
-UnitDecl::UnitDecl(IdentifierInfo * id): NamedDecl(id)
+UnitDecl::UnitDecl(IdentifierInfo * id): NamedDecl(DeclKind::UnitDecl,id)
 {
 }
 

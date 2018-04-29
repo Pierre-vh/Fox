@@ -30,20 +30,23 @@ namespace Moonshot
 	class Decl
 	{
 		public:
-			Decl() = default;
+			Decl(const DeclKind& dkind);
 			virtual ~Decl() = 0 {}
 			virtual void accept(IVisitor& vis) = 0;
 
 			// This function should return true if the declaration node is valid (usable)
 			virtual bool isValid() = 0; 
+			
+			DeclKind getKind() const;
+		private:
+			DeclKind kind_;
 	};
 
 	// Base class for Declarations that have names, e.g. : var/arg/func decl,..
-	class NamedDecl : public virtual Decl
+	class NamedDecl : public Decl
 	{
 		public:
-			NamedDecl() = default;
-			NamedDecl(IdentifierInfo* name);
+			NamedDecl(const DeclKind& dkind,IdentifierInfo* name);
 
 			IdentifierInfo * getIdentifier() const;
 			void setIdentifier(IdentifierInfo* nname);
@@ -56,7 +59,6 @@ namespace Moonshot
 	class ArgDecl : public NamedDecl
 	{
 		public:
-			ArgDecl() = default;
 			ArgDecl(IdentifierInfo* id, const QualType& argType);
 
 			QualType getType() const;
@@ -77,7 +79,7 @@ namespace Moonshot
 			using ArgVecIter = DereferenceIterator<ArgVecTy::iterator>;
 			using ArgVecConstIter = DereferenceIterator<ArgVecTy::const_iterator>;
 		public:
-			FunctionDecl() = default;
+			FunctionDecl();
 			FunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody);
 
 			virtual void accept(IVisitor& vis) override;
@@ -108,7 +110,7 @@ namespace Moonshot
 	class VarDecl : public NamedDecl
 	{
 		public:
-			VarDecl() = default;
+			VarDecl();
 			VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr = nullptr);
 
 			virtual void accept(IVisitor& vis) override;

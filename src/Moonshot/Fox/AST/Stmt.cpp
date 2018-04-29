@@ -14,8 +14,18 @@
 
 using namespace Moonshot;
 
+// Stmt
+Stmt::Stmt(const StmtKind & skind) : kind_(skind)
+{
+}
+
+StmtKind Stmt::getKind() const
+{
+	return kind_;
+}
+
 // return stmt
-ReturnStmt::ReturnStmt(std::unique_ptr<Expr> rtr_expr)
+ReturnStmt::ReturnStmt(std::unique_ptr<Expr> rtr_expr) : Stmt(StmtKind::ReturnStmt)
 {
 	expr_ = std::move(rtr_expr);
 }
@@ -41,7 +51,8 @@ void ReturnStmt::setExpr(std::unique_ptr<Expr> e)
 }
 
 // cond stmt
-ConditionStmt::ConditionStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> then, std::unique_ptr<Stmt> elsestmt)
+ConditionStmt::ConditionStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> then, std::unique_ptr<Stmt> elsestmt) :
+	Stmt(StmtKind::ConditionStmt)
 {
 	setCond(std::move(cond));
 	setThen(std::move(then));
@@ -94,6 +105,11 @@ void ConditionStmt::setElse(std::unique_ptr<Stmt> elsestmt)
 }
 
 // Compound stmt
+CompoundStmt::CompoundStmt() : Stmt(StmtKind::CompoundStmt)
+{
+
+}
+
 void CompoundStmt::accept(IVisitor & vis)
 {
 	vis.visit(*this);
@@ -148,7 +164,8 @@ CompoundStmt::StmtVecConstIter CompoundStmt::stmts_end() const
 }
 
 // While stmt
-WhileStmt::WhileStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> body)
+WhileStmt::WhileStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> body) :
+	Stmt(StmtKind::WhileStmt)
 {
 	setCond(std::move(cond));
 	setBody(std::move(body));
@@ -180,7 +197,7 @@ void WhileStmt::setBody(std::unique_ptr<Stmt> body)
 }
 
 // DeclStmt
-DeclStmt::DeclStmt(std::unique_ptr<Decl> decl) : decl_(std::move(decl))
+DeclStmt::DeclStmt(std::unique_ptr<Decl> decl) : decl_(std::move(decl)), Stmt(StmtKind::DeclStmt)
 {
 
 }
