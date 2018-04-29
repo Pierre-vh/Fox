@@ -12,7 +12,7 @@
 #include "Moonshot/Fox/AST/Decl.hpp"
 #include "Moonshot/Fox/AST/Expr.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
-#include "Moonshot/Fox/AST/Types.hpp"
+#include "Moonshot/Fox/AST/Type.hpp"
 
 using namespace Moonshot;
 
