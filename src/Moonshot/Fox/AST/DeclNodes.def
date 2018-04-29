@@ -11,7 +11,7 @@
 
 // Base macro for concrete classes of Decl.
 // The Kind of the expr is DeclKind::ID
-// The class is ID##Decl and it's parent is PARENT
+// The class is ID and it's parent is PARENT
 #ifndef DECL
 	#define DECL(ID,PARENT)
 #endif
@@ -24,11 +24,11 @@
 
 /* Macros */
 
-ABSTRACT_DECL(Named,Decl)
-	DECL(Arg,NamedDecl)
-	DECL(Function,NamedDecl)
-	DECL(Var,NamedDecl)
-	DECL(Unit,NamedDecl)
+ABSTRACT_DECL(NamedDecl,Decl)
+	DECL(ArgDecl,NamedDecl)
+	DECL(FunctionDecl,NamedDecl)
+	DECL(VarDecl,NamedDecl)
+	DECL(UnitDecl,NamedDecl)
 
 /* Undef */
 

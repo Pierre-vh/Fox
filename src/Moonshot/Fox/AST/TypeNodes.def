@@ -11,7 +11,7 @@
 
 // Base macro for concrete classes of Type.
 // The Kind of the Type is TypeKind::ID
-// The class is ID##Type and it's parent is PARENT
+// The class is ID and it's parent is PARENT
 #ifndef TYPE
 	#define TYPE(ID,PARENT)
 #endif
@@ -24,9 +24,9 @@
 
 /* Macros */
 
-ABSTRACT_TYPE(Builtin,Type)
-	TYPE(Primitive,BuiltinType)
-	TYPE(Array,BuiltinType)
+ABSTRACT_TYPE(BuiltinType,Type)
+	TYPE(PrimitiveType,BuiltinType)
+	TYPE(ArrayType,BuiltinType)
 
 
 /* Undef */

@@ -63,7 +63,7 @@ bool BuiltinType::isBuiltinType() const
 }
 
 /* Primitive Types */
-PrimitiveType::PrimitiveType(const Kind & kd) : builtinKind_(kd), BuiltinType(TypeKind::Primitive)
+PrimitiveType::PrimitiveType(const Kind & kd) : builtinKind_(kd), BuiltinType(TypeKind::PrimitiveType)
 {
 
 }
@@ -115,7 +115,7 @@ bool PrimitiveType::isVoid() const
 }
 
 /* Array type */
-ArrayType::ArrayType(const Type* ty) : itemTy_(ty), BuiltinType(TypeKind::Array)
+ArrayType::ArrayType(const Type* ty) : itemTy_(ty), BuiltinType(TypeKind::ArrayType)
 {
 	assert(ty && "The Array item type cannot be null!");
 }
