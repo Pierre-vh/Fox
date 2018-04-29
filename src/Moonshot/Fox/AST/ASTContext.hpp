@@ -27,7 +27,7 @@
 
 #include "Moonshot/Fox/Common/Memory.hpp"
 #include "Decl.hpp"
-#include "Types.hpp"
+#include "Type.hpp"
 #include "IdentifierTable.hpp"
 
 namespace Moonshot

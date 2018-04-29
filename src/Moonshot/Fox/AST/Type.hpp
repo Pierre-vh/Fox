@@ -1,10 +1,14 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : Types.hpp											
+// File : Type.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file contains the Type AST nodes.
+//	
+// TODO: I think that in the future a "ErrorType" type could be really handy for parser error recovery
+// and TypeChecking errors handling.
+//
 ////------------------------------------------------------////
 
 #pragma once

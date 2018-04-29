@@ -7,7 +7,7 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "Types.hpp"
+#include "Type.hpp"
 
 #include <cassert>
 #include <sstream>

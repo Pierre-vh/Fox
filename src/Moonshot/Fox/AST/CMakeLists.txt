@@ -4,7 +4,7 @@ add_source(
     "Expr.cpp"
     "Stmt.cpp"
 	"ASTContext.cpp"
-	"Types.cpp"
+	"Type.cpp"
 	"Dumper.cpp"
 	"IdentifierTable.cpp"
 	"DeclRecorder.cpp"
