@@ -42,8 +42,6 @@
 #include "Moonshot/Fox/AST/Expr.hpp"
 #include "Moonshot/Fox/AST/Stmt.hpp"
 
-#include "Moonshot/Fox/AST/Operators.hpp"			
-
 #include <cassert>
 
 namespace Moonshot
