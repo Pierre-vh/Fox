@@ -55,14 +55,7 @@ void Dumper::visit(UnitDecl & node)
 
 void Dumper::visit(BinaryExpr & node)
 {
-	std::string op = Util::getFromDict(Dicts::kBinopToStr_dict, node.getOp());
-	if (op.size() == 0)
-		op = std::to_string(Util::enumAsInt(node.getOp()));
-
-	out_ << getIndent() << "BinaryExpression : Operator " << op;
-
-	// newline
-	out_ << "\n";
+	out_ << getIndent() << "BinaryExpression : Operator " << Operators::toString(node.getOp()) << "\n";
 
 	if (!node.isComplete())
 	{
@@ -89,11 +82,7 @@ void Dumper::visit(BinaryExpr & node)
 
 void Dumper::visit(UnaryExpr & node)
 {
-	std::string op = Util::getFromDict(Dicts::kUnaryOpToStr_dict, node.getOp());
-	if (op.size() == 0)
-		op = std::to_string(Util::enumAsInt(node.getOp()));
-
-	out_ << getIndent() << "UnaryExpression : Operator " << op << "\n";
+	out_ << getIndent() << "UnaryExpression : Operator " << Operators::toString(node.getOp()) << "\n";
 
 	curindent_++;
 	out_ << getIndent() << "Child:\n";
