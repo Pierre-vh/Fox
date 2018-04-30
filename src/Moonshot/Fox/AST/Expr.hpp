@@ -11,11 +11,50 @@
 #include "Moonshot/Fox/Common/Typedefs.hpp"
 #include "Moonshot/Fox/AST/Stmt.hpp"
 #include "Moonshot/Fox/AST/Type.hpp"
-#include "Moonshot/Fox/AST/Operators.hpp"
 #include "Moonshot/Fox/Common/Memory.hpp"
 
 namespace Moonshot	
 {
+	// Operators Enums & Dictionaries
+	enum class binaryOperator
+	{
+		DEFAULT,
+		CONCAT,	// +
+		// Basic math ops
+		ADD,	// +
+		MINUS,	// -
+		MUL,	// *
+		DIV,	// /
+		MOD,	// %
+		EXP,	// **
+		// Logical and and or
+		LOGIC_AND,	// &&
+		LOGIC_OR,	// ||
+		// Comparison
+		LESS_OR_EQUAL,		// <=
+		GREATER_OR_EQUAL,	// >=
+		LESS_THAN,			// <
+		GREATER_THAN,		// >
+		EQUAL,				// ==
+		NOTEQUAL,			// !=
+
+		// Assignement
+		ASSIGN_BASIC,		// =
+	};
+
+	enum class unaryOperator
+	{
+		DEFAULT,
+		LOGICNOT,		// ! 
+		NEGATIVE,		// -
+		POSITIVE		// +
+	};
+
+	namespace Operators
+	{
+		std::string toString(const binaryOperator& op);
+		std::string toString(const unaryOperator& op);
+	}
 	class IVisitor;
 	class IdentifierInfo;
 	// base expression 
