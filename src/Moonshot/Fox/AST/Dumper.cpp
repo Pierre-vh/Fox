@@ -204,6 +204,16 @@ void Dumper::visit(ArrayAccessExpr & node)
 	curindent_ -= 2;
 }
 
+void Dumper::visit(MemberOfExpr & node)
+{
+	out_ << getIndent() << "MemberOf id:" << node.getMemberName()->getStr() << "\n";
+	curindent_++;
+	out_ << getIndent() << "Base:\n";
+	curindent_++;
+	node.getBase()->accept(*this);
+	curindent_--;
+}
+
 void Dumper::visit(DeclRefExpr & node)
 {
 	out_ << getIndent() << "DeclRef: " << node.getDeclIdentifier()->getStr() << std::endl;

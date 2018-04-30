@@ -39,6 +39,7 @@ namespace Moonshot
 			inline virtual void visit(BoolLiteralExpr&)		{}
 			inline virtual void visit(ArrayLiteralExpr&) {}
 			inline virtual void visit(DeclRefExpr&)		{}
+			inline virtual void visit(MemberOfExpr&)		{}
 			inline virtual void visit(ArrayAccessExpr&)		{}
 			inline virtual void visit(FunctionCallExpr&) {}
 

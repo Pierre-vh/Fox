@@ -33,6 +33,7 @@ namespace Moonshot
 			virtual void visit(ArrayLiteralExpr& node) override;
 			virtual void visit(VarDecl & node) override;
 			virtual void visit(ArrayAccessExpr & node) override;
+			virtual void visit(MemberOfExpr& node) override;
 			virtual void visit(DeclRefExpr & node) override;
 			virtual void visit(FunctionCallExpr & node) override;
 			virtual void visit(CompoundStmt & node) override;
