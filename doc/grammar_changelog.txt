@@ -107,3 +107,17 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 		<array_or_member_access>	= <primary> { <suffix> }
 	~ Changed <exp_expr> rule
 		<exp_expr>	= <array_or_member_access> [ <exponent_operator> <prefix_expr> ]
+
+* 0.13.0
+	Note: Reverting some earlier changes, and finalizing the operator precedence to be more akin to C#/Java/C++'s/Etc..
+	~ Modified <suffix>
+		<suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
+					   ^^^^					 ^^^^^^^^^^^^^^^^^^^^^
+	~ Renamed <decl_call> to <declref>, and modified it
+		<declref> = <id>
+		 ^^^^^^^^		 ^^^^^^^^^^^^^^
+	~ Renamed <array_or_member_access> to <suffix_expr>
+		<suffix_expr> = <primary> { <suffix> }
+		^^^^^^^^^^^^
+
+
