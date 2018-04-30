@@ -67,7 +67,6 @@ namespace Moonshot
 			{ binaryOperator::EQUAL				, "EQUAL" },
 			{ binaryOperator::NOTEQUAL			, "NOTEQUAL" },
 			{ binaryOperator::ASSIGN_BASIC		, "ASSIGN_BASIC" },
-			{ binaryOperator::DOT_MEMBER_ACCESS , "DOT_MEMBER_ACCESS" }
 		};
 
 		const std::map<unaryOperator, std::string> kUnaryOpToStr_dict =
