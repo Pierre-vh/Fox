@@ -103,17 +103,17 @@ TEST(ASTTests, ASTContextArrayTypes)
 {
 	ASTContext actxt;
 
-	auto primBool = actxt.getPrimitiveBoolType();
-	auto primFloat = actxt.getPrimitiveFloatType();
-	auto primInt = actxt.getPrimitiveIntType();
-	auto primChar = actxt.getPrimitiveCharType();
-	auto primString = actxt.getPrimitiveStringType();
+	const Type* primBool = actxt.getPrimitiveBoolType();
+	const Type* primFloat = actxt.getPrimitiveFloatType();
+	const Type* primInt = actxt.getPrimitiveIntType();
+	const Type* primChar = actxt.getPrimitiveCharType();
+	const Type* primString = actxt.getPrimitiveStringType();
 
-	auto boolArr	= actxt.getArrayTypeForType(primBool);
-	auto floatArr	= actxt.getArrayTypeForType(primFloat);
-	auto intArr		= actxt.getArrayTypeForType(primInt);
-	auto charArr	= actxt.getArrayTypeForType(primChar);
-	auto strArr		= actxt.getArrayTypeForType(primString);
+	const Type* boolArr	= actxt.getArrayTypeForType(primBool);
+	const Type* floatArr	= actxt.getArrayTypeForType(primFloat);
+	const Type* intArr		= actxt.getArrayTypeForType(primInt);
+	const Type* charArr	= actxt.getArrayTypeForType(primChar);
+	const Type* strArr		= actxt.getArrayTypeForType(primString);
 
 
 	// Check that pointers aren't null
@@ -124,11 +124,11 @@ TEST(ASTTests, ASTContextArrayTypes)
 	ASSERT_TRUE(strArr)		<< "Pointer is null";
 
 	// Check that itemTypes are correct
-	EXPECT_EQ(boolArr->getItemTy(), primBool);
-	EXPECT_EQ(floatArr->getItemTy(), primFloat);
-	EXPECT_EQ(intArr->getItemTy(), primInt);
-	EXPECT_EQ(charArr->getItemTy(), primChar);
-	EXPECT_EQ(strArr->getItemTy(), primString);
+	EXPECT_EQ((dynamic_cast<const ArrayType*>(boolArr))->getItemTy(), primBool);
+	EXPECT_EQ((dynamic_cast<const ArrayType*>(floatArr))->getItemTy(), primFloat);
+	EXPECT_EQ((dynamic_cast<const ArrayType*>(intArr))->getItemTy(), primInt);
+	EXPECT_EQ((dynamic_cast<const ArrayType*>(charArr))->getItemTy(), primChar);
+	EXPECT_EQ((dynamic_cast<const ArrayType*>(strArr))->getItemTy(), primString);
 
 	// Checks that they're different
 	EXPECT_NE(boolArr, floatArr);
@@ -261,8 +261,8 @@ TEST(ASTTests, DeclRecorderTests)
 TEST(ASTTests, TypeKinds)
 {
 	ASTContext astctxt;
-	auto intTy = astctxt.getPrimitiveIntType();
-	auto arrIntTy = astctxt.getArrayTypeForType(intTy);
+	const Type* intTy = astctxt.getPrimitiveIntType();
+	const Type* arrIntTy = astctxt.getArrayTypeForType(intTy);
 
 	EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
 	EXPECT_EQ(arrIntTy->getKind(), TypeKind::ArrayType);
