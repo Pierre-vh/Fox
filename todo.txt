@@ -27,8 +27,6 @@ TODO:
 			> Create DeclNodes,ExprNodes,TypeNodes and StmtNodes.def files (Done)
 			> Add the "Kind" to every expr/type/decl/stmt node (Done)
 			> ASTVisitor (class that visits a tree however it likes to)
-			> TODO: Delete the "Default" constructors of VarDecl and FuncDecl, change the parser so it doesn't call them anymore. 
-			  For now I've left them just as a temporary fix.
 			> Maybe an ASTWalker.
 
 	> Delete old ASTVisitor & Dumper 
