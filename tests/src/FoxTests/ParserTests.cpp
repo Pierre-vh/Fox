@@ -163,25 +163,18 @@ TEST(ParserTests,ExpressionsStmt)
 	EXPECT_TRUE(tester.runTest(true)) << tester.getLatestFailureMessage();
 }
 
-TEST(ParserTests, DeclCall)
+TEST(ParserTests, DeclRef)
 {
-	// Correct inputs
 	std::string corr_path = "parser/inputs/declcall/correct.fox";
-	std::string bad_path = "parser/inputs/declcall/incorrect.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseDeclRef();
 		return res.isUsable();
 	});
-	// Correct inputs
 	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::INDIVIDUAL_LINES, corr_path)) << "Could not open file \"" << corr_path << '"';
 	EXPECT_TRUE(tester.runTest()) << tester.getLatestFailureMessage();
-	tester.clearInputs();
-	// Incorrect inputs
-	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::WHOLE_FILE, bad_path)) << "Could not open file \"" << bad_path << '"';
-	EXPECT_TRUE(tester.runTest(true)) << tester.getLatestFailureMessage();
 }
 
-TEST(ParserTests, VarDecl)
+TEST(ParserTests, VarDecls)
 {
 	// Correct inputs
 	std::string corr_path = "parser/inputs/var_decls/correct.fox";
