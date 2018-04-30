@@ -58,7 +58,8 @@ ABSTRACT_STMT(Expr,Stmt)
 	EXPR(ArrayLiteralExpr,Expr)
 
 	// DeclRef & Function calls
-	EXPR(DeclRef,Expr)
+	EXPR(DeclRefExpr,Expr)
+	EXPR(MemberOfExpr,Expr)
 	EXPR(FunctionCallExpr,Expr)
 
 /* Undef */

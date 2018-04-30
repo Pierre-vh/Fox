@@ -204,6 +204,24 @@ namespace Moonshot
 			IdentifierInfo * declId_;
 	};
 
+	// Represents a dot syntax "member of" expr.
+	// eg : Fox.io, Fox.foo, etc
+	class MemberOfExpr : public Expr
+	{
+		public:
+			MemberOfExpr(std::unique_ptr<Expr> base = nullptr, IdentifierInfo *idInfo = nullptr);
+			void accept(IVisitor& vis) override;
+
+			Expr* getBase();
+			void setBase(std::unique_ptr<Expr> expr);
+
+			IdentifierInfo* getMemberName();
+			void setMemberName(IdentifierInfo* idInfo);
+		private:
+			std::unique_ptr<Expr> base_;
+			IdentifierInfo *membName_;
+	};
+
 	// Arrays accesses : foo[0], etc.
 	class ArrayAccessExpr : public Expr
 	{

@@ -300,7 +300,7 @@ void CastExpr::setChild(std::unique_ptr<Expr> nc)
 }
 
 // DeclRefs
-DeclRefExpr::DeclRefExpr(IdentifierInfo * declid) : declId_(declid), Expr(StmtKind::DeclRef)
+DeclRefExpr::DeclRefExpr(IdentifierInfo * declid) : declId_(declid), Expr(StmtKind::DeclRefExpr)
 {
 
 }
@@ -351,6 +351,37 @@ void FunctionCallExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
+// MemberOf Expr
+MemberOfExpr::MemberOfExpr(std::unique_ptr<Expr> base, IdentifierInfo * idInfo) : Expr(StmtKind::MemberOfExpr), base_(std::move(base)), membName_(idInfo)
+{
+
+}
+void MemberOfExpr::accept(IVisitor& vis)
+{
+	vis.visit(*this);
+}
+
+Expr * MemberOfExpr::getBase()
+{
+	return base_.get();
+}
+
+void MemberOfExpr::setBase(std::unique_ptr<Expr> expr)
+{
+	base_ = std::move(expr);
+}
+
+IdentifierInfo * MemberOfExpr::getMemberName()
+{
+	return membName_;
+}
+
+void MemberOfExpr::setMemberName(IdentifierInfo * idInfo)
+{
+	membName_ = idInfo;
+}
+
+// Array Access
 ArrayAccessExpr::ArrayAccessExpr(std::unique_ptr<Expr> expr, std::unique_ptr<Expr> idxexpr) :
 	base_(std::move(expr)), accessIdxExpr_(std::move(idxexpr)), Expr(StmtKind::ArrayAccessExpr)
 {
