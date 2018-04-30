@@ -50,14 +50,14 @@ static const std::map<unaryOperator, std::string> kUnaryOpToStr_dict =
 std::string Operators::toString(const binaryOperator & op)
 {
 	auto it = kBinopToStr_dict.find(op);
-	assert((it != kBinopToStr_dict.end()) && "Unknown operator?"));
+	assert((it != kBinopToStr_dict.end()) && "Unknown operator?");
 	return it->second;
 }
 
 std::string Operators::toString(const unaryOperator & op)
 {
 	auto it = kUnaryOpToStr_dict.find(op);
-	assert((it != kUnaryOpToStr_dict.end()) && "Unknown operator?"));
+	assert((it != kUnaryOpToStr_dict.end()) && "Unknown operator?");
 	return it->second;
 }
 
