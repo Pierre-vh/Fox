@@ -274,19 +274,17 @@ namespace Moonshot
 	{
 		public:
 			FunctionCallExpr() = default;
-			FunctionCallExpr(std::unique_ptr<DeclRefExpr> base, std::unique_ptr<ExprList> elist = nullptr);
+			FunctionCallExpr(std::unique_ptr<Expr> base, std::unique_ptr<ExprList> elist = nullptr);
 
-			DeclRefExpr * getCallee() ;
-			void setCallee(std::unique_ptr<DeclRefExpr> base);
+			Expr * getCallee() ;
+			void setCallee(std::unique_ptr<Expr> base);
 
 			ExprList* getExprList();
 			void setExprList(std::unique_ptr<ExprList> elist);
 
 			void accept(IVisitor& vis) override;
 		private:
-			// the Function's name
-			std::unique_ptr<DeclRefExpr> callee_;
-			// it's args
+			std::unique_ptr<Expr> callee_;
 			std::unique_ptr<ExprList> args_;
 	};
 }
