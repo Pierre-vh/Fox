@@ -37,9 +37,6 @@ namespace Moonshot
 
 		// Assignement
 		ASSIGN_BASIC,		// =
-
-		// Member access
-		DOT_MEMBER_ACCESS	// .
 	};
 	enum class unaryOperator
 	{
