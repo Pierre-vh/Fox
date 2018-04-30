@@ -19,25 +19,23 @@ using namespace Moonshot;
 // note, here the unique_ptr is passed by reference because it will be consumed (moved -> nulled) only if a '[' is found, else, it's left untouched.
 Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 {
-	// <suffix>	 = '.' <decl_call> | '[' <expr> ']'
+	// <suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
 
-	// "." <decl_call> 
+	// "." <id> 
 	// '.'
 	if (consumeSign(SignType::S_DOT))
 	{
-		// <decl_call>
-		if (auto decl_call = parseDeclCall())
+		// <id>
+		if (auto id = consumeIdentifier())
 		{
 			// found, return
 			return ExprResult(
-				std::make_unique<BinaryExpr>(binaryOperator::DOT_MEMBER_ACCESS,std::move(base), decl_call.move())
+				std::make_unique<MemberOfExpr>(std::move(base),id)
 			);
 		}
 		else 
 		{
-			// not found
-			if (!decl_call.wasSuccessful())
-				errorExpected("Expected an identifier");
+			errorExpected("Expected an identifier");
 			return ExprResult::Error();
 		}
 	}
@@ -78,32 +76,29 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 			}
 		}
 	}
+	// <parens_expr_list>
+	else if (auto exprlist = parseParensExprList())
+	{
+		return ExprResult(std::make_unique<FunctionCallExpr>(
+				std::move(base),
+				exprlist.move()
+			));
+	}
+	else if (!exprlist.wasSuccessful())
+		return ExprResult::Error();
 
 	return ExprResult::NotFound();
 }
 
-Parser::ExprResult Parser::parseDeclCall()
+Parser::ExprResult Parser::parseDeclRef()
 {
-	// <decl_call>	 = <id> [ <parens_expr_list> ]
+	// Note: this rule is quite simple and is essentially just a "wrapper"
+	// however I'm keeping it for clarity, and future usages where DeclRef might get more complex, if it ever 
+	// does
 
-	// <id>
+	// <decl_call> = <id> 
 	if (auto id = consumeIdentifier())
-	{
-		// [ <parens_expr_list> ]
-		auto declref = std::make_unique<DeclRefExpr>(id);
-		if (auto exprlist = parseParensExprList())
-		{
-			return ExprResult(std::make_unique<FunctionCallExpr>(
-				std::move(declref),
-				exprlist.move()
-				));
-		}
-		else if (!exprlist.wasSuccessful())
-			return ExprResult::Error();
-		else // not expr list -> it's just an identifier!
-			return ExprResult(std::move(declref));
-
-	}
+		return ExprResult(std::make_unique<DeclRefExpr>(id));
 	return ExprResult::NotFound();
 }
 
@@ -185,7 +180,7 @@ Parser::ExprResult Parser::parsePrimary()
 		return ExprResult::Error();
 
 	// = <decl_call>
-	if (auto declcall = parseDeclCall())
+	if (auto declcall = parseDeclRef())
 		return declcall;
 	else if(!declcall.wasSuccessful())
 		return ExprResult::Error();
@@ -199,7 +194,7 @@ Parser::ExprResult Parser::parsePrimary()
 	return ExprResult::NotFound();
 }
 
-Parser::ExprResult Parser::parseArrayOrMemberAccess()
+Parser::ExprResult Parser::parseSuffixExpr()
 {
 	// <array_or_member_access>	= <primary> { <suffix> }
 	if (auto prim = parsePrimary())
@@ -225,7 +220,7 @@ Parser::ExprResult Parser::parseExponentExpr()
 {
 	// <exp_expr>	= <array_or_member_access> [ <exponent_operator> <prefix_expr> ]
 	// <member_access>
-	if (auto lhs = parseArrayOrMemberAccess())
+	if (auto lhs = parseSuffixExpr())
 	{
 		// <exponent_operator> 
 		if (parseExponentOp())

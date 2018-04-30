@@ -87,12 +87,12 @@ namespace Moonshot
 			ExprListResult parseParensExprList();
 			ExprResult parseParensExpr(const bool& isMandatory = false);
 			ExprResult parseSuffix(std::unique_ptr<Expr> &base);
-			ExprResult parseDeclCall();
+			ExprResult parseDeclRef();
 			ExprResult parsePrimitiveLiteral();
 			ExprResult parseArrayLiteral();
 			ExprResult parseLiteral();
 			ExprResult parsePrimary();
-			ExprResult parseArrayOrMemberAccess();
+			ExprResult parseSuffixExpr();
 			ExprResult parseExponentExpr();
 			ExprResult parsePrefixExpr();
 			ExprResult parseCastExpr();
