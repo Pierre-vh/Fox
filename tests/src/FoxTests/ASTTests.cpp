@@ -308,7 +308,11 @@ TEST(ASTTests, ExprKinds)
 
 	// DeclRef
 	DeclRefExpr declref(fooid);
-	EXPECT_EQ(declref.getKind(), StmtKind::DeclRef);
+	EXPECT_EQ(declref.getKind(), StmtKind::DeclRefExpr);
+
+	// MemberOfExpr
+	MemberOfExpr membof;
+	EXPECT_EQ(membof.getKind(), StmtKind::MemberOfExpr);
 
 	// Array Access
 	ArrayAccessExpr arracc(std::make_unique<NullExpr>(), std::make_unique<NullExpr>());
