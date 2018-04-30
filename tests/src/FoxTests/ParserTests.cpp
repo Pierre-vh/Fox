@@ -169,7 +169,7 @@ TEST(ParserTests, DeclCall)
 	std::string corr_path = "parser/inputs/declcall/correct.fox";
 	std::string bad_path = "parser/inputs/declcall/incorrect.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
-		auto res = parse.parseDeclCall();
+		auto res = parse.parseDeclRef();
 		return res.isUsable();
 	});
 	// Correct inputs
