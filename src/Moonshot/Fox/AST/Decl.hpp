@@ -79,13 +79,13 @@ namespace Moonshot
 			using ArgVecIter = DereferenceIterator<ArgVecTy::iterator>;
 			using ArgVecConstIter = DereferenceIterator<ArgVecTy::const_iterator>;
 		public:
-			FunctionDecl(const Type* returnType = nullptr, IdentifierInfo* fnId = nullptr, std::unique_ptr<CompoundStmt> funcbody = nullptr);
+			FunctionDecl(Type* returnType = nullptr, IdentifierInfo* fnId = nullptr, std::unique_ptr<CompoundStmt> funcbody = nullptr);
 
 			virtual void accept(IVisitor& vis) override;
 			virtual bool isValid() override;
 
-			void setReturnType(const Type* ty);
-			const Type* getReturnType() const;
+			void setReturnType(Type* ty);
+			Type* getReturnType();
 
 			void setBody(std::unique_ptr<CompoundStmt> arg);
 			CompoundStmt* getBody();		
@@ -100,7 +100,7 @@ namespace Moonshot
 			ArgVecIter args_end();
 			ArgVecConstIter args_end() const;
 		private:
-			const Type* returnType_ = nullptr;
+			Type* returnType_ = nullptr;
 			ArgVecTy args_;
 			std::unique_ptr<CompoundStmt> body_;
 	};

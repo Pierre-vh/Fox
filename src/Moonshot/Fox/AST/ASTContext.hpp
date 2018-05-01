@@ -48,15 +48,15 @@ namespace Moonshot
 			// Once ownership is taken, it returns a observing pointer to that unit.
 			UnitDecl* addUnit(std::unique_ptr<UnitDecl> unit);
 
-			const PrimitiveType* getPrimitiveIntType() const;
-			const PrimitiveType* getPrimitiveFloatType() const;
-			const PrimitiveType* getPrimitiveCharType() const;
-			const PrimitiveType* getPrimitiveBoolType() const;
-			const PrimitiveType* getPrimitiveStringType() const;
-			const PrimitiveType* getPrimitiveVoidType() const;
+			PrimitiveType* getPrimitiveIntType();
+			PrimitiveType* getPrimitiveFloatType();
+			PrimitiveType* getPrimitiveCharType();
+			PrimitiveType* getPrimitiveBoolType();
+			PrimitiveType* getPrimitiveStringType();
+			PrimitiveType* getPrimitiveVoidType();
 
 			// Returns an ArrayType for a given type.
-			const ArrayType* getArrayTypeForType(const Type* ty);
+			ArrayType* getArrayTypeForType(Type* ty);
 
 			// The Identifier table.
 			// It's public because it should be accessible by everyone.
@@ -89,6 +89,6 @@ namespace Moonshot
 			std::unique_ptr<PrimitiveType> primitiveStringTy_ = nullptr;
 
 			// Array types
-			std::map<const Type*, std::unique_ptr<ArrayType>> arrayTypes_;
+			std::map<Type*, std::unique_ptr<ArrayType>> arrayTypes_;
 	};
 }

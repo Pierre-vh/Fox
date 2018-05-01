@@ -115,7 +115,7 @@ bool PrimitiveType::isVoid() const
 }
 
 /* Array type */
-ArrayType::ArrayType(const Type* ty) : itemTy_(ty), BuiltinType(TypeKind::ArrayType)
+ArrayType::ArrayType(Type* ty) : itemTy_(ty), BuiltinType(TypeKind::ArrayType)
 {
 	assert(ty && "The Array item type cannot be null!");
 }
@@ -130,7 +130,7 @@ std::string ArrayType::getString() const
 	return itemTy_->getString() + "[]";
 }
 
-const Type* ArrayType::getItemTy() const
+Type* ArrayType::getItemTy()
 {
 	return itemTy_;
 }
@@ -154,7 +154,7 @@ bool ArrayType::isItemTypeArray() const
 }
 
 /* QualType */
-QualType::QualType(const Type* ty, const bool & isConstant, const bool &isReference) :
+QualType::QualType(Type* ty, const bool & isConstant, const bool &isReference) :
 	ty_(ty), isConst_(isConstant), isRef_(isReference)
 {
 	assert(ty_ && "The Type cannot be null!");
@@ -193,12 +193,12 @@ std::string QualType::getString() const
 	return out.str();
 }
 
-const Type* QualType::getType() const
+Type* QualType::getType()
 {
 	return ty_;
 }
 
-void QualType::setType(const Type* ty)
+void QualType::setType(Type* ty)
 {
 	ty_ = ty;
 }

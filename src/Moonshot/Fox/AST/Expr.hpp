@@ -127,17 +127,17 @@ namespace Moonshot
 	class CastExpr : public Expr
 	{
 		public:
-			CastExpr(const Type* castGoal,std::unique_ptr<Expr> child = nullptr);
+			CastExpr(Type* castGoal,std::unique_ptr<Expr> child = nullptr);
 			
 			virtual void accept(IVisitor& vis) override;
 
-			void setCastGoal(const Type* goal);
-			const Type* getCastGoal() const;
+			void setCastGoal(Type* goal);
+			Type* getCastGoal();
 
 			Expr* getChild();
 			void setChild(std::unique_ptr<Expr> nc);
 		private:
-			const Type* goal_ = nullptr;
+			Type* goal_ = nullptr;
 			std::unique_ptr<Expr> child_;
 	};
 

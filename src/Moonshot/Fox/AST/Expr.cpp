@@ -312,7 +312,7 @@ void UnaryExpr::setOp(const unaryOperator & nop)
 }
 
 // CastExpr
-CastExpr::CastExpr(const Type* castGoal, std::unique_ptr<Expr> child):
+CastExpr::CastExpr(Type* castGoal, std::unique_ptr<Expr> child):
 	goal_(castGoal), child_(std::move(child)), Expr(StmtKind::CastExpr)
 {
 
@@ -323,13 +323,13 @@ void CastExpr::accept(IVisitor & vis)
 	vis.visit(*this);
 }
 
-void CastExpr::setCastGoal(const Type* goal)
+void CastExpr::setCastGoal(Type* goal)
 {
 	assert(goal && "Goal type cannot be null!");
 	goal_ = goal;
 }
 
-const Type* CastExpr::getCastGoal() const
+Type* CastExpr::getCastGoal()
 {
 	return goal_;
 }

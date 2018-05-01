@@ -99,19 +99,19 @@ namespace Moonshot
 	class ArrayType : public BuiltinType
 	{
 		public:
-			ArrayType(const Type* itemsTy);
+			ArrayType(Type* itemsTy);
 
 			virtual bool isArrayType() const override;
 			virtual std::string getString() const override;
 
-			const Type* getItemTy() const;
+			Type* getItemTy();
 
 			bool isItemTypePrimitive() const;
 			bool isItemTypeBuiltin() const;
 			bool isItemTypeArray() const; 
 
 		private:
-			const Type* itemTy_= nullptr;
+			Type* itemTy_= nullptr;
 	};
 
 	// QualType is a class that groups a pointer to a Type as well as qualifiers 
@@ -120,7 +120,7 @@ namespace Moonshot
 	{
 		public:
 			QualType() = default;
-			QualType(const Type* ty, const bool& isConstant = false,const bool &isReference = false);
+			QualType(Type* ty, const bool& isConstant = false,const bool &isReference = false);
 
 			// Const
 			bool isConstant() const;
@@ -135,14 +135,14 @@ namespace Moonshot
 			std::string getString() const;
 
 			// Returns the Type pointer (ty_)
-			const Type* getType() const;
-			void setType(const Type* ty);
+			Type* getType();
+			void setType(Type* ty);
 
 			// Checks if this QualType is valid (ty_ != nullptr)
 			bool isValid() const;
 			operator bool() const;
 		private:
-			const Type* ty_ = nullptr;
+			Type* ty_ = nullptr;
 			bool isConst_ : 1;
 			bool isRef_ : 1;
 	};

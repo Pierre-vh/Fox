@@ -254,7 +254,7 @@ bool Parser::isBracket(const SignType & s) const
 	}
 }
 
-const Type* Parser::parseBuiltinTypename()
+Type* Parser::parseBuiltinTypename()
 {
 	// <builtin_type_name> 	= "int" | "float" | "bool" | "string" | "char"
 	Token t = getCurtok();
@@ -274,7 +274,7 @@ const Type* Parser::parseBuiltinTypename()
 	return nullptr;
 }
 
-Parser::Result<const Type*> Parser::parseType()
+Parser::Result<Type*> Parser::parseType()
 {
 	// <type> = <builtin_type_name> { '[' ']' }
 	// <builtin_type_name> 
@@ -292,12 +292,12 @@ Parser::Result<const Type*> Parser::parseType()
 				if (resyncToSign(SignType::S_SQ_CLOSE,/*stopAtSemi */ true ,/*shouldConsumeToken*/ true))
 					continue;
 
-				return Result<const Type*>::Error();
+				return Result<Type*>::Error();
 			}
 		}
-		return Result<const Type*>(ty);
+		return Result<Type*>(ty);
 	}
-	return Result<const Type*>::NotFound();
+	return Result<Type*>::NotFound();
 }
 
 Token Parser::getCurtok() const

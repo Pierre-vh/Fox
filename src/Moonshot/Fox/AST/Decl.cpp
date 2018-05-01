@@ -76,7 +76,7 @@ bool ArgDecl::isValid()
 }
 
 // Function Declaration
-FunctionDecl::FunctionDecl(const Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody) :
+FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody) :
 	returnType_(returnType), NamedDecl(DeclKind::FunctionDecl,fnId), body_(std::move(funcbody))
 {
 
@@ -93,13 +93,13 @@ bool FunctionDecl::isValid()
 	return returnType_ && body_ && this->hasIdentifier();
 }
 
-void FunctionDecl::setReturnType(const Type* ty)
+void FunctionDecl::setReturnType(Type* ty)
 {
 	assert(ty && "Type cannot be null!");
-	returnType_ = std::move(ty);
+	returnType_ = ty;
 }
 
-const Type* FunctionDecl::getReturnType() const
+Type* FunctionDecl::getReturnType()
 {
 	return returnType_;
 }

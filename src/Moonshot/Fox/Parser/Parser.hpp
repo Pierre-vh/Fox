@@ -125,10 +125,10 @@ namespace Moonshot
 
 			/*-------------- "Basic" Parse Methods --------------*/
 			// Returns a nullptr if no type keyword is found
-			const Type* parseBuiltinTypename();	
+			Type* parseBuiltinTypename();	
 
 			// first -> The Type* (nullptr if not found), second -> False if error
-			Result<const Type*> parseType();
+			Result<Type*> parseType();
 
 			// Parses a QualType (Full Type Spec)
 			Result<QualType> parseFQTypeSpec();

@@ -34,32 +34,32 @@ UnitDecl * ASTContext::addUnit(std::unique_ptr<UnitDecl> unit)
 	return units_.back().get();
 }
 
-const PrimitiveType* ASTContext::getPrimitiveIntType() const
+PrimitiveType* ASTContext::getPrimitiveIntType()
 {
 	return primitiveIntTy_.get();
 }
 
-const PrimitiveType* ASTContext::getPrimitiveFloatType() const
+PrimitiveType* ASTContext::getPrimitiveFloatType()
 {
 	return primitiveFloatTy_.get();
 }
 
-const PrimitiveType* ASTContext::getPrimitiveCharType() const
+PrimitiveType* ASTContext::getPrimitiveCharType()
 {
 	return primitiveCharTy_.get();
 }
 
-const PrimitiveType* ASTContext::getPrimitiveBoolType() const
+PrimitiveType* ASTContext::getPrimitiveBoolType()
 {
 	return primitiveBoolTy_.get();
 }
 
-const PrimitiveType* ASTContext::getPrimitiveStringType() const
+PrimitiveType* ASTContext::getPrimitiveStringType()
 {
 	return primitiveStringTy_.get();
 }
 
-const PrimitiveType* ASTContext::getPrimitiveVoidType() const
+PrimitiveType* ASTContext::getPrimitiveVoidType()
 {
 	return primitiveVoidTy_.get();
 }
@@ -76,7 +76,7 @@ void ASTContext::initBuiltinTypes()
 	primitiveCharTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::CharTy);
 }
 
-const ArrayType * ASTContext::getArrayTypeForType(const Type * ty)
+ArrayType * ASTContext::getArrayTypeForType(Type * ty)
 {
 	// Effective STL, Item 24 by Scott Meyers : https://stackoverflow.com/a/101980
 	auto lb = arrayTypes_.lower_bound(ty);
