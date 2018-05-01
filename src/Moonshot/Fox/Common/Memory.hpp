@@ -36,7 +36,9 @@ namespace Moonshot
 
 			}
 
-			reference operator*() const { return *(this->BaseIterator::operator*()); }
+			// Operator * returns the pointer
+			pointer operator*() const { return this->BaseIterator::operator*().get(); }
+			// Operator -> lets you access the members directly. It's equivalent to (*it)->
 			pointer operator->() const { return this->BaseIterator::operator*().get(); }
 			reference operator[](size_t n) const {
 				return *(this->BaseIterator::operator[](n));
