@@ -12,7 +12,7 @@
 #include "Moonshot/Fox/Common/Context.hpp"
 #include "Moonshot/Fox/Lexer/Lexer.hpp"
 #include "Moonshot/Fox/Parser/Parser.hpp"
-#include "Moonshot/Fox/AST/Dumper.hpp"
+#include "Moonshot/Fox/AST/ASTDumper.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
 
 #include <fstream>
@@ -62,8 +62,10 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 	astCtxt.setMainUnit(unit.move());
 
 	out << "\nMain Unit Dump:\n";
-	Dumper dump(out,1);
-	astCtxt.getMainUnit()->accept(dump);
+	
+	ASTDumper dumper(std::cout,1);
+	dumper.visit(astCtxt.getMainUnit());
+	
 	return true;
 }
 
