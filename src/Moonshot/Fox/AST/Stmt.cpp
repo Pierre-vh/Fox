@@ -7,10 +7,9 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
+#include "Stmt.hpp"
+#include "Decl.hpp"
 #include "Expr.hpp"
-#include "Expr.hpp"
-
-#include "IVisitor.hpp"
 
 using namespace Moonshot;
 
@@ -35,11 +34,6 @@ ReturnStmt::ReturnStmt(std::unique_ptr<Expr> rtr_expr) : Stmt(StmtKind::ReturnSt
 	expr_ = std::move(rtr_expr);
 }
 
-void ReturnStmt::accept(IVisitor & vis)
-{
-	vis.visit(*this);
-}
-
 bool ReturnStmt::hasExpr() const
 {
 	return (bool)expr_;
@@ -62,11 +56,6 @@ ConditionStmt::ConditionStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> t
 	setCond(std::move(cond));
 	setThen(std::move(then));
 	setElse(std::move(elsestmt));
-}
-
-void ConditionStmt::accept(IVisitor & vis)
-{
-	vis.visit(*this);
 }
 
 bool ConditionStmt::isValid() const
@@ -113,11 +102,6 @@ void ConditionStmt::setElse(std::unique_ptr<Stmt> elsestmt)
 CompoundStmt::CompoundStmt() : Stmt(StmtKind::CompoundStmt)
 {
 
-}
-
-void CompoundStmt::accept(IVisitor & vis)
-{
-	vis.visit(*this);
 }
 
 Stmt * CompoundStmt::getStmt(const std::size_t & ind)
@@ -176,11 +160,6 @@ WhileStmt::WhileStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> body) :
 	setBody(std::move(body));
 }
 
-void WhileStmt::accept(IVisitor & vis)
-{
-	vis.visit(*this);
-}
-
 Expr * WhileStmt::getCond()
 {
 	return cond_.get();
@@ -220,9 +199,4 @@ Decl * DeclStmt::getDecl()
 void DeclStmt::setDecl(std::unique_ptr<Decl> decl)
 {
 	decl_ = std::move(decl);
-}
-
-void DeclStmt::accept(IVisitor &vis)
-{
-	vis.visit(*this);
 }

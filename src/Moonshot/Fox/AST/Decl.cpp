@@ -9,7 +9,7 @@
 
 #include "Expr.hpp"
 #include "Decl.hpp"
-#include "IVisitor.hpp"
+#include "Stmt.hpp"
 
 #include <sstream>
 #include <cassert>
@@ -64,11 +64,6 @@ void ArgDecl::setType(const QualType & qt)
 	ty_ = qt;
 }
 
-void ArgDecl::accept(Moonshot::IVisitor &vis)
-{
-	vis.visit(*this);
-}
-
 bool ArgDecl::isValid()
 {
 	// Node is valid if it has a identifier_ and a valid type.
@@ -80,11 +75,6 @@ FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_p
 	returnType_(returnType), NamedDecl(DeclKind::FunctionDecl,fnId), body_(std::move(funcbody))
 {
 
-}
-
-void FunctionDecl::accept(IVisitor & vis)
-{
-	vis.visit(*this);
 }
 
 bool FunctionDecl::isValid()
@@ -160,11 +150,6 @@ VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr
 		initExpr_ = std::move(iExpr);
 }
 
-void VarDecl::accept(IVisitor& vis)
-{
-	vis.visit(*this);
-}
-
 bool VarDecl::isValid()
 {
 	// must have a type and id to be valid.
@@ -223,11 +208,6 @@ bool UnitDecl::isValid()
 {
 	// Valid if decl number >0 && has an identifier
 	return decls_.size() && this->hasIdentifier();
-}
-
-void UnitDecl::accept(IVisitor &vis)
-{
-	vis.visit(*this);
 }
 
 UnitDecl::DeclVecIter UnitDecl::decls_beg()

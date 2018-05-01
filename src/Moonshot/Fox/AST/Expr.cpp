@@ -8,7 +8,6 @@
 ////------------------------------------------------------////
 
 #include "Expr.hpp"
-#include "IVisitor.hpp"
 #include "IdentifierTable.hpp"
 
 #include <map>
@@ -78,20 +77,10 @@ NullExpr::NullExpr() : Expr(StmtKind::NullExpr)
 
 }
 
-void NullExpr::accept(IVisitor &vis)
-{
-	vis.visit(*this);
-}
-
 // Literals : Char literals
 CharLiteralExpr::CharLiteralExpr(const CharType & val) : val_(val), Expr(StmtKind::CharLiteralExpr)
 {
 
-}
-
-void CharLiteralExpr::accept(IVisitor& vis)
-{
-	vis.visit(*this);
 }
 
 CharType CharLiteralExpr::getVal() const
@@ -110,11 +99,6 @@ IntegerLiteralExpr::IntegerLiteralExpr(const IntType & val) : val_(val), Expr(St
 
 }
 
-void IntegerLiteralExpr::accept(IVisitor& vis)
-{
-	vis.visit(*this);
-}
-
 IntType IntegerLiteralExpr::getVal() const
 {
 	return val_;
@@ -129,11 +113,6 @@ void IntegerLiteralExpr::setVal(const IntType & val)
 FloatLiteralExpr::FloatLiteralExpr(const FloatType & val) : val_(val), Expr(StmtKind::FloatLiteralExpr)
 {
 
-}
-
-void FloatLiteralExpr::accept(IVisitor& vis)
-{
-	vis.visit(*this);
 }
 
 FloatType FloatLiteralExpr::getVal() const
@@ -152,11 +131,6 @@ StringLiteralExpr::StringLiteralExpr(const std::string & val) : val_(val), Expr(
 
 }
 
-void StringLiteralExpr::accept(IVisitor& vis)
-{
-	vis.visit(*this);
-}
-
 std::string StringLiteralExpr::getVal() const
 {
 	return val_;
@@ -171,11 +145,6 @@ void StringLiteralExpr::setVal(const std::string & val)
 BoolLiteralExpr::BoolLiteralExpr(const bool & val) : val_(val), Expr(StmtKind::BoolLiteralExpr)
 {
 
-}
-
-void BoolLiteralExpr::accept(IVisitor& vis)
-{
-	vis.visit(*this);
 }
 
 bool BoolLiteralExpr::getVal() const
@@ -216,23 +185,12 @@ bool ArrayLiteralExpr::isEmpty() const
 	return false; // No exprs -> it's empty
 }
 
-void ArrayLiteralExpr::accept(IVisitor &vis)
-{
-	vis.visit(*this);
-}
-
-
 // BinaryExpr
 BinaryExpr::BinaryExpr(const binaryOperator & opt, std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs):
 	op_(opt), Expr(StmtKind::BinaryExpr)
 {
 	setLHS(std::move(lhs));
 	setRHS(std::move(rhs));
-}
-
-void BinaryExpr::accept(IVisitor & vis)
-{
-	vis.visit(*this);
 }
 
 std::unique_ptr<Expr> BinaryExpr::getSimple()
@@ -286,11 +244,6 @@ UnaryExpr::UnaryExpr(const unaryOperator & opt, std::unique_ptr<Expr> node) : op
 	setChild(std::move(node));
 }
 
-void UnaryExpr::accept(IVisitor & vis)
-{
-	vis.visit(*this);
-}
-
 Expr * UnaryExpr::getChild()
 {
 	return child_.get();
@@ -318,11 +271,6 @@ CastExpr::CastExpr(Type* castGoal, std::unique_ptr<Expr> child):
 
 }
 
-void CastExpr::accept(IVisitor & vis)
-{
-	vis.visit(*this);
-}
-
 void CastExpr::setCastGoal(Type* goal)
 {
 	assert(goal && "Goal type cannot be null!");
@@ -348,11 +296,6 @@ void CastExpr::setChild(std::unique_ptr<Expr> nc)
 DeclRefExpr::DeclRefExpr(IdentifierInfo * declid) : declId_(declid), Expr(StmtKind::DeclRefExpr)
 {
 
-}
-
-void DeclRefExpr::accept(IVisitor & vis)
-{
-	vis.visit(*this);
 }
 
 IdentifierInfo * DeclRefExpr::getDeclIdentifier()
@@ -391,19 +334,10 @@ void FunctionCallExpr::setExprList(std::unique_ptr<ExprList> elist)
 	args_ = std::move(elist);
 }
 
-void FunctionCallExpr::accept(IVisitor & vis)
-{
-	vis.visit(*this);
-}
-
 // MemberOf Expr
 MemberOfExpr::MemberOfExpr(std::unique_ptr<Expr> base, IdentifierInfo * idInfo) : Expr(StmtKind::MemberOfExpr), base_(std::move(base)), membName_(idInfo)
 {
 
-}
-void MemberOfExpr::accept(IVisitor& vis)
-{
-	vis.visit(*this);
 }
 
 Expr * MemberOfExpr::getBase()
@@ -431,11 +365,6 @@ ArrayAccessExpr::ArrayAccessExpr(std::unique_ptr<Expr> expr, std::unique_ptr<Exp
 	base_(std::move(expr)), accessIdxExpr_(std::move(idxexpr)), Expr(StmtKind::ArrayAccessExpr)
 {
 	
-}
-
-void ArrayAccessExpr::accept(IVisitor & vis)
-{
-	vis.visit(*this);
 }
 
 void ArrayAccessExpr::setBase(std::unique_ptr<Expr> expr)

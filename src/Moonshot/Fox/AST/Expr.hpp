@@ -55,15 +55,15 @@ namespace Moonshot
 		std::string toString(const binaryOperator& op);
 		std::string toString(const unaryOperator& op);
 	}
-	class IVisitor;
+
 	class IdentifierInfo;
+
 	// base expression 
 	class Expr : public Stmt
 	{
 		public:
 			Expr(const StmtKind& kind);
 			inline virtual ~Expr() = 0 {}
-			virtual void accept(IVisitor& vis) = 0;
 
 			virtual bool isExpr() const override;
 	};
@@ -75,7 +75,6 @@ namespace Moonshot
 	{
 		public:
 			NullExpr();
-			virtual void accept(IVisitor &vis) override;
 	};
 
 	// Binary Expressions
@@ -85,7 +84,6 @@ namespace Moonshot
 			BinaryExpr() = default;
 			BinaryExpr(const binaryOperator &opt,std::unique_ptr<Expr> lhs = nullptr,std::unique_ptr<Expr> rhs = nullptr);
 
-			virtual void accept(IVisitor& vis) override;
 			std::unique_ptr<Expr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node 
 
 			Expr* getLHS();
@@ -110,7 +108,6 @@ namespace Moonshot
 		public: 
 			UnaryExpr() = default;
 			UnaryExpr(const unaryOperator& opt,std::unique_ptr<Expr> node = nullptr);
-			virtual void accept(IVisitor& vis) override;
 
 			Expr* getChild();
 			void setChild(std::unique_ptr<Expr> nchild);
@@ -129,8 +126,6 @@ namespace Moonshot
 		public:
 			CastExpr(Type* castGoal,std::unique_ptr<Expr> child = nullptr);
 			
-			virtual void accept(IVisitor& vis) override;
-
 			void setCastGoal(Type* goal);
 			Type* getCastGoal();
 
@@ -147,8 +142,6 @@ namespace Moonshot
 		public:
 			CharLiteralExpr(const CharType &val);
 
-			void accept(IVisitor &vis) override;
-
 			CharType getVal() const;
 			void setVal(const CharType& val);
 		private:
@@ -160,8 +153,6 @@ namespace Moonshot
 		public:
 			IntegerLiteralExpr() = default;
 			IntegerLiteralExpr(const IntType &val);
-
-			void accept(IVisitor &vis) override;
 
 			IntType getVal() const;
 			void setVal(const IntType& val);
@@ -175,8 +166,6 @@ namespace Moonshot
 			FloatLiteralExpr() = default;
 			FloatLiteralExpr(const FloatType &val);
 
-			void accept(IVisitor &vis) override;
-
 			FloatType getVal() const;
 			void setVal(const FloatType& val);
 		private:
@@ -189,8 +178,6 @@ namespace Moonshot
 			StringLiteralExpr() = default;
 			StringLiteralExpr(const std::string &val);
 
-			void accept(IVisitor &vis) override;
-
 			std::string getVal() const;
 			void setVal(const std::string& val);
 		private:
@@ -202,8 +189,6 @@ namespace Moonshot
 		public:
 			BoolLiteralExpr() = default;
 			BoolLiteralExpr(const bool &val);
-
-			void accept(IVisitor &vis) override;
 
 			bool getVal() const;
 			void setVal(const bool& val);
@@ -223,8 +208,6 @@ namespace Moonshot
 			bool hasExprList() const; 
 
 			bool isEmpty() const;
-
-			virtual void accept(IVisitor &vis);
 		private:
 			std::unique_ptr<ExprList> exprs_;
 	};
@@ -234,8 +217,6 @@ namespace Moonshot
 	{
 		public:
 			DeclRefExpr(IdentifierInfo * declid);
-
-			void accept(IVisitor& vis) override;
 			
 			IdentifierInfo * getDeclIdentifier();
 			void setDeclIdentifier(IdentifierInfo * id);
@@ -249,7 +230,6 @@ namespace Moonshot
 	{
 		public:
 			MemberOfExpr(std::unique_ptr<Expr> base = nullptr, IdentifierInfo *idInfo = nullptr);
-			void accept(IVisitor& vis) override;
 
 			Expr* getBase();
 			void setBase(std::unique_ptr<Expr> expr);
@@ -266,7 +246,6 @@ namespace Moonshot
 	{
 		public:
 			ArrayAccessExpr(std::unique_ptr<Expr> expr, std::unique_ptr<Expr> idxexpr);
-			void accept(IVisitor& vis) override;
 
 			void setBase(std::unique_ptr<Expr> expr);
 			void setAccessIndexExpr(std::unique_ptr<Expr> expr);
@@ -321,7 +300,6 @@ namespace Moonshot
 			ExprList* getExprList();
 			void setExprList(std::unique_ptr<ExprList> elist);
 
-			void accept(IVisitor& vis) override;
 		private:
 			std::unique_ptr<Expr> callee_;
 			std::unique_ptr<ExprList> args_;

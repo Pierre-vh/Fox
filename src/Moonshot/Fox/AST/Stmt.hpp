@@ -20,17 +20,14 @@ namespace Moonshot
 		#include "StmtNodes.def"
 	};
 
-	class Expr;
 	class Decl;
-	class IVisitor;
-
+	class Expr;
 	// Stmt interface
 	class Stmt
 	{
 		public:
 			Stmt(const StmtKind& skind);
 			virtual ~Stmt() = 0 {}
-			virtual void accept(IVisitor& vis) = 0;
 
 			virtual bool isExpr() const;
 
@@ -45,8 +42,6 @@ namespace Moonshot
 		public:
 			ReturnStmt(std::unique_ptr<Expr> rtr_expr = nullptr);
 
-			virtual void accept(IVisitor& vis) override;
-
 			bool hasExpr() const;
 			Expr* getExpr();
 			void setExpr(std::unique_ptr<Expr> e);
@@ -59,8 +54,6 @@ namespace Moonshot
 	{
 		public:
 			ConditionStmt(std::unique_ptr<Expr> cond = nullptr, std::unique_ptr<Stmt> then = nullptr, std::unique_ptr<Stmt> elsestmt = nullptr);
-
-			virtual void accept(IVisitor & vis) override;
 
 			bool isValid() const;
 			bool hasElse() const;
@@ -88,8 +81,6 @@ namespace Moonshot
 		public:
 			CompoundStmt();
 
-			virtual void accept(IVisitor & vis) override;
-
 			Stmt* getStmt(const std::size_t& ind);
 			Stmt* getBack();
 			void addStmt(std::unique_ptr<Stmt> stmt);
@@ -113,8 +104,6 @@ namespace Moonshot
 		public:
 			WhileStmt(std::unique_ptr<Expr> cond = nullptr, std::unique_ptr<Stmt> body = nullptr);
 
-			virtual void accept(IVisitor & vis) override;
-
 			Expr* getCond();
 			Stmt* getBody();
 
@@ -135,8 +124,6 @@ namespace Moonshot
 			bool hasDecl() const;
 			Decl* getDecl();
 			void setDecl(std::unique_ptr<Decl> decl);
-
-			virtual void accept(IVisitor &vis);
 		private:
 			std::unique_ptr<Decl> decl_ = nullptr;			
 	};
