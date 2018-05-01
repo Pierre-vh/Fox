@@ -65,4 +65,5 @@ ABSTRACT_STMT(Expr,Stmt)
 /* Undef */
 
 #undef EXPR
+#undef ABSTRACT_STMT
 #undef STMT

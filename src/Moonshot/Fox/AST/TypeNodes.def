@@ -30,5 +30,5 @@ ABSTRACT_TYPE(BuiltinType,Type)
 
 
 /* Undef */
-
+#undef ABSTRACT_TYPE
 #undef TYPE

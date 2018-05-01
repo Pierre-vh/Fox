@@ -32,4 +32,5 @@ ABSTRACT_DECL(NamedDecl,Decl)
 
 /* Undef */
 
+#undef ABSTRACT_DECL
 #undef DECL
