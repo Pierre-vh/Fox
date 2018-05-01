@@ -9,6 +9,9 @@
 // Theses flags are not to be confused with command line "flags" (or args), even if they're somewhat related to them. In the end, I expect to have 
 // a wide variety of flags used to change the interpreter's behaviour, but they won't always have a command line arg counterpart. Some might just be here
 // for tweaking or customizing the interpreter's behaviour.
+//
+// This system is currently trash, and under used. I think I'll rework it so it just becomes a "Defaults" system, which lets a user
+// retrieve the default value of some certain options. It's up to the user's (the class's) discretion to let other override it or not.
 ////------------------------------------------------------////
 
 #pragma once
