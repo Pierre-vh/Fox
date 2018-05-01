@@ -13,6 +13,7 @@
 #include "Moonshot/Fox/AST/Expr.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
 #include "Moonshot/Fox/AST/Type.hpp"
+#include "Moonshot/Fox/AST/ASTVisitor.hpp"
 
 using namespace Moonshot;
 
@@ -21,7 +22,7 @@ TEST(ASTTests, TypeFunctions)
 {
 	ASTContext astContext;
 
-	const Type* intTy = astContext.getPrimitiveIntType();
+	Type* intTy = astContext.getPrimitiveIntType();
 	ASSERT_TRUE(intTy) << "Ptr is null?";
 	
 
@@ -103,17 +104,17 @@ TEST(ASTTests, ASTContextArrayTypes)
 {
 	ASTContext actxt;
 
-	const Type* primBool = actxt.getPrimitiveBoolType();
-	const Type* primFloat = actxt.getPrimitiveFloatType();
-	const Type* primInt = actxt.getPrimitiveIntType();
-	const Type* primChar = actxt.getPrimitiveCharType();
-	const Type* primString = actxt.getPrimitiveStringType();
+	Type* primBool = actxt.getPrimitiveBoolType();
+	Type* primFloat = actxt.getPrimitiveFloatType();
+	Type* primInt = actxt.getPrimitiveIntType();
+	Type* primChar = actxt.getPrimitiveCharType();
+	Type* primString = actxt.getPrimitiveStringType();
 
-	const Type* boolArr	= actxt.getArrayTypeForType(primBool);
-	const Type* floatArr	= actxt.getArrayTypeForType(primFloat);
-	const Type* intArr		= actxt.getArrayTypeForType(primInt);
-	const Type* charArr	= actxt.getArrayTypeForType(primChar);
-	const Type* strArr		= actxt.getArrayTypeForType(primString);
+	Type* boolArr	= actxt.getArrayTypeForType(primBool);
+	Type* floatArr	= actxt.getArrayTypeForType(primFloat);
+	Type* intArr		= actxt.getArrayTypeForType(primInt);
+	Type* charArr	= actxt.getArrayTypeForType(primChar);
+	Type* strArr		= actxt.getArrayTypeForType(primString);
 
 
 	// Check that pointers aren't null
@@ -124,11 +125,11 @@ TEST(ASTTests, ASTContextArrayTypes)
 	ASSERT_TRUE(strArr)		<< "Pointer is null";
 
 	// Check that itemTypes are correct
-	EXPECT_EQ((dynamic_cast<const ArrayType*>(boolArr))->getItemTy(), primBool);
-	EXPECT_EQ((dynamic_cast<const ArrayType*>(floatArr))->getItemTy(), primFloat);
-	EXPECT_EQ((dynamic_cast<const ArrayType*>(intArr))->getItemTy(), primInt);
-	EXPECT_EQ((dynamic_cast<const ArrayType*>(charArr))->getItemTy(), primChar);
-	EXPECT_EQ((dynamic_cast<const ArrayType*>(strArr))->getItemTy(), primString);
+	EXPECT_EQ((dynamic_cast<ArrayType*>(boolArr))->getItemTy(), primBool);
+	EXPECT_EQ((dynamic_cast<ArrayType*>(floatArr))->getItemTy(), primFloat);
+	EXPECT_EQ((dynamic_cast<ArrayType*>(intArr))->getItemTy(), primInt);
+	EXPECT_EQ((dynamic_cast<ArrayType*>(charArr))->getItemTy(), primChar);
+	EXPECT_EQ((dynamic_cast<ArrayType*>(strArr))->getItemTy(), primString);
 
 	// Checks that they're different
 	EXPECT_NE(boolArr, floatArr);
@@ -145,7 +146,7 @@ TEST(ASTTests, ASTContextArrayTypes)
 }
 
 // Create a variable with a random type
-std::unique_ptr<VarDecl> makeVarDecl(ASTContext& ctxt, const std::string &name, const Type* ty)
+std::unique_ptr<VarDecl> makeVarDecl(ASTContext& ctxt, const std::string &name,Type* ty)
 {
 	return std::make_unique<VarDecl>(ctxt.identifiers.getUniqueIdentifierInfo(name), ty);
 }
@@ -261,8 +262,8 @@ TEST(ASTTests, DeclRecorderTests)
 TEST(ASTTests, TypeKinds)
 {
 	ASTContext astctxt;
-	const Type* intTy = astctxt.getPrimitiveIntType();
-	const Type* arrIntTy = astctxt.getArrayTypeForType(intTy);
+	Type* intTy = astctxt.getPrimitiveIntType();
+	Type* arrIntTy = astctxt.getArrayTypeForType(intTy);
 
 	EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
 	EXPECT_EQ(arrIntTy->getKind(), TypeKind::ArrayType);
@@ -367,4 +368,68 @@ TEST(ASTTests, DeclKinds)
 	// Unit
 	UnitDecl udecl(fooid);
 	EXPECT_EQ(udecl.getKind(), DeclKind::UnitDecl);
+}
+
+// ASTVisitor tests : Samples implementations to test if visitors works as intended
+class IsNamedDecl : public ASTVisitor<IsNamedDecl, bool>
+{
+	public:
+		bool visitNamedDecl(NamedDecl* node)
+		{
+			return true;
+		}
+};
+
+class IsExpr : public ASTVisitor<IsExpr, bool>
+{
+	public:
+		bool visitExpr(Expr* node)
+		{
+			return true;
+		}
+};
+
+class IsArrTy : public ASTVisitor<IsArrTy, bool>
+{
+	public:
+		bool visitArrayType(ArrayType* node)
+		{
+			return true;
+		}
+};
+
+TEST(ASTTests, BasicVisitorTest)
+{
+	// Context
+	ASTContext ctxt;
+
+	// Create test nodes
+	auto intlit = std::make_unique<IntegerLiteralExpr>(200);
+	auto rtr = std::make_unique<ReturnStmt>();
+	auto vardecl = std::make_unique<VarDecl>();
+	auto intTy = ctxt.getPrimitiveIntType();
+	auto arrInt = ctxt.getArrayTypeForType(intTy);
+
+	IsExpr exprVisitor;
+	IsNamedDecl declVisitor;
+	IsArrTy tyVisitor;
+
+	EXPECT_TRUE(exprVisitor.visit(intlit.get()));
+	EXPECT_FALSE(exprVisitor.visit(rtr.get()));
+	EXPECT_FALSE(exprVisitor.visit(vardecl.get()));
+	EXPECT_FALSE(exprVisitor.visit(intTy));
+	EXPECT_FALSE(exprVisitor.visit(arrInt));
+
+	EXPECT_FALSE(declVisitor.visit(intlit.get()));
+	EXPECT_FALSE(declVisitor.visit(rtr.get()));
+	EXPECT_TRUE(declVisitor.visit(vardecl.get()));
+	EXPECT_FALSE(declVisitor.visit(intTy));
+	EXPECT_FALSE(declVisitor.visit(arrInt));
+
+	EXPECT_FALSE(tyVisitor.visit(intlit.get()));
+	EXPECT_FALSE(tyVisitor.visit(rtr.get()));
+	EXPECT_FALSE(tyVisitor.visit(vardecl.get()));
+	EXPECT_FALSE(tyVisitor.visit(intTy));
+	EXPECT_TRUE(tyVisitor.visit(arrInt));
+
 }
