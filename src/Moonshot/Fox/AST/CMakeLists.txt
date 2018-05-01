@@ -6,6 +6,7 @@ add_source(
 	"ASTContext.cpp"
 	"Type.cpp"
 	"Dumper.cpp"
+	"ASTDumper.cpp"
 	"IdentifierTable.cpp"
 	"DeclRecorder.cpp"
 )
