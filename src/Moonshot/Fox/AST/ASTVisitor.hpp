@@ -73,19 +73,19 @@ namespace Moonshot
 			// Base visitStmt, visitDecl and visitType methods.
 
 			// Visit Stmt (works on Exprs too)
-			ReturnType visitStmt(Stmt* node, Args... VArgs)
+			ReturnType visitStmt(Stmt*, Args... VArgs)
 			{
 				return ReturnType();
 			}
 
 			// Visit Decl 
-			ReturnType visitDecl(Decl* node, Args... VArgs)
+			ReturnType visitDecl(Decl*, Args... VArgs)
 			{
 				return ReturnType();
 			}
 
 			// Visit Type 
-			ReturnType visitType(Type* node, Args... VArgs)
+			ReturnType visitType(Type*, Args... VArgs)
 			{
 				return ReturnType();
 			}
