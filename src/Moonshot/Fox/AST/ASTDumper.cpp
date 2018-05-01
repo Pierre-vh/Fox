@@ -44,7 +44,7 @@ void ASTDumper::visitBinaryExpr(BinaryExpr * node)
 
 void ASTDumper::visitCastExpr(CastExpr * node)
 {
-	getOut() << getBasicStmtInfo(node) << " -> to <" << node->getCastGoal()->getString() << ">\n";
+	getOut() << getBasicStmtInfo(node) << " <to: " << node->getCastGoal()->getString() << ">\n";
 	indent();
 		visit(node->getChild());
 	dedent();
@@ -52,7 +52,7 @@ void ASTDumper::visitCastExpr(CastExpr * node)
 
 void ASTDumper::visitUnaryExpr(UnaryExpr * node)
 {
-	getOut() << getBasicStmtInfo(node) << " -> Operator " << Operators::toString(node->getOp()) << '\n';
+	getOut() << getBasicStmtInfo(node) << " <op: " << Operators::toString(node->getOp()) << '>\n';
 	indent();
 		visit(node->getChild());
 	dedent();
@@ -77,7 +77,7 @@ void ASTDumper::visitArrayAccessExpr(ArrayAccessExpr * node)
 
 void ASTDumper::visitMemberOfExpr(MemberOfExpr * node)
 {
-	getOut() << getBasicStmtInfo(node) << " -> ." << node->getMemberName()->getStr() << '\n';
+	getOut() << getBasicStmtInfo(node) << " <id: \"" << node->getMemberName()->getStr() << "\">\n";
 	indent();
 		visit(node->getBase());
 	dedent();
@@ -85,7 +85,7 @@ void ASTDumper::visitMemberOfExpr(MemberOfExpr * node)
 
 void ASTDumper::visitDeclRefExpr(DeclRefExpr * node)
 {
-	getOut() << getBasicStmtInfo(node) << " -> \"" << node->getDeclIdentifier()->getStr() << "\"\n";
+	getOut() << getBasicStmtInfo(node) << " <id: \"" << node->getDeclIdentifier()->getStr() << "\">\n";
 }
 
 void ASTDumper::visitFunctionCallExpr(FunctionCallExpr * node)
@@ -121,27 +121,27 @@ void ASTDumper::visitNullExpr(NullExpr * node)
 
 void ASTDumper::visitCharLiteralExpr(CharLiteralExpr * node)
 {
-	getOut() << getBasicStmtInfo(node) << '\'' << node->getVal() << "'\n";
+	getOut() << getBasicStmtInfo(node) << " <value: '" << node->getVal() << "'\n";
 }
 
 void ASTDumper::visitIntegerLiteralExpr(IntegerLiteralExpr * node)
 {
-	getOut() << getBasicStmtInfo(node) << node->getVal() << "\n";
+	getOut() << getBasicStmtInfo(node) << " <value: " << node->getVal() << ">\n";
 }
 
 void ASTDumper::visitFloatLiteralExpr(FloatLiteralExpr * node)
 {
-	getOut() << getBasicStmtInfo(node) << node->getVal() << "\n";
+	getOut() << getBasicStmtInfo(node) << " <value: " << node->getVal() << ">\n";
 }
 
 void ASTDumper::visitBooleanLiteralExpr(BoolLiteralExpr * node)
 {
-	getOut() << getBasicStmtInfo(node) << (node->getVal() ? "true" : "false") << "\n";
+	getOut() << getBasicStmtInfo(node) << " <value: " << (node->getVal() ? "true" : "false") << ">\n";
 }
 
 void ASTDumper::visitStringLiteralExpr(StringLiteralExpr * node)
 {
-	getOut() << getBasicStmtInfo(node) << '"' << node->getVal() << "\"\n";
+	getOut() << getBasicStmtInfo(node) << " <value: " << '"' << node->getVal() << "\">\n";
 }
 
 void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr * node)
@@ -150,7 +150,7 @@ void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr * node)
 	if (node->hasExprList())
 		elemcount = node->getExprList()->size();
 
-	getOut() << getBasicStmtInfo(node) << "(" << elemcount << " elements)\n";
+	getOut() << getBasicStmtInfo(node) << " <" << elemcount << " elements>\n";
 
 	if (node->hasExprList())
 	{
@@ -169,7 +169,7 @@ void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr * node)
 
 void ASTDumper::visitCompoundStmt(CompoundStmt * node)
 {
-	getOut() << getBasicStmtInfo(node) << " (" << node->size() << " statements)\n";
+	getOut() << getBasicStmtInfo(node) << " <" << node->size() << " statements>\n";
 	indent();
 	for (auto it = node->stmts_beg(); it != node->stmts_end(); it++)
 		visit(*it);
@@ -239,7 +239,13 @@ void ASTDumper::visitReturnStmt(ReturnStmt * node)
 
 void ASTDumper::visitUnitDecl(UnitDecl * node)
 {
-	getOut() << getBasicDeclInfo(node) << " -> Id: \"" << node->getIdentifier()->getStr() << "\"\n";
+	getOut() << getBasicDeclInfo(node) << " <id: \"" << node->getIdentifier()->getStr() << "\"> <DeclRecorder " << static_cast<DeclRecorder*>(node) << ", Parent: ";
+	if (node->hasParentDeclRecorder())
+		out_ << node->getParentDeclRecorder();
+	else
+		out_ << "None";
+	out_ << ">\n";
+
 	indent();
 	for (auto it = node->decls_beg(); it != node->decls_end(); it++)
 		visit(*it);
@@ -248,7 +254,7 @@ void ASTDumper::visitUnitDecl(UnitDecl * node)
 
 void ASTDumper::visitVarDecl(VarDecl * node)
 {
-	getOut() << getBasicDeclInfo(node) << " -> Id: \"" << node->getIdentifier()->getStr() << "\" Type: <" << node->getType().getString() << ">\n";
+	getOut() << getBasicDeclInfo(node) << " <id: \"" << node->getIdentifier()->getStr() << "\"> <type: " << node->getType().getString() << ">\n";
 	if (node->hasInitExpr())
 	{
 		getOut(1) << "[Init]\n";
@@ -260,12 +266,18 @@ void ASTDumper::visitVarDecl(VarDecl * node)
 
 void ASTDumper::visitArgDecl(ArgDecl * node)
 {
-	getOut() << getBasicDeclInfo(node) << " -> Id: \"" << node->getIdentifier()->getStr() << "\" Type: <" << node->getType().getString() << ">\n";
+	getOut() << getBasicDeclInfo(node) << " <id: \"" << node->getIdentifier()->getStr() << "\"> <type: " << node->getType().getString() << ">\n";
 }
 
 void ASTDumper::visitFunctionDecl(FunctionDecl * node)
 {
-	getOut() << getBasicDeclInfo(node) << " -> Returns <" << node->getReturnType()->getString() << ">\n";
+	getOut() << getBasicDeclInfo(node) << " <return type: " << node->getReturnType()->getString() << "> <DeclRecorder " << static_cast<DeclRecorder*>(node) << ", Parent: ";
+	if (node->hasParentDeclRecorder())
+		out_ << node->getParentDeclRecorder();
+	else
+		out_ << "None";
+	out_ << ">\n";
+
 	if (node->argsSize())
 	{
 		getOut(1) << "[Args Decls]\n";
@@ -279,11 +291,12 @@ void ASTDumper::visitFunctionDecl(FunctionDecl * node)
 		}
 	}
 	// Visit the compound statement
+	getOut() << "[Body]\n";
 	if (auto body = node->getBody())
 	{
-		indent();
+		indent(2);
 			visit(body);
-		dedent();
+		dedent(2);
 	}
 }
 
