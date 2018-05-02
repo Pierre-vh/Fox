@@ -23,12 +23,9 @@ TODO:
 	> Delete old ASTVisitor & Dumper  (Done)
 	> Rewrite dumper under the new system	(Done)
 
-	> Do some polish on ASTDumper. Right now the dump is a bit rough to read, maybe try to make it prettier, or let the user enable/disable some informations? (Next)
-		> Find another way than "[RHS],[LHS] and stuff. Either stop using it totally, or print it a the beginning of the next line, like [RHS] BinaryOperator
-		> Find a clear style for the dumps and stick with it. Either use something like "id:'foo'"
+	> Do some polish on ASTDumper. (Done? Will still come back to that from time to time!)
 	> Make "MapDataIterator" work (next)
-	> Maybe an ASTWalker (Maybe? Probably not.)
-	> Write tests for the new visitor system (half done ?)
+	> Write tests for the new visitor system (Do more of them)
 
 > Sourceloc system
 	> SourceManager (a simple class that keeps track of source file contents and assigns an ID to them.)
@@ -47,6 +44,13 @@ TODO:
 > Write all the remaining tests needed.
 
 > Move all of my current diagnostics message to the new system.
-> Delete the context's system primitive diag system.
+> Delete the Context's system primitive diag system.
 
-> Semantic Analysis time ! It's going to be fun (or not :) ) !
+> Semantic Analysis.
+	> Sema class
+	> ExprSema
+		> ExprEnvironement
+	> DeclSema
+		> Scopes
+	> StmtSema
+	> Currently, no "TypeSema" because most types are trivial enough (only primitive types & arrays). They don't need over-complicated analysis.
