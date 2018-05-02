@@ -81,6 +81,13 @@ void UTF8::StringManipulator::append(std::string & str, const CharType & ch)
 	utf8::append(ch, std::back_inserter(str));
 }
 
+std::string UTF8::StringManipulator::toString(const CharType & ch)
+{
+	std::string tmp;
+	utf8::append(ch, std::back_inserter(tmp));
+	return tmp;
+}
+
 std::size_t UTF8::StringManipulator::indexOfCurrentCharacter() const
 {
 	return utf8::distance(beg_, iter_);

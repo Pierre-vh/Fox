@@ -12,9 +12,9 @@
 // CP = One codepoint. It's one or more bytes in the std::string.
 //		
 //													  getCurrentChar()
-//															|
+//															|->
 //											  peekPrevious()|	peekNext()
-//													|	    |		|
+//													|->	    |		|->
 //							>	- - --------------------------------------------------------- - -
 //	str_(input string)		>		|	CP	|	CP	|	CP	#	CP	|	CP	|	CP	|	CP	|
 //							>	- - --------------------------------------------------------- - -
@@ -68,6 +68,9 @@ namespace Moonshot::UTF8
 
 			// Appends a CharType to a std::string.
 			static void append(std::string& str, const CharType& ch);
+
+			// Converts a CharType to a std::string
+			static std::string toString(const CharType& ch);
 
 			// Returns the index of the current character in codepoints. 
 			// So, to get the codepoint of idx, use this class's advance method, and not std::string operator[]
