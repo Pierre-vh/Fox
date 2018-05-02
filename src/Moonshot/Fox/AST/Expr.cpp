@@ -365,7 +365,7 @@ void MemberOfExpr::setBase(std::unique_ptr<Expr> expr)
 	base_ = std::move(expr);
 }
 
-IdentifierInfo * MemberOfExpr::getMemberName()
+IdentifierInfo * MemberOfExpr::getMemberID()
 {
 	return membName_;
 }

@@ -237,7 +237,7 @@ namespace Moonshot
 			Expr* getBase();
 			void setBase(std::unique_ptr<Expr> expr);
 
-			IdentifierInfo* getMemberName();
+			IdentifierInfo* getMemberID();
 			void setMemberName(IdentifierInfo* idInfo);
 		private:
 			std::unique_ptr<Expr> base_;
