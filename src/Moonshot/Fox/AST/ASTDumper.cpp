@@ -27,7 +27,7 @@ ASTDumper::ASTDumper(std::ostream & out, const uint8_t & offsettabs) : out_(out)
 
 void ASTDumper::visitBinaryExpr(BinaryExpr * node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " '" << getOperatorDump(node->getOp()) << "'\n";
+	dumpLine() << getBasicStmtInfo(node) << " " << getOperatorDump(node->getOp()) << "\n";
 
 	// Print LHS 
 	dumpLine(1) << "[LHS]\n";
@@ -52,7 +52,7 @@ void ASTDumper::visitCastExpr(CastExpr * node)
 
 void ASTDumper::visitUnaryExpr(UnaryExpr * node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " '" << getOperatorDump(node->getOp()) << "'\n";
+	dumpLine() << getBasicStmtInfo(node) << " " << getOperatorDump(node->getOp()) << "\n";
 	indent();
 		visit(node->getChild());
 	dedent();
@@ -417,15 +417,15 @@ std::string ASTDumper::getBasicTypeInfo(Type * type) const
 std::string ASTDumper::getOperatorDump(const binaryOperator & op) const
 {
 	if (dumpOperatorsAsNames_)
-		return Operators::getName(op);
-	return Operators::toString(op);
+		return "'" + Operators::getName(op) + "'";
+	return "'" + Operators::toString(op) + "'";
 }
 
 std::string ASTDumper::getOperatorDump(const unaryOperator & op) const
 {
 	if (dumpOperatorsAsNames_)
-		return Operators::getName(op);
-	return Operators::toString(op);
+		return "'" + Operators::getName(op) + "'";
+	return "'" + Operators::toString(op) + "'";
 }
 
 void ASTDumper::indent(const uint8_t & num)
