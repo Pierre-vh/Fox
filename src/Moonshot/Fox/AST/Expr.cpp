@@ -10,6 +10,7 @@
 #include "Expr.hpp"
 #include "IdentifierTable.hpp"
 
+#include <tuple>
 #include <map>
 #include <sstream> 
 #include <cassert>
@@ -17,47 +18,61 @@
 using namespace Moonshot;
 
 // Operators
-static const std::map<binaryOperator, std::string> kBinopToStr_dict =
+static const std::map<binaryOperator, std::pair<std::string,std::string>> kBinopToStr_dict =
 {
-	{ binaryOperator::DEFAULT			, "<enumdefault>" },
-	{ binaryOperator::LOGIC_AND			, "LOGIC_AND" },
-	{ binaryOperator::CONCAT			, "CONCAT" },
-	{ binaryOperator::LOGIC_OR			, "LOGIC_OR" },
-	{ binaryOperator::ADD				, "ADD" },
-	{ binaryOperator::MINUS				, "MINUS" },
-	{ binaryOperator::MUL				, "MUL" },
-	{ binaryOperator::DIV				, "DIV" },
-	{ binaryOperator::MOD				, "MOD" },
-	{ binaryOperator::EXP				, "EXP" },
-	{ binaryOperator::LESS_OR_EQUAL		, "LESS_OR_EQUAL" },
-	{ binaryOperator::GREATER_OR_EQUAL	, "GREATER_OR_EQUAL" },
-	{ binaryOperator::LESS_THAN			, "LESS_THAN" },
-	{ binaryOperator::GREATER_THAN		, "GREATER_THAN" },
-	{ binaryOperator::EQUAL				, "EQUAL" },
-	{ binaryOperator::NOTEQUAL			, "NOTEQUAL" },
-	{ binaryOperator::ASSIGN_BASIC		, "ASSIGN_BASIC" },
+	{ binaryOperator::DEFAULT			, {" " , "!INVALID!"}},
+	{ binaryOperator::LOGIC_AND			, {"&&", "LOGICAL AND"} },
+	{ binaryOperator::CONCAT			, {"+" , "CONCAT"}},
+	{ binaryOperator::LOGIC_OR			, {"||", "LOGICAL OR"}},
+	{ binaryOperator::ADD				, {"+" , "ADDITION"}},
+	{ binaryOperator::MINUS				, {"-" , "SUBSTRACTION"}},
+	{ binaryOperator::MUL				, {"*" , "MULTIPLICATION"}},
+	{ binaryOperator::DIV				, {"/" , "DIVISION"}},
+	{ binaryOperator::MOD				, {"%" , "MODULO"}},
+	{ binaryOperator::EXP				, {"**", "EXPONENT" }},
+	{ binaryOperator::LESS_OR_EQUAL		, {"<=", "LESS OR EQUAL THAN"}},
+	{ binaryOperator::GREATER_OR_EQUAL	, {">=", "GREATER OR EQUAL THAN"}},
+	{ binaryOperator::LESS_THAN			, {"<", "LESS THAN"}},
+	{ binaryOperator::GREATER_THAN		, {">", "GREATER THAN"}},
+	{ binaryOperator::EQUAL				, {"==", "EQUAL"}},
+	{ binaryOperator::NOTEQUAL			, {"!=", "NOT EQUAL"}},
+	{ binaryOperator::ASSIGN_BASIC		, {"=", "ASSIGN"}}
 };
 
-static const std::map<unaryOperator, std::string> kUnaryOpToStr_dict =
+static const std::map<unaryOperator, std::pair<std::string,std::string>> kUnaryOpToStr_dict =
 {
-	{ unaryOperator::DEFAULT	, "<enumdefault>" },
-	{ unaryOperator::LOGICNOT	, "LOGICNOT" },
-	{ unaryOperator::NEGATIVE	, "NEGATIVE" },
-	{ unaryOperator::POSITIVE	, "POSITIVE" }
+	{ unaryOperator::DEFAULT	, {" ", "!INVALID!"}},
+	{ unaryOperator::LOGICNOT	, {"!", "LOGICAL NOT"}},
+	{ unaryOperator::NEGATIVE	, {"-", "NEGATIVE"}},
+	{ unaryOperator::POSITIVE	, {"+", "POSITIVE"}}
 };
 
 std::string Operators::toString(const binaryOperator & op)
 {
 	auto it = kBinopToStr_dict.find(op);
 	assert((it != kBinopToStr_dict.end()) && "Unknown operator?");
-	return it->second;
+	return it->second.first;
 }
 
 std::string Operators::toString(const unaryOperator & op)
 {
 	auto it = kUnaryOpToStr_dict.find(op);
 	assert((it != kUnaryOpToStr_dict.end()) && "Unknown operator?");
-	return it->second;
+	return it->second.first;
+}
+
+std::string Operators::getName(const binaryOperator & op)
+{
+	auto it = kBinopToStr_dict.find(op);
+	assert((it != kBinopToStr_dict.end()) && "Unknown operator?");
+	return it->second.second;
+}
+
+std::string Operators::getName(const unaryOperator & op)
+{
+	auto it = kUnaryOpToStr_dict.find(op);
+	assert((it != kUnaryOpToStr_dict.end()) && "Unknown operator?");
+	return it->second.second;
 }
 
 // Expr

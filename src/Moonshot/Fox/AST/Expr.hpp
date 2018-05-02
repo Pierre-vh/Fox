@@ -54,6 +54,9 @@ namespace Moonshot
 	{
 		std::string toString(const binaryOperator& op);
 		std::string toString(const unaryOperator& op);
+
+		std::string getName(const binaryOperator& op);
+		std::string getName(const unaryOperator& op);
 	}
 
 	class IdentifierInfo;
