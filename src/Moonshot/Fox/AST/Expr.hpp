@@ -221,7 +221,7 @@ namespace Moonshot
 		public:
 			DeclRefExpr(IdentifierInfo * declid);
 			
-			IdentifierInfo * getDeclIdentifier();
+			IdentifierInfo * getIdentifier();
 			void setDeclIdentifier(IdentifierInfo * id);
 		private:
 			IdentifierInfo * declId_;

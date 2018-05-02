@@ -313,7 +313,7 @@ DeclRefExpr::DeclRefExpr(IdentifierInfo * declid) : declId_(declid), Expr(StmtKi
 
 }
 
-IdentifierInfo * DeclRefExpr::getDeclIdentifier()
+IdentifierInfo * DeclRefExpr::getIdentifier()
 {
 	return declId_;
 }
