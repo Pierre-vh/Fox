@@ -29,20 +29,23 @@ TODO:
 
 > Sourceloc system
 	> SourceManager (a simple class that keeps track of source file contents and assigns an ID to them.)
-		> addFromFile() 
-		> addFromString() 
-			>	both of theses 2 functions will return a lightweight "Response", with a status indicating if the operation was a success and the index
-				of the source in the sourcemanager's internal vector
-		> getSourceForID() (do not return a copy of the source, but a reference/pointer)
+		> readSourceFromFile() 
+		> addSourceFromString() 
+			> Both of theses 2 functions will return a FileID. The FileID is invalid if the operation failed.
+			> To mark a FileID as invalid, set it to std::numeric_limits<uint16_t>::max()
+		> getSourceForID() (do not return a copy of the source, but a reference to it)
+			> Whenever this is used, it should be ensured that no copies of the string are made, only references are taken! This mostly concerns the Lexer: store a reference to a std::string internally, not a vanilla std::string!
 	> SourceLoc object
-		> Current idea : store the ID + a uint32_t for the character index.
+		> Current idea : store the ID (int16) + a int32 for the character index.
 	> SourceRange 
-		a Sourceloc + an offset (uint16)
+		a Sourceloc + an offset (uint16), or just a pair for sourcelocs.
 	> Update lexer to add a sourcerange/loc to every single token
-	> Update ast so all nodes have a sourceloc/range too !
-	> Update Diagnostics & DiagnosticsEngine to support a sourceloc/sourcerange arg.
-> Write all the remaining tests needed.
+	> Update ast so all nodes have a sourceloc/range too (Will be needed, with great details, like the pos of { and } for the CP statement, etc)
+	> Update Diagnostics & DiagnosticsEngine to support a sourceloc/sourcerange arg for EVERY diagnostic.
 
+> Write tests for this new system
+
+> Modify the Parser so it supports sourcelocs and sourceranges.
 > Move all of my current diagnostics message to the new system.
 > Delete the Context's system primitive diag system.
 
