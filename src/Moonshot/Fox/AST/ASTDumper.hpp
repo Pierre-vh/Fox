@@ -87,6 +87,28 @@ namespace Moonshot
 			std::string getOperatorDump(const binaryOperator& op) const;
 			std::string getOperatorDump(const unaryOperator& op) const;
 
+			// Returns a formatted string "<DeclRecorder (adress), Parent: (adress)>"
+			std::string getDeclRecorderDump(DeclRecorder *dr) const;
+			// Returns a formatted string, "<ID:(idstring)>"
+			std::string getIdentifierDump(IdentifierInfo *id) const;
+			// Returns a formatted string  "<(label):'(type)'>
+			std::string getTypeDump(const std::string& label,Type *ty) const;
+			std::string getQualTypeDump(const std::string& label,const QualType& qt) const;
+			// Returns value enclosed with "".
+			std::string addDoubleQuotes(const std::string& str) const;
+			// Returns the value enclosed with ''
+			std::string addSingleQuotes(const std::string& str) const;
+
+			// Returns a formatted string "<(label):(value)>
+			template<typename TyA,typename TyB>
+			std::string makeKeyPairDump(TyA label,TyB value)
+			{
+				std::ostringstream ss;
+				ss << "<" << label << ":" << value << ">";
+				return ss.str();
+			}
+
+
 			void indent(const uint8_t& num = 1);
 			void dedent(const uint8_t& num = 1);
 
