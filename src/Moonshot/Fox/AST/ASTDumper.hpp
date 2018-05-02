@@ -53,12 +53,18 @@ namespace Moonshot
 			void visitArgDecl(ArgDecl* node);
 			void visitFunctionDecl(FunctionDecl* node);
 
+			// Options
+			void setPrintAllAddresses(const bool& opt);
+			bool getPrintAllAddresses() const;
+
+			void setDumpOperatorsAsNames(const bool& opt);
+			bool getDumpOperatorsAsNames() const;
 		private:
-			std::ostream &out_;
+			void initDefaultOptions();
 
 			// Prints getOffset() and getIndent() to out_ then returns out_
 			// Can add a number as parameter to add a "temporary" indent, just for this line.
-			std::ostream& getOut(const uint8_t& num = 0);
+			std::ostream& dumpLine(const uint8_t& num = 0);
 
 			// sets offset_ to the correct number of tabs required.
 			void recalculateOffset();
@@ -76,11 +82,20 @@ namespace Moonshot
 			std::string getBasicDeclInfo(Decl* decl) const;
 			std::string getBasicTypeInfo(Type* type) const;
 
+			// Dump an operator in 2 different ways, depending on dumpOperatorsAsNames_
+			// if dumpOperatorsAsNames_ = true, returns e.g. "ADDITION" instead of '+'
+			std::string getOperatorDump(const binaryOperator& op) const;
+			std::string getOperatorDump(const unaryOperator& op) const;
 
 			void indent(const uint8_t& num = 1);
 			void dedent(const uint8_t& num = 1);
 
+			std::ostream &out_;
 			std::string offset_;
 			uint16_t curIndent_ = 0, offsetTabs_ = 0;
+
+			// Options
+			bool printAllAdresses_ : 1;
+			bool dumpOperatorsAsNames_ : 1;
 	};
 }
