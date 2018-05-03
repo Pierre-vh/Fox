@@ -35,7 +35,7 @@ int main()
 {
 	setConsoleEnv();
 	std::cout << "Welcome to the Dumb Command Line Toy !\n\tMoonshot Version " << MOONSHOT_VERSION_COMPLETE << "\n";
-	std::cout << "\tUsage : Type a filename containing a single function definition or type * to exit.\n\n";
+	std::cout << "\tUsage : Enter a path to a fox source file, or enter * to exit.\n\n";
 
 	std::string uinput = "";
 	while (1)
