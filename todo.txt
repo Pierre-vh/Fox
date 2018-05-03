@@ -22,15 +22,12 @@ TODO:
 	> Visitor system rework (Done)
 	> Delete old ASTVisitor & Dumper  (Done)
 	> Rewrite dumper under the new system	(Done)
+	> Make "MapDataIterator" work (Done)
+	> Do some polish on ASTDumper. Right now the dump is a bit rough to read, maybe try to make it prettier, or let the user enable/disable some informations? (Done? Will come back to that from time to time)
+	
+	> Write tests for the new visitor system (Next - Do more of them)
 
-	> Do some polish on ASTDumper. Right now the dump is a bit rough to read, maybe try to make it prettier, or let the user enable/disable some informations? (Next)
-		> Find another way than "[RHS],[LHS] and stuff. Either stop using it totally, or print it a the beginning of the next line, like [RHS] BinaryOperator
-		> Find a clear style for the dumps and stick with it. Either use something like "id:'foo'"
-	> Make "MapDataIterator" work (next)
-	> Maybe an ASTWalker (Maybe? Probably not.)
-	> Write tests for the new visitor system (half done ?)
-
-> Sourceloc system
+> Sourceloc & SourceManager system
 	> SourceManager (a simple class that keeps track of source file contents and assigns an ID to them.)
 		> addFromFile() 
 		> addFromString() 
@@ -50,3 +47,7 @@ TODO:
 > Delete the context's system primitive diag system.
 
 > Semantic Analysis time ! It's going to be fun (or not :) ) !
+
+
+Other General Ideas
+	> ASTWalker? Probably not with the current system. (Not really needed + over-complicated)
