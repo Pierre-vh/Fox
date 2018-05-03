@@ -59,6 +59,7 @@ namespace Moonshot
 
 			void setDumpOperatorsAsNames(const bool& opt);
 			bool getDumpOperatorsAsNames() const;
+
 		private:
 			void initDefaultOptions();
 
@@ -101,7 +102,7 @@ namespace Moonshot
 
 			// Returns a formatted string "<(label):(value)>
 			template<typename TyA,typename TyB>
-			std::string makeKeyPairDump(TyA label,TyB value)
+			std::string makeKeyPairDump(TyA label,TyB value) const
 			{
 				std::ostringstream ss;
 				ss << "<" << label << ":" << value << ">";
