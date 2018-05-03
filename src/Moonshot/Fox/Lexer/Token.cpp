@@ -19,7 +19,7 @@
 #include "Moonshot/Fox/Common/Context.hpp"
 #include "Moonshot/Fox/Common/Utils.hpp"
 #include "Moonshot/Fox/Common/Exceptions.hpp"
-#include "Moonshot/Fox/AST/IdentifierTable.hpp"
+#include "Moonshot/Fox/AST/Identifiers.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
 
 using namespace Moonshot;

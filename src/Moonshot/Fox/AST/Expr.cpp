@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "Expr.hpp"
-#include "IdentifierTable.hpp"
+#include "Identifiers.hpp"
 
 #include <tuple>
 #include <map>

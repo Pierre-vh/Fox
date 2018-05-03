@@ -10,7 +10,7 @@
 #include "gtest/gtest.h"
 #include "TestUtils/TestUtils.hpp"
 
-#include "Moonshot/Fox/AST/IdentifierTable.hpp"
+#include "Moonshot/Fox/AST/Identifiers.hpp"
 
 #include <algorithm>
 #include <string>

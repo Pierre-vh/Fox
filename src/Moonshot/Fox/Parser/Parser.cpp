@@ -14,7 +14,7 @@
 #include <sstream>
 #include <cassert>
 #include <iostream>
-#include "Moonshot/Fox/AST/IdentifierTable.hpp"
+#include "Moonshot/Fox/AST/Identifiers.hpp"
 #include "Moonshot/Fox/Common/Context.hpp"
 #include "Moonshot/Fox/Common/Exceptions.hpp"
 

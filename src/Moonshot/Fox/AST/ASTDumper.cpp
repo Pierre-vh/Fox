@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "ASTDumper.hpp"
-#include "IdentifierTable.hpp"
+#include "Identifiers.hpp"
 
 #include <string>
 #include <exception>
