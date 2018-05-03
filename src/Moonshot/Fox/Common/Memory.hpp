@@ -21,7 +21,7 @@ namespace Moonshot
 	using UniquePtrVector = std::vector<std::unique_ptr<Ty>>;
 	
 	// Iterator wrapper for iterators that point to a unique_ptr that won't expose the unique_ptr, but 
-	// use .get() to only expose the raw pointer.
+	// uses .get() to only expose the raw pointer.
 	// Based on an article https://jonasdevlieghere.com/containers-of-unique-pointers/
 	template <typename BaseIterator>
 	class DereferenceIterator : public BaseIterator
@@ -40,8 +40,8 @@ namespace Moonshot
 			pointer operator*() const { return this->BaseIterator::operator*().get(); }
 			// Operator -> lets you access the members directly. It's equivalent to (*it)->
 			pointer operator->() const { return this->BaseIterator::operator*().get(); }
-			reference operator[](size_t n) const {
-				return *(this->BaseIterator::operator[](n));
+			pointer operator[](size_t n) const {
+				return (this->BaseIterator::operator[](n).get());
 			}
 	};
 }
