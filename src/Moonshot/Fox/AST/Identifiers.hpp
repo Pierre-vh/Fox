@@ -1,12 +1,13 @@
 ///------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : IdentifierTable.hpp											
+// File : Identifiers.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file contains the IdentifierTable, which is a class
 // that manages a "table" of identifiers. Every lexed user-defined 
 // identifier ends up here.
+// This file also contains the "IdentifierInfo" class
 //
 // The main goal of this class is 2 fold.
 // 1 - Reduce memory usage a bit, every identifier is stored once, and then only pointers to it are stored.

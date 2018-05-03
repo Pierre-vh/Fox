@@ -1,13 +1,13 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : IdentifierTable.cpp											
+// File : Identifiers.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "IdentifierTable.hpp"
+#include "Identifiers.hpp"
 
 #include <cassert>
 
