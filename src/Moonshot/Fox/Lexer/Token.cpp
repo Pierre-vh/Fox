@@ -15,7 +15,7 @@
 #include <sstream>
 #include <cassert>
 
-#include "StringManipulator.hpp"
+#include "Moonshot/Fox/Common/StringManipulator.hpp"
 #include "Moonshot/Fox/Common/Context.hpp"
 #include "Moonshot/Fox/Common/Utils.hpp"
 #include "Moonshot/Fox/Common/Exceptions.hpp"
@@ -111,7 +111,7 @@ std::string LiteralInfo::getAsString() const
 	if (isChar())
 	{
 		std::string tmp;
-		UTF8::StringManipulator::append(tmp, get<CharType>());
+		StringManipulator::append(tmp, get<CharType>());
 		return tmp;
 	}
 	return "";
@@ -283,7 +283,7 @@ std::string Token::getAsString() const
 				ch = it->first;
 		}
 		std::string str = "";
-		UTF8::StringManipulator::append(str, ch);
+		StringManipulator::append(str, ch);
 		return str;
 	}
 	else if (std::holds_alternative<Literal>(tokenInfo_))
@@ -384,7 +384,7 @@ bool Token::specific_idSign(const std::string& str)
 
 bool Token::specific_idLiteral(Context& ctxt,const std::string& str)
 {
-	UTF8::StringManipulator strmanip;
+	StringManipulator strmanip;
 	strmanip.setStr(str);
 	if (strmanip.peekFirst() == '\'')
 	{
@@ -477,7 +477,7 @@ bool Token::validateIdentifier(Context& ctxt,const std::string & str) const
 {
 	// Identifiers : An Identifier's first letter must always be a underscore or an alphabetic letter
 	// The first character can then be followed by an underscore, a letter or a number.
-	UTF8::StringManipulator manip(str);
+	StringManipulator manip(str);
 	auto first_ch = manip.getCurrentChar();
 	if ((first_ch == '_') || iswalpha((char)first_ch))
 	{

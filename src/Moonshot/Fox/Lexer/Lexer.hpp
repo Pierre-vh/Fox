@@ -19,7 +19,7 @@
 #pragma once
 
 #include "Token.hpp"
-#include "StringManipulator.hpp"
+#include "Moonshot/Fox/Common/StringManipulator.hpp"
 
 namespace Moonshot
 {
@@ -91,6 +91,6 @@ namespace Moonshot
 			// Output
 			TokenVector	result_;		// the lexer's output !
 			//
-			UTF8::StringManipulator manip;
+			StringManipulator manip;
 	};
 }

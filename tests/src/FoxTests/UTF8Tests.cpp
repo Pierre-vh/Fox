@@ -10,7 +10,7 @@
 
 #include "gtest/gtest.h"
 #include "TestUtils/TestUtils.hpp"
-#include "Moonshot/Fox/Lexer/StringManipulator.hpp"
+#include "Moonshot/Fox/Common/StringManipulator.hpp"
 
 #include <cwctype>		// std::iswspace
 
@@ -21,7 +21,7 @@ using namespace Moonshot::Tests;
 	getTextStat : return false if exception happened, and puts e.what() inside exception_details.
 	returns true if success and places the results inside linecount, charcount, spacecount.
 */
-bool getTextStats(UTF8::StringManipulator &manip, unsigned int& linecount, unsigned int& charcount, unsigned int& spacecount, std::string exception_details = "")
+bool getTextStats(StringManipulator &manip, unsigned int& linecount, unsigned int& charcount, unsigned int& spacecount, std::string exception_details = "")
 {
 	try {
 		while (!manip.isAtEndOfStr())
@@ -54,7 +54,7 @@ TEST(UTF8Tests,BronzeHorseman)
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	// Prepare string manipulator & other variables
-	UTF8::StringManipulator manip;
+	StringManipulator manip;
 	unsigned int linecount = 1, charcount = 0, spacecount = 0;
 	manip.setStr(file_content);
 	ASSERT_TRUE(manip.isUsingACopy()) << "A copy was passed to manip, but it doesn't recognizes it!";
@@ -80,7 +80,7 @@ TEST(UTF8Tests, ASCIIDrawing)
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	// Prepare string manipulator & other variables
-	UTF8::StringManipulator manip;
+	StringManipulator manip;
 	unsigned int linecount = 1, charcount = 0, spacecount = 0;
 	manip.setStr(&file_content);
 	ASSERT_TRUE(manip.isUsingAPointer()) << "A pointer was passed to manip, but it doesn't recognize it!";
@@ -109,10 +109,10 @@ TEST(UTF8Tests, Substring)
 	std::string expected_substr;
 	std::string substr_path("lexer/utf8/bronzehorseman.substr.txt");
 	ASSERT_TRUE(readFileToString(substr_path, expected_substr)) << "Could not open test file \"" << substr_path << '"';
-	UTF8::StringManipulator::removeBOM(expected_substr);
+	StringManipulator::removeBOM(expected_substr);
 
 	// Prepare string manipulator
-	UTF8::StringManipulator manip;
+	StringManipulator manip;
 	manip.setStr(&bronze_content);
 	ASSERT_TRUE(manip.isUsingAPointer()) << "A pointer was passed to manip, but it doesn't recognize it!";
 
@@ -130,7 +130,7 @@ TEST(UTF8Tests, IndexOfCurCharValidity)
 
 	
 	// Prepare string manipulator
-	UTF8::StringManipulator manip1,manip2;
+	StringManipulator manip1,manip2;
 	manip1.setStr(bronze_content);
 	manip2.setStr(bronze_content);
 
@@ -140,7 +140,7 @@ TEST(UTF8Tests, IndexOfCurCharValidity)
 	manip2.advance(15);
 
 	// test if index is valid
-	EXPECT_EQ(15, manip1.indexOfCurrentCharacter());
+	EXPECT_EQ(15, manip1.getCurrentCodePointIndex());
 	EXPECT_EQ(manip1.getCurrentChar(), manip2.getCurrentChar());
 }
 
@@ -151,7 +151,7 @@ TEST(UTF8Tests, lineAndColumnCounting)
 	std::string lcc_path("lexer/utf8/line_column_counting.txt");
 	ASSERT_TRUE(readFileToString(lcc_path, lcc_content)) << "Could not open test file \"" << lcc_path << '"';
 
-	UTF8::StringManipulator manip;
+	StringManipulator manip;
 	manip.setStr(&lcc_content);
 
 	for (; manip.getCurrentChar() != 'A'; manip.advance()); // Advance manip all the way to A
