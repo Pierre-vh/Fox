@@ -29,34 +29,33 @@ namespace Moonshot
 	class IdentifierInfo;
 	class LookupResult;
 
-	// WIP - Doesn't work yet
-	/*
+	// An iterator that abstracts the underlying structure used by DeclRecorder to only show
+	// the DeclRecorder*
+	// Operator * returns a DeclRecorder*
+	// Operator -> Lets you directly access the NamedDecl's members.
 	template <typename BaseIterator>
 	class DeclRecorderIterator : public BaseIterator
 	{
 		public:
-			using value_type = std::remove_pointer<typename BaseIterator::mapped_type>::type;
-			using pointer = value_type * ;
-			using reference = value_type & ;
+			using value_type = typename BaseIterator::value_type::second_type;
 
 			DeclRecorderIterator(const BaseIterator &baseIt) : BaseIterator(baseIt)
 			{
-
+				static_assert((std::is_same<value_type, NamedDecl*>::value) && "Pointer type isn't a NamedDecl*");
 			}
 
-			reference operator*() const { return *(this->BaseIterator::operator*().second); }
-			pointer operator->() const { return (this->BaseIterator::operator*().second); }
-			reference operator[](size_t n) const {
-				return *(this->BaseIterator::operator[](n).second);
-			}
+			// Operator * returns the pointer
+			value_type operator*() const { return (this->BaseIterator::operator*()).second; }
+			// Operator -> lets you access the members directly. It's equivalent to (*it)->
+			value_type operator->() const { return (this->BaseIterator::operator*()).second; }
 	};
-	*/
+
 	class DeclRecorder
 	{
 		private:
 			using NamedDeclsMapTy = std::multimap<IdentifierInfo*, NamedDecl*>;
-			using NamedDeclsMapIter = NamedDeclsMapTy::iterator;
-			using NamedDeclsMapConstIter = NamedDeclsMapTy::const_iterator;
+			using NamedDeclsMapIter = DeclRecorderIterator<NamedDeclsMapTy::iterator>;
+			using NamedDeclsMapConstIter = DeclRecorderIterator<NamedDeclsMapTy::const_iterator>;
 		public:
 			DeclRecorder(DeclRecorder * parent = nullptr);
 			inline virtual ~DeclRecorder() {}
