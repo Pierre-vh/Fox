@@ -204,38 +204,40 @@ TEST(ASTTests, DeclRecorderTests)
 	v1_ok = v2_ok = v3_ok = v4_ok = v5_ok = false;
 	for (auto it = func->recordedDecls_begin(); it != func->recordedDecls_end(); it++)
 	{
-		if (it->first->getStr() == "Variable_1")
+		IdentifierInfo* id = it->getIdentifier();
+		std::string str = id->getStr();
+		if (str == "Variable_1")
 		{
-			EXPECT_EQ(it->first, var1->getIdentifier()) << "Mismatch : " << it->first->getStr() << " != " << var1->getIdentifier()->getStr();
-			EXPECT_EQ(it->second, var1.get());
+			EXPECT_EQ(id, var1->getIdentifier()) << "Mismatch : " << str << " != " << var1->getIdentifier()->getStr();
+			EXPECT_EQ(*it, var1.get());
 			ASSERT_FALSE(v1_ok) << "Variable_1 found twice?";
 			v1_ok = true;
 		}
-		else if (it->first->getStr() == "Variable_2")
+		else if (str == "Variable_2")
 		{
-			EXPECT_EQ(it->first, var2->getIdentifier()) << "Mismatch : " << it->first->getStr() << " != " << var2->getIdentifier()->getStr();
-			EXPECT_EQ(it->second, var2.get());
+			EXPECT_EQ(id, var2->getIdentifier()) << "Mismatch : " << str << " != " << var2->getIdentifier()->getStr();
+			EXPECT_EQ(*it, var2.get());
 			ASSERT_FALSE(v2_ok) << "Variable_2 found twice?";
 			v2_ok = true;
 		}
-		else if (it->first->getStr() == "Variable_3")
+		else if (str == "Variable_3")
 		{
-			EXPECT_EQ(it->first, var3->getIdentifier()) << "Mismatch : " << it->first->getStr() << " != " << var3->getIdentifier()->getStr();
-			EXPECT_EQ(it->second, var3.get());
+			EXPECT_EQ(id, var3->getIdentifier()) << "Mismatch : " << str << " != " << var3->getIdentifier()->getStr();
+			EXPECT_EQ(*it, var3.get());
 			ASSERT_FALSE(v3_ok) << "Variable_3 found twice?";
 			v3_ok = true;
 		}
-		else if (it->first->getStr() == "Variable_4")
+		else if (str == "Variable_4")
 		{
-			EXPECT_EQ(it->first, var4->getIdentifier()) << "Mismatch : " << it->first->getStr() << " != " << var4->getIdentifier()->getStr();
-			EXPECT_EQ(it->second, var4.get());
+			EXPECT_EQ(id, var4->getIdentifier()) << "Mismatch : " << str << " != " << var4->getIdentifier()->getStr();
+			EXPECT_EQ(*it, var4.get());
 			ASSERT_FALSE(v4_ok) << "Variable_4 found twice?";
 			v4_ok = true;
 		}
-		else if (it->first->getStr() == "Variable_5")
+		else if (str == "Variable_5")
 		{
-			EXPECT_EQ(it->first, var5->getIdentifier()) << "Mismatch : " << it->first->getStr() << " != " << var5->getIdentifier()->getStr();
-			EXPECT_EQ(it->second, var5.get());
+			EXPECT_EQ(id, var5->getIdentifier()) << "Mismatch : " << str << " != " << var5->getIdentifier()->getStr();
+			EXPECT_EQ(*it, var5.get());
 			ASSERT_FALSE(v5_ok) << "Variable_5 found twice?";
 			v5_ok = true;
 		}
