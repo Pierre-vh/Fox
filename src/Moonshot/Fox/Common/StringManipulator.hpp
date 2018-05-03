@@ -29,7 +29,7 @@
 #include <tuple>
 #include "Moonshot/Fox/Common/Typedefs.hpp"
 
-namespace Moonshot::UTF8
+namespace Moonshot
 {
 
 	class StringManipulator
@@ -69,13 +69,13 @@ namespace Moonshot::UTF8
 			// Appends a CharType to a std::string.
 			static void append(std::string& str, const CharType& ch);
 
-			// Returns the index of the current character in codepoints. 
-			// So, to get the codepoint of idx, use this class's advance method, and not std::string operator[]
-			// because that would return a single byte located at a completely different location.
-			std::size_t indexOfCurrentCharacter() const;
+			// Returns the index of the current character in codepoints
+			// e.g. if this returns 5, this is the 5th codepoint, but not always the 5th byte!
+			// DO NOT MIX THIS WITH std::string::operator[] AND STRING OPERATIONS!
+			std::size_t getCurrentCodePointIndex() const;
 
-			// This returns the index in the std::string of the beginning of the current cp.
-			std::size_t rawIndexOfCurrentCharacter() const;
+			// This uses std::distance to calculate the index at which the current codepoint begins in BYTES
+			std::size_t getCurrentAbsoluteIndex() const;
 
 			// Returns a pair containing the line and column for a position idx
 			static std::pair<uint32_t,uint16_t> getLineAndColumnForIndex(const std::string& str, const std::size_t &idx);

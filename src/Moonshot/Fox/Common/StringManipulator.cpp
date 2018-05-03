@@ -12,17 +12,17 @@
 
 using namespace Moonshot;
 
-UTF8::StringManipulator::StringManipulator(const std::string & str)
+StringManipulator::StringManipulator(const std::string & str)
 {
 	setStr(str);
 }
 
-std::string UTF8::StringManipulator::getStrCpy() const
+std::string StringManipulator::getStrCpy() const
 {
 	return str();
 }
 
-const std::string * UTF8::StringManipulator::getStrPtr() const
+const std::string * StringManipulator::getStrPtr() const
 {
 	if (std::holds_alternative<std::string>(data_))
 		return &(std::get<std::string>(data_));
@@ -32,35 +32,35 @@ const std::string * UTF8::StringManipulator::getStrPtr() const
 		throw std::exception("unknown variant.");
 }
 
-void UTF8::StringManipulator::setStr(std::string * str)
+void StringManipulator::setStr(std::string * str)
 {
 	data_ = str;
 	reset();
 }
 
-void UTF8::StringManipulator::setStr(const std::string & str)
+void StringManipulator::setStr(const std::string & str)
 {
 	data_ = str;
 	reset();
 }
 
-bool UTF8::StringManipulator::isUsingAPointer() const
+bool StringManipulator::isUsingAPointer() const
 {
 	return std::holds_alternative<std::string*>(data_);
 }
-bool UTF8::StringManipulator::isUsingACopy() const
+bool StringManipulator::isUsingACopy() const
 {
 	return std::holds_alternative<std::string>(data_);
 }
 
-std::string UTF8::StringManipulator::wcharToStr(const CharType & wc)
+std::string StringManipulator::wcharToStr(const CharType & wc)
 {
 	std::string rtr;
 	append(rtr, wc);
 	return rtr;
 }
 
-void UTF8::StringManipulator::removeBOM(std::string & str)
+void StringManipulator::removeBOM(std::string & str)
 {
 	if (utf8::starts_with_bom(str.begin(), str.end()))
 	{
@@ -70,28 +70,28 @@ void UTF8::StringManipulator::removeBOM(std::string & str)
 	}
 }
 
-void UTF8::StringManipulator::skipBOM(std::string::iterator & it, std::string::iterator end)
+void StringManipulator::skipBOM(std::string::iterator & it, std::string::iterator end)
 {
 	if (utf8::starts_with_bom(it, end))
 		utf8::next(it, end);
 }
 
-void UTF8::StringManipulator::append(std::string & str, const CharType & ch)
+void StringManipulator::append(std::string & str, const CharType & ch)
 {
 	utf8::append(ch, std::back_inserter(str));
 }
 
-std::size_t UTF8::StringManipulator::indexOfCurrentCharacter() const
+std::size_t StringManipulator::getCurrentCodePointIndex() const
 {
 	return utf8::distance(beg_, iter_);
 }
 
-std::size_t UTF8::StringManipulator::rawIndexOfCurrentCharacter() const
+std::size_t StringManipulator::getCurrentAbsoluteIndex() const
 {
 	return std::distance(beg_, iter_);
 }
 
-std::pair<uint32_t, uint16_t> UTF8::StringManipulator::getLineAndColumnForIndex(const std::string & locstr, const std::size_t & idx)
+std::pair<uint32_t, uint16_t> StringManipulator::getLineAndColumnForIndex(const std::string & locstr, const std::size_t & idx)
 {
 	uint32_t line	= 1;
 	uint16_t col	= 0;
@@ -109,41 +109,41 @@ std::pair<uint32_t, uint16_t> UTF8::StringManipulator::getLineAndColumnForIndex(
 	return { line,col };
 }
 
-std::pair<uint32_t, uint16_t> UTF8::StringManipulator::getLineAndColumnForCurrentCharacter() const
+std::pair<uint32_t, uint16_t> StringManipulator::getLineAndColumnForCurrentCharacter() const
 {
-	return getLineAndColumnForIndex(str(), rawIndexOfCurrentCharacter());
+	return getLineAndColumnForIndex(str(), getCurrentAbsoluteIndex());
 }
 
-void UTF8::StringManipulator::reset()
+void StringManipulator::reset()
 {
 	// set iterators
 	iter_ = str().begin();
 	end_ = str().end();
 	beg_ = str().begin();
 	// skip  bom if there is one
-	UTF8::StringManipulator::skipBOM(iter_,end_);
+	StringManipulator::skipBOM(iter_,end_);
 }
 
-void UTF8::StringManipulator::advance(const std::size_t & ind)
+void StringManipulator::advance(const std::size_t & ind)
 {
 	if (iter_ != end_)
 		utf8::advance(iter_, ind, end_);
 }
 
-void UTF8::StringManipulator::goBack(const std::size_t & ind)
+void StringManipulator::goBack(const std::size_t & ind)
 {
 	for (std::size_t k = 0; k < ind; k++)
 		utf8::prior(iter_, beg_);
 }
 
-CharType UTF8::StringManipulator::getCurrentChar() const
+CharType StringManipulator::getCurrentChar() const
 {
 	if (iter_ == end_)
 		return L'\0';
 	return utf8::peek_next(iter_,end_);
 }
 
-CharType UTF8::StringManipulator::getChar(std::size_t ind) const
+CharType StringManipulator::getChar(std::size_t ind) const
 {
 	std::string::iterator tmpit = beg_;
 
@@ -154,7 +154,7 @@ CharType UTF8::StringManipulator::getChar(std::size_t ind) const
 	return L'\0';
 }
 
-std::string UTF8::StringManipulator::substring(std::size_t beg, const std::size_t & leng) const
+std::string StringManipulator::substring(std::size_t beg, const std::size_t & leng) const
 {
 	std::string::iterator tmpit = beg_;
 	
@@ -172,14 +172,14 @@ std::string UTF8::StringManipulator::substring(std::size_t beg, const std::size_
 	return rtr;
 }
 
-CharType UTF8::StringManipulator::peekFirst() const
+CharType StringManipulator::peekFirst() const
 {
 	if (getSize()) // string needs at least 1 char
 		return utf8::peek_next(beg_,end_);
 	return L'\0';
 }
 
-CharType UTF8::StringManipulator::peekNext() const
+CharType StringManipulator::peekNext() const
 {
 	if (isAtEndOfStr())
 		return L'\0';
@@ -191,7 +191,7 @@ CharType UTF8::StringManipulator::peekNext() const
 	return L'\0';
 }
 
-CharType UTF8::StringManipulator::peekPrevious() const
+CharType StringManipulator::peekPrevious() const
 {
 	if (iter_ == beg_)
 		return L'\0';
@@ -200,7 +200,7 @@ CharType UTF8::StringManipulator::peekPrevious() const
 	return utf8::previous(tmpiter,beg_);
 }
 
-CharType UTF8::StringManipulator::peekBack() const
+CharType StringManipulator::peekBack() const
 {
 	auto tmp = end_;
 	if (getSize()) // string needs at least 1 char
@@ -208,17 +208,17 @@ CharType UTF8::StringManipulator::peekBack() const
 	return L'\0';
 }
 
-std::size_t UTF8::StringManipulator::getSize() const
+std::size_t StringManipulator::getSize() const
 {
 	return utf8::distance(beg_,end_);
 }
 
-bool UTF8::StringManipulator::isAtEndOfStr() const
+bool StringManipulator::isAtEndOfStr() const
 {
 	return iter_ == end_;
 }
 
-std::string & UTF8::StringManipulator::str()
+std::string & StringManipulator::str()
 {
 	if (std::holds_alternative<std::string>(data_))
 		return std::get<std::string>(data_);
@@ -228,7 +228,7 @@ std::string & UTF8::StringManipulator::str()
 		throw std::exception("unknown variant.");
 }
 
-const std::string & UTF8::StringManipulator::str() const
+const std::string & StringManipulator::str() const
 {
 	if (std::holds_alternative<std::string>(data_))
 		return std::get<std::string>(data_);
