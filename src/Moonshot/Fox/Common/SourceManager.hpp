@@ -36,8 +36,8 @@ namespace Moonshot
 			type get() const;
 			void set(const type& value);
 			void markAsInvalid();
-		private:
 
+		private:
 			type value_;
 	};
 
@@ -63,13 +63,13 @@ namespace Moonshot
 		public:
 			struct StoredData
 			{
-				StoredData(const std::string& name, const std::string& content) : fileName(name), fileContents(content)
+				StoredData(const std::string& name, const std::string& content) : fileName(name), str(content)
 				{
 
 				}
 
 				std::string fileName;
-				std::string fileContents;
+				std::string str;
 			};
 
 			// Load a file in memory 
@@ -80,9 +80,7 @@ namespace Moonshot
 
 			// Returns a pointer to the string that the FileID points to, or nullptr if not found
 			const std::string* getSourceForFID(const FileID& fid) const;
-			std::string *getSourceForFID(const FileID& fid);
 			const StoredData* getFileDataForFID(const FileID& fid) const;
-			StoredData* getFileDataForFID(const FileID& fid);
 
 			CompleteLoc getCompleteLocForSourceLoc(const SourceLoc& sloc) const;
 
@@ -93,6 +91,7 @@ namespace Moonshot
 
 			// Private methods
 			FileID generateNewFileID() const;
+			CharType extractCharFromStr(const std::string* str, const std::size_t& idx) const;
 
 			// Private constructor, so only the Context can create a SourceManager.
 			SourceManager() = default;
@@ -100,7 +99,7 @@ namespace Moonshot
 			// Make it non copyable
 			SourceManager(const SourceManager&) = delete;
 			SourceManager& operator=(const SourceManager&) = delete;
-
+			
 			// Member variables
 			std::map<FileID,StoredData> sources_;
 	};
@@ -111,7 +110,7 @@ namespace Moonshot
 	class SourceLoc
 	{
 		public:
-			typedef std::uint32_t idx_type;
+			typedef std::size_t idx_type;
 		
 			SourceLoc();
 			SourceLoc(const FileID& fid, const idx_type& idx);

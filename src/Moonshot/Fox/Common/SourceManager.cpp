@@ -8,6 +8,7 @@
 ////------------------------------------------------------////
 
 #include "SourceManager.hpp"
+#include "Moonshot/Fox/Common/StringManipulator.hpp"
 
 #include <fstream>
 #include <cassert>
@@ -69,14 +70,7 @@ void FileID::markAsInvalid()
 const std::string* SourceManager::getSourceForFID(const FileID& fid) const
 {
 	if (auto data = getFileDataForFID(fid))
-		return &(data->fileContents);
-	return nullptr;
-}
-
-std::string* SourceManager::getSourceForFID(const FileID& fid)
-{
-	if (auto data = getFileDataForFID(fid))
-		return &(data->fileContents);
+		return &(data->str);
 	return nullptr;
 }
 
@@ -88,38 +82,30 @@ const SourceManager::StoredData * SourceManager::getFileDataForFID(const FileID 
 	return nullptr;
 }
 
-SourceManager::StoredData * SourceManager::getFileDataForFID(const FileID & fid)
-{
-	auto it = sources_.lower_bound(fid);
-	if (it != sources_.end() && !(sources_.key_comp()(fid, it->first)))
-		return &(it->second);
-	return nullptr;
-}
-
 CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) const
 {
 	// Everything we need:
-	std::string fileName;
-	std::uint32_t line = 0;
-	std::uint16_t column = 0;
-	std::uint16_t character_index = 0;
+	std::uint32_t line = 1;
+	std::uint16_t column = 1;
+	std::uint16_t character_index = 1;
 
 	// First, extract the relevant information
 	auto fdata = getFileDataForFID(sloc.getFileID());
-	fileName = fdata->fileName;
+
+	assert(fdata && "Entry does not exists?");
 
 	// Now the rest:
-	for (std::size_t k(0); k < sloc.getIndex(); k++)
+	for (SourceLoc::idx_type k = 0; k < sloc.getIndex(); k++)
 	{
-		switch (fdata->fileContents[k])
+		switch (fdata->str[k])
 		{
 			case '\t':
 				column += TABS_COL;
 				character_index++;
 				break;
 			case '\n':
-				column = 0;
-				character_index = 0;
+				column = 1;
+				character_index = 1;
 				line++;
 				break;
 			default:
@@ -129,14 +115,13 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 		}
 	}
 	return CompleteLoc(
-		fileName,
+		fdata->fileName,
 		line,
 		column,
 		character_index,
-		fdata->fileContents[sloc.getIndex()]
+		extractCharFromStr(&(fdata->str), sloc.getIndex())
 	);
 }
-
 
 FileID SourceManager::loadFromFile(const std::string & path)
 {
@@ -166,6 +151,11 @@ FileID SourceManager::generateNewFileID() const
 	FileID::type id = static_cast<FileID::type>(sources_.size() + 1);
 	assert(id != INVALID_FILEID_VALUE);
 	return id;
+}
+
+CharType SourceManager::extractCharFromStr(const std::string* str, const std::size_t& idx) const
+{
+	return StringManipulator::getCharAtLoc(str, idx);
 }
 
 // SourceLoc
