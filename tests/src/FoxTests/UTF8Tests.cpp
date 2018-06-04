@@ -143,34 +143,3 @@ TEST(UTF8Tests, IndexOfCurCharValidity)
 	EXPECT_EQ(15, manip1.getCurrentCodePointIndex());
 	EXPECT_EQ(manip1.getCurrentChar(), manip2.getCurrentChar());
 }
-
-TEST(UTF8Tests, lineAndColumnCounting)
-{
-	// Open test file : line_column_counting.txt
-	std::string lcc_content;
-	std::string lcc_path("lexer/utf8/line_column_counting.txt");
-	ASSERT_TRUE(readFileToString(lcc_path, lcc_content)) << "Could not open test file \"" << lcc_path << '"';
-
-	StringManipulator manip;
-	manip.setStr(&lcc_content);
-
-	for (; manip.getCurrentChar() != 'A'; manip.advance()); // Advance manip all the way to A
-	auto Apos = manip.getLineAndColumnForCurrentCharacter();
-	EXPECT_EQ(Apos.first, 1) << "Incorrect line";
-	EXPECT_EQ(Apos.second, 26) << "Incorrect column";
-
-	for (; manip.getCurrentChar() != 'B'; manip.advance()); // Advance manip all the way to B
-	auto Bpos = manip.getLineAndColumnForCurrentCharacter();
-	EXPECT_EQ(Bpos.first, 2) << "Incorrect line";
-	EXPECT_EQ(Bpos.second, 13) << "Incorrect column";
-
-	for (; manip.getCurrentChar() != 'C'; manip.advance()); // Advance manip all the way to C
-	auto Cpos = manip.getLineAndColumnForCurrentCharacter();
-	EXPECT_EQ(Cpos.first, 3) << "Incorrect line";
-	EXPECT_EQ(Cpos.second, 1) << "Incorrect column";
-
-	for (; manip.getCurrentChar() != 'D'; manip.advance()); // Advance manip all the way to D
-	auto Dpos = manip.getLineAndColumnForCurrentCharacter();
-	EXPECT_EQ(Dpos.first, 4) << "Incorrect line";
-	EXPECT_EQ(Dpos.second, 15) << "Incorrect column";
-}
