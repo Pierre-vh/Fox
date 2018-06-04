@@ -13,6 +13,8 @@
 #include <cassert>
 
 #define INVALID_FILEID_VALUE 0
+#define IN_MEMORY_FILE_NAME "<file_loaded_in_memory>"
+#define TABS_COL 4
 
 using namespace Moonshot;
 
@@ -61,10 +63,58 @@ void FileID::markAsInvalid()
 // SourceManager
 const std::string* SourceManager::getSourceForFID(const FileID& fid) const
 {
+	if (auto data = getFileDataForFID(fid))
+		return &(data->fileContents);
+	return nullptr;
+}
+
+const SourceManager::StoredData * SourceManager::getFileDataForFID(const FileID & fid) const
+{
 	auto it = sources_.lower_bound(fid);
 	if (it != sources_.end() && !(sources_.key_comp()(fid, it->first)))
 		return &(it->second);
 	return nullptr;
+}
+
+CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) const
+{
+	// Everything we need:
+	std::string fileName;
+	std::uint32_t line = 0;
+	std::uint16_t column = 0;
+	std::uint16_t character_index = 0;
+
+	// First, extract the relevant information
+	auto fdata = getFileDataForFID(sloc.getFileID());
+	fileName = fdata->fileName;
+
+	// Now the rest:
+	for (std::size_t k(0); k < sloc.getIndex(); k++)
+	{
+		switch (fdata->fileContents[k])
+		{
+			case '\t':
+				column += TABS_COL;
+				character_index++;
+				break;
+			case '\n':
+				column = 0;
+				character_index = 0;
+				line++;
+				break;
+			default:
+				column++;
+				character_index++;
+				break;
+		}
+	}
+	return CompleteLoc(
+		fileName,
+		line,
+		column,
+		character_index,
+		fdata->fileContents[sloc.getIndex()]
+	);
 }
 
 
@@ -73,7 +123,12 @@ FileID SourceManager::loadFromFile(const std::string & path)
 	std::ifstream in(path, std::ios::binary);
 	if (in)
 	{
-		auto pair = sources_.insert(std::pair<FileID, std::string>(generateNewFileID(), (std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>()))));
+		auto pair = sources_.insert(std::pair<FileID,StoredData>(generateNewFileID(),
+			StoredData(
+				path,
+				(std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>())))
+			)
+		);
 		return (pair.first)->first;
 	}
 	return FileID();
@@ -81,7 +136,7 @@ FileID SourceManager::loadFromFile(const std::string & path)
 
 FileID SourceManager::loadFromString(const std::string & str)
 {
-	auto pair = sources_.insert(std::pair<FileID,std::string>(generateNewFileID(),str));
+	auto pair = sources_.insert(std::pair<FileID,StoredData>(generateNewFileID(),StoredData(IN_MEMORY_FILE_NAME,str)));
 	return (pair.first)->first;
 }
 

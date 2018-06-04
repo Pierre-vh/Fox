@@ -8,18 +8,16 @@
 // classes.
 ////------------------------------------------------------////
 
-// 1) Add getStats
-// 2) modify the sourcemanager so it stores a struct instead of a string as the map data, the struct will contain the file name & file data
-// 3) test, test, and test.
-
 #pragma once
 
 #include <cstdint>
 #include <map>
 #include <string>
+#include "Moonshot/Fox/Common/Typedefs.hpp"
 
 namespace Moonshot
 {
+	class SourceLoc;
 	// The FileID struct is a wrapper around a 16 bytes integer, representing a FileID
 	struct FileID
 	{
@@ -40,9 +38,37 @@ namespace Moonshot
 			type value_;
 	};
 
+	// Small struct containing a human-readable source loc information.
+	struct CompleteLoc
+	{
+		CompleteLoc(const std::string& fName, const std::uint32_t& ln, const std::uint16_t& col, const std::uint16_t& chidx, const CharType& ch)
+			: fileName(fName), line(ln), column(col), character_index(chidx), character(ch)
+		{
+
+		}
+
+		std::string fileName;
+		std::uint32_t line;
+		std::uint16_t column;
+		std::uint16_t character_index;
+		CharType character;
+	};
+
+	// the SourceManager, which stores every source file and gives them a unique ID.
 	class SourceManager
 	{
 		public:
+			struct StoredData
+			{
+				StoredData(const std::string& name, const std::string& content) : fileName(name), fileContents(content)
+				{
+
+				}
+
+				std::string fileName;
+				std::string fileContents;
+			};
+
 			// Load a file in memory 
 			FileID loadFromFile(const std::string& path);
 
@@ -51,8 +77,12 @@ namespace Moonshot
 
 			// Returns a pointer to the string that the FileID points to, or nullptr if not found
 			const std::string* getSourceForFID(const FileID& fid) const;
+			const StoredData* getFileDataForFID(const FileID& fid) const;
+
+			CompleteLoc getCompleteLocForSourceLoc(const SourceLoc& sloc) const;
 
 		private:
+
 			// The context is our friend!
 			friend class Context;
 
@@ -67,7 +97,7 @@ namespace Moonshot
 			SourceManager& operator=(const SourceManager&) = delete;
 
 			// Member variables
-			std::map<FileID, std::string> sources_;
+			std::map<FileID,StoredData> sources_;
 	};
 	
 	// The SourceLoc is a lightweight wrapper around a FileID and an index
