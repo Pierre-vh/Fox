@@ -43,8 +43,8 @@ TEST(SourceManagerTests, LoadingFromFile)
 	ASSERT_TRUE(Tests::readFileToString("lexer/utf8/bronzehorseman.txt", content_a));
 	ASSERT_TRUE(Tests::readFileToString("lexer/utf8/ascii.txt", content_b));
 
-	EXPECT_EQ(content_a, storeddata_a->fileContents);
-	EXPECT_EQ(content_b, storeddata_b->fileContents);
+	EXPECT_EQ(content_a, storeddata_a->str);
+	EXPECT_EQ(content_b, storeddata_b->str);
 }
 
 TEST(SourceManagerTests, LoadingFromString)
@@ -93,4 +93,39 @@ TEST(SourceManagerTests, SourceRangeTests)
 	EXPECT_EQ(ra.makeEndSourceLoc(), b);
 }
 
-// Todo: Precise Location Tests.
+TEST(SourceManagerTests, PreciseLocationTest1)
+{
+	// Create needed variables
+	StringManipulator sm;
+	Context ctxt;
+
+	std::string fp = Tests::convertRelativeTestResPathToAbsolute("sourcelocs/precise_test_1.txt");
+
+	// Load file in SourceManager
+	auto fid = ctxt.sourceManager.loadFromFile(fp);
+	ASSERT_TRUE(fid) << "File couldn't be loaded in memory";
+
+	// Load file in StringManipulator
+	std::string* ptr = ctxt.sourceManager.getSourceForFID(fid);
+	ASSERT_TRUE(ptr);
+	sm.setStr(ptr);
+
+	// Loop until we reach the pi sign
+	for (; sm.getCurrentChar() != 960 && !sm.eof(); sm.advance());
+
+	if (sm.getCurrentChar() == 960)
+	{
+		SourceLoc sloc(fid, sm.getIndexInBytes());
+		auto result = ctxt.sourceManager.getCompleteLocForSourceLoc(sloc);
+
+		EXPECT_EQ(result.fileName, fp);
+		EXPECT_EQ(result.character, 960);
+		EXPECT_EQ(result.line, 5);
+		EXPECT_EQ(result.character_index, 6);
+		EXPECT_EQ(result.column, 9);
+	}
+	else
+	{
+		FAIL() << "Couldn't find the pi sign.";
+	}
+}

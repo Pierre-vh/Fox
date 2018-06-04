@@ -1,0 +1,14 @@
+﻿let x : float;
+
+func lengthyFunctionName (arg1 : const& int,arg2 : const& float):bool
+{
+	let π : int = 3.14;
+}
+
+let x : const string;
+
+func foo() : float {
+
+}
+
+let x : bool;
