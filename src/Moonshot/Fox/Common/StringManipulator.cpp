@@ -9,53 +9,25 @@
 
 #include "StringManipulator.hpp"
 #include "utfcpp/utf8.hpp"
+#include <cassert>
 
 using namespace Moonshot;
 
-StringManipulator::StringManipulator(const std::string & str)
+StringManipulator::StringManipulator(const std::string* str)
 {
 	setStr(str);
-}
-
-StringManipulator::StringManipulator(std::string* str)
-{
-	setStr(str);
-}
-
-std::string StringManipulator::getStrCpy() const
-{
-	return str();
 }
 
 const std::string * StringManipulator::getStrPtr() const
 {
-	if (std::holds_alternative<std::string>(data_))
-		return &(std::get<std::string>(data_));
-	else if (std::holds_alternative<std::string*>(data_))
-		return std::get<std::string*>(data_);
-	else
-		throw std::exception("unknown variant.");
+	return raw_str_;
 }
 
-void StringManipulator::setStr(std::string * str)
+void StringManipulator::setStr(const std::string * str)
 {
-	data_ = str;
+	assert(str && "Str cannot be null!");
+	raw_str_ = str;
 	reset();
-}
-
-void StringManipulator::setStr(const std::string & str)
-{
-	data_ = str;
-	reset();
-}
-
-bool StringManipulator::isUsingAPointer() const
-{
-	return std::holds_alternative<std::string*>(data_);
-}
-bool StringManipulator::isUsingACopy() const
-{
-	return std::holds_alternative<std::string>(data_);
 }
 
 std::string StringManipulator::wcharToStr(const CharType & wc)
@@ -75,23 +47,22 @@ void StringManipulator::removeBOM(std::string & str)
 	}
 }
 
-void StringManipulator::skipBOM(std::string::iterator & it, std::string::iterator end)
-{
-	if (utf8::starts_with_bom(it, end))
-		utf8::next(it, end);
-}
-
 void StringManipulator::append(std::string & str, const CharType & ch)
 {
 	utf8::append(ch, std::back_inserter(str));
 }
 
-std::size_t StringManipulator::getCurrentCodePointIndex() const
+CharType StringManipulator::getCharAtLoc(const std::string* str, const std::size_t& idx)
+{
+	return utf8::peek_next(str->begin() + idx, str->end());
+}
+
+std::size_t StringManipulator::getIndexInCodepoints() const
 {
 	return utf8::distance(beg_, iter_);
 }
 
-std::size_t StringManipulator::getCurrentAbsoluteIndex() const
+std::size_t StringManipulator::getIndexInBytes() const
 {
 	return std::distance(beg_, iter_);
 }
@@ -112,7 +83,7 @@ void StringManipulator::advance(const std::size_t & ind)
 		utf8::advance(iter_, ind, end_);
 }
 
-void StringManipulator::goBack(const std::size_t & ind)
+void StringManipulator::goBack(const std::size_t& ind)
 {
 	for (std::size_t k = 0; k < ind; k++)
 		utf8::prior(iter_, beg_);
@@ -125,9 +96,9 @@ CharType StringManipulator::getCurrentChar() const
 	return utf8::peek_next(iter_,end_);
 }
 
-CharType StringManipulator::getChar(std::size_t ind) const
+CharType StringManipulator::getChar(const std::size_t& ind) const
 {
-	std::string::iterator tmpit = beg_;
+	auto tmpit = beg_;
 
 	utf8::advance(tmpit,ind, end_);
 
@@ -138,7 +109,7 @@ CharType StringManipulator::getChar(std::size_t ind) const
 
 std::string StringManipulator::substring(std::size_t beg, const std::size_t & leng) const
 {
-	std::string::iterator tmpit = beg_;
+	auto tmpit = beg_;
 	
 	utf8::advance(tmpit, beg, end_);
 
@@ -156,14 +127,14 @@ std::string StringManipulator::substring(std::size_t beg, const std::size_t & le
 
 CharType StringManipulator::peekFirst() const
 {
-	if (getSize()) // string needs at least 1 char
+	if (getSizeInCodepoints()) // string needs at least 1 char
 		return utf8::peek_next(beg_,end_);
 	return L'\0';
 }
 
 CharType StringManipulator::peekNext() const
 {
-	if (isAtEndOfStr())
+	if (eof())
 		return L'\0';
 
 	auto tmpit = iter_;
@@ -185,37 +156,27 @@ CharType StringManipulator::peekPrevious() const
 CharType StringManipulator::peekBack() const
 {
 	auto tmp = end_;
-	if (getSize()) // string needs at least 1 char
+	if (getSizeInCodepoints()) // string needs at least 1 char
 		return utf8::prior(tmp,beg_);
 	return L'\0';
 }
 
-std::size_t StringManipulator::getSize() const
+std::size_t StringManipulator::getSizeInCodepoints() const
 {
 	return utf8::distance(beg_,end_);
 }
 
-bool StringManipulator::isAtEndOfStr() const
+std::size_t StringManipulator::getSizeInBytes() const
+{
+	return str().size();
+}
+
+bool StringManipulator::eof() const
 {
 	return iter_ == end_;
 }
 
-std::string & StringManipulator::str()
-{
-	if (std::holds_alternative<std::string>(data_))
-		return std::get<std::string>(data_);
-	else if (std::holds_alternative<std::string*>(data_))
-		return *(std::get<std::string*>(data_));
-	else
-		throw std::exception("unknown variant.");
-}
-
 const std::string & StringManipulator::str() const
 {
-	if (std::holds_alternative<std::string>(data_))
-		return std::get<std::string>(data_);
-	else if (std::holds_alternative<std::string*>(data_))
-		return *(std::get<std::string*>(data_));
-	else
-		throw std::exception("unknown variant.");
+	return *raw_str_;
 }
