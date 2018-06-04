@@ -73,7 +73,22 @@ const std::string* SourceManager::getSourceForFID(const FileID& fid) const
 	return nullptr;
 }
 
+std::string* SourceManager::getSourceForFID(const FileID& fid)
+{
+	if (auto data = getFileDataForFID(fid))
+		return &(data->fileContents);
+	return nullptr;
+}
+
 const SourceManager::StoredData * SourceManager::getFileDataForFID(const FileID & fid) const
+{
+	auto it = sources_.lower_bound(fid);
+	if (it != sources_.end() && !(sources_.key_comp()(fid, it->first)))
+		return &(it->second);
+	return nullptr;
+}
+
+SourceManager::StoredData * SourceManager::getFileDataForFID(const FileID & fid)
 {
 	auto it = sources_.lower_bound(fid);
 	if (it != sources_.end() && !(sources_.key_comp()(fid, it->first)))
