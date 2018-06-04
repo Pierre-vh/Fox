@@ -38,6 +38,7 @@ namespace Moonshot
 			// Default ctor
 			StringManipulator() = default;
 			StringManipulator(const std::string& str);
+			StringManipulator(std::string* str);
 
 			// Returns a copy of the internal string
 			std::string getStrCpy() const;			
@@ -77,11 +78,6 @@ namespace Moonshot
 			// This uses std::distance to calculate the index at which the current codepoint begins in BYTES
 			std::size_t getCurrentAbsoluteIndex() const;
 
-			// Returns a pair containing the line and column for a position idx
-			static std::pair<uint32_t,uint16_t> getLineAndColumnForIndex(const std::string& str, const std::size_t &idx);
-
-			std::pair<uint32_t, uint16_t> getLineAndColumnForCurrentCharacter() const;
-
 			// Reset the iterators
 			void reset();
 
@@ -112,11 +108,14 @@ namespace Moonshot
 			// Checks if the stringmanipulator has reached the end of the string
 			bool isAtEndOfStr() const;
 		private:
+			// Get a reference to the string stored.
 			std::string& str();
 			const std::string& str() const;
 
+			// The string currently stored
 			std::variant<std::string,std::string*> data_;
 
+			// Iterators
 			std::string::iterator iter_, end_, beg_;
 	};
 }

@@ -17,6 +17,11 @@ StringManipulator::StringManipulator(const std::string & str)
 	setStr(str);
 }
 
+StringManipulator::StringManipulator(std::string* str)
+{
+	setStr(str);
+}
+
 std::string StringManipulator::getStrCpy() const
 {
 	return str();
@@ -89,29 +94,6 @@ std::size_t StringManipulator::getCurrentCodePointIndex() const
 std::size_t StringManipulator::getCurrentAbsoluteIndex() const
 {
 	return std::distance(beg_, iter_);
-}
-
-std::pair<uint32_t, uint16_t> StringManipulator::getLineAndColumnForIndex(const std::string & locstr, const std::size_t & idx)
-{
-	uint32_t line	= 1;
-	uint16_t col	= 0;
-	// Count the number of newlines
-	line += std::count(locstr.begin(), locstr.begin() + idx, '\n');
-
-	// Go backwards from idx and count the number of character until \n or beg of file to get the column
-	for (auto it = (locstr.begin() + idx); (*it != '\n') && (it != locstr.begin()); utf8::prior(it,locstr.begin()))
-	{
-		if (*it == '\t')
-			col += 4;
-		else
-			col++;
-	}
-	return { line,col };
-}
-
-std::pair<uint32_t, uint16_t> StringManipulator::getLineAndColumnForCurrentCharacter() const
-{
-	return getLineAndColumnForIndex(str(), getCurrentAbsoluteIndex());
 }
 
 void StringManipulator::reset()
