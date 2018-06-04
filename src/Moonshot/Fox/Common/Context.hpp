@@ -15,6 +15,7 @@
 #include <vector> // std::vector
 #include <memory> // std::unique_ptr
 #include "Moonshot/Fox/Common/FlagsManager.hpp"
+#include "Moonshot/Fox/Common/SourceManager.hpp"
 
 namespace Moonshot
 {
@@ -71,6 +72,9 @@ namespace Moonshot
 			
 			// the FlagsManager
 			FlagsManager flagsManager;
+
+			// the SourceManager
+			SourceManager sourceManager;
 		private:
 
 
