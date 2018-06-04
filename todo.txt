@@ -24,28 +24,22 @@ Moonshot Project To-do List.
 	> Make "MapDataIterator" work (Done)
 	> Do some polish on ASTDumper. Right now the dump is a bit rough to read, maybe try to make it prettier, or let the user enable/disable some informations? (Done? Will come back to that from time to time)
 	> Write tests for the new visitor system (I'll do more when needed)
+	> Sourceloc & SourceManager system (Done)
+		
+	Up next:
+		> Update lexer/token to add a sourcerange/loc to every single token
+		> Update the AST so all nodes have a sourceloc/range too ! Do not hesitate to be precise. The more information there is, the better the error messages!
 
-	> Sourceloc & SourceManager system (Next)
-		> SourceManager (a simple class that keeps track of source file contents and assigns an ID to them.)
-			> addFromFile() 
-			> addFromString() 
-			> getSourceForID() (do not return a copy of the source, but a reference/pointer to the std::string)
-		> SourceLoc object
-			> Current idea : store the ID of the file uint16_t + a uint32_t for the character index = 48 bytes in size.
-		> SourceRange 
-			a Sourceloc + an offset (uint16)
-		> Update lexer to add a sourcerange/loc to every single token
-		> Update ast so all nodes have a sourceloc/range too !
-		> Update Diagnostics & DiagnosticsEngine to support a sourceloc/sourcerange arg.
-			> Note: also update DiagnosticsEngine to support operator<< in  place of addArg.
-
+	> Update Diagnostics & DiagnosticsEngine to support a sourceloc/sourcerange arg.
 	> Maybe spend some time completely hiding away the unique_ptr for everyone except the Parser (even there, remove make_uniques and replace with "CreateNode" object, avoid unique_ptr and just use "auto node = createNode<BinaryExpr>()"...
 	  UniquePtrs are implementation details and shouldn't be seen by other classes. If one day I replace them by raw pointers + arena allocator, it shouldn't be a complete pain in the ass.
 
-> Write all the remaining tests needed.
+	> Write all the remaining tests needed.
 
-> Move all of my current diagnostics message to the new system.
-> Delete the context's system primitive diag system.
+	> Move all of my current diagnostics message to the new system.
+	> Delete the context's system primitive diag system.
 
-> Semantic Analysis time ! It's going to be fun (or not :) ) !
+	// Move to 0.3.0
+
+	> Semantic Analysis time ! It's going to be fun (or not :) ) !
 
