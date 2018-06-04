@@ -385,17 +385,17 @@ bool Token::specific_idSign(const std::string& str)
 bool Token::specific_idLiteral(Context& ctxt,const std::string& str)
 {
 	StringManipulator strmanip;
-	strmanip.setStr(str);
+	strmanip.setStr(&str);
 	if (strmanip.peekFirst() == '\'')
 	{
 		if (strmanip.peekBack() == '\'')
 		{
-			if (strmanip.getSize() > 3)
+			if (strmanip.getSizeInCodepoints() > 3)
 			{
 				ctxt.reportError("Char literal can only contain one character.");
 				return false;
 			}
-			else if (strmanip.getSize() < 3)
+			else if (strmanip.getSizeInCodepoints() < 3)
 			{
 				ctxt.reportError("Empty char literal");
 				return false;
@@ -416,7 +416,7 @@ bool Token::specific_idLiteral(Context& ctxt,const std::string& str)
 		if (strmanip.peekBack() == '"')
 		{
 
-			std::string strlit = strmanip.substring(1, strmanip.getSize() - 2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
+			std::string strlit = strmanip.substring(1, strmanip.getSizeInCodepoints() - 2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
 			tokenInfo_ = Literal();
 			litInfo_ = std::make_unique<LiteralInfo>(strlit);
 			return true;
@@ -477,12 +477,12 @@ bool Token::validateIdentifier(Context& ctxt,const std::string & str) const
 {
 	// Identifiers : An Identifier's first letter must always be a underscore or an alphabetic letter
 	// The first character can then be followed by an underscore, a letter or a number.
-	StringManipulator manip(str);
+	StringManipulator manip(&str);
 	auto first_ch = manip.getCurrentChar();
 	if ((first_ch == '_') || iswalpha((char)first_ch))
 	{
 		// First character is ok, proceed to identify the rest of the string
-		for (manip.advance() /* skip first char*/; !manip.isAtEndOfStr(); manip.advance())
+		for (manip.advance() /* skip first char*/; !manip.eof(); manip.advance())
 		{
 			auto ch = manip.getCurrentChar();
 			if ((ch != '_') && !iswalnum((char)ch))

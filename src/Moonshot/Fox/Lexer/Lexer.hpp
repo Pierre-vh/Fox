@@ -40,8 +40,7 @@ namespace Moonshot
 			// get the number of tokens in the result
 			std::size_t resultSize() const;				// returns result_.size()
 		
-
-			void setStr(const std::string& str);
+			void setStr(const std::string* str);
 		private:
 			// enum to keep track of the current state
 			enum class DFAState

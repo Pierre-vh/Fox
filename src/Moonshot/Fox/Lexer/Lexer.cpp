@@ -30,11 +30,11 @@ void Lexer::lexStr(const std::string & data)
 {
 	context_.setOrigin("LEXER");
 
-	setStr(data);
+	setStr(&data);
 	manip.reset();
 	cstate_ = DFAState::S_BASE;
 
-	while(!manip.isAtEndOfStr() && context_.isSafe())
+	while(!manip.eof() && context_.isSafe())
 		cycle();
 
 	pushTok(); // Push the last Token found.
@@ -68,7 +68,7 @@ std::size_t Lexer::resultSize() const
 	return result_.size();
 }
 
-void Lexer::setStr(const std::string & str)
+void Lexer::setStr(const std::string* str)
 {
 	manip.setStr(str);
 }

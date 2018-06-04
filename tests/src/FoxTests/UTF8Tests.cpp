@@ -24,7 +24,7 @@ using namespace Moonshot::Tests;
 bool getTextStats(StringManipulator &manip, unsigned int& linecount, unsigned int& charcount, unsigned int& spacecount, std::string exception_details = "")
 {
 	try {
-		while (!manip.isAtEndOfStr())
+		while (!manip.eof())
 		{
 			const auto cur = manip.getCurrentChar();
 			if (cur == '\n')
@@ -54,10 +54,8 @@ TEST(UTF8Tests,BronzeHorseman)
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	// Prepare string manipulator & other variables
-	StringManipulator manip;
+	StringManipulator manip(&file_content);
 	unsigned int linecount = 1, charcount = 0, spacecount = 0;
-	manip.setStr(file_content);
-	ASSERT_TRUE(manip.isUsingACopy()) << "A copy was passed to manip, but it doesn't recognizes it!";
 	std::string exception_details;
 
 	// Get text statistics
@@ -80,10 +78,8 @@ TEST(UTF8Tests, ASCIIDrawing)
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	// Prepare string manipulator & other variables
-	StringManipulator manip;
+	StringManipulator manip(&file_content);
 	unsigned int linecount = 1, charcount = 0, spacecount = 0;
-	manip.setStr(&file_content);
-	ASSERT_TRUE(manip.isUsingAPointer()) << "A pointer was passed to manip, but it doesn't recognize it!";
 	std::string exception_details;
 
 	// Get text statistics
@@ -112,9 +108,7 @@ TEST(UTF8Tests, Substring)
 	StringManipulator::removeBOM(expected_substr);
 
 	// Prepare string manipulator
-	StringManipulator manip;
-	manip.setStr(&bronze_content);
-	ASSERT_TRUE(manip.isUsingAPointer()) << "A pointer was passed to manip, but it doesn't recognize it!";
+	StringManipulator manip(&bronze_content);
 
 	std::string substr = manip.substring(10, 9);
 
@@ -131,8 +125,8 @@ TEST(UTF8Tests, IndexOfCurCharValidity)
 	
 	// Prepare string manipulator
 	StringManipulator manip1,manip2;
-	manip1.setStr(bronze_content);
-	manip2.setStr(bronze_content);
+	manip1.setStr(&bronze_content);
+	manip2.setStr(&bronze_content);
 
 	for (auto k(0); k < 15; k++)
 		manip1.advance();
@@ -140,6 +134,6 @@ TEST(UTF8Tests, IndexOfCurCharValidity)
 	manip2.advance(15);
 
 	// test if index is valid
-	EXPECT_EQ(15, manip1.getCurrentCodePointIndex());
+	EXPECT_EQ(15, manip1.getIndexInCodepoints());
 	EXPECT_EQ(manip1.getCurrentChar(), manip2.getCurrentChar());
 }
