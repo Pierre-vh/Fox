@@ -29,8 +29,6 @@ Moonshot Project To-do List.
 		> SourceManager (a simple class that keeps track of source file contents and assigns an ID to them.)
 			> addFromFile() 
 			> addFromString() 
-				>	both of theses 2 functions will return a lightweight "Response", with a status indicating if the operation was a success and the index
-					of the source in the sourcemanager's internal vector
 			> getSourceForID() (do not return a copy of the source, but a reference/pointer to the std::string)
 		> SourceLoc object
 			> Current idea : store the ID of the file uint16_t + a uint32_t for the character index = 48 bytes in size.
