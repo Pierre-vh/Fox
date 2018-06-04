@@ -10,6 +10,7 @@ add_source(
 	"FoxTests/ParserTests.cpp"
 	"FoxTests/IdentifierTableTests.cpp"
 	"FoxTests/ASTTests.cpp"
+	"FoxTests/SourceManagerTests.cpp"
 
 	"CommonTests/CommonTests.cpp"
 	)
