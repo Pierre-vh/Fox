@@ -14,7 +14,7 @@
 
 /* Moonshot Version Numbers */
 #define MOONSHOT_VER_MAJOR 0
-#define MOONSHOT_VER_MINOR 1
+#define MOONSHOT_VER_MINOR 2
 #define MOONSHOT_VER_PATCH 0
 
 // Possible version types:
@@ -31,17 +31,7 @@
 // Next planned version number changes
 	// Next Major incrementation : Badger and Fox are fully operational, ready for public use. (Estimation : Q4 2018/Q1 2019 with some luck)
 	// Next Minor incrementation 
-			// "inDev"
-		// 2 - Parser is complete with AST Rework done
-		// 3 - Semantic analysis done
-		// 4 - IRGen done
-		// 5 - Badger works
-			// "Alpha"
-		// 6 - Badger's performance is good enough to be acceptable and the focus can shift again on fox to implement other much needed features
-		// 7 - Fox implements multiple files handling
-		// 8 - Fox implements other language features considered vital, like arrays/tuples/dictionaries if they're not in yet.
-			// "Beta"
-		// 9 - Add a Foreign Function Interface to Badger
-		// 10 - Add a proper driver and API.
-		// etc. It's far away, we'll see what the future holds, but when we reach this point it shouldn't be too late until we go 1.0.0
-	// Next Patch Incrementation : Not planned until  1.0.0 since no patch's needed. It's all indev.
+		// "inDev"
+			// + Diagnostics rework is complete.
+			// + Semantic Analysis Done
+	// Next Patch Incrementation : Not planned until 1.0.0 since no patch's needed. It's all indev.
