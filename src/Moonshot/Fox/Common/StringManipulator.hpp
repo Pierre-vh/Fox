@@ -40,6 +40,10 @@ namespace Moonshot
 			StringManipulator(const std::string& str);
 			StringManipulator(std::string* str);
 
+			/*
+				STRING GETTERS/SETTERS
+			*/
+
 			// Returns a copy of the internal string
 			std::string getStrCpy() const;			
 
@@ -52,11 +56,69 @@ namespace Moonshot
 			// Set this SM's source to a the pointer str
 			void setStr(std::string* str);
 
+			/*
+				ITERATOR MANIPULATION
+			*/
+
+			// Reset the iterators
+			void reset();
+
+			// Advance (ind) codepoints
+			void advance(const std::size_t& ind = 1);
+
+			// Go back (ind) codepoints
+			void goBack(const std::size_t& ind = 1);
+
+
+			// Extract a substring
+			std::string substring(std::size_t beg, const std::size_t& leng) const;
+
+			/*
+				GET THE CURRENT CHARACTER
+			*/
+
+			// Get the current codepoint
+			CharType getCurrentChar() const;
+
+			// Get a codepoint at a precise location
+			CharType getChar(std::size_t ind) const;
+			
+			/*
+				PEEK
+			*/
+
+			CharType peekFirst() const;
+			CharType peekNext() const;
+			CharType peekPrevious() const;
+			CharType peekBack() const;
+
+			/*
+				UTILS & OTHERS
+			*/
+
+			// Return the number of codepoints in string
+			std::size_t getSize() const;
+
+			// Checks if the stringmanipulator has reached the end of the string
+			bool isAtEndOfStr() const;
+
 			// Returns true if this SM uses a std::string* as source.
 			bool isUsingAPointer() const;
 
 			// Returns true if this SM uses a copy of a string as source.
 			bool isUsingACopy() const;
+
+			// Returns the index of the current character in codepoints
+			// DO NOT MIX THIS WITH std::string::operator[] AND STRING OPERATIONS!
+			std::size_t getCurrentCodePointIndex() const;
+
+			// This uses std::distance to calculate the index at which the current codepoint begins in BYTES
+			// You can use this with std::string::operator[] to retrieve the first byte of the codepoint.
+			std::size_t getCurrentAbsoluteIndex() const;
+
+			/*
+				STATIC METHODS
+			*/
 
 			// Convert a CharType to a utf8 encoded string
 			static std::string wcharToStr(const CharType& wc);
@@ -70,43 +132,6 @@ namespace Moonshot
 			// Appends a CharType to a std::string.
 			static void append(std::string& str, const CharType& ch);
 
-			// Returns the index of the current character in codepoints
-			// e.g. if this returns 5, this is the 5th codepoint, but not always the 5th byte!
-			// DO NOT MIX THIS WITH std::string::operator[] AND STRING OPERATIONS!
-			std::size_t getCurrentCodePointIndex() const;
-
-			// This uses std::distance to calculate the index at which the current codepoint begins in BYTES
-			std::size_t getCurrentAbsoluteIndex() const;
-
-			// Reset the iterators
-			void reset();
-
-			// Advance (ind) codepoints
-			void advance(const std::size_t& ind = 1);
-
-			// Go back (ind) codepoints
-			void goBack(const std::size_t& ind = 1);
-
-			// Get the current codepoint
-			CharType getCurrentChar() const;			
-
-			// Get a codepoint at a precise location
-			CharType getChar(std::size_t ind) const;
-
-			// Extract a substring
-			std::string substring(std::size_t beg, const std::size_t& leng) const;
-			
-			// Peeking 
-			CharType peekFirst() const;
-			CharType peekNext() const;
-			CharType peekPrevious() const;
-			CharType peekBack() const;
-
-			// Return the number of codepoints in string
-			std::size_t getSize() const;
-
-			// Checks if the stringmanipulator has reached the end of the string
-			bool isAtEndOfStr() const;
 		private:
 			// Get a reference to the string stored.
 			std::string& str();
