@@ -45,6 +45,11 @@ bool FileID::operator!=(const FileID & other) const
 	return !(*this == other);
 }
 
+bool FileID::operator <(const FileID& other) const
+{
+	return (value_ < other.value_);
+}
+
 FileID::type FileID::get() const
 {
 	return value_;
@@ -161,6 +166,16 @@ SourceLoc::SourceLoc(const FileID & fid, const idx_type & idx) : fid_(fid), idx_
 SourceLoc::operator bool() const
 {
 	return (bool)fid_;
+}
+
+bool SourceLoc::operator==(const SourceLoc& other) const
+{
+	return (fid_ == other.fid_) && (idx_ == other.idx_);
+}
+
+bool SourceLoc::operator!=(const SourceLoc& other) const
+{
+	return !(*this == other);
 }
 
 FileID SourceLoc::getFileID() const

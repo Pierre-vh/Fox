@@ -30,11 +30,14 @@ namespace Moonshot
 			operator bool() const;
 			bool operator ==(const FileID& other) const;
 			bool operator !=(const FileID& other) const;
+			// For comparisons
+			bool operator <(const FileID& other) const;
 
 			type get() const;
 			void set(const type& value);
 			void markAsInvalid();
 		private:
+
 			type value_;
 	};
 
@@ -112,6 +115,8 @@ namespace Moonshot
 			SourceLoc(const FileID& fid, const idx_type& idx);
 
 			operator bool() const;
+			bool operator ==(const SourceLoc& other) const;
+			bool operator !=(const SourceLoc& other) const;
 
 			FileID getFileID() const;
 			idx_type getIndex() const;
