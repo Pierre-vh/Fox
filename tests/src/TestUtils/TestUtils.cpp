@@ -19,8 +19,7 @@ const std::string testsPath = std::string(TEST_RES_PATH) + std::string("/res/");
 
 bool Tests::readFileToVec(const std::string & filepath, std::vector<std::string>& outvec)
 {
-	std::string completePath = std::string(testsPath) + filepath; 	// Get complete Path
-	std::ifstream in(completePath, std::ios::in | std::ios::binary); 	// open file
+	std::ifstream in(convertRelativeTestResPathToAbsolute(filepath), std::ios::in | std::ios::binary); 	// open file
 	std::string str; 	// temp str
 	if (!in)
 		return false;
@@ -32,14 +31,18 @@ bool Tests::readFileToVec(const std::string & filepath, std::vector<std::string>
 
 bool Tests::readFileToString(const std::string & filepath, std::string & outstr)
 {
-	std::string completePath = std::string(testsPath) + filepath; 	// Get complete Path
-	std::ifstream in(completePath, std::ios::binary); 	// read file
+	std::ifstream in(convertRelativeTestResPathToAbsolute(filepath), std::ios::binary); 	// read file
 	if (in)
 	{
 		outstr = (std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>()));
 		return true;
 	}
 	return false;
+}
+
+std::string Tests::convertRelativeTestResPathToAbsolute(const std::string & relpath)
+{
+	return testsPath + relpath;
 }
 
 std::string Tests::indent(const unsigned char & size)

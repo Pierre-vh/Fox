@@ -18,5 +18,6 @@ namespace Moonshot::Tests
 	// Returns true in case of success, false if the file could not be opened.
 	bool readFileToVec(const std::string& filepath, std::vector<std::string>& outvec);
 	bool readFileToString(const std::string& filepath, std::string& outstr);
+	std::string convertRelativeTestResPathToAbsolute(const std::string& relpath);
 	std::string indent(const unsigned char& size);
 }
