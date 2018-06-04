@@ -96,7 +96,6 @@ TEST(SourceManagerTests, SourceRangeTests)
 TEST(SourceManagerTests, PreciseLocationTest1)
 {
 	// Create needed variables
-	StringManipulator sm;
 	Context ctxt;
 
 	std::string fp = Tests::convertRelativeTestResPathToAbsolute("sourcelocs/precise_test_1.txt");
@@ -106,9 +105,9 @@ TEST(SourceManagerTests, PreciseLocationTest1)
 	ASSERT_TRUE(fid) << "File couldn't be loaded in memory";
 
 	// Load file in StringManipulator
-	std::string* ptr = ctxt.sourceManager.getSourceForFID(fid);
+	const std::string* ptr = ctxt.sourceManager.getSourceForFID(fid);
 	ASSERT_TRUE(ptr);
-	sm.setStr(ptr);
+	StringManipulator sm(ptr);
 
 	// Loop until we reach the pi sign
 	for (; sm.getCurrentChar() != 960 && !sm.eof(); sm.advance());
