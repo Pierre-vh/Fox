@@ -9,7 +9,6 @@
 
 #include "Token.hpp"
 
-
 #include <regex>
 #include <string>
 #include <sstream>
@@ -123,7 +122,7 @@ LiteralInfo::operator bool() const
 	return !isNull();
 }
 
-Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr)
+Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr, const SourceRange& range) : range_(range)
 {
 	idToken(ctxt,astctxt,tokstr);
 }
@@ -131,6 +130,7 @@ Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr)
 Token::Token(const Token & cpy)
 {
 	tokenInfo_ = cpy.tokenInfo_;
+	range_ = cpy.range_;
 
 	if (cpy.litInfo_)
 		litInfo_ = std::make_unique<LiteralInfo>(*(cpy.litInfo_));

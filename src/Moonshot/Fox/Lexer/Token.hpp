@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Moonshot/Fox/Common/Typedefs.hpp"
-
+#include "Moonshot/Fox/Common/SourceManager.hpp"
 #include <vector>
 #include <variant>
 #include <memory>
@@ -22,6 +22,7 @@ namespace Moonshot
 	class Context;
 	class ASTContext;
 	class IdentifierInfo;
+	class SourceRange;
 
 	enum class LiteralType : char
 	{
@@ -145,7 +146,7 @@ namespace Moonshot
 		public:
 			Token() = default;
 			Token(const Token& cpy);
-			Token(Context &ctxt,ASTContext &astctxt,std::string tokstr);
+			Token(Context &ctxt,ASTContext &astctxt,std::string tokstr,const SourceRange& range = SourceRange());
 
 			std::string showFormattedTokenData() const;
 
@@ -179,6 +180,7 @@ namespace Moonshot
 			/* Member variables */
 			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenInfo_;
 			std::unique_ptr<LiteralInfo> litInfo_ = nullptr;
+			SourceRange range_;
 
 			/* Identification functions */
 			void idToken(Context& ctxt,ASTContext& astctxt, const std::string& str);
