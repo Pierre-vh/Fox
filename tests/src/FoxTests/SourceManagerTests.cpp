@@ -91,6 +91,19 @@ TEST(SourceManagerTests, SourceRangeTests)
 
 	EXPECT_EQ(ra.getBeginSourceLoc(), a);
 	EXPECT_EQ(ra.makeEndSourceLoc(), b);
+
+	// Another test: only one char sourcelocs
+	SourceRange onechar_range_a(a, a);
+	SourceRange onechar_range_b(b, b);
+	SourceRange onechar_range_c(a);
+
+	EXPECT_TRUE(onechar_range_a.isOnlyOneCharacter());
+	EXPECT_TRUE(onechar_range_b.isOnlyOneCharacter());
+	EXPECT_TRUE(onechar_range_c.isOnlyOneCharacter());
+
+	EXPECT_EQ(onechar_range_a.getBeginSourceLoc(), onechar_range_a.makeEndSourceLoc());
+	EXPECT_EQ(onechar_range_b.getBeginSourceLoc(), onechar_range_b.makeEndSourceLoc());
+	EXPECT_EQ(onechar_range_c.getBeginSourceLoc(), onechar_range_c.makeEndSourceLoc());
 }
 
 TEST(SourceManagerTests, PreciseLocationTest1)
