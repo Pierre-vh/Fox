@@ -26,11 +26,17 @@ Lexer::Lexer(Context & curctxt, ASTContext &astctxt) : context_(curctxt), astcon
 
 }
 
-void Lexer::lexStr(const std::string & data)
+void Lexer::lexStr(const std::string& str)
 {
-	context_.setOrigin("LEXER");
+	lexFile(context_.sourceManager.loadFromString(str));
+}
 
-	setStr(&data);
+void Lexer::lexFile(const FileID& file)
+{
+	assert(file && "INVALID FileID!");
+	fID_ = file;
+	manip.setStr(context_.sourceManager.getSourceForFID(fID_));
+
 	manip.reset();
 	cstate_ = DFAState::S_BASE;
 
@@ -66,11 +72,6 @@ TokenVector & Lexer::getTokenVector()
 std::size_t Lexer::resultSize() const
 {
 	return result_.size();
-}
-
-void Lexer::setStr(const std::string* str)
-{
-	manip.setStr(str);
 }
 
 void Lexer::pushTok()

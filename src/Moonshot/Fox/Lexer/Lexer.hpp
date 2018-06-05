@@ -30,19 +30,19 @@ namespace Moonshot
 		public:
 			Lexer(Context& curctxt,ASTContext &astctxt);
 
-			// input: data : a UTF-8 encoded std::string.
-			void lexStr(const std::string &data);		// Main function.
+			// Lexs a raw String.
+			// This will load the string into the SourceManager for you.
+			void lexStr(const std::string& str);
 
-			void logAllTokens() const;					// log all Tokens in output using context_.log . Useful for debugging.
+			// Lexs a file in the SourceManager.
+			// This will retrieve the file from the SourceManager from the current Context.
+			void lexFile(const FileID& file);
+			
+			void logAllTokens() const;
+			TokenVector& getTokenVector();
+			std::size_t resultSize() const;	
 
-			// get the result
-			TokenVector& getTokenVector();				// returns the n th Token in result_
-			// get the number of tokens in the result
-			std::size_t resultSize() const;				// returns result_.size()
-		
-			void setStr(const std::string* str);
 		private:
-			// enum to keep track of the current state
 			enum class DFAState
 			{
 				S_BASE, // basestate
@@ -74,21 +74,17 @@ namespace Moonshot
 			bool isEscapeChar(const CharType& c) const;			// Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.
 			bool shouldIgnore(const CharType& c) const;			// Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
 
-			// error management made easy
 			void reportLexerError(std::string errmsg) const;
 
-			// Member Variables
-			// ASTContext
 			ASTContext &astcontext_;
-			// Context
 			Context& context_;
-			// Utilities
-			bool		escapeFlag_ = false;			// escaping with backslash flag
-			DFAState	cstate_ = DFAState::S_BASE;		// curren dfa state. begins at S_BASE;
-			std::string curtok_;					// the Token that's being constructed.
-			// Output
-			TokenVector	result_;		// the lexer's output !
-			//
+			FileID fID_;
+
+			bool		escapeFlag_ = false;		
+			DFAState	cstate_ = DFAState::S_BASE;		
+			std::string curtok_;
+
+			TokenVector	result_;
 			StringManipulator manip;
 	};
 }
