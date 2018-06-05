@@ -80,7 +80,7 @@ namespace Moonshot
 
 			// Returns a pointer to the string that the FileID points to, or nullptr if not found
 			const std::string* getSourceForFID(const FileID& fid) const;
-			const StoredData* getFileDataForFID(const FileID& fid) const;
+			const StoredData* getStoredDataForFileID(const FileID& fid) const;
 
 			CompleteLoc getCompleteLocForSourceLoc(const SourceLoc& sloc) const;
 

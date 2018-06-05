@@ -69,12 +69,12 @@ void FileID::markAsInvalid()
 // SourceManager
 const std::string* SourceManager::getSourceForFID(const FileID& fid) const
 {
-	if (auto data = getFileDataForFID(fid))
+	if (auto data = getStoredDataForFileID(fid))
 		return &(data->str);
 	return nullptr;
 }
 
-const SourceManager::StoredData * SourceManager::getFileDataForFID(const FileID & fid) const
+const SourceManager::StoredData * SourceManager::getStoredDataForFileID(const FileID & fid) const
 {
 	auto it = sources_.lower_bound(fid);
 	if (it != sources_.end() && !(sources_.key_comp()(fid, it->first)))
@@ -90,8 +90,9 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 	std::uint16_t character_index = 1;
 
 	// First, extract the relevant information
-	auto fdata = getFileDataForFID(sloc.getFileID());
+	const StoredData* fdata = getStoredDataForFileID(sloc.getFileID());
 
+	assert((sloc.getIndex() < fdata->str.size()) && "SourceLoc is Out-of-Range");
 	assert(fdata && "Entry does not exists?");
 
 	// Now the rest:
