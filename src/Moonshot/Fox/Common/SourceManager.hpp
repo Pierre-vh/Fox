@@ -136,6 +136,7 @@ namespace Moonshot
 
 			SourceRange(const SourceLoc& sloc, const offset_type& offset = 0);
 			SourceRange(const SourceLoc& a, const SourceLoc& b);
+			SourceRange();
 
 			operator bool() const;
 

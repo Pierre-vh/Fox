@@ -224,6 +224,11 @@ SourceRange::SourceRange(const SourceLoc& a, const SourceLoc& b)
 	}
 }
 
+SourceRange::SourceRange() : sloc_(SourceLoc()), offset_(0)
+{
+	
+}
+
 SourceRange::operator bool() const
 {
 	return (bool)sloc_;
