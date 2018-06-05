@@ -31,8 +31,8 @@ TEST(SourceManagerTests, LoadingFromFile)
 	EXPECT_TRUE(fid_b);
 
 	// File path is correct?
-	auto storeddata_a = ctxt.sourceManager.getFileDataForFID(fid_a);
-	auto storeddata_b = ctxt.sourceManager.getFileDataForFID(fid_b);
+	auto storeddata_a = ctxt.sourceManager.getStoredDataForFileID(fid_a);
+	auto storeddata_b = ctxt.sourceManager.getStoredDataForFileID(fid_b);
 
 	// File paths are the same? 
 	EXPECT_EQ(file_path_a, storeddata_a->fileName);

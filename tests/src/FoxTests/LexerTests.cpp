@@ -229,3 +229,89 @@ TEST(TokenTests, BoolID)
 	EXPECT_TRUE(litInfo1.get<bool>()) << "Value was not the one expected.";
 	EXPECT_FALSE(litInfo2.get<bool>()) << "Value was not the one expected.";
 }
+
+TEST(LexerTests, Coordinates1)
+{
+	std::string file_content, file_path;
+	file_path = "lexer/coordtests/test1.fox";
+	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
+
+	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	ASTContext astctxt;
+	Lexer lex(ctxt, astctxt);
+	lex.lexStr(file_content);
+	ASSERT_TRUE(ctxt.isSafe()) << "Context reported one or more errors while lexing the file. Context log:\n" << ctxt.getLogs();
+
+	TokenVector& output = lex.getTokenVector();
+	char varFounds = 0;
+	for (const Token& elem : output)
+	{
+		if (elem.getAsString() == "_FIRST_VARIABLE_")
+		{
+			varFounds++;
+			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange().getBeginSourceLoc());
+			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange().makeEndSourceLoc());
+			
+			// Char
+			EXPECT_EQ(beg_ploc.character, '_');
+			EXPECT_EQ(end_ploc.character, '_');
+
+			// Line
+			EXPECT_EQ(beg_ploc.line, 7);
+			EXPECT_EQ(end_ploc.line, 7);
+
+			// Col
+			EXPECT_EQ(beg_ploc.column, 5);
+			EXPECT_EQ(end_ploc.column, 20);
+
+			// Char Idx
+			EXPECT_EQ(beg_ploc.character_index, 5);
+			EXPECT_EQ(end_ploc.character_index, 20);
+		}
+		else if (elem.getAsString() == "_2NDVAR__")
+		{
+			varFounds++;
+			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange().getBeginSourceLoc());
+			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange().makeEndSourceLoc());
+
+			// Char
+			EXPECT_EQ(beg_ploc.character, '_');
+			EXPECT_EQ(end_ploc.character, '_');
+
+			// Line
+			EXPECT_EQ(beg_ploc.line, 10);
+			EXPECT_EQ(end_ploc.line, 10);
+
+			// Col
+			EXPECT_EQ(beg_ploc.column, 9);
+			EXPECT_EQ(end_ploc.column, 17);
+
+			// Char Idx
+			EXPECT_EQ(beg_ploc.character_index, 6);
+			EXPECT_EQ(end_ploc.character_index, 14);
+		}
+		else if (elem.getAsString() == "ThirdVariable")
+		{
+			varFounds++;
+			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange().getBeginSourceLoc());
+			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange().makeEndSourceLoc());
+
+			// Char
+			EXPECT_EQ(beg_ploc.character, 'T');
+			EXPECT_EQ(end_ploc.character, 'e');
+
+			// Line
+			EXPECT_EQ(beg_ploc.line, 13);
+			EXPECT_EQ(end_ploc.line, 13);
+
+			// Col
+			EXPECT_EQ(beg_ploc.column, 5);
+			EXPECT_EQ(end_ploc.column, 17);
+
+			// Char Idx
+			EXPECT_EQ(beg_ploc.character_index, 5);
+			EXPECT_EQ(end_ploc.character_index, 17);
+		}
+	}
+	EXPECT_EQ(varFounds, 3) << "Did not find all 3 variables";
+}
