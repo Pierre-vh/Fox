@@ -53,14 +53,14 @@ namespace Moonshot
 				S_CHR	// char literals
 			};
 
-			void pushTok();					// push Token
-			void cycle();					// one dfa "cycle";
-			void runFinalChecks();			// runs the final checks. this is called after the lexing process ended.
-			// DFA state functions. I split this into various functions to make the code more readable in the cycle() function.
-			void runStateFunc();			// call the correct function, depending on cstate_
-			void dfa_goto(const DFAState &ns); 	// Go to state X (changes cstate)
-			// States functions
-			void fn_S_BASE();
+			void pushTok();
+			void cycle();					
+			void runFinalChecks();
+			void markBeginningOfToken(); // sets currentTokenBeginIndex_ to the current index
+
+			void runStateFunc();
+			void dfa_goto(const DFAState &ns);
+			void fn_S_BASE();	// base state
 			void fn_S_STR();	// string literals
 			void fn_S_LCOM();	// one line comment
 			void fn_S_MCOM();	// Multiple line comments
@@ -83,6 +83,9 @@ namespace Moonshot
 			bool		escapeFlag_ = false;		
 			DFAState	cstate_ = DFAState::S_BASE;		
 			std::string curtok_;
+
+			// The index of the first character of the current token being processed.
+			SourceLoc::idx_type currentTokenBeginIndex_;
 
 			TokenVector	result_;
 			StringManipulator manip;

@@ -79,12 +79,16 @@ void Lexer::pushTok()
 	if (curtok_ == "")	// Don't push empty tokens.
 		return;
 
-	// push Token
-	
-	Token t(context_,astcontext_,curtok_);
-	// Check if token is valid, if invalid, don't push & report error
+	// Create a SourceLoc for the begin loc
+	SourceLoc sloc(fID_, currentTokenBeginIndex_);
+	// Create the SourceRange of this token:
+	SourceRange range(sloc, static_cast<SourceRange::offset_type>(curtok_.size() - 1));
+	Token t(context_,astcontext_,curtok_,range);
+
 	if (t)
 		result_.push_back(t);
+	else
+		context_.reportError("(this error is a placeholder for : Invalid token found)");
 
 	curtok_ = "";
 
@@ -123,6 +127,11 @@ void Lexer::runFinalChecks()
 				break;
 		}
 	}
+}
+
+void Lexer::markBeginningOfToken()
+{
+	currentTokenBeginIndex_ = manip.getIndexInBytes();
 }
 
 void Lexer::runStateFunc()
@@ -176,6 +185,7 @@ void Lexer::fn_S_BASE()
 	// HANDLE SINGLE SEPARATOR
 	else if (isSep(c))				// is the current char a separator, but not a space?
 	{
+		markBeginningOfToken();
 		addToCurtok(eatChar());
 		pushTok();
 	}
@@ -198,6 +208,7 @@ void Lexer::fn_S_BASE()
 
 void Lexer::fn_S_STR()
 {
+	markBeginningOfToken();
 	CharType c = eatChar();
 	if (c == '"' && !escapeFlag_)
 	{
@@ -228,6 +239,7 @@ void Lexer::fn_S_MCOM()
 
 void Lexer::fn_S_WORDS()
 {
+	markBeginningOfToken();
 	if (isSep(manip.getCurrentChar()))
 	{		
 		pushTok();
@@ -239,6 +251,7 @@ void Lexer::fn_S_WORDS()
 
 void Lexer::fn_S_CHR()
 {
+	markBeginningOfToken();
 	CharType c = eatChar();
 	if (c == '\'' && !escapeFlag_)
 	{
