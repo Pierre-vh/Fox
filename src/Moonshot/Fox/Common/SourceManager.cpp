@@ -193,6 +193,8 @@ SourceLoc::idx_type SourceLoc::getIndex() const
 	return idx_;
 }
 
+
+// SourceRange
 SourceRange::SourceRange(const SourceLoc& sloc, const offset_type& offset) : sloc_(sloc), offset_(offset)
 {
 
@@ -202,17 +204,23 @@ SourceRange::SourceRange(const SourceLoc& a, const SourceLoc& b)
 {
 	// a and b must belong to the same file in all cases!
 	assert(a.getFileID() == b.getFileID());
-	if (a.getIndex() <= b.getIndex())
+	if (a.getIndex() < b.getIndex())
 	{
 		// a is the first sloc
 		sloc_ = a;
 		offset_ = static_cast<offset_type>(b.getIndex() - a.getIndex());
 	}
-	else 
+	else if (a.getIndex() > b.getIndex())
 	{
 		// b is the first sloc
 		sloc_ = b;
 		offset_ = static_cast<offset_type>(a.getIndex() - b.getIndex());
+	}
+	else 
+	{
+		// a == b
+		sloc_ = a;
+		offset_ = 0;
 	}
 }
 
@@ -234,4 +242,9 @@ SourceRange::offset_type SourceRange::getOffset() const
 SourceLoc SourceRange::makeEndSourceLoc() const
 {
 	return SourceLoc(sloc_.getFileID(), sloc_.getIndex() + offset_);
+}
+
+bool SourceRange::isOnlyOneCharacter() const
+{
+	return (offset_ == 0);
 }

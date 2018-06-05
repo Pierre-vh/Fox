@@ -134,7 +134,7 @@ namespace Moonshot
 		public:
 			typedef std::uint16_t offset_type;
 
-			SourceRange(const SourceLoc& sloc, const offset_type& offset);
+			SourceRange(const SourceLoc& sloc, const offset_type& offset = 0);
 			SourceRange(const SourceLoc& a, const SourceLoc& b);
 
 			operator bool() const;
@@ -142,6 +142,7 @@ namespace Moonshot
 			SourceLoc getBeginSourceLoc() const;
 			offset_type getOffset() const;
 			SourceLoc makeEndSourceLoc() const;
+			bool isOnlyOneCharacter() const;
 		private:
 			SourceLoc sloc_;
 			offset_type offset_;
