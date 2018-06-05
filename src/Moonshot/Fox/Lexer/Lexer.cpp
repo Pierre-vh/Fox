@@ -80,7 +80,7 @@ void Lexer::pushTok()
 
 	// push Token
 	
-	Token t(context_,astcontext_,curtok_,ccoord_);
+	Token t(context_,astcontext_,curtok_);
 	// Check if token is valid, if invalid, don't push & report error
 	if (t)
 		result_.push_back(t);
@@ -102,10 +102,7 @@ void Lexer::cycle()
 		reportLexerError("Errors found : stopping lexing process.");
 		return;
 	}
-	ccoord_.forward();				// update position
 	runStateFunc();					// execute appropriate function
-	if (manip.getCurrentChar() == L'\n')	// update line
-		ccoord_.newLine();
 }
 
 void Lexer::runFinalChecks()
@@ -330,7 +327,5 @@ bool Lexer::shouldIgnore(const CharType & c) const
 
 void Lexer::reportLexerError(std::string errmsg) const
 {
-	std::stringstream out;
-	out << errmsg << " at line " << ccoord_.line;
-	context_.reportError(out.str());
+	context_.reportError(errmsg);
 }

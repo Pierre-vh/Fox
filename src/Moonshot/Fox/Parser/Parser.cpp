@@ -493,7 +493,7 @@ void Parser::errorUnexpected()
 	auto tok = getCurtok();
 	if (tok)
 	{
-		output << "Unexpected token \"" << tok.getAsString() << "\" at line " << tok.getPosition().line;
+		output << "Unexpected token \"" << tok.getAsString();
 		context_.reportError(output.str());
 	}
 	context_.resetOrigin();
@@ -512,13 +512,13 @@ void Parser::errorExpected(const std::string & s)
 	std::stringstream output;
 	
 	if (auto prevtok = getPreviousToken())
-		output << s << " after \"" << prevtok.getAsString() << "\" at line " << prevtok.getPosition().line;
+		output << s << " after \"" << prevtok.getAsString();
 	else
 	{
 		// We expect a token as first token (?!), print a "before token" error instead of "after" 
 		auto tok = getCurtok();
 		assert(tok && "Both getPreviousToken() and getCurtok() return invalid tokens?");
-		output << s << " before \"" << tok.getAsString() << "\" at line " << tok.getPosition().line;
+		output << s << " before \"" << tok.getAsString();
 	}
 
 	context_.reportError(output.str());

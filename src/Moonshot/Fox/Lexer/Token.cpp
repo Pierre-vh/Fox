@@ -29,35 +29,6 @@ using namespace Moonshot::Dictionaries;
 std::regex kInt_regex("\\d+");
 std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
 
-
-
-TextPosition::TextPosition()
-{
-}
-
-TextPosition::TextPosition(const int & l, const int & col) : line(l), column(col)
-{
-
-}
-
-void TextPosition::newLine()
-{
-	line ++;
-	//	column = 0;
-}
-
-void TextPosition::forward()
-{
-//	column += 1;
-}
-
-std::string TextPosition::asText() const
-{
-	std::stringstream ss;
-	ss << "LINE:" << line /*<< " C:" << column*/;
-	return ss.str();
-}
-
 LiteralType LiteralInfo::getType() const
 {
 	if (std::holds_alternative<bool>(val_))
@@ -152,15 +123,13 @@ LiteralInfo::operator bool() const
 	return !isNull();
 }
 
-Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr, const TextPosition & tpos)
+Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr)
 {
-	position_ = tpos;
 	idToken(ctxt,astctxt,tokstr);
 }
 
 Token::Token(const Token & cpy)
 {
-	position_ = cpy.position_;
 	tokenInfo_ = cpy.tokenInfo_;
 
 	if (cpy.litInfo_)
@@ -175,7 +144,7 @@ std::string Token::showFormattedTokenData() const
 		return "<INVALID TOKEN>"; // return nothing.
 
 	std::stringstream ss;
-	ss << "[Token][String: \"" << getAsString() << "\"][Position: " << position_.asText() << "][Type: " << getTokenTypeFriendlyName();
+	ss << "[Token][String: \"" << getAsString() << "\"][Type: " << getTokenTypeFriendlyName();
 	int enumInfo = -1;
 
 	if (isKeyword())
@@ -348,9 +317,6 @@ void Token::idToken(Context& ctxt,ASTContext& astctxt,const std::string& str)
 	// If the token is empty, this means our lexer might be broken!
 	assert(str.size() && "Token cannot be empty!");
 
-	// substract the Token length's fron the column number given by the lexer.
-	position_.column -= (unsigned)(str.length());
-
 	if (specific_idSign(str));
 	else if (specific_idKeyword(str));
 	else if (specific_idLiteral(ctxt,str));
@@ -507,11 +473,6 @@ std::string Token::getTokenTypeFriendlyName() const
 	else if (isSign())
 		return "Sign";
 	return "Unknown Token Type";
-}
-
-TextPosition Token::getPosition() const
-{
-	return position_;
 }
 
 bool Token::hasAtLeastOneLetter(const std::string& str) const

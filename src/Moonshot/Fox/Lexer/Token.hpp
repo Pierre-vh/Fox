@@ -22,17 +22,6 @@ namespace Moonshot
 	class Context;
 	class ASTContext;
 	class IdentifierInfo;
-	struct TextPosition	// a structure to hold the position of a Token in the input, and interact with it.
-	{
-		TextPosition();
-		TextPosition(const int &l, const int &col);
-		void newLine();
-		void forward();
-		std::string asText() const;
-
-		unsigned int line = 1;
-		unsigned int column = 1;
-	};
 
 	enum class LiteralType : char
 	{
@@ -156,7 +145,7 @@ namespace Moonshot
 		public:
 			Token() = default;
 			Token(const Token& cpy);
-			Token(Context &ctxt,ASTContext &astctxt,std::string tokstr, const TextPosition &tpos = TextPosition(0, 0));
+			Token(Context &ctxt,ASTContext &astctxt,std::string tokstr);
 
 			std::string showFormattedTokenData() const;
 
@@ -183,7 +172,6 @@ namespace Moonshot
 			std::string getAsString() const;
 			std::string getTokenTypeFriendlyName() const;
 
-			TextPosition getPosition() const;
 		private:
 			// Empty struct used to "mark" the variant when this token is a literal.
 			struct Literal {};
@@ -191,7 +179,6 @@ namespace Moonshot
 			/* Member variables */
 			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenInfo_;
 			std::unique_ptr<LiteralInfo> litInfo_ = nullptr;
-			TextPosition position_;
 
 			/* Identification functions */
 			void idToken(Context& ctxt,ASTContext& astctxt, const std::string& str);
