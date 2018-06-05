@@ -192,23 +192,27 @@ void Lexer::fn_S_BASE()
 	// HANDLE STRINGS AND CHARS
 	else if (c == '\'')	// Delimiter?
 	{
+		markBeginningOfToken();
 		addToCurtok(eatChar());
 		dfa_goto(DFAState::S_CHR);
 	}
 	else if (c == '"')
 	{
+		markBeginningOfToken();
 		addToCurtok(eatChar());
 		dfa_goto(DFAState::S_STR);
 	}
 	// HANDLE IDs & Everything Else
-	else 		
+	else
+	{
+		markBeginningOfToken();
 		dfa_goto(DFAState::S_WORDS);
+	}
 
 }
 
 void Lexer::fn_S_STR()
 {
-	markBeginningOfToken();
 	CharType c = eatChar();
 	if (c == '"' && !escapeFlag_)
 	{
@@ -239,7 +243,6 @@ void Lexer::fn_S_MCOM()
 
 void Lexer::fn_S_WORDS()
 {
-	markBeginningOfToken();
 	if (isSep(manip.getCurrentChar()))
 	{		
 		pushTok();
@@ -251,7 +254,6 @@ void Lexer::fn_S_WORDS()
 
 void Lexer::fn_S_CHR()
 {
-	markBeginningOfToken();
 	CharType c = eatChar();
 	if (c == '\'' && !escapeFlag_)
 	{
