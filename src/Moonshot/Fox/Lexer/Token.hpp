@@ -173,6 +173,8 @@ namespace Moonshot
 			std::string getAsString() const;
 			std::string getTokenTypeFriendlyName() const;
 
+			SourceRange& sourceRange();
+			const SourceRange& sourceRange() const;
 		private:
 			// Empty struct used to "mark" the variant when this token is a literal.
 			struct Literal {};

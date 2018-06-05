@@ -475,6 +475,16 @@ std::string Token::getTokenTypeFriendlyName() const
 	return "Unknown Token Type";
 }
 
+SourceRange & Token::sourceRange()
+{
+	return range_;
+}
+
+const SourceRange & Token::sourceRange() const
+{
+	return range_;
+}
+
 bool Token::hasAtLeastOneLetter(const std::string& str) const
 {
 	return std::any_of(str.begin(), str.end(), ::isalpha);
