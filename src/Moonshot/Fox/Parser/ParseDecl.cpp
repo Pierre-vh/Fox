@@ -137,7 +137,7 @@ Parser::DeclResult Parser::parseArgDecl()
 	if (auto id = consumeIdentifier())
 	{
 		// <fq_type_spec>
-		if (auto typespec_res = parseFQTypeSpec())
+		if (auto typespec_res = parseQualType())
 		{
 			auto rtr = std::make_unique<ArgDecl>(id.get(), typespec_res.get());
 			recordDecl(rtr.get());
@@ -178,7 +178,7 @@ Parser::DeclResult Parser::parseVarDecl()
 		}
 
 		// <fq_type_spec>
-		if (auto typespecResult = parseFQTypeSpec())
+		if (auto typespecResult = parseQualType())
 		{
 			QualType ty = typespecResult.get();
 			if (ty.isAReference())
@@ -236,7 +236,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	return DeclResult::NotFound();
 }
 
-Parser::Result<QualType> Parser::parseFQTypeSpec()
+Parser::Result<QualType> Parser::parseQualType()
 {
 	// 	<fq_type_spec>	= ':' ["const"] ['&'] <type>
 	if (consumeSign(SignType::S_COLON))

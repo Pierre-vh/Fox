@@ -132,7 +132,7 @@ namespace Moonshot
 			Result<Type*> parseType();
 
 			// Parses a QualType (Full Type Spec)
-			Result<QualType> parseFQTypeSpec();
+			Result<QualType> parseQualType();
 
 			Result<binaryOperator> parseAssignOp();						// = 
 			Result<unaryOperator>  parseUnaryOp();						// ! - +
