@@ -171,6 +171,43 @@ bool VarDecl::hasInitExpr() const
 	return (bool)initExpr_;
 }
 
+void VarDecl::setAllLocs(const SourceLoc & idLoc, const SourceLoc & typeLoc, const SourceLoc & semiLoc)
+{
+	idLoc_ = idLoc;
+	typeLoc_ = typeLoc;
+	semiLoc_ = semiLoc;
+}
+
+void VarDecl::setIDLoc(const SourceLoc& sloc)
+{
+	idLoc_ = sloc;
+}
+
+SourceLoc VarDecl::getIDLoc() const
+{
+	return idLoc_;
+}
+
+void VarDecl::setTypeLoc(const SourceLoc& sloc)
+{
+	typeLoc_ = sloc;
+}
+
+SourceLoc VarDecl::getTypeLoc() const
+{
+	return typeLoc_;
+}
+
+void VarDecl::setSemiLoc(const SourceLoc& sloc)
+{
+	semiLoc_ = sloc;
+}
+
+SourceLoc VarDecl::getSemiLoc() const
+{
+	return semiLoc_;
+}
+
 void VarDecl::setType(const QualType &ty)
 {
 	varTy_ = ty;

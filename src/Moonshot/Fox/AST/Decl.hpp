@@ -119,7 +119,18 @@ namespace Moonshot
 
 			bool hasInitExpr() const;
 
+			void setAllLocs(const SourceLoc& idLoc, const SourceLoc& typeLoc, const SourceLoc& semiLoc);
+			
+			void setIDLoc(const SourceLoc& sloc);
+			SourceLoc getIDLoc() const;
+
+			void setTypeLoc(const SourceLoc& sloc);
+			SourceLoc getTypeLoc() const;
+
+			void setSemiLoc(const SourceLoc& sloc);
+			SourceLoc getSemiLoc() const;
 		private:
+			SourceLoc idLoc_, typeLoc_, semiLoc_;
 			QualType varTy_;
 			std::unique_ptr<Expr> initExpr_ = nullptr;
 	};
