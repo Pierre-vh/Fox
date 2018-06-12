@@ -556,12 +556,12 @@ SourceRange Parser::parseExponentOp()
 Parser::Result<binaryOperator> Parser::parseAssignOp()
 {
 	auto backup = createParserStateBackup();
-	if (consumeSign(SignType::S_EQUAL))
+	if (auto equal = consumeSign(SignType::S_EQUAL))
 	{
 		// Try to match a S_EQUAL. If failed, that means that the next token isn't a =
 		// If it succeeds, we founda '==', this is the comparison operator and we must backtrack to prevent errors.
 		if (!consumeSign(SignType::S_EQUAL))
-			return Result<binaryOperator>(binaryOperator::ASSIGN_BASIC);
+			return Result<binaryOperator>(binaryOperator::ASSIGN_BASIC,SourceRange(equal));
 		restoreParserStateFromBackup(backup);
 	}
 	return Result<binaryOperator>::NotFound();
@@ -569,12 +569,12 @@ Parser::Result<binaryOperator> Parser::parseAssignOp()
 
 Parser::Result<unaryOperator> Parser::parseUnaryOp()
 {
-	if (consumeSign(SignType::S_EXCL_MARK))
-		return Result<unaryOperator>(unaryOperator::LOGICNOT);
-	else if (consumeSign(SignType::S_MINUS))
-		return Result<unaryOperator>(unaryOperator::NEGATIVE);
-	else if (consumeSign(SignType::S_PLUS))
-		return Result<unaryOperator>(unaryOperator::POSITIVE);
+	if (auto excl = consumeSign(SignType::S_EXCL_MARK))
+		return Result<unaryOperator>(unaryOperator::LOGICNOT, SourceRange(excl));
+	else if (auto minus = consumeSign(SignType::S_MINUS))
+		return Result<unaryOperator>(unaryOperator::NEGATIVE, SourceRange(minus));
+	else if (auto plus = consumeSign(SignType::S_PLUS))
+		return Result<unaryOperator>(unaryOperator::POSITIVE, SourceRange(plus));
 	return Result<unaryOperator>::NotFound();
 }
 
