@@ -122,7 +122,7 @@ LiteralInfo::operator bool() const
 	return !isNull();
 }
 
-Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr, const SourceRange& range) : range_(range)
+Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr, const SourceRange& range) : sourceRange(range)
 {
 	idToken(ctxt,astctxt,tokstr);
 }
@@ -130,7 +130,7 @@ Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr, const Sourc
 Token::Token(const Token & cpy)
 {
 	tokenInfo_ = cpy.tokenInfo_;
-	range_ = cpy.range_;
+	sourceRange = cpy.sourceRange;
 
 	if (cpy.litInfo_)
 		litInfo_ = std::make_unique<LiteralInfo>(*(cpy.litInfo_));
@@ -473,16 +473,6 @@ std::string Token::getTokenTypeFriendlyName() const
 	else if (isSign())
 		return "Sign";
 	return "Unknown Token Type";
-}
-
-SourceRange & Token::sourceRange()
-{
-	return range_;
-}
-
-const SourceRange & Token::sourceRange() const
-{
-	return range_;
 }
 
 bool Token::hasAtLeastOneLetter(const std::string& str) const

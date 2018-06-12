@@ -173,8 +173,7 @@ namespace Moonshot
 			std::string getAsString() const;
 			std::string getTokenTypeFriendlyName() const;
 
-			SourceRange& sourceRange();
-			const SourceRange& sourceRange() const;
+			SourceRange sourceRange;
 		private:
 			// Empty struct used to "mark" the variant when this token is a literal.
 			struct Literal {};
@@ -182,7 +181,6 @@ namespace Moonshot
 			/* Member variables */
 			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenInfo_;
 			std::unique_ptr<LiteralInfo> litInfo_ = nullptr;
-			SourceRange range_;
 
 			/* Identification functions */
 			void idToken(Context& ctxt,ASTContext& astctxt, const std::string& str);
