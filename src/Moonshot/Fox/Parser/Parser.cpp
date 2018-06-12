@@ -334,12 +334,12 @@ Token Parser::getPreviousToken() const
 	return Token();
 }
 
-bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const bool & shouldConsumeToken, SourceRange* range)
+bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const bool & shouldConsumeToken)
 {
-	return resyncToSign(std::vector<SignType>({ sign }), stopAtSemi, shouldConsumeToken, range);
+	return resyncToSign(std::vector<SignType>({ sign }), stopAtSemi, shouldConsumeToken);
 }
 
-bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopAtSemi, const bool & shouldConsumeToken, SourceRange* range)
+bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopAtSemi, const bool & shouldConsumeToken)
 {
 	// Note, this function is heavily based on (read: nearly copy pasted from) CLang's http://clang.llvm.org/doxygen/Parse_2Parser_8cpp_source.html#l00245
 	// This is CLang's license https://github.com/llvm-mirror/clang/blob/master/LICENSE.TXT. 
@@ -362,9 +362,6 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 			{
 				if (shouldConsumeToken)
 					consumeAny();
-
-				if (range)
-					*range = tok.sourceRange;
 
 				return true;
 			}

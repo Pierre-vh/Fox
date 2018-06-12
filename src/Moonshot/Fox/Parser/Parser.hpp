@@ -179,8 +179,8 @@ namespace Moonshot
 			/*-------------- Error Recovery --------------*/
 				// Last Parameter is an optional pointer to a SourceRange. If the recovery was successful, the SourceRange of the token found
 				// will be saved there.
-			bool resyncToSign(const SignType& sign, const bool& stopAtSemi, const bool& shouldConsumeToken, SourceRange* range = nullptr);
-			bool resyncToSign(const std::vector<SignType>& signs, const bool& stopAtSemi, const bool& shouldConsumeToken, SourceRange* range = nullptr);
+			bool resyncToSign(const SignType& sign, const bool& stopAtSemi, const bool& shouldConsumeToken);
+			bool resyncToSign(const std::vector<SignType>& signs, const bool& stopAtSemi, const bool& shouldConsumeToken);
 			bool resyncToNextDecl();
 
 			/*-------------- Error Reporting --------------*/
