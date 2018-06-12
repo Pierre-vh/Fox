@@ -179,6 +179,8 @@ namespace Moonshot
 			struct Literal {};
 
 			/* Member variables */
+			// Note: LiteralInfo is quite heavy, so it's dynamically allocated to save space, since
+			// most token won't need it.
 			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenInfo_;
 			std::unique_ptr<LiteralInfo> litInfo_ = nullptr;
 
