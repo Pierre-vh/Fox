@@ -275,11 +275,12 @@ namespace Moonshot
 		public:
 			/*-------------- Result Classes --------------*/
 			// Class for encapsulating a parsing function's result.
+			// It also stores a SourceRange to store a Position if needed.
 			template<typename DataTy>
 			class Result
 			{
 				public:
-					Result(DataTy res) : result_(res), hasData_(true), successFlag_(true)
+					Result(DataTy res, const SourceRange& range_) : result_(res), hasData_(true), successFlag_(true), range_(range)
 					{
 
 					}
@@ -320,7 +321,13 @@ namespace Moonshot
 						return Result<DataTy>(true);
 					}
 
+					SourceRange getSourceRange() const
+					{
+						return range_;
+					}
+
 				private:
+					SourceRange range_;
 					bool hasData_ : 1;
 					bool successFlag_ : 1;
 					DataTy result_;
