@@ -443,14 +443,14 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory)
 		auto RParen = consumeBracket(SignType::S_ROUND_CLOSE);
 		if (!RParen)
 		{
-			// no ), handle error & attempt to recover if it's allowed.
+			// no ), handle error & attempt to recover 
 			errorExpected("Expected a ')'");
-			SourceRange tmp;
-			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true, &tmp))
+
+			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 				return ExprResult::Error();
 			
 			// If we recovered successfuly, place the Sloc into RParen
-			RParen = tmp.getBeginSourceLoc();
+			RParen = consumeBracket(SignType::S_ROUND_CLOSE);
 		}
 
 		return ExprResult(
