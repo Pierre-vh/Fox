@@ -134,7 +134,7 @@ void Parser::setupParser()
 	state_.lastUnexpectedTokenIt = tokens_.begin();
 }
 
-IdentifierInfo* Parser::consumeIdentifier()
+Parser::Result<IdentifierInfo*> Parser::consumeIdentifier()
 {
 	Token tok = getCurtok();
 	if (tok.isIdentifier())
@@ -142,20 +142,21 @@ IdentifierInfo* Parser::consumeIdentifier()
 		IdentifierInfo* ptr = tok.getIdentifierInfo();
 		assert(ptr && "Token's an identifier but contains a nullptr IdentifierInfo?");
 		skipToken();
-		return ptr;
+		return Result<IdentifierInfo*>(ptr,tok.sourceRange);
 	}
-	return nullptr;
+	return Result<IdentifierInfo*>::NotFound();
 }
 
-bool Parser::consumeSign(const SignType & s)
+SourceLoc Parser::consumeSign(const SignType & s)
 {
 	assert(!isBracket(s) && "This method shouldn't be used to match brackets ! Use consumeBracket instead!");
-	if (getCurtok().is(s))
+	auto tok = getCurtok();
+	if (tok.is(s))
 	{
 		skipToken();
-		return true;
+		return tok.sourceRange.getBeginSourceLoc();
 	}
-	return false;
+	return SourceLoc();
 }
 
 SourceLoc Parser::consumeBracket(const SignType & s)
@@ -206,14 +207,15 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 	return SourceLoc();
 }
 
-bool Parser::consumeKeyword(const KeywordType & k)
+SourceRange Parser::consumeKeyword(const KeywordType & k)
 {
-	if (getCurtok().is(k))
+	auto tok = getCurtok();
+	if (tok.is(k))
 	{
 		skipToken();
-		return true;
+		return tok.sourceRange;
 	}
-	return false;
+	return SourceRange();
 }
 
 void Parser::consumeAny()
@@ -256,33 +258,48 @@ bool Parser::isBracket(const SignType & s) const
 	}
 }
 
-Type* Parser::parseBuiltinTypename()
+Parser::Result<Type*> Parser::parseBuiltinTypename()
 {
 	// <builtin_type_name> 	= "int" | "float" | "bool" | "string" | "char"
 	Token t = getCurtok();
 	if (t.isKeyword())
 	{
 		skipToken();
+		PrimitiveType* ty;
 		switch (t.getKeywordType())
 		{
-			case KeywordType::KW_INT:	return  astcontext_.getPrimitiveIntType();
-			case KeywordType::KW_FLOAT:	return  astcontext_.getPrimitiveFloatType();
-			case KeywordType::KW_CHAR:	return	astcontext_.getPrimitiveCharType();
-			case KeywordType::KW_STRING:return	astcontext_.getPrimitiveStringType();
-			case KeywordType::KW_BOOL:	return	astcontext_.getPrimitiveBoolType();
+			case KeywordType::KW_INT:
+				ty = astcontext_.getPrimitiveIntType();
+				break;
+			case KeywordType::KW_FLOAT:
+				ty = astcontext_.getPrimitiveFloatType();
+				break;
+			case KeywordType::KW_CHAR:
+				ty = astcontext_.getPrimitiveCharType();
+				break;
+			case KeywordType::KW_STRING:
+				ty = astcontext_.getPrimitiveStringType();
+				break;
+			case KeywordType::KW_BOOL:
+				ty = astcontext_.getPrimitiveBoolType();
+				break;
+			default:
+				revertConsume();
+				return Result<Type*>::NotFound();
 		}
-		revertConsume();
+		return Result<Type*>(ty,t.sourceRange);
 	}
-	return nullptr;
+	return Result<Type*>::NotFound();
 }
 
 Parser::Result<Type*> Parser::parseType()
 {
 	// <type> = <builtin_type_name> { '[' ']' }
 	// <builtin_type_name> 
-	if (auto ty = parseBuiltinTypename())
+	if (auto ty_res = parseBuiltinTypename())
 	{
 		//  { '[' ']' }
+		Type* ty = ty_res.get();
 		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
 			ty = astcontext_.getArrayTypeForType(ty);
@@ -297,7 +314,7 @@ Parser::Result<Type*> Parser::parseType()
 				return Result<Type*>::Error();
 			}
 		}
-		return Result<Type*>(ty);
+		return Result<Type*>(ty,ty_res.getSourceRange());
 	}
 	return Result<Type*>::NotFound();
 }

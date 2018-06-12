@@ -126,7 +126,7 @@ namespace Moonshot
 
 			/*-------------- "Basic" Parse Methods --------------*/
 			// Returns a nullptr if no type keyword is found
-			Type* parseBuiltinTypename();	
+			Result<Type*> parseBuiltinTypename();	
 
 			// first -> The Type* (nullptr if not found), second -> False if error
 			Result<Type*> parseType();
@@ -145,26 +145,27 @@ namespace Moonshot
 				(found the requested token), false otherwise
 			*/
 
-			// Consumes an Identifier, Returns nullptr if the Identifier was not found.
-			IdentifierInfo* consumeIdentifier();
+			// Consumes an Identifier
+			Result<IdentifierInfo*> consumeIdentifier();
 
-			// Consumes any sign but brackets. Returns false if the bracket was not found.
-			bool consumeSign(const SignType& s);
+			// Consumes any sign but brackets.
+			// Returns an invalid SourceLoc if not found, and returns a valid one if found.
+			SourceLoc consumeSign(const SignType& s);
 
 			// Consumes a bracket and keeps the bracket count up to date. Returns an invalid SourceLoc if the bracket was not found.
 			// Note : In the US, a Bracket is a [], however, here the bracket noun is used in the strict sense, where Round B. = (), Square B. = [] and Curly B. = {}
 			SourceLoc consumeBracket(const SignType& s);
 
 			// Consumes a keyword. Returns false if the keyword was not found.
-			bool consumeKeyword(const KeywordType& k);
+			SourceRange consumeKeyword(const KeywordType& k);
 
-			// Dispatch to the appriate consume method
+			// Dispatch to the appriate consume method. Won't return any loc information.
 			void consumeAny();		
 
 			// Skips one token
 			void skipToken();
 
-			// Revert the last consume operation (decrements the iterator)
+			// Revert the last consume operation
 			void revertConsume();	
 
 			// Helper for consumeSign & consumeBracket
@@ -275,12 +276,12 @@ namespace Moonshot
 		public:
 			/*-------------- Result Classes --------------*/
 			// Class for encapsulating a parsing function's result.
-			// It also stores a SourceRange to store a Position if needed.
+			// It also stores a SourceRange to store a Position/Range if needed.
 			template<typename DataTy>
 			class Result
 			{
 				public:
-					Result(DataTy res, const SourceRange& range_) : result_(res), hasData_(true), successFlag_(true), range_(range)
+					Result(DataTy res, const SourceRange& range = SourceRange()) : result_(res), hasData_(true), successFlag_(true), range_(range)
 					{
 
 					}
