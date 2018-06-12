@@ -28,11 +28,6 @@ Moonshot Project To-do List.
 	> Update lexer/token to add a sourcerange/loc to every single token (Done)
 
 	> Update the AST so all nodes have a sourceloc/range too wherever needed. (Next)
-		> Also : Make ParensExpr a "real" node.
-		> ExprList will just stay a Fake node.
-
-		> CallExpr : LParenLoc, RParenLoc
-		> If : Loc is in the ParenExpr
 
 	> Update Diagnostics & DiagnosticsEngine to support a sourceloc/sourcerange arg.
 		> Also, add operator << support for Diagnostics. 
