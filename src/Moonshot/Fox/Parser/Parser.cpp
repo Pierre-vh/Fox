@@ -343,7 +343,7 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 {
 	// Note, this function is heavily based on (read: nearly copy pasted from) CLang's http://clang.llvm.org/doxygen/Parse_2Parser_8cpp_source.html#l00245
 	// This is CLang's license https://github.com/llvm-mirror/clang/blob/master/LICENSE.TXT. 
-	// As this is not a pure copy-paste but more of a translation & adaptation I don't think I need to link it, but here is it anyways.
+	// (As this is not a pure copy-paste but more of a translation & adaptation I don't think I need to link it, but here is it anyways)
 
 	// Return immediately if recovery is not allowed, or the parser isn't alive anymore.
 	if (!state_.isRecoveryAllowed || !isAlive())

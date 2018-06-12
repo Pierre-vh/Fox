@@ -12,25 +12,23 @@
 //
 // Note :	I've dug a lot into CLang's parser to try and see how to handle complex cases with elegance,
 //			so some stuff (algorithms, names) you'll see here looks a lot like clang's parser, simplified of course.
-//			Again, I don't think that's an issue, but here's CLang's license anyways : 
+//			Again, I don't think that's an issue, but here's CLang's license anyways :  https://github.com/llvm-mirror/clang/blob/master/LICENSE.TXT. 
+
+// Note :
+//			Parens always mean Round Brackets only.
+//			Brackets always mean Round/Curly/Square Bracket (Every kind of bracket)
 // 
 // Status: Up to date with latest grammar changes, except import/using rules that aren't implemented yet.
 //
 //		Potential Areas of improvement
 //			Recovery Efficiency
-//				> Tweak it by running different test situations and adding special recovery cases wherever needed.
-//				> Find flaws in the current system and fix them!
+//				Tweak it by running different test situations and adding special recovery cases wherever needed.
 //			Speed
-//				> Not for now. I'm going to make it work, make it right, then (maybe) make it fast, but in the future I think I can do some token peekings in some functions
-//					to avoid calling a parse function.
-// 
-//		Parser "to-do" list. Important stuff is marked with (*)
 //
+//
+//		Parser "to-do" list. Important stuff is marked with (*)
 //			Add better error recovey with common cases support in if/while parsing & function declaration
 //
-//			When SourceLoc system is added, match functions should return a SourceLoc instead, and a Invalid sourceloc if it doesn't match anything.
-//			SourceLoc will need to overload operator bool(), which will check it's validity.
-//				Also, Migrate every diag to the new diag system for the lexer, token & parser classes when SourceLoc is added, and delete the old context diag system.
 ////------------------------------------------------------////
 
 #pragma once
@@ -143,21 +141,22 @@ namespace Moonshot
 			/*	
 				Consume methods all return a result that evaluates to true if the "consume" operation finished successfully 
 				(found the requested token), false otherwise
+
+				Note: SourceLocs and SourceRanges can be both evaluated in a condition to check their validity (operator bool is implemented on both)
 			*/
 
 			// Consumes an Identifier
-			// The Result packs in the SourceRange of the identifier if one was found.
+			// The Result will have the SourceRange of the identifier if one was found.
 			Result<IdentifierInfo*> consumeIdentifier();
 
 			// Consumes any sign but brackets.
-			// Returns an invalid SourceLoc if not found, and returns a valid one if found.
 			SourceLoc consumeSign(const SignType& s);
 
 			// Consumes a bracket and keeps the bracket count up to date. Returns an invalid SourceLoc if the bracket was not found.
 			// Note : In the US, a Bracket is a [], however, here the bracket noun is used in the strict sense, where Round B. = (), Square B. = [] and Curly B. = {}
 			SourceLoc consumeBracket(const SignType& s);
 
-			// Consumes a keyword. Returns false if the keyword was not found.
+			// Consumes a keyword. Returns an invalid SourceRange if not found.
 			SourceRange consumeKeyword(const KeywordType& k);
 
 			// Dispatch to the appriate consume method. Won't return any loc information.
