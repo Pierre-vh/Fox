@@ -137,15 +137,16 @@ namespace Moonshot
 			Result<binaryOperator> parseAssignOp();						// = 
 			Result<unaryOperator>  parseUnaryOp();						// ! - +
 			Result<binaryOperator> parseBinaryOp(const char &priority);	// + - * / % 
-			bool parseExponentOp();											//  **
+			SourceRange parseExponentOp();											//  **
 
 			/*-------------- Token Consuming --------------*/
 			/*	
-				Consume methods all return a boolean if the "consume" operation finished successfully 
+				Consume methods all return a result that evaluates to true if the "consume" operation finished successfully 
 				(found the requested token), false otherwise
 			*/
 
 			// Consumes an Identifier
+			// The Result packs in the SourceRange of the identifier if one was found.
 			Result<IdentifierInfo*> consumeIdentifier();
 
 			// Consumes any sign but brackets.
