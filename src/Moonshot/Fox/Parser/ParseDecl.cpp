@@ -35,7 +35,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		bool isValid = true;
 		// <id>
 		if (auto id = consumeIdentifier())
-			rtr->setIdentifier(id);
+			rtr->setIdentifier(id.get());
 		else
 		{
 			errorExpected("Expected an identifier");
@@ -139,7 +139,7 @@ Parser::DeclResult Parser::parseArgDecl()
 		// <fq_type_spec>
 		if (auto typespec_res = parseFQTypeSpec())
 		{
-			auto rtr = std::make_unique<ArgDecl>(id, typespec_res.get());
+			auto rtr = std::make_unique<ArgDecl>(id.get(), typespec_res.get());
 			recordDecl(rtr.get());
 			return DeclResult(std::move(rtr));
 		}
@@ -163,7 +163,7 @@ Parser::DeclResult Parser::parseVarDecl()
 
 		// <id>
 		if (auto id = consumeIdentifier())
-			rtr->setIdentifier(id);
+			rtr->setIdentifier(id.get());
 		else
 		{
 			errorExpected("Expected an identifier");

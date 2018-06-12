@@ -30,7 +30,7 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 		{
 			// found, return
 			return ExprResult(
-				std::make_unique<MemberOfExpr>(std::move(base),id)
+				std::make_unique<MemberOfExpr>(std::move(base),id.get())
 			);
 		}
 		else 
@@ -98,7 +98,7 @@ Parser::ExprResult Parser::parseDeclRef()
 
 	// <decl_call> = <id> 
 	if (auto id = consumeIdentifier())
-		return ExprResult(std::make_unique<DeclRefExpr>(id));
+		return ExprResult(std::make_unique<DeclRefExpr>(id.get()));
 	return ExprResult::NotFound();
 }
 
@@ -295,7 +295,7 @@ Parser::ExprResult Parser::parseCastExpr()
 			if (auto castType = parseBuiltinTypename())
 			{
 				return ExprResult(
-						std::make_unique<CastExpr>(castType,prefixexpr.move())
+						std::make_unique<CastExpr>(castType.get(),prefixexpr.move())
 					);
 			}
 			else
