@@ -200,8 +200,8 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 				throw std::exception("Unknown bracket type"); // Should be unreachable.
 		}
 		skipToken();
-		assert((tok.sourceRange().getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
-		return SourceLoc(tok.sourceRange().getBeginSourceLoc());
+		assert((tok.sourceRange.getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
+		return SourceLoc(tok.sourceRange.getBeginSourceLoc());
 	}
 	return SourceLoc();
 }
@@ -347,7 +347,7 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 					consumeAny();
 
 				if (range)
-					*range = tok.sourceRange();
+					*range = tok.sourceRange;
 
 				return true;
 			}
