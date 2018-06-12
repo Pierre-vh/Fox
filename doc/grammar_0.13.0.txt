@@ -1,30 +1,20 @@
-Fox Grammar version 0.13.0
+Fox Grammar version 0.13.1
 
 // Note : { } means "0 or more", [ ] means "optional"
 
 ##Base rule (The parsing process starts from this rule.)
 <fox_unit>	= {<declaration>}1+	// Note, in the future I'll add the <import> too, but not yet. I'll implement them later.
-<declaration> = <func_decl> | <var_decl>
 
 ##General Rules##
-
 <id> 				= Any non-reserved keyword that is recognized by the following regular expression : (([A-Z]|[a-z]|_)([A-Z]|[0-9]|[a-z]|_)?)+ that contains at least one character.
-<builtin_type_name> 			= "int" 	| "float"		| "bool"	| "string"		| "char"
+
+##Types##
+<builtin_type_name> = "int" 	| "float"		| "bool"	| "string"		| "char"
+<type>		= <builtin_type_name> { '[' ']' }
+<qualtype>	= ':' ["const"] ['&'] <type> // A Fully Qualified Type
+
+##Exprs##
 <primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
-
-// a Type
-<type> = <builtin_type_name> { '[' ']' }
-
-// Fully qualified type spec
-<fq_type_spec>	= ':' ["const"] ['&'] <type>
-
-<compound_statement>= '{' {<stmt>} '}'
-
-<import>        = ("import" | "using") <id> {'.' (<id> | '*')} ';' // Note: Stop (break loop) if '*' is found
-
-<stmt>			= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
-<body>			= <stmt> | <compound_statement>
-
 <expr_list>		= <expr> {',' <expr> }
 <parens_expr_list>	= '(' [ <expr_list> ] ')'
 <expr_stmt>		= ';' | <expr> ';' 
@@ -62,15 +52,20 @@ Fox Grammar version 0.13.0
 		= 
 */
 
-##Variables##
-<var_decl>		= "let" <id> <fq_type_spec> ['=' <expr>] ';' 
+##Decls##
+<declaration> = <func_decl> | <var_decl>
+<func_decl>	= "func" <id> '(' [<arg_decl> {',' <arg_decl>}] ')'[':' <type>] <compound_statement>
+<arg_decl>	= <id> <qualtype>
+<expr_list>	= '(' [<expr> {',' <expr>}] ')'
+<rtr_stmt>	= "return" [<expr>] ';'
 
-##Functions##
-<func_decl>		= "func" <id> '(' [<arg_decl> {',' <arg_decl>}] ')'[':' <type>] <compound_statement>
-<arg_decl>		= <id> <fq_type_spec>
-<expr_list>		= '(' [<expr> {',' <expr>}] ')'
-<rtr_stmt>		= "return" [<expr>] ';'
+##Decl-Stmt##
+<import>        = ("import" | "using") <id> {'.' (<id> | '*')} ';'
+<var_decl>		= "let" <id> <qualtype> ['=' <expr>] ';' 
 
-##Control Flow##
-<condition>			= "if"		<parens_expr> <body> ["else" <body>]
-<while_loop> 		= "while"	<parens_expr> <body>
+##Stmts##
+<compound_statement> = '{' {<stmt>} '}'
+<condition>		= "if"		<parens_expr> <body> ["else" <body>]
+<while_loop> 	= "while"	<parens_expr> <body>
+<body>			= <stmt> | <compound_statement>
+<stmt>			= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
