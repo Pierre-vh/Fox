@@ -542,16 +542,15 @@ Parser::ExprListResult Parser::parseParensExprList()
 	return ExprListResult::NotFound();
 }
 
-bool Parser::parseExponentOp()
+SourceRange Parser::parseExponentOp()
 {
-	auto backup = createParserStateBackup();
-	if (consumeSign(SignType::S_ASTERISK))
+	if (auto t1 = consumeSign(SignType::S_ASTERISK))
 	{
-		if (consumeSign(SignType::S_ASTERISK))
-			return true;
-		restoreParserStateFromBackup(backup);
+		if (auto t2 = consumeSign(SignType::S_ASTERISK))
+			return SourceRange(t1,t2);
+		revertConsume();
 	}
-	return false;
+	return SourceRange();
 }
 
 Parser::Result<binaryOperator> Parser::parseAssignOp()
@@ -590,61 +589,61 @@ Parser::Result<binaryOperator> Parser::parseBinaryOp(const char & priority)
 	switch (priority)
 	{
 		case 0: // * / %
-			if (consumeSign(SignType::S_ASTERISK))
+			if (auto asterisk = consumeSign(SignType::S_ASTERISK))
 			{
 				if (!consumeSign(SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
-					return Result<binaryOperator>(binaryOperator::MUL );
+					return Result<binaryOperator>(binaryOperator::MUL, SourceRange(asterisk));
 			}
-			else if (consumeSign(SignType::S_SLASH))
-				return Result<binaryOperator>(binaryOperator::DIV);
-			else if (consumeSign(SignType::S_PERCENT))
-				return Result<binaryOperator>(binaryOperator::MOD);
+			else if (auto slash = consumeSign(SignType::S_SLASH))
+				return Result<binaryOperator>(binaryOperator::DIV, SourceRange(slash));
+			else if (auto percent = consumeSign(SignType::S_PERCENT))
+				return Result<binaryOperator>(binaryOperator::MOD, SourceRange(percent));
 			break;
 		case 1: // + -
-			if (consumeSign(SignType::S_PLUS))
-				return Result<binaryOperator>(binaryOperator::ADD );
-			else if (consumeSign(SignType::S_MINUS))
-				return Result<binaryOperator>(binaryOperator::MINUS);
+			if (auto plus = consumeSign(SignType::S_PLUS))
+				return Result<binaryOperator>(binaryOperator::ADD, SourceRange(plus));
+			else if (auto minus = consumeSign(SignType::S_MINUS))
+				return Result<binaryOperator>(binaryOperator::MINUS, SourceRange(minus));
 			break;
 		case 2: // > >= < <=
-			if (consumeSign(SignType::S_LESS_THAN))
+			if (auto lessthan = consumeSign(SignType::S_LESS_THAN))
 			{
-				if (consumeSign(SignType::S_EQUAL))
-					return Result<binaryOperator>(binaryOperator::LESS_OR_EQUAL );
-				return Result<binaryOperator>(binaryOperator::LESS_THAN );
+				if (auto equal = consumeSign(SignType::S_EQUAL))
+					return Result<binaryOperator>(binaryOperator::LESS_OR_EQUAL, SourceRange(lessthan,equal));
+				return Result<binaryOperator>(binaryOperator::LESS_THAN, SourceRange(lessthan));
 			}
-			else if (consumeSign(SignType::S_GREATER_THAN))
+			else if (auto grthan = consumeSign(SignType::S_GREATER_THAN))
 			{
-				if (consumeSign(SignType::S_EQUAL))
-					return Result<binaryOperator>(binaryOperator::GREATER_OR_EQUAL );
-				return Result<binaryOperator>(binaryOperator::GREATER_THAN );
+				if (auto equal = consumeSign(SignType::S_EQUAL))
+					return Result<binaryOperator>(binaryOperator::GREATER_OR_EQUAL, SourceRange(grthan,equal));
+				return Result<binaryOperator>(binaryOperator::GREATER_THAN, SourceRange(grthan));
 			}
 			break;
 		case 3:	// == !=
 			// try to match '=' twice.
-			if (consumeSign(SignType::S_EQUAL))
+			if (auto equal1 = consumeSign(SignType::S_EQUAL))
 			{
-				if (consumeSign(SignType::S_EQUAL))
-					return Result<binaryOperator>(binaryOperator::EQUAL );
+				if (auto equal2 = consumeSign(SignType::S_EQUAL))
+					return Result<binaryOperator>(binaryOperator::EQUAL, SourceRange(equal1,equal2));
 			}
-			else if (consumeSign(SignType::S_EXCL_MARK))
+			else if (auto excl = consumeSign(SignType::S_EXCL_MARK))
 			{
-				if (consumeSign(SignType::S_EQUAL))
-					return Result<binaryOperator>(binaryOperator::NOTEQUAL);
+				if (auto equal =consumeSign(SignType::S_EQUAL))
+					return Result<binaryOperator>(binaryOperator::NOTEQUAL, SourceRange(excl,equal));
 			}
 			break;
 		case 4: // &&
-			if (consumeSign(SignType::S_AMPERSAND))
+			if (auto amp1 = consumeSign(SignType::S_AMPERSAND))
 			{
-				if (consumeSign(SignType::S_AMPERSAND))
-					return Result<binaryOperator>(binaryOperator::LOGIC_AND);
+				if (auto amp2 = consumeSign(SignType::S_AMPERSAND))
+					return Result<binaryOperator>(binaryOperator::LOGIC_AND, SourceRange(amp1,amp2));
 			}
 			break;
 		case 5: // ||
-			if (consumeSign(SignType::S_VBAR))
+			if (auto vbar1 = consumeSign(SignType::S_VBAR))
 			{
-				if (consumeSign(SignType::S_VBAR))
-					return Result<binaryOperator>(binaryOperator::LOGIC_OR);
+				if (auto vbar2 = consumeSign(SignType::S_VBAR))
+					return Result<binaryOperator>(binaryOperator::LOGIC_OR, SourceRange(vbar1,vbar2));
 			}
 			break;
 		default:
