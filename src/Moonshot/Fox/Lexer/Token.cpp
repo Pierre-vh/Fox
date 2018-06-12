@@ -122,12 +122,14 @@ LiteralInfo::operator bool() const
 	return !isNull();
 }
 
+
+
 Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr, const SourceRange& range) : sourceRange(range)
 {
 	idToken(ctxt,astctxt,tokstr);
 }
 
-Token::Token(const Token & cpy)
+Token::Token(const Token& cpy)
 {
 	tokenInfo_ = cpy.tokenInfo_;
 	sourceRange = cpy.sourceRange;
