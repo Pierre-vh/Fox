@@ -133,7 +133,7 @@ namespace Moonshot
 			using DeclVecIter = DereferenceIterator<DelVecTy::iterator>;
 			using DeclVecConstIter = DereferenceIterator<DelVecTy::const_iterator>;
 		public:
-			UnitDecl(IdentifierInfo *id);
+			UnitDecl(IdentifierInfo *id, const FileID& fid);
 
 			void addDecl(std::unique_ptr<Decl> decl);
 			Decl* getDecl(const std::size_t &idx);
@@ -147,8 +147,11 @@ namespace Moonshot
 			DeclVecConstIter decls_beg() const;
 			DeclVecConstIter decls_end() const;
 
+			FileID getFileID() const;
+			void setFileID(const FileID& fid);
 		private:
 			// The decls contained within this unit.
+			FileID fid_;
 			DelVecTy decls_;
 	};
 }

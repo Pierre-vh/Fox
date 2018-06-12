@@ -10,7 +10,7 @@
 
 #pragma once
 #include "ASTVisitor.hpp"
-
+#include "Moonshot/Fox/Common/Context.hpp"
 #include <iostream>
 
 namespace Moonshot
@@ -20,9 +20,10 @@ namespace Moonshot
 		public:
 			// The first parameter is the stream where the AST should be "dumped"
 			// The second is the offset. Before each line, '\t' is printed <offset> times. 
-			ASTDumper(std::ostream& out, const uint8_t& offsettabs = 0);
+			ASTDumper(Context& ctxt,std::ostream& out, const uint8_t& offsettabs = 0);
 
 			// Expressions
+			void visitParensExpr(ParensExpr* node);
 			void visitBinaryExpr(BinaryExpr* node);
 			void visitCastExpr(CastExpr* node);
 			void visitUnaryExpr(UnaryExpr* node);
@@ -92,6 +93,8 @@ namespace Moonshot
 			std::string getDeclRecorderDump(DeclRecorder *dr) const;
 			// Returns a formatted string, "<ID:(idstring)>"
 			std::string getIdentifierDump(IdentifierInfo *id) const;
+			// Returns a formatted string, "<(label):(coords)>"
+			std::string getSourceLocDump(const std::string& label,const SourceLoc& sloc) const;
 			// Returns a formatted string  "<(label):'(type)'>
 			std::string getTypeDump(const std::string& label,Type *ty) const;
 			std::string getQualTypeDump(const std::string& label,const QualType& qt) const;
@@ -113,7 +116,8 @@ namespace Moonshot
 			void indent(const uint8_t& num = 1);
 			void dedent(const uint8_t& num = 1);
 
-			std::ostream &out_;
+			std::ostream& out_;
+			Context& ctxt_;
 			std::string offset_;
 			uint16_t curIndent_ = 0, offsetTabs_ = 0;
 

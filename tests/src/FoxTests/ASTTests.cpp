@@ -368,7 +368,7 @@ TEST(ASTTests, DeclKinds)
 	EXPECT_EQ(vdecl.getKind(), DeclKind::VarDecl);
 
 	// Unit
-	UnitDecl udecl(fooid);
+	UnitDecl udecl(fooid,FileID());
 	EXPECT_EQ(udecl.getKind(), DeclKind::UnitDecl);
 }
 

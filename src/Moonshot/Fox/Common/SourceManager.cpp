@@ -14,7 +14,7 @@
 #include <cassert>
 
 #define INVALID_FILEID_VALUE 0
-#define IN_MEMORY_FILE_NAME "<file_loaded_in_memory>"
+#define IN_MEMORY_FILE_NAME "(in-memory)"
 #define TABS_COL 4
 
 using namespace Moonshot;

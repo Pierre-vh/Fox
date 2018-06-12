@@ -80,8 +80,7 @@ namespace Moonshot
 
 			// Returns a pointer to the string that the FileID points to, or nullptr if not found
 			const std::string* getSourceForFID(const FileID& fid) const;
-			const StoredData* getStoredDataForFileID(const FileID& fid) const;
-
+			const StoredData*  getStoredDataForFileID(const FileID& fid) const;
 			CompleteLoc getCompleteLocForSourceLoc(const SourceLoc& sloc) const;
 
 		private:
@@ -132,7 +131,7 @@ namespace Moonshot
 	class SourceRange
 	{
 		public:
-			typedef std::uint16_t offset_type;
+			typedef std::size_t offset_type;
 
 			SourceRange(const SourceLoc& sloc, const offset_type& offset = 0);
 			SourceRange(const SourceLoc& a, const SourceLoc& b);

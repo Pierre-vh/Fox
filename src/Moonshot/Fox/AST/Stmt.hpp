@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Moonshot/Fox/Common/Memory.hpp"
+#include "Moonshot/Fox/Common/SourceManager.hpp"
 
 namespace Moonshot
 {

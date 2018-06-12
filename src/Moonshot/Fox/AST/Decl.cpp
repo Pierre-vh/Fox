@@ -183,7 +183,7 @@ void VarDecl::setInitExpr(std::unique_ptr<Expr> expr)
 }
 
 // ASTUnit
-UnitDecl::UnitDecl(IdentifierInfo * id): NamedDecl(DeclKind::UnitDecl,id)
+UnitDecl::UnitDecl(IdentifierInfo * id,const FileID& fid): NamedDecl(DeclKind::UnitDecl,id), fid_(fid)
 {
 }
 
@@ -230,3 +230,12 @@ UnitDecl::DeclVecConstIter UnitDecl::decls_end() const
 	return decls_.end();
 }
 
+FileID UnitDecl::getFileID() const
+{
+	return fid_;
+}
+
+void UnitDecl::setFileID(const FileID& fid)
+{
+	fid_ = fid;
+}

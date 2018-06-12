@@ -84,7 +84,6 @@ namespace Moonshot
 	class BinaryExpr : public Expr
 	{
 		public:
-			BinaryExpr() = default;
 			BinaryExpr(const binaryOperator &opt,std::unique_ptr<Expr> lhs = nullptr,std::unique_ptr<Expr> rhs = nullptr);
 
 			std::unique_ptr<Expr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node 
@@ -109,7 +108,6 @@ namespace Moonshot
 	class UnaryExpr : public Expr
 	{
 		public: 
-			UnaryExpr() = default;
 			UnaryExpr(const unaryOperator& opt,std::unique_ptr<Expr> node = nullptr);
 
 			Expr* getChild();
@@ -154,7 +152,6 @@ namespace Moonshot
 	class IntegerLiteralExpr : public Expr
 	{
 		public:
-			IntegerLiteralExpr() = default;
 			IntegerLiteralExpr(const IntType &val);
 
 			IntType getVal() const;
@@ -166,7 +163,6 @@ namespace Moonshot
 	class FloatLiteralExpr : public Expr
 	{
 		public:
-			FloatLiteralExpr() = default;
 			FloatLiteralExpr(const FloatType &val);
 
 			FloatType getVal() const;
@@ -178,7 +174,6 @@ namespace Moonshot
 	class StringLiteralExpr : public Expr
 	{
 		public:
-			StringLiteralExpr() = default;
 			StringLiteralExpr(const std::string &val);
 
 			std::string getVal() const;
@@ -190,7 +185,6 @@ namespace Moonshot
 	class BoolLiteralExpr : public Expr
 	{
 		public:
-			BoolLiteralExpr() = default;
 			BoolLiteralExpr(const bool &val);
 
 			bool getVal() const;
@@ -261,10 +255,7 @@ namespace Moonshot
 			std::unique_ptr<Expr> accessIdxExpr_;
 	};
 
-	// Node Representing an Expression List.
-		// Note: This is not a "normal" node (not visitable nor inherited from expr), 
-		// it's more of a wrapper around a std::vector<std::unique_ptr<Expr>>, so we can pass a list of 
-		// expressions around easily.
+	// Class Representing an Expression List.
 	class ExprList
 	{
 		private:
@@ -294,7 +285,6 @@ namespace Moonshot
 	class FunctionCallExpr : public Expr
 	{
 		public:
-			FunctionCallExpr() = default;
 			FunctionCallExpr(std::unique_ptr<Expr> base, std::unique_ptr<ExprList> elist = nullptr);
 
 			Expr * getCallee() ;
@@ -306,6 +296,25 @@ namespace Moonshot
 		private:
 			std::unique_ptr<Expr> callee_;
 			std::unique_ptr<ExprList> args_;
+	};
+
+	// Parens Expr
+	class ParensExpr : public Expr
+	{
+		public:
+			ParensExpr(std::unique_ptr<Expr> expr, const SourceLoc& LParenLoc = SourceLoc(), const SourceLoc& RParenLoc = SourceLoc());
+
+			SourceLoc getLeftParensLoc() const;
+			SourceLoc getRightParensLoc() const;
+
+			void setLeftParensLoc(const SourceLoc& sloc);
+			void setRightParensLoc(const SourceLoc& sloc);
+
+			Expr* getExpr();
+			void setExpr(std::unique_ptr<Expr> expr);
+		private:
+			std::unique_ptr<Expr> expr_;
+			SourceLoc RPLoc_, LPLoc_;
 	};
 }
 

@@ -317,6 +317,7 @@ TEST(ParserTests, Unit)
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		
 		auto res = parse.parseUnit(
+			FileID(), // No need for a valid FileID in a test.
 			parse.getASTContext().identifiers.getUniqueIdentifierInfo("Test Unit")
 		);
 		return res;

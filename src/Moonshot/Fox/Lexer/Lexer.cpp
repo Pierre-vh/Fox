@@ -26,9 +26,12 @@ Lexer::Lexer(Context & curctxt, ASTContext &astctxt) : context_(curctxt), astcon
 
 }
 
-void Lexer::lexStr(const std::string& str)
+FileID Lexer::lexStr(const std::string& str)
 {
-	lexFile(context_.sourceManager.loadFromString(str));
+	auto fid = context_.sourceManager.loadFromString(str);
+	if(fid)
+		lexFile(fid);
+	return fid;
 }
 
 void Lexer::lexFile(const FileID& file)

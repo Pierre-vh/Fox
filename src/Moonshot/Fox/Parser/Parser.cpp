@@ -30,7 +30,7 @@ Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l,DeclRecorder *dr)
 	setupParser();
 }
 
-Parser::UnitResult Parser::parseUnit(IdentifierInfo* unitName)
+Parser::UnitResult Parser::parseUnit(const FileID& fid,IdentifierInfo* unitName)
 {
 	// <fox_unit>	= {<declaration>}1+
 
@@ -38,7 +38,7 @@ Parser::UnitResult Parser::parseUnit(IdentifierInfo* unitName)
 	assert(unitName && "Unit name cannot be nullptr!");
 
 	// Create the unit
-	auto unit = std::make_unique<UnitDecl>(unitName);
+	auto unit = std::make_unique<UnitDecl>(unitName,fid);
 
 	// Create a RAIIDeclRecorder
 	RAIIDeclRecorder raiidr(*this,unit.get());
@@ -158,10 +158,11 @@ bool Parser::consumeSign(const SignType & s)
 	return false;
 }
 
-bool Parser::consumeBracket(const SignType & s)
+SourceLoc Parser::consumeBracket(const SignType & s)
 {
 	assert(isBracket(s) && "This method should only be used on brackets ! Use consumeSign to match instead!");
-	if (getCurtok().is(s))
+	auto tok = getCurtok();
+	if (tok.is(s))
 	{
 		switch (s)
 		{
@@ -199,9 +200,10 @@ bool Parser::consumeBracket(const SignType & s)
 				throw std::exception("Unknown bracket type"); // Should be unreachable.
 		}
 		skipToken();
-		return true;
+		assert((tok.sourceRange().getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
+		return SourceLoc(tok.sourceRange().getBeginSourceLoc());
 	}
-	return false;
+	return SourceLoc();
 }
 
 bool Parser::consumeKeyword(const KeywordType & k)
@@ -315,12 +317,12 @@ Token Parser::getPreviousToken() const
 	return Token();
 }
 
-bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const bool & shouldConsumeToken)
+bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const bool & shouldConsumeToken, SourceRange* range)
 {
-	return resyncToSign(std::vector<SignType>({ sign }), stopAtSemi, shouldConsumeToken);
+	return resyncToSign(std::vector<SignType>({ sign }), stopAtSemi, shouldConsumeToken, range);
 }
 
-bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopAtSemi, const bool & shouldConsumeToken)
+bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopAtSemi, const bool & shouldConsumeToken, SourceRange* range)
 {
 	// Note, this function is heavily based on (read: nearly copy pasted from) CLang's http://clang.llvm.org/doxygen/Parse_2Parser_8cpp_source.html#l00245
 	// This is CLang's license https://github.com/llvm-mirror/clang/blob/master/LICENSE.TXT. 
@@ -343,6 +345,10 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 			{
 				if (shouldConsumeToken)
 					consumeAny();
+
+				if (range)
+					*range = tok.sourceRange();
+
 				return true;
 			}
 		}
@@ -352,7 +358,7 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 		{
 			switch (tok.getSignType())
 			{
-					// If we find a '(', '{' or '[', call this function recursively to skip to it's counterpart.
+				// If we find a '(', '{' or '[', call this function recursively to skip to it's counterpart.
 				case SignType::S_CURLY_OPEN:
 					consumeBracket(SignType::S_CURLY_OPEN);
 					resyncToSign(SignType::S_CURLY_CLOSE, false, true);

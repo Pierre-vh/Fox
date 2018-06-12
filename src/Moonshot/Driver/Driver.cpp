@@ -19,21 +19,21 @@
 
 using namespace Moonshot;
 
-bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
+bool Driver::processFile(std::ostream& out, const std::string& filepath)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
 	// Create a ASTContext
 	ASTContext astCtxt;
 
-	std::string filecontent;
-	if (!readFileToString(filepath, filecontent))
+	auto fid = ctxt.sourceManager.loadFromFile(filepath);
+	if (!fid)
 	{
-		out << "Could not open file \"" << filepath << "\"\n";
+		std::cout << "Could not open file \"" << filepath << "\"\n";
 		return false;
 	}
 
 	Lexer lex(ctxt,astCtxt);
-	lex.lexStr(filecontent);
+	lex.lexFile(fid);
 
 	if (!ctxt.isSafe())
 	{
@@ -46,7 +46,7 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 
 	Parser psr(ctxt,astCtxt,lex.getTokenVector());
 	// Todo: extract the name of the file and use that instead of "TestUnit"
-	auto unit = psr.parseUnit(astCtxt.identifiers.getUniqueIdentifierInfo("TestUnit"));
+	auto unit = psr.parseUnit(fid,astCtxt.identifiers.getUniqueIdentifierInfo("TestUnit"));
 
 	out << ctxt.getLogs();
 	if (!unit)
@@ -63,7 +63,7 @@ bool Driver::compileFunction(std::ostream& out, const std::string& filepath)
 
 	out << "\nMain Unit Dump:\n";
 	
-	ASTDumper dumper(std::cout,1);
+	ASTDumper dumper(ctxt,std::cout,1);
 	dumper.visit(astCtxt.getMainUnit());
 	
 	return true;

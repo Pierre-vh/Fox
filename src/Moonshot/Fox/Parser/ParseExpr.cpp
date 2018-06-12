@@ -415,7 +415,7 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory)
 {
 	// <parens_expr> = '(' <expr> ')'
 	// '('
-	if (consumeBracket(SignType::S_ROUND_OPEN))
+	if (auto LParen = consumeBracket(SignType::S_ROUND_OPEN))
 	{
 		std::unique_ptr<Expr> rtr = nullptr;
 		
@@ -440,15 +440,22 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory)
 		assert(rtr && "The return value shouldn't be null at this stage!");
 
 		// ')'
-		if (!consumeBracket(SignType::S_ROUND_CLOSE))
+		auto RParen = consumeBracket(SignType::S_ROUND_CLOSE);
+		if (!RParen)
 		{
 			// no ), handle error & attempt to recover if it's allowed.
 			errorExpected("Expected a ')'");
-			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
+			SourceRange tmp;
+			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true, &tmp))
 				return ExprResult::Error();
+			
+			// If we recovered successfuly, place the Sloc into RParen
+			RParen = tmp.getBeginSourceLoc();
 		}
 
-		return ExprResult(std::move(rtr));
+		return ExprResult(
+			std::make_unique<ParensExpr>(std::move(rtr), LParen, RParen)
+		);
 	}
 	// failure to match ( while expression was mandatory -> error
 	else if (isMandatory)

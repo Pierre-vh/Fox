@@ -43,6 +43,9 @@ ABSTRACT_STMT(Expr,Stmt)
 	// Null (empty) expr.
 	EXPR(NullExpr,Expr)
 
+	// Parens Expr
+	EXPR(ParensExpr,Expr)
+
 	// Basic operations
 	EXPR(BinaryExpr,Expr)
 	EXPR(UnaryExpr,Expr)

@@ -77,8 +77,9 @@ namespace Moonshot
 			/*-------------- Parsing Methods --------------*/
 			// UNIT
 			// Generally, this will be the entry point of the parsing process.
-			// unitName = the name of the unit that we're parsing.
-			UnitResult parseUnit(IdentifierInfo* unitName);
+			// fid = The FileID of the file where the unit is contained.
+			// unitName = the name of the unit that we're parsing. Usually, the name of the file.
+			UnitResult parseUnit(const FileID& fid,IdentifierInfo* unitName);
 
 			// EXPRESSIONS
 			ExprListResult parseExprList();
@@ -150,9 +151,9 @@ namespace Moonshot
 			// Consumes any sign but brackets. Returns false if the bracket was not found.
 			bool consumeSign(const SignType& s);
 
-			// Consumes a bracket and keeps the bracket count up to date. Returns false if the bracket was not found.
-			// Note : In the US, a Bracket is a [], however I'm using the bracket noun in the strict sense, where Round B. = (), Square B. = [] and Curly B. = {}
-			bool consumeBracket(const SignType& s);
+			// Consumes a bracket and keeps the bracket count up to date. Returns an invalid SourceLoc if the bracket was not found.
+			// Note : In the US, a Bracket is a [], however, here the bracket noun is used in the strict sense, where Round B. = (), Square B. = [] and Curly B. = {}
+			SourceLoc consumeBracket(const SignType& s);
 
 			// Consumes a keyword. Returns false if the keyword was not found.
 			bool consumeKeyword(const KeywordType& k);
@@ -174,8 +175,10 @@ namespace Moonshot
 			Token getPreviousToken() const;
 			
 			/*-------------- Error Recovery --------------*/
-			bool resyncToSign(const SignType& sign, const bool& stopAtSemi, const bool& shouldConsumeToken);
-			bool resyncToSign(const std::vector<SignType>& signs, const bool& stopAtSemi, const bool& shouldConsumeToken);
+				// Last Parameter is an optional pointer to a SourceRange. If the recovery was successful, the SourceRange of the token found
+				// will be saved there.
+			bool resyncToSign(const SignType& sign, const bool& stopAtSemi, const bool& shouldConsumeToken, SourceRange* range = nullptr);
+			bool resyncToSign(const std::vector<SignType>& signs, const bool& stopAtSemi, const bool& shouldConsumeToken, SourceRange* range = nullptr);
 			bool resyncToNextDecl();
 
 			/*-------------- Error Reporting --------------*/

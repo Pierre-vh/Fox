@@ -46,7 +46,7 @@ int main()
 		if (uinput == "*")
 			break;
 
-		drv.compileFunction(std::cout, uinput);
+		drv.processFile(std::cout, uinput);
 	}
 	std::cout << "\n\nFinished. Press any key to continue.\n";
 	std::cin.get();

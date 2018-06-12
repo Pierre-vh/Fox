@@ -19,9 +19,22 @@
 
 using namespace Moonshot;
 
-ASTDumper::ASTDumper(std::ostream & out, const uint8_t & offsettabs) : out_(out), offsetTabs_(offsettabs)
+ASTDumper::ASTDumper(Context& ctxt,std::ostream & out, const uint8_t & offsettabs) : out_(out), offsetTabs_(offsettabs), ctxt_(ctxt)
 {
 	recalculateOffset();
+}
+
+void ASTDumper::visitParensExpr(ParensExpr * node)
+{
+	if (auto expr = node->getExpr())
+	{
+		dumpLine() << getBasicStmtInfo(node) << " " << getSourceLocDump("LParen", node->getLeftParensLoc()) << " " << getSourceLocDump("RParen", node->getRightParensLoc()) << "\n";
+		indent();
+			visit(expr);
+		dedent();
+	}
+	else
+		dumpLine() << getBasicStmtInfo(node) << " (Empty)\n";
 }
 
 void ASTDumper::visitBinaryExpr(BinaryExpr * node)
@@ -222,7 +235,13 @@ void ASTDumper::visitReturnStmt(ReturnStmt * node)
 
 void ASTDumper::visitUnitDecl(UnitDecl * node)
 {
-	dumpLine() << getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << " " << getDeclRecorderDump(node) << "\n";
+	std::string fileInfo;
+	if (const auto* data = ctxt_.sourceManager.getStoredDataForFileID(node->getFileID()))
+		fileInfo = makeKeyPairDump("file", data->fileName);
+	else
+		fileInfo = makeKeyPairDump("file", "unknown");
+
+	dumpLine() << getBasicDeclInfo(node) << " " << fileInfo << " " << getIdentifierDump(node->getIdentifier()) << " " << getDeclRecorderDump(node) << "\n";
 
 	indent();
 	for (auto it = node->decls_beg(); it != node->decls_end(); it++)
@@ -411,6 +430,14 @@ std::string ASTDumper::getDeclRecorderDump(DeclRecorder * dr) const
 std::string ASTDumper::getIdentifierDump(IdentifierInfo * id) const
 {
 	return makeKeyPairDump("id", addSingleQuotes(id->getStr()));
+}
+
+std::string ASTDumper::getSourceLocDump(const std::string& label,const SourceLoc& sloc) const
+{
+	std::ostringstream ss;
+	CompleteLoc cloc = ctxt_.sourceManager.getCompleteLocForSourceLoc(sloc);
+	ss << "[l" << cloc.line << ",c" << cloc.column << "]";
+	return makeKeyPairDump(label, ss.str());
 }
 
 std::string ASTDumper::getTypeDump(const std::string & label, Type * ty) const

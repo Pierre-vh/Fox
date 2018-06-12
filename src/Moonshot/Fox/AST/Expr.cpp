@@ -445,3 +445,40 @@ ExprList::ExprListConstIter ExprList::end() const
 {
 	return exprs_.end();
 }
+
+// Parens Expr
+ParensExpr::ParensExpr(std::unique_ptr<Expr> expr, const SourceLoc & LParenLoc, const SourceLoc & RParenLoc) 
+	: Expr(StmtKind::ParensExpr), expr_(std::move(expr)), RPLoc_(RParenLoc), LPLoc_(LParenLoc)
+{
+
+}
+
+SourceLoc ParensExpr::getLeftParensLoc() const
+{
+	return LPLoc_;
+}
+
+SourceLoc ParensExpr::getRightParensLoc() const
+{
+	return RPLoc_;
+}
+
+void ParensExpr::setLeftParensLoc(const SourceLoc& sloc)
+{
+	LPLoc_ = sloc;
+}
+
+void ParensExpr::setRightParensLoc(const SourceLoc& sloc)
+{
+	RPLoc_ = sloc;
+}
+
+Expr* ParensExpr::getExpr()
+{
+	return expr_.get();
+}
+
+void ParensExpr::setExpr(std::unique_ptr<Expr> expr)
+{
+	expr_ = std::move(expr);
+}
