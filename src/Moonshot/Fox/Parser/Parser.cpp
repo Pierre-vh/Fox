@@ -141,7 +141,7 @@ Parser::Result<IdentifierInfo*> Parser::consumeIdentifier()
 	{
 		IdentifierInfo* ptr = tok.getIdentifierInfo();
 		assert(ptr && "Token's an identifier but contains a nullptr IdentifierInfo?");
-		skipToken();
+		incrementTokenIterator();
 		return Result<IdentifierInfo*>(ptr,tok.sourceRange);
 	}
 	return Result<IdentifierInfo*>::NotFound();
@@ -153,7 +153,7 @@ SourceLoc Parser::consumeSign(const SignType & s)
 	auto tok = getCurtok();
 	if (tok.is(s))
 	{
-		skipToken();
+		incrementTokenIterator();
 		return tok.sourceRange.getBeginSourceLoc();
 	}
 	return SourceLoc();
@@ -200,7 +200,7 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 			default:
 				throw std::exception("Unknown bracket type"); // Should be unreachable.
 		}
-		skipToken();
+		incrementTokenIterator();
 		assert((tok.sourceRange.getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
 		return SourceLoc(tok.sourceRange.getBeginSourceLoc());
 	}
@@ -212,7 +212,7 @@ SourceRange Parser::consumeKeyword(const KeywordType & k)
 	auto tok = getCurtok();
 	if (tok.is(k))
 	{
-		skipToken();
+		incrementTokenIterator();
 		return tok.sourceRange;
 	}
 	return SourceRange();
@@ -226,17 +226,17 @@ void Parser::consumeAny()
 	else
 	{
 		// In all other cases, we can just skip the token, since there's no particular thing to do for other token types.
-		skipToken();
+		incrementTokenIterator();
 	}
 }
 
-void Parser::skipToken()
+void Parser::incrementTokenIterator()
 {
 	if (state_.tokenIterator != tokens_.end())
 		state_.tokenIterator++;
 }
 
-void Parser::revertConsume()
+void Parser::decrementTokenIterator()
 {
 	if (state_.tokenIterator != tokens_.begin())
 		state_.tokenIterator--;
@@ -261,35 +261,30 @@ bool Parser::isBracket(const SignType & s) const
 Parser::Result<Type*> Parser::parseBuiltinTypename()
 {
 	// <builtin_type_name> 	= "int" | "float" | "bool" | "string" | "char"
-	Token t = getCurtok();
-	if (t.isKeyword())
-	{
-		skipToken();
-		PrimitiveType* ty;
-		switch (t.getKeywordType())
-		{
-			case KeywordType::KW_INT:
-				ty = astcontext_.getPrimitiveIntType();
-				break;
-			case KeywordType::KW_FLOAT:
-				ty = astcontext_.getPrimitiveFloatType();
-				break;
-			case KeywordType::KW_CHAR:
-				ty = astcontext_.getPrimitiveCharType();
-				break;
-			case KeywordType::KW_STRING:
-				ty = astcontext_.getPrimitiveStringType();
-				break;
-			case KeywordType::KW_BOOL:
-				ty = astcontext_.getPrimitiveBoolType();
-				break;
-			default:
-				revertConsume();
-				return Result<Type*>::NotFound();
-		}
-		return Result<Type*>(ty,t.sourceRange);
-	}
-	return Result<Type*>::NotFound();
+
+	typedef Parser::Result<Type*> RtrTy;
+
+	// "int"
+	if (auto range = consumeKeyword(KeywordType::KW_INT))
+		return RtrTy(astcontext_.getPrimitiveIntType(),range);
+	
+	// "float"
+	if (auto range = consumeKeyword(KeywordType::KW_FLOAT))
+		return RtrTy(astcontext_.getPrimitiveFloatType(), range);
+
+	// "bool"
+	if (auto range = consumeKeyword(KeywordType::KW_BOOL))
+		return RtrTy(astcontext_.getPrimitiveBoolType(), range);
+
+	// "string"
+	if (auto range = consumeKeyword(KeywordType::KW_STRING))
+		return RtrTy(astcontext_.getPrimitiveStringType(), range);
+
+	// "char"
+	if (auto range = consumeKeyword(KeywordType::KW_CHAR))
+		return RtrTy(astcontext_.getPrimitiveCharType(), range);
+
+	return RtrTy::NotFound();
 }
 
 Parser::Result<Type*> Parser::parseType()
