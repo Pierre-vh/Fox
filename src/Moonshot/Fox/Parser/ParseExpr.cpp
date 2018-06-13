@@ -496,7 +496,7 @@ Parser::ExprListResult Parser::parseExprList()
 				{
 					// if the expression was just not found, revert the comma consuming and
 					// let the caller deal with the extra comma after the expression list.
-					decrementTokenIterator();
+					revertConsume();
 					break;
 				}
 
@@ -548,7 +548,7 @@ SourceRange Parser::parseExponentOp()
 	{
 		if (auto t2 = consumeSign(SignType::S_ASTERISK))
 			return SourceRange(t1,t2);
-		decrementTokenIterator();
+		revertConsume();
 	}
 	return SourceRange();
 }

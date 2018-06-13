@@ -159,9 +159,17 @@ namespace Moonshot
 			// Consumes a keyword. Returns an invalid SourceRange if not found.
 			SourceRange consumeKeyword(const KeywordType& k);
 
+			// Peek a Keyword or a Sign. Returns true if the next token is of the requested kind.
+			// Does not update any counter.
+			bool peekNext(const SignType& s);
+			bool peekNext(const KeywordType& s);
+
 			// Dispatch to the appriate consume method. Won't return any loc information.
 			// Used to skip a token, updating any necessary counters.
-			void consumeAny();		
+			void consumeAny();
+
+			// Reverts the last consume operation, updates counters if needed.
+			void revertConsume();
 
 			// Increments the iterator if possible. Used to skip a token without updating any counters.
 			void incrementTokenIterator();

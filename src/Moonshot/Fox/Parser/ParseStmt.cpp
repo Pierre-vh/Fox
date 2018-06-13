@@ -150,11 +150,8 @@ Parser::StmtResult Parser::parseCondition()
 			if (body.wasSuccessful())
 				errorExpected("Expected a statement after if condition,");
 
-			if (consumeKeyword(KeywordType::KW_ELSE)) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
-			{
-				decrementTokenIterator();
+			if (peekNext(KeywordType::KW_ELSE)) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
 				rtr->setThen(std::make_unique<NullExpr>());
-			}
 			else
 				return StmtResult::Error();
 		}

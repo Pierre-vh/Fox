@@ -218,16 +218,73 @@ SourceRange Parser::consumeKeyword(const KeywordType & k)
 	return SourceRange();
 }
 
+bool Parser::peekNext(const SignType & s)
+{
+	return getCurtok().is(s);
+}
+
+bool Parser::peekNext(const KeywordType & s)
+{
+	return getCurtok().is(s);
+}
+
 void Parser::consumeAny()
 {
 	Token tok = getCurtok();
+	// If it's a bracket, dispatch to consumeBracket. Else, just skip it.
 	if (tok.isSign() && isBracket(tok.getSignType()))
 		consumeBracket(tok.getSignType());
 	else
-	{
-		// In all other cases, we can just skip the token, since there's no particular thing to do for other token types.
 		incrementTokenIterator();
+}
+
+void Parser::revertConsume()
+{
+	decrementTokenIterator();
+	Token tok = getCurtok();
+
+	if (isBracket(tok.getSignType()))
+	{
+		// Update bracket counters
+		// We will be doing the exact opposite of what consumeBracket does !
+		// That means : Decrementing the counter if a ( { [ is found, and incrementing it if a } ] ) is found.
+		switch (tok.getSignType())
+		{
+			case SignType::S_CURLY_OPEN:
+				if (state_.curlyBracketsCount)
+					state_.curlyBracketsCount--;
+				else
+					throw std::overflow_error("Max Brackets Depth Exceeded");
+				break;
+			case SignType::S_CURLY_CLOSE:
+				if (state_.curlyBracketsCount < kMaxBraceDepth)
+					state_.curlyBracketsCount++;
+				break;
+			case SignType::S_SQ_OPEN:
+				if (state_.squareBracketsCount)
+					state_.squareBracketsCount--;
+				else
+					throw std::overflow_error("Max Brackets Depth Exceeded");
+				break;
+			case SignType::S_SQ_CLOSE:
+				if (state_.squareBracketsCount < kMaxBraceDepth)
+					state_.squareBracketsCount++;
+				break;
+			case SignType::S_ROUND_OPEN:
+				if (state_.roundBracketsCount)
+					state_.roundBracketsCount--;
+				else
+					throw std::overflow_error("Max Brackets Depth Exceeded");
+				break;
+			case SignType::S_ROUND_CLOSE:
+				if (state_.roundBracketsCount < kMaxBraceDepth)
+					state_.roundBracketsCount++;
+				break;
+			default:
+				throw std::exception("Unknown bracket type"); // Should be unreachable.
+		}
 	}
+	// Else, we're done. For now, only brackets have counters associated with them.
 }
 
 void Parser::incrementTokenIterator()
