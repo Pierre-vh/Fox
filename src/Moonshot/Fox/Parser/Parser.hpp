@@ -160,13 +160,15 @@ namespace Moonshot
 			SourceRange consumeKeyword(const KeywordType& k);
 
 			// Dispatch to the appriate consume method. Won't return any loc information.
+			// Used to skip a token, updating any necessary counters.
 			void consumeAny();		
 
-			// Skips one token
-			void skipToken();
+			// Increments the iterator if possible. Used to skip a token without updating any counters.
+			void incrementTokenIterator();
 
-			// Revert the last consume operation
-			void revertConsume();	
+			// Decrements the iterator if possible. Used to revert a consume operation. Won't change updated counters.
+			// Only use in cases where a counter wasn't updated by the last consume operation. Else, use a Parser State Backup.
+			void decrementTokenIterator();	
 
 			// Helper for consumeSign & consumeBracket
 			// Brackets are one of the following : '(' ')' '[' ']' '{' '}'

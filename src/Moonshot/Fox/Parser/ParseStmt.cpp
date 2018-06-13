@@ -152,7 +152,7 @@ Parser::StmtResult Parser::parseCondition()
 
 			if (consumeKeyword(KeywordType::KW_ELSE)) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
 			{
-				revertConsume();
+				decrementTokenIterator();
 				rtr->setThen(std::make_unique<NullExpr>());
 			}
 			else

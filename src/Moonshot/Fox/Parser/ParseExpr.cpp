@@ -108,7 +108,7 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 	auto tok = getCurtok();
 	if (tok.isLiteral())
 	{
-		skipToken();
+		incrementTokenIterator();
 
 		auto litinfo = tok.getLiteralInfo();
 		std::unique_ptr<Expr> expr = nullptr;
@@ -496,7 +496,7 @@ Parser::ExprListResult Parser::parseExprList()
 				{
 					// if the expression was just not found, revert the comma consuming and
 					// let the caller deal with the extra comma after the expression list.
-					revertConsume();
+					decrementTokenIterator();
 					break;
 				}
 
@@ -548,7 +548,7 @@ SourceRange Parser::parseExponentOp()
 	{
 		if (auto t2 = consumeSign(SignType::S_ASTERISK))
 			return SourceRange(t1,t2);
-		revertConsume();
+		decrementTokenIterator();
 	}
 	return SourceRange();
 }
