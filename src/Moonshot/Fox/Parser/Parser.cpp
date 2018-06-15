@@ -30,83 +30,6 @@ Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l,DeclRecorder *dr)
 	setupParser();
 }
 
-Parser::UnitResult Parser::parseUnit(const FileID& fid,IdentifierInfo* unitName)
-{
-	// <fox_unit>	= {<declaration>}1+
-
-	// Assert that unitName != nullptr
-	assert(unitName && "Unit name cannot be nullptr!");
-
-	// Create the unit
-	auto unit = std::make_unique<UnitDecl>(unitName,fid);
-
-	// Create a RAIIDeclRecorder
-	RAIIDeclRecorder raiidr(*this,unit.get());
-
-	// Create recovery enabler.
-	auto enabler = createRecoveryEnabler();
-
-	// Gather some flags
-	const bool showRecoveryMessages = context_.flagsManager.isSet(FlagID::parser_showRecoveryMessages);
-
-	// Parse declarations 
-	while (true)
-	{
-		if (auto decl = parseDecl())
-		{
-			unit->addDecl(decl.move());
-			continue;
-		}
-		else
-		{
-			// EOF/Died -> Break.
-			if (isDone())
-				break;
-			// No EOF? There's an unexpected token on the way that prevents us from finding the decl.
-			else
-			{			
-				// Report an error in case of "not found";
-				if (decl.wasSuccessful())	
-					errorExpected("Expected a declaration");
-
-				if (showRecoveryMessages)
-					genericError("Attempting recovery to next declaration.");
-
-				if (resyncToNextDecl())
-				{
-					if(showRecoveryMessages)
-						genericError("Recovered successfully."); // Note : add a position, like "Recovered successfuly at line x"
-					continue;
-				}
-				else
-				{
-					if(showRecoveryMessages)
-						genericError("Couldn't recover.");
-					break;
-				}
-			}
-		}
-
-	}
-
-	if (state_.curlyBracketsCount)
-		genericError(std::to_string(state_.curlyBracketsCount) + " '}' still missing after parsing this unit.");
-
-	if (state_.roundBracketsCount)
-		genericError(std::to_string(state_.roundBracketsCount) + " ')' still missing after parsing this unit.");
-
-	if (state_.squareBracketsCount)
-		genericError(std::to_string(state_.squareBracketsCount) + " ']' still missing after parsing this unit.");
-
-	if (unit->getDeclCount() == 0)
-	{
-		genericError("Expected one or more declaration in unit.");
-		return UnitResult::Error();
-	}
-	else
-		return UnitResult(std::move(unit));
-}
-
 void Parser::enableTestMode()
 {
 	isTestMode_ = true;
@@ -352,21 +275,28 @@ Parser::Result<Type*> Parser::parseType()
 	{
 		//  { '[' ']' }
 		Type* ty = ty_res.get();
+		SourceLoc begLoc = ty_res.getSourceRange().getBeginSourceLoc();
+		SourceLoc endLoc = ty_res.getSourceRange().makeEndSourceLoc();
 		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
 			ty = astcontext_.getArrayTypeForType(ty);
 			// ']'
-			if (!consumeBracket(SignType::S_SQ_CLOSE))
+			if (auto right = consumeBracket(SignType::S_SQ_CLOSE))
+				endLoc = right;
+			else
 			{
 				errorExpected("Expected ']'");
 
-				if (resyncToSign(SignType::S_SQ_CLOSE,/*stopAtSemi */ true ,/*shouldConsumeToken*/ true))
+				if (resyncToSign(SignType::S_SQ_CLOSE,/*stopAtSemi */ true,/*shouldConsumeToken*/ false))
+				{
+					endLoc = consumeBracket(SignType::S_SQ_CLOSE);
 					continue;
+				}
 
 				return Result<Type*>::Error();
 			}
 		}
-		return Result<Type*>(ty,ty_res.getSourceRange());
+		return Result<Type*>(ty, SourceRange(begLoc, endLoc));
 	}
 	return Result<Type*>::NotFound();
 }
@@ -531,9 +461,6 @@ bool Parser::resyncToNextDecl()
 
 void Parser::die()
 {
-	if(context_.flagsManager.isSet(FlagID::parser_showRecoveryMessages))
-		genericError("Couldn't recover from errors, stopping parsing.");
-
 	state_.tokenIterator = tokens_.end();
 	state_.isAlive = false;
 }
