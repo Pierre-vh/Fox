@@ -26,13 +26,18 @@ Moonshot Project To-do List.
 	> Write tests for the new visitor system (I'll do more when needed)
 	> Sourceloc & SourceManager system (Done)
 	> Update lexer/token to add a sourcerange/loc to every single token (Done)
+	> Update the Parser so it can return more SourceLoc info. (Done)
 
 	> Update the AST so all nodes have a sourceloc/range too wherever needed. (Next)
-	> Update the Parser so it can return more SourceLoc info. (Next)
-		> Add a SourceRange to the Result class, and use the Result class more.
+		> Decls (Done)
+		> Write Decl Locs Test (Next)
+		> Stmts
+		> Write Stmt Locs Test
+		> Exprs
+		> Write Expr Locs Test
 
 	> Update Diagnostics & DiagnosticsEngine to support a sourceloc/sourcerange arg.
-		> Also, add operator << support for Diagnostics. 
+		> Maybe also, add operator << support for Diagnostics. 
 
 	> Write all the remaining tests needed.
 
