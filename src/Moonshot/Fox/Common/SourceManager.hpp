@@ -114,7 +114,9 @@ namespace Moonshot
 			SourceLoc();
 			SourceLoc(const FileID& fid, const idx_type& idx);
 
-			operator bool() const;
+			bool isValid() const;
+			operator bool() const; // ShortCut for isValid
+
 			bool operator ==(const SourceLoc& other) const;
 			bool operator !=(const SourceLoc& other) const;
 
@@ -137,7 +139,8 @@ namespace Moonshot
 			SourceRange(const SourceLoc& a, const SourceLoc& b);
 			SourceRange();
 
-			operator bool() const;
+			bool isValid() const;
+			operator bool() const; // Shortcut for isValid
 
 			SourceLoc getBeginSourceLoc() const;
 			offset_type getOffset() const;

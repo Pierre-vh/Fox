@@ -169,9 +169,14 @@ SourceLoc::SourceLoc(const FileID & fid, const idx_type & idx) : fid_(fid), idx_
 {
 }
 
-SourceLoc::operator bool() const
+bool SourceLoc::isValid() const
 {
 	return (bool)fid_;
+}
+
+SourceLoc::operator bool() const
+{
+	return isValid();
 }
 
 bool SourceLoc::operator==(const SourceLoc& other) const
@@ -230,9 +235,14 @@ SourceRange::SourceRange() : sloc_(SourceLoc()), offset_(0)
 	
 }
 
-SourceRange::operator bool() const
+bool SourceRange::isValid() const
 {
 	return (bool)sloc_;
+}
+
+SourceRange::operator bool() const
+{
+	return isValid();
 }
 
 SourceLoc SourceRange::getBeginSourceLoc() const
