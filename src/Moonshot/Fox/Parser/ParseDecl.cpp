@@ -20,6 +20,70 @@
 
 using namespace Moonshot;
 
+
+Parser::UnitResult Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName)
+{
+	// <fox_unit>	= {<declaration>}1+
+
+	// Assert that unitName != nullptr
+	assert(unitName && "Unit name cannot be nullptr!");
+
+	// Create the unit
+	auto unit = std::make_unique<UnitDecl>(unitName, fid);
+
+	// Create a RAIIDeclRecorder
+	RAIIDeclRecorder raiidr(*this, unit.get());
+
+	// Create recovery enabler.
+	auto enabler = createRecoveryEnabler();
+
+	// Parse declarations 
+	while (true)
+	{
+		if (auto decl = parseDecl())
+		{
+			unit->addDecl(decl.move());
+			continue;
+		}
+		else
+		{
+			// EOF/Died -> Break.
+			if (isDone())
+				break;
+			// No EOF? There's an unexpected token on the way that prevents us from finding the decl.
+			else
+			{
+				// Report an error in case of "not found";
+				if (decl.wasSuccessful())
+					errorExpected("Expected a declaration");
+
+				if (resyncToNextDecl())
+					continue;
+				else
+					break;
+			}
+		}
+
+	}
+
+	if (state_.curlyBracketsCount)
+		genericError(std::to_string(state_.curlyBracketsCount) + " '}' still missing after parsing this unit.");
+
+	if (state_.roundBracketsCount)
+		genericError(std::to_string(state_.roundBracketsCount) + " ')' still missing after parsing this unit.");
+
+	if (state_.squareBracketsCount)
+		genericError(std::to_string(state_.squareBracketsCount) + " ']' still missing after parsing this unit.");
+
+	if (unit->getDeclCount() == 0)
+	{
+		genericError("Expected one or more declaration in unit.");
+		return UnitResult::Error();
+	}
+	else
+		return UnitResult(std::move(unit));
+}
+
 Parser::DeclResult Parser::parseFunctionDecl()
 {
 	/*
@@ -28,19 +92,21 @@ Parser::DeclResult Parser::parseFunctionDecl()
 	*/
 
 	// "func"
-	if (consumeKeyword(KeywordType::KW_FUNC))
+	if (auto fnKw = consumeKeyword(KeywordType::KW_FUNC))
 	{
 		auto rtr = std::make_unique<FunctionDecl>();
+		rtr->setBegLoc(fnKw.getBeginSourceLoc());
 
 		bool isValid = true;
 		// <id>
-		if (auto id = consumeIdentifier())
-			rtr->setIdentifier(id.get());
+		if (auto foundID = consumeIdentifier())
+			rtr->setIdentifier(foundID.get());
 		else
 		{
 			errorExpected("Expected an identifier");
 			isValid = false;
 			// Here, continue parsing. This might generate an error cascade but we need to try and parse more things before giving up definitely.
+			// Todo: maybe add a "nullId", a special 
 		}
 
 		// Before creating a RAIIDeclRecorder, record this function in the parent DeclRecorder
@@ -87,24 +153,30 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		// (2)
 
 		// ')'
-		if (!consumeBracket(SignType::S_ROUND_CLOSE))
+		if (auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE))
+			rtr->setEndLoc(rightParens);
+		else 
 		{
 			errorExpected("Expected a ')'");
 			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ false, /*consumeToken*/ true))
 				return DeclResult::Error();
 		}
-
 	
 		// [':' <type>]
-		if (consumeSign(SignType::S_COLON))
+		if (auto colon = consumeSign(SignType::S_COLON))
 		{
 			if (auto rtrTy = parseType())
+			{
 				rtr->setReturnType(rtrTy.get());
+				rtr->setEndLoc(rtrTy.getSourceRange().makeEndSourceLoc());
+			}
 			else // no type found? we expected one after the colon!
 			{
 				if (rtrTy.wasSuccessful())
 					errorExpected("Expected a type keyword");
+
 				rtr->setReturnType(astcontext_.getPrimitiveVoidType());
+				rtr->setEndLoc(colon);
 
 				// Try to resync to a { so we can keep on parsing.
 				if (!resyncToSign(SignType::S_CURLY_OPEN, false, false))
@@ -132,20 +204,22 @@ Parser::DeclResult Parser::parseFunctionDecl()
 
 Parser::DeclResult Parser::parseArgDecl()
 {
-	// <arg_decl> = <id> <fq_type_spec>
+	// <arg_decl> = <id> <qualtype>
 	// <id>
 	if (auto id = consumeIdentifier())
 	{
-		// <fq_type_spec>
-		if (auto typespec_res = parseQualType())
+		// <qualtype>
+		if (auto qt = parseQualType())
 		{
-			auto rtr = std::make_unique<ArgDecl>(id.get(), typespec_res.get());
+			SourceLoc begLoc = id.getSourceRange().getBeginSourceLoc();
+			SourceLoc endLoc = qt.getSourceRange().makeEndSourceLoc();
+			auto rtr = std::make_unique<ArgDecl>(id.get(), qt.get(), begLoc, endLoc);
 			recordDecl(rtr.get());
 			return DeclResult(std::move(rtr));
 		}
 		else
 		{
-			if(typespec_res.wasSuccessful())		
+			if(qt.wasSuccessful())		
 				errorExpected("Expected a ':'");
 			return DeclResult::Error();
 		}
@@ -155,38 +229,40 @@ Parser::DeclResult Parser::parseArgDecl()
 
 Parser::DeclResult Parser::parseVarDecl()
 {
-	// <var_decl> = "let" <id> <fq_type_spec> ['=' <expr>] ';'
+	// <var_decl> = "let" <id> <qualtype> ['=' <expr>] ';'
 	// "let"
-	if (consumeKeyword(KeywordType::KW_LET))
+	if (auto letKw = consumeKeyword(KeywordType::KW_LET))
 	{
-		auto rtr = std::make_unique<VarDecl>();
+		SourceLoc begLoc = letKw.getBeginSourceLoc();
+		SourceLoc semiLoc;
+
+		IdentifierInfo* id;
+		QualType ty;
+		std::unique_ptr<Expr> iExpr;
 
 		// <id>
-		if (auto id = consumeIdentifier())
-			rtr->setIdentifier(id.get());
+		if (auto foundID = consumeIdentifier())
+			id = foundID.get();
 		else
 		{
 			errorExpected("Expected an identifier");
 			if (auto res = resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ false, /*consumeToken*/ true))
 			{
-				return DeclResult(
-						std::make_unique<VarDecl>()	// If we recovered, return an empty (invalid) var decl.
-					);
-				// Note : we don't record this decl, since it's invalid and can't be used.
+				// Recovered? Act like nothing happened.
+				return DeclResult::NotFound();
 			}
 			return DeclResult::Error();
 		}
 
-		// <fq_type_spec>
+		// <qualtype>
 		if (auto typespecResult = parseQualType())
 		{
-			QualType ty = typespecResult.get();
+			ty = typespecResult.get();
 			if (ty.isAReference())
 			{
 				context_.reportWarning("Ignored reference qualifier '&' in variable declaration : Variables cannot be references.");
 				ty.setIsReference(false);
 			}
-			rtr->setType(ty);
 		}
 		else
 		{
@@ -194,10 +270,8 @@ Parser::DeclResult Parser::parseVarDecl()
 				errorExpected("Expected a ':'");
 			if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ true, /*consumeToken*/ true))
 			{
-				return DeclResult(
-						std::make_unique<VarDecl>()	// If we recovered, return an empty (invalid) var decl.
-					);
-				// Note : we don't record this decl, since it's invalid and can't be used.
+				// Recovered? Act like nothing happened.
+				return DeclResult::NotFound();
 			}
 			return DeclResult::Error();
 		}
@@ -206,7 +280,7 @@ Parser::DeclResult Parser::parseVarDecl()
 		if (consumeSign(SignType::S_EQUAL))
 		{
 			if (auto expr = parseExpr())
-				rtr->setInitExpr(expr.move());
+				iExpr = expr.move();
 			else
 			{
 				if(expr.wasSuccessful())
@@ -218,30 +292,35 @@ Parser::DeclResult Parser::parseVarDecl()
 		}
 
 		// ';'
-		if (!consumeSign(SignType::S_SEMICOLON))
+		if (auto semi = consumeSign(SignType::S_SEMICOLON))
+			semiLoc = semi;
+		else
 		{
 			errorExpected("Expected ';'");
 			
 			if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ true))
 				return DeclResult::Error();
 		}
-		// If we're here, assert that the node is valid.
+
+		auto rtr = std::make_unique<VarDecl>(id, ty, std::move(iExpr), begLoc, semiLoc);
 		assert(rtr->isValid() && "Declaration is invalid but parsing function completed successfully?");
+		
 		// Record the decl
 		recordDecl(rtr.get());
-		// return
+
 		return DeclResult(std::move(rtr));
 	}
-	// not found
 	return DeclResult::NotFound();
 }
 
 Parser::Result<QualType> Parser::parseQualType()
 {
-	// 	<fq_type_spec>	= ':' ["const"] ['&'] <type>
-	if (consumeSign(SignType::S_COLON))
+	// 	<qualtype>	= ':' ["const"] ['&'] <type>
+	if (auto colon = consumeSign(SignType::S_COLON))
 	{
 		QualType ty;
+		SourceLoc begLoc = colon;
+		SourceLoc endLoc;
 		// ["const"]
 		if (consumeKeyword(KeywordType::KW_CONST))
 			ty.setConstAttribute(true);
@@ -252,7 +331,10 @@ Parser::Result<QualType> Parser::parseQualType()
 
 		// <type>
 		if (auto type = parseType())
+		{
 			ty.setType(type.get());
+			endLoc = type.getSourceRange().makeEndSourceLoc();
+		}
 		else
 		{
 			if(type.wasSuccessful()) 
@@ -261,7 +343,7 @@ Parser::Result<QualType> Parser::parseQualType()
 		}
 
 		// Success!
-		return Result<QualType>(ty);
+		return Result<QualType>(ty,SourceRange(begLoc,endLoc));
 	}
 	// not found!
 	return Result<QualType>::NotFound();
