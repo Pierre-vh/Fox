@@ -90,8 +90,8 @@ namespace Moonshot
 		public:
 			FunctionDecl();
 
-			// Note : BegLoc and EndLoc shall exclude the body of the function.
-			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			// Note : DeclEndLoc shall exclude the body of the function.
+			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody, const SourceLoc& begLoc,const SourceLoc& declEndLoc);
 
 			bool isValid();
 
@@ -114,6 +114,7 @@ namespace Moonshot
 			ArgVecIter args_end();
 			ArgVecConstIter args_end() const;
 		private:
+			SourceLoc endLocWithoutBody_;
 			Type* returnType_ = nullptr;
 			ArgVecTy args_;
 			std::unique_ptr<CompoundStmt> body_;

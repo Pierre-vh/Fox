@@ -109,8 +109,8 @@ FunctionDecl::FunctionDecl(): NamedDecl(DeclKind::FunctionDecl,nullptr,SourceLoc
 
 }
 
-FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody,const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: returnType_(returnType), NamedDecl(DeclKind::FunctionDecl,fnId,begLoc,endLoc), body_(std::move(funcbody))
+FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody,const SourceLoc& begLoc, const SourceLoc& declEndLoc)
+	: returnType_(returnType), NamedDecl(DeclKind::FunctionDecl,fnId,begLoc,declEndLoc), body_(std::move(funcbody))
 {
 
 }
