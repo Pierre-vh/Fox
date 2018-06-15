@@ -120,8 +120,17 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 		<suffix_expr> = <primary> { <suffix> }
 		^^^^^^^^^^^^
 
-
-
 * 0.13.1
 	~ Renamed <fq_type_spec> to <qualtype>
 	~ Reorganized the grammar a bit into more explicit categories.
+
+* 0.13.2
+	~ Modified <qualtype> (Removed the ':')
+		<qualtype> =  ["const"] ['&'] <type>
+	~ Modified <var_decl> (Added the ':')
+		<var_decl> = "let" <id> ':' <qualtype> ['=' <expr>] ';' 
+	~ Modified <arg_decl> (Added the ':')
+		<arg_decl>	= <id> ':' <qualtype>
+
+
+		
