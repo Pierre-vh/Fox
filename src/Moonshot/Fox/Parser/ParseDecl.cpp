@@ -204,10 +204,17 @@ Parser::DeclResult Parser::parseFunctionDecl()
 
 Parser::DeclResult Parser::parseArgDecl()
 {
-	// <arg_decl> = <id> <qualtype>
+	// <arg_decl> = <id> ':' <qualtype>
 	// <id>
 	if (auto id = consumeIdentifier())
 	{
+		// ':'
+		if (!consumeSign(SignType::S_COLON))
+		{
+			errorExpected("Expected a ':'");
+			return DeclResult::Error();
+		}
+
 		// <qualtype>
 		if (auto qt = parseQualType())
 		{
@@ -219,8 +226,8 @@ Parser::DeclResult Parser::parseArgDecl()
 		}
 		else
 		{
-			if(qt.wasSuccessful())		
-				errorExpected("Expected a ':'");
+			if (qt.wasSuccessful())
+				errorExpected("Expected a type");
 			return DeclResult::Error();
 		}
 	}
@@ -229,7 +236,7 @@ Parser::DeclResult Parser::parseArgDecl()
 
 Parser::DeclResult Parser::parseVarDecl()
 {
-	// <var_decl> = "let" <id> <qualtype> ['=' <expr>] ';'
+	// <var_decl> = "let" <id> ':' <qualtype> ['=' <expr>] ';'
 	// "let"
 	if (auto letKw = consumeKeyword(KeywordType::KW_LET))
 	{
@@ -254,6 +261,13 @@ Parser::DeclResult Parser::parseVarDecl()
 			return DeclResult::Error();
 		}
 
+		// ':'
+		if (!consumeSign(SignType::S_COLON))
+		{
+			errorExpected("Expected a ':'");
+			return DeclResult::Error();
+		}
+
 		// <qualtype>
 		if (auto typespecResult = parseQualType())
 		{
@@ -267,12 +281,9 @@ Parser::DeclResult Parser::parseVarDecl()
 		else
 		{
 			if(typespecResult.wasSuccessful())
-				errorExpected("Expected a ':'");
-			if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ true, /*consumeToken*/ true))
-			{
-				// Recovered? Act like nothing happened.
-				return DeclResult::NotFound();
-			}
+				errorExpected("Expected a type");
+			if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi*/ true, /*consumeToken*/ true))
+				return DeclResult::NotFound(); // Recovered? Act like nothing happened.
 			return DeclResult::Error();
 		}
 
@@ -315,38 +326,58 @@ Parser::DeclResult Parser::parseVarDecl()
 
 Parser::Result<QualType> Parser::parseQualType()
 {
-	// 	<qualtype>	= ':' ["const"] ['&'] <type>
-	if (auto colon = consumeSign(SignType::S_COLON))
+	// 	<qualtype>	= ["const"] ['&'] <type>
+	QualType ty;
+	bool hasFoundSomething = false;
+	SourceLoc begLoc;
+	SourceLoc endLoc;
+	// ["const"]
+	if (auto kw = consumeKeyword(KeywordType::KW_CONST))
 	{
-		QualType ty;
-		SourceLoc begLoc = colon;
-		SourceLoc endLoc;
-		// ["const"]
-		if (consumeKeyword(KeywordType::KW_CONST))
-			ty.setConstAttribute(true);
+		begLoc = kw.getBeginSourceLoc();
+		hasFoundSomething = true;
+		ty.setConstAttribute(true);
+	}
 
-		// ['&']
-		if (consumeSign(SignType::S_AMPERSAND))
-			ty.setIsReference(true);
+	// ['&']
+	if (auto ampersand = consumeSign(SignType::S_AMPERSAND))
+	{
+		// If no begLoc, the begLoc is the ampersand.
+		if (!begLoc)
+			begLoc = ampersand;
+		hasFoundSomething = true;
+		ty.setIsReference(true);
+	}
 
-		// <type>
-		if (auto type = parseType())
+	// <type>
+	if (auto type = parseType())
+	{
+		ty.setType(type.get());
+
+		// If no begLoc, the begLoc is the type's begLoc.
+		if (!begLoc)
+			begLoc = type.getSourceRange().getBeginSourceLoc();
+
+		endLoc = type.getSourceRange().makeEndSourceLoc();
+	}
+	else
+	{
+		if (hasFoundSomething)
 		{
-			ty.setType(type.get());
-			endLoc = type.getSourceRange().makeEndSourceLoc();
-		}
-		else
-		{
-			if(type.wasSuccessful()) 
+			if (type.wasSuccessful())
 				errorExpected("Expected a type");
 			return Result<QualType>::Error();
 		}
-
-		// Success!
-		return Result<QualType>(ty,SourceRange(begLoc,endLoc));
+		else 
+			return Result<QualType>::NotFound();
 	}
-	// not found!
-	return Result<QualType>::NotFound();
+
+	// Success!
+	assert(ty && "Type cannot be null");
+	assert(begLoc && "begLoc must be valid");
+	assert(endLoc && "endLoc must be valid");
+	return Result<QualType>(ty,SourceRange(begLoc,endLoc));
+
 }
 
 Parser::DeclResult Parser::parseDecl()

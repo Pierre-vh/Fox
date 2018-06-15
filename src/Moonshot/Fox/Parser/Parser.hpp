@@ -129,7 +129,7 @@ namespace Moonshot
 			// first -> The Type* (nullptr if not found), second -> False if error
 			Result<Type*> parseType();
 
-			// Parses a QualType (Full Type Spec)
+			// Parses a QualType 
 			Result<QualType> parseQualType();
 
 			Result<binaryOperator> parseAssignOp();						// = 
