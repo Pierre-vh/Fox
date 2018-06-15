@@ -32,9 +32,6 @@ namespace Moonshot
 		public:
 			Decl(const DeclKind& dkind);
 			virtual ~Decl() = 0 {}
-
-			// This function should return true if the declaration node is valid (usable)
-			virtual bool isValid() = 0; 
 			
 			DeclKind getKind() const;
 		private:
@@ -63,7 +60,7 @@ namespace Moonshot
 			QualType getType() const;
 			void setType(const QualType& qt);
 
-			virtual bool isValid() override;
+			bool isValid();
 		private:
 			QualType ty_;
 	};
@@ -79,7 +76,7 @@ namespace Moonshot
 		public:
 			FunctionDecl(Type* returnType = nullptr, IdentifierInfo* fnId = nullptr, std::unique_ptr<CompoundStmt> funcbody = nullptr);
 
-			virtual bool isValid() override;
+			bool isValid();
 
 			void setReturnType(Type* ty);
 			Type* getReturnType();
@@ -108,7 +105,7 @@ namespace Moonshot
 		public:
 			VarDecl(IdentifierInfo * varId = nullptr,const QualType& ty = QualType(), std::unique_ptr<Expr> iExpr = nullptr);
 
-			virtual bool isValid() override;
+			bool isValid();
 
 			// Get a reference to the varType
 			QualType getType() const;
@@ -150,7 +147,7 @@ namespace Moonshot
 			Decl* getDecl(const std::size_t &idx);
 			std::size_t getDeclCount() const;
 
-			virtual bool isValid() override;
+			bool isValid();
 
 			DeclVecIter decls_beg();
 			DeclVecIter decls_end();
