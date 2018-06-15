@@ -148,12 +148,12 @@ TEST(ASTTests, ASTContextArrayTypes)
 // Create a variable with a random type
 std::unique_ptr<VarDecl> makeVarDecl(ASTContext& ctxt, const std::string &name,Type* ty)
 {
-	return std::make_unique<VarDecl>(ctxt.identifiers.getUniqueIdentifierInfo(name), ty);
+	return std::make_unique<VarDecl>(ctxt.identifiers.getUniqueIdentifierInfo(name), ty, nullptr, SourceLoc(), SourceLoc());
 }
 
 std::unique_ptr<FunctionDecl> makeFuncDecl(ASTContext& ctxt, const std::string& name)
 {
-	return std::make_unique<FunctionDecl>(ctxt.getPrimitiveVoidType(), ctxt.identifiers.getUniqueIdentifierInfo(name), std::make_unique<CompoundStmt>());
+	return std::make_unique<FunctionDecl>(ctxt.getPrimitiveVoidType(), ctxt.identifiers.getUniqueIdentifierInfo(name), std::make_unique<CompoundStmt>(), SourceLoc(), SourceLoc());
 }
 
 bool testLookup(ASTContext &ctxt,DeclRecorder *dr, const std::string& name, Decl* decl,std::string& err)
@@ -356,15 +356,15 @@ TEST(ASTTests, DeclKinds)
 	auto intty = astctxt.getPrimitiveIntType();
 
 	// Arg
-	ArgDecl argdecl(fooid, QualType(intty));
+	ArgDecl argdecl(fooid, QualType(intty),SourceLoc(),SourceLoc());
 	EXPECT_EQ(argdecl.getKind(), DeclKind::ArgDecl);
 
 	// Func
-	FunctionDecl fndecl(intty, fooid, nullptr);
+	FunctionDecl fndecl(intty, fooid, nullptr,SourceLoc(),SourceLoc());
 	EXPECT_EQ(fndecl.getKind(), DeclKind::FunctionDecl);
 
 	// Var
-	VarDecl vdecl(fooid, QualType(intty));
+	VarDecl vdecl(fooid, QualType(intty),nullptr,SourceLoc(),SourceLoc());
 	EXPECT_EQ(vdecl.getKind(), DeclKind::VarDecl);
 
 	// Unit
@@ -408,7 +408,13 @@ TEST(ASTTests, BasicVisitorTest)
 	// Create test nodes
 	auto intlit = std::make_unique<IntegerLiteralExpr>(200);
 	auto rtr = std::make_unique<ReturnStmt>();
-	auto vardecl = std::make_unique<VarDecl>();
+	auto vardecl = std::make_unique<VarDecl>(
+			nullptr,
+			QualType(),
+			nullptr, 
+			SourceLoc(),
+			SourceLoc()
+		);
 	auto intTy = ctxt.getPrimitiveIntType();
 	auto arrInt = ctxt.getArrayTypeForType(intTy);
 
