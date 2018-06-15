@@ -233,7 +233,7 @@ void ASTDumper::visitReturnStmt(ReturnStmt * node)
 	}
 }
 
-void ASTDumper::visitUnitDecl(UnitDecl * node)
+void ASTDumper::visitUnitDecl(UnitDecl* node)
 {
 	std::string fileInfo;
 	if (const auto* data = ctxt_.sourceManager.getStoredDataForFileID(node->getFileID()))
@@ -241,7 +241,10 @@ void ASTDumper::visitUnitDecl(UnitDecl * node)
 	else
 		fileInfo = makeKeyPairDump("file", "unknown");
 
-	dumpLine() << getBasicDeclInfo(node) << " " << fileInfo << " " << getIdentifierDump(node->getIdentifier()) << " " << getDeclRecorderDump(node) << "\n";
+	dumpLine() << getBasicDeclInfo(node) << " " 
+		<< fileInfo << " " 
+		<< getIdentifierDump(node->getIdentifier()) << " " 
+		<< getDeclRecorderDump(node) << "\n";
 
 	indent();
 	for (auto it = node->decls_beg(); it != node->decls_end(); it++)
@@ -249,9 +252,11 @@ void ASTDumper::visitUnitDecl(UnitDecl * node)
 	dedent();
 }
 
-void ASTDumper::visitVarDecl(VarDecl * node)
+void ASTDumper::visitVarDecl(VarDecl* node)
 {
-	dumpLine() << getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << " " << getQualTypeDump("type",node->getType()) << "\n";
+	dumpLine() << getBasicDeclInfo(node) << " "
+		<< getIdentifierDump(node->getIdentifier()) << " " 
+		<< getQualTypeDump("type",node->getType()) << "\n";
 	if (node->hasInitExpr())
 	{
 		indent(1);
@@ -391,6 +396,10 @@ std::string ASTDumper::getBasicDeclInfo(Decl * decl) const
 	ss << getDeclNodeName(decl);
 	if (printAllAdresses_)
 		ss << " " << (void *)decl;
+
+	ss << " " << getSourceLocDump("start", decl->getBegLoc());
+	ss << " " << getSourceLocDump("end", decl->getEndLoc());
+
 	return ss.str();
 }
 
@@ -435,8 +444,14 @@ std::string ASTDumper::getIdentifierDump(IdentifierInfo * id) const
 std::string ASTDumper::getSourceLocDump(const std::string& label,const SourceLoc& sloc) const
 {
 	std::ostringstream ss;
-	CompleteLoc cloc = ctxt_.sourceManager.getCompleteLocForSourceLoc(sloc);
-	ss << "[l" << cloc.line << ",c" << cloc.column << "]";
+	if (sloc)
+	{
+		CompleteLoc cloc = ctxt_.sourceManager.getCompleteLocForSourceLoc(sloc);
+		ss << "[l" << cloc.line << ",c" << cloc.column << "]";
+	}
+	else
+		ss << "[invalid sloc]";
+
 	return makeKeyPairDump(label, ss.str());
 }
 
