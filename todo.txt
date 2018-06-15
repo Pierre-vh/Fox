@@ -32,6 +32,10 @@ Moonshot Project To-do List.
 		> Decls (Done)
 		> Write Decl Locs Test (Next)
 		> Stmts
+			> Once CompoundStmt is done, solve the problem in FuncDecl where the endLoc excludes the body.
+				> EndLoc shall include body of the function (the endLoc will be the } loc)
+				> add getEndLocWithoutBody() function to get the "real" endLoc
+				> CTor won't change, the endLoc will be retrieved by the ctor itself with the body.
 		> Write Stmt Locs Test
 		> Exprs
 		> Write Expr Locs Test
