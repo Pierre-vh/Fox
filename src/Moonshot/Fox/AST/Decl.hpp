@@ -11,6 +11,7 @@
 #include "Type.hpp"
 #include "Stmt.hpp"
 #include "DeclRecorder.hpp"
+#include "Moonshot/Fox/Common/SourceManager.hpp"
 #include "Moonshot/Fox/Common/Memory.hpp"
 
 namespace Moonshot
@@ -30,11 +31,24 @@ namespace Moonshot
 	class Decl
 	{
 		public:
-			Decl(const DeclKind& dkind);
+			Decl(const DeclKind& dkind,const SourceLoc& begLoc, const SourceLoc& endLoc);
 			virtual ~Decl() = 0 {}
 			
 			DeclKind getKind() const;
+
+			SourceLoc getBegLoc() const;
+			SourceLoc getEndLoc() const;
+
+		protected:
+			friend class Parser;
+
+			bool isBegLocSet() const;
+			bool isEndLocSet() const;
+
+			void setBegLoc(const SourceLoc& loc);
+			void setEndLoc(const SourceLoc& loc);
 		private:
+			SourceLoc begLoc_, endLoc_;
 			DeclKind kind_;
 	};
 
@@ -42,7 +56,7 @@ namespace Moonshot
 	class NamedDecl : public Decl
 	{
 		public:
-			NamedDecl(const DeclKind& dkind,IdentifierInfo* name);
+			NamedDecl(const DeclKind& dkind,IdentifierInfo* name,const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			IdentifierInfo * getIdentifier() const;
 			void setIdentifier(IdentifierInfo* nname);
@@ -55,7 +69,7 @@ namespace Moonshot
 	class ArgDecl : public NamedDecl
 	{
 		public:
-			ArgDecl(IdentifierInfo* id, const QualType& argType);
+			ArgDecl(IdentifierInfo* id, const QualType& argType,const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			QualType getType() const;
 			void setType(const QualType& qt);
@@ -74,17 +88,23 @@ namespace Moonshot
 			using ArgVecIter = DereferenceIterator<ArgVecTy::iterator>;
 			using ArgVecConstIter = DereferenceIterator<ArgVecTy::const_iterator>;
 		public:
-			FunctionDecl(Type* returnType = nullptr, IdentifierInfo* fnId = nullptr, std::unique_ptr<CompoundStmt> funcbody = nullptr);
+			FunctionDecl();
+
+			// Note : BegLoc and EndLoc shall exclude the body of the function.
+			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			bool isValid();
 
 			void setReturnType(Type* ty);
 			Type* getReturnType();
+			const Type* getReturnType() const;
 
 			void setBody(std::unique_ptr<CompoundStmt> arg);
-			CompoundStmt* getBody();		
+			CompoundStmt* getBody();	
+			const CompoundStmt* getBody() const;
 
 			ArgDecl* getArg(const std::size_t & ind);
+			const ArgDecl* getArg(const std::size_t & ind) const;
 			void addArg(std::unique_ptr<ArgDecl> arg);
 			std::size_t argsSize() const;
 
@@ -103,7 +123,7 @@ namespace Moonshot
 	class VarDecl : public NamedDecl
 	{
 		public:
-			VarDecl(IdentifierInfo * varId = nullptr,const QualType& ty = QualType(), std::unique_ptr<Expr> iExpr = nullptr);
+			VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceLoc& semiLoc);
 
 			bool isValid();
 
@@ -112,22 +132,12 @@ namespace Moonshot
 			void setType(const QualType &ty);
 
 			Expr* getInitExpr();
+			const Expr* getInitExpr() const;
+
 			void setInitExpr(std::unique_ptr<Expr> expr);
-
 			bool hasInitExpr() const;
-
-			void setAllLocs(const SourceLoc& idLoc, const SourceLoc& typeLoc, const SourceLoc& semiLoc);
-			
-			void setIDLoc(const SourceLoc& sloc);
-			SourceLoc getIDLoc() const;
-
-			void setTypeLoc(const SourceLoc& sloc);
-			SourceLoc getTypeLoc() const;
-
-			void setSemiLoc(const SourceLoc& sloc);
 			SourceLoc getSemiLoc() const;
 		private:
-			SourceLoc idLoc_, typeLoc_, semiLoc_;
 			QualType varTy_;
 			std::unique_ptr<Expr> initExpr_ = nullptr;
 	};
@@ -145,6 +155,7 @@ namespace Moonshot
 
 			void addDecl(std::unique_ptr<Decl> decl);
 			Decl* getDecl(const std::size_t &idx);
+			const Decl* getDecl(const std::size_t &idx) const;
 			std::size_t getDeclCount() const;
 
 			bool isValid();

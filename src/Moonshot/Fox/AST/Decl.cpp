@@ -17,7 +17,8 @@
 using namespace Moonshot;
 
 // Decl
-Decl::Decl(const DeclKind & dkind) : kind_(dkind)
+Decl::Decl(const DeclKind & dkind,const SourceLoc& begLoc, const SourceLoc& endLoc)
+	: kind_(dkind), begLoc_(begLoc), endLoc_(endLoc)
 {
 
 }
@@ -27,8 +28,39 @@ DeclKind Decl::getKind() const
 	return kind_;
 }
 
+SourceLoc Decl::getBegLoc() const
+{
+	return begLoc_;
+}
+
+SourceLoc Decl::getEndLoc() const
+{
+	return endLoc_;
+}
+
+bool Decl::isBegLocSet() const
+{
+	return begLoc_;
+}
+
+bool Decl::isEndLocSet() const
+{
+	return endLoc_;
+}
+
+void Decl::setBegLoc(const SourceLoc & loc)
+{
+	begLoc_ = loc;
+}
+
+void Decl::setEndLoc(const SourceLoc & loc)
+{
+	endLoc_ = loc;
+}
+
 // NamedDecl
-NamedDecl::NamedDecl(const DeclKind& dkind, IdentifierInfo * name) : Decl(dkind), identifier_(name)
+NamedDecl::NamedDecl(const DeclKind& dkind, IdentifierInfo * name, const SourceLoc& begLoc, const SourceLoc& endLoc)
+	: Decl(dkind,begLoc,endLoc), identifier_(name)
 {
 
 }
@@ -49,7 +81,8 @@ bool NamedDecl::hasIdentifier() const
 }
 
 // Function arg
-ArgDecl::ArgDecl(IdentifierInfo* id, const QualType & argType) : NamedDecl(DeclKind::ArgDecl,id), ty_(argType)
+ArgDecl::ArgDecl(IdentifierInfo* id, const QualType& argType, const SourceLoc& begLoc, const SourceLoc& endLoc)
+	: NamedDecl(DeclKind::ArgDecl,id,begLoc,endLoc), ty_(argType)
 {
 
 }
@@ -71,8 +104,13 @@ bool ArgDecl::isValid()
 }
 
 // Function Declaration
-FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody) :
-	returnType_(returnType), NamedDecl(DeclKind::FunctionDecl,fnId), body_(std::move(funcbody))
+FunctionDecl::FunctionDecl(): NamedDecl(DeclKind::FunctionDecl,nullptr,SourceLoc(),SourceLoc())
+{
+
+}
+
+FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody,const SourceLoc& begLoc, const SourceLoc& endLoc)
+	: returnType_(returnType), NamedDecl(DeclKind::FunctionDecl,fnId,begLoc,endLoc), body_(std::move(funcbody))
 {
 
 }
@@ -94,7 +132,17 @@ Type* FunctionDecl::getReturnType()
 	return returnType_;
 }
 
+const Type* FunctionDecl::getReturnType() const
+{
+	return returnType_;
+}
+
 CompoundStmt * FunctionDecl::getBody()
+{
+	return body_.get();
+}
+
+const CompoundStmt* FunctionDecl::getBody() const
 {
 	return body_.get();
 }
@@ -106,9 +154,13 @@ void FunctionDecl::setBody(std::unique_ptr<CompoundStmt> arg)
 
 ArgDecl* FunctionDecl::getArg(const std::size_t & ind)
 {
-	if (ind >= args_.size())
-		throw std::out_of_range("Arg does not exists");
+	assert(ind >= args_.size() && "out of range");
+	return args_[ind].get();
+}
 
+const ArgDecl* FunctionDecl::getArg(const std::size_t & ind) const
+{
+	assert(ind >= args_.size() && "out of range");
 	return args_[ind].get();
 }
 
@@ -143,8 +195,8 @@ FunctionDecl::ArgVecConstIter FunctionDecl::args_end() const
 }
 
 // VarDecl
-VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr) : 
-	NamedDecl(DeclKind::VarDecl, varId), varTy_(ty)
+VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceLoc& semiLoc) :
+	NamedDecl(DeclKind::VarDecl, varId,begLoc,semiLoc), varTy_(ty)
 {
 	if (iExpr)
 		initExpr_ = std::move(iExpr);
@@ -161,7 +213,12 @@ QualType VarDecl::getType() const
 	return varTy_;
 }
 
-Expr * VarDecl::getInitExpr()
+Expr* VarDecl::getInitExpr()
+{
+	return initExpr_.get();
+}
+
+const Expr* VarDecl::getInitExpr() const
 {
 	return initExpr_.get();
 }
@@ -171,41 +228,9 @@ bool VarDecl::hasInitExpr() const
 	return (bool)initExpr_;
 }
 
-void VarDecl::setAllLocs(const SourceLoc & idLoc, const SourceLoc & typeLoc, const SourceLoc & semiLoc)
-{
-	idLoc_ = idLoc;
-	typeLoc_ = typeLoc;
-	semiLoc_ = semiLoc;
-}
-
-void VarDecl::setIDLoc(const SourceLoc& sloc)
-{
-	idLoc_ = sloc;
-}
-
-SourceLoc VarDecl::getIDLoc() const
-{
-	return idLoc_;
-}
-
-void VarDecl::setTypeLoc(const SourceLoc& sloc)
-{
-	typeLoc_ = sloc;
-}
-
-SourceLoc VarDecl::getTypeLoc() const
-{
-	return typeLoc_;
-}
-
-void VarDecl::setSemiLoc(const SourceLoc& sloc)
-{
-	semiLoc_ = sloc;
-}
-
 SourceLoc VarDecl::getSemiLoc() const
 {
-	return semiLoc_;
+	return getEndLoc();
 }
 
 void VarDecl::setType(const QualType &ty)
@@ -220,20 +245,36 @@ void VarDecl::setInitExpr(std::unique_ptr<Expr> expr)
 }
 
 // ASTUnit
-UnitDecl::UnitDecl(IdentifierInfo * id,const FileID& fid): NamedDecl(DeclKind::UnitDecl,id), fid_(fid)
+UnitDecl::UnitDecl(IdentifierInfo * id,const FileID& fid)
+	: NamedDecl(DeclKind::UnitDecl,id,SourceLoc(),SourceLoc()), fid_(fid)
 {
+	// NamedDecl constructor is given invalid SourceLocs, because the SourceLocs are updated automatically when a new Decl is Added.
 }
 
 void UnitDecl::addDecl(std::unique_ptr<Decl> decl)
 {
+	assert(decl->getBegLoc().isValid() && decl->getEndLoc().isValid() && "Cannot add an incomplete decl to a unit");
+
+	// Update locs
+	if (!isBegLocSet())
+		setBegLoc(decl->getBegLoc());
+
+	setEndLoc(decl->getEndLoc());
+
 	decls_.emplace_back(std::move(decl));
+	
 }
 
-Decl * UnitDecl::getDecl(const std::size_t & idx)
+Decl* UnitDecl::getDecl(const std::size_t& idx)
 {
-	if (idx < decls_.size())
-		return decls_[idx].get();
-	return nullptr;
+	assert(idx < decls_.size() && "out of range");
+	return decls_[idx].get();
+}
+
+const Decl* UnitDecl::getDecl(const std::size_t& idx) const
+{
+	assert(idx < decls_.size() && "out of range");
+	return decls_[idx].get();
 }
 
 std::size_t UnitDecl::getDeclCount() const
