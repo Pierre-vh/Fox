@@ -27,9 +27,6 @@ FLAG(diagengine_silenceAll,false)
 FLAG(lexer_logTotalTokenCount,false)
 FLAG(lexer_logOnPush,false)
 
-/* Parser */
-FLAG(parser_showRecoveryMessages, false)
-
 #ifndef KEEP_FLAG_DEFINITION
 	#undef FLAG
 #endif
