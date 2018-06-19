@@ -11,11 +11,12 @@
 #include "Type.hpp"
 #include "Stmt.hpp"
 #include "DeclRecorder.hpp"
-#include "Moonshot/Fox/Common/SourceManager.hpp"
 #include "Moonshot/Fox/Common/Memory.hpp"
 
 namespace Moonshot
 {
+	class SourceRange;
+	class SourceLoc;
 	// The DeclKind enum
 	enum class DeclKind : char
 	{
