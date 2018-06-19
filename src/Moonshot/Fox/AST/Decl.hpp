@@ -15,20 +15,18 @@
 
 namespace Moonshot
 {
-	class SourceRange;
-	class SourceLoc;
-	// The DeclKind enum
 	enum class DeclKind : char
 	{
 		#define DECL(ID,PARENT) ID,
 		#include "DeclNodes.def"
 	};
 
-	// Forward declarations
+	class SourceRange;
+	class SourceLoc;
 	class Expr;
 	class IdentifierInfo;
 	class IVisitor;
-	// Interface for Decl nodes.
+
 	class Decl
 	{
 		public:
@@ -40,6 +38,8 @@ namespace Moonshot
 			SourceLoc getBegLoc() const;
 			SourceLoc getEndLoc() const;
 			SourceRange getRange() const;
+
+			bool isLocationAvailable() const;
 		protected:
 			friend class Parser;
 
@@ -62,6 +62,7 @@ namespace Moonshot
 			IdentifierInfo * getIdentifier() const;
 			void setIdentifier(IdentifierInfo* nname);
 			bool hasIdentifier() const;
+
 		private:
 			IdentifierInfo * identifier_;
 	};
@@ -75,7 +76,7 @@ namespace Moonshot
 			QualType getType() const;
 			void setType(const QualType& qt);
 
-			bool isValid();
+			bool isComplete() const;
 		private:
 			QualType ty_;
 	};
@@ -91,10 +92,11 @@ namespace Moonshot
 		public:
 			FunctionDecl();
 
-			// Note : DeclEndLoc shall exclude the body of the function.
+			// Note : DeclEndLoc shall include the body of the function
+			// todo: Make the parser include it once CompoundStmt has everything it needs.
 			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody, const SourceLoc& begLoc,const SourceLoc& declEndLoc);
 
-			bool isValid();
+			bool isComplete() const;
 
 			void setReturnType(Type* ty);
 			Type* getReturnType();
@@ -115,7 +117,6 @@ namespace Moonshot
 			ArgVecIter args_end();
 			ArgVecConstIter args_end() const;
 		private:
-			SourceLoc endLocWithoutBody_;
 			Type* returnType_ = nullptr;
 			ArgVecTy args_;
 			std::unique_ptr<CompoundStmt> body_;
@@ -127,7 +128,7 @@ namespace Moonshot
 		public:
 			VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			bool isValid();
+			bool isComplete() const;
 
 			// Get a reference to the varType
 			QualType getType() const;
@@ -155,11 +156,13 @@ namespace Moonshot
 			UnitDecl(IdentifierInfo *id, const FileID& fid);
 
 			void addDecl(std::unique_ptr<Decl> decl);
+
 			Decl* getDecl(const std::size_t &idx);
 			const Decl* getDecl(const std::size_t &idx) const;
+
 			std::size_t getDeclCount() const;
 
-			bool isValid();
+			bool isComplete() const;
 
 			DeclVecIter decls_beg();
 			DeclVecIter decls_end();

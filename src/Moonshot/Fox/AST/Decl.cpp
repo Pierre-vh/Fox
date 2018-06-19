@@ -44,6 +44,11 @@ SourceRange Decl::getRange() const
 	return SourceRange(begLoc_, endLoc_);
 }
 
+bool Decl::isLocationAvailable() const
+{
+	return begLoc_ && endLoc_;
+}
+
 bool Decl::isBegLocSet() const
 {
 	return begLoc_;
@@ -103,10 +108,10 @@ void ArgDecl::setType(const QualType & qt)
 	ty_ = qt;
 }
 
-bool ArgDecl::isValid()
+bool ArgDecl::isComplete() const
 {
-	// Node is valid if it has a identifier_ and a valid type.
-	return this->hasIdentifier() && ty_;
+	// Node is valid if it has a identifier, a valid type and a valid loc info
+	return this->hasIdentifier() && ty_ && isLocationAvailable();
 }
 
 // Function Declaration
@@ -121,10 +126,16 @@ FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_p
 
 }
 
-bool FunctionDecl::isValid()
+bool FunctionDecl::isComplete() const
 {
-	// must has a body, a return type and an identifier.
-	return returnType_ && body_ && this->hasIdentifier();
+	// Every arg must be valid
+	for (auto it = args_begin(); it != args_end(); it++)
+	{
+		if (!it->isComplete())
+			return false;
+	}
+	// and the node must have a body, a return type and an identifier and valid loc info
+	return returnType_ && body_ && this->hasIdentifier() && isLocationAvailable();
 }
 
 void FunctionDecl::setReturnType(Type* ty)
@@ -208,10 +219,10 @@ VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr
 		initExpr_ = std::move(iExpr);
 }
 
-bool VarDecl::isValid()
+bool VarDecl::isComplete() const
 {
-	// must have a type and id to be valid.
-	return this->hasIdentifier() && varTy_;
+	// must have a type, and id + valid loc info to be considered valid.
+	return this->hasIdentifier() && varTy_ && isLocationAvailable();
 }
 
 QualType VarDecl::getType() const
@@ -283,7 +294,7 @@ std::size_t UnitDecl::getDeclCount() const
 	return decls_.size();
 }
 
-bool UnitDecl::isValid()
+bool UnitDecl::isComplete() const
 {
 	// Valid if decl number >0 && has an identifier
 	return decls_.size() && this->hasIdentifier();
