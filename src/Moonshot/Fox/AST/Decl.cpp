@@ -200,8 +200,8 @@ FunctionDecl::ArgVecConstIter FunctionDecl::args_end() const
 }
 
 // VarDecl
-VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceLoc& semiLoc) :
-	NamedDecl(DeclKind::VarDecl, varId,begLoc,semiLoc), varTy_(ty)
+VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceLoc& endLoc) :
+	NamedDecl(DeclKind::VarDecl, varId, begLoc, endLoc), varTy_(ty)
 {
 	if (iExpr)
 		initExpr_ = std::move(iExpr);
@@ -231,11 +231,6 @@ const Expr* VarDecl::getInitExpr() const
 bool VarDecl::hasInitExpr() const
 {
 	return (bool)initExpr_;
-}
-
-SourceLoc VarDecl::getSemiLoc() const
-{
-	return getEndLoc();
 }
 
 void VarDecl::setType(const QualType &ty)

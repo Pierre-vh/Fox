@@ -124,7 +124,7 @@ namespace Moonshot
 	class VarDecl : public NamedDecl
 	{
 		public:
-			VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceLoc& semiLoc);
+			VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			bool isValid();
 
@@ -137,7 +137,6 @@ namespace Moonshot
 
 			void setInitExpr(std::unique_ptr<Expr> expr);
 			bool hasInitExpr() const;
-			SourceLoc getSemiLoc() const;
 		private:
 			QualType varTy_;
 			std::unique_ptr<Expr> initExpr_ = nullptr;
