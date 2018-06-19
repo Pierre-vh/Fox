@@ -193,7 +193,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 			// Success, nothing more to see here!
 			if (isValid)
 			{
-				assert(rtr->isValid() && "Declaration is invalid but parsing function completed successfully?");
+				assert(rtr->isComplete() && "Declaration isn't complete but parsing function completed successfully?");
 				return DeclResult(std::move(rtr));
 			}
 		}
@@ -314,7 +314,7 @@ Parser::DeclResult Parser::parseVarDecl()
 		}
 
 		auto rtr = std::make_unique<VarDecl>(id, ty, std::move(iExpr), begLoc, semiLoc);
-		assert(rtr->isValid() && "Declaration is invalid but parsing function completed successfully?");
+		assert(rtr->isComplete() && "Declaration isn't complete but parsing function completed successfully?");
 		
 		// Record the decl
 		recordDecl(rtr.get());
