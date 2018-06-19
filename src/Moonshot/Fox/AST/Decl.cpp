@@ -171,7 +171,7 @@ void FunctionDecl::setBody(std::unique_ptr<CompoundStmt> arg)
 
 ArgDecl* FunctionDecl::getArg(const std::size_t & ind)
 {
-	assert(ind >= args_.size() && "out of range");
+	assert(ind < args_.size() && "out of range");
 	return args_[ind].get();
 }
 
