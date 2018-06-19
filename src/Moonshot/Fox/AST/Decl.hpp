@@ -38,7 +38,7 @@ namespace Moonshot
 
 			SourceLoc getBegLoc() const;
 			SourceLoc getEndLoc() const;
-
+			SourceRange getRange() const;
 		protected:
 			friend class Parser;
 

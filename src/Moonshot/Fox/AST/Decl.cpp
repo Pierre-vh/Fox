@@ -38,6 +38,11 @@ SourceLoc Decl::getEndLoc() const
 	return endLoc_;
 }
 
+SourceRange Decl::getRange() const
+{
+	return SourceRange(begLoc_, endLoc_);
+}
+
 bool Decl::isBegLocSet() const
 {
 	return begLoc_;
