@@ -111,7 +111,7 @@ TEST(SourceManagerTests, PreciseLocationTest1)
 	// Create needed variables
 	Context ctxt;
 
-	std::string fp = Tests::convertRelativeTestResPathToAbsolute("sourcelocs/precise_test_1.txt");
+	std::string fp = Tests::convertRelativeTestResPathToAbsolute("sourcemanager/precise_test_1.txt");
 
 	// Load file in SourceManager
 	auto fid = ctxt.sourceManager.loadFromFile(fp);
@@ -131,9 +131,9 @@ TEST(SourceManagerTests, PreciseLocationTest1)
 		auto result = ctxt.sourceManager.getCompleteLocForSourceLoc(sloc);
 
 		EXPECT_EQ(result.fileName, fp);
-		EXPECT_EQ(result.character, 960);
+		EXPECT_EQ(result.value, 960);
 		EXPECT_EQ(result.line, 5);
-		EXPECT_EQ(result.character_index, 6);
+		EXPECT_EQ(result.character, 6);
 		EXPECT_EQ(result.column, 9);
 	}
 	else

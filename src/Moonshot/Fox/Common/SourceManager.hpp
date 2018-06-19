@@ -45,7 +45,7 @@ namespace Moonshot
 	struct CompleteLoc
 	{
 		CompleteLoc(const std::string& fName, const std::uint32_t& ln, const std::uint16_t& col, const std::uint16_t& chidx, const CharType& ch)
-			: fileName(fName), line(ln), column(col), character_index(chidx), character(ch)
+			: fileName(fName), line(ln), column(col), character(chidx), value(ch)
 		{
 
 		}
@@ -53,8 +53,8 @@ namespace Moonshot
 		std::string fileName;
 		std::uint32_t line;
 		std::uint16_t column;
-		std::uint16_t character_index;
-		CharType character;
+		std::uint16_t character;
+		CharType value;
 	};
 
 	// the SourceManager, which stores every source file and gives them a unique ID.

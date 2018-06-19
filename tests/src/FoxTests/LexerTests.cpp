@@ -253,8 +253,8 @@ TEST(LexerTests, Coordinates1)
 			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.makeEndSourceLoc());
 			
 			// Char
-			EXPECT_EQ(beg_ploc.character, '_');
-			EXPECT_EQ(end_ploc.character, '_');
+			EXPECT_EQ(beg_ploc.value, '_');
+			EXPECT_EQ(end_ploc.value, '_');
 
 			// Line
 			EXPECT_EQ(beg_ploc.line, 7);
@@ -265,8 +265,8 @@ TEST(LexerTests, Coordinates1)
 			EXPECT_EQ(end_ploc.column, 20);
 
 			// Char Idx
-			EXPECT_EQ(beg_ploc.character_index, 5);
-			EXPECT_EQ(end_ploc.character_index, 20);
+			EXPECT_EQ(beg_ploc.character, 5);
+			EXPECT_EQ(end_ploc.character, 20);
 		}
 		else if (elem.getAsString() == "_2NDVAR__")
 		{
@@ -275,8 +275,8 @@ TEST(LexerTests, Coordinates1)
 			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.makeEndSourceLoc());
 
 			// Char
-			EXPECT_EQ(beg_ploc.character, '_');
-			EXPECT_EQ(end_ploc.character, '_');
+			EXPECT_EQ(beg_ploc.value, '_');
+			EXPECT_EQ(end_ploc.value, '_');
 
 			// Line
 			EXPECT_EQ(beg_ploc.line, 10);
@@ -287,8 +287,8 @@ TEST(LexerTests, Coordinates1)
 			EXPECT_EQ(end_ploc.column, 17);
 
 			// Char Idx
-			EXPECT_EQ(beg_ploc.character_index, 6);
-			EXPECT_EQ(end_ploc.character_index, 14);
+			EXPECT_EQ(beg_ploc.character, 6);
+			EXPECT_EQ(end_ploc.character, 14);
 		}
 		else if (elem.getAsString() == "ThirdVariable")
 		{
@@ -297,8 +297,8 @@ TEST(LexerTests, Coordinates1)
 			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.makeEndSourceLoc());
 
 			// Char
-			EXPECT_EQ(beg_ploc.character, 'T');
-			EXPECT_EQ(end_ploc.character, 'e');
+			EXPECT_EQ(beg_ploc.value, 'T');
+			EXPECT_EQ(end_ploc.value, 'e');
 
 			// Line
 			EXPECT_EQ(beg_ploc.line, 13);
@@ -309,8 +309,8 @@ TEST(LexerTests, Coordinates1)
 			EXPECT_EQ(end_ploc.column, 17);
 
 			// Char Idx
-			EXPECT_EQ(beg_ploc.character_index, 5);
-			EXPECT_EQ(end_ploc.character_index, 17);
+			EXPECT_EQ(beg_ploc.character, 5);
+			EXPECT_EQ(end_ploc.character, 17);
 		}
 	}
 	EXPECT_EQ(varFounds, 3) << "Did not find all 3 variables";

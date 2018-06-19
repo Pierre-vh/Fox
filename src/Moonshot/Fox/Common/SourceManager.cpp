@@ -87,7 +87,7 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 	// Everything we need:
 	std::uint32_t line = 1;
 	std::uint16_t column = 1;
-	std::uint16_t character_index = 1;
+	std::uint16_t character = 1;
 
 	// First, extract the relevant information
 	const StoredData* fdata = getStoredDataForFileID(sloc.getFileID());
@@ -102,16 +102,16 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 		{
 			case '\t':
 				column += TABS_COL;
-				character_index++;
+				character++;
 				break;
 			case '\n':
 				column = 1;
-				character_index = 1;
+				character = 1;
 				line++;
 				break;
 			default:
 				column++;
-				character_index++;
+				character++;
 				break;
 		}
 	}
@@ -119,7 +119,7 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 		fdata->fileName,
 		line,
 		column,
-		character_index,
+		character,
 		extractCharFromStr(&(fdata->str), sloc.getIndex())
 	);
 }
