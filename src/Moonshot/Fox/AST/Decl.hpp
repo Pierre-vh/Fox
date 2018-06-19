@@ -96,6 +96,7 @@ namespace Moonshot
 			// todo: Make the parser include it once CompoundStmt has everything it needs.
 			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody, const SourceLoc& begLoc,const SourceLoc& declEndLoc);
 
+			// Note: Checks the validity of the args too.
 			bool isComplete() const;
 
 			void setReturnType(Type* ty);
@@ -162,6 +163,7 @@ namespace Moonshot
 
 			std::size_t getDeclCount() const;
 
+			// Note: Doesn't check the validity of the Decls contained, only the validity of the unit itself.
 			bool isComplete() const;
 
 			DeclVecIter decls_beg();
