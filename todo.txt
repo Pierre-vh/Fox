@@ -44,7 +44,8 @@ Moonshot Project To-do List.
 	> Add new features to Diagnostic
 		> addCaret(SourceRange/SourceLoc)
 
-	> The DiagnosticConsumer should retrieve the text extract if available, and add carets under if needed.
+	> The DiagnosticConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place
+	  the error is.
 
 	> Write all the remaining tests needed.
 
