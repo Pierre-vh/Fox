@@ -11,6 +11,8 @@
 #include "Decl.hpp"
 #include "Expr.hpp"
 
+#include <cassert>
+
 using namespace Moonshot;
 
 // Stmt
@@ -98,7 +100,7 @@ ConditionStmt::ConditionStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> t
 	setCond(std::move(cond));
 	setThen(std::move(then));
 	setElse(std::move(elsestmt));
-	setIfHeaderEndLoc(ifHeadEndLoc_);
+	setIfHeaderEndLoc(ifHeaderEndLoc);
 }
 
 bool ConditionStmt::isValid() const
@@ -293,9 +295,11 @@ SourceRange WhileStmt::getHeaderRange() const
 }
 
 // DeclStmt
-DeclStmt::DeclStmt(std::unique_ptr<Decl> decl) : decl_(std::move(decl)), Stmt(StmtKind::DeclStmt,decl_->getBegLoc(),decl_->getEndLoc())
+DeclStmt::DeclStmt(std::unique_ptr<Decl> decl) : decl_(std::move(decl)), Stmt(StmtKind::DeclStmt,SourceLoc(),SourceLoc())
 {
-
+	assert(decl_ && "The Decl cannot be null!");
+	setBegLoc(decl_->getBegLoc());
+	setEndLoc(decl_->getEndLoc());
 }
 
 bool DeclStmt::hasDecl() const

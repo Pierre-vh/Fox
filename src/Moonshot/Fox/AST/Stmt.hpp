@@ -47,18 +47,19 @@ namespace Moonshot
 			StmtKind getKind() const;
 
 			SourceRange getRange() const;
+
 			SourceLoc getBegLoc() const;
 			SourceLoc getEndLoc() const;
-
-			bool hasLocInfo() const;
-		protected:
-			Stmt(const StmtKind& skind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			void setBegLoc(const SourceLoc& loc);
 			void setEndLoc(const SourceLoc& loc);
 
 			bool isBegLocSet() const;
 			bool isEndLocSet() const;
+
+			bool hasLocInfo() const;
+		protected:
+			Stmt(const StmtKind& skind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 		private:
 			SourceLoc beg_, end_;
 			StmtKind kind_;

@@ -68,9 +68,8 @@ namespace Moonshot
 			Expr(const StmtKind& kind, const SourceLoc& begLoc = SourceLoc(), const SourceLoc& endLoc = SourceLoc());
 	};
 
-	// A Null expression that's just a placeholder.
-	// Mostly used by the parser to recover from situations, it doesn't necessarily
-	// represent any language construction.
+	// ';' expr
+	// It's mostly a placeholder and shouldn't pass the parsing phase.
 	class NullExpr : public Expr
 	{
 		public:

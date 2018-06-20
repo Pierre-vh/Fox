@@ -122,7 +122,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 			endLoc = parenExprEndLoc;
 		}
 
-		assert(expr && body && begLoc && endLoc && parenExprEndLoc);
+		// assert(expr && body && begLoc && endLoc && parenExprEndLoc);
 		return StmtResult(std::make_unique<WhileStmt>(
 				std::move(expr),
 				std::move(body),
@@ -295,13 +295,13 @@ Parser::StmtResult Parser::parseBody()
 Parser::StmtResult Parser::parseExprStmt()
 {
 	// <expr_stmt>	= ';' | <expr> ';' 
-
+#pragma message("Find a solution to the ignored semi loc problem")
+	
 	// ';'
 	if (consumeSign(SignType::S_SEMICOLON))
 		return StmtResult(std::make_unique<NullExpr>());
 
-	// <expr> ';' 
-	// <expr>
+	// <expr> 
 	else if (auto expr = parseExpr())
 	{
 		// ';'
