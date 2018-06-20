@@ -94,7 +94,8 @@ Parser::DeclResult Parser::parseFunctionDecl()
 	// "func"
 	if (auto fnKw = consumeKeyword(KeywordType::KW_FUNC))
 	{
-		auto rtr = std::make_unique<FunctionDecl>();
+		auto rtr = std::make_unique<FunctionDecl>(
+			);
 		SourceLoc begLoc = fnKw.getBeginSourceLoc();
 		SourceLoc endLoc;
 
@@ -106,8 +107,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		{
 			errorExpected("Expected an identifier");
 			isValid = false;
-			// Here, continue parsing. This might generate an error cascade but we need to try and parse more things before giving up definitely.
-			// Todo: maybe add a "nullId", a special 
+			rtr->setIdentifier(IDs.getInvalidID());
 		}
 
 		// Before creating a RAIIDeclRecorder, record this function in the parent DeclRecorder
@@ -194,13 +194,8 @@ Parser::DeclResult Parser::parseFunctionDecl()
 
 		rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
 		rtr->setSourceLocs(begLoc, endLoc, rtr->getBody()->getEndLoc());
-
-		if (rtr->isComplete())
-		{
-			return DeclResult(std::move(rtr));
-		}
-
-		return DeclResult::Error();
+		assert(rtr->isComplete());
+		return DeclResult(std::move(rtr));
 	}
 	return DeclResult::NotFound();
 }
