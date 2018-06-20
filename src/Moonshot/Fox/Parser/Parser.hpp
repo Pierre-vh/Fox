@@ -82,7 +82,7 @@ namespace Moonshot
 			// EXPRESSIONS
 			ExprListResult parseExprList();
 			ExprListResult parseParensExprList();
-			ExprResult parseParensExpr(const bool& isMandatory = false);
+			ExprResult parseParensExpr(const bool& isMandatory,SourceLoc* leftPLoc = nullptr, SourceLoc* rightPLoc = nullptr);
 			ExprResult parseSuffix(std::unique_ptr<Expr> &base);
 			ExprResult parseDeclRef();
 			ExprResult parsePrimitiveLiteral();

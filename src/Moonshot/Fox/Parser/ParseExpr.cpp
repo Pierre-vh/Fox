@@ -186,7 +186,7 @@ Parser::ExprResult Parser::parsePrimary()
 		return ExprResult::Error();
 
 	// = '(' <expr> ')'
-	if (auto parens_expr = parseParensExpr())
+	if (auto parens_expr = parseParensExpr(false))
 		return parens_expr;
 	else if (!parens_expr.wasSuccessful())
 		return ExprResult::Error();
@@ -411,7 +411,7 @@ Parser::ExprResult Parser::parseExpr()
 	}
 }
 
-Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory)
+Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory, SourceLoc* leftPLoc = nullptr, SourceLoc* rightPLoc = nullptr)
 {
 	// <parens_expr> = '(' <expr> ')'
 	// '('
@@ -452,6 +452,12 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory)
 			// If we recovered successfuly, place the Sloc into RParen
 			RParen = consumeBracket(SignType::S_ROUND_CLOSE);
 		}
+
+		if (leftPLoc)
+			*leftPLoc = LParen;
+
+		if (rightPLoc)
+			*rightPLoc = RParen;
 
 		return ExprResult(
 			std::make_unique<ParensExpr>(std::move(rtr), LParen, RParen)
