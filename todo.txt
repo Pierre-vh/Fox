@@ -27,22 +27,18 @@ Moonshot Project To-do List.
 	> Sourceloc & SourceManager system (Done)
 	> Update lexer/token to add a sourcerange/loc to every single token (Done)
 	> Update the Parser so it can return more SourceLoc info. (Done)
+	> Update the AST so all nodes have a sourceloc/range too wherever needed. (Done)
+	> Write Decl Locs Test (Done)
 
-	> Update the AST so all nodes have a sourceloc/range too wherever needed. (Next)
-		> Decls (Done)
-		> Stmts  (Done)
-		> Exprs (Done)
-		> Write Decl Locs Test (Done)
-		> Write Stmt & Expr Loc Tests (Next)
-
-	> Review the code of the AST completely, especially the SourceLocs and the consistency of the code.
+	> Write Stmt & Expr Loc Tests (Next)
+	> Review the code of the AST completely, especially the SourceLocs and the consistency of the code (Next)
+		> Add Empty Ctors for every node. The Empty Ctor is just a delegating ctor with uninitialized args + use them in tests
+		> Add Ranges/Locs whenever it's needed.
 
 	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg
 		> 2 Variants should exist :
 			> One that report an error
-			> One that report an error within a SourceRange
-	> Add new features to Diagnostic
-		> addCaret(SourceRange/SourceLoc)
+			> One that report an error at a loc/range (sets the caret)
 
 	> The DiagnosticConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place
 	  the error is.
