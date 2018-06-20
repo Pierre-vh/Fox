@@ -239,7 +239,8 @@ Parser::DeclResult Parser::parseVarDecl()
 	if (auto letKw = consumeKeyword(KeywordType::KW_LET))
 	{
 		SourceLoc begLoc = letKw.getBeginSourceLoc();
-		SourceLoc semiLoc;
+		SourceLoc endLoc;
+		SourceRange tyRange;
 
 		IdentifierInfo* id;
 		QualType ty;
@@ -270,6 +271,7 @@ Parser::DeclResult Parser::parseVarDecl()
 		if (auto typespecResult = parseQualType())
 		{
 			ty = typespecResult.get();
+			tyRange = typespecResult.getSourceRange();
 			if (ty.isAReference())
 			{
 				context_.reportWarning("Ignored reference qualifier '&' in variable declaration : Variables cannot be references.");
@@ -301,9 +303,8 @@ Parser::DeclResult Parser::parseVarDecl()
 		}
 
 		// ';'
-		if (auto semi = consumeSign(SignType::S_SEMICOLON))
-			semiLoc = semi;
-		else
+		endLoc = consumeSign(SignType::S_SEMICOLON);
+		if (!endLoc)
 		{
 			errorExpected("Expected ';'");
 			
@@ -311,7 +312,7 @@ Parser::DeclResult Parser::parseVarDecl()
 				return DeclResult::Error();
 		}
 
-		auto rtr = std::make_unique<VarDecl>(id, ty, std::move(iExpr), begLoc, semiLoc);
+		auto rtr = std::make_unique<VarDecl>(id, ty, std::move(iExpr), begLoc,tyRange,endLoc);
 		assert(rtr->isComplete() && "Declaration isn't complete but parsing function completed successfully?");
 		
 		// Record the decl

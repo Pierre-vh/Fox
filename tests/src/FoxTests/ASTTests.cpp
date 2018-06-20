@@ -148,7 +148,7 @@ TEST(ASTTests, ASTContextArrayTypes)
 // Create a variable with a random type
 std::unique_ptr<VarDecl> makeVarDecl(ASTContext& ctxt, const std::string &name,Type* ty)
 {
-	return std::make_unique<VarDecl>(ctxt.identifiers.getUniqueIdentifierInfo(name), ty, nullptr, SourceLoc(), SourceLoc());
+	return std::make_unique<VarDecl>(ctxt.identifiers.getUniqueIdentifierInfo(name), ty, nullptr, SourceLoc(), SourceRange(), SourceLoc());
 }
 
 std::unique_ptr<FunctionDecl> makeFuncDecl(ASTContext& ctxt, const std::string& name)
@@ -364,7 +364,7 @@ TEST(ASTTests, DeclKinds)
 	EXPECT_EQ(fndecl.getKind(), DeclKind::FunctionDecl);
 
 	// Var
-	VarDecl vdecl(fooid, QualType(intty),nullptr,SourceLoc(),SourceLoc());
+	VarDecl vdecl(fooid, QualType(intty),nullptr,SourceLoc(),SourceRange(),SourceLoc());
 	EXPECT_EQ(vdecl.getKind(), DeclKind::VarDecl);
 
 	// Unit
@@ -413,6 +413,7 @@ TEST(ASTTests, BasicVisitorTest)
 			QualType(),
 			nullptr, 
 			SourceLoc(),
+			SourceRange(),
 			SourceLoc()
 		);
 	auto intTy = ctxt.getPrimitiveIntType();
