@@ -148,7 +148,14 @@ TEST(ASTTests, ASTContextArrayTypes)
 // Create a variable with a random type
 std::unique_ptr<VarDecl> makeVarDecl(ASTContext& ctxt, const std::string &name,Type* ty)
 {
-	return std::make_unique<VarDecl>();
+	return std::make_unique<VarDecl>(
+			ctxt.identifiers.getUniqueIdentifierInfo(name),
+			QualType(ty),
+			nullptr,
+			SourceLoc(),
+			SourceRange(),
+			SourceLoc()
+		);
 }
 
 std::unique_ptr<FunctionDecl> makeFuncDecl(ASTContext& ctxt, const std::string& name)
