@@ -329,11 +329,11 @@ TEST(ASTTests, ExprKinds)
 TEST(ASTTests, StmtKinds)
 {
 	// Return stmt
-	ReturnStmt rtr;
+	ReturnStmt rtr(nullptr,SourceLoc(),SourceLoc());
 	EXPECT_EQ(rtr.getKind(), StmtKind::ReturnStmt);
 
 	// Condition
-	ConditionStmt cond(std::make_unique<NullExpr>(), std::make_unique<NullExpr>());
+	ConditionStmt cond(nullptr, nullptr, nullptr, SourceLoc(), SourceLoc(), SourceLoc());
 	EXPECT_EQ(cond.getKind(), StmtKind::ConditionStmt);
 
 	// Compound
@@ -341,11 +341,11 @@ TEST(ASTTests, StmtKinds)
 	EXPECT_EQ(compound.getKind(), StmtKind::CompoundStmt);
 
 	// While
-	WhileStmt whilestmt(std::make_unique<NullExpr>(), std::make_unique<NullExpr>());
+	WhileStmt whilestmt(nullptr, nullptr, SourceLoc(), SourceLoc(), SourceLoc());
 	EXPECT_EQ(whilestmt.getKind(), StmtKind::WhileStmt);
 
 	// declstmt
-	DeclStmt declstmt;
+	DeclStmt declstmt(std::make_unique<ArgDecl>(nullptr,QualType(),SourceLoc(),SourceLoc()));
 	EXPECT_EQ(declstmt.getKind(), StmtKind::DeclStmt);
 }
 
@@ -407,7 +407,7 @@ TEST(ASTTests, BasicVisitorTest)
 
 	// Create test nodes
 	auto intlit = std::make_unique<IntegerLiteralExpr>(200);
-	auto rtr = std::make_unique<ReturnStmt>();
+	auto rtr = std::make_unique<ReturnStmt>(nullptr,SourceLoc(),SourceLoc());
 	auto vardecl = std::make_unique<VarDecl>(
 			nullptr,
 			QualType(),
