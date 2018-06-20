@@ -40,15 +40,15 @@ namespace Moonshot
 			SourceLoc getEndLoc() const;
 			SourceRange getRange() const;
 
-			bool hasLocInfo() const;
-		protected:
-			Decl(const DeclKind& dkind, const SourceLoc& begLoc, const SourceLoc& endLoc);
-
 			bool isBegLocSet() const;
 			bool isEndLocSet() const;
 
 			void setBegLoc(const SourceLoc& loc);
 			void setEndLoc(const SourceLoc& loc);
+
+			bool hasLocInfo() const;
+		protected:
+			Decl(const DeclKind& dkind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 		private:
 			SourceLoc begLoc_, endLoc_;
 			DeclKind kind_;
