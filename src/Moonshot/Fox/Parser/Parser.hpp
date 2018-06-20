@@ -276,6 +276,7 @@ namespace Moonshot
 
 			/*-------------- Member Variables --------------*/
 			ASTContext& astcontext_;
+			IdentifierTable& IDs;
 			Context& context_;
 			TokenVector& tokens_;
 			bool isTestMode_ : 1;

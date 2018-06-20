@@ -20,7 +20,7 @@
 
 using namespace Moonshot;
 
-Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l,DeclRecorder *dr) : context_(c), astcontext_(astctxt), tokens_(l)
+Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l, DeclRecorder *dr) : context_(c), astcontext_(astctxt), tokens_(l), IDs(astcontext_.identifiers)
 {
 	if (dr)
 		state_.declRecorder = dr;
