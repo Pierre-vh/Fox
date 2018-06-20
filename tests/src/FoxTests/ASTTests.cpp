@@ -284,20 +284,20 @@ TEST(ASTTests, ExprKinds)
 	EXPECT_EQ(binexpr.getKind(), StmtKind::BinaryExpr);
 
 	// Unary Exprs
-	UnaryExpr unaryexpr(unaryOperator::LOGICNOT);
+	UnaryExpr unaryexpr(unaryOperator::LOGICNOT,nullptr,SourceLoc(),SourceRange(),SourceLoc());
 	EXPECT_EQ(unaryexpr.getKind(), StmtKind::UnaryExpr);
 
 	// Cast Exprs
-	CastExpr castexpr(astctxt.getPrimitiveIntType());
+	CastExpr castexpr(astctxt.getPrimitiveIntType(),nullptr,SourceLoc(),SourceRange(),SourceLoc());
 	EXPECT_EQ(castexpr.getKind(), StmtKind::CastExpr);
 
 	// Literals
-	CharLiteralExpr		charlit(0);
-	IntegerLiteralExpr	intlit(0);
-	FloatLiteralExpr	floatlit(0);
-	StringLiteralExpr	strlit("");
-	BoolLiteralExpr		boollit(false);
-	ArrayLiteralExpr	arrlit;
+	CharLiteralExpr		charlit(0,SourceLoc(),SourceLoc());
+	IntegerLiteralExpr	intlit(0, SourceLoc(), SourceLoc());
+	FloatLiteralExpr	floatlit(0, SourceLoc(), SourceLoc());
+	StringLiteralExpr	strlit("", SourceLoc(), SourceLoc());
+	BoolLiteralExpr		boollit(false, SourceLoc(), SourceLoc());
+	ArrayLiteralExpr	arrlit(nullptr, SourceLoc(), SourceLoc());
 
 	EXPECT_EQ(charlit.getKind(), StmtKind::CharLiteralExpr);
 	EXPECT_EQ(intlit.getKind(),  StmtKind::IntegerLiteralExpr);
@@ -310,19 +310,19 @@ TEST(ASTTests, ExprKinds)
 	auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
 
 	// DeclRef
-	DeclRefExpr declref(fooid);
+	DeclRefExpr declref(fooid,SourceLoc(),SourceLoc());
 	EXPECT_EQ(declref.getKind(), StmtKind::DeclRefExpr);
 
 	// MemberOfExpr
-	MemberOfExpr membof;
+	MemberOfExpr membof(nullptr,nullptr,SourceLoc(),SourceLoc(),SourceLoc());
 	EXPECT_EQ(membof.getKind(), StmtKind::MemberOfExpr);
 
 	// Array Access
-	ArrayAccessExpr arracc(std::make_unique<NullExpr>(), std::make_unique<NullExpr>());
+	ArrayAccessExpr arracc(std::make_unique<NullExpr>(), std::make_unique<NullExpr>(), SourceLoc(), SourceLoc());
 	EXPECT_EQ(arracc.getKind(), StmtKind::ArrayAccessExpr);
 
 	// Function calls
-	FunctionCallExpr callexpr(std::make_unique<DeclRefExpr>(fooid));
+	FunctionCallExpr callexpr(std::make_unique<DeclRefExpr>(fooid),nullptr,SourceLoc(),SourceLoc());
 	EXPECT_EQ(callexpr.getKind(), StmtKind::FunctionCallExpr);
 }
 
