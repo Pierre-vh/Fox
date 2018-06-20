@@ -81,10 +81,20 @@ Expr::Expr(const StmtKind & ekind, const SourceLoc& begLoc, const SourceLoc& end
 
 }
 
-// nullexpr
-NullExpr::NullExpr() : Expr(StmtKind::NullExpr, SourceLoc(), SourceLoc())
+// NullExpr
+NullExpr::NullExpr() : NullExpr(SourceLoc())
 {
 
+}
+
+NullExpr::NullExpr(const SourceLoc& semiLoc) : Expr(StmtKind::NullExpr, semiLoc, semiLoc), isRecoveryNode_(semiLoc.isValid())
+{
+
+}
+
+bool NullExpr::isRecoveryNullExpr() const
+{
+	return isRecoveryNode_;
 }
 
 // Literals : Char literals

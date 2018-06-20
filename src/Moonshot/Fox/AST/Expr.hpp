@@ -68,12 +68,21 @@ namespace Moonshot
 			Expr(const StmtKind& kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 	};
 
-	// ';' expr
-	// It's mostly a placeholder and shouldn't pass the parsing phase.
+	// A Null, Empty expr.
+	// It might just be a Semicolon, or be completly null.
 	class NullExpr : public Expr
 	{
 		public:
+			// Constructs a recovery NullExpr
 			NullExpr();
+
+			// Constructs a real NullExpr
+			NullExpr(const SourceLoc& semiLoc);
+
+			// Returns true if this node acts like a Recovery Expr (thus, it doesn't exists in the source)
+			bool isRecoveryNullExpr() const;
+		private:
+			bool isRecoveryNode_ : 1;
 	};
 
 	// Binary Expressions
