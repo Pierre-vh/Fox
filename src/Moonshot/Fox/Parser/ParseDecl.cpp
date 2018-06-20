@@ -95,7 +95,8 @@ Parser::DeclResult Parser::parseFunctionDecl()
 	if (auto fnKw = consumeKeyword(KeywordType::KW_FUNC))
 	{
 		auto rtr = std::make_unique<FunctionDecl>();
-		rtr->setBegLoc(fnKw.getBeginSourceLoc());
+		SourceLoc begLoc = fnKw.getBeginSourceLoc();
+		SourceLoc endLoc;
 
 		bool isValid = true;
 		// <id>
@@ -154,7 +155,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 
 		// ')'
 		if (auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE))
-			rtr->setEndLoc(rightParens);
+			endLoc = rightParens;
 		else 
 		{
 			errorExpected("Expected a ')'");
@@ -168,7 +169,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 			if (auto rtrTy = parseType())
 			{
 				rtr->setReturnType(rtrTy.get());
-				rtr->setEndLoc(rtrTy.getSourceRange().makeEndSourceLoc());
+				endLoc = rtrTy.getSourceRange().makeEndSourceLoc();
 			}
 			else // no type found? we expected one after the colon!
 			{
@@ -176,7 +177,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 					errorExpected("Expected a type keyword");
 
 				rtr->setReturnType(astcontext_.getPrimitiveVoidType());
-				rtr->setEndLoc(colon);
+				endLoc = colon;
 
 				// Try to resync to a { so we can keep on parsing.
 				if (!resyncToSign(SignType::S_CURLY_OPEN, false, false))
@@ -191,12 +192,15 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		{
 			rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
 			// Success, nothing more to see here!
-			if (isValid)
-			{
-				assert(rtr->isComplete() && "Declaration isn't complete but parsing function completed successfully?");
-				return DeclResult(std::move(rtr));
-			}
 		}
+
+		rtr->setSourceLocs(begLoc, endLoc, endLoc);
+
+		if (rtr->isComplete())
+		{
+			return DeclResult(std::move(rtr));
+		}
+
 		return DeclResult::Error();
 	}
 	return DeclResult::NotFound();
