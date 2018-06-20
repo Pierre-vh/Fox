@@ -65,7 +65,7 @@ namespace Moonshot
 	class Expr : public Stmt
 	{
 		protected:
-			Expr(const StmtKind& kind, const SourceLoc& begLoc = SourceLoc(), const SourceLoc& endLoc = SourceLoc());
+			Expr(const StmtKind& kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 	};
 
 	// ';' expr
@@ -104,7 +104,7 @@ namespace Moonshot
 	class UnaryExpr : public Expr
 	{
 		public: 
-			UnaryExpr(const unaryOperator& opt,std::unique_ptr<Expr> node = nullptr);
+			UnaryExpr(const unaryOperator& opt,std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
 			Expr* getChild();
 			void setChild(std::unique_ptr<Expr> nchild);
@@ -112,7 +112,9 @@ namespace Moonshot
 			unaryOperator getOp() const;
 			void setOp(const unaryOperator& nop);
 
+			SourceRange getOpRange() const;
 		private:
+			SourceRange opRange_;
 			std::unique_ptr<Expr> child_;
 			unaryOperator op_ = unaryOperator::DEFAULT;
 	};
@@ -121,14 +123,17 @@ namespace Moonshot
 	class CastExpr : public Expr
 	{
 		public:
-			CastExpr(Type* castGoal,std::unique_ptr<Expr> child = nullptr);
+			CastExpr(Type* castGoal,std::unique_ptr<Expr> child, const SourceLoc& begLoc, const SourceRange& typeRange, const SourceLoc& endLoc);
 			
 			void setCastGoal(Type* goal);
 			Type* getCastGoal();
 
 			Expr* getChild();
 			void setChild(std::unique_ptr<Expr> nc);
+
+			SourceRange getTypeRange() const;
 		private:
+			SourceRange typeRange_;
 			Type* goal_ = nullptr;
 			std::unique_ptr<Expr> child_;
 	};
@@ -137,7 +142,7 @@ namespace Moonshot
 	class CharLiteralExpr : public Expr
 	{
 		public:
-			CharLiteralExpr(const CharType &val);
+			CharLiteralExpr(const CharType &val,const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			CharType getVal() const;
 			void setVal(const CharType& val);
@@ -148,7 +153,7 @@ namespace Moonshot
 	class IntegerLiteralExpr : public Expr
 	{
 		public:
-			IntegerLiteralExpr(const IntType &val);
+			IntegerLiteralExpr(const IntType &val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			IntType getVal() const;
 			void setVal(const IntType& val);
@@ -159,7 +164,7 @@ namespace Moonshot
 	class FloatLiteralExpr : public Expr
 	{
 		public:
-			FloatLiteralExpr(const FloatType &val);
+			FloatLiteralExpr(const FloatType &val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			FloatType getVal() const;
 			void setVal(const FloatType& val);
@@ -170,7 +175,7 @@ namespace Moonshot
 	class StringLiteralExpr : public Expr
 	{
 		public:
-			StringLiteralExpr(const std::string &val);
+			StringLiteralExpr(const std::string &val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			std::string getVal() const;
 			void setVal(const std::string& val);
@@ -181,7 +186,7 @@ namespace Moonshot
 	class BoolLiteralExpr : public Expr
 	{
 		public:
-			BoolLiteralExpr(const bool &val);
+			BoolLiteralExpr(const bool &val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			bool getVal() const;
 			void setVal(const bool& val);
@@ -194,7 +199,7 @@ namespace Moonshot
 	class ArrayLiteralExpr : public Expr
 	{
 		public:
-			ArrayLiteralExpr(std::unique_ptr<ExprList> exprs = nullptr);
+			ArrayLiteralExpr(std::unique_ptr<ExprList> exprs, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			ExprList* getExprList();
 			void setExprList(std::unique_ptr<ExprList> elist);
@@ -209,7 +214,7 @@ namespace Moonshot
 	class DeclRefExpr : public Expr
 	{
 		public:
-			DeclRefExpr(IdentifierInfo * declid);
+			DeclRefExpr(IdentifierInfo * declid, const SourceLoc& begLoc, const SourceLoc& endLoc);
 			
 			IdentifierInfo * getIdentifier();
 			void setDeclIdentifier(IdentifierInfo * id);
@@ -222,14 +227,17 @@ namespace Moonshot
 	class MemberOfExpr : public Expr
 	{
 		public:
-			MemberOfExpr(std::unique_ptr<Expr> base = nullptr, IdentifierInfo *idInfo = nullptr);
+			MemberOfExpr(std::unique_ptr<Expr> base, IdentifierInfo *idInfo, const SourceLoc& begLoc, const SourceLoc& dotLoc, const SourceLoc& endLoc);
 
 			Expr* getBase();
 			void setBase(std::unique_ptr<Expr> expr);
 
 			IdentifierInfo* getMemberID();
 			void setMemberName(IdentifierInfo* idInfo);
+
+			SourceLoc getDotLoc() const;
 		private:
+			SourceLoc dotLoc_;
 			std::unique_ptr<Expr> base_;
 			IdentifierInfo *membName_;
 	};
@@ -238,7 +246,7 @@ namespace Moonshot
 	class ArrayAccessExpr : public Expr
 	{
 		public:
-			ArrayAccessExpr(std::unique_ptr<Expr> expr, std::unique_ptr<Expr> idxexpr);
+			ArrayAccessExpr(std::unique_ptr<Expr> expr, std::unique_ptr<Expr> idxexpr, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			void setBase(std::unique_ptr<Expr> expr);
 			void setAccessIndexExpr(std::unique_ptr<Expr> expr);
@@ -281,7 +289,7 @@ namespace Moonshot
 	class FunctionCallExpr : public Expr
 	{
 		public:
-			FunctionCallExpr(std::unique_ptr<Expr> base, std::unique_ptr<ExprList> elist = nullptr);
+			FunctionCallExpr(std::unique_ptr<Expr> base, std::unique_ptr<ExprList> elist, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			Expr * getCallee() ;
 			void setCallee(std::unique_ptr<Expr> base);
@@ -298,19 +306,13 @@ namespace Moonshot
 	class ParensExpr : public Expr
 	{
 		public:
-			ParensExpr(std::unique_ptr<Expr> expr, const SourceLoc& LParenLoc = SourceLoc(), const SourceLoc& RParenLoc = SourceLoc());
-
-			SourceLoc getLeftParensLoc() const;
-			SourceLoc getRightParensLoc() const;
-
-			void setLeftParensLoc(const SourceLoc& sloc);
-			void setRightParensLoc(const SourceLoc& sloc);
+			ParensExpr(std::unique_ptr<Expr> expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			Expr* getExpr();
+			const Expr* getExpr() const;
 			void setExpr(std::unique_ptr<Expr> expr);
 		private:
 			std::unique_ptr<Expr> expr_;
-			SourceLoc RPLoc_, LPLoc_;
 	};
 }
 
