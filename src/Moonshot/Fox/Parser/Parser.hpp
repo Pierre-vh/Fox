@@ -385,6 +385,11 @@ namespace Moonshot
 						return UniqueResult<DataTy>(true);
 					}
 
+					DataTy* getObserverPtr()
+					{
+						return result_.get();
+					}
+
 					// Moves the content of the ParsingResult as a derived class.
 					// Asserts that result_ isn't null, check with is() or isUsable() before using if you're unsure.
 					// Note that the type is asserted to be castable to the desired type.
