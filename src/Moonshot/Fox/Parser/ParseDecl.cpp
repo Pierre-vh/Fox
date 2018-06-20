@@ -188,13 +188,12 @@ Parser::DeclResult Parser::parseFunctionDecl()
 			rtr->setReturnType(astcontext_.getPrimitiveVoidType());
 
 		// <compound_statement>
-		if (auto compoundstmt = parseCompoundStatement(/* mandatory = yes */ true))
-		{
-			rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
-			// Success, nothing more to see here!
-		}
+		auto compoundstmt = parseCompoundStatement(/* mandatory = yes */ true);
+		if (!compoundstmt)
+			return DeclResult::Error();
 
-		rtr->setSourceLocs(begLoc, endLoc, endLoc);
+		rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
+		rtr->setSourceLocs(begLoc, endLoc, rtr->getBody()->getEndLoc());
 
 		if (rtr->isComplete())
 		{
