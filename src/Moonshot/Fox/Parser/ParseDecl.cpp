@@ -218,7 +218,13 @@ Parser::DeclResult Parser::parseArgDecl()
 		{
 			SourceLoc begLoc = id.getSourceRange().getBeginSourceLoc();
 			SourceLoc endLoc = qt.getSourceRange().makeEndSourceLoc();
-			auto rtr = std::make_unique<ArgDecl>(id.get(), qt.get(), begLoc, endLoc);
+			auto rtr = std::make_unique<ArgDecl>(
+				id.get(),
+				qt.get(),
+				begLoc,
+				qt.getSourceRange(),
+				endLoc
+				);
 			recordDecl(rtr.get());
 			return DeclResult(std::move(rtr));
 		}

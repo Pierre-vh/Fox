@@ -136,6 +136,8 @@ namespace Moonshot
 	class VarDecl : public NamedDecl
 	{
 		public:
+			VarDecl();
+
 			VarDecl(IdentifierInfo * varId, const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
 
 			bool isComplete() const;

@@ -345,7 +345,7 @@ TEST(ASTTests, StmtKinds)
 	EXPECT_EQ(whilestmt.getKind(), StmtKind::WhileStmt);
 
 	// declstmt
-	DeclStmt declstmt(std::make_unique<ArgDecl>(nullptr,QualType(),SourceLoc(),SourceLoc()));
+	DeclStmt declstmt(std::make_unique<FunctionDecl>());
 	EXPECT_EQ(declstmt.getKind(), StmtKind::DeclStmt);
 }
 
@@ -356,7 +356,7 @@ TEST(ASTTests, DeclKinds)
 	auto intty = astctxt.getPrimitiveIntType();
 
 	// Arg
-	ArgDecl argdecl(fooid, QualType(intty),SourceLoc(),SourceLoc());
+	ArgDecl argdecl(fooid, QualType(intty),SourceLoc(), SourceRange(), SourceLoc());
 	EXPECT_EQ(argdecl.getKind(), DeclKind::ArgDecl);
 
 	// Func
