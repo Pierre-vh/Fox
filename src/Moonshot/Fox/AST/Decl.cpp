@@ -44,7 +44,7 @@ SourceRange Decl::getRange() const
 	return SourceRange(begLoc_, endLoc_);
 }
 
-bool Decl::isLocationAvailable() const
+bool Decl::hasLocInfo() const
 {
 	return begLoc_ && endLoc_;
 }
@@ -111,7 +111,7 @@ void ArgDecl::setType(const QualType & qt)
 bool ArgDecl::isComplete() const
 {
 	// Node is valid if it has a identifier, a valid type and a valid loc info
-	return this->hasIdentifier() && ty_ && isLocationAvailable();
+	return this->hasIdentifier() && ty_ && hasLocInfo();
 }
 
 // Function Declaration
@@ -169,7 +169,7 @@ bool FunctionDecl::isComplete() const
 			return false;
 	}
 	// and the node must have a body, a return type and an identifier and valid loc info
-	return returnType_ && body_ && this->hasIdentifier() && isLocationAvailable();
+	return returnType_ && body_ && this->hasIdentifier() && hasLocInfo();
 }
 
 void FunctionDecl::setReturnType(Type* ty)
@@ -256,7 +256,7 @@ VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr
 bool VarDecl::isComplete() const
 {
 	// must have a type, and id + valid loc info to be considered valid.
-	return this->hasIdentifier() && varTy_ && isLocationAvailable();
+	return this->hasIdentifier() && varTy_ && hasLocInfo();
 }
 
 QualType VarDecl::getType() const

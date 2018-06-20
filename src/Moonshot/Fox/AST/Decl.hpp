@@ -32,17 +32,18 @@ namespace Moonshot
 	class Decl
 	{
 		public:
-			Decl(const DeclKind& dkind,const SourceLoc& begLoc, const SourceLoc& endLoc);
-			virtual ~Decl() = 0 {}
-			
+			virtual ~Decl() = 0 {};
+
 			DeclKind getKind() const;
 
 			SourceLoc getBegLoc() const;
 			SourceLoc getEndLoc() const;
 			SourceRange getRange() const;
 
-			bool isLocationAvailable() const;
+			bool hasLocInfo() const;
 		protected:
+			Decl(const DeclKind& dkind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+
 			bool isBegLocSet() const;
 			bool isEndLocSet() const;
 
