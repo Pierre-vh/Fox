@@ -223,7 +223,7 @@ Parser::ExprResult Parser::parseExponentExpr()
 	if (auto lhs = parseSuffixExpr())
 	{
 		// <exponent_operator> 
-		if (parseExponentOp())
+		if (auto expOp = parseExponentOp())
 		{
 			// <prefix_expr>
 			auto rhs = parsePrefixExpr();
@@ -233,11 +233,18 @@ Parser::ExprResult Parser::parseExponentExpr()
 					errorExpected("Expected an expression after exponent operator.");
 				return ExprResult::Error();
 			}
+
+			SourceLoc begLoc = lhs.getObserverPtr()->getBegLoc();
+			SourceLoc endLoc = lhs.getObserverPtr()->getEndLoc();
+
 			return ExprResult(
 				std::make_unique<BinaryExpr>(
 						binaryOperator::EXP,
 						lhs.move(),
-						rhs.move()
+						rhs.move(),
+						begLoc,
+						expOp, 
+						endLoc
 					)
 			);
 		}
@@ -319,24 +326,23 @@ Parser::ExprResult Parser::parseCastExpr()
 Parser::ExprResult Parser::parseBinaryExpr(const char & priority)
 {
 	// <binary_expr>  = <cast_expr> { <binary_operator> <cast_expr> }	
-	auto rtr = std::make_unique<BinaryExpr>(binaryOperator::DEFAULT);
 
 	// <cast_expr> OR a binaryExpr of inferior priority.
-	ExprResult lhs;
+	ExprResult lhsResult;
 	if (priority > 0)
-		lhs = parseBinaryExpr(priority - 1);
+		lhsResult = parseBinaryExpr(priority - 1);
 	else
-		lhs = parseCastExpr();
+		lhsResult = parseCastExpr();
 
-	if (!lhs)
+	if (!lhsResult)
 	{
-		if (!lhs.wasSuccessful())
+		if (!lhsResult.wasSuccessful())
 			return ExprResult::Error();
 		return ExprResult::NotFound();
 	}
 
-	rtr->setLHS(lhs.move());
-
+	std::unique_ptr<Expr> lhs = lhsResult.move();
+	std::unique_ptr<BinaryExpr> rtr;
 	// { <binary_operator> <cast_expr> }	
 	while (true)
 	{
@@ -346,35 +352,52 @@ Parser::ExprResult Parser::parseBinaryExpr(const char & priority)
 			break;
 
 		// <cast_expr> OR a binaryExpr of inferior priority.
-		ExprResult rhs;
+		ExprResult rhsResult;
 		if (priority > 0)
-			rhs = parseBinaryExpr(priority - 1);
+			rhsResult = parseBinaryExpr(priority - 1);
 		else
-			rhs = parseCastExpr();
+			rhsResult = parseCastExpr();
 
 
 		// Handle results appropriately
-
-		if (!rhs) // Check for validity : we need a rhs. if we don't have one, we have an error !
+		if (!rhsResult) // Check for validity : we need a rhs. if we don't have one, we have an error !
 		{
-			if(rhs.wasSuccessful())
+			if(rhsResult.wasSuccessful())
 				errorExpected("Expected an expression after binary operator,");
 			return ExprResult::Error();
 		}
 
-		if (rtr->getOp() == binaryOperator::DEFAULT) // if the node has still no operation set, set it
-			rtr->setOp(binop_res.get());
+		std::unique_ptr<Expr> rhs = rhsResult.move();
+		SourceLoc begLoc = lhs ? lhs->getBegLoc() : rtr->getEndLoc();
+		SourceLoc endLoc = rhs->getEndLoc();
+		SourceRange opRange = binop_res.getSourceRange();
+		// No return node
+		if (!rtr)
+			rtr = std::make_unique<BinaryExpr>(
+					binop_res.get(),
+					std::move(lhs),
+					std::move(rhs),
+					begLoc, 
+					opRange,
+					endLoc
+				);
 		else 
-			rtr = std::make_unique<BinaryExpr>(binop_res.get(),std::move(rtr));
+			rtr = std::make_unique<BinaryExpr>(
+					binop_res.get(),
+					std::move(rtr),
+					std::move(rhs),
+					begLoc, 
+					opRange,
+					endLoc
+				);
 
-		rtr->setRHS(rhs.move()); // Set second as the child of the node.
 	}
 
-	// When we have simple node (DEFAULT operation with only a value/expr as left child), we simplify it(only return the left child)
-	auto simple = rtr->getSimple();
-
-	if (simple)
-		return ExprResult(std::move(simple));
+	if (!rtr)
+	{
+		assert(lhs && "no rtr node + no lhs node?");
+		return ExprResult(std::move(lhs));
+	}
 	return ExprResult(std::move(rtr));
 }
 
@@ -393,11 +416,17 @@ Parser::ExprResult Parser::parseExpr()
 				return ExprResult::Error();
 			}
 
+			SourceLoc begLoc = lhs.getObserverPtr()->getBegLoc();
+			SourceLoc endLoc = rhs.getObserverPtr()->getEndLoc();
+			SourceRange opRange = op.getSourceRange();
 			return ExprResult(
 					std::make_unique<BinaryExpr>(
 							op.get(),
 							lhs.move(),
-							rhs.move()
+							rhs.move(),
+							begLoc,
+							opRange,
+							endLoc
 						)
 				);
 		}
