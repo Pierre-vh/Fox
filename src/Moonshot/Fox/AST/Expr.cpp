@@ -76,7 +76,7 @@ std::string Operators::getName(const unaryOperator & op)
 }
 
 // Expr
-Expr::Expr(const StmtKind & ekind) : Stmt(ekind,SourceLoc(),SourceLoc() /* tba */)
+Expr::Expr(const StmtKind & ekind, const SourceLoc& begLoc, const SourceLoc& endLoc) : Stmt(ekind,begLoc,endLoc)
 {
 
 }

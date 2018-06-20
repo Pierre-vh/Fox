@@ -65,7 +65,7 @@ namespace Moonshot
 	class Expr : public Stmt
 	{
 		protected:
-			Expr(const StmtKind& kind);
+			Expr(const StmtKind& kind, const SourceLoc& begLoc = SourceLoc(), const SourceLoc& endLoc = SourceLoc());
 	};
 
 	// A Null expression that's just a placeholder.
