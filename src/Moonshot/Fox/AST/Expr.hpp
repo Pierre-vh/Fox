@@ -80,9 +80,7 @@ namespace Moonshot
 	class BinaryExpr : public Expr
 	{
 		public:
-			BinaryExpr(const binaryOperator &opt,std::unique_ptr<Expr> lhs = nullptr,std::unique_ptr<Expr> rhs = nullptr);
-
-			std::unique_ptr<Expr> getSimple();	// If there is no right node and the optype is "pass", this will move and return the left node 
+			BinaryExpr(const binaryOperator &opt,std::unique_ptr<Expr> lhs,std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
 			Expr* getLHS();
 			Expr* getRHS();
@@ -93,9 +91,11 @@ namespace Moonshot
 			binaryOperator getOp() const;
 			void setOp(const binaryOperator& op);
 
-			// Returns true if node has both a left_ and right_ child and op != default
+			SourceRange getOpRange() const;
+
 			bool isComplete() const; 
 		private:
+			SourceRange opRange_;
 			std::unique_ptr<Expr> left_, right_;
 			binaryOperator op_ = binaryOperator::DEFAULT;
 	};

@@ -196,21 +196,11 @@ bool ArrayLiteralExpr::isEmpty() const
 }
 
 // BinaryExpr
-BinaryExpr::BinaryExpr(const binaryOperator & opt, std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs):
-	op_(opt), Expr(StmtKind::BinaryExpr)
+BinaryExpr::BinaryExpr(const binaryOperator & opt, std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
+	op_(opt), Expr(StmtKind::BinaryExpr, begLoc, endLoc), opRange_(opRange)
 {
 	setLHS(std::move(lhs));
 	setRHS(std::move(rhs));
-}
-
-std::unique_ptr<Expr> BinaryExpr::getSimple()
-{
-	if (left_ && !right_ && (op_ == binaryOperator::DEFAULT))	 // If the right node is empty & op == pass
-	{
-		auto ret = std::move(left_);
-		return ret;
-	}
-	return nullptr;
 }
 
 Expr * BinaryExpr::getLHS()
@@ -241,6 +231,11 @@ binaryOperator BinaryExpr::getOp() const
 void BinaryExpr::setOp(const binaryOperator & op)
 {
 	op_ = op;
+}
+
+SourceRange BinaryExpr::getOpRange() const
+{
+	return opRange_;
 }
 
 bool BinaryExpr::isComplete() const
