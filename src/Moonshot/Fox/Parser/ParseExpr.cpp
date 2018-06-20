@@ -411,7 +411,7 @@ Parser::ExprResult Parser::parseExpr()
 	}
 }
 
-Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory, SourceLoc* leftPLoc = nullptr, SourceLoc* rightPLoc = nullptr)
+Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory, SourceLoc* leftPLoc, SourceLoc* rightPLoc)
 {
 	// <parens_expr> = '(' <expr> ')'
 	// '('
