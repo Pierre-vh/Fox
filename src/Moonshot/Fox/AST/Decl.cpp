@@ -92,10 +92,15 @@ bool NamedDecl::hasIdentifier() const
 }
 
 // Function arg
-ArgDecl::ArgDecl(IdentifierInfo* id, const QualType& argType, const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: NamedDecl(DeclKind::ArgDecl,id,begLoc,endLoc), ty_(argType)
+ArgDecl::ArgDecl(IdentifierInfo* id, const QualType& argType, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc)
+	: NamedDecl(DeclKind::ArgDecl,id,begLoc,endLoc), ty_(argType), tyRange_(tyRange)
 {
 
+}
+
+SourceRange ArgDecl::getTypeRange() const
+{
+	return tyRange_;
 }
 
 QualType ArgDecl::getType() const

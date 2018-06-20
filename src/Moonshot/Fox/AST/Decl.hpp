@@ -72,13 +72,16 @@ namespace Moonshot
 	class ArgDecl : public NamedDecl
 	{
 		public:
-			ArgDecl(IdentifierInfo* id, const QualType& argType,const SourceLoc& begLoc, const SourceLoc& endLoc);
+			ArgDecl(IdentifierInfo* id, const QualType& argType,const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
+
+			SourceRange getTypeRange() const;
 
 			QualType getType() const;
 			void setType(const QualType& qt);
 
 			bool isComplete() const;
 		private:
+			SourceRange tyRange_;
 			QualType ty_;
 	};
 
