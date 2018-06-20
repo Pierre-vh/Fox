@@ -72,6 +72,7 @@ namespace Moonshot
 	class ArgDecl : public NamedDecl
 	{
 		public:
+			ArgDecl();
 			ArgDecl(IdentifierInfo* id, const QualType& argType,const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
 
 			SourceRange getTypeRange() const;
@@ -96,7 +97,7 @@ namespace Moonshot
 		public:
 			FunctionDecl();
 
-			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body, const SourceLoc& begLoc,const SourceLoc& headerEndLoc);
+			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body, const SourceLoc& begLoc,const SourceLoc& headerEndLoc,const SourceLoc& endLoc);
 			
 			void setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end);
 			void setHeaderEndLoc(const SourceLoc& loc);
@@ -126,7 +127,7 @@ namespace Moonshot
 			ArgVecIter args_end();
 			ArgVecConstIter args_end() const;
 		private:
-			SourceLoc declEndLoc_;
+			SourceLoc headEndLoc_;
 			Type* returnType_ = nullptr;
 			ArgVecTy args_;
 			std::unique_ptr<CompoundStmt> body_;

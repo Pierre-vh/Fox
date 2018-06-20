@@ -91,7 +91,12 @@ bool NamedDecl::hasIdentifier() const
 	return (bool)identifier_;
 }
 
-// Function arg
+// Argument Declaration
+ArgDecl::ArgDecl() : ArgDecl(nullptr,QualType(),SourceLoc(),SourceRange(),SourceLoc())
+{
+
+}
+
 ArgDecl::ArgDecl(IdentifierInfo* id, const QualType& argType, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc)
 	: NamedDecl(DeclKind::ArgDecl,id,begLoc,endLoc), ty_(argType), tyRange_(tyRange)
 {
@@ -120,27 +125,15 @@ bool ArgDecl::isComplete() const
 }
 
 // Function Declaration
-FunctionDecl::FunctionDecl(): NamedDecl(DeclKind::FunctionDecl,nullptr,SourceLoc(),SourceLoc())
+FunctionDecl::FunctionDecl(): FunctionDecl(nullptr,nullptr,nullptr,SourceLoc(),SourceLoc(),SourceLoc())
 {
 
 }
 
-FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body,const SourceLoc& begLoc, const SourceLoc& headerEndLoc) : FunctionDecl()
+FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body,const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc)
+	: NamedDecl(DeclKind::FunctionDecl,fnId,begLoc,endLoc), headEndLoc_(headerEndLoc), body_(std::move(body)), returnType_(returnType)
 {
-	if(returnType)
-		setReturnType(returnType);
 
-	if (fnId)
-		setIdentifier(fnId);
-
-	if (body)
-		setBody(std::move(body));
-
-	if (begLoc)
-		setBegLoc(begLoc);
-
-	if (headerEndLoc)
-		setHeaderEndLoc(headerEndLoc);
 }
 
 void FunctionDecl::setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end)
@@ -152,17 +145,17 @@ void FunctionDecl::setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd,
 
 void FunctionDecl::setHeaderEndLoc(const SourceLoc& loc)
 {
-	declEndLoc_ = loc;
+	headEndLoc_ = loc;
 }
 
 SourceLoc FunctionDecl::getHeaderEndLoc() const
 {
-	return declEndLoc_;
+	return headEndLoc_;
 }
 
 SourceRange FunctionDecl::getHeaderRange() const
 {
-	return SourceRange(getBegLoc(),declEndLoc_);
+	return SourceRange(getBegLoc(), headEndLoc_);
 }
 
 bool FunctionDecl::isComplete() const
@@ -251,6 +244,11 @@ FunctionDecl::ArgVecConstIter FunctionDecl::args_end() const
 }
 
 // VarDecl
+VarDecl::VarDecl() : VarDecl(nullptr,QualType(),nullptr,SourceLoc(),SourceRange(),SourceLoc())
+{
+
+}
+
 VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc) :
 	NamedDecl(DeclKind::VarDecl, varId, begLoc, endLoc), varTy_(ty), typeRange_(tyRange)
 {
