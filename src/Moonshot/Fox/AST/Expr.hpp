@@ -64,11 +64,8 @@ namespace Moonshot
 	// base expression 
 	class Expr : public Stmt
 	{
-		public:
+		protected:
 			Expr(const StmtKind& kind);
-			inline virtual ~Expr() = 0 {}
-
-			virtual bool isExpr() const override;
 	};
 
 	// A Null expression that's just a placeholder.
