@@ -246,8 +246,8 @@ FunctionDecl::ArgVecConstIter FunctionDecl::args_end() const
 }
 
 // VarDecl
-VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceLoc& endLoc) :
-	NamedDecl(DeclKind::VarDecl, varId, begLoc, endLoc), varTy_(ty)
+VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc) :
+	NamedDecl(DeclKind::VarDecl, varId, begLoc, endLoc), varTy_(ty), typeRange_(tyRange)
 {
 	if (iExpr)
 		initExpr_ = std::move(iExpr);
@@ -257,6 +257,11 @@ bool VarDecl::isComplete() const
 {
 	// must have a type, and id + valid loc info to be considered valid.
 	return this->hasIdentifier() && varTy_ && hasLocInfo();
+}
+
+SourceRange VarDecl::getTypeRange() const
+{
+	return typeRange_;
 }
 
 QualType VarDecl::getType() const
