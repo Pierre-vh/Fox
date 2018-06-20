@@ -81,11 +81,6 @@ Expr::Expr(const StmtKind & ekind) : Stmt(ekind)
 
 }
 
-bool Expr::isExpr() const
-{
-	return true;
-}
-
 // nullexpr
 NullExpr::NullExpr() : Expr(StmtKind::NullExpr)
 {
