@@ -111,8 +111,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 		{
 			body = body_res.move();
 			endLoc = body->getEndLoc();
-#pragma message("Re-add the assertions under here when Exprs all have SourceLocs")  
-			//assert(endLoc && "The body parsed successfully, but doesn't have a valid endLoc?");
+			assert(endLoc && "The body parsed successfully, but doesn't have a valid endLoc?");
 		}
 		else
 		{
@@ -122,7 +121,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 			endLoc = parenExprEndLoc;
 		}
 
-		// assert(expr && body && begLoc && endLoc && parenExprEndLoc);
+		assert(expr && body && begLoc && endLoc && parenExprEndLoc);
 		return StmtResult(std::make_unique<WhileStmt>(
 				std::move(expr),
 				std::move(body),
@@ -294,12 +293,11 @@ Parser::StmtResult Parser::parseBody()
 
 Parser::StmtResult Parser::parseExprStmt()
 {
-	// <expr_stmt>	= ';' | <expr> ';' 
-#pragma message("Find a solution to the ignored semi loc problem")
-	
+	// <expr_stmt>	= ';' | <expr> ';' 	
+
 	// ';'
-	if (consumeSign(SignType::S_SEMICOLON))
-		return StmtResult(std::make_unique<NullExpr>());
+	if (auto semiLoc = consumeSign(SignType::S_SEMICOLON))
+		return StmtResult(std::make_unique<NullExpr>(semiLoc));
 
 	// <expr> 
 	else if (auto expr = parseExpr())
