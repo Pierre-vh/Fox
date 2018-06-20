@@ -23,25 +23,51 @@ namespace Moonshot
 
 	class Decl;
 	class Expr;
-	// Stmt interface
+
+	/*
+	
+		A Note about SourceLoc info in statements (and expressions)
+
+		Every node should provide SourceLoc/Ranges for the whole node, including the childrens +
+		any relevant range if applicable.
+
+		e.g. a Condition should give us a 
+			Complete range (from the "if" to the "}")
+			A Range for the if condition ("if" to ")")
+	*/
+
+	// Base Stmt Class
 	class Stmt
 	{
 		public:
-			Stmt(const StmtKind& skind);
-			virtual ~Stmt() = 0 {}
+			virtual ~Stmt() = 0 {};
 
-			virtual bool isExpr() const;
+			bool isExpr() const;
 
 			StmtKind getKind() const;
+
+			SourceRange getRange() const;
+			SourceLoc getBegLoc() const;
+			SourceLoc getEndLoc() const;
+
+			bool hasLocInfo() const;
+		protected:
+			Stmt(const StmtKind& skind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+
+			void setBegLoc(const SourceLoc& loc);
+			void setEndLoc(const SourceLoc& loc);
+
+			bool isBegLocSet() const;
+			bool isEndLocSet() const;
 		private:
+			SourceLoc beg_, end_;
 			StmtKind kind_;
 	};
 
-	// The return <expr> statement.
 	class ReturnStmt : public Stmt
 	{
 		public:
-			ReturnStmt(std::unique_ptr<Expr> rtr_expr = nullptr);
+			ReturnStmt(std::unique_ptr<Expr> rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			bool hasExpr() const;
 			Expr* getExpr();
@@ -50,11 +76,12 @@ namespace Moonshot
 			std::unique_ptr<Expr> expr_;
 	};
 
-	// a if-then-else type condition.
+	// a if-then-else condition.
 	class ConditionStmt : public Stmt
 	{
 		public:
-			ConditionStmt(std::unique_ptr<Expr> cond = nullptr, std::unique_ptr<Stmt> then = nullptr, std::unique_ptr<Stmt> elsestmt = nullptr);
+			ConditionStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> then, std::unique_ptr<Stmt> elsestmt,
+				const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc);
 
 			bool isValid() const;
 			bool hasElse() const;
@@ -63,10 +90,20 @@ namespace Moonshot
 			Stmt* getThen();
 			Stmt* getElse();
 
+			const Expr* getCond() const;
+			const Stmt* getThen() const;
+			const Stmt* getElse() const;
+
 			void setCond(std::unique_ptr<Expr> expr);
 			void setThen(std::unique_ptr<Stmt> then);
 			void setElse(std::unique_ptr<Stmt> elsestmt);
+
+			void setIfHeaderEndLoc(const SourceLoc& sloc);
+			SourceRange getIfHeaderRange() const;
+			SourceLoc getIfHeaderEndLoc() const;
 		private:
+			SourceLoc ifHeadEndLoc_;
+
 			std::unique_ptr<Expr> cond_;
 			std::unique_ptr<Stmt> then_;
 			std::unique_ptr<Stmt> else_;
@@ -83,7 +120,11 @@ namespace Moonshot
 			CompoundStmt();
 
 			Stmt* getStmt(const std::size_t& ind);
+			const Stmt* getStmt(const std::size_t& ind) const;
+
 			Stmt* getBack();
+			const Stmt* getBack() const;
+
 			void addStmt(std::unique_ptr<Stmt> stmt);
 
 			bool isEmpty() const;
@@ -95,6 +136,8 @@ namespace Moonshot
 			StmtVecConstIter stmts_beg() const;
 			StmtVecConstIter stmts_end() const;
 
+			// begLoc and endLoc = the locs of the curly brackets.
+			void setSourceLocs(const SourceLoc& begLoc, const SourceLoc& endLoc);
 		private:
 			StmtVecTy stmts_;
 	};
@@ -103,14 +146,21 @@ namespace Moonshot
 	class WhileStmt : public Stmt
 	{
 		public:
-			WhileStmt(std::unique_ptr<Expr> cond = nullptr, std::unique_ptr<Stmt> body = nullptr);
+			WhileStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc);
 
 			Expr* getCond();
 			Stmt* getBody();
 
+			const Expr* getCond() const;
+			const Stmt* getBody() const;
+
 			void setCond(std::unique_ptr<Expr> cond);
 			void setBody(std::unique_ptr<Stmt> body);
+
+			SourceLoc getHeaderEndLoc() const;
+			SourceRange getHeaderRange() const;
 		private:
+			SourceLoc headerEndLoc_;
 			std::unique_ptr<Expr> cond_;
 			std::unique_ptr<Stmt> body_;
 	};
@@ -120,10 +170,13 @@ namespace Moonshot
 	class DeclStmt : public Stmt
 	{
 		public:
-			DeclStmt(std::unique_ptr<Decl> decl = nullptr);
+			DeclStmt(std::unique_ptr<Decl> decl);
 
 			bool hasDecl() const;
+
 			Decl* getDecl();
+			const Decl* getDecl() const;
+
 			void setDecl(std::unique_ptr<Decl> decl);
 		private:
 			std::unique_ptr<Decl> decl_ = nullptr;			
