@@ -41,7 +41,6 @@ Moonshot Project To-do List.
 		> Write Expr Locs Test
 
 	> Update Diagnostics & DiagnosticsEngine to support a sourceloc/sourcerange arg.
-		> Maybe also, add operator << support for Diagnostics. 
 
 	> Write all the remaining tests needed.
 
@@ -50,6 +49,19 @@ Moonshot Project To-do List.
 
 	> Maybe spend some time completely hiding away the unique_ptr for everyone except the Parser (even there, remove make_uniques and replace with "CreateNode" object, avoid unique_ptr and just use "auto node = createNode<BinaryExpr>()"...
 	  UniquePtrs are implementation details and shouldn't be seen by other classes. If one day I replace them by raw pointers + arena allocator, it shouldn't be a complete pain in the ass.
+	
+	> Small update to SourceManager:
+		Rename SourceManager.hpp/.cpp to Source.hpp/.cpp
+		Rework the PreciseLoc algorithm : cache a "line table" and use it
+
+	> Reevaluate the need for RTTI inside the project. Since i'm already half in LLVM coding styles,
+	  maybe remove it an use a llvm style completely : implement a dyn_cast & isa operation + classof methods.
+	  That way I might gain performance + the style will be consistent with LLVM's/CLang's
+	  Relevant code samples:
+		#define EXPR_RANGE(Id, FirstId, LastId) \
+		First_##Id##Expr = FirstId, Last_##Id##Expr = LastId,
+
+	  This shouldn't be too hard to do, maybe it'll take an afternoon?
 	// Move to 0.3.0
 
 	> Semantic Analysis time ! It's going to be fun (or not :) ) !
