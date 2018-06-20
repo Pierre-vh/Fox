@@ -30,26 +30,28 @@ Moonshot Project To-do List.
 
 	> Update the AST so all nodes have a sourceloc/range too wherever needed. (Next)
 		> Decls (Done)
-		> Write Decl Locs Test (Next)
-		> Stmts
-			> Once CompoundStmt is done, solve the problem in FuncDecl where the endLoc excludes the body.
-				> EndLoc shall include body of the function (the endLoc will be the } loc)
-				> add getEndLocWithoutBody() function to get the "real" endLoc
-				> CTor won't change, the endLoc will be retrieved by the ctor itself with the body.
-		> Write Stmt Locs Test
-		> Exprs
-		> Write Expr Locs Test
+		> Stmts  (Done)
+		> Exprs (Done)
+		> Write Decl Locs Test (Done)
+		> Write Stmt & Expr Loc Tests (Next)
 
-	> Update Diagnostics & DiagnosticsEngine to support a sourceloc/sourcerange arg.
+	> Review the code of the AST completely, especially the SourceLocs and the consistency of the code.
+
+	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg
+		> 2 Variants should exist :
+			> One that report an error
+			> One that report an error within a SourceRange
+	> Add new features to Diagnostic
+		> addCaret(SourceRange/SourceLoc)
+
+	> The DiagnosticConsumer should retrieve the text extract if available, and add carets under if needed.
 
 	> Write all the remaining tests needed.
 
 	> Move all of my current diagnostics message to the new system.
 	> Delete the context's system primitive diag system.
+	> Test the new diag system a bit more, if possible.	
 
-	> Maybe spend some time completely hiding away the unique_ptr for everyone except the Parser (even there, remove make_uniques and replace with "CreateNode" object, avoid unique_ptr and just use "auto node = createNode<BinaryExpr>()"...
-	  UniquePtrs are implementation details and shouldn't be seen by other classes. If one day I replace them by raw pointers + arena allocator, it shouldn't be a complete pain in the ass.
-	
 	> Small update to SourceManager:
 		Rename SourceManager.hpp/.cpp to Source.hpp/.cpp
 		Rework the PreciseLoc algorithm : cache a "line table" and use it
@@ -62,6 +64,7 @@ Moonshot Project To-do List.
 		First_##Id##Expr = FirstId, Last_##Id##Expr = LastId,
 
 	  This shouldn't be too hard to do, maybe it'll take an afternoon?
+
 	// Move to 0.3.0
 
 	> Semantic Analysis time ! It's going to be fun (or not :) ) !
