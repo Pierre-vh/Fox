@@ -120,10 +120,44 @@ FunctionDecl::FunctionDecl(): NamedDecl(DeclKind::FunctionDecl,nullptr,SourceLoc
 
 }
 
-FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody,const SourceLoc& begLoc, const SourceLoc& declEndLoc)
-	: returnType_(returnType), NamedDecl(DeclKind::FunctionDecl,fnId,begLoc,declEndLoc), body_(std::move(funcbody))
+FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body,const SourceLoc& begLoc, const SourceLoc& headerEndLoc) : FunctionDecl()
 {
+	if(returnType)
+		setReturnType(returnType);
 
+	if (fnId)
+		setIdentifier(fnId);
+
+	if (body)
+		setBody(std::move(body));
+
+	if (begLoc)
+		setBegLoc(begLoc);
+
+	if (headerEndLoc)
+		setHeaderEndLoc(headerEndLoc);
+}
+
+void FunctionDecl::setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end)
+{
+	setBegLoc(beg);
+	setHeaderEndLoc(declEnd);
+	setEndLoc(end);
+}
+
+void FunctionDecl::setHeaderEndLoc(const SourceLoc& loc)
+{
+	declEndLoc_ = loc;
+}
+
+SourceLoc FunctionDecl::getHeaderEndLoc() const
+{
+	return declEndLoc_;
+}
+
+SourceRange FunctionDecl::getHeaderRange() const
+{
+	return SourceRange(getBegLoc(),declEndLoc_);
 }
 
 bool FunctionDecl::isComplete() const

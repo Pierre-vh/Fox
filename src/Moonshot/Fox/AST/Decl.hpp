@@ -27,6 +27,8 @@ namespace Moonshot
 	class IdentifierInfo;
 	class IVisitor;
 
+	// Note about SourceLocs in decls:
+	// The getRange,getBegLoc and getEndLoc shall always return the complete range of the decl, including any potential children.
 	class Decl
 	{
 		public:
@@ -41,8 +43,6 @@ namespace Moonshot
 
 			bool isLocationAvailable() const;
 		protected:
-			friend class Parser;
-
 			bool isBegLocSet() const;
 			bool isEndLocSet() const;
 
@@ -92,11 +92,15 @@ namespace Moonshot
 		public:
 			FunctionDecl();
 
-			// Note : DeclEndLoc shall include the body of the function
-			// todo: Make the parser include it once CompoundStmt has everything it needs.
-			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> funcbody, const SourceLoc& begLoc,const SourceLoc& declEndLoc);
+			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body, const SourceLoc& begLoc,const SourceLoc& headerEndLoc);
+			
+			void setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end);
+			void setHeaderEndLoc(const SourceLoc& loc);
 
-			// Note: Checks the validity of the args too.
+			SourceLoc getHeaderEndLoc() const;
+			SourceRange getHeaderRange() const;
+
+			// Note: Calls isComplete on the args too.
 			bool isComplete() const;
 
 			void setReturnType(Type* ty);
@@ -107,9 +111,9 @@ namespace Moonshot
 			CompoundStmt* getBody();	
 			const CompoundStmt* getBody() const;
 
+			void addArg(std::unique_ptr<ArgDecl> arg);
 			ArgDecl* getArg(const std::size_t & ind);
 			const ArgDecl* getArg(const std::size_t & ind) const;
-			void addArg(std::unique_ptr<ArgDecl> arg);
 			std::size_t argsSize() const;
 
 			ArgVecIter args_begin();
@@ -118,6 +122,7 @@ namespace Moonshot
 			ArgVecIter args_end();
 			ArgVecConstIter args_end() const;
 		private:
+			SourceLoc declEndLoc_;
 			Type* returnType_ = nullptr;
 			ArgVecTy args_;
 			std::unique_ptr<CompoundStmt> body_;
