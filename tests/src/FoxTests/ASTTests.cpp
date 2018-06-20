@@ -322,7 +322,7 @@ TEST(ASTTests, ExprKinds)
 	EXPECT_EQ(arracc.getKind(), StmtKind::ArrayAccessExpr);
 
 	// Function calls
-	FunctionCallExpr callexpr(std::make_unique<DeclRefExpr>(fooid),nullptr,SourceLoc(),SourceLoc());
+	FunctionCallExpr callexpr(std::make_unique<DeclRefExpr>(fooid,SourceLoc(),SourceLoc()),nullptr,SourceLoc(),SourceLoc());
 	EXPECT_EQ(callexpr.getKind(), StmtKind::FunctionCallExpr);
 }
 
@@ -406,7 +406,7 @@ TEST(ASTTests, BasicVisitorTest)
 	ASTContext ctxt;
 
 	// Create test nodes
-	auto intlit = std::make_unique<IntegerLiteralExpr>(200);
+	auto intlit = std::make_unique<IntegerLiteralExpr>(200,SourceLoc(),SourceLoc());
 	auto rtr = std::make_unique<ReturnStmt>(nullptr,SourceLoc(),SourceLoc());
 	auto vardecl = std::make_unique<VarDecl>(
 			nullptr,
