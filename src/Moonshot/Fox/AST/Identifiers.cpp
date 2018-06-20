@@ -11,6 +11,8 @@
 
 #include <cassert>
 
+#define INVALID_ID_STR "<invalid>"
+
 using namespace Moonshot;
 
 StringPtrInMap::StringPtrInMap(ItTy iter) : it_(iter)
@@ -62,6 +64,12 @@ bool IdentifierInfo::operator!=(const std::string& str) const
 	return !(*this == str);
 }
 
+IdentifierTable::IdentifierTable()
+{
+	invalidID = getUniqueIdentifierInfo(INVALID_ID_STR);
+	assert(invalidID && "Failed to generate invalidID");
+}
+
 IdentifierInfo* IdentifierTable::getUniqueIdentifierInfo(const std::string& id)
 {
 	// Effective STL, Item 24 by Scott Meyers : https://stackoverflow.com/a/101980
@@ -86,6 +94,12 @@ IdentifierInfo* IdentifierTable::getUniqueIdentifierInfo(const std::string& id)
 
 		return &(newIt->second);
 	}
+}
+
+IdentifierInfo* IdentifierTable::getInvalidID()
+{
+	assert(invalidID && "InvalidID is not set? It should have been set by the ctor!");
+	return invalidID;
 }
 
 bool IdentifierTable::exists(const std::string & id) const

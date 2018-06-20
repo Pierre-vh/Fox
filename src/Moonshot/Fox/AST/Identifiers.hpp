@@ -81,11 +81,12 @@ namespace Moonshot
 			using IDTableIterator = std::map<std::string, IdentifierInfo>::iterator;
 			using IDTableConstIterator = std::map<std::string, IdentifierInfo>::const_iterator;
 		public:
-			IdentifierTable() = default;
+			IdentifierTable();
 
 			// Returns the identifierinfo of the string "id" if it exists. 
 			// If it does not exists, it creates a new entry into the table and returns it.
 			IdentifierInfo* getUniqueIdentifierInfo(const std::string& id);
+			IdentifierInfo* getInvalidID();
 
 			// Returns true if the identifier exists in the map, false otherwise.
 			bool exists(const std::string &id) const;
@@ -97,6 +98,8 @@ namespace Moonshot
 			IDTableConstIterator end() const;
 			IDTableIterator end();
 		private:
+			IdentifierInfo* invalidID = nullptr;
+
 			// Deleted methods
 			IdentifierTable(const IdentifierTable&) = delete;
 			IdentifierTable& operator=(const IdentifierTable&) = delete;
