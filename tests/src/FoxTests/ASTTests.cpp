@@ -280,7 +280,7 @@ TEST(ASTTests, ExprKinds)
 	EXPECT_EQ(nullExpr.getKind(), StmtKind::NullExpr);
 
 	// Binary Exprs
-	BinaryExpr binexpr(binaryOperator::ADD);
+	BinaryExpr binexpr(binaryOperator::ADD,nullptr,nullptr,SourceLoc(),SourceRange(),SourceLoc());
 	EXPECT_EQ(binexpr.getKind(), StmtKind::BinaryExpr);
 
 	// Unary Exprs
