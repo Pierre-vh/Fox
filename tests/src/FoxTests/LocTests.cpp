@@ -19,7 +19,7 @@
 using namespace Moonshot;
 
 // Tests the accuracy of function SourceLocs: FuncDecl and ArgDecl 
-TEST(LocTests,Functions)
+TEST(LocTests, Functions)
 {
 	Context ctxt;
 	ASTContext astctxt;
@@ -39,21 +39,28 @@ TEST(LocTests,Functions)
 
 	// First, test the function itself
 	CompleteLoc func_beg = ctxt.sourceManager.getCompleteLocForSourceLoc(func->getBegLoc());
+	CompleteLoc func_head_end = ctxt.sourceManager.getCompleteLocForSourceLoc(func->getHeaderEndLoc());
 	CompleteLoc func_end = ctxt.sourceManager.getCompleteLocForSourceLoc(func->getEndLoc());
 
 	// Lines
 	EXPECT_EQ(func_beg.line, 1);
+	EXPECT_EQ(func_head_end.line, 1);
 	EXPECT_EQ(func_end.line, 4);
 
 	// Column & char
 	EXPECT_EQ(func_beg.column, 1);
-	EXPECT_EQ(func_end.column, 5);
 	EXPECT_EQ(func_beg.character, 1);
+
+	EXPECT_EQ(func_head_end.column, 91);
+	EXPECT_EQ(func_head_end.character, 91);
+
+	EXPECT_EQ(func_end.column, 5);
 	EXPECT_EQ(func_end.character, 2);
 
 	// Value
 	EXPECT_EQ(func_beg.value, 'f');
-	EXPECT_EQ(func_end.value, 't');
+	EXPECT_EQ(func_head_end.value, 't');
+	EXPECT_EQ(func_end.value, '}');
 
 	// Now, test the args
 	// Arg count should be correct
