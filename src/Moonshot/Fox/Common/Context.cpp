@@ -86,16 +86,6 @@ void Context::resetState()
 	//logs_.push_back("[Context] The context's state has been reset.");
 }
 
-Context::BuildMode Context::getBuildMode() const
-{
-	return curbuildmode_;
-}
-
-void Context::setBuildMode(const BuildMode & newbuildmode)
-{
-	curbuildmode_ = newbuildmode;
-}
-
 void Context::printLogs() const
 {
 	std::cout << getLogs();

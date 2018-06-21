@@ -37,10 +37,7 @@ namespace Moonshot
 				SAVE_TO_VECTOR,
 				SILENT
 			};
-			enum class BuildMode
-			{
-				RELEASE, DEBUG
-			};
+
 			// Default ctor
 			Context();
 			Context(const LoggingMode& lm);
@@ -58,9 +55,6 @@ namespace Moonshot
 
 			State getState() const;
 			void resetState();
-
-			BuildMode getBuildMode() const;
-			void setBuildMode(const BuildMode& newbuildmode);
 
 			void printLogs() const;		// print all logs to cout
 			std::string getLogs() const; // returns a string containing the error log.
@@ -90,7 +84,6 @@ namespace Moonshot
 
 			LoggingMode curmode_ = LoggingMode::DIRECT_PRINT_AND_SAVE_TO_VECTOR;
 			State curstate_ = State::SAFE;
-			BuildMode curbuildmode_ = BuildMode::DEBUG;
 	};
 }
 
