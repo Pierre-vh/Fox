@@ -287,24 +287,24 @@ TEST(ASTTests, ExprKinds)
 	EXPECT_EQ(nullExpr.getKind(), StmtKind::NullExpr);
 
 	// Binary Exprs
-	BinaryExpr binexpr(binaryOperator::ADD,nullptr,nullptr,SourceLoc(),SourceRange(),SourceLoc());
+	BinaryExpr binexpr;
 	EXPECT_EQ(binexpr.getKind(), StmtKind::BinaryExpr);
 
 	// Unary Exprs
-	UnaryExpr unaryexpr(unaryOperator::LOGICNOT,nullptr,SourceLoc(),SourceRange(),SourceLoc());
+	UnaryExpr unaryexpr;
 	EXPECT_EQ(unaryexpr.getKind(), StmtKind::UnaryExpr);
 
 	// Cast Exprs
-	CastExpr castexpr(astctxt.getPrimitiveIntType(),nullptr,SourceLoc(),SourceRange(),SourceLoc());
+	CastExpr castexpr;
 	EXPECT_EQ(castexpr.getKind(), StmtKind::CastExpr);
 
 	// Literals
-	CharLiteralExpr		charlit(0,SourceLoc(),SourceLoc());
-	IntegerLiteralExpr	intlit(0, SourceLoc(), SourceLoc());
-	FloatLiteralExpr	floatlit(0, SourceLoc(), SourceLoc());
-	StringLiteralExpr	strlit("", SourceLoc(), SourceLoc());
-	BoolLiteralExpr		boollit(false, SourceLoc(), SourceLoc());
-	ArrayLiteralExpr	arrlit(nullptr, SourceLoc(), SourceLoc());
+	CharLiteralExpr		charlit;
+	IntegerLiteralExpr	intlit;
+	FloatLiteralExpr	floatlit;
+	StringLiteralExpr	strlit;
+	BoolLiteralExpr		boollit;
+	ArrayLiteralExpr	arrlit;
 
 	EXPECT_EQ(charlit.getKind(), StmtKind::CharLiteralExpr);
 	EXPECT_EQ(intlit.getKind(),  StmtKind::IntegerLiteralExpr);
@@ -317,30 +317,30 @@ TEST(ASTTests, ExprKinds)
 	auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
 
 	// DeclRef
-	DeclRefExpr declref(fooid,SourceLoc(),SourceLoc());
+	DeclRefExpr declref;
 	EXPECT_EQ(declref.getKind(), StmtKind::DeclRefExpr);
 
 	// MemberOfExpr
-	MemberOfExpr membof(nullptr,nullptr,SourceLoc(),SourceLoc(),SourceLoc());
+	MemberOfExpr membof;
 	EXPECT_EQ(membof.getKind(), StmtKind::MemberOfExpr);
 
 	// Array Access
-	ArrayAccessExpr arracc(std::make_unique<NullExpr>(), std::make_unique<NullExpr>(), SourceLoc(), SourceLoc());
+	ArrayAccessExpr arracc;
 	EXPECT_EQ(arracc.getKind(), StmtKind::ArrayAccessExpr);
 
 	// Function calls
-	FunctionCallExpr callexpr(std::make_unique<DeclRefExpr>(fooid,SourceLoc(),SourceLoc()),nullptr,SourceLoc(),SourceLoc());
+	FunctionCallExpr callexpr;
 	EXPECT_EQ(callexpr.getKind(), StmtKind::FunctionCallExpr);
 }
 
 TEST(ASTTests, StmtKinds)
 {
 	// Return stmt
-	ReturnStmt rtr(nullptr,SourceLoc(),SourceLoc());
+	ReturnStmt rtr;
 	EXPECT_EQ(rtr.getKind(), StmtKind::ReturnStmt);
 
 	// Condition
-	ConditionStmt cond(nullptr, nullptr, nullptr, SourceLoc(), SourceLoc(), SourceLoc());
+	ConditionStmt cond;
 	EXPECT_EQ(cond.getKind(), StmtKind::ConditionStmt);
 
 	// Compound
@@ -348,11 +348,11 @@ TEST(ASTTests, StmtKinds)
 	EXPECT_EQ(compound.getKind(), StmtKind::CompoundStmt);
 
 	// While
-	WhileStmt whilestmt(nullptr, nullptr, SourceLoc(), SourceLoc(), SourceLoc());
+	WhileStmt whilestmt;
 	EXPECT_EQ(whilestmt.getKind(), StmtKind::WhileStmt);
 
 	// declstmt
-	DeclStmt declstmt(std::make_unique<FunctionDecl>());
+	DeclStmt declstmt(std::make_unique<FunctionDecl>()); /* The arg passed to a DeclStmt cannot be null */
 	EXPECT_EQ(declstmt.getKind(), StmtKind::DeclStmt);
 }
 
