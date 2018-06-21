@@ -105,7 +105,7 @@ std::string generateRandomString()
 {
 	std::random_device rd;
 	std::mt19937_64 mt(rd());
-	std::uniform_int_distribution<int> dist_char(0, idStrChars.size());
+	std::uniform_int_distribution<int> dist_char(0, (int)idStrChars.size());
 
 	std::uniform_int_distribution<int> dist_length(RANDOM_STRING_MIN_LENGTH, RANDOM_STRING_MAX_LENGTH);
 	int strlen = dist_length(mt);
