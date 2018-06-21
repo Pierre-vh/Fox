@@ -408,6 +408,10 @@ SourceRange CastExpr::getTypeRange() const
 }
 
 // DeclRefs
+DeclRefExpr::DeclRefExpr() : DeclRefExpr(nullptr,SourceLoc(),SourceLoc())
+{
+}
+
 DeclRefExpr::DeclRefExpr(IdentifierInfo * declid, const SourceLoc& begLoc, const SourceLoc& endLoc)
 	: declId_(declid), Expr(StmtKind::DeclRefExpr,begLoc,endLoc)
 {
@@ -419,9 +423,19 @@ IdentifierInfo * DeclRefExpr::getIdentifier()
 	return declId_;
 }
 
+const IdentifierInfo * DeclRefExpr::getIdentifier() const
+{
+	return declId_;
+}
+
 void DeclRefExpr::setDeclIdentifier(IdentifierInfo * id)
 {
 	declId_ = id;
+}
+
+bool DeclRefExpr::isValid() const
+{
+	return declId_ && Expr::isValid();
 }
 
 // function call

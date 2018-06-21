@@ -245,10 +245,14 @@ namespace Moonshot
 	class DeclRefExpr : public Expr
 	{
 		public:
+			DeclRefExpr();
 			DeclRefExpr(IdentifierInfo * declid, const SourceLoc& begLoc, const SourceLoc& endLoc);
 			
 			IdentifierInfo * getIdentifier();
+			const IdentifierInfo * getIdentifier() const;
 			void setDeclIdentifier(IdentifierInfo * id);
+
+			bool isValid() const;
 		private:
 			IdentifierInfo * declId_;
 	};
