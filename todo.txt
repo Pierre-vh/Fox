@@ -35,8 +35,7 @@ Moonshot Project To-do List.
 
 	> Write an ASTValidator and ASTRecursiveValidator that "validates" nodes (checks if they're complete) 
 		> This will be used to check the AST after the parsing phase. It's a visitor that will just return a boolean. True and the AST is valid, false and it's not.
-		  exemple usage will be "assert(ast_validator.visit(unit) && "Unit is Invalid!")"
-		  So the AST is checked in Debug builds for any potential mistakes.
+		  exemple usage will be "if(!astvalidator.visit(unit)) return;"
 		  This will also be added to all parser tests as a post parsing check to ensure that the generated trees are safe.
 
 	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg
@@ -51,6 +50,13 @@ Moonshot Project To-do List.
 
 	> Move all of my current diagnostics message to the new system.
 	> Delete the context's system primitive diag system.
+
+	> Delete the Context. It'll be effectively useless after
+		> To be defined :
+			> How to determine if we can advance to the next compilation stage?
+				> At first, use ASTValidator
+				> See Semantic Analysis notes for final solution
+
 	> Test the new diag system a bit more, if possible.	
 
 	> Small update to SourceManager:
@@ -68,5 +74,22 @@ Moonshot Project To-do List.
 
 	// Move to 0.3.0
 
-	> Semantic Analysis time ! It's going to be fun (or not :) ) !
+	After that:
+		> Semantic Analysis
+			> Semantic Analysis should check for each node it's validity using the Validator.
+		      a typical Sema function should look like this for almost every node. The  proper analysis is then done by the Decl/Stmt/Expr checker.
+			  (e.g. for a Decl) 
+			  if(!Validator.visit(node))
+				{
+					diagnoseIncompleteDecl(node);
+					return;
+				}
+			  
+			  DeclChecker.visit(node);
+					
+		> Lexer Rework
+			> Make the Lexer & Parser tightly coupled.
+			> Don't use the vectors anymore (to save memory)
+			> Stop using a DFA. Use a proper grammar with a recursive descent technique
+			  and a config file (.def) to register valid terminals
 
