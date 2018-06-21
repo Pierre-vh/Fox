@@ -96,7 +96,6 @@ namespace Moonshot
 			using ArgVecConstIter = DereferenceIterator<ArgVecTy::const_iterator>;
 		public:
 			FunctionDecl();
-
 			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body, const SourceLoc& begLoc,const SourceLoc& headerEndLoc,const SourceLoc& endLoc);
 			
 			void setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end);
@@ -138,7 +137,6 @@ namespace Moonshot
 	{
 		public:
 			VarDecl();
-
 			VarDecl(IdentifierInfo * varId, const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
 
 			bool isComplete() const;
