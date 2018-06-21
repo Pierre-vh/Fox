@@ -15,15 +15,18 @@
 #include "Moonshot/Fox/AST/ASTDumper.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
 
+#include <chrono>
 #include <fstream>
 
 using namespace Moonshot;
 
 bool Driver::processFile(std::ostream& out, const std::string& filepath)
 {
+	auto t1 = std::chrono::high_resolution_clock::now();
+
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
 	// Create a ASTContext
-	ASTContext astCtxt;
+	std::unique_ptr<ASTContext> astCtxt = std::make_unique<ASTContext>();
 
 	auto fid = ctxt.sourceManager.loadFromFile(filepath);
 	if (!fid)
@@ -32,7 +35,7 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 		return false;
 	}
 
-	Lexer lex(ctxt,astCtxt);
+	Lexer lex(ctxt,*astCtxt);
 	lex.lexFile(fid);
 
 	if (!ctxt.isSafe())
@@ -44,9 +47,9 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	else
 		out << "Lexing completed successfully." << lex.getTokenVector().size() << " tokens found.\n";
 
-	Parser psr(ctxt,astCtxt,lex.getTokenVector());
+	Parser psr(ctxt,*astCtxt,lex.getTokenVector());
 	// Todo: extract the name of the file and use that instead of "TestUnit"
-	auto unit = psr.parseUnit(fid,astCtxt.identifiers.getUniqueIdentifierInfo("TestUnit"));
+	auto unit = psr.parseUnit(fid,astCtxt->identifiers.getUniqueIdentifierInfo("TestUnit"));
 
 	out << ctxt.getLogs();
 	if (!unit)
@@ -59,13 +62,32 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 
 	
 	// set as main unit
-	astCtxt.setMainUnit(unit.move());
+	astCtxt->setMainUnit(unit.move());
 
 	out << "\nMain Unit Dump:\n";
 	
-	ASTDumper dumper(ctxt,std::cout,1);
-	dumper.visit(astCtxt.getMainUnit());
 	
+	auto t2 = std::chrono::high_resolution_clock::now();
+	auto process_micro = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	auto process_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+	
+	ASTDumper dumper(ctxt, std::cout, 1);
+	dumper.visit(astCtxt->getMainUnit());
+
+	auto t3 = std::chrono::high_resolution_clock::now();
+	auto dump_micro = std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
+	auto dump_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
+
+	astCtxt.reset();
+
+	auto t4 = std::chrono::high_resolution_clock::now();
+	auto release_micro = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count();
+	auto release_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3).count();
+
+	std::cout << "\nParsing time :\n\t" << process_micro << " microseconds\n\t" << process_milli << " milliseconds\n";
+	std::cout << "\nAST dump time :\n\t" << dump_micro << " microseconds\n\t" << dump_milli << " milliseconds\n";
+	std::cout << "\nAST release time :\n\t" << release_micro << " microseconds\n\t" << release_milli << " milliseconds\n";
+
 	return true;
 }
 
