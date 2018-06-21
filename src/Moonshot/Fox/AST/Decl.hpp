@@ -139,6 +139,7 @@ namespace Moonshot
 			VarDecl();
 			VarDecl(IdentifierInfo * varId, const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
 
+			// Checks if the decl has everything it needs to work.
 			bool isComplete() const;
 
 			SourceRange getTypeRange() const;
