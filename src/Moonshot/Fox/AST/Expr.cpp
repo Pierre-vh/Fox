@@ -147,6 +147,11 @@ void IntegerLiteralExpr::setVal(const IntType & val)
 }
 
 // Literals : Float literals
+FloatLiteralExpr::FloatLiteralExpr() : FloatLiteralExpr(0,SourceLoc(),SourceLoc())
+{
+
+}
+
 FloatLiteralExpr::FloatLiteralExpr(const FloatType & val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
 	: val_(val), Expr(StmtKind::FloatLiteralExpr,begLoc,endLoc)
 {
