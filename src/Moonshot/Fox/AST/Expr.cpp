@@ -81,11 +81,6 @@ Expr::Expr(const StmtKind & ekind, const SourceLoc& begLoc, const SourceLoc& end
 
 }
 
-bool Expr::isValid() const
-{
-	return hasLocInfo();
-}
-
 // NullExpr
 NullExpr::NullExpr() : NullExpr(SourceLoc())
 {
@@ -245,11 +240,6 @@ bool ArrayLiteralExpr::isEmpty() const
 	return false; // No exprs -> it's empty
 }
 
-bool ArrayLiteralExpr::isValid() const
-{
-	return exprs_ && Expr::isValid();
-}
-
 // BinaryExpr
 BinaryExpr::BinaryExpr() : BinaryExpr(binaryOperator::DEFAULT,nullptr,nullptr,SourceLoc(),SourceRange(),SourceLoc())
 {
@@ -308,11 +298,6 @@ SourceRange BinaryExpr::getOpRange() const
 	return opRange_;
 }
 
-bool BinaryExpr::isValid() const
-{
-	return left_ && right_ && (op_ != binaryOperator::DEFAULT) && Expr::isValid();
-}
-
 // UnaryExpr
 UnaryExpr::UnaryExpr() : UnaryExpr(unaryOperator::DEFAULT,nullptr,SourceLoc(),SourceRange(),SourceLoc())
 {
@@ -322,11 +307,6 @@ UnaryExpr::UnaryExpr() : UnaryExpr(unaryOperator::DEFAULT,nullptr,SourceLoc(),So
 UnaryExpr::UnaryExpr(const unaryOperator & opt, std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc)
 	: op_(opt), Expr(StmtKind::UnaryExpr,begLoc,endLoc), opRange_(opRange), child_(std::move(node))
 {
-}
-
-bool UnaryExpr::isValid() const
-{
-	return opRange_.isValid() && child_ && (op_ != unaryOperator::DEFAULT) && Expr::isValid();
 }
 
 Expr* UnaryExpr::getChild()
@@ -369,11 +349,6 @@ CastExpr::CastExpr(Type* castGoal, std::unique_ptr<Expr> child,const SourceLoc& 
 	goal_(castGoal), child_(std::move(child)), Expr(StmtKind::CastExpr,begLoc,endLoc), typeRange_(typeRange)
 {
 
-}
-
-bool CastExpr::isValid() const
-{
-	return typeRange_ && goal_ && child_ && Expr::isValid();
 }
 
 void CastExpr::setCastGoal(Type* goal)
@@ -438,11 +413,6 @@ void DeclRefExpr::setDeclIdentifier(IdentifierInfo * id)
 	declId_ = id;
 }
 
-bool DeclRefExpr::isValid() const
-{
-	return declId_ && Expr::isValid();
-}
-
 // function call
 FunctionCallExpr::FunctionCallExpr() : FunctionCallExpr(nullptr, nullptr, SourceLoc(), SourceLoc())
 {
@@ -482,11 +452,6 @@ const ExprList* FunctionCallExpr::getExprList() const
 void FunctionCallExpr::setExprList(std::unique_ptr<ExprList> elist)
 {
 	args_ = std::move(elist);
-}
-
-bool FunctionCallExpr::isValid() const
-{
-	return callee_ && args_ && Expr::isValid();
 }
 
 // MemberOf Expr
@@ -535,11 +500,6 @@ SourceLoc MemberOfExpr::getDotLoc() const
 	return dotLoc_;
 }
 
-bool MemberOfExpr::isValid() const
-{
-	return dotLoc_ && base_ && membName_ && Expr::isValid();
-}
-
 // Array Access
 ArrayAccessExpr::ArrayAccessExpr() : ArrayAccessExpr(nullptr,nullptr,SourceLoc(),SourceLoc())
 {
@@ -580,11 +540,6 @@ const Expr* ArrayAccessExpr::getBase() const
 const Expr* ArrayAccessExpr::getAccessIndexExpr() const
 {
 	return accessIdxExpr_.get();
-}
-
-bool ArrayAccessExpr::isValid() const
-{
-	return base_ && accessIdxExpr_ && Expr::isValid();
 }
 
 // Expr list
@@ -661,9 +616,4 @@ const Expr* ParensExpr::getExpr() const
 void ParensExpr::setExpr(std::unique_ptr<Expr> expr)
 {
 	expr_ = std::move(expr);
-}
-
-bool ParensExpr::isValid() const
-{
-	return expr_ && Expr::isValid();
 }

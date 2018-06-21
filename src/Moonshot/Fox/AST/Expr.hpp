@@ -64,8 +64,6 @@ namespace Moonshot
 	// base expression 
 	class Expr : public Stmt
 	{
-		public:
-			bool isValid() const;
 		protected:
 			Expr(const StmtKind& kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 	};
@@ -107,8 +105,6 @@ namespace Moonshot
 			void setOp(const binaryOperator& op);
 
 			SourceRange getOpRange() const;
-
-			bool isValid() const;
 		private:
 			SourceRange opRange_;
 			std::unique_ptr<Expr> left_, right_;
@@ -121,8 +117,6 @@ namespace Moonshot
 		public: 
 			UnaryExpr();
 			UnaryExpr(const unaryOperator& opt,std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
-
-			bool isValid() const;
 
 			Expr* getChild();
 			const Expr* getChild() const;
@@ -145,8 +139,6 @@ namespace Moonshot
 			CastExpr();
 			CastExpr(Type* castGoal,std::unique_ptr<Expr> child, const SourceLoc& begLoc, const SourceRange& typeRange, const SourceLoc& endLoc);
 			
-			bool isValid() const;
-
 			void setCastGoal(Type* goal);
 			Type* getCastGoal();
 			const Type* getCastGoal() const;
@@ -235,7 +227,6 @@ namespace Moonshot
 			void setExprList(std::unique_ptr<ExprList> elist);
 			bool hasExprList() const; 
 
-			bool isValid() const;
 			bool isEmpty() const;
 		private:
 			std::unique_ptr<ExprList> exprs_;
@@ -251,8 +242,6 @@ namespace Moonshot
 			IdentifierInfo * getIdentifier();
 			const IdentifierInfo * getIdentifier() const;
 			void setDeclIdentifier(IdentifierInfo * id);
-
-			bool isValid() const;
 		private:
 			IdentifierInfo * declId_;
 	};
@@ -274,8 +263,6 @@ namespace Moonshot
 			void setMemberName(IdentifierInfo* idInfo);
 
 			SourceLoc getDotLoc() const;
-
-			bool isValid() const;
 		private:
 			SourceLoc dotLoc_;
 			std::unique_ptr<Expr> base_;
@@ -297,8 +284,6 @@ namespace Moonshot
 
 			const Expr* getBase() const;
 			const Expr* getAccessIndexExpr() const;
-
-			bool isValid() const;
 		private:
 			// 2 Expr, the expression supposed to produce an array, and the expression contained within the square brackets that should produce the index.
 			std::unique_ptr<Expr> base_;
@@ -346,8 +331,6 @@ namespace Moonshot
 			ExprList* getExprList();
 			const ExprList* getExprList() const;
 			void setExprList(std::unique_ptr<ExprList> elist);
-
-			bool isValid() const;
 		private:
 			std::unique_ptr<Expr> callee_;
 			std::unique_ptr<ExprList> args_;
@@ -363,8 +346,6 @@ namespace Moonshot
 			Expr* getExpr();
 			const Expr* getExpr() const;
 			void setExpr(std::unique_ptr<Expr> expr);
-
-			bool isValid() const;
 		private:
 			std::unique_ptr<Expr> expr_;
 	};
