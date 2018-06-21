@@ -29,11 +29,15 @@ Moonshot Project To-do List.
 	> Update the Parser so it can return more SourceLoc info. (Done)
 	> Update the AST so all nodes have a sourceloc/range too wherever needed. (Done)
 	> Write Decl Locs Test (Done)
+	> First AST Code Review (Done)
 
 	> Write Stmt & Expr Loc Tests (Next)
-	> Review the code of the AST completely, especially the SourceLocs and the consistency of the code (Next)
-		> Add Empty Ctors for every node. The Empty Ctor is just a delegating ctor with uninitialized args + use them in tests
-		> Add Ranges/Locs whenever it's needed.
+
+	> Write an ASTValidator and ASTRecursiveValidator that "validates" nodes (checks if they're complete) 
+		> This will be used to check the AST after the parsing phase. It's a visitor that will just return a boolean. True and the AST is valid, false and it's not.
+		  exemple usage will be "assert(ast_validator.visit(unit) && "Unit is Invalid!")"
+		  So the AST is checked in Debug builds for any potential mistakes.
+		  This will also be added to all parser tests as a post parsing check to ensure that the generated trees are safe.
 
 	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg
 		> 2 Variants should exist :
