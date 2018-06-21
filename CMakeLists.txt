@@ -24,7 +24,7 @@ add_subdirectory(tools)
 # add test subdir
 add_subdirectory(tests)
 
-# force warnings /W4 on MSVC
+# MSVC flags
 if(MSVC)
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
     string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -32,7 +32,13 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   endif()
   SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /Profile" )
+  # Max optimizations. If someone has a cross-platform solution to enable all optimizations on gcc/clang/msvc all at once, message me!
+  if (CMAKE_BUILD_TYPE EQUAL "RELEASE")
+	 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Ox")
+  endif()
 endif()
+
+
 
 # add lib target
 add_library(libmoonshot STATIC ${moonshot_src})
