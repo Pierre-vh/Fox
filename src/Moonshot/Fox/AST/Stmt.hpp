@@ -68,6 +68,7 @@ namespace Moonshot
 	class ReturnStmt : public Stmt
 	{
 		public:
+			ReturnStmt();
 			ReturnStmt(std::unique_ptr<Expr> rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			bool hasExpr() const;
@@ -81,6 +82,7 @@ namespace Moonshot
 	class ConditionStmt : public Stmt
 	{
 		public:
+			ConditionStmt();
 			ConditionStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> then, std::unique_ptr<Stmt> elsestmt,
 				const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc);
 
@@ -119,6 +121,7 @@ namespace Moonshot
 			using StmtVecConstIter = DereferenceIterator < StmtVecTy::const_iterator>;
 		public:
 			CompoundStmt();
+			CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			Stmt* getStmt(const std::size_t& ind);
 			const Stmt* getStmt(const std::size_t& ind) const;
@@ -147,6 +150,7 @@ namespace Moonshot
 	class WhileStmt : public Stmt
 	{
 		public:
+			WhileStmt();
 			WhileStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc);
 
 			Expr* getCond();

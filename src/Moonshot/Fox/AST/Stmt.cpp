@@ -71,7 +71,11 @@ bool Stmt::isEndLocSet() const
 	return end_.isValid();
 }
 
-// return stmt
+// Return Statement
+ReturnStmt::ReturnStmt() : ReturnStmt(nullptr,SourceLoc(),SourceLoc())
+{
+}
+
 ReturnStmt::ReturnStmt(std::unique_ptr<Expr> rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc) : Stmt(StmtKind::ReturnStmt,begLoc,endLoc)
 {
 	expr_ = std::move(rtr_expr);
@@ -92,7 +96,12 @@ void ReturnStmt::setExpr(std::unique_ptr<Expr> e)
 	expr_ = std::move(e);
 }
 
-// cond stmt
+// Condition (if-then-else) statement
+ConditionStmt::ConditionStmt() : ConditionStmt(nullptr,nullptr,nullptr,SourceLoc(),SourceLoc(),SourceLoc())
+{
+
+}
+
 ConditionStmt::ConditionStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> then, std::unique_ptr<Stmt> elsestmt,
 	const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc)
 	: Stmt(StmtKind::ConditionStmt, begLoc, endLoc)
@@ -174,7 +183,12 @@ SourceLoc ConditionStmt::getIfHeaderEndLoc() const
 }
 
 // Compound stmt
-CompoundStmt::CompoundStmt() : Stmt(StmtKind::CompoundStmt,SourceLoc(),SourceLoc())
+CompoundStmt::CompoundStmt() : CompoundStmt(SourceLoc(),SourceLoc())
+{
+
+}
+
+CompoundStmt::CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc) : Stmt(StmtKind::CompoundStmt,begLoc,endLoc)
 {
 
 }
@@ -247,6 +261,11 @@ void CompoundStmt::setSourceLocs(const SourceLoc & begLoc, const SourceLoc & end
 }
 
 // While stmt
+WhileStmt::WhileStmt() : WhileStmt(nullptr,nullptr,SourceLoc(),SourceLoc(),SourceLoc())
+{
+
+}
+
 WhileStmt::WhileStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc) :
 	Stmt(StmtKind::WhileStmt,begLoc,endLoc), headerEndLoc_(headerEndLoc)
 {
@@ -297,9 +316,7 @@ SourceRange WhileStmt::getHeaderRange() const
 // DeclStmt
 DeclStmt::DeclStmt(std::unique_ptr<Decl> decl) : decl_(std::move(decl)), Stmt(StmtKind::DeclStmt,SourceLoc(),SourceLoc())
 {
-	assert(decl_ && "The Decl cannot be null!");
-	setBegLoc(decl_->getBegLoc());
-	setEndLoc(decl_->getEndLoc());
+	setDecl(std::move(decl));
 }
 
 bool DeclStmt::hasDecl() const
@@ -319,5 +336,8 @@ const Decl* DeclStmt::getDecl() const
 
 void DeclStmt::setDecl(std::unique_ptr<Decl> decl)
 {
+	assert(decl_ && "The Decl cannot be null!");
 	decl_ = std::move(decl);
+	setBegLoc(decl_->getBegLoc());
+	setEndLoc(decl_->getEndLoc());
 }
