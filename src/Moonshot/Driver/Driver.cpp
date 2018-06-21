@@ -22,8 +22,6 @@ using namespace Moonshot;
 
 bool Driver::processFile(std::ostream& out, const std::string& filepath)
 {
-	auto t1 = std::chrono::high_resolution_clock::now();
-
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
 	// Create a ASTContext
 	std::unique_ptr<ASTContext> astCtxt = std::make_unique<ASTContext>();
@@ -34,9 +32,14 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 		std::cout << "Could not open file \"" << filepath << "\"\n";
 		return false;
 	}
+	auto t0 = std::chrono::high_resolution_clock::now();
 
 	Lexer lex(ctxt,*astCtxt);
 	lex.lexFile(fid);
+
+	auto t1 = std::chrono::high_resolution_clock::now();
+	auto lex_micro = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
+	auto lex_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
 
 	if (!ctxt.isSafe())
 	{
@@ -68,8 +71,8 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	
 	
 	auto t2 = std::chrono::high_resolution_clock::now();
-	auto process_micro = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-	auto process_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+	auto parse_micro = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	auto parse_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 	
 	ASTDumper dumper(ctxt, std::cout, 1);
 	dumper.visit(astCtxt->getMainUnit());
@@ -84,7 +87,8 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	auto release_micro = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count();
 	auto release_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3).count();
 
-	std::cout << "\nParsing time :\n\t" << process_micro << " microseconds\n\t" << process_milli << " milliseconds\n";
+	std::cout << "\nLexing time :\n\t" << lex_micro << " microseconds\n\t" << lex_milli << " milliseconds\n";
+	std::cout << "\nParsing time :\n\t" << parse_micro << " microseconds\n\t" << parse_milli << " milliseconds\n";
 	std::cout << "\nAST dump time :\n\t" << dump_micro << " microseconds\n\t" << dump_milli << " milliseconds\n";
 	std::cout << "\nAST release time :\n\t" << release_micro << " microseconds\n\t" << release_milli << " milliseconds\n";
 
