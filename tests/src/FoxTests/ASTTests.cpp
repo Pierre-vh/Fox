@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "gtest/gtest.h"
-#include "TestUtils/TestUtils.hpp"
+#include "Support/TestUtils.hpp"
 #include "Moonshot/Fox/AST/Decl.hpp"
 #include "Moonshot/Fox/AST/Expr.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"

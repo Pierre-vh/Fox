@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include "TestUtils/TestUtils.hpp"
+#include "Support/TestUtils.hpp"
 
 #include "Moonshot/Fox/AST/ASTContext.hpp" 
 #include "Moonshot/Fox/Lexer/Lexer.hpp"

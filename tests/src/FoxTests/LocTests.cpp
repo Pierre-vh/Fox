@@ -8,39 +8,25 @@
 ////------------------------------------------------------////
 
 #include "gtest/gtest.h"
-#include "TestUtils/TestUtils.hpp"
-
-#include "Moonshot/Fox/Parser/Parser.hpp"
-#include "Moonshot/Fox/Lexer/Lexer.hpp"
-#include "Moonshot/Fox/AST/Decl.hpp"
-#include "Moonshot/Fox/Common/Context.hpp"
-#include "Moonshot/Fox/Common/SourceManager.hpp"
+#include "Support/TestUtils.hpp"
+#include "Utils.hpp"
 
 using namespace Moonshot;
 
 // Tests the accuracy of function SourceLocs: FuncDecl and ArgDecl 
 TEST(LocTests, Functions)
 {
-	Context ctxt;
-	ASTContext astctxt;
-	DeclRecorder declrec;
-	auto fid = ctxt.sourceManager.loadFromFile(Tests::convertRelativeTestResPathToAbsolute("astlocs/functions.fox"));
-	ASSERT_TRUE(fid) << "could not load file";
-
-	Lexer lex(ctxt, astctxt);
-	lex.lexFile(fid);
-	ASSERT_TRUE(ctxt.isSafe()) << "lexing error";
-
-	Parser parser(ctxt, astctxt, lex.getTokenVector(), &declrec);
-	auto presult = parser.parseFunctionDecl();
+	ParserPreparator pp("astlocs/functions.fox");
+	ASSERT_TRUE(pp.hasSetupCompletedSuccessfuly()) << pp.getLastErrorMsg();
+	auto presult = pp.getParser().parseFunctionDecl();
 
 	ASSERT_TRUE(presult) << "parsing error";
 	auto func = presult.moveAs<FunctionDecl>();
 
 	// First, test the function itself
-	CompleteLoc func_beg = ctxt.sourceManager.getCompleteLocForSourceLoc(func->getBegLoc());
-	CompleteLoc func_head_end = ctxt.sourceManager.getCompleteLocForSourceLoc(func->getHeaderEndLoc());
-	CompleteLoc func_end = ctxt.sourceManager.getCompleteLocForSourceLoc(func->getEndLoc());
+	CompleteLoc func_beg = pp.getSourceManager().getCompleteLocForSourceLoc(func->getBegLoc());
+	CompleteLoc func_head_end = pp.getSourceManager().getCompleteLocForSourceLoc(func->getHeaderEndLoc());
+	CompleteLoc func_end = pp.getSourceManager().getCompleteLocForSourceLoc(func->getEndLoc());
 
 	// Lines
 	EXPECT_EQ(func_beg.line, 1);
@@ -79,8 +65,8 @@ TEST(LocTests, Functions)
 	EXPECT_EQ(arg4->getIdentifier()->getStr(), "_bar4");
 
 	// Extract all locs
-	#define BEG_LOC(x) ctxt.sourceManager.getCompleteLocForSourceLoc(x->getBegLoc())
-	#define END_LOC(x) ctxt.sourceManager.getCompleteLocForSourceLoc(x->getEndLoc())
+	#define BEG_LOC(x) pp.getSourceManager().getCompleteLocForSourceLoc(x->getBegLoc())
+	#define END_LOC(x) pp.getSourceManager().getCompleteLocForSourceLoc(x->getEndLoc())
 	
 	auto arg1_beg = BEG_LOC(arg1);
 	auto arg1_end = END_LOC(arg1);
@@ -150,26 +136,18 @@ TEST(LocTests, Functions)
 	EXPECT_EQ(arg4_end.value, 'g');
 }
 
+// VarDecl test
 TEST(LocTests, VarDecls)
 {
-	Context ctxt;
-	ASTContext astctxt;
-	DeclRecorder declrec;
-	auto fid = ctxt.sourceManager.loadFromFile(Tests::convertRelativeTestResPathToAbsolute("astlocs/vardecl.fox"));
-	ASSERT_TRUE(fid) << "could not load file";
-
-	Lexer lex(ctxt, astctxt);
-	lex.lexFile(fid);
-	ASSERT_TRUE(ctxt.isSafe()) << "lexing error";
-
-	Parser parser(ctxt, astctxt, lex.getTokenVector(), &declrec);
-	auto presult = parser.parseVarDecl();
+	ParserPreparator pp("astlocs/vardecl.fox");
+	ASSERT_TRUE(pp.hasSetupCompletedSuccessfuly()) << pp.getLastErrorMsg();
+	auto presult = pp.getParser().parseVarDecl();
 
 	ASSERT_TRUE(presult) << "parsing error";
 	auto var = presult.moveAs<VarDecl>();
 
-	CompleteLoc var_beg = ctxt.sourceManager.getCompleteLocForSourceLoc(var->getBegLoc());
-	CompleteLoc var_end = ctxt.sourceManager.getCompleteLocForSourceLoc(var->getEndLoc());
+	CompleteLoc var_beg = pp.getSourceManager().getCompleteLocForSourceLoc(var->getBegLoc());
+	CompleteLoc var_end = pp.getSourceManager().getCompleteLocForSourceLoc(var->getEndLoc());
 
 	EXPECT_EQ(var_beg.line, 1);
 	EXPECT_EQ(var_end.line, 2);

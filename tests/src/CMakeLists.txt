@@ -3,7 +3,7 @@ add_source(
 
 	"main.cpp"
 
-	"TestUtils/TestUtils.cpp"
+	"Support/TestUtils.cpp"
 
 	"FoxTests/LexerTests.cpp"
 	"FoxTests/UTF8Tests.cpp"
@@ -12,6 +12,7 @@ add_source(
 	"FoxTests/ASTTests.cpp"
 	"FoxTests/SourceManagerTests.cpp"
 	"FoxTests/LocTests.cpp"
+	"FoxTests/Utils.cpp"
 
 	"CommonTests/CommonTests.cpp"
 	)
