@@ -31,12 +31,17 @@ Moonshot Project To-do List.
 	> Write Decl Locs Test (Done)
 	> First AST Code Review (Done)
 
+	> Remove "Fake" Recovery nodes in the AST and find a proper, better solution to this problem. (Next)
+		> Rename NullExpr to NullStmt
+		> NullStmt should ONLY serve as the NullStmt, not as a recovery node, except if it's the best solution possible.
+
 	> Write Stmt & Expr Loc Tests (Next)
 
 	> Write an ASTValidator and ASTRecursiveValidator that "validates" nodes (checks if they're complete) 
 		> This will be used to check the AST after the parsing phase. It's a visitor that will just return a boolean. True and the AST is valid, false and it's not.
 		  exemple usage will be "if(!astvalidator.visit(unit)) return;"
 		  This will also be added to all parser tests as a post parsing check to ensure that the generated trees are safe.
+
 
 	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg
 		> 2 Variants should exist :
