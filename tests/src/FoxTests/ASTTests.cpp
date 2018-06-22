@@ -282,10 +282,6 @@ TEST(ASTTests, ExprKinds)
 {
 	ASTContext astctxt;
 
-	// Null exprs
-	NullExpr nullExpr;
-	EXPECT_EQ(nullExpr.getKind(), StmtKind::NullExpr);
-
 	// Binary Exprs
 	BinaryExpr binexpr;
 	EXPECT_EQ(binexpr.getKind(), StmtKind::BinaryExpr);
@@ -335,6 +331,10 @@ TEST(ASTTests, ExprKinds)
 
 TEST(ASTTests, StmtKinds)
 {
+	// NullStmt
+	NullStmt null;
+	EXPECT_EQ(null.getKind(), StmtKind::NullStmt);
+
 	// Return stmt
 	ReturnStmt rtr;
 	EXPECT_EQ(rtr.getKind(), StmtKind::ReturnStmt);
