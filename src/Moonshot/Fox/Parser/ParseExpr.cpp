@@ -75,9 +75,10 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 			if(expr.wasSuccessful())
 				errorExpected("Expected an expression");
 
-			// Resync. if Resync is successful, return NotFound, if it's not, return an Error.
+			// Resync. if Resync is successful, return the base as the result (don't alter it) to fake a success
+			// , if it's not, return an Error.
 			if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-				return ExprResult::NotFound();
+				return ExprResult(std::move(base));
 			else
 				return ExprResult::Error();
 		}

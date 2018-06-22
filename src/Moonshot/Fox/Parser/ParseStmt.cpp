@@ -37,9 +37,11 @@ Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 			// failure
 			else
 			{
-				// if not found, report an error
-				if (stmt.wasSuccessful())
-					errorExpected("Expected a Statement");
+				/*
+					// if not found, report an error
+					if (stmt.wasSuccessful())
+						errorExpected("Expected a Statement");
+				*/
 				// In both case, attempt recovery to nearest semicolon.
 				if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi -> meaningless here*/ false, /*shouldConsumeToken*/ true))
 				{
@@ -173,10 +175,6 @@ Parser::StmtResult Parser::parseCondition()
 					errorExpected("Expected a statement after else,");
 				return StmtResult::Error();
 			}
-
-			// Else but no if?
-			if (!ifBody)
-				genericError("Else without matching if.");
 		}
 
 		return StmtResult(std::make_unique<ConditionStmt>(
@@ -187,6 +185,11 @@ Parser::StmtResult Parser::parseCondition()
 				ifHeadEndLoc,
 				endLoc
 			));
+	}
+	else if (consumeKeyword(KeywordType::KW_ELSE))
+	{
+		genericError("Else without matching if.");
+		return StmtResult::Error();
 	}
 	return StmtResult::NotFound();
 }
