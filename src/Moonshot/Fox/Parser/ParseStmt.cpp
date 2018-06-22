@@ -28,10 +28,10 @@ Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 			// try to parse a statement
 			if(auto stmt = parseStmt())
 			{
-				// Push only if we don't have a null expr.
+				// Push only if we don't have a standalone NullStmt
 				// this is done to avoid stacking them up, and since they're a no-op in all cases
 				// it's meaningless to ignore them.
-				if (!stmt.is<NullExpr>())
+				if (!stmt.is<NullStmt>())
 					rtr->addStmt(std::move(stmt.move()));
 			}
 			// failure
@@ -117,8 +117,8 @@ Parser::StmtResult Parser::parseWhileLoop()
 		{
 			if(body_res.wasSuccessful())
 				errorExpected("Expected a statement");
-			body = std::make_unique<NullExpr>();
-			endLoc = parenExprEndLoc;
+
+			return StmtResult::Error();
 		}
 
 		assert(expr && body && begLoc && endLoc && parenExprEndLoc);
@@ -158,10 +158,7 @@ Parser::StmtResult Parser::parseCondition()
 			if (body.wasSuccessful())
 				errorExpected("Expected a statement after if condition,");
 
-			if (peekNext(KeywordType::KW_ELSE)) // if the user wrote something like if (<expr>) else, we'll recover by inserting a nullstmt
-				ifBody = std::make_unique<NullExpr>();
-			else
-				return StmtResult::Error();
+			return StmtResult::Error();
 		}
 
 		// "else"
@@ -297,7 +294,7 @@ Parser::StmtResult Parser::parseExprStmt()
 
 	// ';'
 	if (auto semiLoc = consumeSign(SignType::S_SEMICOLON))
-		return StmtResult(std::make_unique<NullExpr>(semiLoc));
+		return StmtResult(std::make_unique<NullStmt>(semiLoc));
 
 	// <expr> 
 	else if (auto expr = parseExpr())
@@ -318,8 +315,8 @@ Parser::StmtResult Parser::parseExprStmt()
 	else if(!expr.wasSuccessful())
 	{
 		// if the expression had an error, ignore it and try to recover to a semi.
-		if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-			return StmtResult(std::make_unique<NullExpr>());
+		if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ false))
+			return StmtResult(std::make_unique<NullStmt>(consumeSign(SignType::S_SEMICOLON)));
 		return StmtResult::Error();
 	}
 

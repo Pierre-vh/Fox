@@ -75,17 +75,9 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 			if(expr.wasSuccessful())
 				errorExpected("Expected an expression");
 
-			if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
-			{
-				endLoc = consumeBracket(SignType::S_SQ_CLOSE);
-				// Return a node with a null expr, so we return something and avoid error cascades.
-				return ExprResult(std::make_unique<ArrayAccessExpr>(
-						std::move(base),
-						std::make_unique<NullExpr>(),
-						begLoc, 
-						endLoc
-					));
-			}
+			// Resync. if Resync is successful, return NotFound, if it's not, return an Error.
+			if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
+				return ExprResult::NotFound();
 			else
 				return ExprResult::Error();
 		}
@@ -496,14 +488,12 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory, SourceLoc* l
 			rtr = expr.move();
 		else 
 		{
-			// no expr, handle error & attempt to recover if it's allowed.
+			// no expr, handle error & attempt to recover if it's allowed. If recovery is successful, return "not found"
 			if(expr.wasSuccessful())
 				errorExpected("Expected an expression");
-			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
-			{
-				// Return a null expr in case of a successful recovery.
-				rtr = std::make_unique<NullExpr>();
-			}
+
+			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
+				return ExprResult::NotFound();
 			else
 				return ExprResult::Error();
 		}
@@ -540,19 +530,15 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory, SourceLoc* l
 	{
 		errorExpected("Expected a '('");
 
-		// Same thing as parseCompoundStatemen
-		// we attempt recovery, if it's successful, we return a null expr.
-		// if it isn't, we backtrack and return "not found". (since the CompoundStatement is entirely missing)
-
-		// Note : We could totally return an error on both cases, but the current callers
-		// don't care if we had a notfound/error and abandon their parsing directly after anyways.
-
+		// Try to recover, if it's successful, return "Not Found", if it's not, return a error.
 		auto backup = createParserStateBackup();
 
 		if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-			return ExprResult(std::make_unique<NullExpr>());
+			return ExprResult::NotFound();
 
 		restoreParserStateFromBackup(backup);
+
+		return ExprResult::Error();
 	}
 	return ExprResult::NotFound();
 }
