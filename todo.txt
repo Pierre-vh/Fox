@@ -35,6 +35,7 @@ Moonshot Project To-do List.
 	> Write Stmt & Expr Loc Tests (Next)
 		> Maybe Also Overhaul tests using JSON tests to automate them. Could prove really useful for Loc Tests. Maybe even for other tests later if needed.
 			> Potential library to use https://github.com/nlohmann/json
+		> Once all loctests are automated, remove Lexer "loctests", which are pretty much useless
 
 	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg
 		> 2 Variants should exist :
