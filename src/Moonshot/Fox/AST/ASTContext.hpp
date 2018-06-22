@@ -25,7 +25,7 @@
 
 #include <map>
 
-#include "Moonshot/Fox/Common/Memory.hpp"
+#include "Moonshot/Fox/Common/Iterators.hpp"
 #include "Decl.hpp"
 #include "Type.hpp"
 #include "Identifiers.hpp"

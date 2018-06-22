@@ -11,7 +11,6 @@
 #include "Moonshot/Fox/Common/Typedefs.hpp"
 #include "Moonshot/Fox/AST/Stmt.hpp"
 #include "Moonshot/Fox/AST/Type.hpp"
-#include "Moonshot/Fox/Common/Memory.hpp"
 
 namespace Moonshot	
 {

@@ -1,13 +1,10 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : Memory.hpp											
+// File : Iterators.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file contains various classes & wrappers that are used to manage, or help
-// manage memory.
-// This file is header only, since most, if not every class here
-// will be templated.
+// This file contains customized iterators.
 ////------------------------------------------------------////
 #pragma once
 
