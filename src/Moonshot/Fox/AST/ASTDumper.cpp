@@ -117,11 +117,6 @@ void ASTDumper::visitFunctionCallExpr(FunctionCallExpr * node)
 	}
 }
 
-void ASTDumper::visitNullExpr(NullExpr * node)
-{
-	dumpLine() << getBasicStmtInfo(node) << "\n";
-}
-
 void ASTDumper::visitCharLiteralExpr(CharLiteralExpr * node)
 {
 	std::string res;
@@ -167,6 +162,11 @@ void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr * node)
 			dedent();
 		}
 	}
+}
+
+void ASTDumper::visitNullStmt(NullStmt * node)
+{
+	dumpLine() << getBasicStmtInfo(node) << "\n";
 }
 
 void ASTDumper::visitCompoundStmt(CompoundStmt * node)

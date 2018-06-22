@@ -31,7 +31,6 @@ namespace Moonshot
 			void visitMemberOfExpr(MemberOfExpr* node);
 			void visitDeclRefExpr(DeclRefExpr* node);
 			void visitFunctionCallExpr(FunctionCallExpr* node);
-			void visitNullExpr(NullExpr* node);
 
 			// Expressions : Literals
 			void visitCharLiteralExpr(CharLiteralExpr* node);
@@ -42,6 +41,7 @@ namespace Moonshot
 			void visitArrayLiteralExpr(ArrayLiteralExpr* node);
 
 			// Stmts
+			void visitNullStmt(NullStmt* node);
 			void visitCompoundStmt(CompoundStmt* node);
 			void visitConditionStmt(ConditionStmt* node);
 			void visitWhileStmt(WhileStmt* node);
