@@ -29,6 +29,7 @@
 /* Macros */
 
 // Basic statements
+STMT(NullStmt,Stmt)
 STMT(ReturnStmt,Stmt)
 STMT(ConditionStmt,Stmt)
 STMT(CompoundStmt,Stmt)
@@ -39,10 +40,6 @@ STMT(DeclStmt,Stmt)
 
 // Expressions
 ABSTRACT_STMT(Expr,Stmt)
-
-	// Null (empty) expr.
-	EXPR(NullExpr,Expr)
-
 	// Parens Expr
 	EXPR(ParensExpr,Expr)
 

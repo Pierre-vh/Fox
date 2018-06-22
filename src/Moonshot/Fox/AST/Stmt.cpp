@@ -71,6 +71,28 @@ bool Stmt::isEndLocSet() const
 	return end_.isValid();
 }
 
+// ';' statement
+NullStmt::NullStmt() : NullStmt(SourceLoc())
+{
+
+}
+
+NullStmt::NullStmt(const SourceLoc& semiLoc) : Stmt(StmtKind::NullStmt,semiLoc,semiLoc)
+{
+
+}
+
+void NullStmt::setSemiLoc(const SourceLoc& semiLoc)
+{
+	setBegLoc(semiLoc);
+	setEndLoc(semiLoc);
+}
+
+SourceLoc NullStmt::getSemiLoc() const
+{
+	return getBegLoc();
+}
+
 // Return Statement
 ReturnStmt::ReturnStmt() : ReturnStmt(nullptr,SourceLoc(),SourceLoc())
 {

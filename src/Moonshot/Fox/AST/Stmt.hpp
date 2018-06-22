@@ -65,6 +65,21 @@ namespace Moonshot
 			StmtKind kind_;
 	};
 
+	// The ';' statement.
+	class NullStmt : public Stmt
+	{
+		public:
+			// Constructs a recovery NullExpr
+			NullStmt();
+
+			// Constructs a real NullExpr
+			NullStmt(const SourceLoc& semiLoc);
+
+			void setSemiLoc(const SourceLoc& semiLoc);
+			SourceLoc getSemiLoc() const;
+	};
+
+	// The "return" statement
 	class ReturnStmt : public Stmt
 	{
 		public:
