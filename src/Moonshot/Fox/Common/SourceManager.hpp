@@ -50,6 +50,11 @@ namespace Moonshot
 
 		}
 
+		bool operator==(const CompleteLoc& other) const
+		{
+			return (fileName == other.fileName) && (line == other.line) && (column == other.column) && (character == other.character) && (value == other.value);
+		}
+
 		std::string fileName;
 		std::uint32_t line;
 		std::uint16_t column;
