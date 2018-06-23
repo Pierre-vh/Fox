@@ -14,7 +14,6 @@
 #include <cassert>
 
 #define INVALID_FILEID_VALUE 0
-#define TABS_COL 4
 
 using namespace Moonshot;
 
@@ -83,7 +82,7 @@ const SourceManager::StoredData * SourceManager::getStoredDataForFileID(const Fi
 
 CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) const
 {
-	// ToDo: Optimize this by caching a line table.
+	// ToDo: Optimize this by caching a line table. Also add support for \n\r and \r\n line endings.
 
 	// Everything we need:
 	std::uint32_t line = 1;
@@ -100,9 +99,6 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 	{
 		switch (fdata->str[k])
 		{
-			case '\t':
-				column += TABS_COL;
-				break;
 			case '\n':
 				column = 1;
 				line++;
