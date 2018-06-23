@@ -44,21 +44,23 @@ namespace Moonshot
 	// Small struct containing a human-readable source loc information.
 	struct CompleteLoc
 	{
-		CompleteLoc(const std::string& fName, const std::uint32_t& ln, const std::uint16_t& col, const std::uint16_t& ch)
-			: fileName(fName), line(ln), column(col), character(ch)
+		typedef std::uint32_t line_type;
+		typedef std::uint16_t col_type;
+
+		CompleteLoc(const std::string& fName, const line_type& ln, const col_type& col)
+			: fileName(fName), line(ln), column(col)
 		{
 
 		}
 
 		bool operator==(const CompleteLoc& other) const
 		{
-			return (fileName == other.fileName) && (line == other.line) && (column == other.column) && (character == other.character);
+			return (fileName == other.fileName) && (line == other.line) && (column == other.column);
 		}
 
 		std::string fileName;
-		std::uint32_t line;
-		std::uint16_t column;
-		std::uint16_t character;
+		line_type line;
+		col_type column;
 	};
 
 	// the SourceManager, which stores every source file and gives them a unique ID.

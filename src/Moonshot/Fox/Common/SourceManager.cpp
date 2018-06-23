@@ -83,10 +83,11 @@ const SourceManager::StoredData * SourceManager::getStoredDataForFileID(const Fi
 
 CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) const
 {
+	// ToDo: Optimize this by caching a line table.
+
 	// Everything we need:
 	std::uint32_t line = 1;
 	std::uint16_t column = 1;
-	std::uint16_t character = 1;
 
 	// First, extract the relevant information
 	const StoredData* fdata = getStoredDataForFileID(sloc.getFileID());
@@ -101,24 +102,20 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 		{
 			case '\t':
 				column += TABS_COL;
-				character++;
 				break;
 			case '\n':
 				column = 1;
-				character = 1;
 				line++;
 				break;
 			default:
 				column++;
-				character++;
 				break;
 		}
 	}
 	return CompleteLoc(
 		fdata->fileName,
 		line,
-		column,
-		character
+		column
 	);
 }
 
