@@ -4,7 +4,8 @@
 // File : ParserTests.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-//	(Unit) Tests for the Parser.
+//	(Unit) Tests for the Parser. They test that the parser
+//  recognize an input correctly, and return a valid result.
 ////------------------------------------------------------////
 
 #include "gtest/gtest.h"
