@@ -1,10 +1,10 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : ParserTests.cpp											
+// File : SimpleParserTests.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-//	(Unit) Tests for the Parser. They test that the parser
+//	Simple Tests for the Parser. They test that the parser
 //  recognize an input correctly, and return a valid result.
 ////------------------------------------------------------////
 
@@ -127,11 +127,11 @@ class ParsingFunctionTester
 		std::vector<std::string> inputs_;
 };
 
-TEST(ParserTests,Expressions)
+TEST(SimpleParserTests,Expressions)
 {
 	// filepaths
-	std::string corr_path = "parser/inputs/expr/correct.fox";
-	std::string bad_path = "parser/inputs/expr/incorrect.fox";
+	std::string corr_path = "parser/simple/expr/correct.fox";
+	std::string bad_path = "parser/simple/expr/incorrect.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseExpr();
 		return res.isUsable();
@@ -146,11 +146,11 @@ TEST(ParserTests,Expressions)
 }
 
 
-TEST(ParserTests,ExpressionsStmt)
+TEST(SimpleParserTests,ExpressionsStmt)
 {
 	// Correct inputs
-	std::string corr_path = "parser/inputs/exprstmt/correct.fox";
-	std::string bad_path = "parser/inputs/exprstmt/incorrect.fox";
+	std::string corr_path = "parser/simple/exprstmt/correct.fox";
+	std::string bad_path = "parser/simple/exprstmt/incorrect.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseExprStmt();
 		return res.isUsable();
@@ -164,9 +164,9 @@ TEST(ParserTests,ExpressionsStmt)
 	EXPECT_TRUE(tester.runTest(true)) << tester.getLatestFailureMessage();
 }
 
-TEST(ParserTests, DeclRef)
+TEST(SimpleParserTests, DeclRef)
 {
-	std::string corr_path = "parser/inputs/declcall/correct.fox";
+	std::string corr_path = "parser/simple/declcall/correct.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseDeclRef();
 		return res.isUsable();
@@ -175,11 +175,11 @@ TEST(ParserTests, DeclRef)
 	EXPECT_TRUE(tester.runTest()) << tester.getLatestFailureMessage();
 }
 
-TEST(ParserTests, VarDecls)
+TEST(SimpleParserTests, VarDecls)
 {
 	// Correct inputs
-	std::string corr_path = "parser/inputs/var_decls/correct.fox";
-	std::string bad_path = "parser/inputs/var_decls/incorrect.fox";
+	std::string corr_path = "parser/simple/var_decls/correct.fox";
+	std::string bad_path = "parser/simple/var_decls/incorrect.fox";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseVarDecl();
 		return res.isUsable();
@@ -193,10 +193,10 @@ TEST(ParserTests, VarDecls)
 	EXPECT_TRUE(tester.runTest(true)) << tester.getLatestFailureMessage();
 }
 
-TEST(ParserTests, FuncDecl)
+TEST(SimpleParserTests, FuncDecl)
 {
-	std::string corr_base_path = "parser/inputs/funcdecl/correct_";
-	std::string bad_base_path = "parser/inputs/funcdecl/incorrect_";
+	std::string corr_base_path = "parser/simple/funcdecl/correct_";
+	std::string bad_base_path = "parser/simple/funcdecl/incorrect_";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseFunctionDecl();
 		return res.isUsable();
@@ -222,10 +222,10 @@ TEST(ParserTests, FuncDecl)
 	}
 }
 
-TEST(ParserTests, Conditions)
+TEST(SimpleParserTests, Conditions)
 {
-	std::string corr_base_path = "parser/inputs/condition/correct_";
-	std::string bad_base_path = "parser/inputs/condition/incorrect_";
+	std::string corr_base_path = "parser/simple/condition/correct_";
+	std::string bad_base_path = "parser/simple/condition/incorrect_";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseCondition();
 		return res.isUsable();
@@ -251,10 +251,10 @@ TEST(ParserTests, Conditions)
 	}
 }
 
-TEST(ParserTests, WhileLoops)
+TEST(SimpleParserTests, WhileLoops)
 {
-	std::string corr_base_path = "parser/inputs/whileloop/correct_";
-	std::string bad_base_path = "parser/inputs/whileloop/incorrect_";
+	std::string corr_base_path = "parser/simple/whileloop/correct_";
+	std::string bad_base_path = "parser/simple/whileloop/incorrect_";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseWhileLoop();
 		return res.isUsable();
@@ -280,10 +280,10 @@ TEST(ParserTests, WhileLoops)
 	}
 }
 
-TEST(ParserTests, CompoundStmts)
+TEST(SimpleParserTests, CompoundStmts)
 {
-	std::string corr_base_path = "parser/inputs/compoundstmt/correct_";
-	std::string bad_base_path = "parser/inputs/compoundstmt/incorrect_";
+	std::string corr_base_path = "parser/simple/compoundstmt/correct_";
+	std::string bad_base_path = "parser/simple/compoundstmt/incorrect_";
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {
 		auto res = parse.parseCompoundStatement();
 		return res.isUsable();
@@ -309,10 +309,10 @@ TEST(ParserTests, CompoundStmts)
 	}
 }
 
-TEST(ParserTests, Unit)
+TEST(SimpleParserTests, Unit)
 {
-	std::string corr_base_path = "parser/inputs/unit/correct_";
-	std::string bad_base_path = "parser/inputs/unit/incorrect_";
+	std::string corr_base_path = "parser/simple/unit/correct_";
+	std::string bad_base_path = "parser/simple/unit/incorrect_";
 
 
 	ParsingFunctionTester tester([&](Parser & parse) -> bool {

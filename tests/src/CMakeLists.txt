@@ -7,11 +7,11 @@ add_source(
 
 	"FoxTests/LexerTests.cpp"
 	"FoxTests/UTF8Tests.cpp"
-	"FoxTests/ParserTests.cpp"
+	"FoxTests/SimpleParserTests.cpp"
 	"FoxTests/IdentifierTableTests.cpp"
 	"FoxTests/ASTTests.cpp"
 	"FoxTests/SourceManagerTests.cpp"
-	"FoxTests/LocTests.cpp"
+	"FoxTests/LocParserTests.cpp"
 	"FoxTests/Utils.cpp"
 	"FoxTests/DiagnosticsTests.cpp"
 	

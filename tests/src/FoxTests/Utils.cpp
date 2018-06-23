@@ -34,7 +34,7 @@ ParserPreparator::ParserPreparator(const std::string& filepath)
 	}
 
 	parser_ = std::make_unique<Parser>(ctxt_, ast_, lexer_->getTokenVector(), &dr_);
-	// Setup done.
+	success_ = true;
 }
 
 bool ParserPreparator::hasSetupCompletedSuccessfuly() const
