@@ -271,8 +271,8 @@ TEST(LexerTests, Coordinates1)
 			EXPECT_EQ(end_ploc.line, 10);
 
 			// Col
-			EXPECT_EQ(beg_ploc.column, 9);
-			EXPECT_EQ(end_ploc.column, 17);
+			EXPECT_EQ(beg_ploc.column, 6);
+			EXPECT_EQ(end_ploc.column, 14);
 		}
 		else if (elem.getAsString() == "ThirdVariable")
 		{

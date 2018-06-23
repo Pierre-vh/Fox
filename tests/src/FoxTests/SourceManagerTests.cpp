@@ -132,7 +132,7 @@ TEST(SourceManagerTests, PreciseLocationTest1)
 
 		EXPECT_EQ(result.fileName, fp);
 		EXPECT_EQ(result.line, 5);
-		EXPECT_EQ(result.column, 9);
+		EXPECT_EQ(result.column, 6);
 	}
 	else
 	{

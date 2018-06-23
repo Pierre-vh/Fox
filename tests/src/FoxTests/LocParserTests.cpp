@@ -68,7 +68,7 @@ TEST_F(LocTests, FuncAndArgDecl)
 	// Expected locs
 	CompleteLoc expected_func_beg(fullFilePath, 1, 1);
 	CompleteLoc expected_func_head_end(fullFilePath, 1, 91);
-	CompleteLoc expected_func_end(fullFilePath, 4, 5);
+	CompleteLoc expected_func_end(fullFilePath, 4, 2);
 	
 	EXPECT_EQ(func_beg, expected_func_beg);
 	EXPECT_EQ(func_head_end, expected_func_head_end);
@@ -149,8 +149,8 @@ TEST_F(LocTests, VarDecls)
 	CompleteLoc var_end = sourceManager->getCompleteLocForSourceLoc(var->getEndLoc());
 
 	EXPECT_EQ(var_beg.line, 1);
-	EXPECT_EQ(var_end.line, 2);
+	EXPECT_EQ(var_end.line, 1);
 
-	EXPECT_EQ(var_beg.column, 13);
-	EXPECT_EQ(var_end.column, 8);
+	EXPECT_EQ(var_beg.column, 2);
+	EXPECT_EQ(var_end.column, 25);
 }
