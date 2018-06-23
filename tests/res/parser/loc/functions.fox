@@ -1,4 +1,4 @@
-func foo(_bar1 : const & int [], _bar2:const&float, _bar3:const int, _bar4:&string) : float
+func foo(_bar1 : const & int [], _bar2:&float  ) : float
 {
 	
 	}
