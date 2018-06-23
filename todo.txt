@@ -33,9 +33,7 @@ Moonshot Project To-do List.
 	> Remove "Fake" Recovery nodes in the AST and find a proper, better solution to this problem. (Done, could use improvements later but for now we're good!)
 
 	> Write Stmt & Expr Loc Tests (Next)
-		> Maybe Also Overhaul tests using JSON tests to automate them. Could prove really useful for Loc Tests. Maybe even for other tests later if needed.
-			> Potential library to use https://github.com/nlohmann/json
-		> Once all loctests are automated, remove Lexer "loctests", which are pretty much useless
+		> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 
 	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg
 		> 2 Variants should exist :
@@ -71,9 +69,22 @@ Moonshot Project To-do List.
 
 	// Move to 0.3.0
 
-	After that:
+	After that 
+		> Write a REAL coding standard and stick to it definitely.
+			> Will Authorize C++17 features such as std::variant, if constexpr, but will require to avoid using them if possible.
+			> Will be partially custom, partially llvm, partially google.
+			> This wil require some heavy refactoring to be done (in the form of variable renames), but will be worth it in the end.
+			> Probably will require mandatory commenting on some functions.
 
-		
+		> Maybe switch to C++14 instead of 17 for increased portability.
+			> This shouldn't be too hard, probably an afternoon of work. But I'll have to find a good std::variant replacement.
+
+		> Lexer Rework
+			> Make the Lexer & Parser tightly coupled. The Parser itself should call the Lexer to Lex a token. (no more storage in a vector)
+				> This will require the Parser or Lexer to have a caching mechanism, and use "cached" token when backtracking is required.
+				> the "createParserStateBackup" functions will be removed, and replaced with a call to the lexer similar to "lexer_.backtrack(x)"
+			> Stop using a DFA. Use a proper grammar with a recursive descent technique
+			  and a config file (.def) to register valid terminals
 
 		> Semantic Analysis
 			> ASTValidator
@@ -88,8 +99,3 @@ Moonshot Project To-do List.
 			  
 			  DeclChecker.visit(node);
 					
-		> Lexer Rework
-			> Make the Lexer & Parser tightly coupled.
-			> Don't use the vectors anymore (to save memory)
-			> Stop using a DFA. Use a proper grammar with a recursive descent technique
-			  and a config file (.def) to register valid terminals
