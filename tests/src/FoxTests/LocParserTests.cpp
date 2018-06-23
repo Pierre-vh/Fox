@@ -52,8 +52,7 @@ class LocTests : public ::testing::Test
 		std::unique_ptr<Parser> parser;
 };
 
-// Tests the accuracy of function SourceLocs: FuncDecl and ArgDecl 
-TEST_F(LocTests, Functions)
+TEST_F(LocTests, FuncAndArgDecl)
 {
 	SetUp("parser/loc/functions.fox");
 	auto presult = parser->parseFunctionDecl();
