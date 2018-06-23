@@ -14,7 +14,6 @@
 #include <cassert>
 
 #define INVALID_FILEID_VALUE 0
-#define IN_MEMORY_FILE_NAME "(in-memory)"
 #define TABS_COL 4
 
 using namespace Moonshot;
@@ -119,8 +118,7 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 		fdata->fileName,
 		line,
 		column,
-		character,
-		extractCharFromStr(&(fdata->str), sloc.getIndex())
+		character
 	);
 }
 
@@ -140,9 +138,9 @@ FileID SourceManager::loadFromFile(const std::string & path)
 	return FileID();
 }
 
-FileID SourceManager::loadFromString(const std::string & str)
+FileID SourceManager::loadFromString(const std::string& str, const std::string& name)
 {
-	auto pair = sources_.insert(std::pair<FileID,StoredData>(generateNewFileID(),StoredData(IN_MEMORY_FILE_NAME,str)));
+	auto pair = sources_.insert(std::pair<FileID,StoredData>(generateNewFileID(),StoredData(name,str)));
 	return (pair.first)->first;
 }
 

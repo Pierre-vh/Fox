@@ -44,22 +44,21 @@ namespace Moonshot
 	// Small struct containing a human-readable source loc information.
 	struct CompleteLoc
 	{
-		CompleteLoc(const std::string& fName, const std::uint32_t& ln, const std::uint16_t& col, const std::uint16_t& chidx, const CharType& ch)
-			: fileName(fName), line(ln), column(col), character(chidx), value(ch)
+		CompleteLoc(const std::string& fName, const std::uint32_t& ln, const std::uint16_t& col, const std::uint16_t& ch)
+			: fileName(fName), line(ln), column(col), character(ch)
 		{
 
 		}
 
 		bool operator==(const CompleteLoc& other) const
 		{
-			return (fileName == other.fileName) && (line == other.line) && (column == other.column) && (character == other.character) && (value == other.value);
+			return (fileName == other.fileName) && (line == other.line) && (column == other.column) && (character == other.character);
 		}
 
 		std::string fileName;
 		std::uint32_t line;
 		std::uint16_t column;
 		std::uint16_t character;
-		CharType value;
 	};
 
 	// the SourceManager, which stores every source file and gives them a unique ID.
@@ -80,8 +79,9 @@ namespace Moonshot
 			// Load a file in memory 
 			FileID loadFromFile(const std::string& path);
 
-			// Load a string in memory
-			FileID loadFromString(const std::string& str);
+			// Load a string in the SM. First arg is the string to load, the second is the name we should give
+			// to the file.
+			FileID loadFromString(const std::string& str, const std::string& name = "in-memory");
 
 			// Returns a pointer to the string that the FileID points to, or nullptr if not found
 			const std::string* getSourceForFID(const FileID& fid) const;
