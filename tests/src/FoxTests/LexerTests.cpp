@@ -252,10 +252,6 @@ TEST(LexerTests, Coordinates1)
 			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.getBeginSourceLoc());
 			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.makeEndSourceLoc());
 			
-			// Char
-			EXPECT_EQ(beg_ploc.value, '_');
-			EXPECT_EQ(end_ploc.value, '_');
-
 			// Line
 			EXPECT_EQ(beg_ploc.line, 7);
 			EXPECT_EQ(end_ploc.line, 7);
@@ -274,10 +270,6 @@ TEST(LexerTests, Coordinates1)
 			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.getBeginSourceLoc());
 			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.makeEndSourceLoc());
 
-			// Char
-			EXPECT_EQ(beg_ploc.value, '_');
-			EXPECT_EQ(end_ploc.value, '_');
-
 			// Line
 			EXPECT_EQ(beg_ploc.line, 10);
 			EXPECT_EQ(end_ploc.line, 10);
@@ -295,10 +287,6 @@ TEST(LexerTests, Coordinates1)
 			varFounds++;
 			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.getBeginSourceLoc());
 			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.makeEndSourceLoc());
-
-			// Char
-			EXPECT_EQ(beg_ploc.value, 'T');
-			EXPECT_EQ(end_ploc.value, 'e');
 
 			// Line
 			EXPECT_EQ(beg_ploc.line, 13);

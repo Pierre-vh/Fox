@@ -65,25 +65,14 @@ TEST_F(LocTests, FuncAndArgDecl)
 	CompleteLoc func_head_end = sourceManager->getCompleteLocForSourceLoc(func->getHeaderEndLoc());
 	CompleteLoc func_end = sourceManager->getCompleteLocForSourceLoc(func->getEndLoc());
 
-	// Lines
-	EXPECT_EQ(func_beg.line, 1);
-	EXPECT_EQ(func_head_end.line, 1);
-	EXPECT_EQ(func_end.line, 4);
-
-	// Column & char
-	EXPECT_EQ(func_beg.column, 1);
-	EXPECT_EQ(func_beg.character, 1);
-
-	EXPECT_EQ(func_head_end.column, 91);
-	EXPECT_EQ(func_head_end.character, 91);
-
-	EXPECT_EQ(func_end.column, 5);
-	EXPECT_EQ(func_end.character, 2);
-
-	// Value
-	EXPECT_EQ(func_beg.value, 'f');
-	EXPECT_EQ(func_head_end.value, 't');
-	EXPECT_EQ(func_end.value, '}');
+	// Expected locs
+	CompleteLoc expected_func_beg(fullFilePath, 1, 1, 1);
+	CompleteLoc expected_func_head_end(fullFilePath, 1, 91, 91);
+	CompleteLoc expected_func_end(fullFilePath, 4, 5, 2);
+	
+	EXPECT_EQ(func_beg, expected_func_beg);
+	EXPECT_EQ(func_head_end, expected_func_head_end);
+	EXPECT_EQ(func_end, expected_func_end);
 
 	// Now, test the args
 	// Arg count should be correct
@@ -159,18 +148,6 @@ TEST_F(LocTests, FuncAndArgDecl)
 	EXPECT_EQ(arg4_beg.character, 70);
 	EXPECT_EQ(arg4_end.character, 82);
 
-	// Values
-	EXPECT_EQ(arg1_beg.value, '_');
-	EXPECT_EQ(arg1_end.value, ']');
-
-	EXPECT_EQ(arg2_beg.value, '_');
-	EXPECT_EQ(arg2_end.value, 't');
-
-	EXPECT_EQ(arg3_beg.value, '_');
-	EXPECT_EQ(arg3_end.value, 't');
-
-	EXPECT_EQ(arg4_beg.value, '_');
-	EXPECT_EQ(arg4_end.value, 'g');
 }
 
 // VarDecl test
@@ -193,7 +170,4 @@ TEST_F(LocTests, VarDecls)
 
 	EXPECT_EQ(var_beg.character, 4);
 	EXPECT_EQ(var_end.character, 5);
-
-	EXPECT_EQ(var_beg.value, 'l');
-	EXPECT_EQ(var_end.value, ';');
 }
