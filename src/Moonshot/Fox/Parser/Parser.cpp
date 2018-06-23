@@ -65,7 +65,7 @@ Parser::Result<IdentifierInfo*> Parser::consumeIdentifier()
 		IdentifierInfo* ptr = tok.getIdentifierInfo();
 		assert(ptr && "Token's an identifier but contains a nullptr IdentifierInfo?");
 		incrementTokenIterator();
-		return Result<IdentifierInfo*>(ptr,tok.sourceRange);
+		return Result<IdentifierInfo*>(ptr,tok.getRange());
 	}
 	return Result<IdentifierInfo*>::NotFound();
 }
@@ -77,7 +77,7 @@ SourceLoc Parser::consumeSign(const SignType & s)
 	if (tok.is(s))
 	{
 		incrementTokenIterator();
-		return tok.sourceRange.getBeginSourceLoc();
+		return tok.getRange().getBeginSourceLoc();
 	}
 	return SourceLoc();
 }
@@ -124,8 +124,8 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 				throw std::exception("Unknown bracket type"); // Should be unreachable.
 		}
 		incrementTokenIterator();
-		assert((tok.sourceRange.getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
-		return SourceLoc(tok.sourceRange.getBeginSourceLoc());
+		assert((tok.getRange().getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
+		return SourceLoc(tok.getRange().getBeginSourceLoc());
 	}
 	return SourceLoc();
 }
@@ -136,7 +136,7 @@ SourceRange Parser::consumeKeyword(const KeywordType & k)
 	if (tok.is(k))
 	{
 		incrementTokenIterator();
-		return tok.sourceRange;
+		return tok.getRange();
 	}
 	return SourceRange();
 }
@@ -492,7 +492,7 @@ void Parser::errorUnexpected()
 	auto tok = getCurtok();
 	if (tok)
 	{
-		CompleteLoc loc = context_.sourceManager.getCompleteLocForSourceLoc(tok.sourceRange.getBeginSourceLoc());
+		CompleteLoc loc = context_.sourceManager.getCompleteLocForSourceLoc(tok.getRange().getBeginSourceLoc());
 
 		output << "Unexpected token \"" << tok.getAsString() << "\" [l:" << loc.line << ", c:" << loc.column << "]";
 		context_.reportError(output.str()); 
@@ -514,7 +514,7 @@ void Parser::errorExpected(const std::string & s)
 	
 	if (auto prevtok = getPreviousToken())
 	{
-		CompleteLoc loc = context_.sourceManager.getCompleteLocForSourceLoc(prevtok.sourceRange.getBeginSourceLoc());
+		CompleteLoc loc = context_.sourceManager.getCompleteLocForSourceLoc(prevtok.getRange().getBeginSourceLoc());
 		output << s << " after \"" << prevtok.getAsString() << "\" [l:" << loc.line << ", c:" << loc.column << "]";
 	}
 	else

@@ -126,8 +126,8 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 		auto litinfo = tok.getLiteralInfo();
 		std::unique_ptr<Expr> expr = nullptr;
 
-		SourceLoc begLoc = tok.sourceRange.getBeginSourceLoc();
-		SourceLoc endLoc = tok.sourceRange.makeEndSourceLoc();
+		SourceLoc begLoc = tok.getRange().getBeginSourceLoc();
+		SourceLoc endLoc = tok.getRange().makeEndSourceLoc();
 
 		if (litinfo.isBool())
 			expr = std::make_unique<BoolLiteralExpr>(litinfo.get<bool>(),begLoc,endLoc);

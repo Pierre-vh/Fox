@@ -249,8 +249,8 @@ TEST(LexerTests, Coordinates1)
 		if (elem.getAsString() == "_FIRST_VARIABLE_")
 		{
 			varFounds++;
-			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.getBeginSourceLoc());
-			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.makeEndSourceLoc());
+			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().getBeginSourceLoc());
+			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().makeEndSourceLoc());
 			
 			// Line
 			EXPECT_EQ(beg_ploc.line, 7);
@@ -263,8 +263,8 @@ TEST(LexerTests, Coordinates1)
 		else if (elem.getAsString() == "_2NDVAR__")
 		{
 			varFounds++;
-			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.getBeginSourceLoc());
-			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.makeEndSourceLoc());
+			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().getBeginSourceLoc());
+			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().makeEndSourceLoc());
 
 			// Line
 			EXPECT_EQ(beg_ploc.line, 10);
@@ -277,8 +277,8 @@ TEST(LexerTests, Coordinates1)
 		else if (elem.getAsString() == "ThirdVariable")
 		{
 			varFounds++;
-			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.getBeginSourceLoc());
-			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.sourceRange.makeEndSourceLoc());
+			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().getBeginSourceLoc());
+			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().makeEndSourceLoc());
 
 			// Line
 			EXPECT_EQ(beg_ploc.line, 13);
