@@ -67,7 +67,7 @@ TEST_F(LocTests, FuncAndArgDecl)
 
 	// Expected locs
 	CompleteLoc expected_func_beg(fullFilePath, 1, 1);
-	CompleteLoc expected_func_head_end(fullFilePath, 1, 91);
+	CompleteLoc expected_func_head_end(fullFilePath, 1, 56);
 	CompleteLoc expected_func_end(fullFilePath, 4, 2);
 	
 	EXPECT_EQ(func_beg, expected_func_beg);
@@ -76,21 +76,17 @@ TEST_F(LocTests, FuncAndArgDecl)
 
 	// Now, test the args
 	// Arg count should be correct
-	ASSERT_EQ(func->argsSize(), 4);
+	ASSERT_EQ(func->argsSize(), 2);
 
 	// Extract each arg individually
 	ArgDecl* arg1 = func->getArg(0);
 	ArgDecl* arg2 = func->getArg(1);
-	ArgDecl* arg3 = func->getArg(2);
-	ArgDecl* arg4 = func->getArg(3);
 
 	// Check if the names are right
 	EXPECT_EQ(arg1->getIdentifier()->getStr(), "_bar1");
 	EXPECT_EQ(arg2->getIdentifier()->getStr(), "_bar2");
-	EXPECT_EQ(arg3->getIdentifier()->getStr(), "_bar3");
-	EXPECT_EQ(arg4->getIdentifier()->getStr(), "_bar4");
 
-	// Extract all locs
+	// Extract Arg locs
 	#define BEG_LOC(x) sourceManager->getCompleteLocForSourceLoc(x->getBegLoc())
 	#define END_LOC(x) sourceManager->getCompleteLocForSourceLoc(x->getEndLoc())
 	
@@ -100,40 +96,29 @@ TEST_F(LocTests, FuncAndArgDecl)
 	auto arg2_beg = BEG_LOC(arg2);
 	auto arg2_end = END_LOC(arg2);
 
-	auto arg3_beg = BEG_LOC(arg3);
-	auto arg3_end = END_LOC(arg3);
-
-	auto arg4_beg = BEG_LOC(arg4);
-	auto arg4_end = END_LOC(arg4);
-
 	#undef BEG_LOC
 	#undef END_LOC
 
-	// Lines
-	EXPECT_EQ(arg1_beg.line, 1);
-	EXPECT_EQ(arg1_end.line, 1);
+	EXPECT_EQ(arg1_beg, CompleteLoc(fullFilePath,1,10));
+	EXPECT_EQ(arg1_end, CompleteLoc(fullFilePath,1,31));
 
-	EXPECT_EQ(arg2_beg.line, 1);
-	EXPECT_EQ(arg2_end.line, 1);
+	EXPECT_EQ(arg2_beg, CompleteLoc(fullFilePath, 1, 34));
+	EXPECT_EQ(arg2_end, CompleteLoc(fullFilePath, 1, 45));
 
-	EXPECT_EQ(arg3_beg.line, 1);
-	EXPECT_EQ(arg3_end.line, 1);
+	// Extract arg type ranges
+	auto arg1_typeRange = arg1->getTypeRange();
+	auto arg2_typeRange = arg2->getTypeRange();
 
-	EXPECT_EQ(arg4_beg.line, 1);
-	EXPECT_EQ(arg4_end.line, 1);
+	// Extract locs
+	auto arg1_tr_beg = sourceManager->getCompleteLocForSourceLoc(arg1_typeRange.getBeginSourceLoc());
+	auto arg2_tr_beg = sourceManager->getCompleteLocForSourceLoc(arg2_typeRange.getBeginSourceLoc());
 
-	// Column
-	EXPECT_EQ(arg1_beg.column, 10);
-	EXPECT_EQ(arg1_end.column, 31);
+	// Check
+	EXPECT_EQ(arg1_typeRange.makeEndSourceLoc(), arg1->getEndLoc());
+	EXPECT_EQ(arg2_typeRange.makeEndSourceLoc(), arg2->getEndLoc());
 
-	EXPECT_EQ(arg2_beg.column, 34);
-	EXPECT_EQ(arg2_end.column, 50);
-
-	EXPECT_EQ(arg3_beg.column, 53);
-	EXPECT_EQ(arg3_end.column, 67);
-
-	EXPECT_EQ(arg4_beg.column, 70);
-	EXPECT_EQ(arg4_end.column, 82);
+	EXPECT_EQ(arg1_tr_beg, CompleteLoc(fullFilePath, 1, 18));
+	EXPECT_EQ(arg2_tr_beg, CompleteLoc(fullFilePath, 1, 40));
 }
 
 // VarDecl test
@@ -148,9 +133,18 @@ TEST_F(LocTests, VarDecls)
 	CompleteLoc var_beg = sourceManager->getCompleteLocForSourceLoc(var->getBegLoc());
 	CompleteLoc var_end = sourceManager->getCompleteLocForSourceLoc(var->getEndLoc());
 
-	EXPECT_EQ(var_beg.line, 1);
-	EXPECT_EQ(var_end.line, 1);
+	EXPECT_EQ(var_beg, CompleteLoc(fullFilePath,1,2));
+	EXPECT_EQ(var_end, CompleteLoc(fullFilePath,1,25));
 
-	EXPECT_EQ(var_beg.column, 2);
-	EXPECT_EQ(var_end.column, 25);
+	CompleteLoc var_ty_beg = sourceManager->getCompleteLocForSourceLoc(var->getTypeRange().getBeginSourceLoc());
+	CompleteLoc var_ty_end = sourceManager->getCompleteLocForSourceLoc(var->getTypeRange().makeEndSourceLoc());
+
+	EXPECT_EQ(var_ty_beg, CompleteLoc(fullFilePath, 1, 10));
+	EXPECT_EQ(var_ty_end, CompleteLoc(fullFilePath, 1, 20));
+
+	CompleteLoc expr_beg = sourceManager->getCompleteLocForSourceLoc(var->getInitExpr()->getBegLoc());
+	CompleteLoc expr_end = sourceManager->getCompleteLocForSourceLoc(var->getInitExpr()->getEndLoc());
+
+	EXPECT_EQ(expr_beg, expr_end); // Since the expr is only a '3', it's only one char, thus beg = end.
+	EXPECT_EQ(expr_beg, CompleteLoc(fullFilePath, 1, 24));
 }
