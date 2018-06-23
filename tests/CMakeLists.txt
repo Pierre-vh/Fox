@@ -36,11 +36,6 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 # Add test sources to access variable ${tests_src}
 add_subdirectory(src)
 
-# Add /Profile flag under MSVC to Enable profiling 
-if(MSVC)
-	SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /Profile" )
-endif()
-
 # Add executable & link libmoonshot & gtest
 add_executable(MoonshotTests ${tests_src})
 target_link_libraries(MoonshotTests libmoonshot gtest_main)

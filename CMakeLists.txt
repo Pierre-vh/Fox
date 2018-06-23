@@ -31,11 +31,8 @@ if(MSVC)
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   endif()
-  SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /Profile" )
-  # Max optimizations. If someone has a cross-platform solution to enable all optimizations on gcc/clang/msvc all at once, message me!
-  if (CMAKE_BUILD_TYPE EQUAL "RELEASE")
-	 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Ox")
-  endif()
+  # Warnings are errors
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
 endif()
 
 
