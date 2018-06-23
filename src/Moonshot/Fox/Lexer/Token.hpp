@@ -59,18 +59,18 @@ namespace Moonshot
 			template<typename Ty>
 			inline bool is() const
 			{
-				return std::holds_alternative<Ty>(val_);
+				return std::holds_alternative<Ty>(value);
 			}
 
 			template<typename Ty>
 			inline Ty get() const
 			{
-				if (std::holds_alternative<Ty>(val_))
-					return std::get<Ty>(val_);
+				if (std::holds_alternative<Ty>(value))
+					return std::get<Ty>(value);
 				return Ty();
 			}
 		private:
-			std::variant<std::monostate,bool,std::string,FloatType,IntType,CharType> val_;
+			std::variant<std::monostate,bool,std::string,FloatType,IntType,CharType> value;
 	};
 	
 	enum class SignType : char
@@ -173,7 +173,7 @@ namespace Moonshot
 			std::string getAsString() const;
 			std::string getTokenTypeFriendlyName() const;
 
-			SourceRange sourceRange;
+			SourceRange getRange() const;
 		private:
 			// Empty struct used to "mark" the variant when this token is a literal.
 			struct Literal {};
@@ -181,8 +181,9 @@ namespace Moonshot
 			/* Member variables */
 			// Note: LiteralInfo is quite heavy, so it's dynamically allocated to save space, since
 			// most token won't need it.
-			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenInfo_;
-			std::unique_ptr<LiteralInfo> litInfo_ = nullptr;
+			const SourceRange range;
+			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenData;
+			std::unique_ptr<LiteralInfo> literalData = nullptr;
 
 			/* Identification functions */
 			void idToken(Context& ctxt,ASTContext& astctxt, const std::string& str);

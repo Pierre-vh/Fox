@@ -56,7 +56,7 @@ namespace Moonshot
 			void pushTok();
 			void cycle();					
 			void runFinalChecks();
-			void markBeginningOfToken(); // sets currentTokenBeginIndex_ to the current index
+			void markBeginningOfToken(); // sets currentTokenBeginIndex to the current index
 
 			void runStateFunc();
 			void dfa_goto(const DFAState &ns);
@@ -69,25 +69,25 @@ namespace Moonshot
 
 			// Utils
 			CharType eatChar();									// returns the current char and run updatePos (returns inputstr_[pos_] and do pos_+=1)
-			void addToCurtok(CharType c);						// adds the current character to curtok_
+			void addToCurtok(CharType c);						// adds the current character to curtok
 			bool isSep(const CharType &c) const;				// is the current char a separator? (= a sign. see kSign_dict)
 			bool isEscapeChar(const CharType& c) const;			// Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.
 			bool shouldIgnore(const CharType& c) const;			// Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
 
 			void reportLexerError(std::string errmsg) const;
 
-			ASTContext &astcontext_;
-			Context& context_;
-			FileID fID_;
+			ASTContext &astcontext;
+			Context& context;
+			FileID currentFile;
 
-			bool		escapeFlag_ = false;		
-			DFAState	cstate_ = DFAState::S_BASE;		
-			std::string curtok_;
+			bool		escapeFlag = false;		
+			DFAState	state = DFAState::S_BASE;		
+			std::string curtok;
 
 			// The index of the first character of the current token being processed.
-			SourceLoc::idx_type currentTokenBeginIndex_;
+			SourceLoc::idx_type currentTokenBeginIndex;
 
-			TokenVector	result_;
-			StringManipulator manip;
+			TokenVector	tokens;
+			StringManipulator stringManipulator;
 	};
 }

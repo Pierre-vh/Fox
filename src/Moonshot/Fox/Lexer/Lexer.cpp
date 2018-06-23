@@ -21,14 +21,14 @@
 using namespace Moonshot;
 using namespace Moonshot::Dictionaries;
 
-Lexer::Lexer(Context & curctxt, ASTContext &astctxt) : context_(curctxt), astcontext_(astctxt)
+Lexer::Lexer(Context & curctxt, ASTContext &astctxt) : context(curctxt), astcontext(astctxt)
 {
 
 }
 
 FileID Lexer::lexStr(const std::string& str)
 {
-	auto fid = context_.sourceManager.loadFromString(str);
+	auto fid = context.sourceManager.loadFromString(str);
 	if(fid)
 		lexFile(fid);
 	return fid;
@@ -37,59 +37,59 @@ FileID Lexer::lexStr(const std::string& str)
 void Lexer::lexFile(const FileID& file)
 {
 	assert(file && "INVALID FileID!");
-	fID_ = file;
-	manip.setStr(context_.sourceManager.getSourceForFID(fID_));
+	currentFile = file;
+	stringManipulator.setStr(context.sourceManager.getSourceForFID(currentFile));
 
-	manip.reset();
-	cstate_ = DFAState::S_BASE;
+	stringManipulator.reset();
+	state = DFAState::S_BASE;
 
-	while(!manip.eof() && context_.isSafe())
+	while(!stringManipulator.eof() && context.isSafe())
 		cycle();
 
 	pushTok();
 	runFinalChecks();
-	context_.resetOrigin();
+	context.resetOrigin();
 }
 
 void Lexer::logAllTokens() const
 {
-	for (const Token &tok : result_)
-		context_.logMessage(tok.showFormattedTokenData());
+	for (const Token &tok : tokens)
+		context.logMessage(tok.showFormattedTokenData());
 }
 
 
 TokenVector & Lexer::getTokenVector()
 {
-	return result_; // return empty Token
+	return tokens; // return empty Token
 }
 
 std::size_t Lexer::resultSize() const
 {
-	return result_.size();
+	return tokens.size();
 }
 
 void Lexer::pushTok()
 {
-	if (curtok_ == "")	// Don't push empty tokens.
+	if (curtok == "")	// Don't push empty tokens.
 		return;
 
 	// Create a SourceLoc for the begin loc
-	SourceLoc sloc(fID_, currentTokenBeginIndex_);
+	SourceLoc sloc(currentFile, currentTokenBeginIndex);
 	// Create the SourceRange of this token:
-	SourceRange range(sloc, static_cast<SourceRange::offset_type>(curtok_.size() - 1));
-	Token t(context_,astcontext_,curtok_,range);
+	SourceRange range(sloc, static_cast<SourceRange::offset_type>(curtok.size() - 1));
+	Token t(context,astcontext,curtok,range);
 
 	if (t)
-		result_.push_back(t);
+		tokens.push_back(t);
 	else
-		context_.reportError("(this error is a placeholder for : Invalid token found)");
+		context.reportError("(this error is a placeholder for : Invalid token found)");
 
-	curtok_ = "";
+	curtok = "";
 }
 
 void Lexer::cycle()
 {
-	if (!context_.isSafe())
+	if (!context.isSafe())
 	{
 		reportLexerError("Errors found : stopping lexing process.");
 		return;
@@ -99,9 +99,9 @@ void Lexer::cycle()
 
 void Lexer::runFinalChecks()
 {
-	if (context_.isSafe())
+	if (context.isSafe())
 	{
-		switch (cstate_)
+		switch (state)
 		{
 			case DFAState::S_STR:
 				reportLexerError("A String literal was still not closed when end of file was reached");
@@ -118,12 +118,12 @@ void Lexer::runFinalChecks()
 
 void Lexer::markBeginningOfToken()
 {
-	currentTokenBeginIndex_ = manip.getIndexInBytes();
+	currentTokenBeginIndex = stringManipulator.getIndexInBytes();
 }
 
 void Lexer::runStateFunc()
 {
-	switch (cstate_)
+	switch (state)
 	{
 		case DFAState::S_BASE:
 			fn_S_BASE();
@@ -148,12 +148,12 @@ void Lexer::runStateFunc()
 
 void Lexer::fn_S_BASE()
 {
-	const CharType pk = manip.peekNext();
-	const CharType c = manip.getCurrentChar();	// current char
+	const CharType pk = stringManipulator.peekNext();
+	const CharType c = stringManipulator.getCurrentChar();	// current char
 
-	if (curtok_.size() != 0)	// simple error checking : the Token should always be empty when we're in S_BASE.
+	if (curtok.size() != 0)	// simple error checking : the Token should always be empty when we're in S_BASE.
 	{
-		throw Exceptions::lexer_critical_error("Current Token isn't empty in S_BASE, current Token :" + curtok_);
+		throw Exceptions::lexer_critical_error("Current Token isn't empty in S_BASE, current Token :" + curtok);
 		return;
 	}
 	// IGNORE SPACES
@@ -201,14 +201,14 @@ void Lexer::fn_S_BASE()
 void Lexer::fn_S_STR()
 {
 	CharType c = eatChar();
-	if (c == '"' && !escapeFlag_)
+	if (c == '"' && !escapeFlag)
 	{
 		addToCurtok(c);
 		pushTok();
 		dfa_goto(DFAState::S_BASE);
 	}
 	else if (c == '\n')
-		reportLexerError("Newline characters (\\n) in string literals are illegal. Token concerned:" + curtok_);
+		reportLexerError("Newline characters (\\n) in string literals are illegal. Token concerned:" + curtok);
 	else
 		addToCurtok(c);
 }
@@ -221,7 +221,7 @@ void Lexer::fn_S_LCOM()				// One line comment state.
 
 void Lexer::fn_S_MCOM()
 {
-	if (eatChar() == '*' && manip.getCurrentChar() == '/')
+	if (eatChar() == '*' && stringManipulator.getCurrentChar() == '/')
 	{
 		eatChar();
 		dfa_goto(DFAState::S_BASE);
@@ -230,7 +230,7 @@ void Lexer::fn_S_MCOM()
 
 void Lexer::fn_S_WORDS()
 {
-	if (isSep(manip.getCurrentChar()))
+	if (isSep(stringManipulator.getCurrentChar()))
 	{		
 		pushTok();
 		dfa_goto(DFAState::S_BASE);
@@ -242,76 +242,76 @@ void Lexer::fn_S_WORDS()
 void Lexer::fn_S_CHR()
 {
 	CharType c = eatChar();
-	if (c == '\'' && !escapeFlag_)
+	if (c == '\'' && !escapeFlag)
 	{
 		addToCurtok(c);
 
-		if (curtok_.size() == 2)
+		if (curtok.size() == 2)
 			reportLexerError("Declared an empty char literal. Char literals must contain at least one character.");
 	
 		pushTok();
 		dfa_goto(DFAState::S_BASE);
 	}
 	else if (c == '\n')
-		reportLexerError("Newline characters (\\n) in char literals are illegal. Token concerned:" + curtok_);
+		reportLexerError("Newline characters (\\n) in char literals are illegal. Token concerned:" + curtok);
 	else
 		addToCurtok(c);
 }
 
 void Lexer::dfa_goto(const DFAState & ns)
 {
-	cstate_ = ns;
+	state = ns;
 }
 
 CharType Lexer::eatChar()
 {
-	const CharType c = manip.getCurrentChar();
-	manip.advance();
+	const CharType c = stringManipulator.getCurrentChar();
+	stringManipulator.advance();
 	return c;
 }
 
 void Lexer::addToCurtok(CharType c)
 {
-	if (isEscapeChar(c) && !escapeFlag_)
+	if (isEscapeChar(c) && !escapeFlag)
 	{
-		StringManipulator::append(curtok_, c);
-		escapeFlag_ = true;
+		StringManipulator::append(curtok, c);
+		escapeFlag = true;
 	}
 	else if(!shouldIgnore(c))
 	{
-		if (escapeFlag_)	// last char was an escape char
+		if (escapeFlag)	// last char was an escape char
 		{
 			switch (c)
 			{
 				case 't':
 					c = '\t';
-					curtok_.pop_back();
+					curtok.pop_back();
 					break;
 				case 'n':
 					c = '\n';
-					curtok_.pop_back();
+					curtok.pop_back();
 					break;
 				case 'r':
-					curtok_.pop_back();
+					curtok.pop_back();
 					c = '\r';
 					break;
 				case '\\':
 				case '\'':
 				case '"':
-					curtok_.pop_back();
+					curtok.pop_back();
 					break;
 			}
 
 		}
-		StringManipulator::append(curtok_, c);
-		escapeFlag_ = false;
+		StringManipulator::append(curtok, c);
+		escapeFlag = false;
 	}
 }
 
 bool Lexer::isSep(const CharType &c) const
 {
 	// Is separator ? Signs are the separators in the input. Separators mark the end and beginning of tokens, and are tokens themselves. Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
-	if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
+	if (c == '.' && std::iswdigit(static_cast<wchar_t>(stringManipulator.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
 		return false;
 	// To detect if C is a sign separator, we use the sign dictionary
 	auto i = kSign_dict.find(c);
@@ -320,7 +320,7 @@ bool Lexer::isSep(const CharType &c) const
 
 bool Lexer::isEscapeChar(const CharType & c) const
 {
-	return  (c == '\\') && ((cstate_ == DFAState::S_STR) || (cstate_ == DFAState::S_CHR));
+	return  (c == '\\') && ((state == DFAState::S_STR) || (state == DFAState::S_CHR));
 }
 
 bool Lexer::shouldIgnore(const CharType & c) const
@@ -330,5 +330,5 @@ bool Lexer::shouldIgnore(const CharType & c) const
 
 void Lexer::reportLexerError(std::string errmsg) const
 {
-	context_.reportError(errmsg);
+	context.reportError(errmsg);
 }

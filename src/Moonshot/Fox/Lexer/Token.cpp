@@ -30,42 +30,42 @@ std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
 
 LiteralType LiteralInfo::getType() const
 {
-	if (std::holds_alternative<bool>(val_))
+	if (std::holds_alternative<bool>(value))
 		return LiteralType::Ty_Bool;
-	else if (std::holds_alternative<std::string>(val_))
+	else if (std::holds_alternative<std::string>(value))
 		return LiteralType::Ty_String;
-	else if (std::holds_alternative<FloatType>(val_))
+	else if (std::holds_alternative<FloatType>(value))
 		return LiteralType::Ty_Float;
-	else if (std::holds_alternative<IntType>(val_))
+	else if (std::holds_alternative<IntType>(value))
 		return LiteralType::Ty_Int;
-	else if (std::holds_alternative<CharType>(val_))
+	else if (std::holds_alternative<CharType>(value))
 		return LiteralType::Ty_Char;
 	return LiteralType::DEFAULT;
 }
 
 bool LiteralInfo::isBool() const
 {
-	return std::holds_alternative<bool>(val_);
+	return std::holds_alternative<bool>(value);
 }
 
 bool LiteralInfo::isString() const
 {
-	return std::holds_alternative<std::string>(val_);
+	return std::holds_alternative<std::string>(value);
 }
 
 bool LiteralInfo::isFloat() const
 {
-	return std::holds_alternative<FloatType>(val_);
+	return std::holds_alternative<FloatType>(value);
 }
 
 bool LiteralInfo::isInt() const
 {
-	return std::holds_alternative<IntType>(val_);
+	return std::holds_alternative<IntType>(value);
 }
 
 bool LiteralInfo::isChar() const
 {
-	return std::holds_alternative<CharType>(val_);
+	return std::holds_alternative<CharType>(value);
 }
 
 std::string LiteralInfo::getAsString() const
@@ -89,32 +89,32 @@ std::string LiteralInfo::getAsString() const
 
 LiteralInfo::LiteralInfo(const bool & bval)
 {
-	val_ = bval;
+	value = bval;
 }
 
 LiteralInfo::LiteralInfo(const std::string & sval)
 {
-	val_ = sval;
+	value = sval;
 }
 
 LiteralInfo::LiteralInfo(const FloatType& fval)
 {
-	val_ = fval;
+	value = fval;
 }
 
 LiteralInfo::LiteralInfo(const IntType& ival)
 {
-	val_ = ival;
+	value = ival;
 }
 
 LiteralInfo::LiteralInfo(const CharType& cval)
 {
-	val_ = cval;
+	value = cval;
 }
 
 bool LiteralInfo::isNull() const
 {
-	return std::holds_alternative<std::monostate>(val_);
+	return std::holds_alternative<std::monostate>(value);
 }
 
 LiteralInfo::operator bool() const
@@ -124,20 +124,17 @@ LiteralInfo::operator bool() const
 
 
 
-Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr, const SourceRange& range) : sourceRange(range)
+Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr, const SourceRange& range) : range(range)
 {
 	idToken(ctxt,astctxt,tokstr);
 }
 
-Token::Token(const Token& cpy)
+Token::Token(const Token& cpy) : range(cpy.range), tokenData(cpy.tokenData)
 {
-	tokenInfo_ = cpy.tokenInfo_;
-	sourceRange = cpy.sourceRange;
-
-	if (cpy.litInfo_)
-		litInfo_ = std::make_unique<LiteralInfo>(*(cpy.litInfo_));
+	if (cpy.literalData)
+		literalData = std::make_unique<LiteralInfo>(*(cpy.literalData));
 	else
-		litInfo_ = nullptr;
+		literalData = nullptr;
 }
 
 std::string Token::showFormattedTokenData() const
@@ -150,14 +147,14 @@ std::string Token::showFormattedTokenData() const
 	int enumInfo = -1;
 
 	if (isKeyword())
-		enumInfo = Util::enumAsInt(std::get<KeywordType>(tokenInfo_));
+		enumInfo = Util::enumAsInt(std::get<KeywordType>(tokenData));
 	else if (isLiteral())
 	{
-		assert(litInfo_ && "Token is a literal but does not have a literalInfo?");
-		enumInfo = Util::enumAsInt(litInfo_->getType());
+		assert(literalData && "Token is a literal but does not have a literalInfo?");
+		enumInfo = Util::enumAsInt(literalData->getType());
 	}
 	else if (isSign())
-		enumInfo = Util::enumAsInt(std::get<SignType>(tokenInfo_));
+		enumInfo = Util::enumAsInt(std::get<SignType>(tokenData));
 
 	if (enumInfo >= 0)
 		ss << " (" << enumInfo << ")";
@@ -169,7 +166,7 @@ std::string Token::showFormattedTokenData() const
 
 bool Token::isValid() const
 {
-	return !(std::holds_alternative<std::monostate>(tokenInfo_));
+	return !(std::holds_alternative<std::monostate>(tokenData));
 }
 
 Token::operator bool() const
@@ -179,22 +176,22 @@ Token::operator bool() const
 
 bool Token::isLiteral() const
 {
-	return std::holds_alternative<Literal>(tokenInfo_);
+	return std::holds_alternative<Literal>(tokenData);
 }
 
 bool Token::isIdentifier() const
 {
-	return std::holds_alternative<IdentifierInfo*>(tokenInfo_);
+	return std::holds_alternative<IdentifierInfo*>(tokenData);
 }
 
 bool Token::isSign() const
 {
-	return std::holds_alternative<SignType>(tokenInfo_);
+	return std::holds_alternative<SignType>(tokenData);
 }
 
 bool Token::isKeyword() const
 {
-	return std::holds_alternative<KeywordType>(tokenInfo_);
+	return std::holds_alternative<KeywordType>(tokenData);
 }
 
 bool Token::is(const KeywordType & ty)
@@ -221,22 +218,22 @@ bool Token::is(const LiteralType & ty)
 KeywordType Token::getKeywordType() const
 {
 	if (isKeyword())
-		return std::get<KeywordType>(tokenInfo_);
+		return std::get<KeywordType>(tokenData);
 	return KeywordType::DEFAULT;
 }
 
 SignType Token::getSignType() const
 {
 	if (isSign())
-		return std::get<SignType>(tokenInfo_);
+		return std::get<SignType>(tokenData);
 	return SignType::DEFAULT;
 }
 
 std::string Token::getAsString() const
 {
-	if (std::holds_alternative<KeywordType>(tokenInfo_))
+	if (std::holds_alternative<KeywordType>(tokenData))
 	{
-		auto kwtype = std::get<KeywordType>(tokenInfo_);
+		auto kwtype = std::get<KeywordType>(tokenData);
 		for (auto it = kKeywords_dict.begin(); it != kKeywords_dict.end(); it++)
 		{
 			if (it->second == kwtype)
@@ -244,9 +241,9 @@ std::string Token::getAsString() const
 		}
 		throw std::exception("Unknown keyword type!");
 	}
-	else if (std::holds_alternative<SignType>(tokenInfo_))
+	else if (std::holds_alternative<SignType>(tokenData))
 	{
-		auto signtype = std::get<SignType>(tokenInfo_);
+		auto signtype = std::get<SignType>(tokenData);
 		CharType ch = ' ';
 		for (auto it = kSign_dict.begin(); it != kSign_dict.end(); it++)
 		{
@@ -257,14 +254,14 @@ std::string Token::getAsString() const
 		StringManipulator::append(str, ch);
 		return str;
 	}
-	else if (std::holds_alternative<Literal>(tokenInfo_))
+	else if (std::holds_alternative<Literal>(tokenData))
 	{
-		assert(litInfo_ && "Token's a literal but no LiteralInfo available?");
-		return litInfo_->getAsString();
+		assert(literalData && "Token's a literal but no LiteralInfo available?");
+		return literalData->getAsString();
 	}
-	else if (std::holds_alternative<IdentifierInfo*>(tokenInfo_))
+	else if (std::holds_alternative<IdentifierInfo*>(tokenData))
 	{
-		auto ptr = std::get<IdentifierInfo*>(tokenInfo_);
+		auto ptr = std::get<IdentifierInfo*>(tokenData);
 		assert(ptr && "IdentifierInfo is null?");
 		return ptr->getStr();
 	}
@@ -276,8 +273,8 @@ LiteralType Token::getLiteralType() const
 {
 	if (isLiteral())
 	{
-		assert(litInfo_ && "Token is a literal but does not have a literalInfo?");
-		return litInfo_->getType();
+		assert(literalData && "Token is a literal but does not have a literalInfo?");
+		return literalData->getType();
 	}
 	return LiteralType::DEFAULT;
 }
@@ -286,17 +283,17 @@ LiteralInfo Token::getLiteralInfo() const
 {
 	if (isLiteral())
 	{
-		assert(litInfo_ && "Token is a literal but does not have a literalInfo?");
-		return *litInfo_;
+		assert(literalData && "Token is a literal but does not have a literalInfo?");
+		return *literalData;
 	}
 	return LiteralInfo();
 }
 
 std::string Token::getIdentifierString() const
 {
-	if (std::holds_alternative<IdentifierInfo*>(tokenInfo_))
+	if (std::holds_alternative<IdentifierInfo*>(tokenData))
 	{
-		auto ptr = std::get<IdentifierInfo*>(tokenInfo_);
+		auto ptr = std::get<IdentifierInfo*>(tokenData);
 		assert(ptr && "tokenInfo's a IdentifierInfo* but the pointer is null?");
 		return ptr->getStr();
 	}
@@ -305,9 +302,9 @@ std::string Token::getIdentifierString() const
 
 IdentifierInfo * Token::getIdentifierInfo()
 {
-	if (std::holds_alternative<IdentifierInfo*>(tokenInfo_))
+	if (std::holds_alternative<IdentifierInfo*>(tokenData))
 	{
-		auto ptr = std::get<IdentifierInfo*>(tokenInfo_);
+		auto ptr = std::get<IdentifierInfo*>(tokenData);
 		assert(ptr && "tokenInfo's a IdentifierInfo* but the pointer is null?");
 		return ptr;
 	}
@@ -333,7 +330,7 @@ bool Token::specific_idKeyword(const std::string& str)
 	if (i == kKeywords_dict.end())
 		return false;
 
-	tokenInfo_ = i->second;
+	tokenData = i->second;
 	return true;
 }
 
@@ -346,7 +343,7 @@ bool Token::specific_idSign(const std::string& str)
 	if (i == kSign_dict.end())
 		return false;
 
-	tokenInfo_ = i->second;
+	tokenData = i->second;
 	return true;
 }
 
@@ -369,8 +366,8 @@ bool Token::specific_idLiteral(Context& ctxt,const std::string& str)
 				return false;
 			}
 			auto charlit = strmanip.getChar(1);
-			tokenInfo_ = Literal();
-			litInfo_ = std::make_unique<LiteralInfo>(charlit);
+			tokenData = Literal();
+			literalData = std::make_unique<LiteralInfo>(charlit);
 			return true;
 		}
 		else
@@ -385,8 +382,8 @@ bool Token::specific_idLiteral(Context& ctxt,const std::string& str)
 		{
 
 			std::string strlit = strmanip.substring(1, strmanip.getSizeInCodepoints() - 2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
-			tokenInfo_ = Literal();
-			litInfo_ = std::make_unique<LiteralInfo>(strlit);
+			tokenData = Literal();
+			literalData = std::make_unique<LiteralInfo>(strlit);
 			return true;
 		}
 		else
@@ -397,8 +394,8 @@ bool Token::specific_idLiteral(Context& ctxt,const std::string& str)
 	}
 	else if (str == "true" | str == "false")
 	{
-		tokenInfo_ = Literal();
-		litInfo_ = std::make_unique<LiteralInfo>((str == "true" ? true : false));
+		tokenData = Literal();
+		literalData = std::make_unique<LiteralInfo>((str == "true" ? true : false));
 		return true;
 	}
 	// Might rework this bit later because it's a bit ugly, but it works !
@@ -408,8 +405,8 @@ bool Token::specific_idLiteral(Context& ctxt,const std::string& str)
 		IntType tmp;
 		if (ss >> tmp)
 		{
-			tokenInfo_ = Literal();
-			litInfo_ = std::make_unique<LiteralInfo>(tmp);
+			tokenData = Literal();
+			literalData = std::make_unique<LiteralInfo>(tmp);
 		}
 		else
 		{
@@ -417,15 +414,15 @@ bool Token::specific_idLiteral(Context& ctxt,const std::string& str)
 			std::stringstream out;
 			out << "The value \"" << str << "\" was interpreted as a float because it didn't fit a 64 Bit signed int.";
 			ctxt.reportWarning(out.str());
-			tokenInfo_ = Literal();
-			litInfo_ = std::make_unique<LiteralInfo>(std::stof(str));
+			tokenData = Literal();
+			literalData = std::make_unique<LiteralInfo>(std::stof(str));
 		}
 		return true;
 	}
 	else if (std::regex_match(str, kFloat_regex))
 	{
-		tokenInfo_ = Literal();
-		litInfo_ = std::make_unique<LiteralInfo>(std::stof(str));
+		tokenData = Literal();
+		literalData = std::make_unique<LiteralInfo>(std::stof(str));
 		return true;
 	}
 	return false;
@@ -435,7 +432,7 @@ bool Token::specific_idIdentifier(Context& ctxt,ASTContext& astctxt, const std::
 {
 	if (validateIdentifier(ctxt,str))
 	{
-		tokenInfo_ = astctxt.identifiers.getUniqueIdentifierInfo(str);
+		tokenData = astctxt.identifiers.getUniqueIdentifierInfo(str);
 		return true;
 	}
 	return false;
@@ -475,6 +472,11 @@ std::string Token::getTokenTypeFriendlyName() const
 	else if (isSign())
 		return "Sign";
 	return "Unknown Token Type";
+}
+
+SourceRange Token::getRange() const
+{
+	return range;
 }
 
 bool Token::hasAtLeastOneLetter(const std::string& str) const
