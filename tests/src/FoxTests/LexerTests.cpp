@@ -259,10 +259,6 @@ TEST(LexerTests, Coordinates1)
 			// Col
 			EXPECT_EQ(beg_ploc.column, 5);
 			EXPECT_EQ(end_ploc.column, 20);
-
-			// Char Idx
-			EXPECT_EQ(beg_ploc.character, 5);
-			EXPECT_EQ(end_ploc.character, 20);
 		}
 		else if (elem.getAsString() == "_2NDVAR__")
 		{
@@ -277,10 +273,6 @@ TEST(LexerTests, Coordinates1)
 			// Col
 			EXPECT_EQ(beg_ploc.column, 9);
 			EXPECT_EQ(end_ploc.column, 17);
-
-			// Char Idx
-			EXPECT_EQ(beg_ploc.character, 6);
-			EXPECT_EQ(end_ploc.character, 14);
 		}
 		else if (elem.getAsString() == "ThirdVariable")
 		{
@@ -295,10 +287,6 @@ TEST(LexerTests, Coordinates1)
 			// Col
 			EXPECT_EQ(beg_ploc.column, 5);
 			EXPECT_EQ(end_ploc.column, 17);
-
-			// Char Idx
-			EXPECT_EQ(beg_ploc.character, 5);
-			EXPECT_EQ(end_ploc.character, 17);
 		}
 	}
 	EXPECT_EQ(varFounds, 3) << "Did not find all 3 variables";
