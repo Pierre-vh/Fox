@@ -20,25 +20,19 @@
 namespace Moonshot
 {
 	class Diagnostic;
-	class FlagsManager;
 	enum class DiagSeverity : int8_t;
 	enum class DiagID : int16_t;
 	class DiagnosticEngine
 	{
 		public:
-			DiagnosticEngine(FlagsManager *fm = nullptr);
-			DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons, FlagsManager *fm = nullptr);
+			DiagnosticEngine();
+			DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);
 
 			Diagnostic report(const DiagID& diagID);
 
 			void setConsumer(std::unique_ptr<DiagnosticConsumer> ncons);
 			DiagnosticConsumer * getConsumer();
 
-			void setFlagsManager(FlagsManager *fm);
-
-			// Update the DiagOpts from the corresponding flags status (set/unset)
-			// Returns true if the flagmanager was available and the operation was a success.
-			bool updateOptionsFromFlags();
 			// Sets every option to false
 			void resetAllOptions(); 
 
@@ -73,10 +67,7 @@ namespace Moonshot
 
 			bool getSilenceAll() const;
 			void setSilenceAll(const bool& val);
-		private:
-			// Calls updateOptionsFromFlags if a flagmanager is available, else, calls resetAllOptions()
-			void setupDiagOpts();
-		
+		private:		
 			// Promotes the severity of the diagnostic if needed
 			DiagSeverity promoteSeverityIfNeeded(const DiagSeverity& ds) const;
 
@@ -113,8 +104,6 @@ namespace Moonshot
 			bool hasFatalErrorOccured_ = false;
 			bool hasReportedErrLimitExceededError_ = false;			// This flag is set to true when the diagengine has emitted the "max error" fatal error.
 
-			/* Observing pointer to a flagmanager, if there is one available */
-			FlagsManager* flagsManager_					= nullptr;
 			std::unique_ptr<DiagnosticConsumer> consumer_	= nullptr;
 	};
 }

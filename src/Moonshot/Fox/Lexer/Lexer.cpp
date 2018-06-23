@@ -46,17 +46,8 @@ void Lexer::lexFile(const FileID& file)
 	while(!manip.eof() && context_.isSafe())
 		cycle();
 
-	pushTok(); // Push the last Token found.
+	pushTok();
 	runFinalChecks();
-	if (context_.isSafe())
-	{
-		if (context_.flagsManager.isSet(FlagID::lexer_logTotalTokenCount))
-		{
-			std::stringstream ss;
-			ss << "Lexing finished Successfully. Tokens found: " << result_.size();
-			context_.logMessage(ss.str());
-		}
-	}
 	context_.resetOrigin();
 }
 
@@ -94,13 +85,6 @@ void Lexer::pushTok()
 		context_.reportError("(this error is a placeholder for : Invalid token found)");
 
 	curtok_ = "";
-
-	if (context_.flagsManager.isSet(FlagID::lexer_logOnPush)) {
-		std::stringstream out;
-		out << "Pushed token \"" << result_.back().getAsString() << '"';
-		context_.logMessage(out.str());
-	}
-
 }
 
 void Lexer::cycle()

@@ -175,34 +175,6 @@ TEST(DiagnosticsTests, dummyDiags)
 	EXPECT_EQ(DiagSeverity::IGNORE, diag.getDiagSeverity()) << "Diag's severity was supposed to be \"IGNORE\"";
 }
 
-TEST(DiagnosticsTests, FlagsAreCorrectlyApplied)
-{
-	auto diagEng = createDiagEngine();
-	FlagsManager f1, f2;
-	f1.set(FlagID::diagengine_errorsAreFatal);
-	f2.set(FlagID::diagengine_silenceAll);
-	f1.set(FlagID::diagengine_silenceAllAfterFatalError);
-	f2.set(FlagID::diagengine_silenceNotes);
-	f1.set(FlagID::diagengine_silenceWarnings);
-	f2.set(FlagID::diagengine_warningsAreErrors);
-	
-	diagEng.setFlagsManager(&f1);
-	EXPECT_TRUE(diagEng.getErrorsAreFatal());
-	EXPECT_FALSE(diagEng.getSilenceAll());
-	EXPECT_TRUE(diagEng.getSilenceAllAfterFatalErrors());
-	EXPECT_FALSE(diagEng.getSilenceNotes());
-	EXPECT_TRUE(diagEng.getSilenceWarnings());
-	EXPECT_FALSE(diagEng.getWarningsAreErrors());
-
-	diagEng.setFlagsManager(&f2);
-	EXPECT_FALSE(diagEng.getErrorsAreFatal());
-	EXPECT_TRUE(diagEng.getSilenceAll());
-	EXPECT_FALSE(diagEng.getSilenceAllAfterFatalErrors());
-	EXPECT_TRUE(diagEng.getSilenceNotes());
-	EXPECT_FALSE(diagEng.getSilenceWarnings());
-	EXPECT_TRUE(diagEng.getWarningsAreErrors());
-}
-
 TEST(DiagnosticsTests, SilencedWarnings)
 {
 	auto diagEng = createDiagEngine();

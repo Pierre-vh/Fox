@@ -9,8 +9,6 @@
 
 #include "DiagnosticEngine.hpp"
 
-#include "Moonshot/Fox/Common/FlagsManager.hpp"
-
 #include "Diagnostic.hpp"
 #include "DiagnosticConsumers.hpp"
 
@@ -28,16 +26,14 @@ static const DiagSeverity diagsSevs[] = {
 		#include "Diags/DiagsAll.def"
 };
 
-DiagnosticEngine::DiagnosticEngine(FlagsManager *fm) : flagsManager_(fm)
+DiagnosticEngine::DiagnosticEngine() : DiagnosticEngine(std::make_unique<StreamDiagConsumer>())
 {
-	consumer_ = std::make_unique<StreamDiagConsumer>(); // Default diag consumer outputs to cout
 
-	setupDiagOpts();
 }
 
-DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons,FlagsManager *fm): consumer_(std::move(ncons)), flagsManager_(fm)
+DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons): consumer_(std::move(ncons))
 {
-	setupDiagOpts();
+	resetAllOptions();
 }
 
 Diagnostic DiagnosticEngine::report(const DiagID & diagID)
@@ -88,27 +84,6 @@ void DiagnosticEngine::setConsumer(std::unique_ptr<DiagnosticConsumer> ncons)
 DiagnosticConsumer* DiagnosticEngine::getConsumer()
 {
 	return consumer_.get();
-}
-
-void DiagnosticEngine::setFlagsManager(FlagsManager * fm)
-{
-	flagsManager_ = fm;
-	if(fm)
-		updateOptionsFromFlags();
-}
-
-bool DiagnosticEngine::updateOptionsFromFlags()
-{
-	if (flagsManager_)
-	{
-		diagOpts_.errorsAreFatal = flagsManager_->isSet(FlagID::diagengine_errorsAreFatal);
-		diagOpts_.silenceAll = flagsManager_->isSet(FlagID::diagengine_silenceAll);
-		diagOpts_.silenceAllAfterFatalError = flagsManager_->isSet(FlagID::diagengine_silenceAllAfterFatalError);
-		diagOpts_.silenceNotes = flagsManager_->isSet(FlagID::diagengine_silenceNotes);
-		diagOpts_.silenceWarnings = flagsManager_->isSet(FlagID::diagengine_silenceWarnings);
-		diagOpts_.warningsAreErrors = flagsManager_->isSet(FlagID::diagengine_warningsAreErrors);
-	}
-	return (bool)flagsManager_;
 }
 
 void DiagnosticEngine::resetAllOptions()
@@ -204,14 +179,6 @@ bool DiagnosticEngine::getSilenceAll() const
 void DiagnosticEngine::setSilenceAll(const bool & val)
 {
 	diagOpts_.silenceAll = val;
-}
-
-void DiagnosticEngine::setupDiagOpts()
-{
-	if (flagsManager_)
-		updateOptionsFromFlags();
-	else
-		resetAllOptions();
 }
 
 DiagSeverity DiagnosticEngine::promoteSeverityIfNeeded(const DiagSeverity & ds) const
