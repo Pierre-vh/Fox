@@ -34,9 +34,6 @@ Parser::UnitResult Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName
 	// Create a RAIIDeclRecorder
 	RAIIDeclRecorder raiidr(*this, unit.get());
 
-	// Create recovery enabler.
-	auto enabler = createRecoveryEnabler();
-
 	// Parse declarations 
 	while (true)
 	{

@@ -91,7 +91,7 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 		switch (s)
 		{
 			case SignType::S_CURLY_OPEN:
-				if (state_.curlyBracketsCount < kMaxBraceDepth)
+				if (state_.curlyBracketsCount < maxBraceDepth_)
 					state_.curlyBracketsCount++;
 				else
 					throw std::overflow_error("Max Brackets Depth Exceeded");
@@ -101,7 +101,7 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 					state_.curlyBracketsCount--;
 				break;
 			case SignType::S_SQ_OPEN:
-				if (state_.squareBracketsCount < kMaxBraceDepth)
+				if (state_.squareBracketsCount < maxBraceDepth_)
 					state_.squareBracketsCount++;
 				else
 					throw std::overflow_error("Max Brackets Depth Exceeded");
@@ -111,7 +111,7 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 					state_.squareBracketsCount--;
 				break;
 			case SignType::S_ROUND_OPEN:
-				if (state_.roundBracketsCount < kMaxBraceDepth)
+				if (state_.roundBracketsCount < maxBraceDepth_)
 					state_.roundBracketsCount++;
 				else
 					throw std::overflow_error("Max Brackets Depth Exceeded");
@@ -180,7 +180,7 @@ void Parser::revertConsume()
 					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_CURLY_CLOSE:
-				if (state_.curlyBracketsCount < kMaxBraceDepth)
+				if (state_.curlyBracketsCount < maxBraceDepth_)
 					state_.curlyBracketsCount++;
 				break;
 			case SignType::S_SQ_OPEN:
@@ -190,7 +190,7 @@ void Parser::revertConsume()
 					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_SQ_CLOSE:
-				if (state_.squareBracketsCount < kMaxBraceDepth)
+				if (state_.squareBracketsCount < maxBraceDepth_)
 					state_.squareBracketsCount++;
 				break;
 			case SignType::S_ROUND_OPEN:
@@ -200,7 +200,7 @@ void Parser::revertConsume()
 					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_ROUND_CLOSE:
-				if (state_.roundBracketsCount < kMaxBraceDepth)
+				if (state_.roundBracketsCount < maxBraceDepth_)
 					state_.roundBracketsCount++;
 				break;
 			default:
@@ -574,45 +574,23 @@ Parser::ParserState::ParserState() : isAlive(true), isRecoveryAllowed(false)
 
 }
 
-// RAIIRecoveryManager
-Parser::RAIIRecoveryManager::RAIIRecoveryManager(Parser &parser, const bool & allowsRecovery) : parser_(parser)
-{
-	recoveryAllowedBackup_ = parser_.state_.isRecoveryAllowed;
-	parser_.state_.isRecoveryAllowed = allowsRecovery;
-}
-
-Parser::RAIIRecoveryManager::~RAIIRecoveryManager()
-{
-	parser_.state_.isRecoveryAllowed = recoveryAllowedBackup_;
-}
-
-Parser::RAIIRecoveryManager Parser::createRecoveryEnabler()
-{
-	return RAIIRecoveryManager(*this,true);
-}
-
-Parser:: RAIIRecoveryManager Parser::createRecoveryDisabler()
-{
-	return RAIIRecoveryManager(*this, false);
-}
-
 // RAIIDeclRecorder
-Parser::RAIIDeclRecorder::RAIIDeclRecorder(Parser &p, DeclRecorder *dr) : parser(p)
+Parser::RAIIDeclRecorder::RAIIDeclRecorder(Parser &p, DeclRecorder *dr) : parser_(p)
 {
-	old_dc = parser.state_.declRecorder;
+	declRec_ = parser_.state_.declRecorder;
 
-	// If old_dc isn't null, mark it as the parent of the new dr
-	if (old_dc)
+	// If declRec_ isn't null, mark it as the parent of the new dr
+	if (declRec_)
 	{
 		// Assert that we're not overwriting a parent. If such a thing happens, that could indicate a bug!
 		assert(!dr->hasParentDeclRecorder() && "New DeclRecorder already has a parent?");
-		dr->setParentDeclRecorder(old_dc);
+		dr->setParentDeclRecorder(declRec_);
 	}
 
-	parser.state_.declRecorder = dr;
+	parser_.state_.declRecorder = dr;
 }
 
 Parser::RAIIDeclRecorder::~RAIIDeclRecorder()
 {
-	parser.state_.declRecorder = old_dc;
+	parser_.state_.declRecorder = declRec_;
 }

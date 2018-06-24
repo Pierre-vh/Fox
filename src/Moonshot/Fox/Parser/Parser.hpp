@@ -242,23 +242,6 @@ namespace Moonshot
 			// Restores state_ from a backup.
 			void restoreParserStateFromBackup(const ParserState& st);
 
-			/*-------------- RAIIRecoveryManager --------------*/
-				// This class manages the recovery of the parser
-				// The constructor makes a backup of the parser instance's state_.isRecoveryAllowed variable, and replaces state_.isRecoveryAllowed with the value desired.
-				// The constructor restores the state_.isRecoveryAllowed variable to it's original value using the backup.
-				// Note: It's currently unused, but it's a class that could one day prove useful, so i'm keeping it for now.
-			class RAIIRecoveryManager
-			{
-				public:
-					explicit RAIIRecoveryManager(Parser &parser,const bool& allowsRecovery);
-					~RAIIRecoveryManager();
-				private:
-					Parser &parser_;
-					bool recoveryAllowedBackup_ : 1;
-			};
-
-			RAIIRecoveryManager createRecoveryEnabler();
-			RAIIRecoveryManager createRecoveryDisabler();
 			/*-------------- RAIIDeclRecorder --------------*/
 			// This class sets the current DeclRecorder at construction, and restores the last
 			// one at destruction.
@@ -270,8 +253,8 @@ namespace Moonshot
 					RAIIDeclRecorder(Parser &p,DeclRecorder *dr);
 					~RAIIDeclRecorder();
 				private:
-					Parser & parser;
-					DeclRecorder * old_dc = nullptr;
+					Parser & parser_;
+					DeclRecorder * declRec_ = nullptr;
 			};
 
 			/*-------------- Member Variables --------------*/
@@ -282,7 +265,7 @@ namespace Moonshot
 			bool isTestMode_ : 1;
 			
 			/*-------------- Constants --------------*/
-			static constexpr uint8_t kMaxBraceDepth = (std::numeric_limits<uint8_t>::max)();
+			static constexpr uint8_t maxBraceDepth_ = (std::numeric_limits<uint8_t>::max)();
 
 		public:
 			/*-------------- Result Classes --------------*/
