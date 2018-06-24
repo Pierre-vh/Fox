@@ -14,7 +14,7 @@
 #include "Moonshot/Fox/Parser/Parser.hpp"
 #include "Moonshot/Fox/AST/ASTDumper.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
-
+#include <iostream>
 #include <chrono>
 #include <fstream>
 
