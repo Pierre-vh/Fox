@@ -67,14 +67,6 @@ Moonshot Project To-do List.
 		> Maybe switch to C++14 instead of 17 for increased portability.
 			> This shouldn't be too hard, probably an afternoon of work. But I'll have to find a good std::variant replacement.
 
-		> Reevaluate the need for RTTI inside the project. Since i'm already half in LLVM coding styles,
-		  maybe remove it an use a llvm style completely : implement a dyn_cast & isa operation + classof methods.
-		  That way I might gain performance + the style will be consistent with LLVM's/CLang's
-		  Relevant code samples:
-			#define EXPR_RANGE(Id, FirstId, LastId) \
-			First_##Id##Expr = FirstId, Last_##Id##Expr = LastId,
-		  The question is : use LLVM's dyn_cast or roll my own?
-
 		> Lexer Rework
 			> Make the Lexer & Parser tightly coupled. The Parser itself should call the Lexer to Lex a token. (no more storage in a vector)
 				> This will require the Parser or Lexer to have a caching mechanism, and use "cached" token when backtracking is required.
