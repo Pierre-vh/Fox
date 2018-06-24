@@ -21,7 +21,7 @@
 using namespace Moonshot;
 
 
-Parser::UnitResult Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName)
+UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const bool& isMainUnit)
 {
 	// <fox_unit>	= {<declaration>}1+
 
@@ -74,11 +74,11 @@ Parser::UnitResult Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName
 
 	if (unit->getDeclCount() == 0)
 	{
-		genericError("Expected one or more declaration in unit.");
-		return UnitResult::Error();
+		genericError("Expected one or more declaration.");
+		return nullptr;
 	}
 	else
-		return UnitResult(std::move(unit));
+		return astContext_.addUnit(std::move(unit), isMainUnit);
 }
 
 Parser::DeclResult Parser::parseFunctionDecl()
@@ -173,7 +173,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 				if (rtrTy.wasSuccessful())
 					errorExpected("Expected a type keyword");
 
-				rtr->setReturnType(astcontext_.getPrimitiveVoidType());
+				rtr->setReturnType(astContext_.getPrimitiveVoidType());
 				endLoc = colon;
 
 				// Try to resync to a { so we can keep on parsing.
@@ -182,7 +182,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 			}
 		}
 		else // if no return type, the function returns void.
-			rtr->setReturnType(astcontext_.getPrimitiveVoidType());
+			rtr->setReturnType(astContext_.getPrimitiveVoidType());
 
 		// <compound_statement>
 		auto compoundstmt = parseCompoundStatement(/* mandatory = yes */ true);

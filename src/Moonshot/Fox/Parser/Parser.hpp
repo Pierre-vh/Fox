@@ -77,7 +77,10 @@ namespace Moonshot
 			// Generally, this will be the entry point of the parsing process.
 			// fid = The FileID of the file where the unit is contained.
 			// unitName = the name of the unit that we're parsing. Usually, the name of the file.
-			UnitResult parseUnit(const FileID& fid,IdentifierInfo* unitName);
+			// isMainUnit = true if the unit that we'll be parsing should be considered as the main unit
+			// Note: This function returns an observing pointer (null in case of errors). It doesn't give
+			// an unique_ptr like the others, because it gives ownership to the ASTContext, not you.
+			UnitDecl* parseUnit(const FileID& fid,IdentifierInfo* unitName,const bool& isMainUnit);
 
 			// EXPRESSIONS
 			ExprListResult parseExprList();
@@ -258,7 +261,7 @@ namespace Moonshot
 			};
 
 			/*-------------- Member Variables --------------*/
-			ASTContext& astcontext_;
+			ASTContext& astContext_;
 			IdentifierTable& IDs;
 			Context& context_;
 			TokenVector& tokens_;
