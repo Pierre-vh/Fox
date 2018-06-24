@@ -13,14 +13,14 @@
 
 using namespace Moonshot;
 
-StreamDiagConsumer::StreamDiagConsumer(std::ostream & stream) : os(stream)
+StreamDiagConsumer::StreamDiagConsumer(std::ostream & stream) : os_(stream)
 {
 
 }
 
 void StreamDiagConsumer::consume(const Diagnostic & diag)
 {
-	os << "[" << diagSevToString(diag.getDiagSeverity()) << "]\t\t" << diag.getDiagStr() << "\n";
+	os_ << "[" << diagSevToString(diag.getDiagSeverity()) << "]\t\t" << diag.getDiagStr() << "\n";
 }
 
 std::string StreamDiagConsumer::diagSevToString(const DiagSeverity & ds) const

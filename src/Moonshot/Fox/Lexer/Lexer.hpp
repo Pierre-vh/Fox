@@ -16,6 +16,8 @@
 // each "bit" is identified to recognize one of the main types : keywords,identifiers,values,etc..				
 ////------------------------------------------------------////
 
+// Note: Most of the code here is a relic of the old moonshot. It'll be completly rewritten in the not so distant future
+
 #pragma once
 
 #include "Token.hpp"
@@ -56,7 +58,7 @@ namespace Moonshot
 			void pushTok();
 			void cycle();					
 			void runFinalChecks();
-			void markBeginningOfToken(); // sets currentTokenBeginIndex to the current index
+			void markBeginningOfToken(); // sets currentTokenBeginIndex_ to the current index
 
 			void runStateFunc();
 			void dfa_goto(const DFAState &ns);
@@ -76,18 +78,18 @@ namespace Moonshot
 
 			void reportLexerError(std::string errmsg) const;
 
-			ASTContext &astcontext;
-			Context& context;
-			FileID currentFile;
+			ASTContext &astContext_;
+			Context& context_;
+			FileID currentFile_;
 
-			bool		escapeFlag = false;		
-			DFAState	state = DFAState::S_BASE;		
-			std::string curtok;
+			bool		escapeFlag_ = false;		
+			DFAState	state_ = DFAState::S_BASE;		
+			std::string curtok_;
 
 			// The index of the first character of the current token being processed.
-			SourceLoc::idx_type currentTokenBeginIndex;
+			SourceLoc::idx_type currentTokenBeginIndex_;
 
-			TokenVector	tokens;
-			StringManipulator stringManipulator;
+			TokenVector	tokens_;
+			StringManipulator manip_;
 	};
 }

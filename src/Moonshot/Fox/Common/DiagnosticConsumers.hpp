@@ -31,6 +31,6 @@ namespace Moonshot
 		private:
 			std::string diagSevToString(const DiagSeverity& ds) const;
 
-			std::ostream &os;
+			std::ostream &os_;
 	};
 }

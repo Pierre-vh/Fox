@@ -59,18 +59,18 @@ namespace Moonshot
 			template<typename Ty>
 			inline bool is() const
 			{
-				return std::holds_alternative<Ty>(value);
+				return std::holds_alternative<Ty>(value_);
 			}
 
 			template<typename Ty>
 			inline Ty get() const
 			{
-				if (std::holds_alternative<Ty>(value))
-					return std::get<Ty>(value);
+				if (std::holds_alternative<Ty>(value_))
+					return std::get<Ty>(value_);
 				return Ty();
 			}
 		private:
-			std::variant<std::monostate,bool,std::string,FloatType,IntType,CharType> value;
+			std::variant<std::monostate,bool,std::string,FloatType,IntType,CharType> value_;
 	};
 	
 	enum class SignType : char
@@ -181,16 +181,16 @@ namespace Moonshot
 			/* Member variables */
 			// Note: LiteralInfo is quite heavy, so it's dynamically allocated to save space, since
 			// most token won't need it.
-			const SourceRange range;
-			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenData;
-			std::unique_ptr<LiteralInfo> literalData = nullptr;
+			const SourceRange range_;
+			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenData_;
+			std::unique_ptr<LiteralInfo> literalData_ = nullptr;
 
 			/* Identification functions */
-			void idToken(Context& ctxt,ASTContext& astctxt, const std::string& str);
-			bool specific_idKeyword(const std::string& str);
-			bool specific_idSign(const std::string& str);
-			bool specific_idLiteral(Context& ctxt, const std::string& str);
-			bool specific_idIdentifier(Context& ctxt,ASTContext& astctxt,const std::string& str);
+			void identify(Context& ctxt,ASTContext& astctxt, const std::string& str);
+			bool idKeyword(const std::string& str);
+			bool idSign(const std::string& str);
+			bool idLiteral(Context& ctxt, const std::string& str);
+			bool idIdentifier(Context& ctxt,ASTContext& astctxt,const std::string& str);
 			bool validateIdentifier(Context& ctxt,const std::string& str) const;
 			// Helper for idIdentifier
 			bool hasAtLeastOneLetter(const std::string &str) const; // Checks if str_ has at least one upper/lower case letter.
