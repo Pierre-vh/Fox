@@ -24,7 +24,7 @@ FileID::FileID()
 	markAsInvalid();
 }
 
-FileID::FileID(const type & value)
+FileID::FileID(const id_type& value)
 {
 	set(value);
 }
@@ -49,12 +49,12 @@ bool FileID::operator <(const FileID& other) const
 	return (value_ < other.value_);
 }
 
-FileID::type FileID::get() const
+FileID::id_type FileID::get() const
 {
 	return value_;
 }
 
-void FileID::set(const type & value)
+void FileID::set(const id_type& value)
 {
 	value_ = value;
 }
@@ -140,7 +140,7 @@ FileID SourceManager::loadFromString(const std::string& str, const std::string& 
 FileID SourceManager::generateNewFileID() const
 {
 	// The newly generated fileID is always the size of source_ +1, since 0 is the invalid value for FileIDs
-	FileID::type id = static_cast<FileID::type>(sources_.size() + 1);
+	FileID::id_type id = static_cast<FileID::id_type>(sources_.size() + 1);
 	assert(id != INVALID_FILEID_VALUE);
 	return id;
 }

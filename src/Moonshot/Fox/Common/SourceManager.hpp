@@ -18,30 +18,32 @@
 namespace Moonshot
 {
 	class SourceLoc;
-	// The FileID struct is a wrapper around a 16 bytes integer, representing a FileID
-	struct FileID
+	// The FileID is an opaque object that packs a 16 bytes integer, representing a FileID
+	class FileID
 	{
 		public:
-			typedef std::uint16_t type;
+			typedef std::uint16_t id_type;
 
 			FileID();
-			FileID(const type& value);
 
 			operator bool() const;
 			bool operator ==(const FileID& other) const;
 			bool operator !=(const FileID& other) const;
 			// For comparisons
 			bool operator <(const FileID& other) const;
+		protected:
+			FileID(const id_type& value);
+			friend class SourceManager;
 
-			type get() const;
-			void set(const type& value);
+			id_type get() const;
+			void set(const id_type& value);
 			void markAsInvalid();
 
 		private:
-			type value_;
+			id_type value_;
 	};
 
-	// Small struct containing a human-readable source loc information.
+	// Small POD-like struct containing a human-readable source loc information.
 	struct CompleteLoc
 	{
 		typedef std::uint32_t line_type;

@@ -75,8 +75,8 @@ TEST(SourceManagerTests, LoadingFromString)
 TEST(SourceManagerTests, SourceRangeTests)
 {
 	// Create sample source locs
-	SourceLoc a(FileID(1), 200);
-	SourceLoc b(FileID(1), 250);
+	SourceLoc a(FileID(), 200);
+	SourceLoc b(FileID(), 250);
 
 	// Create sample source ranges
 	SourceRange ra(a, 50);
