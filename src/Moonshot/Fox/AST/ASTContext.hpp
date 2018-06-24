@@ -40,7 +40,6 @@ namespace Moonshot
 			// Returns a observing pointer to the unit containing the entry point of the module (if there is one)
 			UnitDecl* getMainUnit();
 			
-
 			// Takes ownership of the unit.
 			// Once ownership is taken, it returns a observing pointer to that unit.
 			// Takes an optional boolean parameter, set it to true so that the unit added is recognized as the main unit
@@ -57,10 +56,8 @@ namespace Moonshot
 			// Returns an ArrayType for a given type.
 			ArrayType* getArrayTypeForType(Type* ty);
 
-			// The Identifier table.
-			// It's public because it should be accessible by everyone.
-			IdentifierTable identifiers;
-
+			// getter for the identifier table
+			IdentifierTable& getIdentifierTable();
 		private:
 			// Context shouldn't be copyable.
 			ASTContext(const ASTContext&) = delete;
@@ -89,5 +86,8 @@ namespace Moonshot
 
 			// Array types
 			std::map<Type*, std::unique_ptr<ArrayType>> arrayTypes_;
+
+			// The identifier table
+			IdentifierTable identifiers;
 	};
 }

@@ -99,8 +99,8 @@ namespace Moonshot
 			unsigned int errLimit_ = DIAGENGINE_DEFAULT_ERR_LIMIT; 
 
 			/* Statistics */
-			unsigned int numErrors_		= 0;
-			unsigned int numWarnings_	= 0;
+			unsigned int errorCount_		= 0;
+			unsigned int warnCount_	= 0;
 			bool hasFatalErrorOccured_ = false;
 			bool hasReportedErrLimitExceededError_ = false;			// This flag is set to true when the diagengine has emitted the "max error" fatal error.
 

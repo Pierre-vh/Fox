@@ -103,12 +103,12 @@ bool DiagnosticEngine::hasFatalErrorOccured() const
 
 unsigned int DiagnosticEngine::getNumWarnings() const
 {
-	return numWarnings_;
+	return warnCount_;
 }
 
 unsigned int DiagnosticEngine::getNumErrors() const
 {
-	return numErrors_;
+	return errorCount_;
 }
 
 unsigned int DiagnosticEngine::getErrorLimit() const
@@ -239,10 +239,10 @@ void DiagnosticEngine::updateInternalCounters(const DiagSeverity & ds)
 	switch (ds)
 	{
 		case DiagSeverity::WARNING:
-			numWarnings_++;
+			warnCount_++;
 			break;
 		case DiagSeverity::ERROR:
-			numErrors_++;
+			errorCount_++;
 			break;
 		case DiagSeverity::FATAL:
 			hasFatalErrorOccured_ = true;
@@ -253,6 +253,6 @@ void DiagnosticEngine::updateInternalCounters(const DiagSeverity & ds)
 bool DiagnosticEngine::haveTooManyErrorsOccured() const
 {
 	if(errLimit_)
-		return numErrors_ >= errLimit_;
+		return errorCount_ >= errLimit_;
 	return false;
 }
