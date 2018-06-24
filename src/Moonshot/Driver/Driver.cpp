@@ -52,7 +52,7 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 
 	Parser psr(ctxt,*astCtxt,lex.getTokenVector());
 	// Todo: extract the name of the file and use that instead of "TestUnit"
-	auto unit = psr.parseUnit(fid,astCtxt->identifiers.getUniqueIdentifierInfo("TestUnit"));
+	auto unit = psr.parseUnit(fid,astCtxt->identifiers.getUniqueIdentifierInfo("TestUnit"), /* is main unit */ true);
 
 	out << ctxt.getLogs();
 	if (!unit)
@@ -63,12 +63,7 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	else
 		out << "Parsing successful!\n";
 
-	
-	// set as main unit
-	astCtxt->setMainUnit(unit.move());
-
 	out << "\nMain Unit Dump:\n";
-	
 	
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto parse_micro = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();

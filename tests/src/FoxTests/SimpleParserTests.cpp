@@ -319,7 +319,8 @@ TEST(SimpleParserTests, Unit)
 		
 		auto res = parse.parseUnit(
 			FileID(), // No need for a valid FileID in a test.
-			parse.getASTContext().identifiers.getUniqueIdentifierInfo("Test Unit")
+			parse.getASTContext().identifiers.getUniqueIdentifierInfo("Test Unit"),
+			/* is main unit */ true
 		);
 		return res;
 	});
