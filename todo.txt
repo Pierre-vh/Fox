@@ -36,12 +36,12 @@ Moonshot Project To-do List.
 		> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 		> Probably don't use a file, just do SetUp("<code goes here>""). 
 
-	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg for "Text Extract" and "Caret"
+	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg for the "Caret"
 		> 2 Variants of the error reporting function should exist :
 			> One that report an error
 			> One that report an error at a loc/range (sets the caret)
 
-	> The DiagnosticConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place
+	> The DiagnosticConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place where
 	  the error is.
 	  > Implement that in the DiagnosticConsumer class in a protected function that the derived classes can use.
 
@@ -50,20 +50,27 @@ Moonshot Project To-do List.
 	> Delete the context's system primitive diag system.
 
 	> Delete the Context. It'll be effectively useless after
-		> To be defined :
-			> How to determine if we can advance to the next compilation stage?
-				> At first, use ASTValidator
-				> See Semantic Analysis notes for final solution
+		> At first, use Error Count to determine if we can move on to the next phase of compilation.
 
 	> Small update to SourceManager:
 		Rename SourceManager.hpp/.cpp to Source.hpp/.cpp
 		Rework the PreciseLoc algorithm : cache a "line table" and use it
 
-	  This shouldn't be too hard to do, maybe it'll take an afternoon?
+	> Add classof operators to the AST (will be useful for testing if a class is a derived/base of without dynamic_cast)
+
+	> (Idea) Rethink what my names means, and maybe just use "fox" instead of "Moonshot" as my namespace?
+		> Ideas
+			> Moonshot is the codename of the Project and the implementation of fox
+			> Fox is the language
+				> In that case, change "Moonshot" to "fox" as the namespace.
 
 	// Move to 0.3.0
+	QOL:
+		> Add a "Casting.h" file with wrappers around dynamic_cast, and utility functions that takes advantage of "classof"
+			> Goal : If I move to RTTI-less casts later, I'll just need to change the implementation, instead of having to refactor a lot of code.
+				> e.g. "fox_cast", "fox_isa"
+				> Use the LLVM dyn_cast implementation as a guide.
 
-	After that 
 		> Maybe switch to C++14 instead of 17 for increased portability.
 			> This shouldn't be too hard, probably an afternoon of work. But I'll have to find a good std::variant replacement.
 
@@ -74,6 +81,7 @@ Moonshot Project To-do List.
 			> Stop using a DFA. Use a proper grammar with a recursive descent technique
 			  and a config file (.def) to register valid terminals
 
+	FEATURE:
 		> Semantic Analysis
 			> ASTValidator
 			> Semantic Analysis should check for each node it's validity using the ASTValidator.
