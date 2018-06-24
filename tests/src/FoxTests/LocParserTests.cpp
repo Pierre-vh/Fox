@@ -64,15 +64,10 @@ TEST_F(LocTests, FuncAndArgDecl)
 	CompleteLoc func_beg = sourceManager->getCompleteLocForSourceLoc(func->getBegLoc());
 	CompleteLoc func_head_end = sourceManager->getCompleteLocForSourceLoc(func->getHeaderEndLoc());
 	CompleteLoc func_end = sourceManager->getCompleteLocForSourceLoc(func->getEndLoc());
-
-	// Expected locs
-	CompleteLoc expected_func_beg(fullFilePath, 1, 1);
-	CompleteLoc expected_func_head_end(fullFilePath, 1, 56);
-	CompleteLoc expected_func_end(fullFilePath, 4, 2);
 	
-	EXPECT_EQ(func_beg, expected_func_beg);
-	EXPECT_EQ(func_head_end, expected_func_head_end);
-	EXPECT_EQ(func_end, expected_func_end);
+	EXPECT_EQ(func_beg, CompleteLoc(fullFilePath, 1, 1));
+	EXPECT_EQ(func_head_end, CompleteLoc(fullFilePath, 1, 56));
+	EXPECT_EQ(func_end, CompleteLoc(fullFilePath, 4, 2));
 
 	// Now, test the args
 	// Arg count should be correct
