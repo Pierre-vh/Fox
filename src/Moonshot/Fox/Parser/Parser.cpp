@@ -20,7 +20,7 @@
 
 using namespace Moonshot;
 
-Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l, DeclRecorder *dr) : context_(c), astcontext_(astctxt), tokens_(l), IDs(astcontext_.identifiers)
+Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l, DeclRecorder *dr) : context_(c), astContext_(astctxt), tokens_(l), identifiers_(astContext_.identifiers)
 {
 	if (dr)
 		state_.declRecorder = dr;
@@ -42,7 +42,7 @@ void Parser::disableTestMode()
 
 ASTContext & Parser::getASTContext()
 {
-	return astcontext_;
+	return astContext_;
 }
 
 Context & Parser::getContext()
@@ -246,23 +246,23 @@ Parser::Result<Type*> Parser::parseBuiltinTypename()
 
 	// "int"
 	if (auto range = consumeKeyword(KeywordType::KW_INT))
-		return RtrTy(astcontext_.getPrimitiveIntType(),range);
+		return RtrTy(astContext_.getPrimitiveIntType(),range);
 	
 	// "float"
 	if (auto range = consumeKeyword(KeywordType::KW_FLOAT))
-		return RtrTy(astcontext_.getPrimitiveFloatType(), range);
+		return RtrTy(astContext_.getPrimitiveFloatType(), range);
 
 	// "bool"
 	if (auto range = consumeKeyword(KeywordType::KW_BOOL))
-		return RtrTy(astcontext_.getPrimitiveBoolType(), range);
+		return RtrTy(astContext_.getPrimitiveBoolType(), range);
 
 	// "string"
 	if (auto range = consumeKeyword(KeywordType::KW_STRING))
-		return RtrTy(astcontext_.getPrimitiveStringType(), range);
+		return RtrTy(astContext_.getPrimitiveStringType(), range);
 
 	// "char"
 	if (auto range = consumeKeyword(KeywordType::KW_CHAR))
-		return RtrTy(astcontext_.getPrimitiveCharType(), range);
+		return RtrTy(astContext_.getPrimitiveCharType(), range);
 
 	return RtrTy::NotFound();
 }
@@ -279,7 +279,7 @@ Parser::Result<Type*> Parser::parseType()
 		SourceLoc endLoc = ty_res.getSourceRange().makeEndSourceLoc();
 		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
-			ty = astcontext_.getArrayTypeForType(ty);
+			ty = astContext_.getArrayTypeForType(ty);
 			// ']'
 			if (auto right = consumeBracket(SignType::S_SQ_CLOSE))
 				endLoc = right;

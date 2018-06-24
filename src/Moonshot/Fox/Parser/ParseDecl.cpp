@@ -104,7 +104,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		{
 			errorExpected("Expected an identifier");
 			isValid = false;
-			rtr->setIdentifier(IDs.getInvalidID());
+			rtr->setIdentifier(identifiers_.getInvalidID());
 		}
 
 		// Before creating a RAIIDeclRecorder, record this function in the parent DeclRecorder
