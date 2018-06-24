@@ -40,13 +40,12 @@ namespace Moonshot
 			// Returns a observing pointer to the unit containing the entry point of the module (if there is one)
 			UnitDecl* getMainUnit();
 			
-			// Take ownership of the unit, and mark it as the main unit. 
-			// Once it took ownership, it returns a observing pointer to that unit.
-			UnitDecl* setMainUnit(std::unique_ptr<UnitDecl> unit);
 
 			// Takes ownership of the unit.
 			// Once ownership is taken, it returns a observing pointer to that unit.
-			UnitDecl* addUnit(std::unique_ptr<UnitDecl> unit);
+			// Takes an optional boolean parameter, set it to true so that the unit added is recognized as the main unit
+			// in this ASTContext
+			UnitDecl* addUnit(std::unique_ptr<UnitDecl> unit, const bool& isMainUnit = false);
 
 			PrimitiveType* getPrimitiveIntType();
 			PrimitiveType* getPrimitiveFloatType();

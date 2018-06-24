@@ -22,16 +22,14 @@ UnitDecl * ASTContext::getMainUnit()
 	return mainUnit_;
 }
 
-UnitDecl * ASTContext::setMainUnit(std::unique_ptr<UnitDecl> unit)
-{
-	mainUnit_ = addUnit(std::move(unit));
-	return mainUnit_;
-}
-
-UnitDecl * ASTContext::addUnit(std::unique_ptr<UnitDecl> unit)
+UnitDecl * ASTContext::addUnit(std::unique_ptr<UnitDecl> unit, const bool& isMainUnit)
 {
 	units_.emplace_back(std::move(unit));
-	return units_.back().get();
+
+	auto ptr = units_.back().get();
+	if (isMainUnit)
+		mainUnit_ = ptr;
+	return ptr;
 }
 
 PrimitiveType* ASTContext::getPrimitiveIntType()
