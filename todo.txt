@@ -32,23 +32,21 @@ Moonshot Project To-do List.
 	> First AST Code Review (Done)
 	> Remove "Fake" Recovery nodes in the AST and find a proper, better solution to this problem. (Done, could use improvements later but for now we're good!)
 
-	> Urgent - Re-read Moonshot's code. After my change of mind on the matter of member variable naming, I left some junk here and there.
-	  Just re-read the code, and refactor everything that's against the Coding Standard. 
-
 	> Write Stmt & Expr Loc Tests (Next)
 		> Try to cover most cases shortly, maybe 2 or 3 max test per node.
+		> Probably don't use a file, just do SetUp("<code goes here>""). 
 
-	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg
-		> 2 Variants should exist :
+	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg for "Text Extract" and "Caret"
+		> 2 Variants of the error reporting function should exist :
 			> One that report an error
 			> One that report an error at a loc/range (sets the caret)
 
 	> The DiagnosticConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place
 	  the error is.
-
-	> Write all the remaining tests needed.
+	  > Implement that in the DiagnosticConsumer class in a protected function that the derived classes can use.
 
 	> Move all of my current diagnostics message to the new system.
+
 	> Delete the context's system primitive diag system.
 
 	> Delete the Context. It'll be effectively useless after
@@ -61,26 +59,21 @@ Moonshot Project To-do List.
 		Rename SourceManager.hpp/.cpp to Source.hpp/.cpp
 		Rework the PreciseLoc algorithm : cache a "line table" and use it
 
-	> Reevaluate the need for RTTI inside the project. Since i'm already half in LLVM coding styles,
-	  maybe remove it an use a llvm style completely : implement a dyn_cast & isa operation + classof methods.
-	  That way I might gain performance + the style will be consistent with LLVM's/CLang's
-	  Relevant code samples:
-		#define EXPR_RANGE(Id, FirstId, LastId) \
-		First_##Id##Expr = FirstId, Last_##Id##Expr = LastId,
-
 	  This shouldn't be too hard to do, maybe it'll take an afternoon?
 
 	// Move to 0.3.0
 
 	After that 
-		> Write a REAL coding standard and stick to it definitely.
-			> Will Authorize C++17 features such as std::variant, if constexpr, but will require to avoid using them if possible.
-			> Will be partially custom, partially llvm, partially google.
-			> This wil require some heavy refactoring to be done (in the form of variable renames), but will be worth it in the end.
-			> Probably will require mandatory commenting on some functions.
-
 		> Maybe switch to C++14 instead of 17 for increased portability.
 			> This shouldn't be too hard, probably an afternoon of work. But I'll have to find a good std::variant replacement.
+
+		> Reevaluate the need for RTTI inside the project. Since i'm already half in LLVM coding styles,
+		  maybe remove it an use a llvm style completely : implement a dyn_cast & isa operation + classof methods.
+		  That way I might gain performance + the style will be consistent with LLVM's/CLang's
+		  Relevant code samples:
+			#define EXPR_RANGE(Id, FirstId, LastId) \
+			First_##Id##Expr = FirstId, Last_##Id##Expr = LastId,
+		  The question is : use LLVM's dyn_cast or roll my own?
 
 		> Lexer Rework
 			> Make the Lexer & Parser tightly coupled. The Parser itself should call the Lexer to Lex a token. (no more storage in a vector)
