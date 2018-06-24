@@ -18,8 +18,7 @@ This part is pretty similar to [the LLVM Coding Standard](https://llvm.org/docs/
   * Enums and Enum classes
   * typedefs/usings
 
-* **Every variable name** must be a noun beginning with a lowercase letter. 
-  * Also, do not use any kind of special naming (such as `m_`or a `_` at the end)  between member variables and other variables
+* **Every variable name** must be a noun beginning with a lowercase letter. Use a trailing underscore for member variables.
   
 * **Every function name** must be verb phrases, as they represent actions. They must begin with a lowercase letter.
   * An exception shall be made for methods that mimic STL-like behaviour (like functions returning iterators.). An example is `CompoundStatement::stmts_beg()`
