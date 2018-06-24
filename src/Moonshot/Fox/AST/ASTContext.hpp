@@ -24,10 +24,10 @@
 
 
 #include <map>
-
-#include "Moonshot/Fox/Common/Iterators.hpp"
-#include "Decl.hpp"
+#include <memory>
+#include <vector>
 #include "Type.hpp"
+#include "Decl.hpp"
 #include "Identifiers.hpp"
 
 namespace Moonshot
@@ -56,8 +56,7 @@ namespace Moonshot
 			// Returns an ArrayType for a given type.
 			ArrayType* getArrayTypeForType(Type* ty);
 
-			// getter for the identifier table
-			IdentifierTable& getIdentifierTable();
+			IdentifierTable identifiers;
 		private:
 			// Context shouldn't be copyable.
 			ASTContext(const ASTContext&) = delete;
@@ -86,8 +85,5 @@ namespace Moonshot
 
 			// Array types
 			std::map<Type*, std::unique_ptr<ArrayType>> arrayTypes_;
-
-			// The identifier table
-			IdentifierTable identifiers;
 	};
 }
