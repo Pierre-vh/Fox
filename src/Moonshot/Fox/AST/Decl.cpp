@@ -18,8 +18,8 @@
 using namespace Moonshot;
 
 // Decl
-Decl::Decl(const DeclKind & dkind,const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: kind_(dkind), begLoc_(begLoc), endLoc_(endLoc)
+Decl::Decl(const DeclKind & kind,const SourceLoc& begLoc, const SourceLoc& endLoc)
+	: kind_(kind), begLoc_(begLoc), endLoc_(endLoc)
 {
 
 }
@@ -70,8 +70,8 @@ void Decl::setEndLoc(const SourceLoc & loc)
 }
 
 // NamedDecl
-NamedDecl::NamedDecl(const DeclKind& dkind, IdentifierInfo * name, const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: Decl(dkind,begLoc,endLoc), identifier_(name)
+NamedDecl::NamedDecl(const DeclKind& kind, IdentifierInfo * id, const SourceLoc& begLoc, const SourceLoc& endLoc)
+	: Decl(kind,begLoc,endLoc), identifier_(id)
 {
 
 }
@@ -97,8 +97,8 @@ ArgDecl::ArgDecl() : ArgDecl(nullptr,QualType(),SourceLoc(),SourceRange(),Source
 
 }
 
-ArgDecl::ArgDecl(IdentifierInfo* id, const QualType& argType, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc)
-	: NamedDecl(DeclKind::ArgDecl,id,begLoc,endLoc), ty_(argType), tyRange_(tyRange)
+ArgDecl::ArgDecl(IdentifierInfo* id, const QualType& type, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc)
+	: NamedDecl(DeclKind::ArgDecl,id,begLoc,endLoc), type_(type), tyRange_(tyRange)
 {
 
 }
@@ -110,18 +110,18 @@ SourceRange ArgDecl::getTypeRange() const
 
 QualType ArgDecl::getType() const
 {
-	return ty_;
+	return type_;
 }
 
 void ArgDecl::setType(const QualType & qt)
 {
-	ty_ = qt;
+	type_ = qt;
 }
 
 bool ArgDecl::isComplete() const
 {
 	// Node is valid if it has a identifier, a valid type and a valid loc info
-	return this->hasIdentifier() && ty_ && hasLocInfo();
+	return this->hasIdentifier() && type_ && hasLocInfo();
 }
 
 // Function Declaration
@@ -249,17 +249,16 @@ VarDecl::VarDecl() : VarDecl(nullptr,QualType(),nullptr,SourceLoc(),SourceRange(
 
 }
 
-VarDecl::VarDecl(IdentifierInfo * varId,const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc) :
-	NamedDecl(DeclKind::VarDecl, varId, begLoc, endLoc), varTy_(ty), typeRange_(tyRange)
+VarDecl::VarDecl(IdentifierInfo * id, const QualType& type, std::unique_ptr<Expr> initializer, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc) :
+	NamedDecl(DeclKind::VarDecl, id, begLoc, endLoc), type_(type), typeRange_(tyRange), initializer_(std::move(initializer))
 {
-	if (iExpr)
-		initExpr_ = std::move(iExpr);
+
 }
 
 bool VarDecl::isComplete() const
 {
 	// must have a type, and id + valid loc info to be considered valid.
-	return this->hasIdentifier() && varTy_ && hasLocInfo();
+	return this->hasIdentifier() && type_ && hasLocInfo();
 }
 
 SourceRange VarDecl::getTypeRange() const
@@ -269,38 +268,38 @@ SourceRange VarDecl::getTypeRange() const
 
 QualType VarDecl::getType() const
 {
-	return varTy_;
+	return type_;
 }
 
 Expr* VarDecl::getInitExpr()
 {
-	return initExpr_.get();
+	return initializer_.get();
 }
 
 const Expr* VarDecl::getInitExpr() const
 {
-	return initExpr_.get();
+	return initializer_.get();
 }
 
 bool VarDecl::hasInitExpr() const
 {
-	return (bool)initExpr_;
+	return (bool)initializer_;
 }
 
 void VarDecl::setType(const QualType &ty)
 {
-	varTy_ = ty;
+	type_ = ty;
 }
 
 void VarDecl::setInitExpr(std::unique_ptr<Expr> expr)
 {
 	if(expr)
-		initExpr_ = std::move(expr);
+		initializer_ = std::move(expr);
 }
 
 // ASTUnit
-UnitDecl::UnitDecl(IdentifierInfo * id,const FileID& fid)
-	: NamedDecl(DeclKind::UnitDecl,id,SourceLoc(),SourceLoc()), fid_(fid)
+UnitDecl::UnitDecl(IdentifierInfo * id,const FileID& inFile)
+	: NamedDecl(DeclKind::UnitDecl,id,SourceLoc(),SourceLoc()), file_(inFile)
 {
 	// NamedDecl constructor is given invalid SourceLocs, because the SourceLocs are updated automatically when a new Decl is Added.
 }
@@ -364,10 +363,10 @@ UnitDecl::DeclVecConstIter UnitDecl::decls_end() const
 
 FileID UnitDecl::getFileID() const
 {
-	return fid_;
+	return file_;
 }
 
 void UnitDecl::setFileID(const FileID& fid)
 {
-	fid_ = fid;
+	file_ = fid;
 }

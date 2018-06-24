@@ -47,7 +47,7 @@ namespace Moonshot
 
 			bool hasLocInfo() const;
 		protected:
-			Decl(const DeclKind& dkind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			Decl(const DeclKind& kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 		private:
 			SourceLoc begLoc_, endLoc_;
 			DeclKind kind_;
@@ -57,14 +57,14 @@ namespace Moonshot
 	class NamedDecl : public Decl
 	{
 		public:
-			NamedDecl(const DeclKind& dkind,IdentifierInfo* name,const SourceLoc& begLoc, const SourceLoc& endLoc);
+			NamedDecl(const DeclKind& kind,IdentifierInfo* id,const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			IdentifierInfo * getIdentifier() const;
 			void setIdentifier(IdentifierInfo* nname);
 			bool hasIdentifier() const;
 
 		private:
-			IdentifierInfo * identifier_;
+			IdentifierInfo* identifier_;
 	};
 
 	// A Function Argument declaration
@@ -72,7 +72,7 @@ namespace Moonshot
 	{
 		public:
 			ArgDecl();
-			ArgDecl(IdentifierInfo* id, const QualType& argType,const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
+			ArgDecl(IdentifierInfo* id, const QualType& type,const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
 
 			SourceRange getTypeRange() const;
 
@@ -82,7 +82,7 @@ namespace Moonshot
 			bool isComplete() const;
 		private:
 			SourceRange tyRange_;
-			QualType ty_;
+			QualType type_;
 	};
 
 	// a Function declaration node.
@@ -136,7 +136,7 @@ namespace Moonshot
 	{
 		public:
 			VarDecl();
-			VarDecl(IdentifierInfo * varId, const QualType& ty, std::unique_ptr<Expr> iExpr, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
+			VarDecl(IdentifierInfo * id, const QualType& type, std::unique_ptr<Expr> initializer, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
 
 			// Checks if the decl has everything it needs to work.
 			bool isComplete() const;
@@ -153,8 +153,8 @@ namespace Moonshot
 			bool hasInitExpr() const;
 		private:
 			SourceRange typeRange_;
-			QualType varTy_;
-			std::unique_ptr<Expr> initExpr_ = nullptr;
+			QualType type_;
+			std::unique_ptr<Expr> initializer_;
 	};
 
 	// A Unit declaration. A Unit = a source file.
@@ -166,7 +166,7 @@ namespace Moonshot
 			using DeclVecIter = DereferenceIterator<DelVecTy::iterator>;
 			using DeclVecConstIter = DereferenceIterator<DelVecTy::const_iterator>;
 		public:
-			UnitDecl(IdentifierInfo *id, const FileID& fid);
+			UnitDecl(IdentifierInfo *id, const FileID& inFile);
 
 			void addDecl(std::unique_ptr<Decl> decl);
 
@@ -188,7 +188,7 @@ namespace Moonshot
 			void setFileID(const FileID& fid);
 		private:
 			// The decls contained within this unit.
-			FileID fid_;
+			FileID file_;
 			DelVecTy decls_;
 	};
 }
