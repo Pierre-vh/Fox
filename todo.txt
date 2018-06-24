@@ -32,6 +32,9 @@ Moonshot Project To-do List.
 	> First AST Code Review (Done)
 	> Remove "Fake" Recovery nodes in the AST and find a proper, better solution to this problem. (Done, could use improvements later but for now we're good!)
 
+	> Urgent - Re-read Moonshot's code. After my change of mind on the matter of member variable naming, I left some junk here and there.
+	  Just re-read the code, and refactor everything that's against the Coding Standard. 
+
 	> Write Stmt & Expr Loc Tests (Next)
 		> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 
