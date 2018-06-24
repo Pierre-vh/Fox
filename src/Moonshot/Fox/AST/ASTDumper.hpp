@@ -11,7 +11,7 @@
 #pragma once
 #include "ASTVisitor.hpp"
 #include "Moonshot/Fox/Common/Context.hpp"
-#include <iostream>
+#include <ostream>
 
 namespace Moonshot
 {
