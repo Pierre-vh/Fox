@@ -9,11 +9,11 @@
 
 #include "DiagnosticConsumers.hpp"
 #include "Diagnostic.hpp"
-#include <iostream>
+#include <string>
 
 using namespace Moonshot;
 
-StreamDiagConsumer::StreamDiagConsumer(std::ostream & stream) : os_(stream)
+StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream) : os_(stream), sm_(sm)
 {
 
 }

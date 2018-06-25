@@ -27,7 +27,10 @@ namespace Moonshot
 	class DiagnosticEngine
 	{
 		public:
-			DiagnosticEngine();
+			// Constructor that will use a default DiagnosticConsumer
+			DiagnosticEngine(SourceManager& sm);
+
+			// Constructor that will use a pre-created DiagnosticConsumer
 			DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);
 
 			Diagnostic report(const DiagID& diagID);

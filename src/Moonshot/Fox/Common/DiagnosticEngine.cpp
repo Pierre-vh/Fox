@@ -24,7 +24,7 @@ static const DiagSeverity diagsSevs[] = {
 		#include "Diags/DiagsAll.def"
 };
 
-DiagnosticEngine::DiagnosticEngine() : DiagnosticEngine(std::make_unique<StreamDiagConsumer>())
+DiagnosticEngine::DiagnosticEngine(SourceManager& sm) : DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm))
 {
 
 }

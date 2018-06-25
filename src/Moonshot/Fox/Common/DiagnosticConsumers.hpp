@@ -10,12 +10,12 @@
 
 #pragma once
 
-#include <string>
 #include <iostream>
 
 namespace Moonshot
 {
 	class Diagnostic;
+	class SourceManager;
 	enum class DiagSeverity : int8_t;
 	class DiagnosticConsumer
 	{
@@ -26,11 +26,12 @@ namespace Moonshot
 	class StreamDiagConsumer : public DiagnosticConsumer
 	{
 		public:
-			StreamDiagConsumer(std::ostream& stream = std::cout); // Default outstream is cout (stdio)
+			StreamDiagConsumer(SourceManager& sm,std::ostream& stream = std::cout); // Default outstream is cout (stdio)
 			virtual void consume(const Diagnostic& diag) override;
 		private:
 			std::string diagSevToString(const DiagSeverity& ds) const;
 
+			SourceManager& sm_;
 			std::ostream &os_;
 	};
 }
