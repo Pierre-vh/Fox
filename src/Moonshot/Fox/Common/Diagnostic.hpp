@@ -61,8 +61,8 @@ namespace Moonshot
 			DiagID getDiagID() const;
 			std::string getDiagStr() const;
 			DiagSeverity getDiagSeverity() const;
-			SourceRange getErrorRange() const;
-			bool hasValidErrorRange() const;
+			SourceRange getSourceRange() const;
+			bool hasValidSourceRange() const;
 
 			/*
 				Small note: addArg functions return a reference to (this). Why, you ask? Because this allows chaining, like so:

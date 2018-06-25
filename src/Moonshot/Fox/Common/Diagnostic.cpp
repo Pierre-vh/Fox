@@ -67,12 +67,12 @@ DiagSeverity Diagnostic::getDiagSeverity() const
 	return diagSeverity_;
 }
 
-SourceRange Diagnostic::getErrorRange() const
+SourceRange Diagnostic::getSourceRange() const
 {
 	return range_;
 }
 
-bool Diagnostic::hasValidErrorRange() const
+bool Diagnostic::hasValidSourceRange() const
 {
 	return range_.isValid();
 }
