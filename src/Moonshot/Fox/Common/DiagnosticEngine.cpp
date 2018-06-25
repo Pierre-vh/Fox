@@ -8,10 +8,8 @@
 ////------------------------------------------------------////
 
 #include "DiagnosticEngine.hpp"
-
 #include "Diagnostic.hpp"
 #include "DiagnosticConsumers.hpp"
-
 #include <cassert>
 
 using namespace Moonshot;
@@ -36,14 +34,19 @@ DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons): c
 	resetAllOptions();
 }
 
-Diagnostic DiagnosticEngine::report(const DiagID & diagID)
+Diagnostic DiagnosticEngine::report(const DiagID& diagID)
+{
+	return report(diagID, SourceRange());
+}
+
+Diagnostic DiagnosticEngine::report(const DiagID& diagID, const SourceRange& range)
 {
 	assert((bool)consumer_ && "No consumer available!");
 	// Gather diagnostic info
 	const auto idx = Util::enumAsInt(diagID);
 	DiagSeverity sev = diagsSevs[idx];
 	std::string str(diagsStrs[idx]);
-	
+
 	// Promote severity if needed
 	sev = promoteSeverityIfNeeded(sev);
 
@@ -56,13 +59,13 @@ Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 	}
 
 	// Return
-	if (haveTooManyErrorsOccured() && (!hasReportedErrLimitExceededError_)) 
+	if (haveTooManyErrorsOccured() && (!hasReportedErrLimitExceededError_))
 	{
 		// Override the diagnostic with a "Max error count exceeded" Diagnostic.
 		hasReportedErrLimitExceededError_ = true;
 		return report(DiagID::diagengine_maxErrCountExceeded).addArg(errLimit_).freeze(); /* Freeze the diagnostic to prevent user modifications */
 	}
-	else	
+	else
 	{
 		// If we return the user requested diagnostic, update the counters accordingly, then return.
 		updateInternalCounters(sev);
@@ -70,10 +73,16 @@ Diagnostic DiagnosticEngine::report(const DiagID & diagID)
 			consumer_.get(),
 			diagID,
 			sev,
-			str
+			str,
+			range
 		);
 		return rtr_diag;
 	}
+}
+
+Diagnostic DiagnosticEngine::report(const DiagID& diagID, const SourceLoc& loc)
+{
+	return report(diagID, SourceRange(loc));
 }
 
 void DiagnosticEngine::setConsumer(std::unique_ptr<DiagnosticConsumer> ncons)

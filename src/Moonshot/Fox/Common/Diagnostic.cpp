@@ -8,36 +8,33 @@
 ////------------------------------------------------------////
 
 #include "Diagnostic.hpp"
-
 #include "DiagnosticConsumers.hpp"
-
 #include <iostream>
 #include <cassert>
 
 using namespace Moonshot;
 
-Diagnostic::Diagnostic(DiagnosticConsumer * cons, const DiagID & dID, const DiagSeverity & dSev, const std::string& dStr) :
-	consumer_(cons), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr)
+Diagnostic::Diagnostic(DiagnosticConsumer* cons, const DiagID& dID, const DiagSeverity& dSev, const std::string& dStr, const SourceRange& range) :
+	consumer_(cons), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr), range_(range)
 {
 
 }
 
 Diagnostic::Diagnostic(Diagnostic &other)
 {
-	consumer_		= other.consumer_;
-	diagID_			= other.diagID_;
-	diagStr_		= other.diagStr_;
-	diagSeverity_	= other.diagSeverity_;
-	isActive_		= other.isActive_;
-	isFrozen_		= other.isFrozen_;
-	// Kill the other diagnostic!
+	*this = other;
+	other.kill();
+}
+
+Diagnostic::Diagnostic(Diagnostic&& other)
+{
+	*this = other;
 	other.kill();
 }
 
 Diagnostic Diagnostic::createDummyDiagnosticObject()
 {
-	Diagnostic diag;
-	return diag;
+	return Diagnostic();
 }
 
 Diagnostic::~Diagnostic()
@@ -68,6 +65,16 @@ std::string Diagnostic::getDiagStr() const
 DiagSeverity Diagnostic::getDiagSeverity() const
 {
 	return diagSeverity_;
+}
+
+SourceRange Diagnostic::getErrorRange() const
+{
+	return range_;
+}
+
+bool Diagnostic::hasValidErrorRange() const
+{
+	return range_.isValid();
 }
 
 bool Diagnostic::isActive() const
@@ -106,9 +113,14 @@ void Diagnostic::kill()
 {
 	if (isActive_)
 	{
+		// Clear all variables
 		isActive_ = false;
 		consumer_ = 0;
 		diagStr_.clear();
+		isFrozen_ = true;
+		range_ = SourceRange();
+		diagID_ = DiagID::dummyDiag;
+		diagSeverity_ = DiagSeverity::IGNORE;
 	}
 }
 bool Diagnostic::isFrozen() const
@@ -125,4 +137,9 @@ Diagnostic& Diagnostic::freeze()
 bool Diagnostic::hasValidConsumer() const
 {
 	return (bool)consumer_;
+}
+
+Diagnostic::operator bool() const
+{
+	return isActive() && consumer_;
 }

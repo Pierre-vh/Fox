@@ -12,11 +12,15 @@
 
 #pragma once
 
+#include "SourceManager.hpp"
 #include <string>
 #include <sstream>
 
 namespace Moonshot
 {
+	class SourceRange;
+	class DiagnosticConsumer;
+
 	enum class DiagID : int16_t
 	{
 		dummyDiag = -1,
@@ -34,13 +38,16 @@ namespace Moonshot
 		FATAL		// "					" Fatal error, which means an error grave enough that it stopped the compilation
 	};
 
-	class DiagnosticConsumer;
-
 	class Diagnostic
 	{
 		public:
-			Diagnostic(DiagnosticConsumer *cons, const DiagID& dID, const DiagSeverity& dSev,const std::string& dStr);
+			Diagnostic(DiagnosticConsumer *cons, const DiagID& dID, const DiagSeverity& dSev,const std::string& dStr, const SourceRange& range = SourceRange());
+			
+			// Copy constructor that kills the copied diagnostic and steals it's information
 			Diagnostic(Diagnostic &other);
+
+			// Move constructor that kills the moved diagnostic and steal it's information
+			Diagnostic(Diagnostic &&other);
 
 			// Creates a silenced diagnostic object, which is a diagnostic of id SilencedDiag with no consumer, no str and a IGNORE severity.
 			// In short, it's a dummy!
@@ -54,6 +61,8 @@ namespace Moonshot
 			DiagID getDiagID() const;
 			std::string getDiagStr() const;
 			DiagSeverity getDiagSeverity() const;
+			SourceRange getErrorRange() const;
+			bool hasValidErrorRange() const;
 
 			/*
 				Small note: addArg functions return a reference to (this). Why, you ask? Because this allows chaining, like so:
@@ -91,6 +100,9 @@ namespace Moonshot
 
 			// Does this diag possess a valid consumer?
 			bool hasValidConsumer() const;
+
+			// Checks if the arg is valid for emission
+			operator bool() const;
 		private:
 			// friends
 			friend class DiagnosticEngine;
@@ -100,15 +112,14 @@ namespace Moonshot
 			// and to friend classes
 			Diagnostic();  
 			// Deleted assignement operator
-			Diagnostic& operator=(const Diagnostic&) = delete;
+			Diagnostic& operator=(const Diagnostic&) = default;
 
 			// replaces every occurence of "%(value of index)" in a string with the replacement.
 			// e.g: replacePlaceholder("foo",0) -> replaces every %0 in the string by foo
 			Diagnostic& replacePlaceholder(const std::string& replacement, const unsigned char& index);
 
-			void kill(); // Kills this diagnostic (sets isActive to false and remove (frees) most of it's information)
+			void kill(); // Kills this diagnostic (sets isActive to false and remove most of it's information)
 			
-
 			bool isActive_ = true; 
 			bool isFrozen_ = false; 
 			unsigned char curPHIndex_ = 0; 
@@ -117,7 +128,6 @@ namespace Moonshot
 			DiagnosticConsumer *consumer_ = nullptr;
 			DiagID diagID_;
 			std::string diagStr_;
-
-
+			SourceRange range_;
 	};
 }

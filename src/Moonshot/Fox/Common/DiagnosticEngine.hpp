@@ -22,6 +22,8 @@ namespace Moonshot
 	class Diagnostic;
 	enum class DiagSeverity : int8_t;
 	enum class DiagID : int16_t;
+	class SourceLoc;
+	class SourceRange;
 	class DiagnosticEngine
 	{
 		public:
@@ -29,6 +31,8 @@ namespace Moonshot
 			DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);
 
 			Diagnostic report(const DiagID& diagID);
+			Diagnostic report(const DiagID& diagID, const SourceRange& range);
+			Diagnostic report(const DiagID& diagID, const SourceLoc& loc);
 
 			void setConsumer(std::unique_ptr<DiagnosticConsumer> ncons);
 			DiagnosticConsumer * getConsumer();
