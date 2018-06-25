@@ -1,3 +1,3 @@
-Source code for FOX.
+Source code for Fox.
 
-Fox is the front end of the interpreter. <br>
+Fox is the interpreter for the Fox programming language <br>
