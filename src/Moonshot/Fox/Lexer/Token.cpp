@@ -15,6 +15,8 @@
 #include <cassert>
 
 #include "Moonshot/Fox/Common/StringManipulator.hpp"
+#include "Moonshot/Fox/Common/SourceManager.hpp"
+#include "Moonshot/Fox/Common/DiagnosticEngine.hpp"
 #include "Moonshot/Fox/Common/Context.hpp"
 #include "Moonshot/Fox/Common/Utils.hpp"
 #include "Moonshot/Fox/Common/Exceptions.hpp"
@@ -124,9 +126,9 @@ LiteralInfo::operator bool() const
 
 
 
-Token::Token(Context &ctxt, ASTContext &astctxt, std::string tokstr, const SourceRange& range) : range_(range)
+Token::Token(DiagnosticEngine &diags, ASTContext &astctxt, std::string tokstr, const SourceRange& range) : range_(range)
 {
-	identify(ctxt,astctxt,tokstr);
+	identify(diags,astctxt,tokstr);
 }
 
 Token::Token(const Token& cpy) : range_(cpy.range_), tokenData_(cpy.tokenData_)
@@ -311,17 +313,17 @@ IdentifierInfo * Token::getIdentifierInfo()
 	return nullptr;
 }
 
-void Token::identify(Context& ctxt,ASTContext& astctxt,const std::string& str)
+void Token::identify(DiagnosticEngine& diags,ASTContext& astctxt,const std::string& str)
 {
 	// If the token is empty, this means our lexer might be broken!
 	assert(str.size() && "Token cannot be empty!");
 
 	if (idSign(str));
 	else if (idKeyword(str));
-	else if (idLiteral(ctxt,str));
-	else if (idIdentifier(ctxt,astctxt,str));
+	else if (idLiteral(diags, str));
+	else if (idIdentifier(diags, astctxt, str));
 	else
-		ctxt.reportError("Could not identify token \"" + str + "\"");
+		diags.report(DiagID::lexer_cant_id_tok, range_).addArg(str);
 }
 
 bool Token::idKeyword(const std::string& str)
@@ -347,7 +349,7 @@ bool Token::idSign(const std::string& str)
 	return true;
 }
 
-bool Token::idLiteral(Context& ctxt,const std::string& str)
+bool Token::idLiteral(DiagnosticEngine& diags,const std::string& str)
 {
 	StringManipulator strmanip;
 	strmanip.setStr(&str);
@@ -357,12 +359,12 @@ bool Token::idLiteral(Context& ctxt,const std::string& str)
 		{
 			if (strmanip.getSizeInCodepoints() > 3)
 			{
-				ctxt.reportError("Char literal can only contain one character.");
+				diags.report(DiagID::lexer_too_many_char_in_char_literal, range_).addArg(str);
 				return false;
 			}
 			else if (strmanip.getSizeInCodepoints() < 3)
 			{
-				ctxt.reportError("Empty char literal");
+				// Empty char literal error is already handled by the lexer itself
 				return false;
 			}
 			auto charlit = strmanip.getChar(1);
@@ -370,27 +372,18 @@ bool Token::idLiteral(Context& ctxt,const std::string& str)
 			literalData_ = std::make_unique<LiteralInfo>(charlit);
 			return true;
 		}
-		else
-		{
-			ctxt.reportError("Char literal was not correctly closed.");
-			return false;
-		}
+		return false;
 	}
 	else if (strmanip.peekFirst() == '"')
 	{
-		if (strmanip.peekBack() == '"')
+		if (strmanip.peekBack() == '\"')
 		{
-
 			std::string strlit = strmanip.substring(1, strmanip.getSizeInCodepoints() - 2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
 			tokenData_ = Literal();
 			literalData_ = std::make_unique<LiteralInfo>(strlit);
 			return true;
 		}
-		else
-		{
-			ctxt.reportError("String literal was not correctly closed.");
-			return false;
-		}
+		return false;
 	}
 	else if (str == "true" | str == "false")
 	{
@@ -410,10 +403,8 @@ bool Token::idLiteral(Context& ctxt,const std::string& str)
 		}
 		else
 		{
-			// If out of range, try to put the value in a float instead.
-			std::stringstream out;
-			out << "The value \"" << str << "\" was interpreted as a float because it didn't fit a 64 Bit signed int.";
-			ctxt.reportWarning(out.str());
+			// If too big, put the value in a float instead.
+			diags.report(DiagID::lexer_int_too_big_considered_as_float, range_).addArg(str);
 			tokenData_ = Literal();
 			literalData_ = std::make_unique<LiteralInfo>(std::stof(str));
 		}
@@ -428,9 +419,9 @@ bool Token::idLiteral(Context& ctxt,const std::string& str)
 	return false;
 }
 
-bool Token::idIdentifier(Context& ctxt,ASTContext& astctxt, const std::string & str)
+bool Token::idIdentifier(DiagnosticEngine& diags,ASTContext& astctxt, const std::string & str)
 {
-	if (validateIdentifier(ctxt,str))
+	if (validateIdentifier(diags,str))
 	{
 		tokenData_ = astctxt.identifiers.getUniqueIdentifierInfo(str);
 		return true;
@@ -438,7 +429,7 @@ bool Token::idIdentifier(Context& ctxt,ASTContext& astctxt, const std::string & 
 	return false;
 }
 
-bool Token::validateIdentifier(Context& ctxt,const std::string & str) const
+bool Token::validateIdentifier(DiagnosticEngine& diags,const std::string& str) const
 {
 	// Identifiers : An Identifier's first letter must always be a underscore or an alphabetic letter
 	// The first character can then be followed by an underscore, a letter or a number.
@@ -452,7 +443,7 @@ bool Token::validateIdentifier(Context& ctxt,const std::string & str) const
 			auto ch = manip.getCurrentChar();
 			if ((ch != '_') && !iswalnum((char)ch))
 			{
-				ctxt.reportError("The identifier \"" + str + "\" contains invalid characters.");
+				diags.report(DiagID::lexer_invalid_char_in_id, range_).addArg(str);
 				return false;
 			}
 		}

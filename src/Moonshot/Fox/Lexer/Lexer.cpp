@@ -21,14 +21,14 @@
 using namespace Moonshot;
 using namespace Moonshot::Dictionaries;
 
-Lexer::Lexer(Context & curctxt, ASTContext &astctxt) : context_(curctxt), astContext_(astctxt)
+Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt) : diags_(diags), astContext_(astctxt), sm_(sm)
 {
 
 }
 
 FileID Lexer::lexStr(const std::string& str)
 {
-	auto fid = context_.sourceManager.loadFromString(str);
+	auto fid = sm_.loadFromString(str);
 	if(fid)
 		lexFile(fid);
 	return fid;
@@ -38,25 +38,17 @@ void Lexer::lexFile(const FileID& file)
 {
 	assert(file && "INVALID FileID!");
 	currentFile_ = file;
-	manip_.setStr(context_.sourceManager.getSourceForFID(currentFile_));
+	manip_.setStr(sm_.getSourceForFID(currentFile_));
 
 	manip_.reset();
 	state_ = DFAState::S_BASE;
 
-	while(!manip_.eof() && context_.isSafe())
+	while(!manip_.eof())
 		cycle();
 
 	pushTok();
 	runFinalChecks();
-	context_.resetOrigin();
 }
-
-void Lexer::logAllTokens() const
-{
-	for (const Token &tok : tokens_)
-		context_.logMessage(tok.showFormattedTokenData());
-}
-
 
 TokenVector & Lexer::getTokenVector()
 {
@@ -76,43 +68,33 @@ void Lexer::pushTok()
 	// Create a SourceLoc for the begin loc
 	SourceLoc sloc(currentFile_, currentTokenBeginIndex_);
 	// Create the SourceRange of this token:
-	SourceRange range(sloc, static_cast<SourceRange::offset_type>(curtok_.size() - 1));
-	Token t(context_,astContext_,curtok_,range);
+	Token t(diags_,astContext_,curtok_,getCurtokRange());
 
 	if (t)
 		tokens_.push_back(t);
 	else
-		context_.reportError("(this error is a placeholder for : Invalid token found)");
+		diags_.report(DiagID::lexer_invalid_token_found,t.getRange()).addArg(t.getAsString());
 
 	curtok_ = "";
 }
 
 void Lexer::cycle()
 {
-	if (!context_.isSafe())
-	{
-		reportLexerError("Errors found : stopping lexing process.");
-		return;
-	}
-	runStateFunc();					// execute appropriate function
+	runStateFunc();					
 }
 
 void Lexer::runFinalChecks()
 {
-	if (context_.isSafe())
+	switch (state_)
 	{
-		switch (state_)
-		{
-			case DFAState::S_STR:
-				reportLexerError("A String literal was still not closed when end of file was reached");
-				break;
-			case DFAState::S_CHR:
-				reportLexerError("A Char literal was still not closed when end of file was reached");
-				break;
-			case DFAState::S_MCOM:
-				reportLexerError("A Multiline comment was not closed when end of file was reached");
-				break;
-		}
+		case DFAState::S_STR:
+			// FALL THROUGH
+		case DFAState::S_CHR:
+			diags_.report(DiagID::lexer_missing_closing_quote, getCurtokBegLoc());
+			break;
+		case DFAState::S_MCOM:
+			diags_.report(DiagID::lexer_unfinished_multiline_comment, getCurtokBegLoc());
+			break;
 	}
 }
 
@@ -151,11 +133,10 @@ void Lexer::fn_S_BASE()
 	const CharType pk = manip_.peekNext();
 	const CharType c = manip_.getCurrentChar();	// current char
 
-	if (curtok_.size() != 0)	// simple error checking : the Token should always be empty when we're in S_BASE.
-	{
-		throw Exceptions::lexer_critical_error("Current Token isn't empty in S_BASE, current Token :" + curtok_);
-		return;
-	}
+	assert((curtok_.size() == 0) && "Curtok not empty in base state");
+
+	markBeginningOfToken();
+
 	// IGNORE SPACES
 	if (std::iswspace(static_cast<wchar_t>(c))) eatChar();
 	// HANDLE COMMENTS
@@ -172,27 +153,23 @@ void Lexer::fn_S_BASE()
 	// HANDLE SINGLE SEPARATOR
 	else if (isSep(c))				// is the current char a separator, but not a space?
 	{
-		markBeginningOfToken();
 		addToCurtok(eatChar());
 		pushTok();
 	}
 	// HANDLE STRINGS AND CHARS
 	else if (c == '\'')	// Delimiter?
 	{
-		markBeginningOfToken();
 		addToCurtok(eatChar());
 		dfa_goto(DFAState::S_CHR);
 	}
 	else if (c == '"')
 	{
-		markBeginningOfToken();
 		addToCurtok(eatChar());
 		dfa_goto(DFAState::S_STR);
 	}
 	// HANDLE IDs & Everything Else
 	else
 	{
-		markBeginningOfToken();
 		dfa_goto(DFAState::S_WORDS);
 	}
 
@@ -208,7 +185,7 @@ void Lexer::fn_S_STR()
 		dfa_goto(DFAState::S_BASE);
 	}
 	else if (c == '\n')
-		reportLexerError("Newline characters (\\n) in string literals are illegal. Token concerned:" + curtok_);
+		diags_.report(DiagID::lexer_newline_in_literal, getCurtokBegLoc()).addArg("string");
 	else
 		addToCurtok(c);
 }
@@ -247,13 +224,13 @@ void Lexer::fn_S_CHR()
 		addToCurtok(c);
 
 		if (curtok_.size() == 2)
-			reportLexerError("Declared an empty char literal. Char literals must contain at least one character.");
-	
+			diags_.report(DiagID::lexer_empty_char_literal, getCurtokRange());
+
 		pushTok();
 		dfa_goto(DFAState::S_BASE);
 	}
 	else if (c == '\n')
-		reportLexerError("Newline characters (\\n) in char literals are illegal. Token concerned:" + curtok_);
+		diags_.report(DiagID::lexer_newline_in_literal, getCurtokRange());
 	else
 		addToCurtok(c);
 }
@@ -328,7 +305,12 @@ bool Lexer::shouldIgnore(const CharType & c) const
 	return (c == '\r'); // don't push carriage returns
 }
 
-void Lexer::reportLexerError(std::string errmsg) const
+SourceLoc Lexer::getCurtokBegLoc() const
 {
-	context_.reportError(errmsg);
+	return SourceLoc(currentFile_,currentTokenBeginIndex_);
+}
+
+SourceRange Lexer::getCurtokRange() const
+{
+	return SourceRange(getCurtokBegLoc(), static_cast<SourceRange::offset_type>(curtok_.size() - 1));
 }

@@ -19,10 +19,9 @@
 
 namespace Moonshot
 {
-	class Context;
 	class ASTContext;
 	class IdentifierInfo;
-	class SourceRange;
+	class DiagnosticEngine;
 
 	enum class LiteralType : char
 	{
@@ -146,7 +145,7 @@ namespace Moonshot
 		public:
 			Token() = default;
 			Token(const Token& cpy);
-			Token(Context &ctxt,ASTContext &astctxt,std::string tokstr,const SourceRange& range = SourceRange());
+			Token(DiagnosticEngine& diag,ASTContext &astctxt,std::string tokstr,const SourceRange& range = SourceRange());
 
 			std::string showFormattedTokenData() const;
 
@@ -186,12 +185,12 @@ namespace Moonshot
 			std::unique_ptr<LiteralInfo> literalData_ = nullptr;
 
 			/* Identification functions */
-			void identify(Context& ctxt,ASTContext& astctxt, const std::string& str);
+			void identify(DiagnosticEngine& diags,ASTContext& astctxt, const std::string& str);
 			bool idKeyword(const std::string& str);
 			bool idSign(const std::string& str);
-			bool idLiteral(Context& ctxt, const std::string& str);
-			bool idIdentifier(Context& ctxt,ASTContext& astctxt,const std::string& str);
-			bool validateIdentifier(Context& ctxt,const std::string& str) const;
+			bool idLiteral(DiagnosticEngine& diags, const std::string& str);
+			bool idIdentifier(DiagnosticEngine& diags,ASTContext& astctxt,const std::string& str);
+			bool validateIdentifier(DiagnosticEngine& diags,const std::string& str) const;
 			// Helper for idIdentifier
 			bool hasAtLeastOneLetter(const std::string &str) const; // Checks if str_ has at least one upper/lower case letter.
 	

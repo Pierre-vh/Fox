@@ -21,16 +21,15 @@
 #pragma once
 
 #include "Token.hpp"
+#include "Moonshot/Fox/Common/DiagnosticEngine.hpp"
 #include "Moonshot/Fox/Common/StringManipulator.hpp"
 
 namespace Moonshot
 {
-	class Context;
-
 	class Lexer 
 	{
 		public:
-			Lexer(Context& curctxt,ASTContext &astctxt);
+			Lexer(DiagnosticEngine& diags,SourceManager& sm,ASTContext &astctxt);
 
 			// Lexs a raw String.
 			// This will load the string into the SourceManager for you, and returns the FileID.
@@ -40,7 +39,6 @@ namespace Moonshot
 			// This will retrieve the file from the SourceManager from the current Context.
 			void lexFile(const FileID& file);
 			
-			void logAllTokens() const;
 			TokenVector& getTokenVector();
 			std::size_t resultSize() const;	
 
@@ -76,10 +74,12 @@ namespace Moonshot
 			bool isEscapeChar(const CharType& c) const;			// Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.
 			bool shouldIgnore(const CharType& c) const;			// Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
 
-			void reportLexerError(std::string errmsg) const;
+			SourceLoc getCurtokBegLoc() const;
+			SourceRange getCurtokRange() const;
 
 			ASTContext &astContext_;
-			Context& context_;
+			DiagnosticEngine& diags_;
+			SourceManager& sm_;
 			FileID currentFile_;
 
 			bool		escapeFlag_ = false;		
