@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace Moonshot::Tests
+namespace fox::test
 {
 	// Reads a file line by line and puts every line into a vector. 
 	// Returns true in case of success, false if the file could not be opened.

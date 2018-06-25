@@ -15,7 +15,7 @@
 #include <string>
 #include "Moonshot/Fox/Common/Typedefs.hpp"
 
-namespace Moonshot
+namespace fox
 {
 	class SourceLoc;
 	// The FileID is an opaque object that packs a 16 bytes integer, representing a FileID

@@ -14,7 +14,7 @@
 #include "Moonshot/Fox/AST/Expr.hpp"
 #include <cassert>
 
-using namespace Moonshot;
+using namespace fox;
 
 // note, here the unique_ptr is passed by reference because it will be consumed (moved -> nulled) only if a '[' is found, else, it's left untouched.
 Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)

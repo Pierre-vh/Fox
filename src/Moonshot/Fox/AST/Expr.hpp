@@ -12,7 +12,7 @@
 #include "Moonshot/Fox/AST/Stmt.hpp"
 #include "Moonshot/Fox/AST/Type.hpp"
 
-namespace Moonshot	
+namespace fox	
 {
 	// Operators Enums & Dictionaries
 	enum class binaryOperator

@@ -29,7 +29,7 @@
 #include <tuple>
 #include "Moonshot/Fox/Common/Typedefs.hpp"
 
-namespace Moonshot
+namespace fox
 {
 
 	class StringManipulator

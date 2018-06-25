@@ -16,7 +16,7 @@
 #include <string>
 #include <ostream>
 
-namespace Moonshot
+namespace fox
 {
 	class Driver
 	{

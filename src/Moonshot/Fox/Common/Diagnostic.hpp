@@ -16,7 +16,7 @@
 #include <string>
 #include <sstream>
 
-namespace Moonshot
+namespace fox
 {
 	class SourceRange;
 	class DiagnosticConsumer;

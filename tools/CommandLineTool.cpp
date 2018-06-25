@@ -29,7 +29,7 @@ void setConsoleEnv()
 
 // reminder : use ifndef NDEBUG to know if debug/release mode
 
-using namespace Moonshot;
+using namespace fox;
 
 int main()
 {

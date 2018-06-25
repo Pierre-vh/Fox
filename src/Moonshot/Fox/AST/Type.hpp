@@ -16,7 +16,7 @@
 #include <string>
 #include <memory>
 
-namespace Moonshot
+namespace fox
 {
 	// The TypeKind enum
 	enum class TypeKind : char

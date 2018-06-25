@@ -16,7 +16,7 @@
 
 #define DIAGENGINE_DEFAULT_ERR_LIMIT 0
 
-namespace Moonshot
+namespace fox
 {
 
 	class SourceLoc;

@@ -20,8 +20,8 @@
 #include <string>
 #include <functional>
 
-using namespace Moonshot;
-using namespace Moonshot::Tests;
+using namespace fox;
+using namespace fox::test;
 
 class ParsingFunctionTester
 {

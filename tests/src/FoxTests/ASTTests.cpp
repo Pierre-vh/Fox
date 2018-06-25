@@ -15,7 +15,7 @@
 #include "Moonshot/Fox/AST/Type.hpp"
 #include "Moonshot/Fox/AST/ASTVisitor.hpp"
 
-using namespace Moonshot;
+using namespace fox;
 
 // Tests isPrimitive, isArray, isBuiltin
 TEST(ASTTests, TypeFunctions)

@@ -13,7 +13,7 @@
 #include "Moonshot/Fox/Common/Utils.hpp"
 #include <cassert>
 
-using namespace Moonshot;
+using namespace fox;
 
 static const char* diagsStrs[] = {
 	#define DIAG(SEVERITY,ID,TEXT) TEXT,

@@ -13,7 +13,7 @@
 #include <sstream>
 #include <exception>
 
-using namespace Moonshot;
+using namespace fox;
 
 /* Type */
 Type::Type(const TypeKind & tc) : kind_(tc)

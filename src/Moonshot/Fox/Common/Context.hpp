@@ -16,7 +16,7 @@
 #include <memory> // std::unique_ptr
 #include "Moonshot/Fox/Common/SourceManager.hpp"
 
-namespace Moonshot
+namespace fox
 {
 	class Context
 	{

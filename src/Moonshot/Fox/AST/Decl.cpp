@@ -15,7 +15,7 @@
 #include <sstream>
 #include <cassert>
 
-using namespace Moonshot;
+using namespace fox;
 
 // Decl
 Decl::Decl(const DeclKind & kind,const SourceLoc& begLoc, const SourceLoc& endLoc)

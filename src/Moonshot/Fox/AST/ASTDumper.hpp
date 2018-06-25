@@ -13,7 +13,7 @@
 #include "Moonshot/Fox/Common/Context.hpp"
 #include <ostream>
 
-namespace Moonshot
+namespace fox
 {
 	class ASTDumper : public ASTVisitor<ASTDumper, void>
 	{

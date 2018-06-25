@@ -14,7 +14,7 @@
 #include "Moonshot/Fox/Common/Exceptions.hpp"
 #include <cassert>
 
-using namespace Moonshot;
+using namespace fox;
 
 DeclRecorder::DeclRecorder(DeclRecorder * parent) : parent_(parent)
 {

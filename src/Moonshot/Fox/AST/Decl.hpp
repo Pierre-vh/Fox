@@ -12,7 +12,7 @@
 #include "Stmt.hpp"
 #include "DeclRecorder.hpp"
 
-namespace Moonshot
+namespace fox
 {
 	enum class DeclKind : char
 	{

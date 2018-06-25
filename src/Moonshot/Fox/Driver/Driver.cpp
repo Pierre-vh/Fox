@@ -18,7 +18,7 @@
 #include <chrono>
 #include <fstream>
 
-using namespace Moonshot;
+using namespace fox;
 
 bool Driver::processFile(std::ostream& out, const std::string& filepath)
 {

@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-namespace Moonshot
+namespace fox
 {
 	// Typedef for UniquePtrVectors, to make them a bit less verbose.
 	template <typename Ty>

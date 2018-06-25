@@ -27,7 +27,7 @@
 #include <map>
 #include <string>
 
-namespace Moonshot
+namespace fox
 {
 	class IdentifierInfo;
 

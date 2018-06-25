@@ -30,7 +30,7 @@
 #include "Decl.hpp"
 #include "Identifiers.hpp"
 
-namespace Moonshot
+namespace fox
 {
 	class ASTContext
 	{

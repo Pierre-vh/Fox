@@ -15,7 +15,7 @@
 #include "Moonshot/Fox/Common/Context.hpp"
 #include "Support/TestUtils.hpp"
 
-using namespace Moonshot;
+using namespace fox;
 
 // Parser Preparator for LocTests
 class LocTests : public ::testing::Test
@@ -25,7 +25,7 @@ class LocTests : public ::testing::Test
 		{
 			sourceManager = &(context.sourceManager);
 
-			fullFilePath = Tests::convertRelativeTestResPathToAbsolute(filepath);
+			fullFilePath = test::convertRelativeTestResPathToAbsolute(filepath);
 			file = context.sourceManager.loadFromFile(fullFilePath);
 
 			// If file couldn't be loaded, give us the reason

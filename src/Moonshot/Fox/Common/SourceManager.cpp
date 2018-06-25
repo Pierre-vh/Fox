@@ -15,7 +15,7 @@
 
 #define INVALID_FILEID_VALUE 0
 
-using namespace Moonshot;
+using namespace fox;
 
 // FileID
 

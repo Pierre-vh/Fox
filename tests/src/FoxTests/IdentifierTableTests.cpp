@@ -16,7 +16,7 @@
 #include <string>
 #include <random>
 
-using namespace Moonshot;
+using namespace fox;
 
 // Number of identifiers to insert into the table in the "randomIdentifierInsertion" test.
 #define RANDOM_ID_TEST_NUMBER_OF_ID 2048

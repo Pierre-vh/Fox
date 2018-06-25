@@ -18,7 +18,7 @@
 
 #include <cassert>
 
-using namespace Moonshot;
+using namespace fox;
 
 
 UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const bool& isMainUnit)

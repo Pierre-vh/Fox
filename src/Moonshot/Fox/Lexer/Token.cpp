@@ -23,8 +23,8 @@
 #include "Moonshot/Fox/AST/Identifiers.hpp"
 #include "Moonshot/Fox/AST/ASTContext.hpp"
 
-using namespace Moonshot;
-using namespace Moonshot::Dictionaries;
+using namespace fox;
+using namespace fox::Dictionaries;
 
 // Regular expression used for identification 
 std::regex kInt_regex("\\d+");

@@ -13,23 +13,23 @@
 #include "Moonshot/Fox/Common/DiagnosticEngine.hpp"
 #include "Moonshot/Fox/Common/Diagnostic.hpp"
 
-using namespace Moonshot;
+using namespace fox;
 
-namespace Moonshot
+namespace fox
 {
 	class StrDiagConsumer : public DiagnosticConsumer
 	{
-	public:
-		inline virtual void consume(const Diagnostic& diag) override
-		{
-			str_ = diag.getDiagStr();
-		}
-		inline std::string getStr() const
-		{
-			return str_;
-		}
-	private:
-		std::string str_;
+		public:
+			inline virtual void consume(const Diagnostic& diag) override
+			{
+				str_ = diag.getDiagStr();
+			}
+			inline std::string getStr() const
+			{
+				return str_;
+			}
+		private:
+			std::string str_;
 	};
 }
 

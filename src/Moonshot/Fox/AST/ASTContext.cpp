@@ -9,7 +9,7 @@
 
 #include "ASTContext.hpp"
 
-using namespace Moonshot;
+using namespace fox;
 
 ASTContext::ASTContext()
 {

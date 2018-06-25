@@ -12,7 +12,7 @@
 //Nodes
 #include "Moonshot/Fox/AST/Stmt.hpp"
 
-using namespace Moonshot;
+using namespace fox;
 
 Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 {

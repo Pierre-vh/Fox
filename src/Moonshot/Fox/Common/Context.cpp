@@ -11,7 +11,7 @@
 #include <iostream> // std::cout
 #include <sstream> // std::stringstream
 
-using namespace Moonshot;
+using namespace fox;
 
 Context::Context()
 {

@@ -11,7 +11,7 @@
 #include "utfcpp/utf8.hpp"
 #include <cassert>
 
-using namespace Moonshot;
+using namespace fox;
 
 StringManipulator::StringManipulator(const std::string* str)
 {

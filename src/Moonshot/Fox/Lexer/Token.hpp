@@ -17,7 +17,7 @@
 #include <memory>
 #include <map>
 
-namespace Moonshot
+namespace fox
 {
 	class ASTContext;
 	class IdentifierInfo;

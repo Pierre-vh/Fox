@@ -14,8 +14,8 @@
 
 #include <cwctype>		// std::iswspace
 
-using namespace Moonshot;
-using namespace Moonshot::Tests;
+using namespace fox;
+using namespace fox::test;
 
 /*
 	getTextStat : return false if exception happened, and puts e.what() inside exception_details.

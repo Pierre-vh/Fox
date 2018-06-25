@@ -12,7 +12,7 @@
 #include <iostream>
 #include <cassert>
 
-using namespace Moonshot;
+using namespace fox;
 
 Diagnostic::Diagnostic(DiagnosticConsumer* cons, const DiagID& dID, const DiagSeverity& dSev, const std::string& dStr, const SourceRange& range) :
 	consumer_(cons), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr), range_(range)

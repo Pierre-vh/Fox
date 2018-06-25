@@ -18,8 +18,8 @@
 #include "Moonshot/Fox/Lexer/Token.hpp"
 #include "Moonshot/Fox/Common/Context.hpp"
 
-using namespace Moonshot;
-using namespace Moonshot::Tests;
+using namespace fox;
+using namespace fox::test;
 
 TEST(LexerTests,CorrectTest1)
 {

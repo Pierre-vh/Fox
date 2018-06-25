@@ -12,7 +12,7 @@
 #include <string>
 #include <map>
 
-namespace Moonshot
+namespace fox
 {
 	namespace Util
 	{

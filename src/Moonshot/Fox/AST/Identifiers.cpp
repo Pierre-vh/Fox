@@ -13,7 +13,7 @@
 
 #define INVALID_ID_STR "<invalid>"
 
-using namespace Moonshot;
+using namespace fox;
 
 StringPtrInMap::StringPtrInMap(ItTy iter) : it_(iter)
 {

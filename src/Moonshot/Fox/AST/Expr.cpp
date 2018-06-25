@@ -15,7 +15,7 @@
 #include <sstream> 
 #include <cassert>
 
-using namespace Moonshot;
+using namespace fox;
 
 // Operators
 static const std::map<binaryOperator, std::pair<std::string,std::string>> kBinopToStr_dict =

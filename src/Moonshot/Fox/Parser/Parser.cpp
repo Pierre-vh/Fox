@@ -18,7 +18,7 @@
 #include "Moonshot/Fox/Common/Context.hpp"
 #include "Moonshot/Fox/Common/Exceptions.hpp"
 
-using namespace Moonshot;
+using namespace fox;
 
 Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l, DeclRecorder *dr) : context_(c), astContext_(astctxt), tokens_(l), identifiers_(astContext_.identifiers)
 {

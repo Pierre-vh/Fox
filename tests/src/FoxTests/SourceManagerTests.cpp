@@ -13,7 +13,7 @@
 #include "Moonshot/Fox/Common/StringManipulator.hpp"
 #include "Moonshot/Fox/Common/Context.hpp"
 
-using namespace Moonshot;
+using namespace fox;
 
 TEST(SourceManagerTests, FileIDTests)
 {
@@ -22,8 +22,8 @@ TEST(SourceManagerTests, FileIDTests)
 
 TEST(SourceManagerTests, LoadingFromFile)
 {
-	std::string file_path_a = Tests::convertRelativeTestResPathToAbsolute("lexer/utf8/bronzehorseman.txt");
-	std::string file_path_b = Tests::convertRelativeTestResPathToAbsolute("lexer/utf8/ascii.txt");
+	std::string file_path_a = test::convertRelativeTestResPathToAbsolute("lexer/utf8/bronzehorseman.txt");
+	std::string file_path_b = test::convertRelativeTestResPathToAbsolute("lexer/utf8/ascii.txt");
 	Context ctxt;
 	auto fid_a = ctxt.sourceManager.loadFromFile(file_path_a);
 	auto fid_b = ctxt.sourceManager.loadFromFile(file_path_b);
@@ -40,8 +40,8 @@ TEST(SourceManagerTests, LoadingFromFile)
 
 	// Compare contents
 	std::string content_a, content_b;
-	ASSERT_TRUE(Tests::readFileToString("lexer/utf8/bronzehorseman.txt", content_a));
-	ASSERT_TRUE(Tests::readFileToString("lexer/utf8/ascii.txt", content_b));
+	ASSERT_TRUE(test::readFileToString("lexer/utf8/bronzehorseman.txt", content_a));
+	ASSERT_TRUE(test::readFileToString("lexer/utf8/ascii.txt", content_b));
 
 	EXPECT_EQ(content_a, storeddata_a->str);
 	EXPECT_EQ(content_b, storeddata_b->str);
@@ -53,8 +53,8 @@ TEST(SourceManagerTests, LoadingFromString)
 	std::string file_path_b = "lexer/utf8/ascii.txt";
 
 	std::string content_a, content_b;
-	ASSERT_TRUE(Tests::readFileToString(file_path_a, content_a));
-	ASSERT_TRUE(Tests::readFileToString(file_path_b, content_b));
+	ASSERT_TRUE(test::readFileToString(file_path_a, content_a));
+	ASSERT_TRUE(test::readFileToString(file_path_b, content_b));
 
 	Context ctxt;
 	auto fid_a = ctxt.sourceManager.loadFromString(content_a);
@@ -111,7 +111,7 @@ TEST(SourceManagerTests, PreciseLocationTest1)
 	// Create needed variables
 	Context ctxt;
 
-	std::string fp = Tests::convertRelativeTestResPathToAbsolute("sourcemanager/precise_test_1.txt");
+	std::string fp = test::convertRelativeTestResPathToAbsolute("sourcemanager/precise_test_1.txt");
 
 	// Load file in SourceManager
 	auto fid = ctxt.sourceManager.loadFromFile(fp);

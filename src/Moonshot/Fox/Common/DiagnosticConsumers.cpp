@@ -13,7 +13,7 @@
 #include <string>
 #include <sstream>
 
-using namespace Moonshot;
+using namespace fox;
 
 StreamDiagConsumer::StreamDiagConsumer(SourceManager *sm, std::ostream & stream) : os_(stream), sm_(sm)
 {

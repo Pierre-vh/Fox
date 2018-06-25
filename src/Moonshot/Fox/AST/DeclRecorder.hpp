@@ -22,7 +22,7 @@
 #include <vector>
 #include <type_traits>
 
-namespace Moonshot
+namespace fox
 {
 	class Decl;
 	class NamedDecl;

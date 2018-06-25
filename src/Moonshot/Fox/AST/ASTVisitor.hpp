@@ -20,7 +20,7 @@
 #include <exception>
 #include <utility>
 
-namespace Moonshot
+namespace fox
 {
 	// Visitor class, which takes a few templates arguments : The derived class, The return type and the Args
 	// that should be passed to the Visit method.

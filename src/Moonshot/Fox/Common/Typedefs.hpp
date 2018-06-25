@@ -29,7 +29,7 @@ typedef char32_t		CharType;
 // 32 Bits Single Precision floating point number. Might become a 64 Bits one later if needed.
 typedef float			FloatType;
 
-namespace Moonshot
+namespace fox
 {
 	namespace TypeLimits
 	{

@@ -24,7 +24,7 @@
 #include "Moonshot/Fox/Common/DiagnosticEngine.hpp"
 #include "Moonshot/Fox/Common/StringManipulator.hpp"
 
-namespace Moonshot
+namespace fox
 {
 	class Lexer 
 	{

@@ -13,7 +13,7 @@
 
 #include <cassert>
 
-using namespace Moonshot;
+using namespace fox;
 
 // Stmt
 Stmt::Stmt(const StmtKind & skind, const SourceLoc& begLoc, const SourceLoc& endLoc) : kind_(skind), beg_(begLoc), end_(endLoc)

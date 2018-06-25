@@ -42,7 +42,7 @@
 
 #include <cassert>
 
-namespace Moonshot
+namespace fox
 {
 	class Context;
 	class DeclRecorder;

@@ -12,7 +12,7 @@
 #include "Moonshot/Fox/Common/Iterators.hpp"
 #include "Moonshot/Fox/Common/SourceManager.hpp"
 
-namespace Moonshot
+namespace fox
 {
 	// The StmtKind enum
 	enum class StmtKind : char

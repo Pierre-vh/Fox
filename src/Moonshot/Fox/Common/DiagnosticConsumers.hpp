@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-namespace Moonshot
+namespace fox
 {
 	class Diagnostic;
 	class SourceLoc;

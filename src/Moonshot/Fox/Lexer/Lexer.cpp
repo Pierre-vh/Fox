@@ -18,8 +18,8 @@
 #include "Moonshot/Fox/Common/Context.hpp"
 #include "Moonshot/Fox/Common/Exceptions.hpp"
 
-using namespace Moonshot;
-using namespace Moonshot::Dictionaries;
+using namespace fox;
+using namespace fox::Dictionaries;
 
 Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt) : diags_(diags), astContext_(astctxt), sm_(sm)
 {

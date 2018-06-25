@@ -17,7 +17,7 @@
 #define INDENT "    "
 #define OFFSET_INDENT "\t"
 
-using namespace Moonshot;
+using namespace fox;
 
 ASTDumper::ASTDumper(Context& ctxt,std::ostream & out, const uint8_t & offsettabs) : out_(out), offsetTabs_(offsettabs), ctxt_(ctxt)
 {
