@@ -34,7 +34,7 @@ Moonshot Project To-do List.
 
 	> Write Stmt & Expr Loc Tests (Next)
 		> Try to cover most cases shortly, maybe 2 or 3 max test per node.
-		> Probably don't use a file, just do SetUp("<code goes here>""). 
+		> Probably don't use a file, just do SetUp("<code goes here>"") and test for offset instead of PreciseLocs
 
 	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg for the "Caret"
 		> 2 Variants of the error reporting function should exist :
@@ -58,11 +58,12 @@ Moonshot Project To-do List.
 
 	> Add classof operators to the AST (will be useful for testing if a class is a derived/base of without dynamic_cast)
 
-	> (Idea) Rethink what my names means, and maybe just use "fox" instead of "Moonshot" as my namespace?
+	> Namespace/Names cleanup
 		> Ideas
-			> Moonshot is the codename of the Project and the implementation of fox
+			> Moonshot is the codename of the Project
 			> Fox is the language
-				> In that case, change "Moonshot" to "fox" as the namespace.
+				> In that case, change "Moonshot" to "fox" as the namespace, and remove the Moonshot directory (just go with src/Fox)
+				> For tests : fox::test
 
 	// Move to 0.3.0
 	QOL:
