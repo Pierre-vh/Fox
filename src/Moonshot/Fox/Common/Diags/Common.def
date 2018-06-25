@@ -4,30 +4,9 @@
 // File : DiagsCommon.def											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file registers the diagnostics messages for the Common classes.
+// This file registers general purpose Diagnostic Messages
+// and the Diagnostic Messages for /Common
 ////------------------------------------------------------////
-
-#ifndef DIAG
-	#define DIAG(SEVERITY,ID,TEXT)
-#endif 
-
-#ifndef NOTE
-	#define NOTE(ID,TEXT)		DIAG(NOTE,ID,TEXT)
-#endif
-
-#ifndef WARNING
-	#define WARNING(ID,TEXT)	DIAG(WARNING,ID,TEXT)
-#endif
-
-#ifndef ERROR
-	#define ERROR(ID,TEXT)		DIAG(ERROR,ID,TEXT)
-#endif
-
-#ifndef FATAL
-	#define FATAL(ID,TEXT)		DIAG(FATAL,ID,TEXT)
-#endif
-
-////////////////////////
 
 // Unit tests flags
 NOTE(unittest_notetest, "Test note")
@@ -43,14 +22,4 @@ NOTE(unittest_placeholderremoval4, "Hello, %0")
 
 // DiagnosticEngine self Diagnostics
 FATAL(diagengine_maxErrCountExceeded, "Current error count exceeded the maximum thresold of %0.")
-
-//////////////////////////////////
-
-#ifndef KEEP_DIAG_DEF
-	#undef DIAG
-	#undef NOTE
-	#undef WARNING
-	#undef ERROR
-	#undef FATAL
-#endif
 

@@ -7,14 +7,29 @@
 // This file is an include file used to group every diagnostic declaration in one file.
 ////------------------------------------------------------////
 
+#ifndef DIAG
+	#define DIAG(SEVERITY,ID,TEXT)
+#endif 
 
-#define KEEP_DIAG_DEF
+#ifndef NOTE
+	#define NOTE(ID,TEXT)		DIAG(NOTE,ID,TEXT)
+#endif
 
+#ifndef WARNING
+	#define WARNING(ID,TEXT)	DIAG(WARNING,ID,TEXT)
+#endif
 
-// Include all diagnostics declarations
-#include "DiagsCommon.def"
+#ifndef ERROR
+	#define ERROR(ID,TEXT)		DIAG(ERROR,ID,TEXT)
+#endif
 
-#undef KEEP_DIAG_DEF
+#ifndef FATAL
+	#define FATAL(ID,TEXT)		DIAG(FATAL,ID,TEXT)
+#endif
+
+#include "Common.def"
+#include "Lexer.def"
+
 #undef DIAG
 #undef NOTE
 #undef WARNING
