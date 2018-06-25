@@ -15,7 +15,7 @@
 
 using namespace Moonshot;
 
-StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream) : os_(stream), sm_(sm)
+StreamDiagConsumer::StreamDiagConsumer(SourceManager *sm, std::ostream & stream) : os_(stream), sm_(sm)
 {
 
 }
@@ -32,10 +32,10 @@ void StreamDiagConsumer::consume(const Diagnostic& diag)
 
 std::string StreamDiagConsumer::getLocInfo(const SourceLoc& loc) const
 {
-	if (!loc)
+	if (!loc || !sm_)
 		return "<unknown>";
 
-	CompleteLoc compLoc = sm_.getCompleteLocForSourceLoc(loc);
+	CompleteLoc compLoc = sm_->getCompleteLocForSourceLoc(loc);
 
 	std::stringstream ss;
 	ss << "<" << compLoc.fileName << ">(l:" << compLoc.line << ",c:" << compLoc.column << ")";

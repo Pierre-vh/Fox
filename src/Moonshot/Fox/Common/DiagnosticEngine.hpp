@@ -11,24 +11,21 @@
 #pragma once
 
 #include "DiagnosticConsumers.hpp"
-#include "Moonshot/Fox/Common/Utils.hpp"
-
+#include "Diagnostic.hpp"
 #include <memory>
 
 #define DIAGENGINE_DEFAULT_ERR_LIMIT 0
 
 namespace Moonshot
 {
-	class Diagnostic;
-	enum class DiagSeverity : int8_t;
-	enum class DiagID : int16_t;
+
 	class SourceLoc;
 	class SourceRange;
 	class DiagnosticEngine
 	{
 		public:
 			// Constructor that will use a default DiagnosticConsumer
-			DiagnosticEngine(SourceManager& sm);
+			DiagnosticEngine(SourceManager* sm = nullptr);
 
 			// Constructor that will use a pre-created DiagnosticConsumer
 			DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);

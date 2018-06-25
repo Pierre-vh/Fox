@@ -27,14 +27,14 @@ namespace Moonshot
 	class StreamDiagConsumer : public DiagnosticConsumer
 	{
 		public:
-			StreamDiagConsumer(SourceManager& sm,std::ostream& stream = std::cout); // Default outstream is cout (stdio)
+			StreamDiagConsumer(SourceManager* sm,std::ostream& stream = std::cout); // Default outstream is cout (stdio)
 			virtual void consume(const Diagnostic& diag) override;
 
 		private:
 			std::string getLocInfo(const SourceLoc& loc) const;
 			std::string diagSevToString(const DiagSeverity& ds) const;
 
-			SourceManager& sm_;
+			SourceManager* sm_;
 			std::ostream &os_;
 	};
 }
