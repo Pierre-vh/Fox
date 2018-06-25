@@ -247,3 +247,28 @@ TEST(DiagnosticsTests, ErrorsAreFatal)
 	EXPECT_TRUE(diagEng.hasFatalErrorOccured()) << "Diag didn't count as a fatal error.";
 	EXPECT_EQ(diagEng.getNumErrors(), 0) << "This error was supposed to be fatal and thus count as a fatal error, not a normal error.";
 }
+
+TEST(DiagnosticsTests, CopyingDiagKillsCopiedDiag)
+{
+	// Test with copy constructor
+	auto diagEng = createDiagEngine();
+	auto diagA = diagEng.report(DiagID::unittest_errtest);
+	auto diagB(diagA);
+	EXPECT_FALSE(diagA.isActive());
+	EXPECT_TRUE(diagA.isFrozen());
+	EXPECT_FALSE(diagA);
+
+	EXPECT_TRUE(diagB.isActive());
+	EXPECT_FALSE(diagB.isFrozen());
+	EXPECT_TRUE(diagB);
+
+	// Test with move constructor
+	auto diagC(std::move(diagB));
+	EXPECT_FALSE(diagB.isActive());
+	EXPECT_TRUE(diagB.isFrozen());
+	EXPECT_FALSE(diagB);
+
+	EXPECT_TRUE(diagC.isActive());
+	EXPECT_FALSE(diagC.isFrozen());
+	EXPECT_TRUE(diagC);
+}
