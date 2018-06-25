@@ -15,6 +15,7 @@
 namespace Moonshot
 {
 	class Diagnostic;
+	class SourceLoc;
 	class SourceManager;
 	enum class DiagSeverity : int8_t;
 	class DiagnosticConsumer
@@ -28,7 +29,9 @@ namespace Moonshot
 		public:
 			StreamDiagConsumer(SourceManager& sm,std::ostream& stream = std::cout); // Default outstream is cout (stdio)
 			virtual void consume(const Diagnostic& diag) override;
+
 		private:
+			std::string getLocInfo(const SourceLoc& loc) const;
 			std::string diagSevToString(const DiagSeverity& ds) const;
 
 			SourceManager& sm_;
