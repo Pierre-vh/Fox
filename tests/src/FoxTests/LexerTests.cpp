@@ -23,81 +23,86 @@ using namespace Moonshot::Tests;
 
 TEST(LexerTests,CorrectTest1)
 {
-	std::string file_content, file_path;
-	file_path = "lexer/inputs/correct_1.fox";
-	ASSERT_TRUE(readFileToString(file_path,file_content)) << "Could not open test file \"" << file_path << '"';
+	SourceManager sm;
+	DiagnosticEngine dg;
 
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/correct_1.fox"));
+	ASSERT_TRUE(file) << "Could not open test file";
 	ASTContext astctxt;
-	Lexer lex(ctxt, astctxt);
-	lex.lexStr(file_content);
-	ASSERT_TRUE(ctxt.isSafe()) << "Context reported one or more errors while lexing the file. Context log:\n" << ctxt.getLogs();
+	Lexer lex(dg,sm, astctxt);
+	lex.lexFile(file);
+
+	EXPECT_TRUE(dg.getNumErrors() == 0) << "One or more errors occured while lexing the file";
 }
 
 TEST(LexerTests, IncorrectTest1)
 {
-	std::string file_content, file_path;
-	file_path = "lexer/inputs/incorrect_1.fox";
-	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
+	SourceManager sm;
+	DiagnosticEngine dg;
 
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_1.fox"));
+	ASSERT_TRUE(file) << "Could not open test file";
 	ASTContext astctxt;
-	Lexer lex(ctxt, astctxt);
-	lex.lexStr(file_content);
-	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
+	Lexer lex(dg, sm, astctxt);
+	lex.lexFile(file);
+
+	EXPECT_TRUE(dg.getNumErrors() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
 TEST(LexerTests, IncorrectTest2)
 {
-	std::string file_content, file_path;
-	file_path = "lexer/inputs/incorrect_2.fox";
-	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
+	SourceManager sm;
+	DiagnosticEngine dg;
 
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_2.fox"));
+	ASSERT_TRUE(file) << "Could not open test file";
 	ASTContext astctxt;
-	Lexer lex(ctxt, astctxt);
-	lex.lexStr(file_content);
-	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
+	Lexer lex(dg, sm, astctxt);
+	lex.lexFile(file);
+
+	EXPECT_TRUE(dg.getNumErrors() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
 TEST(LexerTests, IncorrectTest3)
 {
-	std::string file_content, file_path;
-	file_path = "lexer/inputs/incorrect_3.fox";
-	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
+	SourceManager sm;
+	DiagnosticEngine dg;
 
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_3.fox"));
+	ASSERT_TRUE(file) << "Could not open test file";
 	ASTContext astctxt;
-	Lexer lex(ctxt, astctxt);
-	lex.lexStr(file_content);
-	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
+	Lexer lex(dg, sm, astctxt);
+	lex.lexFile(file);
+
+	EXPECT_TRUE(dg.getNumErrors() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
 TEST(LexerTests, IncorrectTest4)
 {
-	std::string file_content, file_path;
-	file_path = "lexer/inputs/incorrect_3.fox";
-	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
+	SourceManager sm;
+	DiagnosticEngine dg;
 
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_4.fox"));
+	ASSERT_TRUE(file) << "Could not open test file";
 	ASTContext astctxt;
-	Lexer lex(ctxt, astctxt);
-	lex.lexStr(file_content);
-	EXPECT_FALSE(ctxt.isSafe()) << "Test completed successfully, but was expected to fail.";
+	Lexer lex(dg, sm, astctxt);
+	lex.lexFile(file);
+
+	EXPECT_TRUE(dg.getNumErrors() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
 TEST(TokenTests, FloatID)
 {
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	DiagnosticEngine dg;
 	ASTContext astctxt;
 
-	Token tok1(ctxt, astctxt, "3.14");
-	Token tok2(ctxt, astctxt, "0.0");
-	Token tok3(ctxt, astctxt, "0.3333333333333");
+	Token tok1(dg, astctxt, "3.14");
+	Token tok2(dg, astctxt, "0.0");
+	Token tok3(dg, astctxt, "0.3333333333333");
 
-	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
-	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
-	ASSERT_TRUE(tok3.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok1.isLiteral());
+	ASSERT_TRUE(tok2.isLiteral());
+	ASSERT_TRUE(tok3.isLiteral());
 
 	LiteralInfo litInfo1 = tok1.getLiteralInfo();
 	LiteralInfo litInfo2 = tok2.getLiteralInfo();
@@ -118,16 +123,16 @@ TEST(TokenTests, FloatID)
 
 TEST(TokenTests, IntId)
 {
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	DiagnosticEngine dg;
 	ASTContext astctxt;
 
-	Token tok1(ctxt, astctxt,"0");
-	Token tok2(ctxt, astctxt,"9223372036854775000");
-	Token tok3(ctxt, astctxt,"4242424242424242");
+	Token tok1(dg, astctxt,"0");
+	Token tok2(dg, astctxt,"9223372036854775000");
+	Token tok3(dg, astctxt,"4242424242424242");
 
-	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
-	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
-	ASSERT_TRUE(tok3.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok1.isLiteral());
+	ASSERT_TRUE(tok2.isLiteral());
+	ASSERT_TRUE(tok3.isLiteral());
 
 	LiteralInfo litInfo1 = tok1.getLiteralInfo();
 	LiteralInfo litInfo2 = tok2.getLiteralInfo();
@@ -148,16 +153,16 @@ TEST(TokenTests, IntId)
 
 TEST(TokenTests, StringID)
 {
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	DiagnosticEngine dg;
 	ASTContext astctxt;
 
-	Token tok1(ctxt, astctxt,"\"Hello, world!\"");
-	Token tok2(ctxt, astctxt,"\"\"");
-	Token tok3(ctxt, astctxt,"\"!\"");
+	Token tok1(dg, astctxt,"\"Hello, world!\"");
+	Token tok2(dg, astctxt,"\"\"");
+	Token tok3(dg, astctxt,"\"!\"");
 
-	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
-	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
-	ASSERT_TRUE(tok3.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok1.isLiteral());
+	ASSERT_TRUE(tok2.isLiteral());
+	ASSERT_TRUE(tok3.isLiteral());
 
 	LiteralInfo litInfo1 = tok1.getLiteralInfo();
 	LiteralInfo litInfo2 = tok2.getLiteralInfo();
@@ -178,16 +183,16 @@ TEST(TokenTests, StringID)
 
 TEST(TokenTests, CharID)
 {
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	DiagnosticEngine dg;
 	ASTContext astctxt;
 
-	Token tok1(ctxt, astctxt,"'c'");
-	Token tok2(ctxt, astctxt,"' '");
-	Token tok3(ctxt, astctxt,"'!'");
+	Token tok1(dg, astctxt,"'c'");
+	Token tok2(dg, astctxt,"' '");
+	Token tok3(dg, astctxt,"'!'");
 
-	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
-	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
-	ASSERT_TRUE(tok3.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok1.isLiteral());
+	ASSERT_TRUE(tok2.isLiteral());
+	ASSERT_TRUE(tok3.isLiteral());
 
 	LiteralInfo litInfo1 = tok1.getLiteralInfo();
 	LiteralInfo litInfo2 = tok2.getLiteralInfo();
@@ -208,14 +213,14 @@ TEST(TokenTests, CharID)
 
 TEST(TokenTests, BoolID)
 {
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	DiagnosticEngine dg;
 	ASTContext astctxt;
 
-	Token tok1(ctxt, astctxt,"true");
-	Token tok2(ctxt, astctxt,"false");
+	Token tok1(dg, astctxt,"true");
+	Token tok2(dg, astctxt,"false");
 
-	ASSERT_TRUE(tok1.isLiteral()) << "Logs:" << ctxt.getLogs();
-	ASSERT_TRUE(tok2.isLiteral()) << "Logs:" << ctxt.getLogs();
+	ASSERT_TRUE(tok1.isLiteral());
+	ASSERT_TRUE(tok2.isLiteral());
 
 	LiteralInfo litInfo1 = tok1.getLiteralInfo();
 	LiteralInfo litInfo2 = tok2.getLiteralInfo();
@@ -232,15 +237,17 @@ TEST(TokenTests, BoolID)
 
 TEST(LexerTests, Coordinates1)
 {
-	std::string file_content, file_path;
-	file_path = "lexer/coordtests/test1.fox";
-	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
+	DiagnosticEngine dg;
+	SourceManager sm;
 
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	std::string file_content, file_path;
+	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/coordtests/test1.fox"));
+	ASSERT_TRUE(file) << "Could not open test file";
+
 	ASTContext astctxt;
-	Lexer lex(ctxt, astctxt);
-	lex.lexStr(file_content);
-	ASSERT_TRUE(ctxt.isSafe()) << "Context reported one or more errors while lexing the file. Context log:\n" << ctxt.getLogs();
+	Lexer lex(dg,sm,astctxt);
+	lex.lexFile(file);
+	ASSERT_TRUE(dg.getNumErrors() == 0);
 
 	TokenVector& output = lex.getTokenVector();
 	char varFounds = 0;
@@ -249,8 +256,8 @@ TEST(LexerTests, Coordinates1)
 		if (elem.getAsString() == "_FIRST_VARIABLE_")
 		{
 			varFounds++;
-			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().getBeginSourceLoc());
-			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().makeEndSourceLoc());
+			auto beg_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().getBeginSourceLoc());
+			auto end_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().makeEndSourceLoc());
 			
 			// Line
 			EXPECT_EQ(beg_ploc.line, 7);
@@ -263,8 +270,8 @@ TEST(LexerTests, Coordinates1)
 		else if (elem.getAsString() == "_2NDVAR__")
 		{
 			varFounds++;
-			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().getBeginSourceLoc());
-			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().makeEndSourceLoc());
+			auto beg_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().getBeginSourceLoc());
+			auto end_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().makeEndSourceLoc());
 
 			// Line
 			EXPECT_EQ(beg_ploc.line, 10);
@@ -277,8 +284,8 @@ TEST(LexerTests, Coordinates1)
 		else if (elem.getAsString() == "ThirdVariable")
 		{
 			varFounds++;
-			auto beg_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().getBeginSourceLoc());
-			auto end_ploc = ctxt.sourceManager.getCompleteLocForSourceLoc(elem.getRange().makeEndSourceLoc());
+			auto beg_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().getBeginSourceLoc());
+			auto end_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().makeEndSourceLoc());
 
 			// Line
 			EXPECT_EQ(beg_ploc.line, 13);

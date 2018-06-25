@@ -23,6 +23,7 @@ using namespace Moonshot;
 bool Driver::processFile(std::ostream& out, const std::string& filepath)
 {
 	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+	DiagnosticEngine dg(&ctxt.sourceManager);
 	// Create a ASTContext
 	std::unique_ptr<ASTContext> astCtxt = std::make_unique<ASTContext>();
 
@@ -34,7 +35,7 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	}
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	Lexer lex(ctxt,*astCtxt);
+	Lexer lex(dg,ctxt.sourceManager,*astCtxt);
 	lex.lexFile(fid);
 
 	auto t1 = std::chrono::high_resolution_clock::now();

@@ -8,8 +8,12 @@
 ////------------------------------------------------------////
 
 #include "gtest/gtest.h"
+#include "Moonshot/Fox/Lexer/Lexer.hpp"
+#include "Moonshot/Fox/Parser/Parser.hpp"
+#include "Moonshot/Fox/Common/SourceManager.hpp"
+#include "Moonshot/Fox/Common/DiagnosticEngine.hpp"
+#include "Moonshot/Fox/Common/Context.hpp"
 #include "Support/TestUtils.hpp"
-#include "Utils.hpp"
 
 using namespace Moonshot;
 
@@ -30,7 +34,7 @@ class LocTests : public ::testing::Test
 				FAIL() << "Couldn't load file \""<< filepath << "\" in memory.";
 			}
 
-			lexer = std::make_unique<Lexer>(context, astContext);
+			lexer = std::make_unique<Lexer>(dg, context.sourceManager, astContext);
 			lexer->lexFile(file);
 
 			if (!context.isSafe())
@@ -43,6 +47,7 @@ class LocTests : public ::testing::Test
 
 		std::string fullFilePath;
 
+		DiagnosticEngine dg;
 		FileID file;
 		Context context;
 		ASTContext astContext;

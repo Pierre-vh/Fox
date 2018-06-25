@@ -61,9 +61,10 @@ class ParsingFunctionTester
 				linecount++;
 				if (hashtagCommentsEnabled && (sample[0] == '#'))
 					continue;
+				DiagnosticEngine dg;
 				Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
 				ASTContext astctxt;
-				Lexer lex(ctxt, astctxt);
+				Lexer lex(dg, ctxt.sourceManager , astctxt);
 				lex.lexStr(sample);
 				Parser parse(ctxt, astctxt, lex.getTokenVector());
 
