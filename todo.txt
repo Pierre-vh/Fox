@@ -31,18 +31,9 @@ Moonshot Project To-do List.
 	> Write Decl Locs Test (Done)
 	> First AST Code Review (Done)
 	> Remove "Fake" Recovery nodes in the AST and find a proper, better solution to this problem. (Done, could use improvements later but for now we're good!)
+	> Update Diagnostics & DiagnosticsEngine to support SourceRange/SourceLoc (Done)
 
-	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg for the "Caret"
-		> 2 Variants of the error reporting function should exist :
-			> One that report an error
-			> One that report an error at a loc/range (sets the caret)
-
-	> Move all of my current diagnostics message to the new system.
-
-	> Delete the context's system primitive diag system.
-
-	> Delete the Context. It'll be effectively useless after
-		> At first, use Error Count to determine if we can move on to the next phase of compilation.
+	> Move all of my current diagnostics message to the new system & Delete the now useless Context (Next)
 
 	> Small update to SourceManager:
 		Rename SourceManager.hpp/.cpp to Source.hpp/.cpp
