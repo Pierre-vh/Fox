@@ -69,6 +69,8 @@ namespace Moonshot
 	class SourceManager
 	{
 		public:
+			SourceManager() = default;
+
 			struct StoredData
 			{
 				StoredData(const std::string& name, const std::string& content) : fileName(name), str(content)
@@ -93,16 +95,9 @@ namespace Moonshot
 			CompleteLoc getCompleteLocForSourceLoc(const SourceLoc& sloc) const;
 
 		private:
-
-			// The context is our friend!
-			friend class Context;
-
 			// Private methods
 			FileID generateNewFileID() const;
 			CharType extractCharFromStr(const std::string* str, const std::size_t& idx) const;
-
-			// Private constructor, so only the Context can create a SourceManager.
-			SourceManager() = default;
 
 			// Make it non copyable
 			SourceManager(const SourceManager&) = delete;
