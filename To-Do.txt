@@ -22,7 +22,7 @@ Moonshot Project To-do List.
 	> Delete old ASTVisitor & Dumper  (Done)
 	> Rewrite dumper under the new system	(Done)
 	> Make "MapDataIterator" work (Done)
-	> Do some polish on ASTDumper. Right now the dump is a bit rough to read, maybe try to make it prettier, or let the user enable/disable some informations? (Done? Will come back to that from time to time)
+	> ASTDumper overhaul (Done)
 	> Write tests for the new visitor system (I'll do more when needed)
 	> Sourceloc & SourceManager system (Done)
 	> Update lexer/token to add a sourcerange/loc to every single token (Done)
@@ -30,14 +30,16 @@ Moonshot Project To-do List.
 	> Update the AST so all nodes have a sourceloc/range too wherever needed. (Done)
 	> Write Decl Locs Test (Done)
 	> First AST Code Review (Done)
-	> Remove "Fake" Recovery nodes in the AST and find a proper, better solution to this problem. (Done, could use improvements later but for now we're good!)
+	> Remove "Fake" Recovery nodes in the AST and find a proper, better solution to this problem. (Done)
 	> Update Diagnostics & DiagnosticsEngine to support SourceRange/SourceLoc (Done)
+	> Namespace/Name change (Done)
 
 	> Move all of my current diagnostics message to the new system & Delete the now useless Context (Next)
 
 	> Small update to SourceManager:
 		Rename SourceManager.hpp/.cpp to Source.hpp/.cpp
 		Rework the PreciseLoc algorithm : cache a "line table" and use it
+			> std::map would work, just use the lower_bound to find the line and that's it.
 
 	> Add classof operators to the AST (will be useful for testing if a class is a derived/base of without dynamic_cast)
 
@@ -46,13 +48,6 @@ Moonshot Project To-do List.
 			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 			> Probably don't use a file, just do SetUp("<code goes here>"")w
 		> classof tests
-
-	> Namespace/Names cleanup
-		> Ideas
-			> Moonshot is the codename of the Project
-			> Fox is the language
-				> In that case, change "Moonshot" to "fox" as the namespace, and remove the Moonshot directory (just go with src/Fox)
-				> For tests : fox::test
 
 	// Move to 0.3.0 & Sync with Master
 	QOL:
