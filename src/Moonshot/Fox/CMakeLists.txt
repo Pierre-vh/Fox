@@ -3,4 +3,5 @@ add_source_dir(fox_src
 		Parser 
 		AST 
 		Common
+		Driver
 	)
