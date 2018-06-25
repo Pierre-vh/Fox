@@ -32,18 +32,10 @@ Moonshot Project To-do List.
 	> First AST Code Review (Done)
 	> Remove "Fake" Recovery nodes in the AST and find a proper, better solution to this problem. (Done, could use improvements later but for now we're good!)
 
-	> Write Stmt & Expr Loc Tests (Next)
-		> Try to cover most cases shortly, maybe 2 or 3 max test per node.
-		> Probably don't use a file, just do SetUp("<code goes here>"") and test for offset instead of PreciseLocs
-
 	> Update Diagnostics & DiagnosticsEngine to support a SourceRange/SourceLoc arg for the "Caret"
 		> 2 Variants of the error reporting function should exist :
 			> One that report an error
 			> One that report an error at a loc/range (sets the caret)
-
-	> The DiagnosticConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place where
-	  the error is.
-	  > Implement that in the DiagnosticConsumer class in a protected function that the derived classes can use.
 
 	> Move all of my current diagnostics message to the new system.
 
@@ -58,6 +50,12 @@ Moonshot Project To-do List.
 
 	> Add classof operators to the AST (will be useful for testing if a class is a derived/base of without dynamic_cast)
 
+	> Write the Remaining tests needed:
+		> Write Stmt & Expr Loc Tests (Next)
+			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
+			> Probably don't use a file, just do SetUp("<code goes here>"")w
+		> classof tests
+
 	> Namespace/Names cleanup
 		> Ideas
 			> Moonshot is the codename of the Project
@@ -65,17 +63,18 @@ Moonshot Project To-do List.
 				> In that case, change "Moonshot" to "fox" as the namespace, and remove the Moonshot directory (just go with src/Fox)
 				> For tests : fox::test
 
-	// Move to 0.3.0
+	// Move to 0.3.0 & Sync with Master
 	QOL:
+		> Implement the "Caret" 
+			>	The DiagnosticConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place wherethe error is.
+				> Implement that in the DiagnosticConsumer class in a protected function that the derived classes can use. (e.g. "getOriginalSourceLine(SourceLoc)")
+
 		> Add a "Casting.h" file with wrappers around dynamic_cast, and utility functions that takes advantage of "classof"
 			> Goal : If I move to RTTI-less casts later, I'll just need to change the implementation, instead of having to refactor a lot of code.
 				> e.g. "fox_cast", "fox_isa"
 				> Use the LLVM dyn_cast implementation as a guide.
 
-		> Maybe switch to C++14 instead of 17 for increased portability.
-			> This shouldn't be too hard, probably an afternoon of work. But I'll have to find a good std::variant replacement.
-
-		> Lexer Rework
+		> Lexer Rework (Exact time to be decided, might come before/after Semantic Analysis)
 			> Make the Lexer & Parser tightly coupled. The Parser itself should call the Lexer to Lex a token. (no more storage in a vector)
 				> This will require the Parser or Lexer to have a caching mechanism, and use "cached" token when backtracking is required.
 				> the "createParserStateBackup" functions will be removed, and replaced with a call to the lexer similar to "lexer_.backtrack(x)"
