@@ -11,10 +11,10 @@
 
 #include "Parser.hpp"
 
-#include "Moonshot/Fox/Common/Context.hpp"
-#include "Moonshot/Fox/AST/ASTContext.hpp"
-#include "Moonshot/Fox/AST/Decl.hpp"
-#include "Moonshot/Fox/AST/Stmt.hpp"
+#include "Fox/Common/Context.hpp"
+#include "Fox/AST/ASTContext.hpp"
+#include "Fox/AST/Decl.hpp"
+#include "Fox/AST/Stmt.hpp"
 
 #include <cassert>
 

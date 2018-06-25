@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "Moonshot/Fox/Common/Typedefs.hpp"
-#include "Moonshot/Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Typedefs.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include <vector>
 #include <variant>
 #include <memory>

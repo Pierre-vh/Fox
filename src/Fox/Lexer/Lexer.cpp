@@ -14,9 +14,9 @@
 #include <sstream>		// std::stringstream (sizeToStr())
 #include <cassert>
 
-#include "Moonshot/Fox/AST/ASTContext.hpp"
-#include "Moonshot/Fox/Common/Context.hpp"
-#include "Moonshot/Fox/Common/Exceptions.hpp"
+#include "Fox/AST/ASTContext.hpp"
+#include "Fox/Common/Context.hpp"
+#include "Fox/Common/Exceptions.hpp"
 
 using namespace fox;
 using namespace fox::Dictionaries;

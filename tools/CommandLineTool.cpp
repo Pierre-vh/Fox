@@ -10,8 +10,8 @@
 
 #include <iostream>
 
-#include "Moonshot/Fox/Driver/Driver.hpp"
-#include "Moonshot/Version.hpp"
+#include "Fox/Driver/Driver.hpp"
+#include "Fox/Common/Version.hpp"
 
 #ifdef _WIN32
 	#include <Windows.h>

@@ -10,7 +10,7 @@
 
 #include "gtest/gtest.h"
 #include "Support/TestUtils.hpp"
-#include "Moonshot/Fox/Common/StringManipulator.hpp"
+#include "Fox/Common/StringManipulator.hpp"
 
 #include <cwctype>		// std::iswspace
 

@@ -14,9 +14,9 @@
 #include <sstream>
 #include <cassert>
 #include <iostream>
-#include "Moonshot/Fox/AST/Identifiers.hpp"
-#include "Moonshot/Fox/Common/Context.hpp"
-#include "Moonshot/Fox/Common/Exceptions.hpp"
+#include "Fox/AST/Identifiers.hpp"
+#include "Fox/Common/Context.hpp"
+#include "Fox/Common/Exceptions.hpp"
 
 using namespace fox;
 

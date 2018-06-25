@@ -11,10 +11,10 @@
 #include "gtest/gtest.h"
 #include "Support/TestUtils.hpp"
 
-#include "Moonshot/Fox/Lexer/Lexer.hpp"
-#include "Moonshot/Fox/Parser/Parser.hpp"
-#include "Moonshot/Fox/Common/Context.hpp"
-#include "Moonshot/Fox/AST/ASTContext.hpp"
+#include "Fox/Lexer/Lexer.hpp"
+#include "Fox/Parser/Parser.hpp"
+#include "Fox/Common/Context.hpp"
+#include "Fox/AST/ASTContext.hpp"
 
 #include <vector>
 #include <string>

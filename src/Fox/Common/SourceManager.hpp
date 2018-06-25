@@ -13,7 +13,7 @@
 #include <cstdint>
 #include <map>
 #include <string>
-#include "Moonshot/Fox/Common/Typedefs.hpp"
+#include "Fox/Common/Typedefs.hpp"
 
 namespace fox
 {

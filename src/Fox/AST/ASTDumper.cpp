@@ -9,7 +9,7 @@
 
 #include "ASTDumper.hpp"
 #include "Identifiers.hpp"
-#include "Moonshot/Fox/Common/StringManipulator.hpp"
+#include "Fox/Common/StringManipulator.hpp"
 #include <string>
 #include <exception>
 #include <sstream>

@@ -13,10 +13,10 @@
 
 #include "Support/TestUtils.hpp"
 
-#include "Moonshot/Fox/AST/ASTContext.hpp" 
-#include "Moonshot/Fox/Lexer/Lexer.hpp"
-#include "Moonshot/Fox/Lexer/Token.hpp"
-#include "Moonshot/Fox/Common/Context.hpp"
+#include "Fox/AST/ASTContext.hpp" 
+#include "Fox/Lexer/Lexer.hpp"
+#include "Fox/Lexer/Token.hpp"
+#include "Fox/Common/Context.hpp"
 
 using namespace fox;
 using namespace fox::test;

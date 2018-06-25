@@ -8,11 +8,11 @@
 ////------------------------------------------------------////
 
 #include "gtest/gtest.h"
-#include "Moonshot/Fox/Lexer/Lexer.hpp"
-#include "Moonshot/Fox/Parser/Parser.hpp"
-#include "Moonshot/Fox/Common/SourceManager.hpp"
-#include "Moonshot/Fox/Common/DiagnosticEngine.hpp"
-#include "Moonshot/Fox/Common/Context.hpp"
+#include "Fox/Lexer/Lexer.hpp"
+#include "Fox/Parser/Parser.hpp"
+#include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Common/Context.hpp"
 #include "Support/TestUtils.hpp"
 
 using namespace fox;

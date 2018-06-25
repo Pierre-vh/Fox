@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "Moonshot/Fox/Common/Iterators.hpp"
-#include "Moonshot/Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Iterators.hpp"
+#include "Fox/Common/SourceManager.hpp"
 
 namespace fox
 {

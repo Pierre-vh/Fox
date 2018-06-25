@@ -10,7 +10,7 @@
 #include "DiagnosticEngine.hpp"
 #include "Diagnostic.hpp"
 #include "DiagnosticConsumers.hpp"
-#include "Moonshot/Fox/Common/Utils.hpp"
+#include "Fox/Common/Utils.hpp"
 #include <cassert>
 
 using namespace fox;

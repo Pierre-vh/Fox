@@ -9,11 +9,11 @@
 
 #include "gtest/gtest.h"
 #include "Support/TestUtils.hpp"
-#include "Moonshot/Fox/AST/Decl.hpp"
-#include "Moonshot/Fox/AST/Expr.hpp"
-#include "Moonshot/Fox/AST/ASTContext.hpp"
-#include "Moonshot/Fox/AST/Type.hpp"
-#include "Moonshot/Fox/AST/ASTVisitor.hpp"
+#include "Fox/AST/Decl.hpp"
+#include "Fox/AST/Expr.hpp"
+#include "Fox/AST/ASTContext.hpp"
+#include "Fox/AST/Type.hpp"
+#include "Fox/AST/ASTVisitor.hpp"
 
 using namespace fox;
 

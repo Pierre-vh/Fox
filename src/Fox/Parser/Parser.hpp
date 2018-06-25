@@ -33,12 +33,12 @@
 
 #pragma once
 
-#include "Moonshot/Fox/Lexer/Token.hpp"					
-#include "Moonshot/Fox/AST/ASTContext.hpp"
-#include "Moonshot/Fox/AST/Type.hpp"
-#include "Moonshot/Fox/AST/Decl.hpp"
-#include "Moonshot/Fox/AST/Expr.hpp"
-#include "Moonshot/Fox/AST/Stmt.hpp"
+#include "Fox/Lexer/Token.hpp"					
+#include "Fox/AST/ASTContext.hpp"
+#include "Fox/AST/Type.hpp"
+#include "Fox/AST/Decl.hpp"
+#include "Fox/AST/Expr.hpp"
+#include "Fox/AST/Stmt.hpp"
 
 #include <cassert>
 

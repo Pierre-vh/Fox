@@ -10,8 +10,8 @@
 #include "gtest/gtest.h"
 #include "Support/TestUtils.hpp"
 
-#include "Moonshot/Fox/Common/StringManipulator.hpp"
-#include "Moonshot/Fox/Common/Context.hpp"
+#include "Fox/Common/StringManipulator.hpp"
+#include "Fox/Common/Context.hpp"
 
 using namespace fox;
 

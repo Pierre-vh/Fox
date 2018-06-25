@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "SourceManager.hpp"
-#include "Moonshot/Fox/Common/StringManipulator.hpp"
+#include "Fox/Common/StringManipulator.hpp"
 
 #include <fstream>
 #include <cassert>

@@ -10,7 +10,7 @@
 
 #pragma once
 #include "ASTVisitor.hpp"
-#include "Moonshot/Fox/Common/Context.hpp"
+#include "Fox/Common/Context.hpp"
 #include <ostream>
 
 namespace fox

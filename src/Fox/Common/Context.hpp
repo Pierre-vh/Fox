@@ -14,7 +14,7 @@
 
 #include <vector> // std::vector
 #include <memory> // std::unique_ptr
-#include "Moonshot/Fox/Common/SourceManager.hpp"
+#include "Fox/Common/SourceManager.hpp"
 
 namespace fox
 {

@@ -8,9 +8,9 @@
 ////------------------------------------------------------////
 
 #pragma once
-#include "Moonshot/Fox/Common/Typedefs.hpp"
-#include "Moonshot/Fox/AST/Stmt.hpp"
-#include "Moonshot/Fox/AST/Type.hpp"
+#include "Fox/Common/Typedefs.hpp"
+#include "Fox/AST/Stmt.hpp"
+#include "Fox/AST/Type.hpp"
 
 namespace fox	
 {

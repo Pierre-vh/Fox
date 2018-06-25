@@ -10,8 +10,8 @@
 
 #include "Parser.hpp"
 
-#include "Moonshot/Fox/Common/Exceptions.hpp"
-#include "Moonshot/Fox/AST/Expr.hpp"
+#include "Fox/Common/Exceptions.hpp"
+#include "Fox/AST/Expr.hpp"
 #include <cassert>
 
 using namespace fox;

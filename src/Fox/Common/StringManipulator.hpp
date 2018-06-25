@@ -27,7 +27,7 @@
 #include <iterator>
 #include <variant>
 #include <tuple>
-#include "Moonshot/Fox/Common/Typedefs.hpp"
+#include "Fox/Common/Typedefs.hpp"
 
 namespace fox
 {

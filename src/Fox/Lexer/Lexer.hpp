@@ -21,8 +21,8 @@
 #pragma once
 
 #include "Token.hpp"
-#include "Moonshot/Fox/Common/DiagnosticEngine.hpp"
-#include "Moonshot/Fox/Common/StringManipulator.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Common/StringManipulator.hpp"
 
 namespace fox
 {

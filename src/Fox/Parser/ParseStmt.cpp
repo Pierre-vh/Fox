@@ -10,7 +10,7 @@
 
 #include "Parser.hpp"
 //Nodes
-#include "Moonshot/Fox/AST/Stmt.hpp"
+#include "Fox/AST/Stmt.hpp"
 
 using namespace fox;
 
