@@ -35,6 +35,23 @@ Moonshot Project To-do List.
 	> Namespace/Name change (Done)
 
 	> Move all of my current diagnostics message to the new system & Delete the now useless Context (Next)
+		> Lexer (Done)
+		> Parser
+			> Stop the errorUnexpected spam (remove it entirely in favor of more precise error messages)
+			> errorExpected : Switch to a "before token" instead of "after token"
+				> Before the curtok (curtok is the place the error is for the report function)
+					> (gcc-style messages) e.g. "Expected ';' before '}' token"
+				> If no curtok (eof), use a special "at end of input" variant message and place the error caret at the last known token
+					> e.g. "Expected ';' at end of input"
+			> Also, create more variant of functions. All of them will return a Diagnostic object.
+				> reportError(DiagID) // For generic error reporting
+				> errorExpected(diagID)
+				> expectedSemi(After Decl/Stmt/Expr, but how to pass the arg? String? Enum?)
+				> expectedBracket(SignType) (for round/curly/square brackets)
+				> expectedStmt()
+				> expectedExpr()
+				This will leave me more room in the future to improve specific error messages (e.g show the opening bracket in expectedBracket)
+				Most of them won't take any additional args, unless needed.
 
 	> Small update to SourceManager:
 		Rename SourceManager.hpp/.cpp to Source.hpp/.cpp
