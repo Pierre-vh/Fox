@@ -277,7 +277,7 @@ Parser::DeclResult Parser::parseVarDecl()
 			tyRange = typespecResult.getSourceRange();
 			if (ty.isAReference())
 			{
-				context_.reportWarning("Ignored reference qualifier '&' in variable declaration : Variables cannot be references.");
+				genericError("Ignored reference qualifier '&' in variable declaration : Variables cannot be references.");
 				ty.setIsReference(false);
 			}
 		}

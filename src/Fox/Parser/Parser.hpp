@@ -34,17 +34,18 @@
 #pragma once
 
 #include "Fox/Lexer/Token.hpp"					
-#include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
-
+#include "Fox/Common/DiagnosticEngine.hpp"
 #include <cassert>
 
 namespace fox
 {
-	class Context;
+	class ASTContext;
+	class IdentifierTable;
+	class SourceManager;
 	class DeclRecorder;
 	class Parser
 	{
@@ -70,7 +71,7 @@ namespace fox
 		public:
 			// Note : the parser now takes an optional DeclRecorder* argument,
 			// This will be used as the base DeclRecorder.
-			Parser(Context& c,ASTContext& astctxt,TokenVector& l,DeclRecorder* dr = nullptr);
+			Parser(DiagnosticEngine& diags,SourceManager &sm,ASTContext& astctxt,TokenVector& l,DeclRecorder* dr = nullptr);
 
 			/*-------------- Parsing Methods --------------*/
 			// UNIT
@@ -114,13 +115,10 @@ namespace fox
 			DeclResult parseFunctionDecl();
 			DeclResult parseDecl();
 
-			// OTHERS
-			void enableTestMode();
-			void disableTestMode();
-
 			// Getters
 			ASTContext& getASTContext();
-			Context& getContext();
+			SourceManager& getSourceManager();
+			DiagnosticEngine& getDiagnosticEngine();
 		private:
 			/*-------------- Parser Setup --------------*/
 			void setupParser();
@@ -263,9 +261,9 @@ namespace fox
 			/*-------------- Member Variables --------------*/
 			ASTContext& astContext_;
 			IdentifierTable& identifiers_;
-			Context& context_;
+			DiagnosticEngine& diags_;
+			SourceManager& srcMgr_;
 			TokenVector& tokens_;
-			bool isTestMode_ : 1;
 			
 			/*-------------- Constants --------------*/
 			static constexpr uint8_t maxBraceDepth_ = (std::numeric_limits<uint8_t>::max)();

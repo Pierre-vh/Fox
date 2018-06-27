@@ -15,29 +15,19 @@
 #include <cassert>
 #include <iostream>
 #include "Fox/AST/Identifiers.hpp"
-#include "Fox/Common/Context.hpp"
+#include "Fox/AST/ASTContext.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/Exceptions.hpp"
 
 using namespace fox;
 
-Parser::Parser(Context& c, ASTContext& astctxt, TokenVector& l, DeclRecorder *dr) : context_(c), astContext_(astctxt), tokens_(l), identifiers_(astContext_.identifiers)
+Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, TokenVector& l, DeclRecorder *dr) 
+	: astContext_(astctxt), tokens_(l), identifiers_(astContext_.identifiers), srcMgr_(sm), diags_(diags)
 {
 	if (dr)
 		state_.declRecorder = dr;
 
-	isTestMode_ = false;
-
 	setupParser();
-}
-
-void Parser::enableTestMode()
-{
-	isTestMode_ = true;
-}
-
-void Parser::disableTestMode()
-{
-	isTestMode_ = false;
 }
 
 ASTContext & Parser::getASTContext()
@@ -45,9 +35,14 @@ ASTContext & Parser::getASTContext()
 	return astContext_;
 }
 
-Context & Parser::getContext()
+SourceManager& Parser::getSourceManager()
 {
-	return context_;
+	return srcMgr_;
+}
+
+DiagnosticEngine& Parser::getDiagnosticEngine()
+{
+	return diags_;
 }
 
 void Parser::setupParser()
@@ -469,12 +464,7 @@ void Parser::recordDecl(NamedDecl * nameddecl)
 {
 	// Only assert when we're not in test mode.
 	// Tests may call individual parsing function, and won't care about if a DeclRecorder is active or not.
-
-	if (!isTestMode_)
-	{
-		assert(state_.declRecorder && "Decl Recorder cannot be null when parsing a Declaration!");
-	}
-
+	assert(state_.declRecorder && "Decl Recorder cannot be null when parsing a Declaration!");
 	if(state_.declRecorder)
 		state_.declRecorder->recordDecl(nameddecl);
 }
@@ -486,18 +476,15 @@ void Parser::errorUnexpected()
 
 	markAsLastUnexpectedToken(state_.lastUnexpectedTokenIt);
 
-	context_.setOrigin("Parser");
-
 	std::stringstream output;
 	auto tok = getCurtok();
 	if (tok)
 	{
-		CompleteLoc loc = context_.sourceManager.getCompleteLocForSourceLoc(tok.getRange().getBeginSourceLoc());
+		CompleteLoc loc = srcMgr_.getCompleteLocForSourceLoc(tok.getRange().getBeginSourceLoc());
 
 		output << "Unexpected token \"" << tok.getAsString() << "\" [l:" << loc.line << ", c:" << loc.column << "]";
-		context_.reportError(output.str()); 
+		diags_.report(DiagID::parser_placeholder).addArg(output.str());
 	}
-	context_.resetOrigin();
 }
 
 void Parser::errorExpected(const std::string & s)
@@ -507,14 +494,12 @@ void Parser::errorExpected(const std::string & s)
 	// Print "unexpected token" error.
 	errorUnexpected();
 
-	// set error origin
-	context_.setOrigin("Parser");
-
 	std::stringstream output;
 	
 	if (auto prevtok = getPreviousToken())
 	{
-		CompleteLoc loc = context_.sourceManager.getCompleteLocForSourceLoc(prevtok.getRange().getBeginSourceLoc());
+		// Note: remove this and let the DiagEngine deal with that
+		CompleteLoc loc = srcMgr_.getCompleteLocForSourceLoc(prevtok.getRange().getBeginSourceLoc());
 		output << s << " after \"" << prevtok.getAsString() << "\" [l:" << loc.line << ", c:" << loc.column << "]";
 	}
 	else
@@ -525,17 +510,14 @@ void Parser::errorExpected(const std::string & s)
 		output << s << " before \"" << tok.getAsString();
 	}
 
-	context_.reportError(output.str());
-	context_.resetOrigin();
+	diags_.report(DiagID::parser_placeholder).addArg(output.str());
 }
 
 void Parser::genericError(const std::string & s)
 {
 	if (!state_.isAlive) return;
 
-	context_.setOrigin("Parser");
-	context_.reportError(s);
-	context_.resetOrigin();
+	diags_.report(DiagID::parser_placeholder).addArg(s);
 }
 
 bool Parser::isCurrentTokenLastUnexpectedToken() const
