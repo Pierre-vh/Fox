@@ -57,14 +57,16 @@ Moonshot Project To-do List.
 		Rename SourceManager.hpp/.cpp to Source.hpp/.cpp
 		Rework the PreciseLoc algorithm : cache a "line table" and use it
 			> std::map would work, just use the lower_bound to find the line and that's it.
+		Also, add a method to return a full line of text for a given SourceLoc "getSourceLine"
 
 	> Add classof operators to the AST (will be useful for testing if a class is a derived/base of without dynamic_cast)
 
 	> Write the Remaining tests needed:
-		> Write Stmt & Expr Loc Tests (Next)
+		> Write Stmt & Expr Loc Tests
 			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 			> Probably don't use a file, just do SetUp("<code goes here>"")w
 		> classof tests
+		> SourceManager "getSourceLine" test
 
 	// Move to 0.3.0 & Sync with Master
 	QOL:
