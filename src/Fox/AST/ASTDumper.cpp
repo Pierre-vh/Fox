@@ -8,6 +8,7 @@
 ////------------------------------------------------------////
 
 #include "ASTDumper.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include "Identifiers.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 #include <string>
@@ -19,7 +20,7 @@
 
 using namespace fox;
 
-ASTDumper::ASTDumper(Context& ctxt,std::ostream & out, const uint8_t & offsettabs) : out_(out), offsetTabs_(offsettabs), ctxt_(ctxt)
+ASTDumper::ASTDumper(SourceManager& srcMgr,std::ostream & out, const uint8_t & offsettabs) : out_(out), offsetTabs_(offsettabs), srcMgr_(srcMgr)
 {
 	recalculateOffset();
 }
@@ -236,7 +237,7 @@ void ASTDumper::visitReturnStmt(ReturnStmt * node)
 void ASTDumper::visitUnitDecl(UnitDecl* node)
 {
 	std::string fileInfo;
-	if (const auto* data = ctxt_.sourceManager.getStoredDataForFileID(node->getFileID()))
+	if (const auto* data = srcMgr_.getStoredDataForFileID(node->getFileID()))
 		fileInfo = makeKeyPairDump("file", data->fileName);
 	else
 		fileInfo = makeKeyPairDump("file", "unknown");
@@ -446,7 +447,7 @@ std::string ASTDumper::getSourceLocDump(const std::string& label,const SourceLoc
 	std::ostringstream ss;
 	if (sloc)
 	{
-		CompleteLoc cloc = ctxt_.sourceManager.getCompleteLocForSourceLoc(sloc);
+		CompleteLoc cloc = srcMgr_.getCompleteLocForSourceLoc(sloc);
 		ss << "[l" << cloc.line << ",c" << cloc.column << "]";
 	}
 	else

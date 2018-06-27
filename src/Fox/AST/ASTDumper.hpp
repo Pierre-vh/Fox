@@ -10,17 +10,17 @@
 
 #pragma once
 #include "ASTVisitor.hpp"
-#include "Fox/Common/Context.hpp"
 #include <ostream>
 
 namespace fox
 {
+	class SourceManager;
 	class ASTDumper : public ASTVisitor<ASTDumper, void>
 	{
 		public:
 			// The first parameter is the stream where the AST should be "dumped"
 			// The second is the offset. Before each line, '\t' is printed <offset> times. 
-			ASTDumper(Context& ctxt,std::ostream& out, const uint8_t& offsettabs = 0);
+			ASTDumper(SourceManager& srcMgr,std::ostream& out, const uint8_t& offsettabs = 0);
 
 			// Expressions
 			void visitParensExpr(ParensExpr* node);
@@ -117,7 +117,7 @@ namespace fox
 			void dedent(const uint8_t& num = 1);
 
 			std::ostream& out_;
-			Context& ctxt_;
+			SourceManager& srcMgr_;
 			std::string offset_;
 			uint16_t curIndent_ = 0, offsetTabs_ = 0;
 
