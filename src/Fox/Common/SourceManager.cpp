@@ -84,21 +84,29 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 {
 	// ToDo: Optimize this by caching a line table. Also add support for \n\r and \r\n line endings.
 
-	// Everything we need:
-	std::uint32_t line = 1;
-	std::uint16_t column = 1;
-
-	// First, extract the relevant information
 	const StoredData* fdata = getStoredDataForFileID(sloc.getFileID());
-
-	assert((sloc.getIndex() < fdata->str.size()) && "SourceLoc is Out-of-Range");
 	assert(fdata && "Entry does not exists?");
 
-	// Now the rest:
-	for (SourceLoc::idx_type k = 0; k < sloc.getIndex(); k++)
+	auto idx = sloc.getIndex();
+	assert((idx <= fdata->str.size()) && "SourceLoc is Out-of-Range");
+
+	// Check if this SourceLoc is right past the end 
+	bool isOutOfRange = (idx == fdata->str.size());
+
+	// Remove the extra column to avoid going out of range on the string
+	if (isOutOfRange)
+		idx--;
+
+	// Compute
+	std::uint32_t line = 1;
+	std::uint16_t column = 1;
+	for (SourceLoc::idx_type k = 0; k < idx; k++)
 	{
 		switch (fdata->str[k])
 		{
+			// ToDo: Does this even work correctly? 
+			// Will check once I implement the line table optimization.
+			case '\r':
 			case '\n':
 				column = 1;
 				line++;
@@ -108,11 +116,52 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 				break;
 		}
 	}
+
+	// Add back the extra column
+	if (isOutOfRange)
+		column++;
+
 	return CompleteLoc(
 		fdata->fileName,
 		line,
 		column
 	);
+}
+
+bool SourceManager::tryIncrementSourceLoc(SourceLoc& sloc, bool* incrementedPastTheEnd)
+{
+	const StoredData* data = getStoredDataForFileID(sloc.getFileID());
+
+	assert(data && "Invalid SourceLoc");
+
+	const auto dataSize = data->str.size();
+	if (sloc.getIndex() < dataSize)
+	{
+		sloc.idx_++;
+
+		if (incrementedPastTheEnd)
+			*incrementedPastTheEnd = (sloc.getIndex() == dataSize);
+
+		return true;
+	}
+	return false;
+}
+
+bool SourceManager::isSourceLocValid(const SourceLoc & sloc) const
+{
+	const StoredData* data = getStoredDataForFileID(sloc.getFileID());
+	
+	if (!data)
+		return false;
+
+	// Less-or-equal because it might be a SourceLoc 
+	// that points right after the end of the buffer.
+	return sloc.getIndex() <= data->str.size();
+}
+
+bool SourceManager::doesFileExists(const FileID & file) const
+{
+	return (bool)getStoredDataForFileID(file);
 }
 
 FileID SourceManager::loadFromFile(const std::string & path)
@@ -143,11 +192,6 @@ FileID SourceManager::generateNewFileID() const
 	FileID::id_type id = static_cast<FileID::id_type>(sources_.size() + 1);
 	assert(id != INVALID_FILEID_VALUE);
 	return id;
-}
-
-CharType SourceManager::extractCharFromStr(const std::string* str, const std::size_t& idx) const
-{
-	return StringManipulator::getCharAtLoc(str, idx);
 }
 
 // SourceLoc

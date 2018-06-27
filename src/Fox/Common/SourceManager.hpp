@@ -13,7 +13,6 @@
 #include <cstdint>
 #include <map>
 #include <string>
-#include "Fox/Common/Typedefs.hpp"
 
 namespace fox
 {
@@ -89,15 +88,33 @@ namespace fox
 			// to the file.
 			FileID loadFromString(const std::string& str, const std::string& name = "in-memory");
 
-			// Returns a pointer to the string that the FileID points to, or nullptr if not found
+			// Returns a pointer to the string that the FileID points to, or nullptr if not found.
 			const std::string* getSourceForFID(const FileID& fid) const;
+
+			// Returns a pointer to the stored data that the FileID points to, or nullptr if not found.
 			const StoredData*  getStoredDataForFileID(const FileID& fid) const;
+
+			// Requests the human-readable location a SourceLoc points to.
+			// This function will assert that the SourceLoc is valid;
+			// This function accepts a SourceLoc that points right past the end of the file.
+			// Any value greater than that will trigger an assertion ("out of range")
 			CompleteLoc getCompleteLocForSourceLoc(const SourceLoc& sloc) const;
+
+			// This function tries to increment the given SourceLoc by 1. 
+			// Returns true if the operation completed successfully, false otherwise.
+			// The optional boolean argument will be a flag set to true if the SourceLoc now points
+			// to a past-the-end location.
+			bool tryIncrementSourceLoc(SourceLoc& sloc, bool* incrementedPastTheEnd = nullptr);
+
+			// Check if a SourceLoc is valid
+			bool isSourceLocValid(const SourceLoc& sloc) const;
+			
+			// Check if a File Exists
+			bool doesFileExists(const FileID& file) const;
 
 		private:
 			// Private methods
 			FileID generateNewFileID() const;
-			CharType extractCharFromStr(const std::string* str, const std::size_t& idx) const;
 
 			// Make it non copyable
 			SourceManager(const SourceManager&) = delete;
@@ -126,7 +143,9 @@ namespace fox
 
 			FileID getFileID() const;
 			idx_type getIndex() const;
-		private:
+
+		protected:
+			friend class SourceManager;
 			FileID fid_;
 			idx_type idx_;
 	};
@@ -153,6 +172,5 @@ namespace fox
 		private:
 			SourceLoc sloc_;
 			offset_type offset_;
-
 	};
 }
