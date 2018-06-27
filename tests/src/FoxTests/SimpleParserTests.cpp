@@ -61,21 +61,17 @@ class ParsingFunctionTester
 				linecount++;
 				if (hashtagCommentsEnabled && (sample[0] == '#'))
 					continue;
-				DiagnosticEngine dg;
-				Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
+				SourceManager srcMgr;
+				DiagnosticEngine dg(&srcMgr);
 				ASTContext astctxt;
-				Lexer lex(dg, ctxt.sourceManager , astctxt);
+				DeclRecorder dr;
+				Lexer lex(dg, srcMgr, astctxt);
 				lex.lexStr(sample);
-				Parser parse(ctxt, astctxt, lex.getTokenVector());
-
-				// Important : Make the parser aware that we're running a test.
-				// This disables some assertions that are not needed to be verified when running a test
-				// that calls individual parsing functions.
-				parse.enableTestMode();
+				Parser parse(dg, srcMgr, astctxt, lex.getTokenVector(), &dr);
 
 				if (fn_(parse))
 				{
-					if (ctxt.isSafe())
+					if (dg.getNumErrors() == 0)
 					{
 						// Parsing ok
 						if (shouldFail)
@@ -96,9 +92,7 @@ class ParsingFunctionTester
 							continue;
 						// if it was not expected,
 						std::stringstream ss;
-						ss << "\n(file " << curFilePath_ << " line " << linecount << ") Parsing function returned a valid result, but the context was not safe ?\n";
-						failMessage_ += ss.str();
-						failMessage_ += ctxt.getLogs();
+						ss << "\n(file " << curFilePath_ << " line " << linecount << ") Parsing function returned a valid result, but errors occured.\n";
 						flag = false;
 					}
 				}
@@ -110,7 +104,6 @@ class ParsingFunctionTester
 						std::stringstream ss;
 						ss << "\n(file " << curFilePath_ << " line " << linecount << ") Parsing function returned a invalid result, or reported errors.\n";
 						failMessage_ += ss.str();
-						failMessage_ += ctxt.getLogs();
 						flag = false;
 					}
 					continue;

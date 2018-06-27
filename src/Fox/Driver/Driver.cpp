@@ -22,12 +22,12 @@ using namespace fox;
 
 bool Driver::processFile(std::ostream& out, const std::string& filepath)
 {
-	Context ctxt(Context::LoggingMode::SAVE_TO_VECTOR);
-	DiagnosticEngine dg(&ctxt.sourceManager);
+	SourceManager srcMgr;
+	DiagnosticEngine dg(&srcMgr);
 	// Create a ASTContext
 	std::unique_ptr<ASTContext> astCtxt = std::make_unique<ASTContext>();
 
-	auto fid = ctxt.sourceManager.loadFromFile(filepath);
+	auto fid = srcMgr.loadFromFile(filepath);
 	if (!fid)
 	{
 		std::cout << "Could not open file \"" << filepath << "\"\n";
@@ -35,27 +35,25 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	}
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	Lexer lex(dg,ctxt.sourceManager,*astCtxt);
+	Lexer lex(dg,srcMgr,*astCtxt);
 	lex.lexFile(fid);
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	auto lex_micro = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
 	auto lex_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
 
-	if (!ctxt.isSafe())
+	if (dg.getNumErrors())
 	{
-		out << "Failed at lexing. Logs:\n";
-		out << ctxt.getLogs();
+		out << "Failed at lexing\n";
 		return false;
 	}
 	else
 		out << "Lexing completed successfully." << lex.getTokenVector().size() << " tokens found.\n";
 
-	Parser psr(ctxt,*astCtxt,lex.getTokenVector());
+	Parser psr(dg,srcMgr,*astCtxt,lex.getTokenVector());
 	// Todo: extract the name of the file and use that instead of "TestUnit"
 	auto unit = psr.parseUnit(fid,astCtxt->identifiers.getUniqueIdentifierInfo("TestUnit"), /* is main unit */ true);
 
-	out << ctxt.getLogs();
 	if (!unit)
 	{
 		out << "Failed at parsing.";
@@ -70,7 +68,7 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	auto parse_micro = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 	auto parse_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 	
-	ASTDumper dumper(ctxt, std::cout, 1);
+	ASTDumper dumper(srcMgr, std::cout, 1);
 	dumper.visit(astCtxt->getMainUnit());
 
 	auto t3 = std::chrono::high_resolution_clock::now();

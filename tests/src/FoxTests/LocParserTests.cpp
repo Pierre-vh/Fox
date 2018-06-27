@@ -12,6 +12,8 @@
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/AST/ASTContext.hpp"
+#include "Fox/AST/Identifiers.hpp"
 #include "Fox/Common/Context.hpp"
 #include "Support/TestUtils.hpp"
 
@@ -20,13 +22,16 @@ using namespace fox;
 // Parser Preparator for LocTests
 class LocTests : public ::testing::Test
 {
-	protected:
-		virtual void SetUp(const std::string& filepath)
+	public:
+		LocTests() : dg(&srcMgr)
 		{
-			sourceManager = &(context.sourceManager);
 
+		}
+	protected:
+		virtual void SetUp(const std::string& filepath) 
+		{
 			fullFilePath = test::convertRelativeTestResPathToAbsolute(filepath);
-			file = context.sourceManager.loadFromFile(fullFilePath);
+			file = srcMgr.loadFromFile(fullFilePath);
 
 			// If file couldn't be loaded, give us the reason
 			if (!file)
@@ -34,25 +39,24 @@ class LocTests : public ::testing::Test
 				FAIL() << "Couldn't load file \""<< filepath << "\" in memory.";
 			}
 
-			lexer = std::make_unique<Lexer>(dg, context.sourceManager, astContext);
+			lexer = std::make_unique<Lexer>(dg, srcMgr, astContext);
 			lexer->lexFile(file);
 
-			if (!context.isSafe())
+			if (dg.getNumErrors())
 			{
 				FAIL() << "Lexing Error";
 			}
 
-			parser = std::make_unique<Parser>(context, astContext, lexer->getTokenVector(), &declRecorder);
+			parser = std::make_unique<Parser>(dg, srcMgr , astContext, lexer->getTokenVector(), &declRecorder);
 		}
 
 		std::string fullFilePath;
 
 		DiagnosticEngine dg;
 		FileID file;
-		Context context;
+		SourceManager srcMgr;
 		ASTContext astContext;
 		DeclRecorder declRecorder;
-		SourceManager *sourceManager = nullptr;
 		std::unique_ptr<Lexer> lexer;
 		std::unique_ptr<Parser> parser;
 };
@@ -66,9 +70,9 @@ TEST_F(LocTests, FuncAndArgDecl)
 	auto func = presult.moveAs<FunctionDecl>();
 
 	// First, test the function itself
-	CompleteLoc func_beg = sourceManager->getCompleteLocForSourceLoc(func->getBegLoc());
-	CompleteLoc func_head_end = sourceManager->getCompleteLocForSourceLoc(func->getHeaderEndLoc());
-	CompleteLoc func_end = sourceManager->getCompleteLocForSourceLoc(func->getEndLoc());
+	CompleteLoc func_beg = srcMgr.getCompleteLocForSourceLoc(func->getBegLoc());
+	CompleteLoc func_head_end = srcMgr.getCompleteLocForSourceLoc(func->getHeaderEndLoc());
+	CompleteLoc func_end = srcMgr.getCompleteLocForSourceLoc(func->getEndLoc());
 	
 	EXPECT_EQ(func_beg, CompleteLoc(fullFilePath, 1, 1));
 	EXPECT_EQ(func_head_end, CompleteLoc(fullFilePath, 1, 56));
@@ -87,8 +91,8 @@ TEST_F(LocTests, FuncAndArgDecl)
 	EXPECT_EQ(arg2->getIdentifier()->getStr(), "_bar2");
 
 	// Extract Arg locs
-	#define BEG_LOC(x) sourceManager->getCompleteLocForSourceLoc(x->getBegLoc())
-	#define END_LOC(x) sourceManager->getCompleteLocForSourceLoc(x->getEndLoc())
+	#define BEG_LOC(x) srcMgr.getCompleteLocForSourceLoc(x->getBegLoc())
+	#define END_LOC(x) srcMgr.getCompleteLocForSourceLoc(x->getEndLoc())
 	
 	auto arg1_beg = BEG_LOC(arg1);
 	auto arg1_end = END_LOC(arg1);
@@ -110,8 +114,8 @@ TEST_F(LocTests, FuncAndArgDecl)
 	auto arg2_typeRange = arg2->getTypeRange();
 
 	// Extract locs
-	auto arg1_tr_beg = sourceManager->getCompleteLocForSourceLoc(arg1_typeRange.getBeginSourceLoc());
-	auto arg2_tr_beg = sourceManager->getCompleteLocForSourceLoc(arg2_typeRange.getBeginSourceLoc());
+	auto arg1_tr_beg = srcMgr.getCompleteLocForSourceLoc(arg1_typeRange.getBeginSourceLoc());
+	auto arg2_tr_beg = srcMgr.getCompleteLocForSourceLoc(arg2_typeRange.getBeginSourceLoc());
 
 	// Check
 	EXPECT_EQ(arg1_typeRange.makeEndSourceLoc(), arg1->getEndLoc());
@@ -130,20 +134,20 @@ TEST_F(LocTests, VarDecls)
 	ASSERT_TRUE(presult) << "parsing error";
 	auto var = presult.moveAs<VarDecl>();
 
-	CompleteLoc var_beg = sourceManager->getCompleteLocForSourceLoc(var->getBegLoc());
-	CompleteLoc var_end = sourceManager->getCompleteLocForSourceLoc(var->getEndLoc());
+	CompleteLoc var_beg = srcMgr.getCompleteLocForSourceLoc(var->getBegLoc());
+	CompleteLoc var_end = srcMgr.getCompleteLocForSourceLoc(var->getEndLoc());
 
 	EXPECT_EQ(var_beg, CompleteLoc(fullFilePath,1,2));
 	EXPECT_EQ(var_end, CompleteLoc(fullFilePath,1,25));
 
-	CompleteLoc var_ty_beg = sourceManager->getCompleteLocForSourceLoc(var->getTypeRange().getBeginSourceLoc());
-	CompleteLoc var_ty_end = sourceManager->getCompleteLocForSourceLoc(var->getTypeRange().makeEndSourceLoc());
+	CompleteLoc var_ty_beg = srcMgr.getCompleteLocForSourceLoc(var->getTypeRange().getBeginSourceLoc());
+	CompleteLoc var_ty_end = srcMgr.getCompleteLocForSourceLoc(var->getTypeRange().makeEndSourceLoc());
 
 	EXPECT_EQ(var_ty_beg, CompleteLoc(fullFilePath, 1, 10));
 	EXPECT_EQ(var_ty_end, CompleteLoc(fullFilePath, 1, 20));
 
-	CompleteLoc expr_beg = sourceManager->getCompleteLocForSourceLoc(var->getInitExpr()->getBegLoc());
-	CompleteLoc expr_end = sourceManager->getCompleteLocForSourceLoc(var->getInitExpr()->getEndLoc());
+	CompleteLoc expr_beg = srcMgr.getCompleteLocForSourceLoc(var->getInitExpr()->getBegLoc());
+	CompleteLoc expr_end = srcMgr.getCompleteLocForSourceLoc(var->getInitExpr()->getEndLoc());
 
 	EXPECT_EQ(expr_beg, expr_end); // Since the expr is only a '3', it's only one char, thus beg = end.
 	EXPECT_EQ(expr_beg, CompleteLoc(fullFilePath, 1, 24));
