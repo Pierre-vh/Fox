@@ -1,0 +1,11 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Parser.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// Parser Diagnostics Message
+////------------------------------------------------------////
+
+
+ERROR(parser_placeholder,"%0")
