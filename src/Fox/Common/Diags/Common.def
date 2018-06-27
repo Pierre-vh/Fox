@@ -1,7 +1,7 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : DiagsCommon.def											
+// File : Common.def											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file registers general purpose Diagnostic Messages
