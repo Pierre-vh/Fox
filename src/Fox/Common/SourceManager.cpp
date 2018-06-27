@@ -104,12 +104,11 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 	{
 		switch (fdata->str[k])
 		{
-			// ToDo: Does this even work correctly? 
-			// Will check once I implement the line table optimization.
-			case '\r':
 			case '\n':
 				column = 1;
 				line++;
+				break;
+			case '\r':
 				break;
 			default:
 				column++;
