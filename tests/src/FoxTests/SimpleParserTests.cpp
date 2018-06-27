@@ -13,7 +13,6 @@
 
 #include "Fox/Lexer/Lexer.hpp"
 #include "Fox/Parser/Parser.hpp"
-#include "Fox/Common/Context.hpp"
 #include "Fox/AST/ASTContext.hpp"
 
 #include <vector>

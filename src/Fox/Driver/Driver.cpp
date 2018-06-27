@@ -9,7 +9,6 @@
 
 #include "Driver.hpp"
 
-#include "Fox/Common/Context.hpp"
 #include "Fox/Lexer/Lexer.hpp"
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/AST/ASTDumper.hpp"

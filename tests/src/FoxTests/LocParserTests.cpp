@@ -14,7 +14,6 @@
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Identifiers.hpp"
-#include "Fox/Common/Context.hpp"
 #include "Support/TestUtils.hpp"
 
 using namespace fox;

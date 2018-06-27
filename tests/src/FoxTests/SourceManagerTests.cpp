@@ -9,9 +9,8 @@
 
 #include "gtest/gtest.h"
 #include "Support/TestUtils.hpp"
-
+#include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/StringManipulator.hpp"
-#include "Fox/Common/Context.hpp"
 
 using namespace fox;
 
@@ -24,15 +23,15 @@ TEST(SourceManagerTests, LoadingFromFile)
 {
 	std::string file_path_a = test::convertRelativeTestResPathToAbsolute("lexer/utf8/bronzehorseman.txt");
 	std::string file_path_b = test::convertRelativeTestResPathToAbsolute("lexer/utf8/ascii.txt");
-	Context ctxt;
-	auto fid_a = ctxt.sourceManager.loadFromFile(file_path_a);
-	auto fid_b = ctxt.sourceManager.loadFromFile(file_path_b);
+	SourceManager srcMgr;
+	auto fid_a = srcMgr.loadFromFile(file_path_a);
+	auto fid_b = srcMgr.loadFromFile(file_path_b);
 	EXPECT_TRUE(fid_a);
 	EXPECT_TRUE(fid_b);
 
 	// File path is correct?
-	auto storeddata_a = ctxt.sourceManager.getStoredDataForFileID(fid_a);
-	auto storeddata_b = ctxt.sourceManager.getStoredDataForFileID(fid_b);
+	auto storeddata_a = srcMgr.getStoredDataForFileID(fid_a);
+	auto storeddata_b = srcMgr.getStoredDataForFileID(fid_b);
 
 	// File paths are the same? 
 	EXPECT_EQ(file_path_a, storeddata_a->fileName);
@@ -56,15 +55,15 @@ TEST(SourceManagerTests, LoadingFromString)
 	ASSERT_TRUE(test::readFileToString(file_path_a, content_a));
 	ASSERT_TRUE(test::readFileToString(file_path_b, content_b));
 
-	Context ctxt;
-	auto fid_a = ctxt.sourceManager.loadFromString(content_a);
-	auto fid_b = ctxt.sourceManager.loadFromString(content_b);
+	SourceManager srcMgr;
+	auto fid_a = srcMgr.loadFromString(content_a);
+	auto fid_b = srcMgr.loadFromString(content_b);
 
 	EXPECT_TRUE(fid_a);
 	EXPECT_TRUE(fid_b);
 
-	auto r_str_a = ctxt.sourceManager.getSourceForFID(fid_a);
-	auto r_str_b = ctxt.sourceManager.getSourceForFID(fid_b);
+	auto r_str_a = srcMgr.getSourceForFID(fid_a);
+	auto r_str_b = srcMgr.getSourceForFID(fid_b);
 
 	// Can we retrieve the correct files?
 	EXPECT_EQ(content_a, *r_str_a);
@@ -108,17 +107,16 @@ TEST(SourceManagerTests, SourceRangeTests)
 
 TEST(SourceManagerTests, PreciseLocationTest1)
 {
-	// Create needed variables
-	Context ctxt;
+	SourceManager srcMgr;
 
 	std::string fp = test::convertRelativeTestResPathToAbsolute("sourcemanager/precise_test_1.txt");
 
 	// Load file in SourceManager
-	auto fid = ctxt.sourceManager.loadFromFile(fp);
+	auto fid = srcMgr.loadFromFile(fp);
 	ASSERT_TRUE(fid) << "File couldn't be loaded in memory";
 
 	// Load file in StringManipulator
-	const std::string* ptr = ctxt.sourceManager.getSourceForFID(fid);
+	const std::string* ptr = srcMgr.getSourceForFID(fid);
 	ASSERT_TRUE(ptr);
 	StringManipulator sm(ptr);
 
@@ -128,7 +126,7 @@ TEST(SourceManagerTests, PreciseLocationTest1)
 	if (sm.getCurrentChar() == 960)
 	{
 		SourceLoc sloc(fid, sm.getIndexInBytes());
-		auto result = ctxt.sourceManager.getCompleteLocForSourceLoc(sloc);
+		auto result = srcMgr.getCompleteLocForSourceLoc(sloc);
 
 		EXPECT_EQ(result.fileName, fp);
 		EXPECT_EQ(result.line, 5);

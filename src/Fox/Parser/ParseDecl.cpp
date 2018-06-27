@@ -11,7 +11,6 @@
 
 #include "Parser.hpp"
 
-#include "Fox/Common/Context.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Stmt.hpp"

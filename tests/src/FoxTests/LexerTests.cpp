@@ -16,7 +16,6 @@
 #include "Fox/AST/ASTContext.hpp" 
 #include "Fox/Lexer/Lexer.hpp"
 #include "Fox/Lexer/Token.hpp"
-#include "Fox/Common/Context.hpp"
 
 using namespace fox;
 using namespace fox::test;

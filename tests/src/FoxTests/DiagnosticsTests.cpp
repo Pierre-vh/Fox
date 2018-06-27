@@ -9,7 +9,6 @@
 
 #include "gtest/gtest.h"
 #include "Fox/Lexer/Lexer.hpp"
-#include "Fox/Common/Context.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/Diagnostic.hpp"
 
