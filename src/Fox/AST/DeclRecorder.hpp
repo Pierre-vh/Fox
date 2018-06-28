@@ -41,7 +41,7 @@ namespace fox
 
 			DeclRecorderIterator(const BaseIterator &baseIt) : BaseIterator(baseIt)
 			{
-				static_assert((std::is_same<value_type, NamedDecl*>::value) && "Pointer type isn't a NamedDecl*");
+				static_assert(std::is_same<value_type, NamedDecl*>::value, "Pointer type isn't a NamedDecl*");
 			}
 
 			// Operator * returns the pointer
