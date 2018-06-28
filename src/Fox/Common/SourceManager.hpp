@@ -127,7 +127,7 @@ namespace fox
 			typedef std::size_t idx_type;
 		
 			SourceLoc();
-			SourceLoc(const FileID& fid, const idx_type& idx);
+			SourceLoc(const FileID& fid, const idx_type& idx = 0);
 
 			bool isValid() const;
 			operator bool() const; // ShortCut for isValid
