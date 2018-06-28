@@ -37,7 +37,7 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 		}
 		else 
 		{
-			errorExpected("Expected an identifier");
+			reportErrorExpected(DiagID::parser_expected_iden);
 			return ExprResult::Error();
 		}
 	}
@@ -52,7 +52,7 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 			endLoc = consumeBracket(SignType::S_SQ_CLOSE);
 			if (!endLoc)
 			{
-				errorExpected("Expected a ']'");
+				reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
 
 				if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 					endLoc = consumeBracket(SignType::S_SQ_CLOSE);
@@ -72,8 +72,8 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 		}
 		else
 		{
-			if(expr.wasSuccessful())
-				errorExpected("Expected an expression");
+			if (expr.wasSuccessful())
+				reportErrorExpected(DiagID::parser_expected_expr);
 
 			// Resync. if Resync is successful, return the base as the result (don't alter it) to fake a success
 			// , if it's not, return an Error.
@@ -251,7 +251,8 @@ Parser::ExprResult Parser::parseExponentExpr()
 			if (!rhs)
 			{
 				if(rhs.wasSuccessful())
-					errorExpected("Expected an expression after exponent operator.");
+					reportErrorExpected(DiagID::parser_expected_expr);
+				
 				return ExprResult::Error();
 			}
 
@@ -303,7 +304,8 @@ Parser::ExprResult Parser::parsePrefixExpr()
 		else
 		{
 			if(prefixexpr.wasSuccessful())
-				errorExpected("Expected an expression after unary operator in prefix expression.");
+				reportErrorExpected(DiagID::parser_expected_expr);
+
 			return ExprResult::Error();
 		}
 	}
@@ -343,7 +345,7 @@ Parser::ExprResult Parser::parseCastExpr()
 			}
 			else
 			{
-				errorExpected("Expected a type keyword after \"as\" in cast expression.");
+				reportErrorExpected(DiagID::parser_expected_type);
 				return ExprResult::Error();
 			}
 		}
@@ -399,7 +401,7 @@ Parser::ExprResult Parser::parseBinaryExpr(const char & priority)
 		if (!rhsResult) // Check for validity : we need a rhs. if we don't have one, we have an error !
 		{
 			if(rhsResult.wasSuccessful())
-				errorExpected("Expected an expression after binary operator,");
+				reportErrorExpected(DiagID::parser_expected_expr);
 			return ExprResult::Error();
 		}
 
@@ -448,7 +450,7 @@ Parser::ExprResult Parser::parseExpr()
 			if (!rhs)
 			{
 				if(rhs.wasSuccessful())
-					errorExpected("Expected expression after assignement operator.");
+					reportErrorExpected(DiagID::parser_expected_expr);
 				return ExprResult::Error();
 			}
 
@@ -491,7 +493,7 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory, SourceLoc* l
 		{
 			// no expr, handle error & attempt to recover if it's allowed. If recovery is successful, return "not found"
 			if(expr.wasSuccessful())
-				errorExpected("Expected an expression");
+				reportErrorExpected(DiagID::parser_expected_expr);
 
 			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
 				return ExprResult::NotFound();
@@ -507,7 +509,7 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory, SourceLoc* l
 		if (!RParen)
 		{
 			// no ), handle error & attempt to recover 
-			errorExpected("Expected a ')'");
+			reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
 			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 				return ExprResult::Error();
@@ -529,7 +531,7 @@ Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory, SourceLoc* l
 	// failure to match ( while expression was mandatory -> error
 	else if (isMandatory)
 	{
-		errorExpected("Expected a '('");
+		reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
 
 		// Try to recover, if it's successful, return "Not Found", if it's not, return a error.
 		auto backup = createParserStateBackup();
@@ -606,7 +608,7 @@ Parser::ExprListResult Parser::parseParensExprList(SourceLoc* LParenLoc, SourceL
 		// ')'
 		if (!RPLoc)
 		{
-			errorExpected("Expected a ')'");
+			reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
 			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 				RPLoc = consumeBracket(SignType::S_ROUND_CLOSE);

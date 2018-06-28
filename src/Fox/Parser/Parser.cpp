@@ -280,7 +280,7 @@ Parser::Result<Type*> Parser::parseType()
 				endLoc = right;
 			else
 			{
-				errorExpected("Expected ']'");
+				reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
 
 				if (resyncToSign(SignType::S_SQ_CLOSE,/*stopAtSemi */ true,/*shouldConsumeToken*/ false))
 				{
@@ -469,34 +469,25 @@ void Parser::recordDecl(NamedDecl * nameddecl)
 		state_.declRecorder->recordDecl(nameddecl);
 }
 
-void Parser::errorExpected(const std::string & s)
+Diagnostic Parser::reportErrorExpected(const DiagID& diag)
 {
-	if (!state_.isAlive) return;
-
-	std::stringstream output;
-	
-	if (auto prevtok = getPreviousToken())
+	SourceRange errorRange;
+	if (Token prevTok = getPreviousToken())
 	{
-		// Note: remove this and let the DiagEngine deal with that
-		CompleteLoc loc = srcMgr_.getCompleteLocForSourceLoc(prevtok.getRange().getBeginSourceLoc());
-		output << s << " after \"" << prevtok.getAsString() << "\" [l:" << loc.line << ", c:" << loc.column << "]";
+		SourceLoc loc = prevTok.getRange().makeEndSourceLoc();
+		loc.increment();
+		assert(srcMgr_.isSourceLocValid(loc));
+		errorRange = SourceRange(loc);
 	}
 	else
 	{
-		// We expect a token as first token (?!), print a "before token" error instead of "after" 
-		auto tok = getCurtok();
-		assert(tok && "Both getPreviousToken() and getCurtok() return invalid tokens?");
-		output << s << " before \"" << tok.getAsString();
+		// No valid previous token, use the current token's range as the 
+		// error location. (This case should be fairly rare, or never happen at all. tests needed)
+		Token curTok = getCurtok();
+		assert(curTok && "No valid previous token and no valid current token?");
+		errorRange = curTok.getRange();
 	}
-
-	diags_.report(DiagID::parser_placeholder).addArg(output.str());
-}
-
-void Parser::genericError(const std::string & s)
-{
-	if (!state_.isAlive) return;
-
-	diags_.report(DiagID::parser_placeholder).addArg(s);
+	return diags_.report(diag, errorRange);
 }
 
 bool Parser::isDone() const

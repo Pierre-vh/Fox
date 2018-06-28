@@ -62,7 +62,7 @@ Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 
 		if (!RightCurlyLoc.isValid())
 		{
-			errorExpected("Expected a '}'");
+			reportErrorExpected(DiagID::parser_expected_closing_curlybracket);
 			// We can't recover since we reached EOF. return an error!
 			return StmtResult::Error();
 		}
@@ -76,7 +76,7 @@ Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 	else if (isMandatory)
 	{
 		// Emit an error if it's mandatory.
-		errorExpected("Expected a '{'");
+		reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
 
 		// Here, we'll attempt to recover to a } if possible (in case someone missed the { )
 		// if we can't recover, we restore the backup and return "not found". 
@@ -117,8 +117,8 @@ Parser::StmtResult Parser::parseWhileLoop()
 		}
 		else
 		{
-			if(body_res.wasSuccessful())
-				errorExpected("Expected a statement");
+			if (body_res.wasSuccessful())
+				reportErrorExpected(DiagID::parser_expected_stmt);
 
 			return StmtResult::Error();
 		}
@@ -158,7 +158,7 @@ Parser::StmtResult Parser::parseCondition()
 		else
 		{
 			if (body.wasSuccessful())
-				errorExpected("Expected a statement after if condition,");
+				reportErrorExpected(DiagID::parser_expected_stmt);
 
 			return StmtResult::Error();
 		}
@@ -172,7 +172,7 @@ Parser::StmtResult Parser::parseCondition()
 			else
 			{
 				if(stmt.wasSuccessful())
-					errorExpected("Expected a statement after else,");
+					reportErrorExpected(DiagID::parser_expected_stmt);
 				return StmtResult::Error();
 			}
 		}
@@ -186,9 +186,9 @@ Parser::StmtResult Parser::parseCondition()
 				endLoc
 			));
 	}
-	else if (consumeKeyword(KeywordType::KW_ELSE))
+	else if (auto elseKw = consumeKeyword(KeywordType::KW_ELSE))
 	{
-		genericError("Else without matching if.");
+		diags_.report(DiagID::parser_else_without_if, elseKw);
 		return StmtResult::Error();
 	}
 	return StmtResult::NotFound();
@@ -219,8 +219,8 @@ Parser::StmtResult Parser::parseReturnStmt()
 			endLoc = semi;
 		else
 		{
-			errorExpected("Expected a ';'");
-			// Recover to semi, if recovery wasn't successful, report an error.
+			reportErrorExpected(DiagID::parser_expected_semi);
+			// Recover to semi, if recovery wasn't successful, return an error.
 			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
 				return StmtResult::Error();
 		}
@@ -306,7 +306,7 @@ Parser::StmtResult Parser::parseExprStmt()
 		if (!consumeSign(SignType::S_SEMICOLON))
 		{
 			if(expr.wasSuccessful())
-				errorExpected("Expected a ';'");
+				reportErrorExpected(DiagID::parser_expected_semi);
 
 			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
 				return StmtResult::Error();

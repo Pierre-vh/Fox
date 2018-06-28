@@ -51,7 +51,12 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 			{
 				// Report an error in case of "not found";
 				if (decl.wasSuccessful())
-					errorExpected("Expected a declaration");
+				{
+					// Report the error with the current token being the error location
+					Token curtok = getCurtok();
+					assert(curtok && "Curtok must be valid since we have not reached eof");
+					diags_.report(DiagID::parser_expected_decl, curtok.getRange());
+				}
 
 				if (resyncToNextDecl())
 					continue;
@@ -63,17 +68,17 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 	}
 
 	if (state_.curlyBracketsCount)
-		genericError(std::to_string(state_.curlyBracketsCount) + " '}' still missing after parsing this unit.");
+		diags_.report(DiagID::parser_missing_curlybracket, SourceLoc(fid));
 
 	if (state_.roundBracketsCount)
-		genericError(std::to_string(state_.roundBracketsCount) + " ')' still missing after parsing this unit.");
+		diags_.report(DiagID::parser_missing_roundbracket, SourceLoc(fid));
 
 	if (state_.squareBracketsCount)
-		genericError(std::to_string(state_.squareBracketsCount) + " ']' still missing after parsing this unit.");
+		diags_.report(DiagID::parser_missing_squarebracket, SourceLoc(fid));
 
 	if (unit->getDeclCount() == 0)
 	{
-		genericError("Expected one or more declaration.");
+		diags_.report(DiagID::parser_expected_decl_in_unit,SourceLoc(fid));
 		return nullptr;
 	}
 	else
@@ -101,7 +106,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 			rtr->setIdentifier(foundID.get());
 		else
 		{
-			errorExpected("Expected an identifier");
+			reportErrorExpected(DiagID::parser_expected_iden);
 			isValid = false;
 			rtr->setIdentifier(identifiers_.getInvalidID());
 		}
@@ -116,7 +121,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		// '('
 		if (!consumeBracket(SignType::S_ROUND_OPEN))
 		{
-			errorExpected("Expected '('");
+			reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
 			// try to resync to a ) without consuming it.
 			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 				return DeclResult::Error();
@@ -125,10 +130,6 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		// [<arg_decl> {',' <arg_decl>}*]
 		if (auto firstarg = parseArgDecl())
 		{
-			// Note, here, in the 2 places I've marked with (1) and (2), we can possibly
-			// add error management, however, I don't think that's necessary since
-			// the consumeBracket below will attempt to "panic and recover" if it doesn't find the )
-			// About (1), maybe a break could be added there, but I think it's just better to ignore and try to parse more.
 			rtr->addArg(firstarg.moveAs<ArgDecl>());
 			while (true)
 			{
@@ -139,22 +140,20 @@ Parser::DeclResult Parser::parseFunctionDecl()
 					else
 					{
 						if (arg.wasSuccessful()) // not found?
-							errorExpected("Expected an argument declaration");
-						// (1)
+							reportErrorExpected(DiagID::parser_expected_argdecl);
 					}
 				}
 				else
 					break;
 			}
 		}
-		// (2)
 
 		// ')'
 		if (auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE))
 			endLoc = rightParens;
 		else 
 		{
-			errorExpected("Expected a ')'");
+			reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ false, /*consumeToken*/ true))
 				return DeclResult::Error();
 		}
@@ -170,7 +169,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 			else // no type found? we expected one after the colon!
 			{
 				if (rtrTy.wasSuccessful())
-					errorExpected("Expected a type keyword");
+					reportErrorExpected(DiagID::parser_expected_type);
 
 				rtr->setReturnType(astContext_.getPrimitiveVoidType());
 				endLoc = colon;
@@ -205,7 +204,7 @@ Parser::DeclResult Parser::parseArgDecl()
 		// ':'
 		if (!consumeSign(SignType::S_COLON))
 		{
-			errorExpected("Expected a ':'");
+			reportErrorExpected(DiagID::parser_expected_colon);
 			return DeclResult::Error();
 		}
 
@@ -227,7 +226,7 @@ Parser::DeclResult Parser::parseArgDecl()
 		else
 		{
 			if (qt.wasSuccessful())
-				errorExpected("Expected a type");
+				reportErrorExpected(DiagID::parser_expected_type);
 			return DeclResult::Error();
 		}
 	}
@@ -253,7 +252,7 @@ Parser::DeclResult Parser::parseVarDecl()
 			id = foundID.get();
 		else
 		{
-			errorExpected("Expected an identifier");
+			reportErrorExpected(DiagID::parser_expected_iden);
 			if (auto res = resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ false, /*consumeToken*/ true))
 			{
 				// Recovered? Act like nothing happened.
@@ -265,7 +264,7 @@ Parser::DeclResult Parser::parseVarDecl()
 		// ':'
 		if (!consumeSign(SignType::S_COLON))
 		{
-			errorExpected("Expected a ':'");
+			reportErrorExpected(DiagID::parser_expected_colon);
 			return DeclResult::Error();
 		}
 
@@ -276,14 +275,14 @@ Parser::DeclResult Parser::parseVarDecl()
 			tyRange = typespecResult.getSourceRange();
 			if (ty.isAReference())
 			{
-				genericError("Ignored reference qualifier '&' in variable declaration : Variables cannot be references.");
+				diags_.report(DiagID::parser_ignored_ref_vardecl, typespecResult.getSourceRange());
 				ty.setIsReference(false);
 			}
 		}
 		else
 		{
-			if(typespecResult.wasSuccessful())
-				errorExpected("Expected a type");
+			if (typespecResult.wasSuccessful())
+				reportErrorExpected(DiagID::parser_expected_type);
 			if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi*/ true, /*consumeToken*/ true))
 				return DeclResult::NotFound(); // Recovered? Act like nothing happened.
 			return DeclResult::Error();
@@ -296,8 +295,8 @@ Parser::DeclResult Parser::parseVarDecl()
 				iExpr = expr.move();
 			else
 			{
-				if(expr.wasSuccessful())
-					errorExpected("Expected an expression");
+				if (expr.wasSuccessful())
+					reportErrorExpected(DiagID::parser_expected_expr);
 				// Recover to semicolon, return if recovery wasn't successful 
 				if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ false))
 					return DeclResult::Error();
@@ -308,7 +307,7 @@ Parser::DeclResult Parser::parseVarDecl()
 		endLoc = consumeSign(SignType::S_SEMICOLON);
 		if (!endLoc)
 		{
-			errorExpected("Expected ';'");
+			reportErrorExpected(DiagID::parser_expected_semi);
 			
 			if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ true))
 				return DeclResult::Error();
@@ -366,7 +365,7 @@ Parser::Result<QualType> Parser::parseQualType()
 		if (hasFoundSomething)
 		{
 			if (type.wasSuccessful())
-				errorExpected("Expected a type");
+				reportErrorExpected(DiagID::parser_expected_type);
 			return Result<QualType>::Error();
 		}
 		else 

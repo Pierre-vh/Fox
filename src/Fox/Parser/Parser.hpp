@@ -194,8 +194,9 @@ namespace fox
 			bool resyncToNextDecl();
 
 			/*-------------- Error Reporting --------------*/
-			void errorExpected(const std::string &s);
-			void genericError(const std::string &s); 
+			// Reports an error of the "unexpected" family.
+			// The SourceLoc of the error is right past the end of the previous token.
+			Diagnostic reportErrorExpected(const DiagID& diag);
 
 			/*-------------- Parser State --------------*/
 			struct ParserState
