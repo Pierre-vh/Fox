@@ -25,7 +25,6 @@
 #pragma once
 
 #include <iterator>
-#include <variant>
 #include <tuple>
 #include "Fox/Common/Typedefs.hpp"
 
