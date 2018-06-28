@@ -17,7 +17,7 @@
 #include "Expr.hpp"
 #include "Type.hpp"
 
-#include <exception>
+#include "Fox/Common/Utils.hpp"
 #include <utility>
 
 namespace fox
@@ -38,7 +38,8 @@ namespace fox
 							return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(decl),std::forward<Args>(VArgs)...);
 					#include "DeclNodes.def"
 					default:
-						throw std::exception("Unreachable.");
+						fox_unreachable();
+						return ReturnType();
 				}
 			}
 
@@ -52,7 +53,8 @@ namespace fox
 							return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(stmt),std::forward<Args>(VArgs)...);
 					#include "StmtNodes.def"
 					default:
-						throw std::exception("Unreachable.");
+						fox_unreachable();
+						return ReturnType();
 				}
 			}
 
@@ -66,7 +68,8 @@ namespace fox
 							return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(type),std::forward<Args>(VArgs)...);
 					#include "TypeNodes.def"
 					default:
-						throw std::exception("Unreachable.");
+						fox_unreachable();
+						return ReturnType();
 				}
 			}
 
