@@ -84,20 +84,25 @@ namespace fox
 			template<typename ReplTy>
 			inline Diagnostic& addArg(const ReplTy& value, const unsigned char& phIndex)
 			{
-				if constexpr (std::is_same<std::string,ReplTy>::value)
-					return replacePlaceholder(value, phIndex);
-				else if constexpr(std::is_same<CharType, ReplTy>::value)
-				{
-					return replacePlaceholder(
-						StringManipulator::wcharToStr(value), phIndex
-					);
-				}
-				else
-				{
-					std::stringstream ss;
-					ss << value;
-					return replacePlaceholder(ss.str(), phIndex);
-				}
+				std::stringstream ss;
+				ss << value;
+				return replacePlaceholder(ss.str(), phIndex);
+			}
+
+			// For std::strings
+			template<>
+			inline Diagnostic& addArg(const std::string& value, const unsigned char& phIndex)
+			{
+				return replacePlaceholder(value, phIndex);
+			}
+
+			// for CharType
+			template<>
+			inline Diagnostic& addArg(const CharType& value, const unsigned char& phIndex)
+			{
+				return replacePlaceholder(
+					StringManipulator::wcharToStr(value), phIndex
+				);
 			}
 
 			bool isActive() const;
