@@ -115,7 +115,7 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 					state_.roundBracketsCount--;
 				break;
 			default:
-				throw std::exception("Unknown bracket type"); // Should be unreachable.
+				fox_unreachable();
 		}
 		incrementTokenIterator();
 		assert((tok.getRange().getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
