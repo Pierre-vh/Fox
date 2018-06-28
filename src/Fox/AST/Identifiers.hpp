@@ -13,6 +13,12 @@
 //		The thing is the different solutions would require the use of const_cast or another trickery
 //		(like mutable members)
 //
+// Note: This class, and the whole idiom of storing the IdentifierInfo* instead of the raw string
+// is more or less a premature optimization. I did not realize that at the time of doing it,
+// but now it's done so I guess that's good in the end ! Currently the IdentifierInfo 
+// doesn't store anything other than an iterator to the string, but in the future it might 
+// contain much more.
+//
 ////------------------------------------------------------////
 
 #pragma once 
