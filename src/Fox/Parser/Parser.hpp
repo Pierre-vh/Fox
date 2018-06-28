@@ -194,14 +194,8 @@ namespace fox
 			bool resyncToNextDecl();
 
 			/*-------------- Error Reporting --------------*/
-			void errorUnexpected();
 			void errorExpected(const std::string &s);
 			void genericError(const std::string &s); 
-
-			// Returns (state_.tokenIterator == state_.lastUnexpectedTokenIt)
-			bool isCurrentTokenLastUnexpectedToken() const;
-			// Sets state_.lastUnexpectedTokenIt
-			void markAsLastUnexpectedToken(TokenIteratorTy it);
 
 			/*-------------- Parser State --------------*/
 			struct ParserState

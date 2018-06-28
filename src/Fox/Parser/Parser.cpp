@@ -469,30 +469,9 @@ void Parser::recordDecl(NamedDecl * nameddecl)
 		state_.declRecorder->recordDecl(nameddecl);
 }
 
-void Parser::errorUnexpected()
-{
-	if (!state_.isAlive) return;
-	if (isCurrentTokenLastUnexpectedToken()) return;
-
-	markAsLastUnexpectedToken(state_.lastUnexpectedTokenIt);
-
-	std::stringstream output;
-	auto tok = getCurtok();
-	if (tok)
-	{
-		CompleteLoc loc = srcMgr_.getCompleteLocForSourceLoc(tok.getRange().getBeginSourceLoc());
-
-		output << "Unexpected token \"" << tok.getAsString() << "\" [l:" << loc.line << ", c:" << loc.column << "]";
-		diags_.report(DiagID::parser_placeholder).addArg(output.str());
-	}
-}
-
 void Parser::errorExpected(const std::string & s)
 {
 	if (!state_.isAlive) return;
-
-	// Print "unexpected token" error.
-	errorUnexpected();
 
 	std::stringstream output;
 	
@@ -518,16 +497,6 @@ void Parser::genericError(const std::string & s)
 	if (!state_.isAlive) return;
 
 	diags_.report(DiagID::parser_placeholder).addArg(s);
-}
-
-bool Parser::isCurrentTokenLastUnexpectedToken() const
-{
-	return (state_.tokenIterator == state_.lastUnexpectedTokenIt);
-}
-
-void Parser::markAsLastUnexpectedToken(TokenIteratorTy it)
-{
-	state_.lastUnexpectedTokenIt = it;
 }
 
 bool Parser::isDone() const
