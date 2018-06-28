@@ -46,8 +46,6 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 		out << "Failed at lexing\n";
 		return false;
 	}
-	else
-		out << "Lexing completed successfully." << lex.getTokenVector().size() << " tokens found.\n";
 
 	Parser psr(dg,srcMgr,*astCtxt,lex.getTokenVector());
 	// Todo: extract the name of the file and use that instead of "TestUnit"
@@ -55,13 +53,11 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 
 	if (!unit)
 	{
-		out << "Failed at parsing.";
+		out << "Failed at parsing.\n";
 		return false;
 	}
-	else
-		out << "Parsing successful!\n";
 
-	out << "\nMain Unit Dump:\n";
+	out << "\nSuccess ! Dump:\n";
 	
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto parse_micro = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
