@@ -24,5 +24,5 @@ namespace fox
 
 // Quick macro to mark some piece of code as unreachable.
 #ifndef fox_unreachable
-	#define fox_unreachable() assert(false && "unreachable")
+	#define fox_unreachable(msg) assert(false && msg)
 #endif

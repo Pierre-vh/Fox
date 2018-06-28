@@ -238,7 +238,7 @@ std::string Token::getAsString() const
 			if (it->second == kwtype)
 				return it->first;
 		}
-		fox_unreachable(); // unknown keyword
+		fox_unreachable("unknown keyword");
 		return "";
 	}
 	else if (mpark::holds_alternative<SignType>(tokenData_))

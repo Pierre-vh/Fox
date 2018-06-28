@@ -89,7 +89,7 @@ std::string PrimitiveType::getString() const
 		case Kind::VoidTy:
 			return "void";
 		default:
-			fox_unreachable(); // Unknown builtin kind
+			fox_unreachable("Unknown builtin kind");
 			return "";
 	}
 }

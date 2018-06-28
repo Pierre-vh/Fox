@@ -356,7 +356,7 @@ std::string ASTDumper::getStmtNodeName(Stmt* stmt) const
 		#define STMT(ID,PARENT) case StmtKind::ID: return #ID;
 		#include "StmtNodes.def"
 		default:
-			fox_unreachable();	// unknown node?
+			fox_unreachable("unknown node");
 			return "";
 	}
 }
@@ -368,7 +368,7 @@ std::string ASTDumper::getDeclNodeName(Decl * decl) const
 		#define DECL(ID,PARENT) case DeclKind::ID: return #ID;
 		#include "DeclNodes.def"
 		default:
-			fox_unreachable();	// unknown node?
+			fox_unreachable("unknown node");
 			return "";
 	}
 }
@@ -380,7 +380,7 @@ std::string ASTDumper::getTypeNodeName(Type * type) const
 		#define TYPE(ID,PARENT) case TypeKind::ID: return #ID;
 		#include "TypeNodes.def"
 		default:
-			fox_unreachable();	// unknown node?
+			fox_unreachable("unknown node");
 			return "";
 	}
 }

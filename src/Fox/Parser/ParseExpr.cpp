@@ -136,7 +136,7 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 		else if (litinfo.isFloat())
 			expr = std::make_unique<FloatLiteralExpr>(litinfo.get<FloatType>(), begLoc, endLoc);
 		else
-			fox_unreachable(); // Unknown literal
+			fox_unreachable("Unknown literal kind"); // Unknown literal
 
 		return ExprResult(std::move(expr));
 	}
@@ -726,7 +726,7 @@ Parser::Result<binaryOperator> Parser::parseBinaryOp(const char & priority)
 			}
 			break;
 		default:
-			fox_unreachable();
+			fox_unreachable("Unknown priority");
 			break;
 	}
 	restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.

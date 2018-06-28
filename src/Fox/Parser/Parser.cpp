@@ -115,7 +115,7 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 					state_.roundBracketsCount--;
 				break;
 			default:
-				fox_unreachable();
+				fox_unreachable("unknown bracket type");
 		}
 		incrementTokenIterator();
 		assert((tok.getRange().getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
@@ -198,7 +198,7 @@ void Parser::revertConsume()
 					state_.roundBracketsCount++;
 				break;
 			default:
-				fox_unreachable();
+				fox_unreachable("unknown bracket type");
 		}
 	}
 	// Else, we're done. For now, only brackets have counters associated with them.

@@ -38,7 +38,7 @@ namespace fox
 							return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(decl),std::forward<Args>(VArgs)...);
 					#include "DeclNodes.def"
 					default:
-						fox_unreachable();
+						fox_unreachable("Unknown node");
 						return ReturnType();
 				}
 			}
@@ -53,7 +53,7 @@ namespace fox
 							return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(stmt),std::forward<Args>(VArgs)...);
 					#include "StmtNodes.def"
 					default:
-						fox_unreachable();
+						fox_unreachable("Unknown node");
 						return ReturnType();
 				}
 			}
@@ -68,7 +68,7 @@ namespace fox
 							return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(type),std::forward<Args>(VArgs)...);
 					#include "TypeNodes.def"
 					default:
-						fox_unreachable();
+						fox_unreachable("Unknown node");
 						return ReturnType();
 				}
 			}
