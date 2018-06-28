@@ -44,7 +44,7 @@ Diagnostic DiagnosticEngine::report(const DiagID& diagID, const SourceRange& ran
 {
 	assert((bool)consumer_ && "No consumer available!");
 	// Gather diagnostic info
-	const auto idx = Util::enumAsInt(diagID);
+	const auto idx = enumAsInt(diagID);
 	DiagSeverity sev = diagsSevs[idx];
 	std::string str(diagsStrs[idx]);
 
