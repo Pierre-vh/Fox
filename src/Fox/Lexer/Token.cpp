@@ -12,13 +12,11 @@
 #include <regex>
 #include <string>
 #include <sstream>
-#include <cassert>
 
 #include "Fox/Common/StringManipulator.hpp"
 #include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/Utils.hpp"
-#include "Fox/Common/Exceptions.hpp"
 #include "Fox/AST/Identifiers.hpp"
 #include "Fox/AST/ASTContext.hpp"
 

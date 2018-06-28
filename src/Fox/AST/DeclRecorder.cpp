@@ -9,9 +9,8 @@
 
 
 #include "DeclRecorder.hpp"
-#include "Decl.hpp"
 
-#include "Fox/Common/Exceptions.hpp"
+#include "Decl.hpp"
 #include <cassert>
 
 using namespace fox;
