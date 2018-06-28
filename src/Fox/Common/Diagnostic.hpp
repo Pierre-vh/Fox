@@ -13,6 +13,8 @@
 #pragma once
 
 #include "SourceManager.hpp"
+#include "Typedefs.hpp"
+#include "StringManipulator.hpp"
 #include <string>
 #include <sstream>
 
@@ -84,6 +86,12 @@ namespace fox
 			{
 				if constexpr (std::is_same<std::string,ReplTy>::value)
 					return replacePlaceholder(value, phIndex);
+				else if constexpr(std::is_same<CharType, ReplTy>::value)
+				{
+					return replacePlaceholder(
+						StringManipulator::wcharToStr(value), phIndex
+					);
+				}
 				else
 				{
 					std::stringstream ss;
