@@ -12,8 +12,8 @@
 
 #include "Fox/Common/Typedefs.hpp"
 #include "Fox/Common/SourceManager.hpp"
+#include "mpark/variant.hpp"
 #include <vector>
-#include <variant>
 #include <memory>
 #include <map>
 
@@ -58,18 +58,18 @@ namespace fox
 			template<typename Ty>
 			inline bool is() const
 			{
-				return std::holds_alternative<Ty>(value_);
+				return mpark::holds_alternative<Ty>(value_);
 			}
 
 			template<typename Ty>
 			inline Ty get() const
 			{
-				if (std::holds_alternative<Ty>(value_))
-					return std::get<Ty>(value_);
+				if (mpark::holds_alternative<Ty>(value_))
+					return mpark::get<Ty>(value_);
 				return Ty();
 			}
 		private:
-			std::variant<std::monostate,bool,std::string,FloatType,IntType,CharType> value_;
+			mpark::variant<mpark::monostate,bool,std::string,FloatType,IntType,CharType> value_;
 	};
 	
 	enum class SignType : char
@@ -181,7 +181,7 @@ namespace fox
 			// Note: LiteralInfo is quite heavy, so it's dynamically allocated to save space, since
 			// most token won't need it.
 			const SourceRange range_;
-			std::variant<std::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenData_;
+			mpark::variant<mpark::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenData_;
 			std::unique_ptr<LiteralInfo> literalData_ = nullptr;
 
 			/* Identification functions */

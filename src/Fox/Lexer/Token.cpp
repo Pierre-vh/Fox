@@ -31,42 +31,42 @@ std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
 
 LiteralType LiteralInfo::getType() const
 {
-	if (std::holds_alternative<bool>(value_))
+	if (mpark::holds_alternative<bool>(value_))
 		return LiteralType::Ty_Bool;
-	else if (std::holds_alternative<std::string>(value_))
+	else if (mpark::holds_alternative<std::string>(value_))
 		return LiteralType::Ty_String;
-	else if (std::holds_alternative<FloatType>(value_))
+	else if (mpark::holds_alternative<FloatType>(value_))
 		return LiteralType::Ty_Float;
-	else if (std::holds_alternative<IntType>(value_))
+	else if (mpark::holds_alternative<IntType>(value_))
 		return LiteralType::Ty_Int;
-	else if (std::holds_alternative<CharType>(value_))
+	else if (mpark::holds_alternative<CharType>(value_))
 		return LiteralType::Ty_Char;
 	return LiteralType::DEFAULT;
 }
 
 bool LiteralInfo::isBool() const
 {
-	return std::holds_alternative<bool>(value_);
+	return mpark::holds_alternative<bool>(value_);
 }
 
 bool LiteralInfo::isString() const
 {
-	return std::holds_alternative<std::string>(value_);
+	return mpark::holds_alternative<std::string>(value_);
 }
 
 bool LiteralInfo::isFloat() const
 {
-	return std::holds_alternative<FloatType>(value_);
+	return mpark::holds_alternative<FloatType>(value_);
 }
 
 bool LiteralInfo::isInt() const
 {
-	return std::holds_alternative<IntType>(value_);
+	return mpark::holds_alternative<IntType>(value_);
 }
 
 bool LiteralInfo::isChar() const
 {
-	return std::holds_alternative<CharType>(value_);
+	return mpark::holds_alternative<CharType>(value_);
 }
 
 std::string LiteralInfo::getAsString() const
@@ -115,7 +115,7 @@ LiteralInfo::LiteralInfo(const CharType& cval)
 
 bool LiteralInfo::isNull() const
 {
-	return std::holds_alternative<std::monostate>(value_);
+	return mpark::holds_alternative<mpark::monostate>(value_);
 }
 
 LiteralInfo::operator bool() const
@@ -148,14 +148,14 @@ std::string Token::showFormattedTokenData() const
 	int enumInfo = -1;
 
 	if (isKeyword())
-		enumInfo = Util::enumAsInt(std::get<KeywordType>(tokenData_));
+		enumInfo = Util::enumAsInt(mpark::get<KeywordType>(tokenData_));
 	else if (isLiteral())
 	{
 		assert(literalData_ && "Token is a literal but does not have a literalInfo?");
 		enumInfo = Util::enumAsInt(literalData_->getType());
 	}
 	else if (isSign())
-		enumInfo = Util::enumAsInt(std::get<SignType>(tokenData_));
+		enumInfo = Util::enumAsInt(mpark::get<SignType>(tokenData_));
 
 	if (enumInfo >= 0)
 		ss << " (" << enumInfo << ")";
@@ -167,7 +167,7 @@ std::string Token::showFormattedTokenData() const
 
 bool Token::isValid() const
 {
-	return !(std::holds_alternative<std::monostate>(tokenData_));
+	return !(mpark::holds_alternative<mpark::monostate>(tokenData_));
 }
 
 Token::operator bool() const
@@ -177,22 +177,22 @@ Token::operator bool() const
 
 bool Token::isLiteral() const
 {
-	return std::holds_alternative<Literal>(tokenData_);
+	return mpark::holds_alternative<Literal>(tokenData_);
 }
 
 bool Token::isIdentifier() const
 {
-	return std::holds_alternative<IdentifierInfo*>(tokenData_);
+	return mpark::holds_alternative<IdentifierInfo*>(tokenData_);
 }
 
 bool Token::isSign() const
 {
-	return std::holds_alternative<SignType>(tokenData_);
+	return mpark::holds_alternative<SignType>(tokenData_);
 }
 
 bool Token::isKeyword() const
 {
-	return std::holds_alternative<KeywordType>(tokenData_);
+	return mpark::holds_alternative<KeywordType>(tokenData_);
 }
 
 bool Token::is(const KeywordType & ty)
@@ -219,22 +219,22 @@ bool Token::is(const LiteralType & ty)
 KeywordType Token::getKeywordType() const
 {
 	if (isKeyword())
-		return std::get<KeywordType>(tokenData_);
+		return mpark::get<KeywordType>(tokenData_);
 	return KeywordType::DEFAULT;
 }
 
 SignType Token::getSignType() const
 {
 	if (isSign())
-		return std::get<SignType>(tokenData_);
+		return mpark::get<SignType>(tokenData_);
 	return SignType::DEFAULT;
 }
 
 std::string Token::getAsString() const
 {
-	if (std::holds_alternative<KeywordType>(tokenData_))
+	if (mpark::holds_alternative<KeywordType>(tokenData_))
 	{
-		auto kwtype = std::get<KeywordType>(tokenData_);
+		auto kwtype = mpark::get<KeywordType>(tokenData_);
 		for (auto it = kKeywords_dict.begin(); it != kKeywords_dict.end(); it++)
 		{
 			if (it->second == kwtype)
@@ -242,9 +242,9 @@ std::string Token::getAsString() const
 		}
 		throw std::exception("Unknown keyword type!");
 	}
-	else if (std::holds_alternative<SignType>(tokenData_))
+	else if (mpark::holds_alternative<SignType>(tokenData_))
 	{
-		auto signtype = std::get<SignType>(tokenData_);
+		auto signtype = mpark::get<SignType>(tokenData_);
 		CharType ch = ' ';
 		for (auto it = kSign_dict.begin(); it != kSign_dict.end(); it++)
 		{
@@ -255,14 +255,14 @@ std::string Token::getAsString() const
 		StringManipulator::append(str, ch);
 		return str;
 	}
-	else if (std::holds_alternative<Literal>(tokenData_))
+	else if (mpark::holds_alternative<Literal>(tokenData_))
 	{
 		assert(literalData_ && "Token's a literal but no LiteralInfo available?");
 		return literalData_->getAsString();
 	}
-	else if (std::holds_alternative<IdentifierInfo*>(tokenData_))
+	else if (mpark::holds_alternative<IdentifierInfo*>(tokenData_))
 	{
-		auto ptr = std::get<IdentifierInfo*>(tokenData_);
+		auto ptr = mpark::get<IdentifierInfo*>(tokenData_);
 		assert(ptr && "IdentifierInfo is null?");
 		return ptr->getStr();
 	}
@@ -292,9 +292,9 @@ LiteralInfo Token::getLiteralInfo() const
 
 std::string Token::getIdentifierString() const
 {
-	if (std::holds_alternative<IdentifierInfo*>(tokenData_))
+	if (mpark::holds_alternative<IdentifierInfo*>(tokenData_))
 	{
-		auto ptr = std::get<IdentifierInfo*>(tokenData_);
+		auto ptr = mpark::get<IdentifierInfo*>(tokenData_);
 		assert(ptr && "tokenInfo's a IdentifierInfo* but the pointer is null?");
 		return ptr->getStr();
 	}
@@ -303,9 +303,9 @@ std::string Token::getIdentifierString() const
 
 IdentifierInfo * Token::getIdentifierInfo()
 {
-	if (std::holds_alternative<IdentifierInfo*>(tokenData_))
+	if (mpark::holds_alternative<IdentifierInfo*>(tokenData_))
 	{
-		auto ptr = std::get<IdentifierInfo*>(tokenData_);
+		auto ptr = mpark::get<IdentifierInfo*>(tokenData_);
 		assert(ptr && "tokenInfo's a IdentifierInfo* but the pointer is null?");
 		return ptr;
 	}
