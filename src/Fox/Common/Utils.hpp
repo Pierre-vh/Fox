@@ -4,33 +4,25 @@
 // File : Utils.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// Defines some general utility variable/functions										
+// Defines some general utility functions & macros									
 ////------------------------------------------------------////
 
 #pragma once
 
-#include <string>
-#include <map>
+#include <cassert>
 
 namespace fox
 {
-	namespace Util
+	// convert enum to integer
+	template<typename Enumeration>
+	inline auto enumAsInt(Enumeration const value) -> typename std::underlying_type<Enumeration>::type
 	{
-		// convert enum to integer
-		template<typename Enumeration>
-		inline auto enumAsInt(Enumeration const value) -> typename std::underlying_type<Enumeration>::type
-		{
-			return static_cast<typename std::underlying_type<Enumeration>::type>(value);
-		}
-
-		// get data from a std::map
-		template<typename T>
-		inline std::string getFromDict(const std::map<T, std::string>& m, const T& op)
-		{
-			auto i = m.find(op);
-			if (i != m.end())
-				return i->second;
-			return "";
-		}
+		return static_cast<typename std::underlying_type<Enumeration>::type>(value);
 	}
 }
+
+
+// Quick macro to mark some piece of code as unreachable.
+#ifndef fox_unreachable
+	#define fox_unreachable() assert(false && "unreachable")
+#endif
