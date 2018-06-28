@@ -148,14 +148,14 @@ std::string Token::showFormattedTokenData() const
 	int enumInfo = -1;
 
 	if (isKeyword())
-		enumInfo = Util::enumAsInt(mpark::get<KeywordType>(tokenData_));
+		enumInfo = enumAsInt(mpark::get<KeywordType>(tokenData_));
 	else if (isLiteral())
 	{
 		assert(literalData_ && "Token is a literal but does not have a literalInfo?");
-		enumInfo = Util::enumAsInt(literalData_->getType());
+		enumInfo = enumAsInt(literalData_->getType());
 	}
 	else if (isSign())
-		enumInfo = Util::enumAsInt(mpark::get<SignType>(tokenData_));
+		enumInfo = enumAsInt(mpark::get<SignType>(tokenData_));
 
 	if (enumInfo >= 0)
 		ss << " (" << enumInfo << ")";
