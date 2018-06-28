@@ -57,11 +57,15 @@ Moonshot Project To-do List.
 				> Implement that in the DiagnosticConsumer class in a protected function that the derived classes can use. (e.g. "getOriginalSourceLine(SourceLoc)")
 
 		> Add classof static methods to the AST (will be useful for testing if a class is a derived/base of without dynamic_cast)
+
 		> Add a "Casting.h" file with wrappers around dynamic_cast, and utility functions that takes advantage of "classof"
 			> dyn_cast -> wrapper around dynamic_cast.
 				>  It's just going to be a wrapper at first so I don't have headaches trying to re-implement dynamic_cast myself
 			> isa -> use llvm's impl as a guide
 				> I'll implement this right now because it'll let me take advantage of the classof methods & the kind system in general.
+			> Other idea : Use LLVM's and place it in Third-Party. I'll have to modify it a bit to make it standalone but at least I'll get an efficient version!
+				> if I do it, compile RTTI-less.
+
 	FEATURE:
 		> Semantic Analysis
 			> ASTValidator
