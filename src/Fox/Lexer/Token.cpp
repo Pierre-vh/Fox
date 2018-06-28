@@ -238,20 +238,25 @@ std::string Token::getAsString() const
 			if (it->second == kwtype)
 				return it->first;
 		}
-		throw std::exception("Unknown keyword type!");
+		fox_unreachable(); // unknown keyword
+		return "";
 	}
 	else if (mpark::holds_alternative<SignType>(tokenData_))
 	{
 		auto signtype = mpark::get<SignType>(tokenData_);
+		bool found = false;
 		CharType ch = ' ';
 		for (auto it = kSign_dict.begin(); it != kSign_dict.end(); it++)
 		{
 			if (it->second == signtype)
+			{
 				ch = it->first;
+				found = true;
+				break;
+			}
 		}
-		std::string str = "";
-		StringManipulator::append(str, ch);
-		return str;
+		assert(found && "unknown sign");
+		return StringManipulator::wcharToStr(ch);
 	}
 	else if (mpark::holds_alternative<Literal>(tokenData_))
 	{
