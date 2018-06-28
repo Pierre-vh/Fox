@@ -9,7 +9,9 @@
 //
 // Possible improvements :
 //		In general, the IdentifierInfo that holds an interator to the string is a bit weird.
-//		Either just store the string directly,
+//		Either just store the string directly in the IdentifierInfo, or find a different solution.
+//		The thing is the different solutions would require the use of const_cast or another trickery
+//		(like mutable members)
 //
 ////------------------------------------------------------////
 
@@ -23,7 +25,6 @@ namespace fox
 	class IdentifierInfo;
 
 	// Wrapper around a const_iterator of a map entry, used to safely access the .first element (the string)
-	// This is used to avoid storing a raw pointer or iterator.
 	class StringPtrInMap
 	{
 		public:
@@ -37,8 +38,7 @@ namespace fox
 	};
 
 	// A Class holding informations related to a identifier.
-	// Currently, it only lets us access the std::string. In the future, this might hold additional informations.
-	// That's the advantage of this class, I can add information to an identifier without breaking everything!
+	// Currently, it only stores the iterator to the std::string.
 	class IdentifierInfo
 	{
 		public:
