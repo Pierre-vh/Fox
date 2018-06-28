@@ -7,5 +7,29 @@
 // Parser Diagnostics Message
 ////------------------------------------------------------////
 
+ERROR(parser_placeholder, "%0")
 
-ERROR(parser_placeholder,"%0")
+// Error Expected
+ERROR(parser_expected_closing_squarebracket,"Expected ']'")
+ERROR(parser_expected_closing_curlybracket,	"Expected '}'")
+ERROR(parser_expected_opening_curlybracket,	"Expected '{'")
+ERROR(parser_expected_closing_roundbracket,	"Expected ')'")
+ERROR(parser_expected_opening_roundbracket,	"Expected '('")
+ERROR(parser_expected_stmt,	"Expected a statement")
+ERROR(parser_expected_expr,	"Expected an expression")
+ERROR(parser_expected_decl, "Expected a declaration")
+ERROR(parser_expected_semi, "Expected a ';'")
+ERROR(parser_expected_colon, "Expected a ':'")
+ERROR(parser_expected_iden, "Expected an identifier")
+ERROR(parser_expected_type, "Expected a type")
+ERROR(parser_expected_argdecl, "Expected an argument declaration")
+
+// Others
+ERROR(parser_else_without_if, "Else without matching if")
+ERROR(parser_expected_decl_in_unit, "Expected one or more declaration in unit")
+ERROR(parser_missing_curlybracket, "%0 unclosed '{' in file")
+ERROR(parser_missing_squarebracket, "%0 unclosed '[' in file")
+ERROR(parser_missing_roundbracket, "%0 unclosed '(' in file")
+
+// Special warnings
+WARNING(parser_ignored_ref_vardecl, "Ignored reference qualifier '&' in variable declaration : Variables cannot be references")
