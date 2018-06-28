@@ -127,25 +127,6 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 	);
 }
 
-bool SourceManager::tryIncrementSourceLoc(SourceLoc& sloc, bool* incrementedPastTheEnd)
-{
-	const StoredData* data = getStoredDataForFileID(sloc.getFileID());
-
-	assert(data && "Invalid SourceLoc");
-
-	const auto dataSize = data->str.size();
-	if (sloc.getIndex() < dataSize)
-	{
-		sloc.idx_++;
-
-		if (incrementedPastTheEnd)
-			*incrementedPastTheEnd = (sloc.getIndex() == dataSize);
-
-		return true;
-	}
-	return false;
-}
-
 bool SourceManager::isSourceLocValid(const SourceLoc & sloc) const
 {
 	const StoredData* data = getStoredDataForFileID(sloc.getFileID());
@@ -233,6 +214,15 @@ SourceLoc::idx_type SourceLoc::getIndex() const
 	return idx_;
 }
 
+void SourceLoc::increment()
+{
+	idx_++;
+}
+
+void SourceLoc::decrement()
+{
+	idx_--;
+}
 
 // SourceRange
 SourceRange::SourceRange(const SourceLoc& sloc, const offset_type& offset) : sloc_(sloc), offset_(offset)

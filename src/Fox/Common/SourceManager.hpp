@@ -100,12 +100,6 @@ namespace fox
 			// Any value greater than that will trigger an assertion ("out of range")
 			CompleteLoc getCompleteLocForSourceLoc(const SourceLoc& sloc) const;
 
-			// This function tries to increment the given SourceLoc by 1. 
-			// Returns true if the operation completed successfully, false otherwise.
-			// The optional boolean argument will be a flag set to true if the SourceLoc now points
-			// to a past-the-end location.
-			bool tryIncrementSourceLoc(SourceLoc& sloc, bool* incrementedPastTheEnd = nullptr);
-
 			// Check if a SourceLoc is valid
 			bool isSourceLocValid(const SourceLoc& sloc) const;
 			
@@ -145,7 +139,11 @@ namespace fox
 			idx_type getIndex() const;
 
 		protected:
-			friend class SourceManager;
+			friend class Parser;
+
+			void increment();
+			void decrement();
+		private:
 			FileID fid_;
 			idx_type idx_;
 	};
