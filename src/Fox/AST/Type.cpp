@@ -8,10 +8,9 @@
 ////------------------------------------------------------////
 
 #include "Type.hpp"
+#include "Fox/Common/Utils.hpp"
 
-#include <cassert>
 #include <sstream>
-#include <exception>
 
 using namespace fox;
 
@@ -90,7 +89,8 @@ std::string PrimitiveType::getString() const
 		case Kind::VoidTy:
 			return "void";
 		default:
-			throw std::exception("Unknown Builtin Type");
+			fox_unreachable(); // Unknown builtin kind
+			return "";
 	}
 }
 
