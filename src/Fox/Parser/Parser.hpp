@@ -35,7 +35,7 @@
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-#include <cassert>
+#include "Fox/Common/Utils.hpp"
 
 namespace fox
 {

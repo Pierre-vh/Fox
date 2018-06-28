@@ -10,12 +10,7 @@
 ////------------------------------------------------------////
 
 #include "Parser.hpp"
-
 #include "Fox/AST/ASTContext.hpp"
-#include "Fox/AST/Decl.hpp"
-#include "Fox/AST/Stmt.hpp"
-
-#include <cassert>
 
 using namespace fox;
 

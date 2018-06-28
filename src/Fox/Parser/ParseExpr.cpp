@@ -10,10 +10,6 @@
 
 #include "Parser.hpp"
 
-#include "Fox/Common/Exceptions.hpp"
-#include "Fox/AST/Expr.hpp"
-#include <cassert>
-
 using namespace fox;
 
 // note, here the unique_ptr is passed by reference because it will be consumed (moved -> nulled) only if a '[' is found, else, it's left untouched.
@@ -730,7 +726,7 @@ Parser::Result<binaryOperator> Parser::parseBinaryOp(const char & priority)
 			}
 			break;
 		default:
-			throw Exceptions::parser_critical_error("Requested to match a Binary Operator of unknown priority");
+			fox_unreachable();
 			break;
 	}
 	restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
