@@ -12,7 +12,6 @@
 #include "Identifiers.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 #include <string>
-#include <exception>
 #include <sstream>
 
 #define INDENT "    "
