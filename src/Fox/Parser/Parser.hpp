@@ -210,9 +210,9 @@ namespace fox
 				bool isRecoveryAllowed : 1;
 			
 				// Brackets counters
-				uint8_t curlyBracketsCount  = 0;
-				uint8_t roundBracketsCount  = 0;
-				uint8_t squareBracketsCount	= 0;
+				std::uint8_t curlyBracketsCount  = 0;
+				std::uint8_t roundBracketsCount  = 0;
+				std::uint8_t squareBracketsCount = 0;
 
 				// Current Decl Recorder
 				DeclRecorder *declRecorder = nullptr;
@@ -245,8 +245,8 @@ namespace fox
 					RAIIDeclRecorder(Parser &p,DeclRecorder *dr);
 					~RAIIDeclRecorder();
 				private:
-					Parser & parser_;
-					DeclRecorder * declRec_ = nullptr;
+					Parser& parser_;
+					DeclRecorder* declRec_ = nullptr;
 			};
 
 			/*-------------- Member Variables --------------*/
@@ -257,7 +257,7 @@ namespace fox
 			TokenVector& tokens_;
 			
 			/*-------------- Constants --------------*/
-			static constexpr uint8_t maxBraceDepth_ = (std::numeric_limits<uint8_t>::max)();
+			static constexpr uint8_t maxBraceDepth_ = (std::numeric_limits<std::uint8_t>::max)();
 
 		public:
 			/*-------------- Result Classes --------------*/

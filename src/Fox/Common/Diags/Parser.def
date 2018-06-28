@@ -33,3 +33,8 @@ ERROR(parser_missing_roundbracket, "%0 unclosed '(' in file")
 
 // Special warnings
 WARNING(parser_ignored_ref_vardecl, "Ignored reference qualifier '&' in variable declaration : Variables cannot be references")
+
+// Fatal error
+FATAL(parser_roundbracket_overflow,	"Max round bracket depth exceeded")
+FATAL(parser_squarebracket_overflow,"Max square bracket depth exceeded")
+FATAL(parser_curlybracket_overflow,	"Max curly bracket depth exceeded")

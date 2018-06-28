@@ -11,9 +11,6 @@
 
 #include "Parser.hpp"
 
-#include <sstream>
-#include <cassert>
-#include <iostream>
 #include "Fox/AST/Identifiers.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/SourceManager.hpp"
@@ -88,7 +85,10 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 				if (state_.curlyBracketsCount < maxBraceDepth_)
 					state_.curlyBracketsCount++;
 				else
-					throw std::overflow_error("Max Brackets Depth Exceeded");
+				{
+					diags_.report(DiagID::parser_curlybracket_overflow);
+					die();
+				}
 				break;
 			case SignType::S_CURLY_CLOSE:
 				if (state_.curlyBracketsCount)		// Don't let unbalanced parentheses create an underflow.
@@ -98,7 +98,10 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 				if (state_.squareBracketsCount < maxBraceDepth_)
 					state_.squareBracketsCount++;
 				else
-					throw std::overflow_error("Max Brackets Depth Exceeded");
+				{
+					diags_.report(DiagID::parser_squarebracket_overflow);
+					die();
+				}
 				break;
 			case SignType::S_SQ_CLOSE:
 				if (state_.squareBracketsCount)		// Don't let unbalanced parentheses create an underflow.
@@ -108,7 +111,10 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 				if (state_.roundBracketsCount < maxBraceDepth_)
 					state_.roundBracketsCount++;
 				else
-					throw std::overflow_error("Max Brackets Depth Exceeded");
+				{
+					diags_.report(DiagID::parser_roundbracket_overflow);
+					die();
+				}
 				break;
 			case SignType::S_ROUND_CLOSE:
 				if (state_.roundBracketsCount)		// Don't let unbalanced parentheses create an underflow.
@@ -170,32 +176,41 @@ void Parser::revertConsume()
 			case SignType::S_CURLY_OPEN:
 				if (state_.curlyBracketsCount)
 					state_.curlyBracketsCount--;
-				else
-					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_CURLY_CLOSE:
 				if (state_.curlyBracketsCount < maxBraceDepth_)
 					state_.curlyBracketsCount++;
+				else
+				{
+					diags_.report(DiagID::parser_curlybracket_overflow);
+					die();
+				}
 				break;
 			case SignType::S_SQ_OPEN:
 				if (state_.squareBracketsCount)
 					state_.squareBracketsCount--;
-				else
-					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_SQ_CLOSE:
 				if (state_.squareBracketsCount < maxBraceDepth_)
 					state_.squareBracketsCount++;
+				else
+				{
+					diags_.report(DiagID::parser_squarebracket_overflow);
+					die();
+				}
 				break;
 			case SignType::S_ROUND_OPEN:
 				if (state_.roundBracketsCount)
 					state_.roundBracketsCount--;
-				else
-					throw std::overflow_error("Max Brackets Depth Exceeded");
 				break;
 			case SignType::S_ROUND_CLOSE:
 				if (state_.roundBracketsCount < maxBraceDepth_)
 					state_.roundBracketsCount++;
+				else
+				{
+					diags_.report(DiagID::parser_roundbracket_overflow);
+					die();
+				}
 				break;
 			default:
 				fox_unreachable("unknown bracket type");
