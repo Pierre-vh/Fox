@@ -126,7 +126,7 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 		SourceLoc endLoc = tok.getRange().makeEndSourceLoc();
 
 		if (litinfo.isBool())
-			expr = std::make_unique<BoolLiteralExpr>(litinfo.get<bool>(),begLoc,endLoc);
+			expr = std::make_unique<BoolLiteralExpr>(litinfo.get<bool>(), begLoc, endLoc);
 		else if (litinfo.isString())
 			expr = std::make_unique<StringLiteralExpr>(litinfo.get<std::string>(), begLoc, endLoc);
 		else if (litinfo.isChar())
@@ -136,7 +136,7 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 		else if (litinfo.isFloat())
 			expr = std::make_unique<FloatLiteralExpr>(litinfo.get<FloatType>(), begLoc, endLoc);
 		else
-			throw std::exception("Unknown literal type");
+			fox_unreachable(); // Unknown literal
 
 		return ExprResult(std::move(expr));
 	}
