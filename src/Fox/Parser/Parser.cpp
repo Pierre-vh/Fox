@@ -198,7 +198,7 @@ void Parser::revertConsume()
 					state_.roundBracketsCount++;
 				break;
 			default:
-				throw std::exception("Unknown bracket type"); // Should be unreachable.
+				fox_unreachable();
 		}
 	}
 	// Else, we're done. For now, only brackets have counters associated with them.
