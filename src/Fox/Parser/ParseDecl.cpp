@@ -67,14 +67,16 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 
 	}
 
-	if (state_.curlyBracketsCount)
-		diags_.report(DiagID::parser_missing_curlybracket, SourceLoc(fid));
+	// The conversion to uint16_t is needed so replacePlaceholder doesn't mistake
+	// it for a character.
+	if (std::uint16_t count = state_.curlyBracketsCount)
+		diags_.report(DiagID::parser_missing_curlybracket, SourceLoc(fid)).addArg(count);
 
-	if (state_.roundBracketsCount)
-		diags_.report(DiagID::parser_missing_roundbracket, SourceLoc(fid));
+	if (std::uint16_t count = state_.roundBracketsCount)
+		diags_.report(DiagID::parser_missing_roundbracket, SourceLoc(fid)).addArg(count);
 
-	if (state_.squareBracketsCount)
-		diags_.report(DiagID::parser_missing_squarebracket, SourceLoc(fid));
+	if (std::uint16_t count = state_.squareBracketsCount)
+		diags_.report(DiagID::parser_missing_squarebracket, SourceLoc(fid)).addArg(count);
 
 	if (unit->getDeclCount() == 0)
 	{
@@ -92,6 +94,9 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		// Note about [':' <type>], if it isn't present, the function returns void
 	*/
 
+	// To-Do :
+		// Improve the error recovery on a missing '(' or ')' 
+
 	// "func"
 	if (auto fnKw = consumeKeyword(KeywordType::KW_FUNC))
 	{
@@ -101,6 +106,8 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		SourceLoc endLoc;
 
 		bool isValid = true;
+		bool foundLeftRoundBracket = true;
+
 		// <id>
 		if (auto foundID = consumeIdentifier())
 			rtr->setIdentifier(foundID.get());
@@ -114,17 +121,15 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		// Before creating a RAIIDeclRecorder, record this function in the parent DeclRecorder
 		if(isValid)
 			recordDecl(rtr.get());
-		// Create a RAIIDeclRecorder to record every decl that happens within this
-		// function parsing.
+
+		// Create a RAIIDeclRecorder to record every decl within this function
 		RAIIDeclRecorder raiidr(*this, rtr.get());
 
 		// '('
 		if (!consumeBracket(SignType::S_ROUND_OPEN))
 		{
 			reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
-			// try to resync to a ) without consuming it.
-			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
-				return DeclResult::Error();
+			isValid = foundLeftRoundBracket = false;
 		}
 
 		// [<arg_decl> {',' <arg_decl>}*]
@@ -137,11 +142,8 @@ Parser::DeclResult Parser::parseFunctionDecl()
 				{
 					if (auto arg = parseArgDecl())
 						rtr->addArg(arg.moveAs<ArgDecl>());
-					else
-					{
-						if (arg.wasSuccessful()) // not found?
-							reportErrorExpected(DiagID::parser_expected_argdecl);
-					}
+					else if(arg.wasSuccessful()) // not found?
+						reportErrorExpected(DiagID::parser_expected_argdecl);
 				}
 				else
 					break;
@@ -153,9 +155,16 @@ Parser::DeclResult Parser::parseFunctionDecl()
 			endLoc = rightParens;
 		else 
 		{
+			isValid = false;
 			reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
-			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ false, /*consumeToken*/ true))
-				return DeclResult::Error();
+
+			if (foundLeftRoundBracket) // Only attempt to recover if we found the ( before
+			{
+				// We'll attempt to recover to the '{' too, so if we find the body of the function
+				// we can at least parse that.
+				if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
+					return DeclResult::Error();
+			}
 		}
 	
 		// [':' <type>]
@@ -166,16 +175,14 @@ Parser::DeclResult Parser::parseFunctionDecl()
 				rtr->setReturnType(rtrTy.get());
 				endLoc = rtrTy.getSourceRange().makeEndSourceLoc();
 			}
-			else // no type found? we expected one after the colon!
+			else 
 			{
+				isValid = false;
+
 				if (rtrTy.wasSuccessful())
 					reportErrorExpected(DiagID::parser_expected_type);
 
-				rtr->setReturnType(astContext_.getPrimitiveVoidType());
-				endLoc = colon;
-
-				// Try to resync to a { so we can keep on parsing.
-				if (!resyncToSign(SignType::S_CURLY_OPEN, false, false))
+				if (!resyncToSign(SignType::S_CURLY_OPEN, true, false))
 					return DeclResult::Error();
 			}
 		}
@@ -187,10 +194,14 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		if (!compoundstmt)
 			return DeclResult::Error();
 
-		rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
-		rtr->setSourceLocs(begLoc, endLoc, rtr->getBody()->getEndLoc());
-		assert(rtr->isComplete());
-		return DeclResult(std::move(rtr));
+		if (isValid)
+		{
+			rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
+			rtr->setSourceLocs(begLoc, endLoc, rtr->getBody()->getEndLoc());
+			assert(rtr->isComplete());
+			return DeclResult(std::move(rtr));
+		}
+		return DeclResult::Error();
 	}
 	return DeclResult::NotFound();
 }

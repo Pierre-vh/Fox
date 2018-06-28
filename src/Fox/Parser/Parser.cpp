@@ -323,7 +323,7 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 	// (As this is not a pure copy-paste but more of a translation & adaptation I don't think I need to link it, but here is it anyways)
 
 	// Return immediately if recovery is not allowed, or the parser isn't alive anymore.
-	if (!state_.isRecoveryAllowed || !isAlive())
+	if (!isAlive())
 		return false;
 
 	// Always skip the first token if it's not in signs
@@ -333,7 +333,7 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 	{
 		// Check curtok
 		auto tok = getCurtok();
-		for (auto it = signs.begin(); it != signs.end(); it++)
+		for (auto it = signs.begin(), end = signs.end(); it != end; it++)
 		{
 			if (tok.is(*it))
 			{
@@ -404,7 +404,7 @@ bool Parser::resyncToNextDecl()
 	// This method skips everything until it finds a "let" or a "func".
 
 	// Return immediately if recovery is not allowed, or the parser isn't alive anymore.
-	if (!state_.isRecoveryAllowed || !isAlive())
+	if (!isAlive())
 		return false;
 
 	while(!isDone())

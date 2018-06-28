@@ -17,12 +17,12 @@ using namespace fox;
 Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 {
 	auto rtr = std::make_unique<CompoundStmt>(); // return value
-	if (auto LeftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN))
+	if (auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN))
 	{
-		SourceLoc RightCurlyLoc;
+		SourceLoc rightCurlyLoc;
 		while (!isDone())
 		{
-			if (RightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE))
+			if (rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE))
 				break;
 
 			// try to parse a statement
@@ -44,23 +44,22 @@ Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 				*/
 				// In both case, attempt recovery to nearest semicolon.
 				if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi -> meaningless here*/ false, /*shouldConsumeToken*/ true))
-				{
-					// Successfully resynced, continue parsing.
 					continue;
-				}
 				else
 				{
-					// Recovery might have stopped for 2 reasons, the first is that it found a unmatched }, which is ours.
-					if (RightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE))
+					// If we couldn't recover, try to recover to our '}' to stop parsing this compound statement
+					if (resyncToSign(SignType::S_CURLY_CLOSE, /*stopAtSemi*/ false, /*consume*/ false))
+					{
+						rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE);
 						break;
-					// The second is that it found EOF or something that doesn't belong to us, like a unmatched ']' or ')'
+					}
 					else
-						return StmtResult::Error();	// (in this case, just return an error)
+						return StmtResult::Error();
 				}
 			}
 		}
 
-		if (!RightCurlyLoc.isValid())
+		if (!rightCurlyLoc.isValid())
 		{
 			reportErrorExpected(DiagID::parser_expected_closing_curlybracket);
 			// We can't recover since we reached EOF. return an error!
@@ -68,7 +67,7 @@ Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
 		}
 
 		// if everything's alright, return the result
-		rtr->setSourceLocs(LeftCurlyLoc, RightCurlyLoc);
+		rtr->setSourceLocs(leftCurlyLoc, rightCurlyLoc);
 		assert(rtr->hasLocInfo() && "No loc info? But we just set it!");
 		return StmtResult(std::move(rtr));
 	}
