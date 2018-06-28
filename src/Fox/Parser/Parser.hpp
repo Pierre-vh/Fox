@@ -10,11 +10,7 @@
 //															
 // The grammar can be found in	/doc/																		
 //
-// Note :	I've dug a lot into CLang's parser to try and see how to handle complex cases with elegance,
-//			so some stuff (algorithms, names) you'll see here looks a lot like clang's parser, simplified of course.
-//			Again, I don't think that's an issue, but here's CLang's license anyways :  https://github.com/llvm-mirror/clang/blob/master/LICENSE.TXT. 
-
-// Note :
+// Terminology :
 //			Parens always mean Round Brackets only.
 //			Brackets always mean Round/Curly/Square Bracket (Every kind of bracket)
 // 

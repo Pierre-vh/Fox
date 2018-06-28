@@ -5,21 +5,12 @@
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file contains the IdentifierTable, which is a class
-// that manages a "table" of identifiers. Every lexed user-defined 
-// identifier ends up here.
-// This file also contains the "IdentifierInfo" class
+// that manages a map of string to identifierinfo objects.
 //
-// The main goal of this class is 2 fold.
-// 1 - Reduce memory usage a bit, every identifier is stored once, and then only pointers to it are stored.
-// 2 - Enable a centralized identifier table, which allows to attach specific information to an identifier.
-// 
-// This class offers lookup functions using Strings, and can return a reference or a pointer to a map entry.
-// 
-// Note: This structure is heavily inspired by CLang. Well, a lot here is inspired by this incredible compiler.
-// Of course, I adapt and simplify some stuff, but the core ideas come from CLang
-// 
-// Also, note that 0 lines of source code were copy-pasted from the source code of CLang. I'm only attempting to reproduce
-// what I understand that they're doing to increase the quality of this compiler and learn more about how CLang works.
+// Possible improvements :
+//		In general, the IdentifierInfo that holds an interator to the string is a bit weird.
+//		Either just store the string directly,
+//
 ////------------------------------------------------------////
 
 #pragma once 
@@ -33,7 +24,6 @@ namespace fox
 
 	// Wrapper around a const_iterator of a map entry, used to safely access the .first element (the string)
 	// This is used to avoid storing a raw pointer or iterator.
-	// Based on a SO answer:  https://stackoverflow.com/a/516041
 	class StringPtrInMap
 	{
 		public:

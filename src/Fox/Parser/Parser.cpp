@@ -318,15 +318,9 @@ bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const 
 
 bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopAtSemi, const bool & shouldConsumeToken)
 {
-	// Note, this function is heavily based on (read: nearly copy pasted from) CLang's http://clang.llvm.org/doxygen/Parse_2Parser_8cpp_source.html#l00245
-	// This is CLang's license https://github.com/llvm-mirror/clang/blob/master/LICENSE.TXT. 
-	// (As this is not a pure copy-paste but more of a translation & adaptation I don't think I need to link it, but here is it anyways)
-
-	// Return immediately if recovery is not allowed, or the parser isn't alive anymore.
 	if (!isAlive())
 		return false;
 
-	// Always skip the first token if it's not in signs
 	bool isFirst = true;
 	// Keep going until we reach EOF.
 	while(!isDone())
@@ -344,12 +338,11 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 			}
 		}
 
-		// Check if it's a sign for special behaviours
 		if (tok.isSign())
 		{
 			switch (tok.getSignType())
 			{
-				// If we find a '(', '{' or '[', call this function recursively to skip to it's counterpart.
+				// Skip nested brackets
 				case SignType::S_CURLY_OPEN:
 					consumeBracket(SignType::S_CURLY_OPEN);
 					resyncToSign(SignType::S_CURLY_CLOSE, false, true);
@@ -362,9 +355,8 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 					consumeBracket(SignType::S_ROUND_OPEN);
 					resyncToSign(SignType::S_ROUND_CLOSE, false, true);
 					break;
-					// If we find a ')', '}' or ']' we  :
-						// Check if it belongs to a unmatched counterpart, if so, stop resync attempt.
-						// If it doesn't have an opening counterpart, skip it.
+				// Skip closing brackets if they're unbalanced, else
+				// return to avoid escaping the current block.
 				case SignType::S_CURLY_CLOSE:
 					if (state_.curlyBracketsCount && !isFirst)
 						return false;
@@ -383,7 +375,7 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopA
 				case SignType::S_SEMICOLON:
 					if (stopAtSemi)
 						return false;
-					// Intentional fallthrough
+					// fallthrough
 				default:
 					consumeAny();
 					break;
