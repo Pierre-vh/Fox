@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(Moonshot)
 
 #set minimal C++ standard 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #include add_source macro/fn definitions
