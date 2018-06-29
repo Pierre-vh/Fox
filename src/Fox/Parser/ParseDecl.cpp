@@ -319,7 +319,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	{
 		reportErrorExpected(DiagID::parser_expected_semi);
 			
-		if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ false))
+		if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi*/ false, /*consumeToken*/ false))
 			return DeclResult::Error();
 
 		endLoc = consumeSign(SignType::S_SEMICOLON);
