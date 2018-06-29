@@ -39,7 +39,7 @@ Moonshot Project To-do List.
 	> Code review : Check how errors are handled in general in  (Next)
 		* /AST/
 		* /Common/
-		* /Lexer/
+		* /Lexer/ (Done)
 		* Parser should be clean because it uses Result::Error for errors, and the Driver is trivial enough.
 
 	> Write the Remaining tests needed 
