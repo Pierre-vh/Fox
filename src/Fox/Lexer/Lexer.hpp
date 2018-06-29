@@ -31,10 +31,6 @@ namespace fox
 		public:
 			Lexer(DiagnosticEngine& diags,SourceManager& sm,ASTContext &astctxt);
 
-			// Lexs a raw String.
-			// This will load the string into the SourceManager for you, and returns the FileID.
-			FileID lexStr(const std::string& str);
-
 			// Lexs a file in the SourceManager.
 			// This will retrieve the file from the SourceManager from the current Context.
 			void lexFile(const FileID& file);

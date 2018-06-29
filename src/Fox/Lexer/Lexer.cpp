@@ -24,14 +24,6 @@ Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt) : d
 
 }
 
-FileID Lexer::lexStr(const std::string& str)
-{
-	auto fid = sm_.loadFromString(str);
-	if(fid)
-		lexFile(fid);
-	return fid;
-}
-
 void Lexer::lexFile(const FileID& file)
 {
 	assert(file && "INVALID FileID!");
