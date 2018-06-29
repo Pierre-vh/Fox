@@ -23,3 +23,8 @@
 
 	* Assertions
 		* When in doubt, use `assert()` to check if everything's alright. It no cost on performance in release mode, and can help a lot in tracking down bugs.
+
+##C++ Features
+	* Exceptions
+		* Avoid exceptions in Moonshot code (the code contained in src/). Try to use assertions or the DiagnosticEngine to report errors. 
+		  Only use them if you think that's the best thing to do in this situation.
