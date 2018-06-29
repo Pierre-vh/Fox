@@ -102,7 +102,7 @@ namespace fox
 			*/
 
 			// Convert a CharType to a utf8 encoded string
-			static std::string wcharToStr(const CharType& wc);
+			static std::string charToStr(const CharType& wc);
 
 			// Removes the BOM from a str
 			static void removeBOM(std::string& str);

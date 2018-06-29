@@ -101,7 +101,7 @@ namespace fox
 			inline Diagnostic& addArg(const CharType& value, const unsigned char& phIndex)
 			{
 				return replacePlaceholder(
-					StringManipulator::wcharToStr(value), phIndex
+					StringManipulator::charToStr(value), phIndex
 				);
 			}
 

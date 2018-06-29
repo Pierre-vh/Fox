@@ -30,7 +30,7 @@ void StringManipulator::setStr(const std::string * str)
 	reset();
 }
 
-std::string StringManipulator::wcharToStr(const CharType & wc)
+std::string StringManipulator::charToStr(const CharType & wc)
 {
 	std::string rtr;
 	append(rtr, wc);
