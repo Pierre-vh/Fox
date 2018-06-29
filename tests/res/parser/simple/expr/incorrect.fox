@@ -11,7 +11,7 @@ Fox.io.print(
 Fox.(3.3)
 Test.attr.func(.attr.attr.func)
 #array literals with inner literals
-["hello,"world","nice","to","meet","you"
+["hello","world","nice","to","meet","you"
 [0,1,2,3,4
 ,false,true,false,true]
 [
