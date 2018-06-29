@@ -357,6 +357,7 @@ bool UnitDecl::isValid() const
 			if (!(*it)->isValid())
 				return false;
 		}
+		return true;
 	}
 	return false;
 }
