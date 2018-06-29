@@ -449,6 +449,7 @@ Parser::ExprResult Parser::parseExpr()
 
 		SourceLoc begLoc = lhs.getObserverPtr()->getBegLoc();
 		SourceLoc endLoc = rhs.getObserverPtr()->getEndLoc();
+		assert(begLoc && endLoc && "invalid locs");
 		SourceRange opRange = op.getSourceRange();
 		return ExprResult(
 				std::make_unique<BinaryExpr>(
