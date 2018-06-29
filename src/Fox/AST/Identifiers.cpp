@@ -79,7 +79,7 @@ IdentifierInfo* IdentifierTable::getUniqueIdentifierInfo(const std::string& id)
 		// Identifier already exists in table_, return ->second after some checks.
 
 		assert(it->second.mapIter_.it_ != table_.end() && "IdentifierInfo iterator was invalid");
-		assert(it->second.mapIter_.it_ == it && "Iterator was not correct!");
+		assert(it->second.mapIter_.it_ == it && "String iterator in ->second is incorrect");
 		return &(it->second);
 	}
 	else
