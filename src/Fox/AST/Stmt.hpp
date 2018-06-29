@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Fox/Common/Iterators.hpp"
-#include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Source.hpp"
 
 namespace fox
 {

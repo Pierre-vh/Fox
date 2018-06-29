@@ -9,7 +9,7 @@
 
 #include "gtest/gtest.h"
 #include "Support/TestUtils.hpp"
-#include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Source.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 
 using namespace fox;

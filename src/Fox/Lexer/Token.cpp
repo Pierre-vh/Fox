@@ -14,7 +14,7 @@
 #include <sstream>
 
 #include "Fox/Common/StringManipulator.hpp"
-#include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Source.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/Utils.hpp"
 #include "Fox/AST/Identifiers.hpp"

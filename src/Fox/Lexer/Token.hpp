@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Fox/Common/Typedefs.hpp"
-#include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Source.hpp"
 #include "mpark/variant.hpp"
 #include <vector>
 #include <memory>

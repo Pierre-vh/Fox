@@ -10,7 +10,7 @@
 #include "gtest/gtest.h"
 #include "Fox/Lexer/Lexer.hpp"
 #include "Fox/Parser/Parser.hpp"
-#include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Source.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Identifiers.hpp"

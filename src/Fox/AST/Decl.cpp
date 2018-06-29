@@ -10,7 +10,7 @@
 #include "Expr.hpp"
 #include "Decl.hpp"
 #include "Stmt.hpp"
-#include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Source.hpp"
 
 #include <sstream>
 #include <cassert>

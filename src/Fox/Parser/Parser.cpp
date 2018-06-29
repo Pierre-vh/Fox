@@ -13,7 +13,7 @@
 
 #include "Fox/AST/Identifiers.hpp"
 #include "Fox/AST/ASTContext.hpp"
-#include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Source.hpp"
 
 using namespace fox;
 

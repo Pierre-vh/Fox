@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #include "ASTDumper.hpp"
-#include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Source.hpp"
 #include "Identifiers.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 #include <string>

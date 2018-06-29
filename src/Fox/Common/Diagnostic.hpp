@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "SourceManager.hpp"
+#include "Source.hpp"
 #include "Typedefs.hpp"
 #include "StringManipulator.hpp"
 #include <string>
