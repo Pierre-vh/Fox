@@ -50,6 +50,11 @@ std::size_t Lexer::resultSize() const
 	return tokens_.size();
 }
 
+FileID Lexer::getCurrentFile() const
+{
+	return currentFile_;
+}
+
 void Lexer::pushTok()
 {
 	if (curtok_ == "")	// Don't push empty tokens.

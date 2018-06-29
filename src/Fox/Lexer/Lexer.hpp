@@ -37,7 +37,7 @@ namespace fox
 			
 			TokenVector& getTokenVector();
 			std::size_t resultSize() const;	
-
+			FileID getCurrentFile() const;
 		private:
 			enum class DFAState
 			{
