@@ -246,7 +246,7 @@ std::string Token::getAsString() const
 		for (auto it = kSign_dict.begin(); it != kSign_dict.end(); it++)
 		{
 			if (it->second == signtype)
-				return StringManipulator::wcharToStr(it->first);
+				return StringManipulator::charToStr(it->first);
 		}
 		fox_unreachable("unknown sign");
 	}

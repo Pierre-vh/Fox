@@ -42,7 +42,7 @@ namespace fox
 			*/	
 
 			// Returns a pointer to the string
-			const std::string* getStrPtr() const;	
+			const std::string* getStr() const;	
 
 			// Set this SM's source to a the pointer str
 			void setStr(const std::string* str);

@@ -18,7 +18,7 @@ StringManipulator::StringManipulator(const std::string* str)
 	setStr(str);
 }
 
-const std::string * StringManipulator::getStrPtr() const
+const std::string * StringManipulator::getStr() const
 {
 	return raw_str_;
 }
