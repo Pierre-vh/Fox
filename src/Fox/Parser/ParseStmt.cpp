@@ -96,7 +96,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 	// <parens_expr>
 	if (auto parens_expr_res = parseParensExpr(/* The ParensExpr is mandatory */ true, nullptr, &parenExprEndLoc))
 	{
-		assert(parenExprEndLoc && "The ParensExpr Successfully, but didn't provide the ')' loc?");
+		assert(parenExprEndLoc && "parseParensExpr didn't provide the ')' loc?");
 		expr = parens_expr_res.move();
 	}
 	else
@@ -300,8 +300,8 @@ Parser::StmtResult Parser::parseExprStmt()
 	// <expr_stmt>	= ';' | <expr> ';' 	
 
 	// ';'
-	if (auto semiLoc = consumeSign(SignType::S_SEMICOLON))
-		return StmtResult(std::make_unique<NullStmt>(semiLoc));
+	if (auto semi = consumeSign(SignType::S_SEMICOLON))
+		return StmtResult(std::make_unique<NullStmt>(semi));
 
 	// <expr> 
 	else if (auto expr = parseExpr())
