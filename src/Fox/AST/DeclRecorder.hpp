@@ -131,7 +131,7 @@ namespace fox
 			// Clear this LookupResult
 			void clear();
 			// Copies all of the results from target into this lookupresult then clears the target.
-			void merge(LookupResult &target);
+			void absorb(LookupResult &target);
 		private:
 			std::vector<NamedDecl*> results_;
 

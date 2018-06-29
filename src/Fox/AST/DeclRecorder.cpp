@@ -44,7 +44,7 @@ LookupResult DeclRecorder::fullLookup(IdentifierInfo * id) const
 	if (parent_)
 	{
 		auto parent_lr = parent_->fullLookup(id);
-		this_lr.merge(parent_lr);
+		this_lr.absorb(parent_lr);
 	}
 		
 	return this_lr;
@@ -166,7 +166,7 @@ void LookupResult::clear()
 	results_.clear();
 }
 
-void LookupResult::merge(LookupResult & target)
+void LookupResult::absorb(LookupResult & target)
 {
 	if(target.results_.size() != 0)
 		results_.insert(results_.end(), target.results_.begin(), target.results_.end());
