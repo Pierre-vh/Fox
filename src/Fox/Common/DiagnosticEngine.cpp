@@ -55,8 +55,7 @@ Diagnostic DiagnosticEngine::report(const DiagID& diagID, const SourceRange& ran
 	if (shouldSilence(sev))
 	{
 		// Create an empty diagnostic object by calling the default constructor
-		Diagnostic diag;
-		return diag;
+		return Diagnostic();
 	}
 
 	// Return
@@ -70,14 +69,13 @@ Diagnostic DiagnosticEngine::report(const DiagID& diagID, const SourceRange& ran
 	{
 		// If we return the user requested diagnostic, update the counters accordingly, then return.
 		updateInternalCounters(sev);
-		Diagnostic rtr_diag(
-			consumer_.get(),
-			diagID,
-			sev,
-			str,
-			range
-		);
-		return rtr_diag;
+		return 	Diagnostic(
+					consumer_.get(),
+					diagID,
+					sev,
+					str,
+					range
+				);;
 	}
 }
 
