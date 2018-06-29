@@ -46,7 +46,7 @@ void Diagnostic::emit()
 {
 	if (isActive_ && (diagSeverity_ != DiagSeverity::IGNORE))
 	{
-		assert(consumer_ && "No consumer available!");
+		assert(consumer_ && "Attempting to emit without a consumer set!");
 		consumer_->consume(*this);
 		kill(); // kill this diag once it's consumed.
 	}
