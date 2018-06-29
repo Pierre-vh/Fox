@@ -115,58 +115,57 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 {
 	// <primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
 	auto tok = getCurtok();
-	if (tok.isLiteral())
-	{
-		incrementTokenIterator();
+	if (!tok.isLiteral())
+		return ExprResult::NotFound();
+	
+	skipToken();
 
-		auto litinfo = tok.getLiteralInfo();
-		std::unique_ptr<Expr> expr = nullptr;
+	auto litinfo = tok.getLiteralInfo();
+	std::unique_ptr<Expr> expr = nullptr;
 
-		SourceLoc begLoc = tok.getRange().getBeginSourceLoc();
-		SourceLoc endLoc = tok.getRange().makeEndSourceLoc();
+	SourceLoc begLoc = tok.getRange().getBeginSourceLoc();
+	SourceLoc endLoc = tok.getRange().makeEndSourceLoc();
 
-		if (litinfo.isBool())
-			expr = std::make_unique<BoolLiteralExpr>(litinfo.get<bool>(), begLoc, endLoc);
-		else if (litinfo.isString())
-			expr = std::make_unique<StringLiteralExpr>(litinfo.get<std::string>(), begLoc, endLoc);
-		else if (litinfo.isChar())
-			expr = std::make_unique<CharLiteralExpr>(litinfo.get<CharType>(), begLoc, endLoc);
-		else if (litinfo.isInt())
-			expr = std::make_unique<IntegerLiteralExpr>(litinfo.get<IntType>(), begLoc, endLoc);
-		else if (litinfo.isFloat())
-			expr = std::make_unique<FloatLiteralExpr>(litinfo.get<FloatType>(), begLoc, endLoc);
-		else
-			fox_unreachable("Unknown literal kind"); // Unknown literal
+	if (litinfo.isBool())
+		expr = std::make_unique<BoolLiteralExpr>(litinfo.get<bool>(), begLoc, endLoc);
+	else if (litinfo.isString())
+		expr = std::make_unique<StringLiteralExpr>(litinfo.get<std::string>(), begLoc, endLoc);
+	else if (litinfo.isChar())
+		expr = std::make_unique<CharLiteralExpr>(litinfo.get<CharType>(), begLoc, endLoc);
+	else if (litinfo.isInt())
+		expr = std::make_unique<IntegerLiteralExpr>(litinfo.get<IntType>(), begLoc, endLoc);
+	else if (litinfo.isFloat())
+		expr = std::make_unique<FloatLiteralExpr>(litinfo.get<FloatType>(), begLoc, endLoc);
+	else
+		fox_unreachable("Unknown literal kind"); // Unknown literal
 
-		return ExprResult(std::move(expr));
-	}
-	return ExprResult::NotFound();
+	return ExprResult(std::move(expr));
 }
 
 Parser::ExprResult Parser::parseArrayLiteral()
 {
 	// <array_literal>	= '[' [<expr_list>] ']'
-	if (auto begLoc = consumeBracket(SignType::S_SQ_OPEN))
+	auto begLoc = consumeBracket(SignType::S_SQ_OPEN);
+	if (!begLoc)
+		return ExprResult::NotFound();
+	
+	std::unique_ptr<ExprList> expr;
+	SourceLoc endLoc;
+	// [<expr_list>]
+	if (auto elist = parseExprList())
+		expr = elist.move();
+	// ']'
+	if (!(endLoc = consumeBracket(SignType::S_SQ_CLOSE)))
 	{
-		std::unique_ptr<ExprList> expr;
-		SourceLoc endLoc;
-		// [<expr_list>]
-		if (auto elist = parseExprList())
-			expr = elist.move();
-		// ']'
-		if (!(endLoc = consumeBracket(SignType::S_SQ_CLOSE)))
-		{
-			// Resync. If resync wasn't successful, report the error.
-			if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
-				endLoc = consumeBracket(SignType::S_SQ_CLOSE);
-			else
-				return ExprResult::Error();
-		}
-		return ExprResult(
-			std::make_unique<ArrayLiteralExpr>(std::move(expr),begLoc,endLoc)
-		);
+		// Resync. If resync wasn't successful, report the error.
+		if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
+			endLoc = consumeBracket(SignType::S_SQ_CLOSE);
+		else
+			return ExprResult::Error();
 	}
-	return ExprResult::NotFound();
+	return ExprResult(
+		std::make_unique<ArrayLiteralExpr>(std::move(expr),begLoc,endLoc)
+	);
 }
 
 Parser::ExprResult Parser::parseLiteral()
@@ -236,45 +235,41 @@ Parser::ExprResult Parser::parseSuffixExpr()
 Parser::ExprResult Parser::parseExponentExpr()
 {
 	// <exp_expr>	= <suffix_expr> [ <exponent_operator> <prefix_expr> ]
-	// <member_access>
-	if (auto lhs = parseSuffixExpr())
+
+	// <suffix_expr>
+	auto lhs = parseSuffixExpr();
+	if (!lhs)
+		return lhs; 
+
+	// <exponent_operator> 
+	if (auto expOp = parseExponentOp())
 	{
-		// <exponent_operator> 
-		if (auto expOp = parseExponentOp())
+		// <prefix_expr>
+		auto rhs = parsePrefixExpr();
+		if (!rhs)
 		{
-			// <prefix_expr>
-			auto rhs = parsePrefixExpr();
-			if (!rhs)
-			{
-				if(rhs.wasSuccessful())
-					reportErrorExpected(DiagID::parser_expected_expr);
+			if(rhs.wasSuccessful())
+				reportErrorExpected(DiagID::parser_expected_expr);
 				
-				return ExprResult::Error();
-			}
-
-			SourceLoc begLoc = lhs.getObserverPtr()->getBegLoc();
-			SourceLoc endLoc = lhs.getObserverPtr()->getEndLoc();
-
-			return ExprResult(
-				std::make_unique<BinaryExpr>(
-						binaryOperator::EXP,
-						lhs.move(),
-						rhs.move(),
-						begLoc,
-						expOp, 
-						endLoc
-					)
-			);
-		}
-		// only <member_access>
-		return lhs;
-	}
-	else
-	{
-		if (!lhs.wasSuccessful())
 			return ExprResult::Error();
-		return ExprResult::NotFound();
+		}
+
+		SourceLoc begLoc = lhs.getObserverPtr()->getBegLoc();
+		SourceLoc endLoc = lhs.getObserverPtr()->getEndLoc();
+
+		return ExprResult(
+			std::make_unique<BinaryExpr>(
+					binaryOperator::EXP,
+					lhs.move(),
+					rhs.move(),
+					begLoc,
+					expOp, 
+					endLoc
+				)
+		);
 	}
+
+	return lhs;
 }
 
 Parser::ExprResult Parser::parsePrefixExpr()
@@ -319,42 +314,41 @@ Parser::ExprResult Parser::parseCastExpr()
 {
 	// <cast_expr>  = <prefix_expr> ["as" <type>]
 	// <cast_expr>
-	if (auto prefixexpr = parsePrefixExpr())
-	{
-		// ["as" <type>]
-		if (consumeKeyword(KeywordType::KW_AS))
-		{
-			// <type>
-			if (auto castType = parseBuiltinTypename())
-			{
-				SourceLoc begLoc = prefixexpr.getObserverPtr()->getBegLoc();
-				SourceLoc endLoc = castType.getSourceRange().makeEndSourceLoc();
-				return ExprResult(
-						std::make_unique<CastExpr>(
-							castType.get(),
-							prefixexpr.move(),
-							begLoc,
-							castType.getSourceRange(),
-							endLoc
-						)
-					);
-			}
-			else
-			{
-				reportErrorExpected(DiagID::parser_expected_type);
-				return ExprResult::Error();
-			}
-		}
-		return ExprResult(
-			prefixexpr.move()
-		);
-	}
-	else
+	auto prefixexpr = parsePrefixExpr();
+	if (!prefixexpr)
 	{
 		if (!prefixexpr.wasSuccessful())
 			return ExprResult::Error();
 		return ExprResult::NotFound();
 	}
+
+	// ["as" <type>]
+	if (consumeKeyword(KeywordType::KW_AS))
+	{
+		// <type>
+		if (auto castType = parseBuiltinTypename())
+		{
+			SourceLoc begLoc = prefixexpr.getObserverPtr()->getBegLoc();
+			SourceLoc endLoc = castType.getSourceRange().makeEndSourceLoc();
+			return ExprResult(
+					std::make_unique<CastExpr>(
+						castType.get(),
+						prefixexpr.move(),
+						begLoc,
+						castType.getSourceRange(),
+						endLoc
+					)
+				);
+		}
+		else
+		{
+			reportErrorExpected(DiagID::parser_expected_type);
+			return ExprResult::Error();
+		}
+	}
+	return ExprResult(
+		prefixexpr.move()
+	);
 }
 
 Parser::ExprResult Parser::parseBinaryExpr(const char & priority)
@@ -377,6 +371,7 @@ Parser::ExprResult Parser::parseBinaryExpr(const char & priority)
 
 	std::unique_ptr<Expr> lhs = lhsResult.move();
 	std::unique_ptr<BinaryExpr> rtr;
+
 	// { <binary_operator> <cast_expr> }	
 	while (true)
 	{
@@ -438,187 +433,173 @@ Parser::ExprResult Parser::parseBinaryExpr(const char & priority)
 Parser::ExprResult Parser::parseExpr()
 {
 	//  <expr> = <binary_expr> [<assign_operator> <expr>] 
-	if (auto lhs = parseBinaryExpr())
-	{
-		if (auto op = parseAssignOp())
-		{
-			auto rhs = parseExpr();
-			if (!rhs)
-			{
-				if(rhs.wasSuccessful())
-					reportErrorExpected(DiagID::parser_expected_expr);
-				return ExprResult::Error();
-			}
+	auto lhs = parseBinaryExpr();
+	if (!lhs)
+		return lhs;
 
-			SourceLoc begLoc = lhs.getObserverPtr()->getBegLoc();
-			SourceLoc endLoc = rhs.getObserverPtr()->getEndLoc();
-			SourceRange opRange = op.getSourceRange();
-			return ExprResult(
-					std::make_unique<BinaryExpr>(
-							op.get(),
-							lhs.move(),
-							rhs.move(),
-							begLoc,
-							opRange,
-							endLoc
-						)
-				);
-		}
-		return ExprResult(lhs.move());
-	}
-	else
+	if (auto op = parseAssignOp())
 	{
-		if (!lhs.wasSuccessful())
+		auto rhs = parseExpr();
+		if (!rhs)
+		{
+			if(rhs.wasSuccessful())
+				reportErrorExpected(DiagID::parser_expected_expr);
 			return ExprResult::Error();
-		return ExprResult::NotFound();
+		}
+
+		SourceLoc begLoc = lhs.getObserverPtr()->getBegLoc();
+		SourceLoc endLoc = rhs.getObserverPtr()->getEndLoc();
+		SourceRange opRange = op.getSourceRange();
+		return ExprResult(
+				std::make_unique<BinaryExpr>(
+						op.get(),
+						lhs.move(),
+						rhs.move(),
+						begLoc,
+						opRange,
+						endLoc
+					)
+			);
 	}
+	return ExprResult(lhs.move());
 }
 
 Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory, SourceLoc* leftPLoc, SourceLoc* rightPLoc)
 {
 	// <parens_expr> = '(' <expr> ')'
 	// '('
-	if (auto LParen = consumeBracket(SignType::S_ROUND_OPEN))
+	auto leftParens = consumeBracket(SignType::S_ROUND_OPEN);
+	if (!leftParens)
 	{
-		std::unique_ptr<Expr> rtr = nullptr;
-		
-		// <expr>
-		if (auto expr = parseExpr())
-			rtr = expr.move();
-		else 
+		if (isMandatory)
 		{
-			// no expr, handle error & attempt to recover if it's allowed. If recovery is successful, return "not found"
-			if(expr.wasSuccessful())
-				reportErrorExpected(DiagID::parser_expected_expr);
-
-			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-				return ExprResult::NotFound();
-			else
-				return ExprResult::Error();
+			reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
+			return ExprResult::Error();
 		}
-		// Normally, the return value shouldn't be null, error should have been handled, but this
-		// assert's here for bug-catching purposes.
-		assert(rtr && "The return value shouldn't be null at this stage!");
-
-		// ')'
-		auto RParen = consumeBracket(SignType::S_ROUND_CLOSE);
-		if (!RParen)
-		{
-			// no ), handle error & attempt to recover 
-			reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
-
-			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
-				return ExprResult::Error();
-			
-			// If we recovered successfuly, place the Sloc into RParen
-			RParen = consumeBracket(SignType::S_ROUND_CLOSE);
-		}
-
-		if (leftPLoc)
-			*leftPLoc = LParen;
-
-		if (rightPLoc)
-			*rightPLoc = RParen;
-
-		return ExprResult(
-			std::make_unique<ParensExpr>(std::move(rtr), LParen, RParen)
-		);
+		return ExprResult::NotFound();
 	}
-	// failure to match ( while expression was mandatory -> error
-	else if (isMandatory)
-	{
-		reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
 
-		// Try to recover, if it's successful, return "Not Found", if it's not, return a error.
-		auto backup = createParserStateBackup();
+	std::unique_ptr<Expr> rtr = nullptr;
+		
+	// <expr>
+	if (auto expr = parseExpr())
+		rtr = expr.move();
+	else 
+	{
+		// no expr, handle error & attempt to recover if it's allowed. If recovery is successful, return "not found"
+		if(expr.wasSuccessful())
+			reportErrorExpected(DiagID::parser_expected_expr);
 
 		if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
 			return ExprResult::NotFound();
-
-		restoreParserStateFromBackup(backup);
-
-		return ExprResult::Error();
+		else
+			return ExprResult::Error();
 	}
-	return ExprResult::NotFound();
+
+	assert(rtr && "The return value shouldn't be null!");
+
+	// ')'
+	auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
+	if (!rightParens)
+	{
+		// no ), handle error & attempt to recover 
+		reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
+
+		if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
+			return ExprResult::Error();
+			
+		// If we recovered successfuly, place the Sloc into rightParens
+		rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
+	}
+
+	if (leftPLoc)
+		*leftPLoc = leftParens;
+
+	if (rightPLoc)
+		*rightPLoc = rightParens;
+
+	return ExprResult(
+		std::make_unique<ParensExpr>(std::move(rtr), leftParens, rightParens)
+	);
 }
 
 Parser::ExprListResult Parser::parseExprList()
 {
 	// <expr_list> = <expr> {',' <expr> }
-	if (auto firstexpr = parseExpr())
-	{
-		auto exprlist = std::make_unique<ExprList>();
-		exprlist->addExpr(firstexpr.move());
-		while (auto comma = consumeSign(SignType::S_COMMA))
-		{
-			if (auto expr = parseExpr())
-				exprlist->addExpr(expr.move());
-			else
-			{
-				if (expr.wasSuccessful())
-				{
-					// if the expression was just not found, revert the comma consuming and
-					// let the caller deal with the extra comma after the expression list.
-					revertConsume();
-					break;
-				}
+	auto firstexpr = parseExpr();
+	if (!firstexpr)
+		return ExprListResult::NotFound();
 
-				return ExprListResult::Error();
+	auto exprlist = std::make_unique<ExprList>();
+	exprlist->addExpr(firstexpr.move());
+	while (auto comma = consumeSign(SignType::S_COMMA))
+	{
+		if (auto expr = parseExpr())
+			exprlist->addExpr(expr.move());
+		else
+		{
+			if (expr.wasSuccessful())
+			{
+				// if the expression was just not found, revert the comma consuming and
+				// let the caller deal with the extra comma after the expression list.
+				revertConsume();
+				break;
 			}
+
+			return ExprListResult::Error();
 		}
-		return ExprListResult(std::move(exprlist));
 	}
-	return ExprListResult::NotFound();
+	return ExprListResult(std::move(exprlist));
 }
 
 Parser::ExprListResult Parser::parseParensExprList(SourceLoc* LParenLoc, SourceLoc *RParenLoc)
 {
 	// <parens_expr_list>	= '(' [ <expr_list> ] ')'
 	// '('
-	if (auto LPLoc = consumeBracket(SignType::S_ROUND_OPEN))
+	auto leftParens = consumeBracket(SignType::S_ROUND_OPEN);
+	if (!leftParens)
+		return ExprListResult::NotFound();
+
+	if (LParenLoc)
+		*LParenLoc = leftParens;
+
+	std::unique_ptr<ExprList> list = std::make_unique<ExprList>();
+
+	//  [ <expr_list> ]
+	if (auto parse_res = parseExprList())
+		list = parse_res.move();
+	else if (!parse_res.wasSuccessful())
 	{
-		if (LParenLoc)
-			*LParenLoc = LPLoc;
-
-		std::unique_ptr<ExprList> list = std::make_unique<ExprList>();
-		//  [ <expr_list> ]
-		if (auto parse_res = parseExprList())
-			list = parse_res.move();
-		else if (!parse_res.wasSuccessful())
+		// error? Try to recover from it, if success, just discard the expr list,
+		// if no success return error.
+		if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 		{
-			// error? Try to recover from it, if success, just discard the expr list,
-			// if no success return error.
-			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
-			{
-				SourceLoc loc = consumeBracket(SignType::S_ROUND_CLOSE);
+			SourceLoc loc = consumeBracket(SignType::S_ROUND_CLOSE);
 
-				if (RParenLoc)
-					*RParenLoc = loc;
+			if (RParenLoc)
+				*RParenLoc = loc;
 
-				return ExprListResult(std::make_unique<ExprList>()); // if recovery is successful, return an empty expression list.
-			}
-			return ExprListResult::Error();
+			return ExprListResult(std::make_unique<ExprList>()); // if recovery is successful, return an empty expression list.
 		}
-
-		SourceLoc RPLoc = consumeBracket(SignType::S_ROUND_CLOSE);
-		// ')'
-		if (!RPLoc)
-		{
-			reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
-
-			if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
-				RPLoc = consumeBracket(SignType::S_ROUND_CLOSE);
-			else 
-				return ExprListResult::Error();
-		}
-
-		if (RParenLoc)
-			*RParenLoc = RPLoc;
-
-		return ExprListResult(std::move(list));
+		return ExprListResult::Error();
 	}
 
-	return ExprListResult::NotFound();
+	SourceLoc rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
+	// ')'
+	if (!rightParens)
+	{
+		reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
+
+		if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
+			rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
+		else 
+			return ExprListResult::Error();
+	}
+
+	if (RParenLoc)
+		*RParenLoc = rightParens;
+
+	return ExprListResult(std::move(list));
 }
 
 SourceRange Parser::parseExponentOp()

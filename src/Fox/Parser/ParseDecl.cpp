@@ -93,241 +93,238 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		// Improve the error recovery on a missing '(' or ')' 
 
 	// "func"
-	if (auto fnKw = consumeKeyword(KeywordType::KW_FUNC))
+	auto fnKw = consumeKeyword(KeywordType::KW_FUNC);
+	if (!fnKw)
+		return DeclResult::NotFound();
+
+	auto rtr = std::make_unique<FunctionDecl>(
+		);
+	SourceLoc begLoc = fnKw.getBeginSourceLoc();
+	SourceLoc endLoc;
+
+	bool isValid = true;
+	bool foundLeftRoundBracket = true;
+
+	// <id>
+	if (auto foundID = consumeIdentifier())
+		rtr->setIdentifier(foundID.get());
+	else
 	{
-		auto rtr = std::make_unique<FunctionDecl>(
-			);
-		SourceLoc begLoc = fnKw.getBeginSourceLoc();
-		SourceLoc endLoc;
+		reportErrorExpected(DiagID::parser_expected_iden);
+		isValid = false;
+		rtr->setIdentifier(identifiers_.getInvalidID());
+	}
 
-		bool isValid = true;
-		bool foundLeftRoundBracket = true;
+	// Before creating a RAIIDeclRecorder, record this function in the parent DeclRecorder
+	if(isValid)
+		recordDecl(rtr.get());
 
-		// <id>
-		if (auto foundID = consumeIdentifier())
-			rtr->setIdentifier(foundID.get());
-		else
+	// Create a RAIIDeclRecorder to record every decl within this function
+	RAIIDeclRecorder raiidr(*this, rtr.get());
+
+	// '('
+	if (!consumeBracket(SignType::S_ROUND_OPEN))
+	{
+		reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
+		isValid = foundLeftRoundBracket = false;
+	}
+
+	// [<arg_decl> {',' <arg_decl>}*]
+	if (auto firstarg = parseArgDecl())
+	{
+		rtr->addArg(firstarg.moveAs<ArgDecl>());
+		while (true)
 		{
-			reportErrorExpected(DiagID::parser_expected_iden);
-			isValid = false;
-			rtr->setIdentifier(identifiers_.getInvalidID());
-		}
-
-		// Before creating a RAIIDeclRecorder, record this function in the parent DeclRecorder
-		if(isValid)
-			recordDecl(rtr.get());
-
-		// Create a RAIIDeclRecorder to record every decl within this function
-		RAIIDeclRecorder raiidr(*this, rtr.get());
-
-		// '('
-		if (!consumeBracket(SignType::S_ROUND_OPEN))
-		{
-			reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
-			isValid = foundLeftRoundBracket = false;
-		}
-
-		// [<arg_decl> {',' <arg_decl>}*]
-		if (auto firstarg = parseArgDecl())
-		{
-			rtr->addArg(firstarg.moveAs<ArgDecl>());
-			while (true)
+			if (consumeSign(SignType::S_COMMA))
 			{
-				if (consumeSign(SignType::S_COMMA))
-				{
-					if (auto arg = parseArgDecl())
-						rtr->addArg(arg.moveAs<ArgDecl>());
-					else if(arg.wasSuccessful()) // not found?
-						reportErrorExpected(DiagID::parser_expected_argdecl);
-				}
-				else
-					break;
+				if (auto arg = parseArgDecl())
+					rtr->addArg(arg.moveAs<ArgDecl>());
+				else if(arg.wasSuccessful()) // not found?
+					reportErrorExpected(DiagID::parser_expected_argdecl);
 			}
+			else
+				break;
 		}
+	}
 
-		// ')'
-		if (auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE))
-			endLoc = rightParens;
+	// ')'
+	if (auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE))
+		endLoc = rightParens;
+	else 
+	{
+		isValid = false;
+		reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
+
+		if (foundLeftRoundBracket) // Only attempt to recover if we found the ( before
+		{
+			// We'll attempt to recover to the '{' too, so if we find the body of the function
+			// we can at least parse that.
+			if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
+				return DeclResult::Error();
+		}
+	}
+	
+	// [':' <type>]
+	if (auto colon = consumeSign(SignType::S_COLON))
+	{
+		if (auto rtrTy = parseType())
+		{
+			rtr->setReturnType(rtrTy.get());
+			endLoc = rtrTy.getSourceRange().makeEndSourceLoc();
+		}
 		else 
 		{
 			isValid = false;
-			reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
-			if (foundLeftRoundBracket) // Only attempt to recover if we found the ( before
-			{
-				// We'll attempt to recover to the '{' too, so if we find the body of the function
-				// we can at least parse that.
-				if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-					return DeclResult::Error();
-			}
+			if (rtrTy.wasSuccessful())
+				reportErrorExpected(DiagID::parser_expected_type);
+
+			if (!resyncToSign(SignType::S_CURLY_OPEN, true, false))
+				return DeclResult::Error();
 		}
-	
-		// [':' <type>]
-		if (auto colon = consumeSign(SignType::S_COLON))
-		{
-			if (auto rtrTy = parseType())
-			{
-				rtr->setReturnType(rtrTy.get());
-				endLoc = rtrTy.getSourceRange().makeEndSourceLoc();
-			}
-			else 
-			{
-				isValid = false;
-
-				if (rtrTy.wasSuccessful())
-					reportErrorExpected(DiagID::parser_expected_type);
-
-				if (!resyncToSign(SignType::S_CURLY_OPEN, true, false))
-					return DeclResult::Error();
-			}
-		}
-		else // if no return type, the function returns void.
-			rtr->setReturnType(astContext_.getPrimitiveVoidType());
-
-		// <compound_statement>
-		auto compoundstmt = parseCompoundStatement(/* mandatory = yes */ true);
-		if (!compoundstmt)
-			return DeclResult::Error();
-
-		if (isValid)
-		{
-			rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
-			rtr->setSourceLocs(begLoc, endLoc, rtr->getBody()->getEndLoc());
-			assert(rtr->isComplete());
-			return DeclResult(std::move(rtr));
-		}
-		return DeclResult::Error();
 	}
-	return DeclResult::NotFound();
+	else // if no return type, the function returns void.
+		rtr->setReturnType(astContext_.getPrimitiveVoidType());
+
+	// <compound_statement>
+	auto compoundstmt = parseCompoundStatement(/* mandatory = yes */ true);
+
+	if (!compoundstmt || !isValid)
+		return DeclResult::Error();
+
+	rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
+	rtr->setSourceLocs(begLoc, endLoc, rtr->getBody()->getEndLoc());
+	assert(rtr->isComplete());
+	return DeclResult(std::move(rtr));
 }
 
 Parser::DeclResult Parser::parseArgDecl()
 {
 	// <arg_decl> = <id> ':' <qualtype>
-	// <id>
-	if (auto id = consumeIdentifier())
-	{
-		// ':'
-		if (!consumeSign(SignType::S_COLON))
-		{
-			reportErrorExpected(DiagID::parser_expected_colon);
-			return DeclResult::Error();
-		}
 
-		// <qualtype>
-		if (auto qt = parseQualType())
-		{
-			SourceLoc begLoc = id.getSourceRange().getBeginSourceLoc();
-			SourceLoc endLoc = qt.getSourceRange().makeEndSourceLoc();
-			auto rtr = std::make_unique<ArgDecl>(
-				id.get(),
-				qt.get(),
-				begLoc,
-				qt.getSourceRange(),
-				endLoc
-				);
-			recordDecl(rtr.get());
-			return DeclResult(std::move(rtr));
-		}
-		else
-		{
-			if (qt.wasSuccessful())
-				reportErrorExpected(DiagID::parser_expected_type);
-			return DeclResult::Error();
-		}
+	// <id>
+	auto id = consumeIdentifier();
+	if (!id)
+		return DeclResult::NotFound();
+
+	// ':'
+	if (!consumeSign(SignType::S_COLON))
+	{
+		reportErrorExpected(DiagID::parser_expected_colon);
+		return DeclResult::Error();
 	}
-	return DeclResult::NotFound();
+
+	// <qualtype>
+	auto qt = parseQualType();
+	if (!qt)
+	{
+		if (qt.wasSuccessful())
+			reportErrorExpected(DiagID::parser_expected_type);
+		return DeclResult::Error();
+	}
+
+	SourceLoc begLoc = id.getSourceRange().getBeginSourceLoc();
+	SourceLoc endLoc = qt.getSourceRange().makeEndSourceLoc();
+	auto rtr = std::make_unique<ArgDecl>(
+			id.get(),
+			qt.get(),
+			begLoc,
+			qt.getSourceRange(),
+			endLoc
+		);
+	recordDecl(rtr.get());
+	return DeclResult(std::move(rtr));
 }
 
 Parser::DeclResult Parser::parseVarDecl()
 {
 	// <var_decl> = "let" <id> ':' <qualtype> ['=' <expr>] ';'
 	// "let"
-	if (auto letKw = consumeKeyword(KeywordType::KW_LET))
+	auto letKw = consumeKeyword(KeywordType::KW_LET);
+	if (!letKw)
+		return DeclResult::NotFound();
+	
+	SourceLoc begLoc = letKw.getBeginSourceLoc();
+	SourceLoc endLoc;
+	SourceRange tyRange;
+
+	IdentifierInfo* id;
+	QualType ty;
+	std::unique_ptr<Expr> iExpr;
+
+	// <id>
+	if (auto foundID = consumeIdentifier())
+		id = foundID.get();
+	else
 	{
-		SourceLoc begLoc = letKw.getBeginSourceLoc();
-		SourceLoc endLoc;
-		SourceRange tyRange;
+		reportErrorExpected(DiagID::parser_expected_iden);
+		if (auto res = resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ false, /*consumeToken*/ true))
+		{
+			// Recovered? Act like nothing happened.
+			return DeclResult::NotFound();
+		}
+		return DeclResult::Error();
+	}
 
-		IdentifierInfo* id;
-		QualType ty;
-		std::unique_ptr<Expr> iExpr;
+	// ':'
+	if (!consumeSign(SignType::S_COLON))
+	{
+		reportErrorExpected(DiagID::parser_expected_colon);
+		return DeclResult::Error();
+	}
 
-		// <id>
-		if (auto foundID = consumeIdentifier())
-			id = foundID.get();
+	// <qualtype>
+	if (auto typespecResult = parseQualType())
+	{
+		ty = typespecResult.get();
+		tyRange = typespecResult.getSourceRange();
+		if (ty.isAReference())
+		{
+			diags_.report(DiagID::parser_ignored_ref_vardecl, typespecResult.getSourceRange());
+			ty.setIsReference(false);
+		}
+	}
+	else
+	{
+		if (typespecResult.wasSuccessful())
+			reportErrorExpected(DiagID::parser_expected_type);
+		if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi*/ true, /*consumeToken*/ true))
+			return DeclResult::NotFound(); // Recovered? Act like nothing happened.
+		return DeclResult::Error();
+	}
+
+	// ['=' <expr>]
+	if (consumeSign(SignType::S_EQUAL))
+	{
+		if (auto expr = parseExpr())
+			iExpr = expr.move();
 		else
 		{
-			reportErrorExpected(DiagID::parser_expected_iden);
-			if (auto res = resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ false, /*consumeToken*/ true))
-			{
-				// Recovered? Act like nothing happened.
-				return DeclResult::NotFound();
-			}
-			return DeclResult::Error();
-		}
-
-		// ':'
-		if (!consumeSign(SignType::S_COLON))
-		{
-			reportErrorExpected(DiagID::parser_expected_colon);
-			return DeclResult::Error();
-		}
-
-		// <qualtype>
-		if (auto typespecResult = parseQualType())
-		{
-			ty = typespecResult.get();
-			tyRange = typespecResult.getSourceRange();
-			if (ty.isAReference())
-			{
-				diags_.report(DiagID::parser_ignored_ref_vardecl, typespecResult.getSourceRange());
-				ty.setIsReference(false);
-			}
-		}
-		else
-		{
-			if (typespecResult.wasSuccessful())
-				reportErrorExpected(DiagID::parser_expected_type);
-			if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi*/ true, /*consumeToken*/ true))
-				return DeclResult::NotFound(); // Recovered? Act like nothing happened.
-			return DeclResult::Error();
-		}
-
-		// ['=' <expr>]
-		if (consumeSign(SignType::S_EQUAL))
-		{
-			if (auto expr = parseExpr())
-				iExpr = expr.move();
-			else
-			{
-				if (expr.wasSuccessful())
-					reportErrorExpected(DiagID::parser_expected_expr);
-				// Recover to semicolon, return if recovery wasn't successful 
-				if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ false))
-					return DeclResult::Error();
-			}
-		}
-
-		// ';'
-		endLoc = consumeSign(SignType::S_SEMICOLON);
-		if (!endLoc)
-		{
-			reportErrorExpected(DiagID::parser_expected_semi);
-			
-			if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ true))
+			if (expr.wasSuccessful())
+				reportErrorExpected(DiagID::parser_expected_expr);
+			// Recover to semicolon, return if recovery wasn't successful 
+			if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ false))
 				return DeclResult::Error();
 		}
-
-		auto rtr = std::make_unique<VarDecl>(id, ty, std::move(iExpr), begLoc,tyRange,endLoc);
-		assert(rtr->isComplete() && "Declaration isn't complete but parsing function completed successfully?");
-		
-		// Record the decl
-		recordDecl(rtr.get());
-
-		return DeclResult(std::move(rtr));
 	}
-	return DeclResult::NotFound();
+
+	// ';'
+	endLoc = consumeSign(SignType::S_SEMICOLON);
+	if (!endLoc)
+	{
+		reportErrorExpected(DiagID::parser_expected_semi);
+			
+		if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ true))
+			return DeclResult::Error();
+	}
+
+	auto rtr = std::make_unique<VarDecl>(id, ty, std::move(iExpr), begLoc,tyRange,endLoc);
+	assert(rtr->isComplete() && "Declaration isn't complete but parsing function completed successfully?");
+		
+	// Record the decl
+	recordDecl(rtr.get());
+
+	return DeclResult(std::move(rtr));
 }
 
 Parser::Result<QualType> Parser::parseQualType()
@@ -337,6 +334,7 @@ Parser::Result<QualType> Parser::parseQualType()
 	bool hasFoundSomething = false;
 	SourceLoc begLoc;
 	SourceLoc endLoc;
+
 	// ["const"]
 	if (auto kw = consumeKeyword(KeywordType::KW_CONST))
 	{
