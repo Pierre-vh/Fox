@@ -108,19 +108,10 @@ namespace fox
 			// Returns true if this LookupResult contains only one result.
 			bool isUnique() const;
 
+			std::size_t getSize() const;
+
 			// If this LookupResult contains only one result, returns it, else, returns a nullptr.
 			NamedDecl* getResultIfUnique() const;
-
-			// Returns true if this LookupResult contains at least one function declaration.
-			bool containsFunctionDecls() const;
-
-			// Returns true if this LookupResult contains only function declarations.
-			bool containsVarDecl() const;
-
-			// Iterates over this LookupResult's results and checks if every single one of them
-			// is a function declaration.
-				// Note: Since every NamedDecl has the same name in a LookupResult, if they're all functions, that means it's an "overload set"
-			bool onlyContainsFunctionDecls() const;
 
 			operator bool() const;
 		protected:
@@ -130,13 +121,10 @@ namespace fox
 			void addResult(NamedDecl* decl);
 			// Clear this LookupResult
 			void clear();
-			// Copies all of the results from target into this lookupresult then clears the target.
+			// If the target contains at least 1 result,
+			// copies all of the results from target into this lookupresult then clears the target.
 			void absorb(LookupResult &target);
 		private:
 			std::vector<NamedDecl*> results_;
-
-			// Theses flags are set to keep track of the "diversity" of named decls contained in this lookupresult.
-			bool containsFuncDecl_		: 1;	// Contains at least 1 func decl
-			bool containsVarDecl_		: 1;	// Contains at least 1 var decl
 	};
 }

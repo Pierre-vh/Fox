@@ -11,7 +11,7 @@
 #include "DeclRecorder.hpp"
 
 #include "Decl.hpp"
-#include <cassert>
+#include "Fox/Common/Utils.hpp"
 
 using namespace fox;
 
@@ -98,46 +98,28 @@ DeclRecorder::NamedDeclsMapConstIter DeclRecorder::recordedDecls_end() const
 
 LookupResult::LookupResult()
 {
-	containsFuncDecl_ = false;
-	containsVarDecl_ = false;
+
 }
 
 // LookupResult
 bool LookupResult::isEmpty() const
 {
-	return !results_.size();
+	return (getSize() == 0);
 }
 
 bool LookupResult::isUnique() const
 {
-	return (results_.size() == 1);
+	return (getSize() == 1);
 }
 
-NamedDecl * LookupResult::getResultIfUnique() const
+std::size_t LookupResult::getSize() const
 {
-	return (results_.size() == 1) ? results_[0] : nullptr;
+	return results_.size();
 }
 
-bool LookupResult::containsFunctionDecls() const
+NamedDecl* LookupResult::getResultIfUnique() const
 {
-	return containsFuncDecl_;
-}
-
-bool LookupResult::containsVarDecl() const
-{
-	return containsVarDecl_;
-}
-
-bool LookupResult::onlyContainsFunctionDecls() const
-{
-	for (auto it = results_.begin(); it != results_.end(); it++)
-	{
-		// Return false if one of the results can't be dynamic_cast to a FunctionDecl*
-		if (!dynamic_cast<FunctionDecl*>(*it))
-			return false;
-	}
-	// Only returns true if there's at least one result.
-	return (results_.size() != 0);
+	return isUnique() ? results_[0] : nullptr;
 }
 
 LookupResult::operator bool() const
@@ -151,31 +133,20 @@ void LookupResult::addResult(NamedDecl* decl)
 		assert((results_.back()->getIdentifier() == decl->getIdentifier()) 
 			&& "A LookupResult can only contain NamedDecls that share the same identifier.");
 
-	if (dynamic_cast<FunctionDecl*>(decl))
-		containsFuncDecl_ = true;
-	else if (dynamic_cast<VarDecl*>(decl))
-		containsVarDecl_ = true;
-
 	results_.push_back(decl);
 }
 
 void LookupResult::clear()
 {
-	containsFuncDecl_ = false;
-	containsVarDecl_ = false;
 	results_.clear();
 }
 
-void LookupResult::absorb(LookupResult & target)
+void LookupResult::absorb(LookupResult& target)
 {
-	if(target.results_.size() != 0)
-		results_.insert(results_.end(), target.results_.begin(), target.results_.end());
-	
-	// update flags appropriately.
-	containsFuncDecl_	= containsFuncDecl_ || target.containsFuncDecl_;
-	containsVarDecl_	= containsVarDecl_ || target.containsVarDecl_;
+	if (target.results_.size() == 0)
+		return;
 
-	// Clear target.
+	results_.insert(results_.end(), target.results_.begin(), target.results_.end());
 	target.clear();
 }
 
