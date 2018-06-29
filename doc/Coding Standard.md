@@ -26,5 +26,13 @@
 	* When in doubt, use `assert()` to check if everything's alright. It no cost on performance in release mode, and can help a lot in tracking down bugs.
 
 ## C++ Features
-* Exceptions
-	* Use them sparingly, only when you think this is the right thing to do. Try to use the DiagnosticEngine (if available) or assertions first.
+* Error reporting (classed from the most to the least favored)
+	* Use the DiagnosticEngine to report language-related errors to the user
+		* `Expected a semicolon`	
+	* Use assertions to catch bugs & detect abnormal situations
+		* `assert(ptr && "My pointer is null !")`
+		* `assert(mySourceLoc.getIndex() <= fileData->str.size() && "SourceLoc is out of range!")
+	* Use exceptions for the rest, and try to use them sparingly.
+		* Note : in a situation where you're checking a value before using it in a function known to throw
+		  (e.g. check for out of range before accessing a vector), use an assertion, and let the function throw the exception.
+			* Example code : `assert(idx < myVec_.size() && "Index out of range"); return myVec_[idx];`
