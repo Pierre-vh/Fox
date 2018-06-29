@@ -41,7 +41,7 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	auto lex_micro = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
 	auto lex_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
 
-	if (dg.getNumErrors())
+	if (dg.getErrorsCount())
 	{
 		out << "Failed at lexing\n";
 		return false;

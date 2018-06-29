@@ -78,7 +78,7 @@ class ParsingFunctionTester
 
 				lex.lexFile(file);
 
-				if (dg.getNumErrors())
+				if (dg.getErrorsCount())
 				{
 					failMessage_ = "Failed at lexing of sentence \"" + sample + "\"";
 					flag = false;
@@ -89,7 +89,7 @@ class ParsingFunctionTester
 
 				if (fn_(file,parse))
 				{
-					if (dg.getNumErrors() == 0)
+					if (dg.getErrorsCount() == 0)
 					{
 						// Parsing ok
 						if (shouldFail)

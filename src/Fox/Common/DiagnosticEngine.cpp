@@ -109,12 +109,12 @@ bool DiagnosticEngine::hasFatalErrorOccured() const
 	return hasFatalErrorOccured_;
 }
 
-unsigned int DiagnosticEngine::getNumWarnings() const
+unsigned int DiagnosticEngine::getWarningsCount() const
 {
 	return warnCount_;
 }
 
-unsigned int DiagnosticEngine::getNumErrors() const
+unsigned int DiagnosticEngine::getErrorsCount() const
 {
 	return errorCount_;
 }

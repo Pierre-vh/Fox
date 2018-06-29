@@ -44,8 +44,8 @@ namespace fox
 			bool hasFatalErrorOccured() const;
 
 			// Getters for Number of warnings/non fatal errors that have occured.
-			unsigned int getNumWarnings() const;
-			unsigned int getNumErrors() const;
+			unsigned int getWarningsCount() const;
+			unsigned int getErrorsCount() const;
 
 			// Get/Set max number of errors before a the context silences all future errors & warnings
 			// and reports a "err_count_too_high" error.

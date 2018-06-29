@@ -137,7 +137,7 @@ TEST(DiagnosticsTests, errLimit)
 
 	// Emit the diag and perform final check.
 	diag2.emit();
-	EXPECT_TRUE(diagEng.hasFatalErrorOccured()) << "Fatal error did not occur. Current error count: " << diagEng.getNumErrors() << "; Error limit: " << diagEng.getErrorLimit();
+	EXPECT_TRUE(diagEng.hasFatalErrorOccured()) << "Fatal error did not occur. Current error count: " << diagEng.getErrorsCount() << "; Error limit: " << diagEng.getErrorLimit();
 }
 
 TEST(DiagnosticsTests, frozenAndDeadDiags)
@@ -203,11 +203,11 @@ TEST(DiagnosticsTests, SilenceAllAfterFatal)
 	diagEng.setSilenceAllAfterFatalErrors(true);
 	// Test emission of an error
 	diagEng.report(DiagID::unittest_errtest).emit();
-	ASSERT_EQ(diagEng.getNumErrors(), 1) << "Error wasn't recorded?";
+	ASSERT_EQ(diagEng.getErrorsCount(), 1) << "Error wasn't recorded?";
 	
 	// Report a fatal error
 	diagEng.report(DiagID::unittest_fataltest).emit();
-	EXPECT_EQ(diagEng.getNumErrors(), 1) << "Fatal error was counted like a normal error?";
+	EXPECT_EQ(diagEng.getErrorsCount(), 1) << "Fatal error was counted like a normal error?";
 	ASSERT_TRUE(diagEng.hasFatalErrorOccured()) << "Fatal error didn't count?";
 
 	// And try to emit another error
@@ -234,8 +234,8 @@ TEST(DiagnosticsTests, WarningsAreErrors)
 	auto diagEng = createDiagEngine();
 	diagEng.setWarningsAreErrors(true);
 	diagEng.report(DiagID::unittest_warntest).emit();
-	EXPECT_EQ(diagEng.getNumWarnings(), 0) << "Diag shouldn't have counted a normal warning";
-	EXPECT_EQ(diagEng.getNumErrors(), 1) << "Diag didn't count as an error.";
+	EXPECT_EQ(diagEng.getWarningsCount(), 0) << "Diag shouldn't have counted a normal warning";
+	EXPECT_EQ(diagEng.getErrorsCount(), 1) << "Diag didn't count as an error.";
 }
 
 TEST(DiagnosticsTests, ErrorsAreFatal)
@@ -244,7 +244,7 @@ TEST(DiagnosticsTests, ErrorsAreFatal)
 	diagEng.setErrorsAreFatal(true);
 	diagEng.report(DiagID::unittest_errtest).emit();
 	EXPECT_TRUE(diagEng.hasFatalErrorOccured()) << "Diag didn't count as a fatal error.";
-	EXPECT_EQ(diagEng.getNumErrors(), 0) << "This error was supposed to be fatal and thus count as a fatal error, not a normal error.";
+	EXPECT_EQ(diagEng.getErrorsCount(), 0) << "This error was supposed to be fatal and thus count as a fatal error, not a normal error.";
 }
 
 TEST(DiagnosticsTests, CopyingDiagKillsCopiedDiag)

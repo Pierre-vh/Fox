@@ -41,7 +41,7 @@ class LocTests : public ::testing::Test
 			lexer = std::make_unique<Lexer>(dg, srcMgr, astContext);
 			lexer->lexFile(file);
 
-			if (dg.getNumErrors())
+			if (dg.getErrorsCount())
 			{
 				FAIL() << "Lexing Error";
 			}

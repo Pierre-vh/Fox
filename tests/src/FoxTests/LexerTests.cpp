@@ -31,7 +31,7 @@ TEST(LexerTests,CorrectTest1)
 	Lexer lex(dg,sm, astctxt);
 	lex.lexFile(file);
 
-	EXPECT_TRUE(dg.getNumErrors() == 0) << "One or more errors occured while lexing the file";
+	EXPECT_TRUE(dg.getErrorsCount() == 0) << "One or more errors occured while lexing the file";
 }
 
 TEST(LexerTests, IncorrectTest1)
@@ -45,7 +45,7 @@ TEST(LexerTests, IncorrectTest1)
 	Lexer lex(dg, sm, astctxt);
 	lex.lexFile(file);
 
-	EXPECT_TRUE(dg.getNumErrors() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
+	EXPECT_TRUE(dg.getErrorsCount() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
 TEST(LexerTests, IncorrectTest2)
@@ -59,7 +59,7 @@ TEST(LexerTests, IncorrectTest2)
 	Lexer lex(dg, sm, astctxt);
 	lex.lexFile(file);
 
-	EXPECT_TRUE(dg.getNumErrors() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
+	EXPECT_TRUE(dg.getErrorsCount() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
 TEST(LexerTests, IncorrectTest3)
@@ -73,7 +73,7 @@ TEST(LexerTests, IncorrectTest3)
 	Lexer lex(dg, sm, astctxt);
 	lex.lexFile(file);
 
-	EXPECT_TRUE(dg.getNumErrors() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
+	EXPECT_TRUE(dg.getErrorsCount() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
 TEST(LexerTests, IncorrectTest4)
@@ -87,7 +87,7 @@ TEST(LexerTests, IncorrectTest4)
 	Lexer lex(dg, sm, astctxt);
 	lex.lexFile(file);
 
-	EXPECT_TRUE(dg.getNumErrors() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
+	EXPECT_TRUE(dg.getErrorsCount() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
 TEST(TokenTests, FloatID)
@@ -246,7 +246,7 @@ TEST(LexerTests, Coordinates1)
 	ASTContext astctxt;
 	Lexer lex(dg,sm,astctxt);
 	lex.lexFile(file);
-	ASSERT_TRUE(dg.getNumErrors() == 0);
+	ASSERT_TRUE(dg.getErrorsCount() == 0);
 
 	TokenVector& output = lex.getTokenVector();
 	char varFounds = 0;
