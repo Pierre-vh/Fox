@@ -116,6 +116,7 @@ namespace fox
 
 	// QualType is a class that groups a pointer to a Type as well as qualifiers 
 	// Qualifiers include : const (true/false) and reference (true/false)
+	// Note that this class is not a part of the Type hierarchy.
 	class QualType
 	{
 		public:
@@ -124,10 +125,10 @@ namespace fox
 
 			// Const
 			bool isConstant() const;
-			void setConstAttribute(const bool& constattr);
+			void setIsConst(const bool& constattr);
 			
 			// Ref
-			bool isAReference() const;
+			bool isReference() const;
 			void setIsReference(const bool& refattr);
 
 			// Returns a name for the type, with the attributes.
