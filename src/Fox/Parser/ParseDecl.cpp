@@ -314,8 +314,10 @@ Parser::DeclResult Parser::parseVarDecl()
 	{
 		reportErrorExpected(DiagID::parser_expected_semi);
 			
-		if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ true))
+		if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ false))
 			return DeclResult::Error();
+
+		endLoc = consumeSign(SignType::S_SEMICOLON);
 	}
 
 	auto rtr = std::make_unique<VarDecl>(id, ty, std::move(iExpr), begLoc,tyRange,endLoc);
