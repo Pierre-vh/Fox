@@ -14,6 +14,7 @@
 
 #include <sstream>
 #include <cassert>
+#include <exception>
 
 using namespace fox;
 
@@ -47,6 +48,11 @@ SourceRange Decl::getRange() const
 bool Decl::hasLocInfo() const
 {
 	return begLoc_ && endLoc_;
+}
+
+bool Decl::isValid() const
+{
+	return hasLocInfo();
 }
 
 bool Decl::isBegLocSet() const
@@ -91,6 +97,11 @@ bool NamedDecl::hasIdentifier() const
 	return (bool)identifier_;
 }
 
+bool NamedDecl::isValid() const
+{
+	return Decl::isValid() && hasIdentifier();
+}
+
 // Argument Declaration
 ArgDecl::ArgDecl() : ArgDecl(nullptr,QualType(),SourceLoc(),SourceRange(),SourceLoc())
 {
@@ -118,10 +129,9 @@ void ArgDecl::setType(const QualType & qt)
 	type_ = qt;
 }
 
-bool ArgDecl::isComplete() const
+bool ArgDecl::isValid() const
 {
-	// Node is valid if it has a identifier, a valid type and a valid loc info
-	return this->hasIdentifier() && type_ && hasLocInfo();
+	return NamedDecl::isValid() && type_ && tyRange_;
 }
 
 // Function Declaration
@@ -158,21 +168,23 @@ SourceRange FunctionDecl::getHeaderRange() const
 	return SourceRange(getBegLoc(), headEndLoc_);
 }
 
-bool FunctionDecl::isComplete() const
+bool FunctionDecl::isValid() const
 {
-	// Every arg must be valid
-	for (auto it = args_begin(); it != args_end(); it++)
+	if (NamedDecl::isValid() && body_ && returnType_ && headEndLoc_)
 	{
-		if (!it->isComplete())
-			return false;
+		for (auto it = args_begin(); it != args_end(); it++)
+		{
+			if (!it->isValid())
+				return false;
+		}
+		return true;
 	}
-	// and the node must have a body, a return type and an identifier and valid loc info
-	return returnType_ && body_ && this->hasIdentifier() && hasLocInfo();
+	return false;
 }
 
 void FunctionDecl::setReturnType(Type* ty)
 {
-	assert(ty && "Type cannot be null!");
+	assert(ty && "the return type cannot be null!");
 	returnType_ = ty;
 }
 
@@ -203,13 +215,15 @@ void FunctionDecl::setBody(std::unique_ptr<CompoundStmt> arg)
 
 ArgDecl* FunctionDecl::getArg(const std::size_t & ind)
 {
-	assert(ind < args_.size() && "out of range");
+	if (ind >= args_.size())
+		throw std::out_of_range("Index out of range");
 	return args_[ind].get();
 }
 
 const ArgDecl* FunctionDecl::getArg(const std::size_t & ind) const
 {
-	assert(ind >= args_.size() && "out of range");
+	if (ind >= args_.size())
+		throw std::out_of_range("Index out of range");
 	return args_[ind].get();
 }
 
@@ -255,10 +269,9 @@ VarDecl::VarDecl(IdentifierInfo * id, const QualType& type, std::unique_ptr<Expr
 
 }
 
-bool VarDecl::isComplete() const
+bool VarDecl::isValid() const
 {
-	// must have a type, and id + valid loc info to be considered valid.
-	return this->hasIdentifier() && type_ && hasLocInfo();
+	return NamedDecl::isValid() && type_ && typeRange_;
 }
 
 SourceRange VarDecl::getTypeRange() const
@@ -306,8 +319,6 @@ UnitDecl::UnitDecl(IdentifierInfo * id,const FileID& inFile)
 
 void UnitDecl::addDecl(std::unique_ptr<Decl> decl)
 {
-	assert(decl->getBegLoc().isValid() && decl->getEndLoc().isValid() && "Cannot add an incomplete decl to a unit");
-
 	// Update locs
 	if (!isBegLocSet())
 		setBegLoc(decl->getBegLoc());
@@ -320,13 +331,15 @@ void UnitDecl::addDecl(std::unique_ptr<Decl> decl)
 
 Decl* UnitDecl::getDecl(const std::size_t& idx)
 {
-	assert(idx < decls_.size() && "out of range");
+	if (idx >= decls_.size())
+		throw std::out_of_range("Index out of range");
 	return decls_[idx].get();
 }
 
 const Decl* UnitDecl::getDecl(const std::size_t& idx) const
 {
-	assert(idx < decls_.size() && "out of range");
+	if (idx >= decls_.size())
+		throw std::out_of_range("Index out of range");
 	return decls_[idx].get();
 }
 
@@ -335,10 +348,17 @@ std::size_t UnitDecl::getDeclCount() const
 	return decls_.size();
 }
 
-bool UnitDecl::isComplete() const
+bool UnitDecl::isValid() const
 {
-	// Valid if decl number >0 && has an identifier
-	return decls_.size() && this->hasIdentifier();
+	if (file_ && NamedDecl::isValid() && (decls_.size() != 0))
+	{
+		for (auto it = decls_.begin(), end = decls_.end(); it != end; it++)
+		{
+			if (!(*it)->isValid())
+				return false;
+		}
+	}
+	return false;
 }
 
 UnitDecl::DeclVecIter UnitDecl::decls_beg()

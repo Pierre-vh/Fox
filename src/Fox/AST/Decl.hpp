@@ -46,7 +46,9 @@ namespace fox
 			void setEndLoc(const SourceLoc& loc);
 
 			bool hasLocInfo() const;
-		protected:
+
+			virtual bool isValid() const;
+	protected:
 			Decl(const DeclKind& kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 		private:
 			SourceLoc begLoc_, endLoc_;
@@ -61,8 +63,9 @@ namespace fox
 
 			IdentifierInfo * getIdentifier() const;
 			void setIdentifier(IdentifierInfo* nname);
-			bool hasIdentifier() const;
 
+			bool hasIdentifier() const;
+			virtual bool isValid() const;
 		private:
 			IdentifierInfo* identifier_;
 	};
@@ -79,8 +82,8 @@ namespace fox
 			QualType getType() const;
 			void setType(const QualType& qt);
 
-			bool isComplete() const;
-		private:
+			virtual bool isValid() const;
+	private:
 			SourceRange tyRange_;
 			QualType type_;
 	};
@@ -103,8 +106,8 @@ namespace fox
 			SourceLoc getHeaderEndLoc() const;
 			SourceRange getHeaderRange() const;
 
-			// Note: Calls isComplete on the args too.
-			bool isComplete() const;
+			// Note: Calls isValid on the args too.
+			virtual bool isValid() const;
 
 			void setReturnType(Type* ty);
 			Type* getReturnType();
@@ -138,8 +141,7 @@ namespace fox
 			VarDecl();
 			VarDecl(IdentifierInfo * id, const QualType& type, std::unique_ptr<Expr> initializer, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
 
-			// Checks if the decl has everything it needs to work.
-			bool isComplete() const;
+			virtual bool isValid() const;
 
 			SourceRange getTypeRange() const;
 
@@ -175,8 +177,9 @@ namespace fox
 
 			std::size_t getDeclCount() const;
 
-			// Note: Doesn't check the validity of the Decls contained, only the validity of the unit itself.
-			bool isComplete() const;
+			// Note: Checks the validity of the decls 
+			// inside this too.
+			virtual bool isValid() const;
 
 			DeclVecIter decls_beg();
 			DeclVecIter decls_end();
