@@ -36,17 +36,22 @@ Moonshot Project To-do List.
 	> Update Parser to use DiagnosticEngine + ParserDiagnostics Rework (Done)	
 	> SourceManager improvements : Line table & Renaming SourceManager.hpp/.cpp to Source.hpp/.cpp (Done)
 
-	> Write the Remaining tests needed:
+	> Code review : Check how errors are handled in general in  (Next)
+		* /AST/
+		* /Common/
+		* /Lexer/
+		* Parser should be clean because it uses Result::Error for errors, and the Driver is trivial enough.
+
+	> Write the Remaining tests needed 
 		> Write Stmt & Expr Loc Tests
 			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 			> Probably don't use a file, just do SetUp("<code goes here>"")w
-		> classof tests
-		> SourceManager "getSourceLine" test
 
 	// Move to 0.3.0 & Sync with Master
 	QOL:
 		> Implement the "Caret" 
-			>	The DiagnosticConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place wherethe error is.
+			> SourceManager::getSourceLineForLoc
+			> The DiagnosticConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place wherethe error is.
 				> Implement that in the DiagnosticConsumer class in a protected function that the derived classes can use. (e.g. "getOriginalSourceLine(SourceLoc)")
 
 		> Add classof static methods to the AST (will be useful for testing if a class is a derived/base of without dynamic_cast)
