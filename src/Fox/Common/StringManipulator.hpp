@@ -24,9 +24,8 @@
 
 #pragma once
 
-#include <iterator>
-#include <tuple>
 #include "Fox/Common/Typedefs.hpp"
+#include <string>
 
 namespace fox
 {
@@ -83,6 +82,8 @@ namespace fox
 
 			// Return the number of codepoints in the string
 			std::size_t getSizeInCodepoints() const;
+
+			// Returns the number of bytes in the string
 			std::size_t getSizeInBytes() const;
 
 			// Checks if the stringmanipulator has reached the end of the string
