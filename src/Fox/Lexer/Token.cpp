@@ -243,19 +243,12 @@ std::string Token::getAsString() const
 	else if (mpark::holds_alternative<SignType>(tokenData_))
 	{
 		auto signtype = mpark::get<SignType>(tokenData_);
-		bool found = false;
-		CharType ch = ' ';
 		for (auto it = kSign_dict.begin(); it != kSign_dict.end(); it++)
 		{
 			if (it->second == signtype)
-			{
-				ch = it->first;
-				found = true;
-				break;
-			}
+				return StringManipulator::wcharToStr(it->first);
 		}
-		assert(found && "unknown sign");
-		return StringManipulator::wcharToStr(ch);
+		fox_unreachable("unknown sign");
 	}
 	else if (mpark::holds_alternative<Literal>(tokenData_))
 	{
@@ -265,11 +258,11 @@ std::string Token::getAsString() const
 	else if (mpark::holds_alternative<IdentifierInfo*>(tokenData_))
 	{
 		auto ptr = mpark::get<IdentifierInfo*>(tokenData_);
-		assert(ptr && "IdentifierInfo is null?");
+		assert(ptr && "Token's an identifier but the IdentifierInfo* is null?");
 		return ptr->getStr();
 	}
 	else
-		return "<empty token>";
+		return "<empty>";
 }
 
 LiteralType Token::getLiteralType() const
@@ -317,7 +310,7 @@ IdentifierInfo * Token::getIdentifierInfo()
 void Token::identify(DiagnosticEngine& diags,ASTContext& astctxt,const std::string& str)
 {
 	// If the token is empty, this means our lexer might be broken!
-	assert(str.size() && "Token cannot be empty!");
+	assert(str.size() && "String cannot be empty!");
 
 	if (idSign(str));
 	else if (idKeyword(str));
