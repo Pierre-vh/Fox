@@ -148,7 +148,7 @@ LookupResult::operator bool() const
 void LookupResult::addResult(NamedDecl * decl)
 {
 	if (results_.size())
-		assert((results_.back()->getIdentifier() == decl->getIdentifier()) && "A LookupResult can only contain NamedDecl that share the same identifier.");
+		assert((results_.back()->getIdentifier() == decl->getIdentifier()) && "A LookupResult can only contain NamedDecls that share the same identifier.");
 
 	if (dynamic_cast<FunctionDecl*>(decl))
 		containsFuncDecl_ = true;
