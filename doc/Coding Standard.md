@@ -25,8 +25,8 @@
 * Assertions
 	* When in doubt, use `assert()` to check if everything's alright. It no cost on performance in release mode, and can help a lot in tracking down bugs.
 
-## C++ Features
-* Error reporting (classed from the most to the least favored)
+## Error reporting
+* Classed from the most to the least favored;
 	* Use the DiagnosticEngine to report language-related errors to the user
 		* `Expected a semicolon`	
 	* Use assertions to catch bugs & detect abnormal situations
@@ -36,3 +36,7 @@
 		* Note : in a situation where you're checking a value before using it in a function known to throw
 		  (e.g. check for out of range before accessing a vector), use an assertion, and let the function throw the exception.
 			* Example code : `assert(idx < myVec_.size() && "Index out of range"); return myVec_[idx];`
+
+* Generally speaking, classes in the "main pipeline", such as the Parser/Lexer/Semantic/IRGen should have little need for exceptions. They'll report errors
+  using the DiagEngine most of the time, and will often use assertions to check that the input given by another class is correct.
+	* e.g. the Semantic Analyzer will assert that a node is fully formed, instead of throwing an exception.
