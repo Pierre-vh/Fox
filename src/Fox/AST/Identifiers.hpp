@@ -77,7 +77,7 @@ namespace fox
 			using IDTableIterator = std::map<std::string, IdentifierInfo>::iterator;
 			using IDTableConstIterator = std::map<std::string, IdentifierInfo>::const_iterator;
 		public:
-			IdentifierTable();
+			IdentifierTable() = default;
 
 			// Returns the identifierinfo of the string "id" if it exists. 
 			// If it does not exists, it creates a new entry into the table and returns it.
@@ -94,7 +94,7 @@ namespace fox
 			IDTableConstIterator end() const;
 			IDTableIterator end();
 		private:
-			IdentifierInfo* invalidID = nullptr;
+			IdentifierInfo* invalidID_ = nullptr;
 
 			// Deleted methods
 			IdentifierTable(const IdentifierTable&) = delete;

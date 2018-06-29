@@ -11,6 +11,8 @@
 
 #include <cassert>
 
+// Normally this identifier shouldn't be possible
+// in the language because <> are both illegal in an identifier
 #define INVALID_ID_STR "<invalid>"
 
 using namespace fox;
@@ -64,15 +66,8 @@ bool IdentifierInfo::operator!=(const std::string& str) const
 	return !(*this == str);
 }
 
-IdentifierTable::IdentifierTable()
-{
-	invalidID = getUniqueIdentifierInfo(INVALID_ID_STR);
-	assert(invalidID && "Failed to generate invalidID");
-}
-
 IdentifierInfo* IdentifierTable::getUniqueIdentifierInfo(const std::string& id)
 {
-	// Effective STL, Item 24 by Scott Meyers : https://stackoverflow.com/a/101980
 	auto it = table_.lower_bound(id);
 	if (it != table_.end() && !(table_.key_comp()(id, it->first)))
 	{
@@ -98,11 +93,13 @@ IdentifierInfo* IdentifierTable::getUniqueIdentifierInfo(const std::string& id)
 
 IdentifierInfo* IdentifierTable::getInvalidID()
 {
-	assert(invalidID && "InvalidID is not set? It should have been set by the ctor!");
-	return invalidID;
+	if (!invalidID_)
+		invalidID_ = getUniqueIdentifierInfo(INVALID_ID_STR);
+	assert(invalidID_ && "invalidID_ cannot be null!");
+	return invalidID_;
 }
 
-bool IdentifierTable::exists(const std::string & id) const
+bool IdentifierTable::exists(const std::string& id) const
 {
 	// Return false if there is no identifier in the table
 	if (table_.size())
