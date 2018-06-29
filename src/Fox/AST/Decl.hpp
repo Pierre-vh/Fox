@@ -47,7 +47,7 @@ namespace fox
 
 			bool hasLocInfo() const;
 
-			virtual bool isValid() const;
+			bool isValid() const;
 	protected:
 			Decl(const DeclKind& kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 		private:
@@ -65,7 +65,7 @@ namespace fox
 			void setIdentifier(IdentifierInfo* nname);
 
 			bool hasIdentifier() const;
-			virtual bool isValid() const;
+			bool isValid() const;
 		private:
 			IdentifierInfo* identifier_;
 	};
@@ -82,7 +82,7 @@ namespace fox
 			QualType getType() const;
 			void setType(const QualType& qt);
 
-			virtual bool isValid() const;
+			bool isValid() const;
 	private:
 			SourceRange tyRange_;
 			QualType type_;
@@ -107,7 +107,7 @@ namespace fox
 			SourceRange getHeaderRange() const;
 
 			// Note: Calls isValid on the args too.
-			virtual bool isValid() const;
+			bool isValid() const;
 
 			void setReturnType(Type* ty);
 			Type* getReturnType();
@@ -144,7 +144,7 @@ namespace fox
 			VarDecl();
 			VarDecl(IdentifierInfo * id, const QualType& type, std::unique_ptr<Expr> initializer, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
 
-			virtual bool isValid() const;
+			bool isValid() const;
 
 			SourceRange getTypeRange() const;
 
@@ -182,7 +182,7 @@ namespace fox
 
 			// Note: Checks the validity of the decls 
 			// inside this too.
-			virtual bool isValid() const;
+			bool isValid() const;
 
 			DeclVecIter decls_beg();
 			DeclVecIter decls_end();
