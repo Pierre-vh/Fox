@@ -217,13 +217,17 @@ CompoundStmt::CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc) : S
 
 Stmt* CompoundStmt::getStmt(const std::size_t& ind)
 {
-	assert(ind < stmts_.size() && "out of range");
+	if (ind >= stmts_.size())
+		throw std::out_of_range("Index out of range");
+
 	return stmts_[ind].get();
 }
 
 const Stmt* CompoundStmt::getStmt(const std::size_t& ind) const
 {
-	assert(ind < stmts_.size() && "out of range");
+	if (ind >= stmts_.size())
+		throw std::out_of_range("Index out of range");
+
 	return stmts_[ind].get();
 }
 

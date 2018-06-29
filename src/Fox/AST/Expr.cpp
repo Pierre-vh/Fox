@@ -534,13 +534,17 @@ void ExprList::addExpr(std::unique_ptr<Expr> expr)
 
 Expr* ExprList::getExpr(const std::size_t & ind)
 {
-	assert(ind < exprs_.size() && "Tried to access an out of bounds location in an expression list.");
+	if (ind >= exprs_.size())
+		throw std::out_of_range("Index out of range");
+
 	return exprs_[ind].get();
 }
 
 const Expr* ExprList::getExpr(const std::size_t & ind) const
 {
-	assert(ind < exprs_.size() && "Tried to access an out of bounds location in an expression list.");
+	if (ind >= exprs_.size())
+		throw std::out_of_range("Index out of range");
+
 	return exprs_[ind].get();
 }
 
