@@ -21,6 +21,7 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 
 	// Assert that unitName != nullptr
 	assert(unitName && "Unit name cannot be nullptr!");
+	assert(fid && "FileID cannot be invalid!");
 
 	// Create the unit
 	auto unit = std::make_unique<UnitDecl>(unitName, fid);
