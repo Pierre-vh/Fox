@@ -14,7 +14,6 @@
 
 #include <sstream>
 #include <cassert>
-#include <exception>
 
 using namespace fox;
 
@@ -206,15 +205,13 @@ void FunctionDecl::setBody(std::unique_ptr<CompoundStmt> arg)
 
 ArgDecl* FunctionDecl::getArg(const std::size_t & ind)
 {
-	if (ind >= args_.size())
-		throw std::out_of_range("Index out of range");
+	assert(ind < args_.size() && "out-of-range");
 	return args_[ind].get();
 }
 
 const ArgDecl* FunctionDecl::getArg(const std::size_t & ind) const
 {
-	if (ind >= args_.size())
-		throw std::out_of_range("Index out of range");
+	assert(ind < args_.size() && "out-of-range");
 	return args_[ind].get();
 }
 
@@ -328,15 +325,13 @@ void UnitDecl::addDecl(std::unique_ptr<Decl> decl)
 
 Decl* UnitDecl::getDecl(const std::size_t& idx)
 {
-	if (idx >= decls_.size())
-		throw std::out_of_range("Index out of range");
+	assert(idx < decls_.size() && "out-of-range");
 	return decls_[idx].get();
 }
 
 const Decl* UnitDecl::getDecl(const std::size_t& idx) const
 {
-	if (idx >= decls_.size())
-		throw std::out_of_range("Index out of range");
+	assert(idx < decls_.size() && "out-of-range");
 	return decls_[idx].get();
 }
 
