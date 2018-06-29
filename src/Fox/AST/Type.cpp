@@ -164,12 +164,12 @@ bool QualType::isConstant() const
 	return isConst_;
 }
 
-void QualType::setConstAttribute(const bool & constattr)
+void QualType::setIsConst(const bool & constattr)
 {
 	isConst_ = constattr;
 }
 
-bool QualType::isAReference() const
+bool QualType::isReference() const
 {
 	return isRef_;
 }

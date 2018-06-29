@@ -283,7 +283,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	{
 		ty = typespecResult.get();
 		tyRange = typespecResult.getSourceRange();
-		if (ty.isAReference())
+		if (ty.isReference())
 		{
 			diags_.report(DiagID::parser_ignored_ref_vardecl, typespecResult.getSourceRange());
 			ty.setIsReference(false);
@@ -347,7 +347,7 @@ Parser::Result<QualType> Parser::parseQualType()
 	{
 		begLoc = kw.getBeginSourceLoc();
 		hasFoundSomething = true;
-		ty.setConstAttribute(true);
+		ty.setIsConst(true);
 	}
 
 	// ['&']
