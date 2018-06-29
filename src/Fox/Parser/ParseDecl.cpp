@@ -80,7 +80,10 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 		return nullptr;
 	}
 	else
+	{
+		assert(unit->isValid());
 		return astContext_.addUnit(std::move(unit), isMainUnit);
+	}
 }
 
 Parser::DeclResult Parser::parseFunctionDecl()
@@ -195,7 +198,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 
 	rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
 	rtr->setSourceLocs(begLoc, endLoc, rtr->getBody()->getEndLoc());
-	assert(rtr->isComplete());
+	assert(rtr->isValid());
 	return DeclResult(std::move(rtr));
 }
 
@@ -233,6 +236,7 @@ Parser::DeclResult Parser::parseArgDecl()
 			qt.getSourceRange(),
 			endLoc
 		);
+	assert(rtr->isValid());
 	recordDecl(rtr.get());
 	return DeclResult(std::move(rtr));
 }
@@ -322,7 +326,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	}
 
 	auto rtr = std::make_unique<VarDecl>(id, ty, std::move(iExpr), begLoc,tyRange,endLoc);
-	assert(rtr->isComplete() && "Declaration isn't complete but parsing function completed successfully?");
+	assert(rtr->isValid());
 		
 	// Record the decl
 	recordDecl(rtr.get());
