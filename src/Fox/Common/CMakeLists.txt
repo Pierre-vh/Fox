@@ -4,4 +4,5 @@ add_source(common_src
 	"DiagnosticConsumers.cpp"
 	"StringManipulator.cpp"
 	"Source.cpp"
+	"Utils.cpp"
 )
