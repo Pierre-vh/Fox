@@ -26,5 +26,4 @@
 
 ##C++ Features
 	* Exceptions
-		* Avoid exceptions in Moonshot code (the code contained in src/). Try to use assertions or the DiagnosticEngine to report errors. 
-		  Only use them if you think that's the best thing to do in this situation.
+		* Use them sparingly, only when you think this is the right thing to do. Try to use the DiagnosticEngine (if available) or assertions first.
