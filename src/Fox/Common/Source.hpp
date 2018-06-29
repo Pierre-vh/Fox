@@ -64,60 +64,6 @@ namespace fox
 		col_type column;
 	};
 
-	// the SourceManager, which stores every source file and gives them a unique ID.
-	class SourceManager
-	{
-		public:
-			SourceManager() = default;
-
-			struct StoredData
-			{
-				StoredData(const std::string& name, const std::string& content) : fileName(name), str(content)
-				{
-
-				}
-
-				std::string fileName;
-				std::string str;
-			};
-
-			// Load a file in memory 
-			FileID loadFromFile(const std::string& path);
-
-			// Load a string in the SM. First arg is the string to load, the second is the name we should give
-			// to the file.
-			FileID loadFromString(const std::string& str, const std::string& name = "in-memory");
-
-			// Returns a pointer to the string that the FileID points to, or nullptr if not found.
-			const std::string* getSourceForFID(const FileID& fid) const;
-
-			// Returns a pointer to the stored data that the FileID points to, or nullptr if not found.
-			const StoredData*  getStoredDataForFileID(const FileID& fid) const;
-
-			// Requests the human-readable location a SourceLoc points to.
-			// This function will assert that the SourceLoc is valid;
-			// This function accepts a SourceLoc that points right past the end of the file.
-			// Any value greater than that will trigger an assertion ("out of range")
-			CompleteLoc getCompleteLocForSourceLoc(const SourceLoc& sloc) const;
-
-			// Check if a SourceLoc is valid
-			bool isSourceLocValid(const SourceLoc& sloc) const;
-			
-			// Check if a File Exists
-			bool doesFileExists(const FileID& file) const;
-
-		private:
-			// Private methods
-			FileID generateNewFileID() const;
-
-			// Make it non copyable
-			SourceManager(const SourceManager&) = delete;
-			SourceManager& operator=(const SourceManager&) = delete;
-			
-			// Member variables
-			std::map<FileID,StoredData> sources_;
-	};
-	
 	// The SourceLoc is a lightweight wrapper around a FileID and an index
 	// which, combined, represent the location of a character in the source code.
 	// Note: this object expects an "absolute" index, not an index in "codepoints".
@@ -125,7 +71,7 @@ namespace fox
 	{
 		public:
 			typedef std::size_t idx_type;
-		
+
 			SourceLoc();
 			SourceLoc(const FileID& fid, const idx_type& idx = 0);
 
@@ -170,5 +116,64 @@ namespace fox
 		private:
 			SourceLoc sloc_;
 			offset_type offset_;
+	};
+
+	// the SourceManager, which stores every source file and gives them a unique ID.
+	class SourceManager
+	{
+		public:
+			SourceManager() = default;
+
+			struct StoredData
+			{
+				public:
+					StoredData(const std::string& name, const std::string& content) : fileName(name), str(content)
+					{
+
+					}
+
+					std::string fileName;
+					std::string str;
+				protected:
+					friend class SourceManager;
+					mutable std::map<SourceLoc::idx_type,CompleteLoc::line_type> lineTable;
+					mutable bool hasCalculatedLineTable = false;
+			};
+
+			// Load a file in memory 
+			FileID loadFromFile(const std::string& path);
+
+			// Load a string in the SM. First arg is the string to load, the second is the name we should give
+			// to the file.
+			FileID loadFromString(const std::string& str, const std::string& name = "in-memory");
+
+			// Returns a pointer to the string that the FileID points to, or nullptr if not found.
+			const std::string* getSourceForFID(const FileID& fid) const;
+
+			// Returns a pointer to the stored data that the FileID points to, or nullptr if not found.
+			const StoredData*  getStoredDataForFileID(const FileID& fid) const;
+
+			// Requests the human-readable location a SourceLoc points to.
+			// This function will assert that the SourceLoc is valid;
+			// This function accepts a SourceLoc that points right past the end of the file.
+			// Any value greater than that will trigger an assertion ("out of range")
+			CompleteLoc getCompleteLocForSourceLoc(const SourceLoc& sloc) const;
+
+			// Check if a SourceLoc is valid
+			bool isSourceLocValid(const SourceLoc& sloc) const;
+			
+			// Check if a File Exists
+			bool doesFileExists(const FileID& file) const;
+
+		private:
+			FileID generateNewFileID() const;
+			void calculateLineTable(const StoredData* data) const;
+
+			// Make it non copyable
+			SourceManager(const SourceManager&) = delete;
+			SourceManager& operator=(const SourceManager&) = delete;
+			
+			// Member variables
+			std::map<FileID,StoredData> sources_;
 	};
 }
