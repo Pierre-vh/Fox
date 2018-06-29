@@ -332,9 +332,9 @@ SourceRange WhileStmt::getHeaderRange() const
 }
 
 // DeclStmt
-DeclStmt::DeclStmt(std::unique_ptr<Decl> decl) : Stmt(StmtKind::DeclStmt,SourceLoc(),SourceLoc()), std::move(decl)
+DeclStmt::DeclStmt(std::unique_ptr<Decl> decl) : Stmt(StmtKind::DeclStmt,SourceLoc(),SourceLoc())
 {
-	assert(decl_ && "The decl cannot be null!");
+	setDecl(std::move(decl));
 }
 
 bool DeclStmt::hasDecl() const
