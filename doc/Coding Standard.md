@@ -28,6 +28,6 @@
 	* Assertions vs Exceptions
 		* Only use Assertions (& Diagnostics) in Moonshot's Code. Do not use exceptions.
 		* The only place where exceptions are accepted is in third-party code and in the STL. Of course, proper
-		  checks should be done when manipulating code that might throw to ensure that exceptions will be rare.
-		* Exceptions might be removed one day, but currently, the time I'd spend removing them completely is just (imo)!
-		  not worth it.
+		  checks should be done when manipulating code that might throw to ensure that exceptions will be rare. 
+		  Also, always prefer libraries that are exception-free. 
+
