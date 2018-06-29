@@ -132,6 +132,9 @@ namespace fox
 			Type* returnType_ = nullptr;
 			ArgVecTy args_;
 			std::unique_ptr<CompoundStmt> body_;
+
+			// Bitfields
+			bool argsAreValid_ : 1;
 	};
 
 	// A Variable declaration
@@ -190,9 +193,11 @@ namespace fox
 			FileID getFileID() const;
 			void setFileID(const FileID& fid);
 		private:
-			// The decls contained within this unit.
-			FileID file_;
 			DelVecTy decls_;
+			FileID file_;
+
+			// Bitfields
+			bool declsAreValid_ : 1;
 	};
 }
 

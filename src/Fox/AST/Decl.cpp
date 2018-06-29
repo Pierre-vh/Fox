@@ -143,7 +143,7 @@ FunctionDecl::FunctionDecl(): FunctionDecl(nullptr,nullptr,nullptr,SourceLoc(),S
 FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body,const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc)
 	: NamedDecl(DeclKind::FunctionDecl,fnId,begLoc,endLoc), headEndLoc_(headerEndLoc), body_(std::move(body)), returnType_(returnType)
 {
-
+	argsAreValid_ = true;
 }
 
 void FunctionDecl::setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end)
@@ -170,16 +170,7 @@ SourceRange FunctionDecl::getHeaderRange() const
 
 bool FunctionDecl::isValid() const
 {
-	if (NamedDecl::isValid() && body_ && returnType_ && headEndLoc_)
-	{
-		for (auto it = args_begin(); it != args_end(); it++)
-		{
-			if (!it->isValid())
-				return false;
-		}
-		return true;
-	}
-	return false;
+	return NamedDecl::isValid() && body_ && returnType_ && headEndLoc_ && argsAreValid_;
 }
 
 void FunctionDecl::setReturnType(Type* ty)
@@ -229,6 +220,9 @@ const ArgDecl* FunctionDecl::getArg(const std::size_t & ind) const
 
 void FunctionDecl::addArg(std::unique_ptr<ArgDecl> arg)
 {
+	if (!arg->isValid())
+		argsAreValid_ = false;
+
 	args_.emplace_back(std::move(arg));
 }
 
@@ -314,7 +308,7 @@ void VarDecl::setInitExpr(std::unique_ptr<Expr> expr)
 UnitDecl::UnitDecl(IdentifierInfo * id,const FileID& inFile)
 	: NamedDecl(DeclKind::UnitDecl,id,SourceLoc(),SourceLoc()), file_(inFile)
 {
-	// NamedDecl constructor is given invalid SourceLocs, because the SourceLocs are updated automatically when a new Decl is Added.
+	declsAreValid_ = true;
 }
 
 void UnitDecl::addDecl(std::unique_ptr<Decl> decl)
@@ -325,8 +319,11 @@ void UnitDecl::addDecl(std::unique_ptr<Decl> decl)
 
 	setEndLoc(decl->getEndLoc());
 
+	// Check the decl that we're adding in.
+	if (!decl->isValid())
+		declsAreValid_ = false;
+
 	decls_.emplace_back(std::move(decl));
-	
 }
 
 Decl* UnitDecl::getDecl(const std::size_t& idx)
@@ -350,16 +347,7 @@ std::size_t UnitDecl::getDeclCount() const
 
 bool UnitDecl::isValid() const
 {
-	if (file_ && NamedDecl::isValid() && (decls_.size() != 0))
-	{
-		for (auto it = decls_.begin(), end = decls_.end(); it != end; it++)
-		{
-			if (!(*it)->isValid())
-				return false;
-		}
-		return true;
-	}
-	return false;
+	return file_ && NamedDecl::isValid() && (decls_.size() != 0) && declsAreValid_;
 }
 
 UnitDecl::DeclVecIter UnitDecl::decls_beg()
