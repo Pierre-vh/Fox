@@ -1,13 +1,13 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : SourceManager.cpp											
+// File : Source.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
-#include "SourceManager.hpp"
+#include "Source.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 
 #include <fstream>

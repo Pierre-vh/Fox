@@ -1,7 +1,7 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : SourceManager.hpp											
+// File : Source.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file contains the SourceManager, SourceLoc and SourceRange
