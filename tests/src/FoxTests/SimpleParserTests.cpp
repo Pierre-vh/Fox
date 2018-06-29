@@ -29,14 +29,17 @@ class ParsingFunctionTester
 		{
 			INDIVIDUAL_LINES, WHOLE_FILE
 		};
-		ParsingFunctionTester(std::function<bool(Parser&)> fn) : fn_(fn)
+
+		ParsingFunctionTester(std::function<bool(const FileID&,Parser&)> fn) : fn_(fn)
 		{
 		
 		}
+
 		void clearInputs()
 		{
 			inputs_.clear();
 		}
+
 		bool openFile(const ReadMode& rm,const std::string& fp)
 		{
 			curFilePath_ = fp;
@@ -65,10 +68,26 @@ class ParsingFunctionTester
 				ASTContext astctxt;
 				DeclRecorder dr;
 				Lexer lex(dg, srcMgr, astctxt);
-				lex.lexStr(sample);
+				auto file = srcMgr.loadFromString(sample);
+
+				if (!file)
+				{
+					failMessage_ = "Failed to load string in SourceManager";
+					return false;
+				}
+
+				lex.lexFile(file);
+
+				if (dg.getNumErrors())
+				{
+					failMessage_ = "Failed at lexing of sentence \"" + sample + "\"";
+					flag = false;
+					continue;
+				}
+
 				Parser parse(dg, srcMgr, astctxt, lex.getTokenVector(), &dr);
 
-				if (fn_(parse))
+				if (fn_(file,parse))
 				{
 					if (dg.getNumErrors() == 0)
 					{
@@ -115,7 +134,7 @@ class ParsingFunctionTester
 			return failMessage_;
 		}
 	private:
-		std::function<bool(Parser&)> fn_;
+		std::function<bool(const FileID&,Parser&)> fn_;
 		std::string failMessage_,curFilePath_;
 		std::vector<std::string> inputs_;
 };
@@ -125,7 +144,7 @@ TEST(SimpleParserTests,Expressions)
 	// filepaths
 	std::string corr_path = "parser/simple/expr/correct.fox";
 	std::string bad_path = "parser/simple/expr/incorrect.fox";
-	ParsingFunctionTester tester([&](Parser & parse) -> bool {
+	ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
 		auto res = parse.parseExpr();
 		return res.isUsable();
 	});
@@ -134,7 +153,7 @@ TEST(SimpleParserTests,Expressions)
 	EXPECT_TRUE(tester.runTest()) << tester.getLatestFailureMessage();
 	tester.clearInputs();
 	// Incorrect inputs
-	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::WHOLE_FILE, bad_path)) << "Could not open file \"" << bad_path << '"';
+	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::INDIVIDUAL_LINES, bad_path)) << "Could not open file \"" << bad_path << '"';
 	EXPECT_TRUE(tester.runTest(true)) << tester.getLatestFailureMessage();
 }
 
@@ -144,7 +163,7 @@ TEST(SimpleParserTests,ExpressionsStmt)
 	// Correct inputs
 	std::string corr_path = "parser/simple/exprstmt/correct.fox";
 	std::string bad_path = "parser/simple/exprstmt/incorrect.fox";
-	ParsingFunctionTester tester([&](Parser & parse) -> bool {
+	ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
 		auto res = parse.parseExprStmt();
 		return res.isUsable();
 	});
@@ -153,14 +172,14 @@ TEST(SimpleParserTests,ExpressionsStmt)
 	EXPECT_TRUE(tester.runTest()) << tester.getLatestFailureMessage();
 	tester.clearInputs();
 	// Incorrect inputs
-	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::WHOLE_FILE, bad_path)) << "Could not open file \"" << bad_path << '"';
+	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::INDIVIDUAL_LINES, bad_path)) << "Could not open file \"" << bad_path << '"';
 	EXPECT_TRUE(tester.runTest(true)) << tester.getLatestFailureMessage();
 }
 
 TEST(SimpleParserTests, DeclRef)
 {
 	std::string corr_path = "parser/simple/declcall/correct.fox";
-	ParsingFunctionTester tester([&](Parser & parse) -> bool {
+	ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
 		auto res = parse.parseDeclRef();
 		return res.isUsable();
 	});
@@ -173,7 +192,7 @@ TEST(SimpleParserTests, VarDecls)
 	// Correct inputs
 	std::string corr_path = "parser/simple/var_decls/correct.fox";
 	std::string bad_path = "parser/simple/var_decls/incorrect.fox";
-	ParsingFunctionTester tester([&](Parser & parse) -> bool {
+	ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
 		auto res = parse.parseVarDecl();
 		return res.isUsable();
 	});
@@ -182,7 +201,7 @@ TEST(SimpleParserTests, VarDecls)
 	EXPECT_TRUE(tester.runTest()) << tester.getLatestFailureMessage();
 	tester.clearInputs();
 	// Incorrect inputs
-	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::WHOLE_FILE, bad_path)) << "Could not open file \"" << bad_path << '"';
+	ASSERT_TRUE(tester.openFile(ParsingFunctionTester::ReadMode::INDIVIDUAL_LINES, bad_path)) << "Could not open file \"" << bad_path << '"';
 	EXPECT_TRUE(tester.runTest(true)) << tester.getLatestFailureMessage();
 }
 
@@ -190,7 +209,7 @@ TEST(SimpleParserTests, FuncDecl)
 {
 	std::string corr_base_path = "parser/simple/funcdecl/correct_";
 	std::string bad_base_path = "parser/simple/funcdecl/incorrect_";
-	ParsingFunctionTester tester([&](Parser & parse) -> bool {
+	ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
 		auto res = parse.parseFunctionDecl();
 		return res.isUsable();
 	});
@@ -219,7 +238,7 @@ TEST(SimpleParserTests, Conditions)
 {
 	std::string corr_base_path = "parser/simple/condition/correct_";
 	std::string bad_base_path = "parser/simple/condition/incorrect_";
-	ParsingFunctionTester tester([&](Parser & parse) -> bool {
+	ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
 		auto res = parse.parseCondition();
 		return res.isUsable();
 	});
@@ -248,7 +267,7 @@ TEST(SimpleParserTests, WhileLoops)
 {
 	std::string corr_base_path = "parser/simple/whileloop/correct_";
 	std::string bad_base_path = "parser/simple/whileloop/incorrect_";
-	ParsingFunctionTester tester([&](Parser & parse) -> bool {
+	ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
 		auto res = parse.parseWhileLoop();
 		return res.isUsable();
 	});
@@ -277,7 +296,7 @@ TEST(SimpleParserTests, CompoundStmts)
 {
 	std::string corr_base_path = "parser/simple/compoundstmt/correct_";
 	std::string bad_base_path = "parser/simple/compoundstmt/incorrect_";
-	ParsingFunctionTester tester([&](Parser & parse) -> bool {
+	ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
 		auto res = parse.parseCompoundStatement();
 		return res.isUsable();
 	});
@@ -308,10 +327,10 @@ TEST(SimpleParserTests, Unit)
 	std::string bad_base_path = "parser/simple/unit/incorrect_";
 
 
-	ParsingFunctionTester tester([&](Parser & parse) -> bool {
+	ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
 		
 		auto res = parse.parseUnit(
-			FileID(), // No need for a valid FileID in a test.
+			file,
 			parse.getASTContext().identifiers.getUniqueIdentifierInfo("Test Unit"),
 			/* is main unit */ true
 		);
