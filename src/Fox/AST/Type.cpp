@@ -199,6 +199,7 @@ Type* QualType::getType()
 
 void QualType::setType(Type* ty)
 {
+	assert(ty && "The type cannot be null!");
 	ty_ = ty;
 }
 

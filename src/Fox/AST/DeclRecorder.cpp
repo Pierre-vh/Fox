@@ -20,7 +20,7 @@ DeclRecorder::DeclRecorder(DeclRecorder * parent) : parent_(parent)
 
 }
 
-void DeclRecorder::recordDecl(NamedDecl * decl)
+void DeclRecorder::recordDecl(NamedDecl* decl)
 {
 	assert(decl	&& "Declaration cannot be null!");
 	IdentifierInfo* name = decl->getIdentifier();
@@ -60,9 +60,9 @@ DeclRecorder * DeclRecorder::getParentDeclRecorder()
 	return parent_;
 }
 
-void DeclRecorder::setParentDeclRecorder(DeclRecorder * dr)
+void DeclRecorder::setParentDeclRecorder(DeclRecorder* dr)
 {
-	assert(dr && "Can't a null parent! Use resetParent() for that!");
+	assert(dr && "Can't set a null parent! Use resetParent() for that!");
 	parent_ = dr;
 }
 
@@ -145,10 +145,11 @@ LookupResult::operator bool() const
 	return !isEmpty();
 }
 
-void LookupResult::addResult(NamedDecl * decl)
+void LookupResult::addResult(NamedDecl* decl)
 {
 	if (results_.size())
-		assert((results_.back()->getIdentifier() == decl->getIdentifier()) && "A LookupResult can only contain NamedDecls that share the same identifier.");
+		assert((results_.back()->getIdentifier() == decl->getIdentifier()) 
+			&& "A LookupResult can only contain NamedDecls that share the same identifier.");
 
 	if (dynamic_cast<FunctionDecl*>(decl))
 		containsFuncDecl_ = true;

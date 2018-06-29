@@ -174,7 +174,6 @@ bool FunctionDecl::isValid() const
 
 void FunctionDecl::setReturnType(Type* ty)
 {
-	assert(ty && "the return type cannot be null!");
 	returnType_ = ty;
 }
 
@@ -188,7 +187,7 @@ const Type* FunctionDecl::getReturnType() const
 	return returnType_;
 }
 
-CompoundStmt * FunctionDecl::getBody()
+CompoundStmt* FunctionDecl::getBody()
 {
 	return body_.get();
 }

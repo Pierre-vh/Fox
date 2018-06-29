@@ -337,7 +337,6 @@ CastExpr::CastExpr(Type* castGoal, std::unique_ptr<Expr> child,const SourceLoc& 
 
 void CastExpr::setCastGoal(Type* goal)
 {
-	assert(goal && "Goal type cannot be null!");
 	goal_ = goal;
 }
 
