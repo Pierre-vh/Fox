@@ -239,7 +239,6 @@ std::string Token::getAsString() const
 				return it->first;
 		}
 		fox_unreachable("unknown keyword");
-		return "";
 	}
 	else if (mpark::holds_alternative<SignType>(tokenData_))
 	{

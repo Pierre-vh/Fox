@@ -356,7 +356,6 @@ std::string ASTDumper::getStmtNodeName(Stmt* stmt) const
 		#include "StmtNodes.def"
 		default:
 			fox_unreachable("unknown node");
-			return "";
 	}
 }
 
@@ -368,7 +367,6 @@ std::string ASTDumper::getDeclNodeName(Decl * decl) const
 		#include "DeclNodes.def"
 		default:
 			fox_unreachable("unknown node");
-			return "";
 	}
 }
 
@@ -380,7 +378,6 @@ std::string ASTDumper::getTypeNodeName(Type * type) const
 		#include "TypeNodes.def"
 		default:
 			fox_unreachable("unknown node");
-			return "";
 	}
 }
 

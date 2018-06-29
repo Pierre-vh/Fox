@@ -90,7 +90,6 @@ std::string PrimitiveType::getString() const
 			return "void";
 		default:
 			fox_unreachable("Unknown builtin kind");
-			return "";
 	}
 }
 
