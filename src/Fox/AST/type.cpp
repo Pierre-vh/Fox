@@ -15,29 +15,25 @@
 using namespace fox;
 
 /* Type */
-Type::Type(const TypeKind & tc) : kind_(tc)
-{
-
-}
-
-Type::~Type()
+Type::Type(const TypeKind& tc, const bool& isPrimitive, const bool& isBuiltin, const bool& isArray) 
+	: kind_(tc), isPrimitive_(isPrimitive), isBuiltin_(isBuiltin), isArray_(isArray)
 {
 
 }
 
 bool Type::isPrimitiveType() const
 {
-	return false;
+	return isPrimitive_;
 }
 
 bool Type::isBuiltinType() const
 {
-	return false;
+	return isBuiltin_;
 }
 
 bool Type::isArrayType() const
 {
-	return false;
+	return isArray_;
 }
 
 TypeKind Type::getKind() const
@@ -46,30 +42,17 @@ TypeKind Type::getKind() const
 }
 
 /* BuiltinType */
-BuiltinType::BuiltinType(const TypeKind & tc) : Type(tc)
+BuiltinType::BuiltinType(const TypeKind& tc, const bool& isPrimitive, const bool& isArray)
+	: Type(tc,isPrimitive,true,isArray)
 {
 
-}
-
-BuiltinType::~BuiltinType()
-{
-
-}
-
-bool BuiltinType::isBuiltinType() const
-{
-	return true;
 }
 
 /* Primitive Types */
-PrimitiveType::PrimitiveType(const Kind & kd) : builtinKind_(kd), BuiltinType(TypeKind::PrimitiveType)
+PrimitiveType::PrimitiveType(const Kind& kd) 
+	: builtinKind_(kd), BuiltinType(TypeKind::PrimitiveType,true,false)
 {
 
-}
-
-bool PrimitiveType::isPrimitiveType() const
-{
-	return true;
 }
 
 std::string PrimitiveType::getString() const
@@ -114,14 +97,9 @@ bool PrimitiveType::isVoid() const
 }
 
 /* Array type */
-ArrayType::ArrayType(Type* ty) : itemTy_(ty), BuiltinType(TypeKind::ArrayType)
+ArrayType::ArrayType(const Type* ty) : itemTy_(ty), BuiltinType(TypeKind::ArrayType,false,true)
 {
 	assert(ty && "The Array item type cannot be null!");
-}
-
-bool ArrayType::isArrayType() const
-{
-	return true;
 }
 
 std::string ArrayType::getString() const
@@ -129,7 +107,7 @@ std::string ArrayType::getString() const
 	return itemTy_->getString() + "[]";
 }
 
-Type* ArrayType::getItemTy()
+const Type* ArrayType::getItemTy() const
 {
 	return itemTy_;
 }
@@ -193,6 +171,11 @@ std::string QualType::getString() const
 }
 
 Type* QualType::getType()
+{
+	return ty_;
+}
+
+const Type* QualType::getType() const
 {
 	return ty_;
 }
