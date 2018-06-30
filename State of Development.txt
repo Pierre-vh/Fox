@@ -1,0 +1,11 @@
+I'm currently trying to refocus on important things, which means that I'm going to try and follow a stricter development policy. 
+The "development policy" I chose is "Make it Work - Make it Right - Make it Fast".
+
+Currently, I'm in the "Make it work" phase, which means that I'll focus on progressing in development, without looking back too much
+at existing code (well, except for the lexer which WILL need a rework as soon as possible).
+
+Once my interpreter is complete, compiles without errors and can run basic Fox code, I'll switch to the make it right phase, which will
+be oriented towards refactoring/testing/DRYing code. In short, I'm going to try and make Moonshot's source code concise, pleasant to read
+and more documented. In this phase I'll also try to catch as much bugs as possible by constantly stress-testing the interpreter.
+
+And, the last phase is going to be "Make it fast", with frequent profilings, reworking slow code, etc.
