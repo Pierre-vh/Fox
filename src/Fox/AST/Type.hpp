@@ -6,15 +6,19 @@
 ////------------------------------------------------------//// 
 // This file contains the Type AST nodes.
 //	
-// TODO: I think that in the future a "ErrorType" type could be really handy for parser error recovery
+// TODO: I think that in the future a "ErrorType" could be really handy for parser error recovery
 // and TypeChecking errors handling.
+//
+// At the time of writing this, work on the Semantic Analyzer has not
+// started yet. Thus, most classes here will be changed a lot
+// in the future. Also, the types are all trivial (builtin types & array types)
+// which means that they don't have any complicated work to do, 
 //
 ////------------------------------------------------------////
 
 #pragma once
 
 #include <string>
-#include <memory>
 
 namespace fox
 {
@@ -26,42 +30,42 @@ namespace fox
 	};
 
 	// Base abstract class for every Type node.
-	// Types are immutable once created. As a result, every member function of type classes are marked "const".
+	// Types are immutable once created.
+	// As a result, most member function of type classes are marked "const", with
+	// a few exceptions.
 	class Type
 	{
 		public:
-			Type(const TypeKind& tc);
-			virtual ~Type() = 0;
-
-			/* Should return true if the type is a PrimitiveType */
-			virtual bool isPrimitiveType() const;
-
-			/* Should return true if the type is a builtinType */
-			virtual bool isBuiltinType() const;
-
-			/* Should return true if the type is an ArrayType*/
-			virtual bool isArrayType() const;
+			bool isPrimitiveType() const;
+			bool isBuiltinType() const;
+			bool isArrayType() const;
 
 			/* Should return the type's name in a user friendly form, e.g. "int", "string" */
 			virtual std::string getString() const = 0;
 
-			// Returns the kind of this type.
 			TypeKind getKind() const;
+		protected:
+			Type(const TypeKind& tc, const bool& isPrimitive, const bool& isBuiltin, const bool& isArray);
 		private:
 			TypeKind kind_;
+
+			// Bitfield //
+			const bool isPrimitive_ : 1;
+			const bool isBuiltin_ : 1;
+			const bool isArray_ : 1;
+			// 5 Bits left //
 	};
 
 	// Base abstract class for every builtin type.
+	// Built-in -> Types that are built-in the language, that
+	// are not user created.
 	class BuiltinType : public Type
 	{
-		public:	
-			BuiltinType(const TypeKind& tc);
-			virtual ~BuiltinType() = 0;
-
-			virtual bool isBuiltinType() const;
+		protected:
+			BuiltinType(const TypeKind& tc,const bool& isPrimitive, const bool& isArray);
 	};
 
-	// PrimitiveType
+	// PrimitiveType (builtin,primitive)
 	//		int, float, char, string, bool, void
 	class PrimitiveType : public BuiltinType
 	{
@@ -78,7 +82,6 @@ namespace fox
 
 			PrimitiveType(const Kind& kd);
 
-			virtual bool isPrimitiveType() const override;
 			virtual std::string getString() const override;
 
 			Kind getBuiltinKind() const;
@@ -95,23 +98,22 @@ namespace fox
 			Kind builtinKind_;
 	};
 
-	// Array types
+	// Array types (builtin)
 	class ArrayType : public BuiltinType
 	{
 		public:
-			ArrayType(Type* itemsTy);
+			ArrayType(const Type* itemsTy);
 
-			virtual bool isArrayType() const override;
 			virtual std::string getString() const override;
 
-			Type* getItemTy();
+			const Type* getItemTy() const;
 
 			bool isItemTypePrimitive() const;
 			bool isItemTypeBuiltin() const;
 			bool isItemTypeArray() const; 
 
 		private:
-			Type* itemTy_= nullptr;
+			const Type* itemTy_= nullptr;
 	};
 
 	// QualType is a class that groups a pointer to a Type as well as qualifiers 
@@ -137,6 +139,7 @@ namespace fox
 
 			// Returns the Type pointer (ty_)
 			Type* getType();
+			const Type* getType() const;
 			void setType(Type* ty);
 
 			// Checks if this QualType is valid (ty_ != nullptr)
@@ -144,7 +147,10 @@ namespace fox
 			explicit operator bool() const;
 		private:
 			Type* ty_ = nullptr;
+
+			// Bitfield //
 			bool isConst_ : 1;
 			bool isRef_ : 1;
+			// 6 Bits left //
 	};
 }
