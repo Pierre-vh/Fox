@@ -19,15 +19,38 @@ namespace fox
 	class StrDiagConsumer : public DiagnosticConsumer
 	{
 		public:
-			inline virtual void consume(const Diagnostic& diag) override
+			virtual void consume(const Diagnostic& diag) override
 			{
+				count_++;
 				str_ = diag.getDiagStr();
+				sev_ = diag.getDiagSeverity();
+				id_ = diag.getDiagID();
 			}
-			inline std::string getStr() const
+
+			std::string getStr() const
 			{
 				return str_;
 			}
+
+			DiagSeverity getSev() const
+			{
+				return sev_;
+			}
+
+			DiagID getID() const
+			{
+				return id_;
+			}
+			
+			std::uint8_t getCount() const
+			{
+				return count_;
+			}
+
 		private:
+			std::uint8_t count_ = 0;
+			DiagID id_;
+			DiagSeverity sev_;
 			std::string str_;
 	};
 }
@@ -121,23 +144,37 @@ TEST(DiagnosticsTests, addArg4)
 TEST(DiagnosticsTests, errLimit)
 {
 	auto diagEng = createDiagEngine();
+	StrDiagConsumer* cons = static_cast<StrDiagConsumer*>(diagEng.getConsumer());
+
 	diagEng.setErrorLimit(1);
 	EXPECT_FALSE(diagEng.hasFatalErrorOccured()) << "DiagnosticsEngine reported that a fatal error occured, but it was never used to report errors!";
 
 	auto diag1 = diagEng.report(DiagID::unittest_errtest);
-	EXPECT_EQ("Test error", diag1.getDiagStr());
+	ASSERT_EQ(diag1.getDiagSeverity(), DiagSeverity::ERROR);
 	diag1.emit();
-	EXPECT_FALSE(diagEng.hasFatalErrorOccured()) << "The DiagnosticsEngine reported a fatal error after 1 error.";
+	// The last emitted error should have been a fatal error
+	EXPECT_TRUE(diagEng.hasFatalErrorOccured());
+	EXPECT_EQ(cons->getSev(), DiagSeverity::FATAL);
+	EXPECT_EQ(cons->getID(), DiagID::diagengine_maxErrCountExceeded);
 
-	auto diag2 = diagEng.report(DiagID::unittest_errtest);
-	EXPECT_EQ(diag2.getDiagID(), DiagID::diagengine_maxErrCountExceeded) << "The report function did not return the expected diagnostic";
-	EXPECT_EQ(diag2.getDiagSeverity(), DiagSeverity::FATAL) << "The report function did not return a fatal diagnostic";
-	EXPECT_EQ("Current error count exceeded the maximum thresold of 1.", diag2.getDiagStr()) << "Incorrect diagstr";
-	EXPECT_TRUE(diag2.isFrozen()) << "Diag was supposed to be frozen to prevent user modifications!";
+	auto count = cons->getCount();
+	// Further diags should all be silenced.
+	auto test_note = diagEng.report(DiagID::unittest_notetest);
+	auto test_warn = diagEng.report(DiagID::unittest_warntest);
+	auto test_err = diagEng.report(DiagID::unittest_errtest);
+	auto test_fat = diagEng.report(DiagID::unittest_fataltest);
 
-	// Emit the diag and perform final check.
-	diag2.emit();
-	EXPECT_TRUE(diagEng.hasFatalErrorOccured()) << "Fatal error did not occur. Current error count: " << diagEng.getErrorsCount() << "; Error limit: " << diagEng.getErrorLimit();
+	EXPECT_EQ(test_note.getDiagSeverity(), DiagSeverity::IGNORE);
+	EXPECT_EQ(test_warn.getDiagSeverity(), DiagSeverity::IGNORE);
+	EXPECT_EQ(test_err.getDiagSeverity(), DiagSeverity::IGNORE);
+	EXPECT_EQ(test_fat.getDiagSeverity(), DiagSeverity::IGNORE);
+
+	test_note.emit();
+	test_warn.emit();
+	test_err.emit();
+	test_fat.emit();
+
+	EXPECT_EQ(count, cons->getCount());
 }
 
 TEST(DiagnosticsTests, frozenAndDeadDiags)
@@ -161,19 +198,6 @@ TEST(DiagnosticsTests, frozenAndDeadDiags)
 	EXPECT_FALSE(diag.isActive()) << "Diag was active after being emitted?";
 }
 
-TEST(DiagnosticsTests, dummyDiags)
-{
-	auto diagEng = createDiagEngine();
-	auto diag = Diagnostic::createDummyDiagnosticObject();
-	// TESTS !
-	EXPECT_FALSE(diag.isActive())							<< "Diag was active, but was expected to spawn inactive.";
-	EXPECT_TRUE(diag.isFrozen())							<< "Diag wasn't frozen, but was expected to spawn frozen.";
-	EXPECT_EQ(diag.getDiagID(), DiagID::dummyDiag)			<< "DiagID was not the one expected!";
-	EXPECT_FALSE(diag.hasValidConsumer())					<< "Diag was supposed to not have any consumer set.";
-	EXPECT_EQ("", diag.getDiagStr())						<< "DiagStr was supposed to be a empty string \"\"";
-	EXPECT_EQ(DiagSeverity::IGNORE, diag.getDiagSeverity()) << "Diag's severity was supposed to be \"IGNORE\"";
-}
-
 TEST(DiagnosticsTests, SilencedWarnings)
 {
 	auto diagEng = createDiagEngine();
@@ -181,7 +205,7 @@ TEST(DiagnosticsTests, SilencedWarnings)
 	diagEng.setSilenceWarnings(true);
 	// Test.
 	auto diagWarn = diagEng.report(DiagID::unittest_warntest);
-	EXPECT_EQ(diagWarn.getDiagID(), DiagID::dummyDiag) << "Reported diagnostic wasn't a silenced diag";
+	EXPECT_EQ(diagWarn.getDiagSeverity(),DiagSeverity::IGNORE) << "Reported diagnostic wasn't a silenced diag";
 	diagWarn.emit();
 }
 
@@ -192,7 +216,7 @@ TEST(DiagnosticsTests, SilencedNotes)
 	diagEng.setSilenceNotes(true);
 	// Test.
 	auto diagNote = diagEng.report(DiagID::unittest_notetest);
-	EXPECT_EQ(diagNote.getDiagID(), DiagID::dummyDiag) << "Reported diagnostic wasn't a silenced diag";
+	EXPECT_EQ(diagNote.getDiagSeverity(), DiagSeverity::IGNORE) << "Reported diagnostic wasn't a silenced diag";
 	diagNote.emit();
 }
 
@@ -212,7 +236,7 @@ TEST(DiagnosticsTests, SilenceAllAfterFatal)
 
 	// And try to emit another error
 	auto diagErrSilenced = diagEng.report(DiagID::unittest_errtest);
-	EXPECT_EQ(diagErrSilenced.getDiagID(), DiagID::dummyDiag) << "Diag was supposed to be silenced an thus this DiagID was supposed to be a Dummy diag.";
+	EXPECT_EQ(diagErrSilenced.getDiagSeverity(), DiagSeverity::IGNORE) << "Diag was supposed to be silenced an thus this DiagID was supposed to be a Dummy diag.";
 	diagErrSilenced.emit();
 }
 
@@ -224,9 +248,9 @@ TEST(DiagnosticsTests, SilenceAll)
 	auto dg2 = diagEng.report(DiagID::unittest_warntest);
 	auto dg3 = diagEng.report(DiagID::unittest_fataltest);
 
-	EXPECT_EQ(dg1.getDiagID(), DiagID::dummyDiag) << "Diag was supposed to be silenced.";
-	EXPECT_EQ(dg2.getDiagID(), DiagID::dummyDiag) << "Diag was supposed to be silenced.";
-	EXPECT_EQ(dg3.getDiagID(), DiagID::dummyDiag) << "Diag was supposed to be silenced.";
+	EXPECT_EQ(dg1.getDiagSeverity(), DiagSeverity::IGNORE) << "Diag was supposed to be silenced.";
+	EXPECT_EQ(dg2.getDiagSeverity(), DiagSeverity::IGNORE) << "Diag was supposed to be silenced.";
+	EXPECT_EQ(dg3.getDiagSeverity(), DiagSeverity::IGNORE) << "Diag was supposed to be silenced.";
 }
 
 TEST(DiagnosticsTests, WarningsAreErrors)
