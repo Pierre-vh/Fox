@@ -20,7 +20,6 @@
 
 namespace fox
 {
-	class SourceRange;
 	class DiagnosticEngine;
 	enum class DiagID : std::uint16_t
 	{
