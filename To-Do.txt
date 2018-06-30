@@ -56,14 +56,13 @@ Moonshot Project To-do List.
 			> Also, cleanup the DiagnosticEngine options a bit, they should be clearer.
 
 		> Implement the "Caret" in the DiagnosticConsumer
-			> SourceManager::getSourceLineForLoc
-			> The DiagnosticConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place wherethe error is.
-				> Implement that in the DiagnosticConsumer class in a protected function that the derived classes can use. (e.g. "getOriginalSourceLine(SourceLoc)")
+			> The StreamDiagConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place wherethe error is.
+			> Implement that in the base DiagnosticConsumer as a protected method that the derived classes can use. (e.g. "getOriginalSourceLine(SourceLoc)")
 
-		> Add classof static methods to the AST (will be useful for testing if a class is a derived/base of without dynamic_cast)
+		> Add classof static methods to the AST
 			> Stmt, Decls, Types
 
-		> Add and use LLVM's dyn_cast to the third_party libraries.
+		> Add  LLVM's dyn_cast to the third_party libraries, make use of it, then disable RTTI completely.
 
 	FEATURE:
 		> Semantic Analysis
