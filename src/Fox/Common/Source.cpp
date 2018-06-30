@@ -203,6 +203,9 @@ void SourceManager::calculateLineTable(const StoredData* data) const
 	line++;
 	for (std::size_t idx = 0; idx < size; idx++)
 	{
+		// Supported line endings : \r\n, \n
+		// Just need to add +1 to the index in both cases to mark the beginning
+		// of the line as the first character after \n
 		if (data->str[idx] == '\n')
 		{
 			data->lineTable[idx+1] = line;
