@@ -8,8 +8,7 @@
 ////------------------------------------------------------////
 
 #include "DiagnosticEngine.hpp"
-#include "Diagnostic.hpp"
-#include "DiagnosticConsumers.hpp"
+#include "Source.hpp"
 #include "Fox/Common/Utils.hpp"
 #include <cassert>
 
@@ -32,7 +31,14 @@ DiagnosticEngine::DiagnosticEngine(SourceManager* sm) : DiagnosticEngine(std::ma
 
 DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons): consumer_(std::move(ncons))
 {
-	resetAllOptions();
+	errLimitReached_			= false;
+	hasFatalErrorOccured_		= false;
+	errorsAreFatal_				= false;
+	silenceAll_					= false;
+	silenceAllAfterFatalError_	= false;
+	silenceNotes_				= false;
+	silenceWarnings_			= false;
+	warningsAreErrors_			= false;
 }
 
 Diagnostic DiagnosticEngine::report(const DiagID& diagID)
@@ -74,99 +80,89 @@ DiagnosticConsumer* DiagnosticEngine::getConsumer()
 	return consumer_.get();
 }
 
-void DiagnosticEngine::resetAllOptions()
-{
-	diagOpts_.errorsAreFatal			= false;
-	diagOpts_.silenceAll				= false;
-	diagOpts_.silenceAllAfterFatalError = false;
-	diagOpts_.silenceNotes				= false;
-	diagOpts_.silenceWarnings			= false;
-	diagOpts_.warningsAreErrors			= false;
-}
-
 bool DiagnosticEngine::hasFatalErrorOccured() const
 {
 	return hasFatalErrorOccured_;
 }
 
-unsigned int DiagnosticEngine::getWarningsCount() const
+std::uint16_t DiagnosticEngine::getWarningsCount() const
 {
 	return warnCount_;
 }
 
-unsigned int DiagnosticEngine::getErrorsCount() const
+std::uint16_t DiagnosticEngine::getErrorsCount() const
 {
 	return errorCount_;
 }
 
-unsigned int DiagnosticEngine::getErrorLimit() const
+std::uint16_t DiagnosticEngine::getErrorLimit() const
 {
 	return errLimit_;
 }
 
-void DiagnosticEngine::setErrorLimit(const unsigned int & mErr)
+void DiagnosticEngine::setErrorLimit(const std::uint16_t& mErr)
 {
 	errLimit_ = mErr;
 }
 
 bool DiagnosticEngine::getWarningsAreErrors() const
 {
-	return diagOpts_.warningsAreErrors;
+	return warningsAreErrors_;
 }
 
-void DiagnosticEngine::setWarningsAreErrors(const bool & val)
+void DiagnosticEngine::setWarningsAreErrors(const bool& val)
 {
-	diagOpts_.warningsAreErrors = val;
+	warningsAreErrors_ = val;
 }
 
 bool DiagnosticEngine::getErrorsAreFatal() const
 {
-	return diagOpts_.errorsAreFatal;
+	return errorsAreFatal_;
 }
 
-void DiagnosticEngine::setErrorsAreFatal(const bool & val)
+void DiagnosticEngine::setErrorsAreFatal(const bool& val)
 {
-	diagOpts_.errorsAreFatal = val;
+	errorsAreFatal_ = val;
 }
 
 bool DiagnosticEngine::getSilenceWarnings() const
 {
-	return diagOpts_.silenceWarnings;
+	return silenceWarnings_;
 }
 
 void DiagnosticEngine::setSilenceWarnings(const bool & val)
 {
-	diagOpts_.silenceWarnings = val;
+	silenceWarnings_ = val;
 }
 
 bool DiagnosticEngine::getSilenceNotes() const
 {
-	return diagOpts_.silenceNotes;
+	return silenceNotes_;
 }
 
 void DiagnosticEngine::setSilenceNotes(const bool & val)
 {
-	diagOpts_.silenceNotes = val;
+	silenceNotes_ = val;
 }
 
 bool DiagnosticEngine::getSilenceAllAfterFatalErrors() const
 {
-	return diagOpts_.silenceAllAfterFatalError;
+	return silenceAllAfterFatalError_;
 }
 
 void DiagnosticEngine::setSilenceAllAfterFatalErrors(const bool & val)
 {
-	diagOpts_.silenceAllAfterFatalError = val;
+	silenceAllAfterFatalError_ = val;
 }
 
 bool DiagnosticEngine::getSilenceAll() const
 {
-	return diagOpts_.silenceAll;
+	return silenceAll_;
 }
 
 void DiagnosticEngine::setSilenceAll(const bool & val)
 {
-	diagOpts_.silenceAll = val;
+	silenceAll_ = val;
 }
 
 void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
@@ -180,11 +176,13 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
 	}
 
 	// Now, check if we must emit a "too many errors" error.
-	if (haveTooManyErrorsOccured())
+	if ((errLimit_ != 0) && (errorCount_ >= errLimit_))
 	{
-		if (!hasReportedErrLimitExceededError_)
+		// If we should emit one, check if we haven't emitted one already.
+		if (!errLimitReached_)
 		{
-			hasReportedErrLimitExceededError_ = true;
+			// Important : set this to true to avoid infinite recursion.
+			errLimitReached_ = true;
 			report(DiagID::diagengine_maxErrCountExceeded).addArg(errorCount_).emit();
 			setSilenceAll(true);
 		}
@@ -243,12 +241,4 @@ void DiagnosticEngine::updateInternalCounters(const DiagSeverity & ds)
 			hasFatalErrorOccured_ = true;
 			break;
 	}
-}
-
-bool DiagnosticEngine::haveTooManyErrorsOccured() const
-{
-	// Only check if errLimit != 0
-	if(errLimit_)
-		return errorCount_ >= errLimit_;
-	return false;
 }

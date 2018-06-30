@@ -10,17 +10,16 @@
 
 #pragma once
 
-#include "DiagnosticConsumers.hpp"
-#include "Diagnostic.hpp"
 #include <memory>
-
+#include "Diagnostic.hpp"
+#include "DiagnosticConsumers.hpp"
 #define DIAGENGINE_DEFAULT_ERR_LIMIT 0
 
 namespace fox
 {
-
 	class SourceLoc;
 	class SourceRange;
+	class SourceManager;
 	class DiagnosticEngine
 	{
 		public:
@@ -37,24 +36,20 @@ namespace fox
 			void setConsumer(std::unique_ptr<DiagnosticConsumer> ncons);
 			DiagnosticConsumer * getConsumer();
 
-			// Sets every option to false
-			void resetAllOptions(); 
-
-			// Returns true if a fatal errors has occured.
+			// Returns true if a fatal errors has been emitted.
 			bool hasFatalErrorOccured() const;
 
-			// Getters for Number of warnings/non fatal errors that have occured.
-			unsigned int getWarningsCount() const;
-			unsigned int getErrorsCount() const;
+			// Getters for Number of warnings/errors that have been emitted.
+			std::uint16_t getWarningsCount() const;
+			std::uint16_t getErrorsCount() const;
 
 			// Set the max number of errors that can occur
 			// before a the context silences all future diagnostics
-			// and reports a "err_count_too_high" error.
+			// and reports a fatal "Too many errors" error.
 			// Set to 0 for unlimited.
-			void setErrorLimit(const unsigned int& mErr);
-			unsigned int getErrorLimit() const;
+			void setErrorLimit(const std::uint16_t& mErr);
+			std::uint16_t getErrorLimit() const;
 
-			// Manual getters/setters for DiagOpts
 			bool getWarningsAreErrors() const;
 			void setWarningsAreErrors(const bool& val);
 
@@ -72,11 +67,11 @@ namespace fox
 
 			bool getSilenceAll() const;
 			void setSilenceAll(const bool& val);
+
 		protected:
 			friend class Diagnostic;
-			// Once a diagnostic is ready to emit
-			// it calls this method below.
 			void handleDiagnostic(Diagnostic& diag);
+
 		private:		
 			// Promotes the severity of the diagnostic if needed
 			DiagSeverity changeSeverityIfNeeded(const DiagSeverity& ds) const;
@@ -84,33 +79,24 @@ namespace fox
 			// Updates internal counters (warningCount, errCount, hasFatalErrorOccured) depending on the severity
 			void updateInternalCounters(const DiagSeverity& ds);
 
-			// have too many errors occured
-			bool haveTooManyErrorsOccured() const;
-
-			// Member Variables //
-			/* Options to change how the DiagEngine behaves when an error is reported */
-			struct DiagOpts
-			{
-				// Promotion of severities
-				bool warningsAreErrors	: 1;
-				bool errorsAreFatal : 1;
-
-				// Silence Warnings/Notes
-				bool silenceWarnings	: 1;
-				bool silenceNotes		: 1;
-				bool silenceAllAfterFatalError : 1;
-				bool silenceAll : 1;
-			} diagOpts_;
+			// Bitfields : Options
+			bool warningsAreErrors_	: 1;
+			bool errorsAreFatal_	: 1;
+			bool silenceWarnings_	: 1;
+			bool silenceNotes_		: 1;
+			bool silenceAllAfterFatalError_ : 1;
+			bool silenceAll_ : 1;
+			// 2 bits left : Flags
+			bool hasFatalErrorOccured_	: 1;
+			bool errLimitReached_		: 1;
 
 			/* Other non bool parameters */
-			unsigned int errLimit_ = DIAGENGINE_DEFAULT_ERR_LIMIT; 
+			std::uint16_t errLimit_ = DIAGENGINE_DEFAULT_ERR_LIMIT;
 
 			/* Statistics */
-			unsigned int errorCount_		= 0;
-			unsigned int warnCount_	= 0;
-			bool hasFatalErrorOccured_ = false;
-			bool hasReportedErrLimitExceededError_ = false;			// This flag is set to true when the diagengine has emitted the "max error" fatal error.
+			std::uint16_t errorCount_ = 0;
+			std::uint16_t warnCount_  = 0;
 
-			std::unique_ptr<DiagnosticConsumer> consumer_	= nullptr;
+			std::unique_ptr<DiagnosticConsumer> consumer_;
 	};
 }
