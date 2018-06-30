@@ -147,7 +147,7 @@ TEST(DiagnosticsTests, errLimit)
 	StrDiagConsumer* cons = static_cast<StrDiagConsumer*>(diagEng.getConsumer());
 
 	diagEng.setErrorLimit(1);
-	EXPECT_FALSE(diagEng.hasFatalErrorOccured()) << "DiagnosticsEngine reported that a fatal error occured, but it was never used to report errors!";
+	EXPECT_FALSE(diagEng.hasFatalErrorOccured());
 
 	auto diag1 = diagEng.report(DiagID::unittest_errtest);
 	ASSERT_EQ(diag1.getDiagSeverity(), DiagSeverity::ERROR);
