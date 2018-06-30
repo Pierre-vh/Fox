@@ -46,14 +46,7 @@ Moonshot Project To-do List.
 	// After that, I'll remove the "beta" branch, because it's
 	// pretty much useless.
 	QOL:
-		> Rework the DiagnosticEngine::report function, it should be cleaner. Right now it's a bit of a mess, the behaviour
-		  should be precise!
-			> Instead of returning a fake diag, if we want to silence a diag, set it's severity to "ignore" 
-				> combine "shouldSilence" & "promoteSeverityIfNeeded" in one method "changeSeverityIfNeeded" which will take care of promotion/demotion
-			> Then, once the severity is changed, we update the counters and emit the diag.
-			> For the max error count message, we check at the beginning of the report function :
-				> if(errCount == maxLimit) -> report(tooManyError) + silence all upcoming diag (setSilenceAll(true))
-			> Also, cleanup the DiagnosticEngine options a bit, they should be clearer.
+		> Rework the DiagnosticEngine::report function, (Done)
 
 		> Implement the "Caret" in the DiagnosticConsumer
 			> The StreamDiagConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place wherethe error is.

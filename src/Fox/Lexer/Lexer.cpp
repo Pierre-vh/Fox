@@ -9,11 +9,11 @@
 
 #include "Lexer.hpp"
 
-#include <string>		// std::string
-#include <cwctype>		// std::iswspace
-#include <sstream>		// std::stringstream (sizeToStr())
+#include <string>
+#include <cwctype>
+#include <sstream>		
 #include <cassert>
-
+#include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/AST/ASTContext.hpp"
 
 using namespace fox;

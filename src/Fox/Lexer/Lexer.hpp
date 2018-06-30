@@ -21,11 +21,11 @@
 #pragma once
 
 #include "Token.hpp"
-#include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 
 namespace fox
 {
+	class DiagnosticEngine;
 	class Lexer 
 	{
 		public:
