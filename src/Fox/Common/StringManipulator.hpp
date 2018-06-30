@@ -5,6 +5,7 @@
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // Implements a UTF-8 string manipulator based on the UTFCPP library.
+// It always work with a pointer to the string to avoid copies.
 //
 // How it works :
 //
@@ -12,12 +13,12 @@
 // CP = One codepoint. It's one or more bytes in the std::string.
 //		
 //													  getCurrentChar()
-//															|
+//															|->
 //											  peekPrevious()|	peekNext()
-//													|	    |		|
-//							>	- - --------------------------------------------------------- - -
-//	str_(input string)		>		|	CP	|	CP	|	CP	#	CP	|	CP	|	CP	|	CP	|
-//							>	- - --------------------------------------------------------- - -
+//													|->   |		|->
+//							 	- - --------------------------------------------------------- - -
+//	str_(input string)		 		|	CP	|	CP	|	CP	#	CP	|	CP	|	CP	|	CP	|
+//							 	- - --------------------------------------------------------- - -
 //
 //
 ////------------------------------------------------------////
@@ -29,7 +30,6 @@
 
 namespace fox
 {
-
 	class StringManipulator
 	{
 		public:
@@ -117,10 +117,6 @@ namespace fox
 
 			// Appends a CharType to a std::string.
 			static void append(std::string& str, const CharType& ch);
-
-			// Returns the character at a precise location in the source code.
-			// This method is kinda specific for the SourceManager, it needs to be kind of fast.
-			static CharType getCharAtLoc(const std::string* str, const std::size_t& idx);
 		private:
 			// Get a reference to the string stored.
 			const std::string& str() const;

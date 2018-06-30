@@ -52,11 +52,6 @@ void StringManipulator::append(std::string & str, const CharType & ch)
 	utf8::append(ch, std::back_inserter(str));
 }
 
-CharType StringManipulator::getCharAtLoc(const std::string* str, const std::size_t& idx)
-{
-	return utf8::peek_next(str->begin() + idx, str->end());
-}
-
 std::size_t StringManipulator::getIndexInCodepoints() const
 {
 	return utf8::distance(beg_, iter_);
