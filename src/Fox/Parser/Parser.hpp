@@ -277,7 +277,7 @@ namespace fox
 
 					}
 
-					operator bool() const
+					explicit operator bool() const
 					{
 						return isUsable();
 					}
@@ -335,7 +335,7 @@ namespace fox
 
 					}
 
-					operator bool() const
+					explicit operator bool() const
 					{
 						return isUsable();
 					}

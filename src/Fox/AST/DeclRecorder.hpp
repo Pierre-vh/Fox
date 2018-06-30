@@ -113,7 +113,7 @@ namespace fox
 			// If this LookupResult contains only one result, returns it, else, returns a nullptr.
 			NamedDecl* getResultIfUnique() const;
 
-			operator bool() const;
+			explicit operator bool() const;
 		protected:
 			friend class DeclRecorder;
 

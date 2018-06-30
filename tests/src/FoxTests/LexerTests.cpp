@@ -107,13 +107,13 @@ TEST(TokenTests, FloatID)
 	LiteralInfo litInfo2 = tok2.getLiteralInfo();
 	LiteralInfo litInfo3 = tok3.getLiteralInfo();
 
-	ASSERT_TRUE(litInfo1) << "LiteralInfo was null?";
-	ASSERT_TRUE(litInfo2) << "LiteralInfo was null?";
-	ASSERT_TRUE(litInfo3) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo1.isNull()) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo2.isNull()) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo3.isNull()) << "LiteralInfo was null?";
 
-	ASSERT_TRUE(litInfo1.isFloat() && litInfo1.is<FloatType>());
-	ASSERT_TRUE(litInfo2.isFloat() && litInfo2.is<FloatType>());
-	ASSERT_TRUE(litInfo3.isFloat() && litInfo3.is<FloatType>());
+	EXPECT_TRUE(litInfo1.isFloat() && litInfo1.is<FloatType>());
+	EXPECT_TRUE(litInfo2.isFloat() && litInfo2.is<FloatType>());
+	EXPECT_TRUE(litInfo3.isFloat() && litInfo3.is<FloatType>());
 
 	EXPECT_EQ(litInfo1.get<FloatType>(), 3.14f) << "Value was not the one expected.";
 	EXPECT_EQ(litInfo2.get<FloatType>(), 0.0f) << "Value was not the one expected.";
@@ -137,9 +137,9 @@ TEST(TokenTests, IntId)
 	LiteralInfo litInfo2 = tok2.getLiteralInfo();
 	LiteralInfo litInfo3 = tok3.getLiteralInfo();
 
-	ASSERT_TRUE(litInfo1) << "LiteralInfo was null?";
-	ASSERT_TRUE(litInfo2) << "LiteralInfo was null?";
-	ASSERT_TRUE(litInfo3) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo1.isNull()) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo2.isNull()) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo3.isNull()) << "LiteralInfo was null?";
 
 	ASSERT_TRUE(litInfo1.isInt() && litInfo1.is<IntType>());
 	ASSERT_TRUE(litInfo2.isInt() && litInfo2.is<IntType>());
@@ -167,9 +167,9 @@ TEST(TokenTests, StringID)
 	LiteralInfo litInfo2 = tok2.getLiteralInfo();
 	LiteralInfo litInfo3 = tok3.getLiteralInfo();
 
-	ASSERT_TRUE(litInfo1) << "LiteralInfo was null?";
-	ASSERT_TRUE(litInfo2) << "LiteralInfo was null?";
-	ASSERT_TRUE(litInfo3) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo1.isNull()) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo2.isNull()) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo3.isNull()) << "LiteralInfo was null?";
 
 	ASSERT_TRUE(litInfo1.isString() && litInfo1.is<std::string>());
 	ASSERT_TRUE(litInfo2.isString() && litInfo2.is<std::string>());
@@ -197,9 +197,9 @@ TEST(TokenTests, CharID)
 	LiteralInfo litInfo2 = tok2.getLiteralInfo();
 	LiteralInfo litInfo3 = tok3.getLiteralInfo();
 
-	ASSERT_TRUE(litInfo1) << "LiteralInfo was null?";
-	ASSERT_TRUE(litInfo2) << "LiteralInfo was null?";
-	ASSERT_TRUE(litInfo3) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo1.isNull()) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo2.isNull()) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo3.isNull()) << "LiteralInfo was null?";
 
 	ASSERT_TRUE(litInfo1.isChar() && litInfo1.is<CharType>());
 	ASSERT_TRUE(litInfo2.isChar() && litInfo2.is<CharType>());
@@ -224,8 +224,8 @@ TEST(TokenTests, BoolID)
 	LiteralInfo litInfo1 = tok1.getLiteralInfo();
 	LiteralInfo litInfo2 = tok2.getLiteralInfo();
 
-	ASSERT_TRUE(litInfo1) << "LiteralInfo was null?";
-	ASSERT_TRUE(litInfo2) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo1.isNull()) << "LiteralInfo was null?";
+	ASSERT_FALSE(litInfo2.isNull()) << "LiteralInfo was null?";
 
 	ASSERT_TRUE(litInfo1.isBool() && litInfo1.is<bool>());
 	ASSERT_TRUE(litInfo2.isBool() && litInfo2.is<bool>());

@@ -44,7 +44,6 @@ namespace fox
 			LiteralInfo(const CharType& cval);
 
 			bool isNull() const;
-			operator bool() const;
 			LiteralType getType() const;
 			
 			bool isBool() const;
@@ -150,7 +149,7 @@ namespace fox
 			std::string showFormattedTokenData() const;
 
 			bool isValid() const;
-			operator bool() const;
+			explicit operator bool() const;
 
 			bool isLiteral() const;
 			bool isIdentifier() const;

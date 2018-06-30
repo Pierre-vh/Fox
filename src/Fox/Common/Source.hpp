@@ -25,7 +25,7 @@ namespace fox
 
 			FileID();
 
-			operator bool() const;
+			explicit operator bool() const;
 			bool operator ==(const FileID& other) const;
 			bool operator !=(const FileID& other) const;
 			// For comparisons
@@ -76,7 +76,7 @@ namespace fox
 			SourceLoc(const FileID& fid, const idx_type& idx = 0);
 
 			bool isValid() const;
-			operator bool() const; // ShortCut for isValid
+			explicit operator bool() const; // ShortCut for isValid
 
 			bool operator ==(const SourceLoc& other) const;
 			bool operator !=(const SourceLoc& other) const;
@@ -107,7 +107,7 @@ namespace fox
 			SourceRange();
 
 			bool isValid() const;
-			operator bool() const; // Shortcut for isValid
+			explicit operator bool() const; // Shortcut for isValid
 
 			SourceLoc getBeginSourceLoc() const;
 			offset_type getOffset() const;

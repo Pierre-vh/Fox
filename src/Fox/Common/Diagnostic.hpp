@@ -114,8 +114,8 @@ namespace fox
 			// Does this diag possess a valid consumer?
 			bool hasValidConsumer() const;
 
-			// Checks if the arg is valid for emission
-			operator bool() const;
+			// Checks if the Diag is valid for emission
+			explicit operator bool() const;
 		private:
 			// friends
 			friend class DiagnosticEngine;

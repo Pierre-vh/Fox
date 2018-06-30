@@ -46,7 +46,7 @@ SourceRange Decl::getRange() const
 
 bool Decl::hasLocInfo() const
 {
-	return begLoc_ && endLoc_;
+	return isBegLocSet() && isEndLocSet();
 }
 
 bool Decl::isValid() const
@@ -56,12 +56,12 @@ bool Decl::isValid() const
 
 bool Decl::isBegLocSet() const
 {
-	return begLoc_;
+	return begLoc_.isValid();
 }
 
 bool Decl::isEndLocSet() const
 {
-	return endLoc_;
+	return endLoc_.isValid();
 }
 
 void Decl::setBegLoc(const SourceLoc & loc)

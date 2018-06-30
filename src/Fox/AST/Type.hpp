@@ -141,7 +141,7 @@ namespace fox
 
 			// Checks if this QualType is valid (ty_ != nullptr)
 			bool isValid() const;
-			operator bool() const;
+			explicit operator bool() const;
 		private:
 			Type* ty_ = nullptr;
 			bool isConst_ : 1;
