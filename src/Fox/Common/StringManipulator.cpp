@@ -104,7 +104,7 @@ CharType StringManipulator::getChar(const std::size_t& ind) const
 
 	if (tmpit != end_)
 		return utf8::peek_next(tmpit, end_);
-	return L'\0';
+	return 0;
 }
 
 std::string StringManipulator::substring(std::size_t beg, const std::size_t & leng) const
