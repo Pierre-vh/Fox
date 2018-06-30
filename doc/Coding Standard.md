@@ -39,4 +39,4 @@
 
 * Generally speaking, classes in the "main pipeline", such as the Parser/Lexer/Semantic/IRGen should have little need for exceptions. They'll report errors
   using the DiagEngine most of the time, and will often use assertions to check that the input given by another class is correct.
-	* e.g. the Semantic Analyzer will assert that a node is fully formed, instead of throwing an exception.
+	* e.g. the Semantic Analyzer will assert that a node returned by the parser is fully formed, instead of throwing an exception.
