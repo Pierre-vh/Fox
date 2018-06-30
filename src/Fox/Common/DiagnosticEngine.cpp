@@ -42,41 +42,21 @@ Diagnostic DiagnosticEngine::report(const DiagID& diagID)
 
 Diagnostic DiagnosticEngine::report(const DiagID& diagID, const SourceRange& range)
 {
-	assert((bool)consumer_ && "No consumer available!");
-	// Gather diagnostic info
+	// Gather diagnostic data
 	const auto idx = enumAsInt(diagID);
 	DiagSeverity sev = diagsSevs[idx];
 	std::string str(diagsStrs[idx]);
 
 	// Promote severity if needed
-	sev = promoteSeverityIfNeeded(sev);
+	sev = changeSeverityIfNeeded(sev);
 
-	// Silence this diag if needed
-	if (shouldSilence(sev))
-	{
-		// Create an empty diagnostic object by calling the default constructor
-		return Diagnostic();
-	}
-
-	// Return
-	if (haveTooManyErrorsOccured() && (!hasReportedErrLimitExceededError_))
-	{
-		// Override the diagnostic with a "Max error count exceeded" Diagnostic.
-		hasReportedErrLimitExceededError_ = true;
-		return report(DiagID::diagengine_maxErrCountExceeded).addArg(errLimit_).freeze(); /* Freeze the diagnostic to prevent user modifications */
-	}
-	else
-	{
-		// If we return the user requested diagnostic, update the counters accordingly, then return.
-		updateInternalCounters(sev);
-		return 	Diagnostic(
-					consumer_.get(),
-					diagID,
-					sev,
-					str,
-					range
-				);;
-	}
+	return Diagnostic(
+				this,
+				diagID,
+				sev,
+				str,
+				range
+			);;
 }
 
 Diagnostic DiagnosticEngine::report(const DiagID& diagID, const SourceLoc& loc)
@@ -189,57 +169,64 @@ void DiagnosticEngine::setSilenceAll(const bool & val)
 	diagOpts_.silenceAll = val;
 }
 
-DiagSeverity DiagnosticEngine::promoteSeverityIfNeeded(const DiagSeverity & ds) const
+void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
 {
-	switch (ds)
+	updateInternalCounters(diag.getDiagSeverity());
+
+	if (diag.getDiagSeverity() != DiagSeverity::IGNORE)
 	{
-		case DiagSeverity::IGNORE:
-		case DiagSeverity::NOTE:
-			return ds;
-		case DiagSeverity::WARNING:
-			if (getWarningsAreErrors())
-				return DiagSeverity::ERROR;
-			else
-				return ds;
-		case DiagSeverity::ERROR:
-			if (getErrorsAreFatal())
-				return DiagSeverity::FATAL;
-			else
-				return ds;
-		case DiagSeverity::FATAL:
-			return ds;
+		assert(consumer_ && "No valid consumer");
+		consumer_->consume(diag);
 	}
-	return ds;
+
+	// Now, check if we must emit a "too many errors" error.
+	if (haveTooManyErrorsOccured())
+	{
+		if (!hasReportedErrLimitExceededError_)
+		{
+			hasReportedErrLimitExceededError_ = true;
+			report(DiagID::diagengine_maxErrCountExceeded).addArg(errorCount_).emit();
+			setSilenceAll(true);
+		}
+	}
 }
 
-bool DiagnosticEngine::shouldSilence(const DiagSeverity & df)
+DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(const DiagSeverity& ds) const
 {
-	// Don't emit any diagnostic if silenceAll is set
+	using Sev = DiagSeverity;
+
 	if (getSilenceAll())
-		return true;
-	// Don't emit any diagnostic if a fatal error occured and silenceAllAfterFatalError is set
+		return Sev::IGNORE;
+
 	if (getSilenceAllAfterFatalErrors() && hasFatalErrorOccured())
-		return true;
-	// If the diagnostic shouldn't be silenced :
-	switch (df)
+		return Sev::IGNORE;
+
+	switch (ds)
 	{
-		// Ignored Diagnostics are never emitted
-		case DiagSeverity::IGNORE:
-			return true;
-		// Notes are not emitted if silenceNotes is active
-		case DiagSeverity::NOTE:
-			return getSilenceNotes();
-		// Warnings are not emitted if silenceWarnings is active
-		case DiagSeverity::WARNING:
-			return getSilenceWarnings();
-		// Errors are no longer emitted if too many errors have occured and the "too many errors" fatal error has been emitted
-		case DiagSeverity::ERROR:
-			return haveTooManyErrorsOccured() && hasReportedErrLimitExceededError_;
-		// Severe diagnostics are never ignored 
-		case DiagSeverity::FATAL:
-			return false;
+		// Ignored diags don't change
+		case Sev::IGNORE:
+			return Sev::IGNORE;
+		// Notes are silenced if the corresponding option is set
+		case Sev::NOTE:
+			return getSilenceNotes() ? Sev::IGNORE : Sev::NOTE;
+		// If Warnings must be silent, the warning is ignored.
+		// Else, if the warnings are considered errors,
+		// it is promoted to an error. If not, it stays a warning.
+		case Sev::WARNING:
+			if (getSilenceWarnings())
+				return Sev::IGNORE;
+			return getWarningsAreErrors() ? Sev::ERROR : Sev::WARNING;
+		// Errors are Ignored if too many of them have occured.
+		// Else, it stays an error except if errors should be considered
+		// Fatal.
+		case Sev::ERROR:
+			return getErrorsAreFatal() ? Sev::FATAL : Sev::ERROR;
+		// Fatal diags don't change
+		case Sev::FATAL:
+			return ds;
+		default:
+			fox_unreachable("unknown severity");
 	}
-	return false;
 }
 
 void DiagnosticEngine::updateInternalCounters(const DiagSeverity & ds)
@@ -260,6 +247,7 @@ void DiagnosticEngine::updateInternalCounters(const DiagSeverity & ds)
 
 bool DiagnosticEngine::haveTooManyErrorsOccured() const
 {
+	// Only check if errLimit != 0
 	if(errLimit_)
 		return errorCount_ >= errLimit_;
 	return false;

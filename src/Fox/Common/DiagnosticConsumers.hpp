@@ -17,7 +17,7 @@ namespace fox
 	class Diagnostic;
 	class SourceLoc;
 	class SourceManager;
-	enum class DiagSeverity : int8_t;
+	enum class DiagSeverity : std::uint8_t;
 	class DiagnosticConsumer
 	{
 		public:

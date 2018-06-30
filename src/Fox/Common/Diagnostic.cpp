@@ -8,16 +8,15 @@
 ////------------------------------------------------------////
 
 #include "Diagnostic.hpp"
-#include "DiagnosticConsumers.hpp"
-#include <iostream>
+#include "DiagnosticEngine.hpp"
 #include <cassert>
 
 using namespace fox;
 
-Diagnostic::Diagnostic(DiagnosticConsumer* cons, const DiagID& dID, const DiagSeverity& dSev, const std::string& dStr, const SourceRange& range) :
-	consumer_(cons), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr), range_(range)
+Diagnostic::Diagnostic(DiagnosticEngine* engine, const DiagID& dID, const DiagSeverity& dSev, const std::string& dStr, const SourceRange& range) :
+	engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr), range_(range)
 {
-
+	assert(engine && "Engine cannot be null!");
 }
 
 Diagnostic::Diagnostic(Diagnostic &other)
@@ -32,11 +31,6 @@ Diagnostic::Diagnostic(Diagnostic&& other)
 	other.kill();
 }
 
-Diagnostic Diagnostic::createDummyDiagnosticObject()
-{
-	return Diagnostic();
-}
-
 Diagnostic::~Diagnostic()
 {
 	emit();
@@ -44,10 +38,10 @@ Diagnostic::~Diagnostic()
 
 void Diagnostic::emit()
 {
-	if (isActive_ && (diagSeverity_ != DiagSeverity::IGNORE))
+	if (isActive_)
 	{
-		assert(consumer_ && "Attempting to emit without a consumer set!");
-		consumer_->consume(*this);
+		assert(engine_ && "Attempting to emit without a DiagnosticEngine set!");
+		engine_->handleDiagnostic(*this);
 		kill(); // kill this diag once it's consumed.
 	}
 }
@@ -82,18 +76,6 @@ bool Diagnostic::isActive() const
 	return isActive_;
 }
 
-Diagnostic::Diagnostic()
-{
-	// Diag starts frozen & inactive (won't be modified or emitted)
-	isActive_ = false;
-	isFrozen_ = true;
-	// Init all members to a default value
-	diagID_ = DiagID::dummyDiag;
-	consumer_ = nullptr;
-	diagStr_ = "";
-	diagSeverity_ = DiagSeverity::IGNORE;
-}
-
 Diagnostic& Diagnostic::replacePlaceholder(const std::string & replacement, const unsigned char & index)
 {
 	if (!isActive_ || isFrozen_)
@@ -115,11 +97,9 @@ void Diagnostic::kill()
 	{
 		// Clear all variables
 		isActive_ = false;
-		consumer_ = 0;
+		engine_ = nullptr;
 		diagStr_.clear();
 		isFrozen_ = true;
-		range_ = SourceRange();
-		diagID_ = DiagID::dummyDiag;
 		diagSeverity_ = DiagSeverity::IGNORE;
 	}
 }
@@ -134,12 +114,7 @@ Diagnostic& Diagnostic::freeze()
 	return *this;
 }
 
-bool Diagnostic::hasValidConsumer() const
-{
-	return (bool)consumer_;
-}
-
 Diagnostic::operator bool() const
 {
-	return isActive() && consumer_;
+	return isActive();
 }

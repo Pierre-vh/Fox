@@ -21,17 +21,15 @@
 namespace fox
 {
 	class SourceRange;
-	class DiagnosticConsumer;
-
-	enum class DiagID : int16_t
+	class DiagnosticEngine;
+	enum class DiagID : std::uint16_t
 	{
-		dummyDiag = -1,
 		// Important : first value must always be 0 to keep sync with the severities and strs arrays.
 		#define DIAG(SEVERITY,ID,TEXT) ID,
 			#include "Diags/DiagsAll.def"
 	};
 
-	enum class DiagSeverity : int8_t
+	enum class DiagSeverity : std::uint8_t
 	{
 		IGNORE,		// Ignore the diagnostic
 		NOTE,		// Present this diag as a note, a log entry.
@@ -43,17 +41,13 @@ namespace fox
 	class Diagnostic
 	{
 		public:
-			Diagnostic(DiagnosticConsumer *cons, const DiagID& dID, const DiagSeverity& dSev,const std::string& dStr, const SourceRange& range = SourceRange());
+			Diagnostic(DiagnosticEngine *engine, const DiagID& dID, const DiagSeverity& dSev,const std::string& dStr, const SourceRange& range = SourceRange());
 			
 			// Copy constructor that kills the copied diagnostic and steals it's information
 			Diagnostic(Diagnostic &other);
 
 			// Move constructor that kills the moved diagnostic and steal it's information
 			Diagnostic(Diagnostic &&other);
-
-			// Creates a silenced diagnostic object, which is a diagnostic of id SilencedDiag with no consumer, no str and a IGNORE severity.
-			// In short, it's a dummy!
-			static Diagnostic createDummyDiagnosticObject(); 
 
 			~Diagnostic();
 			
@@ -111,20 +105,10 @@ namespace fox
 			bool isFrozen() const;
 			Diagnostic& freeze();
 
-			// Does this diag possess a valid consumer?
-			bool hasValidConsumer() const;
-
 			// Checks if the Diag is valid for emission
 			explicit operator bool() const;
 		private:
-			// friends
 			friend class DiagnosticEngine;
-
-			// Empty ctor to create dummy diagnostics objects.
-			// It's private so it's not abused by other classes or by automatic C++ constructions. But it's accessible through createDummyDiagnosticObject()
-			// and to friend classes
-			Diagnostic();  
-			// Deleted assignement operator
 			Diagnostic& operator=(const Diagnostic&) = default;
 
 			// replaces every occurence of "%(value of index)" in a string with the replacement.
@@ -138,7 +122,7 @@ namespace fox
 			unsigned char curPHIndex_ = 0; 
 			DiagSeverity diagSeverity_; 
 
-			DiagnosticConsumer *consumer_ = nullptr;
+			DiagnosticEngine* engine_ = nullptr;
 			DiagID diagID_;
 			std::string diagStr_;
 			SourceRange range_;

@@ -47,11 +47,12 @@ namespace fox
 			unsigned int getWarningsCount() const;
 			unsigned int getErrorsCount() const;
 
-			// Get/Set max number of errors before a the context silences all future errors & warnings
+			// Set the max number of errors that can occur
+			// before a the context silences all future diagnostics
 			// and reports a "err_count_too_high" error.
 			// Set to 0 for unlimited.
-			unsigned int getErrorLimit() const;
 			void setErrorLimit(const unsigned int& mErr);
+			unsigned int getErrorLimit() const;
 
 			// Manual getters/setters for DiagOpts
 			bool getWarningsAreErrors() const;
@@ -71,12 +72,14 @@ namespace fox
 
 			bool getSilenceAll() const;
 			void setSilenceAll(const bool& val);
+		protected:
+			friend class Diagnostic;
+			// Once a diagnostic is ready to emit
+			// it calls this method below.
+			void handleDiagnostic(Diagnostic& diag);
 		private:		
 			// Promotes the severity of the diagnostic if needed
-			DiagSeverity promoteSeverityIfNeeded(const DiagSeverity& ds) const;
-
-			// returns true if the diagnostic should be silenced (not emitted)
-			bool shouldSilence(const DiagSeverity& ds);
+			DiagSeverity changeSeverityIfNeeded(const DiagSeverity& ds) const;
 
 			// Updates internal counters (warningCount, errCount, hasFatalErrorOccured) depending on the severity
 			void updateInternalCounters(const DiagSeverity& ds);
