@@ -1,11 +1,24 @@
-I'm currently trying to refocus on important things, which means that I'm going to try and follow a stricter development policy. 
-The "development policy" I chose is "Make it Work - Make it Right - Make it Fast".
+I'm currently trying to refocus on important things (like making more progress on the main interpreter pipeline), which means that
+I'm going to try and follow a defined development policy from now on.
+The "development policy" I chose is "Make it Work - Make it Right - Make it Fast". (That's not a development policy per se, but who cares)
 
 Currently, I'm in the "Make it work" phase, which means that I'll focus on progressing in development, without looking back too much
-at existing code (well, except for the lexer which WILL need a rework as soon as possible).
+at existing code.
 
-Once my interpreter is complete, compiles without errors and can run basic Fox code, I'll switch to the make it right phase, which will
+Goal for the "Make it work" phase, in order:
+	* The interpreter is complete and can run Fox code without problems
+	* The interpreter has multi-file support (modules)
+	* The interpreter has a complete C++ <-> Fox FFI
+
+Once that's done, I'll move to the make it right phase, which will
 be oriented towards refactoring/testing/DRYing code. In short, I'm going to try and make Moonshot's source code concise, pleasant to read
-and more documented. In this phase I'll also try to catch as much bugs as possible by constantly stress-testing the interpreter.
+and more documented. I'll also try to catch as much bugs as possible by constantly stress-testing the interpreter, and I'll make several Quality of life
+improvements (e.g better error messages).
 
-And, the last phase is going to be "Make it fast", with frequent profilings, reworking slow code, etc.
+And, the last phase is going to be "Make it fast", with frequent profilings, reworking slow code, etc. to make the interpreter
+ready for public use. I'll not try to make the interpreter insanely fast, I'll just try to eliminate as much
+bottlenecks as possible.
+
+Once the "Make it fast" phase is complete, fox will enter 1.0.0
+
+The 1.0.0 -> 2.0.0 era will be probably oriented towards adding more useful language features, such as enumerations, structures, maybe even OOP.
