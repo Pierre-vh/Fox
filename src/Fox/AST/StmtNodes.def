@@ -1,0 +1,69 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : StmtNodes.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file uses Macro to "register" every Stmt nodes
+// When including this file, the user can define custom macros to gather various informations
+// about the nodes.
+////------------------------------------------------------////
+
+// Base macro for concrete classes of Stmt.
+// The Kind of the Stmt is StmtKind::ID
+// The class is ID and it's parent is PARENT
+#ifndef STMT
+	#define STMT(ID,PARENT)
+#endif
+
+// Abstract stmts, just ignore them most of the time
+#ifndef ABSTRACT_STMT
+	#define ABSTRACT_STMT(ID,PARENT)
+#endif
+
+// Concrete classes of Expr
+#ifndef EXPR
+	#define EXPR(ID,PARENT) STMT(ID,PARENT)
+#endif
+
+/* Macros */
+
+// Basic statements
+STMT(NullStmt,Stmt)
+STMT(ReturnStmt,Stmt)
+STMT(ConditionStmt,Stmt)
+STMT(CompoundStmt,Stmt)
+STMT(WhileStmt,Stmt)
+
+// DeclStmt wrapper/adaptator
+STMT(DeclStmt,Stmt)
+
+// Expressions
+ABSTRACT_STMT(Expr,Stmt)
+	// Parens Expr
+	EXPR(ParensExpr,Expr)
+
+	// Basic operations
+	EXPR(BinaryExpr,Expr)
+	EXPR(UnaryExpr,Expr)
+	EXPR(CastExpr,Expr)
+	EXPR(ArrayAccessExpr,Expr)
+
+	// Literals
+	EXPR(CharLiteralExpr,Expr)
+	EXPR(BoolLiteralExpr,Expr)
+	EXPR(IntegerLiteralExpr,Expr)
+	EXPR(FloatLiteralExpr,Expr)
+	EXPR(StringLiteralExpr,Expr)
+	EXPR(ArrayLiteralExpr,Expr)
+
+	// DeclRef & Function calls
+	EXPR(DeclRefExpr,Expr)
+	EXPR(MemberOfExpr,Expr)
+	EXPR(FunctionCallExpr,Expr)
+
+/* Undef */
+
+#undef EXPR
+#undef ABSTRACT_STMT
+#undef STMT

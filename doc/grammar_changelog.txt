@@ -64,3 +64,73 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 			Deleted <atom> and <trailer> rules 
 			Added <member_access> = <primary> { '.' <id> [ <parens_expr_list> ] } 
 			Replaced the call to <atom> in <exp_expr> to <member_access> 
+
+* 0.10.0 ->
+	Note:
+		I've decided to change the grammar to add a better, more uniform support for complex code. Most of the 
+		changes introduced here won't be implemented right away (like member access) but I prefer to make theses changes right now
+		since they change how the AST is formed because it changes the priority of ().
+	+ Added <array_access> rule // I've decided to add arrays now, since it's a quite vital component imo.
+		<array_access>	= '[' <expr> ']'
+	~ Modified <decl_call>
+		<decl_call>		= <id> [ <parens_expr_list> ] { <array_access> }
+	~ Modified <member_access>
+		<member_access>	= <primary> { '.' <decl_call> }
+
+* 0.11.0
+	Note : Lots of change to make the grammar less repetitive and to suit the new type system better.
+	+ Changed <type_spec> to <fq_type_spec>
+		<fq_type_spec>	= ':' ["const"] ['&'] <type>
+	- Removed <arg_type_spec>
+	~ Modified <var_decl> to use <fq_type_spec> instead of <type_spec>
+	~ Modified <arg_decl> to use <fq_type_spec>
+		<arg_decl>	= <id> <fq_type_spec>
+
+* 0.12.0
+	Note: Implementing Array literals & Array types declaration.
+	~ Renamed <type> to <typename>, but non-terminals using the <type> rule still use a rule <type>, defined below.
+		<builtin_type_name> = "int" |  "float" | "char" | "bool" | "string"
+	- Removed <array_access> rule
+	+ Added new <type> rule
+		<type> = <builtin_type_name> { '[' ']' }
+	~ Renamed <literal> to <primitive_literal> rule, but non-terminals using the <literal> rule still use a <literal> rule, defined below.
+		<primitive_literal>	= One literal of the following type : Integer, Floating-point, Boolean, String, Char
+	+ Added <array_literal> rule 
+		<array_literal>	= '[' [<expr_list>] ']'
+	~ Changed <literal> rule:
+		<literal> = <primitive_literal> | <array_literal>
+	~ Changed <decl_call> rule:
+		<decl_call>	= <id> [ <parens_expr_list> ]
+	+ Added <suffix> rule
+		<suffix> = "." <decl_call> | '[' <expr> ']'
+	~ Changed and renamed <array_access> rule
+		<array_or_member_access>	= <primary> { <suffix> }
+	~ Changed <exp_expr> rule
+		<exp_expr>	= <array_or_member_access> [ <exponent_operator> <prefix_expr> ]
+
+* 0.13.0
+	Note: Reverting some earlier changes, and finalizing the operator precedence to be more akin to C#/Java/C++'s/Etc..
+	~ Modified <suffix>
+		<suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
+					   ^^^^					 ^^^^^^^^^^^^^^^^^^^^^
+	~ Renamed <decl_call> to <declref>, and modified it
+		<declref> = <id>
+		 ^^^^^^^^		 ^^^^^^^^^^^^^^
+	~ Renamed <array_or_member_access> to <suffix_expr>
+		<suffix_expr> = <primary> { <suffix> }
+		^^^^^^^^^^^^
+
+* 0.13.1
+	~ Renamed <fq_type_spec> to <qualtype>
+	~ Reorganized the grammar a bit into more explicit categories.
+
+* 0.13.2
+	~ Modified <qualtype> (Removed the ':')
+		<qualtype> =  ["const"] ['&'] <type>
+	~ Modified <var_decl> (Added the ':')
+		<var_decl> = "let" <id> ':' <qualtype> ['=' <expr>] ';' 
+	~ Modified <arg_decl> (Added the ':')
+		<arg_decl>	= <id> ':' <qualtype>
+
+
+		

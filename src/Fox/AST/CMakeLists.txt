@@ -1,0 +1,11 @@
+add_source( 
+    ast_src
+    "Decl.cpp"
+    "Expr.cpp"
+    "Stmt.cpp"
+	"ASTContext.cpp"
+	"Type.cpp"
+	"ASTDumper.cpp"
+	"Identifiers.cpp"
+	"DeclRecorder.cpp"
+)

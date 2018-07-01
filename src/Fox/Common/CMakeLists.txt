@@ -1,0 +1,8 @@
+add_source(common_src
+	"Diagnostic.cpp"
+	"DiagnosticEngine.cpp"
+	"DiagnosticConsumers.cpp"
+	"StringManipulator.cpp"
+	"Source.cpp"
+	"Utils.cpp"
+)

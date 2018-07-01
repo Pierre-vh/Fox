@@ -1,0 +1,20 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Parser.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// Lexer Diagnostics Message
+////------------------------------------------------------////
+
+
+ERROR(lexer_invalid_token_found, "Invalid token \"%0\" found.")
+ERROR(lexer_missing_closing_quote, "Missing closing quote.")
+ERROR(lexer_unfinished_multiline_comment, "Multiline comment missing closing '*/'.")
+ERROR(lexer_newline_in_literal, "Illegal newline character in %0 literal.")
+ERROR(lexer_empty_char_literal, "Empty char literal are illegal.")
+ERROR(lexer_cant_id_tok, "Could not identify token \"%0\".")
+ERROR(lexer_too_many_char_in_char_literal, "Too many characters in char literal %0")
+ERROR(lexer_invalid_char_in_id, "The identifier \"%0\" contains invalid characters.")
+
+WARNING(lexer_int_too_big_considered_as_float, "The value \"%0\" was interpreted as a float because it did not fit in a 64 Bit Signed Integer.")

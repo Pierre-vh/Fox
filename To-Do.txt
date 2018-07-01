@@ -1,0 +1,83 @@
+Moonshot Project To-do List.
+	> ASTUnit : Represents a source file, contains declarations. (Done)
+	> IdentifierTable & IdentifierInfo (Done)
+	> ASTContext (Done)
+	> Move stuf to /Fox/Basic (Done)
+	> ASTContext : Types (Done)
+	> New type system & deletion of /Common/Types (Done!)
+	> Replace strings in the AST by IdentifierInfo* pointers (Done)	
+	> ParsingResult rework (Done)
+	> AST Improvements (Done)
+	> Add ASTContext,parser & ast support for arrays types & Array literals. (Done)
+	> Parser recovery improvements (Done)
+	> Parsing Result Rework (Again...) (Done)
+	> DeclRecorder (Done)
+	> Parser support for DeclRecorder with a RAIIContext object. (Done)
+	> UniquePtrVector & DereferenceIterators + Minimizing interaction with unique pointers for AST Visitors(Done)
+	> Major AST "Cleanup" in preparation for Visitor pattern rework (Done)
+	> Write more Unit tests (Done)
+	> Visitor system rework (Done)
+	> Delete old ASTVisitor & Dumper  (Done)
+	> Rewrite dumper under the new system	(Done)
+	> Make "MapDataIterator" work (Done)
+	> ASTDumper overhaul (Done)
+	> Write tests for the new visitor system (I'll do more when needed)
+	> Sourceloc & SourceManager system (Done)
+	> Update lexer/token to add a sourcerange/loc to every single token (Done)
+	> Update the Parser so it can return more SourceLoc info. (Done)
+	> Update the AST so all nodes have a sourceloc/range too wherever needed. (Done)
+	> Write Decl Locs Test (Done)
+	> First AST Code Review (Done)
+	> Remove "Fake" Recovery nodes in the AST and find a proper, better solution to this problem. (Done)
+	> Update Diagnostics & DiagnosticsEngine to support SourceRange/SourceLoc (Done)
+	> Namespace/Name change (Done)
+	> Delete the ContepromoteSeverityIfNeededxt (Done)
+	> Update Lexer to use the DiagnosticEngine (Done)
+	> Update Parser to use DiagnosticEngine + ParserDiagnostics Rework (Done)	
+	> SourceManager improvements : Line table & Renaming SourceManager.hpp/.cpp to Source.hpp/.cpp (Done)
+	> Small code review (error handling checking) (Done)
+
+	> Write the Remaining tests needed (Next)
+		> Write Stmt & Expr Loc Tests
+			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
+			> Probably don't use a file, just do SetUp("<code goes here>"")w
+
+	// Move to 0.3.0 & Sync with Master
+	// After that, I'll remove the "beta" branch, because it's
+	// pretty much useless.
+	QOL:
+		> Rework the DiagnosticEngine::report function, (Done)
+
+		> Implement the "Caret" in the DiagnosticConsumer
+			> The StreamDiagConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place wherethe error is.
+			> Implement that in the base DiagnosticConsumer as a protected method that the derived classes can use. (e.g. "getOriginalSourceLine(SourceLoc)")
+
+		> Add classof static methods to the AST
+			> Stmt, Decls, Types
+
+		> Add LLVM's Casting.h to the third_party libraries, make use of it, then disable RTTI completely.
+
+	FEATURE:
+		> Semantic Analysis
+			> ASTValidator
+			> Semantic Analysis should check for each node it's validity using the ASTValidator.
+		      a typical Sema function should look like this for almost every node. The  proper analysis is then done by the Decl/Stmt/Expr checker.
+			  (e.g. for a Decl) 
+			  if(!Validator.visit(node))
+				{
+					diagnoseIncompleteDecl(node);
+					return;
+				}
+			  
+			  DeclChecker.visit(node);
+
+		> Lexer Rework (Exact time to be decided, might come before/after Semantic Analysis)
+			> Create another folder "Lexer_Rework" which will contain the new source code for the Lexer, and I'll write the code there
+			  test it and make sure it works before actually replacing the actual one. This will allow me to take my time to write it without interfering
+			  with the existing code too much.
+			> Make the Lexer & Parser tightly coupled. The Parser itself should call the Lexer to Lex a token. (no more storage in a vector)
+				> This will require the Parser or Lexer to have a caching mechanism, and use "cached" token when backtracking is required.
+				> the "createParserStateBackup" functions will be removed, and replaced with a call to the lexer similar to "lexer_.backtrack(x)"
+			> Stop using a DFA. Use a proper grammar with a recursive descent technique
+			  and a config file (.def) to register valid terminals (so it's easy to add new characters for another language)
+					

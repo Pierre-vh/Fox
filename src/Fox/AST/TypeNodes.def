@@ -1,0 +1,34 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : TypeNodes.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file uses Macro to "register" every Type nodes
+// When including this file, the user can define custom macros to gather various informations
+// about the nodes.
+////------------------------------------------------------////
+
+// Base macro for concrete classes of Type.
+// The Kind of the Type is TypeKind::ID
+// The class is ID and it's parent is PARENT
+#ifndef TYPE
+	#define TYPE(ID,PARENT)
+#endif
+
+// Abstract Types, most of the time, we don't care about them.
+// The class name is ID##Type, and the parent PARENT.
+#ifndef ABSTRACT_TYPE
+	#define ABSTRACT_TYPE(ID,PARENT)
+#endif
+
+/* Macros */
+
+ABSTRACT_TYPE(BuiltinType,Type)
+	TYPE(PrimitiveType,BuiltinType)
+	TYPE(ArrayType,BuiltinType)
+
+
+/* Undef */
+#undef ABSTRACT_TYPE
+#undef TYPE

@@ -1,0 +1,36 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : DeclNodes.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file uses Macro to "register" every Decl nodes
+// When including this file, the user can define custom macros to gather various informations
+// about the nodes.
+////------------------------------------------------------////
+
+// Base macro for concrete classes of Decl.
+// The Kind of the expr is DeclKind::ID
+// The class is ID and it's parent is PARENT
+#ifndef DECL
+	#define DECL(ID,PARENT)
+#endif
+
+// Abstract decls, most of the time, we don't care about them.
+// The class name is ID##Decl, and the parent PARENT.
+#ifndef ABSTRACT_DECL
+	#define ABSTRACT_DECL(ID,PARENT)
+#endif
+
+/* Macros */
+
+ABSTRACT_DECL(NamedDecl,Decl)
+	DECL(ArgDecl,NamedDecl)
+	DECL(FunctionDecl,NamedDecl)
+	DECL(VarDecl,NamedDecl)
+	DECL(UnitDecl,NamedDecl)
+
+/* Undef */
+
+#undef ABSTRACT_DECL
+#undef DECL

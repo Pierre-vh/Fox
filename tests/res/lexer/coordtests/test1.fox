@@ -1,0 +1,13 @@
+let x : float;
+
+func lengthyFunctionName (arg1 : const& int,arg2 : const& float):bool{
+
+}
+
+let _FIRST_VARIABLE_ : const string;
+
+func foo() : float {
+	let _2NDVAR__ : const &float = 3.14;
+}
+
+let ThirdVariable : bool;

@@ -1,0 +1,8 @@
+lengthyFunctionName (arg1 : const& int,arg2 : const& float):bool{
+
+}
+
+func foo() : float {
+
+}
+
