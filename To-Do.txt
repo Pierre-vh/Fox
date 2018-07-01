@@ -59,9 +59,13 @@ Moonshot Project To-do List.
 						  asser that errorRange is contained within the completeRange
 				> TODO: Maybe find other signs than ^ because multiple '^'s looks a bit weird imo.
 		Exemple final diagnostic:
-			<source.hpp>(l1,c1) - Error - Invalid operands for '**' operator : char and float
+			<source.hpp>(l1,c4) - Error - Invalid operands for '**' operator : char and float
 			foo**bar;
 			~~~^^~~~
+
+			<source.hpp>(l2,c12) - Error - Invalid type "string" for array subscript
+			arr["foo"];
+			~~~~^^^^^~
 
 
 		> Add classof static methods to the AST
