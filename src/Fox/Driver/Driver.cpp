@@ -83,14 +83,3 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 
 	return true;
 }
-
-bool Driver::readFileToString(const std::string & filepath, std::string & outstr) const
-{
-	std::ifstream in(filepath, std::ios::binary); 	// read file
-	if (in)
-	{
-		outstr = (std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>()));
-		return true;
-	}
-	return false;
-}
