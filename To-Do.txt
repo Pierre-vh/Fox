@@ -42,7 +42,7 @@ Moonshot Project To-do List.
 			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 			> Probably don't use a file, just do SetUp("<code goes here>"")w
 
-	// Move to 0.3.0 &
+	// Move to 0.3.0 & Backup to special 0.3.0 branch
 	QOL:
 		> Rework the DiagnosticEngine::report function (Done)
 
