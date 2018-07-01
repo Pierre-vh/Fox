@@ -42,11 +42,9 @@ Moonshot Project To-do List.
 			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 			> Probably don't use a file, just do SetUp("<code goes here>"")w
 
-	// Move to 0.3.0 & Sync with Master
-	// After that, I'll remove the "beta" branch, because it's
-	// pretty much useless.
+	// Move to 0.3.0 &
 	QOL:
-		> Rework the DiagnosticEngine::report function, (Done)
+		> Rework the DiagnosticEngine::report function (Done)
 
 		> Implement the "Caret" in the DiagnosticConsumer
 			> The StreamDiagConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place wherethe error is.
