@@ -18,12 +18,13 @@ namespace fox
 	class SourceLoc;
 	class SourceManager;
 	enum class DiagSeverity : std::uint8_t;
+
 	class DiagnosticConsumer
 	{
 		public:
-			virtual ~DiagnosticConsumer() = 0 { }
 			virtual void consume(const Diagnostic& diag) = 0;
 	};
+
 	class StreamDiagConsumer : public DiagnosticConsumer
 	{
 		public:
