@@ -30,8 +30,8 @@ TEST(SourceManagerTests, LoadingFromFile)
 	EXPECT_TRUE(fid_b);
 
 	// File path is correct?
-	auto storeddata_a = srcMgr.getStoredDataForFileID(fid_a);
-	auto storeddata_b = srcMgr.getStoredDataForFileID(fid_b);
+	const auto* storeddata_a = srcMgr.getStoredDataForFileID(fid_a);
+	const auto* storeddata_b = srcMgr.getStoredDataForFileID(fid_b);
 
 	// File paths are the same? 
 	EXPECT_EQ(file_path_a, storeddata_a->fileName);
