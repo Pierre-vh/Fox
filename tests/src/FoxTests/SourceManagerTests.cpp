@@ -62,8 +62,8 @@ TEST(SourceManagerTests, LoadingFromString)
 	EXPECT_TRUE(fid_a);
 	EXPECT_TRUE(fid_b);
 
-	auto r_str_a = srcMgr.getSourceForFID(fid_a);
-	auto r_str_b = srcMgr.getSourceForFID(fid_b);
+	const std::string* r_str_a = srcMgr.getSourceForFID(fid_a);
+	const std::string* r_str_b = srcMgr.getSourceForFID(fid_b);
 
 	// Can we retrieve the correct files?
 	EXPECT_EQ(content_a, *r_str_a);
