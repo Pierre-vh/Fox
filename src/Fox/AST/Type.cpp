@@ -131,8 +131,14 @@ bool ArrayType::isItemTypeArray() const
 }
 
 /* QualType */
-QualType::QualType(Type* ty, const bool & isConstant, const bool &isReference) :
-	ty_(ty), isConst_(isConstant), isRef_(isReference)
+QualType::QualType() 
+	: ty_(nullptr), isConst_(false), isRef_(false)
+{
+
+}
+
+QualType::QualType(Type* ty, const bool & isConstant, const bool &isReference)
+	: ty_(ty), isConst_(isConstant), isRef_(isReference)
 {
 	assert(ty_ && "The Type cannot be null!");
 }

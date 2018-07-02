@@ -122,7 +122,7 @@ namespace fox
 	class QualType
 	{
 		public:
-			QualType() = default;
+			QualType();
 			QualType(Type* ty, const bool& isConstant = false,const bool &isReference = false);
 
 			// Const
