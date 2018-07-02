@@ -16,6 +16,7 @@ namespace fox
 {
 	class Diagnostic;
 	class SourceLoc;
+	class SourceRange;
 	class SourceManager;
 	enum class DiagSeverity : std::uint8_t;
 	class DiagnosticConsumer
@@ -31,7 +32,7 @@ namespace fox
 			virtual void consume(const Diagnostic& diag) override;
 
 		private:
-			std::string getLocInfo(const SourceLoc& loc) const;
+			std::string getLocInfo(const SourceRange& range) const;
 			std::string diagSevToString(const DiagSeverity& ds) const;
 
 			SourceManager* sm_;

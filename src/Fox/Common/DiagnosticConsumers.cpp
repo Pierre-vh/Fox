@@ -22,7 +22,7 @@ StreamDiagConsumer::StreamDiagConsumer(SourceManager *sm, std::ostream & stream)
 
 void StreamDiagConsumer::consume(const Diagnostic& diag)
 {
-	os_ << getLocInfo(diag.getSourceRange().getBeginSourceLoc()) 
+	os_ << getLocInfo(diag.getSourceRange()) 
 		<< " - " 
 		<< diagSevToString(diag.getDiagSeverity()) 
 		<< " - " 
@@ -30,15 +30,24 @@ void StreamDiagConsumer::consume(const Diagnostic& diag)
 		<< "\n";
 }
 
-std::string StreamDiagConsumer::getLocInfo(const SourceLoc& loc) const
+std::string StreamDiagConsumer::getLocInfo(const SourceRange& range) const
 {
-	if (!loc || !sm_)
+	if (!range || !sm_)
 		return "<unknown>";
 
-	CompleteLoc compLoc = sm_->getCompleteLocForSourceLoc(loc);
+	CompleteLoc beg = sm_->getCompleteLocForSourceLoc(range.getBeginSourceLoc());
 
 	std::stringstream ss;
-	ss << "<" << compLoc.fileName << ">(l:" << compLoc.line << ",c:" << compLoc.column << ")";
+	ss << "<" << beg.fileName << ">:" << beg.line << ":" << beg.column;
+
+	// A better approach (read: a faster approach) 
+	// would be to have a special method in the SourceManager calculating the preciseLoc
+	// for a SourceRange (so we avoid calling "getCompleteLocForSourceLoc" twice)
+	if (range.getOffset() != 0)
+	{
+		CompleteLoc end = sm_->getCompleteLocForSourceLoc(range.makeEndSourceLoc());
+		ss << "-" << end.column;
+	}
 	return ss.str();
 }
 
