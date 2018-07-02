@@ -46,9 +46,27 @@ Moonshot Project To-do List.
 	QOL:
 		> Rework the DiagnosticEngine::report function (Done)
 
-		> Implement the "Caret" in the DiagnosticConsumer
-			> The StreamDiagConsumer should always try to retrieve the line where the error happened, displaying '^^^^' under the place wherethe error is.
-			> Implement that in the base DiagnosticConsumer as a protected method that the derived classes can use. (e.g. "getOriginalSourceLine(SourceLoc)")
+		> Diagnostics Overhaul : More user-friendly (Note, this is still subject to modifications)
+			> The StreamDiagConsumer should always try to retrieve the line where the error happened
+				> Implement that in the base DiagnosticConsumer as a protected method that the derived classes can use. (e.g. "getOriginalSourceLine(SourceLoc)")
+				> Display Carets under the errorRange, if available
+				> Display ~~~ under the completeRange, if available
+					> To support that, I'll need to add another "SourceRange" variable to the Diagnostic object
+					> in the end, 2 Ranges will coexist 
+						> completeRange	-> The complete piece of code that produces the error
+						> errorRange	-> The precise part of the piece of code that's causing the error.
+						> if both errorRange and completeRange are set, 
+						  asser that errorRange is contained within the completeRange
+				> TODO: Maybe find other signs than ^ because multiple '^'s looks a bit weird imo.
+		Exemple final diagnostic:
+			<source.hpp>(l1,c4) - Error - Invalid operands for '**' operator : char and float
+			foo**bar;
+			~~~^^~~~
+
+			<source.hpp>(l2,c12) - Error - Invalid type "string" for array subscript
+			arr["foo"];
+			~~~~^^^^^~
+
 
 		> Add classof static methods to the AST
 			> Stmt, Decls, Types

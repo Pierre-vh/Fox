@@ -2,22 +2,43 @@ I'm currently trying to refocus on important things (like making more progress o
 I'm going to try and follow a defined development policy from now on.
 The "development policy" I chose is "Make it Work - Make it Right - Make it Fast". (That's not a development policy per se, but who cares)
 
+
+// MAKE IT WORK //
 Currently, I'm in the "Make it work" phase, which means that I'll focus on progressing in development, without looking back too much
-at existing code.
+at existing code or small issues such as style/api design
 
 Goal for the "Make it work" phase, in order:
 	* The interpreter is complete and can run Fox code without problems
 	* The interpreter has multi-file support (modules)
-	* The interpreter has a complete C++ <-> Fox FFI
+	* The interpreter has a basic C++ <-> Fox FFI (It should support most features such as marshalling & executing functions)
 
+Estimated time left: It's a rough estimate, maybe 3 to 6 month? It should be done by 2019.
+
+// MAKE IT RIGHT //
 Once that's done, I'll move to the make it right phase, which will
 be oriented towards refactoring/testing/DRYing code. In short, I'm going to try and make Moonshot's source code concise, pleasant to read
 and more documented. I'll also try to catch as much bugs as possible by constantly stress-testing the interpreter, and I'll make several Quality of life
 improvements (e.g better error messages).
 
+Goals for the "Make it Right" phase, in no particular order:
+	* Switch to "library-style" codebase, like CLang
+	* Document each library API thouroughly.
+	* Make the code as elegant and consistent as possible by reworking ugly workarounds, ill-formed code, etc.
+	* Make the error messages as user friendly as possible
+	* Create a clean "API/Driver" to driver the compiler and execute interpretation tasks.
+	* Write as much tutorials/documentation as possible on the Moonshot Project & Compiler Internals
+	* Do some C-Make work and try to make the build as painless as possible for users.
+
+Estimated length of this phase : As long as the "Make it work" phase, if not longer.
+
+// MAKE IT FAST //
 And, the last phase is going to be "Make it fast", with frequent profilings, reworking slow code, etc. to make the interpreter
 ready for public use. I'll not try to make the interpreter insanely fast, I'll just try to eliminate as much
 bottlenecks as possible.
+
+Estimated length of this phase : 1 to 4 month maybe?
+
+
 
 Once the "Make it fast" phase is complete, fox will enter 1.0.0
 
