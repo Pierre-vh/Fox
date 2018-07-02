@@ -11,8 +11,8 @@ This time, it's going to be major rework of the AST.
     
 * ## What's going to change?
   * First of all, the ASTContext is going to be the one to own the memory.
-    It will have several memory "pools" for Decls/Stmts/Exprs provided by a *Linear Allocator*, which is essentially a "Pointer Bump Allocator".
-    (It's a really fast type of allocator with dirt cheap allocations/deallocations.
+    It will have several memory "pools" for Decls/Stmts/Exprs provided by a *Linear Allocator*, which is essentially a "Pointer Bump Allocator"
+    (It's a really fast type of allocator with dirt cheap allocations/deallocations)
   * Every `std::unique_ptr` in nodes will become raw pointers. This will make it incredibly easier to replace nodes in the AST.
   
   * All three hierarchies will become separated. Expr will be it's own hierarchy, and not a derived of Stmt.
@@ -44,4 +44,4 @@ This time, it's going to be major rework of the AST.
   * Easier to manipulate AST
   * Faster parsing times
   * Will allow for a more expressive AST (through Resolved/Unresolved Exprs) 
-  * Will allow for a cleaner Semantic Analysis, with less hack.
+  * Will allow for a cleaner Semantic Analysis, with less hacks.
