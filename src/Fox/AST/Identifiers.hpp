@@ -48,7 +48,7 @@ namespace fox
 	class IdentifierInfo
 	{
 		public:
-			IdentifierInfo(StringPtrInMap::ItTy iter);
+			IdentifierInfo(const StringPtrInMap::ItTy& iter);
 
 			// Returns the string naming this identifier
 			const std::string& getStr() const;
