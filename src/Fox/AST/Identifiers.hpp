@@ -4,20 +4,14 @@
 // File : Identifiers.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file contains the IdentifierTable, which is a class
-// that manages a map of string to identifierinfo objects.
-//
-// Possible improvements :
-//		In general, the IdentifierInfo that holds an interator to the string is a bit weird.
-//		Either just store the string directly in the IdentifierInfo, or find a different solution.
-//		The thing is the different solutions would require the use of const_cast or another trickery
-//		(like mutable members)
+// This file contains the IdentifierTable and IdentifierInfo classes.
 //
 // Note: This class, and the whole idiom of storing the IdentifierInfo* instead of the raw string
-// is more or less a premature optimization. I did not realize that at the time of doing it,
-// but now it's done so I guess that's good in the end ! Currently the IdentifierInfo 
+// is more or less a premature optimization. (I got the idea from CLang, found it was pretty nice and implemented it
+// without thinking if it was really needed.) I did not realize that at the time of doing it,
+// but now it's done so It's going to stay that way ! Currently the IdentifierInfo 
 // doesn't store anything other than an iterator to the string, but in the future it might 
-// contain much more.
+// contain much more as the language grows.
 //
 ////------------------------------------------------------////
 
