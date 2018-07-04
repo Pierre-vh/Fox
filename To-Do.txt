@@ -46,6 +46,10 @@ Moonshot Project To-do List.
 	QOL:
 		> Rework the DiagnosticEngine::report function (Done)
 
+		> Small code review: Remove const& for function arguments that are cheap to copy, like primitive types
+			> I went a little to hard on the const& everywhere. I should go easy and that and not be afraid to copy really small types.
+			  const& everywhere sort of ruins readability, and for small types it's actually less efficient.
+
 		> Diagnostics Overhaul : More user-friendly (Note, this is still subject to modifications)
 			> The StreamDiagConsumer should always try to retrieve the line where the error happened
 				> Implement that in the base DiagnosticConsumer as a protected method that the derived classes can use. (e.g. "getOriginalSourceLine(SourceLoc)")
