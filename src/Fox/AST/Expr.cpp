@@ -87,7 +87,7 @@ CharLiteralExpr::CharLiteralExpr() : CharLiteralExpr(0, SourceLoc(), SourceLoc()
 
 }
 
-CharLiteralExpr::CharLiteralExpr(const CharType & val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
+CharLiteralExpr::CharLiteralExpr(CharType val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
 	: val_(val), Expr(StmtKind::CharLiteralExpr,begLoc,endLoc)
 {
 
@@ -109,7 +109,7 @@ IntegerLiteralExpr::IntegerLiteralExpr() : IntegerLiteralExpr(0,SourceLoc(),Sour
 
 }
 
-IntegerLiteralExpr::IntegerLiteralExpr(const IntType & val, const SourceLoc& begLoc, const SourceLoc& endLoc)
+IntegerLiteralExpr::IntegerLiteralExpr(IntType val, const SourceLoc& begLoc, const SourceLoc& endLoc)
 	: val_(val), Expr(StmtKind::IntegerLiteralExpr,begLoc,endLoc)
 {
 
@@ -131,7 +131,7 @@ FloatLiteralExpr::FloatLiteralExpr() : FloatLiteralExpr(0,SourceLoc(),SourceLoc(
 
 }
 
-FloatLiteralExpr::FloatLiteralExpr(const FloatType & val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
+FloatLiteralExpr::FloatLiteralExpr(FloatType val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
 	: val_(val), Expr(StmtKind::FloatLiteralExpr,begLoc,endLoc)
 {
 
@@ -175,7 +175,7 @@ BoolLiteralExpr::BoolLiteralExpr() : BoolLiteralExpr(false,SourceLoc(),SourceLoc
 
 }
 
-BoolLiteralExpr::BoolLiteralExpr(const bool & val, const SourceLoc& begLoc, const SourceLoc& endLoc)
+BoolLiteralExpr::BoolLiteralExpr(bool val, const SourceLoc& begLoc, const SourceLoc& endLoc)
 	: val_(val), Expr(StmtKind::BoolLiteralExpr,begLoc,endLoc)
 {
 
@@ -288,7 +288,7 @@ UnaryExpr::UnaryExpr() : UnaryExpr(UnaryOperator::DEFAULT,nullptr,SourceLoc(),So
 
 }
 
-UnaryExpr::UnaryExpr(const UnaryOperator & opt, std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc)
+UnaryExpr::UnaryExpr(UnaryOperator opt, std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc)
 	: op_(opt), Expr(StmtKind::UnaryExpr,begLoc,endLoc), opRange_(opRange), child_(std::move(node))
 {
 }
@@ -531,13 +531,13 @@ void ExprList::addExpr(std::unique_ptr<Expr> expr)
 	exprs_.emplace_back(std::move(expr));
 }
 
-Expr* ExprList::getExpr(const std::size_t & ind)
+Expr* ExprList::getExpr(std::size_t ind)
 {
 	assert(ind < exprs_.size() && "out-of-range");
 	return exprs_[ind].get();
 }
 
-const Expr* ExprList::getExpr(const std::size_t & ind) const
+const Expr* ExprList::getExpr(std::size_t ind) const
 {
 	assert(ind < exprs_.size() && "out-of-range");
 	return exprs_[ind].get();

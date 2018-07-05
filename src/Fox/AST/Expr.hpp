@@ -98,7 +98,7 @@ namespace fox
 	{
 		public: 
 			UnaryExpr();
-			UnaryExpr(const UnaryOperator& opt,std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
+			UnaryExpr(UnaryOperator opt,std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
 			Expr* getChild();
 			const Expr* getChild() const;
@@ -141,7 +141,7 @@ namespace fox
 	{
 		public:
 			CharLiteralExpr();
-			CharLiteralExpr(const CharType &val,const SourceLoc& begLoc, const SourceLoc& endLoc);
+			CharLiteralExpr(CharType val,const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			CharType getVal() const;
 			void setVal(const CharType& val);
@@ -153,7 +153,7 @@ namespace fox
 	{
 		public:
 			IntegerLiteralExpr();
-			IntegerLiteralExpr(const IntType &val, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			IntegerLiteralExpr(IntType val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			IntType getVal() const;
 			void setVal(const IntType& val);
@@ -165,7 +165,7 @@ namespace fox
 	{
 		public:
 			FloatLiteralExpr();
-			FloatLiteralExpr(const FloatType &val, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			FloatLiteralExpr(FloatType val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			FloatType getVal() const;
 			void setVal(const FloatType& val);
@@ -177,7 +177,7 @@ namespace fox
 	{
 		public:
 			StringLiteralExpr();
-			StringLiteralExpr(const std::string &val, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			StringLiteralExpr(const std::string& val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			std::string getVal() const;
 			void setVal(const std::string& val);
@@ -189,7 +189,7 @@ namespace fox
 	{
 		public:
 			BoolLiteralExpr();
-			BoolLiteralExpr(const bool &val, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			BoolLiteralExpr(bool val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			bool getVal() const;
 			void setVal(const bool& val);
@@ -284,8 +284,8 @@ namespace fox
 			ExprList() = default;
 
 			void addExpr(std::unique_ptr<Expr> expr);
-			Expr* getExpr(const std::size_t& ind);
-			const Expr* getExpr(const std::size_t& ind) const;
+			Expr* getExpr(std::size_t ind);
+			const Expr* getExpr(std::size_t ind) const;
 
 			bool isEmpty() const;
 			std::size_t size() const;
