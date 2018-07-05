@@ -19,11 +19,12 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 
 namespace fox
 {
 	// The TypeKind enum
-	enum class TypeKind : char
+	enum class TypeKind : std::uint8_t
 	{
 		#define TYPE(ID,PARENT) ID,
 		#include "TypeNodes.def"
@@ -45,7 +46,7 @@ namespace fox
 
 			TypeKind getKind() const;
 		protected:
-			Type(const TypeKind& tc, const bool& isPrimitive, const bool& isBuiltin, const bool& isArray);
+			Type(TypeKind tc, bool isPrimitive, bool isBuiltin, bool isArray);
 		private:
 			TypeKind kind_;
 
@@ -62,7 +63,7 @@ namespace fox
 	class BuiltinType : public Type
 	{
 		protected:
-			BuiltinType(const TypeKind& tc,const bool& isPrimitive, const bool& isArray);
+			BuiltinType(TypeKind tc, bool isPrimitive, bool isArray);
 	};
 
 	// PrimitiveType (builtin,primitive)
@@ -80,7 +81,7 @@ namespace fox
 				BoolTy
 			};
 
-			PrimitiveType(const Kind& kd);
+			PrimitiveType(Kind kd);
 
 			virtual std::string getString() const override;
 
@@ -123,15 +124,15 @@ namespace fox
 	{
 		public:
 			QualType();
-			QualType(Type* ty, const bool& isConstant = false,const bool &isReference = false);
+			QualType(Type* ty, bool isConstant = false,bool isReference = false);
 
 			// Const
 			bool isConstant() const;
-			void setIsConst(const bool& constattr);
+			void setIsConst(bool constattr);
 			
 			// Ref
 			bool isReference() const;
-			void setIsReference(const bool& refattr);
+			void setIsReference(bool refattr);
 
 			// Returns a name for the type, with the attributes.
 			// e.g. "const &int"
