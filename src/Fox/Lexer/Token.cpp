@@ -86,7 +86,7 @@ std::string LiteralInfo::getAsString() const
 	return "";
 }
 
-LiteralInfo::LiteralInfo(const bool & bval)
+LiteralInfo::LiteralInfo(bool bval)
 {
 	value_ = bval;
 }
@@ -96,17 +96,17 @@ LiteralInfo::LiteralInfo(const std::string & sval)
 	value_ = sval;
 }
 
-LiteralInfo::LiteralInfo(const FloatType& fval)
+LiteralInfo::LiteralInfo(FloatType fval)
 {
 	value_ = fval;
 }
 
-LiteralInfo::LiteralInfo(const IntType& ival)
+LiteralInfo::LiteralInfo(IntType ival)
 {
 	value_ = ival;
 }
 
-LiteralInfo::LiteralInfo(const CharType& cval)
+LiteralInfo::LiteralInfo(CharType cval)
 {
 	value_ = cval;
 }
@@ -186,21 +186,21 @@ bool Token::isKeyword() const
 	return mpark::holds_alternative<KeywordType>(tokenData_);
 }
 
-bool Token::is(const KeywordType & ty)
+bool Token::is(KeywordType ty)
 {
 	if (isKeyword())
 		return getKeywordType() == ty;
 	return false;
 }
 
-bool Token::is(const SignType & ty)
+bool Token::is(SignType ty)
 {
 	if (isSign())
 		return getSignType() == ty;
 	return false;
 }
 
-bool Token::is(const LiteralType & ty)
+bool Token::is(LiteralType ty)
 {
 	if (isLiteral())
 		return getLiteralType() == ty;

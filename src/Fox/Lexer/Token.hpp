@@ -37,11 +37,11 @@ namespace fox
 	{
 		public:
 			LiteralInfo() = default;
-			LiteralInfo(const bool& bval);
+			LiteralInfo(bool bval);
 			LiteralInfo(const std::string& sval);
-			LiteralInfo(const FloatType& fval);
-			LiteralInfo(const IntType& ival);
-			LiteralInfo(const CharType& cval);
+			LiteralInfo(FloatType fval);
+			LiteralInfo(IntType ival);
+			LiteralInfo(CharType cval);
 
 			bool isNull() const;
 			LiteralType getType() const;
@@ -71,7 +71,7 @@ namespace fox
 			mpark::variant<mpark::monostate,bool,std::string,FloatType,IntType,CharType> value_;
 	};
 	
-	enum class SignType : char
+	enum class SignType : std::uint8_t
 	{
 		DEFAULT,			// Default value
 		// Signs
@@ -105,7 +105,7 @@ namespace fox
 		S_COMMA				// ,
 	};
 
-	enum class KeywordType : char
+	enum class KeywordType : std::uint8_t
 	{
 		DEFAULT,		// Default value
 		// TYPES
@@ -130,7 +130,7 @@ namespace fox
 		KW_USING			// "using"
 	};
 
-	enum class TokenType : char
+	enum class TokenType : std::uint8_t
 	{
 		UNKNOWN,
 		LITERAL,
@@ -156,9 +156,9 @@ namespace fox
 			bool isSign() const;
 			bool isKeyword() const;
 
-			bool is(const KeywordType &ty);
-			bool is(const SignType &ty);
-			bool is(const LiteralType& ty);
+			bool is(KeywordType ty);
+			bool is(SignType ty);
+			bool is(LiteralType ty);
 
 			KeywordType getKeywordType() const;
 			SignType getSignType() const;
