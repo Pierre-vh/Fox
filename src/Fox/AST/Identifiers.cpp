@@ -110,22 +110,22 @@ bool IdentifierTable::exists(const std::string& id) const
 	return false;
 }
 
-IdentifierTable::IDTableConstIterator IdentifierTable::begin() const
+IdentifierTable::IDTableConstIteratorType IdentifierTable::begin() const
 {
 	return table_.begin();
 }
 
-IdentifierTable::IDTableIterator IdentifierTable::begin()
+IdentifierTable::IDTableIteratorType IdentifierTable::begin()
 {
 	return table_.begin();
 }
 
-IdentifierTable::IDTableConstIterator IdentifierTable::end() const
+IdentifierTable::IDTableConstIteratorType IdentifierTable::end() const
 {
 	return table_.end();
 }
 
-IdentifierTable::IDTableIterator IdentifierTable::end()
+IdentifierTable::IDTableIteratorType IdentifierTable::end()
 {
 	return table_.end();
 }
