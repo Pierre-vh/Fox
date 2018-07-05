@@ -26,7 +26,7 @@ const std::string& StringPtrInMap::get() const
 	return (it_->first);
 }
 
-IdentifierInfo::IdentifierInfo(StringPtrInMap::ItTy iter): mapIter_(iter)
+IdentifierInfo::IdentifierInfo(const StringPtrInMap::ItTy& iter): mapIter_(iter)
 {
 
 }
