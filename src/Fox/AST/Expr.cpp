@@ -230,7 +230,7 @@ BinaryExpr::BinaryExpr() : BinaryExpr(BinaryOperator::DEFAULT,nullptr,nullptr,So
 
 }
 
-BinaryExpr::BinaryExpr(const BinaryOperator & opt, std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
+BinaryExpr::BinaryExpr(BinaryOperator opt, std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
 	op_(opt), Expr(StmtKind::BinaryExpr, begLoc, endLoc), opRange_(opRange)
 {
 	setLHS(std::move(lhs));

@@ -72,7 +72,7 @@ namespace fox
 	{
 		public:
 			BinaryExpr();
-			BinaryExpr(BinaryOperator &opt,std::unique_ptr<Expr> lhs,std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
+			BinaryExpr(BinaryOperator opt,std::unique_ptr<Expr> lhs,std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
 			Expr* getLHS();
 			Expr* getRHS();
