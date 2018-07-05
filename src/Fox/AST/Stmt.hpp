@@ -135,8 +135,8 @@ namespace fox
 			CompoundStmt();
 			CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			Stmt* getStmt(const std::size_t& ind);
-			const Stmt* getStmt(const std::size_t& ind) const;
+			Stmt* getStmt(std::size_t ind);
+			const Stmt* getStmt(std::size_t ind) const;
 
 			Stmt* getBack();
 			const Stmt* getBack() const;
