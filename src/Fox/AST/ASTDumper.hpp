@@ -86,8 +86,8 @@ namespace fox
 
 			// Dump an operator in 2 different ways, depending on dumpOperatorsAsNames_
 			// if dumpOperatorsAsNames_ = true, returns e.g. "ADDITION" instead of '+'
-			std::string getOperatorDump(const binaryOperator& op) const;
-			std::string getOperatorDump(const unaryOperator& op) const;
+			std::string getOperatorDump(const BinaryOperator& op) const;
+			std::string getOperatorDump(const UnaryOperator& op) const;
 
 			// Returns a formatted string "<DeclRecorder (adress), Parent: (adress)>"
 			std::string getDeclRecorderDump(DeclRecorder *dr) const;

@@ -14,8 +14,8 @@
 
 namespace fox	
 {
-	// Operators Enums & Dictionaries
-	enum class binaryOperator
+	// operators Enums & Dictionaries
+	enum class BinaryOperator
 	{
 		DEFAULT,
 		CONCAT,	// +
@@ -41,7 +41,7 @@ namespace fox
 		ASSIGN_BASIC,		// =
 	};
 
-	enum class unaryOperator
+	enum class UnaryOperator
 	{
 		DEFAULT,
 		LOGICNOT,		// ! 
@@ -49,13 +49,13 @@ namespace fox
 		POSITIVE		// +
 	};
 
-	namespace Operators
+	namespace operators
 	{
-		std::string toString(const binaryOperator& op);
-		std::string toString(const unaryOperator& op);
+		std::string toString(const BinaryOperator& op);
+		std::string toString(const UnaryOperator& op);
 
-		std::string getName(const binaryOperator& op);
-		std::string getName(const unaryOperator& op);
+		std::string getName(const BinaryOperator& op);
+		std::string getName(const UnaryOperator& op);
 	}
 
 	class IdentifierInfo;
@@ -64,7 +64,7 @@ namespace fox
 	class Expr : public Stmt
 	{
 		protected:
-			Expr(const StmtKind& kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			Expr(StmtKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 	};
 
 	// Binary Expressions
@@ -72,7 +72,7 @@ namespace fox
 	{
 		public:
 			BinaryExpr();
-			BinaryExpr(const binaryOperator &opt,std::unique_ptr<Expr> lhs,std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
+			BinaryExpr(BinaryOperator &opt,std::unique_ptr<Expr> lhs,std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
 			Expr* getLHS();
 			Expr* getRHS();
@@ -83,14 +83,14 @@ namespace fox
 			void setLHS(std::unique_ptr<Expr> nlhs);
 			void setRHS(std::unique_ptr<Expr> nrhs);
 
-			binaryOperator getOp() const;
-			void setOp(const binaryOperator& op);
+			BinaryOperator getOp() const;
+			void setOp(const BinaryOperator& op);
 
 			SourceRange getOpRange() const;
 		private:
 			SourceRange opRange_;
 			std::unique_ptr<Expr> left_, right_;
-			binaryOperator op_ = binaryOperator::DEFAULT;
+			BinaryOperator op_ = BinaryOperator::DEFAULT;
 	};
 
 	// Unary Expressions
@@ -98,20 +98,20 @@ namespace fox
 	{
 		public: 
 			UnaryExpr();
-			UnaryExpr(const unaryOperator& opt,std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
+			UnaryExpr(const UnaryOperator& opt,std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
 			Expr* getChild();
 			const Expr* getChild() const;
 			void setChild(std::unique_ptr<Expr> nchild);
 
-			unaryOperator getOp() const;
-			void setOp(const unaryOperator& nop);
+			UnaryOperator getOp() const;
+			void setOp(const UnaryOperator& nop);
 
 			SourceRange getOpRange() const;
 		private:
 			SourceRange opRange_;
 			std::unique_ptr<Expr> child_;
-			unaryOperator op_ = unaryOperator::DEFAULT;
+			UnaryOperator op_ = UnaryOperator::DEFAULT;
 	};
 
 	// Explicit Cast Expressions

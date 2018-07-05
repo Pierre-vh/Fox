@@ -129,9 +129,9 @@ namespace fox
 			// Parses a QualType 
 			Result<QualType> parseQualType();
 
-			Result<binaryOperator> parseAssignOp();						// = 
-			Result<unaryOperator>  parseUnaryOp();						// ! - +
-			Result<binaryOperator> parseBinaryOp(const char &priority);	// + - * / % 
+			Result<BinaryOperator> parseAssignOp();						// = 
+			Result<UnaryOperator>  parseUnaryOp();						// ! - +
+			Result<BinaryOperator> parseBinaryOp(const char &priority);	// + - * / % 
 			SourceRange parseExponentOp();											//  **
 
 			/*-------------- Token Consuming --------------*/

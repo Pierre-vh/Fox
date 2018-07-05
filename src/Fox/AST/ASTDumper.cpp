@@ -412,18 +412,18 @@ std::string ASTDumper::getBasicTypeInfo(Type * type) const
 	return ss.str();
 }
 
-std::string ASTDumper::getOperatorDump(const binaryOperator & op) const
+std::string ASTDumper::getOperatorDump(const BinaryOperator & op) const
 {
 	if (dumpOperatorsAsNames_)
-		return "'" + Operators::getName(op) + "'";
-	return "'" + Operators::toString(op) + "'";
+		return "'" + operators::getName(op) + "'";
+	return "'" + operators::toString(op) + "'";
 }
 
-std::string ASTDumper::getOperatorDump(const unaryOperator & op) const
+std::string ASTDumper::getOperatorDump(const UnaryOperator & op) const
 {
 	if (dumpOperatorsAsNames_)
-		return "'" + Operators::getName(op) + "'";
-	return "'" + Operators::toString(op) + "'";
+		return "'" + operators::getName(op) + "'";
+	return "'" + operators::toString(op) + "'";
 }
 
 std::string ASTDumper::getDeclRecorderDump(DeclRecorder * dr) const

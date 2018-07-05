@@ -259,7 +259,7 @@ Parser::ExprResult Parser::parseExponentExpr()
 
 		return ExprResult(
 			std::make_unique<BinaryExpr>(
-					binaryOperator::EXP,
+					BinaryOperator::EXP,
 					lhs.move(),
 					rhs.move(),
 					begLoc,
@@ -614,7 +614,7 @@ SourceRange Parser::parseExponentOp()
 	return SourceRange();
 }
 
-Parser::Result<binaryOperator> Parser::parseAssignOp()
+Parser::Result<BinaryOperator> Parser::parseAssignOp()
 {
 	auto backup = createParserStateBackup();
 	if (auto equal = consumeSign(SignType::S_EQUAL))
@@ -622,28 +622,28 @@ Parser::Result<binaryOperator> Parser::parseAssignOp()
 		// Try to match a S_EQUAL. If failed, that means that the next token isn't a =
 		// If it succeeds, we founda '==', this is the comparison operator and we must backtrack to prevent errors.
 		if (!consumeSign(SignType::S_EQUAL))
-			return Result<binaryOperator>(binaryOperator::ASSIGN_BASIC,SourceRange(equal));
+			return Result<BinaryOperator>(BinaryOperator::ASSIGN_BASIC,SourceRange(equal));
 		restoreParserStateFromBackup(backup);
 	}
-	return Result<binaryOperator>::NotFound();
+	return Result<BinaryOperator>::NotFound();
 }
 
-Parser::Result<unaryOperator> Parser::parseUnaryOp()
+Parser::Result<UnaryOperator> Parser::parseUnaryOp()
 {
 	if (auto excl = consumeSign(SignType::S_EXCL_MARK))
-		return Result<unaryOperator>(unaryOperator::LOGICNOT, SourceRange(excl));
+		return Result<UnaryOperator>(UnaryOperator::LOGICNOT, SourceRange(excl));
 	else if (auto minus = consumeSign(SignType::S_MINUS))
-		return Result<unaryOperator>(unaryOperator::NEGATIVE, SourceRange(minus));
+		return Result<UnaryOperator>(UnaryOperator::NEGATIVE, SourceRange(minus));
 	else if (auto plus = consumeSign(SignType::S_PLUS))
-		return Result<unaryOperator>(unaryOperator::POSITIVE, SourceRange(plus));
-	return Result<unaryOperator>::NotFound();
+		return Result<UnaryOperator>(UnaryOperator::POSITIVE, SourceRange(plus));
+	return Result<UnaryOperator>::NotFound();
 }
 
-Parser::Result<binaryOperator> Parser::parseBinaryOp(const char & priority)
+Parser::Result<BinaryOperator> Parser::parseBinaryOp(const char & priority)
 {
 	// Check current Token validity, also check if it's a sign because if it isn't we can return directly!
 	if (!getCurtok().isValid() || !getCurtok().isSign())
-		return Result<binaryOperator>::NotFound();
+		return Result<BinaryOperator>::NotFound();
 
 	auto backup = createParserStateBackup();
 
@@ -653,31 +653,31 @@ Parser::Result<binaryOperator> Parser::parseBinaryOp(const char & priority)
 			if (auto asterisk = consumeSign(SignType::S_ASTERISK))
 			{
 				if (!consumeSign(SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
-					return Result<binaryOperator>(binaryOperator::MUL, SourceRange(asterisk));
+					return Result<BinaryOperator>(BinaryOperator::MUL, SourceRange(asterisk));
 			}
 			else if (auto slash = consumeSign(SignType::S_SLASH))
-				return Result<binaryOperator>(binaryOperator::DIV, SourceRange(slash));
+				return Result<BinaryOperator>(BinaryOperator::DIV, SourceRange(slash));
 			else if (auto percent = consumeSign(SignType::S_PERCENT))
-				return Result<binaryOperator>(binaryOperator::MOD, SourceRange(percent));
+				return Result<BinaryOperator>(BinaryOperator::MOD, SourceRange(percent));
 			break;
 		case 1: // + -
 			if (auto plus = consumeSign(SignType::S_PLUS))
-				return Result<binaryOperator>(binaryOperator::ADD, SourceRange(plus));
+				return Result<BinaryOperator>(BinaryOperator::ADD, SourceRange(plus));
 			else if (auto minus = consumeSign(SignType::S_MINUS))
-				return Result<binaryOperator>(binaryOperator::MINUS, SourceRange(minus));
+				return Result<BinaryOperator>(BinaryOperator::MINUS, SourceRange(minus));
 			break;
 		case 2: // > >= < <=
 			if (auto lessthan = consumeSign(SignType::S_LESS_THAN))
 			{
 				if (auto equal = consumeSign(SignType::S_EQUAL))
-					return Result<binaryOperator>(binaryOperator::LESS_OR_EQUAL, SourceRange(lessthan,equal));
-				return Result<binaryOperator>(binaryOperator::LESS_THAN, SourceRange(lessthan));
+					return Result<BinaryOperator>(BinaryOperator::LESS_OR_EQUAL, SourceRange(lessthan,equal));
+				return Result<BinaryOperator>(BinaryOperator::LESS_THAN, SourceRange(lessthan));
 			}
 			else if (auto grthan = consumeSign(SignType::S_GREATER_THAN))
 			{
 				if (auto equal = consumeSign(SignType::S_EQUAL))
-					return Result<binaryOperator>(binaryOperator::GREATER_OR_EQUAL, SourceRange(grthan,equal));
-				return Result<binaryOperator>(binaryOperator::GREATER_THAN, SourceRange(grthan));
+					return Result<BinaryOperator>(BinaryOperator::GREATER_OR_EQUAL, SourceRange(grthan,equal));
+				return Result<BinaryOperator>(BinaryOperator::GREATER_THAN, SourceRange(grthan));
 			}
 			break;
 		case 3:	// == !=
@@ -685,26 +685,26 @@ Parser::Result<binaryOperator> Parser::parseBinaryOp(const char & priority)
 			if (auto equal1 = consumeSign(SignType::S_EQUAL))
 			{
 				if (auto equal2 = consumeSign(SignType::S_EQUAL))
-					return Result<binaryOperator>(binaryOperator::EQUAL, SourceRange(equal1,equal2));
+					return Result<BinaryOperator>(BinaryOperator::EQUAL, SourceRange(equal1,equal2));
 			}
 			else if (auto excl = consumeSign(SignType::S_EXCL_MARK))
 			{
 				if (auto equal =consumeSign(SignType::S_EQUAL))
-					return Result<binaryOperator>(binaryOperator::NOTEQUAL, SourceRange(excl,equal));
+					return Result<BinaryOperator>(BinaryOperator::NOTEQUAL, SourceRange(excl,equal));
 			}
 			break;
 		case 4: // &&
 			if (auto amp1 = consumeSign(SignType::S_AMPERSAND))
 			{
 				if (auto amp2 = consumeSign(SignType::S_AMPERSAND))
-					return Result<binaryOperator>(binaryOperator::LOGIC_AND, SourceRange(amp1,amp2));
+					return Result<BinaryOperator>(BinaryOperator::LOGIC_AND, SourceRange(amp1,amp2));
 			}
 			break;
 		case 5: // ||
 			if (auto vbar1 = consumeSign(SignType::S_VBAR))
 			{
 				if (auto vbar2 = consumeSign(SignType::S_VBAR))
-					return Result<binaryOperator>(binaryOperator::LOGIC_OR, SourceRange(vbar1,vbar2));
+					return Result<BinaryOperator>(BinaryOperator::LOGIC_OR, SourceRange(vbar1,vbar2));
 			}
 			break;
 		default:
@@ -712,5 +712,5 @@ Parser::Result<binaryOperator> Parser::parseBinaryOp(const char & priority)
 			break;
 	}
 	restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
-	return Result<binaryOperator>::NotFound();
+	return Result<BinaryOperator>::NotFound();
 }
