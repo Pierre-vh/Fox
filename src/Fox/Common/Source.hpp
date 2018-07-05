@@ -48,7 +48,7 @@ namespace fox
 		typedef std::uint32_t line_type;
 		typedef std::uint16_t col_type;
 
-		CompleteLoc(const std::string& fName, const line_type& ln, const col_type& col)
+		CompleteLoc(const std::string& fName, line_type ln, col_type col)
 			: fileName(fName), line(ln), column(col)
 		{
 
@@ -73,7 +73,7 @@ namespace fox
 			typedef std::size_t idx_type;
 
 			SourceLoc();
-			SourceLoc(const FileID& fid, const idx_type& idx = 0);
+			SourceLoc(const FileID& fid, idx_type idx = 0);
 
 			bool isValid() const;
 			explicit operator bool() const; // ShortCut for isValid
@@ -102,7 +102,7 @@ namespace fox
 		public:
 			typedef std::size_t offset_type;
 
-			SourceRange(const SourceLoc& sloc, const offset_type& offset = 0);
+			SourceRange(const SourceLoc& sloc, offset_type offset = 0);
 			SourceRange(const SourceLoc& a, const SourceLoc& b);
 			SourceRange();
 

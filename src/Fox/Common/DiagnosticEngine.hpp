@@ -29,9 +29,9 @@ namespace fox
 			// Constructor that will use a pre-created DiagnosticConsumer
 			DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);
 
-			Diagnostic report(const DiagID& diagID);
-			Diagnostic report(const DiagID& diagID, const SourceRange& range);
-			Diagnostic report(const DiagID& diagID, const SourceLoc& loc);
+			Diagnostic report(DiagID diagID);
+			Diagnostic report(DiagID diagID, const SourceRange& range);
+			Diagnostic report(DiagID diagID, const SourceLoc& loc);
 
 			void setConsumer(std::unique_ptr<DiagnosticConsumer> ncons);
 			DiagnosticConsumer * getConsumer();
@@ -47,26 +47,26 @@ namespace fox
 			// before a the context silences all future diagnostics
 			// and reports a fatal "Too many errors" error.
 			// Set to 0 for unlimited.
-			void setErrorLimit(const std::uint16_t& mErr);
+			void setErrorLimit(std::uint16_t mErr);
 			std::uint16_t getErrorLimit() const;
 
 			bool getWarningsAreErrors() const;
-			void setWarningsAreErrors(const bool& val);
+			void setWarningsAreErrors(bool val);
 
 			bool getErrorsAreFatal() const;
-			void setErrorsAreFatal(const bool& val);
+			void setErrorsAreFatal(bool val);
 
 			bool getSilenceWarnings() const;
-			void setSilenceWarnings(const bool& val);
+			void setSilenceWarnings(bool val);
 
 			bool getSilenceNotes() const;
-			void setSilenceNotes(const bool& val);
+			void setSilenceNotes(bool val);
 
 			bool getSilenceAllAfterFatalErrors() const;
-			void setSilenceAllAfterFatalErrors(const bool& val);
+			void setSilenceAllAfterFatalErrors(bool val);
 
 			bool getSilenceAll() const;
-			void setSilenceAll(const bool& val);
+			void setSilenceAll(bool val);
 
 		protected:
 			friend class Diagnostic;
@@ -74,10 +74,10 @@ namespace fox
 
 		private:		
 			// Promotes the severity of the diagnostic if needed
-			DiagSeverity changeSeverityIfNeeded(const DiagSeverity& ds) const;
+			DiagSeverity changeSeverityIfNeeded(DiagSeverity ds) const;
 
 			// Updates internal counters (warningCount, errCount, hasFatalErrorOccured) depending on the severity
-			void updateInternalCounters(const DiagSeverity& ds);
+			void updateInternalCounters(DiagSeverity ds);
 
 			// Bitfields : Options
 			bool warningsAreErrors_	: 1;

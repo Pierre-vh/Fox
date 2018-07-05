@@ -30,7 +30,7 @@ void StringManipulator::setStr(const std::string * str)
 	reset();
 }
 
-std::string StringManipulator::charToStr(const CharType & wc)
+std::string StringManipulator::charToStr(CharType wc)
 {
 	std::string rtr;
 	append(rtr, wc);
@@ -47,7 +47,7 @@ void StringManipulator::removeBOM(std::string & str)
 	}
 }
 
-void StringManipulator::append(std::string & str, const CharType & ch)
+void StringManipulator::append(std::string & str, CharType ch)
 {
 	utf8::append(ch, std::back_inserter(str));
 }
@@ -91,7 +91,7 @@ CharType StringManipulator::getCurrentChar() const
 	return utf8::peek_next(iter_,end_);
 }
 
-CharType StringManipulator::getChar(const std::size_t& ind) const
+CharType StringManipulator::getChar(std::size_t ind) const
 {
 	auto tmpit = beg_;
 
@@ -102,7 +102,7 @@ CharType StringManipulator::getChar(const std::size_t& ind) const
 	return 0;
 }
 
-std::string StringManipulator::substring(std::size_t beg, const std::size_t & leng) const
+std::string StringManipulator::substring(std::size_t beg, std::size_t leng) const
 {
 	auto tmpit = beg_;
 	

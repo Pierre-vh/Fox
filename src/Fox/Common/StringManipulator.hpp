@@ -62,7 +62,7 @@ namespace fox
 			CharType getCurrentChar() const;
 
 			// Get a codepoint at a precise location
-			CharType getChar(const std::size_t& ind) const;
+			CharType getChar(std::size_t ind) const;
 			
 			/*
 				PEEK
@@ -78,7 +78,7 @@ namespace fox
 			*/
 
 			// Extract a substring
-			std::string substring(std::size_t beg, const std::size_t& leng) const;
+			std::string substring(std::size_t beg, std::size_t leng) const;
 
 			// Return the number of codepoints in the string
 			std::size_t getSizeInCodepoints() const;
@@ -102,7 +102,7 @@ namespace fox
 			*/
 
 			// Convert a CharType to a utf8 encoded string
-			static std::string charToStr(const CharType& wc);
+			static std::string charToStr(CharType wc);
 
 			// Removes the BOM from a str
 			static void removeBOM(std::string& str);
@@ -116,7 +116,7 @@ namespace fox
 			}
 
 			// Appends a CharType to a std::string.
-			static void append(std::string& str, const CharType& ch);
+			static void append(std::string& str, CharType ch);
 		private:
 			// Get a reference to the string stored.
 			const std::string& str() const;
