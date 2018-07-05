@@ -61,7 +61,7 @@ Parser::Result<IdentifierInfo*> Parser::consumeIdentifier()
 	return Result<IdentifierInfo*>::NotFound();
 }
 
-SourceLoc Parser::consumeSign(const SignType & s)
+SourceLoc Parser::consumeSign(SignType s)
 {
 	assert(!isBracket(s) && "This method shouldn't be used to match brackets ! Use consumeBracket instead!");
 	auto tok = getCurtok();
@@ -73,7 +73,7 @@ SourceLoc Parser::consumeSign(const SignType & s)
 	return SourceLoc();
 }
 
-SourceLoc Parser::consumeBracket(const SignType & s)
+SourceLoc Parser::consumeBracket(SignType s)
 {
 	assert(isBracket(s) && "This method should only be used on brackets ! Use consumeSign to match instead!");
 	auto tok = getCurtok();
@@ -130,7 +130,7 @@ SourceLoc Parser::consumeBracket(const SignType & s)
 	return SourceLoc();
 }
 
-SourceRange Parser::consumeKeyword(const KeywordType & k)
+SourceRange Parser::consumeKeyword(KeywordType k)
 {
 	auto tok = getCurtok();
 	if (tok.is(k))
@@ -141,12 +141,12 @@ SourceRange Parser::consumeKeyword(const KeywordType & k)
 	return SourceRange();
 }
 
-bool Parser::peekNext(const SignType & s)
+bool Parser::peekNext(SignType s)
 {
 	return getCurtok().is(s);
 }
 
-bool Parser::peekNext(const KeywordType & s)
+bool Parser::peekNext(KeywordType s)
 {
 	return getCurtok().is(s);
 }
@@ -231,7 +231,7 @@ void Parser::rollback()
 		state_.tokenIterator--;
 }
 
-bool Parser::isBracket(const SignType & s) const
+bool Parser::isBracket(SignType s) const
 {
 	switch (s)
 	{
@@ -325,12 +325,12 @@ Token Parser::getPreviousToken() const
 	return Token();
 }
 
-bool Parser::resyncToSign(const SignType & sign, const bool & stopAtSemi, const bool & shouldConsumeToken)
+bool Parser::resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken)
 {
 	return resyncToSign(std::vector<SignType>({ sign }), stopAtSemi, shouldConsumeToken);
 }
 
-bool Parser::resyncToSign(const std::vector<SignType>& signs, const bool & stopAtSemi, const bool & shouldConsumeToken)
+bool Parser::resyncToSign(const std::vector<SignType>& signs, bool stopAtSemi, bool shouldConsumeToken)
 {
 	if (!isAlive())
 		return false;
@@ -475,7 +475,7 @@ void Parser::recordDecl(NamedDecl * nameddecl)
 		state_.declRecorder->recordDecl(nameddecl);
 }
 
-Diagnostic Parser::reportErrorExpected(const DiagID& diag)
+Diagnostic Parser::reportErrorExpected(DiagID diag)
 {
 	SourceRange errorRange;
 	if (Token prevTok = getPreviousToken())

@@ -351,14 +351,14 @@ Parser::ExprResult Parser::parseCastExpr()
 	);
 }
 
-Parser::ExprResult Parser::parseBinaryExpr(const char & priority)
+Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence)
 {
 	// <binary_expr>  = <cast_expr> { <binary_operator> <cast_expr> }	
 
 	// <cast_expr> OR a binaryExpr of inferior priority.
 	ExprResult lhsResult;
-	if (priority > 0)
-		lhsResult = parseBinaryExpr(priority - 1);
+	if (precedence > 0)
+		lhsResult = parseBinaryExpr(precedence - 1);
 	else
 		lhsResult = parseCastExpr();
 
@@ -376,14 +376,14 @@ Parser::ExprResult Parser::parseBinaryExpr(const char & priority)
 	while (true)
 	{
 		// <binary_operator>
-		auto binop_res = parseBinaryOp(priority);
+		auto binop_res = parseBinaryOp(precedence);
 		if (!binop_res) // No operator found : break.
 			break;
 
 		// <cast_expr> OR a binaryExpr of inferior priority.
 		ExprResult rhsResult;
-		if (priority > 0)
-			rhsResult = parseBinaryExpr(priority - 1);
+		if (precedence > 0)
+			rhsResult = parseBinaryExpr(precedence - 1);
 		else
 			rhsResult = parseCastExpr();
 
@@ -465,7 +465,7 @@ Parser::ExprResult Parser::parseExpr()
 	return ExprResult(lhs.move());
 }
 
-Parser::ExprResult Parser::parseParensExpr(const bool& isMandatory, SourceLoc* leftPLoc, SourceLoc* rightPLoc)
+Parser::ExprResult Parser::parseParensExpr(bool isMandatory, SourceLoc* leftPLoc, SourceLoc* rightPLoc)
 {
 	// <parens_expr> = '(' <expr> ')'
 	// '('
@@ -639,7 +639,7 @@ Parser::Result<UnaryOperator> Parser::parseUnaryOp()
 	return Result<UnaryOperator>::NotFound();
 }
 
-Parser::Result<BinaryOperator> Parser::parseBinaryOp(const char & priority)
+Parser::Result<BinaryOperator> Parser::parseBinaryOp(std::uint8_t priority)
 {
 	// Check current Token validity, also check if it's a sign because if it isn't we can return directly!
 	if (!getCurtok().isValid() || !getCurtok().isSign())

@@ -82,7 +82,7 @@ namespace fox
 			// EXPRESSIONS
 			ExprListResult parseExprList();
 			ExprListResult parseParensExprList(SourceLoc* LParenLoc = nullptr, SourceLoc *RParenLoc = nullptr);
-			ExprResult parseParensExpr(const bool& isMandatory,SourceLoc* leftPLoc = nullptr, SourceLoc* rightPLoc = nullptr);
+			ExprResult parseParensExpr(bool isMandatory,SourceLoc* leftPLoc = nullptr, SourceLoc* rightPLoc = nullptr);
 			ExprResult parseSuffix(std::unique_ptr<Expr> &base);
 			ExprResult parseDeclRef();
 			ExprResult parsePrimitiveLiteral();
@@ -93,13 +93,13 @@ namespace fox
 			ExprResult parseExponentExpr();
 			ExprResult parsePrefixExpr();
 			ExprResult parseCastExpr();
-			ExprResult parseBinaryExpr(const char &priority = 5);
+			ExprResult parseBinaryExpr(std::uint8_t precedence = 5);
 			ExprResult parseExpr(); 
 
 			// STATEMENTS
 			StmtResult parseReturnStmt();
 			StmtResult parseExprStmt();
-			StmtResult parseCompoundStatement(const bool& isMandatory=false);
+			StmtResult parseCompoundStatement(bool isMandatory=false);
 			StmtResult parseStmt();
 			StmtResult parseBody();
 			StmtResult parseCondition();
@@ -131,7 +131,7 @@ namespace fox
 
 			Result<BinaryOperator> parseAssignOp();						// = 
 			Result<UnaryOperator>  parseUnaryOp();						// ! - +
-			Result<BinaryOperator> parseBinaryOp(const char &priority);	// + - * / % 
+			Result<BinaryOperator> parseBinaryOp(std::uint8_t priority);	// + - * / % 
 			SourceRange parseExponentOp();											//  **
 
 			/*-------------- Token Consuming --------------*/
@@ -147,19 +147,19 @@ namespace fox
 			Result<IdentifierInfo*> consumeIdentifier();
 
 			// Consumes any sign but brackets.
-			SourceLoc consumeSign(const SignType& s);
+			SourceLoc consumeSign(SignType s);
 
 			// Consumes a bracket and keeps the bracket count up to date. Returns an invalid SourceLoc if the bracket was not found.
 			// Note : In the US, a Bracket is a [], however, here the bracket noun is used in the strict sense, where Round B. = (), Square B. = [] and Curly B. = {}
-			SourceLoc consumeBracket(const SignType& s);
+			SourceLoc consumeBracket(SignType s);
 
 			// Consumes a keyword. Returns an invalid SourceRange if not found.
-			SourceRange consumeKeyword(const KeywordType& k);
+			SourceRange consumeKeyword(KeywordType k);
 
 			// Peek a Keyword or a Sign. Returns true if the next token is of the requested kind.
 			// Does not update any counter.
-			bool peekNext(const SignType& s);
-			bool peekNext(const KeywordType& s);
+			bool peekNext(SignType s);
+			bool peekNext(KeywordType s);
 
 			// Dispatch to the appriate consume method. Won't return any loc information.
 			// Used to skip a token, updating any necessary counters.
@@ -177,7 +177,7 @@ namespace fox
 
 			// Helper for consumeSign & consumeBracket
 			// Brackets are one of the following : '(' ')' '[' ']' '{' '}'
-			bool isBracket(const SignType& s) const;
+			bool isBracket(SignType s) const;
 
 			Token getCurtok() const;
 			Token getPreviousToken() const;
@@ -185,14 +185,14 @@ namespace fox
 			/*-------------- Error Recovery --------------*/
 				// Last Parameter is an optional pointer to a SourceRange. If the recovery was successful, the SourceRange of the token found
 				// will be saved there.
-			bool resyncToSign(const SignType& sign, const bool& stopAtSemi, const bool& shouldConsumeToken);
-			bool resyncToSign(const std::vector<SignType>& signs, const bool& stopAtSemi, const bool& shouldConsumeToken);
+			bool resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken);
+			bool resyncToSign(const std::vector<SignType>& signs, bool stopAtSemi, bool shouldConsumeToken);
 			bool resyncToNextDecl();
 
 			/*-------------- Error Reporting --------------*/
 			// Reports an error of the "unexpected" family.
 			// The SourceLoc of the error is right past the end of the previous token.
-			Diagnostic reportErrorExpected(const DiagID& diag);
+			Diagnostic reportErrorExpected(DiagID diag);
 
 			/*-------------- Parser State --------------*/
 			struct ParserState
@@ -272,7 +272,7 @@ namespace fox
 
 					}
 
-					Result(const bool& wasSuccessful = true) : hasData_(false), successFlag_(wasSuccessful)
+					Result(bool wasSuccessful = true) : hasData_(false), successFlag_(wasSuccessful)
 					{
 
 					}
@@ -330,7 +330,7 @@ namespace fox
 
 					}
 
-					UniqueResult(const bool& wasSuccessful = true) : result_(nullptr), successFlag_(wasSuccessful)
+					UniqueResult(bool wasSuccessful = true) : result_(nullptr), successFlag_(wasSuccessful)
 					{
 
 					}
