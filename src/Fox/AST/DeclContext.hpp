@@ -4,7 +4,7 @@
 // File : DeclContext.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// DeclContext acts as a "Declaration Recorder". 
+// DeclContext is a class that acts as a "Declaration Recorder"
 //
 // While parsing, the parser "registers" every declaration in the current DeclContext.
 //

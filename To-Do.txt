@@ -38,8 +38,6 @@ Moonshot Project To-do List.
 	> Small code review (error handling checking) (Done)
 	> Rename DeclRecorder to DeclContext.(Done)
 
-	> Question: Should FunctionDecl be a DeclContext? (Find the rationale behind that)
-
 	> Write the Remaining tests needed (Next)
 		> Write Stmt & Expr Loc Tests
 			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
