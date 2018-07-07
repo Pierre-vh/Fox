@@ -37,12 +37,14 @@ Moonshot Project To-do List.
 	> SourceManager improvements : Line table & Renaming SourceManager.hpp/.cpp to Source.hpp/.cpp (Done)
 	> Small code review (error handling checking) (Done)
 
+	> Rename DeclRecorder to DeclContext. DeclContext sounds better than DeclRecorder anyways. (Next)
+
 	> Write the Remaining tests needed (Next)
 		> Write Stmt & Expr Loc Tests
 			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 			> Probably don't use a file, just do SetUp("<code goes here>"")w
 
-	// Move to 0.3.0 & Backup to special 0.3.0 branch
+	// Move to 0.3.0 
 	QOL:
 		> Rework the DiagnosticEngine::report function (Done)
 
