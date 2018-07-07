@@ -1,26 +1,26 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : DeclRecorder.cpp											
+// File : DeclContext.cpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
 
-#include "DeclRecorder.hpp"
+#include "DeclContext.hpp"
 
 #include "Decl.hpp"
 #include "Fox/Common/Utils.hpp"
 
 using namespace fox;
 
-DeclRecorder::DeclRecorder(DeclRecorder * parent) : parent_(parent)
+DeclContext::DeclContext(DeclContext * parent) : parent_(parent)
 {
 
 }
 
-void DeclRecorder::recordDecl(NamedDecl* decl)
+void DeclContext::recordDecl(NamedDecl* decl)
 {
 	assert(decl	&& "Declaration cannot be null!");
 	IdentifierInfo* name = decl->getIdentifier();
@@ -28,7 +28,7 @@ void DeclRecorder::recordDecl(NamedDecl* decl)
 	namedDecls_.insert(std::make_pair(name, decl));
 }
 
-LookupResult DeclRecorder::restrictedLookup(IdentifierInfo * id) const
+LookupResult DeclContext::restrictedLookup(IdentifierInfo * id) const
 {
 	auto it_range = namedDecls_.equal_range(id);
 	LookupResult lr;
@@ -37,7 +37,7 @@ LookupResult DeclRecorder::restrictedLookup(IdentifierInfo * id) const
 	return lr;
 }
 
-LookupResult DeclRecorder::fullLookup(IdentifierInfo * id) const
+LookupResult DeclContext::fullLookup(IdentifierInfo * id) const
 {
 	auto this_lr = restrictedLookup(id);
 
@@ -50,48 +50,48 @@ LookupResult DeclRecorder::fullLookup(IdentifierInfo * id) const
 	return this_lr;
 }
 
-bool DeclRecorder::hasParentDeclRecorder() const
+bool DeclContext::hasParentDeclRecorder() const
 {
 	return parent_;
 }
 
-DeclRecorder * DeclRecorder::getParentDeclRecorder()
+DeclContext * DeclContext::getParentDeclRecorder()
 {
 	return parent_;
 }
 
-void DeclRecorder::setParentDeclRecorder(DeclRecorder* dr)
+void DeclContext::setParentDeclRecorder(DeclContext* dr)
 {
 	assert(dr && "Can't set a null parent! Use resetParent() for that!");
 	parent_ = dr;
 }
 
-void DeclRecorder::resetParentDeclRecorder()
+void DeclContext::resetParentDeclRecorder()
 {
 	parent_ = nullptr;
 }
 
-std::size_t DeclRecorder::getNumberOfRecordedDecls() const
+std::size_t DeclContext::getNumberOfRecordedDecls() const
 {
 	return namedDecls_.size();
 }
 
-DeclRecorder::NamedDeclsMapIter DeclRecorder::recordedDecls_begin()
+DeclContext::NamedDeclsMapIter DeclContext::recordedDecls_begin()
 {
 	return namedDecls_.begin();
 }
 
-DeclRecorder::NamedDeclsMapIter DeclRecorder::recordedDecls_end()
+DeclContext::NamedDeclsMapIter DeclContext::recordedDecls_end()
 {
 	return namedDecls_.end();
 }
 
-DeclRecorder::NamedDeclsMapConstIter DeclRecorder::recordedDecls_begin() const
+DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_begin() const
 {
 	return namedDecls_.begin();
 }
 
-DeclRecorder::NamedDeclsMapConstIter DeclRecorder::recordedDecls_end() const
+DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_end() const
 {
 	return namedDecls_.end();
 }

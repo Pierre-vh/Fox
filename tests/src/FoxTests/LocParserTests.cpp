@@ -46,7 +46,7 @@ class LocTests : public ::testing::Test
 				FAIL() << "Lexing Error";
 			}
 
-			parser = std::make_unique<Parser>(dg, srcMgr , astContext, lexer->getTokenVector(), &declRecorder);
+			parser = std::make_unique<Parser>(dg, srcMgr , astContext, lexer->getTokenVector(), &declContext);
 		}
 
 		std::string fullFilePath;
@@ -55,7 +55,7 @@ class LocTests : public ::testing::Test
 		FileID file;
 		SourceManager srcMgr;
 		ASTContext astContext;
-		DeclRecorder declRecorder;
+		DeclContext declContext;
 		std::unique_ptr<Lexer> lexer;
 		std::unique_ptr<Parser> parser;
 };

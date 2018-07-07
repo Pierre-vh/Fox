@@ -10,7 +10,7 @@
 #pragma once
 #include "Type.hpp"
 #include "Stmt.hpp"
-#include "DeclRecorder.hpp"
+#include "DeclContext.hpp"
 
 namespace fox
 {
@@ -89,7 +89,7 @@ namespace fox
 	};
 
 	// a Function declaration node.
-	class FunctionDecl : public NamedDecl, public DeclRecorder
+	class FunctionDecl : public NamedDecl, public DeclContext
 	{
 		private:
 			using ArgVecTy = UniquePtrVector<ArgDecl>;
@@ -164,7 +164,7 @@ namespace fox
 
 	// A Unit declaration. A Unit = a source file.
 	// Unit names?
-	class UnitDecl : public NamedDecl, public DeclRecorder
+	class UnitDecl : public NamedDecl, public DeclContext
 	{
 		private:
 			using DelVecTy = UniquePtrVector<Decl>;

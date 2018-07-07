@@ -89,8 +89,8 @@ namespace fox
 			std::string getOperatorDump(BinaryOperator op) const;
 			std::string getOperatorDump(UnaryOperator op) const;
 
-			// Returns a formatted string "<DeclRecorder (adress), Parent: (adress)>"
-			std::string getDeclRecorderDump(DeclRecorder *dr) const;
+			// Returns a formatted string "<DeclContext (adress), Parent: (adress)>"
+			std::string getDeclRecorderDump(DeclContext *dr) const;
 			// Returns a formatted string, "<ID:(idstring)>"
 			std::string getIdentifierDump(IdentifierInfo *id) const;
 			// Returns a formatted string, "<(label):(coords)>"

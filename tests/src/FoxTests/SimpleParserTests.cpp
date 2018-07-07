@@ -66,7 +66,7 @@ class ParsingFunctionTester
 				SourceManager srcMgr;
 				DiagnosticEngine dg(&srcMgr);
 				ASTContext astctxt;
-				DeclRecorder dr;
+				DeclContext dc;
 				Lexer lex(dg, srcMgr, astctxt);
 				auto file = srcMgr.loadFromString(sample);
 
@@ -85,7 +85,7 @@ class ParsingFunctionTester
 					continue;
 				}
 
-				Parser parse(dg, srcMgr, astctxt, lex.getTokenVector(), &dr);
+				Parser parse(dg, srcMgr, astctxt, lex.getTokenVector(), &dc);
 
 				if (fn_(file,parse))
 				{

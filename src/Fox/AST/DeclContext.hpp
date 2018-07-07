@@ -1,18 +1,15 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : DeclRecorder.hpp											
+// File : DeclContext.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// DeclRecorder acts as a Declaration Recorder. While parsing, the 
-// parser "registers" every declaration in the most recent declaration recorder found.
-// DeclRecorder assists during name resolution to find members of a unit (or, in the future, Class/Namespaces/etc), or just to find if a
-// identifier is linked to one or more declaration in a specific scope.
+// DeclContext acts as a "Declaration Recorder". 
 //
-// This class has no notion of scope, it doesn't care about compound statements and stuff, this will be managed by the semantic analysis phase
-// to confirm "Visibility" of a variable.
+// While parsing, the parser "registers" every declaration in the current DeclContext.
 //
-//	Potential area of improvements:
+// The DeclContext assists name resolution, allowing the interpreter to
+// find members of a unit/namespace/etc easily.
 //
 ////------------------------------------------------------////
 
@@ -29,17 +26,17 @@ namespace fox
 	class IdentifierInfo;
 	class LookupResult;
 
-	// An iterator that abstracts the underlying structure used by DeclRecorder to only show
-	// the DeclRecorder*
-	// Operator * returns a DeclRecorder*
+	// An iterator that abstracts the underlying structure used by DeclContext to only show
+	// the NamedDecl pointer.
+	// Operator * returns the NamedDecl*
 	// Operator -> Lets you directly access the NamedDecl's members.
 	template <typename BaseIterator>
-	class DeclRecorderIterator : public BaseIterator
+	class DeclContextIterator : public BaseIterator
 	{
 		public:
 			using value_type = typename BaseIterator::value_type::second_type;
 
-			DeclRecorderIterator(const BaseIterator &baseIt) : BaseIterator(baseIt)
+			DeclContextIterator(const BaseIterator &baseIt) : BaseIterator(baseIt)
 			{
 				static_assert(std::is_same<value_type, NamedDecl*>::value, "Pointer type isn't a NamedDecl*");
 			}
@@ -50,30 +47,30 @@ namespace fox
 			value_type operator->() const { return (this->BaseIterator::operator*()).second; }
 	};
 
-	class DeclRecorder
+	class DeclContext
 	{
 		private:
 			using NamedDeclsMapTy = std::multimap<IdentifierInfo*, NamedDecl*>;
-			using NamedDeclsMapIter = DeclRecorderIterator<NamedDeclsMapTy::iterator>;
-			using NamedDeclsMapConstIter = DeclRecorderIterator<NamedDeclsMapTy::const_iterator>;
+			using NamedDeclsMapIter = DeclContextIterator<NamedDeclsMapTy::iterator>;
+			using NamedDeclsMapConstIter = DeclContextIterator<NamedDeclsMapTy::const_iterator>;
 		public:
-			DeclRecorder(DeclRecorder * parent = nullptr);
-			inline virtual ~DeclRecorder() {}
+			DeclContext(DeclContext * parent = nullptr);
+			inline virtual ~DeclContext() {}
 
-			// "Record" a declaration within this DeclRecorder
+			// "Record" a declaration within this DeclContext
 			void recordDecl(NamedDecl* decl);
 
-			// Searches for every NamedDecl whose identifier == id in this DeclRecorder
+			// Searches for every NamedDecl whose identifier == id in this DeclContext
 			LookupResult restrictedLookup(IdentifierInfo *id) const;
 
-			// Performs a restrictedLookup on this DeclRecorder and recursively searches parent
+			// Performs a restrictedLookup on this DeclContext and recursively searches parent
 			// DeclRecorders.
 			LookupResult fullLookup(IdentifierInfo *id) const;
 
 			// Manage parent decl recorder
 			bool hasParentDeclRecorder() const;
-			DeclRecorder* getParentDeclRecorder();
-			void setParentDeclRecorder(DeclRecorder *dr);
+			DeclContext* getParentDeclRecorder();
+			void setParentDeclRecorder(DeclContext *dr);
 			void resetParentDeclRecorder();
 
 			// Get information
@@ -86,7 +83,7 @@ namespace fox
 			NamedDeclsMapConstIter recordedDecls_end() const;
 		private:
 			// Pointer to the Declaration Recorder "above" this one.
-			DeclRecorder * parent_ = nullptr;
+			DeclContext * parent_ = nullptr;
 			NamedDeclsMapTy namedDecls_;
 	};
 
@@ -115,7 +112,7 @@ namespace fox
 
 			explicit operator bool() const;
 		protected:
-			friend class DeclRecorder;
+			friend class DeclContext;
 
 			// Add another lookup result.
 			void addResult(NamedDecl* decl);

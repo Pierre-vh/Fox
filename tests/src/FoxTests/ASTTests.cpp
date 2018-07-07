@@ -163,7 +163,7 @@ std::unique_ptr<FunctionDecl> makeFuncDecl(ASTContext& ctxt, const std::string& 
 	return std::make_unique<FunctionDecl>();
 }
 
-bool testLookup(ASTContext &ctxt,DeclRecorder *dr, const std::string& name, Decl* decl,std::string& err)
+bool testLookup(ASTContext &ctxt,DeclContext *dr, const std::string& name, Decl* decl,std::string& err)
 {
 	auto lookupResult = dr->restrictedLookup(ctxt.identifiers.getUniqueIdentifierInfo(name));
 	
@@ -188,7 +188,7 @@ bool testLookup(ASTContext &ctxt,DeclRecorder *dr, const std::string& name, Decl
 	}
 }
 
-TEST(ASTTests, DeclRecorderTests)
+TEST(ASTTests, DeclContextTest)
 {
 	ASTContext astctxt;
 

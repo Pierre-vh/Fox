@@ -426,10 +426,10 @@ std::string ASTDumper::getOperatorDump(UnaryOperator op) const
 	return "'" + operators::toString(op) + "'";
 }
 
-std::string ASTDumper::getDeclRecorderDump(DeclRecorder * dr) const
+std::string ASTDumper::getDeclRecorderDump(DeclContext * dr) const
 {
 	std::ostringstream ss;
-	ss << "<DeclRecorder:" << (void*)dr;
+	ss << "<DeclContext:" << (void*)dr;
 	if (dr->hasParentDeclRecorder())
 		ss << ", Parent:" << (void*)dr->getParentDeclRecorder();
 	ss << ">";

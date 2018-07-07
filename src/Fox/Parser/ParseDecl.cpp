@@ -26,8 +26,8 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 	// Create the unit
 	auto unit = std::make_unique<UnitDecl>(unitName, fid);
 
-	// Create a RAIIDeclRecorder
-	RAIIDeclRecorder raiidr(*this, unit.get());
+	// Create a RAIIDeclContext
+	RAIIDeclContext raiidr(*this, unit.get());
 
 	// Parse declarations 
 	while (true)
@@ -119,12 +119,12 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		rtr->setIdentifier(identifiers_.getInvalidID());
 	}
 
-	// Before creating a RAIIDeclRecorder, record this function in the parent DeclRecorder
+	// Before creating a RAIIDeclContext, record this function in the parent DeclContext
 	if(isValid)
 		recordDecl(rtr.get());
 
-	// Create a RAIIDeclRecorder to record every decl within this function
-	RAIIDeclRecorder raiidr(*this, rtr.get());
+	// Create a RAIIDeclContext to record every decl within this function
+	RAIIDeclContext raiidr(*this, rtr.get());
 
 	// '('
 	if (!consumeBracket(SignType::S_ROUND_OPEN))

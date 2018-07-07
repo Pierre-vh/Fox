@@ -17,11 +17,11 @@
 
 using namespace fox;
 
-Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, TokenVector& l, DeclRecorder *dr) 
+Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, TokenVector& l, DeclContext *dr) 
 	: astContext_(astctxt), tokens_(l), identifiers_(astContext_.identifiers), srcMgr_(sm), diags_(diags)
 {
 	if (dr)
-		state_.declRecorder = dr;
+		state_.declContext = dr;
 
 	setupParser();
 }
@@ -469,10 +469,10 @@ void Parser::die()
 void Parser::recordDecl(NamedDecl * nameddecl)
 {
 	// Only assert when we're not in test mode.
-	// Tests may call individual parsing function, and won't care about if a DeclRecorder is active or not.
-	assert(state_.declRecorder && "Decl Recorder cannot be null when parsing a Declaration!");
-	if(state_.declRecorder)
-		state_.declRecorder->recordDecl(nameddecl);
+	// Tests may call individual parsing function, and won't care about if a DeclContext is active or not.
+	assert(state_.declContext && "Decl Recorder cannot be null when parsing a Declaration!");
+	if(state_.declContext)
+		state_.declContext->recordDecl(nameddecl);
 }
 
 Diagnostic Parser::reportErrorExpected(DiagID diag)
@@ -522,23 +522,23 @@ Parser::ParserState::ParserState() : isAlive(true), isRecoveryAllowed(false)
 
 }
 
-// RAIIDeclRecorder
-Parser::RAIIDeclRecorder::RAIIDeclRecorder(Parser &p, DeclRecorder *dr) : parser_(p)
+// RAIIDeclContext
+Parser::RAIIDeclContext::RAIIDeclContext(Parser &p, DeclContext *dr) : parser_(p)
 {
-	declRec_ = parser_.state_.declRecorder;
+	declCtxt_ = parser_.state_.declContext;
 
-	// If declRec_ isn't null, mark it as the parent of the new dr
-	if (declRec_)
+	// If declCtxt_ isn't null, mark it as the parent of the new dr
+	if (declCtxt_)
 	{
 		// Assert that we're not overwriting a parent. If such a thing happens, that could indicate a bug!
-		assert(!dr->hasParentDeclRecorder() && "New DeclRecorder already has a parent?");
-		dr->setParentDeclRecorder(declRec_);
+		assert(!dr->hasParentDeclRecorder() && "New DeclContext already has a parent?");
+		dr->setParentDeclRecorder(declCtxt_);
 	}
 
-	parser_.state_.declRecorder = dr;
+	parser_.state_.declContext = dr;
 }
 
-Parser::RAIIDeclRecorder::~RAIIDeclRecorder()
+Parser::RAIIDeclContext::~RAIIDeclContext()
 {
-	parser_.state_.declRecorder = declRec_;
+	parser_.state_.declContext = declCtxt_;
 }

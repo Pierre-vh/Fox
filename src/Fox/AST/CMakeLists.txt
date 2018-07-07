@@ -7,5 +7,5 @@ add_source(
 	"Type.cpp"
 	"ASTDumper.cpp"
 	"Identifiers.cpp"
-	"DeclRecorder.cpp"
+	"DeclContext.cpp"
 )

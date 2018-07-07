@@ -42,7 +42,7 @@ namespace fox
 	class ASTContext;
 	class IdentifierTable;
 	class SourceManager;
-	class DeclRecorder;
+	class DeclContext;
 	class Parser
 	{
 		public:
@@ -65,9 +65,9 @@ namespace fox
 		private:
 			using TokenIteratorTy = TokenVector::iterator;
 		public:
-			// Note : the parser now takes an optional DeclRecorder* argument,
-			// This will be used as the base DeclRecorder.
-			Parser(DiagnosticEngine& diags,SourceManager &sm,ASTContext& astctxt,TokenVector& l,DeclRecorder* dr = nullptr);
+			// Note : the parser now takes an optional DeclContext* argument,
+			// This will be used as the base DeclContext.
+			Parser(DiagnosticEngine& diags,SourceManager &sm,ASTContext& astctxt,TokenVector& l,DeclContext* dr = nullptr);
 
 			/*-------------- Parsing Methods --------------*/
 			// UNIT
@@ -215,7 +215,7 @@ namespace fox
 				std::uint8_t squareBracketsCount = 0;
 
 				// Current Decl Recorder
-				DeclRecorder *declRecorder = nullptr;
+				DeclContext *declContext = nullptr;
 			} state_;
 
 			// Interrogate state_
@@ -226,7 +226,7 @@ namespace fox
 				// Kills Parsing (stops it)
 			void die();
 
-			// Register a declaration in state_.declRecorder, asserting that it's not null.
+			// Register a declaration in state_.declContext, asserting that it's not null.
 			void recordDecl(NamedDecl *nameddecl);
 
 			// Creates a state_ backup
@@ -234,19 +234,19 @@ namespace fox
 			// Restores state_ from a backup.
 			void restoreParserStateFromBackup(const ParserState& st);
 
-			/*-------------- RAIIDeclRecorder --------------*/
-			// This class sets the current DeclRecorder at construction, and restores the last
+			/*-------------- RAIIDeclContext --------------*/
+			// This class sets the current DeclContext at construction, and restores the last
 			// one at destruction.
-			// If the DeclRecorder that was here before isn't null, it's marked as being the parent of the DeclRecorder passed as argument to the constructor.
-			// It assists in registering Decl in the appropriate DeclRecorder.
-			class RAIIDeclRecorder
+			// If the DeclContext that was here before isn't null, it's marked as being the parent of the DeclContext passed as argument to the constructor.
+			// It assists in registering Decl in the appropriate DeclContext.
+			class RAIIDeclContext
 			{
 				public:
-					RAIIDeclRecorder(Parser &p,DeclRecorder *dr);
-					~RAIIDeclRecorder();
+					RAIIDeclContext(Parser &p,DeclContext *dr);
+					~RAIIDeclContext();
 				private:
 					Parser& parser_;
-					DeclRecorder* declRec_ = nullptr;
+					DeclContext* declCtxt_ = nullptr;
 			};
 
 			/*-------------- Member Variables --------------*/
