@@ -51,7 +51,7 @@ std::string StreamDiagConsumer::getLocInfo(const SourceRange& range) const
 	return ss.str();
 }
 
-std::string StreamDiagConsumer::diagSevToString(const DiagSeverity & ds) const
+std::string StreamDiagConsumer::diagSevToString(DiagSeverity ds) const
 {
 	switch (ds)
 	{

@@ -15,7 +15,7 @@
 namespace fox
 {
 	// The StmtKind enum
-	enum class StmtKind : char
+	enum class StmtKind : std::uint8_t
 	{
 		#define STMT(ID,PARENT) ID,
 		#include "StmtNodes.def"
@@ -59,7 +59,7 @@ namespace fox
 
 			bool hasLocInfo() const;
 		protected:
-			Stmt(const StmtKind& skind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			Stmt(StmtKind skind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 		private:
 			SourceLoc beg_, end_;
 			StmtKind kind_;
@@ -69,10 +69,7 @@ namespace fox
 	class NullStmt : public Stmt
 	{
 		public:
-			// Constructs a recovery NullExpr
 			NullStmt();
-
-			// Constructs a real NullExpr
 			NullStmt(const SourceLoc& semiLoc);
 
 			void setSemiLoc(const SourceLoc& semiLoc);
@@ -138,8 +135,8 @@ namespace fox
 			CompoundStmt();
 			CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			Stmt* getStmt(const std::size_t& ind);
-			const Stmt* getStmt(const std::size_t& ind) const;
+			Stmt* getStmt(std::size_t ind);
+			const Stmt* getStmt(std::size_t ind) const;
 
 			Stmt* getBack();
 			const Stmt* getBack() const;

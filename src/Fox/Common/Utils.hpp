@@ -22,7 +22,7 @@ namespace fox
 	}
 
 	[[ noreturn ]]
-	void _fox_unreachable_internal(const char* message, const char* file, const unsigned& line);
+	void _fox_unreachable_internal(const char* message, const char* file, unsigned line);
 }
 
 

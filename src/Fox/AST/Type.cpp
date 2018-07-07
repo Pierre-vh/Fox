@@ -15,7 +15,7 @@
 using namespace fox;
 
 /* Type */
-Type::Type(const TypeKind& tc, const bool& isPrimitive, const bool& isBuiltin, const bool& isArray) 
+Type::Type(TypeKind tc, bool isPrimitive, bool isBuiltin, bool isArray) 
 	: kind_(tc), isPrimitive_(isPrimitive), isBuiltin_(isBuiltin), isArray_(isArray)
 {
 
@@ -42,14 +42,14 @@ TypeKind Type::getKind() const
 }
 
 /* BuiltinType */
-BuiltinType::BuiltinType(const TypeKind& tc, const bool& isPrimitive, const bool& isArray)
+BuiltinType::BuiltinType(TypeKind tc, bool isPrimitive, bool isArray)
 	: Type(tc,isPrimitive,true,isArray)
 {
 
 }
 
 /* Primitive Types */
-PrimitiveType::PrimitiveType(const Kind& kd) 
+PrimitiveType::PrimitiveType(Kind kd) 
 	: builtinKind_(kd), BuiltinType(TypeKind::PrimitiveType,true,false)
 {
 
@@ -137,7 +137,7 @@ QualType::QualType()
 
 }
 
-QualType::QualType(Type* ty, const bool & isConstant, const bool &isReference)
+QualType::QualType(Type* ty, bool isConstant, bool isReference)
 	: ty_(ty), isConst_(isConstant), isRef_(isReference)
 {
 	assert(ty_ && "The Type cannot be null!");
@@ -148,7 +148,7 @@ bool QualType::isConstant() const
 	return isConst_;
 }
 
-void QualType::setIsConst(const bool & constattr)
+void QualType::setIsConst(bool constattr)
 {
 	isConst_ = constattr;
 }
@@ -158,7 +158,7 @@ bool QualType::isReference() const
 	return isRef_;
 }
 
-void QualType::setIsReference(const bool & refattr)
+void QualType::setIsReference(bool refattr)
 {
 	isRef_ = refattr;
 }

@@ -39,12 +39,12 @@ namespace fox
 	class Diagnostic
 	{
 		public:
-			Diagnostic(DiagnosticEngine *engine, const DiagID& dID, const DiagSeverity& dSev,const std::string& dStr, const SourceRange& range = SourceRange());
+			Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,const std::string& dStr, const SourceRange& range = SourceRange());
 			
 			// Copy constructor that kills the copied diagnostic and steals it's information
 			Diagnostic(Diagnostic &other);
 
-			// Move constructor that kills the moved diagnostic and steal it's information
+			// Move constructor that kills the copied diagnostic and steal it's information
 			Diagnostic(Diagnostic &&other);
 
 			~Diagnostic();
@@ -74,7 +74,7 @@ namespace fox
 
 			// Replace the "%(phIndex)" arg by value (as a string)
 			template<typename ReplTy>
-			inline Diagnostic& addArg(const ReplTy& value, const unsigned char& phIndex)
+			inline Diagnostic& addArg(const ReplTy& value, std::uint8_t phIndex)
 			{
 				std::stringstream ss;
 				ss << value;
@@ -83,14 +83,14 @@ namespace fox
 
 			// For std::strings
 			template<>
-			inline Diagnostic& addArg(const std::string& value, const unsigned char& phIndex)
+			inline Diagnostic& addArg(const std::string& value, std::uint8_t phIndex)
 			{
 				return replacePlaceholder(value, phIndex);
 			}
 
 			// for CharType
 			template<>
-			inline Diagnostic& addArg(const CharType& value, const unsigned char& phIndex)
+			inline Diagnostic& addArg(const CharType& value, std::uint8_t phIndex)
 			{
 				return replacePlaceholder(
 					StringManipulator::charToStr(value), phIndex
@@ -111,13 +111,15 @@ namespace fox
 
 			// replaces every occurence of "%(value of index)" in a string with the replacement.
 			// e.g: replacePlaceholder("foo",0) -> replaces every %0 in the string by foo
-			Diagnostic& replacePlaceholder(const std::string& replacement, const unsigned char& index);
+			Diagnostic& replacePlaceholder(const std::string& replacement, std::uint8_t index);
 
 			void kill(); // Kills this diagnostic (sets isActive to false and remove most of it's information)
 			
-			bool isActive_ = true; 
-			bool isFrozen_ = false; 
-			unsigned char curPHIndex_ = 0; 
+			// Packed in 8 bits
+			bool isActive_ :1; 
+			bool isFrozen_ :1; 
+			std::uint8_t curPHIndex_ :6;
+
 			DiagSeverity diagSeverity_; 
 
 			DiagnosticEngine* engine_ = nullptr;

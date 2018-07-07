@@ -13,10 +13,15 @@
 
 using namespace fox;
 
-Diagnostic::Diagnostic(DiagnosticEngine* engine, const DiagID& dID, const DiagSeverity& dSev, const std::string& dStr, const SourceRange& range) :
+Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID, DiagSeverity dSev, const std::string& dStr, const SourceRange& range) :
 	engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr), range_(range)
 {
 	assert(engine && "Engine cannot be null!");
+
+	// Default values
+	isActive_ = true;
+	isFrozen_ = false;
+	curPHIndex_ = 0;
 }
 
 Diagnostic::Diagnostic(Diagnostic &other)
@@ -76,7 +81,7 @@ bool Diagnostic::isActive() const
 	return isActive_;
 }
 
-Diagnostic& Diagnostic::replacePlaceholder(const std::string & replacement, const unsigned char & index)
+Diagnostic& Diagnostic::replacePlaceholder(const std::string & replacement, std::uint8_t index)
 {
 	if (!isActive_ || isFrozen_)
 		return *this;

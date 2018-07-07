@@ -22,7 +22,7 @@ UnitDecl * ASTContext::getMainUnit()
 	return mainUnit_;
 }
 
-UnitDecl * ASTContext::addUnit(std::unique_ptr<UnitDecl> unit, const bool& isMainUnit)
+UnitDecl * ASTContext::addUnit(std::unique_ptr<UnitDecl> unit, bool isMainUnit)
 {
 	units_.emplace_back(std::move(unit));
 

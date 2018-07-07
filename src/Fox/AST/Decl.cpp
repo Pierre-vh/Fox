@@ -18,7 +18,7 @@
 using namespace fox;
 
 // Decl
-Decl::Decl(const DeclKind & kind,const SourceLoc& begLoc, const SourceLoc& endLoc)
+Decl::Decl(DeclKind kind,const SourceLoc& begLoc, const SourceLoc& endLoc)
 	: kind_(kind), begLoc_(begLoc), endLoc_(endLoc)
 {
 
@@ -75,7 +75,7 @@ void Decl::setEndLoc(const SourceLoc & loc)
 }
 
 // NamedDecl
-NamedDecl::NamedDecl(const DeclKind& kind, IdentifierInfo * id, const SourceLoc& begLoc, const SourceLoc& endLoc)
+NamedDecl::NamedDecl(DeclKind kind, IdentifierInfo * id, const SourceLoc& begLoc, const SourceLoc& endLoc)
 	: Decl(kind,begLoc,endLoc), identifier_(id)
 {
 
@@ -202,13 +202,13 @@ void FunctionDecl::setBody(std::unique_ptr<CompoundStmt> arg)
 	body_ = std::move(arg);
 }
 
-ArgDecl* FunctionDecl::getArg(const std::size_t & ind)
+ArgDecl* FunctionDecl::getArg(std::size_t ind)
 {
 	assert(ind < args_.size() && "out-of-range");
 	return args_[ind].get();
 }
 
-const ArgDecl* FunctionDecl::getArg(const std::size_t & ind) const
+const ArgDecl* FunctionDecl::getArg(std::size_t ind) const
 {
 	assert(ind < args_.size() && "out-of-range");
 	return args_[ind].get();
@@ -301,7 +301,7 @@ void VarDecl::setInitExpr(std::unique_ptr<Expr> expr)
 }
 
 // ASTUnit
-UnitDecl::UnitDecl(IdentifierInfo * id,const FileID& inFile)
+UnitDecl::UnitDecl(IdentifierInfo * id,FileID inFile)
 	: NamedDecl(DeclKind::UnitDecl,id,SourceLoc(),SourceLoc()), file_(inFile)
 {
 	declsAreValid_ = true;
@@ -322,13 +322,13 @@ void UnitDecl::addDecl(std::unique_ptr<Decl> decl)
 	decls_.emplace_back(std::move(decl));
 }
 
-Decl* UnitDecl::getDecl(const std::size_t& idx)
+Decl* UnitDecl::getDecl(std::size_t idx)
 {
 	assert(idx < decls_.size() && "out-of-range");
 	return decls_[idx].get();
 }
 
-const Decl* UnitDecl::getDecl(const std::size_t& idx) const
+const Decl* UnitDecl::getDecl(std::size_t idx) const
 {
 	assert(idx < decls_.size() && "out-of-range");
 	return decls_[idx].get();

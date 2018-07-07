@@ -17,58 +17,58 @@
 
 using namespace fox;
 
-// Operators
-static const std::map<binaryOperator, std::pair<std::string,std::string>> kBinopToStr_dict =
+// operators
+static const std::map<BinaryOperator, std::pair<std::string,std::string>> kBinopToStr_dict =
 {
-	{ binaryOperator::DEFAULT			, {" " , "!INVALID!"}},
-	{ binaryOperator::LOGIC_AND			, {"&&", "LOGICAL AND"} },
-	{ binaryOperator::CONCAT			, {"+" , "CONCAT"}},
-	{ binaryOperator::LOGIC_OR			, {"||", "LOGICAL OR"}},
-	{ binaryOperator::ADD				, {"+" , "ADDITION"}},
-	{ binaryOperator::MINUS				, {"-" , "SUBSTRACTION"}},
-	{ binaryOperator::MUL				, {"*" , "MULTIPLICATION"}},
-	{ binaryOperator::DIV				, {"/" , "DIVISION"}},
-	{ binaryOperator::MOD				, {"%" , "MODULO"}},
-	{ binaryOperator::EXP				, {"**", "EXPONENT" }},
-	{ binaryOperator::LESS_OR_EQUAL		, {"<=", "LESS OR EQUAL THAN"}},
-	{ binaryOperator::GREATER_OR_EQUAL	, {">=", "GREATER OR EQUAL THAN"}},
-	{ binaryOperator::LESS_THAN			, {"<", "LESS THAN"}},
-	{ binaryOperator::GREATER_THAN		, {">", "GREATER THAN"}},
-	{ binaryOperator::EQUAL				, {"==", "EQUAL"}},
-	{ binaryOperator::NOTEQUAL			, {"!=", "NOT EQUAL"}},
-	{ binaryOperator::ASSIGN_BASIC		, {"=", "ASSIGN"}}
+	{ BinaryOperator::DEFAULT			, {" " , "!INVALID!"}},
+	{ BinaryOperator::LOGIC_AND			, {"&&", "LOGICAL AND"} },
+	{ BinaryOperator::CONCAT			, {"+" , "CONCAT"}},
+	{ BinaryOperator::LOGIC_OR			, {"||", "LOGICAL OR"}},
+	{ BinaryOperator::ADD				, {"+" , "ADDITION"}},
+	{ BinaryOperator::MINUS				, {"-" , "SUBSTRACTION"}},
+	{ BinaryOperator::MUL				, {"*" , "MULTIPLICATION"}},
+	{ BinaryOperator::DIV				, {"/" , "DIVISION"}},
+	{ BinaryOperator::MOD				, {"%" , "MODULO"}},
+	{ BinaryOperator::EXP				, {"**", "EXPONENT" }},
+	{ BinaryOperator::LESS_OR_EQUAL		, {"<=", "LESS OR EQUAL THAN"}},
+	{ BinaryOperator::GREATER_OR_EQUAL	, {">=", "GREATER OR EQUAL THAN"}},
+	{ BinaryOperator::LESS_THAN			, {"<", "LESS THAN"}},
+	{ BinaryOperator::GREATER_THAN		, {">", "GREATER THAN"}},
+	{ BinaryOperator::EQUAL				, {"==", "EQUAL"}},
+	{ BinaryOperator::NOTEQUAL			, {"!=", "NOT EQUAL"}},
+	{ BinaryOperator::ASSIGN_BASIC		, {"=", "ASSIGN"}}
 };
 
-static const std::map<unaryOperator, std::pair<std::string,std::string>> kUnaryOpToStr_dict =
+static const std::map<UnaryOperator, std::pair<std::string,std::string>> kUnaryOpToStr_dict =
 {
-	{ unaryOperator::DEFAULT	, {" ", "!INVALID!"}},
-	{ unaryOperator::LOGICNOT	, {"!", "LOGICAL NOT"}},
-	{ unaryOperator::NEGATIVE	, {"-", "NEGATIVE"}},
-	{ unaryOperator::POSITIVE	, {"+", "POSITIVE"}}
+	{ UnaryOperator::DEFAULT	, {" ", "!INVALID!"}},
+	{ UnaryOperator::LOGICNOT	, {"!", "LOGICAL NOT"}},
+	{ UnaryOperator::NEGATIVE	, {"-", "NEGATIVE"}},
+	{ UnaryOperator::POSITIVE	, {"+", "POSITIVE"}}
 };
 
-std::string Operators::toString(const binaryOperator & op)
+std::string operators::toString(const BinaryOperator & op)
 {
 	auto it = kBinopToStr_dict.find(op);
 	assert((it != kBinopToStr_dict.end()) && "Unknown operator?");
 	return it->second.first;
 }
 
-std::string Operators::toString(const unaryOperator & op)
+std::string operators::toString(const UnaryOperator & op)
 {
 	auto it = kUnaryOpToStr_dict.find(op);
 	assert((it != kUnaryOpToStr_dict.end()) && "Unknown operator?");
 	return it->second.first;
 }
 
-std::string Operators::getName(const binaryOperator & op)
+std::string operators::getName(const BinaryOperator & op)
 {
 	auto it = kBinopToStr_dict.find(op);
 	assert((it != kBinopToStr_dict.end()) && "Unknown operator?");
 	return it->second.second;
 }
 
-std::string Operators::getName(const unaryOperator & op)
+std::string operators::getName(const UnaryOperator & op)
 {
 	auto it = kUnaryOpToStr_dict.find(op);
 	assert((it != kUnaryOpToStr_dict.end()) && "Unknown operator?");
@@ -76,7 +76,7 @@ std::string Operators::getName(const unaryOperator & op)
 }
 
 // Expr
-Expr::Expr(const StmtKind & ekind, const SourceLoc& begLoc, const SourceLoc& endLoc) : Stmt(ekind,begLoc,endLoc)
+Expr::Expr(StmtKind ekind, const SourceLoc& begLoc, const SourceLoc& endLoc) : Stmt(ekind,begLoc,endLoc)
 {
 
 }
@@ -87,7 +87,7 @@ CharLiteralExpr::CharLiteralExpr() : CharLiteralExpr(0, SourceLoc(), SourceLoc()
 
 }
 
-CharLiteralExpr::CharLiteralExpr(const CharType & val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
+CharLiteralExpr::CharLiteralExpr(CharType val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
 	: val_(val), Expr(StmtKind::CharLiteralExpr,begLoc,endLoc)
 {
 
@@ -109,7 +109,7 @@ IntegerLiteralExpr::IntegerLiteralExpr() : IntegerLiteralExpr(0,SourceLoc(),Sour
 
 }
 
-IntegerLiteralExpr::IntegerLiteralExpr(const IntType & val, const SourceLoc& begLoc, const SourceLoc& endLoc)
+IntegerLiteralExpr::IntegerLiteralExpr(IntType val, const SourceLoc& begLoc, const SourceLoc& endLoc)
 	: val_(val), Expr(StmtKind::IntegerLiteralExpr,begLoc,endLoc)
 {
 
@@ -131,7 +131,7 @@ FloatLiteralExpr::FloatLiteralExpr() : FloatLiteralExpr(0,SourceLoc(),SourceLoc(
 
 }
 
-FloatLiteralExpr::FloatLiteralExpr(const FloatType & val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
+FloatLiteralExpr::FloatLiteralExpr(FloatType val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
 	: val_(val), Expr(StmtKind::FloatLiteralExpr,begLoc,endLoc)
 {
 
@@ -175,7 +175,7 @@ BoolLiteralExpr::BoolLiteralExpr() : BoolLiteralExpr(false,SourceLoc(),SourceLoc
 
 }
 
-BoolLiteralExpr::BoolLiteralExpr(const bool & val, const SourceLoc& begLoc, const SourceLoc& endLoc)
+BoolLiteralExpr::BoolLiteralExpr(bool val, const SourceLoc& begLoc, const SourceLoc& endLoc)
 	: val_(val), Expr(StmtKind::BoolLiteralExpr,begLoc,endLoc)
 {
 
@@ -225,12 +225,12 @@ bool ArrayLiteralExpr::isEmpty() const
 }
 
 // BinaryExpr
-BinaryExpr::BinaryExpr() : BinaryExpr(binaryOperator::DEFAULT,nullptr,nullptr,SourceLoc(),SourceRange(),SourceLoc())
+BinaryExpr::BinaryExpr() : BinaryExpr(BinaryOperator::DEFAULT,nullptr,nullptr,SourceLoc(),SourceRange(),SourceLoc())
 {
 
 }
 
-BinaryExpr::BinaryExpr(const binaryOperator & opt, std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
+BinaryExpr::BinaryExpr(BinaryOperator opt, std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
 	op_(opt), Expr(StmtKind::BinaryExpr, begLoc, endLoc), opRange_(opRange)
 {
 	setLHS(std::move(lhs));
@@ -267,12 +267,12 @@ void BinaryExpr::setRHS(std::unique_ptr<Expr> nrhs)
 	right_ = std::move(nrhs);
 }
 
-binaryOperator BinaryExpr::getOp() const
+BinaryOperator BinaryExpr::getOp() const
 {
 	return op_;
 }
 
-void BinaryExpr::setOp(const binaryOperator & op)
+void BinaryExpr::setOp(const BinaryOperator & op)
 {
 	op_ = op;
 }
@@ -283,12 +283,12 @@ SourceRange BinaryExpr::getOpRange() const
 }
 
 // UnaryExpr
-UnaryExpr::UnaryExpr() : UnaryExpr(unaryOperator::DEFAULT,nullptr,SourceLoc(),SourceRange(),SourceLoc())
+UnaryExpr::UnaryExpr() : UnaryExpr(UnaryOperator::DEFAULT,nullptr,SourceLoc(),SourceRange(),SourceLoc())
 {
 
 }
 
-UnaryExpr::UnaryExpr(const unaryOperator & opt, std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc)
+UnaryExpr::UnaryExpr(UnaryOperator opt, std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc)
 	: op_(opt), Expr(StmtKind::UnaryExpr,begLoc,endLoc), opRange_(opRange), child_(std::move(node))
 {
 }
@@ -308,12 +308,12 @@ void UnaryExpr::setChild(std::unique_ptr<Expr> nchild)
 	child_ = std::move(nchild);
 }
 
-unaryOperator UnaryExpr::getOp() const
+UnaryOperator UnaryExpr::getOp() const
 {
 	return op_;
 }
 
-void UnaryExpr::setOp(const unaryOperator & nop)
+void UnaryExpr::setOp(const UnaryOperator & nop)
 {
 	op_ = nop;
 }
@@ -531,13 +531,13 @@ void ExprList::addExpr(std::unique_ptr<Expr> expr)
 	exprs_.emplace_back(std::move(expr));
 }
 
-Expr* ExprList::getExpr(const std::size_t & ind)
+Expr* ExprList::getExpr(std::size_t ind)
 {
 	assert(ind < exprs_.size() && "out-of-range");
 	return exprs_[ind].get();
 }
 
-const Expr* ExprList::getExpr(const std::size_t & ind) const
+const Expr* ExprList::getExpr(std::size_t ind) const
 {
 	assert(ind < exprs_.size() && "out-of-range");
 	return exprs_[ind].get();

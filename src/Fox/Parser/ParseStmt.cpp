@@ -12,7 +12,7 @@
 
 using namespace fox;
 
-Parser::StmtResult Parser::parseCompoundStatement(const bool& isMandatory)
+Parser::StmtResult Parser::parseCompoundStatement(bool isMandatory)
 {
 	auto rtr = std::make_unique<CompoundStmt>(); // return value
 	auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);

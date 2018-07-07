@@ -14,7 +14,7 @@
 
 namespace fox
 {
-	enum class DeclKind : char
+	enum class DeclKind : std::uint8_t
 	{
 		#define DECL(ID,PARENT) ID,
 		#include "DeclNodes.def"
@@ -49,7 +49,7 @@ namespace fox
 
 			bool isValid() const;
 	protected:
-			Decl(const DeclKind& kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			Decl(DeclKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 		private:
 			SourceLoc begLoc_, endLoc_;
 			DeclKind kind_;
@@ -59,7 +59,7 @@ namespace fox
 	class NamedDecl : public Decl
 	{
 		public:
-			NamedDecl(const DeclKind& kind,IdentifierInfo* id,const SourceLoc& begLoc, const SourceLoc& endLoc);
+			NamedDecl(DeclKind kind,IdentifierInfo* id,const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			IdentifierInfo * getIdentifier() const;
 			void setIdentifier(IdentifierInfo* nname);
@@ -118,8 +118,8 @@ namespace fox
 			const CompoundStmt* getBody() const;
 
 			void addArg(std::unique_ptr<ArgDecl> arg);
-			ArgDecl* getArg(const std::size_t & ind);
-			const ArgDecl* getArg(const std::size_t & ind) const;
+			ArgDecl* getArg(std::size_t ind);
+			const ArgDecl* getArg(std::size_t ind) const;
 			std::size_t argsSize() const;
 
 			ArgVecIter args_begin();
@@ -171,12 +171,12 @@ namespace fox
 			using DeclVecIter = DereferenceIterator<DelVecTy::iterator>;
 			using DeclVecConstIter = DereferenceIterator<DelVecTy::const_iterator>;
 		public:
-			UnitDecl(IdentifierInfo *id, const FileID& inFile);
+			UnitDecl(IdentifierInfo *id, FileID inFile);
 
 			void addDecl(std::unique_ptr<Decl> decl);
 
-			Decl* getDecl(const std::size_t &idx);
-			const Decl* getDecl(const std::size_t &idx) const;
+			Decl* getDecl(std::size_t idx);
+			const Decl* getDecl(std::size_t idx) const;
 
 			std::size_t getDeclCount() const;
 

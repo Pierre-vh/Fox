@@ -230,7 +230,7 @@ void Lexer::fn_S_CHR()
 		addToCurtok(c);
 }
 
-void Lexer::dfa_goto(const DFAState & ns)
+void Lexer::dfa_goto(DFAState ns)
 {
 	state_ = ns;
 }
@@ -280,7 +280,7 @@ void Lexer::addToCurtok(CharType c)
 	}
 }
 
-bool Lexer::isSep(const CharType &c) const
+bool Lexer::isSep(CharType c) const
 {
 	// Is separator ? Signs are the separators in the input. Separators mark the end and beginning of tokens, and are tokens themselves. Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
 	if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip_.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
@@ -290,12 +290,12 @@ bool Lexer::isSep(const CharType &c) const
 	return (i != kSign_dict.end()) || std::iswspace((wchar_t)c);
 }
 
-bool Lexer::isEscapeChar(const CharType & c) const
+bool Lexer::isEscapeChar(CharType c) const
 {
 	return  (c == '\\') && ((state_ == DFAState::S_STR) || (state_ == DFAState::S_CHR));
 }
 
-bool Lexer::shouldIgnore(const CharType & c) const
+bool Lexer::shouldIgnore(CharType c) const
 {
 	return (c == '\r'); // don't push carriage returns
 }

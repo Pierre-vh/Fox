@@ -39,7 +39,7 @@ namespace fox
 			std::size_t resultSize() const;	
 			FileID getCurrentFile() const;
 		private:
-			enum class DFAState
+			enum class DFAState : std::uint8_t
 			{
 				S_BASE, // basestate
 				S_STR,	// string literals
@@ -55,7 +55,7 @@ namespace fox
 			void markBeginningOfToken(); // sets currentTokenBeginIndex_ to the current index
 
 			void runStateFunc();
-			void dfa_goto(const DFAState &ns);
+			void dfa_goto(DFAState ns);
 			void fn_S_BASE();	// base state
 			void fn_S_STR();	// string literals
 			void fn_S_LCOM();	// one line comment
@@ -64,11 +64,11 @@ namespace fox
 			void fn_S_CHR();	// Char literals
 
 			// Utils
-			CharType eatChar();									// returns the current char and run updatePos (returns inputstr_[pos_] and do pos_+=1)
-			void addToCurtok(CharType c);						// adds the current character to curtok
-			bool isSep(const CharType &c) const;				// is the current char a separator? (= a sign. see kSign_dict)
-			bool isEscapeChar(const CharType& c) const;			// Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.
-			bool shouldIgnore(const CharType& c) const;			// Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
+			CharType eatChar();						// returns the current char and run updatePos (returns inputstr_[pos_] and do pos_+=1)
+			void addToCurtok(CharType c);			// adds the current character to curtok
+			bool isSep(CharType c) const;			// is the current char a separator? (= a sign. see kSign_dict)
+			bool isEscapeChar(CharType c) const;	// Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.
+			bool shouldIgnore(CharType c) const;	// Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
 
 			SourceLoc getCurtokBegLoc() const;
 			SourceRange getCurtokRange() const;

@@ -34,7 +34,7 @@ namespace fox
 
 		private:
 			std::string getLocInfo(const SourceRange& range) const;
-			std::string diagSevToString(const DiagSeverity& ds) const;
+			std::string diagSevToString(DiagSeverity ds) const;
 
 			SourceManager* sm_;
 			std::ostream &os_;

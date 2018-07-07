@@ -293,7 +293,7 @@ void ASTDumper::visitFunctionDecl(FunctionDecl * node)
 	}
 }
 
-void ASTDumper::setPrintAllAddresses(const bool & opt)
+void ASTDumper::setPrintAllAddresses(bool opt)
 {
 	printAllAdresses_ = opt;
 }
@@ -303,7 +303,7 @@ bool ASTDumper::getPrintAllAddresses() const
 	return printAllAdresses_;
 }
 
-void ASTDumper::setDumpOperatorsAsNames(const bool & opt)
+void ASTDumper::setDumpOperatorsAsNames(bool opt)
 {
 	dumpOperatorsAsNames_ = opt;
 }
@@ -320,7 +320,7 @@ void ASTDumper::initDefaultOptions()
 	dumpOperatorsAsNames_ = false;
 }
 
-std::ostream & ASTDumper::dumpLine(const uint8_t& num)
+std::ostream & ASTDumper::dumpLine(std::uint8_t num)
 {
 	out_ << offset_ << getIndent(num);
 	return out_;
@@ -412,18 +412,18 @@ std::string ASTDumper::getBasicTypeInfo(Type * type) const
 	return ss.str();
 }
 
-std::string ASTDumper::getOperatorDump(const binaryOperator & op) const
+std::string ASTDumper::getOperatorDump(BinaryOperator op) const
 {
 	if (dumpOperatorsAsNames_)
-		return "'" + Operators::getName(op) + "'";
-	return "'" + Operators::toString(op) + "'";
+		return "'" + operators::getName(op) + "'";
+	return "'" + operators::toString(op) + "'";
 }
 
-std::string ASTDumper::getOperatorDump(const unaryOperator & op) const
+std::string ASTDumper::getOperatorDump(UnaryOperator op) const
 {
 	if (dumpOperatorsAsNames_)
-		return "'" + Operators::getName(op) + "'";
-	return "'" + Operators::toString(op) + "'";
+		return "'" + operators::getName(op) + "'";
+	return "'" + operators::toString(op) + "'";
 }
 
 std::string ASTDumper::getDeclRecorderDump(DeclRecorder * dr) const

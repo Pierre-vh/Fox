@@ -44,6 +44,10 @@ namespace fox
 		public:
 			IdentifierInfo(const StringPtrInMap::ItTy& iter);
 
+			IdentifierInfo(IdentifierInfo&&) = default;
+			IdentifierInfo(IdentifierInfo&) = delete;
+			IdentifierInfo& operator=(IdentifierInfo&) = delete;
+
 			// Returns the string naming this identifier
 			const std::string& getStr() const;
 
@@ -57,6 +61,7 @@ namespace fox
 
 			bool operator!=(const IdentifierInfo& id) const;
 			bool operator!=(const std::string& str) const;
+	
 		private:
 			friend class IdentifierTable;
 
@@ -69,8 +74,10 @@ namespace fox
 	class IdentifierTable
 	{
 		private:
-			using IDTableIterator = std::map<std::string, IdentifierInfo>::iterator;
-			using IDTableConstIterator = std::map<std::string, IdentifierInfo>::const_iterator;
+			using IDTableType = std::map<std::string, IdentifierInfo>;
+			using IDTableIteratorType = IDTableType::iterator;
+			using IDTableConstIteratorType = IDTableType::const_iterator;
+
 		public:
 			IdentifierTable() = default;
 
@@ -83,11 +90,11 @@ namespace fox
 			bool exists(const std::string &id) const;
 
 			// Iterators
-			IDTableConstIterator begin() const;
-			IDTableIterator begin();
+			IDTableConstIteratorType begin() const;
+			IDTableIteratorType begin();
 
-			IDTableConstIterator end() const;
-			IDTableIterator end();
+			IDTableConstIteratorType end() const;
+			IDTableIteratorType end();
 		private:
 			IdentifierInfo* invalidID_ = nullptr;
 
@@ -96,6 +103,6 @@ namespace fox
 			IdentifierTable& operator=(const IdentifierTable&) = delete;
 
 			// Member variables
-			std::map<std::string,IdentifierInfo> table_;
+			IDTableType table_;
 	};
 }

@@ -41,12 +41,12 @@ DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons): c
 	warningsAreErrors_			= false;
 }
 
-Diagnostic DiagnosticEngine::report(const DiagID& diagID)
+Diagnostic DiagnosticEngine::report(DiagID diagID)
 {
 	return report(diagID, SourceRange());
 }
 
-Diagnostic DiagnosticEngine::report(const DiagID& diagID, const SourceRange& range)
+Diagnostic DiagnosticEngine::report(DiagID diagID, const SourceRange& range)
 {
 	// Gather diagnostic data
 	const auto idx = enumAsInt(diagID);
@@ -65,7 +65,7 @@ Diagnostic DiagnosticEngine::report(const DiagID& diagID, const SourceRange& ran
 			);;
 }
 
-Diagnostic DiagnosticEngine::report(const DiagID& diagID, const SourceLoc& loc)
+Diagnostic DiagnosticEngine::report(DiagID diagID, const SourceLoc& loc)
 {
 	return report(diagID, SourceRange(loc));
 }
@@ -100,7 +100,7 @@ std::uint16_t DiagnosticEngine::getErrorLimit() const
 	return errLimit_;
 }
 
-void DiagnosticEngine::setErrorLimit(const std::uint16_t& mErr)
+void DiagnosticEngine::setErrorLimit(std::uint16_t mErr)
 {
 	errLimit_ = mErr;
 }
@@ -110,7 +110,7 @@ bool DiagnosticEngine::getWarningsAreErrors() const
 	return warningsAreErrors_;
 }
 
-void DiagnosticEngine::setWarningsAreErrors(const bool& val)
+void DiagnosticEngine::setWarningsAreErrors(bool val)
 {
 	warningsAreErrors_ = val;
 }
@@ -120,7 +120,7 @@ bool DiagnosticEngine::getErrorsAreFatal() const
 	return errorsAreFatal_;
 }
 
-void DiagnosticEngine::setErrorsAreFatal(const bool& val)
+void DiagnosticEngine::setErrorsAreFatal(bool val)
 {
 	errorsAreFatal_ = val;
 }
@@ -130,7 +130,7 @@ bool DiagnosticEngine::getSilenceWarnings() const
 	return silenceWarnings_;
 }
 
-void DiagnosticEngine::setSilenceWarnings(const bool & val)
+void DiagnosticEngine::setSilenceWarnings(bool val)
 {
 	silenceWarnings_ = val;
 }
@@ -140,7 +140,7 @@ bool DiagnosticEngine::getSilenceNotes() const
 	return silenceNotes_;
 }
 
-void DiagnosticEngine::setSilenceNotes(const bool & val)
+void DiagnosticEngine::setSilenceNotes(bool val)
 {
 	silenceNotes_ = val;
 }
@@ -150,7 +150,7 @@ bool DiagnosticEngine::getSilenceAllAfterFatalErrors() const
 	return silenceAllAfterFatalError_;
 }
 
-void DiagnosticEngine::setSilenceAllAfterFatalErrors(const bool & val)
+void DiagnosticEngine::setSilenceAllAfterFatalErrors(bool val)
 {
 	silenceAllAfterFatalError_ = val;
 }
@@ -160,7 +160,7 @@ bool DiagnosticEngine::getSilenceAll() const
 	return silenceAll_;
 }
 
-void DiagnosticEngine::setSilenceAll(const bool & val)
+void DiagnosticEngine::setSilenceAll(bool val)
 {
 	silenceAll_ = val;
 }
@@ -189,7 +189,7 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
 	}
 }
 
-DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(const DiagSeverity& ds) const
+DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const
 {
 	using Sev = DiagSeverity;
 
@@ -227,7 +227,7 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(const DiagSeverity& ds) co
 	}
 }
 
-void DiagnosticEngine::updateInternalCounters(const DiagSeverity & ds)
+void DiagnosticEngine::updateInternalCounters(DiagSeverity ds)
 {
 	switch (ds)
 	{

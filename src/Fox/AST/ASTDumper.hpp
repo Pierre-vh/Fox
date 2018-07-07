@@ -55,10 +55,10 @@ namespace fox
 			void visitFunctionDecl(FunctionDecl* node);
 
 			// Options
-			void setPrintAllAddresses(const bool& opt);
+			void setPrintAllAddresses(bool opt);
 			bool getPrintAllAddresses() const;
 
-			void setDumpOperatorsAsNames(const bool& opt);
+			void setDumpOperatorsAsNames(bool opt);
 			bool getDumpOperatorsAsNames() const;
 
 		private:
@@ -66,7 +66,7 @@ namespace fox
 
 			// Prints getOffset() and getIndent() to out_ then returns out_
 			// Can add a number as parameter to add a "temporary" indent, just for this line.
-			std::ostream& dumpLine(const uint8_t& num = 0);
+			std::ostream& dumpLine(std::uint8_t num = 0);
 
 			// sets offset_ to the correct number of tabs required.
 			void recalculateOffset();
@@ -86,8 +86,8 @@ namespace fox
 
 			// Dump an operator in 2 different ways, depending on dumpOperatorsAsNames_
 			// if dumpOperatorsAsNames_ = true, returns e.g. "ADDITION" instead of '+'
-			std::string getOperatorDump(const binaryOperator& op) const;
-			std::string getOperatorDump(const unaryOperator& op) const;
+			std::string getOperatorDump(BinaryOperator op) const;
+			std::string getOperatorDump(UnaryOperator op) const;
 
 			// Returns a formatted string "<DeclRecorder (adress), Parent: (adress)>"
 			std::string getDeclRecorderDump(DeclRecorder *dr) const;

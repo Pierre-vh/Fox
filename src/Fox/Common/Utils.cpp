@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <iostream>
 
-void fox::_fox_unreachable_internal(const char* message, const char* file, const unsigned& line)
+void fox::_fox_unreachable_internal(const char* message, const char* file, unsigned line)
 {
 	std::cerr << "(" << file << ", l:" << line << ") UNREACHBLE INSTRUCTION EXECUTED: \"" << message << "\"\n";
 	abort();

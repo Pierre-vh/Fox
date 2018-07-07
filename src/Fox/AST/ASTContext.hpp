@@ -44,7 +44,7 @@ namespace fox
 			// Once ownership is taken, it returns a observing pointer to that unit.
 			// Takes an optional boolean parameter, set it to true so that the unit added is recognized as the main unit
 			// in this ASTContext
-			UnitDecl* addUnit(std::unique_ptr<UnitDecl> unit, const bool& isMainUnit = false);
+			UnitDecl* addUnit(std::unique_ptr<UnitDecl> unit, bool isMainUnit = false);
 
 			PrimitiveType* getPrimitiveIntType();
 			PrimitiveType* getPrimitiveFloatType();

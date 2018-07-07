@@ -222,7 +222,7 @@ SourceLoc::SourceLoc() : fid_(FileID()), idx_(0)
 
 }
 
-SourceLoc::SourceLoc(const FileID & fid, const idx_type & idx) : fid_(fid), idx_(idx)
+SourceLoc::SourceLoc(const FileID & fid, idx_type idx) : fid_(fid), idx_(idx)
 {
 }
 
@@ -267,7 +267,7 @@ void SourceLoc::decrement()
 }
 
 // SourceRange
-SourceRange::SourceRange(const SourceLoc& sloc, const offset_type& offset) : sloc_(sloc), offset_(offset)
+SourceRange::SourceRange(const SourceLoc& sloc, offset_type offset) : sloc_(sloc), offset_(offset)
 {
 
 }
