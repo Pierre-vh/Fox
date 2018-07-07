@@ -84,7 +84,7 @@ namespace fox
 			void setRHS(std::unique_ptr<Expr> nrhs);
 
 			BinaryOperator getOp() const;
-			void setOp(const BinaryOperator& op);
+			void setOp(BinaryOperator op);
 
 			SourceRange getOpRange() const;
 		private:
@@ -105,7 +105,7 @@ namespace fox
 			void setChild(std::unique_ptr<Expr> nchild);
 
 			UnaryOperator getOp() const;
-			void setOp(const UnaryOperator& nop);
+			void setOp(UnaryOperator nop);
 
 			SourceRange getOpRange() const;
 		private:
@@ -144,7 +144,7 @@ namespace fox
 			CharLiteralExpr(CharType val,const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			CharType getVal() const;
-			void setVal(const CharType& val);
+			void setVal(CharType val);
 		private:
 			CharType val_ = ' ';
 	};
@@ -156,7 +156,7 @@ namespace fox
 			IntegerLiteralExpr(IntType val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			IntType getVal() const;
-			void setVal(const IntType& val);
+			void setVal(IntType val);
 		private:
 			IntType val_ = 0;
 	};
@@ -168,7 +168,7 @@ namespace fox
 			FloatLiteralExpr(FloatType val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			FloatType getVal() const;
-			void setVal(const FloatType& val);
+			void setVal(FloatType val);
 		private:
 			FloatType val_ = 0.0f;
 	};
@@ -192,7 +192,7 @@ namespace fox
 			BoolLiteralExpr(bool val, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			bool getVal() const;
-			void setVal(const bool& val);
+			void setVal(bool val);
 		private:
 			bool val_ = false;
 	};

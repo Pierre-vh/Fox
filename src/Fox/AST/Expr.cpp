@@ -98,7 +98,7 @@ CharType CharLiteralExpr::getVal() const
 	return val_;
 }
 
-void CharLiteralExpr::setVal(const CharType & val)
+void CharLiteralExpr::setVal(CharType val)
 {
 	val_ = val;
 }
@@ -120,7 +120,7 @@ IntType IntegerLiteralExpr::getVal() const
 	return val_;
 }
 
-void IntegerLiteralExpr::setVal(const IntType & val)
+void IntegerLiteralExpr::setVal(IntType val)
 {
 	val_ = val;
 }
@@ -142,7 +142,7 @@ FloatType FloatLiteralExpr::getVal() const
 	return val_;
 }
 
-void FloatLiteralExpr::setVal(const FloatType & val)
+void FloatLiteralExpr::setVal(FloatType val)
 {
 	val_ = val;
 }
@@ -186,7 +186,7 @@ bool BoolLiteralExpr::getVal() const
 	return val_;
 }
 
-void BoolLiteralExpr::setVal(const bool & val)
+void BoolLiteralExpr::setVal(bool val)
 {
 	val_ = val;
 }
@@ -272,7 +272,7 @@ BinaryOperator BinaryExpr::getOp() const
 	return op_;
 }
 
-void BinaryExpr::setOp(const BinaryOperator & op)
+void BinaryExpr::setOp(BinaryOperator op)
 {
 	op_ = op;
 }
@@ -313,7 +313,7 @@ UnaryOperator UnaryExpr::getOp() const
 	return op_;
 }
 
-void UnaryExpr::setOp(const UnaryOperator & nop)
+void UnaryExpr::setOp(UnaryOperator nop)
 {
 	op_ = nop;
 }
