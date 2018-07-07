@@ -36,8 +36,9 @@ Moonshot Project To-do List.
 	> Update Parser to use DiagnosticEngine + ParserDiagnostics Rework (Done)	
 	> SourceManager improvements : Line table & Renaming SourceManager.hpp/.cpp to Source.hpp/.cpp (Done)
 	> Small code review (error handling checking) (Done)
+	> Rename DeclRecorder to DeclContext.(Done)
 
-	> Rename DeclRecorder to DeclContext. DeclContext sounds better than DeclRecorder anyways. (Next)
+	> Question: Should FunctionDecl be a DeclContext? (Find the rationale behind that)
 
 	> Write the Remaining tests needed (Next)
 		> Write Stmt & Expr Loc Tests
