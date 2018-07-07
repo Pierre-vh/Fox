@@ -64,7 +64,8 @@ namespace fox
 	};
 
 	// A class that maps strings to IdentifierInfo.
-	// This contains every (user-defined) identifier currently in use.
+	// This contains every (user-defined) identifier currently in use, and is populated by the 
+	// Lexer.
 	class IdentifierTable
 	{
 		private:
