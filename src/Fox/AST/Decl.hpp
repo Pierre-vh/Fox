@@ -88,7 +88,11 @@ namespace fox
 			QualType type_;
 	};
 
-	// a Function declaration node.
+	// Represents a function declaration.
+	// This class is a DeclContext because it has its own scope
+	// separated from the Unit's scope. If this wasn't a DeclContext,
+	// every variable inside a Function would be visible in the global scope,
+	// making name resolution much harder.
 	class FunctionDecl : public NamedDecl, public DeclContext
 	{
 		private:
