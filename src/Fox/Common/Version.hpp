@@ -14,12 +14,10 @@
 
 /* Moonshot Version Numbers */
 #define MOONSHOT_VER_MAJOR 0
-#define MOONSHOT_VER_MINOR 2
+#define MOONSHOT_VER_MINOR 3
 #define MOONSHOT_VER_PATCH 0
 
 #define MOONSHOT_DEV_PHASE "inDev"	
-
-// Current Version : 0 -> Development of the interpreter.
 
 // Description of each "development" phase
 	// inDev : Nothing is complete/working as intended	(Make it work)
