@@ -76,7 +76,7 @@ namespace fox
 			typedef std::size_t idx_type;
 
 			SourceLoc();
-			SourceLoc(const FileID& fid, idx_type idx = 0);
+			explicit SourceLoc(const FileID& fid, idx_type idx = 0);
 
 			bool isValid() const;
 			explicit operator bool() const; // ShortCut for isValid
@@ -105,8 +105,8 @@ namespace fox
 		public:
 			typedef std::size_t offset_type;
 
-			SourceRange(const SourceLoc& sloc, offset_type offset = 0);
-			SourceRange(const SourceLoc& a, const SourceLoc& b);
+			explicit SourceRange(const SourceLoc& sloc, offset_type offset = 0);
+			explicit SourceRange(const SourceLoc& a, const SourceLoc& b);
 			SourceRange();
 
 			bool isValid() const;
