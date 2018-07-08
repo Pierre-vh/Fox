@@ -38,8 +38,10 @@ Moonshot Project To-do List.
 	> Small code review (error handling checking) (Done)
 	> Rename DeclRecorder to DeclContext.(Done)
 	> Rework the DiagnosticEngine::report function (Done)
+	> Rework the DiagnosticEngine::report function (Done)
 
-	> Write the Remaining tests needed (Next)
+	> Write the Remaining tests needed
+		(Will be done sometime next century since I'm too lazy to write the tests :) )
 		> Write Stmt & Expr Loc Tests
 			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 			> Probably don't use a file, just do SetUp("<code goes here>"")w
@@ -47,27 +49,14 @@ Moonshot Project To-do List.
 	QOL:
 		> Rework the DiagnosticEngine::report function (Done)
 
-		> Diagnostics Overhaul : More user-friendly (Note, this is still subject to modifications)
+		> Diagnostics Overhaul (Now)
 			> The StreamDiagConsumer should always try to retrieve the line where the error happened
-				> Implement that in the base DiagnosticConsumer as a protected method that the derived classes can use. (e.g. "getOriginalSourceLine(SourceLoc)")
-				> Display Carets under the errorRange, if available
-				> Display ~~~ under the completeRange, if available
-					> To support that, I'll need to add another "SourceRange" variable to the Diagnostic object
-					> in the end, 2 Ranges will coexist 
-						> completeRange	-> The complete piece of code that produces the error
-						> errorRange	-> The precise part of the piece of code that's causing the error.
-						> if both errorRange and completeRange are set, 
-						  asser that errorRange is contained within the completeRange
-				> TODO: Maybe find other signs than ^ because multiple '^'s looks a bit weird imo.
-		Exemple final diagnostic:
-			<source.hpp>(l1,c4) - Error - Invalid operands for '**' operator : char and float
-			foo**bar;
-			~~~^^~~~
-
-			<source.hpp>(l2,c12) - Error - Invalid type "string" for array subscript
-			arr["foo"];
-			~~~~^^^^^~
-
+				> SourceManager method to get the SourceLine for a SourceLoc (Done)
+				> Display the line of the source where the error is in the DiagConsumer (Done)
+					> Find a way to disable that for the parser's file-wide diagnostics. (Done)
+				> add CompleteRange (Next)
+				> Display Carets under the errorRange, if there's one available 
+				> Display ~~~ under the completeRange, if there's one available 
 
 		> Add classof static methods to the AST
 			> Stmt, Decls, Types
