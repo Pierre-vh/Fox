@@ -66,17 +66,17 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 	// The conversion to uint16_t is needed so replacePlaceholder doesn't mistake
 	// it for a character.
 	if (std::uint16_t count = state_.curlyBracketsCount)
-		diags_.report(DiagID::parser_missing_curlybracket, SourceLoc(fid)).addArg(count);
+		diags_.report(DiagID::parser_missing_curlybracket, fid).addArg(count);
 
 	if (std::uint16_t count = state_.roundBracketsCount)
-		diags_.report(DiagID::parser_missing_roundbracket, SourceLoc(fid)).addArg(count);
+		diags_.report(DiagID::parser_missing_roundbracket, fid).addArg(count);
 
 	if (std::uint16_t count = state_.squareBracketsCount)
-		diags_.report(DiagID::parser_missing_squarebracket, SourceLoc(fid)).addArg(count);
+		diags_.report(DiagID::parser_missing_squarebracket, fid).addArg(count);
 
 	if (unit->getDeclCount() == 0)
 	{
-		diags_.report(DiagID::parser_expected_decl_in_unit,SourceLoc(fid));
+		diags_.report(DiagID::parser_expected_decl_in_unit, fid);
 		return nullptr;
 	}
 	else
