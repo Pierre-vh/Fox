@@ -12,6 +12,7 @@
 #include "utfcpp/utf8.hpp"
 #include <fstream>
 #include <cassert>
+#include <cctype>
 
 #define INVALID_FILEID_VALUE 0
 
@@ -29,9 +30,14 @@ FileID::FileID(const id_type& value)
 	set(value);
 }
 
-FileID::operator bool() const
+bool FileID::isValid() const
 {
 	return value_ != INVALID_FILEID_VALUE;
+}
+
+FileID::operator bool() const
+{
+	return isValid();
 }
 
 bool FileID::operator==(const FileID & other) const
@@ -67,23 +73,21 @@ void FileID::markAsInvalid()
 // SourceManager
 const std::string* SourceManager::getSourceForFID(const FileID& fid) const
 {
-	if (auto data = getStoredDataForFileID(fid))
-		return &(data->str);
-	return nullptr;
+	auto data = getStoredDataForFileID(fid);
+	return &(data->str);
 }
 
-const SourceManager::StoredData * SourceManager::getStoredDataForFileID(const FileID & fid) const
+const SourceManager::StoredData* SourceManager::getStoredDataForFileID(const FileID& fid) const
 {
-	auto it = sources_.lower_bound(fid);
-	if (it != sources_.end() && !(sources_.key_comp()(fid, it->first)))
-		return &(it->second);
-	return nullptr;
+	assert(fid.isValid() && "Invalid FileID");
+	auto it = sources_.find(fid);
+	assert((it != sources_.end()) && "Unknown entry");
+	return &(it->second);
 }
 
 CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) const
 {
 	const StoredData* fdata = getStoredDataForFileID(sloc.getFileID());
-	assert(fdata && "Entry does not exists?");
 
 	auto idx = sloc.getIndex();
 	assert((idx <= fdata->str.size()) && "SourceLoc is Out-of-Range");
@@ -94,42 +98,21 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 	if (isOutOfRange)
 		idx--;
 
-	// Calculate the line table if needed
-	if (!fdata->hasCalculatedLineTable)
-		calculateLineTable(fdata);
+	CompleteLoc::col_type col = 1;
+	CompleteLoc::line_type line = 1;
 
-	CompleteLoc::line_type line = 0;
-	CompleteLoc::col_type col = 0;
-
-	// Search the map, and find if this is an exact match.
-	auto it = fdata->lineTable.lower_bound(idx);
-	bool exactMatch = false;
-	if (it != fdata->lineTable.end())
-		exactMatch = (it->first == idx);
-
+	auto entry = getLineTableEntryForLoc(fdata, sloc);
+	bool exactMatch = (entry.first == idx);
 	if (exactMatch)
 	{
-		// If it's an exact match, just use the it->second as the line
-		// and we don't need to calculate the column 
-		line = it->second;
+		line = entry.second;
 		col = 1;
 	}
 	else
 	{
-		// Since lower_bound give us an iterator to the element 
-		// above what we're looking for, decrement it if possible
-		if (it != fdata->lineTable.begin())
-			it--;
-
-		// get the line
-		line = it->second;
-
-		// Use the utf8 library to calculate the distance in codepoints
-		// between the beginning of the line and the index we're looking for.
+		line = entry.second;
 		auto str_beg = fdata->str.c_str(); // Pointer to the first character of the string
-		auto raw_col = utf8::distance(str_beg + (it->first), str_beg + idx);
-
-		// Avoid compiler errors
+		auto raw_col = utf8::distance(str_beg + entry.first, str_beg + idx);
 		col = static_cast<CompleteLoc::col_type>(raw_col+1);
 	}
 
@@ -159,6 +142,29 @@ bool SourceManager::isSourceLocValid(const SourceLoc & sloc) const
 bool SourceManager::doesFileExists(const FileID & file) const
 {
 	return (bool)getStoredDataForFileID(file);
+}
+
+std::string SourceManager::getLineAtLoc(const SourceLoc& loc) const
+{
+	const StoredData* data = getStoredDataForFileID(loc.getFileID());
+	auto pair = getLineTableEntryForLoc(data, loc);
+
+	std::size_t k = pair.first;
+	std::size_t sz = data->str.size();
+
+	std::string rtr;
+
+	char ch = 0;
+	for (; k < sz; k++)
+	{
+		ch = data->str[k];
+
+		if (ch == '\n' || ch == '\r')
+			break;
+		rtr += ch;
+	}
+
+	return rtr;
 }
 
 FileID SourceManager::loadFromFile(const std::string & path)
@@ -214,6 +220,26 @@ void SourceManager::calculateLineTable(const StoredData* data) const
 	}
 
 	data->hasCalculatedLineTable = true;
+}
+
+std::pair<SourceLoc::idx_type, CompleteLoc::line_type>
+SourceManager::getLineTableEntryForLoc(const StoredData* data, const SourceLoc& loc) const
+{
+	if (!data->hasCalculatedLineTable)
+		calculateLineTable(data);
+
+	// Search the map, and find if this is an exact match.
+	auto it = data->lineTable.lower_bound(loc.getIndex());
+
+	bool exactMatch = false;
+	if(it != data->lineTable.end())
+		exactMatch = (it->first == loc.getIndex());
+
+	if (exactMatch)
+		return *it;
+	else if (it != data->lineTable.begin())
+		return *(--it);
+	return *it;
 }
 
 // SourceLoc

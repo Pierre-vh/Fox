@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <map>
 #include <string>
+#include <tuple>
 
 namespace fox
 {
@@ -25,7 +26,9 @@ namespace fox
 
 			FileID();
 
+			bool isValid() const;
 			explicit operator bool() const;
+
 			bool operator ==(const FileID& other) const;
 			bool operator !=(const FileID& other) const;
 			// For comparisons
@@ -147,10 +150,12 @@ namespace fox
 			// to the file.
 			FileID loadFromString(const std::string& str, const std::string& name = "in-memory");
 
-			// Returns a pointer to the string that the FileID points to, or nullptr if not found.
+			// Returns a pointer to the source string of a file.
+			// The result is always non null.
 			const std::string* getSourceForFID(const FileID& fid) const;
 
-			// Returns a pointer to the stored data that the FileID points to, or nullptr if not found.
+			// Returns a pointer to the stored data that the FileID points to.
+			// The result is always non null.
 			const StoredData*  getStoredDataForFileID(const FileID& fid) const;
 
 			// Requests the human-readable location a SourceLoc points to.
@@ -165,9 +170,14 @@ namespace fox
 			// Check if a File Exists
 			bool doesFileExists(const FileID& file) const;
 
+			// Returns the complete line of source code for a given SourceLoc
+			std::string getLineAtLoc(const SourceLoc& loc) const;
 		private:
 			FileID generateNewFileID() const;
 			void calculateLineTable(const StoredData* data) const;
+
+			std::pair<SourceLoc::idx_type, CompleteLoc::line_type>
+			getLineTableEntryForLoc(const StoredData* data, const SourceLoc& loc) const;
 
 			// Make it non copyable
 			SourceManager(const SourceManager&) = delete;
