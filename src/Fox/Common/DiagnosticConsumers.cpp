@@ -28,6 +28,12 @@ void StreamDiagConsumer::consume(const Diagnostic& diag)
 		<< " - " 
 		<< diag.getDiagStr() 
 		<< "\n";
+
+	// todo: display line without indent
+	if (sm_)
+	{
+		os_ << sm_->getLineAtLoc(diag.getSourceRange().getBeginSourceLoc()) << "\n";
+	}
 }
 
 std::string StreamDiagConsumer::getLocInfo(const SourceRange& range) const
