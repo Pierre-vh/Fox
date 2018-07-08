@@ -182,15 +182,15 @@ TEST(DiagnosticsTests, frozenAndDeadDiags)
 	auto diagEng = createDiagEngine();
 	auto diag = diagEng.report(DiagID::unittest_placeholderremoval1);
 	EXPECT_EQ("[%0,%1]", diag.getDiagStr()) << "Diag str wasn't the one expected.";
-	diag.addArg("foo", 1);
-	EXPECT_EQ("[%0,foo]", diag.getDiagStr()) << "Diag str did not replace the expected placeholder.";
+	diag.addArg("foo");
+	EXPECT_EQ("[foo,%1]", diag.getDiagStr()) << "Diag str did not replace the expected placeholder.";
 	
 	// Freeze test
 	EXPECT_FALSE(diag.isFrozen()) << "Diag spawned frozen";
 	diag.freeze();
 	EXPECT_TRUE(diag.isFrozen()) << "Diag did not freeze as expected.";
 	diag.addArg("bar");
-	EXPECT_EQ("[%0,foo]", diag.getDiagStr()) << "Diag str might have replaced a placeholder, but the diagnostic was supposed to be frozen!";
+	EXPECT_EQ("[foo,%1]", diag.getDiagStr()) << "Diag str might have replaced a placeholder, but the diagnostic was supposed to be frozen!";
 	
 	// Alive/dead
 	EXPECT_TRUE(diag.isActive()) << "Diag was inactive?";
