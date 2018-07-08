@@ -17,25 +17,6 @@
 
 using namespace fox;
 
-// Tests isPrimitive, isArray, isBuiltin
-TEST(ASTTests, TypeFunctions)
-{
-	ASTContext astContext;
-
-	Type* intTy = astContext.getPrimitiveIntType();
-	ASSERT_TRUE(intTy) << "Ptr is null?";
-	
-
-	EXPECT_TRUE(intTy->isBuiltinType());
-	EXPECT_TRUE(intTy->isPrimitiveType());
-	EXPECT_FALSE(intTy->isArrayType());
-
-	std::unique_ptr<Type>  arrInt = std::make_unique<ArrayType>(intTy);
-	EXPECT_TRUE(arrInt->isArrayType());
-	EXPECT_TRUE(arrInt->isBuiltinType());
-	EXPECT_FALSE(arrInt->isPrimitiveType());
-}
-
 // Tests that the ASTContext gives correct builtin
 TEST(ASTTests, ASTContextBuiltins)
 {

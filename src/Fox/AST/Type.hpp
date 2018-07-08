@@ -37,24 +37,16 @@ namespace fox
 	class Type
 	{
 		public:
-			bool isPrimitiveType() const;
-			bool isBuiltinType() const;
-			bool isArrayType() const;
-
 			/* Should return the type's name in a user friendly form, e.g. "int", "string" */
 			virtual std::string getString() const = 0;
 
 			TypeKind getKind() const;
+
 		protected:
-			Type(TypeKind tc, bool isPrimitive, bool isBuiltin, bool isArray);
+			Type(TypeKind tc);
+
 		private:
 			TypeKind kind_;
-
-			// Bitfield //
-			const bool isPrimitive_ : 1;
-			const bool isBuiltin_ : 1;
-			const bool isArray_ : 1;
-			// 5 Bits left //
 	};
 
 	// Base abstract class for every builtin type.
@@ -63,7 +55,7 @@ namespace fox
 	class BuiltinType : public Type
 	{
 		protected:
-			BuiltinType(TypeKind tc, bool isPrimitive, bool isArray);
+			BuiltinType(TypeKind tc);
 	};
 
 	// PrimitiveType (builtin,primitive)
@@ -108,11 +100,6 @@ namespace fox
 			virtual std::string getString() const override;
 
 			const Type* getItemTy() const;
-
-			bool isItemTypePrimitive() const;
-			bool isItemTypeBuiltin() const;
-			bool isItemTypeArray() const; 
-
 		private:
 			const Type* itemTy_= nullptr;
 	};

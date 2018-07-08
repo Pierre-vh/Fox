@@ -15,25 +15,9 @@
 using namespace fox;
 
 /* Type */
-Type::Type(TypeKind tc, bool isPrimitive, bool isBuiltin, bool isArray) 
-	: kind_(tc), isPrimitive_(isPrimitive), isBuiltin_(isBuiltin), isArray_(isArray)
+Type::Type(TypeKind tc) : kind_(tc)
 {
 
-}
-
-bool Type::isPrimitiveType() const
-{
-	return isPrimitive_;
-}
-
-bool Type::isBuiltinType() const
-{
-	return isBuiltin_;
-}
-
-bool Type::isArrayType() const
-{
-	return isArray_;
 }
 
 TypeKind Type::getKind() const
@@ -42,15 +26,14 @@ TypeKind Type::getKind() const
 }
 
 /* BuiltinType */
-BuiltinType::BuiltinType(TypeKind tc, bool isPrimitive, bool isArray)
-	: Type(tc,isPrimitive,true,isArray)
+BuiltinType::BuiltinType(TypeKind tc) : Type(tc)
 {
 
 }
 
 /* Primitive Types */
 PrimitiveType::PrimitiveType(Kind kd) 
-	: builtinKind_(kd), BuiltinType(TypeKind::PrimitiveType,true,false)
+	: builtinKind_(kd), BuiltinType(TypeKind::PrimitiveType)
 {
 
 }
@@ -97,7 +80,7 @@ bool PrimitiveType::isVoid() const
 }
 
 /* Array type */
-ArrayType::ArrayType(const Type* ty) : itemTy_(ty), BuiltinType(TypeKind::ArrayType,false,true)
+ArrayType::ArrayType(const Type* ty) : itemTy_(ty), BuiltinType(TypeKind::ArrayType)
 {
 	assert(ty && "The Array item type cannot be null!");
 }
@@ -110,24 +93,6 @@ std::string ArrayType::getString() const
 const Type* ArrayType::getItemTy() const
 {
 	return itemTy_;
-}
-
-bool ArrayType::isItemTypePrimitive() const
-{
-	assert(itemTy_ && "The Array item type cannot be null!");
-	return itemTy_->isPrimitiveType();
-}
-
-bool ArrayType::isItemTypeBuiltin() const
-{
-	assert(itemTy_ && "The Array item type cannot be null!");
-	return itemTy_->isBuiltinType();
-}
-
-bool ArrayType::isItemTypeArray() const
-{
-	assert(itemTy_ && "The Array item type cannot be null!");
-	return itemTy_->isArrayType();
 }
 
 /* QualType */
