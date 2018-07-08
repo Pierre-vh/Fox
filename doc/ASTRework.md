@@ -28,9 +28,8 @@ This time, it's going to be major rework of the AST.
     * The ASTContext will probably allocate Resolved and Unresolved exprs in 2 separate pools, so the UnresolvedExpr pool can be freed after Semantic Analysis if possible.
       
 * ## What's going to be added?
-  * ASTReplacer. This special visitor will be given a Node A and a Node B, then it's going to traverse the AST and search for the node A to 
-    "swap" it with Node B. This will fullfil the "nodes must be replacable" requirement.
-  * If needed, a ASTDeleter will be added too, which will work pretty much the same as the ASTReplacer but will be tasked to delete the node A.
+  * ASTReplacer. This special visitor will be given a Node A,B and a Parent, and will replace the Parent's child A with B
+	* Exactly how it's going to work is still to be decided. There's many ways of doing it and I'm still trying to figure out which one's the best.
 
 * ## How are we going to get there?
   * Prerequisites
@@ -41,7 +40,7 @@ This time, it's going to be major rework of the AST.
   
 * ## Consequences
   * Cleaner AST
-  * Easier to manipulate AST
-  * Faster parsing times
-  * Will allow for a more expressive AST (through Resolved/Unresolved Exprs) 
-  * Will allow for a cleaner Semantic Analysis, with less hacks.
+  * AST will be easier to manipulate
+  * Faster parsing times (because allocations will be much faster)
+  * Will allow for a more 'expressive' AST (through Resolved/Unresolved Exprs) 
+  * Will allow for a cleaner Semantic Analysis.
