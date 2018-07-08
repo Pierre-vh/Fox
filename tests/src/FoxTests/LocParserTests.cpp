@@ -56,7 +56,7 @@ class LocTests : public ::testing::Test
 		SourceManager srcMgr;
 		ASTContext astContext;
 		DeclContext declContext;
-		std::unique_ptr<Lexer> lexer;
+		std::unique_ptr<Lexer>99 lexer;
 		std::unique_ptr<Parser> parser;
 };
 
@@ -151,3 +151,5 @@ TEST_F(LocTests, VarDecls)
 	EXPECT_EQ(expr_beg, expr_end); // Since the expr is only a '3', it's only one char, thus beg = end.
 	EXPECT_EQ(expr_beg, CompleteLoc(fullFilePath, 1, 24));
 }
+
+// ToDo : Same tests for Exprs and Stmts
