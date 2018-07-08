@@ -30,6 +30,7 @@ namespace fox
 			DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);
 
 			Diagnostic report(DiagID diagID);
+			Diagnostic report(DiagID diagID, const FileID& file);
 			Diagnostic report(DiagID diagID, const SourceRange& range);
 			Diagnostic report(DiagID diagID, const SourceLoc& loc);
 

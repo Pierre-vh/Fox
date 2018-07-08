@@ -22,7 +22,7 @@ StreamDiagConsumer::StreamDiagConsumer(SourceManager *sm, std::ostream & stream)
 
 void StreamDiagConsumer::consume(const Diagnostic& diag)
 {
-	os_ << getLocInfo(diag.getSourceRange()) 
+	os_ << getLocInfo(diag.getSourceRange(), diag.isFileWide()) 
 		<< " - " 
 		<< diagSevToString(diag.getDiagSeverity()) 
 		<< " - " 
@@ -30,13 +30,13 @@ void StreamDiagConsumer::consume(const Diagnostic& diag)
 		<< "\n";
 
 	// todo: display line without indent
-	if (sm_)
+	if (sm_ && !diag.isFileWide())
 	{
 		os_ << sm_->getLineAtLoc(diag.getSourceRange().getBeginSourceLoc()) << "\n";
 	}
 }
 
-std::string StreamDiagConsumer::getLocInfo(const SourceRange& range) const
+std::string StreamDiagConsumer::getLocInfo(const SourceRange& range, bool isFileWide) const
 {
 	if (!range || !sm_)
 		return "<unknown>";
@@ -44,7 +44,11 @@ std::string StreamDiagConsumer::getLocInfo(const SourceRange& range) const
 	CompleteLoc beg = sm_->getCompleteLocForSourceLoc(range.getBeginSourceLoc());
 
 	std::stringstream ss;
-	ss << "<" << beg.fileName << ">:" << beg.line << ":" << beg.column;
+	ss << "<" << beg.fileName << '>';
+
+	// Don't display the column/line for file wide diags
+	if(!isFileWide)
+		ss << ':' << beg.line << ':' << beg.column;
 
 	// A better approach (read: a faster approach) 
 	// would be to have a special method in the SourceManager calculating the preciseLoc

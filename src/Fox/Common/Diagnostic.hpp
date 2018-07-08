@@ -29,41 +29,40 @@ namespace fox
 
 	enum class DiagSeverity : std::uint8_t
 	{
-		IGNORE,		// Ignore the diagnostic
-		NOTE,		// Present this diag as a note, a log entry.
-		WARNING,	// Present this diag as a warning.
-		ERROR,		// "					" error
-		FATAL		// "					" Fatal error, which means an error grave enough that it stopped the compilation
+		IGNORE,
+		NOTE,
+		WARNING,
+		ERROR,	
+		FATAL		
 	};
 
 	class Diagnostic
 	{
 		public:
 			Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,const std::string& dStr, const SourceRange& range = SourceRange());
-			
-			// Copy constructor that kills the copied diagnostic and steals it's information
+			// Note : both copy/move ctors kill the copied diag.
 			Diagnostic(Diagnostic &other);
-
-			// Move constructor that kills the copied diagnostic and steal it's information
 			Diagnostic(Diagnostic &&other);
 
+			// Destructor that emits the diag.
 			~Diagnostic();
 			
-			// Emit this diagnostic
 			void emit();
 
+			// Getters for basic args values
 			DiagID getDiagID() const;
 			std::string getDiagStr() const;
 			DiagSeverity getDiagSeverity() const;
 			SourceRange getSourceRange() const;
+
 			bool hasValidSourceRange() const;
 
-			/*
-				Small note: addArg functions return a reference to (this). Why, you ask? Because this allows chaining, like so:
-				diagengine.report(DiagID::foo_is_not_bar).addArg("foo").addArg("bar").emit();
-			*/
+			// File-wide diagnostics are diagnostics that concern
+			// a whole file. 
+			Diagnostic& setIsFileWide(bool fileWide);
+			bool isFileWide() const;
 
-			// Replace the latest unremoved arg by std::to_string(value)
+			// Replace a %x placeholder.
 			template<typename ReplTy>
 			inline Diagnostic& addArg(const ReplTy& value)
 			{
@@ -72,7 +71,18 @@ namespace fox
 				return addArg(value,tmp);
 			}
 
-			// Replace the "%(phIndex)" arg by value (as a string)
+			// Frozen diags are locked, they cannot be modified further.
+			bool isFrozen() const;
+			Diagnostic& freeze();
+
+			// Inactive diags won't be emitted.
+			bool isActive() const;
+			explicit operator bool() const;
+		private:
+			friend class DiagnosticEngine;
+			Diagnostic& operator=(const Diagnostic&) = default;
+
+			// Internal addArg overloads
 			template<typename ReplTy>
 			inline Diagnostic& addArg(const ReplTy& value, std::uint8_t phIndex)
 			{
@@ -97,30 +107,23 @@ namespace fox
 				);
 			}
 
-			bool isActive() const;
-
-			// A Frozen diagnostic can't be edited any further. it's locked.
-			bool isFrozen() const;
-			Diagnostic& freeze();
-
-			// Checks if the Diag is valid for emission
-			explicit operator bool() const;
-		private:
-			friend class DiagnosticEngine;
-			Diagnostic& operator=(const Diagnostic&) = default;
-
 			// replaces every occurence of "%(value of index)" in a string with the replacement.
 			// e.g: replacePlaceholder("foo",0) -> replaces every %0 in the string by foo
+			// Replace the "%(phIndex)" arg by value (as a string)
 			Diagnostic& replacePlaceholder(const std::string& replacement, std::uint8_t index);
 
-			void kill(); // Kills this diagnostic (sets isActive to false and remove most of it's information)
+			void kill(); 
 			
-			// Packed in 8 bits
-			bool isActive_ :1; 
-			bool isFrozen_ :1; 
+			void initBitFields();  
+
+			// Packed in 8 bits (0 left)
+			bool active_ :1; 
+			bool frozen_ :1; 
 			std::uint8_t curPHIndex_ :6;
 
-			DiagSeverity diagSeverity_; 
+			// Packed in 8 bits (3 left)
+			DiagSeverity diagSeverity_ : 4; 
+			bool fileWide_ : 1;
 
 			DiagnosticEngine* engine_ = nullptr;
 			DiagID diagID_;

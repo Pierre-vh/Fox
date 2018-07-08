@@ -33,7 +33,7 @@ namespace fox
 			virtual void consume(const Diagnostic& diag) override;
 
 		private:
-			std::string getLocInfo(const SourceRange& range) const;
+			std::string getLocInfo(const SourceRange& range, bool isFileWide) const;
 			std::string diagSevToString(DiagSeverity ds) const;
 
 			SourceManager* sm_;

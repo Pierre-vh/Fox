@@ -18,10 +18,7 @@ Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID, DiagSeverity dSev, 
 {
 	assert(engine && "Engine cannot be null!");
 
-	// Default values
-	isActive_ = true;
-	isFrozen_ = false;
-	curPHIndex_ = 0;
+	initBitFields();
 }
 
 Diagnostic::Diagnostic(Diagnostic &other)
@@ -43,7 +40,7 @@ Diagnostic::~Diagnostic()
 
 void Diagnostic::emit()
 {
-	if (isActive_)
+	if (active_)
 	{
 		assert(engine_ && "Attempting to emit without a DiagnosticEngine set!");
 		engine_->handleDiagnostic(*this);
@@ -76,14 +73,26 @@ bool Diagnostic::hasValidSourceRange() const
 	return range_.isValid();
 }
 
+Diagnostic& Diagnostic::setIsFileWide(bool fileWide)
+{
+	if(!frozen_)
+		fileWide_ = fileWide;
+	return *this;
+}
+
+bool Diagnostic::isFileWide() const
+{
+	return fileWide_;
+}
+
 bool Diagnostic::isActive() const
 {
-	return isActive_;
+	return active_;
 }
 
 Diagnostic& Diagnostic::replacePlaceholder(const std::string & replacement, std::uint8_t index)
 {
-	if (!isActive_ || isFrozen_)
+	if (!active_ || frozen_)
 		return *this;
 
 	std::string targetPH = "%" + std::to_string((int)index);
@@ -98,28 +107,36 @@ Diagnostic& Diagnostic::replacePlaceholder(const std::string & replacement, std:
 
 void Diagnostic::kill()
 {
-	if (isActive_)
+	if (active_)
 	{
 		// Clear all variables
-		isActive_ = false;
+		active_ = false;
 		engine_ = nullptr;
 		diagStr_.clear();
-		isFrozen_ = true;
+		frozen_ = true;
 		diagSeverity_ = DiagSeverity::IGNORE;
 	}
 }
 bool Diagnostic::isFrozen() const
 {
-	return isFrozen_;
+	return frozen_;
 }
 
 Diagnostic& Diagnostic::freeze()
 {
-	isFrozen_ = true;
+	frozen_ = true;
 	return *this;
 }
 
 Diagnostic::operator bool() const
 {
 	return isActive();
+}
+
+void Diagnostic::initBitFields()
+{
+	active_ = true;
+	frozen_ = false;
+	curPHIndex_ = 0;
+	fileWide_ = false;
 }

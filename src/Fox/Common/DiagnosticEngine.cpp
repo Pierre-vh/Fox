@@ -46,6 +46,11 @@ Diagnostic DiagnosticEngine::report(DiagID diagID)
 	return report(diagID, SourceRange());
 }
 
+Diagnostic DiagnosticEngine::report(DiagID diagID, const FileID & file)
+{
+	return report(diagID, SourceRange(SourceLoc(file))).setIsFileWide(true);
+}
+
 Diagnostic DiagnosticEngine::report(DiagID diagID, const SourceRange& range)
 {
 	// Gather diagnostic data
