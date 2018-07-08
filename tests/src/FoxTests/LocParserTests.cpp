@@ -56,7 +56,7 @@ class LocTests : public ::testing::Test
 		SourceManager srcMgr;
 		ASTContext astContext;
 		DeclContext declContext;
-		std::unique_ptr<Lexer>99 lexer;
+		std::unique_ptr<Lexer> lexer;
 		std::unique_ptr<Parser> parser;
 };
 
