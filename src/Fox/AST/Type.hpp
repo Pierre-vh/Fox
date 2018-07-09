@@ -46,7 +46,7 @@ namespace fox
 			Type(TypeKind tc);
 
 		private:
-			TypeKind kind_;
+			const TypeKind kind_;
 	};
 
 	// Base abstract class for every builtin type.
@@ -88,7 +88,7 @@ namespace fox
 			// Returns true iff builtinKind_ == Kind::VoidTy
 			bool isVoid() const;
 		private:
-			Kind builtinKind_;
+			const Kind builtinKind_;
 	};
 
 	// Array types (builtin)

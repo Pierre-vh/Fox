@@ -48,11 +48,11 @@ namespace fox
 			bool hasLocInfo() const;
 
 			bool isValid() const;
-	protected:
+		protected:
 			Decl(DeclKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 		private:
 			SourceLoc begLoc_, endLoc_;
-			DeclKind kind_;
+			const DeclKind kind_;
 	};
 
 	// Base class for Declarations that have names, e.g. : var/arg/func decl,..

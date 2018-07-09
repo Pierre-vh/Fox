@@ -62,7 +62,7 @@ namespace fox
 			Stmt(StmtKind skind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 		private:
 			SourceLoc beg_, end_;
-			StmtKind kind_;
+			const StmtKind kind_;
 	};
 
 	// The ';' statement.
