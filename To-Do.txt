@@ -38,7 +38,6 @@ Moonshot Project To-do List.
 	> Small code review (error handling checking) (Done)
 	> Rename DeclRecorder to DeclContext.(Done)
 	> Rework the DiagnosticEngine::report function (Done)
-	> Rework the DiagnosticEngine::report function (Done)
 
 	> Write the Remaining tests needed
 		(Will be done sometime next century since I'm too lazy to write the tests :) )
@@ -47,8 +46,6 @@ Moonshot Project To-do List.
 			> Probably don't use a file, just do SetUp("<code goes here>"")w
 
 	QOL:
-		> Rework the DiagnosticEngine::report function (Done)
-
 		> Diagnostics Overhaul (Now)
 			> The StreamDiagConsumer should always try to retrieve the line where the error happened
 				> SourceManager method to get the SourceLine for a SourceLoc (Done)
