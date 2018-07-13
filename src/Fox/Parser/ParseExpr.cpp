@@ -118,7 +118,7 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 	if (!tok.isLiteral())
 		return ExprResult::NotFound();
 	
-	skipToken();
+	increaseTokenIter();
 
 	auto litinfo = tok.getLiteralInfo();
 	std::unique_ptr<Expr> expr = nullptr;

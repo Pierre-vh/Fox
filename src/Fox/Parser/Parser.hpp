@@ -169,11 +169,11 @@ namespace fox
 			void revertConsume();
 
 			// Increments the iterator if possible. Used to skip a token without updating any counters.
-			void skipToken();
+			void increaseTokenIter();
 
 			// Decrements the iterator if possible. Used to revert a consume operation. Won't change updated counters.
 			// Only use in cases where a counter wasn't updated by the last consume operation. Else, use a Parser State Backup.
-			void rollback();	
+			void decreaseTokenIter();	
 
 			// Helper for consumeSign & consumeBracket
 			// Brackets are one of the following : '(' ')' '[' ']' '{' '}'
