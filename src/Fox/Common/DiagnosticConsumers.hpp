@@ -24,6 +24,9 @@ namespace fox
 	{
 		public:
 			virtual void consume(const Diagnostic& diag) = 0;
+		protected:
+			std::string getLocInfo(SourceManager* sm, const SourceRange& range, bool isFileWide) const;
+			std::string diagSevToString(DiagSeverity ds) const;
 	};
 
 	class StreamDiagConsumer : public DiagnosticConsumer
@@ -33,9 +36,6 @@ namespace fox
 			virtual void consume(const Diagnostic& diag) override;
 
 		private:
-			std::string getLocInfo(const SourceRange& range, bool isFileWide) const;
-			std::string diagSevToString(DiagSeverity ds) const;
-
 			SourceManager* sm_;
 			std::ostream &os_;
 	};
