@@ -64,7 +64,7 @@ class ParsingFunctionTester
 				if (hashtagCommentsEnabled && (sample[0] == '#'))
 					continue;
 				SourceManager srcMgr;
-				DiagnosticEngine dg(&srcMgr);
+				DiagnosticEngine dg(srcMgr);
 				ASTContext astctxt;
 				DeclContext dc;
 				Lexer lex(dg, srcMgr, astctxt);

@@ -22,7 +22,7 @@ using namespace fox;
 bool Driver::processFile(std::ostream& out, const std::string& filepath)
 {
 	SourceManager srcMgr;
-	DiagnosticEngine dg(&srcMgr);
+	DiagnosticEngine dg(srcMgr);
 	// Create a ASTContext
 	std::unique_ptr<ASTContext> astCtxt = std::make_unique<ASTContext>();
 

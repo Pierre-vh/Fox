@@ -24,7 +24,7 @@ using namespace fox::test;
 TEST(LexerTests,CorrectTest1)
 {
 	SourceManager sm;
-	DiagnosticEngine dg;
+	DiagnosticEngine dg(sm);
 
 	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/correct_1.fox"));
 	ASSERT_TRUE(file) << "Could not open test file";
@@ -38,7 +38,7 @@ TEST(LexerTests,CorrectTest1)
 TEST(LexerTests, IncorrectTest1)
 {
 	SourceManager sm;
-	DiagnosticEngine dg;
+	DiagnosticEngine dg(sm);
 
 	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_1.fox"));
 	ASSERT_TRUE(file) << "Could not open test file";
@@ -52,7 +52,7 @@ TEST(LexerTests, IncorrectTest1)
 TEST(LexerTests, IncorrectTest2)
 {
 	SourceManager sm;
-	DiagnosticEngine dg;
+	DiagnosticEngine dg(sm);
 
 	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_2.fox"));
 	ASSERT_TRUE(file) << "Could not open test file";
@@ -66,7 +66,7 @@ TEST(LexerTests, IncorrectTest2)
 TEST(LexerTests, IncorrectTest3)
 {
 	SourceManager sm;
-	DiagnosticEngine dg;
+	DiagnosticEngine dg(sm);
 
 	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_3.fox"));
 	ASSERT_TRUE(file) << "Could not open test file";
@@ -80,7 +80,7 @@ TEST(LexerTests, IncorrectTest3)
 TEST(LexerTests, IncorrectTest4)
 {
 	SourceManager sm;
-	DiagnosticEngine dg;
+	DiagnosticEngine dg(sm);
 
 	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_4.fox"));
 	ASSERT_TRUE(file) << "Could not open test file";
@@ -93,7 +93,8 @@ TEST(LexerTests, IncorrectTest4)
 
 TEST(TokenTests, FloatID)
 {
-	DiagnosticEngine dg;
+	SourceManager sm;
+	DiagnosticEngine dg(sm);
 	ASTContext astctxt;
 
 	Token tok1(dg, astctxt, "3.14");
@@ -123,7 +124,8 @@ TEST(TokenTests, FloatID)
 
 TEST(TokenTests, IntId)
 {
-	DiagnosticEngine dg;
+	SourceManager sm;
+	DiagnosticEngine dg(sm);
 	ASTContext astctxt;
 
 	Token tok1(dg, astctxt,"0");
@@ -153,7 +155,8 @@ TEST(TokenTests, IntId)
 
 TEST(TokenTests, StringID)
 {
-	DiagnosticEngine dg;
+	SourceManager sm;
+	DiagnosticEngine dg(sm);
 	ASTContext astctxt;
 
 	Token tok1(dg, astctxt,"\"Hello, world!\"");
@@ -183,7 +186,8 @@ TEST(TokenTests, StringID)
 
 TEST(TokenTests, CharID)
 {
-	DiagnosticEngine dg;
+	SourceManager sm;
+	DiagnosticEngine dg(sm);
 	ASTContext astctxt;
 
 	Token tok1(dg, astctxt,"'c'");
@@ -213,7 +217,8 @@ TEST(TokenTests, CharID)
 
 TEST(TokenTests, BoolID)
 {
-	DiagnosticEngine dg;
+	SourceManager sm;
+	DiagnosticEngine dg(sm);
 	ASTContext astctxt;
 
 	Token tok1(dg, astctxt,"true");
@@ -237,8 +242,8 @@ TEST(TokenTests, BoolID)
 
 TEST(LexerTests, Coordinates1)
 {
-	DiagnosticEngine dg;
 	SourceManager sm;
+	DiagnosticEngine dg(sm);
 
 	std::string file_content, file_path;
 	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/coordtests/test1.fox"));

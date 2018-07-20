@@ -22,7 +22,7 @@ using namespace fox;
 class LocTests : public ::testing::Test
 {
 	public:
-		LocTests() : dg(&srcMgr)
+		LocTests() : dg(srcMgr)
 		{
 
 		}

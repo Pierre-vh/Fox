@@ -24,7 +24,7 @@ namespace fox
 	{
 		public:
 			// Constructor that will use a default DiagnosticConsumer
-			DiagnosticEngine(SourceManager* sm = nullptr);
+			DiagnosticEngine(SourceManager& sm);
 
 			// Constructor that will use a pre-created DiagnosticConsumer
 			DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);
