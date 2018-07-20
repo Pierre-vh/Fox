@@ -309,7 +309,7 @@ Parser::StmtResult Parser::parseExprStmt()
 		// ';'
 		if (!consumeSign(SignType::S_SEMICOLON))
 		{
-			if(expr.wasSuccessful())
+			if (expr.wasSuccessful())
 				reportErrorExpected(DiagID::parser_expected_semi);
 
 			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))

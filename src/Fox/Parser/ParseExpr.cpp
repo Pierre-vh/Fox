@@ -216,13 +216,17 @@ Parser::ExprResult Parser::parseSuffixExpr()
 	if (auto prim = parsePrimary())
 	{
 		std::unique_ptr<Expr> base = prim.move();
-		while (auto suffix = parseSuffix(base))
+		ExprResult suffix;
+		while (suffix = parseSuffix(base))
 		{
 			// if suffix is usable, assert that lhs is now null
 			assert((!base) && "base should have been moved by parseSuffix!");
 			base = std::move(suffix.move());
 		}
-		return ExprResult(std::move(base));
+		if (suffix.wasSuccessful())
+			return ExprResult(std::move(base));
+		else
+			return ExprResult::Error();
 	}
 	else
 	{

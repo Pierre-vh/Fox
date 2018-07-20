@@ -29,6 +29,8 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 	// Create a RAIIDeclContext
 	RAIIDeclContext raiidr(*this, unit.get());
 
+	bool declHadError = false;
+
 	// Parse declarations 
 	while (true)
 	{
@@ -39,6 +41,9 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 		}
 		else
 		{
+			if (!decl.wasSuccessful())
+				declHadError = true;
+
 			// EOF/Died -> Break.
 			if (isDone())
 				break;
@@ -62,7 +67,7 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 		}
 
 	}
-
+	/*
 	// The conversion to uint16_t is needed so replacePlaceholder doesn't mistake
 	// it for a character.
 	if (std::uint16_t count = state_.curlyBracketsCount)
@@ -73,10 +78,11 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 
 	if (std::uint16_t count = state_.squareBracketsCount)
 		diags_.report(DiagID::parser_missing_squarebracket, fid).addArg(count);
-
+	*/
 	if (unit->getDeclCount() == 0)
 	{
-		diags_.report(DiagID::parser_expected_decl_in_unit, fid);
+		if(!declHadError)
+			diags_.report(DiagID::parser_expected_decl_in_unit, fid);
 		return nullptr;
 	}
 	else
