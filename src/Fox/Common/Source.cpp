@@ -144,12 +144,16 @@ bool SourceManager::doesFileExists(const FileID & file) const
 	return (bool)getStoredDataForFileID(file);
 }
 
-std::string SourceManager::getLineAtLoc(const SourceLoc& loc) const
+std::string SourceManager::getLineAtLoc(const SourceLoc& loc, SourceLoc::idx_type* lineBeg) const
 {
 	const StoredData* data = getStoredDataForFileID(loc.getFileID());
 	auto pair = getLineTableEntryForLoc(data, loc);
 
 	std::size_t k = pair.first;
+
+	if (lineBeg)
+		*lineBeg = k;
+
 	std::size_t sz = data->str.size();
 
 	std::string rtr;

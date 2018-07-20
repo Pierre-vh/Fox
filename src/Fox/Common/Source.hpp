@@ -171,7 +171,9 @@ namespace fox
 			bool doesFileExists(const FileID& file) const;
 
 			// Returns the complete line of source code for a given SourceLoc
-			std::string getLineAtLoc(const SourceLoc& loc) const;
+			// An optional argument (pointer) can be passed. If it is present, the function
+			// will store the Index at which the line begins in this variable.
+			std::string getLineAtLoc(const SourceLoc& loc, SourceLoc::idx_type* lineBeg = nullptr) const;
 		private:
 			FileID generateNewFileID() const;
 			void calculateLineTable(const StoredData* data) const;
