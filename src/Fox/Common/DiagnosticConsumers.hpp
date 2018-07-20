@@ -25,18 +25,25 @@ namespace fox
 		public:
 			virtual void consume(const Diagnostic& diag) = 0;
 		protected:
-			std::string getLocInfo(SourceManager* sm, const SourceRange& range, bool isFileWide) const;
+			std::string getLocInfo(SourceManager& sm, const SourceRange& range, bool isFileWide) const;
 			std::string diagSevToString(DiagSeverity ds) const;
+
+			// Removes the indentation (spaces and tabs) from a line, returning the number of indent chars removed
+			std::size_t removeIndent(std::string& str) const;
 	};
 
 	class StreamDiagConsumer : public DiagnosticConsumer
 	{
 		public:
-			StreamDiagConsumer(SourceManager* sm,std::ostream& stream = std::cout); // Default outstream is cout (stdio)
+			StreamDiagConsumer(SourceManager& sm,std::ostream& stream = std::cout); // Default outstream is cout (stdio)
 			virtual void consume(const Diagnostic& diag) override;
 
 		private:
-			SourceManager* sm_;
+			// Displays a line of code along with the caret.
+			// Note: this only displays the first line where the problem begins.
+			void displayRelevantExtract(const Diagnostic& diag);
+
+			SourceManager& sm_;
 			std::ostream &os_;
 	};
 }
