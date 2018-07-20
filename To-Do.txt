@@ -45,26 +45,24 @@ Moonshot Project To-do List.
 			> Try to cover most cases shortly, maybe 2 or 3 max test per node.
 			> Probably don't use a file, just do SetUp("<code goes here>"")w
 
-	QOL:
-		> Diagnostics Overhaul (Now)
-			> The StreamDiagConsumer should always try to retrieve the line where the error happened
-				> SourceManager method to get the SourceLine for a SourceLoc (Done)
-				> Display the line of the source where the error is in the DiagConsumer (Done)
-					> Find a way to disable that for the parser's file-wide diagnostics. (Done)
-				> Display Carets under the errorRange, if there's one available (Done)
-				// Extend the information displayed
-				> Add "CompleteRange", which would be a "broader" range of error
-					> CompleteRange = whole piece of code affected, usually the whole node's range
-					> PreciseRange = precise part that fucks up
-				> Display ~~~ under the completeRange, if there's one available 
 
+	> Diagnostics Overhaul (Now)
+		> The StreamDiagConsumer should always try to retrieve the line where the error happened
+			> SourceManager method to get the SourceLine for a SourceLoc (Done)
+			> Display the line of the source where the error is in the DiagConsumer (Done)
+				> Find a way to disable that for the parser's file-wide diagnostics. (Done)
+			> Display Carets under the errorRange, if there's one available (Done)
+			> Add more checks to the algorithm that displays the caret, to prevent crash on multiline diags.
+	
+	> The end of the RTTI
 		> Add classof static methods to the AST
 			> Stmt, Decls, Types
 
 		> Add LLVM's Casting.h to the third_party libraries, make use of it, then disable RTTI completely.
 
+	> Add the LinearAllocator and PtrVariants in the project, and write tests for them.
 	FEATURE:
-		> AST Rework, again ! See doc/ASTRework.md
+		> AST Rework! See doc/ASTRework.md
 
 		> Semantic Analysis
 			> ASTValidator
