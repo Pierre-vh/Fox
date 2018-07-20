@@ -1,0 +1,14 @@
+This file contains some features that are definitely doable, but are low priority.
+-> This is a low-priority to-do list.
+
+QoL: 
+	Diagnostics:
+		1) Add the opportunity to add relevant pieces of code (which would be underlined with tildes '~') to a diagnostic.
+			Example use cases: operands of a '+' expr
+
+Performance:
+	Diagnostics:
+		1) The Diagnostic object is quite large (few hundred bytes), and, as it's nearly always a temporary object, this could maybe
+		have a cost on performance. Tests needs to be done. If it has really a big cost on performance, store all the diagnostic's data
+		inside the DiagnosticsEngine. For that, create a DiagnosticData object, store a vector of them in the DiagnosticEngine and
+		make the Diagnostic object only store a pointer to the DiagnosticsEngine with the index of the DiagnosticsData object in the vector.
