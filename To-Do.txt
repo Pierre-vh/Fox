@@ -51,8 +51,11 @@ Moonshot Project To-do List.
 				> SourceManager method to get the SourceLine for a SourceLoc (Done)
 				> Display the line of the source where the error is in the DiagConsumer (Done)
 					> Find a way to disable that for the parser's file-wide diagnostics. (Done)
-				> add CompleteRange (Next)
-				> Display Carets under the errorRange, if there's one available 
+				> Display Carets under the errorRange, if there's one available (Done)
+				// Extend the information displayed
+				> Add "CompleteRange", which would be a "broader" range of error
+					> CompleteRange = whole piece of code affected, usually the whole node's range
+					> PreciseRange = precise part that fucks up
 				> Display ~~~ under the completeRange, if there's one available 
 
 		> Add classof static methods to the AST
