@@ -30,6 +30,8 @@
 
 namespace fox
 {
+	// This class is designed to help
+	// with manipulating UTF8 strings.
 	class StringManipulator
 	{
 		public:
@@ -117,6 +119,7 @@ namespace fox
 
 			// Appends a CharType to a std::string.
 			static void append(std::string& str, CharType ch);
+
 		private:
 			// Get a reference to the string stored.
 			const std::string& str() const;
