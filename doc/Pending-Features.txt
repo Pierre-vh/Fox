@@ -5,6 +5,11 @@ QoL:
 	Diagnostics:
 		1) Add the opportunity to add relevant pieces of code (which would be underlined with tildes '~') to a diagnostic.
 			Example use cases: operands of a '+' expr
+	StringManipulator:
+		2) Most of the class's method are literally simulating an iterator. I could easily move most of the class's feature
+		   to an iterator, accessible through .begin()/.end() functions. The iterator would be named UTF8Iterator, and might as
+		   well serve as both the constant and non constant iterator, but I need to do a bit of reading on how to implement
+		   custom iterators.
 
 Performance:
 	Diagnostics:
