@@ -63,6 +63,11 @@ namespace fox
 	// base expression 
 	class Expr : public Stmt
 	{
+		public:
+			static bool classof(const Stmt* stmt)
+			{
+				return ((stmt->getKind() >= StmtKind::First_Expr) && (stmt->getKind() <= StmtKind::Last_Expr));
+			}
 		protected:
 			Expr(StmtKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 	};
@@ -87,6 +92,11 @@ namespace fox
 			void setOp(BinaryOperator op);
 
 			SourceRange getOpRange() const;
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::BinaryExpr);
+			}
 		private:
 			SourceRange opRange_;
 			std::unique_ptr<Expr> left_, right_;
@@ -108,6 +118,11 @@ namespace fox
 			void setOp(UnaryOperator nop);
 
 			SourceRange getOpRange() const;
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::UnaryExpr);
+			}
 		private:
 			SourceRange opRange_;
 			std::unique_ptr<Expr> child_;
@@ -130,6 +145,11 @@ namespace fox
 			void setChild(std::unique_ptr<Expr> nc);
 
 			SourceRange getTypeRange() const;
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::CastExpr);
+			}
 		private:
 			SourceRange typeRange_;
 			Type* goal_ = nullptr;
@@ -145,6 +165,11 @@ namespace fox
 
 			CharType getVal() const;
 			void setVal(CharType val);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::CharLiteralExpr);
+			}
 		private:
 			CharType val_ = ' ';
 	};
@@ -157,6 +182,11 @@ namespace fox
 
 			IntType getVal() const;
 			void setVal(IntType val);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::IntegerLiteralExpr);
+			}
 		private:
 			IntType val_ = 0;
 	};
@@ -169,6 +199,11 @@ namespace fox
 
 			FloatType getVal() const;
 			void setVal(FloatType val);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::FloatLiteralExpr);
+			}
 		private:
 			FloatType val_ = 0.0f;
 	};
@@ -181,6 +216,11 @@ namespace fox
 
 			std::string getVal() const;
 			void setVal(const std::string& val);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::StringLiteralExpr);
+			}
 		private:
 			std::string val_ = "";
 	};
@@ -193,6 +233,11 @@ namespace fox
 
 			bool getVal() const;
 			void setVal(bool val);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::BoolLiteralExpr);
+			}
 		private:
 			bool val_ = false;
 	};
@@ -210,6 +255,11 @@ namespace fox
 			bool hasExprList() const; 
 
 			bool isEmpty() const;
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::ArrayLiteralExpr);
+			}
 		private:
 			std::unique_ptr<ExprList> exprs_;
 	};
@@ -224,6 +274,11 @@ namespace fox
 			IdentifierInfo * getIdentifier();
 			const IdentifierInfo * getIdentifier() const;
 			void setDeclIdentifier(IdentifierInfo * id);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::DeclRefExpr);
+			}
 		private:
 			IdentifierInfo * declId_;
 	};
@@ -245,6 +300,11 @@ namespace fox
 			void setMemberName(IdentifierInfo* idInfo);
 
 			SourceLoc getDotLoc() const;
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::MemberOfExpr);
+			}
 		private:
 			SourceLoc dotLoc_;
 			std::unique_ptr<Expr> base_;
@@ -266,13 +326,22 @@ namespace fox
 
 			const Expr* getBase() const;
 			const Expr* getAccessIndexExpr() const;
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::ArrayAccessExpr);
+			}
 		private:
 			// 2 Expr, the expression supposed to produce an array, and the expression contained within the square brackets that should produce the index.
 			std::unique_ptr<Expr> base_;
 			std::unique_ptr<Expr> accessIdxExpr_;
 	};
 
-	// Class Representing an Expression List.
+	// Class Representing an Expression List. N
+	// Note: This is not an expression per-se, this is more of a utility class that provides an abstraction
+	// around a vector of unique_ptr.
+	// This class will probably be removed during the upcoming AST Rework,
+	// it'll be replaced by a simple "using ExprVector = std::vector<Expr*>"
 	class ExprList
 	{
 		private:
@@ -313,6 +382,11 @@ namespace fox
 			ExprList* getExprList();
 			const ExprList* getExprList() const;
 			void setExprList(std::unique_ptr<ExprList> elist);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::FunctionCallExpr);
+			}
 		private:
 			std::unique_ptr<Expr> callee_;
 			std::unique_ptr<ExprList> args_;
@@ -328,6 +402,11 @@ namespace fox
 			Expr* getExpr();
 			const Expr* getExpr() const;
 			void setExpr(std::unique_ptr<Expr> expr);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::ParensExpr);
+			}
 		private:
 			std::unique_ptr<Expr> expr_;
 	};
