@@ -1,1 +1,1 @@
-Link : https://github.com/nemtrif/utfcpp
+utfcpp on GitHub : https://github.com/nemtrif/utfcpp

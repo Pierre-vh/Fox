@@ -1,1 +1,1 @@
-Link: https://github.com/mpark/variant
+mpark/variant on GitHub: https://github.com/mpark/variant
