@@ -38,8 +38,9 @@ Moonshot Project To-do List.
 	> Small code review (error handling checking) (Done)
 	> Rename DeclRecorder to DeclContext.(Done)
 	> Rework the DiagnosticEngine::report function (Done)
-
-
+	> Add classof to AST Nodes (Done)
+	> Replace dynamic_cast with llvm's dyn_cast (Done)
+	> Compile without RTTI (Done)
 
 
 	> Diagnostics Overhaul (Now)
@@ -48,15 +49,11 @@ Moonshot Project To-do List.
 			> Display the line of the source where the error is in the DiagConsumer (Done)
 				> Find a way to disable that for the parser's file-wide diagnostics. (Done)
 			> Display Carets under the errorRange, if there's one available (Done)
-			> Add more checks to the algorithm that displays the caret, to prevent crash on multiline diags.
+			> Add more checks to the algorithm that displays the caret, to prevent crash on multiline diags. (Next)
 	
-	> The end of the RTTI
-		> Add classof static methods to the AST
-			> Stmt, Decls, Types
 
-	> Add LLVM's Casting.h to the third_party libraries, make use of it, then disable RTTI completely.
+	> Add the LinearAllocator and PtrVariants in the project, and write tests for them. (Next)
 
-	> Add the LinearAllocator and PtrVariants in the project, and write tests for them.
 	> AST Rework:
 		1) Allocator: Move from unique_ptrs to raw allocated pointers
 			Allocate the Expr/Decl/Stmt using new
