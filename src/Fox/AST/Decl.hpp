@@ -17,6 +17,7 @@ namespace fox
 	enum class DeclKind : std::uint8_t
 	{
 		#define DECL(ID,PARENT) ID,
+		#define DECL_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
 		#include "DeclNodes.def"
 	};
 
@@ -66,6 +67,11 @@ namespace fox
 
 			bool hasIdentifier() const;
 			bool isValid() const;
+
+			static bool classof(const Decl* decl)
+			{
+				return (decl->getKind() >= DeclKind::First_NamedDecl) && (decl->getKind() <= DeclKind::Last_NamedDecl);
+			}
 		private:
 			IdentifierInfo* identifier_;
 	};
@@ -83,6 +89,11 @@ namespace fox
 			void setType(const QualType& qt);
 
 			bool isValid() const;
+
+			static bool classof(const Decl* decl)
+			{
+				return decl->getKind() == DeclKind::ArgDecl;
+			}
 	private:
 			SourceRange tyRange_;
 			QualType type_;
@@ -131,6 +142,11 @@ namespace fox
 
 			ArgVecIter args_end();
 			ArgVecConstIter args_end() const;
+
+			static bool classof(const Decl* decl)
+			{
+				return decl->getKind() == DeclKind::FunctionDecl;
+			}
 		private:
 			SourceLoc headEndLoc_;
 			Type* returnType_ = nullptr;
@@ -160,6 +176,11 @@ namespace fox
 
 			void setInitExpr(std::unique_ptr<Expr> expr);
 			bool hasInitExpr() const;
+
+			static bool classof(const Decl* decl)
+			{
+				return decl->getKind() == DeclKind::VarDecl;
+			}
 		private:
 			SourceRange typeRange_;
 			QualType type_;
@@ -196,6 +217,11 @@ namespace fox
 
 			FileID getFileID() const;
 			void setFileID(const FileID& fid);
+
+			static bool classof(const Decl* decl)
+			{
+				return decl->getKind() == DeclKind::UnitDecl;
+			}
 		private:
 			DelVecTy decls_;
 			FileID file_;
