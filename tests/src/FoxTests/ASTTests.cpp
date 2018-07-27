@@ -337,7 +337,7 @@ TEST(ASTTests, StmtKinds)
 	EXPECT_EQ(declstmt.getKind(), StmtKind::DeclStmt);
 }
 
-TEST(ASTTests, DeclClassof)
+TEST(ASTTests, DeclRTTI)
 {
 	ASTContext astctxt;
 	auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
