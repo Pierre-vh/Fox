@@ -1,6 +1,11 @@
 This file contains some features that are definitely doable, but are low priority.
 -> This is a low-priority to-do list.
 
+CMake:
+	More portability:
+		Currently I only code on Visual Studio, so I only set compiler arguments for Visual Studio. It would be great to, instead
+		set them for every major compiler (CLang/GCC/MSVC) so the project is fully portable.
+
 QoL: 
 	Diagnostics:
 		1) Add the opportunity to add relevant pieces of code (which would be underlined with tildes '~') to a diagnostic.
