@@ -18,6 +18,7 @@ namespace fox
 	enum class StmtKind : std::uint8_t
 	{
 		#define STMT(ID,PARENT) ID,
+		#define STMT_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
 		#include "StmtNodes.def"
 	};
 
