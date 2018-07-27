@@ -21,6 +21,11 @@
 	#define ABSTRACT_STMT(ID,PARENT)
 #endif
 
+// Range of stmts derived from another stmt.
+#ifndef STMT_RANGE
+	#define STMT_RANGE(ID,FIRST,LAST)
+#endif
+
 // Concrete classes of Expr
 #ifndef EXPR
 	#define EXPR(ID,PARENT) STMT(ID,PARENT)
@@ -61,9 +66,11 @@ ABSTRACT_STMT(Expr,Stmt)
 	EXPR(DeclRefExpr,Expr)
 	EXPR(MemberOfExpr,Expr)
 	EXPR(FunctionCallExpr,Expr)
+	STMT_RANGE(Expr,ParensExpr,FunctionCallExpr)
 
 /* Undef */
 
 #undef EXPR
 #undef ABSTRACT_STMT
 #undef STMT
+#undef STMT_RANGE
