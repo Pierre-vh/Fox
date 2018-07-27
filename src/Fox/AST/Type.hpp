@@ -27,6 +27,7 @@ namespace fox
 	enum class TypeKind : std::uint8_t
 	{
 		#define TYPE(ID,PARENT) ID,
+		#define TYPE_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
 		#include "TypeNodes.def"
 	};
 
@@ -54,6 +55,11 @@ namespace fox
 	// are not user created.
 	class BuiltinType : public Type
 	{
+		public:
+			static bool classof(const Type* type)
+			{
+				return ((type->getKind() >= TypeKind::First_BuiltinType) && (type->getKind() <= TypeKind::Last_BuiltinType));
+			}
 		protected:
 			BuiltinType(TypeKind tc);
 	};
@@ -87,6 +93,11 @@ namespace fox
 
 			// Returns true iff builtinKind_ == Kind::VoidTy
 			bool isVoid() const;
+
+			static bool classof(const Type* type)
+			{
+				return (type->getKind() == TypeKind::PrimitiveType);
+			}
 		private:
 			const Kind builtinKind_;
 	};
@@ -100,6 +111,11 @@ namespace fox
 			virtual std::string getString() const override;
 
 			const Type* getItemTy() const;
+
+			static bool classof(const Type* type)
+			{
+				return (type->getKind() == TypeKind::ArrayType);
+			}
 		private:
 			const Type* itemTy_= nullptr;
 	};
