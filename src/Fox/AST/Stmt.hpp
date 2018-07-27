@@ -75,6 +75,11 @@ namespace fox
 
 			void setSemiLoc(const SourceLoc& semiLoc);
 			SourceLoc getSemiLoc() const;
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::NullStmt);
+			}
 	};
 
 	// The "return" statement
@@ -87,6 +92,11 @@ namespace fox
 			bool hasExpr() const;
 			Expr* getExpr();
 			void setExpr(std::unique_ptr<Expr> e);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::ReturnStmt);
+			}
 		private:
 			std::unique_ptr<Expr> expr_;
 	};
@@ -117,6 +127,11 @@ namespace fox
 			void setIfHeaderEndLoc(const SourceLoc& sloc);
 			SourceRange getIfHeaderRange() const;
 			SourceLoc getIfHeaderEndLoc() const;
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::ConditionStmt);
+			}
 		private:
 			SourceLoc ifHeadEndLoc_;
 
@@ -155,6 +170,11 @@ namespace fox
 
 			// begLoc and endLoc = the locs of the curly brackets.
 			void setSourceLocs(const SourceLoc& begLoc, const SourceLoc& endLoc);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::CompoundStmt);
+			}
 		private:
 			StmtVecTy stmts_;
 	};
@@ -177,6 +197,11 @@ namespace fox
 
 			SourceLoc getHeaderEndLoc() const;
 			SourceRange getHeaderRange() const;
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::WhileStmt);
+			}
 		private:
 			SourceLoc headerEndLoc_;
 			std::unique_ptr<Expr> cond_;
@@ -196,6 +221,11 @@ namespace fox
 			const Decl* getDecl() const;
 
 			void setDecl(std::unique_ptr<Decl> decl);
+
+			static bool classof(const Stmt* stmt)
+			{
+				return (stmt->getKind() == StmtKind::DeclStmt);
+			}
 		private:
 			std::unique_ptr<Decl> decl_ = nullptr;			
 	};
