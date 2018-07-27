@@ -22,6 +22,11 @@
 	#define DECL_CTXT(ID,PARENT) DECL(ID,PARENT)
 #endif
 
+// Range of declarations derived from another decl.
+#ifndef DECL_RANGE
+	#define DECL_RANGE(ID,FIRST,LAST)
+#endif
+
 // Abstract decls, most of the time, we don't care about them.
 // The class name is ID, and the parent PARENT.
 #ifndef ABSTRACT_DECL
@@ -35,9 +40,11 @@ ABSTRACT_DECL(NamedDecl,Decl)
 	DECL_CTXT(FunctionDecl,NamedDecl)
 	DECL(VarDecl,NamedDecl)
 	DECL_CTXT(UnitDecl,NamedDecl)
+	DECL_RANGE(NamedDecl,ArgDecl,UnitDecl)
 
 /* Undef */
 
 #undef ABSTRACT_DECL
 #undef DECL
 #undef DECL_CTXT
+#undef DECL_RANGE
