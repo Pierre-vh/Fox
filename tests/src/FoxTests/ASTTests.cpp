@@ -337,7 +337,7 @@ TEST(ASTTests, StmtKinds)
 	EXPECT_EQ(declstmt.getKind(), StmtKind::DeclStmt);
 }
 
-TEST(ASTTests, DeclKinds)
+TEST(ASTTests, DeclClassof)
 {
 	ASTContext astctxt;
 	auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
@@ -346,18 +346,26 @@ TEST(ASTTests, DeclKinds)
 	// Arg
 	ArgDecl argdecl;
 	EXPECT_EQ(argdecl.getKind(), DeclKind::ArgDecl);
+	EXPECT_TRUE(ArgDecl::classof(&argdecl));
+	EXPECT_TRUE(NamedDecl::classof(&argdecl));
 
 	// Func
 	FunctionDecl fndecl;
 	EXPECT_EQ(fndecl.getKind(), DeclKind::FunctionDecl);
+	EXPECT_TRUE(FunctionDecl::classof(&fndecl));
+	EXPECT_TRUE(NamedDecl::classof(&fndecl));
 
 	// Var
 	VarDecl vdecl;
 	EXPECT_EQ(vdecl.getKind(), DeclKind::VarDecl);
+	EXPECT_TRUE(VarDecl::classof(&vdecl));
+	EXPECT_TRUE(NamedDecl::classof(&vdecl));
 
 	// Unit
 	UnitDecl udecl(fooid,FileID());
 	EXPECT_EQ(udecl.getKind(), DeclKind::UnitDecl);
+	EXPECT_TRUE(UnitDecl::classof(&udecl));
+	EXPECT_TRUE(NamedDecl::classof(&udecl));
 }
 
 // ASTVisitor tests : Samples implementations to test if visitors works as intended
