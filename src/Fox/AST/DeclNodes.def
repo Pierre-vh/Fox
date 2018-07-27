@@ -16,8 +16,14 @@
 	#define DECL(ID,PARENT)
 #endif
 
+// This macro is used for Decl contexts, the default
+// behaviour is to do the same as fo Decl.
+#ifndef DECL_CTXT
+	#define DECL_CTXT(ID,PARENT) DECL(ID,PARENT)
+#endif
+
 // Abstract decls, most of the time, we don't care about them.
-// The class name is ID##Decl, and the parent PARENT.
+// The class name is ID, and the parent PARENT.
 #ifndef ABSTRACT_DECL
 	#define ABSTRACT_DECL(ID,PARENT)
 #endif
@@ -26,11 +32,12 @@
 
 ABSTRACT_DECL(NamedDecl,Decl)
 	DECL(ArgDecl,NamedDecl)
-	DECL(FunctionDecl,NamedDecl)
+	DECL_CTXT(FunctionDecl,NamedDecl)
 	DECL(VarDecl,NamedDecl)
-	DECL(UnitDecl,NamedDecl)
+	DECL_CTXT(UnitDecl,NamedDecl)
 
 /* Undef */
 
 #undef ABSTRACT_DECL
 #undef DECL
+#undef DECL_CTXT
