@@ -4,7 +4,7 @@
 // File : DiagnosticEngine.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file declares the Diagnostic struct (which stores 
+// This file declares the Diagnostic class (which stores 
 // informations on a specific diagnostic).
 // This file also contains the DiagID enum, which store every possible
 // diagnostics
