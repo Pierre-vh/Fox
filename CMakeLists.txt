@@ -31,8 +31,14 @@ if(MSVC)
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   endif()
-  # Warnings are errors
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
+  # Disable RTTI
+  if(CMAKE_CXX_FLAGS MATCHES "/GR")
+      string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
+  endif()
+  # Set Warnings are errors
+  add_compile_options(/WX)
 endif()
 
 
