@@ -36,6 +36,7 @@
 #include "Fox/AST/Stmt.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/Utils.hpp"
+#include "Fox/Common/LLVM.hpp"
 
 namespace fox
 {
@@ -373,7 +374,7 @@ namespace fox
 					std::unique_ptr<Derived> moveAs()
 					{
 						assert(result_ && "Result was null, or has already been moved!");
-						Derived *ptr = dynamic_cast<Derived*>(result_.get());
+						Derived *ptr = dyn_cast_or_null<Derived>(result_.get());
 						assert(ptr && "Can't cast to desired type");
 						result_.release();
 						return std::unique_ptr<Derived>(ptr);
@@ -390,7 +391,7 @@ namespace fox
 					template<typename Derived>
 					bool is() const
 					{
-						return (bool)(dynamic_cast<Derived*>(result_.get()));
+						return isa<Derived>(result_.get());
 					}
 				private:
 					bool successFlag_ : 1;
