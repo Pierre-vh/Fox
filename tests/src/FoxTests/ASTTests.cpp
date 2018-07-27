@@ -249,14 +249,19 @@ TEST(ASTTests, DeclContextTest)
 
 }
 
-TEST(ASTTests, TypeKinds)
+TEST(ASTTests, TypeRTTI)
 {
 	ASTContext astctxt;
 	Type* intTy = astctxt.getPrimitiveIntType();
 	Type* arrIntTy = astctxt.getArrayTypeForType(intTy);
 
 	EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
+	EXPECT_TRUE(PrimitiveType::classof(intTy));
+	EXPECT_TRUE(BuiltinType::classof(intTy));
+
 	EXPECT_EQ(arrIntTy->getKind(), TypeKind::ArrayType);
+	EXPECT_TRUE(ArrayType::classof(arrIntTy));
+	EXPECT_TRUE(BuiltinType::classof(arrIntTy));
 }
 
 TEST(ASTTests, ExprKinds)
