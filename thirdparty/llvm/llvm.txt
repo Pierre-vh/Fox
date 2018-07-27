@@ -1,0 +1,23 @@
+LLVM on GitHub: https://github.com/llvm-mirror/llvm
+LLVM Website: https://llvm.org/
+
+Notice: This folder contains some files that I imported/extracted from the LLVM project.
+Theses files have sometimes been modified to remove dependencies, or remove some functionality that
+I did not need.
+
+Non exhaustive changes list:
+	type_traits.h
+		Removed #include "Compiler.h"
+		Removed LLVM_IS_FINAL macro
+		Removed __has_feature macros
+		Modified isPodLike to use is_trivially_copyable in all cases
+
+	Casting.h
+		Moved the "__has_cpp_attribute" macro to this file
+		Moved the definition of the LLVM_NODISCARD (from Compiler.h) to this file
+		Removed #include "Compiler.h"
+		
+
+
+			
+			
