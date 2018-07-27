@@ -14,6 +14,7 @@
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
+#include "Fox/Common/LLVM.hpp"
 
 using namespace fox;
 
@@ -91,11 +92,11 @@ TEST(ASTTests, ASTContextArrayTypes)
 	Type* primChar = actxt.getPrimitiveCharType();
 	Type* primString = actxt.getPrimitiveStringType();
 
-	Type* boolArr	= actxt.getArrayTypeForType(primBool);
-	Type* floatArr	= actxt.getArrayTypeForType(primFloat);
-	Type* intArr		= actxt.getArrayTypeForType(primInt);
-	Type* charArr	= actxt.getArrayTypeForType(primChar);
-	Type* strArr		= actxt.getArrayTypeForType(primString);
+	Type* boolArr = actxt.getArrayTypeForType(primBool);
+	Type* floatArr = actxt.getArrayTypeForType(primFloat);
+	Type* intArr = actxt.getArrayTypeForType(primInt);
+	Type* charArr = actxt.getArrayTypeForType(primChar);
+	Type* strArr = actxt.getArrayTypeForType(primString);
 
 
 	// Check that pointers aren't null
@@ -106,11 +107,11 @@ TEST(ASTTests, ASTContextArrayTypes)
 	ASSERT_TRUE(strArr)		<< "Pointer is null";
 
 	// Check that itemTypes are correct
-	EXPECT_EQ((dynamic_cast<ArrayType*>(boolArr))->getItemTy(), primBool);
-	EXPECT_EQ((dynamic_cast<ArrayType*>(floatArr))->getItemTy(), primFloat);
-	EXPECT_EQ((dynamic_cast<ArrayType*>(intArr))->getItemTy(), primInt);
-	EXPECT_EQ((dynamic_cast<ArrayType*>(charArr))->getItemTy(), primChar);
-	EXPECT_EQ((dynamic_cast<ArrayType*>(strArr))->getItemTy(), primString);
+	EXPECT_EQ((dyn_cast<ArrayType>(boolArr))->getItemTy(), primBool);
+	EXPECT_EQ((dyn_cast<ArrayType>(floatArr))->getItemTy(), primFloat);
+	EXPECT_EQ((dyn_cast<ArrayType>(intArr))->getItemTy(), primInt);
+	EXPECT_EQ((dyn_cast<ArrayType>(charArr))->getItemTy(), primChar);
+	EXPECT_EQ((dyn_cast<ArrayType>(strArr))->getItemTy(), primString);
 
 	// Checks that they're different
 	EXPECT_NE(boolArr, floatArr);
