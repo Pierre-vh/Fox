@@ -16,6 +16,11 @@
 	#define TYPE(ID,PARENT)
 #endif
 
+// Range of Types derived from another Type.
+#ifndef TYPE_RANGE
+	#define TYPE_RANGE(ID,FIRST,LAST)
+#endif
+
 // Abstract Types, most of the time, we don't care about them.
 // The class name is ID##Type, and the parent PARENT.
 #ifndef ABSTRACT_TYPE
@@ -27,8 +32,10 @@
 ABSTRACT_TYPE(BuiltinType,Type)
 	TYPE(PrimitiveType,BuiltinType)
 	TYPE(ArrayType,BuiltinType)
+	TYPE_RANGE(BuiltinType,PrimitiveType,ArrayType)
 
 
 /* Undef */
 #undef ABSTRACT_TYPE
 #undef TYPE
+#undef TYPE_RANGE
