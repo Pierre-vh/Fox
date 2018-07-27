@@ -4,7 +4,7 @@
 	* Generally, try to name them with verb phrases, as they represent actions.
 	* First letter should be lowercase, then use capital letters to separate works. (CamelCase) 
 		* Example: `me.amIPretty()`
-	* For functions that mimic the STL (e.g. they return iterators), use snake_case
+	* For functions that mimic the STL, use snake_case
 		* Example: 'compoundStatement.decls_beg()'
 
 * Types Names (Usings, Typedefs, Structs & Classes, Enums)
@@ -15,7 +15,7 @@
 	* Generally, try to name them as noun. Use a lowercase first letter, then capital letters to separate words (CamelCase)
 	* Private member variables : Add a trailing underscore (`_`)
 		* Example: `consumer_`
-	* Others variables, including variables in POD-Like structs : Don't use the trailing underscore.
+	* Others variables, including public member variables : CamelCase with a lowercase first letter.
 		* Example: `fooBar`
 
 * Struct vs Classes
@@ -33,10 +33,6 @@
 		* `assert(ptr && "My pointer is null !")`
 		* `assert(mySourceLoc.getIndex() <= fileData->str.size() && "SourceLoc is out of range!")
 	* Use exceptions for the rest, and try to use them sparingly.
-		* Note : in a situation where you're checking a value before using it in a function known to throw
-		  (e.g. check for out of range before accessing a vector), use an assertion, and let the function throw the exception.
-			* Example code : `assert(idx < myVec_.size() && "Index out of range"); return myVec_[idx];`
+		* Note that generally speaking, you'll have very little need for exceptions. They shouldn't be used too often
+		  because they might be removed from the project one day.
 
-* Generally speaking, classes in the "main pipeline", such as the Parser/Lexer/Semantic/IRGen should have little need for exceptions. They'll report errors
-  using the DiagEngine most of the time, and will often use assertions to check that the input given by another class is correct.
-	* e.g. the Semantic Analyzer will assert that a node returned by the parser is fully formed, instead of throwing an exception.
