@@ -96,12 +96,25 @@ DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_end() const
 	return namedDecls_.end();
 }
 
+bool DeclContext::classof(const Decl* decl)
+{
+	switch (decl->getKind())
+	{
+		#define DECL_CTXT(ID,PARENT) \
+				case DeclKind::ID: \
+					return true;
+		#include "DeclNodes.def"
+		default:
+			return false;
+	}
+}
+
+// LookupResult
 LookupResult::LookupResult()
 {
 
 }
 
-// LookupResult
 bool LookupResult::isEmpty() const
 {
 	return (getSize() == 0);

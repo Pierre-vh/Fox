@@ -81,6 +81,8 @@ namespace fox
 
 			NamedDeclsMapConstIter recordedDecls_begin() const;
 			NamedDeclsMapConstIter recordedDecls_end() const;
+
+			static bool classof(const Decl* decl);
 		private:
 			// Pointer to the Declaration Recorder "above" this one.
 			DeclContext * parent_ = nullptr;
