@@ -348,24 +348,28 @@ TEST(ASTTests, DeclClassof)
 	EXPECT_EQ(argdecl.getKind(), DeclKind::ArgDecl);
 	EXPECT_TRUE(ArgDecl::classof(&argdecl));
 	EXPECT_TRUE(NamedDecl::classof(&argdecl));
+	EXPECT_FALSE(DeclContext::classof(&argdecl));
 
 	// Func
 	FunctionDecl fndecl;
 	EXPECT_EQ(fndecl.getKind(), DeclKind::FunctionDecl);
 	EXPECT_TRUE(FunctionDecl::classof(&fndecl));
 	EXPECT_TRUE(NamedDecl::classof(&fndecl));
+	EXPECT_TRUE(DeclContext::classof(&fndecl));
 
 	// Var
 	VarDecl vdecl;
 	EXPECT_EQ(vdecl.getKind(), DeclKind::VarDecl);
 	EXPECT_TRUE(VarDecl::classof(&vdecl));
 	EXPECT_TRUE(NamedDecl::classof(&vdecl));
+	EXPECT_FALSE(DeclContext::classof(&vdecl));
 
 	// Unit
 	UnitDecl udecl(fooid,FileID());
 	EXPECT_EQ(udecl.getKind(), DeclKind::UnitDecl);
 	EXPECT_TRUE(UnitDecl::classof(&udecl));
 	EXPECT_TRUE(NamedDecl::classof(&udecl));
+	EXPECT_TRUE(DeclContext::classof(&udecl));
 }
 
 // ASTVisitor tests : Samples implementations to test if visitors works as intended
