@@ -374,7 +374,7 @@ namespace fox
 					std::unique_ptr<Derived> moveAs()
 					{
 						assert(result_ && "Result was null, or has already been moved!");
-						Derived *ptr = dyn_cast_or_null<Derived>(result_.get());
+						Derived *ptr = dyn_cast<Derived>(result_.get());
 						assert(ptr && "Can't cast to desired type");
 						result_.release();
 						return std::unique_ptr<Derived>(ptr);
