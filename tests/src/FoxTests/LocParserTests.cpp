@@ -63,10 +63,10 @@ class LocTests : public ::testing::Test
 TEST_F(LocTests, FuncAndArgDecl)
 {
 	SetUp("parser/loc/functions.fox");
-	auto presult = parser->parseFunctionDecl();
+	auto presult = parser->parseFuncDecl();
 
 	ASSERT_TRUE(presult) << "parsing error";
-	auto func = presult.moveAs<FunctionDecl>();
+	auto func = presult.moveAs<FuncDecl>();
 
 	// First, test the function itself
 	CompleteLoc func_beg = srcMgr.getCompleteLocForSourceLoc(func->getBegLoc());

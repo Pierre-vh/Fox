@@ -92,14 +92,14 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 	}
 }
 
-Parser::DeclResult Parser::parseFunctionDecl()
+Parser::DeclResult Parser::parseFuncDecl()
 {
 	/*
 		<func_decl>	= "func" <id> '(' [<param_decl> {',' <param_decl>}*] ')'[':' <type>] <compound_statement>
 		// Note about [':' <type>], if it isn't present, the function returns void
 	*/
 
-	// To-Do :
+	// FIXME:
 		// Improve the error recovery on a missing '(' or ')' 
 
 	// "func"
@@ -107,8 +107,7 @@ Parser::DeclResult Parser::parseFunctionDecl()
 	if (!fnKw)
 		return DeclResult::NotFound();
 
-	auto rtr = std::make_unique<FunctionDecl>(
-		);
+	auto rtr = std::make_unique<FuncDecl>();
 	SourceLoc begLoc = fnKw.getBeginSourceLoc();
 	SourceLoc endLoc;
 
@@ -408,7 +407,7 @@ Parser::DeclResult Parser::parseDecl()
 		return DeclResult::Error();
 
 	// <func_decl>
-	if (auto fdecl = parseFunctionDecl())
+	if (auto fdecl = parseFuncDecl())
 		return fdecl;
 	else if (!fdecl.wasSuccessful())
 		return DeclResult::Error();

@@ -37,7 +37,7 @@
 
 ABSTRACT_DECL(NamedDecl,Decl)
 	DECL(ParamDecl,NamedDecl)
-	DECL_CTXT(FunctionDecl,NamedDecl)
+	DECL_CTXT(FuncDecl,NamedDecl)
 	DECL(VarDecl,NamedDecl)
 	DECL_CTXT(UnitDecl,NamedDecl)
 	DECL_RANGE(NamedDecl,ParamDecl,UnitDecl)

@@ -210,7 +210,7 @@ TEST(SimpleParserTests, FuncDecl)
 	std::string corr_base_path = "parser/simple/funcdecl/correct_";
 	std::string bad_base_path = "parser/simple/funcdecl/incorrect_";
 	ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
-		auto res = parse.parseFunctionDecl();
+		auto res = parse.parseFuncDecl();
 		return res.isUsable();
 	});
 	std::stringstream ss;

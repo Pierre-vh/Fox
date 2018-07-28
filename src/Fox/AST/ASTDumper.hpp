@@ -52,7 +52,7 @@ namespace fox
 			void visitUnitDecl(UnitDecl* node);
 			void visitVarDecl(VarDecl* node);
 			void visitParamDecl(ParamDecl* node);
-			void visitFunctionDecl(FunctionDecl* node);
+			void visitFunctionDecl(FuncDecl* node);
 
 			// Options
 			void setPrintAllAddresses(bool opt);

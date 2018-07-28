@@ -109,7 +109,7 @@ namespace fox
 			// DECLS
 			DeclResult parseParamDecl();
 			DeclResult parseVarDecl();
-			DeclResult parseFunctionDecl();
+			DeclResult parseFuncDecl();
 			DeclResult parseDecl();
 
 			// Getters

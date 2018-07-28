@@ -104,7 +104,7 @@ namespace fox
 	// separated from the Unit's scope. If this wasn't a DeclContext,
 	// every variable inside a Function would be visible in the global scope,
 	// making name resolution much harder.
-	class FunctionDecl : public NamedDecl, public DeclContext
+	class FuncDecl : public NamedDecl, public DeclContext
 	{
 		private:
 			using ParamVecTy = UniquePtrVector<ParamDecl>;
@@ -112,8 +112,8 @@ namespace fox
 			using ParamVecIter = DereferenceIterator<ParamVecTy::iterator>;
 			using ParamVecConstIter = DereferenceIterator<ParamVecTy::const_iterator>;
 		public:
-			FunctionDecl();
-			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body, const SourceLoc& begLoc,const SourceLoc& headerEndLoc,const SourceLoc& endLoc);
+			FuncDecl();
+			FuncDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body, const SourceLoc& begLoc,const SourceLoc& headerEndLoc,const SourceLoc& endLoc);
 			
 			void setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end);
 			void setHeaderEndLoc(const SourceLoc& loc);
@@ -145,7 +145,7 @@ namespace fox
 
 			static bool classof(const Decl* decl)
 			{
-				return decl->getKind() == DeclKind::FunctionDecl;
+				return decl->getKind() == DeclKind::FuncDecl;
 			}
 		private:
 			SourceLoc headEndLoc_;

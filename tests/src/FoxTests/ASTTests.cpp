@@ -140,9 +140,9 @@ std::unique_ptr<VarDecl> makeVarDecl(ASTContext& ctxt, const std::string &name,T
 		);
 }
 
-std::unique_ptr<FunctionDecl> makeFuncDecl(ASTContext& ctxt, const std::string& name)
+std::unique_ptr<FuncDecl> makeFuncDecl(ASTContext& ctxt, const std::string& name)
 {
-	return std::make_unique<FunctionDecl>();
+	return std::make_unique<FuncDecl>();
 }
 
 bool testLookup(ASTContext &ctxt,DeclContext *dr, const std::string& name, Decl* decl,std::string& err)
@@ -379,7 +379,7 @@ TEST(ASTTests, StmtRTTI)
 	EXPECT_TRUE(WhileStmt::classof(&whilestmt));
 
 	// declstmt
-	DeclStmt declstmt(std::make_unique<FunctionDecl>()); /* The arg passed to a DeclStmt cannot be null */
+	DeclStmt declstmt(std::make_unique<FuncDecl>()); /* The arg passed to a DeclStmt cannot be null */
 	EXPECT_EQ(declstmt.getKind(), StmtKind::DeclStmt);
 	EXPECT_FALSE(Expr::classof(&declstmt));
 	EXPECT_TRUE(DeclStmt::classof(&declstmt));
@@ -399,9 +399,9 @@ TEST(ASTTests, DeclRTTI)
 	EXPECT_FALSE(DeclContext::classof(&paramdecl));
 
 	// Func
-	FunctionDecl fndecl;
-	EXPECT_EQ(fndecl.getKind(), DeclKind::FunctionDecl);
-	EXPECT_TRUE(FunctionDecl::classof(&fndecl));
+	FuncDecl fndecl;
+	EXPECT_EQ(fndecl.getKind(), DeclKind::FuncDecl);
+	EXPECT_TRUE(FuncDecl::classof(&fndecl));
 	EXPECT_TRUE(NamedDecl::classof(&fndecl));
 	EXPECT_TRUE(DeclContext::classof(&fndecl));
 
