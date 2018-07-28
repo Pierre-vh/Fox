@@ -102,33 +102,33 @@ bool NamedDecl::isValid() const
 }
 
 // Argument Declaration
-ArgDecl::ArgDecl() : ArgDecl(nullptr,QualType(),SourceLoc(),SourceRange(),SourceLoc())
+ParamDecl::ParamDecl() : ParamDecl(nullptr,QualType(),SourceLoc(),SourceRange(),SourceLoc())
 {
 
 }
 
-ArgDecl::ArgDecl(IdentifierInfo* id, const QualType& type, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc)
-	: NamedDecl(DeclKind::ArgDecl,id,begLoc,endLoc), type_(type), tyRange_(tyRange)
+ParamDecl::ParamDecl(IdentifierInfo* id, const QualType& type, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc)
+	: NamedDecl(DeclKind::ParamDecl,id,begLoc,endLoc), type_(type), tyRange_(tyRange)
 {
 
 }
 
-SourceRange ArgDecl::getTypeRange() const
+SourceRange ParamDecl::getTypeRange() const
 {
 	return tyRange_;
 }
 
-QualType ArgDecl::getType() const
+QualType ParamDecl::getType() const
 {
 	return type_;
 }
 
-void ArgDecl::setType(const QualType & qt)
+void ParamDecl::setType(const QualType & qt)
 {
 	type_ = qt;
 }
 
-bool ArgDecl::isValid() const
+bool ParamDecl::isValid() const
 {
 	return NamedDecl::isValid() && type_ && tyRange_;
 }
@@ -142,7 +142,7 @@ FunctionDecl::FunctionDecl(): FunctionDecl(nullptr,nullptr,nullptr,SourceLoc(),S
 FunctionDecl::FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body,const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc)
 	: NamedDecl(DeclKind::FunctionDecl,fnId,begLoc,endLoc), headEndLoc_(headerEndLoc), body_(std::move(body)), returnType_(returnType)
 {
-	argsAreValid_ = true;
+	paramsAreValid_ = true;
 }
 
 void FunctionDecl::setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end)
@@ -169,7 +169,7 @@ SourceRange FunctionDecl::getHeaderRange() const
 
 bool FunctionDecl::isValid() const
 {
-	return NamedDecl::isValid() && body_ && returnType_ && headEndLoc_ && argsAreValid_;
+	return NamedDecl::isValid() && body_ && returnType_ && headEndLoc_ && paramsAreValid_;
 }
 
 void FunctionDecl::setReturnType(Type* ty)
@@ -202,49 +202,49 @@ void FunctionDecl::setBody(std::unique_ptr<CompoundStmt> arg)
 	body_ = std::move(arg);
 }
 
-ArgDecl* FunctionDecl::getArg(std::size_t ind)
+ParamDecl* FunctionDecl::getParamDecl(std::size_t ind)
 {
-	assert(ind < args_.size() && "out-of-range");
-	return args_[ind].get();
+	assert(ind < params_.size() && "out-of-range");
+	return params_[ind].get();
 }
 
-const ArgDecl* FunctionDecl::getArg(std::size_t ind) const
+const ParamDecl* FunctionDecl::getParamDecl(std::size_t ind) const
 {
-	assert(ind < args_.size() && "out-of-range");
-	return args_[ind].get();
+	assert(ind < params_.size() && "out-of-range");
+	return params_[ind].get();
 }
 
-void FunctionDecl::addArg(std::unique_ptr<ArgDecl> arg)
+void FunctionDecl::addParamDecl(std::unique_ptr<ParamDecl> arg)
 {
 	if (!arg->isValid())
-		argsAreValid_ = false;
+		paramsAreValid_ = false;
 
-	args_.emplace_back(std::move(arg));
+	params_.emplace_back(std::move(arg));
 }
 
-std::size_t FunctionDecl::argsSize() const
+std::size_t FunctionDecl::getNumParams() const
 {
-	return args_.size();
+	return params_.size();
 }
 
-FunctionDecl::ArgVecIter FunctionDecl::args_begin()
+FunctionDecl::ParamVecIter FunctionDecl::params_begin()
 {
-	return args_.begin();
+	return params_.begin();
 }
 
-FunctionDecl::ArgVecConstIter FunctionDecl::args_begin() const
+FunctionDecl::ParamVecConstIter FunctionDecl::params_begin() const
 {
-	return args_.begin();
+	return params_.begin();
 }
 
-FunctionDecl::ArgVecIter FunctionDecl::args_end()
+FunctionDecl::ParamVecIter FunctionDecl::params_end()
 {
-	return args_.end();
+	return params_.end();
 }
 
-FunctionDecl::ArgVecConstIter FunctionDecl::args_end() const
+FunctionDecl::ParamVecConstIter FunctionDecl::params_end() const
 {
-	return args_.end();
+	return params_.end();
 }
 
 // VarDecl

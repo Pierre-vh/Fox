@@ -76,12 +76,12 @@ namespace fox
 			IdentifierInfo* identifier_;
 	};
 
-	// A Function Argument declaration
-	class ArgDecl : public NamedDecl
+	// A Function Parameter declaration
+	class ParamDecl : public NamedDecl
 	{
 		public:
-			ArgDecl();
-			ArgDecl(IdentifierInfo* id, const QualType& type,const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
+			ParamDecl();
+			ParamDecl(IdentifierInfo* id, const QualType& type,const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
 
 			SourceRange getTypeRange() const;
 
@@ -92,9 +92,9 @@ namespace fox
 
 			static bool classof(const Decl* decl)
 			{
-				return decl->getKind() == DeclKind::ArgDecl;
+				return decl->getKind() == DeclKind::ParamDecl;
 			}
-	private:
+		private:
 			SourceRange tyRange_;
 			QualType type_;
 	};
@@ -107,10 +107,10 @@ namespace fox
 	class FunctionDecl : public NamedDecl, public DeclContext
 	{
 		private:
-			using ArgVecTy = UniquePtrVector<ArgDecl>;
+			using ParamVecTy = UniquePtrVector<ParamDecl>;
 
-			using ArgVecIter = DereferenceIterator<ArgVecTy::iterator>;
-			using ArgVecConstIter = DereferenceIterator<ArgVecTy::const_iterator>;
+			using ParamVecIter = DereferenceIterator<ParamVecTy::iterator>;
+			using ParamVecConstIter = DereferenceIterator<ParamVecTy::const_iterator>;
 		public:
 			FunctionDecl();
 			FunctionDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body, const SourceLoc& begLoc,const SourceLoc& headerEndLoc,const SourceLoc& endLoc);
@@ -132,16 +132,16 @@ namespace fox
 			CompoundStmt* getBody();	
 			const CompoundStmt* getBody() const;
 
-			void addArg(std::unique_ptr<ArgDecl> arg);
-			ArgDecl* getArg(std::size_t ind);
-			const ArgDecl* getArg(std::size_t ind) const;
-			std::size_t argsSize() const;
+			void addParamDecl(std::unique_ptr<ParamDecl> arg);
+			ParamDecl* getParamDecl(std::size_t ind);
+			const ParamDecl* getParamDecl(std::size_t ind) const;
+			std::size_t getNumParams() const;
 
-			ArgVecIter args_begin();
-			ArgVecConstIter args_begin() const;
+			ParamVecIter params_begin();
+			ParamVecConstIter params_begin() const;
 
-			ArgVecIter args_end();
-			ArgVecConstIter args_end() const;
+			ParamVecIter params_end();
+			ParamVecConstIter params_end() const;
 
 			static bool classof(const Decl* decl)
 			{
@@ -150,11 +150,11 @@ namespace fox
 		private:
 			SourceLoc headEndLoc_;
 			Type* returnType_ = nullptr;
-			ArgVecTy args_;
+			ParamVecTy params_;
 			std::unique_ptr<CompoundStmt> body_;
 
 			// Bitfields
-			bool argsAreValid_ : 1;
+			bool paramsAreValid_ : 1;
 	};
 
 	// A Variable declaration

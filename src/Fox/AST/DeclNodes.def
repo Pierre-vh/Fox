@@ -36,11 +36,11 @@
 /* Macros */
 
 ABSTRACT_DECL(NamedDecl,Decl)
-	DECL(ArgDecl,NamedDecl)
+	DECL(ParamDecl,NamedDecl)
 	DECL_CTXT(FunctionDecl,NamedDecl)
 	DECL(VarDecl,NamedDecl)
 	DECL_CTXT(UnitDecl,NamedDecl)
-	DECL_RANGE(NamedDecl,ArgDecl,UnitDecl)
+	DECL_RANGE(NamedDecl,ParamDecl,UnitDecl)
 
 /* Undef */
 
