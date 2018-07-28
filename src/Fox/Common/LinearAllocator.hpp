@@ -61,6 +61,7 @@ namespace fox
 			// Assertions
 			static_assert(maxPools >= 1, "You must allow at least 1 pool to be created ! (maxPools must be >= 1)");
 			static_assert(poolSize >= KiloByte<1>::value, "Poolsize cannot be smaller than 1kb");
+			static_assert(poolAlign > 0, "Pool alignement must be greater than 0");
 
 		private:
 			/*
@@ -134,7 +135,7 @@ namespace fox
 				}
 
 				// If the allocator failed to create a new pool when required, return nullptr
-				if (createNewPoolIfRequired(size) < 0)
+				if (createNewPoolIfRequired(size, align) < 0)
 				{
 					// Assert, so in debug builds we know what happened.
 					assert(false && "Maximum number of pools exceeded!");
@@ -143,7 +144,7 @@ namespace fox
 
 				// Else, if everything's alright, go for it.
 				assert(allocPtr && "AllocPtr cannot be null");
-				auto tmp = allocPtr;
+				auto tmp = alignPtr(allocPtr,align);
 				allocPtr = static_cast<byte_type*>(allocPtr) + size;
 				return tmp;
 			}
@@ -218,31 +219,6 @@ namespace fox
 			}
 
 			/*
-				\brief Deletes the most recent pool.
-			*/
-			void popPool()
-			{
-				// if the current pool is not the first one
-				if (curPool != firstPool.get())
-				{
-					assert(curPool->previous && "CurPool doesn't have a previous pool?");
-					curPool = curPool->previous;
-					// Destroy the pool
-					curPool->next.reset();
-					allocPtr = curPool->data;
-					poolCount--;
-				}
-				else
-				{
-					assert(!curPool->previous && "CurPool shouldn't have a previous pool if it's the first one!");
-					firstPool.reset();
-					curPool = nullptr;
-					poolCount = 0;
-					allocPtr = nullptr;
-				}
-			}
-
-			/*
 				\returns True if we can allocate more pools
 			*/
 			bool canCreateMorePools() const
@@ -301,13 +277,19 @@ namespace fox
 			}
 		private:
 			/*
-				\brief Aligns a pointer if needed. Returns the aligned pointer!
+				\brief Aligns a pointer
+				\returns the aligned pointer
 			*/
 			template<typename PtrTy>
 			PtrTy* alignPtr(PtrTy* ptr, align_type align)
 			{
-				// todo
-				// hint: see std::align ? https://en.cppreference.com/w/cpp/memory/align
+				assert(align > 0 && "Alignement must be greater than 0!");
+				if (align == 1)
+					return ptr;
+
+				auto ptrInt = static_cast<std::uintptr_t>(ptr);
+				ptrInt += align - (ptrInt % align);
+				return static_cast<PtrTy*>(ptrInt);
 			}
 
 			/*
@@ -315,16 +297,13 @@ namespace fox
 				\return 1 if a new pool was allocated successfully. Returns 0 if no pool was allocated. Returns -1 if allocation of a new pool failed.
 				TL;DR: check if the result is below zero for errors.
 			*/
-			std::int8_t createNewPoolIfRequired(size_type sz)
+			std::int8_t createNewPoolIfRequired(size_type sz, align_type align)
 			{
-				// If there's no pool, allocate one.
 				if (!firstPool)
 					return createPool() ? 1 : -1;
 
-				// If the current pool can't hold the data, create a new one.
-				auto* ptr = static_cast<byte_type*>(allocPtr);
-
-				if (((static_cast<byte_type*>(allocPtr) + sz) > curPool->upperBound))
+				auto* ptr = alignPtr(static_cast<byte_type*>(allocPtr), align);
+				if ((ptr + sz) > curPool->upperBound)
 					return createPool() ? 1 : -1;
 
 				return 0;
