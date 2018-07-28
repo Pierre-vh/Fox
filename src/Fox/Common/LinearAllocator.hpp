@@ -19,6 +19,7 @@
 #include <cassert>
 #include <cstdint>
 #include <type_traits>
+#include <iostream>
 
 namespace fox
 {
@@ -43,24 +44,29 @@ namespace fox
 		Allocation is REALLY fast, and deallocation too, at the cost of a less control over memory allocated.
 		This is useful for allocating lots of long lived object (such as AST Nodes)
 		Note: This class does not strive to be thread-safe. Be careful with that!
+		
+		Set maxPools to 0 for infinite pools.
 	*/
-	template<std::size_t poolSize = KiloByte<64>::value, std::uint16_t maxPools = 32>
+	template<std::uint32_t poolSize = KiloByte<128>::value,
+			 std::uint16_t maxPools = 0, 
+			 std::uint8_t poolAlign = 1>
 	class LinearAllocator
 	{
 		public:
+			// Typedefs
 			using size_type = std::size_t;
 			using byte_type = unsigned char;
+			using align_type = std::uint8_t;
 
 			// Assertions
 			static_assert(maxPools >= 1, "You must allow at least 1 pool to be created ! (maxPools must be >= 1)");
 			static_assert(poolSize >= KiloByte<1>::value, "Poolsize cannot be smaller than 1kb");
 
 		private:
-
 			/*
 				\brief A Single Pool.
 			*/
-			struct Pool
+			struct alignas(poolAlign) Pool
 			{
 				Pool(Pool* last) : upperBound(data + (poolSize - 1)), previous(last)
 				{
@@ -81,7 +87,7 @@ namespace fox
 		public:
 
 			/*
-				\brief Constructor. Does some checks and calls setup. Setup will throw if the first pool can't be created!
+				\brief Constructor. Does some checks and calls setup.
 			*/
 			LinearAllocator()
 			{
@@ -117,18 +123,26 @@ namespace fox
 				\param size The size of the chunk of memory you want to allocate in bytes.
 				\returns Your chunk of memory, nullptr if the allocator can't allocate any more memory.
 			*/
-			void* allocate(size_type size)
+			void* allocate(size_type size, align_type align = 1)
 			{
-				// if the object is too big to be allocated, return nullptr.
-				if (!doesObjectFit(size))
+				// If the object is too big to be allocated, return nullptr.
+				if (!doesObjectFit(size, align))
+				{
+					// Assert, so in debug builds we know what happened.
+					assert(false && "Can't allocate an object this big!");
 					return nullptr;
+				}
 
-				// if the allocator failed to create a new pool when required, return nullptr
+				// If the allocator failed to create a new pool when required, return nullptr
 				if (createNewPoolIfRequired(size) < 0)
+				{
+					// Assert, so in debug builds we know what happened.
+					assert(false && "Maximum number of pools exceeded!");
 					return nullptr;
+				}
 
 				// Else, if everything's alright, go for it.
-				assert(allocPtr && "AllocPtr cannot be null at this stage.");
+				assert(allocPtr && "AllocPtr cannot be null");
 				auto tmp = allocPtr;
 				allocPtr = static_cast<byte_type*>(allocPtr) + size;
 				return tmp;
@@ -140,6 +154,7 @@ namespace fox
 			template<typename DataTy>
 			auto allocate()
 			{
+				static_assert(doesObjectFit(sizeof(DataTy)));
 				return static_cast<typename std::remove_all_extents<DataTy>::type*>(allocate(sizeof(DataTy)));
 			}
 
@@ -196,9 +211,10 @@ namespace fox
 			/*
 				\returns True if the object will fit in a pool, false otherwise.
 			*/
-			bool doesObjectFit(size_type sz) const
+			bool doesObjectFit(size_type sz, align_type align) const
 			{
-				return (poolSize >= sz);
+				// We compare to size + (align-1), to make room for padding if needed
+				return (poolSize >= (sz + (align-1)));
 			}
 
 			/*
@@ -227,11 +243,12 @@ namespace fox
 			}
 
 			/*
-				\returns True if we can't allocate any more pools.
+				\returns True if we can allocate more pools
 			*/
 			bool canCreateMorePools() const
 			{
-				return (poolCount < maxPools);
+				// Return true if we have infinite pools or if we still have room for more.
+				return (maxPools == 0) || (poolCount < maxPools);
 			}
 
 			/*
@@ -273,7 +290,7 @@ namespace fox
 			}
 
 			/*
-				\brief Displays a condensed dump to get an overview of Allocator.
+				\brief Displays a condensed dump to get an overview of the state of the allocator.
 			*/
 			void smallDump() const
 			{
@@ -284,9 +301,19 @@ namespace fox
 			}
 		private:
 			/*
+				\brief Aligns a pointer if needed. Returns the aligned pointer!
+			*/
+			template<typename PtrTy>
+			PtrTy* alignPtr(PtrTy* ptr, align_type align)
+			{
+				// todo
+				// hint: see std::align ? https://en.cppreference.com/w/cpp/memory/align
+			}
+
+			/*
 				\brief Creates a pool if the current pool can't support an allocation of size sz.
 				\return 1 if a new pool was allocated successfully. Returns 0 if no pool was allocated. Returns -1 if allocation of a new pool failed.
-				Generally you'll just check if the result is below zero for errors.
+				TL;DR: check if the result is below zero for errors.
 			*/
 			std::int8_t createNewPoolIfRequired(size_type sz)
 			{
@@ -295,7 +322,9 @@ namespace fox
 					return createPool() ? 1 : -1;
 
 				// If the current pool can't hold the data, create a new one.
-				else if (((static_cast<byte_type*>(allocPtr) + sz) > curPool->upperBound))
+				auto* ptr = static_cast<byte_type*>(allocPtr);
+
+				if (((static_cast<byte_type*>(allocPtr) + sz) > curPool->upperBound))
 					return createPool() ? 1 : -1;
 
 				return 0;
