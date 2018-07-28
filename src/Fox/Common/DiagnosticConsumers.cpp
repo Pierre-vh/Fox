@@ -130,7 +130,14 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
 	// Add carets
 	std::size_t numCarets = 1 + utf8::distance(caretBeg, caretEnd);
 	for (std::size_t k = 0; k < numCarets; k++)
+	{
+		// Stop generating carets if the caretLine is longer
+		// than the line's size + 1 (to allow a caret at the end of the line)
+		if (caretLine.size() > (line.size() + 1))
+			break;
 		caretLine += '^';
+	}
+
 
 	// Display the caret's line.
 	os_ << '\t' << caretLine << '\n';
