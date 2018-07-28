@@ -41,18 +41,11 @@ Moonshot Project To-do List.
 	> Add classof to AST Nodes (Done)
 	> Replace dynamic_cast with llvm's dyn_cast (Done)
 	> Compile without RTTI (Done)
-
-
-	> Diagnostics Overhaul (Now)
-		> The StreamDiagConsumer should always try to retrieve the line where the error happened
-			> SourceManager method to get the SourceLine for a SourceLoc (Done)
-			> Display the line of the source where the error is in the DiagConsumer (Done)
-				> Find a way to disable that for the parser's file-wide diagnostics. (Done)
-			> Display Carets under the errorRange, if there's one available (Done)
-			> Add more checks to the algorithm that displays the caret, to prevent crash on multiline diags. (Next)
+	> Diagnostics Overhaul (Done)
 	
-
-	> Add the LinearAllocator and PtrVariants in the project, and write tests for them. (Next)
+	> Finish the LinearAllocator (Next)
+		> polish the class
+		> Write tests for it
 
 	> AST Rework:
 		1) Allocator: Move from unique_ptrs to raw allocated pointers
