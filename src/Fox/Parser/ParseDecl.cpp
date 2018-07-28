@@ -71,13 +71,13 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 	// The conversion to uint16_t is needed so replacePlaceholder doesn't mistake
 	// it for a character.
 	if (std::uint16_t count = state_.curlyBracketsCount)
-		diags_.report(DiagID::parser_missing_curlybracket, fid).addArg(count);
+		diags_.report(DiagID::parser_missing_curlybracket, fid).addParamDecl(count);
 
 	if (std::uint16_t count = state_.roundBracketsCount)
-		diags_.report(DiagID::parser_missing_roundbracket, fid).addArg(count);
+		diags_.report(DiagID::parser_missing_roundbracket, fid).addParamDecl(count);
 
 	if (std::uint16_t count = state_.squareBracketsCount)
-		diags_.report(DiagID::parser_missing_squarebracket, fid).addArg(count);
+		diags_.report(DiagID::parser_missing_squarebracket, fid).addParamDecl(count);
 	*/
 	if (unit->getDeclCount() == 0)
 	{
@@ -95,7 +95,7 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 Parser::DeclResult Parser::parseFunctionDecl()
 {
 	/*
-		<func_decl>		= "func" <id> '(' [<arg_decl> {',' <arg_decl>}*] ')'[':' <type>] <compound_statement>
+		<func_decl>	= "func" <id> '(' [<param_decl> {',' <param_decl>}*] ')'[':' <type>] <compound_statement>
 		// Note about [':' <type>], if it isn't present, the function returns void
 	*/
 
@@ -139,16 +139,16 @@ Parser::DeclResult Parser::parseFunctionDecl()
 		isValid = foundLeftRoundBracket = false;
 	}
 
-	// [<arg_decl> {',' <arg_decl>}*]
-	if (auto firstarg = parseArgDecl())
+	// [<param_decl> {',' <param_decl>}*]
+	if (auto firstparam = parseParamDecl())
 	{
-		rtr->addArg(firstarg.moveAs<ArgDecl>());
+		rtr->addParamDecl(firstparam.moveAs<ParamDecl>());
 		while (true)
 		{
 			if (consumeSign(SignType::S_COMMA))
 			{
-				if (auto arg = parseArgDecl())
-					rtr->addArg(arg.moveAs<ArgDecl>());
+				if (auto arg = parseParamDecl())
+					rtr->addParamDecl(arg.moveAs<ParamDecl>());
 				else if(arg.wasSuccessful()) // not found?
 					reportErrorExpected(DiagID::parser_expected_argdecl);
 			}
@@ -208,9 +208,9 @@ Parser::DeclResult Parser::parseFunctionDecl()
 	return DeclResult(std::move(rtr));
 }
 
-Parser::DeclResult Parser::parseArgDecl()
+Parser::DeclResult Parser::parseParamDecl()
 {
-	// <arg_decl> = <id> ':' <qualtype>
+	// <param_decl> = <id> ':' <qualtype>
 
 	// <id>
 	auto id = consumeIdentifier();
@@ -235,7 +235,7 @@ Parser::DeclResult Parser::parseArgDecl()
 
 	SourceLoc begLoc = id.getSourceRange().getBeginSourceLoc();
 	SourceLoc endLoc = qt.getSourceRange().makeEndSourceLoc();
-	auto rtr = std::make_unique<ArgDecl>(
+	auto rtr = std::make_unique<ParamDecl>(
 			id.get(),
 			qt.get(),
 			begLoc,

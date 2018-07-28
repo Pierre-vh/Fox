@@ -265,7 +265,7 @@ void ASTDumper::visitVarDecl(VarDecl* node)
 	}
 }
 
-void ASTDumper::visitArgDecl(ArgDecl * node)
+void ASTDumper::visitParamDecl(ParamDecl * node)
 {
 	dumpLine() << getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << " " << getQualTypeDump("type", node->getType()) << "\n";
 }
@@ -274,13 +274,13 @@ void ASTDumper::visitFunctionDecl(FunctionDecl * node)
 {
 	dumpLine() << getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << " " << getTypeDump("returns",node->getReturnType()) << " " << getDeclRecorderDump(node) << "\n";
 
-	if (node->argsSize())
+	if (node->getNumParams())
 	{
 		unsigned counter = 0;
-		for (auto it = node->args_begin(); it != node->args_end(); it++, counter++)
+		for (auto it = node->params_begin(); it != node->params_end(); it++, counter++)
 		{
 			indent();
-				visitArgDecl(*it);
+				visitParamDecl(*it);
 			dedent();
 		}
 	}

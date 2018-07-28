@@ -51,7 +51,7 @@ namespace fox
 			// Decls
 			void visitUnitDecl(UnitDecl* node);
 			void visitVarDecl(VarDecl* node);
-			void visitArgDecl(ArgDecl* node);
+			void visitParamDecl(ParamDecl* node);
 			void visitFunctionDecl(FunctionDecl* node);
 
 			// Options

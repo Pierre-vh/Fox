@@ -392,11 +392,11 @@ TEST(ASTTests, DeclRTTI)
 	auto intty = astctxt.getPrimitiveIntType();
 
 	// Arg
-	ArgDecl argdecl;
-	EXPECT_EQ(argdecl.getKind(), DeclKind::ArgDecl);
-	EXPECT_TRUE(ArgDecl::classof(&argdecl));
-	EXPECT_TRUE(NamedDecl::classof(&argdecl));
-	EXPECT_FALSE(DeclContext::classof(&argdecl));
+	ParamDecl paramdecl;
+	EXPECT_EQ(paramdecl.getKind(), DeclKind::ParamDecl);
+	EXPECT_TRUE(ParamDecl::classof(&paramdecl));
+	EXPECT_TRUE(NamedDecl::classof(&paramdecl));
+	EXPECT_FALSE(DeclContext::classof(&paramdecl));
 
 	// Func
 	FunctionDecl fndecl;

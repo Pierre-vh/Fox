@@ -188,7 +188,7 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
 		{
 			// Important : set this to true to avoid infinite recursion.
 			errLimitReached_ = true;
-			report(DiagID::diagengine_maxErrCountExceeded).addArg(errorCount_).emit();
+			report(DiagID::diagengine_maxErrCountExceeded).addParamDecl(errorCount_).emit();
 			setSilenceAll(true);
 		}
 	}

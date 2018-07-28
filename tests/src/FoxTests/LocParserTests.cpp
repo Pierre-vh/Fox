@@ -79,11 +79,11 @@ TEST_F(LocTests, FuncAndArgDecl)
 
 	// Now, test the args
 	// Arg count should be correct
-	ASSERT_EQ(func->argsSize(), 2);
+	ASSERT_EQ(func->getNumParams(), 2);
 
 	// Extract each arg individually
-	ArgDecl* arg1 = func->getArg(0);
-	ArgDecl* arg2 = func->getArg(1);
+	ParamDecl* arg1 = func->getParamDecl(0);
+	ParamDecl* arg2 = func->getParamDecl(1);
 
 	// Check if the names are right
 	EXPECT_EQ(arg1->getIdentifier()->getStr(), "_bar1");

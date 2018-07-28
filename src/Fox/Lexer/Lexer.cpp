@@ -68,7 +68,7 @@ void Lexer::pushTok()
 	if (t)
 		tokens_.push_back(t);
 	else
-		diags_.report(DiagID::lexer_invalid_token_found,t.getRange()).addArg(t.getAsString());
+		diags_.report(DiagID::lexer_invalid_token_found,t.getRange()).addParamDecl(t.getAsString());
 
 	curtok_ = "";
 }
@@ -180,7 +180,7 @@ void Lexer::fn_S_STR()
 		dfa_goto(DFAState::S_BASE);
 	}
 	else if (c == '\n')
-		diags_.report(DiagID::lexer_newline_in_literal, getCurtokBegLoc()).addArg("string");
+		diags_.report(DiagID::lexer_newline_in_literal, getCurtokBegLoc()).addParamDecl("string");
 	else
 		addToCurtok(c);
 }

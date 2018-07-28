@@ -107,7 +107,7 @@ namespace fox
 			StmtResult parseWhileLoop();
 
 			// DECLS
-			DeclResult parseArgDecl();
+			DeclResult parseParamDecl();
 			DeclResult parseVarDecl();
 			DeclResult parseFunctionDecl();
 			DeclResult parseDecl();
