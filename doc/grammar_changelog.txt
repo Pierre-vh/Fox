@@ -133,4 +133,5 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 		<arg_decl>	= <id> ':' <qualtype>
 
 
-		
+* 0.13.3
+	~ Renamed <arg_decl> to <param_decl>

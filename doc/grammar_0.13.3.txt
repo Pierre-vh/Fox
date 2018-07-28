@@ -54,8 +54,8 @@ Fox Grammar version 0.13.2
 
 ##Decls##
 <declaration> = <func_decl> | <var_decl>
-<func_decl>	= "func" <id> '(' [<arg_decl> {',' <arg_decl>}] ')'[':' <type>] <compound_statement>
-<arg_decl>	= <id> ':' <qualtype>
+<func_decl>	= "func" <id> '(' [<param_decl> {',' <param_decl>}] ')'[':' <type>] <compound_statement>
+<param_decl>= <id> ':' <qualtype>
 <expr_list>	= '(' [<expr> {',' <expr>}] ')'
 <rtr_stmt>	= "return" [<expr>] ';'
 
