@@ -9,16 +9,14 @@
 ////------------------------------------------------------////
 
 // LinearAllocator To-Do list:
-	// Make it alignement-aware
-	// Allow multiple allocations ("count" arg to allocate/deallocate)
+	// Make it alignement-aware (Done? Sort of.. Needs to be checked/tested)
+	// Allow "array" allocations
 
 #pragma once
 
 #include <cstddef>
 #include <memory>
 #include <cassert>
-#include <cstdint>
-#include <type_traits>
 #include <iostream>
 
 namespace fox
@@ -27,30 +25,30 @@ namespace fox
 	template<std::uint16_t size>
 	class KiloByte
 	{
-		public:
-			static constexpr std::uint32_t value = size * 1000;
+	public:
+		static constexpr std::uint32_t value = size * 1000;
 	};
 
 	template<std::uint16_t size>
 	class MegaByte
 	{
-		public:
-			static constexpr std::uint32_t value = KiloByte<size>::value * 1000;
+	public:
+		static constexpr std::uint32_t value = KiloByte<size>::value * 1000;
 	};
 
 	/*
-		\brief The LinearAllocator class implements a "Pointer-Bump" allocator.
-		This works by allocating pools and giving chunks of it when allocate is called.
-		Allocation is REALLY fast, and deallocation too, at the cost of a less control over memory allocated.
-		This is useful for allocating lots of long lived object (such as AST Nodes)
-		Note: This class does not strive to be thread-safe. Be careful with that!
-		
-		Set maxPools to 0 for infinite pools.
+	\brief The LinearAllocator class implements a "Pointer-Bump" allocator.
+	This works by allocating pools and giving chunks of it when allocate is called.
+	Allocation is REALLY fast, and deallocation too, at the cost of a less control over memory allocated.
+	This is useful for allocating lots of long lived object (such as AST Nodes)
+	Note: This class does not strive to be thread-safe. Be careful with that!
+
+	Set maxPools to 0 for infinite pools.
 	*/
 	template<std::uint32_t poolSize = KiloByte<128>::value,
-			 std::uint16_t maxPools = 0, 
-			 std::uint8_t poolAlign = 1>
-	class LinearAllocator
+		std::uint16_t maxPools = 0,
+		std::uint8_t poolAlign = 8>
+		class LinearAllocator
 	{
 		public:
 			// Typedefs
@@ -59,13 +57,12 @@ namespace fox
 			using align_type = std::uint8_t;
 
 			// Assertions
-			static_assert(maxPools >= 1, "You must allow at least 1 pool to be created ! (maxPools must be >= 1)");
 			static_assert(poolSize >= KiloByte<1>::value, "Poolsize cannot be smaller than 1kb");
 			static_assert(poolAlign > 0, "Pool alignement must be greater than 0");
 
 		private:
 			/*
-				\brief A Single Pool.
+			\brief A Single Pool.
 			*/
 			struct alignas(poolAlign) Pool
 			{
@@ -88,12 +85,10 @@ namespace fox
 		public:
 
 			/*
-				\brief Constructor. Does some checks and calls setup.
+			\brief Constructor. Does some checks and calls setup.
 			*/
 			LinearAllocator()
 			{
-				// Quick tests to see if someone isn't trying to fool us.
-				static_assert(maxPools > 1, "Not enough space to allocate first pool !");
 				setup();
 			}
 
@@ -144,7 +139,7 @@ namespace fox
 
 				// Else, if everything's alright, go for it.
 				assert(allocPtr && "AllocPtr cannot be null");
-				auto tmp = alignPtr(allocPtr,align);
+				auto tmp = alignPtr(allocPtr, align);
 				allocPtr = static_cast<byte_type*>(allocPtr) + size;
 				return tmp;
 			}
@@ -215,7 +210,7 @@ namespace fox
 			bool doesObjectFit(size_type sz, align_type align) const
 			{
 				// We compare to size + (align-1), to make room for padding if needed
-				return (poolSize >= (sz + (align-1)));
+				return (poolSize >= (sz + (align - 1)));
 			}
 
 			/*
@@ -258,22 +253,22 @@ namespace fox
 				\brief	Displays a detailled dump to get an overview of Allocator.
 				This really just displays MaxPools and PoolSize and calls smallDump()
 			*/
-			void dump() const
+			void dump(std::ostream& os) const
 			{
-				std::cout << "MaxPools: " << maxPools << "\n";
-				std::cout << "Pool Size: " << poolSize << "\n";
-				smallDump();
+				os << "MaxPools: " << maxPools << "\n";
+				os << "Pool Size: " << poolSize << "\n";
+				smallDump(os);
 			}
 
 			/*
 				\brief Displays a condensed dump to get an overview of the state of the allocator.
 			*/
-			void smallDump() const
+			void smallDump(std::ostream& os) const
 			{
-				std::cout << "Pools: " << poolCount << "\n";
-				std::cout << "Curpool address: " << (void*)curPool << "\n";
-				std::cout << "AllocPtr address: " << (void*)allocPtr << "\n";
-				std::cout << "Bytes in current pool: " << (std::ptrdiff_t)(((byte_type*)allocPtr) - ((byte_type*)curPool)) << "\n";
+				os << "Pools: " << poolCount << "\n";
+				os << "Curpool address: " << (void*)curPool << "\n";
+				os << "AllocPtr address: " << (void*)allocPtr << "\n";
+				os << "Bytes in current pool: " << (std::ptrdiff_t)(((byte_type*)allocPtr) - ((byte_type*)curPool)) << "\n";
 			}
 		private:
 			/*
@@ -287,9 +282,9 @@ namespace fox
 				if (align == 1)
 					return ptr;
 
-				auto ptrInt = static_cast<std::uintptr_t>(ptr);
+				auto ptrInt = reinterpret_cast<std::uintptr_t>(ptr);
 				ptrInt += align - (ptrInt % align);
-				return static_cast<PtrTy*>(ptrInt);
+				return reinterpret_cast<PtrTy*>(ptrInt);
 			}
 
 			/*
