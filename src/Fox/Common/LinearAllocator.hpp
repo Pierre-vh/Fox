@@ -52,8 +52,7 @@ namespace fox
 	*/
 	template<
 			std::uint32_t poolSize = KiloByte<128>::value, // Allocate 128Kb pools by default
-			std::uint16_t maxPools = 0,		// Allow unlimited pools by default
-			std::uint8_t poolAlign = 4		// Don't align pools by default
+			std::uint8_t poolAlign = 4		
 		>							
 		class LinearAllocator
 		{
@@ -105,10 +104,7 @@ namespace fox
 				void setup()
 				{
 					if (!firstPool)
-					{
-						bool result = createPool();
-						assert(result && "Couldn't allocate first pool!");
-					}
+						createPool();
 				}
 
 				/*
@@ -136,11 +132,7 @@ namespace fox
 					if (!doesObjectFit(size, align))
 						reportBadAlloc("Object too big");
 
-					// See if we need to create a new pool
-					if (createNewPoolIfRequired(size, align) < 0)
-						reportBadAlloc("Maximum number of pools exceeded");
-
-
+					createNewPoolIfRequired(size, align);
 					auto tmp = alignPtr(allocPtr, align);
 					allocPtr = static_cast<byte_type*>(tmp) + size;
 					
@@ -197,22 +189,10 @@ namespace fox
 				}
 
 				/*
-					\returns True if we can allocate more pools
-				*/
-				bool canCreateMorePools() const
-				{
-					// Return true if we have infinite pools or if we still have room for more.
-					return (maxPools == 0) || (poolCount < maxPools);
-				}
-
-				/*
 					\brief Creates a pool. Will create the first one if that is not done yet, else, it'll just add another one at the end of the linked list of pools.
 				*/
-				bool createPool()
+				void createPool()
 				{
-					if (hasReachedMaxPools())
-						return false;
-
 					// Curpool isn't -> no pool yet
 					if (curPool)
 					{
@@ -230,7 +210,6 @@ namespace fox
 					poolCount++;
 					allocPtr = curPool->data;
 					assert(allocPtr && "allocPtr cannot be null");
-					return true;
 				}
 
 				/*
@@ -253,14 +232,6 @@ namespace fox
 					os << "Curpool address: " << (void*)curPool << "\n";
 					os << "AllocPtr address: " << (void*)allocPtr << "\n";
 					os << "Bytes in current pool: " << (std::ptrdiff_t)(((byte_type*)allocPtr) - ((byte_type*)curPool)) << "\n";
-				}
-
-				/*
-					\brief Returns true if we have exceeded the max number of pools allowed
-				*/
-				bool hasReachedMaxPools() const
-				{
-					return !canCreateMorePools();
 				}
 
 				size_type getPoolCount() const
@@ -286,20 +257,24 @@ namespace fox
 
 				/*
 					\brief Creates a pool if the current pool can't support an allocation of size sz.
-					\return 1 if a new pool was allocated successfully. Returns 0 if no pool was allocated.
-					Returns -1 if allocation of a new pool failed (too many pools)
-					TL;DR: check if the result is below zero for errors.
+					\return true if a new pool was allocated, false if not.
 				*/
 				std::int8_t createNewPoolIfRequired(size_type sz, align_type align)
 				{
 					if (!firstPool)
-						return createPool() ? 1 : -1;
+					{
+						createPool();
+						return true;
+					}
 
 					auto* ptr = alignPtr(static_cast<byte_type*>(allocPtr), align);
 					if ((ptr + sz) > curPool->upperBound)
-						return createPool() ? 1 : -1;
+					{
+						createPool();
+						return true;
+					}
 
-					return 0;
+					return false;
 				}
 		};
 }
