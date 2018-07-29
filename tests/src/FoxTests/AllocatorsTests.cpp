@@ -15,13 +15,14 @@ using namespace fox;
 
 // This test "spams" the allocator
 // with a lot of allocations of a large object,
-// testing that the memory allocated "works"
+// testing that the memory allocated "works".
+// This will 
 TEST(LinearAllocatorTests, SpamTest)
 {
 	#define COUNT 8192 /* Number of TestObject to allocate */
 	#define NUM_VALUES 16	/* Number of values in the TestObject */
 	// Size of this object: 16*64 bytes = 1024 bytes
-	struct alignas(8) TestObject
+	struct TestObject
 	{
 		std::uint64_t values[NUM_VALUES];
 	};
@@ -36,8 +37,6 @@ TEST(LinearAllocatorTests, SpamTest)
 	{
 		auto* ptr = alloc.allocate<TestObject>();
 		ASSERT_NE(ptr, nullptr) << "The allocator returned a null pointer after " << k << " allocations";
-		ASSERT_EQ(reinterpret_cast<std::uintptr_t>(ptr) % alignof(TestObject), 0)
-			<< "Memory allocated with incorrect alignement!";
 		
 		// Set every value to k+y, so they all
 		// have sort of a unique value.
@@ -97,4 +96,4 @@ TEST(LinearAllocatorTests, AlignementTest)
 
 // Tests left to do:
 	// Check manual allocation
-	// Check that pool limits are respected
+	// Check setup/reset/etc
