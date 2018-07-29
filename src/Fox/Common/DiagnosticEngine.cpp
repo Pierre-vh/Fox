@@ -9,7 +9,7 @@
 
 #include "DiagnosticEngine.hpp"
 #include "Source.hpp"
-#include "Fox/Common/Utils.hpp"
+#include "Fox/Common/Errors.hpp"
 #include <cassert>
 
 using namespace fox;
@@ -54,7 +54,7 @@ Diagnostic DiagnosticEngine::report(DiagID diagID, const FileID & file)
 Diagnostic DiagnosticEngine::report(DiagID diagID, const SourceRange& range)
 {
 	// Gather diagnostic data
-	const auto idx = enumAsInt(diagID);
+	const auto idx = static_cast<typename std::underlying_type<DiagID>::type>(diagID);
 	DiagSeverity sev = diagsSevs[idx];
 	std::string str(diagsStrs[idx]);
 

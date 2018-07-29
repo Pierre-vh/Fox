@@ -16,8 +16,7 @@
 #include "Stmt.hpp"
 #include "Expr.hpp"
 #include "Type.hpp"
-
-#include "Fox/Common/Utils.hpp"
+#include "Fox/Common/Errors.hpp"
 #include <utility>
 
 namespace fox

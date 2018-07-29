@@ -11,6 +11,7 @@
 #include "Fox/Common/Source.hpp"
 #include "Identifiers.hpp"
 #include "Fox/Common/StringManipulator.hpp"
+#include "Fox/Common/Errors.hpp"
 #include <string>
 #include <sstream>
 

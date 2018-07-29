@@ -11,7 +11,7 @@
 #include "DeclContext.hpp"
 
 #include "Decl.hpp"
-#include "Fox/Common/Utils.hpp"
+#include "Fox/Common/Errors.hpp"
 
 using namespace fox;
 

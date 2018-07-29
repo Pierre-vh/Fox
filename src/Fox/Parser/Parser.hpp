@@ -35,7 +35,7 @@
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-#include "Fox/Common/Utils.hpp"
+#include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
 
 namespace fox
