@@ -9,8 +9,7 @@
 ////------------------------------------------------------////
 
 // LinearAllocator To-Do list:
-	// Make it alignement-aware (Done? Sort of.. Needs to be checked/tested)
-	// Allow "array" allocations
+	// Allow multiple allocations of a single element ("count" arg)
 
 #pragma once
 
@@ -65,18 +64,24 @@ namespace fox
 
 		private:
 			/*
-				\brief A Single Pool.
+				\brief A Single Pool. They sort of act like 
+				a linked list, where each pool owns the next one.
 			*/
 			struct alignas(poolAlign) Pool
 			{
-				Pool(Pool* last) : upperBound(data + (poolSize - 1)), previous(last)
+				Pool(Pool* previous) : upperBound(data + (poolSize - 1)), previous(previous)
 				{
 					memset(data, 0, sizeof(data));
 				}
 
 				byte_type data[poolSize];
 				const byte_type* const upperBound = nullptr;
+
+				// Each pool owns the next one
 				std::unique_ptr<Pool> next = nullptr;
+
+				// Pools keep a reference to the last pool, so
+				// we can walk back if needed
 				Pool* previous = nullptr;
 			};
 
@@ -88,7 +93,7 @@ namespace fox
 		public:
 
 			/*
-				\brief Constructor. Does some checks and calls setup.
+				\brief Constructor. Calls setup.
 			*/
 			LinearAllocator()
 			{
@@ -96,7 +101,7 @@ namespace fox
 			}
 
 			/*
-				\brief	Setup the Allocator for use (creates the first pool)
+				\brief Setup the Allocator for use (creates the first pool)
 			*/
 			void setup()
 			{
@@ -120,25 +125,26 @@ namespace fox
 			*/
 			void* allocate(size_type size, align_type align = 1)
 			{
-				assert((align > 0) && "Alignement must be 1 or more!");
-				assert(((align == 1) || ((align & (align - 1)) == 0))
-					&& "Alignement must equal to 1, or a power of 2.");
+				// Check that the allocptr isn't null
 				assert(allocPtr && "AllocPtr cannot be null");
 
-				// Check if the object fits
-				if (!doesObjectFit(size, align))
-					reportBadAlloc("Object too big");
+				// Check if the object fits.
+				// No dump needed when calling reportBadAlloc
+				if (!willFitInPool(size, align))
+					reportBadAlloc("Object too big (size of object is greater than size of a pool)");
 
+				// Create a new pool if we need to do so.
 				createNewPoolIfRequired(size, align);
+
+				// Allocate the memory
 				auto tmp = alignPtr(allocPtr, align);
 				allocPtr = static_cast<byte_type*>(tmp) + size;
 					
 				if (!tmp)
 				{
 					// Dump before throwing, so we'll have some
-					// information to work with.
 					dump();
-					reportBadAlloc("Pointer returned is null");
+					reportBadAlloc("Pointer is null");
 				}
 
 				return tmp;
@@ -150,7 +156,7 @@ namespace fox
 			template<typename DataTy>
 			auto allocate()
 			{
-				static_assert(doesObjectFit(sizeof(DataTy), alignof(DataTy)), 
+				static_assert(willFitInPool(sizeof(DataTy), alignof(DataTy)),
 					"Object too big for allocator");
 				return static_cast<DataTy*>(allocate(sizeof(DataTy), alignof(DataTy)));
 			}
@@ -160,10 +166,7 @@ namespace fox
 			*/
 			void destroyAll()
 			{
-				// Note: Due to the nature of the unique_ptrs, this "destroy" function is useless when called from the destructor, however, it's provided
-				// as a mean of resetting the pool.
-
-				// Free the first pool, starting a chain reaction where every pool will be deleted.
+				// Free the first pool, starting a chain reaction of destructor calls!
 				if (firstPool)
 					firstPool.reset();
 
@@ -174,7 +177,7 @@ namespace fox
 			}
 
 			/*
-				\brief Destructor (just calls reset())
+				\brief Destructor (just calls destroyAll())
 			*/
 			~LinearAllocator()
 			{
@@ -182,16 +185,8 @@ namespace fox
 			}
 
 			/*
-				\returns True if the object will fit in a pool, false otherwise.
-			*/
-			static constexpr bool doesObjectFit(size_type sz, align_type align)
-			{
-				// We compare to size + (align-1), to make room for padding if needed
-				return (poolSize >= (sz + (align - 1)));
-			}
-
-			/*
-				\brief Creates a pool. Will create the first one if that is not done yet, else, it'll just add another one at the end of the linked list of pools.
+				\brief Creates a pool. Will create the first one if that is not done yet, 
+				else, it'll just add another one at the end of the linked list of pools.
 			*/
 			void createPool()
 			{
@@ -205,7 +200,7 @@ namespace fox
 				else
 				{
 					assert(!firstPool && "curPool is null, but firstPool isn't?");
-					firstPool = std::make_unique<Pool>(curPool);
+					firstPool = std::make_unique<Pool>(nullptr);
 					curPool = firstPool.get();
 				}
 
@@ -226,19 +221,39 @@ namespace fox
 				os << "Bytes in current pool: " << (std::ptrdiff_t)(((byte_type*)allocPtr) - ((byte_type*)curPool)) << "\n";
 			}
 
+			/*
+				\returns True if a pool can handle a chunk of size "sz"
+				and alignement "align"
+			*/
+			static constexpr bool willFitInPool(size_type sz, align_type align)
+			{
+				// We compare to size + (align-1), to make room for padding if needed
+				return (poolSize >= (sz + (align - 1)));
+			}
+
+			/*
+				\brief Returns the number of pool
+			*/
 			size_type getPoolCount() const
 			{
 				return poolCount;
 			}
 		private:
 			/*
-				\brief Aligns a pointer
+				\brief Aligns a pointer.
 				\returns the aligned pointer
 			*/
 			template<typename PtrTy>
 			PtrTy* alignPtr(PtrTy* ptr, align_type align)
 			{
-				assert(align > 0 && "Alignement must be greater than 0!");
+				// Alignement related checks
+				assert((align > 0) 
+					&& "Alignement cannot be less or equal to zero");
+				assert(((align == 1) || ((align & (align - 1)) == 0))
+					&& "Alignement must be 1, or a power of 2");
+
+				// Don't bother calculating anything if no alignement
+				// is required
 				if (align == 1)
 					return ptr;
 
