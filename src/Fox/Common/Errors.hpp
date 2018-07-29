@@ -15,8 +15,14 @@
 
 namespace fox
 {
+	// For use with fox_unreachable only.
 	[[noreturn]]
 	void _fox_unreachable_internal(const char* message, const char* file, unsigned line);
+
+	// Report a bad alloc error (when an allocator fails)
+	// Currently this will print the error message to cerr
+	// and throw std::bad_alloc
+	void reportBadAlloc(const char* message);
 }
 
 
