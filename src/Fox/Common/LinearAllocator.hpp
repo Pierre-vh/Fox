@@ -134,7 +134,12 @@ namespace fox
 					allocPtr = static_cast<byte_type*>(tmp) + size;
 					
 					if (!tmp)
+					{
+						// Dump before throwing, so we'll have some
+						// information to work with.
+						dump();
 						reportBadAlloc("Pointer returned is null");
+					}
 
 					return tmp;
 				}
