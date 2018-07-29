@@ -16,8 +16,8 @@
 
 #include <cstddef>
 #include <memory>
-#include <cassert>
 #include <iostream>
+#include "Errors.hpp"
 
 namespace fox
 {
@@ -45,7 +45,8 @@ namespace fox
 
 		Note: This class does not strive to be thread-safe. Be careful with that!
 		Note: This class will assert a lot to guarantee that the memory returned is never null
-		when it still has available pools.
+		when it still has available pools. It will call "reportBadAlloc" if it exceeds the number of
+		pools limit
 
 		Set maxPools to 0 for infinite pools.
 	*/
@@ -129,29 +130,23 @@ namespace fox
 					assert((align > 0) && "Alignement must be 1 or more!");
 					assert(((align == 1) || ((align & (align - 1)) == 0))
 						&& "Alignement must equal to 1, or a power of 2.");
+					assert(allocPtr && "AllocPtr cannot be null");
 
 					// Check if the object fits
 					if (!doesObjectFit(size, align))
-					{
-						// Assert, so in debug builds we know what happened.
-						assert(false && "Can't allocate an object this big!");
-						return nullptr;
-					}
+						reportBadAlloc("Object too big");
 
 					// See if we need to create a new pool
 					if (createNewPoolIfRequired(size, align) < 0)
-					{
-						// Assert, so in debug builds we know what happened.
-						assert(false && "Maximum number of pools exceeded!");
-						return nullptr;
-					}
+						reportBadAlloc("Maximum number of pools exceeded");
 
-					// Else, if everything's alright, go for it.
-					assert(allocPtr && "AllocPtr cannot be null");
+
 					auto tmp = alignPtr(allocPtr, align);
-					// Move the allocPtr by tmp + size of object
 					allocPtr = static_cast<byte_type*>(tmp) + size;
-					assert(tmp && "Returning null pointer?");
+					
+					if (!tmp)
+						reportBadAlloc("Pointer returned is null");
+
 					return tmp;
 				}
 
@@ -242,7 +237,7 @@ namespace fox
 					\brief	Displays a detailled dump to get an overview of Allocator.
 					This really just displays MaxPools and PoolSize and calls smallDump()
 				*/
-				void dump(std::ostream& os) const
+				void dump(std::ostream& os = std::cout) const
 				{
 					os << "MaxPools: " << maxPools << "\n";
 					os << "Pool Size: " << poolSize << "\n";
@@ -252,7 +247,7 @@ namespace fox
 				/*
 					\brief Displays a condensed dump to get an overview of the state of the allocator.
 				*/
-				void smallDump(std::ostream& os) const
+				void smallDump(std::ostream& os = std::cout) const
 				{
 					os << "Pools: " << poolCount << "\n";
 					os << "Curpool address: " << (void*)curPool << "\n";
