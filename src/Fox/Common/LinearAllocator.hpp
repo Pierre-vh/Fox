@@ -38,17 +38,14 @@ namespace fox
 
 	/*
 		\brief The LinearAllocator class implements a "Pointer-Bump" allocator.
+
 		This works by allocating pools and giving chunks of it when allocate is called.
 		Allocation is REALLY fast, at the cost of a less control over memory allocated.
 		Once a block of memory is allocated, you cannot deallocate it (no Deallocate method).
+
 		This is useful for allocating lots of long lived object (such as AST Nodes)
 
-		Note: This class does not strive to be thread-safe. Be careful with that!
-		Note: This class will assert a lot to guarantee that the memory returned is never null
-		when it still has available pools. It will call "reportBadAlloc" if it exceeds the number of
-		pools limit
-
-		Set maxPools to 0 for infinite pools.
+		Note: This class does not strive to be thread-safe.
 	*/
 	template<
 			std::uint32_t poolSize = KiloByte<128>::value, // Allocate 128Kb pools by default
