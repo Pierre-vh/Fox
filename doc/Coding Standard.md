@@ -32,7 +32,6 @@
 	* Use assertions to catch bugs & detect abnormal situations
 		* `assert(ptr && "My pointer is null !")`
 		* `assert(mySourceLoc.getIndex() <= fileData->str.size() && "SourceLoc is out of range!")
-	* Use exceptions for the rest, and try to use them sparingly.
-		* Note that generally speaking, you'll have very little need for exceptions. They shouldn't be used too often
-		  because they might be removed from the project one day.
+	* Use exceptions for the rest, but try to avoid them if possible. 
+		* Generally, use them through Error reporting methods
 
