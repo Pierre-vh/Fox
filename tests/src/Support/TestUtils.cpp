@@ -10,7 +10,6 @@
 #include "TestUtils.hpp"
 
 #include <fstream>
-#include "Fox/Common/Utils.hpp"
 using namespace fox;
 
 
