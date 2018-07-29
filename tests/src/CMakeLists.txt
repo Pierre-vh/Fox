@@ -13,5 +13,6 @@ add_source(
 	"FoxTests/SourceManagerTests.cpp"
 	"FoxTests/LocParserTests.cpp"
 	"FoxTests/DiagnosticsTests.cpp"
+	"FoxTests/AllocatorsTests.cpp"
 	
 	)
