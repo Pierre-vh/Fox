@@ -215,21 +215,11 @@ namespace fox
 				}
 
 				/*
-					\brief	Displays a detailled dump to get an overview of Allocator.
-					This really just displays MaxPools and PoolSize and calls smallDump()
+					\brief	Displays a detailled dump to get an overview of the state of the allocator.
 				*/
 				void dump(std::ostream& os = std::cout) const
 				{
-					os << "MaxPools: " << maxPools << "\n";
-					os << "Pool Size: " << poolSize << "\n";
-					smallDump(os);
-				}
-
-				/*
-					\brief Displays a condensed dump to get an overview of the state of the allocator.
-				*/
-				void smallDump(std::ostream& os = std::cout) const
-				{
+					os << "(Pools Size: " << poolSize << ")\n";
 					os << "Pools: " << poolCount << "\n";
 					os << "Curpool address: " << (void*)curPool << "\n";
 					os << "AllocPtr address: " << (void*)allocPtr << "\n";
