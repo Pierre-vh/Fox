@@ -16,7 +16,7 @@
 #include "Fox/Common/StringManipulator.hpp"
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-#include "Fox/Common/Utils.hpp"
+#include "Fox/Common/Errors.hpp"
 #include "Fox/AST/Identifiers.hpp"
 #include "Fox/AST/ASTContext.hpp"
 
@@ -26,6 +26,12 @@ using namespace fox::Dictionaries;
 // Regular expression used for identification 
 std::regex kInt_regex("\\d+");
 std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
+
+template<typename T>
+auto enumAsInt(T val)
+{
+	return static_cast<typename std::underlying_type<T>::type>(val);
+}
 
 LiteralType LiteralInfo::getType() const
 {
