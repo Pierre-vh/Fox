@@ -156,6 +156,26 @@ namespace fox
 			}
 
 			/*
+				\brief Deallocates the pointer. This just zeroes the memory unless it's the last object allocated, then, it's actually freed.
+				\param ptr The pointer which holds the chunk of memory you own.
+				\param sz The size of the chunk of memory in bytes.
+			*/
+			void deallocate(void*, size_type)
+			{
+				// No-op, since we don't deallocate memory in this allocator, it's
+				// only freed when destroyAll is called.
+			}
+
+			/*
+				\brief Templated version of deallocate which uses sizeof() to call the base deallocate.
+			*/
+			template<typename DataTy>
+			void deallocate(DataTy* ptr)
+			{
+				deallocate(ptr, sizeof(DataTy));
+			}
+
+			/*
 				\brief Destroys every pool.
 			*/
 			void destroyAll()
