@@ -17,7 +17,7 @@
 #endif
 
 // This macro is used for Decl contexts, the default
-// behaviour is to do the same as fo Decl.
+// behaviour is to do the same as Decls.
 #ifndef DECL_CTXT
 	#define DECL_CTXT(ID,PARENT) DECL(ID,PARENT)
 #endif
