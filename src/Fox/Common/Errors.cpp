@@ -20,6 +20,6 @@ void fox::_fox_unreachable_internal(const char* message, const char* file, unsig
 
 void fox::reportBadAlloc(const char* message)
 {
-	std::cerr << "bad_alloc:" << message << '\n';
+	std::cerr << "bad_alloc: " << message << '\n';
 	throw std::bad_alloc();
 }
