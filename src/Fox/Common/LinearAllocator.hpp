@@ -218,7 +218,7 @@ namespace fox
 				os << "Pools: " << poolCount << "\n";
 				os << "Curpool address: " << (void*)curPool << "\n";
 				os << "AllocPtr address: " << (void*)allocPtr << "\n";
-				os << "Bytes in current pool: " << (std::ptrdiff_t)(((byte_type*)allocPtr) - ((byte_type*)curPool)) << "\n";
+				os << "Bytes in current pool: " << getBytesInCurrentPool() << "\n";
 			}
 
 			/*
@@ -237,6 +237,14 @@ namespace fox
 			size_type getPoolCount() const
 			{
 				return poolCount;
+			}
+
+			/*
+				\brief Returns the number of bytes in the current pool
+			*/
+			size_type getBytesInCurrentPool() const
+			{
+				return (size_type)(((byte_type*)allocPtr) - ((byte_type*)curPool));
 			}
 		private:
 			/*
