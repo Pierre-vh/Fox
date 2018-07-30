@@ -51,6 +51,7 @@ namespace fox
 
 			// Identifier table
 			IdentifierTable identifiers;
+
 		private:
 			// Context shouldn't be copyable.
 			ASTContext(const ASTContext&) = delete;
@@ -69,15 +70,16 @@ namespace fox
 
 			// Built-in types
 			// Theses are all initialized by initBuiltinType
-			std::unique_ptr<PrimitiveType> primitiveVoidTy_;
-			std::unique_ptr<PrimitiveType> primitiveIntTy_;
-			std::unique_ptr<PrimitiveType> primitiveFloatTy_;
-			std::unique_ptr<PrimitiveType> primitiveBoolTy_;
-			std::unique_ptr<PrimitiveType> primitiveCharTy_;
-			std::unique_ptr<PrimitiveType> primitiveStringTy_;
+			PrimitiveType* voidTy_  = nullptr;
+			PrimitiveType* intTy_   = nullptr;
+			PrimitiveType* floatTy_ = nullptr;
+			PrimitiveType* boolTy_ = nullptr;
+			PrimitiveType* charTy_ = nullptr;
+			PrimitiveType* stringTy_ = nullptr;
 
 			// Array types
-			std::map<Type*, std::unique_ptr<ArrayType>> arrayTypes_;
+			// Type -> Type[]
+			std::map<Type*, ArrayType*> arrayTypes_;
 
 			// Allocators
 			LinearAllocator<> alloc_;

@@ -9,7 +9,7 @@
 
 #include "Type.hpp"
 #include "Fox/Common/Errors.hpp"
-
+#include "ASTContext.hpp"
 #include <sstream>
 
 using namespace fox;
@@ -25,6 +25,11 @@ TypeKind Type::getKind() const
 	return kind_;
 }
 
+void* Type::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align)
+{
+	return ctxt.getAllocator().allocate(sz, align);
+}
+
 /* BuiltinType */
 BuiltinType::BuiltinType(TypeKind tc) : Type(tc)
 {
@@ -32,7 +37,7 @@ BuiltinType::BuiltinType(TypeKind tc) : Type(tc)
 }
 
 /* Primitive Types */
-PrimitiveType::PrimitiveType(Kind kd) 
+PrimitiveType::PrimitiveType(Kind kd)
 	: builtinKind_(kd), BuiltinType(TypeKind::PrimitiveType)
 {
 

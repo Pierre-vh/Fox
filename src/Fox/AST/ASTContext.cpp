@@ -17,12 +17,12 @@ ASTContext::ASTContext()
 	initBuiltinTypes();
 }
 
-UnitDecl * ASTContext::getMainUnit()
+UnitDecl* ASTContext::getMainUnit()
 {
 	return mainUnit_;
 }
 
-UnitDecl * ASTContext::addUnit(std::unique_ptr<UnitDecl> unit, bool isMainUnit)
+UnitDecl* ASTContext::addUnit(std::unique_ptr<UnitDecl> unit, bool isMainUnit)
 {
 	units_.emplace_back(std::move(unit));
 
@@ -34,60 +34,68 @@ UnitDecl * ASTContext::addUnit(std::unique_ptr<UnitDecl> unit, bool isMainUnit)
 
 PrimitiveType* ASTContext::getPrimitiveIntType()
 {
-	return primitiveIntTy_.get();
+	return intTy_;
 }
 
 PrimitiveType* ASTContext::getPrimitiveFloatType()
 {
-	return primitiveFloatTy_.get();
+	return floatTy_;
 }
 
 PrimitiveType* ASTContext::getPrimitiveCharType()
 {
-	return primitiveCharTy_.get();
+	return charTy_;
 }
 
 PrimitiveType* ASTContext::getPrimitiveBoolType()
 {
-	return primitiveBoolTy_.get();
+	return boolTy_;
 }
 
 PrimitiveType* ASTContext::getPrimitiveStringType()
 {
-	return primitiveStringTy_.get();
+	return stringTy_;
 }
 
 PrimitiveType* ASTContext::getPrimitiveVoidType()
 {
-	return primitiveVoidTy_.get();
+	return voidTy_;
 }
 
 void ASTContext::initBuiltinTypes()
 {
-	primitiveVoidTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::VoidTy);
+	if (!voidTy_)
+		voidTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::VoidTy);
 
-	primitiveIntTy_		= std::make_unique<PrimitiveType>(PrimitiveType::Kind::IntTy);
-	primitiveFloatTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::FloatTy);
-	primitiveBoolTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::BoolTy);
+	if (!boolTy_)
+		boolTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::BoolTy);
 
-	primitiveStringTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::StringTy);
-	primitiveCharTy_	= std::make_unique<PrimitiveType>(PrimitiveType::Kind::CharTy);
+	if (!stringTy_)
+		stringTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::StringTy);
+
+	if (!charTy_)
+		charTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::CharTy);
+
+	if (!intTy_)
+		intTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::IntTy);
+
+	if (!floatTy_)
+		floatTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::FloatTy);
 }
 
-ArrayType * ASTContext::getArrayTypeForType(Type * ty)
+ArrayType* ASTContext::getArrayTypeForType(Type * ty)
 {
-	// Effective STL, Item 24 by Scott Meyers : https://stackoverflow.com/a/101980
 	auto lb = arrayTypes_.lower_bound(ty);
 	if (lb != arrayTypes_.end() && !(arrayTypes_.key_comp()(ty, lb->first)))
 	{
 		// Key already exists, return lb->second.get()
-		return (lb->second).get();
+		return lb->second;
 	}
 	else
 	{
 		// Key does not exists, insert & return.
-		auto insertionResult = arrayTypes_.insert(lb,{ ty, std::make_unique<ArrayType>(ty) });
-		return (insertionResult->second).get();
+		auto insertionResult = arrayTypes_.insert(lb,{ ty, new(*this) ArrayType(ty) });
+		return insertionResult->second;
 	}
 }
 

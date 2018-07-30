@@ -23,6 +23,7 @@
 
 namespace fox
 {
+	class ASTContext;
 	// The TypeKind enum
 	enum class TypeKind : std::uint8_t
 	{
@@ -43,6 +44,13 @@ namespace fox
 
 			TypeKind getKind() const;
 
+			// Prohibit the use of builtin placement new & delete
+			void *operator new(std::size_t) throw() = delete;
+			void operator delete(void *) throw() = delete;
+
+			// Only allow allocation through the ASTContext
+			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Type));
+
 		protected:
 			Type(TypeKind tc);
 
@@ -58,7 +66,8 @@ namespace fox
 		public:
 			static bool classof(const Type* type)
 			{
-				return ((type->getKind() >= TypeKind::First_BuiltinType) && (type->getKind() <= TypeKind::Last_BuiltinType));
+				return ((type->getKind() >= TypeKind::First_BuiltinType) 
+					&& (type->getKind() <= TypeKind::Last_BuiltinType));
 			}
 		protected:
 			BuiltinType(TypeKind tc);
