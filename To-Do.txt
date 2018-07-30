@@ -44,6 +44,7 @@ Moonshot Project To-do List.
 	> Diagnostics Overhaul (Done)
 	> Finish the LinearAllocator (Done)
 
+	// Important: Solve Warning C4291 : no matching operator delete found.
 
 	> AST Rework:
 		1) Allocator: Move from unique_ptrs to raw allocated pointers
