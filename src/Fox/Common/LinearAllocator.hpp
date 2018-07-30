@@ -58,7 +58,7 @@ namespace fox
 			using align_type = std::uint8_t;
 
 			// Assertions
-			static_assert(poolSize >= KiloByte<1>::value, "Poolsize cannot be smaller than 1kb");
+			static_assert(poolSize >= 64, "Poolsize cannot be smaller than 64 Bytes");
 
 		private:
 			/*
