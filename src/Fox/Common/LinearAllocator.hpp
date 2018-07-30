@@ -99,6 +99,11 @@ namespace fox
 				setup();
 			}
 
+			// Disable copy/move
+			LinearAllocator(LinearAllocator&) = delete;
+			LinearAllocator(LinearAllocator&&) = delete;
+			LinearAllocator& operator=(LinearAllocator&) = delete;
+
 			/*
 				\brief Setup the Allocator for use (creates the first pool)
 			*/
