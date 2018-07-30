@@ -138,13 +138,8 @@ namespace fox
 				// Allocate the memory
 				auto tmp = alignPtr(allocPtr, align);
 				allocPtr = static_cast<byte_type*>(tmp) + size;
-					
-				if (!tmp)
-				{
-					// Dump before throwing, so we'll have some
-					dump();
-					reportBadAlloc("Pointer is null");
-				}
+				
+				assert(tmp && "Pointer cannot be null now!");
 
 				return tmp;
 			}
