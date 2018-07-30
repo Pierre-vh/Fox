@@ -271,7 +271,7 @@ void ASTDumper::visitParamDecl(ParamDecl * node)
 	dumpLine() << getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << " " << getQualTypeDump("type", node->getType()) << "\n";
 }
 
-void ASTDumper::visitFunctionDecl(FuncDecl * node)
+void ASTDumper::visitFuncDecl(FuncDecl * node)
 {
 	dumpLine() << getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << " " << getTypeDump("returns",node->getReturnType()) << " " << getDeclRecorderDump(node) << "\n";
 
