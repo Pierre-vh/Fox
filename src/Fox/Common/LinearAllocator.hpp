@@ -67,7 +67,8 @@ namespace fox
 			*/
 			struct Pool
 			{
-				Pool(Pool* previous) : upperBound(data + (poolSize - 1)), previous(previous)
+				// Calculate the upperBound by adding the beginning of the data + the size of the data
+				Pool(Pool* previous) : upperBound(data + poolSize), previous(previous)
 				{
 					memset(data, 0, sizeof(data));
 				}
@@ -188,7 +189,6 @@ namespace fox
 			*/
 			void createPool()
 			{
-				// Curpool isn't -> no pool yet
 				if (curPool)
 				{
 					assert(firstPool && "curPool isn't null, but firstPool is ?");
@@ -272,7 +272,7 @@ namespace fox
 				\brief Creates a pool if the current pool can't support an allocation of size sz.
 				\return true if a new pool was allocated, false if not.
 			*/
-			std::int8_t createNewPoolIfRequired(size_type sz, align_type align)
+			bool createNewPoolIfRequired(size_type sz, align_type align)
 			{
 				if (!firstPool)
 				{
