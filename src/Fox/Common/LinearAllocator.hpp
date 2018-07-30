@@ -48,7 +48,6 @@ namespace fox
 	*/
 	template<
 			std::uint32_t poolSize = KiloByte<128>::value, // Allocate 128Kb pools by default
-			std::uint8_t poolAlign = 4		
 		>							
 	class LinearAllocator
 	{
@@ -67,7 +66,7 @@ namespace fox
 				\brief A Single Pool. They sort of act like 
 				a linked list, where each pool owns the next one.
 			*/
-			struct alignas(poolAlign) Pool
+			struct Pool
 			{
 				Pool(Pool* previous) : upperBound(data + (poolSize - 1)), previous(previous)
 				{
