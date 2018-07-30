@@ -40,6 +40,12 @@ if(MSVC)
   endif()
   # Set Warnings are errors
   add_compile_options(/WX)
+  # Disable problematic warnings 
+
+  # Disabling C4291: no matching operator delete found; memory will not be freed if initialization throws an exception
+  # It's not important. Memory will be freed by the LinearAllocator when it's destroyed, thus we don't need a "delete" operator.
+  # for the AST nodes that overload the operator new to use the ASTContext.
+  add_compile_options(/wd4291)	
 endif()
 
 
