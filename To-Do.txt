@@ -48,8 +48,10 @@ Moonshot Project To-do List.
 	> AST Rework:
 		1) Allocator: Move from unique_ptrs to raw allocated pointers
 			1) ASTContext's operator new
-				1) Write it & test it
+				> Write it & test it
 			2) Allocate the expr/stmt/decls with new(ASTcontext) ...
+				> Note: Exprs should be allocated 2 different arenas, depending if they're a resolved expr or not.
+				  use "if(isa<UnresolvedExpr>(this)) return ASTContext.allocateUnresolved(...) else return ASTContext.allocate(...)"
 			3) Allocate the types using ::get, which gets the unique version of the type from the context (all types should be friend with the ASTContext)
 		2) Restructure the AST:
 			a) Divide the hierarchies: Expr/Stmt/Types/Decls should be distinct, use a PtrVariant for the "ASTNode" type
