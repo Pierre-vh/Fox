@@ -47,7 +47,7 @@ namespace fox
 		Note: This class does not strive to be thread-safe.
 	*/
 	template<
-			std::uint32_t poolSize = KiloByte<128>::value, // Allocate 128Kb pools by default
+			std::uint32_t poolSize = KiloByte<128>::value // Allocate 128Kb pools by default
 		>							
 	class LinearAllocator
 	{
@@ -59,7 +59,6 @@ namespace fox
 
 			// Assertions
 			static_assert(poolSize >= KiloByte<1>::value, "Poolsize cannot be smaller than 1kb");
-			static_assert(poolAlign > 0, "Pool alignement must be greater than 0");
 
 		private:
 			/*
