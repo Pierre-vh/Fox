@@ -47,6 +47,7 @@ namespace fox
 			// Prohibit the use of builtin placement new & delete
 			void *operator new(std::size_t) throw() = delete;
 			void operator delete(void *) throw() = delete;
+			void* operator new(std::size_t, void*) = delete;
 
 			// Only allow allocation through the ASTContext
 			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Type));
