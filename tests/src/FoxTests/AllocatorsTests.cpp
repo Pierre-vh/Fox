@@ -19,8 +19,8 @@ using namespace fox;
 // This will 
 TEST(LinearAllocatorTests, SpamTest)
 {
-	#define COUNT 8192 /* Number of TestObject to allocate */
-	#define NUM_VALUES 16	/* Number of values in the TestObject */
+	#define COUNT 8192 // Number of TestObject to allocate 
+	#define NUM_VALUES 16	// Number of values in the TestObject 
 	// Size of this object: 16*64 bytes = 1024 bytes
 	struct TestObject
 	{
@@ -48,7 +48,8 @@ TEST(LinearAllocatorTests, SpamTest)
 	}
 	ASSERT_EQ(objects.size(), COUNT);
 
-	// Iterate over all of them, checks that the values are correct
+	// Iterate over all of them, checks that the values are correct.
+	// This is done to check that values are overwritten correctly.
 	for (std::size_t k = 0; k < COUNT; k++)
 	{
 		auto* ptr = objects[k];
@@ -58,7 +59,8 @@ TEST(LinearAllocatorTests, SpamTest)
 
 	// Deallocate
 	alloc.destroyAll();
-	ASSERT_EQ(alloc.getPoolCount(), 0) << "Pools weren't released";
+	EXPECT_EQ(alloc.getPoolCount(), 0) << "Pools weren't released";
+	EXPECT_EQ(alloc.getBytesInCurrentPool(), 0) << "Something left in the pool?";
 	#undef COUNT
 	#undef NUM_VALUES
 }
@@ -94,6 +96,56 @@ TEST(LinearAllocatorTests, AlignementTest)
 	#undef TO_INT
 }
 
-// Tests left to do:
-	// Check manual allocation
-	// Check setup/reset/etc
+
+TEST(LinearAllocatorTests, ManualAllocationTest)
+{
+	LinearAllocator<> alloc;
+	char *foo = static_cast<char*>(alloc.allocate(32));
+	
+	// Set all values to an index
+	for (char k = 0; k < 32; k++)
+		foo[k] = k;
+
+	// Check
+	for (char k = 0; k < 32; k++)
+		ASSERT_EQ(foo[k], k);
+	
+	// Check that we have the correct number of bytes in the current pool
+	EXPECT_EQ(alloc.getBytesInCurrentPool(), 32);
+	
+	// Deallocate, check that the deallocation was successful
+	alloc.destroyAll();
+	EXPECT_EQ(alloc.getPoolCount(), 0) << "Pools weren't released";
+	EXPECT_EQ(alloc.getBytesInCurrentPool(), 0) << "Something left in the pool?";
+}
+
+// This test checks that an object of the size of the pool 
+// fits in a pool without throwing errors.
+TEST(LinearAllocatorTests, LargeObjectTest)
+{
+	LinearAllocator<200> alloc;
+	std::uint8_t *buff = static_cast<std::uint8_t*>(alloc.allocate(200));
+	EXPECT_NE(buff, nullptr) << "Buffer is null?";
+	EXPECT_EQ(alloc.getBytesInCurrentPool(), 200);
+	EXPECT_EQ(alloc.getPoolCount(), 1);
+	
+	for (std::uint8_t k = 0; k < 200; k++)
+		buff[k] = k;
+	
+	for (std::uint8_t k = 0; k < 200; k++)
+		ASSERT_EQ(buff[k], k);
+	
+	
+	// Now, allocating just one more byte should trigger the creation of a new pool
+	char *ch = static_cast<char*>(alloc.allocate(1));
+	EXPECT_EQ(alloc.getBytesInCurrentPool(), 1);
+	EXPECT_EQ(alloc.getPoolCount(), 2);
+
+	// Simple test, write to that char, just to see if the memory is OK
+	(*ch) = 42;
+
+	// Deallocate, check that the deallocation was successful
+	alloc.destroyAll();
+	EXPECT_EQ(alloc.getPoolCount(), 0) << "Pools weren't released";
+	EXPECT_EQ(alloc.getBytesInCurrentPool(), 0) << "Something left in the pool?";
+}
