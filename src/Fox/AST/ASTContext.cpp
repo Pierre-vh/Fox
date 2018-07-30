@@ -90,3 +90,8 @@ ArrayType * ASTContext::getArrayTypeForType(Type * ty)
 		return (insertionResult->second).get();
 	}
 }
+
+LinearAllocator<>& ASTContext::getAllocator()
+{
+	return alloc_;
+}

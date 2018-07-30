@@ -4,20 +4,9 @@
 // File : ASTContext.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// The ASTContext holds some "contextual" information about the AST, which means:
-// - Long-lived AST Nodes, like Types nodes (Currently, only builtin types)
-// - The AST's identifier Table, accessible through identifierTable()
-// 
-// It also "owns" the AST as a whole, and offer some useful function, like getMainUnit(), which returns a pointer to the main
-// ASTUnit. (the unit that contains the entry point of the program)
-//
-// Note that it's very different from the Context and DeclContext classes.
-// Context is the "compilation context", which means it holds information about the current compilation task :
-//	-> The ASTContext 
-//	-> The DiagnosticsEngine
-//	-> The FlagsManager
-// and the DeclContext is, literally, a "declaration context", which means it registers every declaration it needs to know
-// about.
+// The ASTContext is the foundation of the AST. 
+// - It owns the AST and manages it's memory through LinearAllocators
+// - It owns the identifier table, accessible through identifierTable()
 ////------------------------------------------------------////
 
 #pragma once
@@ -29,6 +18,7 @@
 #include "Type.hpp"
 #include "Decl.hpp"
 #include "Identifiers.hpp"
+#include "Fox/Common/LinearAllocator.hpp"
 
 namespace fox
 {
@@ -56,6 +46,10 @@ namespace fox
 			// Returns an ArrayType for a given type.
 			ArrayType* getArrayTypeForType(Type* ty);
 
+			// Getter for the Allocator
+			LinearAllocator<>& getAllocator();
+
+			// Identifier table
 			IdentifierTable identifiers;
 		private:
 			// Context shouldn't be copyable.
@@ -74,16 +68,18 @@ namespace fox
 			std::vector<std::unique_ptr<UnitDecl>> units_;
 
 			// Built-in types
-				// Theses are all initialized to nullptr, but are properly set by
-				// initBuiltinTypes().
-			std::unique_ptr<PrimitiveType> primitiveVoidTy_	= nullptr;
-			std::unique_ptr<PrimitiveType> primitiveIntTy_	= nullptr;
-			std::unique_ptr<PrimitiveType> primitiveFloatTy_= nullptr;
-			std::unique_ptr<PrimitiveType> primitiveBoolTy_	= nullptr;
-			std::unique_ptr<PrimitiveType> primitiveCharTy_	= nullptr;
-			std::unique_ptr<PrimitiveType> primitiveStringTy_ = nullptr;
+			// Theses are all initialized by initBuiltinType
+			std::unique_ptr<PrimitiveType> primitiveVoidTy_;
+			std::unique_ptr<PrimitiveType> primitiveIntTy_;
+			std::unique_ptr<PrimitiveType> primitiveFloatTy_;
+			std::unique_ptr<PrimitiveType> primitiveBoolTy_;
+			std::unique_ptr<PrimitiveType> primitiveCharTy_;
+			std::unique_ptr<PrimitiveType> primitiveStringTy_;
 
 			// Array types
 			std::map<Type*, std::unique_ptr<ArrayType>> arrayTypes_;
+
+			// Allocators
+			LinearAllocator<> alloc_;
 	};
 }
