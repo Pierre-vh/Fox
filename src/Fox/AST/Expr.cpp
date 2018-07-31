@@ -202,17 +202,17 @@ ArrayLiteralExpr::ArrayLiteralExpr(ExprVector&& exprs, const SourceLoc& begLoc, 
 
 }
 
-ExprVector& ArrayLiteralExpr::getArgs()
+ExprVector& ArrayLiteralExpr::getExprs()
 {
 	return exprs_;
 }
 
-const ExprVector& ArrayLiteralExpr::getArgs() const
+const ExprVector& ArrayLiteralExpr::getExprs() const
 {
 	return exprs_;
 }
 
-void ArrayLiteralExpr::setArgs(ExprVector&& exprs)
+void ArrayLiteralExpr::setExprs(ExprVector&& exprs)
 {
 	exprs_ = exprs;
 }
@@ -437,6 +437,26 @@ const ExprVector& FunctionCallExpr::getArgs() const
 void FunctionCallExpr::setArgs(ExprVector&& args)
 {
 	args_ = args;
+}
+
+ExprVector::iterator FunctionCallExpr::args_begin()
+{
+	return args_.begin();
+}
+
+ExprVector::const_iterator FunctionCallExpr::args_begin() const
+{
+	return args_.begin();
+}
+
+ExprVector::iterator FunctionCallExpr::args_end()
+{
+	return args_.end();
+}
+
+ExprVector::const_iterator FunctionCallExpr::args_end() const
+{
+	return args_.end();
 }
 
 // MemberOf Expr

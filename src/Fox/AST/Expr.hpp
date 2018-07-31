@@ -261,9 +261,9 @@ namespace fox
 			ArrayLiteralExpr();
 			ArrayLiteralExpr(ExprVector&& exprs, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			ExprVector& getArgs();
-			const ExprVector& getArgs() const;
-			void setArgs(ExprVector&& elist);
+			ExprVector& getExprs();
+			const ExprVector& getExprs() const;
+			void setExprs(ExprVector&& elist);
 
 			std::size_t getSize() const;
 			bool isEmpty() const;
@@ -368,13 +368,19 @@ namespace fox
 			const ExprVector& getArgs() const;
 			void setArgs(ExprVector&& exprs);
 
+			ExprVector::iterator args_begin();
+			ExprVector::const_iterator args_begin() const;
+
+			ExprVector::iterator args_end();
+			ExprVector::const_iterator args_end() const;
+
 			static bool classof(const Stmt* stmt)
 			{
 				return (stmt->getKind() == StmtKind::FunctionCallExpr);
 			}
 
 		private:
-			Expr * callee_ = nullptr;
+			Expr* callee_ = nullptr;
 			ExprVector args_;
 	};
 
