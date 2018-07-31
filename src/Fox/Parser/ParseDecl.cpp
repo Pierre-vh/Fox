@@ -24,10 +24,10 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 	assert(fid && "FileID cannot be invalid!");
 
 	// Create the unit
-	auto unit = std::make_unique<UnitDecl>(unitName, fid);
+	auto* unit = new(ctxt_) UnitDecl(unitName, fid);
 
 	// Create a RAIIDeclContext
-	RAIIDeclContext raiidr(*this, unit.get());
+	RAIIDeclContext raiidr(*this, unit);
 
 	bool declHadError = false;
 
@@ -36,7 +36,7 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 	{
 		if (auto decl = parseDecl())
 		{
-			unit->addDecl(decl.move());
+			unit->addDecl(decl.get());
 			continue;
 		}
 		else
@@ -88,7 +88,8 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 	else
 	{
 		assert(unit->isValid());
-		return astContext_.addUnit(std::move(unit), isMainUnit);
+		ctxt_.addUnit(unit, isMainUnit);
+		return unit;
 	}
 }
 
@@ -107,7 +108,7 @@ Parser::DeclResult Parser::parseFuncDecl()
 	if (!fnKw)
 		return DeclResult::NotFound();
 
-	auto rtr = std::make_unique<FuncDecl>();
+	auto* rtr = new(ctxt_) FuncDecl();
 	SourceLoc begLoc = fnKw.getBeginSourceLoc();
 	SourceLoc endLoc;
 
@@ -126,10 +127,10 @@ Parser::DeclResult Parser::parseFuncDecl()
 
 	// Before creating a RAIIDeclContext, record this function in the parent DeclContext
 	if(isValid)
-		recordDecl(rtr.get());
+		recordDecl(rtr);
 
 	// Create a RAIIDeclContext to record every decl within this function
-	RAIIDeclContext raiidr(*this, rtr.get());
+	RAIIDeclContext raiidr(*this, rtr);
 
 	// '('
 	if (!consumeBracket(SignType::S_ROUND_OPEN))
@@ -141,13 +142,21 @@ Parser::DeclResult Parser::parseFuncDecl()
 	// [<param_decl> {',' <param_decl>}*]
 	if (auto firstparam = parseParamDecl())
 	{
-		rtr->addParamDecl(firstparam.moveAs<ParamDecl>());
+		auto* firstParamDecl = dyn_cast<ParamDecl>(firstparam.get());
+		#pragma message("Placeholder until .getAs is added")
+		assert(firstParamDecl && "Not a param decl");
+		rtr->addParamDecl(firstParamDecl);
 		while (true)
 		{
 			if (consumeSign(SignType::S_COMMA))
 			{
 				if (auto arg = parseParamDecl())
-					rtr->addParamDecl(arg.moveAs<ParamDecl>());
+				{
+					auto* asParam = dyn_cast<ParamDecl>(arg.get());
+					#pragma message("Placeholder until .getAs is added")
+					assert(asParam && "Not a param decl");
+					rtr->addParamDecl(asParam);
+				}
 				else if(arg.wasSuccessful()) // not found?
 					reportErrorExpected(DiagID::parser_expected_argdecl);
 			}
@@ -193,18 +202,20 @@ Parser::DeclResult Parser::parseFuncDecl()
 		}
 	}
 	else // if no return type, the function returns void.
-		rtr->setReturnType(astContext_.getVoidType());
+		rtr->setReturnType(ctxt_.getVoidType());
 
 	// <compound_statement>
-	auto compoundstmt = parseCompoundStatement(/* mandatory = yes */ true);
+	auto body = parseCompoundStatement(/* mandatory = yes */ true);
 
-	if (!compoundstmt || !isValid)
+	if (!body || !isValid)
 		return DeclResult::Error();
 
-	rtr->setBody(compoundstmt.moveAs<CompoundStmt>());
+	auto* bodyAsCompStmt = dyn_cast<CompoundStmt>(body.get());
+	assert(bodyAsCompStmt && "Not a compound stmt");
+	rtr->setBody(bodyAsCompStmt);
 	rtr->setSourceLocs(begLoc, endLoc, rtr->getBody()->getEndLoc());
 	assert(rtr->isValid());
-	return DeclResult(std::move(rtr));
+	return DeclResult(rtr);
 }
 
 Parser::DeclResult Parser::parseParamDecl()
@@ -234,7 +245,7 @@ Parser::DeclResult Parser::parseParamDecl()
 
 	SourceLoc begLoc = id.getSourceRange().getBeginSourceLoc();
 	SourceLoc endLoc = qt.getSourceRange().makeEndSourceLoc();
-	auto rtr = std::make_unique<ParamDecl>(
+	auto* rtr = new(ctxt_) ParamDecl(
 			id.get(),
 			qt.get(),
 			begLoc,
@@ -242,8 +253,8 @@ Parser::DeclResult Parser::parseParamDecl()
 			endLoc
 		);
 	assert(rtr->isValid());
-	recordDecl(rtr.get());
-	return DeclResult(std::move(rtr));
+	recordDecl(rtr);
+	return DeclResult(rtr);
 }
 
 Parser::DeclResult Parser::parseVarDecl()
@@ -260,7 +271,7 @@ Parser::DeclResult Parser::parseVarDecl()
 
 	IdentifierInfo* id;
 	QualType ty;
-	std::unique_ptr<Expr> iExpr;
+	Expr* iExpr = nullptr;
 
 	// <id>
 	if (auto foundID = consumeIdentifier())
@@ -307,7 +318,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	if (consumeSign(SignType::S_EQUAL))
 	{
 		if (auto expr = parseExpr())
-			iExpr = expr.move();
+			iExpr = expr.get();
 		else
 		{
 			if (expr.wasSuccessful())
@@ -330,13 +341,10 @@ Parser::DeclResult Parser::parseVarDecl()
 		endLoc = consumeSign(SignType::S_SEMICOLON);
 	}
 
-	auto rtr = std::make_unique<VarDecl>(id, ty, std::move(iExpr), begLoc,tyRange,endLoc);
+	auto rtr = new(ctxt_) VarDecl(id, ty, iExpr, begLoc,tyRange,endLoc);
 	assert(rtr->isValid());
-		
-	// Record the decl
-	recordDecl(rtr.get());
-
-	return DeclResult(std::move(rtr));
+	recordDecl(rtr);
+	return DeclResult(rtr);
 }
 
 Parser::Result<QualType> Parser::parseQualType()
@@ -392,8 +400,7 @@ Parser::Result<QualType> Parser::parseQualType()
 	assert(ty && "Type cannot be null");
 	assert(begLoc && "begLoc must be valid");
 	assert(endLoc && "endLoc must be valid");
-	return Result<QualType>(ty,SourceRange(begLoc,endLoc));
-
+	return Result<QualType>(ty, SourceRange(begLoc,endLoc));
 }
 
 Parser::DeclResult Parser::parseDecl()

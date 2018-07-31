@@ -14,7 +14,7 @@ using namespace fox;
 
 Parser::StmtResult Parser::parseCompoundStatement(bool isMandatory)
 {
-	auto rtr = std::make_unique<CompoundStmt>(); // return value
+	auto* rtr = new(ctxt_) CompoundStmt(); 
 	auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);
 
 	if (!leftCurlyLoc)
@@ -39,8 +39,8 @@ Parser::StmtResult Parser::parseCompoundStatement(bool isMandatory)
 			// Push only if we don't have a standalone NullStmt
 			// this is done to avoid stacking them up, and since they're a no-op in all cases
 			// it's meaningless to ignore them.
-			if (!stmt.is<NullStmt>())
-				rtr->addStmt(std::move(stmt.move()));
+			if (!isa<NullStmt>(stmt.get()))
+				rtr->addStmt(stmt.get());
 		}
 		// failure
 		else
@@ -77,7 +77,7 @@ Parser::StmtResult Parser::parseCompoundStatement(bool isMandatory)
 	// if everything's alright, return the result
 	rtr->setSourceLocs(leftCurlyLoc, rightCurlyLoc);
 	assert(rtr->hasLocInfo() && "No loc info? But we just set it!");
-	return StmtResult(std::move(rtr));
+	return StmtResult(rtr);
 }
 
 Parser::StmtResult Parser::parseWhileLoop()
@@ -88,8 +88,8 @@ Parser::StmtResult Parser::parseWhileLoop()
 	if (!whKw)
 		return StmtResult::NotFound();
 
-	std::unique_ptr<Expr> expr;
-	std::unique_ptr<Stmt> body;
+	Expr* expr = nullptr;
+	Stmt* body = nullptr;
 	SourceLoc parenExprEndLoc;
 	SourceLoc begLoc = whKw.getBeginSourceLoc();
 	SourceLoc endLoc;
@@ -97,7 +97,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 	if (auto parens_expr_res = parseParensExpr(/* The ParensExpr is mandatory */ true, nullptr, &parenExprEndLoc))
 	{
 		assert(parenExprEndLoc && "parseParensExpr didn't provide the ')' loc?");
-		expr = parens_expr_res.move();
+		expr = parens_expr_res.get();
 	}
 	else
 		return StmtResult::Error();
@@ -105,7 +105,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 	// <body>
 	if (auto body_res = parseBody())
 	{
-		body = body_res.move();
+		body = body_res.get();
 		endLoc = body->getEndLoc();
 		assert(endLoc && "The body parsed successfully, but doesn't have a valid endLoc?");
 	}
@@ -118,20 +118,17 @@ Parser::StmtResult Parser::parseWhileLoop()
 	}
 
 	assert(expr && body && begLoc && endLoc && parenExprEndLoc);
-	return StmtResult(std::make_unique<WhileStmt>(
-			std::move(expr),
-			std::move(body),
-			begLoc,
-			parenExprEndLoc,
-			endLoc
-		));
+	return StmtResult(
+		new(ctxt_) WhileStmt(expr, body, begLoc, parenExprEndLoc, endLoc)
+	);
 }
 
 Parser::StmtResult Parser::parseCondition()
 {
 	// <condition>	= "if"	<parens_expr> <body> ["else" <body>]
-	std::unique_ptr<Expr> expr;
-	std::unique_ptr<Stmt> ifBody, elseBody;
+	Expr* expr = nullptr;
+	Stmt* ifBody = nullptr;
+	Stmt* elseBody = nullptr;
 
 	// "if"
 	auto ifKw = consumeKeyword(KeywordType::KW_IF);
@@ -150,7 +147,7 @@ Parser::StmtResult Parser::parseCondition()
 	SourceLoc ifHeadEndLoc;
 	// <parens_expr>
 	if (auto parensexpr = parseParensExpr(/* The ParensExpr is mandatory */ true, nullptr, &ifHeadEndLoc))
-		expr = parensexpr.move();
+		expr = parensexpr.get();
 	else
 		return StmtResult::Error();
 		
@@ -158,7 +155,7 @@ Parser::StmtResult Parser::parseCondition()
 	// <body>
 	if (auto body = parseBody())
 	{
-		ifBody = body.move();
+		ifBody = body.get();
 		endLoc = ifBody->getEndLoc();
 	}
 	else
@@ -175,7 +172,7 @@ Parser::StmtResult Parser::parseCondition()
 		// <body>
 		if (auto body = parseBody())
 		{
-			elseBody = body.move();
+			elseBody = body.get();
 			endLoc = elseBody->getEndLoc();
 		}
 		else
@@ -188,14 +185,9 @@ Parser::StmtResult Parser::parseCondition()
 
 	assert(begLoc && endLoc && ifHeadEndLoc && "Incomplete loc info");
 
-	return StmtResult(std::make_unique<ConditionStmt>(
-			std::move(expr),
-			std::move(ifBody),
-			std::move(elseBody),
-			begLoc, 
-			ifHeadEndLoc,
-			endLoc
-		));
+	return StmtResult(
+		new(ctxt_) ConditionStmt(expr, ifBody, elseBody, begLoc, ifHeadEndLoc, endLoc)
+	);
 }
 
 Parser::StmtResult Parser::parseReturnStmt()
@@ -206,13 +198,13 @@ Parser::StmtResult Parser::parseReturnStmt()
 	if (!rtrKw)
 		return StmtResult::NotFound();
 	
-	std::unique_ptr<Expr> expr;
+	Expr* expr = nullptr;
 	SourceLoc begLoc = rtrKw.getBeginSourceLoc();
 	SourceLoc endLoc;
 
 	// [<expr>]
 	if (auto expr_res = parseExpr())
-		expr = expr_res.move();
+		expr = expr_res.get();
 	else if(!expr_res.wasSuccessful())
 	{
 		// expr failed? try to resync if possible. 
@@ -232,11 +224,9 @@ Parser::StmtResult Parser::parseReturnStmt()
 	}
 		
 	assert(begLoc && endLoc);
-	return StmtResult(std::make_unique<ReturnStmt>(
-			std::move(expr),
-			begLoc, 
-			endLoc
-		));
+	return StmtResult(
+		new(ctxt_) ReturnStmt(expr, begLoc, endLoc)
+	);
 }
 
 Parser::StmtResult Parser::parseStmt()
@@ -245,7 +235,7 @@ Parser::StmtResult Parser::parseStmt()
 
 	// <var_decl
 	if (auto vardecl = parseVarDecl())
-		return StmtResult(std::make_unique<DeclStmt>(vardecl.move()));
+		return StmtResult(new(ctxt_) DeclStmt(vardecl.get()));
 	else if (!vardecl.wasSuccessful())
 		return StmtResult::Error();
 
@@ -301,7 +291,7 @@ Parser::StmtResult Parser::parseExprStmt()
 
 	// ';'
 	if (auto semi = consumeSign(SignType::S_SEMICOLON))
-		return StmtResult(std::make_unique<NullStmt>(semi));
+		return StmtResult(new(ctxt_) NullStmt(semi));
 
 	// <expr> 
 	else if (auto expr = parseExpr())
@@ -317,13 +307,13 @@ Parser::StmtResult Parser::parseExprStmt()
 			// if recovery was successful, just return like nothing has happened!
 		}
 
-		return StmtResult(expr.move());
+		return StmtResult(expr.get());
 	}
 	else if(!expr.wasSuccessful())
 	{
 		// if the expression had an error, ignore it and try to recover to a semi.
 		if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ false))
-			return StmtResult(std::make_unique<NullStmt>(consumeSign(SignType::S_SEMICOLON)));
+			return StmtResult(new (ctxt_) NullStmt(consumeSign(SignType::S_SEMICOLON)));
 		return StmtResult::Error();
 	}
 

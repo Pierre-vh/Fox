@@ -18,7 +18,7 @@
 using namespace fox;
 
 Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, TokenVector& l, DeclContext *dr) 
-	: astContext_(astctxt), tokens_(l), identifiers_(astContext_.identifiers), srcMgr_(sm), diags_(diags)
+	: ctxt_(astctxt), tokens_(l), identifiers_(ctxt_.identifiers), srcMgr_(sm), diags_(diags)
 {
 	if (dr)
 		state_.declContext = dr;
@@ -28,7 +28,7 @@ Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, 
 
 ASTContext & Parser::getASTContext()
 {
-	return astContext_;
+	return ctxt_;
 }
 
 SourceManager& Parser::getSourceManager()
@@ -255,23 +255,23 @@ Parser::Result<Type*> Parser::parseBuiltinTypename()
 
 	// "int"
 	if (auto range = consumeKeyword(KeywordType::KW_INT))
-		return RtrTy(astContext_.getIntType(),range);
+		return RtrTy(ctxt_.getIntType(),range);
 	
 	// "float"
 	if (auto range = consumeKeyword(KeywordType::KW_FLOAT))
-		return RtrTy(astContext_.getFloatType(), range);
+		return RtrTy(ctxt_.getFloatType(), range);
 
 	// "bool"
 	if (auto range = consumeKeyword(KeywordType::KW_BOOL))
-		return RtrTy(astContext_.getBoolType(), range);
+		return RtrTy(ctxt_.getBoolType(), range);
 
 	// "string"
 	if (auto range = consumeKeyword(KeywordType::KW_STRING))
-		return RtrTy(astContext_.getStringType(), range);
+		return RtrTy(ctxt_.getStringType(), range);
 
 	// "char"
 	if (auto range = consumeKeyword(KeywordType::KW_CHAR))
-		return RtrTy(astContext_.getCharType(), range);
+		return RtrTy(ctxt_.getCharType(), range);
 
 	return RtrTy::NotFound();
 }
@@ -288,7 +288,7 @@ Parser::Result<Type*> Parser::parseType()
 		SourceLoc endLoc = ty_res.getSourceRange().makeEndSourceLoc();
 		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
-			ty = astContext_.getArrayTypeForType(ty);
+			ty = ctxt_.getArrayTypeForType(ty);
 			// ']'
 			if (auto right = consumeBracket(SignType::S_SQ_CLOSE))
 				endLoc = right;

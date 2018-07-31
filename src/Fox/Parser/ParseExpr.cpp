@@ -12,8 +12,7 @@
 
 using namespace fox;
 
-// note, here the unique_ptr is passed by reference because it will be consumed (moved -> nulled) only if a '[' is found, else, it's left untouched.
-Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
+Parser::ExprResult Parser::parseSuffix(Expr* base)
 {
 	// <suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
 	SourceLoc begLoc = base->getBegLoc();
@@ -28,7 +27,7 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 			// found, return
 			endLoc = id.getSourceRange().makeEndSourceLoc();
 			return ExprResult(
-				std::make_unique<MemberOfExpr>(std::move(base),id.get(),begLoc,dotLoc,endLoc)
+				new(ctxt_) MemberOfExpr(base ,id.get(),begLoc,dotLoc,endLoc)
 			);
 		}
 		else 
@@ -58,12 +57,7 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 			}
 
 			return ExprResult(
-				std::make_unique<ArrayAccessExpr>(
-						std::move(base),
-						expr.move(),
-						begLoc,
-						endLoc
-					)
+				new(ctxt_) ArrayAccessExpr(base, expr.get(), begLoc, endLoc)
 			);
 		}
 		else
@@ -74,7 +68,7 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 			// Resync. if Resync is successful, return the base as the result (don't alter it) to fake a success
 			// , if it's not, return an Error.
 			if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
-				return ExprResult(std::move(base));
+				return ExprResult(base);
 			else
 				return ExprResult::Error();
 		}
@@ -83,12 +77,9 @@ Parser::ExprResult Parser::parseSuffix(std::unique_ptr<Expr>& base)
 	else if (auto exprlist = parseParensExprList(nullptr,&endLoc))
 	{
 		assert(endLoc && "parseParensExprList didn't complete the endLoc?");
-		return ExprResult(std::make_unique<FunctionCallExpr>(
-				std::move(base),
-				exprlist.move(),
-				begLoc,
-				endLoc
-			));
+		return ExprResult(
+			new(ctxt_) FunctionCallExpr(base, std::move(exprlist.get()), begLoc,endLoc)
+		);
 	}
 	else if (!exprlist.wasSuccessful())
 		return ExprResult::Error();
@@ -103,7 +94,7 @@ Parser::ExprResult Parser::parseDeclRef()
 
 	// <decl_call> = <id> 
 	if (auto id = consumeIdentifier())
-		return ExprResult(std::make_unique<DeclRefExpr>(
+		return ExprResult(new(ctxt_) DeclRefExpr(
 				id.get(),
 				id.getSourceRange().getBeginSourceLoc(),
 				id.getSourceRange().makeEndSourceLoc()
@@ -121,25 +112,25 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 	increaseTokenIter();
 
 	auto litinfo = tok.getLiteralInfo();
-	std::unique_ptr<Expr> expr = nullptr;
+	Expr* expr = nullptr;
 
 	SourceLoc begLoc = tok.getRange().getBeginSourceLoc();
 	SourceLoc endLoc = tok.getRange().makeEndSourceLoc();
 
 	if (litinfo.isBool())
-		expr = std::make_unique<BoolLiteralExpr>(litinfo.get<bool>(), begLoc, endLoc);
+		expr = new(ctxt_) BoolLiteralExpr(litinfo.get<bool>(), begLoc, endLoc);
 	else if (litinfo.isString())
-		expr = std::make_unique<StringLiteralExpr>(litinfo.get<std::string>(), begLoc, endLoc);
+		expr = new(ctxt_) StringLiteralExpr(litinfo.get<std::string>(), begLoc, endLoc);
 	else if (litinfo.isChar())
-		expr = std::make_unique<CharLiteralExpr>(litinfo.get<CharType>(), begLoc, endLoc);
+		expr = new(ctxt_) CharLiteralExpr(litinfo.get<CharType>(), begLoc, endLoc);
 	else if (litinfo.isInt())
-		expr = std::make_unique<IntegerLiteralExpr>(litinfo.get<IntType>(), begLoc, endLoc);
+		expr = new(ctxt_) IntegerLiteralExpr(litinfo.get<IntType>(), begLoc, endLoc);
 	else if (litinfo.isFloat())
-		expr = std::make_unique<FloatLiteralExpr>(litinfo.get<FloatType>(), begLoc, endLoc);
+		expr = new(ctxt_) FloatLiteralExpr(litinfo.get<FloatType>(), begLoc, endLoc);
 	else
 		fox_unreachable("Unknown literal kind"); // Unknown literal
 
-	return ExprResult(std::move(expr));
+	return ExprResult(expr);
 }
 
 Parser::ExprResult Parser::parseArrayLiteral()
@@ -149,11 +140,10 @@ Parser::ExprResult Parser::parseArrayLiteral()
 	if (!begLoc)
 		return ExprResult::NotFound();
 	
-	std::unique_ptr<ExprList> expr;
 	SourceLoc endLoc;
 	// [<expr_list>]
-	if (auto elist = parseExprList())
-		expr = elist.move();
+	auto elist = parseExprList();
+	#pragma message("No error checking for the elist, fix that")
 	// ']'
 	if (!(endLoc = consumeBracket(SignType::S_SQ_CLOSE)))
 	{
@@ -164,7 +154,7 @@ Parser::ExprResult Parser::parseArrayLiteral()
 			return ExprResult::Error();
 	}
 	return ExprResult(
-		std::make_unique<ArrayLiteralExpr>(std::move(expr),begLoc,endLoc)
+		new(ctxt_) ArrayLiteralExpr(std::move(elist.get()) ,begLoc, endLoc)
 	);
 }
 
@@ -215,16 +205,13 @@ Parser::ExprResult Parser::parseSuffixExpr()
 	// <suffix_expr>	= <primary> { <suffix> }
 	if (auto prim = parsePrimary())
 	{
-		std::unique_ptr<Expr> base = prim.move();
+		Expr* base = prim.get();
 		ExprResult suffix;
 		while (suffix = parseSuffix(base))
-		{
-			// if suffix is usable, assert that lhs is now null
-			assert((!base) && "base should have been moved by parseSuffix!");
-			base = std::move(suffix.move());
-		}
+			base = std::move(suffix.get());
+
 		if (suffix.wasSuccessful())
-			return ExprResult(std::move(base));
+			return ExprResult(base);
 		else
 			return ExprResult::Error();
 	}
@@ -258,19 +245,18 @@ Parser::ExprResult Parser::parseExponentExpr()
 			return ExprResult::Error();
 		}
 
-		SourceLoc begLoc = lhs.getObserverPtr()->getBegLoc();
-		SourceLoc endLoc = lhs.getObserverPtr()->getEndLoc();
+		SourceLoc begLoc = lhs.get()->getBegLoc();
+		SourceLoc endLoc = lhs.get()->getEndLoc();
 
 		return ExprResult(
-			std::make_unique<BinaryExpr>(
+			new(ctxt_) BinaryExpr(
 					BinaryOperator::EXP,
-					lhs.move(),
-					rhs.move(),
+					lhs.get(),
+					rhs.get(),
 					begLoc,
 					expOp, 
 					endLoc
-				)
-		);
+			));
 	}
 
 	return lhs;
@@ -285,11 +271,11 @@ Parser::ExprResult Parser::parsePrefixExpr()
 	{
 		if (auto prefixexpr = parsePrefixExpr())
 		{
-			SourceLoc endLoc = prefixexpr.getObserverPtr()->getEndLoc();
+			SourceLoc endLoc = prefixexpr.get()->getEndLoc();
 			return ExprResult(
-				std::make_unique<UnaryExpr>(
+				new(ctxt_) UnaryExpr(
 					uop.get(),
-					prefixexpr.move(),
+					prefixexpr.get(),
 					uop.getSourceRange().getBeginSourceLoc(),
 					uop.getSourceRange(),
 					endLoc
@@ -332,12 +318,12 @@ Parser::ExprResult Parser::parseCastExpr()
 		// <type>
 		if (auto castType = parseBuiltinTypename())
 		{
-			SourceLoc begLoc = prefixexpr.getObserverPtr()->getBegLoc();
+			SourceLoc begLoc = prefixexpr.get()->getBegLoc();
 			SourceLoc endLoc = castType.getSourceRange().makeEndSourceLoc();
 			return ExprResult(
-					std::make_unique<CastExpr>(
+					new(ctxt_) CastExpr(
 						castType.get(),
-						prefixexpr.move(),
+						prefixexpr.get(),
 						begLoc,
 						castType.getSourceRange(),
 						endLoc
@@ -350,9 +336,8 @@ Parser::ExprResult Parser::parseCastExpr()
 			return ExprResult::Error();
 		}
 	}
-	return ExprResult(
-		prefixexpr.move()
-	);
+
+	return prefixexpr;
 }
 
 Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence)
@@ -373,8 +358,8 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence)
 		return ExprResult::NotFound();
 	}
 
-	std::unique_ptr<Expr> lhs = lhsResult.move();
-	std::unique_ptr<BinaryExpr> rtr;
+	Expr* lhs = lhsResult.get();
+	BinaryExpr* rtr = nullptr;
 
 	// { <binary_operator> <cast_expr> }	
 	while (true)
@@ -400,38 +385,22 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence)
 			return ExprResult::Error();
 		}
 
-		std::unique_ptr<Expr> rhs = rhsResult.move();
+		Expr* rhs = rhsResult.get();
 		SourceLoc begLoc = lhs ? lhs->getBegLoc() : rtr->getEndLoc();
 		SourceLoc endLoc = rhs->getEndLoc();
 		SourceRange opRange = binop_res.getSourceRange();
-		// No return node
-		if (!rtr)
-			rtr = std::make_unique<BinaryExpr>(
-					binop_res.get(),
-					std::move(lhs),
-					std::move(rhs),
-					begLoc, 
-					opRange,
-					endLoc
-				);
-		else 
-			rtr = std::make_unique<BinaryExpr>(
-					binop_res.get(),
-					std::move(rtr),
-					std::move(rhs),
-					begLoc, 
-					opRange,
-					endLoc
-				);
 
+		rtr = new(ctxt_) BinaryExpr(
+				binop_res.get(), (rtr ? rtr : lhs), rhs, begLoc, opRange, endLoc
+			);
 	}
 
 	if (!rtr)
 	{
 		assert(lhs && "no rtr node + no lhs node?");
-		return ExprResult(std::move(lhs));
+		return ExprResult(lhs);
 	}
-	return ExprResult(std::move(rtr));
+	return ExprResult(rtr);
 }
 
 Parser::ExprResult Parser::parseExpr()
@@ -451,22 +420,15 @@ Parser::ExprResult Parser::parseExpr()
 			return ExprResult::Error();
 		}
 
-		SourceLoc begLoc = lhs.getObserverPtr()->getBegLoc();
-		SourceLoc endLoc = rhs.getObserverPtr()->getEndLoc();
+		SourceLoc begLoc = lhs.get()->getBegLoc();
+		SourceLoc endLoc = rhs.get()->getEndLoc();
 		assert(begLoc && endLoc && "invalid locs");
 		SourceRange opRange = op.getSourceRange();
 		return ExprResult(
-				std::make_unique<BinaryExpr>(
-						op.get(),
-						lhs.move(),
-						rhs.move(),
-						begLoc,
-						opRange,
-						endLoc
-					)
+				new(ctxt_) BinaryExpr(op.get(), lhs.get(), rhs.get(), begLoc, opRange, endLoc)
 			);
 	}
-	return ExprResult(lhs.move());
+	return ExprResult(lhs);
 }
 
 Parser::ExprResult Parser::parseParensExpr(bool isMandatory, SourceLoc* leftPLoc, SourceLoc* rightPLoc)
@@ -484,11 +446,11 @@ Parser::ExprResult Parser::parseParensExpr(bool isMandatory, SourceLoc* leftPLoc
 		return ExprResult::NotFound();
 	}
 
-	std::unique_ptr<Expr> rtr = nullptr;
+	Expr* rtr = nullptr;
 		
 	// <expr>
 	if (auto expr = parseExpr())
-		rtr = expr.move();
+		rtr = expr.get();
 	else 
 	{
 		// no expr, handle error & attempt to recover if it's allowed. If recovery is successful, return "not found"
@@ -524,23 +486,23 @@ Parser::ExprResult Parser::parseParensExpr(bool isMandatory, SourceLoc* leftPLoc
 		*rightPLoc = rightParens;
 
 	return ExprResult(
-		std::make_unique<ParensExpr>(std::move(rtr), leftParens, rightParens)
+		new(ctxt_) ParensExpr(rtr, leftParens, rightParens)
 	);
 }
 
-Parser::ExprListResult Parser::parseExprList()
+Parser::Result<ExprVector> Parser::parseExprList()
 {
 	// <expr_list> = <expr> {',' <expr> }
 	auto firstexpr = parseExpr();
 	if (!firstexpr)
-		return ExprListResult::NotFound();
+		return Result<ExprVector>::NotFound();
 
-	auto exprlist = std::make_unique<ExprList>();
-	exprlist->addExpr(firstexpr.move());
+	ExprVector exprs;
+	exprs.push_back(firstexpr.get());
 	while (auto comma = consumeSign(SignType::S_COMMA))
 	{
 		if (auto expr = parseExpr())
-			exprlist->addExpr(expr.move());
+			exprs.push_back(expr.get());
 		else
 		{
 			if (expr.wasSuccessful())
@@ -551,29 +513,30 @@ Parser::ExprListResult Parser::parseExprList()
 				break;
 			}
 
-			return ExprListResult::Error();
+			return Result<ExprVector>::Error();
 		}
 	}
-	return ExprListResult(std::move(exprlist));
+
+	return Result<ExprVector>(exprs);
 }
 
-Parser::ExprListResult Parser::parseParensExprList(SourceLoc* LParenLoc, SourceLoc *RParenLoc)
+Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc* LParenLoc, SourceLoc *RParenLoc)
 {
 	// <parens_expr_list>	= '(' [ <expr_list> ] ')'
 	// '('
 	auto leftParens = consumeBracket(SignType::S_ROUND_OPEN);
 	if (!leftParens)
-		return ExprListResult::NotFound();
+		return Result<ExprVector>::NotFound();
 
 	if (LParenLoc)
 		*LParenLoc = leftParens;
 
-	std::unique_ptr<ExprList> list = std::make_unique<ExprList>();
+	ExprVector exprs;
 
 	//  [ <expr_list> ]
-	if (auto parse_res = parseExprList())
-		list = parse_res.move();
-	else if (!parse_res.wasSuccessful())
+	if (auto exprlist = parseExprList())
+		exprs = exprlist.get();
+	else if (!exprlist.wasSuccessful())
 	{
 		// error? Try to recover from it, if success, just discard the expr list,
 		// if no success return error.
@@ -584,9 +547,9 @@ Parser::ExprListResult Parser::parseParensExprList(SourceLoc* LParenLoc, SourceL
 			if (RParenLoc)
 				*RParenLoc = loc;
 
-			return ExprListResult(std::make_unique<ExprList>()); // if recovery is successful, return an empty expression list.
+			return Result<ExprVector>(ExprVector()); // if recovery is successful, return an empty expression list.
 		}
-		return ExprListResult::Error();
+		return Result<ExprVector>::Error();
 	}
 
 	SourceLoc rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
@@ -598,13 +561,13 @@ Parser::ExprListResult Parser::parseParensExprList(SourceLoc* LParenLoc, SourceL
 		if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 			rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
 		else 
-			return ExprListResult::Error();
+			return Result<ExprVector>::Error();
 	}
 
 	if (RParenLoc)
 		*RParenLoc = rightParens;
 
-	return ExprListResult(std::move(list));
+	return Result<ExprVector>(exprs);
 }
 
 SourceRange Parser::parseExponentOp()

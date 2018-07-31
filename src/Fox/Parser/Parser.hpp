@@ -51,20 +51,18 @@ namespace fox
 			template<typename DataTy>
 			class Result;
 
-			template<typename DataTy>
-			class UniqueResult;
-
 			/*-------------- Usings --------------*/
 
 			// Bunch of usings & helper functions for parsing functions. Theses are public
 			// so external classes can use them.
-			using ExprResult = UniqueResult<Expr>;
-			using ExprListResult = UniqueResult<ExprList>;
-			using DeclResult = UniqueResult<Decl>;
-			using StmtResult = UniqueResult<Stmt>;
-			using UnitResult = UniqueResult<UnitDecl>;
+			using ExprResult = Result<Expr*>;
+			using DeclResult = Result<Decl*>;
+			using StmtResult = Result<Stmt*>;
+			using UnitResult = Result<UnitDecl*>;
+
 		private:
 			using TokenIteratorTy = TokenVector::iterator;
+
 		public:
 			// Note : the parser now takes an optional DeclContext* argument,
 			// This will be used as the base DeclContext.
@@ -81,10 +79,10 @@ namespace fox
 			UnitDecl* parseUnit(const FileID& fid,IdentifierInfo* unitName,const bool& isMainUnit);
 
 			// EXPRESSIONS
-			ExprListResult parseExprList();
-			ExprListResult parseParensExprList(SourceLoc* LParenLoc = nullptr, SourceLoc *RParenLoc = nullptr);
+			Result<ExprVector> parseExprList();
+			Result<ExprVector> parseParensExprList(SourceLoc* LParenLoc = nullptr, SourceLoc *RParenLoc = nullptr);
 			ExprResult parseParensExpr(bool isMandatory,SourceLoc* leftPLoc = nullptr, SourceLoc* rightPLoc = nullptr);
-			ExprResult parseSuffix(std::unique_ptr<Expr> &base);
+			ExprResult parseSuffix(Expr* base);
 			ExprResult parseDeclRef();
 			ExprResult parsePrimitiveLiteral();
 			ExprResult parseArrayLiteral();
@@ -251,7 +249,7 @@ namespace fox
 			};
 
 			/*-------------- Member Variables --------------*/
-			ASTContext& astContext_;
+			ASTContext& ctxt_;
 			IdentifierTable& identifiers_;
 			DiagnosticEngine& diags_;
 			SourceManager& srcMgr_;
@@ -319,83 +317,6 @@ namespace fox
 					bool hasData_ : 1;
 					bool successFlag_ : 1;
 					DataTy result_;
-			};
-
-			// Result class that holds it's information as a unique_ptr.
-			template<typename DataTy>
-			class UniqueResult
-			{
-				public:
-					UniqueResult(std::unique_ptr<DataTy> res) : result_(std::move(res)), successFlag_(true)
-					{
-
-					}
-
-					UniqueResult(bool wasSuccessful = true) : result_(nullptr), successFlag_(wasSuccessful)
-					{
-
-					}
-
-					explicit operator bool() const
-					{
-						return isUsable();
-					}
-
-					bool wasSuccessful() const
-					{
-						return successFlag_;
-					}
-
-					bool isUsable() const
-					{
-						return successFlag_ && result_;
-					}
-
-					// Helper methods 
-					static UniqueResult<DataTy> Error()
-					{
-						return UniqueResult<DataTy>(false);
-					}
-
-					static UniqueResult<DataTy> NotFound()
-					{
-						return UniqueResult<DataTy>(true);
-					}
-
-					DataTy* getObserverPtr()
-					{
-						return result_.get();
-					}
-
-					// Moves the content of the ParsingResult as a derived class.
-					// Asserts that result_ isn't null, check with is() or isUsable() before using if you're unsure.
-					// Note that the type is asserted to be castable to the desired type.
-					template<typename Derived>
-					std::unique_ptr<Derived> moveAs()
-					{
-						assert(result_ && "Result was null, or has already been moved!");
-						Derived *ptr = dyn_cast<Derived>(result_.get());
-						assert(ptr && "Can't cast to desired type");
-						result_.release();
-						return std::unique_ptr<Derived>(ptr);
-					}
-
-					// Classic move. Asserts that result_ isn't null, check with is() or isUsable() before using if you're unsure.
-					std::unique_ptr<DataTy> move()
-					{
-						assert(result_ && "Result was null, or has already been moved!");
-						return std::move(result_);
-					}
-
-					// Checks that Derived can be cast to the correct type.
-					template<typename Derived>
-					bool is() const
-					{
-						return isa<Derived>(result_.get());
-					}
-				private:
-					bool successFlag_ : 1;
-					std::unique_ptr<DataTy> result_;
 			};
 	};
 }
