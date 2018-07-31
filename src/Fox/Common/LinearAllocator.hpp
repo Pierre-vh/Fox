@@ -232,11 +232,14 @@ namespace fox
 			*/
 			void dump(std::ostream& os = std::cout) const
 			{
+				auto bytesInCurPool = getBytesInCurrentPool();
+				std::size_t totalBytes = (poolCount*poolSize) + bytesInCurPool;
 				os << "(Pools Size: " << poolSize << ")\n";
 				os << "Pools: " << poolCount << "\n";
 				os << "Curpool address: " << (void*)curPool << "\n";
 				os << "AllocPtr address: " << (void*)allocPtr << "\n";
-				os << "Bytes in current pool: " << getBytesInCurrentPool() << "\n";
+				os << "Bytes in current pool: " << bytesInCurPool << "\n";
+				os << "Total bytes: " << totalBytes << "\n";
 			}
 
 			/*
