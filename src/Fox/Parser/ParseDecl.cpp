@@ -71,13 +71,13 @@ UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const b
 	// The conversion to uint16_t is needed so replacePlaceholder doesn't mistake
 	// it for a character.
 	if (std::uint16_t count = state_.curlyBracketsCount)
-		diags_.report(DiagID::parser_missing_curlybracket, fid).addParamDecl(count);
+		diags_.report(DiagID::parser_missing_curlybracket, fid).addArg(count);
 
 	if (std::uint16_t count = state_.roundBracketsCount)
-		diags_.report(DiagID::parser_missing_roundbracket, fid).addParamDecl(count);
+		diags_.report(DiagID::parser_missing_roundbracket, fid).addArg(count);
 
 	if (std::uint16_t count = state_.squareBracketsCount)
-		diags_.report(DiagID::parser_missing_squarebracket, fid).addParamDecl(count);
+		diags_.report(DiagID::parser_missing_squarebracket, fid).addArg(count);
 	*/
 	if (unit->getDeclCount() == 0)
 	{
@@ -140,24 +140,16 @@ Parser::DeclResult Parser::parseFuncDecl()
 	}
 
 	// [<param_decl> {',' <param_decl>}*]
-	if (auto firstparam = parseParamDecl())
+	if (auto first = parseParamDecl())
 	{
-		auto* firstParamDecl = dyn_cast<ParamDecl>(firstparam.get());
-		#pragma message("Placeholder until .getAs is added")
-		assert(firstParamDecl && "Not a param decl");
-		rtr->addParamDecl(firstParamDecl);
+		rtr->addParam(first.getAs<ParamDecl>());
 		while (true)
 		{
 			if (consumeSign(SignType::S_COMMA))
 			{
-				if (auto arg = parseParamDecl())
-				{
-					auto* asParam = dyn_cast<ParamDecl>(arg.get());
-					#pragma message("Placeholder until .getAs is added")
-					assert(asParam && "Not a param decl");
-					rtr->addParamDecl(asParam);
-				}
-				else if(arg.wasSuccessful()) // not found?
+				if (auto param = parseParamDecl())
+					rtr->addParam(param.getAs<ParamDecl>());
+				else if(param.wasSuccessful()) // not found?
 					reportErrorExpected(DiagID::parser_expected_argdecl);
 			}
 			else
