@@ -208,7 +208,7 @@ Parser::ExprResult Parser::parseSuffixExpr()
 		Expr* base = prim.get();
 		ExprResult suffix;
 		while (suffix = parseSuffix(base))
-			base = std::move(suffix.get());
+			base = suffix.get();
 
 		if (suffix.wasSuccessful())
 			return ExprResult(base);
