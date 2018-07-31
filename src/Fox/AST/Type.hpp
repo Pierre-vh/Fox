@@ -44,7 +44,6 @@ namespace fox
 
 			TypeKind getKind() const;
 
-
 		protected:
 			Type(TypeKind tc);
 
@@ -58,6 +57,9 @@ namespace fox
 			// Only allow allocation through the ASTContext
 			// This operator is "protected" so only the ASTContext can create types.
 			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Type));
+
+			// Companion operator delete to silence C4291 on MSVC
+			void operator delete(void*, ASTContext&, std::uint8_t) {}
 
 		private:
 			const TypeKind kind_;

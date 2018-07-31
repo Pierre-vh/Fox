@@ -58,6 +58,9 @@ namespace fox
 			// Only allow allocation through the ASTContext
 			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Decl));
 
+			// Companion operator delete to silence C4291 on MSVC
+			void operator delete(void*, ASTContext&, std::uint8_t) {}
+
 		protected:
 			Decl(DeclKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
