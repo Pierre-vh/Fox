@@ -37,6 +37,7 @@
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include <type_traits>
 
 namespace fox
 {
@@ -266,7 +267,8 @@ namespace fox
 			class Result
 			{
 				public:
-					Result(DataTy res, const SourceRange& range = SourceRange()) : result_(res), hasData_(true), successFlag_(true), range_(range)
+					Result(DataTy res, const SourceRange& range = SourceRange()) 
+						: result_(res), hasData_(true), successFlag_(true), range_(range)
 					{
 
 					}
@@ -317,6 +319,75 @@ namespace fox
 					bool hasData_ : 1;
 					bool successFlag_ : 1;
 					DataTy result_;
+			};
+
+			template<typename DataTy>
+			class Result<DataTy*>
+			{
+				public:
+					Result(DataTy* ptr, const SourceRange& range = SourceRange())
+						: ptr_(ptr), successFlag_(true), range_(range)
+					{
+
+					}
+
+					Result(bool wasSuccessful = true) : successFlag_(wasSuccessful)
+					{
+
+					}
+
+					explicit operator bool() const
+					{
+						return isUsable();
+					}
+
+					bool wasSuccessful() const
+					{
+						return successFlag_;
+					}
+
+					bool isUsable() const
+					{
+						return successFlag_ && ptr_;
+					}
+
+					DataTy* get() const
+					{
+						return ptr_;
+					}
+
+					// Variant of get that calls dyn_cast on the type.
+					// You must be certain that the 
+					// pointer type is of the correct type!
+					template<typename Ty>
+					Ty* getAs() const
+					{
+						assert(ptr_ && "Can't use this on a null pointer");
+						Ty* cast = dyn_cast<Ty>(ptr_);
+						assert(cast && "Incorrect type!");
+						return cast;
+					}
+
+					// Helper methods 
+					static Result<DataTy*> Error()
+					{
+						return Result<DataTy*>(false);
+					}
+
+					static Result<DataTy*> NotFound()
+					{
+						return Result<DataTy*>(true);
+					}
+
+					SourceRange getSourceRange() const
+					{
+						return range_;
+					}
+
+				private:
+					SourceRange range_;
+					bool successFlag_ : 1;
+					DataTy* ptr_ = nullptr;
 			};
 	};
 }
