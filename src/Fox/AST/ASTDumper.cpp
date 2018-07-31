@@ -57,7 +57,7 @@ void ASTDumper::visitCastExpr(CastExpr * node)
 {
 	dumpLine() << getBasicStmtInfo(node) << " " << getTypeDump("to",node->getCastGoal()) << "\n";
 	indent();
-		visit(node->getChild());
+		visit(node->getExpr());
 	dedent();
 }
 
@@ -65,7 +65,7 @@ void ASTDumper::visitUnaryExpr(UnaryExpr * node)
 {
 	dumpLine() << getBasicStmtInfo(node) << " " << getOperatorDump(node->getOp()) << "\n";
 	indent();
-		visit(node->getChild());
+		visit(node->getExpr());
 	dedent();
 }
 
@@ -106,9 +106,9 @@ void ASTDumper::visitFunctionCallExpr(FunctionCallExpr * node)
 	dedent();
 
 	// Print Args if there are args
-	if (node->getExprList() && (!node->getExprList()->isEmpty()))
+	if (node->getArgs() && (!node->getArgs()->isEmpty()))
 	{
-		auto elist = node->getExprList();
+		auto elist = node->getArgs();
 		for (auto it = elist->begin(); it != elist->end(); it++)
 		{
 			indent();
@@ -149,13 +149,13 @@ void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr * node)
 {
 	std::size_t elemcount = 0;
 	if (node->hasExprList())
-		elemcount = node->getExprList()->size();
+		elemcount = node->getArgs()->size();
 
 	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("size",elemcount) << "\n";
 
 	if (node->hasExprList())
 	{
-		ExprList* elist = node->getExprList();
+		ExprList* elist = node->getArgs();
 		for (auto it = elist->begin(); it != elist->end(); it++)
 		{
 			indent();
