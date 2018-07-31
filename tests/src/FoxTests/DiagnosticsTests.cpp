@@ -113,7 +113,7 @@ TEST(DiagnosticsTests, emission)
 TEST(DiagnosticsTests, addArg1)
 {
 	auto diagEng = createDiagEngine();
-	auto str = diagEng.report(DiagID::unittest_placeholderremoval1).addParamDecl("foo").addParamDecl(55.45f).getDiagStr();
+	auto str = diagEng.report(DiagID::unittest_placeholderremoval1).addArg("foo").addArg(55.45f).getDiagStr();
 	EXPECT_EQ(str, "[foo,55.45]");
 }
 
@@ -121,7 +121,7 @@ TEST(DiagnosticsTests, addArg1)
 TEST(DiagnosticsTests, addArg2)
 {
 	auto diagEng = createDiagEngine();
-	auto str = diagEng.report(DiagID::unittest_placeholderremoval2).addParamDecl('a').getDiagStr();
+	auto str = diagEng.report(DiagID::unittest_placeholderremoval2).addArg('a').getDiagStr();
 	EXPECT_EQ(str, "[aaa]");
 }
 
@@ -129,7 +129,7 @@ TEST(DiagnosticsTests, addArg2)
 TEST(DiagnosticsTests, addArg3)
 {
 	auto diagEng = createDiagEngine();
-	auto str = diagEng.report(DiagID::unittest_placeholderremoval3).addParamDecl('a').addParamDecl('b').addParamDecl('c').addParamDecl('d').addParamDecl('e').addParamDecl('f').getDiagStr();
+	auto str = diagEng.report(DiagID::unittest_placeholderremoval3).addArg('a').addArg('b').addArg('c').addArg('d').addArg('e').addArg('f').getDiagStr();
 	EXPECT_EQ(str, "[fedcba]");
 }
 
@@ -137,7 +137,7 @@ TEST(DiagnosticsTests, addArg3)
 TEST(DiagnosticsTests, addArg4)
 {
 	auto diagEng = createDiagEngine();
-	auto str = diagEng.report(DiagID::unittest_placeholderremoval4).addParamDecl("world").getDiagStr();
+	auto str = diagEng.report(DiagID::unittest_placeholderremoval4).addArg("world").getDiagStr();
 	EXPECT_EQ(str, "Hello, world");
 }
 
@@ -182,14 +182,14 @@ TEST(DiagnosticsTests, frozenAndDeadDiags)
 	auto diagEng = createDiagEngine();
 	auto diag = diagEng.report(DiagID::unittest_placeholderremoval1);
 	EXPECT_EQ("[%0,%1]", diag.getDiagStr()) << "Diag str wasn't the one expected.";
-	diag.addParamDecl("foo");
+	diag.addArg("foo");
 	EXPECT_EQ("[foo,%1]", diag.getDiagStr()) << "Diag str did not replace the expected placeholder.";
 	
 	// Freeze test
 	EXPECT_FALSE(diag.isFrozen()) << "Diag spawned frozen";
 	diag.freeze();
 	EXPECT_TRUE(diag.isFrozen()) << "Diag did not freeze as expected.";
-	diag.addParamDecl("bar");
+	diag.addArg("bar");
 	EXPECT_EQ("[foo,%1]", diag.getDiagStr()) << "Diag str might have replaced a placeholder, but the diagnostic was supposed to be frozen!";
 	
 	// Alive/dead

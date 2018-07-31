@@ -316,7 +316,7 @@ void Token::identify(DiagnosticEngine& diags,ASTContext& astctxt,const std::stri
 	else if (idLiteral(diags, str));
 	else if (idIdentifier(diags, astctxt, str));
 	else
-		diags.report(DiagID::lexer_cant_id_tok, range_).addParamDecl(str);
+		diags.report(DiagID::lexer_cant_id_tok, range_).addArg(str);
 }
 
 bool Token::idKeyword(const std::string& str)
@@ -352,7 +352,7 @@ bool Token::idLiteral(DiagnosticEngine& diags,const std::string& str)
 		{
 			if (strmanip.getSizeInCodepoints() > 3)
 			{
-				diags.report(DiagID::lexer_too_many_char_in_char_literal, range_).addParamDecl(str);
+				diags.report(DiagID::lexer_too_many_char_in_char_literal, range_).addArg(str);
 				return false;
 			}
 			else if (strmanip.getSizeInCodepoints() < 3)
@@ -397,7 +397,7 @@ bool Token::idLiteral(DiagnosticEngine& diags,const std::string& str)
 		else
 		{
 			// If too big, put the value in a float instead.
-			diags.report(DiagID::lexer_int_too_big_considered_as_float, range_).addParamDecl(str);
+			diags.report(DiagID::lexer_int_too_big_considered_as_float, range_).addArg(str);
 			tokenData_ = Literal();
 			literalData_ = std::make_unique<LiteralInfo>(std::stof(str));
 		}
@@ -436,7 +436,7 @@ bool Token::validateIdentifier(DiagnosticEngine& diags,const std::string& str) c
 			auto ch = manip.getCurrentChar();
 			if ((ch != '_') && !iswalnum((char)ch))
 			{
-				diags.report(DiagID::lexer_invalid_char_in_id, range_).addParamDecl(str);
+				diags.report(DiagID::lexer_invalid_char_in_id, range_).addArg(str);
 				return false;
 			}
 		}

@@ -64,11 +64,11 @@ namespace fox
 
 			// Replace a %x placeholder.
 			template<typename ReplTy>
-			inline Diagnostic& addParamDecl(const ReplTy& value)
+			inline Diagnostic& addArg(const ReplTy& value)
 			{
 				auto tmp = curPHIndex_;
 				curPHIndex_++;
-				return addParamDecl(value,tmp);
+				return addArg(value,tmp);
 			}
 
 			// Frozen diags are locked, they cannot be modified further.
@@ -82,9 +82,9 @@ namespace fox
 			friend class DiagnosticEngine;
 			Diagnostic& operator=(const Diagnostic&) = default;
 
-			// Internal addParamDecl overloads
+			// Internal addArg overloads
 			template<typename ReplTy>
-			inline Diagnostic& addParamDecl(const ReplTy& value, std::uint8_t phIndex)
+			inline Diagnostic& addArg(const ReplTy& value, std::uint8_t phIndex)
 			{
 				std::stringstream ss;
 				ss << value;
@@ -93,14 +93,14 @@ namespace fox
 
 			// For std::strings
 			template<>
-			inline Diagnostic& addParamDecl(const std::string& value, std::uint8_t phIndex)
+			inline Diagnostic& addArg(const std::string& value, std::uint8_t phIndex)
 			{
 				return replacePlaceholder(value, phIndex);
 			}
 
 			// for CharType
 			template<>
-			inline Diagnostic& addParamDecl(const CharType& value, std::uint8_t phIndex)
+			inline Diagnostic& addArg(const CharType& value, std::uint8_t phIndex)
 			{
 				return replacePlaceholder(
 					StringManipulator::charToStr(value), phIndex

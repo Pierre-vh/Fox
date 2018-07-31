@@ -219,7 +219,7 @@ const ParamDecl* FuncDecl::getParamDecl(std::size_t ind) const
 	return params_[ind];
 }
 
-void FuncDecl::addParamDecl(ParamDecl* arg)
+void FuncDecl::addParam(ParamDecl* arg)
 {
 	if (!arg->isValid())
 		paramsAreValid_ = false;

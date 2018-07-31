@@ -145,7 +145,7 @@ namespace fox
 			CompoundStmt* getBody();	
 			const CompoundStmt* getBody() const;
 
-			void addParamDecl(ParamDecl* arg);
+			void addParam(ParamDecl* arg);
 			ParamDecl* getParamDecl(std::size_t ind);
 			const ParamDecl* getParamDecl(std::size_t ind) const;
 			std::size_t getNumParams() const;
