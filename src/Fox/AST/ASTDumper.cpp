@@ -96,7 +96,7 @@ void ASTDumper::visitDeclRefExpr(DeclRefExpr * node)
 	dumpLine() << getBasicStmtInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << "\n";
 }
 
-void ASTDumper::visitFunctionCallExpr(FunctionCallExpr * node)
+void ASTDumper::visitFunctionCallExpr(FunctionCallExpr* node)
 {
 	dumpLine() << getBasicStmtInfo(node) << '\n';
 
@@ -105,16 +105,12 @@ void ASTDumper::visitFunctionCallExpr(FunctionCallExpr * node)
 		visit(node->getCallee());
 	dedent();
 
-	// Print Args if there are args
-	if (node->getArgs() && (!node->getArgs()->isEmpty()))
+	// Print Args
+	for (Expr* arg: node->getArgs())
 	{
-		auto elist = node->getArgs();
-		for (auto it = elist->begin(); it != elist->end(); it++)
-		{
-			indent();
-				visit(*it);
-			dedent();
-		}
+		indent();
+			visit(arg);
+		dedent();
 	}
 }
 
@@ -140,28 +136,22 @@ void ASTDumper::visitBooleanLiteralExpr(BoolLiteralExpr * node)
 	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("value", (node->getVal() ? "true" : "false" )) << "\n";
 }
 
-void ASTDumper::visitStringLiteralExpr(StringLiteralExpr * node)
+void ASTDumper::visitStringLiteralExpr(StringLiteralExpr* node)
 {
 	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("value", addDoubleQuotes(node->getVal())) << "\n";
 }
 
-void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr * node)
+void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr* node)
 {
-	std::size_t elemcount = 0;
-	if (node->hasExprList())
-		elemcount = node->getArgs()->size();
+	std::size_t elemcount = node->getSize();
 
-	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("size",elemcount) << "\n";
+	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("size", elemcount) << "\n";
 
-	if (node->hasExprList())
+	for (Expr* expr : node->getExprs())
 	{
-		ExprList* elist = node->getArgs();
-		for (auto it = elist->begin(); it != elist->end(); it++)
-		{
-			indent();
-				visit(*it);
-			dedent();
-		}
+		indent();
+			visit(expr);
+		dedent();
 	}
 }
 
