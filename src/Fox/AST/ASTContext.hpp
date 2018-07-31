@@ -30,11 +30,8 @@ namespace fox
 			// Returns a observing pointer to the unit containing the entry point of the module (if there is one)
 			UnitDecl* getMainUnit();
 			
-			// Takes ownership of the unit.
-			// Once ownership is taken, it returns a observing pointer to that unit.
-			// Takes an optional boolean parameter, set it to true so that the unit added is recognized as the main unit
-			// in this ASTContext
-			UnitDecl* addUnit(std::unique_ptr<UnitDecl> unit, bool isMainUnit = false);
+			// Registers a unit in this ASTContext
+			void addUnit(UnitDecl* unit, bool isMainUnit = false);
 
 			// TYPES
 			// Getter for the builtin primitive "int" type
@@ -78,7 +75,7 @@ namespace fox
 			UnitDecl* mainUnit_ = nullptr;
 
 			// All of the units that makes the current module.
-			std::vector<std::unique_ptr<UnitDecl>> units_;
+			std::vector<UnitDecl*> units_;
 
 			// Built-in types
 			// Theses are all initialized by initBuiltinType
