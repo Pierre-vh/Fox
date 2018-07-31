@@ -44,16 +44,20 @@ namespace fox
 
 			TypeKind getKind() const;
 
+
+		protected:
+			Type(TypeKind tc);
+
+			friend class ASTContext;
+
 			// Prohibit the use of builtin placement new & delete
 			void *operator new(std::size_t) throw() = delete;
 			void operator delete(void *) throw() = delete;
 			void* operator new(std::size_t, void*) = delete;
 
 			// Only allow allocation through the ASTContext
+			// This operator is "protected" so only the ASTContext can create types.
 			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Type));
-
-		protected:
-			Type(TypeKind tc);
 
 		private:
 			const TypeKind kind_;

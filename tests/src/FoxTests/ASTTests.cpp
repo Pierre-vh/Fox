@@ -23,12 +23,12 @@ TEST(ASTTests, ASTContextBuiltins)
 {
 	ASTContext actxt;
 
-	auto primBool	= actxt.getPrimitiveBoolType();
-	auto primFloat	= actxt.getPrimitiveFloatType();
-	auto primInt	= actxt.getPrimitiveIntType();
-	auto primChar	= actxt.getPrimitiveCharType();
-	auto primString = actxt.getPrimitiveStringType();
-	auto primVoid	= actxt.getPrimitiveVoidType();
+	auto primBool	= actxt.getBoolType();
+	auto primFloat	= actxt.getFloatType();
+	auto primInt	= actxt.getIntType();
+	auto primChar	= actxt.getCharType();
+	auto primString = actxt.getStringType();
+	auto primVoid	= actxt.getVoidType();
 
 	ASSERT_TRUE(primBool)	<< "Ptr is null?";
 	ASSERT_TRUE(primFloat)	<< "Ptr is null?";
@@ -86,11 +86,11 @@ TEST(ASTTests, ASTContextArrayTypes)
 {
 	ASTContext actxt;
 
-	Type* primBool = actxt.getPrimitiveBoolType();
-	Type* primFloat = actxt.getPrimitiveFloatType();
-	Type* primInt = actxt.getPrimitiveIntType();
-	Type* primChar = actxt.getPrimitiveCharType();
-	Type* primString = actxt.getPrimitiveStringType();
+	Type* primBool = actxt.getBoolType();
+	Type* primFloat = actxt.getFloatType();
+	Type* primInt = actxt.getIntType();
+	Type* primChar = actxt.getCharType();
+	Type* primString = actxt.getStringType();
 
 	Type* boolArr = actxt.getArrayTypeForType(primBool);
 	Type* floatArr = actxt.getArrayTypeForType(primFloat);
@@ -174,11 +174,11 @@ TEST(ASTTests, DeclContextTest)
 {
 	ASTContext astctxt;
 
-	auto var1 = makeVarDecl(astctxt, "Variable_1", astctxt.getPrimitiveBoolType());
-	auto var2 = makeVarDecl(astctxt, "Variable_2", astctxt.getPrimitiveCharType());
-	auto var3 = makeVarDecl(astctxt, "Variable_3", astctxt.getPrimitiveFloatType());
-	auto var4 = makeVarDecl(astctxt, "Variable_4", astctxt.getPrimitiveStringType());
-	auto var5 = makeVarDecl(astctxt, "Variable_5", astctxt.getPrimitiveIntType());
+	auto var1 = makeVarDecl(astctxt, "Variable_1", astctxt.getBoolType());
+	auto var2 = makeVarDecl(astctxt, "Variable_2", astctxt.getCharType());
+	auto var3 = makeVarDecl(astctxt, "Variable_3", astctxt.getFloatType());
+	auto var4 = makeVarDecl(astctxt, "Variable_4", astctxt.getStringType());
+	auto var5 = makeVarDecl(astctxt, "Variable_5", astctxt.getIntType());
 
 	auto func = makeFuncDecl(astctxt, "Foo");
 
@@ -253,7 +253,7 @@ TEST(ASTTests, DeclContextTest)
 TEST(ASTTests, TypeRTTI)
 {
 	ASTContext astctxt;
-	Type* intTy = astctxt.getPrimitiveIntType();
+	Type* intTy = astctxt.getIntType();
 	Type* arrIntTy = astctxt.getArrayTypeForType(intTy);
 
 	EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
@@ -389,7 +389,7 @@ TEST(ASTTests, DeclRTTI)
 {
 	ASTContext astctxt;
 	auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
-	auto intty = astctxt.getPrimitiveIntType();
+	auto intty = astctxt.getIntType();
 
 	// Arg
 	ParamDecl paramdecl;
@@ -464,7 +464,7 @@ TEST(ASTTests, BasicVisitorTest)
 			SourceRange(),
 			SourceLoc()
 		);
-	auto intTy = ctxt.getPrimitiveIntType();
+	auto intTy = ctxt.getIntType();
 	auto arrInt = ctxt.getArrayTypeForType(intTy);
 
 	IsExpr exprVisitor;

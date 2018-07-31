@@ -36,20 +36,33 @@ namespace fox
 			// in this ASTContext
 			UnitDecl* addUnit(std::unique_ptr<UnitDecl> unit, bool isMainUnit = false);
 
-			PrimitiveType* getPrimitiveIntType();
-			PrimitiveType* getPrimitiveFloatType();
-			PrimitiveType* getPrimitiveCharType();
-			PrimitiveType* getPrimitiveBoolType();
-			PrimitiveType* getPrimitiveStringType();
-			PrimitiveType* getPrimitiveVoidType();
+			// TYPES
+			// Getter for the builtin primitive "int" type
+			PrimitiveType* getIntType();
+
+			// Getter for the builtin primitive "float" type
+			PrimitiveType* getFloatType();
+
+			// Getter for the builtin primitive "char" type
+			PrimitiveType* getCharType();
+
+			// Getter for the builtin primitive "bool" type
+			PrimitiveType* getBoolType();
+
+			// Getter for the builtin primitive "string" type
+			PrimitiveType* getStringType();
+
+			// Getter for the builtin primitive void type
+			// (used for function return types)
+			PrimitiveType* getVoidType();
 
 			// Returns an ArrayType for a given type.
 			ArrayType* getArrayTypeForType(Type* ty);
 
-			// Getter for the Allocator
+			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
 
-			// Identifier table
+			// IDENTIFIER TABLE
 			IdentifierTable identifiers;
 
 		private:
@@ -57,8 +70,7 @@ namespace fox
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
 
-			// Init all builtin types
-				// /!\ This must be called prior to using any getType function ! -> This should be called in the Constructor !
+			// Inits all builtin types
 			void initBuiltinTypes();
 
 			// An observing pointer to a ASTUnit owned by the vector below that points to the main unit
@@ -82,6 +94,6 @@ namespace fox
 			std::map<Type*, ArrayType*> arrayTypes_;
 
 			// Allocators
-			LinearAllocator<> alloc_;
+			LinearAllocator<> alloc_; // Default allocator for the ASTContext
 	};
 }

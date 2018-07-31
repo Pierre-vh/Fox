@@ -193,7 +193,7 @@ Parser::DeclResult Parser::parseFuncDecl()
 		}
 	}
 	else // if no return type, the function returns void.
-		rtr->setReturnType(astContext_.getPrimitiveVoidType());
+		rtr->setReturnType(astContext_.getVoidType());
 
 	// <compound_statement>
 	auto compoundstmt = parseCompoundStatement(/* mandatory = yes */ true);

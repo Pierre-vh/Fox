@@ -255,23 +255,23 @@ Parser::Result<Type*> Parser::parseBuiltinTypename()
 
 	// "int"
 	if (auto range = consumeKeyword(KeywordType::KW_INT))
-		return RtrTy(astContext_.getPrimitiveIntType(),range);
+		return RtrTy(astContext_.getIntType(),range);
 	
 	// "float"
 	if (auto range = consumeKeyword(KeywordType::KW_FLOAT))
-		return RtrTy(astContext_.getPrimitiveFloatType(), range);
+		return RtrTy(astContext_.getFloatType(), range);
 
 	// "bool"
 	if (auto range = consumeKeyword(KeywordType::KW_BOOL))
-		return RtrTy(astContext_.getPrimitiveBoolType(), range);
+		return RtrTy(astContext_.getBoolType(), range);
 
 	// "string"
 	if (auto range = consumeKeyword(KeywordType::KW_STRING))
-		return RtrTy(astContext_.getPrimitiveStringType(), range);
+		return RtrTy(astContext_.getStringType(), range);
 
 	// "char"
 	if (auto range = consumeKeyword(KeywordType::KW_CHAR))
-		return RtrTy(astContext_.getPrimitiveCharType(), range);
+		return RtrTy(astContext_.getCharType(), range);
 
 	return RtrTy::NotFound();
 }

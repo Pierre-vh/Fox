@@ -32,32 +32,32 @@ UnitDecl* ASTContext::addUnit(std::unique_ptr<UnitDecl> unit, bool isMainUnit)
 	return ptr;
 }
 
-PrimitiveType* ASTContext::getPrimitiveIntType()
+PrimitiveType* ASTContext::getIntType()
 {
 	return intTy_;
 }
 
-PrimitiveType* ASTContext::getPrimitiveFloatType()
+PrimitiveType* ASTContext::getFloatType()
 {
 	return floatTy_;
 }
 
-PrimitiveType* ASTContext::getPrimitiveCharType()
+PrimitiveType* ASTContext::getCharType()
 {
 	return charTy_;
 }
 
-PrimitiveType* ASTContext::getPrimitiveBoolType()
+PrimitiveType* ASTContext::getBoolType()
 {
 	return boolTy_;
 }
 
-PrimitiveType* ASTContext::getPrimitiveStringType()
+PrimitiveType* ASTContext::getStringType()
 {
 	return stringTy_;
 }
 
-PrimitiveType* ASTContext::getPrimitiveVoidType()
+PrimitiveType* ASTContext::getVoidType()
 {
 	return voidTy_;
 }
