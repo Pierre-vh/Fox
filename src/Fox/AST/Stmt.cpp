@@ -10,7 +10,7 @@
 #include "Stmt.hpp"
 #include "Decl.hpp"
 #include "Expr.hpp"
-
+#include "ASTContext.hpp"
 #include <cassert>
 
 using namespace fox;
@@ -49,6 +49,11 @@ SourceLoc Stmt::getEndLoc() const
 bool Stmt::hasLocInfo() const
 {
 	return beg_ && end_;
+}
+
+void* Stmt::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
+{
+	return ctxt.getAllocator().allocate(sz, align);
 }
 
 void Stmt::setBegLoc(const SourceLoc& loc)
@@ -98,9 +103,10 @@ ReturnStmt::ReturnStmt() : ReturnStmt(nullptr,SourceLoc(),SourceLoc())
 {
 }
 
-ReturnStmt::ReturnStmt(std::unique_ptr<Expr> rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc) : Stmt(StmtKind::ReturnStmt,begLoc,endLoc)
+ReturnStmt::ReturnStmt(Expr* rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc) 
+	: Stmt(StmtKind::ReturnStmt,begLoc,endLoc), expr_(rtr_expr)
 {
-	expr_ = std::move(rtr_expr);
+
 }
 
 bool ReturnStmt::hasExpr() const
@@ -108,14 +114,14 @@ bool ReturnStmt::hasExpr() const
 	return (bool)expr_;
 }
 
-Expr * ReturnStmt::getExpr()
+Expr* ReturnStmt::getExpr()
 {
-	return expr_.get();
+	return expr_;
 }
 
-void ReturnStmt::setExpr(std::unique_ptr<Expr> e)
+void ReturnStmt::setExpr(Expr* e)
 {
-	expr_ = std::move(e);
+	expr_ = e;
 }
 
 // Condition (if-then-else) statement
@@ -124,14 +130,12 @@ ConditionStmt::ConditionStmt() : ConditionStmt(nullptr,nullptr,nullptr,SourceLoc
 
 }
 
-ConditionStmt::ConditionStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> then, std::unique_ptr<Stmt> elsestmt,
+ConditionStmt::ConditionStmt(Expr* cond, Stmt* then, Stmt* elsestmt,
 	const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc)
-	: Stmt(StmtKind::ConditionStmt, begLoc, endLoc)
+	: Stmt(StmtKind::ConditionStmt, begLoc, endLoc), cond_(cond), then_(then), 
+	  else_(elsestmt), ifHeadEndLoc_(ifHeadEndLoc_)
 {
-	setCond(std::move(cond));
-	setThen(std::move(then));
-	setElse(std::move(elsestmt));
-	setIfHeaderEndLoc(ifHeaderEndLoc);
+
 }
 
 bool ConditionStmt::isValid() const
@@ -146,47 +150,47 @@ bool ConditionStmt::hasElse() const
 
 Expr* ConditionStmt::getCond()
 {
-	return cond_.get();
+	return cond_;
 }
 
 Stmt* ConditionStmt::getThen()
 {
-	return then_.get();
+	return then_;
 }
 
 Stmt* ConditionStmt::getElse()
 {
-	return else_.get();
+	return else_;
 }
 
 const Expr* ConditionStmt::getCond() const
 {
-	return cond_.get();
+	return cond_;
 }
 
 const Stmt* ConditionStmt::getThen() const
 {
-	return then_.get();
+	return then_;
 }
 
 const Stmt* ConditionStmt::getElse() const
 {
-	return else_.get();
+	return else_;
 }
 
-void ConditionStmt::setCond(std::unique_ptr<Expr> expr)
+void ConditionStmt::setCond(Expr* expr)
 {
-	cond_ = std::move(expr);
+	cond_ = expr;
 }
 
-void ConditionStmt::setThen(std::unique_ptr<Stmt> then)
+void ConditionStmt::setThen(Stmt* then)
 {
-	then_ = std::move(then);
+	then_ = then;
 }
 
-void ConditionStmt::setElse(std::unique_ptr<Stmt> elsestmt)
+void ConditionStmt::setElse(Stmt* stmt)
 {
-	else_ = std::move(elsestmt);
+	else_ = stmt;
 }
 
 void ConditionStmt::setIfHeaderEndLoc(const SourceLoc& sloc)
@@ -218,28 +222,28 @@ CompoundStmt::CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc) : S
 Stmt* CompoundStmt::getStmt(std::size_t ind)
 {
 	assert(ind < stmts_.size() && "out-of-range");
-	return stmts_[ind].get();
+	return stmts_[ind];
 }
 
 const Stmt* CompoundStmt::getStmt(std::size_t ind) const
 {
 	assert(ind < stmts_.size() && "out-of-range");
-	return stmts_[ind].get();
+	return stmts_[ind];
 }
 
 Stmt* CompoundStmt::getBack()
 {
-	return stmts_.back().get();
+	return stmts_.back();
 }
 
 const Stmt* CompoundStmt::getBack() const
 {
-	return stmts_.back().get();
+	return stmts_.back();
 }
 
-void CompoundStmt::addStmt(std::unique_ptr<Stmt> stmt)
+void CompoundStmt::addStmt(Stmt* stmt)
 {
-	stmts_.emplace_back(std::move(stmt));
+	stmts_.push_back(stmt);
 }
 
 bool CompoundStmt::isEmpty() const
@@ -284,41 +288,40 @@ WhileStmt::WhileStmt() : WhileStmt(nullptr,nullptr,SourceLoc(),SourceLoc(),Sourc
 
 }
 
-WhileStmt::WhileStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc) :
-	Stmt(StmtKind::WhileStmt,begLoc,endLoc), headerEndLoc_(headerEndLoc)
+WhileStmt::WhileStmt(Expr* cond, Stmt* body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc) :
+	Stmt(StmtKind::WhileStmt,begLoc,endLoc), headerEndLoc_(headerEndLoc), cond_(cond), body_(body)
 {
-	setCond(std::move(cond));
-	setBody(std::move(body));
+
 }
 
 Expr* WhileStmt::getCond()
 {
-	return cond_.get();
+	return cond_;
 }
 
 Stmt* WhileStmt::getBody()
 {
-	return body_.get();
+	return body_;
 }
 
 const Expr* WhileStmt::getCond() const
 {
-	return cond_.get();
+	return cond_;
 }
 
 const Stmt* WhileStmt::getBody() const
 {
-	return body_.get();
+	return body_;
 }
 
-void WhileStmt::setCond(std::unique_ptr<Expr> cond)
+void WhileStmt::setCond(Expr* cond)
 {
-	cond_ = std::move(cond);
+	cond_ = cond;
 }
 
-void WhileStmt::setBody(std::unique_ptr<Stmt> body)
+void WhileStmt::setBody(Stmt* body)
 {
-	body_ = std::move(body);
+	body_ = body;
 }
 
 SourceLoc WhileStmt::getHeaderEndLoc() const
@@ -332,9 +335,9 @@ SourceRange WhileStmt::getHeaderRange() const
 }
 
 // DeclStmt
-DeclStmt::DeclStmt(std::unique_ptr<Decl> decl) : Stmt(StmtKind::DeclStmt,SourceLoc(),SourceLoc())
+DeclStmt::DeclStmt(Decl* decl) : Stmt(StmtKind::DeclStmt,SourceLoc(),SourceLoc())
 {
-	setDecl(std::move(decl));
+	setDecl(decl);
 }
 
 bool DeclStmt::hasDecl() const
@@ -344,18 +347,18 @@ bool DeclStmt::hasDecl() const
 
 Decl*  DeclStmt::getDecl()
 {
-	return decl_.get();
+	return decl_;
 }
 
 const Decl* DeclStmt::getDecl() const
 {
-	return decl_.get();
+	return decl_;
 }
 
-void DeclStmt::setDecl(std::unique_ptr<Decl> decl)
+void DeclStmt::setDecl(Decl* decl)
 {
 	assert(decl && "The Decl cannot be null!");
-	decl_ = std::move(decl);
+	decl_ = decl;
 	setBegLoc(decl_->getBegLoc());
 	setEndLoc(decl_->getEndLoc());
 }

@@ -192,36 +192,39 @@ void BoolLiteralExpr::setVal(bool val)
 }
 
 // Literals: Array literals
-ArrayLiteralExpr::ArrayLiteralExpr() : ArrayLiteralExpr(nullptr,SourceLoc(),SourceLoc())
+ArrayLiteralExpr::ArrayLiteralExpr() : ArrayLiteralExpr(ExprVector(), SourceLoc(), SourceLoc())
 {
 }
 
-ArrayLiteralExpr::ArrayLiteralExpr(std::unique_ptr<ExprList> exprs, const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: exprs_(std::move(exprs)), Expr(StmtKind::ArrayLiteralExpr,begLoc,endLoc)
+ArrayLiteralExpr::ArrayLiteralExpr(ExprVector&& exprs, const SourceLoc& begLoc, const SourceLoc& endLoc)
+	: exprs_(exprs), Expr(StmtKind::ArrayLiteralExpr,begLoc,endLoc)
 {
 
 }
 
-ExprList * ArrayLiteralExpr::getExprList()
+ExprVector& ArrayLiteralExpr::getArgs()
 {
-	return exprs_.get();
+	return exprs_;
 }
 
-void ArrayLiteralExpr::setExprList(std::unique_ptr<ExprList> elist)
+const ExprVector& ArrayLiteralExpr::getArgs() const
 {
-	exprs_ = std::move(elist);
+	return exprs_;
 }
 
-bool ArrayLiteralExpr::hasExprList() const
+void ArrayLiteralExpr::setArgs(ExprVector&& exprs)
 {
-	return (bool)exprs_;
+	exprs_ = exprs;
+}
+
+std::size_t ArrayLiteralExpr::getSize() const
+{
+	return exprs_.size();
 }
 
 bool ArrayLiteralExpr::isEmpty() const
 {
-	if (exprs_)
-		return (exprs_->size() == 0); // -> has exprs but size == 0 -> empty
-	return false; // No exprs -> it's empty
+	return (exprs_.size() == 0);
 }
 
 // BinaryExpr
@@ -230,41 +233,40 @@ BinaryExpr::BinaryExpr() : BinaryExpr(BinaryOperator::DEFAULT,nullptr,nullptr,So
 
 }
 
-BinaryExpr::BinaryExpr(BinaryOperator opt, std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
-	op_(opt), Expr(StmtKind::BinaryExpr, begLoc, endLoc), opRange_(opRange)
+BinaryExpr::BinaryExpr(BinaryOperator opt, Expr* lhs, Expr* rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
+	op_(opt), Expr(StmtKind::BinaryExpr, begLoc, endLoc), opRange_(opRange), lhs_(lhs), rhs_(rhs)
 {
-	setLHS(std::move(lhs));
-	setRHS(std::move(rhs));
+
 }
 
 Expr* BinaryExpr::getLHS()
 {
-	return left_.get();
+	return lhs_;
 }
 
 Expr* BinaryExpr::getRHS()
 {
-	return right_.get();
+	return rhs_;
 }
 
 const Expr* BinaryExpr::getLHS() const
 {
-	return left_.get();
+	return lhs_;
 }
 
 const Expr* BinaryExpr::getRHS() const
 {
-	return right_.get();
+	return rhs_;
 }
 
-void BinaryExpr::setLHS(std::unique_ptr<Expr> nlhs)
+void BinaryExpr::setLHS(Expr* expr)
 {
-	left_ = std::move(nlhs);
+	lhs_ = expr;
 }
 
-void BinaryExpr::setRHS(std::unique_ptr<Expr> nrhs)
+void BinaryExpr::setRHS(Expr* expr)
 {
-	right_ = std::move(nrhs);
+	rhs_ = expr;
 }
 
 BinaryOperator BinaryExpr::getOp() const
@@ -288,24 +290,24 @@ UnaryExpr::UnaryExpr() : UnaryExpr(UnaryOperator::DEFAULT,nullptr,SourceLoc(),So
 
 }
 
-UnaryExpr::UnaryExpr(UnaryOperator opt, std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc)
-	: op_(opt), Expr(StmtKind::UnaryExpr,begLoc,endLoc), opRange_(opRange), child_(std::move(node))
+UnaryExpr::UnaryExpr(UnaryOperator opt, Expr* expr, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc)
+	: op_(opt), Expr(StmtKind::UnaryExpr,begLoc,endLoc), opRange_(opRange), expr_(expr)
 {
 }
 
-Expr* UnaryExpr::getChild()
+Expr* UnaryExpr::getExpr()
 {
-	return child_.get();
+	return expr_;
 }
 
-const Expr* UnaryExpr::getChild() const
+const Expr* UnaryExpr::getExpr() const
 {
-	return child_.get();
+	return expr_;
 }
 
-void UnaryExpr::setChild(std::unique_ptr<Expr> nchild)
+void UnaryExpr::setExpr(Expr* expr)
 {
-	child_ = std::move(nchild);
+	expr_ = expr;
 }
 
 UnaryOperator UnaryExpr::getOp() const
@@ -329,8 +331,8 @@ CastExpr::CastExpr() : CastExpr(nullptr,nullptr,SourceLoc(),SourceRange(),Source
 
 }
 
-CastExpr::CastExpr(Type* castGoal, std::unique_ptr<Expr> child,const SourceLoc& begLoc, const SourceRange& typeRange, const SourceLoc& endLoc):
-	goal_(castGoal), child_(std::move(child)), Expr(StmtKind::CastExpr,begLoc,endLoc), typeRange_(typeRange)
+CastExpr::CastExpr(Type* castGoal, Expr* expr,const SourceLoc& begLoc, const SourceRange& typeRange, const SourceLoc& endLoc):
+	goal_(castGoal), expr_(expr), Expr(StmtKind::CastExpr,begLoc,endLoc), typeRange_(typeRange)
 {
 
 }
@@ -350,19 +352,19 @@ const Type* CastExpr::getCastGoal() const
 	return goal_;
 }
 
-Expr* CastExpr::getChild()
+Expr* CastExpr::getExpr()
 {
-	return child_.get();
+	return expr_;
 }
 
-const Expr* CastExpr::getChild() const
+const Expr* CastExpr::getExpr() const
 {
-	return child_.get();
+	return expr_;
 }
 
-void CastExpr::setChild(std::unique_ptr<Expr> nc)
+void CastExpr::setExpr(Expr* expr)
 {
-	child_ = std::move(nc);
+	expr_ = expr;
 }
 
 SourceRange CastExpr::getTypeRange() const
@@ -397,44 +399,44 @@ void DeclRefExpr::setDeclIdentifier(IdentifierInfo * id)
 }
 
 // function call
-FunctionCallExpr::FunctionCallExpr() : FunctionCallExpr(nullptr, nullptr, SourceLoc(), SourceLoc())
+FunctionCallExpr::FunctionCallExpr() : FunctionCallExpr(nullptr, ExprVector(), SourceLoc(), SourceLoc())
 {
 
 }
 
-FunctionCallExpr::FunctionCallExpr(std::unique_ptr<Expr> base, std::unique_ptr<ExprList> elist, const SourceLoc& begLoc, const SourceLoc& endLoc):
-	callee_(std::move(base)), args_(std::move(elist)), Expr(StmtKind::FunctionCallExpr,begLoc,endLoc)
+FunctionCallExpr::FunctionCallExpr(Expr* callee, ExprVector&& args, const SourceLoc& begLoc, const SourceLoc& endLoc):
+	callee_(callee), args_(args), Expr(StmtKind::FunctionCallExpr,begLoc,endLoc)
 {
 }
 
 Expr* FunctionCallExpr::getCallee()
 {
-	return callee_.get();
+	return callee_;
 }
 
 const Expr* FunctionCallExpr::getCallee() const
 {
-	return callee_.get();
+	return callee_;
 }
 
-void FunctionCallExpr::setCallee(std::unique_ptr<Expr> base)
+void FunctionCallExpr::setCallee(Expr* callee)
 {
-	callee_ = std::move(base);
+	callee_ = callee;
 }
 
-ExprList* FunctionCallExpr::getExprList()
+ExprVector& FunctionCallExpr::getArgs()
 {
-	return args_.get();
+	return args_;
 }
 
-const ExprList* FunctionCallExpr::getExprList() const
+const ExprVector& FunctionCallExpr::getArgs() const
 {
-	return args_.get();
+	return args_;
 }
 
-void FunctionCallExpr::setExprList(std::unique_ptr<ExprList> elist)
+void FunctionCallExpr::setArgs(ExprVector&& args)
 {
-	args_ = std::move(elist);
+	args_ = args;
 }
 
 // MemberOf Expr
@@ -442,25 +444,26 @@ MemberOfExpr::MemberOfExpr() : MemberOfExpr(nullptr,nullptr,SourceLoc(),SourceLo
 {
 }
 
-MemberOfExpr::MemberOfExpr(std::unique_ptr<Expr> base, IdentifierInfo * idInfo, const SourceLoc& begLoc, const SourceLoc& dotLoc, const SourceLoc& endLoc) 
-	: Expr(StmtKind::MemberOfExpr,begLoc,endLoc), base_(std::move(base)), membName_(idInfo), dotLoc_(dotLoc)
+MemberOfExpr::MemberOfExpr(Expr* base, IdentifierInfo * idInfo,
+	const SourceLoc& begLoc, const SourceLoc& dotLoc, const SourceLoc& endLoc) 
+	: Expr(StmtKind::MemberOfExpr,begLoc,endLoc), base_(base), membName_(idInfo), dotLoc_(dotLoc)
 {
 
 }
 
 Expr* MemberOfExpr::getBase()
 {
-	return base_.get();
+	return base_;
 }
 
-const Expr * MemberOfExpr::getBase() const
+const Expr* MemberOfExpr::getBase() const
 {
-	return base_.get();
+	return base_;
 }
 
-void MemberOfExpr::setBase(std::unique_ptr<Expr> expr)
+void MemberOfExpr::setBase(Expr* expr)
 {
-	base_ = std::move(expr);
+	base_ = expr;
 }
 
 IdentifierInfo * MemberOfExpr::getMemberID()
@@ -468,12 +471,12 @@ IdentifierInfo * MemberOfExpr::getMemberID()
 	return membName_;
 }
 
-const IdentifierInfo * MemberOfExpr::getMemberID() const
+const IdentifierInfo* MemberOfExpr::getMemberID() const
 {
 	return membName_;
 }
 
-void MemberOfExpr::setMemberName(IdentifierInfo * idInfo)
+void MemberOfExpr::setMemberName(IdentifierInfo* idInfo)
 {
 	membName_ = idInfo;
 }
@@ -489,89 +492,40 @@ ArrayAccessExpr::ArrayAccessExpr() : ArrayAccessExpr(nullptr,nullptr,SourceLoc()
 
 }
 
-ArrayAccessExpr::ArrayAccessExpr(std::unique_ptr<Expr> expr, std::unique_ptr<Expr> idxexpr, const SourceLoc& begLoc, const SourceLoc& endLoc) :
-	base_(std::move(expr)), accessIdxExpr_(std::move(idxexpr)), Expr(StmtKind::ArrayAccessExpr,begLoc,endLoc)
+ArrayAccessExpr::ArrayAccessExpr(Expr* expr, Expr* idxexpr, const SourceLoc& begLoc, const SourceLoc& endLoc) :
+	base_(expr), idxExpr_(idxexpr), Expr(StmtKind::ArrayAccessExpr,begLoc,endLoc)
 {
 	
 }
 
-void ArrayAccessExpr::setBase(std::unique_ptr<Expr> expr)
+void ArrayAccessExpr::setBase(Expr* expr)
 {
-	base_ = std::move(expr);
+	base_ = expr;
 }
 
-void ArrayAccessExpr::setAccessIndexExpr(std::unique_ptr<Expr> expr)
+void ArrayAccessExpr::setAccessIndexExpr(Expr* expr)
 {
-	accessIdxExpr_ = std::move(expr);
+	idxExpr_ = expr;
 }
 
 Expr* ArrayAccessExpr::getBase()
 {
-	return base_.get();
+	return base_;
 }
 
 Expr* ArrayAccessExpr::getAccessIndexExpr()
 {
-	return accessIdxExpr_.get();
+	return idxExpr_;
 }
 
 const Expr* ArrayAccessExpr::getBase() const
 {
-	return base_.get();
+	return base_;
 }
 
 const Expr* ArrayAccessExpr::getAccessIndexExpr() const
 {
-	return accessIdxExpr_.get();
-}
-
-// Expr list
-void ExprList::addExpr(std::unique_ptr<Expr> expr)
-{
-	exprs_.emplace_back(std::move(expr));
-}
-
-Expr* ExprList::getExpr(std::size_t ind)
-{
-	assert(ind < exprs_.size() && "out-of-range");
-	return exprs_[ind].get();
-}
-
-const Expr* ExprList::getExpr(std::size_t ind) const
-{
-	assert(ind < exprs_.size() && "out-of-range");
-	return exprs_[ind].get();
-}
-
-
-bool ExprList::isEmpty() const
-{
-	return !exprs_.size();
-}
-
-std::size_t ExprList::size() const
-{
-	return exprs_.size();
-}
-
-ExprList::ExprListIter ExprList::begin()
-{
-	return exprs_.begin();
-}
-
-ExprList::ExprListIter ExprList::end()
-{
-	return exprs_.end();
-}
-
-ExprList::ExprListConstIter ExprList::begin() const
-{
-	return exprs_.begin();
-}
-
-ExprList::ExprListConstIter ExprList::end() const
-{
-	return exprs_.end();
+	return idxExpr_;
 }
 
 // Parens Expr
@@ -580,23 +534,23 @@ ParensExpr::ParensExpr() : ParensExpr(nullptr, SourceLoc(), SourceLoc())
 
 }
 
-ParensExpr::ParensExpr(std::unique_ptr<Expr> expr, const SourceLoc & begLoc, const SourceLoc & endLoc) 
-	: Expr(StmtKind::ParensExpr,begLoc,endLoc), expr_(std::move(expr))
+ParensExpr::ParensExpr(Expr* expr, const SourceLoc & begLoc, const SourceLoc & endLoc) 
+	: Expr(StmtKind::ParensExpr,begLoc,endLoc), expr_(expr)
 {
 
 }
 
 Expr* ParensExpr::getExpr()
 {
-	return expr_.get();
+	return expr_;
 }
 
 const Expr* ParensExpr::getExpr() const
 {
-	return expr_.get();
+	return expr_;
 }
 
-void ParensExpr::setExpr(std::unique_ptr<Expr> expr)
+void ParensExpr::setExpr(Expr* expr)
 {
-	expr_ = std::move(expr);
+	expr_ = expr;
 }

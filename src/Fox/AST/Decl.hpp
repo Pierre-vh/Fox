@@ -25,7 +25,7 @@ namespace fox
 	class SourceLoc;
 	class Expr;
 	class IdentifierInfo;
-	class IVisitor;
+	class ASTContext;
 
 	// Note about SourceLocs in decls:
 	// The getRange,getBegLoc and getEndLoc shall always return the complete range of the decl, including any potential children.
@@ -49,8 +49,18 @@ namespace fox
 			bool hasLocInfo() const;
 
 			bool isValid() const;
+
+			// Prohibit the use of builtin placement new & delete
+			void *operator new(std::size_t) throw() = delete;
+			void operator delete(void *) throw() = delete;
+			void* operator new(std::size_t, void*) = delete;
+
+			// Only allow allocation through the ASTContext
+			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Decl));
+
 		protected:
 			Decl(DeclKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+
 		private:
 			SourceLoc begLoc_, endLoc_;
 			const DeclKind kind_;
@@ -72,6 +82,7 @@ namespace fox
 			{
 				return (decl->getKind() >= DeclKind::First_NamedDecl) && (decl->getKind() <= DeclKind::Last_NamedDecl);
 			}
+
 		private:
 			IdentifierInfo* identifier_;
 	};
@@ -94,6 +105,7 @@ namespace fox
 			{
 				return decl->getKind() == DeclKind::ParamDecl;
 			}
+
 		private:
 			SourceRange tyRange_;
 			QualType type_;
@@ -107,13 +119,14 @@ namespace fox
 	class FuncDecl : public NamedDecl, public DeclContext
 	{
 		private:
-			using ParamVecTy = UniquePtrVector<ParamDecl>;
+			using ParamVecTy = std::vector<ParamDecl*>;
 
-			using ParamVecIter = DereferenceIterator<ParamVecTy::iterator>;
-			using ParamVecConstIter = DereferenceIterator<ParamVecTy::const_iterator>;
+			using ParamVecIter = ParamVecTy::iterator;
+			using ParamVecConstIter = ParamVecTy::const_iterator;
+
 		public:
 			FuncDecl();
-			FuncDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body, const SourceLoc& begLoc,const SourceLoc& headerEndLoc,const SourceLoc& endLoc);
+			FuncDecl(Type* returnType, IdentifierInfo* fnId, CompoundStmt* body, const SourceLoc& begLoc,const SourceLoc& headerEndLoc,const SourceLoc& endLoc);
 			
 			void setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end);
 			void setHeaderEndLoc(const SourceLoc& loc);
@@ -128,11 +141,11 @@ namespace fox
 			Type* getReturnType();
 			const Type* getReturnType() const;
 
-			void setBody(std::unique_ptr<CompoundStmt> arg);
+			void setBody(CompoundStmt* body);
 			CompoundStmt* getBody();	
 			const CompoundStmt* getBody() const;
 
-			void addParamDecl(std::unique_ptr<ParamDecl> arg);
+			void addParamDecl(ParamDecl* arg);
 			ParamDecl* getParamDecl(std::size_t ind);
 			const ParamDecl* getParamDecl(std::size_t ind) const;
 			std::size_t getNumParams() const;
@@ -147,11 +160,12 @@ namespace fox
 			{
 				return decl->getKind() == DeclKind::FuncDecl;
 			}
+
 		private:
 			SourceLoc headEndLoc_;
 			Type* returnType_ = nullptr;
 			ParamVecTy params_;
-			std::unique_ptr<CompoundStmt> body_;
+			CompoundStmt* body_ = nullptr;
 
 			// Bitfields
 			bool paramsAreValid_ : 1;
@@ -162,7 +176,7 @@ namespace fox
 	{
 		public:
 			VarDecl();
-			VarDecl(IdentifierInfo * id, const QualType& type, std::unique_ptr<Expr> initializer, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
+			VarDecl(IdentifierInfo * id, const QualType& type, Expr* init, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
 
 			bool isValid() const;
 
@@ -174,17 +188,18 @@ namespace fox
 			Expr* getInitExpr();
 			const Expr* getInitExpr() const;
 
-			void setInitExpr(std::unique_ptr<Expr> expr);
+			void setInitExpr(Expr* expr);
 			bool hasInitExpr() const;
 
 			static bool classof(const Decl* decl)
 			{
 				return decl->getKind() == DeclKind::VarDecl;
 			}
+
 		private:
 			SourceRange typeRange_;
 			QualType type_;
-			std::unique_ptr<Expr> initializer_;
+			Expr* init_ = nullptr;
 	};
 
 	// A Unit declaration. A Unit = a source file.
@@ -192,13 +207,14 @@ namespace fox
 	class UnitDecl : public NamedDecl, public DeclContext
 	{
 		private:
-			using DelVecTy = UniquePtrVector<Decl>;
-			using DeclVecIter = DereferenceIterator<DelVecTy::iterator>;
-			using DeclVecConstIter = DereferenceIterator<DelVecTy::const_iterator>;
+			using DelVecTy = std::vector<Decl*>;
+			using DeclVecIter = DelVecTy::iterator;
+			using DeclVecConstIter = DelVecTy::const_iterator;
+
 		public:
 			UnitDecl(IdentifierInfo *id, FileID inFile);
 
-			void addDecl(std::unique_ptr<Decl> decl);
+			void addDecl(Decl* decl);
 
 			Decl* getDecl(std::size_t idx);
 			const Decl* getDecl(std::size_t idx) const;
@@ -222,11 +238,12 @@ namespace fox
 			{
 				return decl->getKind() == DeclKind::UnitDecl;
 			}
+
 		private:
 			DelVecTy decls_;
 			FileID file_;
 
-			// Bitfields
+			// Bitfields (7 bits left)
 			bool declsAreValid_ : 1;
 	};
 }

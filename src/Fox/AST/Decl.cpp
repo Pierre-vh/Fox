@@ -11,7 +11,7 @@
 #include "Decl.hpp"
 #include "Stmt.hpp"
 #include "Fox/Common/Source.hpp"
-
+#include "ASTContext.hpp"
 #include <sstream>
 #include <cassert>
 
@@ -52,6 +52,11 @@ bool Decl::hasLocInfo() const
 bool Decl::isValid() const
 {
 	return hasLocInfo();
+}
+
+void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
+{
+	return ctxt.getAllocator().allocate(sz, align);
 }
 
 bool Decl::isBegLocSet() const
@@ -139,8 +144,8 @@ FuncDecl::FuncDecl(): FuncDecl(nullptr,nullptr,nullptr,SourceLoc(),SourceLoc(),S
 
 }
 
-FuncDecl::FuncDecl(Type* returnType, IdentifierInfo* fnId, std::unique_ptr<CompoundStmt> body,const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc)
-	: NamedDecl(DeclKind::FuncDecl,fnId,begLoc,endLoc), headEndLoc_(headerEndLoc), body_(std::move(body)), returnType_(returnType)
+FuncDecl::FuncDecl(Type* returnType, IdentifierInfo* fnId, CompoundStmt* body,const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc)
+	: NamedDecl(DeclKind::FuncDecl,fnId,begLoc,endLoc), headEndLoc_(headerEndLoc), body_(body), returnType_(returnType)
 {
 	paramsAreValid_ = true;
 }
@@ -189,37 +194,37 @@ const Type* FuncDecl::getReturnType() const
 
 CompoundStmt* FuncDecl::getBody()
 {
-	return body_.get();
+	return body_;
 }
 
 const CompoundStmt* FuncDecl::getBody() const
 {
-	return body_.get();
+	return body_;
 }
 
-void FuncDecl::setBody(std::unique_ptr<CompoundStmt> arg)
+void FuncDecl::setBody(CompoundStmt* body)
 {
-	body_ = std::move(arg);
+	body_ = body;
 }
 
 ParamDecl* FuncDecl::getParamDecl(std::size_t ind)
 {
 	assert(ind < params_.size() && "out-of-range");
-	return params_[ind].get();
+	return params_[ind];
 }
 
 const ParamDecl* FuncDecl::getParamDecl(std::size_t ind) const
 {
 	assert(ind < params_.size() && "out-of-range");
-	return params_[ind].get();
+	return params_[ind];
 }
 
-void FuncDecl::addParamDecl(std::unique_ptr<ParamDecl> arg)
+void FuncDecl::addParamDecl(ParamDecl* arg)
 {
 	if (!arg->isValid())
 		paramsAreValid_ = false;
 
-	params_.emplace_back(std::move(arg));
+	params_.push_back(arg);
 }
 
 std::size_t FuncDecl::getNumParams() const
@@ -253,8 +258,8 @@ VarDecl::VarDecl() : VarDecl(nullptr,QualType(),nullptr,SourceLoc(),SourceRange(
 
 }
 
-VarDecl::VarDecl(IdentifierInfo * id, const QualType& type, std::unique_ptr<Expr> initializer, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc) :
-	NamedDecl(DeclKind::VarDecl, id, begLoc, endLoc), type_(type), typeRange_(tyRange), initializer_(std::move(initializer))
+VarDecl::VarDecl(IdentifierInfo * id, const QualType& type, Expr* init, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc) :
+	NamedDecl(DeclKind::VarDecl, id, begLoc, endLoc), type_(type), typeRange_(tyRange), init_(init)
 {
 
 }
@@ -276,17 +281,17 @@ QualType VarDecl::getType() const
 
 Expr* VarDecl::getInitExpr()
 {
-	return initializer_.get();
+	return init_;
 }
 
 const Expr* VarDecl::getInitExpr() const
 {
-	return initializer_.get();
+	return init_;
 }
 
 bool VarDecl::hasInitExpr() const
 {
-	return (bool)initializer_;
+	return (bool)init_;
 }
 
 void VarDecl::setType(const QualType &ty)
@@ -294,10 +299,9 @@ void VarDecl::setType(const QualType &ty)
 	type_ = ty;
 }
 
-void VarDecl::setInitExpr(std::unique_ptr<Expr> expr)
+void VarDecl::setInitExpr(Expr* expr)
 {
-	if(expr)
-		initializer_ = std::move(expr);
+	init_ = expr;
 }
 
 // ASTUnit
@@ -307,7 +311,7 @@ UnitDecl::UnitDecl(IdentifierInfo * id,FileID inFile)
 	declsAreValid_ = true;
 }
 
-void UnitDecl::addDecl(std::unique_ptr<Decl> decl)
+void UnitDecl::addDecl(Decl* decl)
 {
 	// Update locs
 	if (!isBegLocSet())
@@ -319,19 +323,19 @@ void UnitDecl::addDecl(std::unique_ptr<Decl> decl)
 	if (!decl->isValid())
 		declsAreValid_ = false;
 
-	decls_.emplace_back(std::move(decl));
+	decls_.push_back(decl);
 }
 
 Decl* UnitDecl::getDecl(std::size_t idx)
 {
 	assert(idx < decls_.size() && "out-of-range");
-	return decls_[idx].get();
+	return decls_[idx];
 }
 
 const Decl* UnitDecl::getDecl(std::size_t idx) const
 {
 	assert(idx < decls_.size() && "out-of-range");
-	return decls_[idx].get();
+	return decls_[idx];
 }
 
 std::size_t UnitDecl::getDeclCount() const

@@ -24,6 +24,7 @@ namespace fox
 
 	class Decl;
 	class Expr;
+	class ASTContext;
 
 	/*
 	
@@ -59,8 +60,18 @@ namespace fox
 			bool isEndLocSet() const;
 
 			bool hasLocInfo() const;
+
+			// Prohibit the use of builtin placement new & delete
+			void *operator new(std::size_t) throw() = delete;
+			void operator delete(void *) throw() = delete;
+			void* operator new(std::size_t, void*) = delete;
+
+			// Only allow allocation through the ASTContext
+			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Stmt));
+
 		protected:
 			Stmt(StmtKind skind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+
 		private:
 			SourceLoc beg_, end_;
 			const StmtKind kind_;
@@ -87,18 +98,18 @@ namespace fox
 	{
 		public:
 			ReturnStmt();
-			ReturnStmt(std::unique_ptr<Expr> rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			ReturnStmt(Expr* rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			bool hasExpr() const;
 			Expr* getExpr();
-			void setExpr(std::unique_ptr<Expr> e);
+			void setExpr(Expr* e);
 
 			static bool classof(const Stmt* stmt)
 			{
 				return (stmt->getKind() == StmtKind::ReturnStmt);
 			}
 		private:
-			std::unique_ptr<Expr> expr_;
+			Expr* expr_ = nullptr;
 	};
 
 	// a if-then-else condition.
@@ -106,7 +117,7 @@ namespace fox
 	{
 		public:
 			ConditionStmt();
-			ConditionStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> then, std::unique_ptr<Stmt> elsestmt,
+			ConditionStmt(Expr* cond, Stmt* then, Stmt* elsestmt,
 				const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc);
 
 			bool isValid() const;
@@ -120,9 +131,9 @@ namespace fox
 			const Stmt* getThen() const;
 			const Stmt* getElse() const;
 
-			void setCond(std::unique_ptr<Expr> expr);
-			void setThen(std::unique_ptr<Stmt> then);
-			void setElse(std::unique_ptr<Stmt> elsestmt);
+			void setCond(Expr* expr);
+			void setThen(Stmt* stmt);
+			void setElse(Stmt* stmt);
 
 			void setIfHeaderEndLoc(const SourceLoc& sloc);
 			SourceRange getIfHeaderRange() const;
@@ -135,18 +146,18 @@ namespace fox
 		private:
 			SourceLoc ifHeadEndLoc_;
 
-			std::unique_ptr<Expr> cond_;
-			std::unique_ptr<Stmt> then_;
-			std::unique_ptr<Stmt> else_;
+			Expr* cond_ = nullptr;
+			Stmt* then_ = nullptr;
+			Stmt* else_ = nullptr;
 	};
 
 	// A compound statement (statements between curly brackets)
 	class CompoundStmt : public Stmt
 	{
 		private:
-			using StmtVecTy = UniquePtrVector<Stmt>;
-			using StmtVecIter = DereferenceIterator<StmtVecTy::iterator>;
-			using StmtVecConstIter = DereferenceIterator < StmtVecTy::const_iterator>;
+			using StmtVecTy = std::vector<Stmt*>;
+			using StmtVecIter = StmtVecTy::iterator;
+			using StmtVecConstIter = StmtVecTy::const_iterator;
 		public:
 			CompoundStmt();
 			CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc);
@@ -157,7 +168,7 @@ namespace fox
 			Stmt* getBack();
 			const Stmt* getBack() const;
 
-			void addStmt(std::unique_ptr<Stmt> stmt);
+			void addStmt(Stmt* stmt);
 
 			bool isEmpty() const;
 			std::size_t size() const;
@@ -184,7 +195,7 @@ namespace fox
 	{
 		public:
 			WhileStmt();
-			WhileStmt(std::unique_ptr<Expr> cond, std::unique_ptr<Stmt> body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc);
+			WhileStmt(Expr* cond, Stmt* body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc);
 
 			Expr* getCond();
 			Stmt* getBody();
@@ -192,8 +203,8 @@ namespace fox
 			const Expr* getCond() const;
 			const Stmt* getBody() const;
 
-			void setCond(std::unique_ptr<Expr> cond);
-			void setBody(std::unique_ptr<Stmt> body);
+			void setCond(Expr* cond);
+			void setBody(Stmt* body);
 
 			SourceLoc getHeaderEndLoc() const;
 			SourceRange getHeaderRange() const;
@@ -204,30 +215,30 @@ namespace fox
 			}
 		private:
 			SourceLoc headerEndLoc_;
-			std::unique_ptr<Expr> cond_;
-			std::unique_ptr<Stmt> body_;
+			Expr* cond_ = nullptr;
+			Stmt* body_ = nullptr;
 	};
 
 	// Class used to mix Declarations & Statements without having decl inherit from stmt.
-	// This is just a wrapper around a std::unique_ptr<Decl>
+	// This is just a wrapper around a Decl*
 	class DeclStmt : public Stmt
 	{
 		public:
-			DeclStmt(std::unique_ptr<Decl> decl);
+			DeclStmt(Decl* decl);
 
 			bool hasDecl() const;
 
 			Decl* getDecl();
 			const Decl* getDecl() const;
 
-			void setDecl(std::unique_ptr<Decl> decl);
+			void setDecl(Decl* decl);
 
 			static bool classof(const Stmt* stmt)
 			{
 				return (stmt->getKind() == StmtKind::DeclStmt);
 			}
 		private:
-			std::unique_ptr<Decl> decl_ = nullptr;			
+			Decl* decl_ = nullptr;			
 	};
 }
 

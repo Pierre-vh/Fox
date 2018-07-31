@@ -68,6 +68,7 @@ namespace fox
 			{
 				return ((stmt->getKind() >= StmtKind::First_Expr) && (stmt->getKind() <= StmtKind::Last_Expr));
 			}
+
 		protected:
 			Expr(StmtKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
 	};
@@ -77,7 +78,8 @@ namespace fox
 	{
 		public:
 			BinaryExpr();
-			BinaryExpr(BinaryOperator opt,std::unique_ptr<Expr> lhs,std::unique_ptr<Expr> rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
+			BinaryExpr(BinaryOperator opt, Expr* lhs, Expr* rhs, 
+				const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
 			Expr* getLHS();
 			Expr* getRHS();
@@ -85,8 +87,8 @@ namespace fox
 			const Expr* getLHS() const;
 			const Expr* getRHS() const;
 
-			void setLHS(std::unique_ptr<Expr> nlhs);
-			void setRHS(std::unique_ptr<Expr> nrhs);
+			void setLHS(Expr* expr);
+			void setRHS(Expr* expr);
 
 			BinaryOperator getOp() const;
 			void setOp(BinaryOperator op);
@@ -97,9 +99,11 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::BinaryExpr);
 			}
+
 		private:
 			SourceRange opRange_;
-			std::unique_ptr<Expr> left_, right_;
+			Expr* lhs_ = nullptr;
+			Expr* rhs_ = nullptr;
 			BinaryOperator op_ = BinaryOperator::DEFAULT;
 	};
 
@@ -108,11 +112,11 @@ namespace fox
 	{
 		public: 
 			UnaryExpr();
-			UnaryExpr(UnaryOperator opt,std::unique_ptr<Expr> node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
+			UnaryExpr(UnaryOperator opt, Expr* node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
-			Expr* getChild();
-			const Expr* getChild() const;
-			void setChild(std::unique_ptr<Expr> nchild);
+			Expr* getExpr();
+			const Expr* getExpr() const;
+			void setExpr(Expr* expr);
 
 			UnaryOperator getOp() const;
 			void setOp(UnaryOperator nop);
@@ -123,9 +127,10 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::UnaryExpr);
 			}
+
 		private:
 			SourceRange opRange_;
-			std::unique_ptr<Expr> child_;
+			Expr* expr_ = nullptr;
 			UnaryOperator op_ = UnaryOperator::DEFAULT;
 	};
 
@@ -134,15 +139,15 @@ namespace fox
 	{
 		public:
 			CastExpr();
-			CastExpr(Type* castGoal,std::unique_ptr<Expr> child, const SourceLoc& begLoc, const SourceRange& typeRange, const SourceLoc& endLoc);
+			CastExpr(Type* castGoal, Expr* expr, const SourceLoc& begLoc, const SourceRange& typeRange, const SourceLoc& endLoc);
 			
 			void setCastGoal(Type* goal);
 			Type* getCastGoal();
 			const Type* getCastGoal() const;
 
-			Expr* getChild();
-			const  Expr* getChild() const;
-			void setChild(std::unique_ptr<Expr> nc);
+			Expr* getExpr();
+			const  Expr* getExpr() const;
+			void setExpr(Expr* expr);
 
 			SourceRange getTypeRange() const;
 
@@ -150,10 +155,11 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::CastExpr);
 			}
+
 		private:
 			SourceRange typeRange_;
 			Type* goal_ = nullptr;
-			std::unique_ptr<Expr> child_;
+			Expr* expr_ = nullptr;
 	};
 
 	// Literals
@@ -170,6 +176,7 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::CharLiteralExpr);
 			}
+
 		private:
 			CharType val_ = ' ';
 	};
@@ -187,6 +194,7 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::IntegerLiteralExpr);
 			}
+
 		private:
 			IntType val_ = 0;
 	};
@@ -204,6 +212,7 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::FloatLiteralExpr);
 			}
+
 		private:
 			FloatType val_ = 0.0f;
 	};
@@ -221,6 +230,7 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::StringLiteralExpr);
 			}
+
 		private:
 			std::string val_ = "";
 	};
@@ -238,30 +248,33 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::BoolLiteralExpr);
 			}
+
 		private:
 			bool val_ = false;
 	};
 
-	class ExprList;
-	// Array literals
+	using ExprVector = std::vector<Expr*>;
+
 	class ArrayLiteralExpr : public Expr
 	{
 		public:
 			ArrayLiteralExpr();
-			ArrayLiteralExpr(std::unique_ptr<ExprList> exprs, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			ArrayLiteralExpr(ExprVector&& exprs, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			ExprList* getExprList();
-			void setExprList(std::unique_ptr<ExprList> elist);
-			bool hasExprList() const; 
+			ExprVector& getArgs();
+			const ExprVector& getArgs() const;
+			void setArgs(ExprVector&& elist);
 
+			std::size_t getSize() const;
 			bool isEmpty() const;
 
 			static bool classof(const Stmt* stmt)
 			{
 				return (stmt->getKind() == StmtKind::ArrayLiteralExpr);
 			}
+
 		private:
-			std::unique_ptr<ExprList> exprs_;
+			ExprVector exprs_;
 	};
 
 	// Represents a reference to a declaration (namespace,variable,function) -> it's an identifier!
@@ -279,6 +292,7 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::DeclRefExpr);
 			}
+
 		private:
 			IdentifierInfo * declId_;
 	};
@@ -289,11 +303,12 @@ namespace fox
 	{
 		public:
 			MemberOfExpr();
-			MemberOfExpr(std::unique_ptr<Expr> base, IdentifierInfo *idInfo, const SourceLoc& begLoc, const SourceLoc& dotLoc, const SourceLoc& endLoc);
+			MemberOfExpr(Expr* base, IdentifierInfo *idInfo, 
+				const SourceLoc& begLoc, const SourceLoc& dotLoc, const SourceLoc& endLoc);
 
 			Expr* getBase();
 			const Expr* getBase() const;
-			void setBase(std::unique_ptr<Expr> expr);
+			void setBase(Expr* expr);
 
 			IdentifierInfo* getMemberID();
 			const IdentifierInfo* getMemberID() const;
@@ -305,9 +320,10 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::MemberOfExpr);
 			}
+
 		private:
 			SourceLoc dotLoc_;
-			std::unique_ptr<Expr> base_;
+			Expr* base_;
 			IdentifierInfo *membName_;
 	};
 
@@ -316,10 +332,10 @@ namespace fox
 	{
 		public:
 			ArrayAccessExpr();
-			ArrayAccessExpr(std::unique_ptr<Expr> expr, std::unique_ptr<Expr> idxexpr, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			ArrayAccessExpr(Expr* base, Expr* idx, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			void setBase(std::unique_ptr<Expr> expr);
-			void setAccessIndexExpr(std::unique_ptr<Expr> expr);
+			void setBase(Expr* expr);
+			void setAccessIndexExpr(Expr* expr);
 
 			Expr* getBase() ;
 			Expr* getAccessIndexExpr();
@@ -331,41 +347,10 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::ArrayAccessExpr);
 			}
+
 		private:
-			// 2 Expr, the expression supposed to produce an array, and the expression contained within the square brackets that should produce the index.
-			std::unique_ptr<Expr> base_;
-			std::unique_ptr<Expr> accessIdxExpr_;
-	};
-
-	// Class Representing an Expression List. N
-	// Note: This is not an expression per-se, this is more of a utility class that provides an abstraction
-	// around a vector of unique_ptr.
-	// This class will probably be removed during the upcoming AST Rework,
-	// it'll be replaced by a simple "using ExprVector = std::vector<Expr*>"
-	class ExprList
-	{
-		private:
-			using ExprListTy = UniquePtrVector<Expr>;
-
-			using ExprListIter = DereferenceIterator<ExprListTy::iterator>;
-			using ExprListConstIter = DereferenceIterator<ExprListTy::const_iterator>;
-		public:
-			ExprList() = default;
-
-			void addExpr(std::unique_ptr<Expr> expr);
-			Expr* getExpr(std::size_t ind);
-			const Expr* getExpr(std::size_t ind) const;
-
-			bool isEmpty() const;
-			std::size_t size() const;
-
-			ExprListIter begin();
-			ExprListIter end();
-
-			ExprListConstIter begin() const;
-			ExprListConstIter end()const;
-		private:
-			ExprListTy exprs_;
+			Expr* base_;
+			Expr* idxExpr_;
 	};
 
 	// Function calls
@@ -373,23 +358,24 @@ namespace fox
 	{
 		public:
 			FunctionCallExpr();
-			FunctionCallExpr(std::unique_ptr<Expr> base, std::unique_ptr<ExprList> elist, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			FunctionCallExpr(Expr* callee, ExprVector&& args, const SourceLoc& begLoc, const SourceLoc& endLoc);
 			
-			Expr * getCallee();
-			const Expr * getCallee() const;
-			void setCallee(std::unique_ptr<Expr> base);
+			Expr* getCallee();
+			const Expr* getCallee() const;
+			void setCallee(Expr* base);
 
-			ExprList* getExprList();
-			const ExprList* getExprList() const;
-			void setExprList(std::unique_ptr<ExprList> elist);
+			ExprVector& getArgs();
+			const ExprVector& getArgs() const;
+			void setArgs(ExprVector&& exprs);
 
 			static bool classof(const Stmt* stmt)
 			{
 				return (stmt->getKind() == StmtKind::FunctionCallExpr);
 			}
+
 		private:
-			std::unique_ptr<Expr> callee_;
-			std::unique_ptr<ExprList> args_;
+			Expr * callee_ = nullptr;
+			ExprVector args_;
 	};
 
 	// Parens Expr
@@ -397,18 +383,19 @@ namespace fox
 	{
 		public:
 			ParensExpr();
-			ParensExpr(std::unique_ptr<Expr> expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			ParensExpr(Expr* expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			Expr* getExpr();
 			const Expr* getExpr() const;
-			void setExpr(std::unique_ptr<Expr> expr);
+			void setExpr(Expr* expr);
 
 			static bool classof(const Stmt* stmt)
 			{
 				return (stmt->getKind() == StmtKind::ParensExpr);
 			}
+
 		private:
-			std::unique_ptr<Expr> expr_;
+			Expr* expr_ = nullptr;
 	};
 }
 
