@@ -128,9 +128,9 @@ TEST(ASTTests, ASTContextArrayTypes)
 }
 
 // Create a variable with a random type
-std::unique_ptr<VarDecl> makeVarDecl(ASTContext& ctxt, const std::string &name,Type* ty)
+VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, Type* ty)
 {
-	return std::make_unique<VarDecl>(
+	return new(ctxt) VarDecl(
 			ctxt.identifiers.getUniqueIdentifierInfo(name),
 			QualType(ty),
 			nullptr,
@@ -140,9 +140,16 @@ std::unique_ptr<VarDecl> makeVarDecl(ASTContext& ctxt, const std::string &name,T
 		);
 }
 
-std::unique_ptr<FuncDecl> makeFuncDecl(ASTContext& ctxt, const std::string& name)
+FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name)
 {
-	return std::make_unique<FuncDecl>();
+	return new(ctxt) FuncDecl(
+		ctxt.getVoidType(),
+		ctxt.identifiers.getUniqueIdentifierInfo(name),
+		nullptr,
+		SourceLoc(),
+		SourceLoc(),
+		SourceLoc()
+	);
 }
 
 bool testLookup(ASTContext &ctxt,DeclContext *dr, const std::string& name, Decl* decl,std::string& err)
@@ -174,19 +181,19 @@ TEST(ASTTests, DeclContextTest)
 {
 	ASTContext astctxt;
 
-	auto var1 = makeVarDecl(astctxt, "Variable_1", astctxt.getBoolType());
-	auto var2 = makeVarDecl(astctxt, "Variable_2", astctxt.getCharType());
-	auto var3 = makeVarDecl(astctxt, "Variable_3", astctxt.getFloatType());
-	auto var4 = makeVarDecl(astctxt, "Variable_4", astctxt.getStringType());
-	auto var5 = makeVarDecl(astctxt, "Variable_5", astctxt.getIntType());
+	auto* var1 = makeVarDecl(astctxt, "Variable_1", astctxt.getBoolType());
+	auto* var2 = makeVarDecl(astctxt, "Variable_2", astctxt.getCharType());
+	auto* var3 = makeVarDecl(astctxt, "Variable_3", astctxt.getFloatType());
+	auto* var4 = makeVarDecl(astctxt, "Variable_4", astctxt.getStringType());
+	auto* var5 = makeVarDecl(astctxt, "Variable_5", astctxt.getIntType());
 
-	auto func = makeFuncDecl(astctxt, "Foo");
+	auto* func = makeFuncDecl(astctxt, "Foo");
 
-	func->recordDecl(var1.get());
-	func->recordDecl(var2.get());
-	func->recordDecl(var3.get());
-	func->recordDecl(var4.get());
-	func->recordDecl(var5.get());
+	func->recordDecl(var1);
+	func->recordDecl(var2);
+	func->recordDecl(var3);
+	func->recordDecl(var4);
+	func->recordDecl(var5);
 
 	// Iterate over all the recorded decl and check that they were added in the correct order with the correct names.
 	bool v1_ok, v2_ok, v3_ok, v4_ok, v5_ok;
@@ -198,35 +205,35 @@ TEST(ASTTests, DeclContextTest)
 		if (str == "Variable_1")
 		{
 			EXPECT_EQ(id, var1->getIdentifier()) << "Mismatch : " << str << " != " << var1->getIdentifier()->getStr();
-			EXPECT_EQ(*it, var1.get());
+			EXPECT_EQ(*it, var1);
 			ASSERT_FALSE(v1_ok) << "Variable_1 found twice?";
 			v1_ok = true;
 		}
 		else if (str == "Variable_2")
 		{
 			EXPECT_EQ(id, var2->getIdentifier()) << "Mismatch : " << str << " != " << var2->getIdentifier()->getStr();
-			EXPECT_EQ(*it, var2.get());
+			EXPECT_EQ(*it, var2);
 			ASSERT_FALSE(v2_ok) << "Variable_2 found twice?";
 			v2_ok = true;
 		}
 		else if (str == "Variable_3")
 		{
 			EXPECT_EQ(id, var3->getIdentifier()) << "Mismatch : " << str << " != " << var3->getIdentifier()->getStr();
-			EXPECT_EQ(*it, var3.get());
+			EXPECT_EQ(*it, var3);
 			ASSERT_FALSE(v3_ok) << "Variable_3 found twice?";
 			v3_ok = true;
 		}
 		else if (str == "Variable_4")
 		{
 			EXPECT_EQ(id, var4->getIdentifier()) << "Mismatch : " << str << " != " << var4->getIdentifier()->getStr();
-			EXPECT_EQ(*it, var4.get());
+			EXPECT_EQ(*it, var4);
 			ASSERT_FALSE(v4_ok) << "Variable_4 found twice?";
 			v4_ok = true;
 		}
 		else if (str == "Variable_5")
 		{
 			EXPECT_EQ(id, var5->getIdentifier()) << "Mismatch : " << str << " != " << var5->getIdentifier()->getStr();
-			EXPECT_EQ(*it, var5.get());
+			EXPECT_EQ(*it, var5);
 			ASSERT_FALSE(v5_ok) << "Variable_5 found twice?";
 			v5_ok = true;
 		}
@@ -239,14 +246,14 @@ TEST(ASTTests, DeclContextTest)
 
 	// Lookup tests
 	std::string lasterr = "";
-	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_1", var1.get(), lasterr)) << lasterr;
-	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_2", var2.get(), lasterr)) << lasterr;
-	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_3", var3.get(), lasterr)) << lasterr;
-	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_4", var4.get(), lasterr)) << lasterr;
-	EXPECT_TRUE(testLookup(astctxt, func.get(), "Variable_5", var5.get(), lasterr)) << lasterr;
+	EXPECT_TRUE(testLookup(astctxt, func, "Variable_1", var1, lasterr)) << lasterr;
+	EXPECT_TRUE(testLookup(astctxt, func, "Variable_2", var2, lasterr)) << lasterr;
+	EXPECT_TRUE(testLookup(astctxt, func, "Variable_3", var3, lasterr)) << lasterr;
+	EXPECT_TRUE(testLookup(astctxt, func, "Variable_4", var4, lasterr)) << lasterr;
+	EXPECT_TRUE(testLookup(astctxt, func, "Variable_5", var5, lasterr)) << lasterr;
 
 	// Bad lookup tests
-	EXPECT_FALSE(testLookup(astctxt, func.get(), "Variable_6", var5.get(), lasterr)) << lasterr;
+	EXPECT_FALSE(testLookup(astctxt, func, "Variable_6", var5, lasterr)) << lasterr;
 
 }
 
@@ -379,7 +386,9 @@ TEST(ASTTests, StmtRTTI)
 	EXPECT_TRUE(WhileStmt::classof(&whilestmt));
 
 	// declstmt
-	DeclStmt declstmt(std::make_unique<FuncDecl>()); /* The arg passed to a DeclStmt cannot be null */
+	ASTContext ctxt;
+	auto tmp = new(ctxt) VarDecl();
+	DeclStmt declstmt(tmp); /* The arg passed to a DeclStmt cannot be null */
 	EXPECT_EQ(declstmt.getKind(), StmtKind::DeclStmt);
 	EXPECT_FALSE(Expr::classof(&declstmt));
 	EXPECT_TRUE(DeclStmt::classof(&declstmt));
@@ -454,9 +463,9 @@ TEST(ASTTests, BasicVisitorTest)
 	ASTContext ctxt;
 
 	// Create test nodes
-	auto intlit = std::make_unique<IntegerLiteralExpr>(200,SourceLoc(),SourceLoc());
-	auto rtr = std::make_unique<ReturnStmt>(nullptr,SourceLoc(),SourceLoc());
-	auto vardecl = std::make_unique<VarDecl>(
+	auto* intlit = new(ctxt) IntegerLiteralExpr(200,SourceLoc(),SourceLoc());
+	auto* rtr = new(ctxt) ReturnStmt(nullptr,SourceLoc(),SourceLoc());
+	auto* vardecl = new(ctxt) VarDecl(
 			nullptr,
 			QualType(),
 			nullptr, 
@@ -471,21 +480,21 @@ TEST(ASTTests, BasicVisitorTest)
 	IsNamedDecl declVisitor;
 	IsArrTy tyVisitor;
 
-	EXPECT_TRUE(exprVisitor.visit(intlit.get()));
-	EXPECT_FALSE(exprVisitor.visit(rtr.get()));
-	EXPECT_FALSE(exprVisitor.visit(vardecl.get()));
+	EXPECT_TRUE(exprVisitor.visit(intlit));
+	EXPECT_FALSE(exprVisitor.visit(rtr));
+	EXPECT_FALSE(exprVisitor.visit(vardecl));
 	EXPECT_FALSE(exprVisitor.visit(intTy));
 	EXPECT_FALSE(exprVisitor.visit(arrInt));
 
-	EXPECT_FALSE(declVisitor.visit(intlit.get()));
-	EXPECT_FALSE(declVisitor.visit(rtr.get()));
-	EXPECT_TRUE(declVisitor.visit(vardecl.get()));
+	EXPECT_FALSE(declVisitor.visit(intlit));
+	EXPECT_FALSE(declVisitor.visit(rtr));
+	EXPECT_TRUE(declVisitor.visit(vardecl));
 	EXPECT_FALSE(declVisitor.visit(intTy));
 	EXPECT_FALSE(declVisitor.visit(arrInt));
 
-	EXPECT_FALSE(tyVisitor.visit(intlit.get()));
-	EXPECT_FALSE(tyVisitor.visit(rtr.get()));
-	EXPECT_FALSE(tyVisitor.visit(vardecl.get()));
+	EXPECT_FALSE(tyVisitor.visit(intlit));
+	EXPECT_FALSE(tyVisitor.visit(rtr));
+	EXPECT_FALSE(tyVisitor.visit(vardecl));
 	EXPECT_FALSE(tyVisitor.visit(intTy));
 	EXPECT_TRUE(tyVisitor.visit(arrInt));
 

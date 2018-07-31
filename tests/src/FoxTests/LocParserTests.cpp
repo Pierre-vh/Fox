@@ -66,7 +66,9 @@ TEST_F(LocTests, FuncAndArgDecl)
 	auto presult = parser->parseFuncDecl();
 
 	ASSERT_TRUE(presult) << "parsing error";
-	auto func = presult.moveAs<FuncDecl>();
+	#pragma message("placeholder for getAs")
+	auto func = dyn_cast<FuncDecl>(presult.get());
+	ASSERT_NE(func, nullptr) << "Not a FuncDecl";
 
 	// First, test the function itself
 	CompleteLoc func_beg = srcMgr.getCompleteLocForSourceLoc(func->getBegLoc());
@@ -131,8 +133,9 @@ TEST_F(LocTests, VarDecls)
 	auto presult = parser->parseVarDecl();
 
 	ASSERT_TRUE(presult) << "parsing error";
-	auto var = presult.moveAs<VarDecl>();
-
+	#pragma message("placeholder for getAs")
+	auto var = dyn_cast<VarDecl>(presult.get());
+	ASSERT_NE(var, nullptr) << "Not a VarDecl";
 	CompleteLoc var_beg = srcMgr.getCompleteLocForSourceLoc(var->getBegLoc());
 	CompleteLoc var_end = srcMgr.getCompleteLocForSourceLoc(var->getEndLoc());
 
