@@ -58,6 +58,9 @@ namespace fox
 
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
+			// Resets the ASTContext, freeing the AST and
+			// everything allocated within it's allocators.
+			void reset();
 
 			// IDENTIFIER TABLE
 			IdentifierTable identifiers;

@@ -101,3 +101,20 @@ LinearAllocator<>& ASTContext::getAllocator()
 {
 	return alloc_;
 }
+
+void ASTContext::reset()
+{
+	units_.clear();
+	mainUnit_ = nullptr;
+	voidTy_ = nullptr;
+	intTy_ = nullptr;
+	floatTy_ = nullptr;
+	boolTy_ = nullptr;
+	charTy_ = nullptr;
+	stringTy_ = nullptr;
+	arrayTypes_.clear();
+
+	alloc_.reset();
+
+	initBuiltinTypes();
+}
