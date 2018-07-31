@@ -140,19 +140,24 @@ Parser::ExprResult Parser::parseArrayLiteral()
 	if (!begLoc)
 		return ExprResult::NotFound();
 	
-	SourceLoc endLoc;
 	// [<expr_list>]
-	auto elist = parseExprList();
-	#pragma message("No error checking for the elist, fix that")
+	auto elist = parseExprList(); 
+	// We don't check for errors because even if it failed, the Result object
+	// will construct a empty one for us!
+
 	// ']'
-	if (!(endLoc = consumeBracket(SignType::S_SQ_CLOSE)))
+	SourceLoc endLoc = consumeBracket(SignType::S_SQ_CLOSE);
+	if (!endLoc)
 	{
-		// Resync. If resync wasn't successful, report the error.
+		if (elist.wasSuccessful())
+			reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
+
 		if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 			endLoc = consumeBracket(SignType::S_SQ_CLOSE);
 		else
 			return ExprResult::Error();
 	}
+
 	return ExprResult(
 		new(ctxt_) ArrayLiteralExpr(std::move(elist.get()) ,begLoc, endLoc)
 	);
