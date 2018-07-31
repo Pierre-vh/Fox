@@ -44,15 +44,19 @@ Moonshot Project To-do List.
 	> Diagnostics Overhaul (Done)
 	> Finish the LinearAllocator (Done)
 
-	> LinearAllocator: add a function to RollBack the AllocPtr to a specific void*, which would be
-	  used by the companion delete when a constructor has thrown. Also it could be a good
-	  idea to backup the latest AllocPtr to compare it with the rollback ptr! (assert that lastAllocPtr < rollbackPtr < allocPtr)
+	> LinearAllocator update (Next)
+		>	add a function to RollBack the AllocPtr to a specific void*, which would be
+			used by the companion delete when a constructor has thrown. Also it could be a good
+			idea to backup the latest AllocPtr to compare it with the rollback ptr! (assert that lastAllocPtr < rollbackPtr < allocPtr)
+
+	> Finish PtrVariant and Add it/Test it (Next)
 
 	> AST Rework:
 		1) Allocator: Move from unique_ptrs to raw allocated pointers (Done)
-		2) Restructure the AST:
+		2) Restructure the AST (Next)
 			a) Divide the hierarchies: Expr/Stmt/Types/Decls should be distinct, use a PtrVariant for the "ASTNode" type
 				a) Visitor "rework" (polishing, adding custom return types for every hierarchy)
+
 			b) Expr: 
 				a) UncheckedDotSyntaxExpr
 					-> Captures the () if there's one
@@ -61,10 +65,11 @@ Moonshot Project To-do List.
 					-> transforms to a DeclRef or "UnresolvedOverloadSet"
 			c) Types:
 				a) Type -> TypeBase + Type object, which is a observing "smart" pointer to a Type
-					Note: this is to be decided, I don't know yet if I'll keep the Type*. This would be done I case I add sugared types, and to 
-					abstract the pointer-ness a bit.
+					Note: this is to be decided, I don't know yet if I'll keep the Type*.
+					This would be done I case I add sugared types, and to abstract the pointer-ness, leaving
+					more implementation freedom.
+
 				b) ErrorType
-			
 
 	> Semantic Analysis
 		(ideas, see if it's actually needed + follow personal notes for structure)
