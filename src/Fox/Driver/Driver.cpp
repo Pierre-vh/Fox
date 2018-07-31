@@ -72,7 +72,7 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	auto dump_micro = std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
 	auto dump_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
 
-	astCtxt.getAllocator().reset();
+	astCtxt.reset();
 
 	auto t4 = std::chrono::high_resolution_clock::now();
 	auto release_micro = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count();
