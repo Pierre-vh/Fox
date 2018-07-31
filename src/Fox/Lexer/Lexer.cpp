@@ -19,7 +19,7 @@
 using namespace fox;
 using namespace fox::Dictionaries;
 
-Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt) : diags_(diags), astContext_(astctxt), sm_(sm)
+Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt) : diags_(diags), ctxt_(astctxt), sm_(sm)
 {
 
 }
@@ -63,7 +63,7 @@ void Lexer::pushTok()
 	// Create a SourceLoc for the begin loc
 	SourceLoc sloc(currentFile_, currentTokenBeginIndex_);
 	// Create the SourceRange of this token:
-	Token t(diags_,astContext_,curtok_,getCurtokRange());
+	Token t(diags_,ctxt_,curtok_,getCurtokRange());
 
 	if (t)
 		tokens_.push_back(t);

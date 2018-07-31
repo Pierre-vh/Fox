@@ -73,7 +73,7 @@ namespace fox
 			SourceLoc getCurtokBegLoc() const;
 			SourceRange getCurtokRange() const;
 
-			ASTContext &astContext_;
+			ASTContext &ctxt_;
 			DiagnosticEngine& diags_;
 			SourceManager& sm_;
 			FileID currentFile_;
