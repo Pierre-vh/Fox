@@ -133,7 +133,7 @@ ConditionStmt::ConditionStmt() : ConditionStmt(nullptr,nullptr,nullptr,SourceLoc
 ConditionStmt::ConditionStmt(Expr* cond, Stmt* then, Stmt* elsestmt,
 	const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc)
 	: Stmt(StmtKind::ConditionStmt, begLoc, endLoc), cond_(cond), then_(then), 
-	  else_(elsestmt), ifHeadEndLoc_(ifHeadEndLoc_)
+	  else_(elsestmt), ifHeadEndLoc_(ifHeaderEndLoc)
 {
 
 }
