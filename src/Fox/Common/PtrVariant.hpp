@@ -163,6 +163,12 @@ namespace fox
 				ptr_ = other.ptr_;
 			}
 
+			// Bool
+			explicit operator bool() const
+			{
+				return isNull();
+			}
+
 			// Comparison
 			// Comparisons
 			bool operator== (const ThisType& other) const
