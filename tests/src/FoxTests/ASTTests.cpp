@@ -177,7 +177,7 @@ bool testLookup(ASTContext &ctxt,DeclContext *dr, const std::string& name, Decl*
 	}
 }
 
-TEST(ASTTests, DeclContextTest)
+TEST(ASTTests, DeclContext)
 {
 	ASTContext astctxt;
 
@@ -457,7 +457,7 @@ class IsArrTy : public ASTVisitor<IsArrTy, bool>
 		}
 };
 
-TEST(ASTTests, BasicVisitorTest)
+TEST(ASTTests, BasicVisitor)
 {
 	// Context
 	ASTContext ctxt;

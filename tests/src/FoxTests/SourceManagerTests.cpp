@@ -71,7 +71,7 @@ TEST(SourceManagerTests, LoadingFromString)
 }
 
 
-TEST(SourceManagerTests, SourceRangeTests)
+TEST(SourceManagerTests, SourceRange)
 {
 	// Create sample source locs
 	SourceLoc a(FileID(), 200);
@@ -105,7 +105,7 @@ TEST(SourceManagerTests, SourceRangeTests)
 	EXPECT_EQ(onechar_range_c.getBeginSourceLoc(), onechar_range_c.makeEndSourceLoc());
 }
 
-TEST(SourceManagerTests, PreciseLocationTest1)
+TEST(SourceManagerTests, PreciseLocation)
 {
 	SourceManager srcMgr;
 

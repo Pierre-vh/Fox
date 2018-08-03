@@ -17,7 +17,7 @@ using namespace fox;
 // with a lot of allocations of a large object,
 // testing that the memory allocated "works".
 // This will 
-TEST(LinearAllocatorTests, SpamTest)
+TEST(LinearAllocatorTests, Spam)
 {
 	#define COUNT 8192 // Number of TestObject to allocate 
 	#define NUM_VALUES 16	// Number of values in the TestObject 
@@ -68,7 +68,7 @@ TEST(LinearAllocatorTests, SpamTest)
 // This test checks that the memory allocated by the allocator
 // is aligned correctly.
 // This tests alignements of 2, 4, 8 and 16
-TEST(LinearAllocatorTests, AlignementTest)
+TEST(LinearAllocatorTests, Alignement)
 {
 	#define ALIGNED_STRUCT(NAME,ALIGN) struct alignas(ALIGN) NAME { char thing = 0; }
 	ALIGNED_STRUCT(Aligned2,  2);
@@ -97,7 +97,7 @@ TEST(LinearAllocatorTests, AlignementTest)
 }
 
 
-TEST(LinearAllocatorTests, ManualAllocationTest)
+TEST(LinearAllocatorTests, ManualAllocation)
 {
 	LinearAllocator<> alloc;
 	char *foo = static_cast<char*>(alloc.allocate(32));
@@ -121,7 +121,7 @@ TEST(LinearAllocatorTests, ManualAllocationTest)
 
 // This test checks that an object of the size of the pool 
 // fits in a pool without throwing errors.
-TEST(LinearAllocatorTests, LargeObjectTest)
+TEST(LinearAllocatorTests, LargeObject)
 {
 	LinearAllocator<200> alloc;
 	std::uint8_t *buff = static_cast<std::uint8_t*>(alloc.allocate(200));
