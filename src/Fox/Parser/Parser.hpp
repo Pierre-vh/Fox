@@ -100,7 +100,7 @@ namespace fox
 
 			// STATEMENTS
 			StmtResult parseReturnStmt();
-			StmtResult parseExprStmt();
+			NodeResult parseExprStmt();
 			StmtResult parseCompoundStatement(bool isMandatory=false);
 			NodeResult parseStmt();
 			NodeResult parseBody();
@@ -269,7 +269,7 @@ namespace fox
 			class Result
 			{
 				public:
-					Result(DataTy res, const SourceRange& range = SourceRange()) 
+					Result(const DataTy& res, const SourceRange& range = SourceRange()) 
 						: result_(res), hasData_(true), successFlag_(true), range_(range)
 					{
 

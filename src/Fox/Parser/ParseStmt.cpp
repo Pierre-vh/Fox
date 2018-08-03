@@ -34,13 +34,14 @@ Parser::StmtResult Parser::parseCompoundStatement(bool isMandatory)
 			break;
 
 		// try to parse a statement
-		if(auto stmt = parseStmt())
+		if(auto res = parseStmt())
 		{
 			// Push only if we don't have a standalone NullStmt
 			// this is done to avoid stacking them up, and since they're a no-op in all cases
 			// it's meaningless to ignore them.
-			if (!stmt.get().isNullStmt())
-				rtr->addNode(stmt.get());
+			ASTNode node = res.get();
+			if(!node.isNullStmt())
+				rtr->addNode(node);
 		}
 		// failure
 		else
@@ -127,8 +128,8 @@ Parser::StmtResult Parser::parseCondition()
 {
 	// <condition>	= "if"	<parens_expr> <body> ["else" <body>]
 	Expr* expr = nullptr;
-	ASTNode ifBody;
-	ASTNode elseBody;
+	ASTNode then_node;
+	ASTNode else_node;
 
 	// "if"
 	auto ifKw = consumeKeyword(KeywordType::KW_IF);
@@ -155,8 +156,8 @@ Parser::StmtResult Parser::parseCondition()
 	// <body>
 	if (auto body = parseBody())
 	{
-		ifBody = body.get();
-		endLoc = ifBody.getEndLoc();
+		then_node = body.get();
+		endLoc = then_node.getEndLoc();
 	}
 	else
 	{
@@ -172,8 +173,8 @@ Parser::StmtResult Parser::parseCondition()
 		// <body>
 		if (auto body = parseBody())
 		{
-			elseBody = body.get();
-			endLoc = elseBody.getEndLoc();
+			else_node = body.get();
+			endLoc = else_node.getEndLoc();
 		}
 		else
 		{
@@ -183,10 +184,10 @@ Parser::StmtResult Parser::parseCondition()
 		}
 	}
 
-	assert(begLoc && endLoc && ifHeadEndLoc && "Incomplete loc info");
+	assert(expr && then_node && begLoc && endLoc && ifHeadEndLoc && "Incomplete loc/nodes!");
 
 	return StmtResult(
-		new(ctxt_) ConditionStmt(expr, ifBody, elseBody, begLoc, ifHeadEndLoc, endLoc)
+		new(ctxt_) ConditionStmt(expr, then_node, else_node, begLoc, ifHeadEndLoc, endLoc)
 	);
 }
 
@@ -241,7 +242,7 @@ Parser::NodeResult Parser::parseStmt()
 
 	// <expr_stmt>
 	if (auto exprstmt = parseExprStmt())
-		return NodeResult(ASTNode(exprstmt.get()));
+		return exprstmt;
 	else if (!exprstmt.wasSuccessful())
 		return NodeResult::Error();
 
@@ -263,7 +264,7 @@ Parser::NodeResult Parser::parseStmt()
 	else if(!rtrstmt.wasSuccessful())
 		return NodeResult::Error();
 
-	return NodeResult::Error();
+	return NodeResult::NotFound();
 }
 
 Parser::NodeResult Parser::parseBody()
@@ -285,13 +286,16 @@ Parser::NodeResult Parser::parseBody()
 	return NodeResult::NotFound();
 }
 
-Parser::StmtResult Parser::parseExprStmt()
+Parser::NodeResult Parser::parseExprStmt()
 {
 	// <expr_stmt>	= ';' | <expr> ';' 	
 
 	// ';'
 	if (auto semi = consumeSign(SignType::S_SEMICOLON))
-		return StmtResult(new(ctxt_) NullStmt(semi));
+	{
+		Stmt* nullstmt = new(ctxt_) NullStmt(semi);
+		return NodeResult(ASTNode(nullstmt));
+	}
 
 	// <expr> 
 	else if (auto expr = parseExpr())
@@ -303,19 +307,22 @@ Parser::StmtResult Parser::parseExprStmt()
 				reportErrorExpected(DiagID::parser_expected_semi);
 
 			if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
-				return StmtResult::Error();
+				return NodeResult::Error();
 			// if recovery was successful, just return like nothing has happened!
 		}
 
-		return StmtResult(expr.get());
+		return NodeResult(ASTNode(expr.get()));
 	}
 	else if(!expr.wasSuccessful())
 	{
 		// if the expression had an error, ignore it and try to recover to a semi.
 		if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ false))
-			return StmtResult(new (ctxt_) NullStmt(consumeSign(SignType::S_SEMICOLON)));
-		return StmtResult::Error();
+		{
+			Stmt* nullstmt = new (ctxt_) NullStmt(consumeSign(SignType::S_SEMICOLON));
+			return NodeResult(ASTNode(nullstmt));
+		}
+		return NodeResult::Error();
 	}
 
-	return StmtResult::NotFound();
+	return NodeResult::NotFound();
 }
