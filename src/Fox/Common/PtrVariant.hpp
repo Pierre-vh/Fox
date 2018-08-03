@@ -105,6 +105,13 @@ namespace fox
 				idx_ = indexOf<T>::value;
 			}
 
+			// Sets the pointer to null and the index to 0
+			void reset()
+			{
+				index_ = 0;
+				ptr_ = nullptr;
+			}
+
 			// Getter that asserts the it's the correct type
 			template<typename T, typename enableIf_hasType<T>::type = 0>
 			T* get() const
@@ -120,6 +127,11 @@ namespace fox
 				if (idx_ == indexOf<T>::value)
 					return static_cast<T*>(ptr_);
 				return nullptr;
+			}
+
+			bool isNull() const
+			{
+				return ptr_ == null;
 			}
 
 			// Getter that returns an opaque pointer (void*)
