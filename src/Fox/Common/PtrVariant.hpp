@@ -166,7 +166,7 @@ namespace fox
 			// Bool
 			explicit operator bool() const
 			{
-				return isNull();
+				return !isNull();
 			}
 
 			// Comparison
