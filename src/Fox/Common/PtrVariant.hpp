@@ -16,7 +16,7 @@
 #pragma once
 
 #include <type_traits>
-#include <cstddef>
+#include <cstdint>
 #include <cassert>
 
 namespace fox
