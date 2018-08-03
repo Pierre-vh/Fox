@@ -105,13 +105,6 @@ namespace fox
 				idx_ = indexOf<T>::value;
 			}
 
-			// Sets the pointer to null and the index to 0
-			void reset()
-			{
-				index_ = 0;
-				ptr_ = nullptr;
-			}
-
 			// Getter that asserts the it's the correct type
 			template<typename T, typename enableIf_hasType<T>::type = 0>
 			T* get() const
@@ -127,11 +120,6 @@ namespace fox
 				if (idx_ == indexOf<T>::value)
 					return static_cast<T*>(ptr_);
 				return nullptr;
-			}
-
-			bool isNull() const
-			{
-				return ptr_ == null;
 			}
 
 			// Getter that returns an opaque pointer (void*)
@@ -163,10 +151,10 @@ namespace fox
 				ptr_ = other.ptr_;
 			}
 
-			// Bool
-			explicit operator bool() const
+			// Bool (checks if the variant is not null)
+			operator bool() const
 			{
-				return !isNull();
+				return (ptr_ != nullptr);
 			}
 
 			// Comparison
@@ -176,8 +164,7 @@ namespace fox
 				return ptr_ == other.ptr_;
 			}
 
-			template<typename T>
-			bool operator== (const T* other) const
+			bool operator== (const void* other) const
 			{
 				return ptr_ == other;
 			}
@@ -187,8 +174,7 @@ namespace fox
 				return ptr_ != other.ptr_;
 			}
 
-			template<typename T>
-			bool operator!= (const T* other) const
+			bool operator!= (const void* other) const
 			{
 				return ptr_ != other;
 			}
@@ -200,14 +186,14 @@ namespace fox
 	};
 
 	// Commutative versions of PtrVariant's comparison operators with pointers
-	template<typename Ptr, typename ... Args>
-	bool operator== (const Ptr* lhs, const PtrVariant<Args...> &rhs)
+	template<typename ... Args>
+	bool operator== (const void* lhs, const PtrVariant<Args...> &rhs)
 	{
 		return lhs == rhs.getOpaque();
 	}
 
-	template<typename Ptr, typename ... Args>
-	bool operator!= (const Ptr* lhs, const PtrVariant<Args...> &rhs)
+	template<typename ... Args>
+	bool operator!= (const void* lhs, const PtrVariant<Args...> &rhs)
 	{
 		return lhs != rhs.getOpaque();
 	}
