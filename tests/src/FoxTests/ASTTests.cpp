@@ -278,51 +278,42 @@ TEST(ASTTests, ExprRTTI)
 
 	// Binary Exprs
 	BinaryExpr binexpr;
-	EXPECT_EQ(binexpr.getKind(), StmtKind::BinaryExpr);
-	EXPECT_TRUE(Expr::classof(&binexpr));
+	EXPECT_EQ(binexpr.getKind(), ExprKind::BinaryExpr);
 	EXPECT_TRUE(BinaryExpr::classof(&binexpr));
 
 	// Unary Exprs
 	UnaryExpr unaryexpr;
-	EXPECT_EQ(unaryexpr.getKind(), StmtKind::UnaryExpr);
-	EXPECT_TRUE(Expr::classof(&unaryexpr));
+	EXPECT_EQ(unaryexpr.getKind(), ExprKind::UnaryExpr);
 	EXPECT_TRUE(UnaryExpr::classof(&unaryexpr));
 
 	// Cast Exprs
 	CastExpr castexpr;
-	EXPECT_EQ(castexpr.getKind(), StmtKind::CastExpr);
-	EXPECT_TRUE(Expr::classof(&castexpr));
+	EXPECT_EQ(castexpr.getKind(), ExprKind::CastExpr);
 	EXPECT_TRUE(CastExpr::classof(&castexpr));
 
 	// Literals
 	CharLiteralExpr	charlit;
-	EXPECT_EQ(charlit.getKind(), StmtKind::CharLiteralExpr);
-	EXPECT_TRUE(Expr::classof(&charlit));
+	EXPECT_EQ(charlit.getKind(), ExprKind::CharLiteralExpr);
 	EXPECT_TRUE(CharLiteralExpr::classof(&charlit));
 
 	IntegerLiteralExpr intlit;
-	EXPECT_EQ(intlit.getKind(),  StmtKind::IntegerLiteralExpr);
-	EXPECT_TRUE(Expr::classof(&intlit));
+	EXPECT_EQ(intlit.getKind(), ExprKind::IntegerLiteralExpr);
 	EXPECT_TRUE(IntegerLiteralExpr::classof(&intlit));
 
 	FloatLiteralExpr floatlit;
-	EXPECT_EQ(floatlit.getKind(),StmtKind::FloatLiteralExpr);
-	EXPECT_TRUE(Expr::classof(&floatlit));
+	EXPECT_EQ(floatlit.getKind(), ExprKind::FloatLiteralExpr);
 	EXPECT_TRUE(FloatLiteralExpr::classof(&floatlit));
 
 	StringLiteralExpr strlit;
-	EXPECT_EQ(strlit.getKind(),  StmtKind::StringLiteralExpr);
-	EXPECT_TRUE(Expr::classof(&strlit));
+	EXPECT_EQ(strlit.getKind(), ExprKind::StringLiteralExpr);
 	EXPECT_TRUE(StringLiteralExpr::classof(&strlit));
 
 	BoolLiteralExpr	boollit;
-	EXPECT_EQ(boollit.getKind(), StmtKind::BoolLiteralExpr);
-	EXPECT_TRUE(Expr::classof(&boollit));
+	EXPECT_EQ(boollit.getKind(), ExprKind::BoolLiteralExpr);
 	EXPECT_TRUE(BoolLiteralExpr::classof(&boollit));
 
 	ArrayLiteralExpr arrlit;
-	EXPECT_EQ(arrlit.getKind(),  StmtKind::ArrayLiteralExpr);
-	EXPECT_TRUE(Expr::classof(&arrlit));
+	EXPECT_EQ(arrlit.getKind(), ExprKind::ArrayLiteralExpr);
 	EXPECT_TRUE(ArrayLiteralExpr::classof(&arrlit));
 
 	// Helper
@@ -330,26 +321,22 @@ TEST(ASTTests, ExprRTTI)
 
 	// DeclRef
 	DeclRefExpr declref;
-	EXPECT_EQ(declref.getKind(), StmtKind::DeclRefExpr);
-	EXPECT_TRUE(Expr::classof(&declref));
+	EXPECT_EQ(declref.getKind(), ExprKind::DeclRefExpr);
 	EXPECT_TRUE(DeclRefExpr::classof(&declref));
 
 	// MemberOfExpr
 	MemberOfExpr membof;
-	EXPECT_EQ(membof.getKind(), StmtKind::MemberOfExpr);
-	EXPECT_TRUE(Expr::classof(&membof));
+	EXPECT_EQ(membof.getKind(), ExprKind::MemberOfExpr);
 	EXPECT_TRUE(MemberOfExpr::classof(&membof));
 
 	// Array Access
 	ArrayAccessExpr arracc;
-	EXPECT_EQ(arracc.getKind(), StmtKind::ArrayAccessExpr);
-	EXPECT_TRUE(Expr::classof(&arracc));
+	EXPECT_EQ(arracc.getKind(), ExprKind::ArrayAccessExpr);
 	EXPECT_TRUE(ArrayAccessExpr::classof(&arracc));
 
 	// Function calls
 	FunctionCallExpr callexpr;
-	EXPECT_EQ(callexpr.getKind(), StmtKind::FunctionCallExpr);
-	EXPECT_TRUE(Expr::classof(&callexpr));
+	EXPECT_EQ(callexpr.getKind(), ExprKind::FunctionCallExpr);
 	EXPECT_TRUE(FunctionCallExpr::classof(&callexpr));
 }
 
@@ -358,40 +345,27 @@ TEST(ASTTests, StmtRTTI)
 	// NullStmt
 	NullStmt null;
 	EXPECT_EQ(null.getKind(), StmtKind::NullStmt);
-	EXPECT_FALSE(Expr::classof(&null));
 	EXPECT_TRUE(NullStmt::classof(&null));
 
 	// Return stmt
 	ReturnStmt rtr;
 	EXPECT_EQ(rtr.getKind(), StmtKind::ReturnStmt);
-	EXPECT_FALSE(Expr::classof(&rtr));
 	EXPECT_TRUE(ReturnStmt::classof(&rtr));
 
 	// Condition
 	ConditionStmt cond;
 	EXPECT_EQ(cond.getKind(), StmtKind::ConditionStmt);
-	EXPECT_FALSE(Expr::classof(&cond));
 	EXPECT_TRUE(ConditionStmt::classof(&cond));
 
 	// Compound
 	CompoundStmt compound;
 	EXPECT_EQ(compound.getKind(), StmtKind::CompoundStmt);
-	EXPECT_FALSE(Expr::classof(&compound));
 	EXPECT_TRUE(CompoundStmt::classof(&compound));
 
 	// While
 	WhileStmt whilestmt;
 	EXPECT_EQ(whilestmt.getKind(), StmtKind::WhileStmt);
-	EXPECT_FALSE(Expr::classof(&whilestmt));
 	EXPECT_TRUE(WhileStmt::classof(&whilestmt));
-
-	// declstmt
-	ASTContext ctxt;
-	auto tmp = new(ctxt) VarDecl();
-	DeclStmt declstmt(tmp); /* The arg passed to a DeclStmt cannot be null */
-	EXPECT_EQ(declstmt.getKind(), StmtKind::DeclStmt);
-	EXPECT_FALSE(Expr::classof(&declstmt));
-	EXPECT_TRUE(DeclStmt::classof(&declstmt));
 }
 
 TEST(ASTTests, DeclRTTI)
