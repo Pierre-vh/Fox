@@ -21,11 +21,6 @@ Stmt::Stmt(StmtKind skind, const SourceLoc& begLoc, const SourceLoc& endLoc) : k
 
 }
 
-bool Stmt::isExpr() const
-{
-	return false;
-}
-
 StmtKind Stmt::getKind() const
 {
 	return kind_;
@@ -125,15 +120,16 @@ void ReturnStmt::setExpr(Expr* e)
 }
 
 // Condition (if-then-else) statement
-ConditionStmt::ConditionStmt() : ConditionStmt(nullptr,nullptr,nullptr,SourceLoc(),SourceLoc(),SourceLoc())
+ConditionStmt::ConditionStmt() 
+	: ConditionStmt(nullptr, ASTNode(), ASTNode(), SourceLoc(), SourceLoc(), SourceLoc())
 {
 
 }
 
-ConditionStmt::ConditionStmt(Expr* cond, Stmt* then, Stmt* elsestmt,
+ConditionStmt::ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
 	const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc)
 	: Stmt(StmtKind::ConditionStmt, begLoc, endLoc), cond_(cond), then_(then), 
-	  else_(elsestmt), ifHeadEndLoc_(ifHeaderEndLoc)
+	  else_(elsenode), ifHeadEndLoc_(ifHeaderEndLoc)
 {
 
 }
@@ -153,12 +149,12 @@ Expr* ConditionStmt::getCond()
 	return cond_;
 }
 
-Stmt* ConditionStmt::getThen()
+ASTNode ConditionStmt::getThen()
 {
 	return then_;
 }
 
-Stmt* ConditionStmt::getElse()
+ASTNode ConditionStmt::getElse()
 {
 	return else_;
 }
@@ -168,12 +164,12 @@ const Expr* ConditionStmt::getCond() const
 	return cond_;
 }
 
-const Stmt* ConditionStmt::getThen() const
+const ASTNode ConditionStmt::getThen() const
 {
 	return then_;
 }
 
-const Stmt* ConditionStmt::getElse() const
+const ASTNode ConditionStmt::getElse() const
 {
 	return else_;
 }
@@ -183,14 +179,14 @@ void ConditionStmt::setCond(Expr* expr)
 	cond_ = expr;
 }
 
-void ConditionStmt::setThen(Stmt* then)
+void ConditionStmt::setThen(ASTNode node)
 {
-	then_ = then;
+	then_ = node;
 }
 
-void ConditionStmt::setElse(Stmt* stmt)
+void ConditionStmt::setElse(ASTNode node)
 {
-	else_ = stmt;
+	else_ = node;
 }
 
 void ConditionStmt::setIfHeaderEndLoc(const SourceLoc& sloc)
@@ -219,61 +215,61 @@ CompoundStmt::CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc) : S
 
 }
 
-Stmt* CompoundStmt::getStmt(std::size_t ind)
+ASTNode CompoundStmt::getNode(std::size_t ind)
 {
-	assert(ind < stmts_.size() && "out-of-range");
-	return stmts_[ind];
+	assert(ind < nodes_.size() && "out-of-range");
+	return nodes_[ind];
 }
 
-const Stmt* CompoundStmt::getStmt(std::size_t ind) const
+const ASTNode CompoundStmt::getNode(std::size_t ind) const
 {
-	assert(ind < stmts_.size() && "out-of-range");
-	return stmts_[ind];
+	assert(ind < nodes_.size() && "out-of-range");
+	return nodes_[ind];
 }
 
-Stmt* CompoundStmt::getBack()
+ASTNode CompoundStmt::getBack()
 {
-	return stmts_.back();
+	return nodes_.back();
 }
 
-const Stmt* CompoundStmt::getBack() const
+const ASTNode CompoundStmt::getBack() const
 {
-	return stmts_.back();
+	return nodes_.back();
 }
 
-void CompoundStmt::addStmt(Stmt* stmt)
+void CompoundStmt::addNode(ASTNode node)
 {
-	stmts_.push_back(stmt);
+	nodes_.push_back(node);
 }
 
 bool CompoundStmt::isEmpty() const
 {
-	return !(stmts_.size());
+	return !(nodes_.size());
 }
 
 std::size_t CompoundStmt::size() const
 {
-	return stmts_.size();
+	return nodes_.size();
 }
 
-CompoundStmt::StmtVecIter CompoundStmt::stmts_beg()
+CompoundStmt::NodeVecTy::iterator CompoundStmt::nodes_begin()
 {
-	return stmts_.begin();
+	return nodes_.begin();
 }
 
-CompoundStmt::StmtVecIter CompoundStmt::stmts_end()
+CompoundStmt::NodeVecTy::iterator CompoundStmt::nodes_end()
 {
-	return stmts_.end();
+	return nodes_.end();
 }
 
-CompoundStmt::StmtVecConstIter CompoundStmt::stmts_beg() const
+CompoundStmt::NodeVecTy::const_iterator CompoundStmt::nodes_begin() const
 {
-	return stmts_.begin();
+	return nodes_.begin();
 }
 
-CompoundStmt::StmtVecConstIter CompoundStmt::stmts_end() const
+CompoundStmt::NodeVecTy::const_iterator CompoundStmt::nodes_end() const
 {
-	return stmts_.end();
+	return nodes_.end();
 }
 
 void CompoundStmt::setSourceLocs(const SourceLoc & begLoc, const SourceLoc & endLoc)
@@ -283,12 +279,12 @@ void CompoundStmt::setSourceLocs(const SourceLoc & begLoc, const SourceLoc & end
 }
 
 // While stmt
-WhileStmt::WhileStmt() : WhileStmt(nullptr,nullptr,SourceLoc(),SourceLoc(),SourceLoc())
+WhileStmt::WhileStmt() : WhileStmt(nullptr, ASTNode(), SourceLoc(), SourceLoc(), SourceLoc())
 {
 
 }
 
-WhileStmt::WhileStmt(Expr* cond, Stmt* body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc) :
+WhileStmt::WhileStmt(Expr* cond, ASTNode body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc) :
 	Stmt(StmtKind::WhileStmt,begLoc,endLoc), headerEndLoc_(headerEndLoc), cond_(cond), body_(body)
 {
 
@@ -299,7 +295,7 @@ Expr* WhileStmt::getCond()
 	return cond_;
 }
 
-Stmt* WhileStmt::getBody()
+ASTNode WhileStmt::getBody()
 {
 	return body_;
 }
@@ -309,7 +305,7 @@ const Expr* WhileStmt::getCond() const
 	return cond_;
 }
 
-const Stmt* WhileStmt::getBody() const
+const ASTNode WhileStmt::getBody() const
 {
 	return body_;
 }
@@ -319,7 +315,7 @@ void WhileStmt::setCond(Expr* cond)
 	cond_ = cond;
 }
 
-void WhileStmt::setBody(Stmt* body)
+void WhileStmt::setBody(ASTNode body)
 {
 	body_ = body;
 }
@@ -332,33 +328,4 @@ SourceLoc WhileStmt::getHeaderEndLoc() const
 SourceRange WhileStmt::getHeaderRange() const
 {
 	return SourceRange(getBegLoc(),headerEndLoc_);
-}
-
-// DeclStmt
-DeclStmt::DeclStmt(Decl* decl) : Stmt(StmtKind::DeclStmt,SourceLoc(),SourceLoc())
-{
-	setDecl(decl);
-}
-
-bool DeclStmt::hasDecl() const
-{
-	return (bool)decl_;
-}
-
-Decl*  DeclStmt::getDecl()
-{
-	return decl_;
-}
-
-const Decl* DeclStmt::getDecl() const
-{
-	return decl_;
-}
-
-void DeclStmt::setDecl(Decl* decl)
-{
-	assert(decl && "The Decl cannot be null!");
-	decl_ = decl;
-	setBegLoc(decl_->getBegLoc());
-	setEndLoc(decl_->getEndLoc());
 }

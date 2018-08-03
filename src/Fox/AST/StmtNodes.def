@@ -21,16 +21,6 @@
 	#define ABSTRACT_STMT(ID,PARENT)
 #endif
 
-// Range of stmts derived from another stmt.
-#ifndef STMT_RANGE
-	#define STMT_RANGE(ID,FIRST,LAST)
-#endif
-
-// Concrete classes of Expr
-#ifndef EXPR
-	#define EXPR(ID,PARENT) STMT(ID,PARENT)
-#endif
-
 /* Macros */
 
 // Basic statements
@@ -39,34 +29,6 @@ STMT(ReturnStmt,Stmt)
 STMT(ConditionStmt,Stmt)
 STMT(CompoundStmt,Stmt)
 STMT(WhileStmt,Stmt)
-
-// DeclStmt wrapper/adaptator
-STMT(DeclStmt,Stmt)
-
-// Expressions
-ABSTRACT_STMT(Expr,Stmt)
-	// Parens Expr
-	EXPR(ParensExpr,Expr)
-
-	// Basic operations
-	EXPR(BinaryExpr,Expr)
-	EXPR(UnaryExpr,Expr)
-	EXPR(CastExpr,Expr)
-	EXPR(ArrayAccessExpr,Expr)
-
-	// Literals
-	EXPR(CharLiteralExpr,Expr)
-	EXPR(BoolLiteralExpr,Expr)
-	EXPR(IntegerLiteralExpr,Expr)
-	EXPR(FloatLiteralExpr,Expr)
-	EXPR(StringLiteralExpr,Expr)
-	EXPR(ArrayLiteralExpr,Expr)
-
-	// DeclRef & Function calls
-	EXPR(DeclRefExpr,Expr)
-	EXPR(MemberOfExpr,Expr)
-	EXPR(FunctionCallExpr,Expr)
-	STMT_RANGE(Expr,ParensExpr,FunctionCallExpr)
 
 /* Undef */
 

@@ -9,8 +9,9 @@
 
 #pragma once
 #include "Fox/Common/Typedefs.hpp"
-#include "Fox/AST/Stmt.hpp"
 #include "Fox/AST/Type.hpp"
+#include "Fox/Common/Source.hpp"
+#include <vector>
 
 namespace fox	
 {
@@ -58,19 +59,44 @@ namespace fox
 		std::string getName(const UnaryOperator& op);
 	}
 
-	class IdentifierInfo;
+	// The ExprKind enum
+	enum class ExprKind : std::uint8_t
+	{
+		#define EXPR(ID,PARENT) ID,
+		#include "ExprNodes.def"
+	};
 
-	// base expression 
-	class Expr : public Stmt
+	class IdentifierInfo;
+	class ASTContext;
+
+	// Base class for every expression.
+	class Expr
 	{
 		public:
-			static bool classof(const Stmt* stmt)
-			{
-				return ((stmt->getKind() >= StmtKind::First_Expr) && (stmt->getKind() <= StmtKind::Last_Expr));
-			}
+			ExprKind getKind() const;
+
+			SourceRange getRange() const;
+
+			SourceLoc getBegLoc() const;
+			SourceLoc getEndLoc() const;
+
+			// Prohibit the use of builtin placement new & delete
+			void *operator new(std::size_t) throw() = delete;
+			void operator delete(void *) throw() = delete;
+			void* operator new(std::size_t, void*) = delete;
+
+			// Only allow allocation through the ASTContext
+			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Expr));
+
+			// Companion operator delete to silence C4291 on MSVC
+			void operator delete(void*, ASTContext&, std::uint8_t) {}
 
 		protected:
-			Expr(StmtKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			Expr(ExprKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+
+		private:
+			const ExprKind kind_;
+			SourceRange range_;
 	};
 
 	// Binary Expressions
@@ -95,9 +121,9 @@ namespace fox
 
 			SourceRange getOpRange() const;
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::BinaryExpr);
+				return (expr->getKind() == ExprKind::BinaryExpr);
 			}
 
 		private:
@@ -123,9 +149,9 @@ namespace fox
 
 			SourceRange getOpRange() const;
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::UnaryExpr);
+				return (expr->getKind() == ExprKind::UnaryExpr);
 			}
 
 		private:
@@ -151,9 +177,9 @@ namespace fox
 
 			SourceRange getTypeRange() const;
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::CastExpr);
+				return (expr->getKind() == ExprKind::CastExpr);
 			}
 
 		private:
@@ -172,9 +198,9 @@ namespace fox
 			CharType getVal() const;
 			void setVal(CharType val);
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::CharLiteralExpr);
+				return (expr->getKind() == ExprKind::CharLiteralExpr);
 			}
 
 		private:
@@ -190,9 +216,9 @@ namespace fox
 			IntType getVal() const;
 			void setVal(IntType val);
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::IntegerLiteralExpr);
+				return (expr->getKind() == ExprKind::IntegerLiteralExpr);
 			}
 
 		private:
@@ -208,9 +234,9 @@ namespace fox
 			FloatType getVal() const;
 			void setVal(FloatType val);
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::FloatLiteralExpr);
+				return (expr->getKind() == ExprKind::FloatLiteralExpr);
 			}
 
 		private:
@@ -226,9 +252,9 @@ namespace fox
 			std::string getVal() const;
 			void setVal(const std::string& val);
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::StringLiteralExpr);
+				return (expr->getKind() == ExprKind::StringLiteralExpr);
 			}
 
 		private:
@@ -244,9 +270,9 @@ namespace fox
 			bool getVal() const;
 			void setVal(bool val);
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::BoolLiteralExpr);
+				return (expr->getKind() == ExprKind::BoolLiteralExpr);
 			}
 
 		private:
@@ -268,9 +294,9 @@ namespace fox
 			std::size_t getSize() const;
 			bool isEmpty() const;
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::ArrayLiteralExpr);
+				return (expr->getKind() == ExprKind::ArrayLiteralExpr);
 			}
 
 		private:
@@ -288,9 +314,9 @@ namespace fox
 			const IdentifierInfo * getIdentifier() const;
 			void setDeclIdentifier(IdentifierInfo * id);
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::DeclRefExpr);
+				return (expr->getKind() == ExprKind::DeclRefExpr);
 			}
 
 		private:
@@ -316,9 +342,9 @@ namespace fox
 
 			SourceLoc getDotLoc() const;
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::MemberOfExpr);
+				return (expr->getKind() == ExprKind::MemberOfExpr);
 			}
 
 		private:
@@ -343,9 +369,9 @@ namespace fox
 			const Expr* getBase() const;
 			const Expr* getAccessIndexExpr() const;
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::ArrayAccessExpr);
+				return (expr->getKind() == ExprKind::ArrayAccessExpr);
 			}
 
 		private:
@@ -374,9 +400,9 @@ namespace fox
 			ExprVector::iterator args_end();
 			ExprVector::const_iterator args_end() const;
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::FunctionCallExpr);
+				return (expr->getKind() == ExprKind::FunctionCallExpr);
 			}
 
 		private:
@@ -395,9 +421,9 @@ namespace fox
 			const Expr* getExpr() const;
 			void setExpr(Expr* expr);
 
-			static bool classof(const Stmt* stmt)
+			static bool classof(const Expr* expr)
 			{
-				return (stmt->getKind() == StmtKind::ParensExpr);
+				return (expr->getKind() == ExprKind::ParensExpr);
 			}
 
 		private:

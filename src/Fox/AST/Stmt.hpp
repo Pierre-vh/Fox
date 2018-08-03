@@ -9,8 +9,9 @@
 
 #pragma once
 
-#include "Fox/Common/Iterators.hpp"
 #include "Fox/Common/Source.hpp"
+#include "ASTNode.hpp"
+#include <vector>
 
 namespace fox
 {
@@ -42,10 +43,6 @@ namespace fox
 	class Stmt
 	{
 		public:
-			virtual ~Stmt() = 0 {};
-
-			bool isExpr() const;
-
 			StmtKind getKind() const;
 
 			SourceRange getRange() const;
@@ -111,6 +108,7 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::ReturnStmt);
 			}
+
 		private:
 			Expr* expr_ = nullptr;
 	};
@@ -120,23 +118,23 @@ namespace fox
 	{
 		public:
 			ConditionStmt();
-			ConditionStmt(Expr* cond, Stmt* then, Stmt* elsestmt,
+			ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
 				const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc);
 
 			bool isValid() const;
 			bool hasElse() const;
 
 			Expr* getCond();
-			Stmt* getThen();
-			Stmt* getElse();
+			ASTNode getThen();
+			ASTNode getElse();
 
 			const Expr* getCond() const;
-			const Stmt* getThen() const;
-			const Stmt* getElse() const;
+			const ASTNode getThen() const;
+			const ASTNode getElse() const;
 
 			void setCond(Expr* expr);
-			void setThen(Stmt* stmt);
-			void setElse(Stmt* stmt);
+			void setThen(ASTNode node);
+			void setElse(ASTNode node);
 
 			void setIfHeaderEndLoc(const SourceLoc& sloc);
 			SourceRange getIfHeaderRange() const;
@@ -146,41 +144,42 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::ConditionStmt);
 			}
+
 		private:
 			SourceLoc ifHeadEndLoc_;
 
 			Expr* cond_ = nullptr;
-			Stmt* then_ = nullptr;
-			Stmt* else_ = nullptr;
+			ASTNode then_, else_;
 	};
 
 	// A compound statement (statements between curly brackets)
 	class CompoundStmt : public Stmt
 	{
 		private:
-			using StmtVecTy = std::vector<Stmt*>;
-			using StmtVecIter = StmtVecTy::iterator;
-			using StmtVecConstIter = StmtVecTy::const_iterator;
+			using NodeVecTy = std::vector<ASTNode>;
+
 		public:
 			CompoundStmt();
 			CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			Stmt* getStmt(std::size_t ind);
-			const Stmt* getStmt(std::size_t ind) const;
+			// Returns a node
+			ASTNode getNode(std::size_t ind);
+			const ASTNode getNode(std::size_t ind) const;
 
-			Stmt* getBack();
-			const Stmt* getBack() const;
+			// Returns the last node
+			ASTNode getBack();
+			const ASTNode getBack() const;
 
-			void addStmt(Stmt* stmt);
+			void addNode(ASTNode stmt);
 
 			bool isEmpty() const;
 			std::size_t size() const;
 
-			StmtVecIter stmts_beg();
-			StmtVecIter stmts_end();
+			NodeVecTy::iterator nodes_begin();
+			NodeVecTy::iterator nodes_end();
 
-			StmtVecConstIter stmts_beg() const;
-			StmtVecConstIter stmts_end() const;
+			NodeVecTy::const_iterator nodes_begin() const;
+			NodeVecTy::const_iterator nodes_end() const;
 
 			// begLoc and endLoc = the locs of the curly brackets.
 			void setSourceLocs(const SourceLoc& begLoc, const SourceLoc& endLoc);
@@ -189,8 +188,9 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::CompoundStmt);
 			}
+
 		private:
-			StmtVecTy stmts_;
+			NodeVecTy nodes_;
 	};
 
 	// A while loop while(expr) <stmt>
@@ -198,16 +198,16 @@ namespace fox
 	{
 		public:
 			WhileStmt();
-			WhileStmt(Expr* cond, Stmt* body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc);
+			WhileStmt(Expr* cond, ASTNode body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc);
 
 			Expr* getCond();
-			Stmt* getBody();
+			ASTNode getBody();
 
 			const Expr* getCond() const;
-			const Stmt* getBody() const;
+			const ASTNode getBody() const;
 
 			void setCond(Expr* cond);
-			void setBody(Stmt* body);
+			void setBody(ASTNode body);
 
 			SourceLoc getHeaderEndLoc() const;
 			SourceRange getHeaderRange() const;
@@ -216,32 +216,11 @@ namespace fox
 			{
 				return (stmt->getKind() == StmtKind::WhileStmt);
 			}
+
 		private:
 			SourceLoc headerEndLoc_;
 			Expr* cond_ = nullptr;
-			Stmt* body_ = nullptr;
-	};
-
-	// Class used to mix Declarations & Statements without having decl inherit from stmt.
-	// This is just a wrapper around a Decl*
-	class DeclStmt : public Stmt
-	{
-		public:
-			DeclStmt(Decl* decl);
-
-			bool hasDecl() const;
-
-			Decl* getDecl();
-			const Decl* getDecl() const;
-
-			void setDecl(Decl* decl);
-
-			static bool classof(const Stmt* stmt)
-			{
-				return (stmt->getKind() == StmtKind::DeclStmt);
-			}
-		private:
-			Decl* decl_ = nullptr;			
+			ASTNode body_;
 	};
 }
 

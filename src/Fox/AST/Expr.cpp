@@ -9,11 +9,10 @@
 
 #include "Expr.hpp"
 #include "Identifiers.hpp"
-
-#include <tuple>
+#include "ASTContext.hpp"
+#include "Fox/Common/Errors.hpp"
 #include <map>
 #include <sstream> 
-#include <cassert>
 
 using namespace fox;
 
@@ -76,10 +75,36 @@ std::string operators::getName(const UnaryOperator & op)
 }
 
 // Expr
-Expr::Expr(StmtKind ekind, const SourceLoc& begLoc, const SourceLoc& endLoc) : Stmt(ekind,begLoc,endLoc)
+Expr::Expr(ExprKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc) : kind_(kind), range_(begLoc, endLoc)
 {
 
 }
+
+ExprKind Expr::getKind() const
+{
+	return kind_;
+}
+
+SourceRange Expr::getRange() const
+{
+	return range_;
+}
+
+SourceLoc Expr::getBegLoc() const
+{
+	return range_.getBegin();
+}
+
+SourceLoc Expr::getEndLoc() const
+{
+	return range_.getEnd();
+}
+
+void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
+{
+	return ctxt.getAllocator().allocate(sz, align);
+}
+
 
 // Literals : Char literals
 CharLiteralExpr::CharLiteralExpr() : CharLiteralExpr(0, SourceLoc(), SourceLoc())
@@ -88,7 +113,7 @@ CharLiteralExpr::CharLiteralExpr() : CharLiteralExpr(0, SourceLoc(), SourceLoc()
 }
 
 CharLiteralExpr::CharLiteralExpr(CharType val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
-	: val_(val), Expr(StmtKind::CharLiteralExpr,begLoc,endLoc)
+	: val_(val), Expr(ExprKind::CharLiteralExpr,begLoc,endLoc)
 {
 
 }
@@ -110,7 +135,7 @@ IntegerLiteralExpr::IntegerLiteralExpr() : IntegerLiteralExpr(0,SourceLoc(),Sour
 }
 
 IntegerLiteralExpr::IntegerLiteralExpr(IntType val, const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: val_(val), Expr(StmtKind::IntegerLiteralExpr,begLoc,endLoc)
+	: val_(val), Expr(ExprKind::IntegerLiteralExpr,begLoc,endLoc)
 {
 
 }
@@ -132,7 +157,7 @@ FloatLiteralExpr::FloatLiteralExpr() : FloatLiteralExpr(0,SourceLoc(),SourceLoc(
 }
 
 FloatLiteralExpr::FloatLiteralExpr(FloatType val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
-	: val_(val), Expr(StmtKind::FloatLiteralExpr,begLoc,endLoc)
+	: val_(val), Expr(ExprKind::FloatLiteralExpr,begLoc,endLoc)
 {
 
 }
@@ -154,7 +179,7 @@ StringLiteralExpr::StringLiteralExpr() : StringLiteralExpr("",SourceLoc(),Source
 }
 
 StringLiteralExpr::StringLiteralExpr(const std::string & val, const SourceLoc& begLoc, const SourceLoc& endLoc) 
-	: val_(val), Expr(StmtKind::StringLiteralExpr,begLoc,endLoc)
+	: val_(val), Expr(ExprKind::StringLiteralExpr,begLoc,endLoc)
 {
 
 }
@@ -176,7 +201,7 @@ BoolLiteralExpr::BoolLiteralExpr() : BoolLiteralExpr(false,SourceLoc(),SourceLoc
 }
 
 BoolLiteralExpr::BoolLiteralExpr(bool val, const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: val_(val), Expr(StmtKind::BoolLiteralExpr,begLoc,endLoc)
+	: val_(val), Expr(ExprKind::BoolLiteralExpr,begLoc,endLoc)
 {
 
 }
@@ -197,7 +222,7 @@ ArrayLiteralExpr::ArrayLiteralExpr() : ArrayLiteralExpr(ExprVector(), SourceLoc(
 }
 
 ArrayLiteralExpr::ArrayLiteralExpr(ExprVector&& exprs, const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: exprs_(exprs), Expr(StmtKind::ArrayLiteralExpr,begLoc,endLoc)
+	: exprs_(exprs), Expr(ExprKind::ArrayLiteralExpr,begLoc,endLoc)
 {
 
 }
@@ -234,7 +259,7 @@ BinaryExpr::BinaryExpr() : BinaryExpr(BinaryOperator::DEFAULT,nullptr,nullptr,So
 }
 
 BinaryExpr::BinaryExpr(BinaryOperator opt, Expr* lhs, Expr* rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
-	op_(opt), Expr(StmtKind::BinaryExpr, begLoc, endLoc), opRange_(opRange), lhs_(lhs), rhs_(rhs)
+	op_(opt), Expr(ExprKind::BinaryExpr, begLoc, endLoc), opRange_(opRange), lhs_(lhs), rhs_(rhs)
 {
 
 }
@@ -291,7 +316,7 @@ UnaryExpr::UnaryExpr() : UnaryExpr(UnaryOperator::DEFAULT,nullptr,SourceLoc(),So
 }
 
 UnaryExpr::UnaryExpr(UnaryOperator opt, Expr* expr, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc)
-	: op_(opt), Expr(StmtKind::UnaryExpr,begLoc,endLoc), opRange_(opRange), expr_(expr)
+	: op_(opt), Expr(ExprKind::UnaryExpr,begLoc,endLoc), opRange_(opRange), expr_(expr)
 {
 }
 
@@ -332,7 +357,7 @@ CastExpr::CastExpr() : CastExpr(nullptr,nullptr,SourceLoc(),SourceRange(),Source
 }
 
 CastExpr::CastExpr(Type* castGoal, Expr* expr,const SourceLoc& begLoc, const SourceRange& typeRange, const SourceLoc& endLoc):
-	goal_(castGoal), expr_(expr), Expr(StmtKind::CastExpr,begLoc,endLoc), typeRange_(typeRange)
+	goal_(castGoal), expr_(expr), Expr(ExprKind::CastExpr,begLoc,endLoc), typeRange_(typeRange)
 {
 
 }
@@ -378,7 +403,7 @@ DeclRefExpr::DeclRefExpr() : DeclRefExpr(nullptr,SourceLoc(),SourceLoc())
 }
 
 DeclRefExpr::DeclRefExpr(IdentifierInfo * declid, const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: declId_(declid), Expr(StmtKind::DeclRefExpr,begLoc,endLoc)
+	: declId_(declid), Expr(ExprKind::DeclRefExpr,begLoc,endLoc)
 {
 
 }
@@ -405,7 +430,7 @@ FunctionCallExpr::FunctionCallExpr() : FunctionCallExpr(nullptr, ExprVector(), S
 }
 
 FunctionCallExpr::FunctionCallExpr(Expr* callee, ExprVector&& args, const SourceLoc& begLoc, const SourceLoc& endLoc):
-	callee_(callee), args_(args), Expr(StmtKind::FunctionCallExpr,begLoc,endLoc)
+	callee_(callee), args_(args), Expr(ExprKind::FunctionCallExpr,begLoc,endLoc)
 {
 }
 
@@ -466,7 +491,7 @@ MemberOfExpr::MemberOfExpr() : MemberOfExpr(nullptr,nullptr,SourceLoc(),SourceLo
 
 MemberOfExpr::MemberOfExpr(Expr* base, IdentifierInfo * idInfo,
 	const SourceLoc& begLoc, const SourceLoc& dotLoc, const SourceLoc& endLoc) 
-	: Expr(StmtKind::MemberOfExpr,begLoc,endLoc), base_(base), membName_(idInfo), dotLoc_(dotLoc)
+	: Expr(ExprKind::MemberOfExpr,begLoc,endLoc), base_(base), membName_(idInfo), dotLoc_(dotLoc)
 {
 
 }
@@ -513,7 +538,7 @@ ArrayAccessExpr::ArrayAccessExpr() : ArrayAccessExpr(nullptr,nullptr,SourceLoc()
 }
 
 ArrayAccessExpr::ArrayAccessExpr(Expr* expr, Expr* idxexpr, const SourceLoc& begLoc, const SourceLoc& endLoc) :
-	base_(expr), idxExpr_(idxexpr), Expr(StmtKind::ArrayAccessExpr,begLoc,endLoc)
+	base_(expr), idxExpr_(idxexpr), Expr(ExprKind::ArrayAccessExpr,begLoc,endLoc)
 {
 	
 }
@@ -555,7 +580,7 @@ ParensExpr::ParensExpr() : ParensExpr(nullptr, SourceLoc(), SourceLoc())
 }
 
 ParensExpr::ParensExpr(Expr* expr, const SourceLoc & begLoc, const SourceLoc & endLoc) 
-	: Expr(StmtKind::ParensExpr,begLoc,endLoc), expr_(expr)
+	: Expr(ExprKind::ParensExpr,begLoc,endLoc), expr_(expr)
 {
 
 }
