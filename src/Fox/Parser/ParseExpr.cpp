@@ -25,7 +25,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base)
 		if (auto id = consumeIdentifier())
 		{
 			// found, return
-			endLoc = id.getSourceRange().makeEndSourceLoc();
+			endLoc = id.getSourceRange().getEnd();
 			return ExprResult(
 				new(ctxt_) MemberOfExpr(base ,id.get(),begLoc,dotLoc,endLoc)
 			);
@@ -96,8 +96,8 @@ Parser::ExprResult Parser::parseDeclRef()
 	if (auto id = consumeIdentifier())
 		return ExprResult(new(ctxt_) DeclRefExpr(
 				id.get(),
-				id.getSourceRange().getBeginSourceLoc(),
-				id.getSourceRange().makeEndSourceLoc()
+				id.getSourceRange().getBegin(),
+				id.getSourceRange().getEnd()
 			));
 	return ExprResult::NotFound();
 }
@@ -114,8 +114,8 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 	auto litinfo = tok.getLiteralInfo();
 	Expr* expr = nullptr;
 
-	SourceLoc begLoc = tok.getRange().getBeginSourceLoc();
-	SourceLoc endLoc = tok.getRange().makeEndSourceLoc();
+	SourceLoc begLoc = tok.getRange().getBegin();
+	SourceLoc endLoc = tok.getRange().getEnd();
 
 	if (litinfo.isBool())
 		expr = new(ctxt_) BoolLiteralExpr(litinfo.get<bool>(), begLoc, endLoc);
@@ -281,7 +281,7 @@ Parser::ExprResult Parser::parsePrefixExpr()
 				new(ctxt_) UnaryExpr(
 					uop.get(),
 					prefixexpr.get(),
-					uop.getSourceRange().getBeginSourceLoc(),
+					uop.getSourceRange().getBegin(),
 					uop.getSourceRange(),
 					endLoc
 				)
@@ -324,7 +324,7 @@ Parser::ExprResult Parser::parseCastExpr()
 		if (auto castType = parseBuiltinTypename())
 		{
 			SourceLoc begLoc = prefixexpr.get()->getBegLoc();
-			SourceLoc endLoc = castType.getSourceRange().makeEndSourceLoc();
+			SourceLoc endLoc = castType.getSourceRange().getEnd();
 			return ExprResult(
 					new(ctxt_) CastExpr(
 						castType.get(),

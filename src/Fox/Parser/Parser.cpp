@@ -68,7 +68,7 @@ SourceLoc Parser::consumeSign(SignType s)
 	if (tok.is(s))
 	{
 		increaseTokenIter();
-		return tok.getRange().getBeginSourceLoc();
+		return tok.getRange().getBegin();
 	}
 	return SourceLoc();
 }
@@ -125,7 +125,7 @@ SourceLoc Parser::consumeBracket(SignType s)
 		}
 		increaseTokenIter();
 		assert((tok.getRange().getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
-		return SourceLoc(tok.getRange().getBeginSourceLoc());
+		return SourceLoc(tok.getRange().getBegin());
 	}
 	return SourceLoc();
 }
@@ -284,8 +284,8 @@ Parser::Result<Type*> Parser::parseType()
 	{
 		//  { '[' ']' }
 		Type* ty = ty_res.get();
-		SourceLoc begLoc = ty_res.getSourceRange().getBeginSourceLoc();
-		SourceLoc endLoc = ty_res.getSourceRange().makeEndSourceLoc();
+		SourceLoc begLoc = ty_res.getSourceRange().getBegin();
+		SourceLoc endLoc = ty_res.getSourceRange().getEnd();
 		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
 			ty = ctxt_.getArrayTypeForType(ty);
@@ -480,7 +480,7 @@ Diagnostic Parser::reportErrorExpected(DiagID diag)
 	SourceRange errorRange;
 	if (Token prevTok = getPreviousToken())
 	{
-		SourceLoc loc = prevTok.getRange().makeEndSourceLoc();
+		SourceLoc loc = prevTok.getRange().getEnd();
 		loc.increment();
 		assert(srcMgr_.isSourceLocValid(loc));
 		errorRange = SourceRange(loc);

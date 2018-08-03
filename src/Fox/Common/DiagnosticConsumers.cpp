@@ -21,7 +21,7 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, const SourceRange&
 	if (!range)
 		return "<unknown>";
 
-	CompleteLoc beg = sm.getCompleteLocForSourceLoc(range.getBeginSourceLoc());
+	CompleteLoc beg = sm.getCompleteLocForSourceLoc(range.getBegin());
 
 	std::stringstream ss;
 	ss << "<" << beg.fileName << '>';
@@ -35,7 +35,7 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, const SourceRange&
 	// for a SourceRange (so we avoid calling "getCompleteLocForSourceLoc" twice)
 	if (range.getOffset() != 0)
 	{
-		CompleteLoc end = sm.getCompleteLocForSourceLoc(range.makeEndSourceLoc());
+		CompleteLoc end = sm.getCompleteLocForSourceLoc(range.getEnd());
 		ss << "-" << end.column;
 	}
 	return ss.str();
@@ -105,8 +105,8 @@ void StreamDiagConsumer::consume(const Diagnostic& diag)
 void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
 {
 	SourceLoc::idx_type lineBeg = 0;
-	SourceLoc begLoc = diag.getSourceRange().getBeginSourceLoc();
-	SourceLoc endLoc = diag.getSourceRange().makeEndSourceLoc();
+	SourceLoc begLoc = diag.getSourceRange().getBegin();
+	SourceLoc endLoc = diag.getSourceRange().getEnd();
 
 	// Get the line, remove it's indent and display it.
 	std::string line = sm_.getLineAtLoc(begLoc, &lineBeg);

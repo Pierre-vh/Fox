@@ -109,7 +109,7 @@ Parser::DeclResult Parser::parseFuncDecl()
 		return DeclResult::NotFound();
 
 	auto* rtr = new(ctxt_) FuncDecl();
-	SourceLoc begLoc = fnKw.getBeginSourceLoc();
+	SourceLoc begLoc = fnKw.getBegin();
 	SourceLoc endLoc;
 
 	bool isValid = true;
@@ -180,7 +180,7 @@ Parser::DeclResult Parser::parseFuncDecl()
 		if (auto rtrTy = parseType())
 		{
 			rtr->setReturnType(rtrTy.get());
-			endLoc = rtrTy.getSourceRange().makeEndSourceLoc();
+			endLoc = rtrTy.getSourceRange().getEnd();
 		}
 		else 
 		{
@@ -235,8 +235,8 @@ Parser::DeclResult Parser::parseParamDecl()
 		return DeclResult::Error();
 	}
 
-	SourceLoc begLoc = id.getSourceRange().getBeginSourceLoc();
-	SourceLoc endLoc = qt.getSourceRange().makeEndSourceLoc();
+	SourceLoc begLoc = id.getSourceRange().getBegin();
+	SourceLoc endLoc = qt.getSourceRange().getEnd();
 	auto* rtr = new(ctxt_) ParamDecl(
 			id.get(),
 			qt.get(),
@@ -257,7 +257,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	if (!letKw)
 		return DeclResult::NotFound();
 	
-	SourceLoc begLoc = letKw.getBeginSourceLoc();
+	SourceLoc begLoc = letKw.getBegin();
 	SourceLoc endLoc;
 	SourceRange tyRange;
 
@@ -350,7 +350,7 @@ Parser::Result<QualType> Parser::parseQualType()
 	// ["const"]
 	if (auto kw = consumeKeyword(KeywordType::KW_CONST))
 	{
-		begLoc = kw.getBeginSourceLoc();
+		begLoc = kw.getBegin();
 		hasFoundSomething = true;
 		ty.setIsConst(true);
 	}
@@ -372,9 +372,9 @@ Parser::Result<QualType> Parser::parseQualType()
 
 		// If no begLoc, the begLoc is the type's begLoc.
 		if (!begLoc)
-			begLoc = type.getSourceRange().getBeginSourceLoc();
+			begLoc = type.getSourceRange().getBegin();
 
-		endLoc = type.getSourceRange().makeEndSourceLoc();
+		endLoc = type.getSourceRange().getEnd();
 	}
 	else
 	{

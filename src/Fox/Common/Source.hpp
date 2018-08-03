@@ -112,9 +112,9 @@ namespace fox
 			bool isValid() const;
 			explicit operator bool() const; // Shortcut for isValid
 
-			SourceLoc getBeginSourceLoc() const;
+			SourceLoc getBegin() const;
 			offset_type getOffset() const;
-			SourceLoc makeEndSourceLoc() const;
+			SourceLoc getEnd() const;
 			bool isOnlyOneCharacter() const;
 		private:
 			SourceLoc sloc_;

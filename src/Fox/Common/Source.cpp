@@ -341,7 +341,7 @@ SourceRange::operator bool() const
 	return isValid();
 }
 
-SourceLoc SourceRange::getBeginSourceLoc() const
+SourceLoc SourceRange::getBegin() const
 {
 	return sloc_;
 }
@@ -351,7 +351,7 @@ SourceRange::offset_type SourceRange::getOffset() const
 	return offset_;
 }
 
-SourceLoc SourceRange::makeEndSourceLoc() const
+SourceLoc SourceRange::getEnd() const
 {
 	return SourceLoc(sloc_.getFileID(), sloc_.getIndex() + offset_);
 }

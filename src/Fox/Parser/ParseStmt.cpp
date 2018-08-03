@@ -91,7 +91,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 	Expr* expr = nullptr;
 	Stmt* body = nullptr;
 	SourceLoc parenExprEndLoc;
-	SourceLoc begLoc = whKw.getBeginSourceLoc();
+	SourceLoc begLoc = whKw.getBegin();
 	SourceLoc endLoc;
 	// <parens_expr>
 	if (auto parens_expr_res = parseParensExpr(/* The ParensExpr is mandatory */ true, nullptr, &parenExprEndLoc))
@@ -143,7 +143,7 @@ Parser::StmtResult Parser::parseCondition()
 		return StmtResult::NotFound();
 	}
 
-	SourceLoc begLoc = ifKw.getBeginSourceLoc();
+	SourceLoc begLoc = ifKw.getBegin();
 	SourceLoc ifHeadEndLoc;
 	// <parens_expr>
 	if (auto parensexpr = parseParensExpr(/* The ParensExpr is mandatory */ true, nullptr, &ifHeadEndLoc))
@@ -199,7 +199,7 @@ Parser::StmtResult Parser::parseReturnStmt()
 		return StmtResult::NotFound();
 	
 	Expr* expr = nullptr;
-	SourceLoc begLoc = rtrKw.getBeginSourceLoc();
+	SourceLoc begLoc = rtrKw.getBegin();
 	SourceLoc endLoc;
 
 	// [<expr>]

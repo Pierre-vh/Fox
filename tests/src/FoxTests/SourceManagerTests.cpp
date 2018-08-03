@@ -85,11 +85,11 @@ TEST(SourceManagerTests, SourceRange)
 	ASSERT_EQ(rb.getOffset(), 50);
 
 	// Check if everything is preserved, as expected.
-	EXPECT_EQ(rb.getBeginSourceLoc(), a);
-	EXPECT_EQ(rb.makeEndSourceLoc(), b);
+	EXPECT_EQ(rb.getBegin(), a);
+	EXPECT_EQ(rb.getEnd(), b);
 
-	EXPECT_EQ(ra.getBeginSourceLoc(), a);
-	EXPECT_EQ(ra.makeEndSourceLoc(), b);
+	EXPECT_EQ(ra.getBegin(), a);
+	EXPECT_EQ(ra.getEnd(), b);
 
 	// Another test: only one char sourcelocs
 	SourceRange onechar_range_a(a, a);
@@ -100,9 +100,9 @@ TEST(SourceManagerTests, SourceRange)
 	EXPECT_TRUE(onechar_range_b.isOnlyOneCharacter());
 	EXPECT_TRUE(onechar_range_c.isOnlyOneCharacter());
 
-	EXPECT_EQ(onechar_range_a.getBeginSourceLoc(), onechar_range_a.makeEndSourceLoc());
-	EXPECT_EQ(onechar_range_b.getBeginSourceLoc(), onechar_range_b.makeEndSourceLoc());
-	EXPECT_EQ(onechar_range_c.getBeginSourceLoc(), onechar_range_c.makeEndSourceLoc());
+	EXPECT_EQ(onechar_range_a.getBegin(), onechar_range_a.getEnd());
+	EXPECT_EQ(onechar_range_b.getBegin(), onechar_range_b.getEnd());
+	EXPECT_EQ(onechar_range_c.getBegin(), onechar_range_c.getEnd());
 }
 
 TEST(SourceManagerTests, PreciseLocation)

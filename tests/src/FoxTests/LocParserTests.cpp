@@ -113,12 +113,12 @@ TEST_F(LocTests, FuncAndArgDecl)
 	auto arg2_typeRange = arg2->getTypeRange();
 
 	// Extract locs
-	auto arg1_tr_beg = srcMgr.getCompleteLocForSourceLoc(arg1_typeRange.getBeginSourceLoc());
-	auto arg2_tr_beg = srcMgr.getCompleteLocForSourceLoc(arg2_typeRange.getBeginSourceLoc());
+	auto arg1_tr_beg = srcMgr.getCompleteLocForSourceLoc(arg1_typeRange.getBegin());
+	auto arg2_tr_beg = srcMgr.getCompleteLocForSourceLoc(arg2_typeRange.getBegin());
 
 	// Check
-	EXPECT_EQ(arg1_typeRange.makeEndSourceLoc(), arg1->getEndLoc());
-	EXPECT_EQ(arg2_typeRange.makeEndSourceLoc(), arg2->getEndLoc());
+	EXPECT_EQ(arg1_typeRange.getEnd(), arg1->getEndLoc());
+	EXPECT_EQ(arg2_typeRange.getEnd(), arg2->getEndLoc());
 
 	EXPECT_EQ(arg1_tr_beg, CompleteLoc(fullFilePath, 1, 18));
 	EXPECT_EQ(arg2_tr_beg, CompleteLoc(fullFilePath, 1, 40));
@@ -138,8 +138,8 @@ TEST_F(LocTests, VarDecls)
 	EXPECT_EQ(var_beg, CompleteLoc(fullFilePath,1,2));
 	EXPECT_EQ(var_end, CompleteLoc(fullFilePath,1,25));
 
-	CompleteLoc var_ty_beg = srcMgr.getCompleteLocForSourceLoc(var->getTypeRange().getBeginSourceLoc());
-	CompleteLoc var_ty_end = srcMgr.getCompleteLocForSourceLoc(var->getTypeRange().makeEndSourceLoc());
+	CompleteLoc var_ty_beg = srcMgr.getCompleteLocForSourceLoc(var->getTypeRange().getBegin());
+	CompleteLoc var_ty_end = srcMgr.getCompleteLocForSourceLoc(var->getTypeRange().getEnd());
 
 	EXPECT_EQ(var_ty_beg, CompleteLoc(fullFilePath, 1, 10));
 	EXPECT_EQ(var_ty_end, CompleteLoc(fullFilePath, 1, 20));
