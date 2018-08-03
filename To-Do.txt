@@ -50,6 +50,8 @@ Moonshot Project To-do List.
 			idea to backup the latest AllocPtr to compare it with the rollback ptr! (assert that lastAllocPtr < rollbackPtr < allocPtr)
 
 	> Finish PtrVariant and Add it/Test it (Next)
+		> polish the ptrvariant
+		> review code of expr/stmt/decl/astnode
 
 	> AST Rework:
 		1) Allocator: Move from unique_ptrs to raw allocated pointers (Done)
