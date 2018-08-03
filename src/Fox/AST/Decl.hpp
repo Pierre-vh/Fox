@@ -21,8 +21,6 @@ namespace fox
 		#include "DeclNodes.def"
 	};
 
-	class SourceRange;
-	class SourceLoc;
 	class Expr;
 	class IdentifierInfo;
 	class ASTContext;
@@ -32,8 +30,6 @@ namespace fox
 	class Decl
 	{
 		public:
-			virtual ~Decl() = 0 {};
-
 			DeclKind getKind() const;
 
 			SourceLoc getBegLoc() const;
