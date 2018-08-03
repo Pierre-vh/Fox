@@ -51,7 +51,10 @@ Moonshot Project To-do List.
 
 	> Finish PtrVariant and Add it/Test it (Next)
 		> polish the ptrvariant
+			> See what should be const and what shouldn't
+			> Document the code more
 		> review code of expr/stmt/decl/astnode
+			> Remove const duplicates of getter, they're useless, make all getters const, returning the pointer
 
 	> AST Rework:
 		1) Allocator: Move from unique_ptrs to raw allocated pointers (Done)
