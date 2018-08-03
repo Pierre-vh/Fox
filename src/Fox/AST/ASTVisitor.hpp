@@ -33,11 +33,12 @@ namespace fox
 			{
 				if (node.is<Decl>())
 					visit(node.get<Decl>(), std::forward<Args>(args)...);
-				if (node.is<Expr>())
+				else if (node.is<Expr>())
 					visit(node.get<Expr>(), std::forward<Args>(args)...);
-				if (node.is<Stmt>())
+				else if (node.is<Stmt>())
 					visit(node.get<Stmt>(), std::forward<Args>(args)...);
-				fox_unreachable("Unsupported ASTNode variant");
+				else
+					fox_unreachable("Unsupported ASTNode variant");
 			}
 
 			// Visit Decl "Dispatch" Method
