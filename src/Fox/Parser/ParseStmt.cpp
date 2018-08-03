@@ -39,8 +39,8 @@ Parser::StmtResult Parser::parseCompoundStatement(bool isMandatory)
 			// Push only if we don't have a standalone NullStmt
 			// this is done to avoid stacking them up, and since they're a no-op in all cases
 			// it's meaningless to ignore them.
-			if (!isa<NullStmt>(stmt.get()))
-				rtr->addStmt(stmt.get());
+			if (!stmt.get().isNullStmt())
+				rtr->addNode(stmt.get());
 		}
 		// failure
 		else
@@ -89,7 +89,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 		return StmtResult::NotFound();
 
 	Expr* expr = nullptr;
-	Stmt* body = nullptr;
+	ASTNode body;
 	SourceLoc parenExprEndLoc;
 	SourceLoc begLoc = whKw.getBegin();
 	SourceLoc endLoc;
@@ -106,7 +106,7 @@ Parser::StmtResult Parser::parseWhileLoop()
 	if (auto body_res = parseBody())
 	{
 		body = body_res.get();
-		endLoc = body->getEndLoc();
+		endLoc = body.getEndLoc();
 		assert(endLoc && "The body parsed successfully, but doesn't have a valid endLoc?");
 	}
 	else
@@ -127,8 +127,8 @@ Parser::StmtResult Parser::parseCondition()
 {
 	// <condition>	= "if"	<parens_expr> <body> ["else" <body>]
 	Expr* expr = nullptr;
-	Stmt* ifBody = nullptr;
-	Stmt* elseBody = nullptr;
+	ASTNode ifBody;
+	ASTNode elseBody;
 
 	// "if"
 	auto ifKw = consumeKeyword(KeywordType::KW_IF);
@@ -156,7 +156,7 @@ Parser::StmtResult Parser::parseCondition()
 	if (auto body = parseBody())
 	{
 		ifBody = body.get();
-		endLoc = ifBody->getEndLoc();
+		endLoc = ifBody.getEndLoc();
 	}
 	else
 	{
@@ -173,7 +173,7 @@ Parser::StmtResult Parser::parseCondition()
 		if (auto body = parseBody())
 		{
 			elseBody = body.get();
-			endLoc = elseBody->getEndLoc();
+			endLoc = elseBody.getEndLoc();
 		}
 		else
 		{
@@ -229,44 +229,44 @@ Parser::StmtResult Parser::parseReturnStmt()
 	);
 }
 
-Parser::StmtResult Parser::parseStmt()
+Parser::NodeResult Parser::parseStmt()
 {
 	// <stmt>	= <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
 
 	// <var_decl
 	if (auto vardecl = parseVarDecl())
-		return StmtResult(new(ctxt_) DeclStmt(vardecl.get()));
+		return NodeResult(ASTNode(vardecl.get()));
 	else if (!vardecl.wasSuccessful())
-		return StmtResult::Error();
+		return NodeResult::Error();
 
 	// <expr_stmt>
 	if (auto exprstmt = parseExprStmt())
-		return exprstmt;
+		return NodeResult(ASTNode(exprstmt.get()));
 	else if (!exprstmt.wasSuccessful())
-		return StmtResult::Error();
+		return NodeResult::Error();
 
 	// <condition>
 	if(auto cond = parseCondition())
-		return cond;
+		return NodeResult(ASTNode(cond.get()));
 	else if (!cond.wasSuccessful())
-		return StmtResult::Error();
+		return NodeResult::Error();
 
 	// <while_loop>
 	if (auto wloop = parseWhileLoop())
-		return wloop;
+		return NodeResult(ASTNode(wloop.get()));
 	else if(!wloop.wasSuccessful())
-		return StmtResult::Error();
+		return NodeResult::Error();
 
 	// <return_stmt>
 	if (auto rtrstmt = parseReturnStmt())
-		return rtrstmt;
+		return NodeResult(ASTNode(rtrstmt.get()));
 	else if(!rtrstmt.wasSuccessful())
-		return StmtResult::Error();
+		return NodeResult::Error();
 
-	return StmtResult::NotFound();
+	return NodeResult::Error();
 }
 
-Parser::StmtResult Parser::parseBody()
+Parser::NodeResult Parser::parseBody()
 {
 	// <body>	= <stmt> | <compound_statement>
 
@@ -274,15 +274,15 @@ Parser::StmtResult Parser::parseBody()
 	if (auto stmt = parseStmt())
 		return stmt;
 	else if (!stmt.wasSuccessful())
-		return StmtResult::Error();
+		return NodeResult::Error();
 
 	// <compound_statement>
 	if (auto compoundstmt = parseCompoundStatement())
-		return compoundstmt;
+		return NodeResult(ASTNode(compoundstmt.get()));
 	else if (!compoundstmt.wasSuccessful())
-		return StmtResult::Error();
+		return NodeResult::Error();
 
-	return StmtResult::NotFound();
+	return NodeResult::NotFound();
 }
 
 Parser::StmtResult Parser::parseExprStmt()

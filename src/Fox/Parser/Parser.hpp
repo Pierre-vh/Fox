@@ -34,6 +34,7 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
+#include "Fox/AST/ASTNode.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
@@ -59,6 +60,7 @@ namespace fox
 			using ExprResult = Result<Expr*>;
 			using DeclResult = Result<Decl*>;
 			using StmtResult = Result<Stmt*>;
+			using NodeResult = Result<ASTNode>;
 			using UnitResult = Result<UnitDecl*>;
 
 		private:
@@ -100,8 +102,8 @@ namespace fox
 			StmtResult parseReturnStmt();
 			StmtResult parseExprStmt();
 			StmtResult parseCompoundStatement(bool isMandatory=false);
-			StmtResult parseStmt();
-			StmtResult parseBody();
+			NodeResult parseStmt();
+			NodeResult parseBody();
 			StmtResult parseCondition();
 			StmtResult parseWhileLoop();
 
