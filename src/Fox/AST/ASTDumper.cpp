@@ -25,22 +25,22 @@ ASTDumper::ASTDumper(SourceManager& srcMgr,std::ostream & out, const uint8_t & o
 	recalculateOffset();
 }
 
-void ASTDumper::visitParensExpr(ParensExpr * node)
+void ASTDumper::visitParensExpr(ParensExpr* node)
 {
 	if (auto expr = node->getExpr())
 	{
-		dumpLine() << getBasicStmtInfo(node) << " " << getSourceLocDump("LParen", node->getBegLoc()) << " " << getSourceLocDump("RParen", node->getEndLoc()) << "\n";
+		dumpLine() << getBasicExprInfo(node) << " " << getSourceLocDump("LParen", node->getBegLoc()) << " " << getSourceLocDump("RParen", node->getEndLoc()) << "\n";
 		indent();
 			visit(expr);
 		dedent();
 	}
 	else
-		dumpLine() << getBasicStmtInfo(node) << " (Empty)\n";
+		dumpLine() << getBasicExprInfo(node) << " (Empty)\n";
 }
 
-void ASTDumper::visitBinaryExpr(BinaryExpr * node)
+void ASTDumper::visitBinaryExpr(BinaryExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " " << getOperatorDump(node->getOp()) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node->getOp()) << "\n";
 
 	// Print LHS 
 	indent();
@@ -53,25 +53,25 @@ void ASTDumper::visitBinaryExpr(BinaryExpr * node)
 	dedent();
 }
 
-void ASTDumper::visitCastExpr(CastExpr * node)
+void ASTDumper::visitCastExpr(CastExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " " << getTypeDump("to",node->getCastGoal()) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << getTypeDump("to",node->getCastGoal()) << "\n";
 	indent();
 		visit(node->getExpr());
 	dedent();
 }
 
-void ASTDumper::visitUnaryExpr(UnaryExpr * node)
+void ASTDumper::visitUnaryExpr(UnaryExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " " << getOperatorDump(node->getOp()) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node->getOp()) << "\n";
 	indent();
 		visit(node->getExpr());
 	dedent();
 }
 
-void ASTDumper::visitArrayAccessExpr(ArrayAccessExpr * node)
+void ASTDumper::visitArrayAccessExpr(ArrayAccessExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << '\n';
+	dumpLine() << getBasicExprInfo(node) << '\n';
 
 	indent();
 		visit(node->getBase());
@@ -83,22 +83,22 @@ void ASTDumper::visitArrayAccessExpr(ArrayAccessExpr * node)
 	dedent();
 }
 
-void ASTDumper::visitMemberOfExpr(MemberOfExpr * node)
+void ASTDumper::visitMemberOfExpr(MemberOfExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " " << getIdentifierDump(node->getMemberID()) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << getIdentifierDump(node->getMemberID()) << "\n";
 	indent();
 		visit(node->getBase());
 	dedent();
 }
 
-void ASTDumper::visitDeclRefExpr(DeclRefExpr * node)
+void ASTDumper::visitDeclRefExpr(DeclRefExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << "\n";
 }
 
 void ASTDumper::visitFunctionCallExpr(FunctionCallExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << '\n';
+	dumpLine() << getBasicExprInfo(node) << '\n';
 
 	// Print Base 
 	indent();
@@ -114,38 +114,38 @@ void ASTDumper::visitFunctionCallExpr(FunctionCallExpr* node)
 	}
 }
 
-void ASTDumper::visitCharLiteralExpr(CharLiteralExpr * node)
+void ASTDumper::visitCharLiteralExpr(CharLiteralExpr* node)
 {
 	std::string res;
 	StringManipulator::append(res, node->getVal());
-	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("value",addSingleQuotes(res)) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << makeKeyPairDump("value",addSingleQuotes(res)) << "\n";
 }
 
-void ASTDumper::visitIntegerLiteralExpr(IntegerLiteralExpr * node)
+void ASTDumper::visitIntegerLiteralExpr(IntegerLiteralExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("value", node->getVal()) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << makeKeyPairDump("value", node->getVal()) << "\n";
 }
 
-void ASTDumper::visitFloatLiteralExpr(FloatLiteralExpr * node)
+void ASTDumper::visitFloatLiteralExpr(FloatLiteralExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("value", node->getVal()) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << makeKeyPairDump("value", node->getVal()) << "\n";
 }
 
-void ASTDumper::visitBooleanLiteralExpr(BoolLiteralExpr * node)
+void ASTDumper::visitBooleanLiteralExpr(BoolLiteralExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("value", (node->getVal() ? "true" : "false" )) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << makeKeyPairDump("value", (node->getVal() ? "true" : "false" )) << "\n";
 }
 
 void ASTDumper::visitStringLiteralExpr(StringLiteralExpr* node)
 {
-	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("value", addDoubleQuotes(node->getVal())) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << makeKeyPairDump("value", addDoubleQuotes(node->getVal())) << "\n";
 }
 
 void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr* node)
 {
 	std::size_t elemcount = node->getSize();
 
-	dumpLine() << getBasicStmtInfo(node) << " " << makeKeyPairDump("size", elemcount) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << makeKeyPairDump("size", elemcount) << "\n";
 
 	for (Expr* expr : node->getExprs())
 	{
@@ -155,21 +155,21 @@ void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr* node)
 	}
 }
 
-void ASTDumper::visitNullStmt(NullStmt * node)
+void ASTDumper::visitNullStmt(NullStmt* node)
 {
 	dumpLine() << getBasicStmtInfo(node) << "\n";
 }
 
-void ASTDumper::visitCompoundStmt(CompoundStmt * node)
+void ASTDumper::visitCompoundStmt(CompoundStmt* node)
 {
 	dumpLine() << getBasicStmtInfo(node) << '\n';
 	indent();
-	for (auto it = node->stmts_beg(); it != node->stmts_end(); it++)
+	for (auto it = node->nodes_begin(); it != node->nodes_end(); it++)
 		visit(*it);
 	dedent();
 }
 
-void ASTDumper::visitConditionStmt(ConditionStmt * node)
+void ASTDumper::visitConditionStmt(ConditionStmt* node)
 {
 	dumpLine() << getBasicStmtInfo(node) << "\n";
 	// Visit cond
@@ -191,7 +191,7 @@ void ASTDumper::visitConditionStmt(ConditionStmt * node)
 	}
 }
 
-void ASTDumper::visitWhileStmt(WhileStmt * node)
+void ASTDumper::visitWhileStmt(WhileStmt* node)
 {
 	dumpLine() << getBasicStmtInfo(node) << "\n";
 	// Visit cond
@@ -205,15 +205,7 @@ void ASTDumper::visitWhileStmt(WhileStmt * node)
 	dedent();
 }
 
-void ASTDumper::visitDeclStmt(DeclStmt * node)
-{
-	dumpLine() << getBasicStmtInfo(node) << "\n";
-	indent();
-		visit(node->getDecl());
-	dedent();
-}
-
-void ASTDumper::visitReturnStmt(ReturnStmt * node)
+void ASTDumper::visitReturnStmt(ReturnStmt* node)
 {
 	dumpLine() << getBasicStmtInfo(node) << "\n";
 	if (node->hasExpr())
@@ -256,12 +248,12 @@ void ASTDumper::visitVarDecl(VarDecl* node)
 	}
 }
 
-void ASTDumper::visitParamDecl(ParamDecl * node)
+void ASTDumper::visitParamDecl(ParamDecl* node)
 {
 	dumpLine() << getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << " " << getQualTypeDump("type", node->getType()) << "\n";
 }
 
-void ASTDumper::visitFuncDecl(FuncDecl * node)
+void ASTDumper::visitFuncDecl(FuncDecl* node)
 {
 	dumpLine() << getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << " " << getTypeDump("returns",node->getReturnType()) << " " << getDeclRecorderDump(node) << "\n";
 
@@ -350,7 +342,18 @@ std::string ASTDumper::getStmtNodeName(Stmt* stmt) const
 	}
 }
 
-std::string ASTDumper::getDeclNodeName(Decl * decl) const
+std::string ASTDumper::getExprNodeName(Expr* expr) const
+{
+	switch (expr->getKind())
+	{
+		#define EXPR(ID,PARENT) case ExprKind::ID: return #ID;
+		#include "ExprNodes.def"
+		default:
+			fox_unreachable("unknown node");
+	}
+}
+
+std::string ASTDumper::getDeclNodeName(Decl* decl) const
 {
 	switch (decl->getKind())
 	{
@@ -361,7 +364,7 @@ std::string ASTDumper::getDeclNodeName(Decl * decl) const
 	}
 }
 
-std::string ASTDumper::getTypeNodeName(Type * type) const
+std::string ASTDumper::getTypeNodeName(Type* type) const
 {
 	switch (type->getKind())
 	{
@@ -372,7 +375,7 @@ std::string ASTDumper::getTypeNodeName(Type * type) const
 	}
 }
 
-std::string ASTDumper::getBasicStmtInfo(Stmt * stmt) const
+std::string ASTDumper::getBasicStmtInfo(Stmt* stmt) const
 {
 	std::ostringstream ss;
 	ss << getStmtNodeName(stmt);
@@ -381,7 +384,16 @@ std::string ASTDumper::getBasicStmtInfo(Stmt * stmt) const
 	return ss.str();
 }
 
-std::string ASTDumper::getBasicDeclInfo(Decl * decl) const
+std::string ASTDumper::getBasicExprInfo(Expr* expr) const
+{
+	std::ostringstream ss;
+	ss << getExprNodeName(expr);
+	if (printAllAdresses_)
+		ss << " " << (void *)expr;
+	return ss.str();
+}
+
+std::string ASTDumper::getBasicDeclInfo(Decl* decl) const
 {
 	std::ostringstream ss;
 	ss << getDeclNodeName(decl);
@@ -394,7 +406,7 @@ std::string ASTDumper::getBasicDeclInfo(Decl * decl) const
 	return ss.str();
 }
 
-std::string ASTDumper::getBasicTypeInfo(Type * type) const
+std::string ASTDumper::getBasicTypeInfo(Type* type) const
 {
 	std::ostringstream ss;
 	ss << getTypeNodeName(type);
@@ -417,7 +429,7 @@ std::string ASTDumper::getOperatorDump(UnaryOperator op) const
 	return "'" + operators::toString(op) + "'";
 }
 
-std::string ASTDumper::getDeclRecorderDump(DeclContext * dr) const
+std::string ASTDumper::getDeclRecorderDump(DeclContext* dr) const
 {
 	std::ostringstream ss;
 	ss << "<DeclContext:" << (void*)dr;
@@ -427,7 +439,7 @@ std::string ASTDumper::getDeclRecorderDump(DeclContext * dr) const
 	return ss.str();
 }
 
-std::string ASTDumper::getIdentifierDump(IdentifierInfo * id) const
+std::string ASTDumper::getIdentifierDump(IdentifierInfo* id) const
 {
 	return makeKeyPairDump("id", addSingleQuotes(id->getStr()));
 }
@@ -446,32 +458,32 @@ std::string ASTDumper::getSourceLocDump(const std::string& label,const SourceLoc
 	return makeKeyPairDump(label, ss.str());
 }
 
-std::string ASTDumper::getTypeDump(const std::string & label, Type * ty) const
+std::string ASTDumper::getTypeDump(const std::string& label, Type* ty) const
 {
 	return makeKeyPairDump(label, addSingleQuotes(ty->getString()));
 }
 
-std::string ASTDumper::getQualTypeDump(const std::string & label, const QualType & qt) const
+std::string ASTDumper::getQualTypeDump(const std::string& label, const QualType & qt) const
 {
 	return makeKeyPairDump(label, addSingleQuotes(qt.getString()));
 }
 
-std::string ASTDumper::addDoubleQuotes(const std::string & str) const
+std::string ASTDumper::addDoubleQuotes(const std::string& str) const
 {
 	return "\"" + str + "\"";
 }
 
-std::string ASTDumper::addSingleQuotes(const std::string & str) const
+std::string ASTDumper::addSingleQuotes(const std::string& str) const
 {
 	return "'" + str + "'";
 }
 
-void ASTDumper::indent(const uint8_t & num)
+void ASTDumper::indent(std::uint8_t num)
 {
 	curIndent_ += num;
 }
 
-void ASTDumper::dedent(const uint8_t & num)
+void ASTDumper::dedent(std::uint8_t num)
 {
 	if (curIndent_)
 	{

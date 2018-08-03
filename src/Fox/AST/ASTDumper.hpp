@@ -45,7 +45,6 @@ namespace fox
 			void visitCompoundStmt(CompoundStmt* node);
 			void visitConditionStmt(ConditionStmt* node);
 			void visitWhileStmt(WhileStmt* node);
-			void visitDeclStmt(DeclStmt* node);
 			void visitReturnStmt(ReturnStmt* node);
 
 			// Decls
@@ -76,11 +75,13 @@ namespace fox
 
 			// Returns the name of the node by using it's pointer
 			std::string getStmtNodeName(Stmt* stmt) const;
+			std::string getExprNodeName(Expr* expr) const;
 			std::string getDeclNodeName(Decl* decl) const;
 			std::string getTypeNodeName(Type* type) const;
 
 			// Returns a string containing basic information about a node : It's name followed by it's adress. Maybe more in the future.
 			std::string getBasicStmtInfo(Stmt* stmt) const;
+			std::string getBasicExprInfo(Expr* expr) const;
 			std::string getBasicDeclInfo(Decl* decl) const;
 			std::string getBasicTypeInfo(Type* type) const;
 
@@ -90,9 +91,9 @@ namespace fox
 			std::string getOperatorDump(UnaryOperator op) const;
 
 			// Returns a formatted string "<DeclContext (adress), Parent: (adress)>"
-			std::string getDeclRecorderDump(DeclContext *dr) const;
+			std::string getDeclRecorderDump(DeclContext* dr) const;
 			// Returns a formatted string, "<ID:(idstring)>"
-			std::string getIdentifierDump(IdentifierInfo *id) const;
+			std::string getIdentifierDump(IdentifierInfo* id) const;
 			// Returns a formatted string, "<(label):(coords)>"
 			std::string getSourceLocDump(const std::string& label,const SourceLoc& sloc) const;
 			// Returns a formatted string  "<(label):'(type)'>
@@ -113,8 +114,8 @@ namespace fox
 			}
 
 
-			void indent(const uint8_t& num = 1);
-			void dedent(const uint8_t& num = 1);
+			void indent(std::uint8_t num = 1);
+			void dedent(std::uint8_t num = 1);
 
 			std::ostream& out_;
 			SourceManager& srcMgr_;
