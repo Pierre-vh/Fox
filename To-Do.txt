@@ -55,8 +55,8 @@ Moonshot Project To-do List.
 		1) Allocator: Move from unique_ptrs to raw allocated pointers (Done)
 		2) Restructure the AST (Next)
 			a) Divide the hierarchies: Expr/Stmt/Types/Decls should be distinct, use a PtrVariant for the "ASTNode" type
-				a) Visitor "rework" (polishing, adding custom return types for every hierarchy)
-
+				+ Visitor "rework" (polishing, adding custom return types for every hierarchy)
+				+ Change Double SourceLocs for beg/endloc to SourceRange (more space efficient)
 			b) Expr: 
 				a) UncheckedDotSyntaxExpr
 					-> Captures the () if there's one
