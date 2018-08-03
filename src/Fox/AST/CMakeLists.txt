@@ -8,4 +8,5 @@ add_source(
 	"ASTDumper.cpp"
 	"Identifiers.cpp"
 	"DeclContext.cpp"
+	"ASTNode.cpp"
 )
