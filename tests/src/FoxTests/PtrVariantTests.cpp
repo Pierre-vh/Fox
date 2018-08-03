@@ -70,13 +70,13 @@ TEST(PtrVariantTests, OperatorsOverload)
 
 	EXPECT_TRUE(var1 == var2);
 	EXPECT_TRUE(var1.getOpaque() == var2);
-	EXPECT_TRUE(var1.get<int>() == var2);
+	EXPECT_TRUE(var1.get<float>() == var2);
 	EXPECT_TRUE(var1 == var2.getOpaque());
 	EXPECT_TRUE(var1 == var2.get<float>());
 
 	EXPECT_FALSE(var1 != var2);
 	EXPECT_FALSE(var1.getOpaque() != var2);
-	EXPECT_FALSE(var1.get<int>() != var2);
+	EXPECT_FALSE(var1.get<float>() != var2);
 	EXPECT_FALSE(var1 != var2.getOpaque());
 	EXPECT_FALSE(var1 != var2.get<float>());
 }
