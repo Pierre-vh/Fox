@@ -7,13 +7,16 @@
 // The ASTNode is a class that acts like a variant of Expr/Stmt/Decl pointers.
 ////------------------------------------------------------////
 
+#pragma once
 #include "Fox/Common/PtrVariant.hpp"
-#include "Expr.hpp"
-#include "Decl.hpp"
-#include "Stmt.hpp"
 
 namespace fox
 {
+	class Expr;
+	class Stmt;
+	class Decl;
+	class SourceRange;
+	class SourceLoc;
 	class ASTNode : public PtrVariant<Expr, Stmt, Decl>
 	{
 		public:
@@ -22,5 +25,8 @@ namespace fox
 			SourceRange getRange() const;
 			SourceLoc getBegLoc() const;
 			SourceLoc getEndLoc() const;
+
+			// Common helpers
+			bool isNullStmt() const;
 	};
 }

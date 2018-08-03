@@ -9,6 +9,11 @@
 
 #include "ASTNode.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/Source.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "Expr.hpp"
+#include "Stmt.hpp"
+#include "Decl.hpp"
 
 using namespace fox;
 
@@ -31,4 +36,11 @@ SourceLoc ASTNode::getBegLoc() const
 SourceLoc ASTNode::getEndLoc() const
 {
 	return getRange().getEnd();
+}
+
+bool ASTNode::isNullStmt() const
+{
+	if (auto* ptr = getIf<Stmt>())
+		return isa<NullStmt>(ptr);
+	return false;
 }
