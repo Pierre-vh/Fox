@@ -122,6 +122,11 @@ namespace fox
 				return nullptr;
 			}
 
+			// Getter that returns an opaque pointer (void*)
+			void* getOpaque() const
+			{
+				return ptr_;
+			}
 
 			// Checking
 			template<typename T, typename enableIf_hasType<T>::type = 0>
@@ -130,30 +135,7 @@ namespace fox
 				return (idx_ == indexOf<T>::value);
 			}
 
-			// Operator overloads
-			// Comparisons
-			bool operator== (const ThisType& other) const
-			{
-				return ptr_ == other.ptr_;
-			}
-
-			template<typename T, typename enableIf_hasType<T>::type = 0>
-			bool operator== (const T* other) const
-			{
-				return ptr_ == other;
-			}
-
-			bool operator!= (const ThisType& other) const
-			{
-				return ptr_ != other.ptr_;
-			}
-
-			template<typename T, typename enableIf_hasType<T>::type = 0>
-			bool operator!= (const T* other) const
-			{
-				return (ptr_ != other);
-			}
-
+			// Operators
 			// Assignement
 			template<typename T, typename enableIf_hasType<T>::type = 0>
 			ThisType& operator= (T* other)
@@ -168,10 +150,47 @@ namespace fox
 				idx_ = other.idx_;
 				ptr_ = other.ptr_;
 			}
-		private:
 
+			// Comparison
+			// Comparisons
+			bool operator== (const ThisType& other) const
+			{
+				return ptr_ == other.ptr_;
+			}
+
+			template<typename T>
+			bool operator== (const T* other) const
+			{
+				return ptr_ == other;
+			}
+
+			bool operator!= (const ThisType& other) const
+			{
+				return ptr_ != other.ptr_;
+			}
+
+			template<typename T>
+			bool operator!= (const T* other) const
+			{
+				return ptr_ != other;
+			}
+
+		private:
 			// Data
 			void* ptr_ = nullptr;
 			Idx idx_ = 0;
 	};
+
+	// Commutative versions of PtrVariant's comparison operators with pointers
+	template<typename Ptr, typename ... Args>
+	bool operator== (const Ptr* lhs, const PtrVariant<Args...> &rhs)
+	{
+		return lhs == rhs.getOpaque();
+	}
+
+	template<typename Ptr, typename ... Args>
+	bool operator!= (const Ptr* lhs, const PtrVariant<Args...> &rhs)
+	{
+		return lhs != rhs.getOpaque();
+	}
 }
