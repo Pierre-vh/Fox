@@ -9,8 +9,8 @@
 // Every macro consists of 3 things: an ID for the operator,
 // it's sign (string), and a proper, user-friendly name (string).
 //
-// Note that each enum will have a default member "NONE", whose
-// value = 0, that's used as the default (unset) value for the enum.
+// Note that each enum's first value should be an "Invalid"
+// operator, used as a default value for the enum
 ////------------------------------------------------------////
 
 #ifndef BINARY_OP
@@ -22,6 +22,7 @@
 #endif
 
 // Binary Operators
+BINARY_OP(Invalid, "", "Invalid")
 BINARY_OP(Concat, "+", "String Concatenation")
 BINARY_OP(Add, "+", "Addition")
 BINARY_OP(Sub, "-", "Substraction")
@@ -40,6 +41,7 @@ BINARY_OP(NEq, "!=", "Not Equal To")
 BINARY_OP(Assign, "=", "Assignement")
 
 // Unary Operators
+UNARY_OP(Invalid, "", "Invalid")
 UNARY_OP(LNot, "!", "Logical Negation")
 UNARY_OP(Plus, "+", "Unary Plus")
 UNARY_OP(Minus, "-", "Unary Minus")

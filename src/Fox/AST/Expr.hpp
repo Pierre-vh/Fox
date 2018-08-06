@@ -61,7 +61,6 @@ namespace fox
 		public:
 			enum class OpKind: std::uint8_t
 			{
-				None,
 				#define BINARY_OP(ID, SIGN, NAME) ID,
 				#include "Operators.def"
 			};
@@ -95,7 +94,7 @@ namespace fox
 			SourceRange opRange_;
 			Expr* lhs_ = nullptr;
 			Expr* rhs_ = nullptr;
-			OpKind op_ = OpKind::None;
+			OpKind op_ = OpKind::Invalid;
 	};
 
 	// Unary Expressions
@@ -105,7 +104,6 @@ namespace fox
 
 			enum class OpKind : std::uint8_t
 			{
-				None,
 				#define UNARY_OP(ID, SIGN, NAME) ID,
 				#include "Operators.def"
 			};
@@ -134,7 +132,7 @@ namespace fox
 		private:
 			SourceRange opRange_;
 			Expr* expr_ = nullptr;
-			OpKind op_ = OpKind::None;
+			OpKind op_ = OpKind::Invalid;
 	};
 
 	// Explicit Cast Expressions

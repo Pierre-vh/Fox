@@ -195,7 +195,7 @@ bool ArrayLiteralExpr::isEmpty() const
 }
 
 // BinaryExpr
-BinaryExpr::BinaryExpr() : BinaryExpr(OpKind::None, nullptr,
+BinaryExpr::BinaryExpr() : BinaryExpr(OpKind::Invalid, nullptr,
 	nullptr, SourceLoc(), SourceRange(), SourceLoc())
 {
 
@@ -246,8 +246,6 @@ std::string BinaryExpr::getOpSign(OpKind op)
 {
 	switch (op)
 	{
-		case OpKind::None:
-			return "";
 		#define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
 		#include "Operators.def"
 		default:
@@ -259,8 +257,6 @@ std::string BinaryExpr::getOpID(OpKind op)
 {
 	switch (op)
 	{
-		case OpKind::None:
-			return "None";
 		#define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return #ID;
 		#include "Operators.def"
 		default:
@@ -272,8 +268,6 @@ std::string BinaryExpr::getOpName(OpKind op)
 {
 	switch (op)
 	{
-		case OpKind::None:
-			return "None";
 		#define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return NAME;
 		#include "Operators.def"
 		default:
@@ -282,7 +276,7 @@ std::string BinaryExpr::getOpName(OpKind op)
 }
 
 // UnaryExpr
-UnaryExpr::UnaryExpr() : UnaryExpr(OpKind::None, nullptr,
+UnaryExpr::UnaryExpr() : UnaryExpr(OpKind::Invalid, nullptr,
 	SourceLoc(), SourceRange(), SourceLoc())
 {
 
@@ -322,8 +316,6 @@ std::string UnaryExpr::getOpSign(OpKind op)
 {
 	switch (op)
 	{
-		case OpKind::None:
-			return "";
 		#define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
 		#include "Operators.def"
 		default:
@@ -335,8 +327,6 @@ std::string UnaryExpr::getOpID(OpKind op)
 {
 	switch (op)
 	{
-		case OpKind::None:
-			return "None";
 		#define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return #ID;
 		#include "Operators.def"
 		default:
@@ -348,8 +338,6 @@ std::string UnaryExpr::getOpName(OpKind op)
 {
 	switch (op)
 	{
-		case OpKind::None:
-			return "None";
 		#define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return NAME;
 		#include "Operators.def"
 		default:
