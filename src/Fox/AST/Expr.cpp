@@ -16,28 +16,6 @@
 
 using namespace fox;
 
-// operators
-static const std::map<BinaryOperator, std::pair<std::string,std::string>> kBinopToStr_dict =
-{
-	{ BinaryOperator::DEFAULT			, {" " , "!INVALID!"}},
-	{ BinaryOperator::LOGIC_AND			, {"&&", "LOGICAL AND"} },
-	{ BinaryOperator::CONCAT			, {"+" , "CONCAT"}},
-	{ BinaryOperator::LOGIC_OR			, {"||", "LOGICAL OR"}},
-	{ BinaryOperator::ADD				, {"+" , "ADDITION"}},
-	{ BinaryOperator::MINUS				, {"-" , "SUBSTRACTION"}},
-	{ BinaryOperator::MUL				, {"*" , "MULTIPLICATION"}},
-	{ BinaryOperator::DIV				, {"/" , "DIVISION"}},
-	{ BinaryOperator::MOD				, {"%" , "MODULO"}},
-	{ BinaryOperator::EXP				, {"**", "EXPONENT" }},
-	{ BinaryOperator::LESS_OR_EQUAL		, {"<=", "LESS OR EQUAL THAN"}},
-	{ BinaryOperator::GREATER_OR_EQUAL	, {">=", "GREATER OR EQUAL THAN"}},
-	{ BinaryOperator::LESS_THAN			, {"<", "LESS THAN"}},
-	{ BinaryOperator::GREATER_THAN		, {">", "GREATER THAN"}},
-	{ BinaryOperator::EQUAL				, {"==", "EQUAL"}},
-	{ BinaryOperator::NOTEQUAL			, {"!=", "NOT EQUAL"}},
-	{ BinaryOperator::ASSIGN_BASIC		, {"=", "ASSIGN"}}
-};
-
 static const std::map<UnaryOperator, std::pair<std::string,std::string>> kUnaryOpToStr_dict =
 {
 	{ UnaryOperator::DEFAULT	, {" ", "!INVALID!"}},
@@ -46,25 +24,11 @@ static const std::map<UnaryOperator, std::pair<std::string,std::string>> kUnaryO
 	{ UnaryOperator::POSITIVE	, {"+", "POSITIVE"}}
 };
 
-std::string operators::toString(const BinaryOperator & op)
-{
-	auto it = kBinopToStr_dict.find(op);
-	assert((it != kBinopToStr_dict.end()) && "Unknown operator?");
-	return it->second.first;
-}
-
 std::string operators::toString(const UnaryOperator & op)
 {
 	auto it = kUnaryOpToStr_dict.find(op);
 	assert((it != kUnaryOpToStr_dict.end()) && "Unknown operator?");
 	return it->second.first;
-}
-
-std::string operators::getName(const BinaryOperator & op)
-{
-	auto it = kBinopToStr_dict.find(op);
-	assert((it != kBinopToStr_dict.end()) && "Unknown operator?");
-	return it->second.second;
 }
 
 std::string operators::getName(const UnaryOperator & op)
@@ -253,12 +217,13 @@ bool ArrayLiteralExpr::isEmpty() const
 }
 
 // BinaryExpr
-BinaryExpr::BinaryExpr() : BinaryExpr(BinaryOperator::DEFAULT,nullptr,nullptr,SourceLoc(),SourceRange(),SourceLoc())
+BinaryExpr::BinaryExpr() : BinaryExpr(OpKind::NONE, nullptr,
+	nullptr, SourceLoc(), SourceRange(), SourceLoc())
 {
 
 }
 
-BinaryExpr::BinaryExpr(BinaryOperator opt, Expr* lhs, Expr* rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
+BinaryExpr::BinaryExpr(OpKind opt, Expr* lhs, Expr* rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
 	op_(opt), Expr(ExprKind::BinaryExpr, begLoc, endLoc), opRange_(opRange), lhs_(lhs), rhs_(rhs)
 {
 
@@ -284,12 +249,12 @@ void BinaryExpr::setRHS(Expr* expr)
 	rhs_ = expr;
 }
 
-BinaryOperator BinaryExpr::getOp() const
+BinaryExpr::OpKind BinaryExpr::getOp() const
 {
 	return op_;
 }
 
-void BinaryExpr::setOp(BinaryOperator op)
+void BinaryExpr::setOp(OpKind op)
 {
 	op_ = op;
 }
@@ -297,6 +262,45 @@ void BinaryExpr::setOp(BinaryOperator op)
 SourceRange BinaryExpr::getOpRange() const
 {
 	return opRange_;
+}
+
+std::string BinaryExpr::getOpSign(OpKind op)
+{
+	switch (op)
+	{
+		case OpKind::NONE:
+			return "";
+		#define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
+		#include "Operators.def"
+		default:
+			fox_unreachable("Unknown binary operator kind");
+	}
+}
+
+std::string BinaryExpr::getOpID(OpKind op)
+{
+	switch (op)
+	{
+		case OpKind::NONE:
+			return "NONE";
+		#define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return #ID;
+		#include "Operators.def"
+		default:
+			fox_unreachable("Unknown binary operator kind");
+	}
+}
+
+std::string BinaryExpr::getOpName(OpKind op)
+{
+	switch (op)
+	{
+		case OpKind::NONE:
+			return "None";
+		#define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return NAME;
+		#include "Operators.def"
+		default:
+			fox_unreachable("Unknown binary operator kind");
+	}
 }
 
 // UnaryExpr

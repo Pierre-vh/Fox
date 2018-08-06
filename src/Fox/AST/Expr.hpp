@@ -15,33 +15,6 @@
 
 namespace fox	
 {
-	// operators Enums & Dictionaries
-	enum class BinaryOperator
-	{
-		DEFAULT,
-		CONCAT,	// +
-		// Basic math ops
-		ADD,	// +
-		MINUS,	// -
-		MUL,	// *
-		DIV,	// /
-		MOD,	// %
-		EXP,	// **
-		// Logical and and or
-		LOGIC_AND,	// &&
-		LOGIC_OR,	// ||
-		// Comparison
-		LESS_OR_EQUAL,		// <=
-		GREATER_OR_EQUAL,	// >=
-		LESS_THAN,			// <
-		GREATER_THAN,		// >
-		EQUAL,				// ==
-		NOTEQUAL,			// !=
-
-		// Assignement
-		ASSIGN_BASIC,		// =
-	};
-
 	enum class UnaryOperator
 	{
 		DEFAULT,
@@ -52,10 +25,7 @@ namespace fox
 
 	namespace operators
 	{
-		std::string toString(const BinaryOperator& op);
 		std::string toString(const UnaryOperator& op);
-
-		std::string getName(const BinaryOperator& op);
 		std::string getName(const UnaryOperator& op);
 	}
 
@@ -103,8 +73,15 @@ namespace fox
 	class BinaryExpr : public Expr
 	{
 		public:
+			enum class OpKind: std::uint8_t
+			{
+				NONE,
+				#define BINARY_OP(ID, SIGN, NAME) ID,
+				#include "Operators.def"
+			};
+
 			BinaryExpr();
-			BinaryExpr(BinaryOperator opt, Expr* lhs, Expr* rhs, 
+			BinaryExpr(OpKind opt, Expr* lhs, Expr* rhs, 
 				const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
 			Expr* getLHS() const;
@@ -113,8 +90,8 @@ namespace fox
 			void setLHS(Expr* expr);
 			void setRHS(Expr* expr);
 
-			BinaryOperator getOp() const;
-			void setOp(BinaryOperator op);
+			OpKind getOp() const;
+			void setOp(OpKind op);
 
 			SourceRange getOpRange() const;
 
@@ -123,11 +100,16 @@ namespace fox
 				return (expr->getKind() == ExprKind::BinaryExpr);
 			}
 
+			// Get information about an operator as a string
+			static std::string getOpSign(OpKind op);
+			static std::string getOpName(OpKind op);
+			static std::string getOpID(OpKind op);
+
 		private:
 			SourceRange opRange_;
 			Expr* lhs_ = nullptr;
 			Expr* rhs_ = nullptr;
-			BinaryOperator op_ = BinaryOperator::DEFAULT;
+			OpKind op_ = OpKind::NONE;
 	};
 
 	// Unary Expressions

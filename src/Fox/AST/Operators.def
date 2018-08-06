@@ -1,0 +1,42 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Operators.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file uses Macro to "register" every Unary & Binary operators with
+// their name and sign.
+// Every macro consists of 3 things: an ID for the operator,
+// it's sign (string), and a proper, user-friendly name (string).
+//
+// Note that each enum will have a default member "NONE", whose
+// value = 0, that's used as the default (unset) value for the enum.
+////------------------------------------------------------////
+
+#ifndef BINARY_OP
+	#define BINARY_OP(ID, SIGN, NAME)
+#endif
+
+#ifndef UNARY_OP
+	#define UNARY_OP(ID, SIGN, NAME)
+#endif
+
+BINARY_OP(Concat, "+", "String Concatenation")
+BINARY_OP(Add, "+", "Addition")
+BINARY_OP(Sub, "-", "Substraction")
+BINARY_OP(Mul, "*", "Multiplication")
+BINARY_OP(Div, "/", "Division")
+BINARY_OP(Mod, "%", "Modulo")
+BINARY_OP(Exp, "**", "Exponentiation")
+BINARY_OP(LAnd, "&&", "Logical And")
+BINARY_OP(LOr, "||", "Logical Or")
+BINARY_OP(LE, "<=", "Less Than Or Equal To")
+BINARY_OP(GE, ">=", "Greater Than Or Equal To")
+BINARY_OP(LT, "<", "Less Than")
+BINARY_OP(GT, ">", "Greater Than")
+BINARY_OP(Eq, "==", "Equal To")
+BINARY_OP(NEq, "!=", "Not Equal To")
+BINARY_OP(Assign, "=", "Assignement")
+
+#undef BINARY_OP
+#undef UNARY_OP
