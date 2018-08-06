@@ -264,22 +264,12 @@ BinaryExpr::BinaryExpr(BinaryOperator opt, Expr* lhs, Expr* rhs, const SourceLoc
 
 }
 
-Expr* BinaryExpr::getLHS()
+Expr* BinaryExpr::getLHS() const
 {
 	return lhs_;
 }
 
-Expr* BinaryExpr::getRHS()
-{
-	return rhs_;
-}
-
-const Expr* BinaryExpr::getLHS() const
-{
-	return lhs_;
-}
-
-const Expr* BinaryExpr::getRHS() const
+Expr* BinaryExpr::getRHS() const
 {
 	return rhs_;
 }
@@ -320,12 +310,7 @@ UnaryExpr::UnaryExpr(UnaryOperator opt, Expr* expr, const SourceLoc& begLoc, con
 {
 }
 
-Expr* UnaryExpr::getExpr()
-{
-	return expr_;
-}
-
-const Expr* UnaryExpr::getExpr() const
+Expr* UnaryExpr::getExpr() const
 {
 	return expr_;
 }
@@ -367,22 +352,12 @@ void CastExpr::setCastGoal(Type* goal)
 	goal_ = goal;
 }
 
-Type* CastExpr::getCastGoal()
+Type* CastExpr::getCastGoal() const
 {
 	return goal_;
 }
 
-const Type* CastExpr::getCastGoal() const
-{
-	return goal_;
-}
-
-Expr* CastExpr::getExpr()
-{
-	return expr_;
-}
-
-const Expr* CastExpr::getExpr() const
+Expr* CastExpr::getExpr() const
 {
 	return expr_;
 }
@@ -408,12 +383,7 @@ DeclRefExpr::DeclRefExpr(IdentifierInfo * declid, const SourceLoc& begLoc, const
 
 }
 
-IdentifierInfo * DeclRefExpr::getIdentifier()
-{
-	return declId_;
-}
-
-const IdentifierInfo * DeclRefExpr::getIdentifier() const
+IdentifierInfo * DeclRefExpr::getIdentifier() const
 {
 	return declId_;
 }
@@ -434,12 +404,7 @@ FunctionCallExpr::FunctionCallExpr(Expr* callee, ExprVector&& args, const Source
 {
 }
 
-Expr* FunctionCallExpr::getCallee()
-{
-	return callee_;
-}
-
-const Expr* FunctionCallExpr::getCallee() const
+Expr* FunctionCallExpr::getCallee() const
 {
 	return callee_;
 }
@@ -496,12 +461,7 @@ MemberOfExpr::MemberOfExpr(Expr* base, IdentifierInfo * idInfo,
 
 }
 
-Expr* MemberOfExpr::getBase()
-{
-	return base_;
-}
-
-const Expr* MemberOfExpr::getBase() const
+Expr* MemberOfExpr::getBase() const
 {
 	return base_;
 }
@@ -511,12 +471,7 @@ void MemberOfExpr::setBase(Expr* expr)
 	base_ = expr;
 }
 
-IdentifierInfo * MemberOfExpr::getMemberID()
-{
-	return membName_;
-}
-
-const IdentifierInfo* MemberOfExpr::getMemberID() const
+IdentifierInfo* MemberOfExpr::getMemberID() const
 {
 	return membName_;
 }
@@ -553,22 +508,12 @@ void ArrayAccessExpr::setAccessIndexExpr(Expr* expr)
 	idxExpr_ = expr;
 }
 
-Expr* ArrayAccessExpr::getBase()
+Expr* ArrayAccessExpr::getBase() const
 {
 	return base_;
 }
 
-Expr* ArrayAccessExpr::getAccessIndexExpr()
-{
-	return idxExpr_;
-}
-
-const Expr* ArrayAccessExpr::getBase() const
-{
-	return base_;
-}
-
-const Expr* ArrayAccessExpr::getAccessIndexExpr() const
+Expr* ArrayAccessExpr::getAccessIndexExpr() const
 {
 	return idxExpr_;
 }
@@ -585,12 +530,7 @@ ParensExpr::ParensExpr(Expr* expr, const SourceLoc & begLoc, const SourceLoc & e
 
 }
 
-Expr* ParensExpr::getExpr()
-{
-	return expr_;
-}
-
-const Expr* ParensExpr::getExpr() const
+Expr* ParensExpr::getExpr() const
 {
 	return expr_;
 }

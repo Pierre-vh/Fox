@@ -71,10 +71,10 @@ namespace fox
 		public:
 			NamedDecl(DeclKind kind,IdentifierInfo* id,const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			IdentifierInfo * getIdentifier() const;
+			IdentifierInfo* getIdentifier() const;
 			void setIdentifier(IdentifierInfo* nname);
-
 			bool hasIdentifier() const;
+
 			bool isValid() const;
 
 			static bool classof(const Decl* decl)
@@ -137,16 +137,13 @@ namespace fox
 			bool isValid() const;
 
 			void setReturnType(Type* ty);
-			Type* getReturnType();
-			const Type* getReturnType() const;
+			Type* getReturnType() const;
 
 			void setBody(CompoundStmt* body);
-			CompoundStmt* getBody();	
-			const CompoundStmt* getBody() const;
+			CompoundStmt* getBody() const;
 
 			void addParam(ParamDecl* arg);
-			ParamDecl* getParamDecl(std::size_t ind);
-			const ParamDecl* getParamDecl(std::size_t ind) const;
+			ParamDecl* getParamDecl(std::size_t ind) const;
 			std::size_t getNumParams() const;
 
 			ParamVecIter params_begin();
@@ -179,14 +176,11 @@ namespace fox
 
 			bool isValid() const;
 
-			SourceRange getTypeRange() const;
-
 			QualType getType() const;
 			void setType(const QualType &ty);
+			SourceRange getTypeRange() const;
 
-			Expr* getInitExpr();
-			const Expr* getInitExpr() const;
-
+			Expr* getInitExpr() const;
 			void setInitExpr(Expr* expr);
 			bool hasInitExpr() const;
 
@@ -214,10 +208,7 @@ namespace fox
 			UnitDecl(IdentifierInfo *id, FileID inFile);
 
 			void addDecl(Decl* decl);
-
-			Decl* getDecl(std::size_t idx);
-			const Decl* getDecl(std::size_t idx) const;
-
+			Decl* getDecl(std::size_t idx) const;
 			std::size_t getDeclCount() const;
 
 			// Note: Checks the validity of the decls 

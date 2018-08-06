@@ -144,32 +144,17 @@ bool ConditionStmt::hasElse() const
 	return (bool)else_;
 }
 
-Expr* ConditionStmt::getCond()
+Expr* ConditionStmt::getCond() const
 {
 	return cond_;
 }
 
-ASTNode ConditionStmt::getThen()
+ASTNode ConditionStmt::getThen() const
 {
 	return then_;
 }
 
-ASTNode ConditionStmt::getElse()
-{
-	return else_;
-}
-
-const Expr* ConditionStmt::getCond() const
-{
-	return cond_;
-}
-
-const ASTNode ConditionStmt::getThen() const
-{
-	return then_;
-}
-
-const ASTNode ConditionStmt::getElse() const
+ASTNode ConditionStmt::getElse() const
 {
 	return else_;
 }
@@ -215,26 +200,10 @@ CompoundStmt::CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc) : S
 
 }
 
-ASTNode CompoundStmt::getNode(std::size_t ind)
+ASTNode CompoundStmt::getNode(std::size_t ind) const
 {
 	assert(ind < nodes_.size() && "out-of-range");
 	return nodes_[ind];
-}
-
-const ASTNode CompoundStmt::getNode(std::size_t ind) const
-{
-	assert(ind < nodes_.size() && "out-of-range");
-	return nodes_[ind];
-}
-
-ASTNode CompoundStmt::getBack()
-{
-	return nodes_.back();
-}
-
-const ASTNode CompoundStmt::getBack() const
-{
-	return nodes_.back();
 }
 
 void CompoundStmt::addNode(ASTNode node)
@@ -290,22 +259,12 @@ WhileStmt::WhileStmt(Expr* cond, ASTNode body, const SourceLoc& begLoc, const So
 
 }
 
-Expr* WhileStmt::getCond()
+Expr* WhileStmt::getCond() const
 {
 	return cond_;
 }
 
-ASTNode WhileStmt::getBody()
-{
-	return body_;
-}
-
-const Expr* WhileStmt::getCond() const
-{
-	return cond_;
-}
-
-const ASTNode WhileStmt::getBody() const
+ASTNode WhileStmt::getBody() const
 {
 	return body_;
 }

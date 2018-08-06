@@ -86,7 +86,7 @@ NamedDecl::NamedDecl(DeclKind kind, IdentifierInfo * id, const SourceLoc& begLoc
 
 }
 
-IdentifierInfo * NamedDecl::getIdentifier() const
+IdentifierInfo* NamedDecl::getIdentifier() const
 {
 	return identifier_;;
 }
@@ -182,22 +182,12 @@ void FuncDecl::setReturnType(Type* ty)
 	returnType_ = ty;
 }
 
-Type* FuncDecl::getReturnType()
+Type* FuncDecl::getReturnType() const
 {
 	return returnType_;
 }
 
-const Type* FuncDecl::getReturnType() const
-{
-	return returnType_;
-}
-
-CompoundStmt* FuncDecl::getBody()
-{
-	return body_;
-}
-
-const CompoundStmt* FuncDecl::getBody() const
+CompoundStmt* FuncDecl::getBody() const
 {
 	return body_;
 }
@@ -207,13 +197,7 @@ void FuncDecl::setBody(CompoundStmt* body)
 	body_ = body;
 }
 
-ParamDecl* FuncDecl::getParamDecl(std::size_t ind)
-{
-	assert(ind < params_.size() && "out-of-range");
-	return params_[ind];
-}
-
-const ParamDecl* FuncDecl::getParamDecl(std::size_t ind) const
+ParamDecl* FuncDecl::getParamDecl(std::size_t ind) const
 {
 	assert(ind < params_.size() && "out-of-range");
 	return params_[ind];
@@ -279,12 +263,7 @@ QualType VarDecl::getType() const
 	return type_;
 }
 
-Expr* VarDecl::getInitExpr()
-{
-	return init_;
-}
-
-const Expr* VarDecl::getInitExpr() const
+Expr* VarDecl::getInitExpr() const
 {
 	return init_;
 }
@@ -326,13 +305,7 @@ void UnitDecl::addDecl(Decl* decl)
 	decls_.push_back(decl);
 }
 
-Decl* UnitDecl::getDecl(std::size_t idx)
-{
-	assert(idx < decls_.size() && "out-of-range");
-	return decls_[idx];
-}
-
-const Decl* UnitDecl::getDecl(std::size_t idx) const
+Decl* UnitDecl::getDecl(std::size_t idx) const
 {
 	assert(idx < decls_.size() && "out-of-range");
 	return decls_[idx];

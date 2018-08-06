@@ -107,11 +107,8 @@ namespace fox
 			BinaryExpr(BinaryOperator opt, Expr* lhs, Expr* rhs, 
 				const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
-			Expr* getLHS();
-			Expr* getRHS();
-
-			const Expr* getLHS() const;
-			const Expr* getRHS() const;
+			Expr* getLHS() const;
+			Expr* getRHS() const;
 
 			void setLHS(Expr* expr);
 			void setRHS(Expr* expr);
@@ -140,8 +137,7 @@ namespace fox
 			UnaryExpr();
 			UnaryExpr(UnaryOperator opt, Expr* node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
-			Expr* getExpr();
-			const Expr* getExpr() const;
+			Expr* getExpr() const;
 			void setExpr(Expr* expr);
 
 			UnaryOperator getOp() const;
@@ -167,12 +163,10 @@ namespace fox
 			CastExpr();
 			CastExpr(Type* castGoal, Expr* expr, const SourceLoc& begLoc, const SourceRange& typeRange, const SourceLoc& endLoc);
 			
+			Type* getCastGoal() const;
 			void setCastGoal(Type* goal);
-			Type* getCastGoal();
-			const Type* getCastGoal() const;
 
-			Expr* getExpr();
-			const  Expr* getExpr() const;
+			Expr* getExpr() const;
 			void setExpr(Expr* expr);
 
 			SourceRange getTypeRange() const;
@@ -310,8 +304,7 @@ namespace fox
 			DeclRefExpr();
 			DeclRefExpr(IdentifierInfo * declid, const SourceLoc& begLoc, const SourceLoc& endLoc);
 			
-			IdentifierInfo * getIdentifier();
-			const IdentifierInfo * getIdentifier() const;
+			IdentifierInfo* getIdentifier() const;
 			void setDeclIdentifier(IdentifierInfo * id);
 
 			static bool classof(const Expr* expr)
@@ -320,7 +313,7 @@ namespace fox
 			}
 
 		private:
-			IdentifierInfo * declId_;
+			IdentifierInfo * declId_ = nullptr;
 	};
 
 	// Represents a dot syntax "member of" expr.
@@ -332,12 +325,10 @@ namespace fox
 			MemberOfExpr(Expr* base, IdentifierInfo *idInfo, 
 				const SourceLoc& begLoc, const SourceLoc& dotLoc, const SourceLoc& endLoc);
 
-			Expr* getBase();
-			const Expr* getBase() const;
+			Expr* getBase() const;
 			void setBase(Expr* expr);
 
-			IdentifierInfo* getMemberID();
-			const IdentifierInfo* getMemberID() const;
+			IdentifierInfo* getMemberID() const;
 			void setMemberName(IdentifierInfo* idInfo);
 
 			SourceLoc getDotLoc() const;
@@ -349,8 +340,8 @@ namespace fox
 
 		private:
 			SourceLoc dotLoc_;
-			Expr* base_;
-			IdentifierInfo *membName_;
+			Expr* base_ = nullptr;
+			IdentifierInfo *membName_ = nullptr;
 	};
 
 	// Arrays accesses : foo[0], etc.
@@ -363,11 +354,8 @@ namespace fox
 			void setBase(Expr* expr);
 			void setAccessIndexExpr(Expr* expr);
 
-			Expr* getBase() ;
-			Expr* getAccessIndexExpr();
-
-			const Expr* getBase() const;
-			const Expr* getAccessIndexExpr() const;
+			Expr* getBase() const;
+			Expr* getAccessIndexExpr() const;
 
 			static bool classof(const Expr* expr)
 			{
@@ -375,8 +363,8 @@ namespace fox
 			}
 
 		private:
-			Expr* base_;
-			Expr* idxExpr_;
+			Expr* base_ = nullptr;
+			Expr* idxExpr_ = nullptr;
 	};
 
 	// Function calls
@@ -386,8 +374,7 @@ namespace fox
 			FunctionCallExpr();
 			FunctionCallExpr(Expr* callee, ExprVector&& args, const SourceLoc& begLoc, const SourceLoc& endLoc);
 			
-			Expr* getCallee();
-			const Expr* getCallee() const;
+			Expr* getCallee() const;
 			void setCallee(Expr* base);
 
 			ExprVector& getArgs();
@@ -417,8 +404,7 @@ namespace fox
 			ParensExpr();
 			ParensExpr(Expr* expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			Expr* getExpr();
-			const Expr* getExpr() const;
+			Expr* getExpr() const;
 			void setExpr(Expr* expr);
 
 			static bool classof(const Expr* expr)

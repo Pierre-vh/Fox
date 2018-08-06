@@ -76,6 +76,7 @@ namespace fox
 				return ((type->getKind() >= TypeKind::First_BuiltinType) 
 					&& (type->getKind() <= TypeKind::Last_BuiltinType));
 			}
+
 		protected:
 			BuiltinType(TypeKind tc);
 	};
@@ -114,6 +115,7 @@ namespace fox
 			{
 				return (type->getKind() == TypeKind::PrimitiveType);
 			}
+
 		private:
 			const Kind builtinKind_;
 	};
@@ -122,18 +124,19 @@ namespace fox
 	class ArrayType : public BuiltinType
 	{
 		public:
-			ArrayType(const Type* itemsTy);
+			ArrayType(Type* itemsTy);
 
 			virtual std::string getString() const override;
 
-			const Type* getItemTy() const;
+			Type* getItemTy() const;
 
 			static bool classof(const Type* type)
 			{
 				return (type->getKind() == TypeKind::ArrayType);
 			}
+
 		private:
-			const Type* itemTy_= nullptr;
+			Type* itemTy_= nullptr;
 	};
 
 	// QualType is a class that groups a pointer to a Type as well as qualifiers 
@@ -158,13 +161,13 @@ namespace fox
 			std::string getString() const;
 
 			// Returns the Type pointer (ty_)
-			Type* getType();
-			const Type* getType() const;
+			Type* getType() const;
 			void setType(Type* ty);
 
 			// Checks if this QualType is valid (ty_ != nullptr)
 			bool isValid() const;
 			explicit operator bool() const;
+
 		private:
 			Type* ty_ = nullptr;
 

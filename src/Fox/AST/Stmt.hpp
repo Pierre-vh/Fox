@@ -100,9 +100,9 @@ namespace fox
 			ReturnStmt();
 			ReturnStmt(Expr* rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			bool hasExpr() const;
 			Expr* getExpr();
 			void setExpr(Expr* e);
+			bool hasExpr() const;
 
 			static bool classof(const Stmt* stmt)
 			{
@@ -122,19 +122,16 @@ namespace fox
 				const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc);
 
 			bool isValid() const;
-			bool hasElse() const;
-
-			Expr* getCond();
-			ASTNode getThen();
-			ASTNode getElse();
-
-			const Expr* getCond() const;
-			const ASTNode getThen() const;
-			const ASTNode getElse() const;
 
 			void setCond(Expr* expr);
+			Expr* getCond() const;
+
 			void setThen(ASTNode node);
+			ASTNode getThen() const;
+
 			void setElse(ASTNode node);
+			ASTNode getElse() const;
+			bool hasElse() const;
 
 			void setIfHeaderEndLoc(const SourceLoc& sloc);
 			SourceRange getIfHeaderRange() const;
@@ -162,16 +159,8 @@ namespace fox
 			CompoundStmt();
 			CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc);
 
-			// Returns a node
-			ASTNode getNode(std::size_t ind);
-			const ASTNode getNode(std::size_t ind) const;
-
-			// Returns the last node
-			ASTNode getBack();
-			const ASTNode getBack() const;
-
 			void addNode(ASTNode stmt);
-
+			ASTNode getNode(std::size_t ind) const;
 			bool isEmpty() const;
 			std::size_t size() const;
 
@@ -200,14 +189,11 @@ namespace fox
 			WhileStmt();
 			WhileStmt(Expr* cond, ASTNode body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc);
 
-			Expr* getCond();
-			ASTNode getBody();
-
-			const Expr* getCond() const;
-			const ASTNode getBody() const;
-
 			void setCond(Expr* cond);
+			Expr* getCond() const;
+
 			void setBody(ASTNode body);
+			ASTNode getBody() const;
 
 			SourceLoc getHeaderEndLoc() const;
 			SourceRange getHeaderRange() const;
