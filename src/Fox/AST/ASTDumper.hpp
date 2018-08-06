@@ -57,9 +57,6 @@ namespace fox
 			void setPrintAllAddresses(bool opt);
 			bool getPrintAllAddresses() const;
 
-			void setDumpOperatorsAsNames(bool opt);
-			bool getDumpOperatorsAsNames() const;
-
 		private:
 			void initDefaultOptions();
 
@@ -86,8 +83,7 @@ namespace fox
 			std::string getBasicTypeInfo(Type* type) const;
 
 			// Dump an operator in 2 different ways, depending on dumpOperatorsAsNames_
-			// if dumpOperatorsAsNames_ = true, returns e.g. "ADDITION" instead of '+'
-			std::string getOperatorDump(BinaryOperator op) const;
+			std::string getOperatorDump(BinaryExpr::OpKind op) const;
 			std::string getOperatorDump(UnaryOperator op) const;
 
 			// Returns a formatted string "<DeclContext (adress), Parent: (adress)>"
@@ -124,6 +120,5 @@ namespace fox
 
 			// Options
 			bool printAllAdresses_ : 1;
-			bool dumpOperatorsAsNames_ : 1;
 	};
 }

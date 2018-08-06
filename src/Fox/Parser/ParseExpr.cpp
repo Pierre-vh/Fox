@@ -255,7 +255,7 @@ Parser::ExprResult Parser::parseExponentExpr()
 
 		return ExprResult(
 			new(ctxt_) BinaryExpr(
-					BinaryOperator::EXP,
+					BinaryExpr::OpKind::Exp,
 					lhs.get(),
 					rhs.get(),
 					begLoc,
@@ -586,18 +586,20 @@ SourceRange Parser::parseExponentOp()
 	return SourceRange();
 }
 
-Parser::Result<BinaryOperator> Parser::parseAssignOp()
+Parser::Result<BinaryExpr::OpKind> Parser::parseAssignOp()
 {
+	using BinOp = BinaryExpr::OpKind;
+
 	auto backup = createParserStateBackup();
 	if (auto equal = consumeSign(SignType::S_EQUAL))
 	{
 		// Try to match a S_EQUAL. If failed, that means that the next token isn't a =
 		// If it succeeds, we founda '==', this is the comparison operator and we must backtrack to prevent errors.
 		if (!consumeSign(SignType::S_EQUAL))
-			return Result<BinaryOperator>(BinaryOperator::ASSIGN_BASIC,SourceRange(equal));
+			return Result<BinOp>(BinOp::Assign,SourceRange(equal));
 		restoreParserStateFromBackup(backup);
 	}
-	return Result<BinaryOperator>::NotFound();
+	return Result<BinOp>::NotFound();
 }
 
 Parser::Result<UnaryOperator> Parser::parseUnaryOp()
@@ -611,11 +613,13 @@ Parser::Result<UnaryOperator> Parser::parseUnaryOp()
 	return Result<UnaryOperator>::NotFound();
 }
 
-Parser::Result<BinaryOperator> Parser::parseBinaryOp(std::uint8_t priority)
+Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority)
 {
+	using BinOp = BinaryExpr::OpKind;
+
 	// Check current Token validity, also check if it's a sign because if it isn't we can return directly!
 	if (!getCurtok().isValid() || !getCurtok().isSign())
-		return Result<BinaryOperator>::NotFound();
+		return Result<BinOp>::NotFound();
 
 	auto backup = createParserStateBackup();
 
@@ -625,31 +629,31 @@ Parser::Result<BinaryOperator> Parser::parseBinaryOp(std::uint8_t priority)
 			if (auto asterisk = consumeSign(SignType::S_ASTERISK))
 			{
 				if (!consumeSign(SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
-					return Result<BinaryOperator>(BinaryOperator::MUL, SourceRange(asterisk));
+					return Result<BinOp>(BinOp::Mul, SourceRange(asterisk));
 			}
 			else if (auto slash = consumeSign(SignType::S_SLASH))
-				return Result<BinaryOperator>(BinaryOperator::DIV, SourceRange(slash));
+				return Result<BinOp>(BinOp::Div, SourceRange(slash));
 			else if (auto percent = consumeSign(SignType::S_PERCENT))
-				return Result<BinaryOperator>(BinaryOperator::MOD, SourceRange(percent));
+				return Result<BinOp>(BinOp::Mod, SourceRange(percent));
 			break;
 		case 1: // + -
 			if (auto plus = consumeSign(SignType::S_PLUS))
-				return Result<BinaryOperator>(BinaryOperator::ADD, SourceRange(plus));
+				return Result<BinOp>(BinOp::Add, SourceRange(plus));
 			else if (auto minus = consumeSign(SignType::S_MINUS))
-				return Result<BinaryOperator>(BinaryOperator::MINUS, SourceRange(minus));
+				return Result<BinOp>(BinOp::Sub, SourceRange(minus));
 			break;
 		case 2: // > >= < <=
 			if (auto lessthan = consumeSign(SignType::S_LESS_THAN))
 			{
 				if (auto equal = consumeSign(SignType::S_EQUAL))
-					return Result<BinaryOperator>(BinaryOperator::LESS_OR_EQUAL, SourceRange(lessthan,equal));
-				return Result<BinaryOperator>(BinaryOperator::LESS_THAN, SourceRange(lessthan));
+					return Result<BinOp>(BinOp::LE, SourceRange(lessthan,equal));
+				return Result<BinOp>(BinOp::LT, SourceRange(lessthan));
 			}
 			else if (auto grthan = consumeSign(SignType::S_GREATER_THAN))
 			{
 				if (auto equal = consumeSign(SignType::S_EQUAL))
-					return Result<BinaryOperator>(BinaryOperator::GREATER_OR_EQUAL, SourceRange(grthan,equal));
-				return Result<BinaryOperator>(BinaryOperator::GREATER_THAN, SourceRange(grthan));
+					return Result<BinOp>(BinOp::GE, SourceRange(grthan,equal));
+				return Result<BinOp>(BinOp::GT, SourceRange(grthan));
 			}
 			break;
 		case 3:	// == !=
@@ -657,26 +661,26 @@ Parser::Result<BinaryOperator> Parser::parseBinaryOp(std::uint8_t priority)
 			if (auto equal1 = consumeSign(SignType::S_EQUAL))
 			{
 				if (auto equal2 = consumeSign(SignType::S_EQUAL))
-					return Result<BinaryOperator>(BinaryOperator::EQUAL, SourceRange(equal1,equal2));
+					return Result<BinOp>(BinOp::Eq, SourceRange(equal1,equal2));
 			}
 			else if (auto excl = consumeSign(SignType::S_EXCL_MARK))
 			{
 				if (auto equal =consumeSign(SignType::S_EQUAL))
-					return Result<BinaryOperator>(BinaryOperator::NOTEQUAL, SourceRange(excl,equal));
+					return Result<BinOp>(BinOp::NEq, SourceRange(excl,equal));
 			}
 			break;
 		case 4: // &&
 			if (auto amp1 = consumeSign(SignType::S_AMPERSAND))
 			{
 				if (auto amp2 = consumeSign(SignType::S_AMPERSAND))
-					return Result<BinaryOperator>(BinaryOperator::LOGIC_AND, SourceRange(amp1,amp2));
+					return Result<BinOp>(BinOp::LAnd, SourceRange(amp1,amp2));
 			}
 			break;
 		case 5: // ||
 			if (auto vbar1 = consumeSign(SignType::S_VBAR))
 			{
 				if (auto vbar2 = consumeSign(SignType::S_VBAR))
-					return Result<BinaryOperator>(BinaryOperator::LOGIC_OR, SourceRange(vbar1,vbar2));
+					return Result<BinOp>(BinOp::LOr, SourceRange(vbar1,vbar2));
 			}
 			break;
 		default:
@@ -684,5 +688,5 @@ Parser::Result<BinaryOperator> Parser::parseBinaryOp(std::uint8_t priority)
 			break;
 	}
 	restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
-	return Result<BinaryOperator>::NotFound();
+	return Result<BinOp>::NotFound();
 }

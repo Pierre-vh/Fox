@@ -286,21 +286,10 @@ bool ASTDumper::getPrintAllAddresses() const
 	return printAllAdresses_;
 }
 
-void ASTDumper::setDumpOperatorsAsNames(bool opt)
-{
-	dumpOperatorsAsNames_ = opt;
-}
-
-bool ASTDumper::getDumpOperatorsAsNames() const
-{
-	return dumpOperatorsAsNames_;
-}
-
 void ASTDumper::initDefaultOptions()
 {
 	// currently it's hard coded defaults
 	printAllAdresses_ = false;
-	dumpOperatorsAsNames_ = false;
 }
 
 std::ostream & ASTDumper::dumpLine(std::uint8_t num)
@@ -415,18 +404,16 @@ std::string ASTDumper::getBasicTypeInfo(Type* type) const
 	return ss.str();
 }
 
-std::string ASTDumper::getOperatorDump(BinaryOperator op) const
+std::string ASTDumper::getOperatorDump(BinaryExpr::OpKind op) const
 {
-	if (dumpOperatorsAsNames_)
-		return "'" + operators::getName(op) + "'";
-	return "'" + operators::toString(op) + "'";
+	std::ostringstream ss;
+	ss << BinaryExpr::getOpSign(op) << " (" << BinaryExpr::getOpName(op) << ")";
+	return ss.str();
 }
 
 std::string ASTDumper::getOperatorDump(UnaryOperator op) const
 {
-	if (dumpOperatorsAsNames_)
-		return "'" + operators::getName(op) + "'";
-	return "'" + operators::toString(op) + "'";
+	return "'" + operators::getName(op) + "'";
 }
 
 std::string ASTDumper::getDeclRecorderDump(DeclContext* dr) const

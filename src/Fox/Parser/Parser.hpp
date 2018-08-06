@@ -131,10 +131,10 @@ namespace fox
 			// Parses a QualType 
 			Result<QualType> parseQualType();
 
-			Result<BinaryOperator> parseAssignOp();						// = 
-			Result<UnaryOperator>  parseUnaryOp();						// ! - +
-			Result<BinaryOperator> parseBinaryOp(std::uint8_t priority);	// + - * / % 
-			SourceRange parseExponentOp();											//  **
+			Result<BinaryExpr::OpKind> parseAssignOp();
+			Result<UnaryOperator>  parseUnaryOp();
+			Result<BinaryExpr::OpKind> parseBinaryOp(std::uint8_t priority);
+			SourceRange parseExponentOp();
 
 			/*-------------- Token Consuming --------------*/
 			/*	
