@@ -132,7 +132,7 @@ namespace fox
 			Result<QualType> parseQualType();
 
 			Result<BinaryExpr::OpKind> parseAssignOp();
-			Result<UnaryOperator>  parseUnaryOp();
+			Result<UnaryExpr::OpKind> parseUnaryOp();
 			Result<BinaryExpr::OpKind> parseBinaryOp(std::uint8_t priority);
 			SourceRange parseExponentOp();
 

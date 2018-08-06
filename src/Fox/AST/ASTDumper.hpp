@@ -84,7 +84,7 @@ namespace fox
 
 			// Dump an operator in 2 different ways, depending on dumpOperatorsAsNames_
 			std::string getOperatorDump(BinaryExpr::OpKind op) const;
-			std::string getOperatorDump(UnaryOperator op) const;
+			std::string getOperatorDump(UnaryExpr::OpKind op) const;
 
 			// Returns a formatted string "<DeclContext (adress), Parent: (adress)>"
 			std::string getDeclRecorderDump(DeclContext* dr) const;

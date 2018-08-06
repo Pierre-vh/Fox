@@ -602,15 +602,17 @@ Parser::Result<BinaryExpr::OpKind> Parser::parseAssignOp()
 	return Result<BinOp>::NotFound();
 }
 
-Parser::Result<UnaryOperator> Parser::parseUnaryOp()
+Parser::Result<UnaryExpr::OpKind> Parser::parseUnaryOp()
 {
+	using UOp = UnaryExpr::OpKind;
+
 	if (auto excl = consumeSign(SignType::S_EXCL_MARK))
-		return Result<UnaryOperator>(UnaryOperator::LOGICNOT, SourceRange(excl));
+		return Result<UOp>(UOp::LNot, SourceRange(excl));
 	else if (auto minus = consumeSign(SignType::S_MINUS))
-		return Result<UnaryOperator>(UnaryOperator::NEGATIVE, SourceRange(minus));
+		return Result<UOp>(UOp::Minus, SourceRange(minus));
 	else if (auto plus = consumeSign(SignType::S_PLUS))
-		return Result<UnaryOperator>(UnaryOperator::POSITIVE, SourceRange(plus));
-	return Result<UnaryOperator>::NotFound();
+		return Result<UOp>(UOp::Plus, SourceRange(plus));
+	return Result<UOp>::NotFound();
 }
 
 Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority)

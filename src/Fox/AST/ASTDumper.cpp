@@ -411,9 +411,11 @@ std::string ASTDumper::getOperatorDump(BinaryExpr::OpKind op) const
 	return ss.str();
 }
 
-std::string ASTDumper::getOperatorDump(UnaryOperator op) const
+std::string ASTDumper::getOperatorDump(UnaryExpr::OpKind op) const
 {
-	return "'" + operators::getName(op) + "'";
+	std::ostringstream ss;
+	ss << UnaryExpr::getOpSign(op) << " (" << UnaryExpr::getOpName(op) << ")";
+	return ss.str();
 }
 
 std::string ASTDumper::getDeclRecorderDump(DeclContext* dr) const
