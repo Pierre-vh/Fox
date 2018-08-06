@@ -16,28 +16,6 @@
 
 using namespace fox;
 
-static const std::map<UnaryOperator, std::pair<std::string,std::string>> kUnaryOpToStr_dict =
-{
-	{ UnaryOperator::DEFAULT	, {" ", "!INVALID!"}},
-	{ UnaryOperator::LOGICNOT	, {"!", "LOGICAL NOT"}},
-	{ UnaryOperator::NEGATIVE	, {"-", "NEGATIVE"}},
-	{ UnaryOperator::POSITIVE	, {"+", "POSITIVE"}}
-};
-
-std::string operators::toString(const UnaryOperator & op)
-{
-	auto it = kUnaryOpToStr_dict.find(op);
-	assert((it != kUnaryOpToStr_dict.end()) && "Unknown operator?");
-	return it->second.first;
-}
-
-std::string operators::getName(const UnaryOperator & op)
-{
-	auto it = kUnaryOpToStr_dict.find(op);
-	assert((it != kUnaryOpToStr_dict.end()) && "Unknown operator?");
-	return it->second.second;
-}
-
 // Expr
 Expr::Expr(ExprKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc) : kind_(kind), range_(begLoc, endLoc)
 {
@@ -217,14 +195,14 @@ bool ArrayLiteralExpr::isEmpty() const
 }
 
 // BinaryExpr
-BinaryExpr::BinaryExpr() : BinaryExpr(OpKind::NONE, nullptr,
+BinaryExpr::BinaryExpr() : BinaryExpr(OpKind::None, nullptr,
 	nullptr, SourceLoc(), SourceRange(), SourceLoc())
 {
 
 }
 
-BinaryExpr::BinaryExpr(OpKind opt, Expr* lhs, Expr* rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
-	op_(opt), Expr(ExprKind::BinaryExpr, begLoc, endLoc), opRange_(opRange), lhs_(lhs), rhs_(rhs)
+BinaryExpr::BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc) :
+	op_(op), Expr(ExprKind::BinaryExpr, begLoc, endLoc), opRange_(opRange), lhs_(lhs), rhs_(rhs)
 {
 
 }
@@ -268,7 +246,7 @@ std::string BinaryExpr::getOpSign(OpKind op)
 {
 	switch (op)
 	{
-		case OpKind::NONE:
+		case OpKind::None:
 			return "";
 		#define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
 		#include "Operators.def"
@@ -281,8 +259,8 @@ std::string BinaryExpr::getOpID(OpKind op)
 {
 	switch (op)
 	{
-		case OpKind::NONE:
-			return "NONE";
+		case OpKind::None:
+			return "None";
 		#define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return #ID;
 		#include "Operators.def"
 		default:
@@ -294,7 +272,7 @@ std::string BinaryExpr::getOpName(OpKind op)
 {
 	switch (op)
 	{
-		case OpKind::NONE:
+		case OpKind::None:
 			return "None";
 		#define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return NAME;
 		#include "Operators.def"
@@ -304,13 +282,14 @@ std::string BinaryExpr::getOpName(OpKind op)
 }
 
 // UnaryExpr
-UnaryExpr::UnaryExpr() : UnaryExpr(UnaryOperator::DEFAULT,nullptr,SourceLoc(),SourceRange(),SourceLoc())
+UnaryExpr::UnaryExpr() : UnaryExpr(OpKind::None, nullptr,
+	SourceLoc(), SourceRange(), SourceLoc())
 {
 
 }
 
-UnaryExpr::UnaryExpr(UnaryOperator opt, Expr* expr, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc)
-	: op_(opt), Expr(ExprKind::UnaryExpr,begLoc,endLoc), opRange_(opRange), expr_(expr)
+UnaryExpr::UnaryExpr(OpKind op, Expr* expr, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc)
+	: op_(op), Expr(ExprKind::UnaryExpr,begLoc,endLoc), opRange_(opRange), expr_(expr)
 {
 }
 
@@ -324,19 +303,58 @@ void UnaryExpr::setExpr(Expr* expr)
 	expr_ = expr;
 }
 
-UnaryOperator UnaryExpr::getOp() const
+UnaryExpr::OpKind UnaryExpr::getOp() const
 {
 	return op_;
 }
 
-void UnaryExpr::setOp(UnaryOperator nop)
+void UnaryExpr::setOp(OpKind op)
 {
-	op_ = nop;
+	op_ = op;
 }
 
 SourceRange UnaryExpr::getOpRange() const
 {
 	return opRange_;
+}
+
+std::string UnaryExpr::getOpSign(OpKind op)
+{
+	switch (op)
+	{
+		case OpKind::None:
+			return "";
+		#define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
+		#include "Operators.def"
+		default:
+			fox_unreachable("Unknown unary operator kind");
+	}
+}
+
+std::string UnaryExpr::getOpID(OpKind op)
+{
+	switch (op)
+	{
+		case OpKind::None:
+			return "None";
+		#define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return #ID;
+		#include "Operators.def"
+		default:
+			fox_unreachable("Unknown unary operator kind");
+	}
+}
+
+std::string UnaryExpr::getOpName(OpKind op)
+{
+	switch (op)
+	{
+		case OpKind::None:
+			return "None";
+		#define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return NAME;
+		#include "Operators.def"
+		default:
+			fox_unreachable("Unknown unary operator kind");
+	}
 }
 
 // CastExpr

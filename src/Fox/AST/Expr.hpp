@@ -15,20 +15,6 @@
 
 namespace fox	
 {
-	enum class UnaryOperator
-	{
-		DEFAULT,
-		LOGICNOT,		// ! 
-		NEGATIVE,		// -
-		POSITIVE		// +
-	};
-
-	namespace operators
-	{
-		std::string toString(const UnaryOperator& op);
-		std::string getName(const UnaryOperator& op);
-	}
-
 	// The ExprKind enum
 	enum class ExprKind : std::uint8_t
 	{
@@ -75,7 +61,7 @@ namespace fox
 		public:
 			enum class OpKind: std::uint8_t
 			{
-				NONE,
+				None,
 				#define BINARY_OP(ID, SIGN, NAME) ID,
 				#include "Operators.def"
 			};
@@ -109,21 +95,29 @@ namespace fox
 			SourceRange opRange_;
 			Expr* lhs_ = nullptr;
 			Expr* rhs_ = nullptr;
-			OpKind op_ = OpKind::NONE;
+			OpKind op_ = OpKind::None;
 	};
 
 	// Unary Expressions
 	class UnaryExpr : public Expr
 	{
 		public: 
+
+			enum class OpKind : std::uint8_t
+			{
+				None,
+				#define UNARY_OP(ID, SIGN, NAME) ID,
+				#include "Operators.def"
+			};
+
 			UnaryExpr();
-			UnaryExpr(UnaryOperator opt, Expr* node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
+			UnaryExpr(OpKind op, Expr* node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
 			Expr* getExpr() const;
 			void setExpr(Expr* expr);
 
-			UnaryOperator getOp() const;
-			void setOp(UnaryOperator nop);
+			OpKind getOp() const;
+			void setOp(OpKind op);
 
 			SourceRange getOpRange() const;
 
@@ -132,10 +126,15 @@ namespace fox
 				return (expr->getKind() == ExprKind::UnaryExpr);
 			}
 
+			// Get information about an operator as a string
+			static std::string getOpSign(OpKind op);
+			static std::string getOpName(OpKind op);
+			static std::string getOpID(OpKind op);
+
 		private:
 			SourceRange opRange_;
 			Expr* expr_ = nullptr;
-			UnaryOperator op_ = UnaryOperator::DEFAULT;
+			OpKind op_ = OpKind::None;
 	};
 
 	// Explicit Cast Expressions

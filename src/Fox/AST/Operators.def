@@ -21,6 +21,7 @@
 	#define UNARY_OP(ID, SIGN, NAME)
 #endif
 
+// Binary Operators
 BINARY_OP(Concat, "+", "String Concatenation")
 BINARY_OP(Add, "+", "Addition")
 BINARY_OP(Sub, "-", "Substraction")
@@ -37,6 +38,11 @@ BINARY_OP(GT, ">", "Greater Than")
 BINARY_OP(Eq, "==", "Equal To")
 BINARY_OP(NEq, "!=", "Not Equal To")
 BINARY_OP(Assign, "=", "Assignement")
+
+// Unary Operators
+UNARY_OP(LNot, "!", "Logical Negation")
+UNARY_OP(Plus, "+", "Unary Plus")
+UNARY_OP(Minus, "-", "Unary Minus")
 
 #undef BINARY_OP
 #undef UNARY_OP
