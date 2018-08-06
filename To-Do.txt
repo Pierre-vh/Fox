@@ -47,32 +47,33 @@ Moonshot Project To-do List.
 	> AST: Divide the hierarchies (Done)
 	> Review code of expr/stmt/decl/astnode (Done)
 
-	> LinearAllocator update (Next)
+	> Finish the PtrVariant & Document it more
+
+	> Add custom return types for expr/decl/stmt/types for the ASTVisitor 
+	> Change from double SourceLoc to SourceRange for the AST loc info  (more space efficient)
+	> Document Stmt.hpp & Decl.hpp like Expr.hpp
+
+	> LinearAllocator update
 		>	add a function to RollBack the AllocPtr to a specific void*, which would be
 			used by the companion delete when a constructor has thrown. Also it could be a good
 			idea to backup the latest AllocPtr to compare it with the rollback ptr! (assert that lastAllocPtr < rollbackPtr < allocPtr)
 
-	> Finish PtrVariant and Add it/Test it (Next)
-		> Finish the ptrvariant
-			> See what should be const and what shouldn't
-			> Document the code more
+	> New Expr Nodes (will require some parser work)
+		> UncheckedDotSyntaxExpr (#)
+			-> Will capture the function call if there's one
+		> Split DeclRef 
+			> UnresolvedDeclRef (contains only a identifier info)
+			> DeclRef (contains only a pointer to a decl)
+			> UnresolvedOverloadSet (contains a vector of pointers to Decl*)
+				> Can create one from a LookupResult? 
 
-	> Add custom return types for expr/decl/stmt/types for the ASTVisitor 
-	> Change from double SourceLoc to SourceRange for the AST loc info (more space efficient)
-
-	> AST Rework:
-		> Expr: 
-			a) UncheckedDotSyntaxExpr
-				-> Captures the () if there's one
-				-> Can resolve in a function call (UFCS) or a MemberAccess expr
-			b) UnresolvedDeclRef?
-				-> transforms to a DeclRef or "UnresolvedOverloadSet"
-		> Types:
-			a) Type -> TypeBase + Type object, which is a observing "smart" pointer to a Type
-				Note: this is to be decided, I don't know yet if I'll keep the Type*.
-				This would be done I case I add sugared types, and to abstract the pointer-ness, leaving
-				more implementation freedom, etc. (Also easier to pass a type by reference, avoiding double pointers or ref to pointers)
-			b) ErrorType
+	> Types:
+		> Type becomes TypeBase, and a new "Type" class is created
+			> TypeBase -> Type Hierarchy
+			> Type -> Observing pointer to a TypeBase
+			Once that's done, add a Type object to Expr
+		> ErrorType
+			> Type representing an error.
 
 	> Adopt a Documentation style and document all of the code with it thoroughly.
 	  Probably use doxygen-style comments?
