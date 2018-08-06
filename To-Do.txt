@@ -43,6 +43,9 @@ Moonshot Project To-do List.
 	> Compile without RTTI (Done)
 	> Diagnostics Overhaul (Done)
 	> Finish the LinearAllocator (Done)
+	> AST: Allocator: Move from unique_ptrs to raw allocated pointers (Done)
+	> AST: Divide the hierarchies (Done)
+	> Review code of expr/stmt/decl/astnode (Done)
 
 	> LinearAllocator update (Next)
 		>	add a function to RollBack the AllocPtr to a specific void*, which would be
@@ -50,35 +53,31 @@ Moonshot Project To-do List.
 			idea to backup the latest AllocPtr to compare it with the rollback ptr! (assert that lastAllocPtr < rollbackPtr < allocPtr)
 
 	> Finish PtrVariant and Add it/Test it (Next)
-		> polish the ptrvariant
+		> Finish the ptrvariant
 			> See what should be const and what shouldn't
 			> Document the code more
-		> review code of expr/stmt/decl/astnode
-			> Remove const duplicates of getter, they're useless, make all getters const, returning the pointer
+
+	> Add custom return types for expr/decl/stmt/types for the ASTVisitor 
+	> Change from double SourceLoc to SourceRange for the AST loc info (more space efficient)
 
 	> AST Rework:
-		1) Allocator: Move from unique_ptrs to raw allocated pointers (Done)
-		2) Restructure the AST (Next)
-			a) Divide the hierarchies: Expr/Stmt/Types/Decls should be distinct, use a PtrVariant for the "ASTNode" type
-				+ Visitor "rework" (polishing, adding custom return types for every hierarchy)
-				+ Change Double SourceLocs for beg/endloc to SourceRange (more space efficient)
-			b) Expr: 
-				a) UncheckedDotSyntaxExpr
-					-> Captures the () if there's one
-					-> Can resolve in a function call (UFCS) or a MemberAccess expr
-				b) UnresolvedDeclRef?
-					-> transforms to a DeclRef or "UnresolvedOverloadSet"
-			c) Types:
-				a) Type -> TypeBase + Type object, which is a observing "smart" pointer to a Type
-					Note: this is to be decided, I don't know yet if I'll keep the Type*.
-					This would be done I case I add sugared types, and to abstract the pointer-ness, leaving
-					more implementation freedom.
+		> Expr: 
+			a) UncheckedDotSyntaxExpr
+				-> Captures the () if there's one
+				-> Can resolve in a function call (UFCS) or a MemberAccess expr
+			b) UnresolvedDeclRef?
+				-> transforms to a DeclRef or "UnresolvedOverloadSet"
+		> Types:
+			a) Type -> TypeBase + Type object, which is a observing "smart" pointer to a Type
+				Note: this is to be decided, I don't know yet if I'll keep the Type*.
+				This would be done I case I add sugared types, and to abstract the pointer-ness, leaving
+				more implementation freedom, etc. (Also easier to pass a type by reference, avoiding double pointers or ref to pointers)
+			b) ErrorType
 
-				b) ErrorType
+	> Adopt a Documentation style and document all of the code with it thoroughly.
+	  Probably use doxygen-style comments?
 
 	> Semantic Analysis
-		(ideas, see if it's actually needed + follow personal notes for structure)
-		> FunctionType
-		> OverloadType
+
 
 					
