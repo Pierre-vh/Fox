@@ -21,12 +21,13 @@ Reworks:
 			> Create another folder "Lexer_Rework" which will contain the new source code for the Lexer, and I'll write the code there
 			  test it and make sure it works before actually replacing the actual one. This will allow me to take my time to write it without interfering
 			  with the existing code too much.
+			  Lexer's new home will be the Parser folder (renamed to Parse?)
 			> Make the Lexer & Parser tightly coupled. The Parser itself should call the Lexer to Lex a token. (no more storage in a vector)
 				> This will require the Parser or Lexer to have a caching mechanism, and use "cached" token when backtracking is required.
 				> the "createParserStateBackup" functions will be removed, and replaced with a call to the lexer similar to "lexer_.backtrack(x)"
 			> Stop using a DFA. Use a proper grammar with a recursive descent technique
 			  and a config file (.def) to register valid terminals (so it's easy to add new characters for another language)
-
+			> Register separators in a .def file?
 Performance:
 	Diagnostics:
 		1) The Diagnostic object is quite large (few hundred bytes), and, as it's nearly always a temporary object, this could maybe
