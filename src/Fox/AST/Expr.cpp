@@ -16,7 +16,10 @@
 
 using namespace fox;
 
-// Expr
+//------//
+// Expr //
+//------//
+
 Expr::Expr(ExprKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc) : kind_(kind), range_(begLoc, endLoc)
 {
 
@@ -47,8 +50,10 @@ void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
 	return ctxt.getAllocator().allocate(sz, align);
 }
 
+//-----------------//
+// CharLiteralExpr //
+//-----------------//
 
-// Literals : Char literals
 CharLiteralExpr::CharLiteralExpr() : CharLiteralExpr(0, SourceLoc(), SourceLoc())
 {
 
@@ -70,7 +75,10 @@ void CharLiteralExpr::setVal(CharType val)
 	val_ = val;
 }
 
-// Literals : Integer literals
+//--------------------//
+// IntegerLiteralExpr //
+//--------------------//
+
 IntegerLiteralExpr::IntegerLiteralExpr() : IntegerLiteralExpr(0,SourceLoc(),SourceLoc())
 {
 
@@ -92,7 +100,10 @@ void IntegerLiteralExpr::setVal(IntType val)
 	val_ = val;
 }
 
-// Literals : Float literals
+//------------------//
+// FloatLiteralExpr //
+//------------------//
+
 FloatLiteralExpr::FloatLiteralExpr() : FloatLiteralExpr(0,SourceLoc(),SourceLoc())
 {
 
@@ -114,7 +125,10 @@ void FloatLiteralExpr::setVal(FloatType val)
 	val_ = val;
 }
 
-// Literals : String literals
+//-------------------//
+// StringLiteralExpr //
+//-------------------//
+
 StringLiteralExpr::StringLiteralExpr() : StringLiteralExpr("",SourceLoc(),SourceLoc())
 {
 
@@ -136,7 +150,10 @@ void StringLiteralExpr::setVal(const std::string & val)
 	val_ = val;
 }
 
-// Literals : Bool literals
+//-----------------//
+// BoolLiteralExpr //
+//-----------------//
+
 BoolLiteralExpr::BoolLiteralExpr() : BoolLiteralExpr(false,SourceLoc(),SourceLoc())
 {
 
@@ -158,7 +175,10 @@ void BoolLiteralExpr::setVal(bool val)
 	val_ = val;
 }
 
-// Literals: Array literals
+//------------------//
+// ArrayLiteralExpr //
+//------------------//
+
 ArrayLiteralExpr::ArrayLiteralExpr() : ArrayLiteralExpr(ExprVector(), SourceLoc(), SourceLoc())
 {
 }
@@ -194,7 +214,10 @@ bool ArrayLiteralExpr::isEmpty() const
 	return (exprs_.size() == 0);
 }
 
-// BinaryExpr
+//------------//
+// BinaryExpr //
+//------------//
+
 BinaryExpr::BinaryExpr() : BinaryExpr(OpKind::Invalid, nullptr,
 	nullptr, SourceLoc(), SourceRange(), SourceLoc())
 {
@@ -275,7 +298,10 @@ std::string BinaryExpr::getOpName(OpKind op)
 	}
 }
 
-// UnaryExpr
+//-----------//
+// UnaryExpr //
+//-----------//
+
 UnaryExpr::UnaryExpr() : UnaryExpr(OpKind::Invalid, nullptr,
 	SourceLoc(), SourceRange(), SourceLoc())
 {
@@ -345,7 +371,10 @@ std::string UnaryExpr::getOpName(OpKind op)
 	}
 }
 
-// CastExpr
+//----------//
+// CastExpr //
+//----------//
+
 CastExpr::CastExpr() : CastExpr(nullptr,nullptr,SourceLoc(),SourceRange(),SourceLoc())
 {
 
@@ -382,28 +411,34 @@ SourceRange CastExpr::getTypeRange() const
 	return typeRange_;
 }
 
-// DeclRefs
+//-------------//
+// DeclRefExpr //
+//-------------//
+
 DeclRefExpr::DeclRefExpr() : DeclRefExpr(nullptr,SourceLoc(),SourceLoc())
 {
 }
 
-DeclRefExpr::DeclRefExpr(IdentifierInfo * declid, const SourceLoc& begLoc, const SourceLoc& endLoc)
+DeclRefExpr::DeclRefExpr(IdentifierInfo* declid, const SourceLoc& begLoc, const SourceLoc& endLoc)
 	: declId_(declid), Expr(ExprKind::DeclRefExpr,begLoc,endLoc)
 {
 
 }
 
-IdentifierInfo * DeclRefExpr::getIdentifier() const
+IdentifierInfo* DeclRefExpr::getIdentifier() const
 {
 	return declId_;
 }
 
-void DeclRefExpr::setDeclIdentifier(IdentifierInfo * id)
+void DeclRefExpr::setDeclIdentifier(IdentifierInfo* id)
 {
 	declId_ = id;
 }
 
-// function call
+//------------------//
+// FunctionCallExpr //
+//------------------//
+
 FunctionCallExpr::FunctionCallExpr() : FunctionCallExpr(nullptr, ExprVector(), SourceLoc(), SourceLoc())
 {
 
@@ -459,7 +494,10 @@ ExprVector::const_iterator FunctionCallExpr::args_end() const
 	return args_.end();
 }
 
-// MemberOf Expr
+//--------------//
+// MemberOfExpr //
+//--------------//
+
 MemberOfExpr::MemberOfExpr() : MemberOfExpr(nullptr,nullptr,SourceLoc(),SourceLoc(),SourceLoc())
 {
 }
@@ -496,7 +534,10 @@ SourceLoc MemberOfExpr::getDotLoc() const
 	return dotLoc_;
 }
 
-// Array Access
+//-----------------//
+// ArrayAccessExpr //
+//-----------------//
+
 ArrayAccessExpr::ArrayAccessExpr() : ArrayAccessExpr(nullptr,nullptr,SourceLoc(),SourceLoc())
 {
 
@@ -528,7 +569,10 @@ Expr* ArrayAccessExpr::getAccessIndexExpr() const
 	return idxExpr_;
 }
 
-// Parens Expr
+//------------//
+// ParensExpr //
+//------------//
+
 ParensExpr::ParensExpr() : ParensExpr(nullptr, SourceLoc(), SourceLoc())
 {
 

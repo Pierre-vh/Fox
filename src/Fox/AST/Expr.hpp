@@ -4,10 +4,11 @@
 // File : Expr.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// Declares the Expr interface as well as derived nodes. 
+// This file contains the Expr Hierarchy.
 ////------------------------------------------------------////
 
 #pragma once
+
 #include "Fox/Common/Typedefs.hpp"
 #include "Fox/AST/Type.hpp"
 #include "Fox/Common/Source.hpp"
@@ -15,17 +16,19 @@
 
 namespace fox	
 {
-	// The ExprKind enum
-	enum class ExprKind : std::uint8_t
+	// Kinds of Expressions
+	enum class ExprKind: std::uint8_t
 	{
 		#define EXPR(ID,PARENT) ID,
 		#include "ExprNodes.def"
 	};
 
+	// Forward Declarations
 	class IdentifierInfo;
 	class ASTContext;
 
-	// Base class for every expression.
+	// Expr
+	//		Common base class for every expression
 	class Expr
 	{
 		public:
@@ -55,7 +58,11 @@ namespace fox
 			SourceRange range_;
 	};
 
-	// Binary Expressions
+	// A Vector of Pointers to Expressions
+	using ExprVector = std::vector<Expr*>;
+
+	// BinaryExpr
+	//		A binary expression: 2+2
 	class BinaryExpr : public Expr
 	{
 		public:
@@ -66,7 +73,7 @@ namespace fox
 			};
 
 			BinaryExpr();
-			BinaryExpr(OpKind opt, Expr* lhs, Expr* rhs, 
+			BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, 
 				const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
 
 			Expr* getLHS() const;
@@ -97,12 +104,13 @@ namespace fox
 			OpKind op_ = OpKind::Invalid;
 	};
 
-	// Unary Expressions
+	// UnaryExpr
+	//		A unary expression: -2
 	class UnaryExpr : public Expr
 	{
 		public: 
 
-			enum class OpKind : std::uint8_t
+			enum class OpKind: std::uint8_t
 			{
 				#define UNARY_OP(ID, SIGN, NAME) ID,
 				#include "Operators.def"
@@ -135,7 +143,8 @@ namespace fox
 			OpKind op_ = OpKind::Invalid;
 	};
 
-	// Explicit Cast Expressions
+	// CastExpr
+	//		An explicit "as" cast expression: foo as int
 	class CastExpr : public Expr
 	{
 		public:
@@ -161,7 +170,8 @@ namespace fox
 			Expr* expr_ = nullptr;
 	};
 
-	// Literals
+	// CharLiteralExpr
+	//		A char literal: 'a'
 	class CharLiteralExpr : public Expr
 	{
 		public:
@@ -180,6 +190,8 @@ namespace fox
 			CharType val_ = ' ';
 	};
 
+	// IntegerLiteralExpr
+	//		An integer literal: 2
 	class IntegerLiteralExpr : public Expr
 	{
 		public:
@@ -198,6 +210,8 @@ namespace fox
 			IntType val_ = 0;
 	};
 
+	// FloatLiteralExpr
+	//		A float literal: 3.14
 	class FloatLiteralExpr : public Expr
 	{
 		public:
@@ -216,6 +230,8 @@ namespace fox
 			FloatType val_ = 0.0f;
 	};
 
+	// StringLiteralExpr
+	//		A string literal: "foo"
 	class StringLiteralExpr : public Expr
 	{
 		public:
@@ -234,6 +250,8 @@ namespace fox
 			std::string val_ = "";
 	};
 
+	// BoolLiteralExpr
+	//		true/false boolean literal
 	class BoolLiteralExpr : public Expr
 	{
 		public:
@@ -252,8 +270,8 @@ namespace fox
 			bool val_ = false;
 	};
 
-	using ExprVector = std::vector<Expr*>;
-
+	// ArrayLiteralExpr
+	//		An array literal: [1, 2, 3]
 	class ArrayLiteralExpr : public Expr
 	{
 		public:
@@ -276,7 +294,8 @@ namespace fox
 			ExprVector exprs_;
 	};
 
-	// Represents a reference to a declaration (namespace,variable,function) -> it's an identifier!
+	// DeclRefExpr
+	//		A identifier that references a declaration: foo
 	class DeclRefExpr : public Expr
 	{
 		public:
@@ -295,8 +314,8 @@ namespace fox
 			IdentifierInfo * declId_ = nullptr;
 	};
 
-	// Represents a dot syntax "member of" expr.
-	// eg : Fox.io, Fox.foo, etc
+	// MemberOfExpr
+	//		A member access : foo.bar
 	class MemberOfExpr : public Expr
 	{
 		public:
@@ -323,7 +342,8 @@ namespace fox
 			IdentifierInfo *membName_ = nullptr;
 	};
 
-	// Arrays accesses : foo[0], etc.
+	// ArrayAccessExpr
+	//		Array access (or subscript): foo[3]
 	class ArrayAccessExpr : public Expr
 	{
 		public:
@@ -346,7 +366,8 @@ namespace fox
 			Expr* idxExpr_ = nullptr;
 	};
 
-	// Function calls
+	// FunctionCallExpr
+	//		A function call: foo(3.14)
 	class FunctionCallExpr : public Expr
 	{
 		public:
@@ -376,7 +397,8 @@ namespace fox
 			ExprVector args_;
 	};
 
-	// Parens Expr
+	// ParensExpr 
+	//		An expression in round brackets: (2+2)
 	class ParensExpr : public Expr
 	{
 		public:
