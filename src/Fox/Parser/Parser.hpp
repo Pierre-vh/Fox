@@ -300,6 +300,11 @@ namespace fox
 						return result_;
 					}
 
+					DataTy& getRef()
+					{
+						return result_;
+					}
+
 					// Helper methods 
 					static Result<DataTy> Error()
 					{
