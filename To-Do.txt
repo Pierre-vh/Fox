@@ -46,12 +46,13 @@ Moonshot Project To-do List.
 	> AST: Allocator: Move from unique_ptrs to raw allocated pointers (Done)
 	> AST: Divide the hierarchies (Done)
 	> Review code of expr/stmt/decl/astnode (Done)
+	> AST code review (again) (Done)
+	> Finish the PtrVariant (Done)
 
-	> Finish the PtrVariant & Document it more
+	> parseFuncDecl -> isValid feels wrong, refactor the code to make it cleaner!
 
+	> Review the usage of && to pass vectors in the AST ctors/setters. Maybe it's useless and const& suffice?
 	> Add custom return types for expr/decl/stmt/types for the ASTVisitor 
-	> Change from double SourceLoc to SourceRange for the AST loc info  (more space efficient)
-	> Document Stmt.hpp & Decl.hpp like Expr.hpp
 
 	> LinearAllocator update
 		>	add a function to RollBack the AllocPtr to a specific void*, which would be
