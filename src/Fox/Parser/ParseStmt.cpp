@@ -88,13 +88,16 @@ Parser::StmtResult Parser::parseWhileLoop()
 	SourceLoc begLoc = whKw.getBegin();
 	SourceLoc endLoc;
 	// <parens_expr>
-	if (auto parens_expr_res = parseParensExpr(/* The ParensExpr is mandatory */ true, nullptr, &parenExprEndLoc))
+	if (auto parens_expr_res = parseParensExpr(nullptr, &parenExprEndLoc))
 	{
 		assert(parenExprEndLoc && "parseParensExpr didn't provide the ')' loc?");
 		expr = parens_expr_res.get();
 	}
 	else
+	{
+		reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
 		return StmtResult::Error();
+	}
 
 	// <body>
 	if (auto body_res = parseBody())
@@ -140,13 +143,18 @@ Parser::StmtResult Parser::parseCondition()
 
 	SourceLoc begLoc = ifKw.getBegin();
 	SourceLoc ifHeadEndLoc;
+
 	// <parens_expr>
-	if (auto parensexpr = parseParensExpr(/* The ParensExpr is mandatory */ true, nullptr, &ifHeadEndLoc))
+	if (auto parensexpr = parseParensExpr(nullptr, &ifHeadEndLoc))
 		expr = parensexpr.get();
 	else
+	{
+		reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
 		return StmtResult::Error();
+	}
 		
 	SourceLoc endLoc;
+
 	// <body>
 	if (auto body = parseBody())
 	{

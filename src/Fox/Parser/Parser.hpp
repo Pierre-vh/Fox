@@ -84,7 +84,7 @@ namespace fox
 			// EXPRESSIONS
 			Result<ExprVector> parseExprList();
 			Result<ExprVector> parseParensExprList(SourceLoc* LParenLoc = nullptr, SourceLoc *RParenLoc = nullptr);
-			ExprResult parseParensExpr(bool isMandatory,SourceLoc* leftPLoc = nullptr, SourceLoc* rightPLoc = nullptr);
+			ExprResult parseParensExpr(SourceLoc* leftPLoc = nullptr, SourceLoc* rightPLoc = nullptr);
 			ExprResult parseSuffix(Expr* base);
 			ExprResult parseDeclRef();
 			ExprResult parsePrimitiveLiteral();

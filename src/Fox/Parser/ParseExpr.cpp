@@ -210,7 +210,7 @@ Parser::ExprResult Parser::parsePrimary()
 		return ExprResult::Error();
 
 	// = '(' <expr> ')'
-	if (auto parens_expr = parseParensExpr(false))
+	if (auto parens_expr = parseParensExpr())
 		return parens_expr;
 	else if (!parens_expr.wasSuccessful())
 		return ExprResult::Error();
@@ -458,18 +458,13 @@ Parser::ExprResult Parser::parseExpr()
 	return ExprResult(lhs);
 }
 
-Parser::ExprResult Parser::parseParensExpr(bool isMandatory, SourceLoc* leftPLoc, SourceLoc* rightPLoc)
+Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* rightPLoc)
 {
 	// <parens_expr> = '(' <expr> ')'
 	// '('
 	auto leftParens = consumeBracket(SignType::S_ROUND_OPEN);
 	if (!leftParens)
 	{
-		if (isMandatory)
-		{
-			reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
-			return ExprResult::Error();
-		}
 		return ExprResult::NotFound();
 	}
 
