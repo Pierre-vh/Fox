@@ -21,8 +21,8 @@ using namespace fox;
 // Decl //
 //------//
 
-Decl::Decl(DeclKind kind,const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: kind_(kind), begLoc_(begLoc), endLoc_(endLoc)
+Decl::Decl(DeclKind kind, const SourceRange& range):
+	kind_(kind), range_(range)
 {
 
 }
@@ -32,29 +32,19 @@ DeclKind Decl::getKind() const
 	return kind_;
 }
 
-SourceLoc Decl::getBegLoc() const
+void Decl::setRange(const SourceRange& range)
 {
-	return begLoc_;
-}
-
-SourceLoc Decl::getEndLoc() const
-{
-	return endLoc_;
+	range_ = range;
 }
 
 SourceRange Decl::getRange() const
 {
-	return SourceRange(begLoc_, endLoc_);
+	return range_;
 }
 
-bool Decl::hasLocInfo() const
+bool fox::Decl::isValid() const
 {
-	return isBegLocSet() && isEndLocSet();
-}
-
-bool Decl::isValid() const
-{
-	return hasLocInfo();
+	return range_.isValid();
 }
 
 void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
@@ -62,32 +52,12 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
 	return ctxt.getAllocator().allocate(sz, align);
 }
 
-bool Decl::isBegLocSet() const
-{
-	return begLoc_.isValid();
-}
-
-bool Decl::isEndLocSet() const
-{
-	return endLoc_.isValid();
-}
-
-void Decl::setBegLoc(const SourceLoc& loc)
-{
-	begLoc_ = loc;
-}
-
-void Decl::setEndLoc(const SourceLoc& loc)
-{
-	endLoc_ = loc;
-}
-
 //-----------//
 // NamedDecl //
 //-----------//
 
-NamedDecl::NamedDecl(DeclKind kind, IdentifierInfo* id, const SourceLoc& begLoc, const SourceLoc& endLoc)
-	: Decl(kind,begLoc,endLoc), identifier_(id)
+NamedDecl::NamedDecl(DeclKind kind, IdentifierInfo* id, const SourceRange& range):
+	Decl(kind, range), identifier_(id)
 {
 
 }
@@ -116,13 +86,14 @@ bool NamedDecl::isValid() const
 // ParamDecl //
 //-----------//
 
-ParamDecl::ParamDecl() : ParamDecl(nullptr,QualType(),SourceLoc(),SourceRange(),SourceLoc())
+ParamDecl::ParamDecl() : ParamDecl(nullptr, QualType(), SourceRange(), SourceRange())
 {
 
 }
 
-ParamDecl::ParamDecl(IdentifierInfo* id, const QualType& type, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc)
-	: NamedDecl(DeclKind::ParamDecl,id,begLoc,endLoc), type_(type), tyRange_(tyRange)
+ParamDecl::ParamDecl(IdentifierInfo* id, const QualType& type, 
+	const SourceRange& range, const SourceRange& tyRange):
+	NamedDecl(DeclKind::ParamDecl, id, range), type_(type), tyRange_(tyRange)
 {
 
 }
@@ -151,22 +122,23 @@ bool ParamDecl::isValid() const
 // FuncDecl //
 //----------//
 
-FuncDecl::FuncDecl(): FuncDecl(nullptr,nullptr,nullptr,SourceLoc(),SourceLoc(),SourceLoc())
+FuncDecl::FuncDecl():
+	FuncDecl(nullptr, nullptr, nullptr, SourceRange(), SourceLoc())
 {
 
 }
 
-FuncDecl::FuncDecl(Type* returnType, IdentifierInfo* fnId, CompoundStmt* body,const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc)
-	: NamedDecl(DeclKind::FuncDecl,fnId,begLoc,endLoc), headEndLoc_(headerEndLoc), body_(body), returnType_(returnType)
+FuncDecl::FuncDecl(Type* returnType, IdentifierInfo* fnId, CompoundStmt* body,
+	const SourceRange& range, const SourceLoc& headerEndLoc):
+	NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), body_(body), returnType_(returnType)
 {
 	paramsAreValid_ = true;
 }
 
-void FuncDecl::setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end)
+void FuncDecl::setLocs(const SourceRange& range, const SourceLoc& headerEndLoc)
 {
-	setBegLoc(beg);
-	setHeaderEndLoc(declEnd);
-	setEndLoc(end);
+	setRange(range);
+	setHeaderEndLoc(headerEndLoc);
 }
 
 void FuncDecl::setHeaderEndLoc(const SourceLoc& loc)
@@ -181,7 +153,7 @@ SourceLoc FuncDecl::getHeaderEndLoc() const
 
 SourceRange FuncDecl::getHeaderRange() const
 {
-	return SourceRange(getBegLoc(), headEndLoc_);
+	return SourceRange(getRange().getBegin(), headEndLoc_);
 }
 
 bool FuncDecl::isValid() const
@@ -252,13 +224,15 @@ FuncDecl::ParamVecConstIter FuncDecl::params_end() const
 // VarDecl //
 //---------//
 
-VarDecl::VarDecl() : VarDecl(nullptr,QualType(),nullptr,SourceLoc(),SourceRange(),SourceLoc())
+VarDecl::VarDecl():
+	VarDecl(nullptr, QualType(), nullptr, SourceRange(), SourceRange())
 {
 
 }
 
-VarDecl::VarDecl(IdentifierInfo * id, const QualType& type, Expr* init, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc) :
-	NamedDecl(DeclKind::VarDecl, id, begLoc, endLoc), type_(type), typeRange_(tyRange), init_(init)
+VarDecl::VarDecl(IdentifierInfo* id, const QualType& type, Expr* init, 
+	const SourceRange& range, const SourceRange& tyRange):
+	NamedDecl(DeclKind::VarDecl, id, range), type_(type), typeRange_(tyRange), init_(init)
 {
 
 }
@@ -303,23 +277,36 @@ void VarDecl::setInitExpr(Expr* expr)
 //----------//
 
 UnitDecl::UnitDecl(IdentifierInfo * id,FileID inFile)
-	: NamedDecl(DeclKind::UnitDecl,id,SourceLoc(),SourceLoc()), file_(inFile)
+	: NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile)
 {
 	declsAreValid_ = true;
 }
 
 void UnitDecl::addDecl(Decl* decl)
 {
-	// Update locs
-	if (!isBegLocSet())
-		setBegLoc(decl->getBegLoc());
-
-	setEndLoc(decl->getEndLoc());
-
-	// Check the decl that we're adding in.
+	// Check the decl
 	if (!decl->isValid())
 		declsAreValid_ = false;
 
+	// Update locs
+	SourceRange range;
+	if (!getRange().isValid()) // (range not set yet)
+	{
+		assert((decls_.size() == 0) && "Range not set, but we already have decls?");
+		range = decl->getRange();
+	}
+	else
+	{
+		assert((decls_.size() > 0) && "Range set, but we don't have decls?");
+		range = SourceRange(
+			getRange().getBegin(),
+			decl->getRange().getEnd()
+		);
+	}
+	assert(range && "Range is invalid");
+	setRange(range);
+
+	// Push it
 	decls_.push_back(decl);
 }
 

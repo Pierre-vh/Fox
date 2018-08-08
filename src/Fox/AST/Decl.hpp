@@ -35,17 +35,8 @@ namespace fox
 		public:
 			DeclKind getKind() const;
 
-			SourceLoc getBegLoc() const;
-			SourceLoc getEndLoc() const;
+			void setRange(const SourceRange& range);
 			SourceRange getRange() const;
-
-			bool isBegLocSet() const;
-			bool isEndLocSet() const;
-
-			void setBegLoc(const SourceLoc& loc);
-			void setEndLoc(const SourceLoc& loc);
-
-			bool hasLocInfo() const;
 
 			bool isValid() const;
 
@@ -61,10 +52,10 @@ namespace fox
 			void operator delete(void*, ASTContext&, std::uint8_t) {}
 
 		protected:
-			Decl(DeclKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			Decl(DeclKind kind, const SourceRange& range);
 
 		private:
-			SourceLoc begLoc_, endLoc_;
+			SourceRange range_;
 			const DeclKind kind_;
 	};
 
@@ -73,7 +64,7 @@ namespace fox
 	class NamedDecl : public Decl
 	{
 		public:
-			NamedDecl(DeclKind kind,IdentifierInfo* id,const SourceLoc& begLoc, const SourceLoc& endLoc);
+			NamedDecl(DeclKind kind, IdentifierInfo* id, const SourceRange& range);
 
 			IdentifierInfo* getIdentifier() const;
 			void setIdentifier(IdentifierInfo* nname);
@@ -96,10 +87,10 @@ namespace fox
 	{
 		public:
 			ParamDecl();
-			ParamDecl(IdentifierInfo* id, const QualType& type,const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
+			ParamDecl(IdentifierInfo* id, const QualType& type,
+				const SourceRange& range, const SourceRange& tyRange);
 
 			SourceRange getTypeRange() const;
-
 			QualType getType() const;
 			void setType(const QualType& qt);
 
@@ -128,9 +119,10 @@ namespace fox
 
 		public:
 			FuncDecl();
-			FuncDecl(Type* returnType, IdentifierInfo* fnId, CompoundStmt* body, const SourceLoc& begLoc,const SourceLoc& headerEndLoc,const SourceLoc& endLoc);
+			FuncDecl(Type* returnType, IdentifierInfo* fnId, CompoundStmt* body,
+				const SourceRange& range,const SourceLoc& headerEndLoc);
 			
-			void setSourceLocs(const SourceLoc& beg, const SourceLoc& declEnd, const SourceLoc& end);
+			void setLocs(const SourceRange& range, const SourceLoc& headerEndLoc);
 			void setHeaderEndLoc(const SourceLoc& loc);
 
 			SourceLoc getHeaderEndLoc() const;
@@ -176,7 +168,8 @@ namespace fox
 	{
 		public:
 			VarDecl();
-			VarDecl(IdentifierInfo * id, const QualType& type, Expr* init, const SourceLoc& begLoc, const SourceRange& tyRange, const SourceLoc& endLoc);
+			VarDecl(IdentifierInfo* id, const QualType& type, 
+				Expr* init, const SourceRange& range, const SourceRange& tyRange);
 
 			bool isValid() const;
 
