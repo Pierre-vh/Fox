@@ -14,7 +14,10 @@
 
 using namespace fox;
 
-/* Type */
+//------//
+// Type //
+//------//
+
 Type::Type(TypeKind tc) : kind_(tc)
 {
 
@@ -30,13 +33,19 @@ void* Type::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align)
 	return ctxt.getAllocator().allocate(sz, align);
 }
 
-/* BuiltinType */
+//-------------//
+// BuiltinType //
+//-------------//
+
 BuiltinType::BuiltinType(TypeKind tc) : Type(tc)
 {
 
 }
 
-/* Primitive Types */
+//---------------//
+// PrimitiveType //
+//---------------//
+
 PrimitiveType::PrimitiveType(Kind kd)
 	: builtinKind_(kd), BuiltinType(TypeKind::PrimitiveType)
 {
@@ -84,7 +93,10 @@ bool PrimitiveType::isVoid() const
 	return (builtinKind_ == Kind::VoidTy);
 }
 
-/* Array type */
+//-----------//
+// ArrayType //
+//-----------//
+
 ArrayType::ArrayType(Type* ty) : itemTy_(ty), BuiltinType(TypeKind::ArrayType)
 {
 	assert(ty && "The Array item type cannot be null!");
@@ -100,7 +112,10 @@ Type* ArrayType::getItemTy() const
 	return itemTy_;
 }
 
-/* QualType */
+//----------//
+// QualType //
+//----------//
+
 QualType::QualType() 
 	: ty_(nullptr), isConst_(false), isRef_(false)
 {

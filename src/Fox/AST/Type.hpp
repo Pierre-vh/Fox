@@ -5,6 +5,7 @@
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file contains the Type AST nodes.
+// Types are immutable once created.
 //	
 // TODO: I think that in the future a "ErrorType" could be really handy for parser error recovery
 // and TypeChecking errors handling.
@@ -23,8 +24,7 @@
 
 namespace fox
 {
-	class ASTContext;
-	// The TypeKind enum
+	// Kinds of Types
 	enum class TypeKind : std::uint8_t
 	{
 		#define TYPE(ID,PARENT) ID,
@@ -32,10 +32,11 @@ namespace fox
 		#include "TypeNodes.def"
 	};
 
-	// Base abstract class for every Type node.
-	// Types are immutable once created.
-	// As a result, most member function of type classes are marked "const", with
-	// a few exceptions.
+	// Forward Declarations
+	class ASTContext;
+
+	// Type
+	//		Common base for types
 	class Type
 	{
 		public:
@@ -65,9 +66,8 @@ namespace fox
 			const TypeKind kind_;
 	};
 
-	// Base abstract class for every builtin type.
-	// Built-in -> Types that are built-in the language, that
-	// are not user created.
+	// BuiltinType
+	//		Common base for Built-in types
 	class BuiltinType : public Type
 	{
 		public:
@@ -81,8 +81,8 @@ namespace fox
 			BuiltinType(TypeKind tc);
 	};
 
-	// PrimitiveType (builtin,primitive)
-	//		int, float, char, string, bool, void
+	// PrimitiveType 
+	//		A primitive type (void/int/float/char/bool/string)
 	class PrimitiveType : public BuiltinType
 	{
 		public:
@@ -120,7 +120,9 @@ namespace fox
 			const Kind builtinKind_;
 	};
 
-	// Array types (builtin)
+	// ArrayType
+	//		An array of a certain type (can be any type, 
+	//		even another ArrayType)
 	class ArrayType : public BuiltinType
 	{
 		public:
@@ -139,9 +141,9 @@ namespace fox
 			Type* itemTy_= nullptr;
 	};
 
-	// QualType is a class that groups a pointer to a Type as well as qualifiers 
-	// Qualifiers include : const (true/false) and reference (true/false)
-	// Note that this class is not a part of the Type hierarchy.
+	// QualType
+	//		A class that encapsulates a Type* pointer with
+	//		it's qualifiers.
 	class QualType
 	{
 		public:

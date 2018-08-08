@@ -15,7 +15,10 @@
 
 using namespace fox;
 
-// Stmt
+//------//
+// Stmt //
+//------//
+
 Stmt::Stmt(StmtKind skind, const SourceLoc& begLoc, const SourceLoc& endLoc) : kind_(skind), beg_(begLoc), end_(endLoc)
 {
 
@@ -71,7 +74,10 @@ bool Stmt::isEndLocSet() const
 	return end_.isValid();
 }
 
-// ';' statement
+//----------//
+// NullStmt //
+//----------//
+
 NullStmt::NullStmt() : NullStmt(SourceLoc())
 {
 
@@ -93,9 +99,13 @@ SourceLoc NullStmt::getSemiLoc() const
 	return getBegLoc();
 }
 
-// Return Statement
+//------------//
+// ReturnStmt //
+//------------//
+
 ReturnStmt::ReturnStmt() : ReturnStmt(nullptr,SourceLoc(),SourceLoc())
 {
+
 }
 
 ReturnStmt::ReturnStmt(Expr* rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc) 
@@ -119,7 +129,10 @@ void ReturnStmt::setExpr(Expr* e)
 	expr_ = e;
 }
 
-// Condition (if-then-else) statement
+//---------------//
+// ConditionStmt //
+//---------------//
+
 ConditionStmt::ConditionStmt() 
 	: ConditionStmt(nullptr, ASTNode(), ASTNode(), SourceLoc(), SourceLoc(), SourceLoc())
 {
@@ -189,7 +202,10 @@ SourceLoc ConditionStmt::getIfHeaderEndLoc() const
 	return ifHeadEndLoc_;
 }
 
-// Compound stmt
+//--------------//
+// CompoundStmt //
+//--------------//
+
 CompoundStmt::CompoundStmt() : CompoundStmt(SourceLoc(),SourceLoc())
 {
 
@@ -247,7 +263,10 @@ void CompoundStmt::setSourceLocs(const SourceLoc & begLoc, const SourceLoc & end
 	setEndLoc(endLoc);
 }
 
-// While stmt
+//-----------//
+// WhileStmt //
+//-----------//
+
 WhileStmt::WhileStmt() : WhileStmt(nullptr, ASTNode(), SourceLoc(), SourceLoc(), SourceLoc())
 {
 

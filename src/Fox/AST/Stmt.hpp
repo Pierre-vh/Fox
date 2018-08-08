@@ -15,7 +15,7 @@
 
 namespace fox
 {
-	// The StmtKind enum
+	// Kinds of Statements
 	enum class StmtKind : std::uint8_t
 	{
 		#define STMT(ID,PARENT) ID,
@@ -23,23 +23,13 @@ namespace fox
 		#include "StmtNodes.def"
 	};
 
+	// Forward Declarations
 	class Decl;
 	class Expr;
 	class ASTContext;
 
-	/*
-	
-		A Note about SourceLoc info in statements (and expressions)
-
-		Every node should provide SourceLoc/Ranges for the whole node, including the childrens +
-		any relevant range if applicable.
-
-		e.g. a Condition should give us a 
-			Complete range (from the "if" to the "}")
-			A Range for the if condition ("if" to ")")
-	*/
-
-	// Base Stmt Class
+	// Stmt
+	//		Common base for every statement
 	class Stmt
 	{
 		public:
@@ -77,7 +67,9 @@ namespace fox
 			const StmtKind kind_;
 	};
 
-	// The ';' statement.
+	// NullStmt
+	//		A null statement ';'
+	//		Often used as the body of a condition/loop
 	class NullStmt : public Stmt
 	{
 		public:
@@ -93,7 +85,8 @@ namespace fox
 			}
 	};
 
-	// The "return" statement
+	// ReturnStmt
+	//		A return statement
 	class ReturnStmt : public Stmt
 	{
 		public:
@@ -113,7 +106,8 @@ namespace fox
 			Expr* expr_ = nullptr;
 	};
 
-	// a if-then-else condition.
+	// ConditionStmt
+	//		if-then-else conditional statement
 	class ConditionStmt : public Stmt
 	{
 		public:
@@ -149,7 +143,8 @@ namespace fox
 			ASTNode then_, else_;
 	};
 
-	// A compound statement (statements between curly brackets)
+	// CompoundStmt
+	//		A group of statements delimited by curly brackets {}
 	class CompoundStmt : public Stmt
 	{
 		private:
@@ -182,7 +177,8 @@ namespace fox
 			NodeVecTy nodes_;
 	};
 
-	// A while loop while(expr) <stmt>
+	// WhileStmt
+	//		A while loop
 	class WhileStmt : public Stmt
 	{
 		public:

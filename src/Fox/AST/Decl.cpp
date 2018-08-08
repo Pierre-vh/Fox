@@ -17,7 +17,10 @@
 
 using namespace fox;
 
-// Decl
+//------//
+// Decl //
+//------//
+
 Decl::Decl(DeclKind kind,const SourceLoc& begLoc, const SourceLoc& endLoc)
 	: kind_(kind), begLoc_(begLoc), endLoc_(endLoc)
 {
@@ -69,18 +72,21 @@ bool Decl::isEndLocSet() const
 	return endLoc_.isValid();
 }
 
-void Decl::setBegLoc(const SourceLoc & loc)
+void Decl::setBegLoc(const SourceLoc& loc)
 {
 	begLoc_ = loc;
 }
 
-void Decl::setEndLoc(const SourceLoc & loc)
+void Decl::setEndLoc(const SourceLoc& loc)
 {
 	endLoc_ = loc;
 }
 
-// NamedDecl
-NamedDecl::NamedDecl(DeclKind kind, IdentifierInfo * id, const SourceLoc& begLoc, const SourceLoc& endLoc)
+//-----------//
+// NamedDecl //
+//-----------//
+
+NamedDecl::NamedDecl(DeclKind kind, IdentifierInfo* id, const SourceLoc& begLoc, const SourceLoc& endLoc)
 	: Decl(kind,begLoc,endLoc), identifier_(id)
 {
 
@@ -91,7 +97,7 @@ IdentifierInfo* NamedDecl::getIdentifier() const
 	return identifier_;;
 }
 
-void NamedDecl::setIdentifier(IdentifierInfo * nname)
+void NamedDecl::setIdentifier(IdentifierInfo* nname)
 {
 	identifier_ = nname;
 }
@@ -106,7 +112,10 @@ bool NamedDecl::isValid() const
 	return Decl::isValid() && hasIdentifier();
 }
 
-// Argument Declaration
+//-----------//
+// ParamDecl //
+//-----------//
+
 ParamDecl::ParamDecl() : ParamDecl(nullptr,QualType(),SourceLoc(),SourceRange(),SourceLoc())
 {
 
@@ -138,7 +147,10 @@ bool ParamDecl::isValid() const
 	return NamedDecl::isValid() && type_ && tyRange_;
 }
 
-// Function Declaration
+//----------//
+// FuncDecl //
+//----------//
+
 FuncDecl::FuncDecl(): FuncDecl(nullptr,nullptr,nullptr,SourceLoc(),SourceLoc(),SourceLoc())
 {
 
@@ -236,7 +248,10 @@ FuncDecl::ParamVecConstIter FuncDecl::params_end() const
 	return params_.end();
 }
 
-// VarDecl
+//---------//
+// VarDecl //
+//---------//
+
 VarDecl::VarDecl() : VarDecl(nullptr,QualType(),nullptr,SourceLoc(),SourceRange(),SourceLoc())
 {
 
@@ -283,7 +298,10 @@ void VarDecl::setInitExpr(Expr* expr)
 	init_ = expr;
 }
 
-// ASTUnit
+//----------//
+// UnitDecl //
+//----------//
+
 UnitDecl::UnitDecl(IdentifierInfo * id,FileID inFile)
 	: NamedDecl(DeclKind::UnitDecl,id,SourceLoc(),SourceLoc()), file_(inFile)
 {

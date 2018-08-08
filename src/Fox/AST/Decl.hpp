@@ -9,11 +9,12 @@
 
 #pragma once
 #include "Type.hpp"
-#include "Stmt.hpp"
 #include "DeclContext.hpp"
+#include "Fox/Common/Source.hpp"
 
 namespace fox
 {
+	// Kinds of Decls
 	enum class DeclKind : std::uint8_t
 	{
 		#define DECL(ID,PARENT) ID,
@@ -21,12 +22,14 @@ namespace fox
 		#include "DeclNodes.def"
 	};
 
+	// Forward Declarations
 	class Expr;
 	class IdentifierInfo;
 	class ASTContext;
+	class CompoundStmt;
 
-	// Note about SourceLocs in decls:
-	// The getRange,getBegLoc and getEndLoc shall always return the complete range of the decl, including any potential children.
+	// Decl
+	//		Common base class for every Declaration
 	class Decl
 	{
 		public:
@@ -65,7 +68,8 @@ namespace fox
 			const DeclKind kind_;
 	};
 
-	// Base class for Declarations that have names, e.g. : var/arg/func decl,..
+	// NamedDecl
+	//		Common base class for every named Declaration
 	class NamedDecl : public Decl
 	{
 		public:
@@ -86,7 +90,8 @@ namespace fox
 			IdentifierInfo* identifier_;
 	};
 
-	// A Function Parameter declaration
+	// ParamDecl
+	//		A declaration of a function parameter
 	class ParamDecl : public NamedDecl
 	{
 		public:
@@ -110,11 +115,9 @@ namespace fox
 			QualType type_;
 	};
 
-	// Represents a function declaration.
-	// This class is a DeclContext because it has its own scope
-	// separated from the Unit's scope. If this wasn't a DeclContext,
-	// every variable inside a Function would be visible in the global scope,
-	// making name resolution much harder.
+	
+	// FuncDecl
+	//		A function declaration
 	class FuncDecl : public NamedDecl, public DeclContext
 	{
 		private:
@@ -163,11 +166,12 @@ namespace fox
 			ParamVecTy params_;
 			CompoundStmt* body_ = nullptr;
 
-			// Bitfields
+			// Bitfields (7 bits left)
 			bool paramsAreValid_ : 1;
 	};
 
-	// A Variable declaration
+	// VarDecl
+	//		A variable declaration
 	class VarDecl : public NamedDecl
 	{
 		public:
@@ -195,8 +199,9 @@ namespace fox
 			Expr* init_ = nullptr;
 	};
 
-	// A Unit declaration. A Unit = a source file.
-	// Unit names?
+	// UnitDecl
+	//		A Unit declaration (a unit is a source file)
+	//		This is declared "implicitely" when you create a new file
 	class UnitDecl : public NamedDecl, public DeclContext
 	{
 		private:
