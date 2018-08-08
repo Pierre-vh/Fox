@@ -130,7 +130,8 @@ namespace fox
 
 			virtual std::string getString() const override;
 
-			Type* getItemTy() const;
+			Type* getItemTy();
+			const Type* getItemTy() const;
 
 			static bool classof(const Type* type)
 			{
@@ -163,7 +164,8 @@ namespace fox
 			std::string getString() const;
 
 			// Returns the Type pointer (ty_)
-			Type* getType() const;
+			Type* getType();
+			const Type* getType() const;
 			void setType(Type* ty);
 
 			// Checks if this QualType is valid (ty_ != nullptr)
