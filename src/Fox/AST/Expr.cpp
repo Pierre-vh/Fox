@@ -185,7 +185,7 @@ ArrayLiteralExpr::ArrayLiteralExpr():
 {
 }
 
-ArrayLiteralExpr::ArrayLiteralExpr(ExprVector&& exprs, const SourceRange& range):
+ArrayLiteralExpr::ArrayLiteralExpr(const ExprVector& exprs, const SourceRange& range):
 	exprs_(exprs), Expr(ExprKind::ArrayLiteralExpr, range)
 {
 
@@ -485,7 +485,7 @@ FunctionCallExpr::FunctionCallExpr():
 
 }
 
-FunctionCallExpr::FunctionCallExpr(Expr* callee, ExprVector&& args,
+FunctionCallExpr::FunctionCallExpr(Expr* callee, const ExprVector& args,
 	const SourceRange& range): Expr(ExprKind::FunctionCallExpr, range),
 	callee_(callee), args_(args)
 {

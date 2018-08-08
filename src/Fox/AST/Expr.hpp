@@ -280,7 +280,7 @@ namespace fox
 	{
 		public:
 			ArrayLiteralExpr();
-			ArrayLiteralExpr(ExprVector&& exprs, const SourceRange& range);
+			ArrayLiteralExpr(const ExprVector& exprs, const SourceRange& range);
 
 			ExprVector& getExprs();
 			const ExprVector& getExprs() const;
@@ -381,7 +381,7 @@ namespace fox
 	{
 		public:
 			FunctionCallExpr();
-			FunctionCallExpr(Expr* callee, ExprVector&& args, const SourceRange& range);
+			FunctionCallExpr(Expr* callee, const ExprVector& args, const SourceRange& range);
 			
 			void setCallee(Expr* base);
 			Expr* getCallee();
