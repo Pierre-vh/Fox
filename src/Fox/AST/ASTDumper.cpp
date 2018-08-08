@@ -390,8 +390,9 @@ std::string ASTDumper::getBasicDeclInfo(Decl* decl) const
 	if (printAllAdresses_)
 		ss << " " << (void *)decl;
 
-	ss << " " << getSourceLocDump("start", decl->getBegLoc());
-	ss << " " << getSourceLocDump("end", decl->getEndLoc());
+	SourceRange range = decl->getRange();
+	ss << " " << getSourceLocDump("start", range.getBegin());
+	ss << " " << getSourceLocDump("end", range.getEnd());
 
 	return ss.str();
 }

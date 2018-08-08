@@ -134,9 +134,8 @@ VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, Type* ty)
 			ctxt.identifiers.getUniqueIdentifierInfo(name),
 			QualType(ty),
 			nullptr,
-			SourceLoc(),
 			SourceRange(),
-			SourceLoc()
+			SourceRange()
 		);
 }
 
@@ -146,8 +145,7 @@ FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name)
 		ctxt.getVoidType(),
 		ctxt.identifiers.getUniqueIdentifierInfo(name),
 		nullptr,
-		SourceLoc(),
-		SourceLoc(),
+		SourceRange(),
 		SourceLoc()
 	);
 }
@@ -443,9 +441,8 @@ TEST(ASTTests, BasicVisitor)
 			nullptr,
 			QualType(),
 			nullptr, 
-			SourceLoc(),
 			SourceRange(),
-			SourceLoc()
+			SourceRange()
 		);
 	auto intTy = ctxt.getIntType();
 	auto arrInt = ctxt.getArrayTypeForType(intTy);

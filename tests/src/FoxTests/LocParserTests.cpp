@@ -67,11 +67,11 @@ TEST_F(LocTests, FuncAndArgDecl)
 	ASSERT_TRUE(presult) << "parsing error";
 
 	auto func = presult.getAs<FuncDecl>();
-
+	auto funcRange = func->getRange();
 	// First, test the function itself
-	CompleteLoc func_beg = srcMgr.getCompleteLocForSourceLoc(func->getBegLoc());
+	CompleteLoc func_beg = srcMgr.getCompleteLocForSourceLoc(funcRange.getBegin());
 	CompleteLoc func_head_end = srcMgr.getCompleteLocForSourceLoc(func->getHeaderEndLoc());
-	CompleteLoc func_end = srcMgr.getCompleteLocForSourceLoc(func->getEndLoc());
+	CompleteLoc func_end = srcMgr.getCompleteLocForSourceLoc(funcRange.getEnd());
 	
 	EXPECT_EQ(func_beg, CompleteLoc(fullFilePath, 1, 1));
 	EXPECT_EQ(func_head_end, CompleteLoc(fullFilePath, 1, 56));
@@ -90,8 +90,8 @@ TEST_F(LocTests, FuncAndArgDecl)
 	EXPECT_EQ(arg2->getIdentifier()->getStr(), "_bar2");
 
 	// Extract Arg locs
-	#define BEG_LOC(x) srcMgr.getCompleteLocForSourceLoc(x->getBegLoc())
-	#define END_LOC(x) srcMgr.getCompleteLocForSourceLoc(x->getEndLoc())
+	#define BEG_LOC(x) srcMgr.getCompleteLocForSourceLoc(x->getRange().getBegin())
+	#define END_LOC(x) srcMgr.getCompleteLocForSourceLoc(x->getRange().getEnd())
 	
 	auto arg1_beg = BEG_LOC(arg1);
 	auto arg1_end = END_LOC(arg1);
@@ -117,8 +117,8 @@ TEST_F(LocTests, FuncAndArgDecl)
 	auto arg2_tr_beg = srcMgr.getCompleteLocForSourceLoc(arg2_typeRange.getBegin());
 
 	// Check
-	EXPECT_EQ(arg1_typeRange.getEnd(), arg1->getEndLoc());
-	EXPECT_EQ(arg2_typeRange.getEnd(), arg2->getEndLoc());
+	EXPECT_EQ(arg1_typeRange.getEnd(), arg1->getRange().getEnd());
+	EXPECT_EQ(arg2_typeRange.getEnd(), arg2->getRange().getEnd());
 
 	EXPECT_EQ(arg1_tr_beg, CompleteLoc(fullFilePath, 1, 18));
 	EXPECT_EQ(arg2_tr_beg, CompleteLoc(fullFilePath, 1, 40));
@@ -132,8 +132,8 @@ TEST_F(LocTests, VarDecls)
 	ASSERT_TRUE(presult) << "parsing error";
 
 	auto var = presult.getAs<VarDecl>();
-	CompleteLoc var_beg = srcMgr.getCompleteLocForSourceLoc(var->getBegLoc());
-	CompleteLoc var_end = srcMgr.getCompleteLocForSourceLoc(var->getEndLoc());
+	CompleteLoc var_beg = srcMgr.getCompleteLocForSourceLoc(var->getRange().getBegin());
+	CompleteLoc var_end = srcMgr.getCompleteLocForSourceLoc(var->getRange().getEnd());
 
 	EXPECT_EQ(var_beg, CompleteLoc(fullFilePath,1,2));
 	EXPECT_EQ(var_end, CompleteLoc(fullFilePath,1,25));
