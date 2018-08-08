@@ -105,17 +105,32 @@ namespace fox
 				idx_ = indexOf<T>::value;
 			}
 
-			// Getter that asserts the it's the correct type
+			// Getters that assert that the type is correct
 			template<typename T, typename enableIf_hasType<T>::type = 0>
-			T* get() const
+			const T* get() const
 			{
 				assert((idx_ == indexOf<T>::value) && "Incorrect type!");
 				return static_cast<T*>(ptr_);
 			}
 
-			// Getter that returns nullptr if it's not the correct type
 			template<typename T, typename enableIf_hasType<T>::type = 0>
-			T* getIf() const
+			T* get()
+			{
+				assert((idx_ == indexOf<T>::value) && "Incorrect type!");
+				return static_cast<T*>(ptr_);
+			}
+
+			// Getters that returns the pointer, or nullptr if it's not the correct type
+			template<typename T, typename enableIf_hasType<T>::type = 0>
+			const T* getIf() const
+			{
+				if (idx_ == indexOf<T>::value)
+					return static_cast<T*>(ptr_);
+				return nullptr;
+			}
+
+			template<typename T, typename enableIf_hasType<T>::type = 0>
+			T* getIf()
 			{
 				if (idx_ == indexOf<T>::value)
 					return static_cast<T*>(ptr_);
@@ -123,7 +138,12 @@ namespace fox
 			}
 
 			// Getter that returns an opaque pointer (void*)
-			void* getOpaque() const
+			const void* getOpaque() const
+			{
+				return ptr_;
+			}
+
+			void* getOpaque()
 			{
 				return ptr_;
 			}
