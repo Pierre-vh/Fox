@@ -305,7 +305,7 @@ SourceRange::SourceRange(const SourceLoc& sloc, offset_type offset) : sloc_(sloc
 SourceRange::SourceRange(const SourceLoc& a, const SourceLoc& b)
 {
 	// a and b must belong to the same file in all cases!
-	assert(a.getFileID() == b.getFileID());
+	assert(a.getFileID() == b.getFileID() && "A and B are from different files");
 	if (a.getIndex() < b.getIndex())
 	{
 		// a is the first sloc
