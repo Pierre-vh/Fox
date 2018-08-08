@@ -49,12 +49,7 @@ Moonshot Project To-do List.
 	> AST code review (again) (Done)
 	> Finish the PtrVariant (Done)
 	> parseFuncDecl refactoring (Done)
-
-	> Review the usage of && to pass vectors in the AST ctors/setters.
-		> Remove &&
-		> use const&
-		> Perform a copy directly, so only one copy will
-		  be performed in total
+	> Minimize ExprVector copies in the ArrayLiteral & FuncCall exprs (Done)
 
 	> Add custom return types for expr/decl/stmt/types for the ASTVisitor 
 
