@@ -101,7 +101,7 @@ namespace fox
 			// STATEMENTS
 			StmtResult parseReturnStmt();
 			NodeResult parseExprStmt();
-			StmtResult parseCompoundStatement(bool isMandatory=false);
+			StmtResult parseCompoundStatement();
 			NodeResult parseStmt();
 			NodeResult parseBody();
 			StmtResult parseCondition();

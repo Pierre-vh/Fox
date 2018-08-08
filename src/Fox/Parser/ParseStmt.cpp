@@ -12,20 +12,13 @@
 
 using namespace fox;
 
-Parser::StmtResult Parser::parseCompoundStatement(bool isMandatory)
+Parser::StmtResult Parser::parseCompoundStatement()
 {
 	auto* rtr = new(ctxt_) CompoundStmt(); 
 	auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);
 
 	if (!leftCurlyLoc)
-	{
-		if (isMandatory)
-		{
-			reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
-			return StmtResult::Error();
-		}
 		return StmtResult::NotFound();
-	}
 
 	SourceLoc rightCurlyLoc;
 	while (!isDone())
