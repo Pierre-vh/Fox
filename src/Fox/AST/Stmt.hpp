@@ -35,18 +35,8 @@ namespace fox
 		public:
 			StmtKind getKind() const;
 
+			void setRange(const SourceRange& range);
 			SourceRange getRange() const;
-
-			SourceLoc getBegLoc() const;
-			SourceLoc getEndLoc() const;
-
-			void setBegLoc(const SourceLoc& loc);
-			void setEndLoc(const SourceLoc& loc);
-
-			bool isBegLocSet() const;
-			bool isEndLocSet() const;
-
-			bool hasLocInfo() const;
 
 			// Prohibit the use of builtin placement new & delete
 			void *operator new(std::size_t) throw() = delete;
@@ -60,10 +50,10 @@ namespace fox
 			void operator delete(void*, ASTContext&, std::uint8_t) {}
 
 		protected:
-			Stmt(StmtKind skind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			Stmt(StmtKind kind, const SourceRange& range);
 
 		private:
-			SourceLoc beg_, end_;
+			SourceRange range_;
 			const StmtKind kind_;
 	};
 
@@ -91,10 +81,11 @@ namespace fox
 	{
 		public:
 			ReturnStmt();
-			ReturnStmt(Expr* rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			ReturnStmt(Expr* rtr_expr, const SourceRange& range);
 
-			Expr* getExpr();
 			void setExpr(Expr* e);
+			Expr* getExpr();
+			const Expr* getExpr() const;
 			bool hasExpr() const;
 
 			static bool classof(const Stmt* stmt)
@@ -113,18 +104,21 @@ namespace fox
 		public:
 			ConditionStmt();
 			ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
-				const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc);
+				const SourceRange& range, const SourceLoc& ifHeaderEndLoc);
 
 			bool isValid() const;
 
 			void setCond(Expr* expr);
-			Expr* getCond() const;
+			Expr* getCond();
+			const Expr* getCond() const;
 
 			void setThen(ASTNode node);
-			ASTNode getThen() const;
+			ASTNode getThen();
+			const ASTNode getThen() const;
 
 			void setElse(ASTNode node);
-			ASTNode getElse() const;
+			ASTNode getElse();
+			const ASTNode getElse() const;
 			bool hasElse() const;
 
 			void setIfHeaderEndLoc(const SourceLoc& sloc);
@@ -152,10 +146,12 @@ namespace fox
 
 		public:
 			CompoundStmt();
-			CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc);
+			CompoundStmt(const SourceRange& range);
 
 			void addNode(ASTNode stmt);
-			ASTNode getNode(std::size_t ind) const;
+			ASTNode getNode(std::size_t ind);
+			const ASTNode getNode(std::size_t ind) const;
+
 			bool isEmpty() const;
 			std::size_t size() const;
 
@@ -164,9 +160,6 @@ namespace fox
 
 			NodeVecTy::const_iterator nodes_begin() const;
 			NodeVecTy::const_iterator nodes_end() const;
-
-			// begLoc and endLoc = the locs of the curly brackets.
-			void setSourceLocs(const SourceLoc& begLoc, const SourceLoc& endLoc);
 
 			static bool classof(const Stmt* stmt)
 			{
@@ -183,13 +176,16 @@ namespace fox
 	{
 		public:
 			WhileStmt();
-			WhileStmt(Expr* cond, ASTNode body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc);
+			WhileStmt(Expr* cond, ASTNode body, const SourceRange& range,
+				const SourceLoc& headerEndLoc);
 
 			void setCond(Expr* cond);
-			Expr* getCond() const;
+			Expr* getCond();
+			const Expr* getCond() const;
 
 			void setBody(ASTNode body);
-			ASTNode getBody() const;
+			ASTNode getBody();
+			const ASTNode getBody() const;
 
 			SourceLoc getHeaderEndLoc() const;
 			SourceRange getHeaderRange() const;

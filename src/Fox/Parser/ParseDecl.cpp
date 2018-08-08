@@ -197,15 +197,15 @@ Parser::DeclResult Parser::parseFuncDecl()
 		rtr->setReturnType(ctxt_.getVoidType());
 
 	// <compound_statement>
-	auto body = parseCompoundStatement(/* mandatory = yes */ true);
+	auto compStmt = parseCompoundStatement(/* mandatory = yes */ true);
 
-	if (!body || !isValid)
+	if (!compStmt || !isValid)
 		return DeclResult::Error();
 
-	auto* bodyAsCompStmt = dyn_cast<CompoundStmt>(body.get());
-	assert(bodyAsCompStmt && "Not a compound stmt");
-	rtr->setBody(bodyAsCompStmt);
-	rtr->setSourceLocs(begLoc, endLoc, rtr->getBody()->getEndLoc());
+	auto* body = dyn_cast<CompoundStmt>(compStmt.get());
+	assert(body && "Not a compound stmt");
+	rtr->setBody(body);
+	rtr->setSourceLocs(begLoc, endLoc, body->getRange().getEnd());
 	assert(rtr->isValid());
 	return DeclResult(rtr);
 }

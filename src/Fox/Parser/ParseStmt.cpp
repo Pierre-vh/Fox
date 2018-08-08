@@ -118,9 +118,10 @@ Parser::StmtResult Parser::parseWhileLoop()
 		return StmtResult::Error();
 	}
 
-	assert(expr && body && begLoc && endLoc && parenExprEndLoc);
+	SourceRange range(begLoc, endLoc);
+	assert(expr && body && range && parenExprEndLoc);
 	return StmtResult(
-		new(ctxt_) WhileStmt(expr, body, begLoc, parenExprEndLoc, endLoc)
+		new(ctxt_) WhileStmt(expr, body, range, parenExprEndLoc)
 	);
 }
 
@@ -184,10 +185,11 @@ Parser::StmtResult Parser::parseCondition()
 		}
 	}
 
-	assert(expr && then_node && begLoc && endLoc && ifHeadEndLoc && "Incomplete loc/nodes!");
+	SourceRange range(begLoc, endLoc);
+	assert(expr && then_node && range && ifHeadEndLoc && "Incomplete loc/nodes!");
 
 	return StmtResult(
-		new(ctxt_) ConditionStmt(expr, then_node, else_node, begLoc, ifHeadEndLoc, endLoc)
+		new(ctxt_) ConditionStmt(expr, then_node, else_node, range, ifHeadEndLoc)
 	);
 }
 
@@ -224,9 +226,10 @@ Parser::StmtResult Parser::parseReturnStmt()
 			return StmtResult::Error();
 	}
 		
-	assert(begLoc && endLoc);
+	SourceRange range(begLoc, endLoc);
+	assert(range && "Invalid loc info");
 	return StmtResult(
-		new(ctxt_) ReturnStmt(expr, begLoc, endLoc)
+		new(ctxt_) ReturnStmt(expr, range)
 	);
 }
 

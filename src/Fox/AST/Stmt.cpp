@@ -19,7 +19,7 @@ using namespace fox;
 // Stmt //
 //------//
 
-Stmt::Stmt(StmtKind skind, const SourceLoc& begLoc, const SourceLoc& endLoc) : kind_(skind), beg_(begLoc), end_(endLoc)
+Stmt::Stmt(StmtKind skind, const SourceRange& range) : kind_(skind), range_(range)
 {
 
 }
@@ -31,22 +31,7 @@ StmtKind Stmt::getKind() const
 
 SourceRange Stmt::getRange() const
 {
-	return SourceRange(beg_,end_);
-}
-
-SourceLoc Stmt::getBegLoc() const
-{
-	return beg_;
-}
-
-SourceLoc Stmt::getEndLoc() const
-{
-	return end_;
-}
-
-bool Stmt::hasLocInfo() const
-{
-	return beg_ && end_;
+	return range_;
 }
 
 void* Stmt::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
@@ -54,24 +39,9 @@ void* Stmt::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
 	return ctxt.getAllocator().allocate(sz, align);
 }
 
-void Stmt::setBegLoc(const SourceLoc& loc)
+void Stmt::setRange(const SourceRange& range)
 {
-	beg_ = loc;
-}
-
-void Stmt::setEndLoc(const SourceLoc& loc)
-{
-	end_ = loc;
-}
-
-bool Stmt::isBegLocSet() const
-{
-	return beg_.isValid();
-}
-
-bool Stmt::isEndLocSet() const
-{
-	return end_.isValid();
+	range_ = range;
 }
 
 //----------//
@@ -83,33 +53,32 @@ NullStmt::NullStmt() : NullStmt(SourceLoc())
 
 }
 
-NullStmt::NullStmt(const SourceLoc& semiLoc) : Stmt(StmtKind::NullStmt,semiLoc,semiLoc)
+NullStmt::NullStmt(const SourceLoc& semiLoc) : Stmt(StmtKind::NullStmt, SourceRange(semiLoc))
 {
 
 }
 
 void NullStmt::setSemiLoc(const SourceLoc& semiLoc)
 {
-	setBegLoc(semiLoc);
-	setEndLoc(semiLoc);
+	setRange(SourceRange(semiLoc));
 }
 
 SourceLoc NullStmt::getSemiLoc() const
 {
-	return getBegLoc();
+	return getRange().getBegin();
 }
 
 //------------//
 // ReturnStmt //
 //------------//
 
-ReturnStmt::ReturnStmt() : ReturnStmt(nullptr,SourceLoc(),SourceLoc())
+ReturnStmt::ReturnStmt() : ReturnStmt(nullptr, SourceRange())
 {
 
 }
 
-ReturnStmt::ReturnStmt(Expr* rtr_expr, const SourceLoc& begLoc, const SourceLoc& endLoc) 
-	: Stmt(StmtKind::ReturnStmt,begLoc,endLoc), expr_(rtr_expr)
+ReturnStmt::ReturnStmt(Expr* rtr_expr, const SourceRange& range) 
+	: Stmt(StmtKind::ReturnStmt, range), expr_(rtr_expr)
 {
 
 }
@@ -124,6 +93,11 @@ Expr* ReturnStmt::getExpr()
 	return expr_;
 }
 
+const Expr* ReturnStmt::getExpr() const
+{
+	return expr_;
+}
+
 void ReturnStmt::setExpr(Expr* e)
 {
 	expr_ = e;
@@ -134,14 +108,14 @@ void ReturnStmt::setExpr(Expr* e)
 //---------------//
 
 ConditionStmt::ConditionStmt() 
-	: ConditionStmt(nullptr, ASTNode(), ASTNode(), SourceLoc(), SourceLoc(), SourceLoc())
+	: ConditionStmt(nullptr, ASTNode(), ASTNode(), SourceRange(), SourceLoc())
 {
 
 }
 
 ConditionStmt::ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
-	const SourceLoc& begLoc, const SourceLoc& ifHeaderEndLoc, const SourceLoc& endLoc)
-	: Stmt(StmtKind::ConditionStmt, begLoc, endLoc), cond_(cond), then_(then), 
+	const SourceRange& range, const SourceLoc& ifHeaderEndLoc)
+	: Stmt(StmtKind::ConditionStmt, range), cond_(cond), then_(then), 
 	  else_(elsenode), ifHeadEndLoc_(ifHeaderEndLoc)
 {
 
@@ -157,17 +131,32 @@ bool ConditionStmt::hasElse() const
 	return (bool)else_;
 }
 
-Expr* ConditionStmt::getCond() const
+Expr* ConditionStmt::getCond()
 {
 	return cond_;
 }
 
-ASTNode ConditionStmt::getThen() const
+const Expr* ConditionStmt::getCond() const
+{
+	return cond_;
+}
+
+ASTNode ConditionStmt::getThen()
 {
 	return then_;
 }
 
-ASTNode ConditionStmt::getElse() const
+const ASTNode ConditionStmt::getThen() const
+{
+	return then_;
+}
+
+ASTNode ConditionStmt::getElse()
+{
+	return else_;
+}
+
+const ASTNode ConditionStmt::getElse() const
 {
 	return else_;
 }
@@ -194,7 +183,7 @@ void ConditionStmt::setIfHeaderEndLoc(const SourceLoc& sloc)
 
 SourceRange ConditionStmt::getIfHeaderRange() const
 {
-	return SourceRange(getBegLoc(), ifHeadEndLoc_);
+	return SourceRange(getRange().getBegin(), ifHeadEndLoc_);
 }
 
 SourceLoc ConditionStmt::getIfHeaderEndLoc() const
@@ -206,17 +195,23 @@ SourceLoc ConditionStmt::getIfHeaderEndLoc() const
 // CompoundStmt //
 //--------------//
 
-CompoundStmt::CompoundStmt() : CompoundStmt(SourceLoc(),SourceLoc())
+CompoundStmt::CompoundStmt() : CompoundStmt(SourceRange())
 {
 
 }
 
-CompoundStmt::CompoundStmt(const SourceLoc& begLoc, const SourceLoc& endLoc) : Stmt(StmtKind::CompoundStmt,begLoc,endLoc)
+CompoundStmt::CompoundStmt(const SourceRange& range) : Stmt(StmtKind::CompoundStmt, range)
 {
 
 }
 
-ASTNode CompoundStmt::getNode(std::size_t ind) const
+ASTNode CompoundStmt::getNode(std::size_t ind)
+{
+	assert(ind < nodes_.size() && "out-of-range");
+	return nodes_[ind];
+}
+
+const ASTNode CompoundStmt::getNode(std::size_t ind) const
 {
 	assert(ind < nodes_.size() && "out-of-range");
 	return nodes_[ind];
@@ -257,33 +252,37 @@ CompoundStmt::NodeVecTy::const_iterator CompoundStmt::nodes_end() const
 	return nodes_.end();
 }
 
-void CompoundStmt::setSourceLocs(const SourceLoc & begLoc, const SourceLoc & endLoc)
-{
-	setBegLoc(begLoc);
-	setEndLoc(endLoc);
-}
-
 //-----------//
 // WhileStmt //
 //-----------//
 
-WhileStmt::WhileStmt() : WhileStmt(nullptr, ASTNode(), SourceLoc(), SourceLoc(), SourceLoc())
+WhileStmt::WhileStmt() : WhileStmt(nullptr, ASTNode(), SourceRange(), SourceLoc())
 {
 
 }
 
-WhileStmt::WhileStmt(Expr* cond, ASTNode body, const SourceLoc& begLoc, const SourceLoc& headerEndLoc, const SourceLoc& endLoc) :
-	Stmt(StmtKind::WhileStmt,begLoc,endLoc), headerEndLoc_(headerEndLoc), cond_(cond), body_(body)
+WhileStmt::WhileStmt(Expr* cond, ASTNode body, const SourceRange& range, const SourceLoc& headerEndLoc) :
+	Stmt(StmtKind::WhileStmt, range), headerEndLoc_(headerEndLoc), cond_(cond), body_(body)
 {
 
 }
 
-Expr* WhileStmt::getCond() const
+Expr* WhileStmt::getCond()
 {
 	return cond_;
 }
 
-ASTNode WhileStmt::getBody() const
+const Expr* WhileStmt::getCond() const
+{
+	return cond_;
+}
+
+ASTNode WhileStmt::getBody()
+{
+	return body_;
+}
+
+const ASTNode WhileStmt::getBody() const
 {
 	return body_;
 }
@@ -305,5 +304,5 @@ SourceLoc WhileStmt::getHeaderEndLoc() const
 
 SourceRange WhileStmt::getHeaderRange() const
 {
-	return SourceRange(getBegLoc(),headerEndLoc_);
+	return SourceRange(getRange().getBegin(), headerEndLoc_);
 }
