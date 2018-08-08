@@ -97,32 +97,34 @@ Parser::DeclResult Parser::parseFuncDecl()
 	if (!fnKw)
 		return DeclResult::NotFound();
 
-	auto* rtr = new(ctxt_) FuncDecl();
+	// The return node
+	FuncDecl* rtr = new(ctxt_) FuncDecl();
+
+	// Locs
 	SourceLoc begLoc = fnKw.getBegin();
 	SourceLoc headEndLoc;
 
-	// Boolean that's set to false if the declaration is not
-	// valid. If set to false, we return an error instead of a result.
-	// This is done because function decls are pretty big, and if we were
-	// to abandon immediately on first error (e.g. missing identifier)
-	// the recovery could be tough.
-	bool isValid = true;
-	bool foundLeftRoundBracket = true;
+	// Poisoned is set to true if the 
+	// declarations is missing stuff (such as the ID)
+	// If poisoned = true, we won't push the decl and
+	// we will return an error after parsing.
+	bool poisoned = false;
 
 	// <id>
 	if (auto foundID = consumeIdentifier())
+	{
 		rtr->setIdentifier(foundID.get());
+		// Before creating a RAIIDeclContext, record this function in the parent DeclContext.
+		// We only record the function if it's valid!
+		recordDecl(rtr);
+	}
 	else
 	{
 		reportErrorExpected(DiagID::parser_expected_iden);
-		isValid = false;
-		rtr->setIdentifier(identifiers_.getInvalidID());
+		//rtr->setIdentifier(identifiers_.getInvalidID());
+		poisoned = true;
 	}
 
-	// Before creating a RAIIDeclContext, record this function in the parent DeclContext 
-	// (only if it's valid)
-	if(isValid)
-		recordDecl(rtr);
 
 	// Create a RAIIDeclContext to record every decl within this function
 	RAIIDeclContext raiiDC(*this, rtr);
@@ -130,11 +132,14 @@ Parser::DeclResult Parser::parseFuncDecl()
 	// '('
 	if (!consumeBracket(SignType::S_ROUND_OPEN))
 	{
-		// Report the error only if we found the identifier
-		// earlier.
-		if(isValid)
-			reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
-		isValid = foundLeftRoundBracket = false;
+		// IDEA:: Instead of giving up immediately, maybe we could try to
+		// parse more? Would it be useful? For now, I don't know.
+		// Time will tell.
+		if (poisoned)
+			return DeclResult::Error();
+
+		reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
+
 	}
 
 	// [<param_decl> {',' <param_decl>}*]
@@ -147,8 +152,12 @@ Parser::DeclResult Parser::parseFuncDecl()
 			{
 				if (auto param = parseParamDecl())
 					rtr->addParam(param.getAs<ParamDecl>());
-				else if(param.wasSuccessful()) 
+				else if (param.wasSuccessful())
+				{
+					// IDEA: Maybe reporting the error after the "," would yield
+					// better error messages?
 					reportErrorExpected(DiagID::parser_expected_argdecl);
+				}
 			}
 			else
 				break;
@@ -160,17 +169,13 @@ Parser::DeclResult Parser::parseFuncDecl()
 		headEndLoc = rightParens;
 	else 
 	{
-		isValid = false;
 		reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
-
-		// no '(' and no ')' -> abandon
-		if (!foundLeftRoundBracket) 
-			return DeclResult::Error();
 
 		// We'll attempt to recover to the '{' too, so if we find the body of the function
 		// we can at least parse that.
 		if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
 			return DeclResult::Error();
+
 		headEndLoc = consumeBracket(SignType::S_ROUND_CLOSE);
 	}
 	
@@ -184,35 +189,42 @@ Parser::DeclResult Parser::parseFuncDecl()
 		}
 		else 
 		{
-			isValid = false;
-
 			if (rtrTy.wasSuccessful())
 				reportErrorExpected(DiagID::parser_expected_type);
 
 			if (!resyncToSign(SignType::S_CURLY_OPEN, true, false))
 				return DeclResult::Error();
 			// If resynced successfully, use the colon as the end of the header
+			// and consider the return type to be void
 			headEndLoc = colon;
+			rtr->setReturnType(ctxt_.getVoidType());
 		}
 	}
 	else // if no return type, the function returns void.
 		rtr->setReturnType(ctxt_.getVoidType());
 
 	// <compound_statement>
-	auto compStmt = parseCompoundStatement(/* mandatory = yes */ true);
+	StmtResult compStmt = parseCompoundStatement();
 
-	if (!compStmt || !isValid)
+	if (!compStmt)
+	{
+		reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
 		return DeclResult::Error();
+	}
 
 	auto* body = dyn_cast<CompoundStmt>(compStmt.get());
 	assert(body && "Not a compound stmt");
+
+	// Finished parsing, return unless the decl is poisoned.
+	if (poisoned)
+		return DeclResult::Error();
 
 	SourceRange range(begLoc, body->getRange().getEnd());
 	assert(headEndLoc && range && "Invalid loc info");
 
 	rtr->setBody(body);
 	rtr->setLocs(range, headEndLoc);
-	assert(rtr->isValid());
+	assert(rtr->isValid() && "Decl should be valid at this stage");
 	return DeclResult(rtr);
 }
 
