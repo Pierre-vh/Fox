@@ -76,8 +76,8 @@ Parser::StmtResult Parser::parseCompoundStatement(bool isMandatory)
 	}
 
 	// if everything's alright, return the result
-	rtr->setSourceLocs(leftCurlyLoc, rightCurlyLoc);
-	assert(rtr->hasLocInfo() && "No loc info? But we just set it!");
+	assert(leftCurlyLoc && rightCurlyLoc && "Invalid locs");
+	rtr->setRange(SourceRange(leftCurlyLoc, rightCurlyLoc));
 	return StmtResult(rtr);
 }
 
