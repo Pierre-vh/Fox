@@ -437,7 +437,7 @@ TEST(ASTTests, BasicVisitor)
 	ASTContext ctxt;
 
 	// Create test nodes
-	auto* intlit = new(ctxt) IntegerLiteralExpr(200, SourceLoc(),SourceLoc());
+	auto* intlit = new(ctxt) IntegerLiteralExpr(200, SourceRange());
 	auto* rtr = new(ctxt) ReturnStmt(nullptr, SourceRange());
 	auto* vardecl = new(ctxt) VarDecl(
 			nullptr,

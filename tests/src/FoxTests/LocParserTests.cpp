@@ -144,8 +144,9 @@ TEST_F(LocTests, VarDecls)
 	EXPECT_EQ(var_ty_beg, CompleteLoc(fullFilePath, 1, 10));
 	EXPECT_EQ(var_ty_end, CompleteLoc(fullFilePath, 1, 20));
 
-	CompleteLoc expr_beg = srcMgr.getCompleteLocForSourceLoc(var->getInitExpr()->getBegLoc());
-	CompleteLoc expr_end = srcMgr.getCompleteLocForSourceLoc(var->getInitExpr()->getEndLoc());
+	auto range = var->getInitExpr()->getRange();
+	CompleteLoc expr_beg = srcMgr.getCompleteLocForSourceLoc(range.getBegin());
+	CompleteLoc expr_end = srcMgr.getCompleteLocForSourceLoc(range.getEnd());
 
 	EXPECT_EQ(expr_beg, expr_end); // Since the expr is only a '3', it's only one char, thus beg = end.
 	EXPECT_EQ(expr_beg, CompleteLoc(fullFilePath, 1, 24));

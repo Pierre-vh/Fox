@@ -311,7 +311,7 @@ namespace fox
 						return Result<DataTy>(true);
 					}
 
-					SourceRange getSourceRange() const
+					SourceRange getRange() const
 					{
 						return range_;
 					}

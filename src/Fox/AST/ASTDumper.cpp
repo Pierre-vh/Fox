@@ -29,7 +29,8 @@ void ASTDumper::visitParensExpr(ParensExpr* node)
 {
 	if (auto expr = node->getExpr())
 	{
-		dumpLine() << getBasicExprInfo(node) << " " << getSourceLocDump("LParen", node->getBegLoc()) << " " << getSourceLocDump("RParen", node->getEndLoc()) << "\n";
+		auto range = node->getRange();
+		dumpLine() << getBasicExprInfo(node) << " " << getSourceLocDump("LParen", range.getBegin()) << " " << getSourceLocDump("RParen", range.getEnd()) << "\n";
 		indent();
 			visit(expr);
 		dedent();

@@ -236,12 +236,12 @@ Parser::DeclResult Parser::parseParamDecl()
 	}
 
 	SourceLoc begLoc = id.getSourceRange().getBegin();
-	SourceLoc endLoc = qt.getSourceRange().getEnd();
+	SourceLoc endLoc = qt.getRange().getEnd();
 	auto* rtr = new(ctxt_) ParamDecl(
 			id.get(),
 			qt.get(),
 			begLoc,
-			qt.getSourceRange(),
+			qt.getRange(),
 			endLoc
 		);
 	assert(rtr->isValid());
@@ -290,10 +290,10 @@ Parser::DeclResult Parser::parseVarDecl()
 	if (auto typespecResult = parseQualType())
 	{
 		ty = typespecResult.get();
-		tyRange = typespecResult.getSourceRange();
+		tyRange = typespecResult.getRange();
 		if (ty.isReference())
 		{
-			diags_.report(DiagID::parser_ignored_ref_vardecl, typespecResult.getSourceRange());
+			diags_.report(DiagID::parser_ignored_ref_vardecl, typespecResult.getRange());
 			ty.setIsReference(false);
 		}
 	}
