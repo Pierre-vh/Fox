@@ -34,10 +34,8 @@ namespace fox
 		public:
 			ExprKind getKind() const;
 
+			void setRange(const SourceRange& range);
 			SourceRange getRange() const;
-
-			SourceLoc getBegLoc() const;
-			SourceLoc getEndLoc() const;
 
 			// Prohibit the use of builtin placement new & delete
 			void *operator new(std::size_t) throw() = delete;
@@ -51,7 +49,7 @@ namespace fox
 			void operator delete(void*, ASTContext&, std::uint8_t) {}
 
 		protected:
-			Expr(ExprKind kind, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			Expr(ExprKind kind, const SourceRange& range);
 
 		private:
 			const ExprKind kind_;
@@ -62,7 +60,7 @@ namespace fox
 	using ExprVector = std::vector<Expr*>;
 
 	// BinaryExpr
-	//		A binary expression: 2+2
+	//		A binary expression
 	class BinaryExpr : public Expr
 	{
 		public:
@@ -74,13 +72,15 @@ namespace fox
 
 			BinaryExpr();
 			BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, 
-				const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
-
-			Expr* getLHS() const;
-			Expr* getRHS() const;
+				const SourceRange& range, const SourceRange& opRange);
 
 			void setLHS(Expr* expr);
+			Expr* getLHS();
+			const Expr* getLHS() const;
+
 			void setRHS(Expr* expr);
+			Expr* getRHS();
+			const Expr* getRHS() const;
 
 			OpKind getOp() const;
 			void setOp(OpKind op);
@@ -109,7 +109,6 @@ namespace fox
 	class UnaryExpr : public Expr
 	{
 		public: 
-
 			enum class OpKind: std::uint8_t
 			{
 				#define UNARY_OP(ID, SIGN, NAME) ID,
@@ -117,10 +116,12 @@ namespace fox
 			};
 
 			UnaryExpr();
-			UnaryExpr(OpKind op, Expr* node, const SourceLoc& begLoc, const SourceRange& opRange, const SourceLoc& endLoc);
-
-			Expr* getExpr() const;
+			UnaryExpr(OpKind op, Expr* node, const SourceRange& range,
+				const SourceRange& opRange);
+			
 			void setExpr(Expr* expr);
+			Expr* getExpr();
+			const Expr* getExpr() const;
 
 			OpKind getOp() const;
 			void setOp(OpKind op);
@@ -149,13 +150,16 @@ namespace fox
 	{
 		public:
 			CastExpr();
-			CastExpr(Type* castGoal, Expr* expr, const SourceLoc& begLoc, const SourceRange& typeRange, const SourceLoc& endLoc);
+			CastExpr(Type* castGoal, Expr* expr, const SourceRange& range, 
+				const SourceRange& typeRange);
 			
-			Type* getCastGoal() const;
 			void setCastGoal(Type* goal);
+			Type* getCastGoal();
+			const Type* getCastGoal() const;
 
-			Expr* getExpr() const;
 			void setExpr(Expr* expr);
+			Expr* getExpr();
+			const Expr* getExpr() const;
 
 			SourceRange getTypeRange() const;
 
@@ -176,7 +180,7 @@ namespace fox
 	{
 		public:
 			CharLiteralExpr();
-			CharLiteralExpr(CharType val,const SourceLoc& begLoc, const SourceLoc& endLoc);
+			CharLiteralExpr(CharType val, const SourceRange& range);
 
 			CharType getVal() const;
 			void setVal(CharType val);
@@ -196,7 +200,7 @@ namespace fox
 	{
 		public:
 			IntegerLiteralExpr();
-			IntegerLiteralExpr(IntType val, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			IntegerLiteralExpr(IntType val, const SourceRange& range);
 
 			IntType getVal() const;
 			void setVal(IntType val);
@@ -216,7 +220,7 @@ namespace fox
 	{
 		public:
 			FloatLiteralExpr();
-			FloatLiteralExpr(FloatType val, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			FloatLiteralExpr(FloatType val, const SourceRange& range);
 
 			FloatType getVal() const;
 			void setVal(FloatType val);
@@ -236,7 +240,7 @@ namespace fox
 	{
 		public:
 			StringLiteralExpr();
-			StringLiteralExpr(const std::string& val, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			StringLiteralExpr(const std::string& val, const SourceRange& range);
 
 			std::string getVal() const;
 			void setVal(const std::string& val);
@@ -256,7 +260,7 @@ namespace fox
 	{
 		public:
 			BoolLiteralExpr();
-			BoolLiteralExpr(bool val, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			BoolLiteralExpr(bool val, const SourceRange& range);
 
 			bool getVal() const;
 			void setVal(bool val);
@@ -276,7 +280,7 @@ namespace fox
 	{
 		public:
 			ArrayLiteralExpr();
-			ArrayLiteralExpr(ExprVector&& exprs, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			ArrayLiteralExpr(ExprVector&& exprs, const SourceRange& range);
 
 			ExprVector& getExprs();
 			const ExprVector& getExprs() const;
@@ -300,10 +304,11 @@ namespace fox
 	{
 		public:
 			DeclRefExpr();
-			DeclRefExpr(IdentifierInfo * declid, const SourceLoc& begLoc, const SourceLoc& endLoc);
-			
-			IdentifierInfo* getIdentifier() const;
-			void setDeclIdentifier(IdentifierInfo * id);
+			DeclRefExpr(IdentifierInfo* declid, const SourceRange& range);
+
+			void setIdentifier(IdentifierInfo * id);
+			IdentifierInfo* getIdentifier();
+			const IdentifierInfo* getIdentifier() const;
 
 			static bool classof(const Expr* expr)
 			{
@@ -311,7 +316,7 @@ namespace fox
 			}
 
 		private:
-			IdentifierInfo * declId_ = nullptr;
+			IdentifierInfo* id_ = nullptr;
 	};
 
 	// MemberOfExpr
@@ -321,13 +326,15 @@ namespace fox
 		public:
 			MemberOfExpr();
 			MemberOfExpr(Expr* base, IdentifierInfo *idInfo, 
-				const SourceLoc& begLoc, const SourceLoc& dotLoc, const SourceLoc& endLoc);
+				const SourceRange& range, const SourceLoc& dotLoc);
 
-			Expr* getBase() const;
 			void setBase(Expr* expr);
+			Expr* getBase();
+			const Expr* getBase() const;
 
-			IdentifierInfo* getMemberID() const;
-			void setMemberName(IdentifierInfo* idInfo);
+			void setMemberID(IdentifierInfo* idInfo);
+			IdentifierInfo* getMemberID();
+			const IdentifierInfo* getMemberID() const;
 
 			SourceLoc getDotLoc() const;
 
@@ -348,13 +355,15 @@ namespace fox
 	{
 		public:
 			ArrayAccessExpr();
-			ArrayAccessExpr(Expr* base, Expr* idx, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			ArrayAccessExpr(Expr* base, Expr* idx, const SourceRange& range);
 
 			void setBase(Expr* expr);
-			void setAccessIndexExpr(Expr* expr);
+			Expr* getBase();
+			const Expr* getBase() const;
 
-			Expr* getBase() const;
-			Expr* getAccessIndexExpr() const;
+			void setAccessIndexExpr(Expr* expr);
+			Expr* getAccessIndexExpr();
+			const Expr* getAccessIndexExpr() const;
 
 			static bool classof(const Expr* expr)
 			{
@@ -372,10 +381,11 @@ namespace fox
 	{
 		public:
 			FunctionCallExpr();
-			FunctionCallExpr(Expr* callee, ExprVector&& args, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			FunctionCallExpr(Expr* callee, ExprVector&& args, const SourceRange& range);
 			
-			Expr* getCallee() const;
 			void setCallee(Expr* base);
+			Expr* getCallee();
+			const Expr* getCallee() const;
 
 			ExprVector& getArgs();
 			const ExprVector& getArgs() const;
@@ -403,10 +413,11 @@ namespace fox
 	{
 		public:
 			ParensExpr();
-			ParensExpr(Expr* expr, const SourceLoc& begLoc, const SourceLoc& endLoc);
+			ParensExpr(Expr* expr, const SourceRange& range);
 
-			Expr* getExpr() const;
 			void setExpr(Expr* expr);
+			Expr* getExpr();
+			const Expr* getExpr() const;
 
 			static bool classof(const Expr* expr)
 			{
