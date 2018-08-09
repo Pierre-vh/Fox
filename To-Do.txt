@@ -50,17 +50,33 @@ Moonshot Project To-do List.
 	> Finish the PtrVariant (Done)
 	> parseFuncDecl refactoring (Done)
 	> Minimize ExprVector copies in the ArrayLiteral & FuncCall exprs (Done)
-
-	> Add custom return types for expr/decl/stmt/types for the ASTVisitor 
+	> Add custom return types for expr/decl/stmt/types for the ASTVisitor (Done)
 
 	> New Expr Nodes (will require some parser work)
 		> UncheckedDotSyntaxExpr (#)
 			-> Will capture the function call if there's one
+			-> Will need to change the grammar a bit:
+					<suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
+				to
+					<suffix> = '[' <expr> ']' | ['.' <id>] <parens_expr_list>
+				
 		> Split DeclRef 
-			> UnresolvedDeclRef (contains only a identifier info)
-			> DeclRef (contains only a pointer to a decl)
-			> UnresolvedOverloadSet (contains a vector of pointers to Decl*)
-				> Can create one from a LookupResult? 
+			> UnresolvedDeclRef 
+				> Contains an IdentifierInfo*
+				> Range: the original id's range
+			> DeclRef (built from UnresolvedDeclRef)
+				> Contains a Decl*
+				> Range: same range as UnresolvedDeclRef
+			> OverloadedDeclRef (Built from UnresolvedDeclRef)
+				> Contains a Vector of Decl* (overload candidates)
+				> Can be created from a LookupResult
+				> Range is the one of the UnresolvedDeclRef
+			Everything starts from UnresolvedDeclRef (Parser output)
+			Then, at semantic analysis:
+				Variables:
+					OverloadedDeclRef -> DeclRef or error
+				Functions
+					OverloadedDeclRef -> OverloadedDeclRef or error -> DeclRef or overload deduction error
 
 	> Types:
 		> Type becomes TypeBase, and a new "Type" class is created
@@ -74,6 +90,16 @@ Moonshot Project To-do List.
 	  Probably use doxygen-style comments?
 
 	> Semantic Analysis
+		Ideas (for Exprs)
+			Phase 1: 
+				Semantic Analysis & Unification where needed
+			Phase 2:
+				Applying types the exprs
+					Wouldn't it be better to "attach" the type to the exprs
+					directly and then do a 2nd verification pass?
+
+					AST is verified in this phase 
+					(checking that everything has been resolved, that the AST is well formed, etc)
 
 
 					
