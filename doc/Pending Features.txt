@@ -1,10 +1,13 @@
 This file contains some features that are definitely doable, but are low priority.
 -> This is a low-priority to-do list.
 
-CMake:
-	More portability:
+Portability
+	CMake
 		Currently I only code on Visual Studio, so I only set compiler arguments for Visual Studio. It would be great to, instead
 		set them for every major compiler (CLang/GCC/MSVC) so the project is fully portable.
+	Code
+		I should run a Linux VM and try to compile the code there using GCC and CLang, to check for issues and try to make the code fully
+		portable.
 
 QoL: 
 	Diagnostics:
@@ -28,9 +31,17 @@ Reworks:
 			> Stop using a DFA. Use a proper grammar with a recursive descent technique
 			  and a config file (.def) to register valid terminals (so it's easy to add new characters for another language)
 			> Register separators in a .def file?
+
 Performance:
 	Diagnostics:
 		1) The Diagnostic object is quite large (few hundred bytes), and, as it's nearly always a temporary object, this could maybe
 		have a cost on performance. Tests needs to be done. If it has really a big cost on performance, store all the diagnostic's data
 		inside the DiagnosticsEngine. For that, create a DiagnosticData object, store a vector of them in the DiagnosticEngine and
 		make the Diagnostic object only store a pointer to the DiagnosticsEngine with the index of the DiagnosticsData object in the vector.
+
+Features:
+	LinearAllocator 
+		Add a function to rollback the AllocPtr to a specific pointer, which would be
+		used by the companion delete when a constructor has thrown.
+		Also it could be a good idea to backup the latest AllocPtr to compare it with the rollback ptr! (assert that lastAllocPtr < rollbackPtr < allocPtr)
+		(just in debug builds to do more checking)

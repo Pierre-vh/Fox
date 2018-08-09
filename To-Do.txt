@@ -53,11 +53,6 @@ Moonshot Project To-do List.
 
 	> Add custom return types for expr/decl/stmt/types for the ASTVisitor 
 
-	> LinearAllocator update
-		>	add a function to RollBack the AllocPtr to a specific void*, which would be
-			used by the companion delete when a constructor has thrown. Also it could be a good
-			idea to backup the latest AllocPtr to compare it with the rollback ptr! (assert that lastAllocPtr < rollbackPtr < allocPtr)
-
 	> New Expr Nodes (will require some parser work)
 		> UncheckedDotSyntaxExpr (#)
 			-> Will capture the function call if there's one
