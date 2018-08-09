@@ -24,7 +24,7 @@ namespace fox
 
 	// Forward Declarations
 	class Expr;
-	class IdentifierInfo;
+	class Identifier;
 	class ASTContext;
 	class CompoundStmt;
 
@@ -64,10 +64,10 @@ namespace fox
 	class NamedDecl : public Decl
 	{
 		public:
-			NamedDecl(DeclKind kind, IdentifierInfo* id, const SourceRange& range);
+			NamedDecl(DeclKind kind, Identifier* id, const SourceRange& range);
 
-			IdentifierInfo* getIdentifier() const;
-			void setIdentifier(IdentifierInfo* nname);
+			Identifier* getIdentifier() const;
+			void setIdentifier(Identifier* nname);
 			bool hasIdentifier() const;
 
 			bool isValid() const;
@@ -78,7 +78,7 @@ namespace fox
 			}
 
 		private:
-			IdentifierInfo* identifier_;
+			Identifier* identifier_;
 	};
 
 	// ParamDecl
@@ -87,7 +87,7 @@ namespace fox
 	{
 		public:
 			ParamDecl();
-			ParamDecl(IdentifierInfo* id, const QualType& type,
+			ParamDecl(Identifier* id, const QualType& type,
 				const SourceRange& range, const SourceRange& tyRange);
 
 			SourceRange getTypeRange() const;
@@ -119,7 +119,7 @@ namespace fox
 
 		public:
 			FuncDecl();
-			FuncDecl(Type* returnType, IdentifierInfo* fnId, CompoundStmt* body,
+			FuncDecl(Type* returnType, Identifier* fnId, CompoundStmt* body,
 				const SourceRange& range,const SourceLoc& headerEndLoc);
 			
 			void setLocs(const SourceRange& range, const SourceLoc& headerEndLoc);
@@ -168,7 +168,7 @@ namespace fox
 	{
 		public:
 			VarDecl();
-			VarDecl(IdentifierInfo* id, const QualType& type, 
+			VarDecl(Identifier* id, const QualType& type, 
 				Expr* init, const SourceRange& range, const SourceRange& tyRange);
 
 			bool isValid() const;
@@ -203,7 +203,7 @@ namespace fox
 			using DeclVecConstIter = DelVecTy::const_iterator;
 
 		public:
-			UnitDecl(IdentifierInfo *id, FileID inFile);
+			UnitDecl(Identifier *id, FileID inFile);
 
 			void addDecl(Decl* decl);
 			Decl* getDecl(std::size_t idx) const;

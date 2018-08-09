@@ -179,7 +179,7 @@ bool Token::isLiteral() const
 
 bool Token::isIdentifier() const
 {
-	return mpark::holds_alternative<IdentifierInfo*>(tokenData_);
+	return mpark::holds_alternative<Identifier*>(tokenData_);
 }
 
 bool Token::isSign() const
@@ -254,10 +254,10 @@ std::string Token::getAsString() const
 		assert(literalData_ && "Token's a literal but no LiteralInfo available?");
 		return literalData_->getAsString();
 	}
-	else if (mpark::holds_alternative<IdentifierInfo*>(tokenData_))
+	else if (mpark::holds_alternative<Identifier*>(tokenData_))
 	{
-		auto ptr = mpark::get<IdentifierInfo*>(tokenData_);
-		assert(ptr && "Token's an identifier but the IdentifierInfo* is null?");
+		auto ptr = mpark::get<Identifier*>(tokenData_);
+		assert(ptr && "Token's an identifier but the Identifier* is null?");
 		return ptr->getStr();
 	}
 	else
@@ -286,21 +286,21 @@ LiteralInfo Token::getLiteralInfo() const
 
 std::string Token::getIdentifierString() const
 {
-	if (mpark::holds_alternative<IdentifierInfo*>(tokenData_))
+	if (mpark::holds_alternative<Identifier*>(tokenData_))
 	{
-		auto ptr = mpark::get<IdentifierInfo*>(tokenData_);
-		assert(ptr && "tokenInfo's a IdentifierInfo* but the pointer is null?");
+		auto ptr = mpark::get<Identifier*>(tokenData_);
+		assert(ptr && "tokenInfo's a Identifier* but the pointer is null?");
 		return ptr->getStr();
 	}
 	return "";
 }
 
-IdentifierInfo * Token::getIdentifierInfo()
+Identifier * Token::getIdentifierInfo()
 {
-	if (mpark::holds_alternative<IdentifierInfo*>(tokenData_))
+	if (mpark::holds_alternative<Identifier*>(tokenData_))
 	{
-		auto ptr = mpark::get<IdentifierInfo*>(tokenData_);
-		assert(ptr && "tokenInfo's a IdentifierInfo* but the pointer is null?");
+		auto ptr = mpark::get<Identifier*>(tokenData_);
+		assert(ptr && "tokenInfo's a Identifier* but the pointer is null?");
 		return ptr;
 	}
 	return nullptr;

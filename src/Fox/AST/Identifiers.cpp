@@ -26,61 +26,61 @@ const std::string& StringPtrInMap::get() const
 	return (it_->first);
 }
 
-IdentifierInfo::IdentifierInfo(const StringPtrInMap::ItTy& iter): mapIter_(iter)
+Identifier::Identifier(const StringPtrInMap::ItTy& iter): mapIter_(iter)
 {
 
 }
 
-const std::string& IdentifierInfo::getStr() const
+const std::string& Identifier::getStr() const
 {
 	return mapIter_.get();
 }
 
-bool IdentifierInfo::operator<(const IdentifierInfo& id) const
+bool Identifier::operator<(const Identifier& id) const
 {
 	return getStr() < id.getStr();
 }
 
-bool IdentifierInfo::operator<(const std::string& idstr) const
+bool Identifier::operator<(const std::string& idstr) const
 {
 	return getStr() < idstr;
 }
 
-bool IdentifierInfo::operator==(const IdentifierInfo& id) const
+bool Identifier::operator==(const Identifier& id) const
 {
 	return getStr() == id.getStr();
 }
 
-bool IdentifierInfo::operator==(const std::string& str) const
+bool Identifier::operator==(const std::string& str) const
 {
 	return getStr() == str;
 }
 
-bool IdentifierInfo::operator!=(const IdentifierInfo& id) const
+bool Identifier::operator!=(const Identifier& id) const
 {
 	return !(*this == id);
 }
 
-bool IdentifierInfo::operator!=(const std::string& str) const
+bool Identifier::operator!=(const std::string& str) const
 {
 	return !(*this == str);
 }
 
-IdentifierInfo* IdentifierTable::getUniqueIdentifierInfo(const std::string& id)
+Identifier* IdentifierTable::getUniqueIdentifierInfo(const std::string& id)
 {
 	auto it = table_.lower_bound(id);
 	if (it != table_.end() && !(table_.key_comp()(id, it->first)))
 	{
 		// Identifier already exists in table_, return ->second after some checks.
 
-		assert(it->second.mapIter_.it_ != table_.end() && "IdentifierInfo iterator was invalid");
+		assert(it->second.mapIter_.it_ != table_.end() && "Identifier iterator was invalid");
 		assert(it->second.mapIter_.it_ == it && "String iterator in ->second is incorrect");
 		return &(it->second);
 	}
 	else
 	{
 		// Key does not exists, insert.
-		auto newIt = table_.insert(it, std::make_pair(id, IdentifierInfo(table_.end())));
+		auto newIt = table_.insert(it, std::make_pair(id, Identifier(table_.end())));
 
 		assert(newIt != table_.end() && "Fresh iterator was equal to .end() ?");
 
@@ -91,7 +91,7 @@ IdentifierInfo* IdentifierTable::getUniqueIdentifierInfo(const std::string& id)
 	}
 }
 
-IdentifierInfo* IdentifierTable::getInvalidID()
+Identifier* IdentifierTable::getInvalidID()
 {
 	if (!invalidID_)
 		invalidID_ = getUniqueIdentifierInfo(INVALID_ID_STR);

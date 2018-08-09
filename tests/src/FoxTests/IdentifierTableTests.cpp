@@ -37,8 +37,8 @@ TEST(IdentifierTableTests, areIdentifiersUnique)
 	ASSERT_NE(rawIdA, rawIdB) << "The 2 randomly generated identifiers were the same ! Is the generator function broken?";
 
 	IdentifierTable idtab;
-	IdentifierInfo* idA = idtab.getUniqueIdentifierInfo(rawIdA);
-	IdentifierInfo* idB = idtab.getUniqueIdentifierInfo(rawIdB);
+	Identifier* idA = idtab.getUniqueIdentifierInfo(rawIdA);
+	Identifier* idB = idtab.getUniqueIdentifierInfo(rawIdB);
 
 	ASSERT_NE(idA, idB);
 	ASSERT_NE(idA->getStr(), idB->getStr()) << "The 2 strings are not the same!";
@@ -64,9 +64,9 @@ TEST(IdentifierTableTests, randomIdentifierInsertion)
 	IdentifierTable idtab;
 	std::string id;
 
-	IdentifierInfo *ptr = nullptr; // Last IdInfo's adress
+	Identifier *ptr = nullptr; // Last IdInfo's adress
 	
-	std::vector<IdentifierInfo*> alldIdInfoPtrs;
+	std::vector<Identifier*> alldIdInfoPtrs;
 	std::vector<std::string> allIdStrs;
 
 	for (std::size_t k(0); k < RANDOM_ID_TEST_NUMBER_OF_ID; k++)

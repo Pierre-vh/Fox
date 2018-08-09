@@ -56,18 +56,18 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
 // NamedDecl //
 //-----------//
 
-NamedDecl::NamedDecl(DeclKind kind, IdentifierInfo* id, const SourceRange& range):
+NamedDecl::NamedDecl(DeclKind kind, Identifier* id, const SourceRange& range):
 	Decl(kind, range), identifier_(id)
 {
 
 }
 
-IdentifierInfo* NamedDecl::getIdentifier() const
+Identifier* NamedDecl::getIdentifier() const
 {
 	return identifier_;;
 }
 
-void NamedDecl::setIdentifier(IdentifierInfo* nname)
+void NamedDecl::setIdentifier(Identifier* nname)
 {
 	identifier_ = nname;
 }
@@ -91,7 +91,7 @@ ParamDecl::ParamDecl() : ParamDecl(nullptr, QualType(), SourceRange(), SourceRan
 
 }
 
-ParamDecl::ParamDecl(IdentifierInfo* id, const QualType& type, 
+ParamDecl::ParamDecl(Identifier* id, const QualType& type, 
 	const SourceRange& range, const SourceRange& tyRange):
 	NamedDecl(DeclKind::ParamDecl, id, range), type_(type), tyRange_(tyRange)
 {
@@ -128,7 +128,7 @@ FuncDecl::FuncDecl():
 
 }
 
-FuncDecl::FuncDecl(Type* returnType, IdentifierInfo* fnId, CompoundStmt* body,
+FuncDecl::FuncDecl(Type* returnType, Identifier* fnId, CompoundStmt* body,
 	const SourceRange& range, const SourceLoc& headerEndLoc):
 	NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), body_(body), returnType_(returnType)
 {
@@ -230,7 +230,7 @@ VarDecl::VarDecl():
 
 }
 
-VarDecl::VarDecl(IdentifierInfo* id, const QualType& type, Expr* init, 
+VarDecl::VarDecl(Identifier* id, const QualType& type, Expr* init, 
 	const SourceRange& range, const SourceRange& tyRange):
 	NamedDecl(DeclKind::VarDecl, id, range), type_(type), typeRange_(tyRange), init_(init)
 {
@@ -276,7 +276,7 @@ void VarDecl::setInitExpr(Expr* expr)
 // UnitDecl //
 //----------//
 
-UnitDecl::UnitDecl(IdentifierInfo * id,FileID inFile)
+UnitDecl::UnitDecl(Identifier * id,FileID inFile)
 	: NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile)
 {
 	declsAreValid_ = true;

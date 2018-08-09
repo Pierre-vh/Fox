@@ -430,7 +430,7 @@ std::string ASTDumper::getDeclRecorderDump(DeclContext* dr) const
 	return ss.str();
 }
 
-std::string ASTDumper::getIdentifierDump(IdentifierInfo* id) const
+std::string ASTDumper::getIdentifierDump(Identifier* id) const
 {
 	return makeKeyPairDump("id", addSingleQuotes(id->getStr()));
 }

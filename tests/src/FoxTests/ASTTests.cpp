@@ -198,7 +198,7 @@ TEST(ASTTests, DeclContext)
 	v1_ok = v2_ok = v3_ok = v4_ok = v5_ok = false;
 	for (auto it = func->recordedDecls_begin(); it != func->recordedDecls_end(); it++)
 	{
-		IdentifierInfo* id = it->getIdentifier();
+		Identifier* id = it->getIdentifier();
 		std::string str = id->getStr();
 		if (str == "Variable_1")
 		{

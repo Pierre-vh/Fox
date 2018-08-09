@@ -23,7 +23,7 @@ namespace fox
 {
 	class Decl;
 	class NamedDecl;
-	class IdentifierInfo;
+	class Identifier;
 	class LookupResult;
 
 	// An iterator that abstracts the underlying structure used by DeclContext to only show
@@ -50,7 +50,7 @@ namespace fox
 	class DeclContext
 	{
 		private:
-			using NamedDeclsMapTy = std::multimap<IdentifierInfo*, NamedDecl*>;
+			using NamedDeclsMapTy = std::multimap<Identifier*, NamedDecl*>;
 			using NamedDeclsMapIter = DeclContextIterator<NamedDeclsMapTy::iterator>;
 			using NamedDeclsMapConstIter = DeclContextIterator<NamedDeclsMapTy::const_iterator>;
 		public:
@@ -61,11 +61,11 @@ namespace fox
 			void recordDecl(NamedDecl* decl);
 
 			// Searches for every NamedDecl whose identifier == id in this DeclContext
-			LookupResult restrictedLookup(IdentifierInfo *id) const;
+			LookupResult restrictedLookup(Identifier *id) const;
 
 			// Performs a restrictedLookup on this DeclContext and recursively searches parent
 			// DeclRecorders.
-			LookupResult fullLookup(IdentifierInfo *id) const;
+			LookupResult fullLookup(Identifier *id) const;
 
 			// Manage parent decl recorder
 			bool hasParentDeclRecorder() const;
@@ -90,7 +90,7 @@ namespace fox
 	};
 
 	// A Class that encapsulates a lookup result.
-	// All NamedDecls stored here are assumed to have the same IdentifierInfo.
+	// All NamedDecls stored here are assumed to have the same Identifier.
 	// an assertion in addResult ensures this.
 	class LookupResult
 	{

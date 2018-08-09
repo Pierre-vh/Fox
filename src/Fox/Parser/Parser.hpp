@@ -79,7 +79,7 @@ namespace fox
 			// isMainUnit = true if the unit that we'll be parsing should be considered as the main unit
 			// Note: This function returns an observing pointer (null in case of errors). It doesn't give
 			// an unique_ptr like the others, because it gives ownership to the ASTContext, not you.
-			UnitDecl* parseUnit(const FileID& fid,IdentifierInfo* unitName,const bool& isMainUnit);
+			UnitDecl* parseUnit(const FileID& fid,Identifier* unitName,const bool& isMainUnit);
 
 			// EXPRESSIONS
 			Result<ExprVector> parseExprList();
@@ -146,7 +146,7 @@ namespace fox
 
 			// Consumes an Identifier
 			// The Result will have the SourceRange of the identifier if one was found.
-			Result<IdentifierInfo*> consumeIdentifier();
+			Result<Identifier*> consumeIdentifier();
 
 			// Consumes any sign but brackets.
 			SourceLoc consumeSign(SignType s);

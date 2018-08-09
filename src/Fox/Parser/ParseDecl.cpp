@@ -15,7 +15,7 @@
 using namespace fox;
 
 
-UnitDecl* Parser::parseUnit(const FileID& fid, IdentifierInfo* unitName, const bool& isMainUnit)
+UnitDecl* Parser::parseUnit(const FileID& fid, Identifier* unitName, const bool& isMainUnit)
 {
 	// <fox_unit>	= {<declaration>}1+
 
@@ -282,7 +282,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	SourceLoc endLoc;
 	SourceRange tyRange;
 
-	IdentifierInfo* id;
+	Identifier* id;
 	QualType ty;
 	Expr* iExpr = nullptr;
 

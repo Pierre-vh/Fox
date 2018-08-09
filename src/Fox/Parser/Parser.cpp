@@ -48,17 +48,17 @@ void Parser::setupParser()
 	state_.lastUnexpectedTokenIt = tokens_.begin();
 }
 
-Parser::Result<IdentifierInfo*> Parser::consumeIdentifier()
+Parser::Result<Identifier*> Parser::consumeIdentifier()
 {
 	Token tok = getCurtok();
 	if (tok.isIdentifier())
 	{
-		IdentifierInfo* ptr = tok.getIdentifierInfo();
-		assert(ptr && "Token's an identifier but contains a nullptr IdentifierInfo?");
+		Identifier* ptr = tok.getIdentifierInfo();
+		assert(ptr && "Token's an identifier but contains a nullptr Identifier?");
 		increaseTokenIter();
-		return Result<IdentifierInfo*>(ptr,tok.getRange());
+		return Result<Identifier*>(ptr,tok.getRange());
 	}
-	return Result<IdentifierInfo*>::NotFound();
+	return Result<Identifier*>::NotFound();
 }
 
 SourceLoc Parser::consumeSign(SignType s)

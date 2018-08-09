@@ -24,7 +24,7 @@ namespace fox
 	};
 
 	// Forward Declarations
-	class IdentifierInfo;
+	class Identifier;
 	class ASTContext;
 
 	// Expr
@@ -304,11 +304,11 @@ namespace fox
 	{
 		public:
 			DeclRefExpr();
-			DeclRefExpr(IdentifierInfo* declid, const SourceRange& range);
+			DeclRefExpr(Identifier* declid, const SourceRange& range);
 
-			void setIdentifier(IdentifierInfo * id);
-			IdentifierInfo* getIdentifier();
-			const IdentifierInfo* getIdentifier() const;
+			void setIdentifier(Identifier * id);
+			Identifier* getIdentifier();
+			const Identifier* getIdentifier() const;
 
 			static bool classof(const Expr* expr)
 			{
@@ -316,7 +316,7 @@ namespace fox
 			}
 
 		private:
-			IdentifierInfo* id_ = nullptr;
+			Identifier* id_ = nullptr;
 	};
 
 	// MemberOfExpr
@@ -325,16 +325,16 @@ namespace fox
 	{
 		public:
 			MemberOfExpr();
-			MemberOfExpr(Expr* base, IdentifierInfo *idInfo, 
+			MemberOfExpr(Expr* base, Identifier *idInfo, 
 				const SourceRange& range, const SourceLoc& dotLoc);
 
 			void setBase(Expr* expr);
 			Expr* getBase();
 			const Expr* getBase() const;
 
-			void setMemberID(IdentifierInfo* idInfo);
-			IdentifierInfo* getMemberID();
-			const IdentifierInfo* getMemberID() const;
+			void setMemberID(Identifier* idInfo);
+			Identifier* getMemberID();
+			const Identifier* getMemberID() const;
 
 			SourceLoc getDotLoc() const;
 
@@ -346,7 +346,7 @@ namespace fox
 		private:
 			SourceLoc dotLoc_;
 			Expr* base_ = nullptr;
-			IdentifierInfo *membName_ = nullptr;
+			Identifier *membName_ = nullptr;
 	};
 
 	// ArrayAccessExpr

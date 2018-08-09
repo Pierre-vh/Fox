@@ -23,12 +23,12 @@ DeclContext::DeclContext(DeclContext * parent) : parent_(parent)
 void DeclContext::recordDecl(NamedDecl* decl)
 {
 	assert(decl	&& "Declaration cannot be null!");
-	IdentifierInfo* name = decl->getIdentifier();
-	assert(name	&& "Declaration must have a valid name (IdentifierInfo*) to be recorded!");
+	Identifier* name = decl->getIdentifier();
+	assert(name	&& "Declaration must have a valid name (Identifier*) to be recorded!");
 	namedDecls_.insert(std::make_pair(name, decl));
 }
 
-LookupResult DeclContext::restrictedLookup(IdentifierInfo * id) const
+LookupResult DeclContext::restrictedLookup(Identifier * id) const
 {
 	auto it_range = namedDecls_.equal_range(id);
 	LookupResult lr;
@@ -37,7 +37,7 @@ LookupResult DeclContext::restrictedLookup(IdentifierInfo * id) const
 	return lr;
 }
 
-LookupResult DeclContext::fullLookup(IdentifierInfo * id) const
+LookupResult DeclContext::fullLookup(Identifier * id) const
 {
 	auto this_lr = restrictedLookup(id);
 

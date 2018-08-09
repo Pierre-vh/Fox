@@ -454,23 +454,23 @@ DeclRefExpr::DeclRefExpr() : DeclRefExpr(nullptr, SourceRange())
 {
 }
 
-DeclRefExpr::DeclRefExpr(IdentifierInfo* declid, const SourceRange& range)
+DeclRefExpr::DeclRefExpr(Identifier* declid, const SourceRange& range)
 	: id_(declid), Expr(ExprKind::DeclRefExpr, range)
 {
 
 }
 
-void DeclRefExpr::setIdentifier(IdentifierInfo* id)
+void DeclRefExpr::setIdentifier(Identifier* id)
 {
 	id_ = id;
 }
 
-IdentifierInfo* DeclRefExpr::getIdentifier()
+Identifier* DeclRefExpr::getIdentifier()
 {
 	return id_;
 }
 
-const IdentifierInfo* DeclRefExpr::getIdentifier() const
+const Identifier* DeclRefExpr::getIdentifier() const
 {
 	return id_;
 }
@@ -551,7 +551,7 @@ MemberOfExpr::MemberOfExpr():
 {
 }
 
-MemberOfExpr::MemberOfExpr(Expr* base, IdentifierInfo* idInfo,
+MemberOfExpr::MemberOfExpr(Expr* base, Identifier* idInfo,
 	const SourceRange& range, const SourceLoc& dotLoc):
 	Expr(ExprKind::MemberOfExpr, range), base_(base), membName_(idInfo),
 	dotLoc_(dotLoc)
@@ -574,17 +574,17 @@ const Expr* MemberOfExpr::getBase() const
 	return base_;
 }
 
-void MemberOfExpr::setMemberID(IdentifierInfo* idInfo)
+void MemberOfExpr::setMemberID(Identifier* idInfo)
 {
 	membName_ = idInfo;
 }
 
-IdentifierInfo* MemberOfExpr::getMemberID()
+Identifier* MemberOfExpr::getMemberID()
 {
 	return membName_;
 }
 
-const IdentifierInfo* MemberOfExpr::getMemberID() const
+const Identifier* MemberOfExpr::getMemberID() const
 {
 	return membName_;
 }

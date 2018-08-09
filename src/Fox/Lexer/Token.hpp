@@ -20,7 +20,7 @@
 namespace fox
 {
 	class ASTContext;
-	class IdentifierInfo;
+	class Identifier;
 	class DiagnosticEngine;
 
 	enum class LiteralType : char
@@ -166,7 +166,7 @@ namespace fox
 			LiteralInfo getLiteralInfo() const;
 
 			std::string getIdentifierString() const;
-			IdentifierInfo* getIdentifierInfo();
+			Identifier* getIdentifierInfo();
 
 			std::string getAsString() const;
 			std::string getTokenTypeFriendlyName() const;
@@ -180,7 +180,7 @@ namespace fox
 			// Note: LiteralInfo is quite heavy, so it's dynamically allocated to save space, since
 			// most token won't need it.
 			const SourceRange range_;
-			mpark::variant<mpark::monostate, KeywordType, SignType, Literal, IdentifierInfo *> tokenData_;
+			mpark::variant<mpark::monostate, KeywordType, SignType, Literal, Identifier *> tokenData_;
 			std::unique_ptr<LiteralInfo> literalData_ = nullptr;
 
 			/* Identification functions */
