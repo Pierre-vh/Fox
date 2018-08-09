@@ -402,7 +402,7 @@ TEST(ASTTests, DeclRTTI)
 }
 
 // ASTVisitor tests : Samples implementations to test if visitors works as intended
-class IsNamedDecl : public ASTVisitor<IsNamedDecl, bool>
+class IsNamedDecl : public SimpleASTVisitor<IsNamedDecl, bool>
 {
 	public:
 		bool visitNamedDecl(NamedDecl* node)
@@ -411,7 +411,7 @@ class IsNamedDecl : public ASTVisitor<IsNamedDecl, bool>
 		}
 };
 
-class IsExpr : public ASTVisitor<IsExpr, bool>
+class IsExpr : public SimpleASTVisitor<IsExpr, bool>
 {
 	public:
 		bool visitExpr(Expr* node)
@@ -420,7 +420,7 @@ class IsExpr : public ASTVisitor<IsExpr, bool>
 		}
 };
 
-class IsArrTy : public ASTVisitor<IsArrTy, bool>
+class IsArrTy : public SimpleASTVisitor<IsArrTy, bool>
 {
 	public:
 		bool visitArrayType(ArrayType* node)

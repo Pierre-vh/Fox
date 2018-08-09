@@ -15,7 +15,7 @@
 namespace fox
 {
 	class SourceManager;
-	class ASTDumper : public ASTVisitor<ASTDumper, void>
+	class ASTDumper : public SimpleASTVisitor<ASTDumper, void>
 	{
 		public:
 			// The first parameter is the stream where the AST should be "dumped"
