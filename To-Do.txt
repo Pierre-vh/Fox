@@ -52,39 +52,11 @@ Moonshot Project To-do List.
 	> Minimize ExprVector copies in the ArrayLiteral & FuncCall exprs (Done)
 	> Add custom return types for expr/decl/stmt/types for the ASTVisitor (Done)
 
-	> New Expr Nodes (will require some parser work)
-		> UncheckedDotSyntaxExpr (#)
-			-> Will capture the function call if there's one
-			-> Will need to change the grammar a bit:
-					<suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
-				to
-					<suffix> = '[' <expr> ']' | ['.' <id>] <parens_expr_list>
-				
-		> Split DeclRef 
-			> UnresolvedDeclRef 
-				> Contains an IdentifierInfo*
-				> Range: the original id's range
-			> DeclRef (built from UnresolvedDeclRef)
-				> Contains a Decl*
-				> Range: same range as UnresolvedDeclRef
-			> OverloadedDeclRef (Built from UnresolvedDeclRef)
-				> Contains a Vector of Decl* (overload candidates)
-				> Can be created from a LookupResult
-				> Range is the one of the UnresolvedDeclRef
-			Everything starts from UnresolvedDeclRef (Parser output)
-			Then, at semantic analysis:
-				Variables:
-					OverloadedDeclRef -> DeclRef or error
-				Functions
-					OverloadedDeclRef -> OverloadedDeclRef or error -> DeclRef or overload deduction error
-
 	> Types:
 		> Type becomes TypeBase, and a new "Type" class is created
 			> TypeBase -> Type Hierarchy
 			> Type -> Observing pointer to a TypeBase
 			Once that's done, add a Type object to Expr
-		> ErrorType
-			> Type representing an error.
 
 	> Adopt a Documentation style and document all of the code with it thoroughly.
 	  Probably use doxygen-style comments?
