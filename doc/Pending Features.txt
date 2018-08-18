@@ -12,7 +12,10 @@ Portability
 QoL: 
 	Diagnostics:
 		1) Add the opportunity to add relevant pieces of code (which would be underlined with tildes '~') to a diagnostic.
-			Example use cases: operands of a '+' expr
+			Example use cases: operands of a binary expr.
+			Can only set one of theses. (assert it)
+		2) Add << operators support
+
 	StringManipulator:
 		2) Most of the class's method are literally simulating an iterator. I could easily move most of the class's feature
 		   to an iterator, accessible through .begin()/.end() functions. The iterator would be named UTF8Iterator, and might as
