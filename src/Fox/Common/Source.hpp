@@ -116,6 +116,8 @@ namespace fox
 			offset_type getOffset() const;
 			SourceLoc getEnd() const;
 			bool isOnlyOneCharacter() const;
+
+			FileID getFileID() const;
 		private:
 			SourceLoc sloc_;
 			offset_type offset_;

@@ -360,3 +360,8 @@ bool SourceRange::isOnlyOneCharacter() const
 {
 	return (offset_ == 0);
 }
+
+FileID SourceRange::getFileID() const
+{
+	return sloc_.getFileID();
+}
