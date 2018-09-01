@@ -52,15 +52,8 @@ Moonshot Project To-do List.
 	> Minimize ExprVector copies in the ArrayLiteral & FuncCall exprs (Done)
 	> Add custom return types for expr/decl/stmt/types for the ASTVisitor (Done)
 	> Add "Extra Range" to Diagnostics (Done)
+	> Add Type* to all exprs (Done)
 
-	> Types:
-		> Type becomes TypeBase, and a new "Type" class is created
-			> TypeBase -> Type Hierarchy
-			> Type -> Observing pointer to a TypeBase
-			Once that's done, add a Type object to Expr
-
-	> Adopt a Documentation style and document all of the code with it thoroughly.
-	  Probably use doxygen-style comments?
 
 	> Semantic Analysis
 		Ideas (for Exprs)
@@ -74,5 +67,10 @@ Moonshot Project To-do List.
 					AST is verified in this phase 
 					(checking that everything has been resolved, that the AST is well formed, etc)
 
+Boring stuff that I must do when I have the time/motivation for it
+	> Adopt a Documentation style (Doxygen) and document all the code with it
+
+Shelved
+	> Types/TypeBase rework: Necessity still to be determined.
 
 					
