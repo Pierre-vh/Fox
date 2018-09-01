@@ -38,6 +38,8 @@ namespace fox
 
 	class Diagnostic
 	{
+		// Note: in this class, some methods will return a Diagnostic&. This is done
+		// to enable function chaining, such as ".addArg(..).addArg(...).freeze()"
 		public:
 			Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,const std::string& dStr, const SourceRange& range = SourceRange());
 			// Note : both copy/move ctors kill the copied diag.
@@ -55,11 +57,11 @@ namespace fox
 			DiagSeverity getDiagSeverity() const;
 
 			SourceRange getRange() const;
-			void setRange(const SourceRange& range);
+			Diagnostic& setRange(const SourceRange& range);
 			bool hasRange() const;
 
 			SourceRange getExtraRange() const;
-			void setExtraRange(const SourceRange& range);
+			Diagnostic& setExtraRange(const SourceRange& range);
 			bool hasExtraRange() const;
 
 			// File-wide diagnostics are diagnostics that concern

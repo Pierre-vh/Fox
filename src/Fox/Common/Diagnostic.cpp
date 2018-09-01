@@ -68,9 +68,10 @@ SourceRange Diagnostic::getRange() const
 	return range_;
 }
 
-void Diagnostic::setRange(const SourceRange& range)
+Diagnostic& Diagnostic::setRange(const SourceRange& range)
 {
 	range_ = range;
+	return *this;
 }
 
 bool Diagnostic::hasRange() const
@@ -83,9 +84,10 @@ SourceRange Diagnostic::getExtraRange() const
 	return extraRange_;
 }
 
-void Diagnostic::setExtraRange(const SourceRange& range)
+Diagnostic& Diagnostic::setExtraRange(const SourceRange& range)
 {
 	extraRange_ = range;
+	return *this;
 }
 
 bool Diagnostic::hasExtraRange() const
