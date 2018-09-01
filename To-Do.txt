@@ -51,6 +51,7 @@ Moonshot Project To-do List.
 	> parseFuncDecl refactoring (Done)
 	> Minimize ExprVector copies in the ArrayLiteral & FuncCall exprs (Done)
 	> Add custom return types for expr/decl/stmt/types for the ASTVisitor (Done)
+	> Add "Extra Range" to Diagnostics (Done)
 
 	> Types:
 		> Type becomes TypeBase, and a new "Type" class is created
