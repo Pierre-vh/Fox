@@ -91,7 +91,7 @@ StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream)
 
 void StreamDiagConsumer::consume(const Diagnostic& diag)
 {
-	os_ << getLocInfo(sm_, diag.getSourceRange(), diag.isFileWide())
+	os_ << getLocInfo(sm_, diag.getRange(), diag.isFileWide())
 		<< " - " 
 		<< diagSevToString(diag.getDiagSeverity()) 
 		<< " - " 
@@ -105,8 +105,8 @@ void StreamDiagConsumer::consume(const Diagnostic& diag)
 void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
 {
 	SourceLoc::idx_type lineBeg = 0;
-	SourceLoc begLoc = diag.getSourceRange().getBegin();
-	SourceLoc endLoc = diag.getSourceRange().getEnd();
+	SourceLoc begLoc = diag.getRange().getBegin();
+	SourceLoc endLoc = diag.getRange().getEnd();
 
 	// Get the line, remove it's indent and display it.
 	std::string line = sm_.getLineAtLoc(begLoc, &lineBeg);
@@ -120,7 +120,7 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
 	// Prepare some handy iterators
 	auto strBeg = line.begin();
 	auto caretBeg = strBeg + bytesBeforeCaret;
-	auto caretEnd = caretBeg + diag.getSourceRange().getOffset();
+	auto caretEnd = caretBeg + diag.getRange().getOffset();
 
 	// Add spaces
 	std::size_t spacesBeforeCaret = utf8::distance(strBeg, caretBeg);
