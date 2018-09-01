@@ -98,47 +98,96 @@ void StreamDiagConsumer::consume(const Diagnostic& diag)
 		<< diag.getDiagStr() 
 		<< "\n";
 
-	if (!diag.isFileWide())
+	if (!diag.isFileWide() && diag.hasRange())
 		displayRelevantExtract(diag);
 }
 
-void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
+// Helper method for "displayRelevantExtract" which creates the "underline" string
+std::string createUnderline(char underlineChar, const std::string& str, std::string::const_iterator beg, std::string::const_iterator end)
 {
-	SourceLoc::idx_type lineBeg = 0;
-	SourceLoc begLoc = diag.getRange().getBegin();
-	SourceLoc endLoc = diag.getRange().getEnd();
+	std::string line = "";
 
-	// Get the line, remove it's indent and display it.
-	std::string line = sm_.getLineAtLoc(begLoc, &lineBeg);
-	auto lineBegNoIndent =  lineBeg + removeIndent(line);
-	os_ << '\t' << line << '\n';
+	std::string::const_iterator strBeg = str.begin();
+	std::size_t spacesBeforeCaret = utf8::distance(strBeg, beg);
 
-	auto bytesBeforeCaret = begLoc.getIndex() - lineBegNoIndent;
-
-	std::string caretLine = "";
-
-	// Prepare some handy iterators
-	auto strBeg = line.begin();
-	auto caretBeg = strBeg + bytesBeforeCaret;
-	auto caretEnd = caretBeg + diag.getRange().getOffset();
-
-	// Add spaces
-	std::size_t spacesBeforeCaret = utf8::distance(strBeg, caretBeg);
 	for (std::size_t k = 0; k < spacesBeforeCaret; k++)
-		caretLine += ' ';
+		line += ' ';
 
-	// Add carets
-	std::size_t numCarets = 1 + utf8::distance(caretBeg, caretEnd);
+	std::size_t numCarets = 1 + utf8::distance(beg, end);
 	for (std::size_t k = 0; k < numCarets; k++)
 	{
 		// Stop generating carets if the caretLine is longer
 		// than the line's size + 1 (to allow a caret at the end of the line)
-		if (caretLine.size() > (line.size() + 1))
+		if (line.size() > (line.size() + 1))
 			break;
-		caretLine += '^';
+
+		line += underlineChar;
 	}
 
+	return line;
+}
 
-	// Display the caret's line.
-	os_ << '\t' << caretLine << '\n';
+// Embeds "b" into "a", meaning that every space in a will be replaced with
+// the character at the same position in b, and returns the string
+// Example: embed("  ^  ", " ~~~ ") returns " ~^~ "
+std::string embedString(const std::string& a, const std::string& b)
+{
+	std::string out;
+	for (std::size_t k = 0, sz = a.size(); k < sz; k++)
+	{
+		if ((a[k] == ' ') && (k < b.size()))
+		{
+			out += b[k];
+			continue;
+		}
+		out += a[k];
+	}
+
+	if (b.size() > a.size())
+	{
+		for (std::size_t k = a.size(); k < b.size(); k++)
+			out += b[k];
+	}
+
+	return out;
+}
+
+void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
+{
+	assert(diag.hasRange() && "Cannot use this if the diag does not have a valid range");
+
+	auto range = diag.getRange();
+	auto eRange = diag.getExtraRange();
+	SourceLoc::idx_type lineBeg = 0;
+
+	// Get the line, remove it's indent and display it.
+	std::string line = sm_.getLineAtLoc(diag.getRange().getBegin(), &lineBeg);
+
+	// Remove any indent, and offset the lineBeg accordingly
+	lineBeg += removeIndent(line);
+
+	std::string underline;
+
+	// Create the carets underline (^) 
+	{	
+		auto beg = line.begin() + (range.getBegin().getIndex() - lineBeg);
+		auto end = line.begin() + (range.getEnd().getIndex() - lineBeg);
+		underline = createUnderline('^', line, beg, end);
+	}
+
+	// If needed, create the extra range underline (~)
+	if(diag.hasExtraRange())
+	{
+		assert((diag.getExtraRange().getFileID() == diag.getRange().getFileID())
+			&& "Ranges don't belong to the same file");
+
+		auto beg = line.begin() + (eRange.getBegin().getIndex() - lineBeg);
+		auto end = line.begin() + (eRange.getEnd().getIndex() - lineBeg);
+		underline = embedString(underline, createUnderline('~', line, beg, end));
+	}
+
+	// Display the line
+	os_ << '\t' << line << '\n';
+	// Display the carets
+	os_ << '\t' << underline << '\n';
 }
