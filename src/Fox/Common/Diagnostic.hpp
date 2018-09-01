@@ -56,11 +56,11 @@ namespace fox
 
 			SourceRange getRange() const;
 			void setRange(const SourceRange& range);
+			bool hasRange() const;
 
 			SourceRange getExtraRange() const;
 			void setExtraRange(const SourceRange& range);
-
-			bool hasLocInfo() const;
+			bool hasExtraRange() const;
 
 			// File-wide diagnostics are diagnostics that concern
 			// a whole file. 

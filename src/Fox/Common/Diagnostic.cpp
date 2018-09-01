@@ -73,6 +73,11 @@ void Diagnostic::setRange(const SourceRange& range)
 	range_ = range;
 }
 
+bool Diagnostic::hasRange() const
+{
+	return range_.isValid();
+}
+
 SourceRange Diagnostic::getExtraRange() const
 {
 	return extraRange_;
@@ -83,9 +88,9 @@ void Diagnostic::setExtraRange(const SourceRange& range)
 	extraRange_ = range;
 }
 
-bool Diagnostic::hasLocInfo() const
+bool Diagnostic::hasExtraRange() const
 {
-	return range_.isValid();
+	return extraRange_.isValid();
 }
 
 Diagnostic& Diagnostic::setIsFileWide(bool fileWide)
