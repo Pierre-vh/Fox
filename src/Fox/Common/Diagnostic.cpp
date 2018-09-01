@@ -63,12 +63,27 @@ DiagSeverity Diagnostic::getDiagSeverity() const
 	return diagSeverity_;
 }
 
-SourceRange Diagnostic::getSourceRange() const
+SourceRange Diagnostic::getRange() const
 {
 	return range_;
 }
 
-bool Diagnostic::hasValidSourceRange() const
+void Diagnostic::setRange(const SourceRange& range)
+{
+	range_ = range;
+}
+
+SourceRange Diagnostic::getExtraRange() const
+{
+	return extraRange_;
+}
+
+void Diagnostic::setExtraRange(const SourceRange& range)
+{
+	extraRange_ = range;
+}
+
+bool Diagnostic::hasLocInfo() const
 {
 	return range_.isValid();
 }

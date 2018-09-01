@@ -53,9 +53,14 @@ namespace fox
 			DiagID getDiagID() const;
 			std::string getDiagStr() const;
 			DiagSeverity getDiagSeverity() const;
-			SourceRange getSourceRange() const;
 
-			bool hasValidSourceRange() const;
+			SourceRange getRange() const;
+			void setRange(const SourceRange& range);
+
+			SourceRange getExtraRange() const;
+			void setExtraRange(const SourceRange& range);
+
+			bool hasLocInfo() const;
 
 			// File-wide diagnostics are diagnostics that concern
 			// a whole file. 
@@ -129,5 +134,6 @@ namespace fox
 			DiagID diagID_;
 			std::string diagStr_;
 			SourceRange range_;
+			SourceRange extraRange_;
 	};
 }
