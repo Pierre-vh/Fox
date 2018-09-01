@@ -31,9 +31,29 @@ ExprKind Expr::getKind() const
 	return kind_;
 }
 
+void Expr::setRange(const SourceRange& range)
+{
+	range_ = range;
+}
+
 SourceRange Expr::getRange() const
 {
 	return range_;
+}
+
+void Expr::setType(Type* type)
+{
+	type_ = type;
+}
+
+Type* Expr::getType()
+{
+	return type_;
+}
+
+const Type* Expr::getType() const
+{
+	return type_;
 }
 
 void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
@@ -41,10 +61,6 @@ void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
 	return ctxt.getAllocator().allocate(sz, align);
 }
 
-void Expr::setRange(const SourceRange& range)
-{
-	range_ = range;
-}
 
 //-----------------//
 // CharLiteralExpr //

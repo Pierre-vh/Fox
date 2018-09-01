@@ -10,7 +10,6 @@
 #pragma once
 
 #include "Fox/Common/Typedefs.hpp"
-#include "Fox/AST/Type.hpp"
 #include "Fox/Common/Source.hpp"
 #include <vector>
 
@@ -26,6 +25,7 @@ namespace fox
 	// Forward Declarations
 	class Identifier;
 	class ASTContext;
+	class Type;
 
 	// Expr
 	//		Common base class for every expression
@@ -36,6 +36,10 @@ namespace fox
 
 			void setRange(const SourceRange& range);
 			SourceRange getRange() const;
+
+			void setType(Type* type);
+			Type* getType();
+			const Type* getType() const;
 
 			// Prohibit the use of builtin placement new & delete
 			void *operator new(std::size_t) throw() = delete;
@@ -53,6 +57,7 @@ namespace fox
 
 		private:
 			const ExprKind kind_;
+			Type* type_ = nullptr;
 			SourceRange range_;
 	};
 
