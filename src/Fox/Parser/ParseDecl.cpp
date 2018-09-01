@@ -208,7 +208,8 @@ Parser::DeclResult Parser::parseFuncDecl()
 
 	if (!compStmt)
 	{
-		reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
+		if(compStmt.wasSuccessful()) // Display only if it was not found
+			reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
 		return DeclResult::Error();
 	}
 
