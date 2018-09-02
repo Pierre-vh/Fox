@@ -72,5 +72,8 @@ Boring stuff that I must do when I have the time/motivation for it
 
 Shelved
 	> Types/TypeBase rework: Necessity still to be determined.
+		On one side, it could be great because it eliminates some pointers, and would make the addition of Sugared type infinitely easier.
+		However, it would take time to do. I'll weight the pros and cons before making a decision. I still got time, at least until I begin
+		Semantic Analysis
 
 					
