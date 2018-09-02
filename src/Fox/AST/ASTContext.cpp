@@ -97,6 +97,22 @@ ArrayType* ASTContext::getArrayTypeForType(Type * ty)
 	}
 }
 
+LValueType* ASTContext::getLValueTypeForType(Type * ty)
+{
+	auto lb = lvalueTypes_.lower_bound(ty);
+	if (lb != lvalueTypes_.end() && !(lvalueTypes_.key_comp()(ty, lb->first)))
+	{
+		// Key already exists, return lb->second.get()
+		return lb->second;
+	}
+	else
+	{
+		// Key does not exists, insert & return.
+		auto insertionResult = lvalueTypes_.insert(lb, { ty, new(*this) LValueType(ty) });
+		return insertionResult->second;
+	}
+}
+
 LinearAllocator<>& ASTContext::getAllocator()
 {
 	return alloc_;

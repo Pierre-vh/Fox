@@ -56,6 +56,9 @@ namespace fox
 			// Returns an ArrayType for a given type.
 			ArrayType* getArrayTypeForType(Type* ty);
 
+			// Returns an LValueType for a given type
+			LValueType* getLValueTypeForType(Type* ty);
+
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
 			// Resets the ASTContext, freeing the AST and
@@ -89,9 +92,11 @@ namespace fox
 			PrimitiveType* charTy_ = nullptr;
 			PrimitiveType* stringTy_ = nullptr;
 
-			// Array types
-			// Type -> Type[]
+			// Array types (Type -> Type[])
 			std::map<Type*, ArrayType*> arrayTypes_;
+
+			// LValue types (Type -> @Type)
+			std::map<Type*, LValueType*> lvalueTypes_;
 
 			// Allocators
 			LinearAllocator<> alloc_; // Default allocator for the ASTContext
