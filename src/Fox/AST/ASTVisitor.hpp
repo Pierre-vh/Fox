@@ -162,8 +162,23 @@ namespace fox
 
 	};
 
-	// A Simple visitor where the return type is the same for every node type.
+	// Simple visitor
 	template<typename Derived, typename RtrTy, typename ... Args>
 	using SimpleASTVisitor = ASTVisitor<Derived, RtrTy, RtrTy, RtrTy, RtrTy, Args...>;
 
+	// Visitor for Decls
+	template<typename Derived, typename RtrTy, typename ... Args>
+	using DeclVisitor = ASTVisitor<Derived, RtrTy, void, void, void, Args...>;
+
+	// Visitor for Exprs
+	template<typename Derived, typename RtrTy, typename ... Args>
+	using ExprVisitor = ASTVisitor<Derived, void, RtrTy, void, void, Args...>;
+
+	// Visitor for Stmts
+	template<typename Derived, typename RtrTy, typename ... Args>
+	using StmtVisitor = ASTVisitor<Derived, void, void, RtrTy, void, Args...>;
+
+	// Visitor for Types
+	template<typename Derived, typename RtrTy, typename ... Args>
+	using TypeVisitor = ASTVisitor<Derived, void, void, void, RtrTy, Args...>;
 }
