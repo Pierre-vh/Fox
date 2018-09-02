@@ -36,6 +36,7 @@ namespace fox
 			// Visit ASTNode
 			void visit(ASTNode node, Args... args)
 			{
+				assert(node.getOpaque() && "Cannot be used on a null pointer");
 				if (node.is<Decl>())
 					visit(node.get<Decl>(), ::std::forward<Args>(args)...);
 				else if (node.is<Expr>())
@@ -49,6 +50,7 @@ namespace fox
 			// Visit Decl "Dispatch" Method
 			DeclRtrTy visit(Decl* decl, Args... args)
 			{
+				assert(decl && "Cannot be used on a null pointer");
 				switch (decl->getKind())
 				{
 					#define DECL(ID,PARENT)\
@@ -64,6 +66,7 @@ namespace fox
 			// Visit Stmt dispatch method
 			StmtRtrTy visit(Stmt* stmt, Args... args)
 			{
+				assert(stmt && "Cannot be used on a null pointer");
 				switch (stmt->getKind())
 				{
 					#define STMT(ID,PARENT)\
@@ -79,6 +82,7 @@ namespace fox
 			// Visit Expr dispatch method
 			ExprRtrTy visit(Expr* expr, Args... args)
 			{
+				assert(expr && "Cannot be used on a null pointer");
 				switch (expr->getKind())
 				{
 					#define EXPR(ID,PARENT)\
@@ -94,6 +98,7 @@ namespace fox
 			// Visit Types dispatch method
 			TypeRtrTy visit(Type* type, Args... args)
 			{
+				assert(type && "Cannot be used on a null pointer");
 				switch (type->getKind())
 				{
 					#define TYPE(ID,PARENT)\
