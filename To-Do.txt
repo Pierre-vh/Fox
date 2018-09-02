@@ -60,6 +60,9 @@ Moonshot Project To-do List.
 
 	> Remove QualType. 
 
+	> Review uniqueness of types. It makes sense for some types, but maybe for others
+	  it doesn't make that much sense at all? (Rethink the "getArrayTypeForType" function, especially)
+
 	> Semantic Analysis
 		Ideas (for Exprs)
 			Phase 1: 
