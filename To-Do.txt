@@ -53,7 +53,12 @@ Moonshot Project To-do List.
 	> Add custom return types for expr/decl/stmt/types for the ASTVisitor (Done)
 	> Add "Extra Range" to Diagnostics (Done)
 	> Add Type* to all exprs (Done)
+	> Add LValueType (Done)
 
+	> Add "ValueDecl" class (derived from NamedDecl), which is essentially a 
+	  variable declaration, generalized. It has a type attribute, as well as a "isConst" qualifier.
+
+	> Remove QualType. 
 
 	> Semantic Analysis
 		Ideas (for Exprs)
