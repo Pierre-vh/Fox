@@ -29,11 +29,12 @@
 
 /* Macros */
 
-ABSTRACT_TYPE(BuiltinType,Type)
-	TYPE(PrimitiveType,BuiltinType)
-	TYPE(ArrayType,BuiltinType)
-	TYPE_RANGE(BuiltinType,PrimitiveType,ArrayType)
+ABSTRACT_TYPE(BuiltinType, Type)
+	TYPE(PrimitiveType, BuiltinType)
+	TYPE(ArrayType, BuiltinType)
+	TYPE_RANGE(BuiltinType, PrimitiveType, ArrayType)
 
+TYPE(LValueType, Type)
 
 /* Undef */
 #undef ABSTRACT_TYPE

@@ -97,24 +97,24 @@ bool PrimitiveType::isVoid() const
 // ArrayType //
 //-----------//
 
-ArrayType::ArrayType(Type* ty) : itemTy_(ty), BuiltinType(TypeKind::ArrayType)
+ArrayType::ArrayType(Type* elemTy) : elementTy_(elemTy), BuiltinType(TypeKind::ArrayType)
 {
-	assert(ty && "The Array item type cannot be null!");
+	assert(elemTy && "The Array item type cannot be null!");
 }
 
 std::string ArrayType::getString() const
 {
-	return itemTy_->getString() + "[]";
+	return elementTy_->getString() + "[]";
 }
 
-Type* ArrayType::getItemTy()
+Type* ArrayType::getElementType()
 {
-	return itemTy_;
+	return elementTy_;
 }
 
-const Type* ArrayType::getItemTy() const
+const Type* ArrayType::getElementType() const
 {
-	return itemTy_;
+	return elementTy_;
 }
 
 //----------//
@@ -190,4 +190,29 @@ bool QualType::isValid() const
 QualType::operator bool() const
 {
 	return isValid();
+}
+
+//------------//
+// LValueType //
+//------------//
+
+LValueType::LValueType(Type* type) : Type(TypeKind::LValueType), ty_(type)
+{
+	assert(type && "cannot be null");
+}
+
+std::string LValueType::getString() const
+{
+	// LValue types are represented by adding a prefix "@"
+	return "@" + ty_->getString();
+}
+
+Type* LValueType::getType()
+{
+	return ty_;
+}
+
+const Type* LValueType::getType() const
+{
+	return ty_;
 }

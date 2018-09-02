@@ -5,16 +5,6 @@
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file contains the Type AST nodes.
-// Types are immutable once created.
-//	
-// TODO: I think that in the future a "ErrorType" could be really handy for parser error recovery
-// and TypeChecking errors handling.
-//
-// At the time of writing this, work on the Semantic Analyzer has not
-// started yet. Thus, most classes here will be changed a lot
-// in the future. Also, the types are all trivial (builtin types & array types)
-// which means that they don't have any complicated work to do, 
-//
 ////------------------------------------------------------////
 
 #pragma once
@@ -126,12 +116,12 @@ namespace fox
 	class ArrayType : public BuiltinType
 	{
 		public:
-			ArrayType(Type* itemsTy);
+			ArrayType(Type* elemTy);
 
 			virtual std::string getString() const override;
 
-			Type* getItemTy();
-			const Type* getItemTy() const;
+			Type* getElementType();
+			const Type* getElementType() const;
 
 			static bool classof(const Type* type)
 			{
@@ -139,7 +129,7 @@ namespace fox
 			}
 
 		private:
-			Type* itemTy_= nullptr;
+			Type* elementTy_= nullptr;
 	};
 
 	// QualType
@@ -179,5 +169,28 @@ namespace fox
 			bool isConst_ : 1;
 			bool isRef_ : 1;
 			// 6 Bits left //
+	};
+
+	// LValueType
+	//		C/C++-like LValue. e.g. This type is the one
+	//		of a DeclRef when the declaration it refers to
+	//		is not const.
+	class LValueType : public Type
+	{
+		public:
+			LValueType(Type* type);
+
+			virtual std::string getString() const override;
+
+			Type* getType();
+			const Type* getType() const;
+
+			static bool classof(const Type* type)
+			{
+				return (type->getKind() == TypeKind::LValueType);
+			}
+
+		private:
+			Type* ty_ = nullptr;
 	};
 }
