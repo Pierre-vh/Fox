@@ -107,11 +107,11 @@ TEST(ASTTests, ASTContextArrayTypes)
 	ASSERT_TRUE(strArr)		<< "Pointer is null";
 
 	// Check that itemTypes are correct
-	EXPECT_EQ((dyn_cast<ArrayType>(boolArr))->getItemTy(), primBool);
-	EXPECT_EQ((dyn_cast<ArrayType>(floatArr))->getItemTy(), primFloat);
-	EXPECT_EQ((dyn_cast<ArrayType>(intArr))->getItemTy(), primInt);
-	EXPECT_EQ((dyn_cast<ArrayType>(charArr))->getItemTy(), primChar);
-	EXPECT_EQ((dyn_cast<ArrayType>(strArr))->getItemTy(), primString);
+	EXPECT_EQ((dyn_cast<ArrayType>(boolArr))->getElementType(), primBool);
+	EXPECT_EQ((dyn_cast<ArrayType>(floatArr))->getElementType(), primFloat);
+	EXPECT_EQ((dyn_cast<ArrayType>(intArr))->getElementType(), primInt);
+	EXPECT_EQ((dyn_cast<ArrayType>(charArr))->getElementType(), primChar);
+	EXPECT_EQ((dyn_cast<ArrayType>(strArr))->getElementType(), primString);
 
 	// Checks that they're different
 	EXPECT_NE(boolArr, floatArr);
@@ -259,7 +259,8 @@ TEST(ASTTests, TypeRTTI)
 {
 	ASTContext astctxt;
 	Type* intTy = astctxt.getIntType();
-	Type* arrIntTy = astctxt.getArrayTypeForType(intTy);
+	ArrayType* arrIntTy = astctxt.getArrayTypeForType(intTy);
+	LValueType* lvIntTy = astctxt.getLValueTypeForType(intTy);
 
 	EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
 	EXPECT_TRUE(PrimitiveType::classof(intTy));
@@ -268,6 +269,9 @@ TEST(ASTTests, TypeRTTI)
 	EXPECT_EQ(arrIntTy->getKind(), TypeKind::ArrayType);
 	EXPECT_TRUE(ArrayType::classof(arrIntTy));
 	EXPECT_TRUE(BuiltinType::classof(arrIntTy));
+
+	EXPECT_EQ(lvIntTy->getKind(), TypeKind::LValueType);
+	EXPECT_TRUE(LValueType::classof(lvIntTy));
 }
 
 TEST(ASTTests, ExprRTTI)
