@@ -85,3 +85,6 @@ Shelved
 		Semantic Analysis
 
 					
+Later:
+	Use a "SourceFile" class instead of a "UnitDecl" class, like swift. This class would track the progress of the AST:
+	not parsed, parsed but not semantically analyzed, etc.
