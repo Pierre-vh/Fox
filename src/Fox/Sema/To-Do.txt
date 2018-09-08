@@ -1,0 +1,29 @@
+Short incomplete roadmap for semantic analysis impl
+
+-> AST
+	-> Type
+		-> UnresolvedType
+			-> SemaType
+				-> FreshType: a placeholder type that needs to be unified to become a real type.
+					-> Contains a pointer to the current chosen subsitution
+					-> Might or might not be "adjustable" (Upranked)
+
+-> Sema
+	-> Sema class
+		-> Contains various visitors (in .cpp files, not public)
+			to visit any expr/decl/stmt/type and call relevant semantic analysis methods
+			Will probably be quite large. Maybe divide into Expr/Stmt/Decl Sema classes?
+		-> Flow example:
+			visitExpr
+				(in cpp) ExprChecker
+					checkBinaryExpr
+						checkMultiplicativeBinaryExpr
+		-> 2 pass. First one is the checking of semantics, second one is checking all the substitution, validate them and remove the Unresolved expr/types.
+			-> Semantics error are noted in the first pass
+			-> Second pass notes inference errors, such as being unable to infer a []'s type if used this way "[]*3"
+	-> Scope class
+		-> Contains the current scope of all declarations
+		-> Gives utilities method to check if a identifier is 
+			A: Used without being declared
+			B: Used before being declared
+			C: Used correctly
