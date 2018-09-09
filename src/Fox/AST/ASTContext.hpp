@@ -59,6 +59,9 @@ namespace fox
 			// Returns an LValueType for a given type
 			LValueType* getLValueTypeForType(Type* ty);
 
+			// Creates a SemaType
+			SemaType* createSemaType(Type* ty = nullptr);
+
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
 			// Resets the ASTContext, freeing the AST and

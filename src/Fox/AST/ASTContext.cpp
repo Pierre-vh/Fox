@@ -134,3 +134,8 @@ void ASTContext::reset()
 
 	initBuiltinTypes();
 }
+
+SemaType* ASTContext::createSemaType(Type* ty)
+{
+	return new(*this) SemaType(ty);
+}
