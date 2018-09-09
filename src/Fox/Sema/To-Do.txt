@@ -1,12 +1,6 @@
 Short incomplete roadmap for semantic analysis impl
 
--> AST
-	-> Type
-		-> UnresolvedType
-			-> SemaType
-				-> FreshType: a placeholder type that needs to be unified to become a real type.
-					-> Contains a pointer to the current chosen subsitution
-					-> Might or might not be "adjustable" (Upranked)
+-> AST: SemaType (done, sort of)
 
 -> Sema
 	-> Sema class
