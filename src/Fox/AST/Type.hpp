@@ -193,4 +193,34 @@ namespace fox
 		private:
 			Type* ty_ = nullptr;
 	};
+
+	// SemaType
+	//		Type used in semantic analysis to perform
+	//		basic, local type inference. This is, like LValueType & ArrayType,
+	//		just a wrapper around a Type*, however the pointer may be null if no
+	//		substitution was chosen.
+	class SemaType : public Type
+	{
+		public:
+			SemaType(Type* type = nullptr);
+
+			virtual std::string getString() const override;
+
+			Type* getType();
+			const Type* getType() const;
+
+			// Returns true if the type has a substitution
+			// (type isn't null)
+			bool hasSubstitution() const;
+
+			// Sets the type to nullptr
+			void reset();
+
+			static bool classof(const Type* type)
+			{
+				return (type->getKind() == TypeKind::SemaType);
+			}
+		private:
+			Type * ty_ = nullptr;
+	};
 }

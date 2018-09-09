@@ -35,6 +35,7 @@ ABSTRACT_TYPE(BuiltinType, Type)
 	TYPE_RANGE(BuiltinType, PrimitiveType, ArrayType)
 
 TYPE(LValueType, Type)
+TYPE(SemaType, Type)
 
 /* Undef */
 #undef ABSTRACT_TYPE

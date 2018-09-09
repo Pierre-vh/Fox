@@ -216,3 +216,37 @@ const Type* LValueType::getType() const
 {
 	return ty_;
 }
+
+//----------//
+// SemaType //
+//----------//
+
+SemaType::SemaType(Type* type) : Type(TypeKind::SemaType), ty_(type)
+{
+
+}
+
+std::string SemaType::getString() const
+{
+	return "SemaType(" + (ty_ ? ty_->getString() : "empty") + ")";
+}
+
+Type* SemaType::getType()
+{
+	return ty_;
+}
+
+const Type* SemaType::getType() const
+{
+	return ty_;
+}
+
+bool SemaType::hasSubstitution() const
+{
+	return (ty_ != nullptr);
+}
+
+void SemaType::reset()
+{
+	ty_ = nullptr;
+}
