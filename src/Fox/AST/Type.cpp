@@ -9,6 +9,7 @@
 
 #include "Type.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/LLVM.hpp"
 #include "ASTContext.hpp"
 #include <sstream>
 
@@ -26,6 +27,44 @@ Type::Type(TypeKind tc) : kind_(tc)
 TypeKind Type::getKind() const
 {
 	return kind_;
+}
+
+bool Type::isArray() const
+{
+	return isa<ArrayType>(this);
+}
+
+bool Type::isLValue() const
+{
+	return isa<LValueType>(this);
+}
+
+const Type* Type::unwrapIfArray() const
+{
+	if (const ArrayType* tmp = dyn_cast<ArrayType>(this))
+		return tmp->getElementType();
+	return nullptr;
+}
+
+Type* Type::unwrapIfArray()
+{
+	if (ArrayType* tmp = dyn_cast<ArrayType>(this))
+		return tmp->getElementType();
+	return nullptr;
+}
+
+const Type* Type::unwrapIfLValue() const
+{
+	if (const LValueType* tmp = dyn_cast<LValueType>(this))
+		return tmp->getType();
+	return nullptr;
+}
+
+Type* Type::unwrapIfLValue()
+{
+	if (LValueType* tmp = dyn_cast<LValueType>(this))
+		return tmp->getType();
+	return nullptr;
 }
 
 void* Type::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align)

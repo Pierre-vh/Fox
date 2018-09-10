@@ -35,6 +35,21 @@ namespace fox
 
 			TypeKind getKind() const;
 
+			bool isArray() const;
+			bool isLValue() const;
+
+			// Returns the element type if this is an ArrayType, or nullptr.
+			const Type* unwrapIfArray() const;
+
+			// Returns the element type if this is an ArrayType, or nullptr.
+			Type* unwrapIfArray();
+
+			// Returns the element type if this is an LValueType, or nullptr.
+			const Type* unwrapIfLValue() const;
+
+			// Returns the element type if this is an LValueType, or nullptr.
+			Type* unwrapIfLValue();
+
 		protected:
 			Type(TypeKind tc);
 
