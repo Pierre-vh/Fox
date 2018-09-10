@@ -21,3 +21,10 @@ Short incomplete roadmap for semantic analysis impl
 			A: Used without being declared
 			B: Used before being declared
 			C: Used correctly
+
+
+Order of impl:
+	Exprs without DeclRefs (only constexprs)
+	Decls
+	Scopes & Name Resolution
+	Stmts
