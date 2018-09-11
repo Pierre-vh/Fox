@@ -147,45 +147,6 @@ namespace fox
 			Type* elementTy_= nullptr;
 	};
 
-	// QualType
-	//		A class that encapsulates a Type* pointer with
-	//		it's qualifiers.
-	class QualType
-	{
-		public:
-			QualType();
-			QualType(Type* ty, bool isConstant = false,bool isReference = false);
-
-			// Const
-			bool isConstant() const;
-			void setIsConst(bool constattr);
-			
-			// Ref
-			bool isReference() const;
-			void setIsReference(bool refattr);
-
-			// Returns a name for the type, with the attributes.
-			// e.g. "const &int"
-			std::string getString() const;
-
-			// Returns the Type pointer (ty_)
-			Type* getType();
-			const Type* getType() const;
-			void setType(Type* ty);
-
-			// Checks if this QualType is valid (ty_ != nullptr)
-			bool isValid() const;
-			explicit operator bool() const;
-
-		private:
-			Type* ty_ = nullptr;
-
-			// Bitfield //
-			bool isConst_ : 1;
-			bool isRef_ : 1;
-			// 6 Bits left //
-	};
-
 	// LValueType
 	//		C/C++-like LValue. e.g. This type is the one
 	//		of a DeclRef when the declaration it refers to
