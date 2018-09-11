@@ -262,9 +262,10 @@ Parser::DeclResult Parser::parseParamDecl()
 
 	auto* rtr = new(ctxt_) ParamDecl(
 			id.get(),
-			qt.get(),
-			range,
-			qt.getRange()
+			qt.get().getType(),
+			qt.get().isConstant(),
+			qt.getRange(),
+			range
 		);
 	assert(rtr->isValid());
 	recordDecl(rtr);
@@ -358,7 +359,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	SourceRange range(begLoc, endLoc);
 	assert(range && "Invalid loc info");
 
-	auto rtr = new(ctxt_) VarDecl(id, ty, iExpr, range, tyRange);
+	auto rtr = new(ctxt_) VarDecl(id, ty.getType(), ty.isConstant(), iExpr, tyRange, range);
 	assert(rtr->isValid());
 	recordDecl(rtr);
 	return DeclResult(rtr);
