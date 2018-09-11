@@ -32,7 +32,7 @@ DeclKind Decl::getKind() const
 	return kind_;
 }
 
-void Decl::setRange(const SourceRange& range)
+void Decl::setRange(SourceRange range)
 {
 	range_ = range;
 }
@@ -56,15 +56,20 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
 // NamedDecl //
 //-----------//
 
-NamedDecl::NamedDecl(DeclKind kind, Identifier* id, const SourceRange& range):
+NamedDecl::NamedDecl(DeclKind kind, Identifier* id, SourceRange range):
 	Decl(kind, range), identifier_(id)
 {
 
 }
 
-Identifier* NamedDecl::getIdentifier() const
+Identifier* NamedDecl::getIdentifier()
 {
-	return identifier_;;
+	return identifier_;
+}
+
+const Identifier* NamedDecl::getIdentifier() const
+{
+	return identifier_;
 }
 
 void NamedDecl::setIdentifier(Identifier* nname)
@@ -83,39 +88,67 @@ bool NamedDecl::isValid() const
 }
 
 //-----------//
-// ParamDecl //
+// ValueDecl //
 //-----------//
 
-ParamDecl::ParamDecl() : ParamDecl(nullptr, QualType(), SourceRange(), SourceRange())
+ValueDecl::ValueDecl(DeclKind kind, Identifier* id, Type* ty, bool isConst,
+	SourceRange typeRange, SourceRange range):
+	NamedDecl(kind, id, range), isConst_(isConst), tyRange_(typeRange),
+	type_(ty)
 {
 
 }
 
-ParamDecl::ParamDecl(Identifier* id, const QualType& type, 
-	const SourceRange& range, const SourceRange& tyRange):
-	NamedDecl(DeclKind::ParamDecl, id, range), type_(type), tyRange_(tyRange)
-{
-
-}
-
-SourceRange ParamDecl::getTypeRange() const
-{
-	return tyRange_;
-}
-
-QualType ParamDecl::getType() const
+Type* ValueDecl::getType()
 {
 	return type_;
 }
 
-void ParamDecl::setType(const QualType & qt)
+const Type* ValueDecl::getType() const
 {
-	type_ = qt;
+	return type_;
+}
+
+void ValueDecl::setType(Type* ty)
+{
+	type_ = ty;
+}
+
+bool ValueDecl::isConstant() const
+{
+	return isConst_;
+}
+
+void ValueDecl::setIsConstant(bool k)
+{
+	isConst_ = k;
+}
+
+bool ValueDecl::isValid() const
+{
+	return NamedDecl::isValid() && type_ && tyRange_;
+}
+
+//-----------//
+// ParamDecl //
+//-----------//
+
+ParamDecl::ParamDecl():
+	ParamDecl(nullptr, nullptr, false, SourceRange(), SourceRange())
+{
+
+}
+
+ParamDecl::ParamDecl(Identifier* id, Type* type, bool isConst, 
+	SourceRange tyRange, SourceRange range):
+	ValueDecl(DeclKind::ParamDecl, id, type, isConst, tyRange, range)
+{
+
 }
 
 bool ParamDecl::isValid() const
 {
-	return NamedDecl::isValid() && type_ && tyRange_;
+	return ValueDecl::isValid();
 }
 
 //----------//
@@ -129,7 +162,7 @@ FuncDecl::FuncDecl():
 }
 
 FuncDecl::FuncDecl(Type* returnType, Identifier* fnId, CompoundStmt* body,
-	const SourceRange& range, const SourceLoc& headerEndLoc):
+	SourceRange range, SourceLoc headerEndLoc):
 	NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), body_(body), returnType_(returnType)
 {
 	paramsAreValid_ = true;
@@ -225,31 +258,21 @@ FuncDecl::ParamVecConstIter FuncDecl::params_end() const
 //---------//
 
 VarDecl::VarDecl():
-	VarDecl(nullptr, QualType(), nullptr, SourceRange(), SourceRange())
+	VarDecl(nullptr, nullptr, false, nullptr, SourceRange(), SourceRange())
 {
 
 }
 
-VarDecl::VarDecl(Identifier* id, const QualType& type, Expr* init, 
-	const SourceRange& range, const SourceRange& tyRange):
-	NamedDecl(DeclKind::VarDecl, id, range), type_(type), typeRange_(tyRange), init_(init)
+VarDecl::VarDecl(Identifier* id, Type* type, bool isConst, Expr* init, 
+	SourceRange tyRange, SourceRange range):
+	ValueDecl(DeclKind::VarDecl, id, type, isConst, tyRange, range), init_(init)
 {
 
 }
 
 bool VarDecl::isValid() const
 {
-	return NamedDecl::isValid() && type_ && typeRange_;
-}
-
-SourceRange VarDecl::getTypeRange() const
-{
-	return typeRange_;
-}
-
-QualType VarDecl::getType() const
-{
-	return type_;
+	return ValueDecl::isValid();
 }
 
 Expr* VarDecl::getInitExpr() const
@@ -262,11 +285,6 @@ bool VarDecl::hasInitExpr() const
 	return (bool)init_;
 }
 
-void VarDecl::setType(const QualType &ty)
-{
-	type_ = ty;
-}
-
 void VarDecl::setInitExpr(Expr* expr)
 {
 	init_ = expr;
@@ -276,7 +294,7 @@ void VarDecl::setInitExpr(Expr* expr)
 // UnitDecl //
 //----------//
 
-UnitDecl::UnitDecl(Identifier * id,FileID inFile)
+UnitDecl::UnitDecl(Identifier* id,FileID inFile)
 	: NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile)
 {
 	declsAreValid_ = true;

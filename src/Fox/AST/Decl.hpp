@@ -35,7 +35,7 @@ namespace fox
 		public:
 			DeclKind getKind() const;
 
-			void setRange(const SourceRange& range);
+			void setRange(SourceRange range);
 			SourceRange getRange() const;
 
 			bool isValid() const;
@@ -64,9 +64,10 @@ namespace fox
 	class NamedDecl : public Decl
 	{
 		public:
-			NamedDecl(DeclKind kind, Identifier* id, const SourceRange& range);
+			NamedDecl(DeclKind kind, Identifier* id, SourceRange range);
 
-			Identifier* getIdentifier() const;
+			Identifier* getIdentifier();
+			const Identifier* getIdentifier() const;
 			void setIdentifier(Identifier* nname);
 			bool hasIdentifier() const;
 
@@ -81,18 +82,42 @@ namespace fox
 			Identifier* identifier_;
 	};
 
+	// ValueDecl
+	//		Common base class for every value declaration 
+	//		(declares a value of a certain type & name)
+	class ValueDecl : public NamedDecl
+	{
+		public:
+			ValueDecl(DeclKind kind, Identifier* id, Type* ty, 
+				bool isConst, SourceRange typeRange, SourceRange range);
+
+			Type* getType();
+			const Type* getType() const;
+			void setType(Type* ty);
+
+			bool isConstant() const;
+			void setIsConstant(bool k);
+
+			bool isValid() const;
+
+			static bool classof(const Decl* decl)
+			{
+				return (decl->getKind() >= DeclKind::First_ValueDecl) && (decl->getKind() <= DeclKind::Last_ValueDecl);
+			}
+
+		private:
+			bool isConst_;
+			SourceRange tyRange_;
+			Type* type_;
+	};
+
 	// ParamDecl
 	//		A declaration of a function parameter
-	class ParamDecl : public NamedDecl
+	class ParamDecl : public ValueDecl
 	{
 		public:
 			ParamDecl();
-			ParamDecl(Identifier* id, const QualType& type,
-				const SourceRange& range, const SourceRange& tyRange);
-
-			SourceRange getTypeRange() const;
-			QualType getType() const;
-			void setType(const QualType& qt);
+			ParamDecl(Identifier* id, Type* type, bool isConst, SourceRange tyRange, SourceRange range);
 
 			bool isValid() const;
 
@@ -100,10 +125,6 @@ namespace fox
 			{
 				return decl->getKind() == DeclKind::ParamDecl;
 			}
-
-		private:
-			SourceRange tyRange_;
-			QualType type_;
 	};
 
 	
@@ -120,7 +141,7 @@ namespace fox
 		public:
 			FuncDecl();
 			FuncDecl(Type* returnType, Identifier* fnId, CompoundStmt* body,
-				const SourceRange& range,const SourceLoc& headerEndLoc);
+				SourceRange range, SourceLoc headerEndLoc);
 			
 			void setLocs(const SourceRange& range, const SourceLoc& headerEndLoc);
 			void setHeaderEndLoc(const SourceLoc& loc);
@@ -164,18 +185,14 @@ namespace fox
 
 	// VarDecl
 	//		A variable declaration
-	class VarDecl : public NamedDecl
+	class VarDecl : public ValueDecl
 	{
 		public:
 			VarDecl();
-			VarDecl(Identifier* id, const QualType& type, 
-				Expr* init, const SourceRange& range, const SourceRange& tyRange);
+			VarDecl(Identifier* id, Type* type, bool isConst,
+				Expr* init, SourceRange range, SourceRange tyRange);
 
 			bool isValid() const;
-
-			QualType getType() const;
-			void setType(const QualType &ty);
-			SourceRange getTypeRange() const;
 
 			Expr* getInitExpr() const;
 			void setInitExpr(Expr* expr);
@@ -187,8 +204,6 @@ namespace fox
 			}
 
 		private:
-			SourceRange typeRange_;
-			QualType type_;
 			Expr* init_ = nullptr;
 	};
 
