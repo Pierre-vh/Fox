@@ -129,7 +129,14 @@ namespace fox
 			Result<Type*> parseType();
 
 			// Parses a QualType 
-			Result<QualType> parseQualType();
+				// Deprecated: This will go away with the grammar update
+			struct ParsedQualType
+			{
+				Type* type;
+				bool isConst;
+				bool isRef;
+			};
+			Result<ParsedQualType> parseQualType(SourceRange* constLoc = nullptr, SourceLoc* refLoc = nullptr);
 
 			Result<BinaryExpr::OpKind> parseAssignOp();
 			Result<UnaryExpr::OpKind> parseUnaryOp();

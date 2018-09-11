@@ -246,25 +246,27 @@ Parser::DeclResult Parser::parseParamDecl()
 	}
 
 	// <qualtype>
-	auto qt = parseQualType();
-	if (!qt)
+	auto typeResult = parseQualType();
+	if (!typeResult)
 	{
-		if (qt.wasSuccessful())
+		if (typeResult.wasSuccessful())
 			reportErrorExpected(DiagID::parser_expected_type);
 		return DeclResult::Error();
 	}
 
+	auto parsedType = typeResult.get();
+
 	SourceLoc begLoc = id.getSourceRange().getBegin();
-	SourceLoc endLoc = qt.getRange().getEnd();
+	SourceLoc endLoc = typeResult.getRange().getEnd();
 
 	SourceRange range(begLoc, endLoc);
 	assert(range && "Invalid loc info");
 
 	auto* rtr = new(ctxt_) ParamDecl(
 			id.get(),
-			qt.get().getType(),
-			qt.get().isConstant(),
-			qt.getRange(),
+			parsedType.type,
+			parsedType.isConst,
+			typeResult.getRange(),
 			range
 		);
 	assert(rtr->isValid());
@@ -285,7 +287,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	SourceRange tyRange;
 
 	Identifier* id;
-	QualType ty;
+	ParsedQualType parsedTy;
 	Expr* iExpr = nullptr;
 
 	// <id>
@@ -310,14 +312,15 @@ Parser::DeclResult Parser::parseVarDecl()
 	}
 
 	// <qualtype>
-	if (auto typespecResult = parseQualType())
+	SourceLoc ampLoc;
+	if (auto typespecResult = parseQualType(nullptr, &ampLoc))
 	{
-		ty = typespecResult.get();
+		parsedTy = typespecResult.get();
 		tyRange = typespecResult.getRange();
-		if (ty.isReference())
+		if (parsedTy.isRef)
 		{
-			diags_.report(DiagID::parser_ignored_ref_vardecl, typespecResult.getRange());
-			ty.setIsReference(false);
+			diags_.report(DiagID::parser_ignored_ref_vardecl, ampLoc);
+			parsedTy.isRef = false;
 		}
 	}
 	else
@@ -359,16 +362,17 @@ Parser::DeclResult Parser::parseVarDecl()
 	SourceRange range(begLoc, endLoc);
 	assert(range && "Invalid loc info");
 
-	auto rtr = new(ctxt_) VarDecl(id, ty.getType(), ty.isConstant(), iExpr, tyRange, range);
+	auto rtr = new(ctxt_) VarDecl(id, parsedTy.type,
+		parsedTy.isConst, iExpr, tyRange, range);
 	assert(rtr->isValid());
 	recordDecl(rtr);
 	return DeclResult(rtr);
 }
 
-Parser::Result<QualType> Parser::parseQualType()
+Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constRange, SourceLoc* refLoc)
 {
 	// 	<qualtype>	= ["const"] ['&'] <type>
-	QualType ty;
+	ParsedQualType rtr;
 	bool hasFoundSomething = false;
 	SourceLoc begLoc;
 	SourceLoc endLoc;
@@ -378,7 +382,10 @@ Parser::Result<QualType> Parser::parseQualType()
 	{
 		begLoc = kw.getBegin();
 		hasFoundSomething = true;
-		ty.setIsConst(true);
+		rtr.isConst = true;
+
+		if (constRange)
+			(*constRange) = kw;
 	}
 
 	// ['&']
@@ -388,13 +395,16 @@ Parser::Result<QualType> Parser::parseQualType()
 		if (!begLoc)
 			begLoc = ampersand;
 		hasFoundSomething = true;
-		ty.setIsReference(true);
+		rtr.isRef = true;
+
+		if (refLoc)
+			(*refLoc) = ampersand;
 	}
 
 	// <type>
 	if (auto type = parseType())
 	{
-		ty.setType(type.get());
+		rtr.type = type.get();
 
 		// If no begLoc, the begLoc is the type's begLoc.
 		if (!begLoc)
@@ -408,17 +418,17 @@ Parser::Result<QualType> Parser::parseQualType()
 		{
 			if (type.wasSuccessful())
 				reportErrorExpected(DiagID::parser_expected_type);
-			return Result<QualType>::Error();
+			return Result<ParsedQualType>::Error();
 		}
 		else 
-			return Result<QualType>::NotFound();
+			return Result<ParsedQualType>::NotFound();
 	}
 
 	// Success!
-	assert(ty && "Type cannot be null");
+	assert(rtr.type && "Type cannot be null");
 	assert(begLoc && "begLoc must be valid");
 	assert(endLoc && "endLoc must be valid");
-	return Result<QualType>(ty, SourceRange(begLoc,endLoc));
+	return Result<ParsedQualType>(rtr, SourceRange(begLoc,endLoc));
 }
 
 Parser::DeclResult Parser::parseDecl()
