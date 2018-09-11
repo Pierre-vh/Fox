@@ -114,6 +114,16 @@ void ValueDecl::setType(Type* ty)
 	type_ = ty;
 }
 
+SourceRange ValueDecl::getTypeRange() const
+{
+	return tyRange_;
+}
+
+void ValueDecl::setTypeRange(SourceRange range)
+{
+	tyRange_ = range;
+}
+
 bool ValueDecl::isConstant() const
 {
 	return isConst_;

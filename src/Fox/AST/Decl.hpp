@@ -95,6 +95,9 @@ namespace fox
 			const Type* getType() const;
 			void setType(Type* ty);
 
+			SourceRange getTypeRange() const;
+			void setTypeRange(SourceRange range);
+
 			bool isConstant() const;
 			void setIsConstant(bool k);
 
