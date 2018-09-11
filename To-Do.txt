@@ -84,6 +84,9 @@ Shelved
 		However, it would take time to do. I'll weight the pros and cons before making a decision. I still got time, at least until I begin
 		Semantic Analysis
 
+Others:
+	> Review uniqueness of types. It makes sense for some types, but maybe for others
+	  it doesn't make that much sense at all? (Rethink the "getArrayTypeForType" function, especially)
 					
 Later:
 	Use a "SourceFile" class instead of a "UnitDecl" class, like swift. This class would track the progress of the AST:
