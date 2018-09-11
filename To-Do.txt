@@ -54,14 +54,8 @@ Moonshot Project To-do List.
 	> Add "Extra Range" to Diagnostics (Done)
 	> Add Type* to all exprs (Done)
 	> Add LValueType (Done)
-
-	> Add "ValueDecl" class (derived from NamedDecl), which is essentially a 
-	  variable declaration, generalized. It has a type attribute, as well as a "isConst" qualifier.
-
-	> Remove QualType. 
-
-	> Review uniqueness of types. It makes sense for some types, but maybe for others
-	  it doesn't make that much sense at all? (Rethink the "getArrayTypeForType" function, especially)
+	> Add ValueDecl (Done)
+	> Remove QualType (Done)
 
 	> Semantic Analysis
 		Ideas (for Exprs)
