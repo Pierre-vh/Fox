@@ -132,7 +132,8 @@ VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, Type* ty)
 {
 	return new(ctxt) VarDecl(
 			ctxt.identifiers.getUniqueIdentifierInfo(name),
-			QualType(ty),
+			nullptr,
+			false,
 			nullptr,
 			SourceRange(),
 			SourceRange()
@@ -385,6 +386,7 @@ TEST(ASTTests, DeclRTTI)
 	EXPECT_EQ(paramdecl.getKind(), DeclKind::ParamDecl);
 	EXPECT_TRUE(ParamDecl::classof(&paramdecl));
 	EXPECT_TRUE(NamedDecl::classof(&paramdecl));
+	EXPECT_TRUE(ValueDecl::classof(&paramdecl));
 	EXPECT_FALSE(DeclContext::classof(&paramdecl));
 
 	// Func
@@ -399,6 +401,7 @@ TEST(ASTTests, DeclRTTI)
 	EXPECT_EQ(vdecl.getKind(), DeclKind::VarDecl);
 	EXPECT_TRUE(VarDecl::classof(&vdecl));
 	EXPECT_TRUE(NamedDecl::classof(&vdecl));
+	EXPECT_TRUE(ValueDecl::classof(&vdecl));
 	EXPECT_FALSE(DeclContext::classof(&vdecl));
 
 	// Unit
@@ -447,7 +450,8 @@ TEST(ASTTests, BasicVisitor)
 	auto* rtr = new(ctxt) ReturnStmt(nullptr, SourceRange());
 	auto* vardecl = new(ctxt) VarDecl(
 			nullptr,
-			QualType(),
+			nullptr,
+			false,
 			nullptr, 
 			SourceRange(),
 			SourceRange()
