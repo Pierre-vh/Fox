@@ -81,6 +81,7 @@ namespace fox
 			std::string getBasicExprInfo(Expr* expr) const;
 			std::string getBasicDeclInfo(Decl* decl) const;
 			std::string getBasicTypeInfo(Type* type) const;
+			std::string getBasicValueDeclDump(ValueDecl* decl) const;
 
 			// Dump an operator in 2 different ways, depending on dumpOperatorsAsNames_
 			std::string getOperatorDump(BinaryExpr::OpKind op) const;
@@ -94,7 +95,6 @@ namespace fox
 			std::string getSourceLocDump(const std::string& label,const SourceLoc& sloc) const;
 			// Returns a formatted string  "<(label):'(type)'>
 			std::string getTypeDump(const std::string& label,Type *ty) const;
-			std::string getQualTypeDump(const std::string& label,const QualType& qt) const;
 			// Returns value enclosed with "".
 			std::string addDoubleQuotes(const std::string& str) const;
 			// Returns the value enclosed with ''

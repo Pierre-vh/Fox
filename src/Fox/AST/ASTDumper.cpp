@@ -238,9 +238,7 @@ void ASTDumper::visitUnitDecl(UnitDecl* node)
 
 void ASTDumper::visitVarDecl(VarDecl* node)
 {
-	dumpLine() << getBasicDeclInfo(node) << " "
-		<< getIdentifierDump(node->getIdentifier()) << " " 
-		<< getQualTypeDump("type",node->getType()) << "\n";
+	dumpLine() << getBasicValueDeclDump(node) << " ";
 	if (node->hasInitExpr())
 	{
 		indent(1);
@@ -251,7 +249,7 @@ void ASTDumper::visitVarDecl(VarDecl* node)
 
 void ASTDumper::visitParamDecl(ParamDecl* node)
 {
-	dumpLine() << getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << " " << getQualTypeDump("type", node->getType()) << "\n";
+	dumpLine() << getBasicValueDeclDump(node) << "\n";
 }
 
 void ASTDumper::visitFuncDecl(FuncDecl* node)
@@ -406,6 +404,30 @@ std::string ASTDumper::getBasicTypeInfo(Type* type) const
 	return ss.str();
 }
 
+std::string ASTDumper::getBasicValueDeclDump(ValueDecl* decl) const
+{
+	std::ostringstream ss;
+	ss << getDeclNodeName(decl);
+	if (printAllAdresses_)
+		ss << " " << (void *)decl;
+
+	SourceRange range = decl->getRange();
+	ss << " " << getSourceLocDump("start", range.getBegin()) << " ";
+	ss << getSourceLocDump("end", range.getEnd());
+
+	ss << makeKeyPairDump("id", decl->getIdentifier()->getStr()) << " ";
+	ss << makeKeyPairDump("type", decl->getType()->getString()) << " ";
+
+	if (decl->isConstant())
+		ss << "const ";
+
+	SourceRange typeRange = decl->getTypeRange();
+	ss << getSourceLocDump("type start", typeRange.getBegin()) << " ";
+	ss << getSourceLocDump("type end" , typeRange.getEnd());
+
+	return ss.str();
+}
+
 std::string ASTDumper::getOperatorDump(BinaryExpr::OpKind op) const
 {
 	std::ostringstream ss;
@@ -452,11 +474,6 @@ std::string ASTDumper::getSourceLocDump(const std::string& label,const SourceLoc
 std::string ASTDumper::getTypeDump(const std::string& label, Type* ty) const
 {
 	return makeKeyPairDump(label, addSingleQuotes(ty->getString()));
-}
-
-std::string ASTDumper::getQualTypeDump(const std::string& label, const QualType & qt) const
-{
-	return makeKeyPairDump(label, addSingleQuotes(qt.getString()));
 }
 
 std::string ASTDumper::addDoubleQuotes(const std::string& str) const
