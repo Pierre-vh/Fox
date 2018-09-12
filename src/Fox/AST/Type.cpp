@@ -72,6 +72,18 @@ Type* Type::unwrapIfLValue()
 	return nullptr;
 }
 
+const Type* Type::ignoreLValue() const
+{
+	auto* ptr = unwrapIfLValue();
+	return ptr ? ptr : this;
+}
+
+Type* Type::ignoreLValue()
+{
+	auto* ptr = unwrapIfLValue();
+	return ptr ? ptr : this;
+}
+
 void* Type::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align)
 {
 	return ctxt.getAllocator().allocate(sz, align);

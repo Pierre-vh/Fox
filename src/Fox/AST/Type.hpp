@@ -47,6 +47,11 @@ namespace fox
 			const Type* unwrapIfLValue() const;
 			Type* unwrapIfLValue();
 
+			// If this type is an LValue, returns it's element type, else
+			// returns this.
+			const Type* ignoreLValue() const;
+			Type* ignoreLValue();
+
 		protected:
 			Type(TypeKind tc);
 
