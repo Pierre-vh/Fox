@@ -255,6 +255,11 @@ bool SemaType::hasSubstitution() const
 	return (ty_ != nullptr);
 }
 
+void SemaType::setSubstitution(Type* subst)
+{
+	ty_ = subst;
+}
+
 void SemaType::reset()
 {
 	ty_ = nullptr;

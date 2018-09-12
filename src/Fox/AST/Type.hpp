@@ -192,6 +192,8 @@ namespace fox
 			// (type isn't null)
 			bool hasSubstitution() const;
 
+			void setSubstitution(Type* subst);
+
 			// Sets the type to nullptr
 			void reset();
 
