@@ -29,6 +29,11 @@ TypeKind Type::getKind() const
 	return kind_;
 }
 
+bool Type::isSemaType() const
+{
+	return isa<SemaType>(this);
+}
+
 bool Type::isArray() const
 {
 	return isa<ArrayType>(this);

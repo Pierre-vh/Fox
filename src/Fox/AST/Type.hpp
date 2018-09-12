@@ -35,6 +35,7 @@ namespace fox
 
 			TypeKind getKind() const;
 
+			bool isSemaType() const;
 			bool isArray() const;
 			bool isLValue() const;
 
