@@ -40,14 +40,10 @@ namespace fox
 
 			// Returns the element type if this is an ArrayType, or nullptr.
 			const Type* unwrapIfArray() const;
-
-			// Returns the element type if this is an ArrayType, or nullptr.
 			Type* unwrapIfArray();
 
 			// Returns the element type if this is an LValueType, or nullptr.
 			const Type* unwrapIfLValue() const;
-
-			// Returns the element type if this is an LValueType, or nullptr.
 			Type* unwrapIfLValue();
 
 		protected:
@@ -91,7 +87,7 @@ namespace fox
 	class PrimitiveType : public BuiltinType
 	{
 		public:
-			enum class Kind
+			enum class Kind : std::uint8_t
 			{
 				VoidTy,
 				IntTy,
@@ -108,12 +104,13 @@ namespace fox
 			Kind getBuiltinKind() const;
 
 			// Returns true iff builtinKind_ == IntTy, FloatTy or BoolTy
-			bool isArithmetic() const;
+			bool isIntegral() const;
 
-			// Returns true iff builtinKind_ == StringTy or CharTy
-			bool isConcatenable() const;
-
-			// Returns true iff builtinKind_ == Kind::VoidTy
+			bool isString() const;
+			bool isChar() const;
+			bool isFloat() const;
+			bool isBool() const;
+			bool isInt() const;
 			bool isVoid() const;
 
 			static bool classof(const Type* type)

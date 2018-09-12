@@ -117,19 +117,47 @@ PrimitiveType::Kind PrimitiveType::getBuiltinKind() const
 	return builtinKind_;
 }
 
-bool PrimitiveType::isArithmetic() const
+bool PrimitiveType::isIntegral() const
 {
-	return (builtinKind_ == Kind::IntTy) || (builtinKind_ == Kind::BoolTy) || (builtinKind_ == Kind::FloatTy);
+	switch (builtinKind_)
+	{
+		case Kind::IntTy:
+		case Kind::FloatTy:
+		case Kind::BoolTy:
+			return true;
+		default:
+			return false;
+	}
 }
 
-bool PrimitiveType::isConcatenable() const
+bool PrimitiveType::isString() const
 {
-	return (builtinKind_ == Kind::CharTy) || (builtinKind_ == Kind::StringTy);
+	return builtinKind_ == Kind::StringTy;
+}
+
+bool PrimitiveType::isChar() const
+{
+	return builtinKind_ == Kind::CharTy;
+}
+
+bool PrimitiveType::isBool() const
+{
+	return builtinKind_ == Kind::BoolTy;
+}
+
+bool PrimitiveType::isInt() const
+{
+	return builtinKind_ == Kind::IntTy;
+}
+
+bool PrimitiveType::isFloat() const
+{
+	return builtinKind_ == Kind::FloatTy;
 }
 
 bool PrimitiveType::isVoid() const
 {
-	return (builtinKind_ == Kind::VoidTy);
+	return builtinKind_ == Kind::VoidTy;
 }
 
 //-----------//
