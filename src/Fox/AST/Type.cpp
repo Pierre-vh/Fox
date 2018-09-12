@@ -112,7 +112,7 @@ std::string PrimitiveType::getString() const
 	}
 }
 
-PrimitiveType::Kind PrimitiveType::getBuiltinKind() const
+PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const
 {
 	return builtinKind_;
 }

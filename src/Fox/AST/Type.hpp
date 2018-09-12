@@ -101,7 +101,7 @@ namespace fox
 
 			virtual std::string getString() const override;
 
-			Kind getBuiltinKind() const;
+			Kind getPrimitiveKind() const;
 
 			// Returns true iff builtinKind_ == IntTy, FloatTy or BoolTy
 			bool isIntegral() const;
