@@ -47,39 +47,38 @@ TEST(ASTTests, ASTContextBuiltins)
 	// Test that the types have the correct properties
 	// Bools
 	EXPECT_EQ(primBool->getBuiltinKind(),	PrimitiveType::Kind::BoolTy);
-	EXPECT_TRUE(primBool->isArithmetic());
-	EXPECT_FALSE(primBool->isConcatenable());
+	EXPECT_TRUE(primBool->isIntegral());
+	EXPECT_TRUE(primBool->isBool());
 	EXPECT_FALSE(primBool->isVoid());
 
 	// Floats
 	EXPECT_EQ(primFloat->getBuiltinKind(),	PrimitiveType::Kind::FloatTy);
-	EXPECT_TRUE(primFloat->isArithmetic());
-	EXPECT_FALSE(primFloat->isConcatenable());
+	EXPECT_TRUE(primFloat->isIntegral());
+	EXPECT_TRUE(primFloat->isFloat());
 	EXPECT_FALSE(primFloat->isVoid());
 
 	// Ints
 	EXPECT_EQ(primInt->getBuiltinKind(),	PrimitiveType::Kind::IntTy);
-	EXPECT_TRUE(primInt->isArithmetic());
-	EXPECT_FALSE(primInt->isConcatenable());
+	EXPECT_TRUE(primInt->isIntegral());
+	EXPECT_TRUE(primInt->isInt());
 	EXPECT_FALSE(primInt->isVoid());
 
 	// Chars
 	EXPECT_EQ(primChar->getBuiltinKind(), PrimitiveType::Kind::CharTy);
-	EXPECT_TRUE(primChar->isConcatenable());
-	EXPECT_FALSE(primChar->isArithmetic());
+	EXPECT_TRUE(primChar->isChar());
+	EXPECT_FALSE(primChar->isIntegral());
 	EXPECT_FALSE(primChar->isVoid());
 
 	// Strings
 	EXPECT_EQ(primString->getBuiltinKind(), PrimitiveType::Kind::StringTy);
-	EXPECT_TRUE(primString->isConcatenable());
-	EXPECT_FALSE(primString->isArithmetic());
+	EXPECT_TRUE(primString->isString());
+	EXPECT_FALSE(primString->isIntegral());
 	EXPECT_FALSE(primString->isVoid());
 
 	// Void type
 	EXPECT_EQ(primVoid->getBuiltinKind(),	PrimitiveType::Kind::VoidTy);
 	EXPECT_TRUE(primVoid->isVoid());
-	EXPECT_FALSE(primVoid->isConcatenable());
-	EXPECT_FALSE(primVoid->isArithmetic());
+	EXPECT_FALSE(primVoid->isIntegral());
 }
 
 TEST(ASTTests, ASTContextArrayTypes)
