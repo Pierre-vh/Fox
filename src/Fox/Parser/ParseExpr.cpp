@@ -132,11 +132,11 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 	else if (litinfo.isString())
 		expr = new(ctxt_) StringLiteralExpr(litinfo.get<std::string>(), range);
 	else if (litinfo.isChar())
-		expr = new(ctxt_) CharLiteralExpr(litinfo.get<CharType>(), range);
+		expr = new(ctxt_) CharLiteralExpr(litinfo.get<FoxChar>(), range);
 	else if (litinfo.isInt())
-		expr = new(ctxt_) IntegerLiteralExpr(litinfo.get<IntType>(), range);
+		expr = new(ctxt_) IntegerLiteralExpr(litinfo.get<FoxInt>(), range);
 	else if (litinfo.isFloat())
-		expr = new(ctxt_) FloatLiteralExpr(litinfo.get<FloatType>(), range);
+		expr = new(ctxt_) FloatLiteralExpr(litinfo.get<FoxFloat>(), range);
 	else
 		fox_unreachable("Unknown literal kind"); // Unknown literal
 

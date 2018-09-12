@@ -30,7 +30,7 @@ void StringManipulator::setStr(const std::string * str)
 	reset();
 }
 
-std::string StringManipulator::charToStr(CharType wc)
+std::string StringManipulator::charToStr(FoxChar wc)
 {
 	std::string rtr;
 	append(rtr, wc);
@@ -47,7 +47,7 @@ void StringManipulator::removeBOM(std::string & str)
 	}
 }
 
-void StringManipulator::append(std::string & str, CharType ch)
+void StringManipulator::append(std::string & str, FoxChar ch)
 {
 	utf8::append(ch, std::back_inserter(str));
 }
@@ -84,14 +84,14 @@ void StringManipulator::goBack(const std::size_t& ind)
 		utf8::prior(iter_, beg_);
 }
 
-CharType StringManipulator::getCurrentChar() const
+FoxChar StringManipulator::getCurrentChar() const
 {
 	if (iter_ == end_)
 		return L'\0';
 	return utf8::peek_next(iter_,end_);
 }
 
-CharType StringManipulator::getChar(std::size_t ind) const
+FoxChar StringManipulator::getChar(std::size_t ind) const
 {
 	auto tmpit = beg_;
 
@@ -120,14 +120,14 @@ std::string StringManipulator::substring(std::size_t beg, std::size_t leng) cons
 	return rtr;
 }
 
-CharType StringManipulator::peekFirst() const
+FoxChar StringManipulator::peekFirst() const
 {
 	if (getSizeInCodepoints()) // string needs at least 1 char
 		return utf8::peek_next(beg_,end_);
 	return L'\0';
 }
 
-CharType StringManipulator::peekNext() const
+FoxChar StringManipulator::peekNext() const
 {
 	if (eof())
 		return L'\0';
@@ -139,7 +139,7 @@ CharType StringManipulator::peekNext() const
 	return L'\0';
 }
 
-CharType StringManipulator::peekPrevious() const
+FoxChar StringManipulator::peekPrevious() const
 {
 	if (iter_ == beg_)
 		return L'\0';
@@ -148,7 +148,7 @@ CharType StringManipulator::peekPrevious() const
 	return utf8::previous(tmpiter,beg_);
 }
 
-CharType StringManipulator::peekBack() const
+FoxChar StringManipulator::peekBack() const
 {
 	auto tmp = end_;
 	if (getSizeInCodepoints()) // string needs at least 1 char

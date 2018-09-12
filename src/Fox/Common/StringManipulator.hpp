@@ -61,19 +61,19 @@ namespace fox
 			*/
 
 			// Get the current codepoint
-			CharType getCurrentChar() const;
+			FoxChar getCurrentChar() const;
 
 			// Get a codepoint at a precise location
-			CharType getChar(std::size_t ind) const;
+			FoxChar getChar(std::size_t ind) const;
 			
 			/*
 				PEEK
 			*/
 
-			CharType peekFirst() const;
-			CharType peekNext() const;
-			CharType peekPrevious() const;
-			CharType peekBack() const;
+			FoxChar peekFirst() const;
+			FoxChar peekNext() const;
+			FoxChar peekPrevious() const;
+			FoxChar peekBack() const;
 
 			/*
 				UTILS & OTHERS
@@ -103,8 +103,8 @@ namespace fox
 				STATIC METHODS
 			*/
 
-			// Convert a CharType to a utf8 encoded string
-			static std::string charToStr(CharType wc);
+			// Convert a FoxChar to a utf8 encoded string
+			static std::string charToStr(FoxChar wc);
 
 			// Removes the BOM from a str
 			static void removeBOM(std::string& str);
@@ -117,8 +117,8 @@ namespace fox
 					utf8::next(it, end);
 			}
 
-			// Appends a CharType to a std::string.
-			static void append(std::string& str, CharType ch);
+			// Appends a FoxChar to a std::string.
+			static void append(std::string& str, FoxChar ch);
 
 		private:
 			// Get a reference to the string stored.

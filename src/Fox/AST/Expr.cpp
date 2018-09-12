@@ -72,18 +72,18 @@ CharLiteralExpr::CharLiteralExpr():
 
 }
 
-CharLiteralExpr::CharLiteralExpr(CharType val, const SourceRange& range):
+CharLiteralExpr::CharLiteralExpr(FoxChar val, const SourceRange& range):
 	val_(val), Expr(ExprKind::CharLiteralExpr, range)
 {
 
 }
 
-CharType CharLiteralExpr::getVal() const
+FoxChar CharLiteralExpr::getVal() const
 {
 	return val_;
 }
 
-void CharLiteralExpr::setVal(CharType val)
+void CharLiteralExpr::setVal(FoxChar val)
 {
 	val_ = val;
 }
@@ -98,18 +98,18 @@ IntegerLiteralExpr::IntegerLiteralExpr():
 
 }
 
-IntegerLiteralExpr::IntegerLiteralExpr(IntType val, const SourceRange& range):
+IntegerLiteralExpr::IntegerLiteralExpr(FoxInt val, const SourceRange& range):
 	val_(val), Expr(ExprKind::IntegerLiteralExpr, range)
 {
 
 }
 
-IntType IntegerLiteralExpr::getVal() const
+FoxInt IntegerLiteralExpr::getVal() const
 {
 	return val_;
 }
 
-void IntegerLiteralExpr::setVal(IntType val)
+void IntegerLiteralExpr::setVal(FoxInt val)
 {
 	val_ = val;
 }
@@ -124,18 +124,18 @@ FloatLiteralExpr::FloatLiteralExpr():
 
 }
 
-FloatLiteralExpr::FloatLiteralExpr(FloatType val, const SourceRange& range):
+FloatLiteralExpr::FloatLiteralExpr(FoxFloat val, const SourceRange& range):
 	val_(val), Expr(ExprKind::FloatLiteralExpr, range)
 {
 
 }
 
-FloatType FloatLiteralExpr::getVal() const
+FoxFloat FloatLiteralExpr::getVal() const
 {
 	return val_;
 }
 
-void FloatLiteralExpr::setVal(FloatType val)
+void FloatLiteralExpr::setVal(FoxFloat val)
 {
 	val_ = val;
 }

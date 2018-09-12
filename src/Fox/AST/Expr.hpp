@@ -185,10 +185,10 @@ namespace fox
 	{
 		public:
 			CharLiteralExpr();
-			CharLiteralExpr(CharType val, const SourceRange& range);
+			CharLiteralExpr(FoxChar val, const SourceRange& range);
 
-			CharType getVal() const;
-			void setVal(CharType val);
+			FoxChar getVal() const;
+			void setVal(FoxChar val);
 
 			static bool classof(const Expr* expr)
 			{
@@ -196,7 +196,7 @@ namespace fox
 			}
 
 		private:
-			CharType val_ = ' ';
+			FoxChar val_ = ' ';
 	};
 
 	// IntegerLiteralExpr
@@ -205,10 +205,10 @@ namespace fox
 	{
 		public:
 			IntegerLiteralExpr();
-			IntegerLiteralExpr(IntType val, const SourceRange& range);
+			IntegerLiteralExpr(FoxInt val, const SourceRange& range);
 
-			IntType getVal() const;
-			void setVal(IntType val);
+			FoxInt getVal() const;
+			void setVal(FoxInt val);
 
 			static bool classof(const Expr* expr)
 			{
@@ -216,7 +216,7 @@ namespace fox
 			}
 
 		private:
-			IntType val_ = 0;
+			FoxInt val_ = 0;
 	};
 
 	// FloatLiteralExpr
@@ -225,10 +225,10 @@ namespace fox
 	{
 		public:
 			FloatLiteralExpr();
-			FloatLiteralExpr(FloatType val, const SourceRange& range);
+			FloatLiteralExpr(FoxFloat val, const SourceRange& range);
 
-			FloatType getVal() const;
-			void setVal(FloatType val);
+			FoxFloat getVal() const;
+			void setVal(FoxFloat val);
 
 			static bool classof(const Expr* expr)
 			{
@@ -236,7 +236,7 @@ namespace fox
 			}
 
 		private:
-			FloatType val_ = 0.0f;
+			FoxFloat val_ = 0.0f;
 	};
 
 	// StringLiteralExpr

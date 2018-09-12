@@ -39,11 +39,11 @@ LiteralType LiteralInfo::getType() const
 		return LiteralType::Ty_Bool;
 	else if (mpark::holds_alternative<std::string>(value_))
 		return LiteralType::Ty_String;
-	else if (mpark::holds_alternative<FloatType>(value_))
+	else if (mpark::holds_alternative<FoxFloat>(value_))
 		return LiteralType::Ty_Float;
-	else if (mpark::holds_alternative<IntType>(value_))
+	else if (mpark::holds_alternative<FoxInt>(value_))
 		return LiteralType::Ty_Int;
-	else if (mpark::holds_alternative<CharType>(value_))
+	else if (mpark::holds_alternative<FoxChar>(value_))
 		return LiteralType::Ty_Char;
 	return LiteralType::DEFAULT;
 }
@@ -60,17 +60,17 @@ bool LiteralInfo::isString() const
 
 bool LiteralInfo::isFloat() const
 {
-	return mpark::holds_alternative<FloatType>(value_);
+	return mpark::holds_alternative<FoxFloat>(value_);
 }
 
 bool LiteralInfo::isInt() const
 {
-	return mpark::holds_alternative<IntType>(value_);
+	return mpark::holds_alternative<FoxInt>(value_);
 }
 
 bool LiteralInfo::isChar() const
 {
-	return mpark::holds_alternative<CharType>(value_);
+	return mpark::holds_alternative<FoxChar>(value_);
 }
 
 std::string LiteralInfo::getAsString() const
@@ -80,13 +80,13 @@ std::string LiteralInfo::getAsString() const
 	if (isString())
 		return get<std::string>();
 	if (isFloat())
-		return std::to_string(get<FloatType>());
+		return std::to_string(get<FoxFloat>());
 	if (isInt())
-		return std::to_string(get<IntType>());
+		return std::to_string(get<FoxInt>());
 	if (isChar())
 	{
 		std::string tmp;
-		StringManipulator::append(tmp, get<CharType>());
+		StringManipulator::append(tmp, get<FoxChar>());
 		return tmp;
 	}
 	return "";
@@ -102,17 +102,17 @@ LiteralInfo::LiteralInfo(const std::string & sval)
 	value_ = sval;
 }
 
-LiteralInfo::LiteralInfo(FloatType fval)
+LiteralInfo::LiteralInfo(FoxFloat fval)
 {
 	value_ = fval;
 }
 
-LiteralInfo::LiteralInfo(IntType ival)
+LiteralInfo::LiteralInfo(FoxInt ival)
 {
 	value_ = ival;
 }
 
-LiteralInfo::LiteralInfo(CharType cval)
+LiteralInfo::LiteralInfo(FoxChar cval)
 {
 	value_ = cval;
 }
@@ -388,7 +388,7 @@ bool Token::idLiteral(DiagnosticEngine& diags,const std::string& str)
 	else if (std::regex_match(str, kInt_regex))
 	{
 		std::istringstream ss(str);
-		IntType tmp;
+		FoxInt tmp;
 		if (ss >> tmp)
 		{
 			tokenData_ = Literal();

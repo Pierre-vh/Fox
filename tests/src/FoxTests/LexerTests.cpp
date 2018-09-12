@@ -113,13 +113,13 @@ TEST(TokenTests, FloatID)
 	ASSERT_FALSE(litInfo2.isNull()) << "LiteralInfo was null?";
 	ASSERT_FALSE(litInfo3.isNull()) << "LiteralInfo was null?";
 
-	EXPECT_TRUE(litInfo1.isFloat() && litInfo1.is<FloatType>());
-	EXPECT_TRUE(litInfo2.isFloat() && litInfo2.is<FloatType>());
-	EXPECT_TRUE(litInfo3.isFloat() && litInfo3.is<FloatType>());
+	EXPECT_TRUE(litInfo1.isFloat() && litInfo1.is<FoxFloat>());
+	EXPECT_TRUE(litInfo2.isFloat() && litInfo2.is<FoxFloat>());
+	EXPECT_TRUE(litInfo3.isFloat() && litInfo3.is<FoxFloat>());
 
-	EXPECT_EQ(litInfo1.get<FloatType>(), 3.14f) << "Value was not the one expected.";
-	EXPECT_EQ(litInfo2.get<FloatType>(), 0.0f) << "Value was not the one expected.";
-	EXPECT_EQ(litInfo3.get<FloatType>(), 0.3333333333333f) << "Value was not the one expected.";
+	EXPECT_EQ(litInfo1.get<FoxFloat>(), 3.14f) << "Value was not the one expected.";
+	EXPECT_EQ(litInfo2.get<FoxFloat>(), 0.0f) << "Value was not the one expected.";
+	EXPECT_EQ(litInfo3.get<FoxFloat>(), 0.3333333333333f) << "Value was not the one expected.";
 }
 
 TEST(TokenTests, IntId)
@@ -144,13 +144,13 @@ TEST(TokenTests, IntId)
 	ASSERT_FALSE(litInfo2.isNull()) << "LiteralInfo was null?";
 	ASSERT_FALSE(litInfo3.isNull()) << "LiteralInfo was null?";
 
-	ASSERT_TRUE(litInfo1.isInt() && litInfo1.is<IntType>());
-	ASSERT_TRUE(litInfo2.isInt() && litInfo2.is<IntType>());
-	ASSERT_TRUE(litInfo3.isInt() && litInfo3.is<IntType>());
+	ASSERT_TRUE(litInfo1.isInt() && litInfo1.is<FoxInt>());
+	ASSERT_TRUE(litInfo2.isInt() && litInfo2.is<FoxInt>());
+	ASSERT_TRUE(litInfo3.isInt() && litInfo3.is<FoxInt>());
 
-	EXPECT_EQ(litInfo1.get<IntType>(), 0) << "Value was not the one expected.";
-	EXPECT_EQ(litInfo2.get<IntType>(), 9223372036854775000) << "Value was not the one expected.";
-	EXPECT_EQ(litInfo3.get<IntType>(), 4242424242424242) << "Value was not the one expected.";
+	EXPECT_EQ(litInfo1.get<FoxInt>(), 0) << "Value was not the one expected.";
+	EXPECT_EQ(litInfo2.get<FoxInt>(), 9223372036854775000) << "Value was not the one expected.";
+	EXPECT_EQ(litInfo3.get<FoxInt>(), 4242424242424242) << "Value was not the one expected.";
 }
 
 TEST(TokenTests, StringID)
@@ -206,13 +206,13 @@ TEST(TokenTests, CharID)
 	ASSERT_FALSE(litInfo2.isNull()) << "LiteralInfo was null?";
 	ASSERT_FALSE(litInfo3.isNull()) << "LiteralInfo was null?";
 
-	ASSERT_TRUE(litInfo1.isChar() && litInfo1.is<CharType>());
-	ASSERT_TRUE(litInfo2.isChar() && litInfo2.is<CharType>());
-	ASSERT_TRUE(litInfo3.isChar() && litInfo3.is<CharType>());
+	ASSERT_TRUE(litInfo1.isChar() && litInfo1.is<FoxChar>());
+	ASSERT_TRUE(litInfo2.isChar() && litInfo2.is<FoxChar>());
+	ASSERT_TRUE(litInfo3.isChar() && litInfo3.is<FoxChar>());
 
-	EXPECT_EQ(litInfo1.get<CharType>(), 'c') << "Value was not the one expected.";
-	EXPECT_EQ(litInfo2.get<CharType>(), ' ') << "Value was not the one expected.";
-	EXPECT_EQ(litInfo3.get<CharType>(), '!') << "Value was not the one expected.";
+	EXPECT_EQ(litInfo1.get<FoxChar>(), 'c') << "Value was not the one expected.";
+	EXPECT_EQ(litInfo2.get<FoxChar>(), ' ') << "Value was not the one expected.";
+	EXPECT_EQ(litInfo3.get<FoxChar>(), '!') << "Value was not the one expected.";
 }
 
 TEST(TokenTests, BoolID)

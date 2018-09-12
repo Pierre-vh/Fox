@@ -105,9 +105,9 @@ namespace fox
 				return replacePlaceholder(value, phIndex);
 			}
 
-			// for CharType
+			// for FoxChar
 			template<>
-			inline Diagnostic& addArg(const CharType& value, std::uint8_t phIndex)
+			inline Diagnostic& addArg(const FoxChar& value, std::uint8_t phIndex)
 			{
 				return replacePlaceholder(
 					StringManipulator::charToStr(value), phIndex

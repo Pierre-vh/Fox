@@ -125,8 +125,8 @@ void Lexer::runStateFunc()
 
 void Lexer::fn_S_BASE()
 {
-	const CharType pk = manip_.peekNext();
-	const CharType c = manip_.getCurrentChar();	// current char
+	const FoxChar pk = manip_.peekNext();
+	const FoxChar c = manip_.getCurrentChar();	// current char
 
 	assert((curtok_.size() == 0) && "Curtok not empty in base state");
 
@@ -172,7 +172,7 @@ void Lexer::fn_S_BASE()
 
 void Lexer::fn_S_STR()
 {
-	CharType c = eatChar();
+	FoxChar c = eatChar();
 	if (c == '"' && !escapeFlag_)
 	{
 		addToCurtok(c);
@@ -213,7 +213,7 @@ void Lexer::fn_S_WORDS()
 
 void Lexer::fn_S_CHR()
 {
-	CharType c = eatChar();
+	FoxChar c = eatChar();
 	if (c == '\'' && !escapeFlag_)
 	{
 		addToCurtok(c);
@@ -235,14 +235,14 @@ void Lexer::dfa_goto(DFAState ns)
 	state_ = ns;
 }
 
-CharType Lexer::eatChar()
+FoxChar Lexer::eatChar()
 {
-	const CharType c = manip_.getCurrentChar();
+	const FoxChar c = manip_.getCurrentChar();
 	manip_.advance();
 	return c;
 }
 
-void Lexer::addToCurtok(CharType c)
+void Lexer::addToCurtok(FoxChar c)
 {
 	if (isEscapeChar(c) && !escapeFlag_)
 	{
@@ -280,7 +280,7 @@ void Lexer::addToCurtok(CharType c)
 	}
 }
 
-bool Lexer::isSep(CharType c) const
+bool Lexer::isSep(FoxChar c) const
 {
 	// Is separator ? Signs are the separators in the input. Separators mark the end and beginning of tokens, and are tokens themselves. Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
 	if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip_.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
@@ -290,12 +290,12 @@ bool Lexer::isSep(CharType c) const
 	return (i != kSign_dict.end()) || std::iswspace((wchar_t)c);
 }
 
-bool Lexer::isEscapeChar(CharType c) const
+bool Lexer::isEscapeChar(FoxChar c) const
 {
 	return  (c == '\\') && ((state_ == DFAState::S_STR) || (state_ == DFAState::S_CHR));
 }
 
-bool Lexer::shouldIgnore(CharType c) const
+bool Lexer::shouldIgnore(FoxChar c) const
 {
 	return (c == '\r'); // don't push carriage returns
 }
