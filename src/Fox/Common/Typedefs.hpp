@@ -16,17 +16,18 @@
 #include <string>
 #include <cstddef>
 
-// Typedefs for every type, except strings and bools, since they'll always stay that way.
-// Typedefs are only useful for type that might change later, or sort of complex typenames 
-// e.g. "FoxChar" is much more expressive and nice to read than char32_t, imo.
+// Typedefs for every type that Fox supports. Theses should only
+// be used when you want to make it clear to the reader that you'll be
+// containing a value from the Fox source code. Don't use theses in the wild
+// to store arbitrary values.
 
 // 64 Bit signed int.
 typedef std::int64_t FoxInt;
 
-// 32 bits unicode Char
+// 32 bits Unicode Code Point
 typedef char32_t FoxChar;
 
-// 32 Bits Single Precision floating point number. Might become a 64 Bits one later if needed.
+// 32 Bits Single Precision floating point number.
 typedef float FoxFloat;
 
 // String value
