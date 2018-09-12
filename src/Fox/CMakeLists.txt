@@ -4,4 +4,5 @@ add_source_dir(fox_src
 		AST 
 		Common
 		Driver
+		Sema
 	)
