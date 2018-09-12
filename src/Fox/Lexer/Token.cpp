@@ -73,7 +73,7 @@ bool LiteralInfo::isChar() const
 	return mpark::holds_alternative<FoxChar>(value_);
 }
 
-std::string LiteralInfo::getAsString() const
+FoxString LiteralInfo::getAsString() const
 {
 	if (isBool())
 		return get<bool>() ? "true" : "false";
@@ -92,12 +92,12 @@ std::string LiteralInfo::getAsString() const
 	return "";
 }
 
-LiteralInfo::LiteralInfo(bool bval)
+LiteralInfo::LiteralInfo(FoxBool bval)
 {
 	value_ = bval;
 }
 
-LiteralInfo::LiteralInfo(const std::string & sval)
+LiteralInfo::LiteralInfo(const FoxString& sval)
 {
 	value_ = sval;
 }

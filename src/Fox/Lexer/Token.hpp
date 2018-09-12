@@ -37,8 +37,8 @@ namespace fox
 	{
 		public:
 			LiteralInfo() = default;
-			LiteralInfo(bool bval);
-			LiteralInfo(const std::string& sval);
+			LiteralInfo(FoxBool bval);
+			LiteralInfo(const FoxString& sval);
 			LiteralInfo(FoxFloat fval);
 			LiteralInfo(FoxInt ival);
 			LiteralInfo(FoxChar cval);
@@ -52,7 +52,7 @@ namespace fox
 			bool isInt() const;
 			bool isChar() const;
 
-			std::string getAsString() const;
+			FoxString getAsString() const;
 
 			template<typename Ty>
 			inline bool is() const
@@ -68,7 +68,9 @@ namespace fox
 				return Ty();
 			}
 		private:
-			mpark::variant<mpark::monostate,bool,std::string,FoxFloat,FoxInt,FoxChar> value_;
+			mpark::variant<
+				mpark::monostate, FoxBool, FoxString, FoxFloat, FoxInt, FoxChar
+			> value_;
 	};
 	
 	enum class SignType : std::uint8_t

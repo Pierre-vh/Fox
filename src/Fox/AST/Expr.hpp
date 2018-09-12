@@ -245,10 +245,10 @@ namespace fox
 	{
 		public:
 			StringLiteralExpr();
-			StringLiteralExpr(const std::string& val, const SourceRange& range);
+			StringLiteralExpr(const FoxString& val, const SourceRange& range);
 
 			std::string getVal() const;
-			void setVal(const std::string& val);
+			void setVal(const FoxString& val);
 
 			static bool classof(const Expr* expr)
 			{
@@ -256,7 +256,7 @@ namespace fox
 			}
 
 		private:
-			std::string val_ = "";
+			FoxString val_ = "";
 	};
 
 	// BoolLiteralExpr
@@ -265,10 +265,10 @@ namespace fox
 	{
 		public:
 			BoolLiteralExpr();
-			BoolLiteralExpr(bool val, const SourceRange& range);
+			BoolLiteralExpr(FoxBool val, const SourceRange& range);
 
 			bool getVal() const;
-			void setVal(bool val);
+			void setVal(FoxBool val);
 
 			static bool classof(const Expr* expr)
 			{
@@ -276,7 +276,7 @@ namespace fox
 			}
 
 		private:
-			bool val_ = false;
+			FoxBool val_ = false;
 	};
 
 	// ArrayLiteralExpr

@@ -150,7 +150,7 @@ StringLiteralExpr::StringLiteralExpr():
 
 }
 
-StringLiteralExpr::StringLiteralExpr(const std::string& val, const SourceRange& range): 
+StringLiteralExpr::StringLiteralExpr(const FoxString& val, const SourceRange& range):
 	val_(val), Expr(ExprKind::StringLiteralExpr, range)
 {
 
@@ -161,7 +161,7 @@ std::string StringLiteralExpr::getVal() const
 	return val_;
 }
 
-void StringLiteralExpr::setVal(const std::string & val)
+void StringLiteralExpr::setVal(const FoxString& val)
 {
 	val_ = val;
 }
@@ -176,18 +176,18 @@ BoolLiteralExpr::BoolLiteralExpr():
 
 }
 
-BoolLiteralExpr::BoolLiteralExpr(bool val, const SourceRange& range):
+BoolLiteralExpr::BoolLiteralExpr(FoxBool val, const SourceRange& range):
 	val_(val), Expr(ExprKind::BoolLiteralExpr, range)
 {
 
 }
 
-bool BoolLiteralExpr::getVal() const
+FoxBool BoolLiteralExpr::getVal() const
 {
 	return val_;
 }
 
-void BoolLiteralExpr::setVal(bool val)
+void BoolLiteralExpr::setVal(FoxBool val)
 {
 	val_ = val;
 }
