@@ -57,6 +57,9 @@ Moonshot Project To-do List.
 	> Add ValueDecl (Done)
 	> Remove QualType (Done)
 	> Update PrimitiveType (Done)
+	> Begin basic Sema functions (Done)
+
+	> Unit tests for first Sema functions (Next)
 
 	> Semantic Analysis
 		Ideas (for Exprs)
