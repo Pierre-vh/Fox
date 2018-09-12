@@ -58,8 +58,6 @@ Moonshot Project To-do List.
 	> Remove QualType (Done)
 	> Update PrimitiveType (Done)
 
-	> Type Rework
-
 	> Semantic Analysis
 		Ideas (for Exprs)
 			Phase 1: 
@@ -87,4 +85,4 @@ Others:
 					
 Later:
 	Use a "SourceFile" class instead of a "UnitDecl" class, like swift. This class would track the progress of the AST:
-	not parsed, parsed but not semantically analyzed, etc.
+	not parsed, parsed but not semantically analyzed, etc. Do that when implementing the multifile support
