@@ -10,6 +10,7 @@
 
 #include "Sema.hpp"
 #include "Fox/AST/Expr.hpp"
+#include <utility>
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
@@ -52,60 +53,84 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 
 		ResultTy visitParensExpr(ParensExpr* node)
 		{
-			auto result = doIt(node, node->getExpr(), &ParensExpr::setExpr);
-			if (result)
+			auto expr = doIt(node, node->getExpr(), &ParensExpr::setExpr);
+
+			if (expr)
 				return sema.checkParensExpr(node);
+
 			return ResultTy::Failure();
 		}
 
-		ResultTy visitBinaryExpr(BinaryExpr*)
+		ResultTy visitBinaryExpr(BinaryExpr* node)
 		{
-			return ResultTy::Success();
+			auto lhs = doIt(node, node->getLHS(), &BinaryExpr::setLHS);
+			auto rhs = doIt(node, node->getRHS(), &BinaryExpr::setRHS);
+
+			if (lhs && rhs)
+				return sema.checkBinaryExpr(node);
+
+			return ResultTy::Failure();
 		}
 
-		ResultTy visitUnaryExpr(UnaryExpr*)
+		ResultTy visitUnaryExpr(UnaryExpr* node)
 		{
-			return ResultTy::Success();
+			auto expr = doIt(node, node->getExpr(), &UnaryExpr::setExpr);
+
+			if (expr)
+				return sema.checkUnaryExpr(node);
+
+			return ResultTy::Failure();
 		}
 
-		ResultTy visitCastExpr(CastExpr*)
+		ResultTy visitCastExpr(CastExpr* node)
 		{
-			return ResultTy::Success();
+			auto expr = doIt(node, node->getExpr(), &CastExpr::setExpr);
+
+			if (expr)
+				return sema.checkCastExpr(node);
+
+			return ResultTy::Failure();
 		}
 
-		ResultTy visitArrayAccessExpr(ArrayAccessExpr*)
+		ResultTy visitArrayAccessExpr(ArrayAccessExpr* node)
 		{
-			return ResultTy::Success();
+			auto idx = doIt(node, node->getIdxExpr(), &ArrayAccessExpr::setIdxExpr);
+			auto base = doIt(node, node->getExpr(), &ArrayAccessExpr::setExpr);
+
+			if (idx && base)
+				return sema.checkArrayAccessExpr(node);
+
+			return ResultTy::Failure();
 		}
 
-		ResultTy visitCharLiteralExpr(CharLiteralExpr*)
+		ResultTy visitCharLiteralExpr(CharLiteralExpr* node)
 		{
-			return ResultTy::Success();
+			return sema.checkCharLiteralExpr(node);
 		}
 
-		ResultTy visitBoolLiteralExpr(BoolLiteralExpr*)
+		ResultTy visitBoolLiteralExpr(BoolLiteralExpr* node)
 		{
-			return ResultTy::Success();
+			return sema.checkBoolLiteralExpr(node);
 		}
 
-		ResultTy visitIntegerLiteralExpr(IntegerLiteralExpr*)
+		ResultTy visitIntegerLiteralExpr(IntegerLiteralExpr* node)
 		{
-			return ResultTy::Success();
+			return sema.checkIntegerLiteralExpr(node);
 		}
 
-		ResultTy visitFloatLiteralExpr(FloatLiteralExpr*)
+		ResultTy visitFloatLiteralExpr(FloatLiteralExpr* node)
 		{
-			return ResultTy::Success();
+			return sema.checkFloatLiteralExpr(node);
 		}
 
-		ResultTy visitStringLiteralExpr(StringLiteralExpr*)
+		ResultTy visitStringLiteralExpr(StringLiteralExpr* node)
 		{
-			return ResultTy::Success();
+			return sema.checkStringLiteralExpr(node);
 		}
 
-		ResultTy visitArrayLiteralExpr(ArrayLiteralExpr*)
+		ResultTy visitArrayLiteralExpr(ArrayLiteralExpr* node)
 		{
-			return ResultTy::Success();
+			
 		}
 
 		ResultTy visitDeclRefExpr(DeclRefExpr*)
