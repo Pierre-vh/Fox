@@ -10,12 +10,10 @@
 
 #include <cstdint>
 #include "Fox/AST/ASTNode.hpp"
+#include "Fox/AST/ASTFwdDecl.hpp"
 
 namespace fox
 {
-	class Type;
-	class PrimitiveType;
-
 	class Sema
 	{
 		public:
@@ -46,6 +44,25 @@ namespace fox
 					bool success_ : 1;
 					// 7 Bits left in bitfield
 			};
+
+			// Checking functions (entry points)
+			SemaResult check(Expr* expr);
+
+			// Expr Checking functions
+			SemaResult checkParensExpr(ParensExpr* node);
+			SemaResult checkBinaryExpr(BinaryExpr* node);
+			SemaResult checkUnaryExpr(UnaryExpr* node);
+			SemaResult checkCastExpr(CastExpr* node);
+			SemaResult checkArrayAccessExpr(ArrayAccessExpr* node);
+			SemaResult checkCharLiteralExpr(CharLiteralExpr* node);
+			SemaResult checkBoolLiteralExpr(BoolLiteralExpr*node);
+			SemaResult checkIntegerLiteralExpr(IntegerLiteralExpr* node);
+			SemaResult checkFloatLiteralExpr(FloatLiteralExpr* node);
+			SemaResult checkStringLiteralExpr(StringLiteralExpr* node);
+			SemaResult checkArrayLiteralExpr(ArrayLiteralExpr* node);
+			SemaResult checkDeclRefExpr(DeclRefExpr* node);
+			SemaResult checkMemberOfExpr(MemberOfExpr* node);
+			SemaResult checkFunctionCallExpr(FunctionCallExpr* node);
 
 			// The unification algorithms for types of the same subtypes.
 			//
