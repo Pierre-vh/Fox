@@ -24,17 +24,20 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 
 	private:
 
-		template<typename ParentTy, typename SetterTy>
-		ResultTy doIt(ParentTy* node, Expr* child, SetterTy setter)
+		// DoIt: calls Visit on a node and, after the visit, if the node
+		// has a replacement available, replaces it using the setter given as
+		// argument.
+		template<typename DerivedTy, typename ... Args>
+		bool doIt(DerivedTy* node, Expr* child, void (DerivedTy::*setter)(Expr*, Args...), Args... args)
 		{
 			// Visit
 			auto result = visit(child);
 
 			// Replace if needed
 			if (result.hasReplacement())
-				((*node).*setter)(result.getReplacement());
+				((*node).*setter)(result.getReplacement(), std::forward<Args>(args)...);
 
-			return result;
+			return result.wasSuccessful();
 		}
 
 	public:
@@ -53,32 +56,25 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 
 		ResultTy visitParensExpr(ParensExpr* node)
 		{
-			auto expr = doIt(node, node->getExpr(), &ParensExpr::setExpr);
-
-			if (expr)
+			if (doIt(node, node->getExpr(), &ParensExpr::setExpr))
 				return sema.checkParensExpr(node);
-
 			return ResultTy::Failure();
 		}
 
 		ResultTy visitBinaryExpr(BinaryExpr* node)
 		{
-			auto lhs = doIt(node, node->getLHS(), &BinaryExpr::setLHS);
-			auto rhs = doIt(node, node->getRHS(), &BinaryExpr::setRHS);
+			bool lhs = doIt(node, node->getLHS(), &BinaryExpr::setLHS);
+			bool rhs = doIt(node, node->getRHS(), &BinaryExpr::setRHS);
 
 			if (lhs && rhs)
 				return sema.checkBinaryExpr(node);
-
 			return ResultTy::Failure();
 		}
 
 		ResultTy visitUnaryExpr(UnaryExpr* node)
 		{
-			auto expr = doIt(node, node->getExpr(), &UnaryExpr::setExpr);
-
-			if (expr)
+			if (doIt(node, node->getExpr(), &UnaryExpr::setExpr))
 				return sema.checkUnaryExpr(node);
-
 			return ResultTy::Failure();
 		}
 
@@ -88,7 +84,6 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 
 			if (expr)
 				return sema.checkCastExpr(node);
-
 			return ResultTy::Failure();
 		}
 
@@ -99,7 +94,6 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 
 			if (idx && base)
 				return sema.checkArrayAccessExpr(node);
-
 			return ResultTy::Failure();
 		}
 
@@ -130,22 +124,38 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 
 		ResultTy visitArrayLiteralExpr(ArrayLiteralExpr* node)
 		{
-			
+			bool flag = true;
+			for(auto it = node->exprs_begin(), end = node->exprs_end(); it != end; it++)
+				flag = flag && doIt(node, (*it), &ArrayLiteralExpr::replaceExpr, it);
+
+			if (flag)
+				return sema.checkArrayLiteralExpr(node);
+			return ResultTy::Failure();
 		}
 
 		ResultTy visitDeclRefExpr(DeclRefExpr*)
 		{
-			return ResultTy::Success();
+			assert(false && "unimplemented");
+			return ResultTy::Failure();
 		}
 
-		ResultTy visitMemberOfExpr(MemberOfExpr*)
+		ResultTy visitMemberOfExpr(MemberOfExpr* node)
 		{
-			return ResultTy::Success();
+			if (doIt(node, node->getExpr(), &MemberOfExpr::setExpr))
+				return sema.checkMemberOfExpr(node);
+			return ResultTy::Failure();
 		}
 
-		ResultTy visitFunctionCallExpr(FunctionCallExpr*)
+		ResultTy visitFunctionCallExpr(FunctionCallExpr* node)
 		{
-			return ResultTy::Success();
+			bool flag = doIt(node, node->getCallee(), &FunctionCallExpr::setCallee);
+
+			for (auto it = node->args_begin(), end = node->args_end(); it != end; it++)
+				flag = flag && doIt(node, (*it), &FunctionCallExpr::replaceArg, it);
+
+			if (flag)
+				return sema.checkFunctionCallExpr(node);
+			return ResultTy::Failure();
 		}
 };
 
