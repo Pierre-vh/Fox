@@ -8,8 +8,8 @@
 // most of the semantic analysis of a Fox AST.
 // 
 // To-Do: Find a better name than "checkExpr". It needs to be
-// clear that it should only be used as the entry point when checking any
-// expression. 
+// clear that it should only be used as the entry point for checking any
+// expression!
 ////------------------------------------------------------//// 
 
 #include <cstdint>
@@ -98,6 +98,9 @@ namespace fox
 			// type must not be null and must point to a arithmetic type.
 			static IntegralRankTy getIntegralRank(PrimitiveType* type);
 
+		private:
+			class ExprChecker;
+
 			ExprResult checkParensExpr(ParensExpr* node);
 			ExprResult checkBinaryExpr(BinaryExpr* node);
 			ExprResult checkUnaryExpr(UnaryExpr* node);
@@ -112,7 +115,5 @@ namespace fox
 			ExprResult checkDeclRefExpr(DeclRefExpr* node);
 			ExprResult checkMemberOfExpr(MemberOfExpr* node);
 			ExprResult checkFunctionCallExpr(FunctionCallExpr* node);
-
-		private:
 	};
 }

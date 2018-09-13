@@ -18,7 +18,7 @@
 
 using namespace fox;
 
-class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
+class Sema::ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 {
 	public:
 		using ResultTy = Sema::ExprResult;
@@ -37,12 +37,12 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 			// Replace if needed
 			if (result.hasReplacement())
 				((*node).*setter)(result.getReplacement(), std::forward<Args>(args)...);
-			
+
 			return result.wasSuccessful();
 		}
 
 	public:
-		Sema& sema;
+		Sema & sema;
 
 		ExprChecker(Sema& inst) : sema(inst)
 		{
@@ -126,7 +126,7 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 		ResultTy visitArrayLiteralExpr(ArrayLiteralExpr* node)
 		{
 			bool flag = true;
-			for(auto it = node->exprs_begin(), end = node->exprs_end(); it != end; it++)
+			for (auto it = node->exprs_begin(), end = node->exprs_end(); it != end; it++)
 				flag = flag && doIt(node, (*it), &ArrayLiteralExpr::replaceExpr, it);
 
 			if (flag)
