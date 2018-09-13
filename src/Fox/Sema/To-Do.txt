@@ -1,30 +1,22 @@
-Short incomplete roadmap for semantic analysis impl
-
--> AST: SemaType (done, sort of)
-
--> Sema
-	-> Sema class
-		-> Contains various visitors (in .cpp files, not public)
-			to visit any expr/decl/stmt/type and call relevant semantic analysis methods
-			Will probably be quite large. Maybe divide into Expr/Stmt/Decl Sema classes?
-		-> Flow example:
-			visitExpr
-				(in cpp) ExprChecker
-					checkBinaryExpr
-						checkMultiplicativeBinaryExpr
-		-> 2 pass. First one is the checking of semantics, second one is checking all the substitution, validate them and remove the Unresolved expr/types.
-			-> Semantics error are noted in the first pass
-			-> Second pass notes inference errors, such as being unable to infer a []'s type if used this way "[]*3"
-	-> Scope class
-		-> Contains the current scope of all declarations
-		-> Gives utilities method to check if a identifier is 
-			A: Used without being declared
-			B: Used before being declared
-			C: Used correctly
-
+Short to-do list & idea dump for Sema
 
 Order of impl:
 	Exprs without DeclRefs (only constexprs)
 	Decls
 	Scopes & Name Resolution
 	Stmts
+
+Needed:
+	Expr/Stmt/Decl visitors should all be capable of replacing a node if instructed to do so, for optimizations
+	& node resolution purposes.
+
+	To do that, I think every "checkXXX" method should return a "SemaResult" which is a wrapper around a ASTNode & a success flag. If the ASTNode
+	is nullptr, no replacement happens, but if it is valid, it will replace the node.
+
+	Code would sort of look like
+		SemaResult lhs = check(node->getLHS())"
+		if(auto rpl = lhs.getReplacement())
+			node->setLHS(rpl)
+
+		This is a bit tedious, it would be great to have a simpler version, such as
+		doIt(node, node->getLHS(), node.setLHS)
