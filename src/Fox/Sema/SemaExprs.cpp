@@ -37,7 +37,7 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 			// Replace if needed
 			if (result.hasReplacement())
 				((*node).*setter)(result.getReplacement(), std::forward<Args>(args)...);
-
+			
 			return result.wasSuccessful();
 		}
 
@@ -81,7 +81,7 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 
 		ResultTy visitCastExpr(CastExpr* node)
 		{
-			auto expr = doIt(node, node->getExpr(), &CastExpr::setExpr);
+			bool expr = doIt(node, node->getExpr(), &CastExpr::setExpr);
 
 			if (expr)
 				return sema.checkCastExpr(node);
@@ -90,8 +90,8 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 
 		ResultTy visitArrayAccessExpr(ArrayAccessExpr* node)
 		{
-			auto idx = doIt(node, node->getIdxExpr(), &ArrayAccessExpr::setIdxExpr);
-			auto base = doIt(node, node->getExpr(), &ArrayAccessExpr::setExpr);
+			bool idx = doIt(node, node->getIdxExpr(), &ArrayAccessExpr::setIdxExpr);
+			bool base = doIt(node, node->getExpr(), &ArrayAccessExpr::setExpr);
 
 			if (idx && base)
 				return sema.checkArrayAccessExpr(node);
@@ -136,8 +136,7 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 
 		ResultTy visitDeclRefExpr(DeclRefExpr* node)
 		{
-			sema.checkDeclRefExpr(node);
-			return ResultTy::Failure();
+			return sema.checkDeclRefExpr(node);
 		}
 
 		ResultTy visitMemberOfExpr(MemberOfExpr* node)
