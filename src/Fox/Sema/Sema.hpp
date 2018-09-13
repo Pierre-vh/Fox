@@ -9,6 +9,7 @@
 ////------------------------------------------------------//// 
 
 #include <cstdint>
+#include "Fox/AST/ASTNode.hpp"
 
 namespace fox
 {
@@ -20,6 +21,31 @@ namespace fox
 		public:
 			// Typedefs
 			using IntegralRankTy = std::uint8_t;
+
+			// Sema::SemaResult encapsulates the result of a Semantic Analysis function, which
+			// is a ASTNode (potentially nullptr) & a boolean result (for success/failure of checking.)
+			class SemaResult
+			{
+				public:
+					static SemaResult Success(ASTNode node = nullptr);
+					static SemaResult Failure();
+
+					bool wasSuccessful() const;
+
+					explicit operator bool() const;
+
+					const ASTNode getReplacement() const;
+					ASTNode getReplacement();
+
+					bool hasReplacement() const;
+					
+				private:
+					SemaResult(bool success, ASTNode node);
+
+					ASTNode node_;
+					bool success_ : 1;
+					// 7 Bits left in bitfield
+			};
 
 			// The unification algorithms for types of the same subtypes.
 			//
