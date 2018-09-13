@@ -338,7 +338,13 @@ void UnitDecl::addDecl(Decl* decl)
 	decls_.push_back(decl);
 }
 
-Decl* UnitDecl::getDecl(std::size_t idx) const
+const Decl* UnitDecl::getDecl(std::size_t idx) const
+{
+	assert(idx < decls_.size() && "out-of-range");
+	return decls_[idx];
+}
+
+Decl* UnitDecl::getDecl(std::size_t idx)
 {
 	assert(idx < decls_.size() && "out-of-range");
 	return decls_[idx];

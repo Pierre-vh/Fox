@@ -224,7 +224,8 @@ namespace fox
 			UnitDecl(Identifier *id, FileID inFile);
 
 			void addDecl(Decl* decl);
-			Decl* getDecl(std::size_t idx) const;
+			const Decl* getDecl(std::size_t idx) const;
+			Decl* getDecl(std::size_t idx);
 			std::size_t getDeclCount() const;
 
 			// Note: Checks the validity of the decls 
