@@ -9,15 +9,19 @@
 
 namespace fox
 {
+	class Expr;
 	#define EXPR(ID, PARENT) class ID;
 	#include "ExprNodes.def"
 
+	class Decl;
 	#define DECL(ID, PARENT) class ID;
 	#include "DeclNodes.def"
 
+	class Stmt;
 	#define STMT(ID, PARENT) class ID;
 	#include "StmtNodes.def"
 
+	class Type;
 	#define TYPE(ID, PARENT) class ID;
 	#include "TypeNodes.def"
 }
