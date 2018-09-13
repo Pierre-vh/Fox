@@ -217,6 +217,18 @@ const ExprVector& ArrayLiteralExpr::getExprs() const
 	return exprs_;
 }
 
+Expr* ArrayLiteralExpr::getExpr(std::size_t idx)
+{
+	assert((idx < exprs_.size()) && "Out of range");
+	return exprs_[idx];
+}
+
+const Expr* ArrayLiteralExpr::getExpr(std::size_t idx) const
+{
+	assert((idx < exprs_.size()) && "Out of range");
+	return exprs_[idx];
+}
+
 void ArrayLiteralExpr::setExprs(ExprVector&& exprs)
 {
 	exprs_ = exprs;
@@ -230,6 +242,26 @@ std::size_t ArrayLiteralExpr::getSize() const
 bool ArrayLiteralExpr::isEmpty() const
 {
 	return (exprs_.size() == 0);
+}
+
+ExprVector::iterator ArrayLiteralExpr::exprs_begin()
+{
+	return exprs_.begin();
+}
+
+ExprVector::const_iterator ArrayLiteralExpr::exprs_begin() const
+{
+	return exprs_.begin();
+}
+
+ExprVector::iterator ArrayLiteralExpr::exprs_end()
+{
+	return exprs_.begin();
+}
+
+ExprVector::const_iterator ArrayLiteralExpr::exprs_end() const
+{
+	return exprs_.begin();
 }
 
 //------------//
@@ -531,6 +563,18 @@ ExprVector& FunctionCallExpr::getArgs()
 const ExprVector& FunctionCallExpr::getArgs() const
 {
 	return args_;
+}
+
+Expr* FunctionCallExpr::getArg(std::size_t idx)
+{
+	assert((idx < args_.size()) && "Out of range");
+	return args_[idx];
+}
+
+const Expr* FunctionCallExpr::getArg(std::size_t idx) const
+{
+	assert((idx < args_.size()) && "Out of range");
+	return args_[idx];
 }
 
 void FunctionCallExpr::setArgs(ExprVector&& args)

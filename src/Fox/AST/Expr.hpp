@@ -289,10 +289,18 @@ namespace fox
 
 			ExprVector& getExprs();
 			const ExprVector& getExprs() const;
+			Expr* getExpr(std::size_t idx);
+			const Expr* getExpr(std::size_t idx) const;
 			void setExprs(ExprVector&& elist);
 
 			std::size_t getSize() const;
 			bool isEmpty() const;
+
+			ExprVector::iterator exprs_begin();
+			ExprVector::const_iterator exprs_begin() const;
+
+			ExprVector::iterator exprs_end();
+			ExprVector::const_iterator exprs_end() const;
 
 			static bool classof(const Expr* expr)
 			{
@@ -394,6 +402,8 @@ namespace fox
 
 			ExprVector& getArgs();
 			const ExprVector& getArgs() const;
+			Expr* getArg(std::size_t idx);
+			const Expr* getArg(std::size_t idx) const;
 			void setArgs(ExprVector&& exprs);
 
 			ExprVector::iterator args_begin();
