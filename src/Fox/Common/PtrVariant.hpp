@@ -91,6 +91,11 @@ namespace fox
 
 			}
 
+			PtrVariant(std::nullptr_t) : ptr_(nullptr), idx_(0)
+			{
+
+			}
+
 			template<typename T, typename enableIf_hasType<T>::type = 0>
 			PtrVariant(T* ptr) : ptr_(ptr), idx_(indexOf<T>::value)
 			{
