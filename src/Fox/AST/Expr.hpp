@@ -333,9 +333,9 @@ namespace fox
 			MemberOfExpr(Expr* base, Identifier *idInfo, 
 				const SourceRange& range, const SourceLoc& dotLoc);
 
-			void setBase(Expr* expr);
-			Expr* getBase();
-			const Expr* getBase() const;
+			void setExpr(Expr* expr);
+			Expr* getExpr();
+			const Expr* getExpr() const;
 
 			void setMemberID(Identifier* idInfo);
 			Identifier* getMemberID();
@@ -362,9 +362,9 @@ namespace fox
 			ArrayAccessExpr();
 			ArrayAccessExpr(Expr* base, Expr* idx, const SourceRange& range);
 
-			void setBase(Expr* expr);
-			Expr* getBase();
-			const Expr* getBase() const;
+			void setExpr(Expr* expr);
+			Expr* getExpr();
+			const Expr* getExpr() const;
 
 			void setIdxExpr(Expr* expr);
 			Expr* getIdxExpr();

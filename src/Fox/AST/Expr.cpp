@@ -575,17 +575,17 @@ MemberOfExpr::MemberOfExpr(Expr* base, Identifier* idInfo,
 
 }
 
-void MemberOfExpr::setBase(Expr* expr)
+void MemberOfExpr::setExpr(Expr* expr)
 {
 	base_ = expr;
 }
 
-Expr* MemberOfExpr::getBase()
+Expr* MemberOfExpr::getExpr()
 {
 	return base_;
 }
 
-const Expr* MemberOfExpr::getBase() const
+const Expr* MemberOfExpr::getExpr() const
 {
 	return base_;
 }
@@ -626,17 +626,17 @@ ArrayAccessExpr::ArrayAccessExpr(Expr* expr, Expr* idxexpr, const SourceRange& r
 	
 }
 
-void ArrayAccessExpr::setBase(Expr* expr)
+void ArrayAccessExpr::setExpr(Expr* expr)
 {
 	base_ = expr;
 }
 
-Expr* ArrayAccessExpr::getBase()
+Expr* ArrayAccessExpr::getExpr()
 {
 	return base_;
 }
 
-const Expr* ArrayAccessExpr::getBase() const
+const Expr* ArrayAccessExpr::getExpr() const
 {
 	return base_;
 }

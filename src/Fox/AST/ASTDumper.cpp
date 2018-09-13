@@ -75,7 +75,7 @@ void ASTDumper::visitArrayAccessExpr(ArrayAccessExpr* node)
 	dumpLine() << getBasicExprInfo(node) << '\n';
 
 	indent();
-		visit(node->getBase());
+		visit(node->getExpr());
 	dedent();
 
 	// Print IdxExpr
@@ -88,7 +88,7 @@ void ASTDumper::visitMemberOfExpr(MemberOfExpr* node)
 {
 	dumpLine() << getBasicExprInfo(node) << " " << getIdentifierDump(node->getMemberID()) << "\n";
 	indent();
-		visit(node->getBase());
+		visit(node->getExpr());
 	dedent();
 }
 
