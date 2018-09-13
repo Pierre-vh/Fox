@@ -19,18 +19,15 @@ bool Sema::unifySubtype(Type* a, Type* b)
 {
 	assert(a && b && "Pointers cannot be null");
 
-	a = a->ignoreLValue();
-	b = b->ignoreLValue();
-
-	// Returns true if a and b share the same subtype
+	// Return early  if a and b share the same subtype (no unification needed)
 	if (compareSubtypes(a, b))
 		return true;
 
 	// SemaTypes checks
 	{
 		// Now check if we don't have a substitution type somewhere
-		auto* aSema = dyn_cast<SemaType>(a);
-		auto* bSema = dyn_cast<SemaType>(b);
+		auto* aSema = dyn_cast<SemaType>(a->ignoreLValue());
+		auto* bSema = dyn_cast<SemaType>(b->ignoreLValue());
 
 		// if a or b is a SemaType
 		if ((!aSema) != (!bSema))
@@ -51,8 +48,8 @@ bool Sema::unifySubtype(Type* a, Type* b)
 
 	// Arrays
 	{
-		auto* aArr = dyn_cast<ArrayType>(a);
-		auto* bArr = dyn_cast<ArrayType>(b);
+		auto* aArr = dyn_cast<ArrayType>(a->ignoreLValue());
+		auto* bArr = dyn_cast<ArrayType>(b->ignoreLValue());
 
 		// Check arrays recursively
 		if (aArr && bArr)
@@ -94,7 +91,7 @@ bool Sema::compareSubtypes(Type* a, Type* b)
 			return compareSubtypes(aArr->getElementType(), bArr->getElementType());
 		}
 		
-		// Return true if we don't have 2 SemaTypes
+		// Return true only if we don't have 2 SemaTypes
 		return !isa<SemaType>(a);
 	}
 
