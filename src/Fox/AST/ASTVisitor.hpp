@@ -59,7 +59,6 @@ namespace fox
 					#include "DeclNodes.def"
 					default:
 						fox_unreachable("Unknown node");
-						return DeclRtrTy();
 				}
 			}
 
@@ -75,7 +74,6 @@ namespace fox
 					#include "StmtNodes.def"
 					default:
 						fox_unreachable("Unknown node");
-						return StmtRtrTy();
 				}
 			}
 
@@ -91,7 +89,6 @@ namespace fox
 					#include "ExprNodes.def"
 					default:
 						fox_unreachable("Unknown node");
-						return ExprRtrTy();
 				}
 			}
 
@@ -107,7 +104,6 @@ namespace fox
 					#include "TypeNodes.def"
 					default:
 						fox_unreachable("Unknown node");
-						return TypeRtrTy();
 				}
 			}
 
