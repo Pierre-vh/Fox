@@ -641,17 +641,17 @@ const Expr* ArrayAccessExpr::getBase() const
 	return base_;
 }
 
-void ArrayAccessExpr::setAccessIndexExpr(Expr* expr)
+void ArrayAccessExpr::setIdxExpr(Expr* expr)
 {
 	idxExpr_ = expr;
 }
 
-Expr* ArrayAccessExpr::getAccessIndexExpr()
+Expr* ArrayAccessExpr::getIdxExpr()
 {
 	return idxExpr_;
 }
 
-const Expr* ArrayAccessExpr::getAccessIndexExpr() const
+const Expr* ArrayAccessExpr::getIdxExpr() const
 {
 	return idxExpr_;
 }

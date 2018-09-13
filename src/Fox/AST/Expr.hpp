@@ -366,9 +366,9 @@ namespace fox
 			Expr* getBase();
 			const Expr* getBase() const;
 
-			void setAccessIndexExpr(Expr* expr);
-			Expr* getAccessIndexExpr();
-			const Expr* getAccessIndexExpr() const;
+			void setIdxExpr(Expr* expr);
+			Expr* getIdxExpr();
+			const Expr* getIdxExpr() const;
 
 			static bool classof(const Expr* expr)
 			{

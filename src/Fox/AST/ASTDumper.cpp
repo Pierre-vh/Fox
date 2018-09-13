@@ -80,7 +80,7 @@ void ASTDumper::visitArrayAccessExpr(ArrayAccessExpr* node)
 
 	// Print IdxExpr
 	indent();
-		visit(node->getAccessIndexExpr());
+		visit(node->getIdxExpr());
 	dedent();
 }
 
