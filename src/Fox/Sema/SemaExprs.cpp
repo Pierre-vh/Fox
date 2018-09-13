@@ -16,77 +16,187 @@
 
 using namespace fox;
 
-Sema::Sema::SemaResult Sema::check(Expr*)
+class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 {
-	return SemaResult::Success();
+	public:
+		using ResultTy = Sema::ExprResult;
+
+	private:
+
+		template<typename ParentTy, typename SetterTy>
+		ResultTy doIt(ParentTy* node, Expr* child, SetterTy setter)
+		{
+			// Visit
+			auto result = visit(child);
+
+			// Replace if needed
+			if (result.hasReplacement())
+				((*node).*setter)(result.getReplacement());
+
+			return result;
+		}
+
+	public:
+		Sema& sema;
+
+		ExprChecker(Sema& inst) : sema(inst)
+		{
+
+		}
+
+		// Each of theses method must (in that order)
+		// 1. Call visit on each of it's children (using doIt)
+		// 2. If every children's visit was successful
+		//		call checkXXX on the argument and return that.
+		//		Never use check(), always use the specialized version.
+
+		ResultTy visitParensExpr(ParensExpr* node)
+		{
+			auto result = doIt(node, node->getExpr(), &ParensExpr::setExpr);
+			if (result)
+				return sema.checkParensExpr(node);
+			return ResultTy::Failure();
+		}
+
+		ResultTy visitBinaryExpr(BinaryExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitUnaryExpr(UnaryExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitCastExpr(CastExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitArrayAccessExpr(ArrayAccessExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitCharLiteralExpr(CharLiteralExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitBoolLiteralExpr(BoolLiteralExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitIntegerLiteralExpr(IntegerLiteralExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitFloatLiteralExpr(FloatLiteralExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitStringLiteralExpr(StringLiteralExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitArrayLiteralExpr(ArrayLiteralExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitDeclRefExpr(DeclRefExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitMemberOfExpr(MemberOfExpr*)
+		{
+			return ResultTy::Success();
+		}
+
+		ResultTy visitFunctionCallExpr(FunctionCallExpr*)
+		{
+			return ResultTy::Success();
+		}
+};
+
+Sema::Sema::ExprResult Sema::checkExpr(Expr* node)
+{
+	ExprChecker checker(*this);
+	checker.visit(node);
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkParensExpr(ParensExpr*)
+Sema::ExprResult Sema::checkParensExpr(ParensExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkBinaryExpr(BinaryExpr*)
+Sema::ExprResult Sema::checkBinaryExpr(BinaryExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkUnaryExpr(UnaryExpr*)
+Sema::ExprResult Sema::checkUnaryExpr(UnaryExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkCastExpr(CastExpr*)
+Sema::ExprResult Sema::checkCastExpr(CastExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkArrayAccessExpr(ArrayAccessExpr*)
+Sema::ExprResult Sema::checkArrayAccessExpr(ArrayAccessExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkCharLiteralExpr(CharLiteralExpr*)
+Sema::ExprResult Sema::checkCharLiteralExpr(CharLiteralExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkBoolLiteralExpr(BoolLiteralExpr*)
+Sema::ExprResult Sema::checkBoolLiteralExpr(BoolLiteralExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkIntegerLiteralExpr(IntegerLiteralExpr*)
+Sema::ExprResult Sema::checkIntegerLiteralExpr(IntegerLiteralExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkFloatLiteralExpr(FloatLiteralExpr*)
+Sema::ExprResult Sema::checkFloatLiteralExpr(FloatLiteralExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkStringLiteralExpr(StringLiteralExpr*)
+Sema::ExprResult Sema::checkStringLiteralExpr(StringLiteralExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkArrayLiteralExpr(ArrayLiteralExpr*)
+Sema::ExprResult Sema::checkArrayLiteralExpr(ArrayLiteralExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkDeclRefExpr(DeclRefExpr*)
+Sema::ExprResult Sema::checkDeclRefExpr(DeclRefExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkMemberOfExpr(MemberOfExpr*)
+Sema::ExprResult Sema::checkMemberOfExpr(MemberOfExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }
 
-Sema::SemaResult Sema::checkFunctionCallExpr(FunctionCallExpr*)
+Sema::ExprResult Sema::checkFunctionCallExpr(FunctionCallExpr*)
 {
-	return SemaResult::Success();
+	return ExprResult::Success();
 }

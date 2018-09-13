@@ -6,6 +6,10 @@
 ////------------------------------------------------------//// 
 // Contains the Sema class, which is used to perform 
 // most of the semantic analysis of a Fox AST.
+// 
+// To-Do: Find a better name than "checkExpr". It needs to be
+// clear that it should only be used as the entry point when checking any
+// expression. 
 ////------------------------------------------------------//// 
 
 #include <cstdint>
@@ -22,47 +26,62 @@ namespace fox
 
 			// Sema::SemaResult encapsulates the result of a Semantic Analysis function, which
 			// is a ASTNode (potentially nullptr) & a boolean result (for success/failure of checking.)
-			class SemaResult
+			template<typename NodeTy>
+			class Result
 			{
+				using ThisTy = Result<NodeTy>;
 				public:
-					static SemaResult Success(ASTNode node = nullptr);
-					static SemaResult Failure();
+					Result():
+						node_(nullptr), success_(false) {}
+			
+					Result(bool success, NodeTy* node):
+						node_(node), success_(success) {}
 
-					bool wasSuccessful() const;
+					static ThisTy Success(NodeTy* node = nullptr)
+					{
+						return Result(true, node);
+					}
 
-					explicit operator bool() const;
+					static ThisTy Failure()
+					{
+						return Result(false, nullptr);
+					}
 
-					const ASTNode getReplacement() const;
-					ASTNode getReplacement();
+					bool wasSuccessful() const
+					{
+						return success_;
+					}
 
-					bool hasReplacement() const;
+					explicit operator bool() const
+					{
+						return success_;
+					}
+
+					const NodeTy* getReplacement() const
+					{
+						return node_;
+					}
+
+					NodeTy* getReplacement()
+					{
+						return node_;
+					}
+
+					bool hasReplacement() const
+					{
+						return node_;
+					}
 					
 				private:
-					SemaResult(bool success, ASTNode node);
-
-					ASTNode node_;
+					NodeTy* node_ = nullptr;
 					bool success_ : 1;
 					// 7 Bits left in bitfield
 			};
 
-			// Checking functions (entry points)
-			SemaResult check(Expr* expr);
+			using ExprResult = Result<Expr>;
 
-			// Expr Checking functions
-			SemaResult checkParensExpr(ParensExpr* node);
-			SemaResult checkBinaryExpr(BinaryExpr* node);
-			SemaResult checkUnaryExpr(UnaryExpr* node);
-			SemaResult checkCastExpr(CastExpr* node);
-			SemaResult checkArrayAccessExpr(ArrayAccessExpr* node);
-			SemaResult checkCharLiteralExpr(CharLiteralExpr* node);
-			SemaResult checkBoolLiteralExpr(BoolLiteralExpr*node);
-			SemaResult checkIntegerLiteralExpr(IntegerLiteralExpr* node);
-			SemaResult checkFloatLiteralExpr(FloatLiteralExpr* node);
-			SemaResult checkStringLiteralExpr(StringLiteralExpr* node);
-			SemaResult checkArrayLiteralExpr(ArrayLiteralExpr* node);
-			SemaResult checkDeclRefExpr(DeclRefExpr* node);
-			SemaResult checkMemberOfExpr(MemberOfExpr* node);
-			SemaResult checkFunctionCallExpr(FunctionCallExpr* node);
+			// Entry point for checking an expression tree.
+			ExprResult checkExpr(Expr* expr);
 
 			// The unification algorithms for types of the same subtypes.
 			//
@@ -79,7 +98,21 @@ namespace fox
 			// type must not be null and must point to a arithmetic type.
 			static IntegralRankTy getIntegralRank(PrimitiveType* type);
 
-		private:
+			ExprResult checkParensExpr(ParensExpr* node);
+			ExprResult checkBinaryExpr(BinaryExpr* node);
+			ExprResult checkUnaryExpr(UnaryExpr* node);
+			ExprResult checkCastExpr(CastExpr* node);
+			ExprResult checkArrayAccessExpr(ArrayAccessExpr* node);
+			ExprResult checkCharLiteralExpr(CharLiteralExpr* node);
+			ExprResult checkBoolLiteralExpr(BoolLiteralExpr*node);
+			ExprResult checkIntegerLiteralExpr(IntegerLiteralExpr* node);
+			ExprResult checkFloatLiteralExpr(FloatLiteralExpr* node);
+			ExprResult checkStringLiteralExpr(StringLiteralExpr* node);
+			ExprResult checkArrayLiteralExpr(ArrayLiteralExpr* node);
+			ExprResult checkDeclRefExpr(DeclRefExpr* node);
+			ExprResult checkMemberOfExpr(MemberOfExpr* node);
+			ExprResult checkFunctionCallExpr(FunctionCallExpr* node);
 
+		private:
 	};
 }

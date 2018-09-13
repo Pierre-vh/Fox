@@ -12,39 +12,3 @@
 #include "Sema.hpp"
 
 using namespace fox;
-
-// Sema::Result
-Sema::SemaResult Sema::SemaResult::Success(ASTNode node)
-{
-	return SemaResult(true, node);
-}
-
-Sema::SemaResult Sema::SemaResult::Failure()
-{
-	return SemaResult(false, nullptr);
-}
-
-bool Sema::SemaResult::wasSuccessful() const
-{
-	return success_;
-}
-
-Sema::SemaResult::operator bool() const
-{
-	return success_;
-}
-
-const ASTNode Sema::SemaResult::getReplacement() const
-{
-	return node_;
-}
-
-ASTNode Sema::SemaResult::getReplacement()
-{
-	return node_;
-}
-
-bool Sema::SemaResult::hasReplacement() const
-{
-	return (node_.getOpaque() != nullptr);
-}
