@@ -14,6 +14,7 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
+#include <iostream>
 
 using namespace fox;
 
@@ -133,9 +134,9 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 			return ResultTy::Failure();
 		}
 
-		ResultTy visitDeclRefExpr(DeclRefExpr*)
+		ResultTy visitDeclRefExpr(DeclRefExpr* node)
 		{
-			assert(false && "unimplemented");
+			sema.checkDeclRefExpr(node);
 			return ResultTy::Failure();
 		}
 
@@ -162,76 +163,89 @@ class ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 Sema::Sema::ExprResult Sema::checkExpr(Expr* node)
 {
 	ExprChecker checker(*this);
-	checker.visit(node);
-	return ExprResult::Success();
+	return checker.visit(node);
 }
 
 Sema::ExprResult Sema::checkParensExpr(ParensExpr*)
 {
+	std::cout << "ParensExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkBinaryExpr(BinaryExpr*)
 {
+	std::cout << "BinaryExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkUnaryExpr(UnaryExpr*)
 {
+	std::cout << "UnaryExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkCastExpr(CastExpr*)
 {
+	std::cout << "CastExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkArrayAccessExpr(ArrayAccessExpr*)
 {
+	std::cout << "ArrayAccessExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkCharLiteralExpr(CharLiteralExpr*)
 {
+	std::cout << "CharLiteralExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkBoolLiteralExpr(BoolLiteralExpr*)
 {
+	std::cout << "BoolLiteralExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkIntegerLiteralExpr(IntegerLiteralExpr*)
 {
+	std::cout << "IntegerLiteralExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkFloatLiteralExpr(FloatLiteralExpr*)
 {
+	std::cout << "FloatLiteralExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkStringLiteralExpr(StringLiteralExpr*)
 {
+	std::cout << "StringLiteralExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkArrayLiteralExpr(ArrayLiteralExpr*)
 {
+	std::cout << "ArrayLiteralExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkDeclRefExpr(DeclRefExpr*)
 {
+	std::cout << "DeclRefExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkMemberOfExpr(MemberOfExpr*)
 {
+	std::cout << "MemberOfExpr" << std::endl;
 	return ExprResult::Success();
 }
 
 Sema::ExprResult Sema::checkFunctionCallExpr(FunctionCallExpr*)
 {
+	std::cout << "FunctionCallExpr" << std::endl;
 	return ExprResult::Success();
 }
