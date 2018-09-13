@@ -291,7 +291,9 @@ namespace fox
 			const ExprVector& getExprs() const;
 			Expr* getExpr(std::size_t idx);
 			const Expr* getExpr(std::size_t idx) const;
+
 			void setExprs(ExprVector&& elist);
+			void replaceExpr(Expr* expr, std::size_t idx);
 
 			std::size_t getSize() const;
 			bool isEmpty() const;
@@ -404,7 +406,9 @@ namespace fox
 			const ExprVector& getArgs() const;
 			Expr* getArg(std::size_t idx);
 			const Expr* getArg(std::size_t idx) const;
+
 			void setArgs(ExprVector&& exprs);
+			void replaceArg(Expr* arg, std::size_t idx);
 
 			ExprVector::iterator args_begin();
 			ExprVector::const_iterator args_begin() const;
