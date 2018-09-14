@@ -59,7 +59,10 @@ Moonshot Project To-do List.
 	> Update PrimitiveType (Done)
 	> Begin basic Sema functions (Done)
 
-	> Unit tests for first Sema functions (Next)
+	> Split Includes & Headers to give me more freedom (Next)
+
+	> Plan Semantic analysis structure completely
+	> Unit tests for first Sema functions 
 
 	> Semantic Analysis
 		Ideas (for Exprs)
