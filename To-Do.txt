@@ -62,7 +62,8 @@ Moonshot Project To-do List.
 
 	> Create more AST Manipulation/Visitation options (Next)
 		> ASTVisitor will simply stay a "Dispatcher" (No work needed)
-		> Need a ASTTraverser class which does a pre/post order traversal of the AST, maybe calling visit on each node. (derived of visitor then?)
+		> ASTWalker-like class
+			> Find something more personal to fox, but based on the same principle as Swift's ASTWalker
 
 	> Plan Semantic analysis structure completely
 		> Needs a public interface to the checking, with entry points for exprs/decls/stmt/(maybe)types & sourcefiles
@@ -70,7 +71,11 @@ Moonshot Project To-do List.
 			 Sema.cpp is where it's at, with all the calls to the TypeChecker class, which handles most of the semantic analysis (current "Sema" class)
 		> Everything else is impl detail (in lib/)
 			Scopes
+			Name resolution
+			Overload Resolution
 			Individual "Checkers" of each hierarchy
+				-> Won't need any particular visitor aside from the AST one and a ASTWalker class to check/verify stuff
+
 	> Unit tests for first Sema functions 
 
 	> Semantic Analysis
