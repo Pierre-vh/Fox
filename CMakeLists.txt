@@ -14,11 +14,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Moonshot/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Moonshot/bin)
 
 # set include directories
-include_directories(src)        # Moonshot lib source
+include_directories(includes)   # Moonshot lib includes
 include_directories(thirdparty) # Third Party libraries includes
 
 # add main subdirs
-add_subdirectory(src)
+add_subdirectory(lib)
 add_subdirectory(tools)
 
 # add test subdir
