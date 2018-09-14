@@ -60,15 +60,17 @@ Moonshot Project To-do List.
 	> Begin basic Sema functions (Done)
 	> Switch to library-based architecture, splitting includes & headers (Done)
 
-	> Create more ASTVisitors options (Next)
-		> ASTVisitor will simply stay a "Dispatcher"
-		> ASTWalker: Traverses the AST recursively, replacing nodes if the user desires it. (Next)
-			> Calls walkXXX() on each node
-			  Visit will always return a special "Response" object, which might indicate that we'd like the node
-			  to be replaced
-			> Default impl of walkXXX calls the parent's walkXXX method like the ASTVisitor
+	> Create more AST Manipulation/Visitation options (Next)
+		> ASTVisitor will simply stay a "Dispatcher" (No work needed)
+		> Need a ASTTraverser class which does a pre/post order traversal of the AST, maybe calling visit on each node. (derived of visitor then?)
 
 	> Plan Semantic analysis structure completely
+		> Needs a public interface to the checking, with entry points for exprs/decls/stmt/(maybe)types & sourcefiles
+			"Sema" class with only a handful of public methods
+			 Sema.cpp is where it's at, with all the calls to the TypeChecker class, which handles most of the semantic analysis (current "Sema" class)
+		> Everything else is impl detail (in lib/)
+			Scopes
+			Individual "Checkers" of each hierarchy
 	> Unit tests for first Sema functions 
 
 	> Semantic Analysis
@@ -85,17 +87,7 @@ Moonshot Project To-do List.
 
 Boring stuff that I must do when I have the time/motivation for it
 	> Adopt a Documentation style (Doxygen) and document all the code with it
-
-Shelved
-	> Types/TypeBase rework: Necessity still to be determined.
-		On one side, it could be great because it eliminates some pointers, and would make the addition of Sugared type infinitely easier.
-		However, it would take time to do. I'll weight the pros and cons before making a decision. I still got time, at least until I begin
-		Semantic Analysis
-
-Others:
-	> Review uniqueness of types. It makes sense for some types, but maybe for others
-	  it doesn't make that much sense at all? (Rethink the "getArrayTypeForType" function, especially)
-					
+	
 Later:
 	Use a "SourceFile" class instead of a "UnitDecl" class, like swift. This class would track the progress of the AST:
 	not parsed, parsed but not semantically analyzed, etc. Do that when implementing the multifile support
