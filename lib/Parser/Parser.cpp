@@ -284,8 +284,8 @@ Parser::Result<Type*> Parser::parseType()
 	{
 		//  { '[' ']' }
 		Type* ty = ty_res.get();
-		SourceLoc begLoc = ty_res.getSourceRange().getBegin();
-		SourceLoc endLoc = ty_res.getSourceRange().getEnd();
+		SourceLoc begLoc = ty_res.getRange().getBegin();
+		SourceLoc endLoc = ty_res.getRange().getEnd();
 		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
 			ty = ctxt_.getArrayTypeForType(ty);

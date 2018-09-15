@@ -27,7 +27,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base)
 		if (auto id = consumeIdentifier())
 		{
 			// found, return
-			endLoc = id.getSourceRange().getEnd();
+			endLoc = id.getRange().getEnd();
 
 			SourceRange range(begLoc, endLoc);
 			assert(range && dotLoc && "Invalid loc info");
@@ -107,7 +107,7 @@ Parser::ExprResult Parser::parseDeclRef()
 	if (auto id = consumeIdentifier())
 		return ExprResult(new(ctxt_) DeclRefExpr(
 				id.get(),
-				id.getSourceRange()
+				id.getRange()
 			));
 	return ExprResult::NotFound();
 }
@@ -338,7 +338,7 @@ Parser::ExprResult Parser::parseCastExpr()
 		if (auto castType = parseBuiltinTypename())
 		{
 			SourceLoc begLoc = prefixexpr.get()->getRange().getBegin();
-			SourceLoc endLoc = castType.getSourceRange().getEnd();
+			SourceLoc endLoc = castType.getRange().getEnd();
 
 			SourceRange range(begLoc, endLoc);
 			assert(range && "Invalid loc info");
@@ -348,7 +348,7 @@ Parser::ExprResult Parser::parseCastExpr()
 					castType.get(),
 					prefixexpr.get(),
 					range,
-					castType.getSourceRange()
+					castType.getRange()
 				));
 		}
 		else

@@ -185,7 +185,7 @@ Parser::DeclResult Parser::parseFuncDecl()
 		if (auto rtrTy = parseType())
 		{
 			rtr->setReturnType(rtrTy.get());
-			headEndLoc = rtrTy.getSourceRange().getEnd();
+			headEndLoc = rtrTy.getRange().getEnd();
 		}
 		else 
 		{
@@ -256,7 +256,7 @@ Parser::DeclResult Parser::parseParamDecl()
 
 	auto parsedType = typeResult.get();
 
-	SourceLoc begLoc = id.getSourceRange().getBegin();
+	SourceLoc begLoc = id.getRange().getBegin();
 	SourceLoc endLoc = typeResult.getRange().getEnd();
 
 	SourceRange range(begLoc, endLoc);
@@ -408,9 +408,9 @@ Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constR
 
 		// If no begLoc, the begLoc is the type's begLoc.
 		if (!begLoc)
-			begLoc = type.getSourceRange().getBegin();
+			begLoc = type.getRange().getBegin();
 
-		endLoc = type.getSourceRange().getEnd();
+		endLoc = type.getRange().getEnd();
 	}
 	else
 	{
