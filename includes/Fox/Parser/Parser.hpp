@@ -276,27 +276,27 @@ namespace fox
 			template<typename DataTy>
 			class Result : public ResultObject<DataTy>
 			{
-				using inherited = ResultObject<DataTy>;
+				using Inherited = ResultObject<DataTy>;
 				public:
 					Result():
-						inherited(false)
+						Inherited(false)
 					{
 
 					}
 
 					Result(CTorValueTy val, SourceRange range):
-						inherited(val), range_(range)
+						Inherited(val), range_(range)
 					{
 
 					}
 
 					Result(CTorRValueTy val, SourceRange range) :
-						inherited(val), range_(range)
+						Inherited(val), range_(range)
 					{
 
 					}
 
-					using inherited::ResultObject;
+					using Inherited::ResultObject;
 
 					SourceRange getRange() const
 					{
