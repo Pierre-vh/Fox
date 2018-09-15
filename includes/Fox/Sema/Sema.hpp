@@ -17,6 +17,7 @@
 #include <cstdint>
 #include "Fox/AST/ASTNode.hpp"
 #include "Fox/AST/ASTFwdDecl.hpp"
+#include "Fox/Common/ResultObject.hpp"
 
 namespace fox
 {
@@ -26,52 +27,37 @@ namespace fox
 			// Typedefs
 			using IntegralRankTy = std::uint8_t;
 
-			// Sema::SemaResult encapsulates the result of a Semantic Analysis function, which
-			// is a ASTNode (potentially nullptr) & a boolean result (for success/failure of checking.)
 			template<typename NodeTy>
-			class Result
+			class Result : public ResultObject<NodeTy>
 			{
+				using Inherited = ResultObject<NodeTy>;
 				using ThisTy = Result<NodeTy>;
 				public:
-					Result():
-						node_(nullptr), success_(false) {}
-			
-					Result(bool success, NodeTy* node):
-						node_(node), success_(success) {}
+					using Inherited::ResultObject;
 
-					static ThisTy Success(NodeTy* node = nullptr)
+					static ThisTy Success(CTorValueTy val = DefaultValue())
 					{
-						return Result(true, node);
+						return Result(true, val);
 					}
 
 					static ThisTy Failure()
 					{
-						return Result(false, nullptr);
+						return Result(false, DefaultValue());
 					}
 
-					bool wasSuccessful() const
+					const NodeTy getReplacement() const
 					{
-						return success_;
+						return get();
 					}
 
-					explicit operator bool() const
+					NodeTy getReplacement()
 					{
-						return success_;
-					}
-
-					const NodeTy* getReplacement() const
-					{
-						return node_;
-					}
-
-					NodeTy* getReplacement()
-					{
-						return node_;
+						return get();
 					}
 
 					bool hasReplacement() const
 					{
-						return node_;
+						return hasData();
 					}
 					
 				private:
@@ -80,7 +66,7 @@ namespace fox
 					// 7 Bits left in bitfield
 			};
 
-			using ExprResult = Result<Expr>;
+			using ExprResult = Result<Expr*>;
 
 			// Entry point for checking an expression tree.
 			ExprResult checkExpr(Expr* expr);
