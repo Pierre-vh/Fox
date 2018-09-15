@@ -278,8 +278,8 @@ namespace fox
 			{
 				using Inherited = ResultObject<DataTy>;
 				public:
-					Result() :
-						Inherited(false, DefaultValue())
+					Result(bool success = true):
+						Inherited(success)
 					{
 
 					}
@@ -305,12 +305,12 @@ namespace fox
 
 					static Result<DataTy> Error()
 					{
-						return Result<DataTy>(false, DefaultValue());
+						return Result<DataTy>(false);
 					}
 
 					static Result<DataTy> NotFound()
 					{
-						return Result<DataTy>(true, DefaultValue());
+						return Result<DataTy>(true);
 					}
 
 				private:

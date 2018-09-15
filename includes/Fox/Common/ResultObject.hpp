@@ -20,15 +20,25 @@ namespace fox
 	template<typename DataTy>
 	class ResultObject
 	{
+		protected:
+			using DefaultValue = DataTy;
+			using CTorValueTy = const DataTy&;
+			using CTorRValueTy = DataTy && ;
 		public:
-			ResultObject(bool success, const DataTy& res = DataTy()):
+			ResultObject(bool success, const DataTy& res):
 				result_(res), hasData_(true), successFlag_(success)
 			{
 
 			}
 
-			ResultObject(bool success, DataTy&& res = DataTy()):
+			ResultObject(bool success, DataTy&& res):
 				result_(res), hasData_(true), successFlag_(success)
+			{
+
+			}
+
+			ResultObject(bool success) :
+				result_(DefaultValue()), hasData_(false), successFlag_(success)
 			{
 
 			}
@@ -53,7 +63,12 @@ namespace fox
 				return successFlag_ && hasData_;
 			}
 
-			DataTy get() const
+			const DataTy get() const
+			{
+				return result_;
+			}
+
+			DataTy get()
 			{
 				return result_;
 			}
@@ -61,15 +76,6 @@ namespace fox
 			DataTy& getRef()
 			{
 				return result_;
-			}
-		protected:
-			using DefaultValue = DataTy;
-			using CTorValueTy = const DataTy&;
-			using CTorRValueTy = DataTy&&;
-
-			DataTy createDefaultValue() const
-			{
-				return DataTy();
 			}
 
 		private:
@@ -84,13 +90,17 @@ namespace fox
 		protected:
 			using DefaultValue = std::nullptr_t;
 			using CTorValueTy = DataTy*;
-
-			// Disable the Move CTor if we have a pointer
-			using CTorRValueTy = std::enable_if<false, void>; 
+			using CTorRValueTy = std::enable_if<false, void>;  // Disable the Move CTor if we have a pointer
 
 		public:
 			ResultObject(bool success, CTorValueTy val):
 				ptr_(val), successFlag_(success)
+			{
+
+			}
+
+			ResultObject(bool success) :
+				ptr_(nullptr), successFlag_(success)
 			{
 
 			}
@@ -152,6 +162,7 @@ namespace fox
 			{
 				return ptr_;
 			}
+
 		private:
 			bool successFlag_ : 1;
 			DataTy* ptr_ = nullptr;
