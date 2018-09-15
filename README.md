@@ -11,8 +11,8 @@ Feel free to contribute, and if you have any questions don't hesitate to send me
 
 # Folders
 
-* /src/ Complete source code of the Moonshot project  (.hpp and .cpp) compiles to libmoonshot.lib
-	* This folder is divided in subfolders, one for each "module" of the project.
+* /includes/ Contains the headers
+* /lib/ Contains the source code/implementation
 * /tools/ Contains the main.cpp, compiles to moonshot.exe
 * /tests/ Source code & test resources
 * /docs/ Documentation
