@@ -278,20 +278,20 @@ namespace fox
 			{
 				using Inherited = ResultObject<DataTy>;
 				public:
-					Result():
-						Inherited(false)
+					Result() :
+						Inherited(false, DefaultValue())
 					{
 
 					}
 
-					Result(CTorValueTy val, SourceRange range):
-						Inherited(val), range_(range)
+					Result(CTorValueTy val, SourceRange range = SourceRange()):
+						Inherited(true, val), range_(range)
 					{
 
 					}
 
-					Result(CTorRValueTy val, SourceRange range) :
-						Inherited(val), range_(range)
+					Result(CTorRValueTy val, SourceRange range = SourceRange()):
+						Inherited(true, val), range_(range)
 					{
 
 					}
@@ -305,12 +305,12 @@ namespace fox
 
 					static Result<DataTy> Error()
 					{
-						return Result<DataTy>(false);
+						return Result<DataTy>(false, DefaultValue());
 					}
 
 					static Result<DataTy> NotFound()
 					{
-						return Result<DataTy>(true);
+						return Result<DataTy>(true, DefaultValue());
 					}
 
 				private:
