@@ -9,6 +9,8 @@
 // a value/result + a boolean flag.
 ////------------------------------------------------------//// 
 
+#pragma once
+
 #include "LLVM.hpp"
 #include "Errors.hpp"
 #include <type_traits>
@@ -19,20 +21,14 @@ namespace fox
 	class ResultObject
 	{
 		public:
-			ResultObject(const DataTy& res)
-				: result_(res), hasData_(true), successFlag_(true)
+			ResultObject(bool success, const DataTy& res = DataTy()):
+				result_(res), hasData_(true), successFlag_(success)
 			{
 
 			}
 
-			ResultObject(DataTy&& res)
-				: result_(res), hasData_(true), successFlag_(true)
-			{
-
-			}
-
-			ResultObject(bool wasSuccessful):
-				hasData_(false), successFlag_(wasSuccessful)
+			ResultObject(bool success, DataTy&& res = DataTy()):
+				result_(res), hasData_(true), successFlag_(success)
 			{
 
 			}
@@ -67,6 +63,7 @@ namespace fox
 				return result_;
 			}
 		protected:
+			using DefaultValue = DataTy;
 			using CTorValueTy = const DataTy&;
 			using CTorRValueTy = DataTy&&;
 
@@ -85,24 +82,15 @@ namespace fox
 	class ResultObject<DataTy*>
 	{
 		protected:
+			using DefaultValue = std::nullptr_t;
 			using CTorValueTy = DataTy*;
 
 			// Disable the Move CTor if we have a pointer
 			using CTorRValueTy = std::enable_if<false, void>; 
 
-			DataTy* createDefaultValue() const
-			{
-				return nullptr;
-			}
 		public:
-			ResultObject(CTorValueTy val)
-				: ptr_(val), successFlag_(true)
-			{
-
-			}
-
-			ResultObject(bool wasSuccessful):
-				successFlag_(wasSuccessful)
+			ResultObject(bool success, CTorValueTy val):
+				ptr_(val), successFlag_(success)
 			{
 
 			}
