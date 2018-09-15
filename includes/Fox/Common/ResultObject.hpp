@@ -47,6 +47,11 @@ namespace fox
 				return successFlag_;
 			}
 
+			bool hasData() const
+			{
+				return hasData_;
+			}
+
 			bool isUsable() const
 			{
 				return successFlag_ && hasData_;
@@ -110,6 +115,11 @@ namespace fox
 			bool wasSuccessful() const
 			{
 				return successFlag_;
+			}
+			
+			bool hasData() const
+			{
+				return ptr_;
 			}
 
 			bool isUsable() const
