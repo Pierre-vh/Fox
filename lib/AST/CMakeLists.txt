@@ -4,6 +4,7 @@ add_source(
     "Expr.cpp"
     "Stmt.cpp"
 	"ASTContext.cpp"
+	"ASTWalker.cpp"
 	"Type.cpp"
 	"ASTDumper.cpp"
 	"Identifiers.cpp"
