@@ -234,13 +234,13 @@ void ArrayLiteralExpr::setExprs(ExprVector&& exprs)
 	exprs_ = exprs;
 }
 
-void ArrayLiteralExpr::replaceExpr(Expr* expr, std::size_t idx)
+void ArrayLiteralExpr::setExpr(Expr* expr, std::size_t idx)
 {
 	assert((idx < exprs_.size()) && "Out of range");
 	exprs_[idx] = expr;
 }
 
-void ArrayLiteralExpr::replaceExpr(Expr* expr, ExprVector::iterator it)
+void ArrayLiteralExpr::setExpr(Expr* expr, ExprVector::iterator it)
 {
 	assert((it != exprs_.end()) && "Out of range");
 	(*it) = expr;
@@ -594,13 +594,13 @@ void FunctionCallExpr::setArgs(ExprVector&& args)
 	args_ = args;
 }
 
-void FunctionCallExpr::replaceArg(Expr* arg, std::size_t idx)
+void FunctionCallExpr::setArg(Expr* arg, std::size_t idx)
 {
 	assert((idx < args_.size()) && "Out of range");
 	args_[idx] = arg;
 }
 
-void FunctionCallExpr::replaceArg(Expr* arg, ExprVector::iterator it)
+void FunctionCallExpr::setArg(Expr* arg, ExprVector::iterator it)
 {
 	assert((it != args_.end()) && "Out of range");
 	(*it) = arg;

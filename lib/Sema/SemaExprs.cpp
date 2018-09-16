@@ -128,7 +128,7 @@ class Sema::ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 		{
 			bool flag = true;
 			for (auto it = node->exprs_begin(), end = node->exprs_end(); it != end; it++)
-				flag = flag && doIt(node, (*it), &ArrayLiteralExpr::replaceExpr, it);
+				flag = flag && doIt(node, (*it), &ArrayLiteralExpr::setExpr, it);
 
 			if (flag)
 				return sema.checkArrayLiteralExpr(node);
@@ -152,7 +152,7 @@ class Sema::ExprChecker : public ExprVisitor<ExprChecker, Sema::ExprResult>
 			bool flag = doIt(node, node->getCallee(), &FunctionCallExpr::setCallee);
 
 			for (auto it = node->args_begin(), end = node->args_end(); it != end; it++)
-				flag = flag && doIt(node, (*it), &FunctionCallExpr::replaceArg, it);
+				flag = flag && doIt(node, (*it), &FunctionCallExpr::setArg, it);
 
 			if (flag)
 				return sema.checkFunctionCallExpr(node);
