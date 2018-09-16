@@ -9,6 +9,8 @@
 
 namespace fox
 {
+	class ASTNode;
+
 	class Expr;
 	#define EXPR(ID, PARENT) class ID;
 	#include "ExprNodes.def"
