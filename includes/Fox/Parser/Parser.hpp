@@ -296,6 +296,16 @@ namespace fox
 
 					}
 
+					bool isUsable() const
+					{
+						return hasData() && wasSuccessful();
+					}
+
+					explicit operator bool() const
+					{
+						return isUsable();
+					}
+
 					using Inherited::ResultObject;
 
 					SourceRange getRange() const
