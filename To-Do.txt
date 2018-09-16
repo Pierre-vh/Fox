@@ -59,11 +59,7 @@ Moonshot Project To-do List.
 	> Update PrimitiveType (Done)
 	> Begin basic Sema functions (Done)
 	> Switch to library-based architecture, splitting includes & headers (Done)
-
-	> Create a "Generalized" object which behaves like Parser::Result, because I find
-	  myself creating such object often. I need something that encapsulates a value and a
-	  value (only booleans). Name it something like "ResultObject". 
-	  Make it behave like ParserResult, with special methods when dealing with a pointer. (Next)
+	> ResultObject (Done)
 
 	> Create more AST Manipulation/Visitation options (Next)
 		> ASTVisitor will simply stay a "Dispatcher" (No work needed)
