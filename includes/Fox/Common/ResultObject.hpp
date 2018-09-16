@@ -7,6 +7,10 @@
 // This file contains the ResultObject class, which is a "baseline"
 // for classes that needs a special "Result" object that encapsulates
 // a value/result + a boolean flag.
+//
+// The boolean is meant to contain a "success" flag 
+// (true = operation was successful, false if not)
+// and is accessible through wasSuccessful
 ////------------------------------------------------------//// 
 
 #pragma once
@@ -43,11 +47,6 @@ namespace fox
 
 			}
 
-			explicit operator bool() const
-			{
-				return isUsable();
-			}
-
 			bool wasSuccessful() const
 			{
 				return successFlag_;
@@ -56,11 +55,6 @@ namespace fox
 			bool hasData() const
 			{
 				return hasData_;
-			}
-
-			bool isUsable() const
-			{
-				return successFlag_ && hasData_;
 			}
 
 			const DataTy get() const
@@ -105,11 +99,6 @@ namespace fox
 
 			}
 
-			explicit operator bool() const
-			{
-				return isUsable();
-			}
-
 			bool wasSuccessful() const
 			{
 				return successFlag_;
@@ -118,11 +107,6 @@ namespace fox
 			bool hasData() const
 			{
 				return ptr_;
-			}
-
-			bool isUsable() const
-			{
-				return successFlag_ && ptr_;
 			}
 
 			const DataTy* get() const
