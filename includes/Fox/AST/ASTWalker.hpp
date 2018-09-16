@@ -7,6 +7,11 @@
 // This file contains the ASTWalker class, which is used to
 // "walk" the ast in a pre/post order fashion, automatically 
 // replacing nodes if needed.
+//
+// This is heavily based on Swift's ASTWalker:
+//		https://github.com/apple/swift/blob/master/include/swift/AST/ASTWalker.h
+//		https://github.com/apple/swift/blob/master/lib/AST/ASTWalker.cpp
+//
 ////------------------------------------------------------////
 
 #include <tuple>
@@ -22,14 +27,6 @@ namespace fox
 			Decl* walk(Decl* decl);
 			Stmt* walk(Stmt* stmt);
 			Type* walk(Type* type);
-
-			
-			// handlePre methods return a boolean (if false, we don't visit the children)
-			// along with a pointer for the node that should replace the one we just visited.
-			// If the latter is null, the walk is aborted
-
-			// handlePost methods return a pointer, if it's null, the walk is aborted, 
-			// else, that node will replace the one we visited.
 
 			virtual std::pair<bool, Expr*> handleExprPre(Expr* expr);
 			virtual Expr* handleExprPost(Expr* expr);
