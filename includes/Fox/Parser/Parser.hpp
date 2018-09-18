@@ -16,10 +16,11 @@
 // 
 // Status: Up to date with latest grammar changes, except import/using rules that aren't implemented yet.
 //
-//		Potential Areas of improvement
+//		Improvements Ideas:
 //			Recovery Efficiency
 //				Tweak it by running different test situations and adding special recovery cases wherever needed.
 //			Speed
+//			Try to cut as many includes as possible.
 //
 //
 //		Parser "to-do" list. Important stuff is marked with (*)
