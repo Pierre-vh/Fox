@@ -9,6 +9,7 @@
 ////------------------------------------------------------////
 
 #include "Fox/Parser/Parser.hpp"
+#include "Fox/AST/Identifiers.hpp"
 
 using namespace fox;
 

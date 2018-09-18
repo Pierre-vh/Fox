@@ -16,6 +16,7 @@
 #pragma once
 
 #include "LLVM.hpp"
+#include "llvm/ADT/PointerIntPair.h"
 #include "Errors.hpp"
 #include <type_traits>
 
@@ -87,43 +88,44 @@ namespace fox
 			using CTorRValueTy = std::enable_if<false, void>;  // Disable the Move CTor if we have a pointer
 
 		public:
-			ResultObject(bool success, CTorValueTy val):
-				ptr_(val), successFlag_(success)
+			ResultObject(bool success, CTorValueTy ptr):
+				data_(ptr, success)
 			{
 
 			}
 
-			ResultObject(bool success) :
-				ptr_(nullptr), successFlag_(success)
+			ResultObject(bool success):
+				data_(nullptr, success)
 			{
 
 			}
 
 			bool wasSuccessful() const
 			{
-				return successFlag_;
+				return data_.getInt();
 			}
 			
 			bool hasData() const
 			{
-				return ptr_;
+				return data_.getPointer();
 			}
 
 			const DataTy* get() const
 			{
-				return ptr_;
+				return data_.getPointer();
 			}
 
 			DataTy* get()
 			{
-				return ptr_;
+				return data_.getPointer();
 			}
 
 			template<typename Ty>
 			Ty* getAs()
 			{
-				assert(ptr_ && "Can't use this on a null pointer");
-				Ty* cast = dyn_cast<Ty>(ptr_);
+				auto* ptr = data_.getPointer();
+				assert(ptr && "Can't use this on a null pointer");
+				Ty* cast = dyn_cast<Ty>(ptr);
 				assert(cast && "Incorrect type!");
 				return cast;
 			}
@@ -131,24 +133,24 @@ namespace fox
 			template<typename Ty>
 			const Ty* getAs() const
 			{
-				assert(ptr_ && "Can't use this on a null pointer");
-				Ty* cast = dyn_cast<Ty>(ptr_);
+				auto* ptr = data_.getPointer();
+				assert(ptr && "Can't use this on a null pointer");
+				Ty* cast = dyn_cast<Ty>(ptr);
 				assert(cast && "Incorrect type!");
 				return cast;
 			}
 
 			void* getOpaque()
 			{
-				return ptr_;
+				return data_.getPointer();
 			}
 
 			const void* getOpaque() const
 			{
-				return ptr_;
+				return data_.getPointer();
 			}
 
 		private:
-			bool successFlag_ : 1;
-			DataTy* ptr_ = nullptr;
+			llvm::PointerIntPair<DataTy*, 1> data_;
 	};
 }

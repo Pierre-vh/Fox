@@ -6,18 +6,23 @@ Theses files have sometimes been modified to remove dependencies, or remove some
 I did not need.
 
 Non exhaustive changes list:
-	type_traits.h
+	Support/type_traits.h
 		Removed #include "Compiler.h"
 		Removed LLVM_IS_FINAL macro
 		Removed __has_feature macros
 		Modified isPodLike to use is_trivially_copyable in all cases
 
-	Casting.h
+	Support/Casting.h
 		Moved the "__has_cpp_attribute" macro to this file
 		Moved the definition of the LLVM_NODISCARD (from Compiler.h) to this file
 		Removed #include "Compiler.h"
 		
+	ADT/PointerIntPair.h:
+		Removed SmallPtrSet & DenseMapInfo unique features
 
+	Support/DataTypes.h
+		This file is the one found in llvm-c/DataTypes.h instead of the wrapper
+		located in llvm/Support/DataTypes.h
 
 			
 			
