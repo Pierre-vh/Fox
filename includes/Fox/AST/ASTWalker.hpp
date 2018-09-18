@@ -8,10 +8,6 @@
 // "walk" the ast in a pre/post order fashion, automatically 
 // replacing nodes if needed.
 //
-// This is heavily based on Swift's ASTWalker:
-//		https://github.com/apple/swift/blob/master/include/swift/AST/ASTWalker.h
-//		https://github.com/apple/swift/blob/master/lib/AST/ASTWalker.cpp
-//
 ////------------------------------------------------------////
 
 #include <tuple>
