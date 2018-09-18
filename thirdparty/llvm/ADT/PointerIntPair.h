@@ -126,16 +126,11 @@ namespace llvm {
 
 	template <typename PointerT, unsigned IntBits, typename PtrTraits>
 	struct PointerIntPairInfo {
-
-		static constexpr std::uint8_t NumLowBitsAvailable = 
-
 		static_assert(PtrTraits::NumLowBitsAvailable <
 			std::numeric_limits<uintptr_t>::digits,
 			"cannot use a pointer type that has all bits free");
-
 		static_assert(IntBits <= PtrTraits::NumLowBitsAvailable,
 			"PointerIntPair with integer size too large for pointer");
-
 		enum : uintptr_t {
 			/// PointerBitMask - The bits that come from the pointer.
 			PointerBitMask =
