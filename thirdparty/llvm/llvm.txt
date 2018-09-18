@@ -17,7 +17,8 @@ Non exhaustive changes list:
 		Moved the definition of the LLVM_NODISCARD (from Compiler.h) to this file
 		Removed #include "Compiler.h"
 		
-
+	PointerIntPair:
+		Removed SmallPtrSet & DenseMapInfo unique features
 
 			
 			
