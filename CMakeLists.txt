@@ -40,6 +40,8 @@ if(MSVC)
   endif()
   # Set Warnings are errors
   add_compile_options(/WX)
+  #Silence problematic warnings: 
+  add_compile_options(/wd4706) # "assignement within conditional expression" is rather pedantic.
 endif()
 
 
