@@ -21,7 +21,7 @@ namespace fox
 			Expr* walk(Expr* expr);
 			Decl* walk(Decl* decl);
 			Stmt* walk(Stmt* stmt);
-			Type* walk(Type* type);
+			bool walk(Type* type);
 
 			// Called when first visiting an expression before visiting it's
 			// children. 
@@ -67,19 +67,14 @@ namespace fox
 			// The default implementation returns it's argument.
 			virtual Decl* handleDeclPost(Decl* decl);
 
-			// Called when first visiting an type before visiting it's
+			// Called when first visiting a type before visiting it's
 			// children. 
-			// The first element of the return pair is the node that should
-			// take this node's place, if it's nullptr, the traversal is terminated.
-			// The second element is a boolean indicating if we should visit this node's
-			// children.
-			virtual std::pair<Type*, bool> handleTypePre(Type* type);
+			// If the return value is false, the traversal will be terminated.
+			virtual bool handleTypePre(Type* type);
 
 
 			// Called after visiting an type's children.
-			// If the return value is null, the traversal is terminated, otherwise
-			// the walked node is replaced by the returned node.
-			// The default implementation returns it's argument.
-			virtual Type* handleTypePost(Type* type);
+			// If the return value is false, the traversal will be terminated.
+			virtual bool handleTypePost(Type* type);
 	};
 }
