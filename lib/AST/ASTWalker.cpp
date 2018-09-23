@@ -22,6 +22,8 @@ namespace
 				walker_(walker)
 			{}
 
+			// Exprs
+
 			Expr* visitParensExpr(ParensExpr* expr)
 			{
 				if (Expr* node = doIt(expr->getExpr()))
@@ -32,7 +34,100 @@ namespace
 				return nullptr;
 			}
 
-		private:
+			Expr* visitBinaryExpr(BinaryExpr* expr)
+			{
+				Expr* lhs = doIt(expr->getLHS());
+				if(!lhs) return nullptr;
+				expr->setLHS(lhs);
+
+				Expr* rhs = doIt(expr->getRHS());
+				if(!rhs) return nullptr;
+				expr->setRHS(rhs);
+
+				return expr;
+			}
+
+			Expr* visitUnaryExpr(UnaryExpr* expr)
+			{
+				if (Expr* child = doIt(expr->getExpr()))
+				{
+					expr->setExpr(child);
+					return expr;
+				}
+				return nullptr;
+			}
+
+			Expr* visitCastExpr(CastExpr* expr)
+			{
+				if (Expr* child = doIt(expr->getExpr()))
+				{
+					expr->setExpr(child);
+					return expr;
+				}
+				return nullptr;
+			}
+
+			Expr* visitArrayAccessExpr(ArrayAccessExpr* expr)
+			{
+				Expr* base = doIt(expr->getExpr()); 
+				if(!base) return nullptr;
+				expr->setExpr(base);
+
+				Expr* idx = doIt(expr->getIdxExpr());
+				if(!idx) return nullptr;
+				expr->setIdxExpr(idx);
+
+				return expr;
+			}
+
+			#define TRIVIAL_EXPR_VISIT(NODE) Expr* visit##NODE(NODE* expr) { return expr; }
+			TRIVIAL_EXPR_VISIT(CharLiteralExpr)
+			TRIVIAL_EXPR_VISIT(BoolLiteralExpr)
+			TRIVIAL_EXPR_VISIT(IntegerLiteralExpr)
+			TRIVIAL_EXPR_VISIT(StringLiteralExpr)
+			TRIVIAL_EXPR_VISIT(FloatLiteralExpr)
+			TRIVIAL_EXPR_VISIT(DeclRefExpr)
+			#undef TRIVIAL_EXPR_VISIT
+			
+			Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr)
+			{
+				for (auto it = expr->exprs_begin(), end = expr->exprs_end(); it != end; it++)
+				{
+					if (Expr* node = doIt(*it))
+						expr->setExpr(node, it);
+					else return nullptr;
+				}
+
+				return expr;
+			}
+
+			Expr* visitMemberOfExpr(MemberOfExpr* expr)
+			{
+				if (Expr* child = doIt(expr->getExpr()))
+				{
+					expr->setExpr(child);
+					return expr;
+				}
+				return nullptr;
+			}
+
+			Expr* visitFunctionCallExpr(FunctionCallExpr* expr)
+			{
+				Expr* callee = doIt(expr->getCallee());
+				if(!callee) return nullptr;
+				expr->setCallee(callee);
+
+				for (auto it = expr->args_begin(), end = expr->args_end(); it != end; it++)
+				{
+					if (Expr* node = doIt(*it))
+						expr->setArg(node, it);
+					else return nullptr;
+				}
+
+				return expr;
+			}
+
+
 			// doIt method for expression: handles call to the walker &
 			// requests visitation of the children of a given node.
 			Expr* doIt(Expr* expr)
@@ -131,22 +226,22 @@ ASTNode ASTWalker::walk(ASTNode node)
 
 Expr* ASTWalker::walk(Expr* expr)
 {
-	return Traverse(*this).visit(expr);
+	return Traverse(*this).doIt(expr);
 }
 
 Decl* ASTWalker::walk(Decl* decl)
 {
-	return Traverse(*this).visit(decl);
+	return Traverse(*this).doIt(decl);
 }
 
 Stmt* ASTWalker::walk(Stmt* stmt)
 {
-	return Traverse(*this).visit(stmt);
+	return Traverse(*this).doIt(stmt);
 }
 
 Type* ASTWalker::walk(Type* type)
 {
-	return Traverse(*this).visit(type);
+	return Traverse(*this).doIt(type);
 }
 
 std::pair<Expr*, bool> ASTWalker::handleExprPre(Expr* expr)
