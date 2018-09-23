@@ -177,7 +177,7 @@ namespace fox
 			}
 
 			// Bool (checks if the variant is not null)
-			operator bool() const
+			explicit operator bool() const
 			{
 				return (ptr_ != nullptr);
 			}
