@@ -161,8 +161,14 @@ namespace fox
 			void setBody(CompoundStmt* body);
 			CompoundStmt* getBody() const;
 
-			void addParam(ParamDecl* arg);
-			ParamDecl* getParamDecl(std::size_t ind) const;
+			void addParam(ParamDecl* param);
+			void setParam(ParamDecl* param, std::size_t idx);
+			void setParams(ParamVecTy&& params);
+
+			ParamDecl* getParam(std::size_t ind);
+			const ParamDecl* getParam(std::size_t ind) const;
+
+			ParamVecTy& getParams();
 			std::size_t getNumParams() const;
 
 			ParamVecIter params_begin();
@@ -216,16 +222,19 @@ namespace fox
 	class UnitDecl : public NamedDecl, public DeclContext
 	{
 		private:
-			using DelVecTy = std::vector<Decl*>;
-			using DeclVecIter = DelVecTy::iterator;
-			using DeclVecConstIter = DelVecTy::const_iterator;
+			using DeclVecTy = std::vector<Decl*>;
+			using DeclVecIter = DeclVecTy::iterator;
+			using DeclVecConstIter = DeclVecTy::const_iterator;
 
 		public:
 			UnitDecl(Identifier *id, FileID inFile);
 
 			void addDecl(Decl* decl);
+			void setDecl(Decl* decl, std::size_t idx);
+
 			const Decl* getDecl(std::size_t idx) const;
 			Decl* getDecl(std::size_t idx);
+			DeclVecTy& getDecls();
 			std::size_t getDeclCount() const;
 
 			// Note: Checks the validity of the decls 
@@ -247,7 +256,7 @@ namespace fox
 			}
 
 		private:
-			DelVecTy decls_;
+			DeclVecTy decls_;
 			FileID file_;
 
 			// Bitfields (7 bits left)

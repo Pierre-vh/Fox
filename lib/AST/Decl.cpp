@@ -224,18 +224,39 @@ void FuncDecl::setBody(CompoundStmt* body)
 	body_ = body;
 }
 
-ParamDecl* FuncDecl::getParamDecl(std::size_t ind) const
+ParamDecl* FuncDecl::getParam(std::size_t ind)
 {
 	assert(ind < params_.size() && "out-of-range");
 	return params_[ind];
 }
 
-void FuncDecl::addParam(ParamDecl* arg)
+const ParamDecl* FuncDecl::getParam(std::size_t ind) const
 {
-	if (!arg->isValid())
-		paramsAreValid_ = false;
+	assert(ind < params_.size() && "out-of-range");
+	return params_[ind];
+}
 
-	params_.push_back(arg);
+FuncDecl::ParamVecTy& FuncDecl::getParams()
+{
+	return params_;
+}
+
+void FuncDecl::addParam(ParamDecl* param)
+{
+	paramsAreValid_ = (param && param->isValid());
+
+	params_.push_back(param);
+}
+
+void FuncDecl::setParam(ParamDecl* param, std::size_t idx)
+{
+	assert(idx <= params_.size() && "Out of range");
+	params_[idx] = param;
+}
+
+void FuncDecl::setParams(ParamVecTy&& params)
+{
+	params_ = params;
 }
 
 std::size_t FuncDecl::getNumParams() const
@@ -338,6 +359,12 @@ void UnitDecl::addDecl(Decl* decl)
 	decls_.push_back(decl);
 }
 
+void UnitDecl::setDecl(Decl* decl, std::size_t idx)
+{
+	assert(idx < decls_.size() && "out-of-range");
+	decls_[idx] = decl;
+}
+
 const Decl* UnitDecl::getDecl(std::size_t idx) const
 {
 	assert(idx < decls_.size() && "out-of-range");
@@ -348,6 +375,11 @@ Decl* UnitDecl::getDecl(std::size_t idx)
 {
 	assert(idx < decls_.size() && "out-of-range");
 	return decls_[idx];
+}
+
+UnitDecl::DeclVecTy& UnitDecl::getDecls()
+{
+	return decls_;
 }
 
 std::size_t UnitDecl::getDeclCount() const
