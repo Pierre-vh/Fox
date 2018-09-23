@@ -62,9 +62,7 @@ Moonshot Project To-do List.
 	> ResultObject (Done)
 	> ASTWalker (Done)
 
-	> ASTWalker code review
-
-	> Basic Expression Semantic analysis
+	> Basic Expression Semantic analysis (Next)
 	> Stmt Semantic Analysis
 	> Decl Semantic Analysis
 	> Name Resolution (DeclRefs of vars)
@@ -75,7 +73,20 @@ Moonshot Project To-do List.
 Boring stuff that I must do when I have the time/motivation for it
 	> Adopt a Documentation style (Doxygen) and document all the code with it
 
+	> ASTWalker code review
+
 	> AST Serialization tool for unit tests
+
+	> Revamp tests:
+		Stop tests like I currently do, use a tool like LLVM-lit to do it.
+		Keep unit tests the same, strictly separe language tests with unit tests.
+			Unit tests are for every language independant stuff:
+				Lexer/Tokens
+				SourceManager
+				DiagnosticEngine
+				Driver
+				etc..
+			Tests are for language semantics with samples bits of code.
 Later:
 	Use a "SourceFile" class instead of a "UnitDecl" class, like swift. This class would track the progress of the AST:
 	not parsed, parsed but not semantically analyzed, etc. Do that when implementing the multifile support
