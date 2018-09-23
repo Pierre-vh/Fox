@@ -22,3 +22,23 @@ To unify thoses variables, every node will use a "unification" function. Many ki
 	types, as long as they are of the same family.
 
 This is a bit rough to explain. I guess code will speak for itself, and I'll write more documentation later, when I have the time for it.
+
+Design of Sema's interface & impl
+	Separation of concerns should be an essential part of the design.
+		-> Don't allow other classes to play with the semantics, even for testing. Just give
+		   them the interface that they'll need, nothing more, nothing else.
+
+	Sema.hpp should strictly be the interface, offering some functionalities to the client.
+		-> Check some node or a source file.
+
+	Everything else is in lib/Sema
+		-> e.g. Individual checking classes
+			ExprChecker
+			StmtChecker
+			etc.. 
+
+			All with their .hpp & .cpp
+		-> OverloadChoice.hpp/.cpp
+		-> UFCS.hpp.Cpp
+
+		That's going to be a lot of files.
