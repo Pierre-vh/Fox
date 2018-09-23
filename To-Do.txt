@@ -62,7 +62,7 @@ Moonshot Project To-do List.
 	> ResultObject (Done)
 	> ASTWalker (Done)
 
-	> ASTWalker unit tests (Next)
+	> ASTWalker code review
 
 	> Basic Expression Semantic analysis
 	> Stmt Semantic Analysis
@@ -74,7 +74,8 @@ Moonshot Project To-do List.
 
 Boring stuff that I must do when I have the time/motivation for it
 	> Adopt a Documentation style (Doxygen) and document all the code with it
-	
+
+	> AST Serialization tool for unit tests
 Later:
 	Use a "SourceFile" class instead of a "UnitDecl" class, like swift. This class would track the progress of the AST:
 	not parsed, parsed but not semantically analyzed, etc. Do that when implementing the multifile support
