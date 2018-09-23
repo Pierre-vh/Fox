@@ -61,21 +61,10 @@ Moonshot Project To-do List.
 	> Switch to library-based architecture, splitting includes & headers (Done)
 	> ResultObject (Done)
 
-	> Create more AST Manipulation/Visitation options (Next)
-		> ASTVisitor will simply stay a "Dispatcher" (No work needed)
-		> ASTWalker
-			-> Visits the AST in a pre/post order fashion, replacing nodes as needed.
-			> Think more about the impl
-				> Think about what walk() should return.
-					Probably the visited node/the replacement, or nullptr on error/aborted visit.
-			> Best performance:
-				> CRTP
-					-> Unfortunately, it forces me to include the ASTVisitor class in the ASTWalker class, bloating the file a lot.
-			> "Safest bet": 
-				> Base mine on Swift's impl
-			> Current idea:
-				Do it the way swift does it since it looks like it's the most stable way. Credit the Swift compiler in the header as the baseline for this walker.
-				I'll personalize/modify it when I need to.
+	> ASTWalker (next)
+
+	> ASTWalker unit tests
+
 
 	> Plan Semantic analysis structure completely
 		> Needs a public interface to the checking, with entry points for exprs/decls/stmt/(maybe)types & sourcefiles
