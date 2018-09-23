@@ -75,20 +75,7 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	auto dump_micro = std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
 	auto dump_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
 
-	out << "Fetching expr\n";
-
-	// Dumb stuff for testing purposes, will be removed later
-	FuncDecl* fdecl = cast<FuncDecl>(unit->getDecl(0));
-	if (fdecl)
-	{
-		Expr* expr = fdecl->getBody()->getNode(0).get<Expr>();
-		if (expr)
-		{
-			Sema sema;
-			sema.checkExpr(expr);
-			astCtxt.reset();
-		}
-	}
+	astCtxt.reset();
 
 	auto t4 = std::chrono::high_resolution_clock::now();
 	auto release_micro = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count();
