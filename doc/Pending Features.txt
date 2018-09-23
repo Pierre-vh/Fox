@@ -45,3 +45,22 @@ Features:
 		used by the companion delete when a constructor has thrown.
 		Also it could be a good idea to backup the latest AllocPtr to compare it with the rollback ptr! (assert that lastAllocPtr < rollbackPtr < allocPtr)
 		(just in debug builds to do more checking)
+
+Testing
+	Testing tools
+		Write a testing tool for Fox which tests some source files individually, with the possibility of "expecting"
+		errors, inspired by llvm-lit.
+		This is going to be a shit ton of work, so I'll have to find another solution, maybe with JSON or XML, e.g. tests files like
+			{
+				"args": ["warn_are_errors"],
+				"parsing_mode": "lines",
+				"parse": "exprstmt",
+				"expected": [
+					[[1,4], parser_expected_semi ]
+				]	
+			}
+
+			3+3
+
+		Json is quite ugly for this, maybe something simpler, homemade would do the tricK.
+		Just find something adequate that doesn't hurt the eyes. Ideally, it should be really expressive like llvm lit
