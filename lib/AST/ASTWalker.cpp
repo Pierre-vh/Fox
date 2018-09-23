@@ -30,56 +30,74 @@ namespace
 
 			Expr* visitParensExpr(ParensExpr* expr)
 			{
-				if (Expr* node = doIt(expr->getExpr()))
+				if (Expr* sub = expr->getExpr())
 				{
-					expr->setExpr(node);
-					return expr;
+					if (sub = doIt(sub))
+						expr->setExpr(sub);
+					else return nullptr;
 				}
-				return nullptr;
+
+				return expr;
 			}
 
 			Expr* visitBinaryExpr(BinaryExpr* expr)
 			{
-				Expr* lhs = doIt(expr->getLHS());
-				if(!lhs) return nullptr;
-				expr->setLHS(lhs);
+				if (Expr* lhs = expr->getLHS())
+				{
+					if(lhs = doIt(lhs))
+						expr->setLHS(lhs);
+					else return nullptr;
+				}
 
-				Expr* rhs = doIt(expr->getRHS());
-				if(!rhs) return nullptr;
-				expr->setRHS(rhs);
+				if (Expr* rhs = expr->getRHS())
+				{
+					if (rhs = doIt(rhs))
+						expr->setRHS(rhs);
+					else return nullptr;
+				}
 
 				return expr;
 			}
 
 			Expr* visitUnaryExpr(UnaryExpr* expr)
 			{
-				if (Expr* child = doIt(expr->getExpr()))
+				if (Expr* child = expr->getExpr())
 				{
-					expr->setExpr(child);
-					return expr;
+					if (child = doIt(child))
+						expr->setExpr(child);
+					else return nullptr;
 				}
-				return nullptr;
+
+				return expr;
 			}
 
 			Expr* visitCastExpr(CastExpr* expr)
 			{
-				if (Expr* child = doIt(expr->getExpr()))
+				if (Expr* child = expr->getExpr())
 				{
-					expr->setExpr(child);
-					return expr;
+					if (child = doIt(child))
+						expr->setExpr(child);
+					else return nullptr;
 				}
-				return nullptr;
+
+				return expr;
 			}
 
 			Expr* visitArrayAccessExpr(ArrayAccessExpr* expr)
 			{
-				Expr* base = doIt(expr->getExpr()); 
-				if(!base) return nullptr;
-				expr->setExpr(base);
+				if (Expr* base = expr->getExpr())
+				{
+					if (base = doIt(base))
+						expr->setExpr(base);
+					else return nullptr;
+				}
 
-				Expr* idx = doIt(expr->getIdxExpr());
-				if(!idx) return nullptr;
-				expr->setIdxExpr(idx);
+				if (Expr* idx = expr->getIdxExpr())
+				{
+					if (idx = doIt(idx))
+						expr->setIdxExpr(idx);
+					else return nullptr;
+				}
 
 				return expr;
 			}
@@ -97,9 +115,12 @@ namespace
 			{
 				for (auto& elem : expr->getExprs())
 				{
-					if (Expr* node = doIt(elem))
-						elem = node;
-					return nullptr;
+					if (elem)
+					{
+						if (Expr* node = doIt(elem))
+							elem = node;
+						else return nullptr;
+					}
 				}
 
 				return expr;
@@ -107,25 +128,32 @@ namespace
 
 			Expr* visitMemberOfExpr(MemberOfExpr* expr)
 			{
-				if (Expr* child = doIt(expr->getExpr()))
+				if (Expr* child = expr->getExpr())
 				{
-					expr->setExpr(child);
-					return expr;
+					if (child = doIt(child))
+						expr->setExpr(child);
+					else return nullptr;
 				}
-				return nullptr;
+				return expr;
 			}
 
 			Expr* visitFunctionCallExpr(FunctionCallExpr* expr)
 			{
-				Expr* callee = doIt(expr->getCallee());
-				if(!callee) return nullptr;
-				expr->setCallee(callee);
+				if (Expr* callee = expr->getCallee())
+				{
+					if (callee = doIt(callee))
+						expr->setCallee(callee);
+					else return nullptr;
+				}
 
 				for (auto& elem : expr->getArgs())
 				{
-					if (Expr* node = doIt(elem))
-						elem = node;
-					return nullptr;
+					if (elem)
+					{
+						if (Expr* node = doIt(elem))
+							elem = node;
+						else return nullptr;
+					}
 				}
 
 				return expr;
@@ -135,16 +163,11 @@ namespace
 
 			Decl* visitParamDecl(ParamDecl* decl)
 			{
-				if(doIt(decl->getType()))
-					return decl;
-				return nullptr;
+				return decl;
 			}
 
 			Decl* visitVarDecl(VarDecl* decl)
 			{
-				if (!doIt(decl->getType()))
-					return nullptr;
-
 				if (Expr* init = decl->getInitExpr())
 				{
 					if (init = doIt(init))
@@ -331,22 +354,6 @@ namespace
 				return expr;
 			}
 
-			// doIt method for types: handles call to the walker &
-			// requests visitation of the children of a given node.
-			bool doIt(Type* type)
-			{
-				// Let the walker handle the pre visitation stuff.
-				if (!walker_.handleTypePre(type))
-					return false;
-
-				// Visit the node
-				if (!visit(type))
-					return false;
-
-				// Let the walker handle post visitation stuff
-				return walker_.handleTypePost(type);
-			}
-
 			ASTNode doIt(ASTNode node)
 			{
 				if (auto decl = node.getIf<Decl>())
@@ -391,11 +398,6 @@ Stmt* ASTWalker::walk(Stmt* stmt)
 	return Traverse(*this).doIt(stmt);
 }
 
-bool ASTWalker::walk(Type* type)
-{
-	return Traverse(*this).doIt(type);
-}
-
 std::pair<Expr*, bool> ASTWalker::handleExprPre(Expr* expr)
 {
 	return { expr, true };
@@ -424,14 +426,4 @@ std::pair<Decl*, bool> ASTWalker::handleDeclPre(Decl* decl)
 Decl* ASTWalker::handleDeclPost(Decl* decl)
 {
 	return decl;
-}
-
-bool ASTWalker::handleTypePre(Type* type)
-{
-	return true;
-}
-
-bool ASTWalker::handleTypePost(Type* type)
-{
-	return true;
 }
