@@ -149,8 +149,11 @@ namespace fox
 			CompoundStmt(const SourceRange& range);
 
 			void addNode(ASTNode stmt);
+			void setNode(ASTNode node, std::size_t idx);
+
 			ASTNode getNode(std::size_t ind);
 			const ASTNode getNode(std::size_t ind) const;
+			NodeVecTy& getNodes();
 
 			bool isEmpty() const;
 			std::size_t size() const;

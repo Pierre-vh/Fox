@@ -217,9 +217,20 @@ const ASTNode CompoundStmt::getNode(std::size_t ind) const
 	return nodes_[ind];
 }
 
+CompoundStmt::NodeVecTy& CompoundStmt::getNodes()
+{
+	return nodes_;
+}
+
 void CompoundStmt::addNode(ASTNode node)
 {
 	nodes_.push_back(node);
+}
+
+void CompoundStmt::setNode(ASTNode node, std::size_t idx)
+{
+	assert((idx < nodes_.size()) && "Out of range");
+	nodes_[idx] = node;
 }
 
 bool CompoundStmt::isEmpty() const
