@@ -9,6 +9,8 @@
 // replacing nodes if needed.
 ////------------------------------------------------------////
 
+#pragma once
+
 #include <tuple>
 #include "Fox/AST/ASTFwdDecl.hpp"
 
