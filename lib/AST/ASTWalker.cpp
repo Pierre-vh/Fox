@@ -159,14 +159,20 @@ namespace
 			{
 				for (auto& param : decl->getParams())
 				{
-					if (Decl* node = doIt(param))
-						param = cast<ParamDecl>(node);
-					return nullptr;
+					if (param)
+					{
+						if (Decl* node = doIt(param))
+							param = cast<ParamDecl>(node);
+						return nullptr;
+					}
 				}
 
-				if (Stmt* body = doIt(decl->getBody()))
-					decl->setBody(cast<CompoundStmt>(body));
-				else return nullptr;
+				if (Stmt* body = decl->getBody())
+				{
+					if (body = doIt(body))
+						decl->setBody(cast<CompoundStmt>(body));
+					else return nullptr;
+				}
 
 				return decl;
 			}
@@ -175,14 +181,95 @@ namespace
 			{
 				for (auto& elem : decl->getDecls())
 				{
-					if (Decl* node = doIt(elem))
-						elem = node;
-					return nullptr;
+					if (elem)
+					{
+						if (Decl* node = doIt(elem))
+							elem = node;
+						else return nullptr;
+					}
 				}
 
 				return decl;
 			}
 
+			// Stmt
+
+			Stmt* visitNullStmt(NullStmt* stmt)
+			{
+				return stmt;
+			}
+
+			Stmt* visitReturnStmt(ReturnStmt* stmt)
+			{
+				if (Expr* expr = stmt->getExpr())
+				{
+					if (expr = doIt(expr))
+						stmt->setExpr(expr);
+					else return nullptr;
+				}
+
+				return stmt;
+			}
+
+			Stmt* visitConditionStmt(ConditionStmt* stmt)
+			{
+				if (Expr* cond = stmt->getCond())
+				{
+					if (cond = doIt(cond))
+						stmt->setCond(cond);
+					else return nullptr;
+				}
+
+				if (ASTNode then = stmt->getThen())
+				{
+					if (then = doIt(then))
+						stmt->setThen(then);
+					else return nullptr;
+				}
+
+				if (ASTNode elsestmt = stmt->getElse())
+				{
+					if (elsestmt = doIt(elsestmt))
+						stmt->setElse(elsestmt);
+					else return nullptr;
+				}
+
+				return stmt;
+			}
+
+			Stmt* visitCompoundStmt(CompoundStmt* stmt)
+			{
+				for (auto& elem: stmt->getNodes())
+				{
+					if (elem)
+					{
+						if (ASTNode node = doIt(elem))
+							elem = node;
+						else return nullptr;
+					}
+				}
+
+				return stmt;
+			}
+
+			Stmt* visitWhileStmt(WhileStmt* stmt)
+			{
+				if (Expr* cond = stmt->getCond())
+				{
+					if (cond = doIt(cond))
+						stmt->setCond(cond);
+					else return nullptr;
+				}
+
+				if (ASTNode node = stmt->getBody())
+				{
+					if (node = doIt(node))
+						stmt->setBody(node);
+					else return nullptr;
+				}
+
+				return stmt;
+			}
 
 			// doIt method for expression: handles call to the walker &
 			// requests visitation of the children of a given node.
@@ -258,6 +345,18 @@ namespace
 
 				// Let the walker handle post visitation stuff
 				return walker_.handleTypePost(type);
+			}
+
+			ASTNode doIt(ASTNode node)
+			{
+				if (auto decl = node.getIf<Decl>())
+					return doIt(decl);
+				if (auto stmt = node.getIf<Stmt>())
+					return doIt(stmt);
+				if (auto expr = node.getIf<Expr>())
+					return doIt(expr);
+
+				fox_unreachable("Unknown node contained in ASTNode");
 			}
 
 		private:
