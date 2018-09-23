@@ -82,8 +82,8 @@ TEST_F(LocTests, FuncAndArgDecl)
 	ASSERT_EQ(func->getNumParams(), 2);
 
 	// Extract each arg individually
-	ParamDecl* arg1 = func->getParamDecl(0);
-	ParamDecl* arg2 = func->getParamDecl(1);
+	ParamDecl* arg1 = func->getParam(0);
+	ParamDecl* arg2 = func->getParam(1);
 
 	// Check if the names are right
 	EXPECT_EQ(arg1->getIdentifier()->getStr(), "_bar1");
