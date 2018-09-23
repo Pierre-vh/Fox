@@ -7,15 +7,19 @@
 //			SEE HEADER FILE FOR MORE INFORMATION			
 ////------------------------------------------------------////
 
+// To-Do:
+// Add a way of replacing types through a TypeLoc object
+
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/LLVM.hpp"
 
 using namespace fox;
 
 namespace
 {
-	class Traverse : public ASTVisitor<Traverse, Decl*, Expr*, Stmt*, Type*>
+	class Traverse : public ASTVisitor<Traverse, Decl*, Expr*, Stmt*, /*type*/ bool>
 	{		
 		public:
 			Traverse(ASTWalker& walker):
@@ -91,11 +95,11 @@ namespace
 			
 			Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr)
 			{
-				for (auto it = expr->exprs_begin(), end = expr->exprs_end(); it != end; it++)
+				for (auto& elem : expr->getExprs())
 				{
-					if (Expr* node = doIt(*it))
-						expr->setExpr(node, it);
-					else return nullptr;
+					if (Expr* node = doIt(elem))
+						elem = node;
+					return nullptr;
 				}
 
 				return expr;
@@ -117,14 +121,66 @@ namespace
 				if(!callee) return nullptr;
 				expr->setCallee(callee);
 
-				for (auto it = expr->args_begin(), end = expr->args_end(); it != end; it++)
+				for (auto& elem : expr->getArgs())
 				{
-					if (Expr* node = doIt(*it))
-						expr->setArg(node, it);
-					else return nullptr;
+					if (Expr* node = doIt(elem))
+						elem = node;
+					return nullptr;
 				}
 
 				return expr;
+			}
+
+			// Decls
+
+			Decl* visitParamDecl(ParamDecl* decl)
+			{
+				if(doIt(decl->getType()))
+					return decl;
+				return nullptr;
+			}
+
+			Decl* visitVarDecl(VarDecl* decl)
+			{
+				if (!doIt(decl->getType()))
+					return nullptr;
+
+				if (Expr* init = decl->getInitExpr())
+				{
+					if (init = doIt(init))
+						decl->setInitExpr(init);
+					return nullptr;
+				}
+
+				return decl;
+			}
+
+			Decl* visitFuncDecl(FuncDecl* decl)
+			{
+				for (auto& param : decl->getParams())
+				{
+					if (Decl* node = doIt(param))
+						param = cast<ParamDecl>(node);
+					return nullptr;
+				}
+
+				if (Stmt* body = doIt(decl->getBody()))
+					decl->setBody(cast<CompoundStmt>(body));
+				else return nullptr;
+
+				return decl;
+			}
+
+			Decl* visitUnitDecl(UnitDecl* decl)
+			{
+				for (auto& elem : decl->getDecls())
+				{
+					if (Decl* node = doIt(elem))
+						elem = node;
+					return nullptr;
+				}
+
+				return decl;
 			}
 
 
@@ -190,24 +246,21 @@ namespace
 
 			// doIt method for types: handles call to the walker &
 			// requests visitation of the children of a given node.
-			Type* doIt(Type* expr)
+			bool doIt(Type* type)
 			{
 				// Let the walker handle the pre visitation stuff.
-				auto rtr = walker_.handleTypePre(expr);
+				if (!walker_.handleTypePre(type))
+					return false;
 
-				// Return if we have a nullptr or if we're instructed
-				// to not visit the children.
-				if (!rtr.first || !rtr.second)
-					return rtr.first;
+				// Visit the node
+				if (!visit(type))
+					return false;
 
-				// visit the node's childre, and if the traversal wasn't aborted,
-				// let the walker handle post visitation stuff.
-				if (expr = visit(rtr.first))
-					expr = walker_.handleTypePost(expr);
-
-				return expr;
+				// Let the walker handle post visitation stuff
+				return walker_.handleTypePost(type);
 			}
 
+		private:
 			ASTWalker& walker_;
 	};
 } // End anonymous namespace
@@ -239,7 +292,7 @@ Stmt* ASTWalker::walk(Stmt* stmt)
 	return Traverse(*this).doIt(stmt);
 }
 
-Type* ASTWalker::walk(Type* type)
+bool ASTWalker::walk(Type* type)
 {
 	return Traverse(*this).doIt(type);
 }
@@ -274,12 +327,12 @@ Decl* ASTWalker::handleDeclPost(Decl* decl)
 	return decl;
 }
 
-std::pair<Type*, bool> ASTWalker::handleTypePre(Type* type)
+bool ASTWalker::handleTypePre(Type* type)
 {
-	return { type, true };
+	return true;
 }
 
-Type* ASTWalker::handleTypePost(Type* type)
+bool ASTWalker::handleTypePost(Type* type)
 {
-	return type;
+	return true;
 }
