@@ -27,50 +27,6 @@ namespace fox
 			// Typedefs
 			using IntegralRankTy = std::uint8_t;
 
-			template<typename NodeTy>
-			class Result : public ResultObject<NodeTy>
-			{
-				using Inherited = ResultObject<NodeTy>;
-				using ThisTy = Result<NodeTy>;
-				public:
-					using Inherited::ResultObject;
-
-					static ThisTy Success(CTorValueTy val = DefaultValue())
-					{
-						return Result(true, val);
-					}
-
-					static ThisTy Failure()
-					{
-						return Result(false, DefaultValue());
-					}
-
-					const NodeTy getReplacement() const
-					{
-						return get();
-					}
-
-					NodeTy getReplacement()
-					{
-						return get();
-					}
-
-					bool hasReplacement() const
-					{
-						return hasData();
-					}
-					
-				private:
-					NodeTy* node_ = nullptr;
-					bool success_ : 1;
-					// 7 Bits left in bitfield
-			};
-
-			using ExprResult = Result<Expr*>;
-
-			// Entry point for checking an expression tree.
-			ExprResult checkExpr(Expr* expr);
-
 			// The unification algorithms for types of the same subtypes.
 			//
 			// SemaType with no subs. + Any type -> True
@@ -87,21 +43,5 @@ namespace fox
 			static IntegralRankTy getIntegralRank(PrimitiveType* type);
 
 		private:
-			class ExprChecker;
-
-			ExprResult checkParensExpr(ParensExpr* node);
-			ExprResult checkBinaryExpr(BinaryExpr* node);
-			ExprResult checkUnaryExpr(UnaryExpr* node);
-			ExprResult checkCastExpr(CastExpr* node);
-			ExprResult checkArrayAccessExpr(ArrayAccessExpr* node);
-			ExprResult checkCharLiteralExpr(CharLiteralExpr* node);
-			ExprResult checkBoolLiteralExpr(BoolLiteralExpr*node);
-			ExprResult checkIntegerLiteralExpr(IntegerLiteralExpr* node);
-			ExprResult checkFloatLiteralExpr(FloatLiteralExpr* node);
-			ExprResult checkStringLiteralExpr(StringLiteralExpr* node);
-			ExprResult checkArrayLiteralExpr(ArrayLiteralExpr* node);
-			ExprResult checkDeclRefExpr(DeclRefExpr* node);
-			ExprResult checkMemberOfExpr(MemberOfExpr* node);
-			ExprResult checkFunctionCallExpr(FunctionCallExpr* node);
 	};
 }
