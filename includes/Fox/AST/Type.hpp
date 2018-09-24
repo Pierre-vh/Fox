@@ -185,8 +185,8 @@ namespace fox
 
 			virtual std::string getString() const override;
 
-			Type* getType();
-			const Type* getType() const;
+			Type* getSubstitution();
+			const Type* getSubstitution() const;
 
 			// Returns true if the type has a substitution
 			// (type isn't null)

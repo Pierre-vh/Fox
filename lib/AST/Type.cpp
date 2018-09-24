@@ -243,12 +243,12 @@ std::string SemaType::getString() const
 	return "SemaType(" + (ty_ ? ty_->getString() : "empty") + ")";
 }
 
-Type* SemaType::getType()
+Type* SemaType::getSubstitution()
 {
 	return ty_;
 }
 
-const Type* SemaType::getType() const
+const Type* SemaType::getSubstitution() const
 {
 	return ty_;
 }
