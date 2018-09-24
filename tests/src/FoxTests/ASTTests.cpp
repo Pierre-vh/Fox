@@ -262,6 +262,7 @@ TEST(ASTTests, TypeRTTI)
 	ArrayType* arrIntTy = astctxt.getArrayTypeForType(intTy);
 	LValueType* lvIntTy = astctxt.getLValueTypeForType(intTy);
 	SemaType* semaType = astctxt.createSemaType();
+	ErrorType* errType = astctxt.getErrorType();
 
 	EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
 	EXPECT_TRUE(PrimitiveType::classof(intTy));
@@ -276,6 +277,9 @@ TEST(ASTTests, TypeRTTI)
 
 	EXPECT_EQ(semaType->getKind(), TypeKind::SemaType);
 	EXPECT_TRUE(SemaType::classof(semaType));
+
+	EXPECT_EQ(errType->getKind(), TypeKind::ErrorType);
+	EXPECT_TRUE(ErrorType::classof(errType));
 }
 
 TEST(ASTTests, ExprRTTI)
