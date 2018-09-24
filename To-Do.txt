@@ -61,6 +61,7 @@ Moonshot Project To-do List.
 	> Switch to library-based architecture, splitting includes & headers (Done)
 	> ResultObject (Done)
 	> ASTWalker (Done)
+	> Add ErrorType (Done)
 
 	> Basic Expression Semantic analysis (Next)
 	> Stmt Semantic Analysis
