@@ -6,3 +6,5 @@
 ////------------------------------------------------------//// 
 // Semantic Analysis (Sema) Diagnostics Message
 ////------------------------------------------------------////
+
+ERROR(sema_arraylit_hetero, "Illegal heterogeneous array")
