@@ -1,4 +1,8 @@
 List of "traps" that semantic analysis might fall into, and that will need to be tested.
 
 	// Will probably fail to determine arraytype
+	let x : int[][] = [[],[],[], [1]];
 	let x : int[][] = [[],[],[]];
+
+	This exposes a clusterfuck in my logic. I'll have to rest a bit and then rethink the way SemaTypes
+	are handled in unifySubtype and tryJoinSemaTypes.
