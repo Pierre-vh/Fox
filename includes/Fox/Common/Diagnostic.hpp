@@ -24,7 +24,7 @@ namespace fox
 	{
 		// Important : first value must always be 0 to keep sync with the severities and strs arrays.
 		#define DIAG(SEVERITY,ID,TEXT) ID,
-			#include "Diags/DiagsAll.def"
+			#include "Diags/All.def"
 	};
 
 	enum class DiagSeverity : std::uint8_t

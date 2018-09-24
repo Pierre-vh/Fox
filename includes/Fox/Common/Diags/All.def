@@ -1,0 +1,39 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : DiagsAll.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// This file is an include file used to group every diagnostic declaration in one file.
+////------------------------------------------------------////
+
+#ifndef DIAG
+	#define DIAG(SEVERITY,ID,TEXT)
+#endif 
+
+#ifndef NOTE
+	#define NOTE(ID,TEXT)		DIAG(NOTE,ID,TEXT)
+#endif
+
+#ifndef WARNING
+	#define WARNING(ID,TEXT)	DIAG(WARNING,ID,TEXT)
+#endif
+
+#ifndef ERROR
+	#define ERROR(ID,TEXT)		DIAG(ERROR,ID,TEXT)
+#endif
+
+#ifndef FATAL
+	#define FATAL(ID,TEXT)		DIAG(FATAL,ID,TEXT)
+#endif
+
+#include "Common.def"
+#include "Lexer.def"
+#include "Parser.def"
+#include "Sema.def"
+
+#undef DIAG
+#undef NOTE
+#undef WARNING
+#undef ERROR
+#undef FATAL

@@ -16,12 +16,12 @@ using namespace fox;
 
 static const char* diagsStrs[] = {
 	#define DIAG(SEVERITY,ID,TEXT) TEXT,
-		#include "Fox/Common/Diags/DiagsAll.def"
+		#include "Fox/Common/Diags/All.def"
 };
 
 static const DiagSeverity diagsSevs[] = {
 	#define DIAG(SEVERITY,ID,TEXT) DiagSeverity::SEVERITY,
-		#include "Fox/Common/Diags/DiagsAll.def"
+		#include "Fox/Common/Diags/All.def"
 };
 
 DiagnosticEngine::DiagnosticEngine(SourceManager& sm) : DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm))
