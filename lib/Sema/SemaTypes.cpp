@@ -198,11 +198,14 @@ bool Sema::tryJoinSemaTypes(Type* a, Type* b)
 
 	if (aSema && bSema)
 	{
-		if ((!aSema->hasSubstitution()) && (!bSema->hasSubstitution()))
-		{
+		if (aSema->hasSubstitution() && bSema->hasSubstitution())
+			return false;
+
+		if (aSema->hasSubstitution())
+			bSema->setSubstitution(aSema);
+		else  // else, bSema has a subst or doesn't, but we do the same thing in both cases
 			aSema->setSubstitution(bSema);
-			return true;
-		}
+		return true;
 	}
 	return false;
 }
