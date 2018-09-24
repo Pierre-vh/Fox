@@ -181,7 +181,8 @@ bool PrimitiveType::isVoid() const
 // ArrayType //
 //-----------//
 
-ArrayType::ArrayType(Type* elemTy) : elementTy_(elemTy), BuiltinType(TypeKind::ArrayType)
+ArrayType::ArrayType(Type* elemTy):
+	elementTy_(elemTy), BuiltinType(TypeKind::ArrayType)
 {
 	assert(elemTy && "The Array item type cannot be null!");
 }
@@ -205,7 +206,8 @@ const Type* ArrayType::getElementType() const
 // LValueType //
 //------------//
 
-LValueType::LValueType(Type* type) : Type(TypeKind::LValueType), ty_(type)
+LValueType::LValueType(Type* type):
+	Type(TypeKind::LValueType), ty_(type)
 {
 	assert(type && "cannot be null");
 }
@@ -230,7 +232,8 @@ const Type* LValueType::getType() const
 // SemaType //
 //----------//
 
-SemaType::SemaType(Type* type) : Type(TypeKind::SemaType), ty_(type)
+SemaType::SemaType(Type* type):
+	Type(TypeKind::SemaType), ty_(type)
 {
 
 }
@@ -263,4 +266,15 @@ void SemaType::setSubstitution(Type* subst)
 void SemaType::reset()
 {
 	ty_ = nullptr;
+}
+
+ErrorType::ErrorType():
+	Type(TypeKind::ErrorType)
+{
+
+}
+
+std::string ErrorType::getString() const
+{
+	return "<error_type>";
 }

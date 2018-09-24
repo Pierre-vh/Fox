@@ -204,4 +204,20 @@ namespace fox
 		private:
 			Type * ty_ = nullptr;
 	};
+
+	// ErrorType
+	//		A type used to represent that a expression's type
+	//		cannot be determined because of an error.
+	class ErrorType : public Type
+	{
+		public:
+			ErrorType();
+
+			virtual std::string getString() const override;
+
+			static bool classof(const Type* type)
+			{
+				return (type->getKind() == TypeKind::ErrorType);
+			}
+	};
 }

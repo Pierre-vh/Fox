@@ -36,6 +36,7 @@ ABSTRACT_TYPE(BuiltinType, Type)
 
 TYPE(LValueType, Type)
 TYPE(SemaType, Type)
+TYPE(ErrorType, Type)
 
 /* Undef */
 #undef ABSTRACT_TYPE
