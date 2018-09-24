@@ -14,13 +14,14 @@
 #include "Fox/AST/ASTNode.hpp"
 #include "Fox/AST/ASTFwdDecl.hpp"
 #include "Fox/AST/ASTContext.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
 
 namespace fox
 {
 	class Sema
 	{
 		public:
-			Sema(ASTContext& ctxt);
+			Sema(ASTContext& ctxt, DiagnosticEngine& diags);
 
 			// Typedefs
 			using IntegralRankTy = std::uint8_t;
@@ -50,7 +51,11 @@ namespace fox
 			// type must not be null and must point to a arithmetic type.
 			static IntegralRankTy getIntegralRank(PrimitiveType* type);
 
+
+			DiagnosticEngine& getDiagnosticEngine();
+			ASTContext& getASTContext();
 		private:
 			ASTContext &ctxt_;
+			DiagnosticEngine& diags_;
 	};
 }

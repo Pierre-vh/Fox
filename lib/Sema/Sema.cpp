@@ -13,8 +13,18 @@
 
 using namespace fox;
 
-Sema::Sema(ASTContext & ctxt) :
-	ctxt_(ctxt)
+Sema::Sema(ASTContext& ctxt, DiagnosticEngine& diags) :
+	ctxt_(ctxt), diags_(diags)
 {
 
+}
+
+DiagnosticEngine& Sema::getDiagnosticEngine()
+{
+	return diags_;
+}
+
+ASTContext& Sema::getASTContext()
+{
+	return ctxt_;
 }
