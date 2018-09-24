@@ -42,3 +42,10 @@ Design of Sema's interface & impl
 		-> UFCS.hpp.Cpp
 
 		That's going to be a lot of files.
+
+Define:
+	Error Handling Policy 
+		Only diags? Mix of return types & diags?
+	Architecture
+		How the AST is visited
+		Checker classes
