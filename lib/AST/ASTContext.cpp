@@ -32,53 +32,61 @@ void ASTContext::addUnit(UnitDecl* unit, bool isMainUnit)
 
 PrimitiveType* ASTContext::getIntType()
 {
-	return intTy_;
+	return theIntTy_;
 }
 
 PrimitiveType* ASTContext::getFloatType()
 {
-	return floatTy_;
+	return theFloatTy_;
 }
 
 PrimitiveType* ASTContext::getCharType()
 {
-	return charTy_;
+	return theCharTy_;
 }
 
 PrimitiveType* ASTContext::getBoolType()
 {
-	return boolTy_;
+	return theBoolTy_;
 }
 
 PrimitiveType* ASTContext::getStringType()
 {
-	return stringTy_;
+	return theStringTy_;
 }
 
 PrimitiveType* ASTContext::getVoidType()
 {
-	return voidTy_;
+	return theVoidTy_;
+}
+
+ErrorType* ASTContext::getErrorType()
+{
+	return theErrorTy_;
 }
 
 void ASTContext::initBuiltinTypes()
 {
-	if (!voidTy_)
-		voidTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::VoidTy);
+	if (!theVoidTy_)
+		theVoidTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::VoidTy);
 
-	if (!boolTy_)
-		boolTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::BoolTy);
+	if (!theBoolTy_)
+		theBoolTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::BoolTy);
 
-	if (!stringTy_)
-		stringTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::StringTy);
+	if (!theStringTy_)
+		theStringTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::StringTy);
 
-	if (!charTy_)
-		charTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::CharTy);
+	if (!theCharTy_)
+		theCharTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::CharTy);
 
-	if (!intTy_)
-		intTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::IntTy);
+	if (!theIntTy_)
+		theIntTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::IntTy);
 
-	if (!floatTy_)
-		floatTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::FloatTy);
+	if (!theFloatTy_)
+		theFloatTy_ = new(*this) PrimitiveType(PrimitiveType::Kind::FloatTy);
+
+	if (!theErrorTy_)
+		theErrorTy_ = new(*this) ErrorType();
 }
 
 ArrayType* ASTContext::getArrayTypeForType(Type * ty)
@@ -115,22 +123,22 @@ LValueType* ASTContext::getLValueTypeForType(Type * ty)
 
 LinearAllocator<>& ASTContext::getAllocator()
 {
-	return alloc_;
+	return allocator_;
 }
 
 void ASTContext::reset()
 {
 	units_.clear();
 	mainUnit_ = nullptr;
-	voidTy_ = nullptr;
-	intTy_ = nullptr;
-	floatTy_ = nullptr;
-	boolTy_ = nullptr;
-	charTy_ = nullptr;
-	stringTy_ = nullptr;
+	theVoidTy_ = nullptr;
+	theIntTy_ = nullptr;
+	theFloatTy_ = nullptr;
+	theBoolTy_ = nullptr;
+	theCharTy_ = nullptr;
+	theStringTy_ = nullptr;
 	arrayTypes_.clear();
 
-	alloc_.reset();
+	allocator_.reset();
 
 	initBuiltinTypes();
 }

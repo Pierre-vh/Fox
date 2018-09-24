@@ -53,6 +53,9 @@ namespace fox
 			// (used for function return types)
 			PrimitiveType* getVoidType();
 
+			// Getter for the error type
+			ErrorType* getErrorType();
+
 			// Returns an ArrayType for a given type.
 			ArrayType* getArrayTypeForType(Type* ty);
 
@@ -88,12 +91,15 @@ namespace fox
 
 			// Built-in types
 			// Theses are all initialized by initBuiltinType
-			PrimitiveType* voidTy_  = nullptr;
-			PrimitiveType* intTy_   = nullptr;
-			PrimitiveType* floatTy_ = nullptr;
-			PrimitiveType* boolTy_ = nullptr;
-			PrimitiveType* charTy_ = nullptr;
-			PrimitiveType* stringTy_ = nullptr;
+			PrimitiveType* theVoidTy_  = nullptr;
+			PrimitiveType* theIntTy_   = nullptr;
+			PrimitiveType* theFloatTy_ = nullptr;
+			PrimitiveType* theBoolTy_ = nullptr;
+			PrimitiveType* theCharTy_ = nullptr;
+			PrimitiveType* theStringTy_ = nullptr;
+
+			// The error type
+			ErrorType* theErrorTy_ = nullptr;
 
 			// Array types (Type -> Type[])
 			std::map<Type*, ArrayType*> arrayTypes_;
@@ -102,6 +108,6 @@ namespace fox
 			std::map<Type*, LValueType*> lvalueTypes_;
 
 			// Allocators
-			LinearAllocator<> alloc_; // Default allocator for the ASTContext
+			LinearAllocator<> allocator_; // Default allocator for the ASTContext
 	};
 }
