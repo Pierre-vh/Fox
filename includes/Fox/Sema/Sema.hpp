@@ -6,12 +6,6 @@
 ////------------------------------------------------------//// 
 // Contains the Sema class, which is used to perform 
 // most of the semantic analysis of a Fox AST.
-// 
-// To-Do: Find a better name than "checkExpr". It needs to be
-// clear that it should only be used as the entry point for checking any
-// expression!
-//
-//	Find another name for Result too, since it could be confusing with Parser::Result?
 ////------------------------------------------------------//// 
 
 #include <cstdint>
