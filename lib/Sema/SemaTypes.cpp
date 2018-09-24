@@ -101,6 +101,11 @@ bool Sema::compareSubtypes(Type* a, Type* b)
 Type* Sema::getHighestRankingType(Type* a, Type* b)
 {
 	assert(a && b && "a and b cannot be null");
+
+	// Ignore LValues since they won't be "propagated" anyway
+	a = a->ignoreLValue();
+	b = b->ignoreLValue();
+
 	// If they share the same subtype
 	if (compareSubtypes(a, b))
 	{
