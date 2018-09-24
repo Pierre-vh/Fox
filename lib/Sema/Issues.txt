@@ -6,3 +6,46 @@ List of "traps" that semantic analysis might fall into, and that will need to be
 
 	This exposes a clusterfuck in my logic. I'll have to rest a bit and then rethink the way SemaTypes
 	are handled in unifySubtype and tryJoinSemaTypes.
+
+	tryJoinSemaType has literaly no reason to exist. It is unify's job.
+	In unify, if we have 2 SemaTypes, I should "unwrap" them both until reaching a Concrete type
+	or the last layer of SemaType (->find a name for this). 
+	
+	This will cover most of my "edge cases" in the unification process.
+
+	About 
+		[[], [], [], [1]]
+
+		Everything should solve at the last arg. But currently:
+			First loop: 
+				proposed = SemaType(nullptr)[]
+			Second loop:
+				Unification failure
+
+		Expected behaviour
+			First loop:
+				proposed = SemaType(nullptr)[] // proposed = elemTy;
+			Second loop:
+				proposed = SemaType(nullptr)[] 
+				elemTy = SemaType(proposed) (elemTy->setSubstitution(proposed))
+			Third loop:
+				proposed = SemaType(nullptr)[]
+				elemTy = SemaType(proposed) (elemTy->setSubstitution(proposed))
+			Fourth loop:
+				proposed unifies with the other arrayType:
+					SemaType(Int)[]
+			
+			Solution application:
+				elemTy = proposed's type = ArrayType(SemaType(int))
+
+			Conclusion
+				unify should be reworked to worth this way and handle this case gracefully. 
+				It should be strictly defined how it unwraps SemaTypes, LValueTypes and ArrayTypes. 
+				To elaborate the algorithm, write a dozen of cases that can occur in real world situtation and
+				make a "truth table" to help me find a good solution.
+
+				Also, LValues should be strictly controled to not be nested, this should be done
+				in "unwrapLValue" in Type
+
+				Unify should also be more used in the Expr analysis. compareSubtypes should never be used directly, always
+				through unifySubtype()
