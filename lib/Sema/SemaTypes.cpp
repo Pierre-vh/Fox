@@ -98,6 +98,31 @@ bool Sema::compareSubtypes(Type* a, Type* b)
 	return true;
 }
 
+Type* Sema::getHighestRankingType(Type* a, Type* b)
+{
+	assert(a && b && "a and b cannot be null");
+	// If they share the same subtype
+	if (compareSubtypes(a, b))
+	{
+		// Same subtype means a == b or a and b are both
+		// integrals
+		if (auto* pA = dyn_cast<PrimitiveType>(a))
+		{
+			auto* pB = cast<PrimitiveType>(b);
+			if (pA->isIntegral())
+			{
+				assert(pB->isIntegral());
+				if (getIntegralRank(pA) > getIntegralRank(pB))
+					return a;
+				return b;
+			}
+		}
+		assert((a == b) && "Unimplemented situation");
+		return a;
+	}
+	return nullptr;
+}
+
 Sema::IntegralRankTy Sema::getIntegralRank(PrimitiveType* type)
 {
 	using Ty = PrimitiveType::Kind;
