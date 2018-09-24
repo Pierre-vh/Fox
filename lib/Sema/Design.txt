@@ -45,7 +45,12 @@ Design of Sema's interface & impl
 
 Define:
 	Error Handling Policy 
-		Only diags? Mix of return types & diags?
-	Architecture
-		How the AST is visited
-		Checker classes
+		Only diags. Abort AST visitation for critical errors, rest should be handled with ErrorTypes & others.
+
+	Structure:
+		Sema:
+			Contains various methods pertaining to semantic analysis as well as entry points to check any AST node.
+
+			SemaExpr:
+				Implements "typecheckExpr"
+					ExprWalker walks the AST in a post-order fashion, calls methods on the ExprChecker
