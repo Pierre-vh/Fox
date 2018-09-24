@@ -44,6 +44,11 @@ bool Type::isLValue() const
 	return isa<LValueType>(this);
 }
 
+bool Type::isErrorType() const
+{
+	return isa<ErrorType>(this);
+}
+
 const Type* Type::unwrapIfArray() const
 {
 	if (const ArrayType* tmp = dyn_cast<ArrayType>(this))
