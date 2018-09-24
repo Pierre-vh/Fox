@@ -31,54 +31,18 @@ namespace
 	// Good idea would be to displace most of the logic in Sema!
 	// e.g; visitBinaryExpr would call Sema::checkArithmeticAdditiveOperation(expr) if it
 	// notices that 2 exprs are arithemtic.
-	class ExprChecker : public ExprVisitor<ExprChecker, void>
+	class ExprChecker : public ExprVisitor<ExprChecker, Expr*>, public ASTWalker
 	{
-		using Inherited = ExprVisitor<ExprChecker, void>;
+		using Inherited = ExprVisitor<ExprChecker, Expr*>;
+		ASTContext& ctxt_;
+		Sema& sema_;
 		public:
-			ExprChecker()
+			ExprChecker(Sema& sema, ASTContext& ctxt): 
+				ctxt_(ctxt), sema_(sema)
 			{
 
 			}
 
-			void visit(Expr* expr)
-			{
-				Inherited::visit(expr);
-				assert(expr->getType() && "Expression is not typed after checking");
-			}
-
-			void visitParensExpr(ParensExpr* expr)
-			{
-				expr->setType(expr->getType());
-			}
-
-			void visitBinaryExpr(BinaryExpr* expr)
-			{
-				// Handle concatenation
-			}
-
-			void visitCastExpr(CastExpr*){}
-			void visitUnaryExpr(UnaryExpr*)
-			{
-			
-			}
-
-			void visitArrayAccessExpr(ArrayAccessExpr*){}
-			void visitMemberOfExpr(MemberOfExpr*){}
-			void visitDeclRefExpr(DeclRefExpr*){}
-			void visitFunctionCallExpr(FunctionCallExpr*){}
-
-			void visitCharLiteralExpr(CharLiteralExpr*){}
-			void visitIntegerLiteralExpr(IntegerLiteralExpr*){}
-			void visitFloatLiteralExpr(FloatLiteralExpr*){}
-			void visitBooleanLiteralExpr(BoolLiteralExpr*){}
-			void visitStringLiteralExpr(StringLiteralExpr*){}
-			void visitArrayLiteralExpr(ArrayLiteralExpr*){}
-	};
-
-
-	class ExprWalker : public ASTWalker
-	{
-		public:
 			virtual std::pair<Expr*, bool> handleExprPre(Expr* expr)
 			{
 				// Not needed since we won't do preorder visitation
@@ -87,29 +51,170 @@ namespace
 
 			virtual Expr* handleExprPost(Expr* expr)
 			{
-
+				visit(expr);
 			}
 
-			virtual std::pair<Stmt*, bool> handleStmtPre(Stmt* stmt)
+			virtual std::pair<Stmt*, bool> handleStmtPre(Stmt*)
 			{
 				fox_unreachable("Illegal node kind");
 			}
 
-			virtual Stmt* handleStmtPost(Stmt* stmt)
+			virtual Stmt* handleStmtPost(Stmt*)
 			{
 				fox_unreachable("Illegal node kind");
 			}
 
-			virtual std::pair<Decl*, bool> handleDeclPre(Decl* decl)
+			virtual std::pair<Decl*, bool> handleDeclPre(Decl*)
 			{
 				fox_unreachable("Illegal node kind");
 			}
 
-			virtual Decl* handleDeclPost(Decl* decl)
+			virtual Decl* handleDeclPost(Decl*)
 			{
 				fox_unreachable("Illegal node kind");
 			}
-		private:
 
+			Expr* visit(Expr* expr)
+			{
+				expr = Inherited::visit(expr);
+				assert(expr && expr->getType() && "Expression is not typed after checking");
+				return expr;
+			}
+
+			// Check methods
+
+			Expr* visitParensExpr(ParensExpr* expr)
+			{
+				// A ParensExpr's type is simply it's child's
+				expr->setType(expr->getType());
+				// this node kind will be deleted later
+				return expr;
+			}
+
+			Expr* visitBinaryExpr(BinaryExpr* expr)
+			{
+				// Handle arithmetic & text addition
+				// Disallow array operation unless *
+				return expr;
+			}
+
+			Expr* visitCastExpr(CastExpr* expr)
+			{
+				// Check if we can cast to that, castgoal must be
+				// of the same family OR string.
+				return expr;
+			}
+
+			Expr* visitUnaryExpr(UnaryExpr* expr)
+			{
+				// Check that the type's arithmetic.
+				// For ! the return type is a bool, for everything else
+				// it's int OR float if children is a float.
+				return expr;
+			}
+
+			Expr* visitArrayAccessExpr(ArrayAccessExpr* expr)
+			{
+				// Check that base is of ArrayType and idx expr
+				// is arithmetic and not float
+				return expr;
+			}
+
+			Expr* visitMemberOfExpr(MemberOfExpr* expr)
+			{
+				// Unimplemented for now
+				return expr;
+			}
+
+			Expr* visitDeclRefExpr(DeclRefExpr* expr)
+			{
+				// Unimplemented for now
+				return expr;
+			}
+
+			Expr* visitFunctionCallExpr(FunctionCallExpr* expr)
+			{
+				// Unimplemented for now, but :
+					// check that callee is a FunctionType or OverloadType
+				return expr;
+			}
+			
+
+			// Trivial literals: the expr's type is simply the corresponding
+			// type. Int for a Int literal, etc.
+			Expr* visitCharLiteralExpr(CharLiteralExpr* expr)
+			{
+				expr->setType(ctxt_.getCharType());
+				return expr;
+			}
+
+			Expr* visitIntegerLiteralExpr(IntegerLiteralExpr* expr)
+			{
+				expr->setType(ctxt_.getIntType());
+				return expr;
+			}
+
+			Expr* visitFloatLiteralExpr(FloatLiteralExpr* expr)
+			{
+				expr->setType(ctxt_.getFloatType());
+				return expr;
+			}
+
+			Expr* visitBooleanLiteralExpr(BoolLiteralExpr* expr)
+			{
+				expr->setType(ctxt_.getBoolType());
+				return expr;
+			}
+
+			Expr* visitStringLiteralExpr(StringLiteralExpr* expr)
+			{
+				expr->setType(ctxt_.getStringType());
+				return expr;
+			}
+
+			// Array literals
+			Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr)
+			{
+				if (auto size = expr->getSize())
+				{
+					Type* type = nullptr;
+					for (auto& elem : expr->getExprs())
+					{
+						if (type)
+						{
+							// If they're of the same subtype, this function will return which one
+							// of the 2 type is the highest ranked one. Else it returns nullptr.
+							if (Type* tmp = sema_.getHighestRankingType(type, elem->getType()))
+								type = tmp;
+							else
+							{
+								type = nullptr;
+								// TODO
+									// Not the same subtype, emit a diagnostic and abort
+									// Diagnostic should be about the whole array, like "cannot deduce array literal type"
+							}
+						}
+						// First element, fine.
+						else
+							type = elem->getType();
+					}
+
+					// Apply.
+					if (type)
+						expr->setType(type);
+					else
+						expr->setType(ctxt_.getErrorType());
+
+					return expr;
+				}
+				else
+				{
+					// Let type inference do it's magic by requiring a arraytype of any type.
+					SemaType* fresh = ctxt_.createSemaType();
+					ArrayType* ty = ctxt_.getArrayTypeForType(fresh);
+					expr->setType(ty);
+				}
+				return expr;
+			}
 	};
 } // End anonymous namespace

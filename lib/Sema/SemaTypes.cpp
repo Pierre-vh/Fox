@@ -19,9 +19,17 @@ bool Sema::unifySubtype(Type* a, Type* b)
 {
 	assert(a && b && "Pointers cannot be null");
 
-	// Return early  if a and b share the same subtype (no unification needed)
+	// Return early if a and b share the same subtype (no unification needed) and that they
+	// aren't a SemaType or ErrorType
 	if (compareSubtypes(a, b))
+	{
+		if (isa<ErrorType>(a))
+			return false;
+
+		if (isa<SemaType>(a))
+			// Both SemaTypes
 		return true;
+	}
 
 	// SemaTypes checks
 	{
@@ -41,9 +49,12 @@ bool Sema::unifySubtype(Type* a, Type* b)
 			return true;
 		}
 		
-		// If both are semaTypes, return false.
+		// If both are semaTypes
 		if (aSema && bSema)
+		{
+			// Todo: attempt unify if one has a subst
 			return false;
+		}
 	}
 
 	// Arrays
