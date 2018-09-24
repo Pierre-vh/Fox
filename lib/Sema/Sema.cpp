@@ -12,3 +12,9 @@
 #include "Fox/Sema/Sema.hpp"
 
 using namespace fox;
+
+Sema::Sema(ASTContext & ctxt) :
+	ctxt_(ctxt)
+{
+
+}
