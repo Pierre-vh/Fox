@@ -142,7 +142,8 @@ bool Sema::compareSubtypes(Type* a, Type* b)
 
 Type* Sema::getHighestRankingType(Type* a, Type* b)
 {
-	assert(a && b && "a and b cannot be null");
+	if (!(a && b))
+		return nullptr;
 
 	// Ignore LValues since they won't be "propagated" anyway
 	a = a->ignoreLValue();
@@ -188,4 +189,20 @@ Sema::IntegralRankTy Sema::getIntegralRank(PrimitiveType* type)
 		default:
 			fox_unreachable("Unknown arithmetic type");
 	}
+}
+
+bool Sema::tryJoinSemaTypes(Type* a, Type* b)
+{
+	SemaType* aSema = dyn_cast_or_null<SemaType>(a);
+	SemaType* bSema = dyn_cast_or_null<SemaType>(b);
+
+	if (aSema && bSema)
+	{
+		if ((!aSema->hasSubstitution()) && (!bSema->hasSubstitution()))
+		{
+			aSema->setSubstitution(bSema);
+			return true;
+		}
+	}
+	return false;
 }
