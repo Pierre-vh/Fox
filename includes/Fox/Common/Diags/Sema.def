@@ -1,0 +1,8 @@
+////------------------------------------------------------////
+// This file is a part of The Moonshot Project.				
+// See LICENSE.txt for license info.						
+// File : Parser.def											
+// Author : Pierre van Houtryve								
+////------------------------------------------------------//// 
+// Semantic Analysis (Sema) Diagnostics Message
+////------------------------------------------------------////
