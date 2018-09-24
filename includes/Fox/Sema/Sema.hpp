@@ -30,14 +30,20 @@ namespace fox
 			// SemaType with no subs. + Any type -> True, sets appropriate subst
 			// Any Type & Any Type -> returns compareSubtype(a,b)
 			// False in all other cases.
+			// Due to the way Fox's semantics work
+			// This unification algorithm won't change the types unless
+			// they are SemaTypes. Refer to getHighestRankingType to "mix" 
+			// 2 types.
 			static bool unifySubtype(Type* a, Type* b);
 
 			// Compares the Subtypes of A and B. Returns true if a and b
 			// share the same "subtype", false otherwise.
 			static bool compareSubtypes(Type* a, Type* b);
 
-			// Given 2 types of the same subtype, return the highest ranking type.
-			// Returns nullptr if the 2 types don't share the same subtype.
+			// Given 2 types of the same subtype
+				// If they are integrals, return the highest ranking integral's type
+				// else it returns its first argument
+			// Returns nullptr otherwise.
 			static Type* getHighestRankingType(Type* a, Type* b);
 
 			// This method returns the integral rank that a given type has.

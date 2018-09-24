@@ -19,17 +19,16 @@ bool Sema::unifySubtype(Type* a, Type* b)
 {
 	assert(a && b && "Pointers cannot be null");
 
-	// Return early if a and b share the same subtype (no unification needed) and that they
-	// aren't a SemaType or ErrorType
-	if (compareSubtypes(a, b))
-	{
-		if (isa<ErrorType>(a))
-			return false;
-
-		if (isa<SemaType>(a))
-			// Both SemaTypes
+	if (a == b)
 		return true;
-	}
+
+	if (isa<ErrorType>(a) || isa<ErrorType>(b))
+		return false;
+
+	// Return early if a and b share the same subtype (no unification needed) and that they
+	// aren't ErrorTypes, return early
+	if (compareSubtypes(a, b))
+		return true;
 
 	// SemaTypes checks
 	{
@@ -52,12 +51,20 @@ bool Sema::unifySubtype(Type* a, Type* b)
 		// If both are semaTypes
 		if (aSema && bSema)
 		{
-			// Todo: attempt unify if one has a subst
+			// if one of them has a subst and the other doesn't
+			if (aSema->hasSubstitution() != bSema->hasSubstitution())
+			{
+				if (aSema->hasSubstitution())
+					bSema->setSubstitution(aSema->getSubstitution());
+				else 
+					aSema->setSubstitution(bSema->getSubstitution());
+				return true;
+			}
 			return false;
 		}
 	}
 
-	// Arrays
+	// Array checks
 	{
 		auto* aArr = dyn_cast<ArrayType>(a->ignoreLValue());
 		auto* bArr = dyn_cast<ArrayType>(b->ignoreLValue());
@@ -79,9 +86,15 @@ bool Sema::compareSubtypes(Type* a, Type* b)
 	a = a->ignoreLValue();
 	b = b->ignoreLValue();
 
+	// Early return for exact equality
+	if (a == b)
+		return true;
+
+	// Check more in depth
 	if (a->getKind() == b->getKind())
 	{
-		// Checking additional requirements for Primitive Types
+		// Checking additional requirements for Primitive Types where
+		// exact equality
 		if (auto* aPrim = dyn_cast<PrimitiveType>(a))
 		{
 			auto* bPrim = cast<PrimitiveType>(b);
@@ -90,23 +103,41 @@ bool Sema::compareSubtypes(Type* a, Type* b)
 			if (aPrim->isIntegral())
 				return bPrim->isIntegral();
 
-			// Else only return true if the PrimitiveKinds match.
-			return (aPrim->getPrimitiveKind() == bPrim->getPrimitiveKind());
+			// We can return false otherwise, because as Primitive types are
+			// all singletons, if they shared the same PrimitiveKind the
+			// if(a==b) up there would have caught that.
+			return false;
 		}
 
-		// Checking additional requirements for Array Types
-		if (auto* aArr = dyn_cast<ArrayType>(a))
+		// Checking Array Types
+		if (isa<ArrayType>(a))
 		{
-			auto* bArr = cast<ArrayType>(b);
+			Type* elemA = a->unwrapIfArray();
+			Type* elemB = b->unwrapIfArray();
+
+			assert(elemA && elemB && "Types are null");
+
 			// Check elements types recursively for arrays.
-			return compareSubtypes(aArr->getElementType(), bArr->getElementType());
+			return compareSubtypes(elemA, elemB);
 		}
 		
-		// Return true only if we don't have 2 SemaTypes
-		return !isa<SemaType>(a);
+		// Check sematypes, we might unwrap them to compare their substitution
+		// if they both have one
+		if (isa<SemaType>(a))
+		{
+			auto* aSubst = cast<SemaType>(a)->getSubstitution();
+			auto* bSubst = cast<SemaType>(b)->getSubstitution();
+
+			if (aSubst && bSubst)
+				return compareSubtypes(aSubst, bSubst);
+			return false;
+		}
+
+		// Lastly, return true unless we have 2 ErrorTypes
+		return !isa<ErrorType>(a);
 	}
 
-	return true;
+	return false;
 }
 
 Type* Sema::getHighestRankingType(Type* a, Type* b)
@@ -120,7 +151,7 @@ Type* Sema::getHighestRankingType(Type* a, Type* b)
 	// If they share the same subtype
 	if (compareSubtypes(a, b))
 	{
-		// Same subtype means a == b or a and b are both
+		// Same subtype means (a == b) or (a and b) are both
 		// integrals
 		if (auto* pA = dyn_cast<PrimitiveType>(a))
 		{
