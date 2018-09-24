@@ -1,0 +1,8 @@
+List of "traps" that semantic analysis might fall into, and that will need to be tested.
+
+	// Will probably fail to determine arraytype
+	let x : int[][] = [[],[],[]];
+
+Notes
+	Functions in SemaType needs to be rewritten/refactored as they are not flexible enough, especially
+	regarding ErrorTypes, LValue Types and SemaTypes

@@ -1,4 +1,0 @@
-List of "traps" that semantic analysis might fall into, and that will need to be tested.
-
-// Will probably fail to determine arraytype
-let x : int[][] = [[],[],[]];
