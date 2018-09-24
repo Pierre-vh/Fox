@@ -25,22 +25,27 @@ namespace
 	// Expression checker: Classic visitor, the visitXXX functions
 	// all check a single node. They do not orchestrate visitation of
 	// the children, because that is done in the ASTWalker
-
-	// TODO:
-	// Return Expr* or nothing? How to coordinate replacements?
-	// Good idea would be to displace most of the logic in Sema!
-	// e.g; visitBinaryExpr would call Sema::checkArithmeticAdditiveOperation(expr) if it
-	// notices that 2 exprs are arithemtic.
 	class ExprChecker : public ExprVisitor<ExprChecker, Expr*>, public ASTWalker
 	{
 		using Inherited = ExprVisitor<ExprChecker, Expr*>;
-		ASTContext& ctxt_;
 		Sema& sema_;
 		public:
-			ExprChecker(Sema& sema, ASTContext& ctxt): 
-				ctxt_(ctxt), sema_(sema)
+			ExprChecker(Sema& sema): 
+				sema_(sema)
 			{
+				
+			}
 
+			// Returns the ASTContext
+			ASTContext& getCtxt()
+			{
+				return sema_.getASTContext();
+			}
+
+			// Returns the DiagnosticEngine
+			DiagnosticEngine& getDiags()
+			{
+				return sema_.getDiagnosticEngine();
 			}
 
 			virtual std::pair<Expr*, bool> handleExprPre(Expr* expr)
@@ -144,31 +149,31 @@ namespace
 			// type. Int for a Int literal, etc.
 			Expr* visitCharLiteralExpr(CharLiteralExpr* expr)
 			{
-				expr->setType(ctxt_.getCharType());
+				expr->setType(getCtxt().getCharType());
 				return expr;
 			}
 
 			Expr* visitIntegerLiteralExpr(IntegerLiteralExpr* expr)
 			{
-				expr->setType(ctxt_.getIntType());
+				expr->setType(getCtxt().getIntType());
 				return expr;
 			}
 
 			Expr* visitFloatLiteralExpr(FloatLiteralExpr* expr)
 			{
-				expr->setType(ctxt_.getFloatType());
+				expr->setType(getCtxt().getFloatType());
 				return expr;
 			}
 
 			Expr* visitBooleanLiteralExpr(BoolLiteralExpr* expr)
 			{
-				expr->setType(ctxt_.getBoolType());
+				expr->setType(getCtxt().getBoolType());
 				return expr;
 			}
 
 			Expr* visitStringLiteralExpr(StringLiteralExpr* expr)
 			{
-				expr->setType(ctxt_.getStringType());
+				expr->setType(getCtxt().getStringType());
 				return expr;
 			}
 
@@ -177,41 +182,59 @@ namespace
 			{
 				if (auto size = expr->getSize())
 				{
-					Type* type = nullptr;
+					Type* proposed = nullptr;
+					// Deduce the type by starting from the first type
+					// and upranking it if needed.
+					// TODO: Fix this, because we also might have interesting cases
+					// such as
+					// let x : int[][] = [ [], [], [3], []];
+					// which would probably fail
+
+					// TODO: Don't forget that we want to disable diags
+					// if elemTy is a ErrorType
 					for (auto& elem : expr->getExprs())
 					{
-						if (type)
+						Type* elemTy = elem->getType();
+
+						if (!proposed)
+							proposed = elemTy;
+
+						if (elemTy->isErrorType())
 						{
-							// If they're of the same subtype, this function will return which one
-							// of the 2 type is the highest ranked one. Else it returns nullptr.
-							if (Type* tmp = sema_.getHighestRankingType(type, elem->getType()))
-								type = tmp;
-							else
-							{
-								type = nullptr;
-								// TODO
-									// Not the same subtype, emit a diagnostic and abort
-									// Diagnostic should be about the whole array, like "cannot deduce array literal type"
-							}
+							// Set proposed to ErrorType
+							proposed = elemTy;
+							break;
 						}
-						// First element, fine.
-						else
-							type = elem->getType();
+
+						// Unify the proposed type with the elemTy
+						if (!Sema::unifySubtype(proposed, elemTy))
+						{
+							proposed = nullptr;
+							// TODO: create a special Diagnostic function for that, since
+							// we need to handle the situation where we have 2 
+							// Create theses functions in SemaDiags.hpp/.cpp
+							getDiags().report(DiagID::sema_arraylit_hetero, expr->getRange());
+							break;
+						}
+
+						// TODO: Handle SemaTypes shenanigans
+
+
+						// TODO: handle the case where this is null \|/
+						proposed = sema_.getHighestRankingType(proposed, elemTy);
 					}
 
 					// Apply.
-					if (type)
-						expr->setType(type);
-					else
-						expr->setType(ctxt_.getErrorType());
+					assert(proposed && "cannot be null");
+					expr->setType(proposed);
 
 					return expr;
 				}
 				else
 				{
 					// Let type inference do it's magic by requiring a arraytype of any type.
-					SemaType* fresh = ctxt_.createSemaType();
-					ArrayType* ty = ctxt_.getArrayTypeForType(fresh);
+					SemaType* fresh = getCtxt().createSemaType();
+					ArrayType* ty = getCtxt().getArrayTypeForType(fresh);
 					expr->setType(ty);
 				}
 				return expr;
