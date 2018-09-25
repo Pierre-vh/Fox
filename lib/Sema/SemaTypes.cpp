@@ -219,24 +219,24 @@ bool Sema::unifySubtype(Type* a, Type* b)
 
 Type* Sema::getHighestRankingType(Type* a, Type* b)
 {
-	if (!(a && b))
-		return nullptr;
+	assert(a && b && "Pointers cannot be null");
 
 	// Ignore LValues since they won't be "propagated" anyway
 	a = a->ignoreLValue();
 	b = b->ignoreLValue();
 
-	// If they share the same subtype
-	if (compareSubtypes(a, b))
+	// If they're different
+	if (a != b)
 	{
-		// Same subtype means (a == b) or (a and b) are both
-		// integrals
-		if (auto* pA = dyn_cast<PrimitiveType>(a))
+		// if they're different, handle "subtype equality" case
+		// todo: create "Subtype families" and have a function return
+		// the shared family of 2 types. Will be more graceful!
+		auto* pA = dyn_cast<PrimitiveType>(a);
+		auto* pB = dyn_cast<PrimitiveType>(b);
+		if(pA && pB)
 		{
-			auto* pB = cast<PrimitiveType>(b);
-			if (pA->isIntegral())
+			if (pA->isIntegral() && pB->isIntegral())
 			{
-				assert(pB->isIntegral());
 				if (getIntegralRank(pA) > getIntegralRank(pB))
 					return a;
 				return b;
@@ -245,7 +245,9 @@ Type* Sema::getHighestRankingType(Type* a, Type* b)
 		assert((a == b) && "Unimplemented situation");
 		return a;
 	}
-	return nullptr;
+
+	// They're equal, return a
+	return a;
 }
 
 Sema::IntegralRankTy Sema::getIntegralRank(PrimitiveType* type)
