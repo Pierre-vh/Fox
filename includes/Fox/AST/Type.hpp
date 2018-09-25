@@ -35,11 +35,6 @@ namespace fox
 
 			TypeKind getKind() const;
 
-			bool isSemaType() const;
-			bool isArray() const;
-			bool isLValue() const;
-			bool isErrorType() const;
-
 			// Returns the element type if this is an ArrayType, or nullptr.
 			const Type* unwrapIfArray() const;
 			Type* unwrapIfArray();
