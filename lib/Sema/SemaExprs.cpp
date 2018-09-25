@@ -62,7 +62,7 @@ namespace
 
 			virtual Expr* handleExprPost(Expr* expr)
 			{
-				visit(expr);
+				return visit(expr);
 			}
 
 			virtual std::pair<Stmt*, bool> handleStmtPre(Stmt*)
