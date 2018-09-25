@@ -91,3 +91,6 @@ Boring stuff that I must do when I have the time/motivation for it
 Later:
 	Use a "SourceFile" class instead of a "UnitDecl" class, like swift. This class would track the progress of the AST:
 	not parsed, parsed but not semantically analyzed, etc. Do that when implementing the multifile support
+
+Bug:
+	If an array is spanned on multiple lines, the "illegal heterogenous" array error will display one extra caret after the [ on the first line.
