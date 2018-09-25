@@ -63,6 +63,11 @@ Moonshot Project To-do List.
 	> ASTWalker (Done)
 	> Add ErrorType (Done)
 
+	> Type Uniqueness : Yes or No? (Next)
+		> Problematic with ASTWalker
+		> Problematic to finalize expressions.
+		> Benefits?
+
 	> Basic Expression Semantic analysis (Next)
 	> Stmt Semantic Analysis
 	> Decl Semantic Analysis
