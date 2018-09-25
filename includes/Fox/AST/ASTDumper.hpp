@@ -36,7 +36,7 @@ namespace fox
 			void visitCharLiteralExpr(CharLiteralExpr* node);
 			void visitIntegerLiteralExpr(IntegerLiteralExpr* node);
 			void visitFloatLiteralExpr(FloatLiteralExpr* node);
-			void visitBooleanLiteralExpr(BoolLiteralExpr* node);
+			void visitBoolLiteralExpr(BoolLiteralExpr* node);
 			void visitStringLiteralExpr(StringLiteralExpr* node);
 			void visitArrayLiteralExpr(ArrayLiteralExpr* node);
 

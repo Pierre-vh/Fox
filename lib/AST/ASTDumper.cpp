@@ -132,7 +132,7 @@ void ASTDumper::visitFloatLiteralExpr(FloatLiteralExpr* node)
 	dumpLine() << getBasicExprInfo(node) << " " << makeKeyPairDump("value", node->getVal()) << "\n";
 }
 
-void ASTDumper::visitBooleanLiteralExpr(BoolLiteralExpr* node)
+void ASTDumper::visitBoolLiteralExpr(BoolLiteralExpr* node)
 {
 	dumpLine() << getBasicExprInfo(node) << " " << makeKeyPairDump("value", (node->getVal() ? "true" : "false" )) << "\n";
 }
