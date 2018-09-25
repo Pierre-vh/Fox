@@ -88,7 +88,8 @@ namespace
 			Expr* visit(Expr* expr)
 			{
 				expr = Inherited::visit(expr);
-				assert(expr && expr->getType() && "Expression is not typed after checking");
+				assert(expr && "Expression is null");
+				assert(expr->getType() && "Expression is not typed after checking");
 				return expr;
 			}
 
@@ -171,7 +172,7 @@ namespace
 				return expr;
 			}
 
-			Expr* visitBooleanLiteralExpr(BoolLiteralExpr* expr)
+			Expr* visitBoolLiteralExpr(BoolLiteralExpr* expr)
 			{
 				expr->setType(getCtxt().getBoolType());
 				return expr;
@@ -234,8 +235,6 @@ namespace
 						expr->setType(proposed);
 					else
 						setErrorType(expr); // Failed to typecheck.
-
-					return expr;
 				}
 				else
 				{
