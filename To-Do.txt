@@ -63,10 +63,20 @@ Moonshot Project To-do List.
 	> ASTWalker (Done)
 	> Add ErrorType (Done)
 
-	> Type Uniqueness : Yes or No? (Next)
-		> Problematic with ASTWalker
-		> Problematic to finalize expressions.
-		> Benefits?
+	> Type problem: uniqueness of types
+		> Problem:
+			> Problematic with ASTWalker (cannot swap nodes for LValueTypes & ArrayTypes)
+				= Problematic to finalize expressions.
+		> Need to, at least
+			> Keep PrimitiveTypes unique
+			> Make LValueType & ArrayType not unique
+				> Think about consequences & memory usage increase
+				> See if benefits outweight the cons
+					> (-) cannot make a direct type comparison anymore since all arraytypes are different, e.g.
+						  int[] & int[] won't work the same way anymore
+		> Ideas:
+			> do the Type/TypeBase rework
+			> Introduce the concept of Canonical types?
 
 	> Basic Expression Semantic analysis (Next)
 	> Stmt Semantic Analysis
