@@ -37,11 +37,10 @@ namespace fox
 			// 2 types.
 			static bool unifySubtype(Type* a, Type* b);
 
-			// Given 2 types of the same subtype
+			// Given 2 types
 				// If they are integrals, return the highest ranking integral's type
-				// else it returns its first argument
-			// Returns nullptr otherwise.
-			// A or B might be null.
+				// If they are equal, return it's first argument
+				// Returns nullptr otherwise.
 			static Type* getHighestRankingType(Type* a, Type* b);
 
 			// This method returns the integral rank that a given type has.
