@@ -36,6 +36,12 @@ namespace
 				
 			}
 
+			// Sets the expr's type to ErrorType
+			void setErrorType(Expr* expr)
+			{
+				expr->setType(sema_.getASTContext().getErrorType());
+			}
+
 			// Returns the ASTContext
 			ASTContext& getCtxt()
 			{
@@ -184,49 +190,50 @@ namespace
 				{
 					Type* proposed = nullptr;
 					// Deduce the type by starting from the first type
-					// and upranking it if needed.
-					// TODO: Fix this, because we also might have interesting cases
-					// such as
-					// let x : int[][] = [ [], [], [3], []];
-					// which would probably fail
-
-					// TODO: Don't forget that we want to disable diags
-					// if elemTy is a ErrorType
+					// and by upranking it if needed.
 					for (auto& elem : expr->getExprs())
 					{
 						Type* elemTy = elem->getType();
 
+						// First loop, set proposed & continue.
 						if (!proposed)
+						{
 							proposed = elemTy;
+							continue;
+						}
 
+						// Handle error elem type.
 						if (isa<ErrorType>(elemTy))
 						{
-							// Set proposed to ErrorType
-							proposed = elemTy;
+							// Stop progression & break
+							proposed = nullptr;
 							break;
 						}
 
 						// Unify the proposed type with the elemTy
-						if (!Sema::unifySubtype(proposed, elemTy))
+						// We do elemTy = proposed instead of the opposite
+						// because we want to elemTy's sub to be set to proposed
+						// if it's a Sematype awaiting inferrence.
+						if (!Sema::unifySubtype(elemTy, proposed))
 						{
-							proposed = nullptr;
-							// TODO: create a special Diagnostic function for that, since
-							// we need to handle the situation where we have 2 
-							// Create theses functions in SemaDiags.hpp/.cpp
+							// Failed to unify: incompatible types
+							// TODO: Do a more precise diagnostic as this one might be unhelpful
+							// in some cases.
 							getDiags().report(DiagID::sema_arraylit_hetero, expr->getRange());
+							proposed = nullptr;
 							break;
 						}
 
-						// TODO: Handle SemaTypes shenanigans
-
-
-						// TODO: handle the case where this is null \|/
-						proposed = sema_.getHighestRankingType(proposed, elemTy);
+						// Lastly, uprank if needed.
+						if (Type* highestRanking = Sema::getHighestRankingType(elemTy, proposed))
+							proposed = highestRanking;
 					}
 
 					// Apply.
-					assert(proposed && "cannot be null");
-					expr->setType(proposed);
+					if (proposed)
+						expr->setType(proposed);
+					else
+						setErrorType(expr); // Failed to typecheck.
 
 					return expr;
 				}
@@ -241,3 +248,8 @@ namespace
 			}
 	};
 } // End anonymous namespace
+
+Expr* Sema::typecheckExpr(Expr* expr)
+{
+	return ExprChecker(*this).walk(expr);
+}
