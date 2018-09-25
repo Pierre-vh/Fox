@@ -249,6 +249,14 @@ bool Sema::isIntegral(Type* a)
 	return false;
 }
 
+Type* Sema::deref(Type* type)
+{
+	assert(type && "type cannot be null");
+	if (auto* sema = dyn_cast<SemaType>(type))
+		return sema->hasSubstitution() ? deref(sema->getSubstitution()) : type;
+	return type;
+}
+
 Type* Sema::getHighestRankingType(Type* a, Type* b)
 {
 	assert(a && b && "Pointers cannot be null");
