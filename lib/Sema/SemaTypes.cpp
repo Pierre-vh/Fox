@@ -205,6 +205,13 @@ bool Sema::unifySubtype(Type* a, Type* b)
 					aSema->setSubstitution(bSema->getSubstitution());
 				return true;
 			}
+			// Both have none
+			else if (!aSema->hasSubstitution())
+			{
+				// In this case, we make A's sub B
+				aSema->setSubstitution(b);
+				return true;
+			}
 			return false;
 		}
 
