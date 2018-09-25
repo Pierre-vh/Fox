@@ -12,6 +12,7 @@
 #include "Fox/AST/Type.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include <tuple>
 
 using namespace fox;
 
@@ -68,36 +69,30 @@ namespace
 		return false;
 	}
 
-	// If type is a SemaType with a substitution, returns it.
+	// If type is a SemaType with a substitution:
 	// if that substitution is also a SemaType, calls 
 	// this function recursively until we reach a SemaType
 	// with no sub or something that isn't a sub.
-	// If type doesn't have a sub or isn't a SemaType, leaves the type
+	// If type doesn't have a sub or isn't a SemaType, returns the type
 	// untouched.
-	// Returns true if the type changed, false otherwise.
-	bool prepareSemaTypeForUnification(Type*& type)
+	// Returns it's argument or the unwrapped type.
+	Type* prepareSemaTypeForUnification(Type* type)
 	{
 		if (auto* sema = dyn_cast<SemaType>(type))
 		{
-			// Get the substitution if it has one
+			// Get the substitution
 			if (Type* sub = sema->getSubstitution())
 			{
-				// if the sub is a SemaType again, recurse.
+				// It has a sub, if it's SemaType, recurse to unwrap further.
 				if(isa<SemaType>(sub))
-					return prepareSemaTypeForUnification(type);
+					return prepareSemaTypeForUnification(sub);
 			}
-			// SemaType with no sub, don't do anything
-			// special
-			return false;
 		}
-		// Not a SemaType, don't change anything
-		return false;
+		return type;
 	}
 
 	// Performs the pre-unifications tasks
-	// Returns false if unification will fail and we can
-	// return immediatly.
-	bool performPreUnificationTasks(Type*& a, Type*& b)
+	std::pair<Type*,Type*> performPreUnificationTasks(Type* a, Type* b)
 	{
 		assert(a && b && "Pointers cannot be nullptr");
 
@@ -108,16 +103,11 @@ namespace
 
 		// If we have error types, unification is impossible.
 		if (isa<ErrorType>(a) || isa<ErrorType>(b))
-			return false;
+			return { nullptr, nullptr };
 
 		// handle SemaType unwrapping
-		{
-			bool rA = prepareSemaTypeForUnification(a);
-			bool rB = prepareSemaTypeForUnification(b);
-			// If one of them changed, recurse.
-			if (rA || rB)
-				return performPreUnificationTasks(a, b);
-		}
+		a = prepareSemaTypeForUnification(a);
+		b = prepareSemaTypeForUnification(b);
 
 		// handle ArrayType unwrapping
 		{
@@ -134,12 +124,12 @@ namespace
 			}
 			// Only one of them is an array, unification fails
 			else if ((!arrA) != (!arrB))
-				return false;
+				return { nullptr, nullptr };
 			// None of them are arrays, keep going
 		}
 
 		// If we didn't return yet, mission success!
-		return true;
+		return { a, b };
 	}
 
 	// Tries to adjust the Sematype. Returns true on success, false otherwise.
@@ -165,7 +155,8 @@ bool Sema::unifySubtype(Type* a, Type* b)
 	assert(a && b && "Pointers cannot be null");
 
 	// Pre-unification checks, if they fail, return.
-	if (!performPreUnificationTasks(a, b))
+	std::tie(a, b) = performPreUnificationTasks(a, b);
+	if (!a)
 		return false;
 
 	// Return early if a and b share the same subtype (no unification needed)
