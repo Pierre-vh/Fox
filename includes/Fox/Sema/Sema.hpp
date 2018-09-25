@@ -37,6 +37,8 @@ namespace fox
 			// 2 types.
 			static bool unifySubtype(Type* a, Type* b);
 
+			static bool isIntegral(Type* a);
+
 			// Given 2 types
 				// If they are integrals, return the highest ranking integral's type
 				// If they are equal, return it's first argument
@@ -45,7 +47,7 @@ namespace fox
 
 			// This method returns the integral rank that a given type has.
 			// type must not be null and must point to a arithmetic type.
-			static IntegralRankTy getIntegralRank(PrimitiveType* type);
+			static IntegralRankTy getIntegralRank(Type* type);
 
 			DiagnosticEngine& getDiagnosticEngine();
 			ASTContext& getASTContext();

@@ -119,19 +119,6 @@ PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const
 	return builtinKind_;
 }
 
-bool PrimitiveType::isIntegral() const
-{
-	switch (builtinKind_)
-	{
-		case Kind::IntTy:
-		case Kind::FloatTy:
-		case Kind::BoolTy:
-			return true;
-		default:
-			return false;
-	}
-}
-
 bool PrimitiveType::isString() const
 {
 	return builtinKind_ == Kind::StringTy;

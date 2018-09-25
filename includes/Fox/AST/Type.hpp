@@ -105,9 +105,6 @@ namespace fox
 
 			Kind getPrimitiveKind() const;
 
-			// Returns true iff builtinKind_ == IntTy, FloatTy or BoolTy
-			bool isIntegral() const;
-
 			bool isString() const;
 			bool isChar() const;
 			bool isFloat() const;

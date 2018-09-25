@@ -219,6 +219,24 @@ bool Sema::unifySubtype(Type* a, Type* b)
 	return false;
 }
 
+bool Sema::isIntegral(Type* a)
+{
+	if (auto* prim = dyn_cast<PrimitiveType>(a))
+	{
+		using Pk = PrimitiveType::Kind;
+		switch (prim->getPrimitiveKind())
+		{
+			case Pk::BoolTy:
+			case Pk::FloatTy:
+			case Pk::IntTy:
+				return true;
+			default:
+				return false;
+		}
+	}
+	return false;
+}
+
 Type* Sema::getHighestRankingType(Type* a, Type* b)
 {
 	assert(a && b && "Pointers cannot be null");
@@ -250,14 +268,16 @@ Type* Sema::getHighestRankingType(Type* a, Type* b)
 	return a;
 }
 
-Sema::IntegralRankTy Sema::getIntegralRank(PrimitiveType* type)
+Sema::IntegralRankTy Sema::getIntegralRank(Type* type)
 {
 	using Ty = PrimitiveType::Kind;
 
-	assert(type && type->isIntegral()
+	assert(type && isIntegral(type)
 		&& "Can only use this on a valid pointer to an integral type");
 
-	switch (type->getPrimitiveKind())
+	auto* prim = cast<PrimitiveType>(type);
+
+	switch (prim->getPrimitiveKind())
 	{
 		case Ty::BoolTy:
 			return 0;
