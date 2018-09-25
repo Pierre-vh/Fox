@@ -248,7 +248,7 @@ Type* Sema::getHighestRankingType(Type* a, Type* b)
 
 Sema::IntegralRankTy Sema::getIntegralRank(Type* type)
 {
-	using Ty = PrimitiveType::Kind;
+	using Pk = PrimitiveType::Kind;
 
 	assert(type && isIntegral(type)
 		&& "Can only use this on a valid pointer to an integral type");
@@ -257,11 +257,11 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type* type)
 
 	switch (prim->getPrimitiveKind())
 	{
-		case Ty::BoolTy:
+		case Pk::BoolTy:
 			return 0;
-		case Ty::IntTy:
+		case Pk::IntTy:
 			return 1;
-		case Ty::FloatTy:
+		case Pk::FloatTy:
 			return 2;
 		default:
 			fox_unreachable("Unknown integral type");
