@@ -209,6 +209,7 @@ bool Sema::unifySubtype(Type* a, Type* b)
 			else if (!aSema->hasSubstitution())
 			{
 				// In this case, we make A's sub B
+				// thus A becomes SemaType(SemaType(nullptr)
 				aSema->setSubstitution(b);
 				return true;
 			}
