@@ -21,10 +21,6 @@ namespace
 	{
 		assert(a && b && "Pointers cannot be null");
 
-		// Ignore LValues
-		a = a->ignoreLValue();
-		b = b->ignoreLValue();
-
 		// Early return for exact equality
 		if (a == b)
 			return true;
