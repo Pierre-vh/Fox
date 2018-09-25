@@ -150,7 +150,7 @@ namespace
 
 }	// anonymous namespace
 
-bool Sema::unifySubtype(Type* a, Type* b)
+bool Sema::unify(Type* a, Type* b)
 {
 	assert(a && b && "Pointers cannot be null");
 
@@ -204,9 +204,11 @@ bool Sema::unifySubtype(Type* a, Type* b)
 			// Both have none
 			else if (!aSema->hasSubstitution())
 			{
-				// In this case, we make A's sub B
-				// thus A becomes SemaType(SemaType(nullptr)
-				aSema->setSubstitution(b);
+				// In this case, create a new SemaType
+				SemaType* fresh = ctxt_.createSemaType();
+				// Set boths subs to this new SemaType
+				aSema->setSubstitution(fresh);
+				bSema->setSubstitution(fresh);
 				return true;
 			}
 			return false;

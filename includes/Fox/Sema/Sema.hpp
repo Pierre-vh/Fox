@@ -37,17 +37,17 @@ namespace fox
 			//
 			// Behaviour:
 				// SemaType with no subs. + Any type -> True, sets appropriate subst
-				// Any Type & Any Type -> returns compareSubtype(a,b)
+				// Any Type & Any Type -> returns true if they are of the same subtypes.
+				// SemaTypes with no subs: Creates a new SemaType and sets boths subs to this new SemaType.
 				// False in all other cases.
 			//
 			// Due to the way Fox's semantics work
 			// This unification algorithm won't alter types unless
 			// they are SemaTypes.
 			//
-			// Also, most of the time, order doesn't matter, but it does
-			// in a one case, for instance when we have 2 empty SemaTypes,
-			// we Set A's subst to b and return true.
-			static bool unifySubtype(Type* a, Type* b);
+			// Also, this function works both ways,
+			// unifySubtype(a,b) or (b,a) will have the same effect.
+			bool unify(Type* a, Type* b);
 
 			// Returns true if a is a PrimitiveType of
 			// type Int/Float/Bool
