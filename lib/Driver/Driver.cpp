@@ -68,12 +68,27 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 	auto parse_micro = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 	auto parse_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 	
-	ASTDumper dumper(srcMgr, std::cout, 1);
-	dumper.visit(astCtxt.getMainUnit());
+	ASTDumper(srcMgr, std::cout, 1).visit(astCtxt.getMainUnit());
 
 	auto t3 = std::chrono::high_resolution_clock::now();
 	auto dump_micro = std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
 	auto dump_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
+
+	// Semantic analysis testing stuff, don't look
+	for (auto& decl : unit->getDecls())
+	{
+		if (FuncDecl* fn = dyn_cast<FuncDecl>(decl))
+		{
+			CompoundStmt* body = fn->getBody();
+			for (auto& node : body->getNodes())
+			{
+				if (auto* arrlit = dyn_cast_or_null<ArrayLiteralExpr>(node.getIf<Expr>()))
+					node = Sema(astCtxt, dg).typecheckExpr(arrlit);
+			}
+		}
+	}
+	std::cout << "Post typechecking visit \n\n\n";
+	ASTDumper(srcMgr, std::cout, 1).visit(unit);
 
 	astCtxt.reset();
 
