@@ -221,6 +221,7 @@ namespace
 							// TODO: Do a more precise diagnostic as this one might be unhelpful
 							// in some cases.
 							getDiags().report(DiagID::sema_arraylit_hetero, expr->getRange());
+							//std::cout << "Array was thought to be of type " << proposed->getString() << " but found " << elemTy->getString() << std::endl;
 							proposed = nullptr;
 							break;
 						}
@@ -232,7 +233,10 @@ namespace
 
 					// Apply.
 					if (proposed)
-						expr->setType(proposed);
+					{
+						// Type is an array of the proposed type.
+						expr->setType(getCtxt().getArrayTypeForType(proposed));
+					}
 					else
 						setErrorType(expr); // Failed to typecheck.
 				}
