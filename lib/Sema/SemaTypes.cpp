@@ -157,6 +157,7 @@ namespace
 		// If we didn't return yet, mission success!
 		return true;
 	}
+
 }	// anonymous namespace
 
 bool Sema::unifySubtype(Type* a, Type* b)
@@ -228,9 +229,8 @@ Type* Sema::getHighestRankingType(Type* a, Type* b)
 	// If they're different
 	if (a != b)
 	{
-		// if they're different, handle "subtype equality" case
-		// todo: create "Subtype families" and have a function return
-		// the shared family of 2 types. Will be more graceful!
+		// If they're different, unless we face 2 primitive
+		// integral types, they don't share the same family.
 		auto* pA = dyn_cast<PrimitiveType>(a);
 		auto* pB = dyn_cast<PrimitiveType>(b);
 		if(pA && pB)
@@ -242,8 +242,7 @@ Type* Sema::getHighestRankingType(Type* a, Type* b)
 				return b;
 			}
 		}
-		assert((a == b) && "Unimplemented situation");
-		return a;
+		return nullptr;
 	}
 
 	// They're equal, return a
