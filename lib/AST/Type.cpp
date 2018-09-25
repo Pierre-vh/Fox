@@ -161,7 +161,7 @@ ArrayType::ArrayType(Type* elemTy):
 
 std::string ArrayType::getString() const
 {
-	return elementTy_->getString() + "[]";
+	return "Array(" + elementTy_->getString() + ")";
 }
 
 Type* ArrayType::getElementType()
