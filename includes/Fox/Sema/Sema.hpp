@@ -37,10 +37,6 @@ namespace fox
 			// 2 types.
 			static bool unifySubtype(Type* a, Type* b);
 
-			// Compares the Subtypes of A and B. Returns true if a and b
-			// share the same "subtype", false otherwise.
-			static bool compareSubtypes(Type* a, Type* b);
-
 			// Given 2 types of the same subtype
 				// If they are integrals, return the highest ranking integral's type
 				// else it returns its first argument

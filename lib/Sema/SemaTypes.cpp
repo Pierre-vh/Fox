@@ -15,6 +15,71 @@
 
 using namespace fox;
 
+namespace
+{
+	bool compareSubtypes(Type* a, Type* b)
+	{
+		assert(a && b && "Pointers cannot be null");
+
+		// Ignore LValues
+		a = a->ignoreLValue();
+		b = b->ignoreLValue();
+
+		// Early return for exact equality
+		if (a == b)
+			return true;
+
+		// Check more in depth
+		if (a->getKind() == b->getKind())
+		{
+			// Checking additional requirements for Primitive Types where
+			// exact equality
+			if (auto* aPrim = dyn_cast<PrimitiveType>(a))
+			{
+				auto* bPrim = cast<PrimitiveType>(b);
+
+				// If a is integral, return true if b is too.
+				if (aPrim->isIntegral())
+					return bPrim->isIntegral();
+
+				// We can return false otherwise, because as Primitive types are
+				// all singletons, if they shared the same PrimitiveKind the
+				// if(a==b) up there would have caught that.
+				return false;
+			}
+
+			// Checking Array Types
+			if (isa<ArrayType>(a))
+			{
+				Type* elemA = a->unwrapIfArray();
+				Type* elemB = b->unwrapIfArray();
+
+				assert(elemA && elemB && "Types are null");
+
+				// Check elements types recursively for arrays.
+				return compareSubtypes(elemA, elemB);
+			}
+
+			// Check sematypes, we might unwrap them to compare their substitution
+			// if they both have one
+			if (isa<SemaType>(a))
+			{
+				auto* aSubst = cast<SemaType>(a)->getSubstitution();
+				auto* bSubst = cast<SemaType>(b)->getSubstitution();
+
+				if (aSubst && bSubst)
+					return compareSubtypes(aSubst, bSubst);
+				return false;
+			}
+
+			// Lastly, return true unless we have 2 ErrorTypes
+			return !isa<ErrorType>(a);
+		}
+
+		return false;
+	}
+}
+
 bool Sema::unifySubtype(Type* a, Type* b)
 {
 	assert(a && b && "Pointers cannot be null");
@@ -75,68 +140,6 @@ bool Sema::unifySubtype(Type* a, Type* b)
 	}
 
 	// All other cases are false for now.
-	return false;
-}
-
-bool Sema::compareSubtypes(Type* a, Type* b)
-{
-	assert(a && b && "Pointers cannot be null");
-
-	// Ignore LValues
-	a = a->ignoreLValue();
-	b = b->ignoreLValue();
-
-	// Early return for exact equality
-	if (a == b)
-		return true;
-
-	// Check more in depth
-	if (a->getKind() == b->getKind())
-	{
-		// Checking additional requirements for Primitive Types where
-		// exact equality
-		if (auto* aPrim = dyn_cast<PrimitiveType>(a))
-		{
-			auto* bPrim = cast<PrimitiveType>(b);
-
-			// If a is integral, return true if b is too.
-			if (aPrim->isIntegral())
-				return bPrim->isIntegral();
-
-			// We can return false otherwise, because as Primitive types are
-			// all singletons, if they shared the same PrimitiveKind the
-			// if(a==b) up there would have caught that.
-			return false;
-		}
-
-		// Checking Array Types
-		if (isa<ArrayType>(a))
-		{
-			Type* elemA = a->unwrapIfArray();
-			Type* elemB = b->unwrapIfArray();
-
-			assert(elemA && elemB && "Types are null");
-
-			// Check elements types recursively for arrays.
-			return compareSubtypes(elemA, elemB);
-		}
-		
-		// Check sematypes, we might unwrap them to compare their substitution
-		// if they both have one
-		if (isa<SemaType>(a))
-		{
-			auto* aSubst = cast<SemaType>(a)->getSubstitution();
-			auto* bSubst = cast<SemaType>(b)->getSubstitution();
-
-			if (aSubst && bSubst)
-				return compareSubtypes(aSubst, bSubst);
-			return false;
-		}
-
-		// Lastly, return true unless we have 2 ErrorTypes
-		return !isa<ErrorType>(a);
-	}
-
 	return false;
 }
 
