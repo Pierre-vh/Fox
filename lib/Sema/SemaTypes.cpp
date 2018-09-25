@@ -78,20 +78,99 @@ namespace
 
 		return false;
 	}
-}
+
+	// If type is a SemaType with a substitution, returns it.
+	// if that substitution is also a SemaType, calls 
+	// this function recursively until we reach a SemaType
+	// with no sub or something that isn't a sub.
+	// If type doesn't have a sub or isn't a SemaType, leaves the type
+	// untouched.
+	// Returns true if the type changed, false otherwise.
+	bool prepareSemaTypeForUnification(Type*& type)
+	{
+		if (auto* sema = dyn_cast<SemaType>(type))
+		{
+			if (Type* sub = sema->getSubstitution())
+			{
+				// SemaType with sub, recurse if needed.
+				if (isa<SemaType>(type))
+				{
+					prepareSemaTypeForUnification(type);
+					return true;
+				}
+				// Else just return the sub.
+				type = sub;
+				return true;
+			}
+			// SemaType with no sub, don't do anything
+			// special
+			return false;
+		}
+		// Not a SemaType, don't change anything
+		return false;
+	}
+
+	// Performs the pre-unifications tasks
+	// Returns false if unification will fail and we can
+	// return immediatly.
+	bool performPreUnificationTasks(Type*& a, Type*& b)
+	{
+		assert(a && b && "Pointers cannot be nullptr");
+
+		// ignore LValues, they don't matter when
+		// unifying as they are never propagated.
+		a = a->ignoreLValue();
+		b = b->ignoreLValue();
+
+		// If we have error types, unification is impossible.
+		if (isa<ErrorType>(a) || isa<ErrorType>(b))
+			return false;
+
+		// handle SemaType unwrapping
+		{
+			bool rA = prepareSemaTypeForUnification(a);
+			bool rB = prepareSemaTypeForUnification(b);
+			// If one of them changed, recurse.
+			if (rA || rB)
+				return performPreUnificationTasks(a, b);
+		}
+
+		// handle ArrayType unwrapping
+		{
+			auto* arrA = dyn_cast<ArrayType>(a);
+			auto* arrB = dyn_cast<ArrayType>(b);
+
+			// Both are arrays, unwrap & recurse
+			if (arrA && arrB)
+			{
+				a = arrA->getElementType();
+				b = arrB->getElementType();
+				assert(a && b && "Array had a null element type");
+				return performPreUnificationTasks(a, b);
+			}
+			// Only one of them is an array, unification fails
+			else if ((!arrA) != (!arrB))
+				return false;
+			// None of them are arrays, keep going
+		}
+
+		// If we didn't return yet, mission success!
+		return true;
+	}
+}	// anonymous namespace
 
 bool Sema::unifySubtype(Type* a, Type* b)
 {
 	assert(a && b && "Pointers cannot be null");
 
-	if (a == b)
-		return true;
-
-	if (isa<ErrorType>(a) || isa<ErrorType>(b))
+	// Pre-unification checks, if they fail, return.
+	if (!performPreUnificationTasks(a, b))
 		return false;
 
-	// Return early if a and b share the same subtype (no unification needed) and that they
-	// aren't ErrorTypes, return early
+	// Return early if a and b share the same subtype (no unification needed)
+	// Note: this is inefficient, this function does a bunch of checks
+	// on arrays/sematypes that are done earlier. See if there's a real
+	// performance impact.
 	if (compareSubtypes(a, b))
 		return true;
 
@@ -127,17 +206,12 @@ bool Sema::unifySubtype(Type* a, Type* b)
 			}
 			return false;
 		}
+
+		// None of them are SemaTypes
 	}
 
-	// Array checks
-	{
-		auto* aArr = dyn_cast<ArrayType>(a->ignoreLValue());
-		auto* bArr = dyn_cast<ArrayType>(b->ignoreLValue());
-
-		// Check arrays recursively
-		if (aArr && bArr)
-			return unifySubtype(aArr->getElementType(), bArr->getElementType());
-	}
+	// Arrays don't need special handling as
+	// they're unwrapped in performPreUnificationTasks
 
 	// All other cases are false for now.
 	return false;
