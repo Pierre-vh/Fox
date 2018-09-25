@@ -29,20 +29,9 @@ namespace
 		if (a->getKind() == b->getKind())
 		{
 			// Checking additional requirements for Primitive Types where
-			// exact equality
-			if (auto* aPrim = dyn_cast<PrimitiveType>(a))
-			{
-				auto* bPrim = cast<PrimitiveType>(b);
-
-				// If a is integral, return true if b is too.
-				if (aPrim->isIntegral())
-					return bPrim->isIntegral();
-
-				// We can return false otherwise, because as Primitive types are
-				// all singletons, if they shared the same PrimitiveKind the
-				// if(a==b) up there would have caught that.
-				return false;
-			}
+			// we allow 2 integrals to be considered "equal"
+			if (Sema::isIntegral(a) && Sema::isIntegral(b))
+				return true;
 
 			// Checking Array Types
 			if (isa<ArrayType>(a))
@@ -245,27 +234,16 @@ Type* Sema::getHighestRankingType(Type* a, Type* b)
 	a = a->ignoreLValue();
 	b = b->ignoreLValue();
 
-	// If they're different
-	if (a != b)
-	{
-		// If they're different, unless we face 2 primitive
-		// integral types, they don't share the same family.
-		auto* pA = dyn_cast<PrimitiveType>(a);
-		auto* pB = dyn_cast<PrimitiveType>(b);
-		if(pA && pB)
-		{
-			if (pA->isIntegral() && pB->isIntegral())
-			{
-				if (getIntegralRank(pA) > getIntegralRank(pB))
-					return a;
-				return b;
-			}
-		}
-		return nullptr;
-	}
+	if (a == b)
+		return a;
 
-	// They're equal, return a
-	return a;
+	if (isIntegral(a) && isIntegral(b))
+	{
+		if (getIntegralRank(a) > getIntegralRank(b))
+			return a;
+		return b;
+	}
+	return nullptr;
 }
 
 Sema::IntegralRankTy Sema::getIntegralRank(Type* type)
