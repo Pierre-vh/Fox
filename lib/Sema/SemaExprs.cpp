@@ -54,6 +54,11 @@ namespace
 				return sema_.getDiagnosticEngine();
 			}
 
+			Sema& getSema()
+			{
+				return sema_;
+			}
+
 			virtual std::pair<Expr*, bool> handleExprPre(Expr* expr)
 			{
 				// Not needed since we won't do preorder visitation
@@ -215,7 +220,7 @@ namespace
 						// We do elemTy = proposed instead of the opposite
 						// because we want to elemTy's sub to be set to proposed
 						// if it's a Sematype awaiting inferrence.
-						if (!Sema::unifySubtype(elemTy, proposed))
+						if (!getSema().unify(elemTy, proposed))
 						{
 							// Failed to unify: incompatible types
 							// TODO: Do a more precise diagnostic as this one might be unhelpful
@@ -250,6 +255,7 @@ namespace
 				return expr;
 			}
 	};
+
 } // End anonymous namespace
 
 Expr* Sema::typecheckExpr(Expr* expr)
