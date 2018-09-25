@@ -25,7 +25,7 @@ namespace
 		if (a == b)
 			return true;
 
-		// Check more in depth
+		// Check more in depth for same kind
 		if (a->getKind() == b->getKind())
 		{
 			// Checking additional requirements for Primitive Types where
@@ -165,9 +165,6 @@ bool Sema::unifySubtype(Type* a, Type* b)
 		return false;
 
 	// Return early if a and b share the same subtype (no unification needed)
-	// Note: this is inefficient, this function does a bunch of checks
-	// on arrays/sematypes that are done earlier. See if there's a real
-	// performance impact.
 	if (compareSubtypes(a, b))
 		return true;
 
@@ -269,6 +266,6 @@ Sema::IntegralRankTy Sema::getIntegralRank(PrimitiveType* type)
 		case Ty::FloatTy:
 			return 2;
 		default:
-			fox_unreachable("Unknown arithmetic type");
+			fox_unreachable("Unknown integral type");
 	}
 }
