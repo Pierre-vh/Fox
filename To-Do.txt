@@ -63,6 +63,8 @@ Moonshot Project To-do List.
 	> ASTWalker (Done)
 	> Add ErrorType (Done)
 
+	> Detail diag with first failed type for arraylit
+
 	> Basic Expression Semantic analysis (Next)
 	> Stmt Semantic Analysis
 	> Decl Semantic Analysis
