@@ -230,10 +230,6 @@ Type* Sema::getHighestRankingType(Type* a, Type* b)
 {
 	assert(a && b && "Pointers cannot be null");
 
-	// Ignore LValues since they won't be "propagated" anyway
-	a = a->ignoreLValue();
-	b = b->ignoreLValue();
-
 	if (a == b)
 		return a;
 
