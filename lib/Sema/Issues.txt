@@ -1,5 +1,4 @@
 List of "traps" that semantic analysis might fall into, and that will need to be tested.
-
 	// Will probably fail to determine arraytype
 	let x : int[][] = [[],[],[], [1]];
 	let x : int[][] = [[],[],[]];
@@ -7,11 +6,7 @@ List of "traps" that semantic analysis might fall into, and that will need to be
 	This exposes a clusterfuck in my logic. I'll have to rest a bit and then rethink the way SemaTypes
 	are handled in unifySubtype and tryJoinSemaTypes.
 
-	tryJoinSemaType has literaly no reason to exist. It is unify's job.
-	In unify, if we have 2 SemaTypes, I should "unwrap" them both until reaching a Concrete type
-	or the last layer of SemaType (->find a name for this). 
-	
-	This will cover most of my "edge cases" in the unification process.
+
 
 	About 
 		[[], [], [], [1]]
@@ -69,3 +64,12 @@ List of "traps" that semantic analysis might fall into, and that will need to be
 					If both SemaType don't have sub, make the first SemaType's sub the 2nd SemaType
 
 					If one is a SemaType and the Other isn't, the SemaType's sub becomes the Other type.
+
+
+
+Other issues:	
+	Everything is fuzzy in regard to lvalue unwrapping
+		-> let the client unwrap them if he wants, allow the function to fail in other cases
+
+	Integral ranking should be easier to manipulate
+		-> add getSubtypeFunction, returns None or Integral
