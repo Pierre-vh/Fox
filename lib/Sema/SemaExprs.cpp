@@ -199,7 +199,7 @@ namespace
 						if (!proposed)
 							proposed = elemTy;
 
-						if (elemTy->isErrorType())
+						if (isa<ErrorType>(elemTy))
 						{
 							// Set proposed to ErrorType
 							proposed = elemTy;
