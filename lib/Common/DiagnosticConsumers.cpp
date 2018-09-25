@@ -108,21 +108,17 @@ std::string createUnderline(char underlineChar, const std::string& str, std::str
 	std::string line = "";
 
 	std::string::const_iterator strBeg = str.begin();
+
+	// Calculate the number of spaces before the caret and add them
 	std::size_t spacesBeforeCaret = utf8::distance(strBeg, beg);
 
 	for (std::size_t k = 0; k < spacesBeforeCaret; k++)
 		line += ' ';
 
+	// Calculate the number fo carets we need
 	std::size_t numCarets = 1 + utf8::distance(beg, end);
 	for (std::size_t k = 0; k < numCarets; k++)
-	{
-		// Stop generating carets if the caretLine is longer
-		// than the line's size + 1 (to allow a caret at the end of the line)
-		if (line.size() > (line.size() + 1))
-			break;
-
 		line += underlineChar;
-	}
 
 	return line;
 }
@@ -168,10 +164,17 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
 
 	std::string underline;
 
+	auto getOffsetIteratorFromLineBeg = [&](std::size_t idx) {
+		auto result = idx - lineBeg;
+		if (result >= line.size())
+			result = line.size();
+		return line.begin() + result;
+	};
+
 	// Create the carets underline (^) 
 	{	
-		auto beg = line.begin() + (range.getBegin().getIndex() - lineBeg);
-		auto end = line.begin() + (range.getEnd().getIndex() - lineBeg);
+		auto beg = getOffsetIteratorFromLineBeg(range.getBegin().getIndex());
+		auto end = getOffsetIteratorFromLineBeg(range.getEnd().getIndex());
 		underline = createUnderline('^', line, beg, end);
 	}
 
@@ -181,8 +184,8 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
 		assert((diag.getExtraRange().getFileID() == diag.getRange().getFileID())
 			&& "Ranges don't belong to the same file");
 
-		auto beg = line.begin() + (eRange.getBegin().getIndex() - lineBeg);
-		auto end = line.begin() + (eRange.getEnd().getIndex() - lineBeg);
+		auto beg = getOffsetIteratorFromLineBeg(eRange.getBegin().getIndex());
+		auto end = getOffsetIteratorFromLineBeg(eRange.getEnd().getIndex());
 		underline = embedString(underline, createUnderline('~', line, beg, end));
 	}
 
