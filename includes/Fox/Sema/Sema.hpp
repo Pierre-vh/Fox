@@ -47,12 +47,6 @@ namespace fox
 			// type must not be null and must point to a arithmetic type.
 			static IntegralRankTy getIntegralRank(PrimitiveType* type);
 
-			// If a and b are both SemaTypes without substitutions,
-			// make A's substitution B's type, nesting the SemaTypes.
-			// Returns true if the join occured, false otherwise.
-			// A or B might be null
-			static bool tryJoinSemaTypes(Type* a, Type* b);
-
 			DiagnosticEngine& getDiagnosticEngine();
 			ASTContext& getASTContext();
 		private:

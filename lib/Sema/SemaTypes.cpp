@@ -268,22 +268,3 @@ Sema::IntegralRankTy Sema::getIntegralRank(PrimitiveType* type)
 			fox_unreachable("Unknown arithmetic type");
 	}
 }
-
-bool Sema::tryJoinSemaTypes(Type* a, Type* b)
-{
-	SemaType* aSema = dyn_cast_or_null<SemaType>(a);
-	SemaType* bSema = dyn_cast_or_null<SemaType>(b);
-
-	if (aSema && bSema)
-	{
-		if (aSema->hasSubstitution() && bSema->hasSubstitution())
-			return false;
-
-		if (aSema->hasSubstitution())
-			bSema->setSubstitution(aSema);
-		else  // else, bSema has a subst or doesn't, but we do the same thing in both cases
-			aSema->setSubstitution(bSema);
-		return true;
-	}
-	return false;
-}
