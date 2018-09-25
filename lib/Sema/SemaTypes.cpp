@@ -30,8 +30,12 @@ namespace
 		{
 			// Checking additional requirements for Primitive Types where
 			// we allow 2 integrals to be considered "equal"
-			if (Sema::isIntegral(a) && Sema::isIntegral(b))
-				return true;
+			if (isa<PrimitiveType>(a))
+			{
+				if (Sema::isIntegral(a) && Sema::isIntegral(b))
+					return true;
+				return false;
+			}
 
 			// Checking Array Types
 			if (isa<ArrayType>(a))

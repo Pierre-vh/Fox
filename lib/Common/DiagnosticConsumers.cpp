@@ -166,8 +166,8 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
 
 	auto getOffsetIteratorFromLineBeg = [&](std::size_t idx) {
 		auto result = idx - lineBeg;
-		if (result >= line.size())
-			result = line.size();
+		if (result > line.size())
+			result = line.size() - 1;
 		return line.begin() + result;
 	};
 
