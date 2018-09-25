@@ -49,3 +49,23 @@ List of "traps" that semantic analysis might fall into, and that will need to be
 
 				Unify should also be more used in the Expr analysis. compareSubtypes should never be used directly, always
 				through unifySubtype()
+
+				int=float -> true
+				int[]=float[] -> true (unwraps arrays)
+				@int=int -> true (unwraps args if lvalue)
+				SemaType(int)=SemaType(float) -> true (Unwraps if both has sub)
+				float=SemaType(nullptr) -> true (2nd sematype becomes SemaType(float))
+				SemaType(SemaType(nullptr)) = int -> true (SemaType(SemaType(int)))
+				(A)SemaType(nullptr) = (B)SemaType(nullptr) -> true (SemaType A becomes SemaType(B's SemaType))
+				ArrayType(SemaType(nullptr)) = ArrayType(int) = Unwraps arrays, calls SemaType(nullptr) = int
+
+				TODO LIST
+				Pre-unify checks
+					Conditionally unwrap if SemaType has sub until we reach something that isn't a sematype
+					or a sematype without sub (Done thru prepareSemaTypeForUnification)
+
+					Unwraps arrays (Done thru performPreUnificationTasks)
+
+					If both SemaType don't have sub, make the first SemaType's sub the 2nd SemaType
+
+					If one is a SemaType and the Other isn't, the SemaType's sub becomes the Other type.
