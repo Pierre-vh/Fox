@@ -26,15 +26,27 @@ namespace fox
 			// Typedefs
 			using IntegralRankTy = std::uint8_t;
 
+			// Typechecks an expression. Returns the
+			// expression, or another one that should
+			// take it's place, or nullptr if critical
+			// failure (such as ill formed ast)
+			Expr* typecheckExpr(Expr* expr);
+
 			// The unification algorithms for types of the same subtypes.
+			// Tries to make A = B
 			//
-			// SemaType with no subs. + Any type -> True, sets appropriate subst
-			// Any Type & Any Type -> returns compareSubtype(a,b)
-			// False in all other cases.
+			// Behaviour:
+				// SemaType with no subs. + Any type -> True, sets appropriate subst
+				// Any Type & Any Type -> returns compareSubtype(a,b)
+				// False in all other cases.
+			//
 			// Due to the way Fox's semantics work
-			// This unification algorithm won't change the types unless
-			// they are SemaTypes. Refer to getHighestRankingType to "mix" 
-			// 2 types.
+			// This unification algorithm won't alter types unless
+			// they are SemaTypes.
+			//
+			// Also, most of the time, order doesn't matter, but it does
+			// in a one case, for instance when we have 2 empty SemaTypes,
+			// we Set A's subst to b and return true.
 			static bool unifySubtype(Type* a, Type* b);
 
 			static bool isIntegral(Type* a);
