@@ -63,9 +63,6 @@ Moonshot Project To-do List.
 	> ASTWalker (Done)
 	> Add ErrorType (Done)
 
-	> Find a way to make passing types references easier
-		-> Type/TypeBase rework?
-
 	> Basic Expression Semantic analysis (Next)
 	> Stmt Semantic Analysis
 	> Decl Semantic Analysis
