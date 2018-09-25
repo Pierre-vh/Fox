@@ -75,17 +75,12 @@ namespace
 	{
 		if (auto* sema = dyn_cast<SemaType>(type))
 		{
+			// Get the substitution if it has one
 			if (Type* sub = sema->getSubstitution())
 			{
-				// SemaType with sub, recurse if needed.
-				if (isa<SemaType>(type))
-				{
-					prepareSemaTypeForUnification(type);
-					return true;
-				}
-				// Else just return the sub.
-				type = sub;
-				return true;
+				// if the sub is a SemaType again, recurse.
+				if(isa<SemaType>(sub))
+					return prepareSemaTypeForUnification(type);
 			}
 			// SemaType with no sub, don't do anything
 			// special
@@ -143,6 +138,22 @@ namespace
 		return true;
 	}
 
+	// Tries to adjust the Sematype. Returns true on success, false otherwise.
+	bool tryAdjustSemaType(SemaType* semaTy, Type* candidate)
+	{
+		auto* sub = semaTy->getSubstitution();
+		assert(sub && "Must have a sub");
+		// if the sub is integral, we might be able to uprank
+		if (Sema::isIntegral(sub) && Sema::isIntegral(candidate))
+		{
+			auto* highest = Sema::getHighestRankingType(sub, candidate);
+			assert(highest && "Can't find the highest rank between 2 integrals?");
+			semaTy->setSubstitution(highest);
+			return true;
+		}
+		return false;
+	}
+
 }	// anonymous namespace
 
 bool Sema::unifySubtype(Type* a, Type* b)
@@ -162,15 +173,23 @@ bool Sema::unifySubtype(Type* a, Type* b)
 		// Now check if we don't have a substitution type somewhere
 		auto* aSema = dyn_cast<SemaType>(a->ignoreLValue());
 		auto* bSema = dyn_cast<SemaType>(b->ignoreLValue());
-
 		// if a or b is a SemaType
 		if ((!aSema) != (!bSema))
 		{
-			// Set the substitution to the other type.
+			// aSema is a SemaType
 			if (aSema)
+			{
+				if (aSema->hasSubstitution()) // Don't overwrite a sub, adjust it or give up
+					return tryAdjustSemaType(aSema, b);
 				aSema->setSubstitution(b);
+			}
+			// bSema is a SemaType
 			else
+			{
+				if (bSema->hasSubstitution()) // Don't overwrite a sub, adjust it or give up
+					return tryAdjustSemaType(bSema, a);
 				bSema->setSubstitution(a);
+			}
 
 			return true;
 		}
