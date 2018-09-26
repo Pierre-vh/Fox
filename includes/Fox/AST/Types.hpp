@@ -1,7 +1,7 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : Type.hpp											
+// File : Types.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file contains the TypeBase hierarchy.
