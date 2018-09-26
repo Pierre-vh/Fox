@@ -5,7 +5,7 @@ add_source(
     "Stmt.cpp"
 	"ASTContext.cpp"
 	"ASTWalker.cpp"
-	"Type.cpp"
+	"Types.cpp"
 	"ASTDumper.cpp"
 	"Identifiers.cpp"
 	"DeclContext.cpp"

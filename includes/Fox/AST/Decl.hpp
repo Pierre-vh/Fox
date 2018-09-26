@@ -8,7 +8,7 @@
 ////------------------------------------------------------////
 
 #pragma once
-#include "Type.hpp"
+#include "Types.hpp"
 #include "DeclContext.hpp"
 #include "Fox/Common/Source.hpp"
 

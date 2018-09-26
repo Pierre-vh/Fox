@@ -31,7 +31,7 @@
 #pragma once
 
 #include "Fox/Lexer/Token.hpp"					
-#include "Fox/AST/Type.hpp"
+#include "Fox/AST/Types.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"

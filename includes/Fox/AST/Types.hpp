@@ -4,7 +4,7 @@
 // File : Type.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file contains the Type AST nodes.
+// This file contains the TypeBase hierarchy.
 ////------------------------------------------------------////
 
 #pragma once

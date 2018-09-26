@@ -12,7 +12,7 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/ASTContext.hpp"
-#include "Fox/AST/Type.hpp"
+#include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/Common/LLVM.hpp"
 

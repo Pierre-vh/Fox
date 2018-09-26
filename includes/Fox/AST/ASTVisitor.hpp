@@ -13,7 +13,7 @@
 #include "Decl.hpp"
 #include "Stmt.hpp"
 #include "Expr.hpp"
-#include "Type.hpp"
+#include "Types.hpp"
 #include "ASTNode.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <utility>

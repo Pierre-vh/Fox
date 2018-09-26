@@ -15,7 +15,7 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include "Type.hpp"
+#include "Types.hpp"
 #include "Decl.hpp"
 #include "Identifiers.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
