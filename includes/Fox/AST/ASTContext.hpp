@@ -33,37 +33,23 @@ namespace fox
 			// Registers a unit in this ASTContext
 			void addUnit(UnitDecl* unit, bool isMainUnit = false);
 
-			// TYPES
-			// Getter for the builtin primitive "int" type
-			PrimitiveType* getIntType();
-
-			// Getter for the builtin primitive "float" type
-			PrimitiveType* getFloatType();
-
-			// Getter for the builtin primitive "char" type
-			PrimitiveType* getCharType();
-
-			// Getter for the builtin primitive "bool" type
-			PrimitiveType* getBoolType();
-
-			// Getter for the builtin primitive "string" type
-			PrimitiveType* getStringType();
-
-			// Getter for the builtin primitive void type
-			// (used for function return types)
-			PrimitiveType* getVoidType();
-
-			// Getter for the error type
-			ErrorType* getErrorType();
+			// TYPES: Unique Primitives
+			const Type theIntType;
+			const Type theFloatType;
+			const Type theCharType;
+			const Type theBoolType;
+			const Type theStringType;
+			const Type theVoidType;
+			const Type theErrorType;
 
 			// Returns an ArrayType for a given type.
-			ArrayType* getArrayTypeForType(TypeBase* ty);
+			Type getArrayTypeForType(Type ty);
 
 			// Returns an LValueType for a given type
-			LValueType* getLValueTypeForType(TypeBase* ty);
+			Type getLValueTypeForType(Type ty);
 
 			// Creates a SemaType
-			SemaType* createSemaType(TypeBase* ty = nullptr);
+			Type createSemaType(TypeBase *ty = nullptr);
 
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
@@ -75,12 +61,12 @@ namespace fox
 			IdentifierTable identifiers;
 
 		private:
+			using PrimKind = PrimitiveType::Kind;
+			PrimitiveType* createPrimitive(PrimKind pk);
+
 			// Context shouldn't be copyable.
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
-
-			// Inits all builtin types
-			void initBuiltinTypes();
 
 			// An observing pointer to a ASTUnit owned by the vector below that points to the main unit
 			// (= the unit that contains the entry point of this module)
@@ -88,18 +74,6 @@ namespace fox
 
 			// All of the units that makes the current module.
 			std::vector<UnitDecl*> units_;
-
-			// Built-in types
-			// Theses are all initialized by initBuiltinType
-			PrimitiveType* theVoidTy_  = nullptr;
-			PrimitiveType* theIntTy_   = nullptr;
-			PrimitiveType* theFloatTy_ = nullptr;
-			PrimitiveType* theBoolTy_ = nullptr;
-			PrimitiveType* theCharTy_ = nullptr;
-			PrimitiveType* theStringTy_ = nullptr;
-
-			// The error type
-			ErrorType* theErrorTy_ = nullptr;
 
 			// Array types (Type -> Type[])
 			std::map<TypeBase*, ArrayType*> arrayTypes_;
