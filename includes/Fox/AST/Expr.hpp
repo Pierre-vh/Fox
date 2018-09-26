@@ -38,7 +38,7 @@ namespace fox
 			SourceRange getRange() const;
 
 			void setType(Type type);
-			Type getType();
+			Type& getType();
 			const Type getType() const;
 
 			// Prohibit the use of builtin placement new & delete
@@ -157,9 +157,9 @@ namespace fox
 			CastExpr();
 			CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range);
 			
-			void setCastGoal(TypeLoc goal);
-			TypeLoc getCastGoal();
-			const TypeLoc getCastGoal() const;
+			void setCastTypeLoc(TypeLoc goal);
+			TypeLoc& getCastTypeLoc();
+			const TypeLoc getCastTypeLoc() const;
 
 			void setExpr(Expr* expr);
 			Expr* getExpr();

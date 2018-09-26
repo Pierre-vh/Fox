@@ -8,9 +8,8 @@
 ////------------------------------------------------------////
 
 #pragma once
-#include "Types.hpp"
 #include "DeclContext.hpp"
-#include "Fox/Common/Source.hpp"
+#include "Type.hpp"
 
 namespace fox
 {
@@ -111,7 +110,7 @@ namespace fox
 		private:
 			bool isConst_;
 			SourceRange tyRange_;
-			TypeBase* type_;
+			TypeLoc type_;
 	};
 
 	// ParamDecl

@@ -56,7 +56,7 @@ void ASTDumper::visitBinaryExpr(BinaryExpr* node)
 
 void ASTDumper::visitCastExpr(CastExpr* node)
 {
-	dumpLine() << getBasicExprInfo(node) << " " << getTypeDump("to",node->getCastGoal()) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << getTypeDump("to",node->getCastTypeLoc()) << "\n";
 	indent();
 		visit(node->getExpr());
 	dedent();

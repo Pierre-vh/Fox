@@ -121,7 +121,7 @@ namespace
 				// of the same family OR string.
 				// WIP: Check if cast is okay
 				TypeBase* exprTy = expr->getExpr()->getType().getPtr();
-				TypeLoc castGoal = expr->getCastGoal();
+				TypeLoc castGoal = expr->getCastTypeLoc();
 
 				if (!getSema().unify(exprTy, castGoal.getPtr()))
 				{

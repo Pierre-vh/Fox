@@ -46,7 +46,7 @@ void Expr::setType(Type type)
 	type_ = type;
 }
 
-Type Expr::getType()
+Type& Expr::getType()
 {
 	return type_;
 }
@@ -464,17 +464,17 @@ CastExpr::CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range):
 
 }
 
-void CastExpr::setCastGoal(TypeLoc goal)
+void CastExpr::setCastTypeLoc(TypeLoc goal)
 {
 	goal_ = goal;
 }
 
-TypeLoc CastExpr::getCastGoal()
+TypeLoc& CastExpr::getCastTypeLoc()
 {
 	return goal_;
 }
 
-const TypeLoc CastExpr::getCastGoal() const
+const TypeLoc CastExpr::getCastTypeLoc() const
 {
 	return goal_;
 }
