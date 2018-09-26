@@ -122,6 +122,7 @@ namespace
 				// WIP: Check if cast is okay
 				Type* exprTy = expr->getExpr()->getType();
 				Type* castGoal = expr->getCastGoal();
+
 				if (!getSema().unify(exprTy, castGoal))
 				{
 					// Add special user friendly type dump in sema instead of the getString method
@@ -130,7 +131,13 @@ namespace
 							.addArg(exprTy->getString())
 							.addArg(castGoal->getString())
 							.setExtraRange(expr->getExpr()->getRange());
+					expr->setType(getCtxt().getErrorType());
+					// Propagate the error type to the expr->type to avoid error
+					// flooding.
 				}
+				else
+					expr->setType(castGoal);
+
 				return expr;
 			}
 
@@ -277,6 +284,7 @@ namespace
 	{
 		ASTContext& ctxt_;
 		DiagnosticEngine& diags_;
+
 		public:
 			ExprFinalizer(ASTContext& ctxt, DiagnosticEngine& diags) :
 				ctxt_(ctxt), diags_(diags)
@@ -288,6 +296,7 @@ namespace
 			{
 				Type* type = expr->getType();
 				assert(type && "Untyped expr");
+
 				// Visit the type
 				type = visit(type);
 				// If the type is nullptr, this inference failed
@@ -349,6 +358,6 @@ namespace
 Expr* Sema::typecheckExpr(Expr* expr)
 {
 	expr = ExprChecker(*this).walk(expr);
-	expr = ExprFinalizer(ctxt_, diags_).walk(expr);
+	//expr = ExprFinalizer(ctxt_, diags_).walk(expr);
 	return expr;
 }
