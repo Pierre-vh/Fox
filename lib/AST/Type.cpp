@@ -39,11 +39,13 @@ bool Type::isNull() const
 
 TypeBase* Type::operator->()
 {
+	assert(ty_ && "Cannot use this if the pointer is null.");
 	return ty_;
 }
 
 const TypeBase* Type::operator->() const
 {
+	assert(ty_ && "Cannot use this if the pointer is null.");
 	return ty_;
 }
 
