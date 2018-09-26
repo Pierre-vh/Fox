@@ -49,13 +49,15 @@ namespace fox
 				return dyn_cast_or_null<Ty>(ty_);
 			}
 
-			// calls isa on the pointer. Always return false
+			// calls isa on the pointer. Returns false
 			// if the pointer is null.
 			template<typename Ty>
 			bool is() const
 			{
 				return ty_ ? isa<Ty>(ty_) : false;
 			}
+
+
 
 	};
 
