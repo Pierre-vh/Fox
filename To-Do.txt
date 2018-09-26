@@ -65,13 +65,13 @@ Moonshot Project To-do List.
 	> Bulk of the Type rework (Done)
 
 	> Finish Type Rework/Solve last issues (Next)
-		> This has a heavy aftermath, I need to review most of my code to fix issues.
 		> Fix already existing Semantic analysis code.
 		> Fix ExprFinalizer. I Applied some "band aid fix" but it needs to be refactored.
-		> Delete CopyCtor & Assignement operator for Type to TypeLoc and TypeLoc to Type. 
-			Make a special member function "withoutLoc" of TypeLoc to create a Type out of it.
-			This will make converting between Type/TypeLoc a lot harder, thus avoiding bugs related
-			implicit Type/TypeLoc conversions.
+		> Delete CopyCtor & Assignement operator for Type to TypeLoc and TypeLoc to Type (Done)
+		> Type/TypeLoc: what should be prevalent in Semantic Analysis?
+			-> If I need to switch from Type back to TypeLoc, I should be able to use PointerIntPair to pack a bool
+			   in the TypeBase* pointer saying that we're in a TypeLoc or not, and have a getAs/isaTypeLoc() function in Type.
+			   Just do that in a worst case scenario.
 
 	> Change how Type::getString displays types. Use 2 functions: getDebugString(), getString(), one is more informative, the second is more user friendly.
 
