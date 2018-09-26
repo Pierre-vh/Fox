@@ -87,15 +87,12 @@ namespace fox
 	class ValueDecl : public NamedDecl
 	{
 		public:
-			ValueDecl(DeclKind kind, Identifier* id, TypeBase* ty, 
-				bool isConst, SourceRange typeRange, SourceRange range);
+			ValueDecl(DeclKind kind, Identifier* id, TypeLoc ty, 
+				bool isConst, SourceRange range);
 
-			TypeBase* getType();
-			const TypeBase* getType() const;
-			void setType(TypeBase* ty);
-
-			SourceRange getTypeRange() const;
-			void setTypeRange(SourceRange range);
+			TypeLoc& getTypeLoc();
+			const TypeLoc getTypeLoc() const;
+			void setTypeLoc(TypeLoc ty);
 
 			bool isConstant() const;
 			void setIsConstant(bool k);
@@ -109,7 +106,6 @@ namespace fox
 
 		private:
 			bool isConst_;
-			SourceRange tyRange_;
 			TypeLoc type_;
 	};
 
@@ -119,7 +115,7 @@ namespace fox
 	{
 		public:
 			ParamDecl();
-			ParamDecl(Identifier* id, TypeBase* type, bool isConst, SourceRange tyRange, SourceRange range);
+			ParamDecl(Identifier* id, TypeLoc type, bool isConst, SourceRange range);
 
 			bool isValid() const;
 
@@ -142,7 +138,7 @@ namespace fox
 
 		public:
 			FuncDecl();
-			FuncDecl(TypeBase* returnType, Identifier* fnId, CompoundStmt* body,
+			FuncDecl(TypeLoc rtrTy, Identifier* fnId, CompoundStmt* body,
 				SourceRange range, SourceLoc headerEndLoc);
 			
 			void setLocs(const SourceRange& range, const SourceLoc& headerEndLoc);
@@ -154,8 +150,9 @@ namespace fox
 			// Note: Calls isValid on the args too.
 			bool isValid() const;
 
-			void setReturnType(TypeBase* ty);
-			TypeBase* getReturnType() const;
+			void setReturnType(TypeLoc ty);
+			TypeLoc& getReturnType();
+			const TypeLoc getReturnType() const;
 
 			void setBody(CompoundStmt* body);
 			CompoundStmt* getBody() const;
@@ -183,7 +180,7 @@ namespace fox
 
 		private:
 			SourceLoc headEndLoc_;
-			TypeBase* returnType_ = nullptr;
+			TypeLoc returnType_;
 			ParamVecTy params_;
 			CompoundStmt* body_ = nullptr;
 
@@ -197,12 +194,13 @@ namespace fox
 	{
 		public:
 			VarDecl();
-			VarDecl(Identifier* id, TypeBase* type, bool isConst,
-				Expr* init, SourceRange range, SourceRange tyRange);
+			VarDecl(Identifier* id, TypeLoc type, bool isConst,
+				Expr* init, SourceRange range);
 
 			bool isValid() const;
 
-			Expr* getInitExpr() const;
+			Expr* getInitExpr();
+			const Expr* getInitExpr() const;
 			void setInitExpr(Expr* expr);
 			bool hasInitExpr() const;
 

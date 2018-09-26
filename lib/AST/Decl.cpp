@@ -91,37 +91,26 @@ bool NamedDecl::isValid() const
 // ValueDecl //
 //-----------//
 
-ValueDecl::ValueDecl(DeclKind kind, Identifier* id, TypeBase* ty, bool isConst,
-	SourceRange typeRange, SourceRange range):
-	NamedDecl(kind, id, range), isConst_(isConst), tyRange_(typeRange),
-	type_(ty)
+ValueDecl::ValueDecl(DeclKind kind, Identifier* id, TypeLoc ty, bool isConst,
+	SourceRange range):
+	NamedDecl(kind, id, range), isConst_(isConst), type_(ty)
 {
 
 }
 
-TypeBase* ValueDecl::getType()
-{
-	return type_;
-}
-
-const TypeBase* ValueDecl::getType() const
+TypeLoc& ValueDecl::getTypeLoc()
 {
 	return type_;
 }
 
-void ValueDecl::setType(TypeBase* ty)
+const TypeLoc ValueDecl::getTypeLoc() const
+{
+	return type_;
+}
+
+void ValueDecl::setTypeLoc(TypeLoc ty)
 {
 	type_ = ty;
-}
-
-SourceRange ValueDecl::getTypeRange() const
-{
-	return tyRange_;
-}
-
-void ValueDecl::setTypeRange(SourceRange range)
-{
-	tyRange_ = range;
 }
 
 bool ValueDecl::isConstant() const
@@ -136,7 +125,7 @@ void ValueDecl::setIsConstant(bool k)
 
 bool ValueDecl::isValid() const
 {
-	return NamedDecl::isValid() && type_ && tyRange_;
+	return NamedDecl::isValid() && type_;
 }
 
 //-----------//
@@ -144,14 +133,14 @@ bool ValueDecl::isValid() const
 //-----------//
 
 ParamDecl::ParamDecl():
-	ParamDecl(nullptr, nullptr, false, SourceRange(), SourceRange())
+	ParamDecl(nullptr, TypeLoc(), false, SourceRange())
 {
 
 }
 
-ParamDecl::ParamDecl(Identifier* id, TypeBase* type, bool isConst, 
-	SourceRange tyRange, SourceRange range):
-	ValueDecl(DeclKind::ParamDecl, id, type, isConst, tyRange, range)
+ParamDecl::ParamDecl(Identifier* id, TypeLoc type, bool isConst, 
+	SourceRange range):
+	ValueDecl(DeclKind::ParamDecl, id, type, isConst, range)
 {
 
 }
@@ -171,7 +160,7 @@ FuncDecl::FuncDecl():
 
 }
 
-FuncDecl::FuncDecl(TypeBase* returnType, Identifier* fnId, CompoundStmt* body,
+FuncDecl::FuncDecl(TypeLoc returnType, Identifier* fnId, CompoundStmt* body,
 	SourceRange range, SourceLoc headerEndLoc):
 	NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), body_(body), returnType_(returnType)
 {
@@ -204,15 +193,21 @@ bool FuncDecl::isValid() const
 	return NamedDecl::isValid() && body_ && returnType_ && headEndLoc_ && paramsAreValid_;
 }
 
-void FuncDecl::setReturnType(TypeBase* ty)
+void FuncDecl::setReturnType(TypeLoc ty)
 {
 	returnType_ = ty;
 }
 
-TypeBase* FuncDecl::getReturnType() const
+TypeLoc& FuncDecl::getReturnType()
 {
 	return returnType_;
 }
+
+const TypeLoc FuncDecl::getReturnType() const
+{
+	return returnType_;
+}
+
 
 CompoundStmt* FuncDecl::getBody() const
 {
@@ -289,14 +284,14 @@ FuncDecl::ParamVecConstIter FuncDecl::params_end() const
 //---------//
 
 VarDecl::VarDecl():
-	VarDecl(nullptr, nullptr, false, nullptr, SourceRange(), SourceRange())
+	VarDecl(nullptr, TypeLoc(), false, nullptr, SourceRange())
 {
 
 }
 
-VarDecl::VarDecl(Identifier* id, TypeBase* type, bool isConst, Expr* init, 
-	SourceRange tyRange, SourceRange range):
-	ValueDecl(DeclKind::VarDecl, id, type, isConst, tyRange, range), init_(init)
+VarDecl::VarDecl(Identifier* id, TypeLoc type, bool isConst, Expr* init, 
+	SourceRange range):
+	ValueDecl(DeclKind::VarDecl, id, type, isConst, range), init_(init)
 {
 
 }
@@ -306,7 +301,12 @@ bool VarDecl::isValid() const
 	return ValueDecl::isValid();
 }
 
-Expr* VarDecl::getInitExpr() const
+Expr* VarDecl::getInitExpr()
+{
+	return init_;
+}
+
+const Expr* VarDecl::getInitExpr() const
 {
 	return init_;
 }
