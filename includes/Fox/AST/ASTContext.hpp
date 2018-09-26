@@ -33,14 +33,13 @@ namespace fox
 			// Registers a unit in this ASTContext
 			void addUnit(UnitDecl* unit, bool isMainUnit = false);
 
-			// TYPES: Unique Primitives
-			const Type theIntType;
-			const Type theFloatType;
-			const Type theCharType;
-			const Type theBoolType;
-			const Type theStringType;
-			const Type theVoidType;
-			const Type theErrorType;
+			Type getIntType();
+			Type getFloatType();
+			Type getBoolType();
+			Type getStringType();
+			Type getCharType();
+			Type getVoidType();
+			Type getErrorType();
 
 			// Returns an ArrayType for a given type.
 			Type getArrayTypeForType(Type ty);
@@ -61,12 +60,18 @@ namespace fox
 			IdentifierTable identifiers;
 
 		private:
-			using PrimKind = PrimitiveType::Kind;
-			PrimitiveType* createPrimitive(PrimKind pk);
-
 			// Context shouldn't be copyable.
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
+
+			// Basic types
+			Type theIntType_;
+			Type theFloatType_;
+			Type theCharType_;
+			Type theBoolType_;
+			Type theStringType_;
+			Type theVoidType_;
+			Type theErrorType_;
 
 			// An observing pointer to a ASTUnit owned by the vector below that points to the main unit
 			// (= the unit that contains the entry point of this module)

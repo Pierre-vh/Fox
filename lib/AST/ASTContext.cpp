@@ -11,15 +11,17 @@
 
 using namespace fox;
 
-ASTContext::ASTContext():
-	theIntType(createPrimitive(PrimitiveType::Kind::IntTy)),
-	theFloatType(createPrimitive(PrimitiveType::Kind::FloatTy)),
-	theCharType(createPrimitive(PrimitiveType::Kind::CharTy)),
-	theBoolType(createPrimitive(PrimitiveType::Kind::BoolTy)),
-	theStringType(createPrimitive(PrimitiveType::Kind::StringTy)),
-	theVoidType(createPrimitive(PrimitiveType::Kind::VoidTy))
+ASTContext::ASTContext()
 {
+	using PrimKind = PrimitiveType::Kind;
 
+	theIntType_ = new(*this) PrimitiveType(PrimKind::IntTy);
+	theFloatType_ = new(*this) PrimitiveType(PrimKind::FloatTy);
+	theCharType_ = new(*this) PrimitiveType(PrimKind::CharTy);
+	theBoolType_ = new(*this) PrimitiveType(PrimKind::BoolTy);
+	theStringType_ = new(*this) PrimitiveType(PrimKind::StringTy);
+	theVoidType_ = new(*this) PrimitiveType(PrimKind::VoidTy);
+	theErrorType_ = new(*this) ErrorType();
 }
 
 UnitDecl* ASTContext::getMainUnit()
@@ -79,11 +81,6 @@ void ASTContext::reset()
 	arrayTypes_.clear();
 
 	allocator_.reset();
-}
-
-PrimitiveType* ASTContext::createPrimitive(PrimKind pk)
-{
-	return new(*this) PrimitiveType(pk);
 }
 
 Type ASTContext::createSemaType(TypeBase* ty)
