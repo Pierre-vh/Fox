@@ -418,7 +418,7 @@ std::string ASTDumper::getBasicValueDeclDump(ValueDecl* decl) const
 	ss << getSourceLocDump("end", range.getEnd());
 
 	ss << makeKeyPairDump("id", decl->getIdentifier()->getStr()) << " ";
-	ss << makeKeyPairDump("type", decl->getType()->getString()) << " ";
+	ss << makeKeyPairDump("type", decl->getTypeLoc()->getString()) << " ";
 
 	if (decl->isConstant())
 		ss << "const ";
