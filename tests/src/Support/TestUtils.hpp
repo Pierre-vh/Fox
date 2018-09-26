@@ -12,6 +12,9 @@
 #include <string>
 #include <vector>
 
+// Will be useful for most tests
+#include "PrintObjects.hpp"
+
 namespace fox
 {
 	namespace test

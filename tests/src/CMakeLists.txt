@@ -4,6 +4,7 @@ add_source(
 	"main.cpp"
 
 	"Support/TestUtils.cpp"
+	"Support/PrintObjects.cpp"
 
 	"FoxTests/LexerTests.cpp"
 	"FoxTests/UTF8Tests.cpp"
@@ -15,4 +16,5 @@ add_source(
 	"FoxTests/DiagnosticsTests.cpp"
 	"FoxTests/AllocatorsTests.cpp"
 	"FoxTests/PtrVariantTests.cpp"
+
 	)
