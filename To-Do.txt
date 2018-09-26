@@ -66,18 +66,16 @@ Moonshot Project To-do List.
 
 	> Finish Type Rework/Solve last issues (Next)
 		> This has a heavy aftermath, I need to review most of my code to fix issues.
-		> Make all tests pass again.
 		> Fix already existing Semantic analysis code.
 		> Fix ExprFinalizer. I Applied some "band aid fix" but it needs to be refactored.
-		  In fact of the sema code needs to
-		> Also, Make it impossible to implicitely create a Type out of a TypeLoc
-			-> make = and copy ctor private/deleted
+		> Delete CopyCtor & Assignement operator for Type to TypeLoc and TypeLoc to Type. 
+			Make a special member function "withoutLoc" of TypeLoc to create a Type out of it.
+			This will make converting between Type/TypeLoc a lot harder, thus avoiding bugs related
+			implicit Type/TypeLoc conversions.
+
+	> Change how Type::getString displays types. Use 2 functions: getDebugString(), getString(), one is more informative, the second is more user friendly.
 
 	> Basic Expression Semantic analysis (Postponed)
-		> AST Type Walking (with bools as return type)
-			> Fix ExprFinalizer Spam by setting any SemaType with no sub to ErrorType
-				See if that's applicable to unification? When it fails, set the SemaTypes to ErrorType if it's a SemaType + Other?
-		> Change how Type::getString displays types. Use 2 functions: getDebugString(), getString(), one is more informative, the second is more user friendly.
 	> Stmt Semantic Analysis
 	> Decl Semantic Analysis
 	> Name Resolution (DeclRefs of vars)
