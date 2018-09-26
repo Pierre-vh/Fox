@@ -267,8 +267,7 @@ namespace
 				else
 				{
 					// Let type inference do it's magic by requiring a arraytype of any type.
-					SemaType* fresh = getCtxt().createSemaType();
-					ArrayType* ty = getCtxt().getArrayTypeForType(fresh);
+					Type ty = getCtxt().getArrayTypeForType(getCtxt().createSemaType());
 					expr->setType(ty);
 				}
 				return expr;
@@ -294,11 +293,11 @@ namespace
 
 			Expr* handleExprPost(Expr* expr)
 			{
-				TypeBase* type = expr->getType().getPtr();
-				assert(type && "Untyped expr");
+				Type type = expr->getType().getPtr();
+				assert(!type.isNull() && "Untyped expr");
 
 				// Visit the type
-				type = visit(type);
+				type = visit(type.getPtr());
 				// If the type is nullptr, this inference failed
 				// because of a lack of substitution somewhere.
 				// Set the type to ErrorType, diagnose it and move on.
@@ -322,7 +321,7 @@ namespace
 				{
 					// Rebuild if needed
 					if(elem != type->getElementType())
-						return ctxt_.getArrayTypeForType(elem);
+						return ctxt_.getArrayTypeForType(elem).getPtr();
 					return type;
 				}
 				return nullptr;
@@ -333,7 +332,7 @@ namespace
 				if (TypeBase* elem = visit(type->getType()))
 				{
 					if(elem != type->getType())
-						return ctxt_.getLValueTypeForType(elem);
+						return ctxt_.getLValueTypeForType(elem).getPtr();
 					return type;
 				}
 				return nullptr;
