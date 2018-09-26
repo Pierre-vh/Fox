@@ -64,6 +64,10 @@ Moonshot Project To-do List.
 	> Add ErrorType (Done)
 
 	> Basic Expression Semantic analysis (Next)
+		> AST Type Walking (with bools as return type)
+			> Fix ExprFinalizer Spam by setting any SemaType with no sub to ErrorType
+				See if that's applicable to unification? When it fails, set the SemaTypes to ErrorType if it's a SemaType + Other?
+		> Change how Type::getString displays types. Use 2 functions: getDebugString(), getString(), one is more informative, the second is more user friendly.
 	> Stmt Semantic Analysis
 	> Decl Semantic Analysis
 	> Name Resolution (DeclRefs of vars)

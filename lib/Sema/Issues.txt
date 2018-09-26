@@ -1,75 +1,20 @@
-List of "traps" that semantic analysis might fall into, and that will need to be tested.
-	// Will probably fail to determine arraytype
-	let x : int[][] = [[],[],[], [1]];
-	let x : int[][] = [[],[],[]];
+To Fix:
+	Error Spam by the ExprFinalizer in situation such as this:
+		[[],[],[]] as int[]
+			Expr is already known to be bad, no need to spam. 
+				Either block diags hen visiting an ErrorType expr's children
+				or
+				Create a function that sets a Type to error type in this fashion:
+				Array(SemaType(SemaType(SemaType(empty)))) to Array(SemaType(SemaType(SemaType(ErrorType))))
+					-> ASTWalker should handle that. Create type walking functions that just return booleans.
 
-	This exposes a clusterfuck in my logic. I'll have to rest a bit and then rethink the way SemaTypes
-	are handled in unifySubtype and tryJoinSemaTypes.
+	Imprecise errors in this situation:
+		[[],[],[]] as int[]
+			First, the error is reported with SemaTypes(), which is wrong in itself
+			Second, even without sematypes, the error is something like
+				ArrayType(ArrayType()). Do something more user friendly. Find a way
+				to emit a proper type name. e.g.
+					<unknown>[][]
+					[[unknown]]		// nice looking
 
-
-
-	About 
-		[[], [], [], [1]]
-
-		Everything should solve at the last arg. But currently:
-			First loop: 
-				proposed = SemaType(nullptr)[]
-			Second loop:
-				Unification failure
-
-		Expected behaviour
-			First loop:
-				proposed = SemaType(nullptr)[] // proposed = elemTy;
-			Second loop:
-				proposed = SemaType(nullptr)[] 
-				elemTy = SemaType(proposed) (elemTy->setSubstitution(proposed))
-			Third loop:
-				proposed = SemaType(nullptr)[]
-				elemTy = SemaType(proposed) (elemTy->setSubstitution(proposed))
-			Fourth loop:
-				proposed unifies with the other arrayType:
-					SemaType(Int)[]
-			
-			Solution application:
-				elemTy = proposed's type = ArrayType(SemaType(int))
-
-			Conclusion
-				unify should be reworked to worth this way and handle this case gracefully. 
-				It should be strictly defined how it unwraps SemaTypes, LValueTypes and ArrayTypes. 
-				To elaborate the algorithm, write a dozen of cases that can occur in real world situtation and
-				make a "truth table" to help me find a good solution.
-
-				Also, LValues should be strictly controled to not be nested, this should be done
-				in "unwrapLValue" in Type
-
-				Unify should also be more used in the Expr analysis. compareSubtypes should never be used directly, always
-				through unifySubtype()
-
-				int=float -> true
-				int[]=float[] -> true (unwraps arrays)
-				@int=int -> true (unwraps args if lvalue)
-				SemaType(int)=SemaType(float) -> true (Unwraps if both has sub)
-				float=SemaType(nullptr) -> true (2nd sematype becomes SemaType(float))
-				SemaType(SemaType(nullptr)) = int -> true (SemaType(SemaType(int)))
-				(A)SemaType(nullptr) = (B)SemaType(nullptr) -> true (SemaType A becomes SemaType(B's SemaType))
-				ArrayType(SemaType(nullptr)) = ArrayType(int) = Unwraps arrays, calls SemaType(nullptr) = int
-
-				TODO LIST
-				Pre-unify checks
-					Conditionally unwrap if SemaType has sub until we reach something that isn't a sematype
-					or a sematype without sub (Done thru prepareSemaTypeForUnification)
-
-					Unwraps arrays (Done thru performPreUnificationTasks)
-
-					If both SemaType don't have sub, make the first SemaType's sub the 2nd SemaType
-
-					If one is a SemaType and the Other isn't, the SemaType's sub becomes the Other type.
-
-
-
-Other issues:	
-	Everything is fuzzy in regard to lvalue unwrapping
-		-> let the client unwrap them if he wants, allow the function to fail in other cases
-
-	Integral ranking should be easier to manipulate
-		-> add getSubtypeFunction, returns None or Integral
+	Investigate the multiple layers of SemaTypes here: http://prntscr.com/kyxgxg
