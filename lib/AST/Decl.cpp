@@ -203,12 +203,12 @@ void FuncDecl::setReturnType(TypeLoc ty)
 	returnType_ = ty;
 }
 
-TypeLoc& FuncDecl::getReturnType()
+TypeLoc& FuncDecl::getReturnTypeLoc()
 {
 	return returnType_;
 }
 
-const TypeLoc FuncDecl::getReturnType() const
+const TypeLoc FuncDecl::getReturnTypeLoc() const
 {
 	return returnType_;
 }

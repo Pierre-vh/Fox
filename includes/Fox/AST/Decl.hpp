@@ -153,8 +153,8 @@ namespace fox
 			bool isValid() const;
 
 			void setReturnType(TypeLoc ty);
-			TypeLoc& getReturnType();
-			const TypeLoc getReturnType() const;
+			TypeLoc& getReturnTypeLoc();
+			const TypeLoc getReturnTypeLoc() const;
 
 			void setBody(CompoundStmt* body);
 			CompoundStmt* getBody() const;
