@@ -72,3 +72,16 @@ SourceRange TypeLoc::getRange() const
 {
 	return range_;
 }
+
+Type TypeLoc::withoutLoc()
+{
+	return Type(getPtr());
+}
+
+const Type TypeLoc::withoutLoc() const
+{
+	// Remove the const attribute. It's meaningless since
+	// we're returning a const Type and a const Type will always
+	// return const pointers. This allows us to create the type.
+	return Type(const_cast<TypeBase*>(getPtr()));
+}

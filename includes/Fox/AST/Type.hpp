@@ -15,7 +15,7 @@
 namespace fox
 {
 	class TypeBase;
-
+	class TypeLoc;
 	// Type class, an observing pointer to a TypeBase*
 	// Used to facilitate passing TypeBase pointers as reference, (Type& instead of TypeBase*&)
 	// as well as adding flexibility in case I'd like to add Sugared types one day.
@@ -57,8 +57,10 @@ namespace fox
 				return ty_ ? isa<Ty>(ty_) : false;
 			}
 
-
-
+		private:
+			// Forbid TypeLoc->Type conversion
+			Type(const TypeLoc&) = delete;
+			Type& operator=(const TypeLoc&) = delete;
 	};
 
 	// A Type with it's SourceRange, which is used to represent "real" types written down
@@ -71,5 +73,12 @@ namespace fox
 			TypeLoc(Type ty, SourceRange range = SourceRange());
 
 			SourceRange getRange() const;
+
+			Type withoutLoc();
+			const Type withoutLoc() const; 
+		private:
+			// Forbid Type->TypeLoc conversion
+			TypeLoc(const Type&) = delete;
+			TypeLoc& operator=(const Type&) = delete;
 	};
 }
