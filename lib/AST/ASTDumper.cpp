@@ -238,7 +238,7 @@ void ASTDumper::visitUnitDecl(UnitDecl* node)
 
 void ASTDumper::visitVarDecl(VarDecl* node)
 {
-	dumpLine() << getBasicValueDeclDump(node) << " ";
+	dumpLine() << getBasicValueDeclDump(node) << "\n";
 	if (node->hasInitExpr())
 	{
 		indent(1);
@@ -416,19 +416,13 @@ std::string ASTDumper::getBasicValueDeclDump(ValueDecl* decl) const
 	if (printAllAdresses_)
 		ss << " " << (void *)decl;
 
-	SourceRange range = decl->getRange();
-	ss << " " << getSourceLocDump("start", range.getBegin()) << " ";
-	ss << getSourceLocDump("end", range.getEnd());
+	ss << " " << getSourceRangeDump("range", decl->getRange()) << " ";
 
 	ss << makeKeyPairDump("id", decl->getIdentifier()->getStr()) << " ";
-	ss << makeKeyPairDump("type", decl->getTypeLoc()->getString()) << " ";
+	ss << getTypeLocDump("type", decl->getTypeLoc(), decl->isConstant()) << " ";
 
 	if (decl->isConstant())
-		ss << "const ";
-
-	SourceRange typeRange = decl->getTypeLoc().getRange();
-	ss << getSourceLocDump("type start", typeRange.getBegin()) << " ";
-	ss << getSourceLocDump("type end" , typeRange.getEnd());
+		ss << "const";
 
 	return ss.str();
 }
@@ -482,7 +476,7 @@ std::string ASTDumper::getSourceRangeAsStr(SourceRange range) const
 	if (range)
 	{
 		CompleteLoc begCLoc = srcMgr_.getCompleteLocForSourceLoc(range.getBegin());
-		CompleteLoc endCLoc = srcMgr_.getCompleteLocForSourceLoc(range.getBegin());
+		CompleteLoc endCLoc = srcMgr_.getCompleteLocForSourceLoc(range.getEnd());
 		if (begCLoc.line != endCLoc.line)
 		{
 			ss << "(l" << begCLoc.line << ", c" << begCLoc.column
@@ -505,16 +499,18 @@ std::string ASTDumper::getSourceRangeDump(const std::string& label, SourceRange 
 	return makeKeyPairDump(label, getSourceRangeAsStr(range));
 }
 
-std::string ASTDumper::getTypeDump(const std::string& label, Type ty) const
+std::string ASTDumper::getTypeDump(const std::string& label, Type ty, bool isConst) const
 {
-	return makeKeyPairDump(label, addSingleQuotes(ty->getString()));
+	std::string str = (isConst ? "const " : "") + addSingleQuotes(ty->getString());
+	return makeKeyPairDump(label, str);
 }
 
-std::string ASTDumper::getTypeLocDump(const std::string& label, TypeLoc ty)
+std::string ASTDumper::getTypeLocDump(const std::string& label, TypeLoc ty, bool isConst) const
 {
 	std::ostringstream ss;
-	ss << addSingleQuotes(ty->getString()) << " " << getSourceRangeAsStr(ty.getRange());
-	return makeKeyPairDump(label, addSingleQuotes(ty->getString()));
+	ss << (isConst ? "const " : "") 
+	   << addSingleQuotes(ty->getString()) << " " << getSourceRangeAsStr(ty.getRange());
+	return makeKeyPairDump(label, ss.str());
 }
 
 std::string ASTDumper::addDoubleQuotes(const std::string& str) const
