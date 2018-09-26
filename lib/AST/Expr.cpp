@@ -41,17 +41,17 @@ SourceRange Expr::getRange() const
 	return range_;
 }
 
-void Expr::setType(Type* type)
+void Expr::setType(TypeBase* type)
 {
 	type_ = type;
 }
 
-Type* Expr::getType()
+TypeBase* Expr::getType()
 {
 	return type_;
 }
 
-const Type* Expr::getType() const
+const TypeBase* Expr::getType() const
 {
 	return type_;
 }
@@ -457,7 +457,7 @@ CastExpr::CastExpr() : CastExpr(nullptr, nullptr,
 
 }
 
-CastExpr::CastExpr(Type* castGoal, Expr* expr, 
+CastExpr::CastExpr(TypeBase* castGoal, Expr* expr, 
 	const SourceRange& range, const SourceRange& typeRange):
 	Expr(ExprKind::CastExpr, range),
 	goal_(castGoal), expr_(expr), typeRange_(typeRange)
@@ -465,17 +465,17 @@ CastExpr::CastExpr(Type* castGoal, Expr* expr,
 
 }
 
-void CastExpr::setCastGoal(Type* goal)
+void CastExpr::setCastGoal(TypeBase* goal)
 {
 	goal_ = goal;
 }
 
-Type* CastExpr::getCastGoal()
+TypeBase* CastExpr::getCastGoal()
 {
 	return goal_;
 }
 
-const Type* CastExpr::getCastGoal() const
+const TypeBase* CastExpr::getCastGoal() const
 {
 	return goal_;
 }

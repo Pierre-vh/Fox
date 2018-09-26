@@ -26,7 +26,7 @@ namespace fox
 	#define ABSTRACT_STMT(ID, PARENT) class ID;
 	#include "StmtNodes.def"
 
-	class Type;
+	class TypeBase;
 	#define TYPE(ID, PARENT) class ID;
 	#define ABSTRACT_TYPE(ID, PARENT) class ID;
 	#include "TypeNodes.def"

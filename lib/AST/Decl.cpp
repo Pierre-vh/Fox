@@ -91,7 +91,7 @@ bool NamedDecl::isValid() const
 // ValueDecl //
 //-----------//
 
-ValueDecl::ValueDecl(DeclKind kind, Identifier* id, Type* ty, bool isConst,
+ValueDecl::ValueDecl(DeclKind kind, Identifier* id, TypeBase* ty, bool isConst,
 	SourceRange typeRange, SourceRange range):
 	NamedDecl(kind, id, range), isConst_(isConst), tyRange_(typeRange),
 	type_(ty)
@@ -99,17 +99,17 @@ ValueDecl::ValueDecl(DeclKind kind, Identifier* id, Type* ty, bool isConst,
 
 }
 
-Type* ValueDecl::getType()
+TypeBase* ValueDecl::getType()
 {
 	return type_;
 }
 
-const Type* ValueDecl::getType() const
+const TypeBase* ValueDecl::getType() const
 {
 	return type_;
 }
 
-void ValueDecl::setType(Type* ty)
+void ValueDecl::setType(TypeBase* ty)
 {
 	type_ = ty;
 }
@@ -149,7 +149,7 @@ ParamDecl::ParamDecl():
 
 }
 
-ParamDecl::ParamDecl(Identifier* id, Type* type, bool isConst, 
+ParamDecl::ParamDecl(Identifier* id, TypeBase* type, bool isConst, 
 	SourceRange tyRange, SourceRange range):
 	ValueDecl(DeclKind::ParamDecl, id, type, isConst, tyRange, range)
 {
@@ -171,7 +171,7 @@ FuncDecl::FuncDecl():
 
 }
 
-FuncDecl::FuncDecl(Type* returnType, Identifier* fnId, CompoundStmt* body,
+FuncDecl::FuncDecl(TypeBase* returnType, Identifier* fnId, CompoundStmt* body,
 	SourceRange range, SourceLoc headerEndLoc):
 	NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), body_(body), returnType_(returnType)
 {
@@ -204,12 +204,12 @@ bool FuncDecl::isValid() const
 	return NamedDecl::isValid() && body_ && returnType_ && headEndLoc_ && paramsAreValid_;
 }
 
-void FuncDecl::setReturnType(Type* ty)
+void FuncDecl::setReturnType(TypeBase* ty)
 {
 	returnType_ = ty;
 }
 
-Type* FuncDecl::getReturnType() const
+TypeBase* FuncDecl::getReturnType() const
 {
 	return returnType_;
 }
@@ -294,7 +294,7 @@ VarDecl::VarDecl():
 
 }
 
-VarDecl::VarDecl(Identifier* id, Type* type, bool isConst, Expr* init, 
+VarDecl::VarDecl(Identifier* id, TypeBase* type, bool isConst, Expr* init, 
 	SourceRange tyRange, SourceRange range):
 	ValueDecl(DeclKind::VarDecl, id, type, isConst, tyRange, range), init_(init)
 {

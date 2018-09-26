@@ -125,16 +125,16 @@ namespace fox
 
 			/*-------------- "Basic" Parse Methods --------------*/
 			// Returns a nullptr if no type keyword is found
-			Result<Type*> parseBuiltinTypename();	
+			Result<TypeBase*> parseBuiltinTypename();	
 
 			// first -> The Type* (nullptr if not found), second -> False if error
-			Result<Type*> parseType();
+			Result<TypeBase*> parseType();
 
 			// Parses a QualType 
 				// Deprecated: This will go away with the grammar update
 			struct ParsedQualType
 			{
-				Type* type;
+				TypeBase* type;
 				bool isConst;
 				bool isRef;
 			};

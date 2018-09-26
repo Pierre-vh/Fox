@@ -16,60 +16,60 @@
 using namespace fox;
 
 //------//
-// Type //
+// TypeBase //
 //------//
 
-Type::Type(TypeKind tc) : kind_(tc)
+TypeBase::TypeBase(TypeKind tc) : kind_(tc)
 {
 
 }
 
-TypeKind Type::getKind() const
+TypeKind TypeBase::getKind() const
 {
 	return kind_;
 }
 
-const Type* Type::unwrapIfArray() const
+const TypeBase* TypeBase::unwrapIfArray() const
 {
 	if (const ArrayType* tmp = dyn_cast<ArrayType>(this))
 		return tmp->getElementType();
 	return nullptr;
 }
 
-Type* Type::unwrapIfArray()
+TypeBase* TypeBase::unwrapIfArray()
 {
 	if (ArrayType* tmp = dyn_cast<ArrayType>(this))
 		return tmp->getElementType();
 	return nullptr;
 }
 
-const Type* Type::unwrapIfLValue() const
+const TypeBase* TypeBase::unwrapIfLValue() const
 {
 	if (const LValueType* tmp = dyn_cast<LValueType>(this))
 		return tmp->getType();
 	return nullptr;
 }
 
-Type* Type::unwrapIfLValue()
+TypeBase* TypeBase::unwrapIfLValue()
 {
 	if (LValueType* tmp = dyn_cast<LValueType>(this))
 		return tmp->getType();
 	return nullptr;
 }
 
-const Type* Type::ignoreLValue() const
+const TypeBase* TypeBase::ignoreLValue() const
 {
 	auto* ptr = unwrapIfLValue();
 	return ptr ? ptr : this;
 }
 
-Type* Type::ignoreLValue()
+TypeBase* TypeBase::ignoreLValue()
 {
 	auto* ptr = unwrapIfLValue();
 	return ptr ? ptr : this;
 }
 
-void* Type::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align)
+void* TypeBase::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align)
 {
 	return ctxt.getAllocator().allocate(sz, align);
 }
@@ -78,7 +78,7 @@ void* Type::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align)
 // BuiltinType //
 //-------------//
 
-BuiltinType::BuiltinType(TypeKind tc) : Type(tc)
+BuiltinType::BuiltinType(TypeKind tc) : TypeBase(tc)
 {
 
 }
@@ -153,7 +153,7 @@ bool PrimitiveType::isVoid() const
 // ArrayType //
 //-----------//
 
-ArrayType::ArrayType(Type* elemTy):
+ArrayType::ArrayType(TypeBase* elemTy):
 	elementTy_(elemTy), BuiltinType(TypeKind::ArrayType)
 {
 	assert(elemTy && "The Array item type cannot be null!");
@@ -164,12 +164,12 @@ std::string ArrayType::getString() const
 	return "Array(" + elementTy_->getString() + ")";
 }
 
-Type* ArrayType::getElementType()
+TypeBase* ArrayType::getElementType()
 {
 	return elementTy_;
 }
 
-const Type* ArrayType::getElementType() const
+const TypeBase* ArrayType::getElementType() const
 {
 	return elementTy_;
 }
@@ -178,8 +178,8 @@ const Type* ArrayType::getElementType() const
 // LValueType //
 //------------//
 
-LValueType::LValueType(Type* type):
-	Type(TypeKind::LValueType), ty_(type)
+LValueType::LValueType(TypeBase* type):
+	TypeBase(TypeKind::LValueType), ty_(type)
 {
 	assert(type && "cannot be null");
 }
@@ -190,12 +190,12 @@ std::string LValueType::getString() const
 	return "@" + ty_->getString();
 }
 
-Type* LValueType::getType()
+TypeBase* LValueType::getType()
 {
 	return ty_;
 }
 
-const Type* LValueType::getType() const
+const TypeBase* LValueType::getType() const
 {
 	return ty_;
 }
@@ -204,8 +204,8 @@ const Type* LValueType::getType() const
 // SemaType //
 //----------//
 
-SemaType::SemaType(Type* type):
-	Type(TypeKind::SemaType), ty_(type)
+SemaType::SemaType(TypeBase* type):
+	TypeBase(TypeKind::SemaType), ty_(type)
 {
 
 }
@@ -215,12 +215,12 @@ std::string SemaType::getString() const
 	return "SemaType(" + (ty_ ? ty_->getString() : "empty") + ")";
 }
 
-Type* SemaType::getSubstitution()
+TypeBase* SemaType::getSubstitution()
 {
 	return ty_;
 }
 
-const Type* SemaType::getSubstitution() const
+const TypeBase* SemaType::getSubstitution() const
 {
 	return ty_;
 }
@@ -230,7 +230,7 @@ bool SemaType::hasSubstitution() const
 	return (ty_ != nullptr);
 }
 
-void SemaType::setSubstitution(Type* subst)
+void SemaType::setSubstitution(TypeBase* subst)
 {
 	ty_ = subst;
 }
@@ -241,7 +241,7 @@ void SemaType::reset()
 }
 
 ErrorType::ErrorType():
-	Type(TypeKind::ErrorType)
+	TypeBase(TypeKind::ErrorType)
 {
 
 }

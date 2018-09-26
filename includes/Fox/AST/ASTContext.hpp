@@ -57,13 +57,13 @@ namespace fox
 			ErrorType* getErrorType();
 
 			// Returns an ArrayType for a given type.
-			ArrayType* getArrayTypeForType(Type* ty);
+			ArrayType* getArrayTypeForType(TypeBase* ty);
 
 			// Returns an LValueType for a given type
-			LValueType* getLValueTypeForType(Type* ty);
+			LValueType* getLValueTypeForType(TypeBase* ty);
 
 			// Creates a SemaType
-			SemaType* createSemaType(Type* ty = nullptr);
+			SemaType* createSemaType(TypeBase* ty = nullptr);
 
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
@@ -102,10 +102,10 @@ namespace fox
 			ErrorType* theErrorTy_ = nullptr;
 
 			// Array types (Type -> Type[])
-			std::map<Type*, ArrayType*> arrayTypes_;
+			std::map<TypeBase*, ArrayType*> arrayTypes_;
 
 			// LValue types (Type -> @Type)
-			std::map<Type*, LValueType*> lvalueTypes_;
+			std::map<TypeBase*, LValueType*> lvalueTypes_;
 
 			// Allocators
 			LinearAllocator<> allocator_; // Default allocator for the ASTContext

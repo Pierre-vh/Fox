@@ -25,7 +25,7 @@ namespace fox
 	// Forward Declarations
 	class Identifier;
 	class ASTContext;
-	class Type;
+	class TypeBase;
 
 	// Expr
 	//		Common base class for every expression
@@ -37,9 +37,9 @@ namespace fox
 			void setRange(const SourceRange& range);
 			SourceRange getRange() const;
 
-			void setType(Type* type);
-			Type* getType();
-			const Type* getType() const;
+			void setType(TypeBase* type);
+			TypeBase* getType();
+			const TypeBase* getType() const;
 
 			// Prohibit the use of builtin placement new & delete
 			void *operator new(std::size_t) throw() = delete;
@@ -57,7 +57,7 @@ namespace fox
 
 		private:
 			const ExprKind kind_;
-			Type* type_ = nullptr;
+			TypeBase* type_ = nullptr;
 			SourceRange range_;
 	};
 
@@ -155,12 +155,12 @@ namespace fox
 	{
 		public:
 			CastExpr();
-			CastExpr(Type* castGoal, Expr* expr, const SourceRange& range, 
+			CastExpr(TypeBase* castGoal, Expr* expr, const SourceRange& range, 
 				const SourceRange& typeRange);
 			
-			void setCastGoal(Type* goal);
-			Type* getCastGoal();
-			const Type* getCastGoal() const;
+			void setCastGoal(TypeBase* goal);
+			TypeBase* getCastGoal();
+			const TypeBase* getCastGoal() const;
 
 			void setExpr(Expr* expr);
 			Expr* getExpr();
@@ -175,7 +175,7 @@ namespace fox
 
 		private:
 			SourceRange typeRange_;
-			Type* goal_ = nullptr;
+			TypeBase* goal_ = nullptr;
 			Expr* expr_ = nullptr;
 	};
 

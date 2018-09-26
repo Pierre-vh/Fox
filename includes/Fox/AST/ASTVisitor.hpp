@@ -93,7 +93,7 @@ namespace fox
 			}
 
 			// Visit Types dispatch method
-			TypeRtrTy visit(Type* type, Args... args)
+			TypeRtrTy visit(TypeBase* type, Args... args)
 			{
 				assert(type && "Cannot be used on a null pointer");
 				switch (type->getKind())
@@ -128,7 +128,7 @@ namespace fox
 			}
 
 			// Visit Type 
-			TypeRtrTy visitType(Type*, Args... args)
+			TypeRtrTy visitTypeBase(TypeBase*, Args... args)
 			{
 				return TypeRtrTy();
 			}
@@ -137,7 +137,7 @@ namespace fox
 			// The base implementations just chain back to the parent class, so visitors can just
 			// implement the parent class or an abstract class and still handle every derived class!
 			#define VISIT_METHOD(RTRTYPE, NODE, PARENT)\
-			RTRTYPE visit##NODE(NODE* node,Args... args){ \
+			RTRTYPE visit##NODE(NODE* node, Args... args){ \
 				return static_cast<Derived*>(this)->visit##PARENT(node, ::std::forward<Args>(args)...); \
 			}
 

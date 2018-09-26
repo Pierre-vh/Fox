@@ -120,8 +120,8 @@ namespace
 				// Check if we can cast to that, castgoal must be
 				// of the same family OR string.
 				// WIP: Check if cast is okay
-				Type* exprTy = expr->getExpr()->getType();
-				Type* castGoal = expr->getCastGoal();
+				TypeBase* exprTy = expr->getExpr()->getType();
+				TypeBase* castGoal = expr->getCastGoal();
 
 				if (!getSema().unify(exprTy, castGoal))
 				{
@@ -213,12 +213,12 @@ namespace
 			{
 				if (auto size = expr->getSize())
 				{
-					Type* proposed = nullptr;
+					TypeBase* proposed = nullptr;
 					// Deduce the type by starting from the first type
 					// and by upranking it if needed.
 					for (auto& elem : expr->getExprs())
 					{
-						Type* elemTy = elem->getType();
+						TypeBase* elemTy = elem->getType();
 
 						// First loop, set proposed & continue.
 						if (!proposed)
@@ -251,14 +251,14 @@ namespace
 						}
 
 						// Lastly, uprank if needed.
-						if (Type* highestRanking = Sema::getHighestRankingType(elemTy, proposed))
+						if (TypeBase* highestRanking = Sema::getHighestRankingType(elemTy, proposed))
 							proposed = highestRanking;
 					}
 
 					// Apply.
 					if (proposed)
 					{
-						// Type is an array of the proposed type.
+						// TypeBase is an array of the proposed type.
 						expr->setType(getCtxt().getArrayTypeForType(proposed));
 					}
 					else
@@ -277,10 +277,10 @@ namespace
 
 	// ExprFinalizer, which rebuilds types to remove
 	// SemaTypes.
-	// Visit methods return pointers to Type. They return nullptr
+	// Visit methods return pointers to TypeBase. They return nullptr
 	// if the finalization failed for this expr.
 	// It's still a primitive, test version for now.
-	class ExprFinalizer : public TypeVisitor<ExprFinalizer, Type*>, public ASTWalker
+	class ExprFinalizer : public TypeVisitor<ExprFinalizer, TypeBase*>, public ASTWalker
 	{
 		ASTContext& ctxt_;
 		DiagnosticEngine& diags_;
@@ -294,7 +294,7 @@ namespace
 
 			Expr* handleExprPost(Expr* expr)
 			{
-				Type* type = expr->getType();
+				TypeBase* type = expr->getType();
 				assert(type && "Untyped expr");
 
 				// Visit the type
@@ -311,14 +311,14 @@ namespace
 				return expr;
 			}
 
-			Type* visitPrimitiveType(PrimitiveType* type)
+			TypeBase* visitPrimitiveType(PrimitiveType* type)
 			{
 				return type;
 			}
 
-			Type* visitArrayType(ArrayType* type)
+			TypeBase* visitArrayType(ArrayType* type)
 			{
-				if (Type* elem = visit(type->getElementType()))
+				if (TypeBase* elem = visit(type->getElementType()))
 				{
 					// Rebuild if needed
 					if(elem != type->getElementType())
@@ -328,9 +328,9 @@ namespace
 				return nullptr;
 			}
 
-			Type* visitLValueType(LValueType* type)
+			TypeBase* visitLValueType(LValueType* type)
 			{
-				if (Type* elem = visit(type->getType()))
+				if (TypeBase* elem = visit(type->getType()))
 				{
 					if(elem != type->getType())
 						return ctxt_.getLValueTypeForType(elem);
@@ -339,14 +339,14 @@ namespace
 				return nullptr;
 			}
 
-			Type* visitSemaType(SemaType* type)
+			TypeBase* visitSemaType(SemaType* type)
 			{
-				if (Type* sub = type->getSubstitution())
+				if (TypeBase* sub = type->getSubstitution())
 					return visit(sub);
 				return nullptr;
 			}
 
-			Type* visitErrorType(ErrorType* type)
+			TypeBase* visitErrorType(ErrorType* type)
 			{
 				// Error should have been handled already, we won't emit
 				// more.

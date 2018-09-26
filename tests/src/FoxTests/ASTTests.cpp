@@ -79,17 +79,17 @@ TEST(ASTTests, ASTContextArrayTypes)
 {
 	ASTContext actxt;
 
-	Type* primBool = actxt.getBoolType();
-	Type* primFloat = actxt.getFloatType();
-	Type* primInt = actxt.getIntType();
-	Type* primChar = actxt.getCharType();
-	Type* primString = actxt.getStringType();
+	TypeBase* primBool = actxt.getBoolType();
+	TypeBase* primFloat = actxt.getFloatType();
+	TypeBase* primInt = actxt.getIntType();
+	TypeBase* primChar = actxt.getCharType();
+	TypeBase* primString = actxt.getStringType();
 
-	Type* boolArr = actxt.getArrayTypeForType(primBool);
-	Type* floatArr = actxt.getArrayTypeForType(primFloat);
-	Type* intArr = actxt.getArrayTypeForType(primInt);
-	Type* charArr = actxt.getArrayTypeForType(primChar);
-	Type* strArr = actxt.getArrayTypeForType(primString);
+	TypeBase* boolArr = actxt.getArrayTypeForType(primBool);
+	TypeBase* floatArr = actxt.getArrayTypeForType(primFloat);
+	TypeBase* intArr = actxt.getArrayTypeForType(primInt);
+	TypeBase* charArr = actxt.getArrayTypeForType(primChar);
+	TypeBase* strArr = actxt.getArrayTypeForType(primString);
 
 
 	// Check that pointers aren't null
@@ -121,7 +121,7 @@ TEST(ASTTests, ASTContextArrayTypes)
 }
 
 // Create a variable with a random type
-VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, Type* ty)
+VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeBase* ty)
 {
 	return new(ctxt) VarDecl(
 			ctxt.identifiers.getUniqueIdentifierInfo(name),
@@ -252,7 +252,7 @@ TEST(ASTTests, DeclContext)
 TEST(ASTTests, TypeRTTI)
 {
 	ASTContext astctxt;
-	Type* intTy = astctxt.getIntType();
+	TypeBase* intTy = astctxt.getIntType();
 	ArrayType* arrIntTy = astctxt.getArrayTypeForType(intTy);
 	LValueType* lvIntTy = astctxt.getLValueTypeForType(intTy);
 	SemaType* semaType = astctxt.createSemaType();

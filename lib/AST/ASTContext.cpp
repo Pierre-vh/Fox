@@ -89,7 +89,7 @@ void ASTContext::initBuiltinTypes()
 		theErrorTy_ = new(*this) ErrorType();
 }
 
-ArrayType* ASTContext::getArrayTypeForType(Type * ty)
+ArrayType* ASTContext::getArrayTypeForType(TypeBase * ty)
 {
 	auto lb = arrayTypes_.lower_bound(ty);
 	if (lb != arrayTypes_.end() && !(arrayTypes_.key_comp()(ty, lb->first)))
@@ -105,7 +105,7 @@ ArrayType* ASTContext::getArrayTypeForType(Type * ty)
 	}
 }
 
-LValueType* ASTContext::getLValueTypeForType(Type * ty)
+LValueType* ASTContext::getLValueTypeForType(TypeBase * ty)
 {
 	auto lb = lvalueTypes_.lower_bound(ty);
 	if (lb != lvalueTypes_.end() && !(lvalueTypes_.key_comp()(ty, lb->first)))
@@ -143,7 +143,7 @@ void ASTContext::reset()
 	initBuiltinTypes();
 }
 
-SemaType* ASTContext::createSemaType(Type* ty)
+SemaType* ASTContext::createSemaType(TypeBase* ty)
 {
 	return new(*this) SemaType(ty);
 }

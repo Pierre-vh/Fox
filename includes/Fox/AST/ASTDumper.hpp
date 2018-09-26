@@ -74,13 +74,13 @@ namespace fox
 			std::string getStmtNodeName(Stmt* stmt) const;
 			std::string getExprNodeName(Expr* expr) const;
 			std::string getDeclNodeName(Decl* decl) const;
-			std::string getTypeNodeName(Type* type) const;
+			std::string getTypeNodeName(TypeBase* type) const;
 
 			// Returns a string containing basic information about a node : It's name followed by it's adress. Maybe more in the future.
 			std::string getBasicStmtInfo(Stmt* stmt) const;
 			std::string getBasicExprInfo(Expr* expr) const;
 			std::string getBasicDeclInfo(Decl* decl) const;
-			std::string getBasicTypeInfo(Type* type) const;
+			std::string getBasicTypeInfo(TypeBase* type) const;
 			std::string getBasicValueDeclDump(ValueDecl* decl) const;
 
 			// Dump an operator in 2 different ways, depending on dumpOperatorsAsNames_
@@ -94,7 +94,7 @@ namespace fox
 			// Returns a formatted string, "<(label):(coords)>"
 			std::string getSourceLocDump(const std::string& label,const SourceLoc& sloc) const;
 			// Returns a formatted string  "<(label):'(type)'>
-			std::string getTypeDump(const std::string& label,Type *ty) const;
+			std::string getTypeDump(const std::string& label,TypeBase *ty) const;
 			// Returns value enclosed with "".
 			std::string addDoubleQuotes(const std::string& str) const;
 			// Returns the value enclosed with ''

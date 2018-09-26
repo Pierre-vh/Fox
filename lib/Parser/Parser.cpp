@@ -247,11 +247,11 @@ bool Parser::isBracket(SignType s) const
 	}
 }
 
-Parser::Result<Type*> Parser::parseBuiltinTypename()
+Parser::Result<TypeBase*> Parser::parseBuiltinTypename()
 {
 	// <builtin_type_name> 	= "int" | "float" | "bool" | "string" | "char"
 
-	typedef Parser::Result<Type*> RtrTy;
+	typedef Parser::Result<TypeBase*> RtrTy;
 
 	// "int"
 	if (auto range = consumeKeyword(KeywordType::KW_INT))
@@ -276,14 +276,14 @@ Parser::Result<Type*> Parser::parseBuiltinTypename()
 	return RtrTy::NotFound();
 }
 
-Parser::Result<Type*> Parser::parseType()
+Parser::Result<TypeBase*> Parser::parseType()
 {
 	// <type> = <builtin_type_name> { '[' ']' }
 	// <builtin_type_name> 
 	if (auto ty_res = parseBuiltinTypename())
 	{
 		//  { '[' ']' }
-		Type* ty = ty_res.get();
+		TypeBase* ty = ty_res.get();
 		SourceLoc begLoc = ty_res.getRange().getBegin();
 		SourceLoc endLoc = ty_res.getRange().getEnd();
 		while (consumeBracket(SignType::S_SQ_OPEN))
@@ -302,12 +302,12 @@ Parser::Result<Type*> Parser::parseType()
 					continue;
 				}
 
-				return Result<Type*>::Error();
+				return Result<TypeBase*>::Error();
 			}
 		}
-		return Result<Type*>(ty, SourceRange(begLoc, endLoc));
+		return Result<TypeBase*>(ty, SourceRange(begLoc, endLoc));
 	}
-	return Result<Type*>::NotFound();
+	return Result<TypeBase*>::NotFound();
 }
 
 Token Parser::getCurtok() const

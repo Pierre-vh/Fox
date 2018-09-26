@@ -25,9 +25,9 @@ namespace fox
 	// Forward Declarations
 	class ASTContext;
 
-	// Type
+	// TypeBase
 	//		Common base for types
-	class Type
+	class TypeBase
 	{
 		public:
 			/* Should return the type's name in a user friendly form, e.g. "int", "string" */
@@ -36,20 +36,20 @@ namespace fox
 			TypeKind getKind() const;
 
 			// Returns the element type if this is an ArrayType, or nullptr.
-			const Type* unwrapIfArray() const;
-			Type* unwrapIfArray();
+			const TypeBase* unwrapIfArray() const;
+			TypeBase* unwrapIfArray();
 
 			// Returns the element type if this is an LValueType, or nullptr.
-			const Type* unwrapIfLValue() const;
-			Type* unwrapIfLValue();
+			const TypeBase* unwrapIfLValue() const;
+			TypeBase* unwrapIfLValue();
 
 			// If this type is an LValue, returns it's element type, else
 			// returns this.
-			const Type* ignoreLValue() const;
-			Type* ignoreLValue();
+			const TypeBase* ignoreLValue() const;
+			TypeBase* ignoreLValue();
 
 		protected:
-			Type(TypeKind tc);
+			TypeBase(TypeKind tc);
 
 			friend class ASTContext;
 
@@ -60,7 +60,7 @@ namespace fox
 
 			// Only allow allocation through the ASTContext
 			// This operator is "protected" so only the ASTContext can create types.
-			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Type));
+			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(TypeBase));
 
 			// Companion operator delete to silence C4291 on MSVC
 			void operator delete(void*, ASTContext&, std::uint8_t) {}
@@ -71,10 +71,10 @@ namespace fox
 
 	// BuiltinType
 	//		Common base for Built-in types
-	class BuiltinType : public Type
+	class BuiltinType : public TypeBase
 	{
 		public:
-			static bool classof(const Type* type)
+			static bool classof(const TypeBase* type)
 			{
 				return ((type->getKind() >= TypeKind::First_BuiltinType) 
 					&& (type->getKind() <= TypeKind::Last_BuiltinType));
@@ -112,7 +112,7 @@ namespace fox
 			bool isInt() const;
 			bool isVoid() const;
 
-			static bool classof(const Type* type)
+			static bool classof(const TypeBase* type)
 			{
 				return (type->getKind() == TypeKind::PrimitiveType);
 			}
@@ -127,88 +127,88 @@ namespace fox
 	class ArrayType : public BuiltinType
 	{
 		public:
-			ArrayType(Type* elemTy);
+			ArrayType(TypeBase* elemTy);
 
 			virtual std::string getString() const override;
 
-			Type* getElementType();
-			const Type* getElementType() const;
+			TypeBase* getElementType();
+			const TypeBase* getElementType() const;
 
-			static bool classof(const Type* type)
+			static bool classof(const TypeBase* type)
 			{
 				return (type->getKind() == TypeKind::ArrayType);
 			}
 
 		private:
-			Type* elementTy_= nullptr;
+			TypeBase* elementTy_= nullptr;
 	};
 
 	// LValueType
 	//		C/C++-like LValue. e.g. This type is the one
 	//		of a DeclRef when the declaration it refers to
 	//		is not const.
-	class LValueType : public Type
+	class LValueType : public TypeBase
 	{
 		public:
-			LValueType(Type* type);
+			LValueType(TypeBase* type);
 
 			virtual std::string getString() const override;
 
-			Type* getType();
-			const Type* getType() const;
+			TypeBase* getType();
+			const TypeBase* getType() const;
 
-			static bool classof(const Type* type)
+			static bool classof(const TypeBase* type)
 			{
 				return (type->getKind() == TypeKind::LValueType);
 			}
 
 		private:
-			Type* ty_ = nullptr;
+			TypeBase* ty_ = nullptr;
 	};
 
 	// SemaType
-	//		Type used in semantic analysis to perform
+	//		TypeBase used in semantic analysis to perform
 	//		basic, local type inference. This is, like LValueType & ArrayType,
-	//		just a wrapper around a Type*, however the pointer may be null if no
+	//		just a wrapper around a TypeBase*, however the pointer may be null if no
 	//		substitution was chosen.
-	class SemaType : public Type
+	class SemaType : public TypeBase
 	{
 		public:
-			SemaType(Type* type = nullptr);
+			SemaType(TypeBase* type = nullptr);
 
 			virtual std::string getString() const override;
 
-			Type* getSubstitution();
-			const Type* getSubstitution() const;
+			TypeBase* getSubstitution();
+			const TypeBase* getSubstitution() const;
 
 			// Returns true if the type has a substitution
 			// (type isn't null)
 			bool hasSubstitution() const;
 
-			void setSubstitution(Type* subst);
+			void setSubstitution(TypeBase* subst);
 
 			// Sets the type to nullptr
 			void reset();
 
-			static bool classof(const Type* type)
+			static bool classof(const TypeBase* type)
 			{
 				return (type->getKind() == TypeKind::SemaType);
 			}
 		private:
-			Type * ty_ = nullptr;
+			TypeBase * ty_ = nullptr;
 	};
 
 	// ErrorType
 	//		A type used to represent that a expression's type
 	//		cannot be determined because of an error.
-	class ErrorType : public Type
+	class ErrorType : public TypeBase
 	{
 		public:
 			ErrorType();
 
 			virtual std::string getString() const override;
 
-			static bool classof(const Type* type)
+			static bool classof(const TypeBase* type)
 			{
 				return (type->getKind() == TypeKind::ErrorType);
 			}

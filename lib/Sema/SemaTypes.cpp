@@ -18,7 +18,7 @@ using namespace fox;
 
 namespace
 {
-	bool compareSubtypes(Type* a, Type* b)
+	bool compareSubtypes(TypeBase* a, TypeBase* b)
 	{
 		assert(a && b && "Pointers cannot be null");
 
@@ -41,8 +41,8 @@ namespace
 			// Checking Array Types
 			if (isa<ArrayType>(a))
 			{
-				Type* elemA = a->unwrapIfArray();
-				Type* elemB = b->unwrapIfArray();
+				TypeBase* elemA = a->unwrapIfArray();
+				TypeBase* elemB = b->unwrapIfArray();
 
 				assert(elemA && elemB && "Types are null");
 
@@ -76,12 +76,12 @@ namespace
 	// If type doesn't have a sub or isn't a SemaType, returns the type
 	// untouched.
 	// Returns it's argument or the unwrapped type.
-	Type* prepareSemaTypeForUnification(Type* type)
+	TypeBase* prepareSemaTypeForUnification(TypeBase* type)
 	{
 		if (auto* sema = dyn_cast<SemaType>(type))
 		{
 			// Get the substitution
-			if (Type* sub = sema->getSubstitution())
+			if (TypeBase* sub = sema->getSubstitution())
 			{
 				// It has a sub, if it's SemaType, recurse to unwrap further.
 				if(isa<SemaType>(sub))
@@ -92,7 +92,7 @@ namespace
 	}
 
 	// Performs the pre-unifications tasks
-	std::pair<Type*,Type*> performPreUnificationTasks(Type* a, Type* b)
+	std::pair<TypeBase*,TypeBase*> performPreUnificationTasks(TypeBase* a, TypeBase* b)
 	{
 		assert(a && b && "Pointers cannot be nullptr");
 
@@ -133,7 +133,7 @@ namespace
 	}
 
 	// Tries to adjust the Sematype. Returns true on success, false otherwise.
-	bool tryAdjustSemaType(SemaType* semaTy, Type* candidate)
+	bool tryAdjustSemaType(SemaType* semaTy, TypeBase* candidate)
 	{
 		auto* sub = semaTy->getSubstitution();
 		assert(sub && "Must have a sub");
@@ -150,7 +150,7 @@ namespace
 
 }	// anonymous namespace
 
-bool Sema::unify(Type* a, Type* b)
+bool Sema::unify(TypeBase* a, TypeBase* b)
 {
 	assert(a && b && "Pointers cannot be null");
 
@@ -224,7 +224,7 @@ bool Sema::unify(Type* a, Type* b)
 	return false;
 }
 
-bool Sema::isIntegral(Type* a)
+bool Sema::isIntegral(TypeBase* a)
 {
 	if (auto* prim = dyn_cast<PrimitiveType>(a))
 	{
@@ -242,7 +242,7 @@ bool Sema::isIntegral(Type* a)
 	return false;
 }
 
-Type* Sema::deref(Type* type)
+TypeBase* Sema::deref(TypeBase* type)
 {
 	assert(type && "type cannot be null");
 	if (auto* sema = dyn_cast<SemaType>(type))
@@ -250,7 +250,7 @@ Type* Sema::deref(Type* type)
 	return type;
 }
 
-Type* Sema::getHighestRankingType(Type* a, Type* b)
+TypeBase* Sema::getHighestRankingType(TypeBase* a, TypeBase* b)
 {
 	assert(a && b && "Pointers cannot be null");
 
@@ -266,7 +266,7 @@ Type* Sema::getHighestRankingType(Type* a, Type* b)
 	return nullptr;
 }
 
-Sema::IntegralRankTy Sema::getIntegralRank(Type* type)
+Sema::IntegralRankTy Sema::getIntegralRank(TypeBase* type)
 {
 	using Pk = PrimitiveType::Kind;
 

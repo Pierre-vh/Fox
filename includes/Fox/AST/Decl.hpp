@@ -88,12 +88,12 @@ namespace fox
 	class ValueDecl : public NamedDecl
 	{
 		public:
-			ValueDecl(DeclKind kind, Identifier* id, Type* ty, 
+			ValueDecl(DeclKind kind, Identifier* id, TypeBase* ty, 
 				bool isConst, SourceRange typeRange, SourceRange range);
 
-			Type* getType();
-			const Type* getType() const;
-			void setType(Type* ty);
+			TypeBase* getType();
+			const TypeBase* getType() const;
+			void setType(TypeBase* ty);
 
 			SourceRange getTypeRange() const;
 			void setTypeRange(SourceRange range);
@@ -111,7 +111,7 @@ namespace fox
 		private:
 			bool isConst_;
 			SourceRange tyRange_;
-			Type* type_;
+			TypeBase* type_;
 	};
 
 	// ParamDecl
@@ -120,7 +120,7 @@ namespace fox
 	{
 		public:
 			ParamDecl();
-			ParamDecl(Identifier* id, Type* type, bool isConst, SourceRange tyRange, SourceRange range);
+			ParamDecl(Identifier* id, TypeBase* type, bool isConst, SourceRange tyRange, SourceRange range);
 
 			bool isValid() const;
 
@@ -143,7 +143,7 @@ namespace fox
 
 		public:
 			FuncDecl();
-			FuncDecl(Type* returnType, Identifier* fnId, CompoundStmt* body,
+			FuncDecl(TypeBase* returnType, Identifier* fnId, CompoundStmt* body,
 				SourceRange range, SourceLoc headerEndLoc);
 			
 			void setLocs(const SourceRange& range, const SourceLoc& headerEndLoc);
@@ -155,8 +155,8 @@ namespace fox
 			// Note: Calls isValid on the args too.
 			bool isValid() const;
 
-			void setReturnType(Type* ty);
-			Type* getReturnType() const;
+			void setReturnType(TypeBase* ty);
+			TypeBase* getReturnType() const;
 
 			void setBody(CompoundStmt* body);
 			CompoundStmt* getBody() const;
@@ -184,7 +184,7 @@ namespace fox
 
 		private:
 			SourceLoc headEndLoc_;
-			Type* returnType_ = nullptr;
+			TypeBase* returnType_ = nullptr;
 			ParamVecTy params_;
 			CompoundStmt* body_ = nullptr;
 
@@ -198,7 +198,7 @@ namespace fox
 	{
 		public:
 			VarDecl();
-			VarDecl(Identifier* id, Type* type, bool isConst,
+			VarDecl(Identifier* id, TypeBase* type, bool isConst,
 				Expr* init, SourceRange range, SourceRange tyRange);
 
 			bool isValid() const;

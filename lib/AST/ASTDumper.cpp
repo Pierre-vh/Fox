@@ -352,7 +352,7 @@ std::string ASTDumper::getDeclNodeName(Decl* decl) const
 	}
 }
 
-std::string ASTDumper::getTypeNodeName(Type* type) const
+std::string ASTDumper::getTypeNodeName(TypeBase* type) const
 {
 	switch (type->getKind())
 	{
@@ -397,7 +397,7 @@ std::string ASTDumper::getBasicDeclInfo(Decl* decl) const
 	return ss.str();
 }
 
-std::string ASTDumper::getBasicTypeInfo(Type* type) const
+std::string ASTDumper::getBasicTypeInfo(TypeBase* type) const
 {
 	std::ostringstream ss;
 	ss << getTypeNodeName(type);
@@ -473,7 +473,7 @@ std::string ASTDumper::getSourceLocDump(const std::string& label,const SourceLoc
 	return makeKeyPairDump(label, ss.str());
 }
 
-std::string ASTDumper::getTypeDump(const std::string& label, Type* ty) const
+std::string ASTDumper::getTypeDump(const std::string& label, TypeBase* ty) const
 {
 	return makeKeyPairDump(label, addSingleQuotes(ty->getString()));
 }
