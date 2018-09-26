@@ -82,8 +82,8 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
 			CompoundStmt* body = fn->getBody();
 			for (auto& node : body->getNodes())
 			{
-				if (auto* arrlit = dyn_cast_or_null<ArrayLiteralExpr>(node.getIf<Expr>()))
-					node = Sema(astCtxt, dg).typecheckExpr(arrlit);
+				if (auto* expr = node.getIf<Expr>())
+					node = Sema(astCtxt, dg).typecheckExpr(expr);
 			}
 		}
 	}
