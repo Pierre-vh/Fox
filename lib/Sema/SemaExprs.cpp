@@ -321,7 +321,7 @@ namespace
 				{
 					// Rebuild if needed
 					if(elem != type->getElementType())
-						return ctxt_.getArrayTypeForType(elem).getPtr();
+						return ctxt_.getArrayTypeForType(elem);
 					return type;
 				}
 				return nullptr;
@@ -332,7 +332,7 @@ namespace
 				if (TypeBase* elem = visit(type->getType()))
 				{
 					if(elem != type->getType())
-						return ctxt_.getLValueTypeForType(elem).getPtr();
+						return ctxt_.getLValueTypeForType(elem);
 					return type;
 				}
 				return nullptr;
