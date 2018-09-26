@@ -94,7 +94,7 @@ namespace fox
 			// Returns a formatted string, "<(label):(coords)>"
 			std::string getSourceLocDump(const std::string& label,const SourceLoc& sloc) const;
 			// Returns a formatted string  "<(label):'(type)'>
-			std::string getTypeDump(const std::string& label,TypeBase *ty) const;
+			std::string getTypeDump(const std::string& label, Type ty) const;
 			// Returns value enclosed with "".
 			std::string addDoubleQuotes(const std::string& str) const;
 			// Returns the value enclosed with ''

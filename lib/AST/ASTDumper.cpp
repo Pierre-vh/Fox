@@ -56,7 +56,7 @@ void ASTDumper::visitBinaryExpr(BinaryExpr* node)
 
 void ASTDumper::visitCastExpr(CastExpr* node)
 {
-	dumpLine() << getBasicExprInfo(node) << " " << getTypeDump("to",node->getCastTypeLoc()) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << getTypeDump("to", node->getCastTypeLoc()) << "\n";
 	indent();
 		visit(node->getExpr());
 	dedent();
@@ -378,7 +378,7 @@ std::string ASTDumper::getBasicExprInfo(Expr* expr) const
 	ss << getExprNodeName(expr);
 	if (printAllAdresses_)
 		ss << " " << (void *)expr;
-	if (auto* ty = expr->getType())
+	if (auto ty = expr->getType())
 		ss << " " << makeKeyPairDump("type", ty->getString());
 	return ss.str();
 }
@@ -423,7 +423,7 @@ std::string ASTDumper::getBasicValueDeclDump(ValueDecl* decl) const
 	if (decl->isConstant())
 		ss << "const ";
 
-	SourceRange typeRange = decl->getTypeRange();
+	SourceRange typeRange = decl->getTypeLoc().getRange();
 	ss << getSourceLocDump("type start", typeRange.getBegin()) << " ";
 	ss << getSourceLocDump("type end" , typeRange.getEnd());
 
@@ -473,7 +473,7 @@ std::string ASTDumper::getSourceLocDump(const std::string& label,const SourceLoc
 	return makeKeyPairDump(label, ss.str());
 }
 
-std::string ASTDumper::getTypeDump(const std::string& label, TypeBase* ty) const
+std::string ASTDumper::getTypeDump(const std::string& label, Type ty) const
 {
 	return makeKeyPairDump(label, addSingleQuotes(ty->getString()));
 }
