@@ -18,17 +18,22 @@
 
 using namespace fox;
 
+auto toPrimitive(Type ty)
+{
+	return dyn_cast<PrimitiveType>(ty.getPtr());
+}
+
 // Tests that the ASTContext gives correct builtin
 TEST(ASTTests, ASTContextBuiltins)
 {
 	ASTContext actxt;
 
-	auto primBool	= actxt.getBoolType();
-	auto primFloat	= actxt.getFloatType();
-	auto primInt	= actxt.getIntType();
-	auto primChar	= actxt.getCharType();
-	auto primString = actxt.getStringType();
-	auto primVoid	= actxt.getVoidType();
+	auto primBool	= toPrimitive(actxt.getBoolType());
+	auto primFloat	= toPrimitive(actxt.getFloatType());
+	auto primInt	= toPrimitive(actxt.getIntType());
+	auto primChar	= toPrimitive(actxt.getCharType());
+	auto primString = toPrimitive(actxt.getStringType());
+	auto primVoid	= toPrimitive(actxt.getVoidType());
 
 	ASSERT_TRUE(primBool)	<< "Ptr is null?";
 	ASSERT_TRUE(primFloat)	<< "Ptr is null?";
@@ -79,17 +84,17 @@ TEST(ASTTests, ASTContextArrayTypes)
 {
 	ASTContext actxt;
 
-	TypeBase* primBool = actxt.getBoolType();
-	TypeBase* primFloat = actxt.getFloatType();
-	TypeBase* primInt = actxt.getIntType();
-	TypeBase* primChar = actxt.getCharType();
-	TypeBase* primString = actxt.getStringType();
+	TypeBase* primBool = toPrimitive(actxt.getBoolType());
+	TypeBase* primFloat = toPrimitive(actxt.getFloatType());
+	TypeBase* primInt = toPrimitive(actxt.getIntType());
+	TypeBase* primChar = toPrimitive(actxt.getCharType());
+	TypeBase* primString = toPrimitive(actxt.getStringType());
 
-	TypeBase* boolArr = actxt.getArrayTypeForType(primBool);
-	TypeBase* floatArr = actxt.getArrayTypeForType(primFloat);
-	TypeBase* intArr = actxt.getArrayTypeForType(primInt);
-	TypeBase* charArr = actxt.getArrayTypeForType(primChar);
-	TypeBase* strArr = actxt.getArrayTypeForType(primString);
+	TypeBase* boolArr = toPrimitive(actxt.getArrayTypeForType(primBool));
+	TypeBase* floatArr = toPrimitive(actxt.getArrayTypeForType(primFloat));
+	TypeBase* intArr = toPrimitive(actxt.getArrayTypeForType(primInt));
+	TypeBase* charArr = toPrimitive(actxt.getArrayTypeForType(primChar));
+	TypeBase* strArr = toPrimitive(actxt.getArrayTypeForType(primString));
 
 
 	// Check that pointers aren't null
@@ -121,14 +126,13 @@ TEST(ASTTests, ASTContextArrayTypes)
 }
 
 // Create a variable with a random type
-VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeBase* ty)
+VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeLoc ty)
 {
 	return new(ctxt) VarDecl(
 			ctxt.identifiers.getUniqueIdentifierInfo(name),
-			nullptr,
+			ty,
 			false,
 			nullptr,
-			SourceRange(),
 			SourceRange()
 		);
 }
@@ -252,11 +256,11 @@ TEST(ASTTests, DeclContext)
 TEST(ASTTests, TypeRTTI)
 {
 	ASTContext astctxt;
-	TypeBase* intTy = astctxt.getIntType();
-	ArrayType* arrIntTy = astctxt.getArrayTypeForType(intTy);
-	LValueType* lvIntTy = astctxt.getLValueTypeForType(intTy);
-	SemaType* semaType = astctxt.createSemaType();
-	ErrorType* errType = astctxt.getErrorType();
+	TypeBase* intTy = astctxt.getIntType().getPtr();
+	auto* arrIntTy = astctxt.getArrayTypeForType(intTy).getAs<ArrayType>();
+	auto* lvIntTy = astctxt.getLValueTypeForType(intTy).getAs<LValueType>();
+	auto* semaType = astctxt.createSemaType().getAs<SemaType>();
+	auto* errType = astctxt.getErrorType().getAs<ErrorType>();
 
 	EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
 	EXPECT_TRUE(PrimitiveType::classof(intTy));
@@ -447,14 +451,13 @@ TEST(ASTTests, BasicVisitor)
 	auto* rtr = new(ctxt) ReturnStmt(nullptr, SourceRange());
 	auto* vardecl = new(ctxt) VarDecl(
 			nullptr,
-			nullptr,
+			TypeLoc(),
 			false,
 			nullptr, 
-			SourceRange(),
 			SourceRange()
 		);
-	auto intTy = ctxt.getIntType();
-	auto arrInt = ctxt.getArrayTypeForType(intTy);
+	auto* intTy = ctxt.getIntType().getPtr();
+	auto* arrInt = ctxt.getArrayTypeForType(intTy).getPtr();
 
 	IsExpr exprVisitor;
 	IsNamedDecl declVisitor;
