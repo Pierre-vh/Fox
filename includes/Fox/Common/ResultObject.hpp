@@ -42,7 +42,7 @@ namespace fox
 
 			}
 
-			ResultObject(bool success) :
+			explicit ResultObject(bool success) :
 				result_(DefaultValue()), hasData_(false), successFlag_(success)
 			{
 
