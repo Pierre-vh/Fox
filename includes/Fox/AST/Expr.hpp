@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Fox/Common/Typedefs.hpp"
-#include "Fox/Common/Source.hpp"
+#include "Fox/AST/Type.hpp"
 #include <vector>
 
 namespace fox	
@@ -34,12 +34,12 @@ namespace fox
 		public:
 			ExprKind getKind() const;
 
-			void setRange(const SourceRange& range);
+			void setRange(SourceRange range);
 			SourceRange getRange() const;
 
-			void setType(TypeBase* type);
-			TypeBase* getType();
-			const TypeBase* getType() const;
+			void setType(Type type);
+			Type getType();
+			const Type getType() const;
 
 			// Prohibit the use of builtin placement new & delete
 			void *operator new(std::size_t) throw() = delete;
@@ -53,11 +53,11 @@ namespace fox
 			void operator delete(void*, ASTContext&, std::uint8_t) {}
 
 		protected:
-			Expr(ExprKind kind, const SourceRange& range);
+			Expr(ExprKind kind, SourceRange range);
 
 		private:
 			const ExprKind kind_;
-			TypeBase* type_ = nullptr;
+			Type type_;
 			SourceRange range_;
 	};
 
@@ -155,18 +155,15 @@ namespace fox
 	{
 		public:
 			CastExpr();
-			CastExpr(TypeBase* castGoal, Expr* expr, const SourceRange& range, 
-				const SourceRange& typeRange);
+			CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range);
 			
-			void setCastGoal(TypeBase* goal);
-			TypeBase* getCastGoal();
-			const TypeBase* getCastGoal() const;
+			void setCastGoal(TypeLoc goal);
+			TypeLoc getCastGoal();
+			const TypeLoc getCastGoal() const;
 
 			void setExpr(Expr* expr);
 			Expr* getExpr();
 			const Expr* getExpr() const;
-
-			SourceRange getTypeRange() const;
 
 			static bool classof(const Expr* expr)
 			{
@@ -174,8 +171,7 @@ namespace fox
 			}
 
 		private:
-			SourceRange typeRange_;
-			TypeBase* goal_ = nullptr;
+			TypeLoc goal_;
 			Expr* expr_ = nullptr;
 	};
 

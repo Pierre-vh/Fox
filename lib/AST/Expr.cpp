@@ -20,7 +20,7 @@ using namespace fox;
 // Expr //
 //------//
 
-Expr::Expr(ExprKind kind, const SourceRange& range):
+Expr::Expr(ExprKind kind, SourceRange range):
 	kind_(kind), range_(range)
 {
 
@@ -31,7 +31,7 @@ ExprKind Expr::getKind() const
 	return kind_;
 }
 
-void Expr::setRange(const SourceRange& range)
+void Expr::setRange(SourceRange range)
 {
 	range_ = range;
 }
@@ -41,17 +41,17 @@ SourceRange Expr::getRange() const
 	return range_;
 }
 
-void Expr::setType(TypeBase* type)
+void Expr::setType(Type type)
 {
 	type_ = type;
 }
 
-TypeBase* Expr::getType()
+Type Expr::getType()
 {
 	return type_;
 }
 
-const TypeBase* Expr::getType() const
+const Type Expr::getType() const
 {
 	return type_;
 }
@@ -451,31 +451,30 @@ std::string UnaryExpr::getOpName(OpKind op)
 // CastExpr //
 //----------//
 
-CastExpr::CastExpr() : CastExpr(nullptr, nullptr, 
-	SourceRange(), SourceRange())
+CastExpr::CastExpr():
+	CastExpr(TypeLoc(), nullptr, SourceRange())
 {
 
 }
 
-CastExpr::CastExpr(TypeBase* castGoal, Expr* expr, 
-	const SourceRange& range, const SourceRange& typeRange):
+CastExpr::CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range):
 	Expr(ExprKind::CastExpr, range),
-	goal_(castGoal), expr_(expr), typeRange_(typeRange)
+	goal_(castGoal), expr_(expr)
 {
 
 }
 
-void CastExpr::setCastGoal(TypeBase* goal)
+void CastExpr::setCastGoal(TypeLoc goal)
 {
 	goal_ = goal;
 }
 
-TypeBase* CastExpr::getCastGoal()
+TypeLoc CastExpr::getCastGoal()
 {
 	return goal_;
 }
 
-const TypeBase* CastExpr::getCastGoal() const
+const TypeLoc CastExpr::getCastGoal() const
 {
 	return goal_;
 }
@@ -495,21 +494,17 @@ const Expr* CastExpr::getExpr() const
 	return expr_;
 }
 
-SourceRange CastExpr::getTypeRange() const
-{
-	return typeRange_;
-}
-
 //-------------//
 // DeclRefExpr //
 //-------------//
 
-DeclRefExpr::DeclRefExpr() : DeclRefExpr(nullptr, SourceRange())
+DeclRefExpr::DeclRefExpr():
+	DeclRefExpr(nullptr, SourceRange())
 {
 }
 
-DeclRefExpr::DeclRefExpr(Identifier* declid, const SourceRange& range)
-	: id_(declid), Expr(ExprKind::DeclRefExpr, range)
+DeclRefExpr::DeclRefExpr(Identifier* declid, const SourceRange& range):
+	id_(declid), Expr(ExprKind::DeclRefExpr, range)
 {
 
 }
