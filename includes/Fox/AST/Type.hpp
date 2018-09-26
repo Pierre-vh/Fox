@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Fox/Common/Source.hpp"
+#include "Fox/Common/LLVM.hpp"
 
 namespace fox
 {
@@ -33,6 +34,29 @@ namespace fox
 			const TypeBase* operator->() const;
 
 			explicit operator bool() const;
+
+			// uses dyn_cast_or_null to return the type pointer
+			template<typename Ty>
+			Ty* getAs()
+			{
+				return dyn_cast_or_null<Ty>(ty_);
+			}
+
+			// uses dyn_cast_or_null to return the type pointer
+			template<typename Ty>
+			const Ty* getAs() const
+			{
+				return dyn_cast_or_null<Ty>(ty_);
+			}
+
+			// calls isa on the pointer. Always return false
+			// if the pointer is null.
+			template<typename Ty>
+			bool is() const
+			{
+				return ty_ ? isa<Ty>(ty_) : false;
+			}
+
 	};
 
 	// A Type with it's SourceRange, which is used to represent "real" types written down
