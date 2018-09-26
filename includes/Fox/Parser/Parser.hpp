@@ -279,19 +279,19 @@ namespace fox
 			{
 				using Inherited = ResultObject<DataTy>;
 				public:
-					Result(bool success = true):
+					explicit Result(bool success = true):
 						Inherited(success)
 					{
 
 					}
 
-					Result(CTorValueTy val, SourceRange range = SourceRange()):
+					explicit Result(CTorValueTy val, SourceRange range = SourceRange()):
 						Inherited(true, val), range_(range)
 					{
 
 					}
 
-					Result(CTorRValueTy val, SourceRange range = SourceRange()):
+					explicit Result(CTorRValueTy val, SourceRange range = SourceRange()):
 						Inherited(true, val), range_(range)
 					{
 
