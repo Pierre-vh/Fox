@@ -127,19 +127,19 @@ namespace fox
 			// Parses a builtin type name
 			// Parser::Result::getRange does not contain the range, use
 			// the TypeLoc's getRange method to retrieve the range.
-			Result<TypeLoc> parseBuiltinTypename();
+			Result<Type> parseBuiltinTypename();
 
 			// Parses a complete type, with potential a potential array []
 			// modifier.
 			// Parser::Result::getRange does not contain the range, use
 			// the TypeLoc's getRange method to retrieve the range.
-			Result<TypeLoc> parseType();
+			Result<Type> parseType();
 
 			// Parses a QualType 
 				// Deprecated: This will go away with the grammar update
 			struct ParsedQualType
 			{
-				TypeLoc type;
+				Type type;
 				bool isConst = false;
 				bool isRef = false;
 			};
@@ -327,6 +327,13 @@ namespace fox
 					static Result<DataTy> NotFound()
 					{
 						return Result<DataTy>(true);
+					}
+
+					// Extra function for Result<Type>
+					template<typename = typename std::enable_if<std::is_same<Type, DataTy>::value, TypeLoc>::type>
+					TypeLoc getAsTypeLoc() const
+					{
+						return TypeLoc(get(), range_);
 					}
 
 				private:

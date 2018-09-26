@@ -184,7 +184,7 @@ Parser::DeclResult Parser::parseFuncDecl()
 	{
 		if (auto rtrTy = parseType())
 		{
-			TypeLoc tl = rtrTy.get();
+			TypeLoc tl = rtrTy.getAsTypeLoc();
 			rtr->setReturnType(tl);
 			headEndLoc = tl.getRange().getEnd();
 		}
@@ -255,18 +255,20 @@ Parser::DeclResult Parser::parseParamDecl()
 		return DeclResult::Error();
 	}
 
-	auto parsedType = typeResult.get();
+	TypeLoc tl(typeResult.get().type, typeResult.getRange());
+	bool isConst = typeResult.get().isConst;
 
 	SourceLoc begLoc = id.getRange().getBegin();
-	SourceLoc endLoc = typeResult.getRange().getEnd();
+	SourceLoc endLoc = tl.getRange().getEnd();
 
 	SourceRange range(begLoc, endLoc);
+
 	assert(range && "Invalid loc info");
 
 	auto* rtr = new(ctxt_) ParamDecl(
 			id.get(),
-			parsedType.type,
-			parsedType.isConst,
+			tl,
+			isConst,
 			range
 		);
 	assert(rtr->isValid());
@@ -284,10 +286,10 @@ Parser::DeclResult Parser::parseVarDecl()
 	
 	SourceLoc begLoc = letKw.getBegin();
 	SourceLoc endLoc;
-	SourceRange tyRange;
 
 	Identifier* id;
-	ParsedQualType parsedTy;
+	TypeLoc type;
+	bool isConst = false;
 	Expr* iExpr = nullptr;
 
 	// <id>
@@ -313,19 +315,16 @@ Parser::DeclResult Parser::parseVarDecl()
 
 	// <qualtype>
 	SourceLoc ampLoc;
-	if (auto typespecResult = parseQualType(nullptr, &ampLoc))
+	if (auto qtRes = parseQualType(nullptr, &ampLoc))
 	{
-		parsedTy = typespecResult.get();
-		tyRange = typespecResult.getRange();
-		if (parsedTy.isRef)
-		{
+		type = TypeLoc(qtRes.get().type, qtRes.getRange());
+		isConst = qtRes.get().isConst;
+		if (qtRes.get().isRef)
 			diags_.report(DiagID::parser_ignored_ref_vardecl, ampLoc);
-			parsedTy.isRef = false;
-		}
 	}
 	else
 	{
-		if (typespecResult.wasSuccessful())
+		if (qtRes.wasSuccessful())
 			reportErrorExpected(DiagID::parser_expected_type);
 		if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi*/ true, /*consumeToken*/ true))
 			return DeclResult::NotFound(); // Recovered? Act like nothing happened.
@@ -361,9 +360,9 @@ Parser::DeclResult Parser::parseVarDecl()
 
 	SourceRange range(begLoc, endLoc);
 	assert(range && "Invalid loc info");
-
-	auto rtr = new(ctxt_) VarDecl(id, parsedTy.type,
-		parsedTy.isConst, iExpr, range);
+	assert(type && "type is not valid");
+	assert(type.getRange() && "type range is not valid");
+	auto rtr = new(ctxt_) VarDecl(id, type, isConst, iExpr, range);
 	assert(rtr->isValid());
 	recordDecl(rtr);
 	return DeclResult(rtr);
@@ -374,8 +373,7 @@ Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constR
 	// 	<qualtype>	= ["const"] ['&'] <type>
 	ParsedQualType rtr;
 	bool hasFoundSomething = false;
-	SourceLoc begLoc;
-	SourceLoc endLoc;
+	SourceLoc begLoc, endLoc;
 
 	// ["const"]
 	if (auto kw = consumeKeyword(KeywordType::KW_CONST))
@@ -404,8 +402,8 @@ Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constR
 	// <type>
 	if (auto tyRes = parseType())
 	{
-		TypeLoc tl = tyRes.get();
-		rtr.type = tl;
+		TypeLoc tl = tyRes.getAsTypeLoc();
+		rtr.type = tl; // convert to Type
 
 		// If no begLoc, the begLoc is the type's begLoc.
 		if (!begLoc)
@@ -425,8 +423,7 @@ Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constR
 			return Result<ParsedQualType>::NotFound();
 	}
 
-	// Success!
-	assert(rtr.type && "Type cannot be null");
+	assert(rtr.type && "Type cannot be invalid");
 	assert(begLoc && "begLoc must be valid");
 	assert(endLoc && "endLoc must be valid");
 	return Result<ParsedQualType>(rtr, SourceRange(begLoc,endLoc));

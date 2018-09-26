@@ -338,7 +338,7 @@ Parser::ExprResult Parser::parseCastExpr()
 		// <type>
 		if (auto tyRes = parseType())
 		{
-			TypeLoc tl = tyRes.get();
+			TypeLoc tl = tyRes.getAsTypeLoc();
 			SourceLoc begLoc = prefixexpr.get()->getRange().getBegin();
 			SourceLoc endLoc = tl.getRange().getEnd();
 

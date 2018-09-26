@@ -247,44 +247,44 @@ bool Parser::isBracket(SignType s) const
 	}
 }
 
-Parser::Result<TypeLoc> Parser::parseBuiltinTypename()
+Parser::Result<Type> Parser::parseBuiltinTypename()
 {
 	// <builtin_type_name> 	= "int" | "float" | "bool" | "string" | "char"
-	using RtrTy = Result<TypeLoc>;
+	using RtrTy = Result<Type>;
 
 	// "int"
 	if (auto range = consumeKeyword(KeywordType::KW_INT))
-		return RtrTy(TypeLoc(ctxt_.getIntType(), range));
+		return RtrTy(Type(ctxt_.getIntType()), range);
 	
 	// "float"
 	if (auto range = consumeKeyword(KeywordType::KW_FLOAT))
-		return RtrTy(TypeLoc(ctxt_.getFloatType(), range));
+		return RtrTy(Type(ctxt_.getFloatType()), range);
 
 	// "bool"
 	if (auto range = consumeKeyword(KeywordType::KW_BOOL))
-		return RtrTy(TypeLoc(ctxt_.getBoolType(), range));
+		return RtrTy(Type(ctxt_.getBoolType()), range);
 
 	// "string"
 	if (auto range = consumeKeyword(KeywordType::KW_STRING))
-		return RtrTy(TypeLoc(ctxt_.getStringType(), range));
+		return RtrTy(Type(ctxt_.getStringType()), range);
 
 	// "char"
 	if (auto range = consumeKeyword(KeywordType::KW_CHAR))
-		return RtrTy(TypeLoc(ctxt_.getCharType(), range));
+		return RtrTy(Type(ctxt_.getCharType()), range);
 
 	return RtrTy::NotFound();
 }
 
-Parser::Result<TypeLoc> Parser::parseType()
+Parser::Result<Type> Parser::parseType()
 {
 	// <type> = <builtin_type_name> { '[' ']' }
 	// <builtin_type_name> 
 	if (auto ty_res = parseBuiltinTypename())
 	{
 		//  { '[' ']' }
-		TypeLoc ty = ty_res.get();
-		SourceLoc begLoc = ty.getRange().getBegin();
-		SourceLoc endLoc = ty.getRange().getEnd();
+		Type ty = ty_res.get();
+		SourceLoc begLoc = ty_res.getRange().getBegin();
+		SourceLoc endLoc = ty_res.getRange().getEnd();
 
 		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
@@ -302,15 +302,14 @@ Parser::Result<TypeLoc> Parser::parseType()
 					continue;
 				}
 
-				return Result<TypeLoc>::Error();
+				return Result<Type>::Error();
 			}
 		}
 
 		// rebuild the TypeLoc with the updated loc info.
-		ty = TypeLoc(ty, SourceRange(begLoc, endLoc));
-		return Result<TypeLoc>(ty);
+		return Result<Type>(ty, SourceRange(begLoc, endLoc));
 	}
-	return Result<TypeLoc>::NotFound();
+	return Result<Type>::NotFound();
 }
 
 Token Parser::getCurtok() const
