@@ -55,6 +55,11 @@ bool FileID::operator <(const FileID& other) const
 	return (value_ < other.value_);
 }
 
+FileID::id_type FileID::getRaw() const
+{
+	return value_;
+}
+
 FileID::id_type FileID::get() const
 {
 	return value_;

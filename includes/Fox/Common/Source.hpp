@@ -31,8 +31,12 @@ namespace fox
 
 			bool operator ==(const FileID& other) const;
 			bool operator !=(const FileID& other) const;
-			// For comparisons
+
+			// For stl
 			bool operator <(const FileID& other) const;
+
+			id_type getRaw() const;
+
 		protected:
 			FileID(const id_type& value);
 			friend class SourceManager;
