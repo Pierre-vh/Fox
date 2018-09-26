@@ -124,10 +124,15 @@ namespace fox
 			void setupParser();
 
 			/*-------------- "Basic" Parse Methods --------------*/
-			// Returns a nullptr if no type keyword is found
+			// Parses a builtin type name
+			// Parser::Result::getRange does not contain the range, use
+			// the TypeLoc's getRange method to retrieve the range.
 			Result<TypeLoc> parseBuiltinTypename();
 
-			// first -> The Type* (nullptr if not found), second -> False if error
+			// Parses a complete type, with potential a potential array []
+			// modifier.
+			// Parser::Result::getRange does not contain the range, use
+			// the TypeLoc's getRange method to retrieve the range.
 			Result<TypeLoc> parseType();
 
 			// Parses a QualType 
@@ -135,8 +140,8 @@ namespace fox
 			struct ParsedQualType
 			{
 				TypeLoc type;
-				bool isConst;
-				bool isRef;
+				bool isConst = false;
+				bool isRef = false;
 			};
 			Result<ParsedQualType> parseQualType(SourceRange* constLoc = nullptr, SourceLoc* refLoc = nullptr);
 

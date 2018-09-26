@@ -184,8 +184,9 @@ Parser::DeclResult Parser::parseFuncDecl()
 	{
 		if (auto rtrTy = parseType())
 		{
-			rtr->setReturnType(rtrTy.get());
-			headEndLoc = rtrTy.getRange().getEnd();
+			TypeLoc tl = rtrTy.get();
+			rtr->setReturnType(tl);
+			headEndLoc = tl.getRange().getEnd();
 		}
 		else 
 		{
@@ -401,21 +402,22 @@ Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constR
 	}
 
 	// <type>
-	if (auto type = parseType())
+	if (auto tyRes = parseType())
 	{
-		rtr.type = type.get();
+		TypeLoc tl = tyRes.get();
+		rtr.type = tl;
 
 		// If no begLoc, the begLoc is the type's begLoc.
 		if (!begLoc)
-			begLoc = type.getRange().getBegin();
+			begLoc = tl.getRange().getBegin();
 
-		endLoc = type.getRange().getEnd();
+		endLoc = tl.getRange().getEnd();
 	}
 	else
 	{
 		if (hasFoundSomething)
 		{
-			if (type.wasSuccessful())
+			if (tyRes.wasSuccessful())
 				reportErrorExpected(DiagID::parser_expected_type);
 			return Result<ParsedQualType>::Error();
 		}

@@ -282,10 +282,10 @@ Parser::Result<TypeLoc> Parser::parseType()
 	if (auto ty_res = parseBuiltinTypename())
 	{
 		//  { '[' ']' }
-		Type ty = ty_res.get();
+		TypeLoc ty = ty_res.get();
+		SourceLoc begLoc = ty.getRange().getBegin();
+		SourceLoc endLoc = ty.getRange().getEnd();
 
-		SourceLoc begLoc = ty_res.getRange().getBegin();
-		SourceLoc endLoc = ty_res.getRange().getEnd();
 		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
 			ty = ctxt_.getArrayTypeForType(ty);
@@ -305,7 +305,10 @@ Parser::Result<TypeLoc> Parser::parseType()
 				return Result<TypeLoc>::Error();
 			}
 		}
-		return Result<TypeLoc>(ty, SourceRange(begLoc, endLoc));
+
+		// rebuild the TypeLoc with the updated loc info.
+		ty = TypeLoc(ty, SourceRange(begLoc, endLoc));
+		return Result<TypeLoc>(ty);
 	}
 	return Result<TypeLoc>::NotFound();
 }

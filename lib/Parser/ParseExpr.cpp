@@ -336,17 +336,18 @@ Parser::ExprResult Parser::parseCastExpr()
 	if (consumeKeyword(KeywordType::KW_AS))
 	{
 		// <type>
-		if (auto castType = parseType())
+		if (auto tyRes = parseType())
 		{
+			TypeLoc tl = tyRes.get();
 			SourceLoc begLoc = prefixexpr.get()->getRange().getBegin();
-			SourceLoc endLoc = castType.getRange().getEnd();
+			SourceLoc endLoc = tl.getRange().getEnd();
 
 			SourceRange range(begLoc, endLoc);
 			assert(range && "Invalid loc info");
 
 			return ExprResult(
 				new(ctxt_) CastExpr(
-					castType.get(),
+					tl,
 					prefixexpr.get(),
 					range
 				));
