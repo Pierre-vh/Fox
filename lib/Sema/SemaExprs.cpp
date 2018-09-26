@@ -120,14 +120,14 @@ namespace
 				// Check if we can cast to that, castgoal must be
 				// of the same family OR string.
 				// WIP: Check if cast is okay
-				TypeBase* exprTy = expr->getExpr()->getType();
-				TypeBase* castGoal = expr->getCastGoal();
+				TypeBase* exprTy = expr->getExpr()->getType().getPtr();
+				TypeLoc castGoal = expr->getCastGoal();
 
-				if (!getSema().unify(exprTy, castGoal))
+				if (!getSema().unify(exprTy, castGoal.getPtr()))
 				{
 					// Add special user friendly type dump in sema instead of the getString method
 					getDiags()
-						.report(DiagID::sema_invalid_cast, expr->getTypeRange())
+						.report(DiagID::sema_invalid_cast, castGoal.getRange())
 							.addArg(exprTy->getString())
 							.addArg(castGoal->getString())
 							.setExtraRange(expr->getExpr()->getRange());
@@ -218,7 +218,7 @@ namespace
 					// and by upranking it if needed.
 					for (auto& elem : expr->getExprs())
 					{
-						TypeBase* elemTy = elem->getType();
+						TypeBase* elemTy = elem->getType().getPtr();
 
 						// First loop, set proposed & continue.
 						if (!proposed)
@@ -294,7 +294,7 @@ namespace
 
 			Expr* handleExprPost(Expr* expr)
 			{
-				TypeBase* type = expr->getType();
+				TypeBase* type = expr->getType().getPtr();
 				assert(type && "Untyped expr");
 
 				// Visit the type
