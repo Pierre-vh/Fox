@@ -42,6 +42,7 @@ namespace fox
 		SourceRange range_;
 		public:
 			TypeLoc(TypeBase* ty = nullptr, SourceRange range = SourceRange());
+			TypeLoc(Type ty, SourceRange range = SourceRange());
 
 			SourceRange getRange() const;
 	};

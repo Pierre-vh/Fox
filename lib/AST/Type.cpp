@@ -54,7 +54,13 @@ Type::operator bool() const
 
 // TypeLoc
 
-TypeLoc::TypeLoc(TypeBase* ty, SourceRange range) :
+TypeLoc::TypeLoc(TypeBase* ty, SourceRange range):
+	Type(ty), range_(range)
+{
+
+}
+
+TypeLoc::TypeLoc(Type ty, SourceRange range) :
 	Type(ty), range_(range)
 {
 
