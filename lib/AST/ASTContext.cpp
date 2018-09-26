@@ -13,15 +13,7 @@ using namespace fox;
 
 ASTContext::ASTContext()
 {
-	using PrimKind = PrimitiveType::Kind;
-
-	theIntType_ = new(*this) PrimitiveType(PrimKind::IntTy);
-	theFloatType_ = new(*this) PrimitiveType(PrimKind::FloatTy);
-	theCharType_ = new(*this) PrimitiveType(PrimKind::CharTy);
-	theBoolType_ = new(*this) PrimitiveType(PrimKind::BoolTy);
-	theStringType_ = new(*this) PrimitiveType(PrimKind::StringTy);
-	theVoidType_ = new(*this) PrimitiveType(PrimKind::VoidTy);
-	theErrorType_ = new(*this) ErrorType();
+	initBuiltins();
 }
 
 UnitDecl* ASTContext::getMainUnit()
@@ -37,7 +29,42 @@ void ASTContext::addUnit(UnitDecl* unit, bool isMainUnit)
 		mainUnit_ = unit;
 }
 
-Type ASTContext::getArrayTypeForType(Type ty)
+PrimitiveType* ASTContext::getIntType()
+{
+	return theIntType_;
+}
+
+PrimitiveType* ASTContext::getFloatType()
+{
+	return theFloatType_;
+}
+
+PrimitiveType* ASTContext::getBoolType()
+{
+	return theBoolType_;
+}
+
+PrimitiveType* ASTContext::getStringType()
+{
+	return theStringType_;
+}
+
+PrimitiveType* ASTContext::getCharType()
+{
+	return theCharType_;
+}
+
+PrimitiveType* ASTContext::getVoidType()
+{
+	return theVoidType_;
+}
+
+ErrorType* ASTContext::getErrorType()
+{
+	return theErrorType_;
+}
+
+ArrayType* ASTContext::getArrayTypeForType(Type ty)
 {
 	auto lb = arrayTypes_.lower_bound(ty.getPtr());
 	if (lb != arrayTypes_.end() && !(arrayTypes_.key_comp()(ty.getPtr(), lb->first)))
@@ -53,7 +80,7 @@ Type ASTContext::getArrayTypeForType(Type ty)
 	}
 }
 
-Type ASTContext::getLValueTypeForType(Type ty)
+LValueType* ASTContext::getLValueTypeForType(Type ty)
 {
 	auto lb = lvalueTypes_.lower_bound(ty.getPtr());
 	if (lb != lvalueTypes_.end() && !(lvalueTypes_.key_comp()(ty.getPtr(), lb->first)))
@@ -80,10 +107,31 @@ void ASTContext::reset()
 	mainUnit_ = nullptr;
 	arrayTypes_.clear();
 
+	theIntType_ = nullptr;
+	theFloatType_ = nullptr;
+	theCharType_ = nullptr;
+	theBoolType_ = nullptr;
+	theStringType_ = nullptr;
+	theVoidType_ = nullptr;
+	theErrorType_ = nullptr;
+
 	allocator_.reset();
 }
 
-Type ASTContext::createSemaType(TypeBase* ty)
+void ASTContext::initBuiltins()
+{
+	using PrimKind = PrimitiveType::Kind;
+
+	theIntType_ = new(*this) PrimitiveType(PrimKind::IntTy);
+	theFloatType_ = new(*this) PrimitiveType(PrimKind::FloatTy);
+	theCharType_ = new(*this) PrimitiveType(PrimKind::CharTy);
+	theBoolType_ = new(*this) PrimitiveType(PrimKind::BoolTy);
+	theStringType_ = new(*this) PrimitiveType(PrimKind::StringTy);
+	theVoidType_ = new(*this) PrimitiveType(PrimKind::VoidTy);
+	theErrorType_ = new(*this) ErrorType();
+}
+
+SemaType* ASTContext::createSemaType(TypeBase* ty)
 {
 	return new(*this) SemaType(ty);
 }

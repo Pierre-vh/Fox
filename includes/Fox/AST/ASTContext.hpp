@@ -33,22 +33,22 @@ namespace fox
 			// Registers a unit in this ASTContext
 			void addUnit(UnitDecl* unit, bool isMainUnit = false);
 
-			Type getIntType();
-			Type getFloatType();
-			Type getBoolType();
-			Type getStringType();
-			Type getCharType();
-			Type getVoidType();
-			Type getErrorType();
+			PrimitiveType* getIntType();
+			PrimitiveType* getFloatType();
+			PrimitiveType* getBoolType();
+			PrimitiveType* getStringType();
+			PrimitiveType* getCharType();
+			PrimitiveType* getVoidType();
+			ErrorType* getErrorType();
 
 			// Returns an ArrayType for a given type.
-			Type getArrayTypeForType(Type ty);
+			ArrayType* getArrayTypeForType(Type ty);
 
 			// Returns an LValueType for a given type
-			Type getLValueTypeForType(Type ty);
+			LValueType* getLValueTypeForType(Type ty);
 
 			// Creates a SemaType
-			Type createSemaType(TypeBase *ty = nullptr);
+			SemaType* createSemaType(TypeBase *ty = nullptr);
 
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
@@ -60,18 +60,20 @@ namespace fox
 			IdentifierTable identifiers;
 
 		private:
+			void initBuiltins();
+
 			// Context shouldn't be copyable.
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
 
 			// Basic types
-			Type theIntType_;
-			Type theFloatType_;
-			Type theCharType_;
-			Type theBoolType_;
-			Type theStringType_;
-			Type theVoidType_;
-			Type theErrorType_;
+			PrimitiveType* theIntType_;
+			PrimitiveType* theFloatType_;
+			PrimitiveType* theCharType_;
+			PrimitiveType* theBoolType_;
+			PrimitiveType* theStringType_;
+			PrimitiveType* theVoidType_;
+			ErrorType* theErrorType_;
 
 			// An observing pointer to a ASTUnit owned by the vector below that points to the main unit
 			// (= the unit that contains the entry point of this module)
