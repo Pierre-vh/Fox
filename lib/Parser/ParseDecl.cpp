@@ -402,14 +402,13 @@ Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constR
 	// <type>
 	if (auto tyRes = parseType())
 	{
-		TypeLoc tl = tyRes.getAsTypeLoc();
-		rtr.type = tl; // convert to Type
+		rtr.type = tyRes.get();
 
 		// If no begLoc, the begLoc is the type's begLoc.
 		if (!begLoc)
-			begLoc = tl.getRange().getBegin();
+			begLoc = tyRes.getRange().getBegin();
 
-		endLoc = tl.getRange().getEnd();
+		endLoc = tyRes.getRange().getEnd();
 	}
 	else
 	{

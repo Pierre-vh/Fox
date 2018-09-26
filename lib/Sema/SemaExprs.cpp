@@ -136,7 +136,7 @@ namespace
 					// flooding.
 				}
 				else
-					expr->setType(castGoal);
+					expr->setType(castGoal.withoutLoc());
 
 				return expr;
 			}
