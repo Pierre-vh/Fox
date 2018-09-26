@@ -247,43 +247,43 @@ bool Parser::isBracket(SignType s) const
 	}
 }
 
-Parser::Result<TypeBase*> Parser::parseBuiltinTypename()
+Parser::Result<TypeLoc> Parser::parseBuiltinTypename()
 {
 	// <builtin_type_name> 	= "int" | "float" | "bool" | "string" | "char"
-
-	typedef Parser::Result<TypeBase*> RtrTy;
+	using RtrTy = Result<TypeLoc>;
 
 	// "int"
 	if (auto range = consumeKeyword(KeywordType::KW_INT))
-		return RtrTy(ctxt_.getIntType(),range);
+		return RtrTy(TypeLoc(ctxt_.getIntType(), range));
 	
 	// "float"
 	if (auto range = consumeKeyword(KeywordType::KW_FLOAT))
-		return RtrTy(ctxt_.getFloatType(), range);
+		return RtrTy(TypeLoc(ctxt_.getFloatType(), range));
 
 	// "bool"
 	if (auto range = consumeKeyword(KeywordType::KW_BOOL))
-		return RtrTy(ctxt_.getBoolType(), range);
+		return RtrTy(TypeLoc(ctxt_.getBoolType(), range));
 
 	// "string"
 	if (auto range = consumeKeyword(KeywordType::KW_STRING))
-		return RtrTy(ctxt_.getStringType(), range);
+		return RtrTy(TypeLoc(ctxt_.getStringType(), range));
 
 	// "char"
 	if (auto range = consumeKeyword(KeywordType::KW_CHAR))
-		return RtrTy(ctxt_.getCharType(), range);
+		return RtrTy(TypeLoc(ctxt_.getCharType(), range));
 
 	return RtrTy::NotFound();
 }
 
-Parser::Result<TypeBase*> Parser::parseType()
+Parser::Result<TypeLoc> Parser::parseType()
 {
 	// <type> = <builtin_type_name> { '[' ']' }
 	// <builtin_type_name> 
 	if (auto ty_res = parseBuiltinTypename())
 	{
 		//  { '[' ']' }
-		TypeBase* ty = ty_res.get();
+		Type ty = ty_res.get();
+
 		SourceLoc begLoc = ty_res.getRange().getBegin();
 		SourceLoc endLoc = ty_res.getRange().getEnd();
 		while (consumeBracket(SignType::S_SQ_OPEN))
@@ -302,12 +302,12 @@ Parser::Result<TypeBase*> Parser::parseType()
 					continue;
 				}
 
-				return Result<TypeBase*>::Error();
+				return Result<TypeLoc>::Error();
 			}
 		}
-		return Result<TypeBase*>(ty, SourceRange(begLoc, endLoc));
+		return Result<TypeLoc>(ty, SourceRange(begLoc, endLoc));
 	}
-	return Result<TypeBase*>::NotFound();
+	return Result<TypeLoc>::NotFound();
 }
 
 Token Parser::getCurtok() const

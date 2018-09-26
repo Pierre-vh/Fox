@@ -266,7 +266,6 @@ Parser::DeclResult Parser::parseParamDecl()
 			id.get(),
 			parsedType.type,
 			parsedType.isConst,
-			typeResult.getRange(),
 			range
 		);
 	assert(rtr->isValid());
@@ -363,7 +362,7 @@ Parser::DeclResult Parser::parseVarDecl()
 	assert(range && "Invalid loc info");
 
 	auto rtr = new(ctxt_) VarDecl(id, parsedTy.type,
-		parsedTy.isConst, iExpr, tyRange, range);
+		parsedTy.isConst, iExpr, range);
 	assert(rtr->isValid());
 	recordDecl(rtr);
 	return DeclResult(rtr);

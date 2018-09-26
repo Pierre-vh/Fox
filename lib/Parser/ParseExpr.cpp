@@ -348,8 +348,7 @@ Parser::ExprResult Parser::parseCastExpr()
 				new(ctxt_) CastExpr(
 					castType.get(),
 					prefixexpr.get(),
-					range,
-					castType.getRange()
+					range
 				));
 		}
 		else

@@ -31,7 +31,7 @@
 #pragma once
 
 #include "Fox/Lexer/Token.hpp"					
-#include "Fox/AST/Types.hpp"
+#include "Fox/AST/Type.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
@@ -125,16 +125,16 @@ namespace fox
 
 			/*-------------- "Basic" Parse Methods --------------*/
 			// Returns a nullptr if no type keyword is found
-			Result<TypeBase*> parseBuiltinTypename();	
+			Result<TypeLoc> parseBuiltinTypename();
 
 			// first -> The Type* (nullptr if not found), second -> False if error
-			Result<TypeBase*> parseType();
+			Result<TypeLoc> parseType();
 
 			// Parses a QualType 
 				// Deprecated: This will go away with the grammar update
 			struct ParsedQualType
 			{
-				TypeBase* type;
+				TypeLoc type;
 				bool isConst;
 				bool isRef;
 			};
