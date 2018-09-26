@@ -56,7 +56,7 @@ void ASTDumper::visitBinaryExpr(BinaryExpr* node)
 
 void ASTDumper::visitCastExpr(CastExpr* node)
 {
-	dumpLine() << getBasicExprInfo(node) << " " << getTypeDump("to", node->getCastTypeLoc()) << "\n";
+	dumpLine() << getBasicExprInfo(node) << " " << getTypeLocDump("to", node->getCastTypeLoc()) << "\n";
 	indent();
 		visit(node->getExpr());
 	dedent();
@@ -254,7 +254,10 @@ void ASTDumper::visitParamDecl(ParamDecl* node)
 
 void ASTDumper::visitFuncDecl(FuncDecl* node)
 {
-	dumpLine() << getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) << " " << getTypeDump("returns",node->getReturnType()) << " " << getDeclRecorderDump(node) << "\n";
+	dumpLine() 
+		<< getBasicDeclInfo(node) << " " << getIdentifierDump(node->getIdentifier()) 
+		<< " " << getTypeLocDump("returns", node->getReturnTypeLoc()) << " " 
+		<< getDeclRecorderDump(node) << "\n";
 
 	if (node->getNumParams())
 	{
@@ -459,22 +462,58 @@ std::string ASTDumper::getIdentifierDump(Identifier* id) const
 	return makeKeyPairDump("id", addSingleQuotes(id->getStr()));
 }
 
-std::string ASTDumper::getSourceLocDump(const std::string& label,const SourceLoc& sloc) const
+std::string ASTDumper::getSourceLocDump(const std::string& label, SourceLoc sloc) const
 {
 	std::ostringstream ss;
 	if (sloc)
 	{
 		CompleteLoc cloc = srcMgr_.getCompleteLocForSourceLoc(sloc);
-		ss << "[l" << cloc.line << ",c" << cloc.column << "]";
+		ss << "(l" << cloc.line << ",c" << cloc.column << ")";
 	}
 	else
-		ss << "[invalid sloc]";
+		ss << "(invalid SourceLoc)";
 
 	return makeKeyPairDump(label, ss.str());
 }
 
+std::string ASTDumper::getSourceRangeAsStr(SourceRange range) const
+{
+	std::ostringstream ss;
+	if (range)
+	{
+		CompleteLoc begCLoc = srcMgr_.getCompleteLocForSourceLoc(range.getBegin());
+		CompleteLoc endCLoc = srcMgr_.getCompleteLocForSourceLoc(range.getBegin());
+		if (begCLoc.line != endCLoc.line)
+		{
+			ss << "(l" << begCLoc.line << ", c" << begCLoc.column
+				<< " to l" << endCLoc.line << ", c" << endCLoc.column << ")";
+		}
+		else
+		{
+			ss << "(l" << begCLoc.line << ", c" << begCLoc.column
+				<< " to c" << endCLoc.column << ")";
+		}
+	}
+	else
+		ss << "(invalid SourceRange)";
+
+	return ss.str();
+}
+
+std::string ASTDumper::getSourceRangeDump(const std::string& label, SourceRange range) const
+{
+	return makeKeyPairDump(label, getSourceRangeAsStr(range));
+}
+
 std::string ASTDumper::getTypeDump(const std::string& label, Type ty) const
 {
+	return makeKeyPairDump(label, addSingleQuotes(ty->getString()));
+}
+
+std::string ASTDumper::getTypeLocDump(const std::string& label, TypeLoc ty)
+{
+	std::ostringstream ss;
+	ss << addSingleQuotes(ty->getString()) << " " << getSourceRangeAsStr(ty.getRange());
 	return makeKeyPairDump(label, addSingleQuotes(ty->getString()));
 }
 

@@ -92,9 +92,12 @@ namespace fox
 			// Returns a formatted string, "<ID:(idstring)>"
 			std::string getIdentifierDump(Identifier* id) const;
 			// Returns a formatted string, "<(label):(coords)>"
-			std::string getSourceLocDump(const std::string& label,const SourceLoc& sloc) const;
+			std::string getSourceLocDump(const std::string& label, SourceLoc sloc) const;
+			std::string getSourceRangeAsStr(SourceRange range) const;
+			std::string getSourceRangeDump(const std::string& label, SourceRange range) const;
 			// Returns a formatted string  "<(label):'(type)'>
 			std::string getTypeDump(const std::string& label, Type ty) const;
+			std::string getTypeLocDump(const std::string& label, TypeLoc ty);
 			// Returns value enclosed with "".
 			std::string addDoubleQuotes(const std::string& str) const;
 			// Returns the value enclosed with ''
