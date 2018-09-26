@@ -62,8 +62,16 @@ Moonshot Project To-do List.
 	> ResultObject (Done)
 	> ASTWalker (Done)
 	> Add ErrorType (Done)
+	> Bulk of the Type rework (Done)
 
-	> Basic Expression Semantic analysis (Next)
+	> Finish Type Rework/Solve last issues (Next)
+		> This has a heavy aftermath, I need to review most of my code to fix issues.
+		> Make all tests pass again.
+		> Fix already existing Semantic analysis code.
+		> Fix ExprFinalizer. I Applied some "band aid fix" but it needs to be refactored.
+		  In fact of the sema code needs to
+
+	> Basic Expression Semantic analysis (Postponed)
 		> AST Type Walking (with bools as return type)
 			> Fix ExprFinalizer Spam by setting any SemaType with no sub to ErrorType
 				See if that's applicable to unification? When it fails, set the SemaTypes to ErrorType if it's a SemaType + Other?
