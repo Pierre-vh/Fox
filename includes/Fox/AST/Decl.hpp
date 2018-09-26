@@ -94,6 +94,8 @@ namespace fox
 			const TypeLoc getTypeLoc() const;
 			void setTypeLoc(TypeLoc ty);
 
+			SourceRange getTypeRange() const;
+
 			bool isConstant() const;
 			void setIsConstant(bool k);
 

@@ -113,6 +113,11 @@ void ValueDecl::setTypeLoc(TypeLoc ty)
 	type_ = ty;
 }
 
+SourceRange ValueDecl::getTypeRange() const
+{
+	return type_.getRange();
+}
+
 bool ValueDecl::isConstant() const
 {
 	return isConst_;
