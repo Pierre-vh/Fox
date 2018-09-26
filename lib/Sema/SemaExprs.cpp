@@ -119,18 +119,6 @@ namespace
 			{
 				// Check if we can cast to that, castgoal must be
 				// of the same family OR string.
-				// WIP: Check if cast is okay
-				Type* exprTy = expr->getExpr()->getType();
-				Type* castGoal = expr->getCastGoal();
-				if (!getSema().unify(exprTy, castGoal))
-				{
-					// Add special user friendly type dump in sema instead of the getString method
-					getDiags()
-						.report(DiagID::sema_invalid_cast, expr->getTypeRange())
-							.addArg(exprTy->getString())
-							.addArg(castGoal->getString())
-							.setExtraRange(expr->getExpr()->getRange());
-				}
 				return expr;
 			}
 
@@ -268,87 +256,9 @@ namespace
 			}
 	};
 
-	// ExprFinalizer, which rebuilds types to remove
-	// SemaTypes.
-	// Visit methods return pointers to Type. They return nullptr
-	// if the finalization failed for this expr.
-	// It's still a primitive, test version for now.
-	class ExprFinalizer : public TypeVisitor<ExprFinalizer, Type*>, public ASTWalker
-	{
-		ASTContext& ctxt_;
-		DiagnosticEngine& diags_;
-		public:
-			ExprFinalizer(ASTContext& ctxt, DiagnosticEngine& diags) :
-				ctxt_(ctxt), diags_(diags)
-			{
-
-			}
-
-			Expr* handleExprPost(Expr* expr)
-			{
-				Type* type = expr->getType();
-				assert(type && "Untyped expr");
-				// Visit the type
-				type = visit(type);
-				// If the type is nullptr, this inference failed
-				// because of a lack of substitution somewhere.
-				// Set the type to ErrorType, diagnose it and move on.
-				if (!type)
-				{
-					diags_.report(DiagID::sema_failed_infer, expr->getRange());
-					type = ctxt_.getErrorType();
-				}
-				expr->setType(type);
-				return expr;
-			}
-
-			Type* visitPrimitiveType(PrimitiveType* type)
-			{
-				return type;
-			}
-
-			Type* visitArrayType(ArrayType* type)
-			{
-				if (Type* elem = visit(type->getElementType()))
-				{
-					// Rebuild if needed
-					if(elem != type->getElementType())
-						return ctxt_.getArrayTypeForType(elem);
-					return type;
-				}
-				return nullptr;
-			}
-
-			Type* visitLValueType(LValueType* type)
-			{
-				if (Type* elem = visit(type->getType()))
-				{
-					if(elem != type->getType())
-						return ctxt_.getLValueTypeForType(elem);
-					return type;
-				}
-				return nullptr;
-			}
-
-			Type* visitSemaType(SemaType* type)
-			{
-				if (Type* sub = type->getSubstitution())
-					return visit(sub);
-				return nullptr;
-			}
-
-			Type* visitErrorType(ErrorType* type)
-			{
-				// Error should have been handled already, we won't emit
-				// more.
-				return type;
-			}
-	};
 } // End anonymous namespace
 
 Expr* Sema::typecheckExpr(Expr* expr)
 {
-	expr = ExprChecker(*this).walk(expr);
-	expr = ExprFinalizer(ctxt_, diags_).walk(expr);
-	return expr;
+	return ExprChecker(*this).walk(expr);
 }

@@ -336,7 +336,7 @@ Parser::ExprResult Parser::parseCastExpr()
 	if (consumeKeyword(KeywordType::KW_AS))
 	{
 		// <type>
-		if (auto castType = parseType())
+		if (auto castType = parseBuiltinTypename())
 		{
 			SourceLoc begLoc = prefixexpr.get()->getRange().getBegin();
 			SourceLoc endLoc = castType.getRange().getEnd();
