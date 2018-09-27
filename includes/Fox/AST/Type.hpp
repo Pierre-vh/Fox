@@ -57,6 +57,9 @@ namespace fox
 				return ty_ ? isa<Ty>(ty_) : false;
 			}
 
+			bool operator==(const Type& type) const;
+			bool operator!=(const Type& type) const;
+
 		private:
 			// Forbid TypeLoc->Type conversion
 			Type(const TypeLoc&) = delete;
@@ -77,6 +80,11 @@ namespace fox
 			Type withoutLoc();
 			const Type withoutLoc() const; 
 		private:
+			// For now, disable TypeLoc comparison. We don't need it.
+			// Might add a "strict_compare" function tho.
+			bool operator==(const Type& type) const = delete;
+			bool operator!=(const Type& type) const = delete;
+
 			// Forbid Type->TypeLoc conversion
 			TypeLoc(const Type&) = delete;
 			TypeLoc& operator=(const Type&) = delete;

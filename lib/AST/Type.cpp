@@ -54,6 +54,16 @@ Type::operator bool() const
 	return !isNull();
 }
 
+bool Type::operator==(const Type& type) const
+{
+	return ty_ == type.ty_;
+}
+
+bool Type::operator!=(const Type& type) const
+{
+	return !(*this == type);
+}
+
 // TypeLoc
 
 TypeLoc::TypeLoc(TypeBase* ty, SourceRange range):
