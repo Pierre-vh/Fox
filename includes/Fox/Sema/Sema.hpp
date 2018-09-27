@@ -47,26 +47,26 @@ namespace fox
 			//
 			// Also, this function works both ways,
 			// unifySubtype(a,b) or (b,a) will have the same effect.
-			bool unify(TypeBase* a, TypeBase* b);
+			bool unify(Type a, Type b);
 
 			// Returns true if a is a PrimitiveType of
 			// type Int/Float/Bool
-			static bool isIntegral(TypeBase* a);
+			static bool isIntegral(Type type);
 
 			// If type is a SemaType with a substitution,
 			// returns the substitution. This function
 			// is recursive to handle nested SemaTypes.
-			static TypeBase* deref(TypeBase* type);
+			static Type deref(Type type);
 
 			// Given 2 types
 				// If they are integrals, return the highest ranking integral's type
 				// If they are equal, return it's first argument
 				// Returns nullptr otherwise.
-			static TypeBase* getHighestRankingType(TypeBase* a, TypeBase* b);
+			static Type getHighestRankingType(Type a, Type b);
 
 			// This method returns the integral rank that a given type has.
 			// type must not be null and must point to a arithmetic type.
-			static IntegralRankTy getIntegralRank(TypeBase* type);
+			static IntegralRankTy getIntegralRank(Type type);
 
 			DiagnosticEngine& getDiagnosticEngine();
 			ASTContext& getASTContext();

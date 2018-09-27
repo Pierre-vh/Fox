@@ -18,7 +18,7 @@ using namespace fox;
 
 namespace
 {
-	bool compareSubtypes(TypeBase* a, TypeBase* b)
+	bool compareSubtypes(Type a, Type b)
 	{
 		assert(a && b && "Pointers cannot be null");
 
@@ -31,7 +31,7 @@ namespace
 		{
 			// Checking additional requirements for Primitive Types where
 			// we allow 2 integrals to be considered "equal"
-			if (isa<PrimitiveType>(a))
+			if (isa<PrimitiveType>(a.getPtr()))
 			{
 				if (Sema::isIntegral(a) && Sema::isIntegral(b))
 					return true;
@@ -39,23 +39,23 @@ namespace
 			}
 
 			// Checking Array Types
-			if (isa<ArrayType>(a))
+			if (isa<ArrayType>(a.getPtr()))
 			{
 				TypeBase* elemA = a->unwrapIfArray();
 				TypeBase* elemB = b->unwrapIfArray();
 
 				assert(elemA && elemB && "Types are null");
 
-				// Check elements types recursively for arrays.
+				// Unwrap and check again
 				return compareSubtypes(elemA, elemB);
 			}
 
 			// Check sematypes, we might unwrap them to compare their substitution
 			// if they both have one
-			if (isa<SemaType>(a))
+			if (isa<SemaType>(a.getPtr()))
 			{
-				auto* aSubst = cast<SemaType>(a)->getSubstitution();
-				auto* bSubst = cast<SemaType>(b)->getSubstitution();
+				auto* aSubst = cast<SemaType>(a.getPtr())->getSubstitution();
+				auto* bSubst = cast<SemaType>(b.getPtr())->getSubstitution();
 
 				if (aSubst && bSubst)
 					return compareSubtypes(aSubst, bSubst);
@@ -63,7 +63,7 @@ namespace
 			}
 
 			// Lastly, return true unless we have 2 ErrorTypes
-			return !isa<ErrorType>(a);
+			return !isa<ErrorType>(a.getPtr());
 		}
 
 		return false;
@@ -76,9 +76,9 @@ namespace
 	// If type doesn't have a sub or isn't a SemaType, returns the type
 	// untouched.
 	// Returns it's argument or the unwrapped type.
-	TypeBase* prepareSemaTypeForUnification(TypeBase* type)
+	Type prepareSemaTypeForUnification(Type type)
 	{
-		if (auto* sema = dyn_cast<SemaType>(type))
+		if (auto* sema = dyn_cast<SemaType>(type.getPtr()))
 		{
 			// Get the substitution
 			if (TypeBase* sub = sema->getSubstitution())
@@ -91,8 +91,10 @@ namespace
 		return type;
 	}
 
-	// Performs the pre-unifications tasks
-	std::pair<TypeBase*,TypeBase*> performPreUnificationTasks(TypeBase* a, TypeBase* b)
+	// Performs the pre-unifications tasks.
+	// Returns true if unification can go on, false if it should
+	// be aborted.
+	bool performPreUnificationTasks(Type& a, Type& b)
 	{
 		assert(a && b && "Pointers cannot be nullptr");
 
@@ -102,8 +104,8 @@ namespace
 		b = b->ignoreLValue();
 
 		// If we have error types, unification is impossible.
-		if (isa<ErrorType>(a) || isa<ErrorType>(b))
-			return { nullptr, nullptr };
+		if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr()))
+			return false;
 
 		// handle SemaType unwrapping
 		a = prepareSemaTypeForUnification(a);
@@ -111,8 +113,8 @@ namespace
 
 		// handle ArrayType unwrapping
 		{
-			auto* arrA = dyn_cast<ArrayType>(a);
-			auto* arrB = dyn_cast<ArrayType>(b);
+			auto* arrA = dyn_cast<ArrayType>(a.getPtr());
+			auto* arrB = dyn_cast<ArrayType>(b.getPtr());
 
 			// Both are arrays, unwrap & recurse
 			if (arrA && arrB)
@@ -124,25 +126,26 @@ namespace
 			}
 			// Only one of them is an array, unification fails
 			else if ((!arrA) != (!arrB))
-				return { nullptr, nullptr };
+				return false;
 			// None of them are arrays, keep going
 		}
 
 		// If we didn't return yet, mission success!
-		return { a, b };
+		return true;
 	}
 
-	// Tries to adjust the Sematype. Returns true on success, false otherwise.
-	bool tryAdjustSemaType(SemaType* semaTy, TypeBase* candidate)
+	// Tries to adjust the Sematype (uprank it if we can to match the candidate). 
+	// Returns true on success, false otherwise.
+	bool tryAdjustSemaType(SemaType* semaTy, Type candidate)
 	{
 		auto* sub = semaTy->getSubstitution();
 		assert(sub && "Must have a sub");
 		// if the sub is integral, we might be able to uprank
 		if (Sema::isIntegral(sub) && Sema::isIntegral(candidate))
 		{
-			auto* highest = Sema::getHighestRankingType(sub, candidate);
+			Type highest = Sema::getHighestRankingType(sub, candidate);
 			assert(highest && "Can't find the highest rank between 2 integrals?");
-			semaTy->setSubstitution(highest);
+			semaTy->setSubstitution(highest.getPtr());
 			return true;
 		}
 		return false;
@@ -150,13 +153,12 @@ namespace
 
 }	// anonymous namespace
 
-bool Sema::unify(TypeBase* a, TypeBase* b)
+bool Sema::unify(Type a, Type b)
 {
 	assert(a && b && "Pointers cannot be null");
 
 	// Pre-unification checks, if they fail, return.
-	std::tie(a, b) = performPreUnificationTasks(a, b);
-	if (!a)
+	if(!performPreUnificationTasks(a, b))
 		return false;
 
 	// Return early if a and b share the same subtype (no unification needed)
@@ -176,14 +178,14 @@ bool Sema::unify(TypeBase* a, TypeBase* b)
 			{
 				if (aSema->hasSubstitution()) // Don't overwrite a sub, adjust it or give up
 					return tryAdjustSemaType(aSema, b);
-				aSema->setSubstitution(b);
+				aSema->setSubstitution(b.getPtr());
 			}
 			// bSema is a SemaType
 			else
 			{
 				if (bSema->hasSubstitution()) // Don't overwrite a sub, adjust it or give up
 					return tryAdjustSemaType(bSema, a);
-				bSema->setSubstitution(a);
+				bSema->setSubstitution(a.getPtr());
 			}
 
 			return true;
@@ -224,9 +226,9 @@ bool Sema::unify(TypeBase* a, TypeBase* b)
 	return false;
 }
 
-bool Sema::isIntegral(TypeBase* a)
+bool Sema::isIntegral(Type type)
 {
-	if (auto* prim = dyn_cast<PrimitiveType>(a))
+	if (auto* prim = dyn_cast<PrimitiveType>(type.getPtr()))
 	{
 		using Pk = PrimitiveType::Kind;
 		switch (prim->getPrimitiveKind())
@@ -242,15 +244,15 @@ bool Sema::isIntegral(TypeBase* a)
 	return false;
 }
 
-TypeBase* Sema::deref(TypeBase* type)
+Type Sema::deref(Type type)
 {
 	assert(type && "type cannot be null");
-	if (auto* sema = dyn_cast<SemaType>(type))
+	if (auto* sema = dyn_cast<SemaType>(type.getPtr()))
 		return sema->hasSubstitution() ? deref(sema->getSubstitution()) : type;
 	return type;
 }
 
-TypeBase* Sema::getHighestRankingType(TypeBase* a, TypeBase* b)
+Type Sema::getHighestRankingType(Type a, Type b)
 {
 	assert(a && b && "Pointers cannot be null");
 
@@ -266,14 +268,14 @@ TypeBase* Sema::getHighestRankingType(TypeBase* a, TypeBase* b)
 	return nullptr;
 }
 
-Sema::IntegralRankTy Sema::getIntegralRank(TypeBase* type)
+Sema::IntegralRankTy Sema::getIntegralRank(Type type)
 {
 	using Pk = PrimitiveType::Kind;
 
 	assert(type && isIntegral(type)
 		&& "Can only use this on a valid pointer to an integral type");
 
-	auto* prim = cast<PrimitiveType>(type);
+	auto* prim = cast<PrimitiveType>(type.getPtr());
 
 	switch (prim->getPrimitiveKind())
 	{

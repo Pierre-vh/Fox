@@ -251,7 +251,7 @@ namespace
 						}
 
 						// Lastly, uprank if needed.
-						if (TypeBase* highestRanking = Sema::getHighestRankingType(elemTy, proposed))
+						if (TypeBase* highestRanking = Sema::getHighestRankingType(elemTy, proposed).getPtr())
 							proposed = highestRanking;
 					}
 
@@ -357,6 +357,6 @@ namespace
 Expr* Sema::typecheckExpr(Expr* expr)
 {
 	expr = ExprChecker(*this).walk(expr);
-	//expr = ExprFinalizer(ctxt_, diags_).walk(expr);
+	expr = ExprFinalizer(ctxt_, diags_).walk(expr);
 	return expr;
 }
