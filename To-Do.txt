@@ -69,9 +69,13 @@ Moonshot Project To-do List.
 	> Create a "StackTrace" class. Uses RAII objects, catches signals, etc. Useful for debugging!
 	> Change how Type::getString displays types. Use 2 functions: getDebugString(), getString(), one is more informative, the second is more user friendly.
 
-	// Semantic analysis development is put on hold for now. I'll fix the existing code and do a few more things before
-	// going back on it. I need to figure out some important stuff. Sorry, lack of preparation on my end.
-	//	->	I don't know if the "SemaTypes" is the correct road to follow for inference
+	Semantic analysis development is put on hold for now. I'll fix the existing code and do a few more things before
+	going back on it. I need to figure out some important stuff. Sorry, lack of preparation on my end.
+		> I don't know if the "SemaTypes" is the correct road to follow for inference.
+			> After thinking about it a lot, I think I'll try to find another idea, maybe based around "constraints" or constrained types.
+				e.g. instead of having a ArrayType(SemaType(nullptr)), i'd have a single sematype wtih a "must be array" constraint, but this
+					 could be a lot of work. If I manage to make it simple enough, I might do that.
+		
 
 	> Basic Expression Semantic analysis (Postponed)
 	> Stmt Semantic Analysis
