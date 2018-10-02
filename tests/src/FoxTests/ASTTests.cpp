@@ -14,6 +14,7 @@
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
+#include "Fox/AST/Constraints.hpp"
 #include "Fox/Common/LLVM.hpp"
 
 using namespace fox;
@@ -246,6 +247,21 @@ TEST(ASTTests, DeclContext)
 	// Bad lookup tests
 	EXPECT_FALSE(testLookup(astctxt, func, "Variable_6", var5, lasterr)) << lasterr;
 
+}
+
+TEST(ASTTests, ConstraintsRTTI)
+{
+	ASTContext astctxt;
+	Type intTy(astctxt.getIntType());
+
+	Constraint* eq = new(astctxt) EqualityCS(intTy);
+	Constraint* ar = new(astctxt) ArrayCS();
+
+	EXPECT_EQ(eq->getKind(), Constraint::Kind::EqualityCS);
+	EXPECT_TRUE(EqualityCS::classof(eq));
+
+	EXPECT_EQ(ar->getKind(), Constraint::Kind::ArrayCS);
+	EXPECT_TRUE(ArrayCS::classof(ar));
 }
 
 TEST(ASTTests, TypeRTTI)
