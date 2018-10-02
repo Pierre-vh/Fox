@@ -11,4 +11,5 @@ add_source(
 	"Identifiers.cpp"
 	"DeclContext.cpp"
 	"ASTNode.cpp"
+	"Constraints.cpp"
 )
