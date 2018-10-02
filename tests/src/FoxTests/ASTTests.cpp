@@ -14,7 +14,7 @@
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
-#include "Fox/AST/Constraints.hpp"
+#include "Fox/AST/ConstraintVisitor.hpp"
 #include "Fox/Common/LLVM.hpp"
 
 using namespace fox;
@@ -492,4 +492,29 @@ TEST(ASTTests, BasicVisitor)
 	EXPECT_FALSE(tyVisitor.visit(intTy));
 	EXPECT_TRUE(tyVisitor.visit(arrInt));
 
+}
+
+class CSToTxt : public ConstraintVisitor<CSToTxt, std::string>
+{
+	public:
+		#define PRINT(NODE)\
+		std::string visit##NODE(NODE*){ \
+			return #NODE; \
+		}
+		#define CS(ID, PARENT) PRINT(ID)
+		#include "Fox/AST/Constraints.def"
+		#undef PRINT
+};
+
+TEST(ASTTests, ConstraintVisitorTest)
+{
+	ASTContext astctxt;
+	Type intTy(astctxt.getIntType());
+
+	Constraint* eq = new(astctxt) EqualityCS(intTy);
+	Constraint* ar = new(astctxt) ArrayCS();
+
+	CSToTxt vis;
+	EXPECT_EQ(vis.visit(eq), "EqualityCS");
+	EXPECT_EQ(vis.visit(ar), "ArrayCS");
 }
