@@ -67,6 +67,7 @@ Moonshot Project To-do List.
 
 	> Finish Constraint/ConstrainedTypes (Next)
 	> Constraint Printer (toString method) + Type::getString rewrite
+	> Types: Switch to a ::create idiom would be more fitting, especially for builtins.
 
 	> Create a "StackTrace" class. Uses RAII objects, catches signals, etc. Useful for debugging!
 	> Change how Type::getString displays types. Use 2 functions: getDebugString(), getString(), one is more informative, the second is more user friendly.
