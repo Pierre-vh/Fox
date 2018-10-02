@@ -63,8 +63,10 @@ Moonshot Project To-do List.
 	> ASTWalker (Done)
 	> Add ErrorType (Done)
 	> Bulk of the Type rework (Done)
+	> Finish Type Rework/Solve last issues (Done)
 
-	> Finish Type Rework/Solve last issues (Next)
+	> Finish Constraint/ConstrainedTypes (Next)
+	> Constraint Printer (toString method) + Type::getString rewrite
 
 	> Create a "StackTrace" class. Uses RAII objects, catches signals, etc. Useful for debugging!
 	> Change how Type::getString displays types. Use 2 functions: getDebugString(), getString(), one is more informative, the second is more user friendly.
