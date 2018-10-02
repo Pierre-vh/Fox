@@ -1,12 +1,12 @@
 ////------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
-// File : Constraints.hpp											
+// File : Constraint.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file contains the Constraints hierarchy, which represents
+// This file contains the Constraint hierarchy, which represents
 // a constraint imposed on a Type. This is used for the ConstraintedType.
-// Constraints are immutable once created.
+// Constraint are immutable once created.
 //
 //	TO-DO/Critics:
 //		EqualityCS: Type, Type& or TypeBase*?

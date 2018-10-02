@@ -58,7 +58,7 @@ namespace fox
 			// everything allocated within it's allocators.
 			void reset();
 
-			// Frees the memory allocated for the Constraints.
+			// Frees the memory allocated for the Constraint.
 			void freeCS();
 
 			// IDENTIFIER TABLE
