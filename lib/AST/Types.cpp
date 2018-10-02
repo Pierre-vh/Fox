@@ -240,6 +240,10 @@ void SemaType::reset()
 	ty_ = nullptr;
 }
 
+//-----------//
+// ErrorType //
+//-----------//
+
 ErrorType::ErrorType():
 	TypeBase(TypeKind::ErrorType)
 {
@@ -249,4 +253,77 @@ ErrorType::ErrorType():
 std::string ErrorType::getString() const
 {
 	return "<error_type>";
+}
+
+//-----------------//
+// ConstrainedType //
+//-----------------//
+
+ConstrainedType::ConstrainedType():
+	TypeBase(TypeKind::ConstrainedType)
+{
+}
+
+std::string ConstrainedType::getString() const
+{
+	// TO-DO
+	return "ConstrainedType";
+}
+
+TypeBase* ConstrainedType::getSubstitution()
+{
+	return subst_;
+}
+
+const TypeBase* ConstrainedType::getSubstitution() const
+{
+	return subst_;
+}
+
+bool ConstrainedType::hasSubstitution() const
+{
+	return (subst_ != nullptr);
+}
+
+void ConstrainedType::setSubstitution(TypeBase* subst)
+{
+	subst_ = subst;
+}
+
+void ConstrainedType::reset()
+{
+	subst_ = nullptr;
+}
+
+// Constraints must be walked from last to first, in a stack-like fashion,
+// thus we use reverse iterators.
+
+ConstrainedType::CSVec::reverse_iterator ConstrainedType::cs_begin()
+{
+	return constraints_.rbegin();
+}
+
+ConstrainedType::CSVec::const_reverse_iterator ConstrainedType::cs_begin() const
+{
+	return constraints_.rbegin();
+}
+
+ConstrainedType::CSVec::reverse_iterator ConstrainedType::cs_end()
+{
+	return constraints_.rend();
+}
+
+ConstrainedType::CSVec::const_reverse_iterator ConstrainedType::cs_end() const
+{
+	return constraints_.rend();
+}
+
+std::size_t ConstrainedType::numConstraints() const
+{
+	return constraints_.size();
+}
+
+void ConstrainedType::addConstraint(Constraint* cs)
+{
+	constraints_.push_back(cs);
 }

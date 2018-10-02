@@ -37,6 +37,7 @@ ABSTRACT_TYPE(BuiltinType, TypeBase)
 TYPE(LValueType, TypeBase)
 TYPE(SemaType, TypeBase)
 TYPE(ErrorType, TypeBase)
+TYPE(ConstrainedType, TypeBase)
 
 /* Undef */
 #undef ABSTRACT_TYPE

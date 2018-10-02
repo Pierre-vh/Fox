@@ -272,6 +272,7 @@ TEST(ASTTests, TypeRTTI)
 	auto* lvIntTy = astctxt.getLValueTypeForType(intTy);
 	auto* semaType = astctxt.createSemaType();
 	auto* errType = astctxt.getErrorType();
+	auto* csType = astctxt.createConstrainedType();
 
 	EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
 	EXPECT_TRUE(PrimitiveType::classof(intTy));
@@ -289,6 +290,9 @@ TEST(ASTTests, TypeRTTI)
 
 	EXPECT_EQ(errType->getKind(), TypeKind::ErrorType);
 	EXPECT_TRUE(ErrorType::classof(errType));
+
+	EXPECT_EQ(csType->getKind(), TypeKind::ConstrainedType);
+	EXPECT_TRUE(ConstrainedType::classof(csType));
 }
 
 TEST(ASTTests, ExprRTTI)

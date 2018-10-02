@@ -11,6 +11,8 @@
 
 #include <string>
 #include <cstdint>
+#include <vector>
+#include "Constraints.hpp"
 
 namespace fox
 {
@@ -213,4 +215,55 @@ namespace fox
 				return (type->getKind() == TypeKind::ErrorType);
 			}
 	};
+
+	// ConstrainedType
+	//		A type which couldn't be "decided" and is waiting to
+	//		be unified. The proposed type which will "substitute" 
+	//		this ConstrainedType MUST satisfy every constraint.
+	//		This class contains a vector of constraints, a pointer
+	//		to a potential substitution.
+	//		As opposed to other types, this type is not unique, and
+	//		one is generated for every expression that needs one.
+	//		Example:
+	//			Empty array literals '[]' generate a ConstrainedType 
+	//			containing a single "ArrayCS"
+	class ConstrainedType : public TypeBase
+	{
+		using CSVec = std::vector<Constraint*>;
+		public:
+			ConstrainedType();
+
+			virtual std::string getString() const override;
+
+			TypeBase* getSubstitution();
+			const TypeBase* getSubstitution() const;
+
+			// Returns true if the type has a substitution
+			// (type isn't null)
+			bool hasSubstitution() const;
+
+			void setSubstitution(TypeBase* subst);
+
+			// Sets the type to nullptr
+			void reset();
+
+			CSVec::reverse_iterator cs_begin();
+			CSVec::const_reverse_iterator cs_begin() const;
+
+			CSVec::reverse_iterator cs_end();
+			CSVec::const_reverse_iterator cs_end() const;
+
+			std::size_t numConstraints() const;
+			void addConstraint(Constraint* cs);
+
+			static bool classof(const TypeBase* type)
+			{
+				return (type->getKind() == TypeKind::ConstrainedType);
+			}
+
+		private:
+			std::vector<Constraint*> constraints_;
+			TypeBase* subst_;
+	};
+
 }
