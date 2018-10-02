@@ -146,3 +146,8 @@ SemaType* ASTContext::createSemaType(TypeBase* ty)
 {
 	return new(*this) SemaType(ty);
 }
+
+ConstrainedType* ASTContext::createConstrainedType()
+{
+	return new(*this) ConstrainedType();
+}
