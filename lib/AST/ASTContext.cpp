@@ -101,6 +101,11 @@ LinearAllocator<>& ASTContext::getAllocator()
 	return allocator_;
 }
 
+LinearAllocator<>& ASTContext::getCSAllocator()
+{
+	return csAllocator_;
+}
+
 void ASTContext::reset()
 {
 	units_.clear();
@@ -116,6 +121,12 @@ void ASTContext::reset()
 	theErrorType_ = nullptr;
 
 	allocator_.reset();
+	csAllocator_.reset();
+}
+
+void ASTContext::freeCS()
+{
+	csAllocator_.reset();
 }
 
 void ASTContext::initBuiltins()

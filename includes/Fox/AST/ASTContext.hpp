@@ -52,9 +52,14 @@ namespace fox
 
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
+			LinearAllocator<>& getCSAllocator();
+
 			// Resets the ASTContext, freeing the AST and
 			// everything allocated within it's allocators.
 			void reset();
+
+			// Frees the memory allocated for the Constraints.
+			void freeCS();
 
 			// IDENTIFIER TABLE
 			IdentifierTable identifiers;
@@ -89,6 +94,7 @@ namespace fox
 			std::map<TypeBase*, LValueType*> lvalueTypes_;
 
 			// Allocators
-			LinearAllocator<> allocator_; // Default allocator for the ASTContext
+			LinearAllocator<> allocator_; // Default allocator
+			LinearAllocator<> csAllocator_; // Constraint allocator
 	};
 }
