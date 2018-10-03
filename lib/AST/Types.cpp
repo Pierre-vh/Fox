@@ -262,6 +262,7 @@ std::string ErrorType::getString() const
 ConstrainedType::ConstrainedType():
 	TypeBase(TypeKind::ConstrainedType)
 {
+	resetSubstitution();
 }
 
 std::string ConstrainedType::getString() const
@@ -272,50 +273,68 @@ std::string ConstrainedType::getString() const
 
 TypeBase* ConstrainedType::getSubstitution()
 {
-	return subst_;
+	return subst_.getPointer();
 }
 
 const TypeBase* ConstrainedType::getSubstitution() const
 {
-	return subst_;
+	return subst_.getPointer();
 }
 
 bool ConstrainedType::hasSubstitution() const
 {
-	return (subst_ != nullptr);
+	return (subst_.getPointer() != nullptr);
 }
 
 void ConstrainedType::setSubstitution(TypeBase* subst)
 {
-	subst_ = subst;
+	assert(subst 
+		&& "Cannot set the substitution to a null pointer. Use resetSubstitution() for that.");
+	// Set the substitution, and mark the pointer as up to date.
+	subst_.setPointer(subst);
+	markAsUpToDate();
 }
 
-void ConstrainedType::reset()
+bool ConstrainedType::isSubstitutionOutdated() const
 {
-	subst_ = nullptr;
+	assert((subst_.getPointer() ? (subst_.getInt() == 0) : true) 
+		&& "Substitution is considered up to date, but the pointer is null.");
+	return subst_.getInt();
+}
+
+void ConstrainedType::resetSubstitution()
+{
+	// Mark the solution as outdated & set it to nullptr.
+	subst_.setInt(0);
+	subst_.setPointer(nullptr);
 }
 
 // Constraints must be walked from last to first, in a stack-like fashion,
 // thus we use reverse iterators.
 
-ConstrainedType::CSVec::reverse_iterator ConstrainedType::cs_begin()
+ConstrainedType::CSList::iterator ConstrainedType::cs_begin()
 {
-	return constraints_.rbegin();
+	return constraints_.begin();
 }
 
-ConstrainedType::CSVec::const_reverse_iterator ConstrainedType::cs_begin() const
+ConstrainedType::CSList::const_iterator ConstrainedType::cs_begin() const
 {
-	return constraints_.rbegin();
+	return constraints_.begin();
 }
 
-ConstrainedType::CSVec::reverse_iterator ConstrainedType::cs_end()
+ConstrainedType::CSList::iterator ConstrainedType::cs_end()
 {
-	return constraints_.rend();
+	return constraints_.end();
 }
 
-ConstrainedType::CSVec::const_reverse_iterator ConstrainedType::cs_end() const
+ConstrainedType::CSList::const_iterator ConstrainedType::cs_end() const
 {
-	return constraints_.rend();
+	return constraints_.end();
+}
+
+ConstrainedType::CSList& ConstrainedType::getConstraints()
+{
+	return constraints_;
 }
 
 std::size_t ConstrainedType::numConstraints() const
@@ -325,5 +344,19 @@ std::size_t ConstrainedType::numConstraints() const
 
 void ConstrainedType::addConstraint(Constraint* cs)
 {
-	constraints_.push_back(cs);
+	// Push the constraints in the front, like a stack.
+	// Latest constraint should be evaluated first.
+	constraints_.push_front(cs);
+	// Mark the current substitution as outdated.
+	markAsOutdated();
+}
+
+void ConstrainedType::markAsUpToDate()
+{
+	subst_.setInt(1);
+}
+
+void ConstrainedType::markAsOutdated()
+{
+	subst_.setInt(0);
 }

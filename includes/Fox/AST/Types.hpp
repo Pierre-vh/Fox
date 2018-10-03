@@ -11,7 +11,8 @@
 
 #include <string>
 #include <cstdint>
-#include <vector>
+#include <list>
+#include "llvm/ADT/PointerIntPair.h"
 #include "Constraints.hpp"
 
 namespace fox
@@ -220,16 +221,25 @@ namespace fox
 	//		A type which couldn't be "decided" and is waiting to
 	//		be unified. The proposed type which will "substitute" 
 	//		this ConstrainedType MUST satisfy every constraint.
+	//
 	//		This class contains a vector of constraints, a pointer
-	//		to a potential substitution.
+	//		to a potential substitution and a "up to date" marker for
+	//		the substitution. The latter is set to false if we add another
+	//		constraint, and set back to true if we call setSubstitution().
+	//		Outdated ConstraintedTypes should be checked again to ensure the
+	//		substitution is still okay.
+	//
 	//		As opposed to other types, this type is not unique, and
-	//		one is generated for every expression that needs one.
+	//		one is generated for every expression that needs one. 
+	//		On the other hand, the constraints are immutable and you can't
+	//		remove a constraint once it's added to this type.
+	//
 	//		Example:
 	//			Empty array literals '[]' generate a ConstrainedType 
 	//			containing a single "ArrayCS"
 	class ConstrainedType : public TypeBase
 	{
-		using CSVec = std::vector<Constraint*>;
+		using CSList = std::list<Constraint*>;
 		public:
 			ConstrainedType();
 
@@ -244,14 +254,22 @@ namespace fox
 
 			void setSubstitution(TypeBase* subst);
 
-			// Sets the type to nullptr
-			void reset();
+			// Returns true if the substitution is outdated, then it should
+			// be checked again. A substitution becomes outdated iff
+			// we add another constraint. It's updated
+			// when you call setSubstitution.
+			// If there is no substitution, returns true.
+			bool isSubstitutionOutdated() const;
 
-			CSVec::reverse_iterator cs_begin();
-			CSVec::const_reverse_iterator cs_begin() const;
+			void resetSubstitution();
 
-			CSVec::reverse_iterator cs_end();
-			CSVec::const_reverse_iterator cs_end() const;
+			CSList::iterator cs_begin();
+			CSList::const_iterator cs_begin() const;
+
+			CSList::iterator cs_end();
+			CSList::const_iterator cs_end() const;
+
+			CSList& getConstraints();
 
 			std::size_t numConstraints() const;
 			void addConstraint(Constraint* cs);
@@ -262,8 +280,13 @@ namespace fox
 			}
 
 		private:
-			std::vector<Constraint*> constraints_;
-			TypeBase* subst_;
+			void markAsUpToDate();
+			void markAsOutdated();
+
+			CSList constraints_;
+			// Pointer + "up to date" marker. If the int is 1,
+			// the pointer is up to date, 0 if it isnt.
+			llvm::PointerIntPair<TypeBase*, 1> subst_;
 	};
 
 }
