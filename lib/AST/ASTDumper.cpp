@@ -382,7 +382,7 @@ std::string ASTDumper::getBasicExprInfo(Expr* expr) const
 	if (printAllAdresses_)
 		ss << " " << (void *)expr;
 	if (auto ty = expr->getType())
-		ss << " " << makeKeyPairDump("type", ty->getString());
+		ss << " " << makeKeyPairDump("type", ty->toString());
 	return ss.str();
 }
 
@@ -501,7 +501,7 @@ std::string ASTDumper::getSourceRangeDump(const std::string& label, SourceRange 
 
 std::string ASTDumper::getTypeDump(const std::string& label, Type ty, bool isConst) const
 {
-	std::string str = (isConst ? "const " : "") + addSingleQuotes(ty->getString());
+	std::string str = (isConst ? "const " : "") + addSingleQuotes(ty->toString());
 	return makeKeyPairDump(label, str);
 }
 
@@ -509,7 +509,7 @@ std::string ASTDumper::getTypeLocDump(const std::string& label, TypeLoc ty, bool
 {
 	std::ostringstream ss;
 	ss << (isConst ? "const " : "") 
-	   << addSingleQuotes(ty->getString()) << " " << getSourceRangeAsStr(ty.getRange());
+	   << addSingleQuotes(ty->toString()) << " " << getSourceRangeAsStr(ty.getRange());
 	return makeKeyPairDump(label, ss.str());
 }
 
