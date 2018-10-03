@@ -250,8 +250,8 @@ TEST(ASTTests, ConstraintsRTTI)
 	ASTContext astctxt;
 	Type intTy(PrimitiveType::getInt(astctxt));
 
-	Constraint* eq = new(astctxt) EqualityCS(intTy);
-	Constraint* ar = new(astctxt) ArrayCS();
+	Constraint* eq = EqualityCS::create(astctxt, intTy);
+	Constraint* ar = ArrayCS::create(astctxt);
 
 	EXPECT_EQ(eq->getKind(), Constraint::Kind::EqualityCS);
 	EXPECT_TRUE(EqualityCS::classof(eq));
@@ -511,8 +511,8 @@ TEST(ASTTests, ConstraintVisitorTest)
 	ASTContext astctxt;
 	Type intTy(PrimitiveType::getInt(astctxt));
 
-	Constraint* eq = new(astctxt) EqualityCS(intTy);
-	Constraint* ar = new(astctxt) ArrayCS();
+	Constraint* eq = EqualityCS::create(astctxt, intTy);
+	Constraint* ar = ArrayCS::create(astctxt);
 
 	CSToTxt vis;
 	EXPECT_EQ(vis.visit(eq), "EqualityCS");

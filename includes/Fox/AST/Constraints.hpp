@@ -37,7 +37,8 @@ namespace fox
 			};
 
 			Kind getKind() const;
-
+		
+		protected:
 			// Prohibit the use of builtin (placement) new & delete
 			void *operator new(std::size_t) throw() = delete;
 			void operator delete(void *) throw() = delete;
@@ -49,7 +50,6 @@ namespace fox
 			// Companion operator delete to silence C4291 on MSVC
 			void operator delete(void*, ASTContext&, std::uint8_t) {}
 
-		protected:
 			Constraint(Kind kind);
 
 		private:
@@ -63,7 +63,7 @@ namespace fox
 	class EqualityCS : public Constraint
 	{
 		public:
-			EqualityCS(Type& type);
+			static EqualityCS* create(ASTContext& ctxt, Type& type);
 
 			Type& getType();
 			const Type& getType() const;
@@ -72,7 +72,10 @@ namespace fox
 			{
 				return (cs->getKind() == Kind::EqualityCS);
 			}
+		
 		private:
+			EqualityCS(Type& type);
+
 			Type& type_;
 	};
 
@@ -82,11 +85,14 @@ namespace fox
 	class ArrayCS : public Constraint
 	{
 		public:
-			ArrayCS();
+			static ArrayCS* create(ASTContext& ctxt);
 
 			static bool classof(const Constraint* cs)
 			{
 				return (cs->getKind() == Kind::ArrayCS);
 			}
+
+		private:
+			ArrayCS();
 	};
 }

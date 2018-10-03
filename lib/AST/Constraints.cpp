@@ -38,6 +38,11 @@ EqualityCS::EqualityCS(Type& type):
 
 }
 
+EqualityCS* EqualityCS::create(ASTContext& ctxt, Type& type)
+{
+	return new(ctxt) EqualityCS(type);
+}
+
 Type& EqualityCS::getType()
 {
 	return type_;
@@ -46,6 +51,17 @@ Type& EqualityCS::getType()
 const Type& EqualityCS::getType() const
 {
 	return type_;
+}
+
+ArrayCS* ArrayCS::create(ASTContext& ctxt)
+{
+	// As an optimization measure, the ArrayCS is unique,
+	// like PrimitiveTypes. This is however a "hidden" optimization
+	// which isn't guaranteed (might be removed in the future)
+	// so we still use the "create" name.
+	if(!ctxt.theArrayCS)
+		ctxt.theArrayCS = new(ctxt) ArrayCS();
+	return ctxt.theArrayCS;
 }
 
 ArrayCS::ArrayCS():

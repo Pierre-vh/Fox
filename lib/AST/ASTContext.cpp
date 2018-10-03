@@ -56,6 +56,8 @@ void ASTContext::reset()
 	theVoidType = nullptr;
 	theErrorType = nullptr;
 
+	theArrayCS = nullptr;
+
 	allocator_.reset();
 	csAllocator_.reset();
 }
