@@ -13,7 +13,7 @@ using namespace fox;
 
 ASTContext::ASTContext()
 {
-	initBuiltins();
+
 }
 
 UnitDecl* ASTContext::getMainUnit()
@@ -27,36 +27,6 @@ void ASTContext::addUnit(UnitDecl* unit, bool isMainUnit)
 
 	if (isMainUnit)
 		mainUnit_ = unit;
-}
-
-PrimitiveType* ASTContext::getIntType()
-{
-	return theIntType_;
-}
-
-PrimitiveType* ASTContext::getFloatType()
-{
-	return theFloatType_;
-}
-
-PrimitiveType* ASTContext::getBoolType()
-{
-	return theBoolType_;
-}
-
-PrimitiveType* ASTContext::getStringType()
-{
-	return theStringType_;
-}
-
-PrimitiveType* ASTContext::getCharType()
-{
-	return theCharType_;
-}
-
-PrimitiveType* ASTContext::getVoidType()
-{
-	return theVoidType_;
 }
 
 LinearAllocator<>& ASTContext::getAllocator()
@@ -78,12 +48,12 @@ void ASTContext::reset()
 	arrayTypes.clear();
 	lvalueTypes.clear();
 
-	theIntType_ = nullptr;
-	theFloatType_ = nullptr;
-	theCharType_ = nullptr;
-	theBoolType_ = nullptr;
-	theStringType_ = nullptr;
-	theVoidType_ = nullptr;
+	theIntType = nullptr;
+	theFloatType = nullptr;
+	theCharType = nullptr;
+	theBoolType = nullptr;
+	theStringType = nullptr;
+	theVoidType = nullptr;
 	theErrorType = nullptr;
 
 	allocator_.reset();
@@ -93,16 +63,4 @@ void ASTContext::reset()
 void ASTContext::freeCS()
 {
 	csAllocator_.reset();
-}
-
-void ASTContext::initBuiltins()
-{
-	using PrimKind = PrimitiveType::Kind;
-
-	theIntType_ = new(*this) PrimitiveType(PrimKind::IntTy);
-	theFloatType_ = new(*this) PrimitiveType(PrimKind::FloatTy);
-	theCharType_ = new(*this) PrimitiveType(PrimKind::CharTy);
-	theBoolType_ = new(*this) PrimitiveType(PrimKind::BoolTy);
-	theStringType_ = new(*this) PrimitiveType(PrimKind::StringTy);
-	theVoidType_ = new(*this) PrimitiveType(PrimKind::VoidTy);
 }

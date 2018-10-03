@@ -33,13 +33,6 @@ namespace fox
 			// Registers a unit in this ASTContext
 			void addUnit(UnitDecl* unit, bool isMainUnit = false);
 
-			PrimitiveType* getIntType();
-			PrimitiveType* getFloatType();
-			PrimitiveType* getBoolType();
-			PrimitiveType* getStringType();
-			PrimitiveType* getCharType();
-			PrimitiveType* getVoidType();
-
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
 			LinearAllocator<>& getCSAllocator();
@@ -51,12 +44,13 @@ namespace fox
 			// Frees the memory allocated for the Constraint.
 			void freeCS();
 
-			// IDENTIFIER TABLE
+			// The identifier table
 			IdentifierTable identifiers;
 		protected:
 			friend class ArrayType;
 			friend class LValueType;
 			friend class ErrorType;
+			friend class PrimitiveType;
 
 			// Map of Array types (Type -> Type[]) 
 			// (managed by ArrayType::get)
@@ -70,22 +64,18 @@ namespace fox
 			// Singleton/unique types. Lazily
 			// created by their respective classes.
 
-			// For use by ErrorType::get
 			ErrorType* theErrorType = nullptr;
-	private:
-			void initBuiltins();
+			PrimitiveType* theIntType = nullptr;
+			PrimitiveType* theFloatType = nullptr;
+			PrimitiveType* theCharType = nullptr;
+			PrimitiveType* theBoolType = nullptr;
+			PrimitiveType* theStringType = nullptr;
+			PrimitiveType* theVoidType = nullptr;
 
-			// Context shouldn't be copyable.
+		private:
+			// The ASTContext shouldn't be copyable.
 			ASTContext(const ASTContext&) = delete;
 			ASTContext& operator=(const ASTContext&) = delete;
-
-			// Basic types
-			PrimitiveType* theIntType_;
-			PrimitiveType* theFloatType_;
-			PrimitiveType* theCharType_;
-			PrimitiveType* theBoolType_;
-			PrimitiveType* theStringType_;
-			PrimitiveType* theVoidType_;
 
 			// An observing pointer to a ASTUnit owned by the vector below that points to the main unit
 			// (= the unit that contains the entry point of this module)
