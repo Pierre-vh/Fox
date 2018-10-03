@@ -229,6 +229,9 @@ namespace fox
 	//		Outdated ConstraintedTypes should be checked again to ensure the
 	//		substitution is still okay.
 	//
+	//		Theses types are allocated in the ConstraintAllocator of the ASTContext,
+	//		like Constraints themselves.
+	//
 	//		As opposed to other types, this type is not unique, and
 	//		one is generated for every expression that needs one. 
 	//		On the other hand, the constraints are immutable and you can't
@@ -242,6 +245,9 @@ namespace fox
 		using CSList = std::list<Constraint*>;
 		public:
 			ConstrainedType();
+
+			// Creates a new instance of the ConstrainedType class
+			static ConstrainedType* create(ASTContext& ctxt);
 
 			virtual std::string getString() const override;
 
@@ -278,6 +284,17 @@ namespace fox
 			{
 				return (type->getKind() == TypeKind::ConstrainedType);
 			}
+
+		protected:
+			// Override the new/deletes to use the ConstraintAllocator in the
+			// ASTContext to allocate ConstrainedTypes.
+
+			// Only allow allocation through the ASTContext
+			// This operator is "protected" so only the ASTContext can create types.
+			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(ConstrainedType));
+
+			// Companion operator delete to silence C4291 on MSVC
+			void operator delete(void*, ASTContext&, std::uint8_t) {}
 
 		private:
 			void markAsUpToDate();

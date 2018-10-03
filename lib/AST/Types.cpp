@@ -265,6 +265,11 @@ ConstrainedType::ConstrainedType():
 	resetSubstitution();
 }
 
+ConstrainedType* ConstrainedType::create(ASTContext& ctxt)
+{
+	return new(ctxt) ConstrainedType();
+}
+
 std::string ConstrainedType::getString() const
 {
 	// TO-DO
@@ -349,6 +354,11 @@ void ConstrainedType::addConstraint(Constraint* cs)
 	constraints_.push_front(cs);
 	// Mark the current substitution as outdated.
 	markAsOutdated();
+}
+
+void* ConstrainedType::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
+{
+	return ctxt.getCSAllocator().allocate(sz,align);
 }
 
 void ConstrainedType::markAsUpToDate()
