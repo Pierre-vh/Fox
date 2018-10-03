@@ -50,9 +50,6 @@ namespace fox
 			// Creates a SemaType
 			SemaType* createSemaType(TypeBase *ty = nullptr);
 
-			// Creates a ConstrainedType
-			ConstrainedType* createConstrainedType();
-
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
 			LinearAllocator<>& getCSAllocator();
