@@ -188,7 +188,7 @@ Parser::DeclResult Parser::parseFuncDecl()
 			rtr->setReturnType(tl);
 			headEndLoc = tl.getRange().getEnd();
 		}
-		else 
+		else
 		{
 			if (rtrTy.wasSuccessful())
 				reportErrorExpected(DiagID::parser_expected_type);
@@ -198,11 +198,11 @@ Parser::DeclResult Parser::parseFuncDecl()
 			// If resynced successfully, use the colon as the end of the header
 			// and consider the return type to be void
 			headEndLoc = colon;
-			rtr->setReturnType(ctxt_.getVoidType());
+			rtr->setReturnType(PrimitiveType::getVoid(ctxt_));
 		}
 	}
 	else // if no return type, the function returns void.
-		rtr->setReturnType(ctxt_.getVoidType());
+		rtr->setReturnType(PrimitiveType::getVoid(ctxt_));
 
 	// <compound_statement>
 	StmtResult compStmt = parseCompoundStatement();

@@ -24,12 +24,12 @@ TEST(ASTTests, ASTContextBuiltins)
 {
 	ASTContext actxt;
 
-	auto* primBool	= actxt.getBoolType();
-	auto* primFloat	= actxt.getFloatType();
-	auto* primInt	= actxt.getIntType();
-	auto* primChar	= actxt.getCharType();
-	auto* primString = actxt.getStringType();
-	auto* primVoid	= actxt.getVoidType();
+	auto* primBool = PrimitiveType::getBool(actxt);
+	auto* primFloat	= PrimitiveType::getFloat(actxt);
+	auto* primInt	= PrimitiveType::getInt(actxt);
+	auto* primChar	= PrimitiveType::getChar(actxt);
+	auto* primString = PrimitiveType::getString(actxt);
+	auto* primVoid	= PrimitiveType::getVoid(actxt);
 
 	ASSERT_TRUE(primBool)	<< "Ptr is null?";
 	ASSERT_TRUE(primFloat)	<< "Ptr is null?";
@@ -80,11 +80,11 @@ TEST(ASTTests, ASTContextArrayTypes)
 {
 	ASTContext actxt;
 
-	auto* primBool = actxt.getBoolType();
-	auto* primFloat = actxt.getFloatType();
-	auto* primInt = actxt.getIntType();
-	auto* primChar = actxt.getCharType();
-	auto* primString = actxt.getStringType();
+	auto* primBool = PrimitiveType::getBool(actxt);
+	auto* primFloat = PrimitiveType::getFloat(actxt);
+	auto* primInt = PrimitiveType::getInt(actxt);
+	auto* primChar = PrimitiveType::getChar(actxt);
+	auto* primString = PrimitiveType::getString(actxt);
 
 	auto* boolArr = ArrayType::get(actxt, primBool);
 	auto* floatArr = ArrayType::get(actxt, primFloat);
@@ -132,7 +132,7 @@ VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeLoc ty)
 FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name)
 {
 	return new(ctxt) FuncDecl(
-		ctxt.getVoidType(),
+		PrimitiveType::getVoid(ctxt),
 		ctxt.identifiers.getUniqueIdentifierInfo(name),
 		nullptr,
 		SourceRange(),
@@ -169,11 +169,11 @@ TEST(ASTTests, DeclContext)
 {
 	ASTContext astctxt;
 
-	auto* var1 = makeVarDecl(astctxt, "Variable_1", astctxt.getBoolType());
-	auto* var2 = makeVarDecl(astctxt, "Variable_2", astctxt.getCharType());
-	auto* var3 = makeVarDecl(astctxt, "Variable_3", astctxt.getFloatType());
-	auto* var4 = makeVarDecl(astctxt, "Variable_4", astctxt.getStringType());
-	auto* var5 = makeVarDecl(astctxt, "Variable_5", astctxt.getIntType());
+	auto* var1 = makeVarDecl(astctxt, "Variable_1", PrimitiveType::getBool(astctxt));
+	auto* var2 = makeVarDecl(astctxt, "Variable_2", PrimitiveType::getFloat(astctxt));
+	auto* var3 = makeVarDecl(astctxt, "Variable_3", PrimitiveType::getInt(astctxt));
+	auto* var4 = makeVarDecl(astctxt, "Variable_4", PrimitiveType::getChar(astctxt));
+	auto* var5 = makeVarDecl(astctxt, "Variable_5", PrimitiveType::getString(astctxt));
 
 	auto* func = makeFuncDecl(astctxt, "Foo");
 
@@ -248,7 +248,7 @@ TEST(ASTTests, DeclContext)
 TEST(ASTTests, ConstraintsRTTI)
 {
 	ASTContext astctxt;
-	Type intTy(astctxt.getIntType());
+	Type intTy(PrimitiveType::getInt(astctxt));
 
 	Constraint* eq = new(astctxt) EqualityCS(intTy);
 	Constraint* ar = new(astctxt) ArrayCS();
@@ -263,7 +263,7 @@ TEST(ASTTests, ConstraintsRTTI)
 TEST(ASTTests, TypeRTTI)
 {
 	ASTContext astctxt;
-	TypeBase* intTy = astctxt.getIntType();
+	TypeBase* intTy = PrimitiveType::getInt(astctxt);
 	auto* arrIntTy = ArrayType::get(astctxt, intTy);
 	auto* lvIntTy = LValueType::get(astctxt, intTy);
 	auto* semaType = SemaType::create(astctxt);
@@ -391,7 +391,7 @@ TEST(ASTTests, DeclRTTI)
 {
 	ASTContext astctxt;
 	auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
-	auto intty = astctxt.getIntType();
+	auto intty = PrimitiveType::getInt(astctxt);
 
 	// Arg
 	ParamDecl paramdecl;
@@ -467,7 +467,7 @@ TEST(ASTTests, BasicVisitor)
 			nullptr, 
 			SourceRange()
 		);
-	auto* intTy = ctxt.getIntType();
+	auto* intTy = PrimitiveType::getInt(ctxt);
 	auto* arrInt = ArrayType::get(ctxt, intTy);
 
 	IsExpr exprVisitor;
@@ -509,7 +509,7 @@ class CSToTxt : public ConstraintVisitor<CSToTxt, std::string>
 TEST(ASTTests, ConstraintVisitorTest)
 {
 	ASTContext astctxt;
-	Type intTy(astctxt.getIntType());
+	Type intTy(PrimitiveType::getInt(astctxt));
 
 	Constraint* eq = new(astctxt) EqualityCS(intTy);
 	Constraint* ar = new(astctxt) ArrayCS();

@@ -180,31 +180,31 @@ namespace
 			// type. Int for a Int literal, etc.
 			Expr* visitCharLiteralExpr(CharLiteralExpr* expr)
 			{
-				expr->setType(getCtxt().getCharType());
+				expr->setType(PrimitiveType::getChar(getCtxt()));
 				return expr;
 			}
 
 			Expr* visitIntegerLiteralExpr(IntegerLiteralExpr* expr)
 			{
-				expr->setType(getCtxt().getIntType());
+				expr->setType(PrimitiveType::getInt(getCtxt()));
 				return expr;
 			}
 
 			Expr* visitFloatLiteralExpr(FloatLiteralExpr* expr)
 			{
-				expr->setType(getCtxt().getFloatType());
+				expr->setType(PrimitiveType::getFloat(getCtxt()));
 				return expr;
 			}
 
 			Expr* visitBoolLiteralExpr(BoolLiteralExpr* expr)
 			{
-				expr->setType(getCtxt().getBoolType());
+				expr->setType(PrimitiveType::getBool(getCtxt()));
 				return expr;
 			}
 
 			Expr* visitStringLiteralExpr(StringLiteralExpr* expr)
 			{
-				expr->setType(getCtxt().getStringType());
+				expr->setType(PrimitiveType::getString(getCtxt()));
 				return expr;
 			}
 
