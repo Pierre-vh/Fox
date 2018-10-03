@@ -177,7 +177,9 @@ namespace fox
 	class SemaType : public TypeBase
 	{
 		public:
-			SemaType(TypeBase* type = nullptr);
+			SemaType(TypeBase* subst = nullptr);
+
+			static SemaType* create(ASTContext& ctxt, TypeBase* subst = nullptr);
 
 			virtual std::string getString() const override;
 

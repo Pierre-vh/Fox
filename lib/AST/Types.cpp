@@ -204,10 +204,15 @@ const TypeBase* LValueType::getType() const
 // SemaType //
 //----------//
 
-SemaType::SemaType(TypeBase* type):
-	TypeBase(TypeKind::SemaType), ty_(type)
+SemaType::SemaType(TypeBase* subst):
+	TypeBase(TypeKind::SemaType), ty_(subst)
 {
 
+}
+
+SemaType* SemaType::create(ASTContext& ctxt, TypeBase* subst)
+{
+	return new(ctxt) SemaType(subst);
 }
 
 std::string SemaType::getString() const
