@@ -220,14 +220,17 @@ namespace fox
 	class ErrorType : public TypeBase
 	{
 		public:
-			ErrorType();
-
+			static ErrorType* get(ASTContext& ctxt);
+			
 			virtual std::string getString() const override;
 
 			static bool classof(const TypeBase* type)
 			{
 				return (type->getKind() == TypeKind::ErrorType);
 			}
+
+		private:
+			ErrorType();
 	};
 
 	// ConstrainedType

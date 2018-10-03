@@ -289,6 +289,13 @@ ErrorType::ErrorType():
 
 }
 
+ErrorType* ErrorType::get(ASTContext& ctxt)
+{
+	if (!ctxt.theErrorType)
+		ctxt.theErrorType = new(ctxt) ErrorType();
+	return ctxt.theErrorType;
+}
+
 std::string ErrorType::getString() const
 {
 	return "<error_type>";
