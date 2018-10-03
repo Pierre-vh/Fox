@@ -39,7 +39,7 @@ namespace
 			// Sets the expr's type to ErrorType
 			void setErrorType(Expr* expr)
 			{
-				expr->setType(sema_.getASTContext().getErrorType());
+				expr->setType(ErrorType::get(getCtxt()));
 			}
 
 			// Returns the ASTContext
@@ -131,7 +131,7 @@ namespace
 							.addArg(exprTy->getString())
 							.addArg(castGoal->getString())
 							.setExtraRange(expr->getExpr()->getRange());
-					expr->setType(getCtxt().getErrorType());
+					expr->setType(ErrorType::get(getCtxt()));
 					// Propagate the error type to the expr->type to avoid error
 					// flooding.
 				}
@@ -305,7 +305,7 @@ namespace
 				if (!type)
 				{
 					diags_.report(DiagID::sema_failed_infer, expr->getRange());
-					type = ctxt_.getErrorType();
+					type = ErrorType::get(ctxt_);
 				}
 				expr->setType(type);
 				return expr;

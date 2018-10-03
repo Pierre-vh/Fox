@@ -39,7 +39,6 @@ namespace fox
 			PrimitiveType* getStringType();
 			PrimitiveType* getCharType();
 			PrimitiveType* getVoidType();
-			ErrorType* getErrorType();
 
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
@@ -57,6 +56,7 @@ namespace fox
 		protected:
 			friend class ArrayType;
 			friend class LValueType;
+			friend class ErrorType;
 
 			// Map of Array types (Type -> Type[]) 
 			// (managed by ArrayType::get)
@@ -66,6 +66,12 @@ namespace fox
 			// (managed by LValueType::get)
 			std::map<TypeBase*, LValueType*> lvalueTypes;
 
+
+			// Singleton/unique types. Lazily
+			// created by their respective classes.
+
+			// For use by ErrorType::get
+			ErrorType* theErrorType = nullptr;
 	private:
 			void initBuiltins();
 
@@ -80,7 +86,6 @@ namespace fox
 			PrimitiveType* theBoolType_;
 			PrimitiveType* theStringType_;
 			PrimitiveType* theVoidType_;
-			ErrorType* theErrorType_;
 
 			// An observing pointer to a ASTUnit owned by the vector below that points to the main unit
 			// (= the unit that contains the entry point of this module)

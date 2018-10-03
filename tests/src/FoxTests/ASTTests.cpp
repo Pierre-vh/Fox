@@ -267,7 +267,7 @@ TEST(ASTTests, TypeRTTI)
 	auto* arrIntTy = ArrayType::get(astctxt, intTy);
 	auto* lvIntTy = LValueType::get(astctxt, intTy);
 	auto* semaType = SemaType::create(astctxt);
-	auto* errType = astctxt.getErrorType();
+	auto* errType = ErrorType::get(astctxt);
 	auto* csType = ConstrainedType::create(astctxt);
 
 	EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);

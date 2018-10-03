@@ -59,11 +59,6 @@ PrimitiveType* ASTContext::getVoidType()
 	return theVoidType_;
 }
 
-ErrorType* ASTContext::getErrorType()
-{
-	return theErrorType_;
-}
-
 LinearAllocator<>& ASTContext::getAllocator()
 {
 	return allocator_;
@@ -89,7 +84,7 @@ void ASTContext::reset()
 	theBoolType_ = nullptr;
 	theStringType_ = nullptr;
 	theVoidType_ = nullptr;
-	theErrorType_ = nullptr;
+	theErrorType = nullptr;
 
 	allocator_.reset();
 	csAllocator_.reset();
@@ -110,5 +105,4 @@ void ASTContext::initBuiltins()
 	theBoolType_ = new(*this) PrimitiveType(PrimKind::BoolTy);
 	theStringType_ = new(*this) PrimitiveType(PrimKind::StringTy);
 	theVoidType_ = new(*this) PrimitiveType(PrimKind::VoidTy);
-	theErrorType_ = new(*this) ErrorType();
 }
