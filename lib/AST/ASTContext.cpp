@@ -141,8 +141,3 @@ void ASTContext::initBuiltins()
 	theVoidType_ = new(*this) PrimitiveType(PrimKind::VoidTy);
 	theErrorType_ = new(*this) ErrorType();
 }
-
-SemaType* ASTContext::createSemaType(TypeBase* ty)
-{
-	return new(*this) SemaType(ty);
-}

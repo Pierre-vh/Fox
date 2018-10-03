@@ -207,7 +207,7 @@ bool Sema::unify(Type a, Type b)
 			else if (!aSema->hasSubstitution())
 			{
 				// In this case, create a new SemaType
-				SemaType* fresh = ctxt_.createSemaType();
+				SemaType* fresh = SemaType::create(ctxt_);
 				// Set boths subs to this new SemaType
 				aSema->setSubstitution(fresh);
 				bSema->setSubstitution(fresh);

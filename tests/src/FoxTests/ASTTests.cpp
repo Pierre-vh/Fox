@@ -270,7 +270,7 @@ TEST(ASTTests, TypeRTTI)
 	TypeBase* intTy = astctxt.getIntType();
 	auto* arrIntTy = astctxt.getArrayTypeForType(intTy);
 	auto* lvIntTy = astctxt.getLValueTypeForType(intTy);
-	auto* semaType = astctxt.createSemaType();
+	auto* semaType = SemaType::create(astctxt);
 	auto* errType = astctxt.getErrorType();
 	auto* csType = ConstrainedType::create(astctxt);
 

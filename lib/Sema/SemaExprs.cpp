@@ -267,7 +267,7 @@ namespace
 				else
 				{
 					// Let type inference do it's magic by requiring a arraytype of any type.
-					Type ty = getCtxt().getArrayTypeForType(getCtxt().createSemaType());
+					Type ty = getCtxt().getArrayTypeForType(SemaType::create(getCtxt()));
 					expr->setType(ty);
 				}
 				return expr;

@@ -47,9 +47,6 @@ namespace fox
 			// Returns an LValueType for a given type
 			LValueType* getLValueTypeForType(Type ty);
 
-			// Creates a SemaType
-			SemaType* createSemaType(TypeBase *ty = nullptr);
-
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
 			LinearAllocator<>& getCSAllocator();
