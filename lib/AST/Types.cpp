@@ -93,7 +93,49 @@ PrimitiveType::PrimitiveType(Kind kd)
 
 }
 
-std::string PrimitiveType::getString() const
+PrimitiveType* PrimitiveType::getString(ASTContext& ctxt)
+{
+	if (!ctxt.theStringType)
+		ctxt.theStringType = new(ctxt) PrimitiveType(Kind::StringTy);
+	return ctxt.theStringType;
+}
+
+PrimitiveType* PrimitiveType::getChar(ASTContext& ctxt)
+{
+	if (!ctxt.theCharType)
+		ctxt.theCharType = new(ctxt) PrimitiveType(Kind::CharTy);
+	return ctxt.theCharType;
+}
+
+PrimitiveType* PrimitiveType::getFloat(ASTContext& ctxt)
+{
+	if (!ctxt.theFloatType)
+		ctxt.theFloatType = new(ctxt) PrimitiveType(Kind::FloatTy);
+	return ctxt.theFloatType;
+}
+
+PrimitiveType* PrimitiveType::getBool(ASTContext& ctxt)
+{
+	if (!ctxt.theBoolType)
+		ctxt.theBoolType = new(ctxt) PrimitiveType(Kind::BoolTy);
+	return ctxt.theBoolType;
+}
+
+PrimitiveType* PrimitiveType::getInt(ASTContext& ctxt)
+{
+	if (!ctxt.theIntType)
+		ctxt.theIntType = new(ctxt) PrimitiveType(Kind::IntTy);
+	return ctxt.theIntType;
+}
+
+PrimitiveType* PrimitiveType::getVoid(ASTContext& ctxt)
+{
+	if (!ctxt.theVoidType)
+		ctxt.theVoidType = new(ctxt) PrimitiveType(Kind::VoidTy);
+	return ctxt.theVoidType;
+}
+
+std::string PrimitiveType::toString() const
 {
 	switch (builtinKind_)
 	{
@@ -176,9 +218,9 @@ ArrayType* ArrayType::get(ASTContext& ctxt, TypeBase* ty)
 	}
 }
 
-std::string ArrayType::getString() const
+std::string ArrayType::toString() const
 {
-	return "Array(" + elementTy_->getString() + ")";
+	return "Array(" + elementTy_->toString() + ")";
 }
 
 TypeBase* ArrayType::getElementType()
@@ -218,10 +260,10 @@ LValueType* LValueType::get(ASTContext& ctxt, TypeBase* ty)
 	}
 }
 
-std::string LValueType::getString() const
+std::string LValueType::toString() const
 {
 	// LValue types are represented by adding a prefix "@"
-	return "@" + ty_->getString();
+	return "@" + ty_->toString();
 }
 
 TypeBase* LValueType::getType()
@@ -249,9 +291,9 @@ SemaType* SemaType::create(ASTContext& ctxt, TypeBase* subst)
 	return new(ctxt) SemaType(subst);
 }
 
-std::string SemaType::getString() const
+std::string SemaType::toString() const
 {
-	return "SemaType(" + (ty_ ? ty_->getString() : "empty") + ")";
+	return "SemaType(" + (ty_ ? ty_->toString() : "empty") + ")";
 }
 
 TypeBase* SemaType::getSubstitution()
@@ -296,7 +338,7 @@ ErrorType* ErrorType::get(ASTContext& ctxt)
 	return ctxt.theErrorType;
 }
 
-std::string ErrorType::getString() const
+std::string ErrorType::toString() const
 {
 	return "<error_type>";
 }
@@ -316,7 +358,7 @@ ConstrainedType* ConstrainedType::create(ASTContext& ctxt)
 	return new(ctxt) ConstrainedType();
 }
 
-std::string ConstrainedType::getString() const
+std::string ConstrainedType::toString() const
 {
 	// TO-DO
 	return "ConstrainedType";

@@ -102,8 +102,6 @@ namespace fox
 				BoolTy
 			};
 
-			PrimitiveType(Kind kd);
-
 			static PrimitiveType* getString(ASTContext& ctxt);
 			static PrimitiveType* getChar(ASTContext& ctxt);
 			static PrimitiveType* getFloat(ASTContext& ctxt);
@@ -128,6 +126,8 @@ namespace fox
 			}
 
 		private:
+			PrimitiveType(Kind kd);
+
 			const Kind builtinKind_;
 	};
 
