@@ -54,8 +54,6 @@ namespace fox
 		protected:
 			TypeBase(TypeKind tc);
 
-			friend class ASTContext;
-
 			// Prohibit the use of builtin placement new & delete
 			void *operator new(std::size_t) throw() = delete;
 			void operator delete(void *) throw() = delete;
@@ -67,7 +65,7 @@ namespace fox
 
 			// Companion operator delete to silence C4291 on MSVC
 			void operator delete(void*, ASTContext&, std::uint8_t) {}
-
+		
 		private:
 			const TypeKind kind_;
 	};
