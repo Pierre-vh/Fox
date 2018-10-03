@@ -34,7 +34,7 @@ namespace fox
 	{
 		public:
 			/* Should return the type's name in a user friendly form, e.g. "int", "string" */
-			virtual std::string getString() const = 0;
+			virtual std::string toString() const = 0;
 
 			TypeKind getKind() const;
 
@@ -104,7 +104,14 @@ namespace fox
 
 			PrimitiveType(Kind kd);
 
-			virtual std::string getString() const override;
+			static PrimitiveType* getString(ASTContext& ctxt);
+			static PrimitiveType* getChar(ASTContext& ctxt);
+			static PrimitiveType* getFloat(ASTContext& ctxt);
+			static PrimitiveType* getBool(ASTContext& ctxt);
+			static PrimitiveType* getInt(ASTContext& ctxt);
+			static PrimitiveType* getVoid(ASTContext& ctxt);
+
+			virtual std::string toString() const override;
 
 			Kind getPrimitiveKind() const;
 
@@ -134,7 +141,7 @@ namespace fox
 			// type ty.
 			static ArrayType* get(ASTContext& ctxt, TypeBase* ty);
 
-			virtual std::string getString() const override;
+			virtual std::string toString() const override;
 
 			TypeBase* getElementType();
 			const TypeBase* getElementType() const;
@@ -161,7 +168,7 @@ namespace fox
 			// Returns the UNIQUE LValueType instance for the given type "ty"
 			static LValueType* get(ASTContext& ctxt, TypeBase* ty);
 
-			virtual std::string getString() const override;
+			virtual std::string toString() const override;
 
 			TypeBase* getType();
 			const TypeBase* getType() const;
@@ -188,7 +195,7 @@ namespace fox
 		public:
 			static SemaType* create(ASTContext& ctxt, TypeBase* subst = nullptr);
 
-			virtual std::string getString() const override;
+			virtual std::string toString() const override;
 
 			TypeBase* getSubstitution();
 			const TypeBase* getSubstitution() const;
@@ -222,7 +229,7 @@ namespace fox
 		public:
 			static ErrorType* get(ASTContext& ctxt);
 			
-			virtual std::string getString() const override;
+			virtual std::string toString() const override;
 
 			static bool classof(const TypeBase* type)
 			{
@@ -263,7 +270,7 @@ namespace fox
 			// Creates a new instance of the ConstrainedType class
 			static ConstrainedType* create(ASTContext& ctxt);
 
-			virtual std::string getString() const override;
+			virtual std::string toString() const override;
 
 			TypeBase* getSubstitution();
 			const TypeBase* getSubstitution() const;
