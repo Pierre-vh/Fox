@@ -288,7 +288,7 @@ Parser::Result<Type> Parser::parseType()
 
 		while (consumeBracket(SignType::S_SQ_OPEN))
 		{
-			ty = ctxt_.getArrayTypeForType(ty);
+			ty = ArrayType::get(ctxt_, ty.getPtr());
 			// ']'
 			if (auto right = consumeBracket(SignType::S_SQ_CLOSE))
 				endLoc = right;

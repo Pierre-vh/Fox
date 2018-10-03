@@ -86,11 +86,11 @@ TEST(ASTTests, ASTContextArrayTypes)
 	auto* primChar = actxt.getCharType();
 	auto* primString = actxt.getStringType();
 
-	auto* boolArr = actxt.getArrayTypeForType(primBool);
-	auto* floatArr = actxt.getArrayTypeForType(primFloat);
-	auto* intArr = actxt.getArrayTypeForType(primInt);
-	auto* charArr = actxt.getArrayTypeForType(primChar);
-	auto* strArr = actxt.getArrayTypeForType(primString);
+	auto* boolArr = ArrayType::get(actxt, primBool);
+	auto* floatArr = ArrayType::get(actxt, primFloat);
+	auto* intArr = ArrayType::get(actxt, primInt);
+	auto* charArr = ArrayType::get(actxt, primChar);
+	auto* strArr = ArrayType::get(actxt, primString);
 
 
 	// Check that pointers aren't null
@@ -113,12 +113,8 @@ TEST(ASTTests, ASTContextArrayTypes)
 	EXPECT_NE(intArr, charArr);
 	EXPECT_NE(charArr, strArr);
 
-	// Check that uniqueness works by getting the arraytype for int 100 times.
-	// Everytime the pointer is returned it must be equal to intArr
-	for (unsigned k = 0; k < 100; k++)
-	{
-		EXPECT_EQ(actxt.getArrayTypeForType(primInt), intArr);
-	}
+	// Check that uniqueness works by getting the arraytype for int 
+	EXPECT_EQ(ArrayType::get(actxt,primInt), intArr);
 }
 
 // Create a variable with a random type
@@ -268,8 +264,8 @@ TEST(ASTTests, TypeRTTI)
 {
 	ASTContext astctxt;
 	TypeBase* intTy = astctxt.getIntType();
-	auto* arrIntTy = astctxt.getArrayTypeForType(intTy);
-	auto* lvIntTy = astctxt.getLValueTypeForType(intTy);
+	auto* arrIntTy = ArrayType::get(astctxt, intTy);
+	auto* lvIntTy = LValueType::get(astctxt, intTy);
 	auto* semaType = SemaType::create(astctxt);
 	auto* errType = astctxt.getErrorType();
 	auto* csType = ConstrainedType::create(astctxt);
@@ -472,7 +468,7 @@ TEST(ASTTests, BasicVisitor)
 			SourceRange()
 		);
 	auto* intTy = ctxt.getIntType();
-	auto* arrInt = ctxt.getArrayTypeForType(intTy);
+	auto* arrInt = ArrayType::get(ctxt, intTy);
 
 	IsExpr exprVisitor;
 	IsNamedDecl declVisitor;

@@ -259,7 +259,7 @@ namespace
 					if (proposed)
 					{
 						// TypeBase is an array of the proposed type.
-						expr->setType(getCtxt().getArrayTypeForType(proposed));
+						expr->setType(ArrayType::get(getCtxt(), proposed));
 					}
 					else
 						setErrorType(expr); // Failed to typecheck.
@@ -267,7 +267,8 @@ namespace
 				else
 				{
 					// Let type inference do it's magic by requiring a arraytype of any type.
-					Type ty = getCtxt().getArrayTypeForType(SemaType::create(getCtxt()));
+					SemaType* semaTy = SemaType::create(getCtxt());
+					Type ty = ArrayType::get(getCtxt(), semaTy);
 					expr->setType(ty);
 				}
 				return expr;
@@ -320,8 +321,8 @@ namespace
 				if (TypeBase* elem = visit(type->getElementType()))
 				{
 					// Rebuild if needed
-					if(elem != type->getElementType())
-						return ctxt_.getArrayTypeForType(elem);
+					if (elem != type->getElementType())
+						return ArrayType::get(ctxt_, elem);
 					return type;
 				}
 				return nullptr;
@@ -331,8 +332,8 @@ namespace
 			{
 				if (TypeBase* elem = visit(type->getType()))
 				{
-					if(elem != type->getType())
-						return ctxt_.getLValueTypeForType(elem);
+					if (elem != type->getType())
+						return LValueType::get(ctxt_, elem);
 					return type;
 				}
 				return nullptr;

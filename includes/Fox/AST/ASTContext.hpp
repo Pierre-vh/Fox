@@ -41,12 +41,6 @@ namespace fox
 			PrimitiveType* getVoidType();
 			ErrorType* getErrorType();
 
-			// Returns an ArrayType for a given type.
-			ArrayType* getArrayTypeForType(Type ty);
-
-			// Returns an LValueType for a given type
-			LValueType* getLValueTypeForType(Type ty);
-
 			// ALLOCATOR
 			LinearAllocator<>& getAllocator();
 			LinearAllocator<>& getCSAllocator();
@@ -60,8 +54,19 @@ namespace fox
 
 			// IDENTIFIER TABLE
 			IdentifierTable identifiers;
+		protected:
+			friend class ArrayType;
+			friend class LValueType;
 
-		private:
+			// Map of Array types (Type -> Type[]) 
+			// (managed by ArrayType::get)
+			std::map<TypeBase*, ArrayType*> arrayTypes;
+
+			// LValue types (Type -> @Type)
+			// (managed by LValueType::get)
+			std::map<TypeBase*, LValueType*> lvalueTypes;
+
+	private:
 			void initBuiltins();
 
 			// Context shouldn't be copyable.
@@ -83,12 +88,6 @@ namespace fox
 
 			// All of the units that makes the current module.
 			std::vector<UnitDecl*> units_;
-
-			// Array types (Type -> Type[])
-			std::map<TypeBase*, ArrayType*> arrayTypes_;
-
-			// LValue types (Type -> @Type)
-			std::map<TypeBase*, LValueType*> lvalueTypes_;
 
 			// Allocators
 			LinearAllocator<> allocator_; // Default allocator

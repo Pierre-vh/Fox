@@ -64,38 +64,6 @@ ErrorType* ASTContext::getErrorType()
 	return theErrorType_;
 }
 
-ArrayType* ASTContext::getArrayTypeForType(Type ty)
-{
-	auto lb = arrayTypes_.lower_bound(ty.getPtr());
-	if (lb != arrayTypes_.end() && !(arrayTypes_.key_comp()(ty.getPtr(), lb->first)))
-	{
-		// Key already exists, return lb->second.get()
-		return lb->second;
-	}
-	else
-	{
-		// Key does not exists, insert & return.
-		auto insertionResult = arrayTypes_.insert(lb,{ ty.getPtr() , new(*this) ArrayType(ty.getPtr()) });
-		return insertionResult->second;
-	}
-}
-
-LValueType* ASTContext::getLValueTypeForType(Type ty)
-{
-	auto lb = lvalueTypes_.lower_bound(ty.getPtr());
-	if (lb != lvalueTypes_.end() && !(lvalueTypes_.key_comp()(ty.getPtr(), lb->first)))
-	{
-		// Key already exists, return lb->second.get()
-		return lb->second;
-	}
-	else
-	{
-		// Key does not exists, insert & return.
-		auto insertionResult = lvalueTypes_.insert(lb, { ty.getPtr(), new(*this) LValueType(ty.getPtr()) });
-		return insertionResult->second;
-	}
-}
-
 LinearAllocator<>& ASTContext::getAllocator()
 {
 	return allocator_;
@@ -110,7 +78,10 @@ void ASTContext::reset()
 {
 	units_.clear();
 	mainUnit_ = nullptr;
-	arrayTypes_.clear();
+
+	// Clear maps of ArrayType/LValueTypes
+	arrayTypes.clear();
+	lvalueTypes.clear();
 
 	theIntType_ = nullptr;
 	theFloatType_ = nullptr;
