@@ -130,7 +130,9 @@ namespace fox
 	class ArrayType : public BuiltinType
 	{
 		public:
-			ArrayType(TypeBase* elemTy);
+			// Returns the UNIQUE ArrayType instance for the given
+			// type ty.
+			static ArrayType* get(ASTContext& ctxt, TypeBase* ty);
 
 			virtual std::string getString() const override;
 
@@ -143,6 +145,9 @@ namespace fox
 			}
 
 		private:
+			// Private because only called by ::get
+			ArrayType(TypeBase* elemTy);
+
 			TypeBase* elementTy_= nullptr;
 	};
 
@@ -153,7 +158,8 @@ namespace fox
 	class LValueType : public TypeBase
 	{
 		public:
-			LValueType(TypeBase* type);
+			// Returns the UNIQUE LValueType instance for the given type "ty"
+			static LValueType* get(ASTContext& ctxt, TypeBase* ty);
 
 			virtual std::string getString() const override;
 
@@ -166,6 +172,9 @@ namespace fox
 			}
 
 		private:
+			// Private because only used by ::get
+			LValueType(TypeBase* type);
+
 			TypeBase* ty_ = nullptr;
 	};
 
@@ -177,8 +186,6 @@ namespace fox
 	class SemaType : public TypeBase
 	{
 		public:
-			SemaType(TypeBase* subst = nullptr);
-
 			static SemaType* create(ASTContext& ctxt, TypeBase* subst = nullptr);
 
 			virtual std::string getString() const override;
@@ -199,7 +206,11 @@ namespace fox
 			{
 				return (type->getKind() == TypeKind::SemaType);
 			}
+
 		private:
+			// Private because only called by ::create
+			SemaType(TypeBase* subst = nullptr);
+
 			TypeBase * ty_ = nullptr;
 	};
 
@@ -246,8 +257,6 @@ namespace fox
 	{
 		using CSList = std::list<Constraint*>;
 		public:
-			ConstrainedType();
-
 			// Creates a new instance of the ConstrainedType class
 			static ConstrainedType* create(ASTContext& ctxt);
 
@@ -287,7 +296,10 @@ namespace fox
 				return (type->getKind() == TypeKind::ConstrainedType);
 			}
 
-		protected:
+		private:
+			// Private because only called by ::create
+			ConstrainedType();
+
 			// Override the new/deletes to use the ConstraintAllocator in the
 			// ASTContext to allocate ConstrainedTypes.
 
@@ -298,7 +310,6 @@ namespace fox
 			// Companion operator delete to silence C4291 on MSVC
 			void operator delete(void*, ASTContext&, std::uint8_t) {}
 
-		private:
 			void markAsUpToDate();
 			void markAsOutdated();
 

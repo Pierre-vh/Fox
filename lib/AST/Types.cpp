@@ -159,6 +159,23 @@ ArrayType::ArrayType(TypeBase* elemTy):
 	assert(elemTy && "The Array item type cannot be null!");
 }
 
+ArrayType* ArrayType::get(ASTContext& ctxt, TypeBase* ty)
+{
+	auto lb = ctxt.arrayTypes.lower_bound(ty);
+	if (lb != ctxt.arrayTypes.end() &&
+		!(ctxt.lvalueTypes.key_comp()(ty, lb->first)))
+	{
+		// Key already exists, return lb->second.get()
+		return lb->second;
+	}
+	else
+	{
+		// Key does not exists, insert & return.
+		auto insertionResult = ctxt.arrayTypes.insert(lb, { ty , new(ctxt) ArrayType(ty) });
+		return insertionResult->second;
+	}
+}
+
 std::string ArrayType::getString() const
 {
 	return "Array(" + elementTy_->getString() + ")";
@@ -182,6 +199,23 @@ LValueType::LValueType(TypeBase* type):
 	TypeBase(TypeKind::LValueType), ty_(type)
 {
 	assert(type && "cannot be null");
+}
+
+LValueType* LValueType::get(ASTContext& ctxt, TypeBase* ty)
+{
+	auto lb = ctxt.lvalueTypes.lower_bound(ty);
+	if (lb != ctxt.lvalueTypes.end() &&
+		!(ctxt.lvalueTypes.key_comp()(ty, lb->first)))
+	{
+		// Key already exists, return lb->second.get()
+		return lb->second;
+	}
+	else
+	{
+		// Key does not exists, insert & return.
+		auto insertionResult = ctxt.lvalueTypes.insert(lb, { ty , new(ctxt) LValueType(ty) });
+		return insertionResult->second;
+	}
 }
 
 std::string LValueType::getString() const
