@@ -19,6 +19,7 @@
 #include <list>
 #include "llvm/ADT/PointerIntPair.h"
 #include "Constraints.hpp"
+#include "ASTAligns.hpp"
 
 namespace fox
 {
@@ -35,11 +36,11 @@ namespace fox
 
 	// TypeBase
 	//		Common base for types
-	class TypeBase
+	class alignas(align::TypeBaseAlignement) TypeBase
 	{
 		public:
-			/* Should return the type's name in a user friendly form, e.g. "int", "string" */
-			virtual std::string toString() const = 0;
+			/* Return the type's name in a user friendly form, e.g. "int", "string" */
+			std::string toString() const;
 
 			TypeKind getKind() const;
 
@@ -112,8 +113,6 @@ namespace fox
 			static PrimitiveType* getInt(ASTContext& ctxt);
 			static PrimitiveType* getVoid(ASTContext& ctxt);
 
-			virtual std::string toString() const override;
-
 			Kind getPrimitiveKind() const;
 
 			bool isString() const;
@@ -144,8 +143,6 @@ namespace fox
 			// type ty.
 			static ArrayType* get(ASTContext& ctxt, TypeBase* ty);
 
-			virtual std::string toString() const override;
-
 			TypeBase* getElementType();
 			const TypeBase* getElementType() const;
 
@@ -171,8 +168,6 @@ namespace fox
 			// Returns the UNIQUE LValueType instance for the given type "ty"
 			static LValueType* get(ASTContext& ctxt, TypeBase* ty);
 
-			virtual std::string toString() const override;
-
 			TypeBase* getType();
 			const TypeBase* getType() const;
 
@@ -196,9 +191,8 @@ namespace fox
 	class SemaType : public TypeBase
 	{
 		public:
+			// Creates a new SemaType instance.
 			static SemaType* create(ASTContext& ctxt, TypeBase* subst = nullptr);
-
-			virtual std::string toString() const override;
 
 			TypeBase* getSubstitution();
 			const TypeBase* getSubstitution() const;
@@ -230,10 +224,9 @@ namespace fox
 	class ErrorType : public TypeBase
 	{
 		public:
+			// Gets the unique ErrorType instance for the current context.
 			static ErrorType* get(ASTContext& ctxt);
 			
-			virtual std::string toString() const override;
-
 			static bool classof(const TypeBase* type)
 			{
 				return (type->getKind() == TypeKind::ErrorType);
@@ -273,8 +266,6 @@ namespace fox
 			// Creates a new instance of the ConstrainedType class
 			static ConstrainedType* create(ASTContext& ctxt);
 
-			virtual std::string toString() const override;
-
 			TypeBase* getSubstitution();
 			const TypeBase* getSubstitution() const;
 
@@ -313,15 +304,9 @@ namespace fox
 			// Private because only called by ::create
 			ConstrainedType();
 
-			// Override the new/deletes to use the ConstraintAllocator in the
+			// Override the new operator to use the ConstraintAllocator in the
 			// ASTContext to allocate ConstrainedTypes.
-
-			// Only allow allocation through the ASTContext
-			// This operator is "protected" so only the ASTContext can create types.
-			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(ConstrainedType));
-
-			// Companion operator delete to silence C4291 on MSVC
-			void operator delete(void*, ASTContext&, std::uint8_t) {}
+			void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(TypeBase));
 
 			void markAsUpToDate();
 			void markAsOutdated();
