@@ -64,23 +64,17 @@ Moonshot Project To-do List.
 	> Add ErrorType (Done)
 	> Bulk of the Type rework (Done)
 	> Finish Type Rework/Solve last issues (Done)
+	> Switching to ::create or ::get idiom for Types instead of creation through ASTContext (Done)
+	> Constrained Types (Done)
+	> Type toString rewrite (TypePrinter) (Done)
 
-	> Finish Constraint/ConstrainedTypes (Next)
-	> Constraint Printer (toString method) + Type::getString rewrite
-	> Types: Switch to a ::create idiom would be more fitting, especially for builtins.
+	> Constraint Printer (toString & toDebugString)
+	> Type debug print (toDebugString)
+	> ConstrainedType in Semantic Analysis
+		> Check if a type follows a set of Constraints
+		> Add support in unify (follow notes)
 
-	> Create a "StackTrace" class. Uses RAII objects, catches signals, etc. Useful for debugging!
-	> Change how Type::getString displays types. Use 2 functions: getDebugString(), getString(), one is more informative, the second is more user friendly.
-
-	Semantic analysis development is put on hold for now. I'll fix the existing code and do a few more things before
-	going back on it. I need to figure out some important stuff. Sorry, lack of preparation on my end.
-		> I don't know if the "SemaTypes" is the correct road to follow for inference.
-			> After thinking about it a lot, I think I'll try to find another idea, maybe based around "constraints" or constrained types.
-				e.g. instead of having a ArrayType(SemaType(nullptr)), i'd have a single sematype wtih a "must be array" constraint, but this
-					 could be a lot of work. If I manage to make it simple enough, I might do that.
-		
-
-	> Basic Expression Semantic analysis (Postponed)
+	> Basic Expression Semantic analysis (Current task)
 	> Stmt Semantic Analysis
 	> Decl Semantic Analysis
 	> Name Resolution (DeclRefs of vars)
@@ -91,26 +85,20 @@ Moonshot Project To-do List.
 Boring stuff that I must do when I have the time/motivation for it
 	> Adopt a Documentation style (Doxygen) and document all the code with it
 
-	> ASTWalker code review
-
 	> AST Serialization tool for unit tests
 
 	> Revamp tests:
-		Stop tests like I currently do, use a tool like LLVM-lit to do it.
-		Keep unit tests the same, strictly separe language tests with unit tests.
-			Unit tests are for every language independant stuff:
-				Lexer/Tokens
-				SourceManager
-				DiagnosticEngine
-				Driver
-				etc..
-			Tests are for language semantics with samples bits of code.
+		Split Unit tests & Language tests
+		Use a format like JSon or Def files to register/create tests.
+
 Later:
 	Use a "SourceFile" class instead of a "UnitDecl" class, like swift. This class would track the progress of the AST:
 	not parsed, parsed but not semantically analyzed, etc. Do that when implementing the multifile support
 
 Needed but not yet figured out
-	Need a more advanced debugging tool such as a PrettyStackTrace or just a DEBUG_PRINT macro;
+	Need a more advanced debugging tool such as a Stack tracing, logger, etc.
 
 Bug:
-	If an array is spanned on multiple lines, the "illegal heterogenous" array error will display one extra caret after the [ on the first line.
+	(Probably fixed, testing needed)
+		If an array is spanned on multiple lines, the "illegal heterogenous" 
+		array error will display one extra caret after the [ on the first line.
