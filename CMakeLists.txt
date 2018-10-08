@@ -42,6 +42,7 @@ if(MSVC)
   add_compile_options(/WX)
   #Silence problematic warnings: 
   add_compile_options(/wd4706) # "assignement within conditional expression" is rather pedantic.
+  add_compile_options(/wd4324) # "structure was padded due to alignement specifier" no sh*t sherlock.
 endif()
 
 
