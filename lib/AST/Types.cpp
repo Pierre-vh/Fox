@@ -11,17 +11,144 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTContext.hpp"
+#include "Fox/AST/ASTVisitor.hpp"
 #include <sstream>
 
 using namespace fox;
 
-//------//
+namespace
+{
+	class TypePrinter : public TypeVisitor<TypePrinter, void>
+	{
+		std::ostream& out;
+		bool debugPrint;
+
+		static constexpr char * nullTypeStr = "<none>";
+
+		public:
+			TypePrinter(std::ostream& out, bool debugPrint) :
+				out(out), debugPrint(debugPrint)
+			{
+
+			}
+
+			void visitPrimitiveType(PrimitiveType* type)
+			{
+				using PTK = PrimitiveType::Kind;
+				switch (type->getPrimitiveKind())
+				{
+					case PTK::BoolTy:
+						out << "bool";
+						break;
+					case PTK::CharTy:
+						out << "char";
+						break;
+					case PTK::StringTy:
+						out << "string";
+						break;
+					case PTK::FloatTy:
+						out << "float";
+						break;
+					case PTK::IntTy:
+						out << "int";
+						break;
+					case PTK::VoidTy:
+						out << "void";
+						break;
+					default:
+						fox_unreachable("all primitive kinds handled");
+				}
+			}
+
+			void visitArrayType(ArrayType* type)
+			{
+				if (debugPrint)
+				{
+					out << "Array(";
+					if (TypeBase* elem = type->getElementType())
+						visit(elem);
+					else
+						out << nullTypeStr;
+					out << ")";
+				}
+				else
+				{
+					out << "[";
+					if (TypeBase* elem = type->getElementType())
+						visit(elem);
+					else
+						out << nullTypeStr;
+					out << "]";
+				}
+			}
+
+			void visitLValueType(LValueType* type)
+			{
+				if (debugPrint)
+				{
+					out << "LValue(";
+					if (TypeBase* elem = type->getType())
+						visit(elem);
+					else
+						out << nullTypeStr;
+					out << ")";
+				}
+				else
+				{
+					out << "@";
+					if (TypeBase* elem = type->getType())
+						visit(elem);
+					else
+						out << nullTypeStr;
+				}
+			}
+
+			void visitSemaType(SemaType* type)
+			{
+				out << "Sema(";
+				if (TypeBase* elem = type->getSubstitution())
+					visit(elem);
+				else
+					out << nullTypeStr;
+				out << ")";
+			}
+
+			void visitErrorType(ErrorType*)
+			{
+				out << "<error_type>";
+			}
+
+			void visitConstrainedType(ConstrainedType* type)
+			{
+				out << "Constrained(";
+				if (TypeBase* elem = type->getSubstitution())
+					visit(elem);
+				else
+					out << nullTypeStr;
+				out << ")";
+
+				// TODO: Print constraints in debug mode.
+			}
+	};
+}
+
+//----------//
 // TypeBase //
-//------//
+//----------//
 
 TypeBase::TypeBase(TypeKind tc) : kind_(tc)
 {
 
+}
+
+std::string TypeBase::toString() const
+{
+	std::ostringstream oss;
+	TypePrinter tp(oss, false);
+	// This is ugly but needed. TypePrinter won't alter
+	// this instance anyway so it's meaningless.
+	tp.visit(const_cast<TypeBase*>(this));
+	return oss.str();
 }
 
 TypeKind TypeBase::getKind() const
@@ -135,27 +262,6 @@ PrimitiveType* PrimitiveType::getVoid(ASTContext& ctxt)
 	return ctxt.theVoidType;
 }
 
-std::string PrimitiveType::toString() const
-{
-	switch (builtinKind_)
-	{
-		case Kind::IntTy:
-			return "int";
-		case Kind::BoolTy:
-			return "bool";
-		case Kind::CharTy:
-			return "char";
-		case Kind::FloatTy:
-			return "float";
-		case Kind::StringTy:
-			return "string";
-		case Kind::VoidTy:
-			return "void";
-		default:
-			fox_unreachable("Unknown builtin kind");
-	}
-}
-
 PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const
 {
 	return builtinKind_;
@@ -218,11 +324,6 @@ ArrayType* ArrayType::get(ASTContext& ctxt, TypeBase* ty)
 	}
 }
 
-std::string ArrayType::toString() const
-{
-	return "Array(" + elementTy_->toString() + ")";
-}
-
 TypeBase* ArrayType::getElementType()
 {
 	return elementTy_;
@@ -260,12 +361,6 @@ LValueType* LValueType::get(ASTContext& ctxt, TypeBase* ty)
 	}
 }
 
-std::string LValueType::toString() const
-{
-	// LValue types are represented by adding a prefix "@"
-	return "@" + ty_->toString();
-}
-
 TypeBase* LValueType::getType()
 {
 	return ty_;
@@ -289,11 +384,6 @@ SemaType::SemaType(TypeBase* subst):
 SemaType* SemaType::create(ASTContext& ctxt, TypeBase* subst)
 {
 	return new(ctxt) SemaType(subst);
-}
-
-std::string SemaType::toString() const
-{
-	return "SemaType(" + (ty_ ? ty_->toString() : "empty") + ")";
 }
 
 TypeBase* SemaType::getSubstitution()
@@ -338,11 +428,6 @@ ErrorType* ErrorType::get(ASTContext& ctxt)
 	return ctxt.theErrorType;
 }
 
-std::string ErrorType::toString() const
-{
-	return "<error_type>";
-}
-
 //-----------------//
 // ConstrainedType //
 //-----------------//
@@ -356,12 +441,6 @@ ConstrainedType::ConstrainedType():
 ConstrainedType* ConstrainedType::create(ASTContext& ctxt)
 {
 	return new(ctxt) ConstrainedType();
-}
-
-std::string ConstrainedType::toString() const
-{
-	// TO-DO
-	return "ConstrainedType";
 }
 
 TypeBase* ConstrainedType::getSubstitution()
