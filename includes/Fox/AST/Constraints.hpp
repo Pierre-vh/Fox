@@ -20,7 +20,7 @@
 
 #include <cstdint>
 #include <cstddef>
-#include <list>
+#include <deque>
 #include "Type.hpp"
 
 namespace fox
@@ -63,7 +63,7 @@ namespace fox
 	};
 	
 	// A Constraint list
-	using ConstraintList = std::list<Constraint*>;
+	using ConstraintList = std::deque<Constraint*>;
 
 	// EqualityCS
 	//		Satisfied if the substitution matches
