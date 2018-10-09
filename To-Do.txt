@@ -67,12 +67,15 @@ Moonshot Project To-do List.
 	> Switching to ::create or ::get idiom for Types instead of creation through ASTContext (Done)
 	> Constrained Types (Done)
 	> Type toString rewrite (TypePrinter) (Done)
+	> Constraint Printer (toString & toDebugString) (Done)
+	> Type debug print (toDebugString) (Done)
 
-	> Constraint Printer (toString & toDebugString)
-	> Type debug print (toDebugString)
 	> ConstrainedType in Semantic Analysis
 		> Check if a type follows a set of Constraints
-		> Add support in unify (follow notes)
+		> Add support in unify (follow notes) (Done)
+		> Add support for substitution adjust
+		> Make unify use references and fix ConstrainedType nesting
+		> Delete SemaType
 
 	> Basic Expression Semantic analysis (Current task)
 	> Stmt Semantic Analysis
