@@ -39,8 +39,11 @@ namespace fox
 	class alignas(align::TypeBaseAlignement) TypeBase
 	{
 		public:
-			/* Return the type's name in a user friendly form, e.g. "int", "string" */
+			/* Returns the type's name in a user friendly form, e.g. "int", "string" */
 			std::string toString() const;
+
+			/* Returns the type's name in a developer-friendly form, e.g. "Array(int)" instead of [int]" */
+			std::string toDebugString() const;
 
 			TypeKind getKind() const;
 

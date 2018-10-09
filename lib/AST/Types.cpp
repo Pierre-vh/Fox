@@ -136,7 +136,8 @@ namespace
 // TypeBase //
 //----------//
 
-TypeBase::TypeBase(TypeKind tc) : kind_(tc)
+TypeBase::TypeBase(TypeKind tc):
+	kind_(tc)
 {
 
 }
@@ -144,7 +145,17 @@ TypeBase::TypeBase(TypeKind tc) : kind_(tc)
 std::string TypeBase::toString() const
 {
 	std::ostringstream oss;
-	TypePrinter tp(oss, false);
+	TypePrinter tp(oss, /* debug print */ false);
+	// This is ugly but needed. TypePrinter won't alter
+	// this instance anyway so it's meaningless.
+	tp.visit(const_cast<TypeBase*>(this));
+	return oss.str();
+}
+
+std::string TypeBase::toDebugString() const
+{
+	std::ostringstream oss;
+	TypePrinter tp(oss, /* debug print */ true);
 	// This is ugly but needed. TypePrinter won't alter
 	// this instance anyway so it's meaningless.
 	tp.visit(const_cast<TypeBase*>(this));
@@ -205,7 +216,8 @@ void* TypeBase::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align)
 // BuiltinType //
 //-------------//
 
-BuiltinType::BuiltinType(TypeKind tc) : TypeBase(tc)
+BuiltinType::BuiltinType(TypeKind tc):
+	TypeBase(tc)
 {
 
 }
