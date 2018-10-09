@@ -120,14 +120,27 @@ namespace
 
 			void visitConstrainedType(ConstrainedType* type)
 			{
-				out << "Constrained(";
+				out << "Constrained([";
+
+				// Print the constraints
+				bool first = true;
+				for (auto& cs : type->getConstraints())
+				{
+					// For the first type don't print the ","
+					// NOTE: maybe use something else than ',' ? Would an arrow would be more appropriate?
+					if (first) first = false;
+					else out << ",";
+
+					out << cs->toDebugString();
+				}
+
+				// Print the subst
+				out << "],";
 				if (TypeBase* elem = type->getSubstitution())
 					visit(elem);
 				else
 					out << nullTypeStr;
 				out << ")";
-
-				// TODO: Print constraints in debug mode.
 			}
 	};
 }
