@@ -208,6 +208,13 @@ namespace
 				return expr;
 			}
 
+			ConstrainedType* createConstrainedTypeForEmptyArrayLiteral()
+			{
+				auto* cs = ConstrainedType::create(getCtxt());
+				cs->addConstraint(ArrayCS::create(getCtxt()));
+				return cs;
+			}
+
 			// Array literals
 			Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr)
 			{
@@ -266,10 +273,8 @@ namespace
 				}
 				else
 				{
-					// Let type inference do it's magic by requiring a arraytype of any type.
-					SemaType* semaTy = SemaType::create(getCtxt());
-					Type ty = ArrayType::get(getCtxt(), semaTy);
-					expr->setType(ty);
+					// Let type inference do it's magic 
+					expr->setType(createConstrainedTypeForEmptyArrayLiteral());
 				}
 				return expr;
 			}
@@ -340,6 +345,13 @@ namespace
 			}
 
 			TypeBase* visitSemaType(SemaType* type)
+			{
+				if (TypeBase* sub = type->getSubstitution())
+					return visit(sub);
+				return nullptr;
+			}
+
+			TypeBase* visitConstrainedType(ConstrainedType* type)
 			{
 				if (TypeBase* sub = type->getSubstitution())
 					return visit(sub);

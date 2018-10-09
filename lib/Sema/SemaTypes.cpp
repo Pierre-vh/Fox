@@ -27,7 +27,8 @@ namespace
 		if (a == b)
 			return true;
 
-		// Check more in depth for same kind
+		// Check more in depth for some types of the same kind,
+		// such as ArrayTypes.
 		if (a->getKind() == b->getKind())
 		{
 			// Checking additional requirements for Primitive Types where
@@ -50,21 +51,6 @@ namespace
 				// Unwrap and check again
 				return compareSubtypes(elemA, elemB);
 			}
-
-			// Check sematypes, we might unwrap them to compare their substitution
-			// if they both have one
-			if (isa<SemaType>(a.getPtr()))
-			{
-				auto* aSubst = cast<SemaType>(a.getPtr())->getSubstitution();
-				auto* bSubst = cast<SemaType>(b.getPtr())->getSubstitution();
-
-				if (aSubst && bSubst)
-					return compareSubtypes(aSubst, bSubst);
-				return false;
-			}
-
-			// Lastly, return true unless we have 2 ErrorTypes
-			return !isa<ErrorType>(a.getPtr());
 		}
 
 		return false;
@@ -108,30 +94,6 @@ namespace
 		if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr()))
 			return false;
 
-		// handle SemaType unwrapping
-		a = prepareSemaTypeForUnification(a);
-		b = prepareSemaTypeForUnification(b);
-
-		// handle ArrayType unwrapping
-		{
-			auto* arrA = dyn_cast<ArrayType>(a.getPtr());
-			auto* arrB = dyn_cast<ArrayType>(b.getPtr());
-
-			// Both are arrays, unwrap & recurse
-			if (arrA && arrB)
-			{
-				a = arrA->getElementType();
-				b = arrB->getElementType();
-				assert(a && b && "Array had a null element type");
-				return performPreUnificationTasks(a, b);
-			}
-			// Only one of them is an array, unification fails
-			else if ((!arrA) != (!arrB))
-				return false;
-			// None of them are arrays, keep going
-		}
-
-		// If we didn't return yet, mission success!
 		return true;
 	}
 
@@ -152,6 +114,18 @@ namespace
 		return false;
 	}
 
+	bool compareConstraintLists(ConstraintList& a, ConstraintList& b)
+	{
+		if (a.size() != b.size())
+			return false;
+
+		for (std::size_t k(0); k < a.size(); k++)
+		{
+			if (a[k] != b[k])
+				return false;
+		}
+		return true;
+	}
 }	// anonymous namespace
 
 bool Sema::unify(Type a, Type b)
@@ -163,68 +137,85 @@ bool Sema::unify(Type a, Type b)
 		return false;
 
 	// Return early if a and b share the same subtype (no unification needed)
-	if (compareSubtypes(a, b))
+	if (compareSubtypes(a, b) && !a.is<ConstrainedType>())
 		return true;
 
-	// SemaTypes checks
-	{
-		// Now check if we don't have a substitution type somewhere
-		auto* aSema = dyn_cast<SemaType>(a->ignoreLValue());
-		auto* bSema = dyn_cast<SemaType>(b->ignoreLValue());
-		// if a or b is a SemaType
-		if ((!aSema) != (!bSema))
+	// Unification's impl
+	// This lambda returns 2 bool, the first one is true if
+	// the case was handled (it is not needed to call doIt again)
+	// false otherwise, the 2nd is the actual result of the unification.
+	auto doIt = [this](Type& a, Type& b) -> std::pair<bool, bool> {
+		if (auto* aCS = a.getAs<ConstrainedType>())
 		{
-			// aSema is a SemaType
-			if (aSema)
+			assert(aCS->numConstraints() > 0 && "Empty constraint set");
+			// Constrained Type with Constrained Type
+			if (auto* bCS = b.getAs<ConstrainedType>())
 			{
-				if (aSema->hasSubstitution()) // Don't overwrite a sub, adjust it or give up
-					return tryAdjustSemaType(aSema, b);
-				aSema->setSubstitution(b.getPtr());
-			}
-			// bSema is a SemaType
-			else
-			{
-				if (bSema->hasSubstitution()) // Don't overwrite a sub, adjust it or give up
-					return tryAdjustSemaType(bSema, a);
-				bSema->setSubstitution(a.getPtr());
-			}
+				assert(bCS->numConstraints() > 0 && "Empty constraint set");
 
-			return true;
+				if (compareConstraintLists(aCS->getConstraints(), bCS->getConstraints()))
+				{
+					TypeBase* aSub = aCS->getSubstitution();
+					TypeBase* bSub = bCS->getSubstitution();
+					if (aSub && bSub)
+					{
+						// TODO: If i use a Type& for unify this
+						// will need to be reworked
+						// 
+						// if(unify(aSub, bSub)) a = b = aCS; (or something like that)
+						// else return false;
+						return { true, unify(aSub, bSub) };
+					}
+					else if (aSub)
+						bCS->setSubstitution(aSub);
+					else if (bSub)
+						aCS->setSubstitution(bSub);
+					else
+					{
+						// Both have no substitution, set a's sub to b.
+						aCS->setSubstitution(bCS);
+					}
+					return { true, true };
+				}
+				else
+					return { true, false };
+			}
+			else // Constrained type with anything else, check if it's ok
+			{
+				if (checkConstraintOnType(aCS->getConstraints(), b))
+				{
+					// Maybe I should use a Type& for the susbtitution,
+					// to be done if the TypeBase*'s problematic!
+					if (!aCS->hasSubstitution())
+						aCS->setSubstitution(b.getPtr());
+					else
+					{
+						// Already have a substitution, recurse 
+						// TODO: This doesn't seem correct, tests needed.
+						return { true, unify(aCS->getSubstitution(), b) };
+					}
+					// Else return true.
+					return { true, true };
+				}
+			}
 		}
-		
-		// If both are semaTypes
-		if (aSema && bSema)
+		else if(auto* aArr = a.getAs<ArrayType>())
 		{
-			// if one of them has a subst and the other doesn't
-			if (aSema->hasSubstitution() != bSema->hasSubstitution())
-			{
-				if (aSema->hasSubstitution())
-					bSema->setSubstitution(aSema->getSubstitution());
-				else 
-					aSema->setSubstitution(bSema->getSubstitution());
-				return true;
-			}
-			// Both have none
-			else if (!aSema->hasSubstitution())
-			{
-				// In this case, create a new SemaType
-				SemaType* fresh = SemaType::create(ctxt_);
-				// Set boths subs to this new SemaType
-				aSema->setSubstitution(fresh);
-				bSema->setSubstitution(fresh);
-				return true;
-			}
-			return false;
+			auto* bArr = b.getAs<ArrayType>();
+			if (!bArr) return { true, false };
+
+			return { true, unify(aArr->getElementType(), bArr->getElementType()) };
 		}
+		// Unhandled
+		return { false, false };
+	};
 
-		// None of them are SemaTypes
-	}
-
-	// Arrays don't need special handling as
-	// they're unwrapped in performPreUnificationTasks
-
-	// All other cases are false for now.
-	return false;
+	// Try to unify a and b, if it fails, try with b and a.
+	// Return result.second after that.
+	auto result = doIt(a, b);
+	if (!result.first)
+		result = doIt(b, a);
+	return result.second;
 }
 
 namespace
@@ -239,6 +230,7 @@ namespace
 	class ConstraintCheck : public ConstraintVisitor<ConstraintCheck, TypeBase*, TypeBase*>
 	{
 		public:
+			using inherited = ConstraintVisitor<ConstraintCheck, TypeBase*, TypeBase*>;
 			Sema& sema;
 
 			ConstraintCheck(Sema& sema) :
@@ -246,6 +238,16 @@ namespace
 			{
 
 			}
+
+			/*
+			TypeBase* visit(Constraint* visited, TypeBase* ty)
+			{
+				std::cout << "visit(" << visited->toDebugString() << "," << ty->toDebugString() << ") -> ";
+				TypeBase* rtr = inherited::visit(visited, ty);
+				std::cout << rtr->toDebugString() << "\n";
+				return rtr;
+			}
+			*/
 
 			TypeBase* visitArrayCS(ArrayCS*, TypeBase* ty)
 			{
@@ -282,14 +284,7 @@ bool Sema::checkConstraintOnType(ConstraintList& cs, Type& ty)
 		if (!tmp) break;
 	}
 
-	// If tmp isn't null, we had a success, replace
-	// ty's ptr with tmp and return true.
-	if (tmp)
-	{
-		ty = tmp;
-		return true;
-	}
-	return false;
+	return tmp; // tmp != nullptr
 }
 
 bool Sema::isIntegral(Type type)
