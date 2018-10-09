@@ -49,6 +49,10 @@ namespace fox
 			// unifySubtype(a,b) or (b,a) will have the same effect.
 			bool unify(Type a, Type b);
 
+			// Checks if the type ty "respects" every constraint in cs.
+			// Return true on success, false otherwise.
+			bool checkConstraintOnType(ConstraintList& cs, Type& ty);
+
 			// Returns true if a is a PrimitiveType of
 			// type Int/Float/Bool
 			static bool isIntegral(Type type);

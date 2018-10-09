@@ -9,6 +9,7 @@
 ////------------------------------------------------------////
 
 #include "Fox/Sema/Sema.hpp"
+#include "Fox/AST/ConstraintVisitor.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
@@ -223,6 +224,71 @@ bool Sema::unify(Type a, Type b)
 	// they're unwrapped in performPreUnificationTasks
 
 	// All other cases are false for now.
+	return false;
+}
+
+namespace
+{
+	// checkConstraintOnType helper class.
+	// Checks if the type passed as argument respects the constraint
+	// if so, returns the type or the unwrapped type.
+	// e.g. 
+		// visit(ArrayCS, ArrayType) -> returns ArrayType::getElementType
+		// visit(EqualityCS, SomeType) -> returns the unified SomeType.
+	// Returns nullptr on failure.
+	class ConstraintCheck : public ConstraintVisitor<ConstraintCheck, TypeBase*, TypeBase*>
+	{
+		public:
+			Sema& sema;
+
+			ConstraintCheck(Sema& sema) :
+				sema(sema)
+			{
+
+			}
+
+			TypeBase* visitArrayCS(ArrayCS*, TypeBase* ty)
+			{
+				if (auto arr = dyn_cast<ArrayType>(ty))
+				{
+					auto* elemTy = arr->getElementType();
+					assert(elemTy && "Must have element type");
+					return elemTy;
+				}
+				return nullptr;
+			}
+
+			TypeBase* visitEqualityCS(EqualityCS* cs, TypeBase* ty)
+			{
+				Type& eq = cs->getType();
+				Type wrapped(ty);
+				if (sema.unify(eq, wrapped))
+					return wrapped.getPtr();
+				return nullptr;
+			}
+	};
+}
+
+bool Sema::checkConstraintOnType(ConstraintList& cs, Type& ty)
+{
+	TypeBase* tmp = ty.getPtr();
+
+	// Check every constraint in the list individually.
+	ConstraintCheck check(*this);
+	for (Constraint* elem : cs)
+	{
+		tmp = check.visit(elem, tmp);
+
+		if (!tmp) break;
+	}
+
+	// If tmp isn't null, we had a success, replace
+	// ty's ptr with tmp and return true.
+	if (tmp)
+	{
+		ty = tmp;
+		return true;
+	}
 	return false;
 }
 
