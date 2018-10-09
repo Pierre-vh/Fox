@@ -264,7 +264,6 @@ namespace fox
 	//			containing a single "ArrayCS"
 	class ConstrainedType : public TypeBase
 	{
-		using CSList = std::list<Constraint*>;
 		public:
 			// Creates a new instance of the ConstrainedType class
 			static ConstrainedType* create(ASTContext& ctxt);
@@ -287,13 +286,13 @@ namespace fox
 
 			void resetSubstitution();
 
-			CSList::iterator cs_begin();
-			CSList::const_iterator cs_begin() const;
+			ConstraintList::iterator cs_begin();
+			ConstraintList::const_iterator cs_begin() const;
 
-			CSList::iterator cs_end();
-			CSList::const_iterator cs_end() const;
+			ConstraintList::iterator cs_end();
+			ConstraintList::const_iterator cs_end() const;
 
-			CSList& getConstraints();
+			ConstraintList& getConstraints();
 
 			std::size_t numConstraints() const;
 			void addConstraint(Constraint* cs);
@@ -314,7 +313,7 @@ namespace fox
 			void markAsUpToDate();
 			void markAsOutdated();
 
-			CSList constraints_;
+			ConstraintList constraints_;
 			// Pointer + "up to date" marker. If the int is 1,
 			// the pointer is up to date, 0 if it isnt.
 			llvm::PointerIntPair<TypeBase*, 1> subst_;

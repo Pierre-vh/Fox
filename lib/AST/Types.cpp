@@ -509,27 +509,27 @@ void ConstrainedType::resetSubstitution()
 // Constraints must be walked from last to first, in a stack-like fashion,
 // thus we use reverse iterators.
 
-ConstrainedType::CSList::iterator ConstrainedType::cs_begin()
+ConstraintList::iterator ConstrainedType::cs_begin()
 {
 	return constraints_.begin();
 }
 
-ConstrainedType::CSList::const_iterator ConstrainedType::cs_begin() const
+ConstraintList::const_iterator ConstrainedType::cs_begin() const
 {
 	return constraints_.begin();
 }
 
-ConstrainedType::CSList::iterator ConstrainedType::cs_end()
+ConstraintList::iterator ConstrainedType::cs_end()
 {
 	return constraints_.end();
 }
 
-ConstrainedType::CSList::const_iterator ConstrainedType::cs_end() const
+ConstraintList::const_iterator ConstrainedType::cs_end() const
 {
 	return constraints_.end();
 }
 
-ConstrainedType::CSList& ConstrainedType::getConstraints()
+ConstraintList& ConstrainedType::getConstraints()
 {
 	return constraints_;
 }
