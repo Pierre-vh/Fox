@@ -125,12 +125,12 @@ namespace
 
 				if (!getSema().unify(exprTy, castGoal.getPtr()))
 				{
-					// Add special user friendly type dump in sema instead of the toString method
-					getDiags()
-						.report(DiagID::sema_invalid_cast, castGoal.getRange())
-							.addArg(exprTy->toString())
-							.addArg(castGoal->toString())
-							.setExtraRange(expr->getExpr()->getRange());
+					if(!isa<ErrorType>(exprTy) && !castGoal.is<ErrorType>())
+						getDiags()
+							.report(DiagID::sema_invalid_cast, castGoal.getRange())
+								.addArg(exprTy->toString())
+								.addArg(castGoal->toString())
+								.setExtraRange(expr->getExpr()->getRange());
 					expr->setType(ErrorType::get(getCtxt()));
 					// Propagate the error type to the expr->type to avoid error
 					// flooding.
@@ -249,9 +249,9 @@ namespace
 						if (!getSema().unify(elemTy, proposed))
 						{
 							// Failed to unify: incompatible types
-							// TODO: Do a more precise diagnostic as this one might be unhelpful
-							// in some cases.
-							getDiags().report(DiagID::sema_arraylit_hetero, expr->getRange());
+							if(!isa<ErrorType>(elemTy) && !isa<ErrorType>(proposed))
+								getDiags().report(DiagID::sema_arraylit_hetero, expr->getRange());
+							std::cout << "proposed:" << proposed->toDebugString() << ", elemTy:" << elemTy->toDebugString() << "\n";
 							//std::cout << "Array was thought to be of type " << proposed->toString() << " but found " << elemTy->toString() << std::endl;
 							proposed = nullptr;
 							break;

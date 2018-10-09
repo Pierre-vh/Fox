@@ -56,28 +56,6 @@ namespace
 		return false;
 	}
 
-	// If type is a SemaType with a substitution:
-	// if that substitution is also a SemaType, calls 
-	// this function recursively until we reach a SemaType
-	// with no sub or something that isn't a sub.
-	// If type doesn't have a sub or isn't a SemaType, returns the type
-	// untouched.
-	// Returns it's argument or the unwrapped type.
-	Type prepareSemaTypeForUnification(Type type)
-	{
-		if (auto* sema = dyn_cast<SemaType>(type.getPtr()))
-		{
-			// Get the substitution
-			if (TypeBase* sub = sema->getSubstitution())
-			{
-				// It has a sub, if it's SemaType, recurse to unwrap further.
-				if(isa<SemaType>(sub))
-					return prepareSemaTypeForUnification(sub);
-			}
-		}
-		return type;
-	}
-
 	// Performs the pre-unifications tasks.
 	// Returns true if unification can go on, false if it should
 	// be aborted.
@@ -94,24 +72,70 @@ namespace
 		if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr()))
 			return false;
 
+		// Unwrap if both are arrays
+		auto* arrA = a.getAs<ArrayType>();
+		auto* arrB = b.getAs<ArrayType>();
+		if (arrA && arrB)
+		{
+			Type unwrappedA = arrA->getElementType();
+			Type unwrappedB = arrB->getElementType();
+			return performPreUnificationTasks(unwrappedA, unwrappedB);
+		}
 		return true;
 	}
 
-	// Tries to adjust the Sematype (uprank it if we can to match the candidate). 
-	// Returns true on success, false otherwise.
-	bool tryAdjustSemaType(SemaType* semaTy, Type candidate)
+	// Unwraps both values if they're both ArrayTypes.
+	// Returns nullptr if no unwrapping was done.
+	std::pair<TypeBase*,TypeBase*> 
+	unwrapIfBothArrayTypes(TypeBase* a, TypeBase* b)
 	{
-		auto* sub = semaTy->getSubstitution();
-		assert(sub && "Must have a sub");
-		// if the sub is integral, we might be able to uprank
-		if (Sema::isIntegral(sub) && Sema::isIntegral(candidate))
+		assert(a && b);
+		a = a->unwrapIfArray();
+		b = b->unwrapIfArray();
+		if (a && b)
+			return { a, b };
+		return { nullptr, nullptr };
+	}
+
+	// Unwraps all layers of ArrayTypes until we reach a point where they are both
+	// no longer arraytypes, or only one of them is.
+	// Returns it's argument or the unwrapped types. 
+	// Never returns nullptr.
+	std::pair<TypeBase*, TypeBase*>
+	recursivelyUnwrapArrayTypes(TypeBase* a, TypeBase* b)
+	{
+		assert(a && b);
+		auto* tmpA = a;
+		auto* tmpB = b;
+		while (true)
 		{
-			Type highest = Sema::getHighestRankingType(sub, candidate);
-			assert(highest && "Can't find the highest rank between 2 integrals?");
-			semaTy->setSubstitution(highest.getPtr());
-			return true;
+			std::tie(tmpA, tmpB) = unwrapIfBothArrayTypes(a, b);
+			// no unwrapping was performed, return
+			if (tmpA && tmpB)
+			{
+				a = tmpA;
+				b = tmpB;
+			}
+			return { a, b };
 		}
-		return false;
+	}
+
+	void tryAdjustConstrainedType(ConstrainedType* cons, TypeBase* candidate)
+	{
+		assert(cons && candidate);
+		auto* sub = cons->getSubstitution();
+
+		// u means unwrapped
+		TypeBase* uSub = nullptr;
+		TypeBase* uCand = nullptr;
+		std::tie(uSub, uCand) = recursivelyUnwrapArrayTypes(sub, candidate);
+		if (TypeBase* greatest = Sema::getHighestRankingType(uSub, uCand).getPtr())
+		{
+			// If the candidate is the "highest ranked type" of both types,
+			// replace cons' sub with the candidate
+			if (greatest == uCand)
+				cons->setSubstitution(candidate);
+		}
 	}
 
 	bool compareConstraintLists(ConstraintList& a, ConstraintList& b)
@@ -130,6 +154,7 @@ namespace
 
 bool Sema::unify(Type a, Type b)
 {
+	std::cout << "unify(" << a->toDebugString() << ", " << b->toDebugString() << ")\n";
 	assert(a && b && "Pointers cannot be null");
 
 	// Pre-unification checks, if they fail, return.
@@ -167,9 +192,15 @@ bool Sema::unify(Type a, Type b)
 						return { true, unify(aSub, bSub) };
 					}
 					else if (aSub)
+					{
+						std::cout << "Setting " << bCS->toDebugString() << "'s substitution to " << aSub->toDebugString() << "\n";
 						bCS->setSubstitution(aSub);
+					}
 					else if (bSub)
+					{
+						std::cout << "Setting " << aCS->toDebugString() << "'s substitution to " << bSub->toDebugString() << "\n";
 						aCS->setSubstitution(bSub);
+					}
 					else
 					{
 						// Both have no substitution, set a's sub to b.
@@ -190,9 +221,14 @@ bool Sema::unify(Type a, Type b)
 						aCS->setSubstitution(b.getPtr());
 					else
 					{
-						// Already have a substitution, recurse 
-						// TODO: This doesn't seem correct, tests needed.
-						return { true, unify(aCS->getSubstitution(), b) };
+						if (unify(aCS->getSubstitution(), b))
+						{
+							// If we have 2 constrained type with equivalent substitution, see
+							// if we can make any adjustement.
+							tryAdjustConstrainedType(aCS, b.getPtr());
+							return { true, true };
+						}
+						return { false, false };
 					}
 					// Else return true.
 					return { true, true };
@@ -202,7 +238,7 @@ bool Sema::unify(Type a, Type b)
 		else if(auto* aArr = a.getAs<ArrayType>())
 		{
 			auto* bArr = b.getAs<ArrayType>();
-			if (!bArr) return { true, false };
+			if (!bArr) return { false , false };
 
 			return { true, unify(aArr->getElementType(), bArr->getElementType()) };
 		}
