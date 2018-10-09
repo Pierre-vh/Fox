@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <list>
 #include "Type.hpp"
 
 namespace fox
@@ -61,6 +62,9 @@ namespace fox
 
 	};
 	
+	// A Constraint list
+	using ConstraintList = std::list<Constraint*>;
+
 	// EqualityCS
 	//		Satisfied if the substitution matches
 	//		the type contained in this constraint.
