@@ -37,8 +37,12 @@ namespace fox
 			};
 
 			Kind getKind() const;
-		
+
+			// Returns this constraint's name (in a developer-friendly way, for debugging purposes)
+			std::string toDebugString() const;
+
 		protected:
+
 			// Prohibit the use of builtin (placement) new & delete
 			void *operator new(std::size_t) throw() = delete;
 			void operator delete(void *) throw() = delete;

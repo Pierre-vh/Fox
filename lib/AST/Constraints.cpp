@@ -9,14 +9,51 @@
 
 #include "Fox/AST/Constraints.hpp"
 #include "Fox/AST/ASTContext.hpp"
+#include "Fox/AST/ConstraintVisitor.hpp"
+#include <sstream>
 
 using namespace fox;
+
+// ConstraintPrinter, for printing constraints
+namespace
+{
+	class ConstraintPrinter : public ConstraintVisitor<ConstraintPrinter, std::string>
+	{
+		public:
+			ConstraintPrinter()
+			{
+
+			}
+
+			std::string visitEqualityCS(EqualityCS* cs)
+			{
+				std::string out = "EqualTo(";
+				Type& ty = cs->getType();
+				if (!ty.isNull())
+					out += ty->toDebugString();
+				else
+					out += "nullptr";
+				out += ")";
+				return out;
+			}
+
+			std::string visitArrayCS(ArrayCS*)
+			{
+				return "ArrayCS";
+			}
+	};
+}
 
 // Base constraint class.
 
 Constraint::Kind Constraint::getKind() const
 {
 	return kind_;
+}
+
+std::string Constraint::toDebugString() const
+{
+	return ConstraintPrinter().visit(const_cast<Constraint*>(this));
 }
 
 void* Constraint::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
