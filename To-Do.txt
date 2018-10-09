@@ -73,7 +73,7 @@ Moonshot Project To-do List.
 	> ConstrainedType in Semantic Analysis
 		> Check if a type follows a set of Constraints
 		> Add support in unify (follow notes) (Done)
-		> Add support for substitution adjust
+		> Add support for substitution adjust (Done)
 		> Make unify use references and fix ConstrainedType nesting
 		> Delete SemaType
 
