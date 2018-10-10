@@ -242,10 +242,6 @@ namespace
 							break;
 						}
 
-						// Unify the proposed type with the elemTy
-						// We do elemTy = proposed instead of the opposite
-						// because we want to elemTy's sub to be set to proposed
-						// if it's a Sematype awaiting inferrence.
 						if (!getSema().unify(elemTy, proposed))
 						{
 							// Failed to unify: incompatible types
