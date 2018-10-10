@@ -10,6 +10,7 @@
 #include "Fox/AST/Constraints.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/ConstraintVisitor.hpp"
+#include "Fox/AST/Type.hpp"
 #include <sstream>
 
 using namespace fox;

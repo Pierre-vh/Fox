@@ -21,11 +21,11 @@
 #include <cstdint>
 #include <cstddef>
 #include <deque>
-#include "Type.hpp"
 
 namespace fox
 {
 	class ASTContext;
+	class Type;
 
 	// Base class for every constraint
 	class Constraint
