@@ -45,9 +45,9 @@ namespace fox
 			// This unification algorithm won't alter types unless
 			// they are SemaTypes.
 			//
-			// Also, this function works both ways,
-			// unifySubtype(a,b) or (b,a) will have the same effect.
-			bool unify(Type a, Type b);
+			// Also, this function is commutative,
+			// (unifySubtype(a,b) or (b,a) will have the same outcome)
+			bool unify(Type& aRef, Type& bRef);
 
 			// Checks if the type ty "respects" every constraint in cs.
 			// Return true on success, false otherwise.
