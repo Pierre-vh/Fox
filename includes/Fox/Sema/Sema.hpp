@@ -13,11 +13,11 @@
 #include <cstdint>
 #include "Fox/AST/ASTNode.hpp"
 #include "Fox/AST/ASTFwdDecl.hpp"
-#include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 
 namespace fox
 {
+	class ASTContext;
 	class Sema
 	{
 		public:
@@ -69,6 +69,7 @@ namespace fox
 
 			DiagnosticEngine& getDiagnosticEngine();
 			ASTContext& getASTContext();
+
 		private:
 			ASTContext &ctxt_;
 			DiagnosticEngine& diags_;
