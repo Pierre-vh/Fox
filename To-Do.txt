@@ -74,8 +74,14 @@ Moonshot Project To-do List.
 		> Check if a type follows a set of Constraints
 		> Add support in unify (follow notes) (Done)
 		> Add support for substitution adjust (Done)
-		> Make unify use references and fix ConstrainedType nesting
+		> Make unify use references and fix ConstrainedType nesting (Done)
+		> (Re)write Sema::compareConstraintLists method to compare differently 
+			(not using pointer equality, but by using a visitor.) 
+			(Do that in a SemaCS file)
+		> In Unify, when both CsTy have a Sub, do "aRef = bRef = x" where x is the "best of the two constrained type" which
+			the one with the "highest ranked susbtitution".
 		> Delete SemaType
+		> Code review & cleanup in SemaTypes
 
 	> Basic Expression Semantic analysis (Current task)
 	> Stmt Semantic Analysis
