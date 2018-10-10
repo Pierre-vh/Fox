@@ -80,8 +80,8 @@ Moonshot Project To-do List.
 			(Do that in a SemaCS file)
 		> In Unify, when both CsTy have a Sub, do "aRef = bRef = x" where x is the "best of the two constrained type" which
 			the one with the "highest ranked susbtitution".
-		> Delete SemaType
-		> Code review & cleanup in SemaTypes
+		> Delete SemaType (Done)
+		> Code review & cleanup in SemaTypes.cpp
 
 	> Basic Expression Semantic analysis (Current task)
 	> Stmt Semantic Analysis
