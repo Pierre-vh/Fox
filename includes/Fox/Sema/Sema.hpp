@@ -13,6 +13,7 @@
 #include <cstdint>
 #include "Fox/AST/ASTNode.hpp"
 #include "Fox/AST/ASTFwdDecl.hpp"
+#include "Fox/AST/Constraints.hpp"	// ConstraintList
 #include "Fox/Common/DiagnosticEngine.hpp"
 
 namespace fox
