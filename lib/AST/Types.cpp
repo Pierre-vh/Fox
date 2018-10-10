@@ -103,16 +103,6 @@ namespace
 				}
 			}
 
-			void visitSemaType(SemaType* type)
-			{
-				out << "Sema(";
-				if (TypeBase* elem = type->getSubstitution())
-					visit(elem);
-				else
-					out << nullTypeStr;
-				out << ")";
-			}
-
 			void visitErrorType(ErrorType*)
 			{
 				out << "<error_type>";
@@ -394,46 +384,6 @@ TypeBase* LValueType::getType()
 const TypeBase* LValueType::getType() const
 {
 	return ty_;
-}
-
-//----------//
-// SemaType //
-//----------//
-
-SemaType::SemaType(TypeBase* subst):
-	TypeBase(TypeKind::SemaType), ty_(subst)
-{
-
-}
-
-SemaType* SemaType::create(ASTContext& ctxt, TypeBase* subst)
-{
-	return new(ctxt) SemaType(subst);
-}
-
-TypeBase* SemaType::getSubstitution()
-{
-	return ty_;
-}
-
-const TypeBase* SemaType::getSubstitution() const
-{
-	return ty_;
-}
-
-bool SemaType::hasSubstitution() const
-{
-	return (ty_ != nullptr);
-}
-
-void SemaType::setSubstitution(TypeBase* subst)
-{
-	ty_ = subst;
-}
-
-void SemaType::reset()
-{
-	ty_ = nullptr;
 }
 
 //-----------//

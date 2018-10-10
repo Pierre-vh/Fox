@@ -186,41 +186,6 @@ namespace fox
 			TypeBase* ty_ = nullptr;
 	};
 
-	// SemaType
-	//		TypeBase used in semantic analysis to perform
-	//		basic, local type inference. This is, like LValueType & ArrayType,
-	//		just a wrapper around a TypeBase*, however the pointer may be null if no
-	//		substitution was chosen.
-	class SemaType : public TypeBase
-	{
-		public:
-			// Creates a new SemaType instance.
-			static SemaType* create(ASTContext& ctxt, TypeBase* subst = nullptr);
-
-			TypeBase* getSubstitution();
-			const TypeBase* getSubstitution() const;
-
-			// Returns true if the type has a substitution
-			// (type isn't null)
-			bool hasSubstitution() const;
-
-			void setSubstitution(TypeBase* subst);
-
-			// Sets the type to nullptr
-			void reset();
-
-			static bool classof(const TypeBase* type)
-			{
-				return (type->getKind() == TypeKind::SemaType);
-			}
-
-		private:
-			// Private because only called by ::create
-			SemaType(TypeBase* subst = nullptr);
-
-			TypeBase * ty_ = nullptr;
-	};
-
 	// ErrorType
 	//		A type used to represent that a expression's type
 	//		cannot be determined because of an error.

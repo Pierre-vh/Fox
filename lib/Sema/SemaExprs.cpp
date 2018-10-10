@@ -340,13 +340,6 @@ namespace
 				return nullptr;
 			}
 
-			TypeBase* visitSemaType(SemaType* type)
-			{
-				if (TypeBase* sub = type->getSubstitution())
-					return visit(sub);
-				return nullptr;
-			}
-
 			TypeBase* visitConstrainedType(ConstrainedType* type)
 			{
 				if (TypeBase* sub = type->getSubstitution())

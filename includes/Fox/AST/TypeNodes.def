@@ -35,7 +35,6 @@ ABSTRACT_TYPE(BuiltinType, TypeBase)
 	TYPE_RANGE(BuiltinType, PrimitiveType, ArrayType)
 
 TYPE(LValueType, TypeBase)
-TYPE(SemaType, TypeBase)
 TYPE(ErrorType, TypeBase)
 TYPE(ConstrainedType, TypeBase)
 
