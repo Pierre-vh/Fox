@@ -75,10 +75,8 @@ Moonshot Project To-do List.
 		> Add support in unify (follow notes) (Done)
 		> Add support for substitution adjust (Done)
 		> Make unify use references and fix ConstrainedType nesting (Done)
-		> (Re)write Sema::compareConstraintLists method to compare differently 
-			(not using pointer equality, but by using a visitor.) 
-			(Do that in a SemaCS file)
-		> In Unify, when both CsTy have a Sub, do "aRef = bRef = x" where x is the "best of the two constrained type" which
+		> Rewrite Sema::compareConstraintLists method to compare differently (Done)
+		> In Unify, when both CsTy have a Sub, do "aRef = bRef = x" where x is the "best of the two constrained type" which is
 			the one with the "highest ranked susbtitution".
 		> Delete SemaType (Done)
 		> Code review & cleanup in SemaTypes.cpp
