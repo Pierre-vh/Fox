@@ -10,6 +10,7 @@
 
 #include "Fox/Sema/Sema.hpp"
 #include "Fox/AST/ConstraintVisitor.hpp"
+#include "Fox/AST/Type.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
@@ -19,13 +20,27 @@ using namespace fox;
 
 namespace
 {
+	// Compares a and b, returning true if
+	// a and b are strictly equal OR a and b are of the same family	
+	// 
+	// This function will also ignore LValues and unwrap array types.
+	// It doesn't compare ConstrainedTypes and will return false if
+	// a or b is one.
 	bool compareSubtypes(Type a, Type b)
 	{
 		assert(a && b && "Pointers cannot be null");
 
-		// Early return for exact equality
+		// Ignores LValues to perform the comparison.
+		a = a->ignoreLValue();
+		b = b->ignoreLValue();
+
+		// Exact equality
 		if (a == b)
 			return true;
+
+		// ConstrainedTypes
+		if (a.is<ConstrainedType>() || b.is<ConstrainedType>())
+			return false;
 
 		// Check more in depth for some types of the same kind,
 		// such as ArrayTypes.
@@ -120,6 +135,8 @@ namespace
 		}
 	}
 
+	// Tries to adjust the Constrained Type's substitution 
+	// to be equal or better than the candidate.
 	void tryAdjustConstrainedType(ConstrainedType* cons, TypeBase* candidate)
 	{
 		assert(cons && candidate);
@@ -137,21 +154,70 @@ namespace
 				cons->setSubstitution(candidate);
 		}
 	}
-	// Return true if both ConstraintLists are identical.
-	bool compareConstraintLists(ConstraintList& a, ConstraintList& b)
+
+	// Compare 2 constraints lists, returning true if they are strictly equal.
+	// NOTE: Here strictly equal doesn't mean pointer equality. This function compares
+	// the members of the Constraints when needed, so different instances with the same members
+	// are still considered equal.
+	bool compareConstraintLists(ConstraintList& a, ConstraintList& b, bool* subtypeEqual = nullptr)
 	{
+		class ConstraintComparer : public ConstraintVisitor<ConstraintComparer, bool, Constraint*>
+		{
+			public:
+				ConstraintComparer(bool *isSubtypeEqual):
+					isSubtypeEqual(isSubtypeEqual)
+				{
+
+				}
+
+				bool* isSubtypeEqual = nullptr;
+
+				// Sets the value if the pointer isn't null
+				void set(bool* ptr, bool val)
+				{
+					if (ptr)
+						(*ptr) = val;
+				}
+
+				bool visitEqualityCS(EqualityCS* cs, Constraint* other)
+				{
+					if (auto* oEq = dyn_cast<EqualityCS>(other))
+					{
+						Type csTy = cs->getType();
+						Type oEqTy = oEq->getType();
+
+						if (csTy == oEqTy)
+							return true;
+
+						// If they're subtype equal, mark it.
+						if (compareSubtypes(csTy, oEqTy))
+							set(isSubtypeEqual, true);
+
+						return false;
+					}
+					return false;
+				}
+
+				bool visitArrayCS(ArrayCS* cs, Constraint* other)
+				{
+					// Only true if the other is a ArrayCS too
+					return (cs == other) || isa<ArrayCS>(other);
+				}
+		};
+
+		// Return now if they have a different size.
 		if (a.size() != b.size())
 			return false;
 
-		for (std::size_t k(0); k < a.size(); k++)
+		ConstraintComparer csc(subtypeEqual);
+		for (std::size_t k = 0; k < a.size(); k++)
 		{
-			// TODO: Compare them more in depth, this works currently
-			// but won't in the future when I'll start using EqualityCS
-			if (a[k] != b[k])
+			if (!csc.visit(a[k], b[k]))
 				return false;
 		}
 		return true;
 	}
+
 }	// anonymous namespace
 
 bool Sema::unify(Type& aRef, Type& bRef)
