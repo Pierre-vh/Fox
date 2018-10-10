@@ -120,12 +120,12 @@ namespace
 				// Check if we can cast to that, castgoal must be
 				// of the same family OR string.
 				// WIP: Check if cast is okay
-				TypeBase* exprTy = expr->getExpr()->getType().getPtr();
-				TypeLoc castGoal = expr->getCastTypeLoc();
+				Type& exprTy = expr->getExpr()->getType();
+				TypeLoc& castGoal = expr->getCastTypeLoc();
 
-				if (!getSema().unify(exprTy, castGoal.getPtr()))
+				if (!getSema().unify(exprTy, castGoal))
 				{
-					if(!isa<ErrorType>(exprTy) && !castGoal.is<ErrorType>())
+					if(!exprTy.is<ErrorType>() && !castGoal.is<ErrorType>())
 						getDiags()
 							.report(DiagID::sema_invalid_cast, castGoal.getRange())
 								.addArg(exprTy->toString())
@@ -220,12 +220,12 @@ namespace
 			{
 				if (auto size = expr->getSize())
 				{
-					TypeBase* proposed = nullptr;
+					Type proposed = nullptr;
 					// Deduce the type by starting from the first type
 					// and by upranking it if needed.
 					for (auto& elem : expr->getExprs())
 					{
-						TypeBase* elemTy = elem->getType().getPtr();
+						Type& elemTy = elem->getType();
 
 						// First loop, set proposed & continue.
 						if (!proposed)
@@ -235,7 +235,7 @@ namespace
 						}
 
 						// Handle error elem type.
-						if (isa<ErrorType>(elemTy))
+						if (elemTy.is<ErrorType>())
 						{
 							// Stop progression & break
 							proposed = nullptr;
@@ -245,7 +245,7 @@ namespace
 						if (!getSema().unify(elemTy, proposed))
 						{
 							// Failed to unify: incompatible types
-							if(!isa<ErrorType>(elemTy) && !isa<ErrorType>(proposed))
+							if(!elemTy.is<ErrorType>() && !proposed.is<ErrorType>())
 								getDiags().report(DiagID::sema_arraylit_hetero, expr->getRange());
 							std::cout << "proposed:" << proposed->toDebugString() << ", elemTy:" << elemTy->toDebugString() << "\n";
 							//std::cout << "Array was thought to be of type " << proposed->toString() << " but found " << elemTy->toString() << std::endl;
@@ -262,7 +262,7 @@ namespace
 					if (proposed)
 					{
 						// TypeBase is an array of the proposed type.
-						expr->setType(ArrayType::get(getCtxt(), proposed));
+						expr->setType(ArrayType::get(getCtxt(), proposed.getPtr()));
 					}
 					else
 						setErrorType(expr); // Failed to typecheck.
@@ -366,6 +366,6 @@ namespace
 Expr* Sema::typecheckExpr(Expr* expr)
 {
 	expr = ExprChecker(*this).walk(expr);
-	expr = ExprFinalizer(ctxt_, diags_).walk(expr);
+	//expr = ExprFinalizer(ctxt_, diags_).walk(expr);
 	return expr;
 }
