@@ -137,7 +137,7 @@ namespace
 				cons->setSubstitution(candidate);
 		}
 	}
-
+	// Return true if both ConstraintLists are identical.
 	bool compareConstraintLists(ConstraintList& a, ConstraintList& b)
 	{
 		if (a.size() != b.size())
@@ -145,6 +145,8 @@ namespace
 
 		for (std::size_t k(0); k < a.size(); k++)
 		{
+			// TODO: Compare them more in depth, this works currently
+			// but won't in the future when I'll start using EqualityCS
 			if (a[k] != b[k])
 				return false;
 		}
@@ -152,13 +154,18 @@ namespace
 	}
 }	// anonymous namespace
 
-bool Sema::unify(Type a, Type b)
+bool Sema::unify(Type& aRef, Type& bRef)
 {
-	std::cout << "unify(" << a->toDebugString() << ", " << b->toDebugString() << ")\n";
+	// Copy both references and work on theses because we'll only write to the
+	// arguments in some specific situations.
+	Type a = aRef;
+	Type b = bRef;
+
+	//std::cout << "unify(" << a->toDebugString() << ", " << b->toDebugString() << ")\n";
 	assert(a && b && "Pointers cannot be null");
 
 	// Pre-unification checks, if they fail, return.
-	if(!performPreUnificationTasks(a, b))
+	if (!performPreUnificationTasks(a, b))
 		return false;
 
 	// Return early if a and b share the same subtype (no unification needed)
@@ -169,7 +176,7 @@ bool Sema::unify(Type a, Type b)
 	// This lambda returns 2 bool, the first one is true if
 	// the case was handled (it is not needed to call doIt again)
 	// false otherwise, the 2nd is the actual result of the unification.
-	auto doIt = [this](Type& a, Type& b) -> std::pair<bool, bool> {
+	auto doIt = [&]() -> std::pair<bool, bool> {
 		if (auto* aCS = a.getAs<ConstrainedType>())
 		{
 			assert(aCS->numConstraints() > 0 && "Empty constraint set");
@@ -180,31 +187,28 @@ bool Sema::unify(Type a, Type b)
 
 				if (compareConstraintLists(aCS->getConstraints(), bCS->getConstraints()))
 				{
-					TypeBase* aSub = aCS->getSubstitution();
-					TypeBase* bSub = bCS->getSubstitution();
+					Type aSub = aCS->getSubstitution();
+					Type bSub = bCS->getSubstitution();
+					// Both have a substitution
 					if (aSub && bSub)
 					{
-						// TODO: If i use a Type& for unify this
-						// will need to be reworked
-						// 
+						// TODO: rework this by making them both use the same ConstrainedType instance
 						// if(unify(aSub, bSub)) a = b = aCS; (or something like that)
 						// else return false;
 						return { true, unify(aSub, bSub) };
 					}
+					// A has a substitution, but B doesn't.
 					else if (aSub)
-					{
-						std::cout << "Setting " << bCS->toDebugString() << "'s substitution to " << aSub->toDebugString() << "\n";
-						bCS->setSubstitution(aSub);
-					}
+						bCS->setSubstitution(aSub.getPtr());
+					// B has a Substitution, but A doesn't.
 					else if (bSub)
-					{
-						std::cout << "Setting " << aCS->toDebugString() << "'s substitution to " << bSub->toDebugString() << "\n";
-						aCS->setSubstitution(bSub);
-					}
+						aCS->setSubstitution(bSub.getPtr());
+					// Both have no substitution.
 					else
 					{
-						// Both have no substitution, set a's sub to b.
-						aCS->setSubstitution(bCS);
+						// Both have no substitution, but their ConstraintLists are identical:
+						// make both Type& point to the same type by making b point to a;
+						bRef = aRef;
 					}
 					return { true, true };
 				}
@@ -221,7 +225,8 @@ bool Sema::unify(Type a, Type b)
 						aCS->setSubstitution(b.getPtr());
 					else
 					{
-						if (unify(aCS->getSubstitution(), b))
+						Type aCSSub = aCS->getSubstitution();
+						if (unify(aCSSub, b))
 						{
 							// If we have 2 constrained type with equivalent substitution, see
 							// if we can make any adjustement.
@@ -240,7 +245,10 @@ bool Sema::unify(Type a, Type b)
 			auto* bArr = b.getAs<ArrayType>();
 			if (!bArr) return { false , false };
 
-			return { true, unify(aArr->getElementType(), bArr->getElementType()) };
+			Type aArr_elem = aArr->getElementType();
+			Type bArr_elem = bArr->getElementType();
+			assert(aArr_elem && bArr_elem && "Null array element type");
+			return { true, unify(aArr_elem, bArr_elem) };
 		}
 		// Unhandled
 		return { false, false };
@@ -248,9 +256,14 @@ bool Sema::unify(Type a, Type b)
 
 	// Try to unify a and b, if it fails, try with b and a.
 	// Return result.second after that.
-	auto result = doIt(a, b);
+	auto result = doIt();
 	if (!result.first)
-		result = doIt(b, a);
+	{
+		// If it fails the first time (unhandled case), 
+		// try again once more by swapping a and b.
+		std::swap(a, b);
+		result = doIt();
+	}
 	return result.second;
 }
 
