@@ -30,4 +30,8 @@ namespace fox
 	#define TYPE(ID, PARENT) class ID;
 	#define ABSTRACT_TYPE(ID, PARENT) class ID;
 	#include "TypeNodes.def"
+
+	class Constraint;
+	#define CS(ID,PARENT) class ID;
+	#include "Constraints.def"
 }
