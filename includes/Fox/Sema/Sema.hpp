@@ -57,11 +57,6 @@ namespace fox
 			// type Int/Float/Bool
 			static bool isIntegral(Type type);
 
-			// If type is a SemaType with a substitution,
-			// returns the substitution. This function
-			// is recursive to handle nested SemaTypes.
-			static Type deref(Type type);
-
 			// Given 2 types
 				// If they are integrals, return the highest ranking integral's type
 				// If they are equal, return it's first argument
