@@ -26,7 +26,7 @@ Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, 
 	setupParser();
 }
 
-ASTContext & Parser::getASTContext()
+ASTContext& Parser::getASTContext()
 {
 	return ctxt_;
 }
