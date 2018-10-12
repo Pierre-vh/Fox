@@ -102,7 +102,7 @@ Other things I'm working on:
 	FTT: Fox Testing Tool
 		A easier to use, lightweight testing tool for Fox's code.
 		TODO:
-			> Add lexer support to keep comments in a special token when requested to
+			> Add lexer support to keep comments in a special token when requested to (Done)
 			> Add a Common utility to discover every file in a directory
 			> Begin work on FTT 
 
