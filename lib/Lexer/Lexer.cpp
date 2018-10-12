@@ -42,7 +42,7 @@ void Lexer::lexFile(FileID file)
 	runFinalChecks();
 }
 
-TokenVector & Lexer::getTokenVector()
+TokenVector& Lexer::getTokenVector()
 {
 	return tokens_; // return empty Token
 }
@@ -83,7 +83,10 @@ void Lexer::pushTok()
 void Lexer::pushComment(bool multiLine)
 {
 	CommentData cd(curtok_, multiLine);
-	tokens_.push_back(Token(cd));
+	Token t(cd);
+	assert(t);
+	tokens_.push_back(t);
+	curtok_ = "";
 }
 
 void Lexer::cycle()
@@ -150,12 +153,14 @@ void Lexer::fn_S_BASE()
 	// HANDLE COMMENTS
 	else if (c == '/' && pk == '/')
 	{
-		eatChar();
+		eatChar();	// '/'
+		eatChar();  // '/'
 		dfa_goto(DFAState::S_LCOM);
 	}
 	else if (c == '/' && pk == '*')
 	{
-		eatChar();
+		eatChar();	// '/'
+		eatChar();  // '*'
 		dfa_goto(DFAState::S_MCOM);
 	}
 	// HANDLE SINGLE SEPARATOR
@@ -207,7 +212,7 @@ void Lexer::fn_S_LCOM()
 			pushComment(false);
 		dfa_goto(DFAState::S_BASE);
 	}
-	else if(keepComments_)
+	else if (keepComments_)
 		addToCurtok(c);
 }
 
