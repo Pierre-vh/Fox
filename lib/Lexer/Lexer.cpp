@@ -19,12 +19,14 @@
 using namespace fox;
 using namespace fox::Dictionaries;
 
-Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt) : diags_(diags), ctxt_(astctxt), sm_(sm)
+Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt):
+	diags_(diags), ctxt_(astctxt), sm_(sm),
+	escapeFlag_(false), keepComments_(false)
 {
 
 }
 
-void Lexer::lexFile(const FileID& file)
+void Lexer::lexFile(FileID file)
 {
 	assert(file && "INVALID FileID!");
 	currentFile_ = file;
@@ -55,6 +57,11 @@ FileID Lexer::getCurrentFile() const
 	return currentFile_;
 }
 
+void Lexer::setKeepComments(bool val)
+{
+	keepComments_ = val;
+}
+
 void Lexer::pushTok()
 {
 	if (curtok_ == "")	// Don't push empty tokens.
@@ -71,6 +78,12 @@ void Lexer::pushTok()
 		diags_.report(DiagID::lexer_invalid_token_found,t.getRange()).addArg(t.getAsString());
 
 	curtok_ = "";
+}
+
+void Lexer::pushComment(bool multiLine)
+{
+	CommentData cd(curtok_, multiLine);
+	tokens_.push_back(Token(cd));
 }
 
 void Lexer::cycle()
@@ -185,19 +198,31 @@ void Lexer::fn_S_STR()
 		addToCurtok(c);
 }
 
-void Lexer::fn_S_LCOM()				// One line comment state.
+void Lexer::fn_S_LCOM()
 {
-	if (eatChar() == '\n')			// Wait for new line
-		dfa_goto(DFAState::S_BASE);			// then go back to S_BASE.
+	FoxChar c = eatChar();
+	if (c == '\n')
+	{
+		if (keepComments_)
+			pushComment(false);
+		dfa_goto(DFAState::S_BASE);
+	}
+	else if(keepComments_)
+		addToCurtok(c);
 }
 
 void Lexer::fn_S_MCOM()
 {
-	if (eatChar() == '*' && manip_.getCurrentChar() == '/')
+	FoxChar c = eatChar();
+	if (c == '*' && manip_.getCurrentChar() == '/')
 	{
-		eatChar();
+		eatChar(); // Consume the '/'
+		if (keepComments_)
+			pushComment(true);
 		dfa_goto(DFAState::S_BASE);
 	}
+	else if (keepComments_)
+		addToCurtok(c);
 }
 
 void Lexer::fn_S_WORDS()

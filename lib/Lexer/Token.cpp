@@ -127,12 +127,24 @@ Token::Token(DiagnosticEngine &diags, ASTContext &astctxt, std::string tokstr, c
 	identify(diags,astctxt,tokstr);
 }
 
-Token::Token(const Token& cpy) : range_(cpy.range_), tokenData_(cpy.tokenData_)
+Token::Token(const Token& cpy):
+	range_(cpy.range_), tokenData_(cpy.tokenData_)
 {
 	if (cpy.literalData_)
 		literalData_ = std::make_unique<LiteralInfo>(*(cpy.literalData_));
 	else
 		literalData_ = nullptr;
+
+	if (cpy.commentData_)
+		commentData_ = std::make_unique<CommentData>(*(cpy.commentData_));
+	else
+		commentData_ = nullptr;
+}
+
+Token::Token(CommentData commentData)
+{
+	tokenData_ = mpark::monostate();
+	commentData_ = std::make_unique<CommentData>(commentData);
 }
 
 std::string Token::showFormattedTokenData() const
@@ -164,7 +176,7 @@ std::string Token::showFormattedTokenData() const
 
 bool Token::isValid() const
 {
-	return !(mpark::holds_alternative<mpark::monostate>(tokenData_));
+	return (!(mpark::holds_alternative<mpark::monostate>(tokenData_))) || literalData_ || commentData_;
 }
 
 Token::operator bool() const
@@ -174,7 +186,7 @@ Token::operator bool() const
 
 bool Token::isLiteral() const
 {
-	return mpark::holds_alternative<Literal>(tokenData_);
+	return literalData_ != nullptr;
 }
 
 bool Token::isIdentifier() const
@@ -190,6 +202,11 @@ bool Token::isSign() const
 bool Token::isKeyword() const
 {
 	return mpark::holds_alternative<KeywordType>(tokenData_);
+}
+
+bool Token::isComment() const
+{
+	return commentData_ != nullptr;
 }
 
 bool Token::is(KeywordType ty)
@@ -249,11 +266,8 @@ std::string Token::getAsString() const
 		}
 		fox_unreachable("unknown sign");
 	}
-	else if (mpark::holds_alternative<Literal>(tokenData_))
-	{
-		assert(literalData_ && "Token's a literal but no LiteralInfo available?");
+	else if (literalData_)
 		return literalData_->getAsString();
-	}
 	else if (mpark::holds_alternative<Identifier*>(tokenData_))
 	{
 		auto ptr = mpark::get<Identifier*>(tokenData_);
@@ -276,12 +290,14 @@ LiteralType Token::getLiteralType() const
 
 LiteralInfo Token::getLiteralInfo() const
 {
-	if (isLiteral())
-	{
-		assert(literalData_ && "Token is a literal but does not have a literalInfo?");
-		return *literalData_;
-	}
-	return LiteralInfo();
+	assert(literalData_);
+	return *literalData_;
+}
+
+CommentData Token::getCommentData() const
+{
+	assert(commentData_);
+	return *commentData_;
 }
 
 std::string Token::getIdentifierString() const
@@ -361,7 +377,7 @@ bool Token::idLiteral(DiagnosticEngine& diags,const std::string& str)
 				return false;
 			}
 			auto charlit = strmanip.getChar(1);
-			tokenData_ = Literal();
+			tokenData_ = mpark::monostate();
 			literalData_ = std::make_unique<LiteralInfo>(charlit);
 			return true;
 		}
@@ -372,7 +388,7 @@ bool Token::idLiteral(DiagnosticEngine& diags,const std::string& str)
 		if (strmanip.peekBack() == '\"')
 		{
 			std::string strlit = strmanip.substring(1, strmanip.getSizeInCodepoints() - 2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
-			tokenData_ = Literal();
+			tokenData_ = mpark::monostate();
 			literalData_ = std::make_unique<LiteralInfo>(strlit);
 			return true;
 		}
@@ -380,7 +396,7 @@ bool Token::idLiteral(DiagnosticEngine& diags,const std::string& str)
 	}
 	else if (str == "true" | str == "false")
 	{
-		tokenData_ = Literal();
+		tokenData_ = mpark::monostate();
 		literalData_ = std::make_unique<LiteralInfo>((str == "true" ? true : false));
 		return true;
 	}
@@ -391,21 +407,21 @@ bool Token::idLiteral(DiagnosticEngine& diags,const std::string& str)
 		FoxInt tmp;
 		if (ss >> tmp)
 		{
-			tokenData_ = Literal();
+			tokenData_ = mpark::monostate();
 			literalData_ = std::make_unique<LiteralInfo>(tmp);
 		}
 		else
 		{
 			// If too big, put the value in a float instead.
 			diags.report(DiagID::lexer_int_too_big_considered_as_float, range_).addArg(str);
-			tokenData_ = Literal();
+			tokenData_ = mpark::monostate();
 			literalData_ = std::make_unique<LiteralInfo>(std::stof(str));
 		}
 		return true;
 	}
 	else if (std::regex_match(str, kFloat_regex))
 	{
-		tokenData_ = Literal();
+		tokenData_ = mpark::monostate();
 		literalData_ = std::make_unique<LiteralInfo>(std::stof(str));
 		return true;
 	}

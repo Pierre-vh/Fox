@@ -33,11 +33,14 @@ namespace fox
 
 			// Lexs a file in the SourceManager.
 			// This will retrieve the file from the SourceManager from the current Context.
-			void lexFile(const FileID& file);
-			
+			void lexFile(FileID file);
+	
 			TokenVector& getTokenVector();
 			std::size_t resultSize() const;	
 			FileID getCurrentFile() const;
+
+			void setKeepComments(bool val);
+
 		private:
 			enum class DFAState : std::uint8_t
 			{
@@ -50,6 +53,7 @@ namespace fox
 			};
 
 			void pushTok();
+			void pushComment(bool multiLine);
 			void cycle();					
 			void runFinalChecks();
 			void markBeginningOfToken(); // sets currentTokenBeginIndex_ to the current index
@@ -78,8 +82,9 @@ namespace fox
 			SourceManager& sm_;
 			FileID currentFile_;
 
-			bool		escapeFlag_ = false;		
-			DFAState	state_ = DFAState::S_BASE;		
+			bool escapeFlag_ : 1;
+			bool keepComments_ : 1;
+			DFAState state_ = DFAState::S_BASE;		
 			std::string curtok_;
 
 			// The index of the first character of the current token being processed.

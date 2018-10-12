@@ -6,6 +6,9 @@
 ////------------------------------------------------------//// 
 // This file contains the declaration of various Token-related structures and enumerations,
 // including the Token struct and LiteralInfo struct.
+//
+// TODO: This is spaghetti code I wrote very early in the project, rewrite this using a proper
+// class hierarchy, which makes a lot more sense.
 ////------------------------------------------------------////
 
 #pragma once
@@ -71,6 +74,18 @@ namespace fox
 			mpark::variant<
 				mpark::monostate, FoxBool, FoxString, FoxFloat, FoxInt, FoxChar
 			> value_;
+	};
+
+	struct CommentData
+	{
+		CommentData(std::string str, bool isMultiline):
+			str(str), isMultiline(isMultiline)
+		{
+
+		}
+
+		const std::string str;
+		const bool isMultiline = false;
 	};
 	
 	enum class SignType : std::uint8_t
@@ -138,14 +153,20 @@ namespace fox
 		LITERAL,
 		SIGN,
 		KEYWORD,
-		IDENTIFIER
+		IDENTIFIER, 
+		COMMENT
 	};
 
 	struct Token 
 	{
 		public:
+
 			Token() = default;
 			Token(const Token& cpy);
+			// Constructor to use to create a comment token
+			Token(CommentData commentData);
+
+			// Constructor to use to let the Token identify itself
 			Token(DiagnosticEngine& diag,ASTContext &astctxt,std::string tokstr,const SourceRange& range = SourceRange());
 
 			std::string showFormattedTokenData() const;
@@ -157,6 +178,7 @@ namespace fox
 			bool isIdentifier() const;
 			bool isSign() const;
 			bool isKeyword() const;
+			bool isComment() const;
 
 			bool is(KeywordType ty);
 			bool is(SignType ty);
@@ -166,6 +188,7 @@ namespace fox
 			SignType getSignType() const;
 			LiteralType getLiteralType() const;
 			LiteralInfo getLiteralInfo() const;
+			CommentData getCommentData() const;
 
 			std::string getIdentifierString() const;
 			Identifier* getIdentifierInfo();
@@ -174,16 +197,15 @@ namespace fox
 			std::string getTokenTypeFriendlyName() const;
 
 			SourceRange getRange() const;
-		private:
-			// Empty struct used to "mark" the variant when this token is a literal.
-			struct Literal {};
 
+		private:
 			/* Member variables */
 			// Note: LiteralInfo is quite heavy, so it's dynamically allocated to save space, since
-			// most token won't need it.
+			// most token won't need it. Same goes for CommentData.
 			const SourceRange range_;
-			mpark::variant<mpark::monostate, KeywordType, SignType, Literal, Identifier *> tokenData_;
+			mpark::variant<mpark::monostate, KeywordType, SignType, Identifier*> tokenData_;
 			std::unique_ptr<LiteralInfo> literalData_ = nullptr;
+			std::unique_ptr<CommentData> commentData_ = nullptr;
 
 			/* Identification functions */
 			void identify(DiagnosticEngine& diags,ASTContext& astctxt, const std::string& str);
