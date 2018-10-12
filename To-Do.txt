@@ -98,14 +98,16 @@ Boring stuff that I must do when I have the time/motivation for it
 		Split Unit tests & Language tests
 		Use a format like JSon or Def files to register/create tests.
 
+Other things I'm working on:
+	FTT: Fox Testing Tool
+		A easier to use, lightweight testing tool for Fox's code.
+		TODO:
+			> Add lexer support to keep comments in a special token when requested to
+			> Add a Common utility to discover every file in a directory
+			> Begin work on FTT 
+
+		
+
 Later:
 	Use a "SourceFile" class instead of a "UnitDecl" class, like swift. This class would track the progress of the AST:
 	not parsed, parsed but not semantically analyzed, etc. Do that when implementing the multifile support
-
-Needed but not yet figured out
-	Need a more advanced debugging tool such as a Stack tracing, logger, etc.
-
-Bug:
-	(Probably fixed, testing needed)
-		If an array is spanned on multiple lines, the "illegal heterogenous" 
-		array error will display one extra caret after the [ on the first line.
