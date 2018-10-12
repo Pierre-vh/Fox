@@ -21,6 +21,45 @@
 using namespace fox;
 using namespace fox::test;
 
+TEST(LexerTests, CommentConservation)
+{
+	SourceManager sm;
+	DiagnosticEngine dg(sm);
+
+	auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/comment_conservation.fox"));
+	ASSERT_TRUE(file) << "Could not open test file";
+	ASTContext astctxt;
+	Lexer lex(dg, sm, astctxt);
+	lex.setKeepComments(true);
+	
+	lex.lexFile(file);
+	
+	
+	EXPECT_TRUE(dg.getErrorsCount() == 0) << "One or more errors occured while lexing the file";
+
+	auto& toks = lex.getTokenVector();
+	ASSERT_EQ(toks.size(), 2);
+	
+	// Check first comment "Hello World"
+	{
+		auto& tok = toks[0];
+		EXPECT_TRUE(tok.isComment());
+		auto data = tok.getCommentData();
+		EXPECT_EQ(data.str, "Hello World!");
+		EXPECT_FALSE(data.isMultiline);
+	}
+
+	// Check first comment " How are you "
+	{
+		auto& tok = toks[1];
+		EXPECT_TRUE(tok.isComment());
+		auto data = tok.getCommentData();
+		EXPECT_EQ(data.str, " How are you ");
+		EXPECT_TRUE(data.isMultiline);
+	}
+	
+}
+
 TEST(LexerTests,CorrectTest1)
 {
 	SourceManager sm;
