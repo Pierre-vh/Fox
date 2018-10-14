@@ -25,6 +25,9 @@ namespace
 	// Expression checker: Classic visitor, the visitXXX functions
 	// all check a single node. They do not orchestrate visitation of
 	// the children, because that is done in the ASTWalker
+	//
+	// Every visitation method return a pointer to an Expr*, which is the current expr
+	// OR the expr that should take it's place. This can NEVER be null.
 	class ExprChecker : public ExprVisitor<ExprChecker, Expr*>, public ASTWalker
 	{
 		using Inherited = ExprVisitor<ExprChecker, Expr*>;
@@ -36,10 +39,23 @@ namespace
 				
 			}
 
-			// Sets the expr's type to ErrorType
-			void setErrorType(Expr* expr)
+			// Returns the Int type if type is a boolean, or
+			// return it's argument otherwise.
+			// The pointer must not be null an point to an integral type.
+			TypeBase* uprankIfBoolean(PrimitiveType* type)
 			{
-				expr->setType(ErrorType::get(getCtxt()));
+				assert(type && "Pointer must not be null");
+				assert(Sema::isIntegral(type) && "Type must be integral");
+
+				if (type->getPrimitiveKind() == PrimitiveType::Kind::BoolTy)
+					return PrimitiveType::getInt(getCtxt());
+				return type;
+			}
+
+			// Sets the expr's type to ErrorType
+			ErrorType* getErrorType()
+			{
+				return ErrorType::get(getCtxt());
 			}
 
 			// Returns the ASTContext
@@ -111,7 +127,6 @@ namespace
 			{
 				// Check if we can cast to that, castgoal must be
 				// of the same family OR string.
-				// WIP: Check if cast is okay
 				Type& exprTy = expr->getExpr()->getType();
 				TypeLoc& castGoal = expr->getCastTypeLoc();
 
@@ -123,21 +138,65 @@ namespace
 								.addArg(exprTy->toString())
 								.addArg(castGoal->toString())
 								.setExtraRange(expr->getExpr()->getRange());
-					expr->setType(ErrorType::get(getCtxt()));
+					expr->setType(getErrorType());
 					// Propagate the error type to the expr->type to avoid error
 					// flooding.
 				}
 				else
 					expr->setType(castGoal.withoutLoc());
-
+				// TODO: Allow cast to string? If I do allow that,
+				// I should mark the castExpr as being a "Stringifying" one,
+				// so IR gen can emit the appropriate instr.
 				return expr;
 			}
 
 			Expr* visitUnaryExpr(UnaryExpr* expr)
 			{
-				// Check that the type's arithmetic.
-				// For ! the return type is a bool, for everything else
-				// it's int OR float if children is a float.
+				Expr* child = expr->getExpr();
+				Type childTy = child->getType();
+
+				// For any unary operators, we only allow integral types,
+				// so check that first.
+				if (!Sema::isIntegral(childTy))
+				{
+					// Not an integral type -> error.
+					expr->setType(getErrorType());
+					// Emit diag iff childTy isn't a ErrorType too
+					if (!childTy.is<ErrorType>())
+					{
+						getDiags()
+							.report(DiagID::sema_unaryop_bad_child_type, expr->getOpRange())
+							.setExtraRange(child->getRange()) // Use the child's range as the extra range.
+							.addArg(expr->getOpSign()) // %0 is the operator's sign as text
+							.addArg(childTy->toString()); // %1 is the type of the child
+					}
+					return expr;
+				}
+				
+				PrimitiveType* primChildTy = dyn_cast<PrimitiveType>(childTy->ignoreLValue());
+				assert(primChildTy && "isIntegral returned true but the type isn't a PrimitiveType?");
+
+				using OP = UnaryExpr::OpKind;
+				switch (expr->getOp())
+				{
+					// Logical NOT operator : '!'
+					case OP::LNot:
+						// Always boolean
+						expr->setType(PrimitiveType::getBool(getCtxt()));
+						break;
+					// Unary Plus '+' and Minus '-'
+					case OP::Minus:
+					case OP::Plus:
+						// Always int or float, never bool, so uprank
+						// if boolean.
+						expr->setType(uprankIfBoolean(primChildTy));
+						break;
+					case OP::Invalid:
+						fox_unreachable("Invalid Unary Operator should not exist past parsing");
+					default:
+						fox_unreachable("All cases handled");
+				}
+
 				return expr;
 			}
 
@@ -150,20 +209,19 @@ namespace
 
 			Expr* visitMemberOfExpr(MemberOfExpr* expr)
 			{
-				// Unimplemented for now
+				// Will be left unimplemented for now
 				return expr;
 			}
 
 			Expr* visitDeclRefExpr(DeclRefExpr* expr)
 			{
-				// Unimplemented for now
+				// Will be left unimplemented for now
 				return expr;
 			}
 
 			Expr* visitFunctionCallExpr(FunctionCallExpr* expr)
 			{
-				// Unimplemented for now, but :
-					// check that callee is a FunctionType or OverloadType
+				// Will be left unimplemented for now
 				return expr;
 			}
 			
@@ -245,6 +303,9 @@ namespace
 							break;
 						}
 
+						// TODO: Fix this, it doesn't play well with ConstrainedTypes.
+							// -> What to do in a situation where proposed is a [int] and elemty is a Constrained({ArrayCS}, [float])??
+							// use a new constrained type?
 						// Lastly, uprank if needed.
 						if (TypeBase* highestRanking = Sema::getHighestRankingType(elemTy, proposed).getPtr())
 							proposed = highestRanking;
@@ -257,7 +318,7 @@ namespace
 						expr->setType(ArrayType::get(getCtxt(), proposed.getPtr()));
 					}
 					else
-						setErrorType(expr); // Failed to typecheck.
+						expr->setType(getErrorType());
 				}
 				else
 				{
@@ -351,6 +412,6 @@ namespace
 Expr* Sema::typecheckExpr(Expr* expr)
 {
 	expr = ExprChecker(*this).walk(expr);
-	expr = ExprFinalizer(ctxt_, diags_).walk(expr);
+	//expr = ExprFinalizer(ctxt_, diags_).walk(expr);
 	return expr;
 }

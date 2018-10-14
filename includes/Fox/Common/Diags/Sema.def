@@ -9,4 +9,5 @@
 
 ERROR(sema_arraylit_hetero, "Illegal heterogeneous array")
 ERROR(sema_failed_infer, "Failed to infer the type of this expression")
-ERROR(sema_invalid_cast, "Cannot cast expression of type %0 to type %1")
+ERROR(sema_invalid_cast, "Cannot cast expression of type \"%0\" to type \"%1\"")
+ERROR(sema_unaryop_bad_child_type, "Cannot use unary operator '%0' on an expression of type \"%1\"")
