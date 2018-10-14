@@ -100,14 +100,6 @@ namespace
 
 			// Check methods
 
-			Expr* visitParensExpr(ParensExpr* expr)
-			{
-				// A ParensExpr's type is simply it's child's
-				expr->setType(expr->getType());
-				// this node kind will be deleted later
-				return expr;
-			}
-
 			Expr* visitBinaryExpr(BinaryExpr* expr)
 			{
 				// Handle arithmetic & text addition

@@ -462,12 +462,11 @@ Parser::ExprResult Parser::parseExpr()
 Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* rightPLoc)
 {
 	// <parens_expr> = '(' <expr> ')'
+
 	// '('
 	auto leftParens = consumeBracket(SignType::S_ROUND_OPEN);
 	if (!leftParens)
-	{
 		return ExprResult::NotFound();
-	}
 
 	Expr* rtr = nullptr;
 		
@@ -502,18 +501,21 @@ Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* right
 		rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
 	}
 
+	// Save the locs if the caller wants it.
 	if (leftPLoc)
+	{
+		assert(leftParens && "invalid loc info");
 		*leftPLoc = leftParens;
+	}
 
 	if (rightPLoc)
+	{
+		assert(rightParens && "invalid loc info");
 		*rightPLoc = rightParens;
+	}
 
-	SourceRange range(leftParens, rightParens);
-	assert(range && "Invalid loc info");
-
-	return ExprResult(
-		new(ctxt_) ParensExpr(rtr, range)
-	);
+	// Just return the expression we parsed.
+	return ExprResult(rtr);
 }
 
 Parser::Result<ExprVector> Parser::parseExprList()

@@ -22,9 +22,6 @@
 
 /* Macros */
 
-// Parens Expr
-EXPR(ParensExpr,Expr)
-
 // Basic operations
 EXPR(BinaryExpr,Expr)
 EXPR(UnaryExpr,Expr)

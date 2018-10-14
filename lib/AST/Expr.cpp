@@ -706,34 +706,3 @@ const Expr* ArrayAccessExpr::getIdxExpr() const
 {
 	return idxExpr_;
 }
-
-//------------//
-// ParensExpr //
-//------------//
-
-ParensExpr::ParensExpr():
-	ParensExpr(nullptr, SourceRange())
-{
-
-}
-
-ParensExpr::ParensExpr(Expr* expr, const SourceRange& range):
-	Expr(ExprKind::ParensExpr, range), expr_(expr)
-{
-
-}
-
-void ParensExpr::setExpr(Expr* expr)
-{
-	expr_ = expr;
-}
-
-Expr* ParensExpr::getExpr()
-{
-	return expr_;
-}
-
-const Expr* ParensExpr::getExpr() const
-{
-	return expr_;
-}

@@ -421,26 +421,5 @@ namespace fox
 			Expr* callee_ = nullptr;
 			ExprVector args_;
 	};
-
-	// ParensExpr 
-	//		An expression in round brackets: (2+2)
-	class ParensExpr : public Expr
-	{
-		public:
-			ParensExpr();
-			ParensExpr(Expr* expr, const SourceRange& range);
-
-			void setExpr(Expr* expr);
-			Expr* getExpr();
-			const Expr* getExpr() const;
-
-			static bool classof(const Expr* expr)
-			{
-				return (expr->getKind() == ExprKind::ParensExpr);
-			}
-
-		private:
-			Expr* expr_ = nullptr;
-	};
 }
 

@@ -25,20 +25,6 @@ ASTDumper::ASTDumper(SourceManager& srcMgr,std::ostream & out, const uint8_t & o
 	recalculateOffset();
 }
 
-void ASTDumper::visitParensExpr(ParensExpr* node)
-{
-	if (auto expr = node->getExpr())
-	{
-		auto range = node->getRange();
-		dumpLine() << getBasicExprInfo(node) << " " << getSourceLocDump("LParen", range.getBegin()) << " " << getSourceLocDump("RParen", range.getEnd()) << "\n";
-		indent();
-			visit(expr);
-		dedent();
-	}
-	else
-		dumpLine() << getBasicExprInfo(node) << " (Empty)\n";
-}
-
 void ASTDumper::visitBinaryExpr(BinaryExpr* node)
 {
 	dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node->getOp()) << "\n";

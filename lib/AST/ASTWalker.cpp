@@ -27,19 +27,6 @@ namespace
 			{}
 
 			// Exprs
-
-			Expr* visitParensExpr(ParensExpr* expr)
-			{
-				if (Expr* sub = expr->getExpr())
-				{
-					if (sub = doIt(sub))
-						expr->setExpr(sub);
-					else return nullptr;
-				}
-
-				return expr;
-			}
-
 			Expr* visitBinaryExpr(BinaryExpr* expr)
 			{
 				if (Expr* lhs = expr->getLHS())

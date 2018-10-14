@@ -23,7 +23,6 @@ namespace fox
 			ASTDumper(SourceManager& srcMgr,std::ostream& out, const uint8_t& offsettabs = 0);
 
 			// Expressions
-			void visitParensExpr(ParensExpr* node);
 			void visitBinaryExpr(BinaryExpr* node);
 			void visitCastExpr(CastExpr* node);
 			void visitUnaryExpr(UnaryExpr* node);
