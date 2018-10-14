@@ -436,6 +436,21 @@ std::string UnaryExpr::getOpID(OpKind op)
 	}
 }
 
+std::string UnaryExpr::getOpSign() const
+{
+	return getOpSign(op_);
+}
+
+std::string UnaryExpr::getOpName() const
+{
+	return getOpName(op_);
+}
+
+std::string UnaryExpr::getOpID() const
+{
+	return getOpID(op_);
+}
+
 std::string UnaryExpr::getOpName(OpKind op)
 {
 	switch (op)

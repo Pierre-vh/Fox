@@ -143,6 +143,11 @@ namespace fox
 			static std::string getOpName(OpKind op);
 			static std::string getOpID(OpKind op);
 
+			// Non static variants to get info on this instance
+			std::string getOpSign() const;
+			std::string getOpName() const;
+			std::string getOpID() const;
+
 		private:
 			SourceRange opRange_;
 			Expr* expr_ = nullptr;
