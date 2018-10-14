@@ -69,6 +69,9 @@ Moonshot Project To-do List.
 	> Type toString rewrite (TypePrinter) (Done)
 	> Constraint Printer (toString & toDebugString) (Done)
 	> Type debug print (toDebugString) (Done)
+	> Removing ParensExpr (Done)
+
+	> Fix use of "getHighestRankingType" in visitArrayLiteral in SemaExprs because it doesn't play well with constrained types. (Next)
 
 	> ConstrainedType in Semantic Analysis
 		> Check if a type follows a set of Constraints
