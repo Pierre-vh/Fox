@@ -4,8 +4,8 @@
 // File : ASTDumper.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file contains the "ASTDump" class, which is used to 
-// Dump the ast to any ostream (often std::cout)
+// This file contains the "ASTDumper" class, which is used to 
+// print the ast to any ostream.
 ////------------------------------------------------------////
 
 #pragma once

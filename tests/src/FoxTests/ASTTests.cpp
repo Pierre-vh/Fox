@@ -493,7 +493,7 @@ class CSToTxt : public ConstraintVisitor<CSToTxt, std::string>
 		std::string visit##CS(Constraint*){ \
 			return #CS; \
 		}
-		#define CS(ID, PARENT) PRINT(ID)
+		#define CS(ID) PRINT(ID)
 		#include "Fox/AST/Constraints.def"
 		#undef PRINT
 };

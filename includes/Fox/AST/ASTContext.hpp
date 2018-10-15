@@ -4,8 +4,8 @@
 // File : ASTContext.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// The ASTContext is the foundation of the AST. 
-// - It owns the AST and manages it's memory through LinearAllocators
+// The ASTContext is the core of the AST
+// - It owns the AST and manages it's memory through LinearAllocator
 // - It owns the identifier table, accessible through identifierTable()
 ////------------------------------------------------------////
 

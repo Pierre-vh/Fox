@@ -29,7 +29,7 @@ namespace fox
 				assert(cs && "Cannot be used on a null pointer");
 				switch (cs->getKind())
 				{
-					#define CS(ID, PARENT)\
+					#define CS(ID)\
 							case Constraint::Kind::ID:\
 								return static_cast<Derived*>(this)->visit##ID(cs, ::std::forward<Args>(args)...);
 					#include "Constraints.def"
@@ -39,7 +39,7 @@ namespace fox
 			}
 
 			// Visit methods for constraints.
-			#define CS(ID, PARENT)\
+			#define CS(ID)\
 			RtrTy visit##ID(Constraint*, Args...){ \
 				return RtrTy(); \
 			}

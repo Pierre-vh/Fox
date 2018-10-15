@@ -4,15 +4,16 @@
 // File : Constraint.def											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file uses Macro to "register" every constraint in the 
-// Constraint hierarchy.
+// This file uses macro metaprogramming to declare every constraint
+// kind that exists. This is used to generate the Constraint::Kind
+// enum as well as to visit constraints using the ConstraintVisitor.
 ////------------------------------------------------------////
 
 #ifndef CS
-	#define CS(ID, PARENT)
+	#define CS(ID)
 #endif
 
 // The type must be be an ArrayType
-CS(ArrayCS, Constraint)
+CS(ArrayCS)
 
 #undef CS

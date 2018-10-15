@@ -5,8 +5,7 @@
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file contains the ASTWalker class, which is used to
-// "walk" the ast in a pre/post order fashion, automatically 
-// replacing nodes if needed.
+// "walk" the ast in a pre/post order fashion.
 ////------------------------------------------------------////
 
 #pragma once

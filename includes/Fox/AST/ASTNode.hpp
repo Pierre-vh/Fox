@@ -4,10 +4,14 @@
 // File : ASTNode.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// The ASTNode is a class that acts like a variant of Expr/Stmt/Decl pointers.
+// The ASTNode is a class that acts like a variant of
+// Expr/Stmt/Decl pointers.
+// This is used in places where we allow any node kind: Expr,
+// Decl or Stmt.
 ////------------------------------------------------------////
 
 #pragma once
+
 #include "Fox/Common/PtrVariant.hpp"
 
 namespace fox

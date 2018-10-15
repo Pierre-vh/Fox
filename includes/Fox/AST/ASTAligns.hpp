@@ -5,7 +5,7 @@
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
 // This file contains various constants to be used as the minimum
-// alignement for some AST types.
+// alignement for some AST classes
 ////------------------------------------------------------////
 
 #pragma once

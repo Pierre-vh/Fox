@@ -4,8 +4,18 @@
 // File : ASTFwdDecl.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file does a forward declaration of every node in the AST.
+// This file does a forward declaration of every node in the AST
+// hierarchy. This includes:
+//		Any abstract or concrete:
+//			Expr
+//			Stmt
+//			Decl
+//			Type
+//		Constraint
+//		ASTNode
 ////------------------------------------------------------////
+
+#pragma once
 
 namespace fox
 {
@@ -35,6 +45,6 @@ namespace fox
 	class TypeLoc;
 
 	class Constraint;
-	#define CS(ID,PARENT) class ID;
+	#define CS(ID) class ID;
 	#include "Constraints.def"
 }

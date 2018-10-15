@@ -4,16 +4,9 @@
 // File : Constraint.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file contains the Constraint hierarchy, which represents
-// a constraint imposed on a Type. This is used for the ConstraintedType.
+// This file contains the Constraint class, which represents
+// a constraint imposed on a Type. This is used by the ConstraintedType.
 // Constraint are immutable once created.
-//
-//	TO-DO/Critics:
-//		EqualityCS: Type, Type& or TypeBase*?
-//		Is a hierarchy the correct way to do things? Some classes are empty!
-//			Hierarchy offers more flexibility to add "locators" or stuff like that
-//			later, if Semantic analysis needs it.
-//
 ////------------------------------------------------------////
 
 #pragma once
@@ -30,9 +23,9 @@ namespace fox
 	class Constraint
 	{
 		public:
-			enum class Kind : std::uint8_t
+			enum class Kind: std::uint8_t
 			{
-				#define CS(ID, PARENT) ID,
+				#define CS(ID) ID,
 				#include "Constraints.def"
 			};
 
