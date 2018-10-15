@@ -25,7 +25,6 @@
 namespace fox
 {
 	class ASTContext;
-	class Type;
 
 	// Base class for every constraint
 	class Constraint
@@ -37,13 +36,19 @@ namespace fox
 				#include "Constraints.def"
 			};
 
+			// Return the kind of this constraint.
 			Kind getKind() const;
+
+			// Returns true if this constraint is of kind K
+			bool is(Kind k) const;
 
 			// Returns this constraint's name (in a developer-friendly way, for debugging purposes)
 			std::string toDebugString() const;
 
-		protected:
+			// An ArrayCS forces the type to be an ArrayType.
+			static Constraint* createArrayCS(ASTContext& ctxt);
 
+		protected:
 			// Prohibit the use of builtin (placement) new & delete
 			void *operator new(std::size_t) throw() = delete;
 			void operator delete(void *) throw() = delete;
@@ -64,43 +69,4 @@ namespace fox
 	
 	// A Constraint list
 	using ConstraintList = std::deque<Constraint*>;
-
-	// EqualityCS
-	//		Satisfied if the substitution matches
-	//		the type contained in this constraint.
-	class EqualityCS : public Constraint
-	{
-		public:
-			static EqualityCS* create(ASTContext& ctxt, Type& type);
-
-			Type& getType();
-			const Type& getType() const;
-
-			static bool classof(const Constraint* cs)
-			{
-				return (cs->getKind() == Kind::EqualityCS);
-			}
-		
-		private:
-			EqualityCS(Type& type);
-
-			Type& type_;
-	};
-
-	// ArrayCS
-	//		Satisfied if the substitution is 
-	//		an ArrayType.
-	class ArrayCS : public Constraint
-	{
-		public:
-			static ArrayCS* create(ASTContext& ctxt);
-
-			static bool classof(const Constraint* cs)
-			{
-				return (cs->getKind() == Kind::ArrayCS);
-			}
-
-		private:
-			ArrayCS();
-	};
 }

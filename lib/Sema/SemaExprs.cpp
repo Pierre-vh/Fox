@@ -261,7 +261,7 @@ namespace
 			ConstrainedType* createConstrainedTypeForEmptyArrayLiteral()
 			{
 				auto* cs = ConstrainedType::create(getCtxt());
-				cs->addConstraint(ArrayCS::create(getCtxt()));
+				cs->addConstraint(Constraint::createArrayCS(getCtxt()));
 				return cs;
 			}
 

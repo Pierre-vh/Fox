@@ -51,7 +51,7 @@ namespace fox
 			friend class LValueType;
 			friend class ErrorType;
 			friend class PrimitiveType;
-			friend class ArrayCS;
+			friend class Constraint;
 
 			// Map of Array types (Type -> Type[]) 
 			// (managed by ArrayType::get)
@@ -75,7 +75,7 @@ namespace fox
 			// As an optimization, trivial
 			// constraints are unique, since they're immutable
 			// and have no members.
-			ArrayCS* theArrayCS = nullptr;
+			Constraint* theArrayCS = nullptr;
 
 		private:
 			// The ASTContext shouldn't be copyable.

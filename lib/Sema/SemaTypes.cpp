@@ -179,29 +179,10 @@ namespace
 						(*ptr) = val;
 				}
 
-				bool visitEqualityCS(EqualityCS* cs, Constraint* other)
-				{
-					if (auto* oEq = dyn_cast<EqualityCS>(other))
-					{
-						Type csTy = cs->getType();
-						Type oEqTy = oEq->getType();
-
-						if (csTy == oEqTy)
-							return true;
-
-						// If they're subtype equal, mark it.
-						if (compareSubtypes(csTy, oEqTy))
-							set(isSubtypeEqual, true);
-
-						return false;
-					}
-					return false;
-				}
-
-				bool visitArrayCS(ArrayCS* cs, Constraint* other)
+				bool visitArrayCS(Constraint* cs, Constraint* other)
 				{
 					// Only true if the other is a ArrayCS too
-					return (cs == other) || isa<ArrayCS>(other);
+					return (cs == other) || other->is(Constraint::Kind::ArrayCS);
 				}
 		};
 
@@ -354,33 +335,15 @@ namespace
 
 			}
 
-			/*
-			TypeBase* visit(Constraint* visited, TypeBase* ty)
-			{
-				std::cout << "visit(" << visited->toDebugString() << "," << ty->toDebugString() << ") -> ";
-				TypeBase* rtr = inherited::visit(visited, ty);
-				std::cout << rtr->toDebugString() << "\n";
-				return rtr;
-			}
-			*/
-
-			TypeBase* visitArrayCS(ArrayCS*, TypeBase* ty)
+			TypeBase* visitArrayCS(Constraint*, TypeBase* ty)
 			{
 				if (auto arr = dyn_cast<ArrayType>(ty))
 				{
 					auto* elemTy = arr->getElementType();
-					assert(elemTy && "Must have element type");
+					assert(elemTy 
+						&& "The type must have an element type");
 					return elemTy;
 				}
-				return nullptr;
-			}
-
-			TypeBase* visitEqualityCS(EqualityCS* cs, TypeBase* ty)
-			{
-				Type& eq = cs->getType();
-				Type wrapped(ty);
-				if (sema.unify(eq, wrapped))
-					return wrapped.getPtr();
 				return nullptr;
 			}
 	};

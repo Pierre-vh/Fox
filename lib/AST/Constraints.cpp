@@ -26,19 +26,7 @@ namespace
 
 			}
 
-			std::string visitEqualityCS(EqualityCS* cs)
-			{
-				std::string out = "EqualTo(";
-				Type& ty = cs->getType();
-				if (!ty.isNull())
-					out += ty->toDebugString();
-				else
-					out += "nullptr";
-				out += ")";
-				return out;
-			}
-
-			std::string visitArrayCS(ArrayCS*)
+			std::string visitArrayCS(Constraint*)
 			{
 				return "ArrayCS";
 			}
@@ -50,6 +38,11 @@ namespace
 Constraint::Kind Constraint::getKind() const
 {
 	return kind_;
+}
+
+bool Constraint::is(Kind k) const
+{
+	return kind_ == k;
 }
 
 std::string Constraint::toDebugString() const
@@ -68,41 +61,9 @@ Constraint::Constraint(Kind kind):
 
 }
 
-// EqualityCS
-
-EqualityCS::EqualityCS(Type& type):
-	Constraint(Kind::EqualityCS), type_(type)
+Constraint* Constraint::createArrayCS(ASTContext& ctxt)
 {
-
-}
-
-EqualityCS* EqualityCS::create(ASTContext& ctxt, Type& type)
-{
-	return new(ctxt) EqualityCS(type);
-}
-
-Type& EqualityCS::getType()
-{
-	return type_;
-}
-
-const Type& EqualityCS::getType() const
-{
-	return type_;
-}
-
-ArrayCS* ArrayCS::create(ASTContext& ctxt)
-{
-	// As an optimization measure, the ArrayCS is unique,
-	// like PrimitiveTypes. This is however a "hidden" optimization
-	// which isn't guaranteed (might be removed in the future)
-	// so we still use the "create" name.
 	if(!ctxt.theArrayCS)
-		ctxt.theArrayCS = new(ctxt) ArrayCS();
+		ctxt.theArrayCS = new(ctxt) Constraint(Kind::ArrayCS);
 	return ctxt.theArrayCS;
-}
-
-ArrayCS::ArrayCS():
-	Constraint(Kind::ArrayCS)
-{
 }

@@ -12,7 +12,7 @@
 	#define CS(ID, PARENT)
 #endif
 
-CS(EqualityCS, Constraint)
+// The type must be be an ArrayType
 CS(ArrayCS, Constraint)
 
 #undef CS

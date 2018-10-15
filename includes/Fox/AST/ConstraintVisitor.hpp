@@ -31,23 +31,17 @@ namespace fox
 				{
 					#define CS(ID, PARENT)\
 							case Constraint::Kind::ID:\
-								return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(cs), ::std::forward<Args>(args)...);
+								return static_cast<Derived*>(this)->visit##ID(cs, ::std::forward<Args>(args)...);
 					#include "Constraints.def"
 					default:
 						fox_unreachable("Unknown constraint");
 				}
 			}
 
-			RtrTy visitConstraint(Constraint* cs, Args... args)
-			{
-				return RtrTy();
-			}
-
-			// Visit method for constraints.
-			// They always chain back to the parent
+			// Visit methods for constraints.
 			#define CS(ID, PARENT)\
-			RtrTy visit##ID(ID* node, Args... args){ \
-				return static_cast<Derived*>(this)->visit##PARENT(node, ::std::forward<Args>(args)...); \
+			RtrTy visit##ID(Constraint*, Args...){ \
+				return RtrTy(); \
 			}
 			#include "Constraints.def"
 	};

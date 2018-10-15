@@ -245,19 +245,15 @@ TEST(ASTTests, DeclContext)
 
 }
 
-TEST(ASTTests, ConstraintsRTTI)
+TEST(ASTTests, ConstraintsKinds)
 {
 	ASTContext astctxt;
 	Type intTy(PrimitiveType::getInt(astctxt));
 
-	Constraint* eq = EqualityCS::create(astctxt, intTy);
-	Constraint* ar = ArrayCS::create(astctxt);
-
-	EXPECT_EQ(eq->getKind(), Constraint::Kind::EqualityCS);
-	EXPECT_TRUE(EqualityCS::classof(eq));
+	Constraint* ar = Constraint::createArrayCS(astctxt);
 
 	EXPECT_EQ(ar->getKind(), Constraint::Kind::ArrayCS);
-	EXPECT_TRUE(ArrayCS::classof(ar));
+	EXPECT_TRUE(ar->is(Constraint::Kind::ArrayCS));
 }
 
 TEST(ASTTests, TypeRTTI)
@@ -493,9 +489,9 @@ TEST(ASTTests, BasicVisitor)
 class CSToTxt : public ConstraintVisitor<CSToTxt, std::string>
 {
 	public:
-		#define PRINT(NODE)\
-		std::string visit##NODE(NODE*){ \
-			return #NODE; \
+		#define PRINT(CS)\
+		std::string visit##CS(Constraint*){ \
+			return #CS; \
 		}
 		#define CS(ID, PARENT) PRINT(ID)
 		#include "Fox/AST/Constraints.def"
@@ -507,10 +503,8 @@ TEST(ASTTests, ConstraintVisitorTest)
 	ASTContext astctxt;
 	Type intTy(PrimitiveType::getInt(astctxt));
 
-	Constraint* eq = EqualityCS::create(astctxt, intTy);
-	Constraint* ar = ArrayCS::create(astctxt);
+	Constraint* ar = Constraint::createArrayCS(astctxt);
 
 	CSToTxt vis;
-	EXPECT_EQ(vis.visit(eq), "EqualityCS");
 	EXPECT_EQ(vis.visit(ar), "ArrayCS");
 }
