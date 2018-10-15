@@ -19,7 +19,7 @@ include_directories(thirdparty) # Third Party libraries includes
 
 # add main subdirs
 add_subdirectory(lib)
-add_subdirectory(tools)
+add_subdirectory(tools/CommandLine)
 
 # add test subdir
 add_subdirectory(tests)
