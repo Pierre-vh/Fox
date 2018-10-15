@@ -442,6 +442,6 @@ namespace
 Expr* Sema::typecheckExpr(Expr* expr)
 {
 	expr = ExprChecker(*this).walk(expr);
-	//expr = ExprFinalizer(ctxt_, diags_).walk(expr);
+	expr = ExprFinalizer(ctxt_, diags_).walk(expr);
 	return expr;
 }
