@@ -232,7 +232,7 @@ bool Sema::unify(Type& aRef, Type& bRef)
 	//std::cout << "unify(" << a->toDebugString() << ", " << b->toDebugString() << ")\n";
 	assert(a && b && "Pointers cannot be null");
 
-	// Pre-unification checks, if they fail, return.
+	// Pre-unification checks, if they fail, unification fails too.
 	if (!performPreUnificationTasks(a, b))
 		return false;
 
@@ -240,7 +240,28 @@ bool Sema::unify(Type& aRef, Type& bRef)
 	if (compareSubtypes(a, b) && !a.is<ConstrainedType>())
 		return true;
 
-	// Unification algorithm.
+	/* Unification logic */
+	/* 1) A(ConstrainedType) = B
+			-> B is a ConstrainedType
+				-> A and B have the same constraints
+					-> A and B both have a substitution
+						-> return unify(a's sub, b's sub)
+					-> Only A has one
+						-> B's sub becomes the same as A's, return true
+					-> Only B has one
+						-> A's sub becomes the same as B's, return true
+					-> Both don't have one
+						-> Change A's TypeBase* to be the same as B's
+				-> Else return false
+			-> B isn't a ConstrainedType
+				-> return unifyConstrainedWithNonConstrained(...)
+		2) A(Not ConstrainedType) = B(ConstrainedType)
+			-> return unifyConstrainedWithNonConstrained(...)
+		3) A(Not ConstrainedType) = B(Not ConstrainedType)
+			-> If A and B are arrays
+				-> Unwrap them and retur unify(a's elemTy, b's elemTy)
+			-> Else return false.
+		*/		
 
 	// ConstrainedType = (Something)
 	if (auto* aCS = a.getAs<ConstrainedType>())
@@ -253,6 +274,7 @@ bool Sema::unify(Type& aRef, Type& bRef)
 		{
 			assert(bCS->numConstraints() > 0 && "Empty constraint set");
 
+			// Check if A and B have the same constraints
 			if (compareConstraintLists(aCS->getConstraints(), bCS->getConstraints()))
 			{
 				Type aSub = aCS->getSubstitution();
@@ -295,7 +317,7 @@ bool Sema::unify(Type& aRef, Type& bRef)
 		auto* bArr = b.getAs<ArrayType>();
 		if (!bArr) return false;
 
-		// Unify the elemnt types.
+		// Unify the element types.
 		Type aArr_elem = aArr->getElementType();
 		Type bArr_elem = bArr->getElementType();
 		assert(aArr_elem && bArr_elem && "Null array element type");
@@ -305,15 +327,18 @@ bool Sema::unify(Type& aRef, Type& bRef)
 	return false;
 }
 
-namespace
+bool Sema::checkConstraintOnType(ConstraintList& cs, Type ty)
 {
 	// checkConstraintOnType helper class.
 	// Checks if the type passed as argument respects the constraint
 	// if so, returns the type or the unwrapped type.
 	// e.g. 
 		// visit(ArrayCS, ArrayType) -> returns ArrayType::getElementType
-		// visit(EqualityCS, SomeType) -> returns the unified SomeType.
 	// Returns nullptr on failure.
+
+	// Note: this is currently very empty because I only have 1 constraint. More may come in the future,
+	// but if I manage to do everything without needing any more constraints, I'll remove this and use 
+	// a quicker version that doesn't call the visitor.
 	class ConstraintCheck : public ConstraintVisitor<ConstraintCheck, TypeBase*, TypeBase*>
 	{
 		public:
@@ -331,17 +356,16 @@ namespace
 				if (auto arr = dyn_cast<ArrayType>(ty))
 				{
 					auto* elemTy = arr->getElementType();
-					assert(elemTy 
+					assert(elemTy
 						&& "The type must have an element type");
 					return elemTy;
 				}
 				return nullptr;
 			}
 	};
-}
 
-bool Sema::checkConstraintOnType(ConstraintList& cs, Type ty)
-{
+	// Function logic
+
 	TypeBase* tmp = ty.getPtr();
 
 	// Check every constraint in the list individually.
