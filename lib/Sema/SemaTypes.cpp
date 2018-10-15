@@ -159,26 +159,11 @@ namespace
 	// NOTE: Here strictly equal doesn't mean pointer equality. This function compares
 	// the members of the Constraints when needed, so different instances with the same members
 	// are still considered equal.
-	bool compareConstraintLists(ConstraintList& a, ConstraintList& b, bool* subtypeEqual = nullptr)
+	bool compareConstraintLists(ConstraintList& a, ConstraintList& b)
 	{
 		class ConstraintComparer : public ConstraintVisitor<ConstraintComparer, bool, Constraint*>
 		{
 			public:
-				ConstraintComparer(bool *isSubtypeEqual):
-					isSubtypeEqual(isSubtypeEqual)
-				{
-
-				}
-
-				bool* isSubtypeEqual = nullptr;
-
-				// Sets the value if the pointer isn't null
-				void set(bool* ptr, bool val)
-				{
-					if (ptr)
-						(*ptr) = val;
-				}
-
 				bool visitArrayCS(Constraint* cs, Constraint* other)
 				{
 					// Only true if the other is a ArrayCS too
@@ -190,7 +175,7 @@ namespace
 		if (a.size() != b.size())
 			return false;
 
-		ConstraintComparer csc(subtypeEqual);
+		ConstraintComparer csc;
 		for (std::size_t k = 0; k < a.size(); k++)
 		{
 			if (!csc.visit(a[k], b[k]))
