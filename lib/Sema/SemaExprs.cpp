@@ -266,8 +266,28 @@ namespace
 			}
 
 			// Array literals
+			// To deduce the type of an Array literal:
+			// if size > 0
+			//		Create a "proposed" type. For the first
+			//		iteration of the loop, set proposed to elemTy and continue,
+			//		After, unify the elemTy with the proposed, if rank(deferIf(elemTy)) > rank(deferIf(proposed)) -> proposed = elemTy.
+			// else
+			//		Type needs inference
 			Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr)
 			{
+				// Macro that unwraps a type if it's a ConstrainedType
+				// with a valid substitution. Else it simply returns it's argument.
+				static auto defer_if_possible = [](Type t) {
+					if (auto* ptr = t.getAs<ConstrainedType>())
+					{
+						// if the type has a substitution, return it, else
+						// just return the argument.
+						if(auto* sub = ptr->getSubstitution())
+							return Type(sub);
+					}
+					return t;
+				};
+
 				if (auto size = expr->getSize())
 				{
 					Type proposed = nullptr;
@@ -277,13 +297,6 @@ namespace
 					{
 						Type& elemTy = elem->getType();
 
-						// First loop, set proposed & continue.
-						if (!proposed)
-						{
-							proposed = elemTy;
-							continue;
-						}
-
 						// Handle error elem type.
 						if (elemTy.is<ErrorType>())
 						{
@@ -292,23 +305,40 @@ namespace
 							break;
 						}
 
+						// First loop, set proposed & continue.
+						if (!proposed)
+						{
+							proposed = elemTy;
+							continue;
+						}
+
+						// If both elemTy and proposed are ConstrainedTypes with
+						// no substitution, what should I do?
+
+						// Attempt to unify elemTy with the proposed type.
 						if (!getSema().unify(elemTy, proposed))
 						{
 							// Failed to unify: incompatible types
 							if(!elemTy.is<ErrorType>() && !proposed.is<ErrorType>())
 								getDiags().report(DiagID::sema_arraylit_hetero, expr->getRange());
-							std::cout << "proposed:" << proposed->toDebugString() << ", elemTy:" << elemTy->toDebugString() << "\n";
-							//std::cout << "Array was thought to be of type " << proposed->toString() << " but found " << elemTy->toString() << std::endl;
+							std::cout << "Array was thought to be of type " << proposed->toString() << " but found " << elemTy->toString() << std::endl;
 							proposed = nullptr;
 							break;
 						}
 
-						// TODO: Fix this, it doesn't play well with ConstrainedTypes.
-							// -> What to do in a situation where proposed is a [int] and elemty is a Constrained({ArrayCS}, [float])??
-							// use a new constrained type?
-						// Lastly, uprank if needed.
-						if (TypeBase* highestRanking = Sema::getHighestRankingType(elemTy, proposed).getPtr())
+						// Get the highest ranking type of both types
+						Type highestRanking =
+							Sema::getHighestRankingType(
+								defer_if_possible(elemTy),
+								defer_if_possible(proposed),
+								/*ignoreLValues*/ true,
+								/*unwrapTypes*/ true);
+						if (highestRanking)
+						{
+							std::cout << "Replacing " << proposed->toDebugString() << "(" << proposed.getPtr() << ")"
+								<< " with " << highestRanking->toDebugString() << "(" << highestRanking.getPtr() << ")" << "\n";
 							proposed = highestRanking;
+						}
 					}
 
 					// Apply.

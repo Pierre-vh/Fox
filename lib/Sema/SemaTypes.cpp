@@ -199,6 +199,42 @@ namespace
 		return true;
 	}
 
+	// Unification helper function: handles unification of a ConstrainedType with something that isn't
+	// a ConstrainedType.
+	bool unifyConstrainedWithNonConstrained(Sema& me, ConstrainedType* cs, Type type)
+	{
+		// Check if b can become A's substitution by checking if
+		// B respects the constraints of A.
+		if (me.checkConstraintOnType(cs->getConstraints(), type))
+		{
+			// B respects the constraints of A
+
+			// A has no substitution, just set it
+			if (!cs->hasSubstitution())
+			{
+				// Maybe I should use a Type& for the susbtitution,
+				// to be done if the TypeBase*'s problematic!
+				cs->setSubstitution(type.getPtr());
+				return true;
+			}
+			// A already has a substitution, unify it with B
+			else
+			{
+				Type csSub = cs->getSubstitution();
+				if (me.unify(csSub, type))
+				{
+					// If we have 2 constrained type with equivalent substitution, see
+					// if we can make any adjustement.
+					tryAdjustConstrainedType(cs, type.getPtr());
+					return true;
+				}
+				return false;
+			}
+		}
+		// B can't become A's substitution, unification fails.
+		return false;
+	}
+
 }	// anonymous namespace
 
 bool Sema::unify(Type& aRef, Type& bRef)
@@ -219,99 +255,69 @@ bool Sema::unify(Type& aRef, Type& bRef)
 	if (compareSubtypes(a, b) && !a.is<ConstrainedType>())
 		return true;
 
-	// Unification's impl
-	// This lambda returns 2 bool, the first one is true if
-	// the case was handled (it is not needed to call doIt again)
-	// false otherwise, the 2nd is the actual result of the unification.
-	auto doIt = [&]() -> std::pair<bool, bool> {
-		if (auto* aCS = a.getAs<ConstrainedType>())
-		{
-			assert(aCS->numConstraints() > 0 && "Empty constraint set");
-			// Constrained Type with Constrained Type
-			if (auto* bCS = b.getAs<ConstrainedType>())
-			{
-				assert(bCS->numConstraints() > 0 && "Empty constraint set");
+	// Unification algorithm.
 
-				if (compareConstraintLists(aCS->getConstraints(), bCS->getConstraints()))
-				{
-					Type aSub = aCS->getSubstitution();
-					Type bSub = bCS->getSubstitution();
-					// Both have a substitution
-					if (aSub && bSub)
-					{
-						// TODO: rework this by making them both use the same ConstrainedType instance
-						// if(unify(aSub, bSub)) a = b = aCS; (or something like that)
-						// else return false;
-						return { true, unify(aSub, bSub) };
-					}
-					// A has a substitution, but B doesn't.
-					else if (aSub)
-						bCS->setSubstitution(aSub.getPtr());
-					// B has a Substitution, but A doesn't.
-					else if (bSub)
-						aCS->setSubstitution(bSub.getPtr());
-					// Both have no substitution.
-					else
-					{
-						// Both have no substitution, but their ConstraintLists are identical:
-						// make both Type& point to the same type by making b point to a;
-						bRef = aRef;
-					}
-					return { true, true };
-				}
-				else
-					return { true, false };
-			}
-			else // Constrained type with anything else, check if it's ok
-			{
-				if (checkConstraintOnType(aCS->getConstraints(), b))
-				{
-					// Maybe I should use a Type& for the susbtitution,
-					// to be done if the TypeBase*'s problematic!
-					if (!aCS->hasSubstitution())
-						aCS->setSubstitution(b.getPtr());
-					else
-					{
-						Type aCSSub = aCS->getSubstitution();
-						if (unify(aCSSub, b))
-						{
-							// If we have 2 constrained type with equivalent substitution, see
-							// if we can make any adjustement.
-							tryAdjustConstrainedType(aCS, b.getPtr());
-							return { true, true };
-						}
-						return { false, false };
-					}
-					// Else return true.
-					return { true, true };
-				}
-			}
-		}
-		else if(auto* aArr = a.getAs<ArrayType>())
-		{
-			auto* bArr = b.getAs<ArrayType>();
-			if (!bArr) return { false , false };
-
-			Type aArr_elem = aArr->getElementType();
-			Type bArr_elem = bArr->getElementType();
-			assert(aArr_elem && bArr_elem && "Null array element type");
-			return { true, unify(aArr_elem, bArr_elem) };
-		}
-		// Unhandled
-		return { false, false };
-	};
-
-	// Try to unify a and b, if it fails, try with b and a.
-	// Return result.second after that.
-	auto result = doIt();
-	if (!result.first)
+	// ConstrainedType = (Something)
+	if (auto* aCS = a.getAs<ConstrainedType>())
 	{
-		// If it fails the first time (unhandled case), 
-		// try again once more by swapping a and b.
-		std::swap(a, b);
-		result = doIt();
+		// A constrained type should ALWAYS have at least one Constraint.
+		assert(aCS->numConstraints() > 0 && "Empty constraint set");
+
+		// ConstrainedType = ConstrainedType
+		if (auto* bCS = b.getAs<ConstrainedType>())
+		{
+			assert(bCS->numConstraints() > 0 && "Empty constraint set");
+
+			if (compareConstraintLists(aCS->getConstraints(), bCS->getConstraints()))
+			{
+				Type aSub = aCS->getSubstitution();
+				Type bSub = bCS->getSubstitution();
+				// Both have a substitution, unify them !
+				if (aSub && bSub)
+				{
+					// Both have a substitution: unify the substitutions.
+					return unify(aSub, bSub);
+				}
+				// A has a substitution, but B doesn't.
+				else if (aSub)
+					bCS->setSubstitution(aSub.getPtr());
+				// B has a Substitution, but A doesn't.
+				else if (bSub)
+					aCS->setSubstitution(bSub.getPtr());
+				// Both have no substitution.
+				else
+				{
+					// Both have no substitution, since we want A to be equal to B,
+					// make A's pointer the same as B's
+					aRef = bRef;
+				}
+				return true;
+			}
+			else
+				return false;
+		}
+		// ConstrainedType = (Not ConstrainedType)
+		else
+			return unifyConstrainedWithNonConstrained(*this, aCS, b);
 	}
-	return result.second;
+	// (Not ConstrainedType) = ConstrainedType
+	else if (auto* bCS = b.getAs<ConstrainedType>())
+		return unifyConstrainedWithNonConstrained(*this, bCS, a);
+	// ArrayType = (Something)
+	else if(auto* aArr = a.getAs<ArrayType>())
+	{
+		// Only succeeds if B is an ArrayType
+		auto* bArr = b.getAs<ArrayType>();
+		if (!bArr) return false;
+
+		// Unify the elemnt types.
+		Type aArr_elem = aArr->getElementType();
+		Type bArr_elem = bArr->getElementType();
+		assert(aArr_elem && bArr_elem && "Null array element type");
+		return unify(aArr_elem, bArr_elem);
+	}
+	// Unhandled
+	return false;
 }
 
 namespace
@@ -349,7 +355,7 @@ namespace
 	};
 }
 
-bool Sema::checkConstraintOnType(ConstraintList& cs, Type& ty)
+bool Sema::checkConstraintOnType(ConstraintList& cs, Type ty)
 {
 	TypeBase* tmp = ty.getPtr();
 
@@ -383,18 +389,33 @@ bool Sema::isIntegral(Type type)
 	return false;
 }
 
-Type Sema::getHighestRankingType(Type a, Type b)
+Type Sema::getHighestRankingType(Type a, Type b, bool ignoreLValues, bool unwrapTypes)
 {
+	// Backup the original type before we do anything with them.
+	Type ogA = a, ogB = b;
+
 	assert(a && b && "Pointers cannot be null");
 
+	if (ignoreLValues)
+	{
+		a = a->ignoreLValue();
+		b = b->ignoreLValue();
+	}
+
+	if (unwrapTypes)
+	{
+		std::tie(a, b) = recursivelyUnwrapArrayTypes(a.getPtr(), b.getPtr());
+		assert(a && b && "Types are null after unwrapping?");
+	}
+
 	if (a == b)
-		return a;
+		return ogA;
 
 	if (isIntegral(a) && isIntegral(b))
 	{
 		if (getIntegralRank(a) > getIntegralRank(b))
-			return a;
-		return b;
+			return ogA;
+		return ogB;
 	}
 	return nullptr;
 }
@@ -419,4 +440,11 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type type)
 		default:
 			fox_unreachable("Unknown integral type");
 	}
+}
+
+bool Sema::isMaterializable(Type t)
+{
+	if (auto* cs = t.getAs<ConstrainedType>())
+		return !cs->hasSubstitution();
+	return true;
 }

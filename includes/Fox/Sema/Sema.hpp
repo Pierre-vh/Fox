@@ -46,13 +46,13 @@ namespace fox
 			// This unification algorithm won't alter types unless
 			// they are SemaTypes.
 			//
-			// Also, this function is commutative,
-			// (unifySubtype(a,b) or (b,a) will have the same outcome)
+			// Also, this function is NOT commutative,
+			// unify(a,b) might succeed when unify(b,a) fails.
 			bool unify(Type& aRef, Type& bRef);
 
 			// Checks if the type ty "respects" every constraint in cs.
 			// Return true on success, false otherwise.
-			bool checkConstraintOnType(ConstraintList& cs, Type& ty);
+			bool checkConstraintOnType(ConstraintList& cs, Type ty);
 
 			// Returns true if a is a PrimitiveType of
 			// type Int/Float/Bool
@@ -62,11 +62,18 @@ namespace fox
 				// If they are integrals, return the highest ranking integral's type
 				// If they are equal, return it's first argument
 				// Returns nullptr otherwise.
-			static Type getHighestRankingType(Type a, Type b);
+			// if unwrapTypes is set to true, types are unwrapped together.
+			//		e.g. [int] & [int] is unwrapped to int & int but [[int]] & [int] is unwrapped to [int] & int
+			// if ignoreLValues is set to true, lvalues are ignored prior to comparison.
+			static Type getHighestRankingType(Type a, Type b, bool ignoreLValues = false, bool unwrapTypes = false);
 
 			// This method returns the integral rank that a given type has.
 			// type must not be null and must point to a arithmetic type.
 			static IntegralRankTy getIntegralRank(Type type);
+
+			// Returns false if type is a ConstrainedType with no substitution, false
+			// otherwise.
+			static bool isMaterializable(Type t);
 
 			DiagnosticEngine& getDiagnosticEngine();
 			ASTContext& getASTContext();
