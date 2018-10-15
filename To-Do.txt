@@ -70,21 +70,16 @@ Moonshot Project To-do List.
 	> Constraint Printer (toString & toDebugString) (Done)
 	> Type debug print (toDebugString) (Done)
 	> Removing ParensExpr (Done)
+	> ConstrainedType in Semantic Analysis (Next)
+	> Fix use of "getHighestRankingType" in visitArrayLiteral (Done)
 
-	> Fix use of "getHighestRankingType" in visitArrayLiteral in SemaExprs because it doesn't play well with constrained types. (Next)
+	> Document unify more (and add truth table example) (Next)
+	> Code review in SemaType/SemaExpr + Testing thoroughly
+	> Finish basic expr semantic analysis
+	> Write FoxTestingTool & Test current semantics
 
-	> ConstrainedType in Semantic Analysis
-		> Check if a type follows a set of Constraints
-		> Add support in unify (follow notes) (Done)
-		> Add support for substitution adjust (Done)
-		> Make unify use references and fix ConstrainedType nesting (Done)
-		> Rewrite Sema::compareConstraintLists method to compare differently (Done)
-		> In Unify, when both CsTy have a Sub, do "aRef = bRef = x" where x is the "best of the two constrained type" which is
-			the one with the "highest ranked susbtitution".
-		> Delete SemaType (Done)
-		> Code review & cleanup in SemaTypes.cpp
 
-	> Basic Expression Semantic analysis (Current task)
+Order of semantic analysis (left to be done)
 	> Stmt Semantic Analysis
 	> Decl Semantic Analysis
 	> Name Resolution (DeclRefs of vars)
