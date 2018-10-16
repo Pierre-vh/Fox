@@ -19,7 +19,7 @@ namespace fox
 	class StrDiagConsumer : public DiagnosticConsumer
 	{
 		public:
-			virtual void consume(const Diagnostic& diag) override
+			virtual void consume(Diagnostic& diag) override
 			{
 				count_++;
 				str_ = diag.getDiagStr();
