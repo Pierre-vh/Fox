@@ -23,7 +23,8 @@ namespace fox
 	class DiagnosticConsumer
 	{
 		public:
-			virtual void consume(const Diagnostic& diag) = 0;
+			virtual void consume(Diagnostic& diag) = 0;
+
 		protected:
 			std::string getLocInfo(SourceManager& sm, const SourceRange& range, bool isFileWide) const;
 			std::string diagSevToString(DiagSeverity ds) const;
@@ -36,7 +37,7 @@ namespace fox
 	{
 		public:
 			StreamDiagConsumer(SourceManager& sm,std::ostream& stream = std::cout); // Default outstream is cout (stdio)
-			virtual void consume(const Diagnostic& diag) override;
+			virtual void consume(Diagnostic& diag) override;
 
 		private:
 			// Displays a line of code along with the caret.

@@ -89,7 +89,7 @@ StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream)
 
 }
 
-void StreamDiagConsumer::consume(const Diagnostic& diag)
+void StreamDiagConsumer::consume(Diagnostic& diag)
 {
 	os_ << getLocInfo(sm_, diag.getRange(), diag.isFileWide())
 		<< " - " 
