@@ -216,7 +216,6 @@ namespace fox
 				TokenIteratorTy tokenIterator;
 
 				bool isAlive : 1;				// This is set to false when the parser dies (gives up)
-				bool isRecoveryAllowed : 1;
 			
 				// Brackets counters
 				std::uint8_t curlyBracketsCount  = 0;

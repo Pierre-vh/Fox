@@ -507,13 +507,15 @@ void Parser::restoreParserStateFromBackup(const Parser::ParserState & st)
 }
 
 // ParserState
-Parser::ParserState::ParserState() : isAlive(true), isRecoveryAllowed(false)
+Parser::ParserState::ParserState():
+	isAlive(true)
 {
 
 }
 
 // RAIIDeclContext
-Parser::RAIIDeclContext::RAIIDeclContext(Parser &p, DeclContext *dr) : parser_(p)
+Parser::RAIIDeclContext::RAIIDeclContext(Parser &p, DeclContext *dr):
+	parser_(p)
 {
 	declCtxt_ = parser_.state_.declContext;
 
