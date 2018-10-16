@@ -26,6 +26,8 @@
 //		Parser "to-do" list. Important stuff is marked with (*)
 //			Add better error recovey with common cases support in if/while parsing & function declaration
 //
+//			Add a way for the parser to ignore comment tokens.
+//
 ////------------------------------------------------------////
 
 #pragma once
