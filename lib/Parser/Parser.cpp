@@ -141,16 +141,6 @@ SourceRange Parser::consumeKeyword(KeywordType k)
 	return SourceRange();
 }
 
-bool Parser::peekNext(SignType s)
-{
-	return getCurtok().is(s);
-}
-
-bool Parser::peekNext(KeywordType s)
-{
-	return getCurtok().is(s);
-}
-
 void Parser::consumeAny()
 {
 	Token tok = getCurtok();

@@ -174,11 +174,6 @@ namespace fox
 			// Consumes a keyword. Returns an invalid SourceRange if not found.
 			SourceRange consumeKeyword(KeywordType k);
 
-			// Peek a Keyword or a Sign. Returns true if the next token is of the requested kind.
-			// Does not update any counter.
-			bool peekNext(SignType s);
-			bool peekNext(KeywordType s);
-
 			// Dispatch to the appriate consume method. Won't return any loc information.
 			// Used to skip a token, updating any necessary counters.
 			void consumeAny();
