@@ -46,12 +46,12 @@ Diagnostic DiagnosticEngine::report(DiagID diagID)
 	return report(diagID, SourceRange());
 }
 
-Diagnostic DiagnosticEngine::report(DiagID diagID, const FileID & file)
+Diagnostic DiagnosticEngine::report(DiagID diagID, FileID file)
 {
 	return report(diagID, SourceRange(SourceLoc(file))).setIsFileWide(true);
 }
 
-Diagnostic DiagnosticEngine::report(DiagID diagID, const SourceRange& range)
+Diagnostic DiagnosticEngine::report(DiagID diagID, SourceRange range)
 {
 	// Gather diagnostic data
 	const auto idx = static_cast<typename std::underlying_type<DiagID>::type>(diagID);
@@ -70,7 +70,7 @@ Diagnostic DiagnosticEngine::report(DiagID diagID, const SourceRange& range)
 			);;
 }
 
-Diagnostic DiagnosticEngine::report(DiagID diagID, const SourceLoc& loc)
+Diagnostic DiagnosticEngine::report(DiagID diagID, SourceLoc loc)
 {
 	return report(diagID, SourceRange(loc));
 }

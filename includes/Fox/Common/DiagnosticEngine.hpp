@@ -6,6 +6,10 @@
 ////------------------------------------------------------//// 
 // This file declares the DiagnosticEngine class, which is used
 // to coordinate diagnostic generation and consumption.
+//
+// This class will also promote or demote diagnostics severity 
+// based on some options. It will also keep track of how many errors
+// and warnings have been emitted.
 ////------------------------------------------------------////
 
 #pragma once
@@ -13,7 +17,6 @@
 #include <memory>
 #include "Diagnostic.hpp"
 #include "DiagnosticConsumers.hpp"
-#define DIAGENGINE_DEFAULT_ERR_LIMIT 0
 
 namespace fox
 {
@@ -30,9 +33,9 @@ namespace fox
 			DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);
 
 			Diagnostic report(DiagID diagID);
-			Diagnostic report(DiagID diagID, const FileID& file);
-			Diagnostic report(DiagID diagID, const SourceRange& range);
-			Diagnostic report(DiagID diagID, const SourceLoc& loc);
+			Diagnostic report(DiagID diagID, FileID file);
+			Diagnostic report(DiagID diagID, SourceRange range);
+			Diagnostic report(DiagID diagID, SourceLoc loc);
 
 			void setConsumer(std::unique_ptr<DiagnosticConsumer> ncons);
 			DiagnosticConsumer * getConsumer();
@@ -69,6 +72,8 @@ namespace fox
 			bool getSilenceAll() const;
 			void setSilenceAll(bool val);
 
+			static constexpr std::uint16_t defaultErrorLimit = 0;
+
 		protected:
 			friend class Diagnostic;
 			void handleDiagnostic(Diagnostic& diag);
@@ -82,17 +87,17 @@ namespace fox
 
 			// Bitfields : Options
 			bool warningsAreErrors_	: 1;
-			bool errorsAreFatal_	: 1;
-			bool silenceWarnings_	: 1;
-			bool silenceNotes_		: 1;
+			bool errorsAreFatal_ : 1;
+			bool silenceWarnings_ : 1;
+			bool silenceNotes_ : 1;
 			bool silenceAllAfterFatalError_ : 1;
 			bool silenceAll_ : 1;
 			// 2 bits left : Flags
-			bool hasFatalErrorOccured_	: 1;
-			bool errLimitReached_		: 1;
+			bool hasFatalErrorOccured_ : 1;
+			bool errLimitReached_ : 1;
 
 			/* Other non bool parameters */
-			std::uint16_t errLimit_ = DIAGENGINE_DEFAULT_ERR_LIMIT;
+			std::uint16_t errLimit_ = defaultErrorLimit;
 
 			/* Statistics */
 			std::uint16_t errorCount_ = 0;
