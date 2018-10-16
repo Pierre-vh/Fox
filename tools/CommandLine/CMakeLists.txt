@@ -1,1 +1,1 @@
-add_source(tools_src "CommandLineTool.cpp")
+add_source(cli_src "CommandLineTool.cpp")
