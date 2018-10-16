@@ -172,13 +172,16 @@ void DiagnosticEngine::setSilenceAll(bool val)
 
 void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
 {
-	updateInternalCounters(diag.getDiagSeverity());
-
 	if (diag.getDiagSeverity() != DiagSeverity::IGNORE)
 	{
 		assert(consumer_ && "No valid consumer");
 		consumer_->consume(diag);
 	}
+
+	// Update our counters after consuming the diagnostic, because
+	// some custom DiagnosticsConsumers might want to ignore specific
+	// diagnostics.
+	updateInternalCounters(diag.getDiagSeverity());
 
 	// Now, check if we must emit a "too many errors" error.
 	if ((errLimit_ != 0) && (errorCount_ >= errLimit_))
