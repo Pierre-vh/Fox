@@ -55,7 +55,7 @@ Parser::Result<Identifier*> Parser::consumeIdentifier()
 	{
 		Identifier* ptr = tok.getIdentifierInfo();
 		assert(ptr && "Token's an identifier but contains a nullptr Identifier?");
-		increaseTokenIter();
+		next();
 		return Result<Identifier*>(ptr,tok.getRange());
 	}
 	return Result<Identifier*>::NotFound();
@@ -67,7 +67,7 @@ SourceLoc Parser::consumeSign(SignType s)
 	auto tok = getCurtok();
 	if (tok.is(s))
 	{
-		increaseTokenIter();
+		next();
 		return tok.getRange().getBegin();
 	}
 	return SourceLoc();
@@ -123,7 +123,7 @@ SourceLoc Parser::consumeBracket(SignType s)
 			default:
 				fox_unreachable("unknown bracket type");
 		}
-		increaseTokenIter();
+		next();
 		assert((tok.getRange().getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
 		return SourceLoc(tok.getRange().getBegin());
 	}
@@ -135,7 +135,7 @@ SourceRange Parser::consumeKeyword(KeywordType k)
 	auto tok = getCurtok();
 	if (tok.is(k))
 	{
-		increaseTokenIter();
+		next();
 		return tok.getRange();
 	}
 	return SourceRange();
@@ -158,12 +158,12 @@ void Parser::consumeAny()
 	if (tok.isSign() && isBracket(tok.getSignType()))
 		consumeBracket(tok.getSignType());
 	else
-		increaseTokenIter();
+		next();
 }
 
 void Parser::revertConsume()
 {
-	decreaseTokenIter();
+	previous();
 	Token tok = getCurtok();
 
 	if (isBracket(tok.getSignType()))
@@ -219,13 +219,13 @@ void Parser::revertConsume()
 	// Else, we're done. For now, only brackets have counters associated with them.
 }
 
-void Parser::increaseTokenIter()
+void Parser::next()
 {
 	if (state_.tokenIterator != tokens_.end())
 		state_.tokenIterator++;
 }
 
-void Parser::decreaseTokenIter()
+void Parser::previous()
 {
 	if (state_.tokenIterator != tokens_.begin())
 		state_.tokenIterator--;

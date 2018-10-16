@@ -26,3 +26,5 @@ To-Do:
 	5) FTTParser
 		+ Parser tests
 	6) Bring it all together
+
+Problems to solve

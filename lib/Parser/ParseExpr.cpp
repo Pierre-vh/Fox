@@ -120,7 +120,7 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
 	if (!tok.isLiteral())
 		return ExprResult::NotFound();
 	
-	increaseTokenIter();
+	next();
 
 	auto litinfo = tok.getLiteralInfo();
 	Expr* expr = nullptr;
