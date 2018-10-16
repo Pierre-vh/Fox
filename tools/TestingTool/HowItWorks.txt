@@ -4,23 +4,17 @@ A basic file structure will have comments and Fox language constructs.
 Comments that start with /// or /** will be used as FTT instructions.
 
 There are only 2 basic FTT instructions for now.
-	1) Parse: Tells the tester to parse this kind of node.
+	1) Parse: Tells the tester to parse stmts or decls
 		example:
-			/// Parse BinaryExpr
+			/// Parse Stmts
 		In the future, an extra "count" argument might be created to allow application of the
 		same set of predicates to a number of nodes.
-	2) Expect: adds predicates that will test the next parsed nodes.
-		example:
-			/// Expect Type(Error) Diag(parser_expected_semi) Range([3,4], [4,5])
-		Predicates will be added by deriving from a "Predicate" class which will need to override a few things such as
-		as method to test the predicate on a node (returns true/false), etc.
+	2) Expect: adds immediate predicates that apply to the next node parsed.
 			
 Implementation:
-	First, the lexer is run on the file with the "keepComments" option active.
-	Once that's done, the lexer output is iterated over and every comment is scanned. 
-	If it's a instr comment, it's parsed, else it's ignored. in both case the comment is removed from the input stream.
+	TBA:
+		Needs support for predicates exclusive to a single parser call.
 
-	Then, the parser is simply run on the file. 
 	A custom DiagnosticConsumer will ignore every diagnostic that shouldn't be emitted.
 	The test passes if there are no errors or warnings emitted.
 
@@ -28,3 +22,5 @@ Implementation:
 		Custom Parser
 		Custom DiagnosticsConsumer
 		Predicates hierarchy
+
+Grammar: TBA
