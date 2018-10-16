@@ -92,20 +92,7 @@ Boring stuff that I must do when I have the time/motivation for it
 
 	> AST Serialization tool for unit tests
 
-	> Revamp tests:
-		Split Unit tests & Language tests
-		Use a format like JSon or Def files to register/create tests.
-
-Other things I'm working on:
-	FTT: Fox Testing Tool
-		A easier to use, lightweight testing tool for Fox's code.
-		TODO:
-			> Add lexer support to keep comments in a special token when requested to (Done)
-			> Add a Common utility to discover every file in a directory
-			> Begin work on FTT 
-
-		
-
-Later:
-	Use a "SourceFile" class instead of a "UnitDecl" class, like swift. This class would track the progress of the AST:
-	not parsed, parsed but not semantically analyzed, etc. Do that when implementing the multifile support
+Pending reworks:
+	> Token class -> Currently, it's an abomination. Nuke it and re-do it.
+	> Lexer/Parser -> Storing stuff in a vector is useless. Just allow the parser to call the lexer directly and
+	  retrieve tokens on the fly. More memory efficient, faster, etc.
