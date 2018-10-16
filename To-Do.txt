@@ -70,11 +70,10 @@ Moonshot Project To-do List.
 	> Constraint Printer (toString & toDebugString) (Done)
 	> Type debug print (toDebugString) (Done)
 	> Removing ParensExpr (Done)
-	> ConstrainedType in Semantic Analysis (Next)
+	> ConstrainedType in Semantic Analysis (Done)
 	> Fix use of "getHighestRankingType" in visitArrayLiteral (Done)
 
-	> Write FoxTestingTool & Test current semantics
-		-> Create FileSystem class (Next)
+	> Write FoxTestingTool & Test current semantics (Next)
 
 	> Code review in SemaType/SemaExpr & Write tests using new FTT tool
 	> Finish basic expr semantic analysis
