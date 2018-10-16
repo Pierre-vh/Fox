@@ -40,8 +40,12 @@ namespace fox
 	{
 		// Note: in this class, some methods will return a Diagnostic&. This is done
 		// to enable function chaining, such as ".addArg(..).addArg(...).freeze()"
-		public:
+		protected:
+			friend class DiagnosticEngine;
+
 			Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,const std::string& dStr, const SourceRange& range = SourceRange());
+		
+		public:
 			// Note : both copy/move ctors kill the copied diag.
 			Diagnostic(Diagnostic &other);
 			Diagnostic(Diagnostic &&other);
