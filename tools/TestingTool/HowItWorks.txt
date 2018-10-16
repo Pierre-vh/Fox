@@ -1,0 +1,26 @@
+The Fox Testing Tool (FTT) is going to work by leveraging existing Fox tools such as the parser.
+
+A basic file structure will have comments and Fox language constructs.
+Comments that start with /// or /** will be used as FTT instructions.
+
+There are only 2 basic FTT instructions for now.
+	1) Parse: Tells the tester to parse this kind of node.
+		example:
+			/// Parse BinaryExpr
+		In the future, an extra "count" argument might be created to allow application of the
+		same set of predicates to a number of nodes.
+	2) Expect: adds predicates that will test the next parsed nodes.
+		example:
+			/// Expect Type(Error) Diag(parser_expected_semi) Range([3,4], [4,5])
+		Predicates will be added by deriving from a "Predicate" class which will need to override a few things such as
+		as method to test the predicate on a node (returns true/false), etc.
+			
+Implementation:
+	The "main" Parser will derive from the "Fox" parse and modify it slightly:
+		In the getToken() function, if the current token is a Comment that begins with '/' or '*',
+		lex & parse the comment body using another parser, the FTTParser, which will parse FTT instructions
+		and prepare the current "Test" instance.
+
+		Then, when the Parser encounters something that isn't a comment, it parses the node and 
+		calls every predicate to check it, before flushing the "predicate stack". This means that predicates
+		are "one time use only".
