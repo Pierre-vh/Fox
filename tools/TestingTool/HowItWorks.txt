@@ -3,24 +3,26 @@ The Fox Testing Tool (FTT) is going to work by leveraging existing Fox tools suc
 A basic file structure will have comments and Fox language constructs.
 Comments that start with /// or /** will be used as FTT instructions.
 
-There are only 2 basic FTT instructions for now.
-	1) Parse: Tells the tester to parse stmts or decls
-		example:
-			/// Parse Stmts
-		In the future, an extra "count" argument might be created to allow application of the
-		same set of predicates to a number of nodes.
-	2) Expect: adds immediate predicates that apply to the next node parsed.
-			
-Implementation:
-	TBA:
-		Needs support for predicates exclusive to a single parser call.
+Example FTT instructions
+	1) Parse [Stmt/Decl/Std] -> Sets the parsing mode: expect statements, decls or just a standard file.
+	2) Expect: adds immediate predicates that apply to the next parser call
+	3) LookFor [Decl::XXX/Expr::XXX/Stmt::XXX] -> Walks the tree until it finds a node of the kind XXX.
+Example:
 
-	A custom DiagnosticConsumer will ignore every diagnostic that shouldn't be emitted.
-	The test passes if there are no errors or warnings emitted.
+Implementation:
+	-> Special testing tool parser to parse directives.
+	-> Make the parser ignore comment tokens and work with them enabled without trouble.
 
 	Key parts:
 		Custom Parser
 		Custom DiagnosticsConsumer
-		Predicates hierarchy
 
-Grammar: TBA
+To-Do:
+	1) Find a cooler name than "FoxTestingTool"
+	2) Update the parser to ignore comment tokens
+	2) Test Object, Test Runner
+	4) Predicates with the first few predicates/functions
+		+ Predicate tests
+	5) FTTParser
+		+ Parser tests
+	6) Bring it all together
