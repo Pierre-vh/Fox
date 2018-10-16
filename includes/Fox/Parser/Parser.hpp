@@ -215,10 +215,6 @@ namespace fox
 				// The current token
 				TokenIteratorTy tokenIterator;
 
-				// The last token that was the target of the "unexpected token" error.
-				// This is saved to avoid printing the "unexpected token x" multiple time for the same token.
-				TokenIteratorTy lastUnexpectedTokenIt;
-
 				bool isAlive : 1;				// This is set to false when the parser dies (gives up)
 				bool isRecoveryAllowed : 1;
 			
@@ -232,11 +228,10 @@ namespace fox
 			} state_;
 
 			// Interrogate state_
-				// isDone returns false if( (state_.tokenIterator == tokens_.end) or !isAlive())
 			bool isDone() const;
-				// Returns state_.isAlive
 			bool isAlive() const;
-				// Kills Parsing (stops it)
+
+			// Stops the parsing
 			void die();
 
 			// Register a declaration in state_.declContext, asserting that it's not null.

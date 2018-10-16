@@ -43,9 +43,7 @@ DiagnosticEngine& Parser::getDiagnosticEngine()
 
 void Parser::setupParser()
 {
-	// Setup iterators
 	state_.tokenIterator = tokens_.begin();
-	state_.lastUnexpectedTokenIt = tokens_.begin();
 }
 
 Parser::Result<Identifier*> Parser::consumeIdentifier()
