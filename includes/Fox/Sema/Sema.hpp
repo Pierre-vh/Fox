@@ -71,10 +71,6 @@ namespace fox
 			// type must not be null and must point to a arithmetic type.
 			static IntegralRankTy getIntegralRank(Type type);
 
-			// Returns false if type is a ConstrainedType with no substitution, false
-			// otherwise.
-			static bool isMaterializable(Type t);
-
 			DiagnosticEngine& getDiagnosticEngine();
 			ASTContext& getASTContext();
 

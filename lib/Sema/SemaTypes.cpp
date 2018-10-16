@@ -450,10 +450,3 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type type)
 			fox_unreachable("Unknown integral type");
 	}
 }
-
-bool Sema::isMaterializable(Type t)
-{
-	if (auto* cs = t.getAs<ConstrainedType>())
-		return !cs->hasSubstitution();
-	return true;
-}
