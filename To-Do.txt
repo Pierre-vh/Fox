@@ -74,9 +74,9 @@ Moonshot Project To-do List.
 	> Fix use of "getHighestRankingType" in visitArrayLiteral (Done)
 
 	> Write FoxTestingTool & Test current semantics (Next)
+	> Finish basic expr semantic analysis (Next)
 
 	> Code review in SemaType/SemaExpr & Write tests using new FTT tool
-	> Finish basic expr semantic analysis
 
 
 Order of semantic analysis (left to be done)
