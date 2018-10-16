@@ -88,13 +88,13 @@ namespace fox
 			// Bitfields : Options
 			bool warningsAreErrors_	: 1;
 			bool errorsAreFatal_ : 1;
-			bool silenceWarnings_ : 1;
-			bool silenceNotes_ : 1;
-			bool silenceAllAfterFatalError_ : 1;
-			bool silenceAll_ : 1;
-			// 2 bits left : Flags
+			bool ignoreWarnings_ : 1;
+			bool ignoreNotes_ : 1;
+			bool ignoreAllAfterFatalError_ : 1;
+			bool ignoreAll_ : 1;
 			bool hasFatalErrorOccured_ : 1;
 			bool errLimitReached_ : 1;
+			// 0 bits left
 
 			/* Other non bool parameters */
 			std::uint16_t errLimit_ = defaultErrorLimit;

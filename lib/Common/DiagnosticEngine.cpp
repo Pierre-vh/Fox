@@ -31,14 +31,14 @@ DiagnosticEngine::DiagnosticEngine(SourceManager& sm) : DiagnosticEngine(std::ma
 
 DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons): consumer_(std::move(ncons))
 {
-	errLimitReached_			= false;
-	hasFatalErrorOccured_		= false;
-	errorsAreFatal_				= false;
-	silenceAll_					= false;
-	silenceAllAfterFatalError_	= false;
-	silenceNotes_				= false;
-	silenceWarnings_			= false;
-	warningsAreErrors_			= false;
+	errLimitReached_ = false;
+	hasFatalErrorOccured_ = false;
+	errorsAreFatal_ = false;
+	ignoreAll_ = false;
+	ignoreAllAfterFatalError_ = false;
+	ignoreNotes_ = false;
+	ignoreWarnings_ = false;
+	warningsAreErrors_ = false;
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID)
@@ -132,42 +132,42 @@ void DiagnosticEngine::setErrorsAreFatal(bool val)
 
 bool DiagnosticEngine::getSilenceWarnings() const
 {
-	return silenceWarnings_;
+	return ignoreWarnings_;
 }
 
 void DiagnosticEngine::setSilenceWarnings(bool val)
 {
-	silenceWarnings_ = val;
+	ignoreWarnings_ = val;
 }
 
 bool DiagnosticEngine::getSilenceNotes() const
 {
-	return silenceNotes_;
+	return ignoreNotes_;
 }
 
 void DiagnosticEngine::setSilenceNotes(bool val)
 {
-	silenceNotes_ = val;
+	ignoreNotes_ = val;
 }
 
 bool DiagnosticEngine::getSilenceAllAfterFatalErrors() const
 {
-	return silenceAllAfterFatalError_;
+	return ignoreAllAfterFatalError_;
 }
 
 void DiagnosticEngine::setSilenceAllAfterFatalErrors(bool val)
 {
-	silenceAllAfterFatalError_ = val;
+	ignoreAllAfterFatalError_ = val;
 }
 
 bool DiagnosticEngine::getSilenceAll() const
 {
-	return silenceAll_;
+	return ignoreAll_;
 }
 
 void DiagnosticEngine::setSilenceAll(bool val)
 {
-	silenceAll_ = val;
+	ignoreAll_ = val;
 }
 
 void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
