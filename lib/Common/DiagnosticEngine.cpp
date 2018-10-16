@@ -130,42 +130,42 @@ void DiagnosticEngine::setErrorsAreFatal(bool val)
 	errorsAreFatal_ = val;
 }
 
-bool DiagnosticEngine::getSilenceWarnings() const
+bool DiagnosticEngine::getIgnoreWarnings() const
 {
 	return ignoreWarnings_;
 }
 
-void DiagnosticEngine::setSilenceWarnings(bool val)
+void DiagnosticEngine::setIgnoreWarnings(bool val)
 {
 	ignoreWarnings_ = val;
 }
 
-bool DiagnosticEngine::getSilenceNotes() const
+bool DiagnosticEngine::getIgnoreNotes() const
 {
 	return ignoreNotes_;
 }
 
-void DiagnosticEngine::setSilenceNotes(bool val)
+void DiagnosticEngine::setIgnoreNotes(bool val)
 {
 	ignoreNotes_ = val;
 }
 
-bool DiagnosticEngine::getSilenceAllAfterFatalErrors() const
+bool DiagnosticEngine::getIgnoreAllAfterFatal() const
 {
 	return ignoreAllAfterFatalError_;
 }
 
-void DiagnosticEngine::setSilenceAllAfterFatalErrors(bool val)
+void DiagnosticEngine::setIgnoreAllAfterFatal(bool val)
 {
 	ignoreAllAfterFatalError_ = val;
 }
 
-bool DiagnosticEngine::getSilenceAll() const
+bool DiagnosticEngine::getIgnoreAll() const
 {
 	return ignoreAll_;
 }
 
-void DiagnosticEngine::setSilenceAll(bool val)
+void DiagnosticEngine::setIgnoreAll(bool val)
 {
 	ignoreAll_ = val;
 }
@@ -192,7 +192,7 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
 			// Important : set this to true to avoid infinite recursion.
 			errLimitReached_ = true;
 			report(DiagID::diagengine_maxErrCountExceeded).addArg(errorCount_).emit();
-			setSilenceAll(true);
+			setIgnoreAll(true);
 		}
 	}
 }
@@ -201,10 +201,10 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const
 {
 	using Sev = DiagSeverity;
 
-	if (getSilenceAll())
+	if (getIgnoreAll())
 		return Sev::IGNORE;
 
-	if (getSilenceAllAfterFatalErrors() && hasFatalErrorOccured())
+	if (getIgnoreAllAfterFatal() && hasFatalErrorOccured())
 		return Sev::IGNORE;
 
 	switch (ds)
@@ -214,12 +214,12 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const
 			return Sev::IGNORE;
 		// Notes are silenced if the corresponding option is set
 		case Sev::NOTE:
-			return getSilenceNotes() ? Sev::IGNORE : Sev::NOTE;
+			return getIgnoreNotes() ? Sev::IGNORE : Sev::NOTE;
 		// If Warnings must be silent, the warning is ignored.
 		// Else, if the warnings are considered errors,
 		// it is promoted to an error. If not, it stays a warning.
 		case Sev::WARNING:
-			if (getSilenceWarnings())
+			if (getIgnoreWarnings())
 				return Sev::IGNORE;
 			return getWarningsAreErrors() ? Sev::ERROR : Sev::WARNING;
 		// Errors are Ignored if too many of them have occured.

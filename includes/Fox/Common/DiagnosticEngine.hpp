@@ -60,17 +60,17 @@ namespace fox
 			bool getErrorsAreFatal() const;
 			void setErrorsAreFatal(bool val);
 
-			bool getSilenceWarnings() const;
-			void setSilenceWarnings(bool val);
+			bool getIgnoreWarnings() const;
+			void setIgnoreWarnings(bool val);
 
-			bool getSilenceNotes() const;
-			void setSilenceNotes(bool val);
+			bool getIgnoreNotes() const;
+			void setIgnoreNotes(bool val);
 
-			bool getSilenceAllAfterFatalErrors() const;
-			void setSilenceAllAfterFatalErrors(bool val);
+			bool getIgnoreAllAfterFatal() const;
+			void setIgnoreAllAfterFatal(bool val);
 
-			bool getSilenceAll() const;
-			void setSilenceAll(bool val);
+			bool getIgnoreAll() const;
+			void setIgnoreAll(bool val);
 
 			static constexpr std::uint16_t defaultErrorLimit = 0;
 

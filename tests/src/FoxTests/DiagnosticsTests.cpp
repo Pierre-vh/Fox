@@ -202,7 +202,7 @@ TEST(DiagnosticsTests, SilencedWarnings)
 {
 	auto diagEng = createDiagEngine();
 	// Set flag
-	diagEng.setSilenceWarnings(true);
+	diagEng.setIgnoreWarnings(true);
 	// Test.
 	auto diagWarn = diagEng.report(DiagID::unittest_warntest);
 	EXPECT_EQ(diagWarn.getDiagSeverity(),DiagSeverity::IGNORE) << "Reported diagnostic wasn't a silenced diag";
@@ -213,7 +213,7 @@ TEST(DiagnosticsTests, SilencedNotes)
 {
 	auto diagEng = createDiagEngine();
 	// Set flag
-	diagEng.setSilenceNotes(true);
+	diagEng.setIgnoreNotes(true);
 	// Test.
 	auto diagNote = diagEng.report(DiagID::unittest_notetest);
 	EXPECT_EQ(diagNote.getDiagSeverity(), DiagSeverity::IGNORE) << "Reported diagnostic wasn't a silenced diag";
@@ -224,7 +224,7 @@ TEST(DiagnosticsTests, SilenceAllAfterFatal)
 {
 	auto diagEng = createDiagEngine();
 	// Set flag
-	diagEng.setSilenceAllAfterFatalErrors(true);
+	diagEng.setIgnoreAllAfterFatal(true);
 	// Test emission of an error
 	diagEng.report(DiagID::unittest_errtest).emit();
 	ASSERT_EQ(diagEng.getErrorsCount(), 1) << "Error wasn't recorded?";
@@ -243,7 +243,7 @@ TEST(DiagnosticsTests, SilenceAllAfterFatal)
 TEST(DiagnosticsTests, SilenceAll)
 {
 	auto diagEng = createDiagEngine();
-	diagEng.setSilenceAll(true);
+	diagEng.setIgnoreAll(true);
 	auto dg1 = diagEng.report(DiagID::unittest_errtest);
 	auto dg2 = diagEng.report(DiagID::unittest_warntest);
 	auto dg3 = diagEng.report(DiagID::unittest_fataltest);
