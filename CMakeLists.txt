@@ -23,6 +23,7 @@ include_directories(thirdparty) # Third Party libraries includes
 # add main subdirs
 add_subdirectory(lib)
 add_subdirectory(tools/CommandLine)
+add_subdirectory(tools/TestingTool)
 
 # add test subdir
 add_subdirectory(tests)
@@ -54,7 +55,7 @@ endif()
 add_library(libmoonshot STATIC ${moonshot_src})
 
 # add executable target & link it with libmoonshot
-add_executable(Moonshot ${tools_src})
+add_executable(Moonshot ${cli_src})
 target_link_libraries(Moonshot libmoonshot)
 
 # add test resources path macro
