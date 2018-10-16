@@ -73,10 +73,11 @@ Moonshot Project To-do List.
 	> ConstrainedType in Semantic Analysis (Next)
 	> Fix use of "getHighestRankingType" in visitArrayLiteral (Done)
 
-	> Document unify more (and add truth table example) (Next)
-	> Code review in SemaType/SemaExpr + Testing thoroughly
-	> Finish basic expr semantic analysis
 	> Write FoxTestingTool & Test current semantics
+		-> Create FileSystem class (Next)
+
+	> Code review in SemaType/SemaExpr & Write tests using new FTT tool
+	> Finish basic expr semantic analysis
 
 
 Order of semantic analysis (left to be done)
