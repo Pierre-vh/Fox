@@ -17,8 +17,8 @@
 
 using namespace fox;
 
-Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, TokenVector& l, DeclContext *dr) 
-	: ctxt_(astctxt), tokens_(l), identifiers_(ctxt_.identifiers), srcMgr_(sm), diags_(diags)
+Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, TokenVector& l, DeclContext *dr):
+	ctxt_(astctxt), tokens_(l), identifiers_(ctxt_.identifiers), srcMgr_(sm), diags_(diags)
 {
 	if (dr)
 		state_.declContext = dr;

@@ -23,6 +23,6 @@ namespace fox
 		public:	
 			Driver() = default;
 			// This function will lex a file and call parseFuncDecl, then output the ast.
-			bool processFile(std::ostream& out,const std::string& filepath);
+			bool processFile(std::ostream& out, const std::string& filepath);
 	};
 }

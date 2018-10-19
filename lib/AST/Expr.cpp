@@ -72,7 +72,7 @@ CharLiteralExpr::CharLiteralExpr():
 
 }
 
-CharLiteralExpr::CharLiteralExpr(FoxChar val, const SourceRange& range):
+CharLiteralExpr::CharLiteralExpr(FoxChar val, SourceRange range):
 	val_(val), Expr(ExprKind::CharLiteralExpr, range)
 {
 
@@ -98,7 +98,7 @@ IntegerLiteralExpr::IntegerLiteralExpr():
 
 }
 
-IntegerLiteralExpr::IntegerLiteralExpr(FoxInt val, const SourceRange& range):
+IntegerLiteralExpr::IntegerLiteralExpr(FoxInt val, SourceRange range):
 	val_(val), Expr(ExprKind::IntegerLiteralExpr, range)
 {
 
@@ -124,7 +124,7 @@ FloatLiteralExpr::FloatLiteralExpr():
 
 }
 
-FloatLiteralExpr::FloatLiteralExpr(FoxFloat val, const SourceRange& range):
+FloatLiteralExpr::FloatLiteralExpr(FoxFloat val, SourceRange range):
 	val_(val), Expr(ExprKind::FloatLiteralExpr, range)
 {
 
@@ -150,7 +150,7 @@ StringLiteralExpr::StringLiteralExpr():
 
 }
 
-StringLiteralExpr::StringLiteralExpr(const FoxString& val, const SourceRange& range):
+StringLiteralExpr::StringLiteralExpr(const FoxString& val, SourceRange range):
 	val_(val), Expr(ExprKind::StringLiteralExpr, range)
 {
 
@@ -176,7 +176,7 @@ BoolLiteralExpr::BoolLiteralExpr():
 
 }
 
-BoolLiteralExpr::BoolLiteralExpr(FoxBool val, const SourceRange& range):
+BoolLiteralExpr::BoolLiteralExpr(FoxBool val, SourceRange range):
 	val_(val), Expr(ExprKind::BoolLiteralExpr, range)
 {
 
@@ -201,7 +201,7 @@ ArrayLiteralExpr::ArrayLiteralExpr():
 {
 }
 
-ArrayLiteralExpr::ArrayLiteralExpr(const ExprVector& exprs, const SourceRange& range):
+ArrayLiteralExpr::ArrayLiteralExpr(const ExprVector& exprs, SourceRange range):
 	exprs_(exprs), Expr(ExprKind::ArrayLiteralExpr, range)
 {
 
@@ -281,7 +281,7 @@ BinaryExpr::BinaryExpr():
 }
 
 BinaryExpr::BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, 
-	const SourceRange& range, const SourceRange& opRange) :
+	SourceRange range, SourceRange opRange) :
 	op_(op), Expr(ExprKind::BinaryExpr, range), 
 	opRange_(opRange), lhs_(lhs), rhs_(rhs)
 {
@@ -377,7 +377,7 @@ UnaryExpr::UnaryExpr(): UnaryExpr(OpKind::Invalid, nullptr,
 }
 
 UnaryExpr::UnaryExpr(OpKind op, Expr* expr, 
-	const SourceRange& range, const SourceRange& opRange):
+	SourceRange range, SourceRange opRange):
 	op_(op), Expr(ExprKind::UnaryExpr, range),
 	opRange_(opRange), expr_(expr)
 {
@@ -518,7 +518,7 @@ DeclRefExpr::DeclRefExpr():
 {
 }
 
-DeclRefExpr::DeclRefExpr(Identifier* declid, const SourceRange& range):
+DeclRefExpr::DeclRefExpr(Identifier* declid, SourceRange range):
 	id_(declid), Expr(ExprKind::DeclRefExpr, range)
 {
 
@@ -549,9 +549,8 @@ FunctionCallExpr::FunctionCallExpr():
 
 }
 
-FunctionCallExpr::FunctionCallExpr(Expr* callee, const ExprVector& args,
-	const SourceRange& range): Expr(ExprKind::FunctionCallExpr, range),
-	callee_(callee), args_(args)
+FunctionCallExpr::FunctionCallExpr(Expr* callee, const ExprVector& args, SourceRange range): 
+	Expr(ExprKind::FunctionCallExpr, range), callee_(callee), args_(args)
 {
 
 }
@@ -634,7 +633,7 @@ MemberOfExpr::MemberOfExpr():
 }
 
 MemberOfExpr::MemberOfExpr(Expr* base, Identifier* idInfo,
-	const SourceRange& range, const SourceLoc& dotLoc):
+	SourceRange range, SourceLoc dotLoc):
 	Expr(ExprKind::MemberOfExpr, range), base_(base), membName_(idInfo),
 	dotLoc_(dotLoc)
 {
@@ -686,7 +685,7 @@ ArrayAccessExpr::ArrayAccessExpr():
 
 }
 
-ArrayAccessExpr::ArrayAccessExpr(Expr* expr, Expr* idxexpr, const SourceRange& range):
+ArrayAccessExpr::ArrayAccessExpr(Expr* expr, Expr* idxexpr, SourceRange range):
 	base_(expr), idxExpr_(idxexpr), Expr(ExprKind::ArrayAccessExpr, range)
 {
 	

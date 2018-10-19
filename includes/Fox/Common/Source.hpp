@@ -22,27 +22,27 @@ namespace fox
 	class FileID
 	{
 		public:
-			typedef std::uint16_t id_type;
+			using id_type = std::uint16_t;
 
 			FileID();
 
 			bool isValid() const;
 			explicit operator bool() const;
 
-			bool operator ==(const FileID& other) const;
-			bool operator !=(const FileID& other) const;
+			bool operator ==(const FileID other) const;
+			bool operator !=(const FileID other) const;
 
 			// For stl
-			bool operator <(const FileID& other) const;
+			bool operator <(const FileID other) const;
 
 			id_type getRaw() const;
 
 		protected:
-			FileID(const id_type& value);
+			FileID(id_type value);
 			friend class SourceManager;
 
 			id_type get() const;
-			void set(const id_type& value);
+			void set(id_type value);
 			void markAsInvalid();
 
 		private:
@@ -52,8 +52,8 @@ namespace fox
 	// Small POD-like struct containing a human-readable source loc information.
 	struct CompleteLoc
 	{
-		typedef std::uint32_t line_type;
-		typedef std::uint16_t col_type;
+		using line_type = std::uint32_t;
+		using col_type = std::uint16_t;
 
 		CompleteLoc(const std::string& fName, line_type ln, col_type col)
 			: fileName(fName), line(ln), column(col)
@@ -77,16 +77,16 @@ namespace fox
 	class SourceLoc
 	{
 		public:
-			typedef std::size_t idx_type;
+			using idx_type = std::size_t;
 
 			SourceLoc();
-			explicit SourceLoc(const FileID& fid, idx_type idx = 0);
+			explicit SourceLoc(FileID fid, idx_type idx = 0);
 
 			bool isValid() const;
 			explicit operator bool() const; // ShortCut for isValid
 
-			bool operator ==(const SourceLoc& other) const;
-			bool operator !=(const SourceLoc& other) const;
+			bool operator ==(const SourceLoc other) const;
+			bool operator !=(const SourceLoc other) const;
 
 			FileID getFileID() const;
 			idx_type getIndex() const;
@@ -107,10 +107,10 @@ namespace fox
 	class SourceRange
 	{
 		public:
-			typedef std::size_t offset_type;
+			using offset_type = std::size_t;
 
-			explicit SourceRange(const SourceLoc& sloc, offset_type offset = 0);
-			explicit SourceRange(const SourceLoc& a, const SourceLoc& b);
+			explicit SourceRange(SourceLoc sloc, offset_type offset = 0);
+			explicit SourceRange(SourceLoc a, SourceLoc b);
 			SourceRange();
 
 			bool isValid() const;
@@ -158,28 +158,28 @@ namespace fox
 
 			// Returns a pointer to the source string of a file.
 			// The result is always non null.
-			const std::string* getSourceForFID(const FileID& fid) const;
+			const std::string* getSourceForFID(FileID fid) const;
 
 			// Returns a pointer to the stored data that the FileID points to.
 			// The result is always non null.
-			const StoredData*  getStoredDataForFileID(const FileID& fid) const;
+			const StoredData*  getStoredDataForFileID(FileID fid) const;
 
 			// Requests the human-readable location a SourceLoc points to.
 			// This function will assert that the SourceLoc is valid;
 			// This function accepts a SourceLoc that points right past the end of the file.
 			// Any value greater than that will trigger an assertion ("out of range")
-			CompleteLoc getCompleteLocForSourceLoc(const SourceLoc& sloc) const;
+			CompleteLoc getCompleteLocForSourceLoc(SourceLoc sloc) const;
 
 			// Check if a SourceLoc is valid
-			bool isSourceLocValid(const SourceLoc& sloc) const;
+			bool isSourceLocValid(SourceLoc sloc) const;
 			
 			// Check if a File Exists
-			bool doesFileExists(const FileID& file) const;
+			bool doesFileExists(FileID file) const;
 
 			// Returns the complete line of source code for a given SourceLoc
 			// An optional argument (pointer) can be passed. If it is present, the function
 			// will store the Index at which the line begins in this variable.
-			std::string getLineAtLoc(const SourceLoc& loc, SourceLoc::idx_type* lineBeg = nullptr) const;
+			std::string getLineAtLoc(SourceLoc loc, SourceLoc::idx_type* lineBeg = nullptr) const;
 		private:
 			FileID generateNewFileID() const;
 			void calculateLineTable(const StoredData* data) const;

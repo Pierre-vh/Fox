@@ -14,8 +14,7 @@
 
 using namespace fox;
 
-
-UnitDecl* Parser::parseUnit(const FileID& fid, Identifier* unitName, const bool& isMainUnit)
+UnitDecl* Parser::parseUnit(FileID fid, Identifier* unitName, bool isMainUnit)
 {
 	// <fox_unit>	= {<declaration>}1+
 

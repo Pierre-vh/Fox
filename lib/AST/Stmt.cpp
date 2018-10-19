@@ -19,7 +19,8 @@ using namespace fox;
 // Stmt //
 //------//
 
-Stmt::Stmt(StmtKind skind, const SourceRange& range) : kind_(skind), range_(range)
+Stmt::Stmt(StmtKind skind, SourceRange range):
+	kind_(skind), range_(range)
 {
 
 }
@@ -39,7 +40,7 @@ void* Stmt::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
 	return ctxt.getAllocator().allocate(sz, align);
 }
 
-void Stmt::setRange(const SourceRange& range)
+void Stmt::setRange(SourceRange range)
 {
 	range_ = range;
 }
@@ -53,12 +54,13 @@ NullStmt::NullStmt() : NullStmt(SourceLoc())
 
 }
 
-NullStmt::NullStmt(const SourceLoc& semiLoc) : Stmt(StmtKind::NullStmt, SourceRange(semiLoc))
+NullStmt::NullStmt(SourceLoc semiLoc):
+	Stmt(StmtKind::NullStmt, SourceRange(semiLoc))
 {
 
 }
 
-void NullStmt::setSemiLoc(const SourceLoc& semiLoc)
+void NullStmt::setSemiLoc(SourceLoc semiLoc)
 {
 	setRange(SourceRange(semiLoc));
 }
@@ -72,13 +74,14 @@ SourceLoc NullStmt::getSemiLoc() const
 // ReturnStmt //
 //------------//
 
-ReturnStmt::ReturnStmt() : ReturnStmt(nullptr, SourceRange())
+ReturnStmt::ReturnStmt():
+	ReturnStmt(nullptr, SourceRange())
 {
 
 }
 
-ReturnStmt::ReturnStmt(Expr* rtr_expr, const SourceRange& range) 
-	: Stmt(StmtKind::ReturnStmt, range), expr_(rtr_expr)
+ReturnStmt::ReturnStmt(Expr* rtr_expr, SourceRange range):
+	Stmt(StmtKind::ReturnStmt, range), expr_(rtr_expr)
 {
 
 }
@@ -114,8 +117,8 @@ ConditionStmt::ConditionStmt()
 }
 
 ConditionStmt::ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
-	const SourceRange& range, const SourceLoc& ifHeaderEndLoc)
-	: Stmt(StmtKind::ConditionStmt, range), cond_(cond), then_(then), 
+	SourceRange range, SourceLoc ifHeaderEndLoc):
+	Stmt(StmtKind::ConditionStmt, range), cond_(cond), then_(then), 
 	  else_(elsenode), ifHeadEndLoc_(ifHeaderEndLoc)
 {
 
@@ -176,7 +179,7 @@ void ConditionStmt::setElse(ASTNode node)
 	else_ = node;
 }
 
-void ConditionStmt::setIfHeaderEndLoc(const SourceLoc& sloc)
+void ConditionStmt::setIfHeaderEndLoc(SourceLoc sloc)
 {
 	ifHeadEndLoc_ = sloc;
 }
@@ -200,7 +203,8 @@ CompoundStmt::CompoundStmt() : CompoundStmt(SourceRange())
 
 }
 
-CompoundStmt::CompoundStmt(const SourceRange& range) : Stmt(StmtKind::CompoundStmt, range)
+CompoundStmt::CompoundStmt(SourceRange range):
+	Stmt(StmtKind::CompoundStmt, range)
 {
 
 }
@@ -272,7 +276,7 @@ WhileStmt::WhileStmt() : WhileStmt(nullptr, ASTNode(), SourceRange(), SourceLoc(
 
 }
 
-WhileStmt::WhileStmt(Expr* cond, ASTNode body, const SourceRange& range, const SourceLoc& headerEndLoc) :
+WhileStmt::WhileStmt(Expr* cond, ASTNode body, SourceRange range, SourceLoc headerEndLoc):
 	Stmt(StmtKind::WhileStmt, range), headerEndLoc_(headerEndLoc), cond_(cond), body_(body)
 {
 

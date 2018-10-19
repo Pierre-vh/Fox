@@ -77,7 +77,7 @@ namespace fox
 
 			BinaryExpr();
 			BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, 
-				const SourceRange& range, const SourceRange& opRange);
+				SourceRange range, SourceRange opRange);
 
 			void setLHS(Expr* expr);
 			Expr* getLHS();
@@ -121,8 +121,8 @@ namespace fox
 			};
 
 			UnaryExpr();
-			UnaryExpr(OpKind op, Expr* node, const SourceRange& range,
-				const SourceRange& opRange);
+			UnaryExpr(OpKind op, Expr* node, SourceRange range,
+				SourceRange opRange);
 			
 			void setExpr(Expr* expr);
 			Expr* getExpr();
@@ -186,7 +186,7 @@ namespace fox
 	{
 		public:
 			CharLiteralExpr();
-			CharLiteralExpr(FoxChar val, const SourceRange& range);
+			CharLiteralExpr(FoxChar val, SourceRange range);
 
 			FoxChar getVal() const;
 			void setVal(FoxChar val);
@@ -206,7 +206,7 @@ namespace fox
 	{
 		public:
 			IntegerLiteralExpr();
-			IntegerLiteralExpr(FoxInt val, const SourceRange& range);
+			IntegerLiteralExpr(FoxInt val, SourceRange range);
 
 			FoxInt getVal() const;
 			void setVal(FoxInt val);
@@ -226,7 +226,7 @@ namespace fox
 	{
 		public:
 			FloatLiteralExpr();
-			FloatLiteralExpr(FoxFloat val, const SourceRange& range);
+			FloatLiteralExpr(FoxFloat val, SourceRange range);
 
 			FoxFloat getVal() const;
 			void setVal(FoxFloat val);
@@ -246,7 +246,7 @@ namespace fox
 	{
 		public:
 			StringLiteralExpr();
-			StringLiteralExpr(const FoxString& val, const SourceRange& range);
+			StringLiteralExpr(const FoxString& val, SourceRange range);
 
 			std::string getVal() const;
 			void setVal(const FoxString& val);
@@ -266,7 +266,7 @@ namespace fox
 	{
 		public:
 			BoolLiteralExpr();
-			BoolLiteralExpr(FoxBool val, const SourceRange& range);
+			BoolLiteralExpr(FoxBool val, SourceRange range);
 
 			bool getVal() const;
 			void setVal(FoxBool val);
@@ -286,7 +286,7 @@ namespace fox
 	{
 		public:
 			ArrayLiteralExpr();
-			ArrayLiteralExpr(const ExprVector& exprs, const SourceRange& range);
+			ArrayLiteralExpr(const ExprVector& exprs, SourceRange range);
 
 			ExprVector& getExprs();
 			const ExprVector& getExprs() const;
@@ -320,7 +320,7 @@ namespace fox
 	{
 		public:
 			DeclRefExpr();
-			DeclRefExpr(Identifier* declid, const SourceRange& range);
+			DeclRefExpr(Identifier* declid, SourceRange range);
 
 			void setIdentifier(Identifier * id);
 			Identifier* getIdentifier();
@@ -342,7 +342,7 @@ namespace fox
 		public:
 			MemberOfExpr();
 			MemberOfExpr(Expr* base, Identifier *idInfo, 
-				const SourceRange& range, const SourceLoc& dotLoc);
+				SourceRange range, SourceLoc dotLoc);
 
 			void setExpr(Expr* expr);
 			Expr* getExpr();
@@ -371,7 +371,7 @@ namespace fox
 	{
 		public:
 			ArrayAccessExpr();
-			ArrayAccessExpr(Expr* base, Expr* idx, const SourceRange& range);
+			ArrayAccessExpr(Expr* base, Expr* idx, SourceRange range);
 
 			void setExpr(Expr* expr);
 			Expr* getExpr();
@@ -397,7 +397,7 @@ namespace fox
 	{
 		public:
 			FunctionCallExpr();
-			FunctionCallExpr(Expr* callee, const ExprVector& args, const SourceRange& range);
+			FunctionCallExpr(Expr* callee, const ExprVector& args, SourceRange range);
 			
 			void setCallee(Expr* base);
 			Expr* getCallee();

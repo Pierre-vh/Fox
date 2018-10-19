@@ -172,13 +172,13 @@ FuncDecl::FuncDecl(TypeLoc returnType, Identifier* fnId, CompoundStmt* body,
 	paramsAreValid_ = true;
 }
 
-void FuncDecl::setLocs(const SourceRange& range, const SourceLoc& headerEndLoc)
+void FuncDecl::setLocs(SourceRange range, SourceLoc headerEndLoc)
 {
 	setRange(range);
 	setHeaderEndLoc(headerEndLoc);
 }
 
-void FuncDecl::setHeaderEndLoc(const SourceLoc& loc)
+void FuncDecl::setHeaderEndLoc(SourceLoc loc)
 {
 	headEndLoc_ = loc;
 }

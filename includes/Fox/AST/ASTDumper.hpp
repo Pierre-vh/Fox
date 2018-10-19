@@ -20,7 +20,7 @@ namespace fox
 		public:
 			// The first parameter is the stream where the AST should be "dumped"
 			// The second is the offset. Before each line, '\t' is printed <offset> times. 
-			ASTDumper(SourceManager& srcMgr,std::ostream& out, const uint8_t& offsettabs = 0);
+			ASTDumper(SourceManager& srcMgr, std::ostream& out, const uint8_t& offsettabs = 0);
 
 			// Expressions
 			void visitBinaryExpr(BinaryExpr* node);

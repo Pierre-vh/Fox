@@ -25,7 +25,7 @@ FileID::FileID()
 	markAsInvalid();
 }
 
-FileID::FileID(const id_type& value)
+FileID::FileID(id_type value)
 {
 	set(value);
 }
@@ -40,17 +40,17 @@ FileID::operator bool() const
 	return isValid();
 }
 
-bool FileID::operator==(const FileID & other) const
+bool FileID::operator==(const FileID other) const
 {
 	return value_ == other.value_;
 }
 
-bool FileID::operator!=(const FileID & other) const
+bool FileID::operator!=(const FileID other) const
 {
 	return !(*this == other);
 }
 
-bool FileID::operator <(const FileID& other) const
+bool FileID::operator <(const FileID other) const
 {
 	return (value_ < other.value_);
 }
@@ -65,7 +65,7 @@ FileID::id_type FileID::get() const
 	return value_;
 }
 
-void FileID::set(const id_type& value)
+void FileID::set(id_type value)
 {
 	value_ = value;
 }
@@ -76,13 +76,13 @@ void FileID::markAsInvalid()
 }
 
 // SourceManager
-const std::string* SourceManager::getSourceForFID(const FileID& fid) const
+const std::string* SourceManager::getSourceForFID(FileID fid) const
 {
 	auto data = getStoredDataForFileID(fid);
 	return &(data->str);
 }
 
-const SourceManager::StoredData* SourceManager::getStoredDataForFileID(const FileID& fid) const
+const SourceManager::StoredData* SourceManager::getStoredDataForFileID(FileID fid) const
 {
 	assert(fid.isValid() && "Invalid FileID");
 	auto it = sources_.find(fid);
@@ -90,7 +90,7 @@ const SourceManager::StoredData* SourceManager::getStoredDataForFileID(const Fil
 	return &(it->second);
 }
 
-CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) const
+CompleteLoc SourceManager::getCompleteLocForSourceLoc(SourceLoc sloc) const
 {
 	const StoredData* fdata = getStoredDataForFileID(sloc.getFileID());
 
@@ -132,7 +132,7 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(const SourceLoc& sloc) con
 	);
 }
 
-bool SourceManager::isSourceLocValid(const SourceLoc & sloc) const
+bool SourceManager::isSourceLocValid(SourceLoc sloc) const
 {
 	const StoredData* data = getStoredDataForFileID(sloc.getFileID());
 	
@@ -144,12 +144,12 @@ bool SourceManager::isSourceLocValid(const SourceLoc & sloc) const
 	return sloc.getIndex() <= data->str.size();
 }
 
-bool SourceManager::doesFileExists(const FileID & file) const
+bool SourceManager::doesFileExists(FileID file) const
 {
 	return (bool)getStoredDataForFileID(file);
 }
 
-std::string SourceManager::getLineAtLoc(const SourceLoc& loc, SourceLoc::idx_type* lineBeg) const
+std::string SourceManager::getLineAtLoc(SourceLoc loc, SourceLoc::idx_type* lineBeg) const
 {
 	const StoredData* data = getStoredDataForFileID(loc.getFileID());
 	auto pair = getLineTableEntryForLoc(data, loc);
@@ -257,7 +257,8 @@ SourceLoc::SourceLoc() : fid_(FileID()), idx_(0)
 
 }
 
-SourceLoc::SourceLoc(const FileID & fid, idx_type idx) : fid_(fid), idx_(idx)
+SourceLoc::SourceLoc(FileID fid, idx_type idx):
+	fid_(fid), idx_(idx)
 {
 }
 
@@ -271,12 +272,12 @@ SourceLoc::operator bool() const
 	return isValid();
 }
 
-bool SourceLoc::operator==(const SourceLoc& other) const
+bool SourceLoc::operator==(const SourceLoc other) const
 {
 	return (fid_ == other.fid_) && (idx_ == other.idx_);
 }
 
-bool SourceLoc::operator!=(const SourceLoc& other) const
+bool SourceLoc::operator!=(const SourceLoc other) const
 {
 	return !(*this == other);
 }
@@ -302,12 +303,13 @@ void SourceLoc::decrement()
 }
 
 // SourceRange
-SourceRange::SourceRange(const SourceLoc& sloc, offset_type offset) : sloc_(sloc), offset_(offset)
+SourceRange::SourceRange(SourceLoc sloc, offset_type offset):
+	sloc_(sloc), offset_(offset)
 {
 
 }
 
-SourceRange::SourceRange(const SourceLoc& a, const SourceLoc& b)
+SourceRange::SourceRange(SourceLoc a, SourceLoc b)
 {
 	// a and b must belong to the same file in all cases!
 	assert(a.getFileID() == b.getFileID() && "A and B are from different files");

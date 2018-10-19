@@ -26,7 +26,7 @@ namespace fox
 			virtual void consume(Diagnostic& diag) = 0;
 
 		protected:
-			std::string getLocInfo(SourceManager& sm, const SourceRange& range, bool isFileWide) const;
+			std::string getLocInfo(SourceManager& sm, SourceRange range, bool isFileWide) const;
 			std::string diagSevToString(DiagSeverity ds) const;
 
 			// Removes the indentation (spaces and tabs) from a line, returning the number of indent chars removed

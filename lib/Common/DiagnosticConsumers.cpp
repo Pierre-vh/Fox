@@ -16,7 +16,7 @@
 
 using namespace fox;
 
-std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, const SourceRange& range, bool isFileWide) const
+std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, SourceRange range, bool isFileWide) const
 {
 	if (!range)
 		return "<unknown>";

@@ -4,19 +4,11 @@
 // File : Lexer.hpp											
 // Author : Pierre van Houtryve								
 ////------------------------------------------------------//// 
-// This file declares the lexer class.						
-//															
-// The lexer is the 1st step of the interpretation process.
-// It takes the source file, in the form of a string, as input, and outputs a std::<vector> of Token.				
-//															
-// It performs a lexical analysis. A Fairly simple one in our case, using a DFA. (state machine)
-//															
-//															
-// Tokens (see Token.hpp/.cpp for declaration and definition is the dissected entry, separated in small bits			
-// each "bit" is identified to recognize one of the main types : keywords,identifiers,values,etc..				
+// This file declares the lexer class, which performs lexical analysis.		
 ////------------------------------------------------------////
 
-// Note: Most of the code here is a relic of the old moonshot. It'll be completly rewritten in the not so distant future
+// Note: Most of the code here is a spaghetti relic of the old Moonshot. It'll be completly rewritten in the future.
+// Same for Token.hpp/.cpp
 
 #pragma once
 

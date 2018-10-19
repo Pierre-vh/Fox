@@ -53,6 +53,7 @@ namespace fox
 			using NamedDeclsMapTy = std::multimap<Identifier*, NamedDecl*>;
 			using NamedDeclsMapIter = DeclContextIterator<NamedDeclsMapTy::iterator>;
 			using NamedDeclsMapConstIter = DeclContextIterator<NamedDeclsMapTy::const_iterator>;
+
 		public:
 			DeclContext(DeclContext * parent = nullptr);
 			inline virtual ~DeclContext() {}
@@ -98,6 +99,7 @@ namespace fox
 			using ResultVecTy = std::vector<Decl*>;
 			using ResultVecIter = ResultVecTy::iterator;
 			using ResultVecConstIter = ResultVecTy::const_iterator;
+
 		public:
 			LookupResult();
 
@@ -113,6 +115,7 @@ namespace fox
 			NamedDecl* getResultIfUnique() const;
 
 			explicit operator bool() const;
+
 		protected:
 			friend class DeclContext;
 
@@ -123,6 +126,7 @@ namespace fox
 			// If the target contains at least 1 result,
 			// copies all of the results from target into this lookupresult then clears the target.
 			void absorb(LookupResult &target);
+
 		private:
 			std::vector<NamedDecl*> results_;
 	};

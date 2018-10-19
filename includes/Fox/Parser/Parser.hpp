@@ -73,7 +73,8 @@ namespace fox
 		public:
 			// Note : the parser now takes an optional DeclContext* argument,
 			// This will be used as the base DeclContext.
-			Parser(DiagnosticEngine& diags,SourceManager &sm,ASTContext& astctxt,TokenVector& l,DeclContext* dr = nullptr);
+			Parser(DiagnosticEngine& diags, SourceManager &sm, 
+				ASTContext& astctxt, TokenVector& l, DeclContext* dr = nullptr);
 
 			/*-------------- Parsing Methods --------------*/
 			// UNIT
@@ -83,7 +84,7 @@ namespace fox
 			// isMainUnit = true if the unit that we'll be parsing should be considered as the main unit
 			// Note: This function returns an observing pointer (null in case of errors). It doesn't give
 			// an unique_ptr like the others, because it gives ownership to the ASTContext, not you.
-			UnitDecl* parseUnit(const FileID& fid,Identifier* unitName,const bool& isMainUnit);
+			UnitDecl* parseUnit(FileID fid, Identifier* unitName, bool isMainUnit);
 
 			// EXPRESSIONS
 			Result<ExprVector> parseExprList();

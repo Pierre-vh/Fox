@@ -61,11 +61,11 @@ namespace fox
 			DiagSeverity getDiagSeverity() const;
 
 			SourceRange getRange() const;
-			Diagnostic& setRange(const SourceRange& range);
+			Diagnostic& setRange(SourceRange range);
 			bool hasRange() const;
 
 			SourceRange getExtraRange() const;
-			Diagnostic& setExtraRange(const SourceRange& range);
+			Diagnostic& setExtraRange(SourceRange range);
 			bool hasExtraRange() const;
 
 			// File-wide diagnostics are diagnostics that concern

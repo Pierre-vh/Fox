@@ -143,8 +143,8 @@ namespace fox
 			FuncDecl(TypeLoc rtrTy, Identifier* fnId, CompoundStmt* body,
 				SourceRange range, SourceLoc headerEndLoc);
 			
-			void setLocs(const SourceRange& range, const SourceLoc& headerEndLoc);
-			void setHeaderEndLoc(const SourceLoc& loc);
+			void setLocs(SourceRange range, SourceLoc headerEndLoc);
+			void setHeaderEndLoc(SourceLoc loc);
 
 			SourceLoc getHeaderEndLoc() const;
 			SourceRange getHeaderRange() const;

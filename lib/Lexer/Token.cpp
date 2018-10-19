@@ -122,7 +122,9 @@ bool LiteralInfo::isNull() const
 	return mpark::holds_alternative<mpark::monostate>(value_);
 }
 
-Token::Token(DiagnosticEngine &diags, ASTContext &astctxt, std::string tokstr, const SourceRange& range) : range_(range)
+Token::Token(DiagnosticEngine &diags, ASTContext &astctxt,
+	const std::string& tokstr, SourceRange range):
+	range_(range)
 {
 	identify(diags,astctxt,tokstr);
 }

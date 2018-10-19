@@ -35,7 +35,7 @@ namespace fox
 		public:
 			StmtKind getKind() const;
 
-			void setRange(const SourceRange& range);
+			void setRange(SourceRange range);
 			SourceRange getRange() const;
 
 			// Prohibit the use of builtin placement new & delete
@@ -50,7 +50,7 @@ namespace fox
 			void operator delete(void*, ASTContext&, std::uint8_t) {}
 
 		protected:
-			Stmt(StmtKind kind, const SourceRange& range);
+			Stmt(StmtKind kind, SourceRange range);
 
 		private:
 			SourceRange range_;
@@ -64,9 +64,9 @@ namespace fox
 	{
 		public:
 			NullStmt();
-			NullStmt(const SourceLoc& semiLoc);
+			NullStmt(SourceLoc semiLoc);
 
-			void setSemiLoc(const SourceLoc& semiLoc);
+			void setSemiLoc(SourceLoc semiLoc);
 			SourceLoc getSemiLoc() const;
 
 			static bool classof(const Stmt* stmt)
@@ -81,7 +81,7 @@ namespace fox
 	{
 		public:
 			ReturnStmt();
-			ReturnStmt(Expr* rtr_expr, const SourceRange& range);
+			ReturnStmt(Expr* rtr_expr, SourceRange range);
 
 			void setExpr(Expr* e);
 			Expr* getExpr();
@@ -104,7 +104,7 @@ namespace fox
 		public:
 			ConditionStmt();
 			ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
-				const SourceRange& range, const SourceLoc& ifHeaderEndLoc);
+				SourceRange range, SourceLoc ifHeaderEndLoc);
 
 			bool isValid() const;
 
@@ -121,7 +121,7 @@ namespace fox
 			const ASTNode getElse() const;
 			bool hasElse() const;
 
-			void setIfHeaderEndLoc(const SourceLoc& sloc);
+			void setIfHeaderEndLoc(SourceLoc sloc);
 			SourceRange getIfHeaderRange() const;
 			SourceLoc getIfHeaderEndLoc() const;
 
@@ -146,7 +146,7 @@ namespace fox
 
 		public:
 			CompoundStmt();
-			CompoundStmt(const SourceRange& range);
+			CompoundStmt(SourceRange range);
 
 			void addNode(ASTNode stmt);
 			void setNode(ASTNode node, std::size_t idx);
@@ -179,8 +179,8 @@ namespace fox
 	{
 		public:
 			WhileStmt();
-			WhileStmt(Expr* cond, ASTNode body, const SourceRange& range,
-				const SourceLoc& headerEndLoc);
+			WhileStmt(Expr* cond, ASTNode body, SourceRange range,
+				SourceLoc headerEndLoc);
 
 			void setCond(Expr* cond);
 			Expr* getCond();
