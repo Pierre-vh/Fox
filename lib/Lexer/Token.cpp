@@ -136,17 +136,6 @@ Token::Token(const Token& cpy):
 		literalData_ = std::make_unique<LiteralInfo>(*(cpy.literalData_));
 	else
 		literalData_ = nullptr;
-
-	if (cpy.commentData_)
-		commentData_ = std::make_unique<CommentData>(*(cpy.commentData_));
-	else
-		commentData_ = nullptr;
-}
-
-Token::Token(CommentData commentData)
-{
-	tokenData_ = mpark::monostate();
-	commentData_ = std::make_unique<CommentData>(commentData);
 }
 
 std::string Token::showFormattedTokenData() const
@@ -178,7 +167,7 @@ std::string Token::showFormattedTokenData() const
 
 bool Token::isValid() const
 {
-	return (!(mpark::holds_alternative<mpark::monostate>(tokenData_))) || literalData_ || commentData_;
+	return (!(mpark::holds_alternative<mpark::monostate>(tokenData_))) || literalData_;
 }
 
 Token::operator bool() const
@@ -204,11 +193,6 @@ bool Token::isSign() const
 bool Token::isKeyword() const
 {
 	return mpark::holds_alternative<KeywordType>(tokenData_);
-}
-
-bool Token::isComment() const
-{
-	return commentData_ != nullptr;
 }
 
 bool Token::is(KeywordType ty)
@@ -294,12 +278,6 @@ LiteralInfo Token::getLiteralInfo() const
 {
 	assert(literalData_);
 	return *literalData_;
-}
-
-CommentData Token::getCommentData() const
-{
-	assert(commentData_);
-	return *commentData_;
 }
 
 std::string Token::getIdentifierString() const

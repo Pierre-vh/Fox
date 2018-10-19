@@ -76,18 +76,6 @@ namespace fox
 			> value_;
 	};
 
-	struct CommentData
-	{
-		CommentData(std::string str, bool isMultiline):
-			str(str), isMultiline(isMultiline)
-		{
-
-		}
-
-		const std::string str;
-		const bool isMultiline = false;
-	};
-	
 	enum class SignType : std::uint8_t
 	{
 		DEFAULT,			// Default value
@@ -163,8 +151,6 @@ namespace fox
 
 			Token() = default;
 			Token(const Token& cpy);
-			// Constructor to use to create a comment token
-			Token(CommentData commentData);
 
 			// Constructor to use to let the Token identify itself
 			Token(DiagnosticEngine& diag, ASTContext &astctxt, 
@@ -179,7 +165,6 @@ namespace fox
 			bool isIdentifier() const;
 			bool isSign() const;
 			bool isKeyword() const;
-			bool isComment() const;
 
 			bool is(KeywordType ty);
 			bool is(SignType ty);
@@ -189,7 +174,6 @@ namespace fox
 			SignType getSignType() const;
 			LiteralType getLiteralType() const;
 			LiteralInfo getLiteralInfo() const;
-			CommentData getCommentData() const;
 
 			std::string getIdentifierString() const;
 			Identifier* getIdentifierInfo();
@@ -206,7 +190,6 @@ namespace fox
 			const SourceRange range_;
 			mpark::variant<mpark::monostate, KeywordType, SignType, Identifier*> tokenData_;
 			std::unique_ptr<LiteralInfo> literalData_ = nullptr;
-			std::unique_ptr<CommentData> commentData_ = nullptr;
 
 			/* Identification functions */
 			void identify(DiagnosticEngine& diags, ASTContext& astctxt, const std::string& str);

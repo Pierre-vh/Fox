@@ -31,8 +31,6 @@ namespace fox
 			std::size_t resultSize() const;	
 			FileID getCurrentFile() const;
 
-			void setKeepComments(bool val);
-
 		private:
 			enum class DFAState : std::uint8_t
 			{
@@ -45,7 +43,6 @@ namespace fox
 			};
 
 			void pushTok();
-			void pushComment(bool multiLine);
 			void cycle();					
 			void runFinalChecks();
 			void markBeginningOfToken(); // sets currentTokenBeginIndex_ to the current index
@@ -75,7 +72,6 @@ namespace fox
 			FileID currentFile_;
 
 			bool escapeFlag_ : 1;
-			bool keepComments_ : 1;
 			DFAState state_ = DFAState::S_BASE;		
 			std::string curtok_;
 
