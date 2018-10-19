@@ -54,7 +54,7 @@ TEST(UTF8Tests,BronzeHorseman)
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	// Prepare string manipulator & other variables
-	StringManipulator manip(&file_content);
+	StringManipulator manip(file_content);
 	unsigned int linecount = 1, charcount = 0, spacecount = 0;
 	std::string exception_details;
 
@@ -78,7 +78,7 @@ TEST(UTF8Tests, ASCIIDrawing)
 	ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
 
 	// Prepare string manipulator & other variables
-	StringManipulator manip(&file_content);
+	StringManipulator manip(file_content);
 	unsigned int linecount = 1, charcount = 0, spacecount = 0;
 	std::string exception_details;
 
@@ -108,7 +108,7 @@ TEST(UTF8Tests, Substring)
 	StringManipulator::removeBOM(expected_substr);
 
 	// Prepare string manipulator
-	StringManipulator manip(&bronze_content);
+	StringManipulator manip(bronze_content);
 
 	std::string substr = manip.substring(10, 9);
 
@@ -125,8 +125,8 @@ TEST(UTF8Tests, IndexOfCurCharValidity)
 	
 	// Prepare string manipulator
 	StringManipulator manip1,manip2;
-	manip1.setStr(&bronze_content);
-	manip2.setStr(&bronze_content);
+	manip1.setStr(bronze_content);
+	manip2.setStr(bronze_content);
 
 	for (auto k(0); k < 15; k++)
 		manip1.advance();

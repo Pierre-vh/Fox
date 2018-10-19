@@ -118,7 +118,7 @@ TEST(SourceManagerTests, PreciseLocation)
 	// Load file in StringManipulator
 	const std::string* ptr = srcMgr.getSourceForFID(fid);
 	ASSERT_TRUE(ptr);
-	StringManipulator sm(ptr);
+	StringManipulator sm(*ptr);
 
 	// Loop until we reach the pi sign
 	for (; sm.getCurrentChar() != 960 && !sm.eof(); sm.advance());
