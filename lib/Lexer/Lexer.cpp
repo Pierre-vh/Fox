@@ -30,7 +30,9 @@ void Lexer::lexFile(FileID file)
 {
 	assert(file && "INVALID FileID!");
 	currentFile_ = file;
-	manip_.setStr(sm_.getSourceForFID(currentFile_));
+	auto* source = sm_.getSourceForFID(currentFile_);
+	assert(source && "FileID is valid, but couldn't fetch the source?");
+	manip_.setStr(*source);
 
 	manip_.reset();
 	state_ = DFAState::S_BASE;
