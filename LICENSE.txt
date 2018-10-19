@@ -30,16 +30,17 @@ ___________________________________________________________________________
 
 This project contains code written by third-parties, contained in the /thirdparty/ folder.
 
-|	Project		|	Path to License					|
-|---------------|-----------------------------------|
-| utfcpp		| /thirdparty/utfcpp/LICENSE.txt	|
-| mpark/variant	| /thirdparty/mpark/LICENSE.txt		|
-| llvm			| /thirdparty/llvm/LICENSE.txt		|
-|---------------|-----------------------------------|
+|	Project		          |	    Path to License				  |
+|-------------------------|-----------------------------------|
+| utfcpp		          | /thirdparty/utfcpp/LICENSE.txt	  |
+| mpark/variant	          | /thirdparty/mpark/LICENSE.txt	  |
+| llvm			          | /thirdparty/llvm/LICENSE.txt	  |
+| nonstd/string-view-lite | /thirdparty/nonstd/LICENSE.txt	  |
+|-------------------------|-----------------------------------|
 
 Addionally, Googletest is used for testing the project.
 Googletest's source code is not present in the project as it is downloaded automatically
-via CMake. 
+via CMake.
 
 GoogleTest on Github: https://github.com/google/googletest
 Googletest's license: https://github.com/google/googletest/blob/master/LICENSE

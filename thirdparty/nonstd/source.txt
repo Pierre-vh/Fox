@@ -1,0 +1,1 @@
+https://github.com/martinmoene/string-view-lite
