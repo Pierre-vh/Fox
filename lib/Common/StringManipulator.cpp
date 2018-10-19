@@ -13,20 +13,19 @@
 
 using namespace fox;
 
-StringManipulator::StringManipulator(const std::string* str)
+StringManipulator::StringManipulator(nonstd::string_view str)
 {
 	setStr(str);
 }
 
-const std::string * StringManipulator::getStr() const
+nonstd::string_view StringManipulator::getStr() const
 {
-	return raw_str_;
+	return str_;
 }
 
-void StringManipulator::setStr(const std::string * str)
+void StringManipulator::setStr(nonstd::string_view str)
 {
-	assert(str && "Str cannot be null!");
-	raw_str_ = str;
+	str_ = str;
 	reset();
 }
 
@@ -65,9 +64,9 @@ std::size_t StringManipulator::getIndexInBytes() const
 void StringManipulator::reset()
 {
 	// set iterators
-	iter_ = str().begin();
-	end_ = str().end();
-	beg_ = str().begin();
+	iter_ = str_.begin();
+	end_ = str_.end();
+	beg_ = str_.begin();
 	// skip  bom if there is one
 	StringManipulator::skipBOM(iter_,end_);
 }
@@ -134,7 +133,7 @@ FoxChar StringManipulator::peekNext() const
 
 	auto tmpit = iter_;
 	utf8::advance(tmpit, 1,end_); // peek_next in utfcpp returns what we expect to be the "next" character, so we need to advance
-	if(tmpit != str().end())
+	if(tmpit != str_.end())
 		return utf8::peek_next(tmpit,end_);
 	return L'\0';
 }
@@ -163,15 +162,10 @@ std::size_t StringManipulator::getSizeInCodepoints() const
 
 std::size_t StringManipulator::getSizeInBytes() const
 {
-	return str().size();
+	return str_.size();
 }
 
 bool StringManipulator::eof() const
 {
 	return iter_ == end_;
-}
-
-const std::string & StringManipulator::str() const
-{
-	return *raw_str_;
 }

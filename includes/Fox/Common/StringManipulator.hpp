@@ -26,7 +26,7 @@
 #pragma once
 
 #include "Fox/Common/Typedefs.hpp"
-#include <string>
+#include "nonstd/string_view.hpp"
 
 namespace fox
 {
@@ -37,17 +37,17 @@ namespace fox
 		public:
 			// Default ctor
 			StringManipulator() = default;
-			StringManipulator(const std::string* str);
+			StringManipulator(nonstd::string_view str);
 
 			/*
 				STRING GETTERS/SETTERS
 			*/	
 
 			// Returns a pointer to the string
-			const std::string* getStr() const;	
+			nonstd::string_view getStr() const;
 
 			// Set this SM's source to a the pointer str
-			void setStr(const std::string* str);
+			void setStr(nonstd::string_view str);
 
 			/*
 				ITERATOR MANIPULATION
@@ -121,14 +121,11 @@ namespace fox
 			static void append(std::string& str, FoxChar ch);
 
 		private:
-			// Get a reference to the string stored.
-			const std::string& str() const;
-
 			// The string currently stored
-			const std::string* raw_str_;
+			nonstd::string_view str_;
 
 			// Iterators
-			std::string::const_iterator iter_, end_, beg_;
+			nonstd::string_view::const_iterator iter_, end_, beg_;
 	};
 }
 
