@@ -338,10 +338,9 @@ bool Token::idSign(const std::string& str)
 	return true;
 }
 
-bool Token::idLiteral(DiagnosticEngine& diags,const std::string& str)
+bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str)
 {
-	StringManipulator strmanip;
-	strmanip.setStr(&str);
+	StringManipulator strmanip(str);
 	if (strmanip.peekFirst() == '\'')
 	{
 		if (strmanip.peekBack() == '\'')
@@ -418,11 +417,11 @@ bool Token::idIdentifier(DiagnosticEngine& diags,ASTContext& astctxt, const std:
 	return false;
 }
 
-bool Token::validateIdentifier(DiagnosticEngine& diags,const std::string& str) const
+bool Token::validateIdentifier(DiagnosticEngine& diags, const std::string& str) const
 {
 	// Identifiers : An Identifier's first letter must always be a underscore or an alphabetic letter
 	// The first character can then be followed by an underscore, a letter or a number.
-	StringManipulator manip(&str);
+	StringManipulator manip(str);
 	auto first_ch = manip.getCurrentChar();
 	if ((first_ch == '_') || iswalpha((char)first_ch))
 	{
