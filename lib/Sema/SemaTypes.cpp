@@ -272,6 +272,8 @@ bool Sema::unify(Type& aRef, Type& bRef)
 		// ConstrainedType = ConstrainedType
 		if (auto* bCS = b.getAs<ConstrainedType>())
 		{
+			// TODO: Review this code, it seems right but too good to be true
+
 			assert(bCS->numConstraints() > 0 && "Empty constraint set");
 
 			// Check if A and B have the same constraints
@@ -282,22 +284,23 @@ bool Sema::unify(Type& aRef, Type& bRef)
 				// Both have a substitution, unify them !
 				if (aSub && bSub)
 				{
-					// Both have a substitution: unify the substitutions.
-					return unify(aSub, bSub);
+					if (aSub != bSub)
+					{
+						Type highest = Sema::getHighestRankingType(aSub, bSub, true, true);
+						assert(highest && "unhandled case");
+						bCS->setSubstitution(highest.getPtr());
+					}
 				}
 				// A has a substitution, but B doesn't.
 				else if (aSub)
 					bCS->setSubstitution(aSub.getPtr());
 				// B has a Substitution, but A doesn't.
-				else if (bSub)
-					aCS->setSubstitution(bSub.getPtr());
+				// else if (bSub)
+				//	aCS->setSubstitution(bSub.getPtr());
 				// Both have no substitution.
-				else
-				{
-					// Both have no substitution, since we want A to be equal to B,
-					// make A's pointer the same as B's
-					aRef = bRef;
-				}
+
+				// Here subs are now equal, so make aRef equal to bRef and return.
+				aRef = bRef;
 				return true;
 			}
 			else

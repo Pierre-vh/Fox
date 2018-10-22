@@ -275,6 +275,9 @@ namespace
 			//		Type needs inference
 			Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr)
 			{
+				// TODO: Rewrite this for cases where elemTy is a constrainedType.
+				// don't allow "proposed" to become constrained!
+
 				// Macro that unwraps a type if it's a ConstrainedType
 				// with a valid substitution. Else it simply returns it's argument.
 				static auto defer_if_possible = [](Type t) {
@@ -290,7 +293,7 @@ namespace
 
 				if (auto size = expr->getSize())
 				{
-					Type proposed = nullptr;
+					Type proposed;
 					// Deduce the type by starting from the first type
 					// and by upranking it if needed.
 					for (auto& elem : expr->getExprs())

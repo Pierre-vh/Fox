@@ -73,6 +73,9 @@ Moonshot Project To-do List.
 	> ConstrainedType in Semantic Analysis (Done)
 	> Fix use of "getHighestRankingType" in visitArrayLiteral (Done)
 
+	//   [[],[true],[3.14],[1],[]] as int[][];
+		-> first literal deduced as bool, should be float
+
 	> Write FoxTestingTool & Test current semantics (Next)
 	> Finish basic expr semantic analysis (Next)
 
