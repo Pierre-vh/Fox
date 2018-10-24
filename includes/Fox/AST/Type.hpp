@@ -89,4 +89,18 @@ namespace fox
 			TypeLoc(const Type&) = delete;
 			TypeLoc& operator=(const Type&) = delete;
 	};
+
+	// Like SwiftC does, we'll disable isa/cast/dyn_cast/dyn_cast_or_null
+	// on Type objects to eliminate bugs due to mixing Type and TypeBase*
+	template <class X> 
+	inline bool isa(const Type&) = delete; 
+
+	template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
+	cast(const Type&) = delete;
+
+	template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
+	dyn_cast(const Type&) = delete;
+
+	template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
+	dyn_cast_or_null(const Type&) = delete;
 }
