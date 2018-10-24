@@ -71,10 +71,7 @@ Moonshot Project To-do List.
 	> Type debug print (toDebugString) (Done)
 	> Removing ParensExpr (Done)
 	> ConstrainedType in Semantic Analysis (Done)
-	> Fix use of "getHighestRankingType" in visitArrayLiteral (Done)
-
-	//   [[],[true],[3.14],[1],[]] as int[][];
-		-> first literal deduced as bool, should be float
+	> Fix Array Literal Inference (Done)
 
 	> Write FoxTestingTool & Test current semantics (Next)
 	> Finish basic expr semantic analysis (Next)
@@ -82,7 +79,7 @@ Moonshot Project To-do List.
 	> Code review in SemaType/SemaExpr & Write tests using new FTT tool
 
 
-Order of semantic analysis (left to be done)
+Order of semantic analysis
 	> Stmt Semantic Analysis
 	> Decl Semantic Analysis
 	> Name Resolution (DeclRefs of vars)
