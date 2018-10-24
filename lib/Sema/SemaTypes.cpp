@@ -449,3 +449,11 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type type)
 			fox_unreachable("Unknown integral type");
 	}
 }
+
+bool Sema::isStringType(Type type)
+{
+	auto* prim = type.getAs<PrimitiveType>();
+	if (prim)
+		return prim->isString();
+	return false;
+}

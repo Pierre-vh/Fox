@@ -71,6 +71,9 @@ namespace fox
 			// type must not be null and must point to a arithmetic type.
 			static IntegralRankTy getIntegralRank(Type type);
 
+			// Returns true if "type" is a string type.
+			static bool isStringType(Type type);
+
 			DiagnosticEngine& getDiagnosticEngine();
 			ASTContext& getASTContext();
 
