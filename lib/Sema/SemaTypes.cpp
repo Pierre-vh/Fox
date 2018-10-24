@@ -450,10 +450,9 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type type)
 	}
 }
 
-bool Sema::isStringType(Type type)
+bool Sema::isStringType(TypeBase* type)
 {
-	auto* prim = type.getAs<PrimitiveType>();
-	if (prim)
+	if (auto* prim = dyn_cast<PrimitiveType>(type))
 		return prim->isString();
 	return false;
 }

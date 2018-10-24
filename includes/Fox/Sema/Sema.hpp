@@ -72,7 +72,7 @@ namespace fox
 			static IntegralRankTy getIntegralRank(Type type);
 
 			// Returns true if "type" is a string type.
-			static bool isStringType(Type type);
+			static bool isStringType(TypeBase* type);
 
 			DiagnosticEngine& getDiagnosticEngine();
 			ASTContext& getASTContext();
