@@ -122,17 +122,11 @@ namespace
 		assert(a && b);
 		auto* tmpA = a;
 		auto* tmpB = b;
-		while (true)
-		{
-			std::tie(tmpA, tmpB) = unwrapIfBothArrayTypes(a, b);
-			// no unwrapping was performed, return
-			if (tmpA && tmpB)
-			{
-				a = tmpA;
-				b = tmpB;
-			}
-			return { a, b };
-		}
+		std::tie(tmpA, tmpB) = unwrapIfBothArrayTypes(a, b);
+		// Unwrapping was performed, assign and continue.
+		if (tmpA && tmpB)
+			return recursivelyUnwrapArrayTypes(tmpA, tmpB);
+		return { a, b };
 	}
 
 	// Tries to adjust the Constrained Type's substitution 
@@ -418,6 +412,8 @@ Type Sema::getHighestRankingType(Type a, Type b, bool ignoreLValues, bool unwrap
 	{
 		std::tie(a, b) = recursivelyUnwrapArrayTypes(a.getPtr(), b.getPtr());
 		assert(a && b && "Types are null after unwrapping?");
+		assert(!a.is<ArrayType>() && !b.is<ArrayType>() 
+			&& "Arrays should have been unwrapped!");
 	}
 
 	if (a == b)
