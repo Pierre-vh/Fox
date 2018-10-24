@@ -22,6 +22,22 @@ using namespace fox;
 
 namespace
 {
+	// Various helper functions
+
+	// If "type" is a ConstrainedType* with a valid substitution, returns the substitution,
+	// else, returns "type".
+	Type defer_if(Type type)
+	{
+		if (auto* ptr = type.getAs<ConstrainedType>())
+		{
+			// if the type has a substitution, return it, else
+			// just return the argument.
+			if (auto* sub = ptr->getSubstitution())
+				return Type(sub);
+		}
+		return type;
+	}
+
 	// Expression checker: Classic visitor, the visitXXX functions
 	// all check a single node. They do not orchestrate visitation of
 	// the children, because that is done in the ASTWalker
@@ -279,7 +295,7 @@ namespace
 				{
 					Type deduced = deduceTypeOfNonEmptyArrayLiteral(expr);
 					assert(deduced && "The function cannot return a null ptr");
-					expr->setType(ArrayType::get(getCtxt(), deduced.getPtr()));
+					expr->setType(deduced.getPtr());
 					return expr;
 				}
 				else
@@ -290,22 +306,12 @@ namespace
 			}
 
 			// Helper for the above function that deduces the type of a non empty Array literal
+			// Returns the type of the literal, doesn't set it's type by itself.
 			Type deduceTypeOfNonEmptyArrayLiteral(ArrayLiteralExpr* expr)
 			{
-				// Lambda that unwraps a type if it's a ConstrainedType
-				// with a valid substitution. Else it simply returns it's argument.
-				static auto defer_if_possible = [](Type t) {
-					if (auto* ptr = t.getAs<ConstrainedType>())
-					{
-						// if the type has a substitution, return it, else
-						// just return the argument.
-						if (auto* sub = ptr->getSubstitution())
-							return Type(sub);
-					}
-					return t;
-				};
-
-				// Lambda that diagnoses a heterogenous array
+				assert(expr->getSize() && "Size must be >0");
+				// Diagnoses a heterogenous array literal.
+				// Emits the diagnostics
 				static auto diagnose_hetero = [&](Expr* faultyElem = nullptr) {
 					if (faultyElem)
 					{
@@ -368,25 +374,18 @@ namespace
 					// Next iterations: unify elemTy with the concrete proposed type.
 					if (!getSema().unify(elemTy, concreteProposed))
 						return diagnose_hetero(elem); // Failed to unify, incompatible types
-
+					std::cout << "elemTy:" << elemTy->toDebugString() << ", concreteProposed:" << concreteProposed->toDebugString() << "\n";
 					// Get the highest ranking type of both types
 					Type highestRanking =
 						Sema::getHighestRankingType(
-							defer_if_possible(elemTy),
-							defer_if_possible(concreteProposed),
+							defer_if(elemTy),
+							defer_if(concreteProposed),
 							/*ignoreLValues*/ true,
 							/*unwrapTypes*/ true);
-					if (highestRanking)
-					{
-						std::cout << "Replacing " << defer_if_possible(concreteProposed)->toDebugString() 
-							<< " with " << highestRanking->toDebugString() << "(" << highestRanking.getPtr() << ")" << "\n";
-						concreteProposed = highestRanking;
-					}
-					else
-					{
-						std::cout << "Not replacing " << defer_if_possible(concreteProposed)->toDebugString()
-							<< " with " << defer_if_possible(elemTy)->toDebugString() << "\n";
-					}
+
+					assert(highestRanking
+						&& "Unification was successful but getHighestRankingType failed?");
+					concreteProposed = highestRanking;
 				}
 
 				// The final element type we'll use
@@ -413,20 +412,16 @@ namespace
 						if (!getSema().unify(inferType, concreteProposed))
 							return diagnose_hetero();
 						// Unification correct, the properType shall be the highest ranked type of both 
-						// inferType and concreteProposed, if there is one. If there isn't one, we'll just use
-						// the concreteProposed
+						// inferType and concreteProposed, if there is one.
 						Type highestRanking =
 							Sema::getHighestRankingType(
-								defer_if_possible(inferType),
-								defer_if_possible(concreteProposed),
+								defer_if(inferType),
+								defer_if(concreteProposed),
 								/*ignoreLValues*/ true,
 								/*unwrapTypes*/ true);
-						if (highestRanking)
-						{
-							std::cout << "@Replacing " << concreteProposed->toDebugString() << "(" << concreteProposed.getPtr() << ")"
-								<< " with " << highestRanking->toDebugString() << "(" << highestRanking.getPtr() << ")" << "\n";
-							concreteProposed = highestRanking;
-						}
+						assert(highestRanking 
+							&& "Unification was successful but getHighestRankingType failed?");
+						concreteProposed = highestRanking;
 						properType = highestRanking ? highestRanking : concreteProposed;
 					}
 					// if we don't have one, the properType is simply the concreteProposed
