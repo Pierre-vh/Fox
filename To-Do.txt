@@ -1,4 +1,8 @@
-Moonshot Project To-do List.
+This file contains personal notes I take when writing the project, this is essentially a to-do list.
+It isn't definitive, don't take anything listed here for granted. The stuff I write here changes a lot!
+- Pierre
+
+To-Do:
 	> ASTUnit : Represents a source file, contains declarations. (Done)
 	> IdentifierTable & IdentifierInfo (Done)
 	> ASTContext (Done)
