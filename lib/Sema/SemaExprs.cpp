@@ -310,8 +310,9 @@ namespace
 			Type deduceTypeOfNonEmptyArrayLiteral(ArrayLiteralExpr* expr)
 			{
 				assert(expr->getSize() && "Size must be >0");
+
 				// Diagnoses a heterogenous array literal.
-				// Emits the diagnostics
+				// Emits the diagnostics and returns the errorType.
 				static auto diagnose_hetero = [&](Expr* faultyElem = nullptr) {
 					if (faultyElem)
 					{
@@ -331,33 +332,38 @@ namespace
 					return getErrorType();
 				};
 
-				// The concrete type proposed by the elements inside the literal
+				// The concrete type proposed by unifying the other concrete
+				// types inside the array.
 				Type concreteProposed;
 
-				// The instance of the constrained type used by elements that needs
+				// The instance of the constrained type used by elements that need
 				// to be inferred
 				Type inferType;
 
 				// Loop over each expression in the literal
 				for (auto& elem : expr->getExprs())
 				{
-					// Fetch the elemTy and check it for null ptr
+					// Get the elemTy
 					Type& elemTy = elem->getType();
 					assert(elemTy && "Type cannot be null!");
 
-					// Handle error elem type: we stop and break here
-					// since we can't work on Array literals which have 
-					// invalid exprs.
+					// Handle error elem type: we stop and break here 
+					// if we have one.
 					if (elemTy.is<ErrorType>())
 						return getErrorType();
 
-					// If elemTy is a constrained type, handle it.
+					// If elemTy is a constrained type, apply the logic
+					// specific to constrained type inside the array literal.
 					if (elemTy.is<ConstrainedType>())
 					{
+						// Set inferType if it's not set
 						if (!inferType)
 							inferType = elemTy;
+
+						// If it's set, unify elemTy with the inferType
 						else if (!getSema().unify(elemTy, inferType))
 							return diagnose_hetero(elem);
+
 						continue;
 					}
 
@@ -371,11 +377,11 @@ namespace
 						continue;
 					}
 
-					// Next iterations: unify elemTy with the concrete proposed type.
+					// Unify elemTy with the concrete proposed type.
 					if (!getSema().unify(elemTy, concreteProposed))
 						return diagnose_hetero(elem); // Failed to unify, incompatible types
-					std::cout << "elemTy:" << elemTy->toDebugString() << ", concreteProposed:" << concreteProposed->toDebugString() << "\n";
-					// Get the highest ranking type of both types
+
+					// Get the highest ranking type of elemTy and concreteProposed
 					Type highestRanking =
 						Sema::getHighestRankingType(
 							defer_if(elemTy),
@@ -391,19 +397,16 @@ namespace
 				// The final element type we'll use
 				Type properType;
 
-				std::cout << "Proper = " << (properType ? properType->toDebugString() : "null") << "(" << properType.getPtr() << ")\n";
-				std::cout << "ConcreteProposed = " << (concreteProposed ? concreteProposed->toDebugString() : "null") << "(" << concreteProposed.getPtr() << ")\n";
-				std::cout << "InferType = " << (inferType ? inferType->toDebugString() : "null") << "(" << inferType.getPtr() << ")\n\n";
-
-
-				// If we don't have a concrete type
+				// If we don't have a concrete type, we should
+				// at least have a inferType. 
 				if (!concreteProposed)
 				{
 					// We should have a inferType to work with at least.
 					assert(inferType && "No concrete and no inferType?");
 					properType = inferType;
 				}
-				// We have a concrete type
+
+				// We do have a concrete type
 				else
 				{
 					// Handle unification with the inferType, if we have one
@@ -411,20 +414,21 @@ namespace
 					{
 						if (!getSema().unify(inferType, concreteProposed))
 							return diagnose_hetero();
+
 						// Unification correct, the properType shall be the highest ranked type of both 
-						// inferType and concreteProposed, if there is one.
+						// inferType and concreteProposed
 						Type highestRanking =
 							Sema::getHighestRankingType(
 								defer_if(inferType),
 								defer_if(concreteProposed),
 								/*ignoreLValues*/ true,
 								/*unwrapTypes*/ true);
+
 						assert(highestRanking 
 							&& "Unification was successful but getHighestRankingType failed?");
-						concreteProposed = highestRanking;
-						properType = highestRanking ? highestRanking : concreteProposed;
+						properType = highestRanking;
 					}
-					// if we don't have one, the properType is simply the concreteProposed
+					// if we don't have one, the properType is simply the concreteProposed type.
 					else
 						properType = concreteProposed;
 				}
