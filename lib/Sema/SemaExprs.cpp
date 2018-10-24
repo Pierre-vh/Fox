@@ -143,27 +143,43 @@ namespace
 			{
 				// Check if we can cast to that, castgoal must be
 				// of the same family OR string.
-				Type& exprTy = expr->getExpr()->getType();
+				Type& childTy = expr->getExpr()->getType();
 				TypeLoc& castGoal = expr->getCastTypeLoc();
 
-				if (!getSema().unify(exprTy, castGoal))
+				if (childTy.is<ErrorType>() && castGoal.is<ErrorType>())
 				{
-					if(!exprTy.is<ErrorType>() && !castGoal.is<ErrorType>())
-						getDiags()
-							.report(DiagID::sema_invalid_cast, castGoal.getRange())
-								.addArg(exprTy->toString())
-								.addArg(castGoal->toString())
-								.setExtraRange(expr->getExpr()->getRange());
 					expr->setType(getErrorType());
-					// Propagate the error type to the expr->type to avoid error
-					// flooding.
+					return expr;
 				}
-				else
+
+				// Handle casts to string
+				if (Sema::isStringType(castGoal.getPtr()))
+				{
+					// Let another function handle this!
+					checkCastToString(expr);
+					return expr;
+				}
+				
+				// For other type of casts, unification is enough to determine
+				// if the cast is valid.
+				if (!getSema().unify(childTy, castGoal))
 					expr->setType(castGoal.withoutLoc());
-				// TODO: Allow cast to string? If I do allow that,
-				// I should mark the castExpr as being a "Stringifying" one,
-				// so IR gen can emit the appropriate instr.
+				else
+				{
+					getDiags()
+						.report(DiagID::sema_invalid_cast, castGoal.getRange())
+						.addArg(childTy->toString())
+						.addArg(castGoal->toString())
+						.setExtraRange(expr->getExpr()->getRange());
+					expr->setType(getErrorType());
+				}
+
 				return expr;
+			}
+
+			void checkCastToString(CastExpr*)
+			{
+				// UNIMPLEMENTED FOR NOW //
 			}
 
 			Expr* visitUnaryExpr(UnaryExpr* expr)
