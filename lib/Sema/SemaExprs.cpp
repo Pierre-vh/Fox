@@ -275,90 +275,167 @@ namespace
 			//		Type needs inference
 			Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr)
 			{
-				// TODO: Rewrite this for cases where elemTy is a constrainedType.
-				// don't allow "proposed" to become constrained!
+				if (expr->getSize() > 0)
+				{
+					Type deduced = deduceTypeOfNonEmptyArrayLiteral(expr);
+					assert(deduced && "The function cannot return a null ptr");
+					expr->setType(ArrayType::get(getCtxt(), deduced.getPtr()));
+					return expr;
+				}
+				else
+					// Let type inference do it's magic 
+					expr->setType(createConstrainedTypeForEmptyArrayLiteral());
 
-				// Macro that unwraps a type if it's a ConstrainedType
+				return expr;
+			}
+
+			// Helper for the above function that deduces the type of a non empty Array literal
+			Type deduceTypeOfNonEmptyArrayLiteral(ArrayLiteralExpr* expr)
+			{
+				// Lambda that unwraps a type if it's a ConstrainedType
 				// with a valid substitution. Else it simply returns it's argument.
 				static auto defer_if_possible = [](Type t) {
 					if (auto* ptr = t.getAs<ConstrainedType>())
 					{
 						// if the type has a substitution, return it, else
 						// just return the argument.
-						if(auto* sub = ptr->getSubstitution())
+						if (auto* sub = ptr->getSubstitution())
 							return Type(sub);
 					}
 					return t;
 				};
 
-				if (auto size = expr->getSize())
-				{
-					Type proposed;
-					// Deduce the type by starting from the first type
-					// and by upranking it if needed.
-					for (auto& elem : expr->getExprs())
+				// Lambda that diagnoses a heterogenous array
+				static auto diagnose_hetero = [&](Expr* faultyElem = nullptr) {
+					if (faultyElem)
 					{
-						Type& elemTy = elem->getType();
+						getDiags()
+							// Precise error loc is the first element that failed the inferrence,
+							// extended range is the whole arrayliteral's.
+							.report(DiagID::sema_arraylit_hetero, faultyElem->getRange())
+							.setRange(expr->getRange());
+					}
+					else
+					{
+						getDiags()
+							// If we have no element to pinpoint, just use the whole expr's
+							// range
+							.report(DiagID::sema_arraylit_hetero, expr->getRange());
+					}
+					return getErrorType();
+				};
 
-						// Handle error elem type.
-						if (elemTy.is<ErrorType>())
-						{
-							// Stop progression & break
-							proposed = nullptr;
-							break;
-						}
+				// The concrete type proposed by the elements inside the literal
+				Type concreteProposed;
 
-						// First loop, set proposed & continue.
-						if (!proposed)
-						{
-							proposed = elemTy;
-							continue;
-						}
+				// The instance of the constrained type used by elements that needs
+				// to be inferred
+				Type inferType;
 
-						// If both elemTy and proposed are ConstrainedTypes with
-						// no substitution, what should I do?
+				// Loop over each expression in the literal
+				for (auto& elem : expr->getExprs())
+				{
+					// Fetch the elemTy and check it for null ptr
+					Type& elemTy = elem->getType();
+					assert(elemTy && "Type cannot be null!");
 
-						// Attempt to unify elemTy with the proposed type.
-						if (!getSema().unify(elemTy, proposed))
-						{
-							// Failed to unify: incompatible types
-							if(!elemTy.is<ErrorType>() && !proposed.is<ErrorType>())
-								getDiags().report(DiagID::sema_arraylit_hetero, expr->getRange());
-							std::cout << "Array was thought to be of type " << proposed->toString() << " but found " << elemTy->toString() << std::endl;
-							proposed = nullptr;
-							break;
-						}
+					// Handle error elem type: we stop and break here
+					// since we can't work on Array literals which have 
+					// invalid exprs.
+					if (elemTy.is<ErrorType>())
+						return getErrorType();
 
-						// Get the highest ranking type of both types
+					// If elemTy is a constrained type, handle it.
+					if (elemTy.is<ConstrainedType>())
+					{
+						if (!inferType)
+							inferType = elemTy;
+						else if (!getSema().unify(elemTy, inferType))
+							return diagnose_hetero(elem);
+						continue;
+					}
+
+					// From now on, we can be sure that //
+					// elemTy isn't a constrained type  //
+
+					// First loop, set concreteProposed & continue.
+					if (!concreteProposed)
+					{
+						concreteProposed = elemTy;
+						continue;
+					}
+
+					// Next iterations: unify elemTy with the concrete proposed type.
+					if (!getSema().unify(elemTy, concreteProposed))
+						return diagnose_hetero(elem); // Failed to unify, incompatible types
+
+					// Get the highest ranking type of both types
+					Type highestRanking =
+						Sema::getHighestRankingType(
+							defer_if_possible(elemTy),
+							defer_if_possible(concreteProposed),
+							/*ignoreLValues*/ true,
+							/*unwrapTypes*/ true);
+					if (highestRanking)
+					{
+						std::cout << "Replacing " << defer_if_possible(concreteProposed)->toDebugString() 
+							<< " with " << highestRanking->toDebugString() << "(" << highestRanking.getPtr() << ")" << "\n";
+						concreteProposed = highestRanking;
+					}
+					else
+					{
+						std::cout << "Not replacing " << defer_if_possible(concreteProposed)->toDebugString()
+							<< " with " << defer_if_possible(elemTy)->toDebugString() << "\n";
+					}
+				}
+
+				// The final element type we'll use
+				Type properType;
+
+				std::cout << "Proper = " << (properType ? properType->toDebugString() : "null") << "(" << properType.getPtr() << ")\n";
+				std::cout << "ConcreteProposed = " << (concreteProposed ? concreteProposed->toDebugString() : "null") << "(" << concreteProposed.getPtr() << ")\n";
+				std::cout << "InferType = " << (inferType ? inferType->toDebugString() : "null") << "(" << inferType.getPtr() << ")\n\n";
+
+
+				// If we don't have a concrete type
+				if (!concreteProposed)
+				{
+					// We should have a inferType to work with at least.
+					assert(inferType && "No concrete and no inferType?");
+					properType = inferType;
+				}
+				// We have a concrete type
+				else
+				{
+					// Handle unification with the inferType, if we have one
+					if (inferType)
+					{
+						if (!getSema().unify(inferType, concreteProposed))
+							return diagnose_hetero();
+						// Unification correct, the properType shall be the highest ranked type of both 
+						// inferType and concreteProposed, if there is one. If there isn't one, we'll just use
+						// the concreteProposed
 						Type highestRanking =
 							Sema::getHighestRankingType(
-								defer_if_possible(elemTy),
-								defer_if_possible(proposed),
+								defer_if_possible(inferType),
+								defer_if_possible(concreteProposed),
 								/*ignoreLValues*/ true,
 								/*unwrapTypes*/ true);
 						if (highestRanking)
 						{
-							std::cout << "Replacing " << proposed->toDebugString() << "(" << proposed.getPtr() << ")"
+							std::cout << "@Replacing " << concreteProposed->toDebugString() << "(" << concreteProposed.getPtr() << ")"
 								<< " with " << highestRanking->toDebugString() << "(" << highestRanking.getPtr() << ")" << "\n";
-							proposed = highestRanking;
+							concreteProposed = highestRanking;
 						}
+						properType = highestRanking ? highestRanking : concreteProposed;
 					}
-
-					// Apply.
-					if (proposed)
-					{
-						// TypeBase is an array of the proposed type.
-						expr->setType(ArrayType::get(getCtxt(), proposed.getPtr()));
-					}
+					// if we don't have one, the properType is simply the concreteProposed
 					else
-						expr->setType(getErrorType());
+						properType = concreteProposed;
 				}
-				else
-				{
-					// Let type inference do it's magic 
-					expr->setType(createConstrainedTypeForEmptyArrayLiteral());
-				}
-				return expr;
+
+				// The type of the expr is an array of the proposed type.
+				return ArrayType::get(getCtxt(), properType.getPtr());
 			}
 	};
 

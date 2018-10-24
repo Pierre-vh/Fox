@@ -385,7 +385,7 @@ bool Sema::checkConstraintOnType(ConstraintList& cs, Type ty)
 
 bool Sema::isIntegral(Type type)
 {
-	if (auto* prim = dyn_cast<PrimitiveType>(type.getPtr()))
+	if (auto* prim = type.getAs<PrimitiveType>())
 	{
 		using Pk = PrimitiveType::Kind;
 		switch (prim->getPrimitiveKind())
