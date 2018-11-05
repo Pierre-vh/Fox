@@ -42,8 +42,9 @@ if(MSVC)
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
   endif()
-  # Set Warnings are errors
+  # Set Warnings are errors & disable extensions
   add_compile_options(/WX)
+  #add_compile_options(/Za)
   #Silence problematic warnings: 
   add_compile_options(/wd4706) # "assignement within conditional expression" is rather pedantic.
   add_compile_options(/wd4324) # "structure was padded due to alignement specifier" no sh*t sherlock.

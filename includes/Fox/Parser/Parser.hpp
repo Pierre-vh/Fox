@@ -282,13 +282,13 @@ namespace fox
 
 					}
 
-					explicit Result(CTorValueTy val, SourceRange range = SourceRange()):
+					explicit Result(Inherited::CTorValueTy val, SourceRange range = SourceRange()):
 						Inherited(true, val), range_(range)
 					{
 
 					}
 
-					explicit Result(CTorRValueTy val, SourceRange range = SourceRange()):
+					explicit Result(Inherited::CTorRValueTy val, SourceRange range = SourceRange()):
 						Inherited(true, val), range_(range)
 					{
 
@@ -296,7 +296,7 @@ namespace fox
 
 					bool isUsable() const
 					{
-						return hasData() && wasSuccessful();
+						return Inherited::hasData() && Inherited::wasSuccessful();
 					}
 
 					explicit operator bool() const
@@ -325,7 +325,7 @@ namespace fox
 					template<typename = typename std::enable_if<std::is_same<Type, DataTy>::value, TypeLoc>::type>
 					TypeLoc getAsTypeLoc() const
 					{
-						return TypeLoc(get(), range_);
+						return TypeLoc(Inherited::get(), range_);
 					}
 
 				private:
