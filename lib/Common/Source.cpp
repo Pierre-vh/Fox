@@ -63,9 +63,9 @@ void FileID::markAsInvalid() {
 }
 
 // SourceManager
-const std::string* SourceManager::getSourceForFID(FileID fid) const {
+string_view SourceManager::getSourceForFID(FileID fid) const {
   auto data = getStoredDataForFileID(fid);
-  return &(data->str);
+  return data->str;
 }
 
 const SourceManager::StoredData* SourceManager::getStoredDataForFileID(FileID fid) const {

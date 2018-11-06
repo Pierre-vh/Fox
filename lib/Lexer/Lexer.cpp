@@ -14,7 +14,7 @@
 #include "Fox/AST/ASTContext.hpp"
 
 using namespace fox;
-using namespace fox::Dictionaries;
+using namespace fox::dicts;
 
 Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt):
   diags_(diags), ctxt_(astctxt), sm_(sm),
@@ -25,16 +25,12 @@ Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt):
 void Lexer::lexFile(FileID file) {
   assert(file && "INVALID FileID!");
   currentFile_ = file;
-  auto* source = sm_.getSourceForFID(currentFile_);
-  assert(source && "FileID is valid, but couldn't fetch the source?");
-  manip_.setStr(*source);
-
+  auto source = sm_.getSourceForFID(currentFile_);
+  manip_.setStr(source);
   manip_.reset();
   state_ = DFAState::S_BASE;
-
   while(!manip_.eof())
     cycle();
-
   pushTok();
   runFinalChecks();
 }
@@ -253,7 +249,8 @@ void Lexer::addToCurtok(FoxChar c) {
 }
 
 bool Lexer::isSep(FoxChar c) const {
-  // Is separator ? Signs are the separators in the input. Separators mark the end and beginning of tokens, and are tokens themselves. Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
+  // Is separator ? Signs are the separators in the input. 
+  // Separators mark the end and beginning of tokens, and are tokens themselves. Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
   if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip_.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
     return false;
   // To detect if C is a sign separator, we use the sign dictionary

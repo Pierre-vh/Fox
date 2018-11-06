@@ -14,6 +14,7 @@
 #include <map>
 #include <string>
 #include <tuple>
+#include "string_view.hpp"
 
 namespace fox {
   class SourceLoc;
@@ -147,11 +148,11 @@ namespace fox {
       FileID loadFromString(const std::string& str, const std::string& name = "in-memory");
 
       // Returns a pointer to the source string of a file.
-      // The result is always non null.
-      const std::string* getSourceForFID(FileID fid) const;
+      // The result is always valid.
+      string_view getSourceForFID(FileID fid) const;
 
       // Returns a pointer to the stored data that the FileID points to.
-      // The result is always non null.
+      // The result is always non null (guaranteed by an assertion)
       const StoredData*  getStoredDataForFileID(FileID fid) const;
 
       // Requests the human-readable location a SourceLoc points to.

@@ -59,12 +59,11 @@ TEST(SourceManagerTests, LoadingFromString) {
   EXPECT_TRUE(fid_a);
   EXPECT_TRUE(fid_b);
 
-  const std::string* r_str_a = srcMgr.getSourceForFID(fid_a);
-  const std::string* r_str_b = srcMgr.getSourceForFID(fid_b);
+  string_view r_str_a = srcMgr.getSourceForFID(fid_a);
+  string_view r_str_b = srcMgr.getSourceForFID(fid_b);
 
-  // Can we retrieve the correct files?
-  EXPECT_EQ(content_a, *r_str_a);
-  EXPECT_EQ(content_b, *r_str_b);
+  EXPECT_EQ(content_a, r_str_a);
+  EXPECT_EQ(content_b, r_str_b);
 }
 
 
@@ -111,9 +110,8 @@ TEST(SourceManagerTests, PreciseLocation) {
   ASSERT_TRUE(fid) << "File couldn't be loaded in memory";
 
   // Load file in StringManipulator
-  const std::string* ptr = srcMgr.getSourceForFID(fid);
-  ASSERT_TRUE(ptr);
-  StringManipulator sm(*ptr);
+  string_view ptr = srcMgr.getSourceForFID(fid);
+  StringManipulator sm(ptr);
 
   // Loop until we reach the pi sign
   for (; sm.getCurrentChar() != 960 && !sm.eof(); sm.advance());
