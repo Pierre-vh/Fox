@@ -17,7 +17,7 @@
 #include "Fox/AST/ASTContext.hpp"
 
 using namespace fox;
-using namespace fox::Dictionaries;
+using namespace fox::dicts;
 
 // Regular expression used for identification 
 std::regex kInt_regex("\\d+");
