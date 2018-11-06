@@ -26,7 +26,7 @@
 #pragma once
 
 #include "Fox/Common/Typedefs.hpp"
-#include "nonstd/string_view.hpp"
+#include "Fox/Common/string_view.hpp"
 
 namespace fox {
   // This class is designed to help
@@ -35,17 +35,17 @@ namespace fox {
     public:
       // Default ctor
       StringManipulator() = default;
-      StringManipulator(nonstd::string_view str);
+      StringManipulator(string_view str);
 
       /*
         STRING GETTERS/SETTERS
       */  
 
       // Returns a pointer to the string
-      nonstd::string_view getStr() const;
+      string_view getStr() const;
 
       // Set this SM's source to a the pointer str
-      void setStr(nonstd::string_view str);
+      void setStr(string_view str);
 
       /*
         ITERATOR MANIPULATION
@@ -119,10 +119,10 @@ namespace fox {
 
     private:
       // The string currently stored
-      nonstd::string_view str_;
+      string_view str_;
 
       // Iterators
-      nonstd::string_view::const_iterator iter_, end_, beg_;
+      string_view::const_iterator iter_, end_, beg_;
   };
 }
 

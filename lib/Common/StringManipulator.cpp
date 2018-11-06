@@ -11,15 +11,15 @@
 
 using namespace fox;
 
-StringManipulator::StringManipulator(nonstd::string_view str) {
+StringManipulator::StringManipulator(string_view str) {
   setStr(str);
 }
 
-nonstd::string_view StringManipulator::getStr() const {
+string_view StringManipulator::getStr() const {
   return str_;
 }
 
-void StringManipulator::setStr(nonstd::string_view str) {
+void StringManipulator::setStr(string_view str) {
   str_ = str;
   reset();
 }
