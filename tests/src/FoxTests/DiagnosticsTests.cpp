@@ -89,7 +89,8 @@ TEST(DiagnosticsTests, emission) {
   auto diagEng = createDiagEngine();
   StrDiagConsumer* cons = dynamic_cast<StrDiagConsumer*>(diagEng.getConsumer());
   EXPECT_EQ("", cons->getStr()) << "Consumer str wasn't empty at first.";
-  // Test emission when diag goes out of scope {
+  // Test emission when diag goes out of scope
+	{
     diagEng.report(DiagID::unittest_fataltest);
   }
   EXPECT_EQ("Test fatal", cons->getStr()) << "Consumer string did not match.";

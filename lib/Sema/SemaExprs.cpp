@@ -4,7 +4,6 @@
 // File : SemaExprs.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//      SEE HEADER FILE FOR MORE INFORMATION      
 //  This file implements Sema methods related to Exprs
 //----------------------------------------------------------------------------//
 

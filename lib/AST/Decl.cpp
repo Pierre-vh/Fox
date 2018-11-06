@@ -287,7 +287,7 @@ void UnitDecl::addDecl(Decl* decl) {
 
   // Update locs
   SourceRange range;
-  if (!getRange().isValid()) // (range not set yet) {
+  if (!getRange().isValid()) /*(range not set yet) */ {
     assert((decls_.size() == 0) && "Range not set, but we already have decls?");
     range = decl->getRange();
   }

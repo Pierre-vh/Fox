@@ -4,7 +4,6 @@
 // File : ParseExpr.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//      SEE HEADER FILE FOR MORE INFORMATION      
 // This file implements expressions related methods (rules)  
 //----------------------------------------------------------------------------//
 
@@ -262,8 +261,9 @@ Parser::ExprResult Parser::parseExponentExpr() {
 Parser::ExprResult Parser::parsePrefixExpr() {
   // <prefix_expr>  = <unary_operator> <prefix_expr> | <exp_expr>
 
-  // <unary_operator> <prefix_expr> 
-  if (auto uop = parseUnaryOp()) // <unary_operator> {
+	// <unary_operator>
+  if (auto uop = parseUnaryOp()) {
+		// <prefix_expr>
     if (auto prefixexpr = parsePrefixExpr()) {
       SourceLoc endLoc = prefixexpr.get()->getRange().getEnd();
 
@@ -367,7 +367,8 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
 
 
     // Handle results appropriately
-    if (!rhsResult) // Check for validity : we need a rhs. if we don't have one, we have an error ! {
+		// Check for validity : we need a rhs. if we don't have one, we have an error ! 
+    if (!rhsResult) {
       if(rhsResult.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
       return ExprResult::Error();

@@ -154,7 +154,8 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag) {
     return line.begin() + result;
   };
 
-  // Create the carets underline (^)  {  
+  // Create the carets underline (^)
+	{  
     auto beg = getOffsetIteratorFromLineBeg(range.getBegin().getIndex());
     auto end = getOffsetIteratorFromLineBeg(range.getEnd().getIndex());
     underline = createUnderline('^', line, beg, end);

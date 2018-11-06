@@ -134,12 +134,13 @@ void Lexer::fn_S_BASE() {
     dfa_goto(DFAState::S_MCOM);
   }
   // HANDLE SINGLE SEPARATOR
-  else if (isSep(c))        // is the current char a separator, but not a space? {
+	/* is the current char a separator, but not a space ?*/
+  else if (isSep(c))  {
     addToCurtok(eatChar());
     pushTok();
   }
   // HANDLE STRINGS AND CHARS
-  else if (c == '\'')  // Delimiter? {
+  else if (c == '\'') /* Delimiter? */ {
     addToCurtok(eatChar());
     dfa_goto(DFAState::S_CHR);
   }
@@ -224,7 +225,7 @@ void Lexer::addToCurtok(FoxChar c) {
     escapeFlag_ = true;
   }
   else if(!shouldIgnore(c)) {
-    if (escapeFlag_)  // last char was an escape char {
+    if (escapeFlag_) /* last char was an escape char */ {
       switch (c) {
         case 't':
           c = '\t';

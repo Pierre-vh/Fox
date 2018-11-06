@@ -4,7 +4,6 @@
 // File : ParseDecl.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//      SEE HEADER FILE FOR MORE INFORMATION      
 // This file implements decl, declstmt rules (methods)
 // and related helper functions
 //----------------------------------------------------------------------------//

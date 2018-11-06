@@ -4,7 +4,6 @@
 // File : Parser.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//      SEE HEADER FILE FOR MORE INFORMATION      
 //  This file implements methods that aren't tied to Expression,
 //  Statements or Declarations.
 //----------------------------------------------------------------------------//
