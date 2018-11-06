@@ -77,7 +77,7 @@ To-Do:
   > ConstrainedType in Semantic Analysis (Done)
   > Fix Array Literal Inference (Done)
 
-  > Write FoxTestingTool & Test current semantics (Next)
+  > Write a Verify mode/testing tool and test current semantics (Next)
   > Finish basic expr semantic analysis (Next)
 
   > Code review in SemaType/SemaExpr & Write tests using new FTT tool
