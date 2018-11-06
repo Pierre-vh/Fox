@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
-// File : ASTContext.cpp											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See LICENSE.txt for license info.            
+// File : ASTContext.cpp                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTContext.hpp"
@@ -16,51 +16,51 @@ ASTContext::ASTContext()
 
 UnitDecl* ASTContext::getMainUnit()
 {
-	return mainUnit_;
+  return mainUnit_;
 }
 
 void ASTContext::addUnit(UnitDecl* unit, bool isMainUnit)
 {
-	units_.push_back(unit);
+  units_.push_back(unit);
 
-	if (isMainUnit)
-		mainUnit_ = unit;
+  if (isMainUnit)
+    mainUnit_ = unit;
 }
 
 LinearAllocator<>& ASTContext::getAllocator()
 {
-	return allocator_;
+  return allocator_;
 }
 
 LinearAllocator<>& ASTContext::getCSAllocator()
 {
-	return csAllocator_;
+  return csAllocator_;
 }
 
 void ASTContext::reset()
 {
-	units_.clear();
-	mainUnit_ = nullptr;
+  units_.clear();
+  mainUnit_ = nullptr;
 
-	// Clear maps of ArrayType/LValueTypes
-	arrayTypes.clear();
-	lvalueTypes.clear();
+  // Clear maps of ArrayType/LValueTypes
+  arrayTypes.clear();
+  lvalueTypes.clear();
 
-	theIntType = nullptr;
-	theFloatType = nullptr;
-	theCharType = nullptr;
-	theBoolType = nullptr;
-	theStringType = nullptr;
-	theVoidType = nullptr;
-	theErrorType = nullptr;
+  theIntType = nullptr;
+  theFloatType = nullptr;
+  theCharType = nullptr;
+  theBoolType = nullptr;
+  theStringType = nullptr;
+  theVoidType = nullptr;
+  theErrorType = nullptr;
 
-	theArrayCS = nullptr;
+  theArrayCS = nullptr;
 
-	allocator_.reset();
-	csAllocator_.reset();
+  allocator_.reset();
+  csAllocator_.reset();
 }
 
 void ASTContext::freeCS()
 {
-	csAllocator_.reset();
+  csAllocator_.reset();
 }

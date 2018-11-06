@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : TypeNodes.def											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : TypeNodes.def                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file uses Macro to "register" every Type nodes
 // When including this file, the user can define custom macros to gather various informations
@@ -13,26 +13,26 @@
 // The Kind of the Type is TypeKind::ID
 // The class is ID and it's parent is PARENT
 #ifndef TYPE
-	#define TYPE(ID,PARENT)
+  #define TYPE(ID,PARENT)
 #endif
 
 // Range of Types derived from another Type.
 #ifndef TYPE_RANGE
-	#define TYPE_RANGE(ID,FIRST,LAST)
+  #define TYPE_RANGE(ID,FIRST,LAST)
 #endif
 
 // Abstract Types, most of the time, we don't care about them.
 // The class name is ID##Type, and the parent PARENT.
 #ifndef ABSTRACT_TYPE
-	#define ABSTRACT_TYPE(ID,PARENT)
+  #define ABSTRACT_TYPE(ID,PARENT)
 #endif
 
 /* Macros */
 
 ABSTRACT_TYPE(BuiltinType, TypeBase)
-	TYPE(PrimitiveType, BuiltinType)
-	TYPE(ArrayType, BuiltinType)
-	TYPE_RANGE(BuiltinType, PrimitiveType, ArrayType)
+  TYPE(PrimitiveType, BuiltinType)
+  TYPE(ArrayType, BuiltinType)
+  TYPE_RANGE(BuiltinType, PrimitiveType, ArrayType)
 
 TYPE(LValueType, TypeBase)
 TYPE(ErrorType, TypeBase)

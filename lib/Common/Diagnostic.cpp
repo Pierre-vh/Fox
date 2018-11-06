@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
-// File : Diagnostic.cpp											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See LICENSE.txt for license info.            
+// File : Diagnostic.cpp                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
 #include "Fox/Common/Diagnostic.hpp"
@@ -12,151 +12,151 @@
 using namespace fox;
 
 Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID, DiagSeverity dSev, const std::string& dStr, const SourceRange& range) :
-	engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr), range_(range)
+  engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr), range_(range)
 {
-	assert(engine && "Engine cannot be null!");
+  assert(engine && "Engine cannot be null!");
 
-	initBitFields();
+  initBitFields();
 }
 
 Diagnostic::Diagnostic(Diagnostic &other)
 {
-	*this = other;
-	other.kill();
+  *this = other;
+  other.kill();
 }
 
 Diagnostic::Diagnostic(Diagnostic&& other)
 {
-	*this = other;
-	other.kill();
+  *this = other;
+  other.kill();
 }
 
 Diagnostic::~Diagnostic()
 {
-	emit();
+  emit();
 }
 
 void Diagnostic::emit()
 {
-	if (active_)
-	{
-		assert(engine_ && "Attempting to emit without a DiagnosticEngine set!");
-		engine_->handleDiagnostic(*this);
-		kill(); // kill this diag once it's consumed.
-	}
+  if (active_)
+  {
+    assert(engine_ && "Attempting to emit without a DiagnosticEngine set!");
+    engine_->handleDiagnostic(*this);
+    kill(); // kill this diag once it's consumed.
+  }
 }
 
 DiagID Diagnostic::getDiagID() const
 {
-	return diagID_;
+  return diagID_;
 }
 
 std::string Diagnostic::getDiagStr() const
 {
-	return diagStr_;
+  return diagStr_;
 }
 
 DiagSeverity Diagnostic::getDiagSeverity() const
 {
-	return diagSeverity_;
+  return diagSeverity_;
 }
 
 SourceRange Diagnostic::getRange() const
 {
-	return range_;
+  return range_;
 }
 
 Diagnostic& Diagnostic::setRange(SourceRange range)
 {
-	range_ = range;
-	return *this;
+  range_ = range;
+  return *this;
 }
 
 bool Diagnostic::hasRange() const
 {
-	return range_.isValid();
+  return range_.isValid();
 }
 
 SourceRange Diagnostic::getExtraRange() const
 {
-	return extraRange_;
+  return extraRange_;
 }
 
 Diagnostic& Diagnostic::setExtraRange(SourceRange range)
 {
-	extraRange_ = range;
-	return *this;
+  extraRange_ = range;
+  return *this;
 }
 
 bool Diagnostic::hasExtraRange() const
 {
-	return extraRange_.isValid();
+  return extraRange_.isValid();
 }
 
 Diagnostic& Diagnostic::setIsFileWide(bool fileWide)
 {
-	if(!frozen_)
-		fileWide_ = fileWide;
-	return *this;
+  if(!frozen_)
+    fileWide_ = fileWide;
+  return *this;
 }
 
 bool Diagnostic::isFileWide() const
 {
-	return fileWide_;
+  return fileWide_;
 }
 
 bool Diagnostic::isActive() const
 {
-	return active_;
+  return active_;
 }
 
 Diagnostic& Diagnostic::replacePlaceholder(const std::string & replacement, std::uint8_t index)
 {
-	if (!active_ || frozen_)
-		return *this;
+  if (!active_ || frozen_)
+    return *this;
 
-	std::string targetPH = "%" + std::to_string((int)index);
-	std::size_t n = 0;
-	while ((n = diagStr_.find(targetPH, n)) != std::string::npos)
-	{
-		diagStr_.replace(n, targetPH.size(), replacement);
-		n += replacement.size();
-	}
-	return *this;
+  std::string targetPH = "%" + std::to_string((int)index);
+  std::size_t n = 0;
+  while ((n = diagStr_.find(targetPH, n)) != std::string::npos)
+  {
+    diagStr_.replace(n, targetPH.size(), replacement);
+    n += replacement.size();
+  }
+  return *this;
 }
 
 void Diagnostic::kill()
 {
-	if (active_)
-	{
-		// Clear all variables
-		active_ = false;
-		engine_ = nullptr;
-		diagStr_.clear();
-		frozen_ = true;
-		diagSeverity_ = DiagSeverity::IGNORE;
-	}
+  if (active_)
+  {
+    // Clear all variables
+    active_ = false;
+    engine_ = nullptr;
+    diagStr_.clear();
+    frozen_ = true;
+    diagSeverity_ = DiagSeverity::IGNORE;
+  }
 }
 bool Diagnostic::isFrozen() const
 {
-	return frozen_;
+  return frozen_;
 }
 
 Diagnostic& Diagnostic::freeze()
 {
-	frozen_ = true;
-	return *this;
+  frozen_ = true;
+  return *this;
 }
 
 Diagnostic::operator bool() const
 {
-	return isActive();
+  return isActive();
 }
 
 void Diagnostic::initBitFields()
 {
-	active_ = true;
-	frozen_ = false;
-	curPHIndex_ = 0;
-	fileWide_ = false;
+  active_ = true;
+  frozen_ = false;
+  curPHIndex_ = 0;
+  fileWide_ = false;
 }

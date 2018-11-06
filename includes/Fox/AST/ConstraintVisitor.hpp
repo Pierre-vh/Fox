@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : ConstraintVisitor.hpp											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : ConstraintVisitor.hpp                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file contains the ConstraintVisitor. It has
 // an interface similar to the ASTVisitor, except that it's
@@ -19,30 +19,30 @@
 
 namespace fox
 {
-	template<typename Derived, typename RtrTy, typename ... Args>
-	class ConstraintVisitor
-	{
-		public:
-			// Entry point for visiting a Constraint
-			RtrTy visit(Constraint* cs, Args... args)
-			{
-				assert(cs && "Cannot be used on a null pointer");
-				switch (cs->getKind())
-				{
-					#define CS(ID)\
-							case Constraint::Kind::ID:\
-								return static_cast<Derived*>(this)->visit##ID(cs, ::std::forward<Args>(args)...);
-					#include "Constraints.def"
-					default:
-						fox_unreachable("Unknown constraint");
-				}
-			}
+  template<typename Derived, typename RtrTy, typename ... Args>
+  class ConstraintVisitor
+  {
+    public:
+      // Entry point for visiting a Constraint
+      RtrTy visit(Constraint* cs, Args... args)
+      {
+        assert(cs && "Cannot be used on a null pointer");
+        switch (cs->getKind())
+        {
+          #define CS(ID)\
+              case Constraint::Kind::ID:\
+                return static_cast<Derived*>(this)->visit##ID(cs, ::std::forward<Args>(args)...);
+          #include "Constraints.def"
+          default:
+            fox_unreachable("Unknown constraint");
+        }
+      }
 
-			// Visit methods for constraints.
-			#define CS(ID)\
-			RtrTy visit##ID(Constraint*, Args...){ \
-				return RtrTy(); \
-			}
-			#include "Constraints.def"
-	};
+      // Visit methods for constraints.
+      #define CS(ID)\
+      RtrTy visit##ID(Constraint*, Args...){ \
+        return RtrTy(); \
+      }
+      #include "Constraints.def"
+  };
 }

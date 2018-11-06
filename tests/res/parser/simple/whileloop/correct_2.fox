@@ -1,8 +1,8 @@
 while(!(!false))
 {
-	let x : const float = !(-3.14);
-	if(true)
-		let x1 : const int;
-	else
-		3+3;
+  let x : const float = !(-3.14);
+  if(true)
+    let x1 : const int;
+  else
+    3+3;
 }

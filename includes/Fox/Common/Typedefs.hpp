@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : Typedefs.hpp											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Typedefs.hpp                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file declares Typedefs for various types to ensure
 // consistency between types. 

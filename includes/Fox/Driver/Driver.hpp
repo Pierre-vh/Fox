@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : Driver.hpp											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Driver.hpp                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This class aims to provide a basic driving tool for the compiler
 // 
@@ -18,11 +18,11 @@
 
 namespace fox
 {
-	class Driver
-	{
-		public:	
-			Driver() = default;
-			// This function will lex a file and call parseFuncDecl, then output the ast.
-			bool processFile(std::ostream& out, const std::string& filepath);
-	};
+  class Driver
+  {
+    public:  
+      Driver() = default;
+      // This function will lex a file and call parseFuncDecl, then output the ast.
+      bool processFile(std::ostream& out, const std::string& filepath);
+  };
 }

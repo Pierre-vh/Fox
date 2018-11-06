@@ -10,7 +10,7 @@ let x : int const float
 let float
 let x = float;
 # arrays and arrays of arrays.
-let x : int			[;
-let x : const int	[]];
-let x : float		[30]
+let x : int      [;
+let x : const int  []];
+let x : float    [30]
 let x : const [40];

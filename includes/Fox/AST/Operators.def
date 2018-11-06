@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : Operators.def											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Operators.def                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file uses Macro to "register" every Unary & Binary operators with
 // their name and sign.
@@ -14,11 +14,11 @@
 //----------------------------------------------------------------------------//
 
 #ifndef BINARY_OP
-	#define BINARY_OP(ID, SIGN, NAME)
+  #define BINARY_OP(ID, SIGN, NAME)
 #endif
 
 #ifndef UNARY_OP
-	#define UNARY_OP(ID, SIGN, NAME)
+  #define UNARY_OP(ID, SIGN, NAME)
 #endif
 
 // Binary Operators

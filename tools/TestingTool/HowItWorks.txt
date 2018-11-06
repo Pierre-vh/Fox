@@ -1,36 +1,36 @@
 OUTDATED:
-	The Fox Testing Tool (FTT) is going to work by leveraging existing Fox tools such as the parser.
+  The Fox Testing Tool (FTT) is going to work by leveraging existing Fox tools such as the parser.
 
-	A basic file structure will have comments and Fox language constructs.
-	Comments that start with /// or /** will be used as FTT instructions.
+  A basic file structure will have comments and Fox language constructs.
+  Comments that start with /// or /** will be used as FTT instructions.
 
-	Example FTT instructions
-		1) Parse [Stmt/Decl/Std] -> Sets the parsing mode: expect statements, decls or just a standard file.
-		2) Expect: adds immediate predicates that apply to the next parser call
-		3) LookFor [Decl::XXX/Expr::XXX/Stmt::XXX] -> Walks the tree until it finds a node of the kind XXX.
-	Example:
+  Example FTT instructions
+    1) Parse [Stmt/Decl/Std] -> Sets the parsing mode: expect statements, decls or just a standard file.
+    2) Expect: adds immediate predicates that apply to the next parser call
+    3) LookFor [Decl::XXX/Expr::XXX/Stmt::XXX] -> Walks the tree until it finds a node of the kind XXX.
+  Example:
 
-	Implementation:
-		-> Special testing tool parser to parse directives.
+  Implementation:
+    -> Special testing tool parser to parse directives.
 
-	To-Do:
-		1) Find a cooler name than "FoxTestingTool"
-		2) Update the parser to ignore comment tokens
-		2) Test Object, Test Runner
-		4) Predicates with the first few predicates/functions
-			+ Predicate tests
-		5) FTTParser
-			+ Parser tests
-		6) Bring it all together
+  To-Do:
+    1) Find a cooler name than "FoxTestingTool"
+    2) Update the parser to ignore comment tokens
+    2) Test Object, Test Runner
+    4) Predicates with the first few predicates/functions
+      + Predicate tests
+    5) FTTParser
+      + Parser tests
+    6) Bring it all together
 
 CURRENT PROBLEMS:
-	Comment tokens should just be deleted. They have no reason to exist in the main project, so they shouldn't
-	exist at all. 
-	
-	But, this will make the FTT implementation harder since I can't rely on comments that easily, and I can't
-	locate them inside the "stream" of tokens. This basically leaves me only 2 choices:
-		1) Use LLVM-Lit, but this might make the testing less precise (types can't be checked for instance)
-			-> If I do that, find a way to do some more in depth testing, like checking if an expression is
-			of the correct type. I also need to support suppressed diagnostics and stuff like that.
-		2) Think about other way of doing this.
-	
+  Comment tokens should just be deleted. They have no reason to exist in the main project, so they shouldn't
+  exist at all. 
+  
+  But, this will make the FTT implementation harder since I can't rely on comments that easily, and I can't
+  locate them inside the "stream" of tokens. This basically leaves me only 2 choices:
+    1) Use LLVM-Lit, but this might make the testing less precise (types can't be checked for instance)
+      -> If I do that, find a way to do some more in depth testing, like checking if an expression is
+      of the correct type. I also need to support suppressed diagnostics and stuff like that.
+    2) Think about other way of doing this.
+  

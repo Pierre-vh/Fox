@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : DeclNodes.def											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : DeclNodes.def                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file uses Macro to "register" every Decl nodes
 // When including this file, the user can define custom macros to gather various informations
@@ -13,36 +13,36 @@
 // The Kind of the expr is DeclKind::ID
 // The class is ID and it's parent is PARENT
 #ifndef DECL
-	#define DECL(ID,PARENT)
+  #define DECL(ID,PARENT)
 #endif
 
 // This macro is used for Decl contexts, the default
 // behaviour is to do the same as Decls.
 #ifndef DECL_CTXT
-	#define DECL_CTXT(ID,PARENT) DECL(ID,PARENT)
+  #define DECL_CTXT(ID,PARENT) DECL(ID,PARENT)
 #endif
 
 // Range of declarations derived from another decl.
 #ifndef DECL_RANGE
-	#define DECL_RANGE(ID,FIRST,LAST)
+  #define DECL_RANGE(ID,FIRST,LAST)
 #endif
 
 // Abstract decls, most of the time, we don't care about them.
 // The class name is ID, and the parent PARENT.
 #ifndef ABSTRACT_DECL
-	#define ABSTRACT_DECL(ID,PARENT)
+  #define ABSTRACT_DECL(ID,PARENT)
 #endif
 
 /* Macros */
 
 ABSTRACT_DECL(NamedDecl,Decl)
-	ABSTRACT_DECL(ValueDecl, NamedDecl)
-		DECL(ParamDecl, ValueDecl)
-		DECL(VarDecl, ValueDecl)
-		DECL_RANGE(ValueDecl, ParamDecl, VarDecl)
-	DECL_CTXT(FuncDecl, NamedDecl)
-	DECL_CTXT(UnitDecl, NamedDecl)
-	DECL_RANGE(NamedDecl, ParamDecl, UnitDecl)
+  ABSTRACT_DECL(ValueDecl, NamedDecl)
+    DECL(ParamDecl, ValueDecl)
+    DECL(VarDecl, ValueDecl)
+    DECL_RANGE(ValueDecl, ParamDecl, VarDecl)
+  DECL_CTXT(FuncDecl, NamedDecl)
+  DECL_CTXT(UnitDecl, NamedDecl)
+  DECL_RANGE(NamedDecl, ParamDecl, UnitDecl)
 
 /* Undef */
 

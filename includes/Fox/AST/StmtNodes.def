@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : StmtNodes.def											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : StmtNodes.def                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file uses Macro to "register" every Stmt nodes
 // When including this file, the user can define custom macros to gather various informations
@@ -13,12 +13,12 @@
 // The Kind of the Stmt is StmtKind::ID
 // The class is ID and it's parent is PARENT
 #ifndef STMT
-	#define STMT(ID,PARENT)
+  #define STMT(ID,PARENT)
 #endif
 
 // Abstract stmts, just ignore them most of the time
 #ifndef ABSTRACT_STMT
-	#define ABSTRACT_STMT(ID,PARENT)
+  #define ABSTRACT_STMT(ID,PARENT)
 #endif
 
 /* Macros */

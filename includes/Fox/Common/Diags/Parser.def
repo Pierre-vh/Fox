@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : Parser.def											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Parser.def                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // Parser Diagnostics Message
 //----------------------------------------------------------------------------//
@@ -11,12 +11,12 @@ ERROR(parser_placeholder, "%0")
 
 // Error Expected
 ERROR(parser_expected_closing_squarebracket,"Expected ']'")
-ERROR(parser_expected_closing_curlybracket,	"Expected '}'")
-ERROR(parser_expected_opening_curlybracket,	"Expected '{'")
-ERROR(parser_expected_closing_roundbracket,	"Expected ')'")
-ERROR(parser_expected_opening_roundbracket,	"Expected '('")
-ERROR(parser_expected_stmt,	"Expected a statement")
-ERROR(parser_expected_expr,	"Expected an expression")
+ERROR(parser_expected_closing_curlybracket,  "Expected '}'")
+ERROR(parser_expected_opening_curlybracket,  "Expected '{'")
+ERROR(parser_expected_closing_roundbracket,  "Expected ')'")
+ERROR(parser_expected_opening_roundbracket,  "Expected '('")
+ERROR(parser_expected_stmt,  "Expected a statement")
+ERROR(parser_expected_expr,  "Expected an expression")
 ERROR(parser_expected_decl, "Expected a declaration")
 ERROR(parser_expected_semi, "Expected a ';'")
 ERROR(parser_expected_colon, "Expected a ':'")
@@ -35,6 +35,6 @@ ERROR(parser_missing_roundbracket, "%0 unclosed '(' in file")
 WARNING(parser_ignored_ref_vardecl, "Ignored reference qualifier '&' in variable declaration : Variables cannot be references")
 
 // Fatal error
-FATAL(parser_roundbracket_overflow,	"Max round bracket depth exceeded")
+FATAL(parser_roundbracket_overflow,  "Max round bracket depth exceeded")
 FATAL(parser_squarebracket_overflow,"Max square bracket depth exceeded")
-FATAL(parser_curlybracket_overflow,	"Max curly bracket depth exceeded")
+FATAL(parser_curlybracket_overflow,  "Max curly bracket depth exceeded")

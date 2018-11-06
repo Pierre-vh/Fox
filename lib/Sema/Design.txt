@@ -6,51 +6,51 @@ It will essentially mix bidirectional type checking with unidirectional type che
 The semantic analyzer will mostly work like a traditional unidirectional analyzer, like a C/C++ compiler
 would, but in some cases, language constructs in Fox will require contextual information to be resolved.
 A simple example is 
-	let x : int[] = []
+  let x : int[] = []
 When anylizing the [] node, it's impossible to tell it's type. It could be an array of ints, floats, strings, etc.
 So, instead of using hacks, we'll just set it's type to be a ArrayType of a fresh "T0" type. This type will hopefully
 be unified later. If it isn't, the second phase of semantic analysis will pick it up and emit an error.
 
 General rule of thumb is:
-	Type can be decided with all the elements contained within the node (it's children): assign a definitive type to it
-	Type cannot be decided when visiting the node: assign a fresh "t0" type to it.
+  Type can be decided with all the elements contained within the node (it's children): assign a definitive type to it
+  Type cannot be decided when visiting the node: assign a fresh "t0" type to it.
 
 To unify thoses variables, every node will use a "unification" function. Many kinds of unification will exist, but the
 2 most important ones will be:
-	* Unification: Traditional unification. 
-	* Subtype Unification: This works like traditional unification, but will accept that the LHS and RHS are different concrete
-	types, as long as they are of the same family.
+  * Unification: Traditional unification. 
+  * Subtype Unification: This works like traditional unification, but will accept that the LHS and RHS are different concrete
+  types, as long as they are of the same family.
 
 This is a bit rough to explain. I guess code will speak for itself, and I'll write more documentation later, when I have the time for it.
 
 Design of Sema's interface & impl
-	Separation of concerns should be an essential part of the design.
-		-> Don't allow other classes to play with the semantics, even for testing. Just give
-		   them the interface that they'll need, nothing more, nothing else.
+  Separation of concerns should be an essential part of the design.
+    -> Don't allow other classes to play with the semantics, even for testing. Just give
+       them the interface that they'll need, nothing more, nothing else.
 
-	Sema.hpp should strictly be the interface, offering some functionalities to the client.
-		-> Check some node or a source file.
+  Sema.hpp should strictly be the interface, offering some functionalities to the client.
+    -> Check some node or a source file.
 
-	Everything else is in lib/Sema
-		-> e.g. Individual checking classes
-			ExprChecker
-			StmtChecker
-			etc.. 
+  Everything else is in lib/Sema
+    -> e.g. Individual checking classes
+      ExprChecker
+      StmtChecker
+      etc.. 
 
-			All with their .hpp & .cpp
-		-> OverloadChoice.hpp/.cpp
-		-> UFCS.hpp.Cpp
+      All with their .hpp & .cpp
+    -> OverloadChoice.hpp/.cpp
+    -> UFCS.hpp.Cpp
 
-		That's going to be a lot of files.
+    That's going to be a lot of files.
 
 Define:
-	Error Handling Policy 
-		Only diags. Abort AST visitation for critical errors, rest should be handled with ErrorTypes & others.
+  Error Handling Policy 
+    Only diags. Abort AST visitation for critical errors, rest should be handled with ErrorTypes & others.
 
-	Structure:
-		Sema:
-			Contains various methods pertaining to semantic analysis as well as entry points to check any AST node.
+  Structure:
+    Sema:
+      Contains various methods pertaining to semantic analysis as well as entry points to check any AST node.
 
-			SemaExpr:
-				Implements "typecheckExpr"
-					ExprWalker walks the AST in a post-order fashion, calls methods on the ExprChecker
+      SemaExpr:
+        Implements "typecheckExpr"
+          ExprWalker walks the AST in a post-order fashion, calls methods on the ExprChecker

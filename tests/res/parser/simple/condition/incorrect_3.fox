@@ -1,5 +1,5 @@
 if(false)
-	foo = "if!";
+  foo = "if!";
 else if
 {
-	let statement : int;
+  let statement : int;

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : Type.hpp											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Type.hpp                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file contains the Type & TypeLoc classes
 //----------------------------------------------------------------------------//
@@ -14,93 +14,93 @@
 
 namespace fox
 {
-	class TypeBase;
-	class TypeLoc;
-	// Type class, an observing pointer to a TypeBase*
-	// Used to facilitate passing TypeBase pointers as reference, (Type& instead of TypeBase*&)
-	// as well as adding flexibility in case I'd like to add Sugared types one day.
-	class Type
-	{
-		TypeBase* ty_ = nullptr;
-		public:
-			Type(TypeBase* ty = nullptr);
+  class TypeBase;
+  class TypeLoc;
+  // Type class, an observing pointer to a TypeBase*
+  // Used to facilitate passing TypeBase pointers as reference, (Type& instead of TypeBase*&)
+  // as well as adding flexibility in case I'd like to add Sugared types one day.
+  class Type
+  {
+    TypeBase* ty_ = nullptr;
+    public:
+      Type(TypeBase* ty = nullptr);
 
-			TypeBase* getPtr();
-			const TypeBase* getPtr() const;
+      TypeBase* getPtr();
+      const TypeBase* getPtr() const;
 
-			bool isNull() const;
+      bool isNull() const;
 
-			TypeBase* operator->();
-			const TypeBase* operator->() const;
+      TypeBase* operator->();
+      const TypeBase* operator->() const;
 
-			explicit operator bool() const;
+      explicit operator bool() const;
 
-			// uses dyn_cast_or_null to return the type pointer
-			template<typename Ty>
-			Ty* getAs()
-			{
-				return dyn_cast_or_null<Ty>(ty_);
-			}
+      // uses dyn_cast_or_null to return the type pointer
+      template<typename Ty>
+      Ty* getAs()
+      {
+        return dyn_cast_or_null<Ty>(ty_);
+      }
 
-			// uses dyn_cast_or_null to return the type pointer
-			template<typename Ty>
-			const Ty* getAs() const
-			{
-				return dyn_cast_or_null<Ty>(ty_);
-			}
+      // uses dyn_cast_or_null to return the type pointer
+      template<typename Ty>
+      const Ty* getAs() const
+      {
+        return dyn_cast_or_null<Ty>(ty_);
+      }
 
-			// calls isa on the pointer. Returns false
-			// if the pointer is null.
-			template<typename Ty>
-			bool is() const
-			{
-				return ty_ ? isa<Ty>(ty_) : false;
-			}
+      // calls isa on the pointer. Returns false
+      // if the pointer is null.
+      template<typename Ty>
+      bool is() const
+      {
+        return ty_ ? isa<Ty>(ty_) : false;
+      }
 
-			bool operator==(const Type& type) const;
-			bool operator!=(const Type& type) const;
+      bool operator==(const Type& type) const;
+      bool operator!=(const Type& type) const;
 
-		private:
-			// Forbid TypeLoc->Type conversion
-			Type(const TypeLoc&) = delete;
-			Type& operator=(const TypeLoc&) = delete;
-	};
+    private:
+      // Forbid TypeLoc->Type conversion
+      Type(const TypeLoc&) = delete;
+      Type& operator=(const TypeLoc&) = delete;
+  };
 
-	// A Type with it's SourceRange, which is used to represent "real" types written down
-	// by the user.
-	class TypeLoc : public Type
-	{
-		SourceRange range_;
-		public:
-			TypeLoc(TypeBase* ty = nullptr, SourceRange range = SourceRange());
-			TypeLoc(Type ty, SourceRange range = SourceRange());
+  // A Type with it's SourceRange, which is used to represent "real" types written down
+  // by the user.
+  class TypeLoc : public Type
+  {
+    SourceRange range_;
+    public:
+      TypeLoc(TypeBase* ty = nullptr, SourceRange range = SourceRange());
+      TypeLoc(Type ty, SourceRange range = SourceRange());
 
-			SourceRange getRange() const;
+      SourceRange getRange() const;
 
-			Type withoutLoc();
-			const Type withoutLoc() const; 
-		private:
-			// For now, disable TypeLoc comparison. We don't need it.
-			// Might add a "strict_compare" function tho.
-			bool operator==(const Type& type) const = delete;
-			bool operator!=(const Type& type) const = delete;
+      Type withoutLoc();
+      const Type withoutLoc() const; 
+    private:
+      // For now, disable TypeLoc comparison. We don't need it.
+      // Might add a "strict_compare" function tho.
+      bool operator==(const Type& type) const = delete;
+      bool operator!=(const Type& type) const = delete;
 
-			// Forbid Type->TypeLoc conversion
-			TypeLoc(const Type&) = delete;
-			TypeLoc& operator=(const Type&) = delete;
-	};
+      // Forbid Type->TypeLoc conversion
+      TypeLoc(const Type&) = delete;
+      TypeLoc& operator=(const Type&) = delete;
+  };
 
-	// Like SwiftC does, we'll disable isa/cast/dyn_cast/dyn_cast_or_null
-	// on Type objects to eliminate bugs due to mixing Type and TypeBase*
-	template <class X> 
-	inline bool isa(const Type&) = delete; 
+  // Like SwiftC does, we'll disable isa/cast/dyn_cast/dyn_cast_or_null
+  // on Type objects to eliminate bugs due to mixing Type and TypeBase*
+  template <class X> 
+  inline bool isa(const Type&) = delete; 
 
-	template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
-	cast(const Type&) = delete;
+  template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
+  cast(const Type&) = delete;
 
-	template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
-	dyn_cast(const Type&) = delete;
+  template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
+  dyn_cast(const Type&) = delete;
 
-	template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
-	dyn_cast_or_null(const Type&) = delete;
+  template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
+  dyn_cast_or_null(const Type&) = delete;
 }

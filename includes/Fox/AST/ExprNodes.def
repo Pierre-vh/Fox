@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : ExprNodes.def											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : ExprNodes.def                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file uses Macro to "register" every Expr nodes
 // When including this file, the user can define custom macros to gather various informations
@@ -12,12 +12,12 @@
 // Base macro for concrete classes of Expr.
 // Concrete classes of Expr
 #ifndef EXPR
-	#define EXPR(ID,PARENT)
+  #define EXPR(ID,PARENT)
 #endif
 
 // Abstract Expressions
 #ifndef ABSTRACT_EXPR
-	#define ABSTRACT_EXPR(ID, PARENT)
+  #define ABSTRACT_EXPR(ID, PARENT)
 #endif
 
 /* Macros */

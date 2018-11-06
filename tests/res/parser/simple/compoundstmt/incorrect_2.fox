@@ -1,2 +1,2 @@
 {
-	let foo : int = 3;
+  let foo : int = 3;

@@ -30,12 +30,12 @@ ___________________________________________________________________________
 
 This project contains code written by third-parties, contained in the /thirdparty/ folder.
 
-|	Project		          |	    Path to License				  |
+|  Project              |      Path to License          |
 |-------------------------|-----------------------------------|
-| utfcpp		          | /thirdparty/utfcpp/LICENSE.txt	  |
-| mpark/variant	          | /thirdparty/mpark/LICENSE.txt	  |
-| llvm			          | /thirdparty/llvm/LICENSE.txt	  |
-| nonstd/string-view-lite | /thirdparty/nonstd/LICENSE.txt	  |
+| utfcpp              | /thirdparty/utfcpp/LICENSE.txt    |
+| mpark/variant            | /thirdparty/mpark/LICENSE.txt    |
+| llvm                | /thirdparty/llvm/LICENSE.txt    |
+| nonstd/string-view-lite | /thirdparty/nonstd/LICENSE.txt    |
 |-------------------------|-----------------------------------|
 
 Addionally, Googletest is used for testing the project.

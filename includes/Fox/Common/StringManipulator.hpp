@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : StringManipulator.hpp											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : StringManipulator.hpp                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // Implements a UTF-8 string manipulator based on the UTFCPP library.
 // It always work with a pointer to the string to avoid copies.
@@ -11,14 +11,14 @@
 //
 // # = Current iterator iter_ position. It is always positioned at the end of the previous CP, and at the beginning of the current CP
 // CP = One codepoint. It's one or more bytes in the std::string.
-//		
-//													  getCurrentChar()
-//															|->
-//											  peekPrevious()|	peekNext()
-//													|->   |		|->
-//							 	- - --------------------------------------------------------- - -
-//	str_(input string)		 		|	CP	|	CP	|	CP	#	CP	|	CP	|	CP	|	CP	|
-//							 	- - --------------------------------------------------------- - -
+//    
+//                            getCurrentChar()
+//                              |->
+//                        peekPrevious()|  peekNext()
+//                          |->   |    |->
+//                 - - --------------------------------------------------------- - -
+//  str_(input string)         |  CP  |  CP  |  CP  #  CP  |  CP  |  CP  |  CP  |
+//                 - - --------------------------------------------------------- - -
 //
 //
 //----------------------------------------------------------------------------//
@@ -30,102 +30,102 @@
 
 namespace fox
 {
-	// This class is designed to help
-	// with manipulating UTF8 strings.
-	class StringManipulator
-	{
-		public:
-			// Default ctor
-			StringManipulator() = default;
-			StringManipulator(nonstd::string_view str);
+  // This class is designed to help
+  // with manipulating UTF8 strings.
+  class StringManipulator
+  {
+    public:
+      // Default ctor
+      StringManipulator() = default;
+      StringManipulator(nonstd::string_view str);
 
-			/*
-				STRING GETTERS/SETTERS
-			*/	
+      /*
+        STRING GETTERS/SETTERS
+      */  
 
-			// Returns a pointer to the string
-			nonstd::string_view getStr() const;
+      // Returns a pointer to the string
+      nonstd::string_view getStr() const;
 
-			// Set this SM's source to a the pointer str
-			void setStr(nonstd::string_view str);
+      // Set this SM's source to a the pointer str
+      void setStr(nonstd::string_view str);
 
-			/*
-				ITERATOR MANIPULATION
-			*/
-			void reset();
-			void advance(const std::size_t& ind = 1);
-			void goBack(const std::size_t& ind = 1);
+      /*
+        ITERATOR MANIPULATION
+      */
+      void reset();
+      void advance(const std::size_t& ind = 1);
+      void goBack(const std::size_t& ind = 1);
 
-			/*
-				GET THE CURRENT CHARACTER
-			*/
+      /*
+        GET THE CURRENT CHARACTER
+      */
 
-			// Get the current codepoint
-			FoxChar getCurrentChar() const;
+      // Get the current codepoint
+      FoxChar getCurrentChar() const;
 
-			// Get a codepoint at a precise location
-			FoxChar getChar(std::size_t ind) const;
-			
-			/*
-				PEEK
-			*/
+      // Get a codepoint at a precise location
+      FoxChar getChar(std::size_t ind) const;
+      
+      /*
+        PEEK
+      */
 
-			FoxChar peekFirst() const;
-			FoxChar peekNext() const;
-			FoxChar peekPrevious() const;
-			FoxChar peekBack() const;
+      FoxChar peekFirst() const;
+      FoxChar peekNext() const;
+      FoxChar peekPrevious() const;
+      FoxChar peekBack() const;
 
-			/*
-				UTILS & OTHERS
-			*/
+      /*
+        UTILS & OTHERS
+      */
 
-			// Extract a substring
-			std::string substring(std::size_t beg, std::size_t leng) const;
+      // Extract a substring
+      std::string substring(std::size_t beg, std::size_t leng) const;
 
-			// Return the number of codepoints in the string
-			std::size_t getSizeInCodepoints() const;
+      // Return the number of codepoints in the string
+      std::size_t getSizeInCodepoints() const;
 
-			// Returns the number of bytes in the string
-			std::size_t getSizeInBytes() const;
+      // Returns the number of bytes in the string
+      std::size_t getSizeInBytes() const;
 
-			// Checks if the stringmanipulator has reached the end of the string
-			bool eof() const;
+      // Checks if the stringmanipulator has reached the end of the string
+      bool eof() const;
 
-			// Returns the index of the current character in codepoints
-			// DO NOT MIX THIS WITH std::string::operator[] AND STRING OPERATIONS!
-			std::size_t getIndexInCodepoints() const;
+      // Returns the index of the current character in codepoints
+      // DO NOT MIX THIS WITH std::string::operator[] AND STRING OPERATIONS!
+      std::size_t getIndexInCodepoints() const;
 
-			// This uses std::distance to calculate the index at which the current codepoint begins in BYTES
-			// You can use this with std::string::operator[] to retrieve the first byte of the codepoint.
-			std::size_t getIndexInBytes() const;
+      // This uses std::distance to calculate the index at which the current codepoint begins in BYTES
+      // You can use this with std::string::operator[] to retrieve the first byte of the codepoint.
+      std::size_t getIndexInBytes() const;
 
-			/*
-				STATIC METHODS
-			*/
+      /*
+        STATIC METHODS
+      */
 
-			// Convert a FoxChar to a utf8 encoded string
-			static std::string charToStr(FoxChar wc);
+      // Convert a FoxChar to a utf8 encoded string
+      static std::string charToStr(FoxChar wc);
 
-			// Removes the BOM from a str
-			static void removeBOM(std::string& str);
+      // Removes the BOM from a str
+      static void removeBOM(std::string& str);
 
-			// Given 2 iterators, places the iterator it at the beginning of the first codepoint, ignoring the Byte order mark
-			template<typename it_type>
-			static void skipBOM(it_type& it, it_type end)
-			{
-				if (utf8::starts_with_bom(it, end))
-					utf8::next(it, end);
-			}
+      // Given 2 iterators, places the iterator it at the beginning of the first codepoint, ignoring the Byte order mark
+      template<typename it_type>
+      static void skipBOM(it_type& it, it_type end)
+      {
+        if (utf8::starts_with_bom(it, end))
+          utf8::next(it, end);
+      }
 
-			// Appends a FoxChar to a std::string.
-			static void append(std::string& str, FoxChar ch);
+      // Appends a FoxChar to a std::string.
+      static void append(std::string& str, FoxChar ch);
 
-		private:
-			// The string currently stored
-			nonstd::string_view str_;
+    private:
+      // The string currently stored
+      nonstd::string_view str_;
 
-			// Iterators
-			nonstd::string_view::const_iterator iter_, end_, beg_;
-	};
+      // Iterators
+      nonstd::string_view::const_iterator iter_, end_, beg_;
+  };
 }
 

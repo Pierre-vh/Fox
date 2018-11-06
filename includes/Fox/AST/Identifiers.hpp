@@ -1,8 +1,8 @@
 ///------------------------------------------------------////
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : Identifiers.hpp											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Identifiers.hpp                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file contains the IdentifierTable and Identifier classes.
 //
@@ -22,88 +22,88 @@
 
 namespace fox
 {
-	class Identifier;
+  class Identifier;
 
-	// Wrapper around a const_iterator of a map entry, used to safely access the .first element (the string)
-	class StringPtrInMap
-	{
-		public:
-			typedef std::map<std::string, Identifier>::const_iterator ItTy;
+  // Wrapper around a const_iterator of a map entry, used to safely access the .first element (the string)
+  class StringPtrInMap
+  {
+    public:
+      typedef std::map<std::string, Identifier>::const_iterator ItTy;
 
-			StringPtrInMap(ItTy iter);
+      StringPtrInMap(ItTy iter);
 
-			const std::string& get() const;
+      const std::string& get() const;
 
-			ItTy it_;
-	};
+      ItTy it_;
+  };
 
-	// A lexed identifier.
-	// Currently, they are immutable once created and only hold the string,
-	// but in the future this might contain some more information.
-	class Identifier
-	{
-		public:
-			Identifier(const StringPtrInMap::ItTy& iter);
+  // A lexed identifier.
+  // Currently, they are immutable once created and only hold the string,
+  // but in the future this might contain some more information.
+  class Identifier
+  {
+    public:
+      Identifier(const StringPtrInMap::ItTy& iter);
 
-			Identifier(Identifier&&) = default;
-			Identifier(Identifier&) = delete;
-			Identifier& operator=(Identifier&) = delete;
+      Identifier(Identifier&&) = default;
+      Identifier(Identifier&) = delete;
+      Identifier& operator=(Identifier&) = delete;
 
-			// Returns the string naming this identifier
-			const std::string& getStr() const;
+      // Returns the string naming this identifier
+      const std::string& getStr() const;
 
-			// Comparison operators for use with STL containers.
-			bool operator<(const Identifier& id) const;
-			bool operator<(const std::string& idstr) const;
+      // Comparison operators for use with STL containers.
+      bool operator<(const Identifier& id) const;
+      bool operator<(const std::string& idstr) const;
 
-			// Other comparison operators
-			bool operator==(const Identifier& id) const;
-			bool operator==(const std::string& str) const;
+      // Other comparison operators
+      bool operator==(const Identifier& id) const;
+      bool operator==(const std::string& str) const;
 
-			bool operator!=(const Identifier& id) const;
-			bool operator!=(const std::string& str) const;
-	
-		private:
-			friend class IdentifierTable;
+      bool operator!=(const Identifier& id) const;
+      bool operator!=(const std::string& str) const;
+  
+    private:
+      friend class IdentifierTable;
 
-			StringPtrInMap mapIter_;
-	};
+      StringPtrInMap mapIter_;
+  };
 
-	// A class that maps strings to Identifier.
-	// This contains every (user-defined) identifier currently in use, and is populated by the 
-	// Lexer.
-	class IdentifierTable
-	{
-		private:
-			using IDTableType = std::map<std::string, Identifier>;
-			using IDTableIteratorType = IDTableType::iterator;
-			using IDTableConstIteratorType = IDTableType::const_iterator;
+  // A class that maps strings to Identifier.
+  // This contains every (user-defined) identifier currently in use, and is populated by the 
+  // Lexer.
+  class IdentifierTable
+  {
+    private:
+      using IDTableType = std::map<std::string, Identifier>;
+      using IDTableIteratorType = IDTableType::iterator;
+      using IDTableConstIteratorType = IDTableType::const_iterator;
 
-		public:
-			IdentifierTable() = default;
+    public:
+      IdentifierTable() = default;
 
-			// Returns the identifierinfo of the string "id" if it exists. 
-			// If it does not exists, it creates a new entry into the table and returns it.
-			Identifier* getUniqueIdentifierInfo(const std::string& id);
-			Identifier* getInvalidID();
+      // Returns the identifierinfo of the string "id" if it exists. 
+      // If it does not exists, it creates a new entry into the table and returns it.
+      Identifier* getUniqueIdentifierInfo(const std::string& id);
+      Identifier* getInvalidID();
 
-			// Returns true if the identifier exists in the map, false otherwise.
-			bool exists(const std::string &id) const;
+      // Returns true if the identifier exists in the map, false otherwise.
+      bool exists(const std::string &id) const;
 
-			// Iterators
-			IDTableConstIteratorType begin() const;
-			IDTableIteratorType begin();
+      // Iterators
+      IDTableConstIteratorType begin() const;
+      IDTableIteratorType begin();
 
-			IDTableConstIteratorType end() const;
-			IDTableIteratorType end();
-		private:
-			Identifier* invalidID_ = nullptr;
+      IDTableConstIteratorType end() const;
+      IDTableIteratorType end();
+    private:
+      Identifier* invalidID_ = nullptr;
 
-			// Deleted methods
-			IdentifierTable(const IdentifierTable&) = delete;
-			IdentifierTable& operator=(const IdentifierTable&) = delete;
+      // Deleted methods
+      IdentifierTable(const IdentifierTable&) = delete;
+      IdentifierTable& operator=(const IdentifierTable&) = delete;
 
-			// Member variables
-			IDTableType table_;
-	};
+      // Member variables
+      IDTableType table_;
+  };
 }

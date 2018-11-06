@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : Constraint.def											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Constraint.def                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file uses macro metaprogramming to declare every constraint
 // kind that exists. This is used to generate the Constraint::Kind
@@ -10,7 +10,7 @@
 //----------------------------------------------------------------------------//
 
 #ifndef CS
-	#define CS(ID)
+  #define CS(ID)
 #endif
 
 // The type must be be an ArrayType

@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : Common.def											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Common.def                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file registers general purpose Diagnostic Messages
 // and the Diagnostic Messages for /Common

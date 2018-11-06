@@ -1,21 +1,21 @@
 This is to be included in any Header.
 
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : XXXX.hpp											
-// Author : XXXX											
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : XXXX.hpp                      
+// Author : XXXX                      
 //----------------------------------------------------------------------------//
-// blah blah blah	->General description of the file		
+// blah blah blah  ->General description of the file    
 //----------------------------------------------------------------------------//
 
 And Implementation (.cpp) :
 
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : XXXX.cpp											
-// Author : XXXX											
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : XXXX.cpp                      
+// Author : XXXX                      
 //----------------------------------------------------------------------------//
 
 
@@ -23,19 +23,19 @@ Quick templates : Pierre van Houtryve :
 header:
 
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : XXXX.hpp											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : XXXX.hpp                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// blah blah blah											
+// blah blah blah                      
 //----------------------------------------------------------------------------//
 
 impl
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.				
-// See the LICENSE.txt file at the root of the project for license information.						
-// File : XXXX.cpp											
-// Author : Pierre van Houtryve								
+// This file is a part of The Moonshot Project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : XXXX.cpp                      
+// Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
