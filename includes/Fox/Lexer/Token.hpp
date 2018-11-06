@@ -20,14 +20,12 @@
 #include <memory>
 #include <map>
 
-namespace fox
-{
+namespace fox {
   class ASTContext;
   class Identifier;
   class DiagnosticEngine;
 
-  enum class LiteralType : char
-  {
+  enum class LiteralType : char {
     DEFAULT,
     Ty_Bool,
     Ty_Float,
@@ -36,8 +34,7 @@ namespace fox
     Ty_Int
   };
 
-  struct LiteralInfo
-  {
+  struct LiteralInfo {
     public:
       LiteralInfo() = default;
       LiteralInfo(FoxBool bval);
@@ -58,14 +55,12 @@ namespace fox
       FoxString getAsString() const;
 
       template<typename Ty>
-      inline bool is() const
-      {
+      inline bool is() const {
         return mpark::holds_alternative<Ty>(value_);
       }
 
       template<typename Ty>
-      inline Ty get() const
-      {
+      inline Ty get() const {
         if (mpark::holds_alternative<Ty>(value_))
           return mpark::get<Ty>(value_);
         return Ty();
@@ -76,8 +71,7 @@ namespace fox
       > value_;
   };
 
-  enum class SignType : std::uint8_t
-  {
+  enum class SignType : std::uint8_t {
     DEFAULT,      // Default value
     // Signs
     S_EQUAL,      // =
@@ -110,8 +104,7 @@ namespace fox
     S_COMMA        // ,
   };
 
-  enum class KeywordType : std::uint8_t
-  {
+  enum class KeywordType : std::uint8_t {
     DEFAULT,  // Default value
     // TYPES
     KW_INT,    // "int"
@@ -135,8 +128,7 @@ namespace fox
     KW_USING   // "using"
   };
 
-  enum class TokenType : std::uint8_t
-  {
+  enum class TokenType : std::uint8_t {
     UNKNOWN,
     LITERAL,
     SIGN,
@@ -145,8 +137,7 @@ namespace fox
     COMMENT
   };
 
-  struct Token 
-  {
+  struct Token  {
     public:
 
       Token() = default;
@@ -202,64 +193,21 @@ namespace fox
       bool hasAtLeastOneLetter(const std::string &str) const; // Checks if str_ has at least one upper/lower case letter.
   
   };
-  namespace Dictionaries
-  {
-    const std::map<std::string, KeywordType> kKeywords_dict =
-    {
-      // TYPES
-      { "int", KeywordType::KW_INT },
-      { "float", KeywordType::KW_FLOAT },
-      { "bool", KeywordType::KW_BOOL },
-      { "string", KeywordType::KW_STRING },
-      { "char", KeywordType::KW_CHAR },
-      // specifier
-      { "const", KeywordType::KW_CONST },
-      // TYPE CONVERSION
-      { "as", KeywordType::KW_AS },
-      // DECLARATIONS
-      { "let", KeywordType::KW_LET },
-      { "func", KeywordType::KW_FUNC },
-      // Statements
-      { "if", KeywordType::KW_IF },
-      { "else", KeywordType::KW_ELSE },
-      { "while", KeywordType::KW_WHILE },
-      // return
-      { "return", KeywordType::KW_RETURN },
-      // import
-      { "import", KeywordType::KW_IMPORT },
-      { "using", KeywordType::KW_USING }
+  namespace Dictionaries {
+    const std::map<std::string, KeywordType> kKeywords_dict = {
+      // TYPES { "int", KeywordType::KW_INT }, { "float", KeywordType::KW_FLOAT }, { "bool", KeywordType::KW_BOOL }, { "string", KeywordType::KW_STRING }, { "char", KeywordType::KW_CHAR },
+      // specifier { "const", KeywordType::KW_CONST },
+      // TYPE CONVERSION { "as", KeywordType::KW_AS },
+      // DECLARATIONS { "let", KeywordType::KW_LET }, { "func", KeywordType::KW_FUNC },
+      // Statements { "if", KeywordType::KW_IF }, { "else", KeywordType::KW_ELSE }, { "while", KeywordType::KW_WHILE },
+      // return { "return", KeywordType::KW_RETURN },
+      // import { "import", KeywordType::KW_IMPORT }, { "using", KeywordType::KW_USING }
     };
 
-    const std::map<FoxChar, SignType> kSign_dict =
-    {
-      //signs
-      { '=', SignType::S_EQUAL },
-      { '+', SignType::S_PLUS },
-      { '-', SignType::S_MINUS },
-      { '*', SignType::S_ASTERISK },
-      { '/', SignType::S_SLASH },
-      { '|', SignType::S_VBAR },
-      { '&', SignType::S_AMPERSAND },
-      { '<', SignType::S_LESS_THAN },
-      { '>', SignType::S_GREATER_THAN },
-      { '#', SignType::S_HASH },
-      { '~', SignType::S_TILDE },
-      { '^', SignType::S_CARET },
-      { '%', SignType::S_PERCENT },
-      // bracket
-      { '{', SignType::S_CURLY_OPEN },
-      { '}', SignType::S_CURLY_CLOSE },
-      { '[', SignType::S_SQ_OPEN },
-      { ']', SignType::S_SQ_CLOSE },
-      { '(', SignType::S_ROUND_OPEN },
-      { ')', SignType::S_ROUND_CLOSE },
-      // punctuation
-      { ';', SignType::S_SEMICOLON },
-      { ':', SignType::S_COLON },
-      { '!', SignType::S_EXCL_MARK },
-      { '?', SignType::S_INTER_MARK },
-      { '.', SignType::S_DOT },
-      { ',', SignType::S_COMMA }
+    const std::map<FoxChar, SignType> kSign_dict = {
+      //signs { '=', SignType::S_EQUAL }, { '+', SignType::S_PLUS }, { '-', SignType::S_MINUS }, { '*', SignType::S_ASTERISK }, { '/', SignType::S_SLASH }, { '|', SignType::S_VBAR }, { '&', SignType::S_AMPERSAND }, { '<', SignType::S_LESS_THAN }, { '>', SignType::S_GREATER_THAN }, { '#', SignType::S_HASH }, { '~', SignType::S_TILDE }, { '^', SignType::S_CARET }, { '%', SignType::S_PERCENT },
+      // bracket { '{', SignType::S_CURLY_OPEN }, { '}', SignType::S_CURLY_CLOSE }, { '[', SignType::S_SQ_OPEN }, { ']', SignType::S_SQ_CLOSE }, { '(', SignType::S_ROUND_OPEN }, { ')', SignType::S_ROUND_CLOSE },
+      // punctuation { ';', SignType::S_SEMICOLON }, { ':', SignType::S_COLON }, { '!', SignType::S_EXCL_MARK }, { '?', SignType::S_INTER_MARK }, { '.', SignType::S_DOT }, { ',', SignType::S_COMMA }
     };
   }
   // TokenVector typedef

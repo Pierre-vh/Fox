@@ -20,11 +20,9 @@ using namespace fox::test;
   getTextStat : return false if exception happened, and puts e.what() inside exception_details.
   returns true if success and places the results inside linecount, charcount, spacecount.
 */
-bool getTextStats(StringManipulator &manip, unsigned int& linecount, unsigned int& charcount, unsigned int& spacecount, std::string exception_details = "")
-{
+bool getTextStats(StringManipulator &manip, unsigned int& linecount, unsigned int& charcount, unsigned int& spacecount, std::string exception_details = "") {
   try {
-    while (!manip.eof())
-    {
+    while (!manip.eof()) {
       const auto cur = manip.getCurrentChar();
       if (cur == '\n')
         linecount++;
@@ -37,16 +35,14 @@ bool getTextStats(StringManipulator &manip, unsigned int& linecount, unsigned in
       manip.advance();
     }
   }
-  catch (std::exception& e)
-  {
+  catch (std::exception& e) {
     exception_details = e.what();
     return false;
   }
   return true;
 }
 
-TEST(UTF8Tests,BronzeHorseman)
-{
+TEST(UTF8Tests,BronzeHorseman) {
   // Open test file
   std::string file_content;
   std::string file_path("lexer/utf8/bronzehorseman.txt");
@@ -69,8 +65,7 @@ TEST(UTF8Tests,BronzeHorseman)
   EXPECT_EQ(44, spacecount) << "Spaces count incorrect";
 }
 
-TEST(UTF8Tests, ASCIIDrawing)
-{
+TEST(UTF8Tests, ASCIIDrawing) {
   // Open test file
   std::string file_content;
   std::string file_path("lexer/utf8/ascii.txt");
@@ -93,8 +88,7 @@ TEST(UTF8Tests, ASCIIDrawing)
   EXPECT_EQ(847, spacecount) << "Spaces count incorrect";
 }
 
-TEST(UTF8Tests, Substring)
-{
+TEST(UTF8Tests, Substring) {
   // Open test file : bronze
   std::string bronze_content;
   std::string bronze_path("lexer/utf8/bronzehorseman.txt");
@@ -114,8 +108,7 @@ TEST(UTF8Tests, Substring)
   EXPECT_EQ(expected_substr, substr) << "Substring was not correct";
 }
 
-TEST(UTF8Tests, IndexOfCurCharValidity)
-{
+TEST(UTF8Tests, IndexOfCurCharValidity) {
   // Open test file : bronze
   std::string bronze_content;
   std::string bronze_path("lexer/utf8/bronzehorseman.txt");

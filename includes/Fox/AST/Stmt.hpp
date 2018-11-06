@@ -13,11 +13,9 @@
 #include "ASTNode.hpp"
 #include <vector>
 
-namespace fox
-{
+namespace fox {
   // Kinds of Statements
-  enum class StmtKind : std::uint8_t
-  {
+  enum class StmtKind : std::uint8_t {
     #define STMT(ID,PARENT) ID,
     #define STMT_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
     #include "StmtNodes.def"
@@ -30,8 +28,7 @@ namespace fox
 
   // Stmt
   //    Common base for every statement
-  class Stmt
-  {
+  class Stmt {
     public:
       StmtKind getKind() const;
 
@@ -60,8 +57,7 @@ namespace fox
   // NullStmt
   //    A null statement ';'
   //    Often used as the body of a condition/loop
-  class NullStmt : public Stmt
-  {
+  class NullStmt : public Stmt {
     public:
       NullStmt();
       NullStmt(SourceLoc semiLoc);
@@ -69,16 +65,14 @@ namespace fox
       void setSemiLoc(SourceLoc semiLoc);
       SourceLoc getSemiLoc() const;
 
-      static bool classof(const Stmt* stmt)
-      {
+      static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::NullStmt);
       }
   };
 
   // ReturnStmt
   //    A return statement
-  class ReturnStmt : public Stmt
-  {
+  class ReturnStmt : public Stmt {
     public:
       ReturnStmt();
       ReturnStmt(Expr* rtr_expr, SourceRange range);
@@ -88,8 +82,7 @@ namespace fox
       const Expr* getExpr() const;
       bool hasExpr() const;
 
-      static bool classof(const Stmt* stmt)
-      {
+      static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::ReturnStmt);
       }
 
@@ -99,8 +92,7 @@ namespace fox
 
   // ConditionStmt
   //    if-then-else conditional statement
-  class ConditionStmt : public Stmt
-  {
+  class ConditionStmt : public Stmt {
     public:
       ConditionStmt();
       ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
@@ -125,8 +117,7 @@ namespace fox
       SourceRange getIfHeaderRange() const;
       SourceLoc getIfHeaderEndLoc() const;
 
-      static bool classof(const Stmt* stmt)
-      {
+      static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::ConditionStmt);
       }
 
@@ -139,8 +130,7 @@ namespace fox
 
   // CompoundStmt
   //    A group of statements delimited by curly brackets {}
-  class CompoundStmt : public Stmt
-  {
+  class CompoundStmt : public Stmt {
     private:
       using NodeVecTy = std::vector<ASTNode>;
 
@@ -164,8 +154,7 @@ namespace fox
       NodeVecTy::const_iterator nodes_begin() const;
       NodeVecTy::const_iterator nodes_end() const;
 
-      static bool classof(const Stmt* stmt)
-      {
+      static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::CompoundStmt);
       }
 
@@ -175,8 +164,7 @@ namespace fox
 
   // WhileStmt
   //    A while loop
-  class WhileStmt : public Stmt
-  {
+  class WhileStmt : public Stmt {
     public:
       WhileStmt();
       WhileStmt(Expr* cond, ASTNode body, SourceRange range,
@@ -193,8 +181,7 @@ namespace fox
       SourceLoc getHeaderEndLoc() const;
       SourceRange getHeaderRange() const;
 
-      static bool classof(const Stmt* stmt)
-      {
+      static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::WhileStmt);
       }
 

@@ -17,13 +17,11 @@ using namespace fox;
 // with a lot of allocations of a large object,
 // testing that the memory allocated "works".
 // This will 
-TEST(LinearAllocatorTests, Spam)
-{
+TEST(LinearAllocatorTests, Spam) {
   #define COUNT 8192 // Number of TestObject to allocate 
   #define NUM_VALUES 16  // Number of values in the TestObject 
   // Size of this object: 16*64 bytes = 1024 bytes
-  struct TestObject
-  {
+  struct TestObject {
     std::uint64_t values[NUM_VALUES];
   };
 
@@ -33,8 +31,7 @@ TEST(LinearAllocatorTests, Spam)
   std::vector<TestObject*> objects(COUNT);
 
   // Allocate COUNT of theses Objects
-  for (std::size_t k = 0; k < COUNT; k++)
-  {
+  for (std::size_t k = 0; k < COUNT; k++) {
     auto* ptr = alloc.allocate<TestObject>();
     ASSERT_NE(ptr, nullptr) << "The allocator returned a null pointer after " << k << " allocations";
     
@@ -50,8 +47,7 @@ TEST(LinearAllocatorTests, Spam)
 
   // Iterate over all of them, checks that the values are correct.
   // This is done to check that values are overwritten correctly.
-  for (std::size_t k = 0; k < COUNT; k++)
-  {
+  for (std::size_t k = 0; k < COUNT; k++) {
     auto* ptr = objects[k];
     for (std::size_t y = 0; y < NUM_VALUES; y++)
       ASSERT_EQ(ptr->values[y], k + y);
@@ -68,8 +64,7 @@ TEST(LinearAllocatorTests, Spam)
 // This test checks that the memory allocated by the allocator
 // is aligned correctly.
 // This tests alignements of 2, 4, 8 and 16
-TEST(LinearAllocatorTests, Alignement)
-{
+TEST(LinearAllocatorTests, Alignement) {
   #define ALIGNED_STRUCT(NAME,ALIGN) struct alignas(ALIGN) NAME { char thing = 0; }
   ALIGNED_STRUCT(Aligned2,  2);
   ALIGNED_STRUCT(Aligned4,  4);
@@ -97,8 +92,7 @@ TEST(LinearAllocatorTests, Alignement)
 }
 
 
-TEST(LinearAllocatorTests, ManualAllocation)
-{
+TEST(LinearAllocatorTests, ManualAllocation) {
   LinearAllocator<> alloc;
   char *foo = static_cast<char*>(alloc.allocate(32));
   
@@ -121,8 +115,7 @@ TEST(LinearAllocatorTests, ManualAllocation)
 
 // This test checks that an object of the size of the pool 
 // fits in a pool without throwing errors.
-TEST(LinearAllocatorTests, LargeObject)
-{
+TEST(LinearAllocatorTests, LargeObject) {
   LinearAllocator<200> alloc;
   std::uint8_t *buff = static_cast<std::uint8_t*>(alloc.allocate(200));
   EXPECT_NE(buff, nullptr) << "Buffer is null?";

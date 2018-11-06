@@ -28,12 +28,10 @@
 #include "Fox/Common/Typedefs.hpp"
 #include "nonstd/string_view.hpp"
 
-namespace fox
-{
+namespace fox {
   // This class is designed to help
   // with manipulating UTF8 strings.
-  class StringManipulator
-  {
+  class StringManipulator {
     public:
       // Default ctor
       StringManipulator() = default;
@@ -111,8 +109,7 @@ namespace fox
 
       // Given 2 iterators, places the iterator it at the beginning of the first codepoint, ignoring the Byte order mark
       template<typename it_type>
-      static void skipBOM(it_type& it, it_type end)
-      {
+      static void skipBOM(it_type& it, it_type end) {
         if (utf8::starts_with_bom(it, end))
           utf8::next(it, end);
       }

@@ -17,18 +17,14 @@
 #include "Constraints.hpp"
 #include <utility>
 
-namespace fox
-{
+namespace fox {
   template<typename Derived, typename RtrTy, typename ... Args>
-  class ConstraintVisitor
-  {
+  class ConstraintVisitor {
     public:
       // Entry point for visiting a Constraint
-      RtrTy visit(Constraint* cs, Args... args)
-      {
+      RtrTy visit(Constraint* cs, Args... args) {
         assert(cs && "Cannot be used on a null pointer");
-        switch (cs->getKind())
-        {
+        switch (cs->getKind()) {
           #define CS(ID)\
               case Constraint::Kind::ID:\
                 return static_cast<Derived*>(this)->visit##ID(cs, ::std::forward<Args>(args)...);

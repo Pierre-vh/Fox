@@ -15,11 +15,9 @@
 #include "Token.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 
-namespace fox
-{
+namespace fox {
   class DiagnosticEngine;
-  class Lexer 
-  {
+  class Lexer  {
     public:
       Lexer(DiagnosticEngine& diags,SourceManager& sm,ASTContext &astctxt);
 
@@ -32,8 +30,7 @@ namespace fox
       FileID getCurrentFile() const;
 
     private:
-      enum class DFAState : std::uint8_t
-      {
+      enum class DFAState : std::uint8_t {
         S_BASE, // basestate
         S_STR,  // string literals
         S_LCOM,  // line comment

@@ -12,8 +12,7 @@
 // that can't be easily forward-declared. 
 #include "llvm/Support/Casting.h"
 
-namespace fox
-{
+namespace fox {
   using llvm::isa;
   using llvm::cast;
   using llvm::dyn_cast;

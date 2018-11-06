@@ -19,43 +19,35 @@ using namespace fox;
 //------//
 
 Expr::Expr(ExprKind kind, SourceRange range):
-  kind_(kind), range_(range)
-{
+  kind_(kind), range_(range) {
 
 }
 
-ExprKind Expr::getKind() const
-{
+ExprKind Expr::getKind() const {
   return kind_;
 }
 
-void Expr::setRange(SourceRange range)
-{
+void Expr::setRange(SourceRange range) {
   range_ = range;
 }
 
-SourceRange Expr::getRange() const
-{
+SourceRange Expr::getRange() const {
   return range_;
 }
 
-void Expr::setType(Type type)
-{
+void Expr::setType(Type type) {
   type_ = type;
 }
 
-Type& Expr::getType()
-{
+Type& Expr::getType() {
   return type_;
 }
 
-const Type Expr::getType() const
-{
+const Type Expr::getType() const {
   return type_;
 }
 
-void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
-{
+void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
 }
 
@@ -65,24 +57,20 @@ void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
 //-----------------//
 
 CharLiteralExpr::CharLiteralExpr():
-  CharLiteralExpr(0, SourceRange())
-{
+  CharLiteralExpr(0, SourceRange()) {
 
 }
 
 CharLiteralExpr::CharLiteralExpr(FoxChar val, SourceRange range):
-  val_(val), Expr(ExprKind::CharLiteralExpr, range)
-{
+  val_(val), Expr(ExprKind::CharLiteralExpr, range) {
 
 }
 
-FoxChar CharLiteralExpr::getVal() const
-{
+FoxChar CharLiteralExpr::getVal() const {
   return val_;
 }
 
-void CharLiteralExpr::setVal(FoxChar val)
-{
+void CharLiteralExpr::setVal(FoxChar val) {
   val_ = val;
 }
 
@@ -91,24 +79,20 @@ void CharLiteralExpr::setVal(FoxChar val)
 //--------------------//
 
 IntegerLiteralExpr::IntegerLiteralExpr():
-  IntegerLiteralExpr(0, SourceRange())
-{
+  IntegerLiteralExpr(0, SourceRange()) {
 
 }
 
 IntegerLiteralExpr::IntegerLiteralExpr(FoxInt val, SourceRange range):
-  val_(val), Expr(ExprKind::IntegerLiteralExpr, range)
-{
+  val_(val), Expr(ExprKind::IntegerLiteralExpr, range) {
 
 }
 
-FoxInt IntegerLiteralExpr::getVal() const
-{
+FoxInt IntegerLiteralExpr::getVal() const {
   return val_;
 }
 
-void IntegerLiteralExpr::setVal(FoxInt val)
-{
+void IntegerLiteralExpr::setVal(FoxInt val) {
   val_ = val;
 }
 
@@ -117,24 +101,20 @@ void IntegerLiteralExpr::setVal(FoxInt val)
 //------------------//
 
 FloatLiteralExpr::FloatLiteralExpr():
-  FloatLiteralExpr(0, SourceRange())
-{
+  FloatLiteralExpr(0, SourceRange()) {
 
 }
 
 FloatLiteralExpr::FloatLiteralExpr(FoxFloat val, SourceRange range):
-  val_(val), Expr(ExprKind::FloatLiteralExpr, range)
-{
+  val_(val), Expr(ExprKind::FloatLiteralExpr, range) {
 
 }
 
-FoxFloat FloatLiteralExpr::getVal() const
-{
+FoxFloat FloatLiteralExpr::getVal() const {
   return val_;
 }
 
-void FloatLiteralExpr::setVal(FoxFloat val)
-{
+void FloatLiteralExpr::setVal(FoxFloat val) {
   val_ = val;
 }
 
@@ -143,24 +123,20 @@ void FloatLiteralExpr::setVal(FoxFloat val)
 //-------------------//
 
 StringLiteralExpr::StringLiteralExpr():
-  StringLiteralExpr("", SourceRange())
-{
+  StringLiteralExpr("", SourceRange()) {
 
 }
 
 StringLiteralExpr::StringLiteralExpr(const FoxString& val, SourceRange range):
-  val_(val), Expr(ExprKind::StringLiteralExpr, range)
-{
+  val_(val), Expr(ExprKind::StringLiteralExpr, range) {
 
 }
 
-std::string StringLiteralExpr::getVal() const
-{
+std::string StringLiteralExpr::getVal() const {
   return val_;
 }
 
-void StringLiteralExpr::setVal(const FoxString& val)
-{
+void StringLiteralExpr::setVal(const FoxString& val) {
   val_ = val;
 }
 
@@ -169,24 +145,20 @@ void StringLiteralExpr::setVal(const FoxString& val)
 //-----------------//
 
 BoolLiteralExpr::BoolLiteralExpr():
-  BoolLiteralExpr(false, SourceRange())
-{
+  BoolLiteralExpr(false, SourceRange()) {
 
 }
 
 BoolLiteralExpr::BoolLiteralExpr(FoxBool val, SourceRange range):
-  val_(val), Expr(ExprKind::BoolLiteralExpr, range)
-{
+  val_(val), Expr(ExprKind::BoolLiteralExpr, range) {
 
 }
 
-FoxBool BoolLiteralExpr::getVal() const
-{
+FoxBool BoolLiteralExpr::getVal() const {
   return val_;
 }
 
-void BoolLiteralExpr::setVal(FoxBool val)
-{
+void BoolLiteralExpr::setVal(FoxBool val) {
   val_ = val;
 }
 
@@ -195,76 +167,62 @@ void BoolLiteralExpr::setVal(FoxBool val)
 //------------------//
 
 ArrayLiteralExpr::ArrayLiteralExpr():
-  ArrayLiteralExpr(ExprVector(), SourceRange())
-{
+  ArrayLiteralExpr(ExprVector(), SourceRange()) {
 }
 
 ArrayLiteralExpr::ArrayLiteralExpr(const ExprVector& exprs, SourceRange range):
-  exprs_(exprs), Expr(ExprKind::ArrayLiteralExpr, range)
-{
+  exprs_(exprs), Expr(ExprKind::ArrayLiteralExpr, range) {
 
 }
 
-ExprVector& ArrayLiteralExpr::getExprs()
-{
+ExprVector& ArrayLiteralExpr::getExprs() {
   return exprs_;
 }
 
-const ExprVector& ArrayLiteralExpr::getExprs() const
-{
+const ExprVector& ArrayLiteralExpr::getExprs() const {
   return exprs_;
 }
 
-Expr* ArrayLiteralExpr::getExpr(std::size_t idx)
-{
+Expr* ArrayLiteralExpr::getExpr(std::size_t idx) {
   assert((idx < exprs_.size()) && "Out of range");
   return exprs_[idx];
 }
 
-const Expr* ArrayLiteralExpr::getExpr(std::size_t idx) const
-{
+const Expr* ArrayLiteralExpr::getExpr(std::size_t idx) const {
   assert((idx < exprs_.size()) && "Out of range");
   return exprs_[idx];
 }
 
-void ArrayLiteralExpr::setExprs(ExprVector&& exprs)
-{
+void ArrayLiteralExpr::setExprs(ExprVector&& exprs) {
   exprs_ = exprs;
 }
 
-void ArrayLiteralExpr::setExpr(Expr* expr, std::size_t idx)
-{
+void ArrayLiteralExpr::setExpr(Expr* expr, std::size_t idx) {
   assert((idx < exprs_.size()) && "Out of range");
   exprs_[idx] = expr;
 }
 
-std::size_t ArrayLiteralExpr::getSize() const
-{
+std::size_t ArrayLiteralExpr::getSize() const {
   return exprs_.size();
 }
 
-bool ArrayLiteralExpr::isEmpty() const
-{
+bool ArrayLiteralExpr::isEmpty() const {
   return (exprs_.size() == 0);
 }
 
-ExprVector::iterator ArrayLiteralExpr::exprs_begin()
-{
+ExprVector::iterator ArrayLiteralExpr::exprs_begin() {
   return exprs_.begin();
 }
 
-ExprVector::const_iterator ArrayLiteralExpr::exprs_begin() const
-{
+ExprVector::const_iterator ArrayLiteralExpr::exprs_begin() const {
   return exprs_.begin();
 }
 
-ExprVector::iterator ArrayLiteralExpr::exprs_end()
-{
+ExprVector::iterator ArrayLiteralExpr::exprs_end() {
   return exprs_.begin();
 }
 
-ExprVector::const_iterator ArrayLiteralExpr::exprs_end() const
-{
+ExprVector::const_iterator ArrayLiteralExpr::exprs_end() const {
   return exprs_.begin();
 }
 
@@ -273,68 +231,55 @@ ExprVector::const_iterator ArrayLiteralExpr::exprs_end() const
 //------------//
 
 BinaryExpr::BinaryExpr():
-  BinaryExpr(OpKind::Invalid, nullptr, nullptr, SourceRange(), SourceRange())
-{
+  BinaryExpr(OpKind::Invalid, nullptr, nullptr, SourceRange(), SourceRange()) {
 
 }
 
 BinaryExpr::BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, 
   SourceRange range, SourceRange opRange) :
   op_(op), Expr(ExprKind::BinaryExpr, range), 
-  opRange_(opRange), lhs_(lhs), rhs_(rhs)
-{
+  opRange_(opRange), lhs_(lhs), rhs_(rhs) {
 
 }
 
-void BinaryExpr::setLHS(Expr* expr)
-{
+void BinaryExpr::setLHS(Expr* expr) {
   lhs_ = expr;
 }
 
-Expr* BinaryExpr::getLHS()
-{
+Expr* BinaryExpr::getLHS() {
   return lhs_;
 }
 
-const Expr* BinaryExpr::getLHS() const
-{
+const Expr* BinaryExpr::getLHS() const {
   return lhs_;
 }
 
-void BinaryExpr::setRHS(Expr* expr)
-{
+void BinaryExpr::setRHS(Expr* expr) {
   rhs_ = expr;
 }
 
-Expr* BinaryExpr::getRHS()
-{
+Expr* BinaryExpr::getRHS() {
   return rhs_;
 }
 
-const Expr* BinaryExpr::getRHS() const
-{
+const Expr* BinaryExpr::getRHS() const {
   return rhs_;
 }
 
-BinaryExpr::OpKind BinaryExpr::getOp() const
-{
+BinaryExpr::OpKind BinaryExpr::getOp() const {
   return op_;
 }
 
-void BinaryExpr::setOp(OpKind op)
-{
+void BinaryExpr::setOp(OpKind op) {
   op_ = op;
 }
 
-SourceRange BinaryExpr::getOpRange() const
-{
+SourceRange BinaryExpr::getOpRange() const {
   return opRange_;
 }
 
-std::string BinaryExpr::getOpSign(OpKind op)
-{
-  switch (op)
-  {
+std::string BinaryExpr::getOpSign(OpKind op) {
+  switch (op) {
     #define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
     #include "Fox/AST/Operators.def"
     default:
@@ -342,10 +287,8 @@ std::string BinaryExpr::getOpSign(OpKind op)
   }
 }
 
-std::string BinaryExpr::getOpID(OpKind op)
-{
-  switch (op)
-  {
+std::string BinaryExpr::getOpID(OpKind op) {
+  switch (op) {
     #define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return #ID;
     #include "Fox/AST/Operators.def"
     default:
@@ -353,10 +296,8 @@ std::string BinaryExpr::getOpID(OpKind op)
   }
 }
 
-std::string BinaryExpr::getOpName(OpKind op)
-{
-  switch (op)
-  {
+std::string BinaryExpr::getOpName(OpKind op) {
+  switch (op) {
     #define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return NAME;
     #include "Fox/AST/Operators.def"
     default:
@@ -369,53 +310,43 @@ std::string BinaryExpr::getOpName(OpKind op)
 //-----------//
 
 UnaryExpr::UnaryExpr(): UnaryExpr(OpKind::Invalid, nullptr,
-  SourceRange(), SourceRange())
-{
+  SourceRange(), SourceRange()) {
 
 }
 
 UnaryExpr::UnaryExpr(OpKind op, Expr* expr, 
   SourceRange range, SourceRange opRange):
   op_(op), Expr(ExprKind::UnaryExpr, range),
-  opRange_(opRange), expr_(expr)
-{
+  opRange_(opRange), expr_(expr) {
 
 }
 
-void UnaryExpr::setExpr(Expr* expr)
-{
+void UnaryExpr::setExpr(Expr* expr) {
   expr_ = expr;
 }
 
-Expr* UnaryExpr::getExpr()
-{
+Expr* UnaryExpr::getExpr() {
   return expr_;
 }
 
-const Expr* UnaryExpr::getExpr() const
-{
+const Expr* UnaryExpr::getExpr() const {
   return expr_;
 }
 
-UnaryExpr::OpKind UnaryExpr::getOp() const
-{
+UnaryExpr::OpKind UnaryExpr::getOp() const {
   return op_;
 }
 
-void UnaryExpr::setOp(OpKind op)
-{
+void UnaryExpr::setOp(OpKind op) {
   op_ = op;
 }
 
-SourceRange UnaryExpr::getOpRange() const
-{
+SourceRange UnaryExpr::getOpRange() const {
   return opRange_;
 }
 
-std::string UnaryExpr::getOpSign(OpKind op)
-{
-  switch (op)
-  {
+std::string UnaryExpr::getOpSign(OpKind op) {
+  switch (op) {
     #define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
     #include "Fox/AST/Operators.def"
     default:
@@ -423,10 +354,8 @@ std::string UnaryExpr::getOpSign(OpKind op)
   }
 }
 
-std::string UnaryExpr::getOpID(OpKind op)
-{
-  switch (op)
-  {
+std::string UnaryExpr::getOpID(OpKind op) {
+  switch (op) {
     #define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return #ID;
     #include "Fox/AST/Operators.def"
     default:
@@ -434,25 +363,20 @@ std::string UnaryExpr::getOpID(OpKind op)
   }
 }
 
-std::string UnaryExpr::getOpSign() const
-{
+std::string UnaryExpr::getOpSign() const {
   return getOpSign(op_);
 }
 
-std::string UnaryExpr::getOpName() const
-{
+std::string UnaryExpr::getOpName() const {
   return getOpName(op_);
 }
 
-std::string UnaryExpr::getOpID() const
-{
+std::string UnaryExpr::getOpID() const {
   return getOpID(op_);
 }
 
-std::string UnaryExpr::getOpName(OpKind op)
-{
-  switch (op)
-  {
+std::string UnaryExpr::getOpName(OpKind op) {
+  switch (op) {
     #define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return NAME;
     #include "Fox/AST/Operators.def"
     default:
@@ -465,45 +389,37 @@ std::string UnaryExpr::getOpName(OpKind op)
 //----------//
 
 CastExpr::CastExpr():
-  CastExpr(TypeLoc(), nullptr, SourceRange())
-{
+  CastExpr(TypeLoc(), nullptr, SourceRange()) {
 
 }
 
 CastExpr::CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range):
   Expr(ExprKind::CastExpr, range),
-  goal_(castGoal), expr_(expr)
-{
+  goal_(castGoal), expr_(expr) {
 
 }
 
-void CastExpr::setCastTypeLoc(TypeLoc goal)
-{
+void CastExpr::setCastTypeLoc(TypeLoc goal) {
   goal_ = goal;
 }
 
-TypeLoc& CastExpr::getCastTypeLoc()
-{
+TypeLoc& CastExpr::getCastTypeLoc() {
   return goal_;
 }
 
-const TypeLoc CastExpr::getCastTypeLoc() const
-{
+const TypeLoc CastExpr::getCastTypeLoc() const {
   return goal_;
 }
 
-void CastExpr::setExpr(Expr* expr)
-{
+void CastExpr::setExpr(Expr* expr) {
   expr_ = expr;
 }
 
-Expr* CastExpr::getExpr()
-{
+Expr* CastExpr::getExpr() {
   return expr_;
 }
 
-const Expr* CastExpr::getExpr() const
-{
+const Expr* CastExpr::getExpr() const {
   return expr_;
 }
 
@@ -512,28 +428,23 @@ const Expr* CastExpr::getExpr() const
 //-------------//
 
 DeclRefExpr::DeclRefExpr():
-  DeclRefExpr(nullptr, SourceRange())
-{
+  DeclRefExpr(nullptr, SourceRange()) {
 }
 
 DeclRefExpr::DeclRefExpr(Identifier* declid, SourceRange range):
-  id_(declid), Expr(ExprKind::DeclRefExpr, range)
-{
+  id_(declid), Expr(ExprKind::DeclRefExpr, range) {
 
 }
 
-void DeclRefExpr::setIdentifier(Identifier* id)
-{
+void DeclRefExpr::setIdentifier(Identifier* id) {
   id_ = id;
 }
 
-Identifier* DeclRefExpr::getIdentifier()
-{
+Identifier* DeclRefExpr::getIdentifier() {
   return id_;
 }
 
-const Identifier* DeclRefExpr::getIdentifier() const
-{
+const Identifier* DeclRefExpr::getIdentifier() const {
   return id_;
 }
 
@@ -542,82 +453,67 @@ const Identifier* DeclRefExpr::getIdentifier() const
 //------------------//
 
 FunctionCallExpr::FunctionCallExpr():
-  FunctionCallExpr(nullptr, ExprVector(), SourceRange())
-{
+  FunctionCallExpr(nullptr, ExprVector(), SourceRange()) {
 
 }
 
 FunctionCallExpr::FunctionCallExpr(Expr* callee, const ExprVector& args, SourceRange range): 
-  Expr(ExprKind::FunctionCallExpr, range), callee_(callee), args_(args)
-{
+  Expr(ExprKind::FunctionCallExpr, range), callee_(callee), args_(args) {
 
 }
 
-void FunctionCallExpr::setCallee(Expr* callee)
-{
+void FunctionCallExpr::setCallee(Expr* callee) {
   callee_ = callee;
 }
 
-Expr* FunctionCallExpr::getCallee()
-{
+Expr* FunctionCallExpr::getCallee() {
   return callee_;
 }
 
-const Expr* FunctionCallExpr::getCallee() const
-{
+const Expr* FunctionCallExpr::getCallee() const {
   return callee_;
 }
 
-ExprVector& FunctionCallExpr::getArgs()
-{
+ExprVector& FunctionCallExpr::getArgs() {
   return args_;
 }
 
-const ExprVector& FunctionCallExpr::getArgs() const
-{
+const ExprVector& FunctionCallExpr::getArgs() const {
   return args_;
 }
 
-Expr* FunctionCallExpr::getArg(std::size_t idx)
-{
+Expr* FunctionCallExpr::getArg(std::size_t idx) {
   assert((idx < args_.size()) && "Out of range");
   return args_[idx];
 }
 
-const Expr* FunctionCallExpr::getArg(std::size_t idx) const
-{
+const Expr* FunctionCallExpr::getArg(std::size_t idx) const {
   assert((idx < args_.size()) && "Out of range");
   return args_[idx];
 }
 
-void FunctionCallExpr::setArgs(ExprVector&& args)
-{
+void FunctionCallExpr::setArgs(ExprVector&& args) {
   args_ = args;
 }
 
-void FunctionCallExpr::setArg(Expr* arg, std::size_t idx)
-{
+void FunctionCallExpr::setArg(Expr* arg, std::size_t idx) {
   assert((idx < args_.size()) && "Out of range");
   args_[idx] = arg;
 }
 
-ExprVector::iterator FunctionCallExpr::args_begin()
-{
+ExprVector::iterator FunctionCallExpr::args_begin() {
   return args_.begin();
 }
 
-ExprVector::const_iterator FunctionCallExpr::args_begin() const
-{
+ExprVector::const_iterator FunctionCallExpr::args_begin() const {
   return args_.begin();
 }
 
-ExprVector::iterator FunctionCallExpr::args_end()
-{
+ExprVector::iterator FunctionCallExpr::args_end() {
   return args_.end();
 }
 
-ExprVector::const_iterator FunctionCallExpr::args_end() const
-{
+ExprVector::const_iterator FunctionCallExpr::args_end() const {
   return args_.end();
 }
 
@@ -626,50 +522,41 @@ ExprVector::const_iterator FunctionCallExpr::args_end() const
 //--------------//
 
 MemberOfExpr::MemberOfExpr():
-  MemberOfExpr(nullptr, nullptr, SourceRange(), SourceLoc())
-{
+  MemberOfExpr(nullptr, nullptr, SourceRange(), SourceLoc()) {
 }
 
 MemberOfExpr::MemberOfExpr(Expr* base, Identifier* idInfo,
   SourceRange range, SourceLoc dotLoc):
   Expr(ExprKind::MemberOfExpr, range), base_(base), membName_(idInfo),
-  dotLoc_(dotLoc)
-{
+  dotLoc_(dotLoc) {
 
 }
 
-void MemberOfExpr::setExpr(Expr* expr)
-{
+void MemberOfExpr::setExpr(Expr* expr) {
   base_ = expr;
 }
 
-Expr* MemberOfExpr::getExpr()
-{
+Expr* MemberOfExpr::getExpr() {
   return base_;
 }
 
-const Expr* MemberOfExpr::getExpr() const
-{
+const Expr* MemberOfExpr::getExpr() const {
   return base_;
 }
 
-void MemberOfExpr::setMemberID(Identifier* idInfo)
-{
+void MemberOfExpr::setMemberID(Identifier* idInfo) {
   membName_ = idInfo;
 }
 
-Identifier* MemberOfExpr::getMemberID()
-{
+Identifier* MemberOfExpr::getMemberID() {
   return membName_;
 }
 
-const Identifier* MemberOfExpr::getMemberID() const
-{
+const Identifier* MemberOfExpr::getMemberID() const {
   return membName_;
 }
 
-SourceLoc MemberOfExpr::getDotLoc() const
-{
+SourceLoc MemberOfExpr::getDotLoc() const {
   return dotLoc_;
 }
 
@@ -678,43 +565,35 @@ SourceLoc MemberOfExpr::getDotLoc() const
 //-----------------//
 
 ArrayAccessExpr::ArrayAccessExpr():
-  ArrayAccessExpr(nullptr, nullptr, SourceRange())
-{
+  ArrayAccessExpr(nullptr, nullptr, SourceRange()) {
 
 }
 
 ArrayAccessExpr::ArrayAccessExpr(Expr* expr, Expr* idxexpr, SourceRange range):
-  base_(expr), idxExpr_(idxexpr), Expr(ExprKind::ArrayAccessExpr, range)
-{
+  base_(expr), idxExpr_(idxexpr), Expr(ExprKind::ArrayAccessExpr, range) {
   
 }
 
-void ArrayAccessExpr::setExpr(Expr* expr)
-{
+void ArrayAccessExpr::setExpr(Expr* expr) {
   base_ = expr;
 }
 
-Expr* ArrayAccessExpr::getExpr()
-{
+Expr* ArrayAccessExpr::getExpr() {
   return base_;
 }
 
-const Expr* ArrayAccessExpr::getExpr() const
-{
+const Expr* ArrayAccessExpr::getExpr() const {
   return base_;
 }
 
-void ArrayAccessExpr::setIdxExpr(Expr* expr)
-{
+void ArrayAccessExpr::setIdxExpr(Expr* expr) {
   idxExpr_ = expr;
 }
 
-Expr* ArrayAccessExpr::getIdxExpr()
-{
+Expr* ArrayAccessExpr::getIdxExpr() {
   return idxExpr_;
 }
 
-const Expr* ArrayAccessExpr::getIdxExpr() const
-{
+const Expr* ArrayAccessExpr::getIdxExpr() const {
   return idxExpr_;
 }

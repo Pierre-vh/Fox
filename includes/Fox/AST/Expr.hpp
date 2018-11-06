@@ -13,11 +13,9 @@
 #include "Fox/AST/Type.hpp"
 #include <vector>
 
-namespace fox  
-{
+namespace fox   {
   // Kinds of Expressions
-  enum class ExprKind: std::uint8_t
-  {
+  enum class ExprKind: std::uint8_t {
     #define EXPR(ID,PARENT) ID,
     #include "ExprNodes.def"
   };
@@ -29,8 +27,7 @@ namespace fox
 
   // Expr
   //    Common base class for every expression
-  class Expr
-  {
+  class Expr {
     public:
       ExprKind getKind() const;
 
@@ -66,11 +63,9 @@ namespace fox
 
   // BinaryExpr
   //    A binary expression
-  class BinaryExpr : public Expr
-  {
+  class BinaryExpr : public Expr {
     public:
-      enum class OpKind: std::uint8_t
-      {
+      enum class OpKind: std::uint8_t {
         #define BINARY_OP(ID, SIGN, NAME) ID,
         #include "Operators.def"
       };
@@ -92,8 +87,7 @@ namespace fox
 
       SourceRange getOpRange() const;
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::BinaryExpr);
       }
 
@@ -111,11 +105,9 @@ namespace fox
 
   // UnaryExpr
   //    A unary expression: -2
-  class UnaryExpr : public Expr
-  {
+  class UnaryExpr : public Expr {
     public: 
-      enum class OpKind: std::uint8_t
-      {
+      enum class OpKind: std::uint8_t {
         #define UNARY_OP(ID, SIGN, NAME) ID,
         #include "Operators.def"
       };
@@ -133,8 +125,7 @@ namespace fox
 
       SourceRange getOpRange() const;
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::UnaryExpr);
       }
 
@@ -156,8 +147,7 @@ namespace fox
 
   // CastExpr
   //    An explicit "as" cast expression: foo as int
-  class CastExpr : public Expr
-  {
+  class CastExpr : public Expr {
     public:
       CastExpr();
       CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range);
@@ -170,8 +160,7 @@ namespace fox
       Expr* getExpr();
       const Expr* getExpr() const;
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::CastExpr);
       }
 
@@ -182,8 +171,7 @@ namespace fox
 
   // CharLiteralExpr
   //    A char literal: 'a'
-  class CharLiteralExpr : public Expr
-  {
+  class CharLiteralExpr : public Expr {
     public:
       CharLiteralExpr();
       CharLiteralExpr(FoxChar val, SourceRange range);
@@ -191,8 +179,7 @@ namespace fox
       FoxChar getVal() const;
       void setVal(FoxChar val);
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::CharLiteralExpr);
       }
 
@@ -202,8 +189,7 @@ namespace fox
 
   // IntegerLiteralExpr
   //    An integer literal: 2
-  class IntegerLiteralExpr : public Expr
-  {
+  class IntegerLiteralExpr : public Expr {
     public:
       IntegerLiteralExpr();
       IntegerLiteralExpr(FoxInt val, SourceRange range);
@@ -211,8 +197,7 @@ namespace fox
       FoxInt getVal() const;
       void setVal(FoxInt val);
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::IntegerLiteralExpr);
       }
 
@@ -222,8 +207,7 @@ namespace fox
 
   // FloatLiteralExpr
   //    A float literal: 3.14
-  class FloatLiteralExpr : public Expr
-  {
+  class FloatLiteralExpr : public Expr {
     public:
       FloatLiteralExpr();
       FloatLiteralExpr(FoxFloat val, SourceRange range);
@@ -231,8 +215,7 @@ namespace fox
       FoxFloat getVal() const;
       void setVal(FoxFloat val);
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::FloatLiteralExpr);
       }
 
@@ -242,8 +225,7 @@ namespace fox
 
   // StringLiteralExpr
   //    A string literal: "foo"
-  class StringLiteralExpr : public Expr
-  {
+  class StringLiteralExpr : public Expr {
     public:
       StringLiteralExpr();
       StringLiteralExpr(const FoxString& val, SourceRange range);
@@ -251,8 +233,7 @@ namespace fox
       std::string getVal() const;
       void setVal(const FoxString& val);
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::StringLiteralExpr);
       }
 
@@ -262,8 +243,7 @@ namespace fox
 
   // BoolLiteralExpr
   //    true/false boolean literal
-  class BoolLiteralExpr : public Expr
-  {
+  class BoolLiteralExpr : public Expr {
     public:
       BoolLiteralExpr();
       BoolLiteralExpr(FoxBool val, SourceRange range);
@@ -271,8 +251,7 @@ namespace fox
       bool getVal() const;
       void setVal(FoxBool val);
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::BoolLiteralExpr);
       }
 
@@ -282,8 +261,7 @@ namespace fox
 
   // ArrayLiteralExpr
   //    An array literal: [1, 2, 3]
-  class ArrayLiteralExpr : public Expr
-  {
+  class ArrayLiteralExpr : public Expr {
     public:
       ArrayLiteralExpr();
       ArrayLiteralExpr(const ExprVector& exprs, SourceRange range);
@@ -305,8 +283,7 @@ namespace fox
       ExprVector::iterator exprs_end();
       ExprVector::const_iterator exprs_end() const;
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::ArrayLiteralExpr);
       }
 
@@ -316,8 +293,7 @@ namespace fox
 
   // DeclRefExpr
   //    A identifier that references a declaration: foo
-  class DeclRefExpr : public Expr
-  {
+  class DeclRefExpr : public Expr {
     public:
       DeclRefExpr();
       DeclRefExpr(Identifier* declid, SourceRange range);
@@ -326,8 +302,7 @@ namespace fox
       Identifier* getIdentifier();
       const Identifier* getIdentifier() const;
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::DeclRefExpr);
       }
 
@@ -337,8 +312,7 @@ namespace fox
 
   // MemberOfExpr
   //    A member access : foo.bar
-  class MemberOfExpr : public Expr
-  {
+  class MemberOfExpr : public Expr {
     public:
       MemberOfExpr();
       MemberOfExpr(Expr* base, Identifier *idInfo, 
@@ -354,8 +328,7 @@ namespace fox
 
       SourceLoc getDotLoc() const;
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::MemberOfExpr);
       }
 
@@ -367,8 +340,7 @@ namespace fox
 
   // ArrayAccessExpr
   //    Array access (or subscript): foo[3]
-  class ArrayAccessExpr : public Expr
-  {
+  class ArrayAccessExpr : public Expr {
     public:
       ArrayAccessExpr();
       ArrayAccessExpr(Expr* base, Expr* idx, SourceRange range);
@@ -381,8 +353,7 @@ namespace fox
       Expr* getIdxExpr();
       const Expr* getIdxExpr() const;
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::ArrayAccessExpr);
       }
 
@@ -393,8 +364,7 @@ namespace fox
 
   // FunctionCallExpr
   //    A function call: foo(3.14)
-  class FunctionCallExpr : public Expr
-  {
+  class FunctionCallExpr : public Expr {
     public:
       FunctionCallExpr();
       FunctionCallExpr(Expr* callee, const ExprVector& args, SourceRange range);
@@ -417,8 +387,7 @@ namespace fox
       ExprVector::iterator args_end();
       ExprVector::const_iterator args_end() const;
 
-      static bool classof(const Expr* expr)
-      {
+      static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::FunctionCallExpr);
       }
 

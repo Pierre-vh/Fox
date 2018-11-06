@@ -15,12 +15,10 @@
 #include <string>
 #include <tuple>
 
-namespace fox
-{
+namespace fox {
   class SourceLoc;
   // The FileID is an opaque object that packs a 16 bytes integer, representing a FileID
-  class FileID
-  {
+  class FileID {
     public:
       using id_type = std::uint16_t;
 
@@ -50,19 +48,16 @@ namespace fox
   };
 
   // Small POD-like struct containing a human-readable source loc information.
-  struct CompleteLoc
-  {
+  struct CompleteLoc {
     using line_type = std::uint32_t;
     using col_type = std::uint16_t;
 
     CompleteLoc(const std::string& fName, line_type ln, col_type col)
-      : fileName(fName), line(ln), column(col)
-    {
+      : fileName(fName), line(ln), column(col) {
 
     }
 
-    bool operator==(const CompleteLoc& other) const
-    {
+    bool operator==(const CompleteLoc& other) const {
       return (fileName == other.fileName) && (line == other.line) && (column == other.column);
     }
 
@@ -74,8 +69,7 @@ namespace fox
   // The SourceLoc is a lightweight wrapper around a FileID and an index
   // which, combined, represent the location of a character in the source code.
   // Note: this object expects an "absolute" index, not an index in "codepoints".
-  class SourceLoc
-  {
+  class SourceLoc {
     public:
       using idx_type = std::size_t;
 
@@ -104,8 +98,7 @@ namespace fox
   // The SourceRange is a wrapper around a SourceLoc and an offset, which combined represent
   // a range (word, sentence, piece of code) in the source code.
   // Note: Like SourceLoc, the offset is expected to be absolute, not in CPs.
-  class SourceRange
-  {
+  class SourceRange {
     public:
       using offset_type = std::size_t;
 
@@ -128,16 +121,13 @@ namespace fox
   };
 
   // the SourceManager, which stores every source file and gives them a unique ID.
-  class SourceManager
-  {
+  class SourceManager {
     public:
       SourceManager() = default;
 
-      struct StoredData
-      {
+      struct StoredData {
         public:
-          StoredData(const std::string& name, const std::string& content) : fileName(name), str(content)
-          {
+          StoredData(const std::string& name, const std::string& content) : fileName(name), str(content) {
 
           }
 

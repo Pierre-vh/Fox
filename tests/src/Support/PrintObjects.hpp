@@ -12,8 +12,7 @@
 
 #include <ostream>
 
-namespace fox
-{
+namespace fox {
   class SourceLoc;
   class SourceRange;
   struct CompleteLoc;

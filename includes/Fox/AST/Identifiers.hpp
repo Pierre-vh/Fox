@@ -20,13 +20,11 @@
 #include <map>
 #include <string>
 
-namespace fox
-{
+namespace fox {
   class Identifier;
 
   // Wrapper around a const_iterator of a map entry, used to safely access the .first element (the string)
-  class StringPtrInMap
-  {
+  class StringPtrInMap {
     public:
       typedef std::map<std::string, Identifier>::const_iterator ItTy;
 
@@ -40,8 +38,7 @@ namespace fox
   // A lexed identifier.
   // Currently, they are immutable once created and only hold the string,
   // but in the future this might contain some more information.
-  class Identifier
-  {
+  class Identifier {
     public:
       Identifier(const StringPtrInMap::ItTy& iter);
 
@@ -72,8 +69,7 @@ namespace fox
   // A class that maps strings to Identifier.
   // This contains every (user-defined) identifier currently in use, and is populated by the 
   // Lexer.
-  class IdentifierTable
-  {
+  class IdentifierTable {
     private:
       using IDTableType = std::map<std::string, Identifier>;
       using IDTableIteratorType = IDTableType::iterator;

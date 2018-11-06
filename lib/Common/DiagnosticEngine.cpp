@@ -22,13 +22,11 @@ static const DiagSeverity diagsSevs[] = {
     #include "Fox/Common/Diags/All.def"
 };
 
-DiagnosticEngine::DiagnosticEngine(SourceManager& sm) : DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm))
-{
+DiagnosticEngine::DiagnosticEngine(SourceManager& sm) : DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm)) {
 
 }
 
-DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons): consumer_(std::move(ncons))
-{
+DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons): consumer_(std::move(ncons)) {
   errLimitReached_ = false;
   hasFatalErrorOccured_ = false;
   errorsAreFatal_ = false;
@@ -39,18 +37,15 @@ DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons): c
   warningsAreErrors_ = false;
 }
 
-Diagnostic DiagnosticEngine::report(DiagID diagID)
-{
+Diagnostic DiagnosticEngine::report(DiagID diagID) {
   return report(diagID, SourceRange());
 }
 
-Diagnostic DiagnosticEngine::report(DiagID diagID, FileID file)
-{
+Diagnostic DiagnosticEngine::report(DiagID diagID, FileID file) {
   return report(diagID, SourceRange(SourceLoc(file))).setIsFileWide(true);
 }
 
-Diagnostic DiagnosticEngine::report(DiagID diagID, SourceRange range)
-{
+Diagnostic DiagnosticEngine::report(DiagID diagID, SourceRange range) {
   // Gather diagnostic data
   const auto idx = static_cast<typename std::underlying_type<DiagID>::type>(diagID);
   DiagSeverity sev = diagsSevs[idx];
@@ -68,110 +63,88 @@ Diagnostic DiagnosticEngine::report(DiagID diagID, SourceRange range)
       );;
 }
 
-Diagnostic DiagnosticEngine::report(DiagID diagID, SourceLoc loc)
-{
+Diagnostic DiagnosticEngine::report(DiagID diagID, SourceLoc loc) {
   return report(diagID, SourceRange(loc));
 }
 
-void DiagnosticEngine::setConsumer(std::unique_ptr<DiagnosticConsumer> ncons)
-{
+void DiagnosticEngine::setConsumer(std::unique_ptr<DiagnosticConsumer> ncons) {
   consumer_ = std::move(ncons);
 }
 
-DiagnosticConsumer* DiagnosticEngine::getConsumer()
-{
+DiagnosticConsumer* DiagnosticEngine::getConsumer() {
   return consumer_.get();
 }
 
-bool DiagnosticEngine::hasFatalErrorOccured() const
-{
+bool DiagnosticEngine::hasFatalErrorOccured() const {
   return hasFatalErrorOccured_;
 }
 
-std::uint16_t DiagnosticEngine::getWarningsCount() const
-{
+std::uint16_t DiagnosticEngine::getWarningsCount() const {
   return warnCount_;
 }
 
-std::uint16_t DiagnosticEngine::getErrorsCount() const
-{
+std::uint16_t DiagnosticEngine::getErrorsCount() const {
   return errorCount_;
 }
 
-std::uint16_t DiagnosticEngine::getErrorLimit() const
-{
+std::uint16_t DiagnosticEngine::getErrorLimit() const {
   return errLimit_;
 }
 
-void DiagnosticEngine::setErrorLimit(std::uint16_t mErr)
-{
+void DiagnosticEngine::setErrorLimit(std::uint16_t mErr) {
   errLimit_ = mErr;
 }
 
-bool DiagnosticEngine::getWarningsAreErrors() const
-{
+bool DiagnosticEngine::getWarningsAreErrors() const {
   return warningsAreErrors_;
 }
 
-void DiagnosticEngine::setWarningsAreErrors(bool val)
-{
+void DiagnosticEngine::setWarningsAreErrors(bool val) {
   warningsAreErrors_ = val;
 }
 
-bool DiagnosticEngine::getErrorsAreFatal() const
-{
+bool DiagnosticEngine::getErrorsAreFatal() const {
   return errorsAreFatal_;
 }
 
-void DiagnosticEngine::setErrorsAreFatal(bool val)
-{
+void DiagnosticEngine::setErrorsAreFatal(bool val) {
   errorsAreFatal_ = val;
 }
 
-bool DiagnosticEngine::getIgnoreWarnings() const
-{
+bool DiagnosticEngine::getIgnoreWarnings() const {
   return ignoreWarnings_;
 }
 
-void DiagnosticEngine::setIgnoreWarnings(bool val)
-{
+void DiagnosticEngine::setIgnoreWarnings(bool val) {
   ignoreWarnings_ = val;
 }
 
-bool DiagnosticEngine::getIgnoreNotes() const
-{
+bool DiagnosticEngine::getIgnoreNotes() const {
   return ignoreNotes_;
 }
 
-void DiagnosticEngine::setIgnoreNotes(bool val)
-{
+void DiagnosticEngine::setIgnoreNotes(bool val) {
   ignoreNotes_ = val;
 }
 
-bool DiagnosticEngine::getIgnoreAllAfterFatal() const
-{
+bool DiagnosticEngine::getIgnoreAllAfterFatal() const {
   return ignoreAllAfterFatalError_;
 }
 
-void DiagnosticEngine::setIgnoreAllAfterFatal(bool val)
-{
+void DiagnosticEngine::setIgnoreAllAfterFatal(bool val) {
   ignoreAllAfterFatalError_ = val;
 }
 
-bool DiagnosticEngine::getIgnoreAll() const
-{
+bool DiagnosticEngine::getIgnoreAll() const {
   return ignoreAll_;
 }
 
-void DiagnosticEngine::setIgnoreAll(bool val)
-{
+void DiagnosticEngine::setIgnoreAll(bool val) {
   ignoreAll_ = val;
 }
 
-void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
-{
-  if (diag.getDiagSeverity() != DiagSeverity::IGNORE)
-  {
+void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
+  if (diag.getDiagSeverity() != DiagSeverity::IGNORE) {
     assert(consumer_ && "No valid consumer");
     consumer_->consume(diag);
   }
@@ -182,11 +155,9 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
   updateInternalCounters(diag.getDiagSeverity());
 
   // Now, check if we must emit a "too many errors" error.
-  if ((errLimit_ != 0) && (errorCount_ >= errLimit_))
-  {
+  if ((errLimit_ != 0) && (errorCount_ >= errLimit_)) {
     // If we should emit one, check if we haven't emitted one already.
-    if (!errLimitReached_)
-    {
+    if (!errLimitReached_) {
       // Important : set this to true to avoid infinite recursion.
       errLimitReached_ = true;
       report(DiagID::diagengine_maxErrCountExceeded).addArg(errorCount_).emit();
@@ -195,8 +166,7 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag)
   }
 }
 
-DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const
-{
+DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const {
   using Sev = DiagSeverity;
 
   if (getIgnoreAll())
@@ -205,8 +175,7 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const
   if (getIgnoreAllAfterFatal() && hasFatalErrorOccured())
     return Sev::IGNORE;
 
-  switch (ds)
-  {
+  switch (ds) {
     // Ignored diags don't change
     case Sev::IGNORE:
       return Sev::IGNORE;
@@ -233,10 +202,8 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const
   }
 }
 
-void DiagnosticEngine::updateInternalCounters(DiagSeverity ds)
-{
-  switch (ds)
-  {
+void DiagnosticEngine::updateInternalCounters(DiagSeverity ds) {
+  switch (ds) {
     case DiagSeverity::WARNING:
       warnCount_++;
       break;

@@ -14,8 +14,7 @@
 
 using namespace fox;
 
-UnitDecl* Parser::parseUnit(FileID fid, Identifier* unitName, bool isMainUnit)
-{
+UnitDecl* Parser::parseUnit(FileID fid, Identifier* unitName, bool isMainUnit) {
   // <fox_unit>  = {<declaration>}1+
 
   // Assert that unitName != nullptr
@@ -31,15 +30,12 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier* unitName, bool isMainUnit)
   bool declHadError = false;
 
   // Parse declarations 
-  while (true)
-  {
-    if (auto decl = parseDecl())
-    {
+  while (true) {
+    if (auto decl = parseDecl()) {
       unit->addDecl(decl.get());
       continue;
     }
-    else
-    {
+    else {
       if (!decl.wasSuccessful())
         declHadError = true;
 
@@ -47,11 +43,9 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier* unitName, bool isMainUnit)
       if (isDone())
         break;
       // No EOF? There's an unexpected token on the way that prevents us from finding the decl.
-      else
-      {
+      else {
         // Report an error in case of "not found";
-        if (decl.wasSuccessful())
-        {
+        if (decl.wasSuccessful()) {
           // Report the error with the current token being the error location
           Token curtok = getCurtok();
           assert(curtok && "Curtok must be valid since we have not reached eof");
@@ -67,22 +61,19 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier* unitName, bool isMainUnit)
 
   }
 
-  if (unit->getDeclCount() == 0)
-  {
+  if (unit->getDeclCount() == 0) {
     if(!declHadError)
       diags_.report(DiagID::parser_expected_decl_in_unit, fid);
     return nullptr;
   }
-  else
-  {
+  else {
     assert(unit->isValid());
     ctxt_.addUnit(unit, isMainUnit);
     return unit;
   }
 }
 
-Parser::DeclResult Parser::parseFuncDecl()
-{
+Parser::DeclResult Parser::parseFuncDecl() {
   /*
     <func_decl>  = "func" <id> '(' [<param_decl> {',' <param_decl>}*] ')'[':' <type>] <compound_statement>
     // Note about [':' <type>], if it isn't present, the function returns void
@@ -110,15 +101,13 @@ Parser::DeclResult Parser::parseFuncDecl()
   bool poisoned = false;
 
   // <id>
-  if (auto foundID = consumeIdentifier())
-  {
+  if (auto foundID = consumeIdentifier()) {
     rtr->setIdentifier(foundID.get());
     // Before creating a RAIIDeclContext, record this function in the parent DeclContext.
     // We only record the function if it's valid!
     recordDecl(rtr);
   }
-  else
-  {
+  else {
     reportErrorExpected(DiagID::parser_expected_iden);
     //rtr->setIdentifier(identifiers_.getInvalidID());
     poisoned = true;
@@ -129,8 +118,7 @@ Parser::DeclResult Parser::parseFuncDecl()
   RAIIDeclContext raiiDC(*this, rtr);
 
   // '('
-  if (!consumeBracket(SignType::S_ROUND_OPEN))
-  {
+  if (!consumeBracket(SignType::S_ROUND_OPEN)) {
     // IDEA:: Instead of giving up immediately, maybe we could try to
     // parse more? Would it be useful? For now, I don't know.
     // Time will tell.
@@ -142,17 +130,13 @@ Parser::DeclResult Parser::parseFuncDecl()
   }
 
   // [<param_decl> {',' <param_decl>}*]
-  if (auto first = parseParamDecl())
-  {
+  if (auto first = parseParamDecl()) {
     rtr->addParam(first.getAs<ParamDecl>());
-    while (true)
-    {
-      if (consumeSign(SignType::S_COMMA))
-      {
+    while (true) {
+      if (consumeSign(SignType::S_COMMA)) {
         if (auto param = parseParamDecl())
           rtr->addParam(param.getAs<ParamDecl>());
-        else if (param.wasSuccessful())
-        {
+        else if (param.wasSuccessful()) {
           // IDEA: Maybe reporting the error after the "," would yield
           // better error messages?
           reportErrorExpected(DiagID::parser_expected_argdecl);
@@ -166,8 +150,7 @@ Parser::DeclResult Parser::parseFuncDecl()
   // ')'
   if (auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE))
     headEndLoc = rightParens;
-  else 
-  {
+  else  {
     reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
     // We'll attempt to recover to the '{' too, so if we find the body of the function
@@ -179,16 +162,13 @@ Parser::DeclResult Parser::parseFuncDecl()
   }
   
   // [':' <type>]
-  if (auto colon = consumeSign(SignType::S_COLON))
-  {
-    if (auto rtrTy = parseType())
-    {
+  if (auto colon = consumeSign(SignType::S_COLON)) {
+    if (auto rtrTy = parseType()) {
       TypeLoc tl = rtrTy.getAsTypeLoc();
       rtr->setReturnType(tl);
       headEndLoc = tl.getRange().getEnd();
     }
-    else
-    {
+    else {
       if (rtrTy.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_type);
 
@@ -206,8 +186,7 @@ Parser::DeclResult Parser::parseFuncDecl()
   // <compound_statement>
   StmtResult compStmt = parseCompoundStatement();
 
-  if (!compStmt)
-  {
+  if (!compStmt) {
     if(compStmt.wasSuccessful()) // Display only if it was not found
       reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
     return DeclResult::Error();
@@ -229,8 +208,7 @@ Parser::DeclResult Parser::parseFuncDecl()
   return DeclResult(rtr);
 }
 
-Parser::DeclResult Parser::parseParamDecl()
-{
+Parser::DeclResult Parser::parseParamDecl() {
   // <param_decl> = <id> ':' <qualtype>
 
   // <id>
@@ -239,16 +217,14 @@ Parser::DeclResult Parser::parseParamDecl()
     return DeclResult::NotFound();
 
   // ':'
-  if (!consumeSign(SignType::S_COLON))
-  {
+  if (!consumeSign(SignType::S_COLON)) {
     reportErrorExpected(DiagID::parser_expected_colon);
     return DeclResult::Error();
   }
 
   // <qualtype>
   auto typeResult = parseQualType();
-  if (!typeResult)
-  {
+  if (!typeResult) {
     if (typeResult.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_type);
     return DeclResult::Error();
@@ -275,8 +251,7 @@ Parser::DeclResult Parser::parseParamDecl()
   return DeclResult(rtr);
 }
 
-Parser::DeclResult Parser::parseVarDecl()
-{
+Parser::DeclResult Parser::parseVarDecl() {
   // <var_decl> = "let" <id> ':' <qualtype> ['=' <expr>] ';'
   // "let"
   auto letKw = consumeKeyword(KeywordType::KW_LET);
@@ -294,11 +269,9 @@ Parser::DeclResult Parser::parseVarDecl()
   // <id>
   if (auto foundID = consumeIdentifier())
     id = foundID.get();
-  else
-  {
+  else {
     reportErrorExpected(DiagID::parser_expected_iden);
-    if (auto res = resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ false, /*consumeToken*/ true))
-    {
+    if (auto res = resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ false, /*consumeToken*/ true)) {
       // Recovered? Act like nothing happened.
       return DeclResult::NotFound();
     }
@@ -306,23 +279,20 @@ Parser::DeclResult Parser::parseVarDecl()
   }
 
   // ':'
-  if (!consumeSign(SignType::S_COLON))
-  {
+  if (!consumeSign(SignType::S_COLON)) {
     reportErrorExpected(DiagID::parser_expected_colon);
     return DeclResult::Error();
   }
 
   // <qualtype>
   SourceLoc ampLoc;
-  if (auto qtRes = parseQualType(nullptr, &ampLoc))
-  {
+  if (auto qtRes = parseQualType(nullptr, &ampLoc)) {
     type = TypeLoc(qtRes.get().type, qtRes.getRange());
     isConst = qtRes.get().isConst;
     if (qtRes.get().isRef)
       diags_.report(DiagID::parser_ignored_ref_vardecl, ampLoc);
   }
-  else
-  {
+  else {
     if (qtRes.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_type);
     if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi*/ true, /*consumeToken*/ true))
@@ -331,12 +301,10 @@ Parser::DeclResult Parser::parseVarDecl()
   }
 
   // ['=' <expr>]
-  if (consumeSign(SignType::S_EQUAL))
-  {
+  if (consumeSign(SignType::S_EQUAL)) {
     if (auto expr = parseExpr())
       iExpr = expr.get();
-    else
-    {
+    else {
       if (expr.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
       // Recover to semicolon, return if recovery wasn't successful 
@@ -347,8 +315,7 @@ Parser::DeclResult Parser::parseVarDecl()
 
   // ';'
   endLoc = consumeSign(SignType::S_SEMICOLON);
-  if (!endLoc)
-  {
+  if (!endLoc) {
     reportErrorExpected(DiagID::parser_expected_semi);
       
     if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi*/ false, /*consumeToken*/ false))
@@ -367,16 +334,14 @@ Parser::DeclResult Parser::parseVarDecl()
   return DeclResult(rtr);
 }
 
-Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constRange, SourceLoc* refLoc)
-{
+Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constRange, SourceLoc* refLoc) {
   //   <qualtype>  = ["const"] ['&'] <type>
   ParsedQualType rtr;
   bool hasFoundSomething = false;
   SourceLoc begLoc, endLoc;
 
   // ["const"]
-  if (auto kw = consumeKeyword(KeywordType::KW_CONST))
-  {
+  if (auto kw = consumeKeyword(KeywordType::KW_CONST)) {
     begLoc = kw.getBegin();
     hasFoundSomething = true;
     rtr.isConst = true;
@@ -386,8 +351,7 @@ Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constR
   }
 
   // ['&']
-  if (auto ampersand = consumeSign(SignType::S_AMPERSAND))
-  {
+  if (auto ampersand = consumeSign(SignType::S_AMPERSAND)) {
     // If no begLoc, the begLoc is the ampersand.
     if (!begLoc)
       begLoc = ampersand;
@@ -399,8 +363,7 @@ Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constR
   }
 
   // <type>
-  if (auto tyRes = parseType())
-  {
+  if (auto tyRes = parseType()) {
     rtr.type = tyRes.get();
 
     // If no begLoc, the begLoc is the type's begLoc.
@@ -409,10 +372,8 @@ Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constR
 
     endLoc = tyRes.getRange().getEnd();
   }
-  else
-  {
-    if (hasFoundSomething)
-    {
+  else {
+    if (hasFoundSomething) {
       if (tyRes.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_type);
       return Result<ParsedQualType>::Error();
@@ -427,8 +388,7 @@ Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constR
   return Result<ParsedQualType>(rtr, SourceRange(begLoc,endLoc));
 }
 
-Parser::DeclResult Parser::parseDecl()
-{
+Parser::DeclResult Parser::parseDecl() {
   // <declaration> = <var_decl> | <func_decl>
 
   // <var_decl>

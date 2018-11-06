@@ -11,11 +11,9 @@
 #include "DeclContext.hpp"
 #include "Type.hpp"
 
-namespace fox
-{
+namespace fox {
   // Kinds of Decls
-  enum class DeclKind : std::uint8_t
-  {
+  enum class DeclKind : std::uint8_t {
     #define DECL(ID,PARENT) ID,
     #define DECL_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
     #include "DeclNodes.def"
@@ -29,8 +27,7 @@ namespace fox
 
   // Decl
   //    Common base class for every Declaration
-  class Decl
-  {
+  class Decl {
     public:
       DeclKind getKind() const;
 
@@ -60,8 +57,7 @@ namespace fox
 
   // NamedDecl
   //    Common base class for every named Declaration
-  class NamedDecl : public Decl
-  {
+  class NamedDecl : public Decl {
     public:
       NamedDecl(DeclKind kind, Identifier* id, SourceRange range);
 
@@ -72,8 +68,7 @@ namespace fox
 
       bool isValid() const;
 
-      static bool classof(const Decl* decl)
-      {
+      static bool classof(const Decl* decl) {
         return (decl->getKind() >= DeclKind::First_NamedDecl) && (decl->getKind() <= DeclKind::Last_NamedDecl);
       }
 
@@ -84,8 +79,7 @@ namespace fox
   // ValueDecl
   //    Common base class for every value declaration 
   //    (declares a value of a certain type & name)
-  class ValueDecl : public NamedDecl
-  {
+  class ValueDecl : public NamedDecl {
     public:
       ValueDecl(DeclKind kind, Identifier* id, TypeLoc ty, 
         bool isConst, SourceRange range);
@@ -101,8 +95,7 @@ namespace fox
 
       bool isValid() const;
 
-      static bool classof(const Decl* decl)
-      {
+      static bool classof(const Decl* decl) {
         return (decl->getKind() >= DeclKind::First_ValueDecl) && (decl->getKind() <= DeclKind::Last_ValueDecl);
       }
 
@@ -113,16 +106,14 @@ namespace fox
 
   // ParamDecl
   //    A declaration of a function parameter
-  class ParamDecl : public ValueDecl
-  {
+  class ParamDecl : public ValueDecl {
     public:
       ParamDecl();
       ParamDecl(Identifier* id, TypeLoc type, bool isConst, SourceRange range);
 
       bool isValid() const;
 
-      static bool classof(const Decl* decl)
-      {
+      static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::ParamDecl;
       }
   };
@@ -130,8 +121,7 @@ namespace fox
   
   // FuncDecl
   //    A function declaration
-  class FuncDecl : public NamedDecl, public DeclContext
-  {
+  class FuncDecl : public NamedDecl, public DeclContext {
     private:
       using ParamVecTy = std::vector<ParamDecl*>;
 
@@ -175,8 +165,7 @@ namespace fox
       ParamVecIter params_end();
       ParamVecConstIter params_end() const;
 
-      static bool classof(const Decl* decl)
-      {
+      static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::FuncDecl;
       }
 
@@ -192,8 +181,7 @@ namespace fox
 
   // VarDecl
   //    A variable declaration
-  class VarDecl : public ValueDecl
-  {
+  class VarDecl : public ValueDecl {
     public:
       VarDecl();
       VarDecl(Identifier* id, TypeLoc type, bool isConst,
@@ -206,8 +194,7 @@ namespace fox
       void setInitExpr(Expr* expr);
       bool hasInitExpr() const;
 
-      static bool classof(const Decl* decl)
-      {
+      static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::VarDecl;
       }
 
@@ -218,8 +205,7 @@ namespace fox
   // UnitDecl
   //    A Unit declaration (a unit is a source file)
   //    This is declared "implicitely" when you create a new file
-  class UnitDecl : public NamedDecl, public DeclContext
-  {
+  class UnitDecl : public NamedDecl, public DeclContext {
     private:
       using DeclVecTy = std::vector<Decl*>;
       using DeclVecIter = DeclVecTy::iterator;
@@ -249,8 +235,7 @@ namespace fox
       FileID getFileID() const;
       void setFileID(const FileID& fid);
 
-      static bool classof(const Decl* decl)
-      {
+      static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::UnitDecl;
       }
 

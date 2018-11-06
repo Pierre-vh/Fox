@@ -20,56 +20,46 @@
 #include "Errors.hpp"
 #include <type_traits>
 
-namespace fox
-{
+namespace fox {
   template<typename DataTy>
-  class ResultObject
-  {
+  class ResultObject {
     protected:
       using DefaultValue = DataTy;
       using CTorValueTy = const DataTy&;
       using CTorRValueTy = DataTy && ;
     public:
       ResultObject(bool success, const DataTy& res):
-        result_(res), hasData_(true), successFlag_(success)
-      {
+        result_(res), hasData_(true), successFlag_(success) {
 
       }
 
       ResultObject(bool success, DataTy&& res):
-        result_(res), hasData_(true), successFlag_(success)
-      {
+        result_(res), hasData_(true), successFlag_(success) {
 
       }
 
       explicit ResultObject(bool success) :
-        result_(DefaultValue()), hasData_(false), successFlag_(success)
-      {
+        result_(DefaultValue()), hasData_(false), successFlag_(success) {
 
       }
 
-      bool wasSuccessful() const
-      {
+      bool wasSuccessful() const {
         return successFlag_;
       }
 
-      bool hasData() const
-      {
+      bool hasData() const {
         return hasData_;
       }
 
-      const DataTy get() const
-      {
+      const DataTy get() const {
         return result_;
       }
 
-      DataTy get()
-      {
+      DataTy get() {
         return result_;
       }
 
-      DataTy& getRef()
-      {
+      DataTy& getRef() {
         return result_;
       }
 
@@ -80,8 +70,7 @@ namespace fox
   };
 
   template<typename DataTy>
-  class ResultObject<DataTy*>
-  {
+  class ResultObject<DataTy*> {
     protected:
       using DefaultValue = std::nullptr_t;
       using CTorValueTy = DataTy*;
@@ -89,40 +78,33 @@ namespace fox
 
     public:
       ResultObject(bool success, CTorValueTy ptr):
-        data_(ptr, success)
-      {
+        data_(ptr, success) {
 
       }
 
       ResultObject(bool success):
-        data_(nullptr, success)
-      {
+        data_(nullptr, success) {
 
       }
 
-      bool wasSuccessful() const
-      {
+      bool wasSuccessful() const {
         return data_.getInt();
       }
       
-      bool hasData() const
-      {
+      bool hasData() const {
         return data_.getPointer();
       }
 
-      const DataTy* get() const
-      {
+      const DataTy* get() const {
         return data_.getPointer();
       }
 
-      DataTy* get()
-      {
+      DataTy* get() {
         return data_.getPointer();
       }
 
       template<typename Ty>
-      Ty* getAs()
-      {
+      Ty* getAs() {
         auto* ptr = data_.getPointer();
         assert(ptr && "Can't use this on a null pointer");
         Ty* cast = dyn_cast<Ty>(ptr);
@@ -131,8 +113,7 @@ namespace fox
       }
 
       template<typename Ty>
-      const Ty* getAs() const
-      {
+      const Ty* getAs() const {
         auto* ptr = data_.getPointer();
         assert(ptr && "Can't use this on a null pointer");
         Ty* cast = dyn_cast<Ty>(ptr);
@@ -140,13 +121,11 @@ namespace fox
         return cast;
       }
 
-      void* getOpaque()
-      {
+      void* getOpaque() {
         return data_.getPointer();
       }
 
-      const void* getOpaque() const
-      {
+      const void* getOpaque() const {
         return data_.getPointer();
       }
 

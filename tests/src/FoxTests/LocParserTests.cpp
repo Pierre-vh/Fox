@@ -19,30 +19,25 @@
 using namespace fox;
 
 // Parser Preparator for LocTests
-class LocTests : public ::testing::Test
-{
+class LocTests : public ::testing::Test {
   public:
-    LocTests() : dg(srcMgr)
-    {
+    LocTests() : dg(srcMgr) {
 
     }
   protected:
-    virtual void SetUp(const std::string& filepath) 
-    {
+    virtual void SetUp(const std::string& filepath)  {
       fullFilePath = test::convertRelativeTestResPathToAbsolute(filepath);
       file = srcMgr.loadFromFile(fullFilePath);
 
       // If file couldn't be loaded, give us the reason
-      if (!file)
-      {
+      if (!file) {
         FAIL() << "Couldn't load file \""<< filepath << "\" in memory.";
       }
 
       lexer = std::make_unique<Lexer>(dg, srcMgr, astContext);
       lexer->lexFile(file);
 
-      if (dg.getErrorsCount())
-      {
+      if (dg.getErrorsCount()) {
         FAIL() << "Lexing Error";
       }
 
@@ -60,8 +55,7 @@ class LocTests : public ::testing::Test
     std::unique_ptr<Parser> parser;
 };
 
-TEST_F(LocTests, FuncAndArgDecl)
-{
+TEST_F(LocTests, FuncAndArgDecl) {
   SetUp("parser/loc/functions.fox");
   auto presult = parser->parseFuncDecl();
   ASSERT_TRUE(presult) << "parsing error";
@@ -125,8 +119,7 @@ TEST_F(LocTests, FuncAndArgDecl)
 }
 
 // VarDecl test
-TEST_F(LocTests, VarDecls)
-{
+TEST_F(LocTests, VarDecls) {
   SetUp("parser/loc/vardecl.fox");
   auto presult = parser->parseVarDecl();
   ASSERT_TRUE(presult) << "parsing error";

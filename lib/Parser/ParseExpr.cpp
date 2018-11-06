@@ -13,8 +13,7 @@
 
 using namespace fox;
 
-Parser::ExprResult Parser::parseSuffix(Expr* base)
-{
+Parser::ExprResult Parser::parseSuffix(Expr* base) {
   assert(base && "Base cannot be nullptr!");
 
   // <suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
@@ -22,11 +21,9 @@ Parser::ExprResult Parser::parseSuffix(Expr* base)
   SourceLoc endLoc;
   // "." <id> 
   // '.'
-  if (auto dotLoc = consumeSign(SignType::S_DOT))
-  {
+  if (auto dotLoc = consumeSign(SignType::S_DOT)) {
     // <id>
-    if (auto id = consumeIdentifier())
-    {
+    if (auto id = consumeIdentifier()) {
       // found, return
       endLoc = id.getRange().getEnd();
 
@@ -37,23 +34,19 @@ Parser::ExprResult Parser::parseSuffix(Expr* base)
         new(ctxt_) MemberOfExpr(base ,id.get(), range, dotLoc)
       );
     }
-    else 
-    {
+    else  {
       reportErrorExpected(DiagID::parser_expected_iden);
       return ExprResult::Error();
     }
   }
   // '[' <expr> ']
   // '['
-  else if (consumeBracket(SignType::S_SQ_OPEN))
-  {
+  else if (consumeBracket(SignType::S_SQ_OPEN)) {
     // <expr>
-    if (auto expr = parseExpr())
-    {
+    if (auto expr = parseExpr()) {
       // ']'
       endLoc = consumeBracket(SignType::S_SQ_CLOSE);
-      if (!endLoc)
-      {
+      if (!endLoc) {
         reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
 
         if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
@@ -70,8 +63,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base)
         new(ctxt_) ArrayAccessExpr(base, expr.get(), range)
       );
     }
-    else
-    {
+    else {
       if (expr.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
 
@@ -84,8 +76,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base)
     }
   }
   // <parens_expr_list>
-  else if (auto exprlist = parseParensExprList(nullptr,&endLoc))
-  {
+  else if (auto exprlist = parseParensExprList(nullptr,&endLoc)) {
     assert(endLoc && "parseParensExprList didn't complete the endLoc?");
     SourceRange range(begLoc, endLoc);
     assert(range && "Invalid loc info");
@@ -98,8 +89,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base)
   return ExprResult::NotFound();
 }
 
-Parser::ExprResult Parser::parseDeclRef()
-{
+Parser::ExprResult Parser::parseDeclRef() {
   // Note: this rule is quite simple and is essentially just a "wrapper"
   // however I'm keeping it for clarity, and future usages where DeclRef might get more complex, if it ever 
   // does
@@ -113,8 +103,7 @@ Parser::ExprResult Parser::parseDeclRef()
   return ExprResult::NotFound();
 }
 
-Parser::ExprResult Parser::parsePrimitiveLiteral()
-{
+Parser::ExprResult Parser::parsePrimitiveLiteral() {
   // <primitive_literal>  = One literal of the following type : Integer, Floating-point, Boolean, String, Char
   auto tok = getCurtok();
   if (!tok.isLiteral())
@@ -144,8 +133,7 @@ Parser::ExprResult Parser::parsePrimitiveLiteral()
   return ExprResult(expr);
 }
 
-Parser::ExprResult Parser::parseArrayLiteral()
-{
+Parser::ExprResult Parser::parseArrayLiteral() {
   // <array_literal>  = '[' [<expr_list>] ']'
   auto begLoc = consumeBracket(SignType::S_SQ_OPEN);
   if (!begLoc)
@@ -158,8 +146,7 @@ Parser::ExprResult Parser::parseArrayLiteral()
 
   // ']'
   SourceLoc endLoc = consumeBracket(SignType::S_SQ_CLOSE);
-  if (!endLoc)
-  {
+  if (!endLoc) {
     if (elist.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
 
@@ -177,8 +164,7 @@ Parser::ExprResult Parser::parseArrayLiteral()
   );
 }
 
-Parser::ExprResult Parser::parseLiteral()
-{
+Parser::ExprResult Parser::parseLiteral() {
   // <literal>  = <primitive_literal> | <array_literal>
 
   // <primitive_literal>
@@ -196,8 +182,7 @@ Parser::ExprResult Parser::parseLiteral()
   return ExprResult::NotFound();
 }
 
-Parser::ExprResult Parser::parsePrimary()
-{
+Parser::ExprResult Parser::parsePrimary() {
   // = <literal>
   if (auto lit = parseLiteral())
     return lit;
@@ -219,11 +204,9 @@ Parser::ExprResult Parser::parsePrimary()
   return ExprResult::NotFound();
 }
 
-Parser::ExprResult Parser::parseSuffixExpr()
-{
+Parser::ExprResult Parser::parseSuffixExpr() {
   // <suffix_expr>  = <primary> { <suffix> }
-  if (auto prim = parsePrimary())
-  {
+  if (auto prim = parsePrimary()) {
     Expr* base = prim.get();
     ExprResult suffix;
     while (suffix = parseSuffix(base))
@@ -234,16 +217,14 @@ Parser::ExprResult Parser::parseSuffixExpr()
     else
       return ExprResult::Error();
   }
-  else
-  {
+  else {
     if (!prim.wasSuccessful())
       return ExprResult::Error();
     return ExprResult::NotFound();
   }
 }
 
-Parser::ExprResult Parser::parseExponentExpr()
-{
+Parser::ExprResult Parser::parseExponentExpr() {
   // <exp_expr>  = <suffix_expr> [ <exponent_operator> <prefix_expr> ]
 
   // <suffix_expr>
@@ -252,12 +233,10 @@ Parser::ExprResult Parser::parseExponentExpr()
     return lhs; 
 
   // <exponent_operator> 
-  if (auto expOp = parseExponentOp())
-  {
+  if (auto expOp = parseExponentOp()) {
     // <prefix_expr>
     auto rhs = parsePrefixExpr();
-    if (!rhs)
-    {
+    if (!rhs) {
       if(rhs.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
         
@@ -280,15 +259,12 @@ Parser::ExprResult Parser::parseExponentExpr()
   return lhs;
 }
 
-Parser::ExprResult Parser::parsePrefixExpr()
-{
+Parser::ExprResult Parser::parsePrefixExpr() {
   // <prefix_expr>  = <unary_operator> <prefix_expr> | <exp_expr>
 
   // <unary_operator> <prefix_expr> 
-  if (auto uop = parseUnaryOp()) // <unary_operator>
-  {
-    if (auto prefixexpr = parsePrefixExpr())
-    {
+  if (auto uop = parseUnaryOp()) // <unary_operator> {
+    if (auto prefixexpr = parsePrefixExpr()) {
       SourceLoc endLoc = prefixexpr.get()->getRange().getEnd();
 
       SourceRange range(uop.getRange().getBegin(), endLoc);
@@ -302,8 +278,7 @@ Parser::ExprResult Parser::parsePrefixExpr()
           uop.getRange()
         ));
     }
-    else
-    {
+    else {
       if(prefixexpr.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
 
@@ -320,24 +295,20 @@ Parser::ExprResult Parser::parsePrefixExpr()
   return ExprResult::NotFound();
 }
 
-Parser::ExprResult Parser::parseCastExpr()
-{
+Parser::ExprResult Parser::parseCastExpr() {
   // <cast_expr>  = <prefix_expr> ["as" <type>]
   // <cast_expr>
   auto prefixexpr = parsePrefixExpr();
-  if (!prefixexpr)
-  {
+  if (!prefixexpr) {
     if (!prefixexpr.wasSuccessful())
       return ExprResult::Error();
     return ExprResult::NotFound();
   }
 
   // ["as" <type>]
-  if (consumeKeyword(KeywordType::KW_AS))
-  {
+  if (consumeKeyword(KeywordType::KW_AS)) {
     // <type>
-    if (auto tyRes = parseType())
-    {
+    if (auto tyRes = parseType()) {
       TypeLoc tl = tyRes.getAsTypeLoc();
       SourceLoc begLoc = prefixexpr.get()->getRange().getBegin();
       SourceLoc endLoc = tl.getRange().getEnd();
@@ -352,8 +323,7 @@ Parser::ExprResult Parser::parseCastExpr()
           range
         ));
     }
-    else
-    {
+    else {
       reportErrorExpected(DiagID::parser_expected_type);
       return ExprResult::Error();
     }
@@ -362,8 +332,7 @@ Parser::ExprResult Parser::parseCastExpr()
   return prefixexpr;
 }
 
-Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence)
-{
+Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
   // <binary_expr>  = <cast_expr> { <binary_operator> <cast_expr> }  
 
   // <cast_expr> OR a binaryExpr of inferior priority.
@@ -373,8 +342,7 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence)
   else
     lhsResult = parseCastExpr();
 
-  if (!lhsResult)
-  {
+  if (!lhsResult) {
     if (!lhsResult.wasSuccessful())
       return ExprResult::Error();
     return ExprResult::NotFound();
@@ -384,8 +352,7 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence)
   BinaryExpr* rtr = nullptr;
 
   // { <binary_operator> <cast_expr> }  
-  while (true)
-  {
+  while (true) {
     // <binary_operator>
     auto binop_res = parseBinaryOp(precedence);
     if (!binop_res) // No operator found : break.
@@ -400,8 +367,7 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence)
 
 
     // Handle results appropriately
-    if (!rhsResult) // Check for validity : we need a rhs. if we don't have one, we have an error !
-    {
+    if (!rhsResult) // Check for validity : we need a rhs. if we don't have one, we have an error ! {
       if(rhsResult.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
       return ExprResult::Error();
@@ -420,26 +386,22 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence)
       BinaryExpr(binop_res.get(), (rtr ? rtr : lhs), rhs, range, opRange);
   }
 
-  if (!rtr)
-  {
+  if (!rtr) {
     assert(lhs && "no rtr node + no lhs node?");
     return ExprResult(lhs);
   }
   return ExprResult(rtr);
 }
 
-Parser::ExprResult Parser::parseExpr()
-{
+Parser::ExprResult Parser::parseExpr() {
   //  <expr> = <binary_expr> [<assign_operator> <expr>] 
   auto lhs = parseBinaryExpr();
   if (!lhs)
     return lhs;
 
-  if (auto op = parseAssignOp())
-  {
+  if (auto op = parseAssignOp()) {
     auto rhs = parseExpr();
-    if (!rhs)
-    {
+    if (!rhs) {
       if(rhs.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
       return ExprResult::Error();
@@ -459,8 +421,7 @@ Parser::ExprResult Parser::parseExpr()
   return ExprResult(lhs);
 }
 
-Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* rightPLoc)
-{
+Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* rightPLoc) {
   // <parens_expr> = '(' <expr> ')'
 
   // '('
@@ -473,8 +434,7 @@ Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* right
   // <expr>
   if (auto expr = parseExpr())
     rtr = expr.get();
-  else 
-  {
+  else  {
     // no expr, handle error & attempt to recover if it's allowed. If recovery is successful, return "not found"
     if(expr.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_expr);
@@ -489,8 +449,7 @@ Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* right
 
   // ')'
   auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
-  if (!rightParens)
-  {
+  if (!rightParens) {
     // no ), handle error & attempt to recover 
     reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
@@ -502,14 +461,12 @@ Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* right
   }
 
   // Save the locs if the caller wants it.
-  if (leftPLoc)
-  {
+  if (leftPLoc) {
     assert(leftParens && "invalid loc info");
     *leftPLoc = leftParens;
   }
 
-  if (rightPLoc)
-  {
+  if (rightPLoc) {
     assert(rightParens && "invalid loc info");
     *rightPLoc = rightParens;
   }
@@ -518,8 +475,7 @@ Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* right
   return ExprResult(rtr);
 }
 
-Parser::Result<ExprVector> Parser::parseExprList()
-{
+Parser::Result<ExprVector> Parser::parseExprList() {
   // <expr_list> = <expr> {',' <expr> }
   auto firstexpr = parseExpr();
   if (!firstexpr)
@@ -527,14 +483,11 @@ Parser::Result<ExprVector> Parser::parseExprList()
 
   ExprVector exprs;
   exprs.push_back(firstexpr.get());
-  while (auto comma = consumeSign(SignType::S_COMMA))
-  {
+  while (auto comma = consumeSign(SignType::S_COMMA)) {
     if (auto expr = parseExpr())
       exprs.push_back(expr.get());
-    else
-    {
-      if (expr.wasSuccessful())
-      {
+    else {
+      if (expr.wasSuccessful()) {
         // if the expression was just not found, revert the comma consuming and
         // let the caller deal with the extra comma after the expression list.
         revertConsume();
@@ -548,8 +501,7 @@ Parser::Result<ExprVector> Parser::parseExprList()
   return Result<ExprVector>(exprs);
 }
 
-Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc* LParenLoc, SourceLoc *RParenLoc)
-{
+Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc* LParenLoc, SourceLoc *RParenLoc) {
   // <parens_expr_list>  = '(' [ <expr_list> ] ')'
   // '('
   auto leftParens = consumeBracket(SignType::S_ROUND_OPEN);
@@ -564,12 +516,10 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc* LParenLoc, Sou
   //  [ <expr_list> ]
   if (auto exprlist = parseExprList())
     exprs = exprlist.get();
-  else if (!exprlist.wasSuccessful())
-  {
+  else if (!exprlist.wasSuccessful()) {
     // error? Try to recover from it, if success, just discard the expr list,
     // if no success return error.
-    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
-    {
+    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false)) {
       SourceLoc loc = consumeBracket(SignType::S_ROUND_CLOSE);
 
       if (RParenLoc)
@@ -582,8 +532,7 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc* LParenLoc, Sou
 
   SourceLoc rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
   // ')'
-  if (!rightParens)
-  {
+  if (!rightParens) {
     reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
     if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
@@ -598,10 +547,8 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc* LParenLoc, Sou
   return Result<ExprVector>(exprs);
 }
 
-SourceRange Parser::parseExponentOp()
-{
-  if (auto t1 = consumeSign(SignType::S_ASTERISK))
-  {
+SourceRange Parser::parseExponentOp() {
+  if (auto t1 = consumeSign(SignType::S_ASTERISK)) {
     if (auto t2 = consumeSign(SignType::S_ASTERISK))
       return SourceRange(t1,t2);
     revertConsume();
@@ -609,13 +556,11 @@ SourceRange Parser::parseExponentOp()
   return SourceRange();
 }
 
-Parser::Result<BinaryExpr::OpKind> Parser::parseAssignOp()
-{
+Parser::Result<BinaryExpr::OpKind> Parser::parseAssignOp() {
   using BinOp = BinaryExpr::OpKind;
 
   auto backup = createParserStateBackup();
-  if (auto equal = consumeSign(SignType::S_EQUAL))
-  {
+  if (auto equal = consumeSign(SignType::S_EQUAL)) {
     // Try to match a S_EQUAL. If failed, that means that the next token isn't a =
     // If it succeeds, we founda '==', this is the comparison operator and we must backtrack to prevent errors.
     if (!consumeSign(SignType::S_EQUAL))
@@ -625,8 +570,7 @@ Parser::Result<BinaryExpr::OpKind> Parser::parseAssignOp()
   return Result<BinOp>::NotFound();
 }
 
-Parser::Result<UnaryExpr::OpKind> Parser::parseUnaryOp()
-{
+Parser::Result<UnaryExpr::OpKind> Parser::parseUnaryOp() {
   using UOp = UnaryExpr::OpKind;
 
   if (auto excl = consumeSign(SignType::S_EXCL_MARK))
@@ -638,8 +582,7 @@ Parser::Result<UnaryExpr::OpKind> Parser::parseUnaryOp()
   return Result<UOp>::NotFound();
 }
 
-Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority)
-{
+Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority) {
   using BinOp = BinaryExpr::OpKind;
 
   // Check current Token validity, also check if it's a sign because if it isn't we can return directly!
@@ -648,11 +591,9 @@ Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority)
 
   auto backup = createParserStateBackup();
 
-  switch (priority)
-  {
+  switch (priority) {
     case 0: // * / %
-      if (auto asterisk = consumeSign(SignType::S_ASTERISK))
-      {
+      if (auto asterisk = consumeSign(SignType::S_ASTERISK)) {
         if (!consumeSign(SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
           return Result<BinOp>(BinOp::Mul, SourceRange(asterisk));
       }
@@ -668,14 +609,12 @@ Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority)
         return Result<BinOp>(BinOp::Sub, SourceRange(minus));
       break;
     case 2: // > >= < <=
-      if (auto lessthan = consumeSign(SignType::S_LESS_THAN))
-      {
+      if (auto lessthan = consumeSign(SignType::S_LESS_THAN)) {
         if (auto equal = consumeSign(SignType::S_EQUAL))
           return Result<BinOp>(BinOp::LE, SourceRange(lessthan,equal));
         return Result<BinOp>(BinOp::LT, SourceRange(lessthan));
       }
-      else if (auto grthan = consumeSign(SignType::S_GREATER_THAN))
-      {
+      else if (auto grthan = consumeSign(SignType::S_GREATER_THAN)) {
         if (auto equal = consumeSign(SignType::S_EQUAL))
           return Result<BinOp>(BinOp::GE, SourceRange(grthan,equal));
         return Result<BinOp>(BinOp::GT, SourceRange(grthan));
@@ -683,27 +622,23 @@ Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority)
       break;
     case 3:  // == !=
       // try to match '=' twice.
-      if (auto equal1 = consumeSign(SignType::S_EQUAL))
-      {
+      if (auto equal1 = consumeSign(SignType::S_EQUAL)) {
         if (auto equal2 = consumeSign(SignType::S_EQUAL))
           return Result<BinOp>(BinOp::Eq, SourceRange(equal1,equal2));
       }
-      else if (auto excl = consumeSign(SignType::S_EXCL_MARK))
-      {
+      else if (auto excl = consumeSign(SignType::S_EXCL_MARK)) {
         if (auto equal =consumeSign(SignType::S_EQUAL))
           return Result<BinOp>(BinOp::NEq, SourceRange(excl,equal));
       }
       break;
     case 4: // &&
-      if (auto amp1 = consumeSign(SignType::S_AMPERSAND))
-      {
+      if (auto amp1 = consumeSign(SignType::S_AMPERSAND)) {
         if (auto amp2 = consumeSign(SignType::S_AMPERSAND))
           return Result<BinOp>(BinOp::LAnd, SourceRange(amp1,amp2));
       }
       break;
     case 5: // ||
-      if (auto vbar1 = consumeSign(SignType::S_VBAR))
-      {
+      if (auto vbar1 = consumeSign(SignType::S_VBAR)) {
         if (auto vbar2 = consumeSign(SignType::S_VBAR))
           return Result<BinOp>(BinOp::LOr, SourceRange(vbar1,vbar2));
       }

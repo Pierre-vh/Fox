@@ -44,14 +44,12 @@
 #include "Fox/Common/ResultObject.hpp"
 #include <type_traits>
 
-namespace fox
-{
+namespace fox {
   class ASTContext;
   class IdentifierTable;
   class SourceManager;
   class DeclContext;
-  class Parser
-  {
+  class Parser {
     public:
       /*-------------- Forward Declarations --------------*/
       template<typename DataTy>
@@ -140,8 +138,7 @@ namespace fox
 
       // Parses a QualType 
         // Deprecated: This will go away with the grammar update
-      struct ParsedQualType
-      {
+      struct ParsedQualType {
         Type type;
         bool isConst = false;
         bool isRef = false;
@@ -209,8 +206,7 @@ namespace fox
       Diagnostic reportErrorExpected(DiagID diag);
 
       /*-------------- Parser State --------------*/
-      struct ParserState
-      {
+      struct ParserState {
         ParserState();
         
         // The current token
@@ -247,8 +243,7 @@ namespace fox
       // one at destruction.
       // If the DeclContext that was here before isn't null, it's marked as being the parent of the DeclContext passed as argument to the constructor.
       // It assists in registering Decl in the appropriate DeclContext.
-      class RAIIDeclContext
-      {
+      class RAIIDeclContext {
         public:
           RAIIDeclContext(Parser &p,DeclContext *dr);
           ~RAIIDeclContext();
@@ -272,59 +267,49 @@ namespace fox
       // Class for encapsulating a parsing function's result.
       // It also stores a SourceRange to store a Position/Range if needed.
       template<typename DataTy>
-      class Result : public ResultObject<DataTy>
-      {
+      class Result : public ResultObject<DataTy> {
         using Inherited = ResultObject<DataTy>;
         public:
           explicit Result(bool success = true):
-            Inherited(success)
-          {
+            Inherited(success) {
 
           }
 
           explicit Result(Inherited::CTorValueTy val, SourceRange range = SourceRange()):
-            Inherited(true, val), range_(range)
-          {
+            Inherited(true, val), range_(range) {
 
           }
 
           explicit Result(Inherited::CTorRValueTy val, SourceRange range = SourceRange()):
-            Inherited(true, val), range_(range)
-          {
+            Inherited(true, val), range_(range) {
 
           }
 
-          bool isUsable() const
-          {
+          bool isUsable() const {
             return Inherited::hasData() && Inherited::wasSuccessful();
           }
 
-          explicit operator bool() const
-          {
+          explicit operator bool() const {
             return isUsable();
           }
 
           using Inherited::ResultObject;
 
-          SourceRange getRange() const
-          {
+          SourceRange getRange() const {
             return range_;
           }
 
-          static Result<DataTy> Error()
-          {
+          static Result<DataTy> Error() {
             return Result<DataTy>(false);
           }
 
-          static Result<DataTy> NotFound()
-          {
+          static Result<DataTy> NotFound() {
             return Result<DataTy>(true);
           }
 
           // Extra function for Result<Type>
           template<typename = typename std::enable_if<std::is_same<Type, DataTy>::value, TypeLoc>::type>
-          TypeLoc getAsTypeLoc() const
-          {
+          TypeLoc getAsTypeLoc() const {
             return TypeLoc(Inherited::get(), range_);
           }
 

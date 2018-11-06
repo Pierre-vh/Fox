@@ -19,8 +19,7 @@
 #include <vector>
 #include <type_traits>
 
-namespace fox
-{
+namespace fox {
   class Decl;
   class NamedDecl;
   class Identifier;
@@ -31,13 +30,11 @@ namespace fox
   // Operator * returns the NamedDecl*
   // Operator -> Lets you directly access the NamedDecl's members.
   template <typename BaseIterator>
-  class DeclContextIterator : public BaseIterator
-  {
+  class DeclContextIterator : public BaseIterator {
     public:
       using value_type = typename BaseIterator::value_type::second_type;
 
-      DeclContextIterator(const BaseIterator &baseIt) : BaseIterator(baseIt)
-      {
+      DeclContextIterator(const BaseIterator &baseIt) : BaseIterator(baseIt) {
         static_assert(std::is_same<value_type, NamedDecl*>::value, "Pointer type isn't a NamedDecl*");
       }
 
@@ -47,8 +44,7 @@ namespace fox
       value_type operator->() const { return (this->BaseIterator::operator*()).second; }
   };
 
-  class DeclContext
-  {
+  class DeclContext {
     private:
       using NamedDeclsMapTy = std::multimap<Identifier*, NamedDecl*>;
       using NamedDeclsMapIter = DeclContextIterator<NamedDeclsMapTy::iterator>;
@@ -93,8 +89,7 @@ namespace fox
   // A Class that encapsulates a lookup result.
   // All NamedDecls stored here are assumed to have the same Identifier.
   // an assertion in addResult ensures this.
-  class LookupResult
-  {
+  class LookupResult {
     private:
       using ResultVecTy = std::vector<Decl*>;
       using ResultVecIter = ResultVecTy::iterator;

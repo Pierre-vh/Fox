@@ -12,15 +12,13 @@
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/LLVM.hpp"
 
-namespace fox
-{
+namespace fox {
   class TypeBase;
   class TypeLoc;
   // Type class, an observing pointer to a TypeBase*
   // Used to facilitate passing TypeBase pointers as reference, (Type& instead of TypeBase*&)
   // as well as adding flexibility in case I'd like to add Sugared types one day.
-  class Type
-  {
+  class Type {
     TypeBase* ty_ = nullptr;
     public:
       Type(TypeBase* ty = nullptr);
@@ -37,23 +35,20 @@ namespace fox
 
       // uses dyn_cast_or_null to return the type pointer
       template<typename Ty>
-      Ty* getAs()
-      {
+      Ty* getAs() {
         return dyn_cast_or_null<Ty>(ty_);
       }
 
       // uses dyn_cast_or_null to return the type pointer
       template<typename Ty>
-      const Ty* getAs() const
-      {
+      const Ty* getAs() const {
         return dyn_cast_or_null<Ty>(ty_);
       }
 
       // calls isa on the pointer. Returns false
       // if the pointer is null.
       template<typename Ty>
-      bool is() const
-      {
+      bool is() const {
         return ty_ ? isa<Ty>(ty_) : false;
       }
 
@@ -68,8 +63,7 @@ namespace fox
 
   // A Type with it's SourceRange, which is used to represent "real" types written down
   // by the user.
-  class TypeLoc : public Type
-  {
+  class TypeLoc : public Type {
     SourceRange range_;
     public:
       TypeLoc(TypeBase* ty = nullptr, SourceRange range = SourceRange());

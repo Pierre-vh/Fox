@@ -17,8 +17,7 @@
 
 #pragma once
 
-namespace fox
-{
+namespace fox {
   class ASTNode;
 
   class Expr;

@@ -12,11 +12,9 @@
 #include "ASTVisitor.hpp"
 #include <ostream>
 
-namespace fox
-{
+namespace fox {
   class SourceManager;
-  class ASTDumper : public SimpleASTVisitor<ASTDumper, void>
-  {
+  class ASTDumper : public SimpleASTVisitor<ASTDumper, void> {
     public:
       // The first parameter is the stream where the AST should be "dumped"
       // The second is the offset. Before each line, '\t' is printed <offset> times. 
@@ -105,8 +103,7 @@ namespace fox
 
       // Returns a formatted string "<(label):(value)>
       template<typename TyA,typename TyB>
-      std::string makeKeyPairDump(TyA label,TyB value) const
-      {
+      std::string makeKeyPairDump(TyA label,TyB value) const {
         std::ostringstream ss;
         ss << "<" << label << ":" << value << ">";
         return ss.str();

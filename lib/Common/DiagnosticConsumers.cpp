@@ -14,8 +14,7 @@
 
 using namespace fox;
 
-std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, SourceRange range, bool isFileWide) const
-{
+std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, SourceRange range, bool isFileWide) const {
   if (!range)
     return "<unknown>";
 
@@ -31,20 +30,17 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, SourceRange range,
   // A better approach (read: a faster approach) 
   // would be to have a special method in the SourceManager calculating the preciseLoc
   // for a SourceRange (so we avoid calling "getCompleteLocForSourceLoc" twice)
-  if (range.getOffset() != 0)
-  {
+  if (range.getOffset() != 0) {
     CompleteLoc end = sm.getCompleteLocForSourceLoc(range.getEnd());
     ss << "-" << end.column;
   }
   return ss.str();
 }
 
-std::size_t DiagnosticConsumer::removeIndent(std::string& str) const
-{
+std::size_t DiagnosticConsumer::removeIndent(std::string& str) const {
   std::size_t indent = 0;
   // Get number of char that are spaces/tabs at the beginning of the line
-  for (auto it = str.begin(); it != str.end(); str.erase(0, 1))
-  {
+  for (auto it = str.begin(); it != str.end(); str.erase(0, 1)) {
     if ((*it == ' ') || (*it == '\t'))
       indent++;
     else
@@ -52,8 +48,7 @@ std::size_t DiagnosticConsumer::removeIndent(std::string& str) const
   }
 
   // Erase at the end
-  for (auto it = str.rbegin(); it != str.rend(); it++)
-  {
+  for (auto it = str.rbegin(); it != str.rend(); it++) {
     if ((*it == ' ') || (*it == '\t'))
       str.pop_back();
     else
@@ -63,10 +58,8 @@ std::size_t DiagnosticConsumer::removeIndent(std::string& str) const
   return indent;
 }
 
-std::string DiagnosticConsumer::diagSevToString(DiagSeverity ds) const
-{
-  switch (ds)
-  {
+std::string DiagnosticConsumer::diagSevToString(DiagSeverity ds) const {
+  switch (ds) {
     case DiagSeverity::IGNORE:
       return "Ignored";
     case DiagSeverity::NOTE:
@@ -82,13 +75,11 @@ std::string DiagnosticConsumer::diagSevToString(DiagSeverity ds) const
 }
 
 
-StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream) : os_(stream), sm_(sm)
-{
+StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream) : os_(stream), sm_(sm) {
 
 }
 
-void StreamDiagConsumer::consume(Diagnostic& diag)
-{
+void StreamDiagConsumer::consume(Diagnostic& diag) {
   os_ << getLocInfo(sm_, diag.getRange(), diag.isFileWide())
     << " - " 
     << diagSevToString(diag.getDiagSeverity()) 
@@ -101,8 +92,7 @@ void StreamDiagConsumer::consume(Diagnostic& diag)
 }
 
 // Helper method for "displayRelevantExtract" which creates the "underline" string
-std::string createUnderline(char underlineChar, const std::string& str, std::string::const_iterator beg, std::string::const_iterator end)
-{
+std::string createUnderline(char underlineChar, const std::string& str, std::string::const_iterator beg, std::string::const_iterator end) {
   std::string line = "";
 
   std::string::const_iterator strBeg = str.begin();
@@ -124,21 +114,17 @@ std::string createUnderline(char underlineChar, const std::string& str, std::str
 // Embeds "b" into "a", meaning that every space in a will be replaced with
 // the character at the same position in b, and returns the string
 // Example: embed("  ^  ", " ~~~ ") returns " ~^~ "
-std::string embedString(const std::string& a, const std::string& b)
-{
+std::string embedString(const std::string& a, const std::string& b) {
   std::string out;
-  for (std::size_t k = 0, sz = a.size(); k < sz; k++)
-  {
-    if ((a[k] == ' ') && (k < b.size()))
-    {
+  for (std::size_t k = 0, sz = a.size(); k < sz; k++) {
+    if ((a[k] == ' ') && (k < b.size())) {
       out += b[k];
       continue;
     }
     out += a[k];
   }
 
-  if (b.size() > a.size())
-  {
+  if (b.size() > a.size()) {
     for (std::size_t k = a.size(); k < b.size(); k++)
       out += b[k];
   }
@@ -146,8 +132,7 @@ std::string embedString(const std::string& a, const std::string& b)
   return out;
 }
 
-void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
-{
+void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag) {
   assert(diag.hasRange() && "Cannot use this if the diag does not have a valid range");
 
   auto range = diag.getRange();
@@ -169,16 +154,14 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag)
     return line.begin() + result;
   };
 
-  // Create the carets underline (^) 
-  {  
+  // Create the carets underline (^)  {  
     auto beg = getOffsetIteratorFromLineBeg(range.getBegin().getIndex());
     auto end = getOffsetIteratorFromLineBeg(range.getEnd().getIndex());
     underline = createUnderline('^', line, beg, end);
   }
 
   // If needed, create the extra range underline (~)
-  if(diag.hasExtraRange())
-  {
+  if(diag.hasExtraRange()) {
     assert((diag.getExtraRange().getFileID() == diag.getRange().getFileID())
       && "Ranges don't belong to the same file");
 

@@ -18,16 +18,14 @@
 
 using namespace fox;
 
-namespace
-{
+namespace {
   // Compares a and b, returning true if
   // a and b are strictly equal OR a and b are of the same family  
   // 
   // This function will also ignore LValues and unwrap array types.
   // It doesn't compare ConstrainedTypes and will return false if
   // a or b is one.
-  bool compareSubtypes(Type a, Type b)
-  {
+  bool compareSubtypes(Type a, Type b) {
     assert(a && b && "Pointers cannot be null");
 
     // Ignores LValues to perform the comparison.
@@ -44,20 +42,17 @@ namespace
 
     // Check more in depth for some types of the same kind,
     // such as ArrayTypes.
-    if (a->getKind() == b->getKind())
-    {
+    if (a->getKind() == b->getKind()) {
       // Checking additional requirements for Primitive Types where
       // we allow 2 integrals to be considered "equal"
-      if (isa<PrimitiveType>(a.getPtr()))
-      {
+      if (isa<PrimitiveType>(a.getPtr())) {
         if (Sema::isIntegral(a) && Sema::isIntegral(b))
           return true;
         return false;
       }
 
       // Checking Array Types
-      if (isa<ArrayType>(a.getPtr()))
-      {
+      if (isa<ArrayType>(a.getPtr())) {
         TypeBase* elemA = a->unwrapIfArray();
         TypeBase* elemB = b->unwrapIfArray();
 
@@ -74,8 +69,7 @@ namespace
   // Performs the pre-unifications tasks.
   // Returns true if unification can go on, false if it should
   // be aborted.
-  bool performPreUnificationTasks(Type& a, Type& b)
-  {
+  bool performPreUnificationTasks(Type& a, Type& b) {
     assert(a && b && "Pointers cannot be nullptr");
 
     // ignore LValues, they don't matter when
@@ -90,8 +84,7 @@ namespace
     // Unwrap if both are arrays
     auto* arrA = a.getAs<ArrayType>();
     auto* arrB = b.getAs<ArrayType>();
-    if (arrA && arrB)
-    {
+    if (arrA && arrB) {
       Type unwrappedA = arrA->getElementType();
       Type unwrappedB = arrB->getElementType();
       return performPreUnificationTasks(unwrappedA, unwrappedB);
@@ -102,8 +95,7 @@ namespace
   // Unwraps both values if they're both ArrayTypes.
   // Returns nullptr if no unwrapping was done.
   std::pair<TypeBase*,TypeBase*> 
-  unwrapIfBothArrayTypes(TypeBase* a, TypeBase* b)
-  {
+  unwrapIfBothArrayTypes(TypeBase* a, TypeBase* b) {
     assert(a && b);
     a = a->unwrapIfArray();
     b = b->unwrapIfArray();
@@ -117,8 +109,7 @@ namespace
   // Returns it's argument or the unwrapped types. 
   // Never returns nullptr.
   std::pair<TypeBase*, TypeBase*>
-  recursivelyUnwrapArrayTypes(TypeBase* a, TypeBase* b)
-  {
+  recursivelyUnwrapArrayTypes(TypeBase* a, TypeBase* b) {
     assert(a && b);
     auto* tmpA = a;
     auto* tmpB = b;
@@ -131,8 +122,7 @@ namespace
 
   // Tries to adjust the Constrained Type's substitution 
   // to be equal or better than the candidate.
-  void tryAdjustConstrainedType(ConstrainedType* cons, TypeBase* candidate)
-  {
+  void tryAdjustConstrainedType(ConstrainedType* cons, TypeBase* candidate) {
     assert(cons && candidate);
     auto* sub = cons->getSubstitution();
 
@@ -140,8 +130,7 @@ namespace
     TypeBase* uSub = nullptr;
     TypeBase* uCand = nullptr;
     std::tie(uSub, uCand) = recursivelyUnwrapArrayTypes(sub, candidate);
-    if (TypeBase* greatest = Sema::getHighestRankingType(uSub, uCand).getPtr())
-    {
+    if (TypeBase* greatest = Sema::getHighestRankingType(uSub, uCand).getPtr()) {
       // If the candidate is the "highest ranked type" of both types,
       // replace cons' sub with the candidate
       if (greatest == uCand)
@@ -153,13 +142,10 @@ namespace
   // NOTE: Here strictly equal doesn't mean pointer equality. This function compares
   // the members of the Constraints when needed, so different instances with the same members
   // are still considered equal.
-  bool compareConstraintLists(ConstraintList& a, ConstraintList& b)
-  {
-    class ConstraintComparer : public ConstraintVisitor<ConstraintComparer, bool, Constraint*>
-    {
+  bool compareConstraintLists(ConstraintList& a, ConstraintList& b) {
+    class ConstraintComparer : public ConstraintVisitor<ConstraintComparer, bool, Constraint*> {
       public:
-        bool visitArrayCS(Constraint* cs, Constraint* other)
-        {
+        bool visitArrayCS(Constraint* cs, Constraint* other) {
           // Only true if the other is a ArrayCS too
           return (cs == other) || other->is(Constraint::Kind::ArrayCS);
         }
@@ -170,8 +156,7 @@ namespace
       return false;
 
     ConstraintComparer csc;
-    for (std::size_t k = 0; k < a.size(); k++)
-    {
+    for (std::size_t k = 0; k < a.size(); k++) {
       if (!csc.visit(a[k], b[k]))
         return false;
     }
@@ -180,28 +165,23 @@ namespace
 
   // Unification helper function: handles unification of a ConstrainedType with something that isn't
   // a ConstrainedType.
-  bool unifyConstrainedWithNonConstrained(Sema& me, ConstrainedType* cs, Type type)
-  {
+  bool unifyConstrainedWithNonConstrained(Sema& me, ConstrainedType* cs, Type type) {
     // Check if b can become A's substitution by checking if
     // B respects the constraints of A.
-    if (me.checkConstraintOnType(cs->getConstraints(), type))
-    {
+    if (me.checkConstraintOnType(cs->getConstraints(), type)) {
       // B respects the constraints of A
 
       // A has no substitution, just set it
-      if (!cs->hasSubstitution())
-      {
+      if (!cs->hasSubstitution()) {
         // Maybe I should use a Type& for the susbtitution,
         // to be done if the TypeBase*'s problematic!
         cs->setSubstitution(type.getPtr());
         return true;
       }
       // A already has a substitution, unify it with B
-      else
-      {
+      else {
         Type csSub = cs->getSubstitution();
-        if (me.unify(csSub, type))
-        {
+        if (me.unify(csSub, type)) {
           // If we have 2 constrained type with equivalent substitution, see
           // if we can make any adjustement.
           tryAdjustConstrainedType(cs, type.getPtr());
@@ -216,8 +196,7 @@ namespace
 
 }  // anonymous namespace
 
-bool Sema::unify(Type& aRef, Type& bRef)
-{
+bool Sema::unify(Type& aRef, Type& bRef) {
   // Copy both references and work on theses because we'll only write to the
   // arguments in some specific situations.
   Type a = aRef;
@@ -258,28 +237,23 @@ bool Sema::unify(Type& aRef, Type& bRef)
     */    
 
   // ConstrainedType = (Something)
-  if (auto* aCS = a.getAs<ConstrainedType>())
-  {
+  if (auto* aCS = a.getAs<ConstrainedType>()) {
     // A constrained type should ALWAYS have at least one Constraint.
     assert(aCS->numConstraints() > 0 && "Empty constraint set");
 
     // ConstrainedType = ConstrainedType
-    if (auto* bCS = b.getAs<ConstrainedType>())
-    {
+    if (auto* bCS = b.getAs<ConstrainedType>()) {
       // TODO: Review this code, it seems right but too good to be true
 
       assert(bCS->numConstraints() > 0 && "Empty constraint set");
 
       // Check if A and B have the same constraints
-      if (compareConstraintLists(aCS->getConstraints(), bCS->getConstraints()))
-      {
+      if (compareConstraintLists(aCS->getConstraints(), bCS->getConstraints())) {
         Type aSub = aCS->getSubstitution();
         Type bSub = bCS->getSubstitution();
         // Both have a substitution, unify them !
-        if (aSub && bSub)
-        {
-          if (aSub != bSub)
-          {
+        if (aSub && bSub) {
+          if (aSub != bSub) {
             Type highest = Sema::getHighestRankingType(aSub, bSub, true, true);
             assert(highest && "unhandled case");
             bCS->setSubstitution(highest.getPtr());
@@ -308,8 +282,7 @@ bool Sema::unify(Type& aRef, Type& bRef)
   else if (auto* bCS = b.getAs<ConstrainedType>())
     return unifyConstrainedWithNonConstrained(*this, bCS, a);
   // ArrayType = (Something)
-  else if(auto* aArr = a.getAs<ArrayType>())
-  {
+  else if(auto* aArr = a.getAs<ArrayType>()) {
     // Only succeeds if B is an ArrayType
     auto* bArr = b.getAs<ArrayType>();
     if (!bArr) return false;
@@ -324,8 +297,7 @@ bool Sema::unify(Type& aRef, Type& bRef)
   return false;
 }
 
-bool Sema::checkConstraintOnType(ConstraintList& cs, Type ty)
-{
+bool Sema::checkConstraintOnType(ConstraintList& cs, Type ty) {
   // checkConstraintOnType helper class.
   // Checks if the type passed as argument respects the constraint
   // if so, returns the type or the unwrapped type.
@@ -336,22 +308,18 @@ bool Sema::checkConstraintOnType(ConstraintList& cs, Type ty)
   // Note: this is currently very empty because I only have 1 constraint. More may come in the future,
   // but if I manage to do everything without needing any more constraints, I'll remove this and use 
   // a quicker version that doesn't call the visitor.
-  class ConstraintCheck : public ConstraintVisitor<ConstraintCheck, TypeBase*, TypeBase*>
-  {
+  class ConstraintCheck : public ConstraintVisitor<ConstraintCheck, TypeBase*, TypeBase*> {
     public:
       using inherited = ConstraintVisitor<ConstraintCheck, TypeBase*, TypeBase*>;
       Sema& sema;
 
       ConstraintCheck(Sema& sema) :
-        sema(sema)
-      {
+        sema(sema) {
 
       }
 
-      TypeBase* visitArrayCS(Constraint*, TypeBase* ty)
-      {
-        if (auto arr = dyn_cast<ArrayType>(ty))
-        {
+      TypeBase* visitArrayCS(Constraint*, TypeBase* ty) {
+        if (auto arr = dyn_cast<ArrayType>(ty)) {
           auto* elemTy = arr->getElementType();
           assert(elemTy
             && "The type must have an element type");
@@ -367,8 +335,7 @@ bool Sema::checkConstraintOnType(ConstraintList& cs, Type ty)
 
   // Check every constraint in the list individually.
   ConstraintCheck check(*this);
-  for (Constraint* elem : cs)
-  {
+  for (Constraint* elem : cs) {
     tmp = check.visit(elem, tmp);
 
     if (!tmp) break;
@@ -377,13 +344,10 @@ bool Sema::checkConstraintOnType(ConstraintList& cs, Type ty)
   return tmp; // tmp != nullptr
 }
 
-bool Sema::isIntegral(Type type)
-{
-  if (auto* prim = type.getAs<PrimitiveType>())
-  {
+bool Sema::isIntegral(Type type) {
+  if (auto* prim = type.getAs<PrimitiveType>()) {
     using Pk = PrimitiveType::Kind;
-    switch (prim->getPrimitiveKind())
-    {
+    switch (prim->getPrimitiveKind()) {
       case Pk::BoolTy:
       case Pk::FloatTy:
       case Pk::IntTy:
@@ -395,21 +359,18 @@ bool Sema::isIntegral(Type type)
   return false;
 }
 
-Type Sema::getHighestRankingType(Type a, Type b, bool ignoreLValues, bool unwrapTypes)
-{
+Type Sema::getHighestRankingType(Type a, Type b, bool ignoreLValues, bool unwrapTypes) {
   // Backup the original type before we do anything with them.
   Type ogA = a, ogB = b;
 
   assert(a && b && "Pointers cannot be null");
 
-  if (ignoreLValues)
-  {
+  if (ignoreLValues) {
     a = a->ignoreLValue();
     b = b->ignoreLValue();
   }
 
-  if (unwrapTypes)
-  {
+  if (unwrapTypes) {
     std::tie(a, b) = recursivelyUnwrapArrayTypes(a.getPtr(), b.getPtr());
     assert(a && b && "Types are null after unwrapping?");
     assert(!a.is<ArrayType>() && !b.is<ArrayType>() 
@@ -419,8 +380,7 @@ Type Sema::getHighestRankingType(Type a, Type b, bool ignoreLValues, bool unwrap
   if (a == b)
     return ogA;
 
-  if (isIntegral(a) && isIntegral(b))
-  {
+  if (isIntegral(a) && isIntegral(b)) {
     if (getIntegralRank(a) > getIntegralRank(b))
       return ogA;
     return ogB;
@@ -428,8 +388,7 @@ Type Sema::getHighestRankingType(Type a, Type b, bool ignoreLValues, bool unwrap
   return nullptr;
 }
 
-Sema::IntegralRankTy Sema::getIntegralRank(Type type)
-{
+Sema::IntegralRankTy Sema::getIntegralRank(Type type) {
   using Pk = PrimitiveType::Kind;
 
   assert(type && isIntegral(type)
@@ -437,8 +396,7 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type type)
 
   auto* prim = cast<PrimitiveType>(type.getPtr());
 
-  switch (prim->getPrimitiveKind())
-  {
+  switch (prim->getPrimitiveKind()) {
     case Pk::BoolTy:
       return 0;
     case Pk::IntTy:
@@ -450,8 +408,7 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type type)
   }
 }
 
-bool Sema::isStringType(TypeBase* type)
-{
+bool Sema::isStringType(TypeBase* type) {
   if (auto* prim = dyn_cast<PrimitiveType>(type))
     return prim->isString();
   return false;

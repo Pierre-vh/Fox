@@ -12,8 +12,7 @@
 
 using namespace fox;
 
-Parser::StmtResult Parser::parseCompoundStatement()
-{
+Parser::StmtResult Parser::parseCompoundStatement() {
   auto* rtr = new(ctxt_) CompoundStmt(); 
   auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);
 
@@ -21,14 +20,12 @@ Parser::StmtResult Parser::parseCompoundStatement()
     return StmtResult::NotFound();
 
   SourceLoc rightCurlyLoc;
-  while (!isDone())
-  {
+  while (!isDone()) {
     if (rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE))
       break;
 
     // try to parse a statement
-    if(auto res = parseStmt())
-    {
+    if(auto res = parseStmt()) {
       // Push only if we don't have a standalone NullStmt
       // this is done to avoid stacking them up, and since they're a no-op in all cases
       // it's meaningless to ignore them.
@@ -37,8 +34,7 @@ Parser::StmtResult Parser::parseCompoundStatement()
         rtr->addNode(node);
     }
     // failure
-    else
-    {
+    else {
       /*
         // if not found, report an error
         if (stmt.wasSuccessful())
@@ -47,11 +43,9 @@ Parser::StmtResult Parser::parseCompoundStatement()
       // In both case, attempt recovery to nearest semicolon.
       if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi -> meaningless here*/ false, /*shouldConsumeToken*/ true))
         continue;
-      else
-      {
+      else {
         // If we couldn't recover, try to recover to our '}' to stop parsing this compound statement
-        if (resyncToSign(SignType::S_CURLY_CLOSE, /*stopAtSemi*/ false, /*consume*/ false))
-        {
+        if (resyncToSign(SignType::S_CURLY_CLOSE, /*stopAtSemi*/ false, /*consume*/ false)) {
           rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE);
           break;
         }
@@ -61,8 +55,7 @@ Parser::StmtResult Parser::parseCompoundStatement()
     }
   }
 
-  if (!rightCurlyLoc.isValid())
-  {
+  if (!rightCurlyLoc.isValid()) {
     reportErrorExpected(DiagID::parser_expected_closing_curlybracket);
     // We can't recover since we probably reached EOF. return an error!
     return StmtResult::Error();
@@ -74,8 +67,7 @@ Parser::StmtResult Parser::parseCompoundStatement()
   return StmtResult(rtr);
 }
 
-Parser::StmtResult Parser::parseWhileLoop()
-{
+Parser::StmtResult Parser::parseWhileLoop() {
   // <while_loop>  = "while"  <parens_expr> <body>
   // "while"
   auto whKw = consumeKeyword(KeywordType::KW_WHILE);
@@ -88,26 +80,22 @@ Parser::StmtResult Parser::parseWhileLoop()
   SourceLoc begLoc = whKw.getBegin();
   SourceLoc endLoc;
   // <parens_expr>
-  if (auto parens_expr_res = parseParensExpr(nullptr, &parenExprEndLoc))
-  {
+  if (auto parens_expr_res = parseParensExpr(nullptr, &parenExprEndLoc)) {
     assert(parenExprEndLoc && "parseParensExpr didn't provide the ')' loc?");
     expr = parens_expr_res.get();
   }
-  else
-  {
+  else {
     reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
     return StmtResult::Error();
   }
 
   // <body>
-  if (auto body_res = parseBody())
-  {
+  if (auto body_res = parseBody()) {
     body = body_res.get();
     endLoc = body.getEndLoc();
     assert(endLoc && "The body parsed successfully, but doesn't have a valid endLoc?");
   }
-  else
-  {
+  else {
     if (body_res.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_stmt);
 
@@ -121,8 +109,7 @@ Parser::StmtResult Parser::parseWhileLoop()
   );
 }
 
-Parser::StmtResult Parser::parseCondition()
-{
+Parser::StmtResult Parser::parseCondition() {
   // <condition>  = "if"  <parens_expr> <body> ["else" <body>]
   Expr* expr = nullptr;
   ASTNode then_node;
@@ -130,11 +117,9 @@ Parser::StmtResult Parser::parseCondition()
 
   // "if"
   auto ifKw = consumeKeyword(KeywordType::KW_IF);
-  if (!ifKw)
-  {
+  if (!ifKw) {
     // check for a else without if
-    if (auto elseKw = consumeKeyword(KeywordType::KW_ELSE))
-    {
+    if (auto elseKw = consumeKeyword(KeywordType::KW_ELSE)) {
       diags_.report(DiagID::parser_else_without_if, elseKw);
       return StmtResult::Error();
     }
@@ -147,8 +132,7 @@ Parser::StmtResult Parser::parseCondition()
   // <parens_expr>
   if (auto parensexpr = parseParensExpr(nullptr, &ifHeadEndLoc))
     expr = parensexpr.get();
-  else
-  {
+  else {
     reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
     return StmtResult::Error();
   }
@@ -156,13 +140,11 @@ Parser::StmtResult Parser::parseCondition()
   SourceLoc endLoc;
 
   // <body>
-  if (auto body = parseBody())
-  {
+  if (auto body = parseBody()) {
     then_node = body.get();
     endLoc = then_node.getEndLoc();
   }
-  else
-  {
+  else {
     if (body.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_stmt);
 
@@ -170,16 +152,13 @@ Parser::StmtResult Parser::parseCondition()
   }
 
   // "else"
-  if (consumeKeyword(KeywordType::KW_ELSE))
-  {
+  if (consumeKeyword(KeywordType::KW_ELSE)) {
     // <body>
-    if (auto body = parseBody())
-    {
+    if (auto body = parseBody()) {
       else_node = body.get();
       endLoc = else_node.getEndLoc();
     }
-    else
-    {
+    else {
       if(body.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_stmt);
       return StmtResult::Error();
@@ -194,8 +173,7 @@ Parser::StmtResult Parser::parseCondition()
   );
 }
 
-Parser::StmtResult Parser::parseReturnStmt()
-{
+Parser::StmtResult Parser::parseReturnStmt() {
   // <rtr_stmt> = "return" [<expr>] ';'
   // "return"
   auto rtrKw = consumeKeyword(KeywordType::KW_RETURN);
@@ -209,8 +187,7 @@ Parser::StmtResult Parser::parseReturnStmt()
   // [<expr>]
   if (auto expr_res = parseExpr())
     expr = expr_res.get();
-  else if(!expr_res.wasSuccessful())
-  {
+  else if(!expr_res.wasSuccessful()) {
     // expr failed? try to resync if possible. 
     if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
       return StmtResult::Error();
@@ -219,8 +196,7 @@ Parser::StmtResult Parser::parseReturnStmt()
   // ';'
   if (auto semi = consumeSign(SignType::S_SEMICOLON))
     endLoc = semi;
-  else
-  {
+  else {
     reportErrorExpected(DiagID::parser_expected_semi);
     // Recover to semi, if recovery wasn't successful, return an error.
     if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
@@ -234,8 +210,7 @@ Parser::StmtResult Parser::parseReturnStmt()
   );
 }
 
-Parser::NodeResult Parser::parseStmt()
-{
+Parser::NodeResult Parser::parseStmt() {
   // <stmt>  = <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
 
   // <var_decl
@@ -271,8 +246,7 @@ Parser::NodeResult Parser::parseStmt()
   return NodeResult::NotFound();
 }
 
-Parser::NodeResult Parser::parseBody()
-{
+Parser::NodeResult Parser::parseBody() {
   // <body>  = <stmt> | <compound_statement>
 
   // <stmt>
@@ -290,23 +264,19 @@ Parser::NodeResult Parser::parseBody()
   return NodeResult::NotFound();
 }
 
-Parser::NodeResult Parser::parseExprStmt()
-{
+Parser::NodeResult Parser::parseExprStmt() {
   // <expr_stmt>  = ';' | <expr> ';'   
 
   // ';'
-  if (auto semi = consumeSign(SignType::S_SEMICOLON))
-  {
+  if (auto semi = consumeSign(SignType::S_SEMICOLON)) {
     Stmt* nullstmt = new(ctxt_) NullStmt(semi);
     return NodeResult(ASTNode(nullstmt));
   }
 
   // <expr> 
-  else if (auto expr = parseExpr())
-  {
+  else if (auto expr = parseExpr()) {
     // ';'
-    if (!consumeSign(SignType::S_SEMICOLON))
-    {
+    if (!consumeSign(SignType::S_SEMICOLON)) {
       if (expr.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_semi);
 
@@ -317,11 +287,9 @@ Parser::NodeResult Parser::parseExprStmt()
 
     return NodeResult(ASTNode(expr.get()));
   }
-  else if(!expr.wasSuccessful())
-  {
+  else if(!expr.wasSuccessful()) {
     // if the expression had an error, ignore it and try to recover to a semi.
-    if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ false))
-    {
+    if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ false)) {
       Stmt* nullstmt = new (ctxt_) NullStmt(consumeSign(SignType::S_SEMICOLON));
       return NodeResult(ASTNode(nullstmt));
     }

@@ -12,8 +12,7 @@
 #include <memory>
 using namespace fox;
 
-TEST(PtrVariantTests, BasicFunctionality)
-{
+TEST(PtrVariantTests, BasicFunctionality) {
   auto someInt = std::make_unique<int>(200);
   auto someFloat = std::make_unique<float>(3.14f);
   auto someBool = std::make_unique<bool>(true);
@@ -46,8 +45,7 @@ TEST(PtrVariantTests, BasicFunctionality)
   EXPECT_EQ(var.getIf<float>(), nullptr);
 }
 
-TEST(PtrVariantTests, OperatorsOverload)
-{
+TEST(PtrVariantTests, OperatorsOverload) {
   auto someInt = std::make_unique<int>(200);
   auto someFloat = std::make_unique<float>(3.14f);
   auto someBool = std::make_unique<bool>(true);

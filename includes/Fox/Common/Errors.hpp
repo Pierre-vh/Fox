@@ -13,8 +13,7 @@
 
 #include <cassert>
 
-namespace fox
-{
+namespace fox {
   // For use with fox_unreachable only.
   [[noreturn]]
   void _fox_unreachable_internal(const char* message, const char* file, unsigned line);

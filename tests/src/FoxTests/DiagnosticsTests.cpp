@@ -14,36 +14,29 @@
 
 using namespace fox;
 
-namespace fox
-{
-  class StrDiagConsumer : public DiagnosticConsumer
-  {
+namespace fox {
+  class StrDiagConsumer : public DiagnosticConsumer {
     public:
-      virtual void consume(Diagnostic& diag) override
-      {
+      virtual void consume(Diagnostic& diag) override {
         count_++;
         str_ = diag.getDiagStr();
         sev_ = diag.getDiagSeverity();
         id_ = diag.getDiagID();
       }
 
-      std::string getStr() const
-      {
+      std::string getStr() const {
         return str_;
       }
 
-      DiagSeverity getSev() const
-      {
+      DiagSeverity getSev() const {
         return sev_;
       }
 
-      DiagID getID() const
-      {
+      DiagID getID() const {
         return id_;
       }
       
-      std::uint8_t getCount() const
-      {
+      std::uint8_t getCount() const {
         return count_;
       }
 
@@ -56,13 +49,11 @@ namespace fox
 }
 
 // Creates a DiagEngine
-DiagnosticEngine createDiagEngine()
-{
+DiagnosticEngine createDiagEngine() {
   return DiagnosticEngine(std::make_unique<StrDiagConsumer>());
 }
 
-TEST(DiagnosticsTests, notes)
-{
+TEST(DiagnosticsTests, notes) {
   auto diagEng = createDiagEngine();
   auto diag = diagEng.report(DiagID::unittest_notetest);
   EXPECT_EQ("Test note", diag.getDiagStr()) << "Diagnostic string did not match";
@@ -70,8 +61,7 @@ TEST(DiagnosticsTests, notes)
   EXPECT_EQ(DiagID::unittest_notetest, diag.getDiagID()) << "Diagnostic id did not match";
 }
 
-TEST(DiagnosticsTests, warnings)
-{
+TEST(DiagnosticsTests, warnings) {
   auto diagEng = createDiagEngine();
   auto diag = diagEng.report(DiagID::unittest_warntest);
   EXPECT_EQ("Test warning", diag.getDiagStr()) << "Diagnostic string did not match";
@@ -79,8 +69,7 @@ TEST(DiagnosticsTests, warnings)
   EXPECT_EQ(DiagID::unittest_warntest, diag.getDiagID()) << "Diagnostic id did not match";
 }
 
-TEST(DiagnosticsTests, errors)
-{
+TEST(DiagnosticsTests, errors) {
   auto diagEng = createDiagEngine();
   auto diag = diagEng.report(DiagID::unittest_errtest);
   EXPECT_EQ("Test error", diag.getDiagStr()) << "Diagnostic string did not match";
@@ -88,8 +77,7 @@ TEST(DiagnosticsTests, errors)
   EXPECT_EQ(DiagID::unittest_errtest, diag.getDiagID()) << "Diagnostic id did not match";
 }
 
-TEST(DiagnosticsTests, fatals)
-{
+TEST(DiagnosticsTests, fatals) {
   auto diagEng = createDiagEngine();
   auto diag = diagEng.report(DiagID::unittest_fataltest);
   EXPECT_EQ("Test fatal", diag.getDiagStr()) << "Diagnostic string did not match";
@@ -97,52 +85,45 @@ TEST(DiagnosticsTests, fatals)
   EXPECT_EQ(DiagID::unittest_fataltest, diag.getDiagID()) << "Diagnostic id did not match";
 }
 
-TEST(DiagnosticsTests, emission)
-{
+TEST(DiagnosticsTests, emission) {
   auto diagEng = createDiagEngine();
   StrDiagConsumer* cons = dynamic_cast<StrDiagConsumer*>(diagEng.getConsumer());
   EXPECT_EQ("", cons->getStr()) << "Consumer str wasn't empty at first.";
-  // Test emission when diag goes out of scope
-  {
+  // Test emission when diag goes out of scope {
     diagEng.report(DiagID::unittest_fataltest);
   }
   EXPECT_EQ("Test fatal", cons->getStr()) << "Consumer string did not match.";
 }
 
 //   NOTE(unittest_placeholderremoval1, "[%0,%1]")
-TEST(DiagnosticsTests, addArg1)
-{
+TEST(DiagnosticsTests, addArg1) {
   auto diagEng = createDiagEngine();
   auto str = diagEng.report(DiagID::unittest_placeholderremoval1).addArg("foo").addArg(55.45f).getDiagStr();
   EXPECT_EQ(str, "[foo,55.45]");
 }
 
 //   NOTE(unittest_placeholderremoval2, "[%0%0%0]")
-TEST(DiagnosticsTests, addArg2)
-{
+TEST(DiagnosticsTests, addArg2) {
   auto diagEng = createDiagEngine();
   auto str = diagEng.report(DiagID::unittest_placeholderremoval2).addArg('a').getDiagStr();
   EXPECT_EQ(str, "[aaa]");
 }
 
 //   NOTE(unittest_placeholderremoval3, "[%5%4%3%2%1%0]")
-TEST(DiagnosticsTests, addArg3)
-{
+TEST(DiagnosticsTests, addArg3) {
   auto diagEng = createDiagEngine();
   auto str = diagEng.report(DiagID::unittest_placeholderremoval3).addArg('a').addArg('b').addArg('c').addArg('d').addArg('e').addArg('f').getDiagStr();
   EXPECT_EQ(str, "[fedcba]");
 }
 
 //   NOTE(unittest_placeholderremoval4, "Hello, %0")
-TEST(DiagnosticsTests, addArg4)
-{
+TEST(DiagnosticsTests, addArg4) {
   auto diagEng = createDiagEngine();
   auto str = diagEng.report(DiagID::unittest_placeholderremoval4).addArg("world").getDiagStr();
   EXPECT_EQ(str, "Hello, world");
 }
 
-TEST(DiagnosticsTests, errLimit)
-{
+TEST(DiagnosticsTests, errLimit) {
   auto diagEng = createDiagEngine();
   StrDiagConsumer* cons = static_cast<StrDiagConsumer*>(diagEng.getConsumer());
 
@@ -177,8 +158,7 @@ TEST(DiagnosticsTests, errLimit)
   EXPECT_EQ(count, cons->getCount());
 }
 
-TEST(DiagnosticsTests, frozenAndDeadDiags)
-{
+TEST(DiagnosticsTests, frozenAndDeadDiags) {
   auto diagEng = createDiagEngine();
   auto diag = diagEng.report(DiagID::unittest_placeholderremoval1);
   EXPECT_EQ("[%0,%1]", diag.getDiagStr()) << "Diag str wasn't the one expected.";
@@ -198,8 +178,7 @@ TEST(DiagnosticsTests, frozenAndDeadDiags)
   EXPECT_FALSE(diag.isActive()) << "Diag was active after being emitted?";
 }
 
-TEST(DiagnosticsTests, SilencedWarnings)
-{
+TEST(DiagnosticsTests, SilencedWarnings) {
   auto diagEng = createDiagEngine();
   // Set flag
   diagEng.setIgnoreWarnings(true);
@@ -209,8 +188,7 @@ TEST(DiagnosticsTests, SilencedWarnings)
   diagWarn.emit();
 }
 
-TEST(DiagnosticsTests, SilencedNotes)
-{
+TEST(DiagnosticsTests, SilencedNotes) {
   auto diagEng = createDiagEngine();
   // Set flag
   diagEng.setIgnoreNotes(true);
@@ -220,8 +198,7 @@ TEST(DiagnosticsTests, SilencedNotes)
   diagNote.emit();
 }
 
-TEST(DiagnosticsTests, SilenceAllAfterFatal)
-{
+TEST(DiagnosticsTests, SilenceAllAfterFatal) {
   auto diagEng = createDiagEngine();
   // Set flag
   diagEng.setIgnoreAllAfterFatal(true);
@@ -240,8 +217,7 @@ TEST(DiagnosticsTests, SilenceAllAfterFatal)
   diagErrSilenced.emit();
 }
 
-TEST(DiagnosticsTests, SilenceAll)
-{
+TEST(DiagnosticsTests, SilenceAll) {
   auto diagEng = createDiagEngine();
   diagEng.setIgnoreAll(true);
   auto dg1 = diagEng.report(DiagID::unittest_errtest);
@@ -253,8 +229,7 @@ TEST(DiagnosticsTests, SilenceAll)
   EXPECT_EQ(dg3.getDiagSeverity(), DiagSeverity::IGNORE) << "Diag was supposed to be silenced.";
 }
 
-TEST(DiagnosticsTests, WarningsAreErrors)
-{
+TEST(DiagnosticsTests, WarningsAreErrors) {
   auto diagEng = createDiagEngine();
   diagEng.setWarningsAreErrors(true);
   diagEng.report(DiagID::unittest_warntest).emit();
@@ -262,8 +237,7 @@ TEST(DiagnosticsTests, WarningsAreErrors)
   EXPECT_EQ(diagEng.getErrorsCount(), 1) << "Diag didn't count as an error.";
 }
 
-TEST(DiagnosticsTests, ErrorsAreFatal)
-{
+TEST(DiagnosticsTests, ErrorsAreFatal) {
   auto diagEng = createDiagEngine();
   diagEng.setErrorsAreFatal(true);
   diagEng.report(DiagID::unittest_errtest).emit();
@@ -271,8 +245,7 @@ TEST(DiagnosticsTests, ErrorsAreFatal)
   EXPECT_EQ(diagEng.getErrorsCount(), 0) << "This error was supposed to be fatal and thus count as a fatal error, not a normal error.";
 }
 
-TEST(DiagnosticsTests, CopyingDiagKillsCopiedDiag)
-{
+TEST(DiagnosticsTests, CopyingDiagKillsCopiedDiag) {
   // Test with copy constructor
   auto diagEng = createDiagEngine();
   auto diagA = diagEng.report(DiagID::unittest_errtest);

@@ -16,11 +16,9 @@
 #include "Fox/AST/Constraints.hpp"  // ConstraintList
 #include "Fox/Common/DiagnosticEngine.hpp"
 
-namespace fox
-{
+namespace fox {
   class ASTContext;
-  class Sema
-  {
+  class Sema {
     public:
       Sema(ASTContext& ctxt, DiagnosticEngine& diags);
 

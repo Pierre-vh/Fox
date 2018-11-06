@@ -12,15 +12,12 @@
 #include <iostream>
 #include <string>
 
-namespace fox
-{
-namespace ftt
-{
+namespace fox {
+namespace ftt {
   /*
     Base class for every test class
   */
-  class Test
-  {
+  class Test {
     public:
       // Return true if we're done testing, false otherwise.
       bool isDone() const;
@@ -62,8 +59,7 @@ namespace ftt
     instance variables and test preferences set by the file, and
     methods to execute the test file.
   */
-  class FileTest: public Test
-  {
+  class FileTest: public Test {
     public:
       // Constructs a FileTest object that tests the file and outputs
       // diagnostics to os. (No test result is going to be printed to the stream,

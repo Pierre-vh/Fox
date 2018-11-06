@@ -14,13 +14,11 @@
 
 using namespace fox;
 
-TEST(SourceManagerTests, FileIDTests)
-{
+TEST(SourceManagerTests, FileIDTests) {
   EXPECT_FALSE(FileID()) << "Uninitialized File IDs should always be considered invalid!";
 }
 
-TEST(SourceManagerTests, LoadingFromFile)
-{
+TEST(SourceManagerTests, LoadingFromFile) {
   std::string file_path_a = test::convertRelativeTestResPathToAbsolute("lexer/utf8/bronzehorseman.txt");
   std::string file_path_b = test::convertRelativeTestResPathToAbsolute("lexer/utf8/ascii.txt");
   SourceManager srcMgr;
@@ -46,8 +44,7 @@ TEST(SourceManagerTests, LoadingFromFile)
   EXPECT_EQ(content_b, storeddata_b->str);
 }
 
-TEST(SourceManagerTests, LoadingFromString)
-{
+TEST(SourceManagerTests, LoadingFromString) {
   std::string file_path_a = "lexer/utf8/bronzehorseman.txt";
   std::string file_path_b = "lexer/utf8/ascii.txt";
 
@@ -71,8 +68,7 @@ TEST(SourceManagerTests, LoadingFromString)
 }
 
 
-TEST(SourceManagerTests, SourceRange)
-{
+TEST(SourceManagerTests, SourceRange) {
   // Create sample source locs
   SourceLoc a(FileID(), 200);
   SourceLoc b(FileID(), 250);
@@ -105,8 +101,7 @@ TEST(SourceManagerTests, SourceRange)
   EXPECT_EQ(onechar_range_c.getBegin(), onechar_range_c.getEnd());
 }
 
-TEST(SourceManagerTests, PreciseLocation)
-{
+TEST(SourceManagerTests, PreciseLocation) {
   SourceManager srcMgr;
 
   std::string fp = test::convertRelativeTestResPathToAbsolute("sourcemanager/precise_test_1.txt");
@@ -123,8 +118,7 @@ TEST(SourceManagerTests, PreciseLocation)
   // Loop until we reach the pi sign
   for (; sm.getCurrentChar() != 960 && !sm.eof(); sm.advance());
 
-  if (sm.getCurrentChar() == 960)
-  {
+  if (sm.getCurrentChar() == 960) {
     SourceLoc sloc(fid, sm.getIndexInBytes());
     auto result = srcMgr.getCompleteLocForSourceLoc(sloc);
 
@@ -132,8 +126,7 @@ TEST(SourceManagerTests, PreciseLocation)
     EXPECT_EQ(result.line, 5);
     EXPECT_EQ(result.column, 6);
   }
-  else
-  {
+  else {
     FAIL() << "Couldn't find the pi sign.";
   }
 }

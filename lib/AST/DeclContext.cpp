@@ -11,21 +11,18 @@
 
 using namespace fox;
 
-DeclContext::DeclContext(DeclContext * parent) : parent_(parent)
-{
+DeclContext::DeclContext(DeclContext * parent) : parent_(parent) {
 
 }
 
-void DeclContext::recordDecl(NamedDecl* decl)
-{
+void DeclContext::recordDecl(NamedDecl* decl) {
   assert(decl  && "Declaration cannot be null!");
   Identifier* name = decl->getIdentifier();
   assert(name  && "Declaration must have a valid name (Identifier*) to be recorded!");
   namedDecls_.insert(std::make_pair(name, decl));
 }
 
-LookupResult DeclContext::restrictedLookup(Identifier * id) const
-{
+LookupResult DeclContext::restrictedLookup(Identifier * id) const {
   auto it_range = namedDecls_.equal_range(id);
   LookupResult lr;
   for (auto it = it_range.first; it != it_range.second; it++)
@@ -33,12 +30,10 @@ LookupResult DeclContext::restrictedLookup(Identifier * id) const
   return lr;
 }
 
-LookupResult DeclContext::fullLookup(Identifier * id) const
-{
+LookupResult DeclContext::fullLookup(Identifier * id) const {
   auto this_lr = restrictedLookup(id);
 
-  if (parent_)
-  {
+  if (parent_) {
     auto parent_lr = parent_->fullLookup(id);
     this_lr.absorb(parent_lr);
   }
@@ -46,56 +41,45 @@ LookupResult DeclContext::fullLookup(Identifier * id) const
   return this_lr;
 }
 
-bool DeclContext::hasParentDeclRecorder() const
-{
+bool DeclContext::hasParentDeclRecorder() const {
   return parent_;
 }
 
-DeclContext * DeclContext::getParentDeclRecorder()
-{
+DeclContext * DeclContext::getParentDeclRecorder() {
   return parent_;
 }
 
-void DeclContext::setParentDeclRecorder(DeclContext* dr)
-{
+void DeclContext::setParentDeclRecorder(DeclContext* dr) {
   assert(dr && "Can't set a null parent! Use resetParent() for that!");
   parent_ = dr;
 }
 
-void DeclContext::resetParentDeclRecorder()
-{
+void DeclContext::resetParentDeclRecorder() {
   parent_ = nullptr;
 }
 
-std::size_t DeclContext::getNumberOfRecordedDecls() const
-{
+std::size_t DeclContext::getNumberOfRecordedDecls() const {
   return namedDecls_.size();
 }
 
-DeclContext::NamedDeclsMapIter DeclContext::recordedDecls_begin()
-{
+DeclContext::NamedDeclsMapIter DeclContext::recordedDecls_begin() {
   return namedDecls_.begin();
 }
 
-DeclContext::NamedDeclsMapIter DeclContext::recordedDecls_end()
-{
+DeclContext::NamedDeclsMapIter DeclContext::recordedDecls_end() {
   return namedDecls_.end();
 }
 
-DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_begin() const
-{
+DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_begin() const {
   return namedDecls_.begin();
 }
 
-DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_end() const
-{
+DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_end() const {
   return namedDecls_.end();
 }
 
-bool DeclContext::classof(const Decl* decl)
-{
-  switch (decl->getKind())
-  {
+bool DeclContext::classof(const Decl* decl) {
+  switch (decl->getKind()) {
     #define DECL_CTXT(ID,PARENT) \
         case DeclKind::ID: \
           return true;
@@ -106,38 +90,31 @@ bool DeclContext::classof(const Decl* decl)
 }
 
 // LookupResult
-LookupResult::LookupResult()
-{
+LookupResult::LookupResult() {
 
 }
 
-bool LookupResult::isEmpty() const
-{
+bool LookupResult::isEmpty() const {
   return (getSize() == 0);
 }
 
-bool LookupResult::isUnique() const
-{
+bool LookupResult::isUnique() const {
   return (getSize() == 1);
 }
 
-std::size_t LookupResult::getSize() const
-{
+std::size_t LookupResult::getSize() const {
   return results_.size();
 }
 
-NamedDecl* LookupResult::getResultIfUnique() const
-{
+NamedDecl* LookupResult::getResultIfUnique() const {
   return isUnique() ? results_[0] : nullptr;
 }
 
-LookupResult::operator bool() const
-{
+LookupResult::operator bool() const {
   return !isEmpty();
 }
 
-void LookupResult::addResult(NamedDecl* decl)
-{
+void LookupResult::addResult(NamedDecl* decl) {
   if (results_.size())
     assert((results_.back()->getIdentifier() == decl->getIdentifier()) 
       && "A LookupResult can only contain NamedDecls that share the same identifier.");
@@ -145,13 +122,11 @@ void LookupResult::addResult(NamedDecl* decl)
   results_.push_back(decl);
 }
 
-void LookupResult::clear()
-{
+void LookupResult::clear() {
   results_.clear();
 }
 
-void LookupResult::absorb(LookupResult& target)
-{
+void LookupResult::absorb(LookupResult& target) {
   if (target.results_.size() == 0)
     return;
 

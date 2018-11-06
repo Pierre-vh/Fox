@@ -20,10 +20,8 @@
 #include "Identifiers.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
 
-namespace fox
-{
-  class ASTContext
-  {
+namespace fox {
+  class ASTContext {
     public:
       ASTContext();
 

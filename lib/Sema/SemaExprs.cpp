@@ -20,16 +20,13 @@
 
 using namespace fox;
 
-namespace
-{
+namespace {
   // Various helper functions
 
   // If "type" is a ConstrainedType* with a valid substitution, returns the substitution,
   // else, returns "type".
-  Type defer_if(Type type)
-  {
-    if (auto* ptr = type.getAs<ConstrainedType>())
-    {
+  Type defer_if(Type type) {
+    if (auto* ptr = type.getAs<ConstrainedType>()) {
       // if the type has a substitution, return it, else
       // just return the argument.
       if (auto* sub = ptr->getSubstitution())
@@ -44,22 +41,18 @@ namespace
   //
   // Every visitation method return a pointer to an Expr*, which is the current expr
   // OR the expr that should take it's place. This can NEVER be null.
-  class ExprChecker : public ExprVisitor<ExprChecker, Expr*>, public ASTWalker
-  {
+  class ExprChecker : public ExprVisitor<ExprChecker, Expr*>, public ASTWalker {
     using Inherited = ExprVisitor<ExprChecker, Expr*>;
     Sema& sema_;
     public:
-      ExprChecker(Sema& sema): 
-        sema_(sema)
-      {
+      ExprChecker(Sema& sema): sema_(sema) {
         
       }
 
       // Returns the Int type if type is a boolean, or
       // return it's argument otherwise.
       // The pointer must not be null an point to an integral type.
-      TypeBase* uprankIfBoolean(PrimitiveType* type)
-      {
+      TypeBase* uprankIfBoolean(PrimitiveType* type) {
         assert(type && "Pointer must not be null");
         assert(Sema::isIntegral(type) && "Type must be integral");
 
@@ -69,61 +62,50 @@ namespace
       }
 
       // Sets the expr's type to ErrorType
-      ErrorType* getErrorType()
-      {
+      ErrorType* getErrorType() {
         return ErrorType::get(getCtxt());
       }
 
       // Returns the ASTContext
-      ASTContext& getCtxt()
-      {
+      ASTContext& getCtxt() {
         return sema_.getASTContext();
       }
 
       // Returns the DiagnosticEngine
-      DiagnosticEngine& getDiags()
-      {
+      DiagnosticEngine& getDiags() {
         return sema_.getDiagnosticEngine();
       }
 
-      Sema& getSema()
-      {
+      Sema& getSema() {
         return sema_;
       }
 
-      virtual std::pair<Expr*, bool> handleExprPre(Expr* expr)
-      {
+      virtual std::pair<Expr*, bool> handleExprPre(Expr* expr) {
         // Not needed since we won't do preorder visitation
         return { expr, true }; // Important for postorder visitation to be done
       }
 
-      virtual Expr* handleExprPost(Expr* expr)
-      {
+      virtual Expr* handleExprPost(Expr* expr) {
         return visit(expr);
       }
 
-      virtual std::pair<Stmt*, bool> handleStmtPre(Stmt*)
-      {
+      virtual std::pair<Stmt*, bool> handleStmtPre(Stmt*) {
         fox_unreachable("Illegal node kind");
       }
 
-      virtual Stmt* handleStmtPost(Stmt*)
-      {
+      virtual Stmt* handleStmtPost(Stmt*) {
         fox_unreachable("Illegal node kind");
       }
 
-      virtual std::pair<Decl*, bool> handleDeclPre(Decl*)
-      {
+      virtual std::pair<Decl*, bool> handleDeclPre(Decl*) {
         fox_unreachable("Illegal node kind");
       }
 
-      virtual Decl* handleDeclPost(Decl*)
-      {
+      virtual Decl* handleDeclPost(Decl*) {
         fox_unreachable("Illegal node kind");
       }
 
-      Expr* visit(Expr* expr)
-      {
+      Expr* visit(Expr* expr) {
         expr = Inherited::visit(expr);
         assert(expr && "Expression is null");
         assert(expr->getType() && "Expression is not typed after checking");
@@ -132,29 +114,25 @@ namespace
 
       // Check methods
 
-      Expr* visitBinaryExpr(BinaryExpr* expr)
-      {
+      Expr* visitBinaryExpr(BinaryExpr* expr) {
         // Handle arithmetic & text addition
         // Disallow array operation unless *
         return expr;
       }
 
-      Expr* visitCastExpr(CastExpr* expr)
-      {
+      Expr* visitCastExpr(CastExpr* expr) {
         // Check if we can cast to that, castgoal must be
         // of the same family OR string.
         Type& childTy = expr->getExpr()->getType();
         TypeLoc& castGoal = expr->getCastTypeLoc();
 
-        if (childTy.is<ErrorType>() && castGoal.is<ErrorType>())
-        {
+        if (childTy.is<ErrorType>() && castGoal.is<ErrorType>()) {
           expr->setType(getErrorType());
           return expr;
         }
 
         // Handle casts to string
-        if (Sema::isStringType(castGoal.getPtr()))
-        {
+        if (Sema::isStringType(castGoal.getPtr())) {
           // Let another function handle this!
           checkCastToString(expr);
           return expr;
@@ -164,8 +142,7 @@ namespace
         // if the cast is valid.
         if (!getSema().unify(childTy, castGoal))
           expr->setType(castGoal.withoutLoc());
-        else
-        {
+        else {
           getDiags()
             .report(DiagID::sema_invalid_cast, castGoal.getRange())
             .addArg(childTy->toString())
@@ -177,25 +154,21 @@ namespace
         return expr;
       }
 
-      void checkCastToString(CastExpr*)
-      {
+      void checkCastToString(CastExpr*) {
         // UNIMPLEMENTED FOR NOW //
       }
 
-      Expr* visitUnaryExpr(UnaryExpr* expr)
-      {
+      Expr* visitUnaryExpr(UnaryExpr* expr) {
         Expr* child = expr->getExpr();
         Type childTy = child->getType();
 
         // For any unary operators, we only allow integral types,
         // so check that first.
-        if (!Sema::isIntegral(childTy))
-        {
+        if (!Sema::isIntegral(childTy)) {
           // Not an integral type -> error.
           expr->setType(getErrorType());
           // Emit diag iff childTy isn't a ErrorType too
-          if (!childTy.is<ErrorType>())
-          {
+          if (!childTy.is<ErrorType>()) {
             getDiags()
               .report(DiagID::sema_unaryop_bad_child_type, expr->getOpRange())
               .setExtraRange(child->getRange()) // Use the child's range as the extra range.
@@ -209,8 +182,7 @@ namespace
         assert(primChildTy && "isIntegral returned true but the type isn't a PrimitiveType?");
 
         using OP = UnaryExpr::OpKind;
-        switch (expr->getOp())
-        {
+        switch (expr->getOp()) {
           // Logical NOT operator : '!'
           case OP::LNot:
             // Always boolean
@@ -232,27 +204,23 @@ namespace
         return expr;
       }
 
-      Expr* visitArrayAccessExpr(ArrayAccessExpr* expr)
-      {
+      Expr* visitArrayAccessExpr(ArrayAccessExpr* expr) {
         // Check that base is of ArrayType and idx expr
         // is arithmetic and not float
         return expr;
       }
 
-      Expr* visitMemberOfExpr(MemberOfExpr* expr)
-      {
+      Expr* visitMemberOfExpr(MemberOfExpr* expr) {
         // Will be left unimplemented for now
         return expr;
       }
 
-      Expr* visitDeclRefExpr(DeclRefExpr* expr)
-      {
+      Expr* visitDeclRefExpr(DeclRefExpr* expr) {
         // Will be left unimplemented for now
         return expr;
       }
 
-      Expr* visitFunctionCallExpr(FunctionCallExpr* expr)
-      {
+      Expr* visitFunctionCallExpr(FunctionCallExpr* expr) {
         // Will be left unimplemented for now
         return expr;
       }
@@ -260,38 +228,32 @@ namespace
 
       // Trivial literals: the expr's type is simply the corresponding
       // type. Int for a Int literal, etc.
-      Expr* visitCharLiteralExpr(CharLiteralExpr* expr)
-      {
+      Expr* visitCharLiteralExpr(CharLiteralExpr* expr) {
         expr->setType(PrimitiveType::getChar(getCtxt()));
         return expr;
       }
 
-      Expr* visitIntegerLiteralExpr(IntegerLiteralExpr* expr)
-      {
+      Expr* visitIntegerLiteralExpr(IntegerLiteralExpr* expr) {
         expr->setType(PrimitiveType::getInt(getCtxt()));
         return expr;
       }
 
-      Expr* visitFloatLiteralExpr(FloatLiteralExpr* expr)
-      {
+      Expr* visitFloatLiteralExpr(FloatLiteralExpr* expr) {
         expr->setType(PrimitiveType::getFloat(getCtxt()));
         return expr;
       }
 
-      Expr* visitBoolLiteralExpr(BoolLiteralExpr* expr)
-      {
+      Expr* visitBoolLiteralExpr(BoolLiteralExpr* expr) {
         expr->setType(PrimitiveType::getBool(getCtxt()));
         return expr;
       }
 
-      Expr* visitStringLiteralExpr(StringLiteralExpr* expr)
-      {
+      Expr* visitStringLiteralExpr(StringLiteralExpr* expr) {
         expr->setType(PrimitiveType::getString(getCtxt()));
         return expr;
       }
 
-      ConstrainedType* createConstrainedTypeForEmptyArrayLiteral()
-      {
+      ConstrainedType* createConstrainedTypeForEmptyArrayLiteral() {
         auto* cs = ConstrainedType::create(getCtxt());
         cs->addConstraint(Constraint::createArrayCS(getCtxt()));
         return cs;
@@ -305,10 +267,8 @@ namespace
       //    After, unify the elemTy with the proposed, if rank(deferIf(elemTy)) > rank(deferIf(proposed)) -> proposed = elemTy.
       // else
       //    Type needs inference
-      Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr)
-      {
-        if (expr->getSize() > 0)
-        {
+      Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr) {
+        if (expr->getSize() > 0) {
           Type deduced = deduceTypeOfNonEmptyArrayLiteral(expr);
           assert(deduced && "The function cannot return a null ptr");
           expr->setType(deduced.getPtr());
@@ -323,23 +283,20 @@ namespace
 
       // Helper for the above function that deduces the type of a non empty Array literal
       // Returns the type of the literal, doesn't set it's type by itself.
-      Type deduceTypeOfNonEmptyArrayLiteral(ArrayLiteralExpr* expr)
-      {
+      Type deduceTypeOfNonEmptyArrayLiteral(ArrayLiteralExpr* expr) {
         assert(expr->getSize() && "Size must be >0");
 
         // Diagnoses a heterogenous array literal.
         // Emits the diagnostics and returns the errorType.
         static auto diagnose_hetero = [&](Expr* faultyElem = nullptr) {
-          if (faultyElem)
-          {
+          if (faultyElem) {
             getDiags()
               // Precise error loc is the first element that failed the inferrence,
               // extended range is the whole arrayliteral's.
               .report(DiagID::sema_arraylit_hetero, faultyElem->getRange())
               .setRange(expr->getRange());
           }
-          else
-          {
+          else {
             getDiags()
               // If we have no element to pinpoint, just use the whole expr's
               // range
@@ -357,8 +314,7 @@ namespace
         Type inferType;
 
         // Loop over each expression in the literal
-        for (auto& elem : expr->getExprs())
-        {
+        for (auto& elem : expr->getExprs()) {
           // Get the elemTy
           Type& elemTy = elem->getType();
           assert(elemTy && "Type cannot be null!");
@@ -370,8 +326,7 @@ namespace
 
           // If elemTy is a constrained type, apply the logic
           // specific to constrained type inside the array literal.
-          if (elemTy.is<ConstrainedType>())
-          {
+          if (elemTy.is<ConstrainedType>()) {
             // Set inferType if it's not set
             if (!inferType)
               inferType = elemTy;
@@ -387,8 +342,7 @@ namespace
           // elemTy isn't a constrained type  //
 
           // First loop, set concreteProposed & continue.
-          if (!concreteProposed)
-          {
+          if (!concreteProposed) {
             concreteProposed = elemTy;
             continue;
           }
@@ -415,19 +369,16 @@ namespace
 
         // If we don't have a concrete type, we should
         // at least have a inferType. 
-        if (!concreteProposed)
-        {
+        if (!concreteProposed) {
           // We should have a inferType to work with at least.
           assert(inferType && "No concrete and no inferType?");
           properType = inferType;
         }
 
         // We do have a concrete type
-        else
-        {
+        else {
           // Handle unification with the inferType, if we have one
-          if (inferType)
-          {
+          if (inferType) {
             if (!getSema().unify(inferType, concreteProposed))
               return diagnose_hetero();
 
@@ -459,20 +410,17 @@ namespace
   // Visit methods return pointers to TypeBase. They return nullptr
   // if the finalization failed for this expr.
   // It's still a primitive, test version for now.
-  class ExprFinalizer : public TypeVisitor<ExprFinalizer, TypeBase*>, public ASTWalker
-  {
+  class ExprFinalizer : public TypeVisitor<ExprFinalizer, TypeBase*>, public ASTWalker {
     ASTContext& ctxt_;
     DiagnosticEngine& diags_;
 
     public:
       ExprFinalizer(ASTContext& ctxt, DiagnosticEngine& diags) :
-        ctxt_(ctxt), diags_(diags)
-      {
+        ctxt_(ctxt), diags_(diags) {
 
       }
 
-      Expr* handleExprPost(Expr* expr)
-      {
+      Expr* handleExprPost(Expr* expr) {
         Type type = expr->getType().getPtr();
         assert(!type.isNull() && "Untyped expr");
 
@@ -481,8 +429,7 @@ namespace
         // If the type is nullptr, this inference failed
         // because of a lack of substitution somewhere.
         // Set the type to ErrorType, diagnose it and move on.
-        if (!type)
-        {
+        if (!type) {
           diags_.report(DiagID::sema_failed_infer, expr->getRange());
           type = ErrorType::get(ctxt_);
         }
@@ -490,15 +437,12 @@ namespace
         return expr;
       }
 
-      TypeBase* visitPrimitiveType(PrimitiveType* type)
-      {
+      TypeBase* visitPrimitiveType(PrimitiveType* type) {
         return type;
       }
 
-      TypeBase* visitArrayType(ArrayType* type)
-      {
-        if (TypeBase* elem = visit(type->getElementType()))
-        {
+      TypeBase* visitArrayType(ArrayType* type) {
+        if (TypeBase* elem = visit(type->getElementType())) {
           // Rebuild if needed
           if (elem != type->getElementType())
             return ArrayType::get(ctxt_, elem);
@@ -507,10 +451,8 @@ namespace
         return nullptr;
       }
 
-      TypeBase* visitLValueType(LValueType* type)
-      {
-        if (TypeBase* elem = visit(type->getType()))
-        {
+      TypeBase* visitLValueType(LValueType* type) {
+        if (TypeBase* elem = visit(type->getType())) {
           if (elem != type->getType())
             return LValueType::get(ctxt_, elem);
           return type;
@@ -518,15 +460,13 @@ namespace
         return nullptr;
       }
 
-      TypeBase* visitConstrainedType(ConstrainedType* type)
-      {
+      TypeBase* visitConstrainedType(ConstrainedType* type) {
         if (TypeBase* sub = type->getSubstitution())
           return visit(sub);
         return nullptr;
       }
 
-      TypeBase* visitErrorType(ErrorType* type)
-      {
+      TypeBase* visitErrorType(ErrorType* type) {
         // Error should have been handled already, we won't emit
         // more.
         return type;
@@ -534,8 +474,7 @@ namespace
   };
 } // End anonymous namespace
 
-Expr* Sema::typecheckExpr(Expr* expr)
-{
+Expr* Sema::typecheckExpr(Expr* expr) {
   expr = ExprChecker(*this).walk(expr);
   expr = ExprFinalizer(ctxt_, diags_).walk(expr);
   return expr;

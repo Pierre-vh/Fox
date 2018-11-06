@@ -14,18 +14,14 @@
 using namespace fox;
 
 // ConstraintPrinter, for printing constraints
-namespace
-{
-  class ConstraintPrinter : public ConstraintVisitor<ConstraintPrinter, std::string>
-  {
+namespace {
+  class ConstraintPrinter : public ConstraintVisitor<ConstraintPrinter, std::string> {
     public:
-      ConstraintPrinter()
-      {
+      ConstraintPrinter() {
 
       }
 
-      std::string visitArrayCS(Constraint*)
-      {
+      std::string visitArrayCS(Constraint*) {
         return "ArrayCS";
       }
   };
@@ -33,34 +29,28 @@ namespace
 
 // Base constraint class.
 
-Constraint::Kind Constraint::getKind() const
-{
+Constraint::Kind Constraint::getKind() const {
   return kind_;
 }
 
-bool Constraint::is(Kind k) const
-{
+bool Constraint::is(Kind k) const {
   return kind_ == k;
 }
 
-std::string Constraint::toDebugString() const
-{
+std::string Constraint::toDebugString() const {
   return ConstraintPrinter().visit(const_cast<Constraint*>(this));
 }
 
-void* Constraint::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align)
-{
+void* Constraint::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getCSAllocator().allocate(sz, align);
 }
 
 Constraint::Constraint(Kind kind): 
-  kind_(kind)
-{
+  kind_(kind) {
 
 }
 
-Constraint* Constraint::createArrayCS(ASTContext& ctxt)
-{
+Constraint* Constraint::createArrayCS(ASTContext& ctxt) {
   if(!ctxt.theArrayCS)
     ctxt.theArrayCS = new(ctxt) Constraint(Kind::ArrayCS);
   return ctxt.theArrayCS;

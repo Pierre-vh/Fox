@@ -17,8 +17,7 @@
   #include <Windows.h>
 #endif
 
-void setConsoleEnv()
-{
+void setConsoleEnv() {
   #ifdef _WIN32
     //  Windows-Specific
     SetConsoleOutputCP(CP_UTF8);
@@ -31,15 +30,13 @@ void setConsoleEnv()
 
 using namespace fox;
 
-int main()
-{
+int main() {
   setConsoleEnv();
   std::cout << "Welcome to the Dumb Command Line Toy !\n\tMoonshot Version " << MOONSHOT_VERSION_COMPLETE << "\n";
   std::cout << "\tUsage : Enter a path to a fox source file, or enter * to exit.\n\n";
 
   std::string uinput = "";
-  while (1)
-  {
+  while (1) {
     std::cout << "> ";
     Driver drv;
     std::getline(std::cin, uinput);

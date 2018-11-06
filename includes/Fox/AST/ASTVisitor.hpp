@@ -18,8 +18,7 @@
 #include "Fox/Common/Errors.hpp"
 #include <utility>
 
-namespace fox
-{
+namespace fox {
   // Visitor class, which takes a few templates arguments : The derived class, The return type and the Args
   // that should be passed to the Visit method.
   template<
@@ -30,12 +29,10 @@ namespace fox
     typename TypeRtrTy,
     typename ... Args
   >
-  class ASTVisitor
-  {
+  class ASTVisitor {
     public:
       // Visit ASTNode
-      void visit(ASTNode node, Args... args)
-      {
+      void visit(ASTNode node, Args... args) {
         assert(node.getOpaque() && "Cannot be used on a null pointer");
         if (node.is<Decl>())
           visit(node.get<Decl>(), ::std::forward<Args>(args)...);
@@ -48,11 +45,9 @@ namespace fox
       }
 
       // Visit Decl "Dispatch" Method
-      DeclRtrTy visit(Decl* decl, Args... args)
-      {
+      DeclRtrTy visit(Decl* decl, Args... args) {
         assert(decl && "Cannot be used on a null pointer");
-        switch (decl->getKind())
-        {
+        switch (decl->getKind()) {
           #define DECL(ID,PARENT)\
             case DeclKind::ID:\
               return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(decl), ::std::forward<Args>(args)...);
@@ -63,11 +58,9 @@ namespace fox
       }
 
       // Visit Stmt dispatch method
-      StmtRtrTy visit(Stmt* stmt, Args... args)
-      {
+      StmtRtrTy visit(Stmt* stmt, Args... args) {
         assert(stmt && "Cannot be used on a null pointer");
-        switch (stmt->getKind())
-        {
+        switch (stmt->getKind()) {
           #define STMT(ID,PARENT)\
             case StmtKind::ID:\
               return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(stmt), ::std::forward<Args>(args)...);
@@ -78,11 +71,9 @@ namespace fox
       }
 
       // Visit Expr dispatch method
-      ExprRtrTy visit(Expr* expr, Args... args)
-      {
+      ExprRtrTy visit(Expr* expr, Args... args) {
         assert(expr && "Cannot be used on a null pointer");
-        switch (expr->getKind())
-        {
+        switch (expr->getKind()) {
           #define EXPR(ID,PARENT)\
             case ExprKind::ID:\
               return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(expr), ::std::forward<Args>(args)...);
@@ -93,11 +84,9 @@ namespace fox
       }
 
       // Visit Types dispatch method
-      TypeRtrTy visit(TypeBase* type, Args... args)
-      {
+      TypeRtrTy visit(TypeBase* type, Args... args) {
         assert(type && "Cannot be used on a null pointer");
-        switch (type->getKind())
-        {
+        switch (type->getKind()) {
           #define TYPE(ID,PARENT)\
             case TypeKind::ID:\
               return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(type), ::std::forward<Args>(args)...);
@@ -110,26 +99,22 @@ namespace fox
       // Base visitStmt, visitDecl and visitType methods.
 
       // Visit Stmt
-      StmtRtrTy visitStmt(Stmt*, Args... args)
-      {
+      StmtRtrTy visitStmt(Stmt*, Args... args) {
         return StmtRtrTy();
       }
 
       // Visit Expr
-      ExprRtrTy visitExpr(Expr*, Args... args)
-      {
+      ExprRtrTy visitExpr(Expr*, Args... args) {
         return ExprRtrTy();
       }
 
       // Visit Decl 
-      DeclRtrTy visitDecl(Decl*, Args... args)
-      {
+      DeclRtrTy visitDecl(Decl*, Args... args) {
         return DeclRtrTy();
       }
 
       // Visit Type 
-      TypeRtrTy visitTypeBase(TypeBase*, Args... args)
-      {
+      TypeRtrTy visitTypeBase(TypeBase*, Args... args) {
         return TypeRtrTy();
       }
 

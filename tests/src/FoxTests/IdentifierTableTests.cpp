@@ -28,8 +28,7 @@ using namespace fox;
 std::string generateRandomString();
 
 // Checks if Identifiers are unique, or not.
-TEST(IdentifierTableTests, areIdentifiersUnique)
-{
+TEST(IdentifierTableTests, areIdentifiersUnique) {
   // Create 2 identifiers, A and B
   std::string rawIdA, rawIdB;
   rawIdA = generateRandomString();
@@ -45,8 +44,7 @@ TEST(IdentifierTableTests, areIdentifiersUnique)
 }
 
 // Checks if the exists function works correctly.
-TEST(IdentifierTableTests, exists)
-{
+TEST(IdentifierTableTests, exists) {
   std::string randID = generateRandomString();
 
   IdentifierTable idtab;
@@ -59,8 +57,7 @@ TEST(IdentifierTableTests, exists)
 }
 
 // Checks if the IdentifierTable supports large identifiers amount by inserting a lot of random ids.
-TEST(IdentifierTableTests, randomIdentifierInsertion)
-{
+TEST(IdentifierTableTests, randomIdentifierInsertion) {
   IdentifierTable idtab;
   std::string id;
 
@@ -69,8 +66,7 @@ TEST(IdentifierTableTests, randomIdentifierInsertion)
   std::vector<Identifier*> alldIdInfoPtrs;
   std::vector<std::string> allIdStrs;
 
-  for (std::size_t k(0); k < RANDOM_ID_TEST_NUMBER_OF_ID; k++)
-  {
+  for (std::size_t k(0); k < RANDOM_ID_TEST_NUMBER_OF_ID; k++) {
     id = generateRandomString();
     
     // Before inserting, a quick sanity check doesn't hurt!
@@ -89,8 +85,7 @@ TEST(IdentifierTableTests, randomIdentifierInsertion)
   }
 
   // Now, iterate over all identifierinfo to check if they're still valid even after that much insertions.
-  for (std::size_t idx(0);idx < alldIdInfoPtrs.size(); idx++)
-  {
+  for (std::size_t idx(0);idx < alldIdInfoPtrs.size(); idx++) {
     ASSERT_TRUE(alldIdInfoPtrs[idx] != nullptr) << "Pointer was null?";
     ASSERT_EQ(
       allIdStrs[idx],
@@ -101,8 +96,7 @@ TEST(IdentifierTableTests, randomIdentifierInsertion)
 
 static const std::string idStrChars = "_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-std::string generateRandomString()
-{
+std::string generateRandomString() {
   std::random_device rd;
   std::mt19937_64 mt(rd());
   std::uniform_int_distribution<int> dist_char(0, (int)idStrChars.size());

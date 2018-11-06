@@ -18,13 +18,11 @@ using namespace fox::Dictionaries;
 
 Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt):
   diags_(diags), ctxt_(astctxt), sm_(sm),
-  escapeFlag_(false)
-{
+  escapeFlag_(false) {
 
 }
 
-void Lexer::lexFile(FileID file)
-{
+void Lexer::lexFile(FileID file) {
   assert(file && "INVALID FileID!");
   currentFile_ = file;
   auto* source = sm_.getSourceForFID(currentFile_);
@@ -41,23 +39,19 @@ void Lexer::lexFile(FileID file)
   runFinalChecks();
 }
 
-TokenVector& Lexer::getTokenVector()
-{
+TokenVector& Lexer::getTokenVector() {
   return tokens_; // return empty Token
 }
 
-std::size_t Lexer::resultSize() const
-{
+std::size_t Lexer::resultSize() const {
   return tokens_.size();
 }
 
-FileID Lexer::getCurrentFile() const
-{
+FileID Lexer::getCurrentFile() const {
   return currentFile_;
 }
 
-void Lexer::pushTok()
-{
+void Lexer::pushTok() {
   if (curtok_ == "")  // Don't push empty tokens.
     return;
 
@@ -74,15 +68,12 @@ void Lexer::pushTok()
   curtok_ = "";
 }
 
-void Lexer::cycle()
-{
+void Lexer::cycle() {
   runStateFunc();          
 }
 
-void Lexer::runFinalChecks()
-{
-  switch (state_)
-  {
+void Lexer::runFinalChecks() {
+  switch (state_) {
     case DFAState::S_STR:
       // FALL THROUGH
     case DFAState::S_CHR:
@@ -94,15 +85,12 @@ void Lexer::runFinalChecks()
   }
 }
 
-void Lexer::markBeginningOfToken()
-{
+void Lexer::markBeginningOfToken() {
   currentTokenBeginIndex_ = manip_.getIndexInBytes();
 }
 
-void Lexer::runStateFunc()
-{
-  switch (state_)
-  {
+void Lexer::runStateFunc() {
+  switch (state_) {
     case DFAState::S_BASE:
       fn_S_BASE();
       break;
@@ -124,8 +112,7 @@ void Lexer::runStateFunc()
   }
 }
 
-void Lexer::fn_S_BASE()
-{
+void Lexer::fn_S_BASE() {
   const FoxChar pk = manip_.peekNext();
   const FoxChar c = manip_.getCurrentChar();  // current char
 
@@ -136,48 +123,40 @@ void Lexer::fn_S_BASE()
   // IGNORE SPACES
   if (std::iswspace(static_cast<wchar_t>(c))) eatChar();
   // HANDLE COMMENTS
-  else if (c == '/' && pk == '/')
-  {
+  else if (c == '/' && pk == '/') {
     eatChar();  // '/'
     eatChar();  // '/'
     dfa_goto(DFAState::S_LCOM);
   }
-  else if (c == '/' && pk == '*')
-  {
+  else if (c == '/' && pk == '*') {
     eatChar();  // '/'
     eatChar();  // '*'
     dfa_goto(DFAState::S_MCOM);
   }
   // HANDLE SINGLE SEPARATOR
-  else if (isSep(c))        // is the current char a separator, but not a space?
-  {
+  else if (isSep(c))        // is the current char a separator, but not a space? {
     addToCurtok(eatChar());
     pushTok();
   }
   // HANDLE STRINGS AND CHARS
-  else if (c == '\'')  // Delimiter?
-  {
+  else if (c == '\'')  // Delimiter? {
     addToCurtok(eatChar());
     dfa_goto(DFAState::S_CHR);
   }
-  else if (c == '"')
-  {
+  else if (c == '"') {
     addToCurtok(eatChar());
     dfa_goto(DFAState::S_STR);
   }
   // HANDLE IDs & Everything Else
-  else
-  {
+  else {
     dfa_goto(DFAState::S_WORDS);
   }
 
 }
 
-void Lexer::fn_S_STR()
-{
+void Lexer::fn_S_STR() {
   FoxChar c = eatChar();
-  if (c == '"' && !escapeFlag_)
-  {
+  if (c == '"' && !escapeFlag_) {
     addToCurtok(c);
     pushTok();
     dfa_goto(DFAState::S_BASE);
@@ -188,29 +167,23 @@ void Lexer::fn_S_STR()
     addToCurtok(c);
 }
 
-void Lexer::fn_S_LCOM()
-{
+void Lexer::fn_S_LCOM() {
   FoxChar c = eatChar();
-  if (c == '\n')
-  {
+  if (c == '\n') {
     dfa_goto(DFAState::S_BASE);
   }
 }
 
-void Lexer::fn_S_MCOM()
-{
+void Lexer::fn_S_MCOM() {
   FoxChar c = eatChar();
-  if (c == '*' && manip_.getCurrentChar() == '/')
-  {
+  if (c == '*' && manip_.getCurrentChar() == '/') {
     eatChar(); // Consume the '/'
     dfa_goto(DFAState::S_BASE);
   }
 }
 
-void Lexer::fn_S_WORDS()
-{
-  if (isSep(manip_.getCurrentChar()))
-  {    
+void Lexer::fn_S_WORDS() {
+  if (isSep(manip_.getCurrentChar())) {    
     pushTok();
     dfa_goto(DFAState::S_BASE);
   }
@@ -218,11 +191,9 @@ void Lexer::fn_S_WORDS()
     addToCurtok(eatChar());
 }
 
-void Lexer::fn_S_CHR()
-{
+void Lexer::fn_S_CHR() {
   FoxChar c = eatChar();
-  if (c == '\'' && !escapeFlag_)
-  {
+  if (c == '\'' && !escapeFlag_) {
     addToCurtok(c);
 
     if (curtok_.size() == 2)
@@ -237,31 +208,24 @@ void Lexer::fn_S_CHR()
     addToCurtok(c);
 }
 
-void Lexer::dfa_goto(DFAState ns)
-{
+void Lexer::dfa_goto(DFAState ns) {
   state_ = ns;
 }
 
-FoxChar Lexer::eatChar()
-{
+FoxChar Lexer::eatChar() {
   const FoxChar c = manip_.getCurrentChar();
   manip_.advance();
   return c;
 }
 
-void Lexer::addToCurtok(FoxChar c)
-{
-  if (isEscapeChar(c) && !escapeFlag_)
-  {
+void Lexer::addToCurtok(FoxChar c) {
+  if (isEscapeChar(c) && !escapeFlag_) {
     StringManipulator::append(curtok_, c);
     escapeFlag_ = true;
   }
-  else if(!shouldIgnore(c))
-  {
-    if (escapeFlag_)  // last char was an escape char
-    {
-      switch (c)
-      {
+  else if(!shouldIgnore(c)) {
+    if (escapeFlag_)  // last char was an escape char {
+      switch (c) {
         case 't':
           c = '\t';
           curtok_.pop_back();
@@ -287,8 +251,7 @@ void Lexer::addToCurtok(FoxChar c)
   }
 }
 
-bool Lexer::isSep(FoxChar c) const
-{
+bool Lexer::isSep(FoxChar c) const {
   // Is separator ? Signs are the separators in the input. Separators mark the end and beginning of tokens, and are tokens themselves. Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
   if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip_.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
     return false;
@@ -297,22 +260,18 @@ bool Lexer::isSep(FoxChar c) const
   return (i != kSign_dict.end()) || std::iswspace((wchar_t)c);
 }
 
-bool Lexer::isEscapeChar(FoxChar c) const
-{
+bool Lexer::isEscapeChar(FoxChar c) const {
   return  (c == '\\') && ((state_ == DFAState::S_STR) || (state_ == DFAState::S_CHR));
 }
 
-bool Lexer::shouldIgnore(FoxChar c) const
-{
+bool Lexer::shouldIgnore(FoxChar c) const {
   return (c == '\r'); // don't push carriage returns
 }
 
-SourceLoc Lexer::getCurtokBegLoc() const
-{
+SourceLoc Lexer::getCurtokBegLoc() const {
   return SourceLoc(currentFile_,currentTokenBeginIndex_);
 }
 
-SourceRange Lexer::getCurtokRange() const
-{
+SourceRange Lexer::getCurtokRange() const {
   return SourceRange(getCurtokBegLoc(), static_cast<SourceRange::offset_type>(curtok_.size() - 1));
 }

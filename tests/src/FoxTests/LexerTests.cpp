@@ -14,12 +14,10 @@
 #include "Fox/Lexer/Token.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include <memory>
-
 using namespace fox;
 using namespace fox::test;
 
-TEST(LexerTests,CorrectTest1)
-{
+TEST(LexerTests,CorrectTest1) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
@@ -32,8 +30,7 @@ TEST(LexerTests,CorrectTest1)
   EXPECT_TRUE(dg.getErrorsCount() == 0) << "One or more errors occured while lexing the file";
 }
 
-TEST(LexerTests, IncorrectTest1)
-{
+TEST(LexerTests, IncorrectTest1) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
@@ -46,8 +43,7 @@ TEST(LexerTests, IncorrectTest1)
   EXPECT_TRUE(dg.getErrorsCount() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
-TEST(LexerTests, IncorrectTest2)
-{
+TEST(LexerTests, IncorrectTest2) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
@@ -60,8 +56,7 @@ TEST(LexerTests, IncorrectTest2)
   EXPECT_TRUE(dg.getErrorsCount() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
-TEST(LexerTests, IncorrectTest3)
-{
+TEST(LexerTests, IncorrectTest3) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
@@ -74,8 +69,7 @@ TEST(LexerTests, IncorrectTest3)
   EXPECT_TRUE(dg.getErrorsCount() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
-TEST(LexerTests, IncorrectTest4)
-{
+TEST(LexerTests, IncorrectTest4) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
@@ -88,8 +82,7 @@ TEST(LexerTests, IncorrectTest4)
   EXPECT_TRUE(dg.getErrorsCount() != 0) << "No error occured while lexing the file, but the test expected errors to occur.";
 }
 
-TEST(TokenTests, FloatID)
-{
+TEST(TokenTests, FloatID) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
   ASTContext astctxt;
@@ -119,8 +112,7 @@ TEST(TokenTests, FloatID)
   EXPECT_EQ(litInfo3.get<FoxFloat>(), 0.3333333333333f) << "Value was not the one expected.";
 }
 
-TEST(TokenTests, IntId)
-{
+TEST(TokenTests, IntId) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
   ASTContext astctxt;
@@ -150,8 +142,7 @@ TEST(TokenTests, IntId)
   EXPECT_EQ(litInfo3.get<FoxInt>(), 4242424242424242) << "Value was not the one expected.";
 }
 
-TEST(TokenTests, StringID)
-{
+TEST(TokenTests, StringID) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
   ASTContext astctxt;
@@ -181,8 +172,7 @@ TEST(TokenTests, StringID)
   EXPECT_EQ(litInfo3.get<std::string>(), "!") << "Value was not the one expected.";
 }
 
-TEST(TokenTests, CharID)
-{
+TEST(TokenTests, CharID) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
   ASTContext astctxt;
@@ -212,8 +202,7 @@ TEST(TokenTests, CharID)
   EXPECT_EQ(litInfo3.get<FoxChar>(), '!') << "Value was not the one expected.";
 }
 
-TEST(TokenTests, BoolID)
-{
+TEST(TokenTests, BoolID) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
   ASTContext astctxt;
@@ -237,8 +226,7 @@ TEST(TokenTests, BoolID)
   EXPECT_FALSE(litInfo2.get<bool>()) << "Value was not the one expected.";
 }
 
-TEST(LexerTests, Coordinates1)
-{
+TEST(LexerTests, Coordinates1) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
@@ -253,10 +241,8 @@ TEST(LexerTests, Coordinates1)
 
   TokenVector& output = lex.getTokenVector();
   char varFounds = 0;
-  for (const Token& elem : output)
-  {
-    if (elem.getAsString() == "_FIRST_VARIABLE_")
-    {
+  for (const Token& elem : output) {
+    if (elem.getAsString() == "_FIRST_VARIABLE_") {
       varFounds++;
       auto beg_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().getBegin());
       auto end_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().getEnd());
@@ -269,8 +255,7 @@ TEST(LexerTests, Coordinates1)
       EXPECT_EQ(beg_ploc.column, 5);
       EXPECT_EQ(end_ploc.column, 20);
     }
-    else if (elem.getAsString() == "_2NDVAR__")
-    {
+    else if (elem.getAsString() == "_2NDVAR__") {
       varFounds++;
       auto beg_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().getBegin());
       auto end_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().getEnd());
@@ -283,8 +268,7 @@ TEST(LexerTests, Coordinates1)
       EXPECT_EQ(beg_ploc.column, 6);
       EXPECT_EQ(end_ploc.column, 14);
     }
-    else if (elem.getAsString() == "ThirdVariable")
-    {
+    else if (elem.getAsString() == "ThirdVariable") {
       varFounds++;
       auto beg_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().getBegin());
       auto end_ploc = sm.getCompleteLocForSourceLoc(elem.getRange().getEnd());

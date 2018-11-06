@@ -18,13 +18,11 @@
 #include "Diagnostic.hpp"
 #include "DiagnosticConsumers.hpp"
 
-namespace fox
-{
+namespace fox {
   class SourceLoc;
   class SourceRange;
   class SourceManager;
-  class DiagnosticEngine
-  {
+  class DiagnosticEngine {
     public:
       // Constructor that will use a default DiagnosticConsumer
       DiagnosticEngine(SourceManager& sm);

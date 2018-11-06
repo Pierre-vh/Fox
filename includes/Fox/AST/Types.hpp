@@ -21,11 +21,9 @@
 #include "Constraints.hpp"
 #include "ASTAligns.hpp"
 
-namespace fox
-{
+namespace fox {
   // Kinds of Types
-  enum class TypeKind : std::uint8_t
-  {
+  enum class TypeKind : std::uint8_t {
     #define TYPE(ID,PARENT) ID,
     #define TYPE_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
     #include "TypeNodes.def"
@@ -36,8 +34,7 @@ namespace fox
 
   // TypeBase
   //    Common base for types
-  class alignas(align::TypeBaseAlignement) TypeBase
-  {
+  class alignas(align::TypeBaseAlignement) TypeBase {
     public:
       /* Returns the type's name in a user friendly form, e.g. "int", "string" */
       std::string toString() const;
@@ -81,11 +78,9 @@ namespace fox
 
   // BuiltinType
   //    Common base for Built-in types
-  class BuiltinType : public TypeBase
-  {
+  class BuiltinType : public TypeBase {
     public:
-      static bool classof(const TypeBase* type)
-      {
+      static bool classof(const TypeBase* type) {
         return ((type->getKind() >= TypeKind::First_BuiltinType) 
           && (type->getKind() <= TypeKind::Last_BuiltinType));
       }
@@ -96,11 +91,9 @@ namespace fox
 
   // PrimitiveType 
   //    A primitive type (void/int/float/char/bool/string)
-  class PrimitiveType : public BuiltinType
-  {
+  class PrimitiveType : public BuiltinType {
     public:
-      enum class Kind : std::uint8_t
-      {
+      enum class Kind : std::uint8_t {
         VoidTy,
         IntTy,
         FloatTy,
@@ -125,8 +118,7 @@ namespace fox
       bool isInt() const;
       bool isVoid() const;
 
-      static bool classof(const TypeBase* type)
-      {
+      static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::PrimitiveType);
       }
 
@@ -139,8 +131,7 @@ namespace fox
   // ArrayType
   //    An array of a certain type (can be any type, 
   //    even another ArrayType)
-  class ArrayType : public BuiltinType
-  {
+  class ArrayType : public BuiltinType {
     public:
       // Returns the UNIQUE ArrayType instance for the given
       // type ty.
@@ -149,8 +140,7 @@ namespace fox
       TypeBase* getElementType();
       const TypeBase* getElementType() const;
 
-      static bool classof(const TypeBase* type)
-      {
+      static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::ArrayType);
       }
 
@@ -165,8 +155,7 @@ namespace fox
   //    C/C++-like LValue. e.g. This type is the one
   //    of a DeclRef when the declaration it refers to
   //    is not const.
-  class LValueType : public TypeBase
-  {
+  class LValueType : public TypeBase {
     public:
       // Returns the UNIQUE LValueType instance for the given type "ty"
       static LValueType* get(ASTContext& ctxt, TypeBase* ty);
@@ -174,8 +163,7 @@ namespace fox
       TypeBase* getType();
       const TypeBase* getType() const;
 
-      static bool classof(const TypeBase* type)
-      {
+      static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::LValueType);
       }
 
@@ -189,14 +177,12 @@ namespace fox
   // ErrorType
   //    A type used to represent that a expression's type
   //    cannot be determined because of an error.
-  class ErrorType : public TypeBase
-  {
+  class ErrorType : public TypeBase {
     public:
       // Gets the unique ErrorType instance for the current context.
       static ErrorType* get(ASTContext& ctxt);
       
-      static bool classof(const TypeBase* type)
-      {
+      static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::ErrorType);
       }
 
@@ -227,8 +213,7 @@ namespace fox
   //    Example:
   //      Empty array literals '[]' generate a ConstrainedType 
   //      containing a single "ArrayCS"
-  class ConstrainedType : public TypeBase
-  {
+  class ConstrainedType : public TypeBase {
     public:
       // Creates a new instance of the ConstrainedType class
       static ConstrainedType* create(ASTContext& ctxt);
@@ -262,8 +247,7 @@ namespace fox
       std::size_t numConstraints() const;
       void addConstraint(Constraint* cs);
 
-      static bool classof(const TypeBase* type)
-      {
+      static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::ConstrainedType);
       }
 

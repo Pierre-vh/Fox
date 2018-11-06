@@ -9,36 +9,30 @@
 
 using namespace fox;
 
-ASTContext::ASTContext()
-{
+ASTContext::ASTContext() {
 
 }
 
-UnitDecl* ASTContext::getMainUnit()
-{
+UnitDecl* ASTContext::getMainUnit() {
   return mainUnit_;
 }
 
-void ASTContext::addUnit(UnitDecl* unit, bool isMainUnit)
-{
+void ASTContext::addUnit(UnitDecl* unit, bool isMainUnit) {
   units_.push_back(unit);
 
   if (isMainUnit)
     mainUnit_ = unit;
 }
 
-LinearAllocator<>& ASTContext::getAllocator()
-{
+LinearAllocator<>& ASTContext::getAllocator() {
   return allocator_;
 }
 
-LinearAllocator<>& ASTContext::getCSAllocator()
-{
+LinearAllocator<>& ASTContext::getCSAllocator() {
   return csAllocator_;
 }
 
-void ASTContext::reset()
-{
+void ASTContext::reset() {
   units_.clear();
   mainUnit_ = nullptr;
 
@@ -60,7 +54,6 @@ void ASTContext::reset()
   csAllocator_.reset();
 }
 
-void ASTContext::freeCS()
-{
+void ASTContext::freeCS() {
   csAllocator_.reset();
 }

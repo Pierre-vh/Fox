@@ -19,11 +19,9 @@
 #include <cstdint>
 #include <cassert>
 
-namespace fox
-{
+namespace fox {
   template <typename ... Args>
-  class PtrVariant
-  {
+  class PtrVariant {
     private:
       using Idx = std::uint8_t;
 
@@ -40,14 +38,12 @@ namespace fox
       struct is_contained;
 
       template <typename T, typename Head, typename... Tail>
-      struct is_contained<T, Head, Tail...>
-      {
+      struct is_contained<T, Head, Tail...> {
         static constexpr bool value = std::is_same<T, Head>::value || is_contained<T, Tail...>::value;
       };
 
       template <typename T>
-      struct is_contained<T>
-      {
+      struct is_contained<T> {
         static constexpr bool value = false;
       };
 
@@ -55,14 +51,12 @@ namespace fox
       struct is_unique;
 
       template <typename Head, typename... Tail>
-      struct is_unique<Head, Tail...>
-      {
+      struct is_unique<Head, Tail...> {
         static constexpr bool value = !is_contained<Head, Tail...>::value && is_unique<Tail...>::value;
       };
 
       template <>
-      struct is_unique<>
-      {
+      struct is_unique<> {
         static constexpr bool value = true;
       };
 
@@ -71,12 +65,10 @@ namespace fox
       struct index_impl;
 
       template<typename Req, typename ... Rest>
-      struct index_impl<Req, Req, Rest...> : std::integral_constant<Idx, 0>
-      {};
+      struct index_impl<Req, Req, Rest...> : std::integral_constant<Idx, 0> {};
 
       template<typename Req, typename Other, typename ... Rest>
-      struct index_impl<Req, Other, Rest...> : std::integral_constant<Idx, 1 + index_impl<Req, Rest...>::value>
-      {};
+      struct index_impl<Req, Other, Rest...> : std::integral_constant<Idx, 1 + index_impl<Req, Rest...>::value> {};
 
       template<typename T>
       using indexOf = index_impl<T, Args...>;
@@ -86,121 +78,103 @@ namespace fox
       static_assert(is_unique<Args...>::value, "No duplicates allowed in the Pointer Variant.");
 
       // Constructors
-      PtrVariant() : ptr_(nullptr), idx_(0)
-      {
+      PtrVariant() : ptr_(nullptr), idx_(0) {
 
       }
 
-      PtrVariant(std::nullptr_t) : ptr_(nullptr), idx_(0)
-      {
+      PtrVariant(std::nullptr_t) : ptr_(nullptr), idx_(0) {
 
       }
 
       template<typename T, typename enableIf_hasType<T>::type = 0>
-      PtrVariant(T* ptr) : ptr_(ptr), idx_(indexOf<T>::value)
-      {
+      PtrVariant(T* ptr) : ptr_(ptr), idx_(indexOf<T>::value) {
 
       }
 
       // Setter
       template<typename T, typename enableIf_hasType<T>::type = 0>
-      void set(T* ptr)
-      {
+      void set(T* ptr) {
         ptr_ = ptr;
         idx_ = indexOf<T>::value;
       }
 
       // Getters that assert that the type is correct
       template<typename T, typename enableIf_hasType<T>::type = 0>
-      const T* get() const
-      {
+      const T* get() const {
         assert((idx_ == indexOf<T>::value) && "Incorrect type!");
         return static_cast<T*>(ptr_);
       }
 
       template<typename T, typename enableIf_hasType<T>::type = 0>
-      T* get()
-      {
+      T* get() {
         assert((idx_ == indexOf<T>::value) && "Incorrect type!");
         return static_cast<T*>(ptr_);
       }
 
       // Getters that returns the pointer, or nullptr if it's not the correct type
       template<typename T, typename enableIf_hasType<T>::type = 0>
-      const T* getIf() const
-      {
+      const T* getIf() const {
         if (idx_ == indexOf<T>::value)
           return static_cast<T*>(ptr_);
         return nullptr;
       }
 
       template<typename T, typename enableIf_hasType<T>::type = 0>
-      T* getIf()
-      {
+      T* getIf() {
         if (idx_ == indexOf<T>::value)
           return static_cast<T*>(ptr_);
         return nullptr;
       }
 
       // Getter that returns an opaque pointer (void*)
-      const void* getOpaque() const
-      {
+      const void* getOpaque() const {
         return ptr_;
       }
 
-      void* getOpaque()
-      {
+      void* getOpaque() {
         return ptr_;
       }
 
       // Checking
       template<typename T, typename enableIf_hasType<T>::type = 0>
-      bool is() const
-      {
+      bool is() const {
         return (idx_ == indexOf<T>::value);
       }
 
       // Operators
       // Assignement
       template<typename T, typename enableIf_hasType<T>::type = 0>
-      ThisType& operator= (T* other)
-      {
+      ThisType& operator= (T* other) {
         set(other);
         return *this;
       }
 
       template<typename T, typename enableIf_hasType<T>::type = 0>
-      ThisType& operator= (const ThisType& other) const
-      {
+      ThisType& operator= (const ThisType& other) const {
         idx_ = other.idx_;
         ptr_ = other.ptr_;
       }
 
       // Bool (checks if the variant is not null)
-      explicit operator bool() const
-      {
+      explicit operator bool() const {
         return (ptr_ != nullptr);
       }
 
       // Comparison
       // Comparisons
-      bool operator== (const ThisType& other) const
-      {
+      bool operator== (const ThisType& other) const {
         return ptr_ == other.ptr_;
       }
 
-      bool operator== (const void* other) const
-      {
+      bool operator== (const void* other) const {
         return ptr_ == other;
       }
 
-      bool operator!= (const ThisType& other) const
-      {
+      bool operator!= (const ThisType& other) const {
         return ptr_ != other.ptr_;
       }
 
-      bool operator!= (const void* other) const
-      {
+      bool operator!= (const void* other) const {
         return ptr_ != other;
       }
 
@@ -212,14 +186,12 @@ namespace fox
 
   // Commutative versions of PtrVariant's comparison operators with pointers
   template<typename ... Args>
-  bool operator== (const void* lhs, const PtrVariant<Args...> &rhs)
-  {
+  bool operator== (const void* lhs, const PtrVariant<Args...> &rhs) {
     return lhs == rhs.getOpaque();
   }
 
   template<typename ... Args>
-  bool operator!= (const void* lhs, const PtrVariant<Args...> &rhs)
-  {
+  bool operator!= (const void* lhs, const PtrVariant<Args...> &rhs) {
     return lhs != rhs.getOpaque();
   }
 }

@@ -13,10 +13,8 @@
 #include <tuple>
 #include "Fox/AST/ASTFwdDecl.hpp"
 
-namespace fox
-{
-  class ASTWalker
-  {
+namespace fox {
+  class ASTWalker {
     public:
       ASTNode walk(ASTNode node);
       Expr* walk(Expr* expr);

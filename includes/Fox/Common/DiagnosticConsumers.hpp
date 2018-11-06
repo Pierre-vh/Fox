@@ -12,16 +12,14 @@
 
 #include <iostream>
 
-namespace fox
-{
+namespace fox {
   class Diagnostic;
   class SourceLoc;
   class SourceRange;
   class SourceManager;
   enum class DiagSeverity : std::uint8_t;
 
-  class DiagnosticConsumer
-  {
+  class DiagnosticConsumer {
     public:
       virtual void consume(Diagnostic& diag) = 0;
 
@@ -33,8 +31,7 @@ namespace fox
       std::size_t removeIndent(std::string& str) const;
   };
 
-  class StreamDiagConsumer : public DiagnosticConsumer
-  {
+  class StreamDiagConsumer : public DiagnosticConsumer {
     public:
       StreamDiagConsumer(SourceManager& sm,std::ostream& stream = std::cout); // Default outstream is cout (stdio)
       virtual void consume(Diagnostic& diag) override;

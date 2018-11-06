@@ -20,8 +20,7 @@
 using namespace fox;
 
 // Tests that the ASTContext gives correct builtin
-TEST(ASTTests, ASTContextBuiltins)
-{
+TEST(ASTTests, ASTContextBuiltins) {
   ASTContext actxt;
 
   auto* primBool = PrimitiveType::getBool(actxt);
@@ -76,8 +75,7 @@ TEST(ASTTests, ASTContextBuiltins)
   EXPECT_TRUE(primVoid->isVoid());
 }
 
-TEST(ASTTests, ASTContextArrayTypes)
-{
+TEST(ASTTests, ASTContextArrayTypes) {
   ASTContext actxt;
 
   auto* primBool = PrimitiveType::getBool(actxt);
@@ -118,8 +116,7 @@ TEST(ASTTests, ASTContextArrayTypes)
 }
 
 // Create a variable with a random type
-VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeLoc ty)
-{
+VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeLoc ty) {
   return new(ctxt) VarDecl(
       ctxt.identifiers.getUniqueIdentifierInfo(name),
       ty,
@@ -129,8 +126,7 @@ VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeLoc ty)
     );
 }
 
-FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name)
-{
+FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name) {
   return new(ctxt) FuncDecl(
     PrimitiveType::getVoid(ctxt),
     ctxt.identifiers.getUniqueIdentifierInfo(name),
@@ -140,33 +136,28 @@ FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name)
   );
 }
 
-bool testLookup(ASTContext &ctxt,DeclContext *dr, const std::string& name, Decl* decl,std::string& err)
-{
+bool testLookup(ASTContext &ctxt,DeclContext *dr, const std::string& name, Decl* decl,std::string& err) {
   auto lookupResult = dr->restrictedLookup(ctxt.identifiers.getUniqueIdentifierInfo(name));
   
-  if (!lookupResult)
-  {
+  if (!lookupResult) {
     err = "No result found";
     return false;
   }
 
-  if (!lookupResult.isUnique())
-  {
+  if (!lookupResult.isUnique()) {
     err = "Multiple results found";
     return false;
   }
 
   if (lookupResult.getResultIfUnique() == decl)
     return true;
-  else
-  {
+  else {
     err = "Result isn't the one expected";
     return false;
   }
 }
 
-TEST(ASTTests, DeclContext)
-{
+TEST(ASTTests, DeclContext) {
   ASTContext astctxt;
 
   auto* var1 = makeVarDecl(astctxt, "Variable_1", PrimitiveType::getBool(astctxt));
@@ -186,47 +177,40 @@ TEST(ASTTests, DeclContext)
   // Iterate over all the recorded decl and check that they were added in the correct order with the correct names.
   bool v1_ok, v2_ok, v3_ok, v4_ok, v5_ok;
   v1_ok = v2_ok = v3_ok = v4_ok = v5_ok = false;
-  for (auto it = func->recordedDecls_begin(); it != func->recordedDecls_end(); it++)
-  {
+  for (auto it = func->recordedDecls_begin(); it != func->recordedDecls_end(); it++) {
     Identifier* id = it->getIdentifier();
     std::string str = id->getStr();
-    if (str == "Variable_1")
-    {
+    if (str == "Variable_1") {
       EXPECT_EQ(id, var1->getIdentifier()) << "Mismatch : " << str << " != " << var1->getIdentifier()->getStr();
       EXPECT_EQ(*it, var1);
       ASSERT_FALSE(v1_ok) << "Variable_1 found twice?";
       v1_ok = true;
     }
-    else if (str == "Variable_2")
-    {
+    else if (str == "Variable_2") {
       EXPECT_EQ(id, var2->getIdentifier()) << "Mismatch : " << str << " != " << var2->getIdentifier()->getStr();
       EXPECT_EQ(*it, var2);
       ASSERT_FALSE(v2_ok) << "Variable_2 found twice?";
       v2_ok = true;
     }
-    else if (str == "Variable_3")
-    {
+    else if (str == "Variable_3") {
       EXPECT_EQ(id, var3->getIdentifier()) << "Mismatch : " << str << " != " << var3->getIdentifier()->getStr();
       EXPECT_EQ(*it, var3);
       ASSERT_FALSE(v3_ok) << "Variable_3 found twice?";
       v3_ok = true;
     }
-    else if (str == "Variable_4")
-    {
+    else if (str == "Variable_4") {
       EXPECT_EQ(id, var4->getIdentifier()) << "Mismatch : " << str << " != " << var4->getIdentifier()->getStr();
       EXPECT_EQ(*it, var4);
       ASSERT_FALSE(v4_ok) << "Variable_4 found twice?";
       v4_ok = true;
     }
-    else if (str == "Variable_5")
-    {
+    else if (str == "Variable_5") {
       EXPECT_EQ(id, var5->getIdentifier()) << "Mismatch : " << str << " != " << var5->getIdentifier()->getStr();
       EXPECT_EQ(*it, var5);
       ASSERT_FALSE(v5_ok) << "Variable_5 found twice?";
       v5_ok = true;
     }
-    else
-    {
+    else {
       FAIL() << "No decl found";
     }
   }
@@ -245,8 +229,7 @@ TEST(ASTTests, DeclContext)
 
 }
 
-TEST(ASTTests, ConstraintsKinds)
-{
+TEST(ASTTests, ConstraintsKinds) {
   ASTContext astctxt;
   Type intTy(PrimitiveType::getInt(astctxt));
 
@@ -256,8 +239,7 @@ TEST(ASTTests, ConstraintsKinds)
   EXPECT_TRUE(ar->is(Constraint::Kind::ArrayCS));
 }
 
-TEST(ASTTests, TypeRTTI)
-{
+TEST(ASTTests, TypeRTTI) {
   ASTContext astctxt;
   TypeBase* intTy = PrimitiveType::getInt(astctxt);
   auto* arrIntTy = ArrayType::get(astctxt, intTy);
@@ -283,8 +265,7 @@ TEST(ASTTests, TypeRTTI)
   EXPECT_TRUE(ConstrainedType::classof(csType));
 }
 
-TEST(ASTTests, ExprRTTI)
-{
+TEST(ASTTests, ExprRTTI) {
   ASTContext astctxt;
 
   // Binary Exprs
@@ -351,8 +332,7 @@ TEST(ASTTests, ExprRTTI)
   EXPECT_TRUE(FunctionCallExpr::classof(&callexpr));
 }
 
-TEST(ASTTests, StmtRTTI)
-{
+TEST(ASTTests, StmtRTTI) {
   // NullStmt
   NullStmt null;
   EXPECT_EQ(null.getKind(), StmtKind::NullStmt);
@@ -379,8 +359,7 @@ TEST(ASTTests, StmtRTTI)
   EXPECT_TRUE(WhileStmt::classof(&whilestmt));
 }
 
-TEST(ASTTests, DeclRTTI)
-{
+TEST(ASTTests, DeclRTTI) {
   ASTContext astctxt;
   auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
   auto intty = PrimitiveType::getInt(astctxt);
@@ -417,35 +396,28 @@ TEST(ASTTests, DeclRTTI)
 }
 
 // ASTVisitor tests : Samples implementations to test if visitors works as intended
-class IsNamedDecl : public SimpleASTVisitor<IsNamedDecl, bool>
-{
+class IsNamedDecl : public SimpleASTVisitor<IsNamedDecl, bool> {
   public:
-    bool visitNamedDecl(NamedDecl* node)
-    {
+    bool visitNamedDecl(NamedDecl* node) {
       return true;
     }
 };
 
-class IsExpr : public SimpleASTVisitor<IsExpr, bool>
-{
+class IsExpr : public SimpleASTVisitor<IsExpr, bool> {
   public:
-    bool visitExpr(Expr* node)
-    {
+    bool visitExpr(Expr* node) {
       return true;
     }
 };
 
-class IsArrTy : public SimpleASTVisitor<IsArrTy, bool>
-{
+class IsArrTy : public SimpleASTVisitor<IsArrTy, bool> {
   public:
-    bool visitArrayType(ArrayType* node)
-    {
+    bool visitArrayType(ArrayType* node) {
       return true;
     }
 };
 
-TEST(ASTTests, BasicVisitor)
-{
+TEST(ASTTests, BasicVisitor) {
   // Context
   ASTContext ctxt;
 
@@ -486,8 +458,7 @@ TEST(ASTTests, BasicVisitor)
 
 }
 
-class CSToTxt : public ConstraintVisitor<CSToTxt, std::string>
-{
+class CSToTxt : public ConstraintVisitor<CSToTxt, std::string> {
   public:
     #define PRINT(CS)\
     std::string visit##CS(Constraint*){ \
@@ -498,8 +469,7 @@ class CSToTxt : public ConstraintVisitor<CSToTxt, std::string>
     #undef PRINT
 };
 
-TEST(ASTTests, ConstraintVisitorTest)
-{
+TEST(ASTTests, ConstraintVisitorTest) {
   ASTContext astctxt;
   Type intTy(PrimitiveType::getInt(astctxt));
 

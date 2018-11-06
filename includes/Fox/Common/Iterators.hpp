@@ -11,8 +11,7 @@
 #include <memory>
 #include <vector>
 
-namespace fox
-{
+namespace fox {
   // Typedef for UniquePtrVectors, to make them a bit less verbose.
   template <typename Ty>
   using UniquePtrVector = std::vector<std::unique_ptr<Ty>>;
@@ -21,15 +20,13 @@ namespace fox
   // uses .get() to only expose the raw pointer.
   // Based on an article https://jonasdevlieghere.com/containers-of-unique-pointers/
   template <typename BaseIterator>
-  class DereferenceIterator : public BaseIterator
-  {
+  class DereferenceIterator : public BaseIterator {
     public:  
       using value_type = typename BaseIterator::value_type::element_type;
       using pointer = value_type * ;
       using reference = value_type & ;
 
-      DereferenceIterator(const BaseIterator &baseIt) : BaseIterator(baseIt)
-      {
+      DereferenceIterator(const BaseIterator &baseIt) : BaseIterator(baseIt) {
 
       }
 

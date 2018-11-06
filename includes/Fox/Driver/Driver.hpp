@@ -16,10 +16,8 @@
 #include <string>
 #include <ostream>
 
-namespace fox
-{
-  class Driver
-  {
+namespace fox {
+  class Driver {
     public:  
       Driver() = default;
       // This function will lex a file and call parseFuncDecl, then output the ast.

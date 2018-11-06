@@ -17,18 +17,15 @@
 #include <string>
 #include <sstream>
 
-namespace fox
-{
+namespace fox {
   class DiagnosticEngine;
-  enum class DiagID : std::uint16_t
-  {
+  enum class DiagID : std::uint16_t {
     // Important : first value must always be 0 to keep sync with the severities and strs arrays.
     #define DIAG(SEVERITY,ID,TEXT) ID,
       #include "Diags/All.def"
   };
 
-  enum class DiagSeverity : std::uint8_t
-  {
+  enum class DiagSeverity : std::uint8_t {
     IGNORE,
     NOTE,
     WARNING,
@@ -36,8 +33,7 @@ namespace fox
     FATAL    
   };
 
-  class Diagnostic
-  {
+  class Diagnostic {
     // Note: in this class, some methods will return a Diagnostic&. This is done
     // to enable function chaining, such as ".addArg(..).addArg(...).freeze()"
     protected:
@@ -75,8 +71,7 @@ namespace fox
 
       // Replace a %x placeholder.
       template<typename ReplTy>
-      inline Diagnostic& addArg(const ReplTy& value)
-      {
+      inline Diagnostic& addArg(const ReplTy& value) {
         auto tmp = curPHIndex_;
         curPHIndex_++;
         return addArg(value,tmp);
@@ -95,8 +90,7 @@ namespace fox
 
       // Internal addArg overloads
       template<typename ReplTy>
-      inline Diagnostic& addArg(const ReplTy& value, std::uint8_t phIndex)
-      {
+      inline Diagnostic& addArg(const ReplTy& value, std::uint8_t phIndex) {
         std::stringstream ss;
         ss << value;
         return replacePlaceholder(ss.str(), phIndex);
@@ -104,15 +98,13 @@ namespace fox
 
       // For std::strings
       template<>
-      inline Diagnostic& addArg(const std::string& value, std::uint8_t phIndex)
-      {
+      inline Diagnostic& addArg(const std::string& value, std::uint8_t phIndex) {
         return replacePlaceholder(value, phIndex);
       }
 
       // for FoxChar
       template<>
-      inline Diagnostic& addArg(const FoxChar& value, std::uint8_t phIndex)
-      {
+      inline Diagnostic& addArg(const FoxChar& value, std::uint8_t phIndex) {
         return replacePlaceholder(
           StringManipulator::charToStr(value), phIndex
         );

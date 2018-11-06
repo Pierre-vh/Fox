@@ -14,17 +14,14 @@
 using namespace fox;
 
 Sema::Sema(ASTContext& ctxt, DiagnosticEngine& diags) :
-  ctxt_(ctxt), diags_(diags)
-{
+  ctxt_(ctxt), diags_(diags) {
 
 }
 
-DiagnosticEngine& Sema::getDiagnosticEngine()
-{
+DiagnosticEngine& Sema::getDiagnosticEngine() {
   return diags_;
 }
 
-ASTContext& Sema::getASTContext()
-{
+ASTContext& Sema::getASTContext() {
   return ctxt_;
 }

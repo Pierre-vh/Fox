@@ -15,16 +15,13 @@
 #include <cstddef>
 #include <deque>
 
-namespace fox
-{
+namespace fox {
   class ASTContext;
 
   // Base class for every constraint
-  class Constraint
-  {
+  class Constraint {
     public:
-      enum class Kind: std::uint8_t
-      {
+      enum class Kind: std::uint8_t {
         #define CS(ID) ID,
         #include "Constraints.def"
       };

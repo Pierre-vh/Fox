@@ -13,10 +13,8 @@
 #include <vector>
 #include "PrintObjects.hpp"
 
-namespace fox
-{
-  namespace test
-  {
+namespace fox {
+  namespace test {
     // Reads a file line by line and puts every line into a vector. 
     // Returns true in case of success, false if the file could not be opened.
     bool readFileToVec(const std::string& filepath, std::vector<std::string>& outvec);

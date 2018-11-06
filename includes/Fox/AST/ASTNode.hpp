@@ -14,15 +14,13 @@
 
 #include "Fox/Common/PtrVariant.hpp"
 
-namespace fox
-{
+namespace fox {
   class Expr;
   class Stmt;
   class Decl;
   class SourceRange;
   class SourceLoc;
-  class ASTNode : public PtrVariant<Expr, Stmt, Decl>
-  {
+  class ASTNode : public PtrVariant<Expr, Stmt, Decl> {
     public:
       using PtrVariant::PtrVariant;
 

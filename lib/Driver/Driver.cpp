@@ -19,16 +19,14 @@
 
 using namespace fox;
 
-bool Driver::processFile(std::ostream& out, const std::string& filepath)
-{
+bool Driver::processFile(std::ostream& out, const std::string& filepath) {
   SourceManager srcMgr;
   DiagnosticEngine dg(srcMgr);
   // Create a ASTContext
   ASTContext astCtxt;
 
   auto fid = srcMgr.loadFromFile(filepath);
-  if (!fid)
-  {
+  if (!fid) {
     out << "Could not open file \"" << filepath << "\"\n";
     return false;
   }
@@ -41,8 +39,7 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
   auto lex_micro = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
   auto lex_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
 
-  if (dg.getErrorsCount())
-  {
+  if (dg.getErrorsCount()) {
     out << "Failed at lexing\n";
     return false;
   }
@@ -51,8 +48,7 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
   // Todo: extract the name of the file and use that instead of "TestUnit"
   auto unit = psr.parseUnit(fid, astCtxt.identifiers.getUniqueIdentifierInfo("TestUnit"), /* is main unit */ true);
 
-  if (!unit)
-  {
+  if (!unit) {
     out << "Failed at parsing.\n";
     return false;
   }
@@ -72,13 +68,10 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath)
   auto dump_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
 
   // Semantic analysis testing stuff, don't look
-  for (auto& decl : unit->getDecls())
-  {
-    if (FuncDecl* fn = dyn_cast<FuncDecl>(decl))
-    {
+  for (auto& decl : unit->getDecls()) {
+    if (FuncDecl* fn = dyn_cast<FuncDecl>(decl)) {
       CompoundStmt* body = fn->getBody();
-      for (auto& node : body->getNodes())
-      {
+      for (auto& node : body->getNodes()) {
         if (auto* expr = node.getIf<Expr>())
           node = Sema(astCtxt, dg).typecheckExpr(expr);
       }
