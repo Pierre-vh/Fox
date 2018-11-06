@@ -77,8 +77,10 @@ To-Do:
   > ConstrainedType in Semantic Analysis (Done)
   > Fix Array Literal Inference (Done)
 
-  > Write a Verify mode/testing tool and test current semantics (Next)
-  > Finish basic expr semantic analysis (Next)
+  > Some tests are failing, find the cause! (Next)
+
+  > Write a Verify mode/testing tool and test current semantics
+  > Finish basic expr semantic analysis
 
   > Code review in SemaType/SemaExpr & Write tests using new FTT tool
 
