@@ -1,18 +1,14 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
 // File : Token.cpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
-//			SEE HEADER FILE FOR MORE INFORMATION			
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "Fox/Lexer/Token.hpp"
-
 #include <regex>
 #include <string>
 #include <sstream>
-
 #include "Fox/Common/StringManipulator.hpp"
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"

@@ -1,12 +1,12 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
 // File : ParseStmt.cpp										
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 //			SEE HEADER FILE FOR MORE INFORMATION			
 //	This file implements statements rules. parseStmt, parseVarDeclstmt,etc.									
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "Fox/Parser/Parser.hpp"
 

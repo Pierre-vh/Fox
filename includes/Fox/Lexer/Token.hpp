@@ -1,15 +1,15 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Token.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file contains the declaration of various Token-related structures and enumerations,
 // including the Token struct and LiteralInfo struct.
 //
 // TODO: This is spaghetti code I wrote very early in the project, rewrite this using a proper
 // class hierarchy, which makes a lot more sense.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

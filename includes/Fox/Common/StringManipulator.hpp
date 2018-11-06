@@ -1,9 +1,9 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : StringManipulator.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // Implements a UTF-8 string manipulator based on the UTFCPP library.
 // It always work with a pointer to the string to avoid copies.
 //
@@ -21,7 +21,7 @@
 //							 	- - --------------------------------------------------------- - -
 //
 //
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

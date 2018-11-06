@@ -1,13 +1,13 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : StmtNodes.def											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file uses Macro to "register" every Stmt nodes
 // When including this file, the user can define custom macros to gather various informations
 // about the nodes.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 // Base macro for concrete classes of Stmt.
 // The Kind of the Stmt is StmtKind::ID

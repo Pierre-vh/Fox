@@ -1,12 +1,12 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : SimpleParserTests.cpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 //	Simple Tests for the Parser. They test that the parser
 //  recognize an input correctly, and return a valid result.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
 #include "Support/TestUtils.hpp"

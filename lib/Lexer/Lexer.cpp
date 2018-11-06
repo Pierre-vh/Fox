@@ -1,14 +1,11 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
 // File : Lexer.cpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
-//			SEE HEADER FILE FOR MORE INFORMATION			
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "Fox/Lexer/Lexer.hpp"
-
 #include <string>
 #include <cwctype>
 #include <sstream>		

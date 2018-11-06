@@ -1,13 +1,13 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : ASTContext.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // The ASTContext is the core of the AST
 // - It owns the AST and manages it's memory through LinearAllocator
 // - It owns the identifier table, accessible through identifierTable()
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

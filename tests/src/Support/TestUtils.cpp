@@ -1,18 +1,14 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : TestUtils.cpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
-//			SEE HEADER FILE FOR MORE INFORMATION			
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "TestUtils.hpp"
-
 #include <fstream>
+
 using namespace fox;
-
-
 
 const std::string testsPath = std::string(TEST_RES_PATH) + std::string("/res/");
 

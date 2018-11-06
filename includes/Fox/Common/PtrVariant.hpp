@@ -1,9 +1,9 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : PtrVariant.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This class implements a Pointer variant. It just stores a void pointer,
 // and a 8 bit discriminant. It can be queried to check which type is currently in use.
 // Note that you must omit the pointer when using the class. 
@@ -11,7 +11,7 @@
 //
 // TODO: Implement an alternative "intrusive" variant which stores the 
 // discriminant in the low bits of the pointer.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

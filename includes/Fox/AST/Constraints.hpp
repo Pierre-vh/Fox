@@ -1,13 +1,13 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Constraint.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file contains the Constraint class, which represents
 // a constraint imposed on a Type. This is used by the ConstraintedType.
 // Constraint are immutable once created.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

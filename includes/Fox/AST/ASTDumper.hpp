@@ -1,12 +1,12 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : ASTDumper.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file contains the "ASTDumper" class, which is used to 
 // print the ast to any ostream.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 #include "ASTVisitor.hpp"

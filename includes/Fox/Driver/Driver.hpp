@@ -1,9 +1,9 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Driver.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This class aims to provide a basic driving tool for the compiler
 // 
 // At first, this driver will just take a file path as input and try
@@ -11,7 +11,7 @@
 // (By try to compile it, I mean, with what's available. At the time of writing theses
 // lines, the driver attempts to parse a single function definition and It'll output
 // the AST and other Diag informations.)
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include <string>
 #include <ostream>

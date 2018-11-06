@@ -1,12 +1,12 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
 // File : ParseExpr.cpp										
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 //			SEE HEADER FILE FOR MORE INFORMATION			
 // This file implements expressions related methods (rules)	
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/AST/Identifiers.hpp"

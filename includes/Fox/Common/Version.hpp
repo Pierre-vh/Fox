@@ -1,12 +1,12 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Version.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file contains the version Major/Minor/Patch and other information
 // About the current version of the Moonshot Project
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #define MOONSHOT_UTIL_TOSTR_HELPER(X) #X
 #define MOONSHOT_UTIL_TOSTR(X) MOONSHOT_UTIL_TOSTR_HELPER(X)

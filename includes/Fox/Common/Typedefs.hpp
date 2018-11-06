@@ -1,15 +1,15 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Typedefs.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file declares Typedefs for various types to ensure
 // consistency between types. 
 //
 // For instance, it would be terrible if a class tried to store a int64_t, used by a literal token, in a
 // normal int ! To solve this, they would both use "FoxInt" !
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

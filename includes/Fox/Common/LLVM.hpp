@@ -1,12 +1,12 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : LLVM.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file imports the most commonly used LLVM functions that
 // we want to use unqualified.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 // Include Casting.h because it has complex templated functions
 // that can't be easily forward-declared. 

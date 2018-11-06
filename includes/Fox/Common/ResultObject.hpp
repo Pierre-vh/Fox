@@ -1,9 +1,9 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : ResultObject.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file contains the ResultObject class, which is a "baseline"
 // for classes that needs a special "Result" object that encapsulates
 // a value/result + a boolean flag.
@@ -11,7 +11,7 @@
 // The boolean is meant to contain a "success" flag 
 // (true = operation was successful, false if not)
 // and is accessible through wasSuccessful
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 
 #pragma once
 

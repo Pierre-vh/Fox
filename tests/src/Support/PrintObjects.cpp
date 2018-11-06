@@ -1,14 +1,11 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : PrintObjects.cpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
-//			SEE HEADER FILE FOR MORE INFORMATION			
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "PrintObjects.hpp"
-
 #include "Fox/Common/Source.hpp"
 
 using namespace fox;

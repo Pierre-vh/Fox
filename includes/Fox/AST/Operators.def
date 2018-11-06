@@ -1,9 +1,9 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Operators.def											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file uses Macro to "register" every Unary & Binary operators with
 // their name and sign.
 // Every macro consists of 3 things: an ID for the operator,
@@ -11,7 +11,7 @@
 //
 // Note that each enum's first value should be an "Invalid"
 // operator, used as a default value for the enum
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #ifndef BINARY_OP
 	#define BINARY_OP(ID, SIGN, NAME)

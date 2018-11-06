@@ -1,11 +1,9 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
 // File : Source.cpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
-//			SEE HEADER FILE FOR MORE INFORMATION			
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/StringManipulator.hpp"

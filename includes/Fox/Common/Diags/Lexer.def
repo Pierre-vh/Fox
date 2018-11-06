@@ -1,11 +1,11 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Parser.def											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // Lexer Diagnostics Message
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 
 ERROR(lexer_invalid_token_found, "Invalid token \"%0\" found.")

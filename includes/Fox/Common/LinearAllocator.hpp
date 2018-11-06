@@ -1,12 +1,12 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : LinearAllocator.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // Implements a custom Linear Allocator.
 // This allocator does not inherit from std::allocator_traits
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 // LinearAllocator To-Do list:
 	// Allow multiple allocations of a single element ("count" arg)

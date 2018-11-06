@@ -1,17 +1,16 @@
-﻿////------------------------------------------------------////
+﻿//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : UTF8Tests.cpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 //	(Unit) Tests for the Lexer's UTF8 String manipulator.
 // In short, this tests verifies the capability of the lexer to work on UTF8 strings.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
 #include "Support/TestUtils.hpp"
 #include "Fox/Common/StringManipulator.hpp"
-
 #include <cwctype>		// std::iswspace
 
 using namespace fox;

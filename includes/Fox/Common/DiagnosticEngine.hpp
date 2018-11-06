@@ -1,16 +1,16 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : DiagnosticEngine.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file declares the DiagnosticEngine class, which is used
 // to coordinate diagnostic generation and consumption.
 //
 // This class will also promote or demote diagnostics severity 
 // based on some options. It will also keep track of how many errors
 // and warnings have been emitted.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

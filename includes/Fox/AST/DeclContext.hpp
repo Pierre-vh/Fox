@@ -1,9 +1,9 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : DeclContext.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // DeclContext is a class that acts as a "Declaration Recorder"
 //
 // While parsing, the parser "registers" every declaration in the current DeclContext.
@@ -11,7 +11,7 @@
 // The DeclContext assists name resolution, allowing the interpreter to
 // find members of a unit/namespace/etc easily.
 //
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

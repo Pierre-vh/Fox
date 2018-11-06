@@ -1,12 +1,12 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : CommandLineTool.cpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This is the entry point of the command line tool.
 // As of April 2018, it is still extremely basic, and only meant for testing/parser demonstration purposes.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include <iostream>
 

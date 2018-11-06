@@ -1,11 +1,11 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Stmt.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file declares the interface Stmt and it's derived classes.							
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

@@ -1,9 +1,9 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Parser.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file implements the recursive descent parser.		
 // The parser is implemented as a set of functions, each	
 // "parseXXX" method represents a rule in the grammar.				
@@ -28,7 +28,7 @@
 //
 //			Add a way for the parser to ignore comment tokens.
 //
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

@@ -1,16 +1,16 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Types.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file contains the TypeBase hierarchy.
 //
 //	Unlike Stmt/Decl/Expr hierarchies, this hierarchy is exclusively
 //	allocated/created through static member functions. This is done because
 //  most types are unique.
 //
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once
 

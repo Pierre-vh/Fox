@@ -1,12 +1,12 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
 // See LICENSE.txt for license info.						
 // File : SemaTypes.cpp										
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 //			SEE HEADER FILE FOR MORE INFORMATION			
 //	This file implements Sema methods related to Types
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
 #include "Fox/AST/ConstraintVisitor.hpp"

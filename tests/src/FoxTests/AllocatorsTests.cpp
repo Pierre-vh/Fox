@@ -1,12 +1,12 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : AllocatorTests.cpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // (Unit) Tests for the LinearAllocator (& other allocators in the future
 // if needed)
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
 #include "Fox/Common/LinearAllocator.hpp"

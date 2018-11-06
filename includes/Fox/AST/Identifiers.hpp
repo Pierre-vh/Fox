@@ -1,9 +1,9 @@
 ///------------------------------------------------------////
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : Identifiers.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file contains the IdentifierTable and Identifier classes.
 //
 // Note: This class, and the whole idiom of storing the Identifier* instead of the raw string
@@ -13,7 +13,7 @@
 // doesn't store anything other than an iterator to the string, but in the future it might 
 // contain much more as the language grows.
 //
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 #pragma once 
 

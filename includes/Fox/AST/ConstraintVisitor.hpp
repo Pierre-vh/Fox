@@ -1,15 +1,15 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : ConstraintVisitor.hpp											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file contains the ConstraintVisitor. It has
 // an interface similar to the ASTVisitor, except that it's
 // reserved to constraints.
 // This is implemented here and not in the ASTVisitor because
 // constraints aren't really a part of the AST.
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 
 #pragma once
 

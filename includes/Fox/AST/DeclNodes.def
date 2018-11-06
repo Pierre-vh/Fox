@@ -1,13 +1,13 @@
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.				
-// See LICENSE.txt for license info.						
+// See the LICENSE.txt file at the root of the project for license information.						
 // File : DeclNodes.def											
 // Author : Pierre van Houtryve								
-////------------------------------------------------------//// 
+//----------------------------------------------------------------------------//
 // This file uses Macro to "register" every Decl nodes
 // When including this file, the user can define custom macros to gather various informations
 // about the nodes.
-////------------------------------------------------------////
+//----------------------------------------------------------------------------//
 
 // Base macro for concrete classes of Decl.
 // The Kind of the expr is DeclKind::ID
