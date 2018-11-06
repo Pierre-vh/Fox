@@ -16,25 +16,27 @@
 #include <string>
 #include <cstddef>
 
-// Type aliases for every type that Fox supports. Theses should only
-// be used when you want to make it clear that you'll be
-// storing a value which was found in the source code fed to the interpreter. 
-// Don't use theses in the wild to store arbitrary values.
+namespace fox {
+  // Type aliases for every type that Fox supports. Theses should only
+  // be used when you want to make it clear that you'll be
+  // storing a value which was found in the source code fed to the interpreter. 
+  // Don't use theses in the wild to store arbitrary values.
 
-// For instance, a AST node that holds a constant (a literal) will use the typedef
-// when manipulating the value,  but your everyday boolean flag in a function shouldn't use it.
+  // For instance, a AST node that holds a constant (a literal) will use the typedef
+  // when manipulating the value,  but your everyday boolean flag in a function shouldn't use it.
 
-// 64 Bit signed int.
-using FoxInt = std::int64_t;
+  // 64 Bit signed int.
+  using FoxInt = std::int64_t;
 
-// 32 bits Unicode Code Point
-using FoxChar = char32_t;
+  // 32 bits Unicode Code Point
+  using FoxChar = char32_t;
 
-// 32 Bits Single Precision floating point number.
-using FoxFloat = float;
+  // 32 Bits Single Precision floating point number.
+  using FoxFloat = float;
 
-// String value
-using FoxString = std::string;
+  // String value
+  using FoxString = std::string;
 
-// Boolean value
-using FoxBool = bool;
+  // Boolean value
+  using FoxBool = bool;
+}
