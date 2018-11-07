@@ -122,7 +122,7 @@ TEST(SourceManagerTests, PreciseLocation) {
 
     EXPECT_EQ(result.fileName, fp);
     EXPECT_EQ(result.line, 5);
-    EXPECT_EQ(result.column, 6);
+    EXPECT_EQ(result.column, 7);
   }
   else {
     FAIL() << "Couldn't find the pi sign.";

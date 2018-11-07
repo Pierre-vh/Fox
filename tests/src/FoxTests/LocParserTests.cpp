@@ -69,7 +69,7 @@ TEST_F(LocTests, FuncAndArgDecl) {
   
   EXPECT_EQ(func_beg, CompleteLoc(fullFilePath, 1, 1));
   EXPECT_EQ(func_head_end, CompleteLoc(fullFilePath, 1, 56));
-  EXPECT_EQ(func_end, CompleteLoc(fullFilePath, 4, 2));
+  EXPECT_EQ(func_end, CompleteLoc(fullFilePath, 4, 3));
 
   // Now, test the args
   // Arg count should be correct
@@ -128,21 +128,21 @@ TEST_F(LocTests, VarDecls) {
   CompleteLoc var_beg = srcMgr.getCompleteLoc(var->getRange().getBegin());
   CompleteLoc var_end = srcMgr.getCompleteLoc(var->getRange().getEnd());
 
-  EXPECT_EQ(var_beg, CompleteLoc(fullFilePath,1,2));
-  EXPECT_EQ(var_end, CompleteLoc(fullFilePath,1,25));
+  EXPECT_EQ(var_beg, CompleteLoc(fullFilePath,1,3));
+  EXPECT_EQ(var_end, CompleteLoc(fullFilePath,1,26));
 
   CompleteLoc var_ty_beg = srcMgr.getCompleteLoc(var->getTypeRange().getBegin());
   CompleteLoc var_ty_end = srcMgr.getCompleteLoc(var->getTypeRange().getEnd());
 
-  EXPECT_EQ(var_ty_beg, CompleteLoc(fullFilePath, 1, 10));
-  EXPECT_EQ(var_ty_end, CompleteLoc(fullFilePath, 1, 20));
+  EXPECT_EQ(var_ty_beg, CompleteLoc(fullFilePath, 1, 11));
+  EXPECT_EQ(var_ty_end, CompleteLoc(fullFilePath, 1, 21));
 
   auto range = var->getInitExpr()->getRange();
   CompleteLoc expr_beg = srcMgr.getCompleteLoc(range.getBegin());
   CompleteLoc expr_end = srcMgr.getCompleteLoc(range.getEnd());
 
   EXPECT_EQ(expr_beg, expr_end); // Since the expr is only a '3', it's only one char, thus beg = end.
-  EXPECT_EQ(expr_beg, CompleteLoc(fullFilePath, 1, 24));
+  EXPECT_EQ(expr_beg, CompleteLoc(fullFilePath, 1, 25));
 }
 
 // ToDo : Same tests for Exprs and Stmts
