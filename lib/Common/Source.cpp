@@ -68,11 +68,18 @@ string_view SourceManager::getSourceForFID(FileID fid) const {
   return data->str;
 }
 
-const SourceManager::StoredData* SourceManager::getStoredDataForFileID(FileID fid) const {
+const SourceManager::StoredData*
+SourceManager::getStoredDataForFileID(FileID fid) const {
   assert(fid.isValid() && "Invalid FileID");
   auto it = sources_.find(fid);
   assert((it != sources_.end()) && "Unknown entry");
   return &(it->second);
+}
+
+CompleteLoc::line_type SourceManager::getLineNumber(SourceLoc loc) const {
+  auto result = getLineTableEntryForLoc(
+    getStoredDataForFileID(loc.getFileID()), loc);
+  return result.second;
 }
 
 CompleteLoc SourceManager::getCompleteLocForSourceLoc(SourceLoc sloc) const {

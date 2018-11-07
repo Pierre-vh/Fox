@@ -155,6 +155,9 @@ namespace fox {
       // The result is always non null (guaranteed by an assertion)
       const StoredData*  getStoredDataForFileID(FileID fid) const;
 
+      // Returns the line number of a SourceLoc
+      CompleteLoc::line_type getLineNumber(SourceLoc loc) const;
+
       // Requests the human-readable location a SourceLoc points to.
       // This function will assert that the SourceLoc is valid;
       // This function accepts a SourceLoc that points right past the end of the file.
