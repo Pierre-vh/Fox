@@ -22,11 +22,13 @@ static const DiagSeverity diagsSevs[] = {
     #include "Fox/Common/Diags/All.def"
 };
 
-DiagnosticEngine::DiagnosticEngine(SourceManager& sm) : DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm)) {
+DiagnosticEngine::DiagnosticEngine(SourceManager& sm):
+  DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm)) {
 
 }
 
-DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons): consumer_(std::move(ncons)) {
+DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons):
+  consumer_(std::move(ncons)) {
   errLimitReached_ = false;
   hasFatalErrorOccured_ = false;
   errorsAreFatal_ = false;

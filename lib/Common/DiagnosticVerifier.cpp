@@ -13,7 +13,7 @@ using namespace fox;
 
 
 DiagnosticVerifier::DiagnosticVerifier(SourceManager& srcMgr,
-  std::unique_ptr<DiagnosticConsumer> consumer):
+                std::unique_ptr<DiagnosticConsumer> consumer):
   srcMgr_(srcMgr), consumer_(std::move(consumer)) {
   
 }
