@@ -22,7 +22,7 @@ FileID::FileID() {
   markAsInvalid();
 }
 
-FileID::FileID(id_type value) {
+FileID::FileID(IDTy value) {
   set(value);
 }
 
@@ -46,15 +46,15 @@ bool FileID::operator <(const FileID other) const {
   return (value_ < other.value_);
 }
 
-FileID::id_type FileID::getRaw() const {
+FileID::IDTy FileID::getRaw() const {
   return value_;
 }
 
-FileID::id_type FileID::get() const {
+FileID::IDTy FileID::get() const {
   return value_;
 }
 
-void FileID::set(id_type value) {
+void FileID::set(IDTy value) {
   value_ = value;
 }
 
@@ -76,7 +76,7 @@ SourceManager::getSourceData(FileID fid) const {
   return &(it->second);
 }
 
-CompleteLoc::line_type SourceManager::getLineNumber(SourceLoc loc) const {
+CompleteLoc::LineTy SourceManager::getLineNumber(SourceLoc loc) const {
   auto result = getLineTableEntry(
     getSourceData(loc.getFileID()), loc);
   return result.second;
@@ -94,8 +94,8 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
   if (isOutOfRange)
     idx--;
 
-  CompleteLoc::col_type col = 1;
-  CompleteLoc::line_type line = 1;
+  CompleteLoc::ColTy col = 1;
+  CompleteLoc::LineTy line = 1;
 
   auto entry = getLineTableEntry(fdata, sloc);
   bool exactMatch = (entry.first == idx);
@@ -107,7 +107,7 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
     line = entry.second;
     auto str_beg = fdata->str.c_str(); // Pointer to the first character of the string
     auto raw_col = utf8::distance(str_beg + entry.first, str_beg + idx);
-    col = static_cast<CompleteLoc::col_type>(raw_col+1);
+    col = static_cast<CompleteLoc::ColTy>(raw_col+1);
   }
 
   // Add back the extra column if needed
@@ -136,7 +136,7 @@ bool SourceManager::checkExists(FileID file) const {
   return (bool)getSourceData(file);
 }
 
-string_view SourceManager::getSourceLine(SourceLoc loc, SourceLoc::idx_type* lineBeg) const {
+string_view SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
   const SourceData* data = getSourceData(loc.getFileID());
   string_view source = data->str;
 
@@ -175,7 +175,7 @@ FileID SourceManager::loadFromString(const std::string& str, const std::string& 
 
 FileID SourceManager::generateNewFileID() const {
   // The newly generated fileID is always the size of source_ +1, since 0 is the invalid value for FileIDs
-  FileID::id_type id = static_cast<FileID::id_type>(sources_.size() + 1);
+  FileID::IDTy id = static_cast<FileID::IDTy>(sources_.size() + 1);
   assert(id != INVALID_FILEID_VALUE);
   return id;
 }
@@ -185,7 +185,7 @@ void SourceManager::calculateLineTable(const SourceData* data) const {
     data->lineTable.clear();
   
   std::size_t size = data->str.size();
-  CompleteLoc::line_type line = 1;
+  CompleteLoc::LineTy line = 1;
   // Mark the index 0 as first line.
   data->lineTable[0] = 1;
   line++;
@@ -202,7 +202,7 @@ void SourceManager::calculateLineTable(const SourceData* data) const {
   data->hasCalculatedLineTable = true;
 }
 
-std::pair<SourceLoc::idx_type, CompleteLoc::line_type>
+std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
 SourceManager::getLineTableEntry(const SourceData* data, const SourceLoc& loc) const {
   if (!data->hasCalculatedLineTable)
     calculateLineTable(data);
@@ -226,7 +226,7 @@ SourceLoc::SourceLoc() : fid_(FileID()), idx_(0) {
 
 }
 
-SourceLoc::SourceLoc(FileID fid, idx_type idx):
+SourceLoc::SourceLoc(FileID fid, IndexTy idx):
   fid_(fid), idx_(idx) {
 }
 
@@ -250,7 +250,7 @@ FileID SourceLoc::getFileID() const {
   return fid_;
 }
 
-SourceLoc::idx_type SourceLoc::getIndex() const {
+SourceLoc::IndexTy SourceLoc::getIndex() const {
   return idx_;
 }
 
@@ -263,7 +263,7 @@ void SourceLoc::decrement() {
 }
 
 // SourceRange
-SourceRange::SourceRange(SourceLoc sloc, offset_type offset):
+SourceRange::SourceRange(SourceLoc sloc, OffsetTy offset):
   sloc_(sloc), offset_(offset) {
 
 }
@@ -274,12 +274,12 @@ SourceRange::SourceRange(SourceLoc a, SourceLoc b) {
   if (a.getIndex() < b.getIndex()) {
     // a is the first sloc
     sloc_ = a;
-    offset_ = static_cast<offset_type>(b.getIndex() - a.getIndex());
+    offset_ = static_cast<OffsetTy>(b.getIndex() - a.getIndex());
   }
   else if (a.getIndex() > b.getIndex()) {
     // b is the first sloc
     sloc_ = b;
-    offset_ = static_cast<offset_type>(a.getIndex() - b.getIndex());
+    offset_ = static_cast<OffsetTy>(a.getIndex() - b.getIndex());
   }
   else  {
     // a == b
@@ -304,7 +304,7 @@ SourceLoc SourceRange::getBegin() const {
   return sloc_;
 }
 
-SourceRange::offset_type SourceRange::getOffset() const {
+SourceRange::OffsetTy SourceRange::getOffset() const {
   return offset_;
 }
 

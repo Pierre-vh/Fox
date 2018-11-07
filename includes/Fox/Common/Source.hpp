@@ -21,7 +21,7 @@ namespace fox {
   // The FileID is an opaque object that packs a 16 bytes integer, representing a FileID
   class FileID {
     public:
-      using id_type = std::uint16_t;
+      using IDTy = std::uint16_t;
 
       FileID();
 
@@ -34,26 +34,26 @@ namespace fox {
       // For stl
       bool operator <(const FileID other) const;
 
-      id_type getRaw() const;
+      IDTy getRaw() const;
 
     protected:
-      FileID(id_type value);
+      FileID(IDTy value);
       friend class SourceManager;
 
-      id_type get() const;
-      void set(id_type value);
+      IDTy get() const;
+      void set(IDTy value);
       void markAsInvalid();
 
     private:
-      id_type value_;
+      IDTy value_;
   };
 
   // Small POD-like struct containing a human-readable source loc information.
   struct CompleteLoc {
-    using line_type = std::uint32_t;
-    using col_type = std::uint16_t;
+    using LineTy = std::uint32_t;
+    using ColTy = std::uint16_t;
 
-    CompleteLoc(const std::string& fName, line_type ln, col_type col)
+    CompleteLoc(const std::string& fName, LineTy ln, ColTy col)
       : fileName(fName), line(ln), column(col) {
 
     }
@@ -63,8 +63,8 @@ namespace fox {
     }
 
     std::string fileName;
-    line_type line;
-    col_type column;
+    LineTy line;
+    ColTy column;
   };
 
   // The SourceLoc is a lightweight wrapper around a FileID and an index
@@ -72,10 +72,10 @@ namespace fox {
   // Note: this object expects an "absolute" index, not an index in "codepoints".
   class SourceLoc {
     public:
-      using idx_type = std::size_t;
+      using IndexTy = std::size_t;
 
       SourceLoc();
-      explicit SourceLoc(FileID fid, idx_type idx = 0);
+      explicit SourceLoc(FileID fid, IndexTy idx = 0);
 
       bool isValid() const;
       explicit operator bool() const; // ShortCut for isValid
@@ -84,7 +84,7 @@ namespace fox {
       bool operator !=(const SourceLoc other) const;
 
       FileID getFileID() const;
-      idx_type getIndex() const;
+      IndexTy getIndex() const;
 
     protected:
       friend class Parser;
@@ -93,7 +93,7 @@ namespace fox {
       void decrement();
     private:
       FileID fid_;
-      idx_type idx_;
+      IndexTy idx_;
   };
 
   // The SourceRange is a wrapper around a SourceLoc and an offset, which combined represent
@@ -101,9 +101,9 @@ namespace fox {
   // Note: Like SourceLoc, the offset is expected to be absolute, not in CPs.
   class SourceRange {
     public:
-      using offset_type = std::size_t;
+      using OffsetTy = std::size_t;
 
-      explicit SourceRange(SourceLoc sloc, offset_type offset = 0);
+      explicit SourceRange(SourceLoc sloc, OffsetTy offset = 0);
       explicit SourceRange(SourceLoc a, SourceLoc b);
       SourceRange();
 
@@ -111,14 +111,14 @@ namespace fox {
       explicit operator bool() const; // Shortcut for isValid
 
       SourceLoc getBegin() const;
-      offset_type getOffset() const;
+      OffsetTy getOffset() const;
       SourceLoc getEnd() const;
       bool isOnlyOneCharacter() const;
 
       FileID getFileID() const;
     private:
       SourceLoc sloc_;
-      offset_type offset_;
+      OffsetTy offset_;
   };
 
   // the SourceManager, which stores every source file and gives them a unique ID.
@@ -135,7 +135,7 @@ namespace fox {
           SourceData(const std::string& name, const std::string& content)
               : fileName(name), str(content) {}
 
-          mutable std::map<SourceLoc::idx_type,CompleteLoc::line_type> lineTable;
+          mutable std::map<SourceLoc::IndexTy,CompleteLoc::LineTy> lineTable;
           mutable bool hasCalculatedLineTable = false;
       };
 
@@ -155,7 +155,7 @@ namespace fox {
       const SourceData* getSourceData(FileID fid) const;
 
       // Returns the line number of a SourceLoc
-      CompleteLoc::line_type getLineNumber(SourceLoc loc) const;
+      CompleteLoc::LineTy getLineNumber(SourceLoc loc) const;
 
       // Requests the human-readable location a SourceLoc points to.
       // This function will assert that the SourceLoc is valid;
@@ -178,7 +178,7 @@ namespace fox {
       FileID generateNewFileID() const;
       void calculateLineTable(const SourceData* data) const;
 
-      std::pair<SourceLoc::idx_type, CompleteLoc::line_type>
+      std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
       getLineTableEntry(const SourceData* data, const SourceLoc& loc) const;
 
       // Make it non copyable

@@ -73,7 +73,7 @@ namespace fox {
       std::string curtok_;
 
       // The index of the first character of the current token being processed.
-      SourceLoc::idx_type currentTokenBeginIndex_;
+      SourceLoc::IndexTy currentTokenBeginIndex_;
 
       TokenVector  tokens_;
       StringManipulator manip_;

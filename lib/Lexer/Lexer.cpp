@@ -271,5 +271,5 @@ SourceLoc Lexer::getCurtokBegLoc() const {
 }
 
 SourceRange Lexer::getCurtokRange() const {
-  return SourceRange(getCurtokBegLoc(), static_cast<SourceRange::offset_type>(curtok_.size() - 1));
+  return SourceRange(getCurtokBegLoc(), static_cast<SourceRange::OffsetTy>(curtok_.size() - 1));
 }

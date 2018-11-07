@@ -21,7 +21,7 @@
 namespace fox {
   class DiagnosticEngine;
   class DiagnosticVerifier : public DiagnosticConsumer {
-    using LineTy = CompleteLoc::line_type;
+    using LineTy = CompleteLoc::LineTy;
     public:
       struct ExpectedDiag {
         string_view str;
