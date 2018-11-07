@@ -172,7 +172,7 @@ namespace fox {
       // Returns the complete line of source code for a given SourceLoc
       // An optional argument (pointer) can be passed. If it is present, the function
       // will store the Index at which the line begins in this variable.
-      string_view getSourceLine(SourceLoc loc, SourceLoc::idx_type* lineBeg = nullptr) const;
+      string_view getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg = nullptr) const;
 
     private:
       FileID generateNewFileID() const;
