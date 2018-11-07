@@ -126,16 +126,15 @@ namespace fox {
     public:
       SourceManager() = default;
 
-      struct StoredData {
-        public:
-          StoredData(const std::string& name, const std::string& content) : fileName(name), str(content) {
-
-          }
-
-          std::string fileName;
-          std::string str;
+      struct SourceData {
+        std::string fileName;
+        std::string str;
         protected:
           friend class SourceManager;
+
+          SourceData(const std::string& name, const std::string& content)
+              : fileName(name), str(content) {}
+
           mutable std::map<SourceLoc::idx_type,CompleteLoc::line_type> lineTable;
           mutable bool hasCalculatedLineTable = false;
       };
@@ -143,17 +142,17 @@ namespace fox {
       // Load a file in memory 
       FileID loadFromFile(const std::string& path);
 
-      // Load a string in the SM. First arg is the string to load, the second is the name we should give
-      // to the file.
+      // Load a string in the SM. First arg is the string to load, 
+      // the second is the name we should give to the file.
       FileID loadFromString(const std::string& str, const std::string& name = "in-memory");
 
       // Returns a pointer to the source string of a file.
       // The result is always valid.
-      string_view getSourceForFID(FileID fid) const;
+      string_view getSourceStr(FileID fid) const;
 
-      // Returns a pointer to the stored data that the FileID points to.
+      // Returns a pointer to the "SourceData" for a given File.
       // The result is always non null (guaranteed by an assertion)
-      const StoredData*  getStoredDataForFileID(FileID fid) const;
+      const SourceData* getSourceData(FileID fid) const;
 
       // Returns the line number of a SourceLoc
       CompleteLoc::line_type getLineNumber(SourceLoc loc) const;
@@ -162,30 +161,31 @@ namespace fox {
       // This function will assert that the SourceLoc is valid;
       // This function accepts a SourceLoc that points right past the end of the file.
       // Any value greater than that will trigger an assertion ("out of range")
-      CompleteLoc getCompleteLocForSourceLoc(SourceLoc sloc) const;
+      CompleteLoc getCompleteLoc(SourceLoc sloc) const;
 
-      // Check if a SourceLoc is valid
-      bool isSourceLocValid(SourceLoc sloc) const;
+      // Checks if a SourceLoc is valid
+      bool checkValid(SourceLoc sloc) const;
       
-      // Check if a File Exists
-      bool doesFileExists(FileID file) const;
+      // Checks if a File Exists
+      bool checkExists(FileID file) const;
 
       // Returns the complete line of source code for a given SourceLoc
       // An optional argument (pointer) can be passed. If it is present, the function
       // will store the Index at which the line begins in this variable.
-      std::string getLineAtLoc(SourceLoc loc, SourceLoc::idx_type* lineBeg = nullptr) const;
+      string_view getSourceLine(SourceLoc loc, SourceLoc::idx_type* lineBeg = nullptr) const;
+
     private:
       FileID generateNewFileID() const;
-      void calculateLineTable(const StoredData* data) const;
+      void calculateLineTable(const SourceData* data) const;
 
       std::pair<SourceLoc::idx_type, CompleteLoc::line_type>
-      getLineTableEntryForLoc(const StoredData* data, const SourceLoc& loc) const;
+      getLineTableEntry(const SourceData* data, const SourceLoc& loc) const;
 
       // Make it non copyable
       SourceManager(const SourceManager&) = delete;
       SourceManager& operator=(const SourceManager&) = delete;
       
       // Member variables
-      std::map<FileID,StoredData> sources_;
+      std::map<FileID,SourceData> sources_;
   };
 }

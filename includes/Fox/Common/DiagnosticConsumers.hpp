@@ -11,6 +11,7 @@
 #pragma once
 
 #include <iostream>
+#include "string_view.hpp"
 
 namespace fox {
   class Diagnostic;
@@ -24,11 +25,13 @@ namespace fox {
       virtual void consume(Diagnostic& diag) = 0;
 
     protected:
-      std::string getLocInfo(SourceManager& sm, SourceRange range, bool isFileWide) const;
+      std::string getLocInfo(SourceManager& sm, SourceRange range, 
+        bool isFileWide) const;
       std::string diagSevToString(DiagSeverity ds) const;
 
-      // Removes the indentation (spaces and tabs) from a line, returning the number of indent chars removed
-      std::size_t removeIndent(std::string& str) const;
+      // Removes the indentation (spaces and tabs) from a string_view, 
+      // returning the number of indent chars removed
+      std::size_t removeIndent(string_view& str) const;
   };
 
   class StreamDiagConsumer : public DiagnosticConsumer {

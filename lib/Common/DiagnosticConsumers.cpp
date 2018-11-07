@@ -18,7 +18,7 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, SourceRange range,
   if (!range)
     return "<unknown>";
 
-  CompleteLoc beg = sm.getCompleteLocForSourceLoc(range.getBegin());
+  CompleteLoc beg = sm.getCompleteLoc(range.getBegin());
 
   std::stringstream ss;
   ss << "<" << beg.fileName << '>';
@@ -31,31 +31,32 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, SourceRange range,
   // would be to have a special method in the SourceManager calculating the preciseLoc
   // for a SourceRange (so we avoid calling "getCompleteLocForSourceLoc" twice)
   if (range.getOffset() != 0) {
-    CompleteLoc end = sm.getCompleteLocForSourceLoc(range.getEnd());
+    CompleteLoc end = sm.getCompleteLoc(range.getEnd());
     ss << "-" << end.column;
   }
   return ss.str();
 }
 
-std::size_t DiagnosticConsumer::removeIndent(std::string& str) const {
-  std::size_t indent = 0;
-  // Get number of char that are spaces/tabs at the beginning of the line
-  for (auto it = str.begin(); it != str.end(); str.erase(0, 1)) {
+std::size_t DiagnosticConsumer::removeIndent(string_view& str) const {
+  std::size_t beg = 0,
+              end = str.size()-1;
+
+  // Determine where the substring should begin
+  for (auto it = str.begin(); it != str.end(); it++) {
     if ((*it == ' ') || (*it == '\t'))
-      indent++;
-    else
-      break;
+      beg++;
+    else break;
   }
 
-  // Erase at the end
+  // Determine where the substring should end.
   for (auto it = str.rbegin(); it != str.rend(); it++) {
     if ((*it == ' ') || (*it == '\t'))
-      str.pop_back();
-    else
-      break;
+      end--;
+    else break;
   }
-
-  return indent;
+  str = str.substr(beg, end-beg);
+  // Beg = the number of indent char we just removed.
+  return beg;
 }
 
 std::string DiagnosticConsumer::diagSevToString(DiagSeverity ds) const {
@@ -91,11 +92,13 @@ void StreamDiagConsumer::consume(Diagnostic& diag) {
     displayRelevantExtract(diag);
 }
 
-// Helper method for "displayRelevantExtract" which creates the "underline" string
-std::string createUnderline(char underlineChar, const std::string& str, std::string::const_iterator beg, std::string::const_iterator end) {
+// Helper method for "displayRelevantExtract" which creates the "underline" string. 
+// The beg/end args represent the range in the string where the underline should be.
+std::string createUnderline(char underlineChar, string_view str, 
+  string_view::const_iterator beg, string_view::const_iterator end) {
   std::string line = "";
 
-  std::string::const_iterator strBeg = str.begin();
+  auto strBeg = str.begin();
 
   // Calculate the number of spaces before the caret and add them
   std::size_t spacesBeforeCaret = utf8::distance(strBeg, beg);
@@ -140,7 +143,7 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag) {
   SourceLoc::idx_type lineBeg = 0;
 
   // Get the line, remove it's indent and display it.
-  std::string line = sm_.getLineAtLoc(diag.getRange().getBegin(), &lineBeg);
+  string_view line = sm_.getSourceLine(diag.getRange().getBegin(), &lineBeg);
 
   // Remove any indent, and offset the lineBeg accordingly
   lineBeg += removeIndent(line);

@@ -180,7 +180,7 @@ void ASTDumper::visitReturnStmt(ReturnStmt* node) {
 
 void ASTDumper::visitUnitDecl(UnitDecl* node) {
   std::string fileInfo;
-  if (const auto* data = srcMgr_.getStoredDataForFileID(node->getFileID()))
+  if (const auto* data = srcMgr_.getSourceData(node->getFileID()))
     fileInfo = makeKeyPairDump("file", data->fileName);
   else
     fileInfo = makeKeyPairDump("file", "unknown");
@@ -388,7 +388,7 @@ std::string ASTDumper::getIdentifierDump(Identifier* id) const {
 std::string ASTDumper::getSourceLocDump(const std::string& label, SourceLoc sloc) const {
   std::ostringstream ss;
   if (sloc) {
-    CompleteLoc cloc = srcMgr_.getCompleteLocForSourceLoc(sloc);
+    CompleteLoc cloc = srcMgr_.getCompleteLoc(sloc);
     ss << "(l" << cloc.line << ",c" << cloc.column << ")";
   }
   else
@@ -400,8 +400,8 @@ std::string ASTDumper::getSourceLocDump(const std::string& label, SourceLoc sloc
 std::string ASTDumper::getSourceRangeAsStr(SourceRange range) const {
   std::ostringstream ss;
   if (range) {
-    CompleteLoc begCLoc = srcMgr_.getCompleteLocForSourceLoc(range.getBegin());
-    CompleteLoc endCLoc = srcMgr_.getCompleteLocForSourceLoc(range.getEnd());
+    CompleteLoc begCLoc = srcMgr_.getCompleteLoc(range.getBegin());
+    CompleteLoc endCLoc = srcMgr_.getCompleteLoc(range.getEnd());
     if (begCLoc.line != endCLoc.line) {
       ss << "(l" << begCLoc.line << ", c" << begCLoc.column
         << " to l" << endCLoc.line << ", c" << endCLoc.column << ")";

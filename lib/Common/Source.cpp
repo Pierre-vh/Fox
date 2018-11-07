@@ -63,13 +63,13 @@ void FileID::markAsInvalid() {
 }
 
 // SourceManager
-string_view SourceManager::getSourceForFID(FileID fid) const {
-  auto data = getStoredDataForFileID(fid);
+string_view SourceManager::getSourceStr(FileID fid) const {
+  auto data = getSourceData(fid);
   return data->str;
 }
 
-const SourceManager::StoredData*
-SourceManager::getStoredDataForFileID(FileID fid) const {
+const SourceManager::SourceData*
+SourceManager::getSourceData(FileID fid) const {
   assert(fid.isValid() && "Invalid FileID");
   auto it = sources_.find(fid);
   assert((it != sources_.end()) && "Unknown entry");
@@ -77,13 +77,13 @@ SourceManager::getStoredDataForFileID(FileID fid) const {
 }
 
 CompleteLoc::line_type SourceManager::getLineNumber(SourceLoc loc) const {
-  auto result = getLineTableEntryForLoc(
-    getStoredDataForFileID(loc.getFileID()), loc);
+  auto result = getLineTableEntry(
+    getSourceData(loc.getFileID()), loc);
   return result.second;
 }
 
-CompleteLoc SourceManager::getCompleteLocForSourceLoc(SourceLoc sloc) const {
-  const StoredData* fdata = getStoredDataForFileID(sloc.getFileID());
+CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
+  const SourceData* fdata = getSourceData(sloc.getFileID());
 
   auto idx = sloc.getIndex();
   assert((idx <= fdata->str.size()) && "SourceLoc is Out-of-Range");
@@ -97,7 +97,7 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(SourceLoc sloc) const {
   CompleteLoc::col_type col = 1;
   CompleteLoc::line_type line = 1;
 
-  auto entry = getLineTableEntryForLoc(fdata, sloc);
+  auto entry = getLineTableEntry(fdata, sloc);
   bool exactMatch = (entry.first == idx);
   if (exactMatch) {
     line = entry.second;
@@ -121,8 +121,8 @@ CompleteLoc SourceManager::getCompleteLocForSourceLoc(SourceLoc sloc) const {
   );
 }
 
-bool SourceManager::isSourceLocValid(SourceLoc sloc) const {
-  const StoredData* data = getStoredDataForFileID(sloc.getFileID());
+bool SourceManager::checkValid(SourceLoc sloc) const {
+  const SourceData* data = getSourceData(sloc.getFileID());
   
   if (!data)
     return false;
@@ -132,40 +132,33 @@ bool SourceManager::isSourceLocValid(SourceLoc sloc) const {
   return sloc.getIndex() <= data->str.size();
 }
 
-bool SourceManager::doesFileExists(FileID file) const {
-  return (bool)getStoredDataForFileID(file);
+bool SourceManager::checkExists(FileID file) const {
+  return (bool)getSourceData(file);
 }
 
-std::string SourceManager::getLineAtLoc(SourceLoc loc, SourceLoc::idx_type* lineBeg) const {
-  const StoredData* data = getStoredDataForFileID(loc.getFileID());
-  auto pair = getLineTableEntryForLoc(data, loc);
+string_view SourceManager::getSourceLine(SourceLoc loc, SourceLoc::idx_type* lineBeg) const {
+  const SourceData* data = getSourceData(loc.getFileID());
+  string_view source = data->str;
 
-  std::size_t k = pair.first;
+  auto pair = getLineTableEntry(data, loc);
 
-  if (lineBeg)
-    *lineBeg = k;
+  std::size_t beg = pair.first, end = beg;
 
-  std::size_t sz = data->str.size();
+  if (lineBeg) (*lineBeg) = beg;
 
-  std::string rtr;
-
-  char ch = 0;
-  for (; k < sz; k++) {
-    ch = data->str[k];
-
-    if (ch == '\n' || ch == '\r')
+  for (; end < source.size(); end++) {
+    if (source[end] == '\n' || source[end] == '\r')
       break;
-    rtr += ch;
   }
 
-  return rtr;
+  return source.substr(beg, end-beg);
 }
 
 FileID SourceManager::loadFromFile(const std::string & path) {
   std::ifstream in(path, std::ios::binary);
   if (in) {
-    auto pair = sources_.insert(std::pair<FileID,StoredData>(generateNewFileID(),
-      StoredData(
+    auto pair = sources_.insert(std::pair<FileID,SourceData>(generateNewFileID(),
+      SourceData(
         path,
         (std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>())))
       )
@@ -176,7 +169,7 @@ FileID SourceManager::loadFromFile(const std::string & path) {
 }
 
 FileID SourceManager::loadFromString(const std::string& str, const std::string& name) {
-  auto pair = sources_.insert(std::pair<FileID,StoredData>(generateNewFileID(),StoredData(name,str)));
+  auto pair = sources_.insert(std::pair<FileID,SourceData>(generateNewFileID(),SourceData(name,str)));
   return (pair.first)->first;
 }
 
@@ -187,7 +180,7 @@ FileID SourceManager::generateNewFileID() const {
   return id;
 }
 
-void SourceManager::calculateLineTable(const StoredData* data) const {
+void SourceManager::calculateLineTable(const SourceData* data) const {
   if(data->hasCalculatedLineTable)
     data->lineTable.clear();
   
@@ -210,7 +203,7 @@ void SourceManager::calculateLineTable(const StoredData* data) const {
 }
 
 std::pair<SourceLoc::idx_type, CompleteLoc::line_type>
-SourceManager::getLineTableEntryForLoc(const StoredData* data, const SourceLoc& loc) const {
+SourceManager::getLineTableEntry(const SourceData* data, const SourceLoc& loc) const {
   if (!data->hasCalculatedLineTable)
     calculateLineTable(data);
 

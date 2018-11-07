@@ -25,7 +25,7 @@ Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt):
 void Lexer::lexFile(FileID file) {
   assert(file && "INVALID FileID!");
   currentFile_ = file;
-  auto source = sm_.getSourceForFID(currentFile_);
+  auto source = sm_.getSourceStr(currentFile_);
   manip_.setStr(source);
   manip_.reset();
   state_ = DFAState::S_BASE;

@@ -419,7 +419,7 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
   if (Token prevTok = getPreviousToken()) {
     SourceLoc loc = prevTok.getRange().getEnd();
     loc.increment();
-    assert(srcMgr_.isSourceLocValid(loc));
+    assert(srcMgr_.checkValid(loc));
     errorRange = SourceRange(loc);
   }
   else {

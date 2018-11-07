@@ -28,8 +28,8 @@ TEST(SourceManagerTests, LoadingFromFile) {
   EXPECT_TRUE(fid_b);
 
   // File path is correct?
-  const auto* storeddata_a = srcMgr.getStoredDataForFileID(fid_a);
-  const auto* storeddata_b = srcMgr.getStoredDataForFileID(fid_b);
+  const auto* storeddata_a = srcMgr.getSourceData(fid_a);
+  const auto* storeddata_b = srcMgr.getSourceData(fid_b);
 
   // File paths are the same? 
   EXPECT_EQ(file_path_a, storeddata_a->fileName);
@@ -59,8 +59,8 @@ TEST(SourceManagerTests, LoadingFromString) {
   EXPECT_TRUE(fid_a);
   EXPECT_TRUE(fid_b);
 
-  string_view r_str_a = srcMgr.getSourceForFID(fid_a);
-  string_view r_str_b = srcMgr.getSourceForFID(fid_b);
+  string_view r_str_a = srcMgr.getSourceStr(fid_a);
+  string_view r_str_b = srcMgr.getSourceStr(fid_b);
 
   EXPECT_EQ(content_a, r_str_a);
   EXPECT_EQ(content_b, r_str_b);
@@ -110,7 +110,7 @@ TEST(SourceManagerTests, PreciseLocation) {
   ASSERT_TRUE(fid) << "File couldn't be loaded in memory";
 
   // Load file in StringManipulator
-  string_view ptr = srcMgr.getSourceForFID(fid);
+  string_view ptr = srcMgr.getSourceStr(fid);
   StringManipulator sm(ptr);
 
   // Loop until we reach the pi sign
@@ -118,7 +118,7 @@ TEST(SourceManagerTests, PreciseLocation) {
 
   if (sm.getCurrentChar() == 960) {
     SourceLoc sloc(fid, sm.getIndexInBytes());
-    auto result = srcMgr.getCompleteLocForSourceLoc(sloc);
+    auto result = srcMgr.getCompleteLoc(sloc);
 
     EXPECT_EQ(result.fileName, fp);
     EXPECT_EQ(result.line, 5);
