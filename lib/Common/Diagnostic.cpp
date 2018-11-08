@@ -42,6 +42,10 @@ void Diagnostic::emit() {
   }
 }
 
+void Diagnostic::ignore() {
+  diagSeverity_ = DiagSeverity::IGNORE;
+}
+
 DiagID Diagnostic::getID() const {
   return diagID_;
 }

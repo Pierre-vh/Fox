@@ -55,6 +55,9 @@ namespace fox {
       
       void emit();
 
+      // Sets this diagnostic's severity to Ignore.
+      void ignore();
+
       // Getters for basic args values
       DiagID getID() const;
       std::string getStr() const;
