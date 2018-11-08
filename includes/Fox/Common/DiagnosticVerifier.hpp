@@ -20,7 +20,7 @@
 
 namespace fox {
   class DiagnosticEngine;
-  class DiagnosticVerifier : public DiagnosticConsumer {
+  class DiagnosticVerifier {
     using LineTy = CompleteLoc::LineTy;
     public:
       struct ExpectedDiag {
@@ -35,8 +35,6 @@ namespace fox {
       // The DV will also require a DiagnosticEngine attached to it to
       // emit it's own diagnostics.
       DiagnosticVerifier(SourceManager& srcMgr, std::unique_ptr<DiagnosticConsumer> consumer);
-
-      virtual void consume(Diagnostic& diagnostic) override;
 
       // Parses a file, searching for "expect-" directives, parsing them and 
       // adding them to the list of expected diagnostics.
