@@ -38,8 +38,7 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, SourceRange range,
 }
 
 std::size_t DiagnosticConsumer::removeIndent(string_view& str) const {
-  std::size_t beg = 0,
-              end = str.size()-1;
+  std::size_t beg = 0, end = str.size();
 
   // Determine where the substring should begin
   for (auto it = str.begin(); it != str.end(); it++) {
