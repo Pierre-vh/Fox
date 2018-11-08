@@ -23,6 +23,7 @@ namespace fox {
     // Important : first value must always be 0 to keep sync
     // with the severities and strs arrays.
     #define DIAG(SEVERITY,ID,TEXT) ID,
+    #define DIAG_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
     #include "Diags/All.def"
   };
 
