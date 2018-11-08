@@ -13,6 +13,7 @@
 #include "Fox/Sema/Sema.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include "Fox/Common/DiagnosticVerifier.hpp"
 #include <iostream>
 #include <chrono>
 #include <fstream>
@@ -30,6 +31,11 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath) {
     out << "Could not open file \"" << filepath << "\"\n";
     return false;
   }
+
+  // TESTING CODE FOR THE DIAGNOSTIC VERIFIER
+  DiagnosticVerifier dv(srcMgr);
+  dv.parseFile(fid);
+
   auto t0 = std::chrono::high_resolution_clock::now();
 
   Lexer lex(dg, srcMgr, astCtxt);
