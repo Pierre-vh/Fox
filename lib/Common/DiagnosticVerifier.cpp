@@ -10,6 +10,20 @@
 
 using namespace fox;
 
+//----------------------------------------------------------------------------//
+//  DiagnosticVerifier's file parsing implementation
+//----------------------------------------------------------------------------//
+
+namespace {
+  class FileParser {
+    
+  };
+} // anonymous namespace
+
+//----------------------------------------------------------------------------//
+//  DiagnosticVerifier's methods implementation
+//----------------------------------------------------------------------------//
+
 DiagnosticVerifier::DiagnosticVerifier(SourceManager& srcMgr):
   srcMgr_(srcMgr) {
   
@@ -21,8 +35,8 @@ bool DiagnosticVerifier::parseFile(FileID) {
 
 bool DiagnosticVerifier::verify(Diagnostic& diag) {
   // Check if there is an entry for this string in our map
-  auto it = expectedDiags_.find(diag.getStr());
-  if (it != expectedDiags_.end()) {
+  auto range = expectedDiags_.equal_range(diag.getStr());
+  for (auto it = range.first; it != range.second; ++it) {
     // Found one, but check if the file & line match.
     std::pair<FileID, LineTy> pair = it->second;
     SourceLoc loc = diag.getRange().getBegin();

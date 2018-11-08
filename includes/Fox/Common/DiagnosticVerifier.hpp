@@ -14,6 +14,7 @@
 #pragma once
 
 #include "Source.hpp"
+#include <functional>
 #include <set>
 
 namespace fox {
@@ -38,6 +39,7 @@ namespace fox {
       bool verify(Diagnostic& diag);
 
       void addExpectedDiag(FileID file, LineTy line, string_view str);
+
     private:
       SourceManager& srcMgr_;
       // Map of expected diagnostics
