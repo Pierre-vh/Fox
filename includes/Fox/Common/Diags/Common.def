@@ -19,6 +19,9 @@ NOTE(unittest_placeholderremoval2, "[%0%0%0]")
 NOTE(unittest_placeholderremoval3, "[%5%4%3%2%1%0]")
 NOTE(unittest_placeholderremoval4, "Hello, %0")
 
+DIAG_RANGE(DiagnosticVerifier, diagverif_xxx, diagverif_xxx)
+// TODO
+NOTE(diagverif_xxx, "")
 
 // DiagnosticEngine self Diagnostics
 FATAL(diagengine_maxErrCountExceeded, "Current error count exceeded the maximum thresold of %0.")
