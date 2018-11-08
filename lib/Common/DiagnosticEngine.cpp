@@ -146,11 +146,11 @@ void DiagnosticEngine::setIgnoreAll(bool val) {
 }
 
 void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
-  if (diag.getSeverity() != DiagSeverity::IGNORE) {
-    assert(consumer_ && "No valid consumer");
-    consumer_->consume(diag);
-  }
+  if (diag.getSeverity() == DiagSeverity::IGNORE)
+    return;
 
+  assert(consumer_ && "No valid consumer");
+  consumer_->consume(diag);
   // Update our counters after consuming the diagnostic, because
   // some custom DiagnosticsConsumers might want to ignore specific
   // diagnostics.
