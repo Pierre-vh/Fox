@@ -11,10 +11,11 @@
 
 using namespace fox;
 
-Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID, DiagSeverity dSev, const std::string& dStr, const SourceRange& range) :
-  engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr), range_(range) {
+Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID,
+  DiagSeverity dSev, const std::string& dStr, const SourceRange& range) :
+  engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr),
+  range_(range) {
   assert(engine && "Engine cannot be null!");
-
   initBitFields();
 }
 
@@ -34,7 +35,8 @@ Diagnostic::~Diagnostic() {
 
 void Diagnostic::emit() {
   if (active_) {
-    assert(engine_ && "Attempting to emit without a DiagnosticEngine set!");
+    assert(engine_
+      && "Attempting to emit without a DiagnosticEngine set!");
     engine_->handleDiagnostic(*this);
     kill(); // kill this diag once it's consumed.
   }
@@ -92,7 +94,8 @@ bool Diagnostic::isActive() const {
   return active_;
 }
 
-Diagnostic& Diagnostic::replacePlaceholder(const std::string & replacement, std::uint8_t index) {
+Diagnostic& Diagnostic::replacePlaceholder(const std::string&
+  replacement, std::uint8_t index) {
   if (!active_ || frozen_)
     return *this;
 

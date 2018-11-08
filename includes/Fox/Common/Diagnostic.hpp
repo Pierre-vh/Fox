@@ -20,9 +20,10 @@
 namespace fox {
   class DiagnosticEngine;
   enum class DiagID : std::uint16_t {
-    // Important : first value must always be 0 to keep sync with the severities and strs arrays.
+    // Important : first value must always be 0 to keep sync
+    // with the severities and strs arrays.
     #define DIAG(SEVERITY,ID,TEXT) ID,
-      #include "Diags/All.def"
+    #include "Diags/All.def"
   };
 
   enum class DiagSeverity : std::uint8_t {
@@ -34,12 +35,14 @@ namespace fox {
   };
 
   class Diagnostic {
-    // Note: in this class, some methods will return a Diagnostic&. This is done
-    // to enable function chaining, such as ".addArg(..).addArg(...).freeze()"
+    // Note: in this class, some methods will return a Diagnostic&. 
+    // This is done to enable function chaining.
+    // e.g. someDiag.addArg(..).addArg(...).freeze()
     protected:
       friend class DiagnosticEngine;
 
-      Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,const std::string& dStr, const SourceRange& range = SourceRange());
+      Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,
+        const std::string& dStr, const SourceRange& range = SourceRange());
     
     public:
       // Note : both copy/move ctors kill the copied diag.
@@ -91,7 +94,8 @@ namespace fox {
 
       // Internal addArg overloads
       template<typename ReplTy>
-      inline Diagnostic& addArg(const ReplTy& value, std::uint8_t phIndex) {
+      inline Diagnostic& addArg(const ReplTy& value,
+        std::uint8_t phIndex) {
         std::stringstream ss;
         ss << value;
         return replacePlaceholder(ss.str(), phIndex);
@@ -99,22 +103,26 @@ namespace fox {
 
       // For std::strings
       template<>
-      inline Diagnostic& addArg(const std::string& value, std::uint8_t phIndex) {
+      inline Diagnostic& addArg(const std::string& value, 
+        std::uint8_t phIndex) {
         return replacePlaceholder(value, phIndex);
       }
 
       // for FoxChar
       template<>
-      inline Diagnostic& addArg(const FoxChar& value, std::uint8_t phIndex) {
+      inline Diagnostic& addArg(const FoxChar& value,
+        std::uint8_t phIndex) {
         return replacePlaceholder(
           StringManipulator::charToStr(value), phIndex
         );
       }
 
-      // replaces every occurence of "%(value of index)" in a string with the replacement.
-      // e.g: replacePlaceholder("foo",0) -> replaces every %0 in the string by foo
-      // Replace the "%(phIndex)" arg by value (as a string)
-      Diagnostic& replacePlaceholder(const std::string& replacement, std::uint8_t index);
+      // replaces every occurence of "%(value of index)" 
+      // in a string with the replacement value
+      // e.g: replacePlaceholder("foo",0) replaces every %0 
+      // in the string with "foo"
+      Diagnostic& replacePlaceholder(const std::string& replacement,
+        std::uint8_t index);
 
       void kill(); 
       
