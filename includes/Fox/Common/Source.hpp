@@ -69,7 +69,7 @@ namespace fox {
 
   // The SourceLoc is a lightweight wrapper around a FileID and an index
   // which, combined, represent the location of a character in the source code.
-  // Note: this object expects an "absolute" index, not an index in "codepoints".
+  // Note: this object expects a "byte" index, not an index in codepoints.
   class SourceLoc {
     public:
       using IndexTy = std::size_t;
