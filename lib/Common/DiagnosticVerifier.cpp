@@ -43,13 +43,13 @@ bool DiagnosticVerifier::verify(Diagnostic& diag) {
 
     // Check file match
     if (pair.first != loc.getFileID())
-      return true;
+      continue;
     // Okay, file matches, now check the line.
     // This is the most expensive operation here so we do it last,
     // when we're sure that the string & file match.
     auto line = srcMgr_.getLineNumber(loc);
     if (line != pair.second)
-      return true;
+      continue;
 
     // Diagnostic was expected, return false (don't emit it)
     // and remove the entry from the map.
