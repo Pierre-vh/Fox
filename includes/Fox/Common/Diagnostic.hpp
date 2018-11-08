@@ -52,9 +52,9 @@ namespace fox {
       void emit();
 
       // Getters for basic args values
-      DiagID getDiagID() const;
-      std::string getDiagStr() const;
-      DiagSeverity getDiagSeverity() const;
+      DiagID getID() const;
+      std::string getStr() const;
+      DiagSeverity getSeverity() const;
 
       SourceRange getRange() const;
       Diagnostic& setRange(SourceRange range);
@@ -84,6 +84,7 @@ namespace fox {
       // Inactive diags won't be emitted.
       bool isActive() const;
       explicit operator bool() const;
+
     private:
       friend class DiagnosticEngine;
       Diagnostic& operator=(const Diagnostic&) = default;

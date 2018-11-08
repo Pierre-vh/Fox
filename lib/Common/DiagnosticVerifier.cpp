@@ -21,7 +21,7 @@ bool DiagnosticVerifier::parseFile(FileID) {
 
 bool DiagnosticVerifier::verify(Diagnostic& diag) {
   // Check if there is an entry for this string in our map
-  auto it = expectedDiags_.find(diag.getDiagStr());
+  auto it = expectedDiags_.find(diag.getStr());
   if (it != expectedDiags_.end()) {
     // Found one, but check if the file & line match.
     std::pair<FileID, LineTy> pair = it->second;

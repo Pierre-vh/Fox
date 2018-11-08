@@ -83,9 +83,9 @@ StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream)
 void StreamDiagConsumer::consume(Diagnostic& diag) {
   os_ << getLocInfo(sm_, diag.getRange(), diag.isFileWide())
     << " - " 
-    << diagSevToString(diag.getDiagSeverity()) 
+    << diagSevToString(diag.getSeverity()) 
     << " - " 
-    << diag.getDiagStr() 
+    << diag.getStr() 
     << "\n";
 
   if (!diag.isFileWide() && diag.hasRange())

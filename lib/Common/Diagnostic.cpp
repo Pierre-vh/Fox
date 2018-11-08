@@ -40,15 +40,15 @@ void Diagnostic::emit() {
   }
 }
 
-DiagID Diagnostic::getDiagID() const {
+DiagID Diagnostic::getID() const {
   return diagID_;
 }
 
-std::string Diagnostic::getDiagStr() const {
+std::string Diagnostic::getStr() const {
   return diagStr_;
 }
 
-DiagSeverity Diagnostic::getDiagSeverity() const {
+DiagSeverity Diagnostic::getSeverity() const {
   return diagSeverity_;
 }
 
