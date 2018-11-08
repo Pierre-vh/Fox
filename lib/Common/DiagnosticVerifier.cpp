@@ -15,7 +15,7 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 namespace {
-  class FileParser {
+  class DVParser {
     
   };
 } // anonymous namespace
