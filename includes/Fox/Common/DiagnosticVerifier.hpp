@@ -36,6 +36,7 @@ namespace fox {
 
     private:
       void addExpectedDiag(FileID file, LineTy line, string_view str);
+      friend class DVParser;
 
       SourceManager& srcMgr_;
       // Map of expected diagnostics
