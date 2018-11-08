@@ -27,8 +27,10 @@ DiagnosticVerifier::DiagnosticVerifier(SourceManager& srcMgr):
   
 }
 
-bool DiagnosticVerifier::parseFile(FileID) {
-  return false;
+bool DiagnosticVerifier::parseFile(FileID fid) {
+  // Fetch the content of the file
+  string_view fStr = srcMgr_.getSourceStr(fid);
+
 }
 
 void DiagnosticVerifier::consume(Diagnostic& diag) {
