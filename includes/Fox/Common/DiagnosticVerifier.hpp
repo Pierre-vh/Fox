@@ -13,28 +13,17 @@
 
 #pragma once
 
-#include "DiagnosticConsumers.hpp"
-#include "string_view.hpp"
 #include "Source.hpp"
 #include <set>
 
 namespace fox {
-  class DiagnosticEngine;
+  class Diagnostic;
   class DiagnosticVerifier {
     using LineTy = CompleteLoc::LineTy;
     public:
-      struct ExpectedDiag {
-        string_view str;
-        FileID file;
-        LineTy line;
-      };
-      using DiagnosticSetTy = std::multiset<string_view>;
-
       // Creates a DiagnosticVerifier. A DV will always require a consumer
       // attached to it, the value cannot be nullptr.
-      // The DV will also require a DiagnosticEngine attached to it to
-      // emit it's own diagnostics.
-      DiagnosticVerifier(SourceManager& srcMgr, std::unique_ptr<DiagnosticConsumer> consumer);
+      DiagnosticVerifier(SourceManager& srcMgr);
 
       // Parses a file, searching for "expect-" directives, parsing them and 
       // adding them to the list of expected diagnostics.
@@ -42,9 +31,16 @@ namespace fox {
       // false otherwise.
       bool parseFile(FileID file);
 
+    protected:
+      friend class DiagnosticEngine;
+      // Called by the DiagnosticEngine when it desires to Verify a diagnostic.
+      // Returns true if the Diagnostic should be emitted, false otherwise.
+      bool verify(Diagnostic& diag);
+
+      void addExpectedDiag(FileID file, LineTy line, string_view str);
     private:
       SourceManager& srcMgr_;
-      std::unique_ptr<DiagnosticConsumer> consumer_;
-      std::multiset<string_view> expectedDiags_;
+      // Map of expected diagnostics
+      std::multimap<string_view, std::pair<FileID, LineTy>> expectedDiags_;
   };
 } // namespace fox
