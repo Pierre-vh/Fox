@@ -14,12 +14,12 @@
 #pragma once
 
 #include "Source.hpp"
-#include <functional>
+#include "DiagnosticConsumers.hpp"
 #include <set>
 
 namespace fox {
   class Diagnostic;
-  class DiagnosticVerifier {
+  class DiagnosticVerifier : public DiagnosticConsumer{
     using LineTy = CompleteLoc::LineTy;
     public:
       // Creates a DiagnosticVerifier. A DV will always require a consumer
@@ -32,15 +32,11 @@ namespace fox {
       // false otherwise.
       bool parseFile(FileID file);
 
-    protected:
-      friend class DiagnosticEngine;
-      // Called by the DiagnosticEngine when it desires to Verify a diagnostic.
-      // Returns true if the Diagnostic should be emitted, false otherwise.
-      bool verify(Diagnostic& diag);
-
-      void addExpectedDiag(FileID file, LineTy line, string_view str);
+      virtual void consume(Diagnostic& diag) override;
 
     private:
+      void addExpectedDiag(FileID file, LineTy line, string_view str);
+
       SourceManager& srcMgr_;
       // Map of expected diagnostics
       std::multimap<string_view, std::pair<FileID, LineTy>> expectedDiags_;

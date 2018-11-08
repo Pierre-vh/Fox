@@ -33,7 +33,7 @@ bool DiagnosticVerifier::parseFile(FileID) {
   return false;
 }
 
-bool DiagnosticVerifier::verify(Diagnostic& diag) {
+void DiagnosticVerifier::consume(Diagnostic& diag) {
   // Check if there is an entry for this string in our map
   auto range = expectedDiags_.equal_range(diag.getStr());
   for (auto it = range.first; it != range.second; ++it) {
@@ -51,12 +51,12 @@ bool DiagnosticVerifier::verify(Diagnostic& diag) {
     if (line != pair.second)
       continue;
 
-    // Diagnostic was expected, return false (don't emit it)
-    // and remove the entry from the map.
+    // Diagnostic was expected, ignore it, remove the entry from the map
+    // and return.
     expectedDiags_.erase(it);
-    return false;
+    diag.ignore();
+    return;
   }
-  return true;
 }
 
 void DiagnosticVerifier::addExpectedDiag(FileID file, LineTy line, 
