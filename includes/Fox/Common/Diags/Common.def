@@ -20,11 +20,15 @@ NOTE(unittest_placeholderremoval3, "[%5%4%3%2%1%0]")
 NOTE(unittest_placeholderremoval4, "Hello, %0")
 
 // TODO
-NOTE(diagverif_expectedsuffix, 
-  "Expected a suffix after \"%0\" prefix in verify instr")
+ERROR(diagverif_expectedsuffix,
+			"Expected a suffix after \"%0\" prefix in verify instr")
+ERROR(diagverif_expectedcolon,
+			"Expected a ':' in verify instr")
+ERROR(diagverif_expectedstr,
+			"Expected a diagnostic string in verify instr after ':'")
 
 DIAG_RANGE(DiagnosticVerifier, 
-  diagverif_expectedsuffix, diagverif_expectedsuffix)
+  diagverif_expectedsuffix, diagverif_expectedstr)
 
 // DiagnosticEngine self Diagnostics
 FATAL(diagengine_maxErrCountExceeded, 

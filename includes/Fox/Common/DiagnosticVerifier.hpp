@@ -20,6 +20,7 @@
 namespace fox {
   class Diagnostic;
   class DiagnosticEngine;
+	template<typename Ty> class ResultObject;
   class DiagnosticVerifier : public DiagnosticConsumer{
     using LineTy = CompleteLoc::LineTy;
     public:
@@ -36,12 +37,29 @@ namespace fox {
       virtual void consume(Diagnostic& diag) override;
 
     private:
+			struct VerifyInstr {
+				VerifyInstr() = default;
+
+				VerifyInstr(string_view suffix, std::int8_t offset, string_view str):
+					suffix(suffix), offset(offset), str(str) {}
+
+				string_view suffix;
+				std::int8_t offset = 0;
+				string_view str;
+			};
+
       void addExpectedDiag(FileID file, LineTy line, string_view str);
 
-      // Parses a single verify instr.
+      // Handles a verify instr, parsing it and processing it.
       // The first argument is the loc of the first char of the instr.
       bool handleVerifyInstr(SourceLoc loc, string_view instr);
 
+			// Parses a verify instr
+			ResultObject<VerifyInstr> parseVerifyInstr(SourceLoc loc,
+																								 string_view instr);
+
+			void diagnoseMissingStr(SourceLoc loc);
+			void diagnoseMissingColon(SourceLoc loc);
       void diagnoseMissingSuffix(SourceLoc instrBeg);
 
       DiagnosticEngine& diags_;

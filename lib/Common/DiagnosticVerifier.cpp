@@ -8,11 +8,14 @@
 #include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/Diagnostic.hpp"
+#include "Fox/Common/ResultObject.hpp"
+#include <tuple>
+#include <cctype>
 
 using namespace fox;
 
 //----------------------------------------------------------------------------//
-//  DiagnosticVerifier's file parsing implementation
+//  DiagnosticVerifier's file parsing implementation/helpers
 //----------------------------------------------------------------------------//
 
 namespace {
@@ -55,6 +58,36 @@ namespace {
     removeNewline(rtr);
     return rtr;
   }
+
+	// Trims a string, removing spaces, tabs and others to the left and 
+	// right of the string.
+	// str = The string that'll be trimmed
+	void trim(string_view &str) {
+		std::size_t beg = 0;
+		std::size_t end = str.size() - 1;
+		// Trim to the left
+		while (std::isspace(str[beg]) && beg != end) ++beg;
+
+		// If the string fully consists of spaces beg will be equal to end, then
+		// instead of searching again, just set it to "" as the trimmed string
+		// is considered empty.
+		if (beg == end) {
+			str = "";
+			return;
+		}
+
+		// Trim to the right
+		while (std::isspace(str[end])) --end;
+		str = str.substr(beg, end - beg + 1);
+	}
+
+	// Splits a string view around a character. 
+	// e.g. split("foo:bar", 3) returns {"foo", "bar"
+	std::pair<string_view, string_view> split(string_view str, std::size_t pos) {
+		string_view first = str.substr(0, pos);
+		string_view second = str.substr(pos + 1, str.size() - pos - 1);
+		return { first, second };
+	}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------//
@@ -62,7 +95,8 @@ namespace {
 //----------------------------------------------------------------------------//
 
 DiagnosticVerifier::DiagnosticVerifier(DiagnosticEngine& engine, 
-  SourceManager& srcMgr): diags_(engine), srcMgr_(srcMgr) {
+																			 SourceManager& srcMgr): 
+	diags_(engine), srcMgr_(srcMgr) {
   
 }
 
@@ -117,11 +151,63 @@ void DiagnosticVerifier::addExpectedDiag(FileID file, LineTy line,
 }
 
 bool DiagnosticVerifier::handleVerifyInstr(SourceLoc loc, string_view instr) {
-  // Remove the prefix
-  instr = instr.substr(vPrefixSize, instr.size() - vPrefixSize);
-  diagnoseMissingSuffix(loc);
-  
+	parseVerifyInstr(loc, instr);
   return true;
+}
+
+ResultObject<DiagnosticVerifier::VerifyInstr> 
+DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
+	using RtrTy = ResultObject<VerifyInstr>;
+	std::size_t fullInstrSize = instr.size();
+	// Remove the prefix
+	instr = instr.substr(vPrefixSize, instr.size() - vPrefixSize);
+	// Find the ':'
+	auto colonPos = instr.find(':');
+	if (colonPos == string_view::npos) {
+		diagnoseMissingColon(offsetSourceLoc(loc, fullInstrSize));
+		return RtrTy(false);
+	}
+	
+	// With that, we can split the instr in 2, the base and the string.
+	// The base is the suffix, maybe with some arguments, and the string
+	// is the actual expected diagnostic string.
+	auto splitted = split(instr, colonPos);
+	std::cout << "Split(" << splitted.first << "," << splitted.second << ")\n";
+	
+	string_view fullSuffix = splitted.first;
+	string_view str = splitted.second;
+
+	// Check if we have a prefix. If we don't, that's an error.
+	if (!fullSuffix.size()) {
+		diagnoseMissingSuffix(loc);
+		return RtrTy(false);
+	}
+
+	// Trim the string
+	trim(str);
+
+	// Check if we have a diag str, If we don't, that's an error.
+	if (!str.size()) {
+		// Because we removed the prefix earlier, we'll
+		// add the vPrefixSize to colonPos to calculate it's real position
+		auto realColonPos = colonPos + vPrefixSize;
+		// We increment realColonPos because we want the diagnostic to be
+		// just after the colon
+		diagnoseMissingStr(offsetSourceLoc(loc, realColonPos+1));
+		return RtrTy(false);
+	}
+
+	std::cout << "Post-checks(" << fullSuffix << ")(" << str << ")\n";
+
+	return RtrTy(false);
+}
+
+void DiagnosticVerifier::diagnoseMissingStr(SourceLoc loc) {
+	diags_.report(DiagID::diagverif_expectedstr, loc);
+}
+
+void DiagnosticVerifier::diagnoseMissingColon(SourceLoc loc) {
+	diags_.report(DiagID::diagverif_expectedcolon, loc);
 }
 
 void DiagnosticVerifier::diagnoseMissingSuffix(SourceLoc instrBeg) {
