@@ -23,6 +23,15 @@ namespace {
   constexpr char vPrefix[] = "expect-";
   constexpr std::size_t vPrefixSize = sizeof(vPrefix)-1;
 
+	// The separator used to add arguments after the suffix.
+	constexpr char vArgSep = '@';
+
+	// Suffix used by each severity
+	constexpr char vErrorSuffix[] = "error";
+	constexpr char vWarnSuffix[] = "warning";
+	constexpr char vNoteSuffix[] = "note";
+	constexpr char vFatalSuffix[] = "fatal";
+
   // Offsets a sourceloc by X chars. This doesn't check if the SourceLoc
   // is valid, it justs adds the offset to the index.
   SourceLoc offsetSourceLoc(SourceLoc loc, std::size_t off) {
@@ -88,11 +97,39 @@ namespace {
 		string_view second = str.substr(pos + 1, str.size() - pos - 1);
 		return { first, second };
 	}
+
 } // anonymous namespace
 
 //----------------------------------------------------------------------------//
 //  DiagnosticVerifier's methods implementation
 //----------------------------------------------------------------------------//
+
+struct DiagnosticVerifier::ParsedInstr {
+	ParsedInstr() = default;
+
+	ParsedInstr(string_view suffix, string_view arg, string_view str) :
+		suffix(suffix), arg(arg), str(str) {}
+
+	string_view suffix;
+	string_view arg;
+	string_view str;
+};
+
+struct DiagnosticVerifier::ExpectedDiag {
+	ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line):
+		severity(sev), str(str), file(file), line(line) {}
+
+	DiagSeverity severity;
+	string_view str;
+	FileID file;
+	LineTy line;
+
+	// For Multiset
+	bool operator<(const ExpectedDiag& other) {
+		return std::tie(severity, str, file, line) 
+			< std::tie(other.severity, other.str, other.file, other.line);
+	}
+};
 
 DiagnosticVerifier::DiagnosticVerifier(DiagnosticEngine& engine, 
 																			 SourceManager& srcMgr): 
@@ -121,43 +158,36 @@ bool DiagnosticVerifier::parseFile(FileID fid) {
 
 void DiagnosticVerifier::consume(Diagnostic& diag) {
   // Check if there is an entry for this string in our map
-  auto range = expectedDiags_.equal_range(diag.getStr());
-  for (auto it = range.first; it != range.second; ++it) {
-    // Found one, but check if the file & line match.
-    std::pair<FileID, LineTy> pair = it->second;
-    SourceLoc loc = diag.getRange().getBegin();
 
-    // Check file match
-    if (pair.first != loc.getFileID())
-      continue;
-    // Okay, file matches, now check the line.
-    // This is the most expensive operation here so we do it last,
-    // when we're sure that the string & file match.
-    auto line = srcMgr_.getLineNumber(loc);
-    if (line != pair.second)
-      continue;
-
-    // Diagnostic was expected, ignore it, remove the entry from the map
-    // and return.
+	// FIXME: This isn't ideal, might have poor performance.
+	// Construct an ExpectedDiag to search the map
+	SourceLoc diagLoc = diag.getRange().getBegin();
+	ExpectedDiag ed(diag.getSeverity(),
+									diag.getStr(),
+									diagLoc.getFileID(), 
+									srcMgr_.getLineNumber(diagLoc));
+  auto it = expectedDiags_.find(ed);
+  if(it != expectedDiags_.end()) {
+    // We expected this diag, erase the entry from the map and ignore
+		// the diag.
     expectedDiags_.erase(it);
     diag.ignore();
-    return;
   }
 }
 
-void DiagnosticVerifier::addExpectedDiag(FileID file, LineTy line, 
-  string_view str) {
-  expectedDiags_.insert({str, {file, line}});
-}
-
 bool DiagnosticVerifier::handleVerifyInstr(SourceLoc loc, string_view instr) {
-	parseVerifyInstr(loc, instr);
+	auto parsingResult = parseVerifyInstr(loc, instr);
+
+	// Parsing failed? We can't do much more!
+	if (!parsingResult.wasSuccessful()) return false;
+	auto parsedInstr = parsingResult.get();
+	
   return true;
 }
 
-ResultObject<DiagnosticVerifier::VerifyInstr> 
+ResultObject<DiagnosticVerifier::ParsedInstr>
 DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
-	using RtrTy = ResultObject<VerifyInstr>;
+	using RtrTy = ResultObject<ParsedInstr>;
 	std::size_t fullInstrSize = instr.size();
 	// Remove the prefix
 	instr = instr.substr(vPrefixSize, instr.size() - vPrefixSize);
@@ -172,7 +202,6 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
 	// The base is the suffix, maybe with some arguments, and the string
 	// is the actual expected diagnostic string.
 	auto splitted = split(instr, colonPos);
-	std::cout << "Split(" << splitted.first << "," << splitted.second << ")\n";
 	
 	string_view fullSuffix = splitted.first;
 	string_view str = splitted.second;
@@ -197,9 +226,20 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
 		return RtrTy(false);
 	}
 
-	std::cout << "Post-checks(" << fullSuffix << ")(" << str << ")\n";
-
-	return RtrTy(false);
+	string_view suffix;
+	string_view arg;
+	// Now, check if we have arguments in the suffix
+	auto atLoc = fullSuffix.find(vArgSep);
+	if (atLoc != string_view::npos) {
+		// We found it, split the string in 2.
+		std::tie(suffix, arg) = split(fullSuffix, atLoc);
+	} else {
+		// If we don't have one, that means our suffix doesn't have any arg.
+		suffix = fullSuffix;
+	}
+	std::cout << "Done, returning:(" 
+		<< suffix << ")(" << arg << ")(" << str << ")\n";
+	return RtrTy(true, ParsedInstr(suffix, arg, str));
 }
 
 void DiagnosticVerifier::diagnoseMissingStr(SourceLoc loc) {
@@ -215,4 +255,16 @@ void DiagnosticVerifier::diagnoseMissingSuffix(SourceLoc instrBeg) {
     offsetSourceLoc(instrBeg, vPrefixSize))
       .addArg(vPrefix)
       .setExtraRange(SourceRange(instrBeg, vPrefixSize - 1));
+}
+
+bool 
+DiagnosticVerifier::parseSuffix(string_view suffix, ExpectedDiag& expected) {
+	// Parse using vWarnPrefix and the likes.
+	// Put the result inside expected.severity
+}
+
+bool 
+DiagnosticVerifier::parseArg(const ParsedInstr & instr, ExpectedDiag& expected) {
+	// First char must be + or -, second must be digit.
+	// Put the result inside expected.offset
 }

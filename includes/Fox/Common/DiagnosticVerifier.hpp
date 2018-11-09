@@ -37,34 +37,30 @@ namespace fox {
       virtual void consume(Diagnostic& diag) override;
 
     private:
-			struct VerifyInstr {
-				VerifyInstr() = default;
-
-				VerifyInstr(string_view suffix, std::int8_t offset, string_view str):
-					suffix(suffix), offset(offset), str(str) {}
-
-				string_view suffix;
-				std::int8_t offset = 0;
-				string_view str;
-			};
-
-      void addExpectedDiag(FileID file, LineTy line, string_view str);
+			struct ParsedInstr;
+			struct ExpectedDiag;
 
       // Handles a verify instr, parsing it and processing it.
       // The first argument is the loc of the first char of the instr.
       bool handleVerifyInstr(SourceLoc loc, string_view instr);
 
-			// Parses a verify instr
-			ResultObject<VerifyInstr> parseVerifyInstr(SourceLoc loc,
+			// Parses a verify instr, returning a ParsedInstr on success.
+			ResultObject<ParsedInstr> parseVerifyInstr(SourceLoc loc,
 																								 string_view instr);
 
 			void diagnoseMissingStr(SourceLoc loc);
 			void diagnoseMissingColon(SourceLoc loc);
       void diagnoseMissingSuffix(SourceLoc instrBeg);
 
+			// Parses the suffix string and puts the result inside "expected"
+			bool parseSuffix(string_view suffix, ExpectedDiag& expected);
+
+			// Parses the arg string and puts the result inside "expected"
+			bool parseArg(const ParsedInstr& instr, ExpectedDiag& expected);
+
       DiagnosticEngine& diags_;
       SourceManager& srcMgr_;
       // Map of expected diagnostics
-      std::multimap<string_view, std::pair<FileID, LineTy>> expectedDiags_;
+      std::multiset<ExpectedDiag> expectedDiags_;
   };
 } // namespace fox
