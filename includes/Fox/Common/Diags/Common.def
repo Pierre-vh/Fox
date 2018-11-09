@@ -26,9 +26,11 @@ ERROR(diagverif_expectedcolon,
 			"Expected a ':' in verify instr")
 ERROR(diagverif_expectedstr,
 			"Expected a diagnostic string in verify instr after ':'")
+ERROR(diagverif_illFormedOffset,
+			"Ill formed verify instr offset. Should be '+' or '-' followed by a single digit.")
 
 DIAG_RANGE(DiagnosticVerifier, 
-  diagverif_expectedsuffix, diagverif_expectedstr)
+  diagverif_expectedsuffix, diagverif_incorrectArg)
 
 // DiagnosticEngine self Diagnostics
 FATAL(diagengine_maxErrCountExceeded, 

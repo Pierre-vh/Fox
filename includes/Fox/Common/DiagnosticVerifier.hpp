@@ -38,8 +38,21 @@ namespace fox {
 
     private:
 			struct ParsedInstr;
-			struct ExpectedDiag;
+			struct ExpectedDiag {
+				ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line) :
+					severity(sev), str(str), file(file), line(line) {}
 
+				DiagSeverity severity = DiagSeverity::IGNORE;
+				string_view str;
+				FileID file;
+				LineTy line = 0;
+
+				// For STL Containers
+				bool operator<(const ExpectedDiag& other) const {
+					return std::tie(severity, str, file, line)
+						< std::tie(other.severity, other.str, other.file, other.line);
+				}
+			};
       // Handles a verify instr, parsing it and processing it.
       // The first argument is the loc of the first char of the instr.
       bool handleVerifyInstr(SourceLoc loc, string_view instr);
@@ -51,12 +64,14 @@ namespace fox {
 			void diagnoseMissingStr(SourceLoc loc);
 			void diagnoseMissingColon(SourceLoc loc);
       void diagnoseMissingSuffix(SourceLoc instrBeg);
+			void diagnoseIllFormedOffset(SourceRange range);
 
 			// Parses the suffix string and puts the result inside "expected"
-			bool parseSuffix(string_view suffix, ExpectedDiag& expected);
+			bool parseSeverity(string_view suffix, DiagSeverity& sev);
 
-			// Parses the arg string and puts the result inside "expected"
-			bool parseArg(const ParsedInstr& instr, ExpectedDiag& expected);
+			// Parses the offset string (e.g. "+3) and applies the offset
+			bool parseOffset(SourceRange strRange,
+										string_view str, std::int8_t& offset);
 
       DiagnosticEngine& diags_;
       SourceManager& srcMgr_;

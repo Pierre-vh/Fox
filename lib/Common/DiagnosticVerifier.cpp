@@ -115,22 +115,6 @@ struct DiagnosticVerifier::ParsedInstr {
 	string_view str;
 };
 
-struct DiagnosticVerifier::ExpectedDiag {
-	ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line):
-		severity(sev), str(str), file(file), line(line) {}
-
-	DiagSeverity severity;
-	string_view str;
-	FileID file;
-	LineTy line;
-
-	// For Multiset
-	bool operator<(const ExpectedDiag& other) {
-		return std::tie(severity, str, file, line) 
-			< std::tie(other.severity, other.str, other.file, other.line);
-	}
-};
-
 DiagnosticVerifier::DiagnosticVerifier(DiagnosticEngine& engine, 
 																			 SourceManager& srcMgr): 
 	diags_(engine), srcMgr_(srcMgr) {
@@ -182,6 +166,20 @@ bool DiagnosticVerifier::handleVerifyInstr(SourceLoc loc, string_view instr) {
 	if (!parsingResult.wasSuccessful()) return false;
 	auto parsedInstr = parsingResult.get();
 	
+	ExpectedDiag diag(DiagSeverity::IGNORE,
+										parsedInstr.str,
+										loc.getFileID(),
+										srcMgr_.getLineNumber(loc));
+
+	// Parse the severity
+	if (!parseSeverity(parsedInstr.suffix, diag.severity))
+		return false;
+
+	if (parsedInstr.arg.size()) {
+		// TODO: calculate offset range & call parseOffset
+	}
+	std::cout << "ExpectedDiag pushed\n";
+	expectedDiags_.insert(diag);
   return true;
 }
 
@@ -257,14 +255,51 @@ void DiagnosticVerifier::diagnoseMissingSuffix(SourceLoc instrBeg) {
       .setExtraRange(SourceRange(instrBeg, vPrefixSize - 1));
 }
 
-bool 
-DiagnosticVerifier::parseSuffix(string_view suffix, ExpectedDiag& expected) {
-	// Parse using vWarnPrefix and the likes.
-	// Put the result inside expected.severity
+void DiagnosticVerifier::diagnoseIllFormedOffset(SourceRange range) {
+	diags_.report(DiagID::diagverif_illFormedOffset, range);
 }
 
 bool 
-DiagnosticVerifier::parseArg(const ParsedInstr & instr, ExpectedDiag& expected) {
-	// First char must be + or -, second must be digit.
-	// Put the result inside expected.offset
+DiagnosticVerifier::parseSeverity(string_view suffix, DiagSeverity& sev) {
+	if (suffix == vFatalSuffix)
+		sev = DiagSeverity::FATAL;
+	else if (suffix == vErrorSuffix)
+		sev = DiagSeverity::ERROR;
+	else if (suffix == vWarnSuffix)
+		sev = DiagSeverity::WARNING;
+	else if (suffix == vNoteSuffix)
+		sev = DiagSeverity::NOTE;
+	else return false;
+	return true;
+}
+
+bool 
+DiagnosticVerifier::parseOffset(SourceRange strRange, string_view str,
+																std::int8_t& offset) {
+	if (str.size() != 2) {
+		diagnoseIllFormedOffset(strRange);
+		return false;
+	}
+	
+	// Get the digit
+	std::int8_t digit = 0;
+	if (std::isdigit(str[1]))
+		digit = str[1] - '0';
+	else {
+		diagnoseIllFormedOffset(strRange);
+		return false;
+	}
+
+	// Act on the sign
+	char sign = str[0];
+	if (sign == '+') {
+		offset = digit;
+		return true;
+	} else if (sign == '-') {
+		offset = -digit;
+		return true;
+	} else {
+		diagnoseIllFormedOffset(strRange);
+		return false;
+	}
 }
