@@ -72,6 +72,8 @@ namespace {
 	// right of the string.
 	// str = The string that'll be trimmed
 	void trim(string_view &str) {
+    if(!str.size()) return;
+
 		std::size_t beg = 0;
 		std::size_t end = str.size() - 1;
 		// Trim to the left
@@ -107,11 +109,11 @@ namespace {
 struct DiagnosticVerifier::ParsedInstr {
 	ParsedInstr() = default;
 
-	ParsedInstr(string_view suffix, string_view arg, string_view str) :
-		suffix(suffix), arg(arg), str(str) {}
+	ParsedInstr(string_view suffix, std::int8_t offset, string_view str) :
+		suffix(suffix), offset(offset), str(str) {}
 
 	string_view suffix;
-	string_view arg;
+	std::int8_t offset = 0;
 	string_view str;
 };
 
@@ -127,7 +129,7 @@ bool DiagnosticVerifier::parseFile(FileID fid) {
   bool rtr = true;
   {
     std::size_t last = 0, idx = 0;
-    do {
+    while (last<fStr.size()) {
       idx = fStr.find(vPrefix, last);
       if (idx == string_view::npos)
         break;
@@ -135,7 +137,7 @@ bool DiagnosticVerifier::parseFile(FileID fid) {
       auto instr = getRestOfLine(idx, fStr);
       std::cout << "Full instr found(" << instr << ")\n";
       rtr |= handleVerifyInstr(SourceLoc(fid, idx), instr);
-    } while (true);
+    }
   }
   return false;
 }
@@ -175,9 +177,7 @@ bool DiagnosticVerifier::handleVerifyInstr(SourceLoc loc, string_view instr) {
 	if (!parseSeverity(parsedInstr.suffix, diag.severity))
 		return false;
 
-	if (parsedInstr.arg.size()) {
-		// TODO: calculate offset range & call parseOffset
-	}
+  // Offset stuff
 	std::cout << "ExpectedDiag pushed\n";
 	expectedDiags_.insert(diag);
   return true;
@@ -190,54 +190,63 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
 	// Remove the prefix
 	instr = instr.substr(vPrefixSize, instr.size() - vPrefixSize);
 	// Find the ':'
-	auto colonPos = instr.find(':');
-	if (colonPos == string_view::npos) {
-		diagnoseMissingColon(offsetSourceLoc(loc, fullInstrSize));
-		return RtrTy(false);
-	}
-	
+  std::size_t colonPos = instr.find(':');
+  if (colonPos == string_view::npos) {
+    diagnoseMissingColon(offsetSourceLoc(loc, fullInstrSize));
+    return RtrTy(false);
+  }
+  // Because we removed the prefix earlier, we'll
+  // add the vPrefixSize to colonPos to calculate it's real position
+
 	// With that, we can split the instr in 2, the base and the string.
 	// The base is the suffix, maybe with some arguments, and the string
 	// is the actual expected diagnostic string.
-	auto splitted = split(instr, colonPos);
+  string_view base, diagStr;
+  // We'll do colonPos-vPrefixSize because we removed the prefix
+  // from the string.
+	std::tie(base, diagStr) = split(instr, colonPos);
 	
-	string_view fullSuffix = splitted.first;
-	string_view str = splitted.second;
-
 	// Check if we have a prefix. If we don't, that's an error.
-	if (!fullSuffix.size()) {
+	if (!base.size()) {
 		diagnoseMissingSuffix(loc);
 		return RtrTy(false);
 	}
+  // TODO: call parsePrefix here
+  // Also, just return the ExpectedDiag, not the parsedInstr thing. Remove that
+  // completely.
 
-	// Trim the string
-	trim(str);
+	// Trim the diagStr
+	trim(diagStr);
 
 	// Check if we have a diag str, If we don't, that's an error.
-	if (!str.size()) {
-		// Because we removed the prefix earlier, we'll
-		// add the vPrefixSize to colonPos to calculate it's real position
-		auto realColonPos = colonPos + vPrefixSize;
-		// We increment realColonPos because we want the diagnostic to be
+	if (!diagStr.size()) {
+		// We increment colonPos because we want the diagnostic to be
 		// just after the colon
-		diagnoseMissingStr(offsetSourceLoc(loc, realColonPos+1));
+		diagnoseMissingStr(offsetSourceLoc(loc, vPrefixSize + colonPos+1));
 		return RtrTy(false);
 	}
 
 	string_view suffix;
-	string_view arg;
-	// Now, check if we have arguments in the suffix
-	auto atLoc = fullSuffix.find(vArgSep);
-	if (atLoc != string_view::npos) {
+	std::int8_t offset = 0;
+
+	// Now, check if we have arguments in the base
+	auto sepLoc = base.find(vArgSep);
+	if (sepLoc != string_view::npos) {
 		// We found it, split the string in 2.
-		std::tie(suffix, arg) = split(fullSuffix, atLoc);
+    string_view offsetStr;
+		std::tie(suffix, offsetStr) = split(base, sepLoc);
+    // The range of the offset string is from the vArgSep to the colonPos
+    SourceLoc beg = offsetSourceLoc(loc, vPrefixSize + sepLoc +1);
+    SourceRange argRange(beg, offsetStr.size()-1);
+    if(!parseOffset(argRange, offsetStr, offset))
+      return RtrTy(false);
 	} else {
 		// If we don't have one, that means our suffix doesn't have any arg.
-		suffix = fullSuffix;
+		suffix = base;
 	}
 	std::cout << "Done, returning:(" 
-		<< suffix << ")(" << arg << ")(" << str << ")\n";
-	return RtrTy(true, ParsedInstr(suffix, arg, str));
+		<< suffix << ")(" << +offset << ")(" << diagStr << ")\n";
+	return RtrTy(true, ParsedInstr(suffix, offset, diagStr));
 }
 
 void DiagnosticVerifier::diagnoseMissingStr(SourceLoc loc) {
