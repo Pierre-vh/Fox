@@ -42,10 +42,10 @@ namespace fox {
 				ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line) :
 					severity(sev), str(str), file(file), line(line) {}
 
-				DiagSeverity severity = DiagSeverity::IGNORE;
+				DiagSeverity severity;
 				string_view str;
 				FileID file;
-				LineTy line = 0;
+				LineTy line;
 
 				// For STL Containers
 				bool operator<(const ExpectedDiag& other) const {
