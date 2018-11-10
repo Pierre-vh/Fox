@@ -5,9 +5,10 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-#include "Fox/Common/DiagnosticVerifier.hpp"
+#include "DiagnosticVerifier.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/ResultObject.hpp"
+// #include <iostream>
 #include <tuple>
 #include <cctype>
 
@@ -91,11 +92,8 @@ namespace {
 //----------------------------------------------------------------------------//
 
 DiagnosticVerifier::DiagnosticVerifier(
-  DiagnosticEngine& engine, SourceManager& srcMgr, 
-  std::unique_ptr<DiagnosticConsumer> consumer):
-	diags_(engine), srcMgr_(srcMgr), consumer_(std::move(consumer)) {
-  assert(consumer_ && "Can't have a null consumer!");
-}
+  DiagnosticEngine& engine, SourceManager& srcMgr):
+	diags_(engine), srcMgr_(srcMgr) {}
 
 bool DiagnosticVerifier::parseFile(FileID fid) {
   // Fetch the content of the file
@@ -109,14 +107,14 @@ bool DiagnosticVerifier::parseFile(FileID fid) {
         break;
       last = idx + 1;
       auto instr = getRestOfLine(idx, fStr);
-      std::cout << "Full instr found(" << instr << ")\n";
+      //std::cout << "Verify Instr found(" << instr << ")\n";
       rtr |= handleVerifyInstr(SourceLoc(fid, idx), instr);
     }
   }
   return false;
 }
 
-void DiagnosticVerifier::consume(Diagnostic& diag) {
+bool DiagnosticVerifier::verify(Diagnostic& diag) {
   // Check if there is an entry for this string in our map
 
 	// Construct an ExpectedDiag to search the map
@@ -131,29 +129,9 @@ void DiagnosticVerifier::consume(Diagnostic& diag) {
     // We expected this diag, erase the entry from the map and ignore
 		// the diag.
     expectedDiags_.erase(it);
-    diag.ignore();
+    return false;
   }
-  else {
-    // Diag wasn't expected, just forward it to our diagnostic consumer
-    assert(consumer_ && "Consumer cannot be null!");
-    consumer_->consume(diag);
-  }
-}
-
-std::unique_ptr<DiagnosticConsumer> DiagnosticVerifier::takeConsumer() {
-  return std::move(consumer_);
-}
-
-DiagnosticConsumer* DiagnosticVerifier::getConsumer() {
-  return consumer_.get();
-}
-
-const DiagnosticConsumer* DiagnosticVerifier::getConsumer() const {
-  return consumer_.get();
-}
-
-void DiagnosticVerifier::setConsumer(std::unique_ptr<DiagnosticConsumer> consumer) {
-  consumer_ = std::move(consumer);
+  return true;
 }
 
 bool DiagnosticVerifier::handleVerifyInstr(SourceLoc loc, string_view instr) {
@@ -251,8 +229,8 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
       return RtrTy(false);
   }
 
-	std::cout << "Done, returning:(" 
-		<< severity << ")(" << line << ")(" << diagStr << ")\n";
+	//std::cout << "Done, returning:(" 
+	//	<< severity << ")(" << line << ")(" << diagStr << ")\n";
 	return RtrTy(true, ExpectedDiag(severity, diagStr, file, line));
 }
 
