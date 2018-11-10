@@ -82,7 +82,7 @@ const DiagnosticConsumer* DiagnosticEngine::getConsumer() const {
 }
 
 std::unique_ptr<DiagnosticConsumer> fox::DiagnosticEngine::takeConsumer() {
-  return std::move(consumer_) 
+  return std::move(consumer_);
 }
 
 bool DiagnosticEngine::hasFatalErrorOccured() const {
