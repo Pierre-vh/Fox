@@ -24,7 +24,7 @@ namespace fox {
         id_ = diag.getID();
       }
 
-      std::string getStr() const {
+      string_view getStr() const {
         return str_;
       }
 
@@ -44,7 +44,7 @@ namespace fox {
       std::uint8_t count_ = 0;
       DiagID id_;
       DiagSeverity sev_;
-      std::string str_;
+      string_view str_;
   };
 }
 
