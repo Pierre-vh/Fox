@@ -72,7 +72,7 @@ DiagID Diagnostic::getID() const {
   return diagID_;
 }
 
-string_view Diagnostic::getStr() const {
+std::string Diagnostic::getStr() const {
   return diagStr_;
 }
 

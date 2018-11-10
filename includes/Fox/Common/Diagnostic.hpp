@@ -62,7 +62,7 @@ namespace fox {
 
       // Getters for basic args values
       DiagID getID() const;
-      string_view getStr() const;
+      std::string getStr() const;
       DiagSeverity getSeverity() const;
 
       SourceRange getRange() const;
