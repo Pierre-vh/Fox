@@ -24,7 +24,7 @@ namespace fox {
         id_ = diag.getID();
       }
 
-      string_view getStr() const {
+      std::string getStr() const {
         return str_;
       }
 
@@ -44,7 +44,7 @@ namespace fox {
       std::uint8_t count_ = 0;
       DiagID id_;
       DiagSeverity sev_;
-      string_view str_;
+      std::string str_;
   };
 }
 
@@ -87,7 +87,7 @@ TEST(DiagnosticsTests, fatals) {
 
 TEST(DiagnosticsTests, emission) {
   auto diagEng = createDiagEngine();
-  StrDiagConsumer* cons = dynamic_cast<StrDiagConsumer*>(diagEng.getConsumer());
+  StrDiagConsumer* cons = static_cast<StrDiagConsumer*>(diagEng.getConsumer());
   EXPECT_EQ("", cons->getStr()) << "Consumer str wasn't empty at first.";
   // Test emission when diag goes out of scope
 	{
