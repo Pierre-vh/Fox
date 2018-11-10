@@ -5,7 +5,7 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-#include "DiagnosticVerifier.hpp"
+#include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/ResultObject.hpp"
 // #include <iostream>
@@ -115,7 +115,13 @@ bool DiagnosticVerifier::parseFile(FileID fid) {
 }
 
 bool DiagnosticVerifier::verify(Diagnostic& diag) {
-  // Check if there is an entry for this string in our map
+  {
+    DiagID id = diag.getID();
+    // Always emit our own diagnostics.
+    if((id >= DiagID::First_DiagnosticVerifier) 
+      && (id <= DiagID::Last_DiagnosticVerifier))
+      return true;
+  }
 
 	// Construct an ExpectedDiag to search the map
 	SourceLoc diagLoc = diag.getRange().getBegin();
