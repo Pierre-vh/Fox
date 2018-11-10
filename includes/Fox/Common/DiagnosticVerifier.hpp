@@ -14,11 +14,11 @@
 #pragma once
 
 #include "Source.hpp"
+#include "Diagnostic.hpp"
 #include "DiagnosticConsumers.hpp"
 #include <set>
 
 namespace fox {
-  class Diagnostic;
   class DiagnosticEngine;
 	template<typename Ty> class ResultObject;
   class DiagnosticVerifier : public DiagnosticConsumer{
@@ -37,20 +37,20 @@ namespace fox {
       virtual void consume(Diagnostic& diag) override;
 
     private:
-			struct ParsedInstr;
 			struct ExpectedDiag {
-				ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line) :
-					severity(sev), str(str), file(file), line(line) {}
+        ExpectedDiag() = default;
+				ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line):
+					severity(sev), diagStr(str), file(file), line(line) {}
 
-				DiagSeverity severity;
-				string_view str;
+				DiagSeverity severity = DiagSeverity::IGNORE;
+				string_view diagStr;
 				FileID file;
-				LineTy line;
+				LineTy line = 0;
 
 				// For STL Containers
 				bool operator<(const ExpectedDiag& other) const {
-					return std::tie(severity, str, file, line)
-						< std::tie(other.severity, other.str, other.file, other.line);
+					return std::tie(severity, diagStr, file, line)
+						< std::tie(other.severity, other.diagStr, other.file, other.line);
 				}
 			};
       // Handles a verify instr, parsing it and processing it.
@@ -58,7 +58,7 @@ namespace fox {
       bool handleVerifyInstr(SourceLoc loc, string_view instr);
 
 			// Parses a verify instr, returning a ParsedInstr on success.
-			ResultObject<ParsedInstr> parseVerifyInstr(SourceLoc loc,
+			ResultObject<ExpectedDiag> parseVerifyInstr(SourceLoc loc,
 																								 string_view instr);
 
 			void diagnoseMissingStr(SourceLoc loc);

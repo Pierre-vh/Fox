@@ -7,7 +7,6 @@
 
 #include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-#include "Fox/Common/Diagnostic.hpp"
 #include "Fox/Common/ResultObject.hpp"
 #include <tuple>
 #include <cctype>
@@ -38,19 +37,28 @@ namespace {
     return SourceLoc(loc.getFileID(), loc.getIndex() + off);
   }
 
-  // Removes characters such as \r, \n from the end of the string.
-  void removeNewline(string_view& str) {
-    std::size_t end = str.size();
-    for (auto it = str.rbegin(); it != str.rend(); ++it) {
-      char c = (*it);
-      if ((c == '\r') || (c == '\n'))
-        --end;
-      else break;
+  // Trims a string, removing spaces, tabs and others to the left and 
+  // right of the string.
+  // str = The string that'll be trimmed
+  void trim(string_view &str) {
+    if (!str.size()) return;
+
+    std::size_t beg = 0;
+    std::size_t end = str.size() - 1;
+    // Trim to the left
+    while (std::isspace(str[beg]) && beg != end) ++beg;
+
+    // If the string fully consists of spaces beg will be equal to end, then
+    // instead of searching again, just set it to "" as the trimmed string
+    // is considered empty.
+    if (beg == end) {
+      str = "";
+      return;
     }
 
-    // See if trimming is necessary, if it is, do it.
-    if(end != str.size())
-      str = str.substr(0, end);
+    // Trim to the right
+    while (std::isspace(str[end])) --end;
+    str = str.substr(beg, end - beg + 1);
   }
 
   // Returns the whole string between pos and the end of the line/eof
@@ -64,33 +72,9 @@ namespace {
     else
       rtr = str.substr(pos, str.size()-pos);
 
-    removeNewline(rtr);
+    trim(rtr);
     return rtr;
   }
-
-	// Trims a string, removing spaces, tabs and others to the left and 
-	// right of the string.
-	// str = The string that'll be trimmed
-	void trim(string_view &str) {
-    if(!str.size()) return;
-
-		std::size_t beg = 0;
-		std::size_t end = str.size() - 1;
-		// Trim to the left
-		while (std::isspace(str[beg]) && beg != end) ++beg;
-
-		// If the string fully consists of spaces beg will be equal to end, then
-		// instead of searching again, just set it to "" as the trimmed string
-		// is considered empty.
-		if (beg == end) {
-			str = "";
-			return;
-		}
-
-		// Trim to the right
-		while (std::isspace(str[end])) --end;
-		str = str.substr(beg, end - beg + 1);
-	}
 
 	// Splits a string view around a character. 
 	// e.g. split("foo:bar", 3) returns {"foo", "bar"
@@ -105,17 +89,6 @@ namespace {
 //----------------------------------------------------------------------------//
 //  DiagnosticVerifier's methods implementation
 //----------------------------------------------------------------------------//
-
-struct DiagnosticVerifier::ParsedInstr {
-	ParsedInstr() = default;
-
-	ParsedInstr(string_view suffix, std::int8_t offset, string_view str) :
-		suffix(suffix), offset(offset), str(str) {}
-
-	string_view suffix;
-	std::int8_t offset = 0;
-	string_view str;
-};
 
 DiagnosticVerifier::DiagnosticVerifier(DiagnosticEngine& engine, 
 																			 SourceManager& srcMgr): 
@@ -145,13 +118,13 @@ bool DiagnosticVerifier::parseFile(FileID fid) {
 void DiagnosticVerifier::consume(Diagnostic& diag) {
   // Check if there is an entry for this string in our map
 
-	// FIXME: This isn't ideal, might have poor performance.
 	// Construct an ExpectedDiag to search the map
 	SourceLoc diagLoc = diag.getRange().getBegin();
 	ExpectedDiag ed(diag.getSeverity(),
 									diag.getStr(),
 									diagLoc.getFileID(), 
 									srcMgr_.getLineNumber(diagLoc));
+
   auto it = expectedDiags_.find(ed);
   if(it != expectedDiags_.end()) {
     // We expected this diag, erase the entry from the map and ignore
@@ -166,26 +139,25 @@ bool DiagnosticVerifier::handleVerifyInstr(SourceLoc loc, string_view instr) {
 
 	// Parsing failed? We can't do much more!
 	if (!parsingResult.wasSuccessful()) return false;
-	auto parsedInstr = parsingResult.get();
+	auto diag = parsingResult.get();
 	
-	ExpectedDiag diag(DiagSeverity::IGNORE,
-										parsedInstr.str,
-										loc.getFileID(),
-										srcMgr_.getLineNumber(loc));
-
-	// Parse the severity
-	if (!parseSeverity(parsedInstr.suffix, diag.severity))
-		return false;
 
   // Offset stuff
-	std::cout << "ExpectedDiag pushed\n";
 	expectedDiags_.insert(diag);
   return true;
 }
 
-ResultObject<DiagnosticVerifier::ParsedInstr>
+ResultObject<DiagnosticVerifier::ExpectedDiag>
 DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
-	using RtrTy = ResultObject<ParsedInstr>;
+	using RtrTy = ResultObject<ExpectedDiag>;
+  assert(loc && "invalid loc");
+  assert(instr.size() && "empty instr");
+  // The values we'll collect
+  DiagSeverity severity;
+  string_view diagStr;
+  FileID file = loc.getFileID();
+  LineTy line = srcMgr_.getLineNumber(loc);
+
 	std::size_t fullInstrSize = instr.size();
 	// Remove the prefix
 	instr = instr.substr(vPrefixSize, instr.size() - vPrefixSize);
@@ -195,58 +167,71 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
     diagnoseMissingColon(offsetSourceLoc(loc, fullInstrSize));
     return RtrTy(false);
   }
-  // Because we removed the prefix earlier, we'll
-  // add the vPrefixSize to colonPos to calculate it's real position
 
-	// With that, we can split the instr in 2, the base and the string.
-	// The base is the suffix, maybe with some arguments, and the string
+	// With that, we can split the instr in 2, the base and the diagStr.
+	// The base is the suffix, maybe with some arguments, and the diagStr
 	// is the actual expected diagnostic string.
-  string_view base, diagStr;
-  // We'll do colonPos-vPrefixSize because we removed the prefix
-  // from the string.
+  string_view base;
 	std::tie(base, diagStr) = split(instr, colonPos);
 	
-	// Check if we have a prefix. If we don't, that's an error.
+	// Check if we have a suffix. If we don't, that's an error.
 	if (!base.size()) {
 		diagnoseMissingSuffix(loc);
 		return RtrTy(false);
 	}
-  // TODO: call parsePrefix here
-  // Also, just return the ExpectedDiag, not the parsedInstr thing. Remove that
-  // completely.
 
-	// Trim the diagStr
+	// Trim the diagStr to remove end of line characters and
+  // others.
 	trim(diagStr);
 
 	// Check if we have a diag str, If we don't, that's an error.
 	if (!diagStr.size()) {
 		// We increment colonPos because we want the diagnostic to be
 		// just after the colon
-		diagnoseMissingStr(offsetSourceLoc(loc, vPrefixSize + colonPos+1));
+		diagnoseMissingStr(offsetSourceLoc(loc, vPrefixSize+colonPos+1));
 		return RtrTy(false);
 	}
 
-	string_view suffix;
-	std::int8_t offset = 0;
+  // Suffix parsing : 2 cases
+  //    Simple suffix: just "error" or "warn"
+  //    Suffix with offset: "error@+1" "warn@-9"
+  // -> We can dispatch based on the presence of the vArgSep or not
+  {
+    string_view sevStr;
+    auto sepLoc = base.find(vArgSep);
 
-	// Now, check if we have arguments in the base
-	auto sepLoc = base.find(vArgSep);
-	if (sepLoc != string_view::npos) {
-		// We found it, split the string in 2.
-    string_view offsetStr;
-		std::tie(suffix, offsetStr) = split(base, sepLoc);
-    // The range of the offset string is from the vArgSep to the colonPos
-    SourceLoc beg = offsetSourceLoc(loc, vPrefixSize + sepLoc +1);
-    SourceRange argRange(beg, offsetStr.size()-1);
-    if(!parseOffset(argRange, offsetStr, offset))
+    // It has arguments
+    if (sepLoc != string_view::npos) {
+      std::int8_t offset = 0;
+      string_view offsetStr;
+      // Split the string to get the offset string and the severity string.
+      std::tie(sevStr, offsetStr) = split(base, sepLoc);
+
+      // The range of the offset string is calculated based on the sepLoc+1.
+      // We also add the vPrefixSize because we removed it earlier
+      SourceLoc beg = offsetSourceLoc(loc, vPrefixSize+sepLoc+1);
+
+      // The range's size is the offsetStr's size-1
+      SourceRange argRange(beg, offsetStr.size()-1);
+
+      // Parse the offset
+      if (!parseOffset(argRange, offsetStr, offset))
+        return RtrTy(false);
+
+      // Apply it.
+      line += offset;
+    }
+    else // It's a simple suffix, the suffix is equal to the base.
+      sevStr = base;
+ 
+    // Now parse the severity string
+    if (!parseSeverity(sevStr, severity))
       return RtrTy(false);
-	} else {
-		// If we don't have one, that means our suffix doesn't have any arg.
-		suffix = base;
-	}
+  }
+
 	std::cout << "Done, returning:(" 
-		<< suffix << ")(" << +offset << ")(" << diagStr << ")\n";
-	return RtrTy(true, ParsedInstr(suffix, offset, diagStr));
+		<< severity << ")(" << line << ")(" << diagStr << ")\n";
+	return RtrTy(true, ExpectedDiag(severity, diagStr, file, line));
 }
 
 void DiagnosticVerifier::diagnoseMissingStr(SourceLoc loc) {
