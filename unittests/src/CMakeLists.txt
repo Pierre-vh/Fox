@@ -1,5 +1,5 @@
 add_source(
-  tests_src 
+  unittests_src 
 
   "main.cpp"
 

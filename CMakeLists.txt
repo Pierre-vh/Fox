@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 project(Moonshot)
 
+# We'll need python
+include(FindPythonInterp)
+
 #set minimal C++ standard 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,7 +28,7 @@ add_subdirectory(lib)
 add_subdirectory(tools/CommandLine)
 
 # add test subdir
-add_subdirectory(tests)
+add_subdirectory(unittests)
 
 # MSVC flags
 if(MSVC)
@@ -49,14 +52,18 @@ if(MSVC)
   add_compile_options(/wd4324) # "structure was padded due to alignement specifier" no sh*t sherlock.
 endif()
 
-
-
 # add lib target
 add_library(libmoonshot STATIC ${moonshot_src})
 
 # add executable target & link it with libmoonshot
 add_executable(Moonshot ${cli_src})
 target_link_libraries(Moonshot libmoonshot)
+
+# add llvm lit test suite 
+add_custom_target(MoonshotLit 
+  COMMAND ${PYTHON_EXECUTABLE} -m lit.main ${PROJECT_SOURCE_DIR}/tests -v 
+  DEPENDS Moonshot 
+)
 
 # add test resources path macro
 target_compile_definitions(libmoonshot PRIVATE TEST_RES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/tests/res/")
