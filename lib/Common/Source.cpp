@@ -216,8 +216,8 @@ SourceManager::searchLineTable(const SourceData* data, const SourceLoc& loc) con
   else {
     // Line table was already calculated, check if the cached search result matches.
     // if it does match, return it.
-    if(data->lastLineTableSearch_.first == loc.getIndex())
-      return data->lastLineTableSearch_;
+    if(data->lastLTSearch_.first == loc)
+      return data->lastLTSearch_.second;
   }
 
   auto it = data->lineTable_.lower_bound(loc.getIndex());
@@ -231,7 +231,7 @@ SourceManager::searchLineTable(const SourceData* data, const SourceLoc& loc) con
     rtr = *(--it);
   else 
     rtr = *it;
-  data->lastLineTableSearch_ = rtr;
+  data->lastLTSearch_ = {loc, rtr};
   return rtr;
 }
 

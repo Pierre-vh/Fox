@@ -132,16 +132,20 @@ namespace fox {
         std::string fileName;
         std::string str;
         protected:
+          using IndexTy = SourceLoc::IndexTy;
+          using LineTy = CompleteLoc::LineTy;
           friend class SourceManager;
 
           SourceData(const std::string& name, const std::string& content)
               : fileName(name), str(content) {}
 
-          mutable std::map<SourceLoc::IndexTy,CompleteLoc::LineTy> lineTable_;
+          mutable std::map<IndexTy, LineTy> lineTable_;
           mutable bool calculatedLineTable_ = false;
           // We cache the last search result here too.
-          mutable std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy> 
-            lastLineTableSearch_ = {0,0};
+          // The first element of the pair is the sourceloc that we
+          // searched for, the second is the result we returned.
+          mutable std::pair<SourceLoc, std::pair<IndexTy, LineTy>> 
+            lastLTSearch_;
       };
 
       // Load a file in memory 
