@@ -90,10 +90,11 @@ namespace {
 //  DiagnosticVerifier's methods implementation
 //----------------------------------------------------------------------------//
 
-DiagnosticVerifier::DiagnosticVerifier(DiagnosticEngine& engine, 
-																			 SourceManager& srcMgr): 
-	diags_(engine), srcMgr_(srcMgr) {
-  
+DiagnosticVerifier::DiagnosticVerifier(
+  DiagnosticEngine& engine, SourceManager& srcMgr, 
+  std::unique_ptr<DiagnosticConsumer> consumer):
+	diags_(engine), srcMgr_(srcMgr), consumer_(std::move(consumer)) {
+  assert(consumer_ && "Can't have a null consumer!");
 }
 
 bool DiagnosticVerifier::parseFile(FileID fid) {
@@ -132,6 +133,27 @@ void DiagnosticVerifier::consume(Diagnostic& diag) {
     expectedDiags_.erase(it);
     diag.ignore();
   }
+  else {
+    // Diag wasn't expected, just forward it to our diagnostic consumer
+    assert(consumer_ && "Consumer cannot be null!");
+    consumer_->consume(diag);
+  }
+}
+
+std::unique_ptr<DiagnosticConsumer> DiagnosticVerifier::takeConsumer() {
+  return std::move(consumer_);
+}
+
+DiagnosticConsumer* DiagnosticVerifier::getConsumer() {
+  return consumer_.get();
+}
+
+const DiagnosticConsumer* DiagnosticVerifier::getConsumer() const {
+  return consumer_.get();
+}
+
+void DiagnosticVerifier::setConsumer(std::unique_ptr<DiagnosticConsumer> consumer) {
+  consumer_ = std::move(consumer);
 }
 
 bool DiagnosticVerifier::handleVerifyInstr(SourceLoc loc, string_view instr) {
@@ -289,10 +311,12 @@ DiagnosticVerifier::parseOffset(SourceRange strRange, string_view str,
 	if (sign == '+') {
 		offset = digit;
 		return true;
-	} else if (sign == '-') {
+	} 
+  else if (sign == '-') {
 		offset = -digit;
 		return true;
-	} else {
+	} 
+  else {
 		diagnoseIllFormedOffset(strRange);
 		return false;
 	}

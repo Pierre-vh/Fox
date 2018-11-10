@@ -77,6 +77,14 @@ DiagnosticConsumer* DiagnosticEngine::getConsumer() {
   return consumer_.get();
 }
 
+const DiagnosticConsumer* DiagnosticEngine::getConsumer() const {
+  return consumer_.get();
+}
+
+std::unique_ptr<DiagnosticConsumer> fox::DiagnosticEngine::takeConsumer() {
+  return std::move(consumer_) 
+}
+
 bool DiagnosticEngine::hasFatalErrorOccured() const {
   return hasFatalErrorOccured_;
 }

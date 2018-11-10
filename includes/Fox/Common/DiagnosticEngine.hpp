@@ -36,7 +36,9 @@ namespace fox {
       Diagnostic report(DiagID diagID, SourceLoc loc);
 
       void setConsumer(std::unique_ptr<DiagnosticConsumer> ncons);
-      DiagnosticConsumer * getConsumer();
+      DiagnosticConsumer* getConsumer();
+      const DiagnosticConsumer* getConsumer() const;
+      std::unique_ptr<DiagnosticConsumer> takeConsumer();
 
       // Returns true if a fatal errors has been emitted.
       bool hasFatalErrorOccured() const;
