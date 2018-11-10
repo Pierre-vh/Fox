@@ -11,6 +11,28 @@
 
 using namespace fox;
 
+std::ostream& fox::operator<<(std::ostream& os, DiagSeverity sev) {
+  using DS = DiagSeverity;
+  switch (sev) {
+    case DS::IGNORE:
+      os << "IGNORE";
+      break;
+    case DS::NOTE:
+      os << "NOTE";
+      break;
+    case DS::WARNING:
+      os << "WARNING";
+      break;
+    case DS::ERROR:
+      os << "ERROR";
+      break;
+    case DS::FATAL:
+      os << "FATAL";
+      break;
+  }
+  return os;
+}
+
 Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID,
   DiagSeverity dSev, const std::string& dStr, const SourceRange& range) :
   engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr),

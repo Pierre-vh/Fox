@@ -35,6 +35,8 @@ namespace fox {
     FATAL    
   };
 
+  std::ostream& operator<<(std::ostream& os, DiagSeverity sev);
+
   class Diagnostic {
     // Note: in this class, some methods will return a Diagnostic&. 
     // This is done to enable function chaining.
