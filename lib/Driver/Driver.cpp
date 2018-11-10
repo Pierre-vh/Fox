@@ -33,8 +33,9 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath) {
   }
 
   // TESTING CODE FOR THE DIAGNOSTIC VERIFIER
-  DiagnosticVerifier dv(dg, srcMgr, dg.takeConsumer());
+  DiagnosticVerifier dv(dg, srcMgr);
   dv.parseFile(fid);
+  dg.enableVerifyMode(&dv);
 
   auto t0 = std::chrono::high_resolution_clock::now();
 
@@ -91,7 +92,6 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath) {
   auto t4 = std::chrono::high_resolution_clock::now();
   auto release_micro = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count();
   auto release_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3).count();
-
 
   out << "\nLexing time :\n\t" << lex_micro << " microseconds\n\t" << lex_milli << " milliseconds\n";
   out << "\nParsing time :\n\t" << parse_micro << " microseconds\n\t" << parse_milli << " milliseconds\n";
