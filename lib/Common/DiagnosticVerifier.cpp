@@ -125,8 +125,14 @@ bool DiagnosticVerifier::verify(Diagnostic& diag) {
 
 	// Construct an ExpectedDiag to search the map
 	SourceLoc diagLoc = diag.getRange().getBegin();
+  // Save the string in a local variable, because if we don't and we try
+  // to call diag.getStr() in the ExpectedDiag ctor, the call to diag.getStr() 
+  // will generate a std::string temporary object. This temporary will be 
+  // converted to string_view and then die, creating a corrupted string_view
+  // inside the ExpectedDiag.
+  std::string diagStr = diag.getStr();
 	ExpectedDiag ed(diag.getSeverity(),
-									diag.getStr(),
+                  diagStr,
 									diagLoc.getFileID(), 
 									srcMgr_.getLineNumber(diagLoc));
 
