@@ -33,9 +33,9 @@ bool Driver::processFile(std::ostream& out, const std::string& filepath) {
   }
 
   // TESTING CODE FOR THE DIAGNOSTIC VERIFIER
-  DiagnosticVerifier dv(dg, srcMgr);
-  dv.parseFile(fid);
-  dg.enableVerifyMode(&dv);
+  auto dv = std::make_unique<DiagnosticVerifier>(dg, srcMgr);
+  dv->parseFile(fid);
+  dg.enableVerifyMode(dv.get());
 
   auto t0 = std::chrono::high_resolution_clock::now();
 
