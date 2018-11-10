@@ -16,17 +16,23 @@
 
 #pragma once
 
-#include "Fox/Common/Source.hpp"
-#include "Fox/Common/Diagnostic.hpp"
+#include "Source.hpp"
+#include "Diagnostic.hpp"
+#include "DiagnosticConsumers.hpp"
 #include <set>
 
 namespace fox {
   class DiagnosticEngine;
 	template<typename Ty> class ResultObject;
-  class DiagnosticVerifier {
+  class DiagnosticVerifier : public DiagnosticConsumer{
     using LineTy = CompleteLoc::LineTy;
     public:
-      DiagnosticVerifier(DiagnosticEngine& engine, SourceManager& srcMgr);
+      // Creates a DiagnosticVerifier. A DV will always require a consumer
+      // attached to it, the value cannot be nullptr.
+      DiagnosticVerifier(
+        DiagnosticEngine& engine, 
+        SourceManager& srcMgr, 
+        std::unique_ptr<DiagnosticConsumer> consumer);
 
       // Parses a file, searching for "expect-" directives, parsing them and 
       // adding them to the list of expected diagnostics.
@@ -34,10 +40,15 @@ namespace fox {
       // false otherwise.
       bool parseFile(FileID file);
 
-    protected:
-      friend class DiagnosticEngine;
-      
-      bool verify(Diagnostic& diag);
+      virtual void consume(Diagnostic& diag) override;
+
+      // Takes ownership of the consumer. Note that this class shouldn't be used
+      // while there is no consumer, so be careful with that.
+      std::unique_ptr<DiagnosticConsumer> takeConsumer();
+      DiagnosticConsumer* getConsumer();
+      const DiagnosticConsumer* getConsumer() const;
+      // Sets the consumer. The old consumer will be destroyed in the operation.
+      void setConsumer(std::unique_ptr<DiagnosticConsumer> consumer);
 
     private:
 			struct ExpectedDiag {
@@ -76,6 +87,7 @@ namespace fox {
 			bool parseOffset(SourceRange strRange,
 										string_view str, std::int8_t& offset);
 
+      std::unique_ptr<DiagnosticConsumer> consumer_;
       DiagnosticEngine& diags_;
       SourceManager& srcMgr_;
       // Map of expected diagnostics
