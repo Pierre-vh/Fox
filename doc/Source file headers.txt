@@ -1,4 +1,4 @@
-This is to be included in any Header.
+This is to be included in C/C++ file
 
 //----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.        
@@ -17,25 +17,3 @@ And Implementation (.cpp) :
 // File : XXXX.cpp                      
 // Author : XXXX                      
 //----------------------------------------------------------------------------//
-
-
-Quick templates : Pierre van Houtryve :
-header:
-
-//----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.        
-// See the LICENSE.txt file at the root of the project for license information.            
-// File : XXXX.hpp                      
-// Author : Pierre van Houtryve                
-//----------------------------------------------------------------------------//
-// blah blah blah                      
-//----------------------------------------------------------------------------//
-
-impl
-//----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.        
-// See the LICENSE.txt file at the root of the project for license information.            
-// File : XXXX.cpp                      
-// Author : Pierre van Houtryve                
-//----------------------------------------------------------------------------//
-
