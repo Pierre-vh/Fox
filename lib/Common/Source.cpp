@@ -71,9 +71,19 @@ string_view SourceManager::getSourceStr(FileID fid) const {
 const SourceManager::SourceData*
 SourceManager::getSourceData(FileID fid) const {
   assert(fid.isValid() && "Invalid FileID");
+
+  // First, check in the cache
+  if (lastSource_.first == fid)
+    return lastSource_.second;  
+  
+  // Map search required
   auto it = sources_.find(fid);
   assert((it != sources_.end()) && "Unknown entry");
-  return &(it->second);
+  const SourceData* ptr = &(it->second);
+  
+  // Cache the result & return.
+  lastSource_ = {fid, ptr};
+  return ptr;
 }
 
 CompleteLoc::LineTy SourceManager::getLineNumber(SourceLoc loc) const {

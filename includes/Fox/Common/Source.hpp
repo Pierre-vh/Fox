@@ -59,7 +59,8 @@ namespace fox {
     }
 
     bool operator==(const CompleteLoc& other) const {
-      return (fileName == other.fileName) && (line == other.line) && (column == other.column);
+      return (fileName == other.fileName) 
+        && (line == other.line) && (column == other.column);
     }
 
     std::string fileName;
@@ -96,8 +97,9 @@ namespace fox {
       IndexTy idx_;
   };
 
-  // The SourceRange is a wrapper around a SourceLoc and an offset, which combined represent
-  // a range (word, sentence, piece of code) in the source code.
+  // The SourceRange is a wrapper around a SourceLoc and an offset, 
+  // which combined represent a range (word, sentence, piece of code) 
+  // in the source code.
   // Note: Like SourceLoc, the offset is expected to be absolute, not in CPs.
   class SourceRange {
     public:
@@ -144,7 +146,8 @@ namespace fox {
 
       // Load a string in the SM. First arg is the string to load, 
       // the second is the name we should give to the file.
-      FileID loadFromString(const std::string& str, const std::string& name = "in-memory");
+      FileID loadFromString(const std::string& str, 
+        const std::string& name = "in-memory");
 
       // Returns a pointer to the source string of a file.
       // The result is always valid.
@@ -172,7 +175,8 @@ namespace fox {
       // Returns the complete line of source code for a given SourceLoc
       // An optional argument (pointer) can be passed. If it is present, the function
       // will store the Index at which the line begins in this variable.
-      string_view getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg = nullptr) const;
+      string_view getSourceLine(SourceLoc loc, 
+        SourceLoc::IndexTy* lineBeg = nullptr) const;
 
     private:
       FileID generateNewFileID() const;
@@ -187,5 +191,8 @@ namespace fox {
       
       // Member variables
       std::map<FileID,SourceData> sources_;
+      // We'll always cache the latest search to speed things up
+      mutable std::pair<FileID, const SourceData*> lastSource_ 
+        = {FileID(), nullptr}; 
   };
 }
