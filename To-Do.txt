@@ -80,6 +80,8 @@ To-Do:
   > Add DiagnosticVerifier (Done)
     > Create proper entry points to enable/disable verify mode on a given DiagEngine (Done)
     > Write unit tests for it (Next)
+    > Write LIT tests using it 
+    > Add cli args support to CommandLine
 
   > Write a Verify mode/testing tool and test current semantics
   > Finish basic expr semantic analysis
