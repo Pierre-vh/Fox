@@ -6,6 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <cassert>
@@ -67,6 +68,19 @@ Diagnostic DiagnosticEngine::report(DiagID diagID, SourceRange range) {
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, SourceLoc loc) {
   return report(diagID, SourceRange(loc));
+}
+
+void DiagnosticEngine::enableVerifyMode(DiagnosticVerifier* dv) {
+  assert(dv && "Can't enable verify mode with a null DiagnosticVerifier");
+  verifier_ = dv;
+}
+
+bool DiagnosticEngine::isVerifyModeEnabled() const {
+  return (bool)verifier_;
+}
+
+void DiagnosticEngine::disableVerifyMode() {
+  verifier_ = nullptr;
 }
 
 void DiagnosticEngine::setConsumer(std::unique_ptr<DiagnosticConsumer> ncons) {
@@ -158,10 +172,16 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
     return;
 
   assert(consumer_ && "No valid consumer");
+
+  // Do verification if required to
+  if (isVerifyModeEnabled()) {
+    if(!verifier_->verify(diag)) return;
+  }
+
+  // Let the consumer consume the diag.
   consumer_->consume(diag);
-  // Update our counters after consuming the diagnostic, because
-  // some custom DiagnosticsConsumers might want to ignore specific
-  // diagnostics.
+
+  // Update our counters
   updateInternalCounters(diag.getSeverity());
 
   // Now, check if we must emit a "too many errors" error.

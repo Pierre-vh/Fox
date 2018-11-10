@@ -22,6 +22,7 @@ namespace fox {
   class SourceLoc;
   class SourceRange;
   class SourceManager;
+  class DiagnosticVerifier;
   class DiagnosticEngine {
     public:
       // Constructor that will use a default DiagnosticConsumer
@@ -34,6 +35,10 @@ namespace fox {
       Diagnostic report(DiagID diagID, FileID file);
       Diagnostic report(DiagID diagID, SourceRange range);
       Diagnostic report(DiagID diagID, SourceLoc loc);
+
+      void enableVerifyMode(DiagnosticVerifier* dv);
+      bool isVerifyModeEnabled() const;
+      void disableVerifyMode();
 
       void setConsumer(std::unique_ptr<DiagnosticConsumer> ncons);
       DiagnosticConsumer* getConsumer();
@@ -76,6 +81,9 @@ namespace fox {
 
     protected:
       friend class Diagnostic;
+
+      // Called by the Diagnostic's destructor. This will handle
+      // the emission of the diagnostic.
       void handleDiagnostic(Diagnostic& diag);
 
     private:    
@@ -103,6 +111,7 @@ namespace fox {
       std::uint16_t errorCount_ = 0;
       std::uint16_t warnCount_  = 0;
 
+      DiagnosticVerifier* verifier_ = nullptr;
       std::unique_ptr<DiagnosticConsumer> consumer_;
   };
 }
