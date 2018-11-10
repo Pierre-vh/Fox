@@ -87,7 +87,7 @@ SourceManager::getSourceData(FileID fid) const {
 }
 
 CompleteLoc::LineTy SourceManager::getLineNumber(SourceLoc loc) const {
-  auto result = getLineTableEntry(
+  auto result = searchLineTable(
     getSourceData(loc.getFileID()), loc);
   return result.second;
 }
@@ -107,7 +107,7 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
   CompleteLoc::ColTy col = 1;
   CompleteLoc::LineTy line = 1;
 
-  auto entry = getLineTableEntry(fdata, sloc);
+  auto entry = searchLineTable(fdata, sloc);
   bool exactMatch = (entry.first == idx);
   if (exactMatch) {
     line = entry.second;
@@ -150,7 +150,7 @@ string_view SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* line
   const SourceData* data = getSourceData(loc.getFileID());
   string_view source = data->str;
 
-  auto pair = getLineTableEntry(data, loc);
+  auto pair = searchLineTable(data, loc);
 
   std::size_t beg = pair.first, end = beg;
 
@@ -191,44 +191,48 @@ FileID SourceManager::generateNewFileID() const {
 }
 
 void SourceManager::calculateLineTable(const SourceData* data) const {
-  if(data->hasCalculatedLineTable)
-    data->lineTable.clear();
-  
   std::size_t size = data->str.size();
   CompleteLoc::LineTy line = 1;
   // Mark the index 0 as first line.
-  data->lineTable[0] = 1;
+  data->lineTable_[0] = 1;
   line++;
   for (std::size_t idx = 0; idx < size; idx++) {
     // Supported line endings : \r\n, \n
     // Just need to add +1 to the index in both cases to mark the beginning
     // of the line as the first character after \n
     if (data->str[idx] == '\n') {
-      data->lineTable[idx+1] = line;
+      data->lineTable_[idx+1] = line;
       line++;
     }
   }
 
-  data->hasCalculatedLineTable = true;
+  data->calculatedLineTable_ = true;
 }
 
 std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
-SourceManager::getLineTableEntry(const SourceData* data, const SourceLoc& loc) const {
-  if (!data->hasCalculatedLineTable)
+SourceManager::searchLineTable(const SourceData* data, const SourceLoc& loc) const {
+  if (!data->calculatedLineTable_)
     calculateLineTable(data);
+  else {
+    // Line table was already calculated, check if the cached search result matches.
+    // if it does match, return it.
+    if(data->lastLineTableSearch_.first == loc.getIndex())
+      return data->lastLineTableSearch_;
+  }
 
-  // Search the map, and find if this is an exact match.
-  auto it = data->lineTable.lower_bound(loc.getIndex());
+  auto it = data->lineTable_.lower_bound(loc.getIndex());
 
   bool exactMatch = false;
-  if(it != data->lineTable.end())
+  if(it != data->lineTable_.end())
     exactMatch = (it->first == loc.getIndex());
 
-  if (exactMatch)
-    return *it;
-  else if (it != data->lineTable.begin())
-    return *(--it);
-  return *it;
+  std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy> rtr;
+  if (!exactMatch && (it != data->lineTable_.begin()))
+    rtr = *(--it);
+  else 
+    rtr = *it;
+  data->lastLineTableSearch_ = rtr;
+  return rtr;
 }
 
 // SourceLoc

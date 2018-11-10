@@ -137,8 +137,11 @@ namespace fox {
           SourceData(const std::string& name, const std::string& content)
               : fileName(name), str(content) {}
 
-          mutable std::map<SourceLoc::IndexTy,CompleteLoc::LineTy> lineTable;
-          mutable bool hasCalculatedLineTable = false;
+          mutable std::map<SourceLoc::IndexTy,CompleteLoc::LineTy> lineTable_;
+          mutable bool calculatedLineTable_ = false;
+          // We cache the last search result here too.
+          mutable std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy> 
+            lastLineTableSearch_ = {0,0};
       };
 
       // Load a file in memory 
@@ -183,7 +186,7 @@ namespace fox {
       void calculateLineTable(const SourceData* data) const;
 
       std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
-      getLineTableEntry(const SourceData* data, const SourceLoc& loc) const;
+      searchLineTable(const SourceData* data, const SourceLoc& loc) const;
 
       // Make it non copyable
       SourceManager(const SourceManager&) = delete;
