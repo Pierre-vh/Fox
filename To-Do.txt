@@ -76,8 +76,10 @@ To-Do:
   > Removing ParensExpr (Done)
   > ConstrainedType in Semantic Analysis (Done)
   > Fix Array Literal Inference (Done)
-
-  > Some tests are failing, find the cause! (Next)
+  
+  > Add DiagnosticVerifier (Done)
+    > Create proper entry points to enable/disable verify mode on a given DiagEngine
+    > Write unit tests for it
 
   > Write a Verify mode/testing tool and test current semantics
   > Finish basic expr semantic analysis
