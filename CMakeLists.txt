@@ -61,7 +61,7 @@ target_link_libraries(Moonshot libmoonshot)
 
 # add llvm lit test suite 
 add_custom_target(MoonshotLit 
-  COMMAND ${PYTHON_EXECUTABLE} -m lit.main ${PROJECT_SOURCE_DIR}/tests -v 
+  COMMAND ${PYTHON_EXECUTABLE} -m lit.main ${PROJECT_SOURCE_DIR}/tests -v --param moonshot_dir=${CMAKE_BINARY_DIR} 
   DEPENDS Moonshot 
 )
 
