@@ -14,7 +14,7 @@
 
 using namespace fox;
 
-namespace fox {
+namespace {
   class StrDiagConsumer : public DiagnosticConsumer {
     public:
       virtual void consume(Diagnostic& diag) override {
