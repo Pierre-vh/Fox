@@ -111,7 +111,7 @@ bool DiagnosticVerifier::parseFile(FileID fid) {
       rtr |= handleVerifyInstr(SourceLoc(fid, idx), instr);
     }
   }
-  return false;
+  return rtr;
 }
 
 DiagnosticVerifier::DiagsSetTy&
