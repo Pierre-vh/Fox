@@ -1,0 +1,4 @@
+expect-note: Note ipsum dolor sit
+expect-warning: Lorem Warn dolor sit
+expect-error: Lorem ipsum Errror sit
+expect-fatal: Lorem ipsum dolor Fatal

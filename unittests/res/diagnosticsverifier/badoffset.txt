@@ -1,0 +1,2 @@
+expect-note@+0: foobar
+expect-note@-0: foobar

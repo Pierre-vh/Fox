@@ -1,0 +1,5 @@
+expect-note:Lorem ipsum dolor sit amet
+expect-note:Lorem ipsum dolor sit amet  
+expect-note:  Lorem ipsum dolor sit amet
+expect-note:  Lorem ipsum dolor sit amet  
+expect-note:Lorem ipsum dolor sit amet  

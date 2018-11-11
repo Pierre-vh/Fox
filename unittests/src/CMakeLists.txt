@@ -16,5 +16,5 @@ add_source(
   "FoxTests/DiagnosticsTests.cpp"
   "FoxTests/AllocatorsTests.cpp"
   "FoxTests/PtrVariantTests.cpp"
-
+  "FoxTests/DiagnosticVerifierTests.cpp"
   )
