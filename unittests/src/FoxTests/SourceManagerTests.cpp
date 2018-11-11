@@ -19,8 +19,8 @@ TEST(SourceManagerTests, FileIDTests) {
 }
 
 TEST(SourceManagerTests, LoadingFromFile) {
-  std::string file_path_a = test::convertRelativeTestResPathToAbsolute("lexer/utf8/bronzehorseman.txt");
-  std::string file_path_b = test::convertRelativeTestResPathToAbsolute("lexer/utf8/ascii.txt");
+  std::string file_path_a = test::getPath("lexer/utf8/bronzehorseman.txt");
+  std::string file_path_b = test::getPath("lexer/utf8/ascii.txt");
   SourceManager srcMgr;
   auto fid_a = srcMgr.loadFromFile(file_path_a);
   auto fid_b = srcMgr.loadFromFile(file_path_b);
@@ -103,7 +103,7 @@ TEST(SourceManagerTests, SourceRange) {
 TEST(SourceManagerTests, PreciseLocation) {
   SourceManager srcMgr;
 
-  std::string fp = test::convertRelativeTestResPathToAbsolute("sourcemanager/precise_test_1.txt");
+  std::string fp = test::getPath("sourcemanager/precise_test_1.txt");
 
   // Load file in SourceManager
   auto fid = srcMgr.loadFromFile(fp);

@@ -26,7 +26,7 @@ class LocTests : public ::testing::Test {
     }
   protected:
     virtual void SetUp(const std::string& filepath)  {
-      fullFilePath = test::convertRelativeTestResPathToAbsolute(filepath);
+      fullFilePath = test::getPath(filepath);
       file = srcMgr.loadFromFile(fullFilePath);
 
       // If file couldn't be loaded, give us the reason

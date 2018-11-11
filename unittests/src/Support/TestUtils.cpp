@@ -13,7 +13,7 @@ using namespace fox;
 const std::string testsPath = std::string(TEST_RES_PATH) + std::string("/res/");
 
 bool test::readFileToVec(const std::string & filepath, std::vector<std::string>& outvec) {
-  std::ifstream in(convertRelativeTestResPathToAbsolute(filepath), std::ios::in | std::ios::binary);   // open file
+  std::ifstream in(getPath(filepath), std::ios::in | std::ios::binary);   // open file
   std::string str;   // temp str
   if (!in)
     return false;
@@ -24,7 +24,7 @@ bool test::readFileToVec(const std::string & filepath, std::vector<std::string>&
 }
 
 bool test::readFileToString(const std::string & filepath, std::string & outstr) {
-  std::ifstream in(convertRelativeTestResPathToAbsolute(filepath), std::ios::binary);   // read file
+  std::ifstream in(getPath(filepath), std::ios::binary);   // read file
   if (in) {
     outstr = (std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>()));
     return true;
@@ -32,7 +32,7 @@ bool test::readFileToString(const std::string & filepath, std::string & outstr) 
   return false;
 }
 
-std::string test::convertRelativeTestResPathToAbsolute(const std::string & relpath) {
+std::string test::getPath(const std::string & relpath) {
   return testsPath + relpath;
 }
 

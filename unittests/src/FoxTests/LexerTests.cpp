@@ -21,7 +21,7 @@ TEST(LexerTests,CorrectTest1) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
-  auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/correct_1.fox"));
+  auto file = sm.loadFromFile(getPath("lexer/inputs/correct_1.fox"));
   ASSERT_TRUE(file) << "Could not open test file";
   ASTContext astctxt;
   Lexer lex(dg,sm, astctxt);
@@ -34,7 +34,7 @@ TEST(LexerTests, IncorrectTest1) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
-  auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_1.fox"));
+  auto file = sm.loadFromFile(getPath("lexer/inputs/incorrect_1.fox"));
   ASSERT_TRUE(file) << "Could not open test file";
   ASTContext astctxt;
   Lexer lex(dg, sm, astctxt);
@@ -47,7 +47,7 @@ TEST(LexerTests, IncorrectTest2) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
-  auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_2.fox"));
+  auto file = sm.loadFromFile(getPath("lexer/inputs/incorrect_2.fox"));
   ASSERT_TRUE(file) << "Could not open test file";
   ASTContext astctxt;
   Lexer lex(dg, sm, astctxt);
@@ -60,7 +60,7 @@ TEST(LexerTests, IncorrectTest3) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
-  auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_3.fox"));
+  auto file = sm.loadFromFile(getPath("lexer/inputs/incorrect_3.fox"));
   ASSERT_TRUE(file) << "Could not open test file";
   ASTContext astctxt;
   Lexer lex(dg, sm, astctxt);
@@ -73,7 +73,7 @@ TEST(LexerTests, IncorrectTest4) {
   SourceManager sm;
   DiagnosticEngine dg(sm);
 
-  auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/inputs/incorrect_4.fox"));
+  auto file = sm.loadFromFile(getPath("lexer/inputs/incorrect_4.fox"));
   ASSERT_TRUE(file) << "Could not open test file";
   ASTContext astctxt;
   Lexer lex(dg, sm, astctxt);
@@ -231,7 +231,7 @@ TEST(LexerTests, Coordinates1) {
   DiagnosticEngine dg(sm);
 
   std::string file_content, file_path;
-  auto file = sm.loadFromFile(convertRelativeTestResPathToAbsolute("lexer/coordtests/test1.fox"));
+  auto file = sm.loadFromFile(getPath("lexer/coordtests/test1.fox"));
   ASSERT_TRUE(file) << "Could not open test file";
 
   ASTContext astctxt;
