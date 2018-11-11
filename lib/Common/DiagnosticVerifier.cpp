@@ -114,6 +114,11 @@ bool DiagnosticVerifier::parseFile(FileID fid) {
   return false;
 }
 
+DiagnosticVerifier::DiagsSetTy&
+DiagnosticVerifier::getExpectedDiags() {
+  return expectedDiags_;
+}
+
 bool DiagnosticVerifier::verify(Diagnostic& diag) {
   {
     DiagID id = diag.getID();

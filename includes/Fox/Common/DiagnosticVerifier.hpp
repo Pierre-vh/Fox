@@ -28,6 +28,25 @@ namespace fox {
   class DiagnosticVerifier {
     using LineTy = CompleteLoc::LineTy;
     public:
+      struct ExpectedDiag {
+        ExpectedDiag() = default;
+        ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line) :
+          severity(sev), diagStr(str), file(file), line(line) {}
+
+        DiagSeverity severity = DiagSeverity::IGNORE;
+        string_view diagStr;
+        FileID file;
+        LineTy line = 0;
+
+        // For STL Containers
+        bool operator<(const ExpectedDiag& other) const {
+          return std::tie(severity, diagStr, file, line)
+            < std::tie(other.severity, other.diagStr, other.file, other.line);
+        }
+      };
+
+      using DiagsSetTy = std::multiset<ExpectedDiag>;
+
       DiagnosticVerifier(DiagnosticEngine& engine, SourceManager& srcMgr);
 
       // Parses a file, searching for "expect-" directives, parsing them and 
@@ -35,6 +54,8 @@ namespace fox {
       // Returns true if the file was parsed successfully (no diags emitted),
       // false otherwise.
       bool parseFile(FileID file);
+
+      DiagsSetTy& getExpectedDiags();
 
     protected:
       friend class DiagnosticEngine;
@@ -44,22 +65,6 @@ namespace fox {
       bool verify(Diagnostic& diag);
 
     private:
-			struct ExpectedDiag {
-        ExpectedDiag() = default;
-				ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line):
-					severity(sev), diagStr(str), file(file), line(line) {}
-
-				DiagSeverity severity = DiagSeverity::IGNORE;
-				string_view diagStr;
-				FileID file;
-				LineTy line = 0;
-
-				// For STL Containers
-				bool operator<(const ExpectedDiag& other) const {
-					return std::tie(severity, diagStr, file, line)
-						< std::tie(other.severity, other.diagStr, other.file, other.line);
-				}
-			};
       // Handles a verify instr, parsing it and processing it.
       // The first argument is the loc of the first char of the instr.
       bool handleVerifyInstr(SourceLoc loc, string_view instr);
@@ -83,6 +88,6 @@ namespace fox {
       DiagnosticEngine& diags_;
       SourceManager& srcMgr_;
       // Map of expected diagnostics
-      std::multiset<ExpectedDiag> expectedDiags_;
+      DiagsSetTy expectedDiags_;
   };
 } // namespace fox
