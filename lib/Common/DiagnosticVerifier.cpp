@@ -251,6 +251,10 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
 	return RtrTy(true, ExpectedDiag(severity, diagStr, file, line));
 }
 
+void DiagnosticVerifier::diagnoseZeroOffset(SourceLoc offsetDigitLoc) {
+  diags_.report(DiagID::diagverif_offsetIsZero, offsetDigitLoc);
+}
+
 void DiagnosticVerifier::diagnoseMissingStr(SourceLoc loc) {
 	diags_.report(DiagID::diagverif_expectedstr, loc);
 }
@@ -300,6 +304,13 @@ DiagnosticVerifier::parseOffset(SourceRange strRange, string_view str,
 		diagnoseIllFormedOffset(strRange);
 		return false;
 	}
+
+  // Digit must be between 1 and 9, so it can't be 0.
+  if (digit == 0) {
+    // The loc of the offset is the end of the range
+    diagnoseZeroOffset(strRange.getEnd());
+    return false;
+  }
 
 	// Act on the sign
 	char sign = str[0];

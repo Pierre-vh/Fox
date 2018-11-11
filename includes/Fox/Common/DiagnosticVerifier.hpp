@@ -37,7 +37,7 @@ namespace fox {
         string_view diagStr;
         FileID file;
         LineTy line = 0;
-
+        
         // For STL Containers
         bool operator<(const ExpectedDiag& other) const {
           return std::tie(severity, diagStr, file, line)
@@ -73,6 +73,7 @@ namespace fox {
 			ResultObject<ExpectedDiag> parseVerifyInstr(SourceLoc loc,
 																								 string_view instr);
 
+      void diagnoseZeroOffset(SourceLoc offsetDigitLoc);
 			void diagnoseMissingStr(SourceLoc loc);
 			void diagnoseMissingColon(SourceLoc loc);
       void diagnoseMissingSuffix(SourceLoc instrBeg);

@@ -27,10 +27,13 @@ ERROR(diagverif_expectedcolon,
 ERROR(diagverif_expectedstr,
 			"Expected a diagnostic string in verify instr after ':'")
 ERROR(diagverif_illFormedOffset,
-			"Ill formed verify instr offset. Should be '+' or '-' followed by a single digit")
+			"Ill formed verify instr offset. Should be '+' or '-' "
+      "followed by a single digit between 1 and 9")
+ERROR(diagverif_offsetIsZero, 
+      "Offset value must be between 1-9")
 
 DIAG_RANGE(DiagnosticVerifier, 
-  diagverif_expectedsuffix, diagverif_illFormedOffset)
+  diagverif_expectedsuffix, diagverif_offsetIsZero)
 
 // DiagnosticEngine self Diagnostics
 FATAL(diagengine_maxErrCountExceeded, 
