@@ -108,7 +108,7 @@ bool DiagnosticVerifier::parseFile(FileID fid) {
       last = idx + 1;
       auto instr = getRestOfLine(idx, fStr);
       //std::cout << "Verify Instr found(" << instr << ")\n";
-      rtr |= handleVerifyInstr(SourceLoc(fid, idx), instr);
+      rtr &= handleVerifyInstr(SourceLoc(fid, idx), instr);
     }
   }
   return rtr;
