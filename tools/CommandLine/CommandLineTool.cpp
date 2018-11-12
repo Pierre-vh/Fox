@@ -5,7 +5,6 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This is the entry point of the command line tool.
-// As of April 2018, it is still extremely basic, and only meant for testing/parser demonstration purposes.
 //----------------------------------------------------------------------------//
 
 #include <iostream>
