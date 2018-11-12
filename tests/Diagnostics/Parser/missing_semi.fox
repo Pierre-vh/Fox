@@ -1,0 +1,9 @@
+// RUN: %fox %s -verify
+
+let x : int // expect-error: Expected a ';'
+
+let x : float; // No errors will be emitted here due to resync
+
+func foo() {
+  return x  // expect-error: Expected a ';'
+}
