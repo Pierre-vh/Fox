@@ -7,8 +7,8 @@
       "inheritEnvironments": [
         "msvc_x86"
       ],
-      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
-      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\Moonshot\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\Moonshot\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": ""
