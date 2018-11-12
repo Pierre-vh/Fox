@@ -15,9 +15,9 @@ include(cmake/AddSource.cmake)
 include(cmake/GoogleTest.cmake)
 
 # set output directories
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Moonshot/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Moonshot/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Moonshot/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # set include directories
 include_directories(includes)   # Moonshot lib includes
@@ -61,7 +61,7 @@ target_link_libraries(Moonshot libmoonshot)
 
 # add llvm lit test suite 
 add_custom_target(MoonshotLit 
-  COMMAND ${PYTHON_EXECUTABLE} -m lit.main ${PROJECT_SOURCE_DIR}/tests -v --param moonshot_dir=${CMAKE_BINARY_DIR} 
+  COMMAND lit ${PROJECT_SOURCE_DIR}/tests -v --param fox_exe=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   DEPENDS Moonshot 
 )
 
