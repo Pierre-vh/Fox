@@ -22,7 +22,7 @@ ERROR(parser_expected_semi, "Expected ';'")
 ERROR(parser_expected_colon, "Expected ':'")
 ERROR(parser_expected_iden, "Expected an identifier")
 ERROR(parser_expected_type, "Expected a type")
-ERROR(parser_expected_argdecl, "Expected an argument declaration")
+ERROR(parser_expected_paramdecl, "Expected a parameter declaration")
 
 // Others
 ERROR(parser_else_without_if, "Else without matching if")
