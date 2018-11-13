@@ -78,6 +78,8 @@ To-Do:
   > Fix Array Literal Inference (Done)
   > Add DiagnosticVerifier (Done)
 
+  > For tests, make warnings errors.
+    > Add CL option for it
   > Write a Verify mode/testing tool and test current semantics
   > Finish basic expr semantic analysis
 
