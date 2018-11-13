@@ -38,7 +38,8 @@ int interactiveMain() {
   Driver drv(std::cout);
   drv.setDumpAlloc(true);
   drv.setDumpAST(true);
-  drv.setVerifyMode(true);
+  // Test of the diagnostic verifier, this line will be removed later.
+  drv.setVerifyMode(Driver::VerifyMode::Strict);
   drv.setPrintChrono(true);
   while (1) {
     std::cout << "> ";
