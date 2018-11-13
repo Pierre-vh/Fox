@@ -36,7 +36,7 @@ bool Driver::processFile(const std::string& filepath) {
 
 	// Enable verify mode if needed
 	std::unique_ptr<DiagnosticVerifier> dv;
-	if (getVerifyMode()) {
+	if (getVerifyMode() != VerifyMode::Disabled) {
 		dv = std::make_unique<DiagnosticVerifier>(dg, srcMgr);
 		dv->parseFile(fid);
 		dg.enableVerifyMode(dv.get());
@@ -90,6 +90,13 @@ bool Driver::processFile(const std::string& filepath) {
     ASTDumper(srcMgr, std::cout, 1).visit(astCtxt.getMainUnit());
   }
 
+  // (Verify mode) Check that all diags were emitted if we're
+  // in verify-strict mode.
+  if (getVerifyMode() == VerifyMode::Strict) {
+    assert(dv && "DiagnosticVerifier is null in Strict mode");
+    dv->reportUnemittedDiags();
+  }
+
   // Release the memory
   {
     auto chrono = createChrono("Release");
@@ -107,11 +114,11 @@ void Driver::setPrintChrono(bool val) {
   chrono_ = val;
 }
 
-bool Driver::getVerifyMode() const {
+Driver::VerifyMode Driver::getVerifyMode() const {
   return verify_;
 }
 
-void Driver::setVerifyMode(bool val) {
+void Driver::setVerifyMode(VerifyMode val) {
   verify_ = val;
 }
 
@@ -153,7 +160,9 @@ bool Driver::doCL(int argc, char * argv[]) {
   for(int idx = 2; idx < argc; ++idx) {
     string_view str(argv[idx]);
     if (str == "-verify")
-      setVerifyMode(true);
+      setVerifyMode(VerifyMode::Normal);
+    else if (str == "-verify-strict")
+      setVerifyMode(VerifyMode::Strict);
     else if (str == "-dump_ast")
       setDumpAST(true);
     else if (str == "-dump_alloc")

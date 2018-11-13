@@ -17,21 +17,36 @@
 
 namespace fox {
   class Driver {
-    bool verify_ = false;
-    bool chrono_ = false;
-    bool dumpAlloc_ = false;
-    bool dumpAST_ = false;
-    bool mute_ = false;
-    std::ostream& os_;
     public:
+      // Verify mode: 
+      //  Disabled: No diagnostic verification performed
+      //  Normal: Diagnostic verification performed, but 
+      //              we don't check that all expected diags were
+      //              emitted.
+      //  Strict: Same as soft, but we check that all expected diags
+      //                were emitted.
+      enum class VerifyMode {
+        Disabled, Normal, Strict
+      };
+
+    private:
+      VerifyMode verify_ = VerifyMode::Disabled;
+      bool chrono_ = false;
+      bool dumpAlloc_ = false;
+      bool dumpAST_ = false;
+      bool mute_ = false;
+      std::ostream& os_;
+
+    public:
+
       Driver(std::ostream& os);
       bool processFile(const std::string& filepath);
 
       bool getPrintChrono() const;
       void setPrintChrono(bool val);
 
-      bool getVerifyMode() const;
-      void setVerifyMode(bool val);
+      VerifyMode getVerifyMode() const;
+      void setVerifyMode(VerifyMode val);
 
       bool getDumpAlloc() const;
       void setDumpAlloc(bool val);
