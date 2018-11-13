@@ -57,6 +57,10 @@ namespace fox {
 
       DiagsSetTy& getExpectedDiags();
 
+      // Emits an error for each expected diagnostics that wasn't emitted.
+      // Returns true if diagnostics were emitted, false otherwise.
+      bool reportUnemittedDiags();
+
     protected:
       friend class DiagnosticEngine;
 
