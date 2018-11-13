@@ -58,23 +58,6 @@ std::size_t DiagnosticConsumer::removeIndent(string_view& str) const {
   return beg;
 }
 
-std::string DiagnosticConsumer::diagSevToString(DiagSeverity ds) const {
-  switch (ds) {
-    case DiagSeverity::IGNORE:
-      return "Ignored";
-    case DiagSeverity::NOTE:
-      return "Note";
-    case DiagSeverity::WARNING:
-      return "Warning";
-    case DiagSeverity::ERROR:
-      return "Error";
-    case DiagSeverity::FATAL:
-      return "Fatal";
-  }
-  return "<Unknown Severity>";
-}
-
-
 StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream) : os_(stream), sm_(sm) {
 
 }
@@ -82,7 +65,7 @@ StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream)
 void StreamDiagConsumer::consume(Diagnostic& diag) {
   os_ << getLocInfo(sm_, diag.getRange(), diag.isFileWide())
     << " - " 
-    << diagSevToString(diag.getSeverity()) 
+    << toString(diag.getSeverity()) 
     << " - " 
     << diag.getStr() 
     << "\n";

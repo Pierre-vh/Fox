@@ -27,7 +27,6 @@ namespace fox {
     protected:
       std::string getLocInfo(SourceManager& sm, SourceRange range, 
         bool isFileWide) const;
-      std::string diagSevToString(DiagSeverity ds) const;
 
       // Removes the indentation (spaces and tabs) from a string_view, 
       // returning the number of indent chars removed
