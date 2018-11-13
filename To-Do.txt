@@ -76,12 +76,7 @@ To-Do:
   > Removing ParensExpr (Done)
   > ConstrainedType in Semantic Analysis (Done)
   > Fix Array Literal Inference (Done)
-  
   > Add DiagnosticVerifier (Done)
-    > Create proper entry points to enable/disable verify mode on a given DiagEngine (Done)
-    > Write unit tests for it (Next)
-    > Write LIT tests using it 
-    > Add cli args support to CommandLine
 
   > Write a Verify mode/testing tool and test current semantics
   > Finish basic expr semantic analysis
@@ -101,6 +96,9 @@ Boring stuff that I must do when I have the time/motivation for it
   > Adopt a Documentation style (Doxygen) and document all the code with it
 
   > AST Serialization tool for unit tests
+
+  > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
+    or should parseStmt handle it?
 
 Pending reworks:
   > Token class -> Currently, it's an abomination. Nuke it and re-do it.
