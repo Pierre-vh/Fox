@@ -1,0 +1,7 @@
+// RUN: %fox %s -verify-strict
+// XFAIL:*
+
+// This test checks that "strict" mode works. It is supposed
+// to fail because diags were expected but not emitted.
+
+let x : int; // expect-error: Expected a ';'

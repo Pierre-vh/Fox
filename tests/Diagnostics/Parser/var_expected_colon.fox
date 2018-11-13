@@ -1,0 +1,3 @@
+// RUN: %fox %s -verify-strict
+
+let foo // expect-error: Expected ':'

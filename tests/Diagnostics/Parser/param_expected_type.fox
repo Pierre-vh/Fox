@@ -1,0 +1,3 @@
+// RUN: %fox %s -verify-strict
+
+func foo(bar: // expect-error: Expected a type

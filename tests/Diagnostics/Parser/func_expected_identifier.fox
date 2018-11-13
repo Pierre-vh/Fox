@@ -1,0 +1,3 @@
+// RUN: %fox %s -verify-strict
+
+func // expect-error: Expected an identifier
