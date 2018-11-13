@@ -135,16 +135,20 @@ Parser::DeclResult Parser::parseFuncDecl() {
       if (consumeSign(SignType::S_COMMA)) {
         if (auto param = parseParamDecl())
           rtr->addParam(param.getAs<ParamDecl>());
-        else if (param.wasSuccessful()) {
+        else {
           // IDEA: Maybe reporting the error after the "," would yield
           // better error messages?
-          reportErrorExpected(DiagID::parser_expected_argdecl);
+          if (param.wasSuccessful())
+            reportErrorExpected(DiagID::parser_expected_paramdecl);
+          return DeclResult::Error();
         }
-      }
-      else
+      } else
         break;
     }
-  }
+  } 
+  // Stop parsing if the argument couldn't parse correctly.
+  else if (!first.wasSuccessful())
+    return DeclResult::Error();
 
   // ')'
   if (auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE))
