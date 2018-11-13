@@ -125,7 +125,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
       return DeclResult::Error();
 
     reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
-
+    return DeclResult::Error();
   }
 
   // [<param_decl> {',' <param_decl>}*]
