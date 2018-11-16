@@ -13,6 +13,7 @@ If you have any questions don't hesitate to send me a mail at `pierre.vanhoutryv
 * /includes/ Contains the headers
 * /lib/ Contains the source code/implementation
 * /tools/ Contains the main.cpp, compiles to moonshot.exe
-* /tests/ Source code & test resources
+* /tests/ "Runnable" language test programs which use the -verify mode and (in the future) File-Checking utilities.
+* /unittests/ Unit tests powered by GoogleTest which tests utilities (/Common) of the project and some parts of the pipeline. (Including the lexer)
 * /docs/ Documentation
 * /thirdparty/ Source code of external libraries used by the project.
