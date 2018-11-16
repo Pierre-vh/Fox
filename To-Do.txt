@@ -81,6 +81,14 @@ To-Do:
   > For LIT tests, make warnings errors.
     > Add CL option for it
 
+  > Urgent bug: Semantic analysis fails for 
+    [[[],[],[],[],[]],[[],[],[],[],[]]] as int[][][];
+                        ^  ^  ^  ^  ^
+    due to the instance of ConstrainedType used in the second half of the array being different
+    than the one used in the first. Due to the fact that we return a [Constrained] type, deduceTypeOfArrayLiteral
+    thinks it's a concreteType when it isn't.
+  
+  
   > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
     or should parseStmt handle it?
     > Also, for parseQualType, who should emit the errors? The caller or the callee? No both! Make
