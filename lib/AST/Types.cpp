@@ -358,7 +358,7 @@ bool CellType::hasSubstitution() const {
 }
 
 void CellType::setSubstitution(TypeBase* type) {
-  assert(type_ 
+  assert(type 
     && "Cannot set the substitution to a null pointer. Use reset() for that.");
   type_ = type;
 }
