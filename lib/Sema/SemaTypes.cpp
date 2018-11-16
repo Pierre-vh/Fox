@@ -140,7 +140,7 @@ namespace {
 }  // anonymous namespace
 
 bool Sema::unify(Type a, Type b) {
-  //std::cout << "unify(" << a->toDebugString() << ", " << b->toDebugString() << ")\n";
+  std::cout << "unify(" << a->toDebugString() << ", " << b->toDebugString() << ")\n";
   assert(a && b && "Pointers cannot be null");
 
   // Pre-unification checks, if they fail, unification fails too.
@@ -152,27 +152,6 @@ bool Sema::unify(Type a, Type b) {
     return true;
 
   /* Unification logic */
-  /* 1) A(CellType) = B
-      -> B is a CellType
-        -> A and B have the same constraints
-          -> A and B both have a substitution
-            -> return unify(a's sub, b's sub)
-          -> Only A has one
-            -> B's sub becomes the same as A's, return true
-          -> Only B has one
-            -> A's sub becomes the same as B's, return true
-          -> Both don't have one
-            -> Change A's TypeBase* to be the same as B's
-        -> Else return false
-      -> B isn't a ConstrainedType
-        -> return unifyConstrainedWithNonConstrained(...)
-    2) A(Not ConstrainedType) = B(ConstrainedType)
-      -> return unifyConstrainedWithNonConstrained(...)
-    3) A(Not ConstrainedType) = B(Not ConstrainedType)
-      -> If A and B are arrays
-        -> Unwrap them and retur unify(a's elemTy, b's elemTy)
-      -> Else return false.
-    */    
 
   // CellType = (Something)
   if (auto* aCell = a.getAs<CellType>()) {

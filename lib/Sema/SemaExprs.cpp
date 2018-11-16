@@ -325,8 +325,8 @@ namespace {
           // Get the highest ranking type of elemTy and concreteProposed
           Type highestRanking =
             Sema::getHighestRankingType(
-              defer_if(elemTy),
-              defer_if(proposed),
+              Sema::deref(elemTy.getPtr()),
+              Sema::deref(proposed.getPtr()),
               /*ignoreLValues*/ true,
               /*unwrapTypes*/ true);
           assert(highestRanking
@@ -344,7 +344,8 @@ namespace {
   // Visit methods return pointers to TypeBase. They return nullptr
   // if the finalization failed for this expr.
   // It's still a primitive, test version for now.
-  class ExprFinalizer : public TypeVisitor<ExprFinalizer, TypeBase*>, public ASTWalker {
+  class ExprFinalizer : public TypeVisitor<ExprFinalizer, TypeBase*>,
+    public ASTWalker {
     ASTContext& ctxt_;
     DiagnosticEngine& diags_;
 
@@ -355,11 +356,12 @@ namespace {
       }
 
       Expr* handleExprPost(Expr* expr) {
-        Type type = expr->getType().getPtr();
-        assert(!type.isNull() && "Untyped expr");
+        TypeBase* type = expr->getType().getPtr();
+        assert(type && "Untyped expr");
 
         // Visit the type
-        type = visit(type.getPtr());
+        type = visit(type);
+        
         // If the type is nullptr, this inference failed
         // because of a lack of substitution somewhere.
         // Set the type to ErrorType, diagnose it and move on.
@@ -394,7 +396,7 @@ namespace {
         return nullptr;
       }
 
-      TypeBase* visitCell(CellType* type) {
+      TypeBase* visitCellType(CellType* type) {
         if (TypeBase* sub = type->getSubstitution())
           return visit(sub);
         return nullptr;
