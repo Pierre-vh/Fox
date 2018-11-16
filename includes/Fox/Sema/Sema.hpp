@@ -72,6 +72,10 @@ namespace fox {
       // Returns true if "type" is a string type.
       static bool isStringType(TypeBase* type);
 
+      // Walk the ty hierarchy, returns false if it contains a unbound
+      // ConstrainedType
+      static bool isBound(Type ty);
+
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();
 

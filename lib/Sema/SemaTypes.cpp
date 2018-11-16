@@ -65,32 +65,6 @@ namespace {
     return false;
   }
 
-  // Performs the pre-unifications tasks.
-  // Returns true if unification can go on, false if it should
-  // be aborted.
-  bool performPreUnificationTasks(Type& a, Type& b) {
-    assert(a && b && "Pointers cannot be nullptr");
-
-    // ignore LValues, they don't matter when
-    // unifying as they are never propagated.
-    a = a->ignoreLValue();
-    b = b->ignoreLValue();
-
-    // If we have error types, unification is impossible.
-    if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr()))
-      return false;
-
-    // Unwrap if both are arrays
-    auto* arrA = a.getAs<ArrayType>();
-    auto* arrB = b.getAs<ArrayType>();
-    if (arrA && arrB) {
-      Type unwrappedA = arrA->getElementType();
-      Type unwrappedB = arrB->getElementType();
-      return performPreUnificationTasks(unwrappedA, unwrappedB);
-    }
-    return true;
-  }
-
   // Unwraps both values if they're both ArrayTypes.
   // Returns nullptr if no unwrapping was done.
   std::pair<TypeBase*,TypeBase*> 
@@ -117,6 +91,33 @@ namespace {
     if (tmpA && tmpB)
       return recursivelyUnwrapArrayTypes(tmpA, tmpB);
     return { a, b };
+  }
+
+  // Performs the pre-unifications tasks.
+  // Returns true if unification can go on, false if it should
+  // be aborted.
+  bool performPreUnificationTasks(Type& a, Type& b) {
+    assert(a && b && "Pointers cannot be nullptr");
+
+    // ignore LValues, they don't matter when
+    // unifying as they are never propagated.
+    a = a->ignoreLValue();
+    b = b->ignoreLValue();
+
+    // If we have error types, unification is impossible.
+    if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr()))
+      return false;
+
+    // Unwrap if both are arrays
+    TypeBase* arrA = a.getAs<ArrayType>();
+    TypeBase* arrB = b.getAs<ArrayType>();
+    if (arrA && arrB) {
+      std::tie(arrA, arrB) = recursivelyUnwrapArrayTypes(arrA, arrB);
+      a = arrA;
+      b = arrB;
+      return performPreUnificationTasks(a, b);
+    }
+    return true;
   }
 
   // Tries to adjust the Constrained Type's substitution 
@@ -208,6 +209,10 @@ bool Sema::unify(Type& aRef, Type& bRef) {
   if (!performPreUnificationTasks(a, b))
     return false;
 
+  // At this point, a and b are unwrapped and will be vastly different 
+  // from aRef and bRef. For instance, if aRef and bRef are both arrays,
+  // a and b will be their element types.
+
   // Return early if a and b share the same subtype (no unification needed)
   if (compareSubtypes(a, b) && !a.is<ConstrainedType>())
     return true;
@@ -266,7 +271,7 @@ bool Sema::unify(Type& aRef, Type& bRef) {
         //  aCS->setSubstitution(bSub.getPtr());
         // Both have no substitution.
 
-        // Here subs are now equal, so make aRef equal to bRef and return.
+        // Subs are now equal, so make aRef equal to bRef and return.
         aRef = bRef;
         return true;
       }
@@ -411,4 +416,16 @@ bool Sema::isStringType(TypeBase* type) {
   if (auto* prim = dyn_cast<PrimitiveType>(type))
     return prim->isString();
   return false;
+}
+
+bool Sema::isBound(Type ty) {
+  TypeBase* ptr = ty->ignoreLValue();
+  if (auto* arr = ptr->unwrapIfArray())
+    return isBound(arr);
+  if (auto *cs = dyn_cast<ConstrainedType>(ptr)) {
+    if (auto *sub = cs->getSubstitution())
+      return isBound(sub);
+    return false;
+  }
+  return true;
 }
