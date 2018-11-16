@@ -42,8 +42,4 @@ namespace fox {
 
   class Type;
   class TypeLoc;
-
-  class Constraint;
-  #define CS(ID) class ID;
-  #include "Constraints.def"
 }

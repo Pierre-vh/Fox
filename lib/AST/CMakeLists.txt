@@ -1,8 +1,7 @@
-add_source( 
-    ast_src
-    "Decl.cpp"
-    "Expr.cpp"
-    "Stmt.cpp"
+add_source( ast_src
+  "Decl.cpp"
+  "Expr.cpp"
+  "Stmt.cpp"
   "ASTContext.cpp"
   "ASTWalker.cpp"
   "Types.cpp"
@@ -11,5 +10,4 @@ add_source(
   "Identifiers.cpp"
   "DeclContext.cpp"
   "ASTNode.cpp"
-  "Constraints.cpp"
 )
