@@ -1,4 +1,4 @@
-// RUN: %fox %s -verify-strict
+// RUN: %fox %s -verify
 
 func foo // expect-error: Expected '('
 
