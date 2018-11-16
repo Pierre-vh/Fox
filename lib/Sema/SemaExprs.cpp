@@ -139,7 +139,7 @@ namespace {
         
         // For other type of casts, unification is enough to determine
         // if the cast is valid.
-        if (!getSema().unify(childTy, castGoal))
+        if (getSema().unify(childTy, castGoal))
           expr->setType(castGoal.withoutLoc());
         else {
           getDiags()
@@ -268,7 +268,7 @@ namespace {
       //    Type needs inference
       Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr) {
         if (expr->getSize() > 0) {
-          Type deduced = deduceTypeOfNonEmptyArrayLiteral(expr);
+          Type deduced = deduceTypeOfArrayLiteral(expr);
           assert(deduced && "The function cannot return a null ptr");
           expr->setType(deduced.getPtr());
           return expr;
@@ -282,7 +282,7 @@ namespace {
 
       // Helper for the above function that deduces the type of a non empty Array literal
       // Returns the type of the literal, doesn't set it's type by itself.
-      Type deduceTypeOfNonEmptyArrayLiteral(ArrayLiteralExpr* expr) {
+      Type deduceTypeOfArrayLiteral(ArrayLiteralExpr* expr) {
         assert(expr->getSize() && "Size must be >0");
 
         // Diagnoses a heterogenous array literal.
@@ -324,7 +324,7 @@ namespace {
             return getErrorType();
 
           // If elemTy is a constrained type, apply the logic
-          // specific to constrained type inside the array literal.
+          // specific to constrained type inside an array literal.
           if (elemTy.is<ConstrainedType>()) {
             // Set inferType if it's not set
             if (!inferType)
@@ -357,15 +357,15 @@ namespace {
               defer_if(concreteProposed),
               /*ignoreLValues*/ true,
               /*unwrapTypes*/ true);
-
-          assert(highestRanking
-            && "Unification was successful but getHighestRankingType failed?");
-          concreteProposed = highestRanking;
+          std::cout << "elemTy:" << elemTy->toDebugString() << ", concrete:" << concreteProposed->toDebugString() << "\n";
+          //assert(highestRanking
+          //  && "Unification was successful but getHighestRankingType failed?");
+          concreteProposed = highestRanking ? highestRanking : concreteProposed;
         }
 
         // The final element type we'll use
         Type properType;
-
+        
         // If we don't have a concrete type, we should
         // at least have a inferType. 
         if (!concreteProposed) {
