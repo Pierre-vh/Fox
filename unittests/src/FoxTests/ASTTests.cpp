@@ -14,7 +14,6 @@
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
-#include "Fox/AST/ConstraintVisitor.hpp"
 #include "Fox/Common/LLVM.hpp"
 
 using namespace fox;
@@ -229,23 +228,13 @@ TEST(ASTTests, DeclContext) {
 
 }
 
-TEST(ASTTests, ConstraintsKinds) {
-  ASTContext astctxt;
-  Type intTy(PrimitiveType::getInt(astctxt));
-
-  Constraint* ar = Constraint::createArrayCS(astctxt);
-
-  EXPECT_EQ(ar->getKind(), Constraint::Kind::ArrayCS);
-  EXPECT_TRUE(ar->is(Constraint::Kind::ArrayCS));
-}
-
 TEST(ASTTests, TypeRTTI) {
   ASTContext astctxt;
   TypeBase* intTy = PrimitiveType::getInt(astctxt);
   auto* arrIntTy = ArrayType::get(astctxt, intTy);
   auto* lvIntTy = LValueType::get(astctxt, intTy);
   auto* errType = ErrorType::get(astctxt);
-  auto* csType = ConstrainedType::create(astctxt);
+  auto* cellType = CellType::create(astctxt);
 
   EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
   EXPECT_TRUE(PrimitiveType::classof(intTy));
@@ -261,8 +250,8 @@ TEST(ASTTests, TypeRTTI) {
   EXPECT_EQ(errType->getKind(), TypeKind::ErrorType);
   EXPECT_TRUE(ErrorType::classof(errType));
 
-  EXPECT_EQ(csType->getKind(), TypeKind::ConstrainedType);
-  EXPECT_TRUE(ConstrainedType::classof(csType));
+  EXPECT_EQ(cellType->getKind(), TypeKind::CellType);
+  EXPECT_TRUE(CellType::classof(cellType));
 }
 
 TEST(ASTTests, ExprRTTI) {
@@ -456,25 +445,4 @@ TEST(ASTTests, BasicVisitor) {
   EXPECT_FALSE(tyVisitor.visit(intTy));
   EXPECT_TRUE(tyVisitor.visit(arrInt));
 
-}
-
-class CSToTxt : public ConstraintVisitor<CSToTxt, std::string> {
-  public:
-    #define PRINT(CS)\
-    std::string visit##CS(Constraint*){ \
-      return #CS; \
-    }
-    #define CS(ID) PRINT(ID)
-    #include "Fox/AST/Constraints.def"
-    #undef PRINT
-};
-
-TEST(ASTTests, ConstraintVisitorTest) {
-  ASTContext astctxt;
-  Type intTy(PrimitiveType::getInt(astctxt));
-
-  Constraint* ar = Constraint::createArrayCS(astctxt);
-
-  CSToTxt vis;
-  EXPECT_EQ(vis.visit(ar), "ArrayCS");
 }
