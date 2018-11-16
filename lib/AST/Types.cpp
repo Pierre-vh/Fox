@@ -17,7 +17,7 @@ using namespace fox;
 namespace {
   class TypePrinter : public TypeVisitor<TypePrinter, void> {
     std::ostream& out;
-    bool debugPrint;
+    bool debugPrint = false;
 
     static constexpr char * nullTypeStr = "<none>";
 
@@ -95,7 +95,8 @@ namespace {
       }
 
       void visitConstrainedType(ConstrainedType* type) {
-        out << "Constrained([";
+        // For constrained types, print the adress
+        out << "Constrained." << (void*)type << "([";
 
         // Print the constraints
         bool first = true;
