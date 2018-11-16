@@ -20,13 +20,11 @@ namespace fox {
     public:
       // Verify mode: 
       //  Disabled: No diagnostic verification performed
-      //  Normal: Diagnostic verification performed, but 
-      //              we don't check that all expected diags were
-      //              emitted.
-      //  Strict: Same as soft, but we check that all expected diags
-      //                were emitted.
+      //  Soft: Diagnostic Verification is performed
+      //  Normal: Same as basic, but additionally we'll check that
+      //          every expected diagnostics were emitted.
       enum class VerifyMode {
-        Disabled, Normal, Strict
+        Disabled, Soft, Normal
       };
 
     private:

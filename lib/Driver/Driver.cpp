@@ -92,7 +92,7 @@ bool Driver::processFile(const std::string& filepath) {
 
   // (Verify mode) Check that all diags were emitted if we're
   // in verify-strict mode.
-  if (getVerifyMode() == VerifyMode::Strict) {
+  if (getVerifyMode() == VerifyMode::Normal) {
     assert(dv && "DiagnosticVerifier is null in Strict mode");
     dv->reportUnemittedDiags();
   }
@@ -161,8 +161,8 @@ bool Driver::doCL(int argc, char * argv[]) {
     string_view str(argv[idx]);
     if (str == "-verify")
       setVerifyMode(VerifyMode::Normal);
-    else if (str == "-verify-strict")
-      setVerifyMode(VerifyMode::Strict);
+    else if (str == "-verify-soft")
+      setVerifyMode(VerifyMode::Soft);
     else if (str == "-dump_ast")
       setDumpAST(true);
     else if (str == "-dump_alloc")
