@@ -8,7 +8,6 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
-#include "Fox/AST/ConstraintVisitor.hpp"
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
@@ -35,8 +34,9 @@ namespace {
     if (a == b)
       return true;
 
-    // ConstrainedTypes
-    if (a.is<ConstrainedType>() || b.is<ConstrainedType>())
+    // CellType
+  #pragma message("TODO: Check this")
+    if (a.is<CellType>() || b.is<CellType>())
       return false;
 
     // Check more in depth for some types of the same kind,
@@ -120,11 +120,11 @@ namespace {
     return true;
   }
 
-  // Tries to adjust the Constrained Type's substitution 
+  // Tries to adjust the CellType's type 
   // to be equal or better than the candidate.
-  void tryAdjustConstrainedType(ConstrainedType* cons, TypeBase* candidate) {
-    assert(cons && candidate);
-    auto* sub = cons->getSubstitution();
+  void tryAdjustCellType(CellType* cell, TypeBase* candidate) {
+    assert(cell && candidate);
+    auto* sub = cell->getSubstitution();
 
     // u means unwrapped
     TypeBase* uSub = nullptr;
@@ -134,74 +134,12 @@ namespace {
       // If the candidate is the "highest ranked type" of both types,
       // replace cons' sub with the candidate
       if (greatest == uCand)
-        cons->setSubstitution(candidate);
+        cell->setSubstitution(candidate);
     }
   }
-
-  // Compare 2 constraints lists, returning true if they are strictly equal.
-  // NOTE: Here strictly equal doesn't mean pointer equality. This function compares
-  // the members of the Constraints when needed, so different instances with the same members
-  // are still considered equal.
-  bool compareConstraintLists(ConstraintList& a, ConstraintList& b) {
-    class ConstraintComparer : public ConstraintVisitor<ConstraintComparer, bool, Constraint*> {
-      public:
-        bool visitArrayCS(Constraint* cs, Constraint* other) {
-          // Only true if the other is a ArrayCS too
-          return (cs == other) || other->is(Constraint::Kind::ArrayCS);
-        }
-    };
-
-    // Return now if they have a different size.
-    if (a.size() != b.size())
-      return false;
-
-    ConstraintComparer csc;
-    for (std::size_t k = 0; k < a.size(); k++) {
-      if (!csc.visit(a[k], b[k]))
-        return false;
-    }
-    return true;
-  }
-
-  // Unification helper function: handles unification of a ConstrainedType with something that isn't
-  // a ConstrainedType.
-  bool unifyConstrainedWithNonConstrained(Sema& me, ConstrainedType* cs, Type type) {
-    // Check if b can become A's substitution by checking if
-    // B respects the constraints of A.
-    if (me.checkConstraintOnType(cs->getConstraints(), type)) {
-      // B respects the constraints of A
-
-      // A has no substitution, just set it
-      if (!cs->hasSubstitution()) {
-        // Maybe I should use a Type& for the susbtitution,
-        // to be done if the TypeBase*'s problematic!
-        cs->setSubstitution(type.getPtr());
-        return true;
-      }
-      // A already has a substitution, unify it with B
-      else {
-        Type csSub = cs->getSubstitution();
-        if (me.unify(csSub, type)) {
-          // If we have 2 constrained type with equivalent substitution, see
-          // if we can make any adjustement.
-          tryAdjustConstrainedType(cs, type.getPtr());
-          return true;
-        }
-        return false;
-      }
-    }
-    // B can't become A's substitution, unification fails.
-    return false;
-  }
-
 }  // anonymous namespace
 
-bool Sema::unify(Type& aRef, Type& bRef) {
-  // Copy both references and work on theses because we'll only write to the
-  // arguments in some specific situations.
-  Type a = aRef;
-  Type b = bRef;
-
+bool Sema::unify(Type a, Type b) {
   //std::cout << "unify(" << a->toDebugString() << ", " << b->toDebugString() << ")\n";
   assert(a && b && "Pointers cannot be null");
 
@@ -209,17 +147,13 @@ bool Sema::unify(Type& aRef, Type& bRef) {
   if (!performPreUnificationTasks(a, b))
     return false;
 
-  // At this point, a and b are unwrapped and will be vastly different 
-  // from aRef and bRef. For instance, if aRef and bRef are both arrays,
-  // a and b will be their element types.
-
   // Return early if a and b share the same subtype (no unification needed)
-  if (compareSubtypes(a, b) && !a.is<ConstrainedType>())
+  if (compareSubtypes(a, b) && !a.is<CellType>())
     return true;
 
   /* Unification logic */
-  /* 1) A(ConstrainedType) = B
-      -> B is a ConstrainedType
+  /* 1) A(CellType) = B
+      -> B is a CellType
         -> A and B have the same constraints
           -> A and B both have a substitution
             -> return unify(a's sub, b's sub)
@@ -240,51 +174,56 @@ bool Sema::unify(Type& aRef, Type& bRef) {
       -> Else return false.
     */    
 
-  // ConstrainedType = (Something)
-  if (auto* aCS = a.getAs<ConstrainedType>()) {
-    // A constrained type should ALWAYS have at least one Constraint.
-    assert(aCS->numConstraints() > 0 && "Empty constraint set");
-
-    // ConstrainedType = ConstrainedType
-    if (auto* bCS = b.getAs<ConstrainedType>()) {
-      // TODO: Review this code, it seems right but too good to be true
-
-      assert(bCS->numConstraints() > 0 && "Empty constraint set");
-
-      // Check if A and B have the same constraints
-      if (compareConstraintLists(aCS->getConstraints(), bCS->getConstraints())) {
-        Type aSub = aCS->getSubstitution();
-        Type bSub = bCS->getSubstitution();
-        // Both have a substitution, unify them !
-        if (aSub && bSub) {
-          if (aSub != bSub) {
-            Type highest = Sema::getHighestRankingType(aSub, bSub, true, true);
-            assert(highest && "unhandled case");
-            bCS->setSubstitution(highest.getPtr());
-          }
-        }
-        // A has a substitution, but B doesn't.
-        else if (aSub)
-          bCS->setSubstitution(aSub.getPtr());
-        // B has a Substitution, but A doesn't.
-        // else if (bSub)
-        //  aCS->setSubstitution(bSub.getPtr());
-        // Both have no substitution.
-
-        // Subs are now equal, so make aRef equal to bRef and return.
-        aRef = bRef;
+  // CellType = (Something)
+  if (auto* aCell = a.getAs<CellType>()) {
+    // CellType = CellType
+    if (auto* bCell = b.getAs<CellType>()) {
+      // Both are CellTypes, check if they have a substitution
+      auto* aCellSub = aCell->getSubstitution();
+      auto* bCellSub = bCell->getSubstitution();
+      if (aCellSub && bCellSub) {
+        if (isa<CellType>(aCellSub) || isa<CellType>(bCellSub))
+          return unify(aCellSub, bCellSub);
+        // Subs are too different, unification fails
+        if (!unify(aCellSub, bCellSub))
+          return false;
+        // Subs are equivalent, take the highest ranked one
+        TypeBase* highest = getHighestRankingType(aCellSub, bCellSub).getPtr();
+        assert(highest); // Should have one since unification was successful
+        aCell->setSubstitution(highest);
+        bCell->setSubstitution(highest);
         return true;
       }
-      else
-        return false;
+      // A has a sub, B doesn't
+      if (aCellSub) {
+        bCell->setSubstitution(aCellSub);
+        return true;
+      }
+      // B has a sub, A doesn't
+      if (bCellSub) {
+        aCell->setSubstitution(bCellSub);
+        return true;
+      }
+    #pragma message("Fix here")
+      // None of them have a sub, create a new CellType
+      auto* fresh = CellType::create(ctxt_);
+      assert(fresh);
+      // And make them both use it
+      aCell->setSubstitution(fresh);
+      bCell->setSubstitution(fresh);
+      return true;
     }
-    // ConstrainedType = (Not ConstrainedType)
-    else
-      return unifyConstrainedWithNonConstrained(*this, aCS, b);
+    // CellType = (Not CellType)
+    else {
+      aCell->setSubstitution(b.getPtr());
+      return true;
+    }
   }
-  // (Not ConstrainedType) = ConstrainedType
-  else if (auto* bCS = b.getAs<ConstrainedType>())
-    return unifyConstrainedWithNonConstrained(*this, bCS, a);
+  // (Not CellType) = CellType
+  else if (auto* bCell = b.getAs<CellType>()) {
+    bCell->setSubstitution(a.getPtr());
+    return true;
+  }
   // ArrayType = (Something)
   else if(auto* aArr = a.getAs<ArrayType>()) {
     // Only succeeds if B is an ArrayType
@@ -299,53 +238,6 @@ bool Sema::unify(Type& aRef, Type& bRef) {
   }
   // Unhandled
   return false;
-}
-
-bool Sema::checkConstraintOnType(ConstraintList& cs, Type ty) {
-  // checkConstraintOnType helper class.
-  // Checks if the type passed as argument respects the constraint
-  // if so, returns the type or the unwrapped type.
-  // e.g. 
-    // visit(ArrayCS, ArrayType) -> returns ArrayType::getElementType
-  // Returns nullptr on failure.
-
-  // Note: this is currently very empty because I only have 1 constraint. More may come in the future,
-  // but if I manage to do everything without needing any more constraints, I'll remove this and use 
-  // a quicker version that doesn't call the visitor.
-  class ConstraintCheck : public ConstraintVisitor<ConstraintCheck, TypeBase*, TypeBase*> {
-    public:
-      using inherited = ConstraintVisitor<ConstraintCheck, TypeBase*, TypeBase*>;
-      Sema& sema;
-
-      ConstraintCheck(Sema& sema) :
-        sema(sema) {
-
-      }
-
-      TypeBase* visitArrayCS(Constraint*, TypeBase* ty) {
-        if (auto arr = dyn_cast<ArrayType>(ty)) {
-          auto* elemTy = arr->getElementType();
-          assert(elemTy
-            && "The type must have an element type");
-          return elemTy;
-        }
-        return nullptr;
-      }
-  };
-
-  // Function logic
-
-  TypeBase* tmp = ty.getPtr();
-
-  // Check every constraint in the list individually.
-  ConstraintCheck check(*this);
-  for (Constraint* elem : cs) {
-    tmp = check.visit(elem, tmp);
-
-    if (!tmp) break;
-  }
-
-  return tmp; // tmp != nullptr
 }
 
 bool Sema::isIntegral(Type type) {
@@ -422,10 +314,20 @@ bool Sema::isBound(Type ty) {
   TypeBase* ptr = ty->ignoreLValue();
   if (auto* arr = ptr->unwrapIfArray())
     return isBound(arr);
-  if (auto *cs = dyn_cast<ConstrainedType>(ptr)) {
-    if (auto *sub = cs->getSubstitution())
+  if (auto *cell = dyn_cast<CellType>(ptr)) {
+    if (auto *sub = cell->getSubstitution())
       return isBound(sub);
     return false;
   }
   return true;
+}
+
+TypeBase* Sema::deref(TypeBase* type, bool recursive) {
+  if (auto* cell = dyn_cast<CellType>(type)) {
+    TypeBase* sub = cell->getSubstitution();
+    if (sub && recursive)
+      return deref(sub, true);
+    return sub ? sub : type;
+  }
+  return type;
 }
