@@ -22,10 +22,10 @@ using namespace fox;
 namespace {
   // Various helper functions
 
-  // If "type" is a ConstrainedType* with a valid substitution, returns the substitution,
+  // If "type" is a CellType* with a substitution, returns the substitution,
   // else, returns "type".
   Type defer_if(Type type) {
-    if (auto* ptr = type.getAs<ConstrainedType>()) {
+    if (auto* ptr = type.getAs<CellType>()) {
       // if the type has a substitution, return it, else
       // just return the argument.
       if (auto* sub = ptr->getSubstitution())
@@ -139,7 +139,7 @@ namespace {
         
         // For other type of casts, unification is enough to determine
         // if the cast is valid.
-        if (getSema().unify(childTy, castGoal))
+        if (getSema().unify(childTy, castGoal.getPtr()))
           expr->setType(castGoal.withoutLoc());
         else {
           getDiags()
@@ -252,12 +252,6 @@ namespace {
         return expr;
       }
 
-      ConstrainedType* createConstrainedTypeForEmptyArrayLiteral() {
-        auto* cs = ConstrainedType::create(getCtxt());
-        cs->addConstraint(Constraint::createArrayCS(getCtxt()));
-        return cs;
-      }
-
       // Array literals
       // To deduce the type of an Array literal:
       // if size > 0
@@ -275,7 +269,7 @@ namespace {
         }
         else
           // Let type inference do it's magic 
-          expr->setType(createConstrainedTypeForEmptyArrayLiteral());
+          expr->setType(CellType::create(getCtxt()));
 
         return expr;
       }
@@ -306,11 +300,7 @@ namespace {
 
         // The concrete type proposed by unifying the other concrete
         // types inside the array.
-        Type concreteProposed;
-
-        // The instance of the constrained type used by elements that need
-        // to be inferred
-        Type inferType;
+        Type proposed;
 
         // Loop over each expression in the literal
         for (auto& elem : expr->getExprs()) {
@@ -322,83 +312,30 @@ namespace {
           if (elemTy.is<ErrorType>())
             return getErrorType();
 
-          // If elemTy is a constrained type, apply the logic
-          // specific to constrained type inside an array literal.
-          if (!Sema::isBound(elemTy)) {
-            // Set inferType if it's not set
-            if (!inferType)
-              inferType = elemTy;
-
-            // If it's set, unify elemTy with the inferType
-            else if (!getSema().unify(elemTy, inferType))
-              return diagnose_hetero(elem);
-
-            continue;
-          }
-
-          // From now on, we can be sure that //
-          // elemTy isn't a constrained type  //
-
           // First loop, set concreteProposed & continue.
-          if (!concreteProposed) {
-            concreteProposed = elemTy;
+          if (!proposed) {
+            proposed = elemTy;
             continue;
           }
 
           // Unify elemTy with the concrete proposed type.
-          if (!getSema().unify(elemTy, concreteProposed))
+          if (!getSema().unify(elemTy, proposed))
             return diagnose_hetero(elem); // Failed to unify, incompatible types
 
           // Get the highest ranking type of elemTy and concreteProposed
           Type highestRanking =
             Sema::getHighestRankingType(
               defer_if(elemTy),
-              defer_if(concreteProposed),
+              defer_if(proposed),
               /*ignoreLValues*/ true,
               /*unwrapTypes*/ true);
           assert(highestRanking
             && "Unification was successful but getHighestRankingType failed?");
-          concreteProposed = highestRanking;
+          proposed = highestRanking;
         }
-
-        // The final element type we'll use
-        Type properType;
-
-        // If we don't have a concrete type, we should
-        // at least have a inferType. 
-        if (!concreteProposed) {
-          // We should have a inferType to work with at least.
-          assert(inferType && "No concrete and no inferType?");
-          properType = inferType;
-        }
-
-        // We do have a concrete type
-        else {
-          // Handle unification with the inferType, if we have one
-          if (inferType) {
-            if (!getSema().unify(inferType, concreteProposed))
-              return diagnose_hetero();
-
-            // Unification correct, the properType shall be the highest ranked type of both 
-            // inferType and concreteProposed
-            Type highestRanking =
-              Sema::getHighestRankingType(
-                defer_if(inferType),
-                defer_if(concreteProposed),
-                /*ignoreLValues*/ true,
-                /*unwrapTypes*/ true);
-
-            assert(highestRanking 
-              && "Unification was successful but getHighestRankingType failed?");
-            properType = highestRanking;
-          }
-          // if we don't have one, the properType is simply the concreteProposed type.
-          else
-            properType = concreteProposed;
-        }
-
+        assert(proposed);
         // The type of the expr is an array of the proposed type.
-        return ArrayType::get(getCtxt(), properType.getPtr());
+        return ArrayType::get(getCtxt(), proposed.getPtr());
       }
   };
 
@@ -457,7 +394,7 @@ namespace {
         return nullptr;
       }
 
-      TypeBase* visitConstrainedType(ConstrainedType* type) {
+      TypeBase* visitCell(CellType* type) {
         if (TypeBase* sub = type->getSubstitution())
           return visit(sub);
         return nullptr;
