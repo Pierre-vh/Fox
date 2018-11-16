@@ -318,14 +318,13 @@ namespace {
           Type& elemTy = elem->getType();
           assert(elemTy && "Type cannot be null!");
 
-          // Handle error elem type: we stop and break here 
-          // if we have one.
+          // Handle error elem type: we stop here if we have one.
           if (elemTy.is<ErrorType>())
             return getErrorType();
 
           // If elemTy is a constrained type, apply the logic
           // specific to constrained type inside an array literal.
-          if (elemTy.is<ConstrainedType>()) {
+          if (!Sema::isBound(elemTy)) {
             // Set inferType if it's not set
             if (!inferType)
               inferType = elemTy;
@@ -357,15 +356,14 @@ namespace {
               defer_if(concreteProposed),
               /*ignoreLValues*/ true,
               /*unwrapTypes*/ true);
-          std::cout << "elemTy:" << elemTy->toDebugString() << ", concrete:" << concreteProposed->toDebugString() << "\n";
-          //assert(highestRanking
-          //  && "Unification was successful but getHighestRankingType failed?");
-          concreteProposed = highestRanking ? highestRanking : concreteProposed;
+          assert(highestRanking
+            && "Unification was successful but getHighestRankingType failed?");
+          concreteProposed = highestRanking;
         }
 
         // The final element type we'll use
         Type properType;
-        
+
         // If we don't have a concrete type, we should
         // at least have a inferType. 
         if (!concreteProposed) {
