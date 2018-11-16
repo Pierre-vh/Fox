@@ -36,7 +36,7 @@ ABSTRACT_TYPE(BuiltinType, TypeBase)
 
 TYPE(LValueType, TypeBase)
 TYPE(ErrorType, TypeBase)
-TYPE(ConstrainedType, TypeBase)
+TYPE(CellType, TypeBase)
 
 /* Undef */
 #undef ABSTRACT_TYPE

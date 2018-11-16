@@ -94,27 +94,14 @@ namespace {
         out << "<error_type>";
       }
 
-      void visitConstrainedType(ConstrainedType* type) {
+      void visitCellType(CellType* type) {
         // For constrained types, print the adress
-        out << "Constrained." << (void*)type << "([";
+        out << "Cell." << (void*)type << "(";
 
-        // Print the constraints
-        bool first = true;
-        for (auto& cs : type->getConstraints()) {
-          // For the first type don't print the ","
-          // NOTE: maybe use something else than ',' ? Would an arrow would be more appropriate?
-          if (first) first = false;
-          else out << ",";
-
-          out << cs->toDebugString();
-        }
-
-        // Print the subst
-        out << "],";
-        if (TypeBase* elem = type->getSubstitution())
+        // Print the contained type if there's one
+        if (TypeBase* elem = type->getSubstitution()) 
           visit(elem);
-        else
-          out << nullTypeStr;
+        else out << nullTypeStr;
         out << ")";
       }
   };
@@ -348,94 +335,38 @@ ErrorType* ErrorType::get(ASTContext& ctxt) {
   return ctxt.theErrorType;
 }
 
-//-----------------//
-// ConstrainedType //
-//-----------------//
+//----------//
+// CellType //
+//----------//
 
-ConstrainedType::ConstrainedType():
-  TypeBase(TypeKind::ConstrainedType) {
-  resetSubstitution();
+CellType::CellType(): TypeBase(TypeKind::CellType) {}
+
+CellType* CellType::create(ASTContext& ctxt) {
+  return new(ctxt) CellType();
 }
 
-ConstrainedType* ConstrainedType::create(ASTContext& ctxt) {
-  return new(ctxt) ConstrainedType();
+TypeBase* CellType::getSubstitution() {
+  return type_;
 }
 
-TypeBase* ConstrainedType::getSubstitution() {
-  return subst_.getPointer();
+const TypeBase* CellType::getSubstitution() const {
+  return type_;
 }
 
-const TypeBase* ConstrainedType::getSubstitution() const {
-  return subst_.getPointer();
+bool CellType::hasSubstitution() const {
+  return (type_ != nullptr);
 }
 
-bool ConstrainedType::hasSubstitution() const {
-  return (subst_.getPointer() != nullptr);
+void CellType::setSubstitution(TypeBase* type) {
+  assert(type_ 
+    && "Cannot set the substitution to a null pointer. Use reset() for that.");
+  type_ = type;
 }
 
-void ConstrainedType::setSubstitution(TypeBase* subst) {
-  assert(subst 
-    && "Cannot set the substitution to a null pointer. Use resetSubstitution() for that.");
-  // Set the substitution, and mark the pointer as up to date.
-  subst_.setPointer(subst);
-  markAsUpToDate();
+void CellType::reset() {
+  type_ = nullptr;
 }
 
-bool ConstrainedType::isSubstitutionOutdated() const {
-  assert((subst_.getPointer() ? (subst_.getInt() == 0) : true) 
-    && "Substitution is considered up to date, but the pointer is null.");
-  return subst_.getInt();
-}
-
-void ConstrainedType::resetSubstitution() {
-  // Mark the solution as outdated & set it to nullptr.
-  subst_.setInt(0);
-  subst_.setPointer(nullptr);
-}
-
-// Constraints must be walked from last to first, in a stack-like fashion,
-// thus we use reverse iterators.
-
-ConstraintList::iterator ConstrainedType::cs_begin() {
-  return constraints_.begin();
-}
-
-ConstraintList::const_iterator ConstrainedType::cs_begin() const {
-  return constraints_.begin();
-}
-
-ConstraintList::iterator ConstrainedType::cs_end() {
-  return constraints_.end();
-}
-
-ConstraintList::const_iterator ConstrainedType::cs_end() const {
-  return constraints_.end();
-}
-
-ConstraintList& ConstrainedType::getConstraints() {
-  return constraints_;
-}
-
-std::size_t ConstrainedType::numConstraints() const {
-  return constraints_.size();
-}
-
-void ConstrainedType::addConstraint(Constraint* cs) {
-  // Push the constraints in the front, like a stack.
-  // Latest constraint should be evaluated first.
-  constraints_.push_front(cs);
-  // Mark the current substitution as outdated.
-  markAsOutdated();
-}
-
-void* ConstrainedType::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
-  return ctxt.getCSAllocator().allocate(sz,align);
-}
-
-void ConstrainedType::markAsUpToDate() {
-  subst_.setInt(1);
-}
-
-void ConstrainedType::markAsOutdated() {
-  subst_.setInt(0);
+void* CellType::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
+  return ctxt.getSemaAllocator().allocate(sz,align);
 }
