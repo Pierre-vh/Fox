@@ -12,6 +12,7 @@
 #include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include "Fox/AST/ASTWalker.hpp"
 #include <tuple>
 
 using namespace fox;
@@ -144,12 +145,18 @@ bool Sema::unify(Type a, Type b) {
   assert(a && b && "Pointers cannot be null");
 
   // Pre-unification checks, if they fail, unification fails too.
-  if (!performPreUnificationTasks(a, b))
+  if (!performPreUnificationTasks(a, b)) {
+    std::cout << "\tPre-unification tasks failed.\n";
     return false;
+  }
+  std::cout << "\tAfter Pre-unification tasks: (" << a->toDebugString() << ", " << b->toDebugString() << ")\n";
+    
 
   // Return early if a and b share the same subtype (no unification needed)
-  if (compareSubtypes(a, b) && !a.is<CellType>())
+  if (compareSubtypes(a, b) && !a.is<CellType>()) {
+    std::cout << "\tSubtype comparison succeeded\n";
     return true;
+  }
 
   /* Unification logic */
 
@@ -160,12 +167,17 @@ bool Sema::unify(Type a, Type b) {
       // Both are CellTypes, check if they have a substitution
       auto* aCellSub = aCell->getSubstitution();
       auto* bCellSub = bCell->getSubstitution();
+      // Both have a sub
       if (aCellSub && bCellSub) {
+        // FIXME: Refactor this
+
+        // If it's nested CellTypes, just recurse.
         if (isa<CellType>(aCellSub) || isa<CellType>(bCellSub))
           return unify(aCellSub, bCellSub);
-        // Subs are too different, unification fails
+        // If it isn't, attempt unification too
         if (!unify(aCellSub, bCellSub))
           return false;
+
         // Subs are equivalent, take the highest ranked one
         TypeBase* highest = getHighestRankingType(aCellSub, bCellSub).getPtr();
         assert(highest); // Should have one since unification was successful
@@ -184,16 +196,18 @@ bool Sema::unify(Type a, Type b) {
         return true;
       }
     #pragma message("Fix here")
-      // None of them have a sub, create a new CellType
+      // None of them has a sub.
+      std::cout << "\tNone of them have a substitution\n";
       auto* fresh = CellType::create(ctxt_);
-      assert(fresh);
-      // And make them both use it
       aCell->setSubstitution(fresh);
       bCell->setSubstitution(fresh);
+      std::cout << "\t(" << aCell->toDebugString() << ", " << bCell->toDebugString() << ")\n";
       return true;
     }
     // CellType = (Not CellType)
     else {
+      if (auto* aCellSub = aCell->getSubstitution())
+        return unify(aCellSub, b);
       aCell->setSubstitution(b.getPtr());
       return true;
     }
@@ -205,6 +219,7 @@ bool Sema::unify(Type a, Type b) {
   }
   // ArrayType = (Something)
   else if(auto* aArr = a.getAs<ArrayType>()) {
+    std::cout << "\tA is an ArrayType\n";
     // Only succeeds if B is an ArrayType
     auto* bArr = b.getAs<ArrayType>();
     if (!bArr) return false;
@@ -212,6 +227,7 @@ bool Sema::unify(Type a, Type b) {
     // Unify the element types.
     Type aArr_elem = aArr->getElementType();
     Type bArr_elem = bArr->getElementType();
+    std::cout << "\t\tB is too. Recursing.\n";
     assert(aArr_elem && bArr_elem && "Null array element type");
     return unify(aArr_elem, bArr_elem);
   }
@@ -289,16 +305,16 @@ bool Sema::isStringType(TypeBase* type) {
   return false;
 }
 
-bool Sema::isBound(Type ty) {
-  TypeBase* ptr = ty->ignoreLValue();
-  if (auto* arr = ptr->unwrapIfArray())
-    return isBound(arr);
-  if (auto *cell = dyn_cast<CellType>(ptr)) {
-    if (auto *sub = cell->getSubstitution())
-      return isBound(sub);
-    return false;
-  }
-  return true;
+bool Sema::isBound(TypeBase* ty) {
+  class Impl : public ASTWalker {
+    public:
+      virtual bool handleTypePre(TypeBase* ty) override {
+        if (auto* cell = dyn_cast<CellType>(ty))
+          return cell->hasSubstitution();
+        return true;
+      }
+  };
+  return Impl().walk(ty);
 }
 
 TypeBase* Sema::deref(TypeBase* type, bool recursive) {

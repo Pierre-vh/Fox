@@ -62,9 +62,9 @@ namespace fox {
       // Returns true if "type" is a string type.
       static bool isStringType(TypeBase* type);
 
-      // Walk the ty hierarchy, returns false if it contains a unbound
-      // ConstrainedType
-      static bool isBound(Type ty);
+      // Walk the type, returns false if it contains a unbound
+      // CellType
+      static bool isBound(TypeBase* ty);
 
       // If "type" is a CellType with a substitution, returns it
       static TypeBase* deref(TypeBase* type, bool recursive = true);

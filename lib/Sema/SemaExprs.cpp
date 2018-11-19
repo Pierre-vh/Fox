@@ -298,44 +298,76 @@ namespace {
           return getErrorType();
         };
 
-        // The concrete type proposed by unifying the other concrete
+        // The bound type proposed by unifying the other concrete/bound
         // types inside the array.
-        Type proposed;
+        Type boundTy;
+
+        // The type used by unbounds elemTy
+        Type unboundTy;
 
         // Loop over each expression in the literal
         for (auto& elem : expr->getExprs()) {
           // Get the elemTy
-          Type& elemTy = elem->getType();
+          Type elemTy = elem->getType();
           assert(elemTy && "Type cannot be null!");
 
           // Handle error elem type: we stop here if we have one.
           if (elemTy.is<ErrorType>())
             return getErrorType();
 
-          // First loop, set concreteProposed & continue.
-          if (!proposed) {
-            proposed = elemTy;
+          // Special logic for unbound types
+          std::cout << "\tElemTy[" << elemTy->toDebugString() << "]" << (Sema::isBound(elemTy.getPtr()) ? " is bound" : " is unbound") << "\n";
+          if (!Sema::isBound(elemTy.getPtr())) {
+            // Set unboundTy & continue for first loop
+            if (!unboundTy)
+              unboundTy = elemTy;
+            // Attempt unification
+            else if (!getSema().unify(unboundTy, elemTy))
+              return diagnose_hetero(elem);
             continue;
           }
 
-          // Unify elemTy with the concrete proposed type.
-          if (!getSema().unify(elemTy, proposed))
+          // From this point, ElemTy is guaranteed to be a bound/concrete type
+
+          // First loop, set boundTy & continue.
+          if (!boundTy) {
+            boundTy = elemTy;
+            continue;
+          }
+
+          // Unify elemTy with the bound proposed type.
+          if (!getSema().unify(boundTy, elemTy))
             return diagnose_hetero(elem); // Failed to unify, incompatible types
 
-          // Get the highest ranking type of elemTy and concreteProposed
+          // Get the highest ranking type of elemTy and boundTy
           Type highestRanking =
             Sema::getHighestRankingType(
               Sema::deref(elemTy.getPtr()),
-              Sema::deref(proposed.getPtr()),
+              Sema::deref(boundTy.getPtr()),
               /*ignoreLValues*/ true,
               /*unwrapTypes*/ true);
           assert(highestRanking
             && "Unification was successful but getHighestRankingType failed?");
-          proposed = highestRanking;
+          boundTy = highestRanking;
         }
-        assert(proposed);
+        Type proper;
+        // Both unboundTy & boundTy
+        if (unboundTy && boundTy) {
+          // Unify them
+          if (!getSema().unify(unboundTy, boundTy))
+            return diagnose_hetero(); // FIXME: Do proper diagnosis
+          proper = boundTy; // FIXME: That or getHighestRanking?
+        }
+        // Only boundTy OR unboundTy
+        else if (boundTy)
+          proper = boundTy;
+        else if (unboundTy)
+          proper = unboundTy;
+        else
+          fox_unreachable("Should have at least a boundTy or unboundTy set.");
+        assert(proper);
         // The type of the expr is an array of the proposed type.
-        return ArrayType::get(getCtxt(), proposed.getPtr());
+        return ArrayType::get(getCtxt(), proper.getPtr());
       }
   };
 
