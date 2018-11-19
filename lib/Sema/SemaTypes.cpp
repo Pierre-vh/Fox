@@ -179,7 +179,6 @@ bool Sema::unify(Type a, Type b) {
         aCell->setSubstitution(bCellSub);
         return true;
       }
-    #pragma message("Fix here")
       // None of them has a sub.
       SEMA_DBG("\tNone of them have a substitution");
       auto* fresh = CellType::create(ctxt_);
