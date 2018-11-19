@@ -366,6 +366,10 @@ Stmt* ASTWalker::walk(Stmt* stmt) {
   return Traverse(*this).doIt(stmt);
 }
 
+bool ASTWalker::walk(TypeBase* type) {
+  return Traverse(*this).doIt(type);
+}
+
 std::pair<Expr*, bool> ASTWalker::handleExprPre(Expr* expr) {
   return { expr, true };
 }

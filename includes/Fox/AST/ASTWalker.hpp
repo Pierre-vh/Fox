@@ -20,7 +20,7 @@ namespace fox {
       Expr* walk(Expr* expr);
       Decl* walk(Decl* decl);
       Stmt* walk(Stmt* stmt);
-      void walk(TypeBase* type);
+      bool walk(TypeBase* type);
 
       // Called when first visiting an expression before visiting it's
       // children. 
