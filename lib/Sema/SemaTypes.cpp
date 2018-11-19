@@ -35,11 +35,6 @@ namespace {
     if (a == b)
       return true;
 
-    // CellType
-  #pragma message("TODO: Check this")
-    if (a.is<CellType>() || b.is<CellType>())
-      return false;
-
     // Check more in depth for some types of the same kind,
     // such as ArrayTypes.
     if (a->getKind() == b->getKind()) {
@@ -61,23 +56,12 @@ namespace {
         // Unwrap and check again
         return compareSubtypes(elemA, elemB);
       }
+
+      // Checking CellTypes (deref)
     }
 
     return false;
   }
-
-  // Unwraps both values if they're both ArrayTypes.
-  // Returns nullptr if no unwrapping was done.
-  std::pair<TypeBase*,TypeBase*> 
-  unwrapIfBothArrayTypes(TypeBase* a, TypeBase* b) {
-    assert(a && b);
-    a = a->unwrapIfArray();
-    b = b->unwrapIfArray();
-    if (a && b)
-      return { a, b };
-    return { nullptr, nullptr };
-  }
-
   // Unwraps all layers of ArrayTypes until we reach a point where they are both
   // no longer arraytypes, or only one of them is.
   // Returns it's argument or the unwrapped types. 
@@ -85,12 +69,12 @@ namespace {
   std::pair<TypeBase*, TypeBase*>
   recursivelyUnwrapArrayTypes(TypeBase* a, TypeBase* b) {
     assert(a && b);
-    auto* tmpA = a;
-    auto* tmpB = b;
-    std::tie(tmpA, tmpB) = unwrapIfBothArrayTypes(a, b);
+    auto* tmpA = a->unwrapIfArray();
+    auto* tmpB = b->unwrapIfArray();
     // Unwrapping was performed, assign and continue.
     if (tmpA && tmpB)
       return recursivelyUnwrapArrayTypes(tmpA, tmpB);
+    // No unwrapping done, return.
     return { a, b };
   }
 
