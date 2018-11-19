@@ -141,20 +141,20 @@ namespace {
 }  // anonymous namespace
 
 bool Sema::unify(Type a, Type b) {
-  std::cout << "unify(" << a->toDebugString() << ", " << b->toDebugString() << ")\n";
+  SEMA_DBG("unify(" << a->toDebugString() << ", " << b->toDebugString() << ')');
   assert(a && b && "Pointers cannot be null");
 
   // Pre-unification checks, if they fail, unification fails too.
   if (!performPreUnificationTasks(a, b)) {
-    std::cout << "\tPre-unification tasks failed.\n";
+    SEMA_DBG("\tPre-unification tasks failed.");
     return false;
   }
-  std::cout << "\tAfter Pre-unification tasks: (" << a->toDebugString() << ", " << b->toDebugString() << ")\n";
+  SEMA_DBG("\tAfter Pre-unification tasks: (" << a->toDebugString() << ", " << b->toDebugString() << ')');
     
 
   // Return early if a and b share the same subtype (no unification needed)
   if (compareSubtypes(a, b) && !a.is<CellType>()) {
-    std::cout << "\tSubtype comparison succeeded\n";
+    SEMA_DBG("\tSubtype comparison succeeded");
     return true;
   }
 
@@ -197,11 +197,11 @@ bool Sema::unify(Type a, Type b) {
       }
     #pragma message("Fix here")
       // None of them has a sub.
-      std::cout << "\tNone of them have a substitution\n";
+      SEMA_DBG("\tNone of them have a substitution");
       auto* fresh = CellType::create(ctxt_);
       aCell->setSubstitution(fresh);
       bCell->setSubstitution(fresh);
-      std::cout << "\t(" << aCell->toDebugString() << ", " << bCell->toDebugString() << ")\n";
+      SEMA_DBG("\t(" << aCell->toDebugString() << ", " << bCell->toDebugString() << ')');
       return true;
     }
     // CellType = (Not CellType)
@@ -219,7 +219,7 @@ bool Sema::unify(Type a, Type b) {
   }
   // ArrayType = (Something)
   else if(auto* aArr = a.getAs<ArrayType>()) {
-    std::cout << "\tA is an ArrayType\n";
+    SEMA_DBG("\tA is an ArrayType");
     // Only succeeds if B is an ArrayType
     auto* bArr = b.getAs<ArrayType>();
     if (!bArr) return false;
