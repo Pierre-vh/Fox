@@ -301,12 +301,22 @@ bool Sema::isBound(TypeBase* ty) {
   return Impl().walk(ty);
 }
 
-TypeBase* Sema::deref(TypeBase* type, bool recursive) {
+TypeBase* Sema::deref(TypeBase* type) {
   if (auto* cell = dyn_cast<CellType>(type)) {
     TypeBase* sub = cell->getSubstitution();
-    if (sub && recursive)
-      return deref(sub, true);
-    return sub ? sub : type;
+    return sub ? deref(sub) : type;
   }
   return type;
+}
+
+std::pair<TypeBase*, TypeBase*>
+Sema::deref(std::pair<TypeBase*, TypeBase*> og) {
+  std::pair<TypeBase*, TypeBase*> drf;
+  drf.first = deref(og.first);
+  drf.second = deref(og.second);
+  // If both have changed, deref again
+  if ((drf.first != og.first) && (drf.second != og.second))
+    return deref(drf);
+  // None (or only one of them) changed, return the og pair.
+  return og;
 }
