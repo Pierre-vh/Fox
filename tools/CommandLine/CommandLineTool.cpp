@@ -36,11 +36,11 @@ int interactiveMain() {
   std::string uinput = "";
   bool res = true;
   Driver drv(std::cout);
-  drv.setDumpAlloc(true);
+  //drv.setDumpAlloc(true);
   drv.setDumpAST(true);
   // Test of the diagnostic verifier, this line will be removed later.
   drv.setVerifyMode(Driver::VerifyMode::Normal);
-  drv.setPrintChrono(true);
+  //drv.setPrintChrono(true);
   while (1) {
     std::cout << "> ";
     std::getline(std::cin, uinput);
