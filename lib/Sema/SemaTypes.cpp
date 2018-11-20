@@ -314,15 +314,3 @@ TypeBase* Sema::deref(TypeBase* type) {
   }
   return type;
 }
-
-std::pair<TypeBase*, TypeBase*>
-Sema::deref(std::pair<TypeBase*, TypeBase*> og) {
-  std::pair<TypeBase*, TypeBase*> drf;
-  drf.first = deref(og.first);
-  drf.second = deref(og.second);
-  // If both have changed, deref again
-  if ((drf.first != og.first) && (drf.second != og.second))
-    return deref(drf);
-  // None (or only one of them) changed, return the og pair.
-  return og;
-}

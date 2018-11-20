@@ -74,13 +74,10 @@ namespace fox {
       // CellType
       static bool isBound(TypeBase* ty);
 
-      // If "type" is a CellType with a substitution, returns it
+      // If "type" is a CellType with a substitution, returns it.
+      // This function is recursive and will dereference until reaching
+      // either a CellType with no sub or something that isn't a SemaType.
       static TypeBase* deref(TypeBase* type);
-
-      // Dereferences 2 types together to remove the same number of
-      // CellType layers on both types.
-      static std::pair<TypeBase*, TypeBase*> 
-      deref(std::pair<TypeBase*, TypeBase*> pair);
 
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();
