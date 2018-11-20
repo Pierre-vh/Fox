@@ -316,7 +316,6 @@ namespace {
             return getErrorType();
 
           // Special logic for unbound types
-          SEMA_DBG("\tElemTy " << elemTy->toDebugString() << "]" << (Sema::isBound(elemTy.getPtr()) ? " is bound" : " is unbound"));
           if (!Sema::isBound(elemTy.getPtr())) {
             // Set unboundTy & continue for first loop
             if (!unboundTy)

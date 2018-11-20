@@ -15,14 +15,6 @@
 #include "Fox/AST/ASTFwdDecl.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 
-#define DEBUG_SEMA 0
-
-#if DEBUG_SEMA
-  #define SEMA_DBG(x) std::cout << x << "\n"
-#else
-  #define SEMA_DBG(x) while(0)
-#endif
-
 namespace fox {
   class ASTContext;
   class Sema {
