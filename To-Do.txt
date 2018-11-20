@@ -79,8 +79,11 @@ To-Do:
   > Add DiagnosticVerifier (Done)
   > Sema: Replacing ConstrainedType with CellType (Done)
 
-  > Code cleanup/review in SemaType (Next)
   > Create better unwrapping functions to effectively unwrap types (Next)
+
+  > Create a better Logger tool for Semantic Analysis (replace macros)
+    > It needs to indent based on the "stack frame", so it'll require RAII objects.
+    > If possible, it should be entirely disabled in Release mode and have a nearly zero cost on perf
 
   > For LIT tests, make warnings errors.
     > Add CL option for it
