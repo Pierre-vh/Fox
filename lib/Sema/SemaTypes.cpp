@@ -153,20 +153,25 @@ bool Sema::unify(Type a, Type b) {
       auto* bCellSub = bCell->getSubstitution();
       // Both have a sub
       if (aCellSub && bCellSub) {
-        // FIXME: Refactor this
 
-        // If it's nested CellTypes, just recurse.
+        bool unifyResult = unify(aCellSub, bCellSub);
+        // If it's nested CellTypes, just return the unifyResult.
         if (isa<CellType>(aCellSub) || isa<CellType>(bCellSub))
-          return unify(aCellSub, bCellSub);
-        // If it isn't, attempt unification too
-        if (!unify(aCellSub, bCellSub))
+          return unifyResult;
+
+        // If theses aren't nested celltypes, return false on error.
+        if (!unifyResult)
           return false;
 
-        // Subs are equivalent, take the highest ranked one
-        TypeBase* highest = getHighestRankingType(aCellSub, bCellSub).getPtr();
-        assert(highest); // Should have one since unification was successful
-        aCell->setSubstitution(highest);
-        bCell->setSubstitution(highest);
+        // Unification of the subs was successful. Check if they're different.
+        if (aCellSub != bCellSub) {
+          // If they're different, adjust both substitution to the highest
+          // ranked type.
+          TypeBase* highest = getHighestRankingType(aCellSub, bCellSub).getPtr();
+          assert(highest); // Should have one since unification was successful
+          aCell->setSubstitution(highest);
+          bCell->setSubstitution(highest);
+        }
         return true;
       }
       // A has a sub, B doesn't
@@ -197,6 +202,8 @@ bool Sema::unify(Type a, Type b) {
   }
   // (Not CellType) = CellType
   else if (auto* bCell = b.getAs<CellType>()) {
+    if (auto* bCellSub = bCell->getSubstitution())
+      return unify(a, bCellSub);
     bCell->setSubstitution(a.getPtr());
     return true;
   }
