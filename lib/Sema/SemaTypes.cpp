@@ -62,21 +62,6 @@ namespace {
 
     return false;
   }
-  // Unwraps all layers of ArrayTypes until we reach a point where they are both
-  // no longer arraytypes, or only one of them is.
-  // Returns it's argument or the unwrapped types. 
-  // Never returns nullptr.
-  std::pair<TypeBase*, TypeBase*>
-  recursivelyUnwrapArrayTypes(TypeBase* a, TypeBase* b) {
-    assert(a && b);
-    auto* tmpA = a->unwrapIfArray();
-    auto* tmpB = b->unwrapIfArray();
-    // Unwrapping was performed, assign and continue.
-    if (tmpA && tmpB)
-      return recursivelyUnwrapArrayTypes(tmpA, tmpB);
-    // No unwrapping done, return.
-    return { a, b };
-  }
 
   // Performs the pre-unifications tasks.
   // Returns true if unification can go on, false if it should
@@ -97,7 +82,7 @@ namespace {
     TypeBase* arrA = a.getAs<ArrayType>();
     TypeBase* arrB = b.getAs<ArrayType>();
     if (arrA && arrB) {
-      std::tie(arrA, arrB) = recursivelyUnwrapArrayTypes(arrA, arrB);
+      std::tie(arrA, arrB) = Sema::unwrapArrays({ arrA, arrB });
       a = arrA;
       b = arrB;
       return performPreUnificationTasks(a, b);
@@ -114,7 +99,7 @@ namespace {
     // u means unwrapped
     TypeBase* uSub = nullptr;
     TypeBase* uCand = nullptr;
-    std::tie(uSub, uCand) = recursivelyUnwrapArrayTypes(sub, candidate);
+    std::tie(uSub, uCand) = Sema::unwrapArrays({ sub, candidate });
     if (TypeBase* greatest = Sema::getHighestRankingType(uSub, uCand).getPtr()) {
       // If the candidate is the "highest ranked type" of both types,
       // replace cons' sub with the candidate
@@ -252,7 +237,7 @@ Type Sema::getHighestRankingType(Type a, Type b, bool ignoreLValues, bool unwrap
   }
 
   if (unwrapTypes) {
-    std::tie(a, b) = recursivelyUnwrapArrayTypes(a.getPtr(), b.getPtr());
+    std::tie(a, b) = Sema::unwrapArrays({ a.getPtr(), b.getPtr() });
     assert(a && b && "Types are null after unwrapping?");
     assert(!a.is<ArrayType>() && !b.is<ArrayType>() 
       && "Arrays should have been unwrapped!");
@@ -313,4 +298,17 @@ TypeBase* Sema::deref(TypeBase* type) {
     return sub ? deref(sub) : type;
   }
   return type;
+}
+
+std::pair<TypeBase*, TypeBase*> 
+Sema::unwrapArrays(std::pair<TypeBase*, TypeBase*> pair) {
+  assert(pair.first && pair.second && 
+    "args cannot be null");
+  auto* a = pair.first->unwrapIfArray();
+  auto* b = pair.second->unwrapIfArray();
+  // Unwrapping was performed, assign and continue.
+  if (a && b)
+    return unwrapArrays({ a, b });
+  // No unwrapping done, return.
+  return pair;
 }

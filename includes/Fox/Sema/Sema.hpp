@@ -79,6 +79,10 @@ namespace fox {
       // either a CellType with no sub or something that isn't a SemaType.
       static TypeBase* deref(TypeBase* type);
 
+      // Removes the same number of ArrayType layers on 2 types
+      static std::pair<TypeBase*, TypeBase*>
+      unwrapArrays(std::pair<TypeBase*, TypeBase*> pair);
+
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();
 
