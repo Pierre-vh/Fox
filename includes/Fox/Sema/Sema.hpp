@@ -59,9 +59,12 @@ namespace fox {
         // If they are equal, return it's first argument
         // Returns nullptr otherwise.
       // if unwrapTypes is set to true, types are unwrapped together.
-      //    e.g. [int] & [int] is unwrapped to int & int but [[int]] & [int] is unwrapped to [int] & int
-      // if ignoreLValues is set to true, lvalues are ignored prior to comparison.
-      static Type getHighestRankingType(Type a, Type b, bool ignoreLValues = false, bool unwrapTypes = false);
+      //    e.g. [int] & [int] is unwrapped to 
+      //          int & int but [[int]] & [int] is unwrapped to [int] & int
+      // if ignoreLValues is set to true, lvalues are ignored prior to 
+      // comparison.
+      static Type getHighestRankingType(Type a, Type b, 
+        bool ignoreLValues = false, bool unwrapTypes = false);
 
       // This method returns the integral rank that a given type has.
       // type must not be null and must point to a arithmetic type.
