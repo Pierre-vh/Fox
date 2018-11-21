@@ -77,24 +77,6 @@ namespace {
       return false;
     return true;
   }
-
-  // Tries to adjust the CellType's type 
-  // to be equal or better than the candidate.
-  void tryAdjustCellType(CellType* cell, TypeBase* candidate) {
-    assert(cell && candidate);
-    auto* sub = cell->getSubstitution();
-
-    // u means unwrapped
-    TypeBase* uSub = nullptr;
-    TypeBase* uCand = nullptr;
-    std::tie(uSub, uCand) = Sema::unwrapArrays({ sub, candidate });
-    if (TypeBase* greatest = Sema::getHighestRankingType(uSub, uCand).getPtr()) {
-      // If the candidate is the "highest ranked type" of both types,
-      // replace cons' sub with the candidate
-      if (greatest == uCand)
-        cell->setSubstitution(candidate);
-    }
-  }
 }  // anonymous namespace
 
 bool Sema::unify(Type a, Type b) {
