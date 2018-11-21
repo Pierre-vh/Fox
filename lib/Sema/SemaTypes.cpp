@@ -185,13 +185,14 @@ bool Sema::isIntegral(Type type) {
   return false;
 }
 
-Type Sema::getHighestRankingType(Type a, Type b, bool ignoreLValues, bool unwrapTypes) {
+Type Sema::getHighestRankingType(Type a, Type b, bool unwrap) {
   // Backup the original type before we do anything with them.
   Type ogA = a, ogB = b;
 
   assert(a && b && "Pointers cannot be null");
 
-  std::tie(a, b) = Sema::unwrapAll({ a.getPtr(), b.getPtr() });
+  if(unwrap)
+    std::tie(a, b) = Sema::unwrapAll({ a.getPtr(), b.getPtr() });
 
   if (a == b)
     return ogA;

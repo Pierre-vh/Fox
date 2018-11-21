@@ -342,9 +342,7 @@ namespace {
           Type highestRanking =
             Sema::getHighestRankingType(
               Sema::deref(elemTy.getPtr()),
-              Sema::deref(boundTy.getPtr()),
-              /*ignoreLValues*/ true,
-              /*unwrapTypes*/ true);
+              Sema::deref(boundTy.getPtr()));
           assert(highestRanking
             && "Unification was successful but getHighestRankingType failed?");
           boundTy = highestRanking;
