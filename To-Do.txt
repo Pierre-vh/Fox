@@ -78,10 +78,11 @@ To-Do:
   > Fix Array Literal Inference (Done)
   > Add DiagnosticVerifier (Done)
   > Sema: Replacing ConstrainedType with CellType (Done)
+  > Create better unwrapping functions to effectively unwrap types (Done)
 
-  > Create better unwrapping functions to effectively unwrap types (Next)
+  > Code review in Sema
 
-  > Create a better Logger tool for Semantic Analysis (replace macros)
+  > Create/Find a better Logger tool for Semantic Analysis
     > It needs to indent based on the "stack frame", so it'll require RAII objects.
     > If possible, it should be entirely disabled in Release mode and have a nearly zero cost on perf
 
