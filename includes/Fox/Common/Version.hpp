@@ -20,14 +20,20 @@
 #define MOONSHOT_DEV_PHASE "inDev"  
 
 // Description of each "development" phase
-  // inDev : Nothing is complete/working as intended  (Make it work)
-  // Alpha : The interpreter is working and can run basic Fox code. This phase is mostly improving the existing code :
-  //       Writing more tests, Refactoring, DRYing, etc. At the end of this phase, the code should be clean and pleasant to read. (Make it right)
-  // Beta  : Optimization-oriented development phase. This include refactoring/rewriting slow code, profiling, etc (Make it fast)  
-  //      
-  // Release : The interpreter is considered good enough to be usable by other people. It's decently fast, nice to work with. Patches in a release version are mostly
-  //       tweaking/bugfixes.
+// inDev: Nothing is complete/working as intended  (Make it work)
+// Alpha: The interpreter is working and can run basic Fox code. 
+//       This phase is mostly improving the existing code :
+//       Writing more tests, Refactoring, DRYing, etc. 
+//       At the end of this phase, the code should be
+//       clean and pleasant to read. (Make it right)
+// Beta: Optimization-oriented development phase. 
+//       This include refactoring/rewriting slow code, 
+//       profiling, etc (Make it fast)  
+//      
+// Release: The interpreter is considered good enough to be usable by the public
 
 
-#define MOONSHOT_VERSION MOONSHOT_UTIL_TOSTR(MOONSHOT_VER_MAJOR) "." MOONSHOT_UTIL_TOSTR(MOONSHOT_VER_MINOR) "." MOONSHOT_UTIL_TOSTR(MOONSHOT_VER_PATCH)
+#define MOONSHOT_VERSION MOONSHOT_UTIL_TOSTR(MOONSHOT_VER_MAJOR) \
+ "." MOONSHOT_UTIL_TOSTR(MOONSHOT_VER_MINOR) "."\
+ MOONSHOT_UTIL_TOSTR(MOONSHOT_VER_PATCH)
 #define MOONSHOT_VERSION_COMPLETE MOONSHOT_VERSION " (" MOONSHOT_DEV_PHASE ")"
