@@ -1,0 +1,5 @@
+Sema:
+  > Basic type:
+   A type that can't be unwrapped any further. Currently, only ErrorTypes & PrimitiveTypes are basic.
+  > Primitive Type:
+    int, float, bool, string, char, void
