@@ -191,17 +191,7 @@ Type Sema::getHighestRankingType(Type a, Type b, bool ignoreLValues, bool unwrap
 
   assert(a && b && "Pointers cannot be null");
 
-  if (ignoreLValues) {
-    a = a->ignoreLValue();
-    b = b->ignoreLValue();
-  }
-
-  if (unwrapTypes) {
-    std::tie(a, b) = Sema::unwrapArrays({ a.getPtr(), b.getPtr() });
-    assert(a && b && "Types are null after unwrapping?");
-    assert(!a.is<ArrayType>() && !b.is<ArrayType>() 
-      && "Arrays should have been unwrapped!");
-  }
+  std::tie(a, b) = Sema::unwrapAll({ a.getPtr(), b.getPtr() });
 
   if (a == b)
     return ogA;
