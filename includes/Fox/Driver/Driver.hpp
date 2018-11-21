@@ -10,10 +10,12 @@
 // to compile it, emitting informations to a user-defined ostream.
 //----------------------------------------------------------------------------//
 
-#include <string>
 #include <ostream>
 #include <chrono>
 #include "Fox/Common/string_view.hpp"
+#include "Fox/AST/ASTContext.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Common/Source.hpp"
 
 namespace fox {
   class Driver {
@@ -28,14 +30,18 @@ namespace fox {
       };
 
     private:
+      // Driver-specific attributes
       VerifyMode verify_ = VerifyMode::Disabled;
       bool chrono_ = false;
       bool dumpAlloc_ = false;
       bool dumpAST_ = false;
       bool mute_ = false;
       std::ostream& os_;
-
+      
     public:
+      SourceManager srcMgr;
+      DiagnosticEngine diags;
+      ASTContext ctxt;
 
       Driver(std::ostream& os);
       bool processFile(const std::string& filepath);

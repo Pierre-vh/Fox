@@ -14,19 +14,13 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/DiagnosticVerifier.hpp"
-#include <iostream>
-#include <chrono>
 #include <fstream>
 
 using namespace fox;
 
-Driver::Driver(std::ostream& os) : os_(os) {}
+Driver::Driver(std::ostream& os): os_(os), diags(srcMgr, os_) {}
 
 bool Driver::processFile(const std::string& filepath) {
-  SourceManager srcMgr;
-  DiagnosticEngine dg(std::make_unique<StreamDiagConsumer>(srcMgr, getOS()));
-  ASTContext astCtxt;
-
   // Load the file in the source manager
   auto fid = srcMgr.loadFromFile(filepath);
   if (!fid) {
@@ -37,39 +31,39 @@ bool Driver::processFile(const std::string& filepath) {
 	// Enable verify mode if needed
 	std::unique_ptr<DiagnosticVerifier> dv;
 	if (getVerifyMode() != VerifyMode::Disabled) {
-		dv = std::make_unique<DiagnosticVerifier>(dg, srcMgr);
+		dv = std::make_unique<DiagnosticVerifier>(diags, srcMgr);
 		dv->parseFile(fid);
-		dg.enableVerifyMode(dv.get());
+    diags.enableVerifyMode(dv.get());
 	}
 
 	// Do lexing
-  Lexer lex(dg, srcMgr, astCtxt);
+  Lexer lex(diags, srcMgr, ctxt);
   {
     auto chrono = createChrono("Lexing");
     lex.lexFile(fid);
   }
 
   // Stop if we had errors
-  if (dg.getErrorsCount())
+  if (diags.getErrorsCount())
     return false;
 
-  Parser psr(dg,srcMgr, astCtxt,lex.getTokenVector());
+  Parser psr(diags, srcMgr, ctxt, lex.getTokenVector());
 
   UnitDecl* unit;
   // Do parsing
   {
     auto chrono = createChrono("Parsing");
-    unit = psr.parseUnit(fid, astCtxt.identifiers.getUniqueIdentifierInfo("TestUnit"), /* is main unit */ true);
+    unit = psr.parseUnit(fid, ctxt.identifiers.getUniqueIdentifierInfo("TestUnit"), /* is main unit */ true);
   }
 
   // Stop if we had errors or if the unit is invalid
-  if (!unit || dg.getErrorsCount())
-    return (dg.getErrorsCount() == 0);
+  if (!unit || diags.getErrorsCount())
+    return (diags.getErrorsCount() == 0);
 
   // Dump alloc if needed
   if (getDumpAlloc()) {
     getOS() << "\nDumping allocator:\n";
-    astCtxt.getAllocator().dump(getOS());
+    ctxt.getAllocator().dump(getOS());
   }
 
   // Semantic analysis testing stuff
@@ -78,7 +72,7 @@ bool Driver::processFile(const std::string& filepath) {
       CompoundStmt* body = fn->getBody();
       for (auto& node : body->getNodes()) {
         if (auto* expr = node.getIf<Expr>())
-          node = Sema(astCtxt, dg).typecheckExpr(expr);
+          node = Sema(ctxt, diags).typecheckExpr(expr);
       }
     }
   }
@@ -87,7 +81,7 @@ bool Driver::processFile(const std::string& filepath) {
   if (getDumpAST()) {
     auto chrono = createChrono("AST Printing");
     getOS() << "\nAST Dump:\n";
-    ASTDumper(srcMgr, std::cout, 1).visit(astCtxt.getMainUnit());
+    ASTDumper(srcMgr, getOS(), 1).visit(ctxt.getMainUnit());
   }
 
   // (Verify mode) Check that all diags were emitted if we're
@@ -100,10 +94,10 @@ bool Driver::processFile(const std::string& filepath) {
   // Release the memory
   {
     auto chrono = createChrono("Release");
-    astCtxt.reset();
+    ctxt.reset();
   }
 
-  return (dg.getErrorsCount() == 0);
+  return (diags.getErrorsCount() == 0);
 }
 
 bool Driver::getPrintChrono() const {
@@ -146,7 +140,7 @@ std::ostream& Driver::getOS() {
   return os_;
 }
 
-bool Driver::doCL(int argc, char * argv[]) {
+bool Driver::doCL(int argc, char* argv[]) {
   // Must have 2 args, first is executable path, second should
   // be filepath => argc must be >= 2
   if (argc < 2) {
@@ -163,6 +157,8 @@ bool Driver::doCL(int argc, char * argv[]) {
       setVerifyMode(VerifyMode::Normal);
     else if (str == "-verify-soft")
       setVerifyMode(VerifyMode::Soft);
+    else if (str == "-werr")
+      diags.setWarningsAreErrors(true);
     else if (str == "-dump_ast")
       setDumpAST(true);
     else if (str == "-dump_alloc")
