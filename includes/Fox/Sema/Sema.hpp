@@ -22,6 +22,7 @@ namespace fox {
       Sema(ASTContext& ctxt, DiagnosticEngine& diags);
 
       // Typedefs
+      using TypeBasePair = std::pair<TypeBase*, TypeBase*>;
       using IntegralRankTy = std::uint8_t;
 
       // Typechecks an expression. Returns the
@@ -75,8 +76,12 @@ namespace fox {
       static TypeBase* deref(TypeBase* type);
 
       // Removes the same number of ArrayType layers on 2 types
-      static std::pair<TypeBase*, TypeBase*>
-      unwrapArrays(std::pair<TypeBase*, TypeBase*> pair);
+      static TypeBasePair unwrapArrays(TypeBasePair pair);
+
+      // Removes all layers of LValue, CellType and ArrayType 
+      // until this reaches a point where one (or both) of the
+      // types become "basic"
+      static TypeBasePair unwrapAll(TypeBasePair pair);
 
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();

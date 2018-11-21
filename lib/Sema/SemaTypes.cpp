@@ -290,8 +290,7 @@ TypeBase* Sema::deref(TypeBase* type) {
   return type;
 }
 
-std::pair<TypeBase*, TypeBase*> 
-Sema::unwrapArrays(std::pair<TypeBase*, TypeBase*> pair) {
+Sema::TypeBasePair Sema::unwrapArrays(TypeBasePair pair) {
   assert(pair.first && pair.second && 
     "args cannot be null");
   auto* a = pair.first->unwrapIfArray();
@@ -301,4 +300,21 @@ Sema::unwrapArrays(std::pair<TypeBase*, TypeBase*> pair) {
     return unwrapArrays({ a, b });
   // No unwrapping done, return.
   return pair;
+}
+
+Sema::TypeBasePair Sema::unwrapAll(TypeBasePair pair) {
+  auto tmp = pair;
+  // Ignore LValues
+  tmp.first = pair.first->ignoreLValue();
+  tmp.second = pair.second->ignoreLValue();
+  // Deref both
+  tmp.first = Sema::deref(tmp.first);
+  tmp.second = Sema::deref(tmp.second);
+  // Unwrap arrays
+  tmp = unwrapArrays(tmp);
+  // If both changed, recurse.
+  if ((tmp.first != pair.first) 
+      && (tmp.second != pair.second))
+    return unwrapAll(tmp);
+  return tmp;
 }
