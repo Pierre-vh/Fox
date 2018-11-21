@@ -115,7 +115,7 @@ bool Sema::unify(Type a, Type b) {
         if (aCellSub != bCellSub) {
           // If they're different, adjust both substitution to the highest
           // ranked type.
-          TypeBase* highest = getHighestRankingType(aCellSub, bCellSub).getPtr();
+          TypeBase* highest = getHighestRankedTy(aCellSub, bCellSub).getPtr();
           assert(highest); // Should have one since unification was successful
           aCell->setSubstitution(highest);
           bCell->setSubstitution(highest);
@@ -185,7 +185,7 @@ bool Sema::isIntegral(Type type) {
   return false;
 }
 
-Type Sema::getHighestRankingType(Type a, Type b, bool unwrap) {
+Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
   // Backup the original type before we do anything with them.
   Type ogA = a, ogB = b;
 

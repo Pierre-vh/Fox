@@ -56,7 +56,7 @@ namespace fox {
       //          int & int but [[int]] & [int] is unwrapped to [int] & int
       // if ignoreLValues is set to true, lvalues are ignored prior to 
       // comparison.
-      static Type getHighestRankingType(Type a, Type b, bool unwrap = true);
+      static Type getHighestRankedTy(Type a, Type b, bool unwrap = true);
 
       // This method returns the integral rank that a given type has.
       // type must not be null and must point to a arithmetic type.

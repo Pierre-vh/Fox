@@ -340,11 +340,11 @@ namespace {
 
           // Get the highest ranking type of elemTy and boundTy
           Type highestRanking =
-            Sema::getHighestRankingType(
+            Sema::getHighestRankedTy(
               Sema::deref(elemTy.getPtr()),
               Sema::deref(boundTy.getPtr()));
           assert(highestRanking
-            && "Unification was successful but getHighestRankingType failed?");
+            && "Unification was successful but getHighestRankedTy failed?");
           boundTy = highestRanking;
         }
         Type proper;
