@@ -339,10 +339,7 @@ namespace {
             return diagnose_hetero(elem); // Failed to unify, incompatible types
 
           // Get the highest ranking type of elemTy and boundTy
-          Type highestRanking =
-            Sema::getHighestRankedTy(
-              Sema::deref(elemTy.getPtr()),
-              Sema::deref(boundTy.getPtr()));
+          Type highestRanking = Sema::getHighestRankedTy(elemTy, boundTy);
           assert(highestRanking
             && "Unification was successful but getHighestRankedTy failed?");
           boundTy = highestRanking;
