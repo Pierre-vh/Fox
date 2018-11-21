@@ -79,26 +79,15 @@ To-Do:
   > Add DiagnosticVerifier (Done)
   > Sema: Replacing ConstrainedType with CellType (Done)
   > Create better unwrapping functions to effectively unwrap types (Done)
+  > Adding -werr for LIT tests (Done)
 
   > Code review in Sema
-
-  > Create/Find a better Logger tool for Semantic Analysis
-    > It needs to indent based on the "stack frame", so it'll require RAII objects.
-    > If possible, it should be entirely disabled in Release mode and have a nearly zero cost on perf
-
-  > For LIT tests, make warnings errors.
-    > Add CL option for it
+  > Work on Sema
   
   > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
     or should parseStmt handle it?
     > Also, for parseQualType, who should emit the errors? The caller or the callee? No both! Make
       a decision and stick to it.
-
-  > Write a Verify mode/testing tool and test current semantics
-  > Finish basic expr semantic analysis
-
-  > Code review in SemaType/SemaExpr & Write tests using new FTT tool
-
 
 Order of semantic analysis
   > Stmt Semantic Analysis
