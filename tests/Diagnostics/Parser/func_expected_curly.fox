@@ -1,4 +1,4 @@
-// RUN: %fox %s -verify
+// RUN: %fox %s -verify -werr
 
 func foo():int // expect-error: Expected '{'
 func foo() // expect-error: Expected '{'

@@ -1,4 +1,5 @@
-// RUN: %fox %s -verify
+// RUN: %fox %s -verify -werr
 
-// expect-warning@+1: Ignored reference qualifier '&' in variable declaration : Variables cannot be references
+// Since warnings are errors, the "ignored reference qualifier" warning will be emitted as an error.
+// expect-error@+1: Ignored reference qualifier '&' in variable declaration : Variables cannot be references
 let foo: &int; 

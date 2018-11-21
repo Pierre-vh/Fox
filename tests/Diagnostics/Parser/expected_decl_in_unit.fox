@@ -1,2 +1,2 @@
-// RUN: %fox %s -verify
+// RUN: %fox %s -verify -werr
 // expect-error@-1: Expected one or more declaration in unit
