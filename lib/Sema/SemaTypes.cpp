@@ -69,24 +69,12 @@ namespace {
   bool performPreUnificationTasks(Type& a, Type& b) {
     assert(a && b && "Pointers cannot be nullptr");
 
-    // ignore LValues, they don't matter when
-    // unifying as they are never propagated.
-    a = a->ignoreLValue();
-    b = b->ignoreLValue();
+    // Unwrap all
+    std::tie(a, b) = Sema::unwrapAll({ a.getPtr(), b.getPtr() });
 
     // If we have error types, unification is impossible.
     if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr()))
       return false;
-
-    // Unwrap if both are arrays
-    TypeBase* arrA = a.getAs<ArrayType>();
-    TypeBase* arrB = b.getAs<ArrayType>();
-    if (arrA && arrB) {
-      std::tie(arrA, arrB) = Sema::unwrapArrays({ arrA, arrB });
-      a = arrA;
-      b = arrB;
-      return performPreUnificationTasks(a, b);
-    }
     return true;
   }
 
