@@ -25,7 +25,7 @@ namespace fox {
       // Logging Functions //
 
       // Traditional logging, works just like std::cout
-      LogPrinter& operator()(std::int8_t indent = 0);
+      LogPrinter& operator()();
 
       std::ostream& getOS();
       void setOS(std::ostream& os);

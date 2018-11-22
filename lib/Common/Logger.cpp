@@ -19,9 +19,8 @@ Logger::Logger(std::ostream& os) : outRW_(os), printer_(this) {
   #endif
 }
 
-Logger::LogPrinter& Logger::operator()(std::int8_t indent) {
-  // Add the indent
-  printer_ << getIndent(indent);
+Logger::LogPrinter& Logger::operator()() {
+  printer_ << getIndent();
   return printer_;
 }
 
