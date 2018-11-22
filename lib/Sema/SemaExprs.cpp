@@ -261,14 +261,12 @@ namespace {
       // Array literals
       // To deduce the type of an Array literal:
       // if size > 0
-      //    Create a "proposed" type. For the first
-      //    iteration of the loop, set proposed to elemTy and continue,
-      //    After, unify the elemTy with the proposed, if rank(deferIf(elemTy)) > rank(deferIf(proposed)) -> proposed = elemTy.
+      //    see deduceTypeOfArrayLiteral
       // else
       //    Type needs inference
       Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr) {
         if (expr->getSize() > 0) {
-          Type deduced = deduceTypeOfNonEmptyArrayLiteral(expr);
+          Type deduced = deduceTypeOfArrayLiteral(expr);
           assert(deduced && "The function cannot return a null ptr");
           expr->setType(deduced.getPtr());
           return expr;
@@ -282,7 +280,7 @@ namespace {
 
       // Helper for the above function that deduces the type of a non empty Array literal
       // Returns the type of the literal, doesn't set it's type by itself.
-      Type deduceTypeOfNonEmptyArrayLiteral(ArrayLiteralExpr* expr) {
+      Type deduceTypeOfArrayLiteral(ArrayLiteralExpr* expr) {
         assert(expr->getSize() && "Size must be >0");
 
         // Diagnoses a heterogenous array literal.
