@@ -93,6 +93,19 @@ namespace fox {
       };
 
     private:
+      template<typename Ty, typename ... Args>
+      void printArg(Ty&& arg, Args&& ... args) {
+        getOS() << arg << ", ";
+        printArg(std::forward<Args>(args)...);
+      }
+
+      template<typename Ty>
+      void printArg(Ty&& arg) {
+        getOS() << arg;
+      }
+
+      void printArg() {}
+
       std::string getIndent(std::int8_t additionalIndent = 0);
 
       bool enabled_ = false;
