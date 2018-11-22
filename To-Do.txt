@@ -79,10 +79,14 @@ To-Do:
   > Add DiagnosticVerifier (Done)
   > Sema: Replacing ConstrainedType with CellType (Done)
   > Create better unwrapping functions to effectively unwrap types (Done)
-  > Adding -werr for LIT tests (Done)
+  > Adding -werr for LIT test suite (Done)
 
-  > Code review in Sema
-  > Work on Sema
+  > Work on Sema (Next)
+
+  > Logger work:
+    > Maybe use macros for the "func guards", so the object isn't generated if debug mode isn't
+      active? Or is that premature optimization?
+
   
   > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
     or should parseStmt handle it?
