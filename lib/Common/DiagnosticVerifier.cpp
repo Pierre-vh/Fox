@@ -119,6 +119,23 @@ DiagnosticVerifier::getExpectedDiags() {
   return expectedDiags_;
 }
 
+bool DiagnosticVerifier::reportUnemittedDiags() {
+  if (expectedDiags_.size()) {
+    // First, emit an error of the form "X expected diags weren't emitted"
+    diags_.report(DiagID::diagverif_errorExpectedDiagsNotEmitted)
+      .addArg(expectedDiags_.size());
+    // Then, emit a note for each diag
+    for (auto& diag : expectedDiags_) {
+      diags_.report(DiagID::diagverif_diagNotEmitted, diag.file)
+        .addArg(diag.diagStr)
+        .addArg(toString(diag.severity))
+        .addArg(diag.line);
+    }
+    return true;
+  }
+  return false;
+}
+
 bool DiagnosticVerifier::verify(Diagnostic& diag) {
   {
     DiagID id = diag.getID();

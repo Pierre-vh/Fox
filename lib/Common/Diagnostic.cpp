@@ -7,29 +7,32 @@
 
 #include "Fox/Common/Diagnostic.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-#include <cassert>
+#include "Fox/Common/Errors.hpp"
 
 using namespace fox;
 
-std::ostream& fox::operator<<(std::ostream& os, DiagSeverity sev) {
+std::string fox::toString(DiagSeverity sev, bool allCaps) {
   using DS = DiagSeverity;
   switch (sev) {
     case DS::IGNORE:
-      os << "IGNORE";
-      break;
+      return allCaps ? "IGNORE" : "Ignore";
     case DS::NOTE:
-      os << "NOTE";
-      break;
+      return allCaps ? "NOTE" : "Note";
     case DS::WARNING:
-      os << "WARNING";
-      break;
+      return allCaps ? "WARNING" : "Warning";
     case DS::ERROR:
-      os << "ERROR";
-      break;
+      return allCaps ? "ERROR" : "Error";
     case DS::FATAL:
-      os << "FATAL";
-      break;
+      return allCaps ? "FATAL" : "Fatal";
+    default:
+      fox_unreachable("all cases handled");
   }
+}
+
+std::ostream& fox::operator<<(std::ostream& os, DiagSeverity sev) {
+  // Print the output in all caps as this operator is mostly used for 
+  // debugging purposes and won't care about user friendliness.
+  os << toString(sev, /* all caps */ true);
   return os;
 }
 

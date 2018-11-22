@@ -18,7 +18,6 @@
 #include <cstdint>
 #include <list>
 #include "llvm/ADT/PointerIntPair.h"
-#include "Constraints.hpp"
 #include "ASTAligns.hpp"
 
 namespace fox {
@@ -190,33 +189,11 @@ namespace fox {
       ErrorType();
   };
 
-  // ConstrainedType
-  //    A type which couldn't be "decided" and is waiting to
-  //    be unified. The proposed type which will "substitute" 
-  //    this ConstrainedType MUST satisfy every constraint.
-  //
-  //    This class contains a vector of constraints, a pointer
-  //    to a potential substitution and a "up to date" marker for
-  //    the substitution. The latter is set to false if we add another
-  //    constraint, and set back to true if we call setSubstitution().
-  //    Outdated ConstraintedTypes should be checked again to ensure the
-  //    substitution is still okay.
-  //
-  //    Theses types are allocated in the ConstraintAllocator of the ASTContext,
-  //    like Constraints themselves.
-  //
-  //    As opposed to other types, this type is not unique, and
-  //    one is generated for every expression that needs one. 
-  //    On the other hand, the constraints are immutable and you can't
-  //    remove a constraint once it's added to this type.
-  //
-  //    Example:
-  //      Empty array literals '[]' generate a ConstrainedType 
-  //      containing a single "ArrayCS"
-  class ConstrainedType : public TypeBase {
+  // CellType
+  class CellType : public TypeBase {
     public:
-      // Creates a new instance of the ConstrainedType class
-      static ConstrainedType* create(ASTContext& ctxt);
+      // Creates a new instance of the CellType class
+      static CellType* create(ASTContext& ctxt);
 
       TypeBase* getSubstitution();
       const TypeBase* getSubstitution() const;
@@ -225,47 +202,23 @@ namespace fox {
       // (type isn't null)
       bool hasSubstitution() const;
 
-      void setSubstitution(TypeBase* subst);
+      void setSubstitution(TypeBase* type);
 
-      // Returns true if the substitution is outdated, then it should
-      // be checked again. A substitution becomes outdated iff
-      // we add another constraint. It's updated
-      // when you call setSubstitution.
-      // If there is no substitution, returns true.
-      bool isSubstitutionOutdated() const;
-
-      void resetSubstitution();
-
-      ConstraintList::iterator cs_begin();
-      ConstraintList::const_iterator cs_begin() const;
-
-      ConstraintList::iterator cs_end();
-      ConstraintList::const_iterator cs_end() const;
-
-      ConstraintList& getConstraints();
-
-      std::size_t numConstraints() const;
-      void addConstraint(Constraint* cs);
+      void reset();
 
       static bool classof(const TypeBase* type) {
-        return (type->getKind() == TypeKind::ConstrainedType);
+        return (type->getKind() == TypeKind::CellType);
       }
 
     private:
       // Private because only called by ::create
-      ConstrainedType();
+      CellType();
 
-      // Override the new operator to use the ConstraintAllocator in the
-      // ASTContext to allocate ConstrainedTypes.
+      // Override the new operator to use the SemaAllocator in the
+      // ASTContext to allocate CellTypes.
       void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(TypeBase));
 
-      void markAsUpToDate();
-      void markAsOutdated();
-
-      ConstraintList constraints_;
-      // Pointer + "up to date" marker. If the int is 1,
-      // the pointer is up to date, 0 if it isnt.
-      llvm::PointerIntPair<TypeBase*, 1> subst_;
+      TypeBase* type_ = nullptr;
   };
 
 }

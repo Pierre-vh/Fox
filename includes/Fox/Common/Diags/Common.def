@@ -31,9 +31,13 @@ ERROR(diagverif_illFormedOffset,
       "followed by a single digit between 1 and 9")
 ERROR(diagverif_offsetIsZero, 
       "Offset value must be between 1-9")
+ERROR(diagverif_errorExpectedDiagsNotEmitted,
+      "%0 diagnostics were expected but not emitted")
+NOTE(diagverif_diagNotEmitted,
+      "Diagnostic \"%0\" (%1) was expected at line %2 but not emitted")
 
 DIAG_RANGE(DiagnosticVerifier, 
-  diagverif_expectedsuffix, diagverif_offsetIsZero)
+  diagverif_expectedsuffix, diagverif_diagNotEmitted)
 
 // DiagnosticEngine self Diagnostics
 FATAL(diagengine_maxErrCountExceeded, 

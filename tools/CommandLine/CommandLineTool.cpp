@@ -5,7 +5,6 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This is the entry point of the command line tool.
-// As of April 2018, it is still extremely basic, and only meant for testing/parser demonstration purposes.
 //----------------------------------------------------------------------------//
 
 #include <iostream>
@@ -30,22 +29,38 @@ void setConsoleEnv() {
 
 using namespace fox;
 
-int main() {
-  setConsoleEnv();
+int interactiveMain() {
   std::cout << "Welcome to the Dumb Command Line Toy !\n\tMoonshot Version " << MOONSHOT_VERSION_COMPLETE << "\n";
   std::cout << "\tUsage : Enter a path to a fox source file, or enter * to exit.\n\n";
 
   std::string uinput = "";
+  bool res = true;
+  Driver drv(std::cout);
+  //drv.setDumpAlloc(true);
+  drv.setDumpAST(true);
+  // Test of the diagnostic verifier, this line will be removed later.
+  drv.setVerifyMode(Driver::VerifyMode::Normal);
+  //drv.setPrintChrono(true);
   while (1) {
     std::cout << "> ";
-    Driver drv;
     std::getline(std::cin, uinput);
     if (uinput == "*")
       break;
 
-    drv.processFile(std::cout, uinput);
+    res &= drv.processFile(uinput);
   }
   std::cout << "\n\nFinished. Press any key to continue.\n";
   std::cin.get();
-  return 0;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int cliMain(int argc, char *argv[]) {
+  return Driver(std::cout).doCL(argc, argv) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int main(int argc, char *argv[]) {
+  setConsoleEnv();
+  if (argc > 1) 
+    return cliMain(argc, argv);
+  return interactiveMain();
 }

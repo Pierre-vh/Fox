@@ -14,88 +14,162 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/DiagnosticVerifier.hpp"
-#include <iostream>
-#include <chrono>
 #include <fstream>
 
 using namespace fox;
 
-bool Driver::processFile(std::ostream& out, const std::string& filepath) {
-  SourceManager srcMgr;
-  DiagnosticEngine dg(srcMgr);
-  // Create a ASTContext
-  ASTContext astCtxt;
+Driver::Driver(std::ostream& os): os_(os), diags(srcMgr, os_) {}
 
+bool Driver::processFile(const std::string& filepath) {
+  // Load the file in the source manager
   auto fid = srcMgr.loadFromFile(filepath);
   if (!fid) {
-    out << "Could not open file \"" << filepath << "\"\n";
+    getOS() << "Could not open file \"" << filepath << "\"\n";
     return false;
   }
 
-  // TESTING CODE FOR THE DIAGNOSTIC VERIFIER
-  auto dv = std::make_unique<DiagnosticVerifier>(dg, srcMgr);
-  dv->parseFile(fid);
-  dg.enableVerifyMode(dv.get());
+	// Enable verify mode if needed
+	std::unique_ptr<DiagnosticVerifier> dv;
+	if (getVerifyMode() != VerifyMode::Disabled) {
+		dv = std::make_unique<DiagnosticVerifier>(diags, srcMgr);
+		dv->parseFile(fid);
+    diags.enableVerifyMode(dv.get());
+	}
 
-  auto t0 = std::chrono::high_resolution_clock::now();
-
-  Lexer lex(dg, srcMgr, astCtxt);
-  lex.lexFile(fid);
-
-  auto t1 = std::chrono::high_resolution_clock::now();
-  auto lex_micro = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count();
-  auto lex_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
-
-  if (dg.getErrorsCount()) {
-    out << "Failed at lexing\n";
-    return false;
+	// Do lexing
+  Lexer lex(diags, srcMgr, ctxt);
+  {
+    auto chrono = createChrono("Lexing");
+    lex.lexFile(fid);
   }
 
-  Parser psr(dg,srcMgr, astCtxt,lex.getTokenVector());
-  // Todo: extract the name of the file and use that instead of "TestUnit"
-  auto unit = psr.parseUnit(fid, astCtxt.identifiers.getUniqueIdentifierInfo("TestUnit"), /* is main unit */ true);
-
-  if (!unit) {
-    out << "Failed at parsing.\n";
+  // Stop if we had errors
+  if (diags.getErrorsCount())
     return false;
+
+  Parser psr(diags, srcMgr, ctxt, lex.getTokenVector());
+
+  UnitDecl* unit;
+  // Do parsing
+  {
+    auto chrono = createChrono("Parsing");
+    unit = psr.parseUnit(fid, ctxt.identifiers.getUniqueIdentifierInfo("TestUnit"), /* is main unit */ true);
   }
 
-  out << "\nSuccess ! Dumping allocator:\n";
-  astCtxt.getAllocator().dump(out);
-  out << "\nDumping main unit:\n";
+  // Stop if we had errors or if the unit is invalid
+  if (!unit || diags.getErrorsCount())
+    return (diags.getErrorsCount() == 0);
 
-  auto t2 = std::chrono::high_resolution_clock::now();
-  auto parse_micro = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-  auto parse_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-  
-  ASTDumper(srcMgr, std::cout, 1).visit(astCtxt.getMainUnit());
+  // Dump alloc if needed
+  if (getDumpAlloc()) {
+    getOS() << "\nDumping allocator:\n";
+    ctxt.getAllocator().dump(getOS());
+  }
 
-  auto t3 = std::chrono::high_resolution_clock::now();
-  auto dump_micro = std::chrono::duration_cast<std::chrono::microseconds>(t3 - t2).count();
-  auto dump_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count();
-
-  // Semantic analysis testing stuff, don't look
+  // Semantic analysis testing stuff
   for (auto& decl : unit->getDecls()) {
     if (FuncDecl* fn = dyn_cast<FuncDecl>(decl)) {
       CompoundStmt* body = fn->getBody();
       for (auto& node : body->getNodes()) {
         if (auto* expr = node.getIf<Expr>())
-          node = Sema(astCtxt, dg).typecheckExpr(expr);
+          node = Sema(ctxt, diags).typecheckExpr(expr);
       }
     }
   }
-  std::cout << "Post typechecking visit \n\n\n";
-  ASTDumper(srcMgr, std::cout, 1).visit(unit);
 
-  astCtxt.reset();
+  // Dump AST if needed
+  if (getDumpAST()) {
+    auto chrono = createChrono("AST Printing");
+    getOS() << "\nAST Dump:\n";
+    ASTDumper(srcMgr, getOS(), 1).visit(ctxt.getMainUnit());
+  }
 
-  auto t4 = std::chrono::high_resolution_clock::now();
-  auto release_micro = std::chrono::duration_cast<std::chrono::microseconds>(t4 - t3).count();
-  auto release_milli = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3).count();
+  // (Verify mode) Check that all diags were emitted if we're
+  // in verify-strict mode.
+  if (getVerifyMode() == VerifyMode::Normal) {
+    assert(dv && "DiagnosticVerifier is null in Strict mode");
+    dv->reportUnemittedDiags();
+  }
 
-  out << "\nLexing time :\n\t" << lex_micro << " microseconds\n\t" << lex_milli << " milliseconds\n";
-  out << "\nParsing time :\n\t" << parse_micro << " microseconds\n\t" << parse_milli << " milliseconds\n";
-  out << "\nAST dump time :\n\t" << dump_micro << " microseconds\n\t" << dump_milli << " milliseconds\n";
-  out << "\nAST release time :\n\t" << release_micro << " microseconds\n\t" << release_milli << " milliseconds\n";
-  return true;
+  // Release the memory
+  {
+    auto chrono = createChrono("Release");
+    ctxt.reset();
+  }
+
+  return (diags.getErrorsCount() == 0);
+}
+
+bool Driver::getPrintChrono() const {
+  return chrono_;
+}
+
+void Driver::setPrintChrono(bool val) {
+  chrono_ = val;
+}
+
+Driver::VerifyMode Driver::getVerifyMode() const {
+  return verify_;
+}
+
+void Driver::setVerifyMode(VerifyMode val) {
+  verify_ = val;
+}
+
+bool Driver::getDumpAlloc() const {
+  return dumpAlloc_;
+}
+
+void Driver::setDumpAlloc(bool val) {
+  dumpAlloc_ = val;
+}
+
+bool Driver::getDumpAST() const {
+  return dumpAST_;
+}
+
+void Driver::setDumpAST(bool val) {
+  dumpAST_ = val;
+}
+
+Driver::RAIIChrono Driver::createChrono(string_view label) {
+  return RAIIChrono(*this, label);
+}
+
+std::ostream& Driver::getOS() {
+  return os_;
+}
+
+bool Driver::doCL(int argc, char* argv[]) {
+  // Must have 2 args, first is executable path, second should
+  // be filepath => argc must be >= 2
+  if (argc < 2) {
+    getOS() << "Not enough args\n";
+    return false;
+  }
+
+  // Get file path
+  std::string filepath = argv[1];
+
+  for(int idx = 2; idx < argc; ++idx) {
+    string_view str(argv[idx]);
+    if (str == "-verify")
+      setVerifyMode(VerifyMode::Normal);
+    else if (str == "-verify-soft")
+      setVerifyMode(VerifyMode::Soft);
+    else if (str == "-werr")
+      diags.setWarningsAreErrors(true);
+    else if (str == "-dump_ast")
+      setDumpAST(true);
+    else if (str == "-dump_alloc")
+      setDumpAlloc(true);
+    else if (str == "-print_chrono")
+      setPrintChrono(true);
+    else {
+      getOS() << "Unknown argument \"" << str << "\"\n";
+      return false;
+    }
+  }
+ 
+  return processFile(filepath);
 }

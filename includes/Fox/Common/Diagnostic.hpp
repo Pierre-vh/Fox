@@ -35,6 +35,9 @@ namespace fox {
     FATAL    
   };
 
+  // Converts a severity to a user readable string. 
+  // If allCaps is set to true, the returned value will be in all caps.
+  std::string toString(DiagSeverity sev, bool allCaps = false);
   std::ostream& operator<<(std::ostream& os, DiagSeverity sev);
 
   class Diagnostic {

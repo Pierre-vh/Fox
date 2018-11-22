@@ -1,0 +1,7 @@
+// RUN: %fox %s -verify-soft
+
+// This test checks that the "soft" mode works. 
+// It is supposed to pass because in soft mode we don't check
+// that all expected diagnostics were emitted.
+
+let x : int; // expect-error: Expected a ';'

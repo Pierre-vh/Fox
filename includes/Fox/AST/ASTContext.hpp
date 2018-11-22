@@ -33,7 +33,7 @@ namespace fox {
 
       // ALLOCATOR
       LinearAllocator<>& getAllocator();
-      LinearAllocator<>& getCSAllocator();
+      LinearAllocator<>& getSemaAllocator();
 
       // Resets the ASTContext, freeing the AST and
       // everything allocated within it's allocators.
@@ -44,6 +44,7 @@ namespace fox {
 
       // The identifier table
       IdentifierTable identifiers;
+
     protected:
       friend class ArrayType;
       friend class LValueType;
@@ -89,6 +90,6 @@ namespace fox {
 
       // Allocators
       LinearAllocator<> allocator_; // Default allocator
-      LinearAllocator<> csAllocator_; // Constraint allocator
+      LinearAllocator<> semaAllocator_; // Sema allocator
   };
 }

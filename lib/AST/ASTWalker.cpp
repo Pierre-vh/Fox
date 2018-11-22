@@ -231,6 +231,32 @@ namespace {
         return stmt;
       }
 
+      bool visitPrimitiveType(PrimitiveType*) {
+        return true;
+      }
+
+      bool visitArrayType(ArrayType* type) {
+        if(auto* elem = type->getElementType())
+          return doIt(elem);
+        return true;
+      }
+
+      bool visitLValueType(LValueType* type) {
+        if (auto* ty = type->getType())
+          return doIt(ty);
+        return true;
+      }
+
+      bool visitErrorType(ErrorType*) {
+        return true;
+      }
+
+      bool visitCellType(CellType* type) {
+        if (auto* sub = type->getSubstitution())
+          return doIt(sub);
+        return true;
+      }
+
       // doIt method for expression: handles call to the walker &
       // requests visitation of the children of a given node.
       Expr* doIt(Expr* expr) {
@@ -280,12 +306,25 @@ namespace {
         if (!rtr.first || !rtr.second)
           return rtr.first;
 
-        // visit the node's childre, and if the traversal wasn't aborted,
+        // visit the node's children, and if the traversal wasn't aborted,
         // let the walker handle post visitation stuff.
         if (expr = visit(rtr.first))
           expr = walker_.handleStmtPost(expr);
 
         return expr;
+      }
+
+      // doIt method for types
+      bool doIt(TypeBase* type) {
+        // Call the walker, abort if failed.
+        if (!walker_.handleTypePre(type))
+          return false;
+
+        // Visit the children
+        if (visit(type))
+          // Call the walker (post)
+          return walker_.handleTypePost(type);
+        return false;
       }
 
       ASTNode doIt(ASTNode node) {
@@ -327,6 +366,10 @@ Stmt* ASTWalker::walk(Stmt* stmt) {
   return Traverse(*this).doIt(stmt);
 }
 
+bool ASTWalker::walk(TypeBase* type) {
+  return Traverse(*this).doIt(type);
+}
+
 std::pair<Expr*, bool> ASTWalker::handleExprPre(Expr* expr) {
   return { expr, true };
 }
@@ -349,4 +392,12 @@ std::pair<Decl*, bool> ASTWalker::handleDeclPre(Decl* decl) {
 
 Decl* ASTWalker::handleDeclPost(Decl* decl) {
   return decl;
+}
+
+bool ASTWalker::handleTypePre(TypeBase*) {
+  return true;
+}
+
+bool ASTWalker::handleTypePost(TypeBase*) {
+  return true;
 }

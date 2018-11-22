@@ -1,0 +1,14 @@
+// RUN: %fox %s -verify -werr
+
+// Test VarDecls
+let x : int // expect-error: Expected ';'
+let x : float; // No errors will be emitted here due to resync
+
+func foo() {
+  // ExprStmts
+  3+3 // expect-error: Expected ';'
+  x; // to resync
+
+  // ReturnStmt
+  return x  // expect-error: Expected ';'
+}

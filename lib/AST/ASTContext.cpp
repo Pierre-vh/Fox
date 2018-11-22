@@ -28,8 +28,8 @@ LinearAllocator<>& ASTContext::getAllocator() {
   return allocator_;
 }
 
-LinearAllocator<>& ASTContext::getCSAllocator() {
-  return csAllocator_;
+LinearAllocator<>& ASTContext::getSemaAllocator() {
+  return semaAllocator_;
 }
 
 void ASTContext::reset() {
@@ -51,9 +51,9 @@ void ASTContext::reset() {
   theArrayCS = nullptr;
 
   allocator_.reset();
-  csAllocator_.reset();
+  semaAllocator_.reset();
 }
 
 void ASTContext::freeCS() {
-  csAllocator_.reset();
+  semaAllocator_.reset();
 }

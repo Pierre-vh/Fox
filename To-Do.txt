@@ -76,18 +76,18 @@ To-Do:
   > Removing ParensExpr (Done)
   > ConstrainedType in Semantic Analysis (Done)
   > Fix Array Literal Inference (Done)
-  
   > Add DiagnosticVerifier (Done)
-    > Create proper entry points to enable/disable verify mode on a given DiagEngine (Done)
-    > Write unit tests for it (Next)
-    > Write LIT tests using it 
-    > Add cli args support to CommandLine
+  > Sema: Replacing ConstrainedType with CellType (Done)
+  > Create better unwrapping functions to effectively unwrap types (Done)
+  > Adding -werr for LIT tests (Done)
 
-  > Write a Verify mode/testing tool and test current semantics
-  > Finish basic expr semantic analysis
-
-  > Code review in SemaType/SemaExpr & Write tests using new FTT tool
-
+  > Code review in Sema
+  > Work on Sema
+  
+  > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
+    or should parseStmt handle it?
+    > Also, for parseQualType, who should emit the errors? The caller or the callee? No both! Make
+      a decision and stick to it.
 
 Order of semantic analysis
   > Stmt Semantic Analysis
@@ -101,6 +101,7 @@ Boring stuff that I must do when I have the time/motivation for it
   > Adopt a Documentation style (Doxygen) and document all the code with it
 
   > AST Serialization tool for unit tests
+
 
 Pending reworks:
   > Token class -> Currently, it's an abomination. Nuke it and re-do it.

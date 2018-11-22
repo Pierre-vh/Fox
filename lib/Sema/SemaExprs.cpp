@@ -22,10 +22,10 @@ using namespace fox;
 namespace {
   // Various helper functions
 
-  // If "type" is a ConstrainedType* with a valid substitution, returns the substitution,
+  // If "type" is a CellType* with a substitution, returns the substitution,
   // else, returns "type".
   Type defer_if(Type type) {
-    if (auto* ptr = type.getAs<ConstrainedType>()) {
+    if (auto* ptr = type.getAs<CellType>()) {
       // if the type has a substitution, return it, else
       // just return the argument.
       if (auto* sub = ptr->getSubstitution())
@@ -139,7 +139,7 @@ namespace {
         
         // For other type of casts, unification is enough to determine
         // if the cast is valid.
-        if (!getSema().unify(childTy, castGoal))
+        if (getSema().unify(childTy, castGoal.getPtr()))
           expr->setType(castGoal.withoutLoc());
         else {
           getDiags()
@@ -252,12 +252,6 @@ namespace {
         return expr;
       }
 
-      ConstrainedType* createConstrainedTypeForEmptyArrayLiteral() {
-        auto* cs = ConstrainedType::create(getCtxt());
-        cs->addConstraint(Constraint::createArrayCS(getCtxt()));
-        return cs;
-      }
-
       // Array literals
       // To deduce the type of an Array literal:
       // if size > 0
@@ -273,7 +267,7 @@ namespace {
         }
         else
           // Let type inference do it's magic 
-          expr->setType(createConstrainedTypeForEmptyArrayLiteral());
+          expr->setType(CellType::create(getCtxt()));
 
         return expr;
       }
@@ -302,103 +296,69 @@ namespace {
           return getErrorType();
         };
 
-        // The concrete type proposed by unifying the other concrete
+        // The bound type proposed by unifying the other concrete/bound
         // types inside the array.
-        Type concreteProposed;
+        Type boundTy;
 
-        // The instance of the constrained type used by elements that need
-        // to be inferred
-        Type inferType;
+        // The type used by unbounds elemTy
+        Type unboundTy;
 
         // Loop over each expression in the literal
         for (auto& elem : expr->getExprs()) {
           // Get the elemTy
-          Type& elemTy = elem->getType();
+          Type elemTy = elem->getType();
           assert(elemTy && "Type cannot be null!");
 
-          // Handle error elem type: we stop and break here 
-          // if we have one.
+          // Handle error elem type: we stop here if we have one.
           if (elemTy.is<ErrorType>())
             return getErrorType();
 
-          // If elemTy is a constrained type, apply the logic
-          // specific to constrained type inside the array literal.
-          if (elemTy.is<ConstrainedType>()) {
-            // Set inferType if it's not set
-            if (!inferType)
-              inferType = elemTy;
-
-            // If it's set, unify elemTy with the inferType
-            else if (!getSema().unify(elemTy, inferType))
+          // Special logic for unbound types
+          if (!Sema::isBound(elemTy.getPtr())) {
+            // Set unboundTy & continue for first loop
+            if (!unboundTy)
+              unboundTy = elemTy;
+            // Attempt unification
+            else if (!getSema().unify(unboundTy, elemTy))
               return diagnose_hetero(elem);
-
             continue;
           }
 
-          // From now on, we can be sure that //
-          // elemTy isn't a constrained type  //
+          // From this point, ElemTy is guaranteed to be a bound/concrete type
 
-          // First loop, set concreteProposed & continue.
-          if (!concreteProposed) {
-            concreteProposed = elemTy;
+          // First loop, set boundTy & continue.
+          if (!boundTy) {
+            boundTy = elemTy;
             continue;
           }
 
-          // Unify elemTy with the concrete proposed type.
-          if (!getSema().unify(elemTy, concreteProposed))
+          // Unify elemTy with the bound proposed type.
+          if (!getSema().unify(boundTy, elemTy))
             return diagnose_hetero(elem); // Failed to unify, incompatible types
 
-          // Get the highest ranking type of elemTy and concreteProposed
-          Type highestRanking =
-            Sema::getHighestRankingType(
-              defer_if(elemTy),
-              defer_if(concreteProposed),
-              /*ignoreLValues*/ true,
-              /*unwrapTypes*/ true);
-
-          assert(highestRanking
-            && "Unification was successful but getHighestRankingType failed?");
-          concreteProposed = highestRanking;
+          // Get the highest ranking type of elemTy and boundTy
+          boundTy = Sema::getHighestRankedTy(elemTy, boundTy);
+          assert(boundTy &&
+           "Couldn't determine the highest ranked type but unification succeeded?");
         }
-
-        // The final element type we'll use
-        Type properType;
-
-        // If we don't have a concrete type, we should
-        // at least have a inferType. 
-        if (!concreteProposed) {
-          // We should have a inferType to work with at least.
-          assert(inferType && "No concrete and no inferType?");
-          properType = inferType;
+        Type proper;
+        // Both unboundTy & boundTy
+        if (unboundTy && boundTy) {
+          // Unify them
+          if (!getSema().unify(unboundTy, boundTy))
+            return diagnose_hetero(); // FIXME: Do proper diagnosis
+          proper = boundTy; // FIXME: That or getHighestRanking?
         }
-
-        // We do have a concrete type
-        else {
-          // Handle unification with the inferType, if we have one
-          if (inferType) {
-            if (!getSema().unify(inferType, concreteProposed))
-              return diagnose_hetero();
-
-            // Unification correct, the properType shall be the highest ranked type of both 
-            // inferType and concreteProposed
-            Type highestRanking =
-              Sema::getHighestRankingType(
-                defer_if(inferType),
-                defer_if(concreteProposed),
-                /*ignoreLValues*/ true,
-                /*unwrapTypes*/ true);
-
-            assert(highestRanking 
-              && "Unification was successful but getHighestRankingType failed?");
-            properType = highestRanking;
-          }
-          // if we don't have one, the properType is simply the concreteProposed type.
-          else
-            properType = concreteProposed;
-        }
-
+        // Only boundTy OR unboundTy
+        else if (boundTy)
+          proper = boundTy;
+        else if (unboundTy)
+          proper = unboundTy;
+        else
+          fox_unreachable("Should have at least a boundTy or unboundTy set.");
+        assert(proper);
         // The type of the expr is an array of the proposed type.
-        return ArrayType::get(getCtxt(), properType.getPtr());
+        return ArrayType::get(getCtxt(), proper.getPtr());
       }
   };
 
@@ -407,7 +367,8 @@ namespace {
   // Visit methods return pointers to TypeBase. They return nullptr
   // if the finalization failed for this expr.
   // It's still a primitive, test version for now.
-  class ExprFinalizer : public TypeVisitor<ExprFinalizer, TypeBase*>, public ASTWalker {
+  class ExprFinalizer : public TypeVisitor<ExprFinalizer, TypeBase*>,
+    public ASTWalker {
     ASTContext& ctxt_;
     DiagnosticEngine& diags_;
 
@@ -418,11 +379,12 @@ namespace {
       }
 
       Expr* handleExprPost(Expr* expr) {
-        Type type = expr->getType().getPtr();
-        assert(!type.isNull() && "Untyped expr");
+        TypeBase* type = expr->getType().getPtr();
+        assert(type && "Untyped expr");
 
         // Visit the type
-        type = visit(type.getPtr());
+        type = visit(type);
+        
         // If the type is nullptr, this inference failed
         // because of a lack of substitution somewhere.
         // Set the type to ErrorType, diagnose it and move on.
@@ -457,7 +419,7 @@ namespace {
         return nullptr;
       }
 
-      TypeBase* visitConstrainedType(ConstrainedType* type) {
+      TypeBase* visitCellType(CellType* type) {
         if (TypeBase* sub = type->getSubstitution())
           return visit(sub);
         return nullptr;

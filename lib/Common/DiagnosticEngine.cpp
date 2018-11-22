@@ -23,8 +23,8 @@ static const DiagSeverity diagsSevs[] = {
     #include "Fox/Common/Diags/All.def"
 };
 
-DiagnosticEngine::DiagnosticEngine(SourceManager& sm):
-  DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm)) {
+DiagnosticEngine::DiagnosticEngine(SourceManager& sm, std::ostream& os):
+  DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm, os)) {
 
 }
 

@@ -342,7 +342,7 @@ std::string ASTDumper::getBasicExprInfo(Expr* expr) const {
   if (printAllAdresses_)
     ss << " " << (void*)expr;
   if (auto ty = expr->getType())
-    ss << " " << makeKeyPairDump("type", ty->toString());
+    ss << " " << ty->toString();
   return ss.str();
 }
 

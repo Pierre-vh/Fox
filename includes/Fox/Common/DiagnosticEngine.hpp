@@ -25,8 +25,9 @@ namespace fox {
   class DiagnosticVerifier;
   class DiagnosticEngine {
     public:
-      // Constructor that will use a default DiagnosticConsumer
-      DiagnosticEngine(SourceManager& sm);
+      // Constructor that will use the default Diagnostic Consumer
+      // which prints pretty-printed diagnostics to the desired ostream.
+      DiagnosticEngine(SourceManager& sm, std::ostream& os = std::cout);
 
       // Constructor that will use a pre-created DiagnosticConsumer
       DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);

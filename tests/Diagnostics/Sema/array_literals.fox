@@ -1,0 +1,11 @@
+// RUN: %fox %s -verify -werr
+
+func foo() {
+  
+  // Type inference and unification tests: no diagnostics expected
+  [[3],[]];
+  [] as int[];
+  [[[]]] as string[][][];
+  [[],[3],[3.14],[true],[]];
+  [[[],[],[],[],[]],[[],[],[],[],[]]] as int[][][];
+}

@@ -13,7 +13,6 @@
 #include <cstdint>
 #include "Fox/AST/ASTNode.hpp"
 #include "Fox/AST/ASTFwdDecl.hpp"
-#include "Fox/AST/Constraints.hpp"  // ConstraintList
 #include "Fox/Common/DiagnosticEngine.hpp"
 
 namespace fox {
@@ -23,6 +22,7 @@ namespace fox {
       Sema(ASTContext& ctxt, DiagnosticEngine& diags);
 
       // Typedefs
+      using TypeBasePair = std::pair<TypeBase*, TypeBase*>;
       using IntegralRankTy = std::uint8_t;
 
       // Typechecks an expression. Returns the
@@ -34,23 +34,14 @@ namespace fox {
       // The unification algorithms for types of the same subtypes.
       // Tries to make A = B
       //
-      // Behaviour:
-        // SemaType with no subs. + Any type -> True, sets appropriate subst
-        // Any Type & Any Type -> returns true if they are of the same subtypes.
-        // SemaTypes with no subs: Creates a new SemaType and sets boths subs to this new SemaType.
-        // False in all other cases.
+      // Behaviour: TBA
       //
       // Due to the way Fox's semantics work
       // This unification algorithm won't alter types unless
-      // they are SemaTypes.
+      // they are CellTypes.
       //
-      // Also, this function is NOT commutative,
-      // unify(a,b) might succeed when unify(b,a) fails.
-      bool unify(Type& aRef, Type& bRef);
-
-      // Checks if the type ty "respects" every constraint in cs.
-      // Return true on success, false otherwise.
-      bool checkConstraintOnType(ConstraintList& cs, Type ty);
+      // Also, this function is commutative.
+      bool unify(Type a, Type b);
 
       // Returns true if a is a PrimitiveType of
       // type Int/Float/Bool
@@ -61,9 +52,11 @@ namespace fox {
         // If they are equal, return it's first argument
         // Returns nullptr otherwise.
       // if unwrapTypes is set to true, types are unwrapped together.
-      //    e.g. [int] & [int] is unwrapped to int & int but [[int]] & [int] is unwrapped to [int] & int
-      // if ignoreLValues is set to true, lvalues are ignored prior to comparison.
-      static Type getHighestRankingType(Type a, Type b, bool ignoreLValues = false, bool unwrapTypes = false);
+      //    e.g. [int] & [int] is unwrapped to 
+      //          int & int but [[int]] & [int] is unwrapped to [int] & int
+      // if ignoreLValues is set to true, lvalues are ignored prior to 
+      // comparison.
+      static Type getHighestRankedTy(Type a, Type b, bool unwrap = true);
 
       // This method returns the integral rank that a given type has.
       // type must not be null and must point to a arithmetic type.
@@ -71,6 +64,23 @@ namespace fox {
 
       // Returns true if "type" is a string type.
       static bool isStringType(TypeBase* type);
+
+      // Walk the type, returns false if it contains a unbound
+      // CellType
+      static bool isBound(TypeBase* ty);
+
+      // If "type" is a CellType with a substitution, returns it.
+      // This function is recursive and will dereference until reaching
+      // either a CellType with no sub or something that isn't a SemaType.
+      static TypeBase* deref(TypeBase* type);
+
+      // Removes the same number of ArrayType layers on 2 types
+      static TypeBasePair unwrapArrays(TypeBasePair pair);
+
+      // Removes all layers of LValue, CellType and ArrayType 
+      // until this reaches a point where one (or both) of the
+      // types become "basic"
+      static TypeBasePair unwrapAll(TypeBasePair pair);
 
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();

@@ -20,6 +20,7 @@ namespace fox {
       Expr* walk(Expr* expr);
       Decl* walk(Decl* decl);
       Stmt* walk(Stmt* stmt);
+      bool walk(TypeBase* type);
 
       // Called when first visiting an expression before visiting it's
       // children. 
@@ -35,7 +36,7 @@ namespace fox {
       // The default implementation returns it's argument.
       virtual Expr* handleExprPost(Expr* expr);
 
-      // Called when first visiting an statement before visiting it's
+      // Called when first visiting a statement before visiting it's
       // children. 
       // The first element of the return pair is the node that should
       // take this node's place, if it's nullptr, the traversal is terminated.
@@ -44,13 +45,13 @@ namespace fox {
       virtual std::pair<Stmt*, bool> handleStmtPre(Stmt* stmt);
 
 
-      // Called after visiting an statement's children.
+      // Called after visiting a statement's children.
       // If the return value is null, the traversal is terminated, otherwise
       // the walked node is replaced by the returned node.
       // The default implementation returns it's argument.
       virtual Stmt* handleStmtPost(Stmt* stmt);
 
-      // Called when first visiting an declaration before visiting it's
+      // Called when first visiting a declaration before visiting it's
       // children. 
       // The first element of the return pair is the node that should
       // take this node's place, if it's nullptr, the traversal is terminated.
@@ -59,10 +60,19 @@ namespace fox {
       virtual std::pair<Decl*, bool> handleDeclPre(Decl* decl);
 
 
-      // Called after visiting an declaration's children.
+      // Called after visiting a declaration's children.
       // If the return value is null, the traversal is terminated, otherwise
       // the walked node is replaced by the returned node.
       // The default implementation returns it's argument.
       virtual Decl* handleDeclPost(Decl* decl);
+
+      // Called when first visiting a type before visiting it's
+      // children. 
+      // If the return value is false, the traversal is terminated.
+      virtual bool handleTypePre(TypeBase* type);
+
+      // Called after visiting a type's children.
+      // If the return value is false, the traversal is terminated.
+      virtual bool handleTypePost(TypeBase* type);
   };
 }

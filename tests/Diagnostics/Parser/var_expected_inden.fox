@@ -1,0 +1,3 @@
+// RUN: %fox %s -verify -werr
+
+let // expect-error: Expected an identifier
