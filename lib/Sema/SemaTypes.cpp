@@ -62,33 +62,27 @@ namespace {
 
     return false;
   }
-
-  // Performs the pre-unifications tasks.
-  // Returns true if unification can go on, false if it should
-  // be aborted.
-  bool performPreUnificationTasks(Type& a, Type& b) {
-    assert(a && b && "Pointers cannot be nullptr");
-
-    // Unwrap all
-    std::tie(a, b) = Sema::unwrapAll({ a.getPtr(), b.getPtr() });
-
-    // If we have error types, unification is impossible.
-    if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr()))
-      return false;
-    return true;
-  }
 }  // anonymous namespace
 
 bool Sema::unify(Type a, Type b) {
   assert(a && b && "Pointers cannot be null");
-  auto _logGuard = logs.enterFunc("unify", a, b);
-  // Pre-unification checks, if they fail, unification fails too.
-  if (!performPreUnificationTasks(a, b))
+  auto funcLog = logs.enterFunc("unify", a, b);
+
+  // Unwrap 
+  std::tie(a, b) = Sema::unwrapAll({ a.getPtr(), b.getPtr() });
+  logs() << "Unwrapped types: {" << a << ", " << b << "}\n";
+
+  // Check if not ErrorType
+  if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr())) {
+    logs() << "Can't unify if a and/or b is an ErrorType\n";
     return false;
+  }
 
   // Return early if a and b share the same subtype (no unification needed)
-  if (compareSubtypes(a, b) && !a.is<CellType>())
+  if (compareSubtypes(a, b) && !a.is<CellType>()) {
+    logs() << "Types are already equivalent, no unification needed\n";
     return true;
+  }
 
   /* Unification logic */
 
