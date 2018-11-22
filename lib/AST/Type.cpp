@@ -6,6 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/Type.hpp"
+#include "Fox/AST/Types.hpp"
 
 using namespace fox;
 
@@ -75,4 +76,9 @@ const Type TypeLoc::withoutLoc() const {
   // we're returning a const Type and a const Type will always
   // return const pointers. This allows us to create the type.
   return Type(const_cast<TypeBase*>(getPtr()));
+}
+
+std::ostream& fox::operator<<(std::ostream& os, Type ty) {
+  os << ty->toString();
+  return os;
 }

@@ -11,6 +11,7 @@
 
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include <iosfwd>
 
 namespace fox {
   class TypeBase;
@@ -97,4 +98,7 @@ namespace fox {
 
   template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
   dyn_cast_or_null(const Type&) = delete;
+
+  // ostream for Type class
+  std::ostream& operator<<(std::ostream& os, Type ty);
 }

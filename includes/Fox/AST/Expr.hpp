@@ -16,9 +16,13 @@
 namespace fox   {
   // Kinds of Expressions
   enum class ExprKind: std::uint8_t {
+    // TODO: if EXPR_RANGE is added, support it in operator<<
     #define EXPR(ID,PARENT) ID,
     #include "ExprNodes.def"
   };
+
+  // ostream to print kinds
+  std::ostream& operator<<(std::ostream& os, ExprKind kind);
 
   // Forward Declarations
   class Identifier;

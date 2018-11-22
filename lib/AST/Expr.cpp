@@ -14,6 +14,17 @@
 
 using namespace fox;
 
+std::ostream& fox::operator<<(std::ostream& os, ExprKind kind) {
+  switch (kind) {
+    #define EXPR(ID, PARENT) case ExprKind::ID: os << #ID; break;
+    #include "Fox/AST/ExprNodes.def"
+    default:
+      fox_unreachable("all kinds handled");
+  }
+  return os;
+}
+
+
 //------//
 // Expr //
 //------//
