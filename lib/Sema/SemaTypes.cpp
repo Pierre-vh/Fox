@@ -81,7 +81,7 @@ namespace {
 
 bool Sema::unify(Type a, Type b) {
   assert(a && b && "Pointers cannot be null");
-
+  auto _logGuard = logs.enterFunc("unify", a, b);
   // Pre-unification checks, if they fail, unification fails too.
   if (!performPreUnificationTasks(a, b))
     return false;

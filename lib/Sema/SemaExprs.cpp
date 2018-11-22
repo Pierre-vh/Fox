@@ -81,11 +81,15 @@ namespace {
 
       virtual std::pair<Expr*, bool> handleExprPre(Expr* expr) {
         // Not needed since we won't do preorder visitation
+        getSema().logs() << "Checking " << expr->getKind() << "\n";
+        getSema().logs.indent();
         return { expr, true }; // Important for postorder visitation to be done
       }
 
       virtual Expr* handleExprPost(Expr* expr) {
-        return visit(expr);
+        Expr* e = visit(expr);
+        getSema().logs.dedent();
+        return e;
       }
 
       virtual std::pair<Stmt*, bool> handleStmtPre(Stmt*) {
