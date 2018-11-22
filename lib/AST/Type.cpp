@@ -79,6 +79,10 @@ const Type TypeLoc::withoutLoc() const {
 }
 
 std::ostream& fox::operator<<(std::ostream& os, Type ty) {
+#ifndef NDEBUG
+  os << ty->toDebugString();
+#else 
   os << ty->toString();
+#endif
   return os;
 }
