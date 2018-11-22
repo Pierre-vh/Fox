@@ -112,6 +112,6 @@ namespace fox {
       std::reference_wrapper<std::ostream> outRW_;
       LogPrinter printer_;
       std::int16_t indentDepth_ = 0;
-      std::string indentStr_ = "  "; // By default, indent with 2 spaces
+      std::string indentStr_ = " |";
   };
 }
