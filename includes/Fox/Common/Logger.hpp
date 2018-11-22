@@ -43,6 +43,17 @@ namespace fox {
       IndentGuard indentGuard(std::int8_t val = 1);
       void dedent(std::int8_t val = 1);
 
+      // Signals the logger that we're entering a function. This will also create
+      // an IndentGuard with a indentation of 1 to indent every logs emitted during
+      // the function's execution
+      template<typename ... Args>
+      IndentGuard enterFunc(const std::string& name, Args&& ... args) {
+        getOS() << getIndent() << name << '(';
+        printArg(std::forward<Args>(args)...);
+        getOS() << ")\n";
+        return IndentGuard(this, 1);
+      }
+
       // The class which implements the << operator overloads and
       // handle the printing.
       class LogPrinter {
@@ -82,7 +93,7 @@ namespace fox {
       };
 
     private:
-      std::string getIndent(std::int8_t additionalIndent);
+      std::string getIndent(std::int8_t additionalIndent = 0);
 
       bool enabled_ = false;
       std::reference_wrapper<std::ostream> outRW_;
