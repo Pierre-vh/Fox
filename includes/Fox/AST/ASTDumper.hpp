@@ -10,15 +10,14 @@
 
 #pragma once
 #include "ASTVisitor.hpp"
-#include <ostream>
+#include <iosfwd>
 
 namespace fox {
   class SourceManager;
   class ASTDumper : public SimpleASTVisitor<ASTDumper, void> {
     public:
-      // The first parameter is the stream where the AST should be "dumped"
-      // The second is the offset. Before each line, '\t' is printed <offset> times. 
       ASTDumper(SourceManager& srcMgr, std::ostream& out, const uint8_t& offsettabs = 0);
+      ASTDumper(std::ostream& out, const uint8_t& offsettabs = 0);
 
       // Expressions
       void visitBinaryExpr(BinaryExpr* node);
@@ -56,6 +55,9 @@ namespace fox {
 
     private:
       void initDefaultOptions();
+
+      const SourceManager::SourceData* getSourceData(FileID fid);
+      bool hasSrcMgr() const;
 
       // Prints getOffset() and getIndent() to out_ then returns out_
       // Can add a number as parameter to add a "temporary" indent, just for this line.
@@ -114,7 +116,7 @@ namespace fox {
       void dedent(std::uint8_t num = 1);
 
       std::ostream& out_;
-      SourceManager& srcMgr_;
+      SourceManager* srcMgr_ = nullptr;
       std::string offset_;
       uint16_t curIndent_ = 0, offsetTabs_ = 0;
 

@@ -7,6 +7,7 @@
 
 #include "Fox/AST/ASTDumper.hpp"
 #include <sstream>
+#include <iostream>
 #include <string>
 #include "Fox/AST/Identifiers.hpp"
 #include "Fox/Common/Errors.hpp"
@@ -21,8 +22,13 @@ using namespace fox;
 ASTDumper::ASTDumper(SourceManager& srcMgr,
                      std::ostream& out,
                      const uint8_t& offsettabs)
-    : out_(out), offsetTabs_(offsettabs), srcMgr_(srcMgr) {
+    : out_(out), offsetTabs_(offsettabs), srcMgr_(&srcMgr) {
   recalculateOffset();
+}
+
+ASTDumper::ASTDumper(std::ostream& out, const uint8_t & offsettabs):
+  srcMgr_(nullptr), out_(out), offsetTabs_(offsettabs) {
+
 }
 
 void ASTDumper::visitBinaryExpr(BinaryExpr* node) {
@@ -196,7 +202,7 @@ void ASTDumper::visitReturnStmt(ReturnStmt* node) {
 
 void ASTDumper::visitUnitDecl(UnitDecl* node) {
   std::string fileInfo;
-  if (const auto* data = srcMgr_.getSourceData(node->getFileID()))
+  if (const auto* data = getSourceData(node->getFileID()))
     fileInfo = makeKeyPairDump("file", data->fileName);
   else
     fileInfo = makeKeyPairDump("file", "unknown");
@@ -258,6 +264,16 @@ bool ASTDumper::getPrintAllAddresses() const {
 void ASTDumper::initDefaultOptions() {
   // currently it's hard coded defaults
   printAllAdresses_ = false;
+}
+
+const SourceManager::SourceData* ASTDumper::getSourceData(FileID fid) {
+  if (srcMgr_)
+    return srcMgr_->getSourceData(fid);
+  return nullptr;
+}
+
+bool ASTDumper::hasSrcMgr() const {
+  return (bool)srcMgr_;
 }
 
 std::ostream& ASTDumper::dumpLine(std::uint8_t num) {
@@ -412,8 +428,8 @@ std::string ASTDumper::getIdentifierDump(Identifier* id) const {
 std::string ASTDumper::getSourceLocDump(const std::string& label,
                                         SourceLoc sloc) const {
   std::ostringstream ss;
-  if (sloc) {
-    CompleteLoc cloc = srcMgr_.getCompleteLoc(sloc);
+  if (sloc && hasSrcMgr()) {
+    CompleteLoc cloc = srcMgr_->getCompleteLoc(sloc);
     ss << "(l" << cloc.line << ",c" << cloc.column << ")";
   } else
     ss << "(invalid SourceLoc)";
@@ -423,9 +439,9 @@ std::string ASTDumper::getSourceLocDump(const std::string& label,
 
 std::string ASTDumper::getSourceRangeAsStr(SourceRange range) const {
   std::ostringstream ss;
-  if (range) {
-    CompleteLoc begCLoc = srcMgr_.getCompleteLoc(range.getBegin());
-    CompleteLoc endCLoc = srcMgr_.getCompleteLoc(range.getEnd());
+  if (range && hasSrcMgr()) {
+    CompleteLoc begCLoc = srcMgr_->getCompleteLoc(range.getBegin());
+    CompleteLoc endCLoc = srcMgr_->getCompleteLoc(range.getEnd());
     if (begCLoc.line != endCLoc.line) {
       ss << "(l" << begCLoc.line << ", c" << begCLoc.column << " to l"
          << endCLoc.line << ", c" << endCLoc.column << ")";
@@ -480,4 +496,9 @@ void ASTDumper::dedent(std::uint8_t num) {
     else
       curIndent_ = 0;
   }
+}
+
+// Dump methods
+void Expr::dump() const {
+  ASTDumper(std::cerr).visit(const_cast<Expr*>(this));
 }
