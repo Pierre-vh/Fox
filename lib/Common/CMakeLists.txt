@@ -5,6 +5,5 @@ add_source(common_src
   "StringManipulator.cpp"
   "Source.cpp"
   "Errors.cpp"
-  "Logger.cpp"
   "DiagnosticVerifier.cpp"
 )

@@ -66,23 +66,17 @@ namespace {
 
 bool Sema::unify(Type a, Type b) {
   assert(a && b && "Pointers cannot be null");
-  auto funcLog = logs.enterFunc("unify", a, b);
 
   // Unwrap 
   std::tie(a, b) = Sema::unwrapAll({ a.getPtr(), b.getPtr() });
-  logs() << "Unwrapped types: {" << a << ", " << b << "}\n";
 
   // Check if not ErrorType
-  if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr())) {
-    logs() << "Can't unify if a and/or b is an ErrorType\n";
+  if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr()))
     return false;
-  }
 
   // Return early if a and b share the same subtype (no unification needed)
-  if (compareSubtypes(a, b) && !a.is<CellType>()) {
-    logs() << "Types are already equivalent, no unification needed\n";
+  if (compareSubtypes(a, b) && !a.is<CellType>())
     return true;
-  }
 
   /* Unification logic */
 

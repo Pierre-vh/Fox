@@ -11,7 +11,6 @@
 #pragma once
 
 #include <cstdint>
-#include "Fox/Common/Logger.hpp"
 #include "Fox/AST/ASTNode.hpp"
 #include "Fox/AST/ASTFwdDecl.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
@@ -85,9 +84,6 @@ namespace fox {
 
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();
-
-      // The logger instance used by Sema
-      Logger logs;
 
     private:
       ASTContext &ctxt_;
