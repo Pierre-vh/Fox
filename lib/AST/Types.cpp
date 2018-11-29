@@ -172,6 +172,42 @@ TypeBase* TypeBase::ignoreLValue() {
   return ptr ? ptr : this;
 }
 
+bool TypeBase::isStringType() const {
+  if(auto* prim = dyn_cast<PrimitiveType>(this))
+    return (prim->getPrimitiveKind() == PrimitiveType::Kind::StringTy);
+  return false;
+}
+
+bool TypeBase::isCharType() const {
+  if (auto* prim = dyn_cast<PrimitiveType>(this))
+    return (prim->getPrimitiveKind() == PrimitiveType::Kind::CharTy);
+  return false;
+}
+
+bool TypeBase::isBoolType() const {
+  if (auto* prim = dyn_cast<PrimitiveType>(this))
+    return (prim->getPrimitiveKind() == PrimitiveType::Kind::BoolTy);
+  return false;
+}
+
+bool TypeBase::isIntType() const {
+  if (auto* prim = dyn_cast<PrimitiveType>(this))
+    return (prim->getPrimitiveKind() == PrimitiveType::Kind::IntTy);
+  return false;
+}
+
+bool TypeBase::isFloatType() const {
+  if (auto* prim = dyn_cast<PrimitiveType>(this))
+    return (prim->getPrimitiveKind() == PrimitiveType::Kind::FloatTy);
+  return false;
+}
+
+bool TypeBase::isVoidType() const {
+  if (auto* prim = dyn_cast<PrimitiveType>(this))
+    return (prim->getPrimitiveKind() == PrimitiveType::Kind::VoidTy);
+  return false;
+}
+
 void* TypeBase::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
 }
@@ -232,30 +268,6 @@ PrimitiveType* PrimitiveType::getVoid(ASTContext& ctxt) {
 
 PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const {
   return builtinKind_;
-}
-
-bool PrimitiveType::isString() const {
-  return builtinKind_ == Kind::StringTy;
-}
-
-bool PrimitiveType::isChar() const {
-  return builtinKind_ == Kind::CharTy;
-}
-
-bool PrimitiveType::isBool() const {
-  return builtinKind_ == Kind::BoolTy;
-}
-
-bool PrimitiveType::isInt() const {
-  return builtinKind_ == Kind::IntTy;
-}
-
-bool PrimitiveType::isFloat() const {
-  return builtinKind_ == Kind::FloatTy;
-}
-
-bool PrimitiveType::isVoid() const {
-  return builtinKind_ == Kind::VoidTy;
 }
 
 //-----------//

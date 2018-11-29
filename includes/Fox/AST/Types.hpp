@@ -56,6 +56,13 @@ namespace fox {
       const TypeBase* ignoreLValue() const;
       TypeBase* ignoreLValue();
 
+      bool isStringType() const;
+      bool isCharType() const;
+      bool isFloatType() const;
+      bool isBoolType() const;
+      bool isIntType() const;
+      bool isVoidType() const;
+
     protected:
       TypeBase(TypeKind tc);
 
@@ -114,13 +121,6 @@ namespace fox {
       static PrimitiveType* getVoid(ASTContext& ctxt);
 
       Kind getPrimitiveKind() const;
-
-      bool isString() const;
-      bool isChar() const;
-      bool isFloat() const;
-      bool isBool() const;
-      bool isInt() const;
-      bool isVoid() const;
 
       static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::PrimitiveType);
