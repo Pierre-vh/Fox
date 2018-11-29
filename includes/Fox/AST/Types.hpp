@@ -66,7 +66,8 @@ namespace fox {
 
       // Only allow allocation through the ASTContext
       // This operator is "protected" so only the ASTContext can create types.
-      void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(TypeBase));
+      void* operator new(std::size_t sz, ASTContext &ctxt, 
+      std::uint8_t align = alignof(TypeBase));
 
       // Companion operator delete to silence C4291 on MSVC
       void operator delete(void*, ASTContext&, std::uint8_t) {}
@@ -75,22 +76,26 @@ namespace fox {
       const TypeKind kind_;
   };
 
-  // BuiltinType
-  //    Common base for Built-in types
-  class BuiltinType : public TypeBase {
+  // BasicType
+  //    Common base for "Basic" Types.
+  //    A basic type is a type that can't be unwrapped any further.
+  //    Every type is Fox is made of 1 or more Basic type used in conjuction
+  //    with other types, such as the LValueType or the ArrayType.
+  //  
+  class BasicType : public TypeBase {
     public:
       static bool classof(const TypeBase* type) {
-        return ((type->getKind() >= TypeKind::First_BuiltinType) 
-          && (type->getKind() <= TypeKind::Last_BuiltinType));
+        return ((type->getKind() >= TypeKind::First_BasicType) 
+          && (type->getKind() <= TypeKind::Last_BasicType));
       }
 
     protected:
-      BuiltinType(TypeKind tc);
+      BasicType(TypeKind tc);
   };
 
   // PrimitiveType 
   //    A primitive type (void/int/float/char/bool/string)
-  class PrimitiveType : public BuiltinType {
+  class PrimitiveType : public BasicType {
     public:
       enum class Kind : std::uint8_t {
         VoidTy,
@@ -127,10 +132,26 @@ namespace fox {
       const Kind builtinKind_;
   };
 
+ // ErrorType
+  //    A type used to represent that a expression's type
+  //    cannot be determined because of an error.
+  class ErrorType : public BasicType {
+    public:
+      // Gets the unique ErrorType instance for the current context.
+      static ErrorType* get(ASTContext& ctxt);
+
+      static bool classof(const TypeBase* type) {
+        return (type->getKind() == TypeKind::ErrorType);
+      }
+
+    private:
+      ErrorType();
+  };
+
   // ArrayType
   //    An array of a certain type (can be any type, 
   //    even another ArrayType)
-  class ArrayType : public BuiltinType {
+  class ArrayType : public TypeBase {
     public:
       // Returns the UNIQUE ArrayType instance for the given
       // type ty.
@@ -171,22 +192,6 @@ namespace fox {
       LValueType(TypeBase* type);
 
       TypeBase* ty_ = nullptr;
-  };
-
-  // ErrorType
-  //    A type used to represent that a expression's type
-  //    cannot be determined because of an error.
-  class ErrorType : public TypeBase {
-    public:
-      // Gets the unique ErrorType instance for the current context.
-      static ErrorType* get(ASTContext& ctxt);
-      
-      static bool classof(const TypeBase* type) {
-        return (type->getKind() == TypeKind::ErrorType);
-      }
-
-    private:
-      ErrorType();
   };
 
   // CellType

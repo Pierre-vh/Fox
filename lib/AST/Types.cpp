@@ -180,7 +180,7 @@ void* TypeBase::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align) {
 // BuiltinType //
 //-------------//
 
-BuiltinType::BuiltinType(TypeKind tc):
+BasicType::BasicType(TypeKind tc):
   TypeBase(tc) {
 
 }
@@ -190,7 +190,7 @@ BuiltinType::BuiltinType(TypeKind tc):
 //---------------//
 
 PrimitiveType::PrimitiveType(Kind kd)
-  : builtinKind_(kd), BuiltinType(TypeKind::PrimitiveType) {
+  : builtinKind_(kd), BasicType(TypeKind::PrimitiveType) {
 
 }
 
@@ -263,7 +263,7 @@ bool PrimitiveType::isVoid() const {
 //-----------//
 
 ArrayType::ArrayType(TypeBase* elemTy):
-  elementTy_(elemTy), BuiltinType(TypeKind::ArrayType) {
+  elementTy_(elemTy), TypeBase(TypeKind::ArrayType) {
   assert(elemTy && "The Array item type cannot be null!");
 }
 
@@ -325,7 +325,7 @@ const TypeBase* LValueType::getType() const {
 //-----------//
 
 ErrorType::ErrorType():
-  TypeBase(TypeKind::ErrorType) {
+  BasicType(TypeKind::ErrorType) {
 
 }
 

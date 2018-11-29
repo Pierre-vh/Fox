@@ -238,17 +238,17 @@ TEST(ASTTests, TypeRTTI) {
 
   EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
   EXPECT_TRUE(PrimitiveType::classof(intTy));
-  EXPECT_TRUE(BuiltinType::classof(intTy));
+  EXPECT_TRUE(BasicType::classof(intTy));
 
   EXPECT_EQ(arrIntTy->getKind(), TypeKind::ArrayType);
   EXPECT_TRUE(ArrayType::classof(arrIntTy));
-  EXPECT_TRUE(BuiltinType::classof(arrIntTy));
 
   EXPECT_EQ(lvIntTy->getKind(), TypeKind::LValueType);
   EXPECT_TRUE(LValueType::classof(lvIntTy));
 
   EXPECT_EQ(errType->getKind(), TypeKind::ErrorType);
   EXPECT_TRUE(ErrorType::classof(errType));
+  EXPECT_TRUE(BasicType::classof(errType));
 
   EXPECT_EQ(cellType->getKind(), TypeKind::CellType);
   EXPECT_TRUE(CellType::classof(cellType));

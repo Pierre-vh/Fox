@@ -29,13 +29,13 @@
 
 /* Macros */
 
-ABSTRACT_TYPE(BuiltinType, TypeBase)
-  TYPE(PrimitiveType, BuiltinType)
-  TYPE(ArrayType, BuiltinType)
-  TYPE_RANGE(BuiltinType, PrimitiveType, ArrayType)
+ABSTRACT_TYPE(BasicType, TypeBase)
+  TYPE(PrimitiveType, BasicType)
+  TYPE(ErrorType, BasicType)
+  TYPE_RANGE(BasicType, PrimitiveType, ErrorType)
 
+TYPE(ArrayType, TypeBase)
 TYPE(LValueType, TypeBase)
-TYPE(ErrorType, TypeBase)
 TYPE(CellType, TypeBase)
 
 /* Undef */
