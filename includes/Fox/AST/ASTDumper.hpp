@@ -16,6 +16,7 @@
 namespace fox {
   class SourceManager;
   class ASTDumper : /*private*/ SimpleASTVisitor<ASTDumper, void> {
+    using Inherited = SimpleASTVisitor<ASTDumper, void>;
     public:
       ASTDumper(SourceManager& srcMgr, std::ostream& out, const uint8_t& offsettabs = 0);
       ASTDumper(std::ostream& out, const uint8_t& offsettabs = 0);
@@ -66,6 +67,12 @@ namespace fox {
       void visitFuncDecl(FuncDecl* node);
 
     private:
+      // We need a custom visit method for TypeBase* to avoid
+      // calling visitXXXType and just use TypeBase::toString
+      void visit(TypeBase* type);
+      // We also want to use the base class's visit methods
+      using Inherited::visit;
+
       bool isDebug() const;
 
       std::string toString(Type type) const;
@@ -124,7 +131,6 @@ namespace fox {
         ss << "<" << label << ":" << value << ">";
         return ss.str();
       }
-
 
       void indent(std::uint8_t num = 1);
       void dedent(std::uint8_t num = 1);
