@@ -145,7 +145,7 @@ namespace {
         
         // For other type of casts, unification is enough to determine
         // if the cast is valid.
-        if (getSema().unify(childTy, castGoal.getPtr()))
+        if (getSema().unify(childTy.getPtr(), castGoal.getPtr()))
           expr->setType(castGoal.withoutLoc());
         else {
           getDiags()
@@ -304,23 +304,23 @@ namespace {
 
         // The bound type proposed by unifying the other concrete/bound
         // types inside the array.
-        Type boundTy;
+        TypeBase* boundTy = nullptr;
 
         // The type used by unbounds elemTy
-        Type unboundTy;
+        TypeBase* unboundTy = nullptr;
 
         // Loop over each expression in the literal
         for (auto& elem : expr->getExprs()) {
           // Get the elemTy
-          Type elemTy = elem->getType();
+          TypeBase* elemTy = elem->getType().getPtr();
           assert(elemTy && "Type cannot be null!");
 
           // Handle error elem type: we stop here if we have one.
-          if (elemTy.is<ErrorType>())
+          if (isa<ErrorType>(elemTy))
             return getErrorType();
 
           // Special logic for unbound types
-          if (!Sema::isBound(elemTy.getPtr())) {
+          if (!Sema::isBound(elemTy)) {
             // Set unboundTy & continue for first loop
             if (!unboundTy)
               unboundTy = elemTy;

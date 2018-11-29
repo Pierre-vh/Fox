@@ -65,26 +65,26 @@ namespace {
   }
 }  // anonymous namespace
 
-bool Sema::unify(Type a, Type b) {
+bool Sema::unify(TypeBase* a, TypeBase* b) {
   assert(a && b && "Pointers cannot be null");
 
   // Unwrap 
-  std::tie(a, b) = Sema::unwrapAll({ a.getPtr(), b.getPtr() });
+  std::tie(a, b) = Sema::unwrapAll({a, b});
 
   // Check if not ErrorType
-  if (isa<ErrorType>(a.getPtr()) || isa<ErrorType>(b.getPtr()))
+  if (isa<ErrorType>(a) || isa<ErrorType>(b))
     return false;
 
   // Return early if a and b share the same subtype (no unification needed)
-  if (compareSubtypes(a, b) && !a.is<CellType>())
+  if (compareSubtypes(a, b) && !isa<CellType>(a))
     return true;
 
   /* Unification logic */
 
   // CellType = (Something)
-  if (auto* aCell = a.getAs<CellType>()) {
+  if (auto* aCell = dyn_cast<CellType>(a)) {
     // CellType = CellType
-    if (auto* bCell = b.getAs<CellType>()) {
+    if (auto* bCell = dyn_cast<CellType>(b)) {
       // Both are CellTypes, check if they have a substitution
       auto* aCellSub = aCell->getSubstitution();
       auto* bCellSub = bCell->getSubstitution();
@@ -104,7 +104,7 @@ bool Sema::unify(Type a, Type b) {
         if (aCellSub != bCellSub) {
           // If they're different, adjust both substitution to the highest
           // ranked type.
-          TypeBase* highest = getHighestRankedTy(aCellSub, bCellSub).getPtr();
+          TypeBase* highest = getHighestRankedTy(aCellSub, bCellSub);
           assert(highest); // Should have one since unification was successful
           aCell->setSubstitution(highest);
           bCell->setSubstitution(highest);
@@ -131,28 +131,28 @@ bool Sema::unify(Type a, Type b) {
     else {
       if (auto* aCellSub = aCell->getSubstitution())
         return unify(aCellSub, b);
-      aCell->setSubstitution(b.getPtr());
+      aCell->setSubstitution(b);
       return true;
     }
   }
   // (Not CellType) = CellType
-  else if (auto* bCell = b.getAs<CellType>()) {
+  else if (auto* bCell = dyn_cast<CellType>(b)) {
     if (auto* bCellSub = bCell->getSubstitution())
       return unify(a, bCellSub);
-    bCell->setSubstitution(a.getPtr());
+    bCell->setSubstitution(a);
     return true;
   }
   // ArrayType = (Something)
-  else if(auto* aArr = a.getAs<ArrayType>()) {
+  else if(auto* aArr = dyn_cast<ArrayType>(a)) {
     // Only succeeds if B is an ArrayType
-    auto* bArr = b.getAs<ArrayType>();
+    auto* bArr = dyn_cast<ArrayType>(b);
     if (!bArr) return false;
 
     // Unify the element types.
-    Type aArr_elem = aArr->getElementType();
-    Type bArr_elem = bArr->getElementType();
-    std::cout << "\t\tB is too. Recursing.\n";
-    assert(aArr_elem && bArr_elem && "Null array element type");
+    TypeBase* aArr_elem = aArr->getElementType();
+    TypeBase* bArr_elem = bArr->getElementType();
+    assert(aArr_elem && bArr_elem 
+      && "Array element type cannot be null");
     return unify(aArr_elem, bArr_elem);
   }
   // Unhandled
@@ -174,14 +174,15 @@ bool Sema::isIntegral(Type type) {
   return false;
 }
 
-Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
+TypeBase* Sema::getHighestRankedTy(TypeBase* a, TypeBase* b, bool unwrap) {
   // Backup the original type before we do anything with them.
-  Type ogA = a, ogB = b;
+  TypeBase* ogA = a;
+  TypeBase* ogB = b;
 
   assert(a && b && "Pointers cannot be null");
 
   if(unwrap)
-    std::tie(a, b) = Sema::unwrapAll({ a.getPtr(), b.getPtr() });
+    std::tie(a, b) = Sema::unwrapAll({a, b});
 
   if (a == b)
     return ogA;

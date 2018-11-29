@@ -34,14 +34,12 @@ namespace fox {
       // The unification algorithms for types of the same subtypes.
       // Tries to make A = B
       //
-      // Behaviour: TBA
-      //
       // Due to the way Fox's semantics work
       // This unification algorithm won't alter types unless
       // they are CellTypes.
       //
       // Also, this function is commutative.
-      bool unify(Type a, Type b);
+      bool unify(TypeBase* a, TypeBase* b);
 
       // Returns true if a is a PrimitiveType of
       // type Int/Float/Bool
@@ -56,7 +54,8 @@ namespace fox {
       //          int & int but [[int]] & [int] is unwrapped to [int] & int
       // if ignoreLValues is set to true, lvalues are ignored prior to 
       // comparison.
-      static Type getHighestRankedTy(Type a, Type b, bool unwrap = true);
+      static TypeBase* getHighestRankedTy(TypeBase* a, TypeBase* b,
+        bool unwrap = true);
 
       // This method returns the integral rank that a given type has.
       // type must not be null and must point to a arithmetic type.
