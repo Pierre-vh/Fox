@@ -66,7 +66,7 @@ namespace fox {
       static bool isStringType(TypeBase* type);
 
       // Walk the type, returns false if it contains a unbound
-      // CellType
+      // CellType.
       static bool isBound(TypeBase* ty);
 
       // If "type" is a CellType with a substitution, returns it.
@@ -74,12 +74,19 @@ namespace fox {
       // either a CellType with no sub or something that isn't a SemaType.
       static TypeBase* deref(TypeBase* type);
 
+      // Given a type, return the Basic type if it can find one, or nullptr.
+      // e.g.
+      //    LValue(Array(Array(int))) will return int
+      static BasicType* findBasicType(TypeBase* type);
+
       // Removes the same number of ArrayType layers on 2 types
       static TypeBasePair unwrapArrays(TypeBasePair pair);
 
       // Removes all layers of LValue, CellType and ArrayType 
       // until this reaches a point where one (or both) of the
-      // types become "basic"
+      // types become basic.
+      // Note that both types may not be basic! The function will simply
+      // stop unwrapping once one of them becomes basic.
       static TypeBasePair unwrapAll(TypeBasePair pair);
 
       DiagnosticEngine& getDiagnosticEngine();

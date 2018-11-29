@@ -13,6 +13,7 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTWalker.hpp"
+#include "Fox/AST/ASTVisitor.hpp"
 #include <tuple>
 
 using namespace fox;
@@ -237,6 +238,39 @@ TypeBase* Sema::deref(TypeBase* type) {
     return sub ? deref(sub) : type;
   }
   return type;
+}
+
+BasicType* Sema::findBasicType(TypeBase* type) {
+  class Impl : public TypeVisitor<Impl, BasicType*> {
+    public:
+      BasicType* visitPrimitiveType(PrimitiveType* type) {
+        return type;
+      }
+
+      BasicType* visitErrorType(ErrorType* type) {
+        return type;
+      }
+
+      BasicType* visitArrayType(ArrayType* type) {
+        if(auto* elem = type->getElementType())
+          return visit(elem);
+        return nullptr;
+      }
+      
+      BasicType* visitLValueType(LValueType* type) {
+        if (auto* ty = type->getType())
+          return visit(ty);
+        return nullptr;
+      }
+
+      BasicType* visitCellType(CellType* type) {
+        if (auto* sub = type->getSubstitution())
+          return visit(sub);
+        return nullptr;
+      }
+  };
+
+  return Impl().visit(type);
 }
 
 Sema::TypeBasePair Sema::unwrapArrays(TypeBasePair pair) {
