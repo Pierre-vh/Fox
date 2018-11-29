@@ -46,32 +46,27 @@ TEST(ASTTests, ASTContextBuiltins) {
   // Test that the types have the correct properties
   // Bools
   EXPECT_EQ(primBool->getPrimitiveKind(),  PrimitiveType::Kind::BoolTy);
-  EXPECT_TRUE(primBool->isBool());
-  EXPECT_FALSE(primBool->isVoid());
+  EXPECT_TRUE(primBool->isBoolType());
 
   // Floats
   EXPECT_EQ(primFloat->getPrimitiveKind(),  PrimitiveType::Kind::FloatTy);
-  EXPECT_TRUE(primFloat->isFloat());
-  EXPECT_FALSE(primFloat->isVoid());
+  EXPECT_TRUE(primFloat->isFloatType());
 
   // Ints
   EXPECT_EQ(primInt->getPrimitiveKind(),  PrimitiveType::Kind::IntTy);
-  EXPECT_TRUE(primInt->isInt());
-  EXPECT_FALSE(primInt->isVoid());
+  EXPECT_TRUE(primInt->isIntType());
 
   // Chars
   EXPECT_EQ(primChar->getPrimitiveKind(), PrimitiveType::Kind::CharTy);
-  EXPECT_TRUE(primChar->isChar());
-  EXPECT_FALSE(primChar->isVoid());
+  EXPECT_TRUE(primChar->isCharType());
 
   // Strings
   EXPECT_EQ(primString->getPrimitiveKind(), PrimitiveType::Kind::StringTy);
-  EXPECT_TRUE(primString->isString());
-  EXPECT_FALSE(primString->isVoid());
+  EXPECT_TRUE(primString->isStringType());
 
   // Void type
   EXPECT_EQ(primVoid->getPrimitiveKind(),  PrimitiveType::Kind::VoidTy);
-  EXPECT_TRUE(primVoid->isVoid());
+  EXPECT_TRUE(primVoid->isVoidType());
 }
 
 TEST(ASTTests, ASTContextArrayTypes) {
