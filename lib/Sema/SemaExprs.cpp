@@ -65,18 +65,21 @@ namespace {
       }
 
       //--Diagnose Methods--//
-      // TODO: Describe "Diagnose" methods
+      // Diagnose method's sole purpose is to emit the best diagnostic possible
+      // for a given situation. 
 
       // (Error) Diagnoses an invalid cast 
       void diagnoseInvalidCast(CastExpr* expr) {
         SourceRange range = expr->getCastTypeLoc().getRange();
         TypeBase* childTy = expr->getExpr()->getType().getPtr();
         TypeBase* goalTy = expr->getCastTypeLoc().getPtr();
-        getDiags()
-          .report(DiagID::sema_invalid_cast, range)
-          .addArg(childTy->toString())
-          .addArg(goalTy->toString())
-          .setExtraRange(expr->getExpr()->getRange());
+        if (Sema::isBound(childTy)) {
+          getDiags()
+            .report(DiagID::sema_invalid_cast, range)
+            .addArg(childTy->toString())
+            .addArg(goalTy->toString())
+            .setExtraRange(expr->getExpr()->getRange());
+        }
       }
 
       // (Warning) Diagnoses a redudant cast (when the
@@ -91,7 +94,8 @@ namespace {
       }
 
       //--Finalize methods--//
-      // TODO: Describe "Finalize" methods
+      // Finalize methods will set the type of the expr that was just checked
+      // and perform some final checks to ensure the node is correctly formed.
 
       // Finalizes a valid CastExpr
       Expr* finalizeCastExpr(CastExpr* expr, bool isRedundant) {
@@ -137,6 +141,17 @@ namespace {
           default:
             fox_unreachable("All cases handled");
         }
+        return expr;
+      }
+
+      // Finalizes an empty ArrayLiteral
+      Expr* finalizeEmptyArrayLiteral(ArrayLiteralExpr* expr) {
+        assert((expr->getSize() == 0) && "Only for empty ArrLits");
+        // For empty array literals, the type is going to be a fresh
+        // celltype inside an Array : Array(CellType(null))
+        TypeBase* type = CellType::create(getCtxt());
+        type = ArrayType::get(getCtxt(), type); 
+        expr->setType(type);
         return expr;
       }
 
@@ -228,7 +243,7 @@ namespace {
 
         // Casting to a String  
           // Check that the child's type is a primitive type.
-        if (goalTy->isStringType()) {
+        if (goalTy->isStringType() && Sema::isBound(childTy)) {
           // If the expr's type isn't a primitive type, diagnose
           // the invalid cast.
           if (!isa<PrimitiveType>(childTy)) 
@@ -329,16 +344,14 @@ namespace {
       // else
       //    Type needs inference
       Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr) {
-        if (expr->getSize() > 0) {
+        if (expr->getSize() != 0) {
           TypeBase* deduced = deduceTypeOfArrayLiteral(expr);
           if(deduced)
             expr->setType(deduced);
           return expr;
         }
-        // if it's empty, just set it's type to an empty CellType
         else
-          expr->setType(CellType::create(getCtxt()));
-        return expr;
+          return finalizeEmptyArrayLiteral(expr);
       }
 
       // Helper for the above function that deduces the type of a non empty Array literal
