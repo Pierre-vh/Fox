@@ -80,6 +80,7 @@ To-Do:
   > Sema: Replacing ConstrainedType with CellType (Done)
   > Create better unwrapping functions to effectively unwrap types (Done)
   > Adding -werr for LIT test suite (Done)
+  > Replace BuiltinType by BasicType (Done)
 
   > Work on Sema (Next)
 
@@ -109,5 +110,4 @@ Boring stuff that I must do when I have the time/motivation for it
 
 Pending reworks:
   > Token class -> Currently, it's an abomination. Nuke it and re-do it.
-  > Lexer/Parser -> Storing stuff in a vector is useless. Just allow the parser to call the lexer directly and
-    retrieve tokens on the fly. More memory efficient, faster, etc.
+  > Lexer
