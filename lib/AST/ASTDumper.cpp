@@ -509,5 +509,13 @@ void Decl::dump() const {
 }
 
 void TypeBase::dump() const {
-  std::cerr << this->toDebugString();
+  std::cerr << this->toDebugString() + '\n';
+}
+
+void Type::dump() const {
+  std::string typeStr;
+  if(ty_)
+    std::cerr << ty_->toDebugString();
+  else 
+    std::cerr << "nullptr";
 }

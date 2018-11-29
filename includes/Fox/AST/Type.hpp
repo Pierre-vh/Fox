@@ -29,6 +29,8 @@ namespace fox {
 
       bool isNull() const;
 
+      void dump() const;
+
       TypeBase* operator->();
       const TypeBase* operator->() const;
 
@@ -62,8 +64,7 @@ namespace fox {
       Type& operator=(const TypeLoc&) = delete;
   };
 
-  // A Type with it's SourceRange, which is used to represent "real" types written down
-  // by the user.
+  // A Type with its associated SourceRange
   class TypeLoc : public Type {
     SourceRange range_;
     public:
@@ -72,8 +73,12 @@ namespace fox {
 
       SourceRange getRange() const;
 
+      // TypeLoc doesn't have it's own dump() method because we cannot dump
+      // any meaningful information about our range_ without a SourceManager.
+
       Type withoutLoc();
       const Type withoutLoc() const; 
+
     private:
       // For now, disable TypeLoc comparison. We don't need it.
       // Might add a "strict_compare" function tho.
