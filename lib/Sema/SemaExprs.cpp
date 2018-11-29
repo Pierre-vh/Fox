@@ -11,8 +11,6 @@
 /*
     Re-order methods in the ExprChecker. Document them better, write "category" 
     headers, etc.
-
-    Write the description of Diagnose methods and Finalize methods
     
     Write LIT tests for UnaryExpr & CastExpr 
     (take advantage of the redudant cast warning)
@@ -54,7 +52,8 @@ namespace {
   // all check a single node. They do not orchestrate visitation of
   // the children, because that is done in the ASTWalker
   //
-  // Every visitation method return a pointer to an Expr*, which is the current expr
+  // Every visitation method return a pointer to an Expr*, which is the current 
+  // expr
   // OR the expr that should take it's place. This can NEVER be null.
   class ExprChecker : public ExprVisitor<ExprChecker, Expr*>, public ASTWalker {
     using Inherited = ExprVisitor<ExprChecker, Expr*>;
@@ -64,22 +63,37 @@ namespace {
         
       }
 
-      //--Diagnose Methods--//
-      // Diagnose method's sole purpose is to emit the best diagnostic possible
-      // for a given situation. 
+      // Returns the ASTContext
+      ASTContext& getCtxt() {
+        return sema_.getASTContext();
+      }
+
+      // Returns the DiagnosticEngine
+      DiagnosticEngine& getDiags() {
+        return sema_.getDiagnosticEngine();
+      }
+
+      Sema& getSema() {
+        return sema_;
+      }
+
+      //----------------------------------------------------------------------//
+      // Diagnostic methods
+      //----------------------------------------------------------------------//
+      // The diagnose family of methods are designed to print the most relevant
+      // diagnostics for a given situation.
+      //----------------------------------------------------------------------//
 
       // (Error) Diagnoses an invalid cast 
       void diagnoseInvalidCast(CastExpr* expr) {
         SourceRange range = expr->getCastTypeLoc().getRange();
         TypeBase* childTy = expr->getExpr()->getType().getPtr();
         TypeBase* goalTy = expr->getCastTypeLoc().getPtr();
-        if (Sema::isBound(childTy)) {
-          getDiags()
-            .report(DiagID::sema_invalid_cast, range)
-            .addArg(childTy->toString())
-            .addArg(goalTy->toString())
-            .setExtraRange(expr->getExpr()->getRange());
-        }
+        getDiags()
+          .report(DiagID::sema_invalid_cast, range)
+          .addArg(childTy->toString())
+          .addArg(goalTy->toString())
+          .setExtraRange(expr->getExpr()->getRange());
       }
 
       // (Warning) Diagnoses a redudant cast (when the
@@ -93,9 +107,32 @@ namespace {
           .setExtraRange(expr->getExpr()->getRange());
       }
 
-      //--Finalize methods--//
-      // Finalize methods will set the type of the expr that was just checked
-      // and perform some final checks to ensure the node is correctly formed.
+      void diagnoseHeteroArrLiteral(ArrayLiteralExpr* expr, Expr* faultyElem) {
+        if (faultyElem) {
+          getDiags()
+            // Precise error loc is the first element that failed the inferrence,
+            // extended range is the whole arrayliteral's.
+            .report(DiagID::sema_arraylit_hetero, faultyElem->getRange())
+            .setRange(expr->getRange());
+        }
+        else {
+          getDiags()
+            // If we have no element to pinpoint, just use the whole expr's
+            // range
+            .report(DiagID::sema_arraylit_hetero, expr->getRange());
+        }
+      }
+
+      //----------------------------------------------------------------------//
+      // Finalize methods
+      //----------------------------------------------------------------------//
+      // The finalize family of methods will... finalize the given expr.
+      // Finalizing can mean a lot of things. Some exprs might want a finalize()
+      // method while others won't need one.
+      //
+      // Usually, in finalizeXXXExpr, we'll set it's type, maybe emit some last
+      // minute diagnostic about it, etc. 
+      //----------------------------------------------------------------------//
 
       // Finalizes a valid CastExpr
       Expr* finalizeCastExpr(CastExpr* expr, bool isRedundant) {
@@ -155,31 +192,9 @@ namespace {
         return expr;
       }
 
-      // Returns the Int type if type is a boolean, or
-      // return it's argument otherwise.
-      // The pointer must not be null an point to an integral type.
-      TypeBase* uprankIfBoolean(PrimitiveType* type) {
-        assert(type && "Pointer must not be null");
-        assert(Sema::isIntegral(type) && "Type must be integral");
-
-        if (type->getPrimitiveKind() == PrimitiveType::Kind::BoolTy)
-          return PrimitiveType::getInt(getCtxt());
-        return type;
-      }
-
-      // Returns the ASTContext
-      ASTContext& getCtxt() {
-        return sema_.getASTContext();
-      }
-
-      // Returns the DiagnosticEngine
-      DiagnosticEngine& getDiags() {
-        return sema_.getDiagnosticEngine();
-      }
-
-      Sema& getSema() {
-        return sema_;
-      }
+      //----------------------------------------------------------------------//
+      // ASTWalker overrides
+      //----------------------------------------------------------------------//
 
       virtual std::pair<Expr*, bool> handleExprPre(Expr* expr) {
         // Not needed since we won't do preorder visitation
@@ -214,7 +229,13 @@ namespace {
         fox_unreachable("Illegal node kind");
       }
 
-      // Check methods
+
+      //----------------------------------------------------------------------//
+      // "visit" methods
+      //----------------------------------------------------------------------//
+      // Theses visit() methods will perform the necessary tasks to check a
+      // given expr.
+      //----------------------------------------------------------------------//
 
       Expr* visitBinaryExpr(BinaryExpr*) {
         // Note:
@@ -309,7 +330,6 @@ namespace {
         fox_unimplemented_feature("FunctionCallExpr TypeChecking");
       }
       
-
       // Trivial literals: the expr's type is simply the corresponding
       // type. Int for a Int literal, etc.
       Expr* visitCharLiteralExpr(CharLiteralExpr* expr) {
@@ -338,11 +358,6 @@ namespace {
       }
 
       // Array literals
-      // To deduce the type of an Array literal:
-      // if size > 0
-      //    see deduceTypeOfArrayLiteral
-      // else
-      //    Type needs inference
       Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr) {
         if (expr->getSize() != 0) {
           TypeBase* deduced = deduceTypeOfArrayLiteral(expr);
@@ -350,33 +365,21 @@ namespace {
             expr->setType(deduced);
           return expr;
         }
+        // Type needs inference
         else
           return finalizeEmptyArrayLiteral(expr);
       }
 
-      // Helper for the above function that deduces the type of a non empty Array literal
+      //----------------------------------------------------------------------//
+      // Helper checking methods
+      //----------------------------------------------------------------------//
+      // Various semantics-related helper methods 
+      //----------------------------------------------------------------------//
+
+      // Deduces the type of a non empty Array literal
       // Returns the type of the literal or nullptr if it can't be calculated.
       TypeBase* deduceTypeOfArrayLiteral(ArrayLiteralExpr* expr) {
         assert(expr->getSize() && "Size must be >0");
-
-        // Diagnoses a heterogenous array literal.
-        // Emits the diagnostics and returns the errorType.
-        static auto diagnose_hetero = [&](Expr* faultyElem = nullptr) {
-          if (faultyElem) {
-            getDiags()
-              // Precise error loc is the first element that failed the inferrence,
-              // extended range is the whole arrayliteral's.
-              .report(DiagID::sema_arraylit_hetero, faultyElem->getRange())
-              .setRange(expr->getRange());
-          }
-          else {
-            getDiags()
-              // If we have no element to pinpoint, just use the whole expr's
-              // range
-              .report(DiagID::sema_arraylit_hetero, expr->getRange());
-          }
-          return nullptr;
-        };
 
         // The bound type proposed by unifying the other concrete/bound
         // types inside the array.
@@ -401,8 +404,10 @@ namespace {
             if (!unboundTy)
               unboundTy = elemTy;
             // Attempt unification
-            else if (!getSema().unify(unboundTy, elemTy))
-              return diagnose_hetero(elem);
+            else if (!getSema().unify(unboundTy, elemTy)) {
+              diagnoseHeteroArrLiteral(expr, elem);
+              return nullptr;
+            }
             continue;
           }
 
@@ -415,30 +420,32 @@ namespace {
           }
 
           // Unify elemTy with the bound proposed type.
-          if (!getSema().unify(boundTy, elemTy))
-            return diagnose_hetero(elem); // Failed to unify, incompatible types
+          if (!getSema().unify(boundTy, elemTy)) {
+            diagnoseHeteroArrLiteral(expr, elem);
+            return nullptr;
+          }
 
           // Get the highest ranking type of elemTy and boundTy
           boundTy = Sema::getHighestRankedTy(elemTy, boundTy);
           assert(boundTy &&
-           "Couldn't determine the highest ranked type but unification succeeded?");
+                 "Couldn't determine the highest ranked type "
+                 "but unification succeeded?");
         }
         Type proper;
-        // Both unboundTy & boundTy
+        // Check if we have an unboundTy and/or a boundTy
         if (unboundTy && boundTy) {
-          // Unify them
-          if (!getSema().unify(unboundTy, boundTy))
-            return diagnose_hetero(); // FIXME: Do proper diagnosis
-          proper = boundTy; // FIXME: That or getHighestRanking?
+          if (!getSema().unify(unboundTy, boundTy)) {
+            // FIXME: Proper diagnosis might be needed here.
+            diagnoseHeteroArrLiteral(expr, nullptr);
+            return nullptr;
+          }
+          proper = boundTy; 
         }
-        // Only boundTy OR unboundTy
-        else if (boundTy)
-          proper = boundTy;
-        else if (unboundTy)
-          proper = unboundTy;
-        else
-          fox_unreachable("Should have at least a boundTy or unboundTy set.");
-        assert(proper);
+        else if (boundTy) proper = boundTy;
+        else if (unboundTy) proper = unboundTy;
+        else fox_unreachable("Should have at least a boundTy or unboundTy set");
+        assert(proper && "the proper type shouldn't be null at this stage");
+
         // The type of the expr is an array of the proposed type.
         return ArrayType::get(getCtxt(), proper.getPtr());
       }
