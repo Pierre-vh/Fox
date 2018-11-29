@@ -11,13 +11,29 @@
 #pragma once
 #include "ASTVisitor.hpp"
 #include <iosfwd>
+#include <utility>
 
 namespace fox {
   class SourceManager;
-  class ASTDumper : public SimpleASTVisitor<ASTDumper, void> {
+  class ASTDumper : /*private*/ SimpleASTVisitor<ASTDumper, void> {
     public:
       ASTDumper(SourceManager& srcMgr, std::ostream& out, const uint8_t& offsettabs = 0);
       ASTDumper(std::ostream& out, const uint8_t& offsettabs = 0);
+
+      // Prints the AST as a dump, which will create a highly detailed
+      // dump of the AST
+      template<typename Ty>
+      void dump(Ty&& value) {
+        debug_ = true;
+        visit(std::forward<Ty>(value));
+      }
+
+      // Prints the AST in a more compact, user friendly fashion.
+      template<typename Ty>
+      void print(Ty&& value) {
+        debug_ = false;
+        visit(std::forward<Ty>(value));
+      }
 
       // Expressions
       void visitBinaryExpr(BinaryExpr* node);
@@ -49,12 +65,10 @@ namespace fox {
       void visitParamDecl(ParamDecl* node);
       void visitFuncDecl(FuncDecl* node);
 
-      // Options
-      void setPrintAllAddresses(bool opt);
-      bool getPrintAllAddresses() const;
-
     private:
-      void initDefaultOptions();
+      bool isDebug() const;
+
+      std::string toString(Type type) const;
 
       const SourceManager::SourceData* getSourceData(FileID fid);
       bool hasSrcMgr() const;
@@ -121,6 +135,6 @@ namespace fox {
       uint16_t curIndent_ = 0, offsetTabs_ = 0;
 
       // Options
-      bool printAllAdresses_ : 1;
+      bool debug_ = false;
   };
 }

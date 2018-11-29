@@ -253,17 +253,12 @@ void ASTDumper::visitFuncDecl(FuncDecl* node) {
   }
 }
 
-void ASTDumper::setPrintAllAddresses(bool opt) {
-  printAllAdresses_ = opt;
+bool ASTDumper::isDebug() const {
+  return debug_;
 }
 
-bool ASTDumper::getPrintAllAddresses() const {
-  return printAllAdresses_;
-}
-
-void ASTDumper::initDefaultOptions() {
-  // currently it's hard coded defaults
-  printAllAdresses_ = false;
+std::string ASTDumper::toString(Type type) const {
+  return isDebug() ? type->toDebugString() : type->toString();
 }
 
 const SourceManager::SourceData* ASTDumper::getSourceData(FileID fid) {
@@ -347,7 +342,7 @@ std::string ASTDumper::getTypeNodeName(TypeBase* type) const {
 std::string ASTDumper::getBasicStmtInfo(Stmt* stmt) const {
   std::ostringstream ss;
   ss << getStmtNodeName(stmt);
-  if (printAllAdresses_)
+  if (isDebug())
     ss << " " << (void*)stmt;
   return ss.str();
 }
@@ -355,17 +350,17 @@ std::string ASTDumper::getBasicStmtInfo(Stmt* stmt) const {
 std::string ASTDumper::getBasicExprInfo(Expr* expr) const {
   std::ostringstream ss;
   ss << getExprNodeName(expr);
-  if (printAllAdresses_)
+  if (isDebug())
     ss << " " << (void*)expr;
   if (auto ty = expr->getType())
-    ss << " " << ty->toString();
+    ss << " " << toString(ty);
   return ss.str();
 }
 
 std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
   std::ostringstream ss;
   ss << getDeclNodeName(decl);
-  if (printAllAdresses_)
+  if (isDebug())
     ss << " " << (void*)decl;
 
   SourceRange range = decl->getRange();
@@ -378,7 +373,7 @@ std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
 std::string ASTDumper::getBasicTypeInfo(TypeBase* type) const {
   std::ostringstream ss;
   ss << getTypeNodeName(type);
-  if (printAllAdresses_)
+  if (isDebug())
     ss << " " << (void*)type;
   return ss.str();
 }
@@ -386,7 +381,7 @@ std::string ASTDumper::getBasicTypeInfo(TypeBase* type) const {
 std::string ASTDumper::getBasicValueDeclDump(ValueDecl* decl) const {
   std::ostringstream ss;
   ss << getDeclNodeName(decl);
-  if (printAllAdresses_)
+  if (isDebug())
     ss << " " << (void*)decl;
 
   ss << " " << getSourceRangeDump("range", decl->getRange()) << " ";
@@ -461,7 +456,7 @@ std::string ASTDumper::getSourceRangeDump(const std::string& label,
 std::string ASTDumper::getTypeDump(const std::string& label,
                                    Type ty,
                                    bool isConst) const {
-  std::string str = (isConst ? "const " : "") + addSingleQuotes(ty->toString());
+  std::string str = (isConst ? "const " : "") + addSingleQuotes(toString(ty));
   return makeKeyPairDump(label, str);
 }
 
@@ -469,7 +464,7 @@ std::string ASTDumper::getTypeLocDump(const std::string& label,
                                       TypeLoc ty,
                                       bool isConst) const {
   std::ostringstream ss;
-  ss << (isConst ? "const " : "") << addSingleQuotes(ty->toString());
+  ss << (isConst ? "const ": "") << addSingleQuotes(toString(ty.withoutLoc()));
   if (auto range = ty.getRange())
     ss << " " << getSourceRangeAsStr(range);
   return makeKeyPairDump(label, ss.str());
@@ -498,5 +493,5 @@ void ASTDumper::dedent(std::uint8_t num) {
 
 // Dump methods
 void Expr::dump() const {
-  ASTDumper(std::cerr).visit(const_cast<Expr*>(this));
+  ASTDumper(std::cerr).dump(const_cast<Expr*>(this));
 }
