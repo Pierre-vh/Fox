@@ -427,19 +427,18 @@ std::string ASTDumper::getIdentifierDump(Identifier* id) const {
 
 std::string ASTDumper::getSourceLocDump(const std::string& label,
                                         SourceLoc sloc) const {
-  std::ostringstream ss;
   if (sloc && hasSrcMgr()) {
+    std::ostringstream ss;
     CompleteLoc cloc = srcMgr_->getCompleteLoc(sloc);
     ss << "(l" << cloc.line << ",c" << cloc.column << ")";
-  } else
-    ss << "(invalid SourceLoc)";
-
-  return makeKeyPairDump(label, ss.str());
+    return makeKeyPairDump(label, ss.str());
+  } 
+  return "";
 }
 
 std::string ASTDumper::getSourceRangeAsStr(SourceRange range) const {
-  std::ostringstream ss;
   if (range && hasSrcMgr()) {
+    std::ostringstream ss;
     CompleteLoc begCLoc = srcMgr_->getCompleteLoc(range.getBegin());
     CompleteLoc endCLoc = srcMgr_->getCompleteLoc(range.getEnd());
     if (begCLoc.line != endCLoc.line) {
@@ -449,10 +448,9 @@ std::string ASTDumper::getSourceRangeAsStr(SourceRange range) const {
       ss << "(l" << begCLoc.line << ", c" << begCLoc.column << " to c"
          << endCLoc.column << ")";
     }
-  } else
-    ss << "(invalid SourceRange)";
-
-  return ss.str();
+    return ss.str();
+  }
+  return "";
 }
 
 std::string ASTDumper::getSourceRangeDump(const std::string& label,
