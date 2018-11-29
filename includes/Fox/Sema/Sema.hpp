@@ -59,10 +59,7 @@ namespace fox {
 
       // This method returns the integral rank that a given type has.
       // type must not be null and must point to a arithmetic type.
-      static IntegralRankTy getIntegralRank(Type type);
-
-      // Returns true if "type" is a string type.
-      static bool isStringType(TypeBase* type);
+      static IntegralRankTy getIntegralRank(TypeBase* type);;
 
       // Walk the type, returns false if it contains a unbound
       // CellType.

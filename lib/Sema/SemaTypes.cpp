@@ -25,43 +25,18 @@ namespace {
   // This function will also ignore LValues and unwrap array types.
   // It doesn't compare ConstrainedTypes and will return false if
   // a or b is one.
-  bool compareSubtypes(Type a, Type b) {
+  bool compareSubtypes(TypeBase* a, TypeBase* b) {
     assert(a && b && "Pointers cannot be null");
 
     // Ignores LValues to perform the comparison.
-    a = a->ignoreLValue();
-    b = b->ignoreLValue();
+    std::tie(a, b) = Sema::unwrapAll({a, b});
 
     // Exact equality
     if (a == b)
       return true;
 
-    // Check more in depth for some types of the same kind,
-    // such as ArrayTypes.
-    if (a->getKind() == b->getKind()) {
-      // Checking additional requirements for Primitive Types where
-      // we allow 2 integrals to be considered "equal"
-      if (isa<PrimitiveType>(a.getPtr())) {
-        if (Sema::isIntegral(a) && Sema::isIntegral(b))
-          return true;
-        return false;
-      }
-
-      // Checking Array Types
-      if (isa<ArrayType>(a.getPtr())) {
-        TypeBase* elemA = a->unwrapIfArray();
-        TypeBase* elemB = b->unwrapIfArray();
-
-        assert(elemA && elemB && "Types are null");
-
-        // Unwrap and check again
-        return compareSubtypes(elemA, elemB);
-      }
-
-      // Checking CellTypes (deref)
-    }
-
-    return false;
+    // Types aren't equal unless they're both integral.
+    return (Sema::isIntegral(a) && Sema::isIntegral(b));
   }
 }  // anonymous namespace
 
@@ -195,13 +170,13 @@ TypeBase* Sema::getHighestRankedTy(TypeBase* a, TypeBase* b, bool unwrap) {
   return nullptr;
 }
 
-Sema::IntegralRankTy Sema::getIntegralRank(Type type) {
+Sema::IntegralRankTy Sema::getIntegralRank(TypeBase* type) {
   using Pk = PrimitiveType::Kind;
 
   assert(type && isIntegral(type)
     && "Can only use this on a valid pointer to an integral type");
 
-  auto* prim = cast<PrimitiveType>(type.getPtr());
+  auto* prim = cast<PrimitiveType>(type);
 
   switch (prim->getPrimitiveKind()) {
     case Pk::BoolTy:
@@ -213,12 +188,6 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type type) {
     default:
       fox_unreachable("Unknown integral type");
   }
-}
-
-bool Sema::isStringType(TypeBase* type) {
-  if (auto* prim = dyn_cast<PrimitiveType>(type))
-    return prim->isString();
-  return false;
 }
 
 bool Sema::isBound(TypeBase* ty) {

@@ -137,7 +137,7 @@ namespace {
         }
 
         // Handle casts to string
-        if (Sema::isStringType(castGoal.getPtr())) {
+        if (castGoal->isStringType()) {
           // Let another function handle this!
           checkCastToString(expr);
           return expr;
