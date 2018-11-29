@@ -121,17 +121,18 @@ namespace {
       }
 
       Expr* visitCastExpr(CastExpr* expr) {
-        Type& childTy = expr->getExpr()->getType();
-        TypeLoc& castGoal = expr->getCastTypeLoc();
+        TypeBase* childTy = expr->getExpr()->getType().getPtr();
+        TypeBase* castGoal = expr->getCastTypeLoc().getPtr();
 
         //--Sanity checks--//
         // It is impossible for unbound types to exist
         // as cast goals, as cast goals are type written
         // down by the user.
-        assert(getSema().isBound(castGoal.getPtr()) &&
+        assert(getSema().isBound(castGoal) &&
           "Unbound types cannot be present as cast goals!");
 
-        if (childTy.is<ErrorType>() && castGoal.is<ErrorType>()) {
+        // Stop if ErrorType somewhere
+        if (isa<ErrorType>(childTy) && isa<ErrorType>(castGoal)) {
           expr->setType(getErrorType());
           return expr;
         }
@@ -145,11 +146,12 @@ namespace {
         
         // For other type of casts, unification is enough to determine
         // if the cast is valid.
-        if (getSema().unify(childTy.getPtr(), castGoal.getPtr()))
-          expr->setType(castGoal.withoutLoc());
+        if (getSema().unify(childTy, castGoal))
+          expr->setType(castGoal);
         else {
+          SourceRange range = expr->getCastTypeLoc().getRange();
           getDiags()
-            .report(DiagID::sema_invalid_cast, castGoal.getRange())
+            .report(DiagID::sema_invalid_cast, range)
             .addArg(childTy->toString())
             .addArg(castGoal->toString())
             .setExtraRange(expr->getExpr()->getRange());
