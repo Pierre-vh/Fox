@@ -16,9 +16,11 @@
 namespace fox {
   class TypeBase;
   class TypeLoc;
+
   // Type class, an observing pointer to a TypeBase*
-  // Used to facilitate passing TypeBase pointers as reference, (Type& instead of TypeBase*&)
-  // as well as adding flexibility in case I'd like to add Sugared types one day.
+  // Used to facilitate passing TypeBase pointers as reference
+  //    e.g. Type& instead of TypeBase*&
+  // + it adds flexibility in case I'd like to add "sugared" types one day.
   class Type {
     TypeBase* ty_ = nullptr;
     public:
