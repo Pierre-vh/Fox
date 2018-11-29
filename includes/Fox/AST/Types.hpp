@@ -41,6 +41,8 @@ namespace fox {
       /* Returns the type's name in a developer-friendly form, e.g. "Array(int)" instead of [int]" */
       std::string toDebugString() const;
 
+      void dump() const;
+
       TypeKind getKind() const;
 
       // Returns the element type if this is an ArrayType, or nullptr.

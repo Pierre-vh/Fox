@@ -253,6 +253,10 @@ void ASTDumper::visitFuncDecl(FuncDecl* node) {
   }
 }
 
+void ASTDumper::visit(TypeBase* type) {
+  dumpLine() << toString(type);
+}
+
 bool ASTDumper::isDebug() const {
   return debug_;
 }
@@ -494,4 +498,16 @@ void ASTDumper::dedent(std::uint8_t num) {
 // Dump methods
 void Expr::dump() const {
   ASTDumper(std::cerr).dump(const_cast<Expr*>(this));
+}
+
+void Stmt::dump() const {
+  ASTDumper(std::cerr).dump(const_cast<Stmt*>(this));
+}
+
+void Decl::dump() const {
+  ASTDumper(std::cerr).dump(const_cast<Decl*>(this));
+}
+
+void TypeBase::dump() const {
+  std::cerr << this->toDebugString();
 }

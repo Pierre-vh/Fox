@@ -36,6 +36,8 @@ namespace fox {
 
       bool isValid() const;
 
+      void dump() const;
+
       // Prohibit the use of builtin placement new & delete
       void *operator new(std::size_t) throw() = delete;
       void operator delete(void *) throw() = delete;

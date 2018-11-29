@@ -19,7 +19,8 @@ namespace {
     std::ostream& out;
     bool debugPrint = false;
 
-    static constexpr char * nullTypeStr = "<none>";
+    static constexpr char* nullTypeStr = "nullptr";
+    static constexpr char* emptyCellTypeStr = "?";
 
     public:
       TypePrinter(std::ostream& out, bool debugPrint) :
@@ -95,14 +96,19 @@ namespace {
       }
 
       void visitCellType(CellType* type) {
-        // For constrained types, print the adress
-        out << "Cell." << (void*)type << "(";
-
-        // Print the contained type if there's one
-        if (TypeBase* elem = type->getSubstitution()) 
-          visit(elem);
-        else out << nullTypeStr;
-        out << ")";
+        if (debugPrint) {
+          out << "Cell." << (void*)type << "(";
+          if (TypeBase* elem = type->getSubstitution())
+            visit(elem);
+          else out << nullTypeStr;
+          out << ")";
+        }
+        else {
+          if(auto* ty = type->getSubstitution())
+            visit(ty);
+          else 
+            out << emptyCellTypeStr;
+        }
       }
   };
 }
