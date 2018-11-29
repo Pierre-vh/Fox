@@ -121,10 +121,15 @@ namespace {
       }
 
       Expr* visitCastExpr(CastExpr* expr) {
-        // Check if we can cast to that, castgoal must be
-        // of the same family OR string.
         Type& childTy = expr->getExpr()->getType();
         TypeLoc& castGoal = expr->getCastTypeLoc();
+
+        //--Sanity checks--//
+        // It is impossible for unbound types to exist
+        // as cast goals, as cast goals are type written
+        // down by the user.
+        assert(getSema().isBound(castGoal.getPtr()) &&
+          "Unbound types cannot be present as cast goals!");
 
         if (childTy.is<ErrorType>() && castGoal.is<ErrorType>()) {
           expr->setType(getErrorType());
