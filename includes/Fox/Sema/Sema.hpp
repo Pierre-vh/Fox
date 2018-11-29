@@ -43,7 +43,7 @@ namespace fox {
 
       // Returns true if a is a PrimitiveType of
       // type Int/Float/Bool
-      static bool isIntegral(Type type);
+      static bool isIntegral(TypeBase* type);
 
       // Given 2 types
         // If they are integrals, return the highest ranking integral's type

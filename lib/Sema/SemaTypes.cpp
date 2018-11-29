@@ -134,8 +134,8 @@ bool Sema::unify(TypeBase* a, TypeBase* b) {
   return false;
 }
 
-bool Sema::isIntegral(Type type) {
-  if (auto* prim = type.getAs<PrimitiveType>()) {
+bool Sema::isIntegral(TypeBase* type) {
+  if (auto* prim = dyn_cast<PrimitiveType>(type)) {
     using Pk = PrimitiveType::Kind;
     switch (prim->getPrimitiveKind()) {
       case Pk::BoolTy:
