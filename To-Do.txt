@@ -82,12 +82,11 @@ To-Do:
   > Adding -werr for LIT test suite (Done)
   > Replace BuiltinType by BasicType (Done)
 
-  > Work on Sema (Next)
+  > Work on Sema (Now)
 
-  > Logger work:
-    > Maybe use macros for the "func guards", so the object isn't generated if debug mode isn't
-      active? Or is that premature optimization?
-
+  > Decide if the Type class has any reason to exists now that I reworked the type inference again. 
+    I'd like to keep it for the flexbility it gives, but what should I do? Use TypeBase* or Type?
+    Probably the latter. I need to think about this more.
   
   > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
     or should parseStmt handle it?
@@ -104,8 +103,6 @@ Order of semantic analysis
 
 Boring stuff that I must do when I have the time/motivation for it
   > Adopt a Documentation style (Doxygen) and document all the code with it
-
-  > AST Serialization tool for unit tests
 
 
 Pending reworks:
