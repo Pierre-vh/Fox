@@ -80,8 +80,8 @@ bool Driver::processFile(const std::string& filepath) {
   // Dump AST if needed
   if (getDumpAST()) {
     auto chrono = createChrono("AST Printing");
-    getOS() << "\nAST Dump:\n";
-    ASTDumper(srcMgr, getOS(), 1).visit(ctxt.getMainUnit());
+    getOS() << "\nAST Printing:\n";
+    ASTDumper(srcMgr, getOS(), 1).print(ctxt.getMainUnit());
   }
 
   // (Verify mode) Check that all diags were emitted if we're
