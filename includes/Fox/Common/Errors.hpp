@@ -14,18 +14,32 @@
 #include <cassert>
 
 namespace fox {
-  // For use with fox_unreachable only.
+namespace detail {
   [[noreturn]]
-  void _fox_unreachable_internal(const char* message, const char* file, unsigned line);
+  void fox_unreachable_internal(const char* message,
+    const char* file, unsigned line);
+
+  [[noreturn]]
+  void fox_unimpl_feat_internal(const char* message,
+    const char* file, unsigned line);
+} // detail namespace
 
   // Report a bad alloc error (when an allocator fails)
   // Currently this will print the error message to cerr
   // and throw std::bad_alloc
   void reportBadAlloc(const char* message);
-}
+} // fox namespace
 
 
-// Quick macro to mark some piece of code as unreachable.
+// Macro to mark some piece of code as unreachable.
 #ifndef fox_unreachable
-  #define fox_unreachable(msg) ::fox::_fox_unreachable_internal(msg,__FILE__,__LINE__)
+  #define fox_unreachable(msg) \
+    ::fox::detail::fox_unreachable_internal(msg,__FILE__,__LINE__)
+#endif
+
+
+// Macro to mark some functionality as unimplemented for now.
+#ifndef fox_unimplemented_feature
+  #define fox_unimplemented_feature(msg) \
+    ::fox::detail::fox_unimpl_feat_internal(msg,__FILE__,__LINE__)
 #endif
