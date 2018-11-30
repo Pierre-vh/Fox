@@ -54,11 +54,11 @@ namespace fox {
 
       // Map of Array types (Type -> Type[]) 
       // (managed by ArrayType::get)
-      std::map<TypeBase*, ArrayType*> arrayTypes;
+      std::map<Type, ArrayType*> arrayTypes;
 
       // LValue types (Type -> @Type)
       // (managed by LValueType::get)
-      std::map<TypeBase*, LValueType*> lvalueTypes;
+      std::map<Type, LValueType*> lvalueTypes;
 
 
       // Singleton/unique types. Lazily
