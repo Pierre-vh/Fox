@@ -134,8 +134,7 @@ std::string TypeBase::toString() const {
 std::string TypeBase::toDebugString() const {
   std::ostringstream oss;
   TypePrinter tp(oss, /* debug print */ true);
-  // This is ugly but needed. TypePrinter won't alter
-  // this instance anyway so it's meaningless.
+  // See above (lines 128/129)
   tp.visit(const_cast<TypeBase*>(this));
   return oss.str();
 }
