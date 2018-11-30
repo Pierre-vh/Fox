@@ -34,12 +34,17 @@ namespace fox {
 
   // TypeBase
   //    Common base for types
+  //
+  // Usually, you should never use raw TypeBase* pointers unless you have
+  // a valid reason. Always use the Type wrapper. (see Type.hpp)
   class alignas(align::TypeBaseAlignement) TypeBase {
     public:
-      /* Returns the type's name in a user friendly form, e.g. "int", "string" */
+      /* Returns the type's name in a user friendly form, 
+         e.g. "int", "string" */
       std::string toString() const;
 
-      /* Returns the type's name in a developer-friendly form, e.g. "Array(int)" instead of [int]" */
+      /* Returns the type's name in a developer-friendly form, 
+         e.g. "Array(int)" instead of [int]" */
       std::string toDebugString() const;
 
       void dump() const;
@@ -247,7 +252,8 @@ namespace fox {
 
       // Override the new operator to use the SemaAllocator in the
       // ASTContext to allocate CellTypes.
-      void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(TypeBase));
+      void* operator new(std::size_t sz, ASTContext &ctxt, 
+        std::uint8_t align = alignof(TypeBase));
 
       Type type_ = nullptr;
   };
