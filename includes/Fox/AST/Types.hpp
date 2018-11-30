@@ -65,6 +65,21 @@ namespace fox {
       bool isIntType() const;
       bool isVoidType() const;
 
+      template<typename Ty>
+      bool is() const {
+        return isa<Ty>(this);
+      }
+
+      template<typename Ty>
+      const Ty* getAs() const {
+        return dyn_cast<Ty>(this);
+      }
+
+      template<typename Ty>
+      Ty* getAs() {
+        return dyn_cast<Ty>(this);
+      }
+
     protected:
       TypeBase(TypeKind tc);
 
