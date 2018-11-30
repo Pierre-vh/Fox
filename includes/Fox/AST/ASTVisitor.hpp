@@ -84,12 +84,12 @@ namespace fox {
       }
 
       // Visit Types dispatch method
-      TypeRtrTy visit(TypeBase* type, Args... args) {
+      TypeRtrTy visit(Type type, Args... args) {
         assert(type && "Cannot be used on a null pointer");
         switch (type->getKind()) {
           #define TYPE(ID,PARENT)\
             case TypeKind::ID:\
-              return static_cast<Derived*>(this)->visit##ID(static_cast<ID*>(type), ::std::forward<Args>(args)...);
+              return static_cast<Derived*>(this)->visit##ID(type->getAs<ID>(), ::std::forward<Args>(args)...);
           #include "TypeNodes.def"
           default:
             fox_unreachable("Unknown node");
