@@ -39,7 +39,7 @@ namespace {
   // If "type" is a CellType* with a substitution, returns the substitution,
   // else, returns "type".
   Type defer_if(Type type) {
-    if (auto* ptr = type.getAs<CellType>()) {
+    if (auto* ptr = type->getAs<CellType>()) {
       // if the type has a substitution, return it, else
       // just return the argument.
       if (auto* sub = ptr->getSubstitution())
