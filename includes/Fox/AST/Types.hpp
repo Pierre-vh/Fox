@@ -19,6 +19,7 @@
 #include <list>
 #include "llvm/ADT/PointerIntPair.h"
 #include "ASTAligns.hpp"
+#include "Type.hpp"
 
 namespace fox {
   // Kinds of Types
@@ -46,17 +47,17 @@ namespace fox {
       TypeKind getKind() const;
 
       // Returns the element type if this is an ArrayType, or nullptr.
-      const TypeBase* unwrapIfArray() const;
-      TypeBase* unwrapIfArray();
+      const Type unwrapIfArray() const;
+      Type unwrapIfArray();
 
       // Returns the element type if this is an LValueType, or nullptr.
-      const TypeBase* unwrapIfLValue() const;
-      TypeBase* unwrapIfLValue();
+      const Type unwrapIfLValue() const;
+      Type unwrapIfLValue();
 
       // If this type is an LValue, returns it's element type, else
       // returns this.
-      const TypeBase* ignoreLValue() const;
-      TypeBase* ignoreLValue();
+      const Type ignoreLValue() const;
+      Type ignoreLValue();
 
       bool isStringType() const;
       bool isCharType() const;
@@ -172,20 +173,19 @@ namespace fox {
     public:
       // Returns the UNIQUE ArrayType instance for the given
       // type ty.
-      static ArrayType* get(ASTContext& ctxt, TypeBase* ty);
+      static ArrayType* get(ASTContext& ctxt, Type ty);
 
-      TypeBase* getElementType();
-      const TypeBase* getElementType() const;
+      Type getElementType();
+      const Type getElementType() const;
 
       static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::ArrayType);
       }
 
     private:
-      // Private because only called by ::get
-      ArrayType(TypeBase* elemTy);
+      ArrayType(Type elemTy);
 
-      TypeBase* elementTy_= nullptr;
+      Type elementTy_= nullptr;
   };
 
   // LValueType
@@ -195,20 +195,19 @@ namespace fox {
   class LValueType : public TypeBase {
     public:
       // Returns the UNIQUE LValueType instance for the given type "ty"
-      static LValueType* get(ASTContext& ctxt, TypeBase* ty);
+      static LValueType* get(ASTContext& ctxt, Type ty);
 
-      TypeBase* getType();
-      const TypeBase* getType() const;
+      Type getType();
+      const Type getType() const;
 
       static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::LValueType);
       }
 
     private:
-      // Private because only used by ::get
-      LValueType(TypeBase* type);
+      LValueType(Type type);
 
-      TypeBase* ty_ = nullptr;
+      Type ty_ = nullptr;
   };
 
   // CellType
@@ -217,14 +216,14 @@ namespace fox {
       // Creates a new instance of the CellType class
       static CellType* create(ASTContext& ctxt);
 
-      TypeBase* getSubstitution();
-      const TypeBase* getSubstitution() const;
+      Type getSubstitution();
+      const Type getSubstitution() const;
 
       // Returns true if the type has a substitution
       // (type isn't null)
       bool hasSubstitution() const;
 
-      void setSubstitution(TypeBase* type);
+      void setSubstitution(Type type);
 
       void reset();
 
@@ -240,7 +239,7 @@ namespace fox {
       // ASTContext to allocate CellTypes.
       void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(TypeBase));
 
-      TypeBase* type_ = nullptr;
+      Type type_ = nullptr;
   };
 
 }

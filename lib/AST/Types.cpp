@@ -57,7 +57,7 @@ namespace {
       void visitArrayType(ArrayType* type) {
         if (debugPrint) {
           out << "Array(";
-          if (TypeBase* elem = type->getElementType())
+          if (Type elem = type->getElementType())
             visit(elem);
           else
             out << nullTypeStr;
@@ -65,7 +65,7 @@ namespace {
         }
         else {
           out << "[";
-          if (TypeBase* elem = type->getElementType())
+          if (Type elem = type->getElementType())
             visit(elem);
           else
             out << nullTypeStr;
@@ -76,7 +76,7 @@ namespace {
       void visitLValueType(LValueType* type) {
         if (debugPrint) {
           out << "LValue(";
-          if (TypeBase* elem = type->getType())
+          if (Type elem = type->getType())
             visit(elem);
           else
             out << nullTypeStr;
@@ -84,7 +84,7 @@ namespace {
         }
         else {
           out << "@";
-          if (TypeBase* elem = type->getType())
+          if (Type elem = type->getType())
             visit(elem);
           else
             out << nullTypeStr;
@@ -98,13 +98,13 @@ namespace {
       void visitCellType(CellType* type) {
         if (debugPrint) {
           out << "Cell." << (void*)type << "(";
-          if (TypeBase* elem = type->getSubstitution())
+          if (Type elem = type->getSubstitution())
             visit(elem);
           else out << nullTypeStr;
           out << ")";
         }
         else {
-          if(auto* ty = type->getSubstitution())
+          if(Type ty = type->getSubstitution())
             visit(ty);
           else 
             out << emptyCellTypeStr;
@@ -144,38 +144,38 @@ TypeKind TypeBase::getKind() const {
   return kind_;
 }
 
-const TypeBase* TypeBase::unwrapIfArray() const {
+const Type TypeBase::unwrapIfArray() const {
   if (const ArrayType* tmp = dyn_cast<ArrayType>(this))
     return tmp->getElementType();
   return nullptr;
 }
 
-TypeBase* TypeBase::unwrapIfArray() {
+Type TypeBase::unwrapIfArray() {
   if (ArrayType* tmp = dyn_cast<ArrayType>(this))
     return tmp->getElementType();
   return nullptr;
 }
 
-const TypeBase* TypeBase::unwrapIfLValue() const {
+const Type TypeBase::unwrapIfLValue() const {
   if (const LValueType* tmp = dyn_cast<LValueType>(this))
     return tmp->getType();
   return nullptr;
 }
 
-TypeBase* TypeBase::unwrapIfLValue() {
+Type TypeBase::unwrapIfLValue() {
   if (LValueType* tmp = dyn_cast<LValueType>(this))
     return tmp->getType();
   return nullptr;
 }
 
-const TypeBase* TypeBase::ignoreLValue() const {
-  auto* ptr = unwrapIfLValue();
-  return ptr ? ptr : this;
+const Type TypeBase::ignoreLValue() const {
+  Type ty = unwrapIfLValue();
+  return ty ? ty : Type(const_cast<TypeBase*>(this));
 }
 
-TypeBase* TypeBase::ignoreLValue() {
-  auto* ptr = unwrapIfLValue();
-  return ptr ? ptr : this;
+Type TypeBase::ignoreLValue() {
+  Type ty = unwrapIfLValue();
+  return ty ? ty : this;
 }
 
 bool TypeBase::isStringType() const {
@@ -280,12 +280,12 @@ PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const {
 // ArrayType //
 //-----------//
 
-ArrayType::ArrayType(TypeBase* elemTy):
+ArrayType::ArrayType(Type elemTy):
   elementTy_(elemTy), TypeBase(TypeKind::ArrayType) {
   assert(elemTy && "The Array item type cannot be null!");
 }
 
-ArrayType* ArrayType::get(ASTContext& ctxt, TypeBase* ty) {
+ArrayType* ArrayType::get(ASTContext& ctxt, Type ty) {
   auto lb = ctxt.arrayTypes.lower_bound(ty);
   if (lb != ctxt.arrayTypes.end() &&
     !(ctxt.lvalueTypes.key_comp()(ty, lb->first))) {
@@ -299,11 +299,11 @@ ArrayType* ArrayType::get(ASTContext& ctxt, TypeBase* ty) {
   }
 }
 
-TypeBase* ArrayType::getElementType() {
+Type ArrayType::getElementType() {
   return elementTy_;
 }
 
-const TypeBase* ArrayType::getElementType() const {
+const Type ArrayType::getElementType() const {
   return elementTy_;
 }
 
@@ -311,12 +311,12 @@ const TypeBase* ArrayType::getElementType() const {
 // LValueType //
 //------------//
 
-LValueType::LValueType(TypeBase* type):
+LValueType::LValueType(Type type):
   TypeBase(TypeKind::LValueType), ty_(type) {
   assert(type && "cannot be null");
 }
 
-LValueType* LValueType::get(ASTContext& ctxt, TypeBase* ty) {
+LValueType* LValueType::get(ASTContext& ctxt, Type ty) {
   auto lb = ctxt.lvalueTypes.lower_bound(ty);
   if (lb != ctxt.lvalueTypes.end() &&
     !(ctxt.lvalueTypes.key_comp()(ty, lb->first))) {
@@ -330,11 +330,11 @@ LValueType* LValueType::get(ASTContext& ctxt, TypeBase* ty) {
   }
 }
 
-TypeBase* LValueType::getType() {
+Type LValueType::getType() {
   return ty_;
 }
 
-const TypeBase* LValueType::getType() const {
+const Type LValueType::getType() const {
   return ty_;
 }
 
@@ -363,11 +363,11 @@ CellType* CellType::create(ASTContext& ctxt) {
   return new(ctxt) CellType();
 }
 
-TypeBase* CellType::getSubstitution() {
+Type CellType::getSubstitution() {
   return type_;
 }
 
-const TypeBase* CellType::getSubstitution() const {
+const Type CellType::getSubstitution() const {
   return type_;
 }
 
@@ -375,7 +375,7 @@ bool CellType::hasSubstitution() const {
   return (type_ != nullptr);
 }
 
-void CellType::setSubstitution(TypeBase* type) {
+void CellType::setSubstitution(Type type) {
   assert(type 
     && "Cannot set the substitution to a null pointer. Use reset() for that.");
   type_ = type;
