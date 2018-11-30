@@ -20,7 +20,7 @@ namespace fox {
       Expr* walk(Expr* expr);
       Decl* walk(Decl* decl);
       Stmt* walk(Stmt* stmt);
-      bool walk(TypeBase* type);
+      bool walk(Type type);
 
       // Called when first visiting an expression before visiting it's
       // children. 
@@ -69,10 +69,10 @@ namespace fox {
       // Called when first visiting a type before visiting it's
       // children. 
       // If the return value is false, the traversal is terminated.
-      virtual bool handleTypePre(TypeBase* type);
+      virtual bool handleTypePre(Type type);
 
       // Called after visiting a type's children.
       // If the return value is false, the traversal is terminated.
-      virtual bool handleTypePost(TypeBase* type);
+      virtual bool handleTypePost(Type type);
   };
 }

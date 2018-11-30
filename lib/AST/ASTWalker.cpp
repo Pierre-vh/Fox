@@ -236,13 +236,13 @@ namespace {
       }
 
       bool visitArrayType(ArrayType* type) {
-        if(auto* elem = type->getElementType())
+        if(Type elem = type->getElementType())
           return doIt(elem);
         return true;
       }
 
       bool visitLValueType(LValueType* type) {
-        if (auto* ty = type->getType())
+        if (Type ty = type->getType())
           return doIt(ty);
         return true;
       }
@@ -252,7 +252,7 @@ namespace {
       }
 
       bool visitCellType(CellType* type) {
-        if (auto* sub = type->getSubstitution())
+        if (Type sub = type->getSubstitution())
           return doIt(sub);
         return true;
       }
@@ -315,7 +315,7 @@ namespace {
       }
 
       // doIt method for types
-      bool doIt(TypeBase* type) {
+      bool doIt(Type type) {
         // Call the walker, abort if failed.
         if (!walker_.handleTypePre(type))
           return false;
@@ -366,7 +366,7 @@ Stmt* ASTWalker::walk(Stmt* stmt) {
   return Traverse(*this).doIt(stmt);
 }
 
-bool ASTWalker::walk(TypeBase* type) {
+bool ASTWalker::walk(Type type) {
   return Traverse(*this).doIt(type);
 }
 
@@ -394,10 +394,10 @@ Decl* ASTWalker::handleDeclPost(Decl* decl) {
   return decl;
 }
 
-bool ASTWalker::handleTypePre(TypeBase*) {
+bool ASTWalker::handleTypePre(Type) {
   return true;
 }
 
-bool ASTWalker::handleTypePost(TypeBase*) {
+bool ASTWalker::handleTypePost(Type) {
   return true;
 }
