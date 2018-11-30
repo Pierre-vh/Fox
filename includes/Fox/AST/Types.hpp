@@ -81,6 +81,16 @@ namespace fox {
         return dyn_cast<Ty>(this);
       }
 
+      template<typename Ty>
+      const Ty* castTo() const {
+        return cast<Ty>(this);
+      }
+
+      template<typename Ty>
+      Ty* castTo() {
+        return cast<Ty>(this);
+      }
+
     protected:
       TypeBase(TypeKind tc);
 
