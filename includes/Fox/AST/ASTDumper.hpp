@@ -67,9 +67,10 @@ namespace fox {
       void visitFuncDecl(FuncDecl* node);
 
     private:
-      // We need a custom visit method for TypeBase* to avoid
-      // calling visitXXXType and just use TypeBase::toString
-      void visit(TypeBase* type);
+      // We need a custom visit method for Type to avoid
+      // calling visitXXXType and just use Type->toString()
+      void visit(Type type);
+
       // We also want to use the base class's visit methods
       using Inherited::visit;
 
@@ -94,13 +95,13 @@ namespace fox {
       std::string getStmtNodeName(Stmt* stmt) const;
       std::string getExprNodeName(Expr* expr) const;
       std::string getDeclNodeName(Decl* decl) const;
-      std::string getTypeNodeName(TypeBase* type) const;
+      std::string getTypeName(Type type) const;
 
       // Returns a string containing basic information about a node : It's name followed by it's adress. Maybe more in the future.
       std::string getBasicStmtInfo(Stmt* stmt) const;
       std::string getBasicExprInfo(Expr* expr) const;
       std::string getBasicDeclInfo(Decl* decl) const;
-      std::string getBasicTypeInfo(TypeBase* type) const;
+      std::string getBasicTypeInfo(Type type) const;
       std::string getBasicValueDeclDump(ValueDecl* decl) const;
 
       // Dump an operator in 2 different ways, depending on dumpOperatorsAsNames_

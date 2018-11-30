@@ -253,7 +253,7 @@ void ASTDumper::visitFuncDecl(FuncDecl* node) {
   }
 }
 
-void ASTDumper::visit(TypeBase* type) {
+void ASTDumper::visit(Type type) {
   dumpLine() << toString(type);
 }
 
@@ -332,7 +332,7 @@ std::string ASTDumper::getDeclNodeName(Decl* decl) const {
   }
 }
 
-std::string ASTDumper::getTypeNodeName(TypeBase* type) const {
+std::string ASTDumper::getTypeName(Type type) const {
   switch (type->getKind()) {
 #define TYPE(ID, PARENT) \
   case TypeKind::ID:     \
@@ -374,11 +374,11 @@ std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
   return ss.str();
 }
 
-std::string ASTDumper::getBasicTypeInfo(TypeBase* type) const {
+std::string ASTDumper::getBasicTypeInfo(Type type) const {
   std::ostringstream ss;
-  ss << getTypeNodeName(type);
+  ss << getTypeName(type);
   if (isDebug())
-    ss << " " << (void*)type;
+    ss << " " << (void*)type.getPtr();
   return ss.str();
 }
 
