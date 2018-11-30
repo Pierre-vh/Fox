@@ -17,7 +17,8 @@ namespace fox {
   class TypeBase;
   class TypeLoc;
 
-  // Type class, an observing pointer to a TypeBase*
+  // Type class, an observing pointer to a TypeBase*.
+  // Never use raw TypeBase pointers unless necessary, always use this wrapper.
   // Used to facilitate passing TypeBase pointers as reference
   //    e.g. Type& instead of TypeBase*&
   // + it adds flexibility in case I'd like to add "sugared" types one day.
@@ -37,25 +38,6 @@ namespace fox {
       const TypeBase* operator->() const;
 
       explicit operator bool() const;
-
-      // uses dyn_cast_or_null to return the type pointer
-      template<typename Ty>
-      Ty* getAs() {
-        return dyn_cast_or_null<Ty>(ty_);
-      }
-
-      // uses dyn_cast_or_null to return the type pointer
-      template<typename Ty>
-      const Ty* getAs() const {
-        return dyn_cast_or_null<Ty>(ty_);
-      }
-
-      // calls isa on the pointer. Returns false
-      // if the pointer is null.
-      template<typename Ty>
-      bool is() const {
-        return ty_ ? isa<Ty>(ty_) : false;
-      }
 
       bool operator==(const Type& type) const;
       bool operator!=(const Type& type) const;
