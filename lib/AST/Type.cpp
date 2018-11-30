@@ -51,6 +51,10 @@ bool Type::operator!=(const Type& type) const {
   return !(*this == type);
 }
 
+bool Type::operator<(const Type other) const {
+  return getPtr() < other.getPtr();
+}
+
 // TypeLoc
 
 TypeLoc::TypeLoc(TypeBase* ty, SourceRange range):

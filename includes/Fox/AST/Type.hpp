@@ -42,6 +42,9 @@ namespace fox {
       bool operator==(const Type& type) const;
       bool operator!=(const Type& type) const;
 
+      // for STL containers
+      bool operator<(const Type other) const;
+
     private:
       // Forbid TypeLoc->Type conversion
       Type(const TypeLoc&) = delete;
