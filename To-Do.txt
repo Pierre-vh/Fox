@@ -81,6 +81,7 @@ To-Do:
   > Create better unwrapping functions to effectively unwrap types (Done)
   > Adding -werr for LIT test suite (Done)
   > Replace BuiltinType by BasicType (Done)
+  > Properly use Type in place of TypeBase* (Done)
 
   > Work on Sema (Now)
 
