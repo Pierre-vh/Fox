@@ -42,8 +42,8 @@ namespace {
     if (auto* ptr = type->getAs<CellType>()) {
       // if the type has a substitution, return it, else
       // just return the argument.
-      if (auto* sub = ptr->getSubstitution())
-        return Type(sub);
+      if (Type sub = ptr->getSubstitution())
+        return sub;
     }
     return type;
   }
@@ -87,12 +87,12 @@ namespace {
       // (Error) Diagnoses an invalid cast 
       void diagnoseInvalidCast(CastExpr* expr) {
         SourceRange range = expr->getCastTypeLoc().getRange();
-        TypeBase* childTy = expr->getExpr()->getType().getPtr();
-        TypeBase* goalTy = expr->getCastTypeLoc().getPtr();
+        Type childTy = expr->getExpr()->getType();
+        Type goalTy = expr->getCastTypeLoc().withoutLoc();
         getDiags()
           .report(DiagID::sema_invalid_cast, range)
-          .addArg(childTy->toString())
-          .addArg(goalTy->toString())
+          .addArg(childTy)
+          .addArg(goalTy)
           .setExtraRange(expr->getExpr()->getRange());
       }
 
@@ -100,10 +100,10 @@ namespace {
       // cast goal and the child's type are equal)
       void diagnoseRedundantCast(CastExpr* expr) {
         SourceRange range = expr->getCastTypeLoc().getRange();
-        TypeBase* goalTy = expr->getCastTypeLoc().getPtr();
+        Type goalTy = expr->getCastTypeLoc().withoutLoc();
         getDiags()
           .report(DiagID::sema_redundant_cast, range)
-          .addArg(goalTy->toString())
+          .addArg(goalTy)
           .setExtraRange(expr->getExpr()->getRange());
       }
 
@@ -186,7 +186,7 @@ namespace {
         assert((expr->getSize() == 0) && "Only for empty ArrLits");
         // For empty array literals, the type is going to be a fresh
         // celltype inside an Array : Array(CellType(null))
-        TypeBase* type = CellType::create(getCtxt());
+        Type type = CellType::create(getCtxt());
         type = ArrayType::get(getCtxt(), type); 
         expr->setType(type);
         return expr;
@@ -246,8 +246,8 @@ namespace {
 
       Expr* visitCastExpr(CastExpr* expr) {
         // Get the types & unwrap them
-        TypeBase* childTy = expr->getExpr()->getType().getPtr();
-        TypeBase* goalTy = expr->getCastTypeLoc().getPtr();
+        Type childTy = expr->getExpr()->getType();
+        Type goalTy = expr->getCastTypeLoc().withoutLoc();
         std::tie(childTy, goalTy) = Sema::unwrapAll({childTy, goalTy });
 
         // Sanity Check:
@@ -259,7 +259,7 @@ namespace {
 
         // Check for Error Types. If one of the types is an ErrorType
         // just abort.
-        if (isa<ErrorType>(childTy) && isa<ErrorType>(goalTy))
+        if (childTy->is<ErrorType>() && goalTy->is<ErrorType>())
           return expr;
 
         // Casting to a String  
@@ -267,7 +267,7 @@ namespace {
         if (goalTy->isStringType() && Sema::isBound(childTy)) {
           // If the expr's type isn't a primitive type, diagnose
           // the invalid cast.
-          if (!isa<PrimitiveType>(childTy)) 
+          if (!childTy->is<PrimitiveType>()) 
             diagnoseInvalidCast(expr);
           
           return finalizeCastExpr(expr, childTy->isStringType());
@@ -285,7 +285,7 @@ namespace {
 
       Expr* visitUnaryExpr(UnaryExpr* expr) {
         Expr* child = expr->getExpr();
-        TypeBase* childTy = child->getType().getPtr();
+        Type childTy = child->getType();
         // ignore LValue + deref
         childTy = Sema::deref(childTy->ignoreLValue());
 
@@ -294,7 +294,7 @@ namespace {
         if (!Sema::isIntegral(childTy)) {
           // Not an integral type -> error.
           // Emit diag if childTy isn't a ErrorType too
-          if (!isa<ErrorType>(childTy)) {
+          if (!childTy->is<ErrorType>()) {
             getDiags()
               .report(DiagID::sema_unaryop_bad_child_type, expr->getOpRange())
               // Use the child's range as the extra range.
@@ -305,9 +305,9 @@ namespace {
           return expr;
         }
         
-        PrimitiveType* primChildTy = dyn_cast<PrimitiveType>(childTy);
-        assert(primChildTy 
-          && "isIntegral returned true but the type isn't a PrimitiveType?");
+        // If isIntegral returns true, we can safely assume that childTy is a
+        // PrimitiveType instance
+        PrimitiveType* primChildTy = childTy->castTo<PrimitiveType>();
         return finalizeUnaryExpr(expr, primChildTy);
       }
 
@@ -360,7 +360,7 @@ namespace {
       // Array literals
       Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr) {
         if (expr->getSize() != 0) {
-          TypeBase* deduced = deduceTypeOfArrayLiteral(expr);
+          Type deduced = deduceTypeOfArrayLiteral(expr);
           if(deduced)
             expr->setType(deduced);
           return expr;
@@ -378,24 +378,24 @@ namespace {
 
       // Deduces the type of a non empty Array literal
       // Returns the type of the literal or nullptr if it can't be calculated.
-      TypeBase* deduceTypeOfArrayLiteral(ArrayLiteralExpr* expr) {
+      Type deduceTypeOfArrayLiteral(ArrayLiteralExpr* expr) {
         assert(expr->getSize() && "Size must be >0");
 
         // The bound type proposed by unifying the other concrete/bound
         // types inside the array.
-        TypeBase* boundTy = nullptr;
+        Type boundTy;
 
         // The type used by unbounds elemTy
-        TypeBase* unboundTy = nullptr;
+        Type unboundTy;
 
         // Loop over each expression in the literal
         for (auto& elem : expr->getExprs()) {
           // Get the elemTy
-          TypeBase* elemTy = elem->getType().getPtr();
+          Type elemTy = elem->getType();
           assert(elemTy && "Type cannot be null!");
 
           // Handle error elem type: we stop here if we have one.
-          if (isa<ErrorType>(elemTy))
+          if (elemTy->is<ErrorType>())
             return nullptr;
 
           // Special logic for unbound types
@@ -456,7 +456,7 @@ namespace {
   // Visit methods return pointers to TypeBase. They return nullptr
   // if the finalization failed for this expr.
   // It's still a primitive, test version for now.
-  class ExprFinalizer : public TypeVisitor<ExprFinalizer, TypeBase*>,
+  class ExprFinalizer : public TypeVisitor<ExprFinalizer, Type>,
     public ASTWalker {
     ASTContext& ctxt_;
     DiagnosticEngine& diags_;
@@ -468,7 +468,7 @@ namespace {
       }
 
       Expr* handleExprPost(Expr* expr) {
-        TypeBase* type = expr->getType().getPtr();
+        Type type = expr->getType();
         assert(type && "Untyped expr");
 
         // Visit the type
@@ -486,12 +486,12 @@ namespace {
         return expr;
       }
 
-      TypeBase* visitPrimitiveType(PrimitiveType* type) {
+      Type visitPrimitiveType(PrimitiveType* type) {
         return type;
       }
 
-      TypeBase* visitArrayType(ArrayType* type) {
-        if (TypeBase* elem = visit(type->getElementType())) {
+      Type visitArrayType(ArrayType* type) {
+        if (Type elem = visit(type->getElementType())) {
           // Rebuild if needed
           if (elem != type->getElementType())
             return ArrayType::get(ctxt_, elem);
@@ -500,8 +500,8 @@ namespace {
         return nullptr;
       }
 
-      TypeBase* visitLValueType(LValueType* type) {
-        if (TypeBase* elem = visit(type->getType())) {
+      Type visitLValueType(LValueType* type) {
+        if (Type elem = visit(type->getType())) {
           if (elem != type->getType())
             return LValueType::get(ctxt_, elem);
           return type;
@@ -509,15 +509,14 @@ namespace {
         return nullptr;
       }
 
-      TypeBase* visitCellType(CellType* type) {
-        if (TypeBase* sub = type->getSubstitution())
+      Type visitCellType(CellType* type) {
+        if (Type sub = type->getSubstitution())
           return visit(sub);
         return nullptr;
       }
 
-      TypeBase* visitErrorType(ErrorType* type) {
-        // Error should have been handled already, we won't emit
-        // more.
+      Type visitErrorType(ErrorType* type) {
+        // Error should have been handled already. Don't do anything here.
         return type;
       }
   };

@@ -22,7 +22,7 @@ namespace fox {
       Sema(ASTContext& ctxt, DiagnosticEngine& diags);
 
       // Typedefs
-      using TypeBasePair = std::pair<TypeBase*, TypeBase*>;
+      using TypePair = std::pair<Type, Type>;
       using IntegralRankTy = std::uint8_t;
 
       // Typechecks an expression. Returns the
@@ -39,11 +39,11 @@ namespace fox {
       // they are CellTypes.
       //
       // Also, this function is commutative.
-      bool unify(TypeBase* a, TypeBase* b);
+      bool unify(Type a, Type b);
 
       // Returns true if a is a PrimitiveType of
       // type Int/Float/Bool
-      static bool isIntegral(TypeBase* type);
+      static bool isIntegral(Type type);
 
       // Given 2 types
         // If they are integrals, return the highest ranking integral's type
@@ -54,36 +54,36 @@ namespace fox {
       //          int & int but [[int]] & [int] is unwrapped to [int] & int
       // if ignoreLValues is set to true, lvalues are ignored prior to 
       // comparison.
-      static TypeBase* getHighestRankedTy(TypeBase* a, TypeBase* b,
+      static Type getHighestRankedTy(Type a, Type b,
         bool unwrap = true);
 
       // This method returns the integral rank that a given type has.
       // type must not be null and must point to a arithmetic type.
-      static IntegralRankTy getIntegralRank(TypeBase* type);;
+      static IntegralRankTy getIntegralRank(Type type);;
 
       // Walk the type, returns false if it contains a unbound
       // CellType.
-      static bool isBound(TypeBase* ty);
+      static bool isBound(Type ty);
 
       // If "type" is a CellType with a substitution, returns it.
       // This function is recursive and will dereference until reaching
       // either a CellType with no sub or something that isn't a SemaType.
-      static TypeBase* deref(TypeBase* type);
+      static Type deref(Type type);
 
       // Given a type, return the Basic type if it can find one, or nullptr.
       // e.g.
       //    LValue(Array(Array(int))) will return int
-      static BasicType* findBasicType(TypeBase* type);
+      static BasicType* findBasicType(Type type);
 
       // Removes the same number of ArrayType layers on 2 types
-      static TypeBasePair unwrapArrays(TypeBasePair pair);
+      static TypePair unwrapArrays(TypePair pair);
 
       // Removes all layers of LValue, CellType and ArrayType 
       // until this reaches a point where one (or both) of the
       // types become basic.
       // Note that both types may not be basic! The function will simply
       // stop unwrapping once one of them becomes basic.
-      static TypeBasePair unwrapAll(TypeBasePair pair);
+      static TypePair unwrapAll(TypePair pair);
 
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();

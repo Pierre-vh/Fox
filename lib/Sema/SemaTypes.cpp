@@ -25,7 +25,7 @@ namespace {
   // This function will also ignore LValues and unwrap array types.
   // It doesn't compare ConstrainedTypes and will return false if
   // a or b is one.
-  bool compareSubtypes(TypeBase* a, TypeBase* b) {
+  bool compareSubtypes(Type a, Type b) {
     assert(a && b && "Pointers cannot be null");
 
     // Ignores LValues to perform the comparison.
@@ -40,35 +40,35 @@ namespace {
   }
 }  // anonymous namespace
 
-bool Sema::unify(TypeBase* a, TypeBase* b) {
+bool Sema::unify(Type a, Type b) {
   assert(a && b && "Pointers cannot be null");
 
   // Unwrap 
   std::tie(a, b) = Sema::unwrapAll({a, b});
 
   // Check if not ErrorType
-  if (isa<ErrorType>(a) || isa<ErrorType>(b))
+  if (a->is<ErrorType>() || b->is<ErrorType>())
     return false;
 
   // Return early if a and b share the same subtype (no unification needed)
-  if (compareSubtypes(a, b) && !isa<CellType>(a))
+  if (compareSubtypes(a, b) && !a->is<CellType>())
     return true;
 
   /* Unification logic */
 
   // CellType = (Something)
-  if (auto* aCell = dyn_cast<CellType>(a)) {
+  if (auto* aCell = a->getAs<CellType>()) {
     // CellType = CellType
-    if (auto* bCell = dyn_cast<CellType>(b)) {
+    if (auto* bCell = b->getAs<CellType>()) {
       // Both are CellTypes, check if they have a substitution
-      auto* aCellSub = aCell->getSubstitution();
-      auto* bCellSub = bCell->getSubstitution();
+      Type aCellSub = aCell->getSubstitution();
+      Type bCellSub = bCell->getSubstitution();
       // Both have a sub
       if (aCellSub && bCellSub) {
 
         bool unifyResult = unify(aCellSub, bCellSub);
         // If it's nested CellTypes, just return the unifyResult.
-        if (isa<CellType>(aCellSub) || isa<CellType>(bCellSub))
+        if (aCellSub->is<CellType>() || bCellSub->is<CellType>())
           return unifyResult;
 
         // If theses aren't nested celltypes, return false on error.
@@ -79,7 +79,7 @@ bool Sema::unify(TypeBase* a, TypeBase* b) {
         if (aCellSub != bCellSub) {
           // If they're different, adjust both substitution to the highest
           // ranked type.
-          TypeBase* highest = getHighestRankedTy(aCellSub, bCellSub);
+          Type highest = getHighestRankedTy(aCellSub, bCellSub);
           assert(highest); // Should have one since unification was successful
           aCell->setSubstitution(highest);
           bCell->setSubstitution(highest);
@@ -104,28 +104,28 @@ bool Sema::unify(TypeBase* a, TypeBase* b) {
     }
     // CellType = (Not CellType)
     else {
-      if (auto* aCellSub = aCell->getSubstitution())
+      if (auto* aCellSub = aCell->getSubstitution().getPtr())
         return unify(aCellSub, b);
       aCell->setSubstitution(b);
       return true;
     }
   }
   // (Not CellType) = CellType
-  else if (auto* bCell = dyn_cast<CellType>(b)) {
-    if (auto* bCellSub = bCell->getSubstitution())
+  else if (auto* bCell = b->getAs<CellType>()) {
+    if (Type bCellSub = bCell->getSubstitution())
       return unify(a, bCellSub);
     bCell->setSubstitution(a);
     return true;
   }
   // ArrayType = (Something)
-  else if(auto* aArr = dyn_cast<ArrayType>(a)) {
+  else if(auto* aArr = a->getAs<ArrayType>()) {
     // Only succeeds if B is an ArrayType
-    auto* bArr = dyn_cast<ArrayType>(b);
+    auto* bArr = b->getAs<ArrayType>();
     if (!bArr) return false;
 
     // Unify the element types.
-    TypeBase* aArr_elem = aArr->getElementType();
-    TypeBase* bArr_elem = bArr->getElementType();
+    Type aArr_elem = aArr->getElementType();
+    Type bArr_elem = bArr->getElementType();
     assert(aArr_elem && bArr_elem 
       && "Array element type cannot be null");
     return unify(aArr_elem, bArr_elem);
@@ -134,8 +134,8 @@ bool Sema::unify(TypeBase* a, TypeBase* b) {
   return false;
 }
 
-bool Sema::isIntegral(TypeBase* type) {
-  if (auto* prim = dyn_cast<PrimitiveType>(type)) {
+bool Sema::isIntegral(Type type) {
+  if (auto* prim = type->getAs<PrimitiveType>()) {
     using Pk = PrimitiveType::Kind;
     switch (prim->getPrimitiveKind()) {
       case Pk::BoolTy:
@@ -149,10 +149,11 @@ bool Sema::isIntegral(TypeBase* type) {
   return false;
 }
 
-TypeBase* Sema::getHighestRankedTy(TypeBase* a, TypeBase* b, bool unwrap) {
-  // Backup the original type before we do anything with them.
-  TypeBase* ogA = a;
-  TypeBase* ogB = b;
+Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
+  // Backup the original type, so we have a backup before
+  // we unwrap the arguments.
+  Type ogA = a;
+  Type ogB = b;
 
   assert(a && b && "Pointers cannot be null");
 
@@ -170,13 +171,13 @@ TypeBase* Sema::getHighestRankedTy(TypeBase* a, TypeBase* b, bool unwrap) {
   return nullptr;
 }
 
-Sema::IntegralRankTy Sema::getIntegralRank(TypeBase* type) {
+Sema::IntegralRankTy Sema::getIntegralRank(Type type) {
   using Pk = PrimitiveType::Kind;
 
   assert(type && isIntegral(type)
     && "Can only use this on a valid pointer to an integral type");
 
-  auto* prim = cast<PrimitiveType>(type);
+  auto* prim = type->castTo<PrimitiveType>();
 
   switch (prim->getPrimitiveKind()) {
     case Pk::BoolTy:
@@ -190,11 +191,11 @@ Sema::IntegralRankTy Sema::getIntegralRank(TypeBase* type) {
   }
 }
 
-bool Sema::isBound(TypeBase* ty) {
+bool Sema::isBound(Type ty) {
   class Impl : public ASTWalker {
     public:
-      virtual bool handleTypePre(TypeBase* ty) override {
-        if (auto* cell = dyn_cast<CellType>(ty))
+      virtual bool handleTypePre(Type ty) override {
+        if (auto* cell = ty->getAs<CellType>())
           return cell->hasSubstitution();
         return true;
       }
@@ -202,15 +203,15 @@ bool Sema::isBound(TypeBase* ty) {
   return Impl().walk(ty);
 }
 
-TypeBase* Sema::deref(TypeBase* type) {
-  if (auto* cell = dyn_cast<CellType>(type)) {
-    TypeBase* sub = cell->getSubstitution();
+Type Sema::deref(Type type) {
+  if (auto* cell = type->getAs<CellType>()) {
+    Type sub = cell->getSubstitution();
     return sub ? deref(sub) : type;
   }
   return type;
 }
 
-BasicType* Sema::findBasicType(TypeBase* type) {
+BasicType* Sema::findBasicType(Type type) {
   class Impl : public TypeVisitor<Impl, BasicType*> {
     public:
       BasicType* visitPrimitiveType(PrimitiveType* type) {
@@ -222,19 +223,19 @@ BasicType* Sema::findBasicType(TypeBase* type) {
       }
 
       BasicType* visitArrayType(ArrayType* type) {
-        if(auto* elem = type->getElementType())
+        if(Type elem = type->getElementType())
           return visit(elem);
         return nullptr;
       }
       
       BasicType* visitLValueType(LValueType* type) {
-        if (auto* ty = type->getType())
+        if (Type ty = type->getType())
           return visit(ty);
         return nullptr;
       }
 
       BasicType* visitCellType(CellType* type) {
-        if (auto* sub = type->getSubstitution())
+        if (Type sub = type->getSubstitution())
           return visit(sub);
         return nullptr;
       }
@@ -243,11 +244,11 @@ BasicType* Sema::findBasicType(TypeBase* type) {
   return Impl().visit(type);
 }
 
-Sema::TypeBasePair Sema::unwrapArrays(TypeBasePair pair) {
+Sema::TypePair Sema::unwrapArrays(TypePair pair) {
   assert(pair.first && pair.second && 
     "args cannot be null");
-  auto* a = pair.first->unwrapIfArray();
-  auto* b = pair.second->unwrapIfArray();
+  Type a = pair.first->unwrapIfArray();
+  Type b = pair.second->unwrapIfArray();
   // Unwrapping was performed, assign and continue.
   if (a && b)
     return unwrapArrays({ a, b });
@@ -255,11 +256,11 @@ Sema::TypeBasePair Sema::unwrapArrays(TypeBasePair pair) {
   return pair;
 }
 
-Sema::TypeBasePair Sema::unwrapAll(TypeBasePair pair) {
+Sema::TypePair Sema::unwrapAll(TypePair pair) {
   auto tmp = pair;
   // Ignore LValues
-  tmp.first = pair.first->ignoreLValue();
-  tmp.second = pair.second->ignoreLValue();
+  tmp.first = pair.first->ignoreLValue().getPtr();
+  tmp.second = pair.second->ignoreLValue().getPtr();
   // Deref both
   tmp.first = Sema::deref(tmp.first);
   tmp.second = Sema::deref(tmp.second);
