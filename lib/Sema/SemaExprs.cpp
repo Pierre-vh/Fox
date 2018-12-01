@@ -4,22 +4,9 @@
 // File : SemaExprs.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This file implements Sema methods related to Exprs
+//  This file implements Sema methods related to Exprs and most of the 
+//  expr checking logic.
 //----------------------------------------------------------------------------//
-
-// Short to-do list (to do in order)
-/*
-    Re-order methods in the ExprChecker. Document them better, write "category" 
-    headers, etc.
-    
-    Write LIT tests for UnaryExpr & CastExpr 
-    (take advantage of the redudant cast warning)
-
-    Check again how verifymode works with -werror (should I use expect-warning or expect-error?)
-      -> Maybe let the DV allow an error with expect-warn?
-
-    Move on
-*/
 
 #include "Fox/Sema/Sema.hpp"
 #include "Fox/AST/Expr.hpp"
