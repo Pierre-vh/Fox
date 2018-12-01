@@ -300,7 +300,7 @@ namespace {
               // Use the child's range as the extra range.
               .setExtraRange(child->getRange()) 
               .addArg(expr->getOpSign()) // %0 is the operator's sign as text
-              .addArg(childTy->toString()); // %1 is the type of the child
+              .addArg(childTy); // %1 is the type of the child
           }
           return expr;
         }
