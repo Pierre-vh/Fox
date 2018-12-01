@@ -1,0 +1,33 @@
+// RUN: %fox %s -verify -werr
+
+func foo() {
+  // Booleans upranking
+  true as int;
+  true as float;
+
+  // Ints upranking
+  1 as float;
+
+  // Float downranking
+  3.14 as int;
+  3.14 as bool;
+
+  // Int downranking
+  3 as bool;
+
+  // Arrays
+  [true, false, true] as int[];
+  [true, false, true] as float[];
+
+  // Inference
+  [] as int[];
+  [[]] as float[][];
+  [] as int; // expect-error: Cannot cast expression of type '[?]' to type 'int'
+             // expect-error@-1: Failed to infer the type of this expression
+
+  // Redundant cast 
+  1 as int; // expect-error: Redundant cast: casting from 'int' to 'int'
+  3.14 as float; // expect-error: Redundant cast: casting from 'float' to 'float'
+  true as bool; // expect-error: Redundant cast: casting from 'bool' to 'bool'
+  [[3.14],[]] as float[][]; // expect-error: Redundant cast: casting from '[[float]]' to '[[float]]'
+}
