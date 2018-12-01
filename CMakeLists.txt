@@ -61,7 +61,7 @@ target_link_libraries(Moonshot libmoonshot)
 
 # add llvm lit test suite 
 add_custom_target(MoonshotLit 
-  COMMAND lit ${PROJECT_SOURCE_DIR}/tests -s --param fox_bin=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  COMMAND lit ${PROJECT_SOURCE_DIR}/tests -s -v --param fox_bin=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   DEPENDS Moonshot 
 )
 
