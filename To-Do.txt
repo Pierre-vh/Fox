@@ -83,28 +83,29 @@ To-Do:
   > Replace BuiltinType by BasicType (Done)
   > Properly use Type in place of TypeBase* (Done)
 
-  > Work on Sema (Now)
+  > Write Lexer LIT tests
 
-  > Decide if the Type class has any reason to exists now that I reworked the type inference again. 
-    I'd like to keep it for the flexbility it gives, but what should I do? Use TypeBase* or Type?
-    Probably the latter. I need to think about this more.
-  
-  > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
-    or should parseStmt handle it?
-    > Also, for parseQualType, who should emit the errors? The caller or the callee? No both! Make
-      a decision and stick to it.
-
-Order of semantic analysis
-  > Stmt Semantic Analysis
-  > Decl Semantic Analysis
-  > Name Resolution (DeclRefs of vars)
-  > Overload Resolution (Name resolution for memberExprs & DeclRefs of funcs)
+  > Work on Sema (Now) 
+    > Write tests for Unary operator checking
+    > BinaryExpr checking
+    > ArrayAccess checking
+    > Stmt semantic analysis
+    > Decl semantic analysis
+    > Name resolution
+    > DeclRefExpr 
+    > FunctionCallExpr + OVR (overload resolution)
     > UFCS
-      > UnresolvedDoExpr
+      > Parser additions (UnresolvedDotExpr)
+      > Semantic Analysis
+    > CodeGen 
 
 Boring stuff that I must do when I have the time/motivation for it
   > Adopt a Documentation style (Doxygen) and document all the code with it
 
+  > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
+    or should parseStmt handle it?
+    > Also, for parseQualType, who should emit the errors? The caller or the callee? No both! Make
+      a decision and stick to it.
 
 Pending reworks:
   > Token class -> Currently, it's an abomination. Nuke it and re-do it.
