@@ -1,3 +1,3 @@
 // RUN: %fox %s -verify -werr
 
-func foo(bar: // expect-error: Expected a type
+func foo(bar: // expect-error: expected a type

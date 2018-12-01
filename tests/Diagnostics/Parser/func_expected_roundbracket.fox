@@ -1,5 +1,5 @@
 // RUN: %fox %s -verify -werr
 
-func foo // expect-error: Expected '('
+func foo // expect-error: expected '('
 
-func foo( // expect-error: Expected ')'
+func foo( // expect-error: expected ')'

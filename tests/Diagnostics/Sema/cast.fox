@@ -22,12 +22,12 @@ func foo() {
   // Inference
   [] as int[];
   [[]] as float[][];
-  [] as int; // expect-error: Cannot cast expression of type '[?]' to type 'int'
-             // expect-error@-1: Failed to infer the type of this expression
+  [] as int; // expect-error: cannot cast expression of type '[?]' to type 'int'
+             // expect-error@-1: failed to infer the type of this expression
 
   // Redundant cast 
-  1 as int; // expect-error: Redundant cast: casting from 'int' to 'int'
-  3.14 as float; // expect-error: Redundant cast: casting from 'float' to 'float'
-  true as bool; // expect-error: Redundant cast: casting from 'bool' to 'bool'
-  [[3.14],[]] as float[][]; // expect-error: Redundant cast: casting from '[[float]]' to '[[float]]'
+  1 as int; // expect-error: redundant cast: expression is already of type 'int'
+  3.14 as float; // expect-error: redundant cast: expression is already of type 'float'
+  true as bool; // expect-error: redundant cast: expression is already of type 'bool'
+  [[3.14],[]] as float[][]; // expect-error: redundant cast: expression is already of type '[[float]]'
 }

@@ -1,8 +1,6 @@
 // RUN: %fox %s -verify -werr
 
 func foo() {
-  
-  // Type inference and unification tests: no diagnostics expected
   [] as int[];
   [1];
   [true];
@@ -10,9 +8,9 @@ func foo() {
   ["foo"];
   ['b'];
   [[],[true],[3.14]];
-  ['c',"c"]; // expect-error: Illegal heterogeneous array
-  [3,'c']; // expect-error: Illegal heterogeneous array
-  []; // expect-error: Failed to infer the type of this expression
+  ['c',"c"]; // expect-error: illegal heterogeneous array
+  [3,'c']; // expect-error: illegal heterogeneous array
+  []; // expect-error: failed to infer the type of this expression
   [[3],[]];
   [] as int[];
   [[[]]] as string[][][];

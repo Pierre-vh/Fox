@@ -1,4 +1,4 @@
 // RUN: %fox %s -verify -werr
 
-// expect-warning@+1: Expected an expression
+// expect-warning@+1: expected an expression
 let foo: int = 

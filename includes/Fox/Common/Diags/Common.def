@@ -19,27 +19,26 @@ NOTE(unittest_placeholderremoval2, "[%0%0%0]")
 NOTE(unittest_placeholderremoval3, "[%5%4%3%2%1%0]")
 NOTE(unittest_placeholderremoval4, "Hello, %0")
 
-// TODO
+// Diagnostic Verifier Diagnostics
 ERROR(diagverif_expectedsuffix,
-			"Expected a suffix after \"%0\" prefix in verify instr")
+			"expected a suffix after '%0' prefix in verify instr")
 ERROR(diagverif_expectedcolon,
-			"Expected a ':' in verify instr")
+			"expected a ':' in verify instr")
 ERROR(diagverif_expectedstr,
-			"Expected a diagnostic string in verify instr after ':'")
+			"expected a diagnostic string in verify instr after ':'")
 ERROR(diagverif_illFormedOffset,
-			"Ill formed verify instr offset. Should be '+' or '-' "
+			"ill formed verify instr offset. should be '+' or '-' "
       "followed by a single digit between 1 and 9")
 ERROR(diagverif_offsetIsZero, 
-      "Offset value must be between 1-9")
+      "offset value must be between 1-9")
 ERROR(diagverif_errorExpectedDiagsNotEmitted,
       "%0 diagnostics were expected but not emitted")
 NOTE(diagverif_diagNotEmitted,
-      "Diagnostic \"%0\" (%1) was expected at line %2 but not emitted")
-
+      "diagnostic '%0' (%1) was expected at line %2 but not emitted")
 DIAG_RANGE(DiagnosticVerifier, 
   diagverif_expectedsuffix, diagverif_diagNotEmitted)
 
-// DiagnosticEngine self Diagnostics
+// DiagnosticEngine
 FATAL(diagengine_maxErrCountExceeded, 
-  "Current error count exceeded the maximum thresold of %0.")
+  "current error count exceeded the maximum thresold of %0")
 
