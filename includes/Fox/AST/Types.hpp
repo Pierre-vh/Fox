@@ -51,19 +51,28 @@ namespace fox {
 
       TypeKind getKind() const;
 
-      // Returns the element type if this is an ArrayType, or nullptr.
-      const Type unwrapIfArray() const;
+      // Returns true if this is a bound type.
+      //
+      // A bound type is a type that can be materialized. In short,
+      // every type is a bound type except types that countains 
+      // CellTypes with no substitution somewhere in their hierarchy.
+      bool isBound() const;
+
+      // Returns the element type if this is an ArrayType, otherwise returns
+      // nullptr.
       Type unwrapIfArray();
 
       // If this type is an LValue, returns it's element type, else
       // returns this.
-      const Type ignoreLValue() const;
-      Type ignoreLValue();
+      Type getRValue();
+
+      // Ignores LValues and dereferences this type. If this is
+      // an unbound type, returns nullptr.
+      Type getBoundRValue();
 
       // If this type is a CelllType, dereference it recursively 
       // until we reach a CellType with no substitution or a
       // concrete type.
-      const Type deref() const;
       Type deref();
 
       bool isStringType() const;
@@ -114,7 +123,18 @@ namespace fox {
       // Companion operator delete to silence C4291 on MSVC
       void operator delete(void*, ASTContext&, std::uint8_t) {}
     
+      // Calculates the value of isBound_ and set isBoundCalculated_ to true.
+      void calculateIsBound() const;
+
     private:
+      void initBitfields();
+
+      //------------Bitfields------------//
+      // Cached values
+      mutable bool isBound_ : 1;
+      mutable bool isBoundCalculated_ : 1;
+      //-----------6 Bits left-----------//
+
       const TypeKind kind_;
   };
 

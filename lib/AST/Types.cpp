@@ -10,6 +10,7 @@
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
+#include "Fox/AST/ASTWalker.hpp"
 #include <sstream>
 
 using namespace fox;
@@ -143,10 +144,10 @@ TypeKind TypeBase::getKind() const {
   return kind_;
 }
 
-const Type TypeBase::unwrapIfArray() const {
-  if (const ArrayType* tmp = dyn_cast<ArrayType>(this))
-    return tmp->getElementType();
-  return nullptr;
+bool TypeBase::isBound() const {
+  if(!isBoundCalculated_)
+    calculateIsBound();
+  return isBound_;
 }
 
 Type TypeBase::unwrapIfArray() {
@@ -155,16 +156,19 @@ Type TypeBase::unwrapIfArray() {
   return nullptr;
 }
 
-const Type TypeBase::ignoreLValue() const {
-  if (const LValueType* tmp = dyn_cast<LValueType>(this))
-    return tmp->getType();
-  return const_cast<TypeBase*>(this);
-}
-
-Type TypeBase::ignoreLValue() {
+Type TypeBase::getRValue() {
   if (LValueType* tmp = dyn_cast<LValueType>(this))
     return tmp->getType();
   return this;
+}
+
+Type TypeBase::getBoundRValue() {
+  Type ty = getRValue()->deref();
+  // Deref never returns a CellType unless
+  // it's an unbound one.
+  if(ty->is<CellType>())
+    return nullptr;
+  return ty;
 }
 
 namespace {
@@ -175,10 +179,6 @@ namespace {
     }
     return type;
   }
-}
-
-const Type TypeBase::deref() const {
-  return derefImpl(const_cast<TypeBase*>(this));
 }
 
 Type TypeBase::deref() {
@@ -223,6 +223,25 @@ bool TypeBase::isVoidType() const {
 
 void* TypeBase::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
+}
+
+void TypeBase::calculateIsBound() const {
+  class Impl : public ASTWalker {
+    public:
+      // If this method returns false, the walk is aborted.
+      virtual bool handleTypePre(Type ty) override {
+        if (auto* cell = ty->getAs<CellType>())
+          return cell->hasSubstitution();
+        return true;
+      }
+  };
+  isBound_ = Impl().walk(const_cast<TypeBase*>(this));
+  isBoundCalculated_ = true;
+}
+
+void TypeBase::initBitfields() {
+  isBound_ = false;
+  isBoundCalculated_ = false;
 }
 
 //-------------//
