@@ -3,3 +3,10 @@ Sema:
    A type that can't be unwrapped any further. Currently, only ErrorTypes & PrimitiveTypes are basic.
   > Primitive Type:
     int, float, bool, string, char, void
+  > (un)bound type:
+    A type that can be "materialized". This includes every type except CellTypes with no substitution.
+    e.g.
+      int = bound
+      [float] = bound
+      Cell(Cell(float)) = bound
+      Cell(nullptr) = unbound
