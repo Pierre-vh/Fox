@@ -110,6 +110,17 @@ namespace {
         }
       }
 
+      void diagnoseInvalidUnaryOpChildType(UnaryExpr* expr) {
+        Expr* child = expr->getExpr();
+        Type childTy = child->getType();
+        getDiags()
+          .report(DiagID::sema_unaryop_bad_child_type, expr->getOpRange())
+          // Use the child's range as the extra range.
+          .setExtraRange(child->getRange())
+          .addArg(expr->getOpSign()) // %0 is the operator's sign as text
+          .addArg(childTy); // %1 is the type of the child
+      }
+
       //----------------------------------------------------------------------//
       // Finalize methods
       //----------------------------------------------------------------------//
@@ -241,7 +252,7 @@ namespace {
           // It is impossible for unbound types to exist
           // as cast goals, as cast goals are type written
           // down by the user.
-        assert(getSema().isBound(goalTy) &&
+        assert(goalTy->isBound() &&
           "Unbound types cannot be present as cast goals!");
 
         // Check for Error Types. If one of the types is an ErrorType
@@ -249,20 +260,13 @@ namespace {
         if (childTy->is<ErrorType>() && goalTy->is<ErrorType>())
           return expr;
 
-        // Casting to a String  
-          // Check that the child's type is a primitive type.
-        if (goalTy->isStringType() && Sema::isBound(childTy)) {
-          // If the expr's type isn't a primitive type, diagnose
-          // the invalid cast.
-          if (!childTy->is<PrimitiveType>()) 
-            diagnoseInvalidCast(expr);
-          
+        // "Stringifying" casts are a special case. To be
+        // eligible, the childTy must be a PrimitiveType.
+        if (goalTy->isStringType() && childTy->is<PrimitiveType>())
           return finalizeCastExpr(expr, childTy->isStringType());
-        }
         
-        // Casting to anything else
-          // For other type of casts, unification is enough to determine
-          // if the cast is valid. If unification fails, diagnose + errorType
+        // Casting to anything else : just unify or
+        // diagnose if unification fails
         if (getSema().unify(childTy, goalTy))
           return finalizeCastExpr(expr, (childTy == goalTy));
 
@@ -274,21 +278,22 @@ namespace {
         Expr* child = expr->getExpr();
         Type childTy = child->getType();
         // ignore LValue + deref
-        childTy = childTy->ignoreLValue()->deref();
+        childTy = childTy->getBoundRValue();
+
+        if (!childTy) {
+          // ChildTy is an unbound type
+          // FIXME: Maybe I should print a different kind of error for this?
+          diagnoseInvalidUnaryOpChildType(expr);
+          return expr;
+        }
 
         // For any unary operators, we only allow integral types,
         // so check that first.
         if (!Sema::isIntegral(childTy)) {
           // Not an integral type -> error.
           // Emit diag if childTy isn't a ErrorType too
-          if (!childTy->is<ErrorType>()) {
-            getDiags()
-              .report(DiagID::sema_unaryop_bad_child_type, expr->getOpRange())
-              // Use the child's range as the extra range.
-              .setExtraRange(child->getRange()) 
-              .addArg(expr->getOpSign()) // %0 is the operator's sign as text
-              .addArg(childTy); // %1 is the type of the child
-          }
+          if (!childTy->is<ErrorType>())
+            diagnoseInvalidUnaryOpChildType(expr);
           return expr;
         }
         
@@ -386,7 +391,7 @@ namespace {
             return nullptr;
 
           // Special logic for unbound types
-          if (!Sema::isBound(elemTy)) {
+          if (!elemTy->isBound()) {
             // Set unboundTy & continue for first loop
             if (!unboundTy)
               unboundTy = elemTy;
