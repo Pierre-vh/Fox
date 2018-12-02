@@ -66,8 +66,8 @@ namespace fox {
       // returns this.
       Type getRValue();
 
-      // Ignores LValues and dereferences this type. If this is
-      // an unbound type, returns nullptr.
+      // If this is a bound type, ignores LValues and dereferences this type. 
+      // If this is an unbound type, returns nullptr.
       Type getBoundRValue();
 
       // If this type is a CelllType, dereference it recursively 
@@ -125,6 +125,7 @@ namespace fox {
     
       // Calculates the value of isBound_ and set isBoundCalculated_ to true.
       void calculateIsBound() const;
+      void setIsBound(bool val) const;
 
     private:
       void initBitfields();

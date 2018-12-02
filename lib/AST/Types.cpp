@@ -163,12 +163,15 @@ Type TypeBase::getRValue() {
 }
 
 Type TypeBase::getBoundRValue() {
-  Type ty = getRValue()->deref();
-  // Deref never returns a CellType unless
-  // it's an unbound one.
-  if(ty->is<CellType>())
-    return nullptr;
-  return ty;
+  if (isBound()) {
+    Type ty = getRValue()->deref();
+    // Sanity check
+    if(CellType* cell = ty->getAs<CellType>())
+      assert(cell->hasSubstitution() 
+      && "Type is bound but deref returned a unbound CellType?");
+    return ty;
+  }
+  return nullptr;
 }
 
 namespace {
@@ -235,8 +238,13 @@ void TypeBase::calculateIsBound() const {
         return true;
       }
   };
-  isBound_ = Impl().walk(const_cast<TypeBase*>(this));
+  bool result = Impl().walk(const_cast<TypeBase*>(this));
+  setIsBound(result);
+}
+
+void TypeBase::setIsBound(bool val) const {
   isBoundCalculated_ = true;
+  isBound_ = val;
 }
 
 void TypeBase::initBitfields() {
