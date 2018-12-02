@@ -155,26 +155,16 @@ Type TypeBase::unwrapIfArray() {
   return nullptr;
 }
 
-const Type TypeBase::unwrapIfLValue() const {
+const Type TypeBase::ignoreLValue() const {
   if (const LValueType* tmp = dyn_cast<LValueType>(this))
     return tmp->getType();
-  return nullptr;
-}
-
-Type TypeBase::unwrapIfLValue() {
-  if (LValueType* tmp = dyn_cast<LValueType>(this))
-    return tmp->getType();
-  return nullptr;
-}
-
-const Type TypeBase::ignoreLValue() const {
-  Type ty = unwrapIfLValue();
-  return ty ? ty : Type(const_cast<TypeBase*>(this));
+  return const_cast<TypeBase*>(this);
 }
 
 Type TypeBase::ignoreLValue() {
-  Type ty = unwrapIfLValue();
-  return ty ? ty : this;
+  if (LValueType* tmp = dyn_cast<LValueType>(this))
+    return tmp->getType();
+  return this;
 }
 
 namespace {

@@ -55,10 +55,6 @@ namespace fox {
       const Type unwrapIfArray() const;
       Type unwrapIfArray();
 
-      // Returns the element type if this is an LValueType, or nullptr.
-      const Type unwrapIfLValue() const;
-      Type unwrapIfLValue();
-
       // If this type is an LValue, returns it's element type, else
       // returns this.
       const Type ignoreLValue() const;
