@@ -61,10 +61,6 @@ namespace fox {
       // type must not be null and must point to a arithmetic type.
       static IntegralRankTy getIntegralRank(Type type);;
 
-      // Walk the type, returns false if it contains a unbound
-      // CellType.
-      static bool isBound(Type ty);
-
       // Given a type, return the Basic type if it can find one, or nullptr.
       // e.g.
       //    LValue(Array(Array(int))) will return int
@@ -76,7 +72,7 @@ namespace fox {
       // Removes all layers of LValue, CellType and ArrayType 
       // until this reaches a point where one (or both) of the
       // types become basic.
-      // Note that both types may not be basic! The function will simply
+      // Note that the result types may not be basic! The function will simply
       // stop unwrapping once one of them becomes basic.
       static TypePair unwrapAll(TypePair pair);
 

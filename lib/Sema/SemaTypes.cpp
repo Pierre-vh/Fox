@@ -191,18 +191,6 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type type) {
   }
 }
 
-bool Sema::isBound(Type ty) {
-  class Impl : public ASTWalker {
-    public:
-      virtual bool handleTypePre(Type ty) override {
-        if (auto* cell = ty->getAs<CellType>())
-          return cell->hasSubstitution();
-        return true;
-      }
-  };
-  return Impl().walk(ty);
-}
-
 BasicType* Sema::findBasicType(Type type) {
   class Impl : public TypeVisitor<Impl, BasicType*> {
     public:
@@ -251,8 +239,8 @@ Sema::TypePair Sema::unwrapArrays(TypePair pair) {
 Sema::TypePair Sema::unwrapAll(TypePair pair) {
   auto tmp = pair;
   // Ignore LValues & deref both
-  tmp.first = pair.first->ignoreLValue()->deref();
-  tmp.second = pair.second->ignoreLValue()->deref();
+  tmp.first = pair.first->getRValue()->deref();
+  tmp.second = pair.second->getRValue()->deref();
   // Unwrap arrays
   tmp = unwrapArrays(tmp);
   // If both changed, recurse.
