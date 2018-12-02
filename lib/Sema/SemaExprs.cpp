@@ -274,7 +274,7 @@ namespace {
         Expr* child = expr->getExpr();
         Type childTy = child->getType();
         // ignore LValue + deref
-        childTy = Sema::deref(childTy->ignoreLValue());
+        childTy = childTy->ignoreLValue()->deref();
 
         // For any unary operators, we only allow integral types,
         // so check that first.

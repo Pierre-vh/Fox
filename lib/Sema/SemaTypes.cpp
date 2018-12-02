@@ -203,14 +203,6 @@ bool Sema::isBound(Type ty) {
   return Impl().walk(ty);
 }
 
-Type Sema::deref(Type type) {
-  if (auto* cell = type->getAs<CellType>()) {
-    Type sub = cell->getSubstitution();
-    return sub ? deref(sub) : type;
-  }
-  return type;
-}
-
 BasicType* Sema::findBasicType(Type type) {
   class Impl : public TypeVisitor<Impl, BasicType*> {
     public:
@@ -258,12 +250,9 @@ Sema::TypePair Sema::unwrapArrays(TypePair pair) {
 
 Sema::TypePair Sema::unwrapAll(TypePair pair) {
   auto tmp = pair;
-  // Ignore LValues
-  tmp.first = pair.first->ignoreLValue().getPtr();
-  tmp.second = pair.second->ignoreLValue().getPtr();
-  // Deref both
-  tmp.first = Sema::deref(tmp.first);
-  tmp.second = Sema::deref(tmp.second);
+  // Ignore LValues & deref both
+  tmp.first = pair.first->ignoreLValue()->deref();
+  tmp.second = pair.second->ignoreLValue()->deref();
   // Unwrap arrays
   tmp = unwrapArrays(tmp);
   // If both changed, recurse.

@@ -65,11 +65,6 @@ namespace fox {
       // CellType.
       static bool isBound(Type ty);
 
-      // If "type" is a CellType with a substitution, returns it.
-      // This function is recursive and will dereference until reaching
-      // either a CellType with no sub or something that isn't a SemaType.
-      static Type deref(Type type);
-
       // Given a type, return the Basic type if it can find one, or nullptr.
       // e.g.
       //    LValue(Array(Array(int))) will return int

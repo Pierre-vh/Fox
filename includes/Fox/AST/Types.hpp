@@ -64,6 +64,12 @@ namespace fox {
       const Type ignoreLValue() const;
       Type ignoreLValue();
 
+      // If this type is a CelllType, dereference it recursively 
+      // until we reach a CellType with no substitution or a
+      // concrete type.
+      const Type deref() const;
+      Type deref();
+
       bool isStringType() const;
       bool isCharType() const;
       bool isFloatType() const;

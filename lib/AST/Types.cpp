@@ -177,6 +177,24 @@ Type TypeBase::ignoreLValue() {
   return ty ? ty : this;
 }
 
+namespace {
+  Type derefImpl(TypeBase* type) {
+    if (auto* cell = type->getAs<CellType>()) {
+      Type sub = cell->getSubstitution();
+      return sub ? derefImpl(sub.getPtr()) : type;
+    }
+    return type;
+  }
+}
+
+const Type TypeBase::deref() const {
+  return derefImpl(const_cast<TypeBase*>(this));
+}
+
+Type TypeBase::deref() {
+  return derefImpl(this);
+}
+
 bool TypeBase::isStringType() const {
   if(auto* prim = dyn_cast<PrimitiveType>(this))
     return (prim->getPrimitiveKind() == PrimitiveType::Kind::StringTy);
