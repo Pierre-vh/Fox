@@ -11,5 +11,8 @@ ERROR(sema_arraylit_hetero, "illegal heterogeneous array")
 ERROR(sema_failed_infer, "failed to infer the type of this expression")
 ERROR(sema_invalid_cast, "cannot cast expression of type '%0' to type '%1'")
 ERROR(sema_unaryop_bad_child_type, "cannot use unary operator '%0' on an expression of type '%1'")
+ERROR(sema_arrsub_invalid_types, "invalid types '%0' and '%1' for array subscript")
 
 WARNING(sema_redundant_cast, "redundant cast: expression is already of type '%0'")
+WARNING(sema_implicit_integral_downcast,
+  "implicit conversion of an expression of type '%0' to '%1' may result in loss of information")

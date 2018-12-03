@@ -121,6 +121,38 @@ namespace {
           .addArg(childTy); // %1 is the type of the child
       }
 
+      void diagnoseInvalidArraySubscript(ArrayAccessExpr* expr,
+                                         SourceRange range, 
+                                         SourceRange extra) {
+        Expr* child = expr->getExpr();
+        Type childTy = child->getType();
+
+        Expr* idxE = expr->getIdxExpr();
+        Type idxETy = idxE->getType();
+
+        getDiags()
+          .report(DiagID::sema_arrsub_invalid_types, range)
+          // %0 is subscripted value's type, %1 is the index's expr type;
+          .addArg(childTy)
+          .addArg(idxETy)
+          .setExtraRange(extra);
+      }
+
+
+      // Warns about an implicit integral downcast
+      void warnImplicitIntegralDowncast(Type exprTy, Type destTy,
+                                        SourceRange range,
+                                        SourceRange extra = SourceRange()) {
+        auto diag = 
+          getDiags()
+            .report(DiagID::sema_implicit_integral_downcast, range)
+            .addArg(exprTy)
+            .addArg(destTy);
+
+        if (extra)
+          diag.setExtraRange(extra);
+      }
+
       //----------------------------------------------------------------------//
       // Finalize methods
       //----------------------------------------------------------------------//
@@ -187,6 +219,16 @@ namespace {
         Type type = CellType::create(getCtxt());
         type = ArrayType::get(getCtxt(), type); 
         expr->setType(type);
+        return expr;
+      }
+
+      // Finalizes an Array Subscript Expr 
+      Expr* finalizeArraySubscriptExpr(ArrayAccessExpr* expr, 
+                                       Type childTy) {    
+        Type exprTy = childTy->unwrapIfArray();
+        assert(exprTy && 
+               "Expression is valid but childTy is not an ArrayType?");
+        expr->setType(exprTy);
         return expr;
       }
 
@@ -282,8 +324,9 @@ namespace {
 
         if (!childTy) {
           // ChildTy is an unbound type
-          // FIXME: Maybe I should print a different kind of error for this?
-          diagnoseInvalidUnaryOpChildType(expr);
+          //diagnoseInvalidUnaryOpChildType(expr);
+          // Don't print a diagnostic, let the "cannot infer type"
+          // diagnostic be printed instead.
           return expr;
         }
 
@@ -303,11 +346,40 @@ namespace {
         return finalizeUnaryExpr(expr, primChildTy);
       }
 
-      Expr* visitArrayAccessExpr(ArrayAccessExpr*) {
-        // Note:
-          // Check that base is of ArrayType and idx expr
-          // is arithmetic and not float
-        fox_unimplemented_feature("ArrayAccessExpr TypeChecking");
+      Expr* visitArrayAccessExpr(ArrayAccessExpr* expr) {
+        // Get child expr and it's type
+        Expr* child = expr->getExpr();
+        Type childTy = child->getType()->getBoundRValue();
+        // Get idx expr and it's type
+        Expr* idxE = expr->getIdxExpr();
+        Type idxETy = idxE->getType()->getBoundRValue();
+
+        // Unbound type as a idx or child: give up
+        if (!(idxETy && childTy))
+          return expr;
+
+        // Check that it's an array type.
+        if (!childTy->is<ArrayType>()) {
+          diagnoseInvalidArraySubscript(expr, 
+                                        child->getRange(), idxE->getRange());
+          return expr;
+        }
+
+        // Idx type must be an integral value
+        if (!Sema::isIntegral(idxETy)) {
+          diagnoseInvalidArraySubscript(expr,
+                                        idxE->getRange(), child->getRange());
+          return expr;
+        }
+
+        // Warn if it's a float
+        if (idxETy->isFloatType()) {
+          Type intTy = PrimitiveType::getInt(getCtxt());
+          warnImplicitIntegralDowncast(idxETy, intTy, idxE->getRange());
+        }
+        
+        // Finalize
+        return finalizeArraySubscriptExpr(expr, childTy);
       }
 
       Expr* visitMemberOfExpr(MemberOfExpr*) {
