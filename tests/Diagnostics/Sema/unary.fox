@@ -1,0 +1,30 @@
+// RUN: %fox %s -verify -werr
+
+func foo() {
+  // Every operator should work on integral types
+  -true;
+  +true;
+  !true;
+  
+  -3;
+  +3;
+  !3;
+
+  -3.14;
+  +3.14;
+  !3.14;
+
+  // They shouldn't work on other types
+  -"string"; // expect-error: cannot use unary operator '-' on an expression of type 'string'
+  +"string"; // expect-error: cannot use unary operator '+' on an expression of type 'string'
+  !"string"; // expect-error: cannot use unary operator '!' on an expression of type 'string'
+
+  -'c'; // expect-error: cannot use unary operator '-' on an expression of type 'char'
+  +'c'; // expect-error: cannot use unary operator '+' on an expression of type 'char'
+  !'c'; // expect-error: cannot use unary operator '!' on an expression of type 'char'
+
+  -[0]; // expect-error: cannot use unary operator '-' on an expression of type '[int]'
+  +[0]; // expect-error: cannot use unary operator '+' on an expression of type '[int]'
+  ![0]; // expect-error: cannot use unary operator '!' on an expression of type '[int]'
+
+}
