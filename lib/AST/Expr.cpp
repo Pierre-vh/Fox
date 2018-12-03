@@ -572,39 +572,39 @@ SourceLoc MemberOfExpr::getDotLoc() const {
 }
 
 //-----------------//
-// ArrayAccessExpr //
+// ArraySubscriptExpr //
 //-----------------//
 
-ArrayAccessExpr::ArrayAccessExpr():
-  ArrayAccessExpr(nullptr, nullptr, SourceRange()) {
+ArraySubscriptExpr::ArraySubscriptExpr():
+  ArraySubscriptExpr(nullptr, nullptr, SourceRange()) {
 
 }
 
-ArrayAccessExpr::ArrayAccessExpr(Expr* expr, Expr* idxexpr, SourceRange range):
-  base_(expr), idxExpr_(idxexpr), Expr(ExprKind::ArrayAccessExpr, range) {
+ArraySubscriptExpr::ArraySubscriptExpr(Expr* expr, Expr* idxexpr, SourceRange range):
+  base_(expr), idxExpr_(idxexpr), Expr(ExprKind::ArraySubscriptExpr, range) {
   
 }
 
-void ArrayAccessExpr::setBase(Expr* expr) {
+void ArraySubscriptExpr::setBase(Expr* expr) {
   base_ = expr;
 }
 
-Expr* ArrayAccessExpr::getBase() {
+Expr* ArraySubscriptExpr::getBase() {
   return base_;
 }
 
-const Expr* ArrayAccessExpr::getBase() const {
+const Expr* ArraySubscriptExpr::getBase() const {
   return base_;
 }
 
-void ArrayAccessExpr::setIndex(Expr* expr) {
+void ArraySubscriptExpr::setIndex(Expr* expr) {
   idxExpr_ = expr;
 }
 
-Expr* ArrayAccessExpr::getIndex() {
+Expr* ArraySubscriptExpr::getIndex() {
   return idxExpr_;
 }
 
-const Expr* ArrayAccessExpr::getIndex() const {
+const Expr* ArraySubscriptExpr::getIndex() const {
   return idxExpr_;
 }

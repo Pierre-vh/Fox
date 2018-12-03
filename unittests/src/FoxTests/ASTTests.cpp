@@ -306,9 +306,9 @@ TEST(ASTTests, ExprRTTI) {
   EXPECT_TRUE(MemberOfExpr::classof(&membof));
 
   // Array Access
-  ArrayAccessExpr arracc;
-  EXPECT_EQ(arracc.getKind(), ExprKind::ArrayAccessExpr);
-  EXPECT_TRUE(ArrayAccessExpr::classof(&arracc));
+  ArraySubscriptExpr arracc;
+  EXPECT_EQ(arracc.getKind(), ExprKind::ArraySubscriptExpr);
+  EXPECT_TRUE(ArraySubscriptExpr::classof(&arracc));
 
   // Function calls
   FunctionCallExpr callexpr;

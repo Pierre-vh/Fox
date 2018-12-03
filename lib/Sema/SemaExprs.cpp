@@ -121,7 +121,7 @@ namespace {
           .addArg(childTy); // %1 is the type of the child
       }
 
-      void diagnoseInvalidArraySubscript(ArrayAccessExpr* expr,
+      void diagnoseInvalidArraySubscript(ArraySubscriptExpr* expr,
                                          SourceRange range, 
                                          SourceRange extra) {
         Expr* child = expr->getBase();
@@ -223,7 +223,7 @@ namespace {
       }
 
       // Finalizes an Array Subscript Expr 
-      Expr* finalizeArraySubscriptExpr(ArrayAccessExpr* expr, 
+      Expr* finalizeArraySubscriptExpr(ArraySubscriptExpr* expr, 
                                        Type childTy) {    
         Type exprTy = childTy->unwrapIfArray();
         assert(exprTy && 
@@ -346,7 +346,7 @@ namespace {
         return finalizeUnaryExpr(expr, primChildTy);
       }
 
-      Expr* visitArrayAccessExpr(ArrayAccessExpr* expr) {
+      Expr* visitArraySubscriptExpr(ArraySubscriptExpr* expr) {
         // Get child expr and it's type
         Expr* child = expr->getBase();
         Type childTy = child->getType()->getBoundRValue();

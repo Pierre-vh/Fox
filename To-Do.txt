@@ -89,8 +89,8 @@ To-Do:
 
     > For CellType, shorten Substitution to Subst in methods name
 
-    > Rename ArrayAccessExpr to ArraySubscriptExpr : Use the proper term!
-      -> rename getExpr to getBase and getIdxExpr to getIndex
+    > Rename ArrayAccessExpr to ArraySubscriptExpr : Use the proper term! (Done)
+      -> rename getExpr to getBase and getIdxExpr to getIndex (Done)
 
     -> In general, look for misuse of terminology and fix them
 

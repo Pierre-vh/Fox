@@ -26,7 +26,7 @@
 EXPR(BinaryExpr,Expr)
 EXPR(UnaryExpr,Expr)
 EXPR(CastExpr,Expr)
-EXPR(ArrayAccessExpr,Expr)
+EXPR(ArraySubscriptExpr,Expr)
 
 // Literals
 EXPR(CharLiteralExpr,Expr)

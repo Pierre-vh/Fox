@@ -345,12 +345,12 @@ namespace fox   {
       Identifier *membName_ = nullptr;
   };
 
-  // ArrayAccessExpr
+  // ArraySubscriptExpr
   //    Array access (or subscript): foo[3]
-  class ArrayAccessExpr : public Expr {
+  class ArraySubscriptExpr : public Expr {
     public:
-      ArrayAccessExpr();
-      ArrayAccessExpr(Expr* base, Expr* idx, SourceRange range);
+      ArraySubscriptExpr();
+      ArraySubscriptExpr(Expr* base, Expr* idx, SourceRange range);
 
       void setBase(Expr* expr);
       Expr* getBase();
@@ -361,7 +361,7 @@ namespace fox   {
       const Expr* getIndex() const;
 
       static bool classof(const Expr* expr) {
-        return (expr->getKind() == ExprKind::ArrayAccessExpr);
+        return (expr->getKind() == ExprKind::ArraySubscriptExpr);
       }
 
     private:

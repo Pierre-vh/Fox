@@ -40,7 +40,7 @@ namespace fox {
       void visitBinaryExpr(BinaryExpr* node);
       void visitCastExpr(CastExpr* node);
       void visitUnaryExpr(UnaryExpr* node);
-      void visitArrayAccessExpr(ArrayAccessExpr* node);
+      void visitArraySubscriptExpr(ArraySubscriptExpr* node);
       void visitMemberOfExpr(MemberOfExpr* node);
       void visitDeclRefExpr(DeclRefExpr* node);
       void visitFunctionCallExpr(FunctionCallExpr* node);

@@ -59,7 +59,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
       assert(range && "Invalid loc info");
 
       return ExprResult(
-        new(ctxt_) ArrayAccessExpr(base, expr.get(), range)
+        new(ctxt_) ArraySubscriptExpr(base, expr.get(), range)
       );
     }
     else {
