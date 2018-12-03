@@ -358,8 +358,9 @@ namespace {
         if (!(idxETy && childTy))
           return expr;
 
-        // Check that it's an array type.
+        // Check that the child is an array type.
         if (!childTy->is<ArrayType>()) {
+          // Diagnose with the primary range being the child's range
           diagnoseInvalidArraySubscript(expr, 
                                         child->getRange(), idxE->getRange());
           return expr;
@@ -367,18 +368,20 @@ namespace {
 
         // Idx type must be an integral value
         if (!Sema::isIntegral(idxETy)) {
+          // Diagnose with the primary range being the idx's range
           diagnoseInvalidArraySubscript(expr,
                                         idxE->getRange(), child->getRange());
           return expr;
         }
 
-        // Warn if it's a float
+        // Additionally, check that the index is not a float type. If it
+        // is, emit a warning about an implicit integral downcast.
         if (idxETy->isFloatType()) {
           Type intTy = PrimitiveType::getInt(getCtxt());
           warnImplicitIntegralDowncast(idxETy, intTy, idxE->getRange());
         }
         
-        // Finalize
+        // Finalize it
         return finalizeArraySubscriptExpr(expr, childTy);
       }
 
