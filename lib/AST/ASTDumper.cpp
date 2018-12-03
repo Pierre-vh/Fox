@@ -513,9 +513,8 @@ void TypeBase::dump() const {
 }
 
 void Type::dump() const {
-  std::string typeStr;
-  if(ty_)
-    std::cerr << ty_->toDebugString();
-  else 
-    std::cerr << "nullptr";
+  if (ty_)
+    ty_->dump();
+  else
+    std::cerr << "Type(nullptr)\n";
 }
