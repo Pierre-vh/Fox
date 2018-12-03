@@ -83,12 +83,23 @@ To-Do:
   > Replace BuiltinType by BasicType (Done)
   > Properly use Type in place of TypeBase* (Done)
 
+  > Refactorings to be done:
+    > For expressions that have more than one child, change the ->getExpr
+    method to something clearer. e.g. getBase
+
+    > For CellType, shorten Substitution to Subst in methods name
+
+    > Rename ArrayAccessExpr to ArraySubscriptExpr : Use the proper term!
+      -> rename getExpr to getBase and getIdxExpr to getIndex
+
+    -> In general, look for misuse of terminology and fix them
+
   > Write Lexer LIT tests
 
   > Work on Sema (Now) 
     > Write tests for Unary operator checking
     > BinaryExpr checking
-    > ArrayAccess checking
+    > ArrayAccess checking (Done)
     > Stmt semantic analysis
     > Decl semantic analysis
     > Name resolution
