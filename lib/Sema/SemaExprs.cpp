@@ -29,7 +29,7 @@ namespace {
     if (auto* ptr = type->getAs<CellType>()) {
       // if the type has a substitution, return it, else
       // just return the argument.
-      if (Type sub = ptr->getSubstitution())
+      if (Type sub = ptr->getSubst())
         return sub;
     }
     return type;
@@ -577,7 +577,7 @@ namespace {
       }
 
       Type visitCellType(CellType* type) {
-        if (Type sub = type->getSubstitution())
+        if (Type sub = type->getSubst())
           return visit(sub);
         return nullptr;
       }

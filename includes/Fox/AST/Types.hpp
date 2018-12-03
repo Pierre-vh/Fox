@@ -254,14 +254,14 @@ namespace fox {
       // Creates a new instance of the CellType class
       static CellType* create(ASTContext& ctxt);
 
-      Type getSubstitution();
-      const Type getSubstitution() const;
+      Type getSubst();
+      const Type getSubst() const;
 
       // Returns true if the type has a substitution
       // (type isn't null)
-      bool hasSubstitution() const;
+      bool hasSubst() const;
 
-      void setSubstitution(Type type);
+      void setSubst(Type type);
 
       void reset();
 
@@ -278,7 +278,7 @@ namespace fox {
       void* operator new(std::size_t sz, ASTContext &ctxt, 
         std::uint8_t align = alignof(TypeBase));
 
-      Type type_ = nullptr;
+      Type subst_ = nullptr;
   };
 
 }

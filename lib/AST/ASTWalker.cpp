@@ -252,7 +252,7 @@ namespace {
       }
 
       bool visitCellType(CellType* type) {
-        if (Type sub = type->getSubstitution())
+        if (Type sub = type->getSubst())
           return doIt(sub);
         return true;
       }

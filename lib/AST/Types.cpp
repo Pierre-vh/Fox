@@ -99,13 +99,13 @@ namespace {
       void visitCellType(CellType* type) {
         if (debugPrint) {
           out << "Cell." << (void*)type << "(";
-          if (Type elem = type->getSubstitution())
+          if (Type elem = type->getSubst())
             visit(elem);
           else out << nullTypeStr;
           out << ")";
         }
         else {
-          if(Type ty = type->getSubstitution())
+          if(Type ty = type->getSubst())
             visit(ty);
           else 
             out << emptyCellTypeStr;
@@ -167,7 +167,7 @@ Type TypeBase::getBoundRValue() {
     Type ty = getRValue()->deref();
     // Sanity check
     if(CellType* cell = ty->getAs<CellType>())
-      assert(cell->hasSubstitution() 
+      assert(cell->hasSubst() 
       && "Type is bound but deref returned a unbound CellType?");
     return ty;
   }
@@ -177,7 +177,7 @@ Type TypeBase::getBoundRValue() {
 namespace {
   Type derefImpl(TypeBase* type) {
     if (auto* cell = type->getAs<CellType>()) {
-      Type sub = cell->getSubstitution();
+      Type sub = cell->getSubst();
       return sub ? derefImpl(sub.getPtr()) : type;
     }
     return type;
@@ -234,7 +234,7 @@ void TypeBase::calculateIsBound() const {
       // If this method returns false, the walk is aborted.
       virtual bool handleTypePre(Type ty) override {
         if (auto* cell = ty->getAs<CellType>())
-          return cell->hasSubstitution();
+          return cell->hasSubst();
         return true;
       }
   };
@@ -397,26 +397,26 @@ CellType* CellType::create(ASTContext& ctxt) {
   return new(ctxt) CellType();
 }
 
-Type CellType::getSubstitution() {
-  return type_;
+Type CellType::getSubst() {
+  return subst_;
 }
 
-const Type CellType::getSubstitution() const {
-  return type_;
+const Type CellType::getSubst() const {
+  return subst_;
 }
 
-bool CellType::hasSubstitution() const {
-  return (type_ != nullptr);
+bool CellType::hasSubst() const {
+  return (subst_ != nullptr);
 }
 
-void CellType::setSubstitution(Type type) {
+void CellType::setSubst(Type type) {
   assert(type 
     && "Cannot set the substitution to a null pointer. Use reset() for that.");
-  type_ = type;
+  subst_ = type;
 }
 
 void CellType::reset() {
-  type_ = nullptr;
+  subst_ = nullptr;
 }
 
 void* CellType::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {

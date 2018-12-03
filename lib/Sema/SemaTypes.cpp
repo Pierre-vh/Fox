@@ -61,8 +61,8 @@ bool Sema::unify(Type a, Type b) {
     // CellType = CellType
     if (auto* bCell = b->getAs<CellType>()) {
       // Both are CellTypes, check if they have a substitution
-      Type aCellSub = aCell->getSubstitution();
-      Type bCellSub = bCell->getSubstitution();
+      Type aCellSub = aCell->getSubst();
+      Type bCellSub = bCell->getSubst();
       // Both have a sub
       if (aCellSub && bCellSub) {
 
@@ -81,40 +81,40 @@ bool Sema::unify(Type a, Type b) {
           // ranked type.
           Type highest = getHighestRankedTy(aCellSub, bCellSub);
           assert(highest); // Should have one since unification was successful
-          aCell->setSubstitution(highest);
-          bCell->setSubstitution(highest);
+          aCell->setSubst(highest);
+          bCell->setSubst(highest);
         }
         return true;
       }
       // A has a sub, B doesn't
       if (aCellSub) {
-        bCell->setSubstitution(aCellSub);
+        bCell->setSubst(aCellSub);
         return true;
       }
       // B has a sub, A doesn't
       if (bCellSub) {
-        aCell->setSubstitution(bCellSub);
+        aCell->setSubst(bCellSub);
         return true;
       }
       // None of them has a sub.
       auto* fresh = CellType::create(ctxt_);
-      aCell->setSubstitution(fresh);
-      bCell->setSubstitution(fresh);
+      aCell->setSubst(fresh);
+      bCell->setSubst(fresh);
       return true;
     }
     // CellType = (Not CellType)
     else {
-      if (auto* aCellSub = aCell->getSubstitution().getPtr())
+      if (auto* aCellSub = aCell->getSubst().getPtr())
         return unify(aCellSub, b);
-      aCell->setSubstitution(b);
+      aCell->setSubst(b);
       return true;
     }
   }
   // (Not CellType) = CellType
   else if (auto* bCell = b->getAs<CellType>()) {
-    if (Type bCellSub = bCell->getSubstitution())
+    if (Type bCellSub = bCell->getSubst())
       return unify(a, bCellSub);
-    bCell->setSubstitution(a);
+    bCell->setSubst(a);
     return true;
   }
   // ArrayType = (Something)
@@ -215,7 +215,7 @@ BasicType* Sema::findBasicType(Type type) {
       }
 
       BasicType* visitCellType(CellType* type) {
-        if (Type sub = type->getSubstitution())
+        if (Type sub = type->getSubst())
           return visit(sub);
         return nullptr;
       }
