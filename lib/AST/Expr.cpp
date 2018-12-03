@@ -585,26 +585,26 @@ ArrayAccessExpr::ArrayAccessExpr(Expr* expr, Expr* idxexpr, SourceRange range):
   
 }
 
-void ArrayAccessExpr::setExpr(Expr* expr) {
+void ArrayAccessExpr::setBase(Expr* expr) {
   base_ = expr;
 }
 
-Expr* ArrayAccessExpr::getExpr() {
+Expr* ArrayAccessExpr::getBase() {
   return base_;
 }
 
-const Expr* ArrayAccessExpr::getExpr() const {
+const Expr* ArrayAccessExpr::getBase() const {
   return base_;
 }
 
-void ArrayAccessExpr::setIdxExpr(Expr* expr) {
+void ArrayAccessExpr::setIndex(Expr* expr) {
   idxExpr_ = expr;
 }
 
-Expr* ArrayAccessExpr::getIdxExpr() {
+Expr* ArrayAccessExpr::getIndex() {
   return idxExpr_;
 }
 
-const Expr* ArrayAccessExpr::getIdxExpr() const {
+const Expr* ArrayAccessExpr::getIndex() const {
   return idxExpr_;
 }

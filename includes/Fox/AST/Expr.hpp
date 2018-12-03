@@ -352,13 +352,13 @@ namespace fox   {
       ArrayAccessExpr();
       ArrayAccessExpr(Expr* base, Expr* idx, SourceRange range);
 
-      void setExpr(Expr* expr);
-      Expr* getExpr();
-      const Expr* getExpr() const;
+      void setBase(Expr* expr);
+      Expr* getBase();
+      const Expr* getBase() const;
 
-      void setIdxExpr(Expr* expr);
-      Expr* getIdxExpr();
-      const Expr* getIdxExpr() const;
+      void setIndex(Expr* expr);
+      Expr* getIndex();
+      const Expr* getIndex() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::ArrayAccessExpr);

@@ -56,15 +56,15 @@ namespace {
       }
 
       Expr* visitArrayAccessExpr(ArrayAccessExpr* expr) {
-        if (Expr* base = expr->getExpr()) {
+        if (Expr* base = expr->getBase()) {
           if (base = doIt(base))
-            expr->setExpr(base);
+            expr->setBase(base);
           else return nullptr;
         }
 
-        if (Expr* idx = expr->getIdxExpr()) {
+        if (Expr* idx = expr->getIndex()) {
           if (idx = doIt(idx))
-            expr->setIdxExpr(idx);
+            expr->setIndex(idx);
           else return nullptr;
         }
 

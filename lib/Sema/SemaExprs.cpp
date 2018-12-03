@@ -124,10 +124,10 @@ namespace {
       void diagnoseInvalidArraySubscript(ArrayAccessExpr* expr,
                                          SourceRange range, 
                                          SourceRange extra) {
-        Expr* child = expr->getExpr();
+        Expr* child = expr->getBase();
         Type childTy = child->getType();
 
-        Expr* idxE = expr->getIdxExpr();
+        Expr* idxE = expr->getIndex();
         Type idxETy = idxE->getType();
 
         getDiags()
@@ -348,10 +348,10 @@ namespace {
 
       Expr* visitArrayAccessExpr(ArrayAccessExpr* expr) {
         // Get child expr and it's type
-        Expr* child = expr->getExpr();
+        Expr* child = expr->getBase();
         Type childTy = child->getType()->getBoundRValue();
         // Get idx expr and it's type
-        Expr* idxE = expr->getIdxExpr();
+        Expr* idxE = expr->getIndex();
         Type idxETy = idxE->getType()->getBoundRValue();
 
         // Unbound type as a idx or child: give up

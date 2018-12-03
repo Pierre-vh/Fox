@@ -66,12 +66,12 @@ void ASTDumper::visitArrayAccessExpr(ArrayAccessExpr* node) {
   dumpLine() << getBasicExprInfo(node) << '\n';
 
   indent();
-  visit(node->getExpr());
+  visit(node->getBase());
   dedent();
 
   // Print IdxExpr
   indent();
-  visit(node->getIdxExpr());
+  visit(node->getIndex());
   dedent();
 }
 
