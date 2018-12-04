@@ -10,6 +10,7 @@
 #include "utfcpp/utf8.hpp"
 #include <cassert>
 #include <string>
+#include <iostream>
 #include <sstream>
 
 using namespace fox;
@@ -62,9 +63,13 @@ std::size_t DiagnosticConsumer::removeIndent(string_view& str) const {
   return beg;
 }
 
-StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream) : os_(stream), sm_(sm) {
+StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream):
+  os_(stream), sm_(sm) 
+{}
 
-}
+StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm) :
+  StreamDiagConsumer(sm, std::cout)
+{}
 
 void StreamDiagConsumer::consume(Diagnostic& diag) {
   std::string locInfo = getLocInfo(sm_, diag.getRange(), diag.isFileWide());

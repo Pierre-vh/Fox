@@ -6,13 +6,14 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTDumper.hpp"
-#include <sstream>
-#include <iostream>
-#include <string>
 #include "Fox/AST/Identifiers.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/StringManipulator.hpp"
+
+#include <sstream>
+#include <iostream>
+#include <string>
 
 #define INDENT "    "
 #define OFFSET_INDENT "\t"
@@ -291,7 +292,7 @@ std::string ASTDumper::getIndent(const uint8_t& num) const {
   if (totalIndent) {
     std::string rtr;
     for (auto k = totalIndent; k > 0; --k)
-      rtr += INDENT;  // indent is 2 spaces
+      rtr += INDENT;
 
     rtr += u8"┗";
     return rtr;

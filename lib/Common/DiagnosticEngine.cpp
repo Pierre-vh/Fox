@@ -9,7 +9,7 @@
 #include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/Errors.hpp"
-#include <cassert>
+#include <iostream>
 
 using namespace fox;
 
@@ -24,9 +24,12 @@ static const DiagSeverity diagsSevs[] = {
 };
 
 DiagnosticEngine::DiagnosticEngine(SourceManager& sm, std::ostream& os):
-  DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm, os)) {
+  DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm, os)) 
+{}
 
-}
+DiagnosticEngine::DiagnosticEngine(SourceManager& sm):
+  DiagnosticEngine(sm, std::cout) 
+{}
 
 DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons):
   consumer_(std::move(ncons)) {

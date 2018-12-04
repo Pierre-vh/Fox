@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <iostream>
+#include <iosfwd>
 #include "string_view.hpp"
 
 namespace fox {
@@ -35,7 +35,9 @@ namespace fox {
 
   class StreamDiagConsumer : public DiagnosticConsumer {
     public:
-      StreamDiagConsumer(SourceManager& sm,std::ostream& stream = std::cout); // Default outstream is cout (stdio)
+      StreamDiagConsumer(SourceManager& sm, std::ostream& stream); 
+      StreamDiagConsumer(SourceManager& sm); 
+
       virtual void consume(Diagnostic& diag) override;
 
     private:

@@ -9,9 +9,9 @@
 //----------------------------------------------------------------------------//
 
 #pragma once
+
 #include "ASTVisitor.hpp"
 #include <iosfwd>
-#include <utility>
 
 namespace fox {
   class SourceManager;
