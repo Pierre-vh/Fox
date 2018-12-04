@@ -15,7 +15,7 @@
 
 #include <cstddef>
 #include <memory>
-#include <iostream>
+#include <ostream>
 #include "Errors.hpp"
 
 namespace fox {
@@ -212,7 +212,7 @@ namespace fox {
       /*
         \brief  Displays a detailled dump to get an overview of the state of the allocator.
       */
-      void dump(std::ostream& os = std::cout) const {
+      void dump(std::ostream& os) const {
         auto bytesInCurPool = getBytesInCurrentPool();
         std::size_t totalBytes = (poolCount*poolSize) + bytesInCurPool;
         os << "(Pools Size: " << poolSize << ")\n";
