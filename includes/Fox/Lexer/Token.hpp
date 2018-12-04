@@ -166,7 +166,7 @@ namespace fox {
       LiteralType getLiteralType() const;
       LiteralInfo getLiteralInfo() const;
 
-      std::string getIdentifierString() const;
+      string_view getIdentifierString() const;
       Identifier* getIdentifierInfo();
 
       std::string getAsString() const;

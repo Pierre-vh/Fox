@@ -17,7 +17,7 @@ using namespace fox;
 StringPtrInMap::StringPtrInMap(ItTy iter) : it_(iter) {
 }
 
-const std::string& StringPtrInMap::get() const {
+string_view StringPtrInMap::get() const {
   return (it_->first);
 }
 
@@ -25,7 +25,7 @@ Identifier::Identifier(const StringPtrInMap::ItTy& iter): mapIter_(iter) {
 
 }
 
-const std::string& Identifier::getStr() const {
+string_view Identifier::getStr() const {
   return mapIter_.get();
 }
 

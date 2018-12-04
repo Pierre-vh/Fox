@@ -173,7 +173,7 @@ TEST(ASTTests, DeclContext) {
   v1_ok = v2_ok = v3_ok = v4_ok = v5_ok = false;
   for (auto it = func->recordedDecls_begin(); it != func->recordedDecls_end(); it++) {
     Identifier* id = it->getIdentifier();
-    std::string str = id->getStr();
+    string_view str = id->getStr();
     if (str == "Variable_1") {
       EXPECT_EQ(id, var1->getIdentifier()) << "Mismatch : " << str << " != " << var1->getIdentifier()->getStr();
       EXPECT_EQ(*it, var1);

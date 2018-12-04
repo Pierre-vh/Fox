@@ -218,7 +218,7 @@ std::string Token::getAsString() const {
   else if (mpark::holds_alternative<Identifier*>(tokenData_)) {
     auto ptr = mpark::get<Identifier*>(tokenData_);
     assert(ptr && "Token's an identifier but the Identifier* is null?");
-    return ptr->getStr();
+    return ptr->getStr().to_string();
   }
   else
     return "<empty>";
@@ -237,7 +237,7 @@ LiteralInfo Token::getLiteralInfo() const {
   return *literalData_;
 }
 
-std::string Token::getIdentifierString() const {
+string_view Token::getIdentifierString() const {
   if (mpark::holds_alternative<Identifier*>(tokenData_)) {
     auto ptr = mpark::get<Identifier*>(tokenData_);
     assert(ptr && "tokenInfo's a Identifier* but the pointer is null?");

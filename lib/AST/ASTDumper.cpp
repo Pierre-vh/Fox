@@ -424,7 +424,7 @@ std::string ASTDumper::getIdentifierDump(Identifier* id) const {
   return makeKeyPairDump("id", addSingleQuotes(id->getStr()));
 }
 
-std::string ASTDumper::getSourceLocDump(const std::string& label,
+std::string ASTDumper::getSourceLocDump(string_view label,
                                         SourceLoc sloc) const {
   if (sloc && hasSrcMgr()) {
     std::ostringstream ss;
@@ -452,19 +452,19 @@ std::string ASTDumper::getSourceRangeAsStr(SourceRange range) const {
   return "";
 }
 
-std::string ASTDumper::getSourceRangeDump(const std::string& label,
+std::string ASTDumper::getSourceRangeDump(string_view label,
                                           SourceRange range) const {
   return makeKeyPairDump(label, getSourceRangeAsStr(range));
 }
 
-std::string ASTDumper::getTypeDump(const std::string& label,
+std::string ASTDumper::getTypeDump(string_view label,
                                    Type ty,
                                    bool isConst) const {
   std::string str = (isConst ? "const " : "") + addSingleQuotes(toString(ty));
   return makeKeyPairDump(label, str);
 }
 
-std::string ASTDumper::getTypeLocDump(const std::string& label,
+std::string ASTDumper::getTypeLocDump(string_view label,
                                       TypeLoc ty,
                                       bool isConst) const {
   std::ostringstream ss;
@@ -474,12 +474,16 @@ std::string ASTDumper::getTypeLocDump(const std::string& label,
   return makeKeyPairDump(label, ss.str());
 }
 
-std::string ASTDumper::addDoubleQuotes(const std::string& str) const {
-  return "\"" + str + "\"";
+std::string ASTDumper::addDoubleQuotes(string_view str) const {
+  std::stringstream ss;
+  ss << '"' << str << '"';
+  return ss.str();
 }
 
-std::string ASTDumper::addSingleQuotes(const std::string& str) const {
-  return "'" + str + "'";
+std::string ASTDumper::addSingleQuotes(string_view str) const {
+  std::stringstream ss;
+  ss << "'" << str << "'";
+  return ss.str();
 }
 
 void ASTDumper::indent(std::uint8_t num) {

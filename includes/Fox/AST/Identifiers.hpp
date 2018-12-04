@@ -19,6 +19,7 @@
 
 #include <map>
 #include <string>
+#include "Fox/Common/string_view.hpp"
 
 namespace fox {
   class Identifier;
@@ -30,14 +31,16 @@ namespace fox {
 
       StringPtrInMap(ItTy iter);
 
-      const std::string& get() const;
+      string_view get() const;
 
       ItTy it_;
   };
 
-  // A lexed identifier.
+  // Represents a unique'd lexed identifier
   // Currently, they are immutable once created and only hold the string,
-  // but in the future this might contain some more information.
+  // but in the future this might contain more than that.
+  //
+  // This essentially exists as an optimization.
   class Identifier {
     public:
       Identifier(const StringPtrInMap::ItTy& iter);
@@ -47,7 +50,7 @@ namespace fox {
       Identifier& operator=(Identifier&) = delete;
 
       // Returns the string naming this identifier
-      const std::string& getStr() const;
+      string_view getStr() const;
 
       // Comparison operators for use with STL containers.
       bool operator<(const Identifier& id) const;
