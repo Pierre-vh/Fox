@@ -9,22 +9,16 @@ Portability
     I should run a Linux VM and try to compile the code there using GCC and CLang, to check for issues and try to make the code fully
     portable.
 
-QoL: 
+Code QoL: 
   Diagnostics:
     1) Add << operators support
 
   StringManipulator:
-    2) Most of the class's method are literally simulating an iterator. I could easily move most of the class's feature
-       to an iterator, accessible through .begin()/.end() functions. The iterator would be named UTF8Iterator, and might as
-       well serve as both the constant and non constant iterator, but I need to do a bit of reading on how to implement
-       custom iterators.
+    2) Maybe rework it (or add an alternative) as an iterator, because this
+       class literaly emulates an iterator.
 
 Reworks:
   > Lexer Rework (Exact time to be decided, might come before/after Semantic Analysis)
-      > Create another folder "Lexer_Rework" which will contain the new source code for the Lexer, and I'll write the code there
-        test it and make sure it works before actually replacing the actual one. This will allow me to take my time to write it without interfering
-        with the existing code too much.
-        Lexer's new home will be the Parser folder (renamed to Parse?)
       > Make the Lexer & Parser tightly coupled. The Parser itself should call the Lexer to Lex a token. (no more storage in a vector)
         > This will require the Parser or Lexer to have a caching mechanism, and use "cached" token when backtracking is required.
         > the "createParserStateBackup" functions will be removed, and replaced with a call to the lexer similar to "lexer_.backtrack(x)"
@@ -36,8 +30,7 @@ Performance:
   Diagnostics:
     1) The Diagnostic object is quite large (few hundred bytes), and, as it's nearly always a temporary object, this could maybe
     have a cost on performance. Tests needs to be done. If it has really a big cost on performance, store all the diagnostic's data
-    inside the DiagnosticsEngine. For that, create a DiagnosticData object, store a vector of them in the DiagnosticEngine and
-    make the Diagnostic object only store a pointer to the DiagnosticsEngine with the index of the DiagnosticsData object in the vector.
+    inside the DiagnosticsEngine and restrict the number of in-flight diagnostics allowed.
 
 Features:
   LinearAllocator 
@@ -45,22 +38,3 @@ Features:
     used by the companion delete when a constructor has thrown.
     Also it could be a good idea to backup the latest AllocPtr to compare it with the rollback ptr! (assert that lastAllocPtr < rollbackPtr < allocPtr)
     (just in debug builds to do more checking)
-
-Testing
-  Testing tools
-    Write a testing tool for Fox which tests some source files individually, with the possibility of "expecting"
-    errors, inspired by llvm-lit.
-    This is going to be a shit ton of work, so I'll have to find another solution, maybe with JSON or XML, e.g. tests files like
-      {
-        "args": ["warn_are_errors"],
-        "parsing_mode": "lines",
-        "parse": "exprstmt",
-        "expected": [
-          [[1,4], parser_expected_semi ]
-        ]  
-      }
-
-      3+3
-
-    Json is quite ugly for this, maybe something simpler, homemade would do the tricK.
-    Just find something adequate that doesn't hurt the eyes. Ideally, it should be really expressive like llvm lit
