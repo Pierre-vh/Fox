@@ -9,9 +9,6 @@
 // to silence expected diagnostics in tests, and doubles as a DiagnosticConsumer
 // class which catches every diagnostic, checks if it was expected, and if
 // that's the case, silences it.
-//
-//  TODO: Create proper interface/entry points for inserting a DiagnosticVerifier
-//        in a given DiagEngine.
 //----------------------------------------------------------------------------//
 
 #pragma once
