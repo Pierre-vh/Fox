@@ -68,7 +68,7 @@ namespace fox {
 
       // If this is a bound type, ignores LValues and dereferences this type. 
       // If this is an unbound type, returns nullptr.
-      Type getBoundRValue();
+      Type getAsBoundRValue();
 
       // If this type is a CellType, dereference it recursively 
       // until we reach a CellType with no substitution or a

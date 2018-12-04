@@ -162,7 +162,7 @@ Type TypeBase::getRValue() {
   return this;
 }
 
-Type TypeBase::getBoundRValue() {
+Type TypeBase::getAsBoundRValue() {
   if (isBound()) {
     Type ty = getRValue()->deref();
     // Sanity check
