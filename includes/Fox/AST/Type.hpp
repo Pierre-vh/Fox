@@ -78,17 +78,18 @@ namespace fox {
 
   // Like SwiftC does, we'll disable isa/cast/dyn_cast/dyn_cast_or_null
   // on Type objects to eliminate bugs due to mixing Type and TypeBase*
-  template <class X> 
-  inline bool isa(const Type&) = delete; 
+#define DISABLE_LLVM_RTTI_FUNCS(CLASS)\
+  template <class X> inline bool isa(const CLASS&) = delete;               \
+  template <class X> inline typename llvm::cast_retty<X, CLASS>::ret_type  \
+    cast(const CLASS&) = delete;                                           \
+  template <class X> inline typename llvm::cast_retty<X, CLASS>::ret_type  \
+    dyn_cast(const CLASS&) = delete;                                       \
+  template <class X> inline typename llvm::cast_retty<X, CLASS>::ret_type  \
+    dyn_cast_or_null(const CLASS&) = delete 
 
-  template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
-  cast(const Type&) = delete;
-
-  template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
-  dyn_cast(const Type&) = delete;
-
-  template <class X> inline typename llvm::cast_retty<X, Type>::ret_type 
-  dyn_cast_or_null(const Type&) = delete;
+  DISABLE_LLVM_RTTI_FUNCS(Type);
+  DISABLE_LLVM_RTTI_FUNCS(TypeLoc);
+#undef DISABLE_LLVM_RTTI_FUNCS
 
   // ostream for Type class
   std::ostream& operator<<(std::ostream& os, Type ty);
