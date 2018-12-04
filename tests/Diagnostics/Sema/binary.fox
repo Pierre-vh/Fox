@@ -1,0 +1,35 @@
+// RUN: %fox %s -verify -werr
+
+func foo() {
+  //---ADDITIVE---//
+
+  // Correct
+  true+false;
+  false+42;
+  false-3.14;
+  356-true;
+  120000+85555;
+  5648+32.005;
+  3.14-true;
+  0.001+333;
+  0.999-0.998;
+  'a'+'b';
+  "abc"+"def";
+  'a'+"bc";
+  "abc"+'d';
+
+  // Chaining
+  1+2-3+4-5+6;
+  'a'+'b'+"cd"+'d'+"ef";
+  1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1;
+
+  // Incorrect
+  // expect-error@+1: cannot use binary operator '-' on expressions of types 'char' and 'char'
+  'c'-'c'; 
+  // expect-error@+1: cannot use binary operator '-' on expressions of types 'string' and 'string'
+  "abc"-"def";
+  // expect-error@+1: cannot use binary operator '+' on expressions of types 'bool' and 'char'
+  true+'a';
+  // expect-error@+1: cannot use binary operator '+' on expressions of types 'string' and 'int'
+  "abc"+1;
+}

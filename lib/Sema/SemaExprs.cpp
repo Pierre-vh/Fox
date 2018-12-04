@@ -124,8 +124,19 @@ namespace {
           .setExtraRange(extra);
       }
 
+      void diagnoseInvalidBinaryExprOperands(BinaryExpr* expr) {
+        SourceRange opRange = expr->getOpRange();
+        SourceRange exprRange = expr->getRange();
+        Type lhsTy = expr->getLHS()->getType();
+        Type rhsTy = expr->getRHS()->getType();
+        getDiags()
+          .report(DiagID::sema_binexpr_invalid_operands, opRange)
+          .addArg(expr->getOpSign())
+          .addArg(lhsTy)
+          .addArg(rhsTy);
+      }
 
-      // Warns about an implicit integral downcast
+      // Warns about an implicit integral downcast from float to int
       void warnImplicitIntegralDowncast(Type exprTy, Type destTy,
                                         SourceRange range,
                                         SourceRange extra = SourceRange()) {
@@ -185,9 +196,7 @@ namespace {
           case OP::Plus:
             // Always int or float, never bool, so uprank
             // if boolean.
-            if(childTy->isBoolType())
-              childTy = PrimitiveType::getInt(getCtxt());
-            expr->setType(childTy);
+            expr->setType(uprankIfBoolean(childTy));
             break;
           case OP::Invalid:
             fox_unreachable("Invalid Unary Operator");
@@ -228,6 +237,7 @@ namespace {
       }
 
       virtual Expr* handleExprPost(Expr* expr) {
+        assert(expr && "Expr cannot be null!");
         expr = visit(expr);
         assert(expr && "Expr cannot be null!");
         // Check if the expr is typed. If it isn't, that
@@ -281,7 +291,7 @@ namespace {
         fox_unreachable("All cases handled");
       }
 
-      Expr* visitCastExpr(CastExpr* expr) {
+      Expr* visitCastExpr(CastExpr* expr) {        
         // Get the types & unwrap them
         Type childTy = expr->getExpr()->getType();
         Type goalTy = expr->getCastTypeLoc().withoutLoc();
@@ -317,7 +327,7 @@ namespace {
         Expr* child = expr->getExpr();
         Type childTy = child->getType();
         // ignore LValue + deref
-        childTy = childTy->getBoundRValue();
+        childTy = childTy->getAsBoundRValue();
 
         if (!childTy) {
           // ChildTy is an unbound type
@@ -329,7 +339,7 @@ namespace {
 
         // For any unary operators, we only allow integral types,
         // so check that first.
-        if (!Sema::isIntegral(childTy)) {
+        if (!childTy->isIntegral()) {
           // Not an integral type -> error.
           // Emit diag if childTy isn't a ErrorType too
           if (!childTy->is<ErrorType>())
@@ -346,10 +356,10 @@ namespace {
       Expr* visitArraySubscriptExpr(ArraySubscriptExpr* expr) {
         // Get child expr and it's type
         Expr* child = expr->getBase();
-        Type childTy = child->getType()->getBoundRValue();
+        Type childTy = child->getType()->getAsBoundRValue();
         // Get idx expr and it's type
         Expr* idxE = expr->getIndex();
-        Type idxETy = idxE->getType()->getBoundRValue();
+        Type idxETy = idxE->getType()->getAsBoundRValue();
 
         // Unbound type as a idx or child: give up
         if (!(idxETy && childTy))
@@ -364,7 +374,7 @@ namespace {
         }
 
         // Idx type must be an integral value
-        if (!Sema::isIntegral(idxETy)) {
+        if (!idxETy->isIntegral()) {
           // Diagnose with the primary range being the idx's range
           diagnoseInvalidArraySubscript(expr,
                                         idxE->getRange(), child->getRange());
@@ -517,14 +527,54 @@ namespace {
       // Typecheck an additive operation
       Expr* checkAdditiveBinaryExpr(BinaryExpr* expr) {
         assert(expr->isAdditive() && "wrong function!");
-        fox_unimplemented_feature(__func__);
+
+        // First, fetch the types of the LHS and RHS as
+        // bound RValues
+        Type lhsTy = expr->getLHS()->getType()->getAsBoundRValue();
+        Type rhsTy = expr->getRHS()->getType()->getAsBoundRValue();
+        if (!(lhsTy && rhsTy)) {
+          // Unbound types as LHS/RHS -> Give up
+          return expr;
+        }
+
+        // Check if we can concat
+        if (canConcat(expr->getOp(), lhsTy, rhsTy)) {
+          // For concatenation, the type is always string.
+          // We'll also change the add operator to become the concat operator.
+          expr->setType(PrimitiveType::getString(getCtxt()));
+          expr->setOp(BinaryExpr::OpKind::Concat);
+          return expr;
+        }
+
+        // If this isn't a concatenation, both types must be integral types
+        if (!(lhsTy->isIntegral() && rhsTy->isIntegral())) {
+          diagnoseInvalidBinaryExprOperands(expr);
+          return expr;
+        }
+
+        // The expression type is the highest ranked type
+        Type highest = getSema().getHighestRankedTy(lhsTy, rhsTy);
+        assert(highest && "Both types are integral, so getHighestRankedTy "
+          "shoudln't return a null value");
+        
+        // Set the type of the expression to the highest ranked type
+        // unless it's a boolean, then uprank it. This is because
+        // we want boolean addition to return ints.
+        expr->setType(uprankIfBoolean(highest));
+        return expr;
       }
 
-      // Typechecks a concatenation (called by checkAdditiveBinaryExpr)
-      Expr* checkConcatBinaryExpr(BinaryExpr* expr) {
-        assert((expr->getOp() == BinaryExpr::OpKind::Add) 
-               && "wrong function or already checked concatenation");
-        fox_unimplemented_feature(__func__);
+      // Returns true if this combination of operator/types
+      // is eligible to be a concatenation operation
+      bool canConcat(BinaryExpr::OpKind op, Type lhsTy, Type rhsTy) {
+        // It is eligible if the operator is a '+'
+        if (op == BinaryExpr::OpKind::Add) {
+          // and the LHS and RHS are string or char types.
+          bool lhsOk = lhsTy->isCharType() || lhsTy->isStringType();
+          bool rhsOk = rhsTy->isCharType() || rhsTy->isStringType();
+          return lhsOk && rhsOk;
+        }
+        return false;
       }
 
       // Typechecks a multiplicative operation
@@ -554,6 +604,22 @@ namespace {
         assert(expr->isLogical() && "wrong function!");
         fox_unimplemented_feature(__func__);
       }
+
+      //----------------------------------------------------------------------//
+      // Other helper methods
+      //----------------------------------------------------------------------//
+      // Various helper methods unrelated to semantics
+      //----------------------------------------------------------------------//
+      
+      // If type is a boolean, returns the int type, else returns the argument.
+      // Never returns null.
+      Type uprankIfBoolean(Type type) {
+        assert(type && "Type cannot be null!");
+        if (type->isBoolType())
+          return PrimitiveType::getInt(getCtxt());
+        return type;
+      }
+
   };
 
   // ExprFinalizer, which rebuilds types to remove
