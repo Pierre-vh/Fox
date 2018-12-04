@@ -82,24 +82,12 @@ To-Do:
   > Adding -werr for LIT test suite (Done)
   > Replace BuiltinType by BasicType (Done)
   > Properly use Type in place of TypeBase* (Done)
-
-  > Refactorings to be done:
-    > For expressions that have more than one child, change the ->getExpr
-    method to something clearer. e.g. getBase
-
-    > For CellType, shorten Substitution to Subst in methods name
-
-    > Rename ArrayAccessExpr to ArraySubscriptExpr : Use the proper term! (Done)
-      -> rename getExpr to getBase and getIdxExpr to getIndex (Done)
-
-    -> In general, look for misuse of terminology and fix them
-
-  > Write Lexer LIT tests
+  > Refactoring - fixing bad terminology (Done)
 
   > Work on Sema (Now) 
-    > Write tests for Unary operator checking
+    > Write tests for Unary operator checking (Done)
     > BinaryExpr checking
-    > ArrayAccess checking (Nearly done)
+    > ArrayAccess checking (Done)
       -> Consider checking that the access is not out of bounds
     > Stmt semantic analysis
     > Decl semantic analysis
@@ -110,6 +98,8 @@ To-Do:
       > Parser additions (UnresolvedDotExpr)
       > Semantic Analysis
     > CodeGen 
+
+> Write Lexer LIT tests
 
 Boring stuff that I must do when I have the time/motivation for it
   > Adopt a Documentation style (Doxygen) and document all the code with it
