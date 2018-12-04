@@ -21,13 +21,15 @@ using namespace fox;
 // Tests that primitive types can be retrieve correctly
 TEST(ASTTests, PrimitiveTypes) {
   ASTContext actxt;
+  using PT = PrimitiveType;
+  using PTK = PT::Kind;
 
-  auto* primBool = PrimitiveType::getBool(actxt);
-  auto* primFloat  = PrimitiveType::getFloat(actxt);
-  auto* primInt  = PrimitiveType::getInt(actxt);
-  auto* primChar  = PrimitiveType::getChar(actxt);
-  auto* primString = PrimitiveType::getString(actxt);
-  auto* primVoid  = PrimitiveType::getVoid(actxt);
+  auto* primBool = PT::getBool(actxt);
+  auto* primFloat  = PT::getFloat(actxt);
+  auto* primInt  = PT::getInt(actxt);
+  auto* primChar  = PT::getChar(actxt);
+  auto* primString = PT::getString(actxt);
+  auto* primVoid  = PT::getVoid(actxt);
 
   ASSERT_TRUE(primBool)  << "Ptr is null?";
   ASSERT_TRUE(primFloat)  << "Ptr is null?";
@@ -45,30 +47,36 @@ TEST(ASTTests, PrimitiveTypes) {
 
   // Test that the types have the correct properties
   // Bools
-  EXPECT_EQ(primBool->getPrimitiveKind(),  PrimitiveType::Kind::BoolTy);
+  EXPECT_EQ(primBool->getPrimitiveKind(), PTK::BoolTy);
   EXPECT_TRUE(primBool->isBoolType());
 
   // Floats
-  EXPECT_EQ(primFloat->getPrimitiveKind(),  PrimitiveType::Kind::FloatTy);
+  EXPECT_EQ(primFloat->getPrimitiveKind(), PTK::FloatTy);
   EXPECT_TRUE(primFloat->isFloatType());
 
   // Ints
-  EXPECT_EQ(primInt->getPrimitiveKind(),  PrimitiveType::Kind::IntTy);
+  EXPECT_EQ(primInt->getPrimitiveKind(), PTK::IntTy);
   EXPECT_TRUE(primInt->isIntType());
 
   // Chars
-  EXPECT_EQ(primChar->getPrimitiveKind(), PrimitiveType::Kind::CharTy);
+  EXPECT_EQ(primChar->getPrimitiveKind(), PTK::CharTy);
   EXPECT_TRUE(primChar->isCharType());
 
   // Strings
-  EXPECT_EQ(primString->getPrimitiveKind(), PrimitiveType::Kind::StringTy);
+  EXPECT_EQ(primString->getPrimitiveKind(), PTK::StringTy);
   EXPECT_TRUE(primString->isStringType());
 
   // Void type
-  EXPECT_EQ(primVoid->getPrimitiveKind(),  PrimitiveType::Kind::VoidTy);
+  EXPECT_EQ(primVoid->getPrimitiveKind(), PTK::VoidTy);
   EXPECT_TRUE(primVoid->isVoidType());
 
-  // TODO: Check uniqueness
+  // Check uniqueness
+  EXPECT_EQ(primVoid, PT::getVoid(actxt));
+  EXPECT_EQ(primInt, PT::getInt(actxt));
+  EXPECT_EQ(primString, PT::getString(actxt));
+  EXPECT_EQ(primChar, PT::getChar(actxt));
+  EXPECT_EQ(primFloat, PT::getFloat(actxt));
+  EXPECT_EQ(primBool, PT::getBool(actxt));
 }
 
 TEST(ASTTests, ASTContextArrayTypes) {
