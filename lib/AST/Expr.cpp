@@ -285,6 +285,67 @@ void BinaryExpr::setOp(OpKind op) {
   op_ = op;
 }
 
+bool BinaryExpr::isValidOp() const {
+  return op_ != OpKind::Invalid;
+}
+
+bool BinaryExpr::isConcat() const {
+  return op_ == OpKind::Concat;
+}
+
+bool BinaryExpr::isAdditive() const {
+  switch (op_) {
+    case OpKind::Add:
+    case OpKind::Sub:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool BinaryExpr::isMultiplicative() const {
+  switch (op_) {
+    case OpKind::Mul:
+    case OpKind::Div:
+    case OpKind::Mod:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool BinaryExpr::isExponent() const {
+  return op_ == OpKind::Exp;
+}
+
+bool BinaryExpr::isAssignement() const {
+  return op_ == OpKind::Assign;
+}
+
+bool BinaryExpr::isComparison() const {
+  switch (op_) {
+    case OpKind::LE:
+    case OpKind::GE:
+    case OpKind::LT:
+    case OpKind::GT:
+    case OpKind::Eq:
+    case OpKind::NEq:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool BinaryExpr::isLogical() const {
+  switch (op_) {
+    case OpKind::LOr:
+    case OpKind::LAnd:
+      return true;
+    default:
+      return false;
+  }
+}
+
 SourceRange BinaryExpr::getOpRange() const {
   return opRange_;
 }

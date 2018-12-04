@@ -92,6 +92,23 @@ namespace fox   {
       OpKind getOp() const;
       void setOp(OpKind op);
 
+      // Checks that the operation isn't OpKind::Invalid
+      bool isValidOp() const;
+      // + (only concat)
+      bool isConcat() const;
+      // + or - (no concatenation)
+      bool isAdditive() const;
+      // *, % or /
+      bool isMultiplicative() const;
+      // **
+      bool isExponent() const;
+      // =
+      bool isAssignement() const;
+      // ==, !=, >=, <=, > or <
+      bool isComparison() const;
+      // && or ||
+      bool isLogical() const;
+
       SourceRange getOpRange() const;
 
       static bool classof(const Expr* expr) {
