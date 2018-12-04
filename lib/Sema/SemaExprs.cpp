@@ -14,6 +14,7 @@
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
 
 #include <utility>
 #include <iostream>

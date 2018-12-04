@@ -11,12 +11,12 @@
 #pragma once
 
 #include <cstdint>
-#include "Fox/AST/ASTNode.hpp"
+#include <tuple>
 #include "Fox/AST/ASTFwdDecl.hpp"
-#include "Fox/Common/DiagnosticEngine.hpp"
 
 namespace fox {
   class ASTContext;
+  class DiagnosticEngine;
   class Sema {
     public:
       Sema(ASTContext& ctxt, DiagnosticEngine& diags);
