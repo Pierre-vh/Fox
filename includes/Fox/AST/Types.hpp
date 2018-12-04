@@ -70,7 +70,7 @@ namespace fox {
       // If this is an unbound type, returns nullptr.
       Type getBoundRValue();
 
-      // If this type is a CelllType, dereference it recursively 
+      // If this type is a CellType, dereference it recursively 
       // until we reach a CellType with no substitution or a
       // concrete type.
       Type deref();
