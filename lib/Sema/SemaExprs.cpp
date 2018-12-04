@@ -21,20 +21,6 @@
 using namespace fox;
 
 namespace {
-  // Various helper functions
-
-  // If "type" is a CellType* with a substitution, returns the substitution,
-  // else, returns "type".
-  Type defer_if(Type type) {
-    if (auto* ptr = type->getAs<CellType>()) {
-      // if the type has a substitution, return it, else
-      // just return the argument.
-      if (Type sub = ptr->getSubst())
-        return sub;
-    }
-    return type;
-  }
-
   // Expression checker: Classic visitor, the visitXXX functions
   // all check a single node. They do not orchestrate visitation of
   // the children, because that is done in the ASTWalker
