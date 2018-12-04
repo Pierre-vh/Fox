@@ -25,6 +25,7 @@ Reworks:
       > Stop using a DFA. Use a proper grammar with a recursive descent technique
         and a config file (.def) to register valid terminals (so it's easy to add new characters for another language)
       > Register separators in a .def file?
+      > Operators (such as '==') should generate only one token 
 
 Performance:
   Diagnostics:
