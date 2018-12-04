@@ -263,11 +263,22 @@ namespace {
       // given expr.
       //----------------------------------------------------------------------//
 
-      Expr* visitBinaryExpr(BinaryExpr*) {
-        // Note:
-          // Handle arithmetic & text addition
-          // Disallow array operation unless *
-        fox_unimplemented_feature("BinaryExpr TypeChecking");
+      Expr* visitBinaryExpr(BinaryExpr* expr) {
+        assert(expr->isValidOp() &&
+          "Operation is invalid");
+        if (expr->isAdditive())
+          return checkAdditiveBinaryExpr(expr);
+        if (expr->isMultiplicative())
+          return checkMultiplicativeBinaryExpr(expr);
+        if (expr->isExponent())
+          return checkExponentBinaryExpr(expr);
+        if (expr->isAssignement())
+          return checkAssignementBinaryExpr(expr);
+        if (expr->isComparison())
+          return checkComparisonBinaryExpr(expr);
+        if (expr->isLogical())
+          return checkLogicalBinaryExpr(expr);
+        fox_unreachable("All cases handled");
       }
 
       Expr* visitCastExpr(CastExpr* expr) {
@@ -501,6 +512,47 @@ namespace {
 
         // The type of the expr is an array of the proposed type.
         return ArrayType::get(getCtxt(), proper.getPtr());
+      }
+
+      // Typecheck an additive operation
+      Expr* checkAdditiveBinaryExpr(BinaryExpr* expr) {
+        assert(expr->isAdditive() && "wrong function!");
+        fox_unimplemented_feature(__func__);
+      }
+
+      // Typechecks a concatenation (called by checkAdditiveBinaryExpr)
+      Expr* checkConcatBinaryExpr(BinaryExpr* expr) {
+        assert((expr->getOp() == BinaryExpr::OpKind::Add) 
+               && "wrong function or already checked concatenation");
+        fox_unimplemented_feature(__func__);
+      }
+
+      // Typechecks a multiplicative operation
+      Expr* checkMultiplicativeBinaryExpr(BinaryExpr* expr) {
+        assert(expr->isMultiplicative() && "wrong function!");
+        fox_unimplemented_feature(__func__);
+      }
+
+      // Typechecks an exponent operation
+      Expr* checkExponentBinaryExpr(BinaryExpr* expr) {
+        assert(expr->isExponent() && "wrong function!");
+        fox_unimplemented_feature(__func__);
+      }
+
+      // Typechecks an assignement operation
+      Expr* checkAssignementBinaryExpr(BinaryExpr* expr) {
+        assert(expr->isAssignement() && "wrong function!");
+        fox_unimplemented_feature(__func__);
+      }
+
+      Expr* checkComparisonBinaryExpr(BinaryExpr* expr) {
+        assert(expr->isComparison() && "wrong function!");
+        fox_unimplemented_feature(__func__);
+      }
+
+      Expr* checkLogicalBinaryExpr(BinaryExpr* expr) {
+        assert(expr->isLogical() && "wrong function!");
+        fox_unimplemented_feature(__func__);
       }
   };
 
