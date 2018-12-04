@@ -89,6 +89,12 @@ To-Do:
     > BinaryExpr checking
     > ArrayAccess checking (Done)
       -> Consider checking that the access is not out of bounds
+    > ASTVerifier
+      Checks that the AST is well formed. 
+      It should be able to check a Parsed AST and Checked AST.
+      Parsed AST checking only checks that the basics are here,
+      Checked AST checking checks that types are set, variables are
+      bound, etc.
     > Stmt semantic analysis
     > Decl semantic analysis
     > Name resolution
