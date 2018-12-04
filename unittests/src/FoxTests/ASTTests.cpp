@@ -18,8 +18,8 @@
 
 using namespace fox;
 
-// Tests that the ASTContext gives correct builtin
-TEST(ASTTests, ASTContextBuiltins) {
+// Tests that primitive types can be retrieve correctly
+TEST(ASTTests, PrimitiveTypes) {
   ASTContext actxt;
 
   auto* primBool = PrimitiveType::getBool(actxt);
@@ -67,6 +67,8 @@ TEST(ASTTests, ASTContextBuiltins) {
   // Void type
   EXPECT_EQ(primVoid->getPrimitiveKind(),  PrimitiveType::Kind::VoidTy);
   EXPECT_TRUE(primVoid->isVoidType());
+
+  // TODO: Check uniqueness
 }
 
 TEST(ASTTests, ASTContextArrayTypes) {
