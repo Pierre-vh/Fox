@@ -277,18 +277,26 @@ namespace {
       Expr* visitBinaryExpr(BinaryExpr* expr) {
         assert(expr->isValidOp() &&
           "Operation is invalid");
+        // First, fetch the types of the LHS and RHS 
+        Type lhsTy = expr->getLHS()->getType();
+        Type rhsTy = expr->getRHS()->getType();
+
+        // Check that they aren't ErrorTypes. If they are, return now.
+        if (lhsTy->is<ErrorType>() || rhsTy->is<ErrorType>())
+          return expr;
+
         if (expr->isAdditive())
-          return checkAdditiveBinaryExpr(expr);
+          return checkAdditiveBinaryExpr(expr, lhsTy, rhsTy);
         if (expr->isMultiplicative())
-          return checkMultiplicativeBinaryExpr(expr);
+          return checkMultiplicativeBinaryExpr(expr, lhsTy, rhsTy);
         if (expr->isExponent())
-          return checkExponentBinaryExpr(expr);
+          return checkExponentBinaryExpr(expr, lhsTy, rhsTy);
         if (expr->isAssignement())
-          return checkAssignementBinaryExpr(expr);
+          return checkAssignementBinaryExpr(expr, lhsTy, rhsTy);
         if (expr->isComparison())
-          return checkComparisonBinaryExpr(expr);
+          return checkComparisonBinaryExpr(expr, lhsTy, rhsTy);
         if (expr->isLogical())
-          return checkLogicalBinaryExpr(expr);
+          return checkLogicalBinaryExpr(expr, lhsTy, rhsTy);
         fox_unreachable("All cases handled");
       }
 
@@ -432,7 +440,6 @@ namespace {
         return expr;
       }
 
-      // Array literals
       Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr) {
         if (expr->getSize() != 0) {
           Type deduced = deduceTypeOfArrayLiteral(expr);
@@ -451,8 +458,9 @@ namespace {
       // Various semantics-related helper methods 
       //----------------------------------------------------------------------//
 
-      // Deduces the type of a non empty Array literal
-      // Returns the type of the literal or nullptr if it can't be calculated.
+      // visitArrayLiteralExpr helpers
+      //  Deduces the type of a non empty Array literal
+      //  Returns the type of the literal or nullptr if it can't be calculated.
       Type deduceTypeOfArrayLiteral(ArrayLiteralExpr* expr) {
         assert(expr->getSize() && "Size must be >0");
 
@@ -510,7 +518,7 @@ namespace {
         // Check if we have an unboundTy and/or a boundTy
         if (unboundTy && boundTy) {
           if (!getSema().unify(unboundTy, boundTy)) {
-            // FIXME: Proper diagnosis might be needed here.
+            // FIXME: A more specific diagnostic might be needed here.
             diagnoseHeteroArrLiteral(expr, nullptr);
             return nullptr;
           }
@@ -525,14 +533,26 @@ namespace {
         return ArrayType::get(getCtxt(), proper.getPtr());
       }
 
-      // Typecheck an additive operation
-      Expr* checkAdditiveBinaryExpr(BinaryExpr* expr) {
+      // visitBinaryExpr helpers
+      //  They all have pretty much the same signature: they
+      //  take the node, the type of the LHS and RHS as arguments.
+      //    
+      //  We pass the type of the LHS/RHS to the functions because
+      //  we already fetch it in the dispatch function above, so
+      //  it'd be a violation of DRY if we had to retrieve them
+      //  again inside each method.
+
+      // Typecheck an additive operation.
+      //  \param lhsTy The type of the LHS (must not be null)
+      //  \param rhsTy The type of the RHS (must not be null)
+      Expr* checkAdditiveBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
         assert(expr->isAdditive() && "wrong function!");
 
         // First, fetch the types of the LHS and RHS as
         // bound RValues
-        Type lhsTy = expr->getLHS()->getType()->getAsBoundRValue();
-        Type rhsTy = expr->getRHS()->getType()->getAsBoundRValue();
+        lhsTy = lhsTy->getAsBoundRValue();
+        rhsTy = rhsTy->getAsBoundRValue();
+
         if (!(lhsTy && rhsTy)) {
           // Unbound types as LHS/RHS -> Give up
           return expr;
@@ -567,6 +587,9 @@ namespace {
 
       // Returns true if this combination of operator/types
       // is eligible to be a concatenation operation
+      //  \param op The operation kind
+      //  \param lhsTy The type of the LHS (must not be null)
+      //  \param rhsTy The type of the RHS (must not be null)
       bool canConcat(BinaryExpr::OpKind op, Type lhsTy, Type rhsTy) {
         // It is eligible if the operator is a '+'
         if (op == BinaryExpr::OpKind::Add) {
@@ -579,30 +602,53 @@ namespace {
       }
 
       // Typechecks a multiplicative operation
-      Expr* checkMultiplicativeBinaryExpr(BinaryExpr* expr) {
+      //  \param lhsTy The type of the LHS (must not be null)
+      //  \param rhsTy The type of the RHS (must not be null)
+      Expr* checkMultiplicativeBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
         assert(expr->isMultiplicative() && "wrong function!");
+        // Only integral types as LHS/RHS.
         fox_unimplemented_feature(__func__);
       }
 
       // Typechecks an exponent operation
-      Expr* checkExponentBinaryExpr(BinaryExpr* expr) {
+      //  \param lhsTy The type of the LHS (must not be null)
+      //  \param rhsTy The type of the RHS (must not be null)
+      Expr* checkExponentBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
         assert(expr->isExponent() && "wrong function!");
+        // Only integral types as LHS/RHS
+        // Logic will be the same as Multiplicative, so
+        // maybe just fuze both functions?
         fox_unimplemented_feature(__func__);
       }
 
       // Typechecks an assignement operation
-      Expr* checkAssignementBinaryExpr(BinaryExpr* expr) {
+      //  \param lhsTy The type of the LHS (must not be null)
+      //  \param rhsTy The type of the RHS (must not be null)
+      Expr* checkAssignementBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
         assert(expr->isAssignement() && "wrong function!");
+        // Leave unimplemented for now (at least until
+        // name binding is done)
         fox_unimplemented_feature(__func__);
       }
 
-      Expr* checkComparisonBinaryExpr(BinaryExpr* expr) {
+      // Typechecks a comparative operation
+      //  \param lhsTy The type of the LHS (must not be null)
+      //  \param rhsTy The type of the RHS (must not be null)
+      Expr* checkComparisonBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
         assert(expr->isComparison() && "wrong function!");
+        // unify lhs/rhs
+        //    if it's a ranking comparison (>=, <=, >, <)
+        //    -> only allow Basic types
+        // type of expr is bool
         fox_unimplemented_feature(__func__);
       }
-
-      Expr* checkLogicalBinaryExpr(BinaryExpr* expr) {
+      
+      // Typechecks a logical and/or operation
+      //  \param lhsTy The type of the LHS (must not be null)
+      //  \param rhsTy The type of the RHS (must not be null)
+      Expr* checkLogicalBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
         assert(expr->isLogical() && "wrong function!");
+        // Type is bool, LHS and RHS must be integrals
         fox_unimplemented_feature(__func__);
       }
 
