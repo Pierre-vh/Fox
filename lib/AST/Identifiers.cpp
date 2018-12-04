@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/Identifiers.hpp"
-#include <cassert>
+#include "Fox/Common/Errors.hpp"
 
 // Normally this identifier shouldn't be possible
 // in the language because <> are both illegal in an identifier
@@ -14,19 +14,12 @@
 
 using namespace fox;
 
-StringPtrInMap::StringPtrInMap(ItTy iter) : it_(iter) {
-}
-
-string_view StringPtrInMap::get() const {
-  return (it_->first);
-}
-
-Identifier::Identifier(const StringPtrInMap::ItTy& iter): mapIter_(iter) {
+Identifier::Identifier(string_view str): str_(str) {
 
 }
 
 string_view Identifier::getStr() const {
-  return mapIter_.get();
+  return str_;
 }
 
 bool Identifier::operator<(const Identifier& id) const {
@@ -56,21 +49,20 @@ bool Identifier::operator!=(const std::string& str) const {
 Identifier* IdentifierTable::getUniqueIdentifierInfo(const std::string& id) {
   auto it = table_.lower_bound(id);
   if (it != table_.end() && !(table_.key_comp()(id, it->first))) {
-    // Identifier already exists in table_, return ->second after some checks.
+    // Identifier instance already exists in table_, return ->second after some checks.
+    
+    // Sanity check
+    assert((it->first == it->second.getStr())
+      && "Strings don't match!");
 
-    assert(it->second.mapIter_.it_ != table_.end() && "Identifier iterator was invalid");
-    assert(it->second.mapIter_.it_ == it && "String iterator in ->second is incorrect");
     return &(it->second);
   }
   else {
     // Key does not exists, insert.
-    auto newIt = table_.insert(it, std::make_pair(id, Identifier(table_.end())));
-
-    assert(newIt != table_.end() && "Fresh iterator was equal to .end() ?");
-
-    // /!\ Important : Set iterator
-    newIt->second.mapIter_.it_ = newIt;
-
+    auto newIt = table_.insert(it, std::make_pair(id, Identifier()));
+    // /!\ Important : Set the string view to watch the string
+    // stored inside the map
+    newIt->second.str_ = newIt->first;
     return &(newIt->second);
   }
 }

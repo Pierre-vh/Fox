@@ -1,41 +1,18 @@
-///------------------------------------------------------////
+//----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.        
 // See the LICENSE.txt file at the root of the project for license information.            
 // File : Identifiers.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file contains the IdentifierTable and Identifier classes.
-//
-// Note: This class, and the whole idiom of storing the Identifier* instead of the raw string
-// is more or less a premature optimization. (I got the idea from CLang, found it was pretty nice and implemented it
-// without thinking if it was really needed.) I did not realize that at the time of doing it,
-// but now it's done so It's going to stay that way ! Currently the Identifier 
-// doesn't store anything other than an iterator to the string, but in the future it might 
-// contain much more as the language grows.
-//
 //----------------------------------------------------------------------------//
 
 #pragma once 
 
 #include <map>
-#include <string>
 #include "Fox/Common/string_view.hpp"
 
 namespace fox {
-  class Identifier;
-
-  // Wrapper around a const_iterator of a map entry, used to safely access the .first element (the string)
-  class StringPtrInMap {
-    public:
-      typedef std::map<std::string, Identifier>::const_iterator ItTy;
-
-      StringPtrInMap(ItTy iter);
-
-      string_view get() const;
-
-      ItTy it_;
-  };
-
   // Represents a unique'd lexed identifier
   // Currently, they are immutable once created and only hold the string,
   // but in the future this might contain more than that.
@@ -43,11 +20,7 @@ namespace fox {
   // This essentially exists as an optimization.
   class Identifier {
     public:
-      Identifier(const StringPtrInMap::ItTy& iter);
-
       Identifier(Identifier&&) = default;
-      Identifier(Identifier&) = delete;
-      Identifier& operator=(Identifier&) = delete;
 
       // Returns the string naming this identifier
       string_view getStr() const;
@@ -64,9 +37,13 @@ namespace fox {
       bool operator!=(const std::string& str) const;
   
     private:
+      Identifier(string_view str = string_view());
+      Identifier(Identifier&) = delete;
+      Identifier& operator=(Identifier&) = delete;
+
       friend class IdentifierTable;
 
-      StringPtrInMap mapIter_;
+      string_view str_;
   };
 
   // A class that maps strings to Identifier.
@@ -95,6 +72,7 @@ namespace fox {
 
       IDTableConstIteratorType end() const;
       IDTableIteratorType end();
+
     private:
       Identifier* invalidID_ = nullptr;
 
