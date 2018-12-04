@@ -9,7 +9,6 @@
 #include "Fox/AST/Identifiers.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/Errors.hpp"
-#include <map>
 #include <sstream> 
 
 using namespace fox;

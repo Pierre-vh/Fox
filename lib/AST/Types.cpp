@@ -7,7 +7,6 @@
 
 #include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
-#include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"

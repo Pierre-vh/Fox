@@ -9,7 +9,6 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/ASTContext.hpp"
-#include <cassert>
 
 using namespace fox;
 
