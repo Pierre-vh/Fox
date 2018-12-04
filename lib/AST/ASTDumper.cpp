@@ -32,7 +32,7 @@ ASTDumper::ASTDumper(std::ostream& out, const uint8_t & offsettabs):
 }
 
 void ASTDumper::visitBinaryExpr(BinaryExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node->getOp())
+  dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node->getOpKind())
              << "\n";
 
   // Print LHS
@@ -55,7 +55,7 @@ void ASTDumper::visitCastExpr(CastExpr* node) {
 }
 
 void ASTDumper::visitUnaryExpr(UnaryExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node->getOp())
+  dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node->getOpKind())
              << "\n";
   indent();
   visit(node->getExpr());

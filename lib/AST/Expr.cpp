@@ -277,11 +277,11 @@ const Expr* BinaryExpr::getRHS() const {
   return rhs_;
 }
 
-BinaryExpr::OpKind BinaryExpr::getOp() const {
+BinaryExpr::OpKind BinaryExpr::getOpKind() const {
   return op_;
 }
 
-void BinaryExpr::setOp(OpKind op) {
+void BinaryExpr::setOpKind(OpKind op) {
   op_ = op;
 }
 
@@ -344,11 +344,11 @@ const Expr* UnaryExpr::getExpr() const {
   return expr_;
 }
 
-UnaryExpr::OpKind UnaryExpr::getOp() const {
+UnaryExpr::OpKind UnaryExpr::getOpKind() const {
   return op_;
 }
 
-void UnaryExpr::setOp(OpKind op) {
+void UnaryExpr::setOpKind(OpKind op) {
   op_ = op;
 }
 
