@@ -289,8 +289,8 @@ SourceRange BinaryExpr::getOpRange() const {
   return opRange_;
 }
 
-std::string BinaryExpr::getOpSign(OpKind op) {
-  switch (op) {
+std::string BinaryExpr::getOpSign() const {
+  switch (op_) {
     #define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
     #include "Fox/AST/Operators.def"
     default:
@@ -298,8 +298,8 @@ std::string BinaryExpr::getOpSign(OpKind op) {
   }
 }
 
-std::string BinaryExpr::getOpID(OpKind op) {
-  switch (op) {
+std::string BinaryExpr::getOpID() const {
+  switch (op_) {
     #define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return #ID;
     #include "Fox/AST/Operators.def"
     default:
@@ -307,8 +307,8 @@ std::string BinaryExpr::getOpID(OpKind op) {
   }
 }
 
-std::string BinaryExpr::getOpName(OpKind op) {
-  switch (op) {
+std::string BinaryExpr::getOpName() const {
+  switch (op_) {
     #define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return NAME;
     #include "Fox/AST/Operators.def"
     default:
@@ -356,8 +356,8 @@ SourceRange UnaryExpr::getOpRange() const {
   return opRange_;
 }
 
-std::string UnaryExpr::getOpSign(OpKind op) {
-  switch (op) {
+std::string UnaryExpr::getOpSign() const {
+  switch (op_) {
     #define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
     #include "Fox/AST/Operators.def"
     default:
@@ -365,8 +365,8 @@ std::string UnaryExpr::getOpSign(OpKind op) {
   }
 }
 
-std::string UnaryExpr::getOpID(OpKind op) {
-  switch (op) {
+std::string UnaryExpr::getOpID() const {
+  switch (op_) {
     #define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return #ID;
     #include "Fox/AST/Operators.def"
     default:
@@ -374,20 +374,8 @@ std::string UnaryExpr::getOpID(OpKind op) {
   }
 }
 
-std::string UnaryExpr::getOpSign() const {
-  return getOpSign(op_);
-}
-
 std::string UnaryExpr::getOpName() const {
-  return getOpName(op_);
-}
-
-std::string UnaryExpr::getOpID() const {
-  return getOpID(op_);
-}
-
-std::string UnaryExpr::getOpName(OpKind op) {
-  switch (op) {
+  switch (op_) {
     #define UNARY_OP(ID, SIGN, NAME) case OpKind::ID: return NAME;
     #include "Fox/AST/Operators.def"
     default:

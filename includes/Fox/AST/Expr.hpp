@@ -98,10 +98,17 @@ namespace fox   {
         return (expr->getKind() == ExprKind::BinaryExpr);
       }
 
-      // Get information about an operator as a string
-      static std::string getOpSign(OpKind op);
-      static std::string getOpName(OpKind op);
-      static std::string getOpID(OpKind op);
+      // Returns the user-readable sign of this expression's 
+      // operator as a string
+      std::string getOpSign() const;
+
+      // Returns the user-readable name of this expression's
+      // operator as a string.
+      std::string getOpName() const;
+
+      // Returns the user-readble Id (kind) of this expression's
+      // operator as a string.
+      std::string getOpID() const;
 
     private:
       SourceRange opRange_;
@@ -136,14 +143,13 @@ namespace fox   {
         return (expr->getKind() == ExprKind::UnaryExpr);
       }
 
-      // Get information about an operator as a string
-      static std::string getOpSign(OpKind op);
-      static std::string getOpName(OpKind op);
-      static std::string getOpID(OpKind op);
-
-      // Non static variants to get info on this instance
+      // Returns the user-readable sign of the operator as a string
       std::string getOpSign() const;
+
+      // Returns the user-readable name as a string
       std::string getOpName() const;
+
+      // Returns the user-readble Id (kind) as a string
       std::string getOpID() const;
 
     private:

@@ -32,7 +32,7 @@ ASTDumper::ASTDumper(std::ostream& out, const uint8_t & offsettabs):
 }
 
 void ASTDumper::visitBinaryExpr(BinaryExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node->getOpKind())
+  dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node)
              << "\n";
 
   // Print LHS
@@ -55,7 +55,7 @@ void ASTDumper::visitCastExpr(CastExpr* node) {
 }
 
 void ASTDumper::visitUnaryExpr(UnaryExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node->getOpKind())
+  dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node)
              << "\n";
   indent();
   visit(node->getExpr());
@@ -399,15 +399,15 @@ std::string ASTDumper::getBasicValueDeclDump(ValueDecl* decl) const {
   return ss.str();
 }
 
-std::string ASTDumper::getOperatorDump(BinaryExpr::OpKind op) const {
+std::string ASTDumper::getOperatorDump(BinaryExpr* expr) const {
   std::ostringstream ss;
-  ss << BinaryExpr::getOpSign(op) << " (" << BinaryExpr::getOpName(op) << ")";
+  ss << expr->getOpSign() << " (" << expr->getOpName() << ")";
   return ss.str();
 }
 
-std::string ASTDumper::getOperatorDump(UnaryExpr::OpKind op) const {
+std::string ASTDumper::getOperatorDump(UnaryExpr* expr) const {
   std::ostringstream ss;
-  ss << UnaryExpr::getOpSign(op) << " (" << UnaryExpr::getOpName(op) << ")";
+  ss << expr->getOpSign() << " (" << expr->getOpName() << ")";
   return ss.str();
 }
 
