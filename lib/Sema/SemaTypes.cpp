@@ -36,7 +36,7 @@ namespace {
       return true;
 
     // Types aren't equal unless they're both integral.
-    return (Sema::isIntegral(a) && Sema::isIntegral(b));
+    return (a->isIntegral() && b->isIntegral());
   }
 }  // anonymous namespace
 
@@ -134,21 +134,6 @@ bool Sema::unify(Type a, Type b) {
   return false;
 }
 
-bool Sema::isIntegral(Type type) {
-  if (auto* prim = type->getAs<PrimitiveType>()) {
-    using Pk = PrimitiveType::Kind;
-    switch (prim->getPrimitiveKind()) {
-      case Pk::BoolTy:
-      case Pk::FloatTy:
-      case Pk::IntTy:
-        return true;
-      default:
-        return false;
-    }
-  }
-  return false;
-}
-
 Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
   // Backup the original type, so we have a backup before
   // we unwrap the arguments.
@@ -163,7 +148,7 @@ Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
   if (a == b)
     return ogA;
 
-  if (isIntegral(a) && isIntegral(b)) {
+  if (a->isIntegral() && b->isIntegral()) {
     if (getIntegralRank(a) > getIntegralRank(b))
       return ogA;
     return ogB;
@@ -174,7 +159,7 @@ Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
 Sema::IntegralRankTy Sema::getIntegralRank(Type type) {
   using Pk = PrimitiveType::Kind;
 
-  assert(type && isIntegral(type)
+  assert(type && type->isIntegral()
     && "Can only use this on a valid pointer to an integral type");
 
   auto* prim = type->castTo<PrimitiveType>();

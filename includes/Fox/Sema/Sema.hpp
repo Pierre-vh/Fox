@@ -41,10 +41,6 @@ namespace fox {
       // Also, this function is commutative.
       bool unify(Type a, Type b);
 
-      // Returns true if a is a PrimitiveType of
-      // type Int/Float/Bool
-      static bool isIntegral(Type type);
-
       // Given 2 types
         // If they are integrals, return the highest ranking integral's type
         // If they are equal, return it's first argument
