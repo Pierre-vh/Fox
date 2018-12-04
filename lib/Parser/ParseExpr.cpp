@@ -9,6 +9,7 @@
 
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/AST/Identifiers.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
 
 using namespace fox;
 

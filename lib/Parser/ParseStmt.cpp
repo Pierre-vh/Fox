@@ -8,6 +8,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Parser/Parser.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
 
 using namespace fox;
 

@@ -37,18 +37,17 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
-#include "Fox/AST/ASTNode.hpp"
-#include "Fox/Common/DiagnosticEngine.hpp"
-#include "Fox/Common/Errors.hpp"
-#include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/ResultObject.hpp"
-#include <type_traits>
 
 namespace fox {
   class ASTContext;
   class IdentifierTable;
   class SourceManager;
   class DeclContext;
+  class DiagnosticEngine;
+  class Diagnostic;
+  class ASTNode;
+  enum class DiagID : std::uint16_t;
   class Parser {
     public:
       /*-------------- Forward Declarations --------------*/
@@ -120,6 +119,7 @@ namespace fox {
       ASTContext& getASTContext();
       SourceManager& getSourceManager();
       DiagnosticEngine& getDiagnosticEngine();
+
     private:
       /*-------------- Parser Setup --------------*/
       void setupParser();
