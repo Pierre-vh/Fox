@@ -89,8 +89,8 @@ namespace fox   {
       Expr* getRHS();
       const Expr* getRHS() const;
 
-      OpKind getOpKind() const;
-      void setOpKind(OpKind op);
+      OpKind getOp() const;
+      void setOp(OpKind op);
 
       SourceRange getOpRange() const;
 
@@ -134,8 +134,8 @@ namespace fox   {
       Expr* getExpr();
       const Expr* getExpr() const;
 
-      OpKind getOpKind() const;
-      void setOpKind(OpKind op);
+      OpKind getOp() const;
+      void setOp(OpKind op);
 
       SourceRange getOpRange() const;
 
