@@ -224,6 +224,21 @@ bool TypeBase::isVoidType() const {
   return false;
 }
 
+bool TypeBase::isIntegral() const {
+  if (auto* prim = getAs<PrimitiveType>()) {
+    using Pk = PrimitiveType::Kind;
+    switch (prim->getPrimitiveKind()) {
+      case Pk::BoolTy:
+      case Pk::FloatTy:
+      case Pk::IntTy:
+        return true;
+      default:
+        return false;
+    }
+  }
+  return false;
+}
+
 void* TypeBase::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
 }

@@ -75,12 +75,25 @@ namespace fox {
       // concrete type.
       Type deref();
 
+      /*
+        A special note about the is/getAs/castTo
+        family of function : they're strictly helpers.
+        They won't see through LValues, CellTypes, Arrays, etc.
+
+        For instance :
+          (int)->isIntType() returns true
+          Cell(int)->isIntType() returns false
+          LValue(int)->isIntType() returns false
+      */
+
+      //-------------------------//
       bool isStringType() const;
       bool isCharType() const;
       bool isFloatType() const;
       bool isBoolType() const;
       bool isIntType() const;
       bool isVoidType() const;
+      bool isIntegral() const;
 
       template<typename Ty>
       bool is() const {
@@ -106,6 +119,7 @@ namespace fox {
       Ty* castTo() {
         return cast<Ty>(this);
       }
+      //-------------------------//
 
     protected:
       TypeBase(TypeKind tc);
