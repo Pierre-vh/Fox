@@ -1,8 +1,7 @@
 // RUN: %fox %s -verify -werr
 
-func foo() {
-  //---ADDITIVE---//
-
+//---ADDITIVE---//
+func additive_chck() {
   // Correct
   true+false;
   false+42;
@@ -32,4 +31,48 @@ func foo() {
   true+'a';
   // expect-error@+1: cannot use binary operator '+' on expressions of types 'string' and 'int'
   "abc"+1;
+}
+
+//---MULTIPLICATIVE---//
+func multiplicative_chck() {
+  // Correct
+  20%3;
+  40/2.5;
+  20*3.14;
+  true%true;
+  true/50;
+  true*false;
+
+  // Chaining
+  ((4*2)%3)/2;
+  1*2*3*4*5/2;
+  ((3%2)/true)*2000;
+
+  // Incorrect
+  // expect-error@+1: cannot use binary operator '/' on expressions of types 'char' and 'char'
+  'c'/'c'; 
+  // expect-error@+1: cannot use binary operator '*' on expressions of types 'string' and 'string'
+  "abc"*"def";
+  // expect-error@+1: cannot use binary operator '%' on expressions of types 'bool' and 'char'
+  true%'a';
+  // expect-error@+1: cannot use binary operator '/' on expressions of types 'string' and 'int'
+  "abc"/1;
+}
+
+//---EXPONENT---//
+func exponent_check() {
+  // Correct
+  4**3;
+  20**false;
+  3.14**2;
+
+  // Incorrect
+  // expect-error@+1: cannot use binary operator '**' on expressions of types 'char' and 'char'
+  'c'**'c'; 
+  // expect-error@+1: cannot use binary operator '**' on expressions of types 'string' and 'string'
+  "abc"**"def";
+  // expect-error@+1: cannot use binary operator '**' on expressions of types 'bool' and 'char'
+  true**'a';
+  // expect-error@+1: cannot use binary operator '**' on expressions of types 'string' and 'int'
+  "abc"**1;
 }
