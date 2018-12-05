@@ -1,0 +1,10 @@
+// RUN: %fox %s -verify -werr
+
+// Theses tests are mostly "hammering" tests. They test complex
+// chains of expressions.
+
+// Basic expressions only (no variables)
+func basic_expr_chck() {
+  ((((((3+2)/46) as bool) && (3+4-4)) as float) as string) == "0.0";
+  (((((((11-6/2)*9-10%3)/26-23)/(24+2.34/3.14)) as bool) as int) as float) as string == "0.0";
+}
