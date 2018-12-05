@@ -76,3 +76,91 @@ func exponent_check() {
   // expect-error@+1: cannot use binary operator '**' on expressions of types 'string' and 'int'
   "abc"**1;
 }
+
+//---LOGICAL---//
+func logical_check() {
+  // Correct
+  true && false;
+  true || false;
+
+  0 && 1;
+  1 || 0;
+
+  0.5 && 0.01;
+  1.55 || 0.33;
+
+  true && 0.33;
+  false || 0;
+
+  0.25 && 0;
+  0 || 0;
+
+  // Incorrect
+  // expect-error@+1: cannot use binary operator '||' on expressions of types 'char' and 'int'
+  'a' || 0;
+  // expect-error@+1: cannot use binary operator '&&' on expressions of types 'string' and 'string'
+  "foo" && "bar";
+  // expect-error@+1: cannot use binary operator '||' on expressions of types 'string' and 'int'
+  "foo" || 0;
+  // expect-error@+1: cannot use binary operator '&&' on expressions of types 'char' and 'string'
+  'c' && "c";
+}
+
+//---COMPARISON: (NOT) EQUAL---//
+func comp_eq_neq_check() {
+  // Correct
+  true == true;
+  false != true;
+
+  2 != 1;
+  85 == 55;
+
+  0.333 == 0.333;
+  0.605 != 0.305; 
+
+  true == 1;
+  [1,2] == [1,2];
+  [[[true]]] != [[[false]]];
+  false != 333.333;
+
+  // Incorrect
+  // expect-error@+1: cannot use binary operator '==' on expressions of types 'string' and 'char'
+  "c"=='c';
+  // expect-error@+1: cannot use binary operator '!=' on expressions of types 'char' and 'string'
+  'a' != "bar";
+  // expect-error@+1: cannot use binary operator '==' on expressions of types 'string' and 'int'
+  "f" == 0;
+  // expect-error@+1: cannot use binary operator '!=' on expressions of types '[int]' and 'int'
+  [0] != 0;
+}
+
+//---COMPARISON: RANKING---//
+func comp_ranks_check() {
+  // Correct
+  true > false;
+  false <= false;
+
+  42 < 2;
+  3 >= 3;
+
+  0.333 >= 0.333;
+  0.605 <= 0.305; 
+
+  true <= 1;
+  false < 333.333;
+
+  'a' > 'b';
+  "ab" >= "bc";
+  "cd" <= "de";
+  "a" < "b";
+
+  // Incorrect
+  // expect-error@+1: cannot use binary operator '>' on expressions of types 'string' and 'char'
+  "c" > 'c';
+  // expect-error@+1: cannot use binary operator '<=' on expressions of types 'char' and 'string'
+  'a' <= "bar";
+  // expect-error@+1: cannot use binary operator '>=' on expressions of types 'string' and 'int'
+  "f" >= 0;
+  // expect-error@+1: cannot use binary operator '<=' on expressions of types '[int]' and 'int'
+  [0] <= 0;
+}
