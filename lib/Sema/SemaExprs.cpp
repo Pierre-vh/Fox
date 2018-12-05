@@ -290,19 +290,36 @@ namespace {
         if (lhsTy->is<ErrorType>() || rhsTy->is<ErrorType>())
           return expr;
 
-        if (expr->isAdditive())
-          return checkAdditiveBinaryExpr(expr, lhsTy, rhsTy);
-        if (expr->isMultiplicative())
-          return checkMultiplicativeBinaryExpr(expr, lhsTy, rhsTy);
-        if (expr->isExponent())
-          return checkExponentBinaryExpr(expr, lhsTy, rhsTy);
+        Type lhsTyBRV = lhsTy->getAsBoundRValue();
+        Type rhsTyBRV = rhsTy->getAsBoundRValue();
+
+        // Only check additive, multiplicative and exponent expression
+        // if the type of the LHS and RHS are bound.
+        if (lhsTyBRV && rhsTyBRV) {
+          if (expr->isAdditive())
+            return checkAdditiveBinaryExpr(expr, lhsTyBRV, rhsTyBRV);
+          if (expr->isMultiplicative() || expr->isExponent())
+            return checkMulOrExprBinaryExpr(expr, lhsTyBRV, rhsTyBRV);
+        }
+
+        // Assignement must not be given Bound RValues as it needs
+        // to see the LValue in the LHS to verify the legitimacy of the 
+        // assignement.
         if (expr->isAssignement())
           return checkAssignementBinaryExpr(expr, lhsTy, rhsTy);
+
+        //---TODO---//
         if (expr->isComparison())
           return checkComparisonBinaryExpr(expr, lhsTy, rhsTy);
         if (expr->isLogical())
           return checkLogicalBinaryExpr(expr, lhsTy, rhsTy);
-        fox_unreachable("All cases handled");
+        //----------//
+
+        // Expression cannot be checked, just return.
+        // TODO: Check that the operator isn't a unknown one, maybe
+        // refactor this function to assert that there no unimpl
+        // operator.
+        return expr;
       }
 
       Expr* visitCastExpr(CastExpr* expr) {        
@@ -548,20 +565,10 @@ namespace {
       //  again inside each method.
 
       // Typecheck an additive operation.
-      //  \param lhsTy The type of the LHS (must not be null)
-      //  \param rhsTy The type of the RHS (must not be null)
+      //  \param lhsTy The type of the LHS as a Bound RValue (must not be null)
+      //  \param rhsTy The type of the RHS as a Bound RValue (must not be null)
       Expr* checkAdditiveBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
         assert(expr->isAdditive() && "wrong function!");
-
-        // First, fetch the types of the LHS and RHS as
-        // bound RValues
-        lhsTy = lhsTy->getAsBoundRValue();
-        rhsTy = rhsTy->getAsBoundRValue();
-
-        if (!(lhsTy && rhsTy)) {
-          // Unbound types as LHS/RHS -> Give up
-          return expr;
-        }
 
         // Check if we can concat
         if (canConcat(expr->getOp(), lhsTy, rhsTy)) {
@@ -593,8 +600,9 @@ namespace {
       // Returns true if this combination of operator/types
       // is eligible to be a concatenation operation
       //  \param op The operation kind
-      //  \param lhsTy The type of the LHS (must not be null)
-      //  \param rhsTy The type of the RHS (must not be null)
+      // Typecheck an additive operation.
+      //  \param lhsTy The type of the LHS as a Bound RValue (must not be null)
+      //  \param rhsTy The type of the RHS as a Bound RValue (must not be null)
       bool canConcat(BinaryExpr::OpKind op, Type lhsTy, Type rhsTy) {
         // It is eligible if the operator is a '+'
         if (op == BinaryExpr::OpKind::Add) {
@@ -606,24 +614,29 @@ namespace {
         return false;
       }
 
-      // Typechecks a multiplicative operation
-      //  \param lhsTy The type of the LHS (must not be null)
-      //  \param rhsTy The type of the RHS (must not be null)
-      Expr* checkMultiplicativeBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
-        assert(expr->isMultiplicative() && "wrong function!");
-        // Only integral types as LHS/RHS.
-        fox_unimplemented_feature(__func__);
-      }
+      // Typechecks a multiplicative or exponent operation
+      // (operators * / % **)
+      //  \param lhsTy The type of the LHS as a Bound RValue (must not be null)
+      //  \param rhsTy The type of the RHS as a Bound RValue (must not be null)
+      Expr* 
+      checkMulOrExprBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
+        assert((expr->isMultiplicative() || expr->isExponent())
+          && "wrong function!");
+        // Only integral types allowed for * / % and **
+        if (!(lhsTy->isIntegral() && rhsTy->isIntegral())) {
+          diagnoseInvalidBinaryExprOperands(expr);
+          return expr;
+        }
+        // The expression type is the highest ranked type
+        Type highest = getSema().getHighestRankedTy(lhsTy, rhsTy);
+        assert(highest && "Both types are integral, so getHighestRankedTy "
+               "shoudln't return a null value");
 
-      // Typechecks an exponent operation
-      //  \param lhsTy The type of the LHS (must not be null)
-      //  \param rhsTy The type of the RHS (must not be null)
-      Expr* checkExponentBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
-        assert(expr->isExponent() && "wrong function!");
-        // Only integral types as LHS/RHS
-        // Logic will be the same as Multiplicative, so
-        // maybe just fuze both functions?
-        fox_unimplemented_feature(__func__);
+        // Set the type of the expression to the highest ranked type
+        // unless it's a boolean, then uprank it. This is because
+        // we want boolean addition to return ints.
+        expr->setType(uprankIfBoolean(highest));
+        return expr;
       }
 
       // Typechecks an assignement operation
@@ -641,6 +654,7 @@ namespace {
       //  \param rhsTy The type of the RHS (must not be null)
       Expr* checkComparisonBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
         assert(expr->isComparison() && "wrong function!");
+        //----TODO----//
         // unify lhs/rhs
         //    if it's a ranking comparison (>=, <=, >, <)
         //    -> only allow Basic types
@@ -653,6 +667,7 @@ namespace {
       //  \param rhsTy The type of the RHS (must not be null)
       Expr* checkLogicalBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
         assert(expr->isLogical() && "wrong function!");
+        //----TODO----//
         // Type is bool, LHS and RHS must be integrals
         fox_unimplemented_feature(__func__);
       }
