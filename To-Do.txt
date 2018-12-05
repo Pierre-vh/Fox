@@ -86,7 +86,7 @@ To-Do:
 
   > Work on Sema (Now) 
     > Write tests for Unary operator checking (Done)
-    > BinaryExpr checking
+    > BinaryExpr checking (Done)
     > ArrayAccess checking (Done)
       -> Consider checking that the access is not out of bounds
     > ASTVerifier
