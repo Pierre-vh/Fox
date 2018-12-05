@@ -159,19 +159,22 @@ namespace {
       //----------------------------------------------------------------------//
       // Finalize methods
       //----------------------------------------------------------------------//
-      // The finalize family of methods will... finalize the given expr.
-      // Finalizing can mean a lot of things. Some exprs might want a finalize()
-      // method while others won't need one.
-      // /!\ ALL FINALIZE METHODS ASSUME THAT THE EXPR IS SEMANTICALLY CORRECT!
+      // The finalize family of methods will perform the finalization of a 
+      // given expr. Example cases where a finalize method should be created:
+      //    -> The finalization logic doesn't fit in 2 or 3 lines of code
+      //    -> The finalization logic is repetitive and called multiple times
+      //    -> Improving readability
       //
-      // Usually, in finalizeXXXExpr, we'll set it's type, maybe emit some last
-      // minute diagnostic about it, etc. 
+      // Theses methods will often just set the type of the expr, maybe emit
+      // some warnings too.
+      //
+      // /!\ ALL FINALIZE METHODS ASSUME THAT THE EXPR IS SEMANTICALLY CORRECT!
       //----------------------------------------------------------------------//
 
       // Finalizes a CastExpr
       Expr* finalizeCastExpr(CastExpr* expr, bool isRedundant) {
         if (isRedundant) {
-          // Diagnose the redundant cast
+          // Diagnose the redundant cast (emit a warning).
           diagnoseRedundantCast(expr);
           // Remove the CastExpr and just return the child
           Expr* child = expr->getExpr();
@@ -286,7 +289,9 @@ namespace {
       // "visit" methods
       //----------------------------------------------------------------------//
       // Theses visit() methods will perform the necessary tasks to check a
-      // given expr.
+      // given expr. In trivial/simple cases, theses methods will do everything
+      // needed to typecheck the expr (emit diagnostics, finalize, etc), but
+      // they may also delegate the work to some check/finalize methods.
       //----------------------------------------------------------------------//
 
       Expr* visitBinaryExpr(BinaryExpr* expr) {
@@ -386,17 +391,10 @@ namespace {
 
       Expr* visitUnaryExpr(UnaryExpr* expr) {
         Expr* child = expr->getExpr();
-        Type childTy = child->getType();
-        // ignore LValue + deref
-        childTy = childTy->getAsBoundRValue();
+        Type childTy = child->getType()->getAsBoundRValue();
 
-        if (!childTy) {
-          // ChildTy is an unbound type
-          //diagnoseInvalidUnaryOpChildType(expr);
-          // Don't print a diagnostic, let the "cannot infer type"
-          // diagnostic be printed instead.
-          return expr;
-        }
+        // If the type isn't bound, give up.
+        if (!childTy) return expr;
 
         // For any unary operators, we only allow integral types,
         // so check that first.
@@ -493,13 +491,8 @@ namespace {
       }
 
       Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr) {
-        if (expr->getSize() != 0) {
-          Type deduced = deduceTypeOfArrayLiteral(expr);
-          if(deduced)
-            expr->setType(deduced);
-          return expr;
-        }
-        // Type needs inference
+        if (expr->getSize() != 0)
+          return checkNonEmptyArrayLiteralExpr(expr);
         else
           return finalizeEmptyArrayLiteral(expr);
       }
@@ -512,68 +505,60 @@ namespace {
 
       // visitArrayLiteralExpr helper
 
-      //  Deduces the type of a non empty Array literal
-      //  Returns the type of the literal or nullptr if it can't be calculated.
-      Type deduceTypeOfArrayLiteral(ArrayLiteralExpr* expr) {
+      // Typechecks a non empty array literal and deduces it's type.
+      Expr* checkNonEmptyArrayLiteralExpr(ArrayLiteralExpr* expr) {
         assert(expr->getSize() && "Size must be >0");
 
         // The bound type proposed by unifying the other concrete/bound
         // types inside the array.
         Type boundTy;
-
         // The type used by unbounds elemTy
         Type unboundTy;
 
-        // Loop over each expression in the literal
         for (auto& elem : expr->getExprs()) {
-          // Get the elemTy
           Type elemTy = elem->getType();
-          assert(elemTy && "Type cannot be null!");
 
-          // Handle error elem type: we stop here if we have one.
-          if (elemTy->is<ErrorType>())
-            return nullptr;
+          if (elemTy->is<ErrorType>()) return expr;
 
           // Special logic for unbound types
           if (!elemTy->isBound()) {
             // Set unboundTy & continue for first loop
             if (!unboundTy)
               unboundTy = elemTy;
-            // Attempt unification
+            // Else, just unify.
             else if (!getSema().unify(unboundTy, elemTy)) {
               diagnoseHeteroArrLiteral(expr, elem);
-              return nullptr;
+              return expr;
             }
             continue;
           }
 
-          // From this point, ElemTy is guaranteed to be a bound/concrete type
-
+          // From this point, elemTy is guaranteed to be a bound type
           // First loop, set boundTy & continue.
           if (!boundTy) {
             boundTy = elemTy;
             continue;
           }
 
-          // Unify elemTy with the bound proposed type.
+          // Next iterations: Unify elemTy with the bound proposed type.
           if (!getSema().unify(boundTy, elemTy)) {
             diagnoseHeteroArrLiteral(expr, elem);
-            return nullptr;
+            return expr;
           }
 
-          // Get the highest ranking type of elemTy and boundTy
+          // Set boundTy to the highest ranking type of elemTy and boundTy
           boundTy = Sema::getHighestRankedTy(elemTy, boundTy);
           assert(boundTy &&
-                 "Couldn't determine the highest ranked type "
-                 "but unification succeeded?");
+            "Null highest ranked type but unification succeeded?");
         }
         Type proper;
+
         // Check if we have an unboundTy and/or a boundTy
         if (unboundTy && boundTy) {
           if (!getSema().unify(unboundTy, boundTy)) {
             // FIXME: A more specific diagnostic might be needed here.
             diagnoseHeteroArrLiteral(expr, nullptr);
-            return nullptr;
+            return expr;
           }
           proper = boundTy; 
         }
@@ -581,12 +566,10 @@ namespace {
         else if (unboundTy) proper = unboundTy;
         else fox_unreachable("Should have at least a boundTy or unboundTy set");
         assert(proper && "the proper type shouldn't be null at this stage");
-
-        // The type of the expr is an array of the proposed type.
-        return ArrayType::get(getCtxt(), proper.getPtr());
+        // The type of the expr is an array of the proper type.
+        expr->setType(ArrayType::get(getCtxt(), proper));
+        return expr;
       }
-
-      // visitBinaryExpr helpers
 
       // Typecheck a basic binary expression that requires both operands
       // to be integral types. This includes multiplicative/additive/exponent
@@ -608,7 +591,7 @@ namespace {
         // The expression type is the highest ranked type between lhs & rhs
         Type highest = getSema().getHighestRankedTy(lhsTy, rhsTy);
         assert(highest && "Both types are integral, so getHighestRankedTy "
-               "shoudln't return a null value");
+          "shoudln't return a null value");
 
         // Set the type of the expression to the highest ranked type
         // unless it's a boolean, then uprank it.
