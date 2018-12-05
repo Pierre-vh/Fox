@@ -84,15 +84,6 @@ To-Do:
   > Properly use Type in place of TypeBase* (Done)
   > Refactoring - fixing bad terminology (Done)
 
-  > SemaExpr refactoring:
-    Classify methods better. Finalize methods are somewhat ambiguous, check
-    and visit methods too. They don't have a fixed role. Find them a fixed
-    role and stick to it.
-    e.g. visit -> general checking of this node, might delegate
-         check -> checks a special situation/configuration of a node
-         finalize -> if the finalization is non trivial, the finalization
-                     job is non trivial.
-
   > Work on Sema (Now) 
     > Write tests for Unary operator checking (Done)
     > BinaryExpr checking
