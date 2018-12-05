@@ -376,7 +376,7 @@ namespace {
 
         // Check for Error Types. If one of the types is an ErrorType
         // just abort.
-        if (childTy->is<ErrorType>() && goalTy->is<ErrorType>())
+        if (childTy->is<ErrorType>() || goalTy->is<ErrorType>())
           return expr;
 
         // "Stringifying" casts are a special case. To be
@@ -431,16 +431,18 @@ namespace {
         // Check that the child is an array type.
         if (!childTy->is<ArrayType>()) {
           // Diagnose with the primary range being the child's range
-          diagnoseInvalidArraySubscript(expr, 
-                                        child->getRange(), idxE->getRange());
+					if(!childTy->is<ErrorType>())
+						diagnoseInvalidArraySubscript(expr, 
+							child->getRange(), idxE->getRange());
           return expr;
         }
 
         // Idx type must be an integral value
         if (!idxETy->isIntegral()) {
           // Diagnose with the primary range being the idx's range
-          diagnoseInvalidArraySubscript(expr,
-                                        idxE->getRange(), child->getRange());
+					if(!childTy->is<ErrorType>())
+						diagnoseInvalidArraySubscript(expr,
+							idxE->getRange(), child->getRange());
           return expr;
         }
 
