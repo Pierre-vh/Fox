@@ -80,7 +80,8 @@ bool Sema::unify(Type a, Type b) {
           // If they're different, adjust both substitution to the highest
           // ranked type.
           Type highest = getHighestRankedTy(aCellSub, bCellSub);
-          assert(highest); // Should have one since unification was successful
+          assert(highest 
+           && "highest ranked type is null but unification succeeded"); 
           aCell->setSubst(highest);
           bCell->setSubst(highest);
         }
