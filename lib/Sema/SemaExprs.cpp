@@ -162,12 +162,13 @@ namespace {
       // The finalize family of methods will... finalize the given expr.
       // Finalizing can mean a lot of things. Some exprs might want a finalize()
       // method while others won't need one.
+      // /!\ ALL FINALIZE METHODS ASSUME THAT THE EXPR IS SEMANTICALLY CORRECT!
       //
       // Usually, in finalizeXXXExpr, we'll set it's type, maybe emit some last
       // minute diagnostic about it, etc. 
       //----------------------------------------------------------------------//
 
-      // Finalizes a valid CastExpr
+      // Finalizes a CastExpr
       Expr* finalizeCastExpr(CastExpr* expr, bool isRedundant) {
         if (isRedundant) {
           // Diagnose the redundant cast
@@ -186,7 +187,7 @@ namespace {
         return expr;
       }
 
-      // Finalizes a valid UnaryExpr
+      // Finalizes a UnaryExpr
       // \param childTy The type of the child as a PrimitiveType.
       Expr* finalizeUnaryExpr(UnaryExpr* expr, PrimitiveType* childTy) {
         assert(childTy && "cannot be nullptr");
@@ -212,9 +213,9 @@ namespace {
         return expr;
       }
 
-      // Finalizes an empty ArrayLiteral
+      // Finalizes an empty Array Literal
       Expr* finalizeEmptyArrayLiteral(ArrayLiteralExpr* expr) {
-        assert((expr->getSize() == 0) && "Only for empty ArrLits");
+        assert((expr->getSize() == 0) && "Only for empty Array Literals");
         // For empty array literals, the type is going to be a fresh
         // celltype inside an Array : Array(CellType(null))
         Type type = CellType::create(getCtxt());
@@ -230,6 +231,15 @@ namespace {
         assert(exprTy && 
                "Expression is valid but childTy is not an ArrayType?");
         expr->setType(exprTy);
+        return expr;
+      }
+
+      // Finalizes a valid concatenation binary operation.
+      Expr* finalizeConcatBinaryExpr(BinaryExpr* expr) {
+        // For concatenation, the type is always string.
+        // We'll also change the add operator to become the concat operator.
+        expr->setType(PrimitiveType::getString(getCtxt()));
+        expr->setOp(BinaryExpr::OpKind::Concat);
         return expr;
       }
 
@@ -280,46 +290,66 @@ namespace {
       //----------------------------------------------------------------------//
 
       Expr* visitBinaryExpr(BinaryExpr* expr) {
+        using BOp = BinaryExpr::OpKind;
+
         assert(expr->isValidOp() &&
           "Operation is invalid");
-        // First, fetch the types of the LHS and RHS 
+
+        // Fetch the types of the LHS and RHS 
         Type lhsTy = expr->getLHS()->getType();
         Type rhsTy = expr->getRHS()->getType();
 
-        // Check that they aren't ErrorTypes. If they are, return now.
+        // Check that they aren't ErrorTypes. If they are, don't bother
+        // checking.
         if (lhsTy->is<ErrorType>() || rhsTy->is<ErrorType>())
           return expr;
 
-        Type lhsTyBRV = lhsTy->getAsBoundRValue();
-        Type rhsTyBRV = rhsTy->getAsBoundRValue();
-
-        // Only check additive, multiplicative and exponent expression
-        // if the type of the LHS and RHS are bound.
-        if (lhsTyBRV && rhsTyBRV) {
-          if (expr->isAdditive())
-            return checkAdditiveBinaryExpr(expr, lhsTyBRV, rhsTyBRV);
-          if (expr->isMultiplicative() || expr->isExponent())
-            return checkMulOrExprBinaryExpr(expr, lhsTyBRV, rhsTyBRV);
-        }
-
-        // Assignement must not be given Bound RValues as it needs
-        // to see the LValue in the LHS to verify the legitimacy of the 
-        // assignement.
+        // Handle assignements early, let checkAssignementBinaryExpr do it.
         if (expr->isAssignement())
           return checkAssignementBinaryExpr(expr, lhsTy, rhsTy);
 
-        //---TODO---//
-        if (expr->isComparison())
-          return checkComparisonBinaryExpr(expr, lhsTy, rhsTy);
-        if (expr->isLogical())
-          return checkLogicalBinaryExpr(expr, lhsTy, rhsTy);
-        //----------//
+        // For every other operator, we must use the bound RValue version
+        // of the types.
+        lhsTy = lhsTy->getAsBoundRValue();
+        rhsTy = rhsTy->getAsBoundRValue();
 
-        // Expression cannot be checked, just return.
-        // TODO: Check that the operator isn't a unknown one, maybe
-        // refactor this function to assert that there no unimpl
-        // operator.
-        return expr;
+        // If the types are not bound, just give up and let the ExprFinalizer
+        // display the errors.
+        if (!(lhsTy && rhsTy)) return expr;
+
+        switch (BOp op = expr->getOp()) {
+          // Multiplicative, additive and exponent binary expr
+          // are checked by checkBasicIntegralBinaryExpr, except
+          // concatenations which are directly finalized through
+          // finalizeConcatBinaryExpr
+          case BOp::Add:
+            if (canConcat(op, lhsTy, rhsTy))
+              return finalizeConcatBinaryExpr(expr);
+            // (else) fall through 
+          case BOp::Sub:
+          case BOp::Mul:
+          case BOp::Div:
+          case BOp::Mod:
+          case BOp::Exp:
+            return checkBasicIntegralBinaryExpr(expr, lhsTy, rhsTy);
+          // Assignements
+          case BOp::Assign:
+            return checkAssignementBinaryExpr(expr, lhsTy, rhsTy);
+          // Comparisons
+          case BOp::Eq:
+          case BOp::NEq:
+          case BOp::GE:
+          case BOp::GT:
+          case BOp::LE:
+          case BOp::LT:
+            return checkComparisonBinaryExpr(expr, lhsTy, rhsTy);
+          // Logical operators
+          case BOp::LAnd:
+          case BOp::LOr:
+            return checkLogicalBinaryExpr(expr, lhsTy, rhsTy);
+          default:
+            fox_unreachable("All cases handled");
+        }
       }
 
       Expr* visitCastExpr(CastExpr* expr) {        
@@ -480,7 +510,8 @@ namespace {
       // Various semantics-related helper methods 
       //----------------------------------------------------------------------//
 
-      // visitArrayLiteralExpr helpers
+      // visitArrayLiteralExpr helper
+
       //  Deduces the type of a non empty Array literal
       //  Returns the type of the literal or nullptr if it can't be calculated.
       Type deduceTypeOfArrayLiteral(ArrayLiteralExpr* expr) {
@@ -556,43 +587,31 @@ namespace {
       }
 
       // visitBinaryExpr helpers
-      //  They all have pretty much the same signature: they
-      //  take the node, the type of the LHS and RHS as arguments.
-      //    
-      //  We pass the type of the LHS/RHS to the functions because
-      //  we already fetch it in the dispatch function above, so
-      //  it'd be a violation of DRY if we had to retrieve them
-      //  again inside each method.
 
-      // Typecheck an additive operation.
+      // Typecheck a basic binary expression that requires both operands
+      // to be integral types. This includes multiplicative/additive/exponent
+      // operations (except concatenation).
       //  \param lhsTy The type of the LHS as a Bound RValue (must not be null)
       //  \param rhsTy The type of the RHS as a Bound RValue (must not be null)
-      Expr* checkAdditiveBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
-        assert(expr->isAdditive() && "wrong function!");
-
-        // Check if we can concat
-        if (canConcat(expr->getOp(), lhsTy, rhsTy)) {
-          // For concatenation, the type is always string.
-          // We'll also change the add operator to become the concat operator.
-          expr->setType(PrimitiveType::getString(getCtxt()));
-          expr->setOp(BinaryExpr::OpKind::Concat);
-          return expr;
-        }
-
-        // If this isn't a concatenation, both types must be integral types
+      Expr*
+      checkBasicIntegralBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
+        assert((expr->isAdditive() 
+             || expr->isExponent() 
+             || expr->isMultiplicative()) && "wrong function!");
+        
+        // Check that lhs and rhs are both integral types.
         if (!(lhsTy->isIntegral() && rhsTy->isIntegral())) {
           diagnoseInvalidBinaryExprOperands(expr);
           return expr;
         }
 
-        // The expression type is the highest ranked type
+        // The expression type is the highest ranked type between lhs & rhs
         Type highest = getSema().getHighestRankedTy(lhsTy, rhsTy);
         assert(highest && "Both types are integral, so getHighestRankedTy "
-          "shoudln't return a null value");
-        
+               "shoudln't return a null value");
+
         // Set the type of the expression to the highest ranked type
-        // unless it's a boolean, then uprank it. This is because
-        // we want boolean addition to return ints.
+        // unless it's a boolean, then uprank it.
         expr->setType(uprankIfBoolean(highest));
         return expr;
       }
@@ -600,9 +619,6 @@ namespace {
       // Returns true if this combination of operator/types
       // is eligible to be a concatenation operation
       //  \param op The operation kind
-      // Typecheck an additive operation.
-      //  \param lhsTy The type of the LHS as a Bound RValue (must not be null)
-      //  \param rhsTy The type of the RHS as a Bound RValue (must not be null)
       bool canConcat(BinaryExpr::OpKind op, Type lhsTy, Type rhsTy) {
         // It is eligible if the operator is a '+'
         if (op == BinaryExpr::OpKind::Add) {
@@ -612,31 +628,6 @@ namespace {
           return lhsOk && rhsOk;
         }
         return false;
-      }
-
-      // Typechecks a multiplicative or exponent operation
-      // (operators * / % **)
-      //  \param lhsTy The type of the LHS as a Bound RValue (must not be null)
-      //  \param rhsTy The type of the RHS as a Bound RValue (must not be null)
-      Expr* 
-      checkMulOrExprBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
-        assert((expr->isMultiplicative() || expr->isExponent())
-          && "wrong function!");
-        // Only integral types allowed for * / % and **
-        if (!(lhsTy->isIntegral() && rhsTy->isIntegral())) {
-          diagnoseInvalidBinaryExprOperands(expr);
-          return expr;
-        }
-        // The expression type is the highest ranked type
-        Type highest = getSema().getHighestRankedTy(lhsTy, rhsTy);
-        assert(highest && "Both types are integral, so getHighestRankedTy "
-               "shoudln't return a null value");
-
-        // Set the type of the expression to the highest ranked type
-        // unless it's a boolean, then uprank it. This is because
-        // we want boolean addition to return ints.
-        expr->setType(uprankIfBoolean(highest));
-        return expr;
       }
 
       // Typechecks an assignement operation
