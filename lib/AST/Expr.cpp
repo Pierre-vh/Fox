@@ -335,6 +335,12 @@ bool BinaryExpr::isComparison() const {
   }
 }
 
+bool BinaryExpr::isRankingComparison() const {
+  if (isComparison())
+    return (op_ != OpKind::Eq) && (op_ != OpKind::NEq);
+  return false;
+}
+
 bool BinaryExpr::isLogical() const {
   switch (op_) {
     case OpKind::LOr:

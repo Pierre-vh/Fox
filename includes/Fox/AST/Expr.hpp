@@ -106,6 +106,8 @@ namespace fox   {
       bool isAssignement() const;
       // ==, !=, >=, <=, > or <
       bool isComparison() const;
+      // >=, <=, >, <
+      bool isRankingComparison() const;
       // && or ||
       bool isLogical() const;
 
