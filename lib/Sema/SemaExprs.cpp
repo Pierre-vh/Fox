@@ -171,6 +171,13 @@ namespace {
       // /!\ ALL FINALIZE METHODS ASSUME THAT THE EXPR IS SEMANTICALLY CORRECT!
       //----------------------------------------------------------------------//
 
+      // Finalizes an expression whose type is boolean (e.g. conditional/logical
+      // expressions such as LAnd, LNot, LE, GT, etc..)
+      Expr* finalizeBooleanExpr(Expr* expr) {
+        expr->setType(PrimitiveType::getBool(getCtxt()));
+        return expr;
+      }
+
       // Finalizes a CastExpr
       Expr* finalizeCastExpr(CastExpr* expr, bool isRedundant) {
         if (isRedundant) {
@@ -198,22 +205,19 @@ namespace {
         switch (expr->getOp()) {
           // Logical NOT operator : '!'
           case OP::LNot:
-            // Always boolean
-            expr->setType(PrimitiveType::getBool(getCtxt()));
-            break;
+            return finalizeBooleanExpr(expr);
           // Unary Plus '+' and Minus '-'
           case OP::Minus:
           case OP::Plus:
             // Always int or float, never bool, so uprank
             // if boolean.
             expr->setType(uprankIfBoolean(childTy));
-            break;
+            return expr;
           case OP::Invalid:
             fox_unreachable("Invalid Unary Operator");
           default:
             fox_unreachable("All cases handled");
         }
-        return expr;
       }
 
       // Finalizes an empty Array Literal
@@ -626,24 +630,42 @@ namespace {
       // Typechecks a comparative operation
       //  \param lhsTy The type of the LHS (must not be null)
       //  \param rhsTy The type of the RHS (must not be null)
-      Expr* checkComparisonBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
+      Expr* 
+      checkComparisonBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
         assert(expr->isComparison() && "wrong function!");
-        //----TODO----//
-        // unify lhs/rhs
-        //    if it's a ranking comparison (>=, <=, >, <)
-        //    -> only allow Basic types
-        // type of expr is bool
-        fox_unimplemented_feature(__func__);
+
+        if (!getSema().unify(lhsTy, rhsTy)) {
+          diagnoseInvalidBinaryExprOperands(expr);
+          return expr;
+        }
+
+        // For ranking comparisons, only allow Primitives types as LHS/RHS
+        if (expr->isRankingComparison()) {
+          // FIXME: Maybe disallow char comparisons? Depends on how it's going
+          // to be implemented... It needs to be intuitive!
+          if (!(lhsTy->is<PrimitiveType>() && rhsTy->is<PrimitiveType>())) {
+            diagnoseInvalidBinaryExprOperands(expr);
+            return expr;
+          }
+        }
+
+        return finalizeBooleanExpr(expr);
       }
       
       // Typechecks a logical and/or operation
       //  \param lhsTy The type of the LHS (must not be null)
       //  \param rhsTy The type of the RHS (must not be null)
-      Expr* checkLogicalBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
+      Expr* checkLogicalBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
         assert(expr->isLogical() && "wrong function!");
-        //----TODO----//
-        // Type is bool, LHS and RHS must be integrals
-        fox_unimplemented_feature(__func__);
+
+        // for logical AND and OR operations, only allow integral
+        // types for the LHS and RHS
+        if (!(lhsTy->isIntegral() && rhsTy->isIntegral())) {
+          diagnoseInvalidBinaryExprOperands(expr);
+          return expr;
+        }
+
+        return finalizeBooleanExpr(expr);
       }
 
       //----------------------------------------------------------------------//
