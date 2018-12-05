@@ -29,7 +29,7 @@ namespace {
   // Every visitation method return a pointer to an Expr*, which is the current 
   // expr
   // OR the expr that should take it's place. This can NEVER be null.
-  class ExprChecker : public ExprVisitor<ExprChecker, Expr*>, public ASTWalker {
+  class ExprChecker : ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     using Inherited = ExprVisitor<ExprChecker, Expr*>;
     Sema& sema_;
     public:
@@ -49,6 +49,11 @@ namespace {
 
       Sema& getSema() {
         return sema_;
+      }
+
+      // Entry point
+      Expr* check(Expr* expr) {
+        return walk(expr);
       }
 
       //----------------------------------------------------------------------//
@@ -670,12 +675,11 @@ namespace {
   };
 
   // ExprFinalizer, which rebuilds types to remove
-  // SemaTypes.
-  // Visit methods return pointers to TypeBase. They return nullptr
+  // CellTypes.
+  //
+  // Visit methods return Type objects. They return null Types
   // if the finalization failed for this expr.
-  // It's still a primitive, test version for now.
-  class ExprFinalizer : public TypeVisitor<ExprFinalizer, Type>,
-    public ASTWalker {
+  class ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
     ASTContext& ctxt_;
     DiagnosticEngine& diags_;
 
@@ -683,6 +687,10 @@ namespace {
       ExprFinalizer(ASTContext& ctxt, DiagnosticEngine& diags) :
         ctxt_(ctxt), diags_(diags) {
 
+      }
+
+      Expr* finalize(Expr* expr) {
+        return walk(expr);
       }
 
       Expr* handleExprPost(Expr* expr) {
@@ -741,7 +749,10 @@ namespace {
 } // End anonymous namespace
 
 Expr* Sema::typecheckExpr(Expr* expr) {
-  expr = ExprChecker(*this).walk(expr);
-  expr = ExprFinalizer(ctxt_, diags_).walk(expr);
+  assert(expr && "null input");
+  expr = ExprChecker(*this).check(expr);
+  assert(expr && "Expr is null post typechecking");
+  expr = ExprFinalizer(ctxt_, diags_).finalize(expr);
+  assert(expr && "Expr is null post finalization");
   return expr;
 }
