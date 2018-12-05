@@ -84,6 +84,8 @@ To-Do:
   > Properly use Type in place of TypeBase* (Done)
   > Refactoring - fixing bad terminology (Done)
 
+  > Allow cast expr chaining (update grammar & parser)
+
   > Work on Sema (Now) 
     > Write tests for Unary operator checking (Done)
     > BinaryExpr checking (Done)
