@@ -1,17 +1,16 @@
 cmake_minimum_required(VERSION 3.0)
 project(Moonshot)
 
-# We'll need python
 include(FindPythonInterp)
 
-#set minimal C++ standard 
+# set minimal C++ standard 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-#include add_source macro/fn definitions
+# include add_source macro/fn definitions
 include(cmake/AddSource.cmake)
 
-#include googletest related stuff 
+# include googletest related stuff 
 include(cmake/GoogleTest.cmake)
 
 # set output directories
@@ -32,22 +31,23 @@ add_subdirectory(unittests)
 
 # MSVC flags
 if(MSVC)
-  # Warnings level 4
+  # warnings level 4
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
     string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   endif()
-  # Disable RTTI
+  # disable RTTI
   if(CMAKE_CXX_FLAGS MATCHES "/GR")
       string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
   endif()
-  # Set Warnings are errors & disable extensions
+  # set Warnings are errors & disable extensions
   add_compile_options(/WX)
-  #add_compile_options(/Za)
-  #Silence problematic warnings: 
+  # equivalent to /pedantic
+  add_compile_options(/permissive-)
+  # silence problematic warnings: 
   add_compile_options(/wd4706) # "assignement within conditional expression" is rather pedantic.
   add_compile_options(/wd4324) # "structure was padded due to alignement specifier" no sh*t sherlock.
 endif()
