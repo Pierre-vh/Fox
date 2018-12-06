@@ -7,8 +7,9 @@ include(FindPythonInterp)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# include add_source macro/fn definitions
+# include most used cmake utilities
 include(cmake/AddSource.cmake)
+include(cmake/MSVCUtils.cmake)
 
 # include googletest related stuff 
 include(cmake/GoogleTest.cmake)
@@ -45,19 +46,16 @@ if(MSVC)
   endif()
   # set Warnings are errors & disable extensions
   add_compile_options(/WX)
+  add_compile_options(/Za)
   # equivalent to /pedantic
   add_compile_options(/permissive-)
-  # silence problematic warnings: 
+  # silence problematic warnings 
   add_compile_options(/wd4706) # "assignement within conditional expression" is rather pedantic.
   add_compile_options(/wd4324) # "structure was padded due to alignement specifier" no sh*t sherlock.
 endif()
 
 # add lib target
 add_library(libmoonshot STATIC ${moonshot_src})
-
-# add executable target & link it with libmoonshot
-add_executable(Moonshot ${cli_src})
-target_link_libraries(Moonshot libmoonshot)
 
 # add llvm lit test suite 
 add_custom_target(MoonshotLit 
