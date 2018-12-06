@@ -19,8 +19,8 @@ namespace {
     std::ostream& out;
     bool debugPrint = false;
 
-    static constexpr char* nullTypeStr = "nullptr";
-    static constexpr char* emptyCellTypeStr = "?";
+    static constexpr char nullTypeStr[] = "nullptr";
+    static constexpr char emptyCellTypeStr[] = "?";
 
     public:
       TypePrinter(std::ostream& out, bool debugPrint) :

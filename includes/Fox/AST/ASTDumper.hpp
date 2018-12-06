@@ -125,14 +125,6 @@ namespace fox {
       // Returns the value enclosed with ''
       std::string addSingleQuotes(string_view str) const;
 
-      // Returns a formatted string "<(label):(value)>
-      template<typename TyA,typename TyB>
-      std::string makeKeyPairDump(TyA label,TyB value) const {
-        std::ostringstream ss;
-        ss << "<" << label << ":" << value << ">";
-        return ss.str();
-      }
-
       void indent(std::uint8_t num = 1);
       void dedent(std::uint8_t num = 1);
 

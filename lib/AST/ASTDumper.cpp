@@ -20,6 +20,16 @@
 
 using namespace fox;
 
+// Helper functions
+namespace {
+	template<typename TyA,typename TyB>
+	std::string makeKeyPairDump(TyA label, TyB value) {
+		std::ostringstream ss;
+		ss << "<" << label << ":" << value << ">";
+		return ss.str();
+	}
+}
+
 ASTDumper::ASTDumper(SourceManager& srcMgr,
                      std::ostream& out,
                      const uint8_t& offsettabs)
