@@ -90,9 +90,14 @@ To-Do:
 
   > ASTContext interface update:
     -> Add a public SourceManager& and DiagnosticEngine&
-    -> Make IdentifierTable private and add a getter for it. 
-       Having it as a non const public variable is asking for trouble.
-       Maybe even inherit from it?
+   
+  > IdentifierTable Rework (next)
+    -> This class is really trivial enough. It has no reason to exist on it's own.
+       Fuze it with the ASTContext, add the relevant methods in the ASTContext.
+    -> About Identifier: 
+       Either make it store real data, or stop using it as a pointer. (Maybe store
+       a null terminated const char* inside it, or a string_view) because right now
+       it only stores a string_view.
 
   > Work on Sema (Now) 
     > Decl semantic analysis
