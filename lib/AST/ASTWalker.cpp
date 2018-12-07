@@ -4,6 +4,10 @@
 // File : ASTWalker.cpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
+// This file contains the implementation of the ASTWalker and TypeWalker.
+// It is split in 2 parts : Traverse (for ASTWalker) and TypeTraverse 
+// (for TypeWalker)
+//----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
@@ -13,11 +17,13 @@
 using namespace fox;
 
 namespace {
-  class Traverse : public ASTVisitor<Traverse, Decl*, Expr*, Stmt*, /*type*/ bool> {    
+  // The traverse class for Expr, Decl and Stmts
+  class Traverse:
+  public ASTVisitor<Traverse, Decl*, Expr*, Stmt*> {    
+    ASTWalker& walker_;
     public:
-      Traverse(ASTWalker& walker):
-        walker_(walker) {}
-
+      Traverse(ASTWalker& walker) : walker_(walker) {}
+       
       // Exprs
       Expr* visitBinaryExpr(BinaryExpr* expr) {
         if (Expr* lhs = expr->getLHS()) {
@@ -120,7 +126,6 @@ namespace {
       }
 
       // Decls
-
       Decl* visitParamDecl(ParamDecl* decl) {
         return decl;
       }
@@ -166,7 +171,6 @@ namespace {
       }
 
       // Stmt
-
       Stmt* visitNullStmt(NullStmt* stmt) {
         return stmt;
       }
@@ -231,32 +235,6 @@ namespace {
         return stmt;
       }
 
-      bool visitPrimitiveType(PrimitiveType*) {
-        return true;
-      }
-
-      bool visitArrayType(ArrayType* type) {
-        if(Type elem = type->getElementType())
-          return doIt(elem);
-        return true;
-      }
-
-      bool visitLValueType(LValueType* type) {
-        if (Type ty = type->getType())
-          return doIt(ty);
-        return true;
-      }
-
-      bool visitErrorType(ErrorType*) {
-        return true;
-      }
-
-      bool visitCellType(CellType* type) {
-        if (Type sub = type->getSubst())
-          return doIt(sub);
-        return true;
-      }
-
       // doIt method for expression: handles call to the walker &
       // requests visitation of the children of a given node.
       Expr* doIt(Expr* expr) {
@@ -314,6 +292,24 @@ namespace {
         return expr;
       }
 
+      ASTNode doIt(ASTNode node) {
+        if (auto decl = node.getIf<Decl>())
+          return doIt(decl);
+        if (auto stmt = node.getIf<Stmt>())
+          return doIt(stmt);
+        if (auto expr = node.getIf<Expr>())
+          return doIt(expr);
+
+        fox_unreachable("Unknown node contained in ASTNode");
+      }
+  };
+
+  // TypeTraverse, the traverse class for Typess
+  class TypeTraverse : public TypeVisitor<TypeTraverse, bool> {
+    TypeWalker &walker_;
+    public:
+      TypeTraverse(TypeWalker& walker) : walker_(walker) {}
+
       // doIt method for types
       bool doIt(Type type) {
         // Call the walker, abort if failed.
@@ -327,21 +323,36 @@ namespace {
         return false;
       }
 
-      ASTNode doIt(ASTNode node) {
-        if (auto decl = node.getIf<Decl>())
-          return doIt(decl);
-        if (auto stmt = node.getIf<Stmt>())
-          return doIt(stmt);
-        if (auto expr = node.getIf<Expr>())
-          return doIt(expr);
-
-        fox_unreachable("Unknown node contained in ASTNode");
+      bool visitPrimitiveType(PrimitiveType*) {
+        return true;
       }
 
-    private:
-      ASTWalker& walker_;
+      bool visitArrayType(ArrayType* type) {
+        if (Type elem = type->getElementType())
+          return doIt(elem);
+        return true;
+      }
+
+      bool visitLValueType(LValueType* type) {
+        if (Type ty = type->getType())
+          return doIt(ty);
+        return true;
+      }
+
+      bool visitErrorType(ErrorType*) {
+        return true;
+      }
+
+      bool visitCellType(CellType* type) {
+        if (Type sub = type->getSubst())
+          return doIt(sub);
+        return true;
+      }
   };
+
 } // End anonymous namespace
+
+// ASTWalker
 
 ASTNode ASTWalker::walk(ASTNode node) {
   if (auto decl = node.getIf<Decl>())
@@ -364,10 +375,6 @@ Decl* ASTWalker::walk(Decl* decl) {
 
 Stmt* ASTWalker::walk(Stmt* stmt) {
   return Traverse(*this).doIt(stmt);
-}
-
-bool ASTWalker::walk(Type type) {
-  return Traverse(*this).doIt(type);
 }
 
 std::pair<Expr*, bool> ASTWalker::handleExprPre(Expr* expr) {
@@ -394,10 +401,16 @@ Decl* ASTWalker::handleDeclPost(Decl* decl) {
   return decl;
 }
 
-bool ASTWalker::handleTypePre(Type) {
+// TypeWalker
+
+bool TypeWalker::walk(Type type) {
+  return TypeTraverse(*this).doIt(type);
+}
+
+bool TypeWalker::handleTypePre(Type) {
   return true;
 }
 
-bool ASTWalker::handleTypePost(Type) {
+bool TypeWalker::handleTypePost(Type) {
   return true;
 }

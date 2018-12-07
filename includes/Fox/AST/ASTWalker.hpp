@@ -4,7 +4,7 @@
 // File : ASTWalker.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the ASTWalker class, which is used to
+// This file contains the ASTWalker and TypeWalker classes, which are used to
 // "walk" the ast in a pre/post order fashion.
 //----------------------------------------------------------------------------//
 
@@ -14,13 +14,14 @@
 #include "Fox/AST/ASTFwdDecl.hpp"
 
 namespace fox {
+  // The ASTWalker which visits an AST in it's entirety, except Expr types 
+  // (for that, see TypeVisitor)
   class ASTWalker {
     public:
       ASTNode walk(ASTNode node);
       Expr* walk(Expr* expr);
       Decl* walk(Decl* decl);
       Stmt* walk(Stmt* stmt);
-      bool walk(Type type);
 
       // Called when first visiting an expression before visiting it's
       // children. 
@@ -65,6 +66,12 @@ namespace fox {
       // the walked node is replaced by the returned node.
       // The default implementation returns it's argument.
       virtual Decl* handleDeclPost(Decl* decl);
+  };
+
+  // The TypeWalker, used to visit a Type hierarchy
+  class TypeWalker {
+    public:
+      bool walk(Type type);
 
       // Called when first visiting a type before visiting it's
       // children. 
