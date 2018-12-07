@@ -71,19 +71,3 @@ bool IdentifierTable::exists(const std::string& id) const {
   }
   return false;
 }
-
-IdentifierTable::IDTableConstIteratorType IdentifierTable::begin() const {
-  return table_.begin();
-}
-
-IdentifierTable::IDTableIteratorType IdentifierTable::begin() {
-  return table_.begin();
-}
-
-IdentifierTable::IDTableConstIteratorType IdentifierTable::end() const {
-  return table_.end();
-}
-
-IdentifierTable::IDTableIteratorType IdentifierTable::end() {
-  return table_.end();
-}

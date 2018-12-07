@@ -5,6 +5,8 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file contains the IdentifierTable and Identifier classes.
+//
+//	TODO: Refactor/Rework this someday. The code can be better.
 //----------------------------------------------------------------------------//
 
 #pragma once 
@@ -64,13 +66,6 @@ namespace fox {
 
       // Returns true if the identifier exists in the map, false otherwise.
       bool exists(const std::string &id) const;
-
-      // Iterators
-      IDTableConstIteratorType begin() const;
-      IDTableIteratorType begin();
-
-      IDTableConstIteratorType end() const;
-      IDTableIteratorType end();
 
     private:
       Identifier* invalidID_ = nullptr;
