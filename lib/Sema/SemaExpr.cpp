@@ -363,7 +363,7 @@ namespace {
         // Get the types & unwrap them
         Type childTy = expr->getExpr()->getType();
         Type goalTy = expr->getCastTypeLoc().withoutLoc();
-        std::tie(childTy, goalTy) = Sema::unwrapAll({childTy, goalTy });
+        std::tie(childTy, goalTy) = Sema::unwrapAll(childTy, goalTy);
 
         // Sanity Check:
           // It is impossible for unbound types to exist
