@@ -16,6 +16,8 @@ ERROR(sema_arrsub_invalid_types,
   "invalid types '%0' and '%1' for array subscript")
 ERROR(sema_binexpr_invalid_operands, 
   "cannot use binary operator '%0' on expressions of types '%1' and '%2'")
+ERROR(sema_cant_use_expr_as_cond,
+  "cannot use an expression of type '%0' as a condition")
 
 WARNING(sema_redundant_cast,
   "redundant cast: expression is already of type '%0'")
