@@ -67,12 +67,14 @@ bool Driver::processFile(const std::string& filepath) {
   }
 
   // Semantic analysis testing stuff
+	Sema s(ctxt, diags);
   for (auto& decl : unit->getDecls()) {
     if (FuncDecl* fn = dyn_cast<FuncDecl>(decl)) {
       CompoundStmt* body = fn->getBody();
       for (auto& node : body->getNodes()) {
-        if (auto* expr = node.getIf<Expr>())
-          node = Sema(ctxt, diags).typecheckExpr(expr).second;
+				// Decl checking not available yet
+				if(!node.is<Decl>())
+					node = s.checkNode(node);
       }
     }
   }
