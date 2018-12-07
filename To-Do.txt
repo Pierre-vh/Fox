@@ -88,6 +88,12 @@ To-Do:
   > Sema: Basic Exprs Type-Checking + tests (Done)
   > Sema: Basic Stmt checking + tests (Done)
 
+  > ASTContext interface update:
+    -> Add a public SourceManager& and DiagnosticEngine&
+    -> Make IdentifierTable private and add a getter for it. 
+       Having it as a non const public variable is asking for trouble.
+       Maybe even inherit from it?
+
   > Work on Sema (Now) 
     > Decl semantic analysis
     > Name resolution
