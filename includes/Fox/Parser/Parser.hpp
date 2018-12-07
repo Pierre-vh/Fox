@@ -130,14 +130,12 @@ namespace fox {
       // the TypeLoc's getRange method to retrieve the range.
       Result<Type> parseBuiltinTypename();
 
-      // Parses a complete type, with potential a potential array []
-      // modifier.
+      // Parses a complete type e.g. int[], &float[][]
       // Parser::Result::getRange does not contain the range, use
       // the TypeLoc's getRange method to retrieve the range.
       Result<Type> parseType();
 
       // Parses a QualType 
-        // Deprecated: This will go away with the grammar update
       struct ParsedQualType {
         Type type;
         bool isConst = false;
