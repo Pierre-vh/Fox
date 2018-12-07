@@ -8,10 +8,6 @@
 #include "Fox/AST/Identifiers.hpp"
 #include "Fox/Common/Errors.hpp"
 
-// Normally this identifier shouldn't be possible
-// in the language because <> are both illegal in an identifier
-#define INVALID_ID_STR "<invalid>"
-
 using namespace fox;
 
 Identifier::Identifier(string_view str): str_(str) {
@@ -65,13 +61,6 @@ Identifier* IdentifierTable::getIdentifier(const std::string& id) {
     newIt->second.str_ = newIt->first;
     return &(newIt->second);
   }
-}
-
-Identifier* IdentifierTable::getInvalidID() {
-  if (!invalidID_)
-    invalidID_ = getIdentifier(INVALID_ID_STR);
-  assert(invalidID_ && "invalidID_ cannot be null!");
-  return invalidID_;
 }
 
 bool IdentifierTable::exists(const std::string& id) const {

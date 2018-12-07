@@ -61,7 +61,6 @@ namespace fox {
       // Returns the identifierinfo of the string "id" if it exists. 
       // If it does not exists, it creates a new entry into the table and returns it.
       Identifier* getIdentifier(const std::string& id);
-      Identifier* getInvalidID();
 
       // Returns true if the identifier exists in the map, false otherwise.
       bool exists(const std::string &id) const;
