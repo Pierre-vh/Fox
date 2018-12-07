@@ -46,7 +46,7 @@ bool Identifier::operator!=(const std::string& str) const {
   return !(*this == str);
 }
 
-Identifier* IdentifierTable::getUniqueIdentifierInfo(const std::string& id) {
+Identifier* IdentifierTable::getIdentifier(const std::string& id) {
   auto it = table_.lower_bound(id);
   if (it != table_.end() && !(table_.key_comp()(id, it->first))) {
     // Identifier instance already exists in table_, return ->second after some checks.
@@ -69,7 +69,7 @@ Identifier* IdentifierTable::getUniqueIdentifierInfo(const std::string& id) {
 
 Identifier* IdentifierTable::getInvalidID() {
   if (!invalidID_)
-    invalidID_ = getUniqueIdentifierInfo(INVALID_ID_STR);
+    invalidID_ = getIdentifier(INVALID_ID_STR);
   assert(invalidID_ && "invalidID_ cannot be null!");
   return invalidID_;
 }

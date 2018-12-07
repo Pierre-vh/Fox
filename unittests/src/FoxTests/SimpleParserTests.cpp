@@ -302,7 +302,7 @@ TEST(SimpleParserTests, Unit) {
     
     auto res = parse.parseUnit(
       file,
-      parse.getASTContext().identifiers.getUniqueIdentifierInfo("Test Unit"),
+      parse.getASTContext().identifiers.getIdentifier("Test Unit"),
       /* is main unit */ true
     );
     return res;

@@ -36,8 +36,8 @@ TEST(IdentifierTableTests, areIdentifiersUnique) {
   ASSERT_NE(rawIdA, rawIdB) << "The 2 randomly generated identifiers were the same ! Is the generator function broken?";
 
   IdentifierTable idtab;
-  Identifier* idA = idtab.getUniqueIdentifierInfo(rawIdA);
-  Identifier* idB = idtab.getUniqueIdentifierInfo(rawIdB);
+  Identifier* idA = idtab.getIdentifier(rawIdA);
+  Identifier* idB = idtab.getIdentifier(rawIdB);
 
   ASSERT_NE(idA, idB);
   ASSERT_NE(idA->getStr(), idB->getStr()) << "The 2 strings are not the same!";
@@ -51,7 +51,7 @@ TEST(IdentifierTableTests, exists) {
 
   EXPECT_FALSE(idtab.exists(randID));
 
-  idtab.getUniqueIdentifierInfo(randID);
+  idtab.getIdentifier(randID);
 
   EXPECT_TRUE(idtab.exists(randID));
 }
@@ -72,7 +72,7 @@ TEST(IdentifierTableTests, randomIdentifierInsertion) {
     // Before inserting, a quick sanity check doesn't hurt!
     ASSERT_FALSE(idtab.exists(id)) << "[Insertion " << k << "] The identifier \"" << id << "\" already exists";
     
-    auto idinfo = idtab.getUniqueIdentifierInfo(id);
+    auto idinfo = idtab.getIdentifier(id);
     // Check if the string matches, and if the adress of this type is different from the last one used.
     ASSERT_EQ(idinfo->getStr(), id) << "[Insertion " << k << "] Strings did not match";
     ASSERT_TRUE(idtab.exists(id)) << "[Insertion " << k << "] IdentifierTable is reporting that the identifier does not exists.";

@@ -122,7 +122,7 @@ TEST(ASTTests, ASTContextArrayTypes) {
 // Create a variable with a random type
 VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeLoc ty) {
   return new(ctxt) VarDecl(
-      ctxt.identifiers.getUniqueIdentifierInfo(name),
+      ctxt.identifiers.getIdentifier(name),
       ty,
       false,
       nullptr,
@@ -133,7 +133,7 @@ VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeLoc ty) {
 FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name) {
   return new(ctxt) FuncDecl(
     PrimitiveType::getVoid(ctxt),
-    ctxt.identifiers.getUniqueIdentifierInfo(name),
+    ctxt.identifiers.getIdentifier(name),
     nullptr,
     SourceRange(),
     SourceLoc()
@@ -141,7 +141,7 @@ FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name) {
 }
 
 bool testLookup(ASTContext &ctxt,DeclContext *dr, const std::string& name, Decl* decl,std::string& err) {
-  auto lookupResult = dr->restrictedLookup(ctxt.identifiers.getUniqueIdentifierInfo(name));
+  auto lookupResult = dr->restrictedLookup(ctxt.identifiers.getIdentifier(name));
   
   if (!lookupResult) {
     err = "No result found";
@@ -303,7 +303,7 @@ TEST(ASTTests, ExprRTTI) {
   EXPECT_TRUE(ArrayLiteralExpr::classof(&arrlit));
 
   // Helper
-  auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
+  auto fooid = astctxt.identifiers.getIdentifier("foo");
 
   // DeclRef
   DeclRefExpr declref;
@@ -355,7 +355,7 @@ TEST(ASTTests, StmtRTTI) {
 
 TEST(ASTTests, DeclRTTI) {
   ASTContext astctxt;
-  auto fooid = astctxt.identifiers.getUniqueIdentifierInfo("foo");
+  auto fooid = astctxt.identifiers.getIdentifier("foo");
   auto intty = PrimitiveType::getInt(astctxt);
 
   // Arg

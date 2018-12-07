@@ -347,7 +347,7 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
 
 bool Token::idIdentifier(DiagnosticEngine& diags,ASTContext& astctxt, const std::string & str) {
   if (validateIdentifier(diags,str)) {
-    tokenData_ = astctxt.identifiers.getUniqueIdentifierInfo(str);
+    tokenData_ = astctxt.identifiers.getIdentifier(str);
     return true;
   }
   return false;
