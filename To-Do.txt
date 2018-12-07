@@ -83,30 +83,12 @@ To-Do:
   > Replace BuiltinType by BasicType (Done)
   > Properly use Type in place of TypeBase* (Done)
   > Refactoring - fixing bad terminology (Done)
-
-  > Allow cast expr chaining (update grammar & parser)
-
-  Add a method Sema::isDowncast(T1, T2) (returns true if converting T1 to T2 is a downcast)
-
-  typecheckExprOfType
-    > add an additional parameter "allowDowncast" and change the
-      return type to Incompatible when a downcast is detected
-
-  visitWhileStmt
-    finish writing
+  > Sema::typecheckExprOfType (Done)
+  > Sema::isDowncast (Done)
+  > Sema: Basic Exprs Type-Checking + tests (Done)
+  > Sema: Basic Stmt checking + tests (Done)
 
   > Work on Sema (Now) 
-    > Write tests for Unary operator checking (Done)
-    > BinaryExpr checking (Done)
-    > ArrayAccess checking (Done)
-      -> Consider checking that the access is not out of bounds
-    > ASTVerifier
-      Checks that the AST is well formed. 
-      It should be able to check a Parsed AST and Checked AST.
-      Parsed AST checking only checks that the basics are here,
-      Checked AST checking checks that types are set, variables are
-      bound, etc.
-    > Stmt semantic analysis (Now)
     > Decl semantic analysis
     > Name resolution
     > DeclRefExpr 
@@ -114,9 +96,14 @@ To-Do:
     > UFCS
       > Parser additions (UnresolvedDotExpr)
       > Semantic Analysis
-    > CodeGen 
 
-> Write Lexer LIT tests
+  > ASTVerifier (should be able to check both a Checked an Unchecked AST)
+
+  > Allow cast expr chaining (update grammar & parser)
+
+  > Write Lexer LIT tests
+
+  > CodeGen 
 
 Boring stuff that I must do when I have the time/motivation for it
   > Adopt a Documentation style (Doxygen) and document all the code with it
