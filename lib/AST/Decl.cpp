@@ -141,7 +141,8 @@ FuncDecl::FuncDecl():
 
 FuncDecl::FuncDecl(TypeLoc returnType, Identifier* fnId, CompoundStmt* body,
   SourceRange range, SourceLoc headerEndLoc):
-  NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), body_(body), returnType_(returnType) {
+  NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), 
+	body_(body), returnType_(returnType) {
   paramsAreValid_ = true;
 }
 
