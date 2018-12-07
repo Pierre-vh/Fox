@@ -3,4 +3,5 @@ add_source(
   "Sema.cpp"
   "SemaTypes.cpp"
   "SemaExpr.cpp"
+  "SemaStmt.cpp"
 )
