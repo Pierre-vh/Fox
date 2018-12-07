@@ -98,7 +98,7 @@ const DiagnosticConsumer* DiagnosticEngine::getConsumer() const {
   return consumer_.get();
 }
 
-std::unique_ptr<DiagnosticConsumer> fox::DiagnosticEngine::takeConsumer() {
+std::unique_ptr<DiagnosticConsumer> DiagnosticEngine::takeConsumer() {
   return std::move(consumer_);
 }
 
