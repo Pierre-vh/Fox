@@ -16,8 +16,8 @@
 using namespace fox;
 
 namespace {
-  class StmtChecker : StmtVisitor<StmtChecker, bool>{
-    using Inherited = StmtVisitor<StmtChecker, bool>;
+  class StmtChecker : StmtVisitor<StmtChecker, void>{
+    using Inherited = StmtVisitor<StmtChecker, void>;
     friend class Inherited;
     Sema& sema_;
     DiagnosticEngine& diags_;
@@ -38,8 +38,8 @@ namespace {
         return sema_;
       }
 
-      bool check(Stmt* stmt) {
-        return visit(stmt);
+      void check(Stmt* stmt) {
+				visit(stmt);
       }
 
     private:
@@ -68,43 +68,65 @@ namespace {
       // ASTWalker like in the ExprChecker (SemaExpr.cpp))
       //----------------------------------------------------------------------//
       
-      bool visitNullStmt(NullStmt*) {
-        // Nothing to check on a NullStmt = Always successful.
-        return true;
+      void visitNullStmt(NullStmt*) {
+        // Nothing to check on a NullStmt
       }
 
-      bool visitReturnStmt(ReturnStmt*) {
+      void visitReturnStmt(ReturnStmt*) {
         // We need to know the current function's signature
-        // to typecheck this.
+        // to check this -> Need Decl checking to be done.
         fox_unimplemented_feature("Return statements checking");
       }
 
-      bool visitCompoundStmt(CompoundStmt* stmt) {
-        // just visit the children and eturn true if the visit method returned
-        // true for all of them
-        bool succ = true;
+      void visitCompoundStmt(CompoundStmt* stmt) {
+				// Just visit the children
         for (ASTNode& s : stmt->getNodes()) {
-          // Replace if needed
-          auto pair = getSema().checkNode(s);
-          s = pair.second;
-          succ &= pair.first;
+          s = getSema().checkNode(s);
         }
-        return succ;
       }
 
-      bool visitWhileStmt(WhileStmt* stmt) {
-        {
-          Type boolTy = PrimitiveType::getBool(getCtxt());
-          Expr* e = stmt->getCond();
-          auto pair = getSema().typecheckExprOfType(e, boolTy);
-          stmt->setCond(pair.second);
-          // TODO: Switch on pair.first
-        }
-        return true;
+      void visitWhileStmt(WhileStmt* stmt) {
+				// Fetch the cond, typecheck it and replace it.
+        stmt->setCond(checkCond(stmt->getCond()));
+				// Check the body and replace it 
+				auto body = getSema().checkNode(stmt->getBody());
+				stmt->setBody(body);
       }
+
+			void visitConditionStmt(ConditionStmt* stmt) {
+				// Fetch the cond, typecheck it and replace it.
+        stmt->setCond(checkCond(stmt->getCond()));
+				// Check the if's body and replace it 
+				auto cond_then = getSema().checkNode(stmt->getThen());
+				stmt->setThen(cond_then);
+				// Check the else's body if there is one and replace it
+				if(auto cond_else = stmt->getElse()) {
+					cond_else = getSema().checkNode(cond_else);
+					stmt->setElse(cond_else);
+				}
+			}
+			
+			//----------------------------------------------------------------------//
+      // Helper checking methods
+      //----------------------------------------------------------------------//
+      // Various semantics-related helper methods 
+      //----------------------------------------------------------------------//
+
+			// Does the necessary steps to check an expression which
+			// is used as a condition. Returns the Expr* that should replace
+			// the condition.
+			Expr* checkCond(Expr* cond) {
+				using CER = Sema::CheckedExprResult;
+				Type boolTy = PrimitiveType::getBool(getCtxt());
+				auto condRes = getSema().typecheckExprOfType(cond, boolTy);
+				// Only emit a diagnostic if it's not an ErrorType
+				if(condRes.first == CER::NOk)
+						diagnoseExprCantCond(cond);
+				return cond;
+			}
   };
 } // anonymous namespace
 
-bool Sema::checkStmt(Stmt* stmt) {
-  return StmtChecker(*this).check(stmt);
+void Sema::checkStmt(Stmt* stmt) {
+	StmtChecker(*this).check(stmt);
 }
