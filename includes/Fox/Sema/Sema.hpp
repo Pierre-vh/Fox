@@ -25,16 +25,43 @@ namespace fox {
       using TypePair = std::pair<Type, Type>;
       using IntegralRankTy = std::uint8_t;
 
-      // Performs semantic analysis on an expression
+      // Performs semantic analysis on a node and it's children
+      //  Typechecks an expression, declaration or statement.
+      //
+      //  Returns a pair. The first element of the pair is a success indication
+      //  (true = checking successful, false otherwise), the second element
+      //  is node that should take this node's place. Note that the returned
+      //  node will always be equal to the argument if the node is a Stmt or 
+      //  a Decl.
+      //  TL;DR: The returned node will only be altered for expressions 
+      //         (see typecheckExpr/typecheckExprOfType)
+      std::pair<bool, ASTNode> checkNode(ASTNode node);
+
+      // Performs semantic analysis on an expression and it's children.
       //  Typechecks an expression. 
       //  
       //  Returns a pair. The first element of the pair is a success indicator
       //  (true = expression is valid, false otherwise), the second Expr* 
-      //  pointer is the expression or another expression that should
+      //  pointer is the expression or another equivalent expr that should
       //  replace it.
       std::pair<bool, Expr*> typecheckExpr(Expr* expr);
 
-      // Performs semantic analysis on a statement
+      // Return enum for typecheckExprOfType
+      //  Ok = the checked expr's type is equivalent to the one requested
+      //  NOk = the checked expr's type is not equivalent
+      //  Error = the checked expr's type is ErrorType
+      enum class CheckedExprResult { Ok, NOk, Error,};
+
+      // Performs semantic analysis on an expression and it's children.
+      //  Typechecks an expression whose type is already known.
+      //
+      //  Returns a pair. The first element of the pair is a success indicator
+      //  (seem CheckedExprResult). The second Expr* pointer
+      //  is the expression or another equivalent expr that should replace it.
+      std::pair<CheckedExprResult, Expr*> 
+      typecheckExprOfType(Expr* expr, Type type);
+
+      // Performs semantic analysis on a single statement and it's children.
       //  Returns true on success, false of failure
       //  of typechecking.
       bool checkStmt(Stmt* stmt);
