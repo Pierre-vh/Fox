@@ -9,6 +9,8 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
+#include "Fox/AST/ASTNode.hpp"
+#include "Fox/Common/Errors.hpp"
 
 using namespace fox;
 
@@ -23,4 +25,14 @@ DiagnosticEngine& Sema::getDiagnosticEngine() {
 
 ASTContext& Sema::getASTContext() {
   return ctxt_;
+}
+
+std::pair<bool, ASTNode> Sema::checkNode(ASTNode node) {
+  if (Expr* e = node.getIf<Expr>())
+    return typecheckExpr(e);
+  if (Stmt* s = node.getIf<Stmt>())
+    return { checkStmt(s), s };
+  if (Decl* d = node.getIf<Decl>())
+    fox_unimplemented_feature("Decl checking");
+  fox_unreachable("unknown ASTNode kind");
 }
