@@ -72,7 +72,7 @@ bool Driver::processFile(const std::string& filepath) {
       CompoundStmt* body = fn->getBody();
       for (auto& node : body->getNodes()) {
         if (auto* expr = node.getIf<Expr>())
-          node = Sema(ctxt, diags).typecheckExpr(expr);
+          node = Sema(ctxt, diags).typecheckExpr(expr).second;
       }
     }
   }
