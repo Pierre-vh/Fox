@@ -26,7 +26,7 @@ namespace fox {
     typename DeclRtrTy,
     typename ExprRtrTy,
     typename StmtRtrTy,
-    typename TypeRtrTy,
+    typename TypeRtrTy = void,
     typename ... Args
   >
   class ASTVisitor {
