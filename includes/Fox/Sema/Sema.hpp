@@ -28,23 +28,17 @@ namespace fox {
       // Performs semantic analysis on a node and it's children
       //  Typechecks an expression, declaration or statement.
       //
-      //  Returns a pair. The first element of the pair is a success indication
-      //  (true = checking successful, false otherwise), the second element
-      //  is node that should take this node's place. Note that the returned
-      //  node will always be equal to the argument if the node is a Stmt or 
-      //  a Decl.
-      //  TL;DR: The returned node will only be altered for expressions 
-      //         (see typecheckExpr/typecheckExprOfType)
-      std::pair<bool, ASTNode> checkNode(ASTNode node);
+      //  Returns the node that should take this node's place. 
+			//	Note that the returned node will always be equal to the argument 
+			//	unless the ASTNode contains an Expr. Never returns nullptr.
+      ASTNode checkNode(ASTNode node);
 
       // Performs semantic analysis on an expression and it's children.
       //  Typechecks an expression. 
       //  
-      //  Returns a pair. The first element of the pair is a success indicator
-      //  (true = expression is valid, false otherwise), the second Expr* 
-      //  pointer is the expression or another equivalent expr that should
-      //  replace it.
-      std::pair<bool, Expr*> typecheckExpr(Expr* expr);
+      //  Returns the expression or another equivalent expression that 
+			//	should replace it. Never nullptr.
+      Expr* typecheckExpr(Expr* expr);
 
       // Return enum for typecheckExprOfType
       //  Ok = the checked expr's type is equivalent to the one requested
@@ -62,9 +56,7 @@ namespace fox {
       typecheckExprOfType(Expr* expr, Type type);
 
       // Performs semantic analysis on a single statement and it's children.
-      //  Returns true on success, false of failure
-      //  of typechecking.
-      bool checkStmt(Stmt* stmt);
+      void checkStmt(Stmt* stmt);
 
       // The unification algorithms for types of the same subtypes.
       // Tries to make A = B
