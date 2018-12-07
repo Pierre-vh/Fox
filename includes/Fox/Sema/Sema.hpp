@@ -68,6 +68,15 @@ namespace fox {
       // Also, this function is commutative.
       bool unify(Type a, Type b);
 
+			// Returns true if the conversion of A to B is a downcast
+			//		A and B must both be PrimitiveTypes after a call to Sema::unwrapAll
+			//
+			//		If A and/or B are not integral types, returns false.
+			//		Only returns true if A and B are both integral types
+			//		and casting A to B is a downcast.
+			//	\param areIntegrals Set to true if both types were integral types
+			static bool isDowncast(Type a, Type b, bool* areIntegrals = nullptr);
+
       // Given 2 types
         // If they are integrals, return the highest ranking integral's type
         // If they are equal, return it's first argument
@@ -89,15 +98,15 @@ namespace fox {
       //    LValue(Array(Array(int))) will return int
       static BasicType* findBasicType(Type type);
 
-      // Removes the same number of ArrayType layers on 2 types
-      static TypePair unwrapArrays(TypePair pair);
+      // Removes the same number of ArrayType layers on a and b
+      static TypePair unwrapArrays(Type a, Type b);
 
       // Removes all layers of LValue, CellType and ArrayType 
       // until this reaches a point where one (or both) of the
       // types become basic.
       // Note that the result types may not be basic! The function will simply
       // stop unwrapping once one of them becomes basic.
-      static TypePair unwrapAll(TypePair pair);
+      static TypePair unwrapAll(Type a, Type b);
 
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();

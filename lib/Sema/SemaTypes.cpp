@@ -29,7 +29,7 @@ namespace {
     assert(a && b && "Pointers cannot be null");
 
     // Ignores LValues to perform the comparison.
-    std::tie(a, b) = Sema::unwrapAll({a, b});
+    std::tie(a, b) = Sema::unwrapAll(a, b);
 
     // Exact equality
     if (a == b)
@@ -44,7 +44,7 @@ bool Sema::unify(Type a, Type b) {
   assert(a && b && "Pointers cannot be null");
 
   // Unwrap 
-  std::tie(a, b) = Sema::unwrapAll({a, b});
+  std::tie(a, b) = Sema::unwrapAll(a, b);
 
   // Check if not ErrorType
   if (a->is<ErrorType>() || b->is<ErrorType>())
@@ -135,6 +135,20 @@ bool Sema::unify(Type a, Type b) {
   return false;
 }
 
+bool Sema::isDowncast(Type a, Type b, bool* areIntegrals) {
+	// Unwrap both types
+	std::tie(a, b) = unwrapAll(a, b);
+	// Check if they're integrals
+	bool integrals = (a->isIntegral() && b->isIntegral());
+	// Set areIntegrals if possible
+	if(areIntegrals) (*areIntegrals) = integrals;
+	if(integrals)
+		// If they're both integrals, return true if Rank(a) > Rank(b)
+		return Sema::getIntegralRank(a) > Sema::getIntegralRank(b);
+	// If they aren't, return false.	
+	return false;
+}
+
 Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
   // Backup the original type, so we have a backup before
   // we unwrap the arguments.
@@ -144,7 +158,7 @@ Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
   assert(a && b && "Pointers cannot be null");
 
   if(unwrap)
-    std::tie(a, b) = Sema::unwrapAll({a, b});
+    std::tie(a, b) = Sema::unwrapAll(a, b);
 
   if (a == b)
     return ogA;
@@ -210,28 +224,27 @@ BasicType* Sema::findBasicType(Type type) {
   return Impl().visit(type);
 }
 
-Sema::TypePair Sema::unwrapArrays(TypePair pair) {
-  assert(pair.first && pair.second && 
-    "args cannot be null");
-  Type a = pair.first->unwrapIfArray();
-  Type b = pair.second->unwrapIfArray();
-  // Unwrapping was performed, assign and continue.
-  if (a && b)
-    return unwrapArrays({ a, b });
+Sema::TypePair Sema::unwrapArrays(Type a, Type b) {
+  assert(a && b && "args cannot be null");
+  Type uwA = a->unwrapIfArray();
+  Type uwB = b->unwrapIfArray();
+  // Unwrapping was performed, recurse.
+  if (uwA && uwB) return unwrapArrays(uwA, uwB);
   // No unwrapping done, return.
-  return pair;
+  return {a, b};
 }
 
-Sema::TypePair Sema::unwrapAll(TypePair pair) {
-  auto tmp = pair;
+Sema::TypePair Sema::unwrapAll(Type a, Type b) {
+  assert(a && b && "args cannot be null");
   // Ignore LValues & deref both
-  tmp.first = pair.first->getRValue()->deref();
-  tmp.second = pair.second->getRValue()->deref();
+	// Note: getAsBoundRValue is not desired here
+	// because we want to support unbound types.
+  auto uwA = a->getRValue()->deref();
+  auto uwB = b->getRValue()->deref();
   // Unwrap arrays
-  tmp = unwrapArrays(tmp);
-  // If both changed, recurse.
-  if ((tmp.first != pair.first) 
-      && (tmp.second != pair.second))
-    return unwrapAll(tmp);
-  return tmp;
+  std::tie(uwA, uwB) = unwrapArrays(uwA, uwB);
+  // If both changed, recurse, else, return.
+  if ((uwA != a) && (uwB != b))
+    return unwrapAll(uwA, uwB);
+  return {uwA, uwB};
 }
