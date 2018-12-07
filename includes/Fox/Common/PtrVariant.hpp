@@ -11,6 +11,9 @@
 //
 // TODO: Implement an alternative "intrusive" variant which stores the 
 // discriminant in the low bits of the pointer.
+//  -> use llvm's PointerIntPair. Store the discriminant in the int,
+//     and a void pointer in the pointer.
+//  
 //----------------------------------------------------------------------------//
 
 #pragma once
