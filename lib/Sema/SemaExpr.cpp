@@ -285,9 +285,10 @@ namespace {
       // "visit" methods
       //----------------------------------------------------------------------//
       // Theses visit() methods will perform the necessary tasks to check a
-      // given expr. In trivial/simple cases, theses methods will do everything
-      // needed to typecheck the expr (emit diagnostics, finalize, etc), but
-      // they may also delegate the work to some check/finalize methods.
+      // single expression node. In trivial/simple cases, theses methods will do
+      // everything needed to typecheck the expr (diagnose, finalize, etc), but
+      // they may also delegate the work to some check/finalize methods in more
+      // complex cases.
       //----------------------------------------------------------------------//
 
       Expr* visitBinaryExpr(BinaryExpr* expr) {
