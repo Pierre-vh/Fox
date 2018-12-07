@@ -32,6 +32,7 @@ namespace {
   class ExprChecker : ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     using Inherited = ExprVisitor<ExprChecker, Expr*>;
     Sema& sema_;
+    friend class Inherited;
     public:
       ExprChecker(Sema& sema): sema_(sema) {
         
@@ -55,7 +56,7 @@ namespace {
       Expr* check(Expr* expr) {
         return walk(expr);
       }
-
+    private:
       //----------------------------------------------------------------------//
       // Diagnostic methods
       //----------------------------------------------------------------------//
