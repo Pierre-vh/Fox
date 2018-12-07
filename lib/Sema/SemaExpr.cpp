@@ -277,18 +277,9 @@ namespace {
         fox_unreachable("Illegal node kind");
       }
 
-      virtual Stmt* handleStmtPost(Stmt*) {
-        fox_unreachable("Illegal node kind");
-      }
-
       virtual std::pair<Decl*, bool> handleDeclPre(Decl*) {
         fox_unreachable("Illegal node kind");
       }
-
-      virtual Decl* handleDeclPost(Decl*) {
-        fox_unreachable("Illegal node kind");
-      }
-
 
       //----------------------------------------------------------------------//
       // "visit" methods
