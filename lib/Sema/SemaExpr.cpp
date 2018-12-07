@@ -32,20 +32,21 @@ namespace {
   class ExprChecker : ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     using Inherited = ExprVisitor<ExprChecker, Expr*>;
     Sema& sema_;
+    DiagnosticEngine& diags_;
+    ASTContext& ctxt_;
     friend class Inherited;
     public:
-      ExprChecker(Sema& sema): sema_(sema) {
-        
-      }
+      ExprChecker(Sema& sema): sema_(sema), 
+        diags_(sema.getDiagnosticEngine()), ctxt_(sema.getASTContext()) {}
 
       // Returns the ASTContext
       ASTContext& getCtxt() {
-        return sema_.getASTContext();
+        return ctxt_;
       }
 
       // Returns the DiagnosticEngine
       DiagnosticEngine& getDiags() {
-        return sema_.getDiagnosticEngine();
+        return diags_;
       }
 
       Sema& getSema() {
