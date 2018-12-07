@@ -725,13 +725,23 @@ namespace {
         return expr;
       }
 
+      /*
+        How to write a visit method:
+          -> if the type is a "container" (has a pointer to
+             another type inside it) and after calling visit
+             the type changed, rebuild the type with the returne type.
+             If the element type is ErrorType, don't rebuild and just
+             return the ErrorType.
+      */
+
       Type visitPrimitiveType(PrimitiveType* type) {
         return type;
       }
 
       Type visitArrayType(ArrayType* type) {
         if (Type elem = visit(type->getElementType())) {
-          // Rebuild if needed
+          if (elem->is<ErrorType>())
+            return elem;
           if (elem != type->getElementType())
             return ArrayType::get(ctxt_, elem);
           return type;
@@ -741,6 +751,8 @@ namespace {
 
       Type visitLValueType(LValueType* type) {
         if (Type elem = visit(type->getType())) {
+          if (elem->is<ErrorType>())
+            return elem;
           if (elem != type->getType())
             return LValueType::get(ctxt_, elem);
           return type;
@@ -755,7 +767,6 @@ namespace {
       }
 
       Type visitErrorType(ErrorType* type) {
-        // Error should have been handled already. Don't do anything here.
         return type;
       }
   };
