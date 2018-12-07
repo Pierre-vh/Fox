@@ -34,6 +34,11 @@ namespace fox {
       //  replace it.
       std::pair<bool, Expr*> typecheckExpr(Expr* expr);
 
+      // Performs semantic analysis on a statement
+      //  Returns true on success, false of failure
+      //  of typechecking.
+      bool checkStmt(Stmt* stmt);
+
       // The unification algorithms for types of the same subtypes.
       // Tries to make A = B
       //
