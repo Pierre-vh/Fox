@@ -289,6 +289,10 @@ namespace {
       // everything needed to typecheck the expr (diagnose, finalize, etc), but
       // they may also delegate the work to some check/finalize methods in more
       // complex cases.
+      //
+      // Theses methods will never call visit on the Expr's children. Children
+      // visitation is only done through the ASTWalker, as we always want to
+      // visit the Expression tree in postorder.
       //----------------------------------------------------------------------//
 
       Expr* visitBinaryExpr(BinaryExpr* expr) {
