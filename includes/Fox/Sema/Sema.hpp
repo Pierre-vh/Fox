@@ -25,11 +25,14 @@ namespace fox {
       using TypePair = std::pair<Type, Type>;
       using IntegralRankTy = std::uint8_t;
 
-      // Typechecks an expression. Returns the
-      // expression, or another one that should
-      // take it's place, or nullptr if critical
-      // failure (such as ill formed ast)
-      Expr* typecheckExpr(Expr* expr);
+      // Performs semantic analysis on an expression
+      //  Typechecks an expression. 
+      //  
+      //  Returns a pair. The first element of the pair is a success indicator
+      //  (true = expression is valid, false otherwise), the second Expr* 
+      //  pointer is the expression or another expression that should
+      //  replace it.
+      std::pair<bool, Expr*> typecheckExpr(Expr* expr);
 
       // The unification algorithms for types of the same subtypes.
       // Tries to make A = B

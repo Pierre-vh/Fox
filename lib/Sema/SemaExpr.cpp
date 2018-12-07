@@ -761,11 +761,12 @@ namespace {
   };
 } // End anonymous namespace
 
-Expr* Sema::typecheckExpr(Expr* expr) {
+std::pair<bool, Expr*> Sema::typecheckExpr(Expr* expr) {
   assert(expr && "null input");
   expr = ExprChecker(*this).check(expr);
   assert(expr && "Expr is null post typechecking");
   expr = ExprFinalizer(ctxt_, diags_).finalize(expr);
   assert(expr && "Expr is null post finalization");
-  return expr;
+  // Success is if the type of the expression isn't ErrorType.
+  return { !expr->getType()->is<ErrorType>(), expr };
 }
