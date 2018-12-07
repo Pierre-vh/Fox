@@ -39,12 +39,10 @@ namespace {
       ExprChecker(Sema& sema): sema_(sema), 
         diags_(sema.getDiagnosticEngine()), ctxt_(sema.getASTContext()) {}
 
-      // Returns the ASTContext
       ASTContext& getCtxt() {
         return ctxt_;
       }
 
-      // Returns the DiagnosticEngine
       DiagnosticEngine& getDiags() {
         return diags_;
       }
@@ -53,12 +51,12 @@ namespace {
         return sema_;
       }
 
-      // Entry point
       Expr* check(Expr* expr) {
         Expr* e = walk(expr);
         assert(e && "expression is nullptr after the walk");
         return e;
       }
+
     private:
       //----------------------------------------------------------------------//
       // Diagnostic methods
