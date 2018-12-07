@@ -21,6 +21,8 @@
 #include "Fox/Common/LinearAllocator.hpp"
 
 namespace fox {
+	class DiagnosticEngine;
+	class SourceManager;
   class ASTContext {
     public:
       ASTContext();
@@ -50,7 +52,6 @@ namespace fox {
       friend class LValueType;
       friend class ErrorType;
       friend class PrimitiveType;
-      friend class Constraint;
 
       // Map of Array types (Type -> Type[]) 
       // (managed by ArrayType::get)
@@ -70,11 +71,6 @@ namespace fox {
       PrimitiveType* theBoolType = nullptr;
       PrimitiveType* theStringType = nullptr;
       PrimitiveType* theVoidType = nullptr;
-
-      // As an optimization, trivial
-      // constraints are unique, since they're immutable
-      // and have no members.
-      Constraint* theArrayCS = nullptr;
 
     private:
       // The ASTContext shouldn't be copyable.

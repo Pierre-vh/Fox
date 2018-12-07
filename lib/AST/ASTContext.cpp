@@ -48,8 +48,6 @@ void ASTContext::reset() {
   theVoidType = nullptr;
   theErrorType = nullptr;
 
-  theArrayCS = nullptr;
-
   allocator_.reset();
   semaAllocator_.reset();
 }
