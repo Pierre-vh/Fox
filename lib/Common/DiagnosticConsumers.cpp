@@ -15,7 +15,8 @@
 
 using namespace fox;
 
-std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, SourceRange range, bool isFileWide) const {
+std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, 
+	SourceRange range, bool isFileWide) const {
   // TODO: Once I have something that resembles a "Project name" or "module name"
   // return that instead of an empty string so we have better diag handling
   // in that situation.
@@ -128,7 +129,8 @@ std::string embedString(const std::string& a, const std::string& b) {
 }
 
 void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag) {
-  assert(diag.hasRange() && "Cannot use this if the diag does not have a valid range");
+  assert(diag.hasRange() 
+		&& "Cannot use this if the diag does not have a valid range");
 
   auto range = diag.getRange();
   auto eRange = diag.getExtraRange();
