@@ -54,7 +54,9 @@ namespace {
 
       // Entry point
       Expr* check(Expr* expr) {
-        return walk(expr);
+        Expr* e = walk(expr);
+        assert(e && "expression is nullptr after the walk");
+        return e;
       }
     private:
       //----------------------------------------------------------------------//
@@ -700,7 +702,9 @@ namespace {
       }
 
       Expr* finalize(Expr* expr) {
-        return walk(expr);
+        Expr* e = walk(expr);
+        assert(e && "expr is null post walk");
+        return e;
       }
 
       Expr* handleExprPost(Expr* expr) {
@@ -772,9 +776,34 @@ namespace {
 std::pair<bool, Expr*> Sema::typecheckExpr(Expr* expr) {
   assert(expr && "null input");
   expr = ExprChecker(*this).check(expr);
-  assert(expr && "Expr is null post typechecking");
   expr = ExprFinalizer(ctxt_, diags_).finalize(expr);
-  assert(expr && "Expr is null post finalization");
   // Success is if the type of the expression isn't ErrorType.
   return { !expr->getType()->is<ErrorType>(), expr };
+}
+
+// This method is essentially the same as typecheckExpr, but it'll
+// call unify in between the checking and finalization.
+// 
+// This allows us to allow code such as
+//  func foo() : int[] {
+//    return [];
+//  }
+// If you were to check the ReturnStmt's expr with typecheckExpr, a
+// inference error would be emitted and the checking would fail, but
+// if you typecheckExprOfType with the return type of the function,
+// it'll work because the type will be bound before being finalized.
+std::pair<bool, Expr*> Sema::typecheckExprOfType(Expr* expr, Type type) {
+  assert(expr && "null input");
+  /*check*/ 
+  expr = ExprChecker(*this).check(expr);
+  // Success is determined by 2 factors.
+  // (1) unification success
+  // (2) non-error type in the finalized expr.
+  /*(1)*/ 
+  bool success = unify(expr->getType(), type);
+  /*finalize*/ 
+  expr = ExprFinalizer(ctxt_, diags_).finalize(expr);
+  /*(2)*/ 
+  success &= (!expr->getType()->is<ErrorType>());
+  return { success, expr };
 }
