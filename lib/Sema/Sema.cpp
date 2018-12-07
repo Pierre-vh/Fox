@@ -27,11 +27,15 @@ ASTContext& Sema::getASTContext() {
   return ctxt_;
 }
 
-std::pair<bool, ASTNode> Sema::checkNode(ASTNode node) {
+ASTNode Sema::checkNode(ASTNode node) {
+	assert(!node.isNullptr() && 
+		"node cannot be null!");
   if (Expr* e = node.getIf<Expr>())
     return typecheckExpr(e);
-  if (Stmt* s = node.getIf<Stmt>())
-    return { checkStmt(s), s };
+  if (Stmt* s = node.getIf<Stmt>()) {
+		checkStmt(s);
+		return node;
+	}
   if (Decl* d = node.getIf<Decl>())
     fox_unimplemented_feature("Decl checking");
   fox_unreachable("unknown ASTNode kind");
