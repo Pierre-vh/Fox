@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.        
 // See LICENSE.txt for license info.            
-// File : SemaExprs.cpp                    
+// File : SemaExpr.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 //  This file implements Sema methods related to Exprs and most of the 
