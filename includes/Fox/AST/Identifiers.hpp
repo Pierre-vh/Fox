@@ -26,17 +26,6 @@ namespace fox {
 
       // Returns the string naming this identifier
       string_view getStr() const;
-
-      // Comparison operators for use with STL containers.
-      bool operator<(const Identifier& id) const;
-      bool operator<(const std::string& idstr) const;
-
-      // Other comparison operators
-      bool operator==(const Identifier& id) const;
-      bool operator==(const std::string& str) const;
-
-      bool operator!=(const Identifier& id) const;
-      bool operator!=(const std::string& str) const;
   
     private:
       Identifier(string_view str = string_view());

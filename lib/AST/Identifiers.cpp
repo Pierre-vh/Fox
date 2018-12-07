@@ -18,30 +18,6 @@ string_view Identifier::getStr() const {
   return str_;
 }
 
-bool Identifier::operator<(const Identifier& id) const {
-  return getStr() < id.getStr();
-}
-
-bool Identifier::operator<(const std::string& idstr) const {
-  return getStr() < idstr;
-}
-
-bool Identifier::operator==(const Identifier& id) const {
-  return getStr() == id.getStr();
-}
-
-bool Identifier::operator==(const std::string& str) const {
-  return getStr() == str;
-}
-
-bool Identifier::operator!=(const Identifier& id) const {
-  return !(*this == id);
-}
-
-bool Identifier::operator!=(const std::string& str) const {
-  return !(*this == str);
-}
-
 Identifier* IdentifierTable::getIdentifier(const std::string& id) {
   auto it = table_.lower_bound(id);
   if (it != table_.end() && !(table_.key_comp()(id, it->first))) {
