@@ -243,7 +243,7 @@ void* TypeBase::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align) {
 }
 
 void TypeBase::calculateIsBound() const {
-  class Impl : public ASTWalker {
+  class Impl : public TypeWalker {
     public:
       // If this method returns false, the walk is aborted.
       virtual bool handleTypePre(Type ty) override {
