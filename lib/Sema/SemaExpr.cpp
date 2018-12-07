@@ -791,18 +791,25 @@ std::pair<bool, Expr*> Sema::typecheckExpr(Expr* expr) {
 // inference error would be emitted and the checking would fail, but
 // if you typecheckExprOfType with the return type of the function,
 // it'll work because the type will be bound before being finalized.
-std::pair<bool, Expr*> Sema::typecheckExprOfType(Expr* expr, Type type) {
+std::pair<Sema::CheckedExprResult, Expr*> 
+Sema::typecheckExprOfType(Expr* expr, Type type) {
+  using CER = CheckedExprResult;
   assert(expr && "null input");
-  /*check*/ 
+
   expr = ExprChecker(*this).check(expr);
-  // Success is determined by 2 factors.
-  // (1) unification success
-  // (2) non-error type in the finalized expr.
-  /*(1)*/ 
-  bool success = unify(expr->getType(), type);
-  /*finalize*/ 
+  bool unifySuccess = unify(expr->getType(), type);
   expr = ExprFinalizer(ctxt_, diags_).finalize(expr);
-  /*(2)*/ 
-  success &= (!expr->getType()->is<ErrorType>());
-  return { success, expr };
+
+  CER result;
+  // Unification succeeded
+  if (unifySuccess) 
+    result = CER::Ok;
+  // Unification failed because the expr's type is ErrorType
+  else if (expr->getType()->is<ErrorType>()) 
+    result = CER::Error;
+  // Unification failed because of incompatible types
+  else 
+    result = CER::NOk;
+    
+  return { result, expr };
 }
