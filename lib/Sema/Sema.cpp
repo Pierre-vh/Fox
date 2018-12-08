@@ -30,13 +30,13 @@ ASTContext& Sema::getASTContext() {
 ASTNode Sema::checkNode(ASTNode node) {
 	assert(!node.isNull() && 
 		"node cannot be null!");
-  if (Expr* e = node.getIf<Expr>())
+  if (Expr* e = node.dyn_cast<Expr*>())
     return typecheckExpr(e);
-  if (Stmt* s = node.getIf<Stmt>()) {
+  if (Stmt* s = node.dyn_cast<Stmt*>()) {
 		checkStmt(s);
 		return node;
 	}
-  if (Decl* d = node.getIf<Decl>())
+  if (Decl* d = node.dyn_cast<Decl*>())
     fox_unimplemented_feature("Decl checking");
   fox_unreachable("unknown ASTNode kind");
 }

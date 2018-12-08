@@ -34,12 +34,12 @@ namespace fox {
       // Visit ASTNode
       void visit(ASTNode node, Args... args) {
         assert(!node.isNull() && "Cannot be used on a null pointer");
-        if (node.is<Decl>())
-          visit(node.get<Decl>(), ::std::forward<Args>(args)...);
-        else if (node.is<Expr>())
-          visit(node.get<Expr>(), ::std::forward<Args>(args)...);
-        else if (node.is<Stmt>())
-          visit(node.get<Stmt>(), ::std::forward<Args>(args)...);
+        if (node.is<Decl*>())
+          visit(node.get<Decl*>(), ::std::forward<Args>(args)...);
+        else if (node.is<Expr*>())
+          visit(node.get<Expr*>(), ::std::forward<Args>(args)...);
+        else if (node.is<Stmt*>())
+          visit(node.get<Stmt*>(), ::std::forward<Args>(args)...);
         else
           fox_unreachable("Unsupported ASTNode variant");
       }

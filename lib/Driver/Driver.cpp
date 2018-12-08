@@ -74,7 +74,7 @@ bool Driver::processFile(const std::string& filepath) {
       CompoundStmt* body = fn->getBody();
       for (auto& node : body->getNodes()) {
 				// Decl checking not available yet
-				if(!node.is<Decl>())
+				if(!node.is<Decl*>())
 					node = s.checkNode(node);
       }
     }

@@ -293,11 +293,11 @@ namespace {
       }
 
       ASTNode doIt(ASTNode node) {
-        if (auto decl = node.getIf<Decl>())
+        if (Decl* decl = node.dyn_cast<Decl*>())
           return doIt(decl);
-        if (auto stmt = node.getIf<Stmt>())
+        if (Stmt* stmt = node.dyn_cast<Stmt*>())
           return doIt(stmt);
-        if (auto expr = node.getIf<Expr>())
+        if (Expr* expr = node.dyn_cast<Expr*>())
           return doIt(expr);
 
         fox_unreachable("Unknown node contained in ASTNode");
@@ -355,11 +355,11 @@ namespace {
 // ASTWalker
 
 ASTNode ASTWalker::walk(ASTNode node) {
-  if (auto decl = node.getIf<Decl>())
+  if (Decl* decl = node.dyn_cast<Decl*>())
     return walk(decl);
-  if (auto stmt = node.getIf<Stmt>())
+  if (Stmt* stmt = node.dyn_cast<Stmt*>())
     return walk(stmt);
-  if (auto expr = node.getIf<Expr>())
+  if (Expr* expr = node.dyn_cast<Expr*>())
     return walk(expr);
 
   fox_unreachable("Unknown node contained in ASTNode");
