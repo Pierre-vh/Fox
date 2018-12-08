@@ -309,9 +309,11 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
   }
   else if (strmanip.peekFirst() == '"') {
     if (strmanip.peekBack() == '\"') {
-      std::string strlit = strmanip.substring(1, strmanip.getSizeInCodepoints() - 2); // Get the str between " ". Since "" are both 1 byte ascii char we don't need to use the strmanip.
+			// Get the str between " ". Since "" are both 1 byte ascii 
+			// char we don't need to use the strmanip.
+      string_view strlit = strmanip.substring(1, strmanip.getSizeInCodepoints() - 2);
       tokenData_ = mpark::monostate();
-      literalData_ = std::make_unique<LiteralInfo>(strlit);
+      literalData_ = std::make_unique<LiteralInfo>(strlit.to_string());
       return true;
     }
     return false;

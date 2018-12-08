@@ -103,7 +103,7 @@ TEST(UTF8Tests, Substring) {
   // Prepare string manipulator
   StringManipulator manip(bronze_content);
 
-  std::string substr = manip.substring(10, 9);
+  string_view substr = manip.substring(10, 9);
 
   EXPECT_EQ(expected_substr, substr) << "Substring was not correct";
 }
