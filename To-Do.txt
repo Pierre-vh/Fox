@@ -87,20 +87,13 @@ To-Do:
   > Sema::isDowncast (Done)
   > Sema: Basic Exprs Type-Checking + tests (Done)
   > Sema: Basic Stmt checking + tests (Done)
+  > Identifier & IdentifierTable rework (Done)
 
   > ASTContext interface update:
     -> Add a public SourceManager& and DiagnosticEngine&
-   
-  > IdentifierTable Rework (next)
-    -> This class is really trivial enough. It has no reason to exist on it's own.
-       Fuze it with the ASTContext, add the relevant methods in the ASTContext.
-    -> About Identifier: 
-       Either make it store real data, or stop using it as a pointer. (Maybe store
-       a null terminated const char* inside it, or a string_view) because right now
-       it only stores a string_view.
 
   > Work on Sema (Now) 
-    > Decl semantic analysis
+    > Decl semantic analysis (Next)
     > Name resolution
     > DeclRefExpr 
     > FunctionCallExpr + OVR (overload resolution)
@@ -108,16 +101,24 @@ To-Do:
       > Parser additions (UnresolvedDotExpr)
       > Semantic Analysis
 
-  > ASTVerifier (should be able to check both a Checked an Unchecked AST)
+  > ASTVerifier (should be able to check both a Checked an Unchecked AST) 
+    > once it's done, remove "isValid" in decls
 
   > Allow cast expr chaining (update grammar & parser)
 
   > Write Lexer LIT tests
 
-  > CodeGen 
+  > IR
+  > IRGen
+  > VM
 
-Boring stuff that I must do when I have the time/motivation for it
-  > Adopt a Documentation style (Doxygen) and document all the code with it
+Other:
+  > Adopt a Documentation style (Doxygen) and document the code with it
+
+  > Spend some time refactoring the Parser. Write betters comment, fix style and
+    coding standard issues.
+
+  > Review all includes and try to include as little as possible
 
   > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
     or should parseStmt handle it?
