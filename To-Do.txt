@@ -89,7 +89,7 @@ To-Do:
   > Sema: Basic Stmt checking + tests (Done)
   > Identifier & IdentifierTable rework (Done)
 
-  > ASTContext interface update:
+  > Consider a ASTContext interface update:
     -> Add a public SourceManager& and DiagnosticEngine&
 
   > Work on Sema (Now) 
