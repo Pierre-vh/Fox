@@ -53,7 +53,6 @@ namespace fox {
 
     public:
       DeclContext(DeclContext * parent = nullptr);
-      inline virtual ~DeclContext() {}
 
       // "Record" a declaration within this DeclContext
       void recordDecl(NamedDecl* decl);
@@ -67,10 +66,10 @@ namespace fox {
       LookupResult fullLookup(Identifier id) const;
 
       // Manage parent decl recorder
-      bool hasParentDeclRecorder() const;
-      DeclContext* getParentDeclRecorder();
-      void setParentDeclRecorder(DeclContext *dr);
-      void resetParentDeclRecorder();
+      bool hasParent() const;
+      DeclContext* getParent();
+      const DeclContext* getParent() const;
+      void setParent(DeclContext *dr);
 
       // Get information
       std::size_t getNumberOfRecordedDecls()  const;
@@ -82,8 +81,8 @@ namespace fox {
       NamedDeclsMapConstIter recordedDecls_end() const;
 
       static bool classof(const Decl* decl);
+
     private:
-      // Pointer to the Declaration Recorder "above" this one.
       DeclContext* parent_ = nullptr;
       NamedDeclsMapTy namedDecls_;
   };
@@ -93,24 +92,22 @@ namespace fox {
   // an assertion in addResult ensures this.
   class LookupResult {
     private:
-      using ResultVecTy = std::vector<Decl*>;
+      using ResultVecTy = std::vector<NamedDecl*>;
       using ResultVecIter = ResultVecTy::iterator;
       using ResultVecConstIter = ResultVecTy::const_iterator;
 
     public:
       LookupResult();
 
-      // Returns false if this LookupResult is empty.
-      bool isEmpty() const;
+      std::size_t size() const;
 
-      // Returns true if this LookupResult contains only one result.
-      bool isUnique() const;
+      ResultVecIter begin();
+      ResultVecConstIter begin() const;
 
-      std::size_t getSize() const;
+      ResultVecIter end();
+      ResultVecConstIter end() const;
 
-      // If this LookupResult contains only one result, returns it, else, returns a nullptr.
-      NamedDecl* getResultIfUnique() const;
-
+      // Returns true if the size() > 0
       explicit operator bool() const;
 
     protected:
@@ -125,6 +122,6 @@ namespace fox {
       void absorb(LookupResult &target);
 
     private:
-      std::vector<NamedDecl*> results_;
+      ResultVecTy results_;
   };
 }

@@ -424,8 +424,8 @@ std::string ASTDumper::getOperatorDump(UnaryExpr* expr) const {
 std::string ASTDumper::getDeclRecorderDump(DeclContext* dr) const {
   std::ostringstream ss;
   ss << "<DeclContext:" << (void*)dr;
-  if (dr->hasParentDeclRecorder())
-    ss << ", Parent:" << (void*)dr->getParentDeclRecorder();
+  if (dr->hasParent())
+    ss << ", Parent:" << (void*)dr->getParent();
   ss << ">";
   return ss.str();
 }

@@ -153,12 +153,12 @@ bool testLookup(ASTContext &ctxt,DeclContext *dr, const std::string& name, Decl*
     return false;
   }
 
-  if (!lookupResult.isUnique()) {
+  if (lookupResult.size() > 0) {
     err = "Multiple results found";
     return false;
   }
 
-  if (lookupResult.getResultIfUnique() == decl)
+  if (*(lookupResult.begin()) == decl)
     return true;
   else {
     err = "Result isn't the one expected";

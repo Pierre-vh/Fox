@@ -11,15 +11,17 @@
 
 using namespace fox;
 
-DeclContext::DeclContext(DeclContext * parent) : parent_(parent) {
+DeclContext::DeclContext(DeclContext* parent) : parent_(parent) {
 
 }
 
 void DeclContext::recordDecl(NamedDecl* decl) {
   assert(decl  && "Declaration cannot be null!");
   Identifier name = decl->getIdentifier();
-  assert(name  && "Declaration must have a valid name (Identifier*) to be recorded!");
-  namedDecls_.insert(std::make_pair(name, decl));
+  assert(name  
+    && "Declaration must have a non-null Identifier to be "
+       "recorded");
+  namedDecls_.insert({name, decl});
 }
 
 LookupResult DeclContext::restrictedLookup(Identifier id) const {
@@ -32,30 +34,27 @@ LookupResult DeclContext::restrictedLookup(Identifier id) const {
 
 LookupResult DeclContext::fullLookup(Identifier id) const {
   auto this_lr = restrictedLookup(id);
-
   if (parent_) {
     auto parent_lr = parent_->fullLookup(id);
     this_lr.absorb(parent_lr);
   }
-    
   return this_lr;
 }
 
-bool DeclContext::hasParentDeclRecorder() const {
+bool DeclContext::hasParent() const {
   return parent_;
 }
 
-DeclContext * DeclContext::getParentDeclRecorder() {
+DeclContext* DeclContext::getParent() {
   return parent_;
 }
 
-void DeclContext::setParentDeclRecorder(DeclContext* dr) {
-  assert(dr && "Can't set a null parent! Use resetParent() for that!");
+const DeclContext* DeclContext::getParent() const {
+  return parent_;
+}
+
+void DeclContext::setParent(DeclContext* dr) {
   parent_ = dr;
-}
-
-void DeclContext::resetParentDeclRecorder() {
-  parent_ = nullptr;
 }
 
 std::size_t DeclContext::getNumberOfRecordedDecls() const {
@@ -78,14 +77,12 @@ DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_end() const {
   return namedDecls_.end();
 }
 
-bool DeclContext::classof(const Decl* decl) {
-  switch (decl->getKind()) {
-    #define DECL_CTXT(ID,PARENT) \
-        case DeclKind::ID: \
-          return true;
+bool DeclContext::classof(const Decl* decl)
+{
+  #define DECL_CTXT(ID, PARENT) case DeclKind::ID: return true;
+  switch(decl->getKind()) {
     #include "Fox/AST/DeclNodes.def"
-    default:
-      return false;
+    default: return false;
   }
 }
 
@@ -94,24 +91,28 @@ LookupResult::LookupResult() {
 
 }
 
-bool LookupResult::isEmpty() const {
-  return (getSize() == 0);
-}
-
-bool LookupResult::isUnique() const {
-  return (getSize() == 1);
-}
-
-std::size_t LookupResult::getSize() const {
+std::size_t LookupResult::size() const {
   return results_.size();
 }
 
-NamedDecl* LookupResult::getResultIfUnique() const {
-  return isUnique() ? results_[0] : nullptr;
+LookupResult::ResultVecIter LookupResult::begin() {
+  return results_.begin();
+}
+
+LookupResult::ResultVecConstIter LookupResult::begin() const {
+  return results_.begin();
+}
+
+LookupResult::ResultVecIter LookupResult::end() {
+  return results_.end();
+}
+
+LookupResult::ResultVecConstIter LookupResult::end() const {
+  return results_.end();
 }
 
 LookupResult::operator bool() const {
-  return !isEmpty();
+  return (size() != 0);
 }
 
 void LookupResult::addResult(NamedDecl* decl) {
@@ -133,5 +134,3 @@ void LookupResult::absorb(LookupResult& target) {
   results_.insert(results_.end(), target.results_.begin(), target.results_.end());
   target.clear();
 }
-
-

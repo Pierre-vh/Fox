@@ -478,9 +478,9 @@ Parser::RAIIDeclContext::RAIIDeclContext(Parser &p, DeclContext *dr):
   if (declCtxt_) {
     // Assert that we're not overwriting a parent. 
 		// If such a thing happens, that could indicate a bug!
-    assert(!dr->hasParentDeclRecorder()
+    assert(!dr->hasParent()
 			&& "New DeclContext already has a parent?");
-    dr->setParentDeclRecorder(declCtxt_);
+    dr->setParent(declCtxt_);
   }
 
   parser_.state_.declContext = dr;
