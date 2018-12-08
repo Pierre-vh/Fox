@@ -4,13 +4,9 @@
 // File : DeclContext.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// DeclContext is a class that acts as a "Declaration Recorder"
-//
-// While parsing, the parser "registers" every declaration in the current DeclContext.
-//
-// The DeclContext assists name resolution, allowing the interpreter to
-// find members of a unit/namespace/etc easily.
-//
+// DeclContext is a class that acts as a "Declaration Recorder", which is
+// helps during semantic analysis. A DeclContext records every Declaration
+// that happens in it's children and has functions to help with Lookup.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -21,14 +17,14 @@
 #include <type_traits>
 
 namespace fox {
+
   class Decl;
   class NamedDecl;
   class LookupResult;
 
-  // An iterator that abstracts the underlying structure used by DeclContext to only show
-  // the NamedDecl pointer.
-  // Operator * returns the NamedDecl*
-  // Operator -> Lets you directly access the NamedDecl's members.
+  // An iterator that abstracts the underlying structure 
+  // (an iterator to std::pair) used by the DeclContext 
+  // to only show the NamedDecl pointer to the client.
   template <typename BaseIterator>
   class DeclContextIterator : public BaseIterator {
     public:
@@ -40,7 +36,9 @@ namespace fox {
       }
 
       // Operator * returns the pointer
-      value_type operator*() const { return (this->BaseIterator::operator*()).second; }
+      value_type operator*() const { 
+        return (this->BaseIterator::operator*()).second; 
+      }
       // Operator -> lets you access the members directly. It's equivalent to (*it)->
       value_type operator->() const { return (this->BaseIterator::operator*()).second; }
   };
@@ -48,8 +46,10 @@ namespace fox {
   class DeclContext {
     private:
       using NamedDeclsMapTy = std::multimap<Identifier, NamedDecl*>;
-      using NamedDeclsMapIter = DeclContextIterator<NamedDeclsMapTy::iterator>;
-      using NamedDeclsMapConstIter = DeclContextIterator<NamedDeclsMapTy::const_iterator>;
+      using NamedDeclsMapIter 
+        = DeclContextIterator<NamedDeclsMapTy::iterator>;
+      using NamedDeclsMapConstIter 
+        = DeclContextIterator<NamedDeclsMapTy::const_iterator>;
 
     public:
       DeclContext(DeclContext * parent = nullptr);
