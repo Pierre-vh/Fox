@@ -27,7 +27,7 @@
 namespace fox {
   template <typename ... Args>
   class PtrVariant {
-    using Idx = std::uint8_t;
+    using IdxTy = std::uint8_t;
 
     template<typename T>
     using hasType = std::disjunction<std::is_same<T, Args>...>;
@@ -69,17 +69,22 @@ namespace fox {
     struct index_impl;
 
     template<typename Req, typename ... Rest>
-    struct index_impl<Req, Req, Rest...> : std::integral_constant<Idx, 0> {};
+    struct index_impl<Req, Req, Rest...> : std::integral_constant<IdxTy, 0> {};
 
     template<typename Req, typename Other, typename ... Rest>
-    struct index_impl<Req, Other, Rest...> : std::integral_constant<Idx, 1 + index_impl<Req, Rest...>::value> {};
+    struct index_impl<Req, Other, Rest...> : std::integral_constant<IdxTy, 1 + index_impl<Req, Rest...>::value> {};
 
     template<typename T>
     using indexOf = index_impl<T, Args...>;
 
+		// The maximum index that a value can have
+		static constexpr std::int8_t maxIdx = sizeof...(Args)-1;
+		// The minimum alignement required for pointer types.
+		static constexpr std::int8_t minAlign = 0; 
+
     // Members
     void* ptr_ = nullptr;
-    Idx idx_ = 0;
+    IdxTy idx_ = 0;
     public:
       static_assert(is_unique<Args...>::value, "No duplicates allowed in the Pointer Variant.");
 
