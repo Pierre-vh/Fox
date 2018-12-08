@@ -462,13 +462,13 @@ TEST(ASTTests, BasicVisitor) {
 #define RANDOM_STRING_MAX_LENGTH 128
 
 namespace {
-	static const std::string 
+	const std::string 
 	idStrChars = "_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 	std::string generateRandomString() {
 		std::random_device rd;
 		std::mt19937_64 mt(rd());
-		std::uniform_int_distribution<int> dist_char(0, (int)idStrChars.size());
+		std::uniform_int_distribution<int> dist_char(0, idStrChars.size()-1);
 
 		std::uniform_int_distribution<int> dist_length(RANDOM_STRING_MIN_LENGTH, RANDOM_STRING_MAX_LENGTH);
 		int strlen = dist_length(mt);
@@ -509,7 +509,7 @@ TEST(ASTTests, randomIdentifierInsertion) {
     auto idinfo = ctxt.getIdentifier(id);
     // Check if the string matches, and if the adress of this type
 		// is different from the last one used.
-    ASSERT_EQ(idinfo.getStr(), id) << "[Insertion " << k 
+    ASSERT_EQ(idinfo.getStr().to_string(), id) << "[Insertion " << k 
 			<< "] Strings did not match";
     ASSERT_NE(lastId, idinfo) 
 			<< "[Insertion " << k 
