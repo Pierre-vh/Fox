@@ -28,7 +28,7 @@ ASTContext& Sema::getASTContext() {
 }
 
 ASTNode Sema::checkNode(ASTNode node) {
-	assert(!node.isNullptr() && 
+	assert(!node.isNull() && 
 		"node cannot be null!");
   if (Expr* e = node.getIf<Expr>())
     return typecheckExpr(e);
