@@ -30,7 +30,7 @@ Parser::StmtResult Parser::parseCompoundStatement() {
       // this is done to avoid stacking them up, and since they're a no-op in all cases
       // it's meaningless to ignore them.
       ASTNode node = res.get();
-      if(dyn_cast_or_null<NullStmt>(node.dyn_cast<Stmt*>()))
+      if(!dyn_cast_or_null<NullStmt>(node.dyn_cast<Stmt*>()))
         rtr->addNode(node);
     }
     // failure
