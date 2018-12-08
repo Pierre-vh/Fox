@@ -88,7 +88,7 @@ namespace fox {
       DeclContext* parent_ = nullptr;
       NamedDeclsMapTy namedDecls_;
   };
-.
+
   class LookupResult {
     private:
       using ResultVecTy = std::vector<NamedDecl*>;
