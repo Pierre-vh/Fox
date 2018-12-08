@@ -89,17 +89,21 @@ To-Do:
   > Sema: Basic Stmt checking + tests (Done)
   > Identifier & IdentifierTable rework (Done)
 
-  > Consider a ASTContext interface update:
-    -> Add a public SourceManager& and DiagnosticEngine&
-
   > Work on Sema (Now) 
     > Decl semantic analysis (Next)
+      > I'll need a way of casting a DeclContext* back to a Decl*, how?
+        I'll have to record the Kind of Decl in the DeclContext too? Or a another
+        DeclContextKind? Maybe there's another way of doing it without adding
+        members to the DeclContext class.
     > Name resolution
     > DeclRefExpr 
-    > FunctionCallExpr + OVR (overload resolution)
+    > FunctionCallExpr & OVR (overload resolution)
     > UFCS
       > Parser additions (UnresolvedDotExpr)
       > Semantic Analysis
+
+  > Consider a ASTContext interface update:
+    -> Add a public SourceManager& and DiagnosticEngine&
 
   > ASTVerifier (should be able to check both a Checked an Unchecked AST) 
     > once it's done, remove "isValid" in decls
