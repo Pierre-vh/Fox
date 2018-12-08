@@ -19,19 +19,6 @@
 #include "Errors.hpp"
 
 namespace fox {
-  // Helper for units
-  template<std::uint16_t size>
-  class KiloByte {
-    public:
-      static constexpr std::uint32_t value = size * 1000;
-  };
-
-  template<std::uint16_t size>
-  class MegaByte {
-    public:
-      static constexpr std::uint32_t value = KiloByte<size>::value * 1000;
-  };
-
   /*
     \brief The LinearAllocator class implements a "Pointer-Bump" allocator.
 
@@ -44,7 +31,7 @@ namespace fox {
     Note: This class does not strive to be thread-safe.
   */
   template<
-      std::uint32_t poolSize = KiloByte<128>::value // Allocate 128Kb pools by default
+      std::uint32_t poolSize = 4096 // Allocate 4096 byte pools by default
     >              
   class LinearAllocator {
     public:
