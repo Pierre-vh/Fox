@@ -18,44 +18,12 @@
 namespace fox {
   class SourceRange;
   class SourceLoc;
-  class ASTNode {
-    llvm::PointerUnion3<Expr*, Stmt*, Decl*> ptrs_;
+  class ASTNode : public llvm::PointerUnion3<Expr*, Stmt*, Decl*> {
     public:
-      ASTNode();
-      ASTNode(Expr* expr);
-      ASTNode(Decl* decl);
-      ASTNode(Stmt* stmt);
+      using PointerUnion3::PointerUnion3;
 
       SourceRange getRange() const;
       SourceLoc getBegLoc() const;
       SourceLoc getEndLoc() const;
-      
-      bool isNull() const;
-      explicit operator bool() const;
-
-      template<typename Ty>
-      bool is() const {
-        return ptrs_.is<Ty*>();
-      }
-
-      template<typename Ty>
-      const Ty* getIf() const {
-        return ptrs_.dyn_cast<Ty*>();
-      }
-
-      template<typename Ty>
-      Ty* getIf() {
-        return ptrs_.dyn_cast<Ty*>();
-      }
-
-      template<typename Ty>
-      const Ty* get() const {
-        return ptrs_.get<Ty*>();
-      }
-
-      template<typename Ty>
-      Ty* get() {
-        return ptrs_.get<Ty*>();
-      }
   };
 }

@@ -14,21 +14,14 @@
 
 using namespace fox;
 
-ASTNode::ASTNode() {}
-
-ASTNode::ASTNode(Expr* expr) : ptrs_(expr) {}
-
-ASTNode::ASTNode(Decl* decl) : ptrs_(decl) {}
-
-ASTNode::ASTNode(Stmt* stmt) : ptrs_(stmt) {}
 
 SourceRange ASTNode::getRange() const {
-  if (is<Expr>())
-    return get<Expr>()->getRange();
-  if (is<Decl>())
-    return get<Decl>()->getRange();
-  if (is<Stmt>())
-    return get<Stmt>()->getRange();
+  if (is<Expr*>())
+    return get<Expr*>()->getRange();
+  if (is<Decl*>())
+    return get<Decl*>()->getRange();
+  if (is<Stmt*>())
+    return get<Stmt*>()->getRange();
   fox_unreachable("Unsupported node");
 }
 
@@ -38,12 +31,4 @@ SourceLoc ASTNode::getBegLoc() const {
 
 SourceLoc ASTNode::getEndLoc() const {
   return getRange().getEnd();
-}
-
-bool ASTNode::isNull() const {
-  return ptrs_.isNull();
-}
-
-ASTNode::operator bool() const {
-  return !isNull();
 }
