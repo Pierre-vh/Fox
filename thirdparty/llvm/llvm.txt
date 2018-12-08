@@ -18,7 +18,7 @@ Non exhaustive changes list:
 		Removed #include "Compiler.h"
 		
 	ADT/PointerIntPair.h:
-		Removed SmallPtrSet & DenseMapInfo unique features
+		Removed DenseMapInfo features
 
   ADT/PointerUnion.h
     Removed include: "llvm/ADT/DenseMapInfo.h"
