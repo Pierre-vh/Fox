@@ -13,5 +13,9 @@
 namespace fox {
 namespace align {
   constexpr unsigned TypeBaseAlignement = 2;
+  // We'll want at least 2 free bits on Expr/Decl and Stmt
+  constexpr unsigned ExprAlignement = 4;
+  constexpr unsigned DeclAlignement = 4;
+  constexpr unsigned StmtAlignement = 4;
 }
 }

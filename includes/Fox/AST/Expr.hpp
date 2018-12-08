@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "ASTAligns.hpp"
 #include "Fox/Common/Typedefs.hpp"
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Identifier.hpp"
@@ -32,7 +33,7 @@ namespace fox   {
 
   // Expr
   //    Common base class for every expression
-  class Expr {
+  class alignas(align::ExprAlignement) Expr {
     public:
       ExprKind getKind() const;
 

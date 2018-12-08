@@ -9,6 +9,7 @@
 
 #pragma once
 #include "DeclContext.hpp"
+#include "ASTAligns.hpp"
 #include "Type.hpp"
 #include "Identifier.hpp"
 
@@ -28,7 +29,7 @@ namespace fox {
 
   // Decl
   //    Common base class for every Declaration
-  class Decl {
+  class alignas(align::DeclAlignement) Decl {
     public:
       DeclKind getKind() const;
 

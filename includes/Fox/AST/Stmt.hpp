@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "ASTAligns.hpp"
 #include "Fox/Common/Source.hpp"
 #include "ASTNode.hpp"
 #include <vector>
@@ -28,7 +29,7 @@ namespace fox {
 
   // Stmt
   //    Common base for every statement
-  class Stmt {
+  class alignas(align::StmtAlignement) Stmt {
     public:
       StmtKind getKind() const;
 
