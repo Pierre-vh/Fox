@@ -40,10 +40,7 @@ namespace fox {
         STRING GETTERS/SETTERS
       */  
 
-      // Returns a pointer to the string
       string_view getStr() const;
-
-      // Set this SM's source to a the pointer str
       void setStr(string_view str);
 
       /*
@@ -77,7 +74,7 @@ namespace fox {
       */
 
       // Extract a substring
-      std::string substring(std::size_t beg, std::size_t leng) const;
+			string_view substring(std::size_t beg, std::size_t leng) const;
 
       // Return the number of codepoints in the string
       std::size_t getSizeInCodepoints() const;

@@ -85,20 +85,18 @@ FoxChar StringManipulator::getChar(std::size_t ind) const {
   return 0;
 }
 
-std::string StringManipulator::substring(std::size_t beg, std::size_t leng) const {
-  auto tmpit = beg_;
+string_view 
+StringManipulator::substring(std::size_t beg, std::size_t leng) const {
+  auto begIt = beg_;
+	auto endIt = beg_;
+
+	// Advance the iterator to the beginning and the end of the substring
+  utf8::advance(begIt, beg, end_);
+	utf8::advance(endIt, beg+leng, end_);
   
-  utf8::advance(tmpit, beg, end_);
-
-  std::string rtr;
-
-  for (std::size_t ind(0); ind < leng; ind++) {
-    const auto ch = utf8::next(tmpit,end_);
-    append(  rtr, 
-        ch
-      );
-  }
-  return rtr;
+	std::size_t begIdx = std::distance(beg_, begIt);
+	std::size_t endIdx = std::distance(beg_, endIt);
+  return str_.substr(begIdx, endIdx-begIdx);
 }
 
 FoxChar StringManipulator::peekFirst() const {
