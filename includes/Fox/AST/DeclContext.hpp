@@ -88,10 +88,7 @@ namespace fox {
       DeclContext* parent_ = nullptr;
       NamedDeclsMapTy namedDecls_;
   };
-
-  // A Class that encapsulates a lookup result.
-  // All NamedDecls stored here are assumed to have the same Identifier.
-  // an assertion in addResult ensures this.
+.
   class LookupResult {
     private:
       using ResultVecTy = std::vector<NamedDecl*>;
