@@ -15,6 +15,7 @@
 
 #include "Fox/Common/Typedefs.hpp"
 #include "Fox/Common/Source.hpp"
+#include "Fox/AST/Identifier.hpp"
 #include "mpark/variant.hpp"
 #include <vector>
 #include <memory>
@@ -22,7 +23,6 @@
 
 namespace fox {
   class ASTContext;
-  class Identifier;
   class DiagnosticEngine;
 
   enum class LiteralType : char {
@@ -166,8 +166,9 @@ namespace fox {
       LiteralType getLiteralType() const;
       LiteralInfo getLiteralInfo() const;
 
-      string_view getIdentifierString() const;
-      Identifier* getIdentifierInfo();
+			// If this is an identifier, returns the valid Identifier object, else
+			// returns a null one.
+      Identifier getIdentifier() const;
 
       std::string getAsString() const;
       std::string getTokenTypeFriendlyName() const;
@@ -179,7 +180,7 @@ namespace fox {
       // Note: LiteralInfo is quite heavy, so it's dynamically allocated to save space, since
       // most token won't need it. Same goes for CommentData.
       const SourceRange range_;
-      mpark::variant<mpark::monostate, KeywordType, SignType, Identifier*> tokenData_;
+      mpark::variant<mpark::monostate, KeywordType, SignType, Identifier> tokenData_;
       std::unique_ptr<LiteralInfo> literalData_ = nullptr;
 
       /* Identification functions */

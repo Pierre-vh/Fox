@@ -11,6 +11,7 @@
 
 #include "Fox/Common/Typedefs.hpp"
 #include "Fox/AST/Type.hpp"
+#include "Fox/AST/Identifier.hpp"
 #include <vector>
 
 namespace fox   {
@@ -328,18 +329,17 @@ namespace fox   {
   class DeclRefExpr : public Expr {
     public:
       DeclRefExpr();
-      DeclRefExpr(Identifier* declid, SourceRange range);
+      DeclRefExpr(Identifier id, SourceRange range);
 
-      void setIdentifier(Identifier * id);
-      Identifier* getIdentifier();
-      const Identifier* getIdentifier() const;
+      void setIdentifier(Identifier id);
+      Identifier getIdentifier() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::DeclRefExpr);
       }
 
     private:
-      Identifier* id_ = nullptr;
+      Identifier id_;
   };
 
   // MemberOfExpr
@@ -347,16 +347,15 @@ namespace fox   {
   class MemberOfExpr : public Expr {
     public:
       MemberOfExpr();
-      MemberOfExpr(Expr* base, Identifier *idInfo, 
-        SourceRange range, SourceLoc dotLoc);
+      MemberOfExpr(Expr* base, Identifier membID, 
+				SourceRange range, SourceLoc dotLoc);
 
       void setExpr(Expr* expr);
       Expr* getExpr();
       const Expr* getExpr() const;
 
-      void setMemberID(Identifier* idInfo);
-      Identifier* getMemberID();
-      const Identifier* getMemberID() const;
+      void setMemberID(Identifier id);
+      Identifier getMemberID() const;
 
       SourceLoc getDotLoc() const;
 
@@ -367,7 +366,7 @@ namespace fox   {
     private:
       SourceLoc dotLoc_;
       Expr* base_ = nullptr;
-      Identifier *membName_ = nullptr;
+      Identifier memb_;
   };
 
   // ArraySubscriptExpr

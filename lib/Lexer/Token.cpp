@@ -13,7 +13,6 @@
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/Errors.hpp"
-#include "Fox/AST/Identifiers.hpp"
 #include "Fox/AST/ASTContext.hpp"
 
 using namespace fox;
@@ -122,13 +121,15 @@ std::string Token::showFormattedTokenData() const {
     return "<INVALID TOKEN>"; // return nothing.
 
   std::stringstream ss;
-  ss << "[Token][String: \"" << getAsString() << "\"][Type: " << getTokenTypeFriendlyName();
+  ss << "[Token][String: \"" 
+		<< getAsString() << "\"][Type: " << getTokenTypeFriendlyName();
   int enumInfo = -1;
 
   if (isKeyword())
     enumInfo = enumAsInt(mpark::get<KeywordType>(tokenData_));
   else if (isLiteral()) {
-    assert(literalData_ && "Token is a literal but does not have a literalInfo?");
+    assert(literalData_ 
+			&& "Token is a literal but does not have a literalInfo?");
     enumInfo = enumAsInt(literalData_->getType());
   }
   else if (isSign())
@@ -143,7 +144,8 @@ std::string Token::showFormattedTokenData() const {
 }
 
 bool Token::isValid() const {
-  return (!(mpark::holds_alternative<mpark::monostate>(tokenData_))) || literalData_;
+  return (!(mpark::holds_alternative<mpark::monostate>(tokenData_)))
+		|| literalData_;
 }
 
 Token::operator bool() const {
@@ -155,7 +157,7 @@ bool Token::isLiteral() const {
 }
 
 bool Token::isIdentifier() const {
-  return mpark::holds_alternative<Identifier*>(tokenData_);
+  return mpark::holds_alternative<Identifier>(tokenData_);
 }
 
 bool Token::isSign() const {
@@ -215,10 +217,10 @@ std::string Token::getAsString() const {
   }
   else if (literalData_)
     return literalData_->getAsString();
-  else if (mpark::holds_alternative<Identifier*>(tokenData_)) {
-    auto ptr = mpark::get<Identifier*>(tokenData_);
-    assert(ptr && "Token's an identifier but the Identifier* is null?");
-    return ptr->getStr().to_string();
+  else if (mpark::holds_alternative<Identifier>(tokenData_)) {
+    auto id = mpark::get<Identifier>(tokenData_);
+    assert(id && "Token's an identifier but the Identifier* is null?");
+    return id.getStr().to_string();
   }
   else
     return "<empty>";
@@ -226,7 +228,8 @@ std::string Token::getAsString() const {
 
 LiteralType Token::getLiteralType() const {
   if (isLiteral()) {
-    assert(literalData_ && "Token is a literal but does not have a literalInfo?");
+    assert(literalData_ 
+			&& "Token is a literal but does not have a literalInfo?");
     return literalData_->getType();
   }
   return LiteralType::DEFAULT;
@@ -237,25 +240,18 @@ LiteralInfo Token::getLiteralInfo() const {
   return *literalData_;
 }
 
-string_view Token::getIdentifierString() const {
-  if (mpark::holds_alternative<Identifier*>(tokenData_)) {
-    auto ptr = mpark::get<Identifier*>(tokenData_);
-    assert(ptr && "tokenInfo's a Identifier* but the pointer is null?");
-    return ptr->getStr();
+Identifier Token::getIdentifier() const {
+  if (mpark::holds_alternative<Identifier>(tokenData_)) {
+    auto id = mpark::get<Identifier>(tokenData_);
+    assert(id && "Null Identifier object on a Identifier Token?");
+    return id;
   }
-  return "";
+  return Identifier();
 }
 
-Identifier * Token::getIdentifierInfo() {
-  if (mpark::holds_alternative<Identifier*>(tokenData_)) {
-    auto ptr = mpark::get<Identifier*>(tokenData_);
-    assert(ptr && "tokenInfo's a Identifier* but the pointer is null?");
-    return ptr;
-  }
-  return nullptr;
-}
-
-void Token::identify(DiagnosticEngine& diags,ASTContext& astctxt,const std::string& str) {
+void 
+Token::identify(DiagnosticEngine& diags, 
+	ASTContext& astctxt, const std::string& str) {
   // If the token is empty, this means our lexer might be broken!
   assert(str.size() && "String cannot be empty!");
 
@@ -293,7 +289,9 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
   if (strmanip.peekFirst() == '\'') {
     if (strmanip.peekBack() == '\'') {
       if (strmanip.getSizeInCodepoints() > 3) {
-        diags.report(DiagID::lexer_too_many_char_in_char_literal, range_).addArg(str);
+        diags
+					.report(DiagID::lexer_too_many_char_in_char_literal, range_)
+					.addArg(str);
         return false;
       }
       else if (strmanip.getSizeInCodepoints() < 3) {
@@ -311,7 +309,8 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
     if (strmanip.peekBack() == '\"') {
 			// Get the str between " ". Since "" are both 1 byte ascii 
 			// char we don't need to use the strmanip.
-      string_view strlit = strmanip.substring(1, strmanip.getSizeInCodepoints() - 2);
+      string_view strlit = strmanip.substring(1, 
+				strmanip.getSizeInCodepoints() - 2);
       tokenData_ = mpark::monostate();
       literalData_ = std::make_unique<LiteralInfo>(strlit.to_string());
       return true;
@@ -320,10 +319,9 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
   }
   else if (str == "true" | str == "false") {
     tokenData_ = mpark::monostate();
-    literalData_ = std::make_unique<LiteralInfo>((str == "true" ? true : false));
+    literalData_ = std::make_unique<LiteralInfo>(str == "true");
     return true;
   }
-  // Might rework this bit later because it's a bit ugly, but it works !
   else if (std::regex_match(str, kInt_regex)) {
     std::istringstream ss(str);
     FoxInt tmp;
@@ -333,7 +331,9 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
     }
     else {
       // If too big, put the value in a float instead.
-      diags.report(DiagID::lexer_int_too_big_considered_as_float, range_).addArg(str);
+      diags
+				.report(DiagID::lexer_int_too_big_considered_as_float, range_)
+				.addArg(str);
       tokenData_ = mpark::monostate();
       literalData_ = std::make_unique<LiteralInfo>(std::stof(str));
     }
@@ -347,17 +347,21 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
   return false;
 }
 
-bool Token::idIdentifier(DiagnosticEngine& diags,ASTContext& astctxt, const std::string & str) {
+bool Token::idIdentifier(DiagnosticEngine& diags,ASTContext& astctxt, 
+	const std::string & str) {
   if (validateIdentifier(diags,str)) {
-    tokenData_ = astctxt.identifiers.getIdentifier(str);
+    tokenData_ = astctxt.getIdentifier(str);
     return true;
   }
   return false;
 }
 
-bool Token::validateIdentifier(DiagnosticEngine& diags, const std::string& str) const {
-  // Identifiers : An Identifier's first letter must always be a underscore or an alphabetic letter
-  // The first character can then be followed by an underscore, a letter or a number.
+bool Token::validateIdentifier(DiagnosticEngine& diags, 
+	const std::string& str) const {
+  // Identifiers : An Identifier's first letter must 
+	// always be a underscore or an alphabetic letter
+  // The first character can then be followed 
+	// by an underscore, a letter or a number.
   StringManipulator manip(str);
   auto first_ch = manip.getCurrentChar();
   if ((first_ch == '_') || iswalpha((char)first_ch)) {

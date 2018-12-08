@@ -55,3 +55,11 @@ void ASTContext::reset() {
 void ASTContext::freeCS() {
   semaAllocator_.reset();
 }
+
+Identifier ASTContext::getIdentifier(const std::string& str) {
+	// Search the entry in the set
+	auto it = idents_.insert(str).first;
+	assert((it != idents_.end()) && "Insertion error");
+	// Create the identifier object and return.
+	return Identifier(it->c_str());
+}

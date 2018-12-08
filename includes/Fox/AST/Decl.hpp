@@ -4,12 +4,13 @@
 // File : Decl.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Declares the Decl interface as well as derived nodes.
+// Declares the Decl hierarchy
 //----------------------------------------------------------------------------//
 
 #pragma once
 #include "DeclContext.hpp"
 #include "Type.hpp"
+#include "Identifier.hpp"
 
 namespace fox {
   // Kinds of Decls
@@ -61,11 +62,10 @@ namespace fox {
   //    Common base class for every named Declaration
   class NamedDecl : public Decl {
     public:
-      NamedDecl(DeclKind kind, Identifier* id, SourceRange range);
+      NamedDecl(DeclKind kind, Identifier id, SourceRange range);
 
-      Identifier* getIdentifier();
-      const Identifier* getIdentifier() const;
-      void setIdentifier(Identifier* nname);
+      Identifier getIdentifier() const;
+      void setIdentifier(Identifier id);
       bool hasIdentifier() const;
 
       bool isValid() const;
@@ -75,7 +75,7 @@ namespace fox {
       }
 
     private:
-      Identifier* identifier_;
+      Identifier identifier_;
   };
 
   // ValueDecl
@@ -83,7 +83,7 @@ namespace fox {
   //    (declares a value of a certain type & name)
   class ValueDecl : public NamedDecl {
     public:
-      ValueDecl(DeclKind kind, Identifier* id, TypeLoc ty, 
+      ValueDecl(DeclKind kind, Identifier id, TypeLoc ty, 
         bool isConst, SourceRange range);
 
       TypeLoc& getTypeLoc();
@@ -111,7 +111,7 @@ namespace fox {
   class ParamDecl : public ValueDecl {
     public:
       ParamDecl();
-      ParamDecl(Identifier* id, TypeLoc type, bool isConst, SourceRange range);
+      ParamDecl(Identifier id, TypeLoc type, bool isConst, SourceRange range);
 
       bool isValid() const;
 
@@ -132,7 +132,7 @@ namespace fox {
 
     public:
       FuncDecl();
-      FuncDecl(TypeLoc rtrTy, Identifier* fnId, CompoundStmt* body,
+      FuncDecl(TypeLoc rtrTy, Identifier fnId, CompoundStmt* body,
         SourceRange range, SourceLoc headerEndLoc);
       
       void setLocs(SourceRange range, SourceLoc headerEndLoc);
@@ -186,7 +186,7 @@ namespace fox {
   class VarDecl : public ValueDecl {
     public:
       VarDecl();
-      VarDecl(Identifier* id, TypeLoc type, bool isConst,
+      VarDecl(Identifier id, TypeLoc type, bool isConst,
         Expr* init, SourceRange range);
 
       bool isValid() const;
@@ -214,7 +214,7 @@ namespace fox {
       using DeclVecConstIter = DeclVecTy::const_iterator;
 
     public:
-      UnitDecl(Identifier *id, FileID inFile);
+      UnitDecl(Identifier id, FileID inFile);
 
       void addDecl(Decl* decl);
       void setDecl(Decl* decl, std::size_t idx);

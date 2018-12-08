@@ -6,7 +6,6 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/Expr.hpp"
-#include "Fox/AST/Identifiers.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <sstream> 
@@ -493,23 +492,19 @@ const Expr* CastExpr::getExpr() const {
 //-------------//
 
 DeclRefExpr::DeclRefExpr():
-  DeclRefExpr(nullptr, SourceRange()) {
+  DeclRefExpr(Identifier(), SourceRange()) {
 }
 
-DeclRefExpr::DeclRefExpr(Identifier* declid, SourceRange range):
-  id_(declid), Expr(ExprKind::DeclRefExpr, range) {
+DeclRefExpr::DeclRefExpr(Identifier id, SourceRange range):
+  id_(id), Expr(ExprKind::DeclRefExpr, range) {
 
 }
 
-void DeclRefExpr::setIdentifier(Identifier* id) {
+void DeclRefExpr::setIdentifier(Identifier id) {
   id_ = id;
 }
 
-Identifier* DeclRefExpr::getIdentifier() {
-  return id_;
-}
-
-const Identifier* DeclRefExpr::getIdentifier() const {
+Identifier DeclRefExpr::getIdentifier() const {
   return id_;
 }
 
@@ -587,12 +582,12 @@ ExprVector::const_iterator FunctionCallExpr::args_end() const {
 //--------------//
 
 MemberOfExpr::MemberOfExpr():
-  MemberOfExpr(nullptr, nullptr, SourceRange(), SourceLoc()) {
+  MemberOfExpr(nullptr, Identifier(), SourceRange(), SourceLoc()) {
 }
 
-MemberOfExpr::MemberOfExpr(Expr* base, Identifier* idInfo,
+MemberOfExpr::MemberOfExpr(Expr* base, Identifier membID,
   SourceRange range, SourceLoc dotLoc):
-  Expr(ExprKind::MemberOfExpr, range), base_(base), membName_(idInfo),
+  Expr(ExprKind::MemberOfExpr, range), base_(base), memb_(membID),
   dotLoc_(dotLoc) {
 
 }
@@ -609,25 +604,21 @@ const Expr* MemberOfExpr::getExpr() const {
   return base_;
 }
 
-void MemberOfExpr::setMemberID(Identifier* idInfo) {
-  membName_ = idInfo;
+void MemberOfExpr::setMemberID(Identifier id) {
+  memb_ = id;
 }
 
-Identifier* MemberOfExpr::getMemberID() {
-  return membName_;
-}
-
-const Identifier* MemberOfExpr::getMemberID() const {
-  return membName_;
+Identifier MemberOfExpr::getMemberID() const {
+  return memb_;
 }
 
 SourceLoc MemberOfExpr::getDotLoc() const {
   return dotLoc_;
 }
 
-//-----------------//
+//--------------------//
 // ArraySubscriptExpr //
-//-----------------//
+//--------------------//
 
 ArraySubscriptExpr::ArraySubscriptExpr():
   ArraySubscriptExpr(nullptr, nullptr, SourceRange()) {

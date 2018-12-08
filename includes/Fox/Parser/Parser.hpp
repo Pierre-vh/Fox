@@ -14,17 +14,20 @@
 //      Parens always mean Round Brackets only.
 //      Brackets always mean Round/Curly/Square Bracket (Every kind of bracket)
 // 
-// Status: Up to date with latest grammar changes, except import/using rules that aren't implemented yet.
+// Status: Up to date with latest grammar changes, except import/using rules that 
+//				 aren't implemented yet.
 //
 //    Improvements Ideas:
 //      Recovery Efficiency
-//        Tweak it by running different test situations and adding special recovery cases wherever needed.
+//        Tweak it by running different test situations and adding 
+//				special recovery cases wherever needed.
 //      Speed
 //      Try to cut as many includes as possible.
 //
 //
 //    Parser "to-do" list. Important stuff is marked with (*)
-//      Add better error recovey with common cases support in if/while parsing & function declaration
+//      Add better error recovey with common cases support in
+//			if/while parsing & function declaration
 //
 //      Add a way for the parser to ignore comment tokens.
 //
@@ -54,10 +57,7 @@ namespace fox {
       template<typename DataTy>
       class Result;
 
-      /*-------------- Usings --------------*/
-
-      // Bunch of usings & helper functions for parsing functions. Theses are public
-      // so external classes can use them.
+      /*-------------- Type Aliases --------------*/
       using ExprResult = Result<Expr*>;
       using DeclResult = Result<Decl*>;
       using StmtResult = Result<Stmt*>;
@@ -68,25 +68,24 @@ namespace fox {
       using TokenIteratorTy = TokenVector::iterator;
 
     public:
-      // Note : the parser now takes an optional DeclContext* argument,
-      // This will be used as the base DeclContext.
       Parser(DiagnosticEngine& diags, SourceManager &sm, 
         ASTContext& astctxt, TokenVector& l, DeclContext* dr = nullptr);
 
       /*-------------- Parsing Methods --------------*/
-      // UNIT
-      // Generally, this will be the entry point of the parsing process.
-      // fid = The FileID of the file where the unit is contained.
-      // unitName = the name of the unit that we're parsing. Usually, the name of the file.
-      // isMainUnit = true if the unit that we'll be parsing should be considered as the main unit
-      // Note: This function returns an observing pointer (null in case of errors). It doesn't give
-      // an unique_ptr like the others, because it gives ownership to the ASTContext, not you.
-      UnitDecl* parseUnit(FileID fid, Identifier* unitName, bool isMainUnit);
+			// UNIT
+      UnitDecl* parseUnit(FileID fid, Identifier unitName, bool isMainUnit);
 
       // EXPRESSIONS
       Result<ExprVector> parseExprList();
-      Result<ExprVector> parseParensExprList(SourceLoc* LParenLoc = nullptr, SourceLoc *RParenLoc = nullptr);
-      ExprResult parseParensExpr(SourceLoc* leftPLoc = nullptr, SourceLoc* rightPLoc = nullptr);
+
+      Result<ExprVector> 
+			parseParensExprList(SourceLoc* LParenLoc = nullptr, 
+				SourceLoc *RParenLoc = nullptr);
+
+      ExprResult 
+			parseParensExpr(SourceLoc* leftPLoc = nullptr, 
+			SourceLoc* rightPLoc = nullptr);
+
       ExprResult parseSuffix(Expr* base);
       ExprResult parseDeclRef();
       ExprResult parsePrimitiveLiteral();
@@ -141,7 +140,8 @@ namespace fox {
         bool isConst = false;
         bool isRef = false;
       };
-      Result<ParsedQualType> parseQualType(SourceRange* constLoc = nullptr, SourceLoc* refLoc = nullptr);
+      Result<ParsedQualType> 
+			parseQualType(SourceRange* constLoc = nullptr, SourceLoc* refLoc = nullptr);
 
       Result<BinaryExpr::OpKind> parseAssignOp();
       Result<UnaryExpr::OpKind> parseUnaryOp();
@@ -150,15 +150,18 @@ namespace fox {
 
       /*-------------- Token Consuming --------------*/
       /*  
-        Consume methods all return a result that evaluates to true if the "consume" operation finished successfully 
+        Consume methods all return a result that evaluates to true 
+				if the "consume" operation finished successfully 
         (found the requested token), false otherwise
 
-        Note: SourceLocs and SourceRanges can be both evaluated in a condition to check their validity (operator bool is implemented on both)
+        Note: SourceLocs and SourceRanges can be both evaluated in 
+				a condition to check their validity (operator bool is implemented on both)
       */
 
       // Consumes an Identifier
-      // The Result will have the SourceRange of the identifier if one was found.
-      Result<Identifier*> consumeIdentifier();
+      // The Result object will contain the SourceRange of the identifier 
+			// on a success
+      Result<Identifier> consumeIdentifier();
 
       // Consumes any sign but brackets.
       SourceLoc consumeSign(SignType s);
@@ -180,8 +183,10 @@ namespace fox {
       // Increments the iterator if possible. Used to skip a token without updating any counters.
       void next();
 
-      // Decrements the iterator if possible. Used to revert a consume operation. Won't change updated counters.
-      // Only use in cases where a counter wasn't updated by the last consume operation. Else, use a Parser State Backup.
+      // Decrements the iterator if possible. Used to revert a consume operation. 
+			// Won't change updated counters.
+      // Only use in cases where a counter wasn't updated by the last consume operation. 
+			// Else, use a Parser State Backup.
       void previous();  
 
       // Helper for consumeSign & consumeBracket
@@ -192,10 +197,12 @@ namespace fox {
       Token getPreviousToken() const;
       
       /*-------------- Error Recovery --------------*/
-        // Last Parameter is an optional pointer to a SourceRange. If the recovery was successful, the SourceRange of the token found
+        // Last Parameter is an optional pointer to a SourceRange. 
+				// If the recovery was successful, the SourceRange of the token found
         // will be saved there.
       bool resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken);
-      bool resyncToSign(const std::vector<SignType>& signs, bool stopAtSemi, bool shouldConsumeToken);
+      bool resyncToSign(const std::vector<SignType>& signs, bool stopAtSemi,
+				bool shouldConsumeToken);
       bool resyncToNextDecl();
 
       /*-------------- Error Reporting --------------*/
@@ -210,7 +217,8 @@ namespace fox {
         // The current token
         TokenIteratorTy tokenIterator;
 
-        bool isAlive : 1;        // This is set to false when the parser dies (gives up)
+				// This is set to false when the parser dies (gives up)
+        bool isAlive : 1;
       
         // Brackets counters
         std::uint8_t curlyBracketsCount  = 0;
@@ -237,9 +245,12 @@ namespace fox {
       void restoreParserStateFromBackup(const ParserState& st);
 
       /*-------------- RAIIDeclContext --------------*/
-      // This class sets the current DeclContext at construction, and restores the last
+      // This class sets the current DeclContext at construction, 
+			// and restores the last
       // one at destruction.
-      // If the DeclContext that was here before isn't null, it's marked as being the parent of the DeclContext passed as argument to the constructor.
+      // If the DeclContext that was here before isn't null,
+			// it's marked as being the parent of the DeclContext passed 
+			// as argument to the constructor.
       // It assists in registering Decl in the appropriate DeclContext.
       class RAIIDeclContext {
         public:
@@ -252,13 +263,13 @@ namespace fox {
 
       /*-------------- Member Variables --------------*/
       ASTContext& ctxt_;
-      IdentifierTable& identifiers_;
       DiagnosticEngine& diags_;
       SourceManager& srcMgr_;
       TokenVector& tokens_;
       
       /*-------------- Constants --------------*/
-      static constexpr uint8_t maxBraceDepth_ = (std::numeric_limits<std::uint8_t>::max)();
+      static constexpr uint8_t 
+			maxBraceDepth_ = (std::numeric_limits<std::uint8_t>::max)();
 
     public:
       /*-------------- Result Classes --------------*/
@@ -273,12 +284,14 @@ namespace fox {
 
           }
 
-          explicit Result(Inherited::CTorValueTy val, SourceRange range = SourceRange()):
+          explicit Result(Inherited::CTorValueTy val, 
+						SourceRange range = SourceRange()):
             Inherited(true, val), range_(range) {
 
           }
 
-          explicit Result(Inherited::CTorRValueTy val, SourceRange range = SourceRange()):
+          explicit Result(Inherited::CTorRValueTy val, 
+						SourceRange range = SourceRange()):
             Inherited(true, val), range_(range) {
 
           }
@@ -306,7 +319,9 @@ namespace fox {
           }
 
           // Extra function for Result<Type>
-          template<typename = typename std::enable_if<std::is_same<Type, DataTy>::value, TypeLoc>::type>
+          template<
+						typename = typename 
+						std::enable_if<std::is_same<Type, DataTy>::value, TypeLoc>::type>
           TypeLoc getAsTypeLoc() const {
             return TypeLoc(Inherited::get(), range_);
           }

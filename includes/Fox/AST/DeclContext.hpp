@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include "Identifier.hpp"
 #include <map>
 #include <vector>
 #include <type_traits>
@@ -22,7 +23,6 @@
 namespace fox {
   class Decl;
   class NamedDecl;
-  class Identifier;
   class LookupResult;
 
   // An iterator that abstracts the underlying structure used by DeclContext to only show
@@ -35,7 +35,8 @@ namespace fox {
       using value_type = typename BaseIterator::value_type::second_type;
 
       DeclContextIterator(const BaseIterator &baseIt) : BaseIterator(baseIt) {
-        static_assert(std::is_same<value_type, NamedDecl*>::value, "Pointer type isn't a NamedDecl*");
+        static_assert(std::is_same<value_type, NamedDecl*>::value,
+					"Pointer type isn't a NamedDecl*");
       }
 
       // Operator * returns the pointer
@@ -46,7 +47,7 @@ namespace fox {
 
   class DeclContext {
     private:
-      using NamedDeclsMapTy = std::multimap<Identifier*, NamedDecl*>;
+      using NamedDeclsMapTy = std::multimap<Identifier, NamedDecl*>;
       using NamedDeclsMapIter = DeclContextIterator<NamedDeclsMapTy::iterator>;
       using NamedDeclsMapConstIter = DeclContextIterator<NamedDeclsMapTy::const_iterator>;
 
@@ -57,12 +58,13 @@ namespace fox {
       // "Record" a declaration within this DeclContext
       void recordDecl(NamedDecl* decl);
 
-      // Searches for every NamedDecl whose identifier == id in this DeclContext
-      LookupResult restrictedLookup(Identifier *id) const;
+      // Searches for every NamedDecl with the Identifier id 
+			// in this DeclContext
+      LookupResult restrictedLookup(Identifier id) const;
 
-      // Performs a restrictedLookup on this DeclContext and recursively searches parent
-      // DeclRecorders.
-      LookupResult fullLookup(Identifier *id) const;
+      // Performs a full lookup. Searches this DeclContext
+			// as well as parent ones.
+      LookupResult fullLookup(Identifier id) const;
 
       // Manage parent decl recorder
       bool hasParentDeclRecorder() const;
@@ -82,7 +84,7 @@ namespace fox {
       static bool classof(const Decl* decl);
     private:
       // Pointer to the Declaration Recorder "above" this one.
-      DeclContext * parent_ = nullptr;
+      DeclContext* parent_ = nullptr;
       NamedDeclsMapTy namedDecls_;
   };
 

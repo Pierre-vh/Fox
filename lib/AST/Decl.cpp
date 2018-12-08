@@ -48,25 +48,21 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
 // NamedDecl //
 //-----------//
 
-NamedDecl::NamedDecl(DeclKind kind, Identifier* id, SourceRange range):
+NamedDecl::NamedDecl(DeclKind kind, Identifier id, SourceRange range):
   Decl(kind, range), identifier_(id) {
 
 }
 
-Identifier* NamedDecl::getIdentifier() {
+Identifier NamedDecl::getIdentifier() const {
   return identifier_;
 }
 
-const Identifier* NamedDecl::getIdentifier() const {
-  return identifier_;
-}
-
-void NamedDecl::setIdentifier(Identifier* nname) {
-  identifier_ = nname;
+void NamedDecl::setIdentifier(Identifier id) {
+  identifier_ = id;
 }
 
 bool NamedDecl::hasIdentifier() const {
-  return (bool)identifier_;
+  return !identifier_.isNull();
 }
 
 bool NamedDecl::isValid() const {
@@ -77,7 +73,7 @@ bool NamedDecl::isValid() const {
 // ValueDecl //
 //-----------//
 
-ValueDecl::ValueDecl(DeclKind kind, Identifier* id, TypeLoc ty, bool isConst,
+ValueDecl::ValueDecl(DeclKind kind, Identifier id, TypeLoc ty, bool isConst,
   SourceRange range):
   NamedDecl(kind, id, range), isConst_(isConst), type_(ty) {
 
@@ -116,11 +112,11 @@ bool ValueDecl::isValid() const {
 //-----------//
 
 ParamDecl::ParamDecl():
-  ParamDecl(nullptr, TypeLoc(), false, SourceRange()) {
+  ParamDecl(Identifier(), TypeLoc(), false, SourceRange()) {
 
 }
 
-ParamDecl::ParamDecl(Identifier* id, TypeLoc type, bool isConst, 
+ParamDecl::ParamDecl(Identifier id, TypeLoc type, bool isConst, 
   SourceRange range):
   ValueDecl(DeclKind::ParamDecl, id, type, isConst, range) {
 
@@ -135,11 +131,11 @@ bool ParamDecl::isValid() const {
 //----------//
 
 FuncDecl::FuncDecl():
-  FuncDecl(nullptr, nullptr, nullptr, SourceRange(), SourceLoc()) {
+  FuncDecl(nullptr, Identifier(), nullptr, SourceRange(), SourceLoc()) {
 
 }
 
-FuncDecl::FuncDecl(TypeLoc returnType, Identifier* fnId, CompoundStmt* body,
+FuncDecl::FuncDecl(TypeLoc returnType, Identifier fnId, CompoundStmt* body,
   SourceRange range, SourceLoc headerEndLoc):
   NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), 
 	body_(body), returnType_(returnType) {
@@ -242,11 +238,11 @@ FuncDecl::ParamVecConstIter FuncDecl::params_end() const {
 //---------//
 
 VarDecl::VarDecl():
-  VarDecl(nullptr, TypeLoc(), false, nullptr, SourceRange()) {
+  VarDecl(Identifier(), TypeLoc(), false, nullptr, SourceRange()) {
 
 }
 
-VarDecl::VarDecl(Identifier* id, TypeLoc type, bool isConst, Expr* init, 
+VarDecl::VarDecl(Identifier id, TypeLoc type, bool isConst, Expr* init, 
   SourceRange range):
   ValueDecl(DeclKind::VarDecl, id, type, isConst, range), init_(init) {
 
@@ -276,8 +272,8 @@ void VarDecl::setInitExpr(Expr* expr) {
 // UnitDecl //
 //----------//
 
-UnitDecl::UnitDecl(Identifier* id,FileID inFile)
-  : NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile) {
+UnitDecl::UnitDecl(Identifier id,FileID inFile): 
+	NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile) {
   declsAreValid_ = true;
 }
 

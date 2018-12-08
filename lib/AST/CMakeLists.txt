@@ -7,7 +7,7 @@ add_source( ast_src
   "Types.cpp"
   "Type.cpp"
   "ASTDumper.cpp"
-  "Identifiers.cpp"
+  "Identifier.cpp"
   "DeclContext.cpp"
   "ASTNode.cpp"
 )

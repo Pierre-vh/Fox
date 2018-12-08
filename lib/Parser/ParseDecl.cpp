@@ -14,7 +14,7 @@
 
 using namespace fox;
 
-UnitDecl* Parser::parseUnit(FileID fid, Identifier* unitName, bool isMainUnit) {
+UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
   // <fox_unit>  = {<declaration>}1+
 
   // Assert that unitName != nullptr
@@ -42,7 +42,8 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier* unitName, bool isMainUnit) {
       // EOF/Died -> Break.
       if (isDone())
         break;
-      // No EOF? There's an unexpected token on the way that prevents us from finding the decl.
+      // No EOF? There's an unexpected token on the way that 
+			// prevents us from finding the decl.
       else {
         // Report an error in case of "not found";
         if (decl.wasSuccessful()) {
@@ -75,7 +76,8 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier* unitName, bool isMainUnit) {
 
 Parser::DeclResult Parser::parseFuncDecl() {
   /*
-    <func_decl>  = "func" <id> '(' [<param_decl> {',' <param_decl>}*] ')'[':' <type>] <compound_statement>
+    <func_decl>  = "func" <id> '(' [<param_decl> {',' <param_decl>}*] ')
+									 '[':' <type>] <compound_statement>
     // Note about [':' <type>], if it isn't present, the function returns void
   */
 
@@ -103,7 +105,8 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // <id>
   if (auto foundID = consumeIdentifier()) {
     rtr->setIdentifier(foundID.get());
-    // Before creating a RAIIDeclContext, record this function in the parent DeclContext.
+    // Before creating a RAIIDeclContext, record this function
+		// in the parent DeclContext.
     // We only record the function if it's valid!
     recordDecl(rtr);
   }
@@ -157,9 +160,11 @@ Parser::DeclResult Parser::parseFuncDecl() {
   else  {
     reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
-    // We'll attempt to recover to the '{' too, so if we find the body of the function
+    // We'll attempt to recover to the '{' too,
+		// so if we find the body of the function
     // we can at least parse that.
-    if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
+    if (!resyncToSign(SignType::S_ROUND_CLOSE,
+			/* stopAtSemi */ true, /*consumeToken*/ false))
       return DeclResult::Error();
 
     headEndLoc = consumeBracket(SignType::S_ROUND_CLOSE);
@@ -265,7 +270,7 @@ Parser::DeclResult Parser::parseVarDecl() {
   SourceLoc begLoc = letKw.getBegin();
   SourceLoc endLoc;
 
-  Identifier* id;
+  Identifier id;
   TypeLoc type;
   bool isConst = false;
   Expr* iExpr = nullptr;
@@ -275,7 +280,9 @@ Parser::DeclResult Parser::parseVarDecl() {
     id = foundID.get();
   else {
     reportErrorExpected(DiagID::parser_expected_iden);
-    if (auto res = resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ false, /*consumeToken*/ true)) {
+    if (auto res = resyncToSign(SignType::S_SEMICOLON, 
+			/* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ 
+			false, /*consumeToken*/ true)) {
       // Recovered? Act like nothing happened.
       return DeclResult::NotFound();
     }
@@ -299,7 +306,8 @@ Parser::DeclResult Parser::parseVarDecl() {
   else {
     if (qtRes.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_type);
-    if (auto res = resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi*/ true, /*consumeToken*/ true))
+    if (auto res = resyncToSign(SignType::S_SEMICOLON, 
+			/*stopAtSemi*/ true, /*consumeToken*/ true))
       return DeclResult::NotFound(); // Recovered? Act like nothing happened.
     return DeclResult::Error();
   }
@@ -312,7 +320,8 @@ Parser::DeclResult Parser::parseVarDecl() {
       if (expr.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
       // Recover to semicolon, return if recovery wasn't successful 
-      if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi (true/false doesn't matter when we're looking for a semi)*/ false, /*consumeToken*/ false))
+      if (!resyncToSign(SignType::S_SEMICOLON, 
+				/*stopAtSemi*/ false, /*consumeToken*/ false))
         return DeclResult::Error();
     }
   }
@@ -322,7 +331,8 @@ Parser::DeclResult Parser::parseVarDecl() {
   if (!endLoc) {
     reportErrorExpected(DiagID::parser_expected_semi);
       
-    if (!resyncToSign(SignType::S_SEMICOLON, /*stopAtSemi*/ false, /*consumeToken*/ false))
+    if (!resyncToSign(SignType::S_SEMICOLON, 
+			/*stopAtSemi*/ false, /*consumeToken*/ false))
       return DeclResult::Error();
 
     endLoc = consumeSign(SignType::S_SEMICOLON);
@@ -338,7 +348,8 @@ Parser::DeclResult Parser::parseVarDecl() {
   return DeclResult(rtr);
 }
 
-Parser::Result<Parser::ParsedQualType> Parser::parseQualType(SourceRange* constRange, SourceLoc* refLoc) {
+Parser::Result<Parser::ParsedQualType> 
+Parser::parseQualType(SourceRange* constRange, SourceLoc* refLoc) {
   //   <qualtype>  = ["const"] ['&'] <type>
   ParsedQualType rtr;
   bool hasFoundSomething = false;

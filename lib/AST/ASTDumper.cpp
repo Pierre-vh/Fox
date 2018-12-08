@@ -6,9 +6,9 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTDumper.hpp"
-#include "Fox/AST/Identifiers.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/Source.hpp"
+#include "Fox/AST/Identifier.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 
 #include <sstream>
@@ -399,10 +399,9 @@ std::string ASTDumper::getBasicValueDeclDump(ValueDecl* decl) const {
   if (isDebug())
     ss << " " << (void*)decl;
 
-  ss << " " << getSourceRangeDump("range", decl->getRange()) << " ";
-
-  ss << makeKeyPairDump("id", decl->getIdentifier()->getStr()) << " ";
-  ss << getTypeLocDump("type", decl->getTypeLoc(), decl->isConstant()) << " ";
+  ss << " " << getSourceRangeDump("range", decl->getRange()) << " "
+		 << getIdentifierDump(decl->getIdentifier()) << " "
+     << getTypeLocDump("type", decl->getTypeLoc(), decl->isConstant()) << " ";
 
   if (decl->isConstant())
     ss << "const";
@@ -431,8 +430,8 @@ std::string ASTDumper::getDeclRecorderDump(DeclContext* dr) const {
   return ss.str();
 }
 
-std::string ASTDumper::getIdentifierDump(Identifier* id) const {
-  return makeKeyPairDump("id", addSingleQuotes(id->getStr()));
+std::string ASTDumper::getIdentifierDump(Identifier id) const {
+  return makeKeyPairDump("id", addSingleQuotes(id.getStr()));
 }
 
 std::string ASTDumper::getSourceLocDump(string_view label,

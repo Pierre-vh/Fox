@@ -4,20 +4,22 @@
 // File : ASTContext.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// The ASTContext is the core of the AST
-// - It owns the AST and manages it's memory through LinearAllocator
-// - It owns the identifier table, accessible through identifierTable()
+// The ASTContext is the core of the AST. It contains numerous things, including
+// the type singletons, allocators for the AST, and more!
+//
+// TODO: Remove the "Module" and "Units" things from the ASTContext. Create
+//			 specific "Module" and "SourceFile" classes for that (like SwiftC does)
 //----------------------------------------------------------------------------//
 
 #pragma once
 
 
 #include <map>
-#include <memory>
 #include <vector>
+#include <set>
 #include "Types.hpp"
 #include "Decl.hpp"
-#include "Identifiers.hpp"
+#include "Identifier.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
 
 namespace fox {
@@ -27,7 +29,8 @@ namespace fox {
     public:
       ASTContext();
 
-      // Returns a observing pointer to the unit containing the entry point of the module (if there is one)
+      // Returns a observing pointer to the unit containing the entry point of 
+			// the module (if there is one)
       UnitDecl* getMainUnit();
       
       // Registers a unit in this ASTContext
@@ -44,8 +47,8 @@ namespace fox {
       // Frees the memory allocated for the Constraint.
       void freeCS();
 
-      // The identifier table
-      IdentifierTable identifiers;
+			// Returns the unique, ASTContext-owned version of the identifier "str"
+			Identifier getIdentifier(const std::string& str);
 
     protected:
       friend class ArrayType;
@@ -83,6 +86,9 @@ namespace fox {
 
       // All of the units that makes the current module.
       std::vector<UnitDecl*> units_;
+
+			// The unique identifiers strings set
+			std::set<std::string> idents_;
 
       // Allocators
       LinearAllocator<> allocator_; // Default allocator

@@ -13,7 +13,7 @@
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/AST/ASTContext.hpp"
-#include "Fox/AST/Identifiers.hpp"
+#include "Fox/AST/Identifier.hpp"
 #include "Support/TestUtils.hpp"
 
 using namespace fox;
@@ -80,8 +80,8 @@ TEST_F(LocTests, FuncAndArgDecl) {
   ParamDecl* arg2 = func->getParam(1);
 
   // Check if the names are right
-  EXPECT_EQ(arg1->getIdentifier()->getStr(), "_bar1");
-  EXPECT_EQ(arg2->getIdentifier()->getStr(), "_bar2");
+  EXPECT_EQ(arg1->getIdentifier().getStr(), "_bar1");
+  EXPECT_EQ(arg2->getIdentifier().getStr(), "_bar2");
 
   // Extract Arg locs
   #define BEG_LOC(x) srcMgr.getCompleteLoc(x->getRange().getBegin())

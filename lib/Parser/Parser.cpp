@@ -9,15 +9,15 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Parser/Parser.hpp"
-#include "Fox/AST/Identifiers.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 
 using namespace fox;
 
-Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, TokenVector& l, DeclContext *dr):
-  ctxt_(astctxt), tokens_(l), identifiers_(ctxt_.identifiers), srcMgr_(sm), diags_(diags) {
+Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, 
+	TokenVector& l, DeclContext *dr):
+  ctxt_(astctxt), tokens_(l), srcMgr_(sm), diags_(diags) {
   if (dr)
     state_.declContext = dr;
 
@@ -40,19 +40,21 @@ void Parser::setupParser() {
   state_.tokenIterator = tokens_.begin();
 }
 
-Parser::Result<Identifier*> Parser::consumeIdentifier() {
+Parser::Result<Identifier> Parser::consumeIdentifier() {
   Token tok = getCurtok();
   if (tok.isIdentifier()) {
-    Identifier* ptr = tok.getIdentifierInfo();
-    assert(ptr && "Token's an identifier but contains a nullptr Identifier?");
+    Identifier id = tok.getIdentifier();
+    assert(id && "Token's an identifier but contains a null Identifier?");
     next();
-    return Result<Identifier*>(ptr,tok.getRange());
+    return Result<Identifier>(id, tok.getRange());
   }
-  return Result<Identifier*>::NotFound();
+  return Result<Identifier>::NotFound();
 }
 
 SourceLoc Parser::consumeSign(SignType s) {
-  assert(!isBracket(s) && "This method shouldn't be used to match brackets ! Use consumeBracket instead!");
+  assert(!isBracket(s) 
+		&& "This method shouldn't be used to match brackets ! "
+			  "Use consumeBracket instead!");
   auto tok = getCurtok();
   if (tok.is(s)) {
     next();
@@ -62,7 +64,9 @@ SourceLoc Parser::consumeSign(SignType s) {
 }
 
 SourceLoc Parser::consumeBracket(SignType s) {
-  assert(isBracket(s) && "This method should only be used on brackets ! Use consumeSign to match instead!");
+  assert(isBracket(s) 
+	&& "This method should only be used on brackets! "
+	  	"Use consumeSign to match instead!");
   auto tok = getCurtok();
   if (tok.is(s)) {
     switch (s) {
@@ -75,7 +79,8 @@ SourceLoc Parser::consumeBracket(SignType s) {
         }
         break;
       case SignType::S_CURLY_CLOSE:
-        if (state_.curlyBracketsCount)    // Don't let unbalanced parentheses create an underflow.
+				// Don't let unbalanced parentheses underflow
+        if (state_.curlyBracketsCount)
           state_.curlyBracketsCount--;
         break;
       case SignType::S_SQ_OPEN:
@@ -87,7 +92,8 @@ SourceLoc Parser::consumeBracket(SignType s) {
         }
         break;
       case SignType::S_SQ_CLOSE:
-        if (state_.squareBracketsCount)    // Don't let unbalanced parentheses create an underflow.
+				// Don't let unbalanced parentheses underflow
+        if (state_.squareBracketsCount)
           state_.squareBracketsCount--;
         break;
       case SignType::S_ROUND_OPEN:
@@ -137,7 +143,8 @@ void Parser::revertConsume() {
   if (isBracket(tok.getSignType())) {
     // Update bracket counters
     // We will be doing the exact opposite of what consumeBracket does !
-    // That means : Decrementing the counter if a ( { [ is found, and incrementing it if a } ] ) is found.
+    // That means : Decrementing the counter if a ( { [ is found, 
+		// and incrementing it if a } ] ) is found.
     switch (tok.getSignType()) {
       case SignType::S_CURLY_OPEN:
         if (state_.curlyBracketsCount)
@@ -179,7 +186,8 @@ void Parser::revertConsume() {
         fox_unreachable("unknown bracket type");
     }
   }
-  // Else, we're done. For now, only brackets have counters associated with them.
+  // Else, we're done. For now, only brackets have counters 
+	// associated with them.
 }
 
 void Parser::next() {
@@ -250,7 +258,8 @@ Parser::Result<Type> Parser::parseType() {
       else {
         reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
 
-        if (resyncToSign(SignType::S_SQ_CLOSE,/*stopAtSemi */ true,/*shouldConsumeToken*/ false)) {
+        if (resyncToSign(SignType::S_SQ_CLOSE,
+					/*stop@semi */ true, /*consume*/ false)) {
           endLoc = consumeBracket(SignType::S_SQ_CLOSE);
           continue;
         }
@@ -278,11 +287,14 @@ Token Parser::getPreviousToken() const {
   return Token();
 }
 
-bool Parser::resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken) {
-  return resyncToSign(std::vector<SignType>({ sign }), stopAtSemi, shouldConsumeToken);
+bool 
+Parser::resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken) {
+  return resyncToSign(
+		std::vector<SignType>({ sign }), stopAtSemi, shouldConsumeToken);
 }
 
-bool Parser::resyncToSign(const std::vector<SignType>& signs, bool stopAtSemi, bool shouldConsumeToken) {
+bool Parser::resyncToSign(const std::vector<SignType>& signs,
+	bool stopAtSemi, bool shouldConsumeToken) {
   if (!isAlive())
     return false;
 
@@ -354,7 +366,8 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs, bool stopAtSemi, b
 bool Parser::resyncToNextDecl() {
   // This method skips everything until it finds a "let" or a "func".
 
-  // Return immediately if recovery is not allowed, or the parser isn't alive anymore.
+  // Return immediately if recovery is not allowed, 
+	// or the parser isn't alive anymore.
   if (!isAlive())
     return false;
 
@@ -366,7 +379,8 @@ bool Parser::resyncToNextDecl() {
     // Check if it's a sign for special behaviours
     if (tok.isSign()) {
       switch (tok.getSignType()) {
-          // If we find a '(', '{' or '[', call resyncToSign to skip to it's counterpart.
+          // If we find a '(', '{' or '[', 
+					// call resyncToSign to skip to it's counterpart.
         case SignType::S_CURLY_OPEN:
           consumeBracket(SignType::S_CURLY_OPEN);
           resyncToSign(SignType::S_CURLY_CLOSE, false, true);
@@ -407,10 +421,9 @@ void Parser::die() {
   state_.isAlive = false;
 }
 
-void Parser::recordDecl(NamedDecl * nameddecl) {
-  // Only assert when we're not in test mode.
-  // Tests may call individual parsing function, and won't care about if a DeclContext is active or not.
-  assert(state_.declContext && "Decl Recorder cannot be null when parsing a Declaration!");
+void Parser::recordDecl(NamedDecl* nameddecl) {
+  assert(state_.declContext
+		&& "Decl Recorder cannot be null when parsing a Declaration!");
   if(state_.declContext)
     state_.declContext->recordDecl(nameddecl);
 }
@@ -425,7 +438,8 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
   }
   else {
     // No valid previous token, use the current token's range as the 
-    // error location. (This case should be fairly rare, or never happen at all. tests needed)
+    // error location. (This case should be fairly rare, 
+		// or never happen at all. tests needed)
     Token curTok = getCurtok();
     assert(curTok && "No valid previous token and no valid current token?");
     errorRange = curTok.getRange();
@@ -462,8 +476,10 @@ Parser::RAIIDeclContext::RAIIDeclContext(Parser &p, DeclContext *dr):
 
   // If declCtxt_ isn't null, mark it as the parent of the new dr
   if (declCtxt_) {
-    // Assert that we're not overwriting a parent. If such a thing happens, that could indicate a bug!
-    assert(!dr->hasParentDeclRecorder() && "New DeclContext already has a parent?");
+    // Assert that we're not overwriting a parent. 
+		// If such a thing happens, that could indicate a bug!
+    assert(!dr->hasParentDeclRecorder()
+			&& "New DeclContext already has a parent?");
     dr->setParentDeclRecorder(declCtxt_);
   }
 

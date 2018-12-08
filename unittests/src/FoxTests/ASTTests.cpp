@@ -15,6 +15,11 @@
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include "Support/PrintObjects.hpp"
+
+#include <algorithm>
+#include <string>
+#include <random>
 
 using namespace fox;
 
@@ -122,7 +127,7 @@ TEST(ASTTests, ASTContextArrayTypes) {
 // Create a variable with a random type
 VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeLoc ty) {
   return new(ctxt) VarDecl(
-      ctxt.identifiers.getIdentifier(name),
+      ctxt.getIdentifier(name),
       ty,
       false,
       nullptr,
@@ -133,7 +138,7 @@ VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeLoc ty) {
 FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name) {
   return new(ctxt) FuncDecl(
     PrimitiveType::getVoid(ctxt),
-    ctxt.identifiers.getIdentifier(name),
+    ctxt.getIdentifier(name),
     nullptr,
     SourceRange(),
     SourceLoc()
@@ -141,7 +146,7 @@ FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name) {
 }
 
 bool testLookup(ASTContext &ctxt,DeclContext *dr, const std::string& name, Decl* decl,std::string& err) {
-  auto lookupResult = dr->restrictedLookup(ctxt.identifiers.getIdentifier(name));
+  auto lookupResult = dr->restrictedLookup(ctxt.getIdentifier(name));
   
   if (!lookupResult) {
     err = "No result found";
@@ -182,34 +187,34 @@ TEST(ASTTests, DeclContext) {
   bool v1_ok, v2_ok, v3_ok, v4_ok, v5_ok;
   v1_ok = v2_ok = v3_ok = v4_ok = v5_ok = false;
   for (auto it = func->recordedDecls_begin(); it != func->recordedDecls_end(); it++) {
-    Identifier* id = it->getIdentifier();
-    string_view str = id->getStr();
+    Identifier id = it->getIdentifier();
+    string_view str = id.getStr();
     if (str == "Variable_1") {
-      EXPECT_EQ(id, var1->getIdentifier()) << "Mismatch : " << str << " != " << var1->getIdentifier()->getStr();
+      EXPECT_EQ(id, var1->getIdentifier()) << "Mismatch : " << str << " != " << var1->getIdentifier().getStr();
       EXPECT_EQ(*it, var1);
       ASSERT_FALSE(v1_ok) << "Variable_1 found twice?";
       v1_ok = true;
     }
     else if (str == "Variable_2") {
-      EXPECT_EQ(id, var2->getIdentifier()) << "Mismatch : " << str << " != " << var2->getIdentifier()->getStr();
+      EXPECT_EQ(id, var2->getIdentifier()) << "Mismatch : " << str << " != " << var2->getIdentifier().getStr();
       EXPECT_EQ(*it, var2);
       ASSERT_FALSE(v2_ok) << "Variable_2 found twice?";
       v2_ok = true;
     }
     else if (str == "Variable_3") {
-      EXPECT_EQ(id, var3->getIdentifier()) << "Mismatch : " << str << " != " << var3->getIdentifier()->getStr();
+      EXPECT_EQ(id, var3->getIdentifier()) << "Mismatch : " << str << " != " << var3->getIdentifier().getStr();
       EXPECT_EQ(*it, var3);
       ASSERT_FALSE(v3_ok) << "Variable_3 found twice?";
       v3_ok = true;
     }
     else if (str == "Variable_4") {
-      EXPECT_EQ(id, var4->getIdentifier()) << "Mismatch : " << str << " != " << var4->getIdentifier()->getStr();
+      EXPECT_EQ(id, var4->getIdentifier()) << "Mismatch : " << str << " != " << var4->getIdentifier().getStr();
       EXPECT_EQ(*it, var4);
       ASSERT_FALSE(v4_ok) << "Variable_4 found twice?";
       v4_ok = true;
     }
     else if (str == "Variable_5") {
-      EXPECT_EQ(id, var5->getIdentifier()) << "Mismatch : " << str << " != " << var5->getIdentifier()->getStr();
+      EXPECT_EQ(id, var5->getIdentifier()) << "Mismatch : " << str << " != " << var5->getIdentifier().getStr();
       EXPECT_EQ(*it, var5);
       ASSERT_FALSE(v5_ok) << "Variable_5 found twice?";
       v5_ok = true;
@@ -303,7 +308,7 @@ TEST(ASTTests, ExprRTTI) {
   EXPECT_TRUE(ArrayLiteralExpr::classof(&arrlit));
 
   // Helper
-  auto fooid = astctxt.identifiers.getIdentifier("foo");
+  auto fooid = astctxt.getIdentifier("foo");
 
   // DeclRef
   DeclRefExpr declref;
@@ -355,7 +360,7 @@ TEST(ASTTests, StmtRTTI) {
 
 TEST(ASTTests, DeclRTTI) {
   ASTContext astctxt;
-  auto fooid = astctxt.identifiers.getIdentifier("foo");
+  auto fooid = astctxt.getIdentifier("foo");
   auto intty = PrimitiveType::getInt(astctxt);
 
   // Arg
@@ -418,13 +423,7 @@ TEST(ASTTests, BasicVisitor) {
   // Create test nodes
   auto* intlit = new(ctxt) IntegerLiteralExpr(200, SourceRange());
   auto* rtr = new(ctxt) ReturnStmt(nullptr, SourceRange());
-  auto* vardecl = new(ctxt) VarDecl(
-      nullptr,
-      TypeLoc(),
-      false,
-      nullptr, 
-      SourceRange()
-    );
+  auto* vardecl = new(ctxt) VarDecl();
   auto* intTy = PrimitiveType::getInt(ctxt);
   auto* arrInt = ArrayType::get(ctxt, intTy);
 
@@ -450,4 +449,81 @@ TEST(ASTTests, BasicVisitor) {
   EXPECT_FALSE(tyVisitor.visit(intTy));
   EXPECT_TRUE(tyVisitor.visit(arrInt));
 
+}
+
+// Number of identifiers to insert into the table in the 
+// "randomIdentifierInsertion" test.
+#define RANDOM_ID_TEST_NUMBER_OF_ID 2048
+// Note, if theses values are too low, the test might fail 
+// sometimes because there's a change that the randomly generated
+// identifier is already taken. Using high values 
+// make the test longer, but also a lot less unlikely to fail!
+#define RANDOM_STRING_MIN_LENGTH 128
+#define RANDOM_STRING_MAX_LENGTH 128
+
+namespace {
+	static const std::string 
+	idStrChars = "_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+	std::string generateRandomString() {
+		std::random_device rd;
+		std::mt19937_64 mt(rd());
+		std::uniform_int_distribution<int> dist_char(0, (int)idStrChars.size());
+
+		std::uniform_int_distribution<int> dist_length(RANDOM_STRING_MIN_LENGTH, RANDOM_STRING_MAX_LENGTH);
+		int strlen = dist_length(mt);
+
+		std::string output;
+		std::generate_n(std::back_inserter(output), strlen, [&] {return idStrChars[dist_char(mt)]; });
+		return output;
+	}
+}
+
+// Checks if Identifiers are unique, or not.
+TEST(IdentifierTableTests, identifiersUniqueness) {
+  // Create 2 identifiers, A and B
+  std::string rawIdA, rawIdB;
+  rawIdA = generateRandomString();
+  rawIdB = generateRandomString();
+  ASSERT_NE(rawIdA, rawIdB) << "Generated 2 equal random identifiers";
+
+  ASTContext ctxt;
+  Identifier idA = ctxt.getIdentifier(rawIdA);
+  Identifier idB = ctxt.getIdentifier(rawIdB);
+
+  ASSERT_NE(idA, idB);
+  ASSERT_NE(idA.getStr(), idB.getStr());
+}
+
+// Checks if the ASTContext supports large identifiers 
+// amount by inserting a lot of random ids.
+TEST(ASTTests, randomIdentifierInsertion) {
+	ASTContext ctxt;
+  Identifier lastId;
+  std::vector<Identifier> allIdentifiers;
+  std::vector<std::string> allIdStrs;
+	std::string id;
+  for (std::size_t k(0); k < RANDOM_ID_TEST_NUMBER_OF_ID; k++) {
+    id = generateRandomString();
+        
+    auto idinfo = ctxt.getIdentifier(id);
+    // Check if the string matches, and if the adress of this type
+		// is different from the last one used.
+    ASSERT_EQ(idinfo.getStr(), id) << "[Insertion " << k 
+			<< "] Strings did not match";
+    ASSERT_NE(lastId, idinfo) 
+			<< "[Insertion " << k 
+			<< "] Insertion returned the same Identifier object for 2 different strings";
+    
+    lastId = idinfo;
+    
+    allIdStrs.push_back(id);
+    allIdentifiers.push_back(idinfo);
+  }
+
+  // Now, iterate over all identifierinfo to check if they're still valid 
+  for (std::size_t idx(0);idx < allIdentifiers.size(); idx++) {
+    ASSERT_FALSE(allIdentifiers[idx].isNull()) << "Pointer can't be null";
+    ASSERT_EQ(allIdStrs[idx], allIdentifiers[idx].getStr());
+  }
 }
