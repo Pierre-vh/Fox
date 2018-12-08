@@ -6,29 +6,56 @@
 //----------------------------------------------------------------------------//
 // The ASTNode is a class that acts like a variant of
 // Expr/Stmt/Decl pointers.
-// This is used in places where we allow any node kind: Expr,
-// Decl or Stmt.
+// This is used in places where we want to allow any node kind:
+// Expr, Decl or Stmt.
 //----------------------------------------------------------------------------//
 
 #pragma once
 
-#include "Fox/Common/PtrVariant.hpp"
+#include "ASTAligns.hpp"
+#include "llvm/ADT/PointerUnion.h"
 
 namespace fox {
-  class Expr;
-  class Stmt;
-  class Decl;
   class SourceRange;
   class SourceLoc;
-  class ASTNode : public PtrVariant<Expr, Stmt, Decl> {
+  class ASTNode {
+    llvm::PointerUnion3<Expr*, Stmt*, Decl*> ptrs_;
     public:
-      using PtrVariant::PtrVariant;
+      ASTNode();
+      ASTNode(Expr* expr);
+      ASTNode(Decl* decl);
+      ASTNode(Stmt* stmt);
 
       SourceRange getRange() const;
       SourceLoc getBegLoc() const;
       SourceLoc getEndLoc() const;
+      
+      bool isNull() const;
+      explicit operator bool() const;
 
-      // Common helpers
-      bool isNullStmt() const;
+      template<typename Ty>
+      bool is() const {
+        return ptrs_.is<Ty*>();
+      }
+
+      template<typename Ty>
+      const Ty* getIf() const {
+        return ptrs_.dyn_cast<Ty*>();
+      }
+
+      template<typename Ty>
+      Ty* getIf() {
+        return ptrs_.dyn_cast<Ty*>();
+      }
+
+      template<typename Ty>
+      const Ty* get() const {
+        return ptrs_.get<Ty*>();
+      }
+
+      template<typename Ty>
+      Ty* get() {
+        return ptrs_.get<Ty*>();
+      }
   };
 }

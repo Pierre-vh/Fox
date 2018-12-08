@@ -8,12 +8,19 @@
 #include "Fox/AST/ASTNode.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/Source.hpp"
-#include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
 #include "Fox/AST/Decl.hpp"
 
 using namespace fox;
+
+ASTNode::ASTNode() {}
+
+ASTNode::ASTNode(Expr* expr) : ptrs_(expr) {}
+
+ASTNode::ASTNode(Decl* decl) : ptrs_(decl) {}
+
+ASTNode::ASTNode(Stmt* stmt) : ptrs_(stmt) {}
 
 SourceRange ASTNode::getRange() const {
   if (is<Expr>())
@@ -33,8 +40,10 @@ SourceLoc ASTNode::getEndLoc() const {
   return getRange().getEnd();
 }
 
-bool ASTNode::isNullStmt() const {
-  if (auto* ptr = getIf<Stmt>())
-    return isa<NullStmt>(ptr);
-  return false;
+bool ASTNode::isNull() const {
+  return ptrs_.isNull();
+}
+
+ASTNode::operator bool() const {
+  return !isNull();
 }
