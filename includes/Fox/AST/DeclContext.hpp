@@ -40,7 +40,9 @@ namespace fox {
         return (this->BaseIterator::operator*()).second; 
       }
       // Operator -> lets you access the members directly. It's equivalent to (*it)->
-      value_type operator->() const { return (this->BaseIterator::operator*()).second; }
+      value_type operator->() const { 
+        return (this->BaseIterator::operator*()).second; 
+      }
   };
 
   class DeclContext {
@@ -52,7 +54,7 @@ namespace fox {
         = DeclContextIterator<NamedDeclsMapTy::const_iterator>;
 
     public:
-      DeclContext(DeclContext * parent = nullptr);
+      DeclContext(DeclContext* parent = nullptr);
 
       // "Record" a declaration within this DeclContext
       void recordDecl(NamedDecl* decl);
@@ -113,12 +115,12 @@ namespace fox {
     protected:
       friend class DeclContext;
 
-      // Add another lookup result.
+      // Add another result
       void addResult(NamedDecl* decl);
-      // Clear this LookupResult
-      void clear();
+
       // If the target contains at least 1 result,
-      // copies all of the results from target into this lookupresult then clears the target.
+      // copies all of the results from target into this l
+      // ookupresult then clears the target.
       void absorb(LookupResult &target);
 
     private:

@@ -123,14 +123,10 @@ void LookupResult::addResult(NamedDecl* decl) {
   results_.push_back(decl);
 }
 
-void LookupResult::clear() {
-  results_.clear();
-}
-
 void LookupResult::absorb(LookupResult& target) {
   if (target.results_.size() == 0)
     return;
 
   results_.insert(results_.end(), target.results_.begin(), target.results_.end());
-  target.clear();
+  results_.clear();
 }
