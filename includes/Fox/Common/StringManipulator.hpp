@@ -5,7 +5,6 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // Implements a UTF-8 string manipulator based on the UTFCPP library.
-// It always work with a pointer to the string to avoid copies.
 //
 // How it works :
 //
