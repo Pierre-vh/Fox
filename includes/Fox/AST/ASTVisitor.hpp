@@ -33,7 +33,7 @@ namespace fox {
     public:
       // Visit ASTNode
       void visit(ASTNode node, Args... args) {
-        assert(node.getOpaque() && "Cannot be used on a null pointer");
+        assert(!node.isNull() && "Cannot be used on a null pointer");
         if (node.is<Decl>())
           visit(node.get<Decl>(), ::std::forward<Args>(args)...);
         else if (node.is<Expr>())
