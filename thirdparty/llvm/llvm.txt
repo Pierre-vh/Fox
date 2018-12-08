@@ -21,7 +21,7 @@ Non exhaustive changes list:
 		Removed SmallPtrSet & DenseMapInfo unique features
 
   ADT/PointerUnion.h
-    Removed include: "llvm/Support/PointerLikeTypeTraits.h"
+    Removed include: "llvm/ADT/DenseMapInfo.h"
     Removed lines 463-488 "Teach DenseMap how to use PointerUnions as keys."
 
 	Support/DataTypes.h
