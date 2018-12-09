@@ -88,6 +88,8 @@ To-Do:
   > Sema: Basic Exprs Type-Checking + tests (Done)
   > Sema: Basic Stmt checking + tests (Done)
   > Identifier & IdentifierTable rework (Done)
+   
+  > const correctness update: no more double getters for getters of pointers
 
   > Work on Sema (Now) 
     > Decl semantic analysis (Next)
