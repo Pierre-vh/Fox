@@ -40,3 +40,20 @@ ASTNode Sema::checkNode(ASTNode node) {
     fox_unimplemented_feature("Decl checking");
   fox_unreachable("unknown ASTNode kind");
 }
+
+void Sema::setDeclCtxt(DeclContext* dc) {
+  currentDC_ = dc;
+}
+
+DeclContext* Sema::getDeclCtxt() {
+  return currentDC_;
+}
+
+bool Sema::hasDeclCtxt() const {
+  return (currentDC_ != nullptr);
+}
+
+Sema::RAIISetDeclCtxt Sema::setDeclCtxtRAII(DeclContext* dc)
+{
+  return RAIISetDeclCtxt(*this, dc);
+}

@@ -60,6 +60,9 @@ namespace fox {
       // Performs semantic analysis on a single statement and it's children.
       void checkStmt(Stmt* stmt);
 
+      // Performs semantic analysis on a single declaration and it's children
+      void checkDecl(Decl* decl);
+
       // The unification algorithms for types of the same subtypes.
       // Tries to make A = B
       //
@@ -113,7 +116,33 @@ namespace fox {
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();
 
+      // A Small RAII object that sets the currently active DeclContext
+      // for a Sema instance. Upon destruction, it will restore the 
+      // Sema's currently active DeclContext to what it was before.
+      class RAIISetDeclCtxt {
+        Sema& sema_;
+        DeclContext* oldDC_ = nullptr;
+        public:
+          RAIISetDeclCtxt(Sema& sema, DeclContext* dc) : sema_(sema) {
+            oldDC_ = sema.getDeclCtxt();
+            sema_.setDeclCtxt(dc);
+          }
+
+          ~RAIISetDeclCtxt() {
+            sema_.setDeclCtxt(oldDC_);
+          }
+      };
+
+      // Sets the current DeclContext and returns a RAII object that will,
+      // upon destruction, restore the previous DeclContext.
+      RAIISetDeclCtxt setDeclCtxtRAII(DeclContext* dc);
+      void setDeclCtxt(DeclContext* dc);
+      DeclContext* getDeclCtxt();
+      bool hasDeclCtxt() const;
+
     private:
+      DeclContext* currentDC_ = nullptr;
+      
       ASTContext &ctxt_;
       DiagnosticEngine& diags_;
   };
