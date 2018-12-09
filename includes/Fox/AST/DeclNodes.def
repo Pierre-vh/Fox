@@ -22,6 +22,12 @@
   #define DECL_CTXT(ID,PARENT) DECL(ID,PARENT)
 #endif
 
+// This macro is used to mark the last DECL_CTXT in the list.
+// The default behaviour is to do nothing.
+#ifndef LAST_DECL_CTXT
+  #define LAST_DECL_CTXT(ID)
+#endif
+
 // Range of declarations derived from another decl.
 #ifndef DECL_RANGE
   #define DECL_RANGE(ID,FIRST,LAST)
@@ -34,7 +40,6 @@
 #endif
 
 /* Macros */
-
 ABSTRACT_DECL(NamedDecl,Decl)
   ABSTRACT_DECL(ValueDecl, NamedDecl)
     DECL(ParamDecl, ValueDecl)
@@ -42,11 +47,12 @@ ABSTRACT_DECL(NamedDecl,Decl)
     DECL_RANGE(ValueDecl, ParamDecl, VarDecl)
   DECL_CTXT(FuncDecl, NamedDecl)
   DECL_CTXT(UnitDecl, NamedDecl)
+  LAST_DECL_CTXT(UnitDecl)
   DECL_RANGE(NamedDecl, ParamDecl, UnitDecl)
 
 /* Undef */
-
 #undef ABSTRACT_DECL
 #undef DECL
 #undef DECL_CTXT
 #undef DECL_RANGE
+#undef LAST_DECL_CTXT
