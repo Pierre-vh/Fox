@@ -101,13 +101,18 @@ namespace fox {
       }
 
       template<typename Ty>
+      Ty* getAs() {
+        return dyn_cast<Ty>(this);
+      }
+
+      template<typename Ty>
       const Ty* getAs() const {
         return dyn_cast<Ty>(this);
       }
 
       template<typename Ty>
-      Ty* getAs() {
-        return dyn_cast<Ty>(this);
+      Ty* castTo() {
+        return cast<Ty>(this);
       }
 
       template<typename Ty>
@@ -115,10 +120,6 @@ namespace fox {
         return cast<Ty>(this);
       }
 
-      template<typename Ty>
-      Ty* castTo() {
-        return cast<Ty>(this);
-      }
       //-------------------------//
 
     protected:
@@ -137,12 +138,13 @@ namespace fox {
       // Companion operator delete to silence C4291 on MSVC
       void operator delete(void*, ASTContext&, std::uint8_t) {}
     
-      // Calculates the value of isBound_ and set isBoundCalculated_ to true.
-      void calculateIsBound() const;
-      void setIsBound(bool val) const;
 
     private:
       void initBitfields();
+
+      // Calculates the value of isBound_ and set isBoundCalculated_ to true.
+      void calculateIsBound() const;
+      void setIsBound(bool val) const;
 
       //------------Bitfields------------//
       // Cached values
@@ -227,8 +229,7 @@ namespace fox {
       // type ty.
       static ArrayType* get(ASTContext& ctxt, Type ty);
 
-      Type getElementType();
-      const Type getElementType() const;
+      Type getElementType() const;
 
       static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::ArrayType);
@@ -249,8 +250,7 @@ namespace fox {
       // Returns the UNIQUE LValueType instance for the given type "ty"
       static LValueType* get(ASTContext& ctxt, Type ty);
 
-      Type getType();
-      const Type getType() const;
+      Type getType() const;
 
       static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::LValueType);
@@ -268,16 +268,10 @@ namespace fox {
       // Creates a new instance of the CellType class
       static CellType* create(ASTContext& ctxt);
 
-      Type getSubst();
-      const Type getSubst() const;
-
-      // Returns true if the type has a substitution
-      // (type isn't null)
+      Type getSubst() const;
       bool hasSubst() const;
-
       void setSubst(Type type);
-
-      void reset();
+      void resetSubst();
 
       static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::CellType);

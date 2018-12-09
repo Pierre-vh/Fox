@@ -79,11 +79,11 @@ ValueDecl::ValueDecl(DeclKind kind, Identifier id, TypeLoc ty, bool isConst,
 
 }
 
-TypeLoc& ValueDecl::getTypeLoc() {
-  return type_;
+Type ValueDecl::getType() const {
+  return type_.withoutLoc();
 }
 
-const TypeLoc ValueDecl::getTypeLoc() const {
+TypeLoc ValueDecl::getTypeLoc() const {
   return type_;
 }
 
@@ -162,18 +162,21 @@ bool FuncDecl::isValid() const {
   return NamedDecl::isValid() && body_ && returnType_ && headEndLoc_ && paramsAreValid_;
 }
 
-void FuncDecl::setReturnType(TypeLoc ty) {
+void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
   returnType_ = ty;
 }
 
-TypeLoc& FuncDecl::getReturnTypeLoc() {
+TypeLoc FuncDecl::getReturnTypeLoc() const {
   return returnType_;
 }
 
-const TypeLoc FuncDecl::getReturnTypeLoc() const {
-  return returnType_;
+Type FuncDecl::getReturnType() const {
+  return returnType_.withoutLoc();
 }
 
+SourceRange FuncDecl::getReturnTypeRange() const {
+  return returnType_.getRange();
+}
 
 CompoundStmt* FuncDecl::getBody() const {
   return body_;
@@ -183,15 +186,11 @@ void FuncDecl::setBody(CompoundStmt* body) {
   body_ = body;
 }
 
-ParamDecl* FuncDecl::getParam(std::size_t ind) {
+ParamDecl* FuncDecl::getParam(std::size_t ind) const {
   assert(ind < params_.size() && "out-of-range");
   return params_[ind];
 }
 
-const ParamDecl* FuncDecl::getParam(std::size_t ind) const {
-  assert(ind < params_.size() && "out-of-range");
-  return params_[ind];
-}
 
 FuncDecl::ParamVecTy& FuncDecl::getParams() {
   return params_;
@@ -216,22 +215,6 @@ std::size_t FuncDecl::getNumParams() const {
   return params_.size();
 }
 
-FuncDecl::ParamVecIter FuncDecl::params_begin() {
-  return params_.begin();
-}
-
-FuncDecl::ParamVecConstIter FuncDecl::params_begin() const {
-  return params_.begin();
-}
-
-FuncDecl::ParamVecIter FuncDecl::params_end() {
-  return params_.end();
-}
-
-FuncDecl::ParamVecConstIter FuncDecl::params_end() const {
-  return params_.end();
-}
-
 //---------//
 // VarDecl //
 //---------//
@@ -251,11 +234,7 @@ bool VarDecl::isValid() const {
   return ValueDecl::isValid();
 }
 
-Expr* VarDecl::getInitExpr() {
-  return init_;
-}
-
-const Expr* VarDecl::getInitExpr() const {
+Expr* VarDecl::getInitExpr() const {
   return init_;
 }
 
@@ -305,12 +284,7 @@ void UnitDecl::setDecl(Decl* decl, std::size_t idx) {
   decls_[idx] = decl;
 }
 
-const Decl* UnitDecl::getDecl(std::size_t idx) const {
-  assert(idx < decls_.size() && "out-of-range");
-  return decls_[idx];
-}
-
-Decl* UnitDecl::getDecl(std::size_t idx) {
+Decl* UnitDecl::getDecl(std::size_t idx) const {
   assert(idx < decls_.size() && "out-of-range");
   return decls_[idx];
 }
@@ -319,28 +293,12 @@ UnitDecl::DeclVecTy& UnitDecl::getDecls() {
   return decls_;
 }
 
-std::size_t UnitDecl::getDeclCount() const {
+std::size_t UnitDecl::getNumDecls() const {
   return decls_.size();
 }
 
 bool UnitDecl::isValid() const {
   return file_ && NamedDecl::isValid() && (decls_.size() != 0) && declsAreValid_;
-}
-
-UnitDecl::DeclVecIter UnitDecl::decls_beg() {
-  return decls_.begin();
-}
-
-UnitDecl::DeclVecIter UnitDecl::decls_end() {
-  return decls_.end();
-}
-
-UnitDecl::DeclVecConstIter UnitDecl::decls_beg() const {
-  return decls_.begin();
-}
-
-UnitDecl::DeclVecConstIter UnitDecl::decls_end() const {
-  return decls_.end();
 }
 
 FileID UnitDecl::getFileID() const {

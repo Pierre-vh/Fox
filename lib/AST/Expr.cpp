@@ -48,11 +48,7 @@ void Expr::setType(Type type) {
   type_ = type;
 }
 
-Type& Expr::getType() {
-  return type_;
-}
-
-const Type Expr::getType() const {
+Type Expr::getType() const {
   return type_;
 }
 
@@ -188,16 +184,7 @@ ExprVector& ArrayLiteralExpr::getExprs() {
   return exprs_;
 }
 
-const ExprVector& ArrayLiteralExpr::getExprs() const {
-  return exprs_;
-}
-
-Expr* ArrayLiteralExpr::getExpr(std::size_t idx) {
-  assert((idx < exprs_.size()) && "Out of range");
-  return exprs_[idx];
-}
-
-const Expr* ArrayLiteralExpr::getExpr(std::size_t idx) const {
+Expr* ArrayLiteralExpr::getExpr(std::size_t idx) const {
   assert((idx < exprs_.size()) && "Out of range");
   return exprs_[idx];
 }
@@ -217,22 +204,6 @@ std::size_t ArrayLiteralExpr::getSize() const {
 
 bool ArrayLiteralExpr::isEmpty() const {
   return (exprs_.size() == 0);
-}
-
-ExprVector::iterator ArrayLiteralExpr::exprs_begin() {
-  return exprs_.begin();
-}
-
-ExprVector::const_iterator ArrayLiteralExpr::exprs_begin() const {
-  return exprs_.begin();
-}
-
-ExprVector::iterator ArrayLiteralExpr::exprs_end() {
-  return exprs_.begin();
-}
-
-ExprVector::const_iterator ArrayLiteralExpr::exprs_end() const {
-  return exprs_.begin();
 }
 
 //------------//
@@ -255,11 +226,7 @@ void BinaryExpr::setLHS(Expr* expr) {
   lhs_ = expr;
 }
 
-Expr* BinaryExpr::getLHS() {
-  return lhs_;
-}
-
-const Expr* BinaryExpr::getLHS() const {
+Expr* BinaryExpr::getLHS() const {
   return lhs_;
 }
 
@@ -267,11 +234,7 @@ void BinaryExpr::setRHS(Expr* expr) {
   rhs_ = expr;
 }
 
-Expr* BinaryExpr::getRHS() {
-  return rhs_;
-}
-
-const Expr* BinaryExpr::getRHS() const {
+Expr* BinaryExpr::getRHS() const {
   return rhs_;
 }
 
@@ -401,11 +364,7 @@ void UnaryExpr::setExpr(Expr* expr) {
   expr_ = expr;
 }
 
-Expr* UnaryExpr::getExpr() {
-  return expr_;
-}
-
-const Expr* UnaryExpr::getExpr() const {
+Expr* UnaryExpr::getExpr() const {
   return expr_;
 }
 
@@ -467,23 +426,23 @@ void CastExpr::setCastTypeLoc(TypeLoc goal) {
   goal_ = goal;
 }
 
-TypeLoc& CastExpr::getCastTypeLoc() {
+TypeLoc CastExpr::getCastTypeLoc() const {
   return goal_;
 }
 
-const TypeLoc CastExpr::getCastTypeLoc() const {
-  return goal_;
+Type CastExpr::getCastType() const {
+  return goal_.withoutLoc();
+}
+
+SourceRange CastExpr::getCastRange() const {
+  return goal_.getRange();
 }
 
 void CastExpr::setExpr(Expr* expr) {
   expr_ = expr;
 }
 
-Expr* CastExpr::getExpr() {
-  return expr_;
-}
-
-const Expr* CastExpr::getExpr() const {
+Expr* CastExpr::getExpr() const {
   return expr_;
 }
 
@@ -526,11 +485,7 @@ void FunctionCallExpr::setCallee(Expr* callee) {
   callee_ = callee;
 }
 
-Expr* FunctionCallExpr::getCallee() {
-  return callee_;
-}
-
-const Expr* FunctionCallExpr::getCallee() const {
+Expr* FunctionCallExpr::getCallee() const {
   return callee_;
 }
 
@@ -538,16 +493,7 @@ ExprVector& FunctionCallExpr::getArgs() {
   return args_;
 }
 
-const ExprVector& FunctionCallExpr::getArgs() const {
-  return args_;
-}
-
-Expr* FunctionCallExpr::getArg(std::size_t idx) {
-  assert((idx < args_.size()) && "Out of range");
-  return args_[idx];
-}
-
-const Expr* FunctionCallExpr::getArg(std::size_t idx) const {
+Expr* FunctionCallExpr::getArg(std::size_t idx) const {
   assert((idx < args_.size()) && "Out of range");
   return args_[idx];
 }
@@ -559,22 +505,6 @@ void FunctionCallExpr::setArgs(ExprVector&& args) {
 void FunctionCallExpr::setArg(Expr* arg, std::size_t idx) {
   assert((idx < args_.size()) && "Out of range");
   args_[idx] = arg;
-}
-
-ExprVector::iterator FunctionCallExpr::args_begin() {
-  return args_.begin();
-}
-
-ExprVector::const_iterator FunctionCallExpr::args_begin() const {
-  return args_.begin();
-}
-
-ExprVector::iterator FunctionCallExpr::args_end() {
-  return args_.end();
-}
-
-ExprVector::const_iterator FunctionCallExpr::args_end() const {
-  return args_.end();
 }
 
 //--------------//
@@ -596,11 +526,7 @@ void MemberOfExpr::setExpr(Expr* expr) {
   base_ = expr;
 }
 
-Expr* MemberOfExpr::getExpr() {
-  return base_;
-}
-
-const Expr* MemberOfExpr::getExpr() const {
+Expr* MemberOfExpr::getExpr() const {
   return base_;
 }
 
@@ -634,11 +560,7 @@ void ArraySubscriptExpr::setBase(Expr* expr) {
   base_ = expr;
 }
 
-Expr* ArraySubscriptExpr::getBase() {
-  return base_;
-}
-
-const Expr* ArraySubscriptExpr::getBase() const {
+Expr* ArraySubscriptExpr::getBase() const {
   return base_;
 }
 
@@ -646,10 +568,6 @@ void ArraySubscriptExpr::setIndex(Expr* expr) {
   idxExpr_ = expr;
 }
 
-Expr* ArraySubscriptExpr::getIndex() {
-  return idxExpr_;
-}
-
-const Expr* ArraySubscriptExpr::getIndex() const {
+Expr* ArraySubscriptExpr::getIndex() const {
   return idxExpr_;
 }

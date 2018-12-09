@@ -76,11 +76,7 @@ bool ReturnStmt::hasExpr() const {
   return (bool)expr_;
 }
 
-Expr* ReturnStmt::getExpr() {
-  return expr_;
-}
-
-const Expr* ReturnStmt::getExpr() const {
+Expr* ReturnStmt::getExpr() const {
   return expr_;
 }
 
@@ -112,27 +108,15 @@ bool ConditionStmt::hasElse() const {
   return (bool)else_;
 }
 
-Expr* ConditionStmt::getCond() {
+Expr* ConditionStmt::getCond() const {
   return cond_;
 }
 
-const Expr* ConditionStmt::getCond() const {
-  return cond_;
-}
-
-ASTNode ConditionStmt::getThen() {
+ASTNode ConditionStmt::getThen() const {
   return then_;
 }
 
-const ASTNode ConditionStmt::getThen() const {
-  return then_;
-}
-
-ASTNode ConditionStmt::getElse() {
-  return else_;
-}
-
-const ASTNode ConditionStmt::getElse() const {
+ASTNode ConditionStmt::getElse() const {
   return else_;
 }
 
@@ -173,12 +157,7 @@ CompoundStmt::CompoundStmt(SourceRange range):
 
 }
 
-ASTNode CompoundStmt::getNode(std::size_t ind) {
-  assert(ind < nodes_.size() && "out-of-range");
-  return nodes_[ind];
-}
-
-const ASTNode CompoundStmt::getNode(std::size_t ind) const {
+ASTNode CompoundStmt::getNode(std::size_t ind) const {
   assert(ind < nodes_.size() && "out-of-range");
   return nodes_[ind];
 }
@@ -204,22 +183,6 @@ std::size_t CompoundStmt::size() const {
   return nodes_.size();
 }
 
-CompoundStmt::NodeVecTy::iterator CompoundStmt::nodes_begin() {
-  return nodes_.begin();
-}
-
-CompoundStmt::NodeVecTy::iterator CompoundStmt::nodes_end() {
-  return nodes_.end();
-}
-
-CompoundStmt::NodeVecTy::const_iterator CompoundStmt::nodes_begin() const {
-  return nodes_.begin();
-}
-
-CompoundStmt::NodeVecTy::const_iterator CompoundStmt::nodes_end() const {
-  return nodes_.end();
-}
-
 //-----------//
 // WhileStmt //
 //-----------//
@@ -233,19 +196,11 @@ WhileStmt::WhileStmt(Expr* cond, ASTNode body, SourceRange range, SourceLoc head
 
 }
 
-Expr* WhileStmt::getCond() {
+Expr* WhileStmt::getCond() const {
   return cond_;
 }
 
-const Expr* WhileStmt::getCond() const {
-  return cond_;
-}
-
-ASTNode WhileStmt::getBody() {
-  return body_;
-}
-
-const ASTNode WhileStmt::getBody() const {
+ASTNode WhileStmt::getBody() const {
   return body_;
 }
 

@@ -7,8 +7,8 @@
 // This file declares the lexer class, which performs lexical analysis.    
 //----------------------------------------------------------------------------//
 
-// Note: Most of the code here is a spaghetti relic of the old Moonshot. It'll be completly rewritten in the future.
-// Same for Token.hpp/.cpp
+// Note: Most of the code here is a spaghetti relic of the old Moonshot. 
+// It'll be completly rewritten in the future. Same for Token.hpp/.cpp
 
 #pragma once
 

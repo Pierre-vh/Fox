@@ -1,5 +1,7 @@
 ## Style guidelines:
 
+// Note: theses are pretty rough. I'll have to rewrite them one day.
+
  * Function Names
   * Generally, try to name them with verb phrases, as they represent actions.
   * First letter should be lowercase, then use capital letters to separate works. (CamelCase) 
@@ -24,6 +26,16 @@
 
 * Assertions
   * When in doubt, use `assert()` to check if everything's alright. It no cost on performance in release mode, and can help a lot in tracking down bugs.
+
+* const-correctness
+  * Returning pointrs
+    * If the class doesn't own the pointer it returns
+      * Only 1 getter : `T* get() const`
+    * If the pointer is owned by the class
+      * 2 getters `const T* get() const` and `T* get()`
+  * For functions that cast `this` to something else, always create 2 getters.
+    * e.g. `const T* getAs() const` and `T* getAs()`
+    * e.g. `const Type withoutLoc() const` and `Type withoutLoc()`
 
 ## Error reporting
 * Classed from the most to the least favored;

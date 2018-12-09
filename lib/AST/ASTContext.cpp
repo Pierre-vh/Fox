@@ -9,11 +9,9 @@
 
 using namespace fox;
 
-ASTContext::ASTContext() {
+ASTContext::ASTContext() {}
 
-}
-
-UnitDecl* ASTContext::getMainUnit() {
+UnitDecl* ASTContext::getMainUnit() const {
   return mainUnit_;
 }
 

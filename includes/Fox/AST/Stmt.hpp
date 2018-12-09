@@ -81,8 +81,7 @@ namespace fox {
       ReturnStmt(Expr* rtr_expr, SourceRange range);
 
       void setExpr(Expr* e);
-      Expr* getExpr();
-      const Expr* getExpr() const;
+      Expr* getExpr() const;
       bool hasExpr() const;
 
       static bool classof(const Stmt* stmt) {
@@ -104,16 +103,13 @@ namespace fox {
       bool isValid() const;
 
       void setCond(Expr* expr);
-      Expr* getCond();
-      const Expr* getCond() const;
+      Expr* getCond() const;
 
       void setThen(ASTNode node);
-      ASTNode getThen();
-      const ASTNode getThen() const;
+      ASTNode getThen() const;
 
       void setElse(ASTNode node);
-      ASTNode getElse();
-      const ASTNode getElse() const;
+      ASTNode getElse() const;
       bool hasElse() const;
 
       void setIfHeaderEndLoc(SourceLoc sloc);
@@ -144,18 +140,11 @@ namespace fox {
       void addNode(ASTNode stmt);
       void setNode(ASTNode node, std::size_t idx);
 
-      ASTNode getNode(std::size_t ind);
-      const ASTNode getNode(std::size_t ind) const;
+      ASTNode getNode(std::size_t ind) const;
       NodeVecTy& getNodes();
 
       bool isEmpty() const;
       std::size_t size() const;
-
-      NodeVecTy::iterator nodes_begin();
-      NodeVecTy::iterator nodes_end();
-
-      NodeVecTy::const_iterator nodes_begin() const;
-      NodeVecTy::const_iterator nodes_end() const;
 
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::CompoundStmt);
@@ -174,12 +163,10 @@ namespace fox {
         SourceLoc headerEndLoc);
 
       void setCond(Expr* cond);
-      Expr* getCond();
-      const Expr* getCond() const;
+      Expr* getCond() const;
 
       void setBody(ASTNode body);
-      ASTNode getBody();
-      const ASTNode getBody() const;
+      ASTNode getBody() const;
 
       SourceLoc getHeaderEndLoc() const;
       SourceRange getHeaderRange() const;

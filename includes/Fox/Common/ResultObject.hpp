@@ -74,7 +74,9 @@ namespace fox {
     protected:
       using DefaultValue = std::nullptr_t;
       using CTorValueTy = DataTy*;
-      using CTorRValueTy = std::enable_if<false, void>;  // Disable the Move CTor if we have a pointer
+      // Disable the Move CTor if we have a pointer
+      using CTorRValueTy = std::enable_if<false, void>;
+      using ThisTy = ResultObject<DataTy*>;
 
     public:
       ResultObject(bool success, CTorValueTy ptr):
@@ -95,11 +97,7 @@ namespace fox {
         return data_.getPointer();
       }
 
-      const DataTy* get() const {
-        return data_.getPointer();
-      }
-
-      DataTy* get() {
+      DataTy* get() const {
         return data_.getPointer();
       }
 
@@ -114,18 +112,10 @@ namespace fox {
 
       template<typename Ty>
       const Ty* getAs() const {
-        auto* ptr = data_.getPointer();
-        assert(ptr && "Can't use this on a null pointer");
-        Ty* cast = dyn_cast<Ty>(ptr);
-        assert(cast && "Incorrect type!");
-        return cast;
+        return const_cast<ThisTy*>(this)->getAs<Ty>();
       }
 
-      void* getOpaque() {
-        return data_.getPointer();
-      }
-
-      const void* getOpaque() const {
+      void* getOpaque() const {
         return data_.getPointer();
       }
 

@@ -137,7 +137,7 @@ namespace fox {
       // upon destruction, restore the previous DeclContext.
       RAIISetDeclCtxt setDeclCtxtRAII(DeclContext* dc);
       void setDeclCtxt(DeclContext* dc);
-      DeclContext* getDeclCtxt();
+      DeclContext* getDeclCtxt() const;
       bool hasDeclCtxt() const;
 
     private:

@@ -87,11 +87,10 @@ namespace fox {
       ValueDecl(DeclKind kind, Identifier id, TypeLoc ty, 
         bool isConst, SourceRange range);
 
-      TypeLoc& getTypeLoc();
-      const TypeLoc getTypeLoc() const;
-      void setTypeLoc(TypeLoc ty);
-
+      Type getType() const;
       SourceRange getTypeRange() const;
+      TypeLoc getTypeLoc() const;
+      void setTypeLoc(TypeLoc ty);
 
       bool isConstant() const;
       void setIsConstant(bool k);
@@ -145,9 +144,10 @@ namespace fox {
       // Note: Calls isValid on the args too.
       bool isValid() const;
 
-      void setReturnType(TypeLoc ty);
-      TypeLoc& getReturnTypeLoc();
-      const TypeLoc getReturnTypeLoc() const;
+      void setReturnTypeLoc(TypeLoc ty);
+      TypeLoc getReturnTypeLoc() const;
+      Type getReturnType() const;
+      SourceRange getReturnTypeRange() const;
 
       void setBody(CompoundStmt* body);
       CompoundStmt* getBody() const;
@@ -156,17 +156,9 @@ namespace fox {
       void setParam(ParamDecl* param, std::size_t idx);
       void setParams(ParamVecTy&& params);
 
-      ParamDecl* getParam(std::size_t ind);
-      const ParamDecl* getParam(std::size_t ind) const;
-
+      ParamDecl* getParam(std::size_t ind) const;
       ParamVecTy& getParams();
       std::size_t getNumParams() const;
-
-      ParamVecIter params_begin();
-      ParamVecConstIter params_begin() const;
-
-      ParamVecIter params_end();
-      ParamVecConstIter params_end() const;
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::FuncDecl;
@@ -196,8 +188,7 @@ namespace fox {
 
       bool isValid() const;
 
-      Expr* getInitExpr();
-      const Expr* getInitExpr() const;
+      Expr* getInitExpr() const;
       void setInitExpr(Expr* expr);
       bool hasInitExpr() const;
 
@@ -222,21 +213,11 @@ namespace fox {
 
       void addDecl(Decl* decl);
       void setDecl(Decl* decl, std::size_t idx);
-
-      const Decl* getDecl(std::size_t idx) const;
-      Decl* getDecl(std::size_t idx);
+      Decl* getDecl(std::size_t idx) const;
       DeclVecTy& getDecls();
-      std::size_t getDeclCount() const;
+      std::size_t getNumDecls() const;
 
-      // Note: Checks the validity of the decls 
-      // inside this too.
       bool isValid() const;
-
-      DeclVecIter decls_beg();
-      DeclVecIter decls_end();
-
-      DeclVecConstIter decls_beg() const;
-      DeclVecConstIter decls_end() const;
 
       FileID getFileID() const;
       void setFileID(const FileID& fid);

@@ -62,7 +62,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
 
   }
 
-  if (unit->getDeclCount() == 0) {
+  if (unit->getNumDecls() == 0) {
     if(!declHadError)
       diags_.report(DiagID::parser_expected_decl_in_unit, fid);
     return nullptr;
@@ -173,8 +173,8 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // [':' <type>]
   if (auto colon = consumeSign(SignType::S_COLON)) {
     if (auto rtrTy = parseType()) {
-      TypeLoc tl = rtrTy.getAsTypeLoc();
-      rtr->setReturnType(tl);
+      TypeLoc tl = rtrTy.createTypeLoc();
+      rtr->setReturnTypeLoc(tl);
       headEndLoc = tl.getRange().getEnd();
     }
     else {
@@ -186,11 +186,11 @@ Parser::DeclResult Parser::parseFuncDecl() {
       // If resynced successfully, use the colon as the end of the header
       // and consider the return type to be void
       headEndLoc = colon;
-      rtr->setReturnType(PrimitiveType::getVoid(ctxt_));
+      rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt_));
     }
   }
   else // if no return type, the function returns void.
-    rtr->setReturnType(PrimitiveType::getVoid(ctxt_));
+    rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt_));
 
   // <compound_statement>
   StmtResult compStmt = parseCompoundStatement();

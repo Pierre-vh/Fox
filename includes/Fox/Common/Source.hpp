@@ -124,6 +124,7 @@ namespace fox {
   };
 
   // the SourceManager, which stores every source file and gives them a unique ID.
+  // Files stored in/owned by the SourceManager are always immutable.
   class SourceManager {
     public:
       SourceManager() = default;
@@ -162,6 +163,8 @@ namespace fox {
 
       // Returns a pointer to the "SourceData" for a given File.
       // The result is always non null (guaranteed by an assertion)
+      // The result will also always be constant as the data stored
+      // by the SourceManager is immutable.
       const SourceData* getSourceData(FileID fid) const;
 
       // Returns the line number of a SourceLoc

@@ -26,8 +26,7 @@ namespace fox {
     public:
       Type(TypeBase* ty = nullptr);
 
-      TypeBase* getPtr();
-      const TypeBase* getPtr() const;
+      TypeBase* getPtr() const;
 
       bool isNull() const;
 
@@ -45,7 +44,7 @@ namespace fox {
       bool operator<(const Type other) const;
 
     private:
-      // Forbid TypeLoc->Type conversion
+      // Disable TypeLoc->Type conversion
       Type(const TypeLoc&) = delete;
       Type& operator=(const TypeLoc&) = delete;
   };
@@ -62,6 +61,7 @@ namespace fox {
       // TypeLoc doesn't have it's own dump() method because we cannot dump
       // any meaningful information about our range_ without a SourceManager.
 
+      // Conversion functions
       Type withoutLoc();
       const Type withoutLoc() const; 
 
@@ -71,7 +71,7 @@ namespace fox {
       bool operator==(const Type& type) const = delete;
       bool operator!=(const Type& type) const = delete;
 
-      // Forbid Type->TypeLoc conversion
+      // Disable Type->TypeLoc conversion
       TypeLoc(const Type&) = delete;
       TypeLoc& operator=(const Type&) = delete;
   };

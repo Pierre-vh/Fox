@@ -232,6 +232,7 @@ namespace fox {
       size_type getBytesInCurrentPool() const {
         return (size_type)(((byte_type*)allocPtr) - ((byte_type*)curPool));
       }
+
     private:
       /*
         \brief Aligns a pointer.

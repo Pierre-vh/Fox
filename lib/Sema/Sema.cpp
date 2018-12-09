@@ -45,7 +45,7 @@ void Sema::setDeclCtxt(DeclContext* dc) {
   currentDC_ = dc;
 }
 
-DeclContext* Sema::getDeclCtxt() {
+DeclContext* Sema::getDeclCtxt() const {
   return currentDC_;
 }
 

@@ -84,8 +84,7 @@ namespace fox {
 
       // Manage parent decl recorder
       bool hasParent() const;
-      DeclContext* getParent();
-      const DeclContext* getParent() const;
+      DeclContext* getParent() const;
       void setParent(DeclContext *dr);
 
       // Get information

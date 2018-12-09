@@ -31,7 +31,7 @@ namespace fox {
 
       // Returns a observing pointer to the unit containing the entry point of 
 			// the module (if there is one)
-      UnitDecl* getMainUnit();
+      UnitDecl* getMainUnit() const;
       
       // Registers a unit in this ASTContext
       void addUnit(UnitDecl* unit, bool isMainUnit = false);

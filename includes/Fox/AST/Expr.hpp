@@ -41,8 +41,7 @@ namespace fox   {
       SourceRange getRange() const;
 
       void setType(Type type);
-      Type& getType();
-      const Type getType() const;
+      Type getType() const;
 
       // Dumps the structure of this expr to cerr.
       void dump() const;
@@ -84,15 +83,13 @@ namespace fox   {
         SourceRange range, SourceRange opRange);
 
       void setLHS(Expr* expr);
-      Expr* getLHS();
-      const Expr* getLHS() const;
+      Expr* getLHS() const;
 
       void setRHS(Expr* expr);
-      Expr* getRHS();
-      const Expr* getRHS() const;
+      Expr* getRHS() const;
 
-      OpKind getOp() const;
       void setOp(OpKind op);
+      OpKind getOp() const;
 
       // Checks that the operation isn't OpKind::Invalid
       bool isValidOp() const;
@@ -152,8 +149,7 @@ namespace fox   {
         SourceRange opRange);
       
       void setExpr(Expr* expr);
-      Expr* getExpr();
-      const Expr* getExpr() const;
+      Expr* getExpr() const;
 
       OpKind getOp() const;
       void setOp(OpKind op);
@@ -187,12 +183,12 @@ namespace fox   {
       CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range);
       
       void setCastTypeLoc(TypeLoc goal);
-      TypeLoc& getCastTypeLoc();
-      const TypeLoc getCastTypeLoc() const;
+      TypeLoc getCastTypeLoc() const;
+      Type getCastType() const;
+      SourceRange getCastRange() const;
 
       void setExpr(Expr* expr);
-      Expr* getExpr();
-      const Expr* getExpr() const;
+      Expr* getExpr() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::CastExpr);
@@ -301,21 +297,13 @@ namespace fox   {
       ArrayLiteralExpr(const ExprVector& exprs, SourceRange range);
 
       ExprVector& getExprs();
-      const ExprVector& getExprs() const;
-      Expr* getExpr(std::size_t idx);
-      const Expr* getExpr(std::size_t idx) const;
+      Expr* getExpr(std::size_t idx) const;
 
       void setExprs(ExprVector&& elist);
       void setExpr(Expr* expr, std::size_t idx);
 
       std::size_t getSize() const;
       bool isEmpty() const;
-
-      ExprVector::iterator exprs_begin();
-      ExprVector::const_iterator exprs_begin() const;
-
-      ExprVector::iterator exprs_end();
-      ExprVector::const_iterator exprs_end() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::ArrayLiteralExpr);
@@ -352,8 +340,7 @@ namespace fox   {
 				SourceRange range, SourceLoc dotLoc);
 
       void setExpr(Expr* expr);
-      Expr* getExpr();
-      const Expr* getExpr() const;
+      Expr* getExpr() const;
 
       void setMemberID(Identifier id);
       Identifier getMemberID() const;
@@ -378,12 +365,10 @@ namespace fox   {
       ArraySubscriptExpr(Expr* base, Expr* idx, SourceRange range);
 
       void setBase(Expr* expr);
-      Expr* getBase();
-      const Expr* getBase() const;
+      Expr* getBase() const;
 
       void setIndex(Expr* expr);
-      Expr* getIndex();
-      const Expr* getIndex() const;
+      Expr* getIndex() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::ArraySubscriptExpr);
@@ -402,22 +387,13 @@ namespace fox   {
       FunctionCallExpr(Expr* callee, const ExprVector& args, SourceRange range);
       
       void setCallee(Expr* base);
-      Expr* getCallee();
-      const Expr* getCallee() const;
+      Expr* getCallee() const;
 
       ExprVector& getArgs();
-      const ExprVector& getArgs() const;
-      Expr* getArg(std::size_t idx);
-      const Expr* getArg(std::size_t idx) const;
+      Expr* getArg(std::size_t idx) const;
 
       void setArgs(ExprVector&& exprs);
       void setArg(Expr* arg, std::size_t idx);
-
-      ExprVector::iterator args_begin();
-      ExprVector::const_iterator args_begin() const;
-
-      ExprVector::iterator args_end();
-      ExprVector::const_iterator args_end() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::FunctionCallExpr);

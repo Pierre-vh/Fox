@@ -50,11 +50,7 @@ bool DeclContext::hasParent() const {
   return parentAndKind_.getPointer() != nullptr;
 }
 
-DeclContext* DeclContext::getParent() {
-  return parentAndKind_.getPointer();
-}
-
-const DeclContext* DeclContext::getParent() const {
+DeclContext* DeclContext::getParent() const {
   return parentAndKind_.getPointer();
 }
 

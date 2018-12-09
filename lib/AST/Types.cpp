@@ -347,11 +347,7 @@ ArrayType* ArrayType::get(ASTContext& ctxt, Type ty) {
   }
 }
 
-Type ArrayType::getElementType() {
-  return elementTy_;
-}
-
-const Type ArrayType::getElementType() const {
+Type ArrayType::getElementType() const {
   return elementTy_;
 }
 
@@ -378,11 +374,7 @@ LValueType* LValueType::get(ASTContext& ctxt, Type ty) {
   }
 }
 
-Type LValueType::getType() {
-  return ty_;
-}
-
-const Type LValueType::getType() const {
+Type LValueType::getType() const {
   return ty_;
 }
 
@@ -411,11 +403,7 @@ CellType* CellType::create(ASTContext& ctxt) {
   return new(ctxt) CellType();
 }
 
-Type CellType::getSubst() {
-  return subst_;
-}
-
-const Type CellType::getSubst() const {
+Type CellType::getSubst() const {
   return subst_;
 }
 
@@ -425,11 +413,12 @@ bool CellType::hasSubst() const {
 
 void CellType::setSubst(Type type) {
   assert(type 
-    && "Cannot set the substitution to a null pointer. Use reset() for that.");
+    && "Cannot set the substitution to a null pointer. "
+       "Use resetSubst() for that.");
   subst_ = type;
 }
 
-void CellType::reset() {
+void CellType::resetSubst() {
   subst_ = nullptr;
 }
 

@@ -309,7 +309,7 @@ Parser::ExprResult Parser::parseCastExpr() {
   if (consumeKeyword(KeywordType::KW_AS)) {
     // <type>
     if (auto tyRes = parseType()) {
-      TypeLoc tl = tyRes.getAsTypeLoc();
+      TypeLoc tl = tyRes.createTypeLoc();
       SourceLoc begLoc = prefixexpr.get()->getRange().getBegin();
       SourceLoc endLoc = tl.getRange().getEnd();
 

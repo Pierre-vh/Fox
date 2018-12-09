@@ -164,8 +164,8 @@ void ASTDumper::visitNullStmt(NullStmt* node) {
 void ASTDumper::visitCompoundStmt(CompoundStmt* node) {
   dumpLine() << getBasicStmtInfo(node) << '\n';
   indent();
-  for (auto it = node->nodes_begin(); it != node->nodes_end(); it++)
-    visit(*it);
+  for (auto elem : node->getNodes())
+    visit(elem);
   dedent();
 }
 
@@ -223,8 +223,8 @@ void ASTDumper::visitUnitDecl(UnitDecl* node) {
              << getDeclRecorderDump(node) << "\n";
 
   indent();
-  for (auto it = node->decls_beg(); it != node->decls_end(); it++)
-    visit(*it);
+  for (auto decl : node->getDecls())
+    visit(decl);
   dedent();
 }
 
@@ -247,15 +247,12 @@ void ASTDumper::visitFuncDecl(FuncDecl* node) {
              << getTypeLocDump("returns", node->getReturnTypeLoc()) << " "
              << getDeclRecorderDump(node) << "\n";
 
-  if (node->getNumParams()) {
-    unsigned counter = 0;
-    for (auto it = node->params_begin(); it != node->params_end();
-         it++, counter++) {
-      indent();
-      visitParamDecl(*it);
-      dedent();
-    }
+  for (auto decl : node->getParams()) {
+    indent();
+    visitParamDecl(decl);
+    dedent();
   }
+
   // Visit the compound statement
   if (auto body = node->getBody()) {
     indent();
