@@ -59,7 +59,7 @@ class ParsingFunctionTester {
         SourceManager srcMgr;
         DiagnosticEngine dg(srcMgr);
         ASTContext astctxt;
-        DeclContext dc;
+        DeclContext dc(DeclContextKind::FuncDecl);
         Lexer lex(dg, srcMgr, astctxt);
         auto file = srcMgr.loadFromString(sample);
 
