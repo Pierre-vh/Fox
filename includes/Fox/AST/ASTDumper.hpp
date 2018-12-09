@@ -17,6 +17,7 @@ namespace fox {
   class SourceManager;
   class ASTDumper : /*private*/ SimpleASTVisitor<ASTDumper, void> {
     using Inherited = SimpleASTVisitor<ASTDumper, void>;
+    friend class Inherited;
     public:
       ASTDumper(SourceManager& srcMgr, std::ostream& out, const uint8_t& offsettabs = 0);
       ASTDumper(std::ostream& out, const uint8_t& offsettabs = 0);
@@ -36,6 +37,7 @@ namespace fox {
         visit(std::forward<Ty>(value));
       }
 
+    private:
       // Expressions
       void visitBinaryExpr(BinaryExpr* node);
       void visitCastExpr(CastExpr* node);
@@ -66,7 +68,6 @@ namespace fox {
       void visitParamDecl(ParamDecl* node);
       void visitFuncDecl(FuncDecl* node);
 
-    private:
       // We need a custom visit method for Type to avoid
       // calling visitXXXType and just use Type->toString()
       void visit(Type type);
