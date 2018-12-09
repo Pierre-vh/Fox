@@ -91,10 +91,8 @@ To-Do:
 
   > Work on Sema (Now) 
     > Decl semantic analysis (Next)
-      > I'll need a way of casting a DeclContext* back to a Decl*, how?
-        I'll have to record the Kind of Decl in the DeclContext too? Or a another
-        DeclContextKind? Maybe there's another way of doing it without adding
-        members to the DeclContext class.
+      > Will need a lot of planification before diving in since it's probably
+        the most complicated checker.
     > Name resolution
     > DeclRefExpr 
     > FunctionCallExpr & OVR (overload resolution)
