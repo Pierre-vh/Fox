@@ -12,6 +12,7 @@
 //      Decl
 //      Type
 //    ASTNode
+//    DeclContext
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -41,4 +42,5 @@ namespace fox {
 
   class Type;
   class TypeLoc;
+  class DeclContext;
 }

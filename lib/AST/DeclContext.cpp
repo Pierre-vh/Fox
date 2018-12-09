@@ -11,8 +11,13 @@
 
 using namespace fox;
 
-DeclContext::DeclContext(DeclContext* parent) : parent_(parent) {
+DeclContext::DeclContext(DeclContextKind kind, DeclContext* parent):
+  parentAndKind_(parent, toInt(kind)) {
 
+}
+
+DeclContextKind DeclContext::getDeclContextKind() const {
+  return static_cast<DeclContextKind>(parentAndKind_.getInt());
 }
 
 void DeclContext::recordDecl(NamedDecl* decl) {
@@ -34,27 +39,27 @@ LookupResult DeclContext::restrictedLookup(Identifier id) const {
 
 LookupResult DeclContext::fullLookup(Identifier id) const {
   auto this_lr = restrictedLookup(id);
-  if (parent_) {
-    auto parent_lr = parent_->fullLookup(id);
+  if (getParent()) {
+    auto parent_lr = getParent()->fullLookup(id);
     this_lr.absorb(parent_lr);
   }
   return this_lr;
 }
 
 bool DeclContext::hasParent() const {
-  return parent_;
+  return parentAndKind_.getPointer() != nullptr;
 }
 
 DeclContext* DeclContext::getParent() {
-  return parent_;
+  return parentAndKind_.getPointer();
 }
 
 const DeclContext* DeclContext::getParent() const {
-  return parent_;
+  return parentAndKind_.getPointer();
 }
 
 void DeclContext::setParent(DeclContext* dr) {
-  parent_ = dr;
+  parentAndKind_.setPointer(dr);
 }
 
 std::size_t DeclContext::getNumberOfRecordedDecls() const {
@@ -79,10 +84,12 @@ DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_end() const {
 
 bool DeclContext::classof(const Decl* decl)
 {
-  #define DECL_CTXT(ID, PARENT) case DeclKind::ID: return true;
+  #define DECL_CTXT(ID, PARENT) case DeclKind::ID:
   switch(decl->getKind()) {
     #include "Fox/AST/DeclNodes.def"
-    default: return false;
+      return true;
+    default: 
+      return false;
   }
 }
 

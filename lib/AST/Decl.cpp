@@ -138,9 +138,8 @@ FuncDecl::FuncDecl():
 FuncDecl::FuncDecl(TypeLoc returnType, Identifier fnId, CompoundStmt* body,
   SourceRange range, SourceLoc headerEndLoc):
   NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), 
-	body_(body), returnType_(returnType) {
-  paramsAreValid_ = true;
-}
+	body_(body), returnType_(returnType), 
+  DeclContext(DeclContextKind::FuncDecl) { paramsAreValid_ = true; }
 
 void FuncDecl::setLocs(SourceRange range, SourceLoc headerEndLoc) {
   setRange(range);
@@ -273,9 +272,8 @@ void VarDecl::setInitExpr(Expr* expr) {
 //----------//
 
 UnitDecl::UnitDecl(Identifier id,FileID inFile): 
-	NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile) {
-  declsAreValid_ = true;
-}
+	NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile), 
+  DeclContext(DeclContextKind::UnitDecl) { declsAreValid_ = true; }
 
 void UnitDecl::addDecl(Decl* decl) {
   // Check the decl

@@ -16,6 +16,7 @@
 namespace fox {
 namespace align {
   // Declare the FreeBits and Alignement variables
+  // Usage of DECLARE: DECLARE(Class name, Number of free bits desired)
   #define DECLARE(CLASS, FREE_BITS_DESIRED)\
   constexpr std::size_t CLASS##FreeLowBits = FREE_BITS_DESIRED; \
   constexpr std::size_t CLASS##Alignement = 1 << FREE_BITS_DESIRED
@@ -24,6 +25,7 @@ namespace align {
   DECLARE(Expr, 2);
   DECLARE(Decl, 2);
   DECLARE(Stmt, 2);
+  DECLARE(DeclContext, 2);
   #undef DECLARE
 }
 }
@@ -45,6 +47,7 @@ namespace llvm {
   LLVM_DEFINE_PLTT(Expr);
   LLVM_DEFINE_PLTT(Decl);
   LLVM_DEFINE_PLTT(Stmt);
+  LLVM_DEFINE_PLTT(DeclContext);
 
   #undef LLVM_DEFINE_PLTT
 

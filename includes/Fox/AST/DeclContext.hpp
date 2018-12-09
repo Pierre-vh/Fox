@@ -12,6 +12,8 @@
 #pragma once
 
 #include "Identifier.hpp"
+#include "llvm/ADT/PointerIntPair.h"
+#include "ASTAligns.hpp"
 #include <map>
 #include <vector>
 #include <type_traits>
@@ -45,7 +47,17 @@ namespace fox {
       }
   };
 
-  class DeclContext {
+  enum class DeclContextKind : std::uint8_t {
+    #define DECL_CTXT(ID, PARENT) ID,
+    #define LAST_DECL_CTXT(ID) LastDeclCtxt = ID
+    #include "DeclNodes.def"
+  };
+
+  static constexpr auto toInt(DeclContextKind kind) {
+    return static_cast<std::underlying_type<DeclContextKind>::type>(kind);
+  }
+
+  class alignas(align::DeclContextAlignement) DeclContext {
     private:
       using NamedDeclsMapTy = std::multimap<Identifier, NamedDecl*>;
       using NamedDeclsMapIter 
@@ -54,7 +66,10 @@ namespace fox {
         = DeclContextIterator<NamedDeclsMapTy::const_iterator>;
 
     public:
-      DeclContext(DeclContext* parent = nullptr);
+      // \param kind the Kind of DeclContext this is
+      DeclContext(DeclContextKind kind, DeclContext* parent = nullptr);
+
+      DeclContextKind getDeclContextKind() const;
 
       // "Record" a declaration within this DeclContext
       void recordDecl(NamedDecl* decl);
@@ -85,7 +100,20 @@ namespace fox {
       static bool classof(const Decl* decl);
 
     private:
-      DeclContext* parent_ = nullptr;
+      // Helpers
+      static constexpr unsigned parentAndKindBits = 1;
+      static constexpr auto lastDeclCtxtValue 
+        = toInt(DeclContextKind::LastDeclCtxt);
+      // The PointerIntPair used to represent the ParentAndKind bits
+      using ParentAndKindTy 
+        = llvm::PointerIntPair<DeclContext*, parentAndKindBits>;
+      // Check that ParentAndKindTy has enough bits to represent
+      // every possible DeclContextKind
+      static_assert(
+        (1 << parentAndKindBits) > lastDeclCtxtValue,
+        "The PointerIntPair doesn't have enough bits to represent every "
+        " DeclContextKind value");
+      ParentAndKindTy parentAndKind_;
       NamedDeclsMapTy namedDecls_;
   };
 

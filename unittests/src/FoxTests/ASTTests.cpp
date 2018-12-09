@@ -153,7 +153,7 @@ bool testLookup(ASTContext &ctxt,DeclContext *dr, const std::string& name, Decl*
     return false;
   }
 
-  if (lookupResult.size() > 0) {
+  if (lookupResult.size() > 1) {
     err = "Multiple results found";
     return false;
   }
@@ -359,10 +359,6 @@ TEST(ASTTests, StmtRTTI) {
 }
 
 TEST(ASTTests, DeclRTTI) {
-  ASTContext astctxt;
-  auto fooid = astctxt.getIdentifier("foo");
-  auto intty = PrimitiveType::getInt(astctxt);
-
   // Arg
   ParamDecl paramdecl;
   EXPECT_EQ(paramdecl.getKind(), DeclKind::ParamDecl);
@@ -374,7 +370,7 @@ TEST(ASTTests, DeclRTTI) {
   // Func
   FuncDecl fndecl;
   EXPECT_EQ(fndecl.getKind(), DeclKind::FuncDecl);
-  EXPECT_TRUE(FuncDecl::classof(&fndecl));
+  EXPECT_TRUE(FuncDecl::classof((Decl*)&fndecl));
   EXPECT_TRUE(NamedDecl::classof(&fndecl));
   EXPECT_TRUE(DeclContext::classof(&fndecl));
 
@@ -387,11 +383,31 @@ TEST(ASTTests, DeclRTTI) {
   EXPECT_FALSE(DeclContext::classof(&vdecl));
 
   // Unit
-  UnitDecl udecl(fooid,FileID());
+  Identifier id; FileID fid;
+  UnitDecl udecl(id, fid);
   EXPECT_EQ(udecl.getKind(), DeclKind::UnitDecl);
-  EXPECT_TRUE(UnitDecl::classof(&udecl));
+  EXPECT_TRUE(UnitDecl::classof((Decl*)&udecl));
   EXPECT_TRUE(NamedDecl::classof(&udecl));
   EXPECT_TRUE(DeclContext::classof(&udecl));
+}
+
+TEST(ASTTests, DeclDeclContextRTTI) {
+  FuncDecl fndecl;
+  Identifier id; FileID fid;
+  UnitDecl udecl(id, fid);
+
+  DeclContext* dc = nullptr;
+  // FuncDecl -> DeclContext -> FuncDecl
+  dc = &fndecl;
+  FuncDecl* fndeclPtr = dyn_cast<FuncDecl>(dc);
+  EXPECT_EQ(&fndecl, fndeclPtr);
+  EXPECT_EQ(nullptr, dyn_cast<UnitDecl>(dc));
+
+  // UnitDecl -> DeclContext -> UnitDecl
+  dc = &udecl;
+  UnitDecl* udeclPtr = dyn_cast<UnitDecl>(dc);
+  EXPECT_EQ(&udecl, udeclPtr);
+  EXPECT_EQ(nullptr, dyn_cast<FuncDecl>(dc));
 }
 
 // ASTVisitor tests : Samples implementations to test if visitors works as intended

@@ -171,6 +171,10 @@ namespace fox {
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::FuncDecl;
       }
+      
+      static bool classof(const DeclContext* dc) {
+        return dc->getDeclContextKind() == DeclContextKind::FuncDecl;
+      }
 
     private:
       SourceLoc headEndLoc_;
@@ -207,7 +211,6 @@ namespace fox {
 
   // UnitDecl
   //    A Unit declaration (a unit is a source file)
-  //    This is declared "implicitely" when you create a new file
   class UnitDecl : public NamedDecl, public DeclContext {
     private:
       using DeclVecTy = std::vector<Decl*>;
@@ -240,6 +243,10 @@ namespace fox {
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::UnitDecl;
+      }
+
+      static bool classof(const DeclContext* dc) {
+        return dc->getDeclContextKind() == DeclContextKind::UnitDecl;
       }
 
     private:
