@@ -193,19 +193,8 @@ namespace fox {
   // UnitDecl
   //    A Unit declaration (a unit is a source file)
   class UnitDecl : public NamedDecl, public DeclContext {
-    private:
-      using DeclVecTy = std::vector<Decl*>;
-      using DeclVecIter = DeclVecTy::iterator;
-      using DeclVecConstIter = DeclVecTy::const_iterator;
-
     public:
       UnitDecl(Identifier id, FileID inFile);
-
-      void addDecl(Decl* decl);
-      void setDecl(Decl* decl, std::size_t idx);
-      Decl* getDecl(std::size_t idx) const;
-      DeclVecTy& getDecls();
-      std::size_t getNumDecls() const;
 
       FileID getFileID() const;
       void setFileID(const FileID& fid);
@@ -219,7 +208,6 @@ namespace fox {
       }
 
     private:
-      DeclVecTy decls_;
       FileID file_;
   };
 }

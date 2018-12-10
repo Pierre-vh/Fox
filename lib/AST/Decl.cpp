@@ -240,45 +240,6 @@ UnitDecl::UnitDecl(Identifier id,FileID inFile):
 	NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile), 
   DeclContext(DeclContextKind::UnitDecl) {}
 
-void UnitDecl::addDecl(Decl* decl) {
-  // Update locs
-  SourceRange range;
-  if (!getRange().isValid()) /*(range not set yet) */ {
-    assert((decls_.size() == 0) && "Range not set, but we already have decls?");
-    range = decl->getRange();
-  }
-  else {
-    assert((decls_.size() > 0) && "Range set, but we don't have decls?");
-    range = SourceRange(
-      getRange().getBegin(),
-      decl->getRange().getEnd()
-    );
-  }
-  assert(range && "Range is invalid");
-  setRange(range);
-
-  // Push it
-  decls_.push_back(decl);
-}
-
-void UnitDecl::setDecl(Decl* decl, std::size_t idx) {
-  assert(idx < decls_.size() && "out-of-range");
-  decls_[idx] = decl;
-}
-
-Decl* UnitDecl::getDecl(std::size_t idx) const {
-  assert(idx < decls_.size() && "out-of-range");
-  return decls_[idx];
-}
-
-UnitDecl::DeclVecTy& UnitDecl::getDecls() {
-  return decls_;
-}
-
-std::size_t UnitDecl::getNumDecls() const {
-  return decls_.size();
-}
-
 FileID UnitDecl::getFileID() const {
   return file_;
 }
