@@ -39,23 +39,6 @@ bool DeclContext::isLocalDeclContext() const {
   }
 }
 
-LookupResult DeclContext::restrictedLookup(Identifier id) const {
-  auto it_range = namedDecls_.equal_range(id);
-  LookupResult lr;
-  for (auto it = it_range.first; it != it_range.second; it++)
-    lr.addResult(it->second);
-  return lr;
-}
-
-LookupResult DeclContext::fullLookup(Identifier id) const {
-  auto this_lr = restrictedLookup(id);
-  if (getParent()) {
-    auto parent_lr = getParent()->fullLookup(id);
-    this_lr.absorb(parent_lr);
-  }
-  return this_lr;
-}
-
 bool DeclContext::hasParent() const {
   return parentAndKind_.getPointer() != nullptr;
 }
@@ -68,23 +51,23 @@ void DeclContext::setParent(DeclContext* dr) {
   parentAndKind_.setPointer(dr);
 }
 
-std::size_t DeclContext::getNumberOfRecordedDecls() const {
+std::size_t DeclContext::numDecls() const {
   return namedDecls_.size();
 }
 
-DeclContext::NamedDeclsMapIter DeclContext::recordedDecls_begin() {
+DeclContext::DeclMapIter DeclContext::decls_begin() {
   return namedDecls_.begin();
 }
 
-DeclContext::NamedDeclsMapIter DeclContext::recordedDecls_end() {
+DeclContext::DeclMapIter DeclContext::decls_end() {
   return namedDecls_.end();
 }
 
-DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_begin() const {
+DeclContext::DeclMapConstIter DeclContext::decls_begin() const {
   return namedDecls_.begin();
 }
 
-DeclContext::NamedDeclsMapConstIter DeclContext::recordedDecls_end() const {
+DeclContext::DeclMapConstIter DeclContext::decls_end() const {
   return namedDecls_.end();
 }
 
@@ -97,49 +80,4 @@ bool DeclContext::classof(const Decl* decl)
     default: 
       return false;
   }
-}
-
-// LookupResult
-LookupResult::LookupResult() {
-
-}
-
-std::size_t LookupResult::size() const {
-  return results_.size();
-}
-
-LookupResult::ResultVecIter LookupResult::begin() {
-  return results_.begin();
-}
-
-LookupResult::ResultVecConstIter LookupResult::begin() const {
-  return results_.begin();
-}
-
-LookupResult::ResultVecIter LookupResult::end() {
-  return results_.end();
-}
-
-LookupResult::ResultVecConstIter LookupResult::end() const {
-  return results_.end();
-}
-
-LookupResult::operator bool() const {
-  return (size() != 0);
-}
-
-void LookupResult::addResult(NamedDecl* decl) {
-  if (results_.size())
-    assert((results_.back()->getIdentifier() == decl->getIdentifier()) 
-      && "A LookupResult can only contain NamedDecls that share the same identifier.");
-
-  results_.push_back(decl);
-}
-
-void LookupResult::absorb(LookupResult& target) {
-  if (target.results_.size() == 0)
-    return;
-
-  results_.insert(results_.end(), target.results_.begin(), target.results_.end());
-  results_.clear();
 }

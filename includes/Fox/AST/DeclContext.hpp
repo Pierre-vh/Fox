@@ -9,6 +9,10 @@
 // that happens in it's children and has functions to help with Lookup.
 //----------------------------------------------------------------------------//
 
+// TODO: Abstract the "DeclsMap" better. Maybe create a wrapper
+// around the std::multimap so I can change the implementation to something
+// more efficient without breaking the interface.
+
 #pragma once
 
 #include "Identifier.hpp"
@@ -59,11 +63,11 @@ namespace fox {
 
   class alignas(DeclContextAlignement) DeclContext {
     private:
-      using NamedDeclsMapTy = std::multimap<Identifier, NamedDecl*>;
-      using NamedDeclsMapIter 
-        = DeclContextIterator<NamedDeclsMapTy::iterator>;
-      using NamedDeclsMapConstIter 
-        = DeclContextIterator<NamedDeclsMapTy::const_iterator>;
+      using DeclsMapTy = std::multimap<Identifier, NamedDecl*>;
+      using DeclMapIter 
+        = DeclContextIterator<DeclsMapTy::iterator>;
+      using DeclMapConstIter 
+        = DeclContextIterator<DeclsMapTy::const_iterator>;
 
     public:
       // \param kind the Kind of DeclContext this is
@@ -71,19 +75,14 @@ namespace fox {
 
       DeclContextKind getDeclContextKind() const;
 
-      // "Record" a declaration within this DeclContext
+      // Record (adds) a declaration within this DeclContext
       void recordDecl(NamedDecl* decl);
 
       // Returns true if this is a local context.
       bool isLocalDeclContext() const;
 
-      // Searches for every NamedDecl with the Identifier id 
-			// in this DeclContext
-      LookupResult restrictedLookup(Identifier id) const;
-
-      // Performs a full lookup. Searches this DeclContext
-			// as well as parent ones.
-      LookupResult fullLookup(Identifier id) const;
+      // Getter for the DeclMap, which will be used to do the Lookup
+      DeclsMapTy& getDeclsMap();
 
       // Manage parent decl recorder
       bool hasParent() const;
@@ -91,13 +90,13 @@ namespace fox {
       void setParent(DeclContext *dr);
 
       // Get information
-      std::size_t getNumberOfRecordedDecls()  const;
+      std::size_t numDecls()  const;
 
-      NamedDeclsMapIter recordedDecls_begin();
-      NamedDeclsMapIter recordedDecls_end();
+      DeclMapIter decls_begin();
+      DeclMapIter decls_end();
 
-      NamedDeclsMapConstIter recordedDecls_begin() const;
-      NamedDeclsMapConstIter recordedDecls_end() const;
+      DeclMapConstIter decls_begin() const;
+      DeclMapConstIter decls_end() const;
 
       static bool classof(const Decl* decl);
 
@@ -112,41 +111,6 @@ namespace fox {
         "The PointerIntPair doesn't have enough bits to represent every "
         " DeclContextKind value");
       ParentAndKindTy parentAndKind_;
-      NamedDeclsMapTy namedDecls_;
-  };
-
-  class LookupResult {
-    private:
-      using ResultVecTy = std::vector<NamedDecl*>;
-      using ResultVecIter = ResultVecTy::iterator;
-      using ResultVecConstIter = ResultVecTy::const_iterator;
-
-    public:
-      LookupResult();
-
-      std::size_t size() const;
-
-      ResultVecIter begin();
-      ResultVecConstIter begin() const;
-
-      ResultVecIter end();
-      ResultVecConstIter end() const;
-
-      // Returns true if the size() > 0
-      explicit operator bool() const;
-
-    protected:
-      friend class DeclContext;
-
-      // Add another result
-      void addResult(NamedDecl* decl);
-
-      // If the target contains at least 1 result,
-      // copies all of the results from target into this l
-      // ookupresult then clears the target.
-      void absorb(LookupResult &target);
-
-    private:
-      ResultVecTy results_;
+      DeclsMapTy namedDecls_;
   };
 }
