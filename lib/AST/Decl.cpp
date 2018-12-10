@@ -48,6 +48,10 @@ SourceRange Decl::getRange() const {
   return range_;
 }
 
+FileID Decl::getFile() const {
+  return range_.getBegin().getFileID();
+}
+
 void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
 }

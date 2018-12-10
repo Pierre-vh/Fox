@@ -35,6 +35,8 @@ namespace fox {
 
       void setRange(SourceRange range);
       SourceRange getRange() const;
+      // Returns the FileID of the file where this decl is located.
+      FileID getFile() const;
 
       void dump() const;
 
