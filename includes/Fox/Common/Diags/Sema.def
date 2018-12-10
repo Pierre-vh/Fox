@@ -4,7 +4,7 @@
 // File : Parser.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Semantic Analysis (Sema) Diagnostics Message
+// Semantic Analysis (Sema/Parser) Diagnostics Message
 //----------------------------------------------------------------------------//
 
 ERROR(sema_arraylit_hetero, "illegal heterogeneous array")
@@ -18,9 +18,14 @@ ERROR(sema_binexpr_invalid_operands,
   "cannot use binary operator '%0' on expressions of types '%1' and '%2'")
 ERROR(sema_cant_use_expr_as_cond,
   "cannot use an expression of type '%0' as a condition")
+ERROR(sema_invalid_redecl,
+  "invalid redeclaration of local variable '%0'")
 
 WARNING(sema_redundant_cast,
   "redundant cast: expression is already of type '%0'")
 WARNING(sema_implicit_integral_downcast,
   "implicit conversion of an expression of type '%0' to '%1' may "
   "result in loss of information")
+
+NOTE(sema_1stdecl_seen_here, 
+  "first declaration of '%0' seen here")
