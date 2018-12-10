@@ -145,7 +145,7 @@ namespace fox {
       //----------------------------------------------------------------------//
 
       // RAII Objects
-      class RAIISetDeclCtxt;
+      class RAIIDeclCtxt;
 
       // Checkers
       class Checker;
@@ -159,7 +159,7 @@ namespace fox {
 
       // Sets the current DeclContext and returns a RAII object that will,
       // upon destruction, restore the previous DeclContext.
-      RAIISetDeclCtxt setDeclCtxtRAII(DeclContext* dc);
+      RAIIDeclCtxt setDeclCtxtRAII(DeclContext* dc);
       void setDeclCtxt(DeclContext* dc);
       DeclContext* getDeclCtxt() const;
       bool hasDeclCtxt() const;
@@ -195,16 +195,16 @@ namespace fox {
   // A Small RAII object that sets the currently active DeclContext
   // for a Sema instance. Upon destruction, it will restore the 
   // Sema's currently active DeclContext to what it was before.
-  class Sema::RAIISetDeclCtxt {
+  class Sema::RAIIDeclCtxt {
       Sema& sema_;
       DeclContext* oldDC_ = nullptr;
     public:
-      RAIISetDeclCtxt(Sema& sema, DeclContext* dc) : sema_(sema) {
+      RAIIDeclCtxt(Sema& sema, DeclContext* dc) : sema_(sema) {
         oldDC_ = sema.getDeclCtxt();
         sema_.setDeclCtxt(dc);
       }
 
-      ~RAIISetDeclCtxt() {
+      ~RAIIDeclCtxt() {
         sema_.setDeclCtxt(oldDC_);
       }
   };

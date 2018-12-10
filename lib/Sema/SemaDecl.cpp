@@ -77,7 +77,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
 
-    Sema::RAIISetDeclCtxt enterDeclCtxt(DeclContext* dc) {
+    Sema::RAIIDeclCtxt enterDeclCtxt(DeclContext* dc) {
       return getSema().setDeclCtxtRAII(dc);
     }
 
