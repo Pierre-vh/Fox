@@ -1,20 +1,20 @@
 //----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.        
 // See LICENSE.txt for license info.            
-// File : Scope.cpp                    
+// File : LocalScope.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-#include "Fox/Sema/Scope.hpp"
+#include "Fox/Sema/LocalScope.hpp"
 #include "Fox/AST/Decl.hpp"
 
 using namespace fox;
 
-VarDecl* Scope::add(VarDecl* decl) {
+NamedDecl* LocalScope::add(NamedDecl* decl) {
   LookupResultTy result;
   Identifier id = decl->getIdentifier();
   lookup(id, result);
-  // Decl already exists in this Scope.
+  // Decl already exists in this LocalScope.
   if(result.size()) {
     // In theory, only one result should have been found since
     // we never add duplicates
@@ -28,28 +28,28 @@ VarDecl* Scope::add(VarDecl* decl) {
   return nullptr;
 }
 
-void Scope::lookup(Identifier id, LookupResultTy& results) {
-  Scope* cur = this;
+void LocalScope::lookup(Identifier id, LookupResultTy& results) {
+  LocalScope* cur = this;
   while (cur) {
     cur->lookupImpl(id, results);
     cur = cur->getParent();
   }
 }
 
-void Scope::lookupImpl(Identifier id, LookupResultTy& results) {
+void LocalScope::lookupImpl(Identifier id, LookupResultTy& results) {
   auto it = decls_.find(id);
   if (it != decls_.end())
     results.push_back(it->second);
 }
 
-Scope* Scope::getParent() const {
+LocalScope* LocalScope::getParent() const {
   return parent_;
 }
 
-bool Scope::hasParent() const {
+bool LocalScope::hasParent() const {
   return (bool)parent_;
 }
 
-void Scope::setParent(Scope* scope) {
+void LocalScope::setParent(LocalScope* scope) {
   parent_ = scope;
 }
