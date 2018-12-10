@@ -75,7 +75,7 @@ namespace fox {
       void recordDecl(NamedDecl* decl);
 
       // Returns true if this is a local context.
-      bool isLocal() const;
+      bool isLocalDeclContext() const;
 
       // Searches for every NamedDecl with the Identifier id 
 			// in this DeclContext

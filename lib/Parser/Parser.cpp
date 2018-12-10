@@ -53,7 +53,7 @@ void Parser::actOnDecl(Decl* decl) {
   // Set isTopLevel if if the Current DeclContext isn't local
   assert(state_.declContext
          && "Must have a DeclContext when parsing a Decl.");
-  if (!state_.declContext->isLocal())
+  if (!state_.declContext->isLocalDeclContext())
     decl->setIsTopLevelDecl(true);
 }
 

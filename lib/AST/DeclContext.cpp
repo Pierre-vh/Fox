@@ -29,7 +29,7 @@ void DeclContext::recordDecl(NamedDecl* decl) {
   namedDecls_.insert({name, decl});
 }
 
-bool DeclContext::isLocal() const {
+bool DeclContext::isLocalDeclContext() const {
   switch (getDeclContextKind()) {
     #define LOCAL_DECL_CTXT(ID, PARENT) case DeclContextKind::ID:
     #include "Fox/AST/DeclNodes.def"

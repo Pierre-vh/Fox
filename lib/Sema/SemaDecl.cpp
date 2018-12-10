@@ -61,7 +61,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // active DeclContext in Sema to us.
       auto dcGuard = getSema().setDeclCtxtRAII(decl);
       // FuncDecl is also a local scope, so create a new scope.
-      assert(decl->isLocal() && "FuncDecl isn't local?");
+      assert(decl->isLocalDeclContext() && "FuncDecl isn't local?");
       auto scopeGuard = getSema().enterNewLocalScopeRAII();
       // Sema::setDeclCtxtRAII(decl)
       // visit(decl parameters)
