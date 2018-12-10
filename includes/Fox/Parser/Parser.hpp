@@ -38,7 +38,6 @@
 #include "Fox/Lexer/Token.hpp"          
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Decl.hpp"
-#include "Fox/Parser/Scope.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
 #include "Fox/Common/ResultObject.hpp"
@@ -123,6 +122,10 @@ namespace fox {
     private:
       /*-------------- Parser Setup --------------*/
       void setupParser();
+
+      /*-------------- Extra Parser Actions --------------*/
+      void actOnNamedDecl(NamedDecl* decl);
+      void actOnDecl(Decl* decl);
 
       /*-------------- "Basic" Parse Methods --------------*/
       // Parses a builtin type name
@@ -228,9 +231,6 @@ namespace fox {
 
         // Current Decl Recorder
         DeclContext* declContext = nullptr;
-
-        // The current scope
-        Scope* scope = nullptr;
       } state_;
 
       // Interrogate state_
@@ -239,9 +239,6 @@ namespace fox {
 
       // Stops the parsing
       void die();
-
-      // Register a declaration in state_.declContext, asserting that it's not null.
-      void recordDecl(NamedDecl *nameddecl);
 
       // Creates a state_ backup
       ParserState createParserStateBackup() const;
@@ -262,18 +259,6 @@ namespace fox {
         private:
           Parser& parser_;
           DeclContext* declCtxt_ = nullptr;
-      };
-
-      /*-------------- RAIIScope --------------*/
-      // This class creates and own a Scope, and restores the old
-      // scope upon destruction.
-      class RAIIScope {
-        public:
-          RAIIScope(Parser& p);
-          ~RAIIScope();
-        private:
-          Parser& parser_;
-          std::unique_ptr<Scope> scope_;
       };
 
       /*-------------- Member Variables --------------*/

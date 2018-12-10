@@ -40,6 +40,23 @@ void Parser::setupParser() {
   state_.tokenIterator = tokens_.begin();
 }
 
+void Parser::actOnNamedDecl(NamedDecl* decl) {
+  // Call actOnDecl
+  actOnDecl(decl);
+  // Record the NamedDecl in the DeclContext
+  assert(state_.declContext
+         && "Must have a DeclContext when parsing a Decl.");
+  state_.declContext->recordDecl(decl);
+}
+
+void Parser::actOnDecl(Decl* decl) {
+  // Set isTopLevel if if the Current DeclContext isn't local
+  assert(state_.declContext
+         && "Must have a DeclContext when parsing a Decl.");
+  if (!state_.declContext->isLocal())
+    decl->setIsTopLevelDecl(true);
+}
+
 Parser::Result<Identifier> Parser::consumeIdentifier() {
   Token tok = getCurtok();
   if (tok.isIdentifier()) {
@@ -421,13 +438,6 @@ void Parser::die() {
   state_.isAlive = false;
 }
 
-void Parser::recordDecl(NamedDecl* nameddecl) {
-  assert(state_.declContext
-		&& "Decl Recorder cannot be null when parsing a Declaration!");
-  if(state_.declContext)
-    state_.declContext->recordDecl(nameddecl);
-}
-
 Diagnostic Parser::reportErrorExpected(DiagID diag) {
   SourceRange errorRange;
   if (Token prevTok = getPreviousToken()) {
@@ -488,17 +498,4 @@ Parser::RAIIDeclContext::RAIIDeclContext(Parser &p, DeclContext *dr):
 
 Parser::RAIIDeclContext::~RAIIDeclContext() {
   parser_.state_.declContext = declCtxt_;
-}
-
-// RAIIScope
-Parser::RAIIScope::RAIIScope(Parser& p) : parser_(p) {
-  // Create a new scope
-  scope_ = std::make_unique<Scope>();
-  // Set the current scope
-  parser_.state_.scope = scope_.get();
-}
-
-Parser::RAIIScope::~RAIIScope() {
-  // Set the current scope to the parent
-  parser_.state_.scope = scope_->getParent();
 }
