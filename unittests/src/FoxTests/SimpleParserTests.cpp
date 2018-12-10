@@ -48,6 +48,7 @@ class ParsingFunctionTester {
       else
         return readFileToVec(fp, inputs_);
     }
+
     bool runTest(const bool& shouldFail = false,const bool& hashtagCommentsEnabled = true) {
       failMessage_ = "";
       bool flag = true;
@@ -61,7 +62,7 @@ class ParsingFunctionTester {
         ASTContext astctxt;
         DeclContext dc(DeclContextKind::FuncDecl);
         Lexer lex(dg, srcMgr, astctxt);
-        auto file = srcMgr.loadFromString(sample);
+        auto file = srcMgr.loadFromString(sample, curFilePath_);
 
         if (!file) {
           failMessage_ = "Failed to load string in SourceManager";
@@ -296,7 +297,6 @@ TEST(SimpleParserTests, CompoundStmts) {
 TEST(SimpleParserTests, Unit) {
   std::string corr_base_path = "parser/simple/unit/correct_";
   std::string bad_base_path = "parser/simple/unit/incorrect_";
-
 
   ParsingFunctionTester tester([&](const FileID& file, Parser & parse) -> bool {
     
