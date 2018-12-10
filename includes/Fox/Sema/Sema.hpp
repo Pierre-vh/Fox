@@ -119,6 +119,7 @@ namespace fox {
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();
 
+    private:
       // Sets the current DeclContext and returns a RAII object that will,
       // upon destruction, restore the previous DeclContext.
       RAIISetDeclCtxt setDeclCtxtRAII(DeclContext* dc);
@@ -126,7 +127,6 @@ namespace fox {
       DeclContext* getDeclCtxt() const;
       bool hasDeclCtxt() const;
 
-    private:
       // Private implementation classes
       class Checker;
       class DeclChecker;
