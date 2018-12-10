@@ -8,6 +8,7 @@
 #include "Fox/AST/DeclContext.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/Source.hpp"
 
 using namespace fox;
 
@@ -54,6 +55,29 @@ bool DeclContext::hasParent() const {
 
 DeclContext* DeclContext::getParent() const {
   return parentAndKind_.getPointer();
+}
+
+DeclContext::LexicalDeclsTy DeclContext::getLexicalDecls(FileID forFile) {
+  // Create the vector with enough space to hold every value.
+  LexicalDeclsTy rtr;
+  // Populate it
+  for(auto& elem : decls_) {
+    if(elem.second->getFile() == forFile)
+      rtr.push_back(elem.second);
+  }
+  // Predicate for comparing the decls using their begin locs.
+  struct Predicate {
+    bool operator()(Decl* a, Decl* b){
+      // Since we know both files are equal, we can simply iterate
+      // like this.
+      auto aIdx = a->getRange().getBegin().getIndex();
+      auto bIdx = b->getRange().getBegin().getIndex();
+      return aIdx < bIdx;
+    }
+  };
+  // Sort it
+  std::sort(rtr.begin(), rtr.end(), Predicate());
+  return rtr;
 }
 
 void DeclContext::setParent(DeclContext* dr) {

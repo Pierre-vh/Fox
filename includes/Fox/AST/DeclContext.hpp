@@ -23,6 +23,7 @@ namespace fox {
   class Decl;
   class NamedDecl;
   class LookupResult;
+  class FileID;
 
   // An iterator that abstracts the underlying structure 
   // (an iterator to std::pair) used by the DeclContext 
@@ -66,6 +67,9 @@ namespace fox {
       // The type of the internal map of Decls
       using DeclsMapTy = std::multimap<Identifier, Decl*>;
 
+      // The type of the map used to represent Decls in Lexical order.
+      using LexicalDeclsTy = std::vector<Decl*>;
+
       // The type of the non-const iterator for DeclsMapTy
       using DeclMapIter 
         = DeclContextIterator<DeclsMapTy::iterator>;
@@ -91,8 +95,22 @@ namespace fox {
       // Returns true if this is a local context
       bool isLocalDeclContext() const;
 
-      // Getter for the DeclMap, which is a std::multimap.
+      // Getter for the DeclMap, which is a std::multimap. This map has
+      // no particular ordering, and will be used for Lookup.
       DeclsMapTy& getDeclsMap();
+
+      // Returns a vector of all Stored Decl where the decls are
+      // stored in order of appearance in the file "file"
+      // Use this when you want to iterate over the decls in
+      // Lexical order.
+      // 
+      // This is pretty costly to generate so only use this when necessary.
+      // (and it doesn't return a reference, so copies of the return 
+      // value may occur!)
+      // 
+      // In the future, if this ends up being used often, optimizing (caching)
+      // this will be absolutely needed.
+      LexicalDeclsTy getLexicalDecls(FileID forFile);
 
       void setParent(DeclContext *dr);
       bool hasParent() const;
