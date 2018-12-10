@@ -90,6 +90,10 @@ To-Do:
   > Identifier & IdentifierTable rework (Done)
   > const correctness update: no more double getters for getters of pointers (done)
 
+  > (Refactor) Change the DeclContext OR UnitDecl interface to be non-ambiguous
+    Currently, the UnitDecl interface conflicts
+    in some points with the DeclContext one.
+
   > Work on Sema (Now) 
     > Decl semantic analysis (Next)
       > Will need a lot of planification before diving in since it's probably
