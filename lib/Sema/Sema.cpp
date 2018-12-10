@@ -53,7 +53,6 @@ bool Sema::hasDeclCtxt() const {
   return (currentDC_ != nullptr);
 }
 
-Sema::RAIISetDeclCtxt Sema::setDeclCtxtRAII(DeclContext* dc)
-{
+Sema::RAIISetDeclCtxt Sema::setDeclCtxtRAII(DeclContext* dc) {
   return RAIISetDeclCtxt(*this, dc);
 }
