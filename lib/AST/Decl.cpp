@@ -24,8 +24,20 @@ Decl::Decl(DeclKind kind, SourceRange range):
 
 }
 
+void Decl::initBitfields() {
+  topLevel_ = false;
+}
+
 DeclKind Decl::getKind() const {
   return kind_;
+}
+
+bool Decl::isTopLevelDecl() const {
+  return topLevel_;
+}
+
+void Decl::setIsTopLevelDecl(bool val) {
+  topLevel_ = val;
 }
 
 void Decl::setRange(SourceRange range) {

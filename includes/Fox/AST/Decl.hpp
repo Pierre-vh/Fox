@@ -40,6 +40,9 @@ namespace fox {
 
       void dump() const;
 
+      bool isTopLevelDecl() const;
+      void setIsTopLevelDecl(bool val);
+
       // Prohibit the use of builtin placement new & delete
       void *operator new(std::size_t) throw() = delete;
       void operator delete(void *) throw() = delete;
@@ -55,6 +58,9 @@ namespace fox {
       Decl(DeclKind kind, SourceRange range);
 
     private:
+      void initBitfields();
+
+      bool topLevel_ : 1;
       SourceRange range_;
       const DeclKind kind_;
   };
