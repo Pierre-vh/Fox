@@ -88,8 +88,7 @@ To-Do:
   > Sema: Basic Exprs Type-Checking + tests (Done)
   > Sema: Basic Stmt checking + tests (Done)
   > Identifier & IdentifierTable rework (Done)
-   
-  > const correctness update: no more double getters for getters of pointers
+  > const correctness update: no more double getters for getters of pointers (done)
 
   > Work on Sema (Now) 
     > Decl semantic analysis (Next)
@@ -117,6 +116,10 @@ To-Do:
   > VM
 
 Other:
+  > Add idRange to VarDecl/ParamDecl to emit better diagnostics
+    For: 
+      diagnoseVarRedeclaration
+
   > Adopt a Documentation style (Doxygen) and document the code with it
 
   > Spend some time refactoring the Parser. Write betters comment, fix style and
