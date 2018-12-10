@@ -26,7 +26,7 @@ void DeclContext::recordDecl(NamedDecl* decl) {
   assert(name  
     && "Declaration must have a non-null Identifier to be "
        "recorded");
-  namedDecls_.insert({name, decl});
+  decls_.insert({name, decl});
 }
 
 bool DeclContext::isLocalDeclContext() const {
@@ -37,6 +37,10 @@ bool DeclContext::isLocalDeclContext() const {
     default:
       return false;
   }
+}
+
+DeclContext::DeclsMapTy& DeclContext::getDeclsMap() {
+  return decls_;
 }
 
 bool DeclContext::hasParent() const {
@@ -52,23 +56,7 @@ void DeclContext::setParent(DeclContext* dr) {
 }
 
 std::size_t DeclContext::numDecls() const {
-  return namedDecls_.size();
-}
-
-DeclContext::DeclMapIter DeclContext::decls_begin() {
-  return namedDecls_.begin();
-}
-
-DeclContext::DeclMapIter DeclContext::decls_end() {
-  return namedDecls_.end();
-}
-
-DeclContext::DeclMapConstIter DeclContext::decls_begin() const {
-  return namedDecls_.begin();
-}
-
-DeclContext::DeclMapConstIter DeclContext::decls_end() const {
-  return namedDecls_.end();
+  return decls_.size();
 }
 
 bool DeclContext::classof(const Decl* decl)

@@ -6,12 +6,9 @@
 //----------------------------------------------------------------------------//
 // DeclContext is a class that acts as a "Declaration Recorder", which is
 // helps during semantic analysis. A DeclContext records every Declaration
-// that happens in it's children and has functions to help with Lookup.
+// that happens in it's children and has functions to help with Lookup. It
+// offers a Semantic view of the declarations it contains.
 //----------------------------------------------------------------------------//
-
-// TODO: Abstract the "DeclsMap" better. Maybe create a wrapper
-// around the std::multimap so I can change the implementation to something
-// more efficient without breaking the interface.
 
 #pragma once
 
@@ -23,7 +20,6 @@
 #include <type_traits>
 
 namespace fox {
-
   class Decl;
   class NamedDecl;
   class LookupResult;
@@ -57,60 +53,76 @@ namespace fox {
     #include "DeclNodes.def"
   };
 
-  static constexpr auto toInt(DeclContextKind kind) {
+  inline constexpr auto toInt(DeclContextKind kind) {
     return static_cast<std::underlying_type<DeclContextKind>::type>(kind);
   }
 
   class alignas(DeclContextAlignement) DeclContext {
-    private:
+    public:
+      //----------------------------------------------------------------------//
+      // Type Aliases
+      //----------------------------------------------------------------------//
+
+      // The type of the internal map of Decls
       using DeclsMapTy = std::multimap<Identifier, NamedDecl*>;
+
+      // The type of the non-const iterator for DeclsMapTy
       using DeclMapIter 
         = DeclContextIterator<DeclsMapTy::iterator>;
+
+      // The type of the const iterator for DeclsMapTy
       using DeclMapConstIter 
         = DeclContextIterator<DeclsMapTy::const_iterator>;
 
-    public:
-      // \param kind the Kind of DeclContext this is
+      //----------------------------------------------------------------------//
+      // Interface
+      //----------------------------------------------------------------------//
+
+      // Constructor
+      //  parent may be omitted
       DeclContext(DeclContextKind kind, DeclContext* parent = nullptr);
 
+      // Returns the Kind of DeclContext this is
       DeclContextKind getDeclContextKind() const;
 
-      // Record (adds) a declaration within this DeclContext
+      // Register a Declaration in this DeclContext
       void recordDecl(NamedDecl* decl);
 
-      // Returns true if this is a local context.
+      // Returns true if this is a local context
       bool isLocalDeclContext() const;
 
-      // Getter for the DeclMap, which will be used to do the Lookup
+      // Getter for the DeclMap, which is a std::multimap.
       DeclsMapTy& getDeclsMap();
 
-      // Manage parent decl recorder
+      void setParent(DeclContext *dr);
       bool hasParent() const;
       DeclContext* getParent() const;
-      void setParent(DeclContext *dr);
 
-      // Get information
+      // Get the number of decls in this DeclContext
       std::size_t numDecls()  const;
-
-      DeclMapIter decls_begin();
-      DeclMapIter decls_end();
-
-      DeclMapConstIter decls_begin() const;
-      DeclMapConstIter decls_end() const;
 
       static bool classof(const Decl* decl);
 
     private:
+      //----------------------------------------------------------------------//
+      // Private members
+      //----------------------------------------------------------------------//
+
       // The PointerIntPair used to represent the ParentAndKind bits
       using ParentAndKindTy 
         = llvm::PointerIntPair<DeclContext*, DeclContextFreeLowBits>;
+      // Members
+      ParentAndKindTy parentAndKind_;
+      DeclsMapTy decls_;
+
+      //----------------------------------------------------------------------//
+      // Static assertion
+      //----------------------------------------------------------------------//
       // Check that ParentAndKindTy has enough bits to represent
       // every possible DeclContextKind
       static_assert(
         (1 << DeclContextFreeLowBits) > toInt(DeclContextKind::LastDeclCtxt),
         "The PointerIntPair doesn't have enough bits to represent every "
         " DeclContextKind value");
-      ParentAndKindTy parentAndKind_;
-      DeclsMapTy namedDecls_;
   };
 }
