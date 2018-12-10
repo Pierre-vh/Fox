@@ -31,12 +31,13 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
 
   // Parse declarations 
   while (true) {
-    if (auto decl = parseDecl()) {
-      unit->addDecl(decl.get());
+    if (auto parsedDecl = parseDecl()) {
+      // We don't need to do anything, the Decl has been automatically
+      // recorded because our DeclContext is the one that's currently active.
       continue;
     }
     else {
-      if (!decl.wasSuccessful())
+      if (!parsedDecl.wasSuccessful())
         declHadError = true;
 
       // EOF/Died -> Break.
@@ -46,7 +47,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
 			// prevents us from finding the decl.
       else {
         // Report an error in case of "not found";
-        if (decl.wasSuccessful()) {
+        if (parsedDecl.wasSuccessful()) {
           // Report the error with the current token being the error location
           Token curtok = getCurtok();
           assert(curtok && "Curtok must be valid since we have not reached eof");
@@ -62,7 +63,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
 
   }
 
-  if (unit->getNumDecls() == 0) {
+  if (unit->numDecls() == 0) {
     if(!declHadError)
       diags_.report(DiagID::parser_expected_decl_in_unit, fid);
     return nullptr;
@@ -94,7 +95,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // Locs
   SourceLoc begLoc = fnKw.getBegin();
   SourceLoc headEndLoc;
-
+  
   // Poisoned is set to true if the 
   // declarations is missing stuff (such as the ID)
   // If poisoned = true, we won't push the decl and
@@ -102,20 +103,15 @@ Parser::DeclResult Parser::parseFuncDecl() {
   bool poisoned = false;
 
   // <id>
-  if (auto foundID = consumeIdentifier()) {
+  if (auto foundID = consumeIdentifier()) 
     rtr->setIdentifier(foundID.get());
-    // Before creating a RAIIDeclContext, record this function
-		// in the parent DeclContext.
-    // We only record the function if it's valid!
-    actOnNamedDecl(rtr);
-  }
   else {
     reportErrorExpected(DiagID::parser_expected_iden);
     //rtr->setIdentifier(identifiers_.getInvalidID());
     poisoned = true;
   }
 
-
+  // Begin RAIIDeclContext scope
   // Create a RAIIDeclContext to record every decl within this function
   RAIIDeclContext raiiDC(*this, rtr);
 
@@ -200,18 +196,22 @@ Parser::DeclResult Parser::parseFuncDecl() {
     return DeclResult::Error();
   }
 
-  auto* body = dyn_cast<CompoundStmt>(compStmt.get());
+  CompoundStmt* body = dyn_cast<CompoundStmt>(compStmt.get());
   assert(body && "Not a compound stmt");
 
-  // Finished parsing, return unless the decl is poisoned.
-  if (poisoned)
-    return DeclResult::Error();
+  // Finished parsing. Check if the Decl is poisoned. If that's the case,
+  // return an error.
+  if (poisoned) return DeclResult::Error();
 
   SourceRange range(begLoc, body->getRange().getEnd());
   assert(headEndLoc && range && "Invalid loc info");
 
+  // Done parsing, restore the original DeclContext
+  raiiDC.restore();
+
   rtr->setBody(body);
   rtr->setLocs(range, headEndLoc);
+  actOnNamedDecl(rtr);
   return DeclResult(rtr);
 }
 
