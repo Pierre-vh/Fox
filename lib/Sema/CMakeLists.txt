@@ -5,5 +5,5 @@ add_source(
   "SemaExpr.cpp"
   "SemaStmt.cpp"
   "SemaDecl.cpp"
-  "Scope.cpp"
+  "LocalScope.cpp"
 )
