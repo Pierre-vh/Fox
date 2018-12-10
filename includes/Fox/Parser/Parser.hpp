@@ -255,10 +255,15 @@ namespace fox {
       class RAIIDeclContext {
         public:
           RAIIDeclContext(Parser &p,DeclContext *dr);
+          // Restores the origina DeclContext early, instead of waiting
+          // for the destruction of this object.
+          void restore();
           ~RAIIDeclContext();
         private:
           Parser& parser_;
-          DeclContext* declCtxt_ = nullptr;
+          // The DeclContext as well as bool that indicates if we
+          // restored it early or not.
+          llvm::PointerIntPair<DeclContext*, 1> declCtxt_;
       };
 
       /*-------------- Member Variables --------------*/

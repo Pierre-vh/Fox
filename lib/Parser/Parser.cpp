@@ -46,7 +46,7 @@ void Parser::actOnNamedDecl(NamedDecl* decl) {
   // Record the NamedDecl in the DeclContext
   assert(state_.declContext
          && "Must have a DeclContext when parsing a Decl.");
-  state_.declContext->recordDecl(decl);
+  state_.declContext->addDecl(decl);
 }
 
 void Parser::actOnDecl(Decl* decl) {
@@ -482,20 +482,27 @@ Parser::ParserState::ParserState():
 // RAIIDeclContext
 Parser::RAIIDeclContext::RAIIDeclContext(Parser &p, DeclContext *dr):
   parser_(p) {
-  declCtxt_ = parser_.state_.declContext;
+  declCtxt_.setPointerAndInt(parser_.state_.declContext, 0);
 
   // If declCtxt_ isn't null, mark it as the parent of the new dr
-  if (declCtxt_) {
+  if (declCtxt_.getPointer()) {
     // Assert that we're not overwriting a parent. 
 		// If such a thing happens, that could indicate a bug!
     assert(!dr->hasParent()
 			&& "New DeclContext already has a parent?");
-    dr->setParent(declCtxt_);
+    dr->setParent(declCtxt_.getPointer());
   }
 
   parser_.state_.declContext = dr;
 }
 
+void Parser::RAIIDeclContext::restore() {
+  if(!declCtxt_.getInt()) {
+    parser_.state_.declContext = declCtxt_.getPointer();
+    declCtxt_.setInt(1);
+  }
+}
+
 Parser::RAIIDeclContext::~RAIIDeclContext() {
-  parser_.state_.declContext = declCtxt_;
+  restore();
 }
