@@ -10,6 +10,8 @@
 
 using namespace fox;
 
+LocalScope::LocalScope(LocalScope* parent) : parent_(parent) {}
+
 NamedDecl* LocalScope::add(NamedDecl* decl) {
   LookupResultTy result;
   Identifier id = decl->getIdentifier();

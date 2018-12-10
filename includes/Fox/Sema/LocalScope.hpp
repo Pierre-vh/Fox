@@ -26,6 +26,8 @@ namespace fox {
     public:
       using LookupResultTy = std::vector<NamedDecl*>;
       
+      LocalScope(LocalScope* parent = nullptr);
+
       // Adds a declaration so it's visible in this current scope
       // If a declaration with this name already exists in this scope, or it's
       // parent, the decl won't be added and we'll return the a pointer to 
