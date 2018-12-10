@@ -19,35 +19,52 @@ namespace fox {
   class DiagnosticEngine;
   class Sema {
     public:
-      Sema(ASTContext& ctxt, DiagnosticEngine& diags);
+      //----------------------------------------------------------------------//
+      // Type aliases
+      //----------------------------------------------------------------------//
 
-      // Other helper classes
-      class RAIISetDeclCtxt;
-
-      // Typedefs
+      // A shortened syntax for a std::pair of Type
       using TypePair = std::pair<Type, Type>;
+
+      // The type used to represent Integral type ranks
       using IntegralRankTy = std::uint8_t;
 
-      // Performs semantic analysis on a node and it's children
-      //  Typechecks an expression, declaration or statement.
+      //----------------------------------------------------------------------//
+      // Public Sema Interface
+      //----------------------------------------------------------------------//
+
+      // Constructor
+        // TODO: Once ASTContext contains the DiagnosticEngine, remove the 2nd
+        //       argument.
+      Sema(ASTContext& ctxt, DiagnosticEngine& diags);
+
+      // Typechecks a ASTNode (expression, declaration or statement)
+      // and it's children.
       //
-      //  Returns the node that should take this node's place. 
-			//	Note that the returned node will always be equal to the argument 
-			//	unless the ASTNode contains an Expr. Never returns nullptr.
+      // Returns The node that should take this node's place. Note that the 
+      // returned node will always be equal to the argument unless the ASTNode 
+      // contains an Expr. Never returns nullptr.
       ASTNode checkNode(ASTNode node);
 
-      // Performs semantic analysis on an expression and it's children.
-      //  Typechecks an expression. 
-      //  
-      //  Returns the expression or another equivalent expression that 
-			//	should replace it. Never nullptr.
+      // Typechecks an expression and it's children.
+      // 
+      // Returns the expression or another equivalent expression that should
+      // replace it. Never nullptr.
       Expr* typecheckExpr(Expr* expr);
 
       // Return enum for typecheckExprOfType
-      //  Ok = the checked expr's type is equivalent to the one requested
-      //  NOk = the checked expr's type is not equivalent
-      //  Error = the checked expr's type is ErrorType
-      enum class CheckedExprResult { Ok, NOk, Error,};
+      enum class CheckedExprResult { 
+        // The expression was successfully typechecked, and matched 
+        // was of the expected type, or equivalent.
+        Ok, 
+
+        // The expression was successfully typechecked, but was of
+        // another type that did not match the one expected.
+        NOk,
+
+        // The expression couldn't be typechecked.
+        Error
+      };
 
       // Performs semantic analysis on an expression and it's children.
       //  Typechecks an expression whose type is already known.
@@ -116,10 +133,30 @@ namespace fox {
       // stop unwrapping once one of them becomes basic.
       static TypePair unwrapAll(Type a, Type b);
 
+      // Returns the DiagnosticEngine used by this Sema instance.
       DiagnosticEngine& getDiagnosticEngine();
+
+      // Returns the ASTContext used by this Sema instance
       ASTContext& getASTContext();
 
     private:
+      //----------------------------------------------------------------------//
+      // Private implementation classes
+      //----------------------------------------------------------------------//
+
+      // RAII Objects
+      class RAIISetDeclCtxt;
+
+      // Checkers
+      class Checker;
+      class DeclChecker;
+      class StmtChecker;
+      class ExprChecker;
+
+      //----------------------------------------------------------------------//
+      // Private methods
+      //----------------------------------------------------------------------//
+
       // Sets the current DeclContext and returns a RAII object that will,
       // upon destruction, restore the previous DeclContext.
       RAIISetDeclCtxt setDeclCtxtRAII(DeclContext* dc);
@@ -127,18 +164,21 @@ namespace fox {
       DeclContext* getDeclCtxt() const;
       bool hasDeclCtxt() const;
 
-      // Private implementation classes
-      class Checker;
-      class DeclChecker;
-      class StmtChecker;
-      class ExprChecker;
+      //----------------------------------------------------------------------//
+      // Private members
+      //----------------------------------------------------------------------//
 
+      // The current active DeclContext.
       DeclContext* currentDC_ = nullptr;
       
+      // the ASTContext and DiagnosticEngine
       ASTContext &ctxt_;
       DiagnosticEngine& diags_;
   };
 
+  // Common base class for all Checker classes. This is used to DRY the code 
+  // as every Checker class needs to access common classes such as the 
+  // ASTContext and DiagnosticEngine
   class Sema::Checker {
     Sema& sema_;
     DiagnosticEngine& diags_;
