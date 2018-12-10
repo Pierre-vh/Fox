@@ -24,7 +24,7 @@ namespace fox {
   // One of theses is created by Sema when we enter a local DeclContext.
   class LocalScope {
     public:
-      using LookupResultTy = std::vector<VarDecl*>;
+      using LookupResultTy = std::vector<NamedDecl*>;
       
       // Adds a declaration so it's visible in this current scope
       // If a declaration with this name already exists in this scope, or it's
