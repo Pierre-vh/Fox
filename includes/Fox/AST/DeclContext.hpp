@@ -8,6 +8,10 @@
 // helps during semantic analysis. A DeclContext records every Declaration
 // that happens in it's children and has functions to help with Lookup. It
 // offers a Semantic view of the declarations it contains.
+//
+// It can also generate a Lexical view of the Declaration it contains, but
+// at this time it's pretty inefficient (only used for Dumps), so use it
+// sparingly.
 //----------------------------------------------------------------------------//
 
 #pragma once
