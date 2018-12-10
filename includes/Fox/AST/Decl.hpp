@@ -52,7 +52,7 @@ namespace fox {
       void operator delete(void*, ASTContext&, std::uint8_t) {}
 
     protected:
-      Decl(DeclKind kind, const SourceRange& range);
+      Decl(DeclKind kind, SourceRange range);
 
     private:
       SourceRange range_;

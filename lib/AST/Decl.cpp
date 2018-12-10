@@ -19,7 +19,7 @@ using namespace fox;
 // Decl //
 //------//
 
-Decl::Decl(DeclKind kind, const SourceRange& range):
+Decl::Decl(DeclKind kind, SourceRange range):
   kind_(kind), range_(range) {
 
 }
