@@ -5,7 +5,9 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file implements the Scope class, which is used to perform
-// local variable binding in the Parser.
+// local variable binding.
+//
+// TODO: Change VarDecl to NamedDecl for the Scope
 //----------------------------------------------------------------------------//
 
 #pragma once

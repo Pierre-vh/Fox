@@ -4,5 +4,4 @@ add_source(
   "ParseExpr.cpp"
   "ParseStmt.cpp"
   "ParseDecl.cpp"
-  "Scope.cpp"
 )

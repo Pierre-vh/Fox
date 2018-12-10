@@ -5,7 +5,7 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-#include "Fox/Parser/Scope.hpp"
+#include "Fox/Sema/Scope.hpp"
 #include "Fox/AST/Decl.hpp"
 
 using namespace fox;
