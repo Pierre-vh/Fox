@@ -102,17 +102,13 @@ namespace fox {
       static bool classof(const Decl* decl);
 
     private:
-      // Helpers
-      static constexpr unsigned parentAndKindBits = 1;
-      static constexpr auto lastDeclCtxtValue 
-        = toInt(DeclContextKind::LastDeclCtxt);
       // The PointerIntPair used to represent the ParentAndKind bits
       using ParentAndKindTy 
-        = llvm::PointerIntPair<DeclContext*, parentAndKindBits>;
+        = llvm::PointerIntPair<DeclContext*, align::DeclContextFreeLowBits>;
       // Check that ParentAndKindTy has enough bits to represent
       // every possible DeclContextKind
       static_assert(
-        (1 << parentAndKindBits) > lastDeclCtxtValue,
+        (1 << align::DeclContextFreeLowBits) > toInt(DeclContextKind::LastDeclCtxt),
         "The PointerIntPair doesn't have enough bits to represent every "
         " DeclContextKind value");
       ParentAndKindTy parentAndKind_;
