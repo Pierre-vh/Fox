@@ -45,6 +45,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // call Sema checking functions to perform Typechecking of other node
     // kinds.
     //----------------------------------------------------------------------//
+    
     void visitParamDecl(ParamDecl*) {
       // do checkValueDecl();
       fox_unimplemented_feature("ParamDecl checking");
@@ -56,7 +57,12 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     }
 
     void visitFuncDecl(FuncDecl* decl) {
-      auto declCtxtGuard = enterDeclCtxt(decl);
+      // FuncDecl is a DeclCtxt. Since we're checking it, set the currently 
+      // active DeclContext in Sema to us.
+      auto dcGuard = getSema().setDeclCtxtRAII(decl);
+      // FuncDecl is also a local scope, so create a new scope.
+      assert(decl->isLocal() && "FuncDecl isn't local?");
+      auto scopeGuard = getSema().enterNewLocalScopeRAII();
       // Sema::setDeclCtxtRAII(decl)
       // visit(decl parameters)
       // Sema::checkNode(decl->getBody())
@@ -64,7 +70,9 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     }
 
     void visitUnitDecl(UnitDecl* decl) {
-      auto declCtxtGuard = enterDeclCtxt(decl);
+      // UnitDecl is a DeclCtxt. Since we're checking it, set the currently 
+      // active DeclContext in Sema to us.
+      auto dcGuard = getSema().setDeclCtxtRAII(decl);
       // Sema::setDeclCtxtRAII(decl)
       // visit(decl parameters)
       // Sema::checkNode(decl->getBody())
@@ -76,28 +84,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     //----------------------------------------------------------------------//
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
-
-    Sema::RAIIDeclCtxt enterDeclCtxt(DeclContext* dc) {
-      return getSema().setDeclCtxtRAII(dc);
-    }
-
-    // CheckValueDecl
-
-    // TODO: Method to check if a ValueDecl hasn't been declared already
-      // Be careful: We will always have at least 1 result because the
-      //             Decl will have been registered by the Parser already.
-      //             Just check that the only result found matches this 
-      //             ValueDecl* ptr. 
-      //             (Convert both to Decl and pointer compare)
-      //             if results == 0 -> unreachable
-      //             if results > 1 -> diagnose 
-      // TODO: Define if we diagnose every conflicting Decl in
-      // one go (then we must mark them so we won't diagnose them again later),
-      // or if we do it one at a time. If we do it one at a time, we must
-      // have a way of knowing which one was the very first declaration 
-      // 
-
-    // TODO: Method to register a decl in the current scope.
+    // CheckValueDecl generic function
 };
 
 void Sema::checkDecl(Decl* decl) {
