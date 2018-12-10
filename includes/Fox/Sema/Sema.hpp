@@ -141,9 +141,27 @@ namespace fox {
       bool hasDeclCtxt() const;
 
     private:
+      class Checker;
+      class DeclChecker;
+      class StmtChecker;
+      class ExprChecker;
+
       DeclContext* currentDC_ = nullptr;
       
       ASTContext &ctxt_;
       DiagnosticEngine& diags_;
+  };
+
+  class Sema::Checker {
+    Sema& sema_;
+    DiagnosticEngine& diags_;
+    ASTContext& ctxt_;
+    public:
+      Checker(Sema& sema) : sema_(sema),
+        diags_(sema.getDiagnosticEngine()), ctxt_(sema.getASTContext()) {}
+
+      ASTContext& getCtxt() { return ctxt_; }
+      DiagnosticEngine& getDiags() { return diags_; }
+      Sema& getSema() { return sema_; }
   };
 }
