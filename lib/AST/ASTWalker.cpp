@@ -161,10 +161,10 @@ namespace {
       }
 
       Decl* visitUnitDecl(UnitDecl* decl) {
-        for (auto& elem : decl->getDecls()) {
-          if (elem) {
-            if (Decl* node = doIt(elem))
-              elem = node;
+        for (auto& elem : decl->getDeclsMap()) {
+          if (elem.second) {
+            if (Decl* node = doIt(elem.second))
+              elem.second = node;
             else return nullptr;
           }
         }

@@ -230,8 +230,8 @@ void ASTDumper::visitUnitDecl(UnitDecl* node) {
              << getDeclRecorderDump(node) << "\n";
 
   indent();
-  for (auto decl : node->getDecls())
-    visit(decl);
+  for (auto decl : node->getDeclsMap())
+    visit(decl.second);
   dedent();
 }
 

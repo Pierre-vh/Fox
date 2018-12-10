@@ -67,15 +67,20 @@ bool Driver::processFile(const std::string& filepath) {
     ctxt.getAllocator().dump(getOS());
   }
 
-  // Semantic analysis testing stuff
-	Sema s(ctxt, diags);
-  for (auto& decl : unit->getDecls()) {
-    if (FuncDecl* fn = dyn_cast<FuncDecl>(decl)) {
-      CompoundStmt* body = fn->getBody();
-      for (auto& node : body->getNodes()) {
-				// Decl checking not available yet
-				if(!node.is<Decl*>())
-					node = s.checkNode(node);
+  // Only perform if no errors occured
+	if(!diags.getErrorsCount()) {
+    // Semantic analysis testing stuff
+    Sema s(ctxt, diags);
+    for (auto& decl : unit->getDeclsMap()) {
+      if (FuncDecl* fn = dyn_cast<FuncDecl>(decl.second)) {
+        CompoundStmt* body = fn->getBody();
+        if(body) {
+          for (auto& node : body->getNodes()) {
+				    // Decl checking not available yet
+				    if(!node.is<Decl*>())
+					    node = s.checkNode(node);
+          }
+        }
       }
     }
   }
