@@ -21,6 +21,9 @@ namespace fox {
     public:
       Sema(ASTContext& ctxt, DiagnosticEngine& diags);
 
+      // Other helper classes
+      class RAIISetDeclCtxt;
+
       // Typedefs
       using TypePair = std::pair<Type, Type>;
       using IntegralRankTy = std::uint8_t;
@@ -116,23 +119,6 @@ namespace fox {
       DiagnosticEngine& getDiagnosticEngine();
       ASTContext& getASTContext();
 
-      // A Small RAII object that sets the currently active DeclContext
-      // for a Sema instance. Upon destruction, it will restore the 
-      // Sema's currently active DeclContext to what it was before.
-      class RAIISetDeclCtxt {
-        Sema& sema_;
-        DeclContext* oldDC_ = nullptr;
-        public:
-          RAIISetDeclCtxt(Sema& sema, DeclContext* dc) : sema_(sema) {
-            oldDC_ = sema.getDeclCtxt();
-            sema_.setDeclCtxt(dc);
-          }
-
-          ~RAIISetDeclCtxt() {
-            sema_.setDeclCtxt(oldDC_);
-          }
-      };
-
       // Sets the current DeclContext and returns a RAII object that will,
       // upon destruction, restore the previous DeclContext.
       RAIISetDeclCtxt setDeclCtxtRAII(DeclContext* dc);
@@ -141,6 +127,7 @@ namespace fox {
       bool hasDeclCtxt() const;
 
     private:
+      // Private implementation classes
       class Checker;
       class DeclChecker;
       class StmtChecker;
@@ -163,5 +150,22 @@ namespace fox {
       ASTContext& getCtxt() { return ctxt_; }
       DiagnosticEngine& getDiags() { return diags_; }
       Sema& getSema() { return sema_; }
+  };
+
+  // A Small RAII object that sets the currently active DeclContext
+  // for a Sema instance. Upon destruction, it will restore the 
+  // Sema's currently active DeclContext to what it was before.
+  class Sema::RAIISetDeclCtxt {
+      Sema& sema_;
+      DeclContext* oldDC_ = nullptr;
+    public:
+      RAIISetDeclCtxt(Sema& sema, DeclContext* dc) : sema_(sema) {
+        oldDC_ = sema.getDeclCtxt();
+        sema_.setDeclCtxt(dc);
+      }
+
+      ~RAIISetDeclCtxt() {
+        sema_.setDeclCtxt(oldDC_);
+      }
   };
 }
