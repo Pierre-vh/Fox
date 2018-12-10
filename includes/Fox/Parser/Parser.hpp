@@ -38,6 +38,7 @@
 #include "Fox/Lexer/Token.hpp"          
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Decl.hpp"
+#include "Fox/Parser/Scope.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
 #include "Fox/Common/ResultObject.hpp"
@@ -226,7 +227,10 @@ namespace fox {
         std::uint8_t squareBracketsCount = 0;
 
         // Current Decl Recorder
-        DeclContext *declContext = nullptr;
+        DeclContext* declContext = nullptr;
+
+        // The current scope
+        Scope* scope = nullptr;
       } state_;
 
       // Interrogate state_
@@ -246,8 +250,7 @@ namespace fox {
 
       /*-------------- RAIIDeclContext --------------*/
       // This class sets the current DeclContext at construction, 
-			// and restores the last
-      // one at destruction.
+			// and restores the last one at destruction.
       // If the DeclContext that was here before isn't null,
 			// it's marked as being the parent of the DeclContext passed 
 			// as argument to the constructor.
@@ -259,6 +262,18 @@ namespace fox {
         private:
           Parser& parser_;
           DeclContext* declCtxt_ = nullptr;
+      };
+
+      /*-------------- RAIIScope --------------*/
+      // This class creates and own a Scope, and restores the old
+      // scope upon destruction.
+      class RAIIScope {
+        public:
+          RAIIScope(Parser& p);
+          ~RAIIScope();
+        private:
+          Parser& parser_;
+          std::unique_ptr<Scope> scope_;
       };
 
       /*-------------- Member Variables --------------*/

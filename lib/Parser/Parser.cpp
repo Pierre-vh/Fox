@@ -489,3 +489,16 @@ Parser::RAIIDeclContext::RAIIDeclContext(Parser &p, DeclContext *dr):
 Parser::RAIIDeclContext::~RAIIDeclContext() {
   parser_.state_.declContext = declCtxt_;
 }
+
+// RAIIScope
+Parser::RAIIScope::RAIIScope(Parser& p) : parser_(p) {
+  // Create a new scope
+  scope_ = std::make_unique<Scope>();
+  // Set the current scope
+  parser_.state_.scope = scope_.get();
+}
+
+Parser::RAIIScope::~RAIIScope() {
+  // Set the current scope to the parent
+  parser_.state_.scope = scope_->getParent();
+}
