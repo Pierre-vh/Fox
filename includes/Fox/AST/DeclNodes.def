@@ -61,4 +61,5 @@ ABSTRACT_DECL(NamedDecl,Decl)
 #undef DECL
 #undef DECL_CTXT
 #undef DECL_RANGE
+#undef LOCAL_DECL_CTXT
 #undef LAST_DECL_CTXT
