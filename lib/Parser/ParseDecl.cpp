@@ -108,7 +108,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
     // Before creating a RAIIDeclContext, record this function
 		// in the parent DeclContext.
     // We only record the function if it's valid!
-    recordDecl(rtr);
+    actOnNamedDecl(rtr);
   }
   else {
     reportErrorExpected(DiagID::parser_expected_iden);
@@ -256,7 +256,7 @@ Parser::DeclResult Parser::parseParamDecl() {
       range
     );
   assert(rtr->isValid());
-  recordDecl(rtr);
+  actOnNamedDecl(rtr);
   return DeclResult(rtr);
 }
 
@@ -344,7 +344,7 @@ Parser::DeclResult Parser::parseVarDecl() {
   assert(type.getRange() && "type range is not valid");
   auto rtr = new(ctxt_) VarDecl(id, type, isConst, iExpr, range);
   assert(rtr->isValid());
-  recordDecl(rtr);
+  actOnNamedDecl(rtr);
   return DeclResult(rtr);
 }
 
