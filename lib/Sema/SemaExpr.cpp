@@ -803,11 +803,16 @@ Sema::typecheckExprOfType(Expr* expr, Type type, bool allowDowncast) {
 		success &= allowDowncast;
 
   CER result;
-  if (success) 
-		result = CER::Ok;
-  else if (expr->getType()->is<ErrorType>()) 
+  if (!expr->getType()->is<ErrorType>()) {
+    if (success)
+      result = CER::Ok;
+    else if (expr->getType()->is<ErrorType>())
+      result = CER::Error;
+    else
+      result = CER::NOk;
+  } 
+  else {
     result = CER::Error;
-  else 
-    result = CER::NOk;
+  }
   return { result, expr };
 }
