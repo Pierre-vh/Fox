@@ -36,8 +36,6 @@ namespace fox {
       void setRange(SourceRange range);
       SourceRange getRange() const;
 
-      bool isValid() const;
-
       void dump() const;
 
       bool isTopLevelDecl() const;
@@ -75,8 +73,6 @@ namespace fox {
       void setIdentifier(Identifier id);
       bool hasIdentifier() const;
 
-      bool isValid() const;
-
       static bool classof(const Decl* decl) {
         return (decl->getKind() >= DeclKind::First_NamedDecl) && (decl->getKind() <= DeclKind::Last_NamedDecl);
       }
@@ -101,8 +97,6 @@ namespace fox {
       bool isConstant() const;
       void setIsConstant(bool k);
 
-      bool isValid() const;
-
       static bool classof(const Decl* decl) {
         return (decl->getKind() >= DeclKind::First_ValueDecl) && (decl->getKind() <= DeclKind::Last_ValueDecl);
       }
@@ -118,8 +112,6 @@ namespace fox {
     public:
       ParamDecl();
       ParamDecl(Identifier id, TypeLoc type, bool isConst, SourceRange range);
-
-      bool isValid() const;
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::ParamDecl;
@@ -146,9 +138,6 @@ namespace fox {
 
       SourceLoc getHeaderEndLoc() const;
       SourceRange getHeaderRange() const;
-
-      // Note: Calls isValid on the args too.
-      bool isValid() const;
 
       void setReturnTypeLoc(TypeLoc ty);
       TypeLoc getReturnTypeLoc() const;
@@ -179,9 +168,6 @@ namespace fox {
       TypeLoc returnType_;
       ParamVecTy params_;
       CompoundStmt* body_ = nullptr;
-
-      // Bitfields (7 bits left)
-      bool paramsAreValid_ : 1;
   };
 
   // VarDecl
@@ -191,8 +177,6 @@ namespace fox {
       VarDecl();
       VarDecl(Identifier id, TypeLoc type, bool isConst,
         Expr* init, SourceRange range);
-
-      bool isValid() const;
 
       Expr* getInitExpr() const;
       void setInitExpr(Expr* expr);
@@ -223,8 +207,6 @@ namespace fox {
       DeclVecTy& getDecls();
       std::size_t getNumDecls() const;
 
-      bool isValid() const;
-
       FileID getFileID() const;
       void setFileID(const FileID& fid);
 
@@ -239,9 +221,6 @@ namespace fox {
     private:
       DeclVecTy decls_;
       FileID file_;
-
-      // Bitfields (7 bits left)
-      bool declsAreValid_ : 1;
   };
 }
 

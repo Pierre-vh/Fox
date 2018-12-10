@@ -68,7 +68,6 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
     return nullptr;
   }
   else {
-    assert(unit->isValid());
     ctxt_.addUnit(unit, isMainUnit);
     return unit;
   }
@@ -213,7 +212,6 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
   rtr->setBody(body);
   rtr->setLocs(range, headEndLoc);
-  assert(rtr->isValid() && "Decl should be valid at this stage");
   return DeclResult(rtr);
 }
 
@@ -255,7 +253,7 @@ Parser::DeclResult Parser::parseParamDecl() {
       isConst,
       range
     );
-  assert(rtr->isValid());
+
   actOnNamedDecl(rtr);
   return DeclResult(rtr);
 }
@@ -343,7 +341,7 @@ Parser::DeclResult Parser::parseVarDecl() {
   assert(type && "type is not valid");
   assert(type.getRange() && "type range is not valid");
   auto rtr = new(ctxt_) VarDecl(id, type, isConst, iExpr, range);
-  assert(rtr->isValid());
+
   actOnNamedDecl(rtr);
   return DeclResult(rtr);
 }

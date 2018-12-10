@@ -48,10 +48,6 @@ SourceRange Decl::getRange() const {
   return range_;
 }
 
-bool fox::Decl::isValid() const {
-  return range_.isValid();
-}
-
 void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
 }
@@ -75,10 +71,6 @@ void NamedDecl::setIdentifier(Identifier id) {
 
 bool NamedDecl::hasIdentifier() const {
   return !identifier_.isNull();
-}
-
-bool NamedDecl::isValid() const {
-  return Decl::isValid() && hasIdentifier();
 }
 
 //-----------//
@@ -115,10 +107,6 @@ void ValueDecl::setIsConstant(bool k) {
   isConst_ = k;
 }
 
-bool ValueDecl::isValid() const {
-  return NamedDecl::isValid() && type_;
-}
-
 //-----------//
 // ParamDecl //
 //-----------//
@@ -134,10 +122,6 @@ ParamDecl::ParamDecl(Identifier id, TypeLoc type, bool isConst,
 
 }
 
-bool ParamDecl::isValid() const {
-  return ValueDecl::isValid();
-}
-
 //----------//
 // FuncDecl //
 //----------//
@@ -151,7 +135,7 @@ FuncDecl::FuncDecl(TypeLoc returnType, Identifier fnId, CompoundStmt* body,
   SourceRange range, SourceLoc headerEndLoc):
   NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), 
 	body_(body), returnType_(returnType), 
-  DeclContext(DeclContextKind::FuncDecl) { paramsAreValid_ = true; }
+  DeclContext(DeclContextKind::FuncDecl) {}
 
 void FuncDecl::setLocs(SourceRange range, SourceLoc headerEndLoc) {
   setRange(range);
@@ -168,10 +152,6 @@ SourceLoc FuncDecl::getHeaderEndLoc() const {
 
 SourceRange FuncDecl::getHeaderRange() const {
   return SourceRange(getRange().getBegin(), headEndLoc_);
-}
-
-bool FuncDecl::isValid() const {
-  return NamedDecl::isValid() && body_ && returnType_ && headEndLoc_ && paramsAreValid_;
 }
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
@@ -209,8 +189,6 @@ FuncDecl::ParamVecTy& FuncDecl::getParams() {
 }
 
 void FuncDecl::addParam(ParamDecl* param) {
-  paramsAreValid_ = (param && param->isValid());
-
   params_.push_back(param);
 }
 
@@ -242,10 +220,6 @@ VarDecl::VarDecl(Identifier id, TypeLoc type, bool isConst, Expr* init,
 
 }
 
-bool VarDecl::isValid() const {
-  return ValueDecl::isValid();
-}
-
 Expr* VarDecl::getInitExpr() const {
   return init_;
 }
@@ -264,13 +238,9 @@ void VarDecl::setInitExpr(Expr* expr) {
 
 UnitDecl::UnitDecl(Identifier id,FileID inFile): 
 	NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile), 
-  DeclContext(DeclContextKind::UnitDecl) { declsAreValid_ = true; }
+  DeclContext(DeclContextKind::UnitDecl) {}
 
 void UnitDecl::addDecl(Decl* decl) {
-  // Check the decl
-  if (!decl->isValid())
-    declsAreValid_ = false;
-
   // Update locs
   SourceRange range;
   if (!getRange().isValid()) /*(range not set yet) */ {
@@ -307,10 +277,6 @@ UnitDecl::DeclVecTy& UnitDecl::getDecls() {
 
 std::size_t UnitDecl::getNumDecls() const {
   return decls_.size();
-}
-
-bool UnitDecl::isValid() const {
-  return file_ && NamedDecl::isValid() && (decls_.size() != 0) && declsAreValid_;
 }
 
 FileID UnitDecl::getFileID() const {
