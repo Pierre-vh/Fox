@@ -63,14 +63,16 @@ namespace {
         fox_unimplemented_feature("VarDecl checking");
       }
 
-      void visitFuncDecl(FuncDecl*) {
+      void visitFuncDecl(FuncDecl* decl) {
+        auto declCtxtGuard = enterDeclCtxt(decl);
         // Sema::setDeclCtxtRAII(decl)
         // visit(decl parameters)
         // Sema::checkNode(decl->getBody())
         fox_unimplemented_feature("FuncDecl checking");
       }
 
-      void visitUnitDecl(UnitDecl*) {
+      void visitUnitDecl(UnitDecl* decl) {
+        auto declCtxtGuard = enterDeclCtxt(decl);
         // Sema::setDeclCtxtRAII(decl)
         // visit(decl parameters)
         // Sema::checkNode(decl->getBody())
@@ -82,6 +84,10 @@ namespace {
       //----------------------------------------------------------------------//
       // Various semantics-related helper methods 
       //----------------------------------------------------------------------//
+
+      Sema::RAIISetDeclCtxt enterDeclCtxt(DeclContext* dc) {
+        return getSema().setDeclCtxtRAII(dc);
+      }
 
       // CheckValueDecl
 
