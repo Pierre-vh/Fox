@@ -34,7 +34,7 @@ namespace fox   {
 
   // Expr
   //    Common base class for every expression
-  class alignas(align::ExprAlignement) Expr {
+  class alignas(ExprAlignement) Expr {
     public:
       ExprKind getKind() const;
 

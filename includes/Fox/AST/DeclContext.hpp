@@ -57,7 +57,7 @@ namespace fox {
     return static_cast<std::underlying_type<DeclContextKind>::type>(kind);
   }
 
-  class alignas(align::DeclContextAlignement) DeclContext {
+  class alignas(DeclContextAlignement) DeclContext {
     private:
       using NamedDeclsMapTy = std::multimap<Identifier, NamedDecl*>;
       using NamedDeclsMapIter 
@@ -104,11 +104,11 @@ namespace fox {
     private:
       // The PointerIntPair used to represent the ParentAndKind bits
       using ParentAndKindTy 
-        = llvm::PointerIntPair<DeclContext*, align::DeclContextFreeLowBits>;
+        = llvm::PointerIntPair<DeclContext*, DeclContextFreeLowBits>;
       // Check that ParentAndKindTy has enough bits to represent
       // every possible DeclContextKind
       static_assert(
-        (1 << align::DeclContextFreeLowBits) > toInt(DeclContextKind::LastDeclCtxt),
+        (1 << DeclContextFreeLowBits) > toInt(DeclContextKind::LastDeclCtxt),
         "The PointerIntPair doesn't have enough bits to represent every "
         " DeclContextKind value");
       ParentAndKindTy parentAndKind_;

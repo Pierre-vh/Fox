@@ -29,7 +29,7 @@ namespace fox {
 
   // Stmt
   //    Common base for every statement
-  class alignas(align::StmtAlignement) Stmt {
+  class alignas(StmtAlignement) Stmt {
     public:
       StmtKind getKind() const;
 

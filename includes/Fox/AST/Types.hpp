@@ -37,7 +37,7 @@ namespace fox {
   //
   // Usually, you should never use raw TypeBase* pointers unless you have
   // a valid reason. Always use the Type wrapper. (see Type.hpp)
-  class alignas(align::TypeBaseAlignement) TypeBase {
+  class alignas(TypeBaseAlignement) TypeBase {
     public:
       /* Returns the type's name in a user friendly form, 
          e.g. "int", "string" */

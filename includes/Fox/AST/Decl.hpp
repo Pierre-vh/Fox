@@ -29,7 +29,7 @@ namespace fox {
 
   // Decl
   //    Common base class for every Declaration
-  class alignas(align::DeclAlignement) Decl {
+  class alignas(DeclAlignement) Decl {
     public:
       DeclKind getKind() const;
 

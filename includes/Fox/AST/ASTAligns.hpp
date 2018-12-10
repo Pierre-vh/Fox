@@ -14,7 +14,6 @@
 #include "ASTFwdDecl.hpp"
 
 namespace fox {
-namespace align {
   // Declare the FreeBits and Alignement variables
   // Usage of DECLARE: DECLARE(Class name, Number of free bits desired)
   #define DECLARE(CLASS, FREE_BITS_DESIRED)\
@@ -28,7 +27,6 @@ namespace align {
   DECLARE(DeclContext, 2);
   #undef DECLARE
 }
-}
 
 // Specialize llvm::PointerLikeTypeTraits for each class.
 // This is important for multiple LLVM ADT classes, such as
@@ -37,7 +35,7 @@ namespace llvm {
   template <class T> struct PointerLikeTypeTraits;
   #define LLVM_DEFINE_PLTT(CLASS) \
   template <> struct PointerLikeTypeTraits<::fox::CLASS*> { \
-    enum { NumLowBitsAvailable = ::fox::align::CLASS##FreeLowBits }; \
+    enum { NumLowBitsAvailable = ::fox::CLASS##FreeLowBits }; \
     static inline void* getAsVoidPointer(::fox::CLASS* ptr) {return ptr;} \
     static inline ::fox::CLASS* getFromVoidPointer(void* ptr) \
     {return static_cast<::fox::CLASS*>(ptr);} \
