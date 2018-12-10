@@ -53,7 +53,7 @@ bool Sema::hasDeclCtxt() const {
   return (currentDC_ != nullptr);
 }
 
-Sema::RAIILocalScope Sema::enterLocalScopeRAII() {
+Sema::RAIILocalScope Sema::enterNewLocalScopeRAII() {
   return RAIILocalScope(*this);
 }
 

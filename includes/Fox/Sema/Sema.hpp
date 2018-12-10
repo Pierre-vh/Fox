@@ -168,7 +168,7 @@ namespace fox {
 
       // Creates a new scope and set localScope_ to that newly created instance.
       // Returns a RAII object that will, upon destruction, restore the LocalScope.
-      RAIILocalScope enterLocalScopeRAII();
+      RAIILocalScope enterNewLocalScopeRAII();
       LocalScope* getLocalScope() const;
       bool hasLocalScope() const;
 
