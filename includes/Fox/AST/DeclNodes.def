@@ -17,13 +17,19 @@
 #endif
 
 // This macro is used for Decl contexts, the default
-// behaviour is to do the same as Decls.
+// behaviour is to do the same as DECL
 #ifndef DECL_CTXT
   #define DECL_CTXT(ID,PARENT) DECL(ID,PARENT)
 #endif
 
+// This macro is used for Local Decl contexts, the default
+// behaviour is to do the same as DECL_CTXT
+#ifndef LOCAL_DECL_CTXT
+  #define LOCAL_DECL_CTXT(ID,PARENT) DECL_CTXT(ID,PARENT)
+#endif
+
 // This macro is used to mark the last DECL_CTXT in the list.
-// The default behaviour is to do nothing.
+// The default behaviour is to ignore them.
 #ifndef LAST_DECL_CTXT
   #define LAST_DECL_CTXT(ID)
 #endif
@@ -33,8 +39,8 @@
   #define DECL_RANGE(ID,FIRST,LAST)
 #endif
 
-// Abstract decls, most of the time, we don't care about them.
-// The class name is ID, and the parent PARENT.
+// Abstract declarations
+// The default behaviour is to ignore them.
 #ifndef ABSTRACT_DECL
   #define ABSTRACT_DECL(ID,PARENT)
 #endif
@@ -45,7 +51,7 @@ ABSTRACT_DECL(NamedDecl,Decl)
     DECL(ParamDecl, ValueDecl)
     DECL(VarDecl, ValueDecl)
     DECL_RANGE(ValueDecl, ParamDecl, VarDecl)
-  DECL_CTXT(FuncDecl, NamedDecl)
+  LOCAL_DECL_CTXT(FuncDecl, NamedDecl)
   DECL_CTXT(UnitDecl, NamedDecl)
   LAST_DECL_CTXT(UnitDecl)
   DECL_RANGE(NamedDecl, ParamDecl, UnitDecl)

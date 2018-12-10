@@ -29,6 +29,16 @@ void DeclContext::recordDecl(NamedDecl* decl) {
   namedDecls_.insert({name, decl});
 }
 
+bool DeclContext::isLocal() const {
+  switch (getDeclContextKind()) {
+    #define LOCAL_DECL_CTXT(ID, PARENT) case DeclContextKind::ID:
+    #include "Fox/AST/DeclNodes.def"
+      return true;
+    default:
+      return false;
+  }
+}
+
 LookupResult DeclContext::restrictedLookup(Identifier id) const {
   auto it_range = namedDecls_.equal_range(id);
   LookupResult lr;
