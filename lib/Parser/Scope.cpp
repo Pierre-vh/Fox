@@ -10,7 +10,7 @@
 
 using namespace fox;
 
-NamedDecl* Scope::add(NamedDecl* decl) {
+VarDecl* Scope::add(VarDecl* decl) {
   LookupResultTy result;
   Identifier id = decl->getIdentifier();
   lookup(id, result);
