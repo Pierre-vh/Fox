@@ -20,9 +20,14 @@ DeclContextKind DeclContext::getDeclContextKind() const {
   return static_cast<DeclContextKind>(parentAndKind_.getInt());
 }
 
-void DeclContext::recordDecl(NamedDecl* decl) {
+void DeclContext::addDecl(Decl* decl) {
   assert(decl  && "Declaration cannot be null!");
-  Identifier name = decl->getIdentifier();
+  NamedDecl* named = dyn_cast<NamedDecl>(decl);
+  // At the time of writing this, every decl is derived from NamedDecl, so
+  // this check never fails. It's only there as a guide to help me find out
+  // where to implement unnamed decls support if I ever need it.
+  if(!named) fox_unimplemented_feature("Unnamed Decls in DeclContext");
+  Identifier name = named->getIdentifier();
   assert(name  
     && "Declaration must have a non-null Identifier to be "
        "recorded");

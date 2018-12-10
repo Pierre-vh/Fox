@@ -64,7 +64,7 @@ namespace fox {
       //----------------------------------------------------------------------//
 
       // The type of the internal map of Decls
-      using DeclsMapTy = std::multimap<Identifier, NamedDecl*>;
+      using DeclsMapTy = std::multimap<Identifier, Decl*>;
 
       // The type of the non-const iterator for DeclsMapTy
       using DeclMapIter 
@@ -85,8 +85,8 @@ namespace fox {
       // Returns the Kind of DeclContext this is
       DeclContextKind getDeclContextKind() const;
 
-      // Register a Declaration in this DeclContext
-      void recordDecl(NamedDecl* decl);
+      // Adds a Decl in this DeclContext
+      void addDecl(Decl* decl);
 
       // Returns true if this is a local context
       bool isLocalDeclContext() const;
