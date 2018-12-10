@@ -459,8 +459,22 @@ namespace {
         fox_unimplemented_feature("MemberOfExpr TypeChecking");
       }
 
-      Expr* visitDeclRefExpr(DeclRefExpr*) {
-        fox_unimplemented_feature("DeclRefExpr TypeChecking");
+      Expr* visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*) {
+        fox_unimplemented_feature(
+          "Name Binding/UnresolvedDeclRefExpr TypeChecking");
+      }
+
+      Expr* visitDeclRefExpr(DeclRefExpr* expr) {
+        ValueDecl* ref = expr->getDecl();
+        assert(ref && "Resolved DeclRef with nullptr DeclRefExpr");
+        // The type of the expr is simply the type of the Decl this
+        // DeclRef references.
+        Type type = ref->getType();
+        // Unless constant, wrap in LValue
+        if (!ref->isConstant())
+          type = LValueType::get(getCtxt(), type);
+        expr->setType(type);
+        return expr;
       }
 
       Expr* visitFunctionCallExpr(FunctionCallExpr*) {

@@ -52,7 +52,6 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
           endLoc = consumeBracket(SignType::S_SQ_CLOSE);
         else
           return ExprResult::Error();
-
       }
 
       SourceRange range(begLoc, endLoc);
@@ -89,16 +88,10 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
 }
 
 Parser::ExprResult Parser::parseDeclRef() {
-  // Note: this rule is quite simple and is essentially just a "wrapper"
-  // however I'm keeping it for clarity, and future usages where DeclRef might get more complex, if it ever 
-  // does
-
   // <decl_call> = <id> 
   if (auto id = consumeIdentifier())
-    return ExprResult(new(ctxt_) DeclRefExpr(
-        id.get(),
-        id.getRange()
-      ));
+    return ExprResult(new(ctxt_) 
+            UnresolvedDeclRefExpr(id.get(), id.getRange()));
   return ExprResult::NotFound();
 }
 

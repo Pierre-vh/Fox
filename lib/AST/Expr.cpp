@@ -451,20 +451,24 @@ Expr* CastExpr::getExpr() const {
 //-------------//
 
 DeclRefExpr::DeclRefExpr():
-  DeclRefExpr(Identifier(), SourceRange()) {
+  DeclRefExpr(nullptr, SourceRange()) {
 }
 
-DeclRefExpr::DeclRefExpr(Identifier id, SourceRange range):
-  id_(id), Expr(ExprKind::DeclRefExpr, range) {
+DeclRefExpr::DeclRefExpr(ValueDecl* decl, SourceRange range):
+  decl_(decl), Expr(ExprKind::DeclRefExpr, range) {
 
-}
-
-void DeclRefExpr::setIdentifier(Identifier id) {
-  id_ = id;
 }
 
 Identifier DeclRefExpr::getIdentifier() const {
-  return id_;
+  return decl_ ? decl_->getIdentifier() : Identifier();
+}
+
+ValueDecl* DeclRefExpr::getDecl() const {
+  return decl_;
+}
+
+void DeclRefExpr::setDecl(ValueDecl* decl) {
+  decl_ = decl;
 }
 
 //------------------//
@@ -570,4 +574,29 @@ void ArraySubscriptExpr::setIndex(Expr* expr) {
 
 Expr* ArraySubscriptExpr::getIndex() const {
   return idxExpr_;
+}
+
+//----------------//
+// UnresolvedExpr //
+//----------------//
+
+UnresolvedExpr::UnresolvedExpr(ExprKind kind, SourceRange range):
+  Expr(kind, range) {}
+
+//-----------------------//
+// UnresolvedDeclRefExpr //
+//-----------------------//
+
+UnresolvedDeclRefExpr::UnresolvedDeclRefExpr(): 
+  UnresolvedDeclRefExpr(Identifier(), SourceRange()){}
+
+UnresolvedDeclRefExpr::UnresolvedDeclRefExpr(Identifier id, SourceRange range):
+  UnresolvedExpr(ExprKind::UnresolvedDeclRefExpr, range), id_(id) {}
+
+void UnresolvedDeclRefExpr::setIdentifier(Identifier id) {
+  id_ = id;
+}
+
+Identifier UnresolvedDeclRefExpr::getIdentifier() const {
+  return id_;
 }

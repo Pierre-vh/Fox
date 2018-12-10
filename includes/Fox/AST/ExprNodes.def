@@ -16,8 +16,14 @@
 #endif
 
 // Abstract Expressions
+// The default behaviour is to ignore them
 #ifndef ABSTRACT_EXPR
   #define ABSTRACT_EXPR(ID, PARENT)
+#endif
+
+// Expr range
+#ifndef EXPR_RANGE 
+  #define EXPR_RANGE(ID, FIRST, LAST)
 #endif
 
 /* Macros */
@@ -36,6 +42,11 @@ EXPR(FloatLiteralExpr,Expr)
 EXPR(StringLiteralExpr,Expr)
 EXPR(ArrayLiteralExpr,Expr)
 
+// Unresolved Exprs
+ABSTRACT_EXPR(UnresolvedExpr, Expr)
+  EXPR(UnresolvedDeclRefExpr, UnresolvedExpr)
+  EXPR_RANGE(UnresolvedExpr, UnresolvedDeclRefExpr, UnresolvedDeclRefExpr)
+
 // DeclRef & Function calls
 EXPR(DeclRefExpr,Expr)
 EXPR(MemberOfExpr,Expr)
@@ -44,3 +55,4 @@ EXPR(FunctionCallExpr,Expr)
 /* Undef */
 #undef EXPR
 #undef ABSTRACT_EXPR
+#undef EXPR_RANGE

@@ -310,6 +310,10 @@ TEST(ASTTests, ExprRTTI) {
   // Helper
   auto fooid = astctxt.getIdentifier("foo");
 
+  UnresolvedDeclRefExpr undeclref;
+  EXPECT_EQ(undeclref.getKind(), ExprKind::UnresolvedDeclRefExpr);
+  EXPECT_TRUE(UnresolvedDeclRefExpr::classof(&undeclref));
+
   // DeclRef
   DeclRefExpr declref;
   EXPECT_EQ(declref.getKind(), ExprKind::DeclRefExpr);

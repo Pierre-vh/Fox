@@ -96,7 +96,14 @@ void ASTDumper::visitMemberOfExpr(MemberOfExpr* node) {
 
 void ASTDumper::visitDeclRefExpr(DeclRefExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " "
-             << getIdentifierDump(node->getIdentifier()) << "\n";
+    << getIdentifierDump(node->getIdentifier()) << " "
+    << makeKeyPairDump("references", (void*)node->getDecl())
+    << "\n";
+}
+
+void ASTDumper::visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* node) {
+  dumpLine() << getBasicExprInfo(node) << " "
+    << getIdentifierDump(node->getIdentifier()) << "\n";
 }
 
 void ASTDumper::visitFunctionCallExpr(FunctionCallExpr* node) {

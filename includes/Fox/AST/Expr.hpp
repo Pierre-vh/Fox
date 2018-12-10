@@ -20,6 +20,7 @@ namespace fox   {
   enum class ExprKind: std::uint8_t {
     // TODO: if EXPR_RANGE is added, support it in operator<<
     #define EXPR(ID,PARENT) ID,
+    #define EXPR_RANGE(ID, FIRST, LAST) First_##ID = FIRST, Last_##ID = LAST,
     #include "ExprNodes.def"
   };
 
@@ -313,22 +314,58 @@ namespace fox   {
       ExprVector exprs_;
   };
 
-  // DeclRefExpr
-  //    A identifier that references a declaration: foo
-  class DeclRefExpr : public Expr {
+  // UnresolvedExpr
+  //    A small common base class for unresolved expressions
+  class UnresolvedExpr : public Expr {
     public:
-      DeclRefExpr();
-      DeclRefExpr(Identifier id, SourceRange range);
+      static bool classof(const Expr* expr) {
+        using EK = ExprKind;
+        EK k = expr->getKind();
+        return (k >= EK::First_UnresolvedExpr) 
+          && (k <= EK::Last_UnresolvedExpr);
+      }
+
+    protected:
+      UnresolvedExpr(ExprKind kind, SourceRange range);
+  };
+
+  // UnresolvedDeclRefExpr
+  //    Represents a unresolved DeclRef
+  class UnresolvedDeclRefExpr : public UnresolvedExpr {
+    public:
+      UnresolvedDeclRefExpr();
+      UnresolvedDeclRefExpr(Identifier id, SourceRange range);
 
       void setIdentifier(Identifier id);
       Identifier getIdentifier() const;
+
+      static bool classof(const Expr* expr) {
+        return (expr->getKind() == ExprKind::UnresolvedDeclRefExpr);
+      }
+    private:
+      Identifier id_;
+  };
+
+  // DeclRefExpr
+  //    A resolved reference to a ValueDecl. 
+  class DeclRefExpr : public Expr {
+    public:
+      DeclRefExpr();
+      DeclRefExpr(ValueDecl* decl, SourceRange range);
+
+      // Returns the identifier of the Decl, or Identifier() if
+      // the Decl is nullptr
+      Identifier getIdentifier() const;
+
+      ValueDecl* getDecl() const;
+      void setDecl(ValueDecl* decl);
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::DeclRefExpr);
       }
 
     private:
-      Identifier id_;
+      ValueDecl * decl_ = nullptr;
   };
 
   // MemberOfExpr
