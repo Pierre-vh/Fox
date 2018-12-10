@@ -12,7 +12,9 @@
 
 #include <cstdint>
 #include <tuple>
+#include <memory>
 #include "Fox/AST/ASTFwdDecl.hpp"
+#include "LocalScope.hpp"
 
 namespace fox {
   class ASTContext;
@@ -146,6 +148,7 @@ namespace fox {
 
       // RAII Objects
       class RAIIDeclCtxt;
+      class RAIILocalScope;
 
       // Checkers
       class Checker;
@@ -160,9 +163,14 @@ namespace fox {
       // Sets the current DeclContext and returns a RAII object that will,
       // upon destruction, restore the previous DeclContext.
       RAIIDeclCtxt setDeclCtxtRAII(DeclContext* dc);
-      void setDeclCtxt(DeclContext* dc);
       DeclContext* getDeclCtxt() const;
       bool hasDeclCtxt() const;
+
+      // Creates a new scope and set localScope_ to that newly created instance.
+      // Returns a RAII object that will, upon destruction, restore the LocalScope.
+      RAIILocalScope enterLocalScopeRAII();
+      LocalScope* getLocalScope() const;
+      bool hasLocalScope() const;
 
       //----------------------------------------------------------------------//
       // Private members
@@ -170,6 +178,9 @@ namespace fox {
 
       // The current active DeclContext.
       DeclContext* currentDC_ = nullptr;
+
+      // The current active LocalScope
+      LocalScope* localScope_ = nullptr;
       
       // the ASTContext and DiagnosticEngine
       ASTContext &ctxt_;
@@ -201,11 +212,31 @@ namespace fox {
     public:
       RAIIDeclCtxt(Sema& sema, DeclContext* dc) : sema_(sema) {
         oldDC_ = sema.getDeclCtxt();
-        sema_.setDeclCtxt(dc);
+        sema_.currentDC_ = dc;
       }
 
       ~RAIIDeclCtxt() {
-        sema_.setDeclCtxt(oldDC_);
+        sema_.currentDC_ = oldDC_;
+      }
+  };
+
+  // A Small RAII object that sets the current LocalScope [in a Sema instance]
+  // to a new LocalScope instance, owned by this object.
+  class Sema::RAIILocalScope {
+    Sema& sema_;
+    std::unique_ptr<LocalScope> scope_;
+    public:
+      // Create a new LocalScope whose parent is the current active
+      // localScope (maybe null)
+      RAIILocalScope(Sema& sema) : sema_(sema),
+        scope_(std::make_unique<LocalScope>(sema_.localScope_)) {}
+
+      // Needed for enterLocalScopeRAII factory function
+      RAIILocalScope(RAIILocalScope&&) = default;
+
+      ~RAIILocalScope() {
+        // Restore the scope
+        sema_.localScope_ = scope_->getParent();
       }
   };
 }

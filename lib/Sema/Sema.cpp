@@ -41,8 +41,8 @@ ASTNode Sema::checkNode(ASTNode node) {
   fox_unreachable("unknown ASTNode kind");
 }
 
-void Sema::setDeclCtxt(DeclContext* dc) {
-  currentDC_ = dc;
+Sema::RAIIDeclCtxt Sema::setDeclCtxtRAII(DeclContext* dc) {
+  return RAIIDeclCtxt(*this, dc);
 }
 
 DeclContext* Sema::getDeclCtxt() const {
@@ -53,6 +53,14 @@ bool Sema::hasDeclCtxt() const {
   return (currentDC_ != nullptr);
 }
 
-Sema::RAIIDeclCtxt Sema::setDeclCtxtRAII(DeclContext* dc) {
-  return RAIIDeclCtxt(*this, dc);
+Sema::RAIILocalScope Sema::enterLocalScopeRAII() {
+  return RAIILocalScope(*this);
+}
+
+LocalScope* Sema::getLocalScope() const {
+  return localScope_;
+}
+
+bool Sema::hasLocalScope() const {
+  return (bool)localScope_;
 }
