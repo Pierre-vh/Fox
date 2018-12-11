@@ -42,10 +42,12 @@ class LocTests : public ::testing::Test {
       }
 
       parser = std::make_unique<Parser>(dg, srcMgr , astContext, lexer->getTokenVector(), &declContext);
+      ok = true;
     }
 
     std::string fullFilePath;
-
+    
+    bool ok = false;
     DiagnosticEngine dg;
     FileID file;
     SourceManager srcMgr;
@@ -57,6 +59,7 @@ class LocTests : public ::testing::Test {
 
 TEST_F(LocTests, FuncAndArgDecl) {
   SetUp("parser/loc/functions.fox");
+  ASSERT_TRUE(ok) << "Initialization failed";
   auto presult = parser->parseFuncDecl();
   ASSERT_TRUE(presult) << "parsing error";
 
@@ -121,6 +124,7 @@ TEST_F(LocTests, FuncAndArgDecl) {
 // VarDecl test
 TEST_F(LocTests, VarDecls) {
   SetUp("parser/loc/vardecl.fox");
+  ASSERT_TRUE(ok) << "Initialization failed";
   auto presult = parser->parseVarDecl();
   ASSERT_TRUE(presult) << "parsing error";
 
@@ -144,5 +148,3 @@ TEST_F(LocTests, VarDecls) {
   EXPECT_EQ(expr_beg, expr_end); // Since the expr is only a '3', it's only one char, thus beg = end.
   EXPECT_EQ(expr_beg, CompleteLoc(fullFilePath, 1, 25));
 }
-
-// ToDo : Same tests for Exprs and Stmts
