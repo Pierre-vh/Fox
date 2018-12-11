@@ -12,9 +12,9 @@
 
 using namespace fox;
 
-//------//
-// Stmt //
-//------//
+//----------------------------------------------------------------------------//
+// Stmt
+//----------------------------------------------------------------------------//
 
 Stmt::Stmt(StmtKind skind, SourceRange range):
   kind_(skind), range_(range) {
@@ -37,13 +37,11 @@ void Stmt::setRange(SourceRange range) {
   range_ = range;
 }
 
-//----------//
-// NullStmt //
-//----------//
+//----------------------------------------------------------------------------//
+// NullStmt
+//----------------------------------------------------------------------------//
 
-NullStmt::NullStmt() : NullStmt(SourceLoc()) {
-
-}
+NullStmt::NullStmt() : NullStmt(SourceLoc()) {}
 
 NullStmt::NullStmt(SourceLoc semiLoc):
   Stmt(StmtKind::NullStmt, SourceRange(semiLoc)) {
@@ -58,19 +56,14 @@ SourceLoc NullStmt::getSemiLoc() const {
   return getRange().getBegin();
 }
 
-//------------//
-// ReturnStmt //
-//------------//
+//----------------------------------------------------------------------------//
+// ReturnStmt
+//----------------------------------------------------------------------------//
 
-ReturnStmt::ReturnStmt():
-  ReturnStmt(nullptr, SourceRange()) {
-
-}
+ReturnStmt::ReturnStmt(): ReturnStmt(nullptr, SourceRange()) {}
 
 ReturnStmt::ReturnStmt(Expr* rtr_expr, SourceRange range):
-  Stmt(StmtKind::ReturnStmt, range), expr_(rtr_expr) {
-
-}
+  Stmt(StmtKind::ReturnStmt, range), expr_(rtr_expr) {}
 
 bool ReturnStmt::hasExpr() const {
   return (bool)expr_;
@@ -84,21 +77,17 @@ void ReturnStmt::setExpr(Expr* e) {
   expr_ = e;
 }
 
-//---------------//
-// ConditionStmt //
-//---------------//
+//----------------------------------------------------------------------------//
+// ConditionStmt
+//----------------------------------------------------------------------------//
 
-ConditionStmt::ConditionStmt() 
-  : ConditionStmt(nullptr, ASTNode(), ASTNode(), SourceRange(), SourceLoc()) {
-
-}
+ConditionStmt::ConditionStmt() : ConditionStmt(nullptr, ASTNode(), ASTNode(),
+  SourceRange(), SourceLoc()) {}
 
 ConditionStmt::ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
-  SourceRange range, SourceLoc ifHeaderEndLoc):
-  Stmt(StmtKind::ConditionStmt, range), cond_(cond), then_(then), 
-    else_(elsenode), ifHeadEndLoc_(ifHeaderEndLoc) {
-
-}
+  SourceRange range, SourceLoc ifHeaderEndLoc): Stmt(StmtKind::ConditionStmt,
+  range), cond_(cond), then_(then),  else_(elsenode), 
+  ifHeadEndLoc_(ifHeaderEndLoc) {}
 
 bool ConditionStmt::isValid() const {
   return cond_ && then_;
@@ -144,9 +133,9 @@ SourceLoc ConditionStmt::getIfHeaderEndLoc() const {
   return ifHeadEndLoc_;
 }
 
-//--------------//
-// CompoundStmt //
-//--------------//
+//----------------------------------------------------------------------------//
+// CompoundStmt
+//----------------------------------------------------------------------------//
 
 CompoundStmt::CompoundStmt() : CompoundStmt(SourceRange()) {
 
@@ -183,18 +172,16 @@ std::size_t CompoundStmt::size() const {
   return nodes_.size();
 }
 
-//-----------//
-// WhileStmt //
-//-----------//
+//----------------------------------------------------------------------------//
+// WhileStmt
+//----------------------------------------------------------------------------//
 
-WhileStmt::WhileStmt() : WhileStmt(nullptr, ASTNode(), SourceRange(), SourceLoc()) {
+WhileStmt::WhileStmt() : WhileStmt(nullptr, ASTNode(), SourceRange(), 
+  SourceLoc()) {}
 
-}
-
-WhileStmt::WhileStmt(Expr* cond, ASTNode body, SourceRange range, SourceLoc headerEndLoc):
-  Stmt(StmtKind::WhileStmt, range), headerEndLoc_(headerEndLoc), cond_(cond), body_(body) {
-
-}
+WhileStmt::WhileStmt(Expr* cond, ASTNode body, SourceRange range, 
+  SourceLoc headerEndLoc): Stmt(StmtKind::WhileStmt, range),
+  headerEndLoc_(headerEndLoc), cond_(cond), body_(body) {}
 
 Expr* WhileStmt::getCond() const {
   return cond_;

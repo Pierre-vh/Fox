@@ -20,8 +20,8 @@ namespace fox {
   class ASTContext;
   class CompoundStmt;
 
-  // This enum represents every possible Declaration kind. It is automatically
-  // generated using Fox/AST/DeclNodes.def
+  // This enum represents every possible Declaration subclass. 
+  // It is automatically generated using Fox/AST/DeclNodes.def
   enum class DeclKind : std::uint8_t {
     #define DECL(ID,PARENT) ID,
     #define DECL_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
@@ -57,11 +57,11 @@ namespace fox {
       // Get the FileID of the file where this Decl is located
       FileID getFile() const;
 
-      // Debug method. Does a ASTDump to std::cerr
+      // Debug method. Does a ASTDump of this node to std::cerr
       void dump() const;
 
       // Prohibit the use of builtin placement new & delete
-      void *operator new(std::size_t) throw() = delete;
+      void* operator new(std::size_t) throw() = delete;
       void operator delete(void *) throw() = delete;
       void* operator new(std::size_t, void*) = delete;
 
@@ -127,7 +127,7 @@ namespace fox {
 
   // ParamDecl
   //    A declaration of a function parameter. This is simply a ValueDecl.
-  class ParamDecl : public ValueDecl {
+  class ParamDecl final : public ValueDecl {
     public:
       ParamDecl();
       ParamDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
@@ -141,7 +141,7 @@ namespace fox {
   
   // FuncDecl
   //    A function declaration, which is both a NamedDecl and a DeclContext.
-  class FuncDecl : public NamedDecl, public DeclContext {
+  class FuncDecl final: public NamedDecl, public DeclContext {
     private:
       using ParamVecTy = std::vector<ParamDecl*>;
 
@@ -192,7 +192,7 @@ namespace fox {
   // VarDecl
   //    A variable declaration. This is simply a ValueDecl with an added
   //    "init" Expr*
-  class VarDecl : public ValueDecl {
+  class VarDecl final: public ValueDecl {
     public:
       VarDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
         Expr* init, SourceRange range);
@@ -212,7 +212,7 @@ namespace fox {
   // UnitDecl
   //    Represents a parsed Source file. This is both a NamedDecl and a 
   //    DeclContext.
-  class UnitDecl : public NamedDecl, public DeclContext {
+  class UnitDecl final: public NamedDecl, public DeclContext {
     public:
       UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id, 
         FileID inFile);

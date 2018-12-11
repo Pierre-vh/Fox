@@ -4,7 +4,7 @@
 // File : Expr.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the Expr Hierarchy.
+// This file contains the Expr hierarchy.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -16,9 +16,14 @@
 #include <vector>
 
 namespace fox   {
-  // Kinds of Expressions
+  // Forward Declarations
+  class Identifier;
+  class ASTContext;
+  class TypeBase;
+
+  // This enum represents every possible Expression subclass.
+  // It is automatically generated using Fox/AST/ExprNodes.def
   enum class ExprKind: std::uint8_t {
-    // TODO: if EXPR_RANGE is added, support it in operator<<
     #define EXPR(ID,PARENT) ID,
     #define EXPR_RANGE(ID, FIRST, LAST) First_##ID = FIRST, Last_##ID = LAST,
     #include "ExprNodes.def"
@@ -26,11 +31,6 @@ namespace fox   {
 
   // ostream to print kinds
   std::ostream& operator<<(std::ostream& os, ExprKind kind);
-
-  // Forward Declarations
-  class Identifier;
-  class ASTContext;
-  class TypeBase;
 
   // Expr
   //    Common base class for every expression
@@ -44,7 +44,7 @@ namespace fox   {
       void setType(Type type);
       Type getType() const;
 
-      // Dumps the structure of this expr to cerr.
+      // Debug method. Does a ASTDump of this node to std::cerr
       void dump() const;
 
       // Prohibit the use of builtin placement new & delete
@@ -72,7 +72,7 @@ namespace fox   {
 
   // BinaryExpr
   //    A binary expression
-  class BinaryExpr : public Expr {
+  class BinaryExpr final : public Expr {
     public:
       enum class OpKind: std::uint8_t {
         #define BINARY_OP(ID, SIGN, NAME) ID,
@@ -138,7 +138,7 @@ namespace fox   {
 
   // UnaryExpr
   //    A unary expression: -2
-  class UnaryExpr : public Expr {
+  class UnaryExpr final : public Expr {
     public: 
       enum class OpKind: std::uint8_t {
         #define UNARY_OP(ID, SIGN, NAME) ID,
@@ -178,7 +178,7 @@ namespace fox   {
 
   // CastExpr
   //    An explicit "as" cast expression: foo as int
-  class CastExpr : public Expr {
+  class CastExpr final : public Expr {
     public:
       CastExpr();
       CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range);
@@ -220,7 +220,7 @@ namespace fox   {
 
   // IntegerLiteralExpr
   //    An integer literal: 2
-  class IntegerLiteralExpr : public Expr {
+  class IntegerLiteralExpr final : public Expr {
     public:
       IntegerLiteralExpr();
       IntegerLiteralExpr(FoxInt val, SourceRange range);
@@ -238,7 +238,7 @@ namespace fox   {
 
   // FloatLiteralExpr
   //    A float literal: 3.14
-  class FloatLiteralExpr : public Expr {
+  class FloatLiteralExpr final : public Expr {
     public:
       FloatLiteralExpr();
       FloatLiteralExpr(FoxFloat val, SourceRange range);
@@ -256,7 +256,7 @@ namespace fox   {
 
   // StringLiteralExpr
   //    A string literal: "foo"
-  class StringLiteralExpr : public Expr {
+  class StringLiteralExpr final : public Expr {
     public:
       StringLiteralExpr();
       StringLiteralExpr(const FoxString& val, SourceRange range);
@@ -274,7 +274,7 @@ namespace fox   {
 
   // BoolLiteralExpr
   //    true/false boolean literal
-  class BoolLiteralExpr : public Expr {
+  class BoolLiteralExpr final : public Expr {
     public:
       BoolLiteralExpr();
       BoolLiteralExpr(FoxBool val, SourceRange range);
@@ -292,7 +292,7 @@ namespace fox   {
 
   // ArrayLiteralExpr
   //    An array literal: [1, 2, 3]
-  class ArrayLiteralExpr : public Expr {
+  class ArrayLiteralExpr final : public Expr {
     public:
       ArrayLiteralExpr();
       ArrayLiteralExpr(const ExprVector& exprs, SourceRange range);
@@ -331,7 +331,7 @@ namespace fox   {
 
   // UnresolvedDeclRefExpr
   //    Represents a unresolved DeclRef
-  class UnresolvedDeclRefExpr : public UnresolvedExpr {
+  class UnresolvedDeclRefExpr final : public UnresolvedExpr {
     public:
       UnresolvedDeclRefExpr();
       UnresolvedDeclRefExpr(Identifier id, SourceRange range);
@@ -348,7 +348,7 @@ namespace fox   {
 
   // DeclRefExpr
   //    A resolved reference to a ValueDecl. 
-  class DeclRefExpr : public Expr {
+  class DeclRefExpr final : public Expr {
     public:
       DeclRefExpr();
       DeclRefExpr(ValueDecl* decl, SourceRange range);
@@ -370,7 +370,7 @@ namespace fox   {
 
   // MemberOfExpr
   //    A member access : foo.bar
-  class MemberOfExpr : public Expr {
+  class MemberOfExpr final : public Expr {
     public:
       MemberOfExpr();
       MemberOfExpr(Expr* base, Identifier membID, 
@@ -396,7 +396,7 @@ namespace fox   {
 
   // ArraySubscriptExpr
   //    Array access (or subscript): foo[3]
-  class ArraySubscriptExpr : public Expr {
+  class ArraySubscriptExpr final : public Expr {
     public:
       ArraySubscriptExpr();
       ArraySubscriptExpr(Expr* base, Expr* idx, SourceRange range);
@@ -418,7 +418,7 @@ namespace fox   {
 
   // FunctionCallExpr
   //    A function call: foo(3.14)
-  class FunctionCallExpr : public Expr {
+  class FunctionCallExpr final : public Expr {
     public:
       FunctionCallExpr();
       FunctionCallExpr(Expr* callee, const ExprVector& args, SourceRange range);

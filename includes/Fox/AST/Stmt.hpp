@@ -60,7 +60,7 @@ namespace fox {
   // NullStmt
   //    A null statement ';'
   //    Often used as the body of a condition/loop
-  class NullStmt : public Stmt {
+  class NullStmt final : public Stmt {
     public:
       NullStmt();
       NullStmt(SourceLoc semiLoc);
@@ -75,10 +75,10 @@ namespace fox {
 
   // ReturnStmt
   //    A return statement
-  class ReturnStmt : public Stmt {
+  class ReturnStmt final : public Stmt {
     public:
       ReturnStmt();
-      ReturnStmt(Expr* rtr_expr, SourceRange range);
+      ReturnStmt(Expr* rtr, SourceRange range);
 
       void setExpr(Expr* e);
       Expr* getExpr() const;
@@ -94,7 +94,7 @@ namespace fox {
 
   // ConditionStmt
   //    if-then-else conditional statement
-  class ConditionStmt : public Stmt {
+  class ConditionStmt final : public Stmt {
     public:
       ConditionStmt();
       ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
@@ -122,14 +122,13 @@ namespace fox {
 
     private:
       SourceLoc ifHeadEndLoc_;
-
       Expr* cond_ = nullptr;
       ASTNode then_, else_;
   };
 
   // CompoundStmt
   //    A group of statements delimited by curly brackets {}
-  class CompoundStmt : public Stmt {
+  class CompoundStmt final : public Stmt {
     private:
       using NodeVecTy = std::vector<ASTNode>;
 
@@ -156,7 +155,7 @@ namespace fox {
 
   // WhileStmt
   //    A while loop
-  class WhileStmt : public Stmt {
+  class WhileStmt final : public Stmt {
     public:
       WhileStmt();
       WhileStmt(Expr* cond, ASTNode body, SourceRange range,
