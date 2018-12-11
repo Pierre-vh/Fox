@@ -29,6 +29,8 @@ namespace fox {
 
   // Decl
   //    Common base class for every Declaration
+  //    Note that every Decl will take a DeclContext* argument. That DeclContext
+  //    should be their parent DeclContext.
   class alignas(DeclAlignement) Decl {
     public:
       DeclKind getKind() const;
@@ -52,9 +54,10 @@ namespace fox {
       void operator delete(void*, ASTContext&, std::uint8_t) {}
 
     protected:
-      Decl(DeclKind kind, SourceRange range);
+      Decl(DeclKind kind, DeclContext* parent, SourceRange range);
 
     private:
+      DeclContext* parent_ = nullptr;
       SourceRange range_;
       const DeclKind kind_;
   };
@@ -63,7 +66,7 @@ namespace fox {
   //    Common base class for every named Declaration
   class NamedDecl : public Decl {
     public:
-      NamedDecl(DeclKind kind, Identifier id, SourceRange range);
+      NamedDecl(DeclKind kind, DeclContext* parent, Identifier id, SourceRange range);
 
       Identifier getIdentifier() const;
       void setIdentifier(Identifier id);
@@ -82,8 +85,8 @@ namespace fox {
   //    (declares a value of a certain type & name)
   class ValueDecl : public NamedDecl {
     public:
-      ValueDecl(DeclKind kind, Identifier id, TypeLoc ty, 
-        bool isConst, SourceRange range);
+      ValueDecl(DeclKind kind, DeclContext* parent, Identifier id,
+        TypeLoc ty, bool isConst, SourceRange range);
 
       Type getType() const;
       SourceRange getTypeRange() const;
@@ -94,7 +97,8 @@ namespace fox {
       void setIsConstant(bool k);
 
       static bool classof(const Decl* decl) {
-        return (decl->getKind() >= DeclKind::First_ValueDecl) && (decl->getKind() <= DeclKind::Last_ValueDecl);
+        return (decl->getKind() >= DeclKind::First_ValueDecl) 
+          && (decl->getKind() <= DeclKind::Last_ValueDecl);
       }
 
     private:
@@ -107,7 +111,8 @@ namespace fox {
   class ParamDecl : public ValueDecl {
     public:
       ParamDecl();
-      ParamDecl(Identifier id, TypeLoc type, bool isConst, SourceRange range);
+      ParamDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
+        SourceRange range);
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::ParamDecl;
@@ -126,8 +131,8 @@ namespace fox {
 
     public:
       FuncDecl();
-      FuncDecl(TypeLoc rtrTy, Identifier fnId, CompoundStmt* body,
-        SourceRange range, SourceLoc headerEndLoc);
+      FuncDecl(DeclContext* parent, TypeLoc rtrTy, Identifier fnId,
+        CompoundStmt* body,SourceRange range, SourceLoc headerEndLoc);
       
       void setLocs(SourceRange range, SourceLoc headerEndLoc);
       void setHeaderEndLoc(SourceLoc loc);
@@ -171,7 +176,7 @@ namespace fox {
   class VarDecl : public ValueDecl {
     public:
       VarDecl();
-      VarDecl(Identifier id, TypeLoc type, bool isConst,
+      VarDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
         Expr* init, SourceRange range);
 
       Expr* getInitExpr() const;
@@ -190,7 +195,8 @@ namespace fox {
   //    Represents a Source file.
   class UnitDecl : public NamedDecl, public DeclContext {
     public:
-      UnitDecl(ASTContext& ctxt, Identifier id, FileID inFile);
+      UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id, 
+        FileID inFile);
 
       FileID getFileID() const;
       void setFileID(const FileID& fid);

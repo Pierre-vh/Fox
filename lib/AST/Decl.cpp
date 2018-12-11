@@ -19,10 +19,8 @@ using namespace fox;
 // Decl //
 //------//
 
-Decl::Decl(DeclKind kind, SourceRange range):
-  kind_(kind), range_(range) {
-
-}
+Decl::Decl(DeclKind kind, DeclContext* parent, SourceRange range):
+  kind_(kind), range_(range), parent_(parent) {}
 
 DeclKind Decl::getKind() const {
   return kind_;
@@ -48,10 +46,8 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
 // NamedDecl //
 //-----------//
 
-NamedDecl::NamedDecl(DeclKind kind, Identifier id, SourceRange range):
-  Decl(kind, range), identifier_(id) {
-
-}
+NamedDecl::NamedDecl(DeclKind kind, DeclContext* parent, Identifier id, 
+  SourceRange range): Decl(kind, parent, range), identifier_(id) {}
 
 Identifier NamedDecl::getIdentifier() const {
   return identifier_;
@@ -69,11 +65,9 @@ bool NamedDecl::hasIdentifier() const {
 // ValueDecl //
 //-----------//
 
-ValueDecl::ValueDecl(DeclKind kind, Identifier id, TypeLoc ty, bool isConst,
-  SourceRange range):
-  NamedDecl(kind, id, range), isConst_(isConst), type_(ty) {
-
-}
+ValueDecl::ValueDecl(DeclKind kind, DeclContext* parent, Identifier id,
+  TypeLoc ty, bool isConst, SourceRange range): 
+  NamedDecl(kind, parent, id, range), isConst_(isConst), type_(ty) {}
 
 Type ValueDecl::getType() const {
   return type_.withoutLoc();
@@ -104,13 +98,13 @@ void ValueDecl::setIsConstant(bool k) {
 //-----------//
 
 ParamDecl::ParamDecl():
-  ParamDecl(Identifier(), TypeLoc(), false, SourceRange()) {
+  ParamDecl(nullptr, Identifier(), TypeLoc(), false, SourceRange()) {
 
 }
 
-ParamDecl::ParamDecl(Identifier id, TypeLoc type, bool isConst, 
-  SourceRange range):
-  ValueDecl(DeclKind::ParamDecl, id, type, isConst, range) {
+ParamDecl::ParamDecl(DeclContext* parent, Identifier id, TypeLoc type,
+  bool isConst, SourceRange range):
+  ValueDecl(DeclKind::ParamDecl, parent, id, type, isConst, range) {
 
 }
 
@@ -119,14 +113,14 @@ ParamDecl::ParamDecl(Identifier id, TypeLoc type, bool isConst,
 //----------//
 
 FuncDecl::FuncDecl():
-  FuncDecl(nullptr, Identifier(), nullptr, SourceRange(), SourceLoc()) {
+  FuncDecl(nullptr, nullptr, Identifier(), nullptr, SourceRange(), SourceLoc()) {
 
 }
 
-FuncDecl::FuncDecl(TypeLoc returnType, Identifier fnId, CompoundStmt* body,
-  SourceRange range, SourceLoc headerEndLoc):
-  NamedDecl(DeclKind::FuncDecl, fnId, range), headEndLoc_(headerEndLoc), 
-	body_(body), returnType_(returnType), 
+FuncDecl::FuncDecl(DeclContext* parent, TypeLoc returnType, Identifier fnId,
+  CompoundStmt* body, SourceRange range, SourceLoc headerEndLoc):
+  NamedDecl(DeclKind::FuncDecl, parent, fnId, range), 
+  headEndLoc_(headerEndLoc), body_(body), returnType_(returnType), 
   DeclContext(DeclContextKind::FuncDecl) {}
 
 void FuncDecl::setLocs(SourceRange range, SourceLoc headerEndLoc) {
@@ -201,16 +195,13 @@ std::size_t FuncDecl::getNumParams() const {
 // VarDecl //
 //---------//
 
-VarDecl::VarDecl():
-  VarDecl(Identifier(), TypeLoc(), false, nullptr, SourceRange()) {
+VarDecl::VarDecl(): VarDecl(nullptr, Identifier(), TypeLoc(), false, nullptr,
+  SourceRange()) {}
 
-}
-
-VarDecl::VarDecl(Identifier id, TypeLoc type, bool isConst, Expr* init, 
-  SourceRange range):
-  ValueDecl(DeclKind::VarDecl, id, type, isConst, range), init_(init) {
-
-}
+VarDecl::VarDecl(DeclContext* parent, Identifier id, TypeLoc type, 
+  bool isConst, Expr* init, SourceRange range):
+  ValueDecl(DeclKind::VarDecl, parent, id, type, isConst, range),
+  init_(init) {}
 
 Expr* VarDecl::getInitExpr() const {
   return init_;
@@ -228,9 +219,9 @@ void VarDecl::setInitExpr(Expr* expr) {
 // UnitDecl //
 //----------//
 
-UnitDecl::UnitDecl(ASTContext& ctxt, Identifier id,FileID inFile): 
-	NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile), 
-  DeclContext(DeclContextKind::UnitDecl), ctxt_(ctxt) {}
+UnitDecl::UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id,
+  FileID inFile): NamedDecl(DeclKind::UnitDecl, parent, id, SourceRange()),
+  file_(inFile), DeclContext(DeclContextKind::UnitDecl), ctxt_(ctxt) {}
 
 FileID UnitDecl::getFileID() const {
   return file_;
