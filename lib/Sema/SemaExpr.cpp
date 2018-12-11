@@ -262,7 +262,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       fox_unreachable("Illegal node kind");
     }
 
-    virtual std::pair<Decl*, bool> handleDeclPre(Decl*) {
+    virtual bool handleDeclPre(Decl*) {
       fox_unreachable("Illegal node kind");
     }
 

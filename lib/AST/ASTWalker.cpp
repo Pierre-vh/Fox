@@ -19,7 +19,7 @@ using namespace fox;
 namespace {
   // The traverse class for Expr, Decl and Stmts
   class Traverse:
-  public ASTVisitor<Traverse, Decl*, Expr*, Stmt*> {    
+  public ASTVisitor<Traverse, bool, Expr*, Stmt*> {    
     ASTWalker& walker_;
     public:
       Traverse(ASTWalker& walker) : walker_(walker) {}
@@ -128,48 +128,41 @@ namespace {
       }
 
       // Decls
-      Decl* visitParamDecl(ParamDecl* decl) {
-        return decl;
+      bool visitParamDecl(ParamDecl*) {
+        return true;
       }
 
-      Decl* visitVarDecl(VarDecl* decl) {
-        if (Expr* init = decl->getInitExpr()) {
-          if (init = doIt(init))
-            decl->setInitExpr(init);
-          return nullptr;
-        }
-
-        return decl;
+      bool visitVarDecl(VarDecl* decl) {
+        if (Expr* init = decl->getInitExpr())
+          return doIt(init);
+        return true;
       }
 
-      Decl* visitFuncDecl(FuncDecl* decl) {
+      bool visitFuncDecl(FuncDecl* decl) {
         for (auto& param : decl->getParams()) {
           if (param) {
-            if (Decl* node = doIt(param))
-              param = cast<ParamDecl>(node);
-            return nullptr;
+            if (!doIt(param))
+              return false;
           }
         }
 
         if (Stmt* body = decl->getBody()) {
           if (body = doIt(body))
             decl->setBody(cast<CompoundStmt>(body));
-          else return nullptr;
+          else return false;
         }
 
-        return decl;
+        return true;
       }
 
-      Decl* visitUnitDecl(UnitDecl* decl) {
+      bool visitUnitDecl(UnitDecl* decl) {
         for (auto& elem : decl->getDeclsMap()) {
           if (elem.second) {
-            if (Decl* node = doIt(elem.second))
-              elem.second = node;
-            else return nullptr;
+            if (!doIt(elem.second))
+              return false;
           }
         }
-
-        return decl;
+        return true;
       }
 
       // Stmt
@@ -195,14 +188,18 @@ namespace {
         }
 
         if (ASTNode then = stmt->getThen()) {
-          if (then = doIt(then))
-            stmt->setThen(then);
+          bool isDecl;
+          if (then = doIt(then, &isDecl)) {
+            if(!isDecl) stmt->setThen(then);
+          }
           else return nullptr;
         }
 
         if (ASTNode elsestmt = stmt->getElse()) {
-          if (elsestmt = doIt(elsestmt))
-            stmt->setElse(elsestmt);
+          bool isDecl;
+          if (elsestmt = doIt(elsestmt, &isDecl)) {
+            if(!isDecl) stmt->setElse(elsestmt);
+          }
           else return nullptr;
         }
 
@@ -212,8 +209,10 @@ namespace {
       Stmt* visitCompoundStmt(CompoundStmt* stmt) {
         for (auto& elem: stmt->getNodes()) {
           if (elem) {
-            if (ASTNode node = doIt(elem))
-              elem = node;
+            bool isDecl;
+            if (ASTNode node = doIt(elem, &isDecl)) {
+              if(!isDecl) elem = node;
+            }
             else return nullptr;
           }
         }
@@ -229,8 +228,11 @@ namespace {
         }
 
         if (ASTNode node = stmt->getBody()) {
-          if (node = doIt(node))
-            stmt->setBody(node);
+          bool isDecl;
+          if (node = doIt(node, &isDecl)) {
+            if(!isDecl)
+              stmt->setBody(node);
+          }
           else return nullptr;
         }
 
@@ -258,21 +260,16 @@ namespace {
 
       // doIt method for declarations: handles call to the walker &
       // requests visitation of the children of a given node.
-      Decl* doIt(Decl* expr) {
-        // Let the walker handle the pre visitation stuff.
-        auto rtr = walker_.handleDeclPre(expr);
+      bool doIt(Decl* decl) {
+        // Call the walker, abort if failed.
+        if (!walker_.handleDeclPre(decl))
+          return false;
 
-        // Return if we have a nullptr or if we're instructed
-        // to not visit the children.
-        if (!rtr.first || !rtr.second)
-          return rtr.first;
-
-        // visit the node's childre, and if the traversal wasn't aborted,
-        // let the walker handle post visitation stuff.
-        if (expr = visit(rtr.first))
-          expr = walker_.handleDeclPost(expr);
-
-        return expr;
+        // Visit the children
+        if (visit(decl))
+          // Call the walker (post)
+          return walker_.handleDeclPost(decl);
+        return false;
       }
 
       // doIt method for statements: handles call to the walker &
@@ -294,15 +291,20 @@ namespace {
         return expr;
       }
 
-      ASTNode doIt(ASTNode node) {
-        if (Decl* decl = node.dyn_cast<Decl*>())
-          return doIt(decl);
+      ASTNode doIt(ASTNode node, bool* isDecl) {
+        if (Decl* decl = node.dyn_cast<Decl*>()) {
+          // Important: Never change decls. Just return the
+          // argument.
+          doIt(decl);
+          if(isDecl) (*isDecl) = true;
+          return node;
+        }
+        if (isDecl) (*isDecl) = false;
         if (Stmt* stmt = node.dyn_cast<Stmt*>())
           return doIt(stmt);
         if (Expr* expr = node.dyn_cast<Expr*>())
           return doIt(expr);
-
-        fox_unreachable("Unknown node contained in ASTNode");
+        fox_unreachable("Unknown ASTNode kind");
       }
   };
 
@@ -356,22 +358,15 @@ namespace {
 
 // ASTWalker
 
-ASTNode ASTWalker::walk(ASTNode node) {
-  if (Decl* decl = node.dyn_cast<Decl*>())
-    return walk(decl);
-  if (Stmt* stmt = node.dyn_cast<Stmt*>())
-    return walk(stmt);
-  if (Expr* expr = node.dyn_cast<Expr*>())
-    return walk(expr);
-
-  fox_unreachable("Unknown node contained in ASTNode");
+void ASTWalker::walk(ASTNode node) {
+  Traverse(*this).doIt(node, nullptr);
 }
 
 Expr* ASTWalker::walk(Expr* expr) {
   return Traverse(*this).doIt(expr);
 }
 
-Decl* ASTWalker::walk(Decl* decl) {
+bool ASTWalker::walk(Decl* decl) {
   return Traverse(*this).doIt(decl);
 }
 
@@ -395,12 +390,12 @@ Stmt* ASTWalker::handleStmtPost(Stmt* stmt) {
   return stmt;
 }
 
-std::pair<Decl*, bool> ASTWalker::handleDeclPre(Decl* decl) {
-  return { decl, true };
+bool ASTWalker::handleDeclPre(Decl*) {
+  return true;
 }
 
-Decl* ASTWalker::handleDeclPost(Decl* decl) {
-  return decl;
+bool ASTWalker::handleDeclPost(Decl*) {
+  return true;
 }
 
 // TypeWalker

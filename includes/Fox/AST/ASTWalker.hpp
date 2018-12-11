@@ -14,13 +14,26 @@
 #include "Fox/AST/ASTFwdDecl.hpp"
 
 namespace fox {
-  // The ASTWalker which visits an AST in it's entirety, except Expr types 
+  // The ASTWalker which visits an AST in it's entirety, except TypeBases
   // (for that, see TypeVisitor)
   class ASTWalker {
     public:
-      ASTNode walk(ASTNode node);
+      // Walks an ASTNode. 
+      // The return value of the walk will be discarded.
+      void walk(ASTNode node);
+
+      // Walks an Expr
+      // Returns it's argument, or another Expr that should
+      // take it's place, or nullptr if the walk was aborted.
       Expr* walk(Expr* expr);
-      Decl* walk(Decl* decl);
+
+      // Walks a Decl
+      // Returns true on success, false if the walk was aborted.
+      bool walk(Decl* decl);
+      
+      // Walks a Stmt
+      // Returns it's argument, or another Stmt that should
+      // take it's place, or nullptr if the walk was aborted.
       Stmt* walk(Stmt* stmt);
 
       // Called when first visiting an expression before visiting it's
@@ -54,18 +67,16 @@ namespace fox {
 
       // Called when first visiting a declaration before visiting it's
       // children. 
-      // The first element of the return pair is the node that should
-      // take this node's place, if it's nullptr, the traversal is terminated.
-      // The second element is a boolean indicating if we should visit this node's
-      // children.
-      virtual std::pair<Decl*, bool> handleDeclPre(Decl* decl);
+      // Return true if we should walk into the children of this decl,
+      // false if the walk should be aborted.
+      // The default implementation returns true.
+      virtual bool handleDeclPre(Decl* decl);
 
 
       // Called after visiting a declaration's children.
-      // If the return value is null, the traversal is terminated, otherwise
-      // the walked node is replaced by the returned node.
-      // The default implementation returns it's argument.
-      virtual Decl* handleDeclPost(Decl* decl);
+      // Return true if we should walk into the children of this decl,
+      // false if the walk should be aborted.
+      virtual bool handleDeclPost(Decl* decl);
   };
 
   // The TypeWalker, used to visit a Type hierarchy
