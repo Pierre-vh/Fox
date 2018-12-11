@@ -86,10 +86,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     
 
     // Checks a ValueDecl for Redeclaration
-    bool checkValueDeclForRedecl(ValueDecl* decl) {
-      // Lookup, check that Zero result.
+    bool checkValueDeclForRedecl(ValueDecl*) {
+      // Lookup, check that only 1 result is present.
       // In the future, check here for overload-related
-      // stuff.
+      // stuff (and dispatch that to another function)
       return false;
     }
 };
