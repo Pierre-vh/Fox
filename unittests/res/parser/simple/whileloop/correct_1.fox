@@ -1,2 +1,0 @@
-while(((true)))
-  let x : const float = !(-3.14);

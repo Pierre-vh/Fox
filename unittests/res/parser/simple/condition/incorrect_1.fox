@@ -1,5 +1,0 @@
-if((3 + 'c') as char == 'f')
-{
-  let foo : string = "booh!";
-  foo = "booyah"!;
-}

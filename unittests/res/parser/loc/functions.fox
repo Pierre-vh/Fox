@@ -1,4 +1,0 @@
-func foo(_bar1 : const & int [], _bar2:&float  ) : float
-{
-  
-  }

@@ -1,6 +1,0 @@
-if(false)
-{
-  foo = "if!";
-}
-else 
-  foo = "else !";
