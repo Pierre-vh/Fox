@@ -6,8 +6,6 @@
 //----------------------------------------------------------------------------//
 // This file implements the LocalScope class, which is used to perform
 // local variable binding.
-//
-// TODO: Change VarDecl to NamedDecl for the LocalScope
 //----------------------------------------------------------------------------//
 
 #pragma once
