@@ -92,7 +92,11 @@ To-Do:
   > UnitDecl rework (Done)
   > Add features to get a Lexical view of a DeclContext (Done)
 
-  > Name resolution (Now)
+  > Name Lookup in Sema
+    -> Have a Lookup function which returns a "LookupResult"
+        LookupResult lookup(Identifier id);
+    -> First check the DeclContext. If the variable was found in
+       a Local DeclContext, check if it's declared in the scope too.
 
   > Decl semantic analysis
   > DeclRefExpr 
