@@ -91,6 +91,21 @@ To-Do:
   > const correctness update: no more double getters for getters of pointers (done)
   > UnitDecl rework (Done)
   > Add features to get a Lexical view of a DeclContext (Done)
+  > Add ASTContext& to UnitDecl (Done)
+
+// New AST update:
+// Theses changes will make the main components of the AST 
+// (ASTContext, SourceManager, DeclContexts) more tightly-knit
+// and make, in the long term, the code less verbose, since
+// most node will be able to access theses class effortlessly
+// (= less arguments to pass to functions and such)
+  > Add a Parent DeclContext* to all Decls 
+    -> Thus, use the DeclContext constructor to create the DeclContext
+       hierarchy instead of DeclContext::setParent, and, ultimately,
+       delete DeclContext::setParent
+  > Add a Decl->getASTContext() method
+  > Add a public SourceManager& and DiagnosticEngine&
+  > Switch whole AST to ::create Idiom
 
   > Name Lookup in Sema
     -> Have a Lookup function which returns a "LookupResult"
@@ -99,14 +114,12 @@ To-Do:
        a Local DeclContext, check if it's declared in the scope too.
 
   > Decl semantic analysis
-  > DeclRefExpr 
+  > UnresolvedDeclRefExpr 
   > FunctionCallExpr & OVR (overload resolution)
   > UFCS
     > Parser additions (UnresolvedDotExpr)
     > Semantic Analysis
 
-  > Consider a ASTContext interface update:
-    -> Add a public SourceManager& and DiagnosticEngine&
 
   > ASTVerifier (should be able to check both a Checked an Unchecked AST) 
     > once it's done, remove "isValid" in decls
@@ -120,9 +133,13 @@ To-Do:
   > VM
 
 Other:
-  > Add idRange to VarDecl/ParamDecl to emit better diagnostics
-    For: 
-      diagnoseVarRedeclaration
+  > Consider a ASTContext interface update:
+    -> Add a public SourceManager& and DiagnosticEngine&
+
+  > Use ::create idiom for every AST class, and make the "new" operators private.
+
+  > Add idRange to VarDecl/ParamDecl to emit better diagnostics when diagnosing
+    VarDecl
 
   > Adopt a Documentation style (Doxygen) and document the code with it
 
