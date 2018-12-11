@@ -239,6 +239,11 @@ namespace fox {
       // Stops the parsing
       void die();
 
+      // DeclContext getter
+      DeclContext* getDeclContext() const {
+        return state_.declContext;
+      }
+
       // Creates a state_ backup
       ParserState createParserStateBackup() const;
       // Restores state_ from a backup.
