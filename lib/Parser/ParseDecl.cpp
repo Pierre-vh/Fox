@@ -83,7 +83,13 @@ Parser::DeclResult Parser::parseFuncDecl() {
   */
 
   // FIXME:
-    // Improve the error recovery on a missing '(' or ')' 
+    // 1) Improve the error recovery on a missing '(' or ')' 
+    // 2) This is a pretty weird function. Imo, it's just bad because it
+    //    creates some kind of ill-formed FuncDecl just for the purpose
+    //    of creating it's DeclContext. Maybe there's a better way to do 
+    //    this. 
+    // 3) Split this method in multiples methods (e.g. parseFunctionParams)
+    //    to improve readability.
 
   // "func"
   auto fnKw = consumeKeyword(KeywordType::KW_FUNC);
@@ -112,12 +118,11 @@ Parser::DeclResult Parser::parseFuncDecl() {
     rtr->setIdentifier(foundID.get());
   else {
     reportErrorExpected(DiagID::parser_expected_iden);
-    //rtr->setIdentifier(identifiers_.getInvalidID());
     poisoned = true;
   }
 
   // Create a RAIIDeclContext to record every decl within this function inside
-  // its own DeclContext.
+  // its DeclContext.
   RAIIDeclContext raiiDC(*this, rtr);
 
   // '('
