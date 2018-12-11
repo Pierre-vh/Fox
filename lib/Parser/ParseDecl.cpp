@@ -22,7 +22,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
   assert(fid && "FileID cannot be invalid!");
 
   // Create the unit
-  auto* unit = new(ctxt_) UnitDecl(unitName, fid);
+  auto* unit = new(ctxt_) UnitDecl(ctxt_, unitName, fid);
 
   // Create a RAIIDeclContext
   RAIIDeclContext raiidr(*this, unit);

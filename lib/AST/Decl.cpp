@@ -228,9 +228,9 @@ void VarDecl::setInitExpr(Expr* expr) {
 // UnitDecl //
 //----------//
 
-UnitDecl::UnitDecl(Identifier id,FileID inFile): 
+UnitDecl::UnitDecl(ASTContext& ctxt, Identifier id,FileID inFile): 
 	NamedDecl(DeclKind::UnitDecl,id, SourceRange()), file_(inFile), 
-  DeclContext(DeclContextKind::UnitDecl) {}
+  DeclContext(DeclContextKind::UnitDecl), ctxt_(ctxt) {}
 
 FileID UnitDecl::getFileID() const {
   return file_;
@@ -238,4 +238,8 @@ FileID UnitDecl::getFileID() const {
 
 void UnitDecl::setFileID(const FileID& fid) {
   file_ = fid;
+}
+
+ASTContext& fox::UnitDecl::getASTContext() {
+  return ctxt_;
 }

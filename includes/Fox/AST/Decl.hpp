@@ -187,13 +187,16 @@ namespace fox {
   };
 
   // UnitDecl
-  //    A Unit declaration (a unit is a source file)
+  //    Represents a Source file.
   class UnitDecl : public NamedDecl, public DeclContext {
     public:
-      UnitDecl(Identifier id, FileID inFile);
+      UnitDecl(ASTContext& ctxt, Identifier id, FileID inFile);
 
       FileID getFileID() const;
       void setFileID(const FileID& fid);
+
+      // Return the ASTContext this Decl lives in.
+      ASTContext& getASTContext();
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::UnitDecl;
@@ -204,6 +207,7 @@ namespace fox {
       }
 
     private:
+      ASTContext& ctxt_;
       FileID file_;
   };
 }

@@ -296,7 +296,8 @@ TEST(ASTTests, DeclRTTI) {
 
   // Unit
   Identifier id; FileID fid;
-  UnitDecl udecl(id, fid);
+  ASTContext ctxt;
+  UnitDecl udecl(ctxt, id, fid);
   EXPECT_EQ(udecl.getKind(), DeclKind::UnitDecl);
   EXPECT_EQ(udecl.getDeclContextKind(), DeclContextKind::UnitDecl);
   EXPECT_TRUE(UnitDecl::classof((Decl*)&udecl));
@@ -307,7 +308,8 @@ TEST(ASTTests, DeclRTTI) {
 TEST(ASTTests, DeclDeclContextRTTI) {
   FuncDecl fndecl;
   Identifier id; FileID fid;
-  UnitDecl udecl(id, fid);
+  ASTContext ctxt;
+  UnitDecl udecl(ctxt, id, fid);
 
   DeclContext* dc = nullptr;
   // FuncDecl -> DeclContext -> FuncDecl
