@@ -81,10 +81,10 @@ namespace fox {
       //----------------------------------------------------------------------//
 
       // The type of the internal map of Decls
-      using DeclsMapTy = std::multimap<Identifier, Decl*>;
+      using DeclsMapTy = std::multimap<Identifier, NamedDecl*>;
 
       // The type of the map used to represent Decls in Lexical order.
-      using LexicalDeclsTy = std::vector<Decl*>;
+      using LexicalDeclsTy = std::vector<NamedDecl*>;
 
       // The type of the non-const iterator for DeclsMapTy
       using DeclMapIter 
