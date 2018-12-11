@@ -125,7 +125,6 @@ namespace fox {
 
       /*-------------- Extra Parser Actions --------------*/
       void actOnNamedDecl(NamedDecl* decl);
-      void actOnDecl(Decl* decl);
 
       /*-------------- "Basic" Parse Methods --------------*/
       // Parses a builtin type name

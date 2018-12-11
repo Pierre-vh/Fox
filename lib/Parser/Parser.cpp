@@ -41,20 +41,10 @@ void Parser::setupParser() {
 }
 
 void Parser::actOnNamedDecl(NamedDecl* decl) {
-  // Call actOnDecl
-  actOnDecl(decl);
   // Record the NamedDecl in the DeclContext
   assert(state_.declContext
          && "Must have a DeclContext when parsing a Decl.");
   state_.declContext->addDecl(decl);
-}
-
-void Parser::actOnDecl(Decl* decl) {
-  // Set isTopLevel if if the Current DeclContext isn't local
-  assert(state_.declContext
-         && "Must have a DeclContext when parsing a Decl.");
-  if (!state_.declContext->isLocalDeclContext())
-    decl->setIsTopLevelDecl(true);
 }
 
 Parser::Result<Identifier> Parser::consumeIdentifier() {
