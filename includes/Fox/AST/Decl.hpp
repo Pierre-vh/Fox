@@ -130,7 +130,6 @@ namespace fox {
       using ParamVecConstIter = ParamVecTy::const_iterator;
 
     public:
-      FuncDecl();
       FuncDecl(DeclContext* parent, TypeLoc rtrTy, Identifier fnId,
         CompoundStmt* body,SourceRange range, SourceLoc headerEndLoc);
       
@@ -175,7 +174,6 @@ namespace fox {
   //    A variable declaration
   class VarDecl : public ValueDecl {
     public:
-      VarDecl();
       VarDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
         Expr* init, SourceRange range);
 

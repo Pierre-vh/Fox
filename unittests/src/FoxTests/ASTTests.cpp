@@ -248,7 +248,20 @@ TEST(ASTTests, StmtRTTI) {
   EXPECT_TRUE(WhileStmt::classof(&whilestmt));
 }
 
+namespace {
+  VarDecl* createEmptyVarDecl(ASTContext& ctxt, DeclContext* dc = nullptr) {
+    return new(ctxt) VarDecl(dc, Identifier(), TypeLoc(), false,
+      nullptr, SourceRange());
+  }
+
+  FuncDecl* createEmptyFnDecl(ASTContext& ctxt, DeclContext* dc = nullptr) {
+    return new(ctxt) FuncDecl(dc, TypeLoc(), Identifier(), nullptr, 
+      SourceRange(), SourceLoc());
+  }
+}
+
 TEST(ASTTests, DeclRTTI) {
+  ASTContext ctxt;
   // Arg
   ParamDecl paramdecl;
   EXPECT_EQ(paramdecl.getKind(), DeclKind::ParamDecl);
@@ -258,24 +271,23 @@ TEST(ASTTests, DeclRTTI) {
   EXPECT_FALSE(DeclContext::classof(&paramdecl));
 
   // Func
-  FuncDecl fndecl;
-  EXPECT_EQ(fndecl.getKind(), DeclKind::FuncDecl);
-  EXPECT_EQ(fndecl.getDeclContextKind(), DeclContextKind::FuncDecl);
-  EXPECT_TRUE(FuncDecl::classof((Decl*)&fndecl));
-  EXPECT_TRUE(NamedDecl::classof(&fndecl));
-  EXPECT_TRUE(DeclContext::classof(&fndecl));
+  auto* fndecl = createEmptyFnDecl(ctxt);
+  EXPECT_EQ(fndecl->getKind(), DeclKind::FuncDecl);
+  EXPECT_EQ(fndecl->getDeclContextKind(), DeclContextKind::FuncDecl);
+  EXPECT_TRUE(FuncDecl::classof((Decl*)fndecl));
+  EXPECT_TRUE(NamedDecl::classof(fndecl));
+  EXPECT_TRUE(DeclContext::classof(fndecl));
 
   // Var
-  VarDecl vdecl;
-  EXPECT_EQ(vdecl.getKind(), DeclKind::VarDecl);
-  EXPECT_TRUE(VarDecl::classof(&vdecl));
-  EXPECT_TRUE(NamedDecl::classof(&vdecl));
-  EXPECT_TRUE(ValueDecl::classof(&vdecl));
-  EXPECT_FALSE(DeclContext::classof(&vdecl));
+  auto* vdecl = createEmptyVarDecl(ctxt);
+  EXPECT_EQ(vdecl->getKind(), DeclKind::VarDecl);
+  EXPECT_TRUE(VarDecl::classof(vdecl));
+  EXPECT_TRUE(NamedDecl::classof(vdecl));
+  EXPECT_TRUE(ValueDecl::classof(vdecl));
+  EXPECT_FALSE(DeclContext::classof(vdecl));
 
   // Unit
   Identifier id; FileID fid;
-  ASTContext ctxt;
   DeclContext dc(DeclContextKind::FuncDecl);
   UnitDecl udecl(ctxt, &dc, id, fid);
   EXPECT_EQ(udecl.getKind(), DeclKind::UnitDecl);
@@ -286,23 +298,21 @@ TEST(ASTTests, DeclRTTI) {
 }
 
 TEST(ASTTests, DeclDeclContextRTTI) {
-  FuncDecl fndecl;
+  ASTContext ctxt;
+  auto* fndecl = createEmptyFnDecl(ctxt);
   Identifier id; FileID fid;
   DeclContext dc(DeclContextKind::FuncDecl);
-  ASTContext ctxt;
   UnitDecl udecl(ctxt, &dc, id, fid);
 
   DeclContext* tmp = nullptr;
   // FuncDecl -> DeclContext -> FuncDecl
-  tmp = &fndecl;
-  FuncDecl* fndeclPtr = dyn_cast<FuncDecl>(tmp);
-  EXPECT_EQ(&fndecl, fndeclPtr);
+  tmp = fndecl;
+  EXPECT_EQ(fndecl, dyn_cast<FuncDecl>(tmp));
   EXPECT_EQ(nullptr, dyn_cast<UnitDecl>(tmp));
 
   // UnitDecl -> DeclContext -> UnitDecl
   tmp = &udecl;
-  UnitDecl* udeclPtr = dyn_cast<UnitDecl>(tmp);
-  EXPECT_EQ(&udecl, udeclPtr);
+  EXPECT_EQ(&udecl, dyn_cast<UnitDecl>(tmp));
   EXPECT_EQ(nullptr, dyn_cast<FuncDecl>(tmp));
 }
 
@@ -335,7 +345,8 @@ TEST(ASTTests, BasicVisitor) {
   // Create test nodes
   auto* intlit = new(ctxt) IntegerLiteralExpr(200, SourceRange());
   auto* rtr = new(ctxt) ReturnStmt(nullptr, SourceRange());
-  auto* vardecl = new(ctxt) VarDecl();
+  auto* vardecl = new(ctxt) 
+    VarDecl(nullptr, Identifier(), TypeLoc(), false, nullptr, SourceRange());
   auto* intTy = PrimitiveType::getInt(ctxt);
   auto* arrInt = ArrayType::get(ctxt, intTy);
 

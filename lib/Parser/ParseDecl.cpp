@@ -90,17 +90,21 @@ Parser::DeclResult Parser::parseFuncDecl() {
   if (!fnKw)
     return DeclResult::NotFound();
 
-  // The return node
-  FuncDecl* rtr = new(ctxt_) FuncDecl();
+  // For FuncDecl, the return node is created prematurely as an "empty shell",
+  // because we need it's DeclContext to exist to successfully record 
+  // (inside it's DeclContext) it's ParamDecls and other decls that will
+  // be parsed in it's body.
+  FuncDecl* rtr = new(ctxt_) FuncDecl(getDeclContext(), TypeLoc(), 
+    Identifier(), nullptr, SourceRange(), SourceLoc());
   
-  // Locs
+  // Useful location informations
   SourceLoc begLoc = fnKw.getBegin();
   SourceLoc headEndLoc;
   
-  // Poisoned is set to true if the 
-  // declarations is missing stuff (such as the ID)
-  // If poisoned = true, we won't push the decl and
-  // we will return an error after parsing.
+  // Poisoned is set to true, it means that the declarations is missing
+  // critical information to be considered valid. If that's the case,
+  // we won't finish this declaration and we'll just return an error after
+  // emitting all of our diagnostics.
   bool poisoned = false;
 
   // <id>
@@ -112,18 +116,13 @@ Parser::DeclResult Parser::parseFuncDecl() {
     poisoned = true;
   }
 
-  // Begin RAIIDeclContext scope
-  // Create a RAIIDeclContext to record every decl within this function
+  // Create a RAIIDeclContext to record every decl within this function inside
+  // its own DeclContext.
   RAIIDeclContext raiiDC(*this, rtr);
 
   // '('
   if (!consumeBracket(SignType::S_ROUND_OPEN)) {
-    // IDEA:: Instead of giving up immediately, maybe we could try to
-    // parse more? Would it be useful? For now, I don't know.
-    // Time will tell.
-    if (poisoned)
-      return DeclResult::Error();
-
+    if (poisoned) return DeclResult::Error();
     reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
     return DeclResult::Error();
   }
@@ -138,17 +137,15 @@ Parser::DeclResult Parser::parseFuncDecl() {
         else {
           // IDEA: Maybe reporting the error after the "," would yield
           // better error messages?
-          if (param.wasSuccessful())
+          if (param.wasSuccessful()) 
             reportErrorExpected(DiagID::parser_expected_paramdecl);
           return DeclResult::Error();
         }
-      } else
-        break;
+      } else break;
     }
   } 
   // Stop parsing if the argument couldn't parse correctly.
-  else if (!first.wasSuccessful())
-    return DeclResult::Error();
+  else if (!first.wasSuccessful()) return DeclResult::Error();
 
   // ')'
   if (auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE))
@@ -159,8 +156,8 @@ Parser::DeclResult Parser::parseFuncDecl() {
     // We'll attempt to recover to the '{' too,
 		// so if we find the body of the function
     // we can at least parse that.
-    if (!resyncToSign(SignType::S_ROUND_CLOSE,
-			/* stopAtSemi */ true, /*consumeToken*/ false))
+    if (!resyncToSign(SignType::S_ROUND_CLOSE, /*stop@semi*/ true, 
+      /*consume*/ false))
       return DeclResult::Error();
 
     headEndLoc = consumeBracket(SignType::S_ROUND_CLOSE);
@@ -185,8 +182,8 @@ Parser::DeclResult Parser::parseFuncDecl() {
       rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt_));
     }
   }
-  else // if no return type, the function returns void.
-    rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt_));
+  // if no return type, the function returns void.
+  else rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt_));
 
   // <compound_statement>
   StmtResult compStmt = parseCompoundStatement();
@@ -200,16 +197,16 @@ Parser::DeclResult Parser::parseFuncDecl() {
   CompoundStmt* body = dyn_cast<CompoundStmt>(compStmt.get());
   assert(body && "Not a compound stmt");
 
-  // Finished parsing. Check if the Decl is poisoned. If that's the case,
-  // return an error.
+  // Restore the parent DeclContext
+  raiiDC.restore();
+
+  // Finished parsing. If the decl is poisoned, return an error.
   if (poisoned) return DeclResult::Error();
 
   SourceRange range(begLoc, body->getRange().getEnd());
   assert(headEndLoc && range && "Invalid loc info");
 
-  // Done parsing, restore the original DeclContext
-  raiiDC.restore();
-
+  // Finish building our FuncDecl.
   rtr->setBody(body);
   rtr->setLocs(range, headEndLoc);
   actOnNamedDecl(rtr);

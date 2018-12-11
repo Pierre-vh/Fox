@@ -112,11 +112,6 @@ ParamDecl::ParamDecl(DeclContext* parent, Identifier id, TypeLoc type,
 // FuncDecl //
 //----------//
 
-FuncDecl::FuncDecl():
-  FuncDecl(nullptr, nullptr, Identifier(), nullptr, SourceRange(), SourceLoc()) {
-
-}
-
 FuncDecl::FuncDecl(DeclContext* parent, TypeLoc returnType, Identifier fnId,
   CompoundStmt* body, SourceRange range, SourceLoc headerEndLoc):
   NamedDecl(DeclKind::FuncDecl, parent, fnId, range), 
@@ -194,9 +189,6 @@ std::size_t FuncDecl::getNumParams() const {
 //---------//
 // VarDecl //
 //---------//
-
-VarDecl::VarDecl(): VarDecl(nullptr, Identifier(), TypeLoc(), false, nullptr,
-  SourceRange()) {}
 
 VarDecl::VarDecl(DeclContext* parent, Identifier id, TypeLoc type, 
   bool isConst, Expr* init, SourceRange range):
