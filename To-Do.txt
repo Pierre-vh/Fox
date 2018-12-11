@@ -103,9 +103,13 @@ To-Do:
     -> Thus, use the DeclContext constructor to create the DeclContext
        hierarchy instead of DeclContext::setParent, and, ultimately,
        delete DeclContext::setParent
-  > Add a Decl->getASTContext() method
+  > Remove empty constructors
+    > Decl
+    > Stmt
+    > Expr
   > Add a public SourceManager& and DiagnosticEngine&
   > Switch whole AST to ::create Idiom
+  > (If possible) Add a Decl->getASTContext() method
 
   > Name Lookup in Sema
     -> Have a Lookup function which returns a "LookupResult"
