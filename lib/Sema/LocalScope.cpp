@@ -18,21 +18,6 @@ void LocalScope::add(NamedDecl* decl) {
   decls_.insert({ id, decl });
 }
 
-void LocalScope::search(Identifier id, LookupResultTy& results) {
-  LocalScope* cur = this;
-
-  while (cur) {
-    cur->searchImpl(id, results);
-    cur = cur->getParent();
-  }
-}
-
-void LocalScope::searchImpl(Identifier id, LookupResultTy& results) {
-  auto it = decls_.find(id);
-  if (it != decls_.end())
-    results.push_back(it->second);
-}
-
 LocalScope::MapTy& LocalScope::getMap() {
   return decls_;
 }
