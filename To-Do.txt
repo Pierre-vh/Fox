@@ -100,9 +100,6 @@ To-Do:
 // most node will be able to access theses class effortlessly
 // (= less arguments to pass to functions and such)
   > Add a Parent DeclContext* to all Decls (Done)
-    -> Thus, use the DeclContext constructor to create the DeclContext
-       hierarchy instead of DeclContext::setParent, and, ultimately,
-       delete DeclContext::setParent
   > Remove empty constructors
     > Decl (Done)
     > Stmt
@@ -110,6 +107,12 @@ To-Do:
   > Add a public SourceManager& and DiagnosticEngine&
   > Switch whole AST to ::create Idiom
   > (If possible) Add a Decl->getASTContext() method
+  > Rework some constructor & Parsing functions:
+    > For Decl: Take a vector of ParamDecl<*> as argument for the params.
+  > Review AST classes interfaces
+  > DeclContext rework (?)
+
+  > Make the parser perform local name resolution
 
   > Name Lookup in Sema
     -> Have a Lookup function which returns a "LookupResult"
