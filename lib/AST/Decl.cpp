@@ -15,15 +15,25 @@
 
 using namespace fox;
 
-//------//
-// Decl //
-//------//
+//----------------------------------------------------------------------------//
+// Decl
+//----------------------------------------------------------------------------//
 
 Decl::Decl(DeclKind kind, DeclContext* parent, SourceRange range):
   kind_(kind), range_(range), parent_(parent) {}
 
 DeclKind Decl::getKind() const {
   return kind_;
+}
+
+DeclContext* Decl::getDeclContext() const {
+  return parent_;
+}
+
+DeclContext* Decl::getClosestDeclContext() const {
+  if(auto* dc = dyn_cast<DeclContext>(const_cast<Decl*>(this)))
+    return dc;
+  return getDeclContext();
 }
 
 void Decl::setRange(SourceRange range) {
@@ -42,9 +52,9 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
 }
 
-//-----------//
-// NamedDecl //
-//-----------//
+//----------------------------------------------------------------------------//
+// NamedDecl
+//----------------------------------------------------------------------------//
 
 NamedDecl::NamedDecl(DeclKind kind, DeclContext* parent, Identifier id, 
   SourceRange range): Decl(kind, parent, range), identifier_(id) {}
@@ -61,9 +71,9 @@ bool NamedDecl::hasIdentifier() const {
   return !identifier_.isNull();
 }
 
-//-----------//
-// ValueDecl //
-//-----------//
+//----------------------------------------------------------------------------//
+// ValueDecl
+//----------------------------------------------------------------------------//
 
 ValueDecl::ValueDecl(DeclKind kind, DeclContext* parent, Identifier id,
   TypeLoc ty, bool isConst, SourceRange range): 
@@ -93,9 +103,9 @@ void ValueDecl::setIsConstant(bool k) {
   isConst_ = k;
 }
 
-//-----------//
-// ParamDecl //
-//-----------//
+//----------------------------------------------------------------------------//
+// ParamDecl
+//----------------------------------------------------------------------------//
 
 ParamDecl::ParamDecl():
   ParamDecl(nullptr, Identifier(), TypeLoc(), false, SourceRange()) {
@@ -108,9 +118,9 @@ ParamDecl::ParamDecl(DeclContext* parent, Identifier id, TypeLoc type,
 
 }
 
-//----------//
-// FuncDecl //
-//----------//
+//----------------------------------------------------------------------------//
+// FuncDecl
+//----------------------------------------------------------------------------//
 
 FuncDecl::FuncDecl(DeclContext* parent, TypeLoc returnType, Identifier fnId,
   CompoundStmt* body, SourceRange range, SourceLoc headerEndLoc):
@@ -164,7 +174,6 @@ ParamDecl* FuncDecl::getParam(std::size_t ind) const {
   return params_[ind];
 }
 
-
 FuncDecl::ParamVecTy& FuncDecl::getParams() {
   return params_;
 }
@@ -186,9 +195,9 @@ std::size_t FuncDecl::getNumParams() const {
   return params_.size();
 }
 
-//---------//
-// VarDecl //
-//---------//
+//----------------------------------------------------------------------------//
+// VarDecl
+//----------------------------------------------------------------------------//
 
 VarDecl::VarDecl(DeclContext* parent, Identifier id, TypeLoc type, 
   bool isConst, Expr* init, SourceRange range):
@@ -207,9 +216,9 @@ void VarDecl::setInitExpr(Expr* expr) {
   init_ = expr;
 }
 
-//----------//
-// UnitDecl //
-//----------//
+//----------------------------------------------------------------------------//
+// UnitDecl
+//----------------------------------------------------------------------------//
 
 UnitDecl::UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id,
   FileID inFile): NamedDecl(DeclKind::UnitDecl, parent, id, SourceRange()),

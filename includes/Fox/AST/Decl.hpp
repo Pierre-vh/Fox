@@ -4,7 +4,7 @@
 // File : Decl.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Declares the Decl hierarchy
+// This file contains the Decl hierarchy
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -14,18 +14,19 @@
 #include "Identifier.hpp"
 
 namespace fox {
-  // Kinds of Decls
-  enum class DeclKind : std::uint8_t {
-    #define DECL(ID,PARENT) ID,
-    #define DECL_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
-    #include "DeclNodes.def"
-  };
-
   // Forward Declarations
   class Expr;
   class Identifier;
   class ASTContext;
   class CompoundStmt;
+
+  // This enum represents every possible Declaration kind. It is automatically
+  // generated using Fox/AST/DeclNodes.def
+  enum class DeclKind : std::uint8_t {
+    #define DECL(ID,PARENT) ID,
+    #define DECL_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
+    #include "DeclNodes.def"
+  };
 
   // Decl
   //    Common base class for every Declaration
@@ -33,13 +34,30 @@ namespace fox {
   //    should be their parent DeclContext.
   class alignas(DeclAlignement) Decl {
     public:
+      // Get the kind of Decl this is.
       DeclKind getKind() const;
+
+      // Returns the DeclContext in which this declaration is referenced.
+      // (It's parent DeclContext)
+      //
+      // If this returns nullptr, the Decl isn't referenced in any
+      // DeclContext and is probably a UnitDecl.
+      DeclContext* getDeclContext() const;
+
+      // Returns the "closest" DeclContext.
+      //  -> If this Decl is also a DeclContext, returns 
+      //     dyn_cast<DeclContext>(this)
+      //  -> Else, returns getDeclContext() (it's parent DeclContext)
+      // Should never return nullptr in a well formed AST.
+      DeclContext* getClosestDeclContext() const;
 
       void setRange(SourceRange range);
       SourceRange getRange() const;
-      // Returns the FileID of the file where this decl is located.
+
+      // Get the FileID of the file where this Decl is located
       FileID getFile() const;
 
+      // Debug method. Does a ASTDump to std::cerr
       void dump() const;
 
       // Prohibit the use of builtin placement new & delete
@@ -48,7 +66,8 @@ namespace fox {
       void* operator new(std::size_t, void*) = delete;
 
       // Only allow allocation through the ASTContext
-      void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Decl));
+      void* operator new(std::size_t sz, ASTContext &ctxt, 
+        std::uint8_t align = alignof(Decl));
 
       // Companion operator delete to silence C4291 on MSVC
       void operator delete(void*, ASTContext&, std::uint8_t) {}
@@ -63,7 +82,7 @@ namespace fox {
   };
 
   // NamedDecl
-  //    Common base class for every named Declaration
+  //    Common base class for every named declaration (a declaration with an identifier)
   class NamedDecl : public Decl {
     public:
       NamedDecl(DeclKind kind, DeclContext* parent, Identifier id, SourceRange range);
@@ -107,7 +126,7 @@ namespace fox {
   };
 
   // ParamDecl
-  //    A declaration of a function parameter
+  //    A declaration of a function parameter. This is simply a ValueDecl.
   class ParamDecl : public ValueDecl {
     public:
       ParamDecl();
@@ -121,7 +140,7 @@ namespace fox {
 
   
   // FuncDecl
-  //    A function declaration
+  //    A function declaration, which is both a NamedDecl and a DeclContext.
   class FuncDecl : public NamedDecl, public DeclContext {
     private:
       using ParamVecTy = std::vector<ParamDecl*>;
@@ -171,7 +190,8 @@ namespace fox {
   };
 
   // VarDecl
-  //    A variable declaration
+  //    A variable declaration. This is simply a ValueDecl with an added
+  //    "init" Expr*
   class VarDecl : public ValueDecl {
     public:
       VarDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
@@ -190,7 +210,8 @@ namespace fox {
   };
 
   // UnitDecl
-  //    Represents a Source file.
+  //    Represents a parsed Source file. This is both a NamedDecl and a 
+  //    DeclContext.
   class UnitDecl : public NamedDecl, public DeclContext {
     public:
       UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id, 
