@@ -113,6 +113,8 @@ namespace fox {
 
       // Getter for the DeclMap, which is a std::multimap. This map has
       // no particular ordering, and will be used for Lookup.
+      //
+      // This map is const (read only).
       const DeclsMapTy& getDeclsMap() const;
 
       // Returns a vector of all Stored Decl where the decls are
