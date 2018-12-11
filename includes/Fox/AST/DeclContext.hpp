@@ -80,19 +80,19 @@ namespace fox {
       // Type Aliases
       //----------------------------------------------------------------------//
 
-      // The type of the internal map of Decls
-      using DeclsMapTy = std::multimap<Identifier, NamedDecl*>;
+      // The type of the internal map of Decls.
+      using MapTy = std::multimap<Identifier, NamedDecl*>;
 
       // The type of the map used to represent Decls in Lexical order.
       using LexicalDeclsTy = std::vector<NamedDecl*>;
 
-      // The type of the non-const iterator for DeclsMapTy
+      // The type of the non-const iterator for MapTy
       using DeclMapIter 
-        = DeclContextIterator<DeclsMapTy::iterator>;
+        = DeclContextIterator<MapTy::iterator>;
 
-      // The type of the const iterator for DeclsMapTy
+      // The type of the const iterator for MapTy
       using DeclMapConstIter 
-        = DeclContextIterator<DeclsMapTy::const_iterator>;
+        = DeclContextIterator<MapTy::const_iterator>;
 
       //----------------------------------------------------------------------//
       // Interface
@@ -115,7 +115,7 @@ namespace fox {
       // no particular ordering, and will be used for Lookup.
       //
       // This map is const (read only).
-      const DeclsMapTy& getDeclsMap() const;
+      const MapTy& getDeclsMap() const;
 
       // Returns a vector of all Stored Decl where the decls are
       // stored in order of appearance in the file "file"
@@ -147,7 +147,7 @@ namespace fox {
         = llvm::PointerIntPair<DeclContext*, DeclContextFreeLowBits>;
       // Members
       ParentAndKindTy parentAndKind_;
-      DeclsMapTy decls_;
+      MapTy decls_;
 
       //----------------------------------------------------------------------//
       // Static assertion

@@ -41,7 +41,7 @@ bool DeclContext::isLocalDeclContext() const {
   }
 }
 
-const DeclContext::DeclsMapTy& DeclContext::getDeclsMap() const {
+const DeclContext::MapTy& DeclContext::getDeclsMap() const {
   return decls_;
 }
 
