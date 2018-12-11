@@ -74,12 +74,10 @@ bool Driver::processFile(const std::string& filepath) {
     for (auto& decl : unit->getDeclsMap()) {
       if (FuncDecl* fn = dyn_cast<FuncDecl>(decl.second)) {
         CompoundStmt* body = fn->getBody();
-        if(body) {
-          for (auto& node : body->getNodes()) {
-				    // Decl checking not available yet
-				    if(!node.is<Decl*>())
-					    node = s.checkNode(node);
-          }
+        for (auto& node : body->getNodes()) {
+				  // Decl checking not available yet
+				  if(!node.is<Decl*>())
+					  node = s.checkNode(node);
         }
       }
     }
