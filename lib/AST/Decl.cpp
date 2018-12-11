@@ -232,6 +232,6 @@ void UnitDecl::setFileID(const FileID& fid) {
   file_ = fid;
 }
 
-ASTContext& fox::UnitDecl::getASTContext() {
+ASTContext& UnitDecl::getASTContext() {
   return ctxt_;
 }
