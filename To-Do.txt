@@ -99,12 +99,12 @@ To-Do:
 // and make, in the long term, the code less verbose, since
 // most node will be able to access theses class effortlessly
 // (= less arguments to pass to functions and such)
-  > Add a Parent DeclContext* to all Decls 
+  > Add a Parent DeclContext* to all Decls (Done)
     -> Thus, use the DeclContext constructor to create the DeclContext
        hierarchy instead of DeclContext::setParent, and, ultimately,
        delete DeclContext::setParent
   > Remove empty constructors
-    > Decl
+    > Decl (Done)
     > Stmt
     > Expr
   > Add a public SourceManager& and DiagnosticEngine&
