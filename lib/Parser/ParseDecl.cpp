@@ -22,7 +22,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
   assert(fid && "FileID cannot be invalid!");
 
   // Create the unit
-  auto* unit = new(ctxt_) UnitDecl(ctxt_, unitName, fid);
+  auto* unit = new(ctxt_) UnitDecl(ctxt_, getDeclContext(), unitName, fid);
 
   // Create a RAIIDeclContext
   RAIIDeclContext raiidr(*this, unit);
@@ -50,7 +50,8 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
         if (parsedDecl.wasSuccessful()) {
           // Report the error with the current token being the error location
           Token curtok = getCurtok();
-          assert(curtok && "Curtok must be valid since we have not reached eof");
+          assert(curtok 
+            && "Curtok must be valid since we have not reached eof");
           diags_.report(DiagID::parser_expected_decl, curtok.getRange());
         }
 
@@ -91,7 +92,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
   // The return node
   FuncDecl* rtr = new(ctxt_) FuncDecl();
-
+  
   // Locs
   SourceLoc begLoc = fnKw.getBegin();
   SourceLoc headEndLoc;
@@ -247,12 +248,8 @@ Parser::DeclResult Parser::parseParamDecl() {
 
   assert(range && "Invalid loc info");
 
-  auto* rtr = new(ctxt_) ParamDecl(
-      id.get(),
-      tl,
-      isConst,
-      range
-    );
+  auto* rtr = new(ctxt_) ParamDecl(getDeclContext(), id.get(),
+                                   tl, isConst,range);
 
   actOnNamedDecl(rtr);
   return DeclResult(rtr);
@@ -340,7 +337,8 @@ Parser::DeclResult Parser::parseVarDecl() {
   assert(range && "Invalid loc info");
   assert(type && "type is not valid");
   assert(type.getRange() && "type range is not valid");
-  auto rtr = new(ctxt_) VarDecl(id, type, isConst, iExpr, range);
+  auto rtr = new(ctxt_) VarDecl(getDeclContext(),id, type, 
+                                isConst, iExpr, range);
 
   actOnNamedDecl(rtr);
   return DeclResult(rtr);

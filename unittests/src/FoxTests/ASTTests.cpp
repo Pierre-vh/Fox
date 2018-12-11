@@ -124,27 +124,6 @@ TEST(ASTTests, ASTContextArrayTypes) {
   EXPECT_EQ(ArrayType::get(actxt,primInt), intArr);
 }
 
-// Create a variable with a random type
-VarDecl* makeVarDecl(ASTContext& ctxt, const std::string &name, TypeLoc ty) {
-  return new(ctxt) VarDecl(
-      ctxt.getIdentifier(name),
-      ty,
-      false,
-      nullptr,
-      SourceRange()
-    );
-}
-
-FuncDecl* makeFuncDecl(ASTContext& ctxt, const std::string& name) {
-  return new(ctxt) FuncDecl(
-    PrimitiveType::getVoid(ctxt),
-    ctxt.getIdentifier(name),
-    nullptr,
-    SourceRange(),
-    SourceLoc()
-  );
-}
-
 TEST(ASTTests, TypeRTTI) {
   ASTContext astctxt;
   TypeBase* intTy = PrimitiveType::getInt(astctxt);
@@ -297,7 +276,8 @@ TEST(ASTTests, DeclRTTI) {
   // Unit
   Identifier id; FileID fid;
   ASTContext ctxt;
-  UnitDecl udecl(ctxt, id, fid);
+  DeclContext dc(DeclContextKind::FuncDecl);
+  UnitDecl udecl(ctxt, &dc, id, fid);
   EXPECT_EQ(udecl.getKind(), DeclKind::UnitDecl);
   EXPECT_EQ(udecl.getDeclContextKind(), DeclContextKind::UnitDecl);
   EXPECT_TRUE(UnitDecl::classof((Decl*)&udecl));
@@ -308,21 +288,22 @@ TEST(ASTTests, DeclRTTI) {
 TEST(ASTTests, DeclDeclContextRTTI) {
   FuncDecl fndecl;
   Identifier id; FileID fid;
+  DeclContext dc(DeclContextKind::FuncDecl);
   ASTContext ctxt;
-  UnitDecl udecl(ctxt, id, fid);
+  UnitDecl udecl(ctxt, &dc, id, fid);
 
-  DeclContext* dc = nullptr;
+  DeclContext* tmp = nullptr;
   // FuncDecl -> DeclContext -> FuncDecl
-  dc = &fndecl;
-  FuncDecl* fndeclPtr = dyn_cast<FuncDecl>(dc);
+  tmp = &fndecl;
+  FuncDecl* fndeclPtr = dyn_cast<FuncDecl>(tmp);
   EXPECT_EQ(&fndecl, fndeclPtr);
-  EXPECT_EQ(nullptr, dyn_cast<UnitDecl>(dc));
+  EXPECT_EQ(nullptr, dyn_cast<UnitDecl>(tmp));
 
   // UnitDecl -> DeclContext -> UnitDecl
-  dc = &udecl;
-  UnitDecl* udeclPtr = dyn_cast<UnitDecl>(dc);
+  tmp = &udecl;
+  UnitDecl* udeclPtr = dyn_cast<UnitDecl>(tmp);
   EXPECT_EQ(&udecl, udeclPtr);
-  EXPECT_EQ(nullptr, dyn_cast<FuncDecl>(dc));
+  EXPECT_EQ(nullptr, dyn_cast<FuncDecl>(tmp));
 }
 
 // ASTVisitor tests : Samples implementations to test if visitors works as intended
