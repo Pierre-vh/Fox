@@ -63,7 +63,6 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // FuncDecl is also a local scope, so create a new scope.
       assert(decl->isLocalDeclContext() && "FuncDecl isn't local?");
       auto scopeGuard = getSema().enterNewLocalScopeRAII();
-      // Sema::setDeclCtxtRAII(decl)
       // visit(decl parameters)
       // Sema::checkNode(decl->getBody())
       fox_unimplemented_feature("FuncDecl checking");
@@ -84,7 +83,15 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     //----------------------------------------------------------------------//
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
-    // CheckValueDecl generic function
+    
+
+    // Checks a ValueDecl for Redeclaration
+    bool checkValueDeclForRedecl(ValueDecl* decl) {
+      // Lookup, check that Zero result.
+      // In the future, check here for overload-related
+      // stuff.
+      return false;
+    }
 };
 
 void Sema::checkDecl(Decl* decl) {
