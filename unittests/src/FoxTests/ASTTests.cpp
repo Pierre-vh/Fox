@@ -151,76 +151,80 @@ TEST(ASTTests, TypeRTTI) {
 }
 
 TEST(ASTTests, ExprRTTI) {
-  ASTContext astctxt;
+  ASTContext ctxt;
 
   // Binary Exprs
-  BinaryExpr binexpr(BinaryExpr::OpKind::Invalid, nullptr, 
-    nullptr, SourceRange(), SourceRange());
-  EXPECT_EQ(binexpr.getKind(), ExprKind::BinaryExpr);
-  EXPECT_TRUE(BinaryExpr::classof(&binexpr));
+  auto* binexpr = BinaryExpr::create(ctxt, BinaryExpr::OpKind::Invalid,
+    nullptr, nullptr, SourceRange(), SourceRange());
+  EXPECT_EQ(binexpr->getKind(), ExprKind::BinaryExpr);
+  EXPECT_TRUE(BinaryExpr::classof(binexpr));
 
   // Unary Exprs
-  UnaryExpr unaryexpr(UnaryExpr::OpKind::Invalid, nullptr,
-    SourceRange(), SourceRange());
-  EXPECT_EQ(unaryexpr.getKind(), ExprKind::UnaryExpr);
-  EXPECT_TRUE(UnaryExpr::classof(&unaryexpr));
+  auto* unaryexpr = UnaryExpr::create(ctxt, UnaryExpr::OpKind::Invalid, 
+    nullptr, SourceRange(), SourceRange());
+  EXPECT_EQ(unaryexpr->getKind(), ExprKind::UnaryExpr);
+  EXPECT_TRUE(UnaryExpr::classof(unaryexpr));
 
   // Cast Exprs
-  CastExpr castexpr(TypeLoc(), nullptr, SourceRange());
-  EXPECT_EQ(castexpr.getKind(), ExprKind::CastExpr);
-  EXPECT_TRUE(CastExpr::classof(&castexpr));
+  auto* castexpr = CastExpr::create(ctxt, TypeLoc(), nullptr, SourceRange());
+  EXPECT_EQ(castexpr->getKind(), ExprKind::CastExpr);
+  EXPECT_TRUE(CastExpr::classof(castexpr));
 
   // Literals
-  CharLiteralExpr charlit('0', SourceRange());
-  EXPECT_EQ(charlit.getKind(), ExprKind::CharLiteralExpr);
-  EXPECT_TRUE(CharLiteralExpr::classof(&charlit));
+  auto* charlit = CharLiteralExpr::create(ctxt, '0', SourceRange());
+  EXPECT_EQ(charlit->getKind(), ExprKind::CharLiteralExpr);
+  EXPECT_TRUE(CharLiteralExpr::classof(charlit));
 
-  IntegerLiteralExpr intlit(0, SourceRange());
-  EXPECT_EQ(intlit.getKind(), ExprKind::IntegerLiteralExpr);
-  EXPECT_TRUE(IntegerLiteralExpr::classof(&intlit));
+  auto* intlit = IntegerLiteralExpr::create(ctxt, 0, SourceRange());
+  EXPECT_EQ(intlit->getKind(), ExprKind::IntegerLiteralExpr);
+  EXPECT_TRUE(IntegerLiteralExpr::classof(intlit));
 
-  FloatLiteralExpr floatlit(0.0, SourceRange());
-  EXPECT_EQ(floatlit.getKind(), ExprKind::FloatLiteralExpr);
-  EXPECT_TRUE(FloatLiteralExpr::classof(&floatlit));
+  auto* floatlit = FloatLiteralExpr::create(ctxt, 0.0, SourceRange());
+  EXPECT_EQ(floatlit->getKind(), ExprKind::FloatLiteralExpr);
+  EXPECT_TRUE(FloatLiteralExpr::classof(floatlit));
 
-  StringLiteralExpr strlit("", SourceRange());
-  EXPECT_EQ(strlit.getKind(), ExprKind::StringLiteralExpr);
-  EXPECT_TRUE(StringLiteralExpr::classof(&strlit));
+  auto* strlit = StringLiteralExpr::create(ctxt, "", SourceRange());
+  EXPECT_EQ(strlit->getKind(), ExprKind::StringLiteralExpr);
+  EXPECT_TRUE(StringLiteralExpr::classof(strlit));
 
-  BoolLiteralExpr  boollit(false, SourceRange());
-  EXPECT_EQ(boollit.getKind(), ExprKind::BoolLiteralExpr);
-  EXPECT_TRUE(BoolLiteralExpr::classof(&boollit));
+  auto* boollit = BoolLiteralExpr::create(ctxt, false, SourceRange());
+  EXPECT_EQ(boollit->getKind(), ExprKind::BoolLiteralExpr);
+  EXPECT_TRUE(BoolLiteralExpr::classof(boollit));
 
-  ArrayLiteralExpr arrlit((ExprVector()), SourceRange());
-  EXPECT_EQ(arrlit.getKind(), ExprKind::ArrayLiteralExpr);
-  EXPECT_TRUE(ArrayLiteralExpr::classof(&arrlit));
+  auto* arrlit = ArrayLiteralExpr::create(ctxt, (ExprVector()), SourceRange());
+  EXPECT_EQ(arrlit->getKind(), ExprKind::ArrayLiteralExpr);
+  EXPECT_TRUE(ArrayLiteralExpr::classof(arrlit));
 
   // Helper
-  auto fooid = astctxt.getIdentifier("foo");
+  auto fooid = ctxt.getIdentifier("foo");
 
-  UnresolvedDeclRefExpr undeclref((Identifier()), SourceRange());
-  EXPECT_EQ(undeclref.getKind(), ExprKind::UnresolvedDeclRefExpr);
-  EXPECT_TRUE(UnresolvedDeclRefExpr::classof(&undeclref));
+  auto* undeclref = UnresolvedDeclRefExpr::create(ctxt,
+    (Identifier()), SourceRange());
+  EXPECT_EQ(undeclref->getKind(), ExprKind::UnresolvedDeclRefExpr);
+  EXPECT_TRUE(UnresolvedDeclRefExpr::classof(undeclref));
 
   // DeclRef
-  DeclRefExpr declref(nullptr, SourceRange());
-  EXPECT_EQ(declref.getKind(), ExprKind::DeclRefExpr);
-  EXPECT_TRUE(DeclRefExpr::classof(&declref));
+  auto* declref = DeclRefExpr::create(ctxt, nullptr, SourceRange());
+  EXPECT_EQ(declref->getKind(), ExprKind::DeclRefExpr);
+  EXPECT_TRUE(DeclRefExpr::classof(declref));
 
   // MemberOfExpr
-  MemberOfExpr membof(nullptr, Identifier(), SourceRange(), SourceLoc());
-  EXPECT_EQ(membof.getKind(), ExprKind::MemberOfExpr);
-  EXPECT_TRUE(MemberOfExpr::classof(&membof));
+  auto* membof = MemberOfExpr::create(ctxt, nullptr, Identifier(),
+    SourceRange(), SourceLoc());
+  EXPECT_EQ(membof->getKind(), ExprKind::MemberOfExpr);
+  EXPECT_TRUE(MemberOfExpr::classof(membof));
 
   // Array Access
-  ArraySubscriptExpr arracc(nullptr, nullptr, SourceRange());
-  EXPECT_EQ(arracc.getKind(), ExprKind::ArraySubscriptExpr);
-  EXPECT_TRUE(ArraySubscriptExpr::classof(&arracc));
+  auto* arracc = ArraySubscriptExpr::create(ctxt, nullptr, nullptr, 
+    SourceRange());
+  EXPECT_EQ(arracc->getKind(), ExprKind::ArraySubscriptExpr);
+  EXPECT_TRUE(ArraySubscriptExpr::classof(arracc));
 
   // Function calls
-  FunctionCallExpr callexpr(nullptr, ExprVector(), SourceRange());
-  EXPECT_EQ(callexpr.getKind(), ExprKind::FunctionCallExpr);
-  EXPECT_TRUE(FunctionCallExpr::classof(&callexpr));
+  auto* callexpr = FunctionCallExpr::create(ctxt, nullptr,
+    ExprVector(), SourceRange());
+  EXPECT_EQ(callexpr->getKind(), ExprKind::FunctionCallExpr);
+  EXPECT_TRUE(FunctionCallExpr::classof(callexpr));
 }
 
 TEST(ASTTests, StmtRTTI) {
@@ -350,7 +354,7 @@ TEST(ASTTests, BasicVisitor) {
   ASTContext ctxt;
 
   // Create test nodes
-  auto* intlit = new(ctxt) IntegerLiteralExpr(200, SourceRange());
+  auto* intlit = IntegerLiteralExpr::create(ctxt, 42, SourceRange());
   auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
   auto* vardecl = VarDecl::create(ctxt, nullptr, Identifier(), 
     TypeLoc(), false, nullptr, SourceRange());
