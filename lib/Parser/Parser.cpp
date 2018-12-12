@@ -141,7 +141,7 @@ void Parser::consumeAny() {
 }
 
 void Parser::revertConsume() {
-  previous();
+  undo();
   Token tok = getCurtok();
 
   if (isBracket(tok.getSignType())) {
@@ -199,7 +199,7 @@ void Parser::next() {
     state_.tokenIterator++;
 }
 
-void Parser::previous() {
+void Parser::undo() {
   if (state_.tokenIterator != tokens_.begin())
     state_.tokenIterator--;
 }
@@ -434,7 +434,7 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
     errorRange = SourceRange(loc);
   }
   else {
-    // No valid previous token, use the current token's range as the 
+    // No valid undo token, use the current token's range as the 
     // error location. (This case should be fairly rare, 
 		// or never happen at all. tests needed)
     Token curTok = getCurtok();

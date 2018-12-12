@@ -192,7 +192,7 @@ namespace fox {
 			// Won't change updated counters.
       // Only use in cases where a counter wasn't updated by the last consume operation. 
 			// Else, use a Parser State Backup.
-      void previous();  
+      void undo();  
 
       // Helper for consumeSign & consumeBracket
       // Brackets are one of the following : '(' ')' '[' ']' '{' '}'
@@ -212,7 +212,7 @@ namespace fox {
 
       /*-------------- Error Reporting --------------*/
       // Reports an error of the "unexpected" family.
-      // The SourceLoc of the error is right past the end of the previous token.
+      // The SourceLoc of the error is right past the end of the undo token.
       Diagnostic reportErrorExpected(DiagID diag);
 
       /*-------------- Parser State --------------*/
@@ -264,7 +264,7 @@ namespace fox {
       /*-------------- RAIIDeclParent --------------*/
       // This class sets the current DeclParent at construction, 
 			// and restores the last one at destruction.
-      // If the previous parent wasn't null and the new parent passed
+      // If the undo parent wasn't null and the new parent passed
       // to the constructor is a DeclContext, set the parent of the
       // DC passed to the constructor to the last one active.
       class RAIIDeclParent {
