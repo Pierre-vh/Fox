@@ -227,7 +227,7 @@ void ASTDumper::visitUnitDecl(UnitDecl* node) {
 
   dumpLine() << getBasicDeclInfo(node) << " " << fileInfo << " "
              << getIdentifierDump(node->getIdentifier()) << " "
-             << getDeclRecorderDump(node) << "\n";
+             << getDeclCtxtDump(node) << "\n";
 
   indent();
   for (auto decl : node->getLexicalDecls(node->getFileID()))
@@ -380,11 +380,8 @@ std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
   ss << getDeclNodeName(decl);
   if (isDebug())
     ss << " " << (void*)decl;
-
-  SourceRange range = decl->getRange();
-  ss << " " << getSourceLocDump("start", range.getBegin());
-  ss << " " << getSourceLocDump("end", range.getEnd());
-
+  ss << " " << makeKeyPairDump("local", (decl->isLocal() ? "true" : "false"))
+     << " " << getSourceRangeDump("range", decl->getRange());
   return ss.str();
 }
 
@@ -398,12 +395,8 @@ std::string ASTDumper::getBasicTypeInfo(Type type) const {
 
 std::string ASTDumper::getBasicValueDeclDump(ValueDecl* decl) const {
   std::ostringstream ss;
-  ss << getDeclNodeName(decl);
-  if (isDebug())
-    ss << " " << (void*)decl;
-
-  ss << " " << getSourceRangeDump("range", decl->getRange()) << " "
-		 << getIdentifierDump(decl->getIdentifier()) << " "
+  ss << getBasicDeclInfo(decl) << " ";
+  ss << getIdentifierDump(decl->getIdentifier()) << " "
      << getTypeLocDump("type", decl->getTypeLoc(), decl->isConstant()) << " ";
 
   if (decl->isConstant())
@@ -424,7 +417,7 @@ std::string ASTDumper::getOperatorDump(UnaryExpr* expr) const {
   return ss.str();
 }
 
-std::string ASTDumper::getDeclRecorderDump(DeclContext* dr) const {
+std::string ASTDumper::getDeclCtxtDump(DeclContext* dr) const {
   std::ostringstream ss;
   ss << "<DeclContext:" << (void*)dr;
   if (dr->hasParentDeclCtxt())
