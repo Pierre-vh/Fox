@@ -24,7 +24,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
   // Create the unit
   assert(isDeclParentADeclCtxtOrNull() && "UnitDecls cannot be local decls!");
   auto* dc = getDeclParent().dyn_cast<DeclContext*>();
-  auto* unit = UnitDecl::create(ctxt_, dc, unitName, fid);
+  auto* unit = UnitDecl::create(ctxt, dc, unitName, fid);
 
   // Create a RAIIDeclParent
   RAIIDeclParent raiidr(this, unit);
@@ -54,7 +54,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
           Token curtok = getCurtok();
           assert(curtok 
             && "Curtok must be valid since we have not reached eof");
-          diags_.report(DiagID::parser_expected_decl, curtok.getRange());
+          diags.report(DiagID::parser_expected_decl, curtok.getRange());
         }
 
         if (resyncToNextDecl())
@@ -68,11 +68,11 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
 
   if (unit->numDecls() == 0) {
     if(!declHadError)
-      diags_.report(DiagID::parser_expected_decl_in_unit, fid);
+      diags.report(DiagID::parser_expected_decl_in_unit, fid);
     return nullptr;
   }
   else {
-    ctxt_.addUnit(unit, isMainUnit);
+    ctxt.addUnit(unit, isMainUnit);
     return unit;
   }
 }
@@ -99,7 +99,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // (inside it's DeclContext) it's ParamDecls and other decls that will
   // be parsed in it's body.
   auto* parentDC = getDeclParentAsDeclCtxt();
-  FuncDecl* rtr = FuncDecl::create(ctxt_, parentDC, Identifier(), 
+  FuncDecl* rtr = FuncDecl::create(ctxt, parentDC, Identifier(), 
     TypeLoc(), SourceRange(), SourceLoc());
   
   RAIIDeclParent parentGuard(this, rtr);
@@ -181,11 +181,11 @@ Parser::DeclResult Parser::parseFuncDecl() {
       // If resynced successfully, use the colon as the end of the header
       // and consider the return type to be void
       headEndLoc = colon;
-      rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt_));
+      rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt));
     }
   }
   // if no return type, the function returns void.
-  else rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt_));
+  else rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt));
 
   // <compound_statement>
   StmtResult compStmt = parseCompoundStatement();
@@ -216,7 +216,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
 Parser::DeclResult Parser::parseParamDecl() {
   // <param_decl> = <id> ':' <qualtype>
-  assert(isParsingFunction() && "Can only call this when parsing a function!");
+  assert(isParsingFuncDecl() && "Can only call this when parsing a function!");
   // <id>
   auto id = consumeIdentifier();
   if (!id)
@@ -246,7 +246,7 @@ Parser::DeclResult Parser::parseParamDecl() {
 
   assert(range && "Invalid loc info");
 
-  auto* rtr = ParamDecl::create(ctxt_, getDeclParent().get<FuncDecl*>(), 
+  auto* rtr = ParamDecl::create(ctxt, getDeclParent().get<FuncDecl*>(), 
     id.get(), tl, isConst, range);
 
   return DeclResult(rtr);
@@ -293,7 +293,7 @@ Parser::DeclResult Parser::parseVarDecl() {
     type = TypeLoc(qtRes.get().type, qtRes.getRange());
     isConst = qtRes.get().isConst;
     if (qtRes.get().isRef)
-      diags_.report(DiagID::parser_ignored_ref_vardecl, ampLoc);
+      diags.report(DiagID::parser_ignored_ref_vardecl, ampLoc);
   }
   else {
     if (qtRes.wasSuccessful())
@@ -334,7 +334,7 @@ Parser::DeclResult Parser::parseVarDecl() {
   assert(range && "Invalid loc info");
   assert(type && "type is not valid");
   assert(type.getRange() && "type range is not valid");
-  auto rtr = VarDecl::create(ctxt_, getDeclParent(),id, type, 
+  auto rtr = VarDecl::create(ctxt, getDeclParent(),id, type, 
     isConst, iExpr, range);
 
   recordInDeclCtxt(rtr);

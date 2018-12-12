@@ -52,36 +52,87 @@ namespace fox {
   class ASTNode;
   enum class DiagID : std::uint16_t;
   class Parser {
+      //----------------------------------------------------------------------//
+      // Forward Declarations
+      //----------------------------------------------------------------------//
     public:
-      /*-------------- Forward Declarations --------------*/
       template<typename DataTy>
       class Result;
 
-      /*-------------- Type Aliases --------------*/
-      using ExprResult = Result<Expr*>;
-      using DeclResult = Result<Decl*>;
-      using StmtResult = Result<Stmt*>;
-      using NodeResult = Result<ASTNode>;
-      using UnitResult = Result<UnitDecl*>;
-
+      //----------------------------------------------------------------------//
+      // Type Aliases
+      //----------------------------------------------------------------------//
     private:
+      // The type of the Token iterator
       using TokenIteratorTy = TokenVector::iterator;
 
     public:
+      // Result type for methods that parse Expressions
+      using ExprResult = Result<Expr*>;
+
+      // Result type for methods that parse Declarations
+      using DeclResult = Result<Decl*>;
+
+      // Result type for methods that parse Statements
+      using StmtResult = Result<Stmt*>;
+
+      // Result type for methods that parse Statements, Expressions or
+      // Declarations
+      using NodeResult = Result<ASTNode>;
+
+    public:
+      //----------------------------------------------------------------------//
+      // Public Parser Interface
+      //----------------------------------------------------------------------//
       Parser(DiagnosticEngine& diags, SourceManager &sm, 
         ASTContext& astctxt, TokenVector& l, DeclContext* declCtxt = nullptr);
 
-      /*-------------- Parsing Methods --------------*/
-			// UNIT
+			// Parse a complete Unit
       UnitDecl* parseUnit(FileID fid, Identifier unitName, bool isMainUnit);
 
-      // EXPRESSIONS
+      // Parse a single variable declaration
+      DeclResult parseVarDecl();
+
+      // Parse a single function declaration
+      DeclResult parseFuncDecl();
+
+      // Parse a single function or variable declaration
+      DeclResult parseDecl();
+
+      //----------------------------------------------------------------------//
+      // References to other important Fox classes
+      //----------------------------------------------------------------------//
+
+      // The ASTContext, used to allocate every node in the AST.
+      ASTContext& ctxt;
+
+      // The DiagnosticEngine, used to emit diagnostics
+      DiagnosticEngine& diags;
+
+      // The SourceManager, use to retrieve source information
+      SourceManager& srcMgr;
+
+      // The vector of tokens being considered by the parser
+      TokenVector& tokens;
+
+    private:
+      //----------------------------------------------------------------------//
+      // Private parser methods
+      //----------------------------------------------------------------------//
+
+      //---------------------------------//
+      // Expression parsing helpers
+      //---------------------------------//
+
+      // Parses a list of expressions
       Result<ExprVector> parseExprList();
 
+      // Parse a list of expression between parentheses
       Result<ExprVector> 
 			parseParensExprList(SourceLoc* LParenLoc = nullptr, 
 				SourceLoc *RParenLoc = nullptr);
 
+      // Parse an expression between parentheses
       ExprResult 
 			parseParensExpr(SourceLoc* leftPLoc = nullptr, 
 			SourceLoc* rightPLoc = nullptr);
@@ -99,7 +150,10 @@ namespace fox {
       ExprResult parseBinaryExpr(std::uint8_t precedence = 5);
       ExprResult parseExpr(); 
 
-      // STATEMENTS
+      //---------------------------------//
+      // Statement parsing helpers
+      //---------------------------------//
+
       StmtResult parseReturnStmt();
       NodeResult parseExprStmt();
       StmtResult parseCompoundStatement();
@@ -108,27 +162,16 @@ namespace fox {
       StmtResult parseCondition();
       StmtResult parseWhileLoop();
 
-      // DECLS
+      //---------------------------------//
+      // Declaration parsing helpers
+      //---------------------------------//
+
       DeclResult parseParamDecl();
-      DeclResult parseVarDecl();
-      DeclResult parseFuncDecl();
-      DeclResult parseDecl();
 
-      // Getters
-      ASTContext& getASTContext();
-      SourceManager& getSourceManager();
-      DiagnosticEngine& getDiagnosticEngine();
+      //---------------------------------//
+      // Type parsing helpers
+      //---------------------------------//
 
-    private:
-      /*-------------- Parser Setup --------------*/
-      void setupParser();
-
-      /*-------------- Extra Parser Actions --------------*/
-      // if getDeclParent is a DeclContext, record decl inside
-      // it.
-      void recordInDeclCtxt(NamedDecl* decl);
-
-      /*-------------- "Basic" Parse Methods --------------*/
       // Parses a builtin type name
       // Parser::Result::getRange does not contain the range, use
       // the TypeLoc's getRange method to retrieve the range.
@@ -139,40 +182,77 @@ namespace fox {
       // the TypeLoc's getRange method to retrieve the range.
       Result<Type> parseType();
 
-      // Parses a QualType 
+      // Return struct for parseQualType
       struct ParsedQualType {
         Type type;
         bool isConst = false;
         bool isRef = false;
       };
+
+      // Parses a qualified type, maybe with a "const" and/or a "ref" (&)
+      // modifier.
       Result<ParsedQualType> 
 			parseQualType(SourceRange* constLoc = nullptr, SourceLoc* refLoc = nullptr);
 
+      //---------------------------------//
+      // Operators parsing helpers
+      //---------------------------------//
+
+      // Parses any assignement operator
       Result<BinaryExpr::OpKind> parseAssignOp();
+
+      // Parses any unary operator
       Result<UnaryExpr::OpKind> parseUnaryOp();
+      
+      // Parses any binary operator
       Result<BinaryExpr::OpKind> parseBinaryOp(std::uint8_t priority);
       SourceRange parseExponentOp();
 
-      /*-------------- Token Consuming --------------*/
-      /*  
-        Consume methods all return a result that evaluates to true 
-				if the "consume" operation finished successfully 
-        (found the requested token), false otherwise
+      //---------------------------------//
+      // Current Decl Parent (curParent_) helpers
+      //---------------------------------//
 
-        Note: SourceLocs and SourceRanges can be both evaluated in 
-				a condition to check their validity (operator bool is implemented on both)
+      // if curParent_ is a DeclContext*, record "decl" inside it.
+      void recordInDeclCtxt(NamedDecl* decl);
+
+      // Returns true if state_.curParent.is<FuncDecl*>();
+      bool isParsingFuncDecl() const;
+      // Returns true if state_.curParent is nullptr OR a 
+      // DeclContext
+      bool isDeclParentADeclCtxtOrNull() const;
+
+      // Asserts that the current decl parent is a DeclContext
+      // or nullptr, then returns state_.curParent().dyn_cast<DeclContext*>()
+      DeclContext* getDeclParentAsDeclCtxt() const;
+
+      //---------------------------------//
+      // Token consumption/manipulation helpers
+      //---------------------------------//
+
+      /*  
+        Note: Token consuming methods
+          Consume methods all return a result that evaluates to true 
+				  if the "consume" operation finished successfully 
+          (found the requested token), false otherwise
+
+          Note: SourceLocs and SourceRanges can be both evaluated in 
+				  a condition to check their validity 
+          (operator bool is implemented on both)
       */
 
       // Consumes an Identifier
-      // The Result object will contain the SourceRange of the identifier 
+      // The Result object will contain the SourceRange of the identifier
 			// on a success
       Result<Identifier> consumeIdentifier();
 
       // Consumes any sign but brackets.
       SourceLoc consumeSign(SignType s);
 
-      // Consumes a bracket and keeps the bracket count up to date. Returns an invalid SourceLoc if the bracket was not found.
-      // Note : In the US, a Bracket is a [], however, here the bracket noun is used in the strict sense, where Round B. = (), Square B. = [] and Curly B. = {}
+      // Consumes a bracket and keeps the bracket count up to date.
+      // Returns an invalid SourceLoc if the bracket was not found.
+      // Note : In the US, a Bracket is a [], however, here the bracket noun 
+      // is used in the strict sense, where 
+      // Round B. = (), Square B. = [] and Curly B. = {}
       SourceLoc consumeBracket(SignType s);
 
       // Consumes a keyword. Returns an invalid SourceRange if not found.
@@ -191,35 +271,48 @@ namespace fox {
       // Decrements the iterator if possible. Used to revert a consume operation. 
 			// Won't change updated counters.
       // Only use in cases where a counter wasn't updated by the last consume operation. 
-			// Else, use a Parser State Backup.
+			// Else (or when in doubt), use revertConsume
       void undo();  
 
       // Helper for consumeSign & consumeBracket
       // Brackets are one of the following : '(' ')' '[' ']' '{' '}'
       bool isBracket(SignType s) const;
 
+      // Returns the current token (*tokenIterator_)
       Token getCurtok() const;
+      
+      // Returns the previous token (*(--tokenIterator))
       Token getPreviousToken() const;
       
-      /*-------------- Error Recovery --------------*/
-        // Last Parameter is an optional pointer to a SourceRange. 
-				// If the recovery was successful, the SourceRange of the token found
-        // will be saved there.
+      //---------------------------------//
+      // Resynchronization helpers
+      //---------------------------------//
+
       bool resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken);
       bool resyncToSign(const std::vector<SignType>& signs, bool stopAtSemi,
 				bool shouldConsumeToken);
       bool resyncToNextDecl();
 
-      /*-------------- Error Reporting --------------*/
+      //---------------------------------//
+      // Error reporting
+      //---------------------------------//
+
       // Reports an error of the "unexpected" family.
       // The SourceLoc of the error is right past the end of the undo token.
       Diagnostic reportErrorExpected(DiagID diag);
 
-      /*-------------- Parser State Variables--------------*/
-      // The current token
+      //---------------------------------//
+      // Parser "state" variables & methods
+      //
+      // The variables are part of what I call the "Parser State".
+      //---------------------------------//
+
+      // Iterator to the current token being considered
+      // by the parser.
       TokenIteratorTy tokenIterator_;
 
-		  // This is set to false when the parser dies (gives up)
+      // isAlive
+		  //  This is set to false when the parser dies (=gives up)
       bool isAlive_ : 1;
       
       // Brackets counters
@@ -231,35 +324,29 @@ namespace fox {
       // DeclContext or a FuncDecl.
       Decl::Parent curParent_;
 
-      /*-------------- Other Private Methods --------------*/
-      bool isDone() const;
-      bool isAlive() const;
-
-      // Returns true if state_.curParent.is<FuncDecl*>();
-
-      bool isParsingFunction() const;
-      // Returns true if state_.curParent is nullptr OR a 
-      // DeclContext
-      bool isDeclParentADeclCtxtOrNull() const;
-
-      // Asserts that the current decl parent is a DeclContext
-      // or nullptr, then returns state_.curParent().dyn_cast<DeclContext*>()
-      DeclContext* getDeclParentAsDeclCtxt() const;
-
-      // Stops the parsing
-      void die();
-
-      // DeclContext getter
       Decl::Parent getDeclParent() const {
         return curParent_;
       }
 
-      /*-------------- RAIIDeclParent --------------*/
+      bool isDone() const;
+      bool isAlive() const;
+
+      // Stops the parsing
+      void die();
+
+      //----------------------------------------------------------------------//
+      // Private parser objects
+      //----------------------------------------------------------------------//
+
+      //---------------------------------//
+      // RAIIDeclParent
+      //
       // This class sets the current DeclParent at construction, 
 			// and restores the last one at destruction.
       // If the undo parent wasn't null and the new parent passed
       // to the constructor is a DeclContext, set the parent of the
       // DC passed to the constructor to the last one active.
+      //---------------------------------//
       class RAIIDeclParent {
         public:
           RAIIDeclParent(Parser *p, Decl::Parent parent);
@@ -271,19 +358,19 @@ namespace fox {
           Parser* parser_;
           Decl::Parent lastParent_;
       };
-
-      /*-------------- Member Variables --------------*/
-      ASTContext& ctxt_;
-      DiagnosticEngine& diags_;
-      SourceManager& srcMgr_;
-      TokenVector& tokens_;
       
-      /*-------------- Constants --------------*/
+      //----------------------------------------------------------------------//
+      // Parser constants
+      //----------------------------------------------------------------------//
+      
       static constexpr uint8_t 
 			maxBraceDepth_ = (std::numeric_limits<std::uint8_t>::max)();
 
     public:
-      /*-------------- Result Classes --------------*/
+      //----------------------------------------------------------------------//
+      // Result class
+      //----------------------------------------------------------------------//
+
       // Class for encapsulating a parsing function's result.
       // It also stores a SourceRange to store a Position/Range if needed.
       template<typename DataTy>

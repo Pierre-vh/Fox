@@ -30,7 +30,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
       assert(range && dotLoc && "Invalid loc info");
 
       return ExprResult(
-        MemberOfExpr::create(ctxt_, base ,id.get(), range, dotLoc)
+        MemberOfExpr::create(ctxt, base ,id.get(), range, dotLoc)
       );
     }
     else  {
@@ -58,7 +58,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
       assert(range && "Invalid loc info");
 
       return ExprResult(
-        ArraySubscriptExpr::create(ctxt_, base, expr.get(), range)
+        ArraySubscriptExpr::create(ctxt, base, expr.get(), range)
       );
     }
     else {
@@ -79,7 +79,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
     SourceRange range(begLoc, endLoc);
     assert(range && "Invalid loc info");
     return ExprResult(
-      FunctionCallExpr::create(ctxt_, base, exprlist.getRef(), range)
+      FunctionCallExpr::create(ctxt, base, exprlist.getRef(), range)
     );
   }
   else if (!exprlist.wasSuccessful())
@@ -90,7 +90,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
 Parser::ExprResult Parser::parseDeclRef() {
   // <decl_call> = <id> 
   if (auto id = consumeIdentifier())
-    return ExprResult(UnresolvedDeclRefExpr::create(ctxt_, id.get(),
+    return ExprResult(UnresolvedDeclRefExpr::create(ctxt, id.get(),
       id.getRange()));
   return ExprResult::NotFound();
 }
@@ -111,15 +111,15 @@ Parser::ExprResult Parser::parsePrimitiveLiteral() {
   assert(range && "Invalid loc info");
 
   if (litinfo.isBool())
-    expr = BoolLiteralExpr::create(ctxt_, litinfo.get<FoxBool>(), range);
+    expr = BoolLiteralExpr::create(ctxt, litinfo.get<FoxBool>(), range);
   else if (litinfo.isString())
-    expr = StringLiteralExpr::create(ctxt_, litinfo.get<FoxString>(), range);
+    expr = StringLiteralExpr::create(ctxt, litinfo.get<FoxString>(), range);
   else if (litinfo.isChar())
-    expr = CharLiteralExpr::create(ctxt_, litinfo.get<FoxChar>(), range);
+    expr = CharLiteralExpr::create(ctxt, litinfo.get<FoxChar>(), range);
   else if (litinfo.isInt())
-    expr = IntegerLiteralExpr::create(ctxt_, litinfo.get<FoxInt>(), range);
+    expr = IntegerLiteralExpr::create(ctxt, litinfo.get<FoxInt>(), range);
   else if (litinfo.isFloat())
-    expr = FloatLiteralExpr::create(ctxt_, litinfo.get<FoxFloat>(), range);
+    expr = FloatLiteralExpr::create(ctxt, litinfo.get<FoxFloat>(), range);
   else
     fox_unreachable("Unknown literal kind"); // Unknown literal
 
@@ -152,7 +152,7 @@ Parser::ExprResult Parser::parseArrayLiteral() {
   SourceRange range(begLoc, endLoc);
   assert(range && "Invalid loc info");
 
-  return ExprResult(ArrayLiteralExpr::create(ctxt_, elist.getRef(), range));
+  return ExprResult(ArrayLiteralExpr::create(ctxt, elist.getRef(), range));
 }
 
 Parser::ExprResult Parser::parseLiteral() {
@@ -237,7 +237,7 @@ Parser::ExprResult Parser::parseExponentExpr() {
     SourceRange range = lhs.get()->getRange();
     assert(range && "Invalid loc info");
 
-    return ExprResult(BinaryExpr::create(ctxt_, BinaryExpr::OpKind::Exp,
+    return ExprResult(BinaryExpr::create(ctxt, BinaryExpr::OpKind::Exp,
       lhs.get(), rhs.get(), range, expOp));
   }
 
@@ -256,7 +256,7 @@ Parser::ExprResult Parser::parsePrefixExpr() {
       SourceRange range(uop.getRange().getBegin(), endLoc);
       assert(range && "Invalid loc info");
 
-      return ExprResult(UnaryExpr::create(ctxt_, uop.get(), prefixexpr.get(),
+      return ExprResult(UnaryExpr::create(ctxt, uop.get(), prefixexpr.get(),
           range, uop.getRange()));
     }
     else {
@@ -297,7 +297,7 @@ Parser::ExprResult Parser::parseCastExpr() {
       SourceRange range(begLoc, endLoc);
       assert(range && "Invalid loc info");
 
-      return ExprResult(CastExpr::create(ctxt_, tl, prefixexpr.get(),
+      return ExprResult(CastExpr::create(ctxt, tl, prefixexpr.get(),
           range));
     }
     else {
@@ -360,7 +360,7 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
 
     SourceRange opRange = binop_res.getRange();
 
-    rtr = BinaryExpr::create(ctxt_, binop_res.get(), (rtr ? rtr : lhs), rhs, 
+    rtr = BinaryExpr::create(ctxt, binop_res.get(), (rtr ? rtr : lhs), rhs, 
       range, opRange);
   }
 
@@ -392,7 +392,7 @@ Parser::ExprResult Parser::parseExpr() {
     assert(range && "Invalid loc info");
 
     SourceRange opRange = op.getRange();
-    return ExprResult(BinaryExpr::create(ctxt_, op.get(), lhs.get(), rhs.get(),
+    return ExprResult(BinaryExpr::create(ctxt, op.get(), lhs.get(), rhs.get(),
       range, opRange));
   }
   return ExprResult(lhs);

@@ -16,25 +16,9 @@
 using namespace fox;
 
 Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, 
-	TokenVector& l, DeclContext *declCtxt): ctxt_(astctxt), tokens_(l), 
-  srcMgr_(sm), diags_(diags), curParent_(declCtxt) {
-  setupParser();
-}
-
-ASTContext& Parser::getASTContext() {
-  return ctxt_;
-}
-
-SourceManager& Parser::getSourceManager() {
-  return srcMgr_;
-}
-
-DiagnosticEngine& Parser::getDiagnosticEngine() {
-  return diags_;
-}
-
-void Parser::setupParser() {
-  tokenIterator_ = tokens_.begin();
+	TokenVector& l, DeclContext *declCtxt): ctxt(astctxt), tokens(l), 
+  srcMgr(sm), diags(diags), curParent_(declCtxt) {
+  tokenIterator_ = tokens.begin();
   isAlive_ = true;
 }
 
@@ -78,7 +62,7 @@ SourceLoc Parser::consumeBracket(SignType s) {
         if (curlyBracketsCount_ < maxBraceDepth_)
           curlyBracketsCount_++;
         else {
-          diags_.report(DiagID::parser_curlybracket_overflow);
+          diags.report(DiagID::parser_curlybracket_overflow);
           die();
         }
         break;
@@ -91,7 +75,7 @@ SourceLoc Parser::consumeBracket(SignType s) {
         if (squareBracketsCount_ < maxBraceDepth_)
           squareBracketsCount_++;
         else {
-          diags_.report(DiagID::parser_squarebracket_overflow);
+          diags.report(DiagID::parser_squarebracket_overflow);
           die();
         }
         break;
@@ -104,7 +88,7 @@ SourceLoc Parser::consumeBracket(SignType s) {
         if (roundBracketsCount_ < maxBraceDepth_)
           roundBracketsCount_++;
         else {
-          diags_.report(DiagID::parser_roundbracket_overflow);
+          diags.report(DiagID::parser_roundbracket_overflow);
           die();
         }
         break;
@@ -158,7 +142,7 @@ void Parser::revertConsume() {
         if (curlyBracketsCount_ < maxBraceDepth_)
           curlyBracketsCount_++;
         else {
-          diags_.report(DiagID::parser_curlybracket_overflow);
+          diags.report(DiagID::parser_curlybracket_overflow);
           die();
         }
         break;
@@ -170,7 +154,7 @@ void Parser::revertConsume() {
         if (squareBracketsCount_ < maxBraceDepth_)
           squareBracketsCount_++;
         else {
-          diags_.report(DiagID::parser_squarebracket_overflow);
+          diags.report(DiagID::parser_squarebracket_overflow);
           die();
         }
         break;
@@ -182,7 +166,7 @@ void Parser::revertConsume() {
         if (roundBracketsCount_ < maxBraceDepth_)
           roundBracketsCount_++;
         else {
-          diags_.report(DiagID::parser_roundbracket_overflow);
+          diags.report(DiagID::parser_roundbracket_overflow);
           die();
         }
         break;
@@ -195,12 +179,12 @@ void Parser::revertConsume() {
 }
 
 void Parser::next() {
-  if (tokenIterator_ != tokens_.end())
+  if (tokenIterator_ != tokens.end())
     tokenIterator_++;
 }
 
 void Parser::undo() {
-  if (tokenIterator_ != tokens_.begin())
+  if (tokenIterator_ != tokens.begin())
     tokenIterator_--;
 }
 
@@ -224,23 +208,23 @@ Parser::Result<Type> Parser::parseBuiltinTypename() {
 
   // "int"
   if (auto range = consumeKeyword(KeywordType::KW_INT))
-    return RtrTy(Type(PrimitiveType::getInt(ctxt_)), range);
+    return RtrTy(Type(PrimitiveType::getInt(ctxt)), range);
   
   // "float"
   if (auto range = consumeKeyword(KeywordType::KW_FLOAT))
-    return RtrTy(Type(PrimitiveType::getFloat(ctxt_)), range);
+    return RtrTy(Type(PrimitiveType::getFloat(ctxt)), range);
 
   // "bool"
   if (auto range = consumeKeyword(KeywordType::KW_BOOL))
-    return RtrTy(Type(PrimitiveType::getBool(ctxt_)), range);
+    return RtrTy(Type(PrimitiveType::getBool(ctxt)), range);
 
   // "string"
   if (auto range = consumeKeyword(KeywordType::KW_STRING))
-    return RtrTy(Type(PrimitiveType::getString(ctxt_)), range);
+    return RtrTy(Type(PrimitiveType::getString(ctxt)), range);
 
   // "char"
   if (auto range = consumeKeyword(KeywordType::KW_CHAR))
-    return RtrTy(Type(PrimitiveType::getChar(ctxt_)), range);
+    return RtrTy(Type(PrimitiveType::getChar(ctxt)), range);
 
   return RtrTy::NotFound();
 }
@@ -255,7 +239,7 @@ Parser::Result<Type> Parser::parseType() {
     SourceLoc endLoc = ty_res.getRange().getEnd();
 
     while (consumeBracket(SignType::S_SQ_OPEN)) {
-      ty = ArrayType::get(ctxt_, ty.getPtr());
+      ty = ArrayType::get(ctxt, ty.getPtr());
       // ']'
       if (auto right = consumeBracket(SignType::S_SQ_CLOSE))
         endLoc = right;
@@ -286,7 +270,7 @@ Token Parser::getCurtok() const {
 
 Token Parser::getPreviousToken() const {
   auto it = tokenIterator_;
-  if (it != tokens_.begin())
+  if (it != tokens.begin())
     return *(--it);
   return Token();
 }
@@ -421,7 +405,7 @@ bool Parser::resyncToNextDecl() {
 }
 
 void Parser::die() {
-  tokenIterator_ = tokens_.end();
+  tokenIterator_ = tokens.end();
   isAlive_ = false;
 }
 
@@ -430,7 +414,7 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
   if (Token prevTok = getPreviousToken()) {
     SourceLoc loc = prevTok.getRange().getEnd();
     loc.increment();
-    assert(srcMgr_.checkValid(loc));
+    assert(srcMgr.checkValid(loc));
     errorRange = SourceRange(loc);
   }
   else {
@@ -441,18 +425,18 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
     assert(curTok && "No valid previous token and no valid current token?");
     errorRange = curTok.getRange();
   }
-  return diags_.report(diag, errorRange);
+  return diags.report(diag, errorRange);
 }
 
 bool Parser::isDone() const {
-  return (tokenIterator_ == tokens_.end()) || (!isAlive());
+  return (tokenIterator_ == tokens.end()) || (!isAlive());
 }
 
 bool Parser::isAlive() const {
   return isAlive_;
 }
 
-bool Parser::isParsingFunction() const {
+bool Parser::isParsingFuncDecl() const {
   return curParent_.is<FuncDecl*>();
 }
 
