@@ -111,7 +111,7 @@ namespace fox {
       std::string getOperatorDump(UnaryExpr* expr) const;
 
       // Returns a formatted string "<DeclContext (adress), Parent: (adress)>"
-      std::string getDeclRecorderDump(DeclContext* dr) const;
+      std::string getDeclCtxtDump(DeclContext* dr) const;
       // Returns a formatted string, "<ID:(idstring)>"
       std::string getIdentifierDump(Identifier id) const;
       // Returns a formatted string, "<(label):(coords)>"
