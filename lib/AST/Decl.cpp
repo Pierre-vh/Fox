@@ -19,7 +19,7 @@ using namespace fox;
 // Decl
 //----------------------------------------------------------------------------//
 
-Decl::Decl(DeclKind kind, DeclContext* parent, SourceRange range):
+Decl::Decl(DeclKind kind, Parent parent, SourceRange range):
   kind_(kind), range_(range), parent_(parent) {}
 
 DeclKind Decl::getKind() const {
@@ -27,12 +27,26 @@ DeclKind Decl::getKind() const {
 }
 
 DeclContext* Decl::getDeclContext() const {
-  return parent_;
+  if(DeclContext* ptr = parent_.dyn_cast<DeclContext*>())
+    return ptr;
+  return nullptr;
 }
+
+bool Decl::isLocal() const {
+  return parent_.is<FuncDecl*>();
+}
+
+FuncDecl* Decl::getFuncDecl() const {
+  if(FuncDecl* ptr = parent_.dyn_cast<FuncDecl*>())
+    return ptr;
+  return nullptr;
+  }
 
 DeclContext* Decl::getClosestDeclContext() const {
   if(auto* dc = dyn_cast<DeclContext>(const_cast<Decl*>(this)))
     return dc;
+  if(auto* fn = getFuncDecl())
+    return fn->getDeclContext();
   return getDeclContext();
 }
 

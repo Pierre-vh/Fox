@@ -8,6 +8,8 @@
 //----------------------------------------------------------------------------//
 
 #pragma once
+
+#include "llvm/ADT/PointerUnion.h"
 #include "DeclContext.hpp"
 #include "ASTAligns.hpp"
 #include "Type.hpp"
@@ -19,7 +21,7 @@ namespace fox {
   class Identifier;
   class ASTContext;
   class CompoundStmt;
-
+  class FuncDecl;
   // This enum represents every possible Declaration subclass. 
   // It is automatically generated using Fox/AST/DeclNodes.def
   enum class DeclKind : std::uint8_t {
@@ -34,21 +36,30 @@ namespace fox {
   //    should be their parent DeclContext.
   class alignas(DeclAlignement) Decl {
     public:
+      using Parent = llvm::PointerUnion<DeclContext*, FuncDecl*>;
+
       // Get the kind of Decl this is.
       DeclKind getKind() const;
 
-      // Returns the DeclContext in which this declaration is referenced.
-      // (It's parent DeclContext)
-      //
-      // If this returns nullptr, the Decl isn't referenced in any
-      // DeclContext and is probably a UnitDecl.
+      // For normal Decls, return the DeclContext in which
+      // this Decl is referenced. Returns nullptr for
+      // normal decls.
       DeclContext* getDeclContext() const;
+
+      // Returns true if this is a local declaration
+      bool isLocal() const;
+
+      // For local decls, returns the FuncDecl in which
+      // this declaration lives. For non local decls, returns nullptr.
+      FuncDecl* getFuncDecl() const;
 
       // Returns the "closest" DeclContext.
       //  -> If this Decl is also a DeclContext, returns 
-      //     dyn_cast<DeclContext>(this)
-      //  -> Else, returns getDeclContext() (it's parent DeclContext)
-      // Should never return nullptr in a well formed AST.
+      //      dyn_cast<DeclContext>(this)
+      //  -> else, if this Decl is a local Decl, returns 
+      //      getFuncDecl()->getDeclContext()
+      //  -> Else, returns getDeclContext()
+      // Should never return nullptr in a well-formed AST.
       DeclContext* getClosestDeclContext() const;
 
       void setRange(SourceRange range);
@@ -76,10 +87,10 @@ namespace fox {
       // Companion operator delete to silence C4291 on MSVC
       void operator delete(void*, ASTContext&, std::uint8_t) {}
 
-      Decl(DeclKind kind, DeclContext* parent, SourceRange range);
+      Decl(DeclKind kind, Parent parent, SourceRange range);
 
     private:
-      DeclContext* parent_ = nullptr;
+      Parent parent_;
       SourceRange range_;
       const DeclKind kind_;
   };
