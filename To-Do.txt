@@ -92,25 +92,21 @@ To-Do:
   > UnitDecl rework (Done)
   > Add features to get a Lexical view of a DeclContext (Done)
   > Add ASTContext& to UnitDecl (Done)
+  > Remove Empty constructors in AST nodes (Done)
+  > Switch whole AST to ::create Idiom (Done)
 
 // New AST update:
-// Theses changes will make the main components of the AST 
-// (ASTContext, SourceManager, DeclContexts) more tightly-knit
-// and make, in the long term, the code less verbose, since
-// most node will be able to access theses class effortlessly
-// (= less arguments to pass to functions and such)
-  > Add a Parent DeclContext* to all Decls (Done)
-  > Remove empty constructors
-    > Decl (Done)
-    > Stmt
-    > Expr
-  > Add a public SourceManager& and DiagnosticEngine&
-  > Switch whole AST to ::create Idiom
-  > (If possible) Add a Decl->getASTContext() method
   > Rework some constructor & Parsing functions:
     > For Decl: Take a vector of ParamDecl<*> as argument for the params.
   > Review AST classes interfaces
-  > DeclContext rework (?)
+  > DeclContext rework (? maybe ?)
+    > FuncDecl is not a DeclContext anymore 
+    > Instead of a DeclContext* pointer, Decls will have a PtrUnion<DeclContext*, FuncDecl*>
+
+  > (If possible) Add a Decl->getASTContext() method
+
+  ASTContext:
+   > Add a public SourceManager& and DiagnosticEngine&
 
   > Make the parser perform local name resolution
 
