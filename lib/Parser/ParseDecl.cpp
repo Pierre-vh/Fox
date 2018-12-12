@@ -39,12 +39,11 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
       continue;
     }
     else {
-      if (!parsedDecl.wasSuccessful())
-        declHadError = true;
+      if (!parsedDecl.wasSuccessful()) declHadError = true;
 
       // EOF/Died -> Break.
-      if (isDone())
-        break;
+      if (isDone()) break;
+
       // No EOF? There's an unexpected token on the way that 
 			// prevents us from finding the decl.
       else {
@@ -57,13 +56,10 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
           diags.report(DiagID::parser_expected_decl, curtok.getRange());
         }
 
-        if (resyncToNextDecl())
-          continue;
-        else
-          break;
+        if (resyncToNextDecl()) continue; 
+        else break;
       }
     }
-
   }
 
   if (unit->numDecls() == 0) {
@@ -91,20 +87,20 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
   // "func"
   auto fnKw = consumeKeyword(KeywordType::KW_FUNC);
-  if (!fnKw)
-    return DeclResult::NotFound();
+  if (!fnKw) return DeclResult::NotFound();
 
   // For FuncDecl, the return node is created prematurely as an "empty shell",
-  // because we need it's DeclContext to exist to successfully record 
-  // (inside it's DeclContext) it's ParamDecls and other decls that will
-  // be parsed in it's body.
+  // because we need it to exist so declarations that are parsed inside it's body
+  // can be notified that they are being parsed as part of a declaration.
   auto* parentDC = getDeclParentAsDeclCtxt();
   FuncDecl* rtr = FuncDecl::create(ctxt, parentDC, Identifier(), 
     TypeLoc(), SourceRange(), SourceLoc());
-  
+
+  // Create a RAIIDeclParent to notify every parsing function that
+  // we're currently parsing a FuncDecl
   RAIIDeclParent parentGuard(this, rtr);
 
-  // Useful location informations
+  // Location information
   SourceLoc begLoc = fnKw.getBegin();
   SourceLoc headEndLoc;
   
@@ -202,14 +198,17 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // Finished parsing. If the decl is poisoned, return an error.
   if (poisoned) return DeclResult::Error();
 
+  // Restore the last decl parent.
   parentGuard.restore();
 
+  // Create the full range for this FuncDecl
   SourceRange range(begLoc, body->getRange().getEnd());
   assert(headEndLoc && range && "Invalid loc info");
 
   // Finish building our FuncDecl.
   rtr->setBody(body);
   rtr->setLocs(range, headEndLoc);
+  // Record it
   recordInDeclCtxt(rtr);
   return DeclResult(rtr);
 }
