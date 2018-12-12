@@ -110,7 +110,7 @@ namespace fox {
       }
 
     protected:
-      NamedDecl(DeclKind kind, DeclContext* parent, 
+      NamedDecl(DeclKind kind, Parent parent, 
         Identifier id, SourceRange range);
 
     private:
@@ -135,7 +135,7 @@ namespace fox {
           && (decl->getKind() <= DeclKind::Last_ValueDecl);
       }
     protected:
-      ValueDecl(DeclKind kind, DeclContext* parent, Identifier id,
+      ValueDecl(DeclKind kind, Parent parent, Identifier id,
         TypeLoc ty, bool isConst, SourceRange range);
 
     private:
@@ -147,7 +147,7 @@ namespace fox {
   //    A declaration of a function parameter. This is simply a ValueDecl.
   class ParamDecl final : public ValueDecl {
     public:
-      static ParamDecl* create(ASTContext& ctxt, DeclContext* parent,
+      static ParamDecl* create(ASTContext& ctxt, FuncDecl* parent,
         Identifier id, TypeLoc type, bool isConst, SourceRange range);
 
       static bool classof(const Decl* decl) {
@@ -155,7 +155,7 @@ namespace fox {
       }
 
     private:
-      ParamDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
+      ParamDecl(FuncDecl* parent, Identifier id, TypeLoc type, bool isConst,
         SourceRange range);
   };
 
@@ -214,7 +214,7 @@ namespace fox {
   //    "init" Expr*
   class VarDecl final: public ValueDecl {
     public:
-      static VarDecl* create(ASTContext& ctxt, DeclContext* parent,
+      static VarDecl* create(ASTContext& ctxt, Parent parent,
         Identifier id, TypeLoc type, bool isConst, Expr* init,
         SourceRange range);
 
@@ -227,7 +227,7 @@ namespace fox {
       }
 
     private:
-      VarDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
+      VarDecl(Parent parent, Identifier id, TypeLoc type, bool isConst,
         Expr* init, SourceRange range);
 
       Expr* init_ = nullptr;

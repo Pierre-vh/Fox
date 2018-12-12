@@ -70,7 +70,7 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
 // NamedDecl
 //----------------------------------------------------------------------------//
 
-NamedDecl::NamedDecl(DeclKind kind, DeclContext* parent, Identifier id, 
+NamedDecl::NamedDecl(DeclKind kind, Parent parent, Identifier id, 
   SourceRange range): Decl(kind, parent, range), identifier_(id) {}
 
 Identifier NamedDecl::getIdentifier() const {
@@ -89,7 +89,7 @@ bool NamedDecl::hasIdentifier() const {
 // ValueDecl
 //----------------------------------------------------------------------------//
 
-ValueDecl::ValueDecl(DeclKind kind, DeclContext* parent, Identifier id,
+ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id,
   TypeLoc ty, bool isConst, SourceRange range): 
   NamedDecl(kind, parent, id, range), isConst_(isConst), type_(ty) {}
 
@@ -121,12 +121,12 @@ void ValueDecl::setIsConstant(bool k) {
 // ParamDecl
 //----------------------------------------------------------------------------//
 
-ParamDecl* ParamDecl::create(ASTContext& ctxt, DeclContext * parent, 
+ParamDecl* ParamDecl::create(ASTContext& ctxt, FuncDecl* parent, 
   Identifier id, TypeLoc type, bool isConst, SourceRange range) {
   return new(ctxt) ParamDecl(parent, id, type, isConst, range);
 }
 
-ParamDecl::ParamDecl(DeclContext* parent, Identifier id, TypeLoc type,
+ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, TypeLoc type,
   bool isConst, SourceRange range):
   ValueDecl(DeclKind::ParamDecl, parent, id, type, isConst, range) {
 
@@ -217,12 +217,12 @@ std::size_t FuncDecl::getNumParams() const {
 // VarDecl
 //----------------------------------------------------------------------------//
 
-VarDecl::VarDecl(DeclContext* parent, Identifier id, TypeLoc type, 
+VarDecl::VarDecl(Parent parent, Identifier id, TypeLoc type, 
   bool isConst, Expr* init, SourceRange range):
   ValueDecl(DeclKind::VarDecl, parent, id, type, isConst, range),
   init_(init) {}
 
-VarDecl* VarDecl::create(ASTContext& ctxt, DeclContext* parent, Identifier id,
+VarDecl* VarDecl::create(ASTContext& ctxt, Parent parent, Identifier id,
   TypeLoc type, bool isConst, Expr* init, SourceRange range) {
   return new(ctxt) VarDecl(parent, id, type, isConst, init, range);
 }
