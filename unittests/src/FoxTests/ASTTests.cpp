@@ -346,7 +346,7 @@ TEST(ASTTests, BasicVisitor) {
   // Create test nodes
   auto* intlit = IntegerLiteralExpr::create(ctxt, 42, SourceRange());
   auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
-  auto* vardecl = VarDecl::create(ctxt, nullptr, Identifier(), 
+  auto* vardecl = VarDecl::create(ctxt, (FuncDecl*)nullptr, Identifier(),
     TypeLoc(), false, nullptr, SourceRange());
   auto* intTy = PrimitiveType::getInt(ctxt);
   auto* arrInt = ArrayType::get(ctxt, intTy);
