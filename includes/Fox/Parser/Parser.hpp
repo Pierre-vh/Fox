@@ -4,9 +4,7 @@
 // File : Parser.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file implements the recursive descent parser.    
-// The parser is implemented as a set of functions, each  
-// "parseXXX" method represents a rule in the grammar.        
+// This file implements the recursive descent parser used by Fox.
 //                              
 // The grammar can be found in  /doc/                                    
 //
@@ -16,21 +14,6 @@
 // 
 // Status: Up to date with latest grammar changes, except import/using rules that 
 //				 aren't implemented yet.
-//
-//    Improvements Ideas:
-//      Recovery Efficiency
-//        Tweak it by running different test situations and adding 
-//				special recovery cases wherever needed.
-//      Speed
-//      Try to cut as many includes as possible.
-//
-//
-//    Parser "to-do" list. Important stuff is marked with (*)
-//      Add better error recovey with common cases support in
-//			if/while parsing & function declaration
-//
-//      Add a way for the parser to ignore comment tokens.
-//
 //----------------------------------------------------------------------------//
 
 #pragma once
