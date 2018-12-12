@@ -1,12 +1,18 @@
 Sema:
   > Basic type:
-   A type that can't be unwrapped any further. Currently, only ErrorTypes & PrimitiveTypes are basic.
+    A type that can't be unwrapped any further. Currently, only ErrorTypes & PrimitiveTypes are basic.
   > Primitive Type:
     int, float, bool, string, char, void
-  > (un)bound type:
+  > bound type:
     A type that can be "materialized". This includes every type except CellTypes with no substitution.
     e.g.
       int = bound
       [float] = bound
       Cell(Cell(float)) = bound
       Cell(nullptr) = unbound
+  > Local Declaration
+    A Declaration which is present inside a function declaration (FuncDecl).
+    You can use ->isLocal() on any Decl to know if it's a local declaration or not.
+    If it's a local declaration, getFuncDecl() will return a pointer to the FuncDecl
+    the declaration lives in.
+    
