@@ -36,8 +36,10 @@ ASTNode Sema::checkNode(ASTNode node) {
 		checkStmt(s);
 		return node;
 	}
-  if (Decl* d = node.dyn_cast<Decl*>())
-    fox_unimplemented_feature("Decl checking");
+  if (Decl* d = node.dyn_cast<Decl*>()) {
+    //fox_unimplemented_feature("Decl checking");
+    return node;
+  }
   fox_unreachable("unknown ASTNode kind");
 }
 
