@@ -94,6 +94,7 @@ To-Do:
   > Add ASTContext& to UnitDecl (Done)
   > Remove Empty constructors in AST nodes (Done)
   > Switch whole AST to ::create Idiom (Done)
+  > Remove Parser::state + Cleanup Parser.hpp (Done)
 
 // New AST update:
   > DeclContext rework (? maybe ?)
@@ -103,10 +104,17 @@ To-Do:
       > Use Decl::Parent instead of DeclContext* in state_ (Done)
       > Local variable name binding
         > Move the Sema Scope class to the Parser
-      > Global parser code review, because it's a mess right now.
-    > ParamDecl should only take FuncDecl* as arg, never a DeclContext*
+    > ParamDecl should only take FuncDecl* as arg, never a DeclContext* (Done)
+    > Update parseFuncDecl/FuncDecl Ctor
+      -> Before creating the return node, parse the FuncDecl up to it's return type.
+      -> Store ParamDecls inside a vector "vParams"
+      -> Create the FuncDecl with vParams as arg
+      -> Iterate over vParams and set each element's parent
+         to the newly created FuncDecl
 
   > ASTVerifier
+      Debug tool that asserts that the AST is well formed. Used as a debug tool (will
+      only be enabled in Debug builds)
 
   ASTContext:
    > Add a public SourceManager& and DiagnosticEngine&
