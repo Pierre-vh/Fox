@@ -536,13 +536,13 @@ SourceRange Parser::parseExponentOp() {
 Parser::Result<BinaryExpr::OpKind> Parser::parseAssignOp() {
   using BinOp = BinaryExpr::OpKind;
 
-  auto backup = createParserStateBackup();
   if (auto equal = consumeSign(SignType::S_EQUAL)) {
     // Try to match a S_EQUAL. If failed, that means that the next token isn't a =
-    // If it succeeds, we founda '==', this is the comparison operator and we must backtrack to prevent errors.
+    // If it succeeds, we found a '==' (=> this is the comparison operator) and
+    // we must undo 
     if (!consumeSign(SignType::S_EQUAL))
       return Result<BinOp>(BinOp::Assign,SourceRange(equal));
-    restoreParserStateFromBackup(backup);
+    undo();
   }
   return Result<BinOp>::NotFound();
 }
@@ -566,13 +566,14 @@ Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority) 
   if (!getCurtok().isValid() || !getCurtok().isSign())
     return Result<BinOp>::NotFound();
 
-  auto backup = createParserStateBackup();
 
   switch (priority) {
     case 0: // * / %
       if (auto asterisk = consumeSign(SignType::S_ASTERISK)) {
         if (!consumeSign(SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
           return Result<BinOp>(BinOp::Mul, SourceRange(asterisk));
+        // undo if not found
+        undo();
       }
       else if (auto slash = consumeSign(SignType::S_SLASH))
         return Result<BinOp>(BinOp::Div, SourceRange(slash));
@@ -602,10 +603,14 @@ Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority) 
       if (auto equal1 = consumeSign(SignType::S_EQUAL)) {
         if (auto equal2 = consumeSign(SignType::S_EQUAL))
           return Result<BinOp>(BinOp::Eq, SourceRange(equal1,equal2));
+        // undo if not found
+        undo();
       }
       else if (auto excl = consumeSign(SignType::S_EXCL_MARK)) {
         if (auto equal =consumeSign(SignType::S_EQUAL))
           return Result<BinOp>(BinOp::NEq, SourceRange(excl,equal));
+        // undo if not found
+        undo();
       }
       break;
     case 4: // &&
@@ -618,12 +623,13 @@ Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority) 
       if (auto vbar1 = consumeSign(SignType::S_VBAR)) {
         if (auto vbar2 = consumeSign(SignType::S_VBAR))
           return Result<BinOp>(BinOp::LOr, SourceRange(vbar1,vbar2));
+        // undo if not found
+        undo();
       }
       break;
     default:
       fox_unreachable("Unknown priority");
       break;
   }
-  restoreParserStateFromBackup(backup);; // Backtrack if we didn't return.
   return Result<BinOp>::NotFound();
 }
