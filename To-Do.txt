@@ -96,36 +96,30 @@ To-Do:
   > Switch whole AST to ::create Idiom (Done)
 
 // New AST update:
-  > Rework some constructor & Parsing functions:
-    > For Decl: Take a vector of ParamDecl<*> as argument for the params.
-  > Review AST classes interfaces
   > DeclContext rework (? maybe ?)
-    > FuncDecl is not a DeclContext anymore 
-    > Instead of a DeclContext* pointer, Decls will have a PtrUnion<DeclContext*, FuncDecl*>
+    > FuncDecl is not a DeclContext anymore (Done)
+    > Instead of a DeclContext* pointer, Decls will have a PtrUnion<DeclContext*, FuncDecl*> (Done)
+    > Parser update:
+      > Use Decl::Parent instead of DeclContext* in state_ (Done)
+      > Local variable name binding
+        > Move the Sema Scope class to the Parser
+      > Global parser code review, because it's a mess right now.
+    > ParamDecl should only take FuncDecl* as arg, never a DeclContext*
 
-  > (If possible) Add a Decl->getASTContext() method
+  > ASTVerifier
 
   ASTContext:
    > Add a public SourceManager& and DiagnosticEngine&
 
-  > Make the parser perform local name resolution
-
-  > Name Lookup in Sema
-    -> Have a Lookup function which returns a "LookupResult"
-        LookupResult lookup(Identifier id);
-    -> First check the DeclContext. If the variable was found in
-       a Local DeclContext, check if it's declared in the scope too.
-
-  > Decl semantic analysis
-  > UnresolvedDeclRefExpr 
-  > FunctionCallExpr & OVR (overload resolution)
+  > Non-local name binding in Sema
+  > Finish Decl semantic analysis
+    > Don't do OVR for now
+  > Finish UnresolvedDeclRefExpr 
+  > FunctionCallExpr
   > UFCS
     > Parser additions (UnresolvedDotExpr)
     > Semantic Analysis
-
-
-  > ASTVerifier (should be able to check both a Checked an Unchecked AST) 
-    > once it's done, remove "isValid" in decls
+  > Overloads
 
   > Allow cast expr chaining (update grammar & parser)
 
