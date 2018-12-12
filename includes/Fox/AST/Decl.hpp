@@ -60,6 +60,10 @@ namespace fox {
       // Debug method. Does a ASTDump of this node to std::cerr
       void dump() const;
 
+    protected:
+      // Operator new/delete overloads : They're protected as they should
+      // only be used through ::create
+
       // Prohibit the use of builtin placement new & delete
       void* operator new(std::size_t) throw() = delete;
       void operator delete(void *) throw() = delete;
@@ -72,7 +76,6 @@ namespace fox {
       // Companion operator delete to silence C4291 on MSVC
       void operator delete(void*, ASTContext&, std::uint8_t) {}
 
-    protected:
       Decl(DeclKind kind, DeclContext* parent, SourceRange range);
 
     private:
@@ -82,18 +85,22 @@ namespace fox {
   };
 
   // NamedDecl
-  //    Common base class for every named declaration (a declaration with an identifier)
+  //    Common base class for every named declaration
+  //    (a declaration with an identifier)
   class NamedDecl : public Decl {
     public:
-      NamedDecl(DeclKind kind, DeclContext* parent, Identifier id, SourceRange range);
-
       Identifier getIdentifier() const;
       void setIdentifier(Identifier id);
       bool hasIdentifier() const;
 
       static bool classof(const Decl* decl) {
-        return (decl->getKind() >= DeclKind::First_NamedDecl) && (decl->getKind() <= DeclKind::Last_NamedDecl);
+        return (decl->getKind() >= DeclKind::First_NamedDecl) 
+          && (decl->getKind() <= DeclKind::Last_NamedDecl);
       }
+
+    protected:
+      NamedDecl(DeclKind kind, DeclContext* parent, 
+        Identifier id, SourceRange range);
 
     private:
       Identifier identifier_;
@@ -104,9 +111,6 @@ namespace fox {
   //    (declares a value of a certain type & name)
   class ValueDecl : public NamedDecl {
     public:
-      ValueDecl(DeclKind kind, DeclContext* parent, Identifier id,
-        TypeLoc ty, bool isConst, SourceRange range);
-
       Type getType() const;
       SourceRange getTypeRange() const;
       TypeLoc getTypeLoc() const;
@@ -119,6 +123,9 @@ namespace fox {
         return (decl->getKind() >= DeclKind::First_ValueDecl) 
           && (decl->getKind() <= DeclKind::Last_ValueDecl);
       }
+    protected:
+      ValueDecl(DeclKind kind, DeclContext* parent, Identifier id,
+        TypeLoc ty, bool isConst, SourceRange range);
 
     private:
       bool isConst_;
@@ -129,13 +136,16 @@ namespace fox {
   //    A declaration of a function parameter. This is simply a ValueDecl.
   class ParamDecl final : public ValueDecl {
     public:
-      ParamDecl();
-      ParamDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
-        SourceRange range);
+      static ParamDecl* create(ASTContext& ctxt, DeclContext* parent,
+        Identifier id, TypeLoc type, bool isConst, SourceRange range);
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::ParamDecl;
       }
+
+    private:
+      ParamDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
+        SourceRange range);
   };
 
   
@@ -149,9 +159,9 @@ namespace fox {
       using ParamVecConstIter = ParamVecTy::const_iterator;
 
     public:
-      FuncDecl(DeclContext* parent, TypeLoc rtrTy, Identifier fnId,
-        CompoundStmt* body,SourceRange range, SourceLoc headerEndLoc);
-      
+      static FuncDecl* create(ASTContext& ctxt, DeclContext* parent,
+        Identifier id, TypeLoc type, SourceRange range, SourceLoc headerEnd);
+
       void setLocs(SourceRange range, SourceLoc headerEndLoc);
       void setHeaderEndLoc(SourceLoc loc);
 
@@ -183,6 +193,9 @@ namespace fox {
       }
 
     private:
+      FuncDecl(DeclContext* parent, Identifier fnId, TypeLoc rtrTy,
+        SourceRange range, SourceLoc headerEndLoc);
+
       SourceLoc headEndLoc_;
       TypeLoc returnType_;
       ParamVecTy params_;
@@ -194,8 +207,9 @@ namespace fox {
   //    "init" Expr*
   class VarDecl final: public ValueDecl {
     public:
-      VarDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
-        Expr* init, SourceRange range);
+      static VarDecl* create(ASTContext& ctxt, DeclContext* parent,
+        Identifier id, TypeLoc type, bool isConst, Expr* init,
+        SourceRange range);
 
       Expr* getInitExpr() const;
       void setInitExpr(Expr* expr);
@@ -206,6 +220,9 @@ namespace fox {
       }
 
     private:
+      VarDecl(DeclContext* parent, Identifier id, TypeLoc type, bool isConst,
+        Expr* init, SourceRange range);
+
       Expr* init_ = nullptr;
   };
 
@@ -214,8 +231,8 @@ namespace fox {
   //    DeclContext.
   class UnitDecl final: public NamedDecl, public DeclContext {
     public:
-      UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id, 
-        FileID inFile);
+      static UnitDecl* create(ASTContext& ctxt, DeclContext* parent,
+        Identifier id, FileID file);
 
       FileID getFileID() const;
       void setFileID(const FileID& fid);
@@ -232,6 +249,9 @@ namespace fox {
       }
 
     private:
+      UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id, 
+        FileID inFile);
+
       ASTContext& ctxt_;
       FileID file_;
   };

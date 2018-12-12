@@ -22,7 +22,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
   assert(fid && "FileID cannot be invalid!");
 
   // Create the unit
-  auto* unit = new(ctxt_) UnitDecl(ctxt_, getDeclContext(), unitName, fid);
+  auto* unit = UnitDecl::create(ctxt_, getDeclContext(), unitName, fid);
 
   // Create a RAIIDeclContext
   RAIIDeclContext raiidr(*this, unit);
@@ -100,8 +100,8 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // because we need it's DeclContext to exist to successfully record 
   // (inside it's DeclContext) it's ParamDecls and other decls that will
   // be parsed in it's body.
-  FuncDecl* rtr = new(ctxt_) FuncDecl(getDeclContext(), TypeLoc(), 
-    Identifier(), nullptr, SourceRange(), SourceLoc());
+  FuncDecl* rtr = FuncDecl::create(ctxt_, getDeclContext(), Identifier(), 
+    TypeLoc(), SourceRange(), SourceLoc());
   
   // Useful location informations
   SourceLoc begLoc = fnKw.getBegin();
@@ -250,8 +250,8 @@ Parser::DeclResult Parser::parseParamDecl() {
 
   assert(range && "Invalid loc info");
 
-  auto* rtr = new(ctxt_) ParamDecl(getDeclContext(), id.get(),
-                                   tl, isConst,range);
+  auto* rtr = ParamDecl::create(ctxt_, getDeclContext(), id.get(),
+    tl, isConst, range);
 
   actOnNamedDecl(rtr);
   return DeclResult(rtr);
@@ -339,8 +339,8 @@ Parser::DeclResult Parser::parseVarDecl() {
   assert(range && "Invalid loc info");
   assert(type && "type is not valid");
   assert(type.getRange() && "type range is not valid");
-  auto rtr = new(ctxt_) VarDecl(getDeclContext(),id, type, 
-                                isConst, iExpr, range);
+  auto rtr = VarDecl::create(ctxt_, getDeclContext(),id, type, 
+    isConst, iExpr, range);
 
   actOnNamedDecl(rtr);
   return DeclResult(rtr);

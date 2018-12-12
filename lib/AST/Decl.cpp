@@ -107,9 +107,9 @@ void ValueDecl::setIsConstant(bool k) {
 // ParamDecl
 //----------------------------------------------------------------------------//
 
-ParamDecl::ParamDecl():
-  ParamDecl(nullptr, Identifier(), TypeLoc(), false, SourceRange()) {
-
+ParamDecl* ParamDecl::create(ASTContext& ctxt, DeclContext * parent, 
+  Identifier id, TypeLoc type, bool isConst, SourceRange range) {
+  return new(ctxt) ParamDecl(parent, id, type, isConst, range);
 }
 
 ParamDecl::ParamDecl(DeclContext* parent, Identifier id, TypeLoc type,
@@ -122,11 +122,16 @@ ParamDecl::ParamDecl(DeclContext* parent, Identifier id, TypeLoc type,
 // FuncDecl
 //----------------------------------------------------------------------------//
 
-FuncDecl::FuncDecl(DeclContext* parent, TypeLoc returnType, Identifier fnId,
-  CompoundStmt* body, SourceRange range, SourceLoc headerEndLoc):
+FuncDecl::FuncDecl(DeclContext* parent, Identifier fnId, TypeLoc returnType,
+  SourceRange range, SourceLoc headerEndLoc):
   NamedDecl(DeclKind::FuncDecl, parent, fnId, range), 
-  headEndLoc_(headerEndLoc), body_(body), returnType_(returnType), 
+  headEndLoc_(headerEndLoc), returnType_(returnType), 
   DeclContext(DeclContextKind::FuncDecl) {}
+
+FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent, 
+  Identifier id, TypeLoc type, SourceRange range, SourceLoc headerEnd) {
+  return new(ctxt) FuncDecl(parent, id, type, range, headerEnd);
+}
 
 void FuncDecl::setLocs(SourceRange range, SourceLoc headerEndLoc) {
   setRange(range);
@@ -204,6 +209,11 @@ VarDecl::VarDecl(DeclContext* parent, Identifier id, TypeLoc type,
   ValueDecl(DeclKind::VarDecl, parent, id, type, isConst, range),
   init_(init) {}
 
+VarDecl* VarDecl::create(ASTContext& ctxt, DeclContext* parent, Identifier id,
+  TypeLoc type, bool isConst, Expr* init, SourceRange range) {
+  return new(ctxt) VarDecl(parent, id, type, isConst, init, range);
+}
+
 Expr* VarDecl::getInitExpr() const {
   return init_;
 }
@@ -223,6 +233,11 @@ void VarDecl::setInitExpr(Expr* expr) {
 UnitDecl::UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id,
   FileID inFile): NamedDecl(DeclKind::UnitDecl, parent, id, SourceRange()),
   file_(inFile), DeclContext(DeclContextKind::UnitDecl), ctxt_(ctxt) {}
+
+UnitDecl* UnitDecl::create(ASTContext& ctxt, DeclContext* parent, 
+  Identifier id, FileID file) {
+  return new(ctxt) UnitDecl(ctxt, parent, id, file);
+}
 
 FileID UnitDecl::getFileID() const {
   return file_;
