@@ -21,7 +21,7 @@ using namespace fox;
 // Parser Preparator for LocTests
 class LocTests : public ::testing::Test {
   public:
-    LocTests() : dg(srcMgr), declContext(DeclContextKind::FuncDecl) {
+    LocTests() : dg(srcMgr), declContext(DeclContextKind::UnitDecl) {
 
     }
   protected:

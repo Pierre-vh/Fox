@@ -139,8 +139,7 @@ ParamDecl::ParamDecl(DeclContext* parent, Identifier id, TypeLoc type,
 FuncDecl::FuncDecl(DeclContext* parent, Identifier fnId, TypeLoc returnType,
   SourceRange range, SourceLoc headerEndLoc):
   NamedDecl(DeclKind::FuncDecl, parent, fnId, range), 
-  headEndLoc_(headerEndLoc), returnType_(returnType), 
-  DeclContext(DeclContextKind::FuncDecl) {}
+  headEndLoc_(headerEndLoc), returnType_(returnType) {}
 
 FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent, 
   Identifier id, TypeLoc type, SourceRange range, SourceLoc headerEnd) {

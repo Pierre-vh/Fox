@@ -161,8 +161,8 @@ namespace fox {
 
   
   // FuncDecl
-  //    A function declaration, which is both a NamedDecl and a DeclContext.
-  class FuncDecl final: public NamedDecl, public DeclContext {
+  //    A function declaration
+  class FuncDecl final: public NamedDecl {
     private:
       using ParamVecTy = std::vector<ParamDecl*>;
 
@@ -199,10 +199,6 @@ namespace fox {
         return decl->getKind() == DeclKind::FuncDecl;
       }
       
-      static bool classof(const DeclContext* dc) {
-        return dc->getDeclContextKind() == DeclContextKind::FuncDecl;
-      }
-
     private:
       FuncDecl(DeclContext* parent, Identifier fnId, TypeLoc rtrTy,
         SourceRange range, SourceLoc headerEndLoc);

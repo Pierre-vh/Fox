@@ -40,11 +40,13 @@ void Parser::setupParser() {
   state_.tokenIterator = tokens_.begin();
 }
 
-void Parser::actOnNamedDecl(NamedDecl* decl) {
+void Parser::recordDecl(NamedDecl* decl) {
   // Record the NamedDecl in the DeclContext
   assert(state_.declContext
          && "Must have a DeclContext when parsing a Decl.");
-  state_.declContext->addDecl(decl);
+  // FIXME: This is a temporary fix until I implement name binding in the parser.
+  if(!state_.isParsingFunc)
+    state_.declContext->addDecl(decl);
 }
 
 Parser::Result<Identifier> Parser::consumeIdentifier() {
@@ -465,7 +467,7 @@ void Parser::restoreParserStateFromBackup(const Parser::ParserState & st) {
 
 // ParserState
 Parser::ParserState::ParserState():
-  isAlive(true) {
+  isAlive(true), isParsingFunc(false) {
 
 }
 
@@ -478,9 +480,9 @@ Parser::RAIIDeclContext::RAIIDeclContext(Parser &p, DeclContext *dr):
   if (declCtxt_.getPointer()) {
     // Assert that we're not overwriting a parent. 
 		// If such a thing happens, that could indicate a bug!
-    assert(!dr->hasParent()
+    assert(!dr->hasParentDeclCtxt()
 			&& "New DeclContext already has a parent?");
-    dr->setParent(declCtxt_.getPointer());
+    dr->setParentDeclCtxt(declCtxt_.getPointer());
   }
 
   parser_.state_.declContext = dr;

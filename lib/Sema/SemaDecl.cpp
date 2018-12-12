@@ -56,12 +56,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       fox_unimplemented_feature("VarDecl checking");
     }
 
-    void visitFuncDecl(FuncDecl* decl) {
-      // FuncDecl is a DeclCtxt. Since we're checking it, set the currently 
-      // active DeclContext in Sema to us.
-      auto dcGuard = getSema().setDeclCtxtRAII(decl);
-      // FuncDecl is also a local scope, so create a new scope.
-      assert(decl->isLocalDeclContext() && "FuncDecl isn't local?");
+    void visitFuncDecl(FuncDecl*) {
       auto scopeGuard = getSema().enterNewLocalScopeRAII();
       // visit(decl parameters)
       // Sema::checkNode(decl->getBody())

@@ -284,10 +284,8 @@ TEST(ASTTests, DeclRTTI) {
   // Func
   auto* fndecl = createEmptyFnDecl(ctxt);
   EXPECT_EQ(fndecl->getKind(), DeclKind::FuncDecl);
-  EXPECT_EQ(fndecl->getDeclContextKind(), DeclContextKind::FuncDecl);
   EXPECT_TRUE(FuncDecl::classof((Decl*)fndecl));
   EXPECT_TRUE(NamedDecl::classof(fndecl));
-  EXPECT_TRUE(DeclContext::classof(fndecl));
 
   // Var
   auto* vdecl = createEmptyVarDecl(ctxt);
@@ -299,7 +297,7 @@ TEST(ASTTests, DeclRTTI) {
 
   // Unit
   Identifier id; FileID fid;
-  DeclContext dc(DeclContextKind::FuncDecl);
+  DeclContext dc(DeclContextKind::UnitDecl);
   UnitDecl* udecl = UnitDecl::create(ctxt, &dc, id, fid);
   EXPECT_EQ(udecl->getKind(), DeclKind::UnitDecl);
   EXPECT_EQ(udecl->getDeclContextKind(), DeclContextKind::UnitDecl);
@@ -310,21 +308,13 @@ TEST(ASTTests, DeclRTTI) {
 
 TEST(ASTTests, DeclDeclContextRTTI) {
   ASTContext ctxt;
-  auto* fndecl = createEmptyFnDecl(ctxt);
   Identifier id; FileID fid;
-  DeclContext dc(DeclContextKind::FuncDecl);
-  UnitDecl* udecl = UnitDecl::create(ctxt, &dc, id, fid);
-
-  DeclContext* tmp = nullptr;
-  // FuncDecl -> DeclContext -> FuncDecl
-  tmp = fndecl;
-  EXPECT_EQ(fndecl, dyn_cast<FuncDecl>(tmp));
-  EXPECT_EQ(nullptr, dyn_cast<UnitDecl>(tmp));
+  DeclContext dc(DeclContextKind::UnitDecl);
 
   // UnitDecl -> DeclContext -> UnitDecl
-  tmp = udecl;
+  UnitDecl* udecl = UnitDecl::create(ctxt, &dc, id, fid);
+  DeclContext* tmp = udecl;
   EXPECT_EQ(udecl, dyn_cast<UnitDecl>(tmp));
-  EXPECT_EQ(nullptr, dyn_cast<FuncDecl>(tmp));
 }
 
 // ASTVisitor tests : Samples implementations to test if visitors works as intended

@@ -124,7 +124,7 @@ namespace fox {
       void setupParser();
 
       /*-------------- Extra Parser Actions --------------*/
-      void actOnNamedDecl(NamedDecl* decl);
+      void recordDecl(NamedDecl* decl);
 
       /*-------------- "Basic" Parse Methods --------------*/
       // Parses a builtin type name
@@ -228,8 +228,11 @@ namespace fox {
         std::uint8_t roundBracketsCount  = 0;
         std::uint8_t squareBracketsCount = 0;
 
-        // Current Decl Recorder
+        // Current DeclContext
         DeclContext* declContext = nullptr;
+
+        // Set to true if the parser is currently parsing a FuncDecl
+        bool isParsingFunc : 1;
       } state_;
 
       // Interrogate state_
@@ -268,6 +271,24 @@ namespace fox {
           // The DeclContext as well as bool that indicates if we
           // restored it early or not.
           llvm::PointerIntPair<DeclContext*, 1> declCtxt_;
+      };
+      /*-------------- RAIIParsingFuncDecl --------------*/
+      // (Temporary, will be modified later) Sets state_.isParsingFunc
+      // to true on creation and false on destruction.
+      class RAIIParsingFuncDecl {
+        Parser& p_;
+        public:
+          RAIIParsingFuncDecl(Parser& p) : p_(p) {
+            p_.state_.isParsingFunc = true;
+          }
+
+          void done() {
+            p_.state_.isParsingFunc = false;
+          }
+
+          ~RAIIParsingFuncDecl() {
+            done();
+          }
       };
 
       /*-------------- Member Variables --------------*/

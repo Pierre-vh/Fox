@@ -251,8 +251,7 @@ void ASTDumper::visitParamDecl(ParamDecl* node) {
 void ASTDumper::visitFuncDecl(FuncDecl* node) {
   dumpLine() << getBasicDeclInfo(node) << " "
              << getIdentifierDump(node->getIdentifier()) << " "
-             << getTypeLocDump("returns", node->getReturnTypeLoc()) << " "
-             << getDeclRecorderDump(node) << "\n";
+             << getTypeLocDump("returns", node->getReturnTypeLoc()) << "\n";
 
   for (auto decl : node->getParams()) {
     indent();
@@ -428,8 +427,8 @@ std::string ASTDumper::getOperatorDump(UnaryExpr* expr) const {
 std::string ASTDumper::getDeclRecorderDump(DeclContext* dr) const {
   std::ostringstream ss;
   ss << "<DeclContext:" << (void*)dr;
-  if (dr->hasParent())
-    ss << ", Parent:" << (void*)dr->getParent();
+  if (dr->hasParentDeclCtxt())
+    ss << ", Parent:" << (void*)dr->getParentDeclCtxt();
   ss << ">";
   return ss.str();
 }

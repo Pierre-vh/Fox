@@ -84,12 +84,10 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
   // FIXME:
     // 1) Improve the error recovery on a missing '(' or ')' 
-    // 2) This is a pretty weird function. Imo, it's just bad because it
-    //    creates some kind of ill-formed FuncDecl just for the purpose
-    //    of creating it's DeclContext. Maybe there's a better way to do 
-    //    this. 
-    // 3) Split this method in multiples methods (e.g. parseFunctionParams)
+    // 2) Split this method in multiples methods (e.g. parseFunctionParams)
     //    to improve readability.
+
+  RAIIParsingFuncDecl guard(*this);
 
   // "func"
   auto fnKw = consumeKeyword(KeywordType::KW_FUNC);
@@ -120,10 +118,6 @@ Parser::DeclResult Parser::parseFuncDecl() {
     reportErrorExpected(DiagID::parser_expected_iden);
     poisoned = true;
   }
-
-  // Create a RAIIDeclContext to record every decl within this function inside
-  // its DeclContext.
-  RAIIDeclContext raiiDC(*this, rtr);
 
   // '('
   if (!consumeBracket(SignType::S_ROUND_OPEN)) {
@@ -202,19 +196,18 @@ Parser::DeclResult Parser::parseFuncDecl() {
   CompoundStmt* body = dyn_cast<CompoundStmt>(compStmt.get());
   assert(body && "Not a compound stmt");
 
-  // Restore the parent DeclContext
-  raiiDC.restore();
-
   // Finished parsing. If the decl is poisoned, return an error.
   if (poisoned) return DeclResult::Error();
 
   SourceRange range(begLoc, body->getRange().getEnd());
   assert(headEndLoc && range && "Invalid loc info");
 
+  guard.done();
+
   // Finish building our FuncDecl.
   rtr->setBody(body);
   rtr->setLocs(range, headEndLoc);
-  actOnNamedDecl(rtr);
+  recordDecl(rtr);
   return DeclResult(rtr);
 }
 
@@ -253,7 +246,7 @@ Parser::DeclResult Parser::parseParamDecl() {
   auto* rtr = ParamDecl::create(ctxt_, getDeclContext(), id.get(),
     tl, isConst, range);
 
-  actOnNamedDecl(rtr);
+  recordDecl(rtr);
   return DeclResult(rtr);
 }
 
@@ -342,7 +335,7 @@ Parser::DeclResult Parser::parseVarDecl() {
   auto rtr = VarDecl::create(ctxt_, getDeclContext(),id, type, 
     isConst, iExpr, range);
 
-  actOnNamedDecl(rtr);
+  recordDecl(rtr);
   return DeclResult(rtr);
 }
 

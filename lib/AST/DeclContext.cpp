@@ -28,28 +28,19 @@ void DeclContext::addDecl(NamedDecl* decl) {
     "inserted in the DeclContext");
   assert(decl->getRange() && "Declaration must have valid source location"
     "information to be inserted in the DeclContext");
+  assert(!decl->isLocal() && "Can't add local declarations in a DeclContext!");
   decls_.insert({name, decl});
-}
-
-bool DeclContext::isLocalDeclContext() const {
-  switch (getDeclContextKind()) {
-    #define LOCAL_DECL_CTXT(ID, PARENT) case DeclContextKind::ID:
-    #include "Fox/AST/DeclNodes.def"
-      return true;
-    default:
-      return false;
-  }
 }
 
 const DeclContext::MapTy& DeclContext::getDeclsMap() const {
   return decls_;
 }
 
-bool DeclContext::hasParent() const {
+bool DeclContext::hasParentDeclCtxt() const {
   return parentAndKind_.getPointer() != nullptr;
 }
 
-DeclContext* DeclContext::getParent() const {
+DeclContext* DeclContext::getParentDeclCtxt() const {
   return parentAndKind_.getPointer();
 }
 
@@ -76,7 +67,7 @@ DeclContext::LexicalDeclsTy DeclContext::getLexicalDecls(FileID forFile) {
   return rtr;
 }
 
-void DeclContext::setParent(DeclContext* dr) {
+void DeclContext::setParentDeclCtxt(DeclContext* dr) {
   parentAndKind_.setPointer(dr);
 }
 
