@@ -17,9 +17,7 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 Stmt::Stmt(StmtKind skind, SourceRange range):
-  kind_(skind), range_(range) {
-
-}
+  kind_(skind), range_(range) {}
 
 StmtKind Stmt::getKind() const {
   return kind_;
@@ -60,8 +58,6 @@ SourceLoc NullStmt::getSemiLoc() const {
 // ReturnStmt
 //----------------------------------------------------------------------------//
 
-ReturnStmt::ReturnStmt(): ReturnStmt(nullptr, SourceRange()) {}
-
 ReturnStmt::ReturnStmt(Expr* rtr_expr, SourceRange range):
   Stmt(StmtKind::ReturnStmt, range), expr_(rtr_expr) {}
 
@@ -80,9 +76,6 @@ void ReturnStmt::setExpr(Expr* e) {
 //----------------------------------------------------------------------------//
 // ConditionStmt
 //----------------------------------------------------------------------------//
-
-ConditionStmt::ConditionStmt() : ConditionStmt(nullptr, ASTNode(), ASTNode(),
-  SourceRange(), SourceLoc()) {}
 
 ConditionStmt::ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
   SourceRange range, SourceLoc ifHeaderEndLoc): Stmt(StmtKind::ConditionStmt,
@@ -137,14 +130,8 @@ SourceLoc ConditionStmt::getIfHeaderEndLoc() const {
 // CompoundStmt
 //----------------------------------------------------------------------------//
 
-CompoundStmt::CompoundStmt() : CompoundStmt(SourceRange()) {
-
-}
-
 CompoundStmt::CompoundStmt(SourceRange range):
-  Stmt(StmtKind::CompoundStmt, range) {
-
-}
+  Stmt(StmtKind::CompoundStmt, range) {}
 
 ASTNode CompoundStmt::getNode(std::size_t ind) const {
   assert(ind < nodes_.size() && "out-of-range");
@@ -175,9 +162,6 @@ std::size_t CompoundStmt::size() const {
 //----------------------------------------------------------------------------//
 // WhileStmt
 //----------------------------------------------------------------------------//
-
-WhileStmt::WhileStmt() : WhileStmt(nullptr, ASTNode(), SourceRange(), 
-  SourceLoc()) {}
 
 WhileStmt::WhileStmt(Expr* cond, ASTNode body, SourceRange range, 
   SourceLoc headerEndLoc): Stmt(StmtKind::WhileStmt, range),

@@ -13,7 +13,8 @@
 using namespace fox;
 
 Parser::StmtResult Parser::parseCompoundStatement() {
-  auto* rtr = new(ctxt_) CompoundStmt(); 
+  // Range will be filled up later, see line 67
+  auto* rtr = new(ctxt_) CompoundStmt(SourceRange()); 
   auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);
 
   if (!leftCurlyLoc)

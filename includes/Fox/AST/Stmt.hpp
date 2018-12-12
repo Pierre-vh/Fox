@@ -77,7 +77,6 @@ namespace fox {
   //    A return statement
   class ReturnStmt final : public Stmt {
     public:
-      ReturnStmt();
       ReturnStmt(Expr* rtr, SourceRange range);
 
       void setExpr(Expr* e);
@@ -96,7 +95,6 @@ namespace fox {
   //    if-then-else conditional statement
   class ConditionStmt final : public Stmt {
     public:
-      ConditionStmt();
       ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
         SourceRange range, SourceLoc ifHeaderEndLoc);
 
@@ -133,7 +131,6 @@ namespace fox {
       using NodeVecTy = std::vector<ASTNode>;
 
     public:
-      CompoundStmt();
       CompoundStmt(SourceRange range);
 
       void addNode(ASTNode stmt);
@@ -157,7 +154,6 @@ namespace fox {
   //    A while loop
   class WhileStmt final : public Stmt {
     public:
-      WhileStmt();
       WhileStmt(Expr* cond, ASTNode body, SourceRange range,
         SourceLoc headerEndLoc);
 

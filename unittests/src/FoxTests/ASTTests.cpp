@@ -228,22 +228,23 @@ TEST(ASTTests, StmtRTTI) {
   EXPECT_TRUE(NullStmt::classof(&null));
 
   // Return stmt
-  ReturnStmt rtr;
+  ReturnStmt rtr(nullptr, SourceRange());
   EXPECT_EQ(rtr.getKind(), StmtKind::ReturnStmt);
   EXPECT_TRUE(ReturnStmt::classof(&rtr));
 
   // Condition
-  ConditionStmt cond;
+  ConditionStmt cond(nullptr, ASTNode(), ASTNode(),
+    SourceRange(), SourceLoc());
   EXPECT_EQ(cond.getKind(), StmtKind::ConditionStmt);
   EXPECT_TRUE(ConditionStmt::classof(&cond));
 
   // Compound
-  CompoundStmt compound;
+  CompoundStmt compound((SourceRange()));
   EXPECT_EQ(compound.getKind(), StmtKind::CompoundStmt);
   EXPECT_TRUE(CompoundStmt::classof(&compound));
 
   // While
-  WhileStmt whilestmt;
+  WhileStmt whilestmt(nullptr, ASTNode(), SourceRange(), SourceLoc());
   EXPECT_EQ(whilestmt.getKind(), StmtKind::WhileStmt);
   EXPECT_TRUE(WhileStmt::classof(&whilestmt));
 }
