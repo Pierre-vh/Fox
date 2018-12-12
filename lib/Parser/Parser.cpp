@@ -16,11 +16,9 @@
 using namespace fox;
 
 Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, 
-	TokenVector& l, DeclContext *dr):
+	TokenVector& l, DeclContext *declCtxt):
   ctxt_(astctxt), tokens_(l), srcMgr_(sm), diags_(diags) {
-  if (dr)
-    state_.declContext = dr;
-
+  if (declCtxt) state_.curParent = declCtxt;
   setupParser();
 }
 
@@ -40,13 +38,10 @@ void Parser::setupParser() {
   state_.tokenIterator = tokens_.begin();
 }
 
-void Parser::recordDecl(NamedDecl* decl) {
-  // Record the NamedDecl in the DeclContext
-  assert(state_.declContext
-         && "Must have a DeclContext when parsing a Decl.");
-  // FIXME: This is a temporary fix until I implement name binding in the parser.
-  if(!state_.isParsingFunc)
-    state_.declContext->addDecl(decl);
+void Parser::recordInDeclCtxt(NamedDecl* decl) {
+  auto parent = getDeclParent();
+  if(auto* dc = parent.dyn_cast<DeclContext*>())
+    dc->addDecl(decl);
 }
 
 Parser::Result<Identifier> Parser::consumeIdentifier() {
@@ -457,6 +452,22 @@ bool Parser::isAlive() const {
   return state_.isAlive;
 }
 
+bool Parser::isParsingFunction() const {
+  return state_.curParent.is<FuncDecl*>();
+}
+
+bool Parser::isDeclParentADeclCtxtOrNull() const {
+  if(!state_.curParent.isNull())
+    return state_.curParent.is<DeclContext*>();
+  return true;
+}
+
+DeclContext* Parser::getDeclParentAsDeclCtxt() const {
+  assert(isDeclParentADeclCtxtOrNull() && "DeclParent must "
+    "be a DeclContext or nullptr!");
+  return getDeclParent().dyn_cast<DeclContext*>();
+}
+
 Parser::ParserState Parser::createParserStateBackup() const {
   return state_;
 }
@@ -467,34 +478,33 @@ void Parser::restoreParserStateFromBackup(const Parser::ParserState & st) {
 
 // ParserState
 Parser::ParserState::ParserState():
-  isAlive(true), isParsingFunc(false) {
+  isAlive(true){
 
 }
 
-// RAIIDeclContext
-Parser::RAIIDeclContext::RAIIDeclContext(Parser &p, DeclContext *dr):
+// RAIIDeclParent
+Parser::RAIIDeclParent::RAIIDeclParent(Parser *p, Decl::Parent parent):
   parser_(p) {
-  declCtxt_.setPointerAndInt(parser_.state_.declContext, 0);
+  assert(p && "Parser instance can't be nullptr");
+  lastParent_ = p->getDeclParent();
 
-  // If declCtxt_ isn't null, mark it as the parent of the new dr
-  if (declCtxt_.getPointer()) {
-    // Assert that we're not overwriting a parent. 
-		// If such a thing happens, that could indicate a bug!
-    assert(!dr->hasParentDeclCtxt()
-			&& "New DeclContext already has a parent?");
-    dr->setParentDeclCtxt(declCtxt_.getPointer());
-  }
+  // if "parent" is a DeclContext, and lastParent is too, set
+  // "parent"'s parent to lastParent_
+  auto* pDC = parent.dyn_cast<DeclContext*>();
+  auto* lpDC = lastParent_.dyn_cast<DeclContext*>();
+  if(pDC && lpDC)
+    pDC->setParentDeclCtxt(lpDC);
 
-  parser_.state_.declContext = dr;
+  p->state_.curParent = parent;
 }
 
-void Parser::RAIIDeclContext::restore() {
-  if(!declCtxt_.getInt()) {
-    parser_.state_.declContext = declCtxt_.getPointer();
-    declCtxt_.setInt(1);
-  }
+void Parser::RAIIDeclParent::restore() {
+  assert(parser_ && "Parser instance can't be nullptr");
+  parser_->state_.curParent = lastParent_;
+  parser_ = nullptr;
 }
 
-Parser::RAIIDeclContext::~RAIIDeclContext() {
-  restore();
+Parser::RAIIDeclParent::~RAIIDeclParent() {
+  if(parser_) // parser_ will be nullptr if we restored early
+    restore();
 }

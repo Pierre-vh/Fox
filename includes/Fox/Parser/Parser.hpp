@@ -69,7 +69,7 @@ namespace fox {
 
     public:
       Parser(DiagnosticEngine& diags, SourceManager &sm, 
-        ASTContext& astctxt, TokenVector& l, DeclContext* dr = nullptr);
+        ASTContext& astctxt, TokenVector& l, DeclContext* declCtxt = nullptr);
 
       /*-------------- Parsing Methods --------------*/
 			// UNIT
@@ -124,7 +124,9 @@ namespace fox {
       void setupParser();
 
       /*-------------- Extra Parser Actions --------------*/
-      void recordDecl(NamedDecl* decl);
+      // if getDeclParent is a DeclContext, record decl inside
+      // it.
+      void recordInDeclCtxt(NamedDecl* decl);
 
       /*-------------- "Basic" Parse Methods --------------*/
       // Parses a builtin type name
@@ -228,23 +230,30 @@ namespace fox {
         std::uint8_t roundBracketsCount  = 0;
         std::uint8_t squareBracketsCount = 0;
 
-        // Current DeclContext
-        DeclContext* declContext = nullptr;
-
-        // Set to true if the parser is currently parsing a FuncDecl
-        bool isParsingFunc : 1;
+        // The current Declaration parent, which is either a 
+        // DeclContext or a FuncDecl.
+        Decl::Parent curParent;
       } state_;
 
       // Interrogate state_
       bool isDone() const;
       bool isAlive() const;
 
+      // Returns true if state_.curParent.is<FuncDecl*>();
+      bool isParsingFunction() const;
+      // Returns true if state_.curParent is nullptr OR a 
+      // DeclContext
+      bool isDeclParentADeclCtxtOrNull() const;
+      // Asserts that the current decl parent is a DeclContext
+      // or nullptr, then returns state_.curParent().dyn_cast<DeclContext*>()
+      DeclContext* getDeclParentAsDeclCtxt() const;
+
       // Stops the parsing
       void die();
 
       // DeclContext getter
-      DeclContext* getDeclContext() const {
-        return state_.declContext;
+      Decl::Parent getDeclParent() const {
+        return state_.curParent;
       }
 
       // Creates a state_ backup
@@ -252,43 +261,22 @@ namespace fox {
       // Restores state_ from a backup.
       void restoreParserStateFromBackup(const ParserState& st);
 
-      /*-------------- RAIIDeclContext --------------*/
-      // This class sets the current DeclContext at construction, 
+      /*-------------- RAIIDeclParent --------------*/
+      // This class sets the current DeclParent at construction, 
 			// and restores the last one at destruction.
-      // If the DeclContext that was here before isn't null,
-			// it's marked as being the parent of the DeclContext passed 
-			// as argument to the constructor.
-      // It assists in registering Decl in the appropriate DeclContext.
-      class RAIIDeclContext {
+      // If the previous parent wasn't null and the new parent passed
+      // to the constructor is a DeclContext, set the parent of the
+      // DC passed to the constructor to the last one active.
+      class RAIIDeclParent {
         public:
-          RAIIDeclContext(Parser &p,DeclContext *dr);
+          RAIIDeclParent(Parser *p, Decl::Parent parent);
           // Restores the origina DeclContext early, instead of waiting
           // for the destruction of this object.
           void restore();
-          ~RAIIDeclContext();
+          ~RAIIDeclParent();
         private:
-          Parser& parser_;
-          // The DeclContext as well as bool that indicates if we
-          // restored it early or not.
-          llvm::PointerIntPair<DeclContext*, 1> declCtxt_;
-      };
-      /*-------------- RAIIParsingFuncDecl --------------*/
-      // (Temporary, will be modified later) Sets state_.isParsingFunc
-      // to true on creation and false on destruction.
-      class RAIIParsingFuncDecl {
-        Parser& p_;
-        public:
-          RAIIParsingFuncDecl(Parser& p) : p_(p) {
-            p_.state_.isParsingFunc = true;
-          }
-
-          void done() {
-            p_.state_.isParsingFunc = false;
-          }
-
-          ~RAIIParsingFuncDecl() {
-            done();
-          }
+          Parser* parser_;
+          Decl::Parent lastParent_;
       };
 
       /*-------------- Member Variables --------------*/

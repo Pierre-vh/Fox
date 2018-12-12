@@ -22,10 +22,12 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
   assert(fid && "FileID cannot be invalid!");
 
   // Create the unit
-  auto* unit = UnitDecl::create(ctxt_, getDeclContext(), unitName, fid);
+  assert(isDeclParentADeclCtxtOrNull() && "UnitDecls cannot be local decls!");
+  auto* dc = getDeclParent().dyn_cast<DeclContext*>();
+  auto* unit = UnitDecl::create(ctxt_, dc, unitName, fid);
 
-  // Create a RAIIDeclContext
-  RAIIDeclContext raiidr(*this, unit);
+  // Create a RAIIDeclParent
+  RAIIDeclParent raiidr(this, unit);
 
   bool declHadError = false;
 
@@ -87,8 +89,6 @@ Parser::DeclResult Parser::parseFuncDecl() {
     // 2) Split this method in multiples methods (e.g. parseFunctionParams)
     //    to improve readability.
 
-  RAIIParsingFuncDecl guard(*this);
-
   // "func"
   auto fnKw = consumeKeyword(KeywordType::KW_FUNC);
   if (!fnKw)
@@ -98,9 +98,12 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // because we need it's DeclContext to exist to successfully record 
   // (inside it's DeclContext) it's ParamDecls and other decls that will
   // be parsed in it's body.
-  FuncDecl* rtr = FuncDecl::create(ctxt_, getDeclContext(), Identifier(), 
+  auto* parentDC = getDeclParentAsDeclCtxt();
+  FuncDecl* rtr = FuncDecl::create(ctxt_, parentDC, Identifier(), 
     TypeLoc(), SourceRange(), SourceLoc());
   
+  RAIIDeclParent parentGuard(this, rtr);
+
   // Useful location informations
   SourceLoc begLoc = fnKw.getBegin();
   SourceLoc headEndLoc;
@@ -199,21 +202,21 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // Finished parsing. If the decl is poisoned, return an error.
   if (poisoned) return DeclResult::Error();
 
+  parentGuard.restore();
+
   SourceRange range(begLoc, body->getRange().getEnd());
   assert(headEndLoc && range && "Invalid loc info");
-
-  guard.done();
 
   // Finish building our FuncDecl.
   rtr->setBody(body);
   rtr->setLocs(range, headEndLoc);
-  recordDecl(rtr);
+  recordInDeclCtxt(rtr);
   return DeclResult(rtr);
 }
 
 Parser::DeclResult Parser::parseParamDecl() {
   // <param_decl> = <id> ':' <qualtype>
-
+  assert(isParsingFunction() && "Can only call this when parsing a function!");
   // <id>
   auto id = consumeIdentifier();
   if (!id)
@@ -243,10 +246,9 @@ Parser::DeclResult Parser::parseParamDecl() {
 
   assert(range && "Invalid loc info");
 
-  auto* rtr = ParamDecl::create(ctxt_, getDeclContext(), id.get(),
-    tl, isConst, range);
+  auto* rtr = ParamDecl::create(ctxt_, getDeclParent().get<FuncDecl*>(), 
+    id.get(), tl, isConst, range);
 
-  recordDecl(rtr);
   return DeclResult(rtr);
 }
 
@@ -332,10 +334,10 @@ Parser::DeclResult Parser::parseVarDecl() {
   assert(range && "Invalid loc info");
   assert(type && "type is not valid");
   assert(type.getRange() && "type range is not valid");
-  auto rtr = VarDecl::create(ctxt_, getDeclContext(),id, type, 
+  auto rtr = VarDecl::create(ctxt_, getDeclParent(),id, type, 
     isConst, iExpr, range);
 
-  recordDecl(rtr);
+  recordInDeclCtxt(rtr);
   return DeclResult(rtr);
 }
 
