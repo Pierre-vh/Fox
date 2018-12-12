@@ -16,9 +16,8 @@
 using namespace fox;
 
 Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, 
-	TokenVector& l, DeclContext *declCtxt):
-  ctxt_(astctxt), tokens_(l), srcMgr_(sm), diags_(diags) {
-  if (declCtxt) state_.curParent = declCtxt;
+	TokenVector& l, DeclContext *declCtxt): ctxt_(astctxt), tokens_(l), 
+  srcMgr_(sm), diags_(diags), curParent_(declCtxt) {
   setupParser();
 }
 
@@ -35,7 +34,8 @@ DiagnosticEngine& Parser::getDiagnosticEngine() {
 }
 
 void Parser::setupParser() {
-  state_.tokenIterator = tokens_.begin();
+  tokenIterator_ = tokens_.begin();
+  isAlive_ = true;
 }
 
 void Parser::recordInDeclCtxt(NamedDecl* decl) {
@@ -75,8 +75,8 @@ SourceLoc Parser::consumeBracket(SignType s) {
   if (tok.is(s)) {
     switch (s) {
       case SignType::S_CURLY_OPEN:
-        if (state_.curlyBracketsCount < maxBraceDepth_)
-          state_.curlyBracketsCount++;
+        if (curlyBracketsCount_ < maxBraceDepth_)
+          curlyBracketsCount_++;
         else {
           diags_.report(DiagID::parser_curlybracket_overflow);
           die();
@@ -84,12 +84,12 @@ SourceLoc Parser::consumeBracket(SignType s) {
         break;
       case SignType::S_CURLY_CLOSE:
 				// Don't let unbalanced parentheses underflow
-        if (state_.curlyBracketsCount)
-          state_.curlyBracketsCount--;
+        if (curlyBracketsCount_)
+          curlyBracketsCount_--;
         break;
       case SignType::S_SQ_OPEN:
-        if (state_.squareBracketsCount < maxBraceDepth_)
-          state_.squareBracketsCount++;
+        if (squareBracketsCount_ < maxBraceDepth_)
+          squareBracketsCount_++;
         else {
           diags_.report(DiagID::parser_squarebracket_overflow);
           die();
@@ -97,20 +97,20 @@ SourceLoc Parser::consumeBracket(SignType s) {
         break;
       case SignType::S_SQ_CLOSE:
 				// Don't let unbalanced parentheses underflow
-        if (state_.squareBracketsCount)
-          state_.squareBracketsCount--;
+        if (squareBracketsCount_)
+          squareBracketsCount_--;
         break;
       case SignType::S_ROUND_OPEN:
-        if (state_.roundBracketsCount < maxBraceDepth_)
-          state_.roundBracketsCount++;
+        if (roundBracketsCount_ < maxBraceDepth_)
+          roundBracketsCount_++;
         else {
           diags_.report(DiagID::parser_roundbracket_overflow);
           die();
         }
         break;
       case SignType::S_ROUND_CLOSE:
-        if (state_.roundBracketsCount)    // Don't let unbalanced parentheses create an underflow.
-          state_.roundBracketsCount--;
+        if (roundBracketsCount_)    // Don't let unbalanced parentheses create an underflow.
+          roundBracketsCount_--;
         break;
       default:
         fox_unreachable("unknown bracket type");
@@ -151,36 +151,36 @@ void Parser::revertConsume() {
 		// and incrementing it if a } ] ) is found.
     switch (tok.getSignType()) {
       case SignType::S_CURLY_OPEN:
-        if (state_.curlyBracketsCount)
-          state_.curlyBracketsCount--;
+        if (curlyBracketsCount_)
+          curlyBracketsCount_--;
         break;
       case SignType::S_CURLY_CLOSE:
-        if (state_.curlyBracketsCount < maxBraceDepth_)
-          state_.curlyBracketsCount++;
+        if (curlyBracketsCount_ < maxBraceDepth_)
+          curlyBracketsCount_++;
         else {
           diags_.report(DiagID::parser_curlybracket_overflow);
           die();
         }
         break;
       case SignType::S_SQ_OPEN:
-        if (state_.squareBracketsCount)
-          state_.squareBracketsCount--;
+        if (squareBracketsCount_)
+          squareBracketsCount_--;
         break;
       case SignType::S_SQ_CLOSE:
-        if (state_.squareBracketsCount < maxBraceDepth_)
-          state_.squareBracketsCount++;
+        if (squareBracketsCount_ < maxBraceDepth_)
+          squareBracketsCount_++;
         else {
           diags_.report(DiagID::parser_squarebracket_overflow);
           die();
         }
         break;
       case SignType::S_ROUND_OPEN:
-        if (state_.roundBracketsCount)
-          state_.roundBracketsCount--;
+        if (roundBracketsCount_)
+          roundBracketsCount_--;
         break;
       case SignType::S_ROUND_CLOSE:
-        if (state_.roundBracketsCount < maxBraceDepth_)
-          state_.roundBracketsCount++;
+        if (roundBracketsCount_ < maxBraceDepth_)
+          roundBracketsCount_++;
         else {
           diags_.report(DiagID::parser_roundbracket_overflow);
           die();
@@ -195,13 +195,13 @@ void Parser::revertConsume() {
 }
 
 void Parser::next() {
-  if (state_.tokenIterator != tokens_.end())
-    state_.tokenIterator++;
+  if (tokenIterator_ != tokens_.end())
+    tokenIterator_++;
 }
 
 void Parser::undo() {
-  if (state_.tokenIterator != tokens_.begin())
-    state_.tokenIterator--;
+  if (tokenIterator_ != tokens_.begin())
+    tokenIterator_--;
 }
 
 bool Parser::isBracket(SignType s) const {
@@ -280,12 +280,12 @@ Parser::Result<Type> Parser::parseType() {
 
 Token Parser::getCurtok() const {
   if (!isDone())
-    return *state_.tokenIterator;
+    return *tokenIterator_;
   return Token();
 }
 
 Token Parser::getPreviousToken() const {
-  auto it = state_.tokenIterator;
+  auto it = tokenIterator_;
   if (it != tokens_.begin())
     return *(--it);
   return Token();
@@ -334,17 +334,17 @@ bool Parser::resyncToSign(const std::vector<SignType>& signs,
         // Skip closing brackets if they're unbalanced, else
         // return to avoid escaping the current block.
         case SignType::S_CURLY_CLOSE:
-          if (state_.curlyBracketsCount && !isFirst)
+          if (curlyBracketsCount_ && !isFirst)
             return false;
           consumeBracket(SignType::S_CURLY_CLOSE);
           break;
         case SignType::S_SQ_CLOSE:
-          if (state_.squareBracketsCount && !isFirst)
+          if (squareBracketsCount_ && !isFirst)
             return false;
           consumeBracket(SignType::S_SQ_CLOSE);
           break;
         case SignType::S_ROUND_CLOSE:
-          if (state_.roundBracketsCount && !isFirst)
+          if (roundBracketsCount_ && !isFirst)
             return false;
           consumeBracket(SignType::S_ROUND_CLOSE);
           break;
@@ -421,8 +421,8 @@ bool Parser::resyncToNextDecl() {
 }
 
 void Parser::die() {
-  state_.tokenIterator = tokens_.end();
-  state_.isAlive = false;
+  tokenIterator_ = tokens_.end();
+  isAlive_ = false;
 }
 
 Diagnostic Parser::reportErrorExpected(DiagID diag) {
@@ -445,20 +445,20 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
 }
 
 bool Parser::isDone() const {
-  return (state_.tokenIterator == tokens_.end()) || (!isAlive());
+  return (tokenIterator_ == tokens_.end()) || (!isAlive());
 }
 
 bool Parser::isAlive() const {
-  return state_.isAlive;
+  return isAlive_;
 }
 
 bool Parser::isParsingFunction() const {
-  return state_.curParent.is<FuncDecl*>();
+  return curParent_.is<FuncDecl*>();
 }
 
 bool Parser::isDeclParentADeclCtxtOrNull() const {
-  if(!state_.curParent.isNull())
-    return state_.curParent.is<DeclContext*>();
+  if(!curParent_.isNull())
+    return curParent_.is<DeclContext*>();
   return true;
 }
 
@@ -466,20 +466,6 @@ DeclContext* Parser::getDeclParentAsDeclCtxt() const {
   assert(isDeclParentADeclCtxtOrNull() && "DeclParent must "
     "be a DeclContext or nullptr!");
   return getDeclParent().dyn_cast<DeclContext*>();
-}
-
-Parser::ParserState Parser::createParserStateBackup() const {
-  return state_;
-}
-
-void Parser::restoreParserStateFromBackup(const Parser::ParserState & st) {
-  state_ = st;
-}
-
-// ParserState
-Parser::ParserState::ParserState():
-  isAlive(true){
-
 }
 
 // RAIIDeclParent
@@ -495,12 +481,12 @@ Parser::RAIIDeclParent::RAIIDeclParent(Parser *p, Decl::Parent parent):
   if(pDC && lpDC)
     pDC->setParentDeclCtxt(lpDC);
 
-  p->state_.curParent = parent;
+  p->curParent_ = parent;
 }
 
 void Parser::RAIIDeclParent::restore() {
   assert(parser_ && "Parser instance can't be nullptr");
-  parser_->state_.curParent = lastParent_;
+  parser_->curParent_ = lastParent_;
   parser_ = nullptr;
 }
 

@@ -215,35 +215,33 @@ namespace fox {
       // The SourceLoc of the error is right past the end of the undo token.
       Diagnostic reportErrorExpected(DiagID diag);
 
-      /*-------------- Parser State --------------*/
-      struct ParserState {
-        ParserState();
-        
-        // The current token
-        TokenIteratorTy tokenIterator;
+      /*-------------- Parser State Variables--------------*/
+      // The current token
+      TokenIteratorTy tokenIterator_;
 
-				// This is set to false when the parser dies (gives up)
-        bool isAlive : 1;
+		  // This is set to false when the parser dies (gives up)
+      bool isAlive_ : 1;
       
-        // Brackets counters
-        std::uint8_t curlyBracketsCount  = 0;
-        std::uint8_t roundBracketsCount  = 0;
-        std::uint8_t squareBracketsCount = 0;
+      // Brackets counters
+      std::uint8_t curlyBracketsCount_  = 0;
+      std::uint8_t roundBracketsCount_  = 0;
+      std::uint8_t squareBracketsCount_ = 0;
 
-        // The current Declaration parent, which is either a 
-        // DeclContext or a FuncDecl.
-        Decl::Parent curParent;
-      } state_;
+      // The current Declaration parent, which is either a 
+      // DeclContext or a FuncDecl.
+      Decl::Parent curParent_;
 
-      // Interrogate state_
+      /*-------------- Other Private Methods --------------*/
       bool isDone() const;
       bool isAlive() const;
 
       // Returns true if state_.curParent.is<FuncDecl*>();
+
       bool isParsingFunction() const;
       // Returns true if state_.curParent is nullptr OR a 
       // DeclContext
       bool isDeclParentADeclCtxtOrNull() const;
+
       // Asserts that the current decl parent is a DeclContext
       // or nullptr, then returns state_.curParent().dyn_cast<DeclContext*>()
       DeclContext* getDeclParentAsDeclCtxt() const;
@@ -253,13 +251,8 @@ namespace fox {
 
       // DeclContext getter
       Decl::Parent getDeclParent() const {
-        return state_.curParent;
+        return curParent_;
       }
-
-      // Creates a state_ backup
-      ParserState createParserStateBackup() const;
-      // Restores state_ from a backup.
-      void restoreParserStateFromBackup(const ParserState& st);
 
       /*-------------- RAIIDeclParent --------------*/
       // This class sets the current DeclParent at construction, 
