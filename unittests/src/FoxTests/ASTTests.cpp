@@ -154,69 +154,71 @@ TEST(ASTTests, ExprRTTI) {
   ASTContext astctxt;
 
   // Binary Exprs
-  BinaryExpr binexpr;
+  BinaryExpr binexpr(BinaryExpr::OpKind::Invalid, nullptr, 
+    nullptr, SourceRange(), SourceRange());
   EXPECT_EQ(binexpr.getKind(), ExprKind::BinaryExpr);
   EXPECT_TRUE(BinaryExpr::classof(&binexpr));
 
   // Unary Exprs
-  UnaryExpr unaryexpr;
+  UnaryExpr unaryexpr(UnaryExpr::OpKind::Invalid, nullptr,
+    SourceRange(), SourceRange());
   EXPECT_EQ(unaryexpr.getKind(), ExprKind::UnaryExpr);
   EXPECT_TRUE(UnaryExpr::classof(&unaryexpr));
 
   // Cast Exprs
-  CastExpr castexpr;
+  CastExpr castexpr(TypeLoc(), nullptr, SourceRange());
   EXPECT_EQ(castexpr.getKind(), ExprKind::CastExpr);
   EXPECT_TRUE(CastExpr::classof(&castexpr));
 
   // Literals
-  CharLiteralExpr  charlit;
+  CharLiteralExpr charlit('0', SourceRange());
   EXPECT_EQ(charlit.getKind(), ExprKind::CharLiteralExpr);
   EXPECT_TRUE(CharLiteralExpr::classof(&charlit));
 
-  IntegerLiteralExpr intlit;
+  IntegerLiteralExpr intlit(0, SourceRange());
   EXPECT_EQ(intlit.getKind(), ExprKind::IntegerLiteralExpr);
   EXPECT_TRUE(IntegerLiteralExpr::classof(&intlit));
 
-  FloatLiteralExpr floatlit;
+  FloatLiteralExpr floatlit(0.0, SourceRange());
   EXPECT_EQ(floatlit.getKind(), ExprKind::FloatLiteralExpr);
   EXPECT_TRUE(FloatLiteralExpr::classof(&floatlit));
 
-  StringLiteralExpr strlit;
+  StringLiteralExpr strlit("", SourceRange());
   EXPECT_EQ(strlit.getKind(), ExprKind::StringLiteralExpr);
   EXPECT_TRUE(StringLiteralExpr::classof(&strlit));
 
-  BoolLiteralExpr  boollit;
+  BoolLiteralExpr  boollit(false, SourceRange());
   EXPECT_EQ(boollit.getKind(), ExprKind::BoolLiteralExpr);
   EXPECT_TRUE(BoolLiteralExpr::classof(&boollit));
 
-  ArrayLiteralExpr arrlit;
+  ArrayLiteralExpr arrlit((ExprVector()), SourceRange());
   EXPECT_EQ(arrlit.getKind(), ExprKind::ArrayLiteralExpr);
   EXPECT_TRUE(ArrayLiteralExpr::classof(&arrlit));
 
   // Helper
   auto fooid = astctxt.getIdentifier("foo");
 
-  UnresolvedDeclRefExpr undeclref;
+  UnresolvedDeclRefExpr undeclref((Identifier()), SourceRange());
   EXPECT_EQ(undeclref.getKind(), ExprKind::UnresolvedDeclRefExpr);
   EXPECT_TRUE(UnresolvedDeclRefExpr::classof(&undeclref));
 
   // DeclRef
-  DeclRefExpr declref;
+  DeclRefExpr declref(nullptr, SourceRange());
   EXPECT_EQ(declref.getKind(), ExprKind::DeclRefExpr);
   EXPECT_TRUE(DeclRefExpr::classof(&declref));
 
   // MemberOfExpr
-  MemberOfExpr membof;
+  MemberOfExpr membof(nullptr, Identifier(), SourceRange(), SourceLoc());
   EXPECT_EQ(membof.getKind(), ExprKind::MemberOfExpr);
   EXPECT_TRUE(MemberOfExpr::classof(&membof));
 
   // Array Access
-  ArraySubscriptExpr arracc;
+  ArraySubscriptExpr arracc(nullptr, nullptr, SourceRange());
   EXPECT_EQ(arracc.getKind(), ExprKind::ArraySubscriptExpr);
   EXPECT_TRUE(ArraySubscriptExpr::classof(&arracc));
 
   // Function calls
-  FunctionCallExpr callexpr;
+  FunctionCallExpr callexpr(nullptr, ExprVector(), SourceRange());
   EXPECT_EQ(callexpr.getKind(), ExprKind::FunctionCallExpr);
   EXPECT_TRUE(FunctionCallExpr::classof(&callexpr));
 }

@@ -22,15 +22,12 @@ std::ostream& fox::operator<<(std::ostream& os, ExprKind kind) {
   return os;
 }
 
-
 //----------------------------------------------------------------------------//
 // Expr 
 //----------------------------------------------------------------------------//
 
 Expr::Expr(ExprKind kind, SourceRange range):
-  kind_(kind), range_(range) {
-
-}
+  kind_(kind), range_(range) {}
 
 ExprKind Expr::getKind() const {
   return kind_;
@@ -61,15 +58,8 @@ void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
 // CharLiteralExpr 
 //----------------------------------------------------------------------------//
 
-CharLiteralExpr::CharLiteralExpr():
-  CharLiteralExpr(0, SourceRange()) {
-
-}
-
 CharLiteralExpr::CharLiteralExpr(FoxChar val, SourceRange range):
-  val_(val), Expr(ExprKind::CharLiteralExpr, range) {
-
-}
+  val_(val), Expr(ExprKind::CharLiteralExpr, range) {}
 
 FoxChar CharLiteralExpr::getVal() const {
   return val_;
@@ -83,15 +73,8 @@ void CharLiteralExpr::setVal(FoxChar val) {
 // IntegerLiteralExpr 
 //----------------------------------------------------------------------------//
 
-IntegerLiteralExpr::IntegerLiteralExpr():
-  IntegerLiteralExpr(0, SourceRange()) {
-
-}
-
 IntegerLiteralExpr::IntegerLiteralExpr(FoxInt val, SourceRange range):
-  val_(val), Expr(ExprKind::IntegerLiteralExpr, range) {
-
-}
+  val_(val), Expr(ExprKind::IntegerLiteralExpr, range) {}
 
 FoxInt IntegerLiteralExpr::getVal() const {
   return val_;
@@ -105,15 +88,8 @@ void IntegerLiteralExpr::setVal(FoxInt val) {
 // FloatLiteralExpr 
 //----------------------------------------------------------------------------//
 
-FloatLiteralExpr::FloatLiteralExpr():
-  FloatLiteralExpr(0, SourceRange()) {
-
-}
-
 FloatLiteralExpr::FloatLiteralExpr(FoxFloat val, SourceRange range):
-  val_(val), Expr(ExprKind::FloatLiteralExpr, range) {
-
-}
+  val_(val), Expr(ExprKind::FloatLiteralExpr, range) {}
 
 FoxFloat FloatLiteralExpr::getVal() const {
   return val_;
@@ -126,11 +102,6 @@ void FloatLiteralExpr::setVal(FoxFloat val) {
 //----------------------------------------------------------------------------//
 // StringLiteralExpr 
 //----------------------------------------------------------------------------//
-
-StringLiteralExpr::StringLiteralExpr():
-  StringLiteralExpr("", SourceRange()) {
-
-}
 
 StringLiteralExpr::StringLiteralExpr(const FoxString& val, SourceRange range):
   val_(val), Expr(ExprKind::StringLiteralExpr, range) {
@@ -149,11 +120,6 @@ void StringLiteralExpr::setVal(const FoxString& val) {
 // BoolLiteralExpr 
 //----------------------------------------------------------------------------//
 
-BoolLiteralExpr::BoolLiteralExpr():
-  BoolLiteralExpr(false, SourceRange()) {
-
-}
-
 BoolLiteralExpr::BoolLiteralExpr(FoxBool val, SourceRange range):
   val_(val), Expr(ExprKind::BoolLiteralExpr, range) {
 
@@ -170,10 +136,6 @@ void BoolLiteralExpr::setVal(FoxBool val) {
 //----------------------------------------------------------------------------//
 // ArrayLiteralExpr 
 //----------------------------------------------------------------------------//
-
-ArrayLiteralExpr::ArrayLiteralExpr():
-  ArrayLiteralExpr(ExprVector(), SourceRange()) {
-}
 
 ArrayLiteralExpr::ArrayLiteralExpr(const ExprVector& exprs, SourceRange range):
   exprs_(exprs), Expr(ExprKind::ArrayLiteralExpr, range) {
@@ -209,10 +171,6 @@ bool ArrayLiteralExpr::isEmpty() const {
 //----------------------------------------------------------------------------//
 // BinaryExpr 
 //----------------------------------------------------------------------------//
-
-BinaryExpr::BinaryExpr():
-  BinaryExpr(OpKind::Invalid, nullptr, nullptr, SourceRange(), SourceRange()) 
-  {}
 
 BinaryExpr::BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, SourceRange range,
   SourceRange opRange) : op_(op), Expr(ExprKind::BinaryExpr, range), 
@@ -344,17 +302,9 @@ std::string BinaryExpr::getOpName() const {
 // UnaryExpr 
 //----------------------------------------------------------------------------//
 
-UnaryExpr::UnaryExpr(): UnaryExpr(OpKind::Invalid, nullptr,
-  SourceRange(), SourceRange()) {
-
-}
-
-UnaryExpr::UnaryExpr(OpKind op, Expr* expr, 
-  SourceRange range, SourceRange opRange):
-  op_(op), Expr(ExprKind::UnaryExpr, range),
-  opRange_(opRange), expr_(expr) {
-
-}
+UnaryExpr::UnaryExpr(OpKind op, Expr* expr, SourceRange range, 
+  SourceRange opRange):op_(op), Expr(ExprKind::UnaryExpr, range), 
+  opRange_(opRange), expr_(expr) {}
 
 void UnaryExpr::setExpr(Expr* expr) {
   expr_ = expr;
@@ -407,16 +357,8 @@ std::string UnaryExpr::getOpName() const {
 // CastExpr 
 //----------------------------------------------------------------------------//
 
-CastExpr::CastExpr():
-  CastExpr(TypeLoc(), nullptr, SourceRange()) {
-
-}
-
 CastExpr::CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range):
-  Expr(ExprKind::CastExpr, range),
-  goal_(castGoal), expr_(expr) {
-
-}
+  Expr(ExprKind::CastExpr, range), goal_(castGoal), expr_(expr) {}
 
 void CastExpr::setCastTypeLoc(TypeLoc goal) {
   goal_ = goal;
@@ -446,10 +388,6 @@ Expr* CastExpr::getExpr() const {
 // DeclRefExpr 
 //----------------------------------------------------------------------------//
 
-DeclRefExpr::DeclRefExpr():
-  DeclRefExpr(nullptr, SourceRange()) {
-}
-
 DeclRefExpr::DeclRefExpr(ValueDecl* decl, SourceRange range):
   decl_(decl), Expr(ExprKind::DeclRefExpr, range) {
 
@@ -471,15 +409,9 @@ void DeclRefExpr::setDecl(ValueDecl* decl) {
 // FunctionCallExpr 
 //----------------------------------------------------------------------------//
 
-FunctionCallExpr::FunctionCallExpr():
-  FunctionCallExpr(nullptr, ExprVector(), SourceRange()) {
-
-}
-
-FunctionCallExpr::FunctionCallExpr(Expr* callee, const ExprVector& args, SourceRange range): 
-  Expr(ExprKind::FunctionCallExpr, range), callee_(callee), args_(args) {
-
-}
+FunctionCallExpr::FunctionCallExpr(Expr* callee, const ExprVector& args, 
+  SourceRange range): Expr(ExprKind::FunctionCallExpr, range), callee_(callee),
+  args_(args) {}
 
 void FunctionCallExpr::setCallee(Expr* callee) {
   callee_ = callee;
@@ -511,16 +443,10 @@ void FunctionCallExpr::setArg(Expr* arg, std::size_t idx) {
 // MemberOfExpr 
 //----------------------------------------------------------------------------//
 
-MemberOfExpr::MemberOfExpr():
-  MemberOfExpr(nullptr, Identifier(), SourceRange(), SourceLoc()) {
-}
-
 MemberOfExpr::MemberOfExpr(Expr* base, Identifier membID,
   SourceRange range, SourceLoc dotLoc):
   Expr(ExprKind::MemberOfExpr, range), base_(base), memb_(membID),
-  dotLoc_(dotLoc) {
-
-}
+  dotLoc_(dotLoc) {}
 
 void MemberOfExpr::setExpr(Expr* expr) {
   base_ = expr;
@@ -546,15 +472,8 @@ SourceLoc MemberOfExpr::getDotLoc() const {
 // ArraySubscriptExpr 
 //----------------------------------------------------------------------------//
 
-ArraySubscriptExpr::ArraySubscriptExpr():
-  ArraySubscriptExpr(nullptr, nullptr, SourceRange()) {
-
-}
-
 ArraySubscriptExpr::ArraySubscriptExpr(Expr* expr, Expr* idxexpr, SourceRange range):
-  base_(expr), idxExpr_(idxexpr), Expr(ExprKind::ArraySubscriptExpr, range) {
-  
-}
+  base_(expr), idxExpr_(idxexpr), Expr(ExprKind::ArraySubscriptExpr, range) {}
 
 void ArraySubscriptExpr::setBase(Expr* expr) {
   base_ = expr;
@@ -582,9 +501,6 @@ Expr(kind, range) {}
 //----------------------------------------------------------------------------//
 // UnresolvedDeclRefExpr 
 //----------------------------------------------------------------------------///
-
-UnresolvedDeclRefExpr::UnresolvedDeclRefExpr():
-  UnresolvedDeclRefExpr(Identifier(), SourceRange()){}
 
 UnresolvedDeclRefExpr::UnresolvedDeclRefExpr(Identifier id, SourceRange range):
   UnresolvedExpr(ExprKind::UnresolvedDeclRefExpr, range), id_(id) {}

@@ -79,7 +79,6 @@ namespace fox   {
         #include "Operators.def"
       };
 
-      BinaryExpr();
       BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, 
         SourceRange range, SourceRange opRange);
 
@@ -145,7 +144,6 @@ namespace fox   {
         #include "Operators.def"
       };
 
-      UnaryExpr();
       UnaryExpr(OpKind op, Expr* node, SourceRange range,
         SourceRange opRange);
       
@@ -180,7 +178,6 @@ namespace fox   {
   //    An explicit "as" cast expression: foo as int
   class CastExpr final : public Expr {
     public:
-      CastExpr();
       CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range);
       
       void setCastTypeLoc(TypeLoc goal);
@@ -204,7 +201,6 @@ namespace fox   {
   //    A char literal: 'a'
   class CharLiteralExpr : public Expr {
     public:
-      CharLiteralExpr();
       CharLiteralExpr(FoxChar val, SourceRange range);
 
       FoxChar getVal() const;
@@ -222,7 +218,6 @@ namespace fox   {
   //    An integer literal: 2
   class IntegerLiteralExpr final : public Expr {
     public:
-      IntegerLiteralExpr();
       IntegerLiteralExpr(FoxInt val, SourceRange range);
 
       FoxInt getVal() const;
@@ -240,7 +235,6 @@ namespace fox   {
   //    A float literal: 3.14
   class FloatLiteralExpr final : public Expr {
     public:
-      FloatLiteralExpr();
       FloatLiteralExpr(FoxFloat val, SourceRange range);
 
       FoxFloat getVal() const;
@@ -258,7 +252,6 @@ namespace fox   {
   //    A string literal: "foo"
   class StringLiteralExpr final : public Expr {
     public:
-      StringLiteralExpr();
       StringLiteralExpr(const FoxString& val, SourceRange range);
 
       std::string getVal() const;
@@ -276,7 +269,6 @@ namespace fox   {
   //    true/false boolean literal
   class BoolLiteralExpr final : public Expr {
     public:
-      BoolLiteralExpr();
       BoolLiteralExpr(FoxBool val, SourceRange range);
 
       bool getVal() const;
@@ -294,7 +286,6 @@ namespace fox   {
   //    An array literal: [1, 2, 3]
   class ArrayLiteralExpr final : public Expr {
     public:
-      ArrayLiteralExpr();
       ArrayLiteralExpr(const ExprVector& exprs, SourceRange range);
 
       ExprVector& getExprs();
@@ -333,7 +324,6 @@ namespace fox   {
   //    Represents a unresolved DeclRef
   class UnresolvedDeclRefExpr final : public UnresolvedExpr {
     public:
-      UnresolvedDeclRefExpr();
       UnresolvedDeclRefExpr(Identifier id, SourceRange range);
 
       void setIdentifier(Identifier id);
@@ -350,7 +340,6 @@ namespace fox   {
   //    A resolved reference to a ValueDecl. 
   class DeclRefExpr final : public Expr {
     public:
-      DeclRefExpr();
       DeclRefExpr(ValueDecl* decl, SourceRange range);
 
       // Returns the identifier of the Decl, or Identifier() if
@@ -372,7 +361,6 @@ namespace fox   {
   //    A member access : foo.bar
   class MemberOfExpr final : public Expr {
     public:
-      MemberOfExpr();
       MemberOfExpr(Expr* base, Identifier membID, 
 				SourceRange range, SourceLoc dotLoc);
 
@@ -398,7 +386,6 @@ namespace fox   {
   //    Array access (or subscript): foo[3]
   class ArraySubscriptExpr final : public Expr {
     public:
-      ArraySubscriptExpr();
       ArraySubscriptExpr(Expr* base, Expr* idx, SourceRange range);
 
       void setBase(Expr* expr);
@@ -420,7 +407,6 @@ namespace fox   {
   //    A function call: foo(3.14)
   class FunctionCallExpr final : public Expr {
     public:
-      FunctionCallExpr();
       FunctionCallExpr(Expr* callee, const ExprVector& args, SourceRange range);
       
       void setCallee(Expr* base);
