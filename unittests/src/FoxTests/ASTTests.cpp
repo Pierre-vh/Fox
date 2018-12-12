@@ -222,31 +222,34 @@ TEST(ASTTests, ExprRTTI) {
 }
 
 TEST(ASTTests, StmtRTTI) {
+  ASTContext ctxt;
+
   // NullStmt
-  NullStmt null;
-  EXPECT_EQ(null.getKind(), StmtKind::NullStmt);
-  EXPECT_TRUE(NullStmt::classof(&null));
+  auto* null = NullStmt::create(ctxt);
+  EXPECT_EQ(null->getKind(), StmtKind::NullStmt);
+  EXPECT_TRUE(NullStmt::classof(null));
 
   // Return stmt
-  ReturnStmt rtr(nullptr, SourceRange());
-  EXPECT_EQ(rtr.getKind(), StmtKind::ReturnStmt);
-  EXPECT_TRUE(ReturnStmt::classof(&rtr));
+  auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
+  EXPECT_EQ(rtr->getKind(), StmtKind::ReturnStmt);
+  EXPECT_TRUE(ReturnStmt::classof(rtr));
 
   // Condition
-  ConditionStmt cond(nullptr, ASTNode(), ASTNode(),
+  auto* cond = ConditionStmt::create(ctxt, nullptr, ASTNode(), ASTNode(),
     SourceRange(), SourceLoc());
-  EXPECT_EQ(cond.getKind(), StmtKind::ConditionStmt);
-  EXPECT_TRUE(ConditionStmt::classof(&cond));
+  EXPECT_EQ(cond->getKind(), StmtKind::ConditionStmt);
+  EXPECT_TRUE(ConditionStmt::classof(cond));
 
   // Compound
-  CompoundStmt compound((SourceRange()));
-  EXPECT_EQ(compound.getKind(), StmtKind::CompoundStmt);
-  EXPECT_TRUE(CompoundStmt::classof(&compound));
+  auto* compound = CompoundStmt::create(ctxt, SourceRange());
+  EXPECT_EQ(compound->getKind(), StmtKind::CompoundStmt);
+  EXPECT_TRUE(CompoundStmt::classof(compound));
 
   // While
-  WhileStmt whilestmt(nullptr, ASTNode(), SourceRange(), SourceLoc());
-  EXPECT_EQ(whilestmt.getKind(), StmtKind::WhileStmt);
-  EXPECT_TRUE(WhileStmt::classof(&whilestmt));
+  auto* whilestmt = 
+    WhileStmt::create(ctxt, nullptr, ASTNode(), SourceRange(), SourceLoc());
+  EXPECT_EQ(whilestmt->getKind(), StmtKind::WhileStmt);
+  EXPECT_TRUE(WhileStmt::classof(whilestmt));
 }
 
 namespace {
@@ -346,7 +349,7 @@ TEST(ASTTests, BasicVisitor) {
 
   // Create test nodes
   auto* intlit = new(ctxt) IntegerLiteralExpr(200, SourceRange());
-  auto* rtr = new(ctxt) ReturnStmt(nullptr, SourceRange());
+  auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
   auto* vardecl = VarDecl::create(ctxt, nullptr, Identifier(), 
     TypeLoc(), false, nullptr, SourceRange());
   auto* intTy = PrimitiveType::getInt(ctxt);

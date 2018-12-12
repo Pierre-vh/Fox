@@ -38,6 +38,12 @@ namespace fox {
 
       void dump() const;
 
+    protected:
+      Stmt(StmtKind kind, SourceRange range);
+
+      // Operator new/delete overloads : They're protected as they should
+      // only be used through ::create
+
       // Prohibit the use of builtin placement new & delete
       void *operator new(std::size_t) throw() = delete;
       void operator delete(void *) throw() = delete;
@@ -49,9 +55,6 @@ namespace fox {
       // Companion operator delete to silence C4291 on MSVC
       void operator delete(void*, ASTContext&, std::uint8_t) {}
 
-    protected:
-      Stmt(StmtKind kind, SourceRange range);
-
     private:
       SourceRange range_;
       const StmtKind kind_;
@@ -62,8 +65,8 @@ namespace fox {
   //    Often used as the body of a condition/loop
   class NullStmt final : public Stmt {
     public:
-      NullStmt();
-      NullStmt(SourceLoc semiLoc);
+      static NullStmt* create(ASTContext& ctxt, 
+        SourceLoc semiLoc = SourceLoc());
 
       void setSemiLoc(SourceLoc semiLoc);
       SourceLoc getSemiLoc() const;
@@ -71,13 +74,16 @@ namespace fox {
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::NullStmt);
       }
+    private:
+      NullStmt(SourceLoc semiLoc);
   };
 
   // ReturnStmt
   //    A return statement
   class ReturnStmt final : public Stmt {
     public:
-      ReturnStmt(Expr* rtr, SourceRange range);
+      static ReturnStmt* create(ASTContext& ctxt, Expr* rtr, 
+        SourceRange range);
 
       void setExpr(Expr* e);
       Expr* getExpr() const;
@@ -88,6 +94,8 @@ namespace fox {
       }
 
     private:
+      ReturnStmt(Expr* rtr, SourceRange range);
+
       Expr* expr_ = nullptr;
   };
 
@@ -95,8 +103,8 @@ namespace fox {
   //    if-then-else conditional statement
   class ConditionStmt final : public Stmt {
     public:
-      ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
-        SourceRange range, SourceLoc ifHeaderEndLoc);
+      static ConditionStmt* create(ASTContext& ctxt, Expr* cond, ASTNode then,
+        ASTNode condElse, SourceRange range, SourceLoc ifHeaderEnd);
 
       bool isValid() const;
 
@@ -119,6 +127,9 @@ namespace fox {
       }
 
     private:
+      ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
+        SourceRange range, SourceLoc ifHeaderEndLoc);
+
       SourceLoc ifHeadEndLoc_;
       Expr* cond_ = nullptr;
       ASTNode then_, else_;
@@ -127,11 +138,16 @@ namespace fox {
   // CompoundStmt
   //    A group of statements delimited by curly brackets {}
   class CompoundStmt final : public Stmt {
-    private:
-      using NodeVecTy = std::vector<ASTNode>;
-
     public:
-      CompoundStmt(SourceRange range);
+      // range argument is optional because when parsing CompoundStmts, we
+      // don't know the full range of the Stmt until we finished parsing it.
+      // Usually we create the CompoundStmt first, then fill it with the Stmts
+      // as we parse them, and then set the range before returning, once
+      // the } has been parsed.
+      static CompoundStmt* create(ASTContext& ctxt, 
+        SourceRange range = SourceRange());
+
+      using NodeVecTy = std::vector<ASTNode>;
 
       void addNode(ASTNode stmt);
       void setNode(ASTNode node, std::size_t idx);
@@ -147,6 +163,8 @@ namespace fox {
       }
 
     private:
+      CompoundStmt(SourceRange range);
+
       NodeVecTy nodes_;
   };
 
@@ -154,8 +172,8 @@ namespace fox {
   //    A while loop
   class WhileStmt final : public Stmt {
     public:
-      WhileStmt(Expr* cond, ASTNode body, SourceRange range,
-        SourceLoc headerEndLoc);
+      static WhileStmt* create(ASTContext& ctxt, Expr* cond, ASTNode body,
+        SourceRange range, SourceLoc headerEnd);
 
       void setCond(Expr* cond);
       Expr* getCond() const;
@@ -171,6 +189,9 @@ namespace fox {
       }
 
     private:
+      WhileStmt(Expr* cond, ASTNode body, SourceRange range,
+        SourceLoc headerEndLoc);
+
       SourceLoc headerEndLoc_;
       Expr* cond_ = nullptr;
       ASTNode body_;

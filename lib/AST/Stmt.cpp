@@ -39,11 +39,13 @@ void Stmt::setRange(SourceRange range) {
 // NullStmt
 //----------------------------------------------------------------------------//
 
-NullStmt::NullStmt() : NullStmt(SourceLoc()) {}
-
 NullStmt::NullStmt(SourceLoc semiLoc):
   Stmt(StmtKind::NullStmt, SourceRange(semiLoc)) {
 
+}
+
+NullStmt* NullStmt::create(ASTContext& ctxt, SourceLoc semiLoc) {
+  return new(ctxt) NullStmt(semiLoc);
 }
 
 void NullStmt::setSemiLoc(SourceLoc semiLoc) {
@@ -69,6 +71,11 @@ Expr* ReturnStmt::getExpr() const {
   return expr_;
 }
 
+ReturnStmt* 
+ReturnStmt::create(ASTContext& ctxt, Expr* rtr, SourceRange range) {
+  return new(ctxt) ReturnStmt(rtr, range);
+}
+
 void ReturnStmt::setExpr(Expr* e) {
   expr_ = e;
 }
@@ -81,6 +88,12 @@ ConditionStmt::ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
   SourceRange range, SourceLoc ifHeaderEndLoc): Stmt(StmtKind::ConditionStmt,
   range), cond_(cond), then_(then),  else_(elsenode), 
   ifHeadEndLoc_(ifHeaderEndLoc) {}
+
+ConditionStmt* 
+ConditionStmt::create(ASTContext& ctxt, Expr* cond, ASTNode then, ASTNode condElse,
+  SourceRange range, SourceLoc ifHeaderEnd) {
+  return new(ctxt) ConditionStmt(cond, then, condElse, range, ifHeaderEnd);
+}
 
 bool ConditionStmt::isValid() const {
   return cond_ && then_;
@@ -142,6 +155,10 @@ CompoundStmt::NodeVecTy& CompoundStmt::getNodes() {
   return nodes_;
 }
 
+CompoundStmt* CompoundStmt::create(ASTContext& ctxt, SourceRange range) {
+  return new(ctxt) CompoundStmt(range);
+}
+
 void CompoundStmt::addNode(ASTNode node) {
   nodes_.push_back(node);
 }
@@ -165,7 +182,7 @@ std::size_t CompoundStmt::size() const {
 
 WhileStmt::WhileStmt(Expr* cond, ASTNode body, SourceRange range, 
   SourceLoc headerEndLoc): Stmt(StmtKind::WhileStmt, range),
-  headerEndLoc_(headerEndLoc), cond_(cond), body_(body) {}
+ headerEndLoc_(headerEndLoc), cond_(cond), body_(body) {}
 
 Expr* WhileStmt::getCond() const {
   return cond_;
@@ -173,6 +190,11 @@ Expr* WhileStmt::getCond() const {
 
 ASTNode WhileStmt::getBody() const {
   return body_;
+}
+
+WhileStmt* WhileStmt::create(ASTContext& ctxt, Expr* cond, ASTNode body,
+  SourceRange range, SourceLoc headerEnd) {
+  return new(ctxt) WhileStmt(cond, body, range, headerEnd);
 }
 
 void WhileStmt::setCond(Expr* cond) {

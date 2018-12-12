@@ -14,7 +14,7 @@ using namespace fox;
 
 Parser::StmtResult Parser::parseCompoundStatement() {
   // Range will be filled up later, see line 67
-  auto* rtr = new(ctxt_) CompoundStmt(SourceRange()); 
+  auto* rtr = CompoundStmt::create(ctxt_, SourceRange()); 
   auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);
 
   if (!leftCurlyLoc)
@@ -106,7 +106,7 @@ Parser::StmtResult Parser::parseWhileLoop() {
   SourceRange range(begLoc, endLoc);
   assert(expr && body && range && parenExprEndLoc);
   return StmtResult(
-    new(ctxt_) WhileStmt(expr, body, range, parenExprEndLoc)
+    WhileStmt::create(ctxt_, expr, body, range, parenExprEndLoc)
   );
 }
 
@@ -167,10 +167,12 @@ Parser::StmtResult Parser::parseCondition() {
   }
 
   SourceRange range(begLoc, endLoc);
-  assert(expr && then_node && range && ifHeadEndLoc && "Incomplete loc/nodes!");
+  assert(expr && then_node && range && ifHeadEndLoc 
+    && "Incomplete loc/nodes!");
 
   return StmtResult(
-    new(ctxt_) ConditionStmt(expr, then_node, else_node, range, ifHeadEndLoc)
+    ConditionStmt::create(ctxt_, expr, then_node, else_node, range, 
+      ifHeadEndLoc)
   );
 }
 
@@ -207,7 +209,7 @@ Parser::StmtResult Parser::parseReturnStmt() {
   SourceRange range(begLoc, endLoc);
   assert(range && "Invalid loc info");
   return StmtResult(
-    new(ctxt_) ReturnStmt(expr, range)
+    ReturnStmt::create(ctxt_, expr, range)
   );
 }
 
@@ -270,7 +272,7 @@ Parser::NodeResult Parser::parseExprStmt() {
 
   // ';'
   if (auto semi = consumeSign(SignType::S_SEMICOLON)) {
-    Stmt* nullstmt = new(ctxt_) NullStmt(semi);
+    Stmt* nullstmt = NullStmt::create(ctxt_, semi);
     return NodeResult(ASTNode(nullstmt));
   }
 
@@ -290,8 +292,9 @@ Parser::NodeResult Parser::parseExprStmt() {
   }
   else if(!expr.wasSuccessful()) {
     // if the expression had an error, ignore it and try to recover to a semi.
-    if (resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ false)) {
-      Stmt* nullstmt = new (ctxt_) NullStmt(consumeSign(SignType::S_SEMICOLON));
+    if (resyncToSign(SignType::S_SEMICOLON,
+      /*stopAtSemi*/ false, /*consumeToken*/ false)) {
+      Stmt* nullstmt = NullStmt::create(ctxt_, consumeSign(SignType::S_SEMICOLON));
       return NodeResult(ASTNode(nullstmt));
     }
     return NodeResult::Error();
