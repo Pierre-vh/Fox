@@ -208,7 +208,7 @@ namespace fox {
       { "as", KeywordType::KW_AS },
       // DECLARATIONS
       { "let", KeywordType::KW_LET },
-      { "mut", KeywordType::KW_MUT },
+      { "var", KeywordType::KW_VAR },
       { "func", KeywordType::KW_FUNC },
       // Statements 
       { "if", KeywordType::KW_IF },
