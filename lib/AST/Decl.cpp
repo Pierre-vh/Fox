@@ -126,6 +126,10 @@ ParamDecl* ParamDecl::create(ASTContext& ctxt, FuncDecl* parent,
   return new(ctxt) ParamDecl(parent, id, type, isMutable, range);
 }
 
+bool ParamDecl::isMutable() const {
+  return !isConstant();
+}
+
 ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, TypeLoc type,
   bool isMutable, SourceRange range):
   ValueDecl(DeclKind::ParamDecl, parent, id, type, /*is const*/ !isMutable, 
@@ -232,6 +236,14 @@ Expr* VarDecl::getInitExpr() const {
 
 bool VarDecl::hasInitExpr() const {
   return (bool)init_;
+}
+
+bool VarDecl::isVar() const {
+  return !isConstant();
+}
+
+bool VarDecl::isLet() const {
+  return isConstant();
 }
 
 void VarDecl::setInitExpr(Expr* expr) {

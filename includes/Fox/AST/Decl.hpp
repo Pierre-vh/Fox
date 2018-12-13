@@ -150,6 +150,8 @@ namespace fox {
       static ParamDecl* create(ASTContext& ctxt, FuncDecl* parent,
         Identifier id, TypeLoc type, bool isMutable, SourceRange range);
 
+      bool isMutable() const;
+
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::ParamDecl;
       }
@@ -210,8 +212,8 @@ namespace fox {
   };
 
   // VarDecl
-  //    A variable declaration. This is simply a ValueDecl with an added
-  //    "init" Expr*
+  //    A let or var variable declaration. 
+  //    This is simply a ValueDecl with an added "init" Expr*
   class VarDecl final: public ValueDecl {
     public:
       static VarDecl* create(ASTContext& ctxt, Parent parent,
@@ -221,6 +223,11 @@ namespace fox {
       Expr* getInitExpr() const;
       void setInitExpr(Expr* expr);
       bool hasInitExpr() const;
+
+      // Returns true if this variable was declared using the "var" keyword
+      bool isVar() const;
+      // Returns true if this variable was declared using the "let" keyword
+      bool isLet() const;
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::VarDecl;
