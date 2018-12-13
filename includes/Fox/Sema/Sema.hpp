@@ -8,6 +8,20 @@
 // most of the semantic analysis of a Fox AST.
 //----------------------------------------------------------------------------//
 
+// TODO:
+//    Once the Semantic Analysis is more or less complete (it can fully
+//    check a UnitDecl*), move this class to /lib as an impl detail, and
+//    create another file in this folder which will contain the main entry
+//    points to begin checking a UnitDecl.
+//
+//    Once this class becomes "implementation-only", I'll reorganize it a 
+//    bit, e.g. by making every method public and making the Checkers non
+//    members classes.
+//
+//    e.g. This file could be named "Requests" or "Check", and contain
+//         a single function "void checkUnit(UnitDecl* unit, ASTContext& ctxt,
+//         DiagnosticEngine& engine)"
+
 #pragma once
 
 #include <cstdint>
