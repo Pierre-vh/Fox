@@ -135,3 +135,21 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 
 * 0.13.3
   ~ Renamed <arg_decl> to <param_decl>
+
+* 0.14
+  ~ Changed <type> rule
+    from
+      <builtin_type_name> {'[' ']'}
+    to
+      ('[' <type> ']') | <builtin_type_name>
+  - Removed <qualtype> rule
+  ~ Changed <var_decl>
+    from
+      "let" <id> ':' <qualtype> ['=' <expr>] ';' 
+    to
+      ("let" | "var") <id> ':' <type> ['=' <expr>] ';' 
+  ~ Changed <param_decl>
+    from
+      <id> ':' <qualtype>
+    to
+      <id> ':' ["mut"] <int>
