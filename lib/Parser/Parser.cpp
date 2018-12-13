@@ -230,35 +230,34 @@ Parser::Result<Type> Parser::parseBuiltinTypename() {
 }
 
 Parser::Result<Type> Parser::parseType() {
-  // <type> = <builtin_type_name> { '[' ']' }
-  // <builtin_type_name> 
-  if (auto ty_res = parseBuiltinTypename()) {
-    //  { '[' ']' }
-    Type ty = ty_res.get();
-    SourceLoc begLoc = ty_res.getRange().getBegin();
-    SourceLoc endLoc = ty_res.getRange().getEnd();
-
-    while (consumeBracket(SignType::S_SQ_OPEN)) {
-      ty = ArrayType::get(ctxt, ty.getPtr());
-      // ']'
-      if (auto right = consumeBracket(SignType::S_SQ_CLOSE))
-        endLoc = right;
-      else {
-        reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
-
-        if (resyncToSign(SignType::S_SQ_CLOSE,
-					/*stop@semi */ true, /*consume*/ false)) {
-          endLoc = consumeBracket(SignType::S_SQ_CLOSE);
-          continue;
-        }
-
-        return Result<Type>::Error();
-      }
+  // <type> =  ('[' <type> ']') | <builtin_type_name>
+  // ('[' <type> ']')
+  if(auto lSQBLoc = consumeBracket(SignType::S_SQ_OPEN)) {
+    auto ty_res = parseType();
+    bool error = !ty_res;
+    if(error && ty_res.wasSuccessful())
+      reportErrorExpected(DiagID::parser_expected_type);
+    auto rSQBLoc = consumeBracket(SignType::S_SQ_CLOSE);
+    if(!rSQBLoc) {
+      error = true;
+      reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
+      bool resync = resyncToSign(SignType::S_SQ_CLOSE,
+        /*stop@semi*/ true, /*consume*/ false);
+      if(resync)
+        rSQBLoc = consumeBracket(SignType::S_SQ_CLOSE);
     }
-
-    // rebuild the TypeLoc with the updated loc info.
-    return Result<Type>(ty, SourceRange(begLoc, endLoc));
+    if(error)
+      return Result<Type>::Error();
+    
+    SourceRange range(lSQBLoc, rSQBLoc);
+    assert(range && "range should be valid");
+    Type ty = ty_res.get();
+    ty = ArrayType::get(ctxt, ty);
+    return Result<Type>(ty, range);
   }
+  // <builtin_type_name> 
+  if (auto ty_res = parseBuiltinTypename()) 
+    return ty_res;
   return Result<Type>::NotFound();
 }
 

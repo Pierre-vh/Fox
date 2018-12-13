@@ -71,7 +71,7 @@ TEST_F(LocTests, FuncAndArgDecl) {
   CompleteLoc func_end = srcMgr.getCompleteLoc(funcRange.getEnd());
   
   EXPECT_EQ(func_beg, CompleteLoc(fullFilePath, 1, 1));
-  EXPECT_EQ(func_head_end, CompleteLoc(fullFilePath, 1, 56));
+  EXPECT_EQ(func_head_end, CompleteLoc(fullFilePath, 1, 55));
   EXPECT_EQ(func_end, CompleteLoc(fullFilePath, 4, 3));
 
   // Now, test the args
@@ -100,10 +100,10 @@ TEST_F(LocTests, FuncAndArgDecl) {
   #undef END_LOC
 
   EXPECT_EQ(arg1_beg, CompleteLoc(fullFilePath,1,10));
-  EXPECT_EQ(arg1_end, CompleteLoc(fullFilePath,1,31));
+  EXPECT_EQ(arg1_end, CompleteLoc(fullFilePath,1,30));
 
-  EXPECT_EQ(arg2_beg, CompleteLoc(fullFilePath, 1, 34));
-  EXPECT_EQ(arg2_end, CompleteLoc(fullFilePath, 1, 45));
+  EXPECT_EQ(arg2_beg, CompleteLoc(fullFilePath, 1, 33));
+  EXPECT_EQ(arg2_end, CompleteLoc(fullFilePath, 1, 44));
 
   // Extract arg type ranges
   auto arg1_typeRange = arg1->getTypeRange();
@@ -118,7 +118,7 @@ TEST_F(LocTests, FuncAndArgDecl) {
   EXPECT_EQ(arg2_typeRange.getEnd(), arg2->getRange().getEnd());
 
   EXPECT_EQ(arg1_tr_beg, CompleteLoc(fullFilePath, 1, 18));
-  EXPECT_EQ(arg2_tr_beg, CompleteLoc(fullFilePath, 1, 40));
+  EXPECT_EQ(arg2_tr_beg, CompleteLoc(fullFilePath, 1, 39));
 }
 
 // VarDecl test

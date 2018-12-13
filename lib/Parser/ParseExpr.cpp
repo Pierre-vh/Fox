@@ -135,7 +135,7 @@ Parser::ExprResult Parser::parseArrayLiteral() {
   // [<expr_list>]
   auto elist = parseExprList(); 
   // We don't check for errors because even if it failed, the Result object
-  // will construct a empty one for us!
+  // will construct a empty ExprList for us!
 
   // ']'
   SourceLoc endLoc = consumeBracket(SignType::S_SQ_CLOSE);

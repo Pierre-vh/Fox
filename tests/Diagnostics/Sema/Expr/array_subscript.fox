@@ -5,7 +5,7 @@ func foo() {
   [0,1,2][0];
   [0,1,2][true];
   [[0,1,2],[]][0];
-  ([[[]]] as int[][][])[0][0][0];
+  ([[[]]] as [[[int]]])[0][0][0];
   ['a', 'b', 'c'][0];
 
   // A warning should be emitted if the type of the

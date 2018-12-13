@@ -1,7 +1,7 @@
 // RUN: %fox %s -verify -werr
 
 func foo() {
-  [] as int[];
+  [] as [int];
   [1];
   [true];
   [3.14];
@@ -12,8 +12,8 @@ func foo() {
   [3,'c']; // expect-error: illegal heterogeneous array
   []; // expect-error: failed to infer the type of this expression
   [[3],[]];
-  [] as int[];
-  [[[]]] as string[][][];
+  [] as [int];
+  [[[]]] as [[[string]]];
   [[],[3],[3.14],[true],[]];
-  [[[],[],[],[],[]],[[],[],[],[],[]]] as int[][][];
+  [[[],[],[],[],[]],[[],[],[],[],[]]] as [[[int]]];
 }

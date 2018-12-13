@@ -21,6 +21,7 @@ ERROR(parser_expected_decl, "expected a declaration")
 ERROR(parser_expected_semi, "expected ';'")
 ERROR(parser_expected_colon, "expected ':'")
 ERROR(parser_expected_iden, "expected an identifier")
+ERROR(parser_expected_type_name, "expected a type name")
 ERROR(parser_expected_type, "expected a type")
 ERROR(parser_expected_paramdecl, "expected a parameter declaration")
 
