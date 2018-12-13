@@ -160,11 +160,19 @@ namespace fox {
       // Private methods
       //----------------------------------------------------------------------//
 
+      //---------------------------------//
+      // DeclContext management
+      //---------------------------------//
+
       // Sets the current DeclContext and returns a RAII object that will,
       // upon destruction, restore the previous DeclContext.
       RAIIDeclCtxt setDeclCtxtRAII(DeclContext* dc);
       DeclContext* getDeclCtxt() const;
       bool hasDeclCtxt() const;
+
+      //---------------------------------//
+      // Scope Management
+      //---------------------------------//
 
       // Creates a new scope and set localScope_ to that newly created instance.
       // Returns a RAII object that will, upon destruction, restore the LocalScope.
