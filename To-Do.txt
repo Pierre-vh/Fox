@@ -94,23 +94,21 @@ To-Do:
   > Add ASTContext& to UnitDecl (Done)
   > Remove Empty constructors in AST nodes (Done)
   > Switch whole AST to ::create Idiom (Done)
+  > FuncDecl is not a DeclContext anymore (Done)
+  > Decl::Parent to represent declaration parents (Done)
   > Remove Parser::state + Cleanup Parser.hpp (Done)
+  > (Parser) Implement grammar 0.14 in the (Done)
 
 // New AST update:
-  > DeclContext rework (? maybe ?)
-    > FuncDecl is not a DeclContext anymore (Done)
-    > Instead of a DeclContext* pointer, Decls will have a PtrUnion<DeclContext*, FuncDecl*> (Done)
-    > Parser update:
-      > Use Decl::Parent instead of DeclContext* in state_ (Done)
-      > Local variable name binding
-        > Move the Sema Scope class to the Parser
-    > ParamDecl should only take FuncDecl* as arg, never a DeclContext* (Done)
-    > Update parseFuncDecl/FuncDecl Ctor
-      -> Before creating the return node, parse the FuncDecl up to it's return type.
-      -> Store ParamDecls inside a vector "vParams"
-      -> Create the FuncDecl with vParams as arg
-      -> Iterate over vParams and set each element's parent
-         to the newly created FuncDecl
+  > Name binding 
+
+  > Parser improvements, round 3:
+    Update parseFuncDecl/FuncDecl Ctor
+    -> Before creating the return node, parse the FuncDecl up to it's return type.
+    -> Store ParamDecls inside a vector "vParams"
+    -> Create the FuncDecl with vParams as arg
+    -> Iterate over vParams and set each element's parent
+        to the newly created FuncDecl
 
   > ASTVerifier
       Debug tool that asserts that the AST is well formed. Used as a debug tool (will
