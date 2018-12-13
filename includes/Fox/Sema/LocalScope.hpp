@@ -16,10 +16,10 @@
 namespace fox {
   class NamedDecl;
 
-  // This class represents a single scope, and contains pointer a pointer to
-  // the parent scope. This is pretty similar to a DeclContext, but simplified.
+  // This class represents a single local scope.
   //
-  // Theses are created by Sema when it enters a local DeclContext.
+  // Theses are created by Sema when it enters a FuncDecl and Stmts that
+  // open a new scope, such as ConditionStmt, WhileStmt, etc.
   //
   // Note that this class is pretty trivial. It won't check if a decl
   // was inserted twice or anything like that, and doesn't offer any lookup

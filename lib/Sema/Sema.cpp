@@ -4,15 +4,20 @@
 // File : Sema.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This file implements Sema methods that aren't tied to Expression,
-//  Statements, Declarations or Types.
+//  This file implements Sema methods that don't contain any AST-checking logic
+//  as well as  the implementation of most subobjects of Sema.
 //----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
 #include "Fox/AST/ASTNode.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/AST/Decl.hpp"
 
 using namespace fox;
+
+//----------------------------------------------------------------------------//
+// Sema Methods
+//----------------------------------------------------------------------------//
 
 Sema::Sema(ASTContext& ctxt, DiagnosticEngine& diags) :
   ctxt_(ctxt), diags_(diags) {
@@ -43,6 +48,10 @@ ASTNode Sema::checkNode(ASTNode node) {
   fox_unreachable("unknown ASTNode kind");
 }
 
+//----------------------------------------------------------------------------//
+// RAIIDeclCtxt
+//----------------------------------------------------------------------------//
+
 Sema::RAIIDeclCtxt Sema::setDeclCtxtRAII(DeclContext* dc) {
   return RAIIDeclCtxt(*this, dc);
 }
@@ -54,6 +63,10 @@ DeclContext* Sema::getDeclCtxt() const {
 bool Sema::hasDeclCtxt() const {
   return (currentDC_ != nullptr);
 }
+
+//----------------------------------------------------------------------------//
+// RAIILocalScope
+//----------------------------------------------------------------------------//
 
 Sema::RAIILocalScope Sema::enterNewLocalScopeRAII() {
   return RAIILocalScope(*this);
