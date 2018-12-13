@@ -117,8 +117,8 @@ TEST_F(LocTests, FuncAndArgDecl) {
   EXPECT_EQ(arg1_typeRange.getEnd(), arg1->getRange().getEnd());
   EXPECT_EQ(arg2_typeRange.getEnd(), arg2->getRange().getEnd());
 
-  EXPECT_EQ(arg1_tr_beg, CompleteLoc(fullFilePath, 1, 18));
-  EXPECT_EQ(arg2_tr_beg, CompleteLoc(fullFilePath, 1, 39));
+  EXPECT_EQ(arg1_tr_beg, CompleteLoc(fullFilePath, 1, 26));
+  EXPECT_EQ(arg2_tr_beg, CompleteLoc(fullFilePath, 1, 40));
 }
 
 // VarDecl test
@@ -133,18 +133,18 @@ TEST_F(LocTests, VarDecls) {
   CompleteLoc var_end = srcMgr.getCompleteLoc(var->getRange().getEnd());
 
   EXPECT_EQ(var_beg, CompleteLoc(fullFilePath,1,3));
-  EXPECT_EQ(var_end, CompleteLoc(fullFilePath,1,26));
+  EXPECT_EQ(var_end, CompleteLoc(fullFilePath,1,22));
 
   CompleteLoc var_ty_beg = srcMgr.getCompleteLoc(var->getTypeRange().getBegin());
   CompleteLoc var_ty_end = srcMgr.getCompleteLoc(var->getTypeRange().getEnd());
 
   EXPECT_EQ(var_ty_beg, CompleteLoc(fullFilePath, 1, 11));
-  EXPECT_EQ(var_ty_end, CompleteLoc(fullFilePath, 1, 21));
+  EXPECT_EQ(var_ty_end, CompleteLoc(fullFilePath, 1, 15));
 
   auto range = var->getInitExpr()->getRange();
   CompleteLoc expr_beg = srcMgr.getCompleteLoc(range.getBegin());
   CompleteLoc expr_end = srcMgr.getCompleteLoc(range.getEnd());
 
-  EXPECT_EQ(expr_beg, expr_end); // Since the expr is only a '3', it's only one char, thus beg = end.
-  EXPECT_EQ(expr_beg, CompleteLoc(fullFilePath, 1, 25));
+  EXPECT_EQ(expr_beg, CompleteLoc(fullFilePath, 1, 19));
+  EXPECT_EQ(expr_end, CompleteLoc(fullFilePath, 1, 21));
 }

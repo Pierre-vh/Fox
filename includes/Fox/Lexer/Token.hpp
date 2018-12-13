@@ -112,12 +112,13 @@ namespace fox {
     KW_BOOL,   // "bool"
     KW_STRING, // "string"
     KW_CHAR,   // "char"
-    // QUALIFIERS
-    KW_CONST,  // "const"
+    // PARAMETER MODIFIERS
+    KW_MUT,    // "mut"
     // TYPE CONVERSION
     KW_AS,     // "as"
     // DECLARATION / STATEMENT
     KW_LET,    // "let"
+    KW_VAR,    // "var"
     KW_FUNC,   // "func"
     KW_IF,     // "if"
     KW_ELSE,   // "else"
@@ -201,12 +202,13 @@ namespace fox {
       { "bool", KeywordType::KW_BOOL },
       { "string", KeywordType::KW_STRING },
       { "char", KeywordType::KW_CHAR },
-      // specifier 
-      { "const", KeywordType::KW_CONST },
+      // PARAM MODIFIERS 
+      { "mut", KeywordType::KW_MUT },
       // TYPE CONVERSION
       { "as", KeywordType::KW_AS },
       // DECLARATIONS
       { "let", KeywordType::KW_LET },
+      { "mut", KeywordType::KW_MUT },
       { "func", KeywordType::KW_FUNC },
       // Statements 
       { "if", KeywordType::KW_IF },

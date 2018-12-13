@@ -156,26 +156,10 @@ namespace fox {
       //---------------------------------//
 
       // Parses a builtin type name
-      // Parser::Result::getRange does not contain the range, use
-      // the TypeLoc's getRange method to retrieve the range.
       Result<Type> parseBuiltinTypename();
 
-      // Parses a complete type e.g. int[], &float[][]
-      // Parser::Result::getRange does not contain the range, use
-      // the TypeLoc's getRange method to retrieve the range.
+      // Parses a complete type e.g. [[float]]
       Result<Type> parseType();
-
-      // Return struct for parseQualType
-      struct ParsedQualType {
-        Type type;
-        bool isConst = false;
-        bool isRef = false;
-      };
-
-      // Parses a qualified type, maybe with a "const" and/or a "ref" (&)
-      // modifier.
-      Result<ParsedQualType> 
-			parseQualType(SourceRange* constLoc = nullptr, SourceLoc* refLoc = nullptr);
 
       //---------------------------------//
       // Operators parsing helpers

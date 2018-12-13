@@ -122,15 +122,14 @@ void ValueDecl::setIsConstant(bool k) {
 //----------------------------------------------------------------------------//
 
 ParamDecl* ParamDecl::create(ASTContext& ctxt, FuncDecl* parent, 
-  Identifier id, TypeLoc type, bool isConst, SourceRange range) {
-  return new(ctxt) ParamDecl(parent, id, type, isConst, range);
+  Identifier id, TypeLoc type, bool isMutable, SourceRange range) {
+  return new(ctxt) ParamDecl(parent, id, type, isMutable, range);
 }
 
 ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, TypeLoc type,
-  bool isConst, SourceRange range):
-  ValueDecl(DeclKind::ParamDecl, parent, id, type, isConst, range) {
-
-}
+  bool isMutable, SourceRange range):
+  ValueDecl(DeclKind::ParamDecl, parent, id, type, /*is const*/ !isMutable, 
+  range) {}
 
 //----------------------------------------------------------------------------//
 // FuncDecl

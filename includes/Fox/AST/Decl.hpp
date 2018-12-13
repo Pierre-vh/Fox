@@ -148,14 +148,14 @@ namespace fox {
   class ParamDecl final : public ValueDecl {
     public:
       static ParamDecl* create(ASTContext& ctxt, FuncDecl* parent,
-        Identifier id, TypeLoc type, bool isConst, SourceRange range);
+        Identifier id, TypeLoc type, bool isMutable, SourceRange range);
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::ParamDecl;
       }
 
     private:
-      ParamDecl(FuncDecl* parent, Identifier id, TypeLoc type, bool isConst,
+      ParamDecl(FuncDecl* parent, Identifier id, TypeLoc type, bool isMutable,
         SourceRange range);
   };
 

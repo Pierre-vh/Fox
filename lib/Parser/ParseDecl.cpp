@@ -214,7 +214,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
 }
 
 Parser::DeclResult Parser::parseParamDecl() {
-  // <param_decl> = <id> ':' <qualtype>
+  // <param_decl> = <id> ':' ["mut"] <type>
   assert(isParsingFuncDecl() && "Can only call this when parsing a function!");
   // <id>
   auto id = consumeIdentifier();
@@ -227,16 +227,17 @@ Parser::DeclResult Parser::parseParamDecl() {
     return DeclResult::Error();
   }
 
-  // <qualtype>
-  auto typeResult = parseQualType();
+  bool isMutable = (bool)consumeKeyword(KeywordType::KW_MUT);
+
+  // <type>
+  auto typeResult = parseType();
   if (!typeResult) {
     if (typeResult.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_type);
     return DeclResult::Error();
   }
 
-  TypeLoc tl(typeResult.get().type, typeResult.getRange());
-  bool isConst = typeResult.get().isConst;
+  TypeLoc tl = typeResult.createTypeLoc();
 
   SourceLoc begLoc = id.getRange().getBegin();
   SourceLoc endLoc = tl.getRange().getEnd();
@@ -246,24 +247,32 @@ Parser::DeclResult Parser::parseParamDecl() {
   assert(range && "Invalid loc info");
 
   auto* rtr = ParamDecl::create(ctxt, getDeclParent().get<FuncDecl*>(), 
-    id.get(), tl, isConst, range);
+    id.get(), tl, isMutable, range);
 
   return DeclResult(rtr);
 }
 
 Parser::DeclResult Parser::parseVarDecl() {
-  // <var_decl> = "let" <id> ':' <qualtype> ['=' <expr>] ';'
-  // "let"
-  auto letKw = consumeKeyword(KeywordType::KW_LET);
-  if (!letKw)
+  // <var_decl> = ("let" | "var") <id> ':' <type> ['=' <expr>] ';'
+  // "let" describes a constant, "var" is a mutable variable.
+  // ("let" | "var")
+  bool isConst;
+  SourceLoc begLoc;
+  if (auto letKw = consumeKeyword(KeywordType::KW_LET)) {
+    isConst = true;
+    begLoc = letKw.getBegin();
+  } 
+  else if(auto varKw = consumeKeyword(KeywordType::KW_VAR)) {
+    isConst = false;
+    begLoc = varKw.getBegin();
+  }
+  else
     return DeclResult::NotFound();
   
-  SourceLoc begLoc = letKw.getBegin();
   SourceLoc endLoc;
 
   Identifier id;
   TypeLoc type;
-  bool isConst = false;
   Expr* iExpr = nullptr;
 
   // <id>
@@ -286,13 +295,10 @@ Parser::DeclResult Parser::parseVarDecl() {
     return DeclResult::Error();
   }
 
-  // <qualtype>
+  // <type>
   SourceLoc ampLoc;
-  if (auto qtRes = parseQualType(nullptr, &ampLoc)) {
-    type = TypeLoc(qtRes.get().type, qtRes.getRange());
-    isConst = qtRes.get().isConst;
-    if (qtRes.get().isRef)
-      diags.report(DiagID::parser_ignored_ref_vardecl, ampLoc);
+  if (auto qtRes = parseType()) {
+    type = qtRes.createTypeLoc();
   }
   else {
     if (qtRes.wasSuccessful())
@@ -338,61 +344,6 @@ Parser::DeclResult Parser::parseVarDecl() {
 
   recordInDeclCtxt(rtr);
   return DeclResult(rtr);
-}
-
-Parser::Result<Parser::ParsedQualType> 
-Parser::parseQualType(SourceRange* constRange, SourceLoc* refLoc) {
-  //   <qualtype>  = ["const"] ['&'] <type>
-  ParsedQualType rtr;
-  bool hasFoundSomething = false;
-  SourceLoc begLoc, endLoc;
-
-  // ["const"]
-  if (auto kw = consumeKeyword(KeywordType::KW_CONST)) {
-    begLoc = kw.getBegin();
-    hasFoundSomething = true;
-    rtr.isConst = true;
-
-    if (constRange)
-      (*constRange) = kw;
-  }
-
-  // ['&']
-  if (auto ampersand = consumeSign(SignType::S_AMPERSAND)) {
-    // If no begLoc, the begLoc is the ampersand.
-    if (!begLoc)
-      begLoc = ampersand;
-    hasFoundSomething = true;
-    rtr.isRef = true;
-
-    if (refLoc)
-      (*refLoc) = ampersand;
-  }
-
-  // <type>
-  if (auto tyRes = parseType()) {
-    rtr.type = tyRes.get();
-
-    // If no begLoc, the begLoc is the type's begLoc.
-    if (!begLoc)
-      begLoc = tyRes.getRange().getBegin();
-
-    endLoc = tyRes.getRange().getEnd();
-  }
-  else {
-    if (hasFoundSomething) {
-      if (tyRes.wasSuccessful())
-        reportErrorExpected(DiagID::parser_expected_type);
-      return Result<ParsedQualType>::Error();
-    }
-    else 
-      return Result<ParsedQualType>::NotFound();
-  }
-
-  assert(rtr.type && "Type cannot be invalid");
-  assert(begLoc && "begLoc must be valid");
-  assert(endLoc && "endLoc must be valid");
-  return Result<ParsedQualType>(rtr, SourceRange(begLoc,endLoc));
 }
 
 Parser::DeclResult Parser::parseDecl() {

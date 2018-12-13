@@ -1,4 +1,0 @@
-// RUN: %fox %s -verify -werr
-
-// expect-error@+1: ignored reference qualifier '&' in variable declaration : variables cannot be references
-let foo: &int; 
