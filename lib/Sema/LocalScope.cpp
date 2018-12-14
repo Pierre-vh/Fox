@@ -15,6 +15,7 @@ LocalScope::LocalScope(LocalScope* parent) : parent_(parent) {}
 void LocalScope::add(NamedDecl* decl) {
   Identifier id = decl->getIdentifier();
   assert(id && "decl must have a valid Identifier!");
+  assert(decl->isLocal() && "decl must be local!");
   decls_.insert({ id, decl });
 }
 

@@ -21,6 +21,8 @@ namespace fox {
   // Theses are created by Sema when it enters a FuncDecl and Stmts that
   // open a new scope, such as ConditionStmt, WhileStmt, etc.
   //
+  // You can only insert local declarations inside a LocalScope.
+  //
   // Note that this class is pretty trivial. It won't check if a decl
   // was inserted twice or anything like that, and doesn't offer any lookup
   // interface on it's own.
