@@ -23,17 +23,6 @@ namespace {
   using ResultFoundFn = std::function<bool(NamedDecl*)>;
   using DeclsMap = DeclContext::MapTy;
 
-  // Searches the map. Returns false if onFound requested the search to stop,
-  // true if the search terminated normally. 
-  bool searchMap(const DeclsMap& map, Identifier id, ResultFoundFn onFound) {
-    DeclsMap::const_iterator beg, end;
-    std::tie(beg, end) = map.equal_range(id);
-    for(auto it = beg; it != end; ++it) {
-      if(!onFound(it->second)) return false;
-    }
-    return true;
-  }
-
   // Does lookup in a DeclContext.
   //  The lookup stop if:
   //    > onFound(...) returns false
@@ -43,8 +32,15 @@ namespace {
     DeclContext* dc) {
     DeclContext* cur = dc;
     while(cur) {
-      if(!searchMap(cur->getDeclsMap(), id, onFound))
-        return;
+      // DeclContext uses a std::multimap
+      const auto& map = cur->getDeclsMap();
+      // Search all decls with the identifier "id" in the multimap
+      DeclsMap::const_iterator beg, end;
+      std::tie(beg, end) = map.equal_range(id);
+      for(auto it = beg; it != end; ++it) {
+        if(!onFound(it->second)) return;
+      }
+      // Continue climbing
       cur = dc->getParentDeclCtxt();
     }
   }
@@ -57,8 +53,13 @@ namespace {
     LocalScope* scope) {
     LocalScope* cur = scope;
     while(cur) {
-      if(!searchMap(cur->getDeclsMap(), id, onFound))
-        return;
+      // Scope uses a std::map
+      const auto& map = cur->getDeclsMap();
+      // Search for the decl with the identifier "id" 
+      // in the map
+      auto it = map.find(id);
+      if(it != map.end())
+        if(!onFound(it->second)) return;
       // Climb parent scopes
       cur = scope->getParent();
     }
@@ -70,9 +71,22 @@ namespace {
 // Sema methods impl
 //----------------------------------------------------------------------------//
 
-void Sema::addToScopeIfLocal(NamedDecl* decl) {
-  if(hasLocalScope() && decl->isLocal())
-    getLocalScope()->add(decl);
+std::pair<bool, bool> 
+Sema::addToScopeIfLocal(NamedDecl* decl, bool canReplace) {
+  if(hasLocalScope() && decl->isLocal()) {
+    LocalScope* scope = getLocalScope();
+    if(canReplace) {
+      // if we can replace, use ->forceAdd
+      bool result = scope->forceAdd(decl);
+      return {true, result};
+    }
+    else {
+      // if we can't replace, use ->add
+      bool result = scope->add(decl);
+      return {result, true};
+    }
+  }
+  return {false, false};
 }
 
 void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,

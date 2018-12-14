@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <tuple>
+#include <vector>
 #include <memory>
 #include "Fox/AST/ASTFwdDecl.hpp"
 #include "LocalScope.hpp"
@@ -175,8 +176,23 @@ namespace fox {
       //---------------------------------//
 
       // If there's an current active scope and "decl" is a local declaration,
-      // add it to current active scope.
-      void addToScopeIfLocal(NamedDecl* decl);
+      // add it to current active scope. If canReplace is set to true, the
+      // decl may overwrite (replace) an already existing decl.
+      //
+      // Returns a pair of booleans:
+      //  [pair.first] is set to true if the insertion successfully occured
+      //      (This will always be true if canReplace is set to true)
+      //  [pair.second] is set to true if the insertion occured without 
+      //      replacing any previous decl, false if the decl replaced an old one
+      //      (This will always be true if canReplace is set to false)
+      //
+      //  Return {false, false} if no insertion occured because there's
+      //  no currently active local scope, or because decl isn't a local decl.
+      //
+      // This method asserts that no declaration with this name already
+      // exist in the current scope.
+      std::pair<bool, bool> 
+      addToScopeIfLocal(NamedDecl* decl, bool canReplace = false);
 
       // Class that encapsulates the result of a Lookup request.
       class LookupResult;
