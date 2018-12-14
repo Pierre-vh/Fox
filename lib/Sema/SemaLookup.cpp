@@ -76,51 +76,57 @@ void Sema::addToScopeIfLocal(NamedDecl* decl) {
 }
 
 void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
-  bool stopOnFirstResult, bool doOnlyLocalScopeLookup) {
-
-  // Lambda that returns true if we should return early.
-  auto shouldReturn = [&]() {
-    // If we have one result, return
-    if(stopOnFirstResult) {
-      assert((results.size() <= 1) && 
-        "Should have 0 or 1 result if stopOnFirstResult is true");
-      return (results.size() != 0);
-    }
-    return false;
-  };
-
-  // Lambda that handles a result
-  auto handleResult = [&](NamedDecl* decl) {
-    results.addResult(decl);
-    // !shouldReturn() because we must return false
-    // if we want to stop looking.
-    return !shouldReturn();
-  };
-
+  bool lookInDeclCtxt) {
+  assert((results.size() == 0) && "'results' must be a fresh LookupResult");
   // Check in local scope, if there's one.
   if(hasLocalScope()) {
     LocalScope* scope = getLocalScope();
+    // Handle results
+    auto handleResult = [&](NamedDecl* decl) {
+      // Add the decl and stop looking
+      results.addResult(decl);
+      return false;
+    };
     // Do the lookup in the local scope
     lookupInLocalScope(id, handleResult, scope);
-    // Return if we must
-    if(shouldReturn()) return;
+    
+    // If the caller actually wanted to us to look inside
+    // the DeclContext, check if it's needed. If we have found what
+    // we were looking for inside the scope, there's no need to keep
+    // looking.
+    lookInDeclCtxt &= (results.size() == 0);
   }
 
-  // Check in decl context if allowed to.
-  if(!doOnlyLocalScopeLookup) {
-    // Check in decl context if allowed to.
+  // Check in decl context if allowed to
+  if(lookInDeclCtxt) {
     DeclContext* dc = getDeclCtxt();
     // We should ALWAYS have a DC, else, something's broken.
     assert(dc && "No DeclContext available?");
+    // Handle results
+    auto handleResult = [&](NamedDecl* decl) {
+      // Add the decl and continue looking
+      results.addResult(decl);
+      return true;
+    };
     lookupInDeclContext(id, handleResult, dc);
   }
+
+  // Set the kind of LookupResult
+  using LRK = LookupResult::Kind;
+  if(results.size() == 0)
+    results.setKind(LRK::NotFound);
+  else if(results.size() == 1)
+    results.setKind(LRK::Found);
+  else 
+    results.setKind(LRK::Ambiguous);
 }
 
 //----------------------------------------------------------------------------//
 // Sema::LookupResult 
 //----------------------------------------------------------------------------//
 
-Sema::LookupResult::LookupResult(ResultVec&& results): results_(results) {}
+Sema::LookupResult::LookupResult(Kind kind, ResultVec&& results): kind_(kind),
+  results_(results) {}
 
 void Sema::LookupResult::addResult(NamedDecl* decl) {
   results_.push_back(decl);
@@ -134,6 +140,22 @@ std::size_t Sema::LookupResult::size() const {
   return results_.size();
 }
 
-bool Sema::LookupResult::isEmpty() const {
-  return (results_.size() == 0);
+Sema::LookupResult::Kind Sema::LookupResult::getKind() const {
+  return kind_;
+}
+
+void Sema::LookupResult::setKind(Kind kind) {
+  kind_ = kind;
+}
+
+bool Sema::LookupResult::isNotFound() const {
+  return (kind_ == Kind::NotFound);
+}
+
+bool Sema::LookupResult::isFound() const {
+  return (kind_ == Kind::Found);
+}
+
+bool Sema::LookupResult::isAmbiguous() const {
+  return (kind_ == Kind::Ambiguous);
 }

@@ -181,8 +181,15 @@ namespace fox {
       // Class that encapsulates the result of a Lookup request.
       class LookupResult;
 
+      // Performs a unqualified lookup in the current context and scope.
+      //    -> If a matching decl is found in the local scope, the searchs stops
+      //       on the first result found.
+      //    -> If the search reaches the DeclContext, every available results
+      //       are returned.
+      // if lookInDeclCtxt is set to false, we'll only look for
+      // decls inside the current LocalScope.
       void doUnqualifiedLookup(LookupResult& results, Identifier id, 
-        bool stopOnFirstResult, bool doOnlyLocalScopeLookup = false);
+        bool lookInDeclCtxt = false);
 
       //---------------------------------//
       // DeclContext management
@@ -294,22 +301,40 @@ namespace fox {
     public:
       using ResultVec = std::vector<NamedDecl*>;
 
-      // Constructs an empty lookup result
+      enum class Kind {
+        // No matching result founf
+        NotFound,
+        // A Single matching result has been found
+        Found,
+        // Multiple matching results have been found
+        Ambiguous
+      };
+
       LookupResult() = default;
 
-      // Constructs a lookup result with "results"
-      LookupResult(ResultVec&& results);
+      // Constructs an empty lookup result
+      LookupResult(Kind kind, ResultVec&& results);
 
-      // Adds a result
       void addResult(NamedDecl* decl);
 
       ResultVec& getResults();
 
       std::size_t size() const;
 
-      bool isEmpty() const;
+      Kind getKind() const;
+      void setKind(Kind kind);
+
+      // Returns true if the kind == NotFound
+      bool isNotFound() const;
+
+      // Returns true if the kind == Found
+      bool isFound() const;
+
+      // Returns true if the kind == Ambiguous
+      bool isAmbiguous() const;
 
     private:
+      Kind kind_ = Kind::NotFound;
       ResultVec results_;
   };
 }
