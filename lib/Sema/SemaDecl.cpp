@@ -67,9 +67,6 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // UnitDecl is a DeclCtxt. Since we're checking it, set the currently 
       // active DeclContext in Sema to us.
       auto dcGuard = getSema().enterDeclCtxtRAII(decl);
-      // Sema::enterDeclCtxtRAII(decl)
-      // visit(decl parameters)
-      // Sema::checkNode(decl->getBody())
       fox_unimplemented_feature("UnitDecl checking");
     }
 
