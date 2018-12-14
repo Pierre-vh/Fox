@@ -9,8 +9,7 @@
 
 #pragma once
 
-#include <map>
-#include <vector>
+#include "Fox/AST/DeclContext.hpp"
 #include "Fox/AST/Identifier.hpp"
 
 namespace fox {
@@ -28,7 +27,8 @@ namespace fox {
   // interface on it's own.
   class LocalScope {
     public:
-      using MapTy = std::multimap<Identifier, NamedDecl*>;
+      // Use the same map as DeclContext
+      using MapTy = DeclContext::MapTy;
       
       LocalScope(LocalScope* parent = nullptr);
 
