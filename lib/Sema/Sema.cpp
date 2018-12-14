@@ -52,7 +52,7 @@ ASTNode Sema::checkNode(ASTNode node) {
 // RAIIDeclCtxt
 //----------------------------------------------------------------------------//
 
-Sema::RAIIDeclCtxt Sema::setDeclCtxtRAII(DeclContext* dc) {
+Sema::RAIIDeclCtxt Sema::enterDeclCtxtRAII(DeclContext* dc) {
   return RAIIDeclCtxt(*this, dc);
 }
 
@@ -68,7 +68,7 @@ bool Sema::hasDeclCtxt() const {
 // RAIILocalScope
 //----------------------------------------------------------------------------//
 
-Sema::RAIILocalScope Sema::enterNewLocalScopeRAII() {
+Sema::RAIILocalScope Sema::enterLocalScopeRAII() {
   return RAIILocalScope(*this);
 }
 

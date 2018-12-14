@@ -4,7 +4,8 @@
 // File : SemaLookup.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This file implements lookup logic for Sema
+//  This file implements Sema methods related to scopes and name lookup
+//  as well as most of the Lookup and Name binding logic.
 //----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
@@ -42,4 +43,11 @@ namespace {
 
 }
 
-// TODO
+//----------------------------------------------------------------------------//
+// Sema methods impl
+//----------------------------------------------------------------------------//
+
+void Sema::addToScopeIfLocal(NamedDecl* decl) {
+  if(hasLocalScope() && decl->isLocal())
+    getLocalScope()->add(decl);
+}

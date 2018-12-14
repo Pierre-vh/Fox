@@ -57,7 +57,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     }
 
     void visitFuncDecl(FuncDecl*) {
-      auto scopeGuard = getSema().enterNewLocalScopeRAII();
+      auto scopeGuard = getSema().enterLocalScopeRAII();
       // visit(decl parameters)
       // Sema::checkNode(decl->getBody())
       fox_unimplemented_feature("FuncDecl checking");
@@ -66,8 +66,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     void visitUnitDecl(UnitDecl* decl) {
       // UnitDecl is a DeclCtxt. Since we're checking it, set the currently 
       // active DeclContext in Sema to us.
-      auto dcGuard = getSema().setDeclCtxtRAII(decl);
-      // Sema::setDeclCtxtRAII(decl)
+      auto dcGuard = getSema().enterDeclCtxtRAII(decl);
+      // Sema::enterDeclCtxtRAII(decl)
       // visit(decl parameters)
       // Sema::checkNode(decl->getBody())
       fox_unimplemented_feature("UnitDecl checking");

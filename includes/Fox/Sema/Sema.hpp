@@ -99,10 +99,26 @@ namespace fox {
 
     private:
       //----------------------------------------------------------------------//
+      // Private implementation classes
+      //----------------------------------------------------------------------//
+
+      // Checkers
+      class Checker;
+      class DeclChecker;
+      class StmtChecker;
+      class ExprChecker;
+
+      //----------------------------------------------------------------------//
       // Private Sema Interface
       //
       // For Checkers and implementation classes
       //----------------------------------------------------------------------//
+
+      //---------------------------------//
+      // Type related methods
+      //
+      // Type checking, comparison, ranking, etc.
+      //---------------------------------//
 
       // The unification algorithms for types of the same subtypes.
       // Tries to make A = B
@@ -154,42 +170,48 @@ namespace fox {
       // stop unwrapping once one of them becomes basic.
       static TypePair unwrapAll(Type a, Type b);
 
-      //----------------------------------------------------------------------//
-      // Private implementation classes
-      //----------------------------------------------------------------------//
+      //---------------------------------//
+      // Name binding 
+      //---------------------------------//
 
-      // RAII Objects
-      class RAIIDeclCtxt;
-      class RAIILocalScope;
-
-      // Checkers
-      class Checker;
-      class DeclChecker;
-      class StmtChecker;
-      class ExprChecker;
-
-      //----------------------------------------------------------------------//
-      // Private methods
-      //----------------------------------------------------------------------//
+      // If there's an current active scope and "decl" is a local declaration,
+      // add it to current active scope.
+      void addToScopeIfLocal(NamedDecl* decl);
 
       //---------------------------------//
       // DeclContext management
       //---------------------------------//
 
+      // RAII object for enterDeclCtxtRAII
+      class RAIIDeclCtxt;
+
       // Sets the current DeclContext and returns a RAII object that will,
       // upon destruction, restore the previous DeclContext.
-      RAIIDeclCtxt setDeclCtxtRAII(DeclContext* dc);
+      RAIIDeclCtxt enterDeclCtxtRAII(DeclContext* dc);
+
+      // Returns the currently active DeclContext, or nullptr if there's
+      // none.
       DeclContext* getDeclCtxt() const;
+
+      // Returns true if there's a currently active DeclContext.
       bool hasDeclCtxt() const;
 
       //---------------------------------//
       // Scope Management
       //---------------------------------//
 
+      // RAII object for enterLocalScopeRAII
+      class RAIILocalScope;
+
       // Creates a new scope and set localScope_ to that newly created instance.
       // Returns a RAII object that will, upon destruction, restore the LocalScope.
-      RAIILocalScope enterNewLocalScopeRAII();
+      RAIILocalScope enterLocalScopeRAII();
+
+      // Return the currently active local scope, or nullptr if none is active.
       LocalScope* getLocalScope() const;
+
+      // Returns true if this Sema instance posseses an active local scope in
+      // which local declarations can be made visible
       bool hasLocalScope() const;
 
       //----------------------------------------------------------------------//

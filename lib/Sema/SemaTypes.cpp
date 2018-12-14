@@ -18,28 +18,6 @@
 
 using namespace fox;
 
-namespace {
-  // Compares a and b, returning true if
-  // a and b are strictly equal OR a and b are of the same family  
-  // 
-  // This function will also ignore LValues and unwrap array types.
-  // It doesn't compare ConstrainedTypes and will return false if
-  // a or b is one.
-  bool compareSubtypes(Type a, Type b) {
-    assert(a && b && "Pointers cannot be null");
-
-    // Ignores LValues to perform the comparison.
-    std::tie(a, b) = Sema::unwrapAll(a, b);
-
-    // Exact equality
-    if (a == b)
-      return true;
-
-    // Types aren't equal unless they're both integral.
-    return (a->isIntegral() && b->isIntegral());
-  }
-}  // anonymous namespace
-
 bool Sema::unify(Type a, Type b) {
   assert(a && b && "Pointers cannot be null");
 
@@ -50,9 +28,15 @@ bool Sema::unify(Type a, Type b) {
   if (a->is<ErrorType>() || b->is<ErrorType>())
     return false;
 
-  // Return early if a and b share the same subtype (no unification needed)
-  if (compareSubtypes(a, b) && !a->is<CellType>())
-    return true;
+  // Check for early returns unless the types are both CellTypes
+  if(!a->is<CellType>()) {
+    // Exact equality
+    if (a == b) 
+      return true;
+    // Integral types equality
+    if(a->isIntegral() && b->isIntegral())
+      return true;
+  }
 
   /* Unification logic */
 
