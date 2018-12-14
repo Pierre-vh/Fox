@@ -35,6 +35,14 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // diagnostics for a given situation.
     //----------------------------------------------------------------------//
 
+    // TODO: diagnoseInvalidRedecl(VarDecl* decl, LookupResult&)
+    //   multiple results:
+    //      ->  findEarliestInFile()
+    //   then, depending on the kind of the result
+    //      -> if VarDecl, diagnose "invalid redecl of" ... + note on first decl
+    //      -> if FuncDecl, diagnose that this variable shares the same name
+    //         as a func + note on the FuncDecl
+
     //----------------------------------------------------------------------//
     // "visit" methods
     //----------------------------------------------------------------------//
@@ -47,26 +55,37 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     //----------------------------------------------------------------------//
     
     void visitParamDecl(ParamDecl*) {
-      // do checkValueDecl();
+      // For ParamDecl, just push them in the local context. There's no
+      // need to do anything else.
+      // We don't even need to check them for Redecl, that should be done by
+      // checkFuncDeclParams
       fox_unimplemented_feature("ParamDecl checking");
     }
 
     void visitVarDecl(VarDecl*) {
-      // do checkValueDecl();
+      // Check the init if there's one.
+      //    TODO LATER: Disable function calls and declrefs inside function
+      //        initializer of global variables.
+      //
+      // Check VarDecl for invalid Redeclaration by performing a lookup
+      //
+      // If the LookupResult's kind != "NotFound", call checkRedecl() and
+      //  stop checking if it returns false
+      // 
+      // Then, if everything's alright, register it in the scope
       fox_unimplemented_feature("VarDecl checking");
     }
 
     void visitFuncDecl(FuncDecl*) {
       auto scopeGuard = getSema().enterLocalScopeRAII();
-      // visit(decl parameters)
-      // Sema::checkNode(decl->getBody())
+      // checkFuncDeclParams()
+      // check the body of the function
       fox_unimplemented_feature("FuncDecl checking");
     }
 
     void visitUnitDecl(UnitDecl* decl) {
-      // UnitDecl is a DeclCtxt. Since we're checking it, set the currently 
-      // active DeclContext in Sema to us.
       auto dcGuard = getSema().enterDeclCtxtRAII(decl);
+      // Visit every decl in a any order. No need to check in lexical order.
       fox_unimplemented_feature("UnitDecl checking");
     }
 
@@ -76,14 +95,15 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
     
+    // TODO: checkFuncDeclParams()
+    //    Check that parameters aren't declared twice.
+    //    If it isn't an invalid parameter redecl, visit the ParamDecl
 
-    // Checks a ValueDecl for Redeclaration
-    bool checkValueDeclForRedecl(ValueDecl*) {
-      // Lookup, check that only 1 result is present.
-      // In the future, check here for overload-related
-      // stuff (and dispatch that to another function)
-      return false;
-    }
+    // TODO: bool checkRedecl(VarDecl* decl, LookupResult& results) 
+    //    -> if the results == found && the result is a ParamDecl, return true.
+    //    -> if the result == ambiguous, diagnose & return false.
+
+    // TODO: NamedDecl* findEarliestInFile(FileID, LookupResult)
 };
 
 void Sema::checkDecl(Decl* decl) {
