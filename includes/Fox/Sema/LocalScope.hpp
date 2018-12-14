@@ -9,8 +9,9 @@
 
 #pragma once
 
-#include "Fox/AST/DeclContext.hpp"
 #include "Fox/AST/Identifier.hpp"
+
+#include <map>
 
 namespace fox {
   class NamedDecl;
@@ -20,21 +21,28 @@ namespace fox {
   // Theses are created by Sema when it enters a FuncDecl and Stmts that
   // open a new scope, such as ConditionStmt, WhileStmt, etc.
   //
-  // You can only insert local declarations inside a LocalScope.
-  //
-  // Note that this class is pretty trivial. It won't check if a decl
-  // was inserted twice or anything like that, and doesn't offer any lookup
-  // interface on it's own.
+  // You can only insert local declarations inside a LocalScope, and if
+  // you insert a declaration that shares the same name as one already
+  // existing in this instance, it'll be overwritten.
   class LocalScope {
     public:
-      // Use the same map as DeclContext
-      using MapTy = DeclContext::MapTy;
+      using MapTy = std::map<Identifier, NamedDecl*>;
       
       LocalScope(LocalScope* parent = nullptr);
 
-      // Adds a declaration in this LocalScope.
+      // Adds a declaration in this LocalScope. 
+      // Returns true if the insertion occured, false
+      // if a NamedDecl* with the same Identifier prevented the insertion.
+      //
       // Note that "decl" must have a valid Identifier()
-      void add(NamedDecl* decl);
+      bool add(NamedDecl* decl);
+
+      // Adds a declaration in this LocalScope. 
+      // Returns false if the declaration replaced a previous one, true
+      // if the insertion occured without overwriting any previous decl.
+      // 
+      // Note that "decl" must have a valid Identifier()
+      bool forceAdd(NamedDecl* decl);
 
       // Returns the map of (Identifier -> NamedDecl*) used internally to
       // store declarations in this scope.
