@@ -459,8 +459,10 @@ std::string ASTDumper::getSourceRangeAsStr(SourceRange range) const {
 }
 
 std::string ASTDumper::getSourceRangeDump(string_view label,
-                                          SourceRange range) const {
-  return makeKeyPairDump(label, getSourceRangeAsStr(range));
+  SourceRange range) const {
+  if(hasSrcMgr())
+    return makeKeyPairDump(label, getSourceRangeAsStr(range));
+  return "";
 }
 
 std::string ASTDumper::getTypeDump(string_view label,
