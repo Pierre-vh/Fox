@@ -178,6 +178,12 @@ namespace fox {
       // add it to current active scope.
       void addToScopeIfLocal(NamedDecl* decl);
 
+      // Class that encapsulates the result of a Lookup request.
+      class LookupResult;
+
+      void doUnqualifiedLookup(LookupResult& results, Identifier id, 
+        bool stopOnFirstResult, bool doOnlyLocalScopeLookup = false);
+
       //---------------------------------//
       // DeclContext management
       //---------------------------------//
@@ -280,5 +286,30 @@ namespace fox {
         // Restore the scope
         sema_.localScope_ = scope_->getParent();
       }
+  };
+
+  // A small class which is an abstraction around a vector of
+  // NamedDecl*
+  class Sema::LookupResult {
+    public:
+      using ResultVec = std::vector<NamedDecl*>;
+
+      // Constructs an empty lookup result
+      LookupResult() = default;
+
+      // Constructs a lookup result with "results"
+      LookupResult(ResultVec&& results);
+
+      // Adds a result
+      void addResult(NamedDecl* decl);
+
+      ResultVec& getResults();
+
+      std::size_t size() const;
+
+      bool isEmpty() const;
+
+    private:
+      ResultVec results_;
   };
 }
