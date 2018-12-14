@@ -14,6 +14,8 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 
+#include <map>
+
 using namespace fox;
 
 
@@ -43,6 +45,17 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     //      -> if FuncDecl, diagnose that this variable shares the same name
     //         as a func + note on the FuncDecl
 
+    void diagnoseInvalidParamRedecl(ParamDecl* original, ParamDecl* redecl) {
+      Identifier id = original->getIdentifier();
+      assert((id == redecl->getIdentifier())
+        && "it's a redeclaration but names are different?");
+      auto& diags = getDiags();
+      diags.report(DiagID::sema_invalid_param_redecl, redecl->getRange())
+        .addArg(id);
+      diags.report(DiagID::sema_1stdecl_seen_here, original->getRange())
+        .addArg(id);
+    }
+
     //----------------------------------------------------------------------//
     // "visit" methods
     //----------------------------------------------------------------------//
@@ -54,12 +67,12 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // kinds.
     //----------------------------------------------------------------------//
     
-    void visitParamDecl(ParamDecl*) {
+    void visitParamDecl(ParamDecl* decl) {
       // For ParamDecl, just push them in the local context. There's no
       // need to do anything else.
       // We don't even need to check them for Redecl, that should be done by
-      // checkFuncDeclParams
-      fox_unimplemented_feature("ParamDecl checking");
+      // checkFuncDeclParams before calling visitParamDecl
+      getSema().addToScope(decl);
     }
 
     void visitVarDecl(VarDecl*) {
@@ -76,8 +89,9 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       fox_unimplemented_feature("VarDecl checking");
     }
 
-    void visitFuncDecl(FuncDecl*) {
+    void visitFuncDecl(FuncDecl* decl) {
       auto scopeGuard = getSema().enterLocalScopeRAII();
+      checkFuncDeclParams(decl);
       // checkFuncDeclParams()
       // check the body of the function
       fox_unimplemented_feature("FuncDecl checking");
@@ -95,9 +109,33 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
     
-    // TODO: checkFuncDeclParams()
-    //    Check that parameters aren't declared twice.
-    //    If it isn't an invalid parameter redecl, visit the ParamDecl
+    // Marks a ValueDecl as being an invalid redeclaration
+    void markAsIllegalRedecl(ValueDecl* decl) {
+      decl->setIsIllegalRedecl(true);
+    }
+
+    // Calls visit() on the parameters of a FuncDecl, checking for duplicate
+    // parameters and emitting diagnostics if required.
+    //
+    // Returns false if diagnosics were emitted.
+    void checkFuncDeclParams(FuncDecl* decl) {
+      std::map<Identifier, ParamDecl*> seenParams;
+      for(auto param : decl->getParams()) {
+        Identifier id = param->getIdentifier();
+        auto it = seenParams.find(id);
+        // If the identifier isn't a duplicate
+        if(it == seenParams.end()) {
+          // Add it to the map & visit the decl
+          seenParams[id] = param;
+          visitParamDecl(param);
+        }
+        // if the identifier is a duplicate
+        else {
+          diagnoseInvalidParamRedecl(it->second, param);
+          markAsIllegalRedecl(param);
+        }
+      }
+    }
 
     // TODO: bool checkRedecl(VarDecl* decl, LookupResult& results) 
     //    -> if the results == found && the result is a ParamDecl, return true.

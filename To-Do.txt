@@ -151,10 +151,10 @@ Other:
   > Consider a ASTContext interface update:
     -> Add a public SourceManager& and DiagnosticEngine&
 
-  > Use ::create idiom for every AST class, and make the "new" operators private.
-
-  > Add idRange to VarDecl/ParamDecl to emit better diagnostics when diagnosing
-    VarDecl
+  > Add idRange to VarDecl/ParamDecl to emit better diagnostics 
+    (functions where that range should be used)
+    SemaDecl.pp
+    -> diagnoseInvalidParamRedecl
 
   > Adopt a Documentation style (Doxygen) and document the code with it
 

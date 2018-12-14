@@ -18,8 +18,10 @@ ERROR(sema_binexpr_invalid_operands,
   "cannot use binary operator '%0' on expressions of types '%1' and '%2'")
 ERROR(sema_cant_use_expr_as_cond,
   "cannot use an expression of type '%0' as a condition")
-ERROR(sema_invalid_redecl,
+ERROR(sema_invalid_local_redecl,
   "invalid redeclaration of local variable '%0'")
+ERROR(sema_invalid_param_redecl,
+  "invalid redeclaration of function parameter '%0'")
 
 WARNING(sema_redundant_cast,
   "redundant cast: expression is already of type '%0'")
