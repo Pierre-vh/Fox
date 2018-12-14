@@ -38,7 +38,7 @@ namespace fox {
 
       // Returns the map of (Identifier -> NamedDecl*) used internally to
       // store declarations in this scope.
-      MapTy& getMap();
+      MapTy& getDeclsMap();
 
       LocalScope* getParent() const;
       bool hasParent() const;

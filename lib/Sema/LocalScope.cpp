@@ -19,7 +19,7 @@ void LocalScope::add(NamedDecl* decl) {
   decls_.insert({ id, decl });
 }
 
-LocalScope::MapTy& LocalScope::getMap() {
+LocalScope::MapTy& LocalScope::getDeclsMap() {
   return decls_;
 }
 
