@@ -10,6 +10,7 @@
 #pragma once 
 
 #include "Fox/Common/string_view.hpp"
+#include <iosfwd>
 
 namespace fox {
   // Represents a unique'd lexed identifier
@@ -50,4 +51,6 @@ namespace fox {
 
       const char* ptr_ = nullptr;
   };
+
+  std::ostream& operator<<(std::ostream& os, Identifier id);
 }

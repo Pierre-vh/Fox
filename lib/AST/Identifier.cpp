@@ -7,6 +7,7 @@
 
 #include "Fox/AST/Identifier.hpp"
 #include "Fox/Common/Errors.hpp"
+#include <ostream>
 
 using namespace fox;
 
@@ -55,4 +56,9 @@ bool Identifier::isNull() const {
 
 Identifier::operator bool() const {
 	return !isNull();
+}
+
+std::ostream& fox::operator<<(std::ostream & os, Identifier id) {
+  os << id.getStr();
+  return os;
 }
