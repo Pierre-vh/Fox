@@ -91,7 +91,9 @@ bool NamedDecl::hasIdentifier() const {
 
 ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id,
   TypeLoc ty, bool isConst, SourceRange range): 
-  NamedDecl(kind, parent, id, range), isConst_(isConst), type_(ty) {}
+  NamedDecl(kind, parent, id, range), const_(isConst), type_(ty) {
+  illegalRedecl_ = false;
+}
 
 Type ValueDecl::getType() const {
   return type_.withoutLoc();
@@ -109,12 +111,20 @@ SourceRange ValueDecl::getTypeRange() const {
   return type_.getRange();
 }
 
-bool ValueDecl::isConstant() const {
-  return isConst_;
+bool ValueDecl::isConst() const {
+  return const_;
 }
 
-void ValueDecl::setIsConstant(bool k) {
-  isConst_ = k;
+void ValueDecl::setIsConst(bool k) {
+  const_ = k;
+}
+
+bool ValueDecl::isIllegalRedecl() const {
+  return illegalRedecl_;
+}
+
+void ValueDecl::setIsIllegalRedecl(bool val) {
+  illegalRedecl_ = val;
 }
 
 //----------------------------------------------------------------------------//
@@ -127,7 +137,7 @@ ParamDecl* ParamDecl::create(ASTContext& ctxt, FuncDecl* parent,
 }
 
 bool ParamDecl::isMutable() const {
-  return !isConstant();
+  return !isConst();
 }
 
 ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, TypeLoc type,
@@ -239,11 +249,11 @@ bool VarDecl::hasInitExpr() const {
 }
 
 bool VarDecl::isVar() const {
-  return !isConstant();
+  return !isConst();
 }
 
 bool VarDecl::isLet() const {
-  return isConstant();
+  return isConst();
 }
 
 void VarDecl::setInitExpr(Expr* expr) {

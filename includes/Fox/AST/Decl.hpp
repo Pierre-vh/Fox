@@ -127,19 +127,25 @@ namespace fox {
       TypeLoc getTypeLoc() const;
       void setTypeLoc(TypeLoc ty);
 
-      bool isConstant() const;
-      void setIsConstant(bool k);
+      bool isConst() const;
+      void setIsConst(bool k);
+
+      bool isIllegalRedecl() const;
+      void setIsIllegalRedecl(bool val);
 
       static bool classof(const Decl* decl) {
         return (decl->getKind() >= DeclKind::First_ValueDecl) 
           && (decl->getKind() <= DeclKind::Last_ValueDecl);
       }
+
     protected:
       ValueDecl(DeclKind kind, Parent parent, Identifier id,
         TypeLoc ty, bool isConst, SourceRange range);
 
     private:
-      bool isConst_;
+      // ValueDecl bitfields : 6 left
+      bool const_ : 1;
+      bool illegalRedecl_ : 1;
       TypeLoc type_;
   };
 
