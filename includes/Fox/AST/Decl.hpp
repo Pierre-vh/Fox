@@ -43,7 +43,7 @@ namespace fox {
 
       // For normal Decls, return the DeclContext in which
       // this Decl is referenced. Returns nullptr for
-      // normal decls.
+      // local decls.
       DeclContext* getDeclContext() const;
 
       // Returns true if this is a local declaration
