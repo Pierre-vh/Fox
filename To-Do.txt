@@ -101,6 +101,15 @@ To-Do:
 
 // New AST update:
   > Name binding 
+    > Unqualified Lookup Logic (Done)
+    > Finish Decl checking
+      > Walk decl tree
+      > Register decls in scope
+        > Check for redecl
+          > Allowed to shadow paramDecl or non local decl (don't lookup in declctxt for
+            local decls)
+    > Update StmtChecker to correctly open scopes where appropriate
+    > Finish name binding logic in visitUnresolvedDeclRefExpr
 
   > Parser improvements, round 3:
     Update parseFuncDecl/FuncDecl Ctor
