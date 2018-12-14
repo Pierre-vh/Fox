@@ -13,14 +13,6 @@
 //    check a UnitDecl*), move this class to /lib as an impl detail, and
 //    create another file in this folder which will contain the main entry
 //    points to begin checking a UnitDecl.
-//
-//    Once this class becomes "implementation-only", I'll reorganize it a 
-//    bit, e.g. by making every method public and making the Checkers non
-//    members classes.
-//
-//    e.g. This file could be named "Requests" or "Check", and contain
-//         a single function "void checkUnit(UnitDecl* unit, ASTContext& ctxt,
-//         DiagnosticEngine& engine)"
 
 #pragma once
 
@@ -99,6 +91,19 @@ namespace fox {
       // Performs semantic analysis on a single declaration and it's children
       void checkDecl(Decl* decl);
 
+      // Returns the DiagnosticEngine used by this Sema instance.
+      DiagnosticEngine& getDiagnosticEngine();
+
+      // Returns the ASTContext used by this Sema instance
+      ASTContext& getASTContext();
+
+    private:
+      //----------------------------------------------------------------------//
+      // Private Sema Interface
+      //
+      // For Checkers and implementation classes
+      //----------------------------------------------------------------------//
+
       // The unification algorithms for types of the same subtypes.
       // Tries to make A = B
       //
@@ -149,13 +154,6 @@ namespace fox {
       // stop unwrapping once one of them becomes basic.
       static TypePair unwrapAll(Type a, Type b);
 
-      // Returns the DiagnosticEngine used by this Sema instance.
-      DiagnosticEngine& getDiagnosticEngine();
-
-      // Returns the ASTContext used by this Sema instance
-      ASTContext& getASTContext();
-
-    private:
       //----------------------------------------------------------------------//
       // Private implementation classes
       //----------------------------------------------------------------------//
