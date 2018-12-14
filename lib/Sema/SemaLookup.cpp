@@ -72,7 +72,7 @@ namespace {
 //----------------------------------------------------------------------------//
 
 std::pair<bool, bool> 
-Sema::addToScopeIfLocal(NamedDecl* decl, bool canReplace) {
+Sema::addToScope(NamedDecl* decl, bool canReplace) {
   if(hasLocalScope() && decl->isLocal()) {
     LocalScope* scope = getLocalScope();
     if(canReplace) {

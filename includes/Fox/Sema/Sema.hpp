@@ -192,7 +192,7 @@ namespace fox {
       // This method asserts that no declaration with this name already
       // exist in the current scope.
       std::pair<bool, bool> 
-      addToScopeIfLocal(NamedDecl* decl, bool canReplace = false);
+      addToScope(NamedDecl* decl, bool canReplace = false);
 
       // Class that encapsulates the result of a Lookup request.
       class LookupResult;
