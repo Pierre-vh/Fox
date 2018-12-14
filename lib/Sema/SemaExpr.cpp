@@ -455,7 +455,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // DeclRef references.
       Type type = ref->getType();
       // Unless constant, wrap in LValue
-      if (!ref->isConstant())
+      if (!ref->isConst())
         type = LValueType::get(getCtxt(), type);
       expr->setType(type);
       return expr;

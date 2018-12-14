@@ -397,9 +397,9 @@ std::string ASTDumper::getBasicValueDeclDump(ValueDecl* decl) const {
   std::ostringstream ss;
   ss << getBasicDeclInfo(decl) << " ";
   ss << getIdentifierDump(decl->getIdentifier()) << " "
-     << getTypeLocDump("type", decl->getTypeLoc(), decl->isConstant()) << " ";
+     << getTypeLocDump("type", decl->getTypeLoc(), decl->isConst()) << " ";
 
-  if (decl->isConstant())
+  if (decl->isConst())
     ss << "const";
 
   return ss.str();
