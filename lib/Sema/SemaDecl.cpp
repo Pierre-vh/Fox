@@ -92,14 +92,12 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     void visitFuncDecl(FuncDecl* decl) {
       auto scopeGuard = getSema().enterLocalScopeRAII();
       checkFuncDeclParams(decl);
-      // checkFuncDeclParams()
-      // check the body of the function
-      fox_unimplemented_feature("FuncDecl checking");
+      getSema().checkStmt(decl->getBody());
     }
 
     void visitUnitDecl(UnitDecl* decl) {
       auto dcGuard = getSema().enterDeclCtxtRAII(decl);
-      // Visit every decl in a any order. No need to check in lexical order.
+      // Visit every decl inside the UnitDecl
       fox_unimplemented_feature("UnitDecl checking");
     }
 
