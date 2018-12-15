@@ -71,8 +71,8 @@ bool Driver::processFile(const std::string& filepath) {
 	if(!diags.getErrorsCount()) {
     // Semantic analysis testing stuff
     Sema s(ctxt, diags);
-    for (auto& decl : unit->getDeclsMap()) {
-      if (FuncDecl* fn = dyn_cast<FuncDecl>(decl.second)) {
+    for (auto& decl : unit->getDecls()) {
+      if (FuncDecl* fn = dyn_cast<FuncDecl>(decl)) {
         CompoundStmt* body = fn->getBody();
         for (auto& node : body->getNodes()) {
 				  // Decl checking not available yet

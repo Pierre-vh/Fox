@@ -21,7 +21,6 @@ using namespace fox;
 
 namespace {
   using ResultFoundFn = std::function<bool(NamedDecl*)>;
-  using DeclsMap = DeclContext::LookupMap;
 
   // Does lookup in a DeclContext.
   //  The lookup stop if:
@@ -30,12 +29,13 @@ namespace {
   //    > if we are done searching the whole DeclContext tree.
   void lookupInDeclContext(Identifier id, ResultFoundFn onFound, 
     DeclContext* dc) {
+    using LMap = DeclContext::LookupMap;
     DeclContext* cur = dc;
     while(cur) {
       // DeclContext uses a std::multimap
-      const auto& map = cur->getDeclsMap();
+      const LMap& map = cur->getLookupMap();
       // Search all decls with the identifier "id" in the multimap
-      DeclsMap::const_iterator beg, end;
+      LMap::const_iterator beg, end;
       std::tie(beg, end) = map.equal_range(id);
       for(auto it = beg; it != end; ++it) {
         if(!onFound(it->second)) return;

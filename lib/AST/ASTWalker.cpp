@@ -156,11 +156,9 @@ namespace {
       }
 
       bool visitUnitDecl(UnitDecl* decl) {
-        for (auto& elem : decl->getDeclsMap()) {
-          if (elem.second) {
-            if (!doIt(elem.second))
-              return false;
-          }
+        for (auto& elem : decl->getDecls()) {
+          if (!doIt(elem))
+            return false;
         }
         return true;
       }

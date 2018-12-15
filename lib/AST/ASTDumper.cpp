@@ -230,7 +230,7 @@ void ASTDumper::visitUnitDecl(UnitDecl* node) {
              << getDeclCtxtDump(node) << "\n";
 
   indent();
-  for (auto decl : node->getLexicalDecls(node->getFileID()))
+  for (auto decl : node->getDecls())
     visit(decl);
   dedent();
 }
