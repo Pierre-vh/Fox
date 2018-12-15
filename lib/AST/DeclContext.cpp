@@ -21,19 +21,19 @@ DeclContextKind DeclContext::getDeclContextKind() const {
   return static_cast<DeclContextKind>(parentAndKind_.getInt());
 }
 
-void DeclContext::addDecl(NamedDecl* decl) {
+void DeclContext::addDecl(Decl* decl) {
   assert(decl  && "Declaration cannot be null!");
-  Identifier name = decl->getIdentifier();
-  assert(name && "Declaration must have a non-null Identifier to be "
-    "inserted in the DeclContext");
   assert(decl->getRange() && "Declaration must have valid source location"
     "information to be inserted in the DeclContext");
   assert(!decl->isLocal() && "Can't add local declarations in a DeclContext!");
-  decls_.insert({name, decl});
-}
-
-const DeclContext::LookupMap& DeclContext::getDeclsMap() const {
-  return decls_;
+  // Insert in decls_
+  decls_.push_back(decl);
+  if(NamedDecl* named = dyn_cast<NamedDecl>(decl)) {
+    // Update the lookup map if it has been built
+    Identifier id = named->getIdentifier();
+    assert(id && "NameDecl with invalid identifier");
+    if(lookup_) lookup_->insert({id, named});
+  }
 }
 
 bool DeclContext::hasParentDeclCtxt() const {
@@ -44,27 +44,16 @@ DeclContext* DeclContext::getParentDeclCtxt() const {
   return parentAndKind_.getPointer();
 }
 
-DeclContext::LexicalDeclsTy DeclContext::getLexicalDecls(FileID forFile) {
-  // Create the vector with enough space to hold every value.
-  LexicalDeclsTy rtr;
-  // Populate it
-  for(auto& elem : decls_) {
-    if(elem.second->getFile() == forFile)
-      rtr.push_back(elem.second);
-  }
-  // Predicate for comparing the decls using their begin locs.
-  struct Predicate {
-    bool operator()(Decl* a, Decl* b){
-      // Since we know both files are equal, we can simply iterate
-      // like this.
-      auto aIdx = a->getRange().getBegin().getIndex();
-      auto bIdx = b->getRange().getBegin().getIndex();
-      return aIdx < bIdx;
-    }
-  };
-  // Sort it
-  std::sort(rtr.begin(), rtr.end(), Predicate());
-  return rtr;
+const DeclContext::DeclVec& DeclContext::getDecls() const {
+  return decls_;
+}
+
+const DeclContext::LookupMap& DeclContext::getLookupMap() {
+  if(!lookup_)
+    buildLookupMap();
+  assert(lookup_ && "buildLookupMap() did not build the "
+    "LookupMap!");
+  return *lookup_;
 }
 
 void DeclContext::setParentDeclCtxt(DeclContext* dr) {
@@ -83,5 +72,19 @@ bool DeclContext::classof(const Decl* decl)
       return true;
     default: 
       return false;
+  }
+}
+
+void DeclContext::buildLookupMap() {
+  // Don't do it if it's already built
+  if(lookup_) return;
+  lookup_ = std::make_unique<LookupMap>();
+
+  // Iterate over decls_ and insert them in the lookup map
+  for(Decl* decl : decls_) {
+    if(NamedDecl* named = dyn_cast<NamedDecl>(decl)) {
+      Identifier id = named->getIdentifier();
+      lookup_->insert({id, named});
+    }
   }
 }

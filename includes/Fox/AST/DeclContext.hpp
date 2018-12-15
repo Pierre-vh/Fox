@@ -4,7 +4,7 @@
 // File : DeclContext.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Contains the DeclContext classes and related classes.
+// Contains the DeclContext class and the DeclContextKind enum
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -32,33 +32,22 @@ namespace fox {
   }
 
   // DeclContext is a class that acts as a "Declaration Recorder", which is
-  // helps during semantic analysis. A DeclContext records every Declaration
-  // that happens in it's children and has functions to help with Lookup. It
-  // offers a Semantic view of the declarations it contains.
+  // helps during semantic analysis. 
   //
-  // It can also, on demand, generate a Lexical view of the Declarations
-  // it contains.
-  //
-  // Keep in mind that, currently, the DeclContext has the following 
-  // limitations.
-  //  - It can only store non-null LOCAL NamedDecls with:
-  //      - A valid Identifier object
-  //      - A valid SourceRange
-  //    NOTE: Assertions in addDecl guarantee that every decl added in a 
-  //          DeclContext meets theses requirements.
-  //  - It generates the lexical view on demand, each time it's
-  //    requested. It is not cached.
+  // It'll store declarations in a vector, in order of addition. It can also
+  // generate (lazily/on demand) a lookup map, which can be used to retrieve a
+  // list of NamedDecl* with a given identifier.
   class alignas(DeclContextAlignement) DeclContext {
     public:
       //----------------------------------------------------------------------//
       // Type Aliases
       //----------------------------------------------------------------------//
 
-      // The type of the internal map of Decls.
+      // The type of the lookup map
       using LookupMap = std::multimap<Identifier, NamedDecl*>;
 
-      // The type of the map used to represent Decls in Lexical order.
-      using LexicalDeclsTy = std::vector<NamedDecl*>;
+      // The type of the vector used to store the declarations
+      using DeclVec = std::vector<Decl*>;
 
       //----------------------------------------------------------------------//
       // Interface
@@ -71,25 +60,17 @@ namespace fox {
       // Returns the Kind of DeclContext this is
       DeclContextKind getDeclContextKind() const;
 
-      // Adds a Decl in this DeclContext
-      void addDecl(NamedDecl* decl);
+      // Adds a Decl in this DeclContext.
+      // If "decl" is a NamedDecl, it is expected to have a valid identifier
+      void addDecl(Decl* decl);
 
-      // Getter for the DeclMap, which is a std::multimap. This map has
-      // no particular ordering, and will be used for Lookup.
-      //
-      // This map is const (read only).
-      const LookupMap& getDeclsMap() const;
+      // Returns the vector of decls used internally by this DeclContext;
+      // This is a lexically accurate view since the declarations are in order
+      // of insertion (First element of the vector is the first decl added in
+      // this DeclContext, the 2nd element is the 2nd decl added, and so on..)
+      const DeclVec& getDecls() const;
 
-      // Returns a vector of all Stored Decl where the decls are
-      // stored in order of appearance in the file "file"
-      // Use this when you want to iterate over the decls in
-      // Lexical order.
-      // 
-      // This is pretty costly to generate so only use this when absolutely
-      // necessary.
-      // (and it doesn't return a reference, so be careful about copies 
-      //  of the return value)
-      LexicalDeclsTy getLexicalDecls(FileID forFile);
+      const LookupMap& getLookupMap();
 
       void setParentDeclCtxt(DeclContext *dr);
       bool hasParentDeclCtxt() const;
@@ -102,15 +83,27 @@ namespace fox {
 
     private:
       //----------------------------------------------------------------------//
+      // Private methods
+      //----------------------------------------------------------------------//
+
+      // If the LookupMap has not been built yet, builds it from "decls_"
+      void buildLookupMap();
+
+      //----------------------------------------------------------------------//
       // Private members
       //----------------------------------------------------------------------//
 
       // The PointerIntPair used to represent the ParentAndKind bits
       using ParentAndKindTy 
         = llvm::PointerIntPair<DeclContext*, DeclContextFreeLowBits>;
-      // Members
+      
+      // A PointerIntPair which contains the parent of this DeclContext + the
+      // kind of DeclContext this is.
       ParentAndKindTy parentAndKind_;
-      LookupMap decls_;
+      // The vector of declarations
+      DeclVec decls_;
+      // The lazily generated lookup map
+      std::unique_ptr<LookupMap> lookup_;
 
       //----------------------------------------------------------------------//
       // Static assertion
