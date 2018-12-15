@@ -88,7 +88,7 @@ To-Do:
   > Sema: Basic Exprs Type-Checking + tests (Done)
   > Sema: Basic Stmt checking + tests (Done)
   > Identifier & IdentifierTable rework (Done)
-  > const correctness update: no more double getters for getters of pointers (done)
+  > const correctness update: no more double getters for getters of pointers (Done)
   > UnitDecl rework (Done)
   > Add features to get a Lexical view of a DeclContext (Done)
   > Add ASTContext& to UnitDecl (Done)
@@ -98,16 +98,12 @@ To-Do:
   > Decl::Parent to represent declaration parents (Done)
   > Remove Parser::state + Cleanup Parser.hpp (Done)
   > (Parser) Implement grammar 0.14 in the (Done)
+  > DeclContext Improvements: Lexical view is the default, Lookup Map generated on demand (Done)
 
 // New AST update:
   > Name binding 
     > Unqualified Lookup Logic (Done)
-    > Finish Decl checking
-      > Walk decl tree
-      > Register decls in scope
-        > Check for redecl
-          > Allowed to shadow paramDecl or non local decl (don't lookup in declctxt for
-            local decls)
+    > Finish Decl checking (Now)
     > Update StmtChecker to correctly open scopes where appropriate
     > Finish name binding logic in visitUnresolvedDeclRefExpr
     > do ReturnStmt checking
