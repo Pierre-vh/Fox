@@ -70,7 +70,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     void visitParamDecl(ParamDecl* decl) {
       // For ParamDecl, just push them in the local context. There's no
       // need to do anything else.
-      // We don't even need to check them for Redecl, that should be done by
+      // We don't even need to check them for Redecl, that is done by
       // checkFuncDeclParams before calling visitParamDecl
       getSema().addToScope(decl);
     }
@@ -90,15 +90,20 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     }
 
     void visitFuncDecl(FuncDecl* decl) {
+      // Tell Sema that we enter this func's scope
       auto scopeGuard = getSema().enterLocalScopeRAII();
+      // Check it's parameters
       checkFuncDeclParams(decl);
+      // And check it's body!
       getSema().checkStmt(decl->getBody());
     }
 
-    void visitUnitDecl(UnitDecl* decl) {
-      auto dcGuard = getSema().enterDeclCtxtRAII(decl);
-      // Visit every decl inside the UnitDecl
-      fox_unimplemented_feature("UnitDecl checking");
+    void visitUnitDecl(UnitDecl* unit) {
+      // Tell Sema that we're inside this unit's DC
+      auto dcGuard = getSema().enterDeclCtxtRAII(unit);
+      // And just visit every decl inside the UnitDecl
+      for(Decl* decl : unit->getDecls())
+        visit(decl);
     }
 
     //----------------------------------------------------------------------//
