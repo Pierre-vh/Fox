@@ -21,7 +21,7 @@ using namespace fox;
 
 namespace {
   using ResultFoundFn = std::function<bool(NamedDecl*)>;
-  using DeclsMap = DeclContext::MapTy;
+  using DeclsMap = DeclContext::LookupMap;
 
   // Does lookup in a DeclContext.
   //  The lookup stop if:

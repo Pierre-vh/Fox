@@ -32,7 +32,7 @@ void DeclContext::addDecl(NamedDecl* decl) {
   decls_.insert({name, decl});
 }
 
-const DeclContext::MapTy& DeclContext::getDeclsMap() const {
+const DeclContext::LookupMap& DeclContext::getDeclsMap() const {
   return decls_;
 }
 
