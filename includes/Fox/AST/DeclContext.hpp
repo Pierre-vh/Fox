@@ -19,31 +19,7 @@
 namespace fox {
   class Decl;
   class NamedDecl;
-  class LookupResult;
   class FileID;
-
-  // An iterator that abstracts the underlying structure 
-  // (an iterator to std::pair) used by the DeclContext 
-  // to only show the NamedDecl pointer to the client.
-  template <typename BaseIterator>
-  class DeclContextIterator : public BaseIterator {
-    public:
-      using value_type = typename BaseIterator::value_type::second_type;
-
-      DeclContextIterator(const BaseIterator &baseIt) : BaseIterator(baseIt) {
-        static_assert(std::is_same<value_type, NamedDecl*>::value,
-					"Pointer type isn't a NamedDecl*");
-      }
-
-      // Operator * returns the pointer
-      value_type operator*() const { 
-        return (this->BaseIterator::operator*()).second; 
-      }
-      // Operator -> lets you access the members directly. It's equivalent to (*it)->
-      value_type operator->() const { 
-        return (this->BaseIterator::operator*()).second; 
-      }
-  };
 
   enum class DeclContextKind : std::uint8_t {
     #define DECL_CTXT(ID, PARENT) ID,
@@ -83,14 +59,6 @@ namespace fox {
 
       // The type of the map used to represent Decls in Lexical order.
       using LexicalDeclsTy = std::vector<NamedDecl*>;
-
-      // The type of the non-const iterator for MapTy
-      using DeclMapIter 
-        = DeclContextIterator<MapTy::iterator>;
-
-      // The type of the const iterator for MapTy
-      using DeclMapConstIter 
-        = DeclContextIterator<MapTy::const_iterator>;
 
       //----------------------------------------------------------------------//
       // Interface
