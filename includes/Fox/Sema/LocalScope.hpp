@@ -30,19 +30,12 @@ namespace fox {
       
       LocalScope(LocalScope* parent = nullptr);
 
-      // Adds a declaration in this LocalScope. 
-      // Returns true if the insertion occured, false
-      // if a NamedDecl* with the same Identifier prevented the insertion.
-      //
-      // Note that "decl" must have a valid Identifier()
-      bool add(NamedDecl* decl);
-
-      // Adds a declaration in this LocalScope. 
+      // Inserts a declaration in this LocalScope. 
       // Returns false if the declaration replaced a previous one, true
       // if the insertion occured without overwriting any previous decl.
       // 
       // Note that "decl" must have a valid Identifier()
-      bool forceAdd(NamedDecl* decl);
+      bool insert(NamedDecl* decl);
 
       // Returns the map of (Identifier -> NamedDecl*) used internally to
       // store declarations in this scope.

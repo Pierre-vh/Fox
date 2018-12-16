@@ -12,17 +12,7 @@ using namespace fox;
 
 LocalScope::LocalScope(LocalScope* parent) : parent_(parent) {}
 
-bool LocalScope::add(NamedDecl* decl) {
-  // In this method, we want to add without inserting
-  Identifier id = decl->getIdentifier();
-  assert(id && "decl must have a valid Identifier!");
-  assert(decl->isLocal() && "decl must be local!");
-  // Insert returns a pair whose second element is true if the
-  // insertion occured.
-  return ((decls_.insert({ id, decl })).second);
-}
-
-bool LocalScope::forceAdd(NamedDecl* decl) {
+bool LocalScope::insert(NamedDecl* decl) {
   Identifier id = decl->getIdentifier();
   assert(id && "decl must have a valid Identifier!");
   assert(decl->isLocal() && "decl must be local!");
