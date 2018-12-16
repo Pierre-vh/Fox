@@ -72,7 +72,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // need to do anything else.
       // We don't even need to check them for Redecl, that is done by
       // checkFuncDeclParams before calling visitParamDecl
-      getSema().addToScope(decl);
+      getSema().addLocalDeclToScope(decl);
     }
 
     void visitVarDecl(VarDecl*) {
@@ -80,12 +80,12 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       //    TODO LATER: Disable function calls and declrefs inside function
       //        initializer of global variables.
       //
-      // Check VarDecl for invalid Redeclaration by performing a lookup
+      // if(checkForRedecl(decl) && decl->isLocal())
+      //    getSema().addLocalDeclToScope(decl)
+      // else return
       //
-      // If the LookupResult's kind != "NotFound", call checkRedecl() and
-      //  stop checking if it returns false
-      // 
-      // Then, if everything's alright, register it in the scope
+      // + check init expr, diagnose if type don't match.
+      // use Sema::typecheckExprOfType
       fox_unimplemented_feature("VarDecl checking");
     }
 
@@ -140,9 +140,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       }
     }
 
-    // TODO: bool checkRedecl(VarDecl* decl, LookupResult& results) 
-    //    -> if the results == found && the result is a ParamDecl, return true.
-    //    -> if the result == ambiguous, diagnose & return false.
+    // TODO: bool checkForRedecl(VarDecl* decl) 
+    //    Lookup this decl's id. If it's not a redecl (or it's a valid one),
+    //    return true.
+    //    If it's a redecl, diagnose and return false.
 
     // TODO: NamedDecl* findEarliestInFile(FileID, LookupResult)
 };
