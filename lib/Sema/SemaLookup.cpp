@@ -71,20 +71,11 @@ namespace {
 // Sema methods impl
 //----------------------------------------------------------------------------//
 
-std::pair<bool, bool> 
-Sema::addToScope(NamedDecl* decl, bool canReplace) {
-  if(hasLocalScope() && decl->isLocal()) {
-    LocalScope* scope = getLocalScope();
-    if(canReplace) {
-      // if we can replace, use ->forceAdd
-      bool result = scope->forceAdd(decl);
-      return {true, result};
-    }
-    else {
-      // if we can't replace, use ->add
-      bool result = scope->add(decl);
-      return {result, true};
-    }
+std::pair<bool, bool>  Sema::addLocalDeclToScope(NamedDecl* decl) {
+  assert(decl->isLocal() && "This method is only available to local decls");
+  if(hasLocalScope()) {
+    bool result = getLocalScope()->insert(decl);
+    return {true, result};
   }
   return {false, false};
 }

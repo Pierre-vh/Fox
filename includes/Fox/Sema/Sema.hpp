@@ -175,21 +175,16 @@ namespace fox {
       // Name binding 
       //---------------------------------//
 
-      // If there's an current active scope and "decl" is a local declaration,
-      // add it to current active scope. If canReplace is set to true, the
-      // decl may overwrite (replace) an already existing decl.
+      // If there's an current active scope, insert "decl" into the scope.
       //
       // Returns a pair of booleans:
-      //  [pair.first] is set to true if the insertion successfully occured
-      //      (This will always be true if canReplace is set to true)
-      //  [pair.second] is set to true if the insertion occured without 
-      //      replacing any previous decl, false if the decl replaced an old one
-      //      (This will always be true if canReplace is set to false)
-      //
-      //  Return {false, false} if no insertion occured because there's
-      //  no currently active local scope, or because decl isn't a local decl.
-      std::pair<bool, bool> 
-      addToScope(NamedDecl* decl, bool canReplace = false);
+      //    {false, false} if no insertion occured because there is no active
+      //      local scope.
+      //    {true, true} if the insertion occured without overwriting any
+      //      previous declaration
+      //    {true, false} if the insertion occured and replaced a previous
+      //      decl.
+      std::pair<bool, bool> addLocalDeclToScope(NamedDecl* decl);
 
       // Class that encapsulates the result of a Lookup request.
       class LookupResult;
