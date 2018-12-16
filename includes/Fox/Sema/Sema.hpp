@@ -175,7 +175,13 @@ namespace fox {
       // Name binding 
       //---------------------------------//
 
-      // If there's an current active scope, insert "decl" into the scope.
+      // Makes a local decl visible in the current scope. 
+      //
+      // If a decl with the same identifier already existed in this scope, 
+      // it is overwritten. (see the second value of the result pair
+      // to know if a Decl was overwritten or not)
+      //
+      // /!\ Asserts that decl->isLocal() returns true!
       //
       // Returns a pair of booleans:
       //    {false, false} if no insertion occured because there is no active
