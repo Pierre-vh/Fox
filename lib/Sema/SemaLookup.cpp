@@ -162,6 +162,13 @@ void Sema::LookupResult::setKind(Kind kind) {
   kind_ = kind;
 }
 
+NamedDecl* Sema::LookupResult::getIfSingleResult() const {
+  if(kind_ != Kind::Found) return nullptr;
+  // For "Found" kind, we should only have 1 result.
+  assert(results_.size() == 1);
+  return results_[0];
+}
+
 bool Sema::LookupResult::isNotFound() const {
   return (kind_ == Kind::NotFound);
 }

@@ -188,9 +188,6 @@ namespace fox {
       //
       //  Return {false, false} if no insertion occured because there's
       //  no currently active local scope, or because decl isn't a local decl.
-      //
-      // This method asserts that no declaration with this name already
-      // exist in the current scope.
       std::pair<bool, bool> 
       addToScope(NamedDecl* decl, bool canReplace = false);
 
@@ -199,9 +196,7 @@ namespace fox {
 
       // Performs a unqualified lookup in the current context and scope.
       //    -> If a matching decl is found in the local scope, the searchs stops
-      //       on the first result found.
-      //    -> If the search reaches the DeclContext, every available results
-      //       are returned.
+      //    -> If the search reaches the DeclContext, every result is returned
       // if lookInDeclCtxt is set to false, we'll only look for
       // decls inside the current LocalScope.
       void doUnqualifiedLookup(LookupResult& results, Identifier id, 
@@ -339,6 +334,10 @@ namespace fox {
 
       Kind getKind() const;
       void setKind(Kind kind);
+
+      // If the kind of this result is "Found", return
+      // the result, else, returns nullptr.
+      NamedDecl* getIfSingleResult() const;
 
       // Returns true if the kind == NotFound
       bool isNotFound() const;
