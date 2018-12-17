@@ -105,6 +105,10 @@ To-Do:
     > Unqualified Lookup Logic (Done)
     > Finish Decl checking (Done)
     > Write DeclChecking tests (Next)
+    > Update doUnqualifiedLookup :
+      > use a LookupRequest object, to which you can add filters such as
+        "ignoreDecl" (ignore decls whose pointer is equal to that one)
+        "ignoreIfAfterLoc" (ignore every decl that were declared after that loc)
     > Update StmtChecker to correctly open scopes where appropriate 
     > Finish name binding logic in visitUnresolvedDeclRefExpr
     > do ReturnStmt checking
