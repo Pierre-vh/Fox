@@ -55,7 +55,9 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       Identifier id = original->getIdentifier();
       assert((id == redecl->getIdentifier())
         && "it's a redeclaration but names are different?");
-      getDiags().report(DiagID::sema_invalid_param_redecl, redecl->getRange())
+      DiagID diagID = isa<ParamDecl>(original) ? 
+        DiagID::sema_invalid_param_redecl : DiagID::sema_invalid_redecl;
+      getDiags().report(diagID, redecl->getRange())
         .addArg(id);
       getDiags().report(DiagID::sema_1stdecl_seen_here, original->getRange())
         .addArg(id);
