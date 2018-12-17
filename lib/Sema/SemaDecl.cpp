@@ -16,6 +16,8 @@
 
 #include <map>
 
+#include <iostream>
+
 using namespace fox;
 
 
@@ -37,23 +39,35 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // diagnostics for a given situation.
     //----------------------------------------------------------------------//
 
-    // TODO: diagnoseInvalidRedecl(VarDecl* decl, LookupResult&)
-    //   multiple results:
-    //      ->  findEarliestInFile()
-    //   then, depending on the kind of the result
-    //      -> if VarDecl, diagnose "invalid redecl of" ... + note on first decl
-    //      -> if FuncDecl, diagnose that this variable shares the same name
-    //         as a func + note on the FuncDecl
+    // Diagnoses an illegal variable redeclaration. 
+    // "decl" is the illegal redecl, "decls" is the list of previous decls.
+    void diagnoseIllegalRedecl(NamedDecl* decl, std::vector<NamedDecl*> decls) {
+      // Find the earliest candidate in file
+      NamedDecl* earliest = findEarliestInFile(decl->getFile(), decls);
+      assert(earliest && "Couldn't find earliest declaration");
+      diagnoseIllegalRedecl(earliest, decl);
+    }
 
-    void diagnoseInvalidParamRedecl(ParamDecl* original, ParamDecl* redecl) {
+    // Diagnoses an illegal redeclaration where "redecl" is an illegal
+    // redeclaration of "original"
+    void diagnoseIllegalRedecl(NamedDecl* original, NamedDecl* redecl) {
+      assert(original && redecl && "args cannot be null!");
       Identifier id = original->getIdentifier();
       assert((id == redecl->getIdentifier())
         && "it's a redeclaration but names are different?");
-      auto& diags = getDiags();
-      diags.report(DiagID::sema_invalid_param_redecl, redecl->getRange())
+      getDiags().report(DiagID::sema_invalid_param_redecl, redecl->getRange())
         .addArg(id);
-      diags.report(DiagID::sema_1stdecl_seen_here, original->getRange())
+      getDiags().report(DiagID::sema_1stdecl_seen_here, original->getRange())
         .addArg(id);
+    }
+
+    // Diagnoses an incompatible variable initializer.
+    void diagnoseInvalidVarInitExpr(VarDecl* decl, Expr* init) {
+      getDiags()
+        .report(DiagID::sema_invalid_vardecl_init_expr, init->getRange())
+        .addArg(init->getType())
+        .addArg(decl->getType())
+        .setExtraRange(decl->getTypeLoc().getRange());
     }
 
     //----------------------------------------------------------------------//
@@ -75,18 +89,35 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       getSema().addLocalDeclToScope(decl);
     }
 
-    void visitVarDecl(VarDecl*) {
-      // Check the init if there's one.
-      //    TODO LATER: Disable function calls and declrefs inside function
-      //        initializer of global variables.
-      //
-      // if(checkForRedecl(decl) && decl->isLocal())
-      //    getSema().addLocalDeclToScope(decl)
-      // else return
-      //
-      // + check init expr, diagnose if type don't match.
-      // use Sema::typecheckExprOfType
-      fox_unimplemented_feature("VarDecl checking");
+    void visitVarDecl(VarDecl* decl) {
+      // Check this decl for being an illegal redecl
+      if (checkForIllegalRedecl(decl)) {
+        // Not an illegal redeclaration, if it's a local decl,
+        // add it to the scope
+        if (decl->isLocal())
+          getSema().addLocalDeclToScope(decl);
+      }
+
+      // Check the init expr
+      if (Expr* init = decl->getInitExpr()) {
+        // Check the init expr
+        auto res = getSema().typecheckExprOfType(init, decl->getType(), false);
+        // Replace the expr
+        decl->setInitExpr(res.second);
+        auto flag = res.first;
+        using CER = Sema::CheckedExprResult;
+        switch (flag) {
+          case CER::Ok:
+          case CER::Error:
+            // Don't diagnose if the expression is correct, of if the expression
+            // is an ErrorType (to avoid error cascades)
+            break;
+          case CER::Downcast:
+          case CER::NOk:
+            diagnoseInvalidVarInitExpr(decl, init);
+            break;
+        }
+      }
     }
 
     void visitFuncDecl(FuncDecl* decl) {
@@ -134,18 +165,81 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         }
         // if the identifier is a duplicate
         else {
-          diagnoseInvalidParamRedecl(it->second, param);
+          diagnoseIllegalRedecl(it->second, param);
           markAsIllegalRedecl(param);
         }
       }
     }
 
-    // TODO: bool checkForRedecl(VarDecl* decl) 
-    //    Lookup this decl's id. If it's not a redecl (or it's a valid one),
-    //    return true.
-    //    If it's a redecl, diagnose and return false.
+    // Checks if "decl" is a illegal redeclaration.
+    // If "decl" is a illegal redecl, the appropriate diagnostic is emitted
+    // and this function returns false.
+    // Returns true if "decl" is legal redeclaration or not a redeclaration
+    // at all.
+    bool checkForIllegalRedecl(VarDecl* decl) {
+      using LRK = LookupResult::Kind;
+        
+      Identifier id = decl->getIdentifier();
+      LookupResult lookupResult;
+      getSema().doUnqualifiedLookup(lookupResult, id);
 
-    // TODO: NamedDecl* findEarliestInFile(FileID, LookupResult)
+      switch (lookupResult.getKind()) {
+        case LRK::NotFound:
+          // Can't be a redecl
+          return true;
+        case LRK::Found:
+          {
+            NamedDecl* found = lookupResult.getIfSingleResult();
+            assert(found && "lookupResult's kind is Found but getIfSingleResult "
+                   "returns nullptr?");
+            if (isa<ParamDecl>(found)) {
+              assert(decl->isLocal() && "Global declaration is conflicting with "
+                     "a parameter declaration?");
+              // Redeclaration of a ParamDecl is allowed
+              return true;
+            }
+          }
+          // fall through
+        case LRK::Ambiguous:
+          // It's an invalid redeclaration: diagnose, mark it and
+          // return false;
+          diagnoseIllegalRedecl(decl, lookupResult.getResults());
+          decl->setIsIllegalRedecl(true);
+          return false;
+        default:
+          fox_unreachable("all cases handled");
+      }
+    }
+
+    //----------------------------------------------------------------------//
+    // Other helper methods
+    //----------------------------------------------------------------------//
+    // Non semantics related helper methods
+    //----------------------------------------------------------------------//
+    
+    // Searches the vector of Decl to find the earliest declaration
+    // in the FileID "file"
+    NamedDecl* 
+    findEarliestInFile(FileID file, const std::vector<NamedDecl*>& decls) {
+      assert(decls.size() && "decls.size() > 0");
+      NamedDecl* candidate = nullptr;
+      for (NamedDecl* decl : decls) {
+        assert(decl && "cannot be null!");
+        if (decl->getFile() == file) {
+          if (!candidate)
+            candidate = decl;
+          else {
+            SourceLoc candLoc = candidate->getRange().getBegin();
+            SourceLoc declLoc = decl->getRange().getBegin();
+            // if decl has been declared before candidate, 
+            // decl becomes the candidate
+            if (SourceLoc::CompareByIndex()(declLoc, candLoc))
+              candidate = decl;
+          }
+        }
+      }
+      return candidate;
+    }
 };
 
 void Sema::checkDecl(Decl* decl) {

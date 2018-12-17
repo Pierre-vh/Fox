@@ -22,6 +22,8 @@ ERROR(sema_invalid_local_redecl,
   "invalid redeclaration of local variable '%0'")
 ERROR(sema_invalid_param_redecl,
   "invalid redeclaration of function parameter '%0'")
+ERROR(sema_invalid_vardecl_init_expr,
+  "cannot use an expression of type '%0' to initialize a variable of type '%1'")
 
 WARNING(sema_redundant_cast,
   "redundant cast: expression is already of type '%0'")
