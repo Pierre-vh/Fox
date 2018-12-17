@@ -73,7 +73,10 @@ namespace fox {
   // Note: this object expects a "byte" index, not an index in codepoints.
   class SourceLoc {
     public:
-      using IndexTy = std::size_t;
+      // Use 32 bits int for the Index. This shoud allow the interpreter
+      // to load and work with files up to 4GB alone. This can be upgraded
+      // to a int64 if needed.
+      using IndexTy = std::uint32_t;
 
       SourceLoc();
       explicit SourceLoc(FileID fid, IndexTy idx = 0);
@@ -84,22 +87,21 @@ namespace fox {
       bool operator ==(const SourceLoc other) const;
       bool operator !=(const SourceLoc other) const;
 
+      // Returns the ID of the file in which this SourceLoc lives.
       FileID getFile() const;
-      IndexTy getIndex() const;
 
-      // Predicates that compares 2 SourceLoc using their indexes.
-      // Comparison: lhs.index < rhs.index.
-      struct CompareByIndex {
-        bool operator()(SourceLoc l, SourceLoc r) {
-          return l.idx_ < r.idx_;
-        }
-      };
+      // Returns the raw index of the SourceLoc.
+      //
+      // Note that this should NEVER be used in place of a SourceLoc since
+      // it doesn't preserve the FileID.
+      IndexTy getIndex() const;
 
     protected:
       friend class Parser;
 
       void increment();
       void decrement();
+
     private:
       FileID fid_;
       IndexTy idx_;
