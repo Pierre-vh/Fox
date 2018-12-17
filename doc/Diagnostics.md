@@ -1,7 +1,7 @@
 # The Fox Diagnostic System
 
 ### Introduction
-In this file I'm going to *try* to explain how diagnostic emission is handled in the Moonshot Project. The explanation will be very brief, but feel
+In this file I'm going to *try* to explain how diagnostic emission is handled in the project. This will be very brief but I hope it'll help, and feel
 free to message me if you have any questions! I'd love to answer them!
 
 ### The components
