@@ -183,9 +183,20 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     bool checkForIllegalRedecl(ValueDecl* decl) {        
       Identifier id = decl->getIdentifier();
       LookupResult lookupResult;
+      // Build Lookup options:
+      LookupOptions options;
       // Don't look in the DeclContext if this is a local declaration
-      bool shouldLookInDC = !decl->isLocal();
-      getSema().doUnqualifiedLookup(lookupResult, id, shouldLookInDC);
+      options.canLookInDeclContext = !decl->isLocal();
+      options.shouldIgnore = [&](NamedDecl* result){
+        // Ignore if result == decl
+        if(result == (NamedDecl*)decl) return true;
+        // Ignore if result isn't from the same file
+        if(result->getFile() != decl->getFile()) return true;
+        // And lastly, ignore if result doesn't come before decl.
+        if(!comesBefore(result, decl)) return true;
+        return false;  // else, don't ignore.
+      };
+      getSema().doUnqualifiedLookup(lookupResult, id, options);
       // Remove this decl from the results.
       lookupResult.remove(decl);
       // If there are no matches, this cannot be a redecl
@@ -224,9 +235,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         assert(decl && "cannot be null!");
         if (decl->getFile() == file) {
           SourceLoc declLoc = decl->getBegin();
-          // Check if "decl" was declared before "loc". If it wasn't,
-          // keep looking.
-          if (!SourceLoc::CompareByIndex()(declLoc, loc))
+          // If the decl was declared after our loc, ignore it.
+          if (loc.getIndex() < declLoc.getIndex())
             continue;
           if (!candidate)
             candidate = decl;
@@ -234,12 +244,23 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
             SourceLoc candLoc = candidate->getBegin();
             // if decl has been declared before candidate, 
             // decl becomes the candidate
-            if (SourceLoc::CompareByIndex()(declLoc, candLoc))
+            if (declLoc.getIndex() < candLoc.getIndex())
               candidate = decl;
           }
         }
       }
       return candidate;
+    }
+
+    // Returns true if lhs comes before rhs. 
+    // NOTE: lhs and rhs MUST share the same FileID!
+    bool comesBefore(Decl* lhs, Decl* rhs) {
+      assert(lhs && rhs && "lhs and/or rhs are nullptr");
+      assert(lhs->getFile() == rhs->getFile() && "lhs and rhs comes from "
+        "different files");
+      SourceLoc lhsBeg = lhs->getBegin();
+      SourceLoc rhsBeg = rhs->getBegin();
+      return lhsBeg.getIndex() < rhsBeg.getIndex();
     }
 };
 
