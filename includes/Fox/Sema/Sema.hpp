@@ -71,6 +71,10 @@ namespace fox {
         // another type that did not match the one expected.
         NOk,
 
+        // The expression was successfully typechecked, but was of
+        // a type of higher rank than the one expected
+        Downcast,
+
         // The expression couldn't be typechecked.
         Error
       };
@@ -81,7 +85,7 @@ namespace fox {
       //  Returns a pair. The first element of the pair is a success indicator
       //  (seem CheckedExprResult). The second Expr* pointer
       //  is the expression or another equivalent expr that should replace it.
-			// \param allowDowncast If set to false, we'll return CheckedExprResult::NOk
+			// \param allowDowncast If set to false, returns CheckedExprResult::Downcast
 			//			  if casting "expr" to "type" results in a downcast.
       std::pair<CheckedExprResult, Expr*> 
       typecheckExprOfType(Expr* expr, Type type, bool allowDowncast = true);

@@ -798,17 +798,19 @@ Sema::typecheckExprOfType(Expr* expr, Type type, bool allowDowncast) {
   bool success = unify(expr->getType(), type);
   expr = ExprFinalizer(ctxt_, diags_).finalize(expr);
 
-	// Check for downcast. If we are downcasting, check if we're allowed to.
-	if(isDowncast(expr->getType(), type))		
-		success &= allowDowncast;
+  bool invalidDowncast = false;
+  if(!allowDowncast)
+    invalidDowncast = isDowncast(expr->getType(), type);
 
   CER result;
   if (!expr->getType()->is<ErrorType>()) {
+    // Not an error typ
     if (success)
-      result = CER::Ok;
-    else if (expr->getType()->is<ErrorType>())
-      result = CER::Error;
+      // unification was successful : set to Ok unless it's
+      // an invalid downcast.
+      result = invalidDowncast ? CER::Downcast : CER::Ok;
     else
+      // unification wasn't successful
       result = CER::NOk;
   } 
   else {
