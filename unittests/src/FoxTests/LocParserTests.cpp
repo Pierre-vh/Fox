@@ -87,8 +87,8 @@ TEST_F(LocTests, FuncAndArgDecl) {
   EXPECT_EQ(arg2->getIdentifier().getStr(), "_bar2");
 
   // Extract Arg locs
-  #define BEG_LOC(x) srcMgr.getCompleteLoc(x->getRange().getBegin())
-  #define END_LOC(x) srcMgr.getCompleteLoc(x->getRange().getEnd())
+  #define BEG_LOC(x) srcMgr.getCompleteLoc(x->getBegin())
+  #define END_LOC(x) srcMgr.getCompleteLoc(x->getEnd())
   
   auto arg1_beg = BEG_LOC(arg1);
   auto arg1_end = END_LOC(arg1);

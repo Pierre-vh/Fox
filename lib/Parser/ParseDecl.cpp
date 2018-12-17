@@ -166,7 +166,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
     if (auto rtrTy = parseType()) {
       TypeLoc tl = rtrTy.createTypeLoc();
       rtr->setReturnTypeLoc(tl);
-      headEndLoc = tl.getRange().getEnd();
+      headEndLoc = tl.getEnd();
     }
     else {
       if (rtrTy.wasSuccessful())
@@ -202,7 +202,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
   parentGuard.restore();
 
   // Create the full range for this FuncDecl
-  SourceRange range(begLoc, body->getRange().getEnd());
+  SourceRange range(begLoc, body->getEnd());
   assert(headEndLoc && range && "Invalid loc info");
 
   // Finish building our FuncDecl.
@@ -240,7 +240,7 @@ Parser::DeclResult Parser::parseParamDecl() {
   TypeLoc tl = typeResult.createTypeLoc();
 
   SourceLoc begLoc = id.getRange().getBegin();
-  SourceLoc endLoc = tl.getRange().getEnd();
+  SourceLoc endLoc = tl.getEnd();
 
   SourceRange range(begLoc, endLoc);
 

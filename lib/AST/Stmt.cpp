@@ -140,7 +140,7 @@ void ConditionStmt::setIfHeaderEndLoc(SourceLoc sloc) {
 }
 
 SourceRange ConditionStmt::getIfHeaderRange() const {
-  return SourceRange(getRange().getBegin(), ifHeadEndLoc_);
+  return SourceRange(getBegin(), ifHeadEndLoc_);
 }
 
 SourceLoc ConditionStmt::getIfHeaderEndLoc() const {
@@ -218,5 +218,5 @@ SourceLoc WhileStmt::getHeaderEndLoc() const {
 }
 
 SourceRange WhileStmt::getHeaderRange() const {
-  return SourceRange(getRange().getBegin(), headerEndLoc_);
+  return SourceRange(getBegin(), headerEndLoc_);
 }

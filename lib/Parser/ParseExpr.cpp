@@ -16,7 +16,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
   assert(base && "Base cannot be nullptr!");
 
   // <suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
-  SourceLoc begLoc = base->getRange().getBegin();
+  SourceLoc begLoc = base->getBegin();
   SourceLoc endLoc;
   // "." <id> 
   // '.'
@@ -251,7 +251,7 @@ Parser::ExprResult Parser::parsePrefixExpr() {
   if (auto uop = parseUnaryOp()) {
 		// <prefix_expr>
     if (auto prefixexpr = parsePrefixExpr()) {
-      SourceLoc endLoc = prefixexpr.get()->getRange().getEnd();
+      SourceLoc endLoc = prefixexpr.get()->getEnd();
 
       SourceRange range(uop.getRange().getBegin(), endLoc);
       assert(range && "Invalid loc info");
@@ -291,8 +291,8 @@ Parser::ExprResult Parser::parseCastExpr() {
     // <type>
     if (auto tyRes = parseType()) {
       TypeLoc tl = tyRes.createTypeLoc();
-      SourceLoc begLoc = prefixexpr.get()->getRange().getBegin();
-      SourceLoc endLoc = tl.getRange().getEnd();
+      SourceLoc begLoc = prefixexpr.get()->getBegin();
+      SourceLoc endLoc = tl.getEnd();
 
       SourceRange range(begLoc, endLoc);
       assert(range && "Invalid loc info");
@@ -352,8 +352,8 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
     }
 
     Expr* rhs = rhsResult.get();
-    SourceLoc begLoc = lhs ? lhs->getRange().getBegin() : rtr->getRange().getEnd();
-    SourceLoc endLoc = rhs->getRange().getEnd();
+    SourceLoc begLoc = lhs ? lhs->getBegin() : rtr->getEnd();
+    SourceLoc endLoc = rhs->getEnd();
 
     SourceRange range(begLoc, endLoc);
     assert(range && "Invalid loc info");
@@ -385,8 +385,8 @@ Parser::ExprResult Parser::parseExpr() {
       return ExprResult::Error();
     }
 
-    SourceLoc begLoc = lhs.get()->getRange().getBegin();
-    SourceLoc endLoc = rhs.get()->getRange().getEnd();
+    SourceLoc begLoc = lhs.get()->getBegin();
+    SourceLoc endLoc = rhs.get()->getEnd();
 
     SourceRange range(begLoc, endLoc);
     assert(range && "Invalid loc info");
