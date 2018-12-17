@@ -13,10 +13,7 @@
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-
 #include <map>
-
-#include <iostream>
 
 using namespace fox;
 
