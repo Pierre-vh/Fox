@@ -65,7 +65,6 @@ namespace {
       cur = scope->getParent();
     }
   }
-
 }
 
 //----------------------------------------------------------------------------//
@@ -82,14 +81,24 @@ std::pair<bool, bool>  Sema::addLocalDeclToScope(NamedDecl* decl) {
 }
 
 void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
-  bool lookInDeclCtxt) {
+  const LookupOptions& options) {
   assert((results.size() == 0) && "'results' must be a fresh LookupResult");
+  bool lookInDeclCtxt = options.canLookInDeclContext;
+
+  // Lambda that returns true if the result should be ignored.
+  auto shouldIgnore = [&](NamedDecl* decl) {
+    auto fn = options.shouldIgnore;
+    return fn ? fn(decl) : false;
+  };
+
   // Check in local scope, if there's one.
   if(hasLocalScope()) {
     LocalScope* scope = getLocalScope();
     // Handle results
     auto handleResult = [&](NamedDecl* decl) {
-      // Add the decl and stop looking
+      // If we should ignore this result, do so and continue looking.
+      if(shouldIgnore(decl)) return true;
+      // If not, add the decl to the results and stop looking
       results.addResult(decl);
       return false;
     };
@@ -110,7 +119,9 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
     assert(dc && "No DeclContext available?");
     // Handle results
     auto handleResult = [&](NamedDecl* decl) {
-      // Add the decl and continue looking
+      // If we should ignore this result, do so and continue looking.
+      if(shouldIgnore(decl)) return true;
+      // If not, add the decl to the results and continue looking
       results.addResult(decl);
       return true;
     };

@@ -199,13 +199,16 @@ namespace fox {
       // Class that encapsulates the result of a Lookup request.
       class LookupResult;
 
+      // Class that represents options passed to a lookup request.
+      struct LookupOptions;
+
       // Performs a unqualified lookup in the current context and scope.
       //    -> If a matching decl is found in the local scope, the searchs stops
       //    -> If the search reaches the DeclContext, every result is returned
       // if lookInDeclCtxt is set to false, we'll only look for
       // decls inside the current LocalScope.
       void doUnqualifiedLookup(LookupResult& results, Identifier id, 
-        bool lookInDeclCtxt = true);
+        const LookupOptions& options);
 
       //---------------------------------//
       // DeclContext management
@@ -340,5 +343,17 @@ namespace fox {
 
     private:
       ResultVec results_;
+  };
+
+  struct Sema::LookupOptions {
+    // If this is set to false, the Lookup will stop after
+    // looking in the current LocalScope (if there is one).
+    bool canLookInDeclContext = true;
+
+    // This lambda, if non-null, will be called each time
+    // the lookup finds a lookup result. If "shouldIgnore(result)"
+    // returns true, the result will be ignored and not added
+    // to the LookupResult.
+    std::function<bool(NamedDecl*)> shouldIgnore;
   };
 }
