@@ -6,32 +6,25 @@ Portability
     Currently I only code on Visual Studio, so I only set compiler arguments for Visual Studio. It would be great to, instead
     set them for every major compiler (CLang/GCC/MSVC) so the project is fully portable.
   Code
-    I should run a Linux VM and try to compile the code there using GCC and CLang, to check for issues and try to make the code fully
+    I should try to compile the code on Linux one day, using GCC and CLang, to check for issues and try to make the code fully
     portable.
 
 Code QoL: 
-  Diagnostics:
-    1) Add << operators support
-
   StringManipulator:
-    2) Maybe rework it (or add an alternative) as an iterator, because this
-       class literaly emulates an iterator.
+    1) Rework it as an iterator, because this class literaly emulates an iterator.
 
 Reworks:
-  > Lexer Rework (Exact time to be decided, might come before/after Semantic Analysis)
-      > Make the Lexer & Parser tightly coupled. The Parser itself should call the Lexer to Lex a token. (no more storage in a vector)
-        > This will require the Parser or Lexer to have a caching mechanism, and use "cached" token when backtracking is required.
-        > the "createParserStateBackup" functions will be removed, and replaced with a call to the lexer similar to "lexer_.backtrack(x)"
+  > Lexer Rework
       > Stop using a DFA. Use a proper grammar with a recursive descent technique
-        and a config file (.def) to register valid terminals (so it's easy to add new characters for another language)
-      > Register separators in a .def file?
+        and a config file (.def) to register valid terminals (so it's easy to add new ones)
+      > Register tokens/terminals in a .def file? Also use the Operators.def file!
       > Operators (such as '==') should generate only one token 
 
 Performance:
   Diagnostics:
     1) The Diagnostic object is quite large (few hundred bytes), and, as it's nearly always a temporary object, this could maybe
     have a cost on performance. Tests needs to be done. If it has really a big cost on performance, store all the diagnostic's data
-    inside the DiagnosticsEngine and restrict the number of in-flight diagnostics allowed.
+    inside the DiagnosticsEngine and restrict the number of in-flight diagnostics allowed. (Like CLang does)
 
 Features:
   LinearAllocator 
