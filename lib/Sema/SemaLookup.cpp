@@ -12,6 +12,7 @@
 #include "Fox/AST/DeclContext.hpp"
 #include "Fox/AST/Decl.hpp"
 #include <functional>
+#include <algorithm>
 
 using namespace fox;
 
@@ -115,29 +116,25 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
     };
     lookupInDeclContext(id, handleResult, dc);
   }
-
-  // Set the kind of LookupResult
-  using LRK = LookupResult::Kind;
-  if(results.size() == 0)
-    results.setKind(LRK::NotFound);
-  else if(results.size() == 1)
-    results.setKind(LRK::Found);
-  else 
-    results.setKind(LRK::Ambiguous);
 }
 
 //----------------------------------------------------------------------------//
 // Sema::LookupResult 
 //----------------------------------------------------------------------------//
 
-Sema::LookupResult::LookupResult(Kind kind, ResultVec&& results): kind_(kind),
-  results_(results) {}
+Sema::LookupResult::LookupResult(ResultList&& results): results_(results) {}
 
 void Sema::LookupResult::addResult(NamedDecl* decl) {
   results_.push_back(decl);
 }
 
-Sema::LookupResult::ResultVec& Sema::LookupResult::getResults() {
+void Sema::LookupResult::remove(NamedDecl* decl) {
+  auto beg = results_.begin();
+  auto end = results_.end();
+  results_.erase(std::remove(beg, end, decl), end);
+}
+
+Sema::LookupResult::ResultList& Sema::LookupResult::getResults() {
   return results_;
 }
 
@@ -145,29 +142,8 @@ std::size_t Sema::LookupResult::size() const {
   return results_.size();
 }
 
-Sema::LookupResult::Kind Sema::LookupResult::getKind() const {
-  return kind_;
-}
-
-void Sema::LookupResult::setKind(Kind kind) {
-  kind_ = kind;
-}
-
 NamedDecl* Sema::LookupResult::getIfSingleResult() const {
-  if(kind_ != Kind::Found) return nullptr;
-  // For "Found" kind, we should only have 1 result.
-  assert(results_.size() == 1);
-  return results_[0];
-}
-
-bool Sema::LookupResult::isNotFound() const {
-  return (kind_ == Kind::NotFound);
-}
-
-bool Sema::LookupResult::isFound() const {
-  return (kind_ == Kind::Found);
-}
-
-bool Sema::LookupResult::isAmbiguous() const {
-  return (kind_ == Kind::Ambiguous);
+  if(results_.size() == 1)
+    return results_[0];
+  return nullptr;
 }
