@@ -57,6 +57,8 @@ namespace fox {
       TypeLoc(Type ty, SourceRange range = SourceRange());
 
       SourceRange getRange() const;
+      SourceLoc getBegin() const;
+      SourceLoc getEnd() const;
 
       // TypeLoc doesn't have it's own dump() method because we cannot dump
       // any meaningful information about our range_ without a SourceManager.

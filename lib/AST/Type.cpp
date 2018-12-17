@@ -65,6 +65,14 @@ SourceRange TypeLoc::getRange() const {
   return range_;
 }
 
+SourceLoc TypeLoc::getBegin() const {
+  return range_.getBegin();
+}
+
+SourceLoc TypeLoc::getEnd() const {
+  return range_.getEnd();
+}
+
 Type TypeLoc::withoutLoc() {
   return Type(getPtr());
 }

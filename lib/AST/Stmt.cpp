@@ -27,6 +27,14 @@ SourceRange Stmt::getRange() const {
   return range_;
 }
 
+SourceLoc Stmt::getBegin() const {
+  return range_.getBegin();
+}
+
+SourceLoc Stmt::getEnd() const {
+  return range_.getEnd();
+}
+
 void* Stmt::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
 }

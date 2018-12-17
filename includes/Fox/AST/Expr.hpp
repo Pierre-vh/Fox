@@ -40,6 +40,8 @@ namespace fox   {
 
       void setRange(SourceRange range);
       SourceRange getRange() const;
+      SourceLoc getBegin() const;
+      SourceLoc getEnd() const;
 
       void setType(Type type);
       Type getType() const;

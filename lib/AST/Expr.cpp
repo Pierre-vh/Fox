@@ -41,6 +41,14 @@ SourceRange Expr::getRange() const {
   return range_;
 }
 
+SourceLoc Expr::getBegin() const {
+  return range_.getBegin();
+}
+
+SourceLoc Expr::getEnd() const {
+  return range_.getEnd();
+}
+
 void Expr::setType(Type type) {
   type_ = type;
 }
