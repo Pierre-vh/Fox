@@ -77,6 +77,7 @@ const Type TypeLoc::withoutLoc() const {
 }
 
 std::ostream& fox::operator<<(std::ostream& os, Type ty) {
+  assert(ty && "can't print a null type");
   os << ty->toString();
   return os;
 }
