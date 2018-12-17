@@ -129,8 +129,8 @@ TEST_F(LocTests, VarDecls) {
   ASSERT_TRUE(presult) << "parsing error";
 
   auto var = presult.getAs<VarDecl>();
-  CompleteLoc var_beg = srcMgr.getCompleteLoc(var->getRange().getBegin());
-  CompleteLoc var_end = srcMgr.getCompleteLoc(var->getRange().getEnd());
+  CompleteLoc var_beg = srcMgr.getCompleteLoc(var->getBegin());
+  CompleteLoc var_end = srcMgr.getCompleteLoc(var->getEnd());
 
   EXPECT_EQ(var_beg, CompleteLoc(fullFilePath,1,3));
   EXPECT_EQ(var_end, CompleteLoc(fullFilePath,1,22));

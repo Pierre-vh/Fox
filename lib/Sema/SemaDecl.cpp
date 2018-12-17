@@ -43,8 +43,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // "decl" is the illegal redecl, "decls" is the list of previous decls.
     void diagnoseIllegalRedecl(NamedDecl* decl, std::vector<NamedDecl*> decls) {
       // Find the earliest candidate in file
-      NamedDecl* earliest
-         = findEarliestInFile(decl->getRange().getBegin(), decls);
+      NamedDecl* earliest = findEarliestInFile(decl->getBegin(), decls);
       // If there's a earliest decl, diagnose. 
       // (We might not have one if this is the first decl)
       if(earliest)
@@ -224,7 +223,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       for (NamedDecl* decl : decls) {
         assert(decl && "cannot be null!");
         if (decl->getFile() == file) {
-          SourceLoc declLoc = decl->getRange().getBegin();
+          SourceLoc declLoc = decl->getBegin();
           // Check if "decl" was declared before "loc". If it wasn't,
           // keep looking.
           if (!SourceLoc::CompareByIndex()(declLoc, loc))
@@ -232,7 +231,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
           if (!candidate)
             candidate = decl;
           else {
-            SourceLoc candLoc = candidate->getRange().getBegin();
+            SourceLoc candLoc = candidate->getBegin();
             // if decl has been declared before candidate, 
             // decl becomes the candidate
             if (SourceLoc::CompareByIndex()(declLoc, candLoc))

@@ -181,7 +181,7 @@ SourceLoc FuncDecl::getHeaderEndLoc() const {
 }
 
 SourceRange FuncDecl::getHeaderRange() const {
-  return SourceRange(getRange().getBegin(), headEndLoc_);
+  return SourceRange(getBegin(), headEndLoc_);
 }
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
