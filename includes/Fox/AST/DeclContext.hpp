@@ -15,6 +15,7 @@
 #include <map>
 #include <vector>
 #include <type_traits>
+#include <memory>
 
 namespace fox {
   class Decl;
