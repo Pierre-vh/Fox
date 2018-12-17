@@ -220,7 +220,7 @@ void ASTDumper::visitReturnStmt(ReturnStmt* node) {
 
 void ASTDumper::visitUnitDecl(UnitDecl* node) {
   std::string fileInfo;
-  if (const auto* data = getSourceData(node->getFileID()))
+  if (const auto* data = getSourceData(node->getFile()))
     fileInfo = makeKeyPairDump("file", data->fileName);
   else
     fileInfo = makeKeyPairDump("file", "unknown");

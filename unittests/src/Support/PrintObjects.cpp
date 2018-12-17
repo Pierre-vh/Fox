@@ -16,7 +16,7 @@ std::ostream& fox::operator<<(std::ostream& os, FileID fid) {
 }
 
 std::ostream& fox::operator<<(std::ostream& os, SourceLoc loc) {
-  os << "SourceLoc(" << loc.getFileID() << ", " << loc.getIndex() << ")";
+  os << "SourceLoc(" << loc.getFile() << ", " << loc.getIndex() << ")";
   return os;
 }
 

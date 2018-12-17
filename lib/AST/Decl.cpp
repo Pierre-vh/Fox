@@ -67,7 +67,7 @@ SourceLoc Decl::getEnd() const {
 }
 
 FileID Decl::getFile() const {
-  return range_.getBegin().getFileID();
+  return range_.getBegin().getFile();
 }
 
 void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
@@ -281,7 +281,7 @@ UnitDecl* UnitDecl::create(ASTContext& ctxt, DeclContext* parent,
   return new(ctxt) UnitDecl(ctxt, parent, id, file);
 }
 
-FileID UnitDecl::getFileID() const {
+FileID UnitDecl::getFile() const {
   return file_;
 }
 

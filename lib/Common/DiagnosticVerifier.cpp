@@ -34,7 +34,7 @@ namespace {
   // Offsets a sourceloc by X chars. This doesn't check if the SourceLoc
   // is valid, it justs adds the offset to the index.
   SourceLoc offsetSourceLoc(SourceLoc loc, std::size_t off) {
-    return SourceLoc(loc.getFileID(), loc.getIndex() + off);
+    return SourceLoc(loc.getFile(), loc.getIndex() + off);
   }
 
   // Trims a string, removing spaces, tabs and others to the left and 
@@ -154,7 +154,7 @@ bool DiagnosticVerifier::verify(Diagnostic& diag) {
   std::string diagStr = diag.getStr();
 	ExpectedDiag ed(diag.getSeverity(),
                   diagStr,
-									diagLoc.getFileID(), 
+									diagLoc.getFile(), 
 									srcMgr_.getLineNumber(diagLoc));
 
   auto it = expectedDiags_.find(ed);
@@ -188,7 +188,7 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
   // The values we'll collect
   DiagSeverity severity;
   string_view diagStr;
-  FileID file = loc.getFileID();
+  FileID file = loc.getFile();
   LineTy line = srcMgr_.getLineNumber(loc);
 
 	std::size_t fullInstrSize = instr.size();

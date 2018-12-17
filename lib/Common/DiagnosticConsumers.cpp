@@ -160,7 +160,7 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag) {
 
   // If needed, create the extra range underline (~)
   if(diag.hasExtraRange()) {
-    assert((diag.getExtraRange().getFileID() == diag.getRange().getFileID())
+    assert((diag.getExtraRange().getFile() == diag.getRange().getFile())
       && "Ranges don't belong to the same file");
 
     auto beg = getOffsetIteratorFromLineBeg(eRange.getBegin().getIndex());

@@ -84,7 +84,7 @@ namespace fox {
       bool operator ==(const SourceLoc other) const;
       bool operator !=(const SourceLoc other) const;
 
-      FileID getFileID() const;
+      FileID getFile() const;
       IndexTy getIndex() const;
 
       // Predicates that compares 2 SourceLoc using their indexes.
@@ -125,7 +125,7 @@ namespace fox {
       SourceLoc getEnd() const;
       bool isOnlyOneCharacter() const;
 
-      FileID getFileID() const;
+      FileID getFile() const;
     private:
       SourceLoc sloc_;
       OffsetTy offset_;

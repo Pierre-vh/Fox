@@ -220,7 +220,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     findEarliestInFile(SourceLoc loc, const std::vector<NamedDecl*>& decls) {
       assert(decls.size() && "decls.size() > 0");
       NamedDecl* candidate = nullptr;
-      FileID file = loc.getFileID();
+      FileID file = loc.getFile();
       for (NamedDecl* decl : decls) {
         assert(decl && "cannot be null!");
         if (decl->getFile() == file) {

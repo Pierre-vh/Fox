@@ -256,7 +256,7 @@ namespace fox {
       static UnitDecl* create(ASTContext& ctxt, DeclContext* parent,
         Identifier id, FileID file);
 
-      FileID getFileID() const;
+      FileID getFile() const;
       void setFileID(const FileID& fid);
 
       // Return the ASTContext this Decl lives in.
