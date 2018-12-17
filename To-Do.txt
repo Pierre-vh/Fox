@@ -103,8 +103,9 @@ To-Do:
 // New AST update:
   > Name binding 
     > Unqualified Lookup Logic (Done)
-    > Finish Decl checking (Now)
-    > Update StmtChecker to correctly open scopes where appropriate
+    > Finish Decl checking (Done)
+    > Write DeclChecking tests (Next)
+    > Update StmtChecker to correctly open scopes where appropriate 
     > Finish name binding logic in visitUnresolvedDeclRefExpr
     > do ReturnStmt checking
       > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
