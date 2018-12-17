@@ -1,0 +1,28 @@
+// RUN: %fox %s -verify -werr
+
+let a : float = 3.14;
+let b : float = 1;
+let c : float = true;
+
+let d : int = 3.14; // expect-error: cannot use an expression of type 'float' to initialize a variable of type 'int'
+let e : int = 1;
+let f : int = true;
+
+let g : bool = 3.14; // expect-error: cannot use an expression of type 'float' to initialize a variable of type 'bool'
+let h : bool = 1; // expect-error: cannot use an expression of type 'int' to initialize a variable of type 'bool'
+let i : bool = true;
+
+let j : string = "foo";
+let k : string = 'c'; // expect-error: cannot use an expression of type 'char' to initialize a variable of type 'string'
+let l : string = 4; // expect-error: cannot use an expression of type 'int' to initialize a variable of type 'string'
+
+let m : char = 'f';
+let n : char = "foo"; // expect-error: cannot use an expression of type 'string' to initialize a variable of type 'char'
+let o : char = 4; // expect-error: cannot use an expression of type 'int' to initialize a variable of type 'char'
+
+let p : [int] = [1];
+let q : [int] = 1; // expect-error: cannot use an expression of type 'int' to initialize a variable of type '[int]'
+
+// infer tests, shouldn't produce errors!
+let r : [int] = [];
+let s : [[[float]]] = [];

@@ -1,0 +1,19 @@
+// RUN: %fox %s -verify -werr
+
+let foo : float;
+// expect-note@-1: first declaration of 'foo' seen here
+
+func bar(foo : [float]) {  // "foo" shadows the global variable "foo"
+  var foo : [[string]]; // this "foo" shadows the param "foo"
+  // expect-note@-1: first declaration of 'foo' seen here
+  // expect-note@-2: first declaration of 'foo' seen here
+  if(false) {
+    let foo : bool; // Oops, error!
+    // expect-error@-1: invalid redeclaration of variable 'foo'
+  }
+  var foo : string; // again, an error.
+  // expect-error@-1: invalid redeclaration of variable 'foo'
+}
+
+let foo : bool; // Invalid redeclaration of foo declared at line 3
+// expect-error@-1: invalid redeclaration of variable 'foo'
