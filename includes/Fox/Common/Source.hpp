@@ -87,6 +87,14 @@ namespace fox {
       FileID getFileID() const;
       IndexTy getIndex() const;
 
+      // Predicates that compares 2 SourceLoc using their indexes.
+      // Comparison: lhs.index < rhs.index.
+      struct CompareByIndex {
+        bool operator()(SourceLoc l, SourceLoc r) {
+          return l.idx_ < r.idx_;
+        }
+      };
+
     protected:
       friend class Parser;
 
