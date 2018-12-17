@@ -43,9 +43,12 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // "decl" is the illegal redecl, "decls" is the list of previous decls.
     void diagnoseIllegalRedecl(NamedDecl* decl, std::vector<NamedDecl*> decls) {
       // Find the earliest candidate in file
-      NamedDecl* earliest = findEarliestInFile(decl->getFile(), decls);
-      assert(earliest && "Couldn't find earliest declaration");
-      diagnoseIllegalRedecl(earliest, decl);
+      NamedDecl* earliest
+         = findEarliestInFile(decl->getRange().getBegin(), decls);
+      // If there's a earliest decl, diagnose. 
+      // (We might not have one if this is the first decl)
+      if(earliest)
+        diagnoseIllegalRedecl(earliest, decl);
     }
 
     // Diagnoses an illegal redeclaration where "redecl" is an illegal
@@ -178,38 +181,30 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // and this function returns false.
     // Returns true if "decl" is legal redeclaration or not a redeclaration
     // at all.
-    bool checkForIllegalRedecl(VarDecl* decl) {
-      using LRK = LookupResult::Kind;
-        
+    bool checkForIllegalRedecl(ValueDecl* decl) {        
       Identifier id = decl->getIdentifier();
       LookupResult lookupResult;
-      getSema().doUnqualifiedLookup(lookupResult, id);
-
-      switch (lookupResult.getKind()) {
-        case LRK::NotFound:
-          // Can't be a redecl
+      // Don't look in the DeclContext if this is a local declaration
+      bool shouldLookInDC = !decl->isLocal();
+      getSema().doUnqualifiedLookup(lookupResult, id, shouldLookInDC);
+      // Remove this decl from the results.
+      lookupResult.remove(decl);
+      // If there are no matches, this cannot be a redecl
+      if (lookupResult.size() == 0)
+        return true;
+      else {
+        // if we only have 1 result, and it's a ParamDecl
+        NamedDecl* found = lookupResult.getIfSingleResult();
+        if (found && isa<ParamDecl>(found)) {
+          assert(decl->isLocal() && "Global declaration is conflicting with "
+                 "a parameter declaration?");
+          // Redeclaration of a ParamDecl is allowed
           return true;
-        case LRK::Found:
-          {
-            NamedDecl* found = lookupResult.getIfSingleResult();
-            assert(found && "lookupResult's kind is Found but getIfSingleResult "
-                   "returns nullptr?");
-            if (isa<ParamDecl>(found)) {
-              assert(decl->isLocal() && "Global declaration is conflicting with "
-                     "a parameter declaration?");
-              // Redeclaration of a ParamDecl is allowed
-              return true;
-            }
-          }
-          // fall through
-        case LRK::Ambiguous:
-          // It's an invalid redeclaration: diagnose, mark it and
-          // return false;
-          diagnoseIllegalRedecl(decl, lookupResult.getResults());
-          decl->setIsIllegalRedecl(true);
-          return false;
-        default:
-          fox_unreachable("all cases handled");
+        }
+        // Else, diagnose.
+        diagnoseIllegalRedecl(decl, lookupResult.getResults());
+        decl->setIsIllegalRedecl(true);
+        return false;
       }
     }
 
@@ -219,20 +214,25 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // Non semantics related helper methods
     //----------------------------------------------------------------------//
     
-    // Searches the vector of Decl to find the earliest declaration
-    // in the FileID "file"
+    // Searches the vector "decls" to return the first decl that was
+    // declared before "loc".
     NamedDecl* 
-    findEarliestInFile(FileID file, const std::vector<NamedDecl*>& decls) {
+    findEarliestInFile(SourceLoc loc, const std::vector<NamedDecl*>& decls) {
       assert(decls.size() && "decls.size() > 0");
       NamedDecl* candidate = nullptr;
+      FileID file = loc.getFileID();
       for (NamedDecl* decl : decls) {
         assert(decl && "cannot be null!");
         if (decl->getFile() == file) {
+          SourceLoc declLoc = decl->getRange().getBegin();
+          // Check if "decl" was declared before "loc". If it wasn't,
+          // keep looking.
+          if (!SourceLoc::CompareByIndex()(declLoc, loc))
+            continue;
           if (!candidate)
             candidate = decl;
           else {
             SourceLoc candLoc = candidate->getRange().getBegin();
-            SourceLoc declLoc = decl->getRange().getBegin();
             // if decl has been declared before candidate, 
             // decl becomes the candidate
             if (SourceLoc::CompareByIndex()(declLoc, candLoc))
