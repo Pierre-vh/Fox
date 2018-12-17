@@ -205,7 +205,7 @@ namespace fox {
       // if lookInDeclCtxt is set to false, we'll only look for
       // decls inside the current LocalScope.
       void doUnqualifiedLookup(LookupResult& results, Identifier id, 
-        bool lookInDeclCtxt = false);
+        bool lookInDeclCtxt = true);
 
       //---------------------------------//
       // DeclContext management
@@ -317,46 +317,28 @@ namespace fox {
   // NamedDecl*
   class Sema::LookupResult {
     public:
-      using ResultVec = std::vector<NamedDecl*>;
-
-      enum class Kind {
-        // No matching result founf
-        NotFound,
-        // A Single matching result has been found
-        Found,
-        // Multiple matching results have been found
-        Ambiguous
-      };
+      using ResultList = std::vector<NamedDecl*>;
 
       LookupResult() = default;
 
       // Constructs an empty lookup result
-      LookupResult(Kind kind, ResultVec&& results);
+      LookupResult(ResultList&& results);
 
+      // Add a result in this LookupResult
       void addResult(NamedDecl* decl);
 
-      ResultVec& getResults();
+      // Iterates over the result list, removing every decl
+      // whose pointer is equal to "decl"
+      void remove(NamedDecl* decl);
+
+      ResultList& getResults();
 
       std::size_t size() const;
 
-      Kind getKind() const;
-      void setKind(Kind kind);
-
-      // If the kind of this result is "Found", return
-      // the result, else, returns nullptr.
+      // If there's only one result, return it. Else, returns nullptr.
       NamedDecl* getIfSingleResult() const;
 
-      // Returns true if the kind == NotFound
-      bool isNotFound() const;
-
-      // Returns true if the kind == Found
-      bool isFound() const;
-
-      // Returns true if the kind == Ambiguous
-      bool isAmbiguous() const;
-
     private:
-      Kind kind_ = Kind::NotFound;
-      ResultVec results_;
+      ResultList results_;
   };
 }
