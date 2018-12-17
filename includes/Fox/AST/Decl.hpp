@@ -64,6 +64,8 @@ namespace fox {
 
       void setRange(SourceRange range);
       SourceRange getRange() const;
+      SourceLoc getBegin() const;
+      SourceLoc getEnd() const;
 
       // Get the FileID of the file where this Decl is located
       FileID getFile() const;

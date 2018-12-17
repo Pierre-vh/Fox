@@ -58,6 +58,14 @@ SourceRange Decl::getRange() const {
   return range_;
 }
 
+SourceLoc Decl::getBegin() const {
+  return range_.getBegin();
+}
+
+SourceLoc Decl::getEnd() const {
+  return range_.getEnd();
+}
+
 FileID Decl::getFile() const {
   return range_.getBegin().getFileID();
 }
