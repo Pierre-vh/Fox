@@ -300,7 +300,9 @@ namespace fox {
       // Create a new LocalScope whose parent is the current active
       // localScope (maybe null)
       RAIILocalScope(Sema& sema) : sema_(sema),
-        scope_(std::make_unique<LocalScope>(sema_.localScope_)) {}
+        scope_(std::make_unique<LocalScope>(sema_.localScope_)) {
+        sema_.localScope_ = scope_.get();
+      }
 
       // Needed for enterLocalScopeRAII factory function
       RAIILocalScope(RAIILocalScope&&) = default;
