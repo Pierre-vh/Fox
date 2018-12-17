@@ -317,12 +317,12 @@ namespace fox {
   // NamedDecl*
   class Sema::LookupResult {
     public:
-      using ResultList = std::vector<NamedDecl*>;
+      using ResultVec = std::vector<NamedDecl*>;
 
       LookupResult() = default;
 
       // Constructs an empty lookup result
-      LookupResult(ResultList&& results);
+      LookupResult(ResultVec&& results);
 
       // Add a result in this LookupResult
       void addResult(NamedDecl* decl);
@@ -331,7 +331,7 @@ namespace fox {
       // whose pointer is equal to "decl"
       void remove(NamedDecl* decl);
 
-      ResultList& getResults();
+      ResultVec& getResults();
 
       std::size_t size() const;
 
@@ -339,6 +339,6 @@ namespace fox {
       NamedDecl* getIfSingleResult() const;
 
     private:
-      ResultList results_;
+      ResultVec results_;
   };
 }

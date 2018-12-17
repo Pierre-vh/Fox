@@ -122,7 +122,7 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
 // Sema::LookupResult 
 //----------------------------------------------------------------------------//
 
-Sema::LookupResult::LookupResult(ResultList&& results): results_(results) {}
+Sema::LookupResult::LookupResult(ResultVec&& results): results_(results) {}
 
 void Sema::LookupResult::addResult(NamedDecl* decl) {
   results_.push_back(decl);
@@ -134,7 +134,7 @@ void Sema::LookupResult::remove(NamedDecl* decl) {
   results_.erase(std::remove(beg, end, decl), end);
 }
 
-Sema::LookupResult::ResultList& Sema::LookupResult::getResults() {
+Sema::LookupResult::ResultVec& Sema::LookupResult::getResults() {
   return results_;
 }
 
