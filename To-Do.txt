@@ -148,17 +148,16 @@ Other:
   > Consider a ASTContext interface update:
     -> Add a public SourceManager& and DiagnosticEngine&
 
+  > When diagnosing a redecl, should I really print "first decl seen here" each time
+    if the decl was redeclared multiple times?
+
   > Add idRange to VarDecl/ParamDecl to emit better diagnostics 
     (functions where that range should be used)
     SemaDecl.pp
     -> diagnoseInvalidParamRedecl
 
-  > Adopt a Documentation style (Doxygen) and document the code with it
-
   > Spend some time refactoring the Parser. Write betters comment, fix style and
     coding standard issues.
-
-  > Review all includes and try to include as little as possible
 
   > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
     or should parseStmt handle it?
