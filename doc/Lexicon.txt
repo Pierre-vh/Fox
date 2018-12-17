@@ -16,3 +16,8 @@ Sema:
     If it's a local declaration, getFuncDecl() will return a pointer to the FuncDecl
     the declaration lives in.
     
+Others:
+  > Fox
+    The name of the language and the name of it's interpreter.
+  > Moonshot
+    The "codename" of the project/implementation. This refers to the project as a whole, to the implementation of Fox.
