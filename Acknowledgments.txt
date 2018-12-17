@@ -1,8 +1,0 @@
-I'd like to thank theses open-source project for being an inspiration to me.
-I also want to thank them because reading the source code of theses projects helped
-me get a better understanding of Compilation theory & Compiler design in general. 
-Some design decisions made in this project where directly influenced by theses projects.
-Thank you, seriously.
-  CLang  https://github.com/llvm-mirror/clang
-  LLVM  https://github.com/llvm-mirror/llvm
-  Swift  https://github.com/apple/swift
