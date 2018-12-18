@@ -33,6 +33,11 @@
   #define DECL_RANGE(ID,FIRST,LAST)
 #endif
 
+// The last decl kind
+#ifndef LAST_DECL
+  #define LAST_DECL(ID)
+#endif
+
 // Abstract declarations
 // The default behaviour is to ignore them.
 #ifndef ABSTRACT_DECL
@@ -49,6 +54,7 @@ ABSTRACT_DECL(NamedDecl,Decl)
   DECL_CTXT(UnitDecl, NamedDecl)
     LAST_DECL_CTXT(UnitDecl)
   DECL_RANGE(NamedDecl, ParamDecl, UnitDecl)
+LAST_DECL(UnitDecl)
 
 /* Undef */
 #undef ABSTRACT_DECL
@@ -56,3 +62,4 @@ ABSTRACT_DECL(NamedDecl,Decl)
 #undef DECL_CTXT
 #undef DECL_RANGE
 #undef LAST_DECL_CTXT
+#undef LAST_DECL
