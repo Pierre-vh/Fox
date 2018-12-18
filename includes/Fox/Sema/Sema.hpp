@@ -330,10 +330,6 @@ namespace fox {
       // Add a result in this LookupResult
       void addResult(NamedDecl* decl);
 
-      // Iterates over the result list, removing every decl
-      // whose pointer is equal to "decl"
-      void remove(NamedDecl* decl);
-
       ResultVec& getResults();
 
       std::size_t size() const;

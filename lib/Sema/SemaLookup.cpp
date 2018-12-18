@@ -139,12 +139,6 @@ void Sema::LookupResult::addResult(NamedDecl* decl) {
   results_.push_back(decl);
 }
 
-void Sema::LookupResult::remove(NamedDecl* decl) {
-  auto beg = results_.begin();
-  auto end = results_.end();
-  results_.erase(std::remove(beg, end, decl), end);
-}
-
 Sema::LookupResult::ResultVec& Sema::LookupResult::getResults() {
   return results_;
 }
