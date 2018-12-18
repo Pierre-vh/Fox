@@ -102,7 +102,12 @@ To-Do:
   > Unqualified Lookup (Done)
   > Finish Decl Checking (Done)
 
-  > Add special "redecl" error message if the variable shares the same name as a function (Next)
+  > Add a Identifier range for Param/Func/VarDecl.
+    -> Add it to NamedDecl:
+        getIdentifierRange()
+        setIdentifierRange()
+        hasIdentifierRange()
+    -> Then, use it to emit "redecl" diags. Use the IdRange as the diag's range
   > Update StmtChecker to correctly open scopes where appropriate 
   > Name binding logic in visitUnresolvedDeclRefExpr
   > ReturnStmt checking
