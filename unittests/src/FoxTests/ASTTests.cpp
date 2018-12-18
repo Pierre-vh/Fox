@@ -8,33 +8,43 @@
 //----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
-#include "Support/TestUtils.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
-#include "Fox/Common/LLVM.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
 #include "Support/PrintObjects.hpp"
-
+#include "Support/TestUtils.hpp"
 #include <algorithm>
 #include <string>
 #include <random>
 
 using namespace fox;
 
+namespace {
+  class ASTTest : public testing::Test {
+    public:
+      ASTTest() : diags(srcMgr), ctxt(srcMgr, diags) {}
+
+    protected:
+      ASTContext ctxt;
+      DiagnosticEngine diags;
+      SourceManager srcMgr;
+  };
+}
+
 // Tests that primitive types can be retrieve correctly
-TEST(ASTTests, PrimitiveTypes) {
-  ASTContext actxt;
+TEST_F(ASTTest, PrimitiveTypes) {
   using PT = PrimitiveType;
   using PTK = PT::Kind;
 
-  auto* primBool = PT::getBool(actxt);
-  auto* primFloat  = PT::getFloat(actxt);
-  auto* primInt  = PT::getInt(actxt);
-  auto* primChar  = PT::getChar(actxt);
-  auto* primString = PT::getString(actxt);
-  auto* primVoid  = PT::getVoid(actxt);
+  auto* primBool = PT::getBool(ctxt);
+  auto* primFloat  = PT::getFloat(ctxt);
+  auto* primInt  = PT::getInt(ctxt);
+  auto* primChar  = PT::getChar(ctxt);
+  auto* primString = PT::getString(ctxt);
+  auto* primVoid  = PT::getVoid(ctxt);
 
   ASSERT_TRUE(primBool)  << "Ptr is null?";
   ASSERT_TRUE(primFloat)  << "Ptr is null?";
@@ -76,28 +86,26 @@ TEST(ASTTests, PrimitiveTypes) {
   EXPECT_TRUE(primVoid->isVoidType());
 
   // Check uniqueness
-  EXPECT_EQ(primVoid, PT::getVoid(actxt));
-  EXPECT_EQ(primInt, PT::getInt(actxt));
-  EXPECT_EQ(primString, PT::getString(actxt));
-  EXPECT_EQ(primChar, PT::getChar(actxt));
-  EXPECT_EQ(primFloat, PT::getFloat(actxt));
-  EXPECT_EQ(primBool, PT::getBool(actxt));
+  EXPECT_EQ(primVoid, PT::getVoid(ctxt));
+  EXPECT_EQ(primInt, PT::getInt(ctxt));
+  EXPECT_EQ(primString, PT::getString(ctxt));
+  EXPECT_EQ(primChar, PT::getChar(ctxt));
+  EXPECT_EQ(primFloat, PT::getFloat(ctxt));
+  EXPECT_EQ(primBool, PT::getBool(ctxt));
 }
 
-TEST(ASTTests, ASTContextArrayTypes) {
-  ASTContext actxt;
+TEST_F(ASTTest, ASTContextArrayTypes) {
+  auto* primBool = PrimitiveType::getBool(ctxt);
+  auto* primFloat = PrimitiveType::getFloat(ctxt);
+  auto* primInt = PrimitiveType::getInt(ctxt);
+  auto* primChar = PrimitiveType::getChar(ctxt);
+  auto* primString = PrimitiveType::getString(ctxt);
 
-  auto* primBool = PrimitiveType::getBool(actxt);
-  auto* primFloat = PrimitiveType::getFloat(actxt);
-  auto* primInt = PrimitiveType::getInt(actxt);
-  auto* primChar = PrimitiveType::getChar(actxt);
-  auto* primString = PrimitiveType::getString(actxt);
-
-  auto* boolArr = ArrayType::get(actxt, primBool);
-  auto* floatArr = ArrayType::get(actxt, primFloat);
-  auto* intArr = ArrayType::get(actxt, primInt);
-  auto* charArr = ArrayType::get(actxt, primChar);
-  auto* strArr = ArrayType::get(actxt, primString);
+  auto* boolArr = ArrayType::get(ctxt, primBool);
+  auto* floatArr = ArrayType::get(ctxt, primFloat);
+  auto* intArr = ArrayType::get(ctxt, primInt);
+  auto* charArr = ArrayType::get(ctxt, primChar);
+  auto* strArr = ArrayType::get(ctxt, primString);
 
 
   // Check that pointers aren't null
@@ -121,16 +129,15 @@ TEST(ASTTests, ASTContextArrayTypes) {
   EXPECT_NE(charArr, strArr);
 
   // Check that uniqueness works by getting the arraytype for int 
-  EXPECT_EQ(ArrayType::get(actxt,primInt), intArr);
+  EXPECT_EQ(ArrayType::get(ctxt, primInt), intArr);
 }
 
-TEST(ASTTests, TypeRTTI) {
-  ASTContext astctxt;
-  TypeBase* intTy = PrimitiveType::getInt(astctxt);
-  auto* arrIntTy = ArrayType::get(astctxt, intTy);
-  auto* lvIntTy = LValueType::get(astctxt, intTy);
-  auto* errType = ErrorType::get(astctxt);
-  auto* cellType = CellType::create(astctxt);
+TEST_F(ASTTest, TypeRTTI) {
+  TypeBase* intTy = PrimitiveType::getInt(ctxt);
+  auto* arrIntTy = ArrayType::get(ctxt, intTy);
+  auto* lvIntTy = LValueType::get(ctxt, intTy);
+  auto* errType = ErrorType::get(ctxt);
+  auto* cellType = CellType::create(ctxt);
 
   EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
   EXPECT_TRUE(PrimitiveType::classof(intTy));
@@ -150,9 +157,7 @@ TEST(ASTTests, TypeRTTI) {
   EXPECT_TRUE(CellType::classof(cellType));
 }
 
-TEST(ASTTests, ExprRTTI) {
-  ASTContext ctxt;
-
+TEST_F(ASTTest, ExprRTTI) {
   // Binary Exprs
   auto* binexpr = BinaryExpr::create(ctxt, BinaryExpr::OpKind::Invalid,
     nullptr, nullptr, SourceRange(), SourceRange());
@@ -227,9 +232,7 @@ TEST(ASTTests, ExprRTTI) {
   EXPECT_TRUE(FunctionCallExpr::classof(callexpr));
 }
 
-TEST(ASTTests, StmtRTTI) {
-  ASTContext ctxt;
-
+TEST_F(ASTTest, StmtRTTI) {
   // NullStmt
   auto* null = NullStmt::create(ctxt);
   EXPECT_EQ(null->getKind(), StmtKind::NullStmt);
@@ -275,8 +278,7 @@ namespace {
   }
 }
 
-TEST(ASTTests, DeclRTTI) {
-  ASTContext ctxt;
+TEST_F(ASTTest, DeclRTTI) {
   // Arg
   ParamDecl* paramdecl = createEmptyParamDecl(ctxt);
   EXPECT_EQ(paramdecl->getKind(), DeclKind::ParamDecl);
@@ -309,8 +311,7 @@ TEST(ASTTests, DeclRTTI) {
   EXPECT_TRUE(DeclContext::classof(udecl));
 }
 
-TEST(ASTTests, DeclDeclContextRTTI) {
-  ASTContext ctxt;
+TEST_F(ASTTest, DeclDeclContextRTTI) {
   Identifier id; FileID fid;
   DeclContext dc(DeclContextKind::UnitDecl);
 
@@ -342,10 +343,7 @@ class IsArrTy : public SimpleASTVisitor<IsArrTy, bool> {
     }
 };
 
-TEST(ASTTests, BasicVisitor) {
-  // Context
-  ASTContext ctxt;
-
+TEST_F(ASTTest, BasicVisitor) {
   // Create test nodes
   auto* intlit = IntegerLiteralExpr::create(ctxt, 42, SourceRange());
   auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
@@ -406,14 +404,13 @@ namespace {
 }
 
 // Checks if Identifiers are unique, or not.
-TEST(IdentifierTableTests, identifiersUniqueness) {
+TEST_F(ASTTest, identifiersUniqueness) {
   // Create 2 identifiers, A and B
   std::string rawIdA, rawIdB;
   rawIdA = generateRandomString();
   rawIdB = generateRandomString();
   ASSERT_NE(rawIdA, rawIdB) << "Generated 2 equal random identifiers";
 
-  ASTContext ctxt;
   Identifier idA = ctxt.getIdentifier(rawIdA);
   Identifier idB = ctxt.getIdentifier(rawIdB);
 
@@ -423,8 +420,7 @@ TEST(IdentifierTableTests, identifiersUniqueness) {
 
 // Checks if the ASTContext supports large identifiers 
 // amount by inserting a lot of random ids.
-TEST(ASTTests, randomIdentifierInsertion) {
-	ASTContext ctxt;
+TEST_F(ASTTest, randomIdentifierInsertion) {
   Identifier lastId;
   std::vector<Identifier> allIdentifiers;
   std::vector<std::string> allIdStrs;

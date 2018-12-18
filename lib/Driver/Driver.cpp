@@ -18,7 +18,8 @@
 
 using namespace fox;
 
-Driver::Driver(std::ostream& os): os_(os), diags(srcMgr, os_) {}
+Driver::Driver(std::ostream& os): os_(os), diags(srcMgr, os_),
+  ctxt(srcMgr, diags) {}
 
 bool Driver::processFile(const std::string& filepath) {
   // Load the file in the source manager

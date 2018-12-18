@@ -6,9 +6,13 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTContext.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
 
 using namespace fox;
 
+
+ASTContext::ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags):
+  sourceMgr(srcMgr), diagEngine(diags) {}
 
 UnitDecl* ASTContext::getMainUnit() {
   return theUnit_;
@@ -54,4 +58,8 @@ Identifier ASTContext::getIdentifier(const std::string& str) {
 	assert((it != idents_.end()) && "Insertion error");
 	// Create the identifier object and return.
 	return Identifier(it->c_str());
+}
+
+bool ASTContext::hadErrors() const {
+  return diagEngine.getErrorsCount();
 }

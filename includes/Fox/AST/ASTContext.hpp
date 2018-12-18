@@ -25,7 +25,7 @@ namespace fox {
   // of the UnitDecls, etc.
   class ASTContext {
     public:
-      ASTContext() = default;
+      ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags);
 
       UnitDecl* getMainUnit();
       const UnitDecl* getMainUnit() const;
@@ -42,7 +42,13 @@ namespace fox {
 			// Returns the unique, ASTContext-owned version of the identifier "str"
 			Identifier getIdentifier(const std::string& str);
 
-    protected:
+      // Shortcut for diagEngine.getErrorCount() != 0
+      bool hadErrors() const;
+
+      SourceManager& sourceMgr;
+      DiagnosticEngine& diagEngine;
+
+    private:
       friend class ArrayType;
       friend class LValueType;
       friend class ErrorType;
@@ -67,7 +73,6 @@ namespace fox {
       PrimitiveType* theStringType = nullptr;
       PrimitiveType* theVoidType = nullptr;
 
-    private:
       // The ASTContext shouldn't be copyable.
       ASTContext(const ASTContext&) = delete;
       ASTContext& operator=(const ASTContext&) = delete;

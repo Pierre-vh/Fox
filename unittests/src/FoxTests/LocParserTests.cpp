@@ -21,9 +21,9 @@ using namespace fox;
 // Parser Preparator for LocTests
 class LocTests : public ::testing::Test {
   public:
-    LocTests() : dg(srcMgr), declContext(DeclContextKind::UnitDecl) {
+    LocTests() : diags(srcMgr), declContext(DeclContextKind::UnitDecl), 
+      astContext(srcMgr, diags) {}
 
-    }
   protected:
     virtual void SetUp(const std::string& filepath)  {
       fullFilePath = test::getPath(filepath);
@@ -34,21 +34,21 @@ class LocTests : public ::testing::Test {
         FAIL() << "Couldn't load file \""<< filepath << "\" in memory.";
       }
 
-      lexer = std::make_unique<Lexer>(dg, srcMgr, astContext);
+      lexer = std::make_unique<Lexer>(diags, srcMgr, astContext);
       lexer->lexFile(file);
 
-      if (dg.getErrorsCount()) {
+      if (astContext.hadErrors()) {
         FAIL() << "Lexing Error";
       }
 
-      parser = std::make_unique<Parser>(dg, srcMgr , astContext, lexer->getTokenVector(), &declContext);
+      parser = std::make_unique<Parser>(diags, srcMgr , astContext, lexer->getTokenVector(), &declContext);
       ok = true;
     }
 
     std::string fullFilePath;
     
     bool ok = false;
-    DiagnosticEngine dg;
+    DiagnosticEngine diags;
     FileID file;
     SourceManager srcMgr;
     ASTContext astContext;
