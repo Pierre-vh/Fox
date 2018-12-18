@@ -96,7 +96,8 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
 //----------------------------------------------------------------------------//
 
 NamedDecl::NamedDecl(DeclKind kind, Parent parent, Identifier id, 
-  SourceRange range): Decl(kind, parent, range), identifier_(id) {}
+  SourceRange range): Decl(kind, parent, range), identifier_(id),
+  illegalRedecl_(false){}
 
 Identifier NamedDecl::getIdentifier() const {
   return identifier_;
@@ -110,15 +111,21 @@ bool NamedDecl::hasIdentifier() const {
   return !identifier_.isNull();
 }
 
+bool NamedDecl::isIllegalRedecl() const {
+  return illegalRedecl_;
+}
+
+void NamedDecl::setIsIllegalRedecl(bool val) {
+  illegalRedecl_ = val;
+}
+
 //----------------------------------------------------------------------------//
 // ValueDecl
 //----------------------------------------------------------------------------//
 
 ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id,
   TypeLoc ty, bool isConst, SourceRange range): 
-  NamedDecl(kind, parent, id, range), const_(isConst), type_(ty) {
-  illegalRedecl_ = false;
-}
+  NamedDecl(kind, parent, id, range), const_(isConst), type_(ty) {}
 
 Type ValueDecl::getType() const {
   return type_.withoutLoc();
@@ -142,14 +149,6 @@ bool ValueDecl::isConst() const {
 
 void ValueDecl::setIsConst(bool k) {
   const_ = k;
-}
-
-bool ValueDecl::isIllegalRedecl() const {
-  return illegalRedecl_;
-}
-
-void ValueDecl::setIsIllegalRedecl(bool val) {
-  illegalRedecl_ = val;
 }
 
 //----------------------------------------------------------------------------//

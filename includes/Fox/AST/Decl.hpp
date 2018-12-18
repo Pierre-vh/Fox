@@ -135,6 +135,9 @@ namespace fox {
       void setIdentifier(Identifier id);
       bool hasIdentifier() const;
 
+      bool isIllegalRedecl() const;
+      void setIsIllegalRedecl(bool val);
+
       static bool classof(const Decl* decl) {
         return (decl->getKind() >= DeclKind::First_NamedDecl) 
           && (decl->getKind() <= DeclKind::Last_NamedDecl);
@@ -146,6 +149,8 @@ namespace fox {
 
     private:
       Identifier identifier_;
+      // NamedDecl bitfields : 7 bit left
+      bool illegalRedecl_ : 1;
   };
 
   // ValueDecl
@@ -161,9 +166,6 @@ namespace fox {
       bool isConst() const;
       void setIsConst(bool k);
 
-      bool isIllegalRedecl() const;
-      void setIsIllegalRedecl(bool val);
-
       static bool classof(const Decl* decl) {
         return (decl->getKind() >= DeclKind::First_ValueDecl) 
           && (decl->getKind() <= DeclKind::Last_ValueDecl);
@@ -174,9 +176,8 @@ namespace fox {
         TypeLoc ty, bool isConst, SourceRange range);
 
     private:
-      // ValueDecl bitfields : 6 left
+      // ValueDecl bitfields : 7 left
       bool const_ : 1;
-      bool illegalRedecl_ : 1;
       TypeLoc type_;
   };
 
