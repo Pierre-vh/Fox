@@ -133,10 +133,15 @@ namespace fox {
     public:
       Identifier getIdentifier() const;
       void setIdentifier(Identifier id);
+      void setIdentifier(Identifier id, SourceRange idRange);
       bool hasIdentifier() const;
 
       bool isIllegalRedecl() const;
       void setIsIllegalRedecl(bool val);
+
+      SourceRange getIdentifierRange() const;
+      void setIdentifierRange(SourceRange range);
+      bool hasIdentifierRange() const;
 
       static bool classof(const Decl* decl) {
         return (decl->getKind() >= DeclKind::First_NamedDecl) 
@@ -144,11 +149,12 @@ namespace fox {
       }
 
     protected:
-      NamedDecl(DeclKind kind, Parent parent, 
-        Identifier id, SourceRange range);
+      NamedDecl(DeclKind kind, Parent parent, Identifier id, 
+        SourceRange idRange, SourceRange range);
 
     private:
       Identifier identifier_;
+      SourceRange identifierRange_;
       // NamedDecl bitfields : 7 bit left
       bool illegalRedecl_ : 1;
   };
@@ -172,8 +178,8 @@ namespace fox {
       }
 
     protected:
-      ValueDecl(DeclKind kind, Parent parent, Identifier id,
-        TypeLoc ty, bool isConst, SourceRange range);
+      ValueDecl(DeclKind kind, Parent parent, Identifier id, 
+        SourceRange idRange, TypeLoc ty, bool isConst, SourceRange range);
 
     private:
       // ValueDecl bitfields : 7 left
@@ -184,9 +190,11 @@ namespace fox {
   // ParamDecl
   //    A declaration of a function parameter. This is simply a ValueDecl.
   class ParamDecl final : public ValueDecl {
+    SourceRange idRange_;
     public:
-      static ParamDecl* create(ASTContext& ctxt, FuncDecl* parent,
-        Identifier id, TypeLoc type, bool isMutable, SourceRange range);
+      static ParamDecl* create(ASTContext& ctxt, FuncDecl* parent, 
+        Identifier id, SourceRange idRange, TypeLoc type, 
+        bool isMutable, SourceRange range);
 
       bool isMutable() const;
 
@@ -195,8 +203,8 @@ namespace fox {
       }
 
     private:
-      ParamDecl(FuncDecl* parent, Identifier id, TypeLoc type, bool isMutable,
-        SourceRange range);
+      ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
+        TypeLoc type, bool isMutable, SourceRange range);
   };
 
   
@@ -211,7 +219,8 @@ namespace fox {
 
     public:
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent,
-        Identifier id, TypeLoc type, SourceRange range, SourceLoc headerEnd);
+        Identifier id, SourceRange idRange, TypeLoc type, 
+        SourceRange range, SourceLoc headerEnd);
 
       void setLocs(SourceRange range, SourceLoc headerEndLoc);
       void setHeaderEndLoc(SourceLoc loc);
@@ -240,8 +249,8 @@ namespace fox {
       }
       
     private:
-      FuncDecl(DeclContext* parent, Identifier fnId, TypeLoc rtrTy,
-        SourceRange range, SourceLoc headerEndLoc);
+      FuncDecl(DeclContext* parent, Identifier fnId, SourceRange idRange,
+        TypeLoc rtrTy, SourceRange range, SourceLoc headerEndLoc);
 
       SourceLoc headEndLoc_;
       TypeLoc returnType_;
@@ -255,8 +264,8 @@ namespace fox {
   class VarDecl final: public ValueDecl {
     public:
       static VarDecl* create(ASTContext& ctxt, Parent parent,
-        Identifier id, TypeLoc type, bool isConst, Expr* init,
-        SourceRange range);
+        Identifier id, SourceRange idRange, TypeLoc type, 
+        bool isConst, Expr* init, SourceRange range);
 
       Expr* getInitExpr() const;
       void setInitExpr(Expr* expr);
@@ -272,8 +281,8 @@ namespace fox {
       }
 
     private:
-      VarDecl(Parent parent, Identifier id, TypeLoc type, bool isConst,
-        Expr* init, SourceRange range);
+      VarDecl(Parent parent, Identifier id, SourceRange idRange, TypeLoc type,
+        bool isConst, Expr* init, SourceRange range);
 
       Expr* init_ = nullptr;
   };

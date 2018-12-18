@@ -93,7 +93,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // because we need it to exist so declarations that are parsed inside it's body
   // can be notified that they are being parsed as part of a declaration.
   auto* parentDC = getDeclParentAsDeclCtxt();
-  FuncDecl* rtr = FuncDecl::create(ctxt, parentDC, Identifier(), 
+  FuncDecl* rtr = FuncDecl::create(ctxt, parentDC, Identifier(), SourceRange(),
     TypeLoc(), SourceRange(), SourceLoc());
 
   // Create a RAIIDeclParent to notify every parsing function that
@@ -112,7 +112,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
   // <id>
   if (auto foundID = consumeIdentifier()) 
-    rtr->setIdentifier(foundID.get());
+    rtr->setIdentifier(foundID.get(), foundID.getRange());
   else {
     reportErrorExpected(DiagID::parser_expected_iden);
     poisoned = true;
@@ -247,7 +247,7 @@ Parser::DeclResult Parser::parseParamDecl() {
   assert(range && "Invalid loc info");
 
   auto* rtr = ParamDecl::create(ctxt, getDeclParent().get<FuncDecl*>(), 
-    id.get(), tl, isMutable, range);
+    id.get(), id.getRange(), tl, isMutable, range);
 
   return DeclResult(rtr);
 }
@@ -271,14 +271,13 @@ Parser::DeclResult Parser::parseVarDecl() {
   
   SourceLoc endLoc;
 
-  Identifier id;
+  SourceRange idRange;
   TypeLoc type;
   Expr* iExpr = nullptr;
 
   // <id>
-  if (auto foundID = consumeIdentifier())
-    id = foundID.get();
-  else {
+  auto id = consumeIdentifier();
+  if(!id) {
     reportErrorExpected(DiagID::parser_expected_iden);
     if (auto res = resyncToSign(SignType::S_SEMICOLON, 
 			/* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ 
@@ -339,8 +338,8 @@ Parser::DeclResult Parser::parseVarDecl() {
   assert(range && "Invalid loc info");
   assert(type && "type is not valid");
   assert(type.getRange() && "type range is not valid");
-  auto rtr = VarDecl::create(ctxt, getDeclParent(),id, type, 
-    isConst, iExpr, range);
+  auto rtr = VarDecl::create(ctxt, getDeclParent(), id.get(), id.getRange(),
+    type, isConst, iExpr, range);
 
   recordInDeclCtxt(rtr);
   return DeclResult(rtr);

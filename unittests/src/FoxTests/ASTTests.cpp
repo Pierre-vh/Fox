@@ -260,21 +260,25 @@ TEST(ASTTests, StmtRTTI) {
 
 namespace {
   VarDecl* createEmptyVarDecl(ASTContext& ctxt, DeclContext* dc = nullptr) {
-    return VarDecl::create(ctxt, dc, Identifier(), TypeLoc(), false,
-      nullptr, SourceRange());
+    return VarDecl::create(ctxt, dc, Identifier(), SourceRange(), TypeLoc(), 
+      false, nullptr, SourceRange());
   }
 
   FuncDecl* createEmptyFnDecl(ASTContext& ctxt, DeclContext* dc = nullptr) {
-    return FuncDecl::create(ctxt, dc, Identifier(), TypeLoc(), 
+    return FuncDecl::create(ctxt, dc, Identifier(), SourceRange(), TypeLoc(), 
       SourceRange(), SourceLoc());
+  }
+
+  ParamDecl* createEmptyParamDecl(ASTContext& ctxt) {
+    return ParamDecl::create(ctxt, nullptr, Identifier(), SourceRange(),
+      TypeLoc(), false, SourceRange());
   }
 }
 
 TEST(ASTTests, DeclRTTI) {
   ASTContext ctxt;
   // Arg
-  ParamDecl* paramdecl = ParamDecl::create(ctxt, nullptr,
-    Identifier(), TypeLoc(), false, SourceRange());
+  ParamDecl* paramdecl = createEmptyParamDecl(ctxt);
   EXPECT_EQ(paramdecl->getKind(), DeclKind::ParamDecl);
   EXPECT_TRUE(ParamDecl::classof(paramdecl));
   EXPECT_TRUE(NamedDecl::classof(paramdecl));
@@ -346,8 +350,7 @@ TEST(ASTTests, BasicVisitor) {
   // Create test nodes
   auto* intlit = IntegerLiteralExpr::create(ctxt, 42, SourceRange());
   auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
-  auto* vardecl = VarDecl::create(ctxt, (FuncDecl*)nullptr, Identifier(),
-    TypeLoc(), false, nullptr, SourceRange());
+  auto* vardecl = createEmptyVarDecl(ctxt);
   auto* intTy = PrimitiveType::getInt(ctxt);
   auto* arrInt = ArrayType::get(ctxt, intTy);
 

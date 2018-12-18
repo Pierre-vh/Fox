@@ -96,8 +96,8 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
 //----------------------------------------------------------------------------//
 
 NamedDecl::NamedDecl(DeclKind kind, Parent parent, Identifier id, 
-  SourceRange range): Decl(kind, parent, range), identifier_(id),
-  illegalRedecl_(false){}
+  SourceRange idRange, SourceRange range): Decl(kind, parent, range),
+  identifier_(id), identifierRange_(idRange), illegalRedecl_(false){}
 
 Identifier NamedDecl::getIdentifier() const {
   return identifier_;
@@ -105,6 +105,11 @@ Identifier NamedDecl::getIdentifier() const {
 
 void NamedDecl::setIdentifier(Identifier id) {
   identifier_ = id;
+}
+
+void NamedDecl::setIdentifier(Identifier id, SourceRange idRange) {
+  identifier_ = id;
+  identifierRange_ = idRange;
 }
 
 bool NamedDecl::hasIdentifier() const {
@@ -119,13 +124,25 @@ void NamedDecl::setIsIllegalRedecl(bool val) {
   illegalRedecl_ = val;
 }
 
+SourceRange NamedDecl::getIdentifierRange() const {
+  return identifierRange_;
+}
+
+void NamedDecl::setIdentifierRange(SourceRange range) {
+  identifierRange_ = range;
+}
+
+bool NamedDecl::hasIdentifierRange() const {
+  return (bool)identifierRange_;
+}
+
 //----------------------------------------------------------------------------//
 // ValueDecl
 //----------------------------------------------------------------------------//
 
-ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id,
-  TypeLoc ty, bool isConst, SourceRange range): 
-  NamedDecl(kind, parent, id, range), const_(isConst), type_(ty) {}
+ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id, 
+  SourceRange idRange, TypeLoc ty, bool isConst, SourceRange range): 
+  NamedDecl(kind, parent, id, idRange, range), const_(isConst), type_(ty) {}
 
 Type ValueDecl::getType() const {
   return type_.withoutLoc();
@@ -156,31 +173,32 @@ void ValueDecl::setIsConst(bool k) {
 //----------------------------------------------------------------------------//
 
 ParamDecl* ParamDecl::create(ASTContext& ctxt, FuncDecl* parent, 
-  Identifier id, TypeLoc type, bool isMutable, SourceRange range) {
-  return new(ctxt) ParamDecl(parent, id, type, isMutable, range);
+  Identifier id, SourceRange idRange, TypeLoc type, bool isMutable,
+  SourceRange range) {
+  return new(ctxt) ParamDecl(parent, id, idRange, type, isMutable, range);
 }
 
 bool ParamDecl::isMutable() const {
   return !isConst();
 }
 
-ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, TypeLoc type,
-  bool isMutable, SourceRange range):
-  ValueDecl(DeclKind::ParamDecl, parent, id, type, /*is const*/ !isMutable, 
-  range) {}
+ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
+  TypeLoc type, bool isMutable, SourceRange range):
+  ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type, !isMutable, range) 
+  {}
 
 //----------------------------------------------------------------------------//
 // FuncDecl
 //----------------------------------------------------------------------------//
 
-FuncDecl::FuncDecl(DeclContext* parent, Identifier fnId, TypeLoc returnType,
-  SourceRange range, SourceLoc headerEndLoc):
-  NamedDecl(DeclKind::FuncDecl, parent, fnId, range), 
+FuncDecl::FuncDecl(DeclContext* parent, Identifier fnId, SourceRange idRange,
+  TypeLoc returnType, SourceRange range, SourceLoc headerEndLoc):
+  NamedDecl(DeclKind::FuncDecl, parent, fnId, idRange, range), 
   headEndLoc_(headerEndLoc), returnType_(returnType) {}
 
-FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent, 
-  Identifier id, TypeLoc type, SourceRange range, SourceLoc headerEnd) {
-  return new(ctxt) FuncDecl(parent, id, type, range, headerEnd);
+FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent, Identifier id,
+  SourceRange idRange, TypeLoc type, SourceRange range, SourceLoc headerEnd) {
+  return new(ctxt) FuncDecl(parent, id, idRange, type, range, headerEnd);
 }
 
 void FuncDecl::setLocs(SourceRange range, SourceLoc headerEndLoc) {
@@ -254,14 +272,15 @@ std::size_t FuncDecl::getNumParams() const {
 // VarDecl
 //----------------------------------------------------------------------------//
 
-VarDecl::VarDecl(Parent parent, Identifier id, TypeLoc type, 
-  bool isConst, Expr* init, SourceRange range):
-  ValueDecl(DeclKind::VarDecl, parent, id, type, isConst, range),
+VarDecl::VarDecl(Parent parent, Identifier id, SourceRange idRange, 
+  TypeLoc type, bool isConst, Expr* init, SourceRange range):
+  ValueDecl(DeclKind::VarDecl, parent, id, idRange, type, isConst, range),
   init_(init) {}
 
 VarDecl* VarDecl::create(ASTContext& ctxt, Parent parent, Identifier id,
-  TypeLoc type, bool isConst, Expr* init, SourceRange range) {
-  return new(ctxt) VarDecl(parent, id, type, isConst, init, range);
+  SourceRange idRange, TypeLoc type, bool isConst, Expr* init, 
+  SourceRange range) {
+  return new(ctxt) VarDecl(parent, id, idRange, type, isConst, init, range);
 }
 
 Expr* VarDecl::getInitExpr() const {
@@ -289,7 +308,8 @@ void VarDecl::setInitExpr(Expr* expr) {
 //----------------------------------------------------------------------------//
 
 UnitDecl::UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id,
-  FileID inFile): NamedDecl(DeclKind::UnitDecl, parent, id, SourceRange()),
+  FileID inFile): 
+  NamedDecl(DeclKind::UnitDecl, parent, id, SourceRange(), SourceRange()),
   file_(inFile), DeclContext(DeclContextKind::UnitDecl), ctxt_(ctxt) {}
 
 UnitDecl* UnitDecl::create(ASTContext& ctxt, DeclContext* parent, 
