@@ -99,21 +99,17 @@ To-Do:
   > Remove Parser::state + Cleanup Parser.hpp (Done)
   > (Parser) Implement grammar 0.14 in the (Done)
   > DeclContext Improvements: Lexical view is the default, Lookup Map generated on demand (Done)
+  > Unqualified Lookup (Done)
+  > Finish Decl Checking (Done)
 
-// New AST update:
-  > Name binding 
-    > Unqualified Lookup Logic (Done)
-    > Finish Decl checking (Done)
-    > Write DeclChecking tests (Next)
-    > Update doUnqualifiedLookup (Done)
-    > Add special "redecl" error message if the variable shares the same name as a function (Next)
-    > Update StmtChecker to correctly open scopes where appropriate 
-    > Finish name binding logic in visitUnresolvedDeclRefExpr
-    > do ReturnStmt checking
-      > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
-        as parent, so use a PointerUnion<FuncDecl*, LocalScope*> for the parent)
+  > Add special "redecl" error message if the variable shares the same name as a function (Next)
+  > Update StmtChecker to correctly open scopes where appropriate 
+  > Name binding logic in visitUnresolvedDeclRefExpr
+  > ReturnStmt checking
+    > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
+      as parent, so use a PointerUnion<FuncDecl*, LocalScope*> for the parent)
 
-  > Parser improvements, round 3:
+  > Parser improvements
     Update parseFuncDecl/FuncDecl Ctor
     -> Before creating the return node, parse the FuncDecl up to it's return type.
     -> Store ParamDecls inside a vector "vParams"
