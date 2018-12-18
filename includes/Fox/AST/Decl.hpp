@@ -288,15 +288,17 @@ namespace fox {
   };
 
   // UnitDecl
-  //    Represents a parsed Source file. This is both a NamedDecl and a 
-  //    DeclContext.
-  class UnitDecl final: public NamedDecl, public DeclContext {
+  //    Represents a parsed Source file.
+  class UnitDecl final: public Decl, public DeclContext {
     public:
       static UnitDecl* create(ASTContext& ctxt, DeclContext* parent,
         Identifier id, FileID file);
 
       FileID getFile() const;
       void setFileID(const FileID& fid);
+
+      Identifier getIdentifier() const;
+      void setIdentifier(Identifier id);
 
       // Return the ASTContext this Decl lives in.
       ASTContext& getASTContext();
@@ -313,6 +315,7 @@ namespace fox {
       UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id, 
         FileID inFile);
 
+      Identifier identifier_;
       ASTContext& ctxt_;
       FileID file_;
   };

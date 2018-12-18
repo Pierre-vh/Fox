@@ -308,9 +308,9 @@ void VarDecl::setInitExpr(Expr* expr) {
 //----------------------------------------------------------------------------//
 
 UnitDecl::UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id,
-  FileID inFile): 
-  NamedDecl(DeclKind::UnitDecl, parent, id, SourceRange(), SourceRange()),
-  file_(inFile), DeclContext(DeclContextKind::UnitDecl), ctxt_(ctxt) {}
+  FileID inFile): Decl(DeclKind::UnitDecl, parent, SourceRange()),
+  identifier_(id), file_(inFile), DeclContext(DeclContextKind::UnitDecl),
+  ctxt_(ctxt) {}
 
 UnitDecl* UnitDecl::create(ASTContext& ctxt, DeclContext* parent, 
   Identifier id, FileID file) {
@@ -323,6 +323,14 @@ FileID UnitDecl::getFile() const {
 
 void UnitDecl::setFileID(const FileID& fid) {
   file_ = fid;
+}
+
+Identifier UnitDecl::getIdentifier() const {
+  return identifier_;
+}
+
+void UnitDecl::setIdentifier(Identifier id) {
+  identifier_ = id;
 }
 
 ASTContext& UnitDecl::getASTContext() {
