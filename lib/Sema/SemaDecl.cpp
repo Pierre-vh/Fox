@@ -28,6 +28,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       assert(decl && "cannot have a nullptr argument");
       visit(decl);
     }
+
   private:
     //----------------------------------------------------------------------//
     // Diagnostic methods
@@ -83,11 +84,11 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     //----------------------------------------------------------------------//
     
     void visitParamDecl(ParamDecl* decl) {
-      // For ParamDecl, just push them in the local context. There's no
-      // need to do anything else.
-      // We don't even need to check them for Redecl, that is done by
-      // checkFuncDeclParams before calling visitParamDecl
-      getSema().addLocalDeclToScope(decl);
+      // Check this decl for being an illegal redecl
+      if (checkForIllegalRedecl(decl)) {
+        // Not an illegal redeclaration, add it to the scope
+        getSema().addLocalDeclToScope(decl);
+      } 
     }
 
     void visitVarDecl(VarDecl* decl) {
@@ -125,7 +126,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // Tell Sema that we enter this func's scope
       auto scopeGuard = getSema().enterLocalScopeRAII();
       // Check it's parameters
-      checkFuncDeclParams(decl);
+      for (ParamDecl* param : decl->getParams())
+        visit(param);
       // And check it's body!
       getSema().checkStmt(decl->getBody());
     }
@@ -143,34 +145,6 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     //----------------------------------------------------------------------//
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
-    
-    // Marks a ValueDecl as being an invalid redeclaration
-    void markAsIllegalRedecl(ValueDecl* decl) {
-      decl->setIsIllegalRedecl(true);
-    }
-
-    // Calls visit() on the parameters of a FuncDecl, checking for duplicate
-    // parameters and emitting diagnostics if required.
-    //
-    // Returns false if diagnosics were emitted.
-    void checkFuncDeclParams(FuncDecl* decl) {
-      std::map<Identifier, ParamDecl*> seenParams;
-      for(auto param : decl->getParams()) {
-        Identifier id = param->getIdentifier();
-        auto it = seenParams.find(id);
-        // If the identifier isn't a duplicate
-        if(it == seenParams.end()) {
-          // Add it to the map & visit the decl
-          seenParams[id] = param;
-          visitParamDecl(param);
-        }
-        // if the identifier is a duplicate
-        else {
-          diagnoseIllegalRedecl(it->second, param);
-          markAsIllegalRedecl(param);
-        }
-      }
-    }
 
     // Checks if "decl" is a illegal redeclaration.
     // If "decl" is a illegal redecl, the appropriate diagnostic is emitted
@@ -194,18 +168,17 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         return false;  // else, don't ignore.
       };
       getSema().doUnqualifiedLookup(lookupResult, id, options);
-      // Remove this decl from the results.
-      lookupResult.remove(decl);
       // If there are no matches, this cannot be a redecl
       if (lookupResult.size() == 0)
         return true;
       else {
         // if we only have 1 result, and it's a ParamDecl
         NamedDecl* found = lookupResult.getIfSingleResult();
-        if (found && isa<ParamDecl>(found)) {
+        if (found && isa<ParamDecl>(found) && !isa<ParamDecl>(decl)) {
           assert(decl->isLocal() && "Global declaration is conflicting with "
                  "a parameter declaration?");
-          // Redeclaration of a ParamDecl is allowed
+          // Redeclaration of a ParamDecl by non ParamDecl is allowed
+          // (a variable decl can shadow a parameter)
           return true;
         }
         // Else, diagnose.
