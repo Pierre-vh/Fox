@@ -13,6 +13,7 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTWalker.hpp"
+#include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 
@@ -693,10 +694,7 @@ namespace {
     DiagnosticEngine& diags_;
 
     public:
-      ExprFinalizer(ASTContext& ctxt, DiagnosticEngine& diags) :
-        ctxt_(ctxt), diags_(diags) {
-
-      }
+      ExprFinalizer(ASTContext& ctxt) : ctxt_(ctxt), diags_(ctxt.diagEngine) {}
 
       Expr* finalize(Expr* expr) {
         Expr* e = walk(expr);
@@ -773,7 +771,7 @@ namespace {
 Expr* Sema::typecheckExpr(Expr* expr) {
   assert(expr && "null input");
   expr = ExprChecker(*this).check(expr);
-  expr = ExprFinalizer(ctxt_, diags_).finalize(expr);
+  expr = ExprFinalizer(ctxt_).finalize(expr);
   // Success is if the type of the expression isn't ErrorType.
   return expr;
 }
@@ -796,7 +794,7 @@ Sema::typecheckExprOfType(Expr* expr, Type type, bool allowDowncast) {
 
   expr = ExprChecker(*this).check(expr);
   bool success = unify(expr->getType(), type);
-  expr = ExprFinalizer(ctxt_, diags_).finalize(expr);
+  expr = ExprFinalizer(ctxt_).finalize(expr);
 
   bool invalidDowncast = false;
   if(!allowDowncast)

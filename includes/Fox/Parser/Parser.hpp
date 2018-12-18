@@ -67,8 +67,8 @@ namespace fox {
       //----------------------------------------------------------------------//
       // Public Parser Interface
       //----------------------------------------------------------------------//
-      Parser(DiagnosticEngine& diags, SourceManager &sm, 
-        ASTContext& astctxt, TokenVector& l, DeclContext* declCtxt = nullptr);
+      Parser(ASTContext& astctxt, TokenVector& l, 
+        DeclContext* declCtxt = nullptr);
 
 			// Parse a complete Unit
       UnitDecl* parseUnit(FileID fid, Identifier unitName);
@@ -89,10 +89,12 @@ namespace fox {
       // The ASTContext, used to allocate every node in the AST.
       ASTContext& ctxt;
 
-      // The DiagnosticEngine, used to emit diagnostics
+      // The DiagnosticEngine, used to emit diagnostics.
+      // This is a shortcut to ctxt.diagEngine
       DiagnosticEngine& diags;
 
       // The SourceManager, use to retrieve source information
+      // This is a shortcut to ctxt.sourceMgr
       SourceManager& srcMgr;
 
       // The vector of tokens being considered by the parser

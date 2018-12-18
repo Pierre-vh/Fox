@@ -38,7 +38,7 @@ bool Driver::processFile(const std::string& filepath) {
 	}
 
 	// Do lexing
-  Lexer lex(diags, srcMgr, ctxt);
+  Lexer lex(ctxt);
   {
     auto chrono = createChrono("Lexing");
     lex.lexFile(fid);
@@ -48,7 +48,7 @@ bool Driver::processFile(const std::string& filepath) {
   if (diags.getErrorsCount())
     return false;
 
-  Parser psr(diags, srcMgr, ctxt, lex.getTokenVector());
+  Parser psr(ctxt, lex.getTokenVector());
 
   UnitDecl* unit;
   // Do parsing
@@ -70,7 +70,7 @@ bool Driver::processFile(const std::string& filepath) {
   // Only perform Semantic Analysis if no error
   // occured.
 	if(!diags.getErrorsCount()) {
-    Sema s(ctxt, diags);
+    Sema s(ctxt);
     s.checkDecl(unit);
   }
 

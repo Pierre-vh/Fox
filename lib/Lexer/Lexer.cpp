@@ -16,16 +16,13 @@
 using namespace fox;
 using namespace fox::dicts;
 
-Lexer::Lexer(DiagnosticEngine& diags,SourceManager& sm, ASTContext &astctxt):
-  diags_(diags), ctxt_(astctxt), sm_(sm),
-  escapeFlag_(false) {
-
-}
+Lexer::Lexer(ASTContext &astctxt): ctxt_(astctxt), diags_(ctxt_.diagEngine),
+  escapeFlag_(false) {}
 
 void Lexer::lexFile(FileID file) {
   assert(file && "INVALID FileID!");
   currentFile_ = file;
-  auto source = sm_.getSourceStr(currentFile_);
+  auto source = ctxt_.sourceMgr.getSourceStr(currentFile_);
   manip_.setStr(source);
   manip_.reset();
   state_ = DFAState::S_BASE;
@@ -54,12 +51,14 @@ void Lexer::pushTok() {
   // Create a SourceLoc for the begin loc
   SourceLoc sloc(currentFile_, currentTokenBeginIndex_);
   // Create the SourceRange of this token:
-  Token t(diags_,ctxt_,curtok_,getCurtokRange());
+  Token t(ctxt_, curtok_, getCurtokRange());
 
   if (t)
     tokens_.push_back(t);
   else
-    diags_.report(DiagID::lexer_invalid_token_found,t.getRange()).addArg(t.getAsString());
+    diags_
+      .report(DiagID::lexer_invalid_token_found,t.getRange())
+      .addArg(t.getAsString());
 
   curtok_ = "";
 }

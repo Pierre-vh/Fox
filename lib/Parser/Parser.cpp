@@ -16,9 +16,9 @@
 
 using namespace fox;
 
-Parser::Parser(DiagnosticEngine& diags, SourceManager &sm, ASTContext& astctxt, 
-	TokenVector& l, DeclContext *declCtxt): ctxt(astctxt), tokens(l), 
-  srcMgr(sm), diags(diags), curParent_(declCtxt) {
+Parser::Parser(ASTContext& ctxt, TokenVector& l, DeclContext *declCtxt):
+  ctxt(ctxt), tokens(l), srcMgr(ctxt.sourceMgr), diags(ctxt.diagEngine),
+  curParent_(declCtxt) {
   tokenIterator_ = tokens.begin();
   isAlive_ = true;
 }

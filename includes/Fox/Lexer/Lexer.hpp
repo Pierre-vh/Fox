@@ -19,7 +19,7 @@ namespace fox {
   class DiagnosticEngine;
   class Lexer  {
     public:
-      Lexer(DiagnosticEngine& diags,SourceManager& sm,ASTContext &astctxt);
+      Lexer(ASTContext &astctxt);
 
       // Lexs a file in the SourceManager.
       // This will retrieve the file from the SourceManager from the current Context.
@@ -63,9 +63,8 @@ namespace fox {
       SourceLoc getCurtokBegLoc() const;
       SourceRange getCurtokRange() const;
 
-      ASTContext &ctxt_;
+      ASTContext& ctxt_;
       DiagnosticEngine& diags_;
-      SourceManager& sm_;
       FileID currentFile_;
 
       bool escapeFlag_ : 1;

@@ -145,8 +145,8 @@ namespace fox {
       Token(const Token& cpy);
 
       // Constructor to use to let the Token identify itself
-      Token(DiagnosticEngine& diag, ASTContext &astctxt, 
-        const std::string& tokstr, SourceRange range = SourceRange());
+      Token(ASTContext &astctxt, const std::string& tokstr, 
+        SourceRange range = SourceRange());
 
       std::string showFormattedTokenData() const;
 
@@ -185,11 +185,11 @@ namespace fox {
       std::unique_ptr<LiteralInfo> literalData_ = nullptr;
 
       /* Identification functions */
-      void identify(DiagnosticEngine& diags, ASTContext& astctxt, const std::string& str);
+      void identify(ASTContext& astctxt, const std::string& str);
       bool idKeyword(const std::string& str);
       bool idSign(const std::string& str);
       bool idLiteral(DiagnosticEngine& diags, const std::string& str);
-      bool idIdentifier(DiagnosticEngine& diags, ASTContext& astctxt,const std::string& str);
+      bool idIdentifier(ASTContext& astctxt, const std::string& str);
       bool validateIdentifier(DiagnosticEngine& diags, const std::string& str) const;
       // Helper for idIdentifier 
       bool hasAtLeastOneLetter(const std::string &str) const; // Checks if str_ has at least one upper/lower case letter.

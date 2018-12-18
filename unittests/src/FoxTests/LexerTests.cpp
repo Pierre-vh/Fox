@@ -21,8 +21,7 @@ using namespace fox::test;
 namespace {
   class LexerTest : public testing::Test {
     public:
-      LexerTest() : diags(srcMgr), ctxt(srcMgr, diags), 
-        lexer(diags, srcMgr, ctxt) {}
+      LexerTest() : diags(srcMgr), ctxt(srcMgr, diags), lexer(ctxt) {}
 
     protected:
       Lexer lexer;
@@ -69,9 +68,9 @@ TEST_F(LexerTest, IncorrectTest4) {
 
 TEST_F(LexerTest, FloatTokens) {
 
-  Token tok1(diags, ctxt, "3.14");
-  Token tok2(diags, ctxt, "0.0");
-  Token tok3(diags, ctxt, "0.3333333333333");
+  Token tok1(ctxt, "3.14");
+  Token tok2(ctxt, "0.0");
+  Token tok3(ctxt, "0.3333333333333");
 
   ASSERT_TRUE(tok1.isLiteral());
   ASSERT_TRUE(tok2.isLiteral());
@@ -95,9 +94,9 @@ TEST_F(LexerTest, FloatTokens) {
 }
 
 TEST_F(LexerTest, IntTokens) {
-  Token tok1(diags, ctxt,"0");
-  Token tok2(diags, ctxt,"9223372036854775000");
-  Token tok3(diags, ctxt,"4242424242424242");
+  Token tok1(ctxt,"0");
+  Token tok2(ctxt,"9223372036854775000");
+  Token tok3(ctxt,"4242424242424242");
 
   ASSERT_TRUE(tok1.isLiteral());
   ASSERT_TRUE(tok2.isLiteral());
@@ -121,9 +120,9 @@ TEST_F(LexerTest, IntTokens) {
 }
 
 TEST_F(LexerTest, StringTokens) {
-  Token tok1(diags, ctxt, "\"Hello, world!\"");
-  Token tok2(diags, ctxt, "\"\"");
-  Token tok3(diags, ctxt, "\"!\"");
+  Token tok1(ctxt, "\"Hello, world!\"");
+  Token tok2(ctxt, "\"\"");
+  Token tok3(ctxt, "\"!\"");
 
   ASSERT_TRUE(tok1.isLiteral());
   ASSERT_TRUE(tok2.isLiteral());
@@ -147,9 +146,9 @@ TEST_F(LexerTest, StringTokens) {
 }
 
 TEST_F(LexerTest, CharTokens) {
-  Token tok1(diags, ctxt, "'c'");
-  Token tok2(diags, ctxt, "' '");
-  Token tok3(diags, ctxt, "'!'");
+  Token tok1(ctxt, "'c'");
+  Token tok2(ctxt, "' '");
+  Token tok3(ctxt, "'!'");
 
   ASSERT_TRUE(tok1.isLiteral());
   ASSERT_TRUE(tok2.isLiteral());
@@ -173,8 +172,8 @@ TEST_F(LexerTest, CharTokens) {
 }
 
 TEST_F(LexerTest, BoolTokens) {
-  Token tok1(diags, ctxt, "true");
-  Token tok2(diags, ctxt, "false");
+  Token tok1(ctxt, "true");
+  Token tok2(ctxt, "false");
 
   ASSERT_TRUE(tok1.isLiteral());
   ASSERT_TRUE(tok2.isLiteral());

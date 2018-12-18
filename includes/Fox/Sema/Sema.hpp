@@ -45,7 +45,7 @@ namespace fox {
       // Constructor
         // TODO: Once ASTContext contains the DiagnosticEngine, remove the 2nd
         //       argument.
-      Sema(ASTContext& ctxt, DiagnosticEngine& diags);
+      Sema(ASTContext& ctxt);
 
       // Typechecks a ASTNode (expression, declaration or statement)
       // and it's children.
@@ -258,7 +258,6 @@ namespace fox {
       
       // the ASTContext and DiagnosticEngine
       ASTContext &ctxt_;
-      DiagnosticEngine& diags_;
   };
 
   // Common base class for all Checker classes. This is used to DRY the code 

@@ -12,6 +12,7 @@
 #include "Fox/AST/ASTNode.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/AST/Decl.hpp"
+#include "Fox/AST/ASTContext.hpp"
 
 using namespace fox;
 
@@ -19,13 +20,10 @@ using namespace fox;
 // Sema Methods
 //----------------------------------------------------------------------------//
 
-Sema::Sema(ASTContext& ctxt, DiagnosticEngine& diags) :
-  ctxt_(ctxt), diags_(diags) {
-
-}
+Sema::Sema(ASTContext& ctxt) : ctxt_(ctxt) {}
 
 DiagnosticEngine& Sema::getDiagnosticEngine() {
-  return diags_;
+  return ctxt_.diagEngine;
 }
 
 ASTContext& Sema::getASTContext() {

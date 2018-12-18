@@ -102,10 +102,10 @@ bool LiteralInfo::isNull() const {
   return mpark::holds_alternative<mpark::monostate>(value_);
 }
 
-Token::Token(DiagnosticEngine &diags, ASTContext &astctxt,
-  const std::string& tokstr, SourceRange range):
+Token::Token(ASTContext& ctxt, const std::string& tokstr,
+  SourceRange range):
   range_(range) {
-  identify(diags,astctxt,tokstr);
+  identify(ctxt, tokstr);
 }
 
 Token::Token(const Token& cpy):
@@ -250,17 +250,16 @@ Identifier Token::getIdentifier() const {
 }
 
 void 
-Token::identify(DiagnosticEngine& diags, 
-	ASTContext& astctxt, const std::string& str) {
+Token::identify(ASTContext& ctxt, const std::string& str) {
   // If the token is empty, this means our lexer might be broken!
   assert(str.size() && "String cannot be empty!");
 
   if (idSign(str));
   else if (idKeyword(str));
-  else if (idLiteral(diags, str));
-  else if (idIdentifier(diags, astctxt, str));
+  else if (idLiteral(ctxt.diagEngine, str));
+  else if (idIdentifier(ctxt, str));
   else
-    diags.report(DiagID::lexer_cant_id_tok, range_).addArg(str);
+    ctxt.diagEngine.report(DiagID::lexer_cant_id_tok, range_).addArg(str);
 }
 
 bool Token::idKeyword(const std::string& str) {
@@ -347,10 +346,9 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
   return false;
 }
 
-bool Token::idIdentifier(DiagnosticEngine& diags,ASTContext& astctxt, 
-	const std::string & str) {
-  if (validateIdentifier(diags,str)) {
-    tokenData_ = astctxt.getIdentifier(str);
+bool Token::idIdentifier(ASTContext& ctxt, const std::string& str) {
+  if (validateIdentifier(ctxt.diagEngine, str)) {
+    tokenData_ = ctxt.getIdentifier(str);
     return true;
   }
   return false;

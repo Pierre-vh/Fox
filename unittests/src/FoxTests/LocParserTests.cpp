@@ -34,14 +34,15 @@ class LocTests : public ::testing::Test {
         FAIL() << "Couldn't load file \""<< filepath << "\" in memory.";
       }
 
-      lexer = std::make_unique<Lexer>(diags, srcMgr, astContext);
+      lexer = std::make_unique<Lexer>(astContext);
       lexer->lexFile(file);
 
       if (astContext.hadErrors()) {
         FAIL() << "Lexing Error";
       }
 
-      parser = std::make_unique<Parser>(diags, srcMgr , astContext, lexer->getTokenVector(), &declContext);
+      parser = std::make_unique<Parser>(astContext, lexer->getTokenVector(), 
+        &declContext);
       ok = true;
     }
 
