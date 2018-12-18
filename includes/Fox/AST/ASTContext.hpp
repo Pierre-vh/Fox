@@ -23,6 +23,9 @@ namespace fox {
   // The ASTContext is pretty much the centerpiece of the AST. It owns
   // the allocators used to allocate the AST, keeps track of type singletons,
   // of the UnitDecls, etc.
+  //
+  // The ASTContext also contains a reference to the "attached" DiagnosticEngine
+  // and SourceManagers.
   class ASTContext {
     public:
       ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags);
