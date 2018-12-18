@@ -1,0 +1,5 @@
+// RUN: %fox %s -verify -werr
+
+func bar(foo : bool,    // expect-note: first declaration of 'foo' seen here
+         foo : bool) {  // expect-error: invalid redeclaration of function parameter 'foo'
+}
