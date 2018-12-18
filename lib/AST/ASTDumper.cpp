@@ -95,8 +95,11 @@ void ASTDumper::visitMemberOfExpr(MemberOfExpr* node) {
 }
 
 void ASTDumper::visitDeclRefExpr(DeclRefExpr* node) {
+  NamedDecl* ref = node->getDecl();
+  // FIXME: should work with invalid/ill formed ASTs
+  assert(ref && "no referenced decl");
   dumpLine() << getBasicExprInfo(node) << " "
-    << getIdentifierDump(node->getIdentifier()) << " "
+    << getIdentifierDump(ref->getIdentifier()) << " "
     << makeKeyPairDump("references", (void*)node->getDecl())
     << "\n";
 }

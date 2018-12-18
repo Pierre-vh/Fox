@@ -7,6 +7,7 @@
 
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/ASTContext.hpp"
+#include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <sstream> 
 
@@ -452,10 +453,6 @@ DeclRefExpr::DeclRefExpr(ValueDecl* decl, SourceRange range):
 DeclRefExpr* DeclRefExpr::create(ASTContext& ctxt, ValueDecl* decl, 
   SourceRange range) {
   return new(ctxt) DeclRefExpr(decl, range);
-}
-
-Identifier DeclRefExpr::getIdentifier() const {
-  return decl_ ? decl_->getIdentifier() : Identifier();
 }
 
 ValueDecl* DeclRefExpr::getDecl() const {

@@ -379,10 +379,6 @@ namespace fox   {
       static DeclRefExpr* create(ASTContext& ctxt, ValueDecl* decl,
         SourceRange range);
 
-      // Returns the identifier of the Decl, or Identifier() if
-      // the Decl is nullptr
-      Identifier getIdentifier() const;
-
       ValueDecl* getDecl() const;
       void setDecl(ValueDecl* decl);
 
