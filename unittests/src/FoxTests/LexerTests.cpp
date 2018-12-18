@@ -8,15 +8,14 @@
 //----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
-#include "Support/TestUtils.hpp"
 #include "Fox/AST/ASTContext.hpp" 
 #include "Fox/Lexer/Lexer.hpp"
 #include "Fox/Lexer/Token.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-#include <memory>
+#include "Support/TestUtils.hpp"
+
 using namespace fox;
 using namespace fox::test;
-
 
 namespace {
   class LexerTest : public testing::Test {
@@ -24,10 +23,19 @@ namespace {
       LexerTest() : diags(srcMgr), ctxt(srcMgr, diags), lexer(ctxt) {}
 
     protected:
-      Lexer lexer;
-      ASTContext ctxt;
-      DiagnosticEngine diags;
+      // C++ Standard 12.6.2.10:
+      //    [...] non-static data members are initialized in the order
+      //    they were declared in the class definition [...]
+      //
+      // So here, the order of declaration of the members must be strictly
+      // respected, because:
+      //    diags depends on srcMgr
+      //    ctxt depends on both srcMgr and diags
+      //    lexer depends on ctxt.
       SourceManager srcMgr;
+      DiagnosticEngine diags;
+      ASTContext ctxt;
+      Lexer lexer;
   };
 }
 
