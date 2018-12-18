@@ -4,11 +4,7 @@
 // File : ASTContext.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// The ASTContext is the core of the AST. It contains numerous things, including
-// the type singletons, allocators for the AST, and more!
-//
-// TODO: Remove the "Module" and "Units" things from the ASTContext. Create
-//			 specific "Module" and "SourceFile" classes for that (like SwiftC does)
+// Contains the ASTContext class
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -23,6 +19,10 @@
 namespace fox {
 	class DiagnosticEngine;
 	class SourceManager;
+
+  // The ASTContext is pretty much the centerpiece of the AST. It owns
+  // the allocators used to allocate the AST, keeps track of type singletons,
+  // of the UnitDecls, etc.
   class ASTContext {
     public:
       ASTContext() = default;
