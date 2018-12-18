@@ -48,6 +48,21 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         diagnoseIllegalRedecl(earliest, decl);
     }
 
+    // Helper diagnoseIllegalRedecl
+    DiagID getAppropriateDiagForRedecl(NamedDecl* original, NamedDecl* redecl) {
+      // This is a "classic" var redeclaration
+      if (isVarOrParamDecl(original) && isVarOrParamDecl(redecl)) {
+        return isa<ParamDecl>(original) ?
+          DiagID::sema_invalid_param_redecl : DiagID::sema_invalid_var_redecl;
+      }
+      // Invalid function redeclaration
+      else if (isa<FuncDecl>(original) && isa<FuncDecl>(redecl))
+        return DiagID::sema_invalid_redecl;
+      // Redecl as a different kind of symbol
+      else
+        return DiagID::sema_invalid_redecl_diff_symbol_kind;
+    }
+
     // Diagnoses an illegal redeclaration where "redecl" is an illegal
     // redeclaration of "original"
     void diagnoseIllegalRedecl(NamedDecl* original, NamedDecl* redecl) {
@@ -55,8 +70,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       Identifier id = original->getIdentifier();
       assert((id == redecl->getIdentifier())
         && "it's a redeclaration but names are different?");
-      DiagID diagID = isa<ParamDecl>(original) ? 
-        DiagID::sema_invalid_param_redecl : DiagID::sema_invalid_redecl;
+      DiagID diagID = getAppropriateDiagForRedecl(original, redecl);
       getDiags().report(diagID, redecl->getRange())
         .addArg(id);
       getDiags().report(DiagID::sema_1stdecl_seen_here, original->getRange())
@@ -132,6 +146,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     void visitFuncDecl(FuncDecl* decl) {
       // Tell Sema that we enter this func's scope
       auto scopeGuard = getSema().enterLocalScopeRAII();
+      // Check if this is an invalid redecl
+      checkForIllegalRedecl(decl);
       // Check it's parameters
       for (ParamDecl* param : decl->getParams())
         visit(param);
@@ -158,7 +174,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // and this function returns false.
     // Returns true if "decl" is legal redeclaration or not a redeclaration
     // at all.
-    bool checkForIllegalRedecl(ValueDecl* decl) {        
+    bool checkForIllegalRedecl(NamedDecl* decl) {        
       Identifier id = decl->getIdentifier();
       LookupResult lookupResult;
       // Build Lookup options:
@@ -167,7 +183,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       options.canLookInDeclContext = !decl->isLocal();
       options.shouldIgnore = [&](NamedDecl* result){
         // Ignore if result == decl
-        if(result == (NamedDecl*)decl) return true;
+        if(result == decl) return true;
         // Ignore if result isn't from the same file
         if(result->getFile() != decl->getFile()) return true;
         // And lastly, ignore if result doesn't come before decl.
@@ -238,6 +254,11 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       SourceLoc lhsBeg = lhs->getBegin();
       SourceLoc rhsBeg = rhs->getBegin();
       return lhsBeg.getIndex() < rhsBeg.getIndex();
+    }
+
+    // Return true if decl is a VarDecl or ParamDecl
+    bool isVarOrParamDecl(NamedDecl* decl) {
+      return isa<ParamDecl>(decl) || isa<VarDecl>(decl);
     }
 };
 

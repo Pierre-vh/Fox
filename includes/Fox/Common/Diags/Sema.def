@@ -18,10 +18,15 @@ ERROR(sema_binexpr_invalid_operands,
   "cannot use binary operator '%0' on expressions of types '%1' and '%2'")
 ERROR(sema_cant_use_expr_as_cond,
   "cannot use an expression of type '%0' as a condition")
-ERROR(sema_invalid_redecl,
+
+ERROR(sema_invalid_var_redecl,
   "invalid redeclaration of variable '%0'")
 ERROR(sema_invalid_param_redecl,
   "invalid redeclaration of function parameter '%0'")
+ERROR(sema_invalid_redecl, "invalid redeclaration of '%0'")
+ERROR(sema_invalid_redecl_diff_symbol_kind,
+  "invalid redeclaration of '%0' as a different kind of symbol")
+
 ERROR(sema_invalid_vardecl_init_expr,
   "cannot use an expression of type '%0' to initialize a variable of type '%1'")
 
