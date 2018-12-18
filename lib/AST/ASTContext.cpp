@@ -46,11 +46,6 @@ void ASTContext::reset() {
   theErrorType = nullptr;
 
   allocator_.reset();
-  semaAllocator_.reset();
-}
-
-void ASTContext::freeCS() {
-  semaAllocator_.reset();
 }
 
 Identifier ASTContext::getIdentifier(const std::string& str) {

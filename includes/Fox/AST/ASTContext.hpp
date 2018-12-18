@@ -31,16 +31,13 @@ namespace fox {
       const UnitDecl* getMainUnit() const;
       void setUnit(UnitDecl* decl);
 
-      // ALLOCATOR
+      // ALLOCATORS
       LinearAllocator<>& getAllocator();
       LinearAllocator<>& getSemaAllocator();
 
       // Resets the ASTContext, freeing the AST and
       // everything allocated within it's allocators.
       void reset();
-
-      // Frees the memory allocated for the Constraint.
-      void freeCS();
 
 			// Returns the unique, ASTContext-owned version of the identifier "str"
 			Identifier getIdentifier(const std::string& str);
