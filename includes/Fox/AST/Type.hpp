@@ -49,7 +49,7 @@ namespace fox {
       Type& operator=(const TypeLoc&) = delete;
   };
 
-  // A Type with its associated SourceRange
+  // A Type with its associated location information (a SourceRange)
   class TypeLoc : public Type {
     SourceRange range_;
     public:
