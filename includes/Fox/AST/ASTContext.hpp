@@ -13,13 +13,11 @@
 
 #pragma once
 
-
 #include <map>
-#include <vector>
 #include <set>
-#include "Types.hpp"
-#include "Decl.hpp"
+#include "Type.hpp"
 #include "Identifier.hpp"
+#include "ASTFwdDecl.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
 
 namespace fox {

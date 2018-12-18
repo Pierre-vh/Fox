@@ -11,6 +11,7 @@
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/Source.hpp"
+#include "Fox/AST/Types.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 
 using namespace fox;
