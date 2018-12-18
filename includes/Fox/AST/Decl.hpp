@@ -27,15 +27,29 @@ namespace fox {
   enum class DeclKind : std::uint8_t {
     #define DECL(ID,PARENT) ID,
     #define DECL_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
+    #define LAST_DECL(ID) LastDecl = ID
     #include "DeclNodes.def"
   };
+
+  inline constexpr auto toInt(DeclKind kind) {
+    return static_cast<std::underlying_type<DeclKind>::type>(kind);
+  }
 
   // Decl
   //    Common base class for every Declaration
   //    Note that every Decl will take a DeclContext* argument. That DeclContext
   //    should be their parent DeclContext.
   class alignas(DeclAlignement) Decl {
+    static constexpr unsigned kindBits_ = 4;
     public:
+      enum class CheckState {
+        Unchecked,
+        CheckedValid,
+        CheckedInvalid
+        // There's room for one more CheckState. If this enum is updated
+        // beyond 4 elements, increase the size of it's bitfield in Decl.
+      };
+
       using Parent = llvm::PointerUnion<DeclContext*, FuncDecl*>;
 
       // Get the kind of Decl this is.
@@ -67,6 +81,20 @@ namespace fox {
       SourceLoc getBegin() const;
       SourceLoc getEnd() const;
 
+      // Return true if this Decl's CheckState is Unchecked.
+      bool isUnchecked() const;
+      // Return true if this Decl's CheckState is CheckedValid or CheckedInvalid
+      bool isChecked() const;
+      // Returns true if this Decl's CheckState is CheckedValid
+      bool isCheckedValid() const;
+      // Returns true if this Decl's CheckState is CheckedInvalid
+      bool isCheckedInvalid() const;
+
+      CheckState getCheckState() const;
+      // Sets the CheckState. Note that if the CheckState is != Unchecked,
+      // you can't change the CheckState again.
+      void setCheckState(CheckState state);
+
       // Get the FileID of the file where this Decl is located
       FileID getFile() const;
 
@@ -94,7 +122,13 @@ namespace fox {
     private:
       Parent parent_;
       SourceRange range_;
-      const DeclKind kind_;
+
+      static_assert(toInt(DeclKind::LastDecl) < (1 << kindBits_),
+        "kind_ bitfield doesn't have enough bits to represent every DeclKind");
+
+      // Bitfield : 2 bits left
+      const DeclKind kind_ : kindBits_;
+      CheckState checkState_ : 2;
   };
 
   // NamedDecl

@@ -20,7 +20,8 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 Decl::Decl(DeclKind kind, Parent parent, SourceRange range):
-  kind_(kind), range_(range), parent_(parent) {}
+  kind_(kind), range_(range), parent_(parent), 
+  checkState_(CheckState::Unchecked) {}
 
 DeclKind Decl::getKind() const {
   return kind_;
@@ -64,6 +65,33 @@ SourceLoc Decl::getBegin() const {
 
 SourceLoc Decl::getEnd() const {
   return range_.getEnd();
+}
+
+bool Decl::isUnchecked() const {
+  return (checkState_ == CheckState::Unchecked);
+}
+
+bool Decl::isChecked() const {
+  return (checkState_ == CheckState::CheckedInvalid) ||
+    (checkState_ == CheckState::CheckedValid);
+}
+
+bool Decl::isCheckedValid() const {
+  return (checkState_ == CheckState::CheckedValid);
+}
+
+bool Decl::isCheckedInvalid() const {
+  return (checkState_ == CheckState::CheckedInvalid);
+}
+
+Decl::CheckState Decl::getCheckState() const {
+  return checkState_;
+}
+
+void Decl::setCheckState(CheckState state) {
+  assert((checkState_ == CheckState::Unchecked) && "Can't change the "
+    "CheckState unless it's Unchecked!");
+  checkState_ = state;
 }
 
 FileID Decl::getFile() const {
