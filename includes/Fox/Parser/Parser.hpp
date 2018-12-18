@@ -71,7 +71,7 @@ namespace fox {
         ASTContext& astctxt, TokenVector& l, DeclContext* declCtxt = nullptr);
 
 			// Parse a complete Unit
-      UnitDecl* parseUnit(FileID fid, Identifier unitName, bool isMainUnit);
+      UnitDecl* parseUnit(FileID fid, Identifier unitName);
 
       // Parse a single variable declaration
       DeclResult parseVarDecl();

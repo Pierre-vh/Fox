@@ -14,7 +14,7 @@
 
 using namespace fox;
 
-UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
+UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
   // <fox_unit>  = {<declaration>}1+
 
   // Assert that unitName != nullptr

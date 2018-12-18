@@ -53,8 +53,7 @@ bool Driver::processFile(const std::string& filepath) {
   // Do parsing
   {
     auto chrono = createChrono("Parsing");
-    unit 
-			= psr.parseUnit(fid, ctxt.getIdentifier("TestUnit"), /*mainUnit*/ true);
+    unit = psr.parseUnit(fid, ctxt.getIdentifier("TestUnit"));
   }
 
   // Stop if we had errors or if the unit is invalid
