@@ -101,13 +101,9 @@ To-Do:
   > DeclContext Improvements: Lexical view is the default, Lookup Map generated on demand (Done)
   > Unqualified Lookup (Done)
   > Finish Decl Checking (Done)
+  > Add an Identifier range for NamedDecls (Done)
+  > UnitDecl is no longer a NamedDecl (Done)
 
-  > Add a Identifier range for Param/Func/VarDecl.
-    -> Add it to NamedDecl:
-        getIdentifierRange()
-        setIdentifierRange()
-        hasIdentifierRange()
-    -> Then, use it to emit "redecl" diags. Use the IdRange as the diag's range
   > Update StmtChecker to correctly open scopes where appropriate 
   > Name binding logic in visitUnresolvedDeclRefExpr
   > ReturnStmt checking
