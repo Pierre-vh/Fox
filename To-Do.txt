@@ -103,6 +103,7 @@ To-Do:
   > Finish Decl Checking (Done)
   > Add an Identifier range for NamedDecls (Done)
   > UnitDecl is no longer a NamedDecl (Done)
+  > ASTContext stores DiagnosticEngine& and SourceManager& (Done)
 
   > Update StmtChecker to correctly open scopes where appropriate 
   > Name binding logic in visitUnresolvedDeclRefExpr
@@ -122,30 +123,20 @@ To-Do:
       Debug tool that asserts that the AST is well formed. Used as a debug tool (will
       only be enabled in Debug builds)
 
-  ASTContext:
-   > Add a public SourceManager& and DiagnosticEngine&
-
-  > Non-local name binding in Sema
-  > Finish Decl semantic analysis
-    > Don't do OVR for now
-  > Finish UnresolvedDeclRefExpr 
-  > FunctionCallExpr
   > UFCS
     > Parser additions (UnresolvedDotExpr)
     > Semantic Analysis
+
   > Overloads
-
-  > Allow cast expr chaining (update grammar & parser)
-
-  > Write Lexer LIT tests
 
   > IR
   > IRGen
   > VM
 
 Other:
-  > Consider a ASTContext interface update:
-    -> Add a public SourceManager& and DiagnosticEngine&
+  > Allow cast expr chaining (update grammar & parser)
+    This isn't really a commonly used feature, but I hate seeing errors just because I type
+    "foo as bool as string"
 
   > When diagnosing a redecl, should I really print "first decl seen here" each time
     if the decl was redeclared multiple times?
