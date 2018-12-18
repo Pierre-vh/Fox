@@ -83,6 +83,13 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // kinds.
     //----------------------------------------------------------------------//
     
+    // Custom "visit" override that marks the decl as being
+    // checked after visiting it.
+    void visit(Decl* decl) {
+      Inherited::visit(decl);
+      decl->markAsChecked();
+    }
+
     void visitParamDecl(ParamDecl* decl) {
       // Check this decl for being an illegal redecl
       if (checkForIllegalRedecl(decl)) {
