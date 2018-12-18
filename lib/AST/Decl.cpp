@@ -72,26 +72,15 @@ bool Decl::isUnchecked() const {
 }
 
 bool Decl::isChecked() const {
-  return (checkState_ == CheckState::CheckedInvalid) ||
-    (checkState_ == CheckState::CheckedValid);
-}
-
-bool Decl::isCheckedValid() const {
-  return (checkState_ == CheckState::CheckedValid);
-}
-
-bool Decl::isCheckedInvalid() const {
-  return (checkState_ == CheckState::CheckedInvalid);
+  return (checkState_ == CheckState::Checked);
 }
 
 Decl::CheckState Decl::getCheckState() const {
   return checkState_;
 }
 
-void Decl::setCheckState(CheckState state) {
-  assert((checkState_ == CheckState::Unchecked) && "Can't change the "
-    "CheckState unless it's Unchecked!");
-  checkState_ = state;
+void Decl::markAsChecked() {
+  checkState_ = CheckState::Checked;
 }
 
 FileID Decl::getFile() const {

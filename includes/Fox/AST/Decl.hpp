@@ -44,9 +44,10 @@ namespace fox {
     public:
       enum class CheckState {
         Unchecked,
-        CheckedValid,
-        CheckedInvalid
-        // There's room for one more CheckState. If this enum is updated
+        // TODO: Add "Checking". Will be needed with multi file support or variable
+        //  type inference at the global level!
+        Checked
+        // There's room for 2 more CheckStates. If this enum is updated
         // beyond 4 elements, increase the size of it's bitfield in Decl.
       };
 
@@ -83,17 +84,11 @@ namespace fox {
 
       // Return true if this Decl's CheckState is Unchecked.
       bool isUnchecked() const;
-      // Return true if this Decl's CheckState is CheckedValid or CheckedInvalid
+      // Return true if this Decl's CheckState is Checked
       bool isChecked() const;
-      // Returns true if this Decl's CheckState is CheckedValid
-      bool isCheckedValid() const;
-      // Returns true if this Decl's CheckState is CheckedInvalid
-      bool isCheckedInvalid() const;
 
       CheckState getCheckState() const;
-      // Sets the CheckState. Note that if the CheckState is != Unchecked,
-      // you can't change the CheckState again.
-      void setCheckState(CheckState state);
+      void markAsChecked();
 
       // Get the FileID of the file where this Decl is located
       FileID getFile() const;
@@ -126,9 +121,9 @@ namespace fox {
       static_assert(toInt(DeclKind::LastDecl) < (1 << kindBits_),
         "kind_ bitfield doesn't have enough bits to represent every DeclKind");
 
-      // Bitfield : 2 bits left
-      const DeclKind kind_ : kindBits_;
-      CheckState checkState_ : 2;
+      // Bitfield : 1 bit left
+      const DeclKind kind_ : kindBits_; // The Kind of Decl this is
+      CheckState checkState_ : 2; // The CheckState of this Decl
   };
 
   // NamedDecl
