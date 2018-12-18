@@ -16,7 +16,7 @@
 using namespace fox;
 using namespace fox::dicts;
 
-Lexer::Lexer(ASTContext &astctxt): ctxt_(astctxt), diags_(ctxt_.diagEngine),
+Lexer::Lexer(ASTContext& astctxt): ctxt_(astctxt), diags_(ctxt_.diagEngine),
   escapeFlag_(false) {}
 
 void Lexer::lexFile(FileID file) {
@@ -158,7 +158,9 @@ void Lexer::fn_S_STR() {
     dfa_goto(DFAState::S_BASE);
   }
   else if (c == '\n')
-    diags_.report(DiagID::lexer_newline_in_literal, getCurtokBegLoc()).addArg("string");
+    diags_
+      .report(DiagID::lexer_newline_in_literal, getCurtokBegLoc())
+      .addArg("string");
   else
     addToCurtok(c);
 }
