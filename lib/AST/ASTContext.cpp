@@ -9,17 +9,17 @@
 
 using namespace fox;
 
-ASTContext::ASTContext() {}
 
-UnitDecl* ASTContext::getMainUnit() const {
-  return mainUnit_;
+UnitDecl* ASTContext::getMainUnit() {
+  return theUnit_;
 }
 
-void ASTContext::addUnit(UnitDecl* unit, bool isMainUnit) {
-  units_.push_back(unit);
+const UnitDecl* ASTContext::getMainUnit() const {
+  return theUnit_;
+}
 
-  if (isMainUnit)
-    mainUnit_ = unit;
+void ASTContext::setUnit(UnitDecl* decl) {
+  theUnit_ = decl;
 }
 
 LinearAllocator<>& ASTContext::getAllocator() {
@@ -31,8 +31,7 @@ LinearAllocator<>& ASTContext::getSemaAllocator() {
 }
 
 void ASTContext::reset() {
-  units_.clear();
-  mainUnit_ = nullptr;
+  theUnit_ = nullptr;
 
   // Clear maps of ArrayType/LValueTypes
   arrayTypes.clear();

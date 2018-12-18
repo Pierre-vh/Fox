@@ -68,7 +68,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName, bool isMainUnit) {
     return nullptr;
   }
   else {
-    ctxt.addUnit(unit, isMainUnit);
+    ctxt.setUnit(unit);
     return unit;
   }
 }

@@ -27,14 +27,11 @@ namespace fox {
 	class SourceManager;
   class ASTContext {
     public:
-      ASTContext();
+      ASTContext() = default;
 
-      // Returns a observing pointer to the unit containing the entry point of 
-			// the module (if there is one)
-      UnitDecl* getMainUnit() const;
-      
-      // Registers a unit in this ASTContext
-      void addUnit(UnitDecl* unit, bool isMainUnit = false);
+      UnitDecl* getMainUnit();
+      const UnitDecl* getMainUnit() const;
+      void setUnit(UnitDecl* decl);
 
       // ALLOCATOR
       LinearAllocator<>& getAllocator();
@@ -80,12 +77,7 @@ namespace fox {
       ASTContext(const ASTContext&) = delete;
       ASTContext& operator=(const ASTContext&) = delete;
 
-      // An observing pointer to a ASTUnit owned by the vector below that points to the main unit
-      // (= the unit that contains the entry point of this module)
-      UnitDecl* mainUnit_ = nullptr;
-
-      // All of the units that makes the current module.
-      std::vector<UnitDecl*> units_;
+      UnitDecl* theUnit_ = nullptr;
 
 			// The unique identifiers strings set
 			std::set<std::string> idents_;
