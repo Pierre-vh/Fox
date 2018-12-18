@@ -1,0 +1,9 @@
+// RUN: %fox %s -verify -werr
+
+func foo() {} // expect-note: first declaration of 'foo' seen here
+
+let foo : int; // expect-error: invalid redeclaration of 'foo' as a different kind of symbol
+
+let bar : float; // expect-note: first declaration of 'bar' seen here
+
+func bar() {} // expect-error: invalid redeclaration of 'bar' as a different kind of symbol
