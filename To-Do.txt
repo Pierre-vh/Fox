@@ -109,7 +109,10 @@ To-Do:
   > ASTDumper overhaul 
   > Fix how diagnostics print columns/line on multiple lines
     > For diags, only print "begline:begcol", not the full range.
-  > Diagnostic: Try to remove isFileWide and use some bit packing here and there.
+  
+  > Do more bit packing:
+    > Diagnostic object (use to-do in Diagnostic.hpp)
+    > TypeBase: kind can use 6 bits instead of 8 (but static assert with a LAST_TYPE)
 
   > FunctionType
   > Name binding logic in visitUnresolvedDeclRefExpr
