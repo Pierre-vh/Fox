@@ -16,26 +16,10 @@
 #define LLVM_SUPPORT_CASTING_H
 
 #include "llvm/Support/type_traits.h"
+#include "llvm/Support/Compiler.h"
 #include <cassert>
 #include <memory>
 #include <type_traits>
-
-#ifndef __has_cpp_attribute
-	#define __has_cpp_attribute(x) 0
-#endif
-
-/// LLVM_NODISCARD - Warn if a type or return value is discarded.
-#if __cplusplus > 201402L && __has_cpp_attribute(nodiscard)
-	#define LLVM_NODISCARD [[nodiscard]]
-	#elif !__cplusplus
-	// Workaround for llvm.org/PR23435, since clang 3.6 and below emit a spurious
-	// error when __has_cpp_attribute is given a scoped attribute in C mode.
-	#define LLVM_NODISCARD
-	#elif __has_cpp_attribute(clang::warn_unused_result)
-	#define LLVM_NODISCARD [[clang::warn_unused_result]]
-	#else
-	#define LLVM_NODISCARD
-#endif
 
 namespace llvm {
 

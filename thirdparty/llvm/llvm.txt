@@ -3,7 +3,7 @@ LLVM Website: https://llvm.org/
 
 Notice: This folder contains some files that I imported/extracted from the LLVM project.
 Theses files have sometimes been modified to remove dependencies, or remove some functionality that
-I did not need.
+I did not need. They're all header only.
 
 Non exhaustive changes list:
 	Support/type_traits.h
@@ -12,11 +12,13 @@ Non exhaustive changes list:
 		Removed __has_feature macros
 		Modified isPodLike to use is_trivially_copyable in all cases
 
-	Support/Casting.h
-		Moved the "__has_cpp_attribute" macro to this file
-		Moved the definition of the LLVM_NODISCARD (from Compiler.h) to this file
-		Removed #include "Compiler.h"
-		
+	Support/DataTypes.h
+		This file is the one found in llvm-c/DataTypes.h instead of the wrapper
+		located in llvm/Support/DataTypes.h
+
+  Support/Compiler.h
+    Removed llvm-config include
+
 	ADT/PointerIntPair.h:
 		Removed DenseMapInfo features
 
@@ -24,9 +26,15 @@ Non exhaustive changes list:
     Removed include: "llvm/ADT/DenseMapInfo.h"
     Removed lines 463-488 "Teach DenseMap how to use PointerUnions as keys."
 
-	Support/DataTypes.h
-		This file is the one found in llvm-c/DataTypes.h instead of the wrapper
-		located in llvm/Support/DataTypes.h
-
-			
+  ADT/SmallVector.h
+    Removed MathExtras.h include
+    Removed ErrorHandling. hinclude
+    Inlined grow_pod to remove need for SmallVector.cpp 
+    Removed several LLVM_NODISCARD tags that caused some compiler errors?
+  
+  Support/MemAlloc.h
+    Removed include "ErrorHandling.h"
+    Replaced calls to report_bad_alloc with a custom macro whose code
+      comes from the implementation of llvm::report_bad_alloc_error
+      in lib/Support/ErrorHandling.cpp
 			
