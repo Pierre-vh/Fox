@@ -100,7 +100,7 @@ namespace fox {
       // Returns a string representation of a SourceLoc:
       //  Format: line:column
       //  Example: 3:4
-      std::string toString(SourceManager& srcMgr) const;
+      std::string toString(const SourceManager& srcMgr) const;
 
     protected:
       friend class Parser;
@@ -141,7 +141,7 @@ namespace fox {
       //    when begLine == endLine: line:column-column
       //    when begLine != endLine: line:column-line:column
       //  Example: 3:4, 3:4-6, 3:4-4:5
-      std::string toString(SourceManager& srcMgr) const;
+      std::string toString(const SourceManager& srcMgr) const;
 
     private:
       SourceLoc sloc_;

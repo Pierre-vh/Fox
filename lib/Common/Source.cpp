@@ -269,7 +269,7 @@ SourceLoc::IndexTy SourceLoc::getIndex() const {
   return idx_;
 }
 
-std::string SourceLoc::toString(SourceManager& srcMgr) const {
+std::string SourceLoc::toString(const SourceManager& srcMgr) const {
   auto cloc = srcMgr.getCompleteLoc(*this);
   std::stringstream ss;
   ss << cloc.line << ":" << cloc.column;
@@ -342,7 +342,7 @@ FileID SourceRange::getFile() const {
   return sloc_.getFile();
 }
 
-std::string SourceRange::toString(SourceManager& srcMgr) const {
+std::string SourceRange::toString(const SourceManager& srcMgr) const {
   std::stringstream ss;
   auto beg = srcMgr.getCompleteLoc(getBegin());
   ss << beg.line << ":" << beg.column;
