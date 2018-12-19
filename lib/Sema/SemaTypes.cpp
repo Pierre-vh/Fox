@@ -82,7 +82,7 @@ bool Sema::unify(Type a, Type b) {
         return true;
       }
       // None of them has a sub.
-      Type fresh = CellType::create(ctxt_);
+      auto* fresh = CellType::create(ctxt_);
       aCell->setSubst(fresh);
       bCell->setSubst(fresh);
       return true;

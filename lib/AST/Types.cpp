@@ -284,37 +284,37 @@ PrimitiveType::PrimitiveType(Kind kd)
 
 }
 
-Type PrimitiveType::getString(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getString(ASTContext& ctxt) {
   if (!ctxt.theStringType)
     ctxt.theStringType = new(ctxt) PrimitiveType(Kind::StringTy);
   return ctxt.theStringType;
 }
 
-Type PrimitiveType::getChar(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getChar(ASTContext& ctxt) {
   if (!ctxt.theCharType)
     ctxt.theCharType = new(ctxt) PrimitiveType(Kind::CharTy);
   return ctxt.theCharType;
 }
 
-Type PrimitiveType::getFloat(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getFloat(ASTContext& ctxt) {
   if (!ctxt.theFloatType)
     ctxt.theFloatType = new(ctxt) PrimitiveType(Kind::FloatTy);
   return ctxt.theFloatType;
 }
 
-Type PrimitiveType::getBool(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getBool(ASTContext& ctxt) {
   if (!ctxt.theBoolType)
     ctxt.theBoolType = new(ctxt) PrimitiveType(Kind::BoolTy);
   return ctxt.theBoolType;
 }
 
-Type PrimitiveType::getInt(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getInt(ASTContext& ctxt) {
   if (!ctxt.theIntType)
     ctxt.theIntType = new(ctxt) PrimitiveType(Kind::IntTy);
   return ctxt.theIntType;
 }
 
-Type PrimitiveType::getVoid(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getVoid(ASTContext& ctxt) {
   if (!ctxt.theVoidType)
     ctxt.theVoidType = new(ctxt) PrimitiveType(Kind::VoidTy);
   return ctxt.theVoidType;
@@ -333,7 +333,7 @@ ArrayType::ArrayType(Type elemTy):
   assert(elemTy && "The Array item type cannot be null!");
 }
 
-Type ArrayType::get(ASTContext& ctxt, Type ty) {
+ArrayType* ArrayType::get(ASTContext& ctxt, Type ty) {
   auto lb = ctxt.arrayTypes.lower_bound(ty);
   if (lb != ctxt.arrayTypes.end() &&
     !(ctxt.lvalueTypes.key_comp()(ty, lb->first))) {
@@ -360,7 +360,7 @@ LValueType::LValueType(Type type):
   assert(type && "cannot be null");
 }
 
-Type LValueType::get(ASTContext& ctxt, Type ty) {
+LValueType* LValueType::get(ASTContext& ctxt, Type ty) {
   auto lb = ctxt.lvalueTypes.lower_bound(ty);
   if (lb != ctxt.lvalueTypes.end() &&
     !(ctxt.lvalueTypes.key_comp()(ty, lb->first))) {
@@ -387,7 +387,7 @@ ErrorType::ErrorType():
 
 }
 
-Type ErrorType::get(ASTContext& ctxt) {
+ErrorType* ErrorType::get(ASTContext& ctxt) {
   if (!ctxt.theErrorType)
     ctxt.theErrorType = new(ctxt) ErrorType();
   return ctxt.theErrorType;
@@ -399,7 +399,7 @@ Type ErrorType::get(ASTContext& ctxt) {
 
 CellType::CellType(): TypeBase(TypeKind::CellType) {}
 
-Type CellType::create(ASTContext& ctxt) {
+CellType* CellType::create(ASTContext& ctxt) {
   return new(ctxt) CellType();
 }
 
