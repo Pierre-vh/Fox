@@ -1,4 +1,4 @@
-// RUN: %fox %s -verify -werr
+// RUN: %fox-verify
 
 let a : float = 3.14;
 let b : float = 1;

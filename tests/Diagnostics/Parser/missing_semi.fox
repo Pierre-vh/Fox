@@ -1,4 +1,4 @@
-// RUN: %fox %s -verify -werr
+// RUN: %fox-verify
 
 // Test VarDecls
 let x : int // expect-error: expected ';'

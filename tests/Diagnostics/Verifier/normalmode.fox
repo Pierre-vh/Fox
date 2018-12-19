@@ -1,4 +1,4 @@
-// RUN: %fox %s -verify
+// RUN: %fox-verify
 // XFAIL:*
 
 // This test checks that the "normal" mode works. 

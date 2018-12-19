@@ -1,4 +1,4 @@
-// RUN: %fox %s -verify -werr
+// RUN: %fox-verify
 
 func foo() {
   // Check that everything is correctly visited inside a compound stmt

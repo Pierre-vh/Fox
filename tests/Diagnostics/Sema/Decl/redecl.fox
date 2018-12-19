@@ -1,4 +1,4 @@
-// RUN: %fox %s -verify -werr
+// RUN: %fox-verify
 
 let foo : float;
 // expect-note@-1: first declaration of 'foo' seen here

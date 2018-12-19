@@ -1,4 +1,4 @@
-// RUN: %fox %s -verify -werr
+// RUN: %fox-verify
 
 // Theses tests are mostly "hammering" tests. They test complex
 // chains of expressions.
