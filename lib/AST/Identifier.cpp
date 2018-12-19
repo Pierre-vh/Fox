@@ -45,8 +45,7 @@ bool Identifier::operator<(const string_view other) const {
 	return getStr() < other;
 }
 
-const char* Identifier::c_str() const
-{
+const char* Identifier::c_str() const {
 	return ptr_;
 }
 
@@ -59,6 +58,6 @@ Identifier::operator bool() const {
 }
 
 std::ostream& fox::operator<<(std::ostream & os, Identifier id) {
-  os << id.getStr();
+  os << (id.isNull() ? id.getStr() : "<null id>");
   return os;
 }
