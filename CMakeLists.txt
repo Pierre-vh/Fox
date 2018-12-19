@@ -58,7 +58,7 @@ endif()
 add_library(libmoonshot STATIC ${moonshot_src})
 
 # add llvm lit test suite 
-add_custom_target(MoonshotLit 
+add_custom_target(MoonshotTests
   COMMAND lit ${PROJECT_SOURCE_DIR}/tests -s -v --param fox_bin_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   DEPENDS Moonshot 
 )
