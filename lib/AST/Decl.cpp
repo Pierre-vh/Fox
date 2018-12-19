@@ -247,7 +247,11 @@ ParamDecl* FuncDecl::getParam(std::size_t ind) const {
   return params_[ind];
 }
 
-FuncDecl::ParamVecTy& FuncDecl::getParams() {
+ParamVec& FuncDecl::getParams() {
+  return params_;
+}
+
+const ParamVec& FuncDecl::getParams() const {
   return params_;
 }
 
@@ -260,7 +264,7 @@ void FuncDecl::setParam(ParamDecl* param, std::size_t idx) {
   params_[idx] = param;
 }
 
-void FuncDecl::setParams(ParamVecTy&& params) {
+void FuncDecl::setParams(ParamVec&& params) {
   params_ = params;
 }
 

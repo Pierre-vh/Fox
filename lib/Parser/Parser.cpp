@@ -277,11 +277,11 @@ Token Parser::getPreviousToken() const {
 
 bool 
 Parser::resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken) {
-  return resyncToSign(
-		std::vector<SignType>({ sign }), stopAtSemi, shouldConsumeToken);
+  return resyncToSign(SmallVector<SignType, 4>({ sign }), 
+    stopAtSemi, shouldConsumeToken);
 }
 
-bool Parser::resyncToSign(const std::vector<SignType>& signs,
+bool Parser::resyncToSign(const SmallVector<SignType, 4>& signs,
 	bool stopAtSemi, bool shouldConsumeToken) {
   if (!isAlive())
     return false;

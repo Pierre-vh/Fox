@@ -16,16 +16,21 @@
 
 #pragma once
 
+#include "LocalScope.hpp"
+#include "Fox/AST/ASTFwdDecl.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/SmallVector.h"
 #include <cstdint>
 #include <tuple>
-#include <vector>
 #include <memory>
-#include "Fox/AST/ASTFwdDecl.hpp"
-#include "LocalScope.hpp"
 
 namespace fox {
+  // Forward Declarations
   class ASTContext;
   class DiagnosticEngine;
+  using NamedDeclVec = SmallVector<NamedDecl*, 4>;
+
+  // This is the class that handles semantic analysis of the Fox AST.
   class Sema {
     public:
       //----------------------------------------------------------------------//
@@ -320,17 +325,12 @@ namespace fox {
   // NamedDecl*
   class Sema::LookupResult {
     public:
-      using ResultVec = std::vector<NamedDecl*>;
-
       LookupResult() = default;
-
-      // Constructs an empty lookup result
-      LookupResult(ResultVec&& results);
 
       // Add a result in this LookupResult
       void addResult(NamedDecl* decl);
 
-      ResultVec& getResults();
+      NamedDeclVec& getResults();
 
       std::size_t size() const;
 
@@ -338,7 +338,7 @@ namespace fox {
       NamedDecl* getIfSingleResult() const;
 
     private:
-      ResultVec results_;
+      NamedDeclVec results_;
   };
 
   struct Sema::LookupOptions {

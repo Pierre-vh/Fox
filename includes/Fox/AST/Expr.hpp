@@ -13,7 +13,7 @@
 #include "Fox/Common/Typedefs.hpp"
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Identifier.hpp"
-#include <vector>
+#include "llvm/ADT/SmallVector.h"
 
 namespace fox   {
   // Forward Declarations
@@ -73,8 +73,8 @@ namespace fox   {
       SourceRange range_;
   };
 
-  // A Vector of Pointers to Expressions
-  using ExprVector = std::vector<Expr*>;
+  // A Vector of Expr*
+  using ExprVector = SmallVector<Expr*, 4>;
 
   // BinaryExpr
   //    A binary expression
@@ -317,7 +317,7 @@ namespace fox   {
   class ArrayLiteralExpr final : public Expr {
     public:
       static ArrayLiteralExpr* create(ASTContext& ctxt, 
-        const ExprVector& exprs, SourceRange range);
+        ExprVector&& exprs, SourceRange range);
 
       ExprVector& getExprs();
       Expr* getExpr(std::size_t idx) const;
@@ -333,7 +333,7 @@ namespace fox   {
       }
 
     private:
-      ArrayLiteralExpr(const ExprVector& exprs, SourceRange range);
+      ArrayLiteralExpr(ExprVector&& exprs, SourceRange range);
 
       ExprVector exprs_;
   };
@@ -449,7 +449,7 @@ namespace fox   {
   class FunctionCallExpr final : public Expr {
     public:    
       static FunctionCallExpr* create(ASTContext &ctxt, Expr* callee,
-        const ExprVector& args, SourceRange range);
+        ExprVector&& args, SourceRange range);
 
       void setCallee(Expr* base);
       Expr* getCallee() const;
@@ -465,7 +465,7 @@ namespace fox   {
       }
 
     private:
-      FunctionCallExpr(Expr* callee, const ExprVector& args, SourceRange range);
+      FunctionCallExpr(Expr* callee, ExprVector&& args, SourceRange range);
 
       Expr* callee_ = nullptr;
       ExprVector args_;

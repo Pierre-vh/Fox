@@ -10,9 +10,10 @@
 #pragma once
 
 #include "ASTAligns.hpp"
-#include "Fox/Common/Source.hpp"
 #include "ASTNode.hpp"
-#include <vector>
+#include "Fox/Common/Source.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/SmallVector.h"
 
 namespace fox {
   // Kinds of Statements
@@ -141,6 +142,10 @@ namespace fox {
   //    A group of statements delimited by curly brackets {}
   class CompoundStmt final : public Stmt {
     public:
+      // The type of the vector used by CompoundStmt internally to 
+      // store the ASTNodes
+      using NodeVec = SmallVector<ASTNode, 4>;
+
       // range argument is optional because when parsing CompoundStmts, we
       // don't know the full range of the Stmt until we finished parsing it.
       // Usually we create the CompoundStmt first, then fill it with the Stmts
@@ -149,13 +154,12 @@ namespace fox {
       static CompoundStmt* create(ASTContext& ctxt, 
         SourceRange range = SourceRange());
 
-      using NodeVecTy = std::vector<ASTNode>;
-
       void addNode(ASTNode stmt);
       void setNode(ASTNode node, std::size_t idx);
 
       ASTNode getNode(std::size_t ind) const;
-      NodeVecTy& getNodes();
+      NodeVec& getNodes();
+      const NodeVec& getNodes() const;
 
       bool isEmpty() const;
       std::size_t size() const;
@@ -167,7 +171,7 @@ namespace fox {
     private:
       CompoundStmt(SourceRange range);
 
-      NodeVecTy nodes_;
+      NodeVec nodes_;
   };
 
   // WhileStmt

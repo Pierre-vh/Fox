@@ -133,13 +133,11 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
 // Sema::LookupResult 
 //----------------------------------------------------------------------------//
 
-Sema::LookupResult::LookupResult(ResultVec&& results): results_(results) {}
-
 void Sema::LookupResult::addResult(NamedDecl* decl) {
   results_.push_back(decl);
 }
 
-Sema::LookupResult::ResultVec& Sema::LookupResult::getResults() {
+NamedDeclVec& Sema::LookupResult::getResults() {
   return results_;
 }
 

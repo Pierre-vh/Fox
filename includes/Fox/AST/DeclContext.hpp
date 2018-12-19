@@ -10,10 +10,11 @@
 #pragma once
 
 #include "Identifier.hpp"
-#include "llvm/ADT/PointerIntPair.h"
 #include "ASTAligns.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/SmallVector.h"
+#include "llvm/ADT/PointerIntPair.h"
 #include <map>
-#include <vector>
 #include <type_traits>
 #include <memory>
 
@@ -48,7 +49,7 @@ namespace fox {
       using LookupMap = std::multimap<Identifier, NamedDecl*>;
 
       // The type of the vector used to store the declarations
-      using DeclVec = std::vector<Decl*>;
+      using DeclVec = SmallVector<Decl*, 4>;
 
       //----------------------------------------------------------------------//
       // Interface

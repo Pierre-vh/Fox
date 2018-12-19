@@ -10,6 +10,7 @@
 #pragma once
 
 #include "llvm/ADT/PointerUnion.h"
+#include "llvm/ADT/SmallVector.h"
 #include "DeclContext.hpp"
 #include "ASTAligns.hpp"
 #include "Type.hpp"
@@ -159,6 +160,9 @@ namespace fox {
       bool illegalRedecl_ : 1;
   };
 
+  // A vector of named decls
+  using NamedDeclVec = SmallVector<NamedDecl*, 4>;
+
   // ValueDecl
   //    Common base class for every value declaration 
   //    (declares a value of a certain type & name)
@@ -207,16 +211,12 @@ namespace fox {
         TypeLoc type, bool isMutable, SourceRange range);
   };
 
+  // A Vector of ParamDecl*
+  using ParamVec = SmallVector<ParamDecl*, 4>;
   
   // FuncDecl
   //    A function declaration
   class FuncDecl final: public NamedDecl {
-    private:
-      using ParamVecTy = std::vector<ParamDecl*>;
-
-      using ParamVecIter = ParamVecTy::iterator;
-      using ParamVecConstIter = ParamVecTy::const_iterator;
-
     public:
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent,
         Identifier id, SourceRange idRange, TypeLoc type, 
@@ -238,10 +238,11 @@ namespace fox {
 
       void addParam(ParamDecl* param);
       void setParam(ParamDecl* param, std::size_t idx);
-      void setParams(ParamVecTy&& params);
+      void setParams(ParamVec&& params);
 
       ParamDecl* getParam(std::size_t ind) const;
-      ParamVecTy& getParams();
+      ParamVec& getParams();
+      const ParamVec& getParams() const;
       std::size_t getNumParams() const;
 
       static bool classof(const Decl* decl) {
@@ -254,7 +255,7 @@ namespace fox {
 
       SourceLoc headEndLoc_;
       TypeLoc returnType_;
-      ParamVecTy params_;
+      ParamVec params_;
       CompoundStmt* body_ = nullptr;
   };
 

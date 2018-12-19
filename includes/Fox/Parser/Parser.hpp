@@ -258,7 +258,7 @@ namespace fox {
       //---------------------------------//
 
       bool resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken);
-      bool resyncToSign(const std::vector<SignType>& signs, bool stopAtSemi,
+      bool resyncToSign(const SmallVector<SignType, 4>& signs, bool stopAtSemi,
 				bool shouldConsumeToken);
       bool resyncToNextDecl();
 

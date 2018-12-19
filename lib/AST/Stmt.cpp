@@ -159,7 +159,7 @@ ASTNode CompoundStmt::getNode(std::size_t ind) const {
   return nodes_[ind];
 }
 
-CompoundStmt::NodeVecTy& CompoundStmt::getNodes() {
+CompoundStmt::NodeVec& CompoundStmt::getNodes() {
   return nodes_;
 }
 

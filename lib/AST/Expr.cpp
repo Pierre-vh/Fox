@@ -10,6 +10,7 @@
 #include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <sstream> 
+#include <utility>
 
 using namespace fox;
 
@@ -172,15 +173,13 @@ void BoolLiteralExpr::setVal(FoxBool val) {
 // ArrayLiteralExpr 
 //----------------------------------------------------------------------------//
 
-ArrayLiteralExpr::ArrayLiteralExpr(const ExprVector& exprs, SourceRange range):
-  exprs_(exprs), Expr(ExprKind::ArrayLiteralExpr, range) {
-
-}
+ArrayLiteralExpr::ArrayLiteralExpr(ExprVector&& exprs, SourceRange range):
+  exprs_(exprs), Expr(ExprKind::ArrayLiteralExpr, range) {}
 
 ArrayLiteralExpr* 
-ArrayLiteralExpr::create(ASTContext& ctxt, const ExprVector& exprs, 
+ArrayLiteralExpr::create(ASTContext& ctxt, ExprVector&& exprs, 
   SourceRange range) {
-  return new(ctxt) ArrayLiteralExpr(exprs, range);
+  return new(ctxt) ArrayLiteralExpr(std::forward<ExprVector>(exprs), range);
 }
 
 ExprVector& ArrayLiteralExpr::getExprs() {
@@ -467,14 +466,15 @@ void DeclRefExpr::setDecl(ValueDecl* decl) {
 // FunctionCallExpr 
 //----------------------------------------------------------------------------//
 
-FunctionCallExpr::FunctionCallExpr(Expr* callee, const ExprVector& args, 
+FunctionCallExpr::FunctionCallExpr(Expr* callee, ExprVector&& args, 
   SourceRange range): Expr(ExprKind::FunctionCallExpr, range), callee_(callee),
   args_(args) {}
 
 FunctionCallExpr* 
 FunctionCallExpr::create(ASTContext& ctxt, Expr* callee, 
-  const ExprVector& args, SourceRange range) {
-  return new(ctxt) FunctionCallExpr(callee, args, range);
+  ExprVector&& args, SourceRange range) {
+  return new(ctxt) 
+    FunctionCallExpr(callee, std::forward<ExprVector>(args), range);
 }
 
 void FunctionCallExpr::setCallee(Expr* callee) {

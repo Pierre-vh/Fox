@@ -13,11 +13,12 @@
 
 #pragma once
 
+#include "Fox/AST/Identifier.hpp"
 #include "Fox/Common/Typedefs.hpp"
 #include "Fox/Common/Source.hpp"
-#include "Fox/AST/Identifier.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/SmallVector.h"
 #include "mpark/variant.hpp"
-#include <vector>
 #include <memory>
 #include <map>
 
@@ -252,6 +253,7 @@ namespace fox {
       { ',', SignType::S_COMMA }
     };
   }
-  // TokenVector typedef
-  using TokenVector = std::vector<Token>;
+
+  // a Vector of Tokens
+  using TokenVector = SmallVector<Token, 16>;
 }
