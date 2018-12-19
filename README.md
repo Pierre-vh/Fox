@@ -31,10 +31,10 @@ Assuming that the Moonshot binaries are installed in your path:
   * `-dump-ast` will dump the abstract syntax tree (AST) after processing the file.
 
 
-##Testing
+## Testing
   TODO
 
-##License
+## License
 Licensed under the terms of the MIT license. 
 
 ## Contact
