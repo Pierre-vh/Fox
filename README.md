@@ -10,13 +10,13 @@ Required:
 
 1. Open the command prompt and set your working directory to the folder where you wish to build Moonshot.
 1. Clone the repo
- * `git clone https://github.com/Pierre-vh/Moonshot.git`
+   * `git clone https://github.com/Pierre-vh/Moonshot.git`
 1. Create a new directory and set it as your working directory (we'll do an out of source build)
- * `mkdir build
- * `cd build`
+   * `mkdir build`
+   * `cd build`
 1. Generate the CMake cache `cmake ../Moonshot`
 1. Building the project: `cmake --build .`
- * The generated executables will be available in the `bin/(Build Type)/` folder.
+    * The executables will be available in the `bin/(Build Type)/` folder.
 
 # Usage
 *Note: the project is in early development and thus is changing very rapidly. I won't document everything because things are certainly not definitive, but I'll try to keep this as up to date as I can*
