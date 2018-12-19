@@ -13,8 +13,6 @@
 // Feature Ideas:
 //  - Allow raw line numbers as argument
 //    e.g. expect-error@1: expected one or more declaration in unit
-// To-Do:
-//  - Check that line>=0 + check for overflow when applying offset
 //----------------------------------------------------------------------------//
 
 
@@ -85,7 +83,8 @@ namespace fox {
 			void diagnoseMissingStr(SourceLoc loc);
 			void diagnoseMissingColon(SourceLoc loc);
       void diagnoseMissingSuffix(SourceLoc instrBeg);
-			void diagnoseIllFormedOffset(SourceRange range);
+			void diagnoseIllFormedOffset(SourceRange argRange);
+      void diagnoseIllegalOffset(SourceRange argRange);
 
 			// Parses the suffix string and puts the result inside "expected"
 			bool parseSeverity(string_view suffix, DiagSeverity& sev);

@@ -8,8 +8,9 @@
 #include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/ResultObject.hpp"
+#include <cstdlib> // abs()
 #include <tuple>
-#include <cctype>
+#include <cctype> // std::isspace
 
 using namespace fox;
 
@@ -251,10 +252,21 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
       if (!parseOffset(argRange, offsetStr, offset))
         return RtrTy(false);
 
-      // Apply it.
+      // Check that the offset is legal
+      if(offset < 0) {
+        unsigned absOffset = -offset;
+        // If absOffset >= line, that means that (line + offset)
+        // will result in the line number being 0, or worse, underflowing.
+        if(absOffset >= line) {
+          diagnoseIllegalOffset(argRange);
+          return RtrTy(false);
+        }
+      }
+
+      // Apply the offset
       line += offset;
     }
-    else // It's a simple suffix, the suffix is equal to the base.
+    else // It's a simple suffix (e.g. the -error in expect-error)
       sevStr = base;
  
     // Now parse the severity string
@@ -262,8 +274,6 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
       return RtrTy(false);
   }
 
-	//std::cout << "Done, returning:(" 
-	//	<< severity << ")(" << line << ")(" << diagStr << ")\n";
 	return RtrTy(true, ExpectedDiag(severity, diagStr, file, line));
 }
 
@@ -286,8 +296,12 @@ void DiagnosticVerifier::diagnoseMissingSuffix(SourceLoc instrBeg) {
       .setExtraRange(SourceRange(instrBeg, vPrefixSize - 1));
 }
 
-void DiagnosticVerifier::diagnoseIllFormedOffset(SourceRange range) {
-	diags_.report(DiagID::diagverif_illFormedOffset, range);
+void DiagnosticVerifier::diagnoseIllFormedOffset(SourceRange argRange) {
+	diags_.report(DiagID::diagverif_illFormedOffset, argRange);
+}
+
+void DiagnosticVerifier::diagnoseIllegalOffset(SourceRange argRange) {
+  diags_.report(DiagID::diagverif_illegalOffset, argRange);
 }
 
 bool 

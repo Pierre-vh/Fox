@@ -21,20 +21,23 @@ NOTE(unittest_placeholderremoval4, "Hello, %0")
 
 // Diagnostic Verifier Diagnostics
 ERROR(diagverif_expectedsuffix,
-			"expected a suffix after '%0' prefix in verify instr")
+	"expected a suffix after '%0' prefix in verify instr")
 ERROR(diagverif_expectedcolon,
-			"expected a ':' in verify instr")
+	"expected a ':' in verify instr")
 ERROR(diagverif_expectedstr,
-			"expected a diagnostic string in verify instr after ':'")
+	"expected a diagnostic string in verify instr after ':'")
 ERROR(diagverif_illFormedOffset,
-			"ill formed verify instr offset. should be '+' or '-' "
-      "followed by a single digit between 1 and 9")
+	"ill formed verify instr offset. should be '+' or '-' "
+  "followed by a single digit between 1 and 9")
 ERROR(diagverif_offsetIsZero, 
-      "offset value must be between 1-9")
+  "offset value must be between 1-9")
+ERROR(diagverif_illegalOffset,
+  "illegal offset value: cannot expect a diagnostic at a "
+  "line number smaller than 1")
 ERROR(diagverif_errorExpectedDiagsNotEmitted,
-      "%0 diagnostics were expected but not emitted")
+  "%0 diagnostics were expected but not emitted")
 NOTE(diagverif_diagNotEmitted,
-      "diagnostic '%0' (%1) was expected at line %2 but not emitted")
+  "diagnostic '%0' (%1) was expected at line %2 but not emitted")
 DIAG_RANGE(DiagnosticVerifier, 
   diagverif_expectedsuffix, diagverif_diagNotEmitted)
 
