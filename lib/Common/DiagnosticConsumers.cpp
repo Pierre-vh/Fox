@@ -29,11 +29,11 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm,
   const auto* sourceData = sm.getSourceData(file);
 
   std::stringstream ss;
-  ss << "<" << sourceData->fileName << '>';
+  ss << "<" << sourceData->fileName << ">:";
 
-  // If not fileWide, add the range as string.
-  if(!isFileWide)
-    ss << ":" << range.toString(sm);
+  // For FileWide diags, just use "1" as the line. For normal diags,
+  // use range.toString
+  ss << (isFileWide ? "1" : range.toString(sm));
   return ss.str();
 }
 
