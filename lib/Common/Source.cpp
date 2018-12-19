@@ -12,6 +12,7 @@
 #include <cassert>
 #include <sstream>
 #include <cctype>
+#include <iostream>
 
 #define INVALID_FILEID_VALUE 0
 
@@ -166,26 +167,42 @@ SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
   return source.substr(beg, end-beg);
 }
 
+static void skipBom(std::ifstream& in, std::streampos size) {
+  // Can retrieve at least 3 bytes
+  if(size >= 3) {
+    char bom[3];
+    // Read the bom
+    in.read(bom, 3);
+    // Check if it's a bom
+    bool has = utf8::starts_with_bom(bom, bom+3);
+    // Skip the bom if there's one, or rewind if there isn't one.
+    in.seekg(has ? 3 : 0);
+  }
+}
+
 FileID SourceManager::loadFromFile(const std::string & path) {
-  std::ifstream in(path, std::ios::binary);
-  auto begIt = (std::istreambuf_iterator<char>(in));
-  auto endIt = (std::istreambuf_iterator<char>());
-  if(utf8::starts_with_bom(begIt, endIt))
-    utf8::advance(begIt, 1, endIt);
+  std::ifstream in(path,  std::ios::in | std::ios::ate | std::ios::binary);
   if (in) {
+    // Get size of file + rewind
+    auto size = in.tellg();
+    in.seekg(0);
+    // Skip the UTF8 BOM
+    skipBom(in, size);
+    auto beg = (std::istreambuf_iterator<char>(in));
+    auto end = (std::istreambuf_iterator<char>());
     auto pair = sources_.insert(std::pair<FileID,SourceData>(generateNewFileID(),
       SourceData(
         path,
-        (std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>())))
+        (std::string(beg, end))
       )
-    );
+    ));
     return (pair.first)->first;
   }
   return FileID();
 }
 
 FileID SourceManager::loadFromString(const std::string& str, const std::string& name) {
-  auto pair = sources_.insert(std::pair<FileID,SourceData>(generateNewFileID(),SourceData(name,str)));
+  auto pair = sources_.insert({generateNewFileID(),SourceData(name,str)});
   return (pair.first)->first;
 }
 
