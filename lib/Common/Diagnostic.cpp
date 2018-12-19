@@ -67,10 +67,6 @@ void Diagnostic::emit() {
   }
 }
 
-void Diagnostic::ignore() {
-  diagSeverity_ = DiagSeverity::Ignore;
-}
-
 DiagID Diagnostic::getID() const {
   return diagID_;
 }
@@ -147,6 +143,7 @@ void Diagnostic::kill() {
     diagSeverity_ = DiagSeverity::Ignore;
   }
 }
+
 bool Diagnostic::isFrozen() const {
   return frozen_;
 }
