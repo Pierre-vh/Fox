@@ -100,13 +100,13 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
   assert((idx <= fdata->str.size()) && "SourceLoc is Out-of-Range");
 
   // if the SourceLoc points to a fictive location just past the end
-  // of the source, remove the extra column to avoid out_of_range errors9
+  // of the source, remove the extra column to avoid out_of_range errors
   bool isOutOfRange = (idx == fdata->str.size());
   if (isOutOfRange)
     idx--;
 
-  CompleteLoc::ColTy col = 1;
-  CompleteLoc::LineTy line = 1;
+  CompleteLoc::ColTy col = 0;
+  CompleteLoc::LineTy line = 0;
 
   auto entry = searchLineTable(fdata, sloc);
   bool exactMatch = (entry.first == idx);
@@ -147,7 +147,8 @@ bool SourceManager::checkExists(FileID file) const {
   return (bool)getSourceData(file);
 }
 
-string_view SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
+string_view 
+SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
   const SourceData* data = getSourceData(loc.getFile());
   string_view source = data->str;
 
@@ -167,6 +168,10 @@ string_view SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* line
 
 FileID SourceManager::loadFromFile(const std::string & path) {
   std::ifstream in(path, std::ios::binary);
+  auto begIt = (std::istreambuf_iterator<char>(in));
+  auto endIt = (std::istreambuf_iterator<char>());
+  if(utf8::starts_with_bom(begIt, endIt))
+    utf8::advance(begIt, 1, endIt);
   if (in) {
     auto pair = sources_.insert(std::pair<FileID,SourceData>(generateNewFileID(),
       SourceData(

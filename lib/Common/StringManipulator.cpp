@@ -30,7 +30,7 @@ std::string StringManipulator::charToStr(FoxChar wc) {
   return rtr;
 }
 
-void StringManipulator::removeBOM(std::string & str) {
+void StringManipulator::removeBOM(std::string& str) {
   if (utf8::starts_with_bom(str.begin(), str.end())) {
     std::string::iterator it = str.begin();
     utf8::next(it,str.end());
