@@ -171,7 +171,7 @@ void DiagnosticEngine::setIgnoreAll(bool val) {
 }
 
 void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
-  if (diag.getSeverity() == DiagSeverity::IGNORE)
+  if (diag.getSeverity() == DiagSeverity::Ignore)
     return;
 
   assert(consumer_ && "No valid consumer");
@@ -203,32 +203,32 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const {
   using Sev = DiagSeverity;
 
   if (getIgnoreAll())
-    return Sev::IGNORE;
+    return Sev::Ignore;
 
   if (getIgnoreAllAfterFatal() && hasFatalErrorOccured())
-    return Sev::IGNORE;
+    return Sev::Ignore;
 
   switch (ds) {
     // Ignored diags don't change
-    case Sev::IGNORE:
-      return Sev::IGNORE;
+    case Sev::Ignore:
+      return Sev::Ignore;
     // Notes are silenced if the corresponding option is set
-    case Sev::NOTE:
-      return getIgnoreNotes() ? Sev::IGNORE : Sev::NOTE;
+    case Sev::Note:
+      return getIgnoreNotes() ? Sev::Ignore : Sev::Note;
     // If Warnings must be silent, the warning is ignored.
     // Else, if the warnings are considered errors,
     // it is promoted to an error. If not, it stays a warning.
-    case Sev::WARNING:
+    case Sev::Warning:
       if (getIgnoreWarnings())
-        return Sev::IGNORE;
-      return getWarningsAreErrors() ? Sev::ERROR : Sev::WARNING;
+        return Sev::Ignore;
+      return getWarningsAreErrors() ? Sev::Error : Sev::Warning;
     // Errors are Ignored if too many of them have occured.
     // Else, it stays an error except if errors should be considered
     // Fatal.
-    case Sev::ERROR:
-      return getErrorsAreFatal() ? Sev::FATAL : Sev::ERROR;
+    case Sev::Error:
+      return getErrorsAreFatal() ? Sev::Fatal : Sev::Error;
     // Fatal diags don't change
-    case Sev::FATAL:
+    case Sev::Fatal:
       return ds;
     default:
       fox_unreachable("unknown severity");
@@ -237,13 +237,13 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const {
 
 void DiagnosticEngine::updateInternalCounters(DiagSeverity ds) {
   switch (ds) {
-    case DiagSeverity::WARNING:
+    case DiagSeverity::Warning:
       warnCount_++;
       break;
-    case DiagSeverity::ERROR:
+    case DiagSeverity::Error:
       errorCount_++;
       break;
-    case DiagSeverity::FATAL:
+    case DiagSeverity::Fatal:
       hasFatalErrorOccured_ = true;
       break;
   }

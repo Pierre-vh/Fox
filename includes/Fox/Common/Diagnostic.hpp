@@ -28,11 +28,11 @@ namespace fox {
   };
 
   enum class DiagSeverity : std::uint8_t {
-    IGNORE,
-    NOTE,
-    WARNING,
-    ERROR,  
-    FATAL    
+    Ignore,
+    Note,
+    Warning,
+    Error,  
+    Fatal    
   };
 
   // Converts a severity to a user readable string. 

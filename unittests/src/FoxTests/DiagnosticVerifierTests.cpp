@@ -73,22 +73,22 @@ TEST_F(DVTest, Parsing) {
   bool foundFatal = false;
   for (auto& diag : diags) {
     EXPECT_EQ(diag.file, file) << "File mismatch";
-    if (diag.severity == DV::NOTE) {
+    if (diag.severity == DV::Note) {
       EXPECT_EQ(diag.line, 1) << "Line mismatch";
       EXPECT_EQ(diag.diagStr, "Note ipsum dolor sit") << "DiagStr mismatch";
       foundNote = true;
     }
-    else if (diag.severity == DV::WARNING) {
+    else if (diag.severity == DV::Warning) {
       EXPECT_EQ(diag.line, 2) << "Line mismatch";
       EXPECT_EQ(diag.diagStr, "Lorem Warn dolor sit") << "DiagStr mismatch";
       foundWarn = true;
     }
-    else if (diag.severity == DV::ERROR) {
+    else if (diag.severity == DV::Error) {
       EXPECT_EQ(diag.line, 3) << "Line mismatch";
       EXPECT_EQ(diag.diagStr, "Lorem ipsum Errror sit") << "DiagStr mismatch";
       foundError = true;
     }
-    else if (diag.severity == DV::FATAL) {
+    else if (diag.severity == DV::Fatal) {
       EXPECT_EQ(diag.line, 4) << "Line mismatch";
       EXPECT_EQ(diag.diagStr, "Lorem ipsum dolor Fatal") << "DiagStr mismatch";
       foundFatal = true;

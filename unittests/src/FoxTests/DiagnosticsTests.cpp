@@ -57,7 +57,7 @@ TEST(DiagnosticsTests, notes) {
   auto diagEng = createDiagEngine();
   auto diag = diagEng.report(DiagID::unittest_notetest);
   EXPECT_EQ("Test note", diag.getStr()) << "Diagnostic string did not match";
-  EXPECT_EQ(DiagSeverity::NOTE, diag.getSeverity()) << "Diagnostic severity did not match";
+  EXPECT_EQ(DiagSeverity::Note, diag.getSeverity()) << "Diagnostic severity did not match";
   EXPECT_EQ(DiagID::unittest_notetest, diag.getID()) << "Diagnostic id did not match";
 }
 
@@ -65,7 +65,7 @@ TEST(DiagnosticsTests, warnings) {
   auto diagEng = createDiagEngine();
   auto diag = diagEng.report(DiagID::unittest_warntest);
   EXPECT_EQ("Test warning", diag.getStr()) << "Diagnostic string did not match";
-  EXPECT_EQ(DiagSeverity::WARNING, diag.getSeverity()) << "Diagnostic severity did not match";
+  EXPECT_EQ(DiagSeverity::Warning, diag.getSeverity()) << "Diagnostic severity did not match";
   EXPECT_EQ(DiagID::unittest_warntest, diag.getID()) << "Diagnostic id did not match";
 }
 
@@ -73,7 +73,7 @@ TEST(DiagnosticsTests, errors) {
   auto diagEng = createDiagEngine();
   auto diag = diagEng.report(DiagID::unittest_errtest);
   EXPECT_EQ("Test error", diag.getStr()) << "Diagnostic string did not match";
-  EXPECT_EQ(DiagSeverity::ERROR, diag.getSeverity()) << "Diagnostic severity did not match";
+  EXPECT_EQ(DiagSeverity::Error, diag.getSeverity()) << "Diagnostic severity did not match";
   EXPECT_EQ(DiagID::unittest_errtest, diag.getID()) << "Diagnostic id did not match";
 }
 
@@ -81,7 +81,7 @@ TEST(DiagnosticsTests, fatals) {
   auto diagEng = createDiagEngine();
   auto diag = diagEng.report(DiagID::unittest_fataltest);
   EXPECT_EQ("Test fatal", diag.getStr()) << "Diagnostic string did not match";
-  EXPECT_EQ(DiagSeverity::FATAL, diag.getSeverity()) << "Diagnostic severity did not match";
+  EXPECT_EQ(DiagSeverity::Fatal, diag.getSeverity()) << "Diagnostic severity did not match";
   EXPECT_EQ(DiagID::unittest_fataltest, diag.getID()) << "Diagnostic id did not match";
 }
 
@@ -132,11 +132,11 @@ TEST(DiagnosticsTests, errLimit) {
   EXPECT_FALSE(diagEng.hasFatalErrorOccured());
 
   auto diag1 = diagEng.report(DiagID::unittest_errtest);
-  ASSERT_EQ(diag1.getSeverity(), DiagSeverity::ERROR);
+  ASSERT_EQ(diag1.getSeverity(), DiagSeverity::Error);
   diag1.emit();
   // The last emitted error should have been a fatal error
   EXPECT_TRUE(diagEng.hasFatalErrorOccured());
-  EXPECT_EQ(cons->getSev(), DiagSeverity::FATAL);
+  EXPECT_EQ(cons->getSev(), DiagSeverity::Fatal);
   EXPECT_EQ(cons->getID(), DiagID::diagengine_maxErrCountExceeded);
 
   auto count = cons->getCount();
@@ -146,10 +146,10 @@ TEST(DiagnosticsTests, errLimit) {
   auto test_err = diagEng.report(DiagID::unittest_errtest);
   auto test_fat = diagEng.report(DiagID::unittest_fataltest);
 
-  EXPECT_EQ(test_note.getSeverity(), DiagSeverity::IGNORE);
-  EXPECT_EQ(test_warn.getSeverity(), DiagSeverity::IGNORE);
-  EXPECT_EQ(test_err.getSeverity(), DiagSeverity::IGNORE);
-  EXPECT_EQ(test_fat.getSeverity(), DiagSeverity::IGNORE);
+  EXPECT_EQ(test_note.getSeverity(), DiagSeverity::Ignore);
+  EXPECT_EQ(test_warn.getSeverity(), DiagSeverity::Ignore);
+  EXPECT_EQ(test_err.getSeverity(), DiagSeverity::Ignore);
+  EXPECT_EQ(test_fat.getSeverity(), DiagSeverity::Ignore);
 
   test_note.emit();
   test_warn.emit();
@@ -185,7 +185,7 @@ TEST(DiagnosticsTests, SilencedWarnings) {
   diagEng.setIgnoreWarnings(true);
   // Test.
   auto diagWarn = diagEng.report(DiagID::unittest_warntest);
-  EXPECT_EQ(diagWarn.getSeverity(),DiagSeverity::IGNORE) << "Reported diagnostic wasn't a silenced diag";
+  EXPECT_EQ(diagWarn.getSeverity(),DiagSeverity::Ignore) << "Reported diagnostic wasn't a silenced diag";
   diagWarn.emit();
 }
 
@@ -195,7 +195,7 @@ TEST(DiagnosticsTests, SilencedNotes) {
   diagEng.setIgnoreNotes(true);
   // Test.
   auto diagNote = diagEng.report(DiagID::unittest_notetest);
-  EXPECT_EQ(diagNote.getSeverity(), DiagSeverity::IGNORE) << "Reported diagnostic wasn't a silenced diag";
+  EXPECT_EQ(diagNote.getSeverity(), DiagSeverity::Ignore) << "Reported diagnostic wasn't a silenced diag";
   diagNote.emit();
 }
 
@@ -214,7 +214,7 @@ TEST(DiagnosticsTests, SilenceAllAfterFatal) {
 
   // And try to emit another error
   auto diagErrSilenced = diagEng.report(DiagID::unittest_errtest);
-  EXPECT_EQ(diagErrSilenced.getSeverity(), DiagSeverity::IGNORE) << "Diag was supposed to be silenced an thus this DiagID was supposed to be a Dummy diag.";
+  EXPECT_EQ(diagErrSilenced.getSeverity(), DiagSeverity::Ignore) << "Diag was supposed to be silenced an thus this DiagID was supposed to be a Dummy diag.";
   diagErrSilenced.emit();
 }
 
@@ -225,9 +225,9 @@ TEST(DiagnosticsTests, SilenceAll) {
   auto dg2 = diagEng.report(DiagID::unittest_warntest);
   auto dg3 = diagEng.report(DiagID::unittest_fataltest);
 
-  EXPECT_EQ(dg1.getSeverity(), DiagSeverity::IGNORE) << "Diag was supposed to be silenced.";
-  EXPECT_EQ(dg2.getSeverity(), DiagSeverity::IGNORE) << "Diag was supposed to be silenced.";
-  EXPECT_EQ(dg3.getSeverity(), DiagSeverity::IGNORE) << "Diag was supposed to be silenced.";
+  EXPECT_EQ(dg1.getSeverity(), DiagSeverity::Ignore) << "Diag was supposed to be silenced.";
+  EXPECT_EQ(dg2.getSeverity(), DiagSeverity::Ignore) << "Diag was supposed to be silenced.";
+  EXPECT_EQ(dg3.getSeverity(), DiagSeverity::Ignore) << "Diag was supposed to be silenced.";
 }
 
 TEST(DiagnosticsTests, WarningsAreErrors) {

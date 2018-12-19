@@ -307,13 +307,13 @@ void DiagnosticVerifier::diagnoseIllegalOffset(SourceRange argRange) {
 bool 
 DiagnosticVerifier::parseSeverity(string_view suffix, DiagSeverity& sev) {
 	if (suffix == vFatalSuffix)
-		sev = DiagSeverity::FATAL;
+		sev = DiagSeverity::Fatal;
 	else if (suffix == vErrorSuffix)
-		sev = DiagSeverity::ERROR;
+		sev = DiagSeverity::Error;
 	else if (suffix == vWarnSuffix)
-		sev = DiagSeverity::WARNING;
+		sev = DiagSeverity::Warning;
 	else if (suffix == vNoteSuffix)
-		sev = DiagSeverity::NOTE;
+		sev = DiagSeverity::Note;
 	else return false;
 	return true;
 }

@@ -12,23 +12,23 @@
 #endif 
 
 #ifndef NOTE
-  #define NOTE(ID,TEXT)    DIAG(NOTE,ID,TEXT)
+  #define NOTE(ID,TEXT) DIAG(Note, ID, TEXT)
 #endif
 
 #ifndef WARNING
-  #define WARNING(ID,TEXT)  DIAG(WARNING,ID,TEXT)
+  #define WARNING(ID,TEXT)  DIAG(Warning, ID, TEXT)
 #endif
 
 #ifndef ERROR
-  #define ERROR(ID,TEXT)    DIAG(ERROR,ID,TEXT)
+  #define ERROR(ID,TEXT)  DIAG(Error, ID, TEXT)
 #endif
 
 #ifndef FATAL
-  #define FATAL(ID,TEXT)    DIAG(FATAL,ID,TEXT)
+  #define FATAL(ID,TEXT)  DIAG(Fatal, ID, TEXT)
 #endif
 
 #ifndef DIAG_RANGE
-  #define DIAG_RANGE(ID,FIRST,LAST)
+  #define DIAG_RANGE(ID, FIRST, LAST)
 #endif
 
 #include "Common.def"

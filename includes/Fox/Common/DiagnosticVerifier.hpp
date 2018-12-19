@@ -35,7 +35,7 @@ namespace fox {
         ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line) :
           severity(sev), diagStr(str), file(file), line(line) {}
 
-        DiagSeverity severity = DiagSeverity::IGNORE;
+        DiagSeverity severity = DiagSeverity::Ignore;
         string_view diagStr;
         FileID file;
         LineTy line = 0;

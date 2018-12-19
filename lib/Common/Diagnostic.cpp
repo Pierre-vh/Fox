@@ -14,15 +14,15 @@ using namespace fox;
 std::string fox::toString(DiagSeverity sev, bool allCaps) {
   using DS = DiagSeverity;
   switch (sev) {
-    case DS::IGNORE:
+    case DS::Ignore:
       return allCaps ? "IGNORE" : "Ignore";
-    case DS::NOTE:
+    case DS::Note:
       return allCaps ? "NOTE" : "Note";
-    case DS::WARNING:
+    case DS::Warning:
       return allCaps ? "WARNING" : "Warning";
-    case DS::ERROR:
+    case DS::Error:
       return allCaps ? "ERROR" : "Error";
-    case DS::FATAL:
+    case DS::Fatal:
       return allCaps ? "FATAL" : "Fatal";
     default:
       fox_unreachable("all cases handled");
@@ -68,7 +68,7 @@ void Diagnostic::emit() {
 }
 
 void Diagnostic::ignore() {
-  diagSeverity_ = DiagSeverity::IGNORE;
+  diagSeverity_ = DiagSeverity::Ignore;
 }
 
 DiagID Diagnostic::getID() const {
@@ -144,7 +144,7 @@ void Diagnostic::kill() {
     engine_ = nullptr;
     diagStr_.clear();
     frozen_ = true;
-    diagSeverity_ = DiagSeverity::IGNORE;
+    diagSeverity_ = DiagSeverity::Ignore;
   }
 }
 bool Diagnostic::isFrozen() const {
