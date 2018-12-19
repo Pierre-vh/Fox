@@ -35,18 +35,14 @@ int interactiveMain() {
 
   std::string uinput = "";
   bool res = true;
-  Driver drv(std::cout);
-  //drv.setDumpAlloc(true);
-  drv.setDumpAST(true);
-  // Test of the diagnostic verifier, this line will be removed later.
-  drv.setVerifyMode(Driver::VerifyMode::Normal);
-  //drv.setPrintChrono(true);
   while (1) {
     std::cout << "> ";
     std::getline(std::cin, uinput);
     if (uinput == "*")
       break;
-
+    Driver drv(std::cout);
+    drv.setDumpAST(true);
+    drv.setVerifyMode(Driver::VerifyMode::Normal);
     res &= drv.processFile(uinput);
   }
   std::cout << "\n\nFinished. Press any key to continue.\n";
