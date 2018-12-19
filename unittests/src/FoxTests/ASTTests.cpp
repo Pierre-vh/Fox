@@ -39,12 +39,12 @@ TEST_F(ASTTest, PrimitiveTypes) {
   using PT = PrimitiveType;
   using PTK = PT::Kind;
 
-  auto* primBool = PT::getBool(ctxt);
-  auto* primFloat  = PT::getFloat(ctxt);
-  auto* primInt  = PT::getInt(ctxt);
-  auto* primChar  = PT::getChar(ctxt);
-  auto* primString = PT::getString(ctxt);
-  auto* primVoid  = PT::getVoid(ctxt);
+  Type primBool = PT::getBool(ctxt);
+  Type primFloat  = PT::getFloat(ctxt);
+  Type primInt  = PT::getInt(ctxt);
+  Type primChar  = PT::getChar(ctxt);
+  Type primString = PT::getString(ctxt);
+  Type primVoid  = PT::getVoid(ctxt);
 
   ASSERT_TRUE(primBool)  << "Ptr is null?";
   ASSERT_TRUE(primFloat)  << "Ptr is null?";
@@ -60,29 +60,33 @@ TEST_F(ASTTest, PrimitiveTypes) {
   EXPECT_NE(primChar, primString);
   EXPECT_NE(primString, primVoid);
 
+  auto getPrimKind = [](Type type) {
+    return type->castTo<PrimitiveType>()->getPrimitiveKind();
+  };
+
   // Test that the types have the correct properties
   // Bools
-  EXPECT_EQ(primBool->getPrimitiveKind(), PTK::BoolTy);
+  EXPECT_EQ(getPrimKind(primBool), PTK::BoolTy);
   EXPECT_TRUE(primBool->isBoolType());
 
   // Floats
-  EXPECT_EQ(primFloat->getPrimitiveKind(), PTK::FloatTy);
+  EXPECT_EQ(getPrimKind(primFloat), PTK::FloatTy);
   EXPECT_TRUE(primFloat->isFloatType());
 
   // Ints
-  EXPECT_EQ(primInt->getPrimitiveKind(), PTK::IntTy);
+  EXPECT_EQ(getPrimKind(primInt), PTK::IntTy);
   EXPECT_TRUE(primInt->isIntType());
 
   // Chars
-  EXPECT_EQ(primChar->getPrimitiveKind(), PTK::CharTy);
+  EXPECT_EQ(getPrimKind(primChar), PTK::CharTy);
   EXPECT_TRUE(primChar->isCharType());
 
   // Strings
-  EXPECT_EQ(primString->getPrimitiveKind(), PTK::StringTy);
+  EXPECT_EQ(getPrimKind(primString), PTK::StringTy);
   EXPECT_TRUE(primString->isStringType());
 
   // Void type
-  EXPECT_EQ(primVoid->getPrimitiveKind(), PTK::VoidTy);
+  EXPECT_EQ(getPrimKind(primVoid), PTK::VoidTy);
   EXPECT_TRUE(primVoid->isVoidType());
 
   // Check uniqueness
@@ -95,17 +99,17 @@ TEST_F(ASTTest, PrimitiveTypes) {
 }
 
 TEST_F(ASTTest, ASTContextArrayTypes) {
-  auto* primBool = PrimitiveType::getBool(ctxt);
-  auto* primFloat = PrimitiveType::getFloat(ctxt);
-  auto* primInt = PrimitiveType::getInt(ctxt);
-  auto* primChar = PrimitiveType::getChar(ctxt);
-  auto* primString = PrimitiveType::getString(ctxt);
+  Type primBool = PrimitiveType::getBool(ctxt);
+  Type primFloat = PrimitiveType::getFloat(ctxt);
+  Type primInt = PrimitiveType::getInt(ctxt);
+  Type primChar = PrimitiveType::getChar(ctxt);
+  Type primString = PrimitiveType::getString(ctxt);
 
-  auto* boolArr = ArrayType::get(ctxt, primBool);
-  auto* floatArr = ArrayType::get(ctxt, primFloat);
-  auto* intArr = ArrayType::get(ctxt, primInt);
-  auto* charArr = ArrayType::get(ctxt, primChar);
-  auto* strArr = ArrayType::get(ctxt, primString);
+  Type boolArr = ArrayType::get(ctxt, primBool);
+  Type floatArr = ArrayType::get(ctxt, primFloat);
+  Type intArr = ArrayType::get(ctxt, primInt);
+  Type charArr = ArrayType::get(ctxt, primChar);
+  Type strArr = ArrayType::get(ctxt, primString);
 
 
   // Check that pointers aren't null
@@ -116,11 +120,11 @@ TEST_F(ASTTest, ASTContextArrayTypes) {
   ASSERT_TRUE(strArr)    << "Pointer is null";
 
   // Check that itemTypes are correct
-  EXPECT_EQ((dyn_cast<ArrayType>(boolArr))->getElementType(), primBool);
-  EXPECT_EQ((dyn_cast<ArrayType>(floatArr))->getElementType(), primFloat);
-  EXPECT_EQ((dyn_cast<ArrayType>(intArr))->getElementType(), primInt);
-  EXPECT_EQ((dyn_cast<ArrayType>(charArr))->getElementType(), primChar);
-  EXPECT_EQ((dyn_cast<ArrayType>(strArr))->getElementType(), primString);
+  EXPECT_EQ(boolArr->castTo<ArrayType>()->getElementType(), primBool);
+  EXPECT_EQ(floatArr->castTo<ArrayType>()->getElementType(), primFloat);
+  EXPECT_EQ(intArr->castTo<ArrayType>()->getElementType(), primInt);
+  EXPECT_EQ(charArr->castTo<ArrayType>()->getElementType(), primChar);
+  EXPECT_EQ(strArr->castTo<ArrayType>()->getElementType(), primString);
 
   // Checks that they're different
   EXPECT_NE(boolArr, floatArr);
@@ -133,28 +137,28 @@ TEST_F(ASTTest, ASTContextArrayTypes) {
 }
 
 TEST_F(ASTTest, TypeRTTI) {
-  TypeBase* intTy = PrimitiveType::getInt(ctxt);
-  auto* arrIntTy = ArrayType::get(ctxt, intTy);
-  auto* lvIntTy = LValueType::get(ctxt, intTy);
-  auto* errType = ErrorType::get(ctxt);
-  auto* cellType = CellType::create(ctxt);
+  Type intTy = PrimitiveType::getInt(ctxt);
+  Type arrIntTy = ArrayType::get(ctxt, intTy);
+  Type lvIntTy = LValueType::get(ctxt, intTy);
+  Type errType = ErrorType::get(ctxt);
+  Type cellType = CellType::create(ctxt);
 
   EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
-  EXPECT_TRUE(PrimitiveType::classof(intTy));
-  EXPECT_TRUE(BasicType::classof(intTy));
+  EXPECT_TRUE(PrimitiveType::classof(intTy.getPtr()));
+  EXPECT_TRUE(BasicType::classof(intTy.getPtr()));
 
   EXPECT_EQ(arrIntTy->getKind(), TypeKind::ArrayType);
-  EXPECT_TRUE(ArrayType::classof(arrIntTy));
+  EXPECT_TRUE(ArrayType::classof(arrIntTy.getPtr()));
 
   EXPECT_EQ(lvIntTy->getKind(), TypeKind::LValueType);
-  EXPECT_TRUE(LValueType::classof(lvIntTy));
+  EXPECT_TRUE(LValueType::classof(lvIntTy.getPtr()));
 
   EXPECT_EQ(errType->getKind(), TypeKind::ErrorType);
-  EXPECT_TRUE(ErrorType::classof(errType));
-  EXPECT_TRUE(BasicType::classof(errType));
+  EXPECT_TRUE(ErrorType::classof(errType.getPtr()));
+  EXPECT_TRUE(BasicType::classof(errType.getPtr()));
 
   EXPECT_EQ(cellType->getKind(), TypeKind::CellType);
-  EXPECT_TRUE(CellType::classof(cellType));
+  EXPECT_TRUE(CellType::classof(cellType.getPtr()));
 }
 
 TEST_F(ASTTest, ExprRTTI) {
@@ -348,8 +352,8 @@ TEST_F(ASTTest, BasicVisitor) {
   auto* intlit = IntegerLiteralExpr::create(ctxt, 42, SourceRange());
   auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
   auto* vardecl = createEmptyVarDecl(ctxt);
-  auto* intTy = PrimitiveType::getInt(ctxt);
-  auto* arrInt = ArrayType::get(ctxt, intTy);
+  Type intTy = PrimitiveType::getInt(ctxt);
+  Type arrInt = ArrayType::get(ctxt, intTy);
 
   IsExpr exprVisitor;
   IsNamedDecl declVisitor;

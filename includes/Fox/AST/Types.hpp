@@ -123,6 +123,8 @@ namespace fox {
       //-------------------------//
 
     protected:
+      friend class ASTContext;
+
       TypeBase(TypeKind tc);
 
       // Prohibit the use of builtin placement new & delete
@@ -185,12 +187,12 @@ namespace fox {
         BoolTy
       };
 
-      static PrimitiveType* getString(ASTContext& ctxt);
-      static PrimitiveType* getChar(ASTContext& ctxt);
-      static PrimitiveType* getFloat(ASTContext& ctxt);
-      static PrimitiveType* getBool(ASTContext& ctxt);
-      static PrimitiveType* getInt(ASTContext& ctxt);
-      static PrimitiveType* getVoid(ASTContext& ctxt);
+      static Type getString(ASTContext& ctxt);
+      static Type getChar(ASTContext& ctxt);
+      static Type getFloat(ASTContext& ctxt);
+      static Type getBool(ASTContext& ctxt);
+      static Type getInt(ASTContext& ctxt);
+      static Type getVoid(ASTContext& ctxt);
 
       Kind getPrimitiveKind() const;
 
@@ -199,6 +201,8 @@ namespace fox {
       }
 
     private:
+      friend class ASTContext;
+
       PrimitiveType(Kind kd);
 
       const Kind builtinKind_;
@@ -210,13 +214,15 @@ namespace fox {
   class ErrorType : public BasicType {
     public:
       // Gets the unique ErrorType instance for the current context.
-      static ErrorType* get(ASTContext& ctxt);
+      static Type get(ASTContext& ctxt);
 
       static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::ErrorType);
       }
 
     private:
+      friend class ASTContext;
+
       ErrorType();
   };
 
@@ -227,7 +233,7 @@ namespace fox {
     public:
       // Returns the UNIQUE ArrayType instance for the given
       // type ty.
-      static ArrayType* get(ASTContext& ctxt, Type ty);
+      static Type get(ASTContext& ctxt, Type ty);
 
       Type getElementType() const;
 
@@ -248,7 +254,7 @@ namespace fox {
   class LValueType : public TypeBase {
     public:
       // Returns the UNIQUE LValueType instance for the given type "ty"
-      static LValueType* get(ASTContext& ctxt, Type ty);
+      static Type get(ASTContext& ctxt, Type ty);
 
       Type getType() const;
 
@@ -266,7 +272,7 @@ namespace fox {
   class CellType : public TypeBase {
     public:
       // Creates a new instance of the CellType class
-      static CellType* create(ASTContext& ctxt);
+      static Type create(ASTContext& ctxt);
 
       Type getSubst() const;
       bool hasSubst() const;
