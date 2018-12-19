@@ -51,16 +51,12 @@ namespace fox {
         return hasData_;
       }
 
-      const DataTy get() const {
+      DataTy get() const {
         return result_;
       }
 
-      DataTy get() {
-        return result_;
-      }
-
-      DataTy& getRef() {
-        return result_;
+      DataTy&& move() {
+        return std::move(result_);
       }
 
     private:
