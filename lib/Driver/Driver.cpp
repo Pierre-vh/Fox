@@ -59,9 +59,9 @@ bool Driver::processFile(const std::string& filepath) {
     unit = psr.parseUnit(fid, ctxt.getIdentifier("TestUnit"));
   }
 
-  // Stop if we had errors or if the unit is invalid
-  if (!unit || diags.getErrorsCount())
-    return (diags.getErrorsCount() == 0);
+  auto canContinue = [&](){
+    return (unit != nullptr) && !ctxt.hadErrors();
+  };
 
   // Dump alloc if needed
   if (getDumpAlloc()) {
@@ -69,18 +69,17 @@ bool Driver::processFile(const std::string& filepath) {
     ctxt.getAllocator().dump(getOS());
   }
 
-  // Only perform Semantic Analysis if no error
-  // occured.
-	if(!diags.getErrorsCount()) {
+  // Semantic analysis
+	if(canContinue()) {
     Sema s(ctxt);
     s.checkDecl(unit);
   }
 
-  // Dump AST if needed
-  if (getDumpAST()) {
+  // Dump AST if needed, and if the unit isn't null
+  if (unit && getDumpAST()) {
     auto chrono = createChrono("AST Printing");
     getOS() << "\nAST Printing:\n";
-    ASTDumper(srcMgr, getOS(), 1).print(ctxt.getMainUnit());
+    ASTDumper(srcMgr, getOS(), 1).print(unit);
   }
 
   // (Verify mode) Check that all diags were emitted
