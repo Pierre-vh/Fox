@@ -21,11 +21,12 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm,
   // return that instead of an empty string so we have better diag handling
   // in that situation.
   // e.g. print "<MyModule> - Error - ..." instead of just "Error - ...."
-  FileID file = range.getFile();
-  if (!range || !file)
+
+  if (!range)
     return "";
 
-  const auto* sourceData = sm.getSourceData(range.getFile());
+  FileID file = range.getFile();
+  const auto* sourceData = sm.getSourceData(file);
 
   std::stringstream ss;
   ss << "<" << sourceData->fileName << '>';
