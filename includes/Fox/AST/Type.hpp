@@ -53,7 +53,7 @@ namespace fox {
   class TypeLoc : public Type {
     SourceRange range_;
     public:
-      TypeLoc(TypeBase* ty = nullptr, SourceRange range = SourceRange());
+      TypeLoc();
       TypeLoc(Type ty, SourceRange range = SourceRange());
 
       SourceRange getRange() const;
@@ -72,10 +72,6 @@ namespace fox {
       // Might add a "strict_compare" function tho.
       bool operator==(const Type& type) const = delete;
       bool operator!=(const Type& type) const = delete;
-
-      // Disable Type->TypeLoc conversion
-      TypeLoc(const Type&) = delete;
-      TypeLoc& operator=(const Type&) = delete;
   };
 
   // Like SwiftC does, we'll disable isa/cast/dyn_cast/dyn_cast_or_null
