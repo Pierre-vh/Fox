@@ -29,11 +29,13 @@ bool Driver::processFile(const std::string& filepath) {
     return false;
   }
 
-	// Enable verify mode if needed
+	// (Verify Mode) Create the DiagnosticVerifier
 	std::unique_ptr<DiagnosticVerifier> dv;
-	if (getVerifyMode() != VerifyMode::Disabled) {
+	if (isVerifyModeEnabled()) {
 		dv = std::make_unique<DiagnosticVerifier>(diags, srcMgr);
+    // Parse the file
 		dv->parseFile(fid);
+    // Enable the verify mode in the diagnostic engine
     diags.enableVerifyMode(dv.get());
 	}
 
@@ -81,10 +83,9 @@ bool Driver::processFile(const std::string& filepath) {
     ASTDumper(srcMgr, getOS(), 1).print(ctxt.getMainUnit());
   }
 
-  // (Verify mode) Check that all diags were emitted if we're
-  // in verify-strict mode.
-  if (getVerifyMode() == VerifyMode::Normal) {
-    assert(dv && "DiagnosticVerifier is null in Strict mode");
+  // (Verify mode) Check that all diags were emitted
+  if (verify_) {
+    assert(dv && "DiagnosticVerifier is null");
     dv->reportUnemittedDiags();
   }
 
@@ -105,11 +106,11 @@ void Driver::setPrintChrono(bool val) {
   chrono_ = val;
 }
 
-Driver::VerifyMode Driver::getVerifyMode() const {
+bool Driver::isVerifyModeEnabled() const {
   return verify_;
 }
 
-void Driver::setVerifyMode(VerifyMode val) {
+void Driver::setVerifyModeEnabled(bool val) {
   verify_ = val;
 }
 
@@ -151,17 +152,11 @@ bool Driver::doCL(int argc, char* argv[]) {
   for(int idx = 2; idx < argc; ++idx) {
     string_view str(argv[idx]);
     if (str == "-verify")
-      setVerifyMode(VerifyMode::Normal);
-    else if (str == "-verify-soft")
-      setVerifyMode(VerifyMode::Soft);
+      setVerifyModeEnabled(true);
     else if (str == "-werr")
       diags.setWarningsAreErrors(true);
-    else if (str == "-dump_ast")
+    else if (str == "-dump-ast")
       setDumpAST(true);
-    else if (str == "-dump_alloc")
-      setDumpAlloc(true);
-    else if (str == "-print_chrono")
-      setPrintChrono(true);
     else {
       getOS() << "Unknown argument \"" << str << "\"\n";
       return false;

@@ -42,7 +42,7 @@ int interactiveMain() {
       break;
     Driver drv(std::cout);
     drv.setDumpAST(true);
-    drv.setVerifyMode(Driver::VerifyMode::Normal);
+    drv.setVerifyModeEnabled(true);
     res &= drv.processFile(uinput);
   }
   std::cout << "\n\nFinished. Press any key to continue.\n";

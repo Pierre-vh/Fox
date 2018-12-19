@@ -19,19 +19,9 @@
 
 namespace fox {
   class Driver {
-    public:
-      // Verify mode: 
-      //  Disabled: No diagnostic verification performed
-      //  Soft: Diagnostic Verification is performed
-      //  Normal: Same as basic, but additionally we'll check that
-      //          every expected diagnostics were emitted.
-      enum class VerifyMode {
-        Disabled, Soft, Normal
-      };
-
     private:
       // Driver-specific attributes
-      VerifyMode verify_ = VerifyMode::Disabled;
+      bool verify_ = false;
       bool chrono_ = false;
       bool dumpAlloc_ = false;
       bool dumpAST_ = false;
@@ -49,8 +39,8 @@ namespace fox {
       bool getPrintChrono() const;
       void setPrintChrono(bool val);
 
-      VerifyMode getVerifyMode() const;
-      void setVerifyMode(VerifyMode val);
+      bool isVerifyModeEnabled() const;
+      void setVerifyModeEnabled(bool val);
 
       bool getDumpAlloc() const;
       void setDumpAlloc(bool val);

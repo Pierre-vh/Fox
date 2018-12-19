@@ -1,0 +1,7 @@
+// RUN: %fox-verify
+// XFAIL:*
+
+// This test checks that compilation correctly fails in verify mode
+// if expected diagnostics weren't emitted.
+
+let x : int; // expect-error: expected a ';'
