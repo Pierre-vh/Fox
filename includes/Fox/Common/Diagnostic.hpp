@@ -60,9 +60,6 @@ namespace fox {
       
       void emit();
 
-      // Sets this diagnostic's severity to Ignore.
-      void ignore();
-
       // Getters for basic args values
       DiagID getID() const;
       std::string getStr() const;
@@ -137,10 +134,19 @@ namespace fox {
       
       void initBitFields();  
 
+      // TODO: Pack this better:
+      //  Use PointerIntPair to do pack the "frozen" flag inside the DiagnosticEngine*
+      //    for isActive, check if it still has a diagnosticEngine.
+      //  Use a bitfield for the DiagID, 
+      //    9 or 10 bits should be more than enough (static_assert it)
+      //  Use 3 or 4 bits for curPhiIndex instead of 6 
+      //    (assert that we don't exceed the max in replacePlaceholder)
+      //  Use 3 bits for diagSeverity (static_assert it)
+
       // Packed in 8 bits (0 left)
       bool active_ :1; 
       bool frozen_ :1; 
-      std::uint8_t curPHIndex_ :6;
+      std::uint8_t curPHIndex_ :6; 
 
       // Packed in 8 bits (3 left)
       DiagSeverity diagSeverity_ : 4; 
