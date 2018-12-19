@@ -109,6 +109,7 @@ To-Do:
   > ASTDumper overhaul 
   > Fix how diagnostics print columns/line on multiple lines
     > For diags, only print "begline:begcol", not the full range.
+  > Diagnostic: Try to remove isFileWide and use some bit packing here and there.
 
   > FunctionType
   > Name binding logic in visitUnresolvedDeclRefExpr
