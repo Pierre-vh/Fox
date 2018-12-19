@@ -78,7 +78,8 @@ namespace fox {
 
       bool isDebug() const;
 
-      std::string toString(Type type) const;
+      std::string toString(Type type, bool isConst = false) const;
+      std::string toString(TypeLoc type, bool isConst = false) const;
 
       const SourceManager::SourceData* getSourceData(FileID fid);
       bool hasSrcMgr() const;
@@ -97,31 +98,26 @@ namespace fox {
       std::string getStmtNodeName(Stmt* stmt) const;
       std::string getExprNodeName(Expr* expr) const;
       std::string getDeclNodeName(Decl* decl) const;
-      std::string getTypeName(Type type) const;
 
       // Returns a string containing basic information about a node : It's name followed by it's adress. Maybe more in the future.
       std::string getBasicStmtInfo(Stmt* stmt) const;
       std::string getBasicExprInfo(Expr* expr) const;
       std::string getBasicDeclInfo(Decl* decl) const;
-      std::string getBasicTypeInfo(Type type) const;
-      std::string getBasicValueDeclDump(ValueDecl* decl) const;
+      std::string getValueDeclInfo(ValueDecl* decl) const;
 
-      // Dump an operator in 2 different ways, depending on dumpOperatorsAsNames_
       std::string getOperatorDump(BinaryExpr* expr) const;
       std::string getOperatorDump(UnaryExpr* expr) const;
 
-      // Returns a formatted string "<DeclContext (adress), Parent: (adress)>"
+      // Returns a formatted string "<DeclContext: adress, Parent: adress>"
       std::string getDeclCtxtDump(DeclContext* dr) const;
-      // Returns a formatted string, "<ID:(idstring)>"
-      std::string getIdentifierDump(Identifier id) const;
-      // Returns a formatted string, "<(label):(coords)>"
+      // Returns a formatted string: <label:coords>
       std::string getSourceLocDump(string_view label, SourceLoc sloc) const;
+      // Returns a formatted string: <label:beg_line:beg_col-end_line:end_col>
       std::string getSourceRangeDump(string_view label, SourceRange range) const;
-
+      
+      // Returns the SourceRange as :
+      //  beg_line:beg_col,end_line:end_col
       std::string getSourceRangeAsStr(SourceRange range) const;
-      // Returns a formatted string  "<(label):'(type)'>
-      std::string getTypeDump(string_view label, Type ty, bool isConst = false) const;
-      std::string getTypeLocDump(string_view label, TypeLoc ty, bool isConst = false) const;
       // Returns value enclosed with "".
       std::string addDoubleQuotes(string_view str) const;
       // Returns the value enclosed with ''
