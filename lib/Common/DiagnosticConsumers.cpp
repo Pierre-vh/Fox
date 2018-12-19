@@ -21,25 +21,18 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm,
   // return that instead of an empty string so we have better diag handling
   // in that situation.
   // e.g. print "<MyModule> - Error - ..." instead of just "Error - ...."
-  if (!range)
+  FileID file = range.getFile();
+  if (!range || !file)
     return "";
 
-  CompleteLoc beg = sm.getCompleteLoc(range.getBegin());
+  const auto* sourceData = sm.getSourceData(range.getFile());
 
   std::stringstream ss;
-  ss << "<" << beg.fileName << '>';
+  ss << "<" << sourceData->fileName << '>';
 
-  // Don't display the column/line for file wide diags
-  if (!isFileWide)
-    ss << ':' << beg.line << ':' << beg.column;
-
-  // A better approach (read: a faster approach) 
-  // would be to have a special method in the SourceManager calculating the preciseLoc
-  // for a SourceRange (so we avoid calling "getCompleteLocForSourceLoc" twice)
-  if (range.getOffset() != 0) {
-    CompleteLoc end = sm.getCompleteLoc(range.getEnd());
-    ss << "-" << end.column;
-  }
+  // If not fileWide, add the range as string.
+  if(!isFileWide)
+    ss << ":" << range.toString(sm);
   return ss.str();
 }
 
