@@ -19,6 +19,18 @@ Non exhaustive changes list:
   Support/Compiler.h
     Removed llvm-config include
 
+  Support/MathExtras.h
+    Removed SwapByteOrder include
+    Removed functionalities that used SwapByteOrder:
+      ByteSwap_16, ByteSwap_32, ByteSwap_64
+    Removed (commented) lines 364 to 399
+  
+  Support/MemAlloc.h
+    Removed include "ErrorHandling.h"
+    Replaced calls to report_bad_alloc with a custom macro whose code
+      comes from the implementation of llvm::report_bad_alloc_error
+      in lib/Support/ErrorHandling.cpp
+
 	ADT/PointerIntPair.h:
 		Removed DenseMapInfo features
 
@@ -27,14 +39,8 @@ Non exhaustive changes list:
     Removed lines 463-488 "Teach DenseMap how to use PointerUnions as keys."
 
   ADT/SmallVector.h
-    Removed MathExtras.h include
     Removed ErrorHandling. hinclude
     Inlined grow_pod to remove need for SmallVector.cpp 
-    Removed several LLVM_NODISCARD tags that caused some compiler errors?
-  
-  Support/MemAlloc.h
-    Removed include "ErrorHandling.h"
-    Replaced calls to report_bad_alloc with a custom macro whose code
-      comes from the implementation of llvm::report_bad_alloc_error
-      in lib/Support/ErrorHandling.cpp
+    Removed several LLVM_NODISCARD tags that caused some compiler errors
+
 			
