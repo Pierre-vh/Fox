@@ -2,6 +2,38 @@
 Moonshot is a project that aims to create an interpreter for a language called Fox.
 This is currently a work in progress, only a fraction of the project is completed.
 
+## Building the project
+
+Required:
+ * CMake
+ * Git
+
+1. Open the command prompt and set your working directory to the folder where you wish to build Moonshot.
+1. Clone the repo
+   * `git clone https://github.com/Pierre-vh/Moonshot.git`
+1. Create a new directory and set it as your working directory (we'll do an out of source build)
+   * `mkdir build`
+   * `cd build`
+1. Generate the CMake cache `cmake ../Moonshot`
+1. Building the project: `cmake --build .`
+    * The executables will be available in the `bin/(Build Type)/` folder.
+
+## Usage
+*Note: the project is in early development and thus is changing very rapidly. I won't document everything because things are certainly not definitive, but I'll try to keep this as up to date as I can*
+
+**Note:** Currently, only the Lexer, Parser and a small part of the Semantic analysis are complete, so files aren't executed and are just "compiled" with what's available.
+
+Assuming that the Moonshot binaries are installed in your path:
+* `Moonshot` will launch the "dumb command line toy", which is a rough testing too where you can input a filename which will be processed by the interpreter. **Warning:** This tool is mostly intended for dev/testing purposes. This is **far** from finished, rapidly changing and isn't the best way to test the interpreter.
+* `Moonshot path/to/file.fox` will process the given file. Errors and diagnostics will be printed to stdout, and the command line tool will return EXIT_SUCCESS if the file was processed without any diagnostic being emitted (it'll return EXIT_FAILURE otherwise). Several  options can be passed to the command line tool.
+  * `-verify` enables verify mode (See **Testing**))
+  * `-werr` promotes warnings to errors
+  * `-dump-ast` will dump the abstract syntax tree (AST) after processing the file.
+
+
+## Testing
+  TODO
+
 ## License
 Licensed under the terms of the MIT license. 
 
