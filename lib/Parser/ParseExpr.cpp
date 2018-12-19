@@ -79,7 +79,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
     SourceRange range(begLoc, endLoc);
     assert(range && "Invalid loc info");
     return ExprResult(
-      FunctionCallExpr::create(ctxt, base, exprlist.getRef(), range)
+      FunctionCallExpr::create(ctxt, base, exprlist.move(), range)
     );
   }
   else if (!exprlist.wasSuccessful())
@@ -152,7 +152,7 @@ Parser::ExprResult Parser::parseArrayLiteral() {
   SourceRange range(begLoc, endLoc);
   assert(range && "Invalid loc info");
 
-  return ExprResult(ArrayLiteralExpr::create(ctxt, elist.getRef(), range));
+  return ExprResult(ArrayLiteralExpr::create(ctxt, elist.move(), range));
 }
 
 Parser::ExprResult Parser::parseLiteral() {
