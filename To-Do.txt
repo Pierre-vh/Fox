@@ -108,8 +108,7 @@ To-Do:
 
   > ASTDumper overhaul 
   > Fix how diagnostics print columns/line on multiple lines
-    > Currently, it's bugged, if a diag begins on l3 c4 and ends on l4 c3, it'll print
-      3:4-3.. doesn't look good...
+    > For diags, only print "begline:begcol", not the full range.
 
   > FunctionType
   > Name binding logic in visitUnresolvedDeclRefExpr
