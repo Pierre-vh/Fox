@@ -51,10 +51,15 @@ bool Type::operator<(const Type other) const {
 
 // TypeLoc
 
-TypeLoc::TypeLoc() : Type(nullptr) {}
+TypeLoc::TypeLoc(TypeBase* ty, SourceRange range):
+  Type(ty), range_(range) {
+
+}
 
 TypeLoc::TypeLoc(Type ty, SourceRange range) :
-  Type(ty), range_(range) {}
+  Type(ty), range_(range) {
+
+}
 
 SourceRange TypeLoc::getRange() const {
   return range_;
