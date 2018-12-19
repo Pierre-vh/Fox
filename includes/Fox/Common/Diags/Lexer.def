@@ -7,8 +7,6 @@
 // Lexer Diagnostics Message
 //----------------------------------------------------------------------------//
 
-
-ERROR(lexer_invalid_token_found, "invalid token '%0'")
 ERROR(lexer_missing_closing_quote, "missing closing quote")
 ERROR(lexer_unfinished_multiline_comment, "multiline comment missing closing '*/'")
 ERROR(lexer_newline_in_literal, "illegal newline character in %0 literal")

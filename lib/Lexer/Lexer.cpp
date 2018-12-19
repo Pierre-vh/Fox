@@ -53,12 +53,8 @@ void Lexer::pushTok() {
   // Create the SourceRange of this token:
   Token t(ctxt_, curtok_, getCurtokRange());
 
-  if (t)
-    tokens_.push_back(t);
-  else
-    diags_
-      .report(DiagID::lexer_invalid_token_found,t.getRange())
-      .addArg(t.getAsString());
+  // Push the token if it was correctly identified
+  if (t) tokens_.push_back(t);
 
   curtok_ = "";
 }
