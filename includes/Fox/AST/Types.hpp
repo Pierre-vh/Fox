@@ -17,7 +17,6 @@
 #include <string>
 #include <cstdint>
 #include <list>
-#include "llvm/ADT/PointerIntPair.h"
 #include "ASTAligns.hpp"
 #include "Type.hpp"
 
