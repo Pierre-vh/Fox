@@ -779,16 +779,18 @@ Expr* Sema::typecheckExpr(Expr* expr) {
 // This method is essentially the same as typecheckExpr, but it'll
 // call unify in between the checking and finalization.
 // 
-// This allows us to allow code such as
+// This allows us to accept code such as
 //  func foo() : int[] {
-//    return [];
+//    return []; // [] is inferred to int[]
 //  }
+//
 // If you were to check the ReturnStmt's expr with typecheckExpr, a
 // inference error would be emitted and the checking would fail, but
 // if you typecheckExprOfType with the return type of the function,
 // it'll work because the type will be bound before being finalized.
 std::pair<Sema::CheckedExprResult, Expr*> 
-Sema::typecheckExprOfType(Expr* expr, Type type, bool allowDowncast) {
+Sema::typecheckExprOfType(Expr* expr, Type type, bool allowDowncast,
+  bool setToErrorTyOnErr) {
   using CER = CheckedExprResult;
   assert(expr && "null input");
 
@@ -814,5 +816,12 @@ Sema::typecheckExprOfType(Expr* expr, Type type, bool allowDowncast) {
   else {
     result = CER::Error;
   }
+
+  // Set to error type if required
+  if (setToErrorTyOnErr) {
+    if ((result == CER::NOk) || (result == CER::Error))
+      expr->setType(ErrorType::get(getASTContext()));
+  }
+
   return { result, expr };
 }

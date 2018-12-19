@@ -85,10 +85,16 @@ namespace fox {
       //  Returns a pair. The first element of the pair is a success indicator
       //  (seem CheckedExprResult). The second Expr* pointer
       //  is the expression or another equivalent expr that should replace it.
+      //
 			// \param allowDowncast If set to false, returns CheckedExprResult::Downcast
 			//			  if casting "expr" to "type" results in a downcast.
+      //
+      // \param setToErrorOnErr If set to true, and if the expression type doesn't
+      //  match (returns CheckExprResult::NOk or Downcast), replace it's
+      //  type with ErrorType (to mark the expression as erroneous)
       std::pair<CheckedExprResult, Expr*> 
-      typecheckExprOfType(Expr* expr, Type type, bool allowDowncast = true);
+      typecheckExprOfType(Expr* expr, Type type, bool allowDowncast = true, 
+        bool setToErrorTyOnErr = true);
 
       // Performs semantic analysis on a single statement and it's children.
       void checkStmt(Stmt* stmt);
