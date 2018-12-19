@@ -14,11 +14,11 @@
 
 using namespace fox;
 
-TEST(SourceManagerTests, FileIDTests) {
+TEST(SourceManagerTest, FileIDTests) {
   EXPECT_FALSE(FileID()) << "Uninitialized File IDs should always be considered invalid!";
 }
 
-TEST(SourceManagerTests, LoadingFromFile) {
+TEST(SourceManagerTest, LoadingFromFile) {
   std::string file_path_a = test::getPath("lexer/utf8/bronzehorseman.txt");
   std::string file_path_b = test::getPath("lexer/utf8/ascii.txt");
   SourceManager srcMgr;
@@ -44,7 +44,7 @@ TEST(SourceManagerTests, LoadingFromFile) {
   EXPECT_EQ(content_b, storeddata_b->str);
 }
 
-TEST(SourceManagerTests, LoadingFromString) {
+TEST(SourceManagerTest, LoadingFromString) {
   std::string file_path_a = "lexer/utf8/bronzehorseman.txt";
   std::string file_path_b = "lexer/utf8/ascii.txt";
 
@@ -67,7 +67,7 @@ TEST(SourceManagerTests, LoadingFromString) {
 }
 
 
-TEST(SourceManagerTests, SourceRange) {
+TEST(SourceManagerTest, SourceRange) {
   // Create sample source locs
   SourceLoc a(FileID(), 200);
   SourceLoc b(FileID(), 250);
@@ -100,14 +100,14 @@ TEST(SourceManagerTests, SourceRange) {
   EXPECT_EQ(onechar_range_c.getBegin(), onechar_range_c.getEnd());
 }
 
-TEST(SourceManagerTests, PreciseLocation) {
+TEST(SourceManagerTest, PreciseLocation) {
   SourceManager srcMgr;
 
   std::string fp = test::getPath("sourcemanager/precise_test_1.txt");
 
   // Load file in SourceManager
   auto fid = srcMgr.loadFromFile(fp);
-  ASSERT_TRUE(fid) << "File couldn't be loaded in memory";
+  ASSERT_TRUE(fid) << "File couldn't be read";
 
   // Load file in StringManipulator
   string_view ptr = srcMgr.getSourceStr(fid);
@@ -127,4 +127,29 @@ TEST(SourceManagerTests, PreciseLocation) {
   else {
     FAIL() << "Couldn't find the pi sign.";
   }
+}
+
+TEST(SourceManagerTest, SourceLocToString) {
+  std::string testFilePath = test::getPath("sourcemanager/precise_test_1.txt");
+  SourceManager srcMgr;
+  FileID testFile = srcMgr.loadFromFile(testFilePath);
+  ASSERT_TRUE(testFile) << "File couldn't be read";
+  SourceLoc loc_a(testFile);
+  SourceLoc loc_b(testFile, 10);
+  EXPECT_EQ(loc_a.toString(srcMgr), "1:1");
+  EXPECT_EQ(loc_b.toString(srcMgr), "1:11");
+}
+
+TEST(SourceManagerTest, SourceRangeToString) {
+  std::string testFilePath = test::getPath("sourcemanager/precise_test_1.txt");
+  SourceManager srcMgr;
+  FileID testFile = srcMgr.loadFromFile(testFilePath);
+  ASSERT_TRUE(testFile) << "File couldn't be read";
+  SourceRange r_a(SourceLoc(testFile), 10);
+  SourceRange r_b(SourceLoc(testFile, 14), 3);
+  SourceRange r_c(SourceLoc(testFile, 5));
+
+  EXPECT_EQ(r_a.toString(srcMgr), "1:1-11");
+  EXPECT_EQ(r_b.toString(srcMgr), "1:15-2:2");
+  EXPECT_EQ(r_c.toString(srcMgr), "1:6");
 }
