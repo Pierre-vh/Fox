@@ -80,6 +80,7 @@ namespace fox {
 
       std::string toString(Type type, bool isConst = false) const;
       std::string toString(TypeLoc type, bool isConst = false) const;
+      std::string toString(SourceRange range) const;
 
       const SourceManager::SourceData* getSourceData(FileID fid);
       bool hasSrcMgr() const;
@@ -114,10 +115,6 @@ namespace fox {
       std::string getSourceLocDump(string_view label, SourceLoc sloc) const;
       // Returns a formatted string: <label:beg_line:beg_col-end_line:end_col>
       std::string getSourceRangeDump(string_view label, SourceRange range) const;
-      
-      // Returns the SourceRange as :
-      //  beg_line:beg_col,end_line:end_col
-      std::string getSourceRangeAsStr(SourceRange range) const;
       // Returns value enclosed with "".
       std::string addDoubleQuotes(string_view str) const;
       // Returns the value enclosed with ''

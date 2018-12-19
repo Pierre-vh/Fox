@@ -270,15 +270,20 @@ bool ASTDumper::isDebug() const {
 }
 
 std::string ASTDumper::toString(Type type, bool isConst) const {
-  std::string typeStr = isDebug() ? type->toDebugString() : type->toString();;
+  std::string typeStr = isDebug() ? type->toDebugString() : type->toString();
   if (isConst)
     return addSingleQuotes("const " + typeStr);
   return addSingleQuotes(typeStr);
 }
 
 std::string ASTDumper::toString(TypeLoc type, bool isConst) const {
-  return toString(type.withoutLoc(), isConst) + ":" 
-    + getSourceRangeAsStr(type.getRange());
+  return toString(type.withoutLoc(), isConst) + ":" + toString(type.getRange());
+}
+
+std::string ASTDumper::toString(SourceRange range) const {
+  if (!hasSrcMgr())
+    return "";
+  return range.toString(*srcMgr_);
 }
 
 const SourceManager::SourceData* ASTDumper::getSourceData(FileID fid) {
@@ -420,21 +425,10 @@ std::string ASTDumper::getSourceLocDump(string_view label,
   return "";
 }
 
-std::string ASTDumper::getSourceRangeAsStr(SourceRange range) const {
-  if (range && hasSrcMgr()) {
-    std::ostringstream ss;
-    CompleteLoc beg = srcMgr_->getCompleteLoc(range.getBegin());
-    CompleteLoc end = srcMgr_->getCompleteLoc(range.getEnd());
-    ss << beg.line << ":" << beg.column << "," << end.line << ":" << end.column;
-    return ss.str();
-  }
-  return "";
-}
-
 std::string ASTDumper::getSourceRangeDump(string_view label,
   SourceRange range) const {
   if(hasSrcMgr())
-    return makeKeyPairDump(label, getSourceRangeAsStr(range));
+    return makeKeyPairDump(label, toString(range));
   return "";
 }
 
