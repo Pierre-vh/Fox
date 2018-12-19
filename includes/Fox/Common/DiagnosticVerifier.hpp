@@ -10,6 +10,13 @@
 // class which catches every diagnostic, checks if it was expected, and if
 // that's the case, silences it.
 //----------------------------------------------------------------------------//
+// Feature Ideas:
+//  - Allow raw line numbers as argument
+//    e.g. expect-error@1: expected one or more declaration in unit
+// To-Do:
+//  - Check that line>=0 + check for overflow when applying offset
+//----------------------------------------------------------------------------//
+
 
 #pragma once
 
