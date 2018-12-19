@@ -58,6 +58,6 @@ Identifier::operator bool() const {
 }
 
 std::ostream& fox::operator<<(std::ostream & os, Identifier id) {
-  os << (id.isNull() ? id.getStr() : "<null id>");
+  os << (id.isNull() ? "<null id>" : id.getStr());
   return os;
 }
