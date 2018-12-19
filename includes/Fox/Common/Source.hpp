@@ -100,6 +100,8 @@ namespace fox {
       // Returns a string representation of a SourceLoc:
       //  Format: line:column
       //  Example: 3:4
+      //
+      // Returns "" if this SourceLoc is invalid.
       std::string toString(const SourceManager& srcMgr) const;
 
     protected:
@@ -141,6 +143,8 @@ namespace fox {
       //    when begLine == endLine: line:column-column
       //    when begLine != endLine: line:column-line:column
       //  Example: 3:4, 3:4-6, 3:4-4:5
+      //
+      // Returns "" if this SourceRange is invalid.
       std::string toString(const SourceManager& srcMgr) const;
 
     private:
