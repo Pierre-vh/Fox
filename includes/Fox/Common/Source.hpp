@@ -18,6 +18,7 @@
 
 namespace fox {
   class SourceLoc;
+  class SourceManager;
   // The FileID is an opaque object that packs a 16 bytes integer, representing a FileID
   class FileID {
     public:
@@ -96,6 +97,11 @@ namespace fox {
       // it doesn't preserve the FileID.
       IndexTy getIndex() const;
 
+      // Returns a string representation of a SourceLoc:
+      //  Format: line:column
+      //  Example: 3:4
+      std::string toString(SourceManager& srcMgr) const;
+
     protected:
       friend class Parser;
 
@@ -128,6 +134,15 @@ namespace fox {
       bool isOnlyOneCharacter() const;
 
       FileID getFile() const;
+
+      // Returns a string representation of a SourceLoc:
+      //  Format: 
+      //    when offset == 0: line:column
+      //    when begLine == endLine: line:column-column
+      //    when begLine != endLine: line:column-line:column
+      //  Example: 3:4, 3:4-6, 3:4-4:5
+      std::string toString(SourceManager& srcMgr) const;
+
     private:
       SourceLoc sloc_;
       OffsetTy offset_;

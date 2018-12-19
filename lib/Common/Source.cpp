@@ -10,6 +10,7 @@
 #include "utfcpp/utf8.hpp"
 #include <fstream>
 #include <cassert>
+#include <sstream>
 #include <cctype>
 
 #define INVALID_FILEID_VALUE 0
@@ -268,6 +269,13 @@ SourceLoc::IndexTy SourceLoc::getIndex() const {
   return idx_;
 }
 
+std::string SourceLoc::toString(SourceManager& srcMgr) const {
+  auto cloc = srcMgr.getCompleteLoc(*this);
+  std::stringstream ss;
+  ss << cloc.line << ":" << cloc.column;
+  return ss.str();
+}
+
 void SourceLoc::increment() {
   idx_++;
 }
@@ -332,4 +340,21 @@ bool SourceRange::isOnlyOneCharacter() const {
 
 FileID SourceRange::getFile() const {
   return sloc_.getFile();
+}
+
+std::string SourceRange::toString(SourceManager& srcMgr) const {
+  std::stringstream ss;
+  auto beg = srcMgr.getCompleteLoc(getBegin());
+  ss << beg.line << ":" << beg.column;
+
+  if (offset_ == 0)
+    return ss.str();
+
+  auto end = srcMgr.getCompleteLoc(getEnd());
+
+  if (beg.line == end.line)
+    ss << "-" << end.column;
+  else
+    ss << "-" << end.line << ":" << end.column;
+  return ss.str();
 }
