@@ -90,12 +90,12 @@ SourceManager::getSourceData(FileID fid) const {
 
 CompleteLoc::LineTy SourceManager::getLineNumber(SourceLoc loc) const {
   auto result = searchLineTable(
-    getSourceData(loc.getFile()), loc);
+    getSourceData(loc.getFileID()), loc);
   return result.second;
 }
 
 CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
-  const SourceData* fdata = getSourceData(sloc.getFile());
+  const SourceData* fdata = getSourceData(sloc.getFileID());
 
   auto idx = sloc.getIndex();
   assert((idx <= fdata->str.size()) && "SourceLoc is Out-of-Range");
@@ -134,7 +134,7 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
 }
 
 bool SourceManager::checkValid(SourceLoc sloc) const {
-  const SourceData* data = getSourceData(sloc.getFile());
+  const SourceData* data = getSourceData(sloc.getFileID());
   
   if (!data)
     return false;
@@ -150,7 +150,7 @@ bool SourceManager::checkExists(FileID file) const {
 
 string_view 
 SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
-  const SourceData* data = getSourceData(loc.getFile());
+  const SourceData* data = getSourceData(loc.getFileID());
   string_view source = data->str;
 
   auto pair = searchLineTable(data, loc);
@@ -283,7 +283,7 @@ bool SourceLoc::operator!=(const SourceLoc other) const {
   return !(*this == other);
 }
 
-FileID SourceLoc::getFile() const {
+FileID SourceLoc::getFileID() const {
   return fid_;
 }
 
@@ -315,7 +315,7 @@ SourceRange::SourceRange(SourceLoc sloc, OffsetTy offset):
 
 SourceRange::SourceRange(SourceLoc a, SourceLoc b) {
   // a and b must belong to the same file in all cases!
-  assert(a.getFile() == b.getFile() && "A and B are from different files");
+  assert(a.getFileID() == b.getFileID() && "A and B are from different files");
   if (a.getIndex() < b.getIndex()) {
     // a is the first sloc
     sloc_ = a;
@@ -354,15 +354,15 @@ SourceRange::OffsetTy SourceRange::getOffset() const {
 }
 
 SourceLoc SourceRange::getEnd() const {
-  return SourceLoc(sloc_.getFile(), sloc_.getIndex() + offset_);
+  return SourceLoc(sloc_.getFileID(), sloc_.getIndex() + offset_);
 }
 
 bool SourceRange::isOnlyOneCharacter() const {
   return (offset_ == 0);
 }
 
-FileID SourceRange::getFile() const {
-  return sloc_.getFile();
+FileID SourceRange::getFileID() const {
+  return sloc_.getFileID();
 }
 
 std::string SourceRange::toString(const SourceManager& srcMgr) const {

@@ -83,8 +83,8 @@ void Decl::markAsChecked() {
   checkState_ = CheckState::Checked;
 }
 
-FileID Decl::getFile() const {
-  return range_.getBegin().getFile();
+FileID Decl::getFileID() const {
+  return range_.getBegin().getFileID();
 }
 
 void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {

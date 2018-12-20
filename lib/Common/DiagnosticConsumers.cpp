@@ -25,7 +25,7 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm,
   if (!range)
     return "";
 
-  FileID file = range.getFile();
+  FileID file = range.getFileID();
   const auto* sourceData = sm.getSourceData(file);
 
   std::stringstream ss;
@@ -154,7 +154,7 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag) {
 
   // If needed, create the extra range underline (~)
   if(diag.hasExtraRange()) {
-    assert((diag.getExtraRange().getFile() == diag.getRange().getFile())
+    assert((diag.getExtraRange().getFileID() == diag.getRange().getFileID())
       && "Ranges don't belong to the same file");
 
     auto beg = getOffsetIteratorFromLineBeg(eRange.getBegin().getIndex());

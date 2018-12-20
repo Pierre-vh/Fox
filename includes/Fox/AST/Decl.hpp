@@ -92,7 +92,7 @@ namespace fox {
       void markAsChecked();
 
       // Get the FileID of the file where this Decl is located
-      FileID getFile() const;
+      FileID getFileID() const;
 
       // Debug method. Does a ASTDump of this node to std::cerr
       void dump() const;

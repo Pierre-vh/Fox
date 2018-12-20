@@ -203,7 +203,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         // Ignore if result == decl
         if(result == decl) return true;
         // Ignore if result isn't from the same file
-        if(result->getFile() != decl->getFile()) return true;
+        if(result->getFileID() != decl->getFileID()) return true;
         // And lastly, ignore if result doesn't come before decl.
         if(!comesBefore(result, decl)) return true;
         return false;  // else, don't ignore.
@@ -241,10 +241,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     findEarliestInFile(SourceLoc loc, const NamedDeclVec& decls) {
       assert(decls.size() && "decls.size() > 0");
       NamedDecl* candidate = nullptr;
-      FileID file = loc.getFile();
+      FileID file = loc.getFileID();
       for (NamedDecl* decl : decls) {
         assert(decl && "cannot be null!");
-        if (decl->getFile() == file) {
+        if (decl->getFileID() == file) {
           SourceLoc declLoc = decl->getBegin();
           // If the decl was declared after our loc, ignore it.
           if (loc.getIndex() < declLoc.getIndex())
@@ -267,7 +267,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // NOTE: lhs and rhs MUST share the same FileID!
     bool comesBefore(Decl* lhs, Decl* rhs) {
       assert(lhs && rhs && "lhs and/or rhs are nullptr");
-      assert(lhs->getFile() == rhs->getFile() && "lhs and rhs comes from "
+      assert(lhs->getFileID() == rhs->getFileID() && "lhs and rhs comes from "
         "different files");
       SourceLoc lhsBeg = lhs->getBegin();
       SourceLoc rhsBeg = rhs->getBegin();

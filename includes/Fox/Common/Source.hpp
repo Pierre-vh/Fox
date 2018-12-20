@@ -89,7 +89,7 @@ namespace fox {
       bool operator !=(const SourceLoc other) const;
 
       // Returns the ID of the file in which this SourceLoc lives.
-      FileID getFile() const;
+      FileID getFileID() const;
 
       // Returns the raw index of the SourceLoc.
       //
@@ -135,7 +135,7 @@ namespace fox {
       SourceLoc getEnd() const;
       bool isOnlyOneCharacter() const;
 
-      FileID getFile() const;
+      FileID getFileID() const;
 
       // Returns a string representation of a SourceLoc:
       //  Format: 
