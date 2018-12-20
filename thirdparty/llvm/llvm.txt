@@ -19,6 +19,11 @@ Non exhaustive changes list:
   Support/Compiler.h
     Removed llvm-config include
 
+    Added: New LLVM_NODISCARD impl
+      #elif defined(_MSC_VER) && (_MSC_VER >= 1700)
+      #define LLVM_NODISCARD _Check_return_
+      #else
+
   Support/MathExtras.h
     Removed SwapByteOrder include
     Removed functionalities that used SwapByteOrder:
@@ -41,6 +46,12 @@ Non exhaustive changes list:
   ADT/SmallVector.h
     Removed ErrorHandling. hinclude
     Inlined grow_pod to remove need for SmallVector.cpp 
-    Removed several LLVM_NODISCARD tags that caused some compiler errors
+    Removed LLVM_NODISCARDs (Caused compiler errors on MSVC)
+
+  ADT/ArrayRef
+    Removed Hashing functions
+    Replaced include: "llvm/ADT/STLExtras.h" with "llvm/ADT/iterator.h"
+    Removed LLVM_NODISCARDs (Caused compiler errors on MSVC)
+
 
 			

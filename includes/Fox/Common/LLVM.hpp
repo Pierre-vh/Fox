@@ -16,6 +16,8 @@
 namespace llvm {
   template <typename T> class SmallVectorImpl;
   template <typename T, unsigned N> class SmallVector;
+  template<typename T> class ArrayRef;
+  template<typename T> class MutableArrayRef;
 }
 
 namespace fox {
@@ -27,4 +29,7 @@ namespace fox {
 
   using llvm::SmallVectorImpl;
   using llvm::SmallVector;
+
+  using llvm::ArrayRef;
+  using llvm::MutableArrayRef;
 }
