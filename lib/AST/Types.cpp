@@ -14,6 +14,11 @@
 
 using namespace fox;
 
+#define TYPE(ID, PARENT)\
+  static_assert(std::is_trivially_destructible<ID>::value, \
+  #ID " is allocated in the ASTContext: It's destructor is never called!");
+#include "Fox/AST/TypeNodes.def"
+
 namespace {
   class TypePrinter : public TypeVisitor<TypePrinter, void> {
     std::ostream& out;

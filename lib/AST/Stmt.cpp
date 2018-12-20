@@ -16,6 +16,11 @@ using namespace fox;
 // Stmt
 //----------------------------------------------------------------------------//
 
+#define STMT(ID, PARENT)\
+  static_assert(std::is_trivially_destructible<ID>::value, \
+  #ID " is allocated in the ASTContext: It's destructor is never called!");
+#include "Fox/AST/StmtNodes.def"
+
 Stmt::Stmt(StmtKind skind, SourceRange range):
   kind_(skind), range_(range) {}
 
