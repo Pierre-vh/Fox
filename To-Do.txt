@@ -108,16 +108,21 @@ To-Do:
   > ASTDumper overhaul (Done)
   > Diagnostic/DiagnosticEngine code cleanup/review (Done)
   
-  > FIXME: UnitDecl doesn't store the SourceRange correctly. 
-    Maybe it should have a method to calculate it based on what's in the DC?
-      -> Update it on addDecl calls in DeclContext
-      -> Check that decls can't come from different files
-
   > FunctionType
-  > Name binding logic in visitUnresolvedDeclRefExpr
+  > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
   > ReturnStmt checking
     > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
       as parent, so use a PointerUnion<FuncDecl*, LocalScope*> for the parent)
+
+  > FIXME: UnitDecl doesn't return the correct SourceRange.
+    > I can't use an invalid SourceRange because I need ->getFile to work.
+    > SOLUTION: Allow creation of special SourceLoc/SourceRanges that only refer to a single
+      file. They'd be invalid and their index_ would be the max value for the Index type (like
+      npos in strings). This is the best of both worlds because:
+        UnitDecl->getSourceRange().isValid() == false
+        UnitDecl->getBegLoc().isValid() == false
+        UnitDecl->getEndLoc().isValid() == false
+        UnitDecl->getFileID().isValid() == true
 
   > Parser improvements
     Update parseFuncDecl/FuncDecl Ctor
@@ -163,6 +168,9 @@ Other:
     or should parseStmt handle it?
     > Also, for parseQualType, who should emit the errors? The caller or the callee? No both! Make
       a decision and stick to it.
+
+Minor issues:
+  > Rename "getBegin" and "getEnd" in AST/SourceRange to getBegLoc/getEndLoc
 
 Pending reworks:
   > Token class -> Currently, it's an abomination. Nuke it and re-do it.
