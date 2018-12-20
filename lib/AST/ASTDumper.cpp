@@ -376,7 +376,7 @@ std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
   ss << getDeclNodeName(decl);
   if (isDebug())
     ss << " " << (void*)decl;
-  ss << " " << makeKeyPairDump("local", (decl->isLocal() ? "true" : "false"))
+  ss << (decl->isLocal() ? " (local)" : "")
      << " " << getSourceRangeDump("range", decl->getRange());
   return ss.str();
 }
@@ -386,9 +386,6 @@ std::string ASTDumper::getValueDeclInfo(ValueDecl* decl) const {
   ss << getBasicDeclInfo(decl) << " ";
   ss << decl->getIdentifier() << " "
      << toString(decl->getTypeLoc(), decl->isConst()) << " ";
-
-  if (decl->isConst())
-    ss << "const";
 
   return ss.str();
 }
