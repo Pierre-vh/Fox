@@ -109,7 +109,24 @@ To-Do:
   > Diagnostic/DiagnosticEngine code cleanup/review (Done)
   
   > CRITICAL BUG: Some ASTNodes aren't trivially destructible, which means they leak memory
-    when the LinearAllocator frees it's memory! Make all ASTNodes trivially destrucible!
+    when the LinearAllocator frees it's memory! I need to make all AST Nodes trivially 
+    destrucible!
+    Changes needed (easiest to hardest)
+      1) StringLiteralExpr: 
+        Can replace the std::string with a string_view.
+        The string view's data should be allocated in the ASTContext, to do so, create a  
+          allocateCopy(string_view) in the ASTContext, which allocates a copy of the data of the
+          string_view in the ASTContext
+      2) CompoundStmt, FuncDecl, FunctionCallExpr, ArrayLiteralExpr
+        Maybe I can replace the SmallVectors with TrailingObjects + (Mutable)ArrayRefs ?  
+          -> If I end up not using one of them, remove the unused class(es) from the project
+          -> This will make me unable to increase/decrase the size of the arrays without
+             rebuilding the entire node, but this shouldn't be a problem.
+      3) UnitDecl: The tough one, it needs a map to function properly.
+        I'll probably have to rework the DeclContext or UnitDecl, maybe even both.
+  
+  > Update LinearAllocator so it supports objects bigger than a pool by allocating them
+    inside a custom pool.
 
   > FunctionType
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
