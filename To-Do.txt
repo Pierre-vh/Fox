@@ -106,12 +106,9 @@ To-Do:
   > ASTContext stores DiagnosticEngine& and SourceManager& (Done)
   > Update StmtChecker to correctly open scopes where appropriate (Done)
   > ASTDumper overhaul (Done)
+  > Diagnostic/DiagnosticEngine code cleanup/review (Done)
   
-  > Do more bit packing:
-    > Diagnostic object (use to-do in Diagnostic.hpp)
-    > TypeBase: kind can use 6 bits instead of 8 (but static assert with a LAST_TYPE)
-  
-  > UnitDecl doesn't store the SourceRange correctly. 
+  > FIXME: UnitDecl doesn't store the SourceRange correctly. 
     Maybe it should have a method to calculate it based on what's in the DC?
       -> Update it on addDecl calls in DeclContext
       -> Check that decls can't come from different files
