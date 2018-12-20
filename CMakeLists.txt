@@ -53,6 +53,8 @@ if(MSVC)
   add_compile_options(/wd4706) # "assignement within conditional expression" is rather pedantic.
   add_compile_options(/wd4324) # "structure was padded due to alignement specifier" no sh*t sherlock.
   add_compile_options(/wd4458) # "declaration of x hides class member" ...that's the goal!
+  # Don't deprecate theses functions
+  add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
 endif()
 
 # add lib target
