@@ -274,7 +274,7 @@ Diagnostic::~Diagnostic() {
 }
 
 void Diagnostic::emit() {
-  if (active_) {
+  if (isActive()) {
     assert(engine_
       && "Attempting to emit without a DiagnosticEngine set!");
     engine_->handleDiagnostic(*this);
@@ -330,7 +330,7 @@ bool Diagnostic::isFileWide() const {
 }
 
 bool Diagnostic::isActive() const {
-  return active_;
+  return (bool)engine_;
 }
 
 Diagnostic& Diagnostic::replacePlaceholder(const std::string& replacement,
@@ -350,9 +350,8 @@ Diagnostic& Diagnostic::replacePlaceholder(const std::string& replacement,
 }
 
 void Diagnostic::kill() {
-  if (active_) {
+  if (isActive()) {
     // Clear all variables
-    active_ = false;
     engine_ = nullptr;
     diagStr_.clear();
     diagSeverity_ = DiagSeverity::Ignore;
@@ -364,7 +363,6 @@ Diagnostic::operator bool() const {
 }
 
 void Diagnostic::initBitFields() {
-  active_ = true;
   curPHIndex_ = 0;
   fileWide_ = false;
 }

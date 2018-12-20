@@ -161,16 +161,18 @@ namespace fox {
         const std::string& dStr, const SourceRange& range = SourceRange());
     
     public:
-      // Note : both copy/move ctors kill the copied diag.
+      // Note : The copy constructor kills the copied diag.
       Diagnostic(Diagnostic &other);
+
+      // Note : The move ctors kill the moved diag.
       Diagnostic(Diagnostic &&other);
 
-      // Destructor that emits the diag.
+      // Dtor that emits the diagnostic.
       ~Diagnostic();
       
+      // Emit this diagnostic
       void emit();
 
-      // Getters for basic args values
       DiagID getID() const;
       std::string getStr() const;
       DiagSeverity getSeverity() const;
@@ -196,8 +198,13 @@ namespace fox {
         return addArg(value,tmp);
       }
 
-      // Inactive diags won't be emitted.
+      // Returns true if this Diagnostic is active, false otherwise.
+      //
+      // Active diagnostics can be modified & emitted, while
+      // inactives ones can't.
       bool isActive() const;
+
+      // isActive shortcut
       explicit operator bool() const;
 
     private:
@@ -250,7 +257,6 @@ namespace fox {
       //  Use 3 bits for diagSeverity (static_assert it)
 
       // Packed in 8 bits (0 left)
-      bool active_ :1; 
       std::uint8_t curPHIndex_ :6; 
 
       // Packed in 8 bits (3 left)
