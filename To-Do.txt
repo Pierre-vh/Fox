@@ -111,7 +111,7 @@ To-Do:
   > CRITICAL BUG: Some ASTNodes aren't trivially destructible, which means they leak memory
     when the LinearAllocator frees it's memory! I need to make all AST Nodes trivially 
     destrucible!
-    Changes needed (easiest to hardest)
+    Rework/Changes needed to solve this, ranked from the easiest to the hardest one.
       1) StringLiteralExpr: 
         Can replace the std::string with a string_view.
         The string view's data should be allocated in the ASTContext, to do so, create a  
@@ -124,7 +124,14 @@ To-Do:
              rebuilding the entire node, but this shouldn't be a problem.
       3) UnitDecl: The tough one, it needs a map to function properly.
         I'll probably have to rework the DeclContext or UnitDecl, maybe even both.
-  
+        Solutions idea:
+          (Dirty) Rework UnitDecl so it's no longer a ASTNode
+          (Ok, but hard to impl) Find a way to make DeclContext work without a map
+          (Probably best) Create a separate "DeclMap" structure, which contains
+            the map + vector, and allocate it (e.g. through a vector of unique_ptrs) in the 
+            ASTContext. The DeclContext would just contain a pointer to it's data DeclMap
+            and operate on it. This is what CLang seems to do to counter the problem.
+
   > Update LinearAllocator so it supports objects bigger than a pool by allocating them
     inside a custom pool.
 
