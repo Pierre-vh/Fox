@@ -295,9 +295,6 @@ namespace fox {
       static UnitDecl* create(ASTContext& ctxt, DeclContext* parent,
         Identifier id, FileID file);
 
-      FileID getFile() const;
-      void setFileID(const FileID& fid);
-
       Identifier getIdentifier() const;
       void setIdentifier(Identifier id);
 
@@ -318,7 +315,6 @@ namespace fox {
 
       Identifier identifier_;
       ASTContext& ctxt_;
-      FileID file_;
   };
 }
 
