@@ -14,15 +14,42 @@
 
 #pragma once
 
-#include <memory>
-#include "Diagnostic.hpp"
 #include "DiagnosticConsumers.hpp"
+#include "Source.hpp"
+#include "StringManipulator.hpp"
+#include <string>
+#include <sstream>
+#include <memory>
 
 namespace fox {
   class SourceLoc;
   class SourceRange;
   class SourceManager;
   class DiagnosticVerifier;
+  class Diagnostic;
+
+  // Diagnostic ID/Kinds
+  enum class DiagID : std::uint16_t {
+    // Important : first value must always be 0 to keep sync
+    // with the severities and strs arrays.
+    #define DIAG(SEVERITY,ID,TEXT) ID,
+    #define DIAG_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
+    #include "Diags/All.def"
+  };
+
+  // Diagnostic Severities 
+  enum class DiagSeverity : std::uint8_t {
+    Ignore, Note, Warning, Error, Fatal    
+  };
+
+  // Converts a severity to a user readable string. 
+  // If allCaps is set to true, the returned value will be in all caps.
+  std::string toString(DiagSeverity sev, bool allCaps = false);
+  std::ostream& operator<<(std::ostream& os, DiagSeverity sev);
+
+  // The DiagnosticEngine, which controls everything Diagnostic-Related:
+  //  Creation of Diagnostics, Emission (but not presentation, see
+  //  DiagnosticConsumer for that), silencing/promoting diagnostics, etc.
   class DiagnosticEngine {
     public:
       // Constructor that will use the default Diagnostic Consumer
@@ -118,5 +145,127 @@ namespace fox {
 
       DiagnosticVerifier* verifier_ = nullptr;
       std::unique_ptr<DiagnosticConsumer> consumer_;
+  };
+
+  // The Diagnostic object. It contains the Diagnostic's data and allow
+  // the client to customize it before emitting it.
+  //
+  // Note: in this class, some methods will return a Diagnostic&. 
+  // This is done to enable function chaining.
+  // e.g. someDiag.addArg(..).addArg(...).freeze()
+  class Diagnostic {
+    protected:
+      friend class DiagnosticEngine;
+
+      Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,
+        const std::string& dStr, const SourceRange& range = SourceRange());
+    
+    public:
+      // Note : both copy/move ctors kill the copied diag.
+      Diagnostic(Diagnostic &other);
+      Diagnostic(Diagnostic &&other);
+
+      // Destructor that emits the diag.
+      ~Diagnostic();
+      
+      void emit();
+
+      // Getters for basic args values
+      DiagID getID() const;
+      std::string getStr() const;
+      DiagSeverity getSeverity() const;
+
+      SourceRange getRange() const;
+      Diagnostic& setRange(SourceRange range);
+      bool hasRange() const;
+
+      SourceRange getExtraRange() const;
+      Diagnostic& setExtraRange(SourceRange range);
+      bool hasExtraRange() const;
+
+      // File-wide diagnostics are diagnostics that concern
+      // a whole file. 
+      Diagnostic& setIsFileWide(bool fileWide);
+      bool isFileWide() const;
+
+      // Replace a %x placeholder.
+      template<typename ReplTy>
+      inline Diagnostic& addArg(const ReplTy& value) {
+        auto tmp = curPHIndex_;
+        curPHIndex_++;
+        return addArg(value,tmp);
+      }
+
+      // Frozen diags are locked, they cannot be modified further.
+      bool isFrozen() const;
+      Diagnostic& freeze();
+
+      // Inactive diags won't be emitted.
+      bool isActive() const;
+      explicit operator bool() const;
+
+    private:
+      friend class DiagnosticEngine;
+      Diagnostic& operator=(const Diagnostic&) = default;
+
+      // Internal addArg overloads
+      template<typename ReplTy>
+      inline Diagnostic& addArg(const ReplTy& value,
+        std::uint8_t phIndex) {
+        std::stringstream ss;
+        ss << value;
+        return replacePlaceholder(ss.str(), phIndex);
+      }
+
+      // For std::strings
+      template<>
+      inline Diagnostic& addArg(const std::string& value, 
+        std::uint8_t phIndex) {
+        return replacePlaceholder(value, phIndex);
+      }
+
+      // for FoxChar
+      template<>
+      inline Diagnostic& addArg(const FoxChar& value,
+        std::uint8_t phIndex) {
+        return replacePlaceholder(
+          StringManipulator::charToStr(value), phIndex
+        );
+      }
+
+      // replaces every occurence of "%(value of index)" 
+      // in a string with the replacement value
+      // e.g: replacePlaceholder("foo",0) replaces every %0 
+      // in the string with "foo"
+      Diagnostic& replacePlaceholder(const std::string& replacement,
+        std::uint8_t index);
+
+      void kill(); 
+      
+      void initBitFields();  
+
+      // TODO: Pack this better:
+      //  Use PointerIntPair to do pack the "frozen" flag inside the DiagnosticEngine*
+      //    for isActive, check if it still has a diagnosticEngine.
+      //  Use a bitfield for the DiagID, 
+      //    9 or 10 bits should be more than enough (static_assert it)
+      //  Use 3 or 4 bits for curPhiIndex instead of 6 
+      //    (assert that we don't exceed the max in replacePlaceholder)
+      //  Use 3 bits for diagSeverity (static_assert it)
+
+      // Packed in 8 bits (0 left)
+      bool active_ :1; 
+      bool frozen_ :1; 
+      std::uint8_t curPHIndex_ :6; 
+
+      // Packed in 8 bits (3 left)
+      DiagSeverity diagSeverity_ : 4; 
+      bool fileWide_ : 1;
+
+      DiagnosticEngine* engine_ = nullptr;
+      DiagID diagID_;
+      std::string diagStr_;
+      SourceRange range_;
+      SourceRange extraRange_;
   };
 }

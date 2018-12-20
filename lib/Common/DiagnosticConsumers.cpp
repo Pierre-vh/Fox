@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Common/DiagnosticConsumers.hpp"
-#include "Fox/Common/Diagnostic.hpp"
+#include "Fox/Common/DiagnosticEngine.hpp"
 #include "utfcpp/utf8.hpp"
 #include <cassert>
 #include <string>

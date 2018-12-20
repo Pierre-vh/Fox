@@ -19,7 +19,7 @@
 #pragma once
 
 #include "Source.hpp"
-#include "Diagnostic.hpp"
+#include "DiagnosticEngine.hpp"
 #include "DiagnosticConsumers.hpp"
 #include <set>
 
