@@ -12,7 +12,7 @@
 // that can't be easily forward-declared. 
 #include "llvm/Support/Casting.h"
 
-// Forward-declare SmallVector 
+// Forward-declare some llvm classes 
 namespace llvm {
   template <typename T> class SmallVectorImpl;
   template <typename T, unsigned N> class SmallVector;
