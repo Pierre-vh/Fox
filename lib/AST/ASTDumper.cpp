@@ -219,9 +219,8 @@ void ASTDumper::visitUnitDecl(UnitDecl* node) {
   else
     fileInfo = makeKeyPairDump("file", "unknown");
 
-  dumpLine() << getBasicDeclInfo(node) << " " << fileInfo << " "
-             << node->getIdentifier() << " "
-             << getDeclCtxtDump(node) << "\n";
+  dumpLine() << getBasicDeclInfo(node) << " " << node->getIdentifier() << " "
+    << fileInfo << " " << getDeclCtxtDump(node) << "\n";
 
   indent();
   for (auto decl : node->getDecls())
@@ -373,11 +372,14 @@ std::string ASTDumper::getBasicExprInfo(Expr* expr) const {
 
 std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
   std::ostringstream ss;
+  std::string sourceRangeDump;
   ss << getDeclNodeName(decl);
   if (isDebug())
     ss << " " << (void*)decl;
-  ss << (decl->isLocal() ? " (local)" : "")
-     << " " << getSourceRangeDump("range", decl->getRange());
+  ss << (decl->isLocal() ? " (local)" : "");
+  // Don't dump the range for UnitDecls as it's inaccurate
+  if (!isa<UnitDecl>(decl))
+    ss << " " << getSourceRangeDump("range", decl->getRange());
   return ss.str();
 }
 
