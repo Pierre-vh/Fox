@@ -108,6 +108,9 @@ To-Do:
   > ASTDumper overhaul (Done)
   > Diagnostic/DiagnosticEngine code cleanup/review (Done)
   
+  > CRITICAL BUG: Some ASTNodes aren't trivially destructible, which means they leak memory
+    when the LinearAllocator frees it's memory! Make all ASTNodes trivially destrucible!
+
   > FunctionType
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
   > ReturnStmt checking
