@@ -127,6 +127,8 @@ To-Do:
     -> Create the FuncDecl with vParams as arg
     -> Iterate over vParams and set each element's parent
         to the newly created FuncDecl
+    -> Improve recovery for top-level decls : stop recovery attempt at first let or func keyword
+       if not inside a function body (create isParsingTopLevelCode() && beginsTopLevelDecl(token))
 
   > ASTVerifier
       Debug tool that asserts that the AST is well formed. Used as a debug tool (will
