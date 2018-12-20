@@ -15,16 +15,21 @@
 
 #include <cstddef>
 #include <memory>
-#include <ostream>
 #include "Errors.hpp"
 
 namespace fox {
+  namespace detail {
+    void doLinearAllocatorDump(std::size_t numPools, std::size_t poolSize,
+      std::size_t bytesInCurrentPool, std::size_t totalBytesUsed);
+  }
+
   /*
     \brief The LinearAllocator class implements a "Pointer-Bump" allocator.
 
     This works by allocating pools and giving chunks of it when allocate is called.
-    Allocation is REALLY fast, at the cost of a less control over memory allocated.
-    Once a block of memory is allocated, you cannot deallocate it (no Deallocate method).
+    Allocation is a lot faster, at the cost of less control over memory allocated.
+    Once a block of memory is allocated, you cannot deallocate it 
+    (no Deallocate method).
 
     This is useful for allocating lots of long lived object (such as AST Nodes)
 
@@ -49,7 +54,8 @@ namespace fox {
         a linked list, where each pool owns the next one.
       */
       struct Pool {
-        // Calculate the upperBound by adding the beginning of the data + the size of the data
+        // Calculate the upperBound by adding the beginning 
+        // of the data + the size of the data
         Pool(Pool* previous) : upperBound(data + poolSize), previous(previous) {
           memset(data, 0, sizeof(data));
         }
@@ -93,7 +99,7 @@ namespace fox {
       }
 
       /*
-        \brief Destroys every pool then creates a new pool. This "resets" the allocator.
+        \brief Resets the allocator, freeing all previously allocated memory.
       */
       void reset() {
         destroyAll();
@@ -101,9 +107,11 @@ namespace fox {
       }
 
       /*
-        \brief Allocates (size) bytes of memory, bumping the pointer by (size) bytes + eventual padding for alignement.
+        \brief Allocates (size) bytes of memory, 
+                bumping the pointer by (size) bytes + eventual padding for alignement.
         \param size The size of the chunk of memory you want to allocate in bytes.
-        \returns Your chunk of memory, nullptr if the allocator can't allocate any more memory.
+        \returns Your chunk of memory, nullptr if the allocator can't allocate 
+                 any more memory.
       */
       void* allocate(size_type size, align_type align = 1) {
         // Check that the allocptr isn't null
@@ -112,7 +120,8 @@ namespace fox {
         // Check if the object fits.
         // No dump needed when calling reportBadAlloc
         if (!willFitInPool(size, align))
-          reportBadAlloc("Object too big (size of object is greater than size of a pool)");
+          reportBadAlloc("Object too big (size of object "
+            "is greater than size of a pool)");
 
         // Create a new pool if we need to do so.
         createNewPoolIfRequired(size, align);
@@ -127,7 +136,9 @@ namespace fox {
       }
 
       /*
-        \brief Templated version of allocate which uses sizeof() to call the base allocate. See non-templated allocate overload for more details.
+        \brief Templated version of allocate which uses sizeof() to 
+               call the base allocate. See non-templated allocate overload for
+               more details.
       */
       template<typename DataTy>
       auto allocate() {
@@ -137,7 +148,8 @@ namespace fox {
       }
 
       /*
-        \brief Deallocates the pointer. This just zeroes the memory unless it's the last object allocated, then, it's actually freed.
+        \brief Deallocates the pointer. This just zeroes the memory 
+              unless it's the last object allocated, then, it's actually freed.
         \param ptr The pointer which holds the chunk of memory you own.
         \param sz The size of the chunk of memory in bytes.
       */
@@ -147,7 +159,8 @@ namespace fox {
       }
 
       /*
-        \brief Templated version of deallocate which uses sizeof() to call the base deallocate.
+        \brief Templated version of deallocate which uses sizeof() 
+               to call the base deallocate.
       */
       template<typename DataTy>
       void deallocate(DataTy* ptr) {
@@ -197,17 +210,14 @@ namespace fox {
       }
 
       /*
-        \brief  Displays a detailled dump to get an overview of the state of the allocator.
+        \brief  Displays a detailled dump to get an overview of the state 
+                of the allocator.
       */
-      void dump(std::ostream& os) const {
-        auto bytesInCurPool = getBytesInCurrentPool();
+      void dump() const {
+        std::size_t bytesInCurPool = getBytesInCurrentPool();
         std::size_t totalBytes = (poolCount*poolSize) + bytesInCurPool;
-        os << "(Pools Size: " << poolSize << ")\n";
-        os << "Pools: " << poolCount << "\n";
-        os << "Curpool address: " << (void*)curPool << "\n";
-        os << "AllocPtr address: " << (void*)allocPtr << "\n";
-        os << "Bytes in current pool: " << bytesInCurPool << "\n";
-        os << "Total bytes: " << totalBytes << "\n";
+        detail::doLinearAllocatorDump(getPoolCount(), poolSize,
+          bytesInCurPool, totalBytes);
       }
 
       /*
@@ -257,7 +267,8 @@ namespace fox {
       }
 
       /*
-        \brief Creates a pool if the current pool can't support an allocation of size sz.
+        \brief Creates a pool if the current pool can't support 
+               an allocation of size sz.
         \return true if a new pool was allocated, false if not.
       */
       bool createNewPoolIfRequired(size_type sz, align_type align) {

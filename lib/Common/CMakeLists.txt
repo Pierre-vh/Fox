@@ -5,4 +5,5 @@ add_source(common_src
   "Source.cpp"
   "Errors.cpp"
   "DiagnosticVerifier.cpp"
+  "LinearAllocator.cpp"
 )
