@@ -9,6 +9,7 @@
 #include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "Fox/Common/StringManipulator.hpp"
 #include <iostream>
 
 using namespace fox;
@@ -17,14 +18,28 @@ using namespace fox;
 // Diagnostic data
 //----------------------------------------------------------------------------//
 
-static const char* diagsStrs[] = {
-  #define DIAG(SEVERITY,ID,TEXT) TEXT,
-    #include "Fox/Common/Diags/All.def"
-};
+namespace {
 
-static const DiagSeverity diagsSevs[] = {
-  #define DIAG(SEVERITY,ID,TEXT) DiagSeverity::SEVERITY,
+  constexpr const char * const diagsStrs[] = {
+    #define DIAG(SEVERITY,ID,TEXT) TEXT,
     #include "Fox/Common/Diags/All.def"
+  };
+
+  constexpr DiagSeverity diagsSevs[] = {
+    #define DIAG(SEVERITY,ID,TEXT) DiagSeverity::SEVERITY,
+    #include "Fox/Common/Diags/All.def"
+  };
+
+  constexpr unsigned numDiags = sizeof(diagsSevs);
+}
+
+//----------------------------------------------------------------------------//
+// Diagnostic data
+//----------------------------------------------------------------------------//
+
+class Diagnostic::StaticAsserts {
+  static_assert(numDiags < (1 << diagIdBits), "Too many diagnostics for the "
+    "diagID_ bitfield. Increase diagIdBits!");
 };
 
 //----------------------------------------------------------------------------//
@@ -333,12 +348,16 @@ bool Diagnostic::isActive() const {
   return (bool)engine_;
 }
 
-Diagnostic& Diagnostic::replacePlaceholder(const std::string& replacement,
-  std::uint8_t index) {
+Diagnostic& Diagnostic::replacePlaceholder(const std::string& replacement) {
 
   // This method can be quite expensive, so, as an optimization,
   // don't do it if the diagnostic isn't active.
   if (!isActive()) return *this;
+
+  auto index = curPHIndex_;
+
+  assert(index < (1 << placeholderIndexBits) && 
+    "Trying to replace too many placeholders!");
 
   std::string targetPH = "%" + std::to_string((int)index);
   std::size_t n = 0;
@@ -346,7 +365,12 @@ Diagnostic& Diagnostic::replacePlaceholder(const std::string& replacement,
     diagStr_.replace(n, targetPH.size(), replacement);
     n += replacement.size();
   }
+  ++curPHIndex_;
   return *this;
+}
+
+Diagnostic& Diagnostic::replacePlaceholder(FoxChar replacement) {
+  return replacePlaceholder(StringManipulator::charToStr(replacement));
 }
 
 void Diagnostic::kill() {

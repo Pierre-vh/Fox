@@ -16,7 +16,7 @@
 
 #include "DiagnosticConsumers.hpp"
 #include "Source.hpp"
-#include "StringManipulator.hpp"
+#include "Typedefs.hpp"
 #include <string>
 #include <sstream>
 #include <memory>
@@ -40,6 +40,9 @@ namespace fox {
   // Diagnostic Severities 
   enum class DiagSeverity : std::uint8_t {
     Ignore, Note, Warning, Error, Fatal    
+    // Note: There's still room for 3 more severities.
+    // If more are added, add an extra bit to diagSeverity_ in
+    // the Diagnostic class
   };
 
   // Converts a severity to a user readable string. 
@@ -111,18 +114,16 @@ namespace fox {
 
       static constexpr std::uint16_t defaultErrorLimit = 0;
 
-    protected:
+    private:
       friend class Diagnostic;
 
-      // Called by the Diagnostic's destructor. This will handle
-      // the emission of the diagnostic.
+      // Called by Diagnostic::emit
       void handleDiagnostic(Diagnostic& diag);
 
-    private:    
       // Promotes the severity of the diagnostic if needed
       DiagSeverity changeSeverityIfNeeded(DiagSeverity ds) const;
 
-      // Updates internal counters (warningCount, errCount, hasFatalErrorOccured) depending on the severity
+      // Updates internal counters depending on the severity of a diagnostic
       void updateInternalCounters(DiagSeverity ds);
 
       // Bitfields : Options
@@ -136,14 +137,17 @@ namespace fox {
       bool errLimitReached_ : 1;
       // 0 bits left
 
-      /* Other non bool parameters */
+      // Error limit
       std::uint16_t errLimit_ = defaultErrorLimit;
-
-      /* Statistics */
+      // Number of errors
       std::uint16_t errorCount_ = 0;
+      // Number of warnings
       std::uint16_t warnCount_  = 0;
 
+      // The DiagnosticVerifier, if there's one
       DiagnosticVerifier* verifier_ = nullptr;
+
+      // The DiagnosticConsumer
       std::unique_ptr<DiagnosticConsumer> consumer_;
   };
 
@@ -154,11 +158,10 @@ namespace fox {
   // This is done to enable function chaining.
   // e.g. someDiag.addArg(..).addArg(...).freeze()
   class Diagnostic {
-    protected:
-      friend class DiagnosticEngine;
+    friend class DiagnosticEngine;
 
-      Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,
-        const std::string& dStr, const SourceRange& range = SourceRange());
+    Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,
+      const std::string& dStr, const SourceRange& range = SourceRange());
     
     public:
       // Note : The copy constructor kills the copied diag.
@@ -190,12 +193,30 @@ namespace fox {
       Diagnostic& setIsFileWide(bool fileWide);
       bool isFileWide() const;
 
-      // Replace a %x placeholder.
+      // addArg Implementation for any type that supports operator <<
       template<typename ReplTy>
-      inline Diagnostic& addArg(const ReplTy& value) {
-        auto tmp = curPHIndex_;
-        curPHIndex_++;
-        return addArg(value,tmp);
+      Diagnostic& addArg(const ReplTy& value) {
+        std::stringstream ss;
+        ss << value;
+        return replacePlaceholder(ss.str());
+      }
+
+      // addArg Implementation for std::strings 
+      template<>
+      Diagnostic& addArg(const std::string& value) {
+        return replacePlaceholder(value);
+      }
+
+      // addArg Implementation for string_view
+      template<>
+      Diagnostic& addArg(const string_view& value) {
+        return replacePlaceholder(value.to_string());
+      }
+
+      // addArg Implementation for FoxChar
+      template<>
+      Diagnostic& addArg(const FoxChar& value) {
+        return replacePlaceholder(value);
       }
 
       // Returns true if this Diagnostic is active, false otherwise.
@@ -208,63 +229,42 @@ namespace fox {
       explicit operator bool() const;
 
     private:
-      friend class DiagnosticEngine;
+      // Some static asserts can't be done inside the header, so this helper 
+      // class is used to access the private data of the Diagnostic object
+      // inside the .cpp without being in a function.
+      class StaticAsserts;
+
+      void initBitFields();  
+      
       Diagnostic& operator=(const Diagnostic&) = default;
-
-      // Internal addArg overloads
-      template<typename ReplTy>
-      inline Diagnostic& addArg(const ReplTy& value,
-        std::uint8_t phIndex) {
-        std::stringstream ss;
-        ss << value;
-        return replacePlaceholder(ss.str(), phIndex);
-      }
-
-      // For std::strings
-      template<>
-      inline Diagnostic& addArg(const std::string& value, 
-        std::uint8_t phIndex) {
-        return replacePlaceholder(value, phIndex);
-      }
-
-      // for FoxChar
-      template<>
-      inline Diagnostic& addArg(const FoxChar& value,
-        std::uint8_t phIndex) {
-        return replacePlaceholder(
-          StringManipulator::charToStr(value), phIndex
-        );
-      }
 
       // replaces every occurence of "%(value of index)" 
       // in a string with the replacement value
       // e.g: replacePlaceholder("foo",0) replaces every %0 
       // in the string with "foo"
-      Diagnostic& replacePlaceholder(const std::string& replacement,
-        std::uint8_t index);
+      Diagnostic& replacePlaceholder(const std::string& replacement);
+      Diagnostic& replacePlaceholder(FoxChar replacement);
 
+      // Kills this diagnostic, removing most of it's data, thus
+      // de-activating it.
       void kill(); 
       
-      void initBitFields();  
+      static constexpr unsigned placeholderIndexBits = 3;
+      static constexpr unsigned diagIdBits = 9;
 
-      // TODO: Pack this better:
-      //  Use PointerIntPair to do pack the "frozen" flag inside the DiagnosticEngine*
-      //    for isActive, check if it still has a diagnosticEngine.
-      //  Use a bitfield for the DiagID, 
-      //    9 or 10 bits should be more than enough (static_assert it)
-      //  Use 3 or 4 bits for curPhiIndex instead of 6 
-      //    (assert that we don't exceed the max in replacePlaceholder)
-      //  Use 3 bits for diagSeverity (static_assert it)
-
-      // Packed in 8 bits (0 left)
-      std::uint8_t curPHIndex_ :6; 
-
-      // Packed in 8 bits (3 left)
-      DiagSeverity diagSeverity_ : 4; 
+      //----------Packed in 16 bits (0 left)----------//
+      // Placeholder index
+      std::uint8_t curPHIndex_ : placeholderIndexBits; 
+      // isFileWide flag
       bool fileWide_ : 1;
+      // Severity of the Diagnostic
+      DiagSeverity diagSeverity_ : 3; 
+      // Kind of the diagnostic
+      DiagID diagID_ : diagIdBits;
+      //---------------------------------------------//
 
       DiagnosticEngine* engine_ = nullptr;
-      DiagID diagID_;
+
       std::string diagStr_;
       SourceRange range_;
       SourceRange extraRange_;
