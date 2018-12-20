@@ -321,8 +321,7 @@ bool Diagnostic::hasExtraRange() const {
 }
 
 Diagnostic& Diagnostic::setIsFileWide(bool fileWide) {
-  if(!frozen_)
-    fileWide_ = fileWide;
+  fileWide_ = fileWide;
   return *this;
 }
 
@@ -336,8 +335,10 @@ bool Diagnostic::isActive() const {
 
 Diagnostic& Diagnostic::replacePlaceholder(const std::string& replacement,
   std::uint8_t index) {
-  if (!active_ || frozen_)
-    return *this;
+
+  // This method can be quite expensive, so, as an optimization,
+  // don't do it if the diagnostic isn't active.
+  if (!isActive()) return *this;
 
   std::string targetPH = "%" + std::to_string((int)index);
   std::size_t n = 0;
@@ -354,18 +355,8 @@ void Diagnostic::kill() {
     active_ = false;
     engine_ = nullptr;
     diagStr_.clear();
-    frozen_ = true;
     diagSeverity_ = DiagSeverity::Ignore;
   }
-}
-
-bool Diagnostic::isFrozen() const {
-  return frozen_;
-}
-
-Diagnostic& Diagnostic::freeze() {
-  frozen_ = true;
-  return *this;
 }
 
 Diagnostic::operator bool() const {
@@ -374,7 +365,6 @@ Diagnostic::operator bool() const {
 
 void Diagnostic::initBitFields() {
   active_ = true;
-  frozen_ = false;
   curPHIndex_ = 0;
   fileWide_ = false;
 }

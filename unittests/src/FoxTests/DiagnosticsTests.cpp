@@ -158,24 +158,21 @@ TEST(DiagnosticsTests, errLimit) {
   EXPECT_EQ(count, cons->getCount());
 }
 
-TEST(DiagnosticsTests, frozenAndDeadDiags) {
+TEST(DiagnosticsTests, InactiveDiags) {
   auto diagEng = createDiagEngine();
   auto diag = diagEng.report(DiagID::unittest_placeholderremoval1);
-  EXPECT_EQ("[%0,%1]", diag.getStr()) << "Diag str wasn't the one expected.";
+  EXPECT_EQ("[%0,%1]", diag.getStr()) 
+    << "Diag str wasn't the one expected.";
   diag.addArg("foo");
-  EXPECT_EQ("[foo,%1]", diag.getStr()) << "Diag str did not replace the expected placeholder.";
-  
-  // Freeze test
-  EXPECT_FALSE(diag.isFrozen()) << "Diag spawned frozen";
-  diag.freeze();
-  EXPECT_TRUE(diag.isFrozen()) << "Diag did not freeze as expected.";
-  diag.addArg("bar");
-  EXPECT_EQ("[foo,%1]", diag.getStr()) << "Diag str might have replaced a placeholder, but the diagnostic was supposed to be frozen!";
+  EXPECT_EQ("[foo,%1]", diag.getStr()) 
+    << "Diag str did not replace the expected placeholder.";
   
   // Alive/dead
-  EXPECT_TRUE(diag.isActive()) << "Diag was inactive?";
+  EXPECT_TRUE(diag.isActive()) 
+    << "Diag was inactive?";
   diag.emit();
-  EXPECT_FALSE(diag.isActive()) << "Diag was active after being emitted?";
+  EXPECT_FALSE(diag.isActive()) 
+    << "Diag was active after being emitted?";
 }
 
 TEST(DiagnosticsTests, SilencedWarnings) {
@@ -184,7 +181,8 @@ TEST(DiagnosticsTests, SilencedWarnings) {
   diagEng.setIgnoreWarnings(true);
   // Test.
   auto diagWarn = diagEng.report(DiagID::unittest_warntest);
-  EXPECT_EQ(diagWarn.getSeverity(),DiagSeverity::Ignore) << "Reported diagnostic wasn't a silenced diag";
+  EXPECT_EQ(diagWarn.getSeverity(),DiagSeverity::Ignore) 
+    << "Reported diagnostic wasn't a silenced diag";
   diagWarn.emit();
 }
 
@@ -251,20 +249,16 @@ TEST(DiagnosticsTests, CopyingDiagKillsCopiedDiag) {
   auto diagA = diagEng.report(DiagID::unittest_errtest);
   auto diagB(diagA);
   EXPECT_FALSE(diagA.isActive());
-  EXPECT_TRUE(diagA.isFrozen());
   EXPECT_FALSE(diagA);
 
   EXPECT_TRUE(diagB.isActive());
-  EXPECT_FALSE(diagB.isFrozen());
   EXPECT_TRUE(diagB);
 
   // Test with move constructor
   auto diagC(std::move(diagB));
   EXPECT_FALSE(diagB.isActive());
-  EXPECT_TRUE(diagB.isFrozen());
   EXPECT_FALSE(diagB);
 
   EXPECT_TRUE(diagC.isActive());
-  EXPECT_FALSE(diagC.isFrozen());
   EXPECT_TRUE(diagC);
 }

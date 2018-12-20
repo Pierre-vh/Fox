@@ -196,10 +196,6 @@ namespace fox {
         return addArg(value,tmp);
       }
 
-      // Frozen diags are locked, they cannot be modified further.
-      bool isFrozen() const;
-      Diagnostic& freeze();
-
       // Inactive diags won't be emitted.
       bool isActive() const;
       explicit operator bool() const;
@@ -255,7 +251,6 @@ namespace fox {
 
       // Packed in 8 bits (0 left)
       bool active_ :1; 
-      bool frozen_ :1; 
       std::uint8_t curPHIndex_ :6; 
 
       // Packed in 8 bits (3 left)
