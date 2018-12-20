@@ -58,21 +58,13 @@ Diagnostic DiagnosticEngine::report(DiagID diagID, FileID file) {
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, SourceRange range) {
-  // Gather diagnostic data
-  const auto idx = static_cast<typename std::underlying_type<DiagID>::type>(diagID);
+  const auto idx = static_cast<std::underlying_type<DiagID>::type>(diagID);
   DiagSeverity sev = diagsSevs[idx];
   std::string str(diagsStrs[idx]);
 
-  // Promote severity if needed
   sev = changeSeverityIfNeeded(sev);
 
-  return Diagnostic(
-        this,
-        diagID,
-        sev,
-        str,
-        range
-      );;
+  return Diagnostic(this, diagID, sev, str, range);
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, SourceLoc loc) {
