@@ -164,9 +164,9 @@ bool BoolLiteralExpr::getVal() const {
 
 ArrayLiteralExpr::ArrayLiteralExpr(ArrayRef<Expr*> elems, SourceRange range):
   Expr(ExprKind::ArrayLiteralExpr, range), 
-  numElems_(static_cast<ElemSizeTy>(elems.size())) {
+  numElems_(static_cast<SizeTy>(elems.size())) {
   assert((numElems_ < maxElems) && "Too many args for ArrayLiteralExpr. "
-    "Increase the size of ElemSizeTy to something bigger!");
+    "Increase the size of SizeTy to something bigger!");
 
   std::uninitialized_copy(elems.begin(), elems.end(), 
     getTrailingObjects<Expr*>());
@@ -467,9 +467,9 @@ void DeclRefExpr::setDecl(ValueDecl* decl) {
 
 FunctionCallExpr::FunctionCallExpr(Expr* callee, ArrayRef<Expr*> args, 
   SourceRange range): Expr(ExprKind::FunctionCallExpr, range), callee_(callee), 
-  numArgs_(static_cast<ArgSizeTy>(args.size())) {
+  numArgs_(static_cast<SizeTy>(args.size())) {
   assert((numArgs_ < maxArgs) && "Too many args for FunctionCallExpr. "
-    "Increase the size of ArgSizeTy to something bigger!");
+    "Increase the size of SizeTy to something bigger!");
   std::uninitialized_copy(args.begin(), args.end(), 
     getTrailingObjects<Expr*>());
 }
@@ -491,7 +491,7 @@ Expr* FunctionCallExpr::getCallee() const {
   return callee_;
 }
 
-FunctionCallExpr::ArgSizeTy FunctionCallExpr::numArgs() const {
+FunctionCallExpr::SizeTy FunctionCallExpr::numArgs() const {
   return numArgs_;
 }
 

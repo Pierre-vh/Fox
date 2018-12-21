@@ -315,8 +315,8 @@ namespace fox   {
     friend class TrailingObjects;
 
     public:
-      using ElemSizeTy = std::uint16_t;
-      static constexpr auto maxElems = std::numeric_limits<ElemSizeTy>::max();
+      using SizeTy = std::uint16_t;
+      static constexpr auto maxElems = std::numeric_limits<SizeTy>::max();
 
       static ArrayLiteralExpr* create(ASTContext& ctxt,  ArrayRef<Expr*> elems,
         SourceRange range);
@@ -335,7 +335,7 @@ namespace fox   {
     private:
       ArrayLiteralExpr(ArrayRef<Expr*> elems, SourceRange range);
 
-      const ElemSizeTy numElems_;
+      const SizeTy numElems_;
   };
 
   // UnresolvedExpr
@@ -453,8 +453,8 @@ namespace fox   {
     friend class TrailingObjects;
 
     public:    
-      using ArgSizeTy = std::uint8_t;
-      static constexpr auto maxArgs = std::numeric_limits<ArgSizeTy>::max();
+      using SizeTy = std::uint8_t;
+      static constexpr auto maxArgs = std::numeric_limits<SizeTy>::max();
 
       static FunctionCallExpr* create(ASTContext &ctxt, Expr* callee,
         ArrayRef<Expr*> args, SourceRange range);
@@ -462,7 +462,7 @@ namespace fox   {
       void setCallee(Expr* base);
       Expr* getCallee() const;
 
-      ArgSizeTy numArgs() const;
+      SizeTy numArgs() const;
       MutableArrayRef<Expr*> getArgs();
       ArrayRef<Expr*> getArgs() const;
       Expr* getArg(std::size_t idx) const;
@@ -475,7 +475,7 @@ namespace fox   {
     private:
       FunctionCallExpr(Expr* callee, ArrayRef<Expr*> args, SourceRange range);
 
-      const ArgSizeTy numArgs_ = 0;
+      const SizeTy numArgs_ = 0;
       Expr* callee_ = nullptr;
   };
 }
