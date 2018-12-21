@@ -450,15 +450,15 @@ void DeclRefExpr::setDecl(ValueDecl* decl) {
 // FunctionCallExpr 
 //----------------------------------------------------------------------------//
 
-FunctionCallExpr::FunctionCallExpr(Expr* callee, ExprVector&& args, 
+FunctionCallExpr::FunctionCallExpr(Expr* callee, ArrayRef<Expr*> args, 
   SourceRange range): Expr(ExprKind::FunctionCallExpr, range), callee_(callee),
-  args_(args) {}
+  args_(args.begin(), args.end()) {}
 
 FunctionCallExpr* 
 FunctionCallExpr::create(ASTContext& ctxt, Expr* callee, 
-  ExprVector&& args, SourceRange range) {
+  ArrayRef<Expr*> args, SourceRange range) {
   return new(ctxt) 
-    FunctionCallExpr(callee, std::forward<ExprVector>(args), range);
+    FunctionCallExpr(callee, args, range);
 }
 
 void FunctionCallExpr::setCallee(Expr* callee) {
@@ -469,7 +469,11 @@ Expr* FunctionCallExpr::getCallee() const {
   return callee_;
 }
 
-ExprVector& FunctionCallExpr::getArgs() {
+MutableArrayRef<Expr*> FunctionCallExpr::getArgs() {
+  return args_;
+}
+
+ArrayRef<Expr*> FunctionCallExpr::getArgs() const {
   return args_;
 }
 

@@ -444,12 +444,13 @@ namespace fox   {
   class FunctionCallExpr final : public Expr {
     public:    
       static FunctionCallExpr* create(ASTContext &ctxt, Expr* callee,
-        ExprVector&& args, SourceRange range);
+        ArrayRef<Expr*> args, SourceRange range);
 
       void setCallee(Expr* base);
       Expr* getCallee() const;
 
-      ExprVector& getArgs();
+      MutableArrayRef<Expr*> getArgs();
+      ArrayRef<Expr*> getArgs() const;
       Expr* getArg(std::size_t idx) const;
       void setArg(Expr* arg, std::size_t idx);
 
@@ -458,7 +459,7 @@ namespace fox   {
       }
 
     private:
-      FunctionCallExpr(Expr* callee, ExprVector&& args, SourceRange range);
+      FunctionCallExpr(Expr* callee, ArrayRef<Expr*> args, SourceRange range);
 
       Expr* callee_ = nullptr;
       ExprVector args_;
