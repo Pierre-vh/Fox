@@ -276,20 +276,20 @@ namespace fox   {
   //    A string literal: "foo"
   class StringLiteralExpr final : public Expr {
     public:
-      static StringLiteralExpr* create(ASTContext& ctxt, const std::string& val,
+      static StringLiteralExpr* create(ASTContext& ctxt, string_view val,
         SourceRange range);
 
-      std::string getVal() const;
-      void setVal(const std::string& val);
+      string_view getVal() const;
+      void setVal(string_view val);
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::StringLiteralExpr);
       }
 
     private:
-      StringLiteralExpr(const std::string& val, SourceRange range);
+      StringLiteralExpr(string_view val, SourceRange range);
 
-      std::string val_ = "";
+      string_view val_ = "";
   };
 
   // BoolLiteralExpr

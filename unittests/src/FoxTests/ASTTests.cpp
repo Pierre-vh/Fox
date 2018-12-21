@@ -188,7 +188,7 @@ TEST_F(ASTTest, ExprRTTI) {
   EXPECT_EQ(floatlit->getKind(), ExprKind::FloatLiteralExpr);
   EXPECT_TRUE(FloatLiteralExpr::classof(floatlit));
 
-  auto* strlit = StringLiteralExpr::create(ctxt, "", SourceRange());
+  auto* strlit = StringLiteralExpr::create(ctxt, string_view(), SourceRange());
   EXPECT_EQ(strlit->getKind(), ExprKind::StringLiteralExpr);
   EXPECT_TRUE(StringLiteralExpr::classof(strlit));
 

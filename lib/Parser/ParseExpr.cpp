@@ -7,6 +7,7 @@
 // This file implements expressions related methods (rules)  
 //----------------------------------------------------------------------------//
 
+#include "Fox/AST/ASTContext.hpp"
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 
@@ -112,8 +113,10 @@ Parser::ExprResult Parser::parsePrimitiveLiteral() {
 
   if (litinfo.isBool())
     expr = BoolLiteralExpr::create(ctxt, litinfo.get<bool>(), range);
-  else if (litinfo.isString())
-    expr = StringLiteralExpr::create(ctxt, litinfo.get<std::string>(), range);
+  else if (litinfo.isString()) {
+    string_view copiedString = ctxt.allocateCopy(litinfo.get<std::string>());
+    expr = StringLiteralExpr::create(ctxt, copiedString, range);
+  }
   else if (litinfo.isChar())
     expr = CharLiteralExpr::create(ctxt, litinfo.get<FoxChar>(), range);
   else if (litinfo.isInt())

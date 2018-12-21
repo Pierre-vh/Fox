@@ -133,22 +133,22 @@ void FloatLiteralExpr::setVal(FoxFloat val) {
 // StringLiteralExpr 
 //----------------------------------------------------------------------------//
 
-StringLiteralExpr::StringLiteralExpr(const std::string& val, SourceRange range):
+StringLiteralExpr::StringLiteralExpr(string_view val, SourceRange range):
   val_(val), Expr(ExprKind::StringLiteralExpr, range) {
 
 }
 
 StringLiteralExpr* 
-StringLiteralExpr::create(ASTContext& ctxt, const std::string& val,
+StringLiteralExpr::create(ASTContext& ctxt, string_view val,
   SourceRange range) {
   return new(ctxt) StringLiteralExpr(val, range);
 }
 
-std::string StringLiteralExpr::getVal() const {
+string_view StringLiteralExpr::getVal() const {
   return val_;
 }
 
-void StringLiteralExpr::setVal(const std::string& val) {
+void StringLiteralExpr::setVal(string_view val) {
   val_ = val;
 }
 
