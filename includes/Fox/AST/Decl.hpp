@@ -69,6 +69,9 @@ namespace fox {
       // this declaration lives. For non local decls, returns nullptr.
       FuncDecl* getFuncDecl() const;
 
+      // Returns the raw Parent union
+      Parent getParent() const;
+
       // Returns the "closest" DeclContext.
       //  -> If this Decl is also a DeclContext, returns 
       //      dyn_cast<DeclContext>(this)
