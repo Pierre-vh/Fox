@@ -18,20 +18,19 @@
 
 void setConsoleEnv() {
   #ifdef _WIN32
-    //  Windows-Specific
+    //  Windows-Specific stuff
     SetConsoleOutputCP(CP_UTF8);
     setvbuf(stdout, nullptr, _IOFBF, 1000);
   #endif
-  std::ios_base::sync_with_stdio(false); // We don't use printf, so we don't need to sync with stdio (CppCoreGuidelines SL.io.10)
+  // We don't use printf, so we don't need to sync with stdio (CppCoreGuidelines SL.io.10)
+  std::ios_base::sync_with_stdio(false); 
 }
-
-// reminder : use ifndef NDEBUG to know if debug/release mode
 
 using namespace fox;
 
 int interactiveMain() {
-  std::cout << "Welcome to the Dumb Command Line Toy !\n\tMoonshot Version " << MOONSHOT_VERSION_COMPLETE << "\n";
-  std::cout << "\tUsage : Enter a path to a fox source file, or enter * to exit.\n\n";
+  std::cout << "Moonshot Version " << MOONSHOT_VERSION_COMPLETE << "\n";
+  std::cout << "\tUsage : Enter a path to a source file, or enter * to exit.\n\n";
 
   std::string uinput = "";
   bool res = true;
@@ -43,10 +42,8 @@ int interactiveMain() {
     Driver drv(std::cout);
     drv.setDumpAST(true);
     drv.setVerifyModeEnabled(true);
-    res &= drv.processFile(uinput);
+    res = drv.processFile(uinput);
   }
-  std::cout << "\n\nFinished. Press any key to continue.\n";
-  std::cin.get();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
