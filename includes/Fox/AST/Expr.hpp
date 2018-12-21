@@ -310,10 +310,7 @@ namespace fox   {
   //    An array literal: [1, 2, 3]
   class ArrayLiteralExpr final : public Expr, 
     llvm::TrailingObjects<ArrayLiteralExpr, Expr*> {
-
-    using TrailingObjects = llvm::TrailingObjects<ArrayLiteralExpr, Expr*>;
-    friend class TrailingObjects;
-
+    friend TrailingObjects;
     public:
       using SizeTy = std::uint16_t;
       static constexpr auto maxElems = std::numeric_limits<SizeTy>::max();
@@ -448,10 +445,7 @@ namespace fox   {
   //    A function call: foo(3.14)
   class FunctionCallExpr final : public Expr, 
     llvm::TrailingObjects<FunctionCallExpr, Expr*> {
-
-    using TrailingObjects = llvm::TrailingObjects<FunctionCallExpr, Expr*>;
     friend class TrailingObjects;
-
     public:    
       using SizeTy = std::uint8_t;
       static constexpr auto maxArgs = std::numeric_limits<SizeTy>::max();

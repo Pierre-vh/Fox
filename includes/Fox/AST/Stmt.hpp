@@ -143,10 +143,7 @@ namespace fox {
   //    A group of statements delimited by curly brackets {}
   class CompoundStmt final : public Stmt, 
     llvm::TrailingObjects<CompoundStmt, ASTNode> {
-
-    using TrailingObjects = llvm::TrailingObjects<CompoundStmt, ASTNode>;
-    friend class TrailingObjects;
-
+    friend TrailingObjects;
     public:
       using SizeTy = std::uint8_t;
       static constexpr auto maxNodes = std::numeric_limits<SizeTy>::max();
