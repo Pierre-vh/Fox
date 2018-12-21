@@ -14,6 +14,7 @@
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
+#include "llvm/ADT/ArrayRef.h"
 
 namespace fox {
   // Kinds of Statements
@@ -153,15 +154,14 @@ namespace fox {
       // as we parse them, and then set the range before returning, once
       // the } has been parsed.
       static CompoundStmt* create(ASTContext& ctxt, 
-        SourceRange range = SourceRange());
+        ArrayRef<ASTNode> nodes, SourceRange range);
 
       // FIXME: Remove this (will require minor parser work)
-      void addNode(ASTNode stmt);
       void setNode(ASTNode node, std::size_t idx);
 
       ASTNode getNode(std::size_t ind) const;
-      NodeVec& getNodes();
-      const NodeVec& getNodes() const;
+      ArrayRef<ASTNode> getNodes() const;
+      MutableArrayRef<ASTNode> getNodes();
 
       bool isEmpty() const;
       std::size_t size() const;
@@ -171,7 +171,7 @@ namespace fox {
       }
 
     private:
-      CompoundStmt(SourceRange range);
+      CompoundStmt(ArrayRef<ASTNode> nodes, SourceRange range);
 
       NodeVec nodes_;
   };

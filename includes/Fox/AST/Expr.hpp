@@ -14,6 +14,7 @@
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Identifier.hpp"
 #include "llvm/ADT/SmallVector.h"
+#include "llvm/ADT/ArrayRef.h"
 
 namespace fox   {
   // Forward Declarations
@@ -312,9 +313,10 @@ namespace fox   {
   class ArrayLiteralExpr final : public Expr {
     public:
       static ArrayLiteralExpr* create(ASTContext& ctxt, 
-        ExprVector&& exprs, SourceRange range);
+        ArrayRef<Expr*> exprs, SourceRange range);
 
-      ExprVector& getExprs();
+      MutableArrayRef<Expr*> getExprs();
+      ArrayRef<Expr*> getExprs() const;
       Expr* getExpr(std::size_t idx) const;
       void setExpr(Expr* expr, std::size_t idx);
 
@@ -326,7 +328,7 @@ namespace fox   {
       }
 
     private:
-      ArrayLiteralExpr(ExprVector&& exprs, SourceRange range);
+      ArrayLiteralExpr(ArrayRef<Expr*> exprs, SourceRange range);
 
       ExprVector exprs_;
   };

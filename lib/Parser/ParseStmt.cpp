@@ -8,18 +8,20 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Parser/Parser.hpp"
+#include "Fox/AST/ASTNode.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/SmallVector.h"
 
 using namespace fox;
 
 Parser::StmtResult Parser::parseCompoundStatement() {
   // Range will be filled up later, see line 67
-  auto* rtr = CompoundStmt::create(ctxt, SourceRange()); 
   auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);
 
   if (!leftCurlyLoc)
     return StmtResult::NotFound();
-
+  SmallVector<ASTNode, 4> nodes;
   SourceLoc rightCurlyLoc;
   while (!isDone()) {
     if (rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE))
@@ -31,8 +33,8 @@ Parser::StmtResult Parser::parseCompoundStatement() {
       // this is done to avoid stacking them up, and since they're a no-op in all cases
       // it's meaningless to ignore them.
       ASTNode node = res.get();
-      if(!dyn_cast_or_null<NullStmt>(node.dyn_cast<Stmt*>()))
-        rtr->addNode(node);
+      if (!dyn_cast_or_null<NullStmt>(node.dyn_cast<Stmt*>()))
+        nodes.push_back(node);
     }
     // failure
     else {
@@ -62,9 +64,10 @@ Parser::StmtResult Parser::parseCompoundStatement() {
     return StmtResult::Error();
   }
 
-  // if everything's alright, return the result
-  assert(leftCurlyLoc && rightCurlyLoc && "Invalid locs");
-  rtr->setRange(SourceRange(leftCurlyLoc, rightCurlyLoc));
+  // Create & return the node
+  SourceRange range(leftCurlyLoc, rightCurlyLoc);
+  assert(range && "invalid loc info");
+  auto* rtr = CompoundStmt::create(ctxt, nodes, range);
   return StmtResult(rtr);
 }
 

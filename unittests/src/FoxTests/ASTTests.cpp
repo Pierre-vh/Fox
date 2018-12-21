@@ -250,7 +250,8 @@ TEST_F(ASTTest, StmtRTTI) {
   EXPECT_TRUE(ConditionStmt::classof(cond));
 
   // Compound
-  auto* compound = CompoundStmt::create(ctxt, SourceRange());
+  auto* compound = CompoundStmt::create(ctxt, ArrayRef<ASTNode>(), 
+    SourceRange());
   EXPECT_EQ(compound->getKind(), StmtKind::CompoundStmt);
   EXPECT_TRUE(CompoundStmt::classof(compound));
 

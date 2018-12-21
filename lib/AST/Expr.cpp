@@ -157,16 +157,20 @@ bool BoolLiteralExpr::getVal() const {
 // ArrayLiteralExpr 
 //----------------------------------------------------------------------------//
 
-ArrayLiteralExpr::ArrayLiteralExpr(ExprVector&& exprs, SourceRange range):
-  exprs_(exprs), Expr(ExprKind::ArrayLiteralExpr, range) {}
+ArrayLiteralExpr::ArrayLiteralExpr(ArrayRef<Expr*> exprs, SourceRange range):
+  exprs_(exprs.begin(), exprs.end()), Expr(ExprKind::ArrayLiteralExpr, range) {}
 
 ArrayLiteralExpr* 
-ArrayLiteralExpr::create(ASTContext& ctxt, ExprVector&& exprs, 
+ArrayLiteralExpr::create(ASTContext& ctxt, ArrayRef<Expr*> exprs,
   SourceRange range) {
-  return new(ctxt) ArrayLiteralExpr(std::forward<ExprVector>(exprs), range);
+  return new(ctxt) ArrayLiteralExpr(exprs, range);
 }
 
-ExprVector& ArrayLiteralExpr::getExprs() {
+MutableArrayRef<Expr*> ArrayLiteralExpr::getExprs() {
+  return exprs_;
+}
+
+ArrayRef<Expr*> ArrayLiteralExpr::getExprs() const {
   return exprs_;
 }
 

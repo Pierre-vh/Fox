@@ -156,24 +156,25 @@ SourceLoc ConditionStmt::getIfHeaderEndLoc() const {
 // CompoundStmt
 //----------------------------------------------------------------------------//
 
-CompoundStmt::CompoundStmt(SourceRange range):
-  Stmt(StmtKind::CompoundStmt, range) {}
+CompoundStmt::CompoundStmt(ArrayRef<ASTNode> nodes, SourceRange range):
+  Stmt(StmtKind::CompoundStmt, range), nodes_(nodes.begin(), nodes.end()) {}
 
 ASTNode CompoundStmt::getNode(std::size_t ind) const {
   assert(ind < nodes_.size() && "out-of-range");
   return nodes_[ind];
 }
 
-CompoundStmt::NodeVec& CompoundStmt::getNodes() {
+ArrayRef<ASTNode> CompoundStmt::getNodes() const {
   return nodes_;
 }
 
-CompoundStmt* CompoundStmt::create(ASTContext& ctxt, SourceRange range) {
-  return new(ctxt) CompoundStmt(range);
+MutableArrayRef<ASTNode> CompoundStmt::getNodes() {
+  return nodes_;
 }
 
-void CompoundStmt::addNode(ASTNode node) {
-  nodes_.push_back(node);
+CompoundStmt* CompoundStmt::create(ASTContext& ctxt, ArrayRef<ASTNode> nodes, 
+  SourceRange range) {
+  return new(ctxt) CompoundStmt(nodes, range);
 }
 
 void CompoundStmt::setNode(ASTNode node, std::size_t idx) {

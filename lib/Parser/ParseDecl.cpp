@@ -342,7 +342,9 @@ Parser::DeclResult Parser::parseVarDecl() {
   auto rtr = VarDecl::create(ctxt, getDeclParent(), id.get(), id.getRange(),
     type, isConst, iExpr, range);
 
-  recordInDeclCtxt(rtr);
+  // Record it in the DeclContext if it's not local
+  if(!rtr->isLocal())
+    recordInDeclCtxt(rtr);
   return DeclResult(rtr);
 }
 

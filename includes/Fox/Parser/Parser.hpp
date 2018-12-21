@@ -151,6 +151,7 @@ namespace fox {
       // Declaration parsing helpers
       //---------------------------------//
 
+      // Parses a parameter declaration.
       DeclResult parseParamDecl();
 
       //---------------------------------//

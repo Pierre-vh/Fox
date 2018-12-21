@@ -25,8 +25,11 @@ Parser::Parser(ASTContext& ctxt, TokenVector& l, DeclContext *declCtxt):
 
 void Parser::recordInDeclCtxt(NamedDecl* decl) {
   auto parent = getDeclParent();
-  if(auto* dc = parent.dyn_cast<DeclContext*>())
+  if (!decl->isLocal()) {
+    auto* dc = parent.dyn_cast<DeclContext*>();
+    assert(dc && "no decl context but decl isn't local?");
     dc->addDecl(decl);
+  } 
 }
 
 Parser::Result<Identifier> Parser::consumeIdentifier() {
