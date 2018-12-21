@@ -70,6 +70,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
   }
   else {
     ctxt.setUnit(unit);
+    actOnDecl(unit);
     return unit;
   }
 }
@@ -210,7 +211,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
   rtr->setBody(body);
   rtr->setLocs(range, headEndLoc);
   // Record it
-  recordInDeclCtxt(rtr);
+  actOnDecl(rtr);
   return DeclResult(rtr);
 }
 
@@ -249,7 +250,7 @@ Parser::DeclResult Parser::parseParamDecl() {
 
   auto* rtr = ParamDecl::create(ctxt, getDeclParent().get<FuncDecl*>(), 
     id.get(), id.getRange(), tl, isMutable, range);
-
+  actOnDecl(rtr);
   return DeclResult(rtr);
 }
 
@@ -342,9 +343,7 @@ Parser::DeclResult Parser::parseVarDecl() {
   auto rtr = VarDecl::create(ctxt, getDeclParent(), id.get(), id.getRange(),
     type, isConst, iExpr, range);
 
-  // Record it in the DeclContext if it's not local
-  if(!rtr->isLocal())
-    recordInDeclCtxt(rtr);
+  actOnDecl(rtr);
   return DeclResult(rtr);
 }
 
