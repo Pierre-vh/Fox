@@ -40,7 +40,7 @@ DeclContext* Decl::getDeclContext() const {
 }
 
 bool Decl::isLocal() const {
-  return parent_.is<FuncDecl*>();
+  return parent_.is<FuncDecl*>() && (!isParentNull());
 }
 
 FuncDecl* Decl::getFuncDecl() const {
