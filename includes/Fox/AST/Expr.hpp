@@ -52,7 +52,7 @@ namespace fox   {
       void dump() const;
 
     protected:
-      // Only allow allocation through the ASTContext
+      // Allow allocation through the ASTContext
       void* operator new(std::size_t sz, ASTContext &ctxt,
         std::uint8_t align = alignof(Expr));
 
