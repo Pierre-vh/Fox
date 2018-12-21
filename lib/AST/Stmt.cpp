@@ -44,6 +44,11 @@ void* Stmt::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
 }
 
+void* Stmt::operator new(std::size_t, void* mem) {
+  assert(mem);
+  return mem;
+}
+
 void Stmt::setRange(SourceRange range) {
   range_ = range;
 }
@@ -156,38 +161,47 @@ SourceLoc ConditionStmt::getIfHeaderEndLoc() const {
 // CompoundStmt
 //----------------------------------------------------------------------------//
 
-CompoundStmt::CompoundStmt(ArrayRef<ASTNode> nodes, SourceRange range):
-  Stmt(StmtKind::CompoundStmt, range), nodes_(nodes.begin(), nodes.end()) {}
+CompoundStmt::CompoundStmt(ArrayRef<ASTNode> elems, SourceRange range):
+  Stmt(StmtKind::CompoundStmt, range), 
+  numNodes_(static_cast<SizeTy>(elems.size())) {
+  assert((numNodes_ < maxNodes) && "Too many elements for CompoundStmt. "
+    "Increase the size of SizeTy to something bigger!");
+  std::uninitialized_copy(elems.begin(), elems.end(), 
+    getTrailingObjects<ASTNode>());
+}
 
 ASTNode CompoundStmt::getNode(std::size_t ind) const {
-  assert(ind < nodes_.size() && "out-of-range");
-  return nodes_[ind];
+  assert(ind < numNodes_ && "out-of-range");
+  return getNodes()[ind];
 }
 
 ArrayRef<ASTNode> CompoundStmt::getNodes() const {
-  return nodes_;
+  return {getTrailingObjects<ASTNode>(), numNodes_};
 }
 
 MutableArrayRef<ASTNode> CompoundStmt::getNodes() {
-  return nodes_;
+  return {getTrailingObjects<ASTNode>(), numNodes_};
 }
 
 CompoundStmt* CompoundStmt::create(ASTContext& ctxt, ArrayRef<ASTNode> nodes, 
   SourceRange range) {
-  return new(ctxt) CompoundStmt(nodes, range);
+  auto& alloc = ctxt.getAllocator();
+  auto totalSize = totalSizeToAlloc<ASTNode>(nodes.size());
+  void* mem = alloc.allocate(totalSize, alignof(CompoundStmt));
+  return new(mem) CompoundStmt(nodes, range);
 }
 
 void CompoundStmt::setNode(ASTNode node, std::size_t idx) {
-  assert((idx < nodes_.size()) && "Out of range");
-  nodes_[idx] = node;
+  assert((idx < numNodes_) && "out-of-range");
+  getNodes()[idx] = node;
 }
 
 bool CompoundStmt::isEmpty() const {
-  return !(nodes_.size());
+  return (numNodes_ == 0);
 }
 
-std::size_t CompoundStmt::size() const {
-  return nodes_.size();
+std::size_t CompoundStmt::getSize() const {
+  return numNodes_;
 }
 
 //----------------------------------------------------------------------------//

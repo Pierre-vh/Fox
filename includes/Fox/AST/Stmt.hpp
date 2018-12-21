@@ -15,6 +15,7 @@
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"
+#include "llvm/ADT/TrailingObjects.h"
 
 namespace fox {
   // Kinds of Statements
@@ -45,19 +46,17 @@ namespace fox {
     protected:
       Stmt(StmtKind kind, SourceRange range);
 
-      // Operator new/delete overloads : They're protected as they should
-      // only be used through ::create
+      // Allow allocation through the ASTContext
+      void* operator new(std::size_t sz, ASTContext &ctxt,
+        std::uint8_t align = alignof(Stmt));
 
-      // Prohibit the use of builtin placement new & delete
+      // Prohibit the use of the vanilla new/delete
       void *operator new(std::size_t) throw() = delete;
       void operator delete(void *) throw() = delete;
-      void* operator new(std::size_t, void*) = delete;
 
-      // Only allow allocation through the ASTContext
-      void* operator new(std::size_t sz, ASTContext &ctxt, std::uint8_t align = alignof(Stmt));
-
-      // Companion operator delete to silence C4291 on MSVC
-      void operator delete(void*, ASTContext&, std::uint8_t) {}
+      // Also, allow allocation with a placement new
+      // (needed for class using trailing objects)
+      void* operator new(std::size_t , void* mem);
 
     private:
       SourceRange range_;
@@ -142,38 +141,39 @@ namespace fox {
 
   // CompoundStmt
   //    A group of statements delimited by curly brackets {}
-  class CompoundStmt final : public Stmt {
+  class CompoundStmt final : public Stmt, 
+    llvm::TrailingObjects<CompoundStmt, ASTNode> {
+
+    using TrailingObjects = llvm::TrailingObjects<CompoundStmt, ASTNode>;
+    friend class TrailingObjects;
+
     public:
-      // The type of the vector used by CompoundStmt internally to 
-      // store the ASTNodes
-      using NodeVec = SmallVector<ASTNode, 4>;
+      using SizeTy = std::uint8_t;
+      static constexpr auto maxNodes = std::numeric_limits<SizeTy>::max();
 
       // range argument is optional because when parsing CompoundStmts, we
       // don't know the full range of the Stmt until we finished parsing it.
       // Usually we create the CompoundStmt first, then fill it with the Stmts
       // as we parse them, and then set the range before returning, once
       // the } has been parsed.
-      static CompoundStmt* create(ASTContext& ctxt, 
-        ArrayRef<ASTNode> nodes, SourceRange range);
+      static CompoundStmt* create(ASTContext& ctxt, ArrayRef<ASTNode> elems,
+        SourceRange range);
 
-      // FIXME: Remove this (will require minor parser work)
       void setNode(ASTNode node, std::size_t idx);
-
       ASTNode getNode(std::size_t ind) const;
       ArrayRef<ASTNode> getNodes() const;
       MutableArrayRef<ASTNode> getNodes();
-
+      std::size_t getSize() const;
       bool isEmpty() const;
-      std::size_t size() const;
 
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::CompoundStmt);
       }
 
     private:
-      CompoundStmt(ArrayRef<ASTNode> nodes, SourceRange range);
+      CompoundStmt(ArrayRef<ASTNode> elems, SourceRange range);
 
-      NodeVec nodes_;
+      const SizeTy numNodes_;
   };
 
   // WhileStmt
