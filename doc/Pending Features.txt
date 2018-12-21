@@ -9,9 +9,13 @@ Portability
     I should try to compile the code on Linux one day, using GCC and CLang, to check for issues and try to make the code fully
     portable.
 
-Code QoL: 
+Code Quality: 
   StringManipulator:
     1) Rework it as an iterator, because this class literaly emulates an iterator.
+
+  Others:
+    Use macros such as LLVM_NODISCARD more. For now I can't because MSVC doesn't like
+    them for some reasons.
 
 Reworks:
   > Lexer Rework
