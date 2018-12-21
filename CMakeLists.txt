@@ -44,15 +44,28 @@ if(MSVC)
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
   endif()
-  # set Warnings are errors & disable extensions
+  # Set compiler flags
   add_compile_options(/WX)
   add_compile_options(/Za)
-  # equivalent to /pedantic
   add_compile_options(/permissive-)
-  # silence problematic warnings 
-  add_compile_options(/wd4706) # "assignement within conditional expression" is rather pedantic.
-  add_compile_options(/wd4324) # "structure was padded due to alignement specifier" no sh*t sherlock.
-  add_compile_options(/wd4458) # "declaration of x hides class member" ...that's the goal!
+  # Silence problematic warnings 
+    # C4706 "assignement within conditional expression"
+    #   Reason: This construct is used a lot in the code
+    add_compile_options(/wd4706) 
+  
+    # C4324 "structure was padded due to alignement specifier"
+    #   Reason: That's exaclty what we want
+    add_compile_options(/wd4324)
+  
+    # C4458 "declaration of x hides class member"
+    #   Reason: Usually, that's the intent
+    add_compile_options(/wd4458)
+  
+    # C4291 "no matching operator delete found; memory will not be freed if initialization fails"
+    #   Reason: This error happens for the operator new overloads of the AST, which allocate memory
+    #           in the ASTContext, and we can't free a single block of memory without freeing everything.
+    add_compile_options(/wd4291)
+  
   # Don't deprecate theses functions
   add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
 endif()
