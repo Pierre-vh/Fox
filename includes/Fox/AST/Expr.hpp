@@ -311,13 +311,13 @@ namespace fox   {
   class ArrayLiteralExpr final : public Expr, 
     llvm::TrailingObjects<ArrayLiteralExpr, Expr*> {
 
-    using ElemSizeTy = std::uint16_t;
-    static constexpr auto maxElems = std::numeric_limits<ElemSizeTy>::max();
-
     using TrailingObjects = llvm::TrailingObjects<ArrayLiteralExpr, Expr*>;
     friend class TrailingObjects;
 
     public:
+      using ElemSizeTy = std::uint16_t;
+      static constexpr auto maxElems = std::numeric_limits<ElemSizeTy>::max();
+
       static ArrayLiteralExpr* create(ASTContext& ctxt,  ArrayRef<Expr*> elems,
         SourceRange range);
 
@@ -449,13 +449,13 @@ namespace fox   {
   class FunctionCallExpr final : public Expr, 
     llvm::TrailingObjects<FunctionCallExpr, Expr*> {
 
-    using ArgSizeTy = std::uint8_t;
-    static constexpr auto maxArgs = std::numeric_limits<ArgSizeTy>::max();
-
     using TrailingObjects = llvm::TrailingObjects<FunctionCallExpr, Expr*>;
     friend class TrailingObjects;
 
     public:    
+      using ArgSizeTy = std::uint8_t;
+      static constexpr auto maxArgs = std::numeric_limits<ArgSizeTy>::max();
+
       static FunctionCallExpr* create(ASTContext &ctxt, Expr* callee,
         ArrayRef<Expr*> args, SourceRange range);
 
