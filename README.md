@@ -24,7 +24,7 @@ Required:
 **Note:** Currently, only the Lexer, Parser and a small part of the Semantic analysis are complete, so files aren't executed and are just "compiled" with what's available.
 
 Assuming that the Moonshot binaries are installed in your path:
-* `Moonshot` will launch the "dumb command line toy", which is a rough testing too where you can input a filename which will be processed by the interpreter. **Warning:** This tool is mostly intended for dev/testing purposes. This is **far** from finished, rapidly changing and isn't the best way to test the interpreter.
+* `Moonshot` will launch the "command line interface", which is a quick and easy way to test the interpreter. The interface is really simple: you can only enter paths to files for the interpreter to process. (This is only a testing tool. For more advanced use, invoke the compiler using command line options (see below))
 * `Moonshot path/to/file.fox` will process the given file. Errors and diagnostics will be printed to stdout, and the command line tool will return EXIT_SUCCESS if the file was processed without any diagnostic being emitted (it'll return EXIT_FAILURE otherwise). Several  options can be passed to the command line tool.
   * `-verify` enables verify mode (See **Testing**))
   * `-werr` promotes warnings to errors
