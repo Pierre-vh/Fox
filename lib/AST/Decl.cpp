@@ -33,6 +33,7 @@ DeclKind Decl::getKind() const {
 }
 
 DeclContext* Decl::getDeclContext() const {
+  if(isParentNull()) return nullptr;
   if(DeclContext* ptr = parent_.dyn_cast<DeclContext*>())
     return ptr;
   return nullptr;
@@ -43,13 +44,18 @@ bool Decl::isLocal() const {
 }
 
 FuncDecl* Decl::getFuncDecl() const {
+  if(isParentNull()) return nullptr;
   if(FuncDecl* ptr = parent_.dyn_cast<FuncDecl*>())
     return ptr;
   return nullptr;
-  }
+}
 
 Decl::Parent Decl::getParent() const {
   return parent_;
+}
+
+bool Decl::isParentNull() const {
+  return parent_.isNull();
 }
 
 DeclContext* Decl::getClosestDeclContext() const {

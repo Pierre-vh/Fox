@@ -59,18 +59,19 @@ namespace fox {
 
       // For normal Decls, return the DeclContext in which
       // this Decl is referenced. Returns nullptr for
-      // local decls.
+      // local decls, or if the parent is null.
       DeclContext* getDeclContext() const;
 
       // Returns true if this is a local declaration
       bool isLocal() const;
 
       // For local decls, returns the FuncDecl in which
-      // this declaration lives. For non local decls, returns nullptr.
+      // this declaration lives. Return nullptr for non local decls,
+      // or if the parent is null.
       FuncDecl* getFuncDecl() const;
 
-      // Returns the raw Parent union
       Parent getParent() const;
+      bool isParentNull() const;
 
       // Returns the "closest" DeclContext.
       //  -> If this Decl is also a DeclContext, returns 
