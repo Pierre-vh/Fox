@@ -133,13 +133,13 @@ void FloatLiteralExpr::setVal(FoxFloat val) {
 // StringLiteralExpr 
 //----------------------------------------------------------------------------//
 
-StringLiteralExpr::StringLiteralExpr(const FoxString& val, SourceRange range):
+StringLiteralExpr::StringLiteralExpr(const std::string& val, SourceRange range):
   val_(val), Expr(ExprKind::StringLiteralExpr, range) {
 
 }
 
 StringLiteralExpr* 
-StringLiteralExpr::create(ASTContext& ctxt, const FoxString& val, 
+StringLiteralExpr::create(ASTContext& ctxt, const std::string& val,
   SourceRange range) {
   return new(ctxt) StringLiteralExpr(val, range);
 }
@@ -148,7 +148,7 @@ std::string StringLiteralExpr::getVal() const {
   return val_;
 }
 
-void StringLiteralExpr::setVal(const FoxString& val) {
+void StringLiteralExpr::setVal(const std::string& val) {
   val_ = val;
 }
 
@@ -156,21 +156,21 @@ void StringLiteralExpr::setVal(const FoxString& val) {
 // BoolLiteralExpr 
 //----------------------------------------------------------------------------//
 
-BoolLiteralExpr::BoolLiteralExpr(FoxBool val, SourceRange range):
+BoolLiteralExpr::BoolLiteralExpr(bool val, SourceRange range):
   val_(val), Expr(ExprKind::BoolLiteralExpr, range) {
 
 }
 
 BoolLiteralExpr* 
-BoolLiteralExpr::create(ASTContext& ctxt, FoxBool val, SourceRange range) {
+BoolLiteralExpr::create(ASTContext& ctxt, bool val, SourceRange range) {
   return new(ctxt) BoolLiteralExpr(val, range);
 }
 
-FoxBool BoolLiteralExpr::getVal() const {
+bool BoolLiteralExpr::getVal() const {
   return val_;
 }
 
-void BoolLiteralExpr::setVal(FoxBool val) {
+void BoolLiteralExpr::setVal(bool val) {
   val_ = val;
 }
 

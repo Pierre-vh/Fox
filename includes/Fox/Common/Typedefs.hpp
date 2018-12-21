@@ -33,10 +33,4 @@ namespace fox {
 
   // 32 Bits Single Precision floating point number.
   using FoxFloat = float;
-
-  // String value
-  using FoxString = std::string;
-
-  // Boolean value
-  using FoxBool = bool;
 }

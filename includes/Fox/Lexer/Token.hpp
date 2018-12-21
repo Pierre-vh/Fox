@@ -38,8 +38,8 @@ namespace fox {
   struct LiteralInfo {
     public:
       LiteralInfo() = default;
-      LiteralInfo(FoxBool bval);
-      LiteralInfo(const FoxString& sval);
+      LiteralInfo(bool bval);
+      LiteralInfo(const std::string& sval);
       LiteralInfo(FoxFloat fval);
       LiteralInfo(FoxInt ival);
       LiteralInfo(FoxChar cval);
@@ -53,7 +53,7 @@ namespace fox {
       bool isInt() const;
       bool isChar() const;
 
-      FoxString getAsString() const;
+      std::string getAsString() const;
 
       template<typename Ty>
       inline bool is() const {
@@ -68,7 +68,7 @@ namespace fox {
       }
     private:
       mpark::variant<
-        mpark::monostate, FoxBool, FoxString, FoxFloat, FoxInt, FoxChar
+        mpark::monostate, bool, std::string, FoxFloat, FoxInt, FoxChar
       > value_;
   };
 

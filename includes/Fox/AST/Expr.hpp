@@ -276,40 +276,40 @@ namespace fox   {
   //    A string literal: "foo"
   class StringLiteralExpr final : public Expr {
     public:
-      static StringLiteralExpr* create(ASTContext& ctxt, const FoxString& val,
+      static StringLiteralExpr* create(ASTContext& ctxt, const std::string& val,
         SourceRange range);
 
       std::string getVal() const;
-      void setVal(const FoxString& val);
+      void setVal(const std::string& val);
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::StringLiteralExpr);
       }
 
     private:
-      StringLiteralExpr(const FoxString& val, SourceRange range);
+      StringLiteralExpr(const std::string& val, SourceRange range);
 
-      FoxString val_ = "";
+      std::string val_ = "";
   };
 
   // BoolLiteralExpr
   //    true/false boolean literal
   class BoolLiteralExpr final : public Expr {
     public:
-      static BoolLiteralExpr* create(ASTContext& ctxt, FoxBool val, 
+      static BoolLiteralExpr* create(ASTContext& ctxt, bool val, 
         SourceRange range);
 
       bool getVal() const;
-      void setVal(FoxBool val);
+      void setVal(bool val);
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::BoolLiteralExpr);
       }
 
     private:
-      BoolLiteralExpr(FoxBool val, SourceRange range);
+      BoolLiteralExpr(bool val, SourceRange range);
 
-      FoxBool val_ = false;
+      bool val_ = false;
   };
 
   // ArrayLiteralExpr

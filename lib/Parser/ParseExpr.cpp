@@ -111,9 +111,9 @@ Parser::ExprResult Parser::parsePrimitiveLiteral() {
   assert(range && "Invalid loc info");
 
   if (litinfo.isBool())
-    expr = BoolLiteralExpr::create(ctxt, litinfo.get<FoxBool>(), range);
+    expr = BoolLiteralExpr::create(ctxt, litinfo.get<bool>(), range);
   else if (litinfo.isString())
-    expr = StringLiteralExpr::create(ctxt, litinfo.get<FoxString>(), range);
+    expr = StringLiteralExpr::create(ctxt, litinfo.get<std::string>(), range);
   else if (litinfo.isChar())
     expr = CharLiteralExpr::create(ctxt, litinfo.get<FoxChar>(), range);
   else if (litinfo.isInt())
