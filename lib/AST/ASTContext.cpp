@@ -7,6 +7,7 @@
 
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
+#include <cstring>
 
 using namespace fox;
 
@@ -58,6 +59,14 @@ Identifier ASTContext::getIdentifier(const std::string& str) {
 	assert((it != idents_.end()) && "Insertion error");
 	// Create the identifier object and return.
 	return Identifier(it->c_str());
+}
+
+string_view ASTContext::allocateCopy(string_view str) {
+  std::size_t size = str.size();
+  const char* const buffer = str.data();
+  void* const mem = allocator_.allocate(size, alignof(char));
+  std::memcpy(mem, buffer, size);
+  return string_view(static_cast<char*>(mem), size);
 }
 
 bool ASTContext::hadErrors() const {

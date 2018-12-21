@@ -15,6 +15,7 @@
 #include "Identifier.hpp"
 #include "ASTFwdDecl.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
+#include "Fox/Common/string_view.hpp"
 
 namespace fox {
 	class DiagnosticEngine;
@@ -44,6 +45,9 @@ namespace fox {
 
 			// Returns the unique, ASTContext-owned version of the identifier "str"
 			Identifier getIdentifier(const std::string& str);
+
+      // Allocates a copy of "str" inside the main allocator.
+      string_view allocateCopy(string_view str);
 
       // Shortcut for diagEngine.getErrorCount() != 0
       bool hadErrors() const;

@@ -449,3 +449,18 @@ TEST_F(ASTTest, randomIdentifierInsertion) {
     ASSERT_EQ(allIdStrs[idx], allIdentifiers[idx].getStr());
   }
 }
+
+TEST_F(ASTTest, allocateCopyOfString) {
+  constexpr auto theLiteral = "This is a bad practice!";
+  string_view cpy;
+  const char* danglingTempPtr = nullptr;
+  {
+    std::string temp = theLiteral;
+    danglingTempPtr = temp.data();
+    cpy = ctxt.allocateCopy(temp);
+  }
+  // Check that memory was allocated in a different region
+  ASSERT_NE(cpy.data(), danglingTempPtr);
+  // Check that the memory can be accessed safely
+  EXPECT_EQ(cpy, theLiteral);
+}
