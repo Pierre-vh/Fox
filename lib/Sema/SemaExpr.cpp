@@ -209,7 +209,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // Finalizes an empty Array Literal
     Expr* finalizeEmptyArrayLiteral(ArrayLiteralExpr* expr) {
-      assert((expr->getSize() == 0) && "Only for empty Array Literals");
+      assert((expr->numElems() == 0) && "Only for empty Array Literals");
       // For empty array literals, the type is going to be a fresh
       // celltype inside an Array : Array(CellType(null))
       Type type = CellType::create(getCtxt());
@@ -444,9 +444,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       fox_unimplemented_feature("MemberOfExpr TypeChecking");
     }
 
-    Expr* visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*) {
-      fox_unimplemented_feature(
-        "Name Binding/UnresolvedDeclRefExpr TypeChecking");
+    Expr* visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr) {
+      //fox_unimplemented_feature(
+      //  "Name Binding/UnresolvedDeclRefExpr TypeChecking");
+      return expr;
     }
 
     Expr* visitDeclRefExpr(DeclRefExpr* expr) {
@@ -462,8 +463,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
-    Expr* visitFunctionCallExpr(FunctionCallExpr*) {
-      fox_unimplemented_feature("FunctionCallExpr TypeChecking");
+    Expr* visitFunctionCallExpr(FunctionCallExpr* expr) {
+      //fox_unimplemented_feature("FunctionCallExpr TypeChecking");
+      return expr;
     }
       
     // Trivial literals: the expr's type is simply the corresponding
@@ -494,7 +496,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr) {
-      if (expr->getSize() != 0)
+      if (expr->numElems() != 0)
         return checkNonEmptyArrayLiteralExpr(expr);
       else
         return finalizeEmptyArrayLiteral(expr);
@@ -510,7 +512,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // Typechecks a non empty array literal and deduces it's type.
     Expr* checkNonEmptyArrayLiteralExpr(ArrayLiteralExpr* expr) {
-      assert(expr->getSize() && "Size must be >0");
+      assert(expr->numElems() && "Size must be >0");
 
       // The bound type proposed by unifying the other concrete/bound
       // types inside the array.

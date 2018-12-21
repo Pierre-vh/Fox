@@ -147,7 +147,7 @@ void ASTDumper::visitStringLiteralExpr(StringLiteralExpr* node) {
 }
 
 void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr* node) {
-  std::size_t elemcount = node->getSize();
+  std::size_t elemcount = node->numElems();
 
   dumpLine() << getBasicExprInfo(node) << " "
              << makeKeyPairDump("size", elemcount) << "\n";
