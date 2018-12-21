@@ -115,9 +115,9 @@ To-Do:
       1) [FIXED] StringLiteralExpr
       2) CompoundStmt, FuncDecl, FunctionCallExpr, ArrayLiteralExpr
         I can replace the SmallVectors with TrailingObjects + (Mutable)ArrayRefs ?  
-          -> If I end up not using one of them, remove the unused class(es) from the project
-          -> This will make me unable to increase/decrase the size of the arrays without
-             rebuilding the entire node, but this shouldn't be a problem.
+        > TODO: in FunctionCallExpr, use ArrayRefs in the ctor/create methods
+        > TODO: Remove recordInDeclCtxt and let the caller do it himself
+        > TODO: For ParamDecl, create a "ParamList" object which stores the Parameter list.
       3) UnitDecl: The tough one, it needs a map to function properly.
         I'll probably have to rework the DeclContext or UnitDecl, maybe even both.
         Solutions idea:
