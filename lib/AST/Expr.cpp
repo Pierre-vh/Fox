@@ -27,12 +27,12 @@ std::ostream& fox::operator<<(std::ostream& os, ExprKind kind) {
 //----------------------------------------------------------------------------//
 // Expr 
 //----------------------------------------------------------------------------//
-
+/*
 #define EXPR(ID, PARENT)\
   static_assert(std::is_trivially_destructible<ID>::value, \
   #ID " is allocated in the ASTContext: It's destructor is never called!");
 #include "Fox/AST/ExprNodes.def"
-
+*/
 Expr::Expr(ExprKind kind, SourceRange range):
   kind_(kind), range_(range) {}
 
@@ -66,6 +66,11 @@ Type Expr::getType() const {
 
 void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
+}
+
+void* Expr::operator new(std::size_t, void* mem) {
+  assert(mem); 
+  return mem;
 }
 
 //----------------------------------------------------------------------------//
@@ -157,39 +162,47 @@ bool BoolLiteralExpr::getVal() const {
 // ArrayLiteralExpr 
 //----------------------------------------------------------------------------//
 
-ArrayLiteralExpr::ArrayLiteralExpr(ArrayRef<Expr*> exprs, SourceRange range):
-  exprs_(exprs.begin(), exprs.end()), Expr(ExprKind::ArrayLiteralExpr, range) {}
+ArrayLiteralExpr::ArrayLiteralExpr(ArrayRef<Expr*> elems, SourceRange range):
+  Expr(ExprKind::ArrayLiteralExpr, range), 
+  numElems_(static_cast<ElemSizeTy>(elems.size())) {
+  assert((numElems_ < maxElems) && "Too many args for ArrayLiteralExpr. "
+    "Increase the size of ElemSizeTy to something bigger!");
+  std::uninitialized_copy(elems.begin(), elems.end(), getTrailingObjects<Expr*>());
+}
 
 ArrayLiteralExpr* 
-ArrayLiteralExpr::create(ASTContext& ctxt, ArrayRef<Expr*> exprs,
+ArrayLiteralExpr::create(ASTContext& ctxt, ArrayRef<Expr*> elems,
   SourceRange range) {
-  return new(ctxt) ArrayLiteralExpr(exprs, range);
+  auto& alloc = ctxt.getAllocator();
+  auto totalSize = totalSizeToAlloc<Expr*>(elems.size());
+  void* mem = alloc.allocate(totalSize, alignof(ArrayLiteralExpr));
+  return new(mem) ArrayLiteralExpr(elems, range);
 }
 
 MutableArrayRef<Expr*> ArrayLiteralExpr::getExprs() {
-  return exprs_;
+  return {getTrailingObjects<Expr*>(), numElems_};
 }
 
 ArrayRef<Expr*> ArrayLiteralExpr::getExprs() const {
-  return exprs_;
+  return {getTrailingObjects<Expr*>(), numElems_};
 }
 
 Expr* ArrayLiteralExpr::getExpr(std::size_t idx) const {
-  assert((idx < exprs_.size()) && "Out of range");
-  return exprs_[idx];
+  assert((idx < numElems_) && "Out of range");
+  return getExprs()[idx];
 }
 
 void ArrayLiteralExpr::setExpr(Expr* expr, std::size_t idx) {
-  assert((idx < exprs_.size()) && "Out of range");
-  exprs_[idx] = expr;
+  assert((idx < numElems_) && "Out of range");
+  getExprs()[idx] = expr;
 }
 
-std::size_t ArrayLiteralExpr::getSize() const {
-  return exprs_.size();
+std::size_t ArrayLiteralExpr::numElems() const {
+  return numElems_;
 }
 
 bool ArrayLiteralExpr::isEmpty() const {
-  return (exprs_.size() == 0);
+  return (numElems_ == 0);
 }
 
 //----------------------------------------------------------------------------//
@@ -451,14 +464,20 @@ void DeclRefExpr::setDecl(ValueDecl* decl) {
 //----------------------------------------------------------------------------//
 
 FunctionCallExpr::FunctionCallExpr(Expr* callee, ArrayRef<Expr*> args, 
-  SourceRange range): Expr(ExprKind::FunctionCallExpr, range), callee_(callee),
-  args_(args.begin(), args.end()) {}
+  SourceRange range): Expr(ExprKind::FunctionCallExpr, range), callee_(callee), 
+  numArgs_(static_cast<ArgSizeTy>(args.size())) {
+  assert((numArgs_ < maxArgs) && "Too many args for FunctionCallExpr. "
+    "Increase the size of ArgSizeTy to something bigger!");
+  std::uninitialized_copy(args.begin(), args.end(), getTrailingObjects<Expr*>());
+}
 
 FunctionCallExpr* 
-FunctionCallExpr::create(ASTContext& ctxt, Expr* callee, 
-  ArrayRef<Expr*> args, SourceRange range) {
-  return new(ctxt) 
-    FunctionCallExpr(callee, args, range);
+FunctionCallExpr::create(ASTContext& ctxt, Expr* callee, ArrayRef<Expr*> args, 
+  SourceRange range) {
+  auto& alloc = ctxt.getAllocator();
+  auto totalSize = totalSizeToAlloc<Expr*>(args.size());
+  void* mem = alloc.allocate(totalSize, alignof(FunctionCallExpr));
+  return new(mem) FunctionCallExpr(callee, args, range);
 }
 
 void FunctionCallExpr::setCallee(Expr* callee) {
@@ -469,22 +488,26 @@ Expr* FunctionCallExpr::getCallee() const {
   return callee_;
 }
 
+FunctionCallExpr::ArgSizeTy FunctionCallExpr::numArgs() const {
+  return numArgs_;
+}
+
 MutableArrayRef<Expr*> FunctionCallExpr::getArgs() {
-  return args_;
+  return { getTrailingObjects<Expr*>(), numArgs_};
 }
 
 ArrayRef<Expr*> FunctionCallExpr::getArgs() const {
-  return args_;
+  return { getTrailingObjects<Expr*>(), numArgs_};
 }
 
 Expr* FunctionCallExpr::getArg(std::size_t idx) const {
-  assert((idx < args_.size()) && "Out of range");
-  return args_[idx];
+  assert((idx < numArgs_) && "Out of range");
+  return getArgs()[idx];
 }
 
 void FunctionCallExpr::setArg(Expr* arg, std::size_t idx) {
-  assert((idx < args_.size()) && "Out of range");
-  args_[idx] = arg;
+  assert((idx < numArgs_) && "Out of range");
+  getArgs()[idx] = arg;
 }
 
 //----------------------------------------------------------------------------//

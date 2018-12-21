@@ -15,6 +15,7 @@
 #include "Fox/AST/Identifier.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"
+#include "llvm/ADT/TrailingObjects.h"
 
 namespace fox   {
   // Forward Declarations
@@ -51,20 +52,17 @@ namespace fox   {
       void dump() const;
 
     protected:
-      // Operator new/delete overloads : They're protected as they should
-      // only be used through ::create
-
-      // Prohibit the use of builtin placement new & delete
-      void *operator new(std::size_t) throw() = delete;
-      void operator delete(void *) throw() = delete;
-      void* operator new(std::size_t, void*) = delete;
-
       // Only allow allocation through the ASTContext
       void* operator new(std::size_t sz, ASTContext &ctxt,
         std::uint8_t align = alignof(Expr));
 
-      // Companion operator delete to silence C4291 on MSVC
-      void operator delete(void*, ASTContext&, std::uint8_t) {}
+      // Prohibit the use of the vanilla new/delete
+      void *operator new(std::size_t) throw() = delete;
+      void operator delete(void *) throw() = delete;
+
+      // Also, allow allocation with a placement new
+      // (needed for class using trailing objects)
+      void* operator new(std::size_t , void* mem);
 
       Expr(ExprKind kind, SourceRange range);
 
@@ -310,17 +308,24 @@ namespace fox   {
 
   // ArrayLiteralExpr
   //    An array literal: [1, 2, 3]
-  class ArrayLiteralExpr final : public Expr {
+  class ArrayLiteralExpr final : public Expr, 
+    llvm::TrailingObjects<ArrayLiteralExpr, Expr*> {
+
+    using ElemSizeTy = std::uint16_t;
+    static constexpr auto maxElems = std::numeric_limits<ElemSizeTy>::max();
+
+    using TrailingObjects = llvm::TrailingObjects<ArrayLiteralExpr, Expr*>;
+    friend class TrailingObjects;
+
     public:
-      static ArrayLiteralExpr* create(ASTContext& ctxt, 
-        ArrayRef<Expr*> exprs, SourceRange range);
+      static ArrayLiteralExpr* create(ASTContext& ctxt,  ArrayRef<Expr*> elems,
+        SourceRange range);
 
       MutableArrayRef<Expr*> getExprs();
       ArrayRef<Expr*> getExprs() const;
       Expr* getExpr(std::size_t idx) const;
       void setExpr(Expr* expr, std::size_t idx);
-
-      std::size_t getSize() const;
+      std::size_t numElems() const;
       bool isEmpty() const;
 
       static bool classof(const Expr* expr) {
@@ -328,9 +333,9 @@ namespace fox   {
       }
 
     private:
-      ArrayLiteralExpr(ArrayRef<Expr*> exprs, SourceRange range);
+      ArrayLiteralExpr(ArrayRef<Expr*> elems, SourceRange range);
 
-      ExprVector exprs_;
+      const ElemSizeTy numElems_;
   };
 
   // UnresolvedExpr
@@ -441,7 +446,15 @@ namespace fox   {
 
   // FunctionCallExpr
   //    A function call: foo(3.14)
-  class FunctionCallExpr final : public Expr {
+  class FunctionCallExpr final : public Expr, 
+    llvm::TrailingObjects<FunctionCallExpr, Expr*> {
+
+    using ArgSizeTy = std::uint8_t;
+    static constexpr auto maxArgs = std::numeric_limits<ArgSizeTy>::max();
+
+    using TrailingObjects = llvm::TrailingObjects<FunctionCallExpr, Expr*>;
+    friend class TrailingObjects;
+
     public:    
       static FunctionCallExpr* create(ASTContext &ctxt, Expr* callee,
         ArrayRef<Expr*> args, SourceRange range);
@@ -449,6 +462,7 @@ namespace fox   {
       void setCallee(Expr* base);
       Expr* getCallee() const;
 
+      ArgSizeTy numArgs() const;
       MutableArrayRef<Expr*> getArgs();
       ArrayRef<Expr*> getArgs() const;
       Expr* getArg(std::size_t idx) const;
@@ -461,8 +475,8 @@ namespace fox   {
     private:
       FunctionCallExpr(Expr* callee, ArrayRef<Expr*> args, SourceRange range);
 
+      const ArgSizeTy numArgs_ = 0;
       Expr* callee_ = nullptr;
-      ExprVector args_;
   };
 }
 
