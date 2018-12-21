@@ -167,7 +167,9 @@ ArrayLiteralExpr::ArrayLiteralExpr(ArrayRef<Expr*> elems, SourceRange range):
   numElems_(static_cast<ElemSizeTy>(elems.size())) {
   assert((numElems_ < maxElems) && "Too many args for ArrayLiteralExpr. "
     "Increase the size of ElemSizeTy to something bigger!");
-  std::uninitialized_copy(elems.begin(), elems.end(), getTrailingObjects<Expr*>());
+
+  std::uninitialized_copy(elems.begin(), elems.end(), 
+    getTrailingObjects<Expr*>());
 }
 
 ArrayLiteralExpr* 
@@ -468,7 +470,8 @@ FunctionCallExpr::FunctionCallExpr(Expr* callee, ArrayRef<Expr*> args,
   numArgs_(static_cast<ArgSizeTy>(args.size())) {
   assert((numArgs_ < maxArgs) && "Too many args for FunctionCallExpr. "
     "Increase the size of ArgSizeTy to something bigger!");
-  std::uninitialized_copy(args.begin(), args.end(), getTrailingObjects<Expr*>());
+  std::uninitialized_copy(args.begin(), args.end(), 
+    getTrailingObjects<Expr*>());
 }
 
 FunctionCallExpr* 
@@ -549,8 +552,9 @@ SourceLoc MemberOfExpr::getDotLoc() const {
 // ArraySubscriptExpr 
 //----------------------------------------------------------------------------//
 
-ArraySubscriptExpr::ArraySubscriptExpr(Expr* expr, Expr* idxexpr, SourceRange range):
-  base_(expr), idxExpr_(idxexpr), Expr(ExprKind::ArraySubscriptExpr, range) {}
+ArraySubscriptExpr::ArraySubscriptExpr(Expr* expr, Expr* idxexpr, 
+  SourceRange range): base_(expr), idxExpr_(idxexpr), 
+  Expr(ExprKind::ArraySubscriptExpr, range) {}
 
 ArraySubscriptExpr* 
 ArraySubscriptExpr::create(ASTContext& ctxt, Expr* base, Expr* idx, 
