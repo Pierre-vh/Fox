@@ -199,7 +199,7 @@ protected:
       size_t SizeSoFar, size_t Count1,
       typename ExtractSecondType<MoreTys, size_t>::type... MoreCounts) {
     return ParentType::additionalSizeToAllocImpl(
-        (requiresRealignment() ? llvm::alignTo<alignof(NextTy)>(SizeSoFar)
+        (requiresRealignment() ? static_cast<size_t>(llvm::alignTo<alignof(NextTy)>(SizeSoFar))
                                : SizeSoFar) +
             sizeof(NextTy) * Count1,
         MoreCounts...);
@@ -281,7 +281,7 @@ class TrailingObjects : private trailing_objects_internal::TrailingObjectsImpl<
   // TrailingObjects", and thus, only this class itself can call the
   // numTrailingObjects function.)
   static size_t
-  callNumTrailingObjects(const BaseTy *Obj,
+  callNumTrailingObjects(const BaseTy*,
                          TrailingObjectsBase::OverloadToken<BaseTy>) {
     return 1;
   }

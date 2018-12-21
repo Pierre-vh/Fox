@@ -48,10 +48,13 @@ Non exhaustive changes list:
     Inlined grow_pod to remove need for SmallVector.cpp 
     Removed LLVM_NODISCARDs (Caused compiler errors on MSVC)
 
-  ADT/ArrayRef
+  ADT/ArrayRef.h
     Removed Hashing functions
     Replaced include: "llvm/ADT/STLExtras.h" with "llvm/ADT/iterator.h"
     Removed LLVM_NODISCARDs (Caused compiler errors on MSVC)
 
+  ADT/TrailingObjects.h
+    (Line 202) Adding static_cast<size_t> to alignTo's result to silence C4244 on MSVC
+    (Line 284) Removed the "Obj" parameter name to silence C4244 on MSVC
 
 			
