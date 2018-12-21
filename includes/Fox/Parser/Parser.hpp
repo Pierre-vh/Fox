@@ -182,8 +182,9 @@ namespace fox {
       // Current Decl Parent (curParent_) helpers
       //---------------------------------//
 
-      // if curParent_ is a DeclContext*, record "decl" inside it.
-      void recordInDeclCtxt(NamedDecl* decl);
+      // Should be called whenever a decl is done parsing and about 
+      // to be returned.
+      void actOnDecl(Decl* decl);
 
       // Returns true if state_.curParent.is<FuncDecl*>();
       bool isParsingFuncDecl() const;

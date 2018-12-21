@@ -23,13 +23,39 @@ Parser::Parser(ASTContext& ctxt, TokenVector& l, DeclContext *declCtxt):
   isAlive_ = true;
 }
 
-void Parser::recordInDeclCtxt(NamedDecl* decl) {
-  auto parent = getDeclParent();
-  if (!decl->isLocal()) {
-    auto* dc = parent.dyn_cast<DeclContext*>();
-    assert(dc && "no decl context but decl isn't local?");
+namespace {
+  // Helpers that check some vari
+  bool canHaveNullParent(Decl* decl) {
+    return isa<UnitDecl>(decl);
+  }
+}
+
+void Parser::actOnDecl(Decl* decl) {
+  assert(decl && "decl is null!");
+
+  if(decl->isParentNull()) {
+    assert(isa<UnitDecl>(decl) && "Only UnitDecls are able to have a "
+      "null parent!");
+    return;
+  }
+
+  if(!decl->isLocal()) {
+    // Fetch the DeclContext
+    DeclContext* dc = decl->getDeclContext();
+    assert(dc && "Parent isn't null but getDeclContext returns nullptr?");
+    // Check that we can add it to the DeclContext safely
+    if(NamedDecl* named = dyn_cast<NamedDecl>(decl)) {
+      assert(named->hasIdentifier() 
+        && "NamedDecl must have a valid Identifier!");
+    }
+    // Add it to the DeclContext
     dc->addDecl(decl);
-  } 
+  }
+  else {
+    assert(!isa<FuncDecl>(decl) && "FuncDecls cannot be local");
+    assert(decl->getFuncDecl() && "Decl is local but doesn't have a non-null "
+      "FuncDecl as Parent?");
+  }
 }
 
 Parser::Result<Identifier> Parser::consumeIdentifier() {
