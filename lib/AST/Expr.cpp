@@ -68,7 +68,6 @@ void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.getAllocator().allocate(sz, align);
 }
 
-
 //----------------------------------------------------------------------------//
 // CharLiteralExpr 
 //----------------------------------------------------------------------------//
@@ -83,10 +82,6 @@ CharLiteralExpr::create(ASTContext& ctxt, FoxChar val, SourceRange range) {
 
 FoxChar CharLiteralExpr::getVal() const {
   return val_;
-}
-
-void CharLiteralExpr::setVal(FoxChar val) {
-  val_ = val;
 }
 
 //----------------------------------------------------------------------------//
@@ -105,10 +100,6 @@ FoxInt IntegerLiteralExpr::getVal() const {
   return val_;
 }
 
-void IntegerLiteralExpr::setVal(FoxInt val) {
-  val_ = val;
-}
-
 //----------------------------------------------------------------------------//
 // FloatLiteralExpr 
 //----------------------------------------------------------------------------//
@@ -123,10 +114,6 @@ FloatLiteralExpr::create(ASTContext& ctxt, FoxFloat val, SourceRange range) {
 
 FoxFloat FloatLiteralExpr::getVal() const {
   return val_;
-}
-
-void FloatLiteralExpr::setVal(FoxFloat val) {
-  val_ = val;
 }
 
 //----------------------------------------------------------------------------//
@@ -148,10 +135,6 @@ string_view StringLiteralExpr::getVal() const {
   return val_;
 }
 
-void StringLiteralExpr::setVal(string_view val) {
-  val_ = val;
-}
-
 //----------------------------------------------------------------------------//
 // BoolLiteralExpr 
 //----------------------------------------------------------------------------//
@@ -168,10 +151,6 @@ BoolLiteralExpr::create(ASTContext& ctxt, bool val, SourceRange range) {
 
 bool BoolLiteralExpr::getVal() const {
   return val_;
-}
-
-void BoolLiteralExpr::setVal(bool val) {
-  val_ = val;
 }
 
 //----------------------------------------------------------------------------//
@@ -194,10 +173,6 @@ ExprVector& ArrayLiteralExpr::getExprs() {
 Expr* ArrayLiteralExpr::getExpr(std::size_t idx) const {
   assert((idx < exprs_.size()) && "Out of range");
   return exprs_[idx];
-}
-
-void ArrayLiteralExpr::setExprs(ExprVector&& exprs) {
-  exprs_ = exprs;
 }
 
 void ArrayLiteralExpr::setExpr(Expr* expr, std::size_t idx) {
@@ -497,10 +472,6 @@ ExprVector& FunctionCallExpr::getArgs() {
 Expr* FunctionCallExpr::getArg(std::size_t idx) const {
   assert((idx < args_.size()) && "Out of range");
   return args_[idx];
-}
-
-void FunctionCallExpr::setArgs(ExprVector&& args) {
-  args_ = args;
 }
 
 void FunctionCallExpr::setArg(Expr* arg, std::size_t idx) {

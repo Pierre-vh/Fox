@@ -77,6 +77,7 @@ namespace fox {
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::NullStmt);
       }
+
     private:
       NullStmt(SourceLoc semiLoc);
   };
@@ -154,6 +155,7 @@ namespace fox {
       static CompoundStmt* create(ASTContext& ctxt, 
         SourceRange range = SourceRange());
 
+      // FIXME: Remove this (will require minor parser work)
       void addNode(ASTNode stmt);
       void setNode(ASTNode node, std::size_t idx);
 

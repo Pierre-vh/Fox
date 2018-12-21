@@ -236,9 +236,9 @@ namespace fox {
       void setBody(CompoundStmt* body);
       CompoundStmt* getBody() const;
 
+      // FIXME: Remove this (will require some parser work to remove it's uses)
       void addParam(ParamDecl* param);
       void setParam(ParamDecl* param, std::size_t idx);
-      void setParams(ParamVec&& params);
 
       ParamDecl* getParam(std::size_t ind) const;
       ParamVec& getParams();

@@ -269,10 +269,6 @@ void FuncDecl::setParam(ParamDecl* param, std::size_t idx) {
   params_[idx] = param;
 }
 
-void FuncDecl::setParams(ParamVec&& params) {
-  params_ = params;
-}
-
 std::size_t FuncDecl::getNumParams() const {
   return params_.size();
 }

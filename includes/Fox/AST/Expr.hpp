@@ -220,7 +220,6 @@ namespace fox   {
         FoxChar val, SourceRange range);
 
       FoxChar getVal() const;
-      void setVal(FoxChar val);
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::CharLiteralExpr);
@@ -229,7 +228,7 @@ namespace fox   {
     private:
       CharLiteralExpr(FoxChar val, SourceRange range);
 
-      FoxChar val_ = ' ';
+      const FoxChar val_ = ' ';
   };
 
   // IntegerLiteralExpr
@@ -240,7 +239,6 @@ namespace fox   {
         FoxInt val, SourceRange range);
 
       FoxInt getVal() const;
-      void setVal(FoxInt val);
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::IntegerLiteralExpr);
@@ -249,7 +247,7 @@ namespace fox   {
     private:
       IntegerLiteralExpr(FoxInt val, SourceRange range);
 
-      FoxInt val_ = 0;
+      const FoxInt val_ = 0;
   };
 
   // FloatLiteralExpr
@@ -260,7 +258,6 @@ namespace fox   {
         SourceRange range);
 
       FoxFloat getVal() const;
-      void setVal(FoxFloat val);
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::FloatLiteralExpr);
@@ -269,7 +266,7 @@ namespace fox   {
     private:
       FloatLiteralExpr(FoxFloat val, SourceRange range);
 
-      FoxFloat val_ = 0.0;
+      const FoxFloat val_ = 0.0;
   };
 
   // StringLiteralExpr
@@ -280,7 +277,6 @@ namespace fox   {
         SourceRange range);
 
       string_view getVal() const;
-      void setVal(string_view val);
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::StringLiteralExpr);
@@ -289,7 +285,7 @@ namespace fox   {
     private:
       StringLiteralExpr(string_view val, SourceRange range);
 
-      string_view val_ = "";
+      const string_view val_ = "";
   };
 
   // BoolLiteralExpr
@@ -300,7 +296,6 @@ namespace fox   {
         SourceRange range);
 
       bool getVal() const;
-      void setVal(bool val);
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::BoolLiteralExpr);
@@ -309,7 +304,7 @@ namespace fox   {
     private:
       BoolLiteralExpr(bool val, SourceRange range);
 
-      bool val_ = false;
+      const bool val_ : 1;
   };
 
   // ArrayLiteralExpr
@@ -321,8 +316,6 @@ namespace fox   {
 
       ExprVector& getExprs();
       Expr* getExpr(std::size_t idx) const;
-
-      void setExprs(ExprVector&& elist);
       void setExpr(Expr* expr, std::size_t idx);
 
       std::size_t getSize() const;
@@ -456,8 +449,6 @@ namespace fox   {
 
       ExprVector& getArgs();
       Expr* getArg(std::size_t idx) const;
-
-      void setArgs(ExprVector&& exprs);
       void setArg(Expr* arg, std::size_t idx);
 
       static bool classof(const Expr* expr) {
