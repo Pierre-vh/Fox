@@ -110,26 +110,20 @@ To-Do:
   
   > CRITICAL BUG: Some ASTNodes aren't trivially destructible, which means they leak memory
     when the LinearAllocator frees it's memory! I need to make all AST Nodes trivially 
-    destrucible!
+    destructible!
     Rework/Changes needed to solve this, ranked from the easiest to the hardest one.
       1) [FIXED] StringLiteralExpr
-      2) CompoundStmt, FuncDecl, FunctionCallExpr, ArrayLiteralExpr
-        I can replace the SmallVectors with TrailingObjects + (Mutable)ArrayRefs ?  
-        > TODO: in FunctionCallExpr, use ArrayRefs in the ctor/create methods
-        > TODO: Remove recordInDeclCtxt and let the caller do it himself
-        > TODO: For ParamDecl, create a "ParamList" object which stores the Parameter list.
-      3) UnitDecl: The tough one, it needs a map to function properly.
-        I'll probably have to rework the DeclContext or UnitDecl, maybe even both.
-        Solutions idea:
-          (Dirty) Rework UnitDecl so it's no longer a ASTNode
-          (Ok, but hard to impl) Find a way to make DeclContext work without a map
-          (Probably best) Create a separate "DeclMap" structure, which contains
-            the map + vector, and allocate it (e.g. through a vector of unique_ptrs) in the 
-            ASTContext. The DeclContext would just contain a pointer to it's data DeclMap
-            and operate on it. This is what CLang seems to do to counter the problem.
+      2) FuncDecl
+        > Create a ParamList object, which uses TrailingObjects to allocate it's param
+        > In FuncDecl, use a ParamList* to store the Params
+      3) UnitDecl: 
+        > Create a separate "DeclMap" structure (will contain the map + vector)
+          that is allocated in the ASTContext. 
+          The DeclContext would then just contain a pointer to it's relevant DeclMap
+          and operate on it. (This is what CLang seems to do to solve the same problem)
 
   > Update LinearAllocator so it supports objects bigger than a pool by allocating them
-    inside a custom pool.
+    inside custom Pools. 
 
   > FunctionType
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
