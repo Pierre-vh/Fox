@@ -387,7 +387,7 @@ static SourceRange createRange(FileID file) {
 
 UnitDecl::UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id,
   FileID inFile): Decl(DeclKind::UnitDecl, parent, createRange(inFile)),
-  identifier_(id), DeclContext(DeclContextKind::UnitDecl),
+  identifier_(id), DeclContext(ctxt, DeclContextKind::UnitDecl),
   ctxt_(ctxt) {}
 
 UnitDecl* UnitDecl::create(ASTContext& ctxt, DeclContext* parent, 

@@ -21,8 +21,8 @@ using namespace fox;
 // Parser Preparator for LocTests
 class LocTests : public ::testing::Test {
   public:
-    LocTests() : diags(srcMgr), declContext(DeclContextKind::UnitDecl), 
-      astContext(srcMgr, diags) {}
+    LocTests() : diags(srcMgr), astContext(srcMgr, diags), 
+      declContext(astContext, DeclContextKind::UnitDecl) {}
 
   protected:
     virtual void SetUp(const std::string& filepath)  {
