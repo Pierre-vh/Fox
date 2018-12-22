@@ -15,6 +15,8 @@
 #include "ASTAligns.hpp"
 #include "Type.hpp"
 #include "Identifier.hpp"
+#include "llvm/ADT/TrailingObjects.h"
+#include "llvm/ADT/ArrayRef.h"
 
 namespace fox {
   // Forward Declarations
@@ -114,9 +116,6 @@ namespace fox {
       void* operator new(std::size_t sz, ASTContext &ctxt, 
         std::uint8_t align = alignof(Decl));
 
-      // Companion operator delete to silence C4291 on MSVC
-      void operator delete(void*, ASTContext&, std::uint8_t) {}
-
       Decl(DeclKind kind, Parent parent, SourceRange range);
 
     private:
@@ -215,8 +214,46 @@ namespace fox {
         TypeLoc type, bool isMutable, SourceRange range);
   };
 
-  // A Vector of ParamDecl*
-  using ParamVec = SmallVector<ParamDecl*, 4>;
+  // ParamList
+  //    Represents a list of ParamDecls
+  class ParamList final : llvm::TrailingObjects<ParamList, ParamDecl*> {
+    public:
+      using SizeTy = std::uint8_t;
+      static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();
+
+      static ParamList* create(ASTContext& ctxt, ArrayRef<ParamDecl*> params);
+
+      ArrayRef<ParamDecl*> getArray() const;
+      MutableArrayRef<ParamDecl*> getArray();
+      ParamDecl*& get(std::size_t idx);
+      const ParamDecl* get(std::size_t idx) const;
+      SizeTy getNumParams() const;
+
+      using iterator = MutableArrayRef<ParamDecl*>::iterator;
+      using const_iterator = ArrayRef<ParamDecl*>::iterator;
+
+      iterator begin();
+      iterator end();
+
+      const_iterator begin() const;
+      const_iterator end() const;
+
+      const ParamDecl* operator[](std::size_t idx) const;
+      ParamDecl*& operator[](std::size_t idx);
+
+    private:
+      ParamList(ArrayRef<ParamDecl*> params);
+
+      // Prohibit the use of the vanilla new/delete
+      void *operator new(std::size_t) throw() = delete;
+      void operator delete(void *) throw() = delete;
+
+      // Also, allow allocation with a placement new
+      // (needed for class using trailing objects)
+      void* operator new(std::size_t , void* mem);
+
+      SizeTy numParams_;
+  };
   
   // FuncDecl
   //    A function declaration
@@ -240,14 +277,10 @@ namespace fox {
       void setBody(CompoundStmt* body);
       CompoundStmt* getBody() const;
 
-      // FIXME: Remove this (will require some parser work to remove it's uses)
-      void addParam(ParamDecl* param);
-      void setParam(ParamDecl* param, std::size_t idx);
-
-      ParamDecl* getParam(std::size_t ind) const;
-      ParamVec& getParams();
-      const ParamVec& getParams() const;
-      std::size_t getNumParams() const;
+      void setParams(ParamList* params);
+      const ParamList* getParams() const;
+      ParamList* getParams();
+      bool hasParams() const;
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::FuncDecl;
@@ -259,7 +292,7 @@ namespace fox {
 
       SourceLoc headEndLoc_;
       TypeLoc returnType_;
-      ParamVec params_;
+      ParamList* params_ = nullptr;
       CompoundStmt* body_ = nullptr;
   };
 

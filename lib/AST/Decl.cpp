@@ -213,6 +213,51 @@ ParamList* ParamList::create(ASTContext& ctxt, ArrayRef<ParamDecl*> params) {
   return new(mem) ParamList(params);
 }
 
+ArrayRef<ParamDecl*> ParamList::getArray() const {
+  return {getTrailingObjects<ParamDecl*>(), numParams_};
+}
+
+MutableArrayRef<ParamDecl*> ParamList::getArray() {
+  return {getTrailingObjects<ParamDecl*>(), numParams_};
+}
+
+ParamDecl*& ParamList::get(std::size_t idx) {
+  assert((idx < numParams_) && "Out of range");
+  return getArray()[idx];
+}
+
+const ParamDecl* ParamList::get(std::size_t idx) const {
+  assert((idx < numParams_) && "Out of range");
+  return getArray()[idx];
+}
+ParamList::SizeTy ParamList::getNumParams() const {
+  return numParams_;
+}
+
+ParamList::iterator ParamList::begin() {
+  return getArray().begin();
+}
+
+ParamList::iterator ParamList::end() {
+  return getArray().end();
+}
+
+ParamList::const_iterator ParamList::begin() const {
+  return getArray().begin();
+}
+
+ParamList::const_iterator ParamList::end() const {
+  return getArray().end();
+}
+
+const ParamDecl* ParamList::operator[](std::size_t idx) const {
+  return get(idx);
+}
+
+ParamDecl*& ParamList::operator[](std::size_t idx) {
+  return get(idx);
+}
+
 ParamList::ParamList(ArrayRef<ParamDecl*> params) 
   : numParams_(static_cast<SizeTy>(params.size())) {
   assert((numParams_ < maxParams) && "Too many parameters for ParamList. "
@@ -277,34 +322,24 @@ CompoundStmt* FuncDecl::getBody() const {
   return body_;
 }
 
+void FuncDecl::setParams(ParamList* params) {
+  params_ = params;
+}
+
+ParamList* FuncDecl::getParams() {
+  return params_;
+}
+
+bool FuncDecl::hasParams() const {
+  return (bool)params_;
+}
+
+const ParamList* FuncDecl::getParams() const {
+  return params_;
+}
+
 void FuncDecl::setBody(CompoundStmt* body) {
   body_ = body;
-}
-
-ParamDecl* FuncDecl::getParam(std::size_t ind) const {
-  assert(ind < params_.size() && "out-of-range");
-  return params_[ind];
-}
-
-ParamVec& FuncDecl::getParams() {
-  return params_;
-}
-
-const ParamVec& FuncDecl::getParams() const {
-  return params_;
-}
-
-void FuncDecl::addParam(ParamDecl* param) {
-  params_.push_back(param);
-}
-
-void FuncDecl::setParam(ParamDecl* param, std::size_t idx) {
-  assert(idx <= params_.size() && "Out of range");
-  params_[idx] = param;
-}
-
-std::size_t FuncDecl::getNumParams() const {
-  return params_.size();
 }
 
 //----------------------------------------------------------------------------//
