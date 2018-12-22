@@ -15,6 +15,7 @@
 
 #include <cstddef>
 #include <memory>
+#include "llvm/Support/Compiler.h"
 #include "Errors.hpp"
 
 namespace fox {
@@ -113,6 +114,8 @@ namespace fox {
         \returns Your chunk of memory, nullptr if the allocator can't allocate 
                  any more memory.
       */
+      LLVM_ATTRIBUTE_RETURNS_NONNULL 
+      LLVM_ATTRIBUTE_RETURNS_NOALIAS 
       void* allocate(size_type size, align_type align = 1) {
         // Check that the allocptr isn't null
         assert(allocPtr && "AllocPtr cannot be null");
