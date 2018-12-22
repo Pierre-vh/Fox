@@ -6,23 +6,12 @@ Theses files have sometimes been modified to remove dependencies, or remove some
 I did not need. They're all header only.
 
 Non exhaustive changes list:
-	Support/type_traits.h
-		Removed #include "Compiler.h"
-		Removed LLVM_IS_FINAL macro
-		Removed __has_feature macros
-		Modified isPodLike to use is_trivially_copyable in all cases
-
 	Support/DataTypes.h
 		This file is the one found in llvm-c/DataTypes.h instead of the wrapper
 		located in llvm/Support/DataTypes.h
 
   Support/Compiler.h
     Removed llvm-config include
-
-    Added: New LLVM_NODISCARD impl
-      #elif defined(_MSC_VER) && (_MSC_VER >= 1700)
-      #define LLVM_NODISCARD _Check_return_
-      #else
 
   Support/MathExtras.h
     Removed SwapByteOrder include
@@ -32,9 +21,10 @@ Non exhaustive changes list:
   
   Support/MemAlloc.h
     Removed include "ErrorHandling.h"
-    Replaced calls to report_bad_alloc with a custom macro whose code
-      comes from the implementation of llvm::report_bad_alloc_error
-      in lib/Support/ErrorHandling.cpp
+    Replaced calls to report_bad_alloc with calls to a llvm_bad_alloc macro
+      defined at the top of the file.
+      The code for this macro is a shortened version of the one found in
+      /lib/Support/ErrorHandling.cpp
 
 	ADT/PointerIntPair.h:
 		Removed DenseMapInfo features
