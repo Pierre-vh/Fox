@@ -107,23 +107,19 @@ To-Do:
   > Update StmtChecker to correctly open scopes where appropriate (Done)
   > ASTDumper overhaul (Done)
   > Diagnostic/DiagnosticEngine code cleanup/review (Done)
-  
+  > Create ParamList
+ 
   > CRITICAL BUG: Some ASTNodes aren't trivially destructible, which means they leak memory
     when the LinearAllocator frees it's memory! I need to make all AST Nodes trivially 
-    destructible!
-    Rework/Changes needed to solve this, ranked from the easiest to the hardest one.
-      1) [FIXED] StringLiteralExpr
-      2) FuncDecl
-        > Create a ParamList object, which uses TrailingObjects to allocate it's param
-        > In FuncDecl, use a ParamList* to store the Params
-      3) UnitDecl: 
+    destructible! TO-DO list to resolve this issue:
+      UnitDecl: 
         > Create a separate "DeclMap" structure (will contain the map + vector)
           that is allocated in the ASTContext. 
           The DeclContext would then just contain a pointer to it's relevant DeclMap
           and operate on it. (This is what CLang seems to do to solve the same problem)
 
-  > Update LinearAllocator so it supports objects bigger than a pool by allocating them
-    inside custom Pools. 
+  > Instead of LinearAllocator, use llvm::BumpPtrAllocator 
+    Kind of sad to see my allocator go, but it's for the greater good.
 
   > FunctionType
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
