@@ -110,10 +110,7 @@ To-Do:
   > AST ParamList (Done)
   > Not all AST Nodes are trivially destructible, creating memory leaks (Fixed)
 
-  > Instead of LinearAllocator, use llvm::BumpPtrAllocator 
-    Kind of sad to see my allocator go, but it's for the greater good.
-
-  > FunctionType
+  > FunctionType (Next)
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
   > ReturnStmt checking
     > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
