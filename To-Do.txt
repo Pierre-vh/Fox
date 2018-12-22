@@ -120,21 +120,16 @@ To-Do:
     > I can't use an invalid SourceRange because I need ->getFile to work.
     > SOLUTION: Allow creation of special SourceLoc/SourceRanges that only refer to a single
       file. They'd be invalid and their index_ would be the max value for the Index type (like
-      npos in strings). This is the best of both worlds because:
+      npos in strings). Example output:
         UnitDecl->getSourceRange().isValid() == false
         UnitDecl->getBegLoc().isValid() == false
         UnitDecl->getEndLoc().isValid() == false
         UnitDecl->getFileID().isValid() == true
 
   > Parser improvements
-    Update parseFuncDecl/FuncDecl Ctor
-    -> Before creating the return node, parse the FuncDecl up to it's return type.
-    -> Store ParamDecls inside a vector "vParams"
-    -> Create the FuncDecl with vParams as arg
-    -> Iterate over vParams and set each element's parent
-        to the newly created FuncDecl
+    -> Refactor decl parsing methods
     -> Improve recovery for top-level decls : stop recovery attempt at first let or func keyword
-       if not inside a function body (create isParsingTopLevelCode() && beginsTopLevelDecl(token))
+        if not inside a function body (create isParsingTopLevelCode() && beginsTopLevelDecl(token))
 
   > ASTVerifier
       Debug tool that asserts that the AST is well formed. Used as a debug tool (will
