@@ -75,13 +75,14 @@ TEST_F(LocTests, FuncAndArgDecl) {
   EXPECT_EQ(func_head_end, CompleteLoc(fullFilePath, 1, 55));
   EXPECT_EQ(func_end, CompleteLoc(fullFilePath, 4, 3));
 
-  // Now, test the args
-  // Arg count should be correct
-  ASSERT_EQ(func->getNumParams(), 2);
+  // Now, test the parameters
+  ASSERT_TRUE(func->hasParams());
+  ParamList& params = *func->getParams();
+  ASSERT_EQ(params.getNumParams(), 2);
 
   // Extract each arg individually
-  ParamDecl* arg1 = func->getParam(0);
-  ParamDecl* arg2 = func->getParam(1);
+  ParamDecl* arg1 = params[0];
+  ParamDecl* arg2 = params[1];
 
   // Check if the names are right
   EXPECT_EQ(arg1->getIdentifier().getStr(), "_bar1");

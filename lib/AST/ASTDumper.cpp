@@ -246,7 +246,7 @@ void ASTDumper::visitFuncDecl(FuncDecl* node) {
              << node->getIdentifier() << " "
              << toString(node->getReturnTypeLoc()) << "\n";
 
-  for (auto decl : node->getParams()) {
+  for (auto decl : *node->getParams()) {
     indent();
     visitParamDecl(decl);
     dedent();

@@ -128,12 +128,13 @@ Parser::DeclResult Parser::parseFuncDecl() {
   }
 
   // [<param_decl> {',' <param_decl>}*]
+  SmallVector<ParamDecl*, 4> params;
   if (auto first = parseParamDecl()) {
-    rtr->addParam(first.getAs<ParamDecl>());
+    params.push_back(first.getAs<ParamDecl>());
     while (true) {
       if (consumeSign(SignType::S_COMMA)) {
         if (auto param = parseParamDecl())
-          rtr->addParam(param.getAs<ParamDecl>());
+          params.push_back(param.getAs<ParamDecl>());
         else {
           // IDEA: Maybe reporting the error after the "," would yield
           // better error messages?
@@ -208,6 +209,8 @@ Parser::DeclResult Parser::parseFuncDecl() {
   assert(headEndLoc && range && "Invalid loc info");
 
   // Finish building our FuncDecl.
+  ParamList* paramList = ParamList::create(ctxt, params);
+  rtr->setParams(paramList);
   rtr->setBody(body);
   rtr->setLocs(range, headEndLoc);
   // Record it

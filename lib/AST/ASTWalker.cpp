@@ -139,7 +139,7 @@ namespace {
       }
 
       bool visitFuncDecl(FuncDecl* decl) {
-        for (auto& param : decl->getParams()) {
+        for (auto& param : *decl->getParams()) {
           if (param) {
             if (!doIt(param))
               return false;

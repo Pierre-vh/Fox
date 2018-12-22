@@ -167,7 +167,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // Check if this is an invalid redecl
       checkForIllegalRedecl(decl);
       // Check it's parameters
-      for (ParamDecl* param : decl->getParams())
+      for (ParamDecl* param : *decl->getParams())
         visit(param);
       // And check it's body!
       getSema().checkStmt(decl->getBody());
