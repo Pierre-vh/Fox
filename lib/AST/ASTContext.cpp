@@ -31,10 +31,6 @@ LinearAllocator<>& ASTContext::getAllocator() {
   return allocator_;
 }
 
-LinearAllocator<>& ASTContext::getSemaAllocator() {
-  return semaAllocator_;
-}
-
 void ASTContext::reset() {
   theUnit_ = nullptr;
 

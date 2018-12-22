@@ -428,5 +428,5 @@ void CellType::resetSubst() {
 }
 
 void* CellType::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
-  return ctxt.getSemaAllocator().allocate(sz,align);
+  return ctxt.getAllocator().allocate(sz,align);
 }

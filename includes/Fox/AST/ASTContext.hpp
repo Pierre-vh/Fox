@@ -44,7 +44,6 @@ namespace fox {
 
       // ALLOCATORS
       LinearAllocator<>& getAllocator();
-      LinearAllocator<>& getSemaAllocator();
 
       // Resets the ASTContext, freeing the AST and
       // everything allocated within it's allocators.
@@ -101,6 +100,5 @@ namespace fox {
 
       // Allocators
       LinearAllocator<> allocator_; // Default allocator
-      LinearAllocator<> semaAllocator_; // Sema allocator
   };
 }
