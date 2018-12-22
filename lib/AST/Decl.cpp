@@ -18,12 +18,12 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 // Decl
 //----------------------------------------------------------------------------//
-/*
+
 #define DECL(ID, PARENT)\
   static_assert(std::is_trivially_destructible<ID>::value, \
   #ID " is allocated in the ASTContext: It's destructor is never called!");
 #include "Fox/AST/DeclNodes.def"
-*/
+
 Decl::Decl(DeclKind kind, Parent parent, SourceRange range):
   kind_(kind), range_(range), parent_(parent), 
   checkState_(CheckState::Unchecked) {}
