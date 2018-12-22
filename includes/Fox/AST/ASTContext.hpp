@@ -7,15 +7,22 @@
 // Contains the ASTContext class
 //----------------------------------------------------------------------------//
 
+// Improvements ideas:
+//  > Remove the DeclContext.hpp include. It shouldn't really be there.
+//    If I manage to remove it, I can also remove the <list> include and
+//    DeclContext friendship
+
 #pragma once
 
 #include <map>
 #include <set>
+#include <list>
 #include "Type.hpp"
 #include "Identifier.hpp"
 #include "ASTFwdDecl.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
 #include "Fox/Common/string_view.hpp"
+#include "Fox/AST/DeclContext.hpp"
 
 namespace fox {
 	class DiagnosticEngine;
@@ -56,10 +63,18 @@ namespace fox {
       DiagnosticEngine& diagEngine;
 
     private:
+      // The ASTContext shouldn't be copyable.
+      ASTContext(const ASTContext&) = delete;
+      ASTContext& operator=(const ASTContext&) = delete;
+
       friend class ArrayType;
       friend class LValueType;
       friend class ErrorType;
       friend class PrimitiveType;
+      friend class DeclContext;
+
+      // The DeclData instance for every DeclContext in the AST.
+      std::list<DeclContext::DeclData> declContextDatas_;
 
       // Map of Array types (Type -> Type[]) 
       // (managed by ArrayType::get)
@@ -68,7 +83,6 @@ namespace fox {
       // LValue types (Type -> @Type)
       // (managed by LValueType::get)
       std::map<Type, LValueType*> lvalueTypes;
-
 
       // Singleton/unique types. Lazily
       // created by their respective classes.
@@ -79,10 +93,6 @@ namespace fox {
       PrimitiveType* theBoolType = nullptr;
       PrimitiveType* theStringType = nullptr;
       PrimitiveType* theVoidType = nullptr;
-
-      // The ASTContext shouldn't be copyable.
-      ASTContext(const ASTContext&) = delete;
-      ASTContext& operator=(const ASTContext&) = delete;
 
       UnitDecl* theUnit_ = nullptr;
 

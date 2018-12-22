@@ -15,13 +15,13 @@
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/PointerIntPair.h"
 #include <map>
-#include <type_traits>
 #include <memory>
 
 namespace fox {
   class Decl;
   class NamedDecl;
   class FileID;
+  class ASTContext;
 
   enum class DeclContextKind : std::uint8_t {
     #define DECL_CTXT(ID, PARENT) ID,
@@ -41,23 +41,16 @@ namespace fox {
   // list of NamedDecl* with a given identifier.
   class alignas(DeclContextAlignement) DeclContext {
     public:
-      //----------------------------------------------------------------------//
-      // Type Aliases
-      //----------------------------------------------------------------------//
-
       // The type of the lookup map
       using LookupMap = std::multimap<Identifier, NamedDecl*>;
 
       // The type of the vector used to store the declarations
       using DeclVec = SmallVector<Decl*, 4>;
 
-      //----------------------------------------------------------------------//
-      // Interface
-      //----------------------------------------------------------------------//
-
       // Constructor
       //  parent may be omitted
-      DeclContext(DeclContextKind kind, DeclContext* parent = nullptr);
+      DeclContext(ASTContext& ctxt, DeclContextKind kind, 
+        DeclContext* parent = nullptr);
 
       // Returns the Kind of DeclContext this is
       DeclContextKind getDeclContextKind() const;
@@ -84,16 +77,14 @@ namespace fox {
       static bool classof(const Decl* decl);
 
     private:
-      //----------------------------------------------------------------------//
-      // Private methods
-      //----------------------------------------------------------------------//
+      friend class ASTContext; // Needs to see DeclData
+      struct DeclData;
+
+      DeclData& data();
+      const DeclData& data() const;
 
       // If the LookupMap has not been built yet, builds it from "decls_"
       void buildLookupMap();
-
-      //----------------------------------------------------------------------//
-      // Private members
-      //----------------------------------------------------------------------//
 
       // The PointerIntPair used to represent the ParentAndKind bits
       using ParentAndKindTy 
@@ -102,19 +93,28 @@ namespace fox {
       // A PointerIntPair which contains the parent of this DeclContext + the
       // kind of DeclContext this is.
       ParentAndKindTy parentAndKind_;
-      // The vector of declarations
-      DeclVec decls_;
-      // The lazily generated lookup map
-      std::unique_ptr<LookupMap> lookup_;
+      DeclData* data_ = nullptr;
 
-      //----------------------------------------------------------------------//
-      // Static assertion
-      //----------------------------------------------------------------------//
       // Check that ParentAndKindTy has enough bits to represent
       // every possible DeclContextKind
       static_assert(
         (1 << DeclContextFreeLowBits) > toInt(DeclContextKind::LastDeclCtxt),
         "The PointerIntPair doesn't have enough bits to represent every "
         " DeclContextKind value");
+  };
+
+  // Contains the non trivially destructible objects that the
+  // DeclContext needs
+  struct DeclContext::DeclData {
+    // Creates a DeclData allocated inside the AST
+    static DeclData* create(ASTContext& ctxt, DeclContext* dc);
+    // Pointer to the DeclContext that this data belongs to
+    DeclContext* dc;
+    // The vector of declarations
+    DeclVec decls;
+    // The lazily generated lookup map
+    std::unique_ptr<LookupMap> lookupMap;
+    private:
+      DeclData(DeclContext* me) : dc(me) {}
   };
 }

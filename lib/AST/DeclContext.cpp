@@ -7,14 +7,20 @@
 
 #include "Fox/AST/DeclContext.hpp"
 #include "Fox/AST/Decl.hpp"
+#include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/Source.hpp"
 
 using namespace fox;
 
-DeclContext::DeclContext(DeclContextKind kind, DeclContext* parent):
-  parentAndKind_(parent, toInt(kind)) {
+//----------------------------------------------------------------------------//
+// DeclContext
+//----------------------------------------------------------------------------//
 
+DeclContext::DeclContext(ASTContext& ctxt, DeclContextKind kind, 
+  DeclContext* parent): parentAndKind_(parent, toInt(kind)),
+  data_(DeclData::create(ctxt, this)) {
+  assert(data_ && "DeclContext data not created");  
 }
 
 DeclContextKind DeclContext::getDeclContextKind() const {
@@ -27,12 +33,12 @@ void DeclContext::addDecl(Decl* decl) {
     "information to be inserted in the DeclContext");
   assert(!decl->isLocal() && "Can't add local declarations in a DeclContext!");
   // Insert in decls_
-  decls_.push_back(decl);
+  data().decls.push_back(decl);
   if(NamedDecl* named = dyn_cast<NamedDecl>(decl)) {
     // Update the lookup map if it has been built
     Identifier id = named->getIdentifier();
     assert(id && "NameDecl with invalid identifier");
-    if(lookup_) lookup_->insert({id, named});
+    if(data().lookupMap) data().lookupMap->insert({id, named});
   }
 }
 
@@ -45,15 +51,15 @@ DeclContext* DeclContext::getParentDeclCtxt() const {
 }
 
 const DeclContext::DeclVec& DeclContext::getDecls() const {
-  return decls_;
+  return data().decls;
 }
 
 const DeclContext::LookupMap& DeclContext::getLookupMap() {
-  if(!lookup_)
+  if(!data().lookupMap)
     buildLookupMap();
-  assert(lookup_ && "buildLookupMap() did not build the "
+  assert(data().lookupMap && "buildLookupMap() did not build the "
     "LookupMap!");
-  return *lookup_;
+  return *(data().lookupMap);
 }
 
 void DeclContext::setParentDeclCtxt(DeclContext* dr) {
@@ -61,7 +67,7 @@ void DeclContext::setParentDeclCtxt(DeclContext* dr) {
 }
 
 std::size_t DeclContext::numDecls() const {
-  return decls_.size();
+  return data().decls.size();
 }
 
 bool DeclContext::classof(const Decl* decl)
@@ -75,16 +81,39 @@ bool DeclContext::classof(const Decl* decl)
   }
 }
 
+DeclContext::DeclData& DeclContext::data() {
+  assert(data_ && "Data cannot be nullptr!");
+  return (*data_);
+}
+
+const DeclContext::DeclData& DeclContext::data() const {
+  assert(data_ && "Data cannot be nullptr!");
+  return (*data_);
+}
+
 void DeclContext::buildLookupMap() {
   // Don't do it if it's already built
-  if(lookup_) return;
-  lookup_ = std::make_unique<LookupMap>();
+  if(data().lookupMap) return;
+  data().lookupMap = std::make_unique<LookupMap>();
 
   // Iterate over decls_ and insert them in the lookup map
-  for(Decl* decl : decls_) {
+  for(Decl* decl : data().decls) {
     if(NamedDecl* named = dyn_cast<NamedDecl>(decl)) {
       Identifier id = named->getIdentifier();
-      lookup_->insert({id, named});
+      data().lookupMap->insert({id, named});
     }
   }
+}
+
+//----------------------------------------------------------------------------//
+// DeclData
+//----------------------------------------------------------------------------//
+
+DeclContext::DeclData* 
+DeclContext::DeclData::create(ASTContext& ctxt, DeclContext* dc) {
+  auto& datas = ctxt.declContextDatas_;
+  datas.push_back(DeclData(dc));
+  auto* ptr = &(datas.back());
+  assert(ptr);
+  return ptr;
 }
