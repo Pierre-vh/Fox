@@ -165,7 +165,7 @@ CompoundStmt::CompoundStmt(ArrayRef<ASTNode> elems, SourceRange range):
   Stmt(StmtKind::CompoundStmt, range), 
   numNodes_(static_cast<SizeTy>(elems.size())) {
   assert((numNodes_ < maxNodes) && "Too many elements for CompoundStmt. "
-    "Increase the size of SizeTy to something bigger!");
+    "Change the type of SizeTy to something bigger!");
   std::uninitialized_copy(elems.begin(), elems.end(), 
     getTrailingObjects<ASTNode>());
 }

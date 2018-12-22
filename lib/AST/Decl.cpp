@@ -203,6 +203,30 @@ ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange,
   {}
 
 //----------------------------------------------------------------------------//
+// ParamList
+//----------------------------------------------------------------------------//
+
+ParamList* ParamList::create(ASTContext& ctxt, ArrayRef<ParamDecl*> params) {
+  auto& alloc = ctxt.getAllocator();
+  auto totalSize = totalSizeToAlloc<ParamDecl*>(params.size());
+  void* mem = alloc.allocate(totalSize, alignof(ParamDecl));
+  return new(mem) ParamList(params);
+}
+
+ParamList::ParamList(ArrayRef<ParamDecl*> params) 
+  : numParams_(static_cast<SizeTy>(params.size())) {
+  assert((numParams_ < maxParams) && "Too many parameters for ParamList. "
+    "Change the type of SizeTy to something bigger!");
+  std::uninitialized_copy(params.begin(), params.end(), 
+    getTrailingObjects<ParamDecl*>());
+}
+
+void* ParamList::operator new(std::size_t, void* mem) {
+  assert(mem);
+  return mem;
+}
+
+//----------------------------------------------------------------------------//
 // FuncDecl
 //----------------------------------------------------------------------------//
 
