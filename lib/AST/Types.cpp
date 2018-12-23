@@ -339,15 +339,18 @@ ArrayType::ArrayType(Type elemTy):
 }
 
 ArrayType* ArrayType::get(ASTContext& ctxt, Type ty) {
-  auto lb = ctxt.arrayTypes_.lower_bound(ty);
+  TypeBase* ptr = ty.getPtr();
+  auto lb = ctxt.arrayTypes_.lower_bound(ptr);
   if (lb != ctxt.arrayTypes_.end() &&
-    !(ctxt.lvalueTypes_.key_comp()(ty, lb->first))) {
+    !(ctxt.lvalueTypes_.key_comp()(ptr, lb->first))) {
     // Key already exists, return lb->second.get()
     return lb->second;
   }
   else {
     // Key does not exists, insert & return.
-    auto insertionResult = ctxt.arrayTypes_.insert(lb, { ty , new(ctxt) ArrayType(ty) });
+    auto insertionResult = ctxt.arrayTypes_.insert(lb, 
+      {ptr , new(ctxt) ArrayType(ty) }
+    );
     return insertionResult->second;
   }
 }
@@ -366,15 +369,18 @@ LValueType::LValueType(Type type):
 }
 
 LValueType* LValueType::get(ASTContext& ctxt, Type ty) {
-  auto lb = ctxt.lvalueTypes_.lower_bound(ty);
+  TypeBase* ptr = ty.getPtr();
+  auto lb = ctxt.lvalueTypes_.lower_bound(ptr);
   if (lb != ctxt.lvalueTypes_.end() &&
-    !(ctxt.lvalueTypes_.key_comp()(ty, lb->first))) {
+    !(ctxt.lvalueTypes_.key_comp()(ptr, lb->first))) {
     // Key already exists, return lb->second.get()
     return lb->second;
   }
   else {
     // Key does not exists, insert & return.
-    auto insertionResult = ctxt.lvalueTypes_.insert(lb, { ty , new(ctxt) LValueType(ty) });
+    auto insertionResult = ctxt.lvalueTypes_.insert(lb, 
+      { ptr , new(ctxt) LValueType(ty) }
+    );
     return insertionResult->second;
   }
 }

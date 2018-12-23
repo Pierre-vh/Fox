@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "Type.hpp"
 #include "Identifier.hpp"
 #include "ASTFwdDecl.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
@@ -77,13 +76,13 @@ namespace fox {
 
       SmallVector<std::function<void(void)>, 4> cleanups_;
 
-      // Map of Array types (Type -> Type[]) 
+      // Map of Array types (maps a Type to a Type[]) 
       // (managed by ArrayType::get)
-      std::map<Type, ArrayType*> arrayTypes_;
+      std::map<TypeBase*, ArrayType*> arrayTypes_;
 
-      // LValue types (Type -> @Type)
+      // LValue types (maps a Type to a @Type)
       // (managed by LValueType::get)
-      std::map<Type, LValueType*> lvalueTypes_;
+      std::map<TypeBase*, LValueType*> lvalueTypes_;
 
       // Singleton/unique types. Lazily
       // created by their respective classes.
@@ -95,12 +94,13 @@ namespace fox {
       PrimitiveType* theStringType_ = nullptr;
       PrimitiveType* theVoidType_ = nullptr;
 
+      // The main unit
       UnitDecl* theUnit_ = nullptr;
 
 			// The unique identifiers strings set
 			std::set<std::string> idents_;
 
-      // Allocators
-      LinearAllocator<> allocator_; // Default allocator
+      // The main AST allocator, used for long lived objects.
+      LinearAllocator<> allocator_; 
   };
 }
