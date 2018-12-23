@@ -704,23 +704,24 @@ namespace {
         return e;
       }
 
-      Expr* handleExprPost(Expr* expr) {
+      std::pair<Expr*, bool> handleExprPre(Expr* expr) {
         Type type = expr->getType();
-        assert(type && "Untyped expr");
+        assert(type && "Expr has a null type!");
 
         // Visit the type
         type = visit(type);
-        
+        bool shouldVisitChildren = true;
         // If the type is nullptr, this inference failed
         // because of a lack of substitution somewhere.
         // Set the type to ErrorType, diagnose it and move on.
         if (!type) {
           diags_.report(DiagID::sema_failed_infer, expr->getRange());
           type = ErrorType::get(ctxt_);
+          shouldVisitChildren = false;
         }
 
         expr->setType(type);
-        return expr;
+        return {expr, shouldVisitChildren};
       }
 
       /*
