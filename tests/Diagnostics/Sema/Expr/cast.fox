@@ -22,7 +22,7 @@ func foo() {
   // Inference
   [] as [int];
   [[]] as [[float]];
-  [] as int; // expect-error: cannot cast expression of type '[?]' to type 'int'
+  [] as int; // expect-error: cannot cast expression of type '[any]' to type 'int'
              // expect-error@-1: failed to infer the type of this expression
 
   // Redundant cast 
