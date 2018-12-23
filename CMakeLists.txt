@@ -44,29 +44,31 @@ if(MSVC)
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
   endif()
-  # Set compiler flags
+  # set compiler flags
   add_compile_options(/WX)
   add_compile_options(/Za)
   add_compile_options(/permissive-)
-  # Silence problematic warnings 
+  # silence problematic warnings 
     # C4706 "assignement within conditional expression"
     #   Reason: This construct is used a lot in the code
     add_compile_options(/wd4706) 
   
     # C4324 "structure was padded due to alignement specifier"
-    #   Reason: That's exaclty what we want
-    add_compile_options(/wd4324)
-  
     # C4458 "declaration of x hides class member"
-    #   Reason: Usually, that's the intent
+    #   Reason: That's usually the intended behaviour
+    add_compile_options(/wd4324)
     add_compile_options(/wd4458)
   
     # C4291 "no matching operator delete found; memory will not be freed if initialization fails"
     #   Reason: This error happens for the operator new overloads of the AST, which allocate memory
     #           in the ASTContext, and we can't free a single block of memory without freeing everything.
     add_compile_options(/wd4291)
+
+    # C4244 "conversion from 'a' to 'b', possible loss of data"
+    #   Reason: This warning only exist on MSVC. 
+    add_compile_options(/wd4244)
   
-  # Don't deprecate theses functions
+  # don't deprecate theses functions
   add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
 endif()
 
@@ -75,9 +77,11 @@ add_library(libmoonshot STATIC ${moonshot_src})
 
 # add llvm lit test suite 
 add_custom_target(MoonshotTests
-  COMMAND lit ${PROJECT_SOURCE_DIR}/tests -s -v --param fox_bin_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  COMMAND lit ${PROJECT_SOURCE_DIR}/tests -s -v 
+  --param fox_bin_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   DEPENDS Moonshot 
 )
 
 # add test resources path macro
-target_compile_definitions(libmoonshot PRIVATE TEST_RES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/tests/res/")
+target_compile_definitions(libmoonshot PRIVATE 
+  TEST_RES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/tests/res/")
