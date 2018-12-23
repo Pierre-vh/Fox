@@ -37,19 +37,19 @@ LinearAllocator<>& ASTContext::getAllocator() {
 
 void ASTContext::reset() {
   // Clear sets/maps
-  arrayTypes.clear();
-  lvalueTypes.clear();
+  arrayTypes_.clear();
+  lvalueTypes_.clear();
   idents_.clear();
 
   // Clear type singletons
   theUnit_ = nullptr;
-  theIntType = nullptr;
-  theFloatType = nullptr;
-  theCharType = nullptr;
-  theBoolType = nullptr;
-  theStringType = nullptr;
-  theVoidType = nullptr;
-  theErrorType = nullptr;
+  theIntType_ = nullptr;
+  theFloatType_ = nullptr;
+  theCharType_ = nullptr;
+  theBoolType_ = nullptr;
+  theStringType_ = nullptr;
+  theVoidType_ = nullptr;
+  theErrorType_ = nullptr;
 
   // Call the cleanups methods
   callCleanups();

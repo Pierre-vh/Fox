@@ -290,39 +290,39 @@ PrimitiveType::PrimitiveType(Kind kd)
 }
 
 PrimitiveType* PrimitiveType::getString(ASTContext& ctxt) {
-  if (!ctxt.theStringType)
-    ctxt.theStringType = new(ctxt) PrimitiveType(Kind::StringTy);
-  return ctxt.theStringType;
+  if (!ctxt.theStringType_)
+    ctxt.theStringType_ = new(ctxt) PrimitiveType(Kind::StringTy);
+  return ctxt.theStringType_;
 }
 
 PrimitiveType* PrimitiveType::getChar(ASTContext& ctxt) {
-  if (!ctxt.theCharType)
-    ctxt.theCharType = new(ctxt) PrimitiveType(Kind::CharTy);
-  return ctxt.theCharType;
+  if (!ctxt.theCharType_)
+    ctxt.theCharType_ = new(ctxt) PrimitiveType(Kind::CharTy);
+  return ctxt.theCharType_;
 }
 
 PrimitiveType* PrimitiveType::getFloat(ASTContext& ctxt) {
-  if (!ctxt.theFloatType)
-    ctxt.theFloatType = new(ctxt) PrimitiveType(Kind::FloatTy);
-  return ctxt.theFloatType;
+  if (!ctxt.theFloatType_)
+    ctxt.theFloatType_ = new(ctxt) PrimitiveType(Kind::FloatTy);
+  return ctxt.theFloatType_;
 }
 
 PrimitiveType* PrimitiveType::getBool(ASTContext& ctxt) {
-  if (!ctxt.theBoolType)
-    ctxt.theBoolType = new(ctxt) PrimitiveType(Kind::BoolTy);
-  return ctxt.theBoolType;
+  if (!ctxt.theBoolType_)
+    ctxt.theBoolType_ = new(ctxt) PrimitiveType(Kind::BoolTy);
+  return ctxt.theBoolType_;
 }
 
 PrimitiveType* PrimitiveType::getInt(ASTContext& ctxt) {
-  if (!ctxt.theIntType)
-    ctxt.theIntType = new(ctxt) PrimitiveType(Kind::IntTy);
-  return ctxt.theIntType;
+  if (!ctxt.theIntType_)
+    ctxt.theIntType_ = new(ctxt) PrimitiveType(Kind::IntTy);
+  return ctxt.theIntType_;
 }
 
 PrimitiveType* PrimitiveType::getVoid(ASTContext& ctxt) {
-  if (!ctxt.theVoidType)
-    ctxt.theVoidType = new(ctxt) PrimitiveType(Kind::VoidTy);
-  return ctxt.theVoidType;
+  if (!ctxt.theVoidType_)
+    ctxt.theVoidType_ = new(ctxt) PrimitiveType(Kind::VoidTy);
+  return ctxt.theVoidType_;
 }
 
 PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const {
@@ -339,15 +339,15 @@ ArrayType::ArrayType(Type elemTy):
 }
 
 ArrayType* ArrayType::get(ASTContext& ctxt, Type ty) {
-  auto lb = ctxt.arrayTypes.lower_bound(ty);
-  if (lb != ctxt.arrayTypes.end() &&
-    !(ctxt.lvalueTypes.key_comp()(ty, lb->first))) {
+  auto lb = ctxt.arrayTypes_.lower_bound(ty);
+  if (lb != ctxt.arrayTypes_.end() &&
+    !(ctxt.lvalueTypes_.key_comp()(ty, lb->first))) {
     // Key already exists, return lb->second.get()
     return lb->second;
   }
   else {
     // Key does not exists, insert & return.
-    auto insertionResult = ctxt.arrayTypes.insert(lb, { ty , new(ctxt) ArrayType(ty) });
+    auto insertionResult = ctxt.arrayTypes_.insert(lb, { ty , new(ctxt) ArrayType(ty) });
     return insertionResult->second;
   }
 }
@@ -366,15 +366,15 @@ LValueType::LValueType(Type type):
 }
 
 LValueType* LValueType::get(ASTContext& ctxt, Type ty) {
-  auto lb = ctxt.lvalueTypes.lower_bound(ty);
-  if (lb != ctxt.lvalueTypes.end() &&
-    !(ctxt.lvalueTypes.key_comp()(ty, lb->first))) {
+  auto lb = ctxt.lvalueTypes_.lower_bound(ty);
+  if (lb != ctxt.lvalueTypes_.end() &&
+    !(ctxt.lvalueTypes_.key_comp()(ty, lb->first))) {
     // Key already exists, return lb->second.get()
     return lb->second;
   }
   else {
     // Key does not exists, insert & return.
-    auto insertionResult = ctxt.lvalueTypes.insert(lb, { ty , new(ctxt) LValueType(ty) });
+    auto insertionResult = ctxt.lvalueTypes_.insert(lb, { ty , new(ctxt) LValueType(ty) });
     return insertionResult->second;
   }
 }
@@ -393,9 +393,9 @@ ErrorType::ErrorType():
 }
 
 ErrorType* ErrorType::get(ASTContext& ctxt) {
-  if (!ctxt.theErrorType)
-    ctxt.theErrorType = new(ctxt) ErrorType();
-  return ctxt.theErrorType;
+  if (!ctxt.theErrorType_)
+    ctxt.theErrorType_ = new(ctxt) ErrorType();
+  return ctxt.theErrorType_;
 }
 
 //----------//

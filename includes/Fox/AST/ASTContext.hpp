@@ -79,21 +79,21 @@ namespace fox {
 
       // Map of Array types (Type -> Type[]) 
       // (managed by ArrayType::get)
-      std::map<Type, ArrayType*> arrayTypes;
+      std::map<Type, ArrayType*> arrayTypes_;
 
       // LValue types (Type -> @Type)
       // (managed by LValueType::get)
-      std::map<Type, LValueType*> lvalueTypes;
+      std::map<Type, LValueType*> lvalueTypes_;
 
       // Singleton/unique types. Lazily
       // created by their respective classes.
-      ErrorType* theErrorType = nullptr;
-      PrimitiveType* theIntType = nullptr;
-      PrimitiveType* theFloatType = nullptr;
-      PrimitiveType* theCharType = nullptr;
-      PrimitiveType* theBoolType = nullptr;
-      PrimitiveType* theStringType = nullptr;
-      PrimitiveType* theVoidType = nullptr;
+      ErrorType* theErrorType_ = nullptr;
+      PrimitiveType* theIntType_ = nullptr;
+      PrimitiveType* theFloatType_ = nullptr;
+      PrimitiveType* theCharType_ = nullptr;
+      PrimitiveType* theBoolType_ = nullptr;
+      PrimitiveType* theStringType_ = nullptr;
+      PrimitiveType* theVoidType_ = nullptr;
 
       UnitDecl* theUnit_ = nullptr;
 
