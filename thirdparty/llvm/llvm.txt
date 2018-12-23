@@ -13,18 +13,18 @@ Non exhaustive changes list:
   Support/Compiler.h
     Removed llvm-config include
 
-  Support/MathExtras.h
-    Removed SwapByteOrder include
-    Removed functionalities that used SwapByteOrder:
-      ByteSwap_16, ByteSwap_32, ByteSwap_64
-    Removed (commented) lines 364 to 399
-  
   Support/MemAlloc.h
     Removed include "ErrorHandling.h"
     Replaced calls to report_bad_alloc with calls to a llvm_bad_alloc macro
       defined at the top of the file.
       The code for this macro is a shortened version of the one found in
       /lib/Support/ErrorHandling.cpp
+
+  Support/MathExtras.h
+    Commented out lines 364-400 due to MSVC C4146  
+
+  Support/Host.h
+    Removed everything except the endianness related functionalities
 
 	ADT/PointerIntPair.h:
 		Removed DenseMapInfo features
