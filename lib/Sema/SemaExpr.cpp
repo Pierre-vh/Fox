@@ -218,16 +218,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
-    // Finalizes an Array Subscript Expr 
-    Expr* finalizeArraySubscriptExpr(ArraySubscriptExpr* expr, 
-                                      Type childTy) {    
-      Type exprTy = childTy->unwrapIfArray();
-      assert(exprTy && 
-              "Expression is valid but childTy is not an ArrayType?");
-      expr->setType(exprTy);
-      return expr;
-    }
-
     // Finalizes a valid concatenation binary operation.
     Expr* finalizeConcatBinaryExpr(BinaryExpr* expr) {
       // For concatenation, the type is always string.
@@ -402,17 +392,25 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* visitArraySubscriptExpr(ArraySubscriptExpr* expr) {
       // Get child expr and it's type
       Expr* child = expr->getBase();
-      Type childTy = child->getType()->getAsBoundRValue();
+      Type childTy = child->getType()->getRValue();
       // Get idx expr and it's type
       Expr* idxE = expr->getIndex();
       Type idxETy = idxE->getType()->getAsBoundRValue();
 
-      // Unbound type as a idx or child: give up
-      if (!(idxETy && childTy))
+      // Unbound type as a idx: give up
+      if (!idxETy)
         return expr;
 
-      // Check that the child is an array type.
-      if (!childTy->is<ArrayType>()) {
+      Type subscriptType;
+      // Check that the child is an array type
+      if (childTy->is<ArrayType>()) {
+        subscriptType = childTy->castTo<ArrayType>()->getElementType();
+        assert(subscriptType && "ArrayType had no element type!");
+      }
+      // Or a string
+      else if(childTy->isStringType())
+        subscriptType = PrimitiveType::getChar(getCtxt());
+      else {
         // Diagnose with the primary range being the child's range
 				if(!childTy->is<ErrorType>())
 					diagnoseInvalidArraySubscript(expr, 
@@ -436,8 +434,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         warnImplicitIntegralDowncast(idxETy, intTy, idxE->getRange());
       }
         
-      // Finalize it
-      return finalizeArraySubscriptExpr(expr, childTy);
+      // Set type + return
+      assert(subscriptType);
+      expr->setType(subscriptType);
+      return expr;
     }
 
     Expr* visitMemberOfExpr(MemberOfExpr*) {

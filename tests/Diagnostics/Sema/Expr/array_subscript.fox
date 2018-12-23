@@ -7,6 +7,9 @@ func foo() {
   [[0,1,2],[]][0];
   ([[[]]] as [[[int]]])[0][0][0];
   ['a', 'b', 'c'][0];
+  "Hello, World!"[0];
+  "abc"[2];
+  [][3] as int;
 
   // A warning should be emitted if the type of the
   // subscript expr is float

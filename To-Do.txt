@@ -109,6 +109,7 @@ To-Do:
   > Diagnostic/DiagnosticEngine code cleanup/review (Done)
   > AST ParamList (Done)
   > Not all AST Nodes are trivially destructible, creating memory leaks (Fixed)
+  > Subscript works on String & Uninferred types (Done)
 
   > FunctionType (Next)
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
@@ -146,6 +147,9 @@ To-Do:
   > VM
 
 Other:
+  > Fix "couldn't infer type of this expression" cascading errors in ExprFinalizer
+    -> Don't visit the children!
+
   > Allow cast expr chaining (update grammar & parser)
     This isn't really a commonly used feature, but I hate seeing errors just because I type
     "foo as bool as string"
