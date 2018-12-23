@@ -15,6 +15,10 @@ using namespace fox;
 ASTContext::ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags):
   sourceMgr(srcMgr), diagEngine(diags) {}
 
+ASTContext::~ASTContext() {
+  reset();
+}
+
 UnitDecl* ASTContext::getMainUnit() {
   return theUnit_;
 }
@@ -32,12 +36,13 @@ LinearAllocator<>& ASTContext::getAllocator() {
 }
 
 void ASTContext::reset() {
-  theUnit_ = nullptr;
-
-  // Clear maps of ArrayType/LValueTypes
+  // Clear sets/maps
   arrayTypes.clear();
   lvalueTypes.clear();
+  idents_.clear();
 
+  // Clear type singletons
+  theUnit_ = nullptr;
   theIntType = nullptr;
   theFloatType = nullptr;
   theCharType = nullptr;
@@ -46,6 +51,10 @@ void ASTContext::reset() {
   theVoidType = nullptr;
   theErrorType = nullptr;
 
+  // Call the cleanups methods
+  callCleanups();
+
+  // Reset the allocator, freeing it's memory.
   allocator_.reset();
 }
 
@@ -67,4 +76,14 @@ string_view ASTContext::allocateCopy(string_view str) {
 
 bool ASTContext::hadErrors() const {
   return diagEngine.getErrorsCount();
+}
+
+void ASTContext::addCleanup(std::function<void(void)> fn) {
+  cleanups_.push_back(fn);
+}
+
+void ASTContext::callCleanups() {
+  for(auto cleanup : cleanups_) 
+    cleanup();
+  cleanups_.clear();
 }

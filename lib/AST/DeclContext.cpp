@@ -111,9 +111,17 @@ void DeclContext::buildLookupMap() {
 
 DeclContext::DeclData* 
 DeclContext::DeclData::create(ASTContext& ctxt, DeclContext* dc) {
-  auto& datas = ctxt.declContextDatas_;
-  datas.push_back(DeclData(dc));
-  auto* ptr = &(datas.back());
-  assert(ptr);
-  return ptr;
+  DeclData* inst = new(ctxt) DeclData(dc);
+  // Important: register the cleanup, since this object isn't trivially
+  // destructible.
+  ctxt.addCleanup([inst](){inst->~DeclData();});
+  return inst;
+}
+
+void* DeclContext::DeclData::operator new(std::size_t sz, ASTContext& ctxt, 
+  std::uint8_t align) {
+  auto& alloc = ctxt.getAllocator();
+  void* rawMem = alloc.allocate(sz, align);
+  assert(rawMem);
+  return rawMem;
 }

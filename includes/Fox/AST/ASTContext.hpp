@@ -7,22 +7,18 @@
 // Contains the ASTContext class
 //----------------------------------------------------------------------------//
 
-// Improvements ideas:
-//  > Remove the DeclContext.hpp include. It shouldn't really be there.
-//    If I manage to remove it, I can also remove the <list> include and
-//    DeclContext friendship
-
 #pragma once
 
-#include <map>
-#include <set>
-#include <list>
 #include "Type.hpp"
 #include "Identifier.hpp"
 #include "ASTFwdDecl.hpp"
 #include "Fox/Common/LinearAllocator.hpp"
 #include "Fox/Common/string_view.hpp"
-#include "Fox/AST/DeclContext.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/SmallVector.h"
+#include <map>
+#include <set>
+#include <functional>
 
 namespace fox {
 	class DiagnosticEngine;
@@ -37,6 +33,7 @@ namespace fox {
   class ASTContext {
     public:
       ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags);
+      ~ASTContext();
 
       UnitDecl* getMainUnit();
       const UnitDecl* getMainUnit() const;
@@ -58,6 +55,10 @@ namespace fox {
       // Shortcut for diagEngine.getErrorCount() != 0
       bool hadErrors() const;
 
+      // Add a cleanup function to be called when the ASTContext's allocator
+      // frees it's memory.
+      void addCleanup(std::function<void(void)> fn);
+
       SourceManager& sourceMgr;
       DiagnosticEngine& diagEngine;
 
@@ -70,10 +71,11 @@ namespace fox {
       friend class LValueType;
       friend class ErrorType;
       friend class PrimitiveType;
-      friend class DeclContext;
 
-      // The DeclData instance for every DeclContext in the AST.
-      std::list<DeclContext::DeclData> declContextDatas_;
+      // Calls the cleanup functions reset the "cleanups" vector.
+      void callCleanups();
+
+      SmallVector<std::function<void(void)>, 4> cleanups_;
 
       // Map of Array types (Type -> Type[]) 
       // (managed by ArrayType::get)
