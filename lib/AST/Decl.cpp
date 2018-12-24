@@ -259,7 +259,7 @@ ParamDecl*& ParamList::operator[](std::size_t idx) {
 
 ParamList::ParamList(ArrayRef<ParamDecl*> params) 
   : numParams_(static_cast<SizeTy>(params.size())) {
-  assert((numParams_ < maxParams) && "Too many parameters for ParamList. "
+  assert((params.size() < maxParams) && "Too many parameters for ParamList. "
     "Change the type of SizeTy to something bigger!");
   std::uninitialized_copy(params.begin(), params.end(), 
     getTrailingObjects<ParamDecl*>());
