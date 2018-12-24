@@ -465,3 +465,18 @@ TEST_F(ASTTest, allocateCopyOfString) {
   // Check that the memory can be accessed safely
   EXPECT_EQ(cpy, theLiteral);
 }
+
+TEST_F(ASTTest, cleanup) {
+  int callCount = 0;
+  auto callMe = [&](){
+    callCount++;
+  };
+  ctxt.addCleanup(callMe);
+  ctxt.addCleanup(callMe);
+  ctxt.addCleanup(callMe);
+  ctxt.addCleanup(callMe);
+  ctxt.addCleanup(callMe);
+  EXPECT_EQ(callCount, 0);
+  ctxt.reset();
+  EXPECT_EQ(callCount, 5);
+}

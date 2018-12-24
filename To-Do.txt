@@ -110,12 +110,13 @@ To-Do:
   > AST ParamList (Done)
   > Not all AST Nodes are trivially destructible, creating memory leaks (Fixed)
   > Subscript works on String & Uninferred types (Done)
+  > ASTContext cleanups test (Done)
+
+  > Abstract away the getAllocator method in the ASTContext to a "allocate" method
 
   > FunctionType (Next)
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
-  > ReturnStmt checking
-    > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
-      as parent, so use a PointerUnion<FuncDecl*, LocalScope*> for the parent)
+    ---- Goal for Tomorrow ----
 
   > FIXME: UnitDecl doesn't return the correct SourceRange.
     > I can't use an invalid SourceRange because I need ->getFile to work.
@@ -127,6 +128,11 @@ To-Do:
         UnitDecl->getEndLoc().isValid() == false
         UnitDecl->getFileID().isValid() == true
 
+  > CallExpr checking
+  > ReturnStmt checking
+    > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
+      as parent, so use a PointerUnion<FuncDecl*, LocalScope*> for the parent)
+
   > Parser improvements
     -> Refactor decl parsing methods
     -> Improve recovery for top-level decls : stop recovery attempt at first let or func keyword
@@ -134,13 +140,17 @@ To-Do:
 
   > ASTVerifier
       Debug tool that asserts that the AST is well formed. Used as a debug tool (will
-      only be enabled in Debug builds)
+      only be enabled in Debug builds
 
   > UFCS
-    > Parser additions (UnresolvedDotExpr)
-    > Semantic Analysis
+    > Parser additions (Remove MemberExpr, use UnresolvedDotExpr which resolves to a CallExpr)
+    > Semantic Analysis.
+      > Check for Args, no args -> diagnose
+      > If args, check like a normal function call
+      > Build a CallExpr once the function is resolved, if not, leave it unresolved and mark 
+        it as being an error.
 
-  > Overloads
+  > OVR (OVerload Resultion)
 
   > IR
   > IRGen
