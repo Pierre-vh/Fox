@@ -1,11 +1,12 @@
-# Moonshot
-Moonshot is a project that aims to create an interpreter for a language called Fox.
-Fox is a statically typed scripting language that tries to be easily embeddable and easy to learn.
+# Moonshot - The Fox Programming Language
+Moonshot is the implementation of the Fox programming language. 
 
-This is currently a work in progress, only a fraction of the project is completed.
+Fox is a language that aims to be easily embeddable in other projects and easy to dive into. In Fox, you won't
+see any complicated or confusing semantics. Everything should be clear at a glance!
+
+Note: This is currently a work in progress, only a fraction of the project is completed.
 
 ## Building the project
-
 Required:
  * CMake
  * Git
@@ -25,9 +26,9 @@ Required:
 
 **Note:** Currently, only the Lexer, Parser and a small part of the Semantic analysis are complete, so files aren't executed and are just "compiled" with what's available.
 
-Assuming that the Moonshot binaries are installed in your path:
-* `Moonshot` will launch the "command line interface", which is a quick and easy way to test the interpreter. The interface is really simple: you can only enter paths to files for the interpreter to process. (This is only a testing tool. For more advanced use, invoke the compiler using command line options (see below))
-* `Moonshot path/to/file.fox` will process the given file. Errors and diagnostics will be printed to stdout, and the command line tool will return EXIT_SUCCESS if the file was processed without any diagnostic being emitted (it'll return EXIT_FAILURE otherwise). Several  options can be passed to the command line tool.
+Assuming that the binaries are installed in your path:
+* `fox` will launch the "command line interface", which is a quick and easy way to test the interpreter. The interface is really simple: you can only enter paths to files for the interpreter to process. (This is only a testing tool. For more advanced use, invoke the compiler using command line options (see below))
+* `fox path/to/file.fox` will process the given file. Errors and diagnostics will be printed to stdout, and the command line tool will return EXIT_SUCCESS if the file was processed without any diagnostic being emitted (it'll return EXIT_FAILURE otherwise). Several  options can be passed to the command line tool.
   * `-verify` enables verify mode (See **Testing**))
   * `-werr` promotes warnings to errors
   * `-dump-ast` will dump the abstract syntax tree (AST) after processing the file.
