@@ -139,10 +139,7 @@ TEST_F(ASTTest, TypeRTTI) {
   auto* errType = ErrorType::get(ctxt);
   auto* cellType = CellType::create(ctxt);
 
-  FunctionTypeParam p1(intTy, false);
-  FunctionTypeParam p2(intTy, true);
-
-  auto* funcType = FunctionType::get(ctxt, {p1, p2}, intTy);
+  auto* funcType = FunctionType::get(ctxt, {intTy, intTy}, intTy);
 
   EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
   EXPECT_TRUE(PrimitiveType::classof(intTy));

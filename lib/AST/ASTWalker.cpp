@@ -357,7 +357,7 @@ namespace {
 
         for(auto paramTy : type->getParamTypes()) {
           if(paramTy) {
-            if(!doIt(paramTy.getType())) return false;
+            if(!doIt(paramTy)) return false;
           }
         }
 

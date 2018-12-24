@@ -218,39 +218,21 @@ namespace fox {
       ErrorType();
   };
 
-  // Represents a single function parameter
-  class FunctionTypeParam {
-    public:
-      FunctionTypeParam(Type ty, bool mut);
-
-      Type getType() const;
-      bool isMut() const;
-
-      explicit operator bool() const;
-
-    private:
-      // TODO: Pack this in a PointerIntPair
-      Type ty_;
-      bool mut_;
-  };
-
   // FunctionType
   //    Represents the type of a function. 
   //    Example: (int, int) -> int
   class FunctionType final : public TypeBase, 
-    llvm::TrailingObjects<FunctionType, FunctionTypeParam> {
+    llvm::TrailingObjects<FunctionType, Type> {
     public:
-      using Param = FunctionTypeParam;
-
       using SizeTy = std::uint8_t;
       static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();
 
-      static FunctionType* get(ASTContext& ctxt, ArrayRef<Param> params,
+      static FunctionType* get(ASTContext& ctxt, ArrayRef<Type> params,
         Type rtr);
 
       Type getReturnType() const;
-      ArrayRef<Param> getParamTypes() const;
-      Param getParamType(std::size_t idx) const;
+      ArrayRef<Type> getParamTypes() const;
+      Type getParamType(std::size_t idx) const;
       SizeTy numParams() const;
 
       static bool classof(const TypeBase* type) {
@@ -258,7 +240,7 @@ namespace fox {
       }
       
     private:
-      FunctionType(ArrayRef<Param> params, Type rtr);
+      FunctionType(ArrayRef<Type> params, Type rtr);
 
       Type rtrType_;
       const SizeTy numParams_;

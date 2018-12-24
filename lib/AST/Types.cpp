@@ -129,10 +129,8 @@ namespace {
           if(first) first = false;
           else out << ",";
           // Print the type of the parameter
-          if(paramTy) {
-            out << (paramTy.isMut() ? "mut " : "");
-            visit(paramTy.getType());
-          }
+          if(paramTy)
+            visit(paramTy);
           else out << nullTypeStr;
         }
         out << " -> ";
@@ -476,23 +474,8 @@ void* CellType::operator new(std::size_t sz, ASTContext& ctxt,
 // FunctionType
 //----------------------------------------------------------------------------//
 
-FunctionTypeParam::FunctionTypeParam(Type ty, bool mut) : ty_(ty), mut_(mut) {}
-
-Type FunctionTypeParam::getType() const {
-  return ty_;
-}
-
-bool FunctionTypeParam::isMut() const {
-  return mut_;
-}
-
-FunctionTypeParam::operator bool() const {
-  return (bool)ty_;
-}
-
 namespace {
-  std::size_t functionTypeHash(ArrayRef<FunctionType::Param> paramTys, 
-    Type rtrTy) {
+  std::size_t functionTypeHash(ArrayRef<Type> paramTys, Type rtrTy) {
     // Create a vector of uintptr_t with all of the hash data
     SmallVector<std::uintptr_t, 8> bytes;
       // Return type pointer
@@ -500,20 +483,13 @@ namespace {
       // Param types pointers
     for(auto ty : paramTys) {
       // Push the pointer + the isMut flag
-      bytes.push_back(reinterpret_cast<std::uintptr_t>(ty.getType().getPtr()));
-      bytes.push_back(ty.isMut());
+      bytes.push_back(reinterpret_cast<std::uintptr_t>(ty.getPtr()));
     }
     // hash the data
     return llvm::hash_combine(bytes.begin(), bytes.end());
   }
 
-  bool strictEquality(FunctionType::Param a, FunctionType::Param b) {
-    if(a.getType().getPtr() == b.getType().getPtr())
-      return (a.isMut() == b.isMut());
-    return false;
-  }
-
-  bool strictEquality(ArrayRef<FunctionType::Param> params, Type rtr, 
+  bool strictEquality(ArrayRef<Type> params, Type rtr, 
     FunctionType* other) {
     Type otherRtr = other->getReturnType();
 
@@ -528,16 +504,16 @@ namespace {
     // Check parameters individually
     std::size_t num = other->numParams();
     for(std::size_t idx = 0; idx < num; ++idx) {
-      FunctionType::Param param = params[idx];
-      FunctionType::Param otherParam = other->getParamType(idx);
-      if(!strictEquality(param, otherParam))
+      Type param = params[idx];
+      Type otherParam = other->getParamType(idx);
+      if(param != otherParam)
         return false;
     }
     return true;
   }
 }
 
-FunctionType* FunctionType::get(ASTContext& ctxt, ArrayRef<Param> params, 
+FunctionType* FunctionType::get(ASTContext& ctxt, ArrayRef<Type> params, 
   Type rtr) {
   // Hash the parameters.
   std::size_t hash = functionTypeHash(params, rtr);
@@ -559,7 +535,7 @@ FunctionType* FunctionType::get(ASTContext& ctxt, ArrayRef<Param> params,
   else {
     // It's the first time we've seen this signature, create a new
     // instance of FunctionType and insert it in the map.
-    auto totalSize = totalSizeToAlloc<Param>(params.size());
+    auto totalSize = totalSizeToAlloc<Type>(params.size());
     void* mem = ctxt.allocate(totalSize, alignof(FunctionType));
     FunctionType* created =  new(mem) FunctionType(params, rtr);
     map.insert({hash, created});
@@ -571,11 +547,11 @@ Type FunctionType::getReturnType() const {
   return rtrType_;
 }
 
-ArrayRef<FunctionType::Param> FunctionType::getParamTypes() const {
-  return {getTrailingObjects<Param>(), numParams_};
+ArrayRef<Type> FunctionType::getParamTypes() const {
+  return {getTrailingObjects<Type>(), numParams_};
 }
 
-FunctionType::Param FunctionType::getParamType(std::size_t idx) const {
+Type FunctionType::getParamType(std::size_t idx) const {
   assert((idx < numParams_) && "Out of range");
   return getParamTypes()[idx];
 }
@@ -584,12 +560,12 @@ FunctionType::SizeTy FunctionType::numParams() const {
   return numParams_;
 }
 
-FunctionType::FunctionType(ArrayRef<Param> params, Type rtr) :
+FunctionType::FunctionType(ArrayRef<Type> params, Type rtr) :
   TypeBase(TypeKind::FunctionType), rtrType_(rtr),
   numParams_(static_cast<SizeTy>(params.size())) {
   assert((params.size() < maxParams) && "Too many params for FunctionType. "
     "Change the type of SizeTy to something bigger!");
 
   std::uninitialized_copy(params.begin(), params.end(),
-    getTrailingObjects<Param>());
+    getTrailingObjects<Type>());
 }

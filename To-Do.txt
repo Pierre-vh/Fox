@@ -114,9 +114,10 @@ To-Do:
   > ASTContext cleanups test (Done)
   > Fix "couldn't infer type of this expression" cascading errors in ExprFinalizer (Done)
   > Proper SourceRange for UnitDecls (Done)
+  > FunctionType (Done)
 
-  > FunctionType (Next)
-    > First version done, however I'm not satisfied with and I'll probably change it soon.
+  > MutType
+  > FunctionType tests
 
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
 
