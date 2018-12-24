@@ -377,9 +377,8 @@ std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
   if (isDebug())
     ss << " " << (void*)decl;
   ss << (decl->isLocal() ? " (local)" : "");
-  // Don't dump the range for UnitDecls as it's inaccurate
-  if (!isa<UnitDecl>(decl))
-    ss << " " << getSourceRangeDump("range", decl->getRange());
+
+  ss << " " << getSourceRangeDump("range", decl->getRange());
   return ss.str();
 }
 
