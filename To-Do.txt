@@ -112,11 +112,8 @@ To-Do:
   > Subscript works on String & Uninferred types (Done)
   > ASTContext cleanups test (Done)
 
-  > Abstract away the getAllocator method in the ASTContext to a "allocate" method
-
   > FunctionType (Next)
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
-    ---- Goal for Tomorrow ----
 
   > FIXME: UnitDecl doesn't return the correct SourceRange.
     > I can't use an invalid SourceRange because I need ->getFile to work.
