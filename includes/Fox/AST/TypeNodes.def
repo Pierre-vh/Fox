@@ -34,6 +34,7 @@ ABSTRACT_TYPE(BasicType, TypeBase)
   TYPE(ErrorType, BasicType)
   TYPE_RANGE(BasicType, PrimitiveType, ErrorType)
 
+TYPE(FunctionType, TypeBase)
 TYPE(ArrayType, TypeBase)
 TYPE(LValueType, TypeBase)
 TYPE(CellType, TypeBase)

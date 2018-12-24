@@ -46,6 +46,7 @@ void ASTContext::reset() {
   // Clear sets/maps
   arrayTypes_.clear();
   lvalueTypes_.clear();
+  functionTypes_.clear();
   idents_.clear();
 
   // Clear type singletons

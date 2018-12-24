@@ -768,6 +768,10 @@ namespace {
       Type visitErrorType(ErrorType* type) {
         return type;
       }
+
+      Type visitFunctionType(FunctionType*) {
+        fox_unimplemented_feature("visitFunctionType for ExprFinalizer");
+      }
   };
 } // End anonymous namespace
 

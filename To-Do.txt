@@ -116,6 +116,9 @@ To-Do:
   > Proper SourceRange for UnitDecls (Done)
 
   > FunctionType (Next)
+    > First version done, however I'm not satisfied with the FunctionTypeParam class.
+      I'll come back to it later.
+
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
 
   > CallExpr checking

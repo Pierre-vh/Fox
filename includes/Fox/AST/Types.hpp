@@ -14,11 +14,13 @@
 
 #pragma once
 
-#include <string>
-#include <cstdint>
-#include <list>
 #include "ASTAligns.hpp"
 #include "Type.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/TrailingObjects.h"
+#include "llvm/ADT/ArrayRef.h"
+#include <string>
+#include <cstdint>
 
 namespace fox {
   // Kinds of Types
@@ -127,16 +129,13 @@ namespace fox {
       // Prohibit the use of builtin placement new & delete
       void *operator new(std::size_t) throw() = delete;
       void operator delete(void *) throw() = delete;
-      void* operator new(std::size_t, void*) = delete;
 
       // Only allow allocation through the ASTContext
-      // This operator is "protected" so only the ASTContext can create types.
       void* operator new(std::size_t sz, ASTContext &ctxt, 
       std::uint8_t align = alignof(TypeBase));
 
-      // Companion operator delete to silence C4291 on MSVC
-      void operator delete(void*, ASTContext&, std::uint8_t) {}
-    
+      // And through placement new
+      void* operator new(std::size_t, void* buff);
 
     private:
       void initBitfields();
@@ -173,7 +172,7 @@ namespace fox {
 
   // PrimitiveType 
   //    A primitive type (void/int/float/char/bool/string)
-  class PrimitiveType : public BasicType {
+  class PrimitiveType final : public BasicType {
     public:
       enum class Kind : std::uint8_t {
         VoidTy,
@@ -206,7 +205,7 @@ namespace fox {
  // ErrorType
   //    A type used to represent that a expression's type
   //    cannot be determined because of an error.
-  class ErrorType : public BasicType {
+  class ErrorType final : public BasicType {
     public:
       // Gets the unique ErrorType instance for the current context.
       static ErrorType* get(ASTContext& ctxt);
@@ -219,10 +218,56 @@ namespace fox {
       ErrorType();
   };
 
+  // Represents a single function parameter
+  class FunctionTypeParam {
+    public:
+      FunctionTypeParam(Type ty, bool mut);
+
+      Type getType() const;
+      bool isMut() const;
+
+      explicit operator bool() const;
+
+    private:
+      // TODO: Pack this in a PointerIntPair
+      Type ty_;
+      bool mut_;
+  };
+
+  // FunctionType
+  //    Represents the type of a function. 
+  //    Example: (int, int) -> int
+  class FunctionType final : public TypeBase, 
+    llvm::TrailingObjects<FunctionType, FunctionTypeParam> {
+    public:
+      using Param = FunctionTypeParam;
+
+      using SizeTy = std::uint8_t;
+      static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();
+
+      static FunctionType* get(ASTContext& ctxt, ArrayRef<Param> params,
+        Type rtr);
+
+      Type getReturnType() const;
+      ArrayRef<Param> getParamTypes() const;
+      Param getParamType(std::size_t idx) const;
+      SizeTy numParams() const;
+
+      static bool classof(const TypeBase* type) {
+        return (type->getKind() == TypeKind::FunctionType);
+      }
+      
+    private:
+      FunctionType(ArrayRef<Param> params, Type rtr);
+
+      Type rtrType_;
+      const SizeTy numParams_;
+  };
+
   // ArrayType
   //    An array of a certain type (can be any type, 
   //    even another ArrayType)
-  class ArrayType : public TypeBase {
+  class ArrayType final : public TypeBase {
     public:
       // Returns the UNIQUE ArrayType instance for the given
       // type ty.
@@ -244,7 +289,7 @@ namespace fox {
   //    C/C++-like LValue. e.g. This type is the one
   //    of a DeclRef when the declaration it refers to
   //    is not const.
-  class LValueType : public TypeBase {
+  class LValueType final : public TypeBase {
     public:
       // Returns the UNIQUE LValueType instance for the given type "ty"
       static LValueType* get(ASTContext& ctxt, Type ty);
@@ -262,7 +307,7 @@ namespace fox {
   };
 
   // CellType
-  class CellType : public TypeBase {
+  class CellType final : public TypeBase {
     public:
       // Creates a new instance of the CellType class
       static CellType* create(ASTContext& ctxt);

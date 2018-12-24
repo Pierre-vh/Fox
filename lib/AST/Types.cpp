@@ -10,6 +10,7 @@
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
+#include "llvm/ADT/Hashing.h"
 #include <sstream>
 
 using namespace fox;
@@ -18,6 +19,10 @@ using namespace fox;
   static_assert(std::is_trivially_destructible<ID>::value, \
   #ID " is allocated in the ASTContext: It's destructor is never called!");
 #include "Fox/AST/TypeNodes.def"
+
+//----------------------------------------------------------------------------//
+// TypePrinter
+//----------------------------------------------------------------------------//
 
 namespace {
   class TypePrinter : public TypeVisitor<TypePrinter, void> {
@@ -115,12 +120,31 @@ namespace {
             out << emptyCellTypeStr;
         }
       }
+
+      void visitFunctionType(FunctionType* type) {
+        out << "(";
+        bool first = true;
+        for(auto paramTy : type->getParamTypes()) {
+          // Print a colon for every type except the first one
+          if(first) first = false;
+          else out << ",";
+          // Print the type of the parameter
+          if(paramTy) {
+            out << (paramTy.isMut() ? "mut " : "");
+            visit(paramTy.getType());
+          }
+          else out << nullTypeStr;
+        }
+        out << " -> ";
+        if(Type rtr = type->getReturnType())
+          visit(rtr);
+      }
   };
 }
 
-//----------//
-// TypeBase //
-//----------//
+//----------------------------------------------------------------------------//
+// TypeBase
+//----------------------------------------------------------------------------//
 
 TypeBase::TypeBase(TypeKind tc):
   kind_(tc) {
@@ -243,8 +267,14 @@ bool TypeBase::isIntegral() const {
   return false;
 }
 
-void* TypeBase::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align) {
+void* TypeBase::operator new(size_t sz, ASTContext& ctxt, 
+  std::uint8_t align) {
   return ctxt.allocate(sz, align);
+}
+
+void* TypeBase::operator new(std::size_t, void* buff) {
+  assert(buff);
+  return buff;
 }
 
 void TypeBase::calculateIsBound() const {
@@ -271,18 +301,18 @@ void TypeBase::initBitfields() {
   isBoundCalculated_ = false;
 }
 
-//-------------//
-// BuiltinType //
-//-------------//
+//----------------------------------------------------------------------------//
+// BasicType
+//----------------------------------------------------------------------------//
 
 BasicType::BasicType(TypeKind tc):
   TypeBase(tc) {
 
 }
 
-//---------------//
-// PrimitiveType //
-//---------------//
+//----------------------------------------------------------------------------//
+// PrimitiveType
+//----------------------------------------------------------------------------//
 
 PrimitiveType::PrimitiveType(Kind kd)
   : builtinKind_(kd), BasicType(TypeKind::PrimitiveType) {
@@ -329,9 +359,9 @@ PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const {
   return builtinKind_;
 }
 
-//-----------//
-// ArrayType //
-//-----------//
+//----------------------------------------------------------------------------//
+// ArrayType
+//----------------------------------------------------------------------------//
 
 ArrayType::ArrayType(Type elemTy):
   elementTy_(elemTy), TypeBase(TypeKind::ArrayType) {
@@ -359,9 +389,9 @@ Type ArrayType::getElementType() const {
   return elementTy_;
 }
 
-//------------//
-// LValueType //
-//------------//
+//----------------------------------------------------------------------------//
+// LValueType
+//----------------------------------------------------------------------------//
 
 LValueType::LValueType(Type type):
   TypeBase(TypeKind::LValueType), ty_(type) {
@@ -389,9 +419,9 @@ Type LValueType::getType() const {
   return ty_;
 }
 
-//-----------//
-// ErrorType //
-//-----------//
+//----------------------------------------------------------------------------//
+// ErrorType
+//----------------------------------------------------------------------------//
 
 ErrorType::ErrorType():
   BasicType(TypeKind::ErrorType) {
@@ -404,9 +434,9 @@ ErrorType* ErrorType::get(ASTContext& ctxt) {
   return ctxt.theErrorType_;
 }
 
-//----------//
-// CellType //
-//----------//
+//----------------------------------------------------------------------------//
+// CellType
+//----------------------------------------------------------------------------//
 
 CellType::CellType(): TypeBase(TypeKind::CellType) {}
 
@@ -433,6 +463,133 @@ void CellType::resetSubst() {
   subst_ = nullptr;
 }
 
-void* CellType::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
+void* CellType::operator new(std::size_t sz, ASTContext& ctxt,
+  std::uint8_t align) {
   return ctxt.allocate(sz,align);
+}
+
+//----------------------------------------------------------------------------//
+// ParamType
+//----------------------------------------------------------------------------//
+
+//----------------------------------------------------------------------------//
+// FunctionType
+//----------------------------------------------------------------------------//
+
+FunctionTypeParam::FunctionTypeParam(Type ty, bool mut) : ty_(ty), mut_(mut) {}
+
+Type FunctionTypeParam::getType() const {
+  return ty_;
+}
+
+bool FunctionTypeParam::isMut() const {
+  return mut_;
+}
+
+FunctionTypeParam::operator bool() const {
+  return (bool)ty_;
+}
+
+namespace {
+  std::size_t functionTypeHash(ArrayRef<FunctionType::Param> paramTys, 
+    Type rtrTy) {
+    // Create a vector of uintptr_t with all of the hash data
+    SmallVector<std::uintptr_t, 8> bytes;
+      // Return type pointer
+    bytes.push_back(reinterpret_cast<std::uintptr_t>(rtrTy.getPtr()));
+      // Param types pointers
+    for(auto ty : paramTys) {
+      // Push the pointer + the isMut flag
+      bytes.push_back(reinterpret_cast<std::uintptr_t>(ty.getType().getPtr()));
+      bytes.push_back(ty.isMut());
+    }
+    // hash the data
+    return llvm::hash_combine(bytes.begin(), bytes.end());
+  }
+
+  bool strictEquality(FunctionType::Param a, FunctionType::Param b) {
+    if(a.getType().getPtr() == b.getType().getPtr())
+      return (a.isMut() == b.isMut());
+    return false;
+  }
+
+  bool strictEquality(ArrayRef<FunctionType::Param> params, Type rtr, 
+    FunctionType* other) {
+    Type otherRtr = other->getReturnType();
+
+    // Check that the return type matches
+    if(otherRtr.getPtr() != rtr.getPtr()) 
+      return false;
+
+    // Check that the number of parameters matches
+    if(params.size() != other->numParams())
+      return false;
+
+    // Check parameters individually
+    std::size_t num = other->numParams();
+    for(std::size_t idx = 0; idx < num; ++idx) {
+      FunctionType::Param param = params[idx];
+      FunctionType::Param otherParam = other->getParamType(idx);
+      if(!strictEquality(param, otherParam))
+        return false;
+    }
+    return true;
+  }
+}
+
+FunctionType* FunctionType::get(ASTContext& ctxt, ArrayRef<Param> params, 
+  Type rtr) {
+  // Hash the parameters.
+  std::size_t hash = functionTypeHash(params, rtr);
+  // Check in the map
+  auto& map = ctxt.functionTypes_;
+  auto it = map.find(hash);
+  if(it != map.end()) {
+    // This signature already exists in the map.
+    FunctionType* fn = it->second;
+    // Sanity check : compare that they're strictly equal. If they're
+    // not, we may have encountered a hash collision.
+    if(!strictEquality(params, rtr, fn)) {
+      fox_unreachable("Hash collision detected. Two different function types "
+        "had the same hash value of " + hash);
+    }
+
+    return fn;
+  } 
+  else {
+    // It's the first time we've seen this signature, create a new
+    // instance of FunctionType and insert it in the map.
+    auto totalSize = totalSizeToAlloc<Param>(params.size());
+    void* mem = ctxt.allocate(totalSize, alignof(FunctionType));
+    FunctionType* created =  new(mem) FunctionType(params, rtr);
+    map.insert({hash, created});
+    return created;
+  }
+}
+
+Type FunctionType::getReturnType() const {
+  return rtrType_;
+}
+
+ArrayRef<FunctionType::Param> FunctionType::getParamTypes() const {
+  return {getTrailingObjects<Param>(), numParams_};
+}
+
+FunctionType::Param FunctionType::getParamType(std::size_t idx) const {
+  assert((idx < numParams_) && "Out of range");
+  return getParamTypes()[idx];
+}
+
+FunctionType::SizeTy FunctionType::numParams() const {
+  return numParams_;
+}
+
+FunctionType::FunctionType(ArrayRef<Param> params, Type rtr) :
+  TypeBase(TypeKind::FunctionType), rtrType_(rtr),
+  numParams_(static_cast<SizeTy>(params.size())) {
+  assert((params.size() < maxParams) && "Too many params for FunctionType. "
+    "Change the type of SizeTy to something bigger!");
+
+  std::uninitialized_copy(params.begin(), params.end(),
+    getTrailingObjects<Param>());
 }

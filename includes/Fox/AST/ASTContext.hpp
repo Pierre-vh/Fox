@@ -74,6 +74,7 @@ namespace fox {
       friend class LValueType;
       friend class ErrorType;
       friend class PrimitiveType;
+      friend class FunctionType;
 
       // Calls the cleanup functions reset the "cleanups" vector.
       void callCleanups();
@@ -87,6 +88,10 @@ namespace fox {
       // LValue types (maps a Type to a @Type)
       // (managed by LValueType::get)
       std::map<TypeBase*, LValueType*> lvalueTypes_;
+
+      // Function types (maps a hash of a FunctionType's data to it's instance)
+      // (managed by FunctionType::get)
+      std::map<std::size_t, FunctionType*> functionTypes_;
 
       // Singleton/unique types. Lazily
       // created by their respective classes.

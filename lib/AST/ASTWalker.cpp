@@ -350,6 +350,19 @@ namespace {
           return doIt(sub);
         return true;
       }
+
+      bool visitFunctionType(FunctionType* type) {
+        if(Type rtr = type->getReturnType())
+          if(!doIt(rtr)) return false;
+
+        for(auto paramTy : type->getParamTypes()) {
+          if(paramTy) {
+            if(!doIt(paramTy.getType())) return false;
+          }
+        }
+
+        return true;
+      }
   };
 
 } // End anonymous namespace

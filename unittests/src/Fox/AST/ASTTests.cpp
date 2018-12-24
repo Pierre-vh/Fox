@@ -139,6 +139,11 @@ TEST_F(ASTTest, TypeRTTI) {
   auto* errType = ErrorType::get(ctxt);
   auto* cellType = CellType::create(ctxt);
 
+  FunctionTypeParam p1(intTy, false);
+  FunctionTypeParam p2(intTy, true);
+
+  auto* funcType = FunctionType::get(ctxt, {p1, p2}, intTy);
+
   EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
   EXPECT_TRUE(PrimitiveType::classof(intTy));
   EXPECT_TRUE(BasicType::classof(intTy));
@@ -155,6 +160,9 @@ TEST_F(ASTTest, TypeRTTI) {
 
   EXPECT_EQ(cellType->getKind(), TypeKind::CellType);
   EXPECT_TRUE(CellType::classof(cellType));
+
+  EXPECT_EQ(funcType->getKind(), TypeKind::FunctionType);
+  EXPECT_TRUE(FunctionType::classof(funcType));
 }
 
 TEST_F(ASTTest, ExprRTTI) {
