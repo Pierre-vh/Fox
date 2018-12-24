@@ -1,4 +1,4 @@
-add_source_dir(moonshot_src 
+add_source_dir(libfox_src 
     Lexer 
     Parser 
     AST 

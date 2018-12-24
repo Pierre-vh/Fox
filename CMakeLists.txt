@@ -73,15 +73,15 @@ if(MSVC)
 endif()
 
 # add lib target
-add_library(libmoonshot STATIC ${moonshot_src})
+add_library(libfox STATIC ${libfox_src})
 
 # add llvm lit test suite 
-add_custom_target(MoonshotTests
+add_custom_target(fox_tests
   COMMAND lit ${PROJECT_SOURCE_DIR}/tests -s -v 
   --param fox_bin_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-  DEPENDS Moonshot 
+  DEPENDS fox
 )
 
 # add test resources path macro
-target_compile_definitions(libmoonshot PRIVATE 
+target_compile_definitions(libfox PRIVATE 
   TEST_RES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/tests/res/")

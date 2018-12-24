@@ -1,5 +1,5 @@
 add_source(
-  unittests_src 
+  fox_unittests_src 
 
   "main.cpp"
 

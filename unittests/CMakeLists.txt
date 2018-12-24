@@ -2,14 +2,15 @@
 add_subdirectory(src)
 
 # Add executable & link libmoonshot & gtest
-add_executable(MoonshotUnittests ${unittests_src})
-target_link_libraries(MoonshotUnittests libmoonshot gtest_main)
+add_executable(fox_unittests ${fox_unittests_src})
+target_link_libraries(fox_unittests libfox gtest_main)
 
 # Add include subdir : testutils
 include_directories(src)
 
 # add test resources path macro
-target_compile_definitions(MoonshotUnittests PRIVATE TEST_RES_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(fox_unittests 
+  PRIVATE TEST_RES_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Add tests
-add_test(NAME MoonshotUnittests COMMAND MoonshotUnittests)
+add_test(NAME fox_unittests COMMAND fox_unittests)
