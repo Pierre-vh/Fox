@@ -380,14 +380,17 @@ void VarDecl::setInitExpr(Expr* expr) {
 // UnitDecl
 //----------------------------------------------------------------------------//
 
-static SourceRange createRange(FileID file) {
-  return SourceRange(SourceLoc(file));
-}
-
 UnitDecl::UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id,
-  FileID inFile): Decl(DeclKind::UnitDecl, parent, createRange(inFile)),
+  FileID file): Decl(DeclKind::UnitDecl, parent, SourceRange()),
   identifier_(id), DeclContext(ctxt, DeclContextKind::UnitDecl),
-  ctxt_(ctxt) {}
+  ctxt_(ctxt) {
+  // Fetch the SourceRange from the SourceManager if the file is valid
+  if(file) {
+    SourceRange range = ctxt.sourceMgr.getRangeOfFile(file);
+    assert(range && "getRangeOfFile returned an invalid range");
+    setRange(range);
+  }
+}
 
 UnitDecl* UnitDecl::create(ASTContext& ctxt, DeclContext* parent, 
   Identifier id, FileID file) {
