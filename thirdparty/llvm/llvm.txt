@@ -47,4 +47,6 @@ Non exhaustive changes list:
     (Line 202) Adding static_cast<size_t> to alignTo's result to silence C4244 on MSVC
     (Line 284) Removed the "Obj" parameter name to silence C4244 on MSVC
 
+  ADT/Hashing.h
+    Removing fixed_seed_override to remove dependency on .cpp file
 			

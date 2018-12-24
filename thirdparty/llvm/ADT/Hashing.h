@@ -118,24 +118,6 @@ hash_code hash_value(const std::pair<T, U> &arg);
 template <typename T>
 hash_code hash_value(const std::basic_string<T> &arg);
 
-
-/// Override the execution seed with a fixed value.
-///
-/// This hashing library uses a per-execution seed designed to change on each
-/// run with high probability in order to ensure that the hash codes are not
-/// attackable and to ensure that output which is intended to be stable does
-/// not rely on the particulars of the hash codes produced.
-///
-/// That said, there are use cases where it is important to be able to
-/// reproduce *exactly* a specific behavior. To that end, we provide a function
-/// which will forcibly set the seed to a fixed value. This must be done at the
-/// start of the program, before any hashes are computed. Also, it cannot be
-/// undone. This makes it thread-hostile and very hard to use outside of
-/// immediately on start of a simple program designed for reproducible
-/// behavior.
-void set_fixed_execution_hash_seed(uint64_t fixed_value);
-
-
 // All of the implementation details of actually computing the various hash
 // code values are held within this namespace. These routines are included in
 // the header file mainly to allow inlining and constant propagation.
@@ -310,14 +292,6 @@ struct hash_state {
   }
 };
 
-
-/// A global, fixed seed-override variable.
-///
-/// This variable can be set using the \see llvm::set_fixed_execution_seed
-/// function. See that function for details. Do not, under any circumstances,
-/// set or read this variable.
-extern uint64_t fixed_seed_override;
-
 inline uint64_t get_execution_seed() {
   // FIXME: This needs to be a per-execution seed. This is just a placeholder
   // implementation. Switching to a per-execution seed is likely to flush out
@@ -326,7 +300,7 @@ inline uint64_t get_execution_seed() {
   // However, if there is a fixed seed override set the first time this is
   // called, return that instead of the per-execution seed.
   const uint64_t seed_prime = 0xff51afd7ed558ccdULL;
-  static uint64_t seed = fixed_seed_override ? fixed_seed_override : seed_prime;
+  static uint64_t seed = seed_prime;
   return seed;
 }
 
