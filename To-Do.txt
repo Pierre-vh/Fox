@@ -106,24 +106,17 @@ To-Do:
   > ASTContext stores DiagnosticEngine& and SourceManager& (Done)
   > Update StmtChecker to correctly open scopes where appropriate (Done)
   > ASTDumper overhaul (Done)
+  > Add an IdentifierRange to NamedDecls (Done)
   > Diagnostic/DiagnosticEngine code cleanup/review (Done)
   > AST ParamList (Done)
   > Not all AST Nodes are trivially destructible, creating memory leaks (Fixed)
   > Subscript works on String & Uninferred types (Done)
   > ASTContext cleanups test (Done)
+  > Fix "couldn't infer type of this expression" cascading errors in ExprFinalizer (Done)
+  > Proper SourceRange for UnitDecls (Done)
 
   > FunctionType (Next)
   > Name binding logic in visitUnresolvedDeclRefExpr for Func/Vars
-
-  > FIXME: UnitDecl doesn't return the correct SourceRange.
-    > I can't use an invalid SourceRange because I need ->getFile to work.
-    > SOLUTION: Allow creation of special SourceLoc/SourceRanges that only refer to a single
-      file. They'd be invalid and their index_ would be the max value for the Index type (like
-      npos in strings). Example output:
-        UnitDecl->getSourceRange().isValid() == false
-        UnitDecl->getBegLoc().isValid() == false
-        UnitDecl->getEndLoc().isValid() == false
-        UnitDecl->getFileID().isValid() == true
 
   > CallExpr checking
   > ReturnStmt checking
@@ -154,20 +147,12 @@ To-Do:
   > VM
 
 Other:
-  > Fix "couldn't infer type of this expression" cascading errors in ExprFinalizer
-    -> Don't visit the children!
-
   > Allow cast expr chaining (update grammar & parser)
     This isn't really a commonly used feature, but I hate seeing errors just because I type
     "foo as bool as string"
 
   > When diagnosing a redecl, should I really print "first decl seen here" each time
     if the decl was redeclared multiple times?
-
-  > Add idRange to VarDecl/ParamDecl to emit better diagnostics 
-    (functions where that range should be used)
-    SemaDecl.pp
-    -> diagnoseInvalidParamRedecl
 
   > Spend some time refactoring the Parser. Write betters comment, fix style and
     coding standard issues.
