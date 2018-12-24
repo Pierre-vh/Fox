@@ -120,8 +120,7 @@ DeclContext::DeclData::create(ASTContext& ctxt, DeclContext* dc) {
 
 void* DeclContext::DeclData::operator new(std::size_t sz, ASTContext& ctxt, 
   std::uint8_t align) {
-  auto& alloc = ctxt.getAllocator();
-  void* rawMem = alloc.allocate(sz, align);
+  void* rawMem = ctxt.allocate(sz, align);
   assert(rawMem);
   return rawMem;
 }

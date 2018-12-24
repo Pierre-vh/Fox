@@ -103,7 +103,7 @@ FileID Decl::getFileID() const {
 }
 
 void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
-  return ctxt.getAllocator().allocate(sz, align);
+  return ctxt.allocate(sz, align);
 }
 
 //----------------------------------------------------------------------------//
@@ -207,9 +207,8 @@ ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange,
 //----------------------------------------------------------------------------//
 
 ParamList* ParamList::create(ASTContext& ctxt, ArrayRef<ParamDecl*> params) {
-  auto& alloc = ctxt.getAllocator();
   auto totalSize = totalSizeToAlloc<ParamDecl*>(params.size());
-  void* mem = alloc.allocate(totalSize, alignof(ParamDecl));
+  void* mem = ctxt.allocate(totalSize, alignof(ParamDecl));
   return new(mem) ParamList(params);
 }
 

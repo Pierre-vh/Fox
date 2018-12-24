@@ -31,7 +31,14 @@ void ASTContext::setUnit(UnitDecl* decl) {
   theUnit_ = decl;
 }
 
-LinearAllocator<>& ASTContext::getAllocator() {
+LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
+void* ASTContext::allocate(std::size_t size, unsigned align) {
+  void* mem = allocator_.allocate(size, align);
+  assert(mem && "the allocator returned null memory");
+  return mem;
+}
+
+const LinearAllocator<>& ASTContext::getAllocator() const {
   return allocator_;
 }
 

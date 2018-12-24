@@ -38,8 +38,12 @@ namespace fox {
       const UnitDecl* getMainUnit() const;
       void setUnit(UnitDecl* decl);
 
-      // ALLOCATORS
-      LinearAllocator<>& getAllocator();
+      // Allocates memory using the default allocator
+      LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
+      void* allocate(std::size_t size, unsigned align);
+
+      // Returns a const reference to the default allocator
+      const LinearAllocator<>& getAllocator() const;
 
       // Resets the ASTContext, freeing the AST and
       // everything allocated within it's allocators.

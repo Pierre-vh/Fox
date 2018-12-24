@@ -41,7 +41,7 @@ SourceLoc Stmt::getEnd() const {
 }
 
 void* Stmt::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
-  return ctxt.getAllocator().allocate(sz, align);
+  return ctxt.allocate(sz, align);
 }
 
 void* Stmt::operator new(std::size_t, void* mem) {
@@ -185,9 +185,8 @@ MutableArrayRef<ASTNode> CompoundStmt::getNodes() {
 
 CompoundStmt* CompoundStmt::create(ASTContext& ctxt, ArrayRef<ASTNode> nodes, 
   SourceRange range) {
-  auto& alloc = ctxt.getAllocator();
   auto totalSize = totalSizeToAlloc<ASTNode>(nodes.size());
-  void* mem = alloc.allocate(totalSize, alignof(CompoundStmt));
+  void* mem = ctxt.allocate(totalSize, alignof(CompoundStmt));
   return new(mem) CompoundStmt(nodes, range);
 }
 

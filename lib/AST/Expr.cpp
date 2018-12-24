@@ -65,7 +65,7 @@ Type Expr::getType() const {
 }
 
 void* Expr::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
-  return ctxt.getAllocator().allocate(sz, align);
+  return ctxt.allocate(sz, align);
 }
 
 void* Expr::operator new(std::size_t, void* mem) {
@@ -175,9 +175,8 @@ ArrayLiteralExpr::ArrayLiteralExpr(ArrayRef<Expr*> elems, SourceRange range):
 ArrayLiteralExpr* 
 ArrayLiteralExpr::create(ASTContext& ctxt, ArrayRef<Expr*> elems,
   SourceRange range) {
-  auto& alloc = ctxt.getAllocator();
   auto totalSize = totalSizeToAlloc<Expr*>(elems.size());
-  void* mem = alloc.allocate(totalSize, alignof(ArrayLiteralExpr));
+  void* mem = ctxt.allocate(totalSize, alignof(ArrayLiteralExpr));
   return new(mem) ArrayLiteralExpr(elems, range);
 }
 
@@ -477,9 +476,8 @@ FunctionCallExpr::FunctionCallExpr(Expr* callee, ArrayRef<Expr*> args,
 FunctionCallExpr* 
 FunctionCallExpr::create(ASTContext& ctxt, Expr* callee, ArrayRef<Expr*> args, 
   SourceRange range) {
-  auto& alloc = ctxt.getAllocator();
   auto totalSize = totalSizeToAlloc<Expr*>(args.size());
-  void* mem = alloc.allocate(totalSize, alignof(FunctionCallExpr));
+  void* mem = ctxt.allocate(totalSize, alignof(FunctionCallExpr));
   return new(mem) FunctionCallExpr(callee, args, range);
 }
 

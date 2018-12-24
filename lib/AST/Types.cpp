@@ -244,7 +244,7 @@ bool TypeBase::isIntegral() const {
 }
 
 void* TypeBase::operator new(size_t sz, ASTContext& ctxt, std::uint8_t align) {
-  return ctxt.getAllocator().allocate(sz, align);
+  return ctxt.allocate(sz, align);
 }
 
 void TypeBase::calculateIsBound() const {
@@ -434,5 +434,5 @@ void CellType::resetSubst() {
 }
 
 void* CellType::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
-  return ctxt.getAllocator().allocate(sz,align);
+  return ctxt.allocate(sz,align);
 }
