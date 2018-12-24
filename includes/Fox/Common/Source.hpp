@@ -121,7 +121,7 @@ namespace fox {
   // Note: Like SourceLoc, the offset is expected to be absolute, not in CPs.
   class SourceRange {
     public:
-      using OffsetTy = std::size_t;
+      using OffsetTy = std::uint32_t;
 
       explicit SourceRange(SourceLoc sloc, OffsetTy offset = 0);
       explicit SourceRange(SourceLoc a, SourceLoc b);
@@ -131,11 +131,15 @@ namespace fox {
       explicit operator bool() const; // Shortcut for isValid
 
       SourceLoc getBegin() const;
-      OffsetTy getOffset() const;
       SourceLoc getEnd() const;
+      OffsetTy getOffset() const;
+      FileID getFileID() const;
+
+      // Returns true if this SourceRange only covers one characters
+      // (and thus can be converted to a SourceLoc without losing
+      // information)
       bool isOnlyOneCharacter() const;
 
-      FileID getFileID() const;
 
       // Returns a string representation of a SourceLoc:
       //  Format: 
@@ -198,6 +202,10 @@ namespace fox {
 
       // Returns the line number of a SourceLoc
       CompleteLoc::LineTy getLineNumber(SourceLoc loc) const;
+
+      // Returns a SourceRange that covers a whole file. 
+      // It begins at index 0, and ends at the last character.
+      SourceRange getRangeOfFile(FileID file) const;
 
       // Requests the human-readable location a SourceLoc points to.
       // This function will assert that the SourceLoc is valid;

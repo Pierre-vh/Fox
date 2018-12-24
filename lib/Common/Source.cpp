@@ -94,6 +94,24 @@ CompleteLoc::LineTy SourceManager::getLineNumber(SourceLoc loc) const {
   return result.second;
 }
 
+SourceRange SourceManager::getRangeOfFile(FileID file) const {
+  using OffTy = SourceRange::OffsetTy;
+  
+  // Begin SourceLoc is always (file, 0)
+  SourceLoc begin(file, 0);
+
+  // Calculate end
+  const SourceData* data = getSourceData(file);
+  std::size_t size = data->str.size();
+
+  // Check that the size isn't too big, just to be sure.
+  assert(size < std::numeric_limits<OffTy>::max() &&
+    "Can't create a file-wide SourceRange for this file: file is too large!");
+  
+  // Return the SourceRange
+  return SourceRange(begin, static_cast<OffTy>(size));
+}
+
 CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
   const SourceData* fdata = getSourceData(sloc.getFileID());
 
