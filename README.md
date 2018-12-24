@@ -1,5 +1,7 @@
 # Moonshot
 Moonshot is a project that aims to create an interpreter for a language called Fox.
+Fox is a statically typed scripting language that tries to be easily embeddable and easy to learn.
+
 This is currently a work in progress, only a fraction of the project is completed.
 
 ## Building the project

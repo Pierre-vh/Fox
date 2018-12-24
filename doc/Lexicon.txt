@@ -18,6 +18,6 @@ Sema:
     
 Others:
   > Fox
-    The name of the language and the name of it's interpreter.
+      The name of the language and the name of it's interpreter.
   > Moonshot
-    The "codename" of the project/implementation. This refers to the project as a whole, to the implementation of Fox.
+      The "codename" of the project/implementation. This refers to the project as a whole.
