@@ -84,9 +84,16 @@ namespace fox {
       // Should never return nullptr in a well-formed AST.
       DeclContext* getClosestDeclContext() const;
 
+      // Sets the range of this Decl
       void setRange(SourceRange range);
+
+      // Returns the range of this Decl, if it has one.
       SourceRange getRange() const;
+
+      // Returns the begin loc of this Decl, if it has one.
       SourceLoc getBegin() const;
+
+      // Returns the end loc of this Decl, if it has one.
       SourceLoc getEnd() const;
 
       // Return true if this Decl's CheckState is Unchecked.
