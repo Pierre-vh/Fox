@@ -1,3 +1,5 @@
+#include "..\..\includes\Fox\Driver\Driver.hpp"
+#include "..\..\includes\Fox\Driver\Driver.hpp"
 //----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.        
 // See LICENSE.txt for license info.            
@@ -70,7 +72,7 @@ bool Driver::processFile(const std::string& filepath) {
   }
 
   // Semantic analysis
-	if(canContinue()) {
+	if(canContinue() && !isParseOnly()) {
     Sema s(ctxt);
     s.checkDecl(unit);
   }
@@ -129,6 +131,14 @@ void Driver::setDumpAST(bool val) {
   dumpAST_ = val;
 }
 
+bool Driver::isParseOnly() const {
+  return parseOnly_;
+}
+
+void Driver::setIsParseOnly(bool val) {
+  parseOnly_ = val;
+}
+
 Driver::RAIIChrono Driver::createChrono(string_view label) {
   return RAIIChrono(*this, label);
 }
@@ -156,6 +166,8 @@ bool Driver::doCL(int argc, char* argv[]) {
       diags.setWarningsAreErrors(true);
     else if (str == "-dump-ast")
       setDumpAST(true);
+    else if(str == "-parse-only")
+      setIsParseOnly(true);
     else {
       getOS() << "Unknown argument \"" << str << "\"\n";
       return false;

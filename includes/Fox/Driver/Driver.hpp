@@ -10,6 +10,8 @@
 // to compile it, emitting informations to a user-defined ostream.
 //----------------------------------------------------------------------------//
 
+#pragma once
+
 #include <ostream>
 #include <chrono>
 #include "Fox/Common/string_view.hpp"
@@ -26,6 +28,7 @@ namespace fox {
       bool dumpAlloc_ = false;
       bool dumpAST_ = false;
       bool mute_ = false;
+      bool parseOnly_ = false;
       std::ostream& os_;
       
     public:
@@ -47,6 +50,9 @@ namespace fox {
 
       bool getDumpAST() const;
       void setDumpAST(bool val);
+
+      bool isParseOnly() const;
+      void setIsParseOnly(bool val);
 
       std::ostream& getOS();
 
