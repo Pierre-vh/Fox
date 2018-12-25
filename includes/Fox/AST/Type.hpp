@@ -104,14 +104,15 @@ namespace llvm {
   // as pointer-like.
   template<>
   class PointerLikeTypeTraits<::fox::Type> {
-    enum { NumLowBitsAvailable = ::fox::TypeBaseFreeLowBits };
+    public:
+      enum { NumLowBitsAvailable = ::fox::TypeBaseFreeLowBits };
 
-    static inline void* getAsVoidPointer(::fox::Type type) {
-      return type.getPtr();
-    }
+      static inline void* getAsVoidPointer(::fox::Type type) {
+        return type.getPtr();
+      }
 
-    static inline ::fox::Type getFromVoidPointer(void* ptr) {
-      return (::fox::TypeBase*)ptr;
-    }
+      static inline ::fox::Type getFromVoidPointer(void* ptr) {
+        return (::fox::TypeBase*)ptr;
+      }
   };
 }
