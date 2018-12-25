@@ -331,12 +331,24 @@ namespace fox {
       void addResult(NamedDecl* decl);
 
       NamedDeclVec& getResults();
+      const NamedDeclVec& getResults() const;
 
       std::size_t size() const;
 
       // If there's only one result, return it. Else, returns nullptr.
       NamedDecl* getIfSingleResult() const;
 
+      // Return true if this result is empty (size() == 0)
+      bool isEmpty() const;
+
+      // Return true if this result is ambiguous (size() > 1)
+      bool isAmbiguous() const;
+
+      NamedDeclVec::iterator begin();
+      NamedDeclVec::const_iterator begin() const;
+
+      NamedDeclVec::iterator end();
+      NamedDeclVec::const_iterator end() const;
     private:
       NamedDeclVec results_;
   };

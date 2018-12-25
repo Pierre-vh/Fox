@@ -141,6 +141,10 @@ NamedDeclVec& Sema::LookupResult::getResults() {
   return results_;
 }
 
+const NamedDeclVec& Sema::LookupResult::getResults() const {
+  return results_;
+}
+
 std::size_t Sema::LookupResult::size() const {
   return results_.size();
 }
@@ -149,4 +153,28 @@ NamedDecl* Sema::LookupResult::getIfSingleResult() const {
   if(results_.size() == 1)
     return results_[0];
   return nullptr;
+}
+
+bool Sema::LookupResult::isEmpty() const {
+  return (size() == 0);
+}
+
+bool Sema::LookupResult::isAmbiguous() const {
+  return (size() > 1);
+}
+
+NamedDeclVec::iterator Sema::LookupResult::begin() {
+  return results_.begin();
+}
+
+NamedDeclVec::const_iterator Sema::LookupResult::begin() const {
+  return results_.begin();
+}
+
+NamedDeclVec::iterator Sema::LookupResult::end() {
+  return results_.end();
+}
+
+NamedDeclVec::const_iterator Sema::LookupResult::end() const {
+  return results_.end();
 }
