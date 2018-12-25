@@ -156,23 +156,15 @@ bool NamedDecl::hasIdentifierRange() const {
 //----------------------------------------------------------------------------//
 
 ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id, 
-  SourceRange idRange, TypeLoc ty, bool isConst, SourceRange range): 
+  SourceRange idRange, Type ty, bool isConst, SourceRange range): 
   NamedDecl(kind, parent, id, idRange, range), const_(isConst), type_(ty) {}
 
 Type ValueDecl::getType() const {
-  return type_.withoutLoc();
-}
-
-TypeLoc ValueDecl::getTypeLoc() const {
   return type_;
 }
 
-void ValueDecl::setTypeLoc(TypeLoc ty) {
+void ValueDecl::setType(Type ty) {
   type_ = ty;
-}
-
-SourceRange ValueDecl::getTypeRange() const {
-  return type_.getRange();
 }
 
 bool ValueDecl::isConst() const {
@@ -197,9 +189,18 @@ bool ParamDecl::isMutable() const {
   return !isConst();
 }
 
+SourceRange ParamDecl::getTypeRange() const {
+  return typeRange_;
+}
+
+void ParamDecl::setTypeRange(SourceRange range) {
+  typeRange_ = range;
+}
+
 ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
   TypeLoc type, bool isMutable, SourceRange range):
-  ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type, !isMutable, range) 
+  ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type.withoutLoc(), 
+    !isMutable, range), typeRange_(type.getRange())
   {}
 
 //----------------------------------------------------------------------------//
@@ -347,8 +348,8 @@ void FuncDecl::setBody(CompoundStmt* body) {
 
 VarDecl::VarDecl(Parent parent, Identifier id, SourceRange idRange, 
   TypeLoc type, bool isConst, Expr* init, SourceRange range):
-  ValueDecl(DeclKind::VarDecl, parent, id, idRange, type, isConst, range),
-  init_(init) {}
+  ValueDecl(DeclKind::VarDecl, parent, id, idRange, type.withoutLoc(), 
+    isConst, range), init_(init), typeRange_(type.getRange()) {}
 
 VarDecl* VarDecl::create(ASTContext& ctxt, Parent parent, Identifier id,
   SourceRange idRange, TypeLoc type, bool isConst, Expr* init, 
@@ -374,6 +375,14 @@ bool VarDecl::isLet() const {
 
 void VarDecl::setInitExpr(Expr* expr) {
   init_ = expr;
+}
+
+SourceRange VarDecl::getTypeRange() const {
+  return typeRange_;
+}
+
+void VarDecl::setTypeRange(SourceRange range) {
+  typeRange_ = range;
 }
 
 //----------------------------------------------------------------------------//

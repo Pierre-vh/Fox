@@ -385,7 +385,7 @@ std::string ASTDumper::getValueDeclInfo(ValueDecl* decl) const {
   std::ostringstream ss;
   ss << getBasicDeclInfo(decl) << " ";
   ss << decl->getIdentifier() << " "
-     << toString(decl->getTypeLoc(), decl->isConst()) << " ";
+     << toString(decl->getType(), decl->isConst()) << " ";
 
   return ss.str();
 }

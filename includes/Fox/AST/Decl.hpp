@@ -180,9 +180,7 @@ namespace fox {
   class ValueDecl : public NamedDecl {
     public:
       Type getType() const;
-      SourceRange getTypeRange() const;
-      TypeLoc getTypeLoc() const;
-      void setTypeLoc(TypeLoc ty);
+      void setType(Type ty);
 
       bool isConst() const;
       void setIsConst(bool k);
@@ -194,12 +192,12 @@ namespace fox {
 
     protected:
       ValueDecl(DeclKind kind, Parent parent, Identifier id, 
-        SourceRange idRange, TypeLoc ty, bool isConst, SourceRange range);
+        SourceRange idRange, Type ty, bool isConst, SourceRange range);
 
     private:
       // ValueDecl bitfields : 7 left
       bool const_ : 1;
-      TypeLoc type_;
+      Type type_;
   };
 
   // ParamDecl
@@ -213,6 +211,9 @@ namespace fox {
 
       bool isMutable() const;
 
+      SourceRange getTypeRange() const;
+      void setTypeRange(SourceRange range);
+
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::ParamDecl;
       }
@@ -220,6 +221,8 @@ namespace fox {
     private:
       ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
         TypeLoc type, bool isMutable, SourceRange range);
+
+      SourceRange typeRange_;
   };
 
   // ParamList
@@ -319,6 +322,9 @@ namespace fox {
       void setInitExpr(Expr* expr);
       bool hasInitExpr() const;
 
+      SourceRange getTypeRange() const;
+      void setTypeRange(SourceRange range);
+
       // Returns true if this variable was declared using the "var" keyword
       bool isVar() const;
       // Returns true if this variable was declared using the "let" keyword
@@ -332,6 +338,7 @@ namespace fox {
       VarDecl(Parent parent, Identifier id, SourceRange idRange, TypeLoc type,
         bool isConst, Expr* init, SourceRange range);
 
+      SourceRange typeRange_;
       Expr* init_ = nullptr;
   };
 
