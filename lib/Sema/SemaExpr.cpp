@@ -143,6 +143,25 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         diag.setExtraRange(extra);
     }
 
+    // Diagnoses an undeclared identifier
+    void diagnoseUndeclaredIdentifier(SourceRange range, Identifier id) {
+      getDiags().report(DiagID::sema_undeclared_id, range).addArg(id);
+    }
+
+    // Diagnoses an ambiguous identifier
+    void diagnoseAmbiguousIdentifier(SourceRange range, Identifier id,
+      const LookupResult& results) {
+      // First, display the "x" is ambiguous error
+      getDiags().report(DiagID::sema_ambiguous_ref, range).addArg(id);
+      // Now, iterate over the lookup results and emit notes
+      // for each candidate.
+      assert(results.isAmbiguous());
+      for(auto result : results) {
+        getDiags().report(DiagID::sema_potential_candidate_here, 
+          result->getIdentifierRange());
+      }
+    }
+
     //----------------------------------------------------------------------//
     // Finalize methods
     //----------------------------------------------------------------------//
@@ -227,6 +246,32 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
+    Expr* finalizeReferenceToValueDecl(UnresolvedDeclRefExpr* udre, 
+      ValueDecl* found) {
+      assert(found);
+      assert((isa<VarDecl>(found) || isa<ParamDecl>(found)) && 
+        "unhandled ValueDecl kind");
+
+      // Resolved DeclRef
+      DeclRefExpr* resolved = 
+        DeclRefExpr::create(getCtxt(), found, udre->getRange());
+      
+      // Assign it's type
+      Type valueType = found->getType();
+      assert(valueType && "ValueDecl doesn't have a Type!");
+      // If it's a non const ValueDecl, wrap it in a LValue
+      if(!found->isConst())
+        valueType = LValueType::get(getCtxt(), valueType);
+
+      resolved->setType(valueType);
+      return resolved;
+    }
+
+    Expr* finalizeReferenceToFuncDecl(UnresolvedDeclRefExpr* udre,
+      FuncDecl*) {
+      // TODO
+      return udre;
+    }
     //----------------------------------------------------------------------//
     // ASTWalker overrides
     //----------------------------------------------------------------------//
@@ -445,9 +490,29 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     Expr* visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr) {
-      //fox_unimplemented_feature(
-      //  "Name Binding/UnresolvedDeclRefExpr TypeChecking");
-      return expr;
+      Identifier id = expr->getIdentifier();
+      SourceRange range = expr->getRange();
+      assert(id);
+      LookupResult results;
+      getSema().doUnqualifiedLookup(results, id, LookupOptions());
+      // No results -> undeclared identifier
+      if(results.isEmpty()) {
+        diagnoseUndeclaredIdentifier(range, id);
+        return expr;
+      }
+      // Ambiguous 
+      if(results.isAmbiguous()) {
+        diagnoseAmbiguousIdentifier(range, id, results);
+        return expr;
+      }
+      // Correct
+      NamedDecl* decl = results.getIfSingleResult();
+      assert(decl && "not ambiguous, not empty, but not single?");
+      if(ValueDecl* valueDecl = dyn_cast<ValueDecl>(decl)) 
+        return finalizeReferenceToValueDecl(expr, valueDecl);
+      else if(FuncDecl* funcDecl = dyn_cast<FuncDecl>(decl))
+        return finalizeReferenceToFuncDecl(expr, funcDecl);
+      fox_unreachable("unknown NamedDecl kind");
     }
 
     Expr* visitDeclRefExpr(DeclRefExpr* expr) {

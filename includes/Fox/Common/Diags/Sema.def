@@ -18,7 +18,10 @@ ERROR(sema_binexpr_invalid_operands,
   "cannot use binary operator '%0' on expressions of types '%1' and '%2'")
 ERROR(sema_cant_use_expr_as_cond,
   "cannot use an expression of type '%0' as a condition")
-
+ERROR(sema_undeclared_id,
+  "undeclared identifier '%0'")
+ERROR(sema_ambiguous_ref,
+  "reference to '%0' is ambiguous")
 ERROR(sema_invalid_var_redecl,
   "invalid redeclaration of variable '%0'")
 ERROR(sema_invalid_param_redecl,
@@ -38,3 +41,5 @@ WARNING(sema_implicit_integral_downcast,
 
 NOTE(sema_1stdecl_seen_here, 
   "first declaration of '%0' seen here")
+NOTE(sema_potential_candidate_here,
+  "potential candidate found here")
