@@ -485,3 +485,40 @@ TEST_F(ASTTest, cleanup) {
   ctxt.reset();
   EXPECT_EQ(callCount, 5);
 }
+
+TEST_F(ASTTest, functionTypesUniqueness) {
+  Type intTy = PrimitiveType::getInt(ctxt);
+  Type boolTy = PrimitiveType::getBool(ctxt);
+  Type voidTy = PrimitiveType::getVoid(ctxt);
+
+  FunctionType* fns[6];
+  // Create a few functions with different signatures.
+  // (int, bool) -> void
+  fns[0] = FunctionType::get(ctxt, {intTy, boolTy}, voidTy);
+  // (int) -> bool
+  fns[1] = FunctionType::get(ctxt, {intTy}, boolTy);
+  // (bool) -> int
+  fns[2] = FunctionType::get(ctxt, {boolTy}, intTy);
+  // () -> void
+  fns[3] = FunctionType::get(ctxt, {}, voidTy);
+  // (bool, int) -> void
+  fns[4] = FunctionType::get(ctxt, {boolTy, intTy}, voidTy);
+  // (bool) -> void
+  fns[5] = FunctionType::get(ctxt, {boolTy}, voidTy);
+
+  // Check that they all have different pointers
+  std::set<FunctionType*> ptrs;
+  for(std::size_t k = 0; k < 6; k++) {
+    auto result = ptrs.insert(fns[k]);
+    EXPECT_TRUE(result.second) << "element already exists";
+  }
+
+  // Check that we can successfully retrieve every function type
+  // while keeping the same pointer value.
+  EXPECT_EQ(fns[0], FunctionType::get(ctxt, {intTy, boolTy}, voidTy));
+  EXPECT_EQ(fns[1], FunctionType::get(ctxt, {intTy}, boolTy));
+  EXPECT_EQ(fns[2], FunctionType::get(ctxt, {boolTy}, intTy));
+  EXPECT_EQ(fns[3], FunctionType::get(ctxt, {}, voidTy));
+  EXPECT_EQ(fns[4], FunctionType::get(ctxt, {boolTy, intTy}, voidTy));
+  EXPECT_EQ(fns[5], FunctionType::get(ctxt, {boolTy}, voidTy));
+}
