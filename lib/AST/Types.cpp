@@ -133,7 +133,7 @@ namespace {
             visit(paramTy);
           else out << nullTypeStr;
         }
-        out << " -> ";
+        out << ") -> ";
         if(Type rtr = type->getReturnType())
           visit(rtr);
       }
