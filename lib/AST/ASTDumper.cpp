@@ -373,10 +373,9 @@ std::string ASTDumper::getBasicExprInfo(Expr* expr) const {
 std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
   std::ostringstream ss;
   std::string sourceRangeDump;
-  ss << getDeclNodeName(decl);
-  if (isDebug())
-    ss << " " << (void*)decl;
-  ss << (decl->isLocal() ? " (local)" : "");
+  ss << getDeclNodeName(decl)
+     << " " << (void*)decl
+     << (decl->isLocal() ? " (local)" : "");
 
   ss << " " << getSourceRangeDump("range", decl->getRange());
   return ss.str();
