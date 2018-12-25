@@ -9,14 +9,14 @@
 
 #pragma once
 
-#include "llvm/ADT/PointerUnion.h"
-#include "llvm/ADT/SmallVector.h"
 #include "DeclContext.hpp"
 #include "ASTAligns.hpp"
 #include "Type.hpp"
 #include "Identifier.hpp"
 #include "llvm/ADT/TrailingObjects.h"
 #include "llvm/ADT/ArrayRef.h"
+#include "llvm/ADT/PointerUnion.h"
+#include "llvm/ADT/SmallVector.h"
 
 namespace fox {
   // Forward Declarations
@@ -195,9 +195,8 @@ namespace fox {
         SourceRange idRange, Type ty, bool isConst, SourceRange range);
 
     private:
-      // ValueDecl bitfields : 7 left
-      bool const_ : 1;
-      Type type_;
+      // Type + isConst flag
+      llvm::PointerIntPair<Type, 1> typeAndIsConst_;
   };
 
   // ParamDecl

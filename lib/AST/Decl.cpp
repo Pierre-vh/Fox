@@ -157,22 +157,22 @@ bool NamedDecl::hasIdentifierRange() const {
 
 ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id, 
   SourceRange idRange, Type ty, bool isConst, SourceRange range): 
-  NamedDecl(kind, parent, id, idRange, range), const_(isConst), type_(ty) {}
+  NamedDecl(kind, parent, id, idRange, range), typeAndIsConst_(ty, isConst) {}
 
 Type ValueDecl::getType() const {
-  return type_;
+  return typeAndIsConst_.getPointer();
 }
 
 void ValueDecl::setType(Type ty) {
-  type_ = ty;
+  typeAndIsConst_.setPointer(ty);
 }
 
 bool ValueDecl::isConst() const {
-  return const_;
+  return typeAndIsConst_.getInt();
 }
 
 void ValueDecl::setIsConst(bool k) {
-  const_ = k;
+  typeAndIsConst_.setInt(k);
 }
 
 //----------------------------------------------------------------------------//
