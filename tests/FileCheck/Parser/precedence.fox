@@ -1,0 +1,32 @@
+﻿// RUN: %fox-dump-parse | %filecheck
+
+func foo() {
+  //  CHECK: UnaryExpr - (Unary Minus)
+  //    CHECK-NEXT: BinaryExpr ** (Exponentiation)
+  //      CHECK-NEXT: IntegerLiteralExpr 3
+  //      CHECK-NEXT: IntegerLiteralExpr 2
+  -3**2;
+
+  //  CHECK: BinaryExpr - (Substraction)
+  //    CHECK-NEXT: BinaryExpr + (Addition)
+  //      CHECK-NEXT: IntegerLiteralExpr 3
+  //      CHECK-NEXT: IntegerLiteralExpr 3
+  //    CHECK-NEXT: IntegerLiteralExpr 2
+  3+3-2;
+
+  //  CHECK: BinaryExpr * (Multiplication)
+  //    CHECK-NEXT: BinaryExpr / (Division)
+  //      CHECK-NEXT: IntegerLiteralExpr 3
+  //      CHECK-NEXT: IntegerLiteralExpr 2
+  //    CHECK-NEXT: IntegerLiteralExpr 3
+  3/2*3;
+
+  //  CHECK: BinaryExpr = (Assignement)
+  //    CHECK-NEXT: UnresolvedDeclRefExpr a
+  //    CHECK-NEXT: BinaryExpr = (Assignement)
+  //      CHECK-NEXT: UnresolvedDeclRefExpr b
+  //      CHECK-NEXT: BinaryExpr = (Assignement)
+  //        CHECK-NEXT: UnresolvedDeclRefExpr c
+  //        CHECK-NEXT: UnresolvedDeclRefExpr d
+  a = b = c = d;
+}
