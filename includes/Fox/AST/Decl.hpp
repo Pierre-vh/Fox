@@ -278,6 +278,7 @@ namespace fox {
       TypeLoc getReturnTypeLoc() const;
       Type getReturnType() const;
       SourceRange getReturnTypeRange() const;
+      bool isReturnTypeImplicit() const;
 
       void setBody(CompoundStmt* body);
       CompoundStmt* getBody() const;

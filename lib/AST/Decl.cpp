@@ -305,6 +305,10 @@ SourceRange FuncDecl::getReturnTypeRange() const {
   return returnType_.getRange();
 }
 
+bool FuncDecl::isReturnTypeImplicit() const {
+  return !(getReturnTypeRange().isValid());
+}
+
 CompoundStmt* FuncDecl::getBody() const {
   return body_;
 }
