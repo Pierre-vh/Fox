@@ -11,6 +11,7 @@
 
 #include "Fox/Common/Source.hpp"
 #include "Fox/Common/LLVM.hpp"
+#include "Fox/AST/ASTAligns.hpp"
 #include <iosfwd>
 
 namespace fox {
@@ -95,4 +96,22 @@ namespace fox {
 
   // ostream for Type class
   std::ostream& operator<<(std::ostream& os, Type ty);
+}
+
+
+namespace llvm {
+  // A Type is just a wrapper around a TypeBase*, and thus can be considered
+  // as pointer-like.
+  template<>
+  class PointerLikeTypeTraits<::fox::Type> {
+    enum { NumLowBitsAvailable = ::fox::TypeBaseFreeLowBits };
+
+    static inline void* getAsVoidPointer(::fox::Type type) {
+      return type.getPtr();
+    }
+
+    static inline ::fox::Type getFromVoidPointer(void* ptr) {
+      return (::fox::TypeBase*)ptr;
+    }
+  };
 }
