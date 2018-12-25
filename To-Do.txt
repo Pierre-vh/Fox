@@ -117,6 +117,10 @@ To-Do:
   > FunctionType + FunctionType tests (Done)
 
   > Name binding logic in visitUnresolvedDeclRefExpr (Next)
+      > For Vars and Params (Done)
+      > For Funcs (Next)
+        > Add a "getFunctionType" to FuncDecl 
+      > Test (VerifyMode + FileCheck tests)
 
   > CallExpr checking
   > ReturnStmt checking
@@ -147,6 +151,8 @@ To-Do:
   > VM
 
 Other:
+  > Improve clarity of ASTDump, especially for ValueDecl/DeclRefExpr dumps
+
   > Allow cast expr chaining (update grammar & parser)
     This isn't really a commonly used feature, but I hate seeing errors just because I type
     "foo as bool as string"
