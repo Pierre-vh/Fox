@@ -478,15 +478,13 @@ namespace {
   std::size_t functionTypeHash(ArrayRef<Type> paramTys, Type rtrTy) {
     // Create a vector of uintptr_t with all of the hash data
     SmallVector<std::uintptr_t, 8> bytes;
-      // Return type pointer
+    // Return type pointer
     bytes.push_back(reinterpret_cast<std::uintptr_t>(rtrTy.getPtr()));
-      // Param types pointers
-    for(auto ty : paramTys) {
-      // Push the pointer + the isMut flag
+    // Param types pointers
+    for(auto ty : paramTys) 
       bytes.push_back(reinterpret_cast<std::uintptr_t>(ty.getPtr()));
-    }
     // hash the data
-    return llvm::hash_combine(bytes.begin(), bytes.end());
+    return llvm::hash_combine_range(bytes.begin(), bytes.end());
   }
 
   bool strictEquality(ArrayRef<Type> params, Type rtr, 
@@ -527,7 +525,7 @@ FunctionType* FunctionType::get(ASTContext& ctxt, ArrayRef<Type> params,
     // not, we may have encountered a hash collision.
     if(!strictEquality(params, rtr, fn)) {
       fox_unreachable("Hash collision detected. Two different function types "
-        "had the same hash value of " + hash);
+        "had the same hash value!");
     }
 
     return fn;
