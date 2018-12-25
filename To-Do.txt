@@ -151,6 +151,11 @@ To-Do:
   > VM
 
 Other:
+  > Simplify some AST constructors which are way too bloated and contain redundant information
+    Examples:
+    -> ParamDecl: Can deduce the full range with SourceRange(idRange.begin(), typeRange.end())
+    -> FuncDecl: Range can be deduced using the body's end loc
+
   > Improve clarity of ASTDump, especially for ValueDecl/DeclRefExpr dumps
 
   > Allow cast expr chaining (update grammar & parser)

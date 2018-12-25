@@ -315,7 +315,7 @@ namespace fox   {
       using SizeTy = std::uint16_t;
       static constexpr auto maxElems = std::numeric_limits<SizeTy>::max();
 
-      static ArrayLiteralExpr* create(ASTContext& ctxt,  ArrayRef<Expr*> elems,
+      static ArrayLiteralExpr* create(ASTContext& ctxt, ArrayRef<Expr*> elems,
         SourceRange range);
 
       MutableArrayRef<Expr*> getExprs();
@@ -450,7 +450,7 @@ namespace fox   {
       using SizeTy = std::uint8_t;
       static constexpr auto maxArgs = std::numeric_limits<SizeTy>::max();
 
-      static FunctionCallExpr* create(ASTContext &ctxt, Expr* callee,
+      static FunctionCallExpr* create(ASTContext& ctxt, Expr* callee,
         ArrayRef<Expr*> args, SourceRange range);
 
       void setCallee(Expr* base);

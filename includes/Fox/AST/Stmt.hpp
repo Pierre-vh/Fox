@@ -108,9 +108,7 @@ namespace fox {
   class ConditionStmt final : public Stmt {
     public:
       static ConditionStmt* create(ASTContext& ctxt, Expr* cond, ASTNode then,
-        ASTNode condElse, SourceRange range, SourceLoc ifHeaderEnd);
-
-      bool isValid() const;
+        ASTNode condElse, SourceRange range);
 
       void setCond(Expr* expr);
       Expr* getCond() const;
@@ -122,19 +120,14 @@ namespace fox {
       ASTNode getElse() const;
       bool hasElse() const;
 
-      void setIfHeaderEndLoc(SourceLoc sloc);
-      SourceRange getIfHeaderRange() const;
-      SourceLoc getIfHeaderEndLoc() const;
-
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::ConditionStmt);
       }
 
     private:
       ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
-        SourceRange range, SourceLoc ifHeaderEndLoc);
+        SourceRange range);
 
-      SourceLoc ifHeadEndLoc_;
       Expr* cond_ = nullptr;
       ASTNode then_, else_;
   };
@@ -148,11 +141,6 @@ namespace fox {
       using SizeTy = std::uint8_t;
       static constexpr auto maxNodes = std::numeric_limits<SizeTy>::max();
 
-      // range argument is optional because when parsing CompoundStmts, we
-      // don't know the full range of the Stmt until we finished parsing it.
-      // Usually we create the CompoundStmt first, then fill it with the Stmts
-      // as we parse them, and then set the range before returning, once
-      // the } has been parsed.
       static CompoundStmt* create(ASTContext& ctxt, ArrayRef<ASTNode> elems,
         SourceRange range);
 
@@ -178,7 +166,7 @@ namespace fox {
   class WhileStmt final : public Stmt {
     public:
       static WhileStmt* create(ASTContext& ctxt, Expr* cond, ASTNode body,
-        SourceRange range, SourceLoc headerEnd);
+        SourceRange range);
 
       void setCond(Expr* cond);
       Expr* getCond() const;
@@ -186,18 +174,13 @@ namespace fox {
       void setBody(ASTNode body);
       ASTNode getBody() const;
 
-      SourceLoc getHeaderEndLoc() const;
-      SourceRange getHeaderRange() const;
-
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::WhileStmt);
       }
 
     private:
-      WhileStmt(Expr* cond, ASTNode body, SourceRange range,
-        SourceLoc headerEndLoc);
+      WhileStmt(Expr* cond, ASTNode body, SourceRange range);
 
-      SourceLoc headerEndLoc_;
       Expr* cond_ = nullptr;
       ASTNode body_;
   };

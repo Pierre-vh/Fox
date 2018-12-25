@@ -273,13 +273,7 @@ namespace fox {
     public:
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent,
         Identifier id, SourceRange idRange, TypeLoc type, 
-        SourceRange range, SourceLoc headerEnd);
-
-      void setLocs(SourceRange range, SourceLoc headerEndLoc);
-      void setHeaderEndLoc(SourceLoc loc);
-
-      SourceLoc getHeaderEndLoc() const;
-      SourceRange getHeaderRange() const;
+        SourceRange range);
 
       void setReturnTypeLoc(TypeLoc ty);
       TypeLoc getReturnTypeLoc() const;
@@ -300,9 +294,8 @@ namespace fox {
       
     private:
       FuncDecl(DeclContext* parent, Identifier fnId, SourceRange idRange,
-        TypeLoc rtrTy, SourceRange range, SourceLoc headerEndLoc);
+        TypeLoc rtrTy, SourceRange range);
 
-      SourceLoc headEndLoc_;
       TypeLoc returnType_;
       ParamList* params_ = nullptr;
       CompoundStmt* body_ = nullptr;

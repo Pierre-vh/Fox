@@ -68,11 +68,9 @@ TEST_F(LocTests, FuncAndArgDecl) {
   auto funcRange = func->getRange();
   // First, test the function itself
   CompleteLoc func_beg = srcMgr.getCompleteLoc(funcRange.getBegin());
-  CompleteLoc func_head_end = srcMgr.getCompleteLoc(func->getHeaderEndLoc());
   CompleteLoc func_end = srcMgr.getCompleteLoc(funcRange.getEnd());
   
   EXPECT_EQ(func_beg, CompleteLoc(fullFilePath, 1, 1));
-  EXPECT_EQ(func_head_end, CompleteLoc(fullFilePath, 1, 55));
   EXPECT_EQ(func_end, CompleteLoc(fullFilePath, 4, 3));
 
   // Now, test the parameters

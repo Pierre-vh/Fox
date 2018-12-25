@@ -96,7 +96,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // can be notified that they are being parsed as part of a declaration.
   auto* parentDC = getDeclParentAsDeclCtxt();
   FuncDecl* rtr = FuncDecl::create(ctxt, parentDC, Identifier(), SourceRange(),
-    TypeLoc(), SourceRange(), SourceLoc());
+    TypeLoc(), SourceRange());
 
   // Create a RAIIDeclParent to notify every parsing function that
   // we're currently parsing a FuncDecl
@@ -212,7 +212,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
   ParamList* paramList = ParamList::create(ctxt, params);
   rtr->setParams(paramList);
   rtr->setBody(body);
-  rtr->setLocs(range, headEndLoc);
+  rtr->setRange(range);
   // Record it
   actOnDecl(rtr);
   return DeclResult(rtr);

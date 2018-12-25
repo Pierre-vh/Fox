@@ -280,30 +280,13 @@ void* ParamList::operator new(std::size_t, void* mem) {
 //----------------------------------------------------------------------------//
 
 FuncDecl::FuncDecl(DeclContext* parent, Identifier fnId, SourceRange idRange,
-  TypeLoc returnType, SourceRange range, SourceLoc headerEndLoc):
+  TypeLoc returnType, SourceRange range):
   NamedDecl(DeclKind::FuncDecl, parent, fnId, idRange, range), 
-  headEndLoc_(headerEndLoc), returnType_(returnType) {}
+  returnType_(returnType) {}
 
 FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent, Identifier id,
-  SourceRange idRange, TypeLoc type, SourceRange range, SourceLoc headerEnd) {
-  return new(ctxt) FuncDecl(parent, id, idRange, type, range, headerEnd);
-}
-
-void FuncDecl::setLocs(SourceRange range, SourceLoc headerEndLoc) {
-  setRange(range);
-  setHeaderEndLoc(headerEndLoc);
-}
-
-void FuncDecl::setHeaderEndLoc(SourceLoc loc) {
-  headEndLoc_ = loc;
-}
-
-SourceLoc FuncDecl::getHeaderEndLoc() const {
-  return headEndLoc_;
-}
-
-SourceRange FuncDecl::getHeaderRange() const {
-  return SourceRange(getBegin(), headEndLoc_);
+  SourceRange idRange, TypeLoc type, SourceRange range) {
+  return new(ctxt) FuncDecl(parent, id, idRange, type, range);
 }
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {

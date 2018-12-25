@@ -103,18 +103,13 @@ void ReturnStmt::setExpr(Expr* e) {
 //----------------------------------------------------------------------------//
 
 ConditionStmt::ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
-  SourceRange range, SourceLoc ifHeaderEndLoc): Stmt(StmtKind::ConditionStmt,
-  range), cond_(cond), then_(then),  else_(elsenode), 
-  ifHeadEndLoc_(ifHeaderEndLoc) {}
+  SourceRange range): Stmt(StmtKind::ConditionStmt, range), cond_(cond),
+  then_(then),  else_(elsenode) {}
 
 ConditionStmt* 
 ConditionStmt::create(ASTContext& ctxt, Expr* cond, ASTNode then, ASTNode condElse,
-  SourceRange range, SourceLoc ifHeaderEnd) {
-  return new(ctxt) ConditionStmt(cond, then, condElse, range, ifHeaderEnd);
-}
-
-bool ConditionStmt::isValid() const {
-  return cond_ && then_;
+  SourceRange range) {
+  return new(ctxt) ConditionStmt(cond, then, condElse, range);
 }
 
 bool ConditionStmt::hasElse() const {
@@ -143,18 +138,6 @@ void ConditionStmt::setThen(ASTNode node) {
 
 void ConditionStmt::setElse(ASTNode node) {
   else_ = node;
-}
-
-void ConditionStmt::setIfHeaderEndLoc(SourceLoc sloc) {
-  ifHeadEndLoc_ = sloc;
-}
-
-SourceRange ConditionStmt::getIfHeaderRange() const {
-  return SourceRange(getBegin(), ifHeadEndLoc_);
-}
-
-SourceLoc ConditionStmt::getIfHeaderEndLoc() const {
-  return ifHeadEndLoc_;
 }
 
 //----------------------------------------------------------------------------//
@@ -207,9 +190,8 @@ std::size_t CompoundStmt::getSize() const {
 // WhileStmt
 //----------------------------------------------------------------------------//
 
-WhileStmt::WhileStmt(Expr* cond, ASTNode body, SourceRange range, 
-  SourceLoc headerEndLoc): Stmt(StmtKind::WhileStmt, range),
- headerEndLoc_(headerEndLoc), cond_(cond), body_(body) {}
+WhileStmt::WhileStmt(Expr* cond, ASTNode body, SourceRange range): 
+  Stmt(StmtKind::WhileStmt, range), cond_(cond), body_(body) {}
 
 Expr* WhileStmt::getCond() const {
   return cond_;
@@ -220,8 +202,8 @@ ASTNode WhileStmt::getBody() const {
 }
 
 WhileStmt* WhileStmt::create(ASTContext& ctxt, Expr* cond, ASTNode body,
-  SourceRange range, SourceLoc headerEnd) {
-  return new(ctxt) WhileStmt(cond, body, range, headerEnd);
+  SourceRange range) {
+  return new(ctxt) WhileStmt(cond, body, range);
 }
 
 void WhileStmt::setCond(Expr* cond) {
@@ -230,12 +212,4 @@ void WhileStmt::setCond(Expr* cond) {
 
 void WhileStmt::setBody(ASTNode body) {
   body_ = body;
-}
-
-SourceLoc WhileStmt::getHeaderEndLoc() const {
-  return headerEndLoc_;
-}
-
-SourceRange WhileStmt::getHeaderRange() const {
-  return SourceRange(getBegin(), headerEndLoc_);
 }

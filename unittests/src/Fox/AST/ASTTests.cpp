@@ -250,7 +250,7 @@ TEST_F(ASTTest, StmtRTTI) {
 
   // Condition
   auto* cond = ConditionStmt::create(ctxt, nullptr, ASTNode(), ASTNode(),
-    SourceRange(), SourceLoc());
+    SourceRange());
   EXPECT_EQ(cond->getKind(), StmtKind::ConditionStmt);
   EXPECT_TRUE(ConditionStmt::classof(cond));
 
@@ -262,7 +262,7 @@ TEST_F(ASTTest, StmtRTTI) {
 
   // While
   auto* whilestmt = 
-    WhileStmt::create(ctxt, nullptr, ASTNode(), SourceRange(), SourceLoc());
+    WhileStmt::create(ctxt, nullptr, ASTNode(), SourceRange());
   EXPECT_EQ(whilestmt->getKind(), StmtKind::WhileStmt);
   EXPECT_TRUE(WhileStmt::classof(whilestmt));
 }
@@ -275,7 +275,7 @@ namespace {
 
   FuncDecl* createEmptyFnDecl(ASTContext& ctxt, DeclContext* dc = nullptr) {
     return FuncDecl::create(ctxt, dc, Identifier(), SourceRange(), TypeLoc(), 
-      SourceRange(), SourceLoc());
+      SourceRange());
   }
 
   ParamDecl* createEmptyParamDecl(ASTContext& ctxt) {

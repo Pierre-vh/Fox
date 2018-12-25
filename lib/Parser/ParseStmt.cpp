@@ -80,14 +80,11 @@ Parser::StmtResult Parser::parseWhileLoop() {
 
   Expr* expr = nullptr;
   ASTNode body;
-  SourceLoc parenExprEndLoc;
   SourceLoc begLoc = whKw.getBegin();
   SourceLoc endLoc;
   // <parens_expr>
-  if (auto parens_expr_res = parseParensExpr(nullptr, &parenExprEndLoc)) {
-    assert(parenExprEndLoc && "parseParensExpr didn't provide the ')' loc?");
+  if (auto parens_expr_res = parseParensExpr(nullptr))
     expr = parens_expr_res.get();
-  }
   else {
     reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
     return StmtResult::Error();
@@ -107,9 +104,9 @@ Parser::StmtResult Parser::parseWhileLoop() {
   }
 
   SourceRange range(begLoc, endLoc);
-  assert(expr && body && range && parenExprEndLoc);
+  assert(expr && body && range);
   return StmtResult(
-    WhileStmt::create(ctxt, expr, body, range, parenExprEndLoc)
+    WhileStmt::create(ctxt, expr, body, range)
   );
 }
 
@@ -131,10 +128,9 @@ Parser::StmtResult Parser::parseCondition() {
   }
 
   SourceLoc begLoc = ifKw.getBegin();
-  SourceLoc ifHeadEndLoc;
 
   // <parens_expr>
-  if (auto parensexpr = parseParensExpr(nullptr, &ifHeadEndLoc))
+  if (auto parensexpr = parseParensExpr(nullptr))
     expr = parensexpr.get();
   else {
     reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
@@ -170,12 +166,10 @@ Parser::StmtResult Parser::parseCondition() {
   }
 
   SourceRange range(begLoc, endLoc);
-  assert(expr && then_node && range && ifHeadEndLoc 
-    && "Incomplete loc/nodes!");
+  assert(expr && then_node && range && "Incomplete loc/nodes!");
 
   return StmtResult(
-    ConditionStmt::create(ctxt, expr, then_node, else_node, range, 
-      ifHeadEndLoc)
+    ConditionStmt::create(ctxt, expr, then_node, else_node, range)
   );
 }
 

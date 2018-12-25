@@ -63,20 +63,6 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         return DiagID::sema_invalid_redecl_diff_symbol_kind;
     }
 
-    // Returns the range that should be used as the primary range
-    // for diagnosing this decl to provide the prettiest/most accurate
-    // diagnostic.
-    SourceRange getBestDiagRange(NamedDecl* decl) {
-      // Use the identifier range as first priority.
-      if(decl->hasIdentifierRange())
-        return decl->getIdentifierRange();
-      // If that's not possible, use the full range, except for
-      // FuncDecl where we'll only use the header range.
-      if(FuncDecl* fn = dyn_cast<FuncDecl>(decl))
-        return fn->getHeaderRange();
-      return decl->getRange();
-    }
-
     // Diagnoses an illegal redeclaration where "redecl" is an illegal
     // redeclaration of "original"
     void diagnoseIllegalRedecl(NamedDecl* original, NamedDecl* redecl) {
@@ -88,10 +74,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
       DiagID diagID = getAppropriateDiagForRedecl(original, redecl);
       getDiags()
-        .report(diagID, getBestDiagRange(redecl))
+        .report(diagID, redecl->getIdentifierRange())
         .addArg(id);
       getDiags()
-        .report(DiagID::sema_1stdecl_seen_here, getBestDiagRange(original))
+        .report(DiagID::sema_1stdecl_seen_here, original->getIdentifierRange())
         .addArg(id);
     }
 
