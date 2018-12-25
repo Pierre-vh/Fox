@@ -206,13 +206,14 @@ namespace fox {
   class ParamDecl final : public ValueDecl {
     public:
       static ParamDecl* create(ASTContext& ctxt, FuncDecl* parent, 
-        Identifier id, SourceRange idRange, TypeLoc type, 
+        Identifier id, SourceRange idRange, TypeLoc type,
         bool isMutable, SourceRange range);
 
       bool isMutable() const;
 
       SourceRange getTypeRange() const;
       void setTypeRange(SourceRange range);
+      TypeLoc getTypeLoc() const;
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::ParamDecl;
@@ -324,6 +325,7 @@ namespace fox {
 
       SourceRange getTypeRange() const;
       void setTypeRange(SourceRange range);
+      TypeLoc getTypeLoc() const;
 
       // Returns true if this variable was declared using the "var" keyword
       bool isVar() const;

@@ -197,6 +197,10 @@ void ParamDecl::setTypeRange(SourceRange range) {
   typeRange_ = range;
 }
 
+TypeLoc ParamDecl::getTypeLoc() const {
+  return TypeLoc(getType(), getTypeRange());
+}
+
 ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
   TypeLoc type, bool isMutable, SourceRange range):
   ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type.withoutLoc(), 
@@ -383,6 +387,10 @@ SourceRange VarDecl::getTypeRange() const {
 
 void VarDecl::setTypeRange(SourceRange range) {
   typeRange_ = range;
+}
+
+TypeLoc VarDecl::getTypeLoc() const {
+  return TypeLoc(getType(), getTypeRange());
 }
 
 //----------------------------------------------------------------------------//
