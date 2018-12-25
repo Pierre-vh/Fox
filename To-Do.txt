@@ -119,7 +119,8 @@ To-Do:
   > Name binding logic in visitUnresolvedDeclRefExpr (Next)
       > For Vars and Params (Done)
       > For Funcs (Next)
-        > Add a "getFunctionType" to FuncDecl 
+        > Make FuncDecl a ValueDecl:
+            Always constant, type is the FunctionType. 
       > Test (VerifyMode + FileCheck tests)
 
   > CallExpr checking
