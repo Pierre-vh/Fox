@@ -221,6 +221,14 @@ namespace fox {
   // FunctionType
   //    Represents the type of a function. 
   //    Example: (int, int) -> int
+  //
+  //  Note: Currently, the FunctionType doesn't represent the "mut"
+  //    qualifier, simply because there is no point in representing it.
+  //    Why? For now, the mut qualifier is only important in 
+  //    semantic analysis: It's considered when the params are pushed to the
+  //    scope. If it's a mut param -> use an lvalue, otherwise don't use one.
+  //    I wouldn't gain anything by representing it in types since I don't have
+  //    functions as first class citizens (for now)
   class FunctionType final : public TypeBase, 
     llvm::TrailingObjects<FunctionType, Type> {
     public:
