@@ -176,6 +176,7 @@ namespace fox {
   // ValueDecl
   //    Common base class for every value declaration 
   //    (declares a value of a certain type & name)
+  //    + a "const" attribute. 
   class ValueDecl : public NamedDecl {
     public:
       Type getType() const;
@@ -202,9 +203,9 @@ namespace fox {
   };
 
   // ParamDecl
-  //    A declaration of a function parameter. This is simply a ValueDecl.
+  //    A declaration of a function parameter. This is simply a ValueDecl,
+  //    and is constant by default.
   class ParamDecl final : public ValueDecl {
-    SourceRange idRange_;
     public:
       static ParamDecl* create(ASTContext& ctxt, FuncDecl* parent, 
         Identifier id, SourceRange idRange, TypeLoc type, 
@@ -305,7 +306,9 @@ namespace fox {
 
   // VarDecl
   //    A let or var variable declaration. 
-  //    This is simply a ValueDecl with an added "init" Expr*
+  //    This is simply a ValueDecl with an added "init" Expr*. It is
+  //    constant if declared using "let", non const if declared
+  //    using "var".
   class VarDecl final: public ValueDecl {
     public:
       static VarDecl* create(ASTContext& ctxt, Parent parent,
