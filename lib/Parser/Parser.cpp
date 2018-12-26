@@ -485,15 +485,7 @@ DeclContext* Parser::getDeclParentAsDeclCtxt() const {
 Parser::RAIIDeclParent::RAIIDeclParent(Parser *p, Decl::Parent parent):
   parser_(p) {
   assert(p && "Parser instance can't be nullptr");
-  lastParent_ = p->getDeclParent();
-
-  // if "parent" is a DeclContext, and lastParent is too, set
-  // "parent"'s parent to lastParent_
-  auto* pDC = parent.dyn_cast<DeclContext*>();
-  auto* lpDC = lastParent_.dyn_cast<DeclContext*>();
-  if(pDC && lpDC)
-    pDC->setParentDeclCtxt(lpDC);
-
+  lastParent_ = p->curParent_;
   p->curParent_ = parent;
 }
 
