@@ -70,9 +70,9 @@ namespace fox {
 
       // Constructor for the Parser. 
       // If you plan to use the parser by calling parseDecl/parseFuncDecl/
-      // parseVarDecl directly, you MUST pass a DeclContext to the constructor.
+      // parseVarDecl directly, you MUST pass a UnitDecl to the constructor.
       Parser(ASTContext& astctxt, TokenVector& l, 
-        DeclContext* declCtxt = nullptr);
+        UnitDecl* parentUnit = nullptr);
 
 			// Parse a complete Unit
       UnitDecl* parseUnit(FileID fid, Identifier unitName);
