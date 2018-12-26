@@ -25,6 +25,7 @@ namespace fox {
   class ASTContext;
   class CompoundStmt;
   class FuncDecl;
+  class UnitDecl;
   // This enum represents every possible Declaration subclass. 
   // It is automatically generated using Fox/AST/DeclNodes.def
   enum class DeclKind : std::uint8_t {
@@ -68,9 +69,8 @@ namespace fox {
       bool isLocal() const;
 
       // For local decls, returns the FuncDecl in which
-      // this declaration lives. Return nullptr for non local decls,
-      // or if the parent is null.
-      FuncDecl* getFuncDecl() const;
+      // this declaration lives. Return nullptr for non local decls.
+      FuncDecl* getFuncDeclIfLocal() const;
 
       Parent getParent() const;
       bool isParentNull() const;
@@ -79,7 +79,7 @@ namespace fox {
       //  -> If this Decl is also a DeclContext, returns 
       //      dyn_cast<DeclContext>(this)
       //  -> else, if this Decl is a local Decl, returns 
-      //      getFuncDecl()->getDeclContext()
+      //      getFuncDeclIfLocal()->getDeclContext()
       //  -> Else, returns getDeclContext()
       // Should never return nullptr in a well-formed AST.
       DeclContext* getClosestDeclContext() const;
@@ -357,7 +357,7 @@ namespace fox {
       void setIdentifier(Identifier id);
 
       // Return the ASTContext this Decl lives in.
-      ASTContext& getASTContext();
+      ASTContext& getASTContext() const;
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::UnitDecl;

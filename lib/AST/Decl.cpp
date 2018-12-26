@@ -47,8 +47,9 @@ bool Decl::isLocal() const {
   return parent_.is<FuncDecl*>() && (!isParentNull());
 }
 
-FuncDecl* Decl::getFuncDecl() const {
-  if(isParentNull()) return nullptr;
+FuncDecl* Decl::getFuncDeclIfLocal() const {
+  if(isParentNull()) 
+    return nullptr;
   if(FuncDecl* ptr = parent_.dyn_cast<FuncDecl*>())
     return ptr;
   return nullptr;
@@ -65,7 +66,7 @@ bool Decl::isParentNull() const {
 DeclContext* Decl::getClosestDeclContext() const {
   if(auto* dc = dyn_cast<DeclContext>(const_cast<Decl*>(this)))
     return dc;
-  if(auto* fn = getFuncDecl())
+  if(auto* fn = getFuncDeclIfLocal())
     return fn->getDeclContext();
   return getDeclContext();
 }
@@ -421,6 +422,6 @@ void UnitDecl::setIdentifier(Identifier id) {
   identifier_ = id;
 }
 
-ASTContext& UnitDecl::getASTContext() {
+ASTContext& UnitDecl::getASTContext() const {
   return ctxt_;
 }
