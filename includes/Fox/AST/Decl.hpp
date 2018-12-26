@@ -60,17 +60,16 @@ namespace fox {
       // Get the kind of Decl this is.
       DeclKind getKind() const;
 
-      // For normal Decls, return the DeclContext in which
-      // this Decl is referenced. Returns nullptr for
-      // local decls, or if the parent is null.
+      // Return the DeclContext in which this Decl is referenced.
+      // Returns nullptr for local decls, or if the parent is null.
       DeclContext* getDeclContext() const;
 
       // Returns true if this is a local declaration
       bool isLocal() const;
 
-      // For local decls, returns the FuncDecl in which
-      // this declaration lives. Return nullptr for non local decls.
-      FuncDecl* getFuncDeclIfLocal() const;
+      // For local decls, return the parent FuncDecl.
+      // Returns nullptr for non local decls.
+      FuncDecl* getFuncDecl() const;
 
       Parent getParent() const;
       bool isParentNull() const;
@@ -79,11 +78,15 @@ namespace fox {
       //  -> If this Decl is also a DeclContext, returns 
       //      dyn_cast<DeclContext>(this)
       //  -> else, if this Decl is a local Decl, returns 
-      //      getFuncDeclIfLocal()->getDeclContext()
+      //      getFuncDecl()->getDeclContext()
       //  -> Else, returns getDeclContext()
       // Should never return nullptr in a well-formed AST.
+      LLVM_ATTRIBUTE_RETURNS_NONNULL
       DeclContext* getClosestDeclContext() const;
 
+      // Returns the ASTContext in which this Decl lives.
+      ASTContext& getASTContext() const;
+      
       // Sets the range of this Decl
       void setRange(SourceRange range);
 

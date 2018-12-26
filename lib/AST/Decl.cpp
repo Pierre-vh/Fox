@@ -47,7 +47,7 @@ bool Decl::isLocal() const {
   return parent_.is<FuncDecl*>() && (!isParentNull());
 }
 
-FuncDecl* Decl::getFuncDeclIfLocal() const {
+FuncDecl* Decl::getFuncDecl() const {
   if(isParentNull()) 
     return nullptr;
   if(FuncDecl* ptr = parent_.dyn_cast<FuncDecl*>())
@@ -66,9 +66,15 @@ bool Decl::isParentNull() const {
 DeclContext* Decl::getClosestDeclContext() const {
   if(auto* dc = dyn_cast<DeclContext>(const_cast<Decl*>(this)))
     return dc;
-  if(auto* fn = getFuncDeclIfLocal())
+  if(auto* fn = getFuncDecl())
     return fn->getDeclContext();
   return getDeclContext();
+}
+
+ASTContext& Decl::getASTContext() const {
+  auto* closest = getClosestDeclContext();
+  assert(closest && "should never return nullptr!");
+  return closest->getASTContext();
 }
 
 void Decl::setRange(SourceRange range) {
