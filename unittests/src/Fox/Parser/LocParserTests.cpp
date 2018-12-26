@@ -41,8 +41,9 @@ class LocTests : public ::testing::Test {
         FAIL() << "Lexing Error";
       }
 
-      parser = std::make_unique<Parser>(astContext, lexer->getTokenVector(), 
-        &declContext);
+      theUnit = UnitDecl::create(astContext, nullptr, Identifier(), FileID());
+
+      parser = std::make_unique<Parser>(astContext, lexer->getTokenVector(), theUnit);
       ok = true;
     }
 
@@ -52,6 +53,7 @@ class LocTests : public ::testing::Test {
     DiagnosticEngine diags;
     FileID file;
     SourceManager srcMgr;
+    UnitDecl* theUnit = nullptr;
     ASTContext astContext;
     DeclContext declContext;
     std::unique_ptr<Lexer> lexer;
