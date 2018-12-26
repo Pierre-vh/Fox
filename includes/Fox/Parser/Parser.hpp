@@ -67,6 +67,10 @@ namespace fox {
       //----------------------------------------------------------------------//
       // Public Parser Interface
       //----------------------------------------------------------------------//
+
+      // Constructor for the Parser. 
+      // If you plan to use the parser by calling parseDecl/parseFuncDecl/
+      // parseVarDecl directly, you MUST pass a DeclContext to the constructor.
       Parser(ASTContext& astctxt, TokenVector& l, 
         DeclContext* declCtxt = nullptr);
 
