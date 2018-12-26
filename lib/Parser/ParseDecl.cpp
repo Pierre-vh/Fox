@@ -261,14 +261,14 @@ Parser::DeclResult Parser::parseVarDecl() {
   // <var_decl> = ("let" | "var") <id> ':' <type> ['=' <expr>] ';'
   // "let" describes a constant, "var" is a mutable variable.
   // ("let" | "var")
-  bool isConst;
+  VarDecl::Keyword kw;
   SourceLoc begLoc;
   if (auto letKw = consumeKeyword(KeywordType::KW_LET)) {
-    isConst = true;
+    kw = VarDecl::Keyword::Let;
     begLoc = letKw.getBegin();
   } 
   else if(auto varKw = consumeKeyword(KeywordType::KW_VAR)) {
-    isConst = false;
+    kw = VarDecl::Keyword::Var;
     begLoc = varKw.getBegin();
   }
   else
@@ -344,7 +344,7 @@ Parser::DeclResult Parser::parseVarDecl() {
   assert(type && "type is not valid");
   assert(type.getRange() && "type range is not valid");
   auto rtr = VarDecl::create(ctxt, getDeclParent(), id.get(), id.getRange(),
-    type, isConst, iExpr, range);
+    type, kw, iExpr, range);
 
   actOnDecl(rtr);
   return DeclResult(rtr);
