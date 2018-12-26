@@ -156,23 +156,31 @@ bool NamedDecl::hasIdentifierRange() const {
 //----------------------------------------------------------------------------//
 
 ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id, 
-  SourceRange idRange, Type ty, bool isConst, SourceRange range): 
-  NamedDecl(kind, parent, id, idRange, range), typeAndIsConst_(ty, isConst) {}
+  SourceRange idRange, Type ty, SourceRange range): 
+  NamedDecl(kind, parent, id, idRange, range), type_(ty) {}
 
 Type ValueDecl::getType() const {
-  return typeAndIsConst_.getPointer();
+  return type_;
 }
 
 void ValueDecl::setType(Type ty) {
-  typeAndIsConst_.setPointer(ty);
+  type_ = ty;
 }
 
 bool ValueDecl::isConst() const {
-  return typeAndIsConst_.getInt();
-}
-
-void ValueDecl::setIsConst(bool k) {
-  typeAndIsConst_.setInt(k);
+  // Switch on the kind of this ValueDecl
+  switch(getKind()) {
+    case DeclKind::VarDecl:
+      // VarDecls are const if they are declared using
+      // "Let"
+      return cast<VarDecl>(this)->isLet();
+    case DeclKind::ParamDecl:
+      // ParamDecls are constant if they aren't explicitely
+      // mutable.
+      return !(cast<ParamDecl>(this)->isMutable());
+    default:
+      fox_unreachable("Unknown ValueDecl kind!");
+  }
 }
 
 //----------------------------------------------------------------------------//
@@ -186,7 +194,7 @@ ParamDecl* ParamDecl::create(ASTContext& ctxt, FuncDecl* parent,
 }
 
 bool ParamDecl::isMutable() const {
-  return !isConst();
+  return isMut_;
 }
 
 SourceRange ParamDecl::getTypeRange() const {
@@ -203,9 +211,8 @@ TypeLoc ParamDecl::getTypeLoc() const {
 
 ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
   TypeLoc type, bool isMutable, SourceRange range):
-  ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type.withoutLoc(), 
-    !isMutable, range), typeRange_(type.getRange())
-  {}
+  ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type.withoutLoc(), range),
+  typeRange_(type.getRange()), isMut_(isMutable) {}
 
 //----------------------------------------------------------------------------//
 // ParamList
@@ -338,34 +345,35 @@ void FuncDecl::setBody(CompoundStmt* body) {
 //----------------------------------------------------------------------------//
 
 VarDecl::VarDecl(Parent parent, Identifier id, SourceRange idRange, 
-  TypeLoc type, bool isConst, Expr* init, SourceRange range):
-  ValueDecl(DeclKind::VarDecl, parent, id, idRange, type.withoutLoc(), 
-    isConst, range), init_(init), typeRange_(type.getRange()) {}
+  TypeLoc type, Keyword kw, Expr* init, SourceRange range):
+  ValueDecl(DeclKind::VarDecl, parent, id, idRange, type.withoutLoc(), range),
+  initAndKW_(init, kw), typeRange_(type.getRange()) {}
 
 VarDecl* VarDecl::create(ASTContext& ctxt, Parent parent, Identifier id,
-  SourceRange idRange, TypeLoc type, bool isConst, Expr* init, 
+  SourceRange idRange, TypeLoc type, Keyword kw, Expr* init, 
   SourceRange range) {
-  return new(ctxt) VarDecl(parent, id, idRange, type, isConst, init, range);
+  return new(ctxt) VarDecl(parent, id, idRange, type, kw, init, range);
 }
 
 Expr* VarDecl::getInitExpr() const {
-  return init_;
+  return initAndKW_.getPointer();
 }
 
 bool VarDecl::hasInitExpr() const {
-  return (bool)init_;
+  return (bool)initAndKW_.getPointer();
 }
 
 bool VarDecl::isVar() const {
-  return !isConst();
+  // The int in initAndVarKind_ is set to false for Vars
+  return (initAndKW_.getInt() == Keyword::Var);
 }
 
 bool VarDecl::isLet() const {
-  return isConst();
+  return (initAndKW_.getInt() == Keyword::Let);
 }
 
 void VarDecl::setInitExpr(Expr* expr) {
-  init_ = expr;
+  initAndKW_.setPointer(expr);
 }
 
 SourceRange VarDecl::getTypeRange() const {

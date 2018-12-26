@@ -183,7 +183,6 @@ namespace fox {
       void setType(Type ty);
 
       bool isConst() const;
-      void setIsConst(bool k);
 
       static bool classof(const Decl* decl) {
         return (decl->getKind() >= DeclKind::First_ValueDecl) 
@@ -192,11 +191,10 @@ namespace fox {
 
     protected:
       ValueDecl(DeclKind kind, Parent parent, Identifier id, 
-        SourceRange idRange, Type ty, bool isConst, SourceRange range);
+        SourceRange idRange, Type ty, SourceRange range);
 
     private:
-      // Type + isConst flag
-      llvm::PointerIntPair<Type, 1> typeAndIsConst_;
+      Type type_;
   };
 
   // ParamDecl
@@ -222,6 +220,7 @@ namespace fox {
       ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
         TypeLoc type, bool isMutable, SourceRange range);
 
+      bool isMut_ : 1;
       SourceRange typeRange_;
   };
 
@@ -308,9 +307,15 @@ namespace fox {
   //    using "var".
   class VarDecl final: public ValueDecl {
     public:
+      enum class Keyword {
+        Let, Var
+        // No more room in this enum. If you want to add elements,
+        // increase the size of the initAndKW_ pair.
+      };
+
       static VarDecl* create(ASTContext& ctxt, Parent parent,
         Identifier id, SourceRange idRange, TypeLoc type, 
-        bool isConst, Expr* init, SourceRange range);
+        Keyword kw, Expr* init, SourceRange range);
 
       Expr* getInitExpr() const;
       void setInitExpr(Expr* expr);
@@ -321,8 +326,10 @@ namespace fox {
       TypeLoc getTypeLoc() const;
 
       // Returns true if this variable was declared using the "var" keyword
+      // (and thus, is mutable)
       bool isVar() const;
       // Returns true if this variable was declared using the "let" keyword
+      // (and thus, is a constant)
       bool isLet() const;
 
       static bool classof(const Decl* decl) {
@@ -331,10 +338,12 @@ namespace fox {
 
     private:
       VarDecl(Parent parent, Identifier id, SourceRange idRange, TypeLoc type,
-        bool isConst, Expr* init, SourceRange range);
+        Keyword kw, Expr* init, SourceRange range);
 
       SourceRange typeRange_;
-      Expr* init_ = nullptr;
+      // This VarDecl's initializer + the Keyword used to declare
+      // this Variable.
+      llvm::PointerIntPair<Expr*, 1, Keyword> initAndKW_;
   };
 
   // UnitDecl
