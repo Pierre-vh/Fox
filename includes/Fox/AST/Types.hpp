@@ -35,12 +35,13 @@ namespace fox {
   // a valid reason. Always use the Type wrapper. (see Type.hpp)
   class alignas(TypeBaseAlignement) TypeBase {
     public:
-      /* Returns the type's name in a user friendly form, 
-         e.g. "int", "string" */
+      // Returns the type's name in a user friendly form, 
+      //   e.g. "int", "string"
       std::string toString() const;
 
-      /* Returns the type's name in a developer-friendly form, 
-         e.g. "Array(int)" instead of [int]" */
+      // Returns the type's name in a more "developer-friendly"
+      // form, which provides more information.
+      //   e.g. "Array(int)" instead of [int]"
       std::string toDebugString() const;
 
       void dump() const;
@@ -49,9 +50,8 @@ namespace fox {
 
       // Returns true if this is a bound type.
       //
-      // A bound type is a type that can be materialized. In short,
-      // every type is a bound type except types that countains 
-      // CellTypes with no substitution somewhere in their hierarchy.
+      // A bound type is a type that doesn't contain
+      // CellTypes with no substitution somewhere in it's hierarchy.
       bool isBound() const;
 
       // Returns the element type if this is an ArrayType, otherwise returns
