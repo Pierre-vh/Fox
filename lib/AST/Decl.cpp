@@ -24,9 +24,13 @@ using namespace fox;
   #ID " is allocated in the ASTContext: It's destructor is never called!");
 #include "Fox/AST/DeclNodes.def"
 
+
 Decl::Decl(DeclKind kind, Parent parent, SourceRange range):
   kind_(kind), range_(range), parent_(parent), 
-  checkState_(CheckState::Unchecked) {}
+  checkState_(CheckState::Unchecked) {
+  assert((parent || isa<UnitDecl>(this)) && "Every decl except UnitDecls must"
+    " have a parent!");
+}
 
 DeclKind Decl::getKind() const {
   return kind_;
