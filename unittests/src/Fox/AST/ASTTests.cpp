@@ -268,45 +268,23 @@ TEST_F(ASTTest, StmtRTTI) {
 }
 
 namespace {
-  VarDecl* createEmptyVarDecl(ASTContext& ctxt, DeclContext* dc = nullptr) {
-    return VarDecl::create(ctxt, dc, Identifier(), SourceRange(), TypeLoc(), 
+  VarDecl* createEmptyVarDecl(ASTContext& ctxt, Decl::Parent parent) {
+    return VarDecl::create(ctxt, parent, Identifier(), SourceRange(), TypeLoc(), 
       VarDecl::Keyword::Let, nullptr, SourceRange());
   }
 
-  FuncDecl* createEmptyFnDecl(ASTContext& ctxt, DeclContext* dc = nullptr) {
-    return FuncDecl::create(ctxt, dc, Identifier(), SourceRange(), TypeLoc(), 
+  FuncDecl* createEmptyFnDecl(ASTContext& ctxt, UnitDecl* unit) {
+    return FuncDecl::create(ctxt, unit, Identifier(), SourceRange(), TypeLoc(), 
       SourceRange());
   }
 
-  ParamDecl* createEmptyParamDecl(ASTContext& ctxt) {
-    return ParamDecl::create(ctxt, nullptr, Identifier(), SourceRange(),
+  ParamDecl* createEmptyParamDecl(ASTContext& ctxt, FuncDecl* func) {
+    return ParamDecl::create(ctxt, func, Identifier(), SourceRange(),
       TypeLoc(), false, SourceRange());
   }
 }
 
 TEST_F(ASTTest, DeclRTTI) {
-  // Arg
-  ParamDecl* paramdecl = createEmptyParamDecl(ctxt);
-  EXPECT_EQ(paramdecl->getKind(), DeclKind::ParamDecl);
-  EXPECT_TRUE(ParamDecl::classof(paramdecl));
-  EXPECT_TRUE(NamedDecl::classof(paramdecl));
-  EXPECT_TRUE(ValueDecl::classof(paramdecl));
-  EXPECT_FALSE(DeclContext::classof(paramdecl));
-
-  // Func
-  auto* fndecl = createEmptyFnDecl(ctxt);
-  EXPECT_EQ(fndecl->getKind(), DeclKind::FuncDecl);
-  EXPECT_TRUE(FuncDecl::classof((Decl*)fndecl));
-  EXPECT_TRUE(NamedDecl::classof(fndecl));
-
-  // Var
-  auto* vdecl = createEmptyVarDecl(ctxt);
-  EXPECT_EQ(vdecl->getKind(), DeclKind::VarDecl);
-  EXPECT_TRUE(VarDecl::classof(vdecl));
-  EXPECT_TRUE(NamedDecl::classof(vdecl));
-  EXPECT_TRUE(ValueDecl::classof(vdecl));
-  EXPECT_FALSE(DeclContext::classof(vdecl));
-
   // Unit
   Identifier id; FileID fid;
   DeclContext dc(ctxt, DeclContextKind::UnitDecl);
@@ -315,6 +293,28 @@ TEST_F(ASTTest, DeclRTTI) {
   EXPECT_EQ(udecl->getDeclContextKind(), DeclContextKind::UnitDecl);
   EXPECT_TRUE(UnitDecl::classof((Decl*)udecl));
   EXPECT_TRUE(DeclContext::classof(udecl));
+
+  // Func
+  auto* fndecl = createEmptyFnDecl(ctxt, udecl);
+  EXPECT_EQ(fndecl->getKind(), DeclKind::FuncDecl);
+  EXPECT_TRUE(FuncDecl::classof((Decl*)fndecl));
+  EXPECT_TRUE(NamedDecl::classof(fndecl));
+
+  // Arg
+  ParamDecl* paramdecl = createEmptyParamDecl(ctxt, fndecl);
+  EXPECT_EQ(paramdecl->getKind(), DeclKind::ParamDecl);
+  EXPECT_TRUE(ParamDecl::classof(paramdecl));
+  EXPECT_TRUE(NamedDecl::classof(paramdecl));
+  EXPECT_TRUE(ValueDecl::classof(paramdecl));
+  EXPECT_FALSE(DeclContext::classof(paramdecl));
+
+  // Var
+  auto* vdecl = createEmptyVarDecl(ctxt, fndecl);
+  EXPECT_EQ(vdecl->getKind(), DeclKind::VarDecl);
+  EXPECT_TRUE(VarDecl::classof(vdecl));
+  EXPECT_TRUE(NamedDecl::classof(vdecl));
+  EXPECT_TRUE(ValueDecl::classof(vdecl));
+  EXPECT_FALSE(DeclContext::classof(vdecl));
 }
 
 TEST_F(ASTTest, DeclDeclContextRTTI) {
@@ -327,33 +327,36 @@ TEST_F(ASTTest, DeclDeclContextRTTI) {
   EXPECT_EQ(udecl, dyn_cast<UnitDecl>(tmp));
 }
 
-// ASTVisitor tests : Samples implementations to test if visitors works as intended
-class IsNamedDecl : public SimpleASTVisitor<IsNamedDecl, bool> {
-  public:
-    bool visitNamedDecl(NamedDecl* node) {
-      return true;
-    }
-};
+namespace {
+  //ASTVisitor tests : Samples implementations to test if visitors works as intended
+  class IsNamedDecl : public SimpleASTVisitor<IsNamedDecl, bool> {
+    public:
+      bool visitNamedDecl(NamedDecl* node) {
+        return true;
+      }
+  };
 
-class IsExpr : public SimpleASTVisitor<IsExpr, bool> {
-  public:
-    bool visitExpr(Expr* node) {
-      return true;
-    }
-};
+  class IsExpr : public SimpleASTVisitor<IsExpr, bool> {
+    public:
+      bool visitExpr(Expr* node) {
+        return true;
+      }
+  };
 
-class IsArrTy : public SimpleASTVisitor<IsArrTy, bool> {
-  public:
-    bool visitArrayType(ArrayType* node) {
-      return true;
-    }
-};
+  class IsArrTy : public SimpleASTVisitor<IsArrTy, bool> {
+    public:
+      bool visitArrayType(ArrayType* node) {
+        return true;
+      }
+  };
+}
 
 TEST_F(ASTTest, BasicVisitor) {
   // Create test nodes
   auto* intlit = IntegerLiteralExpr::create(ctxt, 42, SourceRange());
   auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
-  auto* vardecl = createEmptyVarDecl(ctxt);
+  UnitDecl* unit = UnitDecl::create(ctxt, nullptr, Identifier(), FileID());
+  auto* vardecl = createEmptyVarDecl(ctxt, unit);
   auto* intTy = PrimitiveType::getInt(ctxt);
   auto* arrInt = ArrayType::get(ctxt, intTy);
 
