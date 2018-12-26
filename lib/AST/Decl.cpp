@@ -184,7 +184,7 @@ bool ValueDecl::isConst() const {
       return !(cast<ParamDecl>(this)->isMutable());
     case DeclKind::FuncDecl:
       // FuncDecls are always const.
-      return false;
+      return true;
     default:
       fox_unreachable("Unknown ValueDecl kind!");
   }
