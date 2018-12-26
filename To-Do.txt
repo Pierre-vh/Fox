@@ -122,6 +122,9 @@ To-Do:
       > Test (VerifyMode + FileCheck tests)
 
   > CallExpr checking
+    > Doesn't need to check the DeclRefExpr itself since mut has no impact on 
+      the call syntax. Just check for a FunctionType and work with that.
+
   > ReturnStmt checking
     > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
       as parent, so use a PointerUnion<FuncDecl*, LocalScope*> for the parent)
