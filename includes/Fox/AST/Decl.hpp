@@ -353,8 +353,7 @@ namespace fox {
   //    Represents a parsed Source file.
   class UnitDecl final: public Decl, public DeclContext {
     public:
-      static UnitDecl* create(ASTContext& ctxt, DeclContext* parent,
-        Identifier id, FileID file);
+      static UnitDecl* create(ASTContext& ctxt, Identifier id, FileID file);
 
       Identifier getIdentifier() const;
       void setIdentifier(Identifier id);
@@ -371,8 +370,7 @@ namespace fox {
       }
 
     private:
-      UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id, 
-        FileID inFile);
+      UnitDecl(ASTContext& ctxt, Identifier id, FileID inFile);
 
       Identifier identifier_;
       ASTContext& ctxt_;

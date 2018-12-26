@@ -23,9 +23,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
   assert(fid && "FileID cannot be invalid!");
 
   // Create the unit
-  assert(isDeclParentADeclCtxtOrNull() && "UnitDecls cannot be local decls!");
-  auto* dc = getDeclParent().dyn_cast<DeclContext*>();
-  auto* unit = UnitDecl::create(ctxt, dc, unitName, fid);
+  auto* unit = UnitDecl::create(ctxt, unitName, fid);
 
   // Create a RAIIDeclParent
   RAIIDeclParent raiidr(this, unit);

@@ -288,7 +288,7 @@ TEST_F(ASTTest, DeclRTTI) {
   // Unit
   Identifier id; FileID fid;
   DeclContext dc(ctxt, DeclContextKind::UnitDecl);
-  UnitDecl* udecl = UnitDecl::create(ctxt, &dc, id, fid);
+  UnitDecl* udecl = UnitDecl::create(ctxt, id, fid);
   EXPECT_EQ(udecl->getKind(), DeclKind::UnitDecl);
   EXPECT_EQ(udecl->getDeclContextKind(), DeclContextKind::UnitDecl);
   EXPECT_TRUE(UnitDecl::classof((Decl*)udecl));
@@ -322,7 +322,7 @@ TEST_F(ASTTest, DeclDeclContextRTTI) {
   DeclContext dc(ctxt, DeclContextKind::UnitDecl);
 
   // UnitDecl -> DeclContext -> UnitDecl
-  UnitDecl* udecl = UnitDecl::create(ctxt, &dc, id, fid);
+  UnitDecl* udecl = UnitDecl::create(ctxt, id, fid);
   DeclContext* tmp = udecl;
   EXPECT_EQ(udecl, dyn_cast<UnitDecl>(tmp));
 }
@@ -355,7 +355,7 @@ TEST_F(ASTTest, BasicVisitor) {
   // Create test nodes
   auto* intlit = IntegerLiteralExpr::create(ctxt, 42, SourceRange());
   auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
-  UnitDecl* unit = UnitDecl::create(ctxt, nullptr, Identifier(), FileID());
+  UnitDecl* unit = UnitDecl::create(ctxt, Identifier(), FileID());
   auto* vardecl = createEmptyVarDecl(ctxt, unit);
   auto* intTy = PrimitiveType::getInt(ctxt);
   auto* arrInt = ArrayType::get(ctxt, intTy);

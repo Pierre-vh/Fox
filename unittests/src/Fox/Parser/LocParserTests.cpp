@@ -41,7 +41,7 @@ class LocTests : public ::testing::Test {
         FAIL() << "Lexing Error";
       }
 
-      theUnit = UnitDecl::create(astContext, nullptr, Identifier(), FileID());
+      theUnit = UnitDecl::create(astContext, Identifier(), FileID());
 
       parser = std::make_unique<Parser>(astContext, lexer->getTokenVector(), theUnit);
       ok = true;

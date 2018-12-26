@@ -403,8 +403,8 @@ TypeLoc VarDecl::getTypeLoc() const {
 // UnitDecl
 //----------------------------------------------------------------------------//
 
-UnitDecl::UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id,
-  FileID file): Decl(DeclKind::UnitDecl, parent, SourceRange()),
+UnitDecl::UnitDecl(ASTContext& ctxt, Identifier id, FileID file):
+  Decl(DeclKind::UnitDecl, (DeclContext*)nullptr, SourceRange()),
   identifier_(id), DeclContext(ctxt, DeclContextKind::UnitDecl),
   ctxt_(ctxt) {
   // Fetch the SourceRange from the SourceManager if the file is valid
@@ -415,9 +415,8 @@ UnitDecl::UnitDecl(ASTContext& ctxt, DeclContext* parent, Identifier id,
   }
 }
 
-UnitDecl* UnitDecl::create(ASTContext& ctxt, DeclContext* parent, 
-  Identifier id, FileID file) {
-  return new(ctxt) UnitDecl(ctxt, parent, id, file);
+UnitDecl* UnitDecl::create(ASTContext& ctxt,Identifier id, FileID file) {
+  return new(ctxt) UnitDecl(ctxt, id, file);
 }
 
 Identifier UnitDecl::getIdentifier() const {
