@@ -157,6 +157,8 @@ bool Driver::doCL(int argc, char* argv[]) {
 
   // Get file path
   std::string filepath = argv[1];
+  if((filepath.front() == '"') && (filepath.back() == '"'))
+    filepath = filepath.substr(1, filepath.size()-2);
 
   for(int idx = 2; idx < argc; ++idx) {
     string_view str(argv[idx]);
