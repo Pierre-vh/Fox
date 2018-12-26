@@ -119,8 +119,11 @@ To-Do:
   > Name binding logic in visitUnresolvedDeclRefExpr (Next)
       > For Vars and Params (Done)
       > For Funcs (Next)
-        > Make FuncDecl a ValueDecl:
-            Always constant, type is the FunctionType. 
+        > Make FuncDecl a ValueDecl
+          > Have a private "computeType" function that's called in
+            ::create
+            setParams
+            setReturnType
       > Test (VerifyMode + FileCheck tests)
 
   > CallExpr checking
