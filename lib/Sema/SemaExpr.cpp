@@ -258,8 +258,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type valueType = found->getType();
       assert(valueType && "ValueDecl doesn't have a Type!");
       // If it's a non const ValueDecl, wrap it in a LValue
-      if(!found->isConst())
+      if(!found->isConst()) {
+        assert(!isa<FuncDecl>(found) && "FuncDecl are always const!");
         valueType = LValueType::get(getCtxt(), valueType);
+      }
 
       resolved->setType(valueType);
       return resolved;
