@@ -363,7 +363,7 @@ PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const {
 
 ArrayType::ArrayType(Type elemTy):
   elementTy_(elemTy), TypeBase(TypeKind::ArrayType) {
-  assert(elemTy && "The Array item type cannot be null!");
+  assert(elemTy && "cannot be null");
 }
 
 ArrayType* ArrayType::get(ASTContext& ctxt, Type ty) {
@@ -394,6 +394,7 @@ Type ArrayType::getElementType() const {
 LValueType::LValueType(Type type):
   TypeBase(TypeKind::LValueType), ty_(type) {
   assert(type && "cannot be null");
+  assert((!type->is<LValueType>()) && "Can't create nested LValueTypes!");
 }
 
 LValueType* LValueType::get(ASTContext& ctxt, Type ty) {
