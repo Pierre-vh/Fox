@@ -59,6 +59,10 @@ namespace fox {
       // If "decl" is a NamedDecl, it is expected to have a valid identifier
       void addDecl(Decl* decl);
 
+      // Return the ASTContext by walking up to the root UnitDecl
+      // and returning it's ASTContext.
+      ASTContext& getASTContext() const;
+
       // Returns the vector of decls used internally by this DeclContext;
       // This is a lexically accurate view since the declarations are in order
       // of insertion (First element of the vector is the first decl added in
@@ -67,7 +71,6 @@ namespace fox {
 
       const LookupMap& getLookupMap();
 
-      void setParentDeclCtxt(DeclContext *dr);
       bool hasParentDeclCtxt() const;
       DeclContext* getParentDeclCtxt() const;
 
@@ -92,7 +95,7 @@ namespace fox {
       
       // A PointerIntPair which contains the parent of this DeclContext + the
       // kind of DeclContext this is.
-      ParentAndKindTy parentAndKind_;
+      const ParentAndKindTy parentAndKind_;
       DeclData* data_ = nullptr;
 
       // Check that ParentAndKindTy has enough bits to represent

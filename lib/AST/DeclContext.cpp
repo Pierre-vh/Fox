@@ -21,6 +21,8 @@ DeclContext::DeclContext(ASTContext& ctxt, DeclContextKind kind,
   DeclContext* parent): parentAndKind_(parent, toInt(kind)),
   data_(DeclData::create(ctxt, this)) {
   assert(data_ && "DeclContext data not created");  
+  assert((parent || isa<UnitDecl>(this)) && "Every DeclContexts except "
+    "UnitDecls must have a parent!");
 }
 
 DeclContextKind DeclContext::getDeclContextKind() const {
@@ -42,6 +44,12 @@ void DeclContext::addDecl(Decl* decl) {
   }
 }
 
+ASTContext& DeclContext::getASTContext() const {
+  if(const UnitDecl* unit = dyn_cast<UnitDecl>(this))
+    return unit->getASTContext();
+  return getParentDeclCtxt()->getASTContext();
+}
+
 bool DeclContext::hasParentDeclCtxt() const {
   return parentAndKind_.getPointer() != nullptr;
 }
@@ -60,10 +68,6 @@ const DeclContext::LookupMap& DeclContext::getLookupMap() {
   assert(data().lookupMap && "buildLookupMap() did not build the "
     "LookupMap!");
   return *(data().lookupMap);
-}
-
-void DeclContext::setParentDeclCtxt(DeclContext* dr) {
-  parentAndKind_.setPointer(dr);
 }
 
 std::size_t DeclContext::numDecls() const {
