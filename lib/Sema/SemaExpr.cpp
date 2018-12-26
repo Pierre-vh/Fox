@@ -249,8 +249,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* finalizeReferenceToValueDecl(UnresolvedDeclRefExpr* udre, 
       ValueDecl* found) {
       assert(found);
-      assert((isa<VarDecl>(found) || isa<ParamDecl>(found)) && 
-        "unhandled ValueDecl kind");
 
       // Resolved DeclRef
       DeclRefExpr* resolved = 
@@ -267,11 +265,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return resolved;
     }
 
-    Expr* finalizeReferenceToFuncDecl(UnresolvedDeclRefExpr* udre,
-      FuncDecl*) {
-      // TODO
-      return udre;
-    }
     //----------------------------------------------------------------------//
     // ASTWalker overrides
     //----------------------------------------------------------------------//
@@ -510,8 +503,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(decl && "not ambiguous, not empty, but not single?");
       if(ValueDecl* valueDecl = dyn_cast<ValueDecl>(decl)) 
         return finalizeReferenceToValueDecl(expr, valueDecl);
-      else if(FuncDecl* funcDecl = dyn_cast<FuncDecl>(decl))
-        return finalizeReferenceToFuncDecl(expr, funcDecl);
+      // For now, every NamedDecl is also a ValueDecl
       fox_unreachable("unknown NamedDecl kind");
     }
 
@@ -834,8 +826,22 @@ namespace {
         return type;
       }
 
-      Type visitFunctionType(FunctionType*) {
-        fox_unimplemented_feature("visitFunctionType for ExprFinalizer");
+      Type visitFunctionType(FunctionType* type) {
+        // Get return type
+        Type returnType = visit(type->getReturnType());
+        if(!returnType) return nullptr;
+        // Get Param types
+        SmallVector<Type, 4> paramTypes;
+        for(auto param : type->getParamTypes()) {
+          if(Type t = visit(param))
+            paramTypes.push_back(t);
+          else 
+            return nullptr;
+        }
+        // Recompute if needed
+        if(!type->isSame(paramTypes, returnType))
+          return FunctionType::get(ctxt_, paramTypes, returnType);
+        return type;
       }
   };
 } // End anonymous namespace
