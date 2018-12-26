@@ -146,7 +146,6 @@ namespace fox {
   class NamedDecl : public Decl {
     public:
       Identifier getIdentifier() const;
-      void setIdentifier(Identifier id);
       void setIdentifier(Identifier id, SourceRange idRange);
       bool hasIdentifier() const;
 
@@ -154,7 +153,6 @@ namespace fox {
       void setIsIllegalRedecl(bool val);
 
       SourceRange getIdentifierRange() const;
-      void setIdentifierRange(SourceRange range);
       bool hasIdentifierRange() const;
 
       static bool classof(const Decl* decl) {
@@ -270,12 +268,18 @@ namespace fox {
   
   // FuncDecl
   //    A function declaration
-  class FuncDecl final: public NamedDecl {
+  class FuncDecl final: public ValueDecl {
     public:
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent,
-        Identifier id, SourceRange idRange, TypeLoc type, 
+        Identifier id, SourceRange idRange, TypeLoc returnType, 
         SourceRange range);
 
+      // Creates an "empty" FuncDecl that has no identifier, no sourceloc
+      // info, no parameters and returns void.
+      static FuncDecl* create(ASTContext& ctxt, DeclContext* parent);
+
+      // Sets the return type of this FuncDecl. 
+      // This will nullify the ValueDecl type.
       void setReturnTypeLoc(TypeLoc ty);
       TypeLoc getReturnTypeLoc() const;
       Type getReturnType() const;
@@ -285,18 +289,26 @@ namespace fox {
       void setBody(CompoundStmt* body);
       CompoundStmt* getBody() const;
 
+      // Sets the parameters of this FuncDecl. 
+      // This will nullify the ValueDecl type.
       void setParams(ParamList* params);
       const ParamList* getParams() const;
       ParamList* getParams();
       bool hasParams() const;
+
+      // (Re)calculates this ValueDecl type for this FuncDecl
+      void calculateType();
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::FuncDecl;
       }
       
     private:
+      // Calculates this Function's type (ValueDecl->set/getType)
+      void computeType();
+
       FuncDecl(DeclContext* parent, Identifier fnId, SourceRange idRange,
-        TypeLoc rtrTy, SourceRange range);
+        TypeLoc returnType, SourceRange range);
 
       TypeLoc returnType_;
       ParamList* params_ = nullptr;
