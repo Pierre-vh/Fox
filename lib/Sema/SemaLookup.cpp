@@ -62,7 +62,7 @@ namespace {
       if(it != map.end())
         if(!onFound(it->second)) return;
       // Climb parent scopes
-      cur = scope->getParent();
+      cur = cur->getParent();
     }
   }
 }
