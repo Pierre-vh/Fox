@@ -53,7 +53,7 @@ void Parser::actOnDecl(Decl* decl) {
   }
   else {
     assert(!isa<FuncDecl>(decl) && "FuncDecls cannot be local");
-    assert(decl->getFuncDeclIfLocal() && "Decl is local but doesn't have a non-null "
+    assert(decl->getFuncDecl() && "Decl is local but doesn't have a non-null "
       "FuncDecl as Parent?");
   }
 }
