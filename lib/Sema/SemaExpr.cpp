@@ -507,17 +507,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       fox_unreachable("unknown NamedDecl kind");
     }
 
-    Expr* visitDeclRefExpr(DeclRefExpr* expr) {
-      ValueDecl* ref = expr->getDecl();
-      assert(ref && "Resolved DeclRef with nullptr DeclRefExpr");
-      // The type of the expr is simply the type of the Decl this
-      // DeclRef references.
-      Type type = ref->getType();
-      // Unless constant, wrap in LValue
-      if (!ref->isConst())
-        type = LValueType::get(getCtxt(), type);
-      expr->setType(type);
-      return expr;
+    Expr* visitDeclRefExpr(DeclRefExpr*) {
+      // Shouldn't happen at all.
+      fox_unreachable("Expr checked twice!");
     }
 
     Expr* visitFunctionCallExpr(FunctionCallExpr* expr) {

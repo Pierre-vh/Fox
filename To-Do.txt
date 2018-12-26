@@ -118,12 +118,7 @@ To-Do:
 
   > Name binding logic in visitUnresolvedDeclRefExpr (Next)
       > For Vars and Params (Done)
-      > For Funcs (Next)
-        > Make FuncDecl a ValueDecl
-          > Have a private "computeType" function that's called in
-            ::create
-            setParams
-            setReturnType
+      > For Funcs (Done)
       > Test (VerifyMode + FileCheck tests)
 
   > CallExpr checking
@@ -158,9 +153,12 @@ Other:
   > Simplify some AST constructors which are way too bloated and contain redundant information
     Examples:
     -> ParamDecl: Can deduce the full range with SourceRange(idRange.begin(), typeRange.end())
-    -> FuncDecl: Range can be deduced using the body's end loc
+    -> FuncDecl: Range can be deduced using the body's end loc. 
+                 Also, maybe it's a good idea to remove the "complete" ctor entirely, 
+                 as it's never used anyways.
 
-  > Improve clarity of ASTDump, especially for ValueDecl/DeclRefExpr dumps
+  > Improve clarity of ASTDump, especially for ValueDecl/DeclRefExpr dumps.
+    Maybe even rewrite it completely, as it's a mess right now.
 
   > Allow cast expr chaining (update grammar & parser)
     This isn't really a commonly used feature, but I hate seeing errors just because I type
