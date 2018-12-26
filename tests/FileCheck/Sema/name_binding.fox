@@ -1,0 +1,24 @@
+﻿// RUN: %fox-dump-ast | %filecheck
+
+//----------------------------------------------------------------------------//
+// Test name binding to variables in global scope
+//----------------------------------------------------------------------------//
+
+// CHECK: VarDecl [[global_a_addr:0x([[:alnum:]]{8,12})]] {{.*}} let a 'int'
+let a : int;
+
+// CHECK-NEXT: FuncDecl [[foo_addr:0x([[:alnum:]]{8,12})]] {{.*}} foo '(char) -> int'
+// CHECK-NEXT: ParamDecl [[param_a_addr:0x([[:alnum:]]{8,12})]] {{.*}} a 'char'
+func foo(a : char) : int {
+  // CHECK: DeclRefExpr 'char' a <decl:[[param_a_addr]]>
+  a;
+  // CHECK-NEXT: DeclRefExpr '(char) -> int' foo <decl:[[foo_addr]]>
+  foo;
+  // todo: test with global_b_addr
+  // CHECK-NEXT: DeclRefExpr '[string]' b
+  b;
+}
+
+// CHECK: VarDecl [[global_b_addr:0x([[:alnum:]]{8,12})]] {{.*}} let b '[string]'
+// CHECK: DeclRefExpr 'int' a <decl:[[global_a_addr]]>
+let b : [string] = [a as string];
