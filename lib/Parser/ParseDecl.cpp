@@ -178,11 +178,11 @@ Parser::DeclResult Parser::parseFuncDecl() {
       // If resynced successfully, use the colon as the end of the header
       // and consider the return type to be void
       headEndLoc = colon;
-      rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt));
+      rtr->setReturnsVoid();
     }
   }
   // if no return type, the function returns void.
-  else rtr->setReturnTypeLoc(PrimitiveType::getVoid(ctxt));
+  else rtr->setReturnsVoid();
 
   // <compound_statement>
   StmtResult compStmt = parseCompoundStatement();
