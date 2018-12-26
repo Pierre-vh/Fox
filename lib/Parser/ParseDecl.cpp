@@ -92,9 +92,11 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // For FuncDecl, the return node is created prematurely as an "empty shell",
   // because we need it to exist so declarations that are parsed inside it's body
   // can be notified that they are being parsed as part of a declaration.
+  //
+  // Note that the FuncDecl's "shortened" create method automatically sets
+  // the Return type to void.
   auto* parentDC = getDeclParentAsDeclCtxt();
-  FuncDecl* rtr = FuncDecl::create(ctxt, parentDC, Identifier(), SourceRange(),
-    TypeLoc(), SourceRange());
+  FuncDecl* rtr = FuncDecl::create(ctxt, parentDC);
 
   // Create a RAIIDeclParent to notify every parsing function that
   // we're currently parsing a FuncDecl
@@ -178,11 +180,11 @@ Parser::DeclResult Parser::parseFuncDecl() {
       // If resynced successfully, use the colon as the end of the header
       // and consider the return type to be void
       headEndLoc = colon;
-      rtr->setReturnsVoid();
     }
   }
   // if no return type, the function returns void.
-  else rtr->setReturnsVoid();
+  // (We don't need to change anything since it's the default type
+  //  set by the ctor)
 
   // <compound_statement>
   StmtResult compStmt = parseCompoundStatement();
@@ -213,6 +215,9 @@ Parser::DeclResult Parser::parseFuncDecl() {
   rtr->setRange(range);
   // Record it
   actOnDecl(rtr);
+  // Calculate it's ValueDecl type
+  rtr->calculateType();
+  assert(rtr->getType() && "FuncDecl type not calculated");
   return DeclResult(rtr);
 }
 
