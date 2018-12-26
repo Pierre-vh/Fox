@@ -97,7 +97,7 @@ void ASTDumper::visitDeclRefExpr(DeclRefExpr* node) {
   assert(ref && "no referenced decl");
   dumpLine() << getBasicExprInfo(node) << " "
     << ref->getIdentifier() << " "
-    << makeKeyPairDump("references", (void*)node->getDecl())
+    << makeKeyPairDump("decl", (void*)node->getDecl())
     << "\n";
 }
 
