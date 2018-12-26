@@ -78,8 +78,8 @@ namespace fox {
 
       bool isDebug() const;
 
-      std::string toString(Type type, bool isConst = false) const;
-      std::string toString(TypeLoc type, bool isConst = false) const;
+      std::string toString(Type type) const;
+      std::string toString(TypeLoc type) const;
       std::string toString(SourceRange range) const;
 
       const SourceManager::SourceData* getSourceData(FileID fid);

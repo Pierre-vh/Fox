@@ -242,9 +242,7 @@ void ASTDumper::visitParamDecl(ParamDecl* node) {
 }
 
 void ASTDumper::visitFuncDecl(FuncDecl* node) {
-  dumpLine() << getBasicDeclInfo(node) << " "
-             << node->getIdentifier() << " "
-             << toString(node->getReturnTypeLoc()) << "\n";
+  dumpLine() << getValueDeclInfo(node) << "\n";
 
   for (auto decl : *node->getParams()) {
     indent();
@@ -268,15 +266,13 @@ bool ASTDumper::isDebug() const {
   return debug_;
 }
 
-std::string ASTDumper::toString(Type type, bool isConst) const {
+std::string ASTDumper::toString(Type type) const {
   std::string typeStr = isDebug() ? type->toDebugString() : type->toString();
-  if (isConst)
-    return addSingleQuotes("const " + typeStr);
   return addSingleQuotes(typeStr);
 }
 
-std::string ASTDumper::toString(TypeLoc type, bool isConst) const {
-  return toString(type.withoutLoc(), isConst) + ":" + toString(type.getRange());
+std::string ASTDumper::toString(TypeLoc type) const {
+  return toString(type.withoutLoc()) + ":" + toString(type.getRange());
 }
 
 std::string ASTDumper::toString(SourceRange range) const {
@@ -384,9 +380,37 @@ std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
 std::string ASTDumper::getValueDeclInfo(ValueDecl* decl) const {
   std::ostringstream ss;
   ss << getBasicDeclInfo(decl) << " ";
-  ss << decl->getIdentifier() << " "
-     << toString(decl->getType(), decl->isConst()) << " ";
 
+  std::string prefix;
+  switch(decl->getKind()) {
+    // For VarDecl, display the keyword
+    case DeclKind::VarDecl:
+    {
+      VarDecl* var = cast<VarDecl>(decl);
+      if(var->isLet())
+        ss << "let ";
+      else if(var->isVar())
+        ss << "var ";
+      else 
+        fox_unreachable("unknown VarDecl keyword");
+      break;
+    }
+    case DeclKind::ParamDecl:
+    {
+      ParamDecl* param = cast<ParamDecl>(decl);
+      if(param->isMutable())
+        ss << "mut ";
+      break;
+    }
+    case DeclKind::FuncDecl:
+      // Don't display anything for FuncDecls
+      break;
+    default:
+      fox_unreachable("Unknown ValueDecl kind!");
+  }
+
+  ss << decl->getIdentifier() << " "
+     << toString(decl->getType());
   return ss.str();
 }
 
