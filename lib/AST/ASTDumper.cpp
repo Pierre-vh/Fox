@@ -25,7 +25,11 @@ namespace {
 	template<typename TyA,typename TyB>
 	std::string makeKeyPairDump(TyA label, TyB value) {
 		std::ostringstream ss;
-		ss << "<" << label << ":" << value << ">";
+		ss << "<" << label << ":";
+    if(std::is_pointer<TyB>::value)
+      ss << "0x" << value << ">";
+    else 
+      ss << value << ">";
 		return ss.str();
 	}
 }
@@ -308,8 +312,6 @@ std::string ASTDumper::getIndent(const uint8_t& num) const {
     std::string rtr;
     for (auto k = totalIndent; k > 0; --k)
       rtr += INDENT;
-
-    rtr += u8"┗";
     return rtr;
   }
   return "";
@@ -352,7 +354,7 @@ std::string ASTDumper::getBasicStmtInfo(Stmt* stmt) const {
   std::ostringstream ss;
   ss << getStmtNodeName(stmt);
   if (isDebug())
-    ss << " " << (void*)stmt;
+    ss << " 0x" << (void*)stmt;
   return ss.str();
 }
 
@@ -360,7 +362,7 @@ std::string ASTDumper::getBasicExprInfo(Expr* expr) const {
   std::ostringstream ss;
   ss << getExprNodeName(expr);
   if (isDebug())
-    ss << " " << (void*)expr;
+    ss << " 0x" << (void*)expr;
   if (auto ty = expr->getType())
     ss << " " << toString(ty);
   return ss.str();
@@ -370,7 +372,7 @@ std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
   std::ostringstream ss;
   std::string sourceRangeDump;
   ss << getDeclNodeName(decl)
-     << " " << (void*)decl
+     << " 0x" << (void*)decl
      << (decl->isLocal() ? " (local)" : "");
 
   ss << " " << getSourceRangeDump("range", decl->getRange());
@@ -428,7 +430,7 @@ std::string ASTDumper::getOperatorDump(UnaryExpr* expr) const {
 
 std::string ASTDumper::getDeclCtxtDump(DeclContext* dr) const {
   std::ostringstream ss;
-  ss << "<DeclContext:" << (void*)dr;
+  ss << "<DeclContext:0x" << (void*)dr;
   if (dr->hasParentDeclCtxt())
     ss << ", Parent:" << (void*)dr->getParentDeclCtxt();
   ss << ">";
