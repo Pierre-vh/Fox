@@ -14,11 +14,10 @@ func foo(a : char) : int {
   a;
   // CHECK-NEXT: DeclRefExpr '(char) -> int' foo <decl:[[foo_addr]]>
   foo;
-  // todo: test with global_b_addr
-  // CHECK-NEXT: DeclRefExpr '[string]' b
-  b;
+  // CHECK-NEXT: DeclRefExpr '[string]' global_b_var
+  global_b_var;
 }
 
-// CHECK: VarDecl [[global_b_addr:0x([[:alnum:]]{8,12})]] {{.*}} let b '[string]'
+// CHECK: VarDecl {{0x([[:alnum:]]{8,12}) .*}} let global_b_var '[string]'
 // CHECK: DeclRefExpr 'int' a <decl:[[global_a_addr]]>
-let b : [string] = [a as string];
+let global_b_var : [string] = [a as string];
