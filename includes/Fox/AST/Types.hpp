@@ -233,6 +233,10 @@ namespace fox {
       static FunctionType* get(ASTContext& ctxt, ArrayRef<Type> params,
         Type rtr);
 
+      // Return true if this FunctionType's parameter types and return
+      // type match the ones passed as parameters.
+      bool isSame(ArrayRef<Type> params, Type rtr);
+
       Type getReturnType() const;
       ArrayRef<Type> getParamTypes() const;
       Type getParamType(std::size_t idx) const;

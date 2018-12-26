@@ -486,29 +486,6 @@ namespace {
     // hash the data
     return llvm::hash_combine_range(bytes.begin(), bytes.end());
   }
-
-  bool strictEquality(ArrayRef<Type> params, Type rtr, 
-    FunctionType* other) {
-    Type otherRtr = other->getReturnType();
-
-    // Check that the return type matches
-    if(otherRtr.getPtr() != rtr.getPtr()) 
-      return false;
-
-    // Check that the number of parameters matches
-    if(params.size() != other->numParams())
-      return false;
-
-    // Check parameters individually
-    std::size_t num = other->numParams();
-    for(std::size_t idx = 0; idx < num; ++idx) {
-      Type param = params[idx];
-      Type otherParam = other->getParamType(idx);
-      if(param != otherParam)
-        return false;
-    }
-    return true;
-  }
 }
 
 FunctionType* FunctionType::get(ASTContext& ctxt, ArrayRef<Type> params, 
@@ -523,7 +500,7 @@ FunctionType* FunctionType::get(ASTContext& ctxt, ArrayRef<Type> params,
     FunctionType* fn = it->second;
     // Sanity check : compare that they're strictly equal. If they're
     // not, we may have encountered a hash collision.
-    if(!strictEquality(params, rtr, fn)) {
+    if(!fn->isSame(params, rtr)) {
       fox_unreachable("Hash collision detected. Two different function types "
         "had the same hash value!");
     }
@@ -539,6 +516,25 @@ FunctionType* FunctionType::get(ASTContext& ctxt, ArrayRef<Type> params,
     map.insert({hash, created});
     return created;
   }
+}
+
+bool FunctionType::isSame(ArrayRef<Type> params, Type rtr) {
+  Type myRtrTy = getReturnType();
+
+  // Check that the return type matches
+  if(myRtrTy != rtr) return false;
+
+  // Check that the number of parameters matches
+  if(params.size() != numParams()) return false;
+
+  // Check parameters individually
+  std::size_t num = numParams();
+  for(std::size_t idx = 0; idx < num; ++idx) {
+    Type param = params[idx];
+    Type myParam = getParamType(idx);
+    if(param != myParam) return false;
+  }
+  return true;
 }
 
 Type FunctionType::getReturnType() const {
