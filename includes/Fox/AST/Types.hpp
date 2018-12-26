@@ -5,11 +5,6 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file contains the TypeBase hierarchy.
-//
-//  Unlike Stmt/Decl/Expr hierarchies, this hierarchy is exclusively
-//  allocated/created through static member functions. This is done because
-//  most types are unique.
-//
 //----------------------------------------------------------------------------//
 
 #pragma once
