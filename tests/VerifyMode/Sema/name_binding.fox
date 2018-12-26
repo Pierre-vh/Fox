@@ -1,0 +1,47 @@
+// RUN: %fox-verify 
+
+//----------------------------------------------------------------------------//
+// Test name binding to variables in global scope
+//----------------------------------------------------------------------------//
+
+let foo_before : int;
+
+func test_global() {
+  // Both should be accepted without any error
+  foo_before + foo_after;
+}
+
+let foo_after : int;
+
+//----------------------------------------------------------------------------//
+// Test name binding to a parameter that shadows a global variable
+//----------------------------------------------------------------------------//
+
+func test_shadowparam(foo_before: int) {
+  // Shouldn't be ambiguous!
+  foo_before;
+}
+
+//----------------------------------------------------------------------------//
+// Scope & visibility
+//----------------------------------------------------------------------------//
+
+func test_scope() {
+  if(false) let x : int;
+  // x shouldn't be visible here
+  x; // expect-error: undeclared identifier 'x'
+  
+  let y : [char];
+  if(false) {
+    if(true) {
+      y; // should be visible & accessible
+    }
+    y; // should be visible & accessible
+  }
+  y; // should be visible & accessible
+}
+
+func test_lexical_order() {
+  y;  // expect-error: undeclared identifier 'y'
+  let y : int;
+}
