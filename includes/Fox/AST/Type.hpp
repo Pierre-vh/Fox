@@ -54,8 +54,9 @@ namespace fox {
   class TypeLoc : public Type {
     SourceRange range_;
     public:
-      TypeLoc(TypeBase* ty = nullptr, SourceRange range = SourceRange());
-      TypeLoc(Type ty, SourceRange range = SourceRange());
+      explicit TypeLoc(TypeBase* ty = nullptr, 
+        SourceRange range = SourceRange());
+      explicit TypeLoc(Type ty, SourceRange range = SourceRange());
 
       SourceRange getRange() const;
       SourceLoc getBegin() const;
@@ -69,12 +70,10 @@ namespace fox {
       const Type withoutLoc() const; 
 
     private:
-      // For now, disable TypeLoc comparison. We don't need it.
-      // Might add a "strict_compare" function tho.
       bool operator==(const Type& type) const = delete;
       bool operator!=(const Type& type) const = delete;
 
-      // Disable Type->TypeLoc conversion
+      // Disable Type->TypeLoc implicit conversions
       TypeLoc(const Type&) = delete;
       TypeLoc& operator=(const Type&) = delete;
   };
