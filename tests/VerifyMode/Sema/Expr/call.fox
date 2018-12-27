@@ -1,0 +1,27 @@
+// RUN: %fox-verify
+
+func basic() {}
+func takesInt(x: int) {}
+func takesIntReturnsInt(x: int) : int {}
+func takesIntsReturnString(x: int, y: mut int) : string {}
+func takesArrayReturnsArray(x: [int]) : [int] {}
+
+
+
+// Test that theses functions can be called
+func callsTest() {
+  // Okay calls
+  basic();
+  takesInt(3);
+  takesInt(false);
+  takesIntReturnsInt(3);
+  takesIntsReturnString(3, 3);
+  takesArrayReturnsArray([1,2,3]);
+
+  // TODO: Test argument count mismatch
+  // TODO: Test argument type mismatch (different kind of type + downcasts)
+}
+
+// TODO: inference (e.g. takesArrayReturnsArray([]))
+// TODO: uses in exprs (takesIntReturnsInt(3) + takesIntReturnsInt(1))
+

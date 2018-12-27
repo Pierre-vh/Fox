@@ -32,7 +32,12 @@ ERROR(sema_unassignable_expr, "expression is not assignable")
 ERROR(sema_invalid_vardecl_init_expr,
   "cannot use an expression of type '%0' to initialize a "
   "variable of type '%1'")
-
+ERROR(sema_expr_isnt_func,
+  "expression of type '%0' is not a function")
+ERROR(sema_cannot_call_func_with_args,
+  "cannot call function of type '%0' with arguments of type '%1'") 
+ERROR(sema_cannot_call_func_with_no_args,
+  "cannot call function of type '%0' with no arguments") 
 WARNING(sema_redundant_cast,
   "redundant cast: expression is already of type '%0'")
 

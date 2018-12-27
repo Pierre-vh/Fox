@@ -118,8 +118,18 @@ To-Do:
   > Name binding logic (Done)
 
   > CallExpr checking
-    > Doesn't need to check the DeclRefExpr itself since mut has no impact on 
-      the call syntax (for now). Just check for a FunctionType and work with that.
+    > Checking logic (Done)
+    > Diagnostics (Next)
+    > Test (FileCheck (type of call matches), Diagnostics (diag are emitted))
+      > Some diagnostics tests already done, but do more of them.
+      > + test when void functions are mixed with expr. 
+        check behaviour for situations such as: "foo() + 1", "foo()*foo()"
+
+  > Semantic analysis for circularity 
+    > e.g. disallow "let x : int = x";
+    > Checking logic : Add an optional ExprChecker member: Decl* "forDecl", and
+      when name binding, don't allow references to that decl, else, diagnose circularity.
+    > Tests
 
   > ReturnStmt checking
     > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl

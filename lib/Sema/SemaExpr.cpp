@@ -166,6 +166,47 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .addArg(rhsTy).addArg(lhsTy);
     }
 
+    void diagnoseExprIsNotAFunction(Expr* callee) {
+      SourceRange range = callee->getRange();
+      Type ty = callee->getType();
+      getDiags().report(DiagID::sema_expr_isnt_func, range)
+        .addArg(ty);
+    }
+
+    void diagnoseBadFunctionCall(FunctionCallExpr* call, 
+      FunctionType* calleeTy) {
+      SourceRange range = call->getCallee()->getRange();
+      
+      // TODO: Make the diagnostics different for each situations, and
+      //  use the function's name (currently, no lambdas, so it should
+      //  be possible to retrieve the DeclRefExpr in the callee in every scenario)
+      //  it's a argc mismatch
+      //    "too many arguments in call to '%0'"
+      //    "not enough arguments in call to '%0'"
+      //  it's a arg type mismatch
+      //    for each arg:
+      //      "cannot convert expression of type '%0' to '%1'"
+      //
+      //  To implement that, split this func in 2, one for argc mismatch, and
+      //  one for type mismatch.
+      if(call->numArgs() > 0) {
+        std::string args = getArgsAsString(call);
+        getDiags().report(DiagID::sema_cannot_call_func_with_args, range)
+        .addArg(calleeTy).addArg(args);
+      }
+      else {
+        getDiags().report(DiagID::sema_cannot_call_func_with_no_args, range)
+          .addArg(calleeTy);
+      }
+
+      // TODO: Print "'%0' declared here" if the callee
+      //  is a DeclRefExpr (it should always be one, at least for now)
+
+      // Of course, I won't get theses diags right on the first try, but I think
+      // this will be a pretty good start. The output will be pretty verbose,
+      // but it'll be very informative.
+    }
+
     //----------------------------------------------------------------------//
     // Finalize methods
     //----------------------------------------------------------------------//
@@ -484,7 +525,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr) {
       Identifier id = expr->getIdentifier();
       SourceRange range = expr->getRange();
-      assert(id);
       LookupResult results;
       getSema().doUnqualifiedLookup(results, id, LookupOptions());
       // No results -> undeclared identifier
@@ -512,7 +552,51 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     Expr* visitFunctionCallExpr(FunctionCallExpr* expr) {
-      //fox_unimplemented_feature("FunctionCallExpr TypeChecking");
+      Expr* callee = expr->getCallee();
+      Type calleeTy = callee->getType();
+      
+      if(!calleeTy->is<FunctionType>()) {
+        diagnoseExprIsNotAFunction(callee);
+        return expr;
+      }
+
+      FunctionType* fnTy = calleeTy->castTo<FunctionType>();
+
+      // Check arg count
+      std::size_t exprArgC = expr->numArgs();
+      std::size_t fnTyArgC = fnTy->numParams();
+      if(exprArgC != fnTyArgC) {
+        diagnoseBadFunctionCall(expr, fnTy);
+        return expr;
+      }
+
+      // Check arg types
+      bool ok = true;
+      for(std::size_t idx = 0; idx < exprArgC; idx++) {
+        Type expected = fnTy->getParamType(idx);
+        Type got = expr->getArg(idx)->getType();
+        assert(expected && got && "types cant be nullptrs!");
+        if(getSema().unify(expected, got)) {
+          // Check for a downcast :
+          //  If casting "got" to "expected" is a downcast, it's an error.
+          if(Sema::isDowncast(got, expected))
+            ok = false;
+        } 
+        // can't unify.
+        else 
+          ok = false;
+      }
+
+      if(!ok) {
+        diagnoseBadFunctionCall(expr, fnTy);
+        return expr;
+      }
+
+      // Call should be ok, type of the Call is the return type
+      // of the function.
+      Type ret = fnTy->getReturnType();
+      assert(ret && "types cant be nullptrs!");
+      expr->setType(ret);
       return expr;
     }
       
@@ -767,6 +851,23 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if (type->isBoolType())
         return PrimitiveType::getInt(getCtxt());
       return type;
+    }
+
+    // Returns a string containing the arguments passed to a FunctionCallExpr,
+    // in round brackets, separated by commas.
+    //  e.g. FunctionCallExpr: foo(3,[],"s")
+    //       Result: (int, [any], string)
+    std::string getArgsAsString(FunctionCallExpr* call) {
+      std::stringstream ss;
+      ss << "(";
+      bool first = true;
+      for(Expr* arg : call->getArgs()) {
+        if(first) first = false;
+        else ss << ",";
+        ss << arg->getType()->toString();
+      }
+      ss << ")";
+      return ss.str();
     }
 };
 
