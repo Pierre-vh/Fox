@@ -50,7 +50,7 @@ ABSTRACT_EXPR(UnresolvedExpr, Expr)
 // DeclRef & Function calls
 EXPR(DeclRefExpr,Expr)
 EXPR(MemberOfExpr,Expr)
-EXPR(FunctionCallExpr,Expr)
+EXPR(CallExpr,Expr)
 
 /* Undef */
 #undef EXPR

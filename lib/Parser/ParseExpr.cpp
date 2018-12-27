@@ -80,7 +80,7 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
     SourceRange range(begLoc, endLoc);
     assert(range && "Invalid loc info");
     return ExprResult(
-      FunctionCallExpr::create(ctxt, base, exprlist.move(), range)
+      CallExpr::create(ctxt, base, exprlist.move(), range)
     );
   }
   else if (!exprlist.wasSuccessful())

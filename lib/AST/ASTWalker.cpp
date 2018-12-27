@@ -109,7 +109,7 @@ namespace {
         return expr;
       }
 
-      Expr* visitFunctionCallExpr(FunctionCallExpr* expr) {
+      Expr* visitCallExpr(CallExpr* expr) {
         if (Expr* callee = expr->getCallee()) {
           if (callee = doIt(callee))
             expr->setCallee(callee);

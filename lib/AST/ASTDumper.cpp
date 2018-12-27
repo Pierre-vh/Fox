@@ -110,7 +110,7 @@ void ASTDumper::visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* node) {
     << node->getIdentifier() << "\n";
 }
 
-void ASTDumper::visitFunctionCallExpr(FunctionCallExpr* node) {
+void ASTDumper::visitCallExpr(CallExpr* node) {
   dumpLine() << getBasicExprInfo(node) << '\n';
 
   // Print Base

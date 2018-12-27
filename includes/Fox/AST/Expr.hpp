@@ -441,16 +441,16 @@ namespace fox   {
       Expr* idxExpr_ = nullptr;
   };
 
-  // FunctionCallExpr
+  // CallExpr
   //    A function call: foo(3.14)
-  class FunctionCallExpr final : public Expr, 
-    llvm::TrailingObjects<FunctionCallExpr, Expr*> {
+  class CallExpr final : public Expr, 
+    llvm::TrailingObjects<CallExpr, Expr*> {
     friend class TrailingObjects;
     public:    
       using SizeTy = std::uint8_t;
       static constexpr auto maxArgs = std::numeric_limits<SizeTy>::max();
 
-      static FunctionCallExpr* create(ASTContext& ctxt, Expr* callee,
+      static CallExpr* create(ASTContext& ctxt, Expr* callee,
         ArrayRef<Expr*> args, SourceRange range);
 
       void setCallee(Expr* base);
@@ -463,11 +463,11 @@ namespace fox   {
       void setArg(Expr* arg, std::size_t idx);
 
       static bool classof(const Expr* expr) {
-        return (expr->getKind() == ExprKind::FunctionCallExpr);
+        return (expr->getKind() == ExprKind::CallExpr);
       }
 
     private:
-      FunctionCallExpr(Expr* callee, ArrayRef<Expr*> args, SourceRange range);
+      CallExpr(Expr* callee, ArrayRef<Expr*> args, SourceRange range);
 
       const SizeTy numArgs_ = 0;
       Expr* callee_ = nullptr;

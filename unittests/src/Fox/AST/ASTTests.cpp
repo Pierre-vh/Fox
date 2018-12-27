@@ -231,10 +231,10 @@ TEST_F(ASTTest, ExprRTTI) {
   EXPECT_TRUE(ArraySubscriptExpr::classof(arracc));
 
   // Function calls
-  auto* callexpr = FunctionCallExpr::create(ctxt, nullptr,
+  auto* callexpr = CallExpr::create(ctxt, nullptr,
     ExprVector(), SourceRange());
-  EXPECT_EQ(callexpr->getKind(), ExprKind::FunctionCallExpr);
-  EXPECT_TRUE(FunctionCallExpr::classof(callexpr));
+  EXPECT_EQ(callexpr->getKind(), ExprKind::CallExpr);
+  EXPECT_TRUE(CallExpr::classof(callexpr));
 }
 
 TEST_F(ASTTest, StmtRTTI) {

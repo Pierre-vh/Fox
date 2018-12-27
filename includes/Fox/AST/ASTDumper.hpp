@@ -46,7 +46,7 @@ namespace fox {
       void visitMemberOfExpr(MemberOfExpr* node);
       void visitDeclRefExpr(DeclRefExpr* node);
       void visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* node);
-      void visitFunctionCallExpr(FunctionCallExpr* node);
+      void visitCallExpr(CallExpr* node);
 
       // Expressions : Literals
       void visitCharLiteralExpr(CharLiteralExpr* node);

@@ -173,7 +173,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .addArg(ty);
     }
 
-    void diagnoseBadFunctionCall(FunctionCallExpr* call, 
+    void diagnoseBadFunctionCall(CallExpr* call, 
       FunctionType* calleeTy) {
       SourceRange range = call->getCallee()->getRange();
       
@@ -551,7 +551,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       fox_unreachable("Expr checked twice!");
     }
 
-    Expr* visitFunctionCallExpr(FunctionCallExpr* expr) {
+    Expr* visitCallExpr(CallExpr* expr) {
       Expr* callee = expr->getCallee();
       Type calleeTy = callee->getType();
       
@@ -853,11 +853,11 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return type;
     }
 
-    // Returns a string containing the arguments passed to a FunctionCallExpr,
+    // Returns a string containing the arguments passed to a CallExpr,
     // in round brackets, separated by commas.
-    //  e.g. FunctionCallExpr: foo(3,[],"s")
+    //  e.g. CallExpr: foo(3,[],"s")
     //       Result: (int, [any], string)
-    std::string getArgsAsString(FunctionCallExpr* call) {
+    std::string getArgsAsString(CallExpr* call) {
       std::stringstream ss;
       ss << "(";
       bool first = true;

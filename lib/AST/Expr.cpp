@@ -461,52 +461,52 @@ void DeclRefExpr::setDecl(ValueDecl* decl) {
 }
 
 //----------------------------------------------------------------------------//
-// FunctionCallExpr 
+// CallExpr 
 //----------------------------------------------------------------------------//
 
-FunctionCallExpr::FunctionCallExpr(Expr* callee, ArrayRef<Expr*> args, 
-  SourceRange range): Expr(ExprKind::FunctionCallExpr, range), callee_(callee), 
+CallExpr::CallExpr(Expr* callee, ArrayRef<Expr*> args, 
+  SourceRange range): Expr(ExprKind::CallExpr, range), callee_(callee), 
   numArgs_(static_cast<SizeTy>(args.size())) {
-  assert((args.size() < maxArgs) && "Too many args for FunctionCallExpr. "
+  assert((args.size() < maxArgs) && "Too many args for CallExpr. "
     "Change the type of SizeTy to something bigger!");
   std::uninitialized_copy(args.begin(), args.end(), 
     getTrailingObjects<Expr*>());
 }
 
-FunctionCallExpr* 
-FunctionCallExpr::create(ASTContext& ctxt, Expr* callee, ArrayRef<Expr*> args, 
+CallExpr* 
+CallExpr::create(ASTContext& ctxt, Expr* callee, ArrayRef<Expr*> args, 
   SourceRange range) {
   auto totalSize = totalSizeToAlloc<Expr*>(args.size());
-  void* mem = ctxt.allocate(totalSize, alignof(FunctionCallExpr));
-  return new(mem) FunctionCallExpr(callee, args, range);
+  void* mem = ctxt.allocate(totalSize, alignof(CallExpr));
+  return new(mem) CallExpr(callee, args, range);
 }
 
-void FunctionCallExpr::setCallee(Expr* callee) {
+void CallExpr::setCallee(Expr* callee) {
   callee_ = callee;
 }
 
-Expr* FunctionCallExpr::getCallee() const {
+Expr* CallExpr::getCallee() const {
   return callee_;
 }
 
-FunctionCallExpr::SizeTy FunctionCallExpr::numArgs() const {
+CallExpr::SizeTy CallExpr::numArgs() const {
   return numArgs_;
 }
 
-MutableArrayRef<Expr*> FunctionCallExpr::getArgs() {
+MutableArrayRef<Expr*> CallExpr::getArgs() {
   return { getTrailingObjects<Expr*>(), numArgs_};
 }
 
-ArrayRef<Expr*> FunctionCallExpr::getArgs() const {
+ArrayRef<Expr*> CallExpr::getArgs() const {
   return { getTrailingObjects<Expr*>(), numArgs_};
 }
 
-Expr* FunctionCallExpr::getArg(std::size_t idx) const {
+Expr* CallExpr::getArg(std::size_t idx) const {
   assert((idx < numArgs_) && "Out of range");
   return getArgs()[idx];
 }
 
-void FunctionCallExpr::setArg(Expr* arg, std::size_t idx) {
+void CallExpr::setArg(Expr* arg, std::size_t idx) {
   assert((idx < numArgs_) && "Out of range");
   getArgs()[idx] = arg;
 }
