@@ -129,20 +129,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .addArg(rhsTy);
     }
 
-    // Warns about an implicit integral downcast from float to int
-    void warnImplicitIntegralDowncast(Type exprTy, Type destTy,
-                                      SourceRange range,
-                                      SourceRange extra = SourceRange()) {
-      auto diag = 
-        getDiags()
-          .report(DiagID::sema_implicit_integral_downcast, range)
-          .addArg(exprTy)
-          .addArg(destTy);
-
-      if (extra)
-        diag.setExtraRange(extra);
-    }
-
     // Diagnoses an undeclared identifier
     void diagnoseUndeclaredIdentifier(SourceRange range, Identifier id) {
       getDiags().report(DiagID::sema_undeclared_id, range).addArg(id);
@@ -476,20 +462,13 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
-      // Idx type must be an integral value
-      if (!idxETy->isIntegral()) {
+      // Idx type must be an integral value and not a float
+      if ((!idxETy->isIntegral()) || idxETy->isFloatType()) {
         // Diagnose with the primary range being the idx's range
 				if(!childTy->is<ErrorType>())
 					diagnoseInvalidArraySubscript(expr,
 						idxE->getRange(), child->getRange());
         return expr;
-      }
-
-      // Additionally, check that the index is not a float type. If it
-      // is, emit a warning about an implicit integral downcast.
-      if (idxETy->isFloatType()) {
-        Type intTy = PrimitiveType::getInt(getCtxt());
-        warnImplicitIntegralDowncast(idxETy, intTy, idxE->getRange());
       }
         
       // Set type + return

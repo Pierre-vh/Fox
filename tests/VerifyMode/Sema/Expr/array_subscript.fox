@@ -11,10 +11,8 @@ func foo() {
   "abc"[2];
   [][3] as int;
 
-  // A warning should be emitted if the type of the
-  // subscript expr is float
-  [1,1,1][1.25]; 
-  // expect-warning@-1: implicit conversion of an expression of type 'float' to 'int' may result in loss of information
+  // An error should be emitted if the type of the subscript expr is float
+  [1,1,1][1.25]; // expect-error: invalid types '[int]' and 'float' for array subscript
 
   // An error should be emitted if the sub expr is not an array.
   0[0]; // expect-error: invalid types 'int' and 'int' for array subscript

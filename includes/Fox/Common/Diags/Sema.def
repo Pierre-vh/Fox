@@ -13,7 +13,7 @@ ERROR(sema_invalid_cast, "cannot cast expression of type '%0' to type '%1'")
 ERROR(sema_unaryop_bad_child_type, 
   "cannot use unary operator '%0' on an expression of type '%1'")
 ERROR(sema_arrsub_invalid_types,
-"invalid types '%0' and '%1' for array subscript")
+  "invalid types '%0' and '%1' for array subscript")
 ERROR(sema_binexpr_invalid_operands, 
   "cannot use binary operator '%0' on expressions of types '%1' and '%2'")
 ERROR(sema_cant_use_expr_as_cond,
@@ -35,9 +35,6 @@ ERROR(sema_invalid_vardecl_init_expr,
 
 WARNING(sema_redundant_cast,
   "redundant cast: expression is already of type '%0'")
-WARNING(sema_implicit_integral_downcast,
-  "implicit conversion of an expression of type '%0' to '%1' may "
-  "result in loss of information")
 
 NOTE(sema_1stdecl_seen_here, "first declaration of '%0' seen here")
 NOTE(sema_potential_candidate_here, "potential candidate found here")
