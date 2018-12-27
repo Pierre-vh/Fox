@@ -83,6 +83,9 @@ namespace fox {
       */
 
       //-------------------------//
+      // Type categories
+      //-------------------------//
+
       bool isStringType() const;
       bool isCharType() const;
       bool isFloatType() const;
@@ -90,6 +93,9 @@ namespace fox {
       bool isIntType() const;
       bool isVoidType() const;
       bool isIntegral() const;
+
+      // Return true if this type can appear on the LHS of an assignement.
+      bool isAssignable() const;
 
       template<typename Ty>
       bool is() const {

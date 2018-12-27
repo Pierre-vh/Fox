@@ -265,6 +265,10 @@ bool TypeBase::isIntegral() const {
   return false;
 }
 
+bool TypeBase::isAssignable() const {
+  return this->is<LValueType>();
+}
+
 void* TypeBase::operator new(size_t sz, ASTContext& ctxt, 
   std::uint8_t align) {
   return ctxt.allocate(sz, align);
