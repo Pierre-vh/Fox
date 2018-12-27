@@ -363,8 +363,18 @@ std::string ASTDumper::getBasicExprInfo(Expr* expr) const {
   ss << getExprNodeName(expr);
   if (isDebug())
     ss << " 0x" << (void*)expr;
-  if (auto ty = expr->getType())
+  if (auto ty = expr->getType()) {
+    // Display "lvalue" before the type in non debug mode.
+    // In debug mode, types are dumped in a debug form, so
+    // the LValue is explicit.
+    //
+    //  e.g. for a string lvalue:
+    //    non-debug will print: "lvalue 'string'"
+    //    debug will print "'LValue(string)'"
+    if(ty->is<LValueType>() && !isDebug())
+      ss << " lvalue";
     ss << " " << toString(ty);
+  }
   return ss.str();
 }
 
