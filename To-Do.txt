@@ -122,8 +122,12 @@ To-Do:
     > Diagnostics (Next)
     > Test (FileCheck (type of call matches), Diagnostics (diag are emitted))
       > Some diagnostics tests already done, but do more of them.
+      > Test for illegal callee (e.g. 3(3))
       > + test when void functions are mixed with expr. 
         check behaviour for situations such as: "foo() + 1", "foo()*foo()"
+
+  > Tests for interaction of a FunctionType with other operations
+    > e.g. foo+3
 
   > Semantic analysis for circularity 
     > e.g. disallow "let x : int = x";
