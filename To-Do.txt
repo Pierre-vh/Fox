@@ -115,15 +115,11 @@ To-Do:
   > Fix "couldn't infer type of this expression" cascading errors in ExprFinalizer (Done)
   > Proper SourceRange for UnitDecls (Done)
   > FunctionType + FunctionType tests (Done)
-
-  > Name binding logic in visitUnresolvedDeclRefExpr (Next)
-      > For Vars and Params (Done)
-      > For Funcs (Done)
-      > Test (VerifyMode + FileCheck tests)
+  > Name binding logic (Done)
 
   > CallExpr checking
     > Doesn't need to check the DeclRefExpr itself since mut has no impact on 
-      the call syntax. Just check for a FunctionType and work with that.
+      the call syntax (for now). Just check for a FunctionType and work with that.
 
   > ReturnStmt checking
     > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
@@ -141,16 +137,20 @@ To-Do:
   > UFCS
     > Parser additions (Remove MemberExpr, use UnresolvedDotExpr which resolves to a CallExpr)
     > Semantic Analysis.
-      > Check for Args, no args -> diagnose
-      > If args, check like a normal function call
+      > Check for Args, no args -> diagnose (unimplemented feature)
+      > If args, check like a normal function call (always UFCS since no objects/multifile for now)
       > Build a CallExpr once the function is resolved, if not, leave it unresolved and mark 
         it as being an error.
 
-  > OVR (OVerload Resultion)
+  > OVR (OVerload Resolution)
 
   > IR
   > IRGen
   > VM
+
+Future:
+  > Multifile support: Still to be decided
+  > Structs/Objects
 
 Other:
   > Simplify some AST constructors which are way too bloated and contain redundant information
@@ -167,17 +167,11 @@ Other:
     This isn't really a commonly used feature, but I hate seeing errors just because I type
     "foo as bool as string"
 
-  > When diagnosing a redecl, should I really print "first decl seen here" each time
-    if the decl was redeclared multiple times?
-
-  > Spend some time refactoring the Parser. Write betters comment, fix style and
-    coding standard issues.
+  > When diagnosing a redecl, should I really print "first decl seen here" for each use?
 
   > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
     or should parseStmt handle it?
-    > Also, for parseQualType, who should emit the errors? The caller or the callee? No both! Make
-      a decision and stick to it.
 
 Pending reworks:
   > Token class -> Currently, it's an abomination. Nuke it and re-do it.
-  > Lexer
+  > Lexer -> Same
