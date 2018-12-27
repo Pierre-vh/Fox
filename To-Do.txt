@@ -172,6 +172,10 @@ Other:
   > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
     or should parseStmt handle it?
 
+  > Add advanced typing rule tests once semantic analysis is complete.
+    That means, create complex expressions and check that their type are the one we expect and that
+    no errors are emitted. Write theses tests using FileCheck to check the type of expressions in the AST
+
 Pending reworks:
   > Token class -> Currently, it's an abomination. Nuke it and re-do it.
   > Lexer -> Same
