@@ -4,6 +4,8 @@
 // Test name binding to variables in global scope
 //----------------------------------------------------------------------------//
 
+func some_func_before() {}
+
 // CHECK: VarDecl [[global_a_addr:0x([[:alnum:]]{8,12})]] {{.*}} let a 'int'
 let a : int;
 
@@ -16,8 +18,14 @@ func foo(a : char) : int {
   foo;
   // CHECK-NEXT: DeclRefExpr '[string]' global_b_var
   global_b_var;
+  // CHECK-NEXT: DeclRefExpr '() -> void' some_func_before
+  some_func_before;
+  // CHECK-NEXT: DeclRefExpr '([bool],string) -> char' another_func_after
+  another_func_after;
 }
 
 // CHECK: VarDecl {{0x([[:alnum:]]{8,12}) .*}} let global_b_var '[string]'
 // CHECK: DeclRefExpr 'int' a <decl:[[global_a_addr]]>
 let global_b_var : [string] = [a as string];
+
+func another_func_after(baz: [bool], foz: string) : char{}
