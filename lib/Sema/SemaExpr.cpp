@@ -162,6 +162,24 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
     }
 
+    void diagnoseUnassignableExpr(BinaryExpr* expr) {
+      assert(expr->isAssignement());
+      SourceRange lhsRange = expr->getLHS()->getRange();
+      SourceRange opRange = expr->getOpRange();
+      getDiags().report(DiagID::sema_unassignable_expr, lhsRange)
+        .setExtraRange(opRange);
+    }
+
+    void diagnoseInvalidAssignement(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
+      assert(expr->isAssignement());
+      SourceRange lhsRange = expr->getLHS()->getRange();
+      SourceRange rhsRange = expr->getRHS()->getRange();
+      // Diag is (roughly) "can't assign a value of type (lhs) to type (rhs)
+      getDiags().report(DiagID::sema_invalid_assignement, rhsRange)
+        .setExtraRange(lhsRange)
+        .addArg(rhsTy).addArg(lhsTy);
+    }
+
     //----------------------------------------------------------------------//
     // Finalize methods
     //----------------------------------------------------------------------//
@@ -672,11 +690,48 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // Typechecks an assignement operation
     //  \param lhsTy The type of the LHS (must not be null)
     //  \param rhsTy The type of the RHS (must not be null)
-    Expr* checkAssignementBinaryExpr(BinaryExpr* expr, Type /*lhsTy*/, Type /*rhsTy*/) {
+    Expr* checkAssignementBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert(expr->isAssignement() && "wrong function!");
-      // Leave unimplemented for now (at least until
-      // name binding is done)
-      fox_unimplemented_feature(__func__);
+      
+      if(!lhsTy->isAssignable()) {
+        diagnoseUnassignableExpr(expr);
+        return expr;
+      }
+      
+      // For now, in the langage, the only kind of Expr that should be able
+      // to carry an LValue is a DeclRefExpr, so check that our LHS is 
+      // indeed that, just as a sanity check.
+      assert(isa<DeclRefExpr>(expr->getLHS()) && "Only DeclRefExprs can be "
+        "LValues!");
+
+      // Get the bound RValue version of the LHS.
+      lhsTy = lhsTy->getAsBoundRValue();
+      // Some more sanity checks:
+        // Can't have unbound LValues
+      assert(lhsTy && "DeclRefExpr has a LValue to an unbound type?");
+        // Can't assign to a function
+      assert((!lhsTy->is<FunctionType>()) && "Assigning to a function?");
+
+      // Ignore the LValue on the RHS.
+      rhsTy = rhsTy->getRValue();
+
+      // Unify
+      bool valid = getSema().unify(lhsTy, rhsTy);
+
+      // Check for downcasts if the unification was ok. If it's a downcast,
+      // the assignement is invalid.
+      if(valid && Sema::isDowncast(rhsTy, lhsTy))
+        valid = false;
+
+      if(!valid) {
+        // Type mismatch
+        diagnoseInvalidAssignement(expr, lhsTy, rhsTy);
+        return expr;
+      }
+
+      // Everything's fine, the type of the expr is the type of it's RHS.
+      expr->setType(rhsTy);
+      return expr;
     }
 
     // Typechecks a comparative operation
