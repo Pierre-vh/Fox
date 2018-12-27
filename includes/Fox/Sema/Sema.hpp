@@ -142,8 +142,6 @@ namespace fox {
       bool unify(Type a, Type b);
 
 			// Returns true if the conversion of A to B is a downcast
-			//		A and B must both be PrimitiveTypes after a call to Sema::unwrapAll
-			//
 			//		If A and/or B are not integral types, returns false.
 			//		Only returns true if A and B are both integral types
 			//		and casting A to B is a downcast.
