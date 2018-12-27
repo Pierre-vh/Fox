@@ -93,7 +93,7 @@ namespace {
           out << ")";
         }
         else {
-          out << "@";
+          //out << "@";
           if (Type elem = type->getType())
             visit(elem);
           else
