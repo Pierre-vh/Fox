@@ -83,6 +83,7 @@ std::pair<bool, bool>  Sema::addLocalDeclToScope(NamedDecl* decl) {
 void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   const LookupOptions& options) {
   assert((results.size() == 0) && "'results' must be a fresh LookupResult");
+  assert(id && "can't lookup with invalid id!");
   bool lookInDeclCtxt = options.canLookInDeclContext;
 
   // Lambda that returns true if the result should be ignored.
