@@ -1,5 +1,6 @@
 #include "..\..\includes\Fox\Common\Source.hpp"
 #include "..\..\includes\Fox\Common\Source.hpp"
+#include "..\..\includes\Fox\Common\Source.hpp"
 //----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.        
 // See LICENSE.txt for license info.            
@@ -395,6 +396,10 @@ bool SourceRange::contains(SourceLoc loc) const {
   auto endIdx = end.getIndex();
   auto locIdx = loc.getIndex();
   return (begIdx >= locIdx) && (locIdx <= endIdx);
+}
+
+bool SourceRange::contains(SourceRange range) const {
+  return contains(range.getBegin()) && contains(range.getEnd());
 }
 
 FileID SourceRange::getFileID() const {

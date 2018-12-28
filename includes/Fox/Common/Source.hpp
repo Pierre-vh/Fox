@@ -147,9 +147,15 @@ namespace fox {
       
       // Return true if the SourceLoc is contained inside this SourceRange.
       // (beg >= loc <= end)
-      // Return false if this SourceLoc doesn't belong to the same file,
-      // or if it's not containing inside this SourceRange
+      // Return false if the SourceLoc doesn't belong to the same file,
+      // or if it's not contained inside this SourceRange
       bool contains(SourceLoc loc) const;
+
+      // Returns true if the SourceRange is contained inside this SourceRange.
+      // (contains(range.getBegin()) && (contains(range.getEnd()))
+      // Return false if the SourceRange doesn't belong to the same file,
+      // or if it's not contained inside this SourceRange
+      bool contains(SourceRange range) const;
 
       // Returns a string representation of a SourceLoc:
       //  Format: 
