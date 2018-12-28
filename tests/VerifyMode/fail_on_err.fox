@@ -1,0 +1,5 @@
+// RUN: %fox
+// XFAIL:*
+// This file is intentially left blank, because it'll generate a
+// "expected decl in unit" error, and this test's purpose is to check
+// that compilation indeed fails when an error occurs.
