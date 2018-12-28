@@ -129,7 +129,8 @@ To-Do:
   > Tests for interaction of a FunctionType with other operations
     > e.g. foo+3
 
-  > Add "isConditionValid" to ConditionStmt & WhileStmt (check that cond isn't ErrorType)
+  > Add "isConditionValid" flag to ConditionStmt & WhileStmt 
+    (set to false if expr is of incorrect type or error)
 
   > Disallow forward references for global variables
     > e.g. `let foo: int = bar; let bar : int = 3` is not valid.
