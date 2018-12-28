@@ -116,6 +116,7 @@ To-Do:
   > Proper SourceRange for UnitDecls (Done)
   > FunctionType + FunctionType tests (Done)
   > Name binding logic (Done)
+  > Semantic analysis for using variable within their own initial value (Done)
 
   > CallExpr checking
     > Checking logic (Done)
@@ -131,9 +132,6 @@ To-Do:
 
   > Add "isConditionValid" flag to ConditionStmt & WhileStmt 
     (set to false if expr is of incorrect type or error)
-
-  > Disallow forward references for global variables
-    > e.g. `let foo: int = bar; let bar : int = 3` is not valid.
 
   > ReturnStmt checking
     > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl

@@ -33,7 +33,6 @@ using namespace fox;
 class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
   using Inherited = ExprVisitor<ExprChecker, Expr*>;
   friend class Inherited;
-
   public:
     ExprChecker(Sema& sema) : Checker(sema) {}
 
@@ -166,6 +165,15 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .addArg(rhsTy).addArg(lhsTy);
     }
 
+    // Diagnoses a variable being used inside it's own initial value.
+    void diagnoseVarInitSelfRef(VarDecl* decl, 
+      UnresolvedDeclRefExpr* udre) {
+      SourceRange range = udre->getRange();
+      SourceRange extra = decl->getIdentifierRange();
+      getDiags().report(DiagID::sema_var_init_self_ref, range)
+        .setExtraRange(extra);
+    }
+
     void diagnoseExprIsNotAFunction(Expr* callee) {
       SourceRange range = callee->getRange();
       Type ty = callee->getType();
@@ -290,6 +298,24 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* finalizeReferenceToValueDecl(UnresolvedDeclRefExpr* udre, 
       ValueDecl* found) {
       assert(found);
+
+      // Check that we aren't using a variable inside it's own initial value
+      if(found->isChecking()) {
+        if(VarDecl* var = dyn_cast<VarDecl>(found)) {
+          // Currently, that should *always* mean that we're inside
+          // the initializer, so we're going to assert that it's
+          // the case. 
+          // If one day Semantic analysis becomes more complex
+          // and the assertions are triggered in valid code, replace them
+          // by conditions.
+          Expr* init = var->getInitExpr();
+          assert(init);
+          assert(init->getRange().contains(udre->getRange()));
+          diagnoseVarInitSelfRef(var, udre);
+          // This is an error, so just return the UnresolvedDeclRefExpr
+          return udre;
+        }
+      }
 
       // Resolved DeclRef
       DeclRefExpr* resolved = 

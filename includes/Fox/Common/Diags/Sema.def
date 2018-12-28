@@ -38,6 +38,8 @@ ERROR(sema_cannot_call_func_with_args,
   "cannot call function of type '%0' with arguments of type '%1'") 
 ERROR(sema_cannot_call_func_with_no_args,
   "cannot call function of type '%0' with no arguments") 
+ERROR(sema_var_init_self_ref,
+  "variable used inside its own initial value")
 WARNING(sema_useless_cast_redundant,
   "useless cast to '%0': expression is already of type '%0'")
 

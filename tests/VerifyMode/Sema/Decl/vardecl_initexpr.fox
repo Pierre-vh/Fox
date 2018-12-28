@@ -30,3 +30,6 @@ let s : [[[float]]] = [];
 // Test that we can't use a variable declared later in the file inside an initializer
 let t : int = u; // expect-error: undeclared identifier 'u'
 let u : int = t; // this one should be correct
+
+// Test that we can't use a variable inside it's own initial value
+let v : int = v; // expect-error: variable used inside its own initial value
