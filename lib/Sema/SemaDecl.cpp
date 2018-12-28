@@ -26,7 +26,9 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
     void check(Decl* decl) {
       assert(decl && "cannot have a nullptr argument");
+      assert(!decl->isChecked() && "decl checked twice");
       visit(decl);
+      decl->markAsChecked();
     }
 
   private:
