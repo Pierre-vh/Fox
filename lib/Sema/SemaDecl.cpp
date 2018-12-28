@@ -26,9 +26,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
     void check(Decl* decl) {
       assert(decl && "cannot have a nullptr argument");
-      assert(!decl->isChecked() && "decl checked twice");
+      assert(decl->isUnchecked() && "Decl has already been checked!");
+      decl->setCheckState(Decl::CheckState::Checking);
       visit(decl);
-      decl->markAsChecked();
+      decl->setCheckState(Decl::CheckState::Checked);
     }
 
   private:
@@ -102,13 +103,6 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // call Sema checking functions to perform Typechecking of other node
     // kinds.
     //----------------------------------------------------------------------//
-    
-    // Custom "visit" override that marks the decl as being
-    // checked after visiting it.
-    void visit(Decl* decl) {
-      Inherited::visit(decl);
-      decl->markAsChecked();
-    }
 
     void visitParamDecl(ParamDecl* decl) {
       // Check this decl for being an illegal redecl
