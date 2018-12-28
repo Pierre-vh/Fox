@@ -130,9 +130,6 @@ To-Do:
   > Tests for interaction of a FunctionType with other operations
     > e.g. foo+3
 
-  > Add "isConditionValid" flag to ConditionStmt & WhileStmt 
-    (set to false if expr is of incorrect type or error)
-
   > ReturnStmt checking
     > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
       as parent, so use a PointerUnion<FuncDecl*, LocalScope*> for the parent)
