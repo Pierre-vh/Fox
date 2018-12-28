@@ -974,6 +974,9 @@ namespace {
       }
 
       Type visitErrorType(ErrorType* type) {
+        // Assert that we have emitted at least 1 error if
+        // we have a ErrorType present in the hierarchy.
+        assert(ctxt_.hadErrors());
         return type;
       }
 
