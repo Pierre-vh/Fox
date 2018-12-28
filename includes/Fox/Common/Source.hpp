@@ -149,7 +149,7 @@ namespace fox {
       // (beg >= loc <= end)
       // Return false if this SourceLoc doesn't belong to the same file,
       // or if it's not containing inside this SourceRange
-      bool isInside(SourceLoc loc) const;
+      bool contains(SourceLoc loc) const;
 
       // Returns a string representation of a SourceLoc:
       //  Format: 

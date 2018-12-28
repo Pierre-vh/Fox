@@ -386,7 +386,7 @@ bool SourceRange::isOnlyOneCharacter() const {
   return (offset_ == 0);
 }
 
-bool SourceRange::isInside(SourceLoc loc) const {
+bool SourceRange::contains(SourceLoc loc) const {
   SourceLoc beg = getBegin();
   SourceLoc end = getEnd();
   if(beg.getFileID() != loc.getFileID())
