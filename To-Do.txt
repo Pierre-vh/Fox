@@ -140,8 +140,7 @@ To-Do:
         if not inside a function body (create isParsingTopLevelCode() && beginsTopLevelDecl(token))
 
   > ASTVerifier
-      Debug tool that asserts that the AST is well formed. Used as a debug tool (will
-      only be enabled in Debug builds
+      Asserts that the AST is well formed. Used as a debug tool (will only be enabled in Debug builds)
 
   > UFCS
     > Parser additions (Remove MemberExpr, use UnresolvedDotExpr which resolves to a CallExpr)
@@ -155,6 +154,7 @@ To-Do:
 
   > IR
   > IRGen
+    > Note: Don't do IRGen in verify mode
   > VM
 
 Future:
