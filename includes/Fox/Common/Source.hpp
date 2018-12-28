@@ -97,6 +97,11 @@ namespace fox {
       // it doesn't preserve the FileID.
       IndexTy getIndex() const;
 
+      // Returns true if this SourceLoc comes before the other SourceLoc.
+      // Returns false if the other SourceLoc doesn't belong to the 
+      // same file, or if it comes after this one.
+      bool comesBefore(SourceLoc other) const;
+
       // Returns a string representation of a SourceLoc:
       //  Format: line:column
       //  Example: 3:4

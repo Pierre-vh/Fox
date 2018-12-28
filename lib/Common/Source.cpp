@@ -1,3 +1,4 @@
+#include "..\..\includes\Fox\Common\Source.hpp"
 //----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.        
 // See LICENSE.txt for license info.            
@@ -307,6 +308,11 @@ FileID SourceLoc::getFileID() const {
 
 SourceLoc::IndexTy SourceLoc::getIndex() const {
   return idx_;
+}
+
+bool SourceLoc::comesBefore(SourceLoc other) const {
+  if(fid_ != other.fid_) return false;
+  return idx_ < other.idx_;
 }
 
 std::string SourceLoc::toString(const SourceManager& srcMgr) const {
