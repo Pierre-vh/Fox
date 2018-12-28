@@ -128,7 +128,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // Check the init expr
       if (Expr* init = decl->getInitExpr()) {
         // Check the init expr
-        auto res = getSema().typecheckExprOfType(init, decl->getType(), false);
+        auto res = getSema().typecheckExprOfType(init, decl->getType());
         // Replace the expr
         decl->setInitExpr(res.second);
         auto flag = res.first;
