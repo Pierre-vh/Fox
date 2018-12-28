@@ -46,14 +46,15 @@ namespace fox {
   class alignas(DeclAlignement) Decl {
     static constexpr unsigned kindBits_ = 4;
     public:
-      enum class CheckState {
+      enum class CheckState : std::uint8_t {
         // The decl has not been checked yet.
         Unchecked,
 
         // The Decl is currently being checked
         Checking,
 
-        Checked
+        // The Decl has been checked
+        Checked 
         // There's room for 1 more CheckStates. If this enum is updated
         // beyond 4 elements, increase the size of it's bitfield in Decl.
       };
