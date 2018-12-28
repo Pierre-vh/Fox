@@ -56,32 +56,22 @@ namespace fox {
       // replace it. Never nullptr.
       Expr* typecheckExpr(Expr* expr);
 
-      // Return enum for typecheckExprOfType
-      enum class CheckedExprResult { 
-        // The expression was successfully typechecked, and matched 
-        // was of the expected type, or equivalent.
-        Ok, 
-
-        // The expression was successfully typechecked, but was of
-        // another type that did not match the one expected.
-        NOk,
-
-        // The expression was successfully typechecked, but was of
-        // a type of higher rank than the one expected
-        Downcast,
-
-        // The expression couldn't be typechecked.
-        Error
-      };
+      // Performs semantic analysis on an expression and it's children.
+      //  Typechecks an expression that is expected to be of a certain type.
+      //
+      //  The expression is modified in place.
+      //
+      //  Returns true if the expression was of the type expected (or
+      //  can be implicitely converted to that type), false otherwise.
+      bool typecheckExprOfType(Expr*& expr, Type type);
 
       // Performs semantic analysis on an expression and it's children.
-      //  Typechecks an expression whose type is already known.
+      //  Typechecks an expression which is used as a condition.
       //
-      //  Returns a pair. The first element of the pair is a success indicator
-      //  (seem CheckedExprResult). The second Expr* pointer
-      //  is the expression or another equivalent expr that should replace it.
-      std::pair<CheckedExprResult, Expr*> 
-      typecheckExprOfType(Expr* expr, Type type);
+      //  The expression is modified in place.
+      //
+      //  Returns true if the expr can be used as a condition, false otherwise.
+      bool typecheckCondition(Expr*& expr);
 
       // Performs semantic analysis on a single statement and it's children.
       void checkStmt(Stmt* stmt);

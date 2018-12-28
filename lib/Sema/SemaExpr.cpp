@@ -1005,37 +1005,24 @@ Expr* Sema::typecheckExpr(Expr* expr) {
   return expr;
 }
 
-// This method is essentially the same as typecheckExpr, but it'll
-// call unify in between the checking and finalization.
-// 
-// This allows us to accept code such as
-//  func foo() : int[] {
-//    return []; // [] is inferred to int[]
-//  }
-//
-// If you were to check the ReturnStmt's expr with typecheckExpr, a
-// inference error would be emitted and the checking would fail, but
-// if you typecheckExprOfType with the return type of the function,
-// it'll work because the type will be bound before being finalized.
-std::pair<Sema::CheckedExprResult, Expr*> 
-Sema::typecheckExprOfType(Expr* expr, Type type) {
-  using CER = CheckedExprResult;
+bool Sema::typecheckExprOfType(Expr*& expr, Type type) {
   assert(expr && "null input");
 
   expr = ExprChecker(*this).check(expr);
   bool success = unify(expr->getType(), type);
   expr = ExprFinalizer(ctxt_).finalize(expr);
 
-  bool downcasting = isDowncast(expr->getType(), type);
+  // Don't allow downcasts
+  if(success)
+    success = !isDowncast(expr->getType(), type);
 
-  CER result;
-  if (!expr->getType()->is<ErrorType>()) {
-    if (success)
-      result = downcasting ? CER::Downcast : CER::Ok;
-    else result = CER::NOk;
-  } 
-  else
-    result = CER::Error;
-
-  return { result, expr };
+  return success;
 }
+
+bool Sema::typecheckCondition(Expr*& expr) {
+  expr = ExprChecker(*this).check(expr);
+  Type boolTy = PrimitiveType::getBool(getASTContext());
+  bool success = unify(expr->getType(), boolTy);
+  expr = ExprFinalizer(ctxt_).finalize(expr);
+  return success && !(expr->getType()->is<ErrorType>());
+ }

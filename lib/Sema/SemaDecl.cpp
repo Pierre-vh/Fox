@@ -128,21 +128,15 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // Check the init expr
       if (Expr* init = decl->getInitExpr()) {
         // Check the init expr
-        auto res = getSema().typecheckExprOfType(init, decl->getType());
+        bool ok = getSema().typecheckExprOfType(init, decl->getType());
         // Replace the expr
-        decl->setInitExpr(res.second);
-        auto flag = res.first;
-        using CER = Sema::CheckedExprResult;
-        switch (flag) {
-          case CER::Ok:
-          case CER::Error:
-            // Don't diagnose if the expression is correct, of if the expression
-            // is an ErrorType (to avoid error cascades)
-            break;
-          case CER::Downcast:
-          case CER::NOk:
+        decl->setInitExpr(init);
+        // If the type didn't match, diagnose
+        if(!ok) {
+          // (don't diagnose if we already have an error type to avoid
+          // cascading errors)
+          if(!init->getType()->is<ErrorType>())
             diagnoseInvalidVarInitExpr(decl, init);
-            break;
         }
       }
     }

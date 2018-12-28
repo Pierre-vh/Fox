@@ -113,18 +113,13 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
 		// is used as a condition. Returns the Expr* that should replace
 		// the condition.
 		Expr* checkCond(Expr* cond) {
-			using CER = Sema::CheckedExprResult;
 			Type boolTy = PrimitiveType::getBool(getCtxt());
-			auto condRes = getSema().typecheckExprOfType(cond, boolTy);
-			// Only emit a diagnostic if it's not an ErrorType
-			if(condRes.first == CER::NOk)
-					diagnoseExprCantCond(cond);
-      // We don't care about downcasting here, and we don't want to 
-      // emit a diagnostic if the type of the expr is an ErrorType
-      if(condRes.first == CER::Error)
-        assert(condRes.second->getType()->is<ErrorType>());
-      assert(condRes.second && "typecheckExprOfType returned a null expr!");
-			return condRes.second;
+			if(!getSema().typecheckCondition(cond)) {
+        diagnoseExprCantCond(cond);
+        // Set the type to ErrorType
+        cond->setType(ErrorType::get(getCtxt()));
+      }
+			return cond;
 		}
 };
 
