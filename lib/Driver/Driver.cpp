@@ -84,19 +84,23 @@ bool Driver::processFile(const std::string& filepath) {
     ASTDumper(srcMgr, getOS(), 1).print(unit);
   }
 
+  bool success = !ctxt.hadErrors();
+
   // (Verify mode) Check that all diags were emitted
   if (verify_) {
     assert(dv && "DiagnosticVerifier is null");
-    dv->reportUnemittedDiags();
+    // In verify mode, success depends on the success of
+    // the verification.
+    success = dv->finish();
   }
 
-  // Release the memory
+  // Release the memory of the AST
   {
     auto chrono = createChrono("Release");
     ctxt.reset();
   }
 
-  return (diags.getErrorsCount() == 0);
+  return success;
 }
 
 bool Driver::getPrintChrono() const {

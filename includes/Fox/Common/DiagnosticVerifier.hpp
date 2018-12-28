@@ -59,15 +59,20 @@ namespace fox {
 
       DiagsSetTy& getExpectedDiags();
 
-      // Emits an error for each expected diagnostics that wasn't emitted.
-      // Returns true if diagnostics were emitted, false otherwise.
-      bool reportUnemittedDiags();
+      // Finishes verification.
+      //  If not all expected diagnostics were emitted, this will emit
+      //  an error + a note for each expected diagnostic that wasn't emitted.
+      //
+      // Returns true if the verification is considered successful
+      // (all expected diags emitted), false otherwise.
+      bool finish();
 
     protected:
       friend class DiagnosticEngine;
 
-      // Performs verification of a single diagnostic
-      // and returns true if we must emit the diagnostic, false otherwise.
+      // Performs verification of a single diagnostic.
+      //  Returns false if the diagnostic shouldn't be consumed,
+      //  true if it can be consumed by the DiagnosticConsumer.
       bool verify(Diagnostic& diag);
 
     private:

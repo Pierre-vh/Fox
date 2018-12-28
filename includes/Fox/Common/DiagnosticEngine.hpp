@@ -180,6 +180,8 @@ namespace fox {
       std::string getStr() const;
       DiagSeverity getSeverity() const;
 
+      FileID getFileID() const;
+
       SourceRange getRange() const;
       Diagnostic& setRange(SourceRange range);
       bool hasRange() const;

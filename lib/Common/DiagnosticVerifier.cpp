@@ -119,7 +119,7 @@ DiagnosticVerifier::getExpectedDiags() {
   return expectedDiags_;
 }
 
-bool DiagnosticVerifier::reportUnemittedDiags() {
+bool DiagnosticVerifier::finish() {
   if (expectedDiags_.size()) {
     // First, emit an error of the form "X expected diags weren't emitted"
     diags_.report(DiagID::diagverif_errorExpectedDiagsNotEmitted)
@@ -131,19 +131,17 @@ bool DiagnosticVerifier::reportUnemittedDiags() {
         .addArg(toString(diag.severity))
         .addArg(diag.line);
     }
-    return true;
+    // Some expected diags weren't emitted.
+    return false;
   }
-  return false;
+  // All expected diags emitted
+  return true;
 }
 
 bool DiagnosticVerifier::verify(Diagnostic& diag) {
-  {
-    DiagID id = diag.getID();
-    // Always emit our own diagnostics.
-    if((id >= DiagID::First_DiagnosticVerifier) 
-      && (id <= DiagID::Last_DiagnosticVerifier))
-      return true;
-  }
+  // We can't expect a Diagnostic if it did not come from
+  // a valid file.
+  if(!diag.getFileID()) return true;
 
 	// Construct an ExpectedDiag to search the map
 	SourceLoc diagLoc = diag.getRange().getBegin();
@@ -160,8 +158,7 @@ bool DiagnosticVerifier::verify(Diagnostic& diag) {
 
   auto it = expectedDiags_.find(ed);
   if(it != expectedDiags_.end()) {
-    // We expected this diag, erase the entry from the map and ignore
-		// the diag.
+    // We expected this diag, erase the entry from the map and don't consume it
     expectedDiags_.erase(it);
     return false;
   }

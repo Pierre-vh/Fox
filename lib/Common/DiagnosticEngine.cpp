@@ -1,3 +1,5 @@
+#include "..\..\includes\Fox\Common\DiagnosticEngine.hpp"
+#include "..\..\includes\Fox\Common\DiagnosticEngine.hpp"
 //----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.        
 // See LICENSE.txt for license info.            
@@ -189,15 +191,17 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
 
   assert(consumer_ && "No valid consumer");
 
-  // Do verification if required to
-  if (isVerifyModeEnabled()) {
-    if(!verifier_->verify(diag)) return;
-  }
+  bool canConsume = true;
 
-  // Let the consumer consume the diag.
-  consumer_->consume(diag);
+  // Do verification if needed
+  if(verifier_)
+    canConsume = verifier_->verify(diag);
 
-  // Update our counters
+  // Let the consumer consume the diag if he can.
+  if(canConsume)
+    consumer_->consume(diag);
+
+  // Update the internal state
   updateInternalCounters(diag.getSeverity());
 
   // Now, check if we must emit a "too many errors" error.
@@ -307,6 +311,10 @@ std::string Diagnostic::getStr() const {
 
 DiagSeverity Diagnostic::getSeverity() const {
   return diagSeverity_;
+}
+
+FileID Diagnostic::getFileID() const {
+  return range_.getFileID();
 }
 
 SourceRange Diagnostic::getRange() const {
