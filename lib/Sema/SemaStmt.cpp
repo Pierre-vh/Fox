@@ -119,7 +119,12 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
 			// Only emit a diagnostic if it's not an ErrorType
 			if(condRes.first == CER::NOk)
 					diagnoseExprCantCond(cond);
-			return cond;
+      // We don't care about downcasting here, and we don't want to 
+      // emit a diagnostic if the type of the expr is an ErrorType
+      if(condRes.first == CER::Error)
+        assert(condRes.second->getType()->is<ErrorType>());
+      assert(condRes.second && "typecheckExprOfType returned a null expr!");
+			return condRes.second;
 		}
 };
 
