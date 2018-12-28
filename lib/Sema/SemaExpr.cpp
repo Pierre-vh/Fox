@@ -991,7 +991,7 @@ Expr* Sema::typecheckExpr(Expr* expr) {
 // if you typecheckExprOfType with the return type of the function,
 // it'll work because the type will be bound before being finalized.
 std::pair<Sema::CheckedExprResult, Expr*> 
-Sema::typecheckExprOfType(Expr* expr, Type type, bool allowDowncast) {
+Sema::typecheckExprOfType(Expr* expr, Type type) {
   using CER = CheckedExprResult;
   assert(expr && "null input");
 
@@ -999,24 +999,16 @@ Sema::typecheckExprOfType(Expr* expr, Type type, bool allowDowncast) {
   bool success = unify(expr->getType(), type);
   expr = ExprFinalizer(ctxt_).finalize(expr);
 
-  bool invalidDowncast = false;
-  if(!allowDowncast)
-    invalidDowncast = isDowncast(expr->getType(), type);
+  bool downcasting = isDowncast(expr->getType(), type);
 
   CER result;
   if (!expr->getType()->is<ErrorType>()) {
-    // Not an error typ
     if (success)
-      // unification was successful : set to Ok unless it's
-      // an invalid downcast.
-      result = invalidDowncast ? CER::Downcast : CER::Ok;
-    else
-      // unification wasn't successful
-      result = CER::NOk;
+      result = downcasting ? CER::Downcast : CER::Ok;
+    else result = CER::NOk;
   } 
-  else {
+  else
     result = CER::Error;
-  }
 
   return { result, expr };
 }
