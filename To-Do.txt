@@ -129,11 +129,10 @@ To-Do:
   > Tests for interaction of a FunctionType with other operations
     > e.g. foo+3
 
-  > Semantic analysis for circularity 
-    > e.g. disallow "let x : int = x";
-    > Checking logic : Add an optional ExprChecker member: Decl* "forDecl", and
-      when name binding, don't allow references to that decl, else, diagnose circularity.
-    > Tests
+  > Add "isConditionValid" to ConditionStmt & WhileStmt (check that cond isn't ErrorType)
+
+  > Disallow forward references for global variables
+    > e.g. `let foo: int = bar; let bar : int = 3` is not valid.
 
   > ReturnStmt checking
     > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
@@ -163,10 +162,15 @@ To-Do:
   > VM
 
 Future:
-  > Multifile support: Still to be decided
+  > Multifile support: It's coming, but the how is still to be decided
   > Structs/Objects
 
+Diagnostics improvements:
+  > When diagnosing a redecl, should I really print "first decl seen here" for each use?
+
 Other:
+  > Add more AST tests like ASTTest.ExprFlags, which tests that flags works as intended in the AST
+
   > Simplify some AST constructors which are way too bloated and contain redundant information
     Examples:
     -> ParamDecl: Can deduce the full range with SourceRange(idRange.begin(), typeRange.end())
@@ -180,8 +184,6 @@ Other:
   > Allow cast expr chaining (update grammar & parser)
     This isn't really a commonly used feature, but I hate seeing errors just because I type
     "foo as bool as string"
-
-  > When diagnosing a redecl, should I really print "first decl seen here" for each use?
 
   > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
     or should parseStmt handle it?
