@@ -33,23 +33,12 @@ namespace fox {
   // This is the class that handles semantic analysis of the Fox AST.
   class Sema {
     public:
-      //----------------------------------------------------------------------//
-      // Type aliases
-      //----------------------------------------------------------------------//
-
       // A shortened syntax for a std::pair of Type
       using TypePair = std::pair<Type, Type>;
 
       // The type used to represent Integral type ranks
       using IntegralRankTy = std::uint8_t;
 
-      //----------------------------------------------------------------------//
-      // Public Sema Interface
-      //----------------------------------------------------------------------//
-
-      // Constructor
-        // TODO: Once ASTContext contains the DiagnosticEngine, remove the 2nd
-        //       argument.
       Sema(ASTContext& ctxt);
 
       // Typechecks a ASTNode (expression, declaration or statement)
@@ -106,21 +95,11 @@ namespace fox {
       ASTContext& getASTContext();
 
     private:
-      //----------------------------------------------------------------------//
-      // Private implementation classes
-      //----------------------------------------------------------------------//
-
       // Checkers
       class Checker;
       class DeclChecker;
       class StmtChecker;
       class ExprChecker;
-
-      //----------------------------------------------------------------------//
-      // Private Sema Interface
-      //
-      // For Checkers and implementation classes
-      //----------------------------------------------------------------------//
 
       //---------------------------------//
       // Type related methods
@@ -246,10 +225,6 @@ namespace fox {
       // Returns true if this Sema instance posseses an active local scope in
       // which local declarations can be made visible
       bool hasLocalScope() const;
-
-      //----------------------------------------------------------------------//
-      // Private members
-      //----------------------------------------------------------------------//
 
       // The current active DeclContext.
       DeclContext* currentDC_ = nullptr;
