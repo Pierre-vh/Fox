@@ -172,13 +172,21 @@ namespace fox {
       // Dtor that emits the diagnostic.
       ~Diagnostic();
       
-      // Emit this diagnostic
+      // Emit this diagnostic, feeding it to the consumer.
       void emit();
 
+      // Returns the DiagID of this diagnostic.
       DiagID getID() const;
+
+      // Returns the string of this diagnostic in it's current
+      // form. The placeholders may or may not have been
+      // removed!
       std::string getStr() const;
+
+      // Returns this diagnostic's severity.
       DiagSeverity getSeverity() const;
 
+      // Returns the FileID concerned by this diag.
       FileID getFileID() const;
 
       SourceRange getRange() const;
