@@ -1,4 +1,5 @@
 #include "..\..\includes\Fox\Common\Source.hpp"
+#include "..\..\includes\Fox\Common\Source.hpp"
 //----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.        
 // See LICENSE.txt for license info.            
@@ -383,6 +384,17 @@ SourceLoc SourceRange::getEnd() const {
 
 bool SourceRange::isOnlyOneCharacter() const {
   return (offset_ == 0);
+}
+
+bool SourceRange::isInside(SourceLoc loc) const {
+  SourceLoc beg = getBegin();
+  SourceLoc end = getEnd();
+  if(beg.getFileID() != loc.getFileID())
+    return false;
+  auto begIdx = beg.getIndex();
+  auto endIdx = end.getIndex();
+  auto locIdx = loc.getIndex();
+  return (begIdx >= locIdx) && (locIdx <= endIdx);
 }
 
 FileID SourceRange::getFileID() const {
