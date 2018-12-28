@@ -26,3 +26,7 @@ let q : [int] = 1; // expect-error: cannot use an expression of type 'int' to in
 // infer tests, shouldn't produce errors!
 let r : [int] = [];
 let s : [[[float]]] = [];
+
+// Test that we can't use a variable declared later in the file inside an initializer
+let t : int = u; // expect-error: undeclared identifier 'u'
+let u : int = t; // this one should be correct

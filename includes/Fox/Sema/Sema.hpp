@@ -28,6 +28,7 @@ namespace fox {
   // Forward Declarations
   class ASTContext;
   class DiagnosticEngine;
+  class SourceLoc;
   using NamedDeclVec = SmallVector<NamedDecl*, 4>;
 
   // This is the class that handles semantic analysis of the Fox AST.
@@ -172,7 +173,23 @@ namespace fox {
       class LookupResult;
 
       // Class that represents options passed to a lookup request.
-      struct LookupOptions;
+      struct LookupOptions {
+        // If this is set to false, the Lookup will stop after
+        // looking in the current LocalScope (if there is one).
+        bool canLookInDeclContext = true;
+
+        // If this is set to true, the SourceLoc will be ignored
+        // when performing lookup.
+        bool canIgnoreLoc = false;
+
+        // This lambda, if non-null, will be called each time
+        // the lookup finds a valid lookup result.
+        //
+        // If "shouldIgnore(result)"
+        // returns true, the result will be ignored and not added
+        // to the LookupResult.
+        std::function<bool(NamedDecl*)> shouldIgnore;
+      };
 
       // Performs a unqualified lookup in the current context and scope.
       //    -> If a matching decl is found in the local scope, the searchs stops
@@ -180,7 +197,7 @@ namespace fox {
       // if lookInDeclCtxt is set to false, we'll only look for
       // decls inside the current LocalScope.
       void doUnqualifiedLookup(LookupResult& results, Identifier id, 
-        const LookupOptions& options);
+        SourceLoc loc, const LookupOptions& options = LookupOptions());
 
       //---------------------------------//
       // DeclContext management
@@ -313,17 +330,5 @@ namespace fox {
       NamedDeclVec::const_iterator end() const;
     private:
       NamedDeclVec results_;
-  };
-
-  struct Sema::LookupOptions {
-    // If this is set to false, the Lookup will stop after
-    // looking in the current LocalScope (if there is one).
-    bool canLookInDeclContext = true;
-
-    // This lambda, if non-null, will be called each time
-    // the lookup finds a lookup result. If "shouldIgnore(result)"
-    // returns true, the result will be ignored and not added
-    // to the LookupResult.
-    std::function<bool(NamedDecl*)> shouldIgnore;
   };
 }

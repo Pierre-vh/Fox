@@ -81,13 +81,20 @@ std::pair<bool, bool>  Sema::addLocalDeclToScope(NamedDecl* decl) {
 }
 
 void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
-  const LookupOptions& options) {
+  SourceLoc loc, const LookupOptions& options) {
   assert((results.size() == 0) && "'results' must be a fresh LookupResult");
   assert(id && "can't lookup with invalid id!");
   bool lookInDeclCtxt = options.canLookInDeclContext;
-
+  bool canIgnoreLoc = options.canIgnoreLoc;
   // Lambda that returns true if the result should be ignored.
   auto shouldIgnore = [&](NamedDecl* decl) {
+    if(!canIgnoreLoc) {
+      // When we must consider the loc, ignore results that were
+      // declared after the desired loc.
+      if(!decl->getBegin().comesBefore(loc))
+        return true;
+    }
+
     auto fn = options.shouldIgnore;
     return fn ? fn(decl) : false;
   };
@@ -111,6 +118,10 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
     // we were looking for inside the scope, there's no need to keep
     // looking.
     lookInDeclCtxt &= (results.size() == 0);
+
+    // If we have looked inside a LocalScope, we are now allowed
+    // to ignore the loc when looking inside the DeclContext
+    canIgnoreLoc = true;
   }
 
   // Check in decl context if allowed to

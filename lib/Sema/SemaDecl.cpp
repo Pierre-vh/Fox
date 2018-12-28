@@ -190,11 +190,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         if(result == decl) return true;
         // Ignore if result isn't from the same file
         if(result->getFileID() != decl->getFileID()) return true;
-        // And lastly, ignore if result doesn't come before decl.
-        if(!comesBefore(result, decl)) return true;
         return false;  // else, don't ignore.
       };
-      getSema().doUnqualifiedLookup(lookupResult, id, options);
+      getSema().doUnqualifiedLookup(lookupResult, id, decl->getBegin(),
+                                    options);
       // If there are no matches, this cannot be a redecl
       if (lookupResult.size() == 0)
         return true;
@@ -247,17 +246,6 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         }
       }
       return candidate;
-    }
-
-    // Returns true if lhs comes before rhs. 
-    // NOTE: lhs and rhs MUST share the same FileID!
-    bool comesBefore(Decl* lhs, Decl* rhs) {
-      assert(lhs && rhs && "lhs and/or rhs are nullptr");
-      assert(lhs->getFileID() == rhs->getFileID() && "lhs and rhs comes from "
-        "different files");
-      SourceLoc lhsBeg = lhs->getBegin();
-      SourceLoc rhsBeg = rhs->getBegin();
-      return lhsBeg.getIndex() < rhsBeg.getIndex();
     }
 
     // Return true if decl is a VarDecl or ParamDecl

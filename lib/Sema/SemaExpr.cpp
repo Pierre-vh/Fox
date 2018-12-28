@@ -33,6 +33,7 @@ using namespace fox;
 class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
   using Inherited = ExprVisitor<ExprChecker, Expr*>;
   friend class Inherited;
+
   public:
     ExprChecker(Sema& sema) : Checker(sema) {}
 
@@ -521,7 +522,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Identifier id = expr->getIdentifier();
       SourceRange range = expr->getRange();
       LookupResult results;
-      getSema().doUnqualifiedLookup(results, id, LookupOptions());
+      getSema().doUnqualifiedLookup(results, id, expr->getBegin());
       // No results -> undeclared identifier
       if(results.isEmpty()) {
         diagnoseUndeclaredIdentifier(range, id);
