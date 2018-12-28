@@ -26,8 +26,12 @@ func foo() {
              // expect-error@-1: failed to infer the type of this expression
 
   // Redundant cast 
-  1 as int; // expect-warning: redundant cast: expression is already of type 'int'
-  3.14 as float; // expect-warning: redundant cast: expression is already of type 'float'
-  true as bool; // expect-warning: redundant cast: expression is already of type 'bool'
-  [[3.14],[]] as [[float]]; // expect-warning: redundant cast: expression is already of type '[[float]]'
+  1 as int; 
+  // expect-warning@-1: useless cast to 'int': expression is already of type 'int'
+  3.14 as float; 
+  // expect-warning@-1: useless cast to 'float': expression is already of type 'float'
+  true as bool; 
+  // expect-warning@-1: useless cast to 'bool': expression is already of type 'bool'
+  [[3.14],[]] as [[float]]; 
+  // expect-warning@-1: useless cast to '[[float]]': expression is already of type '[[float]]'
 }

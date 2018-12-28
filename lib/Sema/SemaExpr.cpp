@@ -64,12 +64,11 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // (Warning) Diagnoses a redudant cast (when the
     // cast goal and the child's type are equal)
-    void diagnoseRedundantCast(CastExpr* expr) {
+    void warnRedundantCast(CastExpr* expr, Type toType) {
       SourceRange range = expr->getCastTypeLoc().getRange();
-      Type goalTy = expr->getCastTypeLoc().withoutLoc();
       getDiags()
-        .report(DiagID::sema_redundant_cast, range)
-        .addArg(goalTy)
+        .report(DiagID::sema_useless_cast_redundant, range)
+        .addArg(toType)
         .setExtraRange(expr->getExpr()->getRange());
     }
 
@@ -231,20 +230,16 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // Finalizes a CastExpr
     Expr* finalizeCastExpr(CastExpr* expr, bool isRedundant) {
-      if (isRedundant) {
-        // Diagnose the redundant cast (emit a warning).
-        diagnoseRedundantCast(expr);
-        // Remove the CastExpr and just return the child
-        Expr* child = expr->getExpr();
-        // Simply replace the range of the child with the range
-        // of the CastExpr, so diagnostics will correctly highlight the whole
-        // cast's region.
-        child->setRange(expr->getRange());
-        return child;
+      if (isRedundant) { 
+        // Redundant casts are useless
+        expr->markAsUselesss();
+        // Warn the user
+        Type type = expr->getCastType();
+        warnRedundantCast(expr, type);
       }
 
       // Else, the Expr's type is simply the castgoal.
-      expr->setType(expr->getCastTypeLoc().withoutLoc());
+      expr->setType(expr->getCastType());
       return expr;
     }
 

@@ -38,8 +38,8 @@ ERROR(sema_cannot_call_func_with_args,
   "cannot call function of type '%0' with arguments of type '%1'") 
 ERROR(sema_cannot_call_func_with_no_args,
   "cannot call function of type '%0' with no arguments") 
-WARNING(sema_redundant_cast,
-  "redundant cast: expression is already of type '%0'")
+WARNING(sema_useless_cast_redundant,
+  "useless cast to '%0': expression is already of type '%0'")
 
 NOTE(sema_1stdecl_seen_here, "first declaration of '%0' seen here")
 NOTE(sema_potential_candidate_here, "potential candidate found here")
