@@ -140,14 +140,6 @@ namespace fox {
       // type must not be null and must point to a arithmetic type.
       static IntegralRankTy getIntegralRank(Type type);;
 
-      // Given a type, return the Basic type if it can find one, or nullptr.
-      // e.g.
-      //    LValue(Array(Array(int))) will return int
-      static BasicType* findBasicType(Type type);
-
-      // Removes the same number of ArrayType layers on a and b
-      static TypePair unwrapArrays(Type a, Type b);
-
       // Removes all layers of LValue, CellType and ArrayType 
       // until this reaches a point where one (or both) of the
       // types become basic.

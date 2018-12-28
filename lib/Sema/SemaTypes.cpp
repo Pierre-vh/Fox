@@ -175,40 +175,7 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type type) {
   }
 }
 
-BasicType* Sema::findBasicType(Type type) {
-  class Impl : public TypeVisitor<Impl, BasicType*> {
-    public:
-      BasicType* visitPrimitiveType(PrimitiveType* type) {
-        return type;
-      }
-
-      BasicType* visitErrorType(ErrorType* type) {
-        return type;
-      }
-
-      BasicType* visitArrayType(ArrayType* type) {
-        if(Type elem = type->getElementType())
-          return visit(elem);
-        return nullptr;
-      }
-      
-      BasicType* visitLValueType(LValueType* type) {
-        if (Type ty = type->getType())
-          return visit(ty);
-        return nullptr;
-      }
-
-      BasicType* visitCellType(CellType* type) {
-        if (Type sub = type->getSubst())
-          return visit(sub);
-        return nullptr;
-      }
-  };
-
-  return Impl().visit(type);
-}
-
-Sema::TypePair Sema::unwrapArrays(Type a, Type b) {
+static Sema::TypePair unwrapArrays(Type a, Type b) {
   assert(a && b && "args cannot be null");
   Type uwA = a->unwrapIfArray();
   Type uwB = b->unwrapIfArray();
