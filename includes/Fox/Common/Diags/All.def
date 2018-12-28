@@ -27,10 +27,6 @@
   #define FATAL(ID,TEXT)  DIAG(Fatal, ID, TEXT)
 #endif
 
-#ifndef DIAG_RANGE
-  #define DIAG_RANGE(ID, FIRST, LAST)
-#endif
-
 #include "Common.def"
 #include "Lexer.def"
 #include "Parser.def"
@@ -41,4 +37,3 @@
 #undef WARNING
 #undef ERROR
 #undef FATAL
-#undef DIAG_RANGE

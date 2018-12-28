@@ -44,8 +44,6 @@ ERROR(diagverif_errorExpectedDiagsNotEmitted,
   "%0 diagnostics were expected but not emitted")
 NOTE(diagverif_diagNotEmitted,
   "diagnostic '%0' (%1) was expected at line %2 but not emitted")
-DIAG_RANGE(DiagnosticVerifier, 
-  diagverif_expectedsuffix, diagverif_diagNotEmitted)
 
 //----------------------------------------------------------------------------//
 // DiagnosticEngine
