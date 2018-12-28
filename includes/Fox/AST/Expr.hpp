@@ -15,6 +15,7 @@
 #include "Fox/AST/Identifier.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"
+#include "llvm/ADT/PointerIntPair.h"
 #include "llvm/ADT/TrailingObjects.h"
 
 namespace fox   {
@@ -200,6 +201,11 @@ namespace fox   {
       void setExpr(Expr* expr);
       Expr* getExpr() const;
 
+      // Returns true if this cast is considered "useless"
+      //  e.g. "0 as int" is a useless cast.
+      bool isUseless() const;
+      void markAsUselesss();
+
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::CastExpr);
       }
@@ -208,7 +214,10 @@ namespace fox   {
       CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range);
 
       TypeLoc goal_;
-      Expr* expr_ = nullptr;
+      // The child expr + a "isUseless" flag.
+      //  The cast is marked as useless when the child
+      //  is already of the desired type (e.g. "0 as int")
+      llvm::PointerIntPair<Expr*, 1, bool> exprAndIsUseless_;
   };
 
   // CharLiteralExpr

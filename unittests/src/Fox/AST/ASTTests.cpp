@@ -237,6 +237,17 @@ TEST_F(ASTTest, ExprRTTI) {
   EXPECT_TRUE(CallExpr::classof(callexpr));
 }
 
+TEST_F(ASTTest, ExprFlags) {
+  {
+    CastExpr* cast = CastExpr::create(ctxt, TypeLoc(), nullptr, SourceRange());
+    // CastExprs shouldn't be useless by default
+    EXPECT_FALSE(cast->isUseless());
+    cast->markAsUselesss();
+    EXPECT_TRUE(cast->isUseless());
+  }
+  // TODO: Add more of theses
+}
+
 TEST_F(ASTTest, StmtRTTI) {
   // NullStmt
   auto* null = NullStmt::create(ctxt);

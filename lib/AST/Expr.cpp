@@ -407,7 +407,8 @@ std::string UnaryExpr::getOpName() const {
 //----------------------------------------------------------------------------//
 
 CastExpr::CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range):
-  Expr(ExprKind::CastExpr, range), goal_(castGoal), expr_(expr) {}
+  Expr(ExprKind::CastExpr, range), goal_(castGoal), 
+  exprAndIsUseless_(expr, false) {}
 
 CastExpr* CastExpr::create(ASTContext& ctxt, TypeLoc castGoal, 
   Expr* expr, SourceRange range) {
@@ -431,11 +432,19 @@ SourceRange CastExpr::getCastRange() const {
 }
 
 void CastExpr::setExpr(Expr* expr) {
-  expr_ = expr;
+  exprAndIsUseless_.setPointer(expr);
 }
 
 Expr* CastExpr::getExpr() const {
-  return expr_;
+  return exprAndIsUseless_.getPointer();
+}
+
+bool CastExpr::isUseless() const {
+  return exprAndIsUseless_.getInt();
+}
+
+void CastExpr::markAsUselesss() {
+  exprAndIsUseless_.setInt(true);
 }
 
 //----------------------------------------------------------------------------//
