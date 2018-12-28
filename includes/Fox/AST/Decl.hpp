@@ -47,11 +47,14 @@ namespace fox {
     static constexpr unsigned kindBits_ = 4;
     public:
       enum class CheckState {
+        // The decl has not been checked yet.
         Unchecked,
-        // TODO: Add "Checking". Will be needed with multi file support or variable
-        //  type inference at the global level!
+
+        // The Decl is currently being checked
+        Checking,
+
         Checked
-        // There's room for 2 more CheckStates. If this enum is updated
+        // There's room for 1 more CheckStates. If this enum is updated
         // beyond 4 elements, increase the size of it's bitfield in Decl.
       };
 
@@ -99,13 +102,12 @@ namespace fox {
       // Returns the end loc of this Decl, if it has one.
       SourceLoc getEnd() const;
 
-      // Return true if this Decl's CheckState is Unchecked.
       bool isUnchecked() const;
-      // Return true if this Decl's CheckState is Checked
+      bool isChecking() const;
       bool isChecked() const;
 
       CheckState getCheckState() const;
-      void markAsChecked();
+      void setCheckState(CheckState state);
 
       // Get the FileID of the file where this Decl is located
       FileID getFileID() const;

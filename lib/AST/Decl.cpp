@@ -98,6 +98,10 @@ bool Decl::isUnchecked() const {
   return (checkState_ == CheckState::Unchecked);
 }
 
+bool Decl::isChecking() const {
+  return (checkState_ == CheckState::Checking);
+}
+
 bool Decl::isChecked() const {
   return (checkState_ == CheckState::Checked);
 }
@@ -106,8 +110,8 @@ Decl::CheckState Decl::getCheckState() const {
   return checkState_;
 }
 
-void Decl::markAsChecked() {
-  checkState_ = CheckState::Checked;
+void Decl::setCheckState(CheckState state) {
+  checkState_ = state;
 }
 
 FileID Decl::getFileID() const {
