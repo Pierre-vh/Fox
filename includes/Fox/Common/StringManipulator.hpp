@@ -103,13 +103,6 @@ namespace fox {
       // Removes the BOM from a str
       static void removeBOM(std::string& str);
 
-      // Given 2 iterators, places the iterator it at the beginning of the first codepoint, ignoring the Byte order mark
-      template<typename it_type>
-      static void skipBOM(it_type& it, it_type end) {
-        if (utf8::starts_with_bom(it, end))
-          utf8::next(it, end);
-      }
-
       // Appends a FoxChar to a std::string.
       static void append(std::string& str, FoxChar ch);
 

@@ -56,7 +56,8 @@ void StringManipulator::reset() {
   end_ = str_.end();
   beg_ = str_.begin();
   // skip  bom if there is one
-  StringManipulator::skipBOM(iter_,end_);
+  if (utf8::starts_with_bom(iter_, end_))
+    utf8::next(iter_, end_);
 }
 
 void StringManipulator::advance(const std::size_t & ind) {
