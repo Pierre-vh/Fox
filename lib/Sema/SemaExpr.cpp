@@ -526,7 +526,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
 
       // Idx type must be an numeric value, but can't be a float
-      if ((!idxETy->isNumeric()) || idxETy->isFloatType()) {
+      if ((!idxETy->isNumeric()) || idxETy->isDoubleType()) {
         // Diagnose with the primary range being the idx's range
 				if(!childTy->is<ErrorType>())
 					diagnoseInvalidArraySubscript(expr,
@@ -634,8 +634,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
-    Expr* visitFloatLiteralExpr(FloatLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getFloat(getCtxt()));
+    Expr* visitDoubleLiteralExpr(DoubleLiteralExpr* expr) {
+      expr->setType(PrimitiveType::getDouble(getCtxt()));
       return expr;
     }
 

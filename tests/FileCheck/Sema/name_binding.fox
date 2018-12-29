@@ -8,8 +8,8 @@ func some_func_before() {}
 
 // CHECK: VarDecl [[global_a_addr:0x([[:alnum:]]{8,12})]] {{.*}} let a 'int'
 let a : int;
-// CHECK-NEXT: VarDecl [[global_b_addr:0x([[:alnum:]]{8,12})]] {{.*}} var b 'float'
-var b : float;
+// CHECK-NEXT: VarDecl [[global_b_addr:0x([[:alnum:]]{8,12})]] {{.*}} var b 'double'
+var b : double;
 
 // CHECK-NEXT: FuncDecl [[foo_addr:0x([[:alnum:]]{8,12})]] {{.*}} foo '(char,[string]) -> int'
 // CHECK-NEXT: ParamDecl [[param_a_addr:0x([[:alnum:]]{8,12})]] {{.*}} a 'char'
@@ -18,7 +18,7 @@ func foo(a : char, mutParam : mut [string]) : int {
   // CHECK: DeclRefExpr 'char' a <decl:[[param_a_addr]]>
   a;
   // Check that a reference to a mutable variable has a "lvalue"
-  // CHECK: DeclRefExpr lvalue 'float' b <decl:[[global_b_addr]]>
+  // CHECK: DeclRefExpr lvalue 'double' b <decl:[[global_b_addr]]>
   b;
   // CHECK: DeclRefExpr lvalue '[string]' mutParam <decl:[[mutParam_addr]]>
   mutParam;

@@ -241,8 +241,8 @@ Parser::Result<Type> Parser::parseBuiltinTypename() {
     return RtrTy(Type(PrimitiveType::getInt(ctxt)), range);
   
   // "float"
-  if (auto range = consumeKeyword(KeywordType::KW_FLOAT))
-    return RtrTy(Type(PrimitiveType::getFloat(ctxt)), range);
+  if (auto range = consumeKeyword(KeywordType::KW_DOUBLE))
+    return RtrTy(Type(PrimitiveType::getDouble(ctxt)), range);
 
   // "bool"
   if (auto range = consumeKeyword(KeywordType::KW_BOOL))

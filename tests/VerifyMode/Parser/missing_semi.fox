@@ -2,7 +2,7 @@
 
 // Test VarDecls
 let x : int // expect-error: expected ';'
-let x : float; // No errors will be emitted here due to resync
+let x : double; // No errors will be emitted here due to resync
 
 func foo() {
   // ExprStmts

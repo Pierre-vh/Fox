@@ -40,7 +40,7 @@ namespace fox {
       LiteralInfo() = default;
       LiteralInfo(bool bval);
       LiteralInfo(const std::string& sval);
-      LiteralInfo(FoxFloat fval);
+      LiteralInfo(FoxDouble fval);
       LiteralInfo(FoxInt ival);
       LiteralInfo(FoxChar cval);
 
@@ -68,7 +68,7 @@ namespace fox {
       }
     private:
       mpark::variant<
-        mpark::monostate, bool, std::string, FoxFloat, FoxInt, FoxChar
+        mpark::monostate, bool, std::string, FoxDouble, FoxInt, FoxChar
       > value_;
   };
 
@@ -109,7 +109,7 @@ namespace fox {
     DEFAULT,  // Default value
     // TYPES
     KW_INT,    // "int"
-    KW_FLOAT,  // "float"
+    KW_DOUBLE,  // "double"
     KW_BOOL,   // "bool"
     KW_STRING, // "string"
     KW_CHAR,   // "char"
@@ -199,7 +199,7 @@ namespace fox {
     const std::map<std::string, KeywordType> kKeywords_dict = {
       // TYPES 
       { "int", KeywordType::KW_INT },
-      { "float", KeywordType::KW_FLOAT },
+      { "double", KeywordType::KW_DOUBLE },
       { "bool", KeywordType::KW_BOOL },
       { "string", KeywordType::KW_STRING },
       { "char", KeywordType::KW_CHAR },

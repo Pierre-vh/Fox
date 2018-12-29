@@ -38,7 +38,7 @@ EXPR(ArraySubscriptExpr,Expr)
 EXPR(CharLiteralExpr,Expr)
 EXPR(BoolLiteralExpr,Expr)
 EXPR(IntegerLiteralExpr,Expr)
-EXPR(FloatLiteralExpr,Expr)
+EXPR(DoubleLiteralExpr,Expr)
 EXPR(StringLiteralExpr,Expr)
 EXPR(ArrayLiteralExpr,Expr)
 

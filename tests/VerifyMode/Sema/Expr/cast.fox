@@ -3,12 +3,12 @@
 func foo() {
   // Booleans upranking
   true as int;
-  true as float;
+  true as double;
 
-  // Ints upranking
-  1 as float;
+  // Int upranking
+  1 as double;
 
-  // Float downranking
+  // Double downranking
   3.14 as int;
   3.14 as bool;
 
@@ -17,21 +17,21 @@ func foo() {
 
   // Arrays
   [true, false, true] as [int];
-  [true, false, true] as [float];
+  [true, false, true] as [double];
 
   // Inference
   [] as [int];
-  [[]] as [[float]];
+  [[]] as [[double]];
   [] as int; // expect-error: cannot cast expression of type '[any]' to type 'int'
              // expect-error@-1: failed to infer the type of this expression
 
   // Redundant cast 
   1 as int; 
   // expect-warning@-1: useless cast to 'int': expression is already of type 'int'
-  3.14 as float; 
-  // expect-warning@-1: useless cast to 'float': expression is already of type 'float'
+  3.14 as double; 
+  // expect-warning@-1: useless cast to 'double': expression is already of type 'double'
   true as bool; 
   // expect-warning@-1: useless cast to 'bool': expression is already of type 'bool'
-  [[3.14],[]] as [[float]]; 
-  // expect-warning@-1: useless cast to '[[float]]': expression is already of type '[[float]]'
+  [[3.14],[]] as [[double]]; 
+  // expect-warning@-1: useless cast to '[[double]]': expression is already of type '[[double]]'
 }

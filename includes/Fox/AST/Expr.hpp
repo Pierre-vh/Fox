@@ -258,23 +258,23 @@ namespace fox   {
       const FoxInt val_ = 0;
   };
 
-  // FloatLiteralExpr
-  //    A float literal: 3.14
-  class FloatLiteralExpr final : public Expr {
+  // DoubleLiteralExpr
+  //    A double literal: 3.14
+  class DoubleLiteralExpr final : public Expr {
     public:
-      static FloatLiteralExpr* create(ASTContext& ctxt, FoxFloat val,
+      static DoubleLiteralExpr* create(ASTContext& ctxt, FoxDouble val,
         SourceRange range);
 
-      FoxFloat getVal() const;
+      FoxDouble getVal() const;
 
       static bool classof(const Expr* expr) {
-        return (expr->getKind() == ExprKind::FloatLiteralExpr);
+        return (expr->getKind() == ExprKind::DoubleLiteralExpr);
       }
 
     private:
-      FloatLiteralExpr(FoxFloat val, SourceRange range);
+      DoubleLiteralExpr(FoxDouble val, SourceRange range);
 
-      const FoxFloat val_ = 0.0;
+      const FoxDouble val_ = 0.0;
   };
 
   // StringLiteralExpr

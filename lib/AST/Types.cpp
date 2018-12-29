@@ -50,8 +50,8 @@ namespace {
           case PTK::StringTy:
             out << "string";
             break;
-          case PTK::FloatTy:
-            out << "float";
+          case PTK::DoubleTy:
+            out << "double";
             break;
           case PTK::IntTy:
             out << "int";
@@ -238,9 +238,9 @@ bool TypeBase::isIntType() const {
   return false;
 }
 
-bool TypeBase::isFloatType() const {
+bool TypeBase::isDoubleType() const {
   if (auto* prim = dyn_cast<PrimitiveType>(this))
-    return (prim->getPrimitiveKind() == PrimitiveType::Kind::FloatTy);
+    return (prim->getPrimitiveKind() == PrimitiveType::Kind::DoubleTy);
   return false;
 }
 
@@ -255,7 +255,7 @@ bool TypeBase::isNumeric() const {
     using Pk = PrimitiveType::Kind;
     switch (prim->getPrimitiveKind()) {
       case Pk::BoolTy:
-      case Pk::FloatTy:
+      case Pk::DoubleTy:
       case Pk::IntTy:
         return true;
       default:
@@ -333,9 +333,9 @@ PrimitiveType* PrimitiveType::getChar(ASTContext& ctxt) {
   return ctxt.theCharType_;
 }
 
-PrimitiveType* PrimitiveType::getFloat(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getDouble(ASTContext& ctxt) {
   if (!ctxt.theFloatType_)
-    ctxt.theFloatType_ = new(ctxt) PrimitiveType(Kind::FloatTy);
+    ctxt.theFloatType_ = new(ctxt) PrimitiveType(Kind::DoubleTy);
   return ctxt.theFloatType_;
 }
 

@@ -1,14 +1,14 @@
 // RUN: %fox-verify
 
-let a : float = 3.14;
-let b : float = 1;
-let c : float = true;
+let a : double = 3.14;
+let b : double = 1;
+let c : double = true;
 
-let d : int = 3.14; // expect-error: cannot use an expression of type 'float' to initialize a variable of type 'int'
+let d : int = 3.14; // expect-error: cannot use an expression of type 'double' to initialize a variable of type 'int'
 let e : int = 1;
 let f : int = true;
 
-let g : bool = 3.14; // expect-error: cannot use an expression of type 'float' to initialize a variable of type 'bool'
+let g : bool = 3.14; // expect-error: cannot use an expression of type 'double' to initialize a variable of type 'bool'
 let h : bool = 1; // expect-error: cannot use an expression of type 'int' to initialize a variable of type 'bool'
 let i : bool = true;
 
@@ -25,7 +25,7 @@ let q : [int] = 1; // expect-error: cannot use an expression of type 'int' to in
 
 // infer tests, shouldn't produce errors!
 let r : [int] = [];
-let s : [[[float]]] = [];
+let s : [[[double]]] = [];
 
 // Test that we can't use a variable declared later in the file inside an initializer
 let t : int = u; // expect-error: undeclared identifier 'u'

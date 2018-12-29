@@ -31,6 +31,6 @@ namespace fox {
   // 32 bits Unicode Code Point
   using FoxChar = char32_t;
 
-  // 32 Bits Single Precision floating point number.
-  using FoxFloat = float;
+  // 64 Bits Double Precision floating point number.
+  using FoxDouble = double;
 }

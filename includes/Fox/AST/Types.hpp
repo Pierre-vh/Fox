@@ -88,7 +88,7 @@ namespace fox {
 
       bool isStringType() const;
       bool isCharType() const;
-      bool isFloatType() const;
+      bool isDoubleType() const;
       bool isBoolType() const;
       bool isIntType() const;
       bool isVoidType() const;
@@ -178,7 +178,7 @@ namespace fox {
       enum class Kind : std::uint8_t {
         VoidTy,
         IntTy,
-        FloatTy,
+        DoubleTy,
         CharTy,
         StringTy,
         BoolTy
@@ -186,7 +186,7 @@ namespace fox {
 
       static PrimitiveType* getString(ASTContext& ctxt);
       static PrimitiveType* getChar(ASTContext& ctxt);
-      static PrimitiveType* getFloat(ASTContext& ctxt);
+      static PrimitiveType* getDouble(ASTContext& ctxt);
       static PrimitiveType* getBool(ASTContext& ctxt);
       static PrimitiveType* getInt(ASTContext& ctxt);
       static PrimitiveType* getVoid(ASTContext& ctxt);

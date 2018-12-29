@@ -106,18 +106,18 @@ FoxInt IntegerLiteralExpr::getVal() const {
 }
 
 //----------------------------------------------------------------------------//
-// FloatLiteralExpr 
+// DoubleLiteralExpr 
 //----------------------------------------------------------------------------//
 
-FloatLiteralExpr::FloatLiteralExpr(FoxFloat val, SourceRange range):
-  val_(val), Expr(ExprKind::FloatLiteralExpr, range) {}
+DoubleLiteralExpr::DoubleLiteralExpr(FoxDouble val, SourceRange range):
+  val_(val), Expr(ExprKind::DoubleLiteralExpr, range) {}
 
-FloatLiteralExpr* 
-FloatLiteralExpr::create(ASTContext& ctxt, FoxFloat val, SourceRange range) {
-  return new(ctxt) FloatLiteralExpr(val, range);
+DoubleLiteralExpr* 
+DoubleLiteralExpr::create(ASTContext& ctxt, FoxDouble val, SourceRange range) {
+  return new(ctxt) DoubleLiteralExpr(val, range);
 }
 
-FoxFloat FloatLiteralExpr::getVal() const {
+FoxDouble DoubleLiteralExpr::getVal() const {
   return val_;
 }
 

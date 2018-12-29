@@ -168,7 +168,7 @@ Sema::NumericRank Sema::getNumericRank(Type type) {
       return 0;
     case Pk::IntTy:
       return 1;
-    case Pk::FloatTy:
+    case Pk::DoubleTy:
       return 2;
     default:
       fox_unreachable("Unknown numeric type kind");

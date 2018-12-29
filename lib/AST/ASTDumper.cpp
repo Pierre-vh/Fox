@@ -136,7 +136,7 @@ void ASTDumper::visitIntegerLiteralExpr(IntegerLiteralExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " " << node->getVal() << "\n";
 }
 
-void ASTDumper::visitFloatLiteralExpr(FloatLiteralExpr* node) {
+void ASTDumper::visitDoubleLiteralExpr(DoubleLiteralExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " " << node->getVal() << "\n";
 }
 

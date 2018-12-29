@@ -92,13 +92,13 @@ TEST_F(LexerTest, FloatTokens) {
   ASSERT_FALSE(litInfo2.isNull());
   ASSERT_FALSE(litInfo3.isNull());
 
-  EXPECT_TRUE(litInfo1.isFloat() && litInfo1.is<FoxFloat>());
-  EXPECT_TRUE(litInfo2.isFloat() && litInfo2.is<FoxFloat>());
-  EXPECT_TRUE(litInfo3.isFloat() && litInfo3.is<FoxFloat>());
+  EXPECT_TRUE(litInfo1.isFloat() && litInfo1.is<FoxDouble>());
+  EXPECT_TRUE(litInfo2.isFloat() && litInfo2.is<FoxDouble>());
+  EXPECT_TRUE(litInfo3.isFloat() && litInfo3.is<FoxDouble>());
 
-  EXPECT_EQ(litInfo1.get<FoxFloat>(), 3.14f);
-  EXPECT_EQ(litInfo2.get<FoxFloat>(), 0.0f);
-  EXPECT_EQ(litInfo3.get<FoxFloat>(), 0.3333333333333f);
+  EXPECT_EQ(litInfo1.get<FoxDouble>(), 3.14f);
+  EXPECT_EQ(litInfo2.get<FoxDouble>(), 0.0f);
+  EXPECT_EQ(litInfo3.get<FoxDouble>(), 0.3333333333333f);
 }
 
 TEST_F(LexerTest, IntTokens) {

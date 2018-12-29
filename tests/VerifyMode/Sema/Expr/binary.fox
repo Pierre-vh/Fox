@@ -171,39 +171,39 @@ func assign_check() {
   var str : string;
   var ch : char;
   var i : int;
-  var f : float;
+  var d : double;
   var b : bool;
 
   str = "";
   ch = 'x';
   i = 0;
-  f = 0.0;
+  d = 0.0;
   b = false;
 
   // Invalid assignements (type mismatch)
   str = 'a';    // expect-error: cannot assign a value of type 'char' to type 'string'
   str = 0;      // expect-error: cannot assign a value of type 'int' to type 'string'
-  str = 0.0;    // expect-error: cannot assign a value of type 'float' to type 'string'
+  str = 0.0;    // expect-error: cannot assign a value of type 'double' to type 'string'
   str = false;  // expect-error: cannot assign a value of type 'bool' to type 'string'
   
   ch = "s";     // expect-error: cannot assign a value of type 'string' to type 'char'
   ch = 0;       // expect-error: cannot assign a value of type 'int' to type 'char'
-  ch = 0.0;     // expect-error: cannot assign a value of type 'float' to type 'char'
+  ch = 0.0;     // expect-error: cannot assign a value of type 'double' to type 'char'
   ch = false;   // expect-error: cannot assign a value of type 'bool' to type 'char'
 
   i = "string"; // expect-error: cannot assign a value of type 'string' to type 'int'
   i = 'c';      // expect-error: cannot assign a value of type 'char' to type 'int'
 
-  f = "string"; // expect-error: cannot assign a value of type 'string' to type 'float'
-  f = 'c';      // expect-error: cannot assign a value of type 'char' to type 'float'
+  d = "string"; // expect-error: cannot assign a value of type 'string' to type 'double'
+  d = 'c';      // expect-error: cannot assign a value of type 'char' to type 'double'
 
   b = "string"; // expect-error: cannot assign a value of type 'string' to type 'bool'
   b = 'c';      // expect-error: cannot assign a value of type 'char' to type 'bool'
 
   // Invalid assignements (downcast)
-  i = 3.14;     // expect-error: cannot assign a value of type 'float' to type 'int'
+  i = 3.14;     // expect-error: cannot assign a value of type 'double' to type 'int'
   b = 0;        // expect-error: cannot assign a value of type 'int' to type 'bool'
-  b = 3.14;     // expect-error: cannot assign a value of type 'float' to type 'bool'
+  b = 3.14;     // expect-error: cannot assign a value of type 'double' to type 'bool'
 
   // Check that the type of the RHS can be inferred from the type of the LHS.
   var foo : [int];

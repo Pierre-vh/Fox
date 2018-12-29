@@ -40,7 +40,7 @@ TEST_F(ASTTest, PrimitiveTypes) {
   using PTK = PT::Kind;
 
   auto* primBool = PT::getBool(ctxt);
-  auto* primFloat  = PT::getFloat(ctxt);
+  auto* primFloat  = PT::getDouble(ctxt);
   auto* primInt  = PT::getInt(ctxt);
   auto* primChar  = PT::getChar(ctxt);
   auto* primString = PT::getString(ctxt);
@@ -66,8 +66,8 @@ TEST_F(ASTTest, PrimitiveTypes) {
   EXPECT_TRUE(primBool->isBoolType());
 
   // Floats
-  EXPECT_EQ(primFloat->getPrimitiveKind(), PTK::FloatTy);
-  EXPECT_TRUE(primFloat->isFloatType());
+  EXPECT_EQ(primFloat->getPrimitiveKind(), PTK::DoubleTy);
+  EXPECT_TRUE(primFloat->isDoubleType());
 
   // Ints
   EXPECT_EQ(primInt->getPrimitiveKind(), PTK::IntTy);
@@ -90,13 +90,13 @@ TEST_F(ASTTest, PrimitiveTypes) {
   EXPECT_EQ(primInt, PT::getInt(ctxt));
   EXPECT_EQ(primString, PT::getString(ctxt));
   EXPECT_EQ(primChar, PT::getChar(ctxt));
-  EXPECT_EQ(primFloat, PT::getFloat(ctxt));
+  EXPECT_EQ(primFloat, PT::getDouble(ctxt));
   EXPECT_EQ(primBool, PT::getBool(ctxt));
 }
 
 TEST_F(ASTTest, ASTContextArrayTypes) {
   auto* primBool = PrimitiveType::getBool(ctxt);
-  auto* primFloat = PrimitiveType::getFloat(ctxt);
+  auto* primFloat = PrimitiveType::getDouble(ctxt);
   auto* primInt = PrimitiveType::getInt(ctxt);
   auto* primChar = PrimitiveType::getChar(ctxt);
   auto* primString = PrimitiveType::getString(ctxt);
@@ -189,9 +189,9 @@ TEST_F(ASTTest, ExprRTTI) {
   EXPECT_EQ(intlit->getKind(), ExprKind::IntegerLiteralExpr);
   EXPECT_TRUE(IntegerLiteralExpr::classof(intlit));
 
-  auto* floatlit = FloatLiteralExpr::create(ctxt, 0.0, SourceRange());
-  EXPECT_EQ(floatlit->getKind(), ExprKind::FloatLiteralExpr);
-  EXPECT_TRUE(FloatLiteralExpr::classof(floatlit));
+  auto* floatlit = DoubleLiteralExpr::create(ctxt, 0.0, SourceRange());
+  EXPECT_EQ(floatlit->getKind(), ExprKind::DoubleLiteralExpr);
+  EXPECT_TRUE(DoubleLiteralExpr::classof(floatlit));
 
   auto* strlit = StringLiteralExpr::create(ctxt, string_view(), SourceRange());
   EXPECT_EQ(strlit->getKind(), ExprKind::StringLiteralExpr);

@@ -105,7 +105,7 @@ TEST_F(LocTests, FuncAndArgDecl) {
   EXPECT_EQ(arg1_end, CompleteLoc(fullFilePath,1,30));
 
   EXPECT_EQ(arg2_beg, CompleteLoc(fullFilePath, 1, 33));
-  EXPECT_EQ(arg2_end, CompleteLoc(fullFilePath, 1, 44));
+  EXPECT_EQ(arg2_end, CompleteLoc(fullFilePath, 1, 45));
 
   // Extract arg type ranges
   auto arg1_typeRange = arg1->getTypeRange();

@@ -1,9 +1,9 @@
 // RUN: %fox-verify
 
-let foo : float;
+let foo : double;
 // expect-note@-1: first declaration of 'foo' seen here
 
-func bar(foo : [float]) {  // "foo" shadows the global variable "foo"
+func bar(foo : [double]) {  // "foo" shadows the global variable "foo"
   var foo : [[string]]; // this "foo" shadows the param "foo"
   // expect-note@-1: first declaration of 'foo' seen here
   // expect-note@-2: first declaration of 'foo' seen here

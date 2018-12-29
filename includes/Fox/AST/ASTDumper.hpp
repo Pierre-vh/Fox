@@ -51,7 +51,7 @@ namespace fox {
       // Expressions : Literals
       void visitCharLiteralExpr(CharLiteralExpr* node);
       void visitIntegerLiteralExpr(IntegerLiteralExpr* node);
-      void visitFloatLiteralExpr(FloatLiteralExpr* node);
+      void visitDoubleLiteralExpr(DoubleLiteralExpr* node);
       void visitBoolLiteralExpr(BoolLiteralExpr* node);
       void visitStringLiteralExpr(StringLiteralExpr* node);
       void visitArrayLiteralExpr(ArrayLiteralExpr* node);

@@ -122,7 +122,7 @@ Parser::ExprResult Parser::parsePrimitiveLiteral() {
   else if (litinfo.isInt())
     expr = IntegerLiteralExpr::create(ctxt, litinfo.get<FoxInt>(), range);
   else if (litinfo.isFloat())
-    expr = FloatLiteralExpr::create(ctxt, litinfo.get<FoxFloat>(), range);
+    expr = DoubleLiteralExpr::create(ctxt, litinfo.get<FoxDouble>(), range);
   else
     fox_unreachable("Unknown literal kind"); // Unknown literal
 

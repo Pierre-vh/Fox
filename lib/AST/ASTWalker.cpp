@@ -83,7 +83,7 @@ namespace {
       TRIVIAL_EXPR_VISIT(BoolLiteralExpr)
       TRIVIAL_EXPR_VISIT(IntegerLiteralExpr)
       TRIVIAL_EXPR_VISIT(StringLiteralExpr)
-      TRIVIAL_EXPR_VISIT(FloatLiteralExpr)
+      TRIVIAL_EXPR_VISIT(DoubleLiteralExpr)
       TRIVIAL_EXPR_VISIT(DeclRefExpr)
       TRIVIAL_EXPR_VISIT(UnresolvedDeclRefExpr)
       #undef TRIVIAL_EXPR_VISIT

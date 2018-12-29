@@ -1,4 +1,4 @@
-func foo(_bar1 : mut     [int], _bar2: float  ) : float	
+func foo(_bar1 : mut     [int], _bar2: double  ) : double	
 {	
   	
   }

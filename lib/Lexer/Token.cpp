@@ -32,7 +32,7 @@ LiteralType LiteralInfo::getType() const {
     return LiteralType::Ty_Bool;
   else if (mpark::holds_alternative<std::string>(value_))
     return LiteralType::Ty_String;
-  else if (mpark::holds_alternative<FoxFloat>(value_))
+  else if (mpark::holds_alternative<FoxDouble>(value_))
     return LiteralType::Ty_Float;
   else if (mpark::holds_alternative<FoxInt>(value_))
     return LiteralType::Ty_Int;
@@ -50,7 +50,7 @@ bool LiteralInfo::isString() const {
 }
 
 bool LiteralInfo::isFloat() const {
-  return mpark::holds_alternative<FoxFloat>(value_);
+  return mpark::holds_alternative<FoxDouble>(value_);
 }
 
 bool LiteralInfo::isInt() const {
@@ -67,7 +67,7 @@ std::string LiteralInfo::getAsString() const {
   if (isString())
     return get<std::string>();
   if (isFloat())
-    return std::to_string(get<FoxFloat>());
+    return std::to_string(get<FoxDouble>());
   if (isInt())
     return std::to_string(get<FoxInt>());
   if (isChar()) {
@@ -86,7 +86,7 @@ LiteralInfo::LiteralInfo(const std::string& sval) {
   value_ = sval;
 }
 
-LiteralInfo::LiteralInfo(FoxFloat fval) {
+LiteralInfo::LiteralInfo(FoxDouble fval) {
   value_ = fval;
 }
 
