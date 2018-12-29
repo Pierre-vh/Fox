@@ -13,6 +13,9 @@
 // Feature Ideas:
 //  - Allow raw line numbers as argument
 //    e.g. expect-error@1: expected one or more declaration in unit
+//
+//  - Allow to expect a diagnostic multiple times
+//    e.g. expect-error(3)@-1: 'foo' declared here
 //----------------------------------------------------------------------------//
 
 
