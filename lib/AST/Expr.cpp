@@ -520,6 +520,15 @@ void CallExpr::setArg(Expr* arg, std::size_t idx) {
   getArgs()[idx] = arg;
 }
 
+SourceRange CallExpr::getArgsRange() const {
+  if(!numArgs_)
+    return SourceRange();
+  auto args = getArgs();
+  SourceLoc beg = args.front()->getBegin();
+  SourceLoc end = args.front()->getEnd();
+  return SourceRange(beg, end);
+}
+
 //----------------------------------------------------------------------------//
 // MemberOfExpr 
 //----------------------------------------------------------------------------//

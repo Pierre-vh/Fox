@@ -471,6 +471,10 @@ namespace fox   {
       Expr* getArg(std::size_t idx) const;
       void setArg(Expr* arg, std::size_t idx);
 
+      // Returns a SourceRange that covers every argument passed
+      // to the Call. Returns an invalid SourceRange if numArgs() == 0.
+      SourceRange getArgsRange() const;
+
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::CallExpr);
       }
