@@ -1,6 +1,3 @@
-#include "..\..\includes\Fox\Common\Source.hpp"
-#include "..\..\includes\Fox\Common\Source.hpp"
-#include "..\..\includes\Fox\Common\Source.hpp"
 //----------------------------------------------------------------------------//
 // This file is a part of The Moonshot Project.        
 // See LICENSE.txt for license info.            
