@@ -357,13 +357,13 @@ namespace fox {
 
           }
 
-          explicit Result(Inherited::CTorValueTy val, 
+          explicit Result(typename Inherited::CTorValueTy val, 
 						SourceRange range = SourceRange()):
             Inherited(true, val), range_(range) {
 
           }
 
-          explicit Result(Inherited::CTorRValueTy val, 
+          explicit Result(typename Inherited::CTorRValueTy val, 
 						SourceRange range = SourceRange()):
             Inherited(true, val), range_(range) {
 
@@ -394,9 +394,9 @@ namespace fox {
           // Extra function for Result<Type>, which creates a TypeLoc from
           // a Type stored in the ResultObject and it's range.
           template<
-						typename = typename 
+						typename TL = typename 
 						std::enable_if<std::is_same<Type, DataTy>::value, TypeLoc>::type>
-          TypeLoc createTypeLoc() const {
+          TL createTypeLoc() const {
             return TypeLoc(Inherited::get(), range_);
           }
 
