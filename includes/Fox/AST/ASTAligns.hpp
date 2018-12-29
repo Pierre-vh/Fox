@@ -21,10 +21,10 @@ namespace fox {
   constexpr std::size_t CLASS##Alignement = 1 << FREE_BITS_DESIRED
 
   DECLARE(TypeBase, 1);
-  DECLARE(Expr, 2);
-  DECLARE(Decl, 2);
-  DECLARE(Stmt, 2);
-  DECLARE(DeclContext, 2);
+  DECLARE(Expr, 3);
+  DECLARE(Decl, 3);
+  DECLARE(Stmt, 3);
+  DECLARE(DeclContext, 3);
   #undef DECLARE
 }
 
