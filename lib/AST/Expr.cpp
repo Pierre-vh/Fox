@@ -525,7 +525,7 @@ SourceRange CallExpr::getArgsRange() const {
     return SourceRange();
   auto args = getArgs();
   SourceLoc beg = args.front()->getBegin();
-  SourceLoc end = args.front()->getEnd();
+  SourceLoc end = args.back()->getEnd();
   return SourceRange(beg, end);
 }
 
