@@ -3,7 +3,7 @@
 # We need thread support
 find_package(Threads REQUIRED)
 
-configure_file(CMake/GoogleTest.cmake.in googletest-download/CMakeLists.txt)
+configure_file(cmake/GoogleTest.cmake.in googletest-download/CMakeLists.txt)
 execute_process(
     COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
     RESULT_VARIABLE result
