@@ -34,7 +34,7 @@ bool Sema::unify(Type a, Type b) {
     if (a == b) 
       return true;
     // Integral types equality
-    if(a->isIntegral() && b->isIntegral())
+    if(a->isNumeric() && b->isNumeric())
       return true;
   }
 
@@ -123,7 +123,7 @@ bool Sema::isDowncast(Type a, Type b, bool* areIntegrals) {
 	// Unwrap both types
 	std::tie(a, b) = unwrapAll(a, b);
 	// Check if they're integrals
-	bool integrals = (a->isIntegral() && b->isIntegral());
+	bool integrals = (a->isNumeric() && b->isNumeric());
 	// Set areIntegrals if possible
 	if(areIntegrals) (*areIntegrals) = integrals;
 	if(integrals)
@@ -147,7 +147,7 @@ Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
   if (a == b)
     return ogA;
 
-  if (a->isIntegral() && b->isIntegral()) {
+  if (a->isNumeric() && b->isNumeric()) {
     if (getIntegralRank(a) > getIntegralRank(b))
       return ogA;
     return ogB;
@@ -158,7 +158,7 @@ Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
 Sema::IntegralRankTy Sema::getIntegralRank(Type type) {
   using Pk = PrimitiveType::Kind;
 
-  assert(type && type->isIntegral()
+  assert(type && type->isNumeric()
     && "Can only use this on a valid pointer to an integral type");
 
   auto* prim = type->castTo<PrimitiveType>();

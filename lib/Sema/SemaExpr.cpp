@@ -482,7 +482,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // For any unary operators, we only allow integral types,
       // so check that first.
-      if (!childTy->isIntegral()) {
+      if (!childTy->isNumeric()) {
         // Not an integral type -> error.
         // Emit diag if childTy isn't a ErrorType too
         if (!childTy->is<ErrorType>())
@@ -490,7 +490,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
         
-      // If isIntegral returns true, we can safely assume that childTy is a
+      // If isNumeric returns true, we can safely assume that childTy is a
       // PrimitiveType instance
       PrimitiveType* primChildTy = childTy->castTo<PrimitiveType>();
       return finalizeUnaryExpr(expr, primChildTy);
@@ -526,7 +526,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
 
       // Idx type must be an integral value and not a float
-      if ((!idxETy->isIntegral()) || idxETy->isFloatType()) {
+      if ((!idxETy->isNumeric()) || idxETy->isFloatType()) {
         // Diagnose with the primary range being the idx's range
 				if(!childTy->is<ErrorType>())
 					diagnoseInvalidArraySubscript(expr,
@@ -742,7 +742,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
             || expr->isMultiplicative()) && "wrong function!");
         
       // Check that lhs and rhs are both integral types.
-      if (!(lhsTy->isIntegral() && rhsTy->isIntegral())) {
+      if (!(lhsTy->isNumeric() && rhsTy->isNumeric())) {
         diagnoseInvalidBinaryExprOperands(expr);
         return expr;
       }
@@ -852,7 +852,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // for logical AND and OR operations, only allow integral
       // types for the LHS and RHS
-      if (!(lhsTy->isIntegral() && rhsTy->isIntegral())) {
+      if (!(lhsTy->isNumeric() && rhsTy->isNumeric())) {
         diagnoseInvalidBinaryExprOperands(expr);
         return expr;
       }

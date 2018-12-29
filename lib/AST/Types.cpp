@@ -250,7 +250,7 @@ bool TypeBase::isVoidType() const {
   return false;
 }
 
-bool TypeBase::isIntegral() const {
+bool TypeBase::isNumeric() const {
   if (auto* prim = getAs<PrimitiveType>()) {
     using Pk = PrimitiveType::Kind;
     switch (prim->getPrimitiveKind()) {

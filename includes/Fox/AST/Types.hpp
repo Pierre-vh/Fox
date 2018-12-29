@@ -92,7 +92,7 @@ namespace fox {
       bool isBoolType() const;
       bool isIntType() const;
       bool isVoidType() const;
-      bool isIntegral() const;
+      bool isNumeric() const;
 
       // Return true if this type can appear on the LHS of an assignement.
       bool isAssignable() const;
