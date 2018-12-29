@@ -17,6 +17,6 @@ func foo() {
   // An error should be emitted if the sub expr is not an array.
   0[0]; // expect-error: invalid types 'int' and 'int' for array subscript
 
-  // An error should be emitted if the index expr is not integral
+  // An error should be emitted if the index expr is not numeric
   [0]['c']; // expect-error: invalid types '[int]' and 'char' for array subscript
 }

@@ -37,8 +37,8 @@ namespace fox {
       // A shortened syntax for a std::pair of Type
       using TypePair = std::pair<Type, Type>;
 
-      // The type used to represent Integral type ranks
-      using IntegralRankTy = std::uint8_t;
+      // The type used to represent numeric type ranks
+      using NumericRank = std::uint8_t;
 
       Sema(ASTContext& ctxt);
 
@@ -109,14 +109,14 @@ namespace fox {
       bool unify(Type a, Type b);
 
 			// Returns true if the conversion of A to B is a downcast
-			//		If A and/or B are not integral types, returns false.
-			//		Only returns true if A and B are both integral types
+			//		If A and/or B are not numeric types, returns false.
+			//		Only returns true if A and B are both numeric types
 			//		and casting A to B is a downcast.
-			//	\param areIntegrals Set to true if both types were integral types
-			static bool isDowncast(Type a, Type b, bool* areIntegrals = nullptr);
+			//	\param areNumerics Set to true if both types were numeric types
+			static bool isDowncast(Type a, Type b, bool* areNumerics = nullptr);
 
       // Given 2 types
-        // If they are integrals, return the highest ranking integral's type
+        // If they are numeric, return the highest ranked numeric type
         // If they are equal, return it's first argument
         // Returns nullptr otherwise.
       // if unwrapTypes is set to true, types are unwrapped together.
@@ -127,9 +127,9 @@ namespace fox {
       static Type getHighestRankedTy(Type a, Type b,
         bool unwrap = true);
 
-      // This method returns the integral rank that a given type has.
-      // type must not be null and must point to a arithmetic type.
-      static IntegralRankTy getIntegralRank(Type type);;
+      // This method returns the numeric rank that a given type has.
+      // type must not be null and must point to a numeric type.
+      static NumericRank getNumericRank(Type type);;
 
       // Removes all layers of LValue, CellType and ArrayType 
       // until this reaches a point where one (or both) of the

@@ -408,7 +408,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       switch (BOp op = expr->getOp()) {
         // Multiplicative, additive and exponent binary expr
-        // are checked by checkBasicIntegralBinaryExpr, except
+        // are checked by checkBasicNumericBinaryExpr, except
         // concatenations which are directly finalized through
         // finalizeConcatBinaryExpr
         case BOp::Add:
@@ -420,7 +420,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         case BOp::Div:
         case BOp::Mod:
         case BOp::Exp:
-          return checkBasicIntegralBinaryExpr(expr, lhsTy, rhsTy);
+          return checkBasicNumericBinaryExpr(expr, lhsTy, rhsTy);
         // Assignements
         case BOp::Assign:
           return checkAssignementBinaryExpr(expr, lhsTy, rhsTy);
@@ -480,10 +480,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // If the type isn't bound, give up.
       if (!childTy) return expr;
 
-      // For any unary operators, we only allow integral types,
+      // For any unary operators, we only allow numeric types,
       // so check that first.
       if (!childTy->isNumeric()) {
-        // Not an integral type -> error.
+        // Not a numeric type -> error.
         // Emit diag if childTy isn't a ErrorType too
         if (!childTy->is<ErrorType>())
           diagnoseInvalidUnaryOpChildType(expr);
@@ -525,7 +525,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
-      // Idx type must be an integral value and not a float
+      // Idx type must be an numeric value, but can't be a float
       if ((!idxETy->isNumeric()) || idxETy->isFloatType()) {
         // Diagnose with the primary range being the idx's range
 				if(!childTy->is<ErrorType>())
@@ -731,17 +731,17 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     // Typecheck a basic binary expression that requires both operands
-    // to be integral types. This includes multiplicative/additive/exponent
+    // to be numeric types. This includes multiplicative/additive/exponent
     // operations (except concatenation).
     //  \param lhsTy The type of the LHS as a Bound RValue (must not be null)
     //  \param rhsTy The type of the RHS as a Bound RValue (must not be null)
     Expr*
-    checkBasicIntegralBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
+    checkBasicNumericBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert((expr->isAdditive() 
             || expr->isExponent() 
             || expr->isMultiplicative()) && "wrong function!");
         
-      // Check that lhs and rhs are both integral types.
+      // Check that lhs and rhs are both numeric types.
       if (!(lhsTy->isNumeric() && rhsTy->isNumeric())) {
         diagnoseInvalidBinaryExprOperands(expr);
         return expr;
@@ -749,7 +749,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // The expression type is the highest ranked type between lhs & rhs
       Type highest = getSema().getHighestRankedTy(lhsTy, rhsTy);
-      assert(highest && "Both types are integral, so getHighestRankedTy "
+      assert(highest && "Both types are numeric, so getHighestRankedTy "
         "shoudln't return a null value");
 
       // Set the type of the expression to the highest ranked type
@@ -850,7 +850,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* checkLogicalBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert(expr->isLogical() && "wrong function!");
 
-      // for logical AND and OR operations, only allow integral
+      // for logical AND and OR operations, only allow numeric
       // types for the LHS and RHS
       if (!(lhsTy->isNumeric() && rhsTy->isNumeric())) {
         diagnoseInvalidBinaryExprOperands(expr);

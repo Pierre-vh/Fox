@@ -1,7 +1,7 @@
 // RUN: %fox-verify
 
 func foo() {
-  // Every operator should work on integral types
+  // Every operator should work on numeric types
   -true;
   +true;
   !true;

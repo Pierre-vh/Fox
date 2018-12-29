@@ -33,7 +33,7 @@ bool Sema::unify(Type a, Type b) {
     // Exact equality
     if (a == b) 
       return true;
-    // Integral types equality
+    // Numeric types equality
     if(a->isNumeric() && b->isNumeric())
       return true;
   }
@@ -119,16 +119,16 @@ bool Sema::unify(Type a, Type b) {
   return false;
 }
 
-bool Sema::isDowncast(Type a, Type b, bool* areIntegrals) {
+bool Sema::isDowncast(Type a, Type b, bool* areNumerics) {
 	// Unwrap both types
 	std::tie(a, b) = unwrapAll(a, b);
-	// Check if they're integrals
-	bool integrals = (a->isNumeric() && b->isNumeric());
-	// Set areIntegrals if possible
-	if(areIntegrals) (*areIntegrals) = integrals;
-	if(integrals)
-		// If they're both integrals, return true if Rank(a) > Rank(b)
-		return Sema::getIntegralRank(a) > Sema::getIntegralRank(b);
+	// Check if they're numeric
+	bool num = (a->isNumeric() && b->isNumeric());
+	// Set areNumerics if possible
+	if(areNumerics) (*areNumerics) = num;
+	if(num)
+		// If they're both numeric types, return true if Rank(a) > Rank(b)
+		return Sema::getNumericRank(a) > Sema::getNumericRank(b);
 	// If they aren't, return false.	
 	return false;
 }
@@ -148,18 +148,18 @@ Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
     return ogA;
 
   if (a->isNumeric() && b->isNumeric()) {
-    if (getIntegralRank(a) > getIntegralRank(b))
+    if (getNumericRank(a) > getNumericRank(b))
       return ogA;
     return ogB;
   }
   return nullptr;
 }
 
-Sema::IntegralRankTy Sema::getIntegralRank(Type type) {
+Sema::NumericRank Sema::getNumericRank(Type type) {
   using Pk = PrimitiveType::Kind;
 
   assert(type && type->isNumeric()
-    && "Can only use this on a valid pointer to an integral type");
+    && "Can only use this on a valid pointer to an numeric type");
 
   auto* prim = type->castTo<PrimitiveType>();
 
@@ -171,7 +171,7 @@ Sema::IntegralRankTy Sema::getIntegralRank(Type type) {
     case Pk::FloatTy:
       return 2;
     default:
-      fox_unreachable("Unknown integral type");
+      fox_unreachable("Unknown numeric type kind");
   }
 }
 
