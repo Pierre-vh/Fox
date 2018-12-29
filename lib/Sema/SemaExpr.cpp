@@ -50,6 +50,15 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // diagnostics for a given situation.
     //----------------------------------------------------------------------//
 
+    // (Note) example: "'foo' declared here with type 'int'"
+    void noteIsDeclaredHereWithType(ValueDecl* decl) {
+      Identifier id = decl->getIdentifier();
+      SourceRange range = decl->getIdentifierRange();
+      assert(id && range && "ill formed ValueDecl");
+      getDiags().report(DiagID::sema_declared_here_with_type, range)
+        .addArg(id).addArg(decl->getType());
+    }
+
     // (Error) Diagnoses an invalid cast 
     void diagnoseInvalidCast(CastExpr* expr) {
       SourceRange range = expr->getCastTypeLoc().getRange();
@@ -181,38 +190,56 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .addArg(ty);
     }
 
-    void diagnoseBadFunctionCall(CallExpr* call, 
-      FunctionType* calleeTy) {
-      SourceRange range = call->getCallee()->getRange();
-      
-      // TODO: Make the diagnostics different for each situations, and
-      //  use the function's name (currently, no lambdas, so it should
-      //  be possible to retrieve the DeclRefExpr in the callee in every scenario)
-      //  it's a argc mismatch
-      //    "too many arguments in call to '%0'"
-      //    "not enough arguments in call to '%0'"
-      //  it's a arg type mismatch
-      //    for each arg:
-      //      "cannot convert expression of type '%0' to '%1'"
-      //
-      //  To implement that, split this func in 2, one for argc mismatch, and
-      //  one for type mismatch.
-      if(call->numArgs() > 0) {
-        std::string args = getArgsAsString(call);
-        getDiags().report(DiagID::sema_cannot_call_func_with_args, range)
-        .addArg(calleeTy).addArg(args);
-      }
-      else {
-        getDiags().report(DiagID::sema_cannot_call_func_with_no_args, range)
-          .addArg(calleeTy);
-      }
+    void diagnoseArgcMismatch(CallExpr* call, std::size_t argsProvided, 
+      std::size_t argsExpected) {
+      assert(argsProvided != argsExpected);
+      assert((call->getCallee() != nullptr) && "no callee");
+      DeclRefExpr* callee = dyn_cast<DeclRefExpr>(call->getCallee());
 
-      // TODO: Print "'%0' declared here" if the callee
-      //  is a DeclRefExpr (it should always be one, at least for now)
+      // For now, only a DeclRefExpr can have a FunctionType. But if that
+      // changes in the future, remove this assert and add alternative diags.
+      assert(callee && "callee isn't a DeclRefExpr");
 
-      // Of course, I won't get theses diags right on the first try, but I think
-      // this will be a pretty good start. The output will be pretty verbose,
-      // but it'll be very informative.
+      DiagID diag;
+      // Use the most appropriate diagnostic based on the situation
+      if(argsProvided == 0) 
+        diag = DiagID::sema_cannot_call_with_no_args;
+      else if(argsProvided < argsExpected) 
+        diag = DiagID::sema_not_enough_args_in_call_to;
+      else 
+        diag = DiagID::sema_too_many_args_in_call_to;
+
+      // Report the diagnostic
+      getDiags().report(diag, callee->getRange())
+        .addArg(callee->getDecl()->getIdentifier());
+      // Also emit a "is declared here with type" note.
+      noteIsDeclaredHereWithType(callee->getDecl());
+    }
+
+    // Diagnoses a bad function call where the types didn't match
+    void diagnoseBadFunctionCall(CallExpr* call) {
+      assert((call->getCallee() != nullptr) && "no callee");
+      assert(call->numArgs() && "numArgs cannot be zero!");
+      DeclRefExpr* callee = dyn_cast<DeclRefExpr>(call->getCallee());
+
+      // For now, only a DeclRefExpr can have a FunctionType. But if that
+      // changes in the future, remove this assert and add alternative diags.
+      assert(callee && "callee isn't a DeclRefExpr");
+
+      // Retrieve a user-friendly presentation of the args
+      std::string argsAsStr = getArgsAsString(call);
+
+      // Get the args range
+      SourceRange argsRange = call->getArgsRange();
+      assert(argsRange && "argsRange is invalid in CallExpr with a non-zero "
+        "number of arguments");
+
+      getDiags().report(DiagID::sema_cannot_call_func_with_args, callee->getRange())
+        .addArg(callee->getDecl()->getIdentifier())
+        .addArg(argsAsStr)
+        .setExtraRange(argsRange);
+
+      noteIsDeclaredHereWithType(callee->getDecl());
     }
 
     //----------------------------------------------------------------------//
@@ -585,16 +612,16 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       FunctionType* fnTy = calleeTy->castTo<FunctionType>();
 
       // Check arg count
-      std::size_t exprArgC = expr->numArgs();
-      std::size_t fnTyArgC = fnTy->numParams();
-      if(exprArgC != fnTyArgC) {
-        diagnoseBadFunctionCall(expr, fnTy);
+      std::size_t callArgc = expr->numArgs();
+      std::size_t expectedArgc = fnTy->numParams();
+      if(callArgc != expectedArgc) {
+        diagnoseArgcMismatch(expr, callArgc, expectedArgc);
         return expr;
       }
 
       // Check arg types
       bool ok = true;
-      for(std::size_t idx = 0; idx < exprArgC; idx++) {
+      for(std::size_t idx = 0; idx < callArgc; idx++) {
         Type expected = fnTy->getParamType(idx);
         Type got = expr->getArg(idx)->getType();
         assert(expected && got && "types cant be nullptrs!");
@@ -610,11 +637,11 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
 
       if(!ok) {
-        diagnoseBadFunctionCall(expr, fnTy);
+        diagnoseBadFunctionCall(expr);
         return expr;
       }
 
-      // Call should be ok, type of the Call is the return type
+      // Call should be ok. The type of the CallExpr is the return type
       // of the function.
       Type ret = fnTy->getReturnType();
       assert(ret && "types cant be nullptrs!");

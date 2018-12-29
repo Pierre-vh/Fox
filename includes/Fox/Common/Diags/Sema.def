@@ -34,14 +34,20 @@ ERROR(sema_invalid_vardecl_init_expr,
   "variable of type '%1'")
 ERROR(sema_expr_isnt_func,
   "expression of type '%0' is not a function")
-ERROR(sema_cannot_call_func_with_args,
-  "cannot call function of type '%0' with arguments of type '%1'") 
-ERROR(sema_cannot_call_func_with_no_args,
-  "cannot call function of type '%0' with no arguments") 
+ERROR(sema_cannot_call_with_no_args,
+  "cannot call '%0' with no arguments") 
+ERROR(sema_not_enough_args_in_call_to,
+  "not enough arguments in call to '%0'")
+ERROR(sema_too_many_args_in_call_to,
+  "too many arguments in call to '%0'")
 ERROR(sema_var_init_self_ref,
   "variable used inside its own initial value")
+ERROR(sema_cannot_call_func_with_args,
+  "cannot call '%0' with arguments of type '%1'")
+
 WARNING(sema_useless_cast_redundant,
   "useless cast to '%0': expression is already of type '%0'")
 
+NOTE(sema_declared_here_with_type, "'%0' declared here with type '%1'")
 NOTE(sema_1stdecl_seen_here, "first declaration of '%0' seen here")
 NOTE(sema_potential_candidate_here, "potential candidate found here")

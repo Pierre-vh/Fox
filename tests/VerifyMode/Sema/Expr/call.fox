@@ -1,27 +1,61 @@
 // RUN: %fox-verify
 
+// expect-note@+1: 'basic' declared here with type '() -> void'
 func basic() {}
+
+// expect-note@+3: 'takesInt' declared here with type '(int) -> void'
+// expect-note@+2: 'takesInt' declared here with type '(int) -> void'
+// expect-note@+1: 'takesInt' declared here with type '(int) -> void'
 func takesInt(x: int) {}
-func takesIntReturnsInt(x: int) : int {}
+
+// expect-note@+2: 'takesIntsReturnString' declared here with type '(int,int) -> string'
+// expect-note@+1: 'takesIntsReturnString' declared here with type '(int,int) -> string'
 func takesIntsReturnString(x: int, y: mut int) : string {}
+
 func takesArrayReturnsArray(x: [int]) : [int] {}
-
-
 
 // Test that theses functions can be called
 func callsTest() {
-  // Okay calls
   basic();
   takesInt(3);
   takesInt(false);
-  takesIntReturnsInt(3);
   takesIntsReturnString(3, 3);
   takesArrayReturnsArray([1,2,3]);
 
-  // TODO: Test argument count mismatch
-  // TODO: Test argument type mismatch (different kind of type + downcasts)
+  // expect-error@+1: cannot call 'takesInt' with no arguments
+  takesInt();
+
+  // expect-error@+1: too many arguments in call to 'basic'
+  basic(3);
+
+  // expect-error@+1: too many arguments in call to 'takesInt'
+  takesInt(3, 3);
+
+  // expect-error@+1: not enough arguments in call to 'takesIntsReturnString'
+  takesIntsReturnString(3);
+
+  // expect-error@+1: cannot call 'takesInt' with arguments of type '(string)'
+  takesInt("string"); 
+
+  // expect-error@+1: cannot call 'takesIntsReturnString' with arguments of type '(string,char)'
+  takesIntsReturnString("string", 'c');
+
 }
 
-// TODO: inference (e.g. takesArrayReturnsArray([]))
-// TODO: uses in exprs (takesIntReturnsInt(3) + takesIntReturnsInt(1))
+func inferTest() {
+  // This should be ok
+  takesArrayReturnsArray([]);
+}
+
+func inExprs() {
+  takesIntReturnsInt(3) + takesIntReturnsInt(1);
+
+  // expect-error@+1: cannot use unary operator '+' on an expression of type 'void'
+  +basic(); 
+
+  // expect-error@+1: cannot use binary operator '*' on expressions of types 'void' and 'int'
+  basic()*3;
+
+  let n : [int] = takesArrayReturnsArray([1,2,3]);
+}
 
