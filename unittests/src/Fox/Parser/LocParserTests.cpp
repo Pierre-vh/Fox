@@ -25,7 +25,8 @@ class LocTests : public ::testing::Test {
       declContext(astContext, DeclContextKind::UnitDecl) {}
 
   protected:
-    virtual void SetUp(const std::string& filepath)  {
+    using ::testing::Test::SetUp;
+    virtual void SetUp(const std::string& filepath) {
       fullFilePath = test::getPath(filepath);
       file = srcMgr.loadFromFile(fullFilePath);
 

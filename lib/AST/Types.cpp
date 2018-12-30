@@ -138,6 +138,9 @@ namespace {
           visit(rtr);
       }
   };
+
+  constexpr char TypePrinter::nullTypeStr[];
+  constexpr char TypePrinter::emptyCellTypeStr[];
 }
 
 //----------------------------------------------------------------------------//

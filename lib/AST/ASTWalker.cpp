@@ -27,13 +27,13 @@ namespace {
       // Exprs
       Expr* visitBinaryExpr(BinaryExpr* expr) {
         if (Expr* lhs = expr->getLHS()) {
-          if(lhs = doIt(lhs))
+          if((lhs = doIt(lhs)))
             expr->setLHS(lhs);
           else return nullptr;
         }
 
         if (Expr* rhs = expr->getRHS()) {
-          if (rhs = doIt(rhs))
+          if ((rhs = doIt(rhs)))
             expr->setRHS(rhs);
           else return nullptr;
         }
@@ -43,7 +43,7 @@ namespace {
 
       Expr* visitUnaryExpr(UnaryExpr* expr) {
         if (Expr* child = expr->getExpr()) {
-          if (child = doIt(child))
+          if ((child = doIt(child)))
             expr->setExpr(child);
           else return nullptr;
         }
@@ -53,7 +53,7 @@ namespace {
 
       Expr* visitCastExpr(CastExpr* expr) {
         if (Expr* child = expr->getExpr()) {
-          if (child = doIt(child))
+          if ((child = doIt(child)))
             expr->setExpr(child);
           else return nullptr;
         }
@@ -63,13 +63,13 @@ namespace {
 
       Expr* visitArraySubscriptExpr(ArraySubscriptExpr* expr) {
         if (Expr* base = expr->getBase()) {
-          if (base = doIt(base))
+          if ((base = doIt(base)))
             expr->setBase(base);
           else return nullptr;
         }
 
         if (Expr* idx = expr->getIndex()) {
-          if (idx = doIt(idx))
+          if ((idx = doIt(idx)))
             expr->setIndex(idx);
           else return nullptr;
         }
@@ -102,7 +102,7 @@ namespace {
 
       Expr* visitMemberOfExpr(MemberOfExpr* expr) {
         if (Expr* child = expr->getExpr()) {
-          if (child = doIt(child))
+          if ((child = doIt(child)))
             expr->setExpr(child);
           else return nullptr;
         }
@@ -111,7 +111,7 @@ namespace {
 
       Expr* visitCallExpr(CallExpr* expr) {
         if (Expr* callee = expr->getCallee()) {
-          if (callee = doIt(callee))
+          if ((callee = doIt(callee)))
             expr->setCallee(callee);
           else return nullptr;
         }
@@ -147,7 +147,7 @@ namespace {
         }
 
         if (Stmt* body = decl->getBody()) {
-          if (body = doIt(body))
+          if ((body = doIt(body)))
             decl->setBody(cast<CompoundStmt>(body));
           else return false;
         }
@@ -170,7 +170,7 @@ namespace {
 
       Stmt* visitReturnStmt(ReturnStmt* stmt) {
         if (Expr* expr = stmt->getExpr()) {
-          if (expr = doIt(expr))
+          if ((expr = doIt(expr)))
             stmt->setExpr(expr);
           else return nullptr;
         }
@@ -180,14 +180,14 @@ namespace {
 
       Stmt* visitConditionStmt(ConditionStmt* stmt) {
         if (Expr* cond = stmt->getCond()) {
-          if (cond = doIt(cond))
+          if ((cond = doIt(cond)))
             stmt->setCond(cond);
           else return nullptr;
         }
 
         if (ASTNode then = stmt->getThen()) {
           bool isDecl;
-          if (then = doIt(then, &isDecl)) {
+          if ((then = doIt(then, &isDecl))) {
             if(!isDecl) stmt->setThen(then);
           }
           else return nullptr;
@@ -195,7 +195,7 @@ namespace {
 
         if (ASTNode elsestmt = stmt->getElse()) {
           bool isDecl;
-          if (elsestmt = doIt(elsestmt, &isDecl)) {
+          if ((elsestmt = doIt(elsestmt, &isDecl))) {
             if(!isDecl) stmt->setElse(elsestmt);
           }
           else return nullptr;
@@ -220,14 +220,14 @@ namespace {
 
       Stmt* visitWhileStmt(WhileStmt* stmt) {
         if (Expr* cond = stmt->getCond()) {
-          if (cond = doIt(cond))
+          if ((cond = doIt(cond)))
             stmt->setCond(cond);
           else return nullptr;
         }
 
         if (ASTNode node = stmt->getBody()) {
           bool isDecl;
-          if (node = doIt(node, &isDecl)) {
+          if ((node = doIt(node, &isDecl))) {
             if(!isDecl)
               stmt->setBody(node);
           }
@@ -250,7 +250,7 @@ namespace {
 
         // visit the node's childre, and if the traversal wasn't aborted,
         // let the walker handle post visitation stuff.
-        if (expr = visit(rtr.first))
+        if ((expr = visit(rtr.first)))
           expr = walker_.handleExprPost(expr);
 
         return expr;
@@ -283,7 +283,7 @@ namespace {
 
         // visit the node's children, and if the traversal wasn't aborted,
         // let the walker handle post visitation stuff.
-        if (expr = visit(rtr.first))
+        if ((expr = visit(rtr.first)))
           expr = walker_.handleStmtPost(expr);
 
         return expr;

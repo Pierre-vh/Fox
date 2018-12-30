@@ -73,6 +73,9 @@ void Lexer::runFinalChecks() {
     case DFAState::S_MCOM:
       diags_.report(DiagID::lexer_unfinished_multiline_comment, getCurtokBegLoc());
       break;
+    default:
+      // no-op
+      break;
   }
 }
 

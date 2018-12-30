@@ -23,6 +23,7 @@ namespace fox {
   class DiagnosticConsumer {
     public:
       virtual void consume(Diagnostic& diag) = 0;
+      virtual ~DiagnosticConsumer() = default;
 
     protected:
       std::string getLocInfo(SourceManager& sm, SourceRange range, 

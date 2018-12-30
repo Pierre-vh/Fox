@@ -32,7 +32,7 @@ using namespace fox;
 // OR the expr that should take it's place. This can NEVER be null.
 class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
   using Inherited = ExprVisitor<ExprChecker, Expr*>;
-  friend class Inherited;
+  friend Inherited;
   public:
     ExprChecker(Sema& sema) : Checker(sema) {}
 
@@ -134,7 +134,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .report(DiagID::sema_binexpr_invalid_operands, opRange)
         .addArg(expr->getOpSign())
         .addArg(lhsTy)
-        .addArg(rhsTy);
+        .addArg(rhsTy)
+        .setExtraRange(exprRange);
     }
 
     // Diagnoses an undeclared identifier
@@ -927,9 +928,10 @@ namespace {
   // Visit methods return Type objects. They return null Types
   // if the finalization failed for this expr.
   class ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
+    using Inherited = TypeVisitor<ExprFinalizer, Type>;
+    friend Inherited;
     ASTContext& ctxt_;
     DiagnosticEngine& diags_;
-
     public:
       ExprFinalizer(ASTContext& ctxt) : ctxt_(ctxt), diags_(ctxt.diagEngine) {}
 

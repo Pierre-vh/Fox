@@ -20,7 +20,7 @@ using namespace fox;
 
 class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
   using Inherited = DeclVisitor<DeclChecker, void>;
-  friend class Inherited;
+  friend Inherited;
   public:
     DeclChecker(Sema& sema) : Checker(sema) {}
 

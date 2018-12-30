@@ -261,6 +261,9 @@ void DiagnosticEngine::updateInternalCounters(DiagSeverity ds) {
     case DiagSeverity::Fatal:
       hasFatalErrorOccured_ = true;
       break;
+    default:
+      // no-op
+      break;
   }
 }
 

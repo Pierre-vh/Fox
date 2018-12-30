@@ -28,9 +28,9 @@ namespace {
       ASTTest() : diags(srcMgr), ctxt(srcMgr, diags) {}
 
     protected:
-      ASTContext ctxt;
-      DiagnosticEngine diags;
       SourceManager srcMgr;
+      DiagnosticEngine diags;
+      ASTContext ctxt;
   };
 }
 
@@ -204,9 +204,6 @@ TEST_F(ASTTest, ExprRTTI) {
   auto* arrlit = ArrayLiteralExpr::create(ctxt, (ExprVector()), SourceRange());
   EXPECT_EQ(arrlit->getKind(), ExprKind::ArrayLiteralExpr);
   EXPECT_TRUE(ArrayLiteralExpr::classof(arrlit));
-
-  // Helper
-  auto fooid = ctxt.getIdentifier("foo");
 
   auto* undeclref = UnresolvedDeclRefExpr::create(ctxt,
     (Identifier()), SourceRange());

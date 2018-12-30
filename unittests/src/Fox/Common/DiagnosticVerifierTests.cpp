@@ -27,6 +27,8 @@ namespace {
       std::string errStr;
       DVTest(): diags(srcMgr), dv(DiagnosticVerifier(diags, srcMgr)) {}
 
+      using ::testing::Test::SetUp;
+
       virtual void SetUp(const std::string& path, 
         std::unique_ptr<DiagnosticConsumer> consumer = nullptr) {
         if(consumer)
@@ -119,11 +121,6 @@ TEST_F(DVTest, Offset) {
   ASSERT_TRUE(ok) << errStr;
   auto& diags = dv.getExpectedDiags();
   ASSERT_EQ(diags.size(), 19) << "Incorrect number of verify instrs found";
-
-  auto testFn = [&](DiagnosticVerifier::ExpectedDiag& diag,
-    std::size_t line, std::size_t expectedOffset) {
-    return (diag.line) == (line+expectedOffset);
-  };
 
   for (auto& diag : diags) {
     // Every diag's line should be line 10.

@@ -98,11 +98,11 @@ TEST(LinearAllocatorTests, ManualAllocation) {
   
   // Set all values to an index
   for (char k = 0; k < 32; k++)
-    foo[k] = k;
+    foo[(unsigned)k] = k;
 
   // Check
-  for (char k = 0; k < 32; k++)
-    ASSERT_EQ(foo[k], k);
+  for (std::size_t k = 0; k < 32; k++)
+    ASSERT_EQ(foo[(unsigned)k], k);
   
   // Check that we have the correct number of bytes in the current pool
   EXPECT_EQ(alloc.getBytesInCurrentPool(), 32);

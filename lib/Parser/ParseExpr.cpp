@@ -203,7 +203,7 @@ Parser::ExprResult Parser::parseSuffixExpr() {
   if (auto prim = parsePrimary()) {
     Expr* base = prim.get();
     ExprResult suffix;
-    while (suffix = parseSuffix(base))
+    while ((suffix = parseSuffix(base)))
       base = suffix.get();
 
     if (suffix.wasSuccessful())

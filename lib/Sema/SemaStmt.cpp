@@ -17,7 +17,7 @@ using namespace fox;
 
 class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
   using Inherited = StmtVisitor<StmtChecker, void>;
-  friend class Inherited;
+  friend Inherited;
   public:
     StmtChecker(Sema& sema) : Checker(sema) {}
 
@@ -113,7 +113,6 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
 		// is used as a condition. Returns the Expr* that should replace
 		// the condition.
 		Expr* checkCond(Expr* cond) {
-			Type boolTy = PrimitiveType::getBool(getCtxt());
 			if(!getSema().typecheckCondition(cond)) {
         diagnoseExprCantCond(cond);
         // Set the type to ErrorType

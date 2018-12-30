@@ -231,6 +231,8 @@ namespace fox {
   // ParamList
   //    Represents a list of ParamDecls
   class ParamList final : llvm::TrailingObjects<ParamList, ParamDecl*> {
+    using TrailingObjects = llvm::TrailingObjects<ParamList, ParamDecl*>;
+    friend TrailingObjects;
     public:
       using SizeTy = std::uint8_t;
       static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();

@@ -23,13 +23,6 @@ Parser::Parser(ASTContext& ctxt, TokenVector& l, UnitDecl *unit):
   isAlive_ = true;
 }
 
-namespace {
-  // Helpers that check some vari
-  bool canHaveNullParent(Decl* decl) {
-    return isa<UnitDecl>(decl);
-  }
-}
-
 void Parser::actOnDecl(Decl* decl) {
   assert(decl && "decl is null!");
 

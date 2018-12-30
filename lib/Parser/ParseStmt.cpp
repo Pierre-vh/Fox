@@ -24,7 +24,7 @@ Parser::StmtResult Parser::parseCompoundStatement() {
   SmallVector<ASTNode, 4> nodes;
   SourceLoc rightCurlyLoc;
   while (!isDone()) {
-    if (rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE))
+    if ((rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE)))
       break;
 
     // try to parse a statement

@@ -232,6 +232,8 @@ namespace fox {
   //    functions as first class citizens (for now)
   class FunctionType final : public TypeBase, 
     llvm::TrailingObjects<FunctionType, Type> {
+    using TrailingObjects = llvm::TrailingObjects<FunctionType, Type>;
+    friend TrailingObjects;
     public:
       using SizeTy = std::uint8_t;
       static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();

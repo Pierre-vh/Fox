@@ -393,10 +393,8 @@ namespace fox {
 
           // Extra function for Result<Type>, which creates a TypeLoc from
           // a Type stored in the ResultObject and it's range.
-          template<
-						typename TL = typename 
-						std::enable_if<std::is_same<Type, DataTy>::value, TypeLoc>::type>
-          TL createTypeLoc() const {
+          template<typename Foo = DataTy>
+          auto createTypeLoc() const -> typename std::enable_if<std::is_same<Type, Foo>::value, TypeLoc>::type {
             return TypeLoc(Inherited::get(), range_);
           }
 

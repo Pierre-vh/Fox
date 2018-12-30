@@ -164,6 +164,9 @@ namespace fox {
 
       // Class that represents options passed to a lookup request.
       struct LookupOptions {
+        // Workaround a clang bug
+        LookupOptions() noexcept {}
+
         // If this is set to false, the Lookup will stop after
         // looking in the current LocalScope (if there is one).
         bool canLookInDeclContext = true;

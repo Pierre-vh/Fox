@@ -27,7 +27,6 @@ namespace fox {
       bool chrono_ = false;
       bool dumpAlloc_ = false;
       bool dumpAST_ = false;
-      bool mute_ = false;
       bool parseOnly_ = false;
       std::ostream& os_;
       
