@@ -102,7 +102,7 @@ namespace llvm {
   // A Type is just a wrapper around a TypeBase*, and thus can be considered
   // as pointer-like.
   template<>
-  class PointerLikeTypeTraits<::fox::Type> {
+  struct PointerLikeTypeTraits<::fox::Type> {
     public:
       enum { NumLowBitsAvailable = ::fox::TypeBaseFreeLowBits };
 
