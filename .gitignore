@@ -295,3 +295,4 @@ __pycache__/
 
 # test logs
 tests/logs/
+/clangbuild
