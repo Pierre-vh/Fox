@@ -7,9 +7,6 @@ see any complicated or confusing semantics. Everything should be clear at a glan
 Note: This is currently a work in progress, only a fraction of the project is completed.
 
 ## Building the project
-**NOTE:** Currently, the project has only been compiled using MSVC. (*the most standard compliant compiler there is! \*cough\**)
-It may not compile using GCC or CLang. However, if you manage to fix the errors, please make a pull request with the changes you've made!
-
 Required:
  * CMake
  * Git
