@@ -8,8 +8,7 @@ Note: This is currently a work in progress, only a fraction of the project is co
 
 ## Building the project
 **NOTE:** Currently, the project has only been compiled using MSVC. (*the most standard compliant compiler there is! \*cough\**)
-It may not compile using GCC or CLang. Moonshot may not build with theses compilers. However, if you manage to build it
-with theses compilers, please make a pull request with the changes you've made!
+It may not compile using GCC or CLang. However, if you manage to fix the errors, please make a pull request with the changes you've made!
 
 Required:
  * CMake
