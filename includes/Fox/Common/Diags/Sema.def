@@ -44,7 +44,12 @@ ERROR(sema_var_init_self_ref,
   "variable used inside its own initial value")
 ERROR(sema_cannot_call_func_with_args,
   "cannot call '%0' with arguments of type '%1'")
-
+ERROR(sema_cannot_convert_return_expr,
+  "cannot convert return expression of type '%0' to return type '%1'")
+ERROR(sema_unexpected_non_void_rtr_expr,
+  "unexpected non-void return expression in void function")
+ERROR(sema_return_with_no_expr,
+  "return statement with no expression in function returning '%0'")
 WARNING(sema_useless_cast_redundant,
   "useless cast to '%0': expression is already of type '%0'")
 

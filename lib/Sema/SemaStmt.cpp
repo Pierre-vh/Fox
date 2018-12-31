@@ -40,6 +40,27 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
         .addArg(expr->getType());
     }
 
+    void diagnoseEmptyReturnStmtInNonVoidFn(ReturnStmt* stmt, Type fnRtrTy) {
+      getDiags()
+        .report(DiagID::sema_return_with_no_expr, stmt->getRange())
+        .addArg(fnRtrTy);
+    }
+
+    void diagnoseReturnTypeMistmatch(ReturnStmt* stmt, Expr* expr, 
+      Type fnRetTy) {
+      getDiags()
+        .report(DiagID::sema_cannot_convert_return_expr, expr->getRange())
+        .addArg(expr->getType())
+        .addArg(fnRetTy)
+        .setExtraRange(stmt->getRange());
+    }
+
+    void diagnoseUnexpectedRtrExprForNonVoidFn(ReturnStmt* stmt, Expr* expr) {
+      getDiags()
+        .report(DiagID::sema_unexpected_non_void_rtr_expr, expr->getRange())
+        .setExtraRange(stmt->getRange());
+    }
+
     //----------------------------------------------------------------------//
     // "visit" methods
     //----------------------------------------------------------------------//
@@ -55,10 +76,40 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       // Nothing to check on a NullStmt
     }
 
-    void visitReturnStmt(ReturnStmt*) {
-      // We need to know the current function's signature
-      // to check this -> Need Decl checking to be done.
-      fox_unimplemented_feature("Return statements checking");
+    void visitReturnStmt(ReturnStmt* stmt) {
+      // Fetch the current FuncDecl
+      LocalScope* scope = getSema().getLocalScope();
+      assert(scope && "scope shouldn't be nullptr!");
+      FuncDecl* fn = scope->getFuncDecl();
+      assert(fn && "should have root FuncDecl!");
+      // Fetch it's return type
+      Type rtrTy = fn->getReturnType();
+      bool isVoid = rtrTy->isVoidType();
+
+      // We'll check the stmt depending on whether it has an expression or not.
+      if(Expr* expr = stmt->getExpr()) {
+        // There is an expression, try to unify and diagnose on error if it
+        // can't unify.
+        bool succ = getSema().typecheckExprOfType(expr, rtrTy);
+        succ &= (!Sema::isDowncast(expr->getType(), rtrTy));
+        if(!succ) {
+          // If this function returns void, and has an Expr of a non-void type
+          if(isVoid)
+            diagnoseUnexpectedRtrExprForNonVoidFn(stmt, expr);
+          // non-void function and expr doesn't unify with it's return type:
+          // Diagnose unless it's already an ErrorType
+          else if(!expr->getType()->is<ErrorType>())
+              diagnoseReturnTypeMistmatch(stmt, expr, rtrTy);
+        }
+        // in all cases, replace the expr after checking it
+        stmt->setExpr(expr);
+      } 
+      else {
+        // No expression. If the function's return type isn't void, 
+        // this is an error.
+        if(!isVoid)
+          diagnoseEmptyReturnStmtInNonVoidFn(stmt, rtrTy);
+      }
     }
 
     void visitCompoundStmt(CompoundStmt* stmt) {
@@ -76,7 +127,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       stmt->setCond(checkCond(stmt->getCond()));
       {
         // Open scope
-        auto scope = getSema().enterLocalScopeRAII();
+        auto scope = getSema().openNewScopeRAII();
         // Check the body and replace it
         auto body = getSema().checkNode(stmt->getBody());
         stmt->setBody(body);
@@ -88,7 +139,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       stmt->setCond(checkCond(stmt->getCond()));
       {
         // Open scope
-        auto scope = getSema().enterLocalScopeRAII();
+        auto scope = getSema().openNewScopeRAII();
         // Check the if's body and replace it 
         auto cond_then = getSema().checkNode(stmt->getThen());
         stmt->setThen(cond_then);
@@ -96,7 +147,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
 			// Check the else's body if there is one and replace it
 			if(auto cond_else = stmt->getElse()) {
         // Open scope
-        auto scope = getSema().enterLocalScopeRAII();
+        auto scope = getSema().openNewScopeRAII();
         // Check the body and replace it
 				cond_else = getSema().checkNode(cond_else);
 				stmt->setElse(cond_else);
@@ -114,9 +165,8 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
 		// the condition.
 		Expr* checkCond(Expr* cond) {
 			if(!getSema().typecheckCondition(cond)) {
-        diagnoseExprCantCond(cond);
-        // Set the type to ErrorType
-        cond->setType(ErrorType::get(getCtxt()));
+        if(!(cond->getType()->is<ErrorType>()))
+          diagnoseExprCantCond(cond);
       }
 			return cond;
 		}

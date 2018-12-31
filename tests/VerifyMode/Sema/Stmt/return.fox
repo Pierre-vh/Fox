@@ -1,0 +1,31 @@
+// RUN: %fox-verify
+
+func returnsVoid() {}
+
+func foo() {
+  // Here, no return value is allowed
+  return;
+  // We should allow return expression of type void too
+  return returnsVoid();
+  // not ok
+  return 3; // expect-error: unexpected non-void return expression in void function
+}
+
+func bar() : int {
+  // ok
+  return 1;
+  // not ok
+  return; // expect-error: return statement with no expression in function returning 'int'
+  return "s"; // cannot convert return expression of type 'string' to return type 'int'
+  return 3.14; // cannot convert return expression of type 'double' to return type 'int'
+}
+
+func infer() : [[double]] {
+  // ok
+  return [];
+  return [[3.14]];
+  // not ok
+  return; // expect-error: return statement with no expression in function returning '[[double]]'
+  return [[1]]; // cannot convert return expression of type '[[int]]' to return type '[[double]]'
+  return [false]; // cannot convert return expression of type '[bool]' to return type '[[double]]'
+}
