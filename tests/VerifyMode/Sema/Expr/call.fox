@@ -52,7 +52,7 @@ func inferTest() {
 }
 
 func inExprs() {
-  takesIntReturnsInt(3) + takesIntReturnsInt(1);
+  takesIntsReturnString(1,1) + takesIntsReturnString(false,false);
 
   // expect-error@+1: cannot use unary operator '+' on an expression of type 'void'
   +basic(); 
