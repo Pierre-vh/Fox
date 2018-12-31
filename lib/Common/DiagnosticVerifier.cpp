@@ -134,7 +134,12 @@ bool DiagnosticVerifier::finish() {
     // Some expected diags weren't emitted.
     return false;
   }
-  // All expected diags emitted
+  // All expected diags emitted, return true if no unexpected diags 
+  // were emitted.
+  if(hasEmittedUnexpectedDiagnostics_) {
+    diags_.report(DiagID::diagverif_unexpectedDiagsEmitted);
+    return false;
+  }
   return true;
 }
 
@@ -162,6 +167,8 @@ bool DiagnosticVerifier::verify(Diagnostic& diag) {
     expectedDiags_.erase(it);
     return false;
   }
+  // We did not expect it
+  hasEmittedUnexpectedDiagnostics_ = true;
   return true;
 }
 

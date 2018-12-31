@@ -101,6 +101,8 @@ namespace fox {
 			bool parseOffset(SourceRange strRange,
 										string_view str, std::int8_t& offset);
 
+      bool hasEmittedUnexpectedDiagnostics_ = false;
+
       DiagnosticEngine& diags_;
       SourceManager& srcMgr_;
       // Map of expected diagnostics

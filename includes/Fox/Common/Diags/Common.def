@@ -42,6 +42,8 @@ ERROR(diagverif_illegalOffset,
   "line number smaller than 1")
 ERROR(diagverif_errorExpectedDiagsNotEmitted,
   "%0 diagnostics were expected but not emitted")
+ERROR(diagverif_unexpectedDiagsEmitted,
+  "verification failed because unexpected diagnostics were emitted")
 NOTE(diagverif_diagNotEmitted,
   "diagnostic '%0' (%1) was expected at line %2 but not emitted")
 
