@@ -61,9 +61,12 @@ namespace fox {
       //
       //  The expression is modified in place.
       //
+      //  If allowDowncast is set to false, this function returns false
+      //  if casting the expression's type to the desired type is a downcast
+      //
       //  Returns true if the expression was of the type expected (or
       //  can be implicitely converted to that type), false otherwise.
-      bool typecheckExprOfType(Expr*& expr, Type type);
+      bool typecheckExprOfType(Expr*& expr, Type type, bool allowDowncast);
 
       // Performs semantic analysis on an expression and it's children.
       //  Typechecks an expression which is used as a condition.

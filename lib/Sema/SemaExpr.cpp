@@ -1019,11 +1019,11 @@ Expr* Sema::typecheckExpr(Expr* expr) {
   return expr;
 }
 
-bool Sema::typecheckExprOfType(Expr*& expr, Type type) {
+bool Sema::typecheckExprOfType(Expr*& expr, Type type, bool allowDowncast) {
   assert(expr && "null input");
 
   expr = ExprChecker(*this).check(expr);
-  bool success = unify(expr->getType(), type);
+  bool success = unify(type, expr->getType(), allowDowncast);
   expr = ExprFinalizer(ctxt_).finalize(expr);
 
   // Don't allow downcasts
