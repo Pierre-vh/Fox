@@ -606,7 +606,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type calleeTy = callee->getType();
       
       if(!calleeTy->is<FunctionType>()) {
-        diagnoseExprIsNotAFunction(callee);
+        if(!calleeTy->is<ErrorType>())
+          diagnoseExprIsNotAFunction(callee);
         return expr;
       }
 
