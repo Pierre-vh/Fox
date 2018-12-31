@@ -88,10 +88,9 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
 
       // We'll check the stmt depending on whether it has an expression or not.
       if(Expr* expr = stmt->getExpr()) {
-        // There is an expression, try to unify and diagnose on error if it
-        // can't unify.
-        bool succ = getSema().typecheckExprOfType(expr, rtrTy);
-        succ &= (!Sema::isDowncast(expr->getType(), rtrTy));
+        // There is an expression, check it, disallowing downcasts.
+        bool succ = getSema().typecheckExprOfType(expr, rtrTy, 
+                    /*allowDowncast*/ false);
         if(!succ) {
           // If this function returns void, and has an Expr of a non-void type
           if(isVoid)
