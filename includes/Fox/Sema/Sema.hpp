@@ -105,8 +105,12 @@ namespace fox {
       // This unification algorithm won't alter types unless
       // they are CellTypes.
       //
-      // Also, this function is commutative.
-      bool unify(Type a, Type b);
+      // If allowDowncast is set to false, this function will return
+      // false if casting B to A results in a downcast.
+      //
+      // Also, this function is commutative if allowDowncast
+      // is set to true.
+      bool unify(Type a, Type b, bool allowDowncast = true);
 
 			// Returns true if the conversion of A to B is a downcast
 			//		If A and/or B are not numeric types, returns false.

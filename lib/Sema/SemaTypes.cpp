@@ -18,7 +18,7 @@
 
 using namespace fox;
 
-bool Sema::unify(Type a, Type b) {
+bool Sema::unify(Type a, Type b, bool allowDowncast) {
   assert(a && b && "Pointers cannot be null");
 
   // Unwrap 
@@ -35,7 +35,7 @@ bool Sema::unify(Type a, Type b) {
       return true;
     // Numeric types equality
     if(a->isNumeric() && b->isNumeric())
-      return true;
+      return allowDowncast ? true : isDowncast(b, a);
   }
 
   /* Unification logic */
@@ -50,7 +50,7 @@ bool Sema::unify(Type a, Type b) {
       // Both have a sub
       if (aCellSub && bCellSub) {
 
-        bool unifyResult = unify(aCellSub, bCellSub);
+        bool unifyResult = unify(aCellSub, bCellSub, allowDowncast);
         // If it's nested CellTypes, just return the unifyResult.
         if (aCellSub->is<CellType>() || bCellSub->is<CellType>())
           return unifyResult;
@@ -90,7 +90,7 @@ bool Sema::unify(Type a, Type b) {
     // CellType = (Not CellType)
     else {
       if (auto* aCellSub = aCell->getSubst().getPtr())
-        return unify(aCellSub, b);
+        return unify(aCellSub, b, allowDowncast);
       aCell->setSubst(b);
       return true;
     }
@@ -98,7 +98,7 @@ bool Sema::unify(Type a, Type b) {
   // (Not CellType) = CellType
   else if (auto* bCell = b->getAs<CellType>()) {
     if (Type bCellSub = bCell->getSubst())
-      return unify(a, bCellSub);
+      return unify(a, bCellSub, allowDowncast);
     bCell->setSubst(a);
     return true;
   }
