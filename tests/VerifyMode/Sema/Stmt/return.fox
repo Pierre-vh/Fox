@@ -16,16 +16,16 @@ func bar() : int {
   return 1;
   // not ok
   return; // expect-error: return statement with no expression in function returning 'int'
-  return "s"; // cannot convert return expression of type 'string' to return type 'int'
-  return 3.14; // cannot convert return expression of type 'double' to return type 'int'
+  return "s"; // expect-error: cannot convert return expression of type 'string' to return type 'int'
+  return 3.14; // expect-error: cannot convert return expression of type 'double' to return type 'int'
 }
 
-func infer() : [[double]] {
+func infer() : [[int]] {
   // ok
   return [];
-  return [[3.14]];
+  return [[3]];
   // not ok
-  return; // expect-error: return statement with no expression in function returning '[[double]]'
-  return [[1]]; // cannot convert return expression of type '[[int]]' to return type '[[double]]'
-  return [false]; // cannot convert return expression of type '[bool]' to return type '[[double]]'
+  return; // expect-error: return statement with no expression in function returning '[[int]]'
+  return [false]; // expect-error: cannot convert return expression of type '[bool]' to return type '[[int]]'
+  return [[3.14]]; // expect-error: cannot convert return expression of type '[[double]]' to return type '[[int]]'
 }
