@@ -10,7 +10,7 @@
 
 using namespace fox;
 
-LocalScope::LocalScope(LocalScope* parent) : parent_(parent) {}
+LocalScope::LocalScope(Parent parent) : parent_(parent) {}
 
 bool LocalScope::insert(NamedDecl* decl) {
   Identifier id = decl->getIdentifier();
@@ -34,18 +34,28 @@ bool LocalScope::insert(NamedDecl* decl) {
   }
 }
 
-LocalScope::MapTy& LocalScope::getDeclsMap() {
-  return decls_;
+LocalScope* LocalScope::getParentIfLocalScope() const {
+  return parent_.dyn_cast<LocalScope*>();;
 }
 
-LocalScope* LocalScope::getParent() const {
-  return parent_;
+FuncDecl* LocalScope::getFuncDecl() const {
+  if(FuncDecl* fn = parent_.dyn_cast<FuncDecl*>())
+    return fn;
+  return parent_.get<LocalScope*>()->getFuncDecl();
+}
+
+LocalScope::Map& LocalScope::getDeclsMap() {
+  return decls_;
 }
 
 bool LocalScope::hasParent() const {
   return (bool)parent_;
 }
 
-void LocalScope::setParent(LocalScope* scope) {
-  parent_ = scope;
+LocalScope::Parent LocalScope::getParent() const {
+  return parent_;
+}
+
+void LocalScope::setParent(Parent parent) {
+  parent_ = parent;
 }

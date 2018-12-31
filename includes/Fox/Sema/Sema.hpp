@@ -214,12 +214,21 @@ namespace fox {
       // Scope Management
       //---------------------------------//
 
-      // RAII object for enterLocalScopeRAII
+      // RAII object for openNewScopeRAII and enterFuncScopeRAII
       class RAIILocalScope;
 
-      // Creates a new scope and set localScope_ to that newly created instance.
+      // Creates a new scope and set localScope_ to that new instance.
       // Returns a RAII object that will, upon destruction, restore the LocalScope.
-      RAIILocalScope enterLocalScopeRAII();
+      //
+      // Asserts that the current localScope is non nullptr.
+      RAIILocalScope openNewScopeRAII();
+
+
+      // Creates a new "root" scope for the FuncDecl fn.
+      // Returns a RAII object that will, upon destruction, restore the LocalScope.
+      //
+      // Asserts that the current localScope is nullptr and that fn is not nullptr.
+      RAIILocalScope enterFuncScopeRAII(FuncDecl* fn);
 
       // Return the currently active local scope, or nullptr if none is active.
       LocalScope* getLocalScope() const;
@@ -275,21 +284,25 @@ namespace fox {
   // to a new LocalScope instance, owned by this object.
   class Sema::RAIILocalScope {
     Sema& sema_;
-    std::unique_ptr<LocalScope> scope_;
+    LocalScope scope_;
     public:
       // Create a new LocalScope whose parent is the current active
       // localScope (maybe null)
-      RAIILocalScope(Sema& sema) : sema_(sema),
-        scope_(std::make_unique<LocalScope>(sema_.localScope_)) {
-        sema_.localScope_ = scope_.get();
+      //
+      // If FuncDecl is non null, it will be used as the parent of this
+      // scope.
+      RAIILocalScope(Sema& sema, FuncDecl* fn = nullptr) : sema_(sema) {
+        LocalScope::Parent parent;
+        if(fn) scope_.setParent(fn);
+        else  scope_.setParent(sema_.localScope_);
+        sema_.localScope_ = &scope_;
       }
 
-      // Needed for enterLocalScopeRAII factory function
+      // Needed for openNewScopeRAII factory function
       RAIILocalScope(RAIILocalScope&&) = default;
 
       ~RAIILocalScope() {
-        // Restore the scope
-        sema_.localScope_ = scope_->getParent();
+        sema_.localScope_ = scope_.getParentIfLocalScope();
       }
   };
 

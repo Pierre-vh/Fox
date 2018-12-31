@@ -10,12 +10,13 @@
 #pragma once
 
 #include "Fox/AST/Identifier.hpp"
-
+#include "Fox/AST/ASTAligns.hpp"
+#include "llvm/ADT/PointerUnion.h"
 #include <map>
 
 namespace fox {
   class NamedDecl;
-
+  class FuncDecl;
   // This class represents a single local scope.
   //
   // Theses are created by Sema when it enters a FuncDecl and Stmts that
@@ -26,9 +27,10 @@ namespace fox {
   // existing in this instance, it'll be overwritten.
   class LocalScope {
     public:
-      using MapTy = std::map<Identifier, NamedDecl*>;
-      
-      LocalScope(LocalScope* parent = nullptr);
+      using Map = std::map<Identifier, NamedDecl*>;
+      using Parent = llvm::PointerUnion<LocalScope*, FuncDecl*>;
+
+      LocalScope(Parent parent = (LocalScope*)nullptr);
 
       // Inserts a declaration in this LocalScope. 
       // Returns false if the declaration replaced a previous one, true
@@ -37,18 +39,24 @@ namespace fox {
       // Note that "decl" must have a valid Identifier()
       bool insert(NamedDecl* decl);
 
+      // If the parent is a LocalScope*, return it. Else, return nullptr.
+      LocalScope* getParentIfLocalScope() const;
+
+      // Returns the root FuncDecl of this Scope tree
+      FuncDecl* getFuncDecl() const;
+
       // Returns the map of (Identifier -> NamedDecl*) used internally to
       // store declarations in this scope.
-      MapTy& getDeclsMap();
+      Map& getDeclsMap();
 
-      LocalScope* getParent() const;
       bool hasParent() const;
-      void setParent(LocalScope* scope);
+      void setParent(Parent scope);
+      Parent getParent() const;
 
     private:
       // The parent scope
-      LocalScope* parent_ = nullptr;
+      llvm::PointerUnion<LocalScope*, FuncDecl*> parent_;
       // The decls present in this scope
-      MapTy decls_;
+      Map decls_;
   };
 }
