@@ -1,4 +1,4 @@
-// RUN: %fox-verify -werr
+// RUN: %fox-verify
 
 func foo() {
   // Correct
@@ -15,4 +15,7 @@ func foo() {
   if("foo"); // expect-error: cannot use an expression of type 'string' as a condition
   if(['c']); // expect-error: cannot use an expression of type '[char]' as a condition
   if([3]); // expect-error: cannot use an expression of type '[int]' as a condition
+  
+  // Here, we check that we don't emit another error if the cond expr is ErrorType.
+  if(3 + 'c'); // expect-error: cannot use binary operator '+' on expressions of types 'int' and 'char'
 }
