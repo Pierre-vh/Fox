@@ -118,13 +118,16 @@ To-Do:
   > Name binding logic (Done)
   > Semantic analysis for using variable within their own initial value (Done)
   > CallExpr checking (Done)
+  > ReturnStmt checking (Done)
 
-  > ReturnStmt checking
-    > add LocalScope->getFuncDecl() (the first LocalScope should have a FuncDecl
-      as parent, so use a PointerUnion<FuncDecl*, LocalScope*> for the parent)
-
-  > Tests for interaction of a FunctionType with other operations
+  > Write tests for interaction of a FunctionType with other operations (Next)
     > e.g. foo+3
+
+  > Replace "is<ErrorType>" usages in Semantic Analysis by a "Sema::isDiagnosable(types..)"
+      method that will check that the type isn't an ErrorType. T
+    Reason: In the future I'll probably want to suppress diagnostics for some other types too, such as
+               Overload types. Then, it'll be easier to add another line in "isDiagnosable" than it will
+               be to update every single "is<ErrorType>" line.
 
   > Parser improvements
     -> Refactor decl parsing methods
