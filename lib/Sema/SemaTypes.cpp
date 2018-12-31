@@ -35,7 +35,7 @@ bool Sema::unify(Type a, Type b, bool allowDowncast) {
       return true;
     // Numeric types equality
     if(a->isNumeric() && b->isNumeric())
-      return allowDowncast ? true : isDowncast(b, a);
+      return (allowDowncast ? true : (!isDowncast(b, a)));
   }
 
   /* Unification logic */
