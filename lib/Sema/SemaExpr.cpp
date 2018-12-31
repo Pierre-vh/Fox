@@ -621,25 +621,14 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
 
       // Check arg types
-      bool ok = true;
       for(std::size_t idx = 0; idx < callArgc; idx++) {
         Type expected = fnTy->getParamType(idx);
         Type got = expr->getArg(idx)->getType();
         assert(expected && got && "types cant be nullptrs!");
-        if(getSema().unify(expected, got)) {
-          // Check for a downcast :
-          //  If casting "got" to "expected" is a downcast, it's an error.
-          if(Sema::isDowncast(got, expected))
-            ok = false;
-        } 
-        // can't unify.
-        else 
-          ok = false;
-      }
-
-      if(!ok) {
-        diagnoseBadFunctionCall(expr);
-        return expr;
+        if(!getSema().unify(expected, got, /*allowDowncast*/ false)) {
+          diagnoseBadFunctionCall(expr);
+          return expr;
+        }
       }
 
       // Call should be ok. The type of the CallExpr is the return type
@@ -829,14 +818,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       rhsTy = rhsTy->getRValue();
 
       // Unify
-      bool valid = getSema().unify(lhsTy, rhsTy);
-
-      // Check for downcasts if the unification was ok. If it's a downcast,
-      // the assignement is invalid.
-      if(valid && Sema::isDowncast(rhsTy, lhsTy))
-        valid = false;
-
-      if(!valid) {
+      if(!getSema().unify(lhsTy, rhsTy, /*allowDowncast*/ false)) {
         // Type mismatch
         diagnoseInvalidAssignement(expr, lhsTy, rhsTy);
         return expr;
