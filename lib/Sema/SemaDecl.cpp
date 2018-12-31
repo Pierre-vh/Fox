@@ -143,7 +143,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
     void visitFuncDecl(FuncDecl* decl) {
       // Tell Sema that we enter this func's scope
-      auto scopeGuard = getSema().enterLocalScopeRAII();
+      auto scopeGuard = getSema().enterFuncScopeRAII(decl);
       // Check if this is an invalid redecl
       checkForIllegalRedecl(decl);
       // Check it's parameters
