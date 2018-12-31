@@ -3,6 +3,7 @@
 // expect-note@+1: 'basic' declared here with type '() -> void'
 func basic() {}
 
+// expect-note@+4: 'takesInt' declared here with type '(int) -> void'
 // expect-note@+3: 'takesInt' declared here with type '(int) -> void'
 // expect-note@+2: 'takesInt' declared here with type '(int) -> void'
 // expect-note@+1: 'takesInt' declared here with type '(int) -> void'
@@ -24,6 +25,9 @@ func callsTest() {
 
   // expect-error@+1: cannot call 'takesInt' with no arguments
   takesInt();
+
+  // expect-error@+1: cannot call 'takesInt' with arguments of type '(double)'
+  takesInt(3.14);
 
   // expect-error@+1: too many arguments in call to 'basic'
   basic(3);
