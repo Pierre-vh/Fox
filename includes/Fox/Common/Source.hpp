@@ -123,6 +123,11 @@ namespace fox {
   // The SourceRange is a wrapper around a SourceLoc and an offset, 
   // which combined represent a range (word, sentence, piece of code) 
   // in the source code.
+  //
+  // IMPORTANT: The SourceRange IS NOT a half-open range. This means that
+  // the first loc represents the first byte in the range, and the last loc
+  // represents the last byte in the range.
+  //
   // Note: Like SourceLoc, the offset is expected to be absolute, not in CPs.
   class SourceRange {
     public:
