@@ -329,9 +329,9 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
       literalData_ = std::make_unique<LiteralInfo>(tmp);
     }
     else {
-      // If too big, put the value in a float instead.
+      // If too big, put the value in a double instead.
       diags
-				.report(DiagID::lexer_int_too_big_considered_as_float, range_)
+				.report(DiagID::lexer_int_too_big_considered_as_double, range_)
 				.addArg(str);
       tokenData_ = mpark::monostate();
       literalData_ = std::make_unique<LiteralInfo>(std::stof(str));
