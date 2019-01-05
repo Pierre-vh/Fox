@@ -16,4 +16,15 @@ func foo() {
   [[[]]] as [[[string]]];
   [[],[3],[3.14],[true],[]];
   [[[],[],[],[],[]],[[],[],[],[],[]]] as [[[int]]];
+
+  [3,foo];   // expect-error:function types cannot be used within an array literals
+  [[[foo]]]; // expect-error:function types cannot be used within an array literals
+
+  // expect-error@+2:function types cannot be used within an array literals
+  // expect-error@+1:function types cannot be used within an array literals
+  [[],[false],[3],[foo,foo]];
+
+  // Test that we don't have inference errors here
+  // expect-error@+1: cannot use unary operator '+' on an expression of type 'char'
+  [[],[1],[+'c']];
 }

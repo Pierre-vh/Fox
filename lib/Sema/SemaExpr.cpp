@@ -243,6 +243,13 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       noteIsDeclaredHereWithType(callee->getDecl());
     }
 
+    void diagnoseFunctionTypeInArrayLiteral(ArrayLiteralExpr* lit, Expr* fn) {
+      getDiags().report(DiagID::sema_fnty_in_array, fn->getRange())
+        // Maybe displaying the whole array is too much? I think it's great
+        // because it gives some context, but maybe I'm wrong.
+        .setExtraRange(lit->getRange());
+    }
+
     //----------------------------------------------------------------------//
     // Finalize methods
     //----------------------------------------------------------------------//
@@ -680,7 +687,19 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
 
-    // visitArrayLiteralExpr helper
+    // visitArrayLiteralExpr helpers
+
+    bool checkIfLegalWithinArrayLiteral(ArrayLiteralExpr* lit, Expr* expr) {
+      Type ty = expr->getType()->getAsBoundRValue();
+      // unbound types are ok
+      if(!ty) return true;
+      // check if not function type
+      if(ty->is<FunctionType>()) {
+        diagnoseFunctionTypeInArrayLiteral(lit, expr);
+        return false;
+      }
+      return true;
+    }
 
     // Typechecks a non empty array literal and deduces it's type.
     Expr* checkNonEmptyArrayLiteralExpr(ArrayLiteralExpr* expr) {
@@ -691,11 +710,22 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type boundTy;
       // The type used by unbounds elemTy
       Type unboundTy;
+      // Set to false if the ArrayLiteral is not valid
+      bool isValid = true;
 
       for (auto& elem : expr->getExprs()) {
+        // Skip the elem & mark the array literal as invalid
+        if(!checkIfLegalWithinArrayLiteral(expr, elem)) {
+          isValid = false;
+          continue;
+        }
+
         Type elemTy = elem->getType();
 
-        if (elemTy->is<ErrorType>()) return expr;
+        if (elemTy->is<ErrorType>()) {
+          isValid = false;
+          continue;
+        }
 
         // Special logic for unbound types
         if (!elemTy->isBound()) {
@@ -728,6 +758,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         assert(boundTy &&
           "Null highest ranked type but unification succeeded?");
       }
+
       Type proper;
 
       // Check if we have an unboundTy and/or a boundTy
@@ -741,10 +772,23 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
       else if (boundTy) proper = boundTy;
       else if (unboundTy) proper = unboundTy;
-      else fox_unreachable("Should have at least a boundTy or unboundTy set");
+      else {
+        // If the expr isn't valid, this is a normal situation.
+        if(!isValid)
+          return expr;
+        // If it's valid, we have a bug!
+        fox_unreachable("Should have at least a boundTy or unboundTy set");
+      }
+
       assert(proper && "the proper type shouldn't be null at this stage");
-      // The type of the expr is an array of the proper type.
-      expr->setType(ArrayType::get(getCtxt(), proper));
+
+      // Set the type only if the expr is valid, because if it's not
+      // valid it should be marked as "ErrorType"
+      if(isValid)
+        // The type of the expr is an array of the proper type.
+        expr->setType(ArrayType::get(getCtxt(), proper));
+
+      // Return the expr
       return expr;
     }
 
