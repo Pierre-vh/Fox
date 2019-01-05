@@ -1,0 +1,12 @@
+// RUN: %fox-verify
+
+func intToDouble(x: int) : double {}
+func voidFn() {}
+
+func test() {
+  //expect-error@+1: cannot use binary operator '+' on expressions of types '(int) -> double' and 'double'
+  intToDouble + 3.14; 
+
+  //expect-error@+1: cannot use unary operator '+' on an expression of type '() -> void'
+  +voidFn;
+}
