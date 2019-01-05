@@ -25,9 +25,11 @@ Driver::Driver(std::ostream& os): os_(os), diags(srcMgr, os_),
 
 bool Driver::processFile(const std::string& filepath) {
   // Load the file in the source manager
-  auto fid = srcMgr.loadFromFile(filepath);
-  if (!fid) {
-    getOS() << "Could not open file \"" << filepath << "\"\n";
+  auto result = srcMgr.readFile(filepath);
+  FileID file = result.first;
+  if (!file) {
+    getOS() << "Could not open file \"" << filepath << "\"\n"
+      "\tReason:" << toString(result.second) << '\n';
     return false;
   }
 
@@ -36,7 +38,7 @@ bool Driver::processFile(const std::string& filepath) {
 	if (isVerifyModeEnabled()) {
 		dv = std::make_unique<DiagnosticVerifier>(diags, srcMgr);
     // Parse the file
-		dv->parseFile(fid);
+		dv->parseFile(file);
     // Enable the verify mode in the diagnostic engine
     diags.enableVerifyMode(dv.get());
 	}
@@ -45,7 +47,7 @@ bool Driver::processFile(const std::string& filepath) {
   Lexer lex(ctxt);
   {
     auto chrono = createChrono("Lexing");
-    lex.lexFile(fid);
+    lex.lexFile(file);
   }
 
   // Stop if we had errors
@@ -58,7 +60,7 @@ bool Driver::processFile(const std::string& filepath) {
   // Do parsing
   {
     auto chrono = createChrono("Parsing");
-    unit = psr.parseUnit(fid, ctxt.getIdentifier("TestUnit"));
+    unit = psr.parseUnit(file, ctxt.getIdentifier("TestUnit"));
   }
 
   auto canContinue = [&](){

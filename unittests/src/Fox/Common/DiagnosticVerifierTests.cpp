@@ -33,14 +33,16 @@ namespace {
         std::unique_ptr<DiagnosticConsumer> consumer = nullptr) {
         if(consumer)
           diags.setConsumer(std::move(consumer));
-        file = srcMgr.loadFromFile(path);
+        auto result = srcMgr.readFile(path);
+        file = result.first;
         if (!file) {
-          error("Couldn't load file \"" + path + '"');
+          error("Couldn't load file \"" + path + "\"\n\tReason:" + 
+            toString(result.second));
           return;
         }
         diags.enableVerifyMode(&dv);
         if (!dv.parseFile(file)) {
-          error("Couldn't parse file \"" + path + '"');
+          error("The DiagnosticVerifier couldn't parse the file \"" + path + '"');
           return;
         }
       }      

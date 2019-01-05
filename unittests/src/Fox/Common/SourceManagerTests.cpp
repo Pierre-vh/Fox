@@ -19,21 +19,25 @@ TEST(SourceManagerTest, FileIDTests) {
 }
 
 TEST(SourceManagerTest, LoadingFromFile) {
-  std::string file_path_a = test::getPath("lexer/utf8/bronzehorseman.txt");
-  std::string file_path_b = test::getPath("lexer/utf8/ascii.txt");
+  std::string aPath = test::getPath("lexer/utf8/bronzehorseman.txt");
+  std::string bPath = test::getPath("lexer/utf8/ascii.txt");
   SourceManager srcMgr;
-  auto fid_a = srcMgr.loadFromFile(file_path_a);
-  auto fid_b = srcMgr.loadFromFile(file_path_b);
-  EXPECT_TRUE(fid_a);
-  EXPECT_TRUE(fid_b);
+  auto aRes = srcMgr.readFile(aPath);
+  auto bRes = srcMgr.readFile(bPath);
+  FileID aFile = aRes.first;
+  FileID bFile = bRes.first;
+  EXPECT_TRUE(aFile) << "Error while reading '" << aPath 
+    << "': " << toString(aRes.second); 
+  EXPECT_TRUE(bFile) << "Error while reading '" << bPath 
+    << "': " << toString(bRes.second); 
 
   // File path is correct?
-  const auto* storeddata_a = srcMgr.getSourceData(fid_a);
-  const auto* storeddata_b = srcMgr.getSourceData(fid_b);
+  const auto* storeddata_a = srcMgr.getSourceData(aFile);
+  const auto* storeddata_b = srcMgr.getSourceData(bFile);
 
   // File paths are the same? 
-  EXPECT_EQ(file_path_a, storeddata_a->fileName);
-  EXPECT_EQ(file_path_b, storeddata_b->fileName);
+  EXPECT_EQ(aPath, storeddata_a->fileName);
+  EXPECT_EQ(bPath, storeddata_b->fileName);
 
   // Compare contents
   std::string content_a, content_b;
@@ -103,24 +107,26 @@ TEST(SourceManagerTest, SourceRange) {
 TEST(SourceManagerTest, PreciseLocation) {
   SourceManager srcMgr;
 
-  std::string fp = test::getPath("sourcemanager/precise_test_1.txt");
+  std::string testFilePath = test::getPath("sourcemanager/precise_test_1.txt");
 
   // Load file in SourceManager
-  auto fid = srcMgr.loadFromFile(fp);
-  ASSERT_TRUE(fid) << "File couldn't be read";
+  auto result = srcMgr.readFile(testFilePath);
+  FileID testFile = result.first;
+  ASSERT_TRUE(testFile) << "Error while reading '" << testFilePath 
+    << "': " << toString(result.second);
 
   // Load file in StringManipulator
-  string_view ptr = srcMgr.getSourceStr(fid);
+  string_view ptr = srcMgr.getSourceStr(testFile);
   StringManipulator sm(ptr);
 
   // Loop until we reach the pi sign
   for (; sm.getCurrentChar() != 960 && !sm.eof(); sm.advance());
 
   if (sm.getCurrentChar() == 960) {
-    SourceLoc sloc(fid, sm.getIndexInBytes());
+    SourceLoc sloc(testFile, sm.getIndexInBytes());
     auto result = srcMgr.getCompleteLoc(sloc);
 
-    EXPECT_EQ(result.fileName, fp);
+    EXPECT_EQ(result.fileName, testFilePath);
     EXPECT_EQ(result.line, 5);
     EXPECT_EQ(result.column, 7);
   }
@@ -132,8 +138,10 @@ TEST(SourceManagerTest, PreciseLocation) {
 TEST(SourceManagerTest, SourceLocToString) {
   std::string testFilePath = test::getPath("sourcemanager/precise_test_1.txt");
   SourceManager srcMgr;
-  FileID testFile = srcMgr.loadFromFile(testFilePath);
-  ASSERT_TRUE(testFile) << "File couldn't be read";
+  auto result = srcMgr.readFile(testFilePath);
+  FileID testFile = result.first;
+  ASSERT_TRUE(testFile) << "Error while reading '" << testFilePath 
+    << "': " << toString(result.second);
   SourceLoc loc_a(testFile);
   SourceLoc loc_b(testFile, 10);
   EXPECT_EQ(loc_a.toString(srcMgr), "1:1");
@@ -143,7 +151,10 @@ TEST(SourceManagerTest, SourceLocToString) {
 TEST(SourceManagerTest, SourceRangeToString) {
   std::string testFilePath = test::getPath("sourcemanager/precise_test_1.txt");
   SourceManager srcMgr;
-  FileID testFile = srcMgr.loadFromFile(testFilePath);
+  auto result = srcMgr.readFile(testFilePath);
+  FileID testFile = result.first;
+  ASSERT_TRUE(testFile) << "Error while reading '" << testFilePath 
+    << "': " << toString(result.second);
   ASSERT_TRUE(testFile) << "File couldn't be read";
   SourceRange r_a(SourceLoc(testFile), 10);
   SourceRange r_b(SourceLoc(testFile, 14), 3);

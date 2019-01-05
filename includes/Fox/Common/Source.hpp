@@ -203,8 +203,23 @@ namespace fox {
             lastLTSearch_;
       };
 
-      // Load a file in memory 
-      FileID loadFromFile(const std::string& path);
+      // Return enum for readFile
+      enum class FileStatus : std::uint8_t {
+        // The file was successfully read and loaded in memory.
+        // It's FileID is the first element of the pair.
+        Ok,
+        // The file couldn't be found.
+        NotFound,
+        // The file had an invalid encoding. Currently, only
+        // ASCII and UTF8 are supported.
+        InvalidEncoding
+      };
+
+      // Load a file in memory. 
+      //  Returns a pair. The first element is the FileID, it'll evaluate
+      //  to false if the file was not loaded in memory.
+      //  The second element contains a more detailed status (see FileStatus)
+      std::pair<FileID, FileStatus> readFile(const std::string& path);
 
       // Load a string in the SM. First arg is the string to load, 
       // the second is the name we should give to the file.
@@ -263,4 +278,7 @@ namespace fox {
       mutable std::pair<FileID, const SourceData*> lastSource_ 
         = {FileID(), nullptr}; 
   };
+  
+  // Converts a SourceManager::FileStatus to a string.
+  std::string toString(SourceManager::FileStatus status);
 }

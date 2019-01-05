@@ -6,10 +6,10 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Common/Source.hpp"
+#include "Fox/Common/Errors.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 #include "utfcpp/utf8.hpp"
 #include <fstream>
-#include <cassert>
 #include <sstream>
 #include <cctype>
 #include <iostream>
@@ -185,38 +185,70 @@ SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
   return source.substr(beg, end-beg);
 }
 
-static void skipBom(std::ifstream& in, std::streampos size) {
+// Checks the encoding of the file, skipping the UTF-8 bom if it's present.
+// Returns false if the encoding of the file is not supported.
+static bool checkEncoding(std::ifstream& in, std::streampos size) {
   // Can retrieve at least 3 bytes
   if(size >= 3) {
-    char bom[3];
+    char maybeBOM[3];
     // Read the bom
-    in.read(bom, 3);
-    // Check if it's a bom
-    bool has = utf8::starts_with_bom(bom, bom+3);
+    in.read(maybeBOM, 3);
+    // Check if it's a UTF8 bom
+    bool hasUTF8Bom = utf8::starts_with_bom(maybeBOM, maybeBOM+3);
     // Skip the bom if there's one, or rewind if there isn't one.
-    in.seekg(has ? 3 : 0);
+    in.seekg(hasUTF8Bom ? 3 : 0);
+    // We can be sure it's UTF8 if it has a bom
+    if(hasUTF8Bom)
+      return true;
   }
+
+
+  // Now, check for invalid encodings:
+  //  UTF-16 BOM: 0xFEFF or 0xFFFE
+  if(size >= 2) {
+    char maybeBOM[2];
+    in.read(maybeBOM, 2);
+
+    bool hasUTF16Bom = false;
+
+    if((maybeBOM[0] == 0xFF) && (maybeBOM[1] == 0xFE))
+      hasUTF16Bom = true;
+    else if((maybeBOM[0] == 0xFE) && (maybeBOM[1] == 0xFF))
+      hasUTF16Bom = true;
+
+    in.seekg(0);
+    if(hasUTF16Bom) return false;
+  }
+
+  // The encoding should be ok
+  return true;
 }
 
-FileID SourceManager::loadFromFile(const std::string & path) {
+std::pair<FileID, SourceManager::FileStatus>
+SourceManager::readFile(const std::string & path) {
   std::ifstream in(path,  std::ios::in | std::ios::ate | std::ios::binary);
-  if (in) {
-    // Get size of file + rewind
-    auto size = in.tellg();
-    in.seekg(0);
-    // Skip the UTF8 BOM
-    skipBom(in, size);
-    auto beg = (std::istreambuf_iterator<char>(in));
-    auto end = (std::istreambuf_iterator<char>());
-    auto pair = sources_.insert(std::pair<FileID,SourceData>(generateNewFileID(),
-      SourceData(
-        path,
-        (std::string(beg, end))
-      )
-    ));
-    return (pair.first)->first;
-  }
-  return FileID();
+  if(!in)
+    return {FileID(), FileStatus::NotFound};
+
+  // Get size of file + rewind
+  auto size = in.tellg();
+  in.seekg(0);
+
+  // Skip the UTF8 BOM if there's one
+  if(!checkEncoding(in, size))
+    return {FileID(), FileStatus::InvalidEncoding};
+
+  // Read the file in memory
+  auto beg = (std::istreambuf_iterator<char>(in));
+  auto end = (std::istreambuf_iterator<char>());
+  auto pair = sources_.insert(std::pair<FileID,SourceData>(generateNewFileID(),
+    SourceData(
+      path,
+      (std::string(beg, end))
+    )
+  ));
+
+  return {(pair.first)->first, FileStatus::Ok};
 }
 
 FileID SourceManager::loadFromString(const std::string& str, const std::string& name) {
@@ -420,4 +452,18 @@ std::string SourceRange::toString(const SourceManager& srcMgr) const {
   else
     ss << "-" << end.line << ":" << end.column;
   return ss.str();
+}
+
+std::string fox::toString(SourceManager::FileStatus status) {
+  using FS = SourceManager::FileStatus;
+  switch(status) {
+    case FS::Ok:
+      return "Ok";
+    case FS::NotFound:
+      return "File Not Found";
+    case FS::InvalidEncoding:
+      return "File Encoding Not Supported";
+    default:
+      fox_unreachable("unknown FileStatus");
+  }
 }

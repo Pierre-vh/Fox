@@ -28,11 +28,12 @@ class LocTests : public ::testing::Test {
     using ::testing::Test::SetUp;
     virtual void SetUp(const std::string& filepath) {
       fullFilePath = test::getPath(filepath);
-      file = srcMgr.loadFromFile(fullFilePath);
-
+      auto result = srcMgr.readFile(fullFilePath);
+      file = result.first;
       // If file couldn't be loaded, give us the reason
       if (!file) {
-        FAIL() << "Couldn't load file \""<< filepath << "\" in memory.";
+        FAIL() << "Couldn't load file \""<< filepath << "\" in memory."
+          "\n\tReason: " + toString(result.second);
       }
 
       lexer = std::make_unique<Lexer>(astContext);

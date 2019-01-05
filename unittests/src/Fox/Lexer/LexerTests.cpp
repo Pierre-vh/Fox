@@ -40,37 +40,48 @@ namespace {
 }
 
 TEST_F(LexerTest,CorrectTest1) {
-  auto file = srcMgr.loadFromFile(getPath("lexer/inputs/correct_1.fox"));
-  ASSERT_TRUE(file) << "Could not open test file";
+  auto fullPath = getPath("lexer/inputs/correct_1.fox");
+  auto result = srcMgr.readFile(fullPath);
+  FileID file = result.first;
+  ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
+    "'\n\tReason:" << toString(result.second);
   lexer.lexFile(file);
   EXPECT_FALSE(ctxt.hadErrors());
 }
 
 TEST_F(LexerTest, IncorrectTest1) {
-  auto file = srcMgr.loadFromFile(getPath("lexer/inputs/incorrect_1.fox"));
-  ASSERT_TRUE(file) << "Could not open test file";
-  lexer.lexFile(file);
+  auto fullPath = getPath("lexer/inputs/incorrect_1.fox");
+  auto result = srcMgr.readFile(fullPath);
+  FileID file = result.first;
+  ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
+    "'\n\tReason:" << toString(result.second);  lexer.lexFile(file);
   EXPECT_TRUE(ctxt.hadErrors());
 }
 
 TEST_F(LexerTest, IncorrectTest2) {
-  auto file = srcMgr.loadFromFile(getPath("lexer/inputs/incorrect_2.fox"));
-  ASSERT_TRUE(file) << "Could not open test file";
-  lexer.lexFile(file);
+  auto fullPath = getPath("lexer/inputs/incorrect_2.fox");
+  auto result = srcMgr.readFile(fullPath);
+  FileID file = result.first;
+  ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
+    "'\n\tReason:" << toString(result.second);  lexer.lexFile(file);
   EXPECT_TRUE(ctxt.hadErrors());
 }
 
 TEST_F(LexerTest, IncorrectTest3) {
-  auto file = srcMgr.loadFromFile(getPath("lexer/inputs/incorrect_3.fox"));
-  ASSERT_TRUE(file) << "Could not open test file";
-  lexer.lexFile(file);
+  auto fullPath = getPath("lexer/inputs/incorrect_3.fox");
+  auto result = srcMgr.readFile(fullPath);
+  FileID file = result.first;
+  ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
+    "'\n\tReason:" << toString(result.second);  lexer.lexFile(file);
   EXPECT_TRUE(ctxt.hadErrors());
 }
 
 TEST_F(LexerTest, IncorrectTest4) {
-  auto file = srcMgr.loadFromFile(getPath("lexer/inputs/incorrect_4.fox"));
-  ASSERT_TRUE(file) << "Could not open test file";
-  lexer.lexFile(file);
+  auto fullPath = getPath("lexer/inputs/incorrect_4.fox");
+  auto result = srcMgr.readFile(fullPath);
+  FileID file = result.first;
+  ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
+    "'\n\tReason:" << toString(result.second);  lexer.lexFile(file);
   EXPECT_TRUE(ctxt.hadErrors());
 }
 
@@ -200,9 +211,11 @@ TEST_F(LexerTest, BoolTokens) {
 }
 
 TEST_F(LexerTest, Coordinates1) {
-  std::string file_content, file_path;
-  auto file = srcMgr.loadFromFile(getPath("lexer/coordtests/test1.fox"));
-  ASSERT_TRUE(file) << "Could not open test file";
+  auto fullPath = getPath("lexer/coordtests/test1.fox");
+  auto result = srcMgr.readFile(fullPath);
+  FileID file = result.first;
+  ASSERT_TRUE(file) << "Could not open test file '" << fullPath << "'"
+    << "\n\tReason:" << toString(result.second);
 
   lexer.lexFile(file);
   ASSERT_FALSE(ctxt.hadErrors());
