@@ -44,6 +44,23 @@ func callsTest() {
   // expect-error@+1: cannot call 'takesIntsReturnString' with arguments of type '(string,char)'
   takesIntsReturnString("string", 'c');
 
+  // expect-error@+1: expression of type 'int' is not a function
+  0();
+
+  // expect-error@+1: expression of type 'double' is not a function
+  0.0();
+
+  // expect-error@+1: expression of type 'bool' is not a function
+  false();
+
+  // expect-error@+1: expression of type 'string' is not a function
+  ""();
+
+  // expect-error@+1: expression of type 'char' is not a function
+  ' '();
+
+  // expect-error@+1: expression of type 'void' is not a function
+  basic()();
 }
 
 func inferTest() {
