@@ -119,9 +119,8 @@ To-Do:
   > Semantic analysis for using variable within their own initial value (Done)
   > CallExpr checking (Done)
   > ReturnStmt checking (Done)
-
-  > Write tests for interaction of a FunctionType with other operations (Next)
-    > e.g. foo+3
+  > Disable function types within arrays (Done)
+  > Write tests for interaction of a FunctionType with other operations (Done)
 
   > Replace "is<ErrorType>" usages in Semantic Analysis by a "Sema::isDiagnosable(types..)"
       method that will check that the type isn't an ErrorType. T
@@ -143,6 +142,12 @@ To-Do:
   > ASTVerifier
       Asserts that the AST is well formed. Used as a debug tool (will only be enabled in Debug builds)
 
+  > Basic version of:
+    > IR
+    > IRGen
+      > Note: Don't do IRGen in verify mode
+    > VM
+
   > UFCS
     > Parser additions (Remove MemberExpr, use UnresolvedDotExpr which resolves to a CallExpr)
     > Semantic Analysis.
@@ -152,11 +157,6 @@ To-Do:
         it as being an error.
 
   > OVR (OVerload Resolution)
-
-  > IR
-  > IRGen
-    > Note: Don't do IRGen in verify mode
-  > VM
 
 Future:
   > Multifile support: It's coming, but the how is still to be decided
