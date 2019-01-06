@@ -132,8 +132,7 @@ To-Do:
   > Maybe remove booleans from the numeric types.
 
   > DiagnosticVerifier: Add a syntax to expect a diag multiple times, e.g. 'expect-error(3)@+1'
-    -> Use it in
-        tests\VerifyMode\Sema\Expr\call.fox
+    -> Use it in tests\VerifyMode\Sema\Expr\call.fox
 
   > ASTVerifier
       Asserts that the AST is well formed. Used as a debug tool (will only be enabled in Debug builds)
