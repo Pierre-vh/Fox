@@ -48,9 +48,13 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
 
     void diagnoseReturnTypeMistmatch(ReturnStmt* stmt, Expr* expr, 
       Type fnRetTy) {
+      Type exprTy = expr->getType();
+
+      if(!Sema::isWellFormed({exprTy, fnRetTy})) return;
+
       getDiags()
         .report(DiagID::sema_cannot_convert_return_expr, expr->getRange())
-        .addArg(expr->getType())
+        .addArg(exprTy)
         .addArg(fnRetTy)
         .setExtraRange(stmt->getRange());
     }
@@ -95,9 +99,8 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
           // If this function returns void, and has an Expr of a non-void type
           if(isVoid)
             diagnoseUnexpectedRtrExprForNonVoidFn(stmt, expr);
-          // non-void function and expr doesn't unify with it's return type:
-          // Diagnose unless it's already an ErrorType
-          else if(!expr->getType()->is<ErrorType>())
+          // non-void function and expr doesn't unify with it's return type
+          else
               diagnoseReturnTypeMistmatch(stmt, expr, rtrTy);
         }
         // in all cases, replace the expr after checking it
