@@ -698,6 +698,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         diagnoseFunctionTypeInArrayLiteral(lit, expr);
         return false;
       }
+      // check if not an ErrorType
+      if(ty->is<ErrorType>())
+        return false;
       return true;
     }
 
@@ -726,12 +729,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
         // Retrieve the type as a RValue
         Type elemTy = elem->getType()->getRValue();
-
-        // Check if it's an ErrorType
-        if (elemTy->is<ErrorType>()) {
-          isValid = false;
-          continue;
-        }
 
         // Special logic for unbound types
         if (!elemTy->isBound()) {
