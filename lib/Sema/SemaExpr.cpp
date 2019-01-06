@@ -48,15 +48,27 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     //----------------------------------------------------------------------//
     // The diagnose family of methods are designed to print the most relevant
     // diagnostics for a given situation.
+    //
+    // Generally speaking, theses methods won't emit diagnostics if 
+    // ill formed types are involved, because theses have either:
+    //  - been diagnosed already
+    //  - will be diagnosed at finalization
+    //
+    // Note: Unbound CellTypes are considered well formed as they 
+    // can normally appear in the language in valid code.
     //----------------------------------------------------------------------//
 
     // (Note) example: "'foo' declared here with type 'int'"
     void noteIsDeclaredHereWithType(ValueDecl* decl) {
       Identifier id = decl->getIdentifier();
       SourceRange range = decl->getIdentifierRange();
+      Type declType = decl->getType();
+
+      if(!Sema::isWellFormed(declType)) return;
+
       assert(id && range && "ill formed ValueDecl");
       getDiags().report(DiagID::sema_declared_here_with_type, range)
-        .addArg(id).addArg(decl->getType());
+        .addArg(id).addArg(declType);
     }
 
     // (Error) Diagnoses an invalid cast 
@@ -64,6 +76,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       SourceRange range = expr->getCastTypeLoc().getRange();
       Type childTy = expr->getExpr()->getType();
       Type goalTy = expr->getCastTypeLoc().withoutLoc();
+
+      if(!Sema::isWellFormed({childTy, goalTy})) return;
+
       getDiags()
         .report(DiagID::sema_invalid_cast, range)
         .addArg(childTy)
@@ -74,7 +89,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // (Warning) Diagnoses a redudant cast (when the
     // cast goal and the child's type are equal)
     void warnRedundantCast(CastExpr* expr, Type toType) {
+      if(!Sema::isWellFormed(toType)) return;
+
       SourceRange range = expr->getCastTypeLoc().getRange();
+
       getDiags()
         .report(DiagID::sema_useless_cast_redundant, range)
         .addArg(toType)
@@ -100,6 +118,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     void diagnoseInvalidUnaryOpChildType(UnaryExpr* expr) {
       Expr* child = expr->getExpr();
       Type childTy = child->getType();
+
+      if(!Sema::isWellFormed(childTy)) return;
+
       getDiags()
         .report(DiagID::sema_unaryop_bad_child_type, expr->getOpRange())
         // Use the child's range as the extra range.
@@ -109,13 +130,14 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     void diagnoseInvalidArraySubscript(ArraySubscriptExpr* expr,
-                                        SourceRange range, 
-                                        SourceRange extra) {
+                                       SourceRange range, SourceRange extra) {
       Expr* child = expr->getBase();
       Type childTy = child->getType();
 
       Expr* idxE = expr->getIndex();
       Type idxETy = idxE->getType();
+
+      if(!Sema::isWellFormed({childTy, idxETy})) return;
 
       getDiags()
         .report(DiagID::sema_arrsub_invalid_types, range)
@@ -130,6 +152,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       SourceRange exprRange = expr->getRange();
       Type lhsTy = expr->getLHS()->getType();
       Type rhsTy = expr->getRHS()->getType();
+
+      if(!Sema::isWellFormed({lhsTy, rhsTy})) return;
+
       getDiags()
         .report(DiagID::sema_binexpr_invalid_operands, opRange)
         .addArg(expr->getOpSign())
@@ -169,6 +194,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(expr->isAssignement());
       SourceRange lhsRange = expr->getLHS()->getRange();
       SourceRange rhsRange = expr->getRHS()->getRange();
+
+      if(!Sema::isWellFormed({lhsTy, rhsTy})) return;
+
       // Diag is (roughly) "can't assign a value of type (lhs) to type (rhs)
       getDiags().report(DiagID::sema_invalid_assignement, rhsRange)
         .setExtraRange(lhsRange)
@@ -187,6 +215,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     void diagnoseExprIsNotAFunction(Expr* callee) {
       SourceRange range = callee->getRange();
       Type ty = callee->getType();
+
+      if(!Sema::isWellFormed(ty)) return;
+
       getDiags().report(DiagID::sema_expr_isnt_func, range)
         .addArg(ty);
     }
@@ -423,9 +454,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type lhsTy = expr->getLHS()->getType();
       Type rhsTy = expr->getRHS()->getType();
 
-      // Check that they aren't ErrorTypes. If they are, don't bother
-      // checking.
-      if (lhsTy->is<ErrorType>() || rhsTy->is<ErrorType>())
+      // Check that the types are well formed. If they aren't, don't
+      // bother checking.
+      if (!Sema::isWellFormed({lhsTy, rhsTy}))
         return expr;
 
       // Handle assignements early, let checkAssignementBinaryExpr do it.
@@ -489,9 +520,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(goalTy->isBound() &&
         "Unbound types cannot be present as cast goals!");
 
-      // Check for Error Types. If one of the types is an ErrorType
-      // just abort.
-      if (childTy->is<ErrorType>() || goalTy->is<ErrorType>())
+      // Check that the types are well formed. If they aren't, don't
+      // bother checking.
+      if (!Sema::isWellFormed({childTy, goalTy}))
         return expr;
 
       // "Stringifying" casts are a special case. To be
@@ -519,9 +550,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // so check that first.
       if (!childTy->isNumeric()) {
         // Not a numeric type -> error.
-        // Emit diag if childTy isn't a ErrorType too
-        if (!childTy->is<ErrorType>())
-          diagnoseInvalidUnaryOpChildType(expr);
+        diagnoseInvalidUnaryOpChildType(expr);
         return expr;
       }
         
@@ -553,19 +582,14 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       else if(childTy->isStringType())
         subscriptType = PrimitiveType::getChar(getCtxt());
       else {
-        // Diagnose with the primary range being the child's range
-				if(!childTy->is<ErrorType>())
-					diagnoseInvalidArraySubscript(expr, 
-						child->getRange(), idxE->getRange());
+			  diagnoseInvalidArraySubscript(expr, child->getRange(), idxE->getRange());
         return expr;
       }
 
       // Idx type must be an numeric value, but can't be a float
       if ((!idxETy->isNumeric()) || idxETy->isDoubleType()) {
         // Diagnose with the primary range being the idx's range
-				if(!childTy->is<ErrorType>())
-					diagnoseInvalidArraySubscript(expr,
-						idxE->getRange(), child->getRange());
+			  diagnoseInvalidArraySubscript(expr, idxE->getRange(), child->getRange());
         return expr;
       }
         
@@ -613,8 +637,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type calleeTy = callee->getType();
       
       if(!calleeTy->is<FunctionType>()) {
-        if(!calleeTy->is<ErrorType>())
-          diagnoseExprIsNotAFunction(callee);
+        diagnoseExprIsNotAFunction(callee);
         return expr;
       }
 
@@ -698,8 +721,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         diagnoseFunctionTypeInArrayLiteral(lit, expr);
         return false;
       }
-      // check if not an ErrorType
-      if(ty->is<ErrorType>())
+      // check if not ill formed
+      if(!Sema::isWellFormed(ty))
         return false;
       return true;
     }
