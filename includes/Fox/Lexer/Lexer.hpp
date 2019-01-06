@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.        
+// This file is part of the Fox project.        
 // See the LICENSE.txt file at the root of the project for license information.            
 // File : Lexer.hpp                      
 // Author : Pierre van Houtryve                
@@ -7,7 +7,8 @@
 // This file declares the lexer class, which performs lexical analysis.    
 //----------------------------------------------------------------------------//
 
-// Note: Most of the code here is a spaghetti relic of the old Moonshot. 
+// Note: Most of the code here is complete spaghetti that I wrote very early
+// in the project.
 // It'll be completly rewritten in the future. Same for Token.hpp/.cpp
 
 #pragma once

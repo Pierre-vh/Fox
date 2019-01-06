@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.        
+// This file is part of the Fox project.        
 // See LICENSE.txt for license info.            
 // File : Errors.cpp                      
 // Author : Pierre van Houtryve                

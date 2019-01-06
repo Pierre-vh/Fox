@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.        
+// This file is part of the Fox project.        
 // See the LICENSE.txt file at the root of the project for license information.            
 // File : Expr.hpp                      
 // Author : Pierre van Houtryve                

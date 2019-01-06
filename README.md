@@ -1,6 +1,4 @@
-# Moonshot - The Fox Programming Language
-Moonshot is the implementation of the Fox programming language. 
-
+# The Fox Programming Language
 Fox is a language that aims to be easily embeddable in other projects and easy to dive into. In Fox, you won't
 see any complicated or confusing semantics. Everything should be clear at a glance!
 
@@ -11,13 +9,13 @@ Required:
  * CMake
  * Git
 
-1. Open the command prompt and set your working directory to the folder where you wish to build Moonshot.
+1. Open the command prompt and set your working directory to the folder where you wish to build the Fox interpreter.
 1. Clone the repo
-   * `git clone https://github.com/Pierre-vh/Moonshot.git`
+   * `git clone https://github.com/Pierre-vh/Fox.git`
 1. Create a new directory and set it as your working directory (we'll do an out of source build)
    * `mkdir build`
    * `cd build`
-1. Generate the CMake cache `cmake ../Moonshot`
+1. Generate the CMake cache `cmake ../Fox`
 1. Building the project: `cmake --build .`
     * The executables will be available in the `bin/(Build Type)/` folder.
 
@@ -46,7 +44,7 @@ If you have any questions don't hesitate to send me a mail at `pierre.vanhoutryv
 ## Project structure
 * /includes/ Contains the headers
 * /lib/ Contains the source code/implementation
-* /tools/ Contains the main.cpp, compiles to moonshot.exe
+* /tools/ Contains the main.cpp, compiles to fox.exe
 * /tests/ "Runnable" language test programs which use the -verify mode and (in the future) File-Checking utilities.
 * /unittests/ Unit tests powered by GoogleTest which tests utilities (/Common) of the project and some parts of the pipeline. (Including the lexer)
 * /docs/ Documentation
@@ -56,4 +54,4 @@ If you have any questions don't hesitate to send me a mail at `pierre.vanhoutryv
 * CLang and Swift
   * These well written open source projects have been of immense help when I was in doubt, or in need of help. I've spent countless
     hours digging through the source code of Swift and Clang, and that helped me improve my programming and compiler designing skills.
-    The design of Moonshot/Fox has been highly influenced by the design of theses compilers. 
+    The design of the Fox interpreter has been highly influenced by the design of theses compilers. 

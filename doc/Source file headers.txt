@@ -1,7 +1,7 @@
 This is to be included in C/C++ file
 
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.        
+// This file is part of the Fox project.        
 // See the LICENSE.txt file at the root of the project for license information.            
 // File : XXXX.hpp                      
 // Author : XXXX                      
@@ -12,7 +12,7 @@ This is to be included in C/C++ file
 And Implementation (.cpp) :
 
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.        
+// This file is part of the Fox project.        
 // See the LICENSE.txt file at the root of the project for license information.            
 // File : XXXX.cpp                      
 // Author : XXXX                      

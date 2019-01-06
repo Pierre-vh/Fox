@@ -1,7 +1,7 @@
 #include "..\..\includes\Fox\Driver\Driver.hpp"
 #include "..\..\includes\Fox\Driver\Driver.hpp"
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.        
+// This file is part of the Fox project.        
 // See LICENSE.txt for license info.            
 // File : Driver.cpp                      
 // Author : Pierre van Houtryve                      

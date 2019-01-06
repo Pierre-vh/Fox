@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------//
-// This file is a part of The Moonshot Project.        
+// This file is part of the Fox project.        
 // See the LICENSE.txt file at the root of the project for license information.            
 // File : CommandLineTool.cpp                      
 // Author : Pierre van Houtryve                
@@ -29,7 +29,7 @@ void setConsoleEnv() {
 using namespace fox;
 
 int interactiveMain() {
-  std::cout << "Moonshot Version " << MOONSHOT_VERSION_COMPLETE << "\n";
+  std::cout << "Fox Version " << FOX_VERSION_COMPLETE << "\n";
   std::cout << "\tUsage : Enter a path to a source file, or enter * to exit.\n\n";
 
   std::string uinput = "";

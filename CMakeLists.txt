@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(Moonshot)
+project(Fox)
 
 include(FindPythonInterp)
 
@@ -20,7 +20,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # set include directories
-include_directories(includes)   # Moonshot lib includes
+include_directories(includes)   # Fox lib includes
 include_directories(thirdparty) # Third Party libraries includes
 
 # add main subdirs

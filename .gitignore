@@ -289,8 +289,7 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
-/Moonshot/cpp_all_codeanalysis_ruleset.ruleset
-/Moonshot/cpp_all_codeanalysis_ruleset.ruleset
+//cpp_all_codeanalysis_ruleset.ruleset
 *.ruleset
 
 # test logs

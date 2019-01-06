@@ -15,9 +15,3 @@ Sema:
     You can use ->isLocal() on any Decl to know if it's a local declaration or not.
     If it's a local declaration, getFuncDecl() will return a pointer to the FuncDecl
     the declaration lives in.
-    
-Others:
-  > Fox
-      The name of the language
-  > Moonshot
-      The "codename" of the project/implementation. This refers to this implementation of "Fox".
