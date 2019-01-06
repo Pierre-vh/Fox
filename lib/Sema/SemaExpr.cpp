@@ -708,20 +708,26 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // The bound type proposed by unifying the other concrete/bound
       // types inside the array.
       Type boundTy;
+
       // The type used by unbounds elemTy
       Type unboundTy;
+
       // Set to false if the ArrayLiteral is not valid
       bool isValid = true;
 
       for (auto& elem : expr->getExprs()) {
-        // Skip the elem & mark the array literal as invalid
+        // Check if the element's type can legally appear inside an
+        // array literal. If it can't, skip the elem & mark the
+        // literal as invalid
         if(!checkIfLegalWithinArrayLiteral(expr, elem)) {
           isValid = false;
           continue;
         }
 
-        Type elemTy = elem->getType();
+        // Retrieve the type as a RValue
+        Type elemTy = elem->getType()->getRValue();
 
+        // Check if it's an ErrorType
         if (elemTy->is<ErrorType>()) {
           isValid = false;
           continue;
