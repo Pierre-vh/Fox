@@ -36,6 +36,11 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     //----------------------------------------------------------------------//
     // The diagnose family of methods are designed to print the most relevant
     // diagnostics for a given situation.
+    //
+    // Generally speaking, theses methods won't emit diagnostics if 
+    // ill formed types are involved, because theses have either:
+    //  - been diagnosed already
+    //  - will be diagnosed at finalization
     //----------------------------------------------------------------------//
 
     // Diagnoses an illegal variable redeclaration. 

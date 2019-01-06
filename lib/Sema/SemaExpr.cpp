@@ -53,9 +53,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // ill formed types are involved, because theses have either:
     //  - been diagnosed already
     //  - will be diagnosed at finalization
-    //
-    // Note: Unbound CellTypes are considered well formed as they 
-    // can normally appear in the language in valid code.
     //----------------------------------------------------------------------//
 
     // (Note) example: "'foo' declared here with type 'int'"

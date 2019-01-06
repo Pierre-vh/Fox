@@ -148,6 +148,8 @@ namespace fox {
       // Returns true if the type is considered "well formed".
       //
       // Currently, this just checks that the type isn't an ErrorType.
+      //
+      // Note that unbound types are considered well formed.
       static bool isWellFormed(Type type);
 
       // Calls "isWellFormed" on every type in types.
