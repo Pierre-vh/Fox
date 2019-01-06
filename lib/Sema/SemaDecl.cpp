@@ -84,10 +84,15 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
     // Diagnoses an incompatible variable initializer.
     void diagnoseInvalidVarInitExpr(VarDecl* decl, Expr* init) {
+      Type initType = init->getType();
+      Type declType = decl->getType();
+
+      if(!Sema::isWellFormed({initType, declType})) return;
+
       getDiags()
         .report(DiagID::sema_invalid_vardecl_init_expr, init->getRange())
-        .addArg(init->getType())
-        .addArg(decl->getType())
+        .addArg(initType)
+        .addArg(declType)
         .setExtraRange(decl->getTypeRange());
     }
 
@@ -133,12 +138,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         // Replace the expr
         decl->setInitExpr(init);
         // If the type didn't match, diagnose
-        if(!ok) {
-          // (don't diagnose if we already have an error type to avoid
-          // cascading errors)
-          if(!init->getType()->is<ErrorType>())
-            diagnoseInvalidVarInitExpr(decl, init);
-        }
+        if(!ok)
+          diagnoseInvalidVarInitExpr(decl, init);
       }
     }
 
