@@ -24,9 +24,8 @@ bool Sema::unify(Type a, Type b, bool allowDowncast) {
   // Unwrap 
   std::tie(a, b) = Sema::unwrapAll(a, b);
 
-  // Check if not ErrorType
-  if (a->is<ErrorType>() || b->is<ErrorType>())
-    return false;
+  // Check if well formed
+  if(!isWellFormed({a, b})) return false;
 
   // Check for early returns unless the types are both CellTypes
   if(!a->is<CellType>()) {
