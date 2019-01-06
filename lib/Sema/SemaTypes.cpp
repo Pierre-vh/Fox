@@ -200,13 +200,13 @@ Sema::TypePair Sema::unwrapAll(Type a, Type b) {
   return {uwA, uwB};
 }
 
-bool Sema::isDiagnosable(Type type) {
+bool Sema::isWellFormed(Type type) {
   return !type->is<ErrorType>();
 }
 
-bool Sema::isDiagnosable(ArrayRef<Type> types) {
+bool Sema::isWellFormed(ArrayRef<Type> types) {
   for(auto type: types) {
-    if(!isDiagnosable(type))
+    if(!isWellFormed(type))
       return false;
   }
   return true;

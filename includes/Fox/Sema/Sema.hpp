@@ -145,12 +145,13 @@ namespace fox {
       // stop unwrapping once one of them becomes basic.
       static TypePair unwrapAll(Type a, Type b);
 
-      // Returns true if the type can be diagnosed. Currently, this just
-      // checks that the type != ErrorType.
-      static bool isDiagnosable(Type type);
+      // Returns true if the type is considered "well formed".
+      //
+      // Currently, this just checks that the type isn't an ErrorType.
+      static bool isWellFormed(Type type);
 
-      // Calls "isDiagnosable" on every type in types.
-      static bool isDiagnosable(ArrayRef<Type> types);
+      // Calls "isWellFormed" on every type in types.
+      static bool isWellFormed(ArrayRef<Type> types);
 
       //---------------------------------//
       // Name binding 
