@@ -257,7 +257,6 @@ bool TypeBase::isNumeric() const {
   if (auto* prim = getAs<PrimitiveType>()) {
     using Pk = PrimitiveType::Kind;
     switch (prim->getPrimitiveKind()) {
-      case Pk::BoolTy:
       case Pk::DoubleTy:
       case Pk::IntTy:
         return true;
@@ -266,6 +265,10 @@ bool TypeBase::isNumeric() const {
     }
   }
   return false;
+}
+
+bool TypeBase::isNumericOrBool() const {
+  return isNumeric() || isBoolType();
 }
 
 bool TypeBase::isAssignable() const {
