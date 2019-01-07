@@ -3,6 +3,7 @@
 // expect-note@+1: 'basic' declared here with type '() -> void'
 func basic() {}
 
+// expect-note@+5: 'takesInt' declared here with type '(int) -> void'
 // expect-note@+4: 'takesInt' declared here with type '(int) -> void'
 // expect-note@+3: 'takesInt' declared here with type '(int) -> void'
 // expect-note@+2: 'takesInt' declared here with type '(int) -> void'
@@ -19,12 +20,14 @@ func takesArrayReturnsArray(x: [int]) : [int] {}
 func callsTest() {
   basic();
   takesInt(3);
-  takesInt(false);
   takesIntsReturnString(3, 3);
   takesArrayReturnsArray([1,2,3]);
 
   // expect-error@+1: cannot call 'takesInt' with no arguments
   takesInt();
+
+  // expect-error@+1: cannot call 'takesInt' with arguments of type '(bool)'
+  takesInt(false);
 
   // expect-error@+1: cannot call 'takesInt' with arguments of type '(double)'
   takesInt(3.14);
@@ -69,7 +72,7 @@ func inferTest() {
 }
 
 func inExprs() {
-  takesIntsReturnString(1,1) + takesIntsReturnString(false,false);
+  takesIntsReturnString(1,1) + takesIntsReturnString(0,0);
 
   // expect-error@+1: cannot use unary operator '+' on an expression of type 'void'
   +basic(); 

@@ -2,11 +2,9 @@
 
 let a : double = 3.14;
 let b : double = 1;
-let c : double = true;
 
 let d : int = 3.14; // expect-error: cannot use an expression of type 'double' to initialize a variable of type 'int'
 let e : int = 1;
-let f : int = true;
 
 let g : bool = 3.14; // expect-error: cannot use an expression of type 'double' to initialize a variable of type 'bool'
 let h : bool = 1; // expect-error: cannot use an expression of type 'int' to initialize a variable of type 'bool'

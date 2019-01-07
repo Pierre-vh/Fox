@@ -327,9 +327,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         // Unary Plus '+' and Minus '-'
         case OP::Minus:
         case OP::Plus:
-          // Always int or float, never bool, so uprank
-          // if boolean.
-          expr->setType(uprankIfBoolean(childTy));
+          // Always int or float
+          assert(!childTy->isBoolType());
+          expr->setType(childTy);
           return expr;
         case OP::Invalid:
           fox_unreachable("Invalid Unary Operator");
@@ -527,34 +527,43 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if (goalTy->isStringType() && childTy->is<PrimitiveType>())
         return finalizeCastExpr(expr, childTy->isStringType());
         
-      // Casting to anything else : just unify or
-      // diagnose if unification fails
-      if (getSema().unify(childTy, goalTy))
-        return finalizeCastExpr(expr, (childTy == goalTy));
+      // custom comparator which considers that a and b are
+      // equal when they're both numeric or boolean types.
+      auto comparator = [](Type a, Type b) {
+        // Allow casting between numeric & booleans types.
+        return a->isNumericOrBool() && b->isNumericOrBool();
+      };
+
+      // Try unification
+      if (getSema().unify(childTy, goalTy, comparator))
+        return finalizeCastExpr(expr, (childTy == goalTy));      
 
       diagnoseInvalidCast(expr);
       return expr;
     }
 
     Expr* visitUnaryExpr(UnaryExpr* expr) {
+      using UOp = UnaryExpr::OpKind;
       Expr* child = expr->getExpr();
       Type childTy = child->getType()->getAsBoundRValue();
 
       // If the type isn't bound, give up.
       if (!childTy) return expr;
 
-      // For any unary operators, we only allow numeric types,
-      // so check that first.
-      if (!childTy->isNumeric()) {
-        // Not a numeric type -> error.
-        diagnoseInvalidUnaryOpChildType(expr);
-        return expr;
+      // The expression is valid iff:
+      //  -> The child type is a numeric type
+      //  OR
+      //  -> The child type is a boolean and the operation is a '!' (LNot)
+      if (childTy->isNumeric() || 
+         (childTy->isBoolType() && (expr->getOp() == UOp::LNot))) {
+        // If isNumeric returns true, we can safely assume that childTy is a
+        // PrimitiveType instance
+        PrimitiveType* primChildTy = childTy->castTo<PrimitiveType>();
+        return finalizeUnaryExpr(expr, primChildTy);
       }
         
-      // If isNumeric returns true, we can safely assume that childTy is a
-      // PrimitiveType instance
-      PrimitiveType* primChildTy = childTy->castTo<PrimitiveType>();
-      return finalizeUnaryExpr(expr, primChildTy);
+      diagnoseInvalidUnaryOpChildType(expr);
+      return expr;
     }
 
     Expr* visitArraySubscriptExpr(ArraySubscriptExpr* expr) {
@@ -839,7 +848,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Set the type of the expression to the highest ranked type
       // unless it's a boolean, then uprank it.
-      expr->setType(uprankIfBoolean(highest));
+      expr->setType(highest);
       return expr;
     }
 
@@ -909,11 +918,13 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
-      // For ranking comparisons, only allow Primitives types as LHS/RHS
+      // For ranking comparisons, only allow primitive types except booleans
+      // as operands.
       if (expr->isRankingComparison()) {
-        // FIXME: Maybe disallow char comparisons? Depends on how it's going
-        // to be implemented... It needs to be intuitive!
-        if (!(lhsTy->is<PrimitiveType>() && rhsTy->is<PrimitiveType>())) {
+        // Check if both lhs and rhs obey this condition
+        bool lhsOk = (lhsTy->is<PrimitiveType>() && !lhsTy->isBoolType());
+        bool rhsOk = (rhsTy->is<PrimitiveType>() && !rhsTy->isBoolType());
+        if(!(lhsOk && rhsOk)) {
           diagnoseInvalidBinaryExprOperands(expr);
           return expr;
         }
@@ -928,30 +939,22 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* checkLogicalBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert(expr->isLogical() && "wrong function!");
 
-      // for logical AND and OR operations, only allow numeric
+      // for logical AND and OR operations, only allow numeric or boolean
       // types for the LHS and RHS
-      if (!(lhsTy->isNumeric() && rhsTy->isNumeric())) {
-        diagnoseInvalidBinaryExprOperands(expr);
-        return expr;
-      }
+      if (lhsTy->isNumericOrBool() && rhsTy->isNumericOrBool())
+        return finalizeBooleanExpr(expr);
 
-      return finalizeBooleanExpr(expr);
+      // Else, this is an error.
+      diagnoseInvalidBinaryExprOperands(expr);
+      return expr;
     }
+
 
     //----------------------------------------------------------------------//
     // Other helper methods
     //----------------------------------------------------------------------//
     // Various helper methods unrelated to semantics
     //----------------------------------------------------------------------//
-      
-    // If type is a boolean, returns the int type, else returns the argument.
-    // Never returns null.
-    Type uprankIfBoolean(Type type) {
-      assert(type && "Type cannot be null!");
-      if (type->isBoolType())
-        return PrimitiveType::getInt(getCtxt());
-      return type;
-    }
 
     // Returns a string containing the arguments passed to a CallExpr,
     // in round brackets, separated by commas.
@@ -1103,8 +1106,9 @@ bool Sema::typecheckExprOfType(Expr*& expr, Type type, bool allowDowncast) {
 
 bool Sema::typecheckCondition(Expr*& expr) {
   expr = ExprChecker(*this).check(expr);
-  Type boolTy = PrimitiveType::getBool(getASTContext());
-  bool success = unify(expr->getType(), boolTy);
   expr = ExprFinalizer(ctxt_).finalize(expr);
-  return success && !(expr->getType()->is<ErrorType>());
+  // ErrorType ? Return false.
+  if(expr->getType()->is<ErrorType>()) return false;
+  // Else, return true if we have a numeric or boolean type.
+  return expr->getType()->getAsBoundRValue()->isNumericOrBool();
  }

@@ -2,10 +2,6 @@
 
 func foo() {
   // Every operator should work on numeric types
-  -true;
-  +true;
-  !true;
-  
   -3;
   +3;
   !3;
@@ -13,6 +9,9 @@ func foo() {
   -3.14;
   +3.14;
   !3.14;
+
+  // Logic NOT ('!') should work on booleans
+  !true;
 
   // They shouldn't work on other types
   -"string"; // expect-error: cannot use unary operator '-' on an expression of type 'string'
@@ -27,4 +26,6 @@ func foo() {
   +[0]; // expect-error: cannot use unary operator '+' on an expression of type '[int]'
   ![0]; // expect-error: cannot use unary operator '!' on an expression of type '[int]'
 
+  -true; // expect-error: cannot use unary operator '-' on an expression of type 'bool'
+  +true; // expect-error: cannot use unary operator '+' on an expression of type 'bool'
 }

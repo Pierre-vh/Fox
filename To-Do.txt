@@ -123,13 +123,12 @@ To-Do:
   > Write tests for interaction of a FunctionType with other operations (Done)
   > Introduce and use "isWellFormed" in Sema (Done)
   > Drop the "Moonshot" name and only use "Fox" as the project name (Done) 
+  > Booleans are not numeric types anymore (Done)
 
   > Parser improvements
     -> Refactor decl parsing methods
     -> Improve recovery for top-level decls : stop recovery attempt at first let or func keyword
         if not inside a function body (create isParsingTopLevelCode() && beginsTopLevelDecl(token))
-
-  > Maybe remove booleans from the numeric types.
 
   > DiagnosticVerifier: Add a syntax to expect a diag multiple times, e.g. 'expect-error(3)@+1'
     -> Use it in tests\VerifyMode\Sema\Expr\call.fox
@@ -152,6 +151,9 @@ To-Do:
         it as being an error.
 
   > OVR (OVerload Resolution)
+
+  > Ternary operator
+    > You know it: "cond ? then : else"
 
 Future:
   > Multifile support: It's coming, but the how is still to be decided

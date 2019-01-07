@@ -3,7 +3,6 @@
 func foo() {
   // Valid examples
   [0,1,2][0];
-  [0,1,2][true];
   [[0,1,2],[]][0];
   ([[[]]] as [[[int]]])[0][0][0];
   ['a', 'b', 'c'][0];
@@ -13,6 +12,9 @@ func foo() {
 
   // An error should be emitted if the type of the subscript expr is float
   [1,1,1][1.25]; // expect-error: invalid types '[int]' and 'double' for array subscript
+
+  // An error should be emitted if the type of the subscript expr is bool
+  [0,1,2][true]; // expect-error: invalid types '[int]' and 'bool' for array subscript
 
   // An error should be emitted if the sub expr is not an array.
   0[0]; // expect-error: invalid types 'int' and 'int' for array subscript
