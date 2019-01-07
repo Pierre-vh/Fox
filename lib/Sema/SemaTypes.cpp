@@ -19,6 +19,21 @@
 using namespace fox;
 
 bool Sema::unify(Type a, Type b, bool allowDowncast) {
+  auto comparator = [allowDowncast](Type a, Type b) {
+    if(!a->is<CellType>()) {
+      // Exact equality
+      if (a == b) 
+        return true;
+      // Numeric types equality
+      if(a->isNumeric() && b->isNumeric())
+        return (allowDowncast ? true : (!isDowncast(b, a)));
+    }
+    return false;
+  };
+  return unify(a, b, comparator);
+}
+
+bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
   assert(a && b && "Pointers cannot be null");
 
   // Unwrap 
@@ -27,15 +42,9 @@ bool Sema::unify(Type a, Type b, bool allowDowncast) {
   // Check if well formed
   if(!isWellFormed({a, b})) return false;
 
-  // Check for early returns unless the types are both CellTypes
-  if(!a->is<CellType>()) {
-    // Exact equality
-    if (a == b) 
-      return true;
-    // Numeric types equality
-    if(a->isNumeric() && b->isNumeric())
-      return (allowDowncast ? true : (!isDowncast(b, a)));
-  }
+  // Check for a early return using the comparator.
+  if(comparator(a, b))
+    return true;
 
   /* Unification logic */
 
@@ -49,7 +58,7 @@ bool Sema::unify(Type a, Type b, bool allowDowncast) {
       // Both have a sub
       if (aCellSub && bCellSub) {
 
-        bool unifyResult = unify(aCellSub, bCellSub, allowDowncast);
+        bool unifyResult = unify(aCellSub, bCellSub, comparator);
         // If it's nested CellTypes, just return the unifyResult.
         if (aCellSub->is<CellType>() || bCellSub->is<CellType>())
           return unifyResult;
@@ -89,7 +98,7 @@ bool Sema::unify(Type a, Type b, bool allowDowncast) {
     // CellType = (Not CellType)
     else {
       if (auto* aCellSub = aCell->getSubst().getPtr())
-        return unify(aCellSub, b, allowDowncast);
+        return unify(aCellSub, b, comparator);
       aCell->setSubst(b);
       return true;
     }
@@ -97,7 +106,7 @@ bool Sema::unify(Type a, Type b, bool allowDowncast) {
   // (Not CellType) = CellType
   else if (auto* bCell = b->getAs<CellType>()) {
     if (Type bCellSub = bCell->getSubst())
-      return unify(a, bCellSub, allowDowncast);
+      return unify(a, bCellSub, comparator);
     bCell->setSubst(a);
     return true;
   }
@@ -163,12 +172,10 @@ Sema::NumericRank Sema::getNumericRank(Type type) {
   auto* prim = type->castTo<PrimitiveType>();
 
   switch (prim->getPrimitiveKind()) {
-    case Pk::BoolTy:
-      return 0;
     case Pk::IntTy:
-      return 1;
+      return 0;
     case Pk::DoubleTy:
-      return 2;
+      return 1;
     default:
       fox_unreachable("Unknown numeric type kind");
   }

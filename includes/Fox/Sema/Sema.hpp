@@ -101,12 +101,12 @@ namespace fox {
       // Type checking, comparison, ranking, etc.
       //---------------------------------//
 
-      // The unification algorithms for types of the same subtypes.
-      // Tries to make A = B
+      // The unification algorithm which uses the "default" comparator,
+      // which basically allows numeric types to be considered equal.
       //
-      // Due to the way Fox's semantics work
-      // This unification algorithm won't alter types unless
-      // they are CellTypes.
+      // In short, the unification algorithm tries to make A = B
+      // if possible, but due to the way Fox's semantics work this 
+      // unification algorithm won't alter types unless they are CellTypes.
       //
       // If allowDowncast is set to false, and A and B are both bound types, 
       // this function will return false if casting B to A is a downcast.
@@ -114,6 +114,17 @@ namespace fox {
       // Also, this function is commutative if allowDowncast
       // is set to true.
       bool unify(Type a, Type b, bool allowDowncast = true);
+
+
+      // Unification with a custom comparator function
+      //
+      // Unification will consider the types equal iff 
+      // "comparator(a, b)" return true.
+      //
+      // In short, the unification algorithm tries to make A = B
+      // if possible, but due to the way Fox's semantics work this 
+      // unification algorithm won't alter types unless they are CellTypes.
+      bool unify(Type a, Type b, std::function<bool(Type, Type)> comparator);
 
 			// Returns true if the conversion of A to B is a downcast
 			//		If A and/or B are not numeric types, returns false.
