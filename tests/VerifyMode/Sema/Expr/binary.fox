@@ -4,9 +4,7 @@
 func additive_chck() {
   // Correct
   120000+85555;
-  5648+32.005;
-  0.001+333;
-  0.999-0.998;
+  5648.0+32.005;
   'a'+'b';
   "abc"+"def";
   'a'+"bc";
@@ -24,6 +22,8 @@ func additive_chck() {
   "abc"-"def";
   // expect-error@+1: cannot use binary operator '+' on expressions of types 'bool' and 'char'
   true+'a';
+  // expect-error@+1: cannot use binary operator '+' on expressions of types 'int' and 'double'
+  1+1.0;
   // expect-error@+1: cannot use binary operator '+' on expressions of types 'string' and 'int'
   "abc"+1;
   // expect-error@+1: cannot use binary operator '+' on expressions of types 'bool' and 'bool'
@@ -38,8 +38,7 @@ func additive_chck() {
 func multiplicative_chck() {
   // Correct
   20%3;
-  40/2.5;
-  20*3.14;
+  40.0/2.5;
 
   // Chaining
   ((4*2)%3)/2;
@@ -49,6 +48,8 @@ func multiplicative_chck() {
   // Incorrect
   // expect-error@+1: cannot use binary operator '/' on expressions of types 'char' and 'char'
   'c'/'c'; 
+  // expect-error@+1: cannot use binary operator '*' on expressions of types 'int' and 'double'
+  20*3.14;
   // expect-error@+1: cannot use binary operator '*' on expressions of types 'string' and 'string'
   "abc"*"def";
   // expect-error@+1: cannot use binary operator '%' on expressions of types 'bool' and 'char'
@@ -67,12 +68,13 @@ func multiplicative_chck() {
 func exponent_check() {
   // Correct
   4**3;
-  3.14**2;
   3.14**1.5;
 
   // Incorrect
   // expect-error@+1: cannot use binary operator '**' on expressions of types 'char' and 'char'
   'c'**'c'; 
+  // expect-error@+1: cannot use binary operator '**' on expressions of types 'double' and 'int'
+  3.14**2;
   // expect-error@+1: cannot use binary operator '**' on expressions of types 'string' and 'string'
   "abc"**"def";
   // expect-error@+1: cannot use binary operator '**' on expressions of types 'bool' and 'char'
@@ -89,17 +91,8 @@ func logical_check() {
   true && false;
   true || false;
 
-  0 && 1;
-  1 || 0;
-
-  0.5 && 0.01;
-  1.55 || 0.33;
-
-  true && 0.33;
-  false || 0;
-
-  0.25 && 0;
-  0 || 0;
+  0!=1 && 1==0;
+  1 < 5 || 0.5 < 0.5005;
 
   // Incorrect
   // expect-error@+1: cannot use binary operator '||' on expressions of types 'char' and 'int'
@@ -110,6 +103,18 @@ func logical_check() {
   "foo" || 0;
   // expect-error@+1: cannot use binary operator '&&' on expressions of types 'char' and 'string'
   'c' && "c";
+
+  // expect-error@+1: cannot use binary operator '&&' on expressions of types 'double' and 'double'
+  0.5 && 0.01;
+
+  // expect-error@+1: cannot use binary operator '||' on expressions of types 'double' and 'double'
+  1.55 || 0.33;
+
+  // expect-error@+1: cannot use binary operator '&&' on expressions of types 'bool' and 'double'
+  true && 0.33;
+
+  // expect-error@+1: cannot use binary operator '||' on expressions of types 'bool' and 'int'
+  false || 0;
 }
 
 //---COMPARISON: (NOT) EQUAL---//
@@ -126,7 +131,6 @@ func comp_eq_neq_check() {
 
   [1,2] == [1,2];
   [[[true]]] != [[[false]]];
-  0 != 333.333;
 
   // Incorrect
   // expect-error@+1: cannot use binary operator '==' on expressions of types 'string' and 'char'
@@ -139,6 +143,8 @@ func comp_eq_neq_check() {
   [0] != 0;
   // expect-error@+1: cannot use binary operator '==' on expressions of types 'bool' and 'int'
   true == 1;
+  // expect-error@+1: cannot use binary operator '!=' on expressions of types 'int' and 'double'
+  0 != 333.333;
 }
 
 //---COMPARISON: RANKING---//
@@ -151,7 +157,6 @@ func comp_ranks_check() {
   0.605 <= 0.305; 
 
   0 <= 1;
-  0 < 333.333;
 
   'a' > 'b';
   "ab" >= "bc";
@@ -169,6 +174,8 @@ func comp_ranks_check() {
   [0] <= 0;
   // expect-error@+1: cannot use binary operator '>' on expressions of types 'bool' and 'bool'
   true > false;
+  // expect-error@+1: cannot use binary operator '<' on expressions of types 'int' and 'double'
+  0 < 333.333;
 }
 
 //---ASSIGNEMENT---//

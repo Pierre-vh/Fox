@@ -133,8 +133,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // Check the init expr
       if (Expr* init = decl->getInitExpr()) {
         // Check the init expr
-        bool ok = getSema().typecheckExprOfType(init, decl->getType(), 
-          /*allowDowncast*/ false);
+        bool ok = getSema().typecheckExprOfType(init, decl->getType());
         // Replace the expr
         decl->setInitExpr(init);
         // If the type didn't match, diagnose

@@ -1,7 +1,7 @@
 // RUN: %fox-verify
 
 let a : double = 3.14;
-let b : double = 1;
+let b : double = 1; // expect-error: cannot use an expression of type 'int' to initialize a variable of type 'double'
 
 let d : int = 3.14; // expect-error: cannot use an expression of type 'double' to initialize a variable of type 'int'
 let e : int = 1;
@@ -21,7 +21,7 @@ let o : char = 4; // expect-error: cannot use an expression of type 'int' to ini
 let p : [int] = [1];
 let q : [int] = 1; // expect-error: cannot use an expression of type 'int' to initialize a variable of type '[int]'
 
-// infer tests, shouldn't produce errors!
+// infer tests
 let r : [int] = [];
 let s : [[[double]]] = [];
 

@@ -144,13 +144,17 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .setExtraRange(extra);
     }
 
-    void diagnoseInvalidBinaryExprOperands(BinaryExpr* expr) {
+    void diagnoseInvalidBinaryExpr(BinaryExpr* expr) {
       SourceRange opRange = expr->getOpRange();
       SourceRange exprRange = expr->getRange();
       Type lhsTy = expr->getLHS()->getType();
       Type rhsTy = expr->getRHS()->getType();
 
       if(!Sema::isWellFormed({lhsTy, rhsTy})) return;
+
+      // Use the specific diagnostic for assignements
+      if(expr->isAssignement()) 
+        return diagnoseInvalidAssignement(expr, lhsTy, rhsTy);
 
       getDiags()
         .report(DiagID::sema_binexpr_invalid_operands, opRange)
@@ -484,9 +488,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         case BOp::Mod:
         case BOp::Exp:
           return checkBasicNumericBinaryExpr(expr, lhsTy, rhsTy);
-        // Assignements
-        case BOp::Assign:
-          return checkAssignementBinaryExpr(expr, lhsTy, rhsTy);
         // Comparisons
         case BOp::Eq:
         case BOp::NEq:
@@ -592,8 +593,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
-      // Idx type must be an numeric value, but can't be a float
-      if ((!idxETy->isNumeric()) || idxETy->isDoubleType()) {
+      // Idx type must be an int.
+      if (!idxETy->isIntType()) {
         // Diagnose with the primary range being the idx's range
 			  diagnoseInvalidArraySubscript(expr, idxE->getRange(), child->getRange());
         return expr;
@@ -662,7 +663,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         Type expected = fnTy->getParamType(idx);
         Type got = expr->getArg(idx)->getType();
         assert(expected && got && "types cant be nullptrs!");
-        if(!getSema().unify(expected, got, /*allowDowncast*/ false)) {
+        if(!getSema().unify(expected, got)) {
           diagnoseBadFunctionCall(expr);
           return expr;
         }
@@ -717,7 +718,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     //----------------------------------------------------------------------//
 
     // visitArrayLiteralExpr helpers
-
     bool checkIfLegalWithinArrayLiteral(ArrayLiteralExpr* lit, Expr* expr) {
       Type ty = expr->getType()->getAsBoundRValue();
       // unbound types are ok
@@ -734,6 +734,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     // Typechecks a non empty array literal and deduces it's type.
+    //
+    // TODO: Rework this a bit
     Expr* checkNonEmptyArrayLiteralExpr(ArrayLiteralExpr* expr) {
       assert(expr->numElems() && "Size must be >0");
 
@@ -746,6 +748,12 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Set to false if the ArrayLiteral is not valid
       bool isValid = true;
+
+      SmallVector<Expr*, 4> unboundExprs;
+      auto setUnboundsAsErrorTy = [this, unboundExprs](){
+        for(auto elem: unboundExprs)
+          elem->setType(ErrorType::get(getCtxt()));
+      };
 
       for (auto& elem : expr->getExprs()) {
         // Check if the element's type can legally appear inside an
@@ -761,13 +769,14 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
         // Special logic for unbound types
         if (!elemTy->isBound()) {
+          unboundExprs.push_back(elem);
           // Set unboundTy & continue for first loop
           if (!unboundTy)
             unboundTy = elemTy;
           // Else, just unify.
           else if (!getSema().unify(unboundTy, elemTy)) {
             diagnoseHeteroArrLiteral(expr, elem);
-            return expr;
+            isValid = false;
           }
           continue;
         }
@@ -782,7 +791,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         // Next iterations: Unify elemTy with the bound proposed type.
         if (!getSema().unify(boundTy, elemTy)) {
           diagnoseHeteroArrLiteral(expr, elem);
-          return expr;
+          continue;
         }
 
         // Set boundTy to the highest ranking type of elemTy and boundTy
@@ -798,6 +807,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         if (!getSema().unify(unboundTy, boundTy)) {
           // FIXME: A more specific diagnostic might be needed here.
           diagnoseHeteroArrLiteral(expr, nullptr);
+          setUnboundsAsErrorTy();
           return expr;
         }
         proper = boundTy; 
@@ -806,8 +816,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       else if (unboundTy) proper = unboundTy;
       else {
         // If the expr isn't valid, this is a normal situation.
-        if(!isValid)
+        if(!isValid) {
+          setUnboundsAsErrorTy();
           return expr;
+        }
         // If it's valid, we have a bug!
         fox_unreachable("Should have at least a boundTy or unboundTy set");
       }
@@ -819,13 +831,14 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(isValid)
         // The type of the expr is an array of the proper type.
         expr->setType(ArrayType::get(getCtxt(), proper));
-
+      else 
+        setUnboundsAsErrorTy();
       // Return the expr
       return expr;
     }
 
-    // Typecheck a basic binary expression that requires both operands
-    // to be numeric types. This includes multiplicative/additive/exponent
+    // Typecheck a basic binary expression that involves numeric types. 
+    // This includes multiplicative/additive/exponent
     // operations (except concatenation).
     //  \param lhsTy The type of the LHS as a Bound RValue (must not be null)
     //  \param rhsTy The type of the RHS as a Bound RValue (must not be null)
@@ -835,20 +848,23 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
             || expr->isExponent() 
             || expr->isMultiplicative()) && "wrong function!");
         
-      // Check that lhs and rhs are both numeric types.
-      if (!(lhsTy->isNumeric() && rhsTy->isNumeric())) {
-        diagnoseInvalidBinaryExprOperands(expr);
+      // Check that lhs and rhs unify and that they're both numeric
+      // types.
+      if(getSema().unify(lhsTy, rhsTy) && 
+        (lhsTy->isNumeric() && rhsTy->isNumeric())) {
+
+        // The expression type is the highest ranked type between lhs & rhs
+        Type highest = getSema().getHighestRankedTy(lhsTy, rhsTy);
+        assert(highest && "Both types are numeric, so getHighestRankedTy "
+          "shoudln't return a null value");
+
+        // Set the type of the expression to the highest ranked type
+        // unless it's a boolean, then uprank it.
+        expr->setType(highest);
         return expr;
       }
 
-      // The expression type is the highest ranked type between lhs & rhs
-      Type highest = getSema().getHighestRankedTy(lhsTy, rhsTy);
-      assert(highest && "Both types are numeric, so getHighestRankedTy "
-        "shoudln't return a null value");
-
-      // Set the type of the expression to the highest ranked type
-      // unless it's a boolean, then uprank it.
-      expr->setType(highest);
+      diagnoseInvalidBinaryExpr(expr);
       return expr;
     }
 
@@ -895,7 +911,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       rhsTy = rhsTy->getRValue();
 
       // Unify
-      if(!getSema().unify(lhsTy, rhsTy, /*allowDowncast*/ false)) {
+      if(!getSema().unify(lhsTy, rhsTy)) {
         // Type mismatch
         diagnoseInvalidAssignement(expr, lhsTy, rhsTy);
         return expr;
@@ -914,7 +930,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(expr->isComparison() && "wrong function!");
 
       if (!getSema().unify(lhsTy, rhsTy)) {
-        diagnoseInvalidBinaryExprOperands(expr);
+        diagnoseInvalidBinaryExpr(expr);
         return expr;
       }
 
@@ -925,7 +941,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         bool lhsOk = (lhsTy->is<PrimitiveType>() && !lhsTy->isBoolType());
         bool rhsOk = (rhsTy->is<PrimitiveType>() && !rhsTy->isBoolType());
         if(!(lhsOk && rhsOk)) {
-          diagnoseInvalidBinaryExprOperands(expr);
+          diagnoseInvalidBinaryExpr(expr);
           return expr;
         }
       }
@@ -939,13 +955,13 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* checkLogicalBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert(expr->isLogical() && "wrong function!");
 
-      // for logical AND and OR operations, only allow numeric or boolean
-      // types for the LHS and RHS
-      if (lhsTy->isNumericOrBool() && rhsTy->isNumericOrBool())
+      // for logical AND and OR operations, only allow booleans
+      // as LHS and RHS.
+      if (lhsTy->isBoolType() && rhsTy->isBoolType())
         return finalizeBooleanExpr(expr);
 
       // Else, this is an error.
-      diagnoseInvalidBinaryExprOperands(expr);
+      diagnoseInvalidBinaryExpr(expr);
       return expr;
     }
 
@@ -1090,11 +1106,11 @@ Expr* Sema::typecheckExpr(Expr* expr) {
   return expr;
 }
 
-bool Sema::typecheckExprOfType(Expr*& expr, Type type, bool allowDowncast) {
+bool Sema::typecheckExprOfType(Expr*& expr, Type type) {
   assert(expr && "null input");
 
   expr = ExprChecker(*this).check(expr);
-  bool success = unify(type, expr->getType(), allowDowncast);
+  bool success = unify(type, expr->getType());
   expr = ExprFinalizer(ctxt_).finalize(expr);
 
   // Don't allow downcasts
