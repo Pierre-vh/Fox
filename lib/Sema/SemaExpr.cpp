@@ -777,11 +777,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
           diagnoseHeteroArrLiteral(expr, elem);
           continue;
         }
-
-        // Set boundTy to the highest ranking type of elemTy and boundTy
-        proposedType = Sema::getHighestRankedTy(elemTy, proposedType);
-        assert(proposedType &&
-          "Null highest ranked type but unification succeeded?");
       }
 
       // Invalid expr
@@ -831,15 +826,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // types.
       if(getSema().unify(lhsTy, rhsTy) && 
         (lhsTy->isNumeric() && rhsTy->isNumeric())) {
-
-        // The expression type is the highest ranked type between lhs & rhs
-        Type highest = getSema().getHighestRankedTy(lhsTy, rhsTy);
-        assert(highest && "Both types are numeric, so getHighestRankedTy "
-          "shoudln't return a null value");
-
-        // Set the type of the expression to the highest ranked type
-        // unless it's a boolean, then uprank it.
-        expr->setType(highest);
+        // lhsTy and rhsTy are equal
+        assert((lhsTy == rhsTy) && "Unification succeeded, but lhs/rhs types "
+          "are different?");
+        expr->setType(lhsTy);
         return expr;
       }
 
@@ -1091,10 +1081,6 @@ bool Sema::typecheckExprOfType(Expr*& expr, Type type) {
   expr = ExprChecker(*this).check(expr);
   bool success = unify(type, expr->getType());
   expr = ExprFinalizer(ctxt_).finalize(expr);
-
-  // Don't allow downcasts
-  if(success)
-    success = !isDowncast(expr->getType(), type);
 
   return success;
 }

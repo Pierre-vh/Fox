@@ -37,9 +37,6 @@ namespace fox {
       // A shortened syntax for a std::pair of Type
       using TypePair = std::pair<Type, Type>;
 
-      // The type used to represent numeric type ranks
-      using NumericRank = std::uint8_t;
-
       Sema(ASTContext& ctxt);
 
       // Typechecks a ASTNode (expression, declaration or statement)
@@ -118,29 +115,6 @@ namespace fox {
       // if possible, but due to the way Fox's semantics work this 
       // unification algorithm won't alter types unless they are CellTypes.
       bool unify(Type a, Type b, std::function<bool(Type, Type)> comparator);
-
-			// Returns true if the conversion of A to B is a downcast
-			//		If A and/or B are not numeric types, returns false.
-			//		Only returns true if A and B are both numeric types
-			//		and casting A to B is a downcast.
-			//	\param areNumerics Set to true if both types were numeric types
-			static bool isDowncast(Type a, Type b, bool* areNumerics = nullptr);
-
-      // Given 2 types
-        // If they are numeric, return the highest ranked numeric type
-        // If they are equal, return it's first argument
-        // Returns nullptr otherwise.
-      // if unwrapTypes is set to true, types are unwrapped together.
-      //    e.g. [int] & [int] is unwrapped to 
-      //          int & int but [[int]] & [int] is unwrapped to [int] & int
-      // if ignoreLValues is set to true, lvalues are ignored prior to 
-      // comparison.
-      static Type getHighestRankedTy(Type a, Type b,
-        bool unwrap = true);
-
-      // This method returns the numeric rank that a given type has.
-      // type must not be null and must point to a numeric type.
-      static NumericRank getNumericRank(Type type);;
 
       // Removes all layers of LValue, CellType and ArrayType 
       // until this reaches a point where one (or both) of the

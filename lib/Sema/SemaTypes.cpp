@@ -65,16 +65,7 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
         if (!unifyResult)
           return false;
 
-        // Unification of the subs was successful. Check if they're different.
-        if (aCellSub != bCellSub) {
-          // If they're different, adjust both substitution to the highest
-          // ranked type.
-          Type highest = getHighestRankedTy(aCellSub, bCellSub);
-          assert(highest 
-           && "highest ranked type is null but unification succeeded"); 
-          aCell->setSubst(highest);
-          bCell->setSubst(highest);
-        }
+        // Unification of the subs was successful.
         return true;
       }
       // A has a sub, B doesn't
@@ -123,60 +114,6 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
   }
   // Unhandled
   return false;
-}
-
-bool Sema::isDowncast(Type a, Type b, bool* areNumerics) {
-	// Unwrap both types
-	std::tie(a, b) = unwrapAll(a, b);
-	// Check if they're numeric
-	bool num = (a->isNumeric() && b->isNumeric());
-	// Set areNumerics if possible
-	if(areNumerics) (*areNumerics) = num;
-	if(num)
-		// If they're both numeric types, return true if Rank(a) > Rank(b)
-		return Sema::getNumericRank(a) > Sema::getNumericRank(b);
-	// If they aren't, return false.	
-	return false;
-}
-
-Type Sema::getHighestRankedTy(Type a, Type b, bool unwrap) {
-  // Backup the original type, so we have a backup before
-  // we unwrap the arguments.
-  Type ogA = a;
-  Type ogB = b;
-
-  assert(a && b && "Pointers cannot be null");
-
-  if(unwrap)
-    std::tie(a, b) = Sema::unwrapAll(a, b);
-
-  if (a == b)
-    return ogA;
-
-  if (a->isNumeric() && b->isNumeric()) {
-    if (getNumericRank(a) > getNumericRank(b))
-      return ogA;
-    return ogB;
-  }
-  return nullptr;
-}
-
-Sema::NumericRank Sema::getNumericRank(Type type) {
-  using Pk = PrimitiveType::Kind;
-
-  assert(type && type->isNumeric()
-    && "Can only use this on a valid pointer to an numeric type");
-
-  auto* prim = type->castTo<PrimitiveType>();
-
-  switch (prim->getPrimitiveKind()) {
-    case Pk::IntTy:
-      return 0;
-    case Pk::DoubleTy:
-      return 1;
-    default:
-      fox_unreachable("Unknown numeric type kind");
-  }
 }
 
 static Sema::TypePair unwrapArrays(Type a, Type b) {
