@@ -136,7 +136,7 @@ bool ConditionStmt::hasElse() const {
 SourceRange ConditionStmt::getRange() const {
   // We should at least has a then_ node.
   assert(then_ && "ill-formed if stmt");
-  SourceLoc end = (else_ ? else_.getBegin() : then_.getBegin());
+  SourceLoc end = (else_ ? else_.getEnd() : then_.getEnd());
   return SourceRange(ifBegLoc_, end);
 }
 
