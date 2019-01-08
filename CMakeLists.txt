@@ -66,6 +66,11 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     # C4244 "conversion from 'a' to 'b', possible loss of data"
     #   Reason: This warning only exist on MSVC. 
     add_compile_options(/wd4244)
+
+    # C4505 "unreferenced local function has been removed"
+    #   Reason: Usually intended because of compile time checks 
+    #           e.g; "checkHasGetRange" in lib/AST/Stmt.cpp
+    add_compile_options(/wd4505)
   
   # don't deprecate theses functions
   add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
