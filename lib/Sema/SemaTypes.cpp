@@ -79,7 +79,7 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
         return true;
       }
       // None of them has a sub.
-      auto* fresh = CellType::create(ctxt_);
+      Type fresh = CellType::create(ctxt_);
       aCell->setSubst(fresh);
       bCell->setSubst(fresh);
       return true;

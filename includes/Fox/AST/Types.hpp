@@ -140,8 +140,6 @@ namespace fox {
       void* operator new(std::size_t, void* buff);
 
     private:
-      void initBitfields();
-
       const TypeKind kind_;
   };
 
@@ -175,12 +173,12 @@ namespace fox {
         BoolTy
       };
 
-      static PrimitiveType* getString(ASTContext& ctxt);
-      static PrimitiveType* getChar(ASTContext& ctxt);
-      static PrimitiveType* getDouble(ASTContext& ctxt);
-      static PrimitiveType* getBool(ASTContext& ctxt);
-      static PrimitiveType* getInt(ASTContext& ctxt);
-      static PrimitiveType* getVoid(ASTContext& ctxt);
+      static Type getString(ASTContext& ctxt);
+      static Type getChar(ASTContext& ctxt);
+      static Type getDouble(ASTContext& ctxt);
+      static Type getBool(ASTContext& ctxt);
+      static Type getInt(ASTContext& ctxt);
+      static Type getVoid(ASTContext& ctxt);
 
       Kind getPrimitiveKind() const;
 
@@ -200,7 +198,7 @@ namespace fox {
   class ErrorType final : public BasicType {
     public:
       // Gets the unique ErrorType instance for the current context.
-      static ErrorType* get(ASTContext& ctxt);
+      static Type get(ASTContext& ctxt);
 
       static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::ErrorType);
@@ -229,8 +227,7 @@ namespace fox {
       using SizeTy = std::uint8_t;
       static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();
 
-      static FunctionType* get(ASTContext& ctxt, ArrayRef<Type> params,
-        Type rtr);
+      static Type get(ASTContext& ctxt, ArrayRef<Type> params, Type rtr);
 
       // Return true if this FunctionType's parameter types and return
       // type match the ones passed as parameters.
@@ -257,9 +254,9 @@ namespace fox {
   //    even another ArrayType)
   class ArrayType final : public TypeBase {
     public:
-      // Returns the UNIQUE ArrayType instance for the given
+      // Returns the unique ArrayType instance for the given
       // type ty.
-      static ArrayType* get(ASTContext& ctxt, Type ty);
+      static Type get(ASTContext& ctxt, Type ty);
 
       Type getElementType() const;
 
@@ -279,8 +276,8 @@ namespace fox {
   //    is not const.
   class LValueType final : public TypeBase {
     public:
-      // Returns the UNIQUE LValueType instance for the given type "ty"
-      static LValueType* get(ASTContext& ctxt, Type ty);
+      // Returns the unique LValueType instance for the given type "ty"
+      static Type get(ASTContext& ctxt, Type ty);
 
       Type getType() const;
 
@@ -298,7 +295,7 @@ namespace fox {
   class CellType final : public TypeBase {
     public:
       // Creates a new instance of the CellType class
-      static CellType* create(ASTContext& ctxt);
+      static Type create(ASTContext& ctxt);
 
       Type getSubst() const;
       bool hasSubst() const;

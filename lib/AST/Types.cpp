@@ -148,9 +148,7 @@ namespace {
 //----------------------------------------------------------------------------//
 
 TypeBase::TypeBase(TypeKind tc):
-  kind_(tc) {
-
-}
+  kind_(tc) {}
 
 std::string TypeBase::toString() const {
   std::ostringstream oss;
@@ -309,37 +307,37 @@ PrimitiveType::PrimitiveType(Kind kd)
 
 }
 
-PrimitiveType* PrimitiveType::getString(ASTContext& ctxt) {
+Type PrimitiveType::getString(ASTContext& ctxt) {
   if (!ctxt.theStringType_)
     ctxt.theStringType_ = new(ctxt) PrimitiveType(Kind::StringTy);
   return ctxt.theStringType_;
 }
 
-PrimitiveType* PrimitiveType::getChar(ASTContext& ctxt) {
+Type PrimitiveType::getChar(ASTContext& ctxt) {
   if (!ctxt.theCharType_)
     ctxt.theCharType_ = new(ctxt) PrimitiveType(Kind::CharTy);
   return ctxt.theCharType_;
 }
 
-PrimitiveType* PrimitiveType::getDouble(ASTContext& ctxt) {
+Type PrimitiveType::getDouble(ASTContext& ctxt) {
   if (!ctxt.theFloatType_)
     ctxt.theFloatType_ = new(ctxt) PrimitiveType(Kind::DoubleTy);
   return ctxt.theFloatType_;
 }
 
-PrimitiveType* PrimitiveType::getBool(ASTContext& ctxt) {
+Type PrimitiveType::getBool(ASTContext& ctxt) {
   if (!ctxt.theBoolType_)
     ctxt.theBoolType_ = new(ctxt) PrimitiveType(Kind::BoolTy);
   return ctxt.theBoolType_;
 }
 
-PrimitiveType* PrimitiveType::getInt(ASTContext& ctxt) {
+Type PrimitiveType::getInt(ASTContext& ctxt) {
   if (!ctxt.theIntType_)
     ctxt.theIntType_ = new(ctxt) PrimitiveType(Kind::IntTy);
   return ctxt.theIntType_;
 }
 
-PrimitiveType* PrimitiveType::getVoid(ASTContext& ctxt) {
+Type PrimitiveType::getVoid(ASTContext& ctxt) {
   if (!ctxt.theVoidType_)
     ctxt.theVoidType_ = new(ctxt) PrimitiveType(Kind::VoidTy);
   return ctxt.theVoidType_;
@@ -358,7 +356,7 @@ ArrayType::ArrayType(Type elemTy):
   assert(elemTy && "cannot be null");
 }
 
-ArrayType* ArrayType::get(ASTContext& ctxt, Type ty) {
+Type ArrayType::get(ASTContext& ctxt, Type ty) {
   TypeBase* ptr = ty.getPtr();
   auto lb = ctxt.arrayTypes_.lower_bound(ptr);
   if (lb != ctxt.arrayTypes_.end() &&
@@ -389,7 +387,7 @@ LValueType::LValueType(Type type):
   assert((!type->is<LValueType>()) && "Can't create nested LValueTypes!");
 }
 
-LValueType* LValueType::get(ASTContext& ctxt, Type ty) {
+Type LValueType::get(ASTContext& ctxt, Type ty) {
   TypeBase* ptr = ty.getPtr();
   auto lb = ctxt.lvalueTypes_.lower_bound(ptr);
   if (lb != ctxt.lvalueTypes_.end() &&
@@ -419,7 +417,7 @@ ErrorType::ErrorType():
 
 }
 
-ErrorType* ErrorType::get(ASTContext& ctxt) {
+Type ErrorType::get(ASTContext& ctxt) {
   if (!ctxt.theErrorType_)
     ctxt.theErrorType_ = new(ctxt) ErrorType();
   return ctxt.theErrorType_;
@@ -431,7 +429,7 @@ ErrorType* ErrorType::get(ASTContext& ctxt) {
 
 CellType::CellType(): TypeBase(TypeKind::CellType) {}
 
-CellType* CellType::create(ASTContext& ctxt) {
+Type CellType::create(ASTContext& ctxt) {
   return new(ctxt) CellType();
 }
 
@@ -481,7 +479,7 @@ namespace {
   }
 }
 
-FunctionType* FunctionType::get(ASTContext& ctxt, ArrayRef<Type> params, 
+Type FunctionType::get(ASTContext& ctxt, ArrayRef<Type> params, 
   Type rtr) {
   // Hash the parameters.
   std::size_t hash = functionTypeHash(params, rtr);
