@@ -36,7 +36,6 @@ namespace fox {
     public:
       StmtKind getKind() const;
 
-      void setRange(SourceRange range);
       SourceRange getRange() const;
       SourceLoc getBegin() const;
       SourceLoc getEnd() const;
@@ -44,7 +43,7 @@ namespace fox {
       void dump() const;
 
     protected:
-      Stmt(StmtKind kind, SourceRange range);
+      Stmt(StmtKind kind);
 
       // Allow allocation through the ASTContext
       void* operator new(std::size_t sz, ASTContext &ctxt,
@@ -59,7 +58,6 @@ namespace fox {
       void* operator new(std::size_t , void* mem);
 
     private:
-      SourceRange range_;
       const StmtKind kind_;
   };
 
@@ -68,11 +66,12 @@ namespace fox {
   //    Often used as the body of a condition/loop
   class NullStmt final : public Stmt {
     public:
-      static NullStmt* create(ASTContext& ctxt, 
-        SourceLoc semiLoc = SourceLoc());
+      static NullStmt* create(ASTContext& ctxt, SourceLoc semiLoc);
 
       void setSemiLoc(SourceLoc semiLoc);
       SourceLoc getSemiLoc() const;
+
+      SourceRange getRange() const;
 
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::NullStmt);
@@ -80,6 +79,8 @@ namespace fox {
 
     private:
       NullStmt(SourceLoc semiLoc);
+
+      SourceLoc semiLoc_;
   };
 
   // ReturnStmt
@@ -93,6 +94,8 @@ namespace fox {
       Expr* getExpr() const;
       bool hasExpr() const;
 
+      SourceRange getRange() const;
+
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::ReturnStmt);
       }
@@ -100,6 +103,7 @@ namespace fox {
     private:
       ReturnStmt(Expr* rtr, SourceRange range);
 
+      SourceRange range_;
       Expr* expr_ = nullptr;
   };
 
@@ -107,8 +111,8 @@ namespace fox {
   //    if-then-else conditional statement
   class ConditionStmt final : public Stmt {
     public:
-      static ConditionStmt* create(ASTContext& ctxt, Expr* cond, ASTNode then,
-        ASTNode condElse, SourceRange range);
+      static ConditionStmt* create(ASTContext& ctxt, SourceLoc ifBegLoc,
+        Expr* cond, ASTNode then, ASTNode condElse);
 
       void setCond(Expr* expr);
       Expr* getCond() const;
@@ -120,14 +124,17 @@ namespace fox {
       ASTNode getElse() const;
       bool hasElse() const;
 
+      SourceRange getRange() const;
+
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::ConditionStmt);
       }
 
     private:
-      ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
-        SourceRange range);
+      ConditionStmt(SourceLoc ifBegLoc, Expr* cond, ASTNode then, 
+        ASTNode elsenode);
 
+      SourceLoc ifBegLoc_;
       Expr* cond_ = nullptr;
       ASTNode then_, else_;
   };
@@ -151,6 +158,8 @@ namespace fox {
       std::size_t getSize() const;
       bool isEmpty() const;
 
+      SourceRange getRange() const;
+
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::CompoundStmt);
       }
@@ -158,6 +167,7 @@ namespace fox {
     private:
       CompoundStmt(ArrayRef<ASTNode> elems, SourceRange range);
 
+      SourceRange range_;
       const SizeTy numNodes_;
   };
 
@@ -174,6 +184,8 @@ namespace fox {
       void setBody(ASTNode body);
       ASTNode getBody() const;
 
+      SourceRange getRange() const;
+
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::WhileStmt);
       }
@@ -181,6 +193,7 @@ namespace fox {
     private:
       WhileStmt(Expr* cond, ASTNode body, SourceRange range);
 
+      SourceRange range_;
       Expr* cond_ = nullptr;
       ASTNode body_;
   };

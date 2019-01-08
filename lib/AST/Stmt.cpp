@@ -21,23 +21,37 @@ using namespace fox;
   #ID " is allocated in the ASTContext: It's destructor is never called!");
 #include "Fox/AST/StmtNodes.def"
 
-Stmt::Stmt(StmtKind skind, SourceRange range):
-  kind_(skind), range_(range) {}
+Stmt::Stmt(StmtKind skind): kind_(skind) {}
 
 StmtKind Stmt::getKind() const {
   return kind_;
 }
 
+static std::int8_t checkHasGetRange(SourceRange (Stmt::*)() const) {}
+template<typename Derived>
+static std::int16_t checkHasGetRange(SourceRange (Derived::*)() const) {}
+
 SourceRange Stmt::getRange() const {
-  return range_;
+  switch(getKind()) {
+    #define ASSERT_HAS_GETRANGE(ID)\
+      static_assert(sizeof(checkHasGetRange(&ID::getRange)) == 2,\
+        #ID " does not reimplement getRange()")
+    #define STMT(ID, PARENT) case StmtKind::ID:\
+      ASSERT_HAS_GETRANGE(ID); \
+      return cast<ID>(this)->getRange();
+    #include "Fox/AST/StmtNodes.def"
+    #undef ASSERT_HAS_GETRANGE
+    default:
+      fox_unreachable("all kinds handled");
+  }
 }
 
 SourceLoc Stmt::getBegin() const {
-  return range_.getBegin();
+  return getRange().getBegin();
 }
 
 SourceLoc Stmt::getEnd() const {
-  return range_.getEnd();
+  return getRange().getEnd();
 }
 
 void* Stmt::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
@@ -49,29 +63,27 @@ void* Stmt::operator new(std::size_t, void* mem) {
   return mem;
 }
 
-void Stmt::setRange(SourceRange range) {
-  range_ = range;
-}
-
 //----------------------------------------------------------------------------//
 // NullStmt
 //----------------------------------------------------------------------------//
 
-NullStmt::NullStmt(SourceLoc semiLoc):
-  Stmt(StmtKind::NullStmt, SourceRange(semiLoc)) {
-
-}
+NullStmt::NullStmt(SourceLoc semiLoc): Stmt(StmtKind::NullStmt),
+  semiLoc_(semiLoc) {}
 
 NullStmt* NullStmt::create(ASTContext& ctxt, SourceLoc semiLoc) {
   return new(ctxt) NullStmt(semiLoc);
 }
 
 void NullStmt::setSemiLoc(SourceLoc semiLoc) {
-  setRange(SourceRange(semiLoc));
+  semiLoc_ = semiLoc;
 }
 
 SourceLoc NullStmt::getSemiLoc() const {
   return getRange().getBegin();
+}
+
+SourceRange NullStmt::getRange() const {
+  return SourceRange(semiLoc_);
 }
 
 //----------------------------------------------------------------------------//
@@ -79,10 +91,14 @@ SourceLoc NullStmt::getSemiLoc() const {
 //----------------------------------------------------------------------------//
 
 ReturnStmt::ReturnStmt(Expr* rtr_expr, SourceRange range):
-  Stmt(StmtKind::ReturnStmt, range), expr_(rtr_expr) {}
+  Stmt(StmtKind::ReturnStmt), expr_(rtr_expr), range_(range) {}
 
 bool ReturnStmt::hasExpr() const {
   return (bool)expr_;
+}
+
+SourceRange ReturnStmt::getRange() const {
+  return range_;
 }
 
 Expr* ReturnStmt::getExpr() const {
@@ -102,18 +118,26 @@ void ReturnStmt::setExpr(Expr* e) {
 // ConditionStmt
 //----------------------------------------------------------------------------//
 
-ConditionStmt::ConditionStmt(Expr* cond, ASTNode then, ASTNode elsenode,
-  SourceRange range): Stmt(StmtKind::ConditionStmt, range), cond_(cond),
-  then_(then),  else_(elsenode) {}
+ConditionStmt::ConditionStmt(SourceLoc ifBegLoc, Expr* cond, ASTNode then, 
+                             ASTNode elsenode): 
+  Stmt(StmtKind::ConditionStmt), ifBegLoc_(ifBegLoc), cond_(cond), then_(then),
+  else_(elsenode) {}
 
 ConditionStmt* 
-ConditionStmt::create(ASTContext& ctxt, Expr* cond, ASTNode then, ASTNode condElse,
-  SourceRange range) {
-  return new(ctxt) ConditionStmt(cond, then, condElse, range);
+ConditionStmt::create(ASTContext& ctxt, SourceLoc ifBegLoc, Expr* cond, 
+  ASTNode then, ASTNode condElse) {
+  return new(ctxt) ConditionStmt(ifBegLoc, cond, then, condElse);
 }
 
 bool ConditionStmt::hasElse() const {
   return (bool)else_;
+}
+
+SourceRange ConditionStmt::getRange() const {
+  // We should at least has a then_ node.
+  assert(then_ && "ill-formed if stmt");
+  SourceLoc end = (else_ ? else_.getBegin() : then_.getBegin());
+  return SourceRange(ifBegLoc_, end);
 }
 
 Expr* ConditionStmt::getCond() const {
@@ -145,7 +169,7 @@ void ConditionStmt::setElse(ASTNode node) {
 //----------------------------------------------------------------------------//
 
 CompoundStmt::CompoundStmt(ArrayRef<ASTNode> elems, SourceRange range):
-  Stmt(StmtKind::CompoundStmt, range), 
+  Stmt(StmtKind::CompoundStmt), range_(range), 
   numNodes_(static_cast<SizeTy>(elems.size())) {
   assert((elems.size() < maxNodes) && "Too many elements for CompoundStmt. "
     "Change the type of SizeTy to something bigger!");
@@ -182,6 +206,10 @@ bool CompoundStmt::isEmpty() const {
   return (numNodes_ == 0);
 }
 
+SourceRange CompoundStmt::getRange() const {
+  return range_;
+}
+
 std::size_t CompoundStmt::getSize() const {
   return numNodes_;
 }
@@ -191,7 +219,7 @@ std::size_t CompoundStmt::getSize() const {
 //----------------------------------------------------------------------------//
 
 WhileStmt::WhileStmt(Expr* cond, ASTNode body, SourceRange range): 
-  Stmt(StmtKind::WhileStmt, range), cond_(cond), body_(body) {}
+  Stmt(StmtKind::WhileStmt), range_(range), body_(body), cond_(cond) {}
 
 Expr* WhileStmt::getCond() const {
   return cond_;
@@ -199,6 +227,10 @@ Expr* WhileStmt::getCond() const {
 
 ASTNode WhileStmt::getBody() const {
   return body_;
+}
+
+SourceRange WhileStmt::getRange() const {
+  return range_;
 }
 
 WhileStmt* WhileStmt::create(ASTContext& ctxt, Expr* cond, ASTNode body,
