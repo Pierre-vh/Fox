@@ -727,33 +727,25 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         diagnoseFunctionTypeInArrayLiteral(lit, expr);
         return false;
       }
-      // check if not ill formed
+      // check if not ill formed. If it's ill formed, it has already
+      // been diagnosed so just ignore it.
       if(!Sema::isWellFormed(ty))
         return false;
       return true;
     }
 
     // Typechecks a non empty array literal and deduces it's type.
-    //
-    // TODO: Rework this a bit
     Expr* checkNonEmptyArrayLiteralExpr(ArrayLiteralExpr* expr) {
       assert(expr->numElems() && "Size must be >0");
 
-      // The bound type proposed by unifying the other concrete/bound
-      // types inside the array.
-      Type boundTy;
+      // The deduced type of the literal
+      Type proposedType;
 
-      // The type used by unbounds elemTy
-      Type unboundTy;
-
-      // Set to false if the ArrayLiteral is not valid
+      // Set to false if the ArrayLiteral is considered invalid.
       bool isValid = true;
 
+      // The collection of unbound expression types.
       SmallVector<Expr*, 4> unboundExprs;
-      auto setUnboundsAsErrorTy = [this, unboundExprs](){
-        for(auto elem: unboundExprs)
-          elem->setType(ErrorType::get(getCtxt()));
-      };
 
       for (auto& elem : expr->getExprs()) {
         // Check if the element's type can legally appear inside an
@@ -767,74 +759,61 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         // Retrieve the type as a RValue
         Type elemTy = elem->getType()->getRValue();
 
-        // Special logic for unbound types
+        // Unbound elements are simply collected and checked later.
         if (!elemTy->isBound()) {
           unboundExprs.push_back(elem);
-          // Set unboundTy & continue for first loop
-          if (!unboundTy)
-            unboundTy = elemTy;
-          // Else, just unify.
-          else if (!getSema().unify(unboundTy, elemTy)) {
-            diagnoseHeteroArrLiteral(expr, elem);
-            isValid = false;
-          }
           continue;
         }
 
         // From this point, elemTy is guaranteed to be a bound type
-        // First loop, set boundTy & continue.
-        if (!boundTy) {
-          boundTy = elemTy;
+        // First loop, set the proposed type and continue.
+        if (!proposedType) {
+          proposedType = elemTy;
           continue;
         }
 
-        // Next iterations: Unify elemTy with the bound proposed type.
-        if (!getSema().unify(boundTy, elemTy)) {
+        // Next iterations: Unify the element's type with the proposed type.
+        if (!getSema().unify(proposedType, elemTy)) {
           diagnoseHeteroArrLiteral(expr, elem);
           continue;
         }
 
         // Set boundTy to the highest ranking type of elemTy and boundTy
-        boundTy = Sema::getHighestRankedTy(elemTy, boundTy);
-        assert(boundTy &&
+        proposedType = Sema::getHighestRankedTy(elemTy, proposedType);
+        assert(proposedType &&
           "Null highest ranked type but unification succeeded?");
       }
 
-      Type proper;
-
-      // Check if we have an unboundTy and/or a boundTy
-      if (unboundTy && boundTy) {
-        if (!getSema().unify(unboundTy, boundTy)) {
-          // FIXME: A more specific diagnostic might be needed here.
-          diagnoseHeteroArrLiteral(expr, nullptr);
-          setUnboundsAsErrorTy();
-          return expr;
-        }
-        proper = boundTy; 
-      }
-      else if (boundTy) proper = boundTy;
-      else if (unboundTy) proper = unboundTy;
-      else {
-        // If the expr isn't valid, this is a normal situation.
-        if(!isValid) {
-          setUnboundsAsErrorTy();
-          return expr;
-        }
-        // If it's valid, we have a bug!
-        fox_unreachable("Should have at least a boundTy or unboundTy set");
+      // Invalid expr
+      if(!isValid) {
+        // Set the unbound expr's type to ErrorType and just return.
+        Type err = ErrorType::get(getCtxt());
+        for(auto unbound : unboundExprs)
+          unbound->setType(err);
+        return expr;
       }
 
-      assert(proper && "the proper type shouldn't be null at this stage");
-
-      // Set the type only if the expr is valid, because if it's not
-      // valid it should be marked as "ErrorType"
+      // Expr is valid: Unify unbound elements with the type, if there's one.
+      // If there isn't one, unify the element types with the first 
+      // unbound type.
+      for(auto unbound : unboundExprs) {
+        // (First iter) set type if there isn't one
+        if(!proposedType) {
+          proposedType = unbound->getType();
+          continue;
+        }
+        // (Next iters) unify.
+        if(!getSema().unify(unbound->getType(), proposedType)) {
+          diagnoseHeteroArrLiteral(expr, unbound);
+          isValid = false;
+        }
+      }
+      // Set the type to an ArrayType of the
+      // type if the expr is still considered valid.
       if(isValid)
-        // The type of the expr is an array of the proper type.
-        expr->setType(ArrayType::get(getCtxt(), proper));
-      else 
-        setUnboundsAsErrorTy();
-      // Return the expr
+        expr->setType(ArrayType::get(getCtxt(), proposedType));
       return expr;
+      
     }
 
     // Typecheck a basic binary expression that involves numeric types. 
