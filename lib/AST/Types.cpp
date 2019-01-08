@@ -174,9 +174,16 @@ TypeKind TypeBase::getKind() const {
 }
 
 bool TypeBase::isBound() const {
-  if(!isBoundCalculated_)
-    calculateIsBound();
-  return isBound_;
+  class Impl : public TypeWalker {
+    public:
+      // If this method returns false, the walk is aborted.
+      virtual bool handleTypePre(Type ty) override {
+        if (auto* cell = ty->getAs<CellType>())
+          return cell->hasSubst();
+        return true;
+      }
+  };
+  return Impl().walk(const_cast<TypeBase*>(this));
 }
 
 Type TypeBase::unwrapIfArray() {
@@ -192,15 +199,14 @@ Type TypeBase::getRValue() {
 }
 
 Type TypeBase::getAsBoundRValue() {
-  if (isBound()) {
-    Type ty = getRValue()->deref();
-    // Sanity check
-    if(CellType* cell = ty->getAs<CellType>())
-      assert(cell->hasSubst() 
-      && "Type is bound but deref returned a unbound CellType?");
-    return ty;
+  Type ty = getRValue()->deref();
+  // Sanity check
+  if(CellType* cell = ty->getAs<CellType>()) {
+    // CellType after deref? It's an unbound one for sure.
+    assert(!cell->hasSubst());
+    return nullptr;
   }
-  return nullptr;
+  return ty;
 }
 
 namespace {
@@ -283,30 +289,6 @@ void* TypeBase::operator new(size_t sz, ASTContext& ctxt,
 void* TypeBase::operator new(std::size_t, void* buff) {
   assert(buff);
   return buff;
-}
-
-void TypeBase::calculateIsBound() const {
-  class Impl : public TypeWalker {
-    public:
-      // If this method returns false, the walk is aborted.
-      virtual bool handleTypePre(Type ty) override {
-        if (auto* cell = ty->getAs<CellType>())
-          return cell->hasSubst();
-        return true;
-      }
-  };
-  bool result = Impl().walk(const_cast<TypeBase*>(this));
-  setIsBound(result);
-}
-
-void TypeBase::setIsBound(bool val) const {
-  isBoundCalculated_ = true;
-  isBound_ = val;
-}
-
-void TypeBase::initBitfields() {
-  isBound_ = false;
-  isBoundCalculated_ = false;
 }
 
 //----------------------------------------------------------------------------//

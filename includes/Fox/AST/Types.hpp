@@ -142,16 +142,6 @@ namespace fox {
     private:
       void initBitfields();
 
-      // Calculates the value of isBound_ and set isBoundCalculated_ to true.
-      void calculateIsBound() const;
-      void setIsBound(bool val) const;
-
-      //------------Bitfields------------//
-      // Cached values
-      mutable bool isBound_ : 1;
-      mutable bool isBoundCalculated_ : 1;
-      //-----------6 Bits left-----------//
-
       const TypeKind kind_;
   };
 
