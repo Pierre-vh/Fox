@@ -83,8 +83,6 @@ Parser::StmtResult Parser::parseWhileLoop() {
 
   Expr* expr = nullptr;
   ASTNode body;
-  SourceLoc begLoc = whKw.getBegin();
-  SourceLoc endLoc;
   // <parens_expr>
   if (auto parens_expr_res = parseParensExpr())
     expr = parens_expr_res.get();
@@ -94,12 +92,8 @@ Parser::StmtResult Parser::parseWhileLoop() {
   }
 
   // <body>
-  if (auto body_res = parseBody()) {
+  if (auto body_res = parseBody())
     body = body_res.get();
-    endLoc = body.getEnd();
-    assert(endLoc 
-      && "The body parsed successfully, but doesn't have a valid endLoc?");
-  }
   else {
     if (body_res.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_stmt);
@@ -107,10 +101,9 @@ Parser::StmtResult Parser::parseWhileLoop() {
     return StmtResult::Error();
   }
 
-  SourceRange range(begLoc, endLoc);
-  assert(expr && body && range);
+  assert(expr && body.getEnd() && whKw.getBegin());
   return StmtResult(
-    WhileStmt::create(ctxt, expr, body, range)
+    WhileStmt::create(ctxt, whKw.getBegin(), expr, body)
   );
 }
 
@@ -167,7 +160,9 @@ Parser::StmtResult Parser::parseCondition() {
     }
   }
 
-  assert(expr && then_node && ifKw.getBegin() && "Incomplete loc/nodes!");
+  assert(expr->getRange() && then_node.getRange() && ifKw.getBegin() 
+    && (else_node ? else_node.getRange().isValid() : true) 
+    && "incomplete locs");
 
   return StmtResult(
     ConditionStmt::create(ctxt, ifKw.getBegin(), expr, then_node, else_node)

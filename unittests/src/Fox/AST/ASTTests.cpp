@@ -278,7 +278,7 @@ TEST_F(ASTTest, StmtRTTI) {
 
   // While
   auto* whilestmt = 
-    WhileStmt::create(ctxt, nullptr, ASTNode(), SourceRange());
+    WhileStmt::create(ctxt, SourceLoc(), nullptr, ASTNode());
   EXPECT_EQ(whilestmt->getKind(), StmtKind::WhileStmt);
   EXPECT_TRUE(WhileStmt::classof(whilestmt));
 }
