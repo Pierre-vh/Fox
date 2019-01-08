@@ -49,7 +49,8 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
       if (!endLoc) {
         reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
 
-        if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
+        if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
+          /*consumeToken*/ false))
           endLoc = consumeBracket(SignType::S_SQ_CLOSE);
         else
           return ExprResult::Error();
@@ -66,16 +67,18 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
       if (expr.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
 
-      // Resync. if Resync is successful, return the base as the result (don't alter it) to fake a success
+      // Resync. if Resync is successful, return the base as the result 
+      // (don't alter it) to fake a success
       // , if it's not, return an Error.
-      if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
+      if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
+        /*consumeToken*/ true))
         return ExprResult(base);
       else
         return ExprResult::Error();
     }
   }
   // <parens_expr_list>
-  else if (auto exprlist = parseParensExprList(nullptr,&endLoc)) {
+  else if (auto exprlist = parseParensExprList(&endLoc)) {
     assert(endLoc && "parseParensExprList didn't complete the endLoc?");
     SourceRange range(begLoc, endLoc);
     assert(range && "Invalid loc info");
@@ -146,7 +149,8 @@ Parser::ExprResult Parser::parseArrayLiteral() {
     if (elist.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
 
-    if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
+    if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
+      /*consumeToken*/ false))
       endLoc = consumeBracket(SignType::S_SQ_CLOSE);
     else
       return ExprResult::Error();
@@ -347,7 +351,8 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
 
 
     // Handle results appropriately
-		// Check for validity : we need a rhs. if we don't have one, we have an error ! 
+		// Check for validity : we need a rhs. if we don't have one, 
+    // we have an error ! 
     if (!rhsResult) {
       if(rhsResult.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
@@ -395,13 +400,13 @@ Parser::ExprResult Parser::parseExpr() {
     assert(range && "Invalid loc info");
 
     SourceRange opRange = op.getRange();
-    return ExprResult(BinaryExpr::create(ctxt, op.get(), lhs.get(), rhs.get(),
-      range, opRange));
+    return ExprResult(BinaryExpr::create(ctxt, op.get(), 
+      lhs.get(), rhs.get(), range, opRange));
   }
   return ExprResult(lhs);
 }
 
-Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* rightPLoc) {
+Parser::ExprResult Parser::parseParensExpr() {
   // <parens_expr> = '(' <expr> ')'
 
   // '('
@@ -415,11 +420,13 @@ Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* right
   if (auto expr = parseExpr())
     rtr = expr.get();
   else  {
-    // no expr, handle error & attempt to recover if it's allowed. If recovery is successful, return "not found"
+    // no expr, handle error & attempt to recover if it's allowed. 
+    // If recovery is successful, return "not found"
     if(expr.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_expr);
 
-    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ true))
+    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true,
+      /*consumeToken*/ true))
       return ExprResult::NotFound();
     else
       return ExprResult::Error();
@@ -433,25 +440,14 @@ Parser::ExprResult Parser::parseParensExpr(SourceLoc* leftPLoc, SourceLoc* right
     // no ), handle error & attempt to recover 
     reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
-    if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
+    if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, 
+      /*consumeToken*/ false))
       return ExprResult::Error();
       
     // If we recovered successfuly, place the Sloc into rightParens
     rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
   }
 
-  // Save the locs if the caller wants it.
-  if (leftPLoc) {
-    assert(leftParens && "invalid loc info");
-    *leftPLoc = leftParens;
-  }
-
-  if (rightPLoc) {
-    assert(rightParens && "invalid loc info");
-    *rightPLoc = rightParens;
-  }
-
-  // Just return the expression we parsed.
   return ExprResult(rtr);
 }
 
@@ -481,15 +477,12 @@ Parser::Result<ExprVector> Parser::parseExprList() {
   return Result<ExprVector>(exprs);
 }
 
-Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc* LParenLoc, SourceLoc *RParenLoc) {
+Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
   // <parens_expr_list>  = '(' [ <expr_list> ] ')'
   // '('
   auto leftParens = consumeBracket(SignType::S_ROUND_OPEN);
   if (!leftParens)
     return Result<ExprVector>::NotFound();
-
-  if (LParenLoc)
-    *LParenLoc = leftParens;
 
   ExprVector exprs;
 
@@ -499,13 +492,15 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc* LParenLoc, Sou
   else if (!exprlist.wasSuccessful()) {
     // error? Try to recover from it, if success, just discard the expr list,
     // if no success return error.
-    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false)) {
+    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true,
+      /*consumeToken*/ false)) {
       SourceLoc loc = consumeBracket(SignType::S_ROUND_CLOSE);
 
       if (RParenLoc)
         *RParenLoc = loc;
 
-      return Result<ExprVector>(ExprVector()); // if recovery is successful, return an empty expression list.
+        // if recovery is successful, return an empty expression list.
+      return Result<ExprVector>(ExprVector());
     }
     return Result<ExprVector>::Error();
   }
@@ -515,7 +510,8 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc* LParenLoc, Sou
   if (!rightParens) {
     reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
-    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, /*consumeToken*/ false))
+    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, 
+      /*consumeToken*/ false))
       rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
     else 
       return Result<ExprVector>::Error();
@@ -562,10 +558,13 @@ Parser::Result<UnaryExpr::OpKind> Parser::parseUnaryOp() {
   return Result<UOp>::NotFound();
 }
 
-Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority) {
+// TODO: This should be handled by the lexer, not the parser.
+Parser::Result<BinaryExpr::OpKind> 
+Parser::parseBinaryOp(std::uint8_t priority) {
   using BinOp = BinaryExpr::OpKind;
 
-  // Check current Token validity, also check if it's a sign because if it isn't we can return directly!
+  // Check current Token validity, also check if it's a sign because if 
+  // it isn't we can return directly!
   if (!getCurtok().isValid() || !getCurtok().isSign())
     return Result<BinOp>::NotFound();
 
@@ -573,7 +572,8 @@ Parser::Result<BinaryExpr::OpKind> Parser::parseBinaryOp(std::uint8_t priority) 
   switch (priority) {
     case 0: // * / %
       if (auto asterisk = consumeSign(SignType::S_ASTERISK)) {
-        if (!consumeSign(SignType::S_ASTERISK)) // Disambiguation between '**' and '*'
+        // Disambiguation between '**' and '*'
+        if (!consumeSign(SignType::S_ASTERISK))
           return Result<BinOp>(BinOp::Mul, SourceRange(asterisk));
         // undo if not found
         undo();

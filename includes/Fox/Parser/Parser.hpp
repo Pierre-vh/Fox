@@ -118,13 +118,10 @@ namespace fox {
 
       // Parse a list of expression between parentheses
       Result<ExprVector> 
-			parseParensExprList(SourceLoc* LParenLoc = nullptr, 
-				SourceLoc *RParenLoc = nullptr);
+			parseParensExprList(SourceLoc *RParenLoc = nullptr);
 
       // Parse an expression between parentheses
-      ExprResult 
-			parseParensExpr(SourceLoc* leftPLoc = nullptr, 
-			SourceLoc* rightPLoc = nullptr);
+      ExprResult parseParensExpr();
 
       ExprResult parseSuffix(Expr* base);
       ExprResult parseDeclRef();
@@ -240,12 +237,14 @@ namespace fox {
       // Reverts the last consume operation, updates counters if needed.
       void revertConsume();
 
-      // Increments the iterator if possible. Used to skip a token without updating any counters.
+      // Increments the iterator if possible. Used to skip a token 
+      // without updating any counters.
       void next();
 
       // Decrements the iterator if possible. Used to revert a consume operation. 
 			// Won't change updated counters.
-      // Only use in cases where a counter wasn't updated by the last consume operation. 
+      // Only use in cases where a counter wasn't updated by the
+      // last consume operation. 
 			// Else (or when in doubt), use revertConsume
       void undo();  
 
@@ -263,7 +262,8 @@ namespace fox {
       // Resynchronization helpers
       //---------------------------------//
 
-      bool resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken);
+      bool resyncToSign(SignType sign, bool stopAtSemi, 
+        bool shouldConsumeToken);
       bool resyncToSign(const SmallVector<SignType, 4>& signs, bool stopAtSemi,
 				bool shouldConsumeToken);
       bool resyncToNextDecl();

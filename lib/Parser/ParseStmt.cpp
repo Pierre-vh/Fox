@@ -30,8 +30,8 @@ Parser::StmtResult Parser::parseCompoundStatement() {
     // try to parse a statement
     if(auto res = parseStmt()) {
       // Push only if we don't have a standalone NullStmt
-      // this is done to avoid stacking them up, and since they're a no-op in all cases
-      // it's meaningless to ignore them.
+      // this is done to avoid stacking them up, and since they're 
+      // a no-op in all cases so it's meaningless to ignore them.
       ASTNode node = res.get();
       if (!dyn_cast_or_null<NullStmt>(node.dyn_cast<Stmt*>()))
         nodes.push_back(node);
@@ -44,11 +44,14 @@ Parser::StmtResult Parser::parseCompoundStatement() {
           errorExpected("Expected a Statement");
       */
       // In both case, attempt recovery to nearest semicolon.
-      if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi -> meaningless here*/ false, /*shouldConsumeToken*/ true))
+      if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi*/ false,
+        /*shouldConsumeToken*/ true))
         continue;
       else {
-        // If we couldn't recover, try to recover to our '}' to stop parsing this compound statement
-        if (resyncToSign(SignType::S_CURLY_CLOSE, /*stopAtSemi*/ false, /*consume*/ false)) {
+        // If we couldn't recover, try to recover to our '}'
+        // to stop parsing this compound statement
+        if (resyncToSign(SignType::S_CURLY_CLOSE, /*stopAtSemi*/ false, 
+          /*consume*/ false)) {
           rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE);
           break;
         }
@@ -83,7 +86,7 @@ Parser::StmtResult Parser::parseWhileLoop() {
   SourceLoc begLoc = whKw.getBegin();
   SourceLoc endLoc;
   // <parens_expr>
-  if (auto parens_expr_res = parseParensExpr(nullptr))
+  if (auto parens_expr_res = parseParensExpr())
     expr = parens_expr_res.get();
   else {
     reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
@@ -94,7 +97,8 @@ Parser::StmtResult Parser::parseWhileLoop() {
   if (auto body_res = parseBody()) {
     body = body_res.get();
     endLoc = body.getEndLoc();
-    assert(endLoc && "The body parsed successfully, but doesn't have a valid endLoc?");
+    assert(endLoc 
+      && "The body parsed successfully, but doesn't have a valid endLoc?");
   }
   else {
     if (body_res.wasSuccessful())
@@ -130,7 +134,7 @@ Parser::StmtResult Parser::parseCondition() {
   SourceLoc begLoc = ifKw.getBegin();
 
   // <parens_expr>
-  if (auto parensexpr = parseParensExpr(nullptr))
+  if (auto parensexpr = parseParensExpr())
     expr = parensexpr.get();
   else {
     reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
@@ -189,7 +193,8 @@ Parser::StmtResult Parser::parseReturnStmt() {
     expr = expr_res.get();
   else if(!expr_res.wasSuccessful()) {
     // expr failed? try to resync if possible. 
-    if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
+    if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
+      /*consumeToken*/ true))
       return StmtResult::Error();
   }
 
@@ -199,7 +204,8 @@ Parser::StmtResult Parser::parseReturnStmt() {
   else {
     reportErrorExpected(DiagID::parser_expected_semi);
     // Recover to semi, if recovery wasn't successful, return an error.
-    if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
+    if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
+      /*consumeToken*/ true))
       return StmtResult::Error();
   }
     
@@ -280,7 +286,8 @@ Parser::NodeResult Parser::parseExprStmt() {
       if (expr.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_semi);
 
-      if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, /*consumeToken*/ true))
+      if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
+        /*consumeToken*/ true))
         return NodeResult::Error();
       // if recovery was successful, just return like nothing has happened!
     }
@@ -291,7 +298,8 @@ Parser::NodeResult Parser::parseExprStmt() {
     // if the expression had an error, ignore it and try to recover to a semi.
     if (resyncToSign(SignType::S_SEMICOLON,
       /*stopAtSemi*/ false, /*consumeToken*/ false)) {
-      Stmt* nullstmt = NullStmt::create(ctxt, consumeSign(SignType::S_SEMICOLON));
+      Stmt* nullstmt = NullStmt::create(ctxt, 
+        consumeSign(SignType::S_SEMICOLON));
       return NodeResult(ASTNode(nullstmt));
     }
     return NodeResult::Error();

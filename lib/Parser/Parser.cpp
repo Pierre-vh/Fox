@@ -90,7 +90,6 @@ SourceLoc Parser::consumeBracket(SignType s) {
         }
         break;
       case SignType::S_CURLY_CLOSE:
-				// Don't let unbalanced parentheses underflow
         if (curlyBracketsCount_)
           curlyBracketsCount_--;
         break;
@@ -103,7 +102,6 @@ SourceLoc Parser::consumeBracket(SignType s) {
         }
         break;
       case SignType::S_SQ_CLOSE:
-				// Don't let unbalanced parentheses underflow
         if (squareBracketsCount_)
           squareBracketsCount_--;
         break;
@@ -116,14 +114,15 @@ SourceLoc Parser::consumeBracket(SignType s) {
         }
         break;
       case SignType::S_ROUND_CLOSE:
-        if (roundBracketsCount_)    // Don't let unbalanced parentheses create an underflow.
+        if (roundBracketsCount_) 
           roundBracketsCount_--;
         break;
       default:
         fox_unreachable("unknown bracket type");
     }
     next();
-    assert((tok.getRange().getOffset() == 0) && "Token is a sign but it's SourceRange offset is greater than zero?");
+    assert((tok.getRange().getOffset() == 0) 
+      && "Token is a sign but it's SourceRange offset is greater than zero?");
     return SourceLoc(tok.getRange().getBegin());
   }
   return SourceLoc();
