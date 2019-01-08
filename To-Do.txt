@@ -124,6 +124,7 @@ To-Do:
   > Introduce and use "isWellFormed" in Sema (Done)
   > Drop the "Moonshot" name and only use "Fox" as the project name (Done) 
   > Booleans are not numeric types anymore (Done)
+  > Switch Fox to full blown strong typing (Done)
 
   > Parser improvements
     -> Refactor decl parsing methods
@@ -154,8 +155,10 @@ To-Do:
 
   > Type aliases
     > e.g. "typealias foo = [[int]]"
+    > Will have to introduce sugared & canonical types for this.
 
   > FFI
+    > Foreign function interface = ability to call C++ functions in Fox code
 
 Future:
   > Multifile support: It's coming, but the how is still to be decided
