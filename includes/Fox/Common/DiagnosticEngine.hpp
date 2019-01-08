@@ -44,9 +44,9 @@ namespace fox {
     // the Diagnostic class
   };
 
-  // Converts a severity to a user readable string. 
-  // If allCaps is set to true, the returned value will be in all caps.
-  std::string toString(DiagSeverity sev, bool allCaps = false);
+  // Converts a severity to a user readable string in all
+  // lowercase.
+  std::string toString(DiagSeverity sev);
   std::ostream& operator<<(std::ostream& os, DiagSeverity sev);
 
   // The DiagnosticEngine, which controls everything Diagnostic-Related:

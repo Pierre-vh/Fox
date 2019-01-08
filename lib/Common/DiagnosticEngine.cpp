@@ -404,27 +404,25 @@ void Diagnostic::initBitFields() {
 // DiagnSeverity helpers
 //----------------------------------------------------------------------------//
 
-std::string fox::toString(DiagSeverity sev, bool allCaps) {
+std::string fox::toString(DiagSeverity sev) {
   using DS = DiagSeverity;
   switch (sev) {
     case DS::Ignore:
-      return allCaps ? "IGNORE" : "Ignore";
+      return "ignore";
     case DS::Note:
-      return allCaps ? "NOTE" : "Note";
+      return "note";
     case DS::Warning:
-      return allCaps ? "WARNING" : "Warning";
+      return "warning";
     case DS::Error:
-      return allCaps ? "ERROR" : "Error";
+      return "error";
     case DS::Fatal:
-      return allCaps ? "FATAL" : "Fatal";
+      return "fatal";
     default:
       fox_unreachable("all cases handled");
   }
 }
 
 std::ostream& fox::operator<<(std::ostream& os, DiagSeverity sev) {
-  // Print the output in all caps as this operator is mostly used for 
-  // debugging purposes and won't care about user friendliness.
-  os << toString(sev, /* all caps */ true);
+  os << toString(sev);
   return os;
 }
