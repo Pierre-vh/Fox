@@ -18,15 +18,13 @@
 
 using namespace fox;
 
-bool Sema::unify(Type a, Type b, bool allowDowncast) {
-  auto comparator = [allowDowncast](Type a, Type b) {
+bool Sema::unify(Type a, Type b) {
+  auto comparator = [](Type a, Type b) {
+    // Allow exact equality unless it's a CellType exact
+    // equality.
     if(!a->is<CellType>()) {
-      // Exact equality
       if (a == b) 
         return true;
-      // Numeric types equality
-      if(a->isNumeric() && b->isNumeric())
-        return (allowDowncast ? true : (!isDowncast(b, a)));
     }
     return false;
   };
