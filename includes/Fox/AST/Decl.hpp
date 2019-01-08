@@ -309,9 +309,6 @@ namespace fox {
       }
       
     private:
-      // Calculates this Function's type (ValueDecl->set/getType)
-      void computeType();
-
       FuncDecl(DeclContext* parent, Identifier fnId, SourceRange idRange,
         TypeLoc returnType, SourceRange range);
 
