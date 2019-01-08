@@ -106,23 +106,23 @@ Parser::DeclResult Parser::parseFuncDecl() {
   SourceLoc begLoc = fnKw.getBegin();
   SourceLoc headEndLoc;
   
-  // Poisoned is set to true, it means that the declarations is missing
-  // critical information to be considered valid. If that's the case,
-  // we won't finish this declaration and we'll just return an error after
+  // If invalid is set to true, it means that the declarations is missing
+  // critical information and can't be considered as valid. If that's the case,
+  // we won't return the declaration and we'll just return an error after
   // emitting all of our diagnostics.
-  bool poisoned = false;
+  bool invalid = false;
 
   // <id>
   if (auto foundID = consumeIdentifier()) 
     rtr->setIdentifier(foundID.get(), foundID.getRange());
   else {
     reportErrorExpected(DiagID::parser_expected_iden);
-    poisoned = true;
+    invalid = true;
   }
 
   // '('
   if (!consumeBracket(SignType::S_ROUND_OPEN)) {
-    if (poisoned) return DeclResult::Error();
+    if (invalid) return DeclResult::Error();
     reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
     return DeclResult::Error();
   }
@@ -198,8 +198,8 @@ Parser::DeclResult Parser::parseFuncDecl() {
   CompoundStmt* body = dyn_cast<CompoundStmt>(compStmt.get());
   assert(body && "Not a compound stmt");
 
-  // Finished parsing. If the decl is poisoned, return an error.
-  if (poisoned) return DeclResult::Error();
+  // Finished parsing. If the decl is invalid, return an error.
+  if (invalid) return DeclResult::Error();
 
   // Restore the last decl parent.
   parentGuard.restore();
@@ -262,10 +262,11 @@ Parser::DeclResult Parser::parseParamDecl() {
 
 Parser::DeclResult Parser::parseVarDecl() {
   // <var_decl> = ("let" | "var") <id> ':' <type> ['=' <expr>] ';'
-  // "let" describes a constant, "var" is a mutable variable.
-  // ("let" | "var")
   VarDecl::Keyword kw;
   SourceLoc begLoc;
+
+  // ("let" | "var")
+  // "let" is for constants, "var" is for mutable variables
   if (auto letKw = consumeKeyword(KeywordType::KW_LET)) {
     kw = VarDecl::Keyword::Let;
     begLoc = letKw.getBegin();
