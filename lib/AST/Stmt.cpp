@@ -153,14 +153,17 @@ ASTNode ConditionStmt::getElse() const {
 }
 
 void ConditionStmt::setCond(Expr* expr) {
+  assert(expr &&  "cannot be nullptr");
   cond_ = expr;
 }
 
 void ConditionStmt::setThen(ASTNode node) {
+  assert(node &&  "cannot be nullptr");
   then_ = node;
 }
 
 void ConditionStmt::setElse(ASTNode node) {
+  // can be nullptr
   else_ = node;
 }
 
@@ -168,8 +171,8 @@ void ConditionStmt::setElse(ASTNode node) {
 // CompoundStmt
 //----------------------------------------------------------------------------//
 
-CompoundStmt::CompoundStmt(ArrayRef<ASTNode> elems, SourceRange range):
-  Stmt(StmtKind::CompoundStmt), range_(range), 
+CompoundStmt::CompoundStmt(ArrayRef<ASTNode> elems, SourceRange bracesRange):
+  Stmt(StmtKind::CompoundStmt), bracesRange_(bracesRange), 
   numNodes_(static_cast<SizeTy>(elems.size())) {
   assert((elems.size() < maxNodes) && "Too many elements for CompoundStmt. "
     "Change the type of SizeTy to something bigger!");
@@ -207,7 +210,7 @@ bool CompoundStmt::isEmpty() const {
 }
 
 SourceRange CompoundStmt::getRange() const {
-  return range_;
+  return bracesRange_;
 }
 
 std::size_t CompoundStmt::getSize() const {
@@ -218,8 +221,8 @@ std::size_t CompoundStmt::getSize() const {
 // WhileStmt
 //----------------------------------------------------------------------------//
 
-WhileStmt::WhileStmt(Expr* cond, ASTNode body, SourceRange range): 
-  Stmt(StmtKind::WhileStmt), range_(range), body_(body), cond_(cond) {}
+WhileStmt::WhileStmt(SourceLoc whBegLoc, Expr* cond, ASTNode body): 
+  Stmt(StmtKind::WhileStmt), whBegLoc_(whBegLoc), body_(body), cond_(cond) {}
 
 Expr* WhileStmt::getCond() const {
   return cond_;
@@ -230,18 +233,21 @@ ASTNode WhileStmt::getBody() const {
 }
 
 SourceRange WhileStmt::getRange() const {
-  return range_;
+  assert(body_ && "ill formed if stmt");
+  return SourceRange(whBegLoc_, body_.getEnd());
 }
 
-WhileStmt* WhileStmt::create(ASTContext& ctxt, Expr* cond, ASTNode body,
-  SourceRange range) {
-  return new(ctxt) WhileStmt(cond, body, range);
+WhileStmt* WhileStmt::create(ASTContext& ctxt, SourceLoc whBegLoc, Expr* cond, 
+                             ASTNode body) {
+  return new(ctxt) WhileStmt(whBegLoc, cond, body);
 }
 
 void WhileStmt::setCond(Expr* cond) {
+  assert(cond && "cannot be nullptr!");
   cond_ = cond;
 }
 
 void WhileStmt::setBody(ASTNode body) {
+  assert(body && "cannot be nullptr!");
   body_ = body;
 }

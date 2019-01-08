@@ -149,7 +149,7 @@ namespace fox {
       static constexpr auto maxNodes = std::numeric_limits<SizeTy>::max();
 
       static CompoundStmt* create(ASTContext& ctxt, ArrayRef<ASTNode> elems,
-        SourceRange range);
+        SourceRange bracesRange);
 
       void setNode(ASTNode node, std::size_t idx);
       ASTNode getNode(std::size_t ind) const;
@@ -165,9 +165,9 @@ namespace fox {
       }
 
     private:
-      CompoundStmt(ArrayRef<ASTNode> elems, SourceRange range);
+      CompoundStmt(ArrayRef<ASTNode> elems, SourceRange bracesRange);
 
-      SourceRange range_;
+      SourceRange bracesRange_;
       const SizeTy numNodes_;
   };
 
@@ -175,8 +175,8 @@ namespace fox {
   //    A while loop
   class WhileStmt final : public Stmt {
     public:
-      static WhileStmt* create(ASTContext& ctxt, Expr* cond, ASTNode body,
-        SourceRange range);
+      static WhileStmt* 
+      create(ASTContext& ctxt, SourceLoc whBegLoc, Expr* cond, ASTNode body);
 
       void setCond(Expr* cond);
       Expr* getCond() const;
@@ -191,10 +191,10 @@ namespace fox {
       }
 
     private:
-      WhileStmt(Expr* cond, ASTNode body, SourceRange range);
+      WhileStmt(SourceLoc whBegLoc, Expr* cond, ASTNode body);
 
-      SourceRange range_;
-      Expr* cond_ = nullptr;
+      SourceLoc whBegLoc_;
+      Expr* cond_;
       ASTNode body_;
   };
 }
