@@ -131,8 +131,6 @@ Parser::StmtResult Parser::parseCondition() {
     return StmtResult::NotFound();
   }
 
-  SourceLoc begLoc = ifKw.getBegin();
-
   // <parens_expr>
   if (auto parensexpr = parseParensExpr())
     expr = parensexpr.get();
@@ -169,11 +167,10 @@ Parser::StmtResult Parser::parseCondition() {
     }
   }
 
-  SourceRange range(begLoc, endLoc);
-  assert(expr && then_node && range && "Incomplete loc/nodes!");
+  assert(expr && then_node && ifKw.getBegin() && "Incomplete loc/nodes!");
 
   return StmtResult(
-    ConditionStmt::create(ctxt, expr, then_node, else_node, range)
+    ConditionStmt::create(ctxt, ifKw.getBegin(), expr, then_node, else_node)
   );
 }
 

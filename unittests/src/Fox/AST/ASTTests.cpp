@@ -255,7 +255,7 @@ TEST_F(ASTTest, ExprFlags) {
 
 TEST_F(ASTTest, StmtRTTI) {
   // NullStmt
-  auto* null = NullStmt::create(ctxt);
+  auto* null = NullStmt::create(ctxt, SourceLoc());
   EXPECT_EQ(null->getKind(), StmtKind::NullStmt);
   EXPECT_TRUE(NullStmt::classof(null));
 
@@ -265,8 +265,8 @@ TEST_F(ASTTest, StmtRTTI) {
   EXPECT_TRUE(ReturnStmt::classof(rtr));
 
   // Condition
-  auto* cond = ConditionStmt::create(ctxt, nullptr, ASTNode(), ASTNode(),
-    SourceRange());
+  auto* cond = ConditionStmt::create(ctxt, SourceLoc(), nullptr, ASTNode(),
+    ASTNode());
   EXPECT_EQ(cond->getKind(), StmtKind::ConditionStmt);
   EXPECT_TRUE(ConditionStmt::classof(cond));
 
