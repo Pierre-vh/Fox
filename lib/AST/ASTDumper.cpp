@@ -355,6 +355,7 @@ std::string ASTDumper::getBasicStmtInfo(Stmt* stmt) const {
   ss << getStmtNodeName(stmt);
   if (isDebug())
     ss << " 0x" << (void*)stmt;
+  ss << " " << getSourceRangeDump("range", stmt->getRange());
   return ss.str();
 }
 
