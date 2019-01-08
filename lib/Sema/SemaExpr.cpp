@@ -96,20 +96,16 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .setExtraRange(expr->getExpr()->getRange());
     }
 
-    void diagnoseHeteroArrLiteral(ArrayLiteralExpr* expr, Expr* faultyElem) {
-      if (faultyElem) {
-        getDiags()
-          // Precise error loc is the first element that failed the inferrence,
-          // extended range is the whole arrayliteral's.
-          .report(DiagID::sema_arraylit_hetero, faultyElem->getRange())
-          .setRange(expr->getRange());
-      }
-      else {
-        getDiags()
-          // If we have no element to pinpoint, just use the whole expr's
-          // range
-          .report(DiagID::sema_arraylit_hetero, expr->getRange());
-      }
+    void diagnoseHeteroArrLiteral(ArrayLiteralExpr* expr, Expr* faultyElem,
+      Type supposedType) {
+      assert(faultyElem && "no element pointed");
+      getDiags()
+        // Precise error loc is the first element that failed the inferrence,
+        // extended range is the whole arrayliteral's.
+        .report(DiagID::sema_unexpected_elem_in_arrlit, faultyElem->getRange())
+        .addArg(faultyElem->getType())
+        .addArg(supposedType)
+        .setExtraRange(expr->getRange());
     }
 
     void diagnoseInvalidUnaryOpChildType(UnaryExpr* expr) {
@@ -774,7 +770,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
         // Next iterations: Unify the element's type with the proposed type.
         if (!getSema().unify(proposedType, elemTy)) {
-          diagnoseHeteroArrLiteral(expr, elem);
+          diagnoseHeteroArrLiteral(expr, elem, proposedType);
           continue;
         }
       }
@@ -799,7 +795,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         }
         // (Next iters) unify.
         if(!getSema().unify(unbound->getType(), proposedType)) {
-          diagnoseHeteroArrLiteral(expr, unbound);
+          diagnoseHeteroArrLiteral(expr, unbound, proposedType);
           isValid = false;
         }
       }

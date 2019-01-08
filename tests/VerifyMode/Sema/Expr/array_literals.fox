@@ -8,14 +8,14 @@ func foo() {
   ["foo"];
   ['b'];
   [[],[0.5],[3.14]];
-  ['c',"c"]; // expect-error: illegal heterogeneous array
-  [1, true]; // expect-error: illegal heterogeneous array
-  [3,'c']; // expect-error: illegal heterogeneous array
+  ['c',"c"]; // expect-error: unexpected element of type 'string' in array literal of type 'char'
+  [1, true]; // expect-error: unexpected element of type 'bool' in array literal of type 'int'
+  [3,'c']; // expect-error: unexpected element of type 'char' in array literal of type 'int'
   []; // expect-error: failed to infer the type of this expression
   [[3],[]];
   [] as [int];
   [[[]]] as [[[string]]];
-  [[],[3],[3.14],[0],[]]; // expect-error: illegal heterogeneous array
+  [[],[3],[3.14],[0],[]]; // expect-error: unexpected element of type '[double]' in array literal of type '[int]'
   [[[],[],[],[],[]],[[],[],[],[],[]]] as [[[int]]];
 
   [3,foo];   // expect-error:function types cannot be used within an array literals

@@ -7,7 +7,8 @@
 // Semantic Analysis (Sema/Parser) Diagnostics Message
 //----------------------------------------------------------------------------//
 
-ERROR(sema_arraylit_hetero, "illegal heterogeneous array")
+ERROR(sema_unexpected_elem_in_arrlit, 
+  "unexpected element of type '%0' in array literal of type '%1'")
 ERROR(sema_failed_infer, "failed to infer the type of this expression")
 ERROR(sema_invalid_cast, "cannot cast expression of type '%0' to type '%1'")
 ERROR(sema_unaryop_bad_child_type, 
