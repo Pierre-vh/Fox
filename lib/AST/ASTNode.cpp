@@ -25,10 +25,10 @@ SourceRange ASTNode::getRange() const {
   fox_unreachable("Unsupported node");
 }
 
-SourceLoc ASTNode::getBegLoc() const {
+SourceLoc ASTNode::getBegin() const {
   return getRange().getBegin();
 }
 
-SourceLoc ASTNode::getEndLoc() const {
+SourceLoc ASTNode::getEnd() const {
   return getRange().getEnd();
 }

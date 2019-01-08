@@ -96,7 +96,7 @@ Parser::StmtResult Parser::parseWhileLoop() {
   // <body>
   if (auto body_res = parseBody()) {
     body = body_res.get();
-    endLoc = body.getEndLoc();
+    endLoc = body.getEnd();
     assert(endLoc 
       && "The body parsed successfully, but doesn't have a valid endLoc?");
   }
@@ -146,7 +146,7 @@ Parser::StmtResult Parser::parseCondition() {
   // <body>
   if (auto body = parseBody()) {
     then_node = body.get();
-    endLoc = then_node.getEndLoc();
+    endLoc = then_node.getEnd();
   }
   else {
     if (body.wasSuccessful())
@@ -160,7 +160,7 @@ Parser::StmtResult Parser::parseCondition() {
     // <body>
     if (auto body = parseBody()) {
       else_node = body.get();
-      endLoc = else_node.getEndLoc();
+      endLoc = else_node.getEnd();
     }
     else {
       if(body.wasSuccessful())
