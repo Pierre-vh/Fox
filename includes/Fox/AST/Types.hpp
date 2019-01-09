@@ -319,7 +319,7 @@ namespace fox {
   //  where type inference is required.
   class TypeVariableType : public TypeBase {
     public:
-      static TypeVariableType* create(ASTContext& ctxt, std::uint16_t number);
+      static Type create(ASTContext& ctxt, std::uint16_t number);
 
       std::uint16_t getNumber() const;
 

@@ -548,8 +548,7 @@ FunctionType::FunctionType(ArrayRef<Type> params, Type rtr) :
 // TypeVariableType
 //----------------------------------------------------------------------------//
 
-TypeVariableType* 
-TypeVariableType::create(ASTContext& ctxt, std::uint16_t number) {
+Type TypeVariableType::create(ASTContext& ctxt, std::uint16_t number) {
   return new(ctxt) TypeVariableType(number);
 }
 
