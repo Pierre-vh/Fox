@@ -125,11 +125,9 @@ static Sema::TypePair unwrapArrays(Type a, Type b) {
 
 Sema::TypePair Sema::unwrapAll(Type a, Type b) {
   assert(a && b && "args cannot be null");
-  // Ignore LValues & deref both
-	// Note: getRValue is not desired here
-	// because we want to support unbound types.
-  auto uwA = a->getRValue()->deref();
-  auto uwB = b->getRValue()->deref();
+  // Ignore LValues 
+  auto uwA = a->getRValue();
+  auto uwB = b->getRValue();
   // Unwrap arrays
   std::tie(uwA, uwB) = unwrapArrays(uwA, uwB);
   // If both changed, recurse, else, return.
@@ -165,7 +163,8 @@ void Sema::resetTypeVariables() {
   // TODO: Reset the allocator here
 }
 
-Type Sema::getSubstitution(TypeVariableType* tyVar, bool recursively) {
+Type
+Sema::getSubstitution(TypeVariableType* tyVar, bool recursively) const {
   auto num = tyVar->getNumber();
   assert(num < typeVarsSubsts_.size() && "out-of-range");
   Type sub = typeVarsSubsts_[num];

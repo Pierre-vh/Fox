@@ -48,12 +48,6 @@ namespace fox {
 
       TypeKind getKind() const;
 
-      // Returns true if this is a bound type.
-      //
-      // A bound type is a type that doesn't contain
-      // CellTypes with no substitution somewhere in it's hierarchy.
-      bool isBound() const;
-
       // Returns the element type if this is an ArrayType, otherwise returns
       // nullptr.
       Type unwrapIfArray();
@@ -62,10 +56,9 @@ namespace fox {
       // returns this.
       Type getRValue();
 
-      // If this type is a CellType, dereference it recursively 
-      // until we reach a CellType with no substitution or a
-      // concrete type.
-      Type deref();
+      // Returns true if this Type contains a TypeVariable somewhere
+      // in it's hierarchy.
+      bool hasTypeVariable() const;
 
       /*
         A special note about the is/getAs/castTo
@@ -285,33 +278,6 @@ namespace fox {
       LValueType(Type type);
 
       Type ty_ = nullptr;
-  };
-
-  // CellType
-  class CellType final : public TypeBase {
-    public:
-      // Creates a new instance of the CellType class
-      static Type create(ASTContext& ctxt);
-
-      Type getSubst() const;
-      bool hasSubst() const;
-      void setSubst(Type type);
-      void resetSubst();
-
-      static bool classof(const TypeBase* type) {
-        return (type->getKind() == TypeKind::CellType);
-      }
-
-    private:
-      // Private because only called by ::create
-      CellType();
-
-      // Override the new operator to use the SemaAllocator in the
-      // ASTContext to allocate CellTypes.
-      void* operator new(std::size_t sz, ASTContext &ctxt, 
-        std::uint8_t align = alignof(TypeBase));
-
-      Type subst_ = nullptr;
   };
 
   // TypeVariableType

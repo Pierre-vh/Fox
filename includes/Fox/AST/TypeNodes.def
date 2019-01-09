@@ -37,7 +37,6 @@ ABSTRACT_TYPE(BasicType, TypeBase)
 TYPE(FunctionType, TypeBase)
 TYPE(ArrayType, TypeBase)
 TYPE(LValueType, TypeBase)
-TYPE(CellType, TypeBase)
 TYPE(TypeVariableType, TypeBase)
 
 /* Undef */

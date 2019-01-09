@@ -146,7 +146,6 @@ TEST_F(ASTTest, TypeRTTI) {
   TypeBase* lvIntTy = LValueType::get(ctxt, intTy).getPtr();
   TypeBase* errType = ErrorType::get(ctxt).getPtr();
   TypeBase* tyVarType = TypeVariableType::create(ctxt, 0).getPtr();
-  TypeBase* cellType = CellType::create(ctxt).getPtr();
 
   TypeBase* funcType = FunctionType::get(ctxt, {intTy, intTy}, intTy).getPtr();
 
@@ -163,9 +162,6 @@ TEST_F(ASTTest, TypeRTTI) {
   EXPECT_EQ(errType->getKind(), TypeKind::ErrorType);
   EXPECT_TRUE(ErrorType::classof(errType));
   EXPECT_TRUE(BasicType::classof(errType));
-
-  EXPECT_EQ(cellType->getKind(), TypeKind::CellType);
-  EXPECT_TRUE(CellType::classof(cellType));
 
   EXPECT_EQ(funcType->getKind(), TypeKind::FunctionType);
   EXPECT_TRUE(FunctionType::classof(funcType));

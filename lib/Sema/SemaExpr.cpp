@@ -507,13 +507,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type goalTy = expr->getCastTypeLoc().withoutLoc();
       std::tie(childTy, goalTy) = Sema::unwrapAll(childTy, goalTy);
 
-      // Sanity Check:
-        // It is impossible for unbound types to exist
-        // as cast goals, as cast goals are type written
-        // down by the user.
-      assert(goalTy->isBound() &&
-        "Unbound types cannot be present as cast goals!");
-
       // Check that the types are well formed. If they aren't, don't
       // bother checking.
       if (!Sema::isWellFormed({childTy, goalTy}))
@@ -524,16 +517,21 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if (goalTy->isStringType() && childTy->is<PrimitiveType>())
         return finalizeCastExpr(expr, childTy->isStringType());
         
+      bool isPerfectEquality = false;
       // custom comparator which considers that a and b are
       // equal when they're both numeric or boolean types.
-      auto comparator = [](Type a, Type b) {
+      auto comparator = [&isPerfectEquality](Type a, Type b) {
+        if(a == b) {
+          isPerfectEquality = true;
+          return true;
+        }
         // Allow casting between numeric & booleans types.
         return a->isNumericOrBool() && b->isNumericOrBool();
       };
 
       // Try unification
       if (getSema().unify(childTy, goalTy, comparator))
-        return finalizeCastExpr(expr, (childTy == goalTy));      
+        return finalizeCastExpr(expr, isPerfectEquality);      
 
       diagnoseInvalidCast(expr);
       return expr;
@@ -730,7 +728,30 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return true;
     }
 
+    bool containsFreeTypeVariable(Type tv) {
+      class Impl final : public TypeWalker {
+        public:
+          Sema& sema;
+
+          Impl(Sema& sema) : sema(sema) {}
+
+          bool hasFreeTV = false;
+          bool handleTypePre(Type type) {
+            if(auto* tv = type->getAs<TypeVariableType>())
+              hasFreeTV |= (sema.getSubstitution(tv,true).isNull());
+            return true;
+          }
+      };
+      Impl walker(getSema());
+      walker.walk(tv);
+      return walker.hasFreeTV;
+    }
+
     // Typechecks a non empty array literal and deduces it's type.
+    //
+    // TODO: This is left a bit scarred due to the removal of CellType.
+    // This entire function can probably be reworked to be much more
+    // simply and/or efficient.
     Expr* checkNonEmptyArrayLiteralExpr(ArrayLiteralExpr* expr) {
       assert(expr->numElems() && "Size must be >0");
 
@@ -755,8 +776,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         // Retrieve the type as a RValue
         Type elemTy = elem->getType()->getRValue();
 
-        // Unbound elements are simply collected and checked later.
-        if (!elemTy->isBound()) {
+        // Types that contains free type variables are collected
+        // and checked later
+        if (containsFreeTypeVariable(elemTy)) {
           unboundExprs.push_back(elem);
           continue;
         }
@@ -777,16 +799,16 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Invalid expr
       if(!isValid) {
-        // Set the unbound expr's type to ErrorType and just return.
+        // Set the unboundExprs' types to ErrorType and just return.
         Type err = ErrorType::get(getCtxt());
         for(auto unbound : unboundExprs)
           unbound->setType(err);
         return expr;
       }
 
-      // Expr is valid: Unify unbound elements with the type, if there's one.
+      // Expr is valid: Unify unboundExprs with the type, if there's one.
       // If there isn't one, unify the element types with the first 
-      // unbound type.
+      // typeVariableExpr.
       for(auto unbound : unboundExprs) {
         // (First iter) set type if there isn't one
         if(!proposedType) {

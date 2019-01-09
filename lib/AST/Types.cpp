@@ -160,19 +160,6 @@ TypeKind TypeBase::getKind() const {
   return kind_;
 }
 
-bool TypeBase::isBound() const {
-  class Impl : public TypeWalker {
-    public:
-      // If this method returns false, the walk is aborted.
-      virtual bool handleTypePre(Type ty) override {
-        if (auto* cell = ty->getAs<CellType>())
-          return cell->hasSubst();
-        return true;
-      }
-  };
-  return Impl().walk(const_cast<TypeBase*>(this));
-}
-
 Type TypeBase::unwrapIfArray() {
   if (ArrayType* tmp = dyn_cast<ArrayType>(this))
     return tmp->getElementType();
@@ -185,18 +172,18 @@ Type TypeBase::getRValue() {
   return this;
 }
 
-namespace {
-  Type derefImpl(TypeBase* type) {
-    if (auto* cell = type->getAs<CellType>()) {
-      Type sub = cell->getSubst();
-      return sub ? derefImpl(sub.getPtr()) : type;
-    }
-    return type;
-  }
-}
-
-Type TypeBase::deref() {
-  return derefImpl(this);
+bool TypeBase::hasTypeVariable() const {
+  class Impl final : public TypeWalker {
+    public:
+      bool hasTVT = false;
+      bool handleTypePre(Type type) {
+        hasTVT |= type->is<TypeVariableType>();
+        return true;
+      }
+  };
+  Impl walker;
+  walker.walk(const_cast<TypeBase*>(this));
+  return walker.hasTVT;
 }
 
 bool TypeBase::isStringType() const {
@@ -399,40 +386,6 @@ Type ErrorType::get(ASTContext& ctxt) {
   if (!ctxt.theErrorType_)
     ctxt.theErrorType_ = new(ctxt) ErrorType();
   return ctxt.theErrorType_;
-}
-
-//----------------------------------------------------------------------------//
-// CellType
-//----------------------------------------------------------------------------//
-
-CellType::CellType(): TypeBase(TypeKind::CellType) {}
-
-Type CellType::create(ASTContext& ctxt) {
-  return new(ctxt) CellType();
-}
-
-Type CellType::getSubst() const {
-  return subst_;
-}
-
-bool CellType::hasSubst() const {
-  return (subst_ != nullptr);
-}
-
-void CellType::setSubst(Type type) {
-  assert(type 
-    && "Cannot set the substitution to a null pointer. "
-       "Use resetSubst() for that.");
-  subst_ = type;
-}
-
-void CellType::resetSubst() {
-  subst_ = nullptr;
-}
-
-void* CellType::operator new(std::size_t sz, ASTContext& ctxt,
-  std::uint8_t align) {
-  return ctxt.allocate(sz,align);
 }
 
 //----------------------------------------------------------------------------//

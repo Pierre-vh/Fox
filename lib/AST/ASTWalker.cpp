@@ -345,9 +345,7 @@ namespace {
         return true;
       }
 
-      bool visitCellType(CellType* type) {
-        if (Type sub = type->getSubst())
-          return doIt(sub);
+      bool visitTypeVariableType(TypeVariableType*) {
         return true;
       }
 
