@@ -135,7 +135,7 @@ bool ConditionStmt::hasElse() const {
 
 SourceRange ConditionStmt::getRange() const {
   // We should at least has a then_ node.
-  assert(then_ && "ill-formed if stmt");
+  assert(then_ && "ill-formed ConditionStmt");
   SourceLoc end = (else_ ? else_.getEnd() : then_.getEnd());
   return SourceRange(ifBegLoc_, end);
 }
@@ -233,7 +233,7 @@ ASTNode WhileStmt::getBody() const {
 }
 
 SourceRange WhileStmt::getRange() const {
-  assert(body_ && "ill formed if stmt");
+  assert(body_ && "ill formed WhileStmt");
   return SourceRange(whBegLoc_, body_.getEnd());
 }
 
