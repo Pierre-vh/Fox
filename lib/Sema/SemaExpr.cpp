@@ -342,8 +342,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* finalizeEmptyArrayLiteral(ArrayLiteralExpr* expr) {
       assert((expr->numElems() == 0) && "Only for empty Array Literals");
       // For empty array literals, the type is going to be a fresh
-      // celltype inside an Array : Array(CellType(null))
-      Type type = CellType::create(getCtxt());
+      // TypeVariable inside an Array. e.g. [$T0]
+      Type type = getSema().createNewTypeVariable();
       type = ArrayType::get(getCtxt(), type); 
       expr->setType(type);
       return expr;
@@ -955,118 +955,119 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 };
 
-namespace {
-  // ExprFinalizer, which rebuilds types to remove
-  // CellTypes.
-  //
-  // Visit methods return Type objects. They return null Types
-  // if the finalization failed for this expr.
-  class ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
-    using Inherited = TypeVisitor<ExprFinalizer, Type>;
-    friend Inherited;
-    ASTContext& ctxt_;
-    DiagnosticEngine& diags_;
-    public:
-      ExprFinalizer(ASTContext& ctxt) : ctxt_(ctxt), diags_(ctxt.diagEngine) {}
+// ExprFinalizer, which rebuilds types to remove TypeVariables
+// and replace them with their substitution.
+//
+// Visit methods return Type objects. They return null Types
+// if the finalization failed for this expr.
+class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
+  using Inherited = TypeVisitor<ExprFinalizer, Type>;
+  friend Inherited;
+  Sema& sema_;
+  ASTContext& ctxt_;
+  DiagnosticEngine& diags_;
+  public:
+    ExprFinalizer(Sema& sema) : sema_(sema), ctxt_(sema.getASTContext()),
+      diags_(sema.getDiagnosticEngine()) {}
 
-      Expr* finalize(Expr* expr) {
-        Expr* e = walk(expr);
-        assert(e && "expr is null post walk");
-        return e;
+    Expr* finalize(Expr* expr) {
+      Expr* e = walk(expr);
+      assert(e && "expr is null post walk");
+      return e;
+    }
+
+    std::pair<Expr*, bool> handleExprPre(Expr* expr) {
+      Type type = expr->getType();
+      assert(type && "Expr has a null type!");
+
+      // Visit the type
+      type = visit(type);
+      bool shouldVisitChildren = true;
+      // If the type is nullptr, this inference failed
+      // because of a lack of substitution somewhere.
+      // Set the type to ErrorType, diagnose it and move on.
+      if (!type) {
+        diags_.report(DiagID::sema_failed_infer, expr->getRange());
+        type = ErrorType::get(ctxt_);
+        shouldVisitChildren = false;
       }
 
-      std::pair<Expr*, bool> handleExprPre(Expr* expr) {
-        Type type = expr->getType();
-        assert(type && "Expr has a null type!");
+      expr->setType(type);
+      return {expr, shouldVisitChildren};
+    }
 
-        // Visit the type
-        type = visit(type);
-        bool shouldVisitChildren = true;
-        // If the type is nullptr, this inference failed
-        // because of a lack of substitution somewhere.
-        // Set the type to ErrorType, diagnose it and move on.
-        if (!type) {
-          diags_.report(DiagID::sema_failed_infer, expr->getRange());
-          type = ErrorType::get(ctxt_);
-          shouldVisitChildren = false;
-        }
+    /*
+      How to write a visit method:
+        -> if the type is a "container" (has a pointer to
+            another type inside it) and after calling visit
+            the type changed, rebuild the type with the returne type.
+            If the element type is ErrorType, don't rebuild and just
+            return the ErrorType.
+    */
 
-        expr->setType(type);
-        return {expr, shouldVisitChildren};
-      }
+    Type visitPrimitiveType(PrimitiveType* type) {
+      return type;
+    }
 
-      /*
-        How to write a visit method:
-          -> if the type is a "container" (has a pointer to
-             another type inside it) and after calling visit
-             the type changed, rebuild the type with the returne type.
-             If the element type is ErrorType, don't rebuild and just
-             return the ErrorType.
-      */
-
-      Type visitPrimitiveType(PrimitiveType* type) {
+    Type visitArrayType(ArrayType* type) {
+      if (Type elem = visit(type->getElementType())) {
+        if (elem->is<ErrorType>())
+          return elem;
+        if (elem != type->getElementType())
+          return ArrayType::get(ctxt_, elem);
         return type;
       }
+      return nullptr;
+    }
 
-      Type visitArrayType(ArrayType* type) {
-        if (Type elem = visit(type->getElementType())) {
-          if (elem->is<ErrorType>())
-            return elem;
-          if (elem != type->getElementType())
-            return ArrayType::get(ctxt_, elem);
-          return type;
-        }
-        return nullptr;
-      }
-
-      Type visitLValueType(LValueType* type) {
-        if (Type elem = visit(type->getType())) {
-          if (elem->is<ErrorType>())
-            return elem;
-          if (elem != type->getType())
-            return LValueType::get(ctxt_, elem);
-          return type;
-        }
-        return nullptr;
-      }
-
-      Type visitCellType(CellType* type) {
-        if (Type sub = type->getSubst())
-          return visit(sub);
-        return nullptr;
-      }
-
-      Type visitErrorType(ErrorType* type) {
-        // Assert that we have emitted at least 1 error if
-        // we have a ErrorType present in the hierarchy.
-        assert(ctxt_.hadErrors());
+    Type visitLValueType(LValueType* type) {
+      if (Type elem = visit(type->getType())) {
+        if (elem->is<ErrorType>())
+          return elem;
+        if (elem != type->getType())
+          return LValueType::get(ctxt_, elem);
         return type;
       }
+      return nullptr;
+    }
 
-      Type visitFunctionType(FunctionType* type) {
-        // Get return type
-        Type returnType = visit(type->getReturnType());
-        if(!returnType) return nullptr;
-        // Get Param types
-        SmallVector<Type, 4> paramTypes;
-        for(auto param : type->getParamTypes()) {
-          if(Type t = visit(param))
-            paramTypes.push_back(t);
-          else 
-            return nullptr;
-        }
-        // Recompute if needed
-        if(!type->isSame(paramTypes, returnType))
-          return FunctionType::get(ctxt_, paramTypes, returnType);
-        return type;
+    Type visitTypeVariableType(TypeVariableType* type) {
+      // Just return the *real* substitution for that TypeVariable.
+      // If there's none (nullptr), that'll be automatically
+      // translated to ErrorType.
+      return sema_.getSubstitution(type, /*recursively*/ true);
+    }
+
+    Type visitErrorType(ErrorType* type) {
+      // Assert that we have emitted at least 1 error if
+      // we have a ErrorType present in the hierarchy.
+      assert(ctxt_.hadErrors());
+      return type;
+    }
+
+    Type visitFunctionType(FunctionType* type) {
+      // Get return type
+      Type returnType = visit(type->getReturnType());
+      if(!returnType) return nullptr;
+      // Get Param types
+      SmallVector<Type, 4> paramTypes;
+      for(auto param : type->getParamTypes()) {
+        if(Type t = visit(param))
+          paramTypes.push_back(t);
+        else 
+          return nullptr;
       }
-  };
-} // End anonymous namespace
+      // Recompute if needed
+      if(!type->isSame(paramTypes, returnType))
+        return FunctionType::get(ctxt_, paramTypes, returnType);
+      return type;
+    }
+};
 
 Expr* Sema::typecheckExpr(Expr* expr) {
   assert(expr && "null input");
   expr = ExprChecker(*this).check(expr);
-  expr = ExprFinalizer(ctxt_).finalize(expr);
+  expr = ExprFinalizer(*this).finalize(expr);
   // Success is if the type of the expression isn't ErrorType.
   return expr;
 }
@@ -1076,14 +1077,14 @@ bool Sema::typecheckExprOfType(Expr*& expr, Type type) {
 
   expr = ExprChecker(*this).check(expr);
   bool success = unify(type, expr->getType());
-  expr = ExprFinalizer(ctxt_).finalize(expr);
+  expr = ExprFinalizer(*this).finalize(expr);
 
   return success;
 }
 
 bool Sema::typecheckCondition(Expr*& expr) {
   expr = ExprChecker(*this).check(expr);
-  expr = ExprFinalizer(ctxt_).finalize(expr);
+  expr = ExprFinalizer(*this).finalize(expr);
   // ErrorType ? Return false.
   if(expr->getType()->is<ErrorType>()) return false;
   // Else, return true if we have a numeric or boolean type.

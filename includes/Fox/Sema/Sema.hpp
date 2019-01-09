@@ -83,11 +83,12 @@ namespace fox {
       ASTContext& getASTContext();
 
     private:
-      // Checkers
+      // Children checkers and others
       class Checker;
       class DeclChecker;
       class StmtChecker;
       class ExprChecker;
+      class ExprFinalizer;
 
       //---------------------------------//
       // Type related methods
@@ -199,7 +200,11 @@ namespace fox {
 
       // Returns the substitution for the type variable tyVar.
       // Constant time operation.
-      Type getSubstitution(TypeVariableType* tyVar);
+      //
+      // If recursively is set to true and the substitution is another type
+      // variable, calls getSubstitution on that typevariable to get the final,
+      // non TypeVariable substitution.
+      Type getSubstitution(TypeVariableType* tyVar, bool recursively = false);
 
       // Sets the substitution for the type variable tyVar to subst.
       // If allowOverride is set to false and a substitution already exists,

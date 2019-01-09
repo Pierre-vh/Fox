@@ -20,11 +20,12 @@ using namespace fox;
 
 bool Sema::unify(Type a, Type b) {
   auto comparator = [](Type a, Type b) {
-    // Allow exact equality unless it's a CellType exact
-    // equality.
-    if(!a->is<CellType>()) {
-      if (a == b) 
-        return true;
+    // Allow exact equality unless they're both
+    // typevariables.
+    if(a == b) {
+      // False if it's a TypeVariableType, as they're handled
+      // in the unification algorithm specifically.
+      return !a->is<TypeVariableType>();
     }
     return false;
   };
@@ -46,57 +47,53 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
 
   /* Unification logic */
 
-  // CellType = (Something)
-  if (auto* aCell = a->getAs<CellType>()) {
-    // CellType = CellType
-    if (auto* bCell = b->getAs<CellType>()) {
-      // Both are CellTypes, check if they have a substitution
-      Type aCellSub = aCell->getSubst();
-      Type bCellSub = bCell->getSubst();
+  // TypeVariable = (Something)
+  if (auto* aTV = a->getAs<TypeVariableType>()) {
+    Type aTVSubst = getSubstitution(aTV);
+    // TypeVariable = TypeVariable
+    //  Both are TypeVariable, check if they have substitutions
+    if (auto* bTV = b->getAs<TypeVariableType>()) {
+      Type bTVSubst = getSubstitution(bTV);
       // Both have a sub
-      if (aCellSub && bCellSub) {
-
-        bool unifyResult = unify(aCellSub, bCellSub, comparator);
-        // If it's nested CellTypes, just return the unifyResult.
-        if (aCellSub->is<CellType>() || bCellSub->is<CellType>())
-          return unifyResult;
-
-        // If theses aren't nested celltypes, return false on error.
-        if (!unifyResult)
-          return false;
-
-        // Unification of the subs was successful.
-        return true;
-      }
+      if (aTVSubst && bTVSubst)
+        return unify(aTVSubst, bTVSubst, comparator);
       // A has a sub, B doesn't
-      if (aCellSub) {
-        bCell->setSubst(aCellSub);
+      if (aTVSubst) {
+        // Set B's substitution to A.
+        setSubstitution(bTV, aTV, false);
         return true;
       }
       // B has a sub, A doesn't
-      if (bCellSub) {
-        aCell->setSubst(bCellSub);
+      if (bTVSubst) {
+        // Set A's substitution to B
+        setSubstitution(aTV, bTV, false);
         return true;
       }
-      // None of them has a sub.
-      Type fresh = CellType::create(ctxt_);
-      aCell->setSubst(fresh);
-      bCell->setSubst(fresh);
+      // None of them have a substitution
+      // FIXME: This isn't efficient.
+      Type fresh = createNewTypeVariable();
+      setSubstitution(aTV, fresh, false);
+      setSubstitution(bTV, fresh, false);
       return true;
     }
-    // CellType = (Not CellType)
+    // TypeVariable = (Not TypeVariable)
     else {
-      if (auto* aCellSub = aCell->getSubst().getPtr())
-        return unify(aCellSub, b, comparator);
-      aCell->setSubst(b);
+      // If aTV has a subst, unify the subst with b.
+    // else, use b as the subst for aTV
+      if (aTVSubst)
+        return unify(aTVSubst, b, comparator);
+      setSubstitution(aTV, b, false);
       return true;
     }
   }
-  // (Not CellType) = CellType
-  else if (auto* bCell = b->getAs<CellType>()) {
-    if (Type bCellSub = bCell->getSubst())
-      return unify(a, bCellSub, comparator);
-    bCell->setSubst(a);
+  // (Not TypeVariable) = TypeVariable
+  else if (auto* bTV = b->getAs<TypeVariableType>()) {
+    Type bTVSubst = getSubstitution(bTV);
+    // If bTV has a subst, unify the subst with a.
+    // else, use a as the subst for bTV
+    if (bTVSubst)
+      return unify(a, bTVSubst, comparator);
+    setSubstitution(bTV, a, false);
     return true;
   }
   // ArrayType = (Something)
@@ -168,10 +165,15 @@ void Sema::resetTypeVariables() {
   // TODO: Reset the allocator here
 }
 
-Type Sema::getSubstitution(TypeVariableType* tyVar) {
+Type Sema::getSubstitution(TypeVariableType* tyVar, bool recursively) {
   auto num = tyVar->getNumber();
   assert(num < typeVarsSubsts_.size() && "out-of-range");
-  return typeVarsSubsts_[num];
+  Type sub = typeVarsSubsts_[num];
+  if(sub && recursively) {
+    if(auto* tv = sub->getAs<TypeVariableType>())
+      return getSubstitution(tv, true);
+  }  
+  return sub;
 }
 
 void Sema::setSubstitution(TypeVariableType* tyVar, Type subst, 
