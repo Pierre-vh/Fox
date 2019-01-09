@@ -126,21 +126,9 @@ To-Do:
   > Booleans are not numeric types anymore (Done)
   > Switch Fox to full blown strong typing (Done)
   > Make the Type static factories return a Type instead of a TypeBase* (Done)
-
-  > Refactor "getRange" in Decl/Stmt/Expr
-    In general, getRange will change meaning. Instead of always returning
-    the exact, precise, full location of the statement, it'll calculate it
-    based on what it knows. This saves a bit of memory (80 bits on each node)
-    and should be more precise/trustworthy in most cases (when the node is
-    valid, at least)
-    > Stmt 
-    > Decl
-    > Expr
-
-  > Add some "shortcuts" inside the ASTContext for the most used types, such as 
-    all primitive types and the ErrorType?
-
-  > Make the Type getters return "Type" instead of pointers.
+  > Add "AnyLiteralExpr" as a common base for LiteralExprs (Done)
+  > Refactor "getRange" in Decl/Stmt/Expr (Done)
+  > Make the Type getters return "Type" instead of pointers (Done)
 
   > ASTVerifier
       Asserts that the AST is well formed. Used as a debug tool (will only be enabled in Debug builds)
