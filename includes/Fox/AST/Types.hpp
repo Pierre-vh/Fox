@@ -317,7 +317,7 @@ namespace fox {
   // TypeVariableType
   //  A "Type Variable", e.g. "T0", introduced in places
   //  where type inference is required.
-  class TypeVariableType : public TypeBase {
+  class TypeVariableType final : public TypeBase {
     public:
       static Type create(ASTContext& ctxt, std::uint16_t number);
 
