@@ -152,3 +152,36 @@ bool Sema::isWellFormed(ArrayRef<Type> types) {
   }
   return true;
 }
+
+Type Sema::createNewTypeVariable() {
+  // TODO: Allocate that in a custom allocator
+
+  // Create a new entry in the substitutions array for this 
+  // new TypeVariable.
+  typeVarsSubsts_.push_back(nullptr);
+  return TypeVariableType::create(ctxt_, tyVarsCounter_++);
+}
+
+void Sema::resetTypeVariables() {
+  tyVarsCounter_ = 0;
+  typeVarsSubsts_.clear();
+  // TODO: Reset the allocator here
+}
+
+Type Sema::getSubstitution(TypeVariableType* tyVar) {
+  auto num = tyVar->getNumber();
+  assert(num < typeVarsSubsts_.size() && "out-of-range");
+  return typeVarsSubsts_[num];
+}
+
+void Sema::setSubstitution(TypeVariableType* tyVar, Type subst, 
+                           bool allowOverride) {
+  auto num = tyVar->getNumber();
+  assert(num < typeVarsSubsts_.size() && "out-of-range");
+  TypeBase*& cur = typeVarsSubsts_[num];             
+  
+  if((!cur) || (cur && allowOverride))
+    cur = subst.getPtr();
+  else
+    assert("A substitution already exists and it can't be overriden");
+}

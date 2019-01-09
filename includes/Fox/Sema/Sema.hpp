@@ -188,6 +188,32 @@ namespace fox {
         SourceLoc loc, const LookupOptions& options = LookupOptions());
 
       //---------------------------------//
+      // Type variables management
+      //---------------------------------//
+
+      // Creates a new TypeVariable
+      Type createNewTypeVariable();
+
+      // Resets the TypeVariable counters & substitutions vector.
+      void resetTypeVariables();
+
+      // Returns the substitution for the type variable tyVar.
+      // Constant time operation.
+      Type getSubstitution(TypeVariableType* tyVar);
+
+      // Sets the substitution for the type variable tyVar to subst.
+      // If allowOverride is set to false and a substitution already exists,
+      // an assertion is triggered and the type isn't replaced.
+      void setSubstitution(TypeVariableType* tyVar, Type subst, 
+        bool allowOverride);
+
+      // The substitutions for each type variable.
+      // FIXME: Should I store a Type instead of a TypeBase?
+      SmallVector<TypeBase*, 8> typeVarsSubsts_;
+
+      std::uint16_t tyVarsCounter_ = 0;
+
+      //---------------------------------//
       // DeclContext management
       //---------------------------------//
 
@@ -218,7 +244,6 @@ namespace fox {
       // Asserts that the current localScope is non nullptr.
       RAIILocalScope openNewScopeRAII();
 
-
       // Creates a new "root" scope for the FuncDecl fn.
       // Returns a RAII object that will, upon destruction, restore the LocalScope.
       //
@@ -231,6 +256,10 @@ namespace fox {
       // Returns true if this Sema instance posseses an active local scope in
       // which local declarations can be made visible
       bool hasLocalScope() const;
+
+      //---------------------------------//
+      // Other members
+      //---------------------------------//
 
       // The current active DeclContext.
       DeclContext* currentDC_ = nullptr;
