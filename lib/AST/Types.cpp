@@ -30,7 +30,6 @@ namespace {
     bool debugPrint = false;
 
     static constexpr char nullTypeStr[] = "nullptr";
-    static constexpr char emptyCellTypeStr[] = "any";
 
     public:
       TypePrinter(std::ostream& out, bool debugPrint) :
@@ -105,24 +104,11 @@ namespace {
         out << "<error_type>";
       }
 
-      void visitCellType(CellType* type) {
-        if (debugPrint) {
-          out << "Cell." << (void*)type << "(";
-          if (Type elem = type->getSubst())
-            visit(elem);
-          else out << nullTypeStr;
-          out << ")";
-        }
-        else {
-          if(Type ty = type->getSubst())
-            visit(ty);
-          else 
-            out << emptyCellTypeStr;
-        }
-      }
-
       void visitTypeVariableType(TypeVariableType* type) {
-        out << "$T" << type->getNumber();
+        if(debugPrint)
+          out << "$T" << type->getNumber();
+        else 
+          out << "any";
       }
 
       void visitFunctionType(FunctionType* type) {
@@ -144,7 +130,6 @@ namespace {
   };
 
   constexpr char TypePrinter::nullTypeStr[];
-  constexpr char TypePrinter::emptyCellTypeStr[];
 }
 
 //----------------------------------------------------------------------------//
