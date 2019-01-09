@@ -377,6 +377,7 @@ void FuncDecl::setBody(CompoundStmt* body) {
 }
 
 void FuncDecl::calculateType() {
+  assert(getType().isNull() && "called uselessly!");
   ASTContext& ctxt = getASTContext();
   assert(returnType_ && "return type can't be null!");
   // Collect the Parameter's type
