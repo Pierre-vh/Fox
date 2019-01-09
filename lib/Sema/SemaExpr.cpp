@@ -462,8 +462,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // For every other operator, we must use the bound RValue version
       // of the types.
-      lhsTy = lhsTy->getAsBoundRValue();
-      rhsTy = rhsTy->getAsBoundRValue();
+      lhsTy = lhsTy->getRValue();
+      rhsTy = rhsTy->getRValue();
 
       // If the types are not bound, just give up and let the ExprFinalizer
       // display the errors.
@@ -542,7 +542,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* visitUnaryExpr(UnaryExpr* expr) {
       using UOp = UnaryExpr::OpKind;
       Expr* child = expr->getExpr();
-      Type childTy = child->getType()->getAsBoundRValue();
+      Type childTy = child->getType()->getRValue();
 
       // If the type isn't bound, give up.
       if (!childTy) return expr;
@@ -569,7 +569,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type childTy = child->getType()->getRValue();
       // Get idx expr and it's type
       Expr* idxE = expr->getIndex();
-      Type idxETy = idxE->getType()->getAsBoundRValue();
+      Type idxETy = idxE->getType()->getRValue();
 
       // Unbound type as a idx: give up
       if (!idxETy)
@@ -715,7 +715,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // visitArrayLiteralExpr helpers
     bool checkIfLegalWithinArrayLiteral(ArrayLiteralExpr* lit, Expr* expr) {
-      Type ty = expr->getType()->getAsBoundRValue();
+      Type ty = expr->getType()->getRValue();
       // unbound types are ok
       if(!ty) return true;
       // check if not function type
@@ -865,7 +865,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         "LValues!");
 
       // Get the bound RValue version of the LHS.
-      lhsTy = lhsTy->getAsBoundRValue();
+      lhsTy = lhsTy->getRValue();
       // Some more sanity checks:
         // Can't have unbound LValues
       assert(lhsTy && "DeclRefExpr has a LValue to an unbound type?");
@@ -1087,5 +1087,5 @@ bool Sema::typecheckCondition(Expr*& expr) {
   // ErrorType ? Return false.
   if(expr->getType()->is<ErrorType>()) return false;
   // Else, return true if we have a numeric or boolean type.
-  return expr->getType()->getAsBoundRValue()->isNumericOrBool();
+  return expr->getType()->getRValue()->isNumericOrBool();
  }

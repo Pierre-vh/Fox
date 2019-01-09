@@ -129,7 +129,7 @@ static Sema::TypePair unwrapArrays(Type a, Type b) {
 Sema::TypePair Sema::unwrapAll(Type a, Type b) {
   assert(a && b && "args cannot be null");
   // Ignore LValues & deref both
-	// Note: getAsBoundRValue is not desired here
+	// Note: getRValue is not desired here
 	// because we want to support unbound types.
   auto uwA = a->getRValue()->deref();
   auto uwB = b->getRValue()->deref();

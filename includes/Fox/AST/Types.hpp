@@ -62,10 +62,6 @@ namespace fox {
       // returns this.
       Type getRValue();
 
-      // If this is a bound type, ignores LValues and dereferences this type. 
-      // If this is an unbound type, returns nullptr.
-      Type getAsBoundRValue();
-
       // If this type is a CellType, dereference it recursively 
       // until we reach a CellType with no substitution or a
       // concrete type.
@@ -317,5 +313,4 @@ namespace fox {
 
       Type subst_ = nullptr;
   };
-
 }
