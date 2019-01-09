@@ -313,4 +313,23 @@ namespace fox {
 
       Type subst_ = nullptr;
   };
+
+  // TypeVariableType
+  //  A "Type Variable", e.g. "T0", introduced in places
+  //  where type inference is required.
+  class TypeVariableType : public TypeBase {
+    public:
+      static TypeVariableType* create(ASTContext& ctxt, std::uint16_t number);
+
+      std::uint16_t getNumber() const;
+
+      static bool classof(const TypeBase* type) {
+        return (type->getKind() == TypeKind::TypeVariableType);
+      }
+
+    private:
+      TypeVariableType(std::uint16_t number);
+
+      std::uint16_t number_ = 0;
+  };
 }

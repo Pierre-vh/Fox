@@ -121,6 +121,10 @@ namespace {
         }
       }
 
+      void visitTypeVariableType(TypeVariableType* type) {
+        out << "$T" << type->getNumber();
+      }
+
       void visitFunctionType(FunctionType* type) {
         out << "(";
         bool first = true;
@@ -194,17 +198,6 @@ Type TypeBase::getRValue() {
   if (LValueType* tmp = dyn_cast<LValueType>(this))
     return tmp->getType();
   return this;
-}
-
-Type TypeBase::getAsBoundRValue() {
-  Type ty = getRValue()->deref();
-  // Sanity check
-  if(CellType* cell = ty->getAs<CellType>()) {
-    // CellType after deref? It's an unbound one for sure.
-    assert(!cell->hasSubst());
-    return nullptr;
-  }
-  return ty;
 }
 
 namespace {
@@ -458,10 +451,6 @@ void* CellType::operator new(std::size_t sz, ASTContext& ctxt,
 }
 
 //----------------------------------------------------------------------------//
-// ParamType
-//----------------------------------------------------------------------------//
-
-//----------------------------------------------------------------------------//
 // FunctionType
 //----------------------------------------------------------------------------//
 
@@ -554,3 +543,19 @@ FunctionType::FunctionType(ArrayRef<Type> params, Type rtr) :
   std::uninitialized_copy(params.begin(), params.end(),
     getTrailingObjects<Type>());
 }
+
+//----------------------------------------------------------------------------//
+// TypeVariableType
+//----------------------------------------------------------------------------//
+
+TypeVariableType* 
+TypeVariableType::create(ASTContext& ctxt, std::uint16_t number) {
+  return new(ctxt) TypeVariableType(number);
+}
+
+std::uint16_t TypeVariableType::getNumber() const {
+  return number_;
+}
+
+TypeVariableType::TypeVariableType(std::uint16_t number): 
+  TypeBase(TypeKind::TypeVariableType), number_(number) {}
