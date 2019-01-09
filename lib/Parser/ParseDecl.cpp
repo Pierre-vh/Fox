@@ -104,7 +104,6 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
   // Location information
   SourceLoc begLoc = fnKw.getBegin();
-  SourceLoc headEndLoc;
   
   // If invalid is set to true, it means that the declarations is missing
   // critical information and can't be considered as valid. If that's the case,
@@ -149,19 +148,16 @@ Parser::DeclResult Parser::parseFuncDecl() {
   else if (!first.wasSuccessful()) return DeclResult::Error();
 
   // ')'
-  if (auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE))
-    headEndLoc = rightParens;
-  else  {
+  auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
+  if (!rightParens) {
     reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
     // We'll attempt to recover to the '{' too,
 		// so if we find the body of the function
     // we can at least parse that.
     if (!resyncToSign(SignType::S_ROUND_CLOSE, /*stop@semi*/ true, 
-      /*consume*/ false))
+      /*consume*/ true))
       return DeclResult::Error();
-
-    headEndLoc = consumeBracket(SignType::S_ROUND_CLOSE);
   }
   
   // [':' <type>]
@@ -169,7 +165,6 @@ Parser::DeclResult Parser::parseFuncDecl() {
     if (auto rtrTy = parseType()) {
       TypeLoc tl = rtrTy.createTypeLoc();
       rtr->setReturnTypeLoc(tl);
-      headEndLoc = tl.getEnd();
     }
     else {
       if (rtrTy.wasSuccessful())
@@ -177,9 +172,6 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
       if (!resyncToSign(SignType::S_CURLY_OPEN, true, false))
         return DeclResult::Error();
-      // If resynced successfully, use the colon as the end of the header
-      // and consider the return type to be void
-      headEndLoc = colon;
     }
   }
   // if no return type, the function returns void.
@@ -206,7 +198,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
   // Create the full range for this FuncDecl
   SourceRange range(begLoc, body->getEnd());
-  assert(headEndLoc && range && "Invalid loc info");
+  assert(range && begLoc && "Invalid loc info");
 
   // Finish building our FuncDecl.
   ParamList* paramList = ParamList::create(ctxt, params);
