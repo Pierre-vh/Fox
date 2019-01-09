@@ -74,10 +74,6 @@ NullStmt* NullStmt::create(ASTContext& ctxt, SourceLoc semiLoc) {
   return new(ctxt) NullStmt(semiLoc);
 }
 
-void NullStmt::setSemiLoc(SourceLoc semiLoc) {
-  semiLoc_ = semiLoc;
-}
-
 SourceLoc NullStmt::getSemiLoc() const {
   return getRange().getBegin();
 }
