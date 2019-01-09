@@ -88,7 +88,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // "func"
   auto fnKw = consumeKeyword(KeywordType::KW_FUNC);
   if (!fnKw) return DeclResult::NotFound();
-
+  assert(fnKw.getBegin() && "invalid loc info for func token");
   // For FuncDecl, the return node is created prematurely as an "empty shell",
   // because we need it to exist so declarations that are parsed inside it's body
   // can be notified that they are being parsed as part of a declaration.
@@ -96,7 +96,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // Note that the FuncDecl's "shortened" create method automatically sets
   // the Return type to void.
   auto* parentDC = getDeclParentAsDeclCtxt();
-  FuncDecl* rtr = FuncDecl::create(ctxt, parentDC);
+  FuncDecl* rtr = FuncDecl::create(ctxt, parentDC, fnKw.getBegin());
 
   // Create a RAIIDeclParent to notify every parsing function that
   // we're currently parsing a FuncDecl
@@ -204,7 +204,6 @@ Parser::DeclResult Parser::parseFuncDecl() {
   ParamList* paramList = ParamList::create(ctxt, params);
   rtr->setParams(paramList);
   rtr->setBody(body);
-  rtr->setRange(range);
   // Record it
   actOnDecl(rtr);
   // Calculate it's ValueDecl type
@@ -239,15 +238,10 @@ Parser::DeclResult Parser::parseParamDecl() {
 
   TypeLoc tl = typeResult.createTypeLoc();
 
-  SourceLoc begLoc = id.getRange().getBegin();
-  SourceLoc endLoc = tl.getEnd();
-
-  SourceRange range(begLoc, endLoc);
-
-  assert(range && "Invalid loc info");
+  assert(id.getRange() && typeResult.getRange() && "Invalid loc info");
 
   auto* rtr = ParamDecl::create(ctxt, getDeclParent().get<FuncDecl*>(), 
-    id.get(), id.getRange(), tl, isMutable, range);
+    id.get(), id.getRange(), tl, isMutable);
   actOnDecl(rtr);
   return DeclResult(rtr);
 }

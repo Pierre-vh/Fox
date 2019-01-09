@@ -90,9 +90,6 @@ namespace fox {
 
       // Returns the ASTContext in which this Decl lives.
       ASTContext& getASTContext() const;
-      
-      // Sets the range of this Decl
-      void setRange(SourceRange range);
 
       // Returns the range of this Decl, if it has one.
       SourceRange getRange() const;
@@ -129,11 +126,10 @@ namespace fox {
       void* operator new(std::size_t sz, ASTContext &ctxt, 
         std::uint8_t align = alignof(Decl));
 
-      Decl(DeclKind kind, Parent parent, SourceRange range);
+      Decl(DeclKind kind, Parent parent);
 
     private:
       Parent parent_;
-      SourceRange range_;
 
       static_assert(toInt(DeclKind::LastDecl) < (1 << kindBits_),
         "kind_ bitfield doesn't have enough bits to represent every DeclKind");
@@ -165,7 +161,7 @@ namespace fox {
 
     protected:
       NamedDecl(DeclKind kind, Parent parent, Identifier id, 
-        SourceRange idRange, SourceRange range);
+        SourceRange idRange);
 
     private:
       Identifier identifier_;
@@ -195,7 +191,7 @@ namespace fox {
 
     protected:
       ValueDecl(DeclKind kind, Parent parent, Identifier id, 
-        SourceRange idRange, Type ty, SourceRange range);
+        SourceRange idRange, Type ty);
 
     private:
       Type type_;
@@ -208,7 +204,7 @@ namespace fox {
     public:
       static ParamDecl* create(ASTContext& ctxt, FuncDecl* parent, 
         Identifier id, SourceRange idRange, TypeLoc type,
-        bool isMutable, SourceRange range);
+        bool isMutable);
 
       bool isMutable() const;
 
@@ -216,13 +212,15 @@ namespace fox {
       void setTypeRange(SourceRange range);
       TypeLoc getTypeLoc() const;
 
+      SourceRange getRange() const;
+
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::ParamDecl;
       }
 
     private:
       ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
-        TypeLoc type, bool isMutable, SourceRange range);
+        TypeLoc type, bool isMutable);
 
       bool isMut_ : 1;
       SourceRange typeRange_;
@@ -276,12 +274,13 @@ namespace fox {
   class FuncDecl final: public ValueDecl {
     public:
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent,
-        Identifier id, SourceRange idRange, TypeLoc returnType, 
-        SourceRange range);
+        SourceLoc fnBegLoc, Identifier id, SourceRange idRange, 
+        TypeLoc returnType);
 
       // Creates an "empty" FuncDecl that has no identifier, no sourceloc
       // info, no parameters and returns void.
-      static FuncDecl* create(ASTContext& ctxt, DeclContext* parent);
+      static FuncDecl* create(ASTContext& ctxt, DeclContext* parent, 
+        SourceLoc fnBegLoc);
 
       // Sets the return type of this FuncDecl. 
       // This will nullify the ValueDecl type.
@@ -304,14 +303,17 @@ namespace fox {
       // (Re)calculates this ValueDecl type for this FuncDecl
       void calculateType();
 
+      SourceRange getRange() const;
+
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::FuncDecl;
       }
       
     private:
-      FuncDecl(DeclContext* parent, Identifier fnId, SourceRange idRange,
-        TypeLoc returnType, SourceRange range);
+      FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId, 
+        SourceRange idRange, TypeLoc returnType);
 
+      SourceLoc fnBegLoc_;
       TypeLoc returnType_;
       ParamList* params_ = nullptr;
       CompoundStmt* body_ = nullptr;
@@ -342,6 +344,8 @@ namespace fox {
       void setTypeRange(SourceRange range);
       TypeLoc getTypeLoc() const;
 
+      SourceRange getRange() const;
+
       // Returns true if this variable was declared using the "var" keyword
       // (and thus, is mutable)
       bool isVar() const;
@@ -358,6 +362,7 @@ namespace fox {
         Keyword kw, Expr* init, SourceRange range);
 
       SourceRange typeRange_;
+      SourceRange range_;
       // This VarDecl's initializer + the Keyword used to declare
       // this Variable.
       llvm::PointerIntPair<Expr*, 1, Keyword> initAndKW_;
@@ -375,6 +380,8 @@ namespace fox {
       // Return the ASTContext this Decl lives in.
       ASTContext& getASTContext() const;
 
+      SourceRange getRange() const;
+
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::UnitDecl;
       }
@@ -386,6 +393,7 @@ namespace fox {
     private:
       UnitDecl(ASTContext& ctxt, Identifier id, FileID inFile);
 
+      FileID file_;
       Identifier identifier_;
       ASTContext& ctxt_;
   };

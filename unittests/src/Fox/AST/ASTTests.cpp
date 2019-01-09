@@ -290,12 +290,12 @@ namespace {
   }
 
   FuncDecl* createEmptyFnDecl(ASTContext& ctxt, UnitDecl* unit) {
-    return FuncDecl::create(ctxt, unit);
+    return FuncDecl::create(ctxt, unit, SourceLoc());
   }
 
   ParamDecl* createEmptyParamDecl(ASTContext& ctxt, FuncDecl* func) {
     return ParamDecl::create(ctxt, func, Identifier(), SourceRange(),
-      TypeLoc(), false, SourceRange());
+      TypeLoc(), false);
   }
 }
 

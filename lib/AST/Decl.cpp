@@ -26,8 +26,7 @@ using namespace fox;
 #include "Fox/AST/DeclNodes.def"
 
 
-Decl::Decl(DeclKind kind, Parent parent, SourceRange range):
-  kind_(kind), range_(range), parent_(parent), 
+Decl::Decl(DeclKind kind, Parent parent): parent_(parent),  kind_(kind),
   checkState_(CheckState::Unchecked) {
   assert((parent || isa<UnitDecl>(this)) && "Every decl except UnitDecls must"
     " have a parent!");
@@ -78,20 +77,31 @@ ASTContext& Decl::getASTContext() const {
   return closest->getASTContext();
 }
 
-void Decl::setRange(SourceRange range) {
-  range_ = range;
-}
+static std::int8_t checkHasGetRange(SourceRange (Decl::*)() const) {}
+template<typename Derived>
+static std::int16_t checkHasGetRange(SourceRange (Derived::*)() const) {}
 
 SourceRange Decl::getRange() const {
-  return range_;
+  switch(getKind()) {
+    #define ASSERT_HAS_GETRANGE(ID)\
+      static_assert(sizeof(checkHasGetRange(&ID::getRange)) == 2,\
+        #ID " does not reimplement getRange()")
+    #define DECL(ID, PARENT) case DeclKind::ID:\
+      ASSERT_HAS_GETRANGE(ID); \
+      return cast<ID>(this)->getRange();
+    #include "Fox/AST/DeclNodes.def"
+    #undef ASSERT_HAS_GETRANGE
+    default:
+      fox_unreachable("all kinds handled");
+  }
 }
 
 SourceLoc Decl::getBegin() const {
-  return range_.getBegin();
+  return getRange().getBegin();
 }
 
 SourceLoc Decl::getEnd() const {
-  return range_.getEnd();
+  return getRange().getEnd();
 }
 
 bool Decl::isUnchecked() const {
@@ -115,7 +125,7 @@ void Decl::setCheckState(CheckState state) {
 }
 
 FileID Decl::getFileID() const {
-  return range_.getBegin().getFileID();
+  return getRange().getBegin().getFileID();
 }
 
 void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
@@ -127,7 +137,7 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
 //----------------------------------------------------------------------------//
 
 NamedDecl::NamedDecl(DeclKind kind, Parent parent, Identifier id, 
-  SourceRange idRange, SourceRange range): Decl(kind, parent, range),
+                     SourceRange idRange): Decl(kind, parent),
   identifier_(id), identifierRange_(idRange), illegalRedecl_(false){}
 
 Identifier NamedDecl::getIdentifier() const {
@@ -164,8 +174,8 @@ bool NamedDecl::hasIdentifierRange() const {
 //----------------------------------------------------------------------------//
 
 ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id, 
-  SourceRange idRange, Type ty, SourceRange range): 
-  NamedDecl(kind, parent, id, idRange, range), type_(ty) {}
+  SourceRange idRange, Type ty):  NamedDecl(kind, parent, id, idRange), 
+  type_(ty) {}
 
 Type ValueDecl::getType() const {
   return type_;
@@ -199,9 +209,8 @@ bool ValueDecl::isConst() const {
 //----------------------------------------------------------------------------//
 
 ParamDecl* ParamDecl::create(ASTContext& ctxt, FuncDecl* parent, 
-  Identifier id, SourceRange idRange, TypeLoc type, bool isMutable,
-  SourceRange range) {
-  return new(ctxt) ParamDecl(parent, id, idRange, type, isMutable, range);
+  Identifier id, SourceRange idRange, TypeLoc type, bool isMutable) {
+  return new(ctxt) ParamDecl(parent, id, idRange, type, isMutable);
 }
 
 bool ParamDecl::isMutable() const {
@@ -220,9 +229,13 @@ TypeLoc ParamDecl::getTypeLoc() const {
   return TypeLoc(getType(), getTypeRange());
 }
 
+SourceRange ParamDecl::getRange() const {
+  return SourceRange(getIdentifierRange().getBegin(), typeRange_.getEnd());
+}
+
 ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
-  TypeLoc type, bool isMutable, SourceRange range):
-  ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type.withoutLoc(), range),
+  TypeLoc type, bool isMutable):
+  ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type.withoutLoc()),
   typeRange_(type.getRange()), isMut_(isMutable) {}
 
 //----------------------------------------------------------------------------//
@@ -297,22 +310,23 @@ void* ParamList::operator new(std::size_t, void* mem) {
 // FuncDecl
 //----------------------------------------------------------------------------//
 
-FuncDecl::FuncDecl(DeclContext* parent, Identifier fnId, SourceRange idRange,
-  TypeLoc returnType, SourceRange range):
-  ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange, Type(), range), 
+FuncDecl::FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId,
+  SourceRange idRange, TypeLoc returnType): fnBegLoc_(fnBegLoc),
+  ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange, Type()), 
   returnType_(returnType) {
   assert(returnType && "return type can't be null");
 }
 
-FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent, Identifier id,
-  SourceRange idRange, TypeLoc returnType, SourceRange range) {
-  return new(ctxt) FuncDecl(parent, id, idRange, returnType, range);
+FuncDecl* 
+FuncDecl::create(ASTContext& ctxt, DeclContext* parent, SourceLoc fnBegLoc,
+  Identifier id, SourceRange idRange, TypeLoc returnType) {
+  return new(ctxt) FuncDecl(parent, fnBegLoc, id, idRange, returnType);
 }
 
-FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent) {
+FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent, 
+  SourceLoc fnBegLoc) {
   TypeLoc voidTy(PrimitiveType::getVoid(ctxt));
-  return create(ctxt, parent, Identifier(), SourceRange(), voidTy, 
-    SourceRange());
+  return create(ctxt, parent, fnBegLoc, Identifier(), SourceRange(), voidTy);
 }
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
@@ -377,14 +391,19 @@ void FuncDecl::calculateType() {
   setType(fn);
 }
 
+SourceRange FuncDecl::getRange() const {
+  assert(body_ && "ill formed FuncDecl");
+  return SourceRange(fnBegLoc_, body_->getEnd());
+}
+
 //----------------------------------------------------------------------------//
 // VarDecl
 //----------------------------------------------------------------------------//
 
 VarDecl::VarDecl(Parent parent, Identifier id, SourceRange idRange, 
   TypeLoc type, Keyword kw, Expr* init, SourceRange range):
-  ValueDecl(DeclKind::VarDecl, parent, id, idRange, type.withoutLoc(), range),
-  initAndKW_(init, kw), typeRange_(type.getRange()) {}
+  ValueDecl(DeclKind::VarDecl, parent, id, idRange, type.withoutLoc()), 
+  range_(range), typeRange_(type.getRange()), initAndKW_(init, kw) {}
 
 VarDecl* VarDecl::create(ASTContext& ctxt, Parent parent, Identifier id,
   SourceRange idRange, TypeLoc type, Keyword kw, Expr* init, 
@@ -425,21 +444,17 @@ TypeLoc VarDecl::getTypeLoc() const {
   return TypeLoc(getType(), getTypeRange());
 }
 
+SourceRange VarDecl::getRange() const {
+  return range_;
+}
+
 //----------------------------------------------------------------------------//
 // UnitDecl
 //----------------------------------------------------------------------------//
 
 UnitDecl::UnitDecl(ASTContext& ctxt, Identifier id, FileID file):
-  Decl(DeclKind::UnitDecl, (DeclContext*)nullptr, SourceRange()),
-  identifier_(id), DeclContext(ctxt, DeclContextKind::UnitDecl),
-  ctxt_(ctxt) {
-  // Fetch the SourceRange from the SourceManager if the file is valid
-  if(file) {
-    SourceRange range = ctxt.sourceMgr.getRangeOfFile(file);
-    assert(range && "getRangeOfFile returned an invalid range");
-    setRange(range);
-  }
-}
+  Decl(DeclKind::UnitDecl, (DeclContext*)nullptr), identifier_(id), file_(file),
+  DeclContext(ctxt, DeclContextKind::UnitDecl), ctxt_(ctxt) {}
 
 UnitDecl* UnitDecl::create(ASTContext& ctxt,Identifier id, FileID file) {
   return new(ctxt) UnitDecl(ctxt, id, file);
@@ -455,4 +470,16 @@ void UnitDecl::setIdentifier(Identifier id) {
 
 ASTContext& UnitDecl::getASTContext() const {
   return ctxt_;
+}
+
+SourceRange UnitDecl::getRange() const {
+  const auto& decls = cast<DeclContext>(this)->getDecls();
+  Decl* first = decls.front();
+  Decl* last = decls.back();
+  if(!first)
+    return SourceRange();
+  
+  SourceRange range(first->getBegin(), last->getEnd());
+  assert(range.getFileID() == file_ && "broken UnitDecl");
+  return range;
 }
