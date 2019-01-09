@@ -26,8 +26,8 @@ namespace fox {
   class CompoundStmt;
   class FuncDecl;
   class UnitDecl;
-  // This enum represents every possible Declaration subclass. 
-  // It is automatically generated using Fox/AST/DeclNodes.def
+
+  /// Enum representing every kind of declaration that exist.
   enum class DeclKind : std::uint8_t {
     #define DECL(ID,PARENT) ID,
     #define DECL_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
@@ -39,21 +39,22 @@ namespace fox {
     return static_cast<std::underlying_type<DeclKind>::type>(kind);
   }
 
-  // Decl
-  //    Common base class for every Declaration
-  //    Note that every Decl will take a DeclContext* argument. That DeclContext
-  //    should be their parent DeclContext.
+  /// Decl
+  ///    Common base class for every Declaration
+  ///    Note that every Decl will take a DeclContext* argument. That DeclContext
+  ///    should be their parent DeclContext.
   class alignas(DeclAlignement) Decl {
     static constexpr unsigned kindBits_ = 4;
     public:
+      /// The semantic analysis state for a Decl
       enum class CheckState : std::uint8_t {
-        // The decl has not been checked yet.
+        /// The decl has not been checked yet.
         Unchecked,
 
-        // The Decl is currently being checked
+        /// The Decl is currently being checked
         Checking,
 
-        // The Decl has been checked
+        /// The Decl has been checked
         Checked 
         // There's room for 1 more CheckStates. If this enum is updated
         // beyond 4 elements, increase the size of it's bitfield in Decl.
@@ -61,43 +62,43 @@ namespace fox {
 
       using Parent = llvm::PointerUnion<DeclContext*, FuncDecl*>;
 
-      // Get the kind of Decl this is.
+      /// Returns the kind of Decl this is.
       DeclKind getKind() const;
 
-      // Return the DeclContext in which this Decl is referenced.
-      // Returns nullptr for local decls, or if the parent is null.
+      /// Return the DeclContext in which this Decl is referenced.
+      /// Returns nullptr for local decls, or if the parent is null.
       DeclContext* getDeclContext() const;
 
-      // Returns true if this is a local declaration
+      /// Returns true if this is a local declaration
       bool isLocal() const;
 
-      // For local decls, return the parent FuncDecl.
-      // Returns nullptr for non local decls.
+      /// For local decls, return the parent FuncDecl.
+      /// Returns nullptr for non local decls.
       FuncDecl* getFuncDecl() const;
 
       Parent getParent() const;
       bool isParentNull() const;
 
-      // Returns the "closest" DeclContext.
-      //  -> If this Decl is also a DeclContext, returns 
-      //      dyn_cast<DeclContext>(this)
-      //  -> else, if this Decl is a local Decl, returns 
-      //      getFuncDecl()->getDeclContext()
-      //  -> Else, returns getDeclContext()
-      // Should never return nullptr in a well-formed AST.
+      /// Returns the "closest" DeclContext.
+      ///  -> If this Decl is also a DeclContext, returns 
+      ///      dyn_cast<DeclContext>(this)
+      ///  -> else, if this Decl is a local Decl, returns 
+      ///      getFuncDecl()->getDeclContext()
+      ///  -> Else, returns getDeclContext()
+      /// Should never return nullptr in a well-formed AST.
       LLVM_ATTRIBUTE_RETURNS_NONNULL
       DeclContext* getClosestDeclContext() const;
 
-      // Returns the ASTContext in which this Decl lives.
+      /// Returns the ASTContext in which this Decl lives.
       ASTContext& getASTContext() const;
 
-      // Returns the range of this Decl, if it has one.
+      /// Returns the range of this Decl, if it has one.
       SourceRange getRange() const;
 
-      // Returns the begin loc of this Decl, if it has one.
+      /// Returns the begin loc of this Decl, if it has one.
       SourceLoc getBegin() const;
 
-      // Returns the end loc of this Decl, if it has one.
+      /// Returns the end loc of this Decl, if it has one.
       SourceLoc getEnd() const;
 
       bool isUnchecked() const;
@@ -107,10 +108,10 @@ namespace fox {
       CheckState getCheckState() const;
       void setCheckState(CheckState state);
 
-      // Get the FileID of the file where this Decl is located
+      /// Get the FileID of the file where this Decl is located
       FileID getFileID() const;
 
-      // Debug method. Does a ASTDump of this node to std::cerr
+      /// Debug method. Does a ASTDump of this node to std::cerr
       void dump() const;
 
     protected:
@@ -139,9 +140,9 @@ namespace fox {
       CheckState checkState_ : 2; // The CheckState of this Decl
   };
 
-  // NamedDecl
-  //    Common base class for every named declaration
-  //    (a declaration with an identifier)
+  /// NamedDecl
+  ///    Common base class for every named declaration
+  ///    (a declaration with an identifier)
   class NamedDecl : public Decl {
     public:
       Identifier getIdentifier() const;
@@ -170,13 +171,13 @@ namespace fox {
       bool illegalRedecl_ : 1;
   };
 
-  // A vector of named decls
+  /// A vector of named decls
   using NamedDeclVec = SmallVector<NamedDecl*, 4>;
 
-  // ValueDecl
-  //    Common base class for every value declaration 
-  //    (declares a value of a certain type & name)
-  //    + a "const" attribute. 
+  /// ValueDecl
+  ///    Common base class for every value declaration 
+  ///    (declares a value of a certain type & name)
+  ///    + a "const" attribute. 
   class ValueDecl : public NamedDecl {
     public:
       Type getType() const;
@@ -197,9 +198,9 @@ namespace fox {
       Type type_;
   };
 
-  // ParamDecl
-  //    A declaration of a function parameter. This is simply a ValueDecl,
-  //    and is constant by default.
+  /// ParamDecl
+  ///    A declaration of a function parameter. This is simply a ValueDecl,
+  ///    and is constant by default.
   class ParamDecl final : public ValueDecl {
     public:
       static ParamDecl* create(ASTContext& ctxt, FuncDecl* parent, 
@@ -226,8 +227,8 @@ namespace fox {
       SourceRange typeRange_;
   };
 
-  // ParamList
-  //    Represents a list of ParamDecls
+  /// ParamList
+  ///    Represents a list of ParamDecls
   class ParamList final : llvm::TrailingObjects<ParamList, ParamDecl*> {
     using TrailingObjects = llvm::TrailingObjects<ParamList, ParamDecl*>;
     friend TrailingObjects;
@@ -269,21 +270,20 @@ namespace fox {
       SizeTy numParams_;
   };
   
-  // FuncDecl
-  //    A function declaration
+  /// FuncDecl
+  ///    A function declaration
   class FuncDecl final: public ValueDecl {
     public:
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent,
         SourceLoc fnBegLoc, Identifier id, SourceRange idRange, 
         TypeLoc returnType);
 
-      // Creates an "empty" FuncDecl that has no identifier, no sourceloc
-      // info, no parameters and returns void.
+      /// Creates an "empty" FuncDecl that has no identifier, and is ill-formed
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent, 
         SourceLoc fnBegLoc);
 
-      // Sets the return type of this FuncDecl. 
-      // This will nullify the ValueDecl type.
+      /// Sets the return type of this FuncDecl. 
+      /// This will nullify the ValueDecl type.
       void setReturnTypeLoc(TypeLoc ty);
       TypeLoc getReturnTypeLoc() const;
       Type getReturnType() const;
@@ -293,14 +293,15 @@ namespace fox {
       void setBody(CompoundStmt* body);
       CompoundStmt* getBody() const;
 
-      // Sets the parameters of this FuncDecl. 
-      // This will nullify the ValueDecl type.
+      /// Sets the parameters of this FuncDecl. 
+      /// This will nullify the ValueDecl type.
       void setParams(ParamList* params);
       const ParamList* getParams() const;
       ParamList* getParams();
       bool hasParams() const;
 
-      // (Re)calculates this ValueDecl type for this FuncDecl
+      /// (Re)calculates the ValueDecl type for this FuncDecl
+      /// The ValueDecl type must be nullptr!
       void calculateType();
 
       SourceRange getRange() const;
@@ -319,11 +320,11 @@ namespace fox {
       CompoundStmt* body_ = nullptr;
   };
 
-  // VarDecl
-  //    A let or var variable declaration. 
-  //    This is simply a ValueDecl with an added "init" Expr*. It is
-  //    constant if declared using "let", non const if declared
-  //    using "var".
+  /// VarDecl
+  ///    A let or var variable declaration. 
+  ///    This is simply a ValueDecl with an added "init" Expr*. It is
+  ///    constant if declared using "let", non const if declared
+  ///    using "var".
   class VarDecl final: public ValueDecl {
     public:
       enum class Keyword {
@@ -346,11 +347,11 @@ namespace fox {
 
       SourceRange getRange() const;
 
-      // Returns true if this variable was declared using the "var" keyword
-      // (and thus, is mutable)
+      /// Returns true if this variable was declared using the "var" keyword
+      /// (and thus, is mutable)
       bool isVar() const;
-      // Returns true if this variable was declared using the "let" keyword
-      // (and thus, is a constant)
+      /// Returns true if this variable was declared using the "let" keyword
+      /// (and thus, is a constant)
       bool isLet() const;
 
       static bool classof(const Decl* decl) {
@@ -368,8 +369,8 @@ namespace fox {
       llvm::PointerIntPair<Expr*, 1, Keyword> initAndKW_;
   };
 
-  // UnitDecl
-  //    Represents a parsed Source file.
+  /// UnitDecl
+  ///    Represents a parsed Source file.
   class UnitDecl final: public Decl, public DeclContext {
     public:
       static UnitDecl* create(ASTContext& ctxt, Identifier id, FileID file);
@@ -377,7 +378,7 @@ namespace fox {
       Identifier getIdentifier() const;
       void setIdentifier(Identifier id);
 
-      // Return the ASTContext this Decl lives in.
+      /// Return the ASTContext this UnitDecl lives in.
       ASTContext& getASTContext() const;
 
       SourceRange getRange() const;
