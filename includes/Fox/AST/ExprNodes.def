@@ -29,18 +29,20 @@
 /* Macros */
 
 // Basic operations
-EXPR(BinaryExpr,Expr)
-EXPR(UnaryExpr,Expr)
-EXPR(CastExpr,Expr)
-EXPR(ArraySubscriptExpr,Expr)
+EXPR(BinaryExpr, Expr)
+EXPR(UnaryExpr, Expr)
+EXPR(CastExpr, Expr)
+EXPR(ArraySubscriptExpr, Expr)
 
 // Literals
-EXPR(CharLiteralExpr,Expr)
-EXPR(BoolLiteralExpr,Expr)
-EXPR(IntegerLiteralExpr,Expr)
-EXPR(DoubleLiteralExpr,Expr)
-EXPR(StringLiteralExpr,Expr)
-EXPR(ArrayLiteralExpr,Expr)
+ABSTRACT_EXPR(AnyLiteralExpr, Expr)
+  EXPR(CharLiteralExpr, AnyLiteralExpr)
+  EXPR(BoolLiteralExpr, AnyLiteralExpr)
+  EXPR(IntegerLiteralExpr, AnyLiteralExpr)
+  EXPR(DoubleLiteralExpr, AnyLiteralExpr)
+  EXPR(StringLiteralExpr, AnyLiteralExpr)
+  EXPR(ArrayLiteralExpr, AnyLiteralExpr)
+  EXPR_RANGE(AnyLiteralExpr, CharLiteralExpr, ArrayLiteralExpr)
 
 // Unresolved Exprs
 ABSTRACT_EXPR(UnresolvedExpr, Expr)

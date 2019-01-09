@@ -17,21 +17,17 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
   assert(base && "Base cannot be nullptr!");
 
   // <suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
-  SourceLoc begLoc = base->getBegin();
+
   SourceLoc endLoc;
+
   // "." <id> 
   // '.'
   if (auto dotLoc = consumeSign(SignType::S_DOT)) {
     // <id>
     if (auto id = consumeIdentifier()) {
       // found, return
-      endLoc = id.getRange().getEnd();
-
-      SourceRange range(begLoc, endLoc);
-      assert(range && dotLoc && "Invalid loc info");
-
       return ExprResult(
-        MemberOfExpr::create(ctxt, base ,id.get(), range, dotLoc)
+        MemberOfExpr::create(ctxt, base ,id.get(), id.getRange(), dotLoc)
       );
     }
     else  {
@@ -45,22 +41,20 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
     // <expr>
     if (auto expr = parseExpr()) {
       // ']'
-      endLoc = consumeBracket(SignType::S_SQ_CLOSE);
-      if (!endLoc) {
+      SourceLoc rSqBrLoc = consumeBracket(SignType::S_SQ_CLOSE);
+      if (!rSqBrLoc) {
         reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
 
         if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
           /*consumeToken*/ false))
-          endLoc = consumeBracket(SignType::S_SQ_CLOSE);
+          rSqBrLoc = consumeBracket(SignType::S_SQ_CLOSE);
         else
           return ExprResult::Error();
       }
 
-      SourceRange range(begLoc, endLoc);
-      assert(range && "Invalid loc info");
 
       return ExprResult(
-        ArraySubscriptExpr::create(ctxt, base, expr.get(), range)
+        ArraySubscriptExpr::create(ctxt, base, expr.get(), rSqBrLoc)
       );
     }
     else {
@@ -80,10 +74,8 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
   // <parens_expr_list>
   else if (auto exprlist = parseParensExprList(&endLoc)) {
     assert(endLoc && "parseParensExprList didn't complete the endLoc?");
-    SourceRange range(begLoc, endLoc);
-    assert(range && "Invalid loc info");
     return ExprResult(
-      CallExpr::create(ctxt, base, exprlist.move(), range)
+      CallExpr::create(ctxt, base, exprlist.move(), endLoc)
     );
   }
   else if (!exprlist.wasSuccessful())
@@ -241,11 +233,8 @@ Parser::ExprResult Parser::parseExponentExpr() {
       return ExprResult::Error();
     }
 
-    SourceRange range = lhs.get()->getRange();
-    assert(range && "Invalid loc info");
-
     return ExprResult(BinaryExpr::create(ctxt, BinaryExpr::OpKind::Exp,
-      lhs.get(), rhs.get(), range, expOp));
+      lhs.get(), rhs.get(), expOp));
   }
 
   return lhs;
@@ -258,13 +247,8 @@ Parser::ExprResult Parser::parsePrefixExpr() {
   if (auto uop = parseUnaryOp()) {
 		// <prefix_expr>
     if (auto prefixexpr = parsePrefixExpr()) {
-      SourceLoc endLoc = prefixexpr.get()->getEnd();
-
-      SourceRange range(uop.getRange().getBegin(), endLoc);
-      assert(range && "Invalid loc info");
-
       return ExprResult(UnaryExpr::create(ctxt, uop.get(), prefixexpr.get(),
-          range, uop.getRange()));
+        uop.getRange()));
     }
     else {
       if(prefixexpr.wasSuccessful())
@@ -304,8 +288,7 @@ Parser::ExprResult Parser::parseCastExpr() {
       SourceRange range(begLoc, endLoc);
       assert(range && "Invalid loc info");
 
-      return ExprResult(CastExpr::create(ctxt, tl, prefixexpr.get(),
-          range));
+      return ExprResult(CastExpr::create(ctxt, tl, prefixexpr.get()));
     }
     else {
       reportErrorExpected(DiagID::parser_expected_type);
@@ -360,16 +343,11 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
     }
 
     Expr* rhs = rhsResult.get();
-    SourceLoc begLoc = lhs ? lhs->getBegin() : rtr->getEnd();
-    SourceLoc endLoc = rhs->getEnd();
-
-    SourceRange range(begLoc, endLoc);
-    assert(range && "Invalid loc info");
 
     SourceRange opRange = binop_res.getRange();
 
-    rtr = BinaryExpr::create(ctxt, binop_res.get(), (rtr ? rtr : lhs), rhs, 
-      range, opRange);
+    rtr = BinaryExpr::create(ctxt, binop_res.get(), 
+      (rtr ? rtr : lhs), rhs, opRange);
   }
 
   if (!rtr) {
@@ -393,15 +371,9 @@ Parser::ExprResult Parser::parseExpr() {
       return ExprResult::Error();
     }
 
-    SourceLoc begLoc = lhs.get()->getBegin();
-    SourceLoc endLoc = rhs.get()->getEnd();
-
-    SourceRange range(begLoc, endLoc);
-    assert(range && "Invalid loc info");
-
     SourceRange opRange = op.getRange();
     return ExprResult(BinaryExpr::create(ctxt, op.get(), 
-      lhs.get(), rhs.get(), range, opRange));
+      lhs.get(), rhs.get(), opRange));
   }
   return ExprResult(lhs);
 }

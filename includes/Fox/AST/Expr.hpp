@@ -41,7 +41,6 @@ namespace fox   {
     public:
       ExprKind getKind() const;
 
-      void setRange(SourceRange range);
       SourceRange getRange() const;
       SourceLoc getBegin() const;
       SourceLoc getEnd() const;
@@ -65,12 +64,11 @@ namespace fox   {
       // (needed for class using trailing objects)
       void* operator new(std::size_t , void* mem);
 
-      Expr(ExprKind kind, SourceRange range);
+      Expr(ExprKind kind);
 
     private:
       const ExprKind kind_;
       Type type_;
-      SourceRange range_;
   };
 
   // A Vector of Expr*
@@ -86,7 +84,7 @@ namespace fox   {
       };
 
       static BinaryExpr* create(ASTContext& ctxt, OpKind op, 
-        Expr* lhs, Expr* rhs, SourceRange range, SourceRange opRange);
+        Expr* lhs, Expr* rhs, SourceRange opRange);
 
       void setLHS(Expr* expr);
       Expr* getLHS() const;
@@ -117,6 +115,7 @@ namespace fox   {
       bool isLogical() const;
 
       SourceRange getOpRange() const;
+      SourceRange getRange() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::BinaryExpr);
@@ -135,8 +134,7 @@ namespace fox   {
       std::string getOpID() const;
 
     private:
-      BinaryExpr(OpKind op, Expr* lhs, Expr* rhs,  SourceRange range,
-        SourceRange opRange);
+      BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, SourceRange opRange);
 
       SourceRange opRange_;
       Expr* lhs_ = nullptr;
@@ -145,7 +143,7 @@ namespace fox   {
   };
 
   // UnaryExpr
-  //    A unary expression: -2
+  //    A prefix unary expression: -2
   class UnaryExpr final : public Expr {
     public: 
       enum class OpKind: std::uint8_t {
@@ -154,7 +152,7 @@ namespace fox   {
       };
 
       static UnaryExpr* create(ASTContext& ctxt, OpKind op, Expr* node,
-        SourceRange range, SourceRange opRange);
+        SourceRange opRange);
       
       void setExpr(Expr* expr);
       Expr* getExpr() const;
@@ -163,6 +161,7 @@ namespace fox   {
       void setOp(OpKind op);
 
       SourceRange getOpRange() const;
+      SourceRange getRange() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::UnaryExpr);
@@ -178,8 +177,7 @@ namespace fox   {
       std::string getOpID() const;
 
     private:
-      UnaryExpr(OpKind op, Expr* node, SourceRange range,
-        SourceRange opRange);
+      UnaryExpr(OpKind op, Expr* node, SourceRange opRange);
 
       SourceRange opRange_;
       Expr* expr_ = nullptr;
@@ -190,8 +188,7 @@ namespace fox   {
   //    An explicit "as" cast expression: foo as int
   class CastExpr final : public Expr {
     public:      
-      static CastExpr* create(ASTContext& ctxt, TypeLoc castGoal,
-        Expr* expr, SourceRange range);
+      static CastExpr* create(ASTContext& ctxt, TypeLoc castGoal, Expr* expr);
 
       void setCastTypeLoc(TypeLoc goal);
       TypeLoc getCastTypeLoc() const;
@@ -200,6 +197,8 @@ namespace fox   {
 
       void setExpr(Expr* expr);
       Expr* getExpr() const;
+
+      SourceRange getRange() const;
 
       // Returns true if this cast is considered "useless"
       //  e.g. "0 as int" is a useless cast.
@@ -211,7 +210,7 @@ namespace fox   {
       }
 
     private:
-      CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range);
+      CastExpr(TypeLoc castGoal, Expr* expr);
 
       TypeLoc goal_;
       // The child expr + a "isUseless" flag.
@@ -220,9 +219,29 @@ namespace fox   {
       llvm::PointerIntPair<Expr*, 1, bool> exprAndIsUseless_;
   };
 
+  // AnyLiteralExpr
+  //  Common base class for any literal expression.
+  class AnyLiteralExpr : public Expr {
+    public:
+      SourceRange getRange() const;
+
+      static bool classof(const Expr* expr) {
+        using EK = ExprKind;
+        EK k = expr->getKind();
+        return (k >= EK::First_AnyLiteralExpr) 
+          && (k <= EK::Last_AnyLiteralExpr);
+       }
+
+    protected:
+      AnyLiteralExpr(ExprKind kind, SourceRange range);
+
+    private:
+      SourceRange range_;
+  };
+
   // CharLiteralExpr
   //    A char literal: 'a'
-  class CharLiteralExpr : public Expr {
+  class CharLiteralExpr : public AnyLiteralExpr {
     public:
       static CharLiteralExpr* create(ASTContext& ctxt,
         FoxChar val, SourceRange range);
@@ -241,7 +260,7 @@ namespace fox   {
 
   // IntegerLiteralExpr
   //    An integer literal: 2
-  class IntegerLiteralExpr final : public Expr {
+  class IntegerLiteralExpr final : public AnyLiteralExpr {
     public:
       static IntegerLiteralExpr* create(ASTContext& ctxt, 
         FoxInt val, SourceRange range);
@@ -260,7 +279,7 @@ namespace fox   {
 
   // DoubleLiteralExpr
   //    A double literal: 3.14
-  class DoubleLiteralExpr final : public Expr {
+  class DoubleLiteralExpr final : public AnyLiteralExpr {
     public:
       static DoubleLiteralExpr* create(ASTContext& ctxt, FoxDouble val,
         SourceRange range);
@@ -279,7 +298,7 @@ namespace fox   {
 
   // StringLiteralExpr
   //    A string literal: "foo"
-  class StringLiteralExpr final : public Expr {
+  class StringLiteralExpr final : public AnyLiteralExpr {
     public:
       static StringLiteralExpr* create(ASTContext& ctxt, string_view val,
         SourceRange range);
@@ -298,7 +317,7 @@ namespace fox   {
 
   // BoolLiteralExpr
   //    true/false boolean literal
-  class BoolLiteralExpr final : public Expr {
+  class BoolLiteralExpr final : public AnyLiteralExpr {
     public:
       static BoolLiteralExpr* create(ASTContext& ctxt, bool val, 
         SourceRange range);
@@ -317,7 +336,7 @@ namespace fox   {
 
   // ArrayLiteralExpr
   //    An array literal: [1, 2, 3]
-  class ArrayLiteralExpr final : public Expr, 
+  class ArrayLiteralExpr final : public AnyLiteralExpr, 
     llvm::TrailingObjects<ArrayLiteralExpr, Expr*> {
     friend TrailingObjects;
     public:
@@ -356,7 +375,7 @@ namespace fox   {
       }
 
     protected:
-      UnresolvedExpr(ExprKind kind, SourceRange range);
+      UnresolvedExpr(ExprKind kind);
   };
 
   // UnresolvedDeclRefExpr
@@ -369,12 +388,15 @@ namespace fox   {
       void setIdentifier(Identifier id);
       Identifier getIdentifier() const;
 
+      SourceRange getRange() const;
+
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::UnresolvedDeclRefExpr);
       }
     private:
       UnresolvedDeclRefExpr(Identifier id, SourceRange range);
 
+      SourceRange range_;
       Identifier id_;
   };
 
@@ -388,6 +410,8 @@ namespace fox   {
       ValueDecl* getDecl() const;
       void setDecl(ValueDecl* decl);
 
+      SourceRange getRange() const;
+
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::DeclRefExpr);
       }
@@ -395,7 +419,8 @@ namespace fox   {
     private:
       DeclRefExpr(ValueDecl* decl, SourceRange range);
 
-      ValueDecl * decl_ = nullptr;
+      SourceRange range_;
+      ValueDecl* decl_ = nullptr;
   };
 
   // MemberOfExpr
@@ -403,15 +428,17 @@ namespace fox   {
   class MemberOfExpr final : public Expr {
     public:
       static MemberOfExpr* create(ASTContext& ctxt, Expr* base, 
-        Identifier membID, SourceRange range, SourceLoc dotLoc);
+        Identifier membID, SourceRange membIDRange, SourceLoc dotLoc);
 
       void setExpr(Expr* expr);
       Expr* getExpr() const;
 
       void setMemberID(Identifier id);
       Identifier getMemberID() const;
-
+      SourceRange getMemberIDRange() const;
       SourceLoc getDotLoc() const;
+
+      SourceRange getRange() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::MemberOfExpr);
@@ -422,6 +449,7 @@ namespace fox   {
 				SourceRange range, SourceLoc dotLoc);
 
       SourceLoc dotLoc_;
+      SourceRange membIDRange_;
       Expr* base_ = nullptr;
       Identifier memb_;
   };
@@ -431,7 +459,7 @@ namespace fox   {
   class ArraySubscriptExpr final : public Expr {
     public:
       static ArraySubscriptExpr* create(ASTContext& ctxt, Expr* base, 
-        Expr* idx, SourceRange range);
+        Expr* idx, SourceLoc rightSqBrLoc);
       
       void setBase(Expr* expr);
       Expr* getBase() const;
@@ -439,13 +467,16 @@ namespace fox   {
       void setIndex(Expr* expr);
       Expr* getIndex() const;
 
+      SourceRange getRange() const;
+
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::ArraySubscriptExpr);
       }
 
     private:
-      ArraySubscriptExpr(Expr* base, Expr* idx, SourceRange range);
+      ArraySubscriptExpr(Expr* base, Expr* idx, SourceLoc rightSqBrLoc);
 
+      SourceLoc rightSqBrLoc_;
       Expr* base_ = nullptr;
       Expr* idxExpr_ = nullptr;
   };
@@ -460,7 +491,7 @@ namespace fox   {
       static constexpr auto maxArgs = std::numeric_limits<SizeTy>::max();
 
       static CallExpr* create(ASTContext& ctxt, Expr* callee,
-        ArrayRef<Expr*> args, SourceRange range);
+        ArrayRef<Expr*> args, SourceLoc rRoBrLoc);
 
       void setCallee(Expr* base);
       Expr* getCallee() const;
@@ -475,13 +506,16 @@ namespace fox   {
       // to the Call. Returns an invalid SourceRange if numArgs() == 0.
       SourceRange getArgsRange() const;
 
+      SourceRange getRange() const;
+
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::CallExpr);
       }
 
     private:
-      CallExpr(Expr* callee, ArrayRef<Expr*> args, SourceRange range);
+      CallExpr(Expr* callee, ArrayRef<Expr*> args, SourceLoc rRoBrLoc);
 
+      SourceLoc rightRoBrLoc_;
       const SizeTy numArgs_ = 0;
       Expr* callee_ = nullptr;
   };

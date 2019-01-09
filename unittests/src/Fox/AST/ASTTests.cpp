@@ -173,18 +173,18 @@ TEST_F(ASTTest, TypeRTTI) {
 TEST_F(ASTTest, ExprRTTI) {
   // Binary Exprs
   auto* binexpr = BinaryExpr::create(ctxt, BinaryExpr::OpKind::Invalid,
-    nullptr, nullptr, SourceRange(), SourceRange());
+    nullptr, nullptr, SourceRange());
   EXPECT_EQ(binexpr->getKind(), ExprKind::BinaryExpr);
   EXPECT_TRUE(BinaryExpr::classof(binexpr));
 
   // Unary Exprs
   auto* unaryexpr = UnaryExpr::create(ctxt, UnaryExpr::OpKind::Invalid, 
-    nullptr, SourceRange(), SourceRange());
+    nullptr, SourceRange());
   EXPECT_EQ(unaryexpr->getKind(), ExprKind::UnaryExpr);
   EXPECT_TRUE(UnaryExpr::classof(unaryexpr));
 
   // Cast Exprs
-  auto* castexpr = CastExpr::create(ctxt, TypeLoc(), nullptr, SourceRange());
+  auto* castexpr = CastExpr::create(ctxt, TypeLoc(), nullptr);
   EXPECT_EQ(castexpr->getKind(), ExprKind::CastExpr);
   EXPECT_TRUE(CastExpr::classof(castexpr));
 
@@ -230,21 +230,20 @@ TEST_F(ASTTest, ExprRTTI) {
   EXPECT_TRUE(MemberOfExpr::classof(membof));
 
   // Array Access
-  auto* arracc = ArraySubscriptExpr::create(ctxt, nullptr, nullptr, 
-    SourceRange());
+  auto* arracc = ArraySubscriptExpr::create(ctxt, nullptr, nullptr, SourceLoc());
   EXPECT_EQ(arracc->getKind(), ExprKind::ArraySubscriptExpr);
   EXPECT_TRUE(ArraySubscriptExpr::classof(arracc));
 
   // Function calls
   auto* callexpr = CallExpr::create(ctxt, nullptr,
-    ExprVector(), SourceRange());
+    ExprVector(), SourceLoc());
   EXPECT_EQ(callexpr->getKind(), ExprKind::CallExpr);
   EXPECT_TRUE(CallExpr::classof(callexpr));
 }
 
 TEST_F(ASTTest, ExprFlags) {
   {
-    CastExpr* cast = CastExpr::create(ctxt, TypeLoc(), nullptr, SourceRange());
+    CastExpr* cast = CastExpr::create(ctxt, TypeLoc(), nullptr);
     // CastExprs shouldn't be useless by default
     EXPECT_FALSE(cast->isUseless());
     cast->markAsUselesss();

@@ -33,27 +33,37 @@ std::ostream& fox::operator<<(std::ostream& os, ExprKind kind) {
   #ID " is allocated in the ASTContext: It's destructor is never called!");
 #include "Fox/AST/ExprNodes.def"
 
-Expr::Expr(ExprKind kind, SourceRange range):
-  kind_(kind), range_(range) {}
+Expr::Expr(ExprKind kind): kind_(kind){}
 
 ExprKind Expr::getKind() const {
   return kind_;
 }
 
-void Expr::setRange(SourceRange range) {
-  range_ = range;
-}
+static std::int8_t checkHasGetRange(SourceRange (Expr::*)() const) {}
+template<typename Derived>
+static std::int16_t checkHasGetRange(SourceRange (Derived::*)() const) {}
 
 SourceRange Expr::getRange() const {
-  return range_;
+  switch(getKind()) {
+    #define ASSERT_HAS_GETRANGE(ID)\
+      static_assert(sizeof(checkHasGetRange(&ID::getRange)) == 2,\
+        #ID " does not reimplement getRange()")
+    #define EXPR(ID, PARENT) case ExprKind::ID:\
+      ASSERT_HAS_GETRANGE(ID); \
+      return cast<ID>(this)->getRange();
+    #include "Fox/AST/ExprNodes.def"
+    #undef ASSERT_HAS_GETRANGE
+    default:
+      fox_unreachable("all kinds handled");
+  }
 }
 
 SourceLoc Expr::getBegin() const {
-  return range_.getBegin();
+  return getRange().getBegin();
 }
 
 SourceLoc Expr::getEnd() const {
-  return range_.getEnd();
+  return getRange().getEnd();
 }
 
 void Expr::setType(Type type) {
@@ -74,11 +84,22 @@ void* Expr::operator new(std::size_t, void* mem) {
 }
 
 //----------------------------------------------------------------------------//
+// AnyLiteralExpr 
+//----------------------------------------------------------------------------//
+
+SourceRange AnyLiteralExpr::getRange() const {
+  return range_;
+}
+
+AnyLiteralExpr::AnyLiteralExpr(ExprKind kind, SourceRange range):
+  Expr(kind), range_(range){}
+
+//----------------------------------------------------------------------------//
 // CharLiteralExpr 
 //----------------------------------------------------------------------------//
 
 CharLiteralExpr::CharLiteralExpr(FoxChar val, SourceRange range):
-  val_(val), Expr(ExprKind::CharLiteralExpr, range) {}
+  val_(val), AnyLiteralExpr(ExprKind::CharLiteralExpr, range) {}
 
 CharLiteralExpr* 
 CharLiteralExpr::create(ASTContext& ctxt, FoxChar val, SourceRange range) {
@@ -94,7 +115,7 @@ FoxChar CharLiteralExpr::getVal() const {
 //----------------------------------------------------------------------------//
 
 IntegerLiteralExpr::IntegerLiteralExpr(FoxInt val, SourceRange range):
-  val_(val), Expr(ExprKind::IntegerLiteralExpr, range) {}
+  val_(val), AnyLiteralExpr(ExprKind::IntegerLiteralExpr, range) {}
 
 IntegerLiteralExpr* 
 IntegerLiteralExpr::create(ASTContext& ctxt, FoxInt val, SourceRange range) {
@@ -110,7 +131,7 @@ FoxInt IntegerLiteralExpr::getVal() const {
 //----------------------------------------------------------------------------//
 
 DoubleLiteralExpr::DoubleLiteralExpr(FoxDouble val, SourceRange range):
-  val_(val), Expr(ExprKind::DoubleLiteralExpr, range) {}
+  val_(val), AnyLiteralExpr(ExprKind::DoubleLiteralExpr, range) {}
 
 DoubleLiteralExpr* 
 DoubleLiteralExpr::create(ASTContext& ctxt, FoxDouble val, SourceRange range) {
@@ -126,9 +147,7 @@ FoxDouble DoubleLiteralExpr::getVal() const {
 //----------------------------------------------------------------------------//
 
 StringLiteralExpr::StringLiteralExpr(string_view val, SourceRange range):
-  val_(val), Expr(ExprKind::StringLiteralExpr, range) {
-
-}
+  val_(val), AnyLiteralExpr(ExprKind::StringLiteralExpr, range) {}
 
 StringLiteralExpr* 
 StringLiteralExpr::create(ASTContext& ctxt, string_view val,
@@ -145,9 +164,7 @@ string_view StringLiteralExpr::getVal() const {
 //----------------------------------------------------------------------------//
 
 BoolLiteralExpr::BoolLiteralExpr(bool val, SourceRange range):
-  val_(val), Expr(ExprKind::BoolLiteralExpr, range) {
-
-}
+  val_(val), AnyLiteralExpr(ExprKind::BoolLiteralExpr, range) {}
 
 BoolLiteralExpr* 
 BoolLiteralExpr::create(ASTContext& ctxt, bool val, SourceRange range) {
@@ -163,7 +180,7 @@ bool BoolLiteralExpr::getVal() const {
 //----------------------------------------------------------------------------//
 
 ArrayLiteralExpr::ArrayLiteralExpr(ArrayRef<Expr*> elems, SourceRange range):
-  Expr(ExprKind::ArrayLiteralExpr, range), 
+  AnyLiteralExpr(ExprKind::ArrayLiteralExpr, range), 
   numElems_(static_cast<SizeTy>(elems.size())) {
   assert((elems.size() < maxElems) && "Too many args for ArrayLiteralExpr. "
     "Change the type of SizeTy to something bigger!");
@@ -210,14 +227,13 @@ bool ArrayLiteralExpr::isEmpty() const {
 // BinaryExpr 
 //----------------------------------------------------------------------------//
 
-BinaryExpr::BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, SourceRange range,
-  SourceRange opRange) : op_(op), Expr(ExprKind::BinaryExpr, range), 
-  opRange_(opRange), lhs_(lhs), rhs_(rhs) {}
+BinaryExpr::BinaryExpr(OpKind op, Expr* lhs, Expr* rhs, SourceRange opRange):
+  op_(op), Expr(ExprKind::BinaryExpr), opRange_(opRange), lhs_(lhs), rhs_(rhs) {}
 
 BinaryExpr* 
 BinaryExpr::create(ASTContext& ctxt, OpKind op, Expr* lhs, Expr* rhs, 
-  SourceRange range, SourceRange opRange) {
-  return new(ctxt) BinaryExpr(op, lhs, rhs, range, opRange);
+  SourceRange opRange) {
+  return new(ctxt) BinaryExpr(op, lhs, rhs, opRange);
 }
 
 void BinaryExpr::setLHS(Expr* expr) {
@@ -315,6 +331,11 @@ SourceRange BinaryExpr::getOpRange() const {
   return opRange_;
 }
 
+SourceRange BinaryExpr::getRange() const {
+  assert(lhs_ && rhs_ && "ill formed BinaryExpr");
+  return SourceRange(lhs_->getBegin(), rhs_->getEnd());
+}
+
 std::string BinaryExpr::getOpSign() const {
   switch (op_) {
     #define BINARY_OP(ID, SIGN, NAME) case OpKind::ID: return SIGN;
@@ -346,13 +367,12 @@ std::string BinaryExpr::getOpName() const {
 // UnaryExpr 
 //----------------------------------------------------------------------------//
 
-UnaryExpr::UnaryExpr(OpKind op, Expr* expr, SourceRange range, 
-  SourceRange opRange):op_(op), Expr(ExprKind::UnaryExpr, range), 
-  opRange_(opRange), expr_(expr) {}
+UnaryExpr::UnaryExpr(OpKind op, Expr* expr,SourceRange opRange): op_(op), 
+  Expr(ExprKind::UnaryExpr), opRange_(opRange), expr_(expr) {}
 
 UnaryExpr* UnaryExpr::create(ASTContext& ctxt, OpKind op, Expr* node, 
-  SourceRange range, SourceRange opRange) {
-  return new(ctxt) UnaryExpr(op, node, range, opRange);
+  SourceRange opRange) {
+  return new(ctxt) UnaryExpr(op, node, opRange);
 }
 
 void UnaryExpr::setExpr(Expr* expr) {
@@ -373,6 +393,11 @@ void UnaryExpr::setOp(OpKind op) {
 
 SourceRange UnaryExpr::getOpRange() const {
   return opRange_;
+}
+
+SourceRange UnaryExpr::getRange() const {
+  assert(opRange_ && expr_ && "ill formed UnaryExpr");
+  return SourceRange(opRange_.getBegin(), expr_->getEnd());
 }
 
 std::string UnaryExpr::getOpSign() const {
@@ -406,13 +431,11 @@ std::string UnaryExpr::getOpName() const {
 // CastExpr 
 //----------------------------------------------------------------------------//
 
-CastExpr::CastExpr(TypeLoc castGoal, Expr* expr, SourceRange range):
-  Expr(ExprKind::CastExpr, range), goal_(castGoal), 
-  exprAndIsUseless_(expr, false) {}
+CastExpr::CastExpr(TypeLoc castGoal, Expr* expr): Expr(ExprKind::CastExpr), 
+  goal_(castGoal), exprAndIsUseless_(expr, false) {}
 
-CastExpr* CastExpr::create(ASTContext& ctxt, TypeLoc castGoal, 
-  Expr* expr, SourceRange range) {
-  return new(ctxt) CastExpr(castGoal, expr, range);
+CastExpr* CastExpr::create(ASTContext& ctxt, TypeLoc castGoal, Expr* expr) {
+  return new(ctxt) CastExpr(castGoal, expr);
 }
 
 void CastExpr::setCastTypeLoc(TypeLoc goal) {
@@ -439,6 +462,11 @@ Expr* CastExpr::getExpr() const {
   return exprAndIsUseless_.getPointer();
 }
 
+SourceRange CastExpr::getRange() const {
+  assert(getCastRange() && getExpr() && "ill-formed CastExpr");
+  return SourceRange(getExpr()->getBegin(), getCastRange().getEnd());
+}
+
 bool CastExpr::isUseless() const {
   return exprAndIsUseless_.getInt();
 }
@@ -451,8 +479,8 @@ void CastExpr::markAsUselesss() {
 // DeclRefExpr 
 //----------------------------------------------------------------------------//
 
-DeclRefExpr::DeclRefExpr(ValueDecl* decl, SourceRange range):
-  decl_(decl), Expr(ExprKind::DeclRefExpr, range) {
+DeclRefExpr::DeclRefExpr(ValueDecl* decl, SourceRange range): range_(range),
+  decl_(decl), Expr(ExprKind::DeclRefExpr) {
 
 }
 
@@ -469,12 +497,16 @@ void DeclRefExpr::setDecl(ValueDecl* decl) {
   decl_ = decl;
 }
 
+SourceRange DeclRefExpr::getRange() const {
+  return range_;
+}
+
 //----------------------------------------------------------------------------//
 // CallExpr 
 //----------------------------------------------------------------------------//
 
-CallExpr::CallExpr(Expr* callee, ArrayRef<Expr*> args, 
-  SourceRange range): Expr(ExprKind::CallExpr, range), callee_(callee), 
+CallExpr::CallExpr(Expr* callee, ArrayRef<Expr*> args, SourceLoc rRoBrLoc):
+  Expr(ExprKind::CallExpr), rightRoBrLoc_(rRoBrLoc), callee_(callee), 
   numArgs_(static_cast<SizeTy>(args.size())) {
   assert((args.size() < maxArgs) && "Too many args for CallExpr. "
     "Change the type of SizeTy to something bigger!");
@@ -484,10 +516,10 @@ CallExpr::CallExpr(Expr* callee, ArrayRef<Expr*> args,
 
 CallExpr* 
 CallExpr::create(ASTContext& ctxt, Expr* callee, ArrayRef<Expr*> args, 
-  SourceRange range) {
+  SourceLoc rRoBrLoc) {
   auto totalSize = totalSizeToAlloc<Expr*>(args.size());
   void* mem = ctxt.allocate(totalSize, alignof(CallExpr));
-  return new(mem) CallExpr(callee, args, range);
+  return new(mem) CallExpr(callee, args, rRoBrLoc);
 }
 
 void CallExpr::setCallee(Expr* callee) {
@@ -529,19 +561,23 @@ SourceRange CallExpr::getArgsRange() const {
   return SourceRange(beg, end);
 }
 
+SourceRange CallExpr::getRange() const {
+  assert(callee_ && rightRoBrLoc_ && "ill-formed CallExpr");
+  return SourceRange(callee_->getBegin(), rightRoBrLoc_);
+}
+
 //----------------------------------------------------------------------------//
 // MemberOfExpr 
 //----------------------------------------------------------------------------//
 
 MemberOfExpr::MemberOfExpr(Expr* base, Identifier membID,
-  SourceRange range, SourceLoc dotLoc):
-  Expr(ExprKind::MemberOfExpr, range), base_(base), memb_(membID),
-  dotLoc_(dotLoc) {}
+  SourceRange membIDRange, SourceLoc dotLoc): Expr(ExprKind::MemberOfExpr), 
+  base_(base), memb_(membID), membIDRange_(membIDRange), dotLoc_(dotLoc) {}
 
 MemberOfExpr* 
 MemberOfExpr::create(ASTContext& ctxt, Expr* base, Identifier membID, 
-  SourceRange range, SourceLoc dotLoc) {
-  return new(ctxt) MemberOfExpr(base, membID, range, dotLoc);
+  SourceRange membIDRange, SourceLoc dotLoc) {
+  return new(ctxt) MemberOfExpr(base, membID, membIDRange, dotLoc);
 }
 
 void MemberOfExpr::setExpr(Expr* expr) {
@@ -560,8 +596,17 @@ Identifier MemberOfExpr::getMemberID() const {
   return memb_;
 }
 
+SourceRange MemberOfExpr::getMemberIDRange() const {
+  return membIDRange_;
+}
+
 SourceLoc MemberOfExpr::getDotLoc() const {
   return dotLoc_;
+}
+
+SourceRange MemberOfExpr::getRange() const {
+  assert(base_ && membIDRange_ && "ill-formed MemberOfExpr");
+  return SourceRange(base_->getBegin(), membIDRange_.getEnd());
 }
 
 //----------------------------------------------------------------------------//
@@ -569,13 +614,13 @@ SourceLoc MemberOfExpr::getDotLoc() const {
 //----------------------------------------------------------------------------//
 
 ArraySubscriptExpr::ArraySubscriptExpr(Expr* expr, Expr* idxexpr, 
-  SourceRange range): base_(expr), idxExpr_(idxexpr), 
-  Expr(ExprKind::ArraySubscriptExpr, range) {}
+SourceLoc rightSqBrLoc): base_(expr), idxExpr_(idxexpr),
+  rightSqBrLoc_(rightSqBrLoc), Expr(ExprKind::ArraySubscriptExpr) {}
 
 ArraySubscriptExpr* 
 ArraySubscriptExpr::create(ASTContext& ctxt, Expr* base, Expr* idx, 
-  SourceRange range) {
-  return new(ctxt) ArraySubscriptExpr(base, idx, range);
+  SourceLoc rightSqBrLoc) {
+  return new(ctxt) ArraySubscriptExpr(base, idx, rightSqBrLoc);
 }
 
 void ArraySubscriptExpr::setBase(Expr* expr) {
@@ -594,19 +639,24 @@ Expr* ArraySubscriptExpr::getIndex() const {
   return idxExpr_;
 }
 
+SourceRange ArraySubscriptExpr::getRange() const {
+  assert(base_ && rightSqBrLoc_ && "ill-formed ArraySubscriptExpr");
+  return SourceRange(base_->getBegin(), rightSqBrLoc_);
+}
+
 //----------------------------------------------------------------------------//
 // UnresolvedExpr 
 //----------------------------------------------------------------------------///
 
-UnresolvedExpr::UnresolvedExpr(ExprKind kind, SourceRange range):
-Expr(kind, range) {}
+UnresolvedExpr::UnresolvedExpr(ExprKind kind):
+Expr(kind) {}
 
 //----------------------------------------------------------------------------//
 // UnresolvedDeclRefExpr 
 //----------------------------------------------------------------------------///
 
 UnresolvedDeclRefExpr::UnresolvedDeclRefExpr(Identifier id, SourceRange range):
-  UnresolvedExpr(ExprKind::UnresolvedDeclRefExpr, range), id_(id) {}
+  UnresolvedExpr(ExprKind::UnresolvedDeclRefExpr), range_(range), id_(id) {}
 
 UnresolvedDeclRefExpr* 
 UnresolvedDeclRefExpr::create(ASTContext& ctxt, Identifier id, 
@@ -620,4 +670,8 @@ void UnresolvedDeclRefExpr::setIdentifier(Identifier id) {
 
 Identifier UnresolvedDeclRefExpr::getIdentifier() const {
   return id_;
+}
+
+SourceRange UnresolvedDeclRefExpr::getRange() const {
+  return range_;
 }
