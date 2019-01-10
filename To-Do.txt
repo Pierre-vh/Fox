@@ -131,8 +131,6 @@ To-Do:
   > Make the Type getters return "Type" instead of pointers (Done)
   > Replace CellTypes with a proper "TypeVariableType" (Done)
 
-  > Properties system for type with a constant property member value
-
   > Refactor checkNonEmptyArrayLiteralExpr. It can be heavily simplified
     since there's no "upranking" anymore. Once that's done, get rid of containsFreeTypeVariable
 
@@ -180,6 +178,10 @@ Diagnostics improvements:
   > When diagnosing a redecl, should I really print "first decl seen here" for each use?
 
 Other:
+  > Update how TypeBase stores it's properties. It should be more streamlined and easier
+    to add new properties. Right now it's a bit of a pain! Adding a new property
+    requires an update on every type!
+
   > Allocate temporary objects inside special pools of the ASTContext. e.g.
       -> TypeVariableTypes
       -> UnresolvedExprs
