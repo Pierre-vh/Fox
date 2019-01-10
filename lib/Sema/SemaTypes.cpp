@@ -137,7 +137,7 @@ Sema::TypePair Sema::unwrapAll(Type a, Type b) {
 }
 
 bool Sema::isWellFormed(Type type) {
-  return !type->is<ErrorType>();
+  return !type->hasErrorType();
 }
 
 bool Sema::isWellFormed(ArrayRef<Type> types) {
