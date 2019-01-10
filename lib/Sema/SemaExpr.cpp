@@ -989,8 +989,12 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
   ASTContext& ctxt_;
   DiagnosticEngine& diags_;
   public:
+    Type theErrorType;
+
     ExprFinalizer(Sema& sema) : sema_(sema), ctxt_(sema.getASTContext()),
-      diags_(sema.getDiagnosticEngine()) {}
+      diags_(sema.getDiagnosticEngine()) {
+      theErrorType = ErrorType::get(ctxt_);
+    }
 
     Expr* finalize(Expr* expr) {
       Expr* e = walk(expr);
@@ -1010,7 +1014,7 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
       // Set the type to ErrorType, diagnose it and move on.
       if (!type) {
         diags_.report(DiagID::sema_failed_infer, expr->getRange());
-        type = ErrorType::get(ctxt_);
+        type = theErrorType;
         shouldVisitChildren = false;
       }
 
@@ -1033,8 +1037,10 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
 
     Type visitArrayType(ArrayType* type) {
       if (Type elem = visit(type->getElementType())) {
-        if (elem->is<ErrorType>())
-          return elem;
+        // If the (new?) element type contains an ErrorType, don't
+        // bother building an ArrayType.
+        if (elem->hasErrorType())
+          return theErrorType;
         if (elem != type->getElementType())
           return ArrayType::get(ctxt_, elem);
         return type;
@@ -1044,8 +1050,10 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
 
     Type visitLValueType(LValueType* type) {
       if (Type elem = visit(type->getType())) {
-        if (elem->is<ErrorType>())
-          return elem;
+        // If the (new?) element type contains an ErrorType, don't
+        // bother building an ArrayType.
+        if (elem->hasErrorType())
+          return theErrorType;
         if (elem != type->getType())
           return LValueType::get(ctxt_, elem);
         return type;
@@ -1055,8 +1063,9 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
 
     Type visitTypeVariableType(TypeVariableType* type) {
       // Just return the *real* substitution for that TypeVariable.
-      // If there's none (nullptr), that'll be automatically
-      // translated to ErrorType.
+      // If there's none (nullptr), the visitors will all 
+      // return nullptr too, notifying handleExprPre of the inference
+      // failure.
       return sema_.getSubstitution(type, /*recursively*/ true);
     }
 
@@ -1070,14 +1079,23 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
     Type visitFunctionType(FunctionType* type) {
       // Get return type
       Type returnType = visit(type->getReturnType());
+
       if(!returnType) return nullptr;
+      if(returnType->hasErrorType()) return theErrorType;
       // Get Param types
       SmallVector<Type, 4> paramTypes;
       for(auto param : type->getParamTypes()) {
-        if(Type t = visit(param))
+        Type t = visit(param);
+        // If T isn't null and isn't an ErrorType,
+        // push it to the paramTypes. Return nullptr
+        // if T is null, or return the error type if
+        // t has an ErrorType too.
+        if(t) {
+          if(t->hasErrorType()) 
+            return theErrorType;
           paramTypes.push_back(t);
-        else 
-          return nullptr;
+        }
+        else return nullptr;
       }
       // Recompute if needed
       if(!type->isSame(paramTypes, returnType))
@@ -1108,7 +1126,7 @@ bool Sema::typecheckCondition(Expr*& expr) {
   expr = ExprChecker(*this).check(expr);
   expr = ExprFinalizer(*this).finalize(expr);
   // ErrorType ? Return false.
-  if(expr->getType()->is<ErrorType>()) return false;
+  if(expr->getType()->hasErrorType()) return false;
   // Else, return true if we have a numeric or boolean type.
   return expr->getType()->getRValue()->isNumericOrBool();
  }
