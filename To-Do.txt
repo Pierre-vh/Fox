@@ -131,8 +131,7 @@ To-Do:
   > Make the Type getters return "Type" instead of pointers (Done)
   > Replace CellTypes with a proper "TypeVariableType" (Done)
 
-  > Simplify the impl of hasTypeVariable in TypeBase. The value can simply be
-    cached since all types are now immutable.
+  > Properties system for type with a constant property member value
 
   > Refactor checkNonEmptyArrayLiteralExpr. It can be heavily simplified
     since there's no "upranking" anymore. Once that's done, get rid of containsFreeTypeVariable
