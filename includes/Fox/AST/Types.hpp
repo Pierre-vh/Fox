@@ -65,6 +65,10 @@ namespace fox {
       // in it's hierarchy.
       bool hasTypeVariable() const;
 
+      // Returns true if this Type contains a ErrorType somewhere
+      // in it's hierarchy.
+      bool hasErrorType() const;
+
       /*
         A special note about the is/getAs/castTo
         family of function : they're strictly helpers.
@@ -133,13 +137,24 @@ namespace fox {
       // And through placement new
       void* operator new(std::size_t, void* buff);
 
+      // Setups the properties for a classic "container" type such as
+      // ArrayType or LValueType. "type" here is the contained type.
+      void initPropertiesForContainerTy(Type type);
+
+      // Setups the properties for a FunctionTye
+      void initPropertiesForFnTy(ArrayRef<Type> params, Type rtr);
+
+      // Type properties
+      bool hasTypeVar_ : 1;
+      bool hasErrorType_ : 1;
+
     private:
       static_assert(toInt(TypeKind::Last_Type) < (1 << 4),
         "Too many types in TypeKind. Increase the number of bits used"
         " to store the TypeKind in TypeBase");
 
       const TypeKind kind_ : 4;
-      // 4 Bits left
+      // 2 Bits left
   };
 
   // BasicType

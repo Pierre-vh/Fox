@@ -136,8 +136,10 @@ namespace {
 // TypeBase
 //----------------------------------------------------------------------------//
 
-TypeBase::TypeBase(TypeKind tc):
-  kind_(tc) {}
+TypeBase::TypeBase(TypeKind tc): kind_(tc) {
+  hasTypeVar_ = false;
+  hasErrorType_ = false;
+}
 
 std::string TypeBase::toString() const {
   std::ostringstream oss;
@@ -173,17 +175,11 @@ Type TypeBase::getRValue() {
 }
 
 bool TypeBase::hasTypeVariable() const {
-  class Impl final : public TypeWalker {
-    public:
-      bool hasTVT = false;
-      bool handleTypePre(Type type) {
-        hasTVT |= type->is<TypeVariableType>();
-        return true;
-      }
-  };
-  Impl walker;
-  walker.walk(const_cast<TypeBase*>(this));
-  return walker.hasTVT;
+  return hasTypeVar_;
+}
+
+bool TypeBase::hasErrorType() const {
+  return hasErrorType_;
 }
 
 bool TypeBase::isStringType() const {
@@ -254,14 +250,26 @@ void* TypeBase::operator new(std::size_t, void* buff) {
   return buff;
 }
 
+void TypeBase::initPropertiesForContainerTy(Type type) {
+  hasTypeVar_ = type->hasTypeVar_;
+  hasErrorType_ = type->hasErrorType_;
+}
+
+void TypeBase::initPropertiesForFnTy(ArrayRef<Type> params, Type rtr) {
+  for(auto param : params) {
+    hasTypeVar_ |= param->hasTypeVar_;
+    hasErrorType_ |= param->hasErrorType_;
+  }
+  hasTypeVar_ |= rtr->hasTypeVar_;
+  hasErrorType_ |= rtr->hasErrorType_;
+}
+
 //----------------------------------------------------------------------------//
 // BasicType
 //----------------------------------------------------------------------------//
 
 BasicType::BasicType(TypeKind tc):
-  TypeBase(tc) {
-
-}
+  TypeBase(tc) {}
 
 //----------------------------------------------------------------------------//
 // PrimitiveType
@@ -319,6 +327,7 @@ PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const {
 ArrayType::ArrayType(Type elemTy):
   elementTy_(elemTy), TypeBase(TypeKind::ArrayType) {
   assert(elemTy && "cannot be null");
+  initPropertiesForContainerTy(elemTy);
 }
 
 Type ArrayType::get(ASTContext& ctxt, Type ty) {
@@ -350,6 +359,7 @@ LValueType::LValueType(Type type):
   TypeBase(TypeKind::LValueType), ty_(type) {
   assert(type && "cannot be null");
   assert((!type->is<LValueType>()) && "Can't create nested LValueTypes!");
+  initPropertiesForContainerTy(type);
 }
 
 Type LValueType::get(ASTContext& ctxt, Type ty) {
@@ -379,7 +389,7 @@ Type LValueType::getType() const {
 
 ErrorType::ErrorType():
   BasicType(TypeKind::ErrorType) {
-
+  hasErrorType_ = true;
 }
 
 Type ErrorType::get(ASTContext& ctxt) {
@@ -480,6 +490,8 @@ FunctionType::FunctionType(ArrayRef<Type> params, Type rtr) :
 
   std::uninitialized_copy(params.begin(), params.end(),
     getTrailingObjects<Type>());
+
+  initPropertiesForFnTy(params, rtr);
 }
 
 //----------------------------------------------------------------------------//
@@ -495,4 +507,6 @@ std::uint16_t TypeVariableType::getNumber() const {
 }
 
 TypeVariableType::TypeVariableType(std::uint16_t number): 
-  TypeBase(TypeKind::TypeVariableType), number_(number) {}
+  TypeBase(TypeKind::TypeVariableType), number_(number) {
+  hasTypeVar_ = true;
+}
