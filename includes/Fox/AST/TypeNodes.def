@@ -22,13 +22,16 @@
 #endif
 
 // Abstract Types, most of the time, we don't care about them.
-// The class name is ID##Type, and the parent PARENT.
+// The class name is ID, and the parent PARENT.
 #ifndef ABSTRACT_TYPE
   #define ABSTRACT_TYPE(ID,PARENT)
 #endif
 
-/* Macros */
+#ifndef LAST_TYPE
+  #define LAST_TYPE(ID)
+#endif
 
+/* Macros */
 ABSTRACT_TYPE(BasicType, TypeBase)
   TYPE(PrimitiveType, BasicType)
   TYPE(ErrorType, BasicType)
@@ -39,7 +42,10 @@ TYPE(ArrayType, TypeBase)
 TYPE(LValueType, TypeBase)
 TYPE(TypeVariableType, TypeBase)
 
+LAST_TYPE(TypeVariableType)
+
 /* Undef */
 #undef ABSTRACT_TYPE
 #undef TYPE
 #undef TYPE_RANGE
+#undef LAST_TYPE

@@ -22,8 +22,13 @@ namespace fox {
   enum class TypeKind : std::uint8_t {
     #define TYPE(ID,PARENT) ID,
     #define TYPE_RANGE(ID,FIRST,LAST) First_##ID = FIRST, Last_##ID = LAST,
+    #define LAST_TYPE(ID) Last_Type
     #include "TypeNodes.def"
   };
+
+  inline constexpr auto toInt(TypeKind kind) {
+    return static_cast<std::underlying_type<TypeKind>::type>(kind);
+  }
 
   // Forward Declarations
   class ASTContext;
@@ -129,7 +134,12 @@ namespace fox {
       void* operator new(std::size_t, void* buff);
 
     private:
-      const TypeKind kind_;
+      static_assert(toInt(TypeKind::Last_Type) < (1 << 4),
+        "Too many types in TypeKind. Increase the number of bits used"
+        " to store the TypeKind in TypeBase");
+
+      const TypeKind kind_ : 4;
+      // 4 Bits left
   };
 
   // BasicType
