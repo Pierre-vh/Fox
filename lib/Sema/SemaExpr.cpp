@@ -989,6 +989,10 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
       theErrorType = ErrorType::get(ctxt_);
     }
 
+    ~ExprFinalizer() {
+      sema_.resetTypeVariables();
+    }
+
     Expr* finalize(Expr* expr) {
       Expr* e = walk(expr);
       assert(e && "expr is null post walk");
