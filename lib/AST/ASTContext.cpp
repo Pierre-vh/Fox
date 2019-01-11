@@ -33,14 +33,15 @@ void ASTContext::setUnit(UnitDecl* decl) {
 
 LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
 void* ASTContext::allocate(std::size_t size, unsigned align) {
-  void* mem = allocator_.allocate(size, align);
+  void* mem = permaAllocator_.allocate(size, align);
   assert(mem && "the allocator returned null memory");
   return mem;
 }
 
-const LinearAllocator& ASTContext::getAllocator() const {
-  return allocator_;
+void ASTContext::dumpAllocator() const {
+  return const_cast<ASTContext*>(this)->getAllocator().dump();
 }
+
 
 void ASTContext::reset() {
   // Clear sets/maps
@@ -63,7 +64,7 @@ void ASTContext::reset() {
   callCleanups();
 
   // Reset the allocator, freeing it's memory.
-  allocator_.reset();
+  permaAllocator_.reset();
 }
 
 Identifier ASTContext::getIdentifier(const std::string& str) {
@@ -77,7 +78,7 @@ Identifier ASTContext::getIdentifier(const std::string& str) {
 string_view ASTContext::allocateCopy(string_view str) {
   std::size_t size = str.size();
   const char* const buffer = str.data();
-  void* const mem = allocator_.allocate(size, alignof(char));
+  void* const mem = permaAllocator_.allocate(size, alignof(char));
   std::memcpy(mem, buffer, size);
   return string_view(static_cast<char*>(mem), size);
 }
@@ -94,4 +95,8 @@ void ASTContext::callCleanups() {
   for(auto cleanup : cleanups_) 
     cleanup();
   cleanups_.clear();
+}
+
+LinearAllocator& ASTContext::getAllocator() {
+  return permaAllocator_;
 }

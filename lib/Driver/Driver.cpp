@@ -70,7 +70,7 @@ bool Driver::processFile(const std::string& filepath) {
   // Dump alloc if needed
   if (getDumpAlloc()) {
     getOS() << "\nDumping allocator:\n";
-    ctxt.getAllocator().dump();
+    ctxt.dumpAllocator();
   }
 
   // Semantic analysis

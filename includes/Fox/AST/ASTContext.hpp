@@ -42,8 +42,7 @@ namespace fox {
       LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
       void* allocate(std::size_t size, unsigned align);
 
-      // Returns a const reference to the default allocator
-      const LinearAllocator& getAllocator() const;
+      void dumpAllocator() const;
 
       // Resets the ASTContext, freeing the AST and
       // everything allocated within it's allocators.
@@ -58,8 +57,8 @@ namespace fox {
       // Shortcut for diagEngine.getErrorCount() != 0
       bool hadErrors() const;
 
-      // Add a cleanup function to be called when the ASTContext's allocator
-      // frees it's memory.
+      // Add a cleanup function to be called when the ASTContext's permanent
+      // allocator frees it's memory.
       void addCleanup(std::function<void(void)> fn);
 
       SourceManager& sourceMgr;
@@ -78,6 +77,9 @@ namespace fox {
 
       // Calls the cleanup functions reset the "cleanups" vector.
       void callCleanups();
+
+      // Returns a non-const reference to the allocator desired.
+      LinearAllocator& getAllocator();
 
       SmallVector<std::function<void(void)>, 4> cleanups_;
 
@@ -110,6 +112,6 @@ namespace fox {
 			std::set<std::string> idents_;
 
       // The main AST allocator, used for long lived objects.
-      LinearAllocator allocator_; 
+      LinearAllocator permaAllocator_; 
   };
 }
