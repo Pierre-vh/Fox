@@ -38,18 +38,6 @@ namespace fox {
       RAIITemporaryAllocator(ASTContext& ctxt);
       ~RAIITemporaryAllocator();
   };
-
-  // Enum representing the kind of allocations that can be performed
-  // in the ASTContext
-  enum class AllocationKind {
-    // Allocates the object in the permament allocation pool.
-    Perma,
-
-    // Allocates the object in the current temporary allocations
-    // pool.
-    Temp
-  };
-
   // The ASTContext is pretty much the centerpiece of the AST. It owns
   // the allocators used to allocate the AST, keeps track of type singletons,
   // of the UnitDecls, etc.
@@ -58,6 +46,14 @@ namespace fox {
   // and SourceManagers.
   class ASTContext final {
     public:
+      enum class AllocKind {
+        // Allocates the object in the permament allocation pool.
+        Perma,
+
+        // Allocates the object in the current temporary allocations
+        // pool.
+        Temp,
+      };
 
       ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags);
       ~ASTContext();
@@ -69,9 +65,9 @@ namespace fox {
       // Allocates memory using the default allocator
       LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
       void* allocate(std::size_t size, unsigned align, 
-                     AllocationKind kind = AllocationKind::Perma);
+                     AllocKind kind = AllocKind::Perma);
 
-      void dumpAllocator(AllocationKind alloc = AllocationKind::Perma) const;
+      void dumpAllocator(AllocKind alloc = AllocKind::Perma) const;
 
       // Resets the ASTContext, freeing the AST and
       // everything allocated within it's allocators.
@@ -82,8 +78,7 @@ namespace fox {
 
       // Allocates a copy of "str" inside the main allocator.
       string_view 
-      allocateCopy(string_view str, 
-                   AllocationKind kind = AllocationKind::Perma);
+      allocateCopy(string_view str, AllocKind kind = AllocKind::Perma);
 
       // Shortcut for diagEngine.getErrorCount() != 0
       bool hadErrors() const;
@@ -111,7 +106,7 @@ namespace fox {
       void callCleanups();
 
       // Returns a non-const reference to the allocator desired.
-      LinearAllocator& getAllocator(AllocationKind alloc);
+      LinearAllocator& getAllocator(AllocKind alloc);
 
       SmallVector<std::function<void(void)>, 4> cleanups_;
 
