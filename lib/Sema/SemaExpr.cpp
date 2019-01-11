@@ -714,8 +714,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // visitArrayLiteralExpr helpers
     bool checkIfLegalWithinArrayLiteral(ArrayLiteralExpr* lit, Expr* expr) {
       Type ty = expr->getType()->getRValue();
-      // unbound types are ok
-      if(!ty) return true;
+      assert(ty && "can't be nullptr!");
       // check if not function type
       if(ty->is<FunctionType>()) {
         diagnoseFunctionTypeInArrayLiteral(lit, expr);
@@ -728,30 +727,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return true;
     }
 
-    bool containsFreeTypeVariable(Type tv) {
-      class Impl final : public TypeWalker {
-        public:
-          Sema& sema;
-
-          Impl(Sema& sema) : sema(sema) {}
-
-          bool hasFreeTV = false;
-          bool handleTypePre(Type type) {
-            if(auto* tv = type->getAs<TypeVariableType>())
-              hasFreeTV |= (sema.getSubstitution(tv,true).isNull());
-            return true;
-          }
-      };
-      Impl walker(getSema());
-      walker.walk(tv);
-      return walker.hasFreeTV;
-    }
-
     // Typechecks a non empty array literal and deduces it's type.
-    //
-    // TODO: This is left a bit scarred due to the removal of CellType.
-    // This entire function can probably be reworked to be much more
-    // simply and/or efficient.
     Expr* checkNonEmptyArrayLiteralExpr(ArrayLiteralExpr* expr) {
       assert(expr->numElems() && "Size must be >0");
 
@@ -761,8 +737,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // Set to false if the ArrayLiteral is considered invalid.
       bool isValid = true;
 
-      // The collection of unbound expression types.
-      SmallVector<Expr*, 4> unboundExprs;
+      // The collection of tvExpr expression types.
+      SmallVector<Expr*, 4> typeVarExprs;
 
       for (auto& elem : expr->getExprs()) {
         // Check if the element's type can legally appear inside an
@@ -776,10 +752,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         // Retrieve the type as a RValue
         Type elemTy = elem->getType()->getRValue();
 
-        // Types that contains free type variables are collected
+        // Types that contains type variables are collected
         // and checked later
-        if (containsFreeTypeVariable(elemTy)) {
-          unboundExprs.push_back(elem);
+        if (elemTy->hasTypeVariable()) {
+          typeVarExprs.push_back(elem);
           continue;
         }
 
@@ -799,25 +775,25 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Invalid expr
       if(!isValid) {
-        // Set the unboundExprs' types to ErrorType and just return.
+        // Set the typeVarExprs' types to ErrorType and just return.
         Type err = ErrorType::get(getCtxt());
-        for(auto unbound : unboundExprs)
+        for(auto unbound : typeVarExprs)
           unbound->setType(err);
         return expr;
       }
 
-      // Expr is valid: Unify unboundExprs with the type, if there's one.
+      // Expr is valid: Unify typeVarExprs with the type, if there's one.
       // If there isn't one, unify the element types with the first 
       // typeVariableExpr.
-      for(auto unbound : unboundExprs) {
+      for(auto tvExpr : typeVarExprs) {
         // (First iter) set type if there isn't one
         if(!proposedType) {
-          proposedType = unbound->getType();
+          proposedType = tvExpr->getType();
           continue;
         }
         // (Next iters) unify.
-        if(!getSema().unify(unbound->getType(), proposedType)) {
-          diagnoseHeteroArrLiteral(expr, unbound, proposedType);
+        if(!getSema().unify(tvExpr->getType(), proposedType)) {
+          diagnoseHeteroArrLiteral(expr, tvExpr, proposedType);
           isValid = false;
         }
       }
@@ -826,7 +802,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(isValid)
         expr->setType(ArrayType::get(getCtxt(), proposedType));
       return expr;
-      
     }
 
     // Typecheck a basic binary expression that involves numeric types. 
@@ -988,7 +963,25 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
   Sema& sema_;
   ASTContext& ctxt_;
   DiagnosticEngine& diags_;
+
+  // This is a pointer to the expression which has an ErrorType and has 
+  // requested to mute every diagnostic that might be emitted when visiting
+  // it's children.
+  Expr* diagsMuter_ = nullptr;
+
   public:
+    void muteDiagsForChildren(Expr* expr) {
+      diags_.setIgnoreAll(true);
+      diagsMuter_ = expr;
+    }
+
+    void tryUnmuteDiags(Expr* expr) {
+      if(expr == diagsMuter_) {
+        diags_.setIgnoreAll(false);
+        diagsMuter_ = nullptr;
+      }
+    }
+
     Type theErrorType;
 
     ExprFinalizer(Sema& sema) : sema_(sema), ctxt_(sema.getASTContext()),
@@ -1008,18 +1001,27 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
 
       // Visit the type
       type = visit(type);
-      bool shouldVisitChildren = true;
       // If the type is nullptr, this inference failed
       // because of a lack of substitution somewhere.
       // Set the type to ErrorType, diagnose it and move on.
       if (!type) {
         diags_.report(DiagID::sema_failed_infer, expr->getRange());
         type = theErrorType;
-        shouldVisitChildren = false;
+      } 
+
+      // Don't diagnose the children of an Expr which has an ErrorType
+      // somewhere.
+      if(type->hasErrorType()) {
+        muteDiagsForChildren(expr);
       }
 
       expr->setType(type);
-      return {expr, shouldVisitChildren};
+      return {expr, true};
+    }
+
+    Expr* handleExprPost(Expr* expr) {
+      tryUnmuteDiags(expr);
+      return expr;
     }
 
     /*
