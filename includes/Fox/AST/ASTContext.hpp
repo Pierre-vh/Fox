@@ -17,44 +17,20 @@
 #include "llvm/ADT/SmallVector.h"
 #include <map>
 #include <set>
-#include <stack>
 #include <functional>
 
 namespace fox {
 	class DiagnosticEngine;
 	class SourceManager;
-  class ASTContext;
 
-  // A RAII Object that creates a new temporary allocator in which
-  // any new temporary allocation will be performed.
-  class RAIITemporaryAllocator {
-    ASTContext& ctxt_;
-    public:
-      RAIITemporaryAllocator(const RAIITemporaryAllocator&) = delete;
-      RAIITemporaryAllocator(RAIITemporaryAllocator&&) = delete;
-      RAIITemporaryAllocator& operator=(const RAIITemporaryAllocator&) = delete;
-      RAIITemporaryAllocator& operator=(RAIITemporaryAllocator&&) = delete;
-
-      RAIITemporaryAllocator(ASTContext& ctxt);
-      ~RAIITemporaryAllocator();
-  };
   // The ASTContext is pretty much the centerpiece of the AST. It owns
   // the allocators used to allocate the AST, keeps track of type singletons,
   // of the UnitDecls, etc.
   //
   // The ASTContext also contains a reference to the "attached" DiagnosticEngine
   // and SourceManagers.
-  class ASTContext final {
+  class ASTContext {
     public:
-      enum class AllocKind {
-        // Allocates the object in the permament allocation pool.
-        Perma,
-
-        // Allocates the object in the current temporary allocations
-        // pool.
-        Temp,
-      };
-
       ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags);
       ~ASTContext();
 
@@ -64,10 +40,9 @@ namespace fox {
 
       // Allocates memory using the default allocator
       LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
-      void* allocate(std::size_t size, unsigned align, 
-                     AllocKind kind = AllocKind::Perma);
+      void* allocate(std::size_t size, unsigned align);
 
-      void dumpAllocator(AllocKind alloc = AllocKind::Perma) const;
+      void dumpAllocator() const;
 
       // Resets the ASTContext, freeing the AST and
       // everything allocated within it's allocators.
@@ -77,8 +52,7 @@ namespace fox {
 			Identifier getIdentifier(const std::string& str);
 
       // Allocates a copy of "str" inside the main allocator.
-      string_view 
-      allocateCopy(string_view str, AllocKind kind = AllocKind::Perma);
+      string_view allocateCopy(string_view str);
 
       // Shortcut for diagEngine.getErrorCount() != 0
       bool hadErrors() const;
@@ -100,13 +74,12 @@ namespace fox {
       friend class ErrorType;
       friend class PrimitiveType;
       friend class FunctionType;
-      friend class RAIITemporaryAllocator;
 
       // Calls the cleanup functions reset the "cleanups" vector.
       void callCleanups();
 
       // Returns a non-const reference to the allocator desired.
-      LinearAllocator& getAllocator(AllocKind alloc);
+      LinearAllocator& getAllocator();
 
       SmallVector<std::function<void(void)>, 4> cleanups_;
 
@@ -140,8 +113,5 @@ namespace fox {
 
       // The main AST allocator, used for long lived objects.
       LinearAllocator permaAllocator_; 
-
-      // The stack of temporary allocators.
-      std::stack<LinearAllocator> tempAllocators_;
   };
 }
