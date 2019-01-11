@@ -43,7 +43,7 @@ namespace fox {
       void* allocate(std::size_t size, unsigned align);
 
       // Returns a const reference to the default allocator
-      const LinearAllocator<>& getAllocator() const;
+      const LinearAllocator& getAllocator() const;
 
       // Resets the ASTContext, freeing the AST and
       // everything allocated within it's allocators.
@@ -110,6 +110,6 @@ namespace fox {
 			std::set<std::string> idents_;
 
       // The main AST allocator, used for long lived objects.
-      LinearAllocator<> allocator_; 
+      LinearAllocator allocator_; 
   };
 }

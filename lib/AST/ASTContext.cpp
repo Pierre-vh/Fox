@@ -38,7 +38,7 @@ void* ASTContext::allocate(std::size_t size, unsigned align) {
   return mem;
 }
 
-const LinearAllocator<>& ASTContext::getAllocator() const {
+const LinearAllocator& ASTContext::getAllocator() const {
   return allocator_;
 }
 

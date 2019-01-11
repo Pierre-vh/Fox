@@ -26,7 +26,7 @@ TEST(LinearAllocatorTests, Spam) {
   };
 
   // Create an allocator with the default parameters
-  LinearAllocator<> alloc;
+  LinearAllocator alloc;
   
   std::vector<TestObject*> objects(COUNT);
 
@@ -72,7 +72,7 @@ TEST(LinearAllocatorTests, Alignement) {
   ALIGNED_STRUCT(Aligned16, 16);
   #undef ALIGNED_STRUCT
 
-  LinearAllocator<> alloc;
+  LinearAllocator alloc;
   #define CHECKALIGN(PTR, ALIGN) ((reinterpret_cast<std::ptrdiff_t>(PTR) % ALIGN) == 0)
   auto* a2 = alloc.allocate<Aligned2>();
   auto* a4 = alloc.allocate<Aligned4>();
@@ -93,7 +93,7 @@ TEST(LinearAllocatorTests, Alignement) {
 
 
 TEST(LinearAllocatorTests, ManualAllocation) {
-  LinearAllocator<> alloc;
+  LinearAllocator alloc;
   char *foo = static_cast<char*>(alloc.allocate(32));
   
   // Set all values to an index
@@ -116,7 +116,7 @@ TEST(LinearAllocatorTests, ManualAllocation) {
 // This test checks that an object of the size of the pool 
 // fits in a pool without throwing errors.
 TEST(LinearAllocatorTests, LargeObject) {
-  LinearAllocator<200> alloc;
+  CustomLinearAllocator<200> alloc;
   std::uint8_t *buff = static_cast<std::uint8_t*>(alloc.allocate(200));
   EXPECT_NE(buff, nullptr) << "Buffer is null?";
   EXPECT_EQ(alloc.getBytesInCurrentPool(), 200);

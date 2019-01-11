@@ -9,7 +9,8 @@
 //----------------------------------------------------------------------------//
 
 // LinearAllocator To-Do list:
-  // Allow multiple allocations of a single element ("count" arg)
+  // 1) Allow allocation of objects of any size in custom pools.
+  // 2) Increase the pool's size when many pools are allocated.
 
 #pragma once
 
@@ -25,7 +26,7 @@ namespace fox {
   }
 
   /**
-  * \brief The LinearAllocator class implements a "Pointer-Bump" allocator.
+  * \brief The CustomLinearAllocator class implements a "Pointer-Bump" allocator.
   *
   * This works by allocating pools and giving chunks of it when allocate is called.
   * Allocation is a lot faster, at the cost of less control over memory allocated.
@@ -39,7 +40,7 @@ namespace fox {
   template<
       std::uint32_t poolSize = 4096 // Allocate 4096 byte pools by default
     >              
-  class LinearAllocator {
+  class CustomLinearAllocator {
     public:
       // Typedefs
       using size_type = std::size_t;
@@ -50,6 +51,8 @@ namespace fox {
       static_assert(poolSize >= 64, "Poolsize cannot be smaller than 64 Bytes");
 
     private:
+      using ThisType = CustomLinearAllocator<poolSize>;
+
       /*
         \brief A Single Pool. They sort of act like 
         a linked list, where each pool owns the next one.
@@ -82,14 +85,14 @@ namespace fox {
       /**
       * \brief Constructor. Calls setup.
       */
-      LinearAllocator() {
+      CustomLinearAllocator() {
         setup();
       }
 
       // Disable copy/move
-      LinearAllocator(LinearAllocator&) = delete;
-      LinearAllocator(LinearAllocator&&) = delete;
-      LinearAllocator& operator=(LinearAllocator&) = delete;
+      CustomLinearAllocator(ThisType&) = delete;
+      CustomLinearAllocator(ThisType&&) = delete;
+      CustomLinearAllocator& operator=(ThisType&) = delete;
 
       /**
       * \brief Setup the Allocator for use (creates the first pool)
@@ -186,7 +189,7 @@ namespace fox {
       /**
       * \brief Destructor (just calls destroyAll())
       */
-      ~LinearAllocator() {
+      ~CustomLinearAllocator() {
         destroyAll();
       }
 
@@ -288,4 +291,6 @@ namespace fox {
         return false;
       }
   };
+
+  using LinearAllocator = CustomLinearAllocator<>;
 }
