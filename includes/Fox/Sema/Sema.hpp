@@ -112,14 +112,13 @@ namespace fox {
       // Unification will consider the types equal iff 
       // "comparator(a, b)" return true.
       //
-      // In short, the unification algorithm tries to make A = B
-      // if possible, but due to the way Fox's semantics work this 
-      // unification algorithm won't alter types unless they are CellTypes.
+      // In short, the unification algorithm tries to make A = B when possible.
+      // Unification will never alter type, as they are immutable, however
+      // it might remove
       bool unify(Type a, Type b, std::function<bool(Type, Type)> comparator);
 
-      // Removes all layers of LValue, CellType and ArrayType 
-      // until this reaches a point where one (or both) of the
-      // types become basic.
+      // Ignore LValue and removes layers of ArrayTypes
+      // until this reaches a point where one of the types become basic.
       // Note that the result types may not be basic! The function will simply
       // stop unwrapping once one of them becomes basic.
       static TypePair unwrapAll(Type a, Type b);

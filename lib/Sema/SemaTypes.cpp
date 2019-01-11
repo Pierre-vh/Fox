@@ -69,17 +69,18 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
         setSubstitution(aTV, bTV, false);
         return true;
       }
-      // None of them have a substitution
-      // FIXME: This isn't efficient.
-      Type fresh = createNewTypeVariable();
-      setSubstitution(aTV, fresh, false);
-      setSubstitution(bTV, fresh, false);
+      // None of them have a substitution: set the
+      // substitution of aTV to bTV. 
+      // 
+      // e.g. if aTV = $Ta and bTV = $Tb, then
+      // $Ta = $Tb causes $Ta to be bound to $Tb.
+      setSubstitution(aTV, bTV, false);
       return true;
     }
     // TypeVariable = (Not TypeVariable)
     else {
       // If aTV has a subst, unify the subst with b.
-    // else, use b as the subst for aTV
+      // else, use b as the subst for aTV
       if (aTVSubst)
         return unify(aTVSubst, b, comparator);
       setSubstitution(aTV, b, false);
@@ -97,6 +98,9 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
     return true;
   }
   // ArrayType = (Something)
+  //
+  // Note: We know that b isn't an ArrayType too, or it would
+  // have been handled by "unwrapAll"
   else if(auto* aArr = a->getAs<ArrayType>()) {
     // Only succeeds if B is an ArrayType
     auto* bArr = b->getAs<ArrayType>();
@@ -109,7 +113,7 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
       && "Array element type cannot be null");
     return unify(aArr_elem, bArr_elem);
   }
-  // Unhandled
+  // Can't unify.
   return false;
 }
 
