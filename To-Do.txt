@@ -131,15 +131,13 @@ To-Do:
   > Make the Type getters return "Type" instead of pointers (Done)
   > Replace CellTypes with a proper "TypeVariableType" (Done)
 
-  > Refactor checkNonEmptyArrayLiteralExpr. It can be heavily simplified
-    since there's no "upranking" anymore. Once that's done, get rid of containsFreeTypeVariable
-
   > In Unify, when none of A and B TypeVariables have a subst, properly
     unify them instead of using a workaround. Don't forget to check for Cycles.
 
   > Allocate TypeVariableTypes in a separate allocator (allow placement new for
     that type!)
-    Also, reset the pool & call resetTypeVariables after checking an expression.
+    Also, reset the pool & call resetTypeVariables after checking an expression 
+    (when ExprFinalizer is destroyed)
 
   > ASTVerifier
       Asserts that the AST is well formed. Used as a debug tool (will only be enabled in Debug builds)
