@@ -250,18 +250,12 @@ void* TypeBase::operator new(std::size_t, void* buff) {
   return buff;
 }
 
-void TypeBase::initPropertiesForContainerTy(Type type) {
-  hasTypeVar_ = type->hasTypeVar_;
-  hasErrorType_ = type->hasErrorType_;
-}
 
-void TypeBase::initPropertiesForFnTy(ArrayRef<Type> params, Type rtr) {
-  for(auto param : params) {
-    hasTypeVar_ |= param->hasTypeVar_;
-    hasErrorType_ |= param->hasErrorType_;
+void TypeBase::initPropertiesForContainerTy(ArrayRef<Type> types) {
+  for(auto type : types) {
+    hasTypeVar_ |= type->hasTypeVar_;
+    hasErrorType_ |= type->hasErrorType_;
   }
-  hasTypeVar_ |= rtr->hasTypeVar_;
-  hasErrorType_ |= rtr->hasErrorType_;
 }
 
 //----------------------------------------------------------------------------//
@@ -491,7 +485,10 @@ FunctionType::FunctionType(ArrayRef<Type> params, Type rtr) :
   std::uninitialized_copy(params.begin(), params.end(),
     getTrailingObjects<Type>());
 
-  initPropertiesForFnTy(params, rtr);
+  SmallVector<Type, 8> containedTypes(params.begin(), params.end());
+  containedTypes.push_back(rtr);
+  assert(containedTypes.size() == (params.size()+1));
+  initPropertiesForContainerTy(containedTypes);
 }
 
 //----------------------------------------------------------------------------//

@@ -137,12 +137,9 @@ namespace fox {
       // And through placement new
       void* operator new(std::size_t, void* buff);
 
-      // Setups the properties for a classic "container" type such as
-      // ArrayType or LValueType. "type" here is the contained type.
-      void initPropertiesForContainerTy(Type type);
-
-      // Setups the properties for a FunctionTye
-      void initPropertiesForFnTy(ArrayRef<Type> params, Type rtr);
+      // Setups the properties for a "container" type 
+      // (= a type that contains other types, such as LValue or Function)
+      void initPropertiesForContainerTy(ArrayRef<Type> types);
 
       // Type properties
       bool hasTypeVar_ : 1;
