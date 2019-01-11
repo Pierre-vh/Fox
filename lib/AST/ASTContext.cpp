@@ -32,13 +32,13 @@ void ASTContext::setUnit(UnitDecl* decl) {
 }
 
 LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
-void* ASTContext::allocate(std::size_t size, unsigned align, AllocKind kind) {
+void* ASTContext::allocate(std::size_t size, unsigned align, AllocationKind kind) {
   void* mem = getAllocator(kind).allocate(size, align);
   assert(mem && "the allocator returned null memory");
   return mem;
 }
 
-void ASTContext::dumpAllocator(AllocKind alloc) const {
+void ASTContext::dumpAllocator(AllocationKind alloc) const {
   return const_cast<ASTContext*>(this)->getAllocator(alloc).dump();
 }
 
@@ -74,7 +74,7 @@ Identifier ASTContext::getIdentifier(const std::string& str) {
 	return Identifier(it->c_str());
 }
 
-string_view ASTContext::allocateCopy(string_view str, AllocKind kind) {
+string_view ASTContext::allocateCopy(string_view str, AllocationKind kind) {
   std::size_t size = str.size();
   const char* const buffer = str.data();
   void* const mem = getAllocator(kind).allocate(size, alignof(char));
@@ -96,10 +96,10 @@ void ASTContext::callCleanups() {
   cleanups_.clear();
 }
 
-LinearAllocator& ASTContext::getAllocator(AllocKind alloc) {
+LinearAllocator& ASTContext::getAllocator(AllocationKind alloc) {
   switch(alloc) {
-    case AllocKind::Perma: return permaAllocator_;
-    case AllocKind::Temp:
+    case AllocationKind::Perma: return permaAllocator_;
+    case AllocationKind::Temp:
       assert(!tempAllocators_.empty() && "no temporary allocator available");
       return tempAllocators_.top();
     default: fox_unreachable("unknown allocator kind");
