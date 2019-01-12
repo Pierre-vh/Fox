@@ -131,9 +131,6 @@ To-Do:
   > Make the Type getters return "Type" instead of pointers (Done)
   > Replace CellTypes with a proper "TypeVariableType" (Done)
 
-  > ASTVerifier
-      Asserts that the AST is well formed. Used as a debug tool (will only be enabled in Debug builds)
-
   > IR
   > IRGen
     > Note: Don't do IRGen in verify mode
@@ -168,11 +165,21 @@ Diagnostics improvements:
 
 Other:
   High priority:
-    > Allocate TypeVariableTypes in a separate allocator, and also allocate
-      container types that contain TypeVariableTypes in that allocator.
-      I have yet to find a good, efficient design for this. It'll probably involve
-      creating a new allocator "kind" in the ASTContext though.
+    > ASTVerifier
+      Asserts that the AST is well formed. Used as a debug tool (will only be enabled in Debug builds)
 
+    > Multiple allocator kids in the ASTContext: Perma (for the permanent AST nodes), 
+      Unresolveds (for unresolved AST nodes) and Sema (for Semantic analysis type variables)
+      Sema pools are created and managed by Sema using a RAII object. Unresolveds pool
+      is always there and can be reset separately from the Perma pool at any moment. 
+
+      Problems to solve:
+        Type maps (LValue/Array types): How will they handle unresolved types? 
+        -> Abstract-away the map in a "TypeMap", which stores 2 map?
+
+        Cleanups: Need cleanups for each internal allocator.
+
+      
   Medium Priority: 
     > DiagnosticVerifier: Add a syntax to expect a diag multiple times, e.g. 'expect-error(3)@+1'
       -> Use it in tests\VerifyMode\Sema\Expr\call.fox
