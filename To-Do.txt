@@ -173,12 +173,10 @@ Other:
       Sema pools are created and managed by Sema using a RAII object. Unresolveds pool
       is always there and can be reset separately from the Perma pool at any moment. 
 
-      Problems to solve:
-        Type maps (LValue/Array types): How will they handle unresolved types? 
-        -> Abstract-away the map in a "TypeMap", which stores 2 map?
-
-        Cleanups: Need cleanups for each internal allocator.
-
+      Arena struct:
+        Type maps
+        The allocator
+        Cleanups
       
   Medium Priority: 
     > DiagnosticVerifier: Add a syntax to expect a diag multiple times, e.g. 'expect-error(3)@+1'
