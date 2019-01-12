@@ -173,9 +173,6 @@ Other:
       I have yet to find a good, efficient design for this. It'll probably involve
       creating a new allocator "kind" in the ASTContext though.
 
-    > Update how TypeBase stores it's properties. It should be more streamlined and easier
-      to add new properties. Right now it's a bit of a pain! Adding a new property
-      requires an update on every type!
   Medium Priority: 
     > DiagnosticVerifier: Add a syntax to expect a diag multiple times, e.g. 'expect-error(3)@+1'
       -> Use it in tests\VerifyMode\Sema\Expr\call.fox

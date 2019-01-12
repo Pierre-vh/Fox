@@ -122,6 +122,84 @@ namespace fox {
       }
 
       //-------------------------//
+      // Type properties
+      //-------------------------//
+
+      // This class represent a type's properties.
+      class Properties {
+        public:
+          // The integer type used internally to store
+          // the properties.
+          using ValueType = std::uint8_t;
+          
+          Properties(ValueType value = 0) : value_(value) {}
+
+          // The properties enum
+          enum Property : ValueType {
+            // This type contains a TypeVariableType somewhere
+            // in it's hierarchy
+            HasTypeVariable = 0x01,
+
+            // This type contains an ErrorType somewhere in it's
+            // hierarchy.
+            HasErrorType = 0x02,
+
+            LastProperty = HasErrorType
+          };
+
+          // Intentionally implicit operator
+          // bool which simply checks that the value is non-zero.
+          /*implicit*/ operator bool() const {
+            return value_ != 0;
+          }
+
+          Properties operator&(Properties prop) {
+            return Properties(value_ & prop.value_);
+          }
+
+          Properties& operator&=(Properties prop) {
+            value_ &= prop.value_;
+            return *this;
+          }
+
+          Properties operator|(Properties prop) {
+            return Properties(value_ | prop.value_);
+          }
+
+          Properties& operator|=(Properties prop) {
+            value_ |= prop.value_;
+            return *this;
+          }
+
+          Properties operator&(Property prop) {
+            return Properties(value_ & prop);
+          }
+
+          Properties& operator&=(Property prop) {
+            value_ &= prop;
+            return *this;
+          }
+
+          Properties operator|(Property prop) {
+            return Properties(value_ | prop);
+          }
+
+          Properties& operator|=(Property prop) {
+            value_ |= prop;
+            return *this;
+          }
+
+          ValueType getValue() const {
+            return value_;
+          }
+
+        private:
+          ValueType value_ = 0;
+      };
+
+      using Property = Properties::Property;
+
+      Properties getProperties() const;
 
     protected:
       TypeBase(TypeKind tc);
@@ -137,21 +215,25 @@ namespace fox {
       // And through placement new
       void* operator new(std::size_t, void* buff);
 
-      // Setups the properties for a "container" type 
-      // (= a type that contains other types, such as LValue or Function)
-      void initPropertiesForContainerTy(ArrayRef<Type> types);
-
-      // Type properties
-      bool hasTypeVar_ : 1;
-      bool hasErrorType_ : 1;
+      // Set the properties for this TypeBase. This should
+      // only be called in the constructor, and should
+      // only be called once. An assertion guarantees it.
+      void setProperties(Properties props);
 
     private:
+      static constexpr unsigned propsBits = 4;
+
       static_assert(toInt(TypeKind::Last_Type) < (1 << 4),
         "Too many types in TypeKind. Increase the number of bits used"
         " to store the TypeKind in TypeBase");
 
+      static_assert(Property::LastProperty < (1 << propsBits),
+        "Too many properties in Properties::Property. "
+        "Increase the number of bits used to store the properties' value "
+        "in TypeBase. (Increase propsBits)");
+
       const TypeKind kind_ : 4;
-      // 2 Bits left
+      Properties::ValueType propsValue_ : propsBits;
   };
 
   // BasicType
@@ -255,6 +337,8 @@ namespace fox {
       
     private:
       FunctionType(ArrayRef<Type> params, Type rtr);
+
+      static Properties getPropertiesForFunc(ArrayRef<Type> params, Type rtr);
 
       Type rtrType_;
       const SizeTy numParams_;

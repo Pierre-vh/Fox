@@ -136,10 +136,7 @@ namespace {
 // TypeBase
 //----------------------------------------------------------------------------//
 
-TypeBase::TypeBase(TypeKind tc): kind_(tc) {
-  hasTypeVar_ = false;
-  hasErrorType_ = false;
-}
+TypeBase::TypeBase(TypeKind tc): kind_(tc) {}
 
 std::string TypeBase::toString() const {
   std::ostringstream oss;
@@ -175,11 +172,11 @@ Type TypeBase::getRValue() {
 }
 
 bool TypeBase::hasTypeVariable() const {
-  return hasTypeVar_;
+  return getProperties() & Property::HasTypeVariable;
 }
 
 bool TypeBase::hasErrorType() const {
-  return hasErrorType_;
+  return getProperties() & Property::HasErrorType;
 }
 
 bool TypeBase::isStringType() const {
@@ -250,29 +247,28 @@ void* TypeBase::operator new(std::size_t, void* buff) {
   return buff;
 }
 
+TypeBase::Properties TypeBase::getProperties() const {
+  return Properties(propsValue_);
+}
 
-void TypeBase::initPropertiesForContainerTy(ArrayRef<Type> types) {
-  for(auto type : types) {
-    hasTypeVar_ |= type->hasTypeVar_;
-    hasErrorType_ |= type->hasErrorType_;
-  }
+void TypeBase::setProperties(Properties props) {
+  assert((propsValue_ == 0) && "Properties have already been initialized!");
+  propsValue_ = props.getValue();
+  assert(propsValue_ == props.getValue() && "bits dropped");
 }
 
 //----------------------------------------------------------------------------//
 // BasicType
 //----------------------------------------------------------------------------//
 
-BasicType::BasicType(TypeKind tc):
-  TypeBase(tc) {}
+BasicType::BasicType(TypeKind tc): TypeBase(tc) {}
 
 //----------------------------------------------------------------------------//
 // PrimitiveType
 //----------------------------------------------------------------------------//
 
-PrimitiveType::PrimitiveType(Kind kd)
-  : builtinKind_(kd), BasicType(TypeKind::PrimitiveType) {
-
-}
+PrimitiveType::PrimitiveType(Kind kd) : builtinKind_(kd), 
+  BasicType(TypeKind::PrimitiveType) {}
 
 Type PrimitiveType::getString(ASTContext& ctxt) {
   if (!ctxt.theStringType_)
@@ -321,7 +317,7 @@ PrimitiveType::Kind PrimitiveType::getPrimitiveKind() const {
 ArrayType::ArrayType(Type elemTy):
   elementTy_(elemTy), TypeBase(TypeKind::ArrayType) {
   assert(elemTy && "cannot be null");
-  initPropertiesForContainerTy(elemTy);
+  setProperties(elemTy->getProperties());
 }
 
 Type ArrayType::get(ASTContext& ctxt, Type ty) {
@@ -353,7 +349,7 @@ LValueType::LValueType(Type type):
   TypeBase(TypeKind::LValueType), ty_(type) {
   assert(type && "cannot be null");
   assert((!type->is<LValueType>()) && "Can't create nested LValueTypes!");
-  initPropertiesForContainerTy(type);
+  setProperties(type->getProperties());
 }
 
 Type LValueType::get(ASTContext& ctxt, Type ty) {
@@ -383,7 +379,7 @@ Type LValueType::getType() const {
 
 ErrorType::ErrorType():
   BasicType(TypeKind::ErrorType) {
-  hasErrorType_ = true;
+  setProperties(Property::HasErrorType);
 }
 
 Type ErrorType::get(ASTContext& ctxt) {
@@ -488,7 +484,18 @@ FunctionType::FunctionType(ArrayRef<Type> params, Type rtr) :
   SmallVector<Type, 8> containedTypes(params.begin(), params.end());
   containedTypes.push_back(rtr);
   assert(containedTypes.size() == (params.size()+1));
-  initPropertiesForContainerTy(containedTypes);
+
+  // Set the properties
+  setProperties(getPropertiesForFunc(params, rtr));
+}
+
+TypeBase::Properties 
+FunctionType::getPropertiesForFunc(ArrayRef<Type> params, Type rtr) {
+  Properties props;
+  props |= rtr->getProperties();
+  for(auto param : params) 
+    props |= param->getProperties();
+  return props;
 }
 
 //----------------------------------------------------------------------------//
@@ -505,5 +512,5 @@ std::uint16_t TypeVariableType::getNumber() const {
 
 TypeVariableType::TypeVariableType(std::uint16_t number): 
   TypeBase(TypeKind::TypeVariableType), number_(number) {
-  hasTypeVar_ = true;
+  setProperties(Property::HasTypeVariable);
 }
