@@ -266,12 +266,12 @@ namespace fox {
         BoolTy
       };
 
-      static Type getString(ASTContext& ctxt);
-      static Type getChar(ASTContext& ctxt);
-      static Type getDouble(ASTContext& ctxt);
-      static Type getBool(ASTContext& ctxt);
-      static Type getInt(ASTContext& ctxt);
-      static Type getVoid(ASTContext& ctxt);
+      static PrimitiveType* getString(ASTContext& ctxt);
+      static PrimitiveType* getChar(ASTContext& ctxt);
+      static PrimitiveType* getDouble(ASTContext& ctxt);
+      static PrimitiveType* getBool(ASTContext& ctxt);
+      static PrimitiveType* getInt(ASTContext& ctxt);
+      static PrimitiveType* getVoid(ASTContext& ctxt);
 
       Kind getPrimitiveKind() const;
 
@@ -291,7 +291,7 @@ namespace fox {
   class ErrorType final : public BasicType {
     public:
       // Gets the unique ErrorType instance for the current context.
-      static Type get(ASTContext& ctxt);
+      static ErrorType* get(ASTContext& ctxt);
 
       static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::ErrorType);
@@ -320,7 +320,8 @@ namespace fox {
       using SizeTy = std::uint8_t;
       static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();
 
-      static Type get(ASTContext& ctxt, ArrayRef<Type> params, Type rtr);
+      static FunctionType* 
+      get(ASTContext& ctxt, ArrayRef<Type> params, Type rtr);
 
       // Return true if this FunctionType's parameter types and return
       // type match the ones passed as parameters.
@@ -351,7 +352,7 @@ namespace fox {
     public:
       // Returns the unique ArrayType instance for the given
       // type ty.
-      static Type get(ASTContext& ctxt, Type ty);
+      static ArrayType* get(ASTContext& ctxt, Type ty);
 
       Type getElementType() const;
 
@@ -372,7 +373,7 @@ namespace fox {
   class LValueType final : public TypeBase {
     public:
       // Returns the unique LValueType instance for the given type "ty"
-      static Type get(ASTContext& ctxt, Type ty);
+      static LValueType* get(ASTContext& ctxt, Type ty);
 
       Type getType() const;
 
@@ -391,7 +392,7 @@ namespace fox {
   //  where type inference is required.
   class TypeVariableType final : public TypeBase {
     public:
-      static Type create(ASTContext& ctxt, std::uint16_t number);
+      static TypeVariableType* create(ASTContext& ctxt, std::uint16_t number);
 
       std::uint16_t getNumber() const;
 

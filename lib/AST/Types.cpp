@@ -270,37 +270,37 @@ BasicType::BasicType(TypeKind tc): TypeBase(tc) {}
 PrimitiveType::PrimitiveType(Kind kd) : builtinKind_(kd), 
   BasicType(TypeKind::PrimitiveType) {}
 
-Type PrimitiveType::getString(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getString(ASTContext& ctxt) {
   if (!ctxt.theStringType_)
     ctxt.theStringType_ = new(ctxt) PrimitiveType(Kind::StringTy);
   return ctxt.theStringType_;
 }
 
-Type PrimitiveType::getChar(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getChar(ASTContext& ctxt) {
   if (!ctxt.theCharType_)
     ctxt.theCharType_ = new(ctxt) PrimitiveType(Kind::CharTy);
   return ctxt.theCharType_;
 }
 
-Type PrimitiveType::getDouble(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getDouble(ASTContext& ctxt) {
   if (!ctxt.theFloatType_)
     ctxt.theFloatType_ = new(ctxt) PrimitiveType(Kind::DoubleTy);
   return ctxt.theFloatType_;
 }
 
-Type PrimitiveType::getBool(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getBool(ASTContext& ctxt) {
   if (!ctxt.theBoolType_)
     ctxt.theBoolType_ = new(ctxt) PrimitiveType(Kind::BoolTy);
   return ctxt.theBoolType_;
 }
 
-Type PrimitiveType::getInt(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getInt(ASTContext& ctxt) {
   if (!ctxt.theIntType_)
     ctxt.theIntType_ = new(ctxt) PrimitiveType(Kind::IntTy);
   return ctxt.theIntType_;
 }
 
-Type PrimitiveType::getVoid(ASTContext& ctxt) {
+PrimitiveType* PrimitiveType::getVoid(ASTContext& ctxt) {
   if (!ctxt.theVoidType_)
     ctxt.theVoidType_ = new(ctxt) PrimitiveType(Kind::VoidTy);
   return ctxt.theVoidType_;
@@ -320,7 +320,7 @@ ArrayType::ArrayType(Type elemTy):
   setProperties(elemTy->getProperties());
 }
 
-Type ArrayType::get(ASTContext& ctxt, Type ty) {
+ArrayType* ArrayType::get(ASTContext& ctxt, Type ty) {
   TypeBase* ptr = ty.getPtr();
   auto lb = ctxt.arrayTypes_.lower_bound(ptr);
   if (lb != ctxt.arrayTypes_.end() &&
@@ -352,7 +352,7 @@ LValueType::LValueType(Type type):
   setProperties(type->getProperties());
 }
 
-Type LValueType::get(ASTContext& ctxt, Type ty) {
+LValueType* LValueType::get(ASTContext& ctxt, Type ty) {
   TypeBase* ptr = ty.getPtr();
   auto lb = ctxt.lvalueTypes_.lower_bound(ptr);
   if (lb != ctxt.lvalueTypes_.end() &&
@@ -382,7 +382,7 @@ ErrorType::ErrorType():
   setProperties(Property::HasErrorType);
 }
 
-Type ErrorType::get(ASTContext& ctxt) {
+ErrorType* ErrorType::get(ASTContext& ctxt) {
   if (!ctxt.theErrorType_)
     ctxt.theErrorType_ = new(ctxt) ErrorType();
   return ctxt.theErrorType_;
@@ -406,7 +406,7 @@ namespace {
   }
 }
 
-Type FunctionType::get(ASTContext& ctxt, ArrayRef<Type> params, 
+FunctionType* FunctionType::get(ASTContext& ctxt, ArrayRef<Type> params, 
   Type rtr) {
   // Hash the parameters.
   std::size_t hash = functionTypeHash(params, rtr);
@@ -502,7 +502,8 @@ FunctionType::getPropertiesForFunc(ArrayRef<Type> params, Type rtr) {
 // TypeVariableType
 //----------------------------------------------------------------------------//
 
-Type TypeVariableType::create(ASTContext& ctxt, std::uint16_t number) {
+TypeVariableType*
+TypeVariableType::create(ASTContext& ctxt, std::uint16_t number) {
   return new(ctxt) TypeVariableType(number);
 }
 

@@ -39,12 +39,12 @@ TEST_F(ASTTest, PrimitiveTypes) {
   using PT = PrimitiveType;
   using PTK = PT::Kind;
 
-  Type primBool = PT::getBool(ctxt);
-  Type primFloat  = PT::getDouble(ctxt);
-  Type primInt  = PT::getInt(ctxt);
-  Type primChar  = PT::getChar(ctxt);
-  Type primString = PT::getString(ctxt);
-  Type primVoid  = PT::getVoid(ctxt);
+  PT* primBool = PT::getBool(ctxt);
+  PT* primFloat  = PT::getDouble(ctxt);
+  PT* primInt  = PT::getInt(ctxt);
+  PT* primChar  = PT::getChar(ctxt);
+  PT* primString = PT::getString(ctxt);
+  PT* primVoid  = PT::getVoid(ctxt);
 
   ASSERT_TRUE(primBool)  << "Ptr is null?";
   ASSERT_TRUE(primFloat)  << "Ptr is null?";
@@ -60,33 +60,29 @@ TEST_F(ASTTest, PrimitiveTypes) {
   EXPECT_NE(primChar, primString);
   EXPECT_NE(primString, primVoid);
 
-  auto getPTK = [](Type ty) {
-    return ty->castTo<PrimitiveType>()->getPrimitiveKind();
-  };
-
   // Test that the types have the correct properties
   // Bools
-  EXPECT_EQ(getPTK(primBool), PTK::BoolTy);
+  EXPECT_EQ(primBool->getPrimitiveKind(), PTK::BoolTy);
   EXPECT_TRUE(primBool->isBoolType());
 
   // Floats
-  EXPECT_EQ(getPTK(primFloat), PTK::DoubleTy);
+  EXPECT_EQ(primFloat->getPrimitiveKind(), PTK::DoubleTy);
   EXPECT_TRUE(primFloat->isDoubleType());
 
   // Ints
-  EXPECT_EQ(getPTK(primInt), PTK::IntTy);
+  EXPECT_EQ(primInt->getPrimitiveKind(), PTK::IntTy);
   EXPECT_TRUE(primInt->isIntType());
 
   // Chars
-  EXPECT_EQ(getPTK(primChar), PTK::CharTy);
+  EXPECT_EQ(primChar->getPrimitiveKind(), PTK::CharTy);
   EXPECT_TRUE(primChar->isCharType());
 
   // Strings
-  EXPECT_EQ(getPTK(primString), PTK::StringTy);
+  EXPECT_EQ(primString->getPrimitiveKind(), PTK::StringTy);
   EXPECT_TRUE(primString->isStringType());
 
   // Void type
-  EXPECT_EQ(getPTK(primVoid), PTK::VoidTy);
+  EXPECT_EQ(primVoid->getPrimitiveKind(), PTK::VoidTy);
   EXPECT_TRUE(primVoid->isVoidType());
 
   // Check uniqueness
@@ -105,11 +101,11 @@ TEST_F(ASTTest, ASTContextArrayTypes) {
   Type primChar = PrimitiveType::getChar(ctxt);
   Type primString = PrimitiveType::getString(ctxt);
 
-  Type boolArr = ArrayType::get(ctxt, primBool);
-  Type floatArr = ArrayType::get(ctxt, primFloat);
-  Type intArr = ArrayType::get(ctxt, primInt);
-  Type charArr = ArrayType::get(ctxt, primChar);
-  Type strArr = ArrayType::get(ctxt, primString);
+  ArrayType* boolArr = ArrayType::get(ctxt, primBool);
+  ArrayType* floatArr = ArrayType::get(ctxt, primFloat);
+  ArrayType* intArr = ArrayType::get(ctxt, primInt);
+  ArrayType* charArr = ArrayType::get(ctxt, primChar);
+  ArrayType* strArr = ArrayType::get(ctxt, primString);
 
 
   // Check that pointers aren't null
@@ -119,16 +115,12 @@ TEST_F(ASTTest, ASTContextArrayTypes) {
   ASSERT_TRUE(charArr)  << "Pointer is null";
   ASSERT_TRUE(strArr)    << "Pointer is null";
 
-  auto getElemTy = [](Type ty) {
-    return ty->castTo<ArrayType>()->getElementType();
-  };
-
   // Check that itemTypes are correct
-  EXPECT_EQ(getElemTy(boolArr), primBool);
-  EXPECT_EQ(getElemTy(floatArr), primFloat);
-  EXPECT_EQ(getElemTy(intArr), primInt);
-  EXPECT_EQ(getElemTy(charArr), primChar);
-  EXPECT_EQ(getElemTy(strArr), primString);
+  EXPECT_EQ(boolArr->getElementType(), primBool);
+  EXPECT_EQ(floatArr->getElementType(), primFloat);
+  EXPECT_EQ(intArr->getElementType(), primInt);
+  EXPECT_EQ(charArr->getElementType(), primChar);
+  EXPECT_EQ(strArr->getElementType(), primString);
 
   // Checks that they're different
   EXPECT_NE(boolArr, floatArr);
@@ -141,13 +133,13 @@ TEST_F(ASTTest, ASTContextArrayTypes) {
 }
 
 TEST_F(ASTTest, TypeRTTI) {
-  TypeBase* intTy = PrimitiveType::getInt(ctxt).getPtr();
-  TypeBase* arrIntTy = ArrayType::get(ctxt, intTy).getPtr();
-  TypeBase* lvIntTy = LValueType::get(ctxt, intTy).getPtr();
-  TypeBase* errType = ErrorType::get(ctxt).getPtr();
-  TypeBase* tyVarType = TypeVariableType::create(ctxt, 0).getPtr();
+  TypeBase* intTy = PrimitiveType::getInt(ctxt);
+  TypeBase* arrIntTy = ArrayType::get(ctxt, intTy);
+  TypeBase* lvIntTy = LValueType::get(ctxt, intTy);
+  TypeBase* errType = ErrorType::get(ctxt);
+  TypeBase* tyVarType = TypeVariableType::create(ctxt, 0);
 
-  TypeBase* funcType = FunctionType::get(ctxt, {intTy, intTy}, intTy).getPtr();
+  TypeBase* funcType = FunctionType::get(ctxt, {intTy, intTy}, intTy);
 
   EXPECT_EQ(intTy->getKind(), TypeKind::PrimitiveType);
   EXPECT_TRUE(PrimitiveType::classof(intTy));
@@ -532,10 +524,10 @@ TEST_F(ASTTest, functionTypesUniqueness) {
 
   // Check that we can successfully retrieve every function type
   // while keeping the same pointer value.
-  EXPECT_EQ(fns[0], FunctionType::get(ctxt, {intTy, boolTy}, voidTy).getPtr());
-  EXPECT_EQ(fns[1], FunctionType::get(ctxt, {intTy}, boolTy).getPtr());
-  EXPECT_EQ(fns[2], FunctionType::get(ctxt, {boolTy}, intTy).getPtr());
-  EXPECT_EQ(fns[3], FunctionType::get(ctxt, {}, voidTy).getPtr());
-  EXPECT_EQ(fns[4], FunctionType::get(ctxt, {boolTy, intTy}, voidTy).getPtr());
-  EXPECT_EQ(fns[5], FunctionType::get(ctxt, {boolTy}, voidTy).getPtr());
+  EXPECT_EQ(fns[0], FunctionType::get(ctxt, {intTy, boolTy}, voidTy));
+  EXPECT_EQ(fns[1], FunctionType::get(ctxt, {intTy}, boolTy));
+  EXPECT_EQ(fns[2], FunctionType::get(ctxt, {boolTy}, intTy));
+  EXPECT_EQ(fns[3], FunctionType::get(ctxt, {}, voidTy));
+  EXPECT_EQ(fns[4], FunctionType::get(ctxt, {boolTy, intTy}, voidTy));
+  EXPECT_EQ(fns[5], FunctionType::get(ctxt, {boolTy}, voidTy));
 }
