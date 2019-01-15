@@ -131,6 +131,8 @@ To-Do:
   > Make the Type getters return "Type" instead of pointers (Done)
   > Replace CellTypes with a proper "TypeVariableType" (Done)
 
+  > Fix name_binding test that isn't passing
+
   > Move local variable name binding + self-ref var init detection into the Parser.
       It just makes more sense, and allows me to remove the LocalScope thing from the Semantic
       analysis and simplify the lookup logic in Sema.
