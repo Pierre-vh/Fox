@@ -22,6 +22,12 @@ namespace fox {
   // This is used for multiple reasons, but mostly for future proofing.
   // This will be of invaluable use when/if I add sugared types to Fox in
   // the future, as it'll allow me to disable type comparison easily.
+  //
+  // This design comes from the Swift compiler. I've chosen to adopt it too
+  // because I'd like to add typealiases to Fox one day (since it's pretty
+  // handy with function types, which I plan to add too), so I'll need
+  // to have a concept of canonical and sugared type to perform
+  // typechecking properly while still emitting good diagnostics.
   class Type {
     TypeBase* ty_ = nullptr;
     public:
