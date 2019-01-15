@@ -144,14 +144,34 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
     void visitFuncDecl(FuncDecl* decl) {
       // Tell Sema that we enter this func's scope
-      auto scopeGuard = getSema().enterFuncScopeRAII(decl);
+      auto funcScope = getSema().enterFuncScopeRAII(decl);
       // Check if this is an invalid redecl
       checkForIllegalRedecl(decl);
       // Check it's parameters
       for (ParamDecl* param : *decl->getParams())
         visit(param);
-      // And check it's body!
-      getSema().checkStmt(decl->getBody());
+      {
+        /*
+          Note: the body exists within it's own scope to 
+          avoid situations such as
+
+          func foo(x: int) { var x : int = x; }
+
+          If the body wasn't in its own scope, the local variable
+          would overwrite the ParamDecl before checking it's initializer,
+          emitting the following error:
+            "variable used inside its own initial value"
+
+          This error isn't justified because it's valid code here.
+          We're simply shadowing the parameter to make it mutable.
+
+          However, this is kind of a dirty workaround, I can agree on
+          that. In the coming months, I'll make NameBinding a pass
+          on its own, so this code will go away soon™ anyway.
+        */
+        auto bodyScope = getSema().openNewScopeRAII();
+        getSema().checkStmt(decl->getBody());
+      }
     }
 
     void visitUnitDecl(UnitDecl* unit) {
