@@ -17,17 +17,16 @@
 namespace fox {
   class TypeBase;
   class TypeLoc;
-  // The Type class is an observing pointer to a TypeBase*.
-  // 
-  // This is used for multiple reasons, but mostly for future proofing.
-  // This will be of invaluable use when/if I add sugared types to Fox in
-  // the future, as it'll allow me to disable type comparison easily.
+  // The Type class is an observing pointer to a TypeBase*
   //
   // This design comes from the Swift compiler. I've chosen to adopt it too
   // because I'd like to add typealiases to Fox one day (since it's pretty
   // handy with function types, which I plan to add too), so I'll need
   // to have a concept of canonical and sugared type to perform
   // typechecking properly while still emitting good diagnostics.
+  // This class will be incredibely helpful because I can disable non-canonical
+  // type comparison just by removing the operator== (and refactoring the code
+  // that it broke)
   class Type {
     TypeBase* ty_ = nullptr;
     public:
