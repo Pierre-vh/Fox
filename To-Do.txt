@@ -131,6 +131,28 @@ To-Do:
   > Make the Type getters return "Type" instead of pointers (Done)
   > Replace CellTypes with a proper "TypeVariableType" (Done)
 
+  > Fix name_binding test that isn't passing
+
+  > Move local variable name binding + self-ref var init detection into the Parser.
+      It just makes more sense, and allows me to remove the LocalScope thing from the Semantic
+      analysis and simplify the lookup logic in Sema.
+      Essentially, the parser will try to match to a decl in the current scope when
+      possible. If it can't, it'll just return an UnresolvedDeclRef that'll be resolved
+      during semantic analysis.
+      I still need to figure out some details, but that's the basic idea.
+
+  > DeclContext rework: Split it in 2:
+      DeclContext: Doesn't record anything, just acts as a "marker" that a node begins a new semantic context.
+        e.g. FuncDecl
+      LookupContext: Record decls like the current DeclContext, in a Lexical/Semantic way.
+        I'll also move the Lookup logic there, so DeclContext will offer both restricted (only this DC) and
+        unrestricted (climbs parent) lookup methods.
+        The name is still to be decided, but I think LookupContext is an okay-ish name for this.
+        e.g. UnitDecl
+     
+  > Once FuncDecl is a DeclContext again, simplify the whole "parent" logic for Decls, and the parser
+    logic for that too.
+
   > IR
   > IRGen
     > Note: Don't do IRGen in verify mode

@@ -424,7 +424,8 @@ bool SourceRange::contains(SourceLoc loc) const {
   auto begIdx = beg.getIndex();
   auto endIdx = end.getIndex();
   auto locIdx = loc.getIndex();
-  return (begIdx >= locIdx) && (locIdx <= endIdx);
+  assert(true);
+  return (begIdx <= locIdx) && (locIdx <= endIdx);
 }
 
 bool SourceRange::contains(SourceRange range) const {

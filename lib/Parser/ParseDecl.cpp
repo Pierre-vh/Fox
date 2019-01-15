@@ -215,10 +215,10 @@ Parser::DeclResult Parser::parseFuncDecl() {
 Parser::DeclResult Parser::parseParamDecl() {
   // <param_decl> = <id> ':' ["mut"] <type>
   assert(isParsingFuncDecl() && "Can only call this when parsing a function!");
+
   // <id>
   auto id = consumeIdentifier();
-  if (!id)
-    return DeclResult::NotFound();
+  if (!id) return DeclResult::NotFound();
 
   // ':'
   if (!consumeSign(SignType::S_COLON)) {
@@ -248,11 +248,11 @@ Parser::DeclResult Parser::parseParamDecl() {
 
 Parser::DeclResult Parser::parseVarDecl() {
   // <var_decl> = ("let" | "var") <id> ':' <type> ['=' <expr>] ';'
-  VarDecl::Keyword kw;
-  SourceLoc begLoc;
+
 
   // ("let" | "var")
-  // "let" is for constants, "var" is for mutable variables
+  VarDecl::Keyword kw;
+  SourceLoc begLoc;
   if (auto letKw = consumeKeyword(KeywordType::KW_LET)) {
     kw = VarDecl::Keyword::Let;
     begLoc = letKw.getBegin();
@@ -264,23 +264,22 @@ Parser::DeclResult Parser::parseVarDecl() {
   else
     return DeclResult::NotFound();
   
-  SourceLoc endLoc;
-
-  SourceRange idRange;
-  TypeLoc type;
-  Expr* iExpr = nullptr;
+  // Helper lambda
+  auto tryRecoveryToSemi = [&]() {
+    if (resyncToSign(SignType::S_SEMICOLON, /*stop@semi*/false,
+        /*consumeToken*/true)) {
+      // If we recovered to a semicon, simply return not found.
+      return DeclResult::NotFound();
+    }
+    // Else, return an error.
+    return DeclResult::Error();
+  };
 
   // <id>
   auto id = consumeIdentifier();
   if(!id) {
     reportErrorExpected(DiagID::parser_expected_iden);
-    if (auto res = resyncToSign(SignType::S_SEMICOLON, 
-			/* stopAtSemi (true/false doesn't matter when we're looking for a semi) */ 
-			false, /*consumeToken*/ true)) {
-      // Recovered? Act like nothing happened.
-      return DeclResult::NotFound();
-    }
-    return DeclResult::Error();
+    return tryRecoveryToSemi();
   }
 
   // ':'
@@ -290,20 +289,17 @@ Parser::DeclResult Parser::parseVarDecl() {
   }
 
   // <type>
-  SourceLoc ampLoc;
-  if (auto qtRes = parseType()) {
+  TypeLoc type;
+  if (auto qtRes = parseType())
     type = qtRes.createTypeLoc();
-  }
   else {
     if (qtRes.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_type);
-    if (auto res = resyncToSign(SignType::S_SEMICOLON, 
-			/*stopAtSemi*/ true, /*consumeToken*/ true))
-      return DeclResult::NotFound(); // Recovered? Act like nothing happened.
-    return DeclResult::Error();
+    return tryRecoveryToSemi();
   }
 
   // ['=' <expr>]
+  Expr* iExpr = nullptr;
   if (consumeSign(SignType::S_EQUAL)) {
     if (auto expr = parseExpr())
       iExpr = expr.get();
@@ -312,13 +308,13 @@ Parser::DeclResult Parser::parseVarDecl() {
         reportErrorExpected(DiagID::parser_expected_expr);
       // Recover to semicolon, return if recovery wasn't successful 
       if (!resyncToSign(SignType::S_SEMICOLON, 
-				/*stopAtSemi*/ false, /*consumeToken*/ false))
+				/*stop@semi*/ false, /*consumeToken*/ false))
         return DeclResult::Error();
     }
   }
 
   // ';'
-  endLoc = consumeSign(SignType::S_SEMICOLON);
+  SourceLoc endLoc = consumeSign(SignType::S_SEMICOLON);
   if (!endLoc) {
     reportErrorExpected(DiagID::parser_expected_semi);
       
