@@ -33,7 +33,6 @@ namespace {
     using LMap = DeclContext::LookupMap;
     DeclContext* cur = dc;
     while(cur) {
-      // DeclContext uses a std::multimap
       const LMap& map = cur->getLookupMap();
       // Search all decls with the identifier "id" in the multimap
       LMap::const_iterator beg, end;
@@ -52,12 +51,11 @@ namespace {
   //   > if we are done searching the whole scope tree.
   void lookupInLocalScope(Identifier id, ResultFoundFn onFound, 
     LocalScope* scope) {
+    using LMap = LocalScope::Map;
     LocalScope* cur = scope;
     while(cur) {
-      // Scope uses a std::map
       const auto& map = cur->getDeclsMap();
-      // Search for the decl with the identifier "id" 
-      // in the map
+      // Try to find a decl with the identifier "id" in the multimap
       auto it = map.find(id);
       if(it != map.end())
         if(!onFound(it->second)) return;
@@ -86,6 +84,16 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   assert(id && "can't lookup with invalid id!");
   bool lookInDeclCtxt = options.canLookInDeclContext;
   bool canIgnoreLoc = options.canIgnoreLoc;
+
+  // If we find a VarDecl that's currently being checked, it's ignored, but
+  // if we don't find any result, we return this.
+  //
+  // This is needed to allow cases such as
+  //  func foo(x : int) {
+  //    var x : int = x;
+  //  }
+  NamedDecl* checkingVar = nullptr;
+
   // Lambda that returns true if the result should be ignored.
   auto shouldIgnore = [&](NamedDecl* decl) {
     if(!canIgnoreLoc) {
@@ -104,9 +112,16 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
     LocalScope* scope = getLocalScope();
     // Handle results
     auto handleResult = [&](NamedDecl* decl) {
-      // If we should ignore this result, do so and continue looking.
+      // If we should ignore this result, do so 
       if(shouldIgnore(decl)) return true;
-      // If not, add the decl to the results and stop looking
+      // If the decl is VarDecl that's currently being checked, and that
+      // happens in a LocalScope, don't push it to the results just yet.
+      if(isa<VarDecl>(decl) && decl->isChecking()) {
+        assert(!checkingVar && "more than 1 variable in the Checking state");
+        checkingVar = decl;
+        // Keep looking
+        return true;
+      }
       results.addResult(decl);
       return false;
     };
@@ -139,6 +154,10 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
     };
     lookupInDeclContext(id, handleResult, dc);
   }
+
+  // Add the checkingVar if the result set is empty.
+  if(results.isEmpty() && checkingVar)
+    results.addResult(checkingVar);
 }
 
 //----------------------------------------------------------------------------//
