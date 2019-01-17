@@ -10,11 +10,14 @@
 
 #pragma once
 
-#include <cstdint>
-#include <map>
-#include <string>
-#include <tuple>
 #include "string_view.hpp"
+#include "LLVM.hpp"
+#include "llvm/ADT/SmallVector.h"
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <map>
+#include <tuple>
 
 namespace fox {
   class SourceLoc;
@@ -53,7 +56,7 @@ namespace fox {
       friend class SourceManager;
 
       // Only the SourceManager can create valid FileIDs
-      FileID(IDTy value);
+      FileID(std::size_t value);
 
     private:
       IDTy value_ = npos;
@@ -203,7 +206,7 @@ namespace fox {
           friend class SourceManager;
 
           Data(const std::string& name, const std::string& content)
-              : fileName(name), str(content) {}
+            : fileName(name), str(content) {}
 
           mutable std::map<IndexTy, LineTy> lineTable_;
           mutable bool calculatedLineTable_ = false;
@@ -273,21 +276,20 @@ namespace fox {
         SourceLoc::IndexTy* lineBeg = nullptr) const;
 
     private:
-      FileID generateNewFileID() const;
       void calculateLineTable(const Data* data) const;
 
       std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
       searchLineTable(const Data* data, const SourceLoc& loc) const;
+
+      FileID insertData(const std::string& path, 
+        const std::string& filecontent);
 
       // Make it non copyable
       SourceManager(const SourceManager&) = delete;
       SourceManager& operator=(const SourceManager&) = delete;
       
       // Member variables
-      std::map<FileID,Data> sources_;
-      // We'll always cache the latest search to speed things up
-      mutable std::pair<FileID, const Data*> lastSource_ 
-        = {FileID(), nullptr}; 
+      SmallVector<std::unique_ptr<Data>, 4> datas_;
   };
   
   // Converts a SourceManager::FileStatus to a string.

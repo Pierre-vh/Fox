@@ -11,14 +11,15 @@
 #include "utfcpp/utf8.hpp"
 #include <fstream>
 #include <sstream>
-#include <cctype>
-#include <iostream>
 
 using namespace fox;
 
 // FileID
 
-FileID::FileID(IDTy value) : value_(value) {}
+FileID::FileID(std::size_t value) {
+  assert(value < npos && "Index too big for FileID!");
+  value_ = static_cast<IDTy>(value);
+}
 
 bool FileID::isValid() const {
   return value_ != npos;
@@ -51,21 +52,10 @@ string_view SourceManager::getSourceStr(FileID fid) const {
 }
 
 const SourceManager::Data*
-SourceManager::getSourceData(FileID fid) const {
-  assert(fid.isValid() && "Invalid FileID");
-
-  // First, check in the cache
-  if (lastSource_.first == fid)
-    return lastSource_.second;  
-  
-  // Map search required
-  auto it = sources_.find(fid);
-  assert((it != sources_.end()) && "Unknown entry");
-  const Data* ptr = &(it->second);
-  
-  // Cache the result & return.
-  lastSource_ = {fid, ptr};
-  return ptr;
+SourceManager::getSourceData(FileID file) const {
+  assert(file.isValid() && "FileID is not valid");
+  assert(file.getRaw() < datas_.size() && "out-of-range FileID");
+  return datas_[file.getRaw()].get();
 }
 
 CompleteLoc::LineTy SourceManager::getLineNumber(SourceLoc loc) const {
@@ -205,7 +195,7 @@ static bool checkEncoding(std::ifstream& in, std::streampos size) {
 }
 
 std::pair<FileID, SourceManager::FileStatus>
-SourceManager::readFile(const std::string & path) {
+SourceManager::readFile(const std::string& path) {
   std::ifstream in(path,  std::ios::in | std::ios::ate | std::ios::binary);
   if(!in)
     return {FileID(), FileStatus::NotFound};
@@ -221,26 +211,14 @@ SourceManager::readFile(const std::string & path) {
   // Read the file in memory
   auto beg = (std::istreambuf_iterator<char>(in));
   auto end = (std::istreambuf_iterator<char>());
-  auto pair = sources_.insert(std::pair<FileID,Data>(generateNewFileID(),
-    Data(
-      path,
-      (std::string(beg, end))
-    )
-  ));
+  std::string fileContent(beg, end);
 
-  return {(pair.first)->first, FileStatus::Ok};
+  return {insertData(path, fileContent), FileStatus::Ok};
 }
 
-FileID SourceManager::loadFromString(const std::string& str, const std::string& name) {
-  auto pair = sources_.insert({generateNewFileID(),Data(name,str)});
-  return (pair.first)->first;
-}
-
-FileID SourceManager::generateNewFileID() const {
-  // The newly generated fileID is always the size of source_
-  FileID::IDTy id = static_cast<FileID::IDTy>(sources_.size());
-  assert(id != FileID::npos && "ran out of FileIDs");
-  return id;
+FileID SourceManager::loadFromString(const std::string& str, 
+                                     const std::string& name) {
+  return insertData(name, str);
 }
 
 void SourceManager::calculateLineTable(const Data* data) const {
@@ -286,6 +264,14 @@ SourceManager::searchLineTable(const Data* data, const SourceLoc& loc) const {
     rtr = *it;
   data->lastLTSearch_ = {loc, rtr};
   return rtr;
+}
+
+FileID SourceManager::insertData(const std::string& path,   
+                                 const std::string& filecontent) {
+  // Construct a unique_ptr in place with the freshly created Data*.
+  datas_.emplace_back(new Data(path, filecontent));
+  // FileID is the index of the last element, so .size()-1
+  return FileID(datas_.size()-1);
 }
 
 // SourceLoc
