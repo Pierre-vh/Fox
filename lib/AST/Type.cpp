@@ -60,7 +60,7 @@ bool Type::operator<(const Type other) const {
 //----------------------------------------------------------------------------//
 
 TypeLoc::TypeLoc(Type ty, SourceRange range) :
-  Type(ty), range_(range) {}
+  ty_(ty), range_(range) {}
 
 SourceRange TypeLoc::getRange() const {
   return range_;
@@ -74,15 +74,20 @@ SourceLoc TypeLoc::getEnd() const {
   return range_.getEnd();
 }
 
+bool TypeLoc::isValid() const {
+  return ty_ && range_;
+}
+
+TypeLoc::operator bool() const {
+  return isValid();
+}
+
 Type TypeLoc::withoutLoc() {
-  return Type(getPtr());
+  return ty_;
 }
 
 const Type TypeLoc::withoutLoc() const {
-  // Remove the const attribute. It's meaningless since
-  // we're returning a const Type and a const Type will always
-  // return const pointers. This allows us to create the type.
-  return Type(const_cast<TypeBase*>(getPtr()));
+  return ty_;
 }
 
 //----------------------------------------------------------------------------//

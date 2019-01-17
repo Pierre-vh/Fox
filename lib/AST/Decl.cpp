@@ -325,7 +325,7 @@ FuncDecl::create(ASTContext& ctxt, DeclContext* parent, SourceLoc fnBegLoc,
 
 FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent, 
   SourceLoc fnBegLoc) {
-  TypeLoc voidTy(PrimitiveType::getVoid(ctxt));
+  TypeLoc voidTy(PrimitiveType::getVoid(ctxt), SourceRange());
   return create(ctxt, parent, fnBegLoc, Identifier(), SourceRange(), voidTy);
 }
 

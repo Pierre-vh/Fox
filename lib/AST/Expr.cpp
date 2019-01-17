@@ -455,8 +455,8 @@ Expr* CastExpr::getExpr() const {
 }
 
 SourceRange CastExpr::getRange() const {
-  assert(getCastTypeLoc() && getExpr() && "ill-formed CastExpr");
   SourceRange castTLRange = getCastTypeLoc().getRange();
+  assert(castTLRange && getExpr() && "ill-formed CastExpr");
   return SourceRange(getExpr()->getBegin(), castTLRange.getEnd());
 }
 

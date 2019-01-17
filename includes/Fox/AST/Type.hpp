@@ -49,23 +49,23 @@ namespace fox {
 
       // for STL containers
       bool operator<(const Type other) const;
-
-    private:
-      // Disable TypeLoc->Type conversion
-      Type(const TypeLoc&) = delete;
-      Type& operator=(const TypeLoc&) = delete;
   };
 
   // A Type with its associated location information (a SourceRange).
-  class TypeLoc : public Type {
+  class TypeLoc  {
     SourceRange range_;
+    Type ty_;
     public:
       TypeLoc() = default;
-      explicit TypeLoc(Type ty, SourceRange range = SourceRange());
+      explicit TypeLoc(Type ty, SourceRange range);
 
       SourceRange getRange() const;
       SourceLoc getBegin() const;
       SourceLoc getEnd() const;
+
+      // Checks that both the Type and the SourceRange are valid
+      bool isValid() const;
+      explicit operator bool() const;
 
       // TypeLoc doesn't have it's own dump() method because we cannot dump
       // any meaningful information about our range_ without a SourceManager.
