@@ -19,7 +19,9 @@
 namespace fox {
   class SourceLoc;
   class SourceManager;
-  // The FileID is an opaque object that packs a 16 bytes integer, representing a FileID
+
+  // The FileID is an opaque object that packs a 16 bits int which
+  // represents a file index inside the SourceManager.
   class FileID {
     public:
       using IDTy = std::uint16_t;
