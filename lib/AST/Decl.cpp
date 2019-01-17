@@ -336,16 +336,8 @@ TypeLoc FuncDecl::getReturnTypeLoc() const {
   return returnType_;
 }
 
-Type FuncDecl::getReturnType() const {
-  return returnType_.withoutLoc();
-}
-
-SourceRange FuncDecl::getReturnTypeRange() const {
-  return returnType_.getRange();
-}
-
 bool FuncDecl::isReturnTypeImplicit() const {
-  return !(getReturnTypeRange().isValid());
+  return !getReturnTypeLoc().isValid();
 }
 
 CompoundStmt* FuncDecl::getBody() const {

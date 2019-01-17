@@ -288,8 +288,6 @@ namespace fox {
       /// This will nullify the ValueDecl type.
       void setReturnTypeLoc(TypeLoc ty);
       TypeLoc getReturnTypeLoc() const;
-      Type getReturnType() const;
-      SourceRange getReturnTypeRange() const;
       bool isReturnTypeImplicit() const;
 
       void setBody(CompoundStmt* body);

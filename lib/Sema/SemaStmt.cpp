@@ -92,7 +92,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       FuncDecl* fn = scope->getFuncDecl();
       assert(fn && "should have root FuncDecl!");
       // Fetch it's return type
-      Type rtrTy = fn->getReturnType();
+      Type rtrTy = fn->getReturnTypeLoc().withoutLoc();
       bool isVoid = rtrTy->isVoidType();
 
       // We'll check the stmt depending on whether it has an expression or not.
