@@ -10,7 +10,9 @@
 
 using namespace fox;
 
+//----------------------------------------------------------------------------//
 // Type
+//----------------------------------------------------------------------------//
 
 Type::Type(TypeBase* ty) :
   ty_(ty) {}
@@ -53,7 +55,9 @@ bool Type::operator<(const Type other) const {
   return getPtr() < other.getPtr();
 }
 
+//----------------------------------------------------------------------------//
 // TypeLoc
+//----------------------------------------------------------------------------//
 
 TypeLoc::TypeLoc(Type ty, SourceRange range) :
   Type(ty), range_(range) {}
@@ -80,6 +84,10 @@ const Type TypeLoc::withoutLoc() const {
   // return const pointers. This allows us to create the type.
   return Type(const_cast<TypeBase*>(getPtr()));
 }
+
+//----------------------------------------------------------------------------//
+// Other
+//----------------------------------------------------------------------------//
 
 std::ostream& fox::operator<<(std::ostream& os, Type ty) {
   assert(ty && "can't print a null type");
