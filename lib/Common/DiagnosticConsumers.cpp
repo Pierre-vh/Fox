@@ -26,7 +26,7 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm,
   if (!range) return "";
 
   std::stringstream ss;
-  ss << "<" << sm.getSourceName(range.getFileID()) << ">";
+  ss << "<" << sm.getContentsOfFile(range.getFileID()) << ">";
 
   // For FileWide diags, just use "1" as the line. For normal diags,
   // use range.toString
