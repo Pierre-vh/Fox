@@ -15,7 +15,11 @@ using namespace fox;
 Type::Type(TypeBase* ty) :
   ty_(ty) {}
 
-TypeBase* Type::getPtr() const {
+TypeBase* Type::getPtr() {
+  return ty_;
+}
+
+const TypeBase* Type::getPtr() const {
   return ty_;
 }
 

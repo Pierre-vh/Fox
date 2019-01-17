@@ -32,7 +32,8 @@ namespace fox {
     public:
       Type(TypeBase* ty = nullptr);
 
-      TypeBase* getPtr() const;
+      TypeBase* getPtr();
+      const TypeBase* getPtr() const;
 
       bool isNull() const;
 
