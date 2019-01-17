@@ -30,7 +30,7 @@ namespace fox {
       using IDTy = std::uint16_t;
       static constexpr IDTy npos = std::numeric_limits<IDTy>::max();
 
-      // Creates a new, invalid FileID.
+      // Creates a new invalid FileID.
       FileID() = default;
 
       // Checks if this FileID should be considered valid.
@@ -63,8 +63,10 @@ namespace fox {
   };
 
   // The SourceLoc is a lightweight wrapper around a FileID and an index
-  // which, combined, represent the location of a character in the source code.
-  // Note: this object expects a "byte" index, not an index in codepoints.
+  // which, combined, locate a byte in the source file. 
+  //
+  // The byte can be a single ASCII character, or the beginning of a UTF-8
+  // code point.
   class SourceLoc {
     public:
       // Use 32 bits int for the Index. This shoud allow the interpreter
@@ -115,14 +117,16 @@ namespace fox {
   };
 
   // The SourceRange is a wrapper around a SourceLoc and an offset, 
-  // which combined represent a range (word, sentence, piece of code) 
-  // in the source code.
+  // which combined represent a range of bytes in the file.
   //
   // IMPORTANT: The SourceRange IS NOT a half-open range. This means that
   // the first loc represents the first byte in the range, and the last loc
   // represents the last byte in the range.
   //
-  // Note: Like SourceLoc, the offset is expected to be absolute, not in CPs.
+  //  e.g. If the file content is "foo bar":
+  //    auto loc = SourceLoc(fileID, 0) refers to "f"
+  //    SourceRange(loc, 0) refers to "f" (.getBegin() == .getEnd())
+  //    SourceRange(loc, 2) refers to "foo"
   class SourceRange {
     public:
       using OffsetTy = std::uint32_t;
@@ -191,26 +195,34 @@ namespace fox {
     ColTy column;
   };
 
-  // the SourceManager, which stores every source file and gives them a unique ID.
-  // Files stored in/owned by the SourceManager are always immutable.
+  // The SourceManager, which manages source files. It reads
+  // them, stores them and gives them a unique FileID.
   class SourceManager {
     public:
       SourceManager() = default;
 
+      // This class represents the data that is stored internally inside the
+      // SourceManager.
       struct Data {
         std::string fileName;
         std::string str;
         protected:
           using IndexTy = SourceLoc::IndexTy;
           using LineTy = CompleteLoc::LineTy;
+
           friend class SourceManager;
 
           Data(const std::string& name, const std::string& content)
             : fileName(name), str(content) {}
 
+          // This is the cached "line table", which is used to efficiently
+          // calculate the line number of a SourceLoc.
           mutable std::map<IndexTy, LineTy> lineTable_;
+
+          // Flag indicating whether we have calculated the LineTable.
           mutable bool calculatedLineTable_ = false;
-          // We cache the last search result here too.
+
+          // We cache the last line table search here.
           // The first element of the pair is the sourceloc that we
           // searched for, the second is the result we returned.
           mutable std::pair<SourceLoc, std::pair<IndexTy, LineTy>> 
@@ -259,28 +271,30 @@ namespace fox {
 
       // Requests the human-readable location a SourceLoc points to.
       // This function will assert that the SourceLoc is valid;
-      // This function accepts a SourceLoc that points right past the end of the file.
+      // This function accepts a SourceLoc that points right past 
+      // the end of the file.
       // Any value greater than that will trigger an assertion ("out of range")
       CompleteLoc getCompleteLoc(SourceLoc sloc) const;
 
       // Checks if a SourceLoc is valid
       bool checkValid(SourceLoc sloc) const;
-      
-      // Checks if a File Exists
-      bool checkExists(FileID file) const;
 
       // Returns the complete line of source code for a given SourceLoc
-      // An optional argument (pointer) can be passed. If it is present, the function
-      // will store the Index at which the line begins in this variable.
+      // An optional argument (pointer) can be passed. If it is present,
+      // the function will store the Index at which the line begins in 
+      // this variable.
       string_view getSourceLine(SourceLoc loc, 
         SourceLoc::IndexTy* lineBeg = nullptr) const;
 
     private:
+      // Calculates the "line table" of a given Data.
       void calculateLineTable(const Data* data) const;
 
+      // Searches the "line table" of a given Data.
       std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
       searchLineTable(const Data* data, const SourceLoc& loc) const;
 
+      // Inserts a new Data in the datas_ vector, returning it's FileID.
       FileID insertData(const std::string& path, 
         const std::string& filecontent);
 

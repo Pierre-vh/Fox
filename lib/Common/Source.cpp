@@ -14,7 +14,9 @@
 
 using namespace fox;
 
+//----------------------------------------------------------------------------//
 // FileID
+//----------------------------------------------------------------------------//
 
 FileID::FileID(std::size_t value) {
   assert(value < npos && "Index too big for FileID!");
@@ -45,7 +47,163 @@ FileID::IDTy FileID::getRaw() const {
   return value_;
 }
 
+//----------------------------------------------------------------------------//
+// SourceLoc
+//----------------------------------------------------------------------------//
+
+SourceLoc::SourceLoc() : fid_(FileID()), idx_(0) {
+
+}
+
+SourceLoc::SourceLoc(FileID fid, IndexTy idx):
+  fid_(fid), idx_(idx) {
+}
+
+bool SourceLoc::isValid() const {
+  return (bool)fid_;
+}
+
+SourceLoc::operator bool() const {
+  return isValid();
+}
+
+bool SourceLoc::operator==(const SourceLoc other) const {
+  return (fid_ == other.fid_) && (idx_ == other.idx_);
+}
+
+bool SourceLoc::operator!=(const SourceLoc other) const {
+  return !(*this == other);
+}
+
+FileID SourceLoc::getFileID() const {
+  return fid_;
+}
+
+SourceLoc::IndexTy SourceLoc::getRawIndex() const {
+  return idx_;
+}
+
+bool SourceLoc::comesBefore(SourceLoc other) const {
+  if(fid_ != other.fid_) return false;
+  return idx_ < other.idx_;
+}
+
+std::string SourceLoc::toString(const SourceManager& srcMgr) const {
+  if (!isValid()) return "";
+  auto cloc = srcMgr.getCompleteLoc(*this);
+  std::stringstream ss;
+  ss << cloc.line << ":" << cloc.column;
+  return ss.str();
+}
+
+void SourceLoc::increment() {
+  idx_++;
+}
+
+void SourceLoc::decrement() {
+  idx_--;
+}
+
+//----------------------------------------------------------------------------//
+// SourceRange
+//----------------------------------------------------------------------------//
+
+SourceRange::SourceRange(SourceLoc sloc, OffsetTy offset):
+  sloc_(sloc), offset_(offset) {
+
+}
+
+SourceRange::SourceRange(SourceLoc a, SourceLoc b) {
+  // a and b must belong to the same file in all cases!
+  assert(a.getFileID() == b.getFileID() && "A and B are from different files");
+  if (a.getRawIndex() < b.getRawIndex()) {
+    // a is the first sloc
+    sloc_ = a;
+    offset_ = static_cast<OffsetTy>(b.getRawIndex() - a.getRawIndex());
+  }
+  else if (a.getRawIndex() > b.getRawIndex()) {
+    // b is the first sloc
+    sloc_ = b;
+    offset_ = static_cast<OffsetTy>(a.getRawIndex() - b.getRawIndex());
+  }
+  else  {
+    // a == b
+    sloc_ = a;
+    offset_ = 0;
+  }
+}
+
+SourceRange::SourceRange() : sloc_(SourceLoc()), offset_(0) {
+  
+}
+
+bool SourceRange::isValid() const {
+  return (bool)sloc_;
+}
+
+SourceRange::operator bool() const {
+  return isValid();
+}
+
+SourceLoc SourceRange::getBegin() const {
+  return sloc_;
+}
+
+SourceRange::OffsetTy SourceRange::getRawOffset() const {
+  return offset_;
+}
+
+SourceLoc SourceRange::getEnd() const {
+  return SourceLoc(sloc_.getFileID(), sloc_.getRawIndex() + offset_);
+}
+
+bool SourceRange::isOnlyOneCharacter() const {
+  return (offset_ == 0);
+}
+
+bool SourceRange::contains(SourceLoc loc) const {
+  SourceLoc beg = getBegin();
+  SourceLoc end = getEnd();
+  if(beg.getFileID() != loc.getFileID())
+    return false;
+  auto begIdx = beg.getRawIndex();
+  auto endIdx = end.getRawIndex();
+  auto locIdx = loc.getRawIndex();
+  assert(true);
+  return (begIdx <= locIdx) && (locIdx <= endIdx);
+}
+
+bool SourceRange::contains(SourceRange range) const {
+  return contains(range.getBegin()) && contains(range.getEnd());
+}
+
+FileID SourceRange::getFileID() const {
+  return sloc_.getFileID();
+}
+
+std::string SourceRange::toString(const SourceManager& srcMgr) const {
+  std::stringstream ss;
+  if (!isValid()) return "";
+
+  auto beg = srcMgr.getCompleteLoc(getBegin());
+  ss << beg.line << ":" << beg.column;
+
+  if (offset_ == 0)
+    return ss.str();
+
+  auto end = srcMgr.getCompleteLoc(getEnd());
+
+  if (beg.line == end.line)
+    ss << "-" << end.column;
+  else
+    ss << "-" << end.line << ":" << end.column;
+  return ss.str();
+}
+
+//----------------------------------------------------------------------------//
 // SourceManager
+//----------------------------------------------------------------------------//
+
 string_view SourceManager::getSourceStr(FileID fid) const {
   auto data = getSourceData(fid);
   return data->str;
@@ -105,7 +263,8 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
   }
   else {
     line = entry.second;
-    auto str_beg = fdata->str.c_str(); // Pointer to the first character of the string
+    auto str_beg = fdata->str.c_str(); // Pointer to the first 
+                                       // character of the string
     auto raw_col = utf8::distance(str_beg + entry.first, str_beg + idx);
     col = static_cast<CompleteLoc::ColTy>(raw_col+1);
   }
@@ -130,10 +289,6 @@ bool SourceManager::checkValid(SourceLoc sloc) const {
   // Less-or-equal because it might be a SourceLoc 
   // that points right after the end of the buffer.
   return sloc.getRawIndex() <= data->str.size();
-}
-
-bool SourceManager::checkExists(FileID file) const {
-  return (bool)getSourceData(file);
 }
 
 string_view 
@@ -274,152 +429,9 @@ FileID SourceManager::insertData(const std::string& path,
   return FileID(datas_.size()-1);
 }
 
-// SourceLoc
-SourceLoc::SourceLoc() : fid_(FileID()), idx_(0) {
-
-}
-
-SourceLoc::SourceLoc(FileID fid, IndexTy idx):
-  fid_(fid), idx_(idx) {
-}
-
-bool SourceLoc::isValid() const {
-  return (bool)fid_;
-}
-
-SourceLoc::operator bool() const {
-  return isValid();
-}
-
-bool SourceLoc::operator==(const SourceLoc other) const {
-  return (fid_ == other.fid_) && (idx_ == other.idx_);
-}
-
-bool SourceLoc::operator!=(const SourceLoc other) const {
-  return !(*this == other);
-}
-
-FileID SourceLoc::getFileID() const {
-  return fid_;
-}
-
-SourceLoc::IndexTy SourceLoc::getRawIndex() const {
-  return idx_;
-}
-
-bool SourceLoc::comesBefore(SourceLoc other) const {
-  if(fid_ != other.fid_) return false;
-  return idx_ < other.idx_;
-}
-
-std::string SourceLoc::toString(const SourceManager& srcMgr) const {
-  if (!isValid()) return "";
-  auto cloc = srcMgr.getCompleteLoc(*this);
-  std::stringstream ss;
-  ss << cloc.line << ":" << cloc.column;
-  return ss.str();
-}
-
-void SourceLoc::increment() {
-  idx_++;
-}
-
-void SourceLoc::decrement() {
-  idx_--;
-}
-
-// SourceRange
-SourceRange::SourceRange(SourceLoc sloc, OffsetTy offset):
-  sloc_(sloc), offset_(offset) {
-
-}
-
-SourceRange::SourceRange(SourceLoc a, SourceLoc b) {
-  // a and b must belong to the same file in all cases!
-  assert(a.getFileID() == b.getFileID() && "A and B are from different files");
-  if (a.getRawIndex() < b.getRawIndex()) {
-    // a is the first sloc
-    sloc_ = a;
-    offset_ = static_cast<OffsetTy>(b.getRawIndex() - a.getRawIndex());
-  }
-  else if (a.getRawIndex() > b.getRawIndex()) {
-    // b is the first sloc
-    sloc_ = b;
-    offset_ = static_cast<OffsetTy>(a.getRawIndex() - b.getRawIndex());
-  }
-  else  {
-    // a == b
-    sloc_ = a;
-    offset_ = 0;
-  }
-}
-
-SourceRange::SourceRange() : sloc_(SourceLoc()), offset_(0) {
-  
-}
-
-bool SourceRange::isValid() const {
-  return (bool)sloc_;
-}
-
-SourceRange::operator bool() const {
-  return isValid();
-}
-
-SourceLoc SourceRange::getBegin() const {
-  return sloc_;
-}
-
-SourceRange::OffsetTy SourceRange::getRawOffset() const {
-  return offset_;
-}
-
-SourceLoc SourceRange::getEnd() const {
-  return SourceLoc(sloc_.getFileID(), sloc_.getRawIndex() + offset_);
-}
-
-bool SourceRange::isOnlyOneCharacter() const {
-  return (offset_ == 0);
-}
-
-bool SourceRange::contains(SourceLoc loc) const {
-  SourceLoc beg = getBegin();
-  SourceLoc end = getEnd();
-  if(beg.getFileID() != loc.getFileID())
-    return false;
-  auto begIdx = beg.getRawIndex();
-  auto endIdx = end.getRawIndex();
-  auto locIdx = loc.getRawIndex();
-  assert(true);
-  return (begIdx <= locIdx) && (locIdx <= endIdx);
-}
-
-bool SourceRange::contains(SourceRange range) const {
-  return contains(range.getBegin()) && contains(range.getEnd());
-}
-
-FileID SourceRange::getFileID() const {
-  return sloc_.getFileID();
-}
-
-std::string SourceRange::toString(const SourceManager& srcMgr) const {
-  std::stringstream ss;
-  if (!isValid()) return "";
-
-  auto beg = srcMgr.getCompleteLoc(getBegin());
-  ss << beg.line << ":" << beg.column;
-
-  if (offset_ == 0)
-    return ss.str();
-
-  auto end = srcMgr.getCompleteLoc(getEnd());
-
-  if (beg.line == end.line)
-    ss << "-" << end.column;
-  else
-    ss << "-" << end.line << ":" << end.column;
-  return ss.str();
-}
+//----------------------------------------------------------------------------//
+// Others
+//----------------------------------------------------------------------------//
 
 std::string fox::toString(SourceManager::FileStatus status) {
   using FS = SourceManager::FileStatus;
