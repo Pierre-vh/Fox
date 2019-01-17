@@ -132,6 +132,9 @@ To-Do:
   > Replace CellTypes with a proper "TypeVariableType" (Done)
   > SourceManager rework/cleanup (Done)
 
+  > TypeLoc: Remove explicit operator bool, add "isLocValid" and "isTypeValid"
+    > Also, maybe rename "withoutLoc" to "getType"
+
   > DeclContext rework: Split it in 2:
       DeclContext: Doesn't record anything, just acts as a "marker" that a node begins a new semantic context.
         e.g. FuncDecl
@@ -197,6 +200,14 @@ Other:
       return values in the SourceManager and other classes.
       
   Medium Priority: 
+    > Add a "Transaction" object in the Parser, which delays DeclContext registrations
+      until the transaction is completed (with a new DeclContext) or abandonned.
+        This will solve the problem of the "early creation" of FuncDecl! We
+        can use the "transaction" in place of the DeclContext and register decls in that,
+        then complete the transaction if/when we finally create the FuncDecl instance!
+          When that's done, remove the setTypeLoc of FuncDecl.
+        
+
     > DiagnosticVerifier: Add a syntax to expect a diag multiple times, e.g. 'expect-error(3)@+1'
       -> Use it in tests\VerifyMode\Sema\Expr\call.fox
 
