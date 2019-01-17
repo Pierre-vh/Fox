@@ -270,22 +270,23 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
 
 string_view 
 SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
+  // Retrieve the data
   const Data* data = getSourceData(loc.getFileID());
+  // Check that our index is valid
+  assert(isIndexValid(data, loc.getRawIndex()));
+  // Retrieve the source
   string_view source = data->str;
-
+  // Search the line table
   auto pair = searchLineTable(data, loc);
-
   std::size_t beg = pair.first, end = beg;
-
+  // Give the index of the beginning of the line to the caller if it wants it.
   if (lineBeg) (*lineBeg) = beg;
-
-  // TODO: Handle check that the SourceLoc is valid here.
-
+  // Find the end of the line
   for (; end < source.size(); end++) {
     if (source[end] == '\n' || source[end] == '\r')
       break;
   }
-
+  // Create the string
   return source.substr(beg, end-beg);
 }
 
@@ -295,7 +296,9 @@ SourceLoc SourceManager::getNextCodepointSourceLoc(SourceLoc loc) const {
   const Data* data = getSourceData(file);
   // Check that our loc is valid
   auto raw = loc.getRawIndex();
-  // TODO: Check SourceLoc validity here
+  assert(isIndexValid(data, raw));
+  
+  // Prepare the iterators
   auto cur = data->str.begin()+raw;
   auto next = cur;
   auto end = data->str.end();
@@ -309,7 +312,8 @@ SourceLoc SourceManager::getNextCodepointSourceLoc(SourceLoc loc) const {
     // Recompose the SourceLoc
     return SourceLoc(file, raw+offset);
   }
-  // If this is a past-the-end SourceLoc, just return the argument.
+  // If this is a past-the-end SourceLoc, just it since it cannot be
+  // incremented.
   return loc;
 }
 
@@ -396,6 +400,13 @@ void SourceManager::calculateLineTable(const Data* data) const {
   }
 
   data->calculatedLineTable_ = true;
+}
+
+bool 
+SourceManager::isIndexValid(const Data* data, SourceLoc::IndexTy idx) const {
+  // The index is valid if it's smaller or equal to .size(). It can be
+  // equal to size in the case of a "past the end" loc.
+  return idx <= data->str.size();
 }
 
 std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>

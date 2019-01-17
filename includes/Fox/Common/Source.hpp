@@ -285,6 +285,10 @@ namespace fox {
       // Calculates the "line table" of a given Data.
       void calculateLineTable(const Data* data) const;
 
+      // Checks if a SourceLoc's index refers to a valid position
+      // (or a past-the-end position) in the data.
+      bool isIndexValid(const Data* data, SourceLoc::IndexTy idx) const;
+
       // Searches the "line table" of a given Data.
       std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
       searchLineTable(const Data* data, const SourceLoc& loc) const;
