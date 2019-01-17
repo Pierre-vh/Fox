@@ -434,8 +434,9 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
   SourceRange errorRange;
   if (Token prevTok = getPreviousToken()) {
     SourceLoc loc = prevTok.getRange().getEnd();
-    loc.increment();
-    assert(srcMgr.checkValid(loc));
+    // Get the next character in the file. This will be our 
+    // error's location.
+    loc = srcMgr.getNextCodepointSourceLoc(loc);
     errorRange = SourceRange(loc);
   }
   else {

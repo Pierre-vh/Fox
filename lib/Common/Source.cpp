@@ -96,22 +96,12 @@ std::string SourceLoc::toString(const SourceManager& srcMgr) const {
   return ss.str();
 }
 
-void SourceLoc::increment() {
-  idx_++;
-}
-
-void SourceLoc::decrement() {
-  idx_--;
-}
-
 //----------------------------------------------------------------------------//
 // SourceRange
 //----------------------------------------------------------------------------//
 
 SourceRange::SourceRange(SourceLoc sloc, OffsetTy offset):
-  sloc_(sloc), offset_(offset) {
-
-}
+  sloc_(sloc), offset_(offset) {}
 
 SourceRange::SourceRange(SourceLoc a, SourceLoc b) {
   // a and b must belong to the same file in all cases!
@@ -133,9 +123,7 @@ SourceRange::SourceRange(SourceLoc a, SourceLoc b) {
   }
 }
 
-SourceRange::SourceRange() : sloc_(SourceLoc()), offset_(0) {
-  
-}
+SourceRange::SourceRange(): sloc_(SourceLoc()), offset_(0) {}
 
 bool SourceRange::isValid() const {
   return (bool)sloc_;
@@ -280,17 +268,6 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
   );
 }
 
-bool SourceManager::checkValid(SourceLoc sloc) const {
-  const Data* data = getSourceData(sloc.getFileID());
-  
-  if (!data)
-    return false;
-
-  // Less-or-equal because it might be a SourceLoc 
-  // that points right after the end of the buffer.
-  return sloc.getRawIndex() <= data->str.size();
-}
-
 string_view 
 SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
   const Data* data = getSourceData(loc.getFileID());
@@ -302,12 +279,38 @@ SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
 
   if (lineBeg) (*lineBeg) = beg;
 
+  // TODO: Handle check that the SourceLoc is valid here.
+
   for (; end < source.size(); end++) {
     if (source[end] == '\n' || source[end] == '\r')
       break;
   }
 
   return source.substr(beg, end-beg);
+}
+
+SourceLoc SourceManager::getNextCodepointSourceLoc(SourceLoc loc) const {
+  // First, retrieve the Data.
+  FileID file = loc.getFileID();
+  const Data* data = getSourceData(file);
+  // Check that our loc is valid
+  auto raw = loc.getRawIndex();
+  // TODO: Check SourceLoc validity here
+  auto cur = data->str.begin()+raw;
+  auto next = cur;
+  auto end = data->str.end();
+
+  // If this isn't a past-the-end SourceLoc
+  if(cur != end) {
+    // Get the next character in the sequence
+    utf8::next(next, end);
+    // Calculate the offset
+    std::size_t offset = std::distance(cur, next);
+    // Recompose the SourceLoc
+    return SourceLoc(file, raw+offset);
+  }
+  // If this is a past-the-end SourceLoc, just return the argument.
+  return loc;
 }
 
 // Checks the encoding of the file, skipping the UTF-8 bom if it's present.

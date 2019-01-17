@@ -105,12 +105,6 @@ namespace fox {
       // Returns "" if this SourceLoc is invalid.
       std::string toString(const SourceManager& srcMgr) const;
 
-    protected:
-      friend class Parser;
-
-      void increment();
-      void decrement();
-
     private:
       FileID fid_;
       IndexTy idx_;
@@ -276,15 +270,16 @@ namespace fox {
       // Any value greater than that will trigger an assertion ("out of range")
       CompleteLoc getCompleteLoc(SourceLoc sloc) const;
 
-      // Checks if a SourceLoc is valid
-      bool checkValid(SourceLoc sloc) const;
-
       // Returns the complete line of source code for a given SourceLoc
       // An optional argument (pointer) can be passed. If it is present,
       // the function will store the Index at which the line begins in 
       // this variable.
       string_view getSourceLine(SourceLoc loc, 
         SourceLoc::IndexTy* lineBeg = nullptr) const;
+
+      // Returns a SourceLoc that refers to the next code point
+      // after "loc".
+      SourceLoc getNextCodepointSourceLoc(SourceLoc loc) const;
 
     private:
       // Calculates the "line table" of a given Data.
