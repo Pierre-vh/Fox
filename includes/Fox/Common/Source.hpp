@@ -59,26 +59,6 @@ namespace fox {
       IDTy value_ = npos;
   };
 
-  // Small POD-like struct containing a human-readable source loc information.
-  struct CompleteLoc {
-    using LineTy = std::uint32_t;
-    using ColTy = std::uint16_t;
-
-    CompleteLoc(const std::string& fName, LineTy ln, ColTy col)
-      : fileName(fName), line(ln), column(col) {
-
-    }
-
-    bool operator==(const CompleteLoc& other) const {
-      return (fileName == other.fileName) 
-        && (line == other.line) && (column == other.column);
-    }
-
-    std::string fileName;
-    LineTy line;
-    ColTy column;
-  };
-
   // The SourceLoc is a lightweight wrapper around a FileID and an index
   // which, combined, represent the location of a character in the source code.
   // Note: this object expects a "byte" index, not an index in codepoints.
@@ -185,6 +165,24 @@ namespace fox {
     private:
       SourceLoc sloc_;
       OffsetTy offset_;
+  };
+
+  // Small POD-like struct containing a human-readable source loc information.
+  struct CompleteLoc {
+    using LineTy = std::uint32_t;
+    using ColTy = std::uint16_t;
+
+    CompleteLoc(const std::string& fName, LineTy ln, ColTy col)
+      : fileName(fName), line(ln), column(col) {}
+
+    bool operator==(const CompleteLoc& other) const {
+      return (fileName == other.fileName) 
+        && (line == other.line) && (column == other.column);
+    }
+
+    std::string fileName;
+    LineTy line;
+    ColTy column;
   };
 
   // the SourceManager, which stores every source file and gives them a unique ID.
