@@ -85,14 +85,15 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // (Warning) Diagnoses a redudant cast (when the
     // cast goal and the child's type are equal)
-    void warnRedundantCast(CastExpr* expr, Type toType) {
-      if(!Sema::isWellFormed(toType)) return;
+    void warnRedundantCast(CastExpr* expr, TypeLoc castTL) {
+      Type castTy = castTL.withoutLoc();
+      if(!Sema::isWellFormed(castTy)) return;
 
       SourceRange range = expr->getCastTypeLoc().getRange();
 
       getDiags()
-        .report(DiagID::sema_useless_cast_redundant, range)
-        .addArg(toType)
+        .report(DiagID::sema_useless_cast_redundant, castTL.getRange())
+        .addArg(castTy)
         .setExtraRange(expr->getExpr()->getRange());
     }
 
@@ -302,16 +303,14 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // Finalizes a CastExpr
     Expr* finalizeCastExpr(CastExpr* expr, bool isRedundant) {
+      TypeLoc castTL = expr->getCastTypeLoc();
+
       if (isRedundant) { 
-        // Redundant casts are useless
         expr->markAsUselesss();
-        // Warn the user
-        Type type = expr->getCastType();
-        warnRedundantCast(expr, type);
+        warnRedundantCast(expr, castTL);
       }
 
-      // Else, the Expr's type is simply the castgoal.
-      expr->setType(expr->getCastType());
+      expr->setType(castTL.withoutLoc());
       return expr;
     }
 

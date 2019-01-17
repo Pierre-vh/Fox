@@ -446,14 +446,6 @@ TypeLoc CastExpr::getCastTypeLoc() const {
   return goal_;
 }
 
-Type CastExpr::getCastType() const {
-  return goal_.withoutLoc();
-}
-
-SourceRange CastExpr::getCastRange() const {
-  return goal_.getRange();
-}
-
 void CastExpr::setExpr(Expr* expr) {
   exprAndIsUseless_.setPointer(expr);
 }
@@ -463,8 +455,9 @@ Expr* CastExpr::getExpr() const {
 }
 
 SourceRange CastExpr::getRange() const {
-  assert(getCastRange() && getExpr() && "ill-formed CastExpr");
-  return SourceRange(getExpr()->getBegin(), getCastRange().getEnd());
+  assert(getCastTypeLoc() && getExpr() && "ill-formed CastExpr");
+  SourceRange castTLRange = getCastTypeLoc().getRange();
+  return SourceRange(getExpr()->getBegin(), castTLRange.getEnd());
 }
 
 bool CastExpr::isUseless() const {

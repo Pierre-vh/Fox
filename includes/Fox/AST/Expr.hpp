@@ -191,8 +191,6 @@ namespace fox   {
 
       void setCastTypeLoc(TypeLoc goal);
       TypeLoc getCastTypeLoc() const;
-      Type getCastType() const;
-      SourceRange getCastRange() const;
 
       void setExpr(Expr* expr);
       Expr* getExpr() const;
