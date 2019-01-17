@@ -22,14 +22,11 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm,
   // in that situation.
   // e.g. print "<MyModule> - Error - ..." instead of just "Error - ...."
 
-  if (!range)
-    return "";
-
-  FileID file = range.getFileID();
-  const auto* sourceData = sm.getSourceData(file);
+  // Don't do anything if the range isn't valid.
+  if (!range) return "";
 
   std::stringstream ss;
-  ss << "<" << sourceData->fileName << ">";
+  ss << "<" << sm.getSourceName(range.getFileID()) << ">";
 
   // For FileWide diags, just use "1" as the line. For normal diags,
   // use range.toString

@@ -218,8 +218,8 @@ void ASTDumper::visitReturnStmt(ReturnStmt* node) {
 
 void ASTDumper::visitUnitDecl(UnitDecl* node) {
   std::string fileInfo;
-  if (const auto* data = getSourceData(node->getFileID()))
-    fileInfo = makeKeyPairDump("file", data->fileName);
+  if (auto file = node->getFileID())
+    fileInfo = makeKeyPairDump("file", getFileNameOr(file, "unknown"));
   else
     fileInfo = makeKeyPairDump("file", "unknown");
 
@@ -285,10 +285,11 @@ std::string ASTDumper::toString(SourceRange range) const {
   return range.toString(*srcMgr_);
 }
 
-const SourceManager::Data* ASTDumper::getSourceData(FileID fid) {
-  if (srcMgr_ && fid)
-    return srcMgr_->getSourceData(fid);
-  return nullptr;
+string_view 
+ASTDumper::getFileNameOr(FileID file, string_view alternative) {
+  if(!hasSrcMgr() || !file.isValid())
+    return alternative;
+  return srcMgr_->getSourceName(file);
 }
 
 bool ASTDumper::hasSrcMgr() const {

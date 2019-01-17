@@ -31,21 +31,16 @@ TEST(SourceManagerTest, LoadingFromFile) {
   EXPECT_TRUE(bFile) << "Error while reading '" << bPath 
     << "': " << toString(bRes.second); 
 
-  // File path is correct?
-  const auto* storeddata_a = srcMgr.getSourceData(aFile);
-  const auto* storeddata_b = srcMgr.getSourceData(bFile);
+  // The name is correctly stored
+  EXPECT_EQ(aPath, srcMgr.getSourceName(aFile));
+  EXPECT_EQ(bPath, srcMgr.getSourceName(bFile));
 
-  // File paths are the same? 
-  EXPECT_EQ(aPath, storeddata_a->fileName);
-  EXPECT_EQ(bPath, storeddata_b->fileName);
-
-  // Compare contents
+  // The content is correctly stored
   std::string content_a, content_b;
   ASSERT_TRUE(test::readFileToString("lexer/utf8/bronzehorseman.txt", content_a));
   ASSERT_TRUE(test::readFileToString("lexer/utf8/ascii.txt", content_b));
-
-  EXPECT_EQ(content_a, storeddata_a->str);
-  EXPECT_EQ(content_b, storeddata_b->str);
+  EXPECT_EQ(content_a, srcMgr.getSourceStr(aFile));
+  EXPECT_EQ(content_b, srcMgr.getSourceStr(bFile));
 }
 
 TEST(SourceManagerTest, LoadingFromString) {

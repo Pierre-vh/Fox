@@ -246,15 +246,13 @@ namespace fox {
       FileID loadFromString(const std::string& str, 
         const std::string& name = "in-memory");
 
-      // Returns a pointer to the source string of a file.
-      // The result is always valid.
+      // Returns a string_view of the Source file's content.
+      // The FileID MUST be valid.
       string_view getSourceStr(FileID fid) const;
 
-      // Returns a pointer to the "Data" for a given File.
-      // The result is always non null (guaranteed by an assertion)
-      // The result will also always be constant as the data stored
-      // by the SourceManager is immutable.
-      const Data* getSourceData(FileID fid) const;
+      // Returns a string_view of the Source file's name.
+      // The FileID MUST be valid.
+      string_view getSourceName(FileID fid) const;
 
       // Returns the line number of a SourceLoc
       CompleteLoc::LineTy getLineNumber(SourceLoc loc) const;
@@ -282,6 +280,12 @@ namespace fox {
       SourceLoc getNextCodepointSourceLoc(SourceLoc loc) const;
 
     private:
+      // Returns a pointer to the "Data" for a given File.
+      // The result is always non null (guaranteed by an assertion)
+      // The result will also always be constant because the data stored
+      // is immutable.
+      const Data* getSourceData(FileID fid) const;
+
       // Calculates the "line table" of a given Data.
       void calculateLineTable(const Data* data) const;
 

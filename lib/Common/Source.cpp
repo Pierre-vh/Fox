@@ -197,6 +197,11 @@ string_view SourceManager::getSourceStr(FileID fid) const {
   return data->str;
 }
 
+string_view SourceManager::getSourceName(FileID fid) const {
+  auto data = getSourceData(fid);
+  return data->fileName;
+}
+
 const SourceManager::Data*
 SourceManager::getSourceData(FileID file) const {
   assert(file.isValid() && "FileID is not valid");

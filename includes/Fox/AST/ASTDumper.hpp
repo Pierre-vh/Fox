@@ -82,7 +82,9 @@ namespace fox {
       std::string toString(TypeLoc type) const;
       std::string toString(SourceRange range) const;
 
-      const SourceManager::Data* getSourceData(FileID fid);
+      // Returns the name of the file, or the "alternative" string if
+      // the file doesn't exist or the SourceManager isn't available.
+      string_view getFileNameOr(FileID file, string_view alternative);
       bool hasSrcMgr() const;
 
       // Prints getRawOffset() and getIndent() to out_ then returns out_
