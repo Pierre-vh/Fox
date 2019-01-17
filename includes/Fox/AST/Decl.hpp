@@ -210,7 +210,6 @@ namespace fox {
 
       bool isMutable() const;
 
-      void setTypeLoc(TypeLoc tl);
       TypeLoc getTypeLoc() const;
 
       SourceRange getRange() const;
@@ -286,7 +285,9 @@ namespace fox {
 
       /// Sets the return type of this FuncDecl. 
       /// This will nullify the ValueDecl type.
+      // TODO: Remove this
       void setReturnTypeLoc(TypeLoc ty);
+
       TypeLoc getReturnTypeLoc() const;
       bool isReturnTypeImplicit() const;
 

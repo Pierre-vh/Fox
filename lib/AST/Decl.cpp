@@ -217,11 +217,6 @@ bool ParamDecl::isMutable() const {
   return isMut_;
 }
 
-void ParamDecl::setTypeLoc(TypeLoc tl) {
-  setType(tl.withoutLoc());
-  typeRange_ = tl.getRange();
-}
-
 TypeLoc ParamDecl::getTypeLoc() const {
   return TypeLoc(getType(), typeRange_);
 }
