@@ -85,7 +85,7 @@ namespace fox {
       const SourceManager::SourceData* getSourceData(FileID fid);
       bool hasSrcMgr() const;
 
-      // Prints getOffset() and getIndent() to out_ then returns out_
+      // Prints getRawOffset() and getIndent() to out_ then returns out_
       // Can add a number as parameter to add a "temporary" indent, just for this line.
       std::ostream& dumpLine(std::uint8_t num = 0);
 

@@ -247,7 +247,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         if (decl->getFileID() == file) {
           SourceLoc declLoc = decl->getBegin();
           // If the decl was declared after our loc, ignore it.
-          if (loc.getIndex() < declLoc.getIndex())
+          if (loc.getRawIndex() < declLoc.getRawIndex())
             continue;
           if (!candidate)
             candidate = decl;
@@ -255,7 +255,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
             SourceLoc candLoc = candidate->getBegin();
             // if decl has been declared before candidate, 
             // decl becomes the candidate
-            if (declLoc.getIndex() < candLoc.getIndex())
+            if (declLoc.getRawIndex() < candLoc.getRawIndex())
               candidate = decl;
           }
         }

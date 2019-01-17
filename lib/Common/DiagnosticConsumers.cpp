@@ -147,8 +147,8 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag) {
 
   // Create the carets underline (^)
 	{  
-    auto beg = getOffsetIteratorFromLineBeg(range.getBegin().getIndex());
-    auto end = getOffsetIteratorFromLineBeg(range.getEnd().getIndex());
+    auto beg = getOffsetIteratorFromLineBeg(range.getBegin().getRawIndex());
+    auto end = getOffsetIteratorFromLineBeg(range.getEnd().getRawIndex());
     underline = createUnderline('^', line, beg, end);
   }
 
@@ -157,8 +157,8 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag) {
     assert((diag.getExtraRange().getFileID() == diag.getRange().getFileID())
       && "Ranges don't belong to the same file");
 
-    auto beg = getOffsetIteratorFromLineBeg(eRange.getBegin().getIndex());
-    auto end = getOffsetIteratorFromLineBeg(eRange.getEnd().getIndex());
+    auto beg = getOffsetIteratorFromLineBeg(eRange.getBegin().getRawIndex());
+    auto end = getOffsetIteratorFromLineBeg(eRange.getEnd().getRawIndex());
     underline = embedString(underline, createUnderline('~', line, beg, end));
   }
 

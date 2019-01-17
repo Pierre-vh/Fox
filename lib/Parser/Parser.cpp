@@ -121,7 +121,7 @@ SourceLoc Parser::consumeBracket(SignType s) {
         fox_unreachable("unknown bracket type");
     }
     next();
-    assert((tok.getRange().getOffset() == 0) 
+    assert((tok.getRange().getRawOffset() == 0) 
       && "Token is a sign but it's SourceRange offset is greater than zero?");
     return SourceLoc(tok.getRange().getBegin());
   }

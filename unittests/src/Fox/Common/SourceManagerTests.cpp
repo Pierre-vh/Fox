@@ -78,10 +78,10 @@ TEST(SourceManagerTest, SourceRange) {
 
   // Create sample source ranges
   SourceRange ra(a, 50);
-  ASSERT_EQ(ra.getOffset(), 50);
+  ASSERT_EQ(ra.getRawOffset(), 50);
 
   SourceRange rb(a, b);
-  ASSERT_EQ(rb.getOffset(), 50);
+  ASSERT_EQ(rb.getRawOffset(), 50);
 
   // Check if everything is preserved, as expected.
   EXPECT_EQ(rb.getBegin(), a);

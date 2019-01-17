@@ -69,6 +69,7 @@ namespace fox {
       // to a int64 if needed.
       using IndexTy = std::uint32_t;
 
+      // Creates a new, invalid SourceLoc.
       SourceLoc();
       explicit SourceLoc(FileID fid, IndexTy idx = 0);
 
@@ -83,9 +84,9 @@ namespace fox {
 
       // Returns the raw index of the SourceLoc.
       //
-      // Note that this should NEVER be used in place of a SourceLoc since
+      // Note that this should never be used in place of a SourceLoc since
       // it doesn't preserve the FileID.
-      IndexTy getIndex() const;
+      IndexTy getRawIndex() const;
 
       // Returns true if this SourceLoc comes before the other SourceLoc.
       // Returns false if the other SourceLoc doesn't belong to the 
@@ -132,8 +133,10 @@ namespace fox {
 
       SourceLoc getBegin() const;
       SourceLoc getEnd() const;
-      OffsetTy getOffset() const;
       FileID getFileID() const;
+
+      // Returns the raw offset contained inside this SourceRange.
+      OffsetTy getRawOffset() const;
 
       // Returns true if this SourceRange only covers one characters
       // (and thus can be converted to a SourceLoc without losing

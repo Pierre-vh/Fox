@@ -35,7 +35,7 @@ namespace {
   // Offsets a sourceloc by X chars. This doesn't check if the SourceLoc
   // is valid, it justs adds the offset to the index.
   SourceLoc offsetSourceLoc(SourceLoc loc, std::size_t off) {
-    return SourceLoc(loc.getFileID(), loc.getIndex() + off);
+    return SourceLoc(loc.getFileID(), loc.getRawIndex() + off);
   }
 
   // Trims a string, removing spaces, tabs and others to the left and 

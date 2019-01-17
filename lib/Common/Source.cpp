@@ -95,7 +95,7 @@ SourceRange SourceManager::getRangeOfFile(FileID file) const {
 CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
   const SourceData* fdata = getSourceData(sloc.getFileID());
 
-  auto idx = sloc.getIndex();
+  auto idx = sloc.getRawIndex();
   assert((idx <= fdata->str.size()) && "SourceLoc is Out-of-Range");
 
   // if the SourceLoc points to a fictive location just past the end
@@ -139,7 +139,7 @@ bool SourceManager::checkValid(SourceLoc sloc) const {
 
   // Less-or-equal because it might be a SourceLoc 
   // that points right after the end of the buffer.
-  return sloc.getIndex() <= data->str.size();
+  return sloc.getRawIndex() <= data->str.size();
 }
 
 bool SourceManager::checkExists(FileID file) const {
@@ -273,11 +273,11 @@ SourceManager::searchLineTable(const SourceData* data, const SourceLoc& loc) con
       return data->lastLTSearch_.second;
   }
 
-  auto it = data->lineTable_.lower_bound(loc.getIndex());
+  auto it = data->lineTable_.lower_bound(loc.getRawIndex());
 
   bool exactMatch = false;
   if(it != data->lineTable_.end())
-    exactMatch = (it->first == loc.getIndex());
+    exactMatch = (it->first == loc.getRawIndex());
 
   std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy> rtr;
   if (!exactMatch && (it != data->lineTable_.begin()))
@@ -317,7 +317,7 @@ FileID SourceLoc::getFileID() const {
   return fid_;
 }
 
-SourceLoc::IndexTy SourceLoc::getIndex() const {
+SourceLoc::IndexTy SourceLoc::getRawIndex() const {
   return idx_;
 }
 
@@ -351,15 +351,15 @@ SourceRange::SourceRange(SourceLoc sloc, OffsetTy offset):
 SourceRange::SourceRange(SourceLoc a, SourceLoc b) {
   // a and b must belong to the same file in all cases!
   assert(a.getFileID() == b.getFileID() && "A and B are from different files");
-  if (a.getIndex() < b.getIndex()) {
+  if (a.getRawIndex() < b.getRawIndex()) {
     // a is the first sloc
     sloc_ = a;
-    offset_ = static_cast<OffsetTy>(b.getIndex() - a.getIndex());
+    offset_ = static_cast<OffsetTy>(b.getRawIndex() - a.getRawIndex());
   }
-  else if (a.getIndex() > b.getIndex()) {
+  else if (a.getRawIndex() > b.getRawIndex()) {
     // b is the first sloc
     sloc_ = b;
-    offset_ = static_cast<OffsetTy>(a.getIndex() - b.getIndex());
+    offset_ = static_cast<OffsetTy>(a.getRawIndex() - b.getRawIndex());
   }
   else  {
     // a == b
@@ -384,12 +384,12 @@ SourceLoc SourceRange::getBegin() const {
   return sloc_;
 }
 
-SourceRange::OffsetTy SourceRange::getOffset() const {
+SourceRange::OffsetTy SourceRange::getRawOffset() const {
   return offset_;
 }
 
 SourceLoc SourceRange::getEnd() const {
-  return SourceLoc(sloc_.getFileID(), sloc_.getIndex() + offset_);
+  return SourceLoc(sloc_.getFileID(), sloc_.getRawIndex() + offset_);
 }
 
 bool SourceRange::isOnlyOneCharacter() const {
@@ -401,9 +401,9 @@ bool SourceRange::contains(SourceLoc loc) const {
   SourceLoc end = getEnd();
   if(beg.getFileID() != loc.getFileID())
     return false;
-  auto begIdx = beg.getIndex();
-  auto endIdx = end.getIndex();
-  auto locIdx = loc.getIndex();
+  auto begIdx = beg.getRawIndex();
+  auto endIdx = end.getRawIndex();
+  auto locIdx = loc.getRawIndex();
   assert(true);
   return (begIdx <= locIdx) && (locIdx <= endIdx);
 }
