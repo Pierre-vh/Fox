@@ -74,12 +74,16 @@ SourceLoc TypeLoc::getEnd() const {
   return range_.getEnd();
 }
 
-bool TypeLoc::isValid() const {
-  return ty_ && range_;
+bool TypeLoc::isLocValid() const {
+  return (bool)range_;
 }
 
-TypeLoc::operator bool() const {
-  return isValid();
+bool TypeLoc::isTypeValid() const {
+  return (bool)ty_;
+}
+
+bool TypeLoc::isComplete() const {
+  return isLocValid() && isTypeValid();
 }
 
 Type TypeLoc::withoutLoc() {

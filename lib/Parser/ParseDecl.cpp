@@ -327,8 +327,7 @@ Parser::DeclResult Parser::parseVarDecl() {
 
   SourceRange range(begLoc, endLoc);
   assert(range && "Invalid loc info");
-  assert(type && "type is not valid");
-  assert(type.getRange() && "type range is not valid");
+  assert(type.isComplete() && "Incomplete TypeLoc!");
   auto rtr = VarDecl::create(ctxt, getDeclParent(), id.get(), id.getRange(),
     type, kw, iExpr, range);
 

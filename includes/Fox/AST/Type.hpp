@@ -51,7 +51,8 @@ namespace fox {
       bool operator<(const Type other) const;
   };
 
-  // A Type with its associated location information (a SourceRange).
+  // A Type with its associated location information, which is
+  //  stored as a SourceRange.
   class TypeLoc  {
     SourceRange range_;
     Type ty_;
@@ -63,9 +64,12 @@ namespace fox {
       SourceLoc getBegin() const;
       SourceLoc getEnd() const;
 
-      // Checks that both the Type and the SourceRange are valid
-      bool isValid() const;
-      explicit operator bool() const;
+      // Checks that the location information is valid.
+      bool isLocValid() const;
+      // Checks that the type is valid
+      bool isTypeValid() const;
+      // Checks that both the location information & type are valid
+      bool isComplete() const;
 
       // TypeLoc doesn't have it's own dump() method because we cannot dump
       // any meaningful information about our range_ without a SourceManager.

@@ -306,7 +306,7 @@ FuncDecl::FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId,
   SourceRange idRange, TypeLoc returnType): fnBegLoc_(fnBegLoc),
   ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange, Type()), 
   returnType_(returnType) {
-  assert(returnType && "return type can't be null");
+  assert(returnType.isTypeValid() && "return type can't be null");
 }
 
 FuncDecl* 
@@ -322,7 +322,7 @@ FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent,
 }
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
-  assert(ty && "return type can't be nullptr");
+  assert(ty.isTypeValid() && "return type can't be nullptr");
   returnType_ = ty;
   setType(Type());
 }
@@ -332,7 +332,7 @@ TypeLoc FuncDecl::getReturnTypeLoc() const {
 }
 
 bool FuncDecl::isReturnTypeImplicit() const {
-  return !getReturnTypeLoc().isValid();
+  return !getReturnTypeLoc().isLocValid();
 }
 
 CompoundStmt* FuncDecl::getBody() const {
@@ -363,7 +363,7 @@ void FuncDecl::setBody(CompoundStmt* body) {
 void FuncDecl::calculateType() {
   assert(getType().isNull() && "called uselessly!");
   ASTContext& ctxt = getASTContext();
-  assert(returnType_ && "return type can't be null!");
+  assert(returnType_.isTypeValid() && "Invalid return type");
   // Collect the Parameter's type
   SmallVector<Type, 4> paramTys;
   for(ParamDecl* param : (*getParams())) {
