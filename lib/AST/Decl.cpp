@@ -422,16 +422,8 @@ void VarDecl::setInitExpr(Expr* expr) {
   initAndKW_.setPointer(expr);
 }
 
-SourceRange VarDecl::getTypeRange() const {
-  return typeRange_;
-}
-
-void VarDecl::setTypeRange(SourceRange range) {
-  typeRange_ = range;
-}
-
 TypeLoc VarDecl::getTypeLoc() const {
-  return TypeLoc(getType(), getTypeRange());
+  return TypeLoc(getType(), typeRange_);
 }
 
 SourceRange VarDecl::getRange() const {

@@ -139,8 +139,8 @@ TEST_F(LocTests, VarDecls) {
   EXPECT_EQ(var_beg, CompleteLoc(fullFilePath,1,3));
   EXPECT_EQ(var_end, CompleteLoc(fullFilePath,1,22));
 
-  CompleteLoc var_ty_beg = srcMgr.getCompleteLoc(var->getTypeRange().getBegin());
-  CompleteLoc var_ty_end = srcMgr.getCompleteLoc(var->getTypeRange().getEnd());
+  CompleteLoc var_ty_beg = srcMgr.getCompleteLoc(var->getTypeLoc().getBegin());
+  CompleteLoc var_ty_end = srcMgr.getCompleteLoc(var->getTypeLoc().getEnd());
 
   EXPECT_EQ(var_ty_beg, CompleteLoc(fullFilePath, 1, 11));
   EXPECT_EQ(var_ty_end, CompleteLoc(fullFilePath, 1, 15));

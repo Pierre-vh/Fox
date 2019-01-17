@@ -93,7 +93,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         .report(DiagID::sema_invalid_vardecl_init_expr, init->getRange())
         .addArg(initType)
         .addArg(declType)
-        .setExtraRange(decl->getTypeRange());
+        .setExtraRange(decl->getTypeLoc().getRange());
     }
 
     //----------------------------------------------------------------------//

@@ -341,8 +341,6 @@ namespace fox {
       void setInitExpr(Expr* expr);
       bool hasInitExpr() const;
 
-      SourceRange getTypeRange() const;
-      void setTypeRange(SourceRange range);
       TypeLoc getTypeLoc() const;
 
       SourceRange getRange() const;
@@ -362,6 +360,8 @@ namespace fox {
       VarDecl(Parent parent, Identifier id, SourceRange idRange, TypeLoc type,
         Keyword kw, Expr* init, SourceRange range);
 
+      // Note: we store the range separately because the type is stored in
+      // ValueDecl.
       SourceRange typeRange_;
       SourceRange range_;
       // This VarDecl's initializer + the Keyword used to declare
