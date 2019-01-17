@@ -285,7 +285,7 @@ std::string ASTDumper::toString(SourceRange range) const {
   return range.toString(*srcMgr_);
 }
 
-const SourceManager::SourceData* ASTDumper::getSourceData(FileID fid) {
+const SourceManager::Data* ASTDumper::getSourceData(FileID fid) {
   if (srcMgr_ && fid)
     return srcMgr_->getSourceData(fid);
   return nullptr;

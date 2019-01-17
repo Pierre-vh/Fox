@@ -194,7 +194,7 @@ namespace fox {
     public:
       SourceManager() = default;
 
-      struct SourceData {
+      struct Data {
         std::string fileName;
         std::string str;
         protected:
@@ -202,7 +202,7 @@ namespace fox {
           using LineTy = CompleteLoc::LineTy;
           friend class SourceManager;
 
-          SourceData(const std::string& name, const std::string& content)
+          Data(const std::string& name, const std::string& content)
               : fileName(name), str(content) {}
 
           mutable std::map<IndexTy, LineTy> lineTable_;
@@ -241,11 +241,11 @@ namespace fox {
       // The result is always valid.
       string_view getSourceStr(FileID fid) const;
 
-      // Returns a pointer to the "SourceData" for a given File.
+      // Returns a pointer to the "Data" for a given File.
       // The result is always non null (guaranteed by an assertion)
       // The result will also always be constant as the data stored
       // by the SourceManager is immutable.
-      const SourceData* getSourceData(FileID fid) const;
+      const Data* getSourceData(FileID fid) const;
 
       // Returns the line number of a SourceLoc
       CompleteLoc::LineTy getLineNumber(SourceLoc loc) const;
@@ -274,19 +274,19 @@ namespace fox {
 
     private:
       FileID generateNewFileID() const;
-      void calculateLineTable(const SourceData* data) const;
+      void calculateLineTable(const Data* data) const;
 
       std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
-      searchLineTable(const SourceData* data, const SourceLoc& loc) const;
+      searchLineTable(const Data* data, const SourceLoc& loc) const;
 
       // Make it non copyable
       SourceManager(const SourceManager&) = delete;
       SourceManager& operator=(const SourceManager&) = delete;
       
       // Member variables
-      std::map<FileID,SourceData> sources_;
+      std::map<FileID,Data> sources_;
       // We'll always cache the latest search to speed things up
-      mutable std::pair<FileID, const SourceData*> lastSource_ 
+      mutable std::pair<FileID, const Data*> lastSource_ 
         = {FileID(), nullptr}; 
   };
   

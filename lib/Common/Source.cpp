@@ -50,7 +50,7 @@ string_view SourceManager::getSourceStr(FileID fid) const {
   return data->str;
 }
 
-const SourceManager::SourceData*
+const SourceManager::Data*
 SourceManager::getSourceData(FileID fid) const {
   assert(fid.isValid() && "Invalid FileID");
 
@@ -61,7 +61,7 @@ SourceManager::getSourceData(FileID fid) const {
   // Map search required
   auto it = sources_.find(fid);
   assert((it != sources_.end()) && "Unknown entry");
-  const SourceData* ptr = &(it->second);
+  const Data* ptr = &(it->second);
   
   // Cache the result & return.
   lastSource_ = {fid, ptr};
@@ -81,7 +81,7 @@ SourceRange SourceManager::getRangeOfFile(FileID file) const {
   SourceLoc begin(file, 0);
 
   // Calculate end
-  const SourceData* data = getSourceData(file);
+  const Data* data = getSourceData(file);
   std::size_t size = data->str.size();
 
   // Check that the size isn't too big, just to be sure.
@@ -93,7 +93,7 @@ SourceRange SourceManager::getRangeOfFile(FileID file) const {
 }
 
 CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
-  const SourceData* fdata = getSourceData(sloc.getFileID());
+  const Data* fdata = getSourceData(sloc.getFileID());
 
   auto idx = sloc.getRawIndex();
   assert((idx <= fdata->str.size()) && "SourceLoc is Out-of-Range");
@@ -132,7 +132,7 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
 }
 
 bool SourceManager::checkValid(SourceLoc sloc) const {
-  const SourceData* data = getSourceData(sloc.getFileID());
+  const Data* data = getSourceData(sloc.getFileID());
   
   if (!data)
     return false;
@@ -148,7 +148,7 @@ bool SourceManager::checkExists(FileID file) const {
 
 string_view 
 SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
-  const SourceData* data = getSourceData(loc.getFileID());
+  const Data* data = getSourceData(loc.getFileID());
   string_view source = data->str;
 
   auto pair = searchLineTable(data, loc);
@@ -221,8 +221,8 @@ SourceManager::readFile(const std::string & path) {
   // Read the file in memory
   auto beg = (std::istreambuf_iterator<char>(in));
   auto end = (std::istreambuf_iterator<char>());
-  auto pair = sources_.insert(std::pair<FileID,SourceData>(generateNewFileID(),
-    SourceData(
+  auto pair = sources_.insert(std::pair<FileID,Data>(generateNewFileID(),
+    Data(
       path,
       (std::string(beg, end))
     )
@@ -232,7 +232,7 @@ SourceManager::readFile(const std::string & path) {
 }
 
 FileID SourceManager::loadFromString(const std::string& str, const std::string& name) {
-  auto pair = sources_.insert({generateNewFileID(),SourceData(name,str)});
+  auto pair = sources_.insert({generateNewFileID(),Data(name,str)});
   return (pair.first)->first;
 }
 
@@ -243,7 +243,7 @@ FileID SourceManager::generateNewFileID() const {
   return id;
 }
 
-void SourceManager::calculateLineTable(const SourceData* data) const {
+void SourceManager::calculateLineTable(const Data* data) const {
   std::size_t size = data->str.size();
   CompleteLoc::LineTy line = 1;
   // Mark the index 0 as first line.
@@ -263,7 +263,7 @@ void SourceManager::calculateLineTable(const SourceData* data) const {
 }
 
 std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
-SourceManager::searchLineTable(const SourceData* data, const SourceLoc& loc) const {
+SourceManager::searchLineTable(const Data* data, const SourceLoc& loc) const {
   if (!data->calculatedLineTable_)
     calculateLineTable(data);
   else {

@@ -82,7 +82,7 @@ namespace fox {
       std::string toString(TypeLoc type) const;
       std::string toString(SourceRange range) const;
 
-      const SourceManager::SourceData* getSourceData(FileID fid);
+      const SourceManager::Data* getSourceData(FileID fid);
       bool hasSrcMgr() const;
 
       // Prints getRawOffset() and getIndent() to out_ then returns out_
