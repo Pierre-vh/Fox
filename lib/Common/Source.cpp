@@ -14,22 +14,14 @@
 #include <cctype>
 #include <iostream>
 
-#define INVALID_FILEID_VALUE 0
-
 using namespace fox;
 
 // FileID
 
-FileID::FileID() {
-  markAsInvalid();
-}
-
-FileID::FileID(IDTy value) {
-  set(value);
-}
+FileID::FileID(IDTy value) : value_(value) {}
 
 bool FileID::isValid() const {
-  return value_ != INVALID_FILEID_VALUE;
+  return value_ != npos;
 }
 
 FileID::operator bool() const {
@@ -50,18 +42,6 @@ bool FileID::operator <(const FileID other) const {
 
 FileID::IDTy FileID::getRaw() const {
   return value_;
-}
-
-FileID::IDTy FileID::get() const {
-  return value_;
-}
-
-void FileID::set(IDTy value) {
-  value_ = value;
-}
-
-void FileID::markAsInvalid() {
-  value_ = INVALID_FILEID_VALUE;
 }
 
 // SourceManager
@@ -257,9 +237,9 @@ FileID SourceManager::loadFromString(const std::string& str, const std::string& 
 }
 
 FileID SourceManager::generateNewFileID() const {
-  // The newly generated fileID is always the size of source_ +1, since 0 is the invalid value for FileIDs
-  FileID::IDTy id = static_cast<FileID::IDTy>(sources_.size() + 1);
-  assert(id != INVALID_FILEID_VALUE);
+  // The newly generated fileID is always the size of source_
+  FileID::IDTy id = static_cast<FileID::IDTy>(sources_.size());
+  assert(id != FileID::npos && "ran out of FileIDs");
   return id;
 }
 

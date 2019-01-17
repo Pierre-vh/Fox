@@ -25,30 +25,38 @@ namespace fox {
   class FileID {
     public:
       using IDTy = std::uint16_t;
+      static constexpr IDTy npos = std::numeric_limits<IDTy>::max();
 
-      FileID();
+      // Creates a new, invalid FileID.
+      FileID() = default;
 
+      // Checks if this FileID should be considered valid.
       bool isValid() const;
+      
+      // Calls isValid()
       explicit operator bool() const;
 
       bool operator ==(const FileID other) const;
       bool operator !=(const FileID other) const;
 
-      // For stl
+      // For use in containers
       bool operator <(const FileID other) const;
 
+      // Returns the raw index contained inside the FileID
+      // which represents the file inside the SourceManager.
+      //
+      // If the index is equal to npos, the FileID is
+      // considered invalid.
       IDTy getRaw() const;
 
     protected:
-      FileID(IDTy value);
       friend class SourceManager;
 
-      IDTy get() const;
-      void set(IDTy value);
-      void markAsInvalid();
+      // Only the SourceManager can create valid FileIDs
+      FileID(IDTy value);
 
     private:
-      IDTy value_;
+      IDTy value_ = npos;
   };
 
   // Small POD-like struct containing a human-readable source loc information.
