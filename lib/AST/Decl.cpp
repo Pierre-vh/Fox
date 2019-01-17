@@ -217,16 +217,13 @@ bool ParamDecl::isMutable() const {
   return isMut_;
 }
 
-SourceRange ParamDecl::getTypeRange() const {
-  return typeRange_;
-}
-
-void ParamDecl::setTypeRange(SourceRange range) {
-  typeRange_ = range;
+void ParamDecl::setTypeLoc(TypeLoc tl) {
+  setType(tl.withoutLoc());
+  typeRange_ = tl.getRange();
 }
 
 TypeLoc ParamDecl::getTypeLoc() const {
-  return TypeLoc(getType(), getTypeRange());
+  return TypeLoc(getType(), typeRange_);
 }
 
 SourceRange ParamDecl::getRange() const {

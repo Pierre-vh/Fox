@@ -110,8 +110,8 @@ TEST_F(LocTests, FuncAndArgDecl) {
   EXPECT_EQ(arg2_end, CompleteLoc(fullFilePath, 1, 45));
 
   // Extract arg type ranges
-  auto arg1_typeRange = arg1->getTypeRange();
-  auto arg2_typeRange = arg2->getTypeRange();
+  auto arg1_typeRange = arg1->getTypeLoc().getRange();
+  auto arg2_typeRange = arg2->getTypeLoc().getRange();
 
   // Extract locs
   auto arg1_tr_beg = srcMgr.getCompleteLoc(arg1_typeRange.getBegin());

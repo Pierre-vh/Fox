@@ -181,7 +181,6 @@ namespace fox {
   class ValueDecl : public NamedDecl {
     public:
       Type getType() const;
-      void setType(Type ty);
 
       bool isConst() const;
 
@@ -193,6 +192,8 @@ namespace fox {
     protected:
       ValueDecl(DeclKind kind, Parent parent, Identifier id, 
         SourceRange idRange, Type ty);
+
+      void setType(Type ty);
 
     private:
       Type type_;
@@ -209,8 +210,7 @@ namespace fox {
 
       bool isMutable() const;
 
-      SourceRange getTypeRange() const;
-      void setTypeRange(SourceRange range);
+      void setTypeLoc(TypeLoc tl);
       TypeLoc getTypeLoc() const;
 
       SourceRange getRange() const;
@@ -224,6 +224,8 @@ namespace fox {
         TypeLoc type, bool isMutable);
 
       bool isMut_ : 1;
+      // Note: we store the range separately because the type is stored in
+      // ValueDecl.
       SourceRange typeRange_;
   };
 
