@@ -167,7 +167,7 @@ namespace fox {
       OffsetTy offset_;
   };
 
-  // Small POD-like struct containing a human-readable source loc information.
+  // POD-like struct containing a human-readable source loc information.
   struct CompleteLoc {
     using LineTy = std::uint32_t;
     using ColTy = std::uint16_t;
