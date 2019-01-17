@@ -193,17 +193,17 @@ std::string SourceRange::toString(const SourceManager& srcMgr) const {
 //----------------------------------------------------------------------------//
 
 string_view SourceManager::getSourceStr(FileID fid) const {
-  auto data = getSourceData(fid);
+  auto data = getData(fid);
   return data->str;
 }
 
 string_view SourceManager::getSourceName(FileID fid) const {
-  auto data = getSourceData(fid);
+  auto data = getData(fid);
   return data->fileName;
 }
 
 const SourceManager::Data*
-SourceManager::getSourceData(FileID file) const {
+SourceManager::getData(FileID file) const {
   assert(file.isValid() && "FileID is not valid");
   assert(file.getRaw() < datas_.size() && "out-of-range FileID");
   return datas_[file.getRaw()].get();
@@ -211,7 +211,7 @@ SourceManager::getSourceData(FileID file) const {
 
 CompleteLoc::LineTy SourceManager::getLineNumber(SourceLoc loc) const {
   auto result = searchLineTable(
-    getSourceData(loc.getFileID()), loc);
+    getData(loc.getFileID()), loc);
   return result.second;
 }
 
@@ -222,7 +222,7 @@ SourceRange SourceManager::getRangeOfFile(FileID file) const {
   SourceLoc begin(file, 0);
 
   // Calculate end
-  const Data* data = getSourceData(file);
+  const Data* data = getData(file);
   std::size_t size = data->str.size();
 
   // Check that the size isn't too big, just to be sure.
@@ -234,7 +234,7 @@ SourceRange SourceManager::getRangeOfFile(FileID file) const {
 }
 
 CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
-  const Data* fdata = getSourceData(sloc.getFileID());
+  const Data* fdata = getData(sloc.getFileID());
 
   auto idx = sloc.getRawIndex();
   assert((idx <= fdata->str.size()) && "SourceLoc is Out-of-Range");
@@ -276,7 +276,7 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
 string_view 
 SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
   // Retrieve the data
-  const Data* data = getSourceData(loc.getFileID());
+  const Data* data = getData(loc.getFileID());
   // Check that our index is valid
   assert(isIndexValid(data, loc.getRawIndex()));
   // Retrieve the source
@@ -298,7 +298,7 @@ SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
 SourceLoc SourceManager::getNextCodepointSourceLoc(SourceLoc loc) const {
   // First, retrieve the Data.
   FileID file = loc.getFileID();
-  const Data* data = getSourceData(file);
+  const Data* data = getData(file);
   // Check that our loc is valid
   auto raw = loc.getRawIndex();
   assert(isIndexValid(data, raw));

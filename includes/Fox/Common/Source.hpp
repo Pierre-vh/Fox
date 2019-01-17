@@ -195,34 +195,6 @@ namespace fox {
     public:
       SourceManager() = default;
 
-      // This class represents the data that is stored internally inside the
-      // SourceManager.
-      struct Data {
-        std::string fileName;
-        std::string str;
-        protected:
-          using IndexTy = SourceLoc::IndexTy;
-          using LineTy = CompleteLoc::LineTy;
-
-          friend class SourceManager;
-
-          Data(const std::string& name, const std::string& content)
-            : fileName(name), str(content) {}
-
-          // This is the cached "line table", which is used to efficiently
-          // calculate the line number of a SourceLoc.
-          mutable std::map<IndexTy, LineTy> lineTable_;
-
-          // Flag indicating whether we have calculated the LineTable.
-          mutable bool calculatedLineTable_ = false;
-
-          // We cache the last line table search here.
-          // The first element of the pair is the sourceloc that we
-          // searched for, the second is the result we returned.
-          mutable std::pair<SourceLoc, std::pair<IndexTy, LineTy>> 
-            lastLTSearch_;
-      };
-
       // Return enum for readFile
       enum class FileStatus : std::uint8_t {
         // The file was successfully read and loaded in memory.
@@ -280,11 +252,42 @@ namespace fox {
       SourceLoc getNextCodepointSourceLoc(SourceLoc loc) const;
 
     private:
+      // This class represents the data that is stored internally inside the
+      // SourceManager.
+      // 
+      // TODO: Use Pimpl to move that out of the header and greatly reduce
+      // the includes (remove SmallVector, unique_ptr & map from the includes)
+      struct Data {
+        std::string fileName;
+        std::string str;
+        protected:
+          using IndexTy = SourceLoc::IndexTy;
+          using LineTy = CompleteLoc::LineTy;
+
+          friend class SourceManager;
+
+          Data(const std::string& name, const std::string& content)
+            : fileName(name), str(content) {}
+
+          // This is the cached "line table", which is used to efficiently
+          // calculate the line number of a SourceLoc.
+          mutable std::map<IndexTy, LineTy> lineTable_;
+
+          // Flag indicating whether we have calculated the LineTable.
+          mutable bool calculatedLineTable_ = false;
+
+          // We cache the last line table search here.
+          // The first element of the pair is the sourceloc that we
+          // searched for, the second is the result we returned.
+          mutable std::pair<SourceLoc, std::pair<IndexTy, LineTy>> 
+            lastLTSearch_;
+      };
+
       // Returns a pointer to the "Data" for a given File.
       // The result is always non null (guaranteed by an assertion)
       // The result will also always be constant because the data stored
       // is immutable.
-      const Data* getSourceData(FileID fid) const;
+      const Data* getData(FileID fid) const;
 
       // Calculates the "line table" of a given Data.
       void calculateLineTable(const Data* data) const;
