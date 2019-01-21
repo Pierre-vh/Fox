@@ -180,7 +180,7 @@ namespace fox {
   ///    + a "const" attribute. 
   class ValueDecl : public NamedDecl {
     public:
-      Type getType() const;
+      Type getValueType() const;
 
       bool isConst() const;
 

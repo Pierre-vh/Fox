@@ -177,7 +177,7 @@ ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id,
   SourceRange idRange, Type ty):  NamedDecl(kind, parent, id, idRange), 
   type_(ty) {}
 
-Type ValueDecl::getType() const {
+Type ValueDecl::getValueType() const {
   return type_;
 }
 
@@ -218,7 +218,7 @@ bool ParamDecl::isMutable() const {
 }
 
 TypeLoc ParamDecl::getTypeLoc() const {
-  return TypeLoc(getType(), typeRange_);
+  return TypeLoc(getValueType(), typeRange_);
 }
 
 SourceRange ParamDecl::getRange() const {
@@ -361,13 +361,13 @@ void FuncDecl::setBody(CompoundStmt* body) {
 }
 
 void FuncDecl::calculateType() {
-  assert(getType().isNull() && "called uselessly!");
+  assert(getValueType().isNull() && "called uselessly!");
   ASTContext& ctxt = getASTContext();
   assert(returnType_.isTypeValid() && "Invalid return type");
   // Collect the Parameter's type
   SmallVector<Type, 4> paramTys;
   for(ParamDecl* param : (*getParams())) {
-    Type ty = param->getType();
+    Type ty = param->getValueType();
     assert(ty && "param with null type!");
     paramTys.push_back(ty);
   }
@@ -418,7 +418,7 @@ void VarDecl::setInitExpr(Expr* expr) {
 }
 
 TypeLoc VarDecl::getTypeLoc() const {
-  return TypeLoc(getType(), typeRange_);
+  return TypeLoc(getValueType(), typeRange_);
 }
 
 SourceRange VarDecl::getRange() const {

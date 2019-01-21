@@ -59,7 +59,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     void noteIsDeclaredHereWithType(ValueDecl* decl) {
       Identifier id = decl->getIdentifier();
       SourceRange range = decl->getIdentifierRange();
-      Type declType = decl->getType();
+      Type declType = decl->getValueType();
 
       if(!Sema::isWellFormed(declType)) return;
 
@@ -384,7 +384,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         DeclRefExpr::create(getCtxt(), found, udre->getRange());
       
       // Assign it's type
-      Type valueType = found->getType();
+      Type valueType = found->getValueType();
       assert(valueType && "ValueDecl doesn't have a Type!");
       // If it's a non const ValueDecl, wrap it in a LValue
       if(!found->isConst()) {

@@ -424,7 +424,7 @@ std::string ASTDumper::getValueDeclInfo(ValueDecl* decl) const {
   }
 
   ss << decl->getIdentifier() << " "
-     << toString(decl->getType());
+     << toString(decl->getValueType());
   return ss.str();
 }
 
