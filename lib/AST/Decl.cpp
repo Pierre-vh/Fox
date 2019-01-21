@@ -338,7 +338,6 @@ FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent,
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
   assert(ty.isTypeValid() && "return type can't be nullptr");
   returnTypeLoc_ = ty;
-  resetValueType();
 }
 
 TypeLoc FuncDecl::getReturnTypeLoc() const {
@@ -355,7 +354,6 @@ CompoundStmt* FuncDecl::getBody() const {
 
 void FuncDecl::setParams(ParamList* params) {
   params_ = params;
-  resetValueType();
 }
 
 ParamList* FuncDecl::getParams() {
@@ -367,7 +365,6 @@ bool FuncDecl::hasParams() const {
 }
 
 Type FuncDecl::getValueType() const {
-  if(!valueType_) calculateValueType();
   return valueType_;
 }
 
@@ -392,10 +389,6 @@ void FuncDecl::calculateValueType() const {
   }
   // Generate the FunctionType
   valueType_ = FunctionType::get(ctxt, paramTys, returnTypeLoc_.getType());
-}
-
-void FuncDecl::resetValueType() const {
-  valueType_ = nullptr;
 }
 
 SourceRange FuncDecl::getRange() const {

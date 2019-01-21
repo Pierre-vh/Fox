@@ -295,6 +295,9 @@ namespace fox {
       ParamList* getParams();
       bool hasParams() const;
 
+      /// (Re)calculates the ValueDecl type for this FuncDecl
+      /// The ValueDecl type must be nullptr!
+      void calculateValueType() const;
       Type getValueType() const;
 
       SourceRange getRange() const;
@@ -306,11 +309,6 @@ namespace fox {
     private:
       FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId, 
         SourceRange idRange, TypeLoc returnType);
-
-      /// (Re)calculates the ValueDecl type for this FuncDecl
-      /// The ValueDecl type must be nullptr!
-      void calculateValueType() const;
-      void resetValueType() const;
       
       // The ValueType of this FuncDecl. It's mutable because it's lazily
       // calculated when we first call getValueType(), and is reset

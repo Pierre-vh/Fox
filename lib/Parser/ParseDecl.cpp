@@ -206,8 +206,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
   rtr->setBody(body);
   // Record it
   actOnDecl(rtr);
-  // Force a first calculation of the FuncType to check it can
-  // be calculated correctly.
+  rtr->calculateValueType();
   assert(rtr->getValueType() && "FuncDecl type not calculated");
   return DeclResult(rtr);
 }
