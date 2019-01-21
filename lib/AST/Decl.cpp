@@ -174,15 +174,25 @@ bool NamedDecl::hasIdentifierRange() const {
 //----------------------------------------------------------------------------//
 
 ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id, 
-  SourceRange idRange, Type ty):  NamedDecl(kind, parent, id, idRange), 
-  type_(ty) {}
+  SourceRange idRange):  NamedDecl(kind, parent, id, idRange) {}
+
+static std::int8_t checkHasGetValueType(Type (Decl::*)() const) {}
+template<typename Derived>
+static std::int16_t checkHasGetValueType(Type (Derived::*)() const) {}
 
 Type ValueDecl::getValueType() const {
-  return type_;
-}
-
-void ValueDecl::setType(Type ty) {
-  type_ = ty;
+  switch(getKind()) {
+    #define ASSERT_HAS_GETVALUETYPE(ID)\
+      static_assert(sizeof(checkHasGetValueType(&ID::getValueType)) == 2,\
+        #ID " does not reimplement getValueType()")
+    #define VALUE_DECL(ID, PARENT) case DeclKind::ID:\
+      ASSERT_HAS_GETVALUETYPE(ID); \
+      return cast<ID>(this)->getValueType();
+    #include "Fox/AST/DeclNodes.def"
+    #undef ASSERT_HAS_GETVALUETYPE
+    default:
+      fox_unreachable("all kinds handled");
+  }
 }
 
 bool ValueDecl::isConst() const {
@@ -218,17 +228,21 @@ bool ParamDecl::isMutable() const {
 }
 
 TypeLoc ParamDecl::getTypeLoc() const {
-  return TypeLoc(getValueType(), typeRange_);
+  return typeLoc_;
+}
+
+Type ParamDecl::getValueType() const {
+  return typeLoc_.getType();
 }
 
 SourceRange ParamDecl::getRange() const {
-  return SourceRange(getIdentifierRange().getBegin(), typeRange_.getEnd());
+  return SourceRange(getIdentifierRange().getBegin(), typeLoc_.getEnd());
 }
 
 ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
   TypeLoc type, bool isMutable):
-  ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type.getType()),
-  typeRange_(type.getRange()), isMut_(isMutable) {}
+  ValueDecl(DeclKind::ParamDecl, parent, id, idRange), typeLoc_(type), 
+  isMut_(isMutable) {}
 
 //----------------------------------------------------------------------------//
 // ParamList
@@ -304,8 +318,8 @@ void* ParamList::operator new(std::size_t, void* mem) {
 
 FuncDecl::FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId,
   SourceRange idRange, TypeLoc returnType): fnBegLoc_(fnBegLoc),
-  ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange, Type()), 
-  returnType_(returnType) {
+  ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange), 
+  returnTypeLoc_(returnType) {
   assert(returnType.isTypeValid() && "return type can't be null");
 }
 
@@ -323,12 +337,12 @@ FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent,
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
   assert(ty.isTypeValid() && "return type can't be nullptr");
-  returnType_ = ty;
-  setType(Type());
+  returnTypeLoc_ = ty;
+  resetValueType();
 }
 
 TypeLoc FuncDecl::getReturnTypeLoc() const {
-  return returnType_;
+  return returnTypeLoc_;
 }
 
 bool FuncDecl::isReturnTypeImplicit() const {
@@ -341,7 +355,7 @@ CompoundStmt* FuncDecl::getBody() const {
 
 void FuncDecl::setParams(ParamList* params) {
   params_ = params;
-  setType(Type());
+  resetValueType();
 }
 
 ParamList* FuncDecl::getParams() {
@@ -352,6 +366,11 @@ bool FuncDecl::hasParams() const {
   return (bool)params_;
 }
 
+Type FuncDecl::getValueType() const {
+  if(!valueType_) calculateValueType();
+  return valueType_;
+}
+
 const ParamList* FuncDecl::getParams() const {
   return params_;
 }
@@ -360,10 +379,10 @@ void FuncDecl::setBody(CompoundStmt* body) {
   body_ = body;
 }
 
-void FuncDecl::calculateType() {
-  assert(getValueType().isNull() && "called uselessly!");
+void FuncDecl::calculateValueType() const {
+  assert(valueType_.isNull() && "called uselessly!");
   ASTContext& ctxt = getASTContext();
-  assert(returnType_.isTypeValid() && "Invalid return type");
+  assert(returnTypeLoc_.isTypeValid() && "Invalid return type");
   // Collect the Parameter's type
   SmallVector<Type, 4> paramTys;
   for(ParamDecl* param : (*getParams())) {
@@ -372,8 +391,11 @@ void FuncDecl::calculateType() {
     paramTys.push_back(ty);
   }
   // Generate the FunctionType
-  Type fn = FunctionType::get(ctxt, paramTys, returnType_.getType());
-  setType(fn);
+  valueType_ = FunctionType::get(ctxt, paramTys, returnTypeLoc_.getType());
+}
+
+void FuncDecl::resetValueType() const {
+  valueType_ = nullptr;
 }
 
 SourceRange FuncDecl::getRange() const {
@@ -387,8 +409,8 @@ SourceRange FuncDecl::getRange() const {
 
 VarDecl::VarDecl(Parent parent, Identifier id, SourceRange idRange, 
   TypeLoc type, Keyword kw, Expr* init, SourceRange range):
-  ValueDecl(DeclKind::VarDecl, parent, id, idRange, type.getType()), 
-  range_(range), typeRange_(type.getRange()), initAndKW_(init, kw) {}
+  ValueDecl(DeclKind::VarDecl, parent, id, idRange), typeLoc_(type),
+  range_(range), initAndKW_(init, kw) {}
 
 VarDecl* VarDecl::create(ASTContext& ctxt, Parent parent, Identifier id,
   SourceRange idRange, TypeLoc type, Keyword kw, Expr* init, 
@@ -418,7 +440,11 @@ void VarDecl::setInitExpr(Expr* expr) {
 }
 
 TypeLoc VarDecl::getTypeLoc() const {
-  return TypeLoc(getValueType(), typeRange_);
+  return typeLoc_;
+}
+
+Type VarDecl::getValueType() const {
+  return typeLoc_.getType();
 }
 
 SourceRange VarDecl::getRange() const {

@@ -191,12 +191,7 @@ namespace fox {
 
     protected:
       ValueDecl(DeclKind kind, Parent parent, Identifier id, 
-        SourceRange idRange, Type ty);
-
-      void setType(Type ty);
-
-    private:
-      Type type_;
+        SourceRange idRange);
   };
 
   /// ParamDecl
@@ -211,6 +206,7 @@ namespace fox {
       bool isMutable() const;
 
       TypeLoc getTypeLoc() const;
+      Type getValueType() const;
 
       SourceRange getRange() const;
 
@@ -223,9 +219,7 @@ namespace fox {
         TypeLoc type, bool isMutable);
 
       bool isMut_ : 1;
-      // Note: we store the range separately because the type is stored in
-      // ValueDecl.
-      SourceRange typeRange_;
+      TypeLoc typeLoc_;
   };
 
   /// ParamList
@@ -301,9 +295,7 @@ namespace fox {
       ParamList* getParams();
       bool hasParams() const;
 
-      /// (Re)calculates the ValueDecl type for this FuncDecl
-      /// The ValueDecl type must be nullptr!
-      void calculateType();
+      Type getValueType() const;
 
       SourceRange getRange() const;
 
@@ -315,8 +307,18 @@ namespace fox {
       FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId, 
         SourceRange idRange, TypeLoc returnType);
 
+      /// (Re)calculates the ValueDecl type for this FuncDecl
+      /// The ValueDecl type must be nullptr!
+      void calculateValueType() const;
+      void resetValueType() const;
+      
+      // The ValueType of this FuncDecl. It's mutable because it's lazily
+      // calculated when we first call getValueType(), and is reset
+      // when setting the return type or changing the parameters of the
+      // function.
+      mutable Type valueType_;
       SourceLoc fnBegLoc_;
-      TypeLoc returnType_;
+      TypeLoc returnTypeLoc_;
       ParamList* params_ = nullptr;
       CompoundStmt* body_ = nullptr;
   };
@@ -343,6 +345,7 @@ namespace fox {
       bool hasInitExpr() const;
 
       TypeLoc getTypeLoc() const;
+      Type getValueType() const;
 
       SourceRange getRange() const;
 
@@ -363,7 +366,7 @@ namespace fox {
 
       // Note: we store the range separately because the type is stored in
       // ValueDecl.
-      SourceRange typeRange_;
+      TypeLoc typeLoc_;
       SourceRange range_;
       // This VarDecl's initializer + the Keyword used to declare
       // this Variable.
