@@ -227,7 +227,7 @@ SourceRange ParamDecl::getRange() const {
 
 ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
   TypeLoc type, bool isMutable):
-  ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type.withoutLoc()),
+  ValueDecl(DeclKind::ParamDecl, parent, id, idRange, type.getType()),
   typeRange_(type.getRange()), isMut_(isMutable) {}
 
 //----------------------------------------------------------------------------//
@@ -372,7 +372,7 @@ void FuncDecl::calculateType() {
     paramTys.push_back(ty);
   }
   // Generate the FunctionType
-  Type fn = FunctionType::get(ctxt, paramTys, returnType_.withoutLoc());
+  Type fn = FunctionType::get(ctxt, paramTys, returnType_.getType());
   setType(fn);
 }
 
@@ -387,7 +387,7 @@ SourceRange FuncDecl::getRange() const {
 
 VarDecl::VarDecl(Parent parent, Identifier id, SourceRange idRange, 
   TypeLoc type, Keyword kw, Expr* init, SourceRange range):
-  ValueDecl(DeclKind::VarDecl, parent, id, idRange, type.withoutLoc()), 
+  ValueDecl(DeclKind::VarDecl, parent, id, idRange, type.getType()), 
   range_(range), typeRange_(type.getRange()), initAndKW_(init, kw) {}
 
 VarDecl* VarDecl::create(ASTContext& ctxt, Parent parent, Identifier id,

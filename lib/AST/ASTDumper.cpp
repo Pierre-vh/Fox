@@ -276,7 +276,7 @@ std::string ASTDumper::toString(Type type) const {
 }
 
 std::string ASTDumper::toString(TypeLoc type) const {
-  return toString(type.withoutLoc()) + ":" + toString(type.getRange());
+  return toString(type.getType()) + ":" + toString(type.getRange());
 }
 
 std::string ASTDumper::toString(SourceRange range) const {

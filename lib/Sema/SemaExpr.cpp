@@ -72,7 +72,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     void diagnoseInvalidCast(CastExpr* expr) {
       SourceRange range = expr->getCastTypeLoc().getRange();
       Type childTy = expr->getExpr()->getType();
-      Type goalTy = expr->getCastTypeLoc().withoutLoc();
+      Type goalTy = expr->getCastTypeLoc().getType();
 
       if(!Sema::isWellFormed({childTy, goalTy})) return;
 
@@ -86,7 +86,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // (Warning) Diagnoses a redudant cast (when the
     // cast goal and the child's type are equal)
     void warnRedundantCast(CastExpr* expr, TypeLoc castTL) {
-      Type castTy = castTL.withoutLoc();
+      Type castTy = castTL.getType();
       if(!Sema::isWellFormed(castTy)) return;
 
       SourceRange range = expr->getCastTypeLoc().getRange();
@@ -310,7 +310,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         warnRedundantCast(expr, castTL);
       }
 
-      expr->setType(castTL.withoutLoc());
+      expr->setType(castTL.getType());
       return expr;
     }
 
@@ -503,7 +503,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* visitCastExpr(CastExpr* expr) {        
       // Get the types & unwrap them
       Type childTy = expr->getExpr()->getType();
-      Type goalTy = expr->getCastTypeLoc().withoutLoc();
+      Type goalTy = expr->getCastTypeLoc().getType();
       std::tie(childTy, goalTy) = Sema::unwrapAll(childTy, goalTy);
 
       // Check that the types are well formed. If they aren't, don't

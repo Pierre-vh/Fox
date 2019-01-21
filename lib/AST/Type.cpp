@@ -86,11 +86,11 @@ bool TypeLoc::isComplete() const {
   return isLocValid() && isTypeValid();
 }
 
-Type TypeLoc::withoutLoc() {
+Type TypeLoc::getType() {
   return ty_;
 }
 
-const Type TypeLoc::withoutLoc() const {
+const Type TypeLoc::getType() const {
   return ty_;
 }
 

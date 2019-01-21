@@ -75,8 +75,8 @@ namespace fox {
       // any meaningful information about our range_ without a SourceManager.
 
       // Conversion functions
-      Type withoutLoc();
-      const Type withoutLoc() const; 
+      Type getType();
+      const Type getType() const; 
 
     private:
       bool operator==(const Type& type) const = delete;
