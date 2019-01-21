@@ -23,7 +23,7 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
-#include "Fox/Common/ResultObject.hpp"
+#include "ResultObject.hpp"
 
 namespace fox {
   class ASTContext;

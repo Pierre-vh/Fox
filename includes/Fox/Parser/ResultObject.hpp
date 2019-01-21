@@ -4,20 +4,15 @@
 // File : ResultObject.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the ResultObject class, which is a "baseline"
-// for classes that needs a special "Result" object that encapsulates
-// a value/result + a boolean flag.
-//
-// The boolean is meant to contain a "success" flag 
-// (true = operation was successful, false if not)
-// and is accessible through wasSuccessful
+// This file contains the ResultObject class which is used by the Parser's
+// parsing methods to return values.
 //----------------------------------------------------------------------------//
 
 #pragma once
 
-#include "LLVM.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "Fox/Common/Errors.hpp"
 #include "llvm/ADT/PointerIntPair.h"
-#include "Errors.hpp"
 #include <type_traits>
 
 namespace fox {
