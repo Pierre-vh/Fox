@@ -274,6 +274,8 @@ namespace fox {
         TypeLoc returnType);
 
       /// Creates an "empty" FuncDecl that has no identifier, and is ill-formed
+      // TODO: Get rid of this. For now, it's needed by the parser so I keep it,
+      // but once I'll refresh the parser this must go away.
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent, 
         SourceLoc fnBegLoc);
 
@@ -297,7 +299,7 @@ namespace fox {
 
       /// (Re)calculates the ValueDecl type for this FuncDecl
       /// The ValueDecl type must be nullptr!
-      void calculateValueType() const;
+      void calculateValueType();
       Type getValueType() const;
 
       SourceRange getRange() const;
@@ -310,11 +312,7 @@ namespace fox {
       FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId, 
         SourceRange idRange, TypeLoc returnType);
       
-      // The ValueType of this FuncDecl. It's mutable because it's lazily
-      // calculated when we first call getValueType(), and is reset
-      // when setting the return type or changing the parameters of the
-      // function.
-      mutable Type valueType_;
+      Type valueType_;
       SourceLoc fnBegLoc_;
       TypeLoc returnTypeLoc_;
       ParamList* params_ = nullptr;

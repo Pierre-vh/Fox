@@ -376,7 +376,7 @@ void FuncDecl::setBody(CompoundStmt* body) {
   body_ = body;
 }
 
-void FuncDecl::calculateValueType() const {
+void FuncDecl::calculateValueType() {
   assert(valueType_.isNull() && "called uselessly!");
   ASTContext& ctxt = getASTContext();
   assert(returnTypeLoc_.isTypeValid() && "Invalid return type");
