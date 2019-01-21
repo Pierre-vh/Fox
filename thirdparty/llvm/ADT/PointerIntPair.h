@@ -172,12 +172,6 @@ struct PointerIntPairInfo {
   }
 };
 
-template <typename T> struct isPodLike;
-template <typename PointerTy, unsigned IntBits, typename IntType>
-struct isPodLike<PointerIntPair<PointerTy, IntBits, IntType>> {
-  static const bool value = true;
-};
-
 // Teach SmallPtrSet that PointerIntPair is "basically a pointer".
 template <typename PointerTy, unsigned IntBits, typename IntType,
           typename PtrTraits>

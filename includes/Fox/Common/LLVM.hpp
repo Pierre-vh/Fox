@@ -8,15 +8,17 @@
 // we want to use unqualified.
 //----------------------------------------------------------------------------//
 
-// Include Casting.h because it has complex templated functions
-// that can't be easily forward-declared. 
-#include "llvm/Support/Casting.h"
+// We need to import some classes because they can't be easily forward
+// declared
+#include "llvm/Support/Casting.h" // reason: complex templates
+#include "llvm/ADT/None.h"        // reason: can't fwd-decl without defining
 
 // Forward-declare some llvm classes 
 namespace llvm {
   template <typename T> class SmallVectorImpl;
   template <typename T, unsigned N> class SmallVector;
   template<typename T> class ArrayRef;
+  template<typename T> class Optional;
   template<typename T> class MutableArrayRef;
 }
 
@@ -29,6 +31,9 @@ namespace fox {
 
   using llvm::SmallVectorImpl;
   using llvm::SmallVector;
+
+  using llvm::Optional;
+  using llvm::None;
 
   using llvm::ArrayRef;
   using llvm::MutableArrayRef;

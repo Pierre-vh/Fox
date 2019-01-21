@@ -38,6 +38,9 @@ Non exhaustive changes list:
     Inlined grow_pod to remove need for SmallVector.cpp 
     Removed LLVM_NODISCARDs (Caused compiler errors on MSVC)
 
+  ADT/type_traits.h
+    Added ~trivial_helper() = delete; at line 97 to silence a MSVC warning.
+
   ADT/ArrayRef.h
     Removed Hashing functions
     Replaced include: "llvm/ADT/STLExtras.h" with "llvm/ADT/iterator.h"

@@ -203,7 +203,7 @@ public:
 
 /// SmallVectorTemplateBase<isPodLike = false> - This is where we put method
 /// implementations that are designed to work with non-POD-like T's.
-template <typename T, bool = isPodLike<T>::value>
+template <typename T, bool = is_trivially_copyable<T>::value>
 class SmallVectorTemplateBase : public SmallVectorTemplateCommon<T> {
 protected:
   SmallVectorTemplateBase(size_t Size) : SmallVectorTemplateCommon<T>(Size) {}
@@ -257,8 +257,8 @@ public:
 };
 
 // Define this out-of-line to dissuade the C++ compiler from inlining it.
-template <typename T, bool isPodLike>
-void SmallVectorTemplateBase<T, isPodLike>::grow(size_t MinSize) {
+template <typename T, bool TriviallyCopyable>
+void SmallVectorTemplateBase<T, TriviallyCopyable>::grow(size_t MinSize) {
   if (MinSize > UINT32_MAX)
     llvm_bad_alloc();
 
@@ -352,7 +352,7 @@ public:
 protected:
   // Default ctor - Initialize to empty.
   explicit SmallVectorImpl(unsigned N)
-      : SmallVectorTemplateBase<T, isPodLike<T>::value>(N) {}
+      : SmallVectorTemplateBase<T>(N) {}
 
 public:
   SmallVectorImpl(const SmallVectorImpl &) = delete;
