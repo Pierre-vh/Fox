@@ -352,14 +352,14 @@ void FuncDecl::setBody(CompoundStmt* body) {
 }
 
 void FuncDecl::calculateValueType() {
-  assert(valueType_.isNull() && "called uselessly!");
   ASTContext& ctxt = getASTContext();
-  assert(returnTypeLoc_.isTypeValid() && "Invalid return type");
+  assert(returnTypeLoc_.isTypeValid() && "ill-formed FuncDecl: "
+    "no return type");
   // Collect the Parameter's type
   SmallVector<Type, 4> paramTys;
   for(ParamDecl* param : (*getParams())) {
     Type ty = param->getValueType();
-    assert(ty && "param with null type!");
+    assert(ty && "ill-formed FuncDecl: Parameter with null type");
     paramTys.push_back(ty);
   }
   // Generate the FunctionType
