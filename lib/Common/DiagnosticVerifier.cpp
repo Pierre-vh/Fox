@@ -7,7 +7,7 @@
 
 #include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-#include "Fox/Common/ResultObject.hpp"
+#include "llvm/ADT/Optional.h"
 #include <cstdlib> // abs()
 #include <tuple>
 #include <cctype> // std::isspace
@@ -176,18 +176,16 @@ bool DiagnosticVerifier::handleVerifyInstr(SourceLoc loc, string_view instr) {
 	auto parsingResult = parseVerifyInstr(loc, instr);
 
 	// Parsing failed? We can't do much more!
-	if (!parsingResult.wasSuccessful()) return false;
-	auto diag = parsingResult.get();
+	if (!parsingResult.hasValue()) return false;
+	auto diag = parsingResult.getValue();
 	
-
   // Offset stuff
 	expectedDiags_.insert(diag);
   return true;
 }
 
-ResultObject<DiagnosticVerifier::ExpectedDiag>
+Optional<DiagnosticVerifier::ExpectedDiag>
 DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
-	using RtrTy = ResultObject<ExpectedDiag>;
   assert(loc && "invalid loc");
   assert(instr.size() && "empty instr");
   // The values we'll collect
@@ -203,7 +201,7 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
   std::size_t colonPos = instr.find(':');
   if (colonPos == string_view::npos) {
     diagnoseMissingColon(offsetSourceLoc(loc, fullInstrSize));
-    return RtrTy(false);
+		return None;
   }
 
 	// With that, we can split the instr in 2, the base and the diagStr.
@@ -215,7 +213,7 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
 	// Check if we have a suffix. If we don't, that's an error.
 	if (!base.size()) {
 		diagnoseMissingSuffix(loc);
-		return RtrTy(false);
+		return None;
 	}
 
 	// Trim the diagStr to remove end of line characters and
@@ -227,7 +225,7 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
 		// We increment colonPos because we want the diagnostic to be
 		// just after the colon
 		diagnoseMissingStr(offsetSourceLoc(loc, vPrefixSize+colonPos+1));
-		return RtrTy(false);
+		return None;
 	}
 
   // Suffix parsing : 2 cases
@@ -254,7 +252,7 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
 
       // Parse the offset
       if (!parseOffset(argRange, offsetStr, offset))
-        return RtrTy(false);
+        return None;
 
       // Check that the offset is legal
       if(offset < 0) {
@@ -263,7 +261,7 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
         // will result in the line number being 0, or worse, underflowing.
         if(absOffset >= line) {
           diagnoseIllegalOffset(argRange);
-          return RtrTy(false);
+		      return None;
         }
       }
 
@@ -275,10 +273,10 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
  
     // Now parse the severity string
     if (!parseSeverity(sevStr, severity))
-      return RtrTy(false);
+		  return None;
   }
 
-	return RtrTy(true, ExpectedDiag(severity, diagStr, file, line));
+	return ExpectedDiag(severity, diagStr, file, line);
 }
 
 void DiagnosticVerifier::diagnoseZeroOffset(SourceLoc offsetDigitLoc) {

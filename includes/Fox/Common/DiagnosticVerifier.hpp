@@ -24,11 +24,11 @@
 #include "Source.hpp"
 #include "DiagnosticEngine.hpp"
 #include "DiagnosticConsumers.hpp"
+#include "LLVM.hpp"
 #include <set>
 
 namespace fox {
   class DiagnosticEngine;
-	template<typename Ty> class ResultObject;
 
   class DiagnosticVerifier {
     using LineTy = CompleteLoc::LineTy;
@@ -84,7 +84,7 @@ namespace fox {
       bool handleVerifyInstr(SourceLoc loc, string_view instr);
 
 			// Parses a verify instr, returning a ParsedInstr on success.
-			ResultObject<ExpectedDiag> parseVerifyInstr(SourceLoc loc,
+			Optional<ExpectedDiag> parseVerifyInstr(SourceLoc loc,
 																								 string_view instr);
 
       void diagnoseZeroOffset(SourceLoc offsetDigitLoc);
