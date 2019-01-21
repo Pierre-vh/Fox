@@ -218,7 +218,7 @@ namespace fox {
       ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
         TypeLoc type, bool isMutable);
 
-      bool isMut_ : 1;
+      const bool isMut_ : 1;
       TypeLoc typeLoc_;
   };
 
@@ -393,7 +393,7 @@ namespace fox {
     private:
       UnitDecl(ASTContext& ctxt, Identifier id, FileID inFile);
 
-      FileID file_;
+      const FileID file_;
       Identifier identifier_;
       ASTContext& ctxt_;
   };
