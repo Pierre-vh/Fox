@@ -224,6 +224,15 @@ namespace fox {
 
   /// ParamList
   ///    Represents a list of ParamDecls
+  ///    
+  ///    ParamList does not allow the pointer values to be changed,
+  ///    but the decls themselves can be altered. This means that you
+  ///    can't do something like
+  ///         paramList[0] = someOtherDecl
+  ///    but you can do
+  ///         paramList[0]->setSomething(...)
+  ///
+  ///    TL;DR: it acts like an ArrayRef<ParamDecl*>
   class ParamList final : llvm::TrailingObjects<ParamList, ParamDecl*> {
     using TrailingObjects = llvm::TrailingObjects<ParamList, ParamDecl*>;
     friend TrailingObjects;
@@ -234,22 +243,15 @@ namespace fox {
       static ParamList* create(ASTContext& ctxt, ArrayRef<ParamDecl*> params);
 
       ArrayRef<ParamDecl*> getArray() const;
-      MutableArrayRef<ParamDecl*> getArray();
-      ParamDecl*& get(std::size_t idx);
-      const ParamDecl* get(std::size_t idx) const;
+      ParamDecl* get(std::size_t idx) const;
       SizeTy getNumParams() const;
 
-      using iterator = MutableArrayRef<ParamDecl*>::iterator;
-      using const_iterator = ArrayRef<ParamDecl*>::iterator;
+      using iterator = ArrayRef<ParamDecl*>::iterator;
 
-      iterator begin();
-      iterator end();
+      iterator begin() const;
+      iterator end() const;
 
-      const_iterator begin() const;
-      const_iterator end() const;
-
-      const ParamDecl* operator[](std::size_t idx) const;
-      ParamDecl*& operator[](std::size_t idx);
+      ParamDecl* operator[](std::size_t idx) const;
 
     private:
       ParamList(ArrayRef<ParamDecl*> params);
@@ -293,8 +295,7 @@ namespace fox {
       /// Sets the parameters of this FuncDecl. 
       /// This will nullify the ValueDecl type.
       void setParams(ParamList* params);
-      const ParamList* getParams() const;
-      ParamList* getParams();
+      ParamList* getParams() const;
       bool hasParams() const;
 
       /// (Re)calculates the ValueDecl type for this FuncDecl

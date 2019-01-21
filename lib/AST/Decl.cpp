@@ -258,16 +258,7 @@ ArrayRef<ParamDecl*> ParamList::getArray() const {
   return {getTrailingObjects<ParamDecl*>(), numParams_};
 }
 
-MutableArrayRef<ParamDecl*> ParamList::getArray() {
-  return {getTrailingObjects<ParamDecl*>(), numParams_};
-}
-
-ParamDecl*& ParamList::get(std::size_t idx) {
-  assert((idx < numParams_) && "Out of range");
-  return getArray()[idx];
-}
-
-const ParamDecl* ParamList::get(std::size_t idx) const {
+ParamDecl* ParamList::get(std::size_t idx) const {
   assert((idx < numParams_) && "Out of range");
   return getArray()[idx];
 }
@@ -275,27 +266,15 @@ ParamList::SizeTy ParamList::getNumParams() const {
   return numParams_;
 }
 
-ParamList::iterator ParamList::begin() {
+ParamList::iterator ParamList::begin() const {
   return getArray().begin();
 }
 
-ParamList::iterator ParamList::end() {
+ParamList::iterator ParamList::end() const {
   return getArray().end();
 }
 
-ParamList::const_iterator ParamList::begin() const {
-  return getArray().begin();
-}
-
-ParamList::const_iterator ParamList::end() const {
-  return getArray().end();
-}
-
-const ParamDecl* ParamList::operator[](std::size_t idx) const {
-  return get(idx);
-}
-
-ParamDecl*& ParamList::operator[](std::size_t idx) {
+ParamDecl* ParamList::operator[](std::size_t idx) const {
   return get(idx);
 }
 
@@ -356,10 +335,6 @@ void FuncDecl::setParams(ParamList* params) {
   params_ = params;
 }
 
-ParamList* FuncDecl::getParams() {
-  return params_;
-}
-
 bool FuncDecl::hasParams() const {
   return (bool)params_;
 }
@@ -368,7 +343,7 @@ Type FuncDecl::getValueType() const {
   return valueType_;
 }
 
-const ParamList* FuncDecl::getParams() const {
+ParamList* FuncDecl::getParams() const {
   return params_;
 }
 
