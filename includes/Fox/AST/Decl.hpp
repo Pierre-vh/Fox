@@ -360,8 +360,6 @@ namespace fox {
       VarDecl(Parent parent, Identifier id, SourceRange idRange, TypeLoc type,
         Keyword kw, Expr* init, SourceRange range);
 
-      // Note: we store the range separately because the type is stored in
-      // ValueDecl.
       TypeLoc typeLoc_;
       SourceRange range_;
       // This VarDecl's initializer + the Keyword used to declare
