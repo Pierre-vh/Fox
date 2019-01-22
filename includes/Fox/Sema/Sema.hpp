@@ -39,13 +39,27 @@ namespace fox {
 
       Sema(ASTContext& ctxt);
 
-      // Typechecks a ASTNode (expression, declaration or statement)
-      // and it's children.
-      //
-      // Returns The node that should take this node's place. Note that the 
-      // returned node will always be equal to the argument unless the ASTNode 
-      // contains an Expr. Never returns nullptr.
-      ASTNode checkNode(ASTNode node);
+      // Performs semantic analysis on a single declaration and it's children
+      void checkDecl(Decl* decl);
+
+      // Returns the DiagnosticEngine used by this Sema instance.
+      DiagnosticEngine& getDiagnosticEngine();
+
+      // Returns the ASTContext used by this Sema instance
+      ASTContext& getASTContext();
+
+    private:
+      // Children checkers and others
+      class Checker;
+      class DeclChecker;
+      class StmtChecker;
+      class ExprChecker;
+      class ExprFinalizer;
+
+      //---------------------------------//
+      // Semantic analysis entry points for
+      // checkers
+      //---------------------------------//
 
       // Typechecks an expression and it's children.
       // 
@@ -72,23 +86,6 @@ namespace fox {
 
       // Performs semantic analysis on a single statement and it's children.
       void checkStmt(Stmt* stmt);
-
-      // Performs semantic analysis on a single declaration and it's children
-      void checkDecl(Decl* decl);
-
-      // Returns the DiagnosticEngine used by this Sema instance.
-      DiagnosticEngine& getDiagnosticEngine();
-
-      // Returns the ASTContext used by this Sema instance
-      ASTContext& getASTContext();
-
-    private:
-      // Children checkers and others
-      class Checker;
-      class DeclChecker;
-      class StmtChecker;
-      class ExprChecker;
-      class ExprFinalizer;
 
       //---------------------------------//
       // Type related methods

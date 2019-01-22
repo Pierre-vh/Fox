@@ -30,22 +30,6 @@ ASTContext& Sema::getASTContext() {
   return ctxt_;
 }
 
-ASTNode Sema::checkNode(ASTNode node) {
-	assert(!node.isNull() && 
-		"node cannot be null!");
-  if (Expr* e = node.dyn_cast<Expr*>())
-    return typecheckExpr(e);
-  if (Stmt* s = node.dyn_cast<Stmt*>()) {
-		checkStmt(s);
-		return node;
-	}
-  if (Decl* d = node.dyn_cast<Decl*>()) {
-    checkDecl(d);
-    return node;
-  }
-  fox_unreachable("unknown ASTNode kind");
-}
-
 //----------------------------------------------------------------------------//
 // RAIIDeclCtxt
 //----------------------------------------------------------------------------//

@@ -105,7 +105,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
             diagnoseUnexpectedRtrExprForNonVoidFn(stmt, expr);
           // non-void function and expr doesn't unify with it's return type
           else
-              diagnoseReturnTypeMistmatch(stmt, expr, rtrTy);
+            diagnoseReturnTypeMistmatch(stmt, expr, rtrTy);
         }
         // in all cases, replace the expr after checking it
         stmt->setExpr(expr);
@@ -124,7 +124,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       // they don't exist in the wild in Fox. They're always attached
       // to Conditions, While, etc.
       for (ASTNode& s : stmt->getNodes()) {
-        s = getSema().checkNode(s);
+        s = checkNode(s);
       }
     }
 
@@ -135,7 +135,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
         // Open scope
         auto scope = getSema().openNewScopeRAII();
         // Check the body and replace it
-        auto body = getSema().checkNode(stmt->getBody());
+        auto body = checkNode(stmt->getBody());
         stmt->setBody(body);
       }
     }
@@ -147,7 +147,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
         // Open scope
         auto scope = getSema().openNewScopeRAII();
         // Check the if's body and replace it 
-        auto cond_then = getSema().checkNode(stmt->getThen());
+        auto cond_then = checkNode(stmt->getThen());
         stmt->setThen(cond_then);
       }
 			// Check the else's body if there is one and replace it
@@ -155,7 +155,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
         // Open scope
         auto scope = getSema().openNewScopeRAII();
         // Check the body and replace it
-				cond_else = getSema().checkNode(cond_else);
+				cond_else = checkNode(cond_else);
 				stmt->setElse(cond_else);
 			}
 		}
@@ -165,6 +165,21 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
     //----------------------------------------------------------------------//
     // Various semantics-related helper methods 
     //----------------------------------------------------------------------//
+
+    ASTNode checkNode(ASTNode node) {
+      assert(node && "node is null");
+      if(node.is<Decl*>())
+        getSema().checkDecl(node.get<Decl*>());
+      else if(node.is<Expr*>())
+        node = getSema().typecheckExpr(node.get<Expr*>());
+      else {
+        assert(node.is<Stmt*>() && "unknown ASTNode kind");
+        Stmt* stmt = node.get<Stmt*>();
+        visit(stmt);
+      }
+      assert(node && "node became null");
+      return node;
+    }
 
 		// Does the necessary steps to check an expression which
 		// is used as a condition. Returns the Expr* that should replace
