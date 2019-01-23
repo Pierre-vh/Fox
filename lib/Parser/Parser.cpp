@@ -51,16 +51,16 @@ void Parser::actOnDecl(Decl* decl) {
   }
 }
 
-Parser::Result<Identifier> Parser::consumeIdentifier(SourceRange& range) {
+Optional<std::pair<Identifier, SourceRange>>
+Parser::consumeIdentifier() {
   Token tok = getCurtok();
   if (tok.isIdentifier()) {
     Identifier id = tok.getIdentifier();
     assert(id && "Token's an identifier but contains a null Identifier?");
     next();
-    range = tok.getRange();
-    return Result<Identifier>(id);
+    return std::make_pair(id, tok.getRange());
   }
-  return Result<Identifier>::NotFound();
+  return None;
 }
 
 SourceLoc Parser::consumeSign(SignType s) {

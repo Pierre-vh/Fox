@@ -113,9 +113,11 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
 
   // <id>
   {
-    SourceRange idRange;
-    if (auto foundID = consumeIdentifier(idRange)) 
-      rtr->setIdentifier(foundID.get(), idRange);
+    if (auto idRes = consumeIdentifier()) {
+      Identifier id = idRes.getValue().first;
+      SourceRange idRange = idRes.getValue().second;
+      rtr->setIdentifier(id, idRange);
+    }
     else {
       reportErrorExpected(DiagID::parser_expected_iden);
       invalid = true;
@@ -219,9 +221,10 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
   assert(isParsingFuncDecl() && "Can only call this when parsing a function!");
 
   // <id>
-  SourceRange idRange;
-  auto id = consumeIdentifier(idRange);
-  if (!id) return Result<Decl*>::NotFound();
+  auto idRes = consumeIdentifier();
+  if (!idRes) return Result<Decl*>::NotFound();
+  Identifier id = idRes.getValue().first;
+  SourceRange idRange = idRes.getValue().second;
 
   // ':'
   if (!consumeSign(SignType::S_COLON)) {
@@ -244,7 +247,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
   assert(idRange && tl.getRange() && "Invalid loc info");
 
   auto* rtr = ParamDecl::create(ctxt, getDeclParent().get<FuncDecl*>(), 
-    id.get(), idRange, tl, isMutable);
+    id, idRange, tl, isMutable);
   actOnDecl(rtr);
   return Result<Decl*>(rtr);
 }
@@ -279,12 +282,14 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   };
 
   // <id>
-  SourceRange idRange;
-  auto id = consumeIdentifier(idRange);
-  if(!id) {
+  auto idRes = consumeIdentifier();
+  if(!idRes) {
     reportErrorExpected(DiagID::parser_expected_iden);
     return tryRecoveryToSemi();
   }
+
+  Identifier id = idRes.getValue().first;
+  SourceRange idRange = idRes.getValue().second;
 
   // ':'
   if (!consumeSign(SignType::S_COLON)) {
@@ -332,7 +337,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   SourceRange range(begLoc, endLoc);
   assert(range && idRange && "Invalid loc info");
   assert(type.isComplete() && "Incomplete TypeLoc!");
-  auto rtr = VarDecl::create(ctxt, getDeclParent(), id.get(), idRange,
+  auto rtr = VarDecl::create(ctxt, getDeclParent(), id, idRange,
     type, kw, iExpr, range);
 
   actOnDecl(rtr);

@@ -24,11 +24,12 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
   // '.'
   if (auto dotLoc = consumeSign(SignType::S_DOT)) {
     // <id>
-    SourceRange idRange;
-    if (auto id = consumeIdentifier(idRange)) {
+    if (auto idRes = consumeIdentifier()) {
       // found, return
+      Identifier id = idRes.getValue().first;
+      SourceRange idRange = idRes.getValue().second;
       return Result<Expr*>(
-        MemberOfExpr::create(ctxt, base ,id.get(), idRange, dotLoc)
+        MemberOfExpr::create(ctxt, base , id, idRange, dotLoc)
       );
     }
     else  {
@@ -86,10 +87,12 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
 
 Parser::Result<Expr*> Parser::parseDeclRef() {
   // <decl_call> = <id> 
-  SourceRange idRange;
-  if (auto id = consumeIdentifier(idRange))
-    return Result<Expr*>(UnresolvedDeclRefExpr::create(ctxt, id.get(),
+  if (auto idRes = consumeIdentifier()) {
+    Identifier id = idRes.getValue().first;
+    SourceRange idRange = idRes.getValue().second;
+    return Result<Expr*>(UnresolvedDeclRefExpr::create(ctxt, id,
       idRange));
+  }
   return Result<Expr*>::NotFound();
 }
 

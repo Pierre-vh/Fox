@@ -20,6 +20,9 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/Optional.h"
+#include <tuple>
 
 namespace fox {
   class ASTContext;
@@ -151,6 +154,13 @@ namespace fox {
       // Operators parsing helpers
       //---------------------------------//
 
+      // Theses methods return a Result object that
+      // doesn't contain the SourceRange. For now, the workaround I use is 
+      // to ask for a SourceRange& as param, and I place the SourceRange 
+      // there on success. This workaround will go away with the lexer rework,
+      // because operators won't be parsed anymore, they'll be handled
+      // by the lexer directly.
+
       // Parses any assignement operator. The SourceRange of the operator
       // is placed in "range" if the parsing finishes successfully.
       Result<BinaryExpr::OpKind> parseAssignOp(SourceRange& range);
@@ -201,9 +211,10 @@ namespace fox {
 
       // Consumes an Identifier
       //
-      // The SourceRange of the Identifier is placed in "range" 
-      // if the token was consumed successfully.
-      Result<Identifier> consumeIdentifier(SourceRange& range);
+      // Returns a pair of the Identifier + the SourceRange of the Identifier
+      // on success.
+      Optional<std::pair<Identifier, SourceRange>>
+      consumeIdentifier();
 
       // Consumes any sign but brackets.
       //
