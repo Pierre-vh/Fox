@@ -4,16 +4,13 @@
 // File : Parser.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file implements the recursive descent parser used by Fox.
+// This file implements the recursive descent parser for Fox.
 //                              
-// The grammar can be found in  /doc/                                    
+// The grammar can be found in  /doc/ 
 //
-// Terminology :
+// Terminology note:
 //      Parens always mean Round Brackets only.
 //      Brackets always mean Round/Curly/Square Bracket (Every kind of bracket)
-// 
-// Status: Up to date with latest grammar changes, except import/using rules that 
-//				 aren't implemented yet.
 //----------------------------------------------------------------------------//
 
 #pragma once
