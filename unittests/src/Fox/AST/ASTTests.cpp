@@ -256,8 +256,8 @@ TEST_F(ASTTest, StmtRTTI) {
   EXPECT_TRUE(ReturnStmt::classof(rtr));
 
   // Condition
-  auto* cond = ConditionStmt::create(ctxt, SourceLoc(), nullptr, ASTNode(),
-    ASTNode());
+  auto* cond = ConditionStmt::create(ctxt, SourceLoc(), 
+                                     nullptr, nullptr, nullptr);
   EXPECT_EQ(cond->getKind(), StmtKind::ConditionStmt);
   EXPECT_TRUE(ConditionStmt::classof(cond));
 
@@ -269,7 +269,7 @@ TEST_F(ASTTest, StmtRTTI) {
 
   // While
   auto* whilestmt = 
-    WhileStmt::create(ctxt, SourceLoc(), nullptr, ASTNode());
+    WhileStmt::create(ctxt, SourceLoc(), nullptr, nullptr);
   EXPECT_EQ(whilestmt->getKind(), StmtKind::WhileStmt);
   EXPECT_TRUE(WhileStmt::classof(whilestmt));
 }
