@@ -3,9 +3,9 @@
 func foo() {
   // Check that everything is correctly visited inside a compound stmt
   if(true) {
-    if('c'); // expect-error: cannot use an expression of type 'char' as a condition
-    if("foo"); // expect-error: cannot use an expression of type 'string' as a condition
-    if(['c']); // expect-error: cannot use an expression of type '[char]' as a condition
-    if([3]); // expect-error: cannot use an expression of type '[int]' as a condition
+    if('c') {} // expect-error: cannot use an expression of type 'char' as a condition
+    if("foo") {} // expect-error: cannot use an expression of type 'string' as a condition
+    if(['c']) {} // expect-error: cannot use an expression of type '[char]' as a condition
+    if([3]) {} // expect-error: cannot use an expression of type '[int]' as a condition
   }
 }
