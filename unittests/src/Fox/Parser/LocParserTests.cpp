@@ -68,7 +68,7 @@ TEST_F(LocTests, FuncAndArgDecl) {
   auto presult = parser->parseFuncDecl();
   ASSERT_TRUE(presult) << "parsing error";
 
-  auto func = presult.castTo<FuncDecl>();
+  FuncDecl* func = presult.castTo<FuncDecl>();
   auto funcRange = func->getRange();
   // First, test the function itself
   CompleteLoc func_beg = srcMgr.getCompleteLoc(funcRange.getBegin());

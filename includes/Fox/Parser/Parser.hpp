@@ -334,29 +334,22 @@ namespace fox {
       class Result : public ResultObject<DataTy> {
         using Inherited = ResultObject<DataTy>;
         public:
-          explicit Result(bool success = true):
-            Inherited(success) {
-
-          }
+          Result() : Inherited(ResultKind::Error) {}
 
           explicit Result(typename Inherited::CTorValueTy val, 
 						SourceRange range = SourceRange()):
-            Inherited(true, val), range_(range) {
+            Inherited(ResultKind::Success, val), range_(range) {
 
           }
 
           explicit Result(typename Inherited::CTorRValueTy val, 
 						SourceRange range = SourceRange()):
-            Inherited(true, val), range_(range) {
+            Inherited(ResultKind::Success, val), range_(range) {
 
-          }
-
-          bool isUsable() const {
-            return Inherited::hasData() && Inherited::wasSuccessful();
           }
 
           explicit operator bool() const {
-            return isUsable();
+            return Inherited::getResultKind() == ResultKind::Success;
           }
 
           using Inherited::ResultObject;
@@ -366,11 +359,11 @@ namespace fox {
           }
 
           static Result<DataTy> Error() {
-            return Result<DataTy>(false);
+            return Result<DataTy>(ResultKind::Error);
           }
 
           static Result<DataTy> NotFound() {
-            return Result<DataTy>(true);
+            return Result<DataTy>(ResultKind::NotFound);
           }
 
           // Extra function for Result<Type>, which creates a TypeLoc from

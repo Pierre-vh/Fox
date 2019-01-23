@@ -132,6 +132,7 @@ Parser::Result<Expr*> Parser::parseArrayLiteral() {
   
   // [<expr_list>]
   auto elist = parseExprList(); 
+
   // We don't check for errors because even if it failed, the Result object
   // will construct a empty ExprList for us!
 
@@ -150,7 +151,6 @@ Parser::Result<Expr*> Parser::parseArrayLiteral() {
 
   SourceRange range(begLoc, endLoc);
   assert(range && "Invalid loc info");
-
   return Result<Expr*>(ArrayLiteralExpr::create(ctxt, elist.move(), range));
 }
 

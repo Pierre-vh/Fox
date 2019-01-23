@@ -16,99 +16,136 @@
 #include <type_traits>
 
 namespace fox {
+  enum class ResultKind : std::uint8_t {
+    Success, Error, NotFound
+  };
+
+  namespace detail {
+    template<typename DataTy>
+    struct IsEligibleForPointerIntPairStorage {
+      static constexpr bool value = false;
+    };
+
+    template<typename DataTy>
+    struct IsEligibleForPointerIntPairStorage<DataTy*> {
+      static constexpr bool value = alignof(DataTy) >= 2;
+    };
+
+    template<typename DataTy, bool canUsePointerIntPair = 
+      IsEligibleForPointerIntPairStorage<DataTy>::value>
+    class ResultObjectDataStorage {
+      DataTy data_ = DataTy();
+      ResultKind kind_;
+      public:
+        using default_value_type = DataTy; 
+        using value_type = DataTy;
+
+        ResultObjectDataStorage(const value_type& data, ResultKind kind):
+          data_(data), kind_(kind) {}
+
+        ResultObjectDataStorage(value_type&& data, ResultKind kind):
+          data_(data), kind_(kind) {}
+
+        value_type data() {
+          return data_;
+        }
+
+        const value_type data() const {
+          return data_;
+        }
+
+        value_type&& move() {
+          return std::move(data_);
+        }
+
+        ResultKind kind() const {
+          return kind_;
+        }
+    };
+
+    template<typename DataTy>
+    class ResultObjectDataStorage<DataTy*, true> {
+      llvm::PointerIntPair<DataTy*, 2, ResultKind> pair_;
+      public:
+        using default_value_type = std::nullptr_t; 
+        using value_type = DataTy*;
+
+        ResultObjectDataStorage(DataTy* data, ResultKind kind):
+          pair_(data, kind) {}
+
+        DataTy* data() {
+          return pair_.getPointer();
+        }
+
+        const DataTy* data() const {
+          return pair_.getPointer();
+        }
+
+        ResultKind kind() const {
+          return pair_.getInt();
+        }
+    };
+  }
+
   template<typename DataTy>
   class ResultObject {
+    using StorageType = detail::ResultObjectDataStorage<DataTy>;
     protected:
       using DefaultValue = DataTy;
       using CTorValueTy = const DataTy&;
       using CTorRValueTy = DataTy && ;
-    public:
-      ResultObject(bool success, const DataTy& res):
-        result_(res), hasData_(true), successFlag_(success) {
-
-      }
-
-      ResultObject(bool success, DataTy&& res):
-        result_(res), hasData_(true), successFlag_(success) {
-
-      }
-
-      explicit ResultObject(bool success) :
-        result_(DefaultValue()), hasData_(false), successFlag_(success) {
-
-      }
-
-      bool wasSuccessful() const {
-        return successFlag_;
-      }
-
-      bool hasData() const {
-        return hasData_;
-      }
-
-      DataTy get() const {
-        return result_;
-      }
-
-      DataTy&& move() {
-        return std::move(result_);
-      }
-
-    private:
-      bool hasData_ : 1;
-      bool successFlag_ : 1;
-      DataTy result_;
-  };
-
-  template<typename DataTy>
-  class ResultObject<DataTy*> {
-    protected:
-      using DefaultValue = std::nullptr_t;
-      using CTorValueTy = DataTy*;
-      // Disable the Move CTor if we have a pointer
-      using CTorRValueTy = std::enable_if<false, void>;
-      using ThisTy = ResultObject<DataTy*>;
+      static constexpr bool isPointerType = std::is_pointer<DataTy>::value;
 
     public:
-      ResultObject(bool success, CTorValueTy ptr):
-        data_(ptr, success) {
+      ResultObject(ResultKind kind, const DataTy& data):
+        storage_(data, kind) {}
 
-      }
+      template<typename = typename std::enable_if<!isPointerType>::type>
+      ResultObject(ResultKind kind, DataTy&& data):
+        storage_(data, kind) {}
 
-      ResultObject(bool success):
-        data_(nullptr, success) {
-
-      }
+      explicit ResultObject(ResultKind kind) :
+        storage_(StorageType::default_value_type(), kind) {}
 
       bool wasSuccessful() const {
-        return data_.getInt();
-      }
-      
-      bool hasData() const {
-        return data_.getPointer();
+        return storage_.kind() == ResultKind::Success || storage_.kind() == ResultKind::NotFound;
       }
 
-      DataTy* get() const {
-        return data_.getPointer();
+      ResultKind getResultKind() const {
+        return storage_.kind();
       }
 
-      template<typename Ty>
+      DataTy get() {
+        return storage_.data();
+      }
+
+      const DataTy get() const {
+        return storage_.data();
+      }
+
+      template<typename Ty, typename = typename std::enable_if<isPointerType>::type>
       Ty* castTo() {
-        auto* ptr = data_.getPointer();
+        DataTy ptr = storage_.data();
         assert(ptr && "Can't use this on a null pointer");
         return cast<Ty>(ptr);
       }
 
       template<typename Ty>
-      const Ty* castTo() const {
-        return const_cast<ThisTy*>(this)->castTo<Ty>();
+      const auto castTo() const {
+        return const_cast<ResultObject<DataTy>*>(this)->castTo<Ty>();
       }
 
-      void* getOpaque() const {
-        return data_.getPointer();
+      template<typename = typename std::enable_if<isPointerType, void*>::type>
+      void* getOpaque() const  {
+        return (void*)storage_.data();
+      }
+
+      template<typename = typename std::enable_if<!isPointerType>::type>
+      DataTy&& move() {
+        return storage_.move();
       }
 
     private:
-      llvm::PointerIntPair<DataTy*, 1> data_;
+      StorageType storage_;
   };
 }
