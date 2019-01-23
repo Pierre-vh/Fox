@@ -20,7 +20,6 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
-#include "ParserResultObject.hpp"
 
 namespace fox {
   class ASTContext;
@@ -32,16 +31,17 @@ namespace fox {
   class ASTNode;
   enum class DiagID : std::uint16_t;
   class Parser {
-      //----------------------------------------------------------------------//
-      // Forward Declarations
-      //----------------------------------------------------------------------//
     public:
+      enum class ResultKind : std::uint8_t {
+        Success, Error, NotFound
+        // There's still room for one more ParserResultKind. If more is 
+        // added, update bitsForPRK in the detail namespace below
+        // the Parser class.
+      };
+
       template<typename DataTy>
       class Result;
 
-      //----------------------------------------------------------------------//
-      // Type Aliases
-      //----------------------------------------------------------------------//
     private:
       // The type of the Token iterator
       using TokenIteratorTy = TokenVector::iterator;
@@ -322,62 +322,176 @@ namespace fox {
       
       static constexpr uint8_t 
 			maxBraceDepth_ = (std::numeric_limits<std::uint8_t>::max)();
+  };
+
+  namespace detail {
+    constexpr unsigned bitsForPRK = 2;
+
+    template<typename DataTy>
+    struct IsEligibleForPointerIntPairStorage {
+      static constexpr bool value = false;
+    };
+
+    template<typename DataTy>
+    struct IsEligibleForPointerIntPairStorage<DataTy*> {
+      static constexpr bool value = alignof(DataTy) >= bitsForPRK;
+    };
+
+    template<typename DataTy, bool canUsePointerIntPair = 
+      IsEligibleForPointerIntPairStorage<DataTy>::value>
+    class ParserResultObjectDataStorage {
+      DataTy data_ = DataTy();
+      Parser::ResultKind kind_;
+      public:
+        using default_value_type = DataTy; 
+        using value_type = DataTy;
+
+        ParserResultObjectDataStorage(const value_type& data, 
+                                      Parser::ResultKind kind):
+          data_(data), kind_(kind) {}
+
+        ParserResultObjectDataStorage(value_type&& data, 
+                                      Parser::ResultKind kind):
+          data_(data), kind_(kind) {}
+
+        value_type data() {
+          return data_;
+        }
+
+        const value_type data() const {
+          return data_;
+        }
+
+        value_type&& move() {
+          return std::move(data_);
+        }
+
+        Parser::ResultKind kind() const {
+          return kind_;
+        }
+    };
+
+    template<typename DataTy>
+    class ParserResultObjectDataStorage<DataTy*, true> {
+      llvm::PointerIntPair<DataTy*, bitsForPRK, Parser::ResultKind> pair_;
+      public:
+        using default_value_type = std::nullptr_t; 
+        using value_type = DataTy*;
+
+        ParserResultObjectDataStorage(DataTy* data, Parser::ResultKind kind):
+          pair_(data, kind) {}
+
+        DataTy* data() {
+          return pair_.getPointer();
+        }
+
+        const DataTy* data() const {
+          return pair_.getPointer();
+        }
+
+        Parser::ResultKind kind() const {
+          return pair_.getInt();
+        }
+    };
+  }
+
+  template<typename DataTy>
+  class Parser::Result {
+    using StorageType = detail::ParserResultObjectDataStorage<DataTy>;
+    protected:
+      using DefaultValue = DataTy;
+      using CTorValueTy = const DataTy&;
+      using CTorRValueTy = DataTy && ;
+      static constexpr bool isPointerType = std::is_pointer<DataTy>::value;
 
     public:
-      //----------------------------------------------------------------------//
-      // Result class
-      //----------------------------------------------------------------------//
+      Result() : storage_(DefaultValue(), ResultKind::Error) {}
 
-      using ResultKind = ParserResultKind;
+      explicit Result(const DataTy& data, SourceRange range = SourceRange(), 
+        ResultKind kind = ResultKind::Success):
+        storage_(data, kind), range_(range) {}
 
-      // Class for encapsulating a parsing function's result.
-      // It also stores a SourceRange to store a Position/Range if needed.
-      template<typename DataTy>
-      class Result : public ParserResultObject<DataTy> {
-        using Inherited = ParserResultObject<DataTy>;
-        public:
-          Result() : Inherited(ResultKind::Error) {}
+      template<typename = typename std::enable_if<!isPointerType>::type>
+      explicit Result(DataTy&& data, SourceRange range = SourceRange(),
+        ResultKind kind = ResultKind::Success):
+        storage_(data, kind), range_(range) {}
 
-          explicit Result(typename Inherited::CTorValueTy val, 
-						SourceRange range = SourceRange()):
-            Inherited(ResultKind::Success, val), range_(range) {
+      explicit Result(ResultKind kind) :
+        storage_(StorageType::default_value_type(), kind) {}
 
-          }
+      bool isSuccess() const {
+        return getResultKind() == ResultKind::Success;
+      }
 
-          explicit Result(typename Inherited::CTorRValueTy val, 
-						SourceRange range = SourceRange()):
-            Inherited(ResultKind::Success, val), range_(range) {
+      bool isNotFound() const {
+        return getResultKind() == ResultKind::NotFound;
+      }
 
-          }
+      bool isError() const {
+        return getResultKind() == ResultKind::Error;
+      }
 
-          explicit operator bool() const {
-            return Inherited::getResultKind() == ResultKind::Success;
-          }
+      ResultKind getResultKind() const {
+        return storage_.kind();
+      }
 
-          using Inherited::ParserResultObject;
+      DataTy get() {
+        return storage_.data();
+      }
 
-          SourceRange getRange() const {
-            return range_;
-          }
+      const DataTy get() const {
+        return storage_.data();
+      }
 
-          static Result<DataTy> Error() {
-            return Result<DataTy>(ResultKind::Error);
-          }
+      SourceRange getRange() const {
+        return range_;
+      }
+      
+      explicit operator bool() const {
+        return getResultKind() == ResultKind::Success;
+      }
 
-          static Result<DataTy> NotFound() {
-            return Result<DataTy>(ResultKind::NotFound);
-          }
+      static Result<DataTy> Error() {
+        return Result<DataTy>(ResultKind::Error);
+      }
 
-          // Extra function for Result<Type>, which creates a TypeLoc from
-          // a Type stored in the ResultObject and it's range.
-          template<typename Foo = DataTy>
-          auto createTypeLoc() const -> typename 
-            std::enable_if<std::is_same<Type, Foo>::value, TypeLoc>::type {
-            return TypeLoc(Inherited::get(), range_);
-          }
+      static Result<DataTy> NotFound() {
+        return Result<DataTy>(ResultKind::NotFound);
+      }
+      
+      template<typename Ty, typename = typename 
+               std::enable_if<isPointerType>::type>
+      Ty* castTo() {
+        DataTy ptr = storage_.data();
+        assert(ptr && "Can't use this on a null pointer");
+        return cast<Ty>(ptr);
+      }
 
-        private:
-          SourceRange range_;
-      };
+      template<typename Ty>
+      const auto castTo() const {
+        return const_cast<Result<DataTy>*>(this)->castTo<Ty>();
+      }
+
+      template<typename = typename std::enable_if<isPointerType, void*>::type>
+      void* getOpaque() const  {
+        return (void*)storage_.data();
+      }
+
+      template<typename = typename std::enable_if<!isPointerType>::type>
+      DataTy&& move() {
+        return storage_.move();
+      }
+
+      // Extra function for Result<Type>, which creates a TypeLoc from
+      // a Type stored in the ResultObject and it's range.
+      template<typename Foo = DataTy>
+      auto createTypeLoc() const -> typename 
+        std::enable_if<std::is_same<Type, Foo>::value, TypeLoc>::type {
+        return TypeLoc(get(), range_);
+      }
+
+    private:
+      SourceRange range_;
+      StorageType storage_;
   };
 }
