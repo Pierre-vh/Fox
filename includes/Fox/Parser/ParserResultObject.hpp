@@ -18,9 +18,13 @@
 namespace fox {
   enum class ResultKind : std::uint8_t {
     Success, Error, NotFound
+    // There's still room for one more ResultKind. If more is 
+    // added, update bitsForPRK below.
   };
 
   namespace detail {
+    constexpr unsigned bitsForPRK = 2;
+
     template<typename DataTy>
     struct IsEligibleForPointerIntPairStorage {
       static constexpr bool value = false;
@@ -28,7 +32,7 @@ namespace fox {
 
     template<typename DataTy>
     struct IsEligibleForPointerIntPairStorage<DataTy*> {
-      static constexpr bool value = alignof(DataTy) >= 2;
+      static constexpr bool value = alignof(DataTy) >= bitsForPRK;
     };
 
     template<typename DataTy, bool canUsePointerIntPair = 
@@ -65,7 +69,7 @@ namespace fox {
 
     template<typename DataTy>
     class ParserResultObjectDataStorage<DataTy*, true> {
-      llvm::PointerIntPair<DataTy*, 2, ResultKind> pair_;
+      llvm::PointerIntPair<DataTy*, bitsForPRK, ResultKind> pair_;
       public:
         using default_value_type = std::nullptr_t; 
         using value_type = DataTy*;
