@@ -24,10 +24,11 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
   // '.'
   if (auto dotLoc = consumeSign(SignType::S_DOT)) {
     // <id>
-    if (auto id = consumeIdentifier()) {
+    SourceRange idRange;
+    if (auto id = consumeIdentifier(idRange)) {
       // found, return
       return Result<Expr*>(
-        MemberOfExpr::create(ctxt, base ,id.get(), id.getRange(), dotLoc)
+        MemberOfExpr::create(ctxt, base ,id.get(), idRange, dotLoc)
       );
     }
     else  {
@@ -85,9 +86,10 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
 
 Parser::Result<Expr*> Parser::parseDeclRef() {
   // <decl_call> = <id> 
-  if (auto id = consumeIdentifier())
+  SourceRange idRange;
+  if (auto id = consumeIdentifier(idRange))
     return Result<Expr*>(UnresolvedDeclRefExpr::create(ctxt, id.get(),
-      id.getRange()));
+      idRange));
   return Result<Expr*>::NotFound();
 }
 
@@ -244,11 +246,12 @@ Parser::Result<Expr*> Parser::parsePrefixExpr() {
   // <prefix_expr>  = <unary_operator> <prefix_expr> | <exp_expr>
 
 	// <unary_operator>
-  if (auto uop = parseUnaryOp()) {
+  SourceRange opRange;
+  if (auto uop = parseUnaryOp(opRange)) {
 		// <prefix_expr>
     if (auto prefixexpr = parsePrefixExpr()) {
-      return Result<Expr*>(UnaryExpr::create(ctxt, uop.get(), prefixexpr.get(),
-        uop.getRange()));
+      return Result<Expr*>(
+        UnaryExpr::create(ctxt, uop.get(), prefixexpr.get(),opRange));
     }
     else {
       if(prefixexpr.isNotFound())
@@ -317,11 +320,12 @@ Parser::Result<Expr*> Parser::parseBinaryExpr(std::uint8_t precedence) {
 
   Expr* lhs = lhsResult.get();
   BinaryExpr* rtr = nullptr;
-
+  
   // { <binary_operator> <cast_expr> }  
   while (true) {
     // <binary_operator>
-    auto binop_res = parseBinaryOp(precedence);
+    SourceRange opRange;
+    auto binop_res = parseBinaryOp(precedence, opRange);
     if (!binop_res) // No operator found : break.
       break;
 
@@ -344,8 +348,6 @@ Parser::Result<Expr*> Parser::parseBinaryExpr(std::uint8_t precedence) {
 
     Expr* rhs = rhsResult.get();
 
-    SourceRange opRange = binop_res.getRange();
-
     rtr = BinaryExpr::create(ctxt, binop_res.get(), 
       (rtr ? rtr : lhs), rhs, opRange);
   }
@@ -363,7 +365,8 @@ Parser::Result<Expr*> Parser::parseExpr() {
   if (!lhs)
     return lhs;
 
-  if (auto op = parseAssignOp()) {
+  SourceRange opRange;
+  if (auto op = parseAssignOp(opRange)) {
     auto rhs = parseExpr();
     if (!rhs) {
       if(rhs.isNotFound())
@@ -371,7 +374,6 @@ Parser::Result<Expr*> Parser::parseExpr() {
       return Result<Expr*>::Error();
     }
 
-    SourceRange opRange = op.getRange();
     return Result<Expr*>(BinaryExpr::create(ctxt, op.get(), 
       lhs.get(), rhs.get(), opRange));
   }
@@ -504,35 +506,47 @@ SourceRange Parser::parseExponentOp() {
   return SourceRange();
 }
 
-Parser::Result<BinaryExpr::OpKind> Parser::parseAssignOp() {
+Parser::Result<BinaryExpr::OpKind> 
+Parser::parseAssignOp(SourceRange& range) {
   using BinOp = BinaryExpr::OpKind;
+
+  auto success = [&](BinOp op, SourceRange opRange) {
+    range = opRange;
+    return Result<BinOp>(op);
+  };
 
   if (auto equal = consumeSign(SignType::S_EQUAL)) {
     // Try to match a S_EQUAL. If failed, that means that the next token isn't a =
     // If it succeeds, we found a '==' (=> this is the comparison operator) and
     // we must undo 
     if (!consumeSign(SignType::S_EQUAL))
-      return Result<BinOp>(BinOp::Assign,SourceRange(equal));
+      return success(BinOp::Assign, SourceRange(equal));
     undo();
   }
   return Result<BinOp>::NotFound();
 }
 
-Parser::Result<UnaryExpr::OpKind> Parser::parseUnaryOp() {
+Parser::Result<UnaryExpr::OpKind> 
+Parser::parseUnaryOp(SourceRange& range) {
   using UOp = UnaryExpr::OpKind;
 
+  auto success = [&](UOp op, SourceRange opRange) {
+    range = opRange;
+    return Result<UOp>(op);
+  };
+
   if (auto excl = consumeSign(SignType::S_EXCL_MARK))
-    return Result<UOp>(UOp::LNot, SourceRange(excl));
+    return success(UOp::LNot, SourceRange(excl));
   else if (auto minus = consumeSign(SignType::S_MINUS))
-    return Result<UOp>(UOp::Minus, SourceRange(minus));
+    return success(UOp::Minus, SourceRange(minus));
   else if (auto plus = consumeSign(SignType::S_PLUS))
-    return Result<UOp>(UOp::Plus, SourceRange(plus));
+    return success(UOp::Plus, SourceRange(plus));
   return Result<UOp>::NotFound();
 }
 
 // TODO: This should be handled by the lexer, not the parser.
 Parser::Result<BinaryExpr::OpKind> 
-Parser::parseBinaryOp(std::uint8_t priority) {
+Parser::parseBinaryOp(std::uint8_t priority, SourceRange& range) {
   using BinOp = BinaryExpr::OpKind;
 
   // Check current Token validity, also check if it's a sign because if 
@@ -540,50 +554,54 @@ Parser::parseBinaryOp(std::uint8_t priority) {
   if (!getCurtok().isValid() || !getCurtok().isSign())
     return Result<BinOp>::NotFound();
 
+  auto success = [&](BinOp op, SourceRange opRange) {
+    range = opRange;
+    return Result<BinOp>(op);
+  };
 
   switch (priority) {
     case 0: // * / %
       if (auto asterisk = consumeSign(SignType::S_ASTERISK)) {
         // Disambiguation between '**' and '*'
         if (!consumeSign(SignType::S_ASTERISK))
-          return Result<BinOp>(BinOp::Mul, SourceRange(asterisk));
+          return success(BinOp::Mul, SourceRange(asterisk));
         // undo if not found
         undo();
       }
       else if (auto slash = consumeSign(SignType::S_SLASH))
-        return Result<BinOp>(BinOp::Div, SourceRange(slash));
+        return success(BinOp::Div, SourceRange(slash));
       else if (auto percent = consumeSign(SignType::S_PERCENT))
-        return Result<BinOp>(BinOp::Mod, SourceRange(percent));
+        return success(BinOp::Mod, SourceRange(percent));
       break;
     case 1: // + -
       if (auto plus = consumeSign(SignType::S_PLUS))
-        return Result<BinOp>(BinOp::Add, SourceRange(plus));
+        return success(BinOp::Add, SourceRange(plus));
       else if (auto minus = consumeSign(SignType::S_MINUS))
-        return Result<BinOp>(BinOp::Sub, SourceRange(minus));
+        return success(BinOp::Sub, SourceRange(minus));
       break;
     case 2: // > >= < <=
       if (auto lessthan = consumeSign(SignType::S_LESS_THAN)) {
         if (auto equal = consumeSign(SignType::S_EQUAL))
-          return Result<BinOp>(BinOp::LE, SourceRange(lessthan,equal));
-        return Result<BinOp>(BinOp::LT, SourceRange(lessthan));
+          return success(BinOp::LE, SourceRange(lessthan,equal));
+        return success(BinOp::LT, SourceRange(lessthan));
       }
       else if (auto grthan = consumeSign(SignType::S_GREATER_THAN)) {
         if (auto equal = consumeSign(SignType::S_EQUAL))
-          return Result<BinOp>(BinOp::GE, SourceRange(grthan,equal));
-        return Result<BinOp>(BinOp::GT, SourceRange(grthan));
+          return success(BinOp::GE, SourceRange(grthan,equal));
+        return success(BinOp::GT, SourceRange(grthan));
       }
       break;
     case 3:  // == !=
       // try to match '=' twice.
       if (auto equal1 = consumeSign(SignType::S_EQUAL)) {
         if (auto equal2 = consumeSign(SignType::S_EQUAL))
-          return Result<BinOp>(BinOp::Eq, SourceRange(equal1,equal2));
+          return success(BinOp::Eq, SourceRange(equal1,equal2));
         // undo if not found
         undo();
       }
       else if (auto excl = consumeSign(SignType::S_EXCL_MARK)) {
         if (auto equal =consumeSign(SignType::S_EQUAL))
-          return Result<BinOp>(BinOp::NEq, SourceRange(excl,equal));
+          return success(BinOp::NEq, SourceRange(excl,equal));
         // undo if not found
         undo();
       }
@@ -591,13 +609,13 @@ Parser::parseBinaryOp(std::uint8_t priority) {
     case 4: // &&
       if (auto amp1 = consumeSign(SignType::S_AMPERSAND)) {
         if (auto amp2 = consumeSign(SignType::S_AMPERSAND))
-          return Result<BinOp>(BinOp::LAnd, SourceRange(amp1,amp2));
+          return success(BinOp::LAnd, SourceRange(amp1,amp2));
       }
       break;
     case 5: // ||
       if (auto vbar1 = consumeSign(SignType::S_VBAR)) {
         if (auto vbar2 = consumeSign(SignType::S_VBAR))
-          return Result<BinOp>(BinOp::LOr, SourceRange(vbar1,vbar2));
+          return success(BinOp::LOr, SourceRange(vbar1,vbar2));
         // undo if not found
         undo();
       }

@@ -151,14 +151,21 @@ namespace fox {
       // Operators parsing helpers
       //---------------------------------//
 
-      // Parses any assignement operator
-      Result<BinaryExpr::OpKind> parseAssignOp();
+      // TODO: Rework theses 3 functions, they're badly designed
+      //  IMHO.
 
-      // Parses any unary operator
-      Result<UnaryExpr::OpKind> parseUnaryOp();
+      // Parses any assignement operator
+      Result<BinaryExpr::OpKind> parseAssignOp(SourceRange& range);
+
+      // Parses any unary operator. The SourceRange of the operator
+      // is placed in "range" if the parsing was successful.
+      Result<UnaryExpr::OpKind> parseUnaryOp(SourceRange& range);
       
-      // Parses any binary operator
-      Result<BinaryExpr::OpKind> parseBinaryOp(std::uint8_t priority);
+      // Parses any binary operator. The SourceRange of the operator
+      // is placed in "range" if the parsing was successful.
+      Result<BinaryExpr::OpKind> 
+      parseBinaryOp(std::uint8_t priority, SourceRange& range);
+
       SourceRange parseExponentOp();
 
       //---------------------------------//
@@ -195,9 +202,10 @@ namespace fox {
       */
 
       // Consumes an Identifier
-      // The Result object will contain the SourceRange of the identifier
-			// on a success
-      Result<Identifier> consumeIdentifier();
+      //
+      // The SourceRange of the identifier is placed in "range"
+      // if the parsing was successful.
+      Result<Identifier> consumeIdentifier(SourceRange& range);
 
       // Consumes any sign but brackets.
       SourceLoc consumeSign(SignType s);
@@ -407,14 +415,12 @@ namespace fox {
     public:
       Result() : storage_(DefaultValue(), ResultKind::Error) {}
 
-      explicit Result(const DataTy& data, SourceRange range = SourceRange(), 
-        ResultKind kind = ResultKind::Success):
-        storage_(data, kind), range_(range) {}
+      explicit Result(const DataTy& data, ResultKind kind = ResultKind::Success):
+        storage_(data, kind) {}
 
       template<typename = typename std::enable_if<!isPointerType>::type>
-      explicit Result(DataTy&& data, SourceRange range = SourceRange(),
-        ResultKind kind = ResultKind::Success):
-        storage_(data, kind), range_(range) {}
+      explicit Result(DataTy&& data, ResultKind kind = ResultKind::Success):
+        storage_(data, kind) {}
 
       explicit Result(ResultKind kind) :
         storage_(StorageType::default_value_type(), kind) {}
@@ -441,10 +447,6 @@ namespace fox {
 
       const DataTy get() const {
         return storage_.data();
-      }
-
-      SourceRange getRange() const {
-        return range_;
       }
       
       explicit operator bool() const {
@@ -482,16 +484,7 @@ namespace fox {
         return storage_.move();
       }
 
-      // Extra function for Result<Type>, which creates a TypeLoc from
-      // a Type stored in the ResultObject and it's range.
-      template<typename Foo = DataTy>
-      auto createTypeLoc() const -> typename 
-        std::enable_if<std::is_same<Type, Foo>::value, TypeLoc>::type {
-        return TypeLoc(get(), range_);
-      }
-
     private:
-      SourceRange range_;
       StorageType storage_;
   };
 }

@@ -51,13 +51,14 @@ void Parser::actOnDecl(Decl* decl) {
   }
 }
 
-Parser::Result<Identifier> Parser::consumeIdentifier() {
+Parser::Result<Identifier> Parser::consumeIdentifier(SourceRange& range) {
   Token tok = getCurtok();
   if (tok.isIdentifier()) {
     Identifier id = tok.getIdentifier();
     assert(id && "Token's an identifier but contains a null Identifier?");
     next();
-    return Result<Identifier>(id, tok.getRange());
+    range = tok.getRange();
+    return Result<Identifier>(id);
   }
   return Result<Identifier>::NotFound();
 }

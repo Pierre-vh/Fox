@@ -112,11 +112,14 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   bool invalid = false;
 
   // <id>
-  if (auto foundID = consumeIdentifier()) 
-    rtr->setIdentifier(foundID.get(), foundID.getRange());
-  else {
-    reportErrorExpected(DiagID::parser_expected_iden);
-    invalid = true;
+  {
+    SourceRange idRange;
+    if (auto foundID = consumeIdentifier(idRange)) 
+      rtr->setIdentifier(foundID.get(), idRange);
+    else {
+      reportErrorExpected(DiagID::parser_expected_iden);
+      invalid = true;
+    }
   }
 
   // '('
@@ -216,7 +219,8 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
   assert(isParsingFuncDecl() && "Can only call this when parsing a function!");
 
   // <id>
-  auto id = consumeIdentifier();
+  SourceRange idRange;
+  auto id = consumeIdentifier(idRange);
   if (!id) return Result<Decl*>::NotFound();
 
   // ':'
@@ -237,10 +241,10 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
 
   TypeLoc tl = typeResult.get();
 
-  assert(id.getRange() && typeResult.getRange() && "Invalid loc info");
+  assert(idRange && tl.getRange() && "Invalid loc info");
 
   auto* rtr = ParamDecl::create(ctxt, getDeclParent().get<FuncDecl*>(), 
-    id.get(), id.getRange(), tl, isMutable);
+    id.get(), idRange, tl, isMutable);
   actOnDecl(rtr);
   return Result<Decl*>(rtr);
 }
@@ -275,7 +279,8 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   };
 
   // <id>
-  auto id = consumeIdentifier();
+  SourceRange idRange;
+  auto id = consumeIdentifier(idRange);
   if(!id) {
     reportErrorExpected(DiagID::parser_expected_iden);
     return tryRecoveryToSemi();
@@ -325,9 +330,9 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   }
 
   SourceRange range(begLoc, endLoc);
-  assert(range && "Invalid loc info");
+  assert(range && idRange && "Invalid loc info");
   assert(type.isComplete() && "Incomplete TypeLoc!");
-  auto rtr = VarDecl::create(ctxt, getDeclParent(), id.get(), id.getRange(),
+  auto rtr = VarDecl::create(ctxt, getDeclParent(), id.get(), idRange,
     type, kw, iExpr, range);
 
   actOnDecl(rtr);
