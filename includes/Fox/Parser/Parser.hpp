@@ -328,6 +328,8 @@ namespace fox {
       // Result class
       //----------------------------------------------------------------------//
 
+      using ResultKind = ParserResultKind;
+
       // Class for encapsulating a parsing function's result.
       // It also stores a SourceRange to store a Position/Range if needed.
       template<typename DataTy>

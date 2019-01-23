@@ -16,9 +16,9 @@
 #include <type_traits>
 
 namespace fox {
-  enum class ResultKind : std::uint8_t {
+  enum class ParserResultKind : std::uint8_t {
     Success, Error, NotFound
-    // There's still room for one more ResultKind. If more is 
+    // There's still room for one more ParserResultKind. If more is 
     // added, update bitsForPRK below.
   };
 
@@ -39,15 +39,15 @@ namespace fox {
       IsEligibleForPointerIntPairStorage<DataTy>::value>
     class ParserResultObjectDataStorage {
       DataTy data_ = DataTy();
-      ResultKind kind_;
+      ParserResultKind kind_;
       public:
         using default_value_type = DataTy; 
         using value_type = DataTy;
 
-        ParserResultObjectDataStorage(const value_type& data, ResultKind kind):
+        ParserResultObjectDataStorage(const value_type& data, ParserResultKind kind):
           data_(data), kind_(kind) {}
 
-        ParserResultObjectDataStorage(value_type&& data, ResultKind kind):
+        ParserResultObjectDataStorage(value_type&& data, ParserResultKind kind):
           data_(data), kind_(kind) {}
 
         value_type data() {
@@ -62,19 +62,19 @@ namespace fox {
           return std::move(data_);
         }
 
-        ResultKind kind() const {
+        ParserResultKind kind() const {
           return kind_;
         }
     };
 
     template<typename DataTy>
     class ParserResultObjectDataStorage<DataTy*, true> {
-      llvm::PointerIntPair<DataTy*, bitsForPRK, ResultKind> pair_;
+      llvm::PointerIntPair<DataTy*, bitsForPRK, ParserResultKind> pair_;
       public:
         using default_value_type = std::nullptr_t; 
         using value_type = DataTy*;
 
-        ParserResultObjectDataStorage(DataTy* data, ResultKind kind):
+        ParserResultObjectDataStorage(DataTy* data, ParserResultKind kind):
           pair_(data, kind) {}
 
         DataTy* data() {
@@ -85,7 +85,7 @@ namespace fox {
           return pair_.getPointer();
         }
 
-        ResultKind kind() const {
+        ParserResultKind kind() const {
           return pair_.getInt();
         }
     };
@@ -101,21 +101,21 @@ namespace fox {
       static constexpr bool isPointerType = std::is_pointer<DataTy>::value;
 
     public:
-      ParserResultObject(ResultKind kind, const DataTy& data):
+      ParserResultObject(ParserResultKind kind, const DataTy& data):
         storage_(data, kind) {}
 
       template<typename = typename std::enable_if<!isPointerType>::type>
-      ParserResultObject(ResultKind kind, DataTy&& data):
+      ParserResultObject(ParserResultKind kind, DataTy&& data):
         storage_(data, kind) {}
 
-      explicit ParserResultObject(ResultKind kind) :
+      explicit ParserResultObject(ParserResultKind kind) :
         storage_(StorageType::default_value_type(), kind) {}
 
       bool wasSuccessful() const {
-        return storage_.kind() == ResultKind::Success || storage_.kind() == ResultKind::NotFound;
+        return storage_.kind() == ParserResultKind::Success || storage_.kind() == ParserResultKind::NotFound;
       }
 
-      ResultKind getResultKind() const {
+      ParserResultKind getResultKind() const {
         return storage_.kind();
       }
 
