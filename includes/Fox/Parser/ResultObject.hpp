@@ -93,17 +93,15 @@ namespace fox {
       }
 
       template<typename Ty>
-      Ty* getAs() {
+      Ty* castTo() {
         auto* ptr = data_.getPointer();
         assert(ptr && "Can't use this on a null pointer");
-        Ty* cast = dyn_cast<Ty>(ptr);
-        assert(cast && "Incorrect type!");
-        return cast;
+        return cast<Ty>(ptr);
       }
 
       template<typename Ty>
-      const Ty* getAs() const {
-        return const_cast<ThisTy*>(this)->getAs<Ty>();
+      const Ty* castTo() const {
+        return const_cast<ThisTy*>(this)->castTo<Ty>();
       }
 
       void* getOpaque() const {

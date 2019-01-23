@@ -94,7 +94,7 @@ Parser::StmtResult Parser::parseWhileLoop() {
   // <body>
   CompoundStmt* body = nullptr;
   if (auto body_res = parseCompoundStatement())
-    body = body_res.getAs<CompoundStmt>();
+    body = body_res.castTo<CompoundStmt>();
   else {
     if (body_res.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
@@ -134,7 +134,7 @@ Parser::StmtResult Parser::parseCondition() {
     
   // <compound_stmt>
   if (auto body = parseCompoundStatement())
-    then_body = body.getAs<CompoundStmt>();
+    then_body = body.castTo<CompoundStmt>();
   else {
     if (body.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
@@ -145,7 +145,7 @@ Parser::StmtResult Parser::parseCondition() {
   if (consumeKeyword(KeywordType::KW_ELSE)) {
     // <compound_stmt>
     if (auto body = parseCompoundStatement())
-      else_body = body.getAs<CompoundStmt>();
+      else_body = body.castTo<CompoundStmt>();
     else {
       if(body.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_opening_curlybracket);

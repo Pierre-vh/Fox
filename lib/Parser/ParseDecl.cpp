@@ -129,11 +129,11 @@ Parser::DeclResult Parser::parseFuncDecl() {
   // [<param_decl> {',' <param_decl>}*]
   SmallVector<ParamDecl*, 4> params;
   if (auto first = parseParamDecl()) {
-    params.push_back(first.getAs<ParamDecl>());
+    params.push_back(first.castTo<ParamDecl>());
     while (true) {
       if (consumeSign(SignType::S_COMMA)) {
         if (auto param = parseParamDecl())
-          params.push_back(param.getAs<ParamDecl>());
+          params.push_back(param.castTo<ParamDecl>());
         else {
           // IDEA: Maybe reporting the error after the "," would yield
           // better error messages?
