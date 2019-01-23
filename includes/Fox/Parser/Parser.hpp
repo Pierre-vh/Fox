@@ -20,7 +20,7 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
-#include "ResultObject.hpp"
+#include "ParserResultObject.hpp"
 
 namespace fox {
   class ASTContext;
@@ -331,8 +331,8 @@ namespace fox {
       // Class for encapsulating a parsing function's result.
       // It also stores a SourceRange to store a Position/Range if needed.
       template<typename DataTy>
-      class Result : public ResultObject<DataTy> {
-        using Inherited = ResultObject<DataTy>;
+      class Result : public ParserResultObject<DataTy> {
+        using Inherited = ParserResultObject<DataTy>;
         public:
           Result() : Inherited(ResultKind::Error) {}
 
@@ -352,7 +352,7 @@ namespace fox {
             return Inherited::getResultKind() == ResultKind::Success;
           }
 
-          using Inherited::ResultObject;
+          using Inherited::ParserResultObject;
 
           SourceRange getRange() const {
             return range_;

@@ -1,10 +1,10 @@
 //----------------------------------------------------------------------------//
 // This file is part of the Fox project.        
 // See the LICENSE.txt file at the root of the project for license information.            
-// File : ResultObject.hpp                      
+// File : ParserResultObject.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the ResultObject class which is used by the Parser's
+// This file contains the ParserResultObject class which is used by the Parser's
 // parsing methods to return values.
 //----------------------------------------------------------------------------//
 
@@ -88,7 +88,7 @@ namespace fox {
   }
 
   template<typename DataTy>
-  class ResultObject {
+  class ParserResultObject {
     using StorageType = detail::ResultObjectDataStorage<DataTy>;
     protected:
       using DefaultValue = DataTy;
@@ -97,14 +97,14 @@ namespace fox {
       static constexpr bool isPointerType = std::is_pointer<DataTy>::value;
 
     public:
-      ResultObject(ResultKind kind, const DataTy& data):
+      ParserResultObject(ResultKind kind, const DataTy& data):
         storage_(data, kind) {}
 
       template<typename = typename std::enable_if<!isPointerType>::type>
-      ResultObject(ResultKind kind, DataTy&& data):
+      ParserResultObject(ResultKind kind, DataTy&& data):
         storage_(data, kind) {}
 
-      explicit ResultObject(ResultKind kind) :
+      explicit ParserResultObject(ResultKind kind) :
         storage_(StorageType::default_value_type(), kind) {}
 
       bool wasSuccessful() const {
@@ -132,7 +132,7 @@ namespace fox {
 
       template<typename Ty>
       const auto castTo() const {
-        return const_cast<ResultObject<DataTy>*>(this)->castTo<Ty>();
+        return const_cast<ParserResultObject<DataTy>*>(this)->castTo<Ty>();
       }
 
       template<typename = typename std::enable_if<isPointerType, void*>::type>
