@@ -153,3 +153,17 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
       <id> ':' <qualtype>
     to
       <id> ':' ["mut"] <int>
+
+* 0.15
+   - Removed <body> rule
+   ~ Changed <condition> rule
+     from
+       <condition> = "if" <parens_expr> <body> ["else" <body>]
+     to
+       <condition> = "if" <expr> <compound_statement> ["else" <compound_statement>]
+   ~ Changed <while_loop> rule
+     from
+       <while_loop> = "while" <parens_expr> <body>
+     to
+       <while_loop> = "while" <expr> <compound_statement>
+
