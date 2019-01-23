@@ -132,6 +132,7 @@ To-Do:
   > Replace CellTypes with a proper "TypeVariableType" (Done)
   > SourceManager rework/cleanup (Done)
   > TypeLoc update (Done)
+  > Parser result object rework (Done)
 
   > DeclContext rework: Split it in 2:
       DeclContext: Doesn't record anything, just acts as a "marker" that a node begins a new semantic context.
@@ -221,7 +222,7 @@ Other:
   Medium priority:
     This is a list of "medium-priority" stuff that needs to be done.
 
-    > Lexer & Token classes rework
+    > Lexer & Token rewrite + Parser rework.
 
     > DiagnosticVerifier: Add a syntax to expect a diag multiple times, e.g. 'expect-error(3)@+1'
       -> Use it in tests\VerifyMode\Sema\Expr\call.fox
