@@ -151,18 +151,16 @@ namespace fox {
       // Operators parsing helpers
       //---------------------------------//
 
-      // TODO: Rework theses 3 functions, they're badly designed
-      //  IMHO.
-
-      // Parses any assignement operator
+      // Parses any assignement operator. The SourceRange of the operator
+      // is placed in "range" if the parsing finishes successfully.
       Result<BinaryExpr::OpKind> parseAssignOp(SourceRange& range);
 
       // Parses any unary operator. The SourceRange of the operator
-      // is placed in "range" if the parsing was successful.
+      // is placed in "range" if the parsing finishes successfully.
       Result<UnaryExpr::OpKind> parseUnaryOp(SourceRange& range);
       
       // Parses any binary operator. The SourceRange of the operator
-      // is placed in "range" if the parsing was successful.
+      // is placed in "range" if the parsing finishes successfully.
       Result<BinaryExpr::OpKind> 
       parseBinaryOp(std::uint8_t priority, SourceRange& range);
 
@@ -203,8 +201,8 @@ namespace fox {
 
       // Consumes an Identifier
       //
-      // The SourceRange of the identifier is placed in "range"
-      // if the parsing was successful.
+      // The SourceRange of the Identifier is placed in "range" 
+      // if the parsing finishes successfully.
       Result<Identifier> consumeIdentifier(SourceRange& range);
 
       // Consumes any sign but brackets.
