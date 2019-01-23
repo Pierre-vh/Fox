@@ -202,10 +202,12 @@ namespace fox {
       // Consumes an Identifier
       //
       // The SourceRange of the Identifier is placed in "range" 
-      // if the parsing finishes successfully.
+      // if the token was consumed successfully.
       Result<Identifier> consumeIdentifier(SourceRange& range);
 
       // Consumes any sign but brackets.
+      //
+      // Returns a valid SourceLoc if the token was consumed successfully.
       SourceLoc consumeSign(SignType s);
 
       // Consumes a bracket and keeps the bracket count up to date.
@@ -213,6 +215,8 @@ namespace fox {
       // Note : In the US, a Bracket is a [], however, here the bracket noun 
       // is used in the strict sense, where 
       // Round B. = (), Square B. = [] and Curly B. = {}
+      //
+      // Returns a valid SourceLoc if the token was consumed successfully.
       SourceLoc consumeBracket(SignType s);
 
       // Consumes a keyword. Returns an invalid SourceRange if not found.
