@@ -44,10 +44,12 @@ namespace fox {
         using default_value_type = DataTy; 
         using value_type = DataTy;
 
-        ParserResultObjectDataStorage(const value_type& data, ParserResultKind kind):
+        ParserResultObjectDataStorage(const value_type& data, 
+                                      ParserResultKind kind):
           data_(data), kind_(kind) {}
 
-        ParserResultObjectDataStorage(value_type&& data, ParserResultKind kind):
+        ParserResultObjectDataStorage(value_type&& data, 
+                                      ParserResultKind kind):
           data_(data), kind_(kind) {}
 
         value_type data() {
@@ -112,7 +114,8 @@ namespace fox {
         storage_(StorageType::default_value_type(), kind) {}
 
       bool wasSuccessful() const {
-        return storage_.kind() == ParserResultKind::Success || storage_.kind() == ParserResultKind::NotFound;
+        return storage_.kind() == ParserResultKind::Success || 
+               storage_.kind() == ParserResultKind::NotFound;
       }
 
       ParserResultKind getResultKind() const {
@@ -127,7 +130,8 @@ namespace fox {
         return storage_.data();
       }
 
-      template<typename Ty, typename = typename std::enable_if<isPointerType>::type>
+      template<typename Ty, typename = typename 
+               std::enable_if<isPointerType>::type>
       Ty* castTo() {
         DataTy ptr = storage_.data();
         assert(ptr && "Can't use this on a null pointer");
