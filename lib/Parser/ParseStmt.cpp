@@ -75,43 +75,43 @@ Parser::StmtResult Parser::parseCompoundStatement() {
 }
 
 Parser::StmtResult Parser::parseWhileLoop() {
-  // <while_loop>  = "while"  <parens_expr> <body>
+  // <while_loop> = "while" <expr> <body>
+
   // "while"
   auto whKw = consumeKeyword(KeywordType::KW_WHILE);
   if (!whKw)
     return StmtResult::NotFound();
 
+  // <expr>
   Expr* expr = nullptr;
-  ASTNode body;
-  // <parens_expr>
-  if (auto parens_expr_res = parseParensExpr())
-    expr = parens_expr_res.get();
+  if (auto exprResult = parseExpr())
+    expr = exprResult.get();
   else {
-    reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
+    reportErrorExpected(DiagID::parser_expected_expr);
     return StmtResult::Error();
   }
 
   // <body>
-  if (auto body_res = parseBody())
-    body = body_res.get();
+  CompoundStmt* body = nullptr;
+  if (auto body_res = parseCompoundStatement())
+    body = body_res.getAs<CompoundStmt>();
   else {
     if (body_res.wasSuccessful())
-      reportErrorExpected(DiagID::parser_expected_stmt);
-
+      reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
     return StmtResult::Error();
   }
 
-  assert(expr && body.getEnd() && whKw.getBegin());
+  assert(expr && body->getEnd() && whKw.getBegin());
   return StmtResult(
     WhileStmt::create(ctxt, whKw.getBegin(), expr, body)
   );
 }
 
 Parser::StmtResult Parser::parseCondition() {
-  // <condition>  = "if"  <parens_expr> <body> ["else" <body>]
+  // <condition> = "if" <expr> <compound_stmt> ["else" <compound_stmt>]
   Expr* expr = nullptr;
-  ASTNode then_node;
-  ASTNode else_node;
+  CompoundStmt* then_body = nullptr;
+  CompoundStmt* else_body = nullptr;
 
   // "if"
   auto ifKw = consumeKeyword(KeywordType::KW_IF);
@@ -124,48 +124,41 @@ Parser::StmtResult Parser::parseCondition() {
     return StmtResult::NotFound();
   }
 
-  // <parens_expr>
-  if (auto parensexpr = parseParensExpr())
-    expr = parensexpr.get();
+  // <expr>
+  if (auto exprResult = parseExpr())
+    expr = exprResult.get();
   else {
-    reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
+    reportErrorExpected(DiagID::parser_expected_expr);
     return StmtResult::Error();
   }
     
-  SourceLoc endLoc;
-
-  // <body>
-  if (auto body = parseBody()) {
-    then_node = body.get();
-    endLoc = then_node.getEnd();
-  }
+  // <compound_stmt>
+  if (auto body = parseCompoundStatement())
+    then_body = body.getAs<CompoundStmt>();
   else {
     if (body.wasSuccessful())
-      reportErrorExpected(DiagID::parser_expected_stmt);
-
+      reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
     return StmtResult::Error();
   }
 
   // "else"
   if (consumeKeyword(KeywordType::KW_ELSE)) {
-    // <body>
-    if (auto body = parseBody()) {
-      else_node = body.get();
-      endLoc = else_node.getEnd();
-    }
+    // <compound_stmt>
+    if (auto body = parseCompoundStatement())
+      else_body = body.getAs<CompoundStmt>();
     else {
       if(body.wasSuccessful())
-        reportErrorExpected(DiagID::parser_expected_stmt);
+        reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
       return StmtResult::Error();
     }
   }
 
-  assert(expr->getRange() && then_node.getRange() && ifKw.getBegin() 
-    && (else_node ? else_node.getRange().isValid() : true) 
+  assert(expr->getRange() && then_body->getRange() && ifKw.getBegin() 
+    && (else_body ? else_body->getRange().isValid() : true) 
     && "incomplete locs");
 
   return StmtResult(
-    ConditionStmt::create(ctxt, ifKw.getBegin(), expr, then_node, else_node)
+    ConditionStmt::create(ctxt, ifKw.getBegin(), expr, then_body, else_body)
   );
 }
 
@@ -239,24 +232,6 @@ Parser::NodeResult Parser::parseStmt() {
   if (auto rtrstmt = parseReturnStmt())
     return NodeResult(ASTNode(rtrstmt.get()));
   else if(!rtrstmt.wasSuccessful())
-    return NodeResult::Error();
-
-  return NodeResult::NotFound();
-}
-
-Parser::NodeResult Parser::parseBody() {
-  // <body>  = <stmt> | <compound_statement>
-
-  // <stmt>
-  if (auto stmt = parseStmt())
-    return stmt;
-  else if (!stmt.wasSuccessful())
-    return NodeResult::Error();
-
-  // <compound_statement>
-  if (auto compoundstmt = parseCompoundStatement())
-    return NodeResult(ASTNode(compoundstmt.get()));
-  else if (!compoundstmt.wasSuccessful())
     return NodeResult::Error();
 
   return NodeResult::NotFound();

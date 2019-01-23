@@ -141,7 +141,6 @@ namespace fox {
       NodeResult parseExprStmt();
       StmtResult parseCompoundStatement();
       NodeResult parseStmt();
-      NodeResult parseBody();
       StmtResult parseCondition();
       StmtResult parseWhileLoop();
 
