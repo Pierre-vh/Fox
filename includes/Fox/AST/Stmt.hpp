@@ -123,19 +123,19 @@ namespace fox {
       /// \param ctxt The ASTContext in which memory will be allocated
       /// \param ifBegLoc The SourceLoc at the beginning of the "if" keyword
       /// \param cond The condition Expr
-      /// \param then The then node
-      /// \param condElse The else node, if there is one.
+      /// \param then The then's body
+      /// \param condElse The else's body, if there is one.
       static ConditionStmt* create(ASTContext& ctxt, SourceLoc ifBegLoc,
-        Expr* cond, ASTNode then, ASTNode condElse);
+        Expr* cond, CompoundStmt* then, CompoundStmt* condElse);
 
       void setCond(Expr* expr);
       Expr* getCond() const;
 
-      void setThen(ASTNode node);
-      ASTNode getThen() const;
+      void setThen(CompoundStmt* node);
+      CompoundStmt* getThen() const;
 
-      void setElse(ASTNode node);
-      ASTNode getElse() const;
+      void setElse(CompoundStmt* node);
+      CompoundStmt* getElse() const;
       bool hasElse() const;
 
       SourceRange getRange() const;
@@ -145,12 +145,13 @@ namespace fox {
       }
 
     private:
-      ConditionStmt(SourceLoc ifBegLoc, Expr* cond, ASTNode then, 
-        ASTNode elsenode);
+      ConditionStmt(SourceLoc ifBegLoc, Expr* cond, CompoundStmt* then, 
+        CompoundStmt* elsenode);
 
       SourceLoc ifBegLoc_;
       Expr* cond_ = nullptr;
-      ASTNode then_, else_;
+      CompoundStmt* then_ = nullptr;
+      CompoundStmt* else_ = nullptr;
   };
 
   /// CompoundStmt
@@ -204,13 +205,14 @@ namespace fox {
       /// \param cond The condition Expr
       /// \param then The loop's body
       static WhileStmt* 
-      create(ASTContext& ctxt, SourceLoc whBegLoc, Expr* cond, ASTNode body);
+      create(ASTContext& ctxt, SourceLoc whBegLoc, Expr* cond, 
+             CompoundStmt* body);
 
       void setCond(Expr* cond);
       Expr* getCond() const;
 
-      void setBody(ASTNode body);
-      ASTNode getBody() const;
+      void setBody(CompoundStmt* body);
+      CompoundStmt* getBody() const;
 
       SourceRange getRange() const;
 
@@ -219,11 +221,11 @@ namespace fox {
       }
 
     private:
-      WhileStmt(SourceLoc whBegLoc, Expr* cond, ASTNode body);
+      WhileStmt(SourceLoc whBegLoc, Expr* cond, CompoundStmt* body);
 
       SourceLoc whBegLoc_;
-      Expr* cond_;
-      ASTNode body_;
+      Expr* cond_ = nullptr;
+      CompoundStmt* body_ = nullptr;
   };
 }
 

@@ -185,18 +185,17 @@ namespace {
           else return nullptr;
         }
 
-        if (ASTNode then = stmt->getThen()) {
-          bool isDecl;
-          if ((then = doIt(then, &isDecl))) {
-            if(!isDecl) stmt->setThen(then);
+        if (Stmt* then = stmt->getThen()) {
+          if ((then = doIt(then))) {
+            assert(isa<CompoundStmt>(then) && "not a compound statement");
+            stmt->setThen(cast<CompoundStmt>(then));
           }
           else return nullptr;
         }
 
-        if (ASTNode elsestmt = stmt->getElse()) {
-          bool isDecl;
-          if ((elsestmt = doIt(elsestmt, &isDecl))) {
-            if(!isDecl) stmt->setElse(elsestmt);
+        if (CompoundStmt* elseBody = stmt->getElse()) {
+          if ((elseBody = doIt(elseBody))) {
+            stmt->setThen(elseBody);
           }
           else return nullptr;
         }
@@ -225,11 +224,9 @@ namespace {
           else return nullptr;
         }
 
-        if (ASTNode node = stmt->getBody()) {
-          bool isDecl;
-          if ((node = doIt(node, &isDecl))) {
-            if(!isDecl)
-              stmt->setBody(node);
+        if (CompoundStmt* body = stmt->getBody()) {
+          if ((body = doIt(body))) {
+            stmt->setBody(body);
           }
           else return nullptr;
         }
@@ -287,6 +284,11 @@ namespace {
           expr = walker_.handleStmtPost(expr);
 
         return expr;
+      }
+
+      CompoundStmt* doIt(CompoundStmt* stmt) {
+        // FIXME: Is this the correct way to do this?
+        return dyn_cast_or_null<CompoundStmt>(doIt((Stmt*)stmt));
       }
 
       ASTNode doIt(ASTNode node, bool* isDecl) {

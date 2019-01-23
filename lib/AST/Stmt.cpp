@@ -114,15 +114,15 @@ void ReturnStmt::setExpr(Expr* e) {
 // ConditionStmt
 //----------------------------------------------------------------------------//
 
-ConditionStmt::ConditionStmt(SourceLoc ifBegLoc, Expr* cond, ASTNode then, 
-                             ASTNode elsenode): 
+ConditionStmt::ConditionStmt(SourceLoc ifBegLoc, Expr* cond, CompoundStmt* then, 
+                             CompoundStmt* elseBody): 
   Stmt(StmtKind::ConditionStmt), ifBegLoc_(ifBegLoc), cond_(cond), then_(then),
-  else_(elsenode) {}
+  else_(elseBody) {}
 
 ConditionStmt* 
 ConditionStmt::create(ASTContext& ctxt, SourceLoc ifBegLoc, Expr* cond, 
-  ASTNode then, ASTNode condElse) {
-  return new(ctxt) ConditionStmt(ifBegLoc, cond, then, condElse);
+  CompoundStmt* then, CompoundStmt* elseBody) {
+  return new(ctxt) ConditionStmt(ifBegLoc, cond, then, elseBody);
 }
 
 bool ConditionStmt::hasElse() const {
@@ -132,7 +132,7 @@ bool ConditionStmt::hasElse() const {
 SourceRange ConditionStmt::getRange() const {
   // We should at least has a then_ node.
   assert(then_ && "ill-formed ConditionStmt");
-  SourceLoc end = (else_ ? else_.getEnd() : then_.getEnd());
+  SourceLoc end = (else_ ? else_->getEnd() : then_->getEnd());
   return SourceRange(ifBegLoc_, end);
 }
 
@@ -140,11 +140,11 @@ Expr* ConditionStmt::getCond() const {
   return cond_;
 }
 
-ASTNode ConditionStmt::getThen() const {
+CompoundStmt* ConditionStmt::getThen() const {
   return then_;
 }
 
-ASTNode ConditionStmt::getElse() const {
+CompoundStmt* ConditionStmt::getElse() const {
   return else_;
 }
 
@@ -153,12 +153,12 @@ void ConditionStmt::setCond(Expr* expr) {
   cond_ = expr;
 }
 
-void ConditionStmt::setThen(ASTNode node) {
+void ConditionStmt::setThen(CompoundStmt* node) {
   assert(node &&  "cannot be nullptr");
   then_ = node;
 }
 
-void ConditionStmt::setElse(ASTNode node) {
+void ConditionStmt::setElse(CompoundStmt* node) {
   // can be nullptr
   else_ = node;
 }
@@ -217,24 +217,24 @@ std::size_t CompoundStmt::getSize() const {
 // WhileStmt
 //----------------------------------------------------------------------------//
 
-WhileStmt::WhileStmt(SourceLoc whBegLoc, Expr* cond, ASTNode body): 
+WhileStmt::WhileStmt(SourceLoc whBegLoc, Expr* cond, CompoundStmt* body): 
   Stmt(StmtKind::WhileStmt), whBegLoc_(whBegLoc), body_(body), cond_(cond) {}
 
 Expr* WhileStmt::getCond() const {
   return cond_;
 }
 
-ASTNode WhileStmt::getBody() const {
+CompoundStmt* WhileStmt::getBody() const {
   return body_;
 }
 
 SourceRange WhileStmt::getRange() const {
   assert(body_ && "ill formed WhileStmt");
-  return SourceRange(whBegLoc_, body_.getEnd());
+  return SourceRange(whBegLoc_, body_->getEnd());
 }
 
 WhileStmt* WhileStmt::create(ASTContext& ctxt, SourceLoc whBegLoc, Expr* cond, 
-                             ASTNode body) {
+                             CompoundStmt* body) {
   return new(ctxt) WhileStmt(whBegLoc, cond, body);
 }
 
@@ -243,7 +243,7 @@ void WhileStmt::setCond(Expr* cond) {
   cond_ = cond;
 }
 
-void WhileStmt::setBody(ASTNode body) {
+void WhileStmt::setBody(CompoundStmt* body) {
   assert(body && "cannot be nullptr!");
   body_ = body;
 }

@@ -134,9 +134,8 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       {
         // Open scope
         auto scope = getSema().openNewScopeRAII();
-        // Check the body and replace it
-        auto body = checkNode(stmt->getBody());
-        stmt->setBody(body);
+        // Check the body
+        visitCompoundStmt(stmt->getBody());
       }
     }
 
@@ -146,17 +145,15 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       {
         // Open scope
         auto scope = getSema().openNewScopeRAII();
-        // Check the if's body and replace it 
-        auto cond_then = checkNode(stmt->getThen());
-        stmt->setThen(cond_then);
+        // Check the if's body
+        visitCompoundStmt(stmt->getThen());
       }
 			// Check the else's body if there is one and replace it
-			if(auto cond_else = stmt->getElse()) {
+			if(CompoundStmt* elseBody = stmt->getElse()) {
         // Open scope
         auto scope = getSema().openNewScopeRAII();
-        // Check the body and replace it
-				cond_else = checkNode(cond_else);
-				stmt->setElse(cond_else);
+        // Check the else's body
+				visitCompoundStmt(elseBody);
 			}
 		}
 			
