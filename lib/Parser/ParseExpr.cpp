@@ -281,7 +281,7 @@ Parser::Result<Expr*> Parser::parseCastExpr() {
   if (consumeKeyword(KeywordType::KW_AS)) {
     // <type>
     if (auto tyRes = parseType()) {
-      TypeLoc tl = tyRes.createTypeLoc();
+      TypeLoc tl = tyRes.get();
       SourceLoc begLoc = prefixexpr.get()->getBegin();
       SourceLoc endLoc = tl.getEnd();
 

@@ -163,7 +163,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // [':' <type>]
   if (auto colon = consumeSign(SignType::S_COLON)) {
     if (auto rtrTy = parseType()) {
-      TypeLoc tl = rtrTy.createTypeLoc();
+      TypeLoc tl = rtrTy.get();
       rtr->setReturnTypeLoc(tl);
     }
     else {
@@ -235,7 +235,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
     return Result<Decl*>::Error();
   }
 
-  TypeLoc tl = typeResult.createTypeLoc();
+  TypeLoc tl = typeResult.get();
 
   assert(id.getRange() && typeResult.getRange() && "Invalid loc info");
 
@@ -289,10 +289,10 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
 
   // <type>
   TypeLoc type;
-  if (auto qtRes = parseType())
-    type = qtRes.createTypeLoc();
+  if (auto typeRes = parseType())
+    type = typeRes.get();
   else {
-    if (qtRes.isNotFound())
+    if (typeRes.isNotFound())
       reportErrorExpected(DiagID::parser_expected_type);
     return tryRecoveryToSemi();
   }

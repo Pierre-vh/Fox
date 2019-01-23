@@ -142,10 +142,10 @@ namespace fox {
       //---------------------------------//
 
       // Parses a builtin type name
-      Result<Type> parseBuiltinTypename();
+      Result<TypeLoc> parseBuiltinTypename();
 
       // Parses a complete type e.g. [[float]]
-      Result<Type> parseType();
+      Result<TypeLoc> parseType();
 
       //---------------------------------//
       // Operators parsing helpers
