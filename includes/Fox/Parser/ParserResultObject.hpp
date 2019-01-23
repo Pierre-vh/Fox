@@ -113,9 +113,16 @@ namespace fox {
       explicit ParserResultObject(ParserResultKind kind) :
         storage_(StorageType::default_value_type(), kind) {}
 
-      bool wasSuccessful() const {
-        return storage_.kind() == ParserResultKind::Success || 
-               storage_.kind() == ParserResultKind::NotFound;
+      bool isSuccess() const {
+        return getResultKind() == ParserResultKind::Success;
+      }
+
+      bool isNotFound() const {
+        return getResultKind() == ParserResultKind::NotFound;
+      }
+
+      bool isError() const {
+        return getResultKind() == ParserResultKind::Error;
       }
 
       ParserResultKind getResultKind() const {

@@ -96,7 +96,7 @@ Parser::Result<Stmt*> Parser::parseWhileLoop() {
   if (auto body_res = parseCompoundStatement())
     body = body_res.castTo<CompoundStmt>();
   else {
-    if (body_res.wasSuccessful())
+    if (body_res.isNotFound())
       reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
     return Result<Stmt*>::Error();
   }
@@ -136,7 +136,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
   if (auto body = parseCompoundStatement())
     then_body = body.castTo<CompoundStmt>();
   else {
-    if (body.wasSuccessful())
+    if (body.isNotFound())
       reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
     return Result<Stmt*>::Error();
   }
@@ -147,7 +147,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
     if (auto body = parseCompoundStatement())
       else_body = body.castTo<CompoundStmt>();
     else {
-      if(body.wasSuccessful())
+      if(body.isNotFound())
         reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
       return Result<Stmt*>::Error();
     }
@@ -176,7 +176,7 @@ Parser::Result<Stmt*> Parser::parseReturnStmt() {
   // [<expr>]
   if (auto expr_res = parseExpr())
     expr = expr_res.get();
-  else if(!expr_res.wasSuccessful()) {
+  else if(expr_res.isError()) {
     // expr failed? try to resync if possible. 
     if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
       /*consumeToken*/ true))
@@ -207,31 +207,31 @@ Parser::Result<ASTNode> Parser::parseStmt() {
   // <var_decl
   if (auto vardecl = parseVarDecl())
     return Result<ASTNode>(ASTNode(vardecl.get()));
-  else if (!vardecl.wasSuccessful())
+  else if (vardecl.isError())
     return Result<ASTNode>::Error();
 
   // <expr_stmt>
   if (auto exprstmt = parseExprStmt())
     return exprstmt;
-  else if (!exprstmt.wasSuccessful())
+  else if (exprstmt.isError())
     return Result<ASTNode>::Error();
 
   // <condition>
   if(auto cond = parseCondition())
     return Result<ASTNode>(ASTNode(cond.get()));
-  else if (!cond.wasSuccessful())
+  else if (cond.isError())
     return Result<ASTNode>::Error();
 
   // <while_loop>
   if (auto wloop = parseWhileLoop())
     return Result<ASTNode>(ASTNode(wloop.get()));
-  else if(!wloop.wasSuccessful())
+  else if(wloop.isError())
     return Result<ASTNode>::Error();
 
   // <return_stmt>
   if (auto rtrstmt = parseReturnStmt())
     return Result<ASTNode>(ASTNode(rtrstmt.get()));
-  else if(!rtrstmt.wasSuccessful())
+  else if(rtrstmt.isError())
     return Result<ASTNode>::Error();
 
   return Result<ASTNode>::NotFound();
@@ -250,8 +250,7 @@ Parser::Result<ASTNode> Parser::parseExprStmt() {
   else if (auto expr = parseExpr()) {
     // ';'
     if (!consumeSign(SignType::S_SEMICOLON)) {
-      if (expr.wasSuccessful())
-        reportErrorExpected(DiagID::parser_expected_semi);
+      reportErrorExpected(DiagID::parser_expected_semi);
 
       if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
         /*consumeToken*/ true))
@@ -261,7 +260,7 @@ Parser::Result<ASTNode> Parser::parseExprStmt() {
 
     return Result<ASTNode>(ASTNode(expr.get()));
   }
-  else if(!expr.wasSuccessful()) {
+  else if(expr.isError()) {
     // if the expression had an error, ignore it and try to recover to a semi.
     if (resyncToSign(SignType::S_SEMICOLON,
       /*stopAtSemi*/ false, /*consumeToken*/ false)) {

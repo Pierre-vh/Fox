@@ -38,7 +38,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
       continue;
     }
     else {
-      if (!parsedDecl.wasSuccessful()) declHadError = true;
+      if (parsedDecl.isError()) declHadError = true;
 
       // EOF/Died -> Break.
       if (isDone()) break;
@@ -47,7 +47,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
 			// prevents us from finding the decl.
       else {
         // Report an error in case of "not found";
-        if (parsedDecl.wasSuccessful()) {
+        if (parsedDecl.isNotFound()) {
           // Report the error with the current token being the error location
           Token curtok = getCurtok();
           assert(curtok 
@@ -137,7 +137,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
         else {
           // IDEA: Maybe reporting the error after the "," would yield
           // better error messages?
-          if (param.wasSuccessful()) 
+          if (param.isNotFound()) 
             reportErrorExpected(DiagID::parser_expected_paramdecl);
           return Result<Decl*>::Error();
         }
@@ -145,7 +145,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
     }
   } 
   // Stop parsing if the argument couldn't parse correctly.
-  else if (!first.wasSuccessful()) return Result<Decl*>::Error();
+  else if (first.isError()) return Result<Decl*>::Error();
 
   // ')'
   auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
@@ -167,7 +167,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
       rtr->setReturnTypeLoc(tl);
     }
     else {
-      if (rtrTy.wasSuccessful())
+      if (rtrTy.isNotFound())
         reportErrorExpected(DiagID::parser_expected_type);
 
       if (!resyncToSign(SignType::S_CURLY_OPEN, true, false))
@@ -182,7 +182,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   Result<Stmt*> compStmt = parseCompoundStatement();
 
   if (!compStmt) {
-    if(compStmt.wasSuccessful()) // Display only if it was not found
+    if(compStmt.isNotFound()) // Display only if it was not found
       reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
     return Result<Decl*>::Error();
   }
@@ -230,7 +230,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
   // <type>
   auto typeResult = parseType();
   if (!typeResult) {
-    if (typeResult.wasSuccessful())
+    if (typeResult.isNotFound())
       reportErrorExpected(DiagID::parser_expected_type);
     return Result<Decl*>::Error();
   }
@@ -292,7 +292,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   if (auto qtRes = parseType())
     type = qtRes.createTypeLoc();
   else {
-    if (qtRes.wasSuccessful())
+    if (qtRes.isNotFound())
       reportErrorExpected(DiagID::parser_expected_type);
     return tryRecoveryToSemi();
   }
@@ -303,7 +303,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
     if (auto expr = parseExpr())
       iExpr = expr.get();
     else {
-      if (expr.wasSuccessful())
+      if (expr.isNotFound())
         reportErrorExpected(DiagID::parser_expected_expr);
       // Recover to semicolon, return if recovery wasn't successful 
       if (!resyncToSign(SignType::S_SEMICOLON, 
@@ -340,13 +340,13 @@ Parser::Result<Decl*> Parser::parseDecl() {
   // <var_decl>
   if (auto vdecl = parseVarDecl())
     return vdecl;
-  else if (!vdecl.wasSuccessful())
+  else if (vdecl.isError())
     return Result<Decl*>::Error();
 
   // <func_decl>
   if (auto fdecl = parseFuncDecl())
     return fdecl;
-  else if (!fdecl.wasSuccessful())
+  else if (fdecl.isError())
     return Result<Decl*>::Error();
 
   return Result<Decl*>::NotFound();

@@ -58,7 +58,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       );
     }
     else {
-      if (expr.wasSuccessful())
+      if (expr.isNotFound())
         reportErrorExpected(DiagID::parser_expected_expr);
 
       // Resync. if Resync is successful, return the base as the result 
@@ -78,7 +78,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       CallExpr::create(ctxt, base, exprlist.move(), endLoc)
     );
   }
-  else if (!exprlist.wasSuccessful())
+  else if (exprlist.isError())
     return Result<Expr*>::Error();
   return Result<Expr*>::NotFound();
 }
@@ -139,7 +139,7 @@ Parser::Result<Expr*> Parser::parseArrayLiteral() {
   // ']'
   SourceLoc endLoc = consumeBracket(SignType::S_SQ_CLOSE);
   if (!endLoc) {
-    if (elist.wasSuccessful())
+    if (elist.isNotFound())
       reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
 
     if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
@@ -160,13 +160,13 @@ Parser::Result<Expr*> Parser::parseLiteral() {
   // <primitive_literal>
   if (auto prim = parsePrimitiveLiteral())
     return prim;
-  else if (!prim.wasSuccessful())
+  else if (prim.isError())
     return Result<Expr*>::Error();
 
   // <array_literal>
   if (auto arr = parseArrayLiteral())
     return arr;
-  else if (!arr.wasSuccessful())
+  else if (arr.isError())
     return Result<Expr*>::Error();
 
   return Result<Expr*>::NotFound();
@@ -176,19 +176,19 @@ Parser::Result<Expr*> Parser::parsePrimary() {
   // = <literal>
   if (auto lit = parseLiteral())
     return lit;
-  else if(!lit.wasSuccessful())
+  else if(lit.isError())
     return Result<Expr*>::Error();
 
   // = <decl_call>
   if (auto declcall = parseDeclRef())
     return declcall;
-  else if(!declcall.wasSuccessful())
+  else if(declcall.isError())
     return Result<Expr*>::Error();
 
   // = '(' <expr> ')'
   if (auto parens_expr = parseParensExpr())
     return parens_expr;
-  else if (!parens_expr.wasSuccessful())
+  else if (parens_expr.isError())
     return Result<Expr*>::Error();
 
   return Result<Expr*>::NotFound();
@@ -202,13 +202,13 @@ Parser::Result<Expr*> Parser::parseSuffixExpr() {
     while ((suffix = parseSuffix(base)))
       base = suffix.get();
 
-    if (suffix.wasSuccessful())
+    if (suffix.isNotFound())
       return Result<Expr*>(base);
     else
       return Result<Expr*>::Error();
   }
   else {
-    if (!prim.wasSuccessful())
+    if (prim.isError())
       return Result<Expr*>::Error();
     return Result<Expr*>::NotFound();
   }
@@ -227,7 +227,7 @@ Parser::Result<Expr*> Parser::parseExponentExpr() {
     // <prefix_expr>
     auto rhs = parsePrefixExpr();
     if (!rhs) {
-      if(rhs.wasSuccessful())
+      if(rhs.isNotFound())
         reportErrorExpected(DiagID::parser_expected_expr);
         
       return Result<Expr*>::Error();
@@ -251,7 +251,7 @@ Parser::Result<Expr*> Parser::parsePrefixExpr() {
         uop.getRange()));
     }
     else {
-      if(prefixexpr.wasSuccessful())
+      if(prefixexpr.isNotFound())
         reportErrorExpected(DiagID::parser_expected_expr);
 
       return Result<Expr*>::Error();
@@ -261,7 +261,7 @@ Parser::Result<Expr*> Parser::parsePrefixExpr() {
   // <exp_expr>
   if (auto expExpr = parseExponentExpr())
     return expExpr;
-  else if (!expExpr.wasSuccessful())
+  else if (expExpr.isError())
     return Result<Expr*>::Error();
 
   return Result<Expr*>::NotFound();
@@ -272,7 +272,7 @@ Parser::Result<Expr*> Parser::parseCastExpr() {
   // <cast_expr>
   auto prefixexpr = parsePrefixExpr();
   if (!prefixexpr) {
-    if (!prefixexpr.wasSuccessful())
+    if (prefixexpr.isError())
       return Result<Expr*>::Error();
     return Result<Expr*>::NotFound();
   }
@@ -310,7 +310,7 @@ Parser::Result<Expr*> Parser::parseBinaryExpr(std::uint8_t precedence) {
     lhsResult = parseCastExpr();
 
   if (!lhsResult) {
-    if (!lhsResult.wasSuccessful())
+    if (lhsResult.isError())
       return Result<Expr*>::Error();
     return Result<Expr*>::NotFound();
   }
@@ -337,7 +337,7 @@ Parser::Result<Expr*> Parser::parseBinaryExpr(std::uint8_t precedence) {
 		// Check for validity : we need a rhs. if we don't have one, 
     // we have an error ! 
     if (!rhsResult) {
-      if(rhsResult.wasSuccessful())
+      if(rhsResult.isNotFound())
         reportErrorExpected(DiagID::parser_expected_expr);
       return Result<Expr*>::Error();
     }
@@ -366,7 +366,7 @@ Parser::Result<Expr*> Parser::parseExpr() {
   if (auto op = parseAssignOp()) {
     auto rhs = parseExpr();
     if (!rhs) {
-      if(rhs.wasSuccessful())
+      if(rhs.isNotFound())
         reportErrorExpected(DiagID::parser_expected_expr);
       return Result<Expr*>::Error();
     }
@@ -394,7 +394,7 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
   else  {
     // no expr, handle error & attempt to recover if it's allowed. 
     // If recovery is successful, return "not found"
-    if(expr.wasSuccessful())
+    if(expr.isNotFound())
       reportErrorExpected(DiagID::parser_expected_expr);
 
     if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true,
@@ -435,7 +435,7 @@ Parser::Result<ExprVector> Parser::parseExprList() {
     if (auto expr = parseExpr())
       exprs.push_back(expr.get());
     else {
-      if (expr.wasSuccessful()) {
+      if (expr.isNotFound()) {
         // if the expression was just not found, revert the comma consuming and
         // let the caller deal with the extra comma after the expression list.
         revertConsume();
@@ -461,7 +461,7 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
   //  [ <expr_list> ]
   if (auto exprlist = parseExprList())
     exprs = exprlist.get();
-  else if (!exprlist.wasSuccessful()) {
+  else if (exprlist.isError()) {
     // error? Try to recover from it, if success, just discard the expr list,
     // if no success return error.
     if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true,

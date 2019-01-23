@@ -257,7 +257,7 @@ Parser::Result<Type> Parser::parseType() {
   if(auto lSQBLoc = consumeBracket(SignType::S_SQ_OPEN)) {
     auto ty_res = parseType();
     bool error = !ty_res;
-    if(error && ty_res.wasSuccessful())
+    if(error && ty_res.isNotFound())
       reportErrorExpected(DiagID::parser_expected_type);
     auto rSQBLoc = consumeBracket(SignType::S_SQ_CLOSE);
     if(!rSQBLoc) {
