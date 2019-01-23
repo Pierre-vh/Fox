@@ -33,17 +33,17 @@ namespace fox {
 
     template<typename DataTy, bool canUsePointerIntPair = 
       IsEligibleForPointerIntPairStorage<DataTy>::value>
-    class ResultObjectDataStorage {
+    class ParserResultObjectDataStorage {
       DataTy data_ = DataTy();
       ResultKind kind_;
       public:
         using default_value_type = DataTy; 
         using value_type = DataTy;
 
-        ResultObjectDataStorage(const value_type& data, ResultKind kind):
+        ParserResultObjectDataStorage(const value_type& data, ResultKind kind):
           data_(data), kind_(kind) {}
 
-        ResultObjectDataStorage(value_type&& data, ResultKind kind):
+        ParserResultObjectDataStorage(value_type&& data, ResultKind kind):
           data_(data), kind_(kind) {}
 
         value_type data() {
@@ -64,13 +64,13 @@ namespace fox {
     };
 
     template<typename DataTy>
-    class ResultObjectDataStorage<DataTy*, true> {
+    class ParserResultObjectDataStorage<DataTy*, true> {
       llvm::PointerIntPair<DataTy*, 2, ResultKind> pair_;
       public:
         using default_value_type = std::nullptr_t; 
         using value_type = DataTy*;
 
-        ResultObjectDataStorage(DataTy* data, ResultKind kind):
+        ParserResultObjectDataStorage(DataTy* data, ResultKind kind):
           pair_(data, kind) {}
 
         DataTy* data() {
@@ -89,7 +89,7 @@ namespace fox {
 
   template<typename DataTy>
   class ParserResultObject {
-    using StorageType = detail::ResultObjectDataStorage<DataTy>;
+    using StorageType = detail::ParserResultObjectDataStorage<DataTy>;
     protected:
       using DefaultValue = DataTy;
       using CTorValueTy = const DataTy&;
