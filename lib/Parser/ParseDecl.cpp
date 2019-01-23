@@ -73,7 +73,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
   }
 }
 
-Parser::DeclResult Parser::parseFuncDecl() {
+Parser::Result<Decl*> Parser::parseFuncDecl() {
   /*
     <func_decl>  = "func" <id> '(' [<param_decl> {',' <param_decl>}*] ')
 									 '[':' <type>] <compound_statement>
@@ -87,7 +87,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
   // "func"
   auto fnKw = consumeKeyword(KeywordType::KW_FUNC);
-  if (!fnKw) return DeclResult::NotFound();
+  if (!fnKw) return Result<Decl*>::NotFound();
   assert(fnKw.getBegin() && "invalid loc info for func token");
   // For FuncDecl, the return node is created prematurely as an "empty shell",
   // because we need it to exist so declarations that are parsed inside it's body
@@ -121,9 +121,9 @@ Parser::DeclResult Parser::parseFuncDecl() {
 
   // '('
   if (!consumeBracket(SignType::S_ROUND_OPEN)) {
-    if (invalid) return DeclResult::Error();
+    if (invalid) return Result<Decl*>::Error();
     reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
-    return DeclResult::Error();
+    return Result<Decl*>::Error();
   }
 
   // [<param_decl> {',' <param_decl>}*]
@@ -139,13 +139,13 @@ Parser::DeclResult Parser::parseFuncDecl() {
           // better error messages?
           if (param.wasSuccessful()) 
             reportErrorExpected(DiagID::parser_expected_paramdecl);
-          return DeclResult::Error();
+          return Result<Decl*>::Error();
         }
       } else break;
     }
   } 
   // Stop parsing if the argument couldn't parse correctly.
-  else if (!first.wasSuccessful()) return DeclResult::Error();
+  else if (!first.wasSuccessful()) return Result<Decl*>::Error();
 
   // ')'
   auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
@@ -157,7 +157,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
     // we can at least parse that.
     if (!resyncToSign(SignType::S_ROUND_CLOSE, /*stop@semi*/ true, 
       /*consume*/ true))
-      return DeclResult::Error();
+      return Result<Decl*>::Error();
   }
   
   // [':' <type>]
@@ -171,7 +171,7 @@ Parser::DeclResult Parser::parseFuncDecl() {
         reportErrorExpected(DiagID::parser_expected_type);
 
       if (!resyncToSign(SignType::S_CURLY_OPEN, true, false))
-        return DeclResult::Error();
+        return Result<Decl*>::Error();
     }
   }
   // if no return type, the function returns void.
@@ -179,19 +179,19 @@ Parser::DeclResult Parser::parseFuncDecl() {
   //  set by the ctor)
 
   // <compound_statement>
-  StmtResult compStmt = parseCompoundStatement();
+  Result<Stmt*> compStmt = parseCompoundStatement();
 
   if (!compStmt) {
     if(compStmt.wasSuccessful()) // Display only if it was not found
       reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
-    return DeclResult::Error();
+    return Result<Decl*>::Error();
   }
 
   CompoundStmt* body = dyn_cast<CompoundStmt>(compStmt.get());
   assert(body && "Not a compound stmt");
 
   // Finished parsing. If the decl is invalid, return an error.
-  if (invalid) return DeclResult::Error();
+  if (invalid) return Result<Decl*>::Error();
 
   // Restore the last decl parent.
   parentGuard.restore();
@@ -208,21 +208,21 @@ Parser::DeclResult Parser::parseFuncDecl() {
   actOnDecl(rtr);
   rtr->calculateValueType();
   assert(rtr->getValueType() && "FuncDecl type not calculated");
-  return DeclResult(rtr);
+  return Result<Decl*>(rtr);
 }
 
-Parser::DeclResult Parser::parseParamDecl() {
+Parser::Result<Decl*> Parser::parseParamDecl() {
   // <param_decl> = <id> ':' ["mut"] <type>
   assert(isParsingFuncDecl() && "Can only call this when parsing a function!");
 
   // <id>
   auto id = consumeIdentifier();
-  if (!id) return DeclResult::NotFound();
+  if (!id) return Result<Decl*>::NotFound();
 
   // ':'
   if (!consumeSign(SignType::S_COLON)) {
     reportErrorExpected(DiagID::parser_expected_colon);
-    return DeclResult::Error();
+    return Result<Decl*>::Error();
   }
 
   bool isMutable = (bool)consumeKeyword(KeywordType::KW_MUT);
@@ -232,7 +232,7 @@ Parser::DeclResult Parser::parseParamDecl() {
   if (!typeResult) {
     if (typeResult.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_type);
-    return DeclResult::Error();
+    return Result<Decl*>::Error();
   }
 
   TypeLoc tl = typeResult.createTypeLoc();
@@ -242,10 +242,10 @@ Parser::DeclResult Parser::parseParamDecl() {
   auto* rtr = ParamDecl::create(ctxt, getDeclParent().get<FuncDecl*>(), 
     id.get(), id.getRange(), tl, isMutable);
   actOnDecl(rtr);
-  return DeclResult(rtr);
+  return Result<Decl*>(rtr);
 }
 
-Parser::DeclResult Parser::parseVarDecl() {
+Parser::Result<Decl*> Parser::parseVarDecl() {
   // <var_decl> = ("let" | "var") <id> ':' <type> ['=' <expr>] ';'
 
 
@@ -261,17 +261,17 @@ Parser::DeclResult Parser::parseVarDecl() {
     begLoc = varKw.getBegin();
   }
   else
-    return DeclResult::NotFound();
+    return Result<Decl*>::NotFound();
   
   // Helper lambda
   auto tryRecoveryToSemi = [&]() {
     if (resyncToSign(SignType::S_SEMICOLON, /*stop@semi*/false,
         /*consumeToken*/true)) {
       // If we recovered to a semicon, simply return not found.
-      return DeclResult::NotFound();
+      return Result<Decl*>::NotFound();
     }
     // Else, return an error.
-    return DeclResult::Error();
+    return Result<Decl*>::Error();
   };
 
   // <id>
@@ -284,7 +284,7 @@ Parser::DeclResult Parser::parseVarDecl() {
   // ':'
   if (!consumeSign(SignType::S_COLON)) {
     reportErrorExpected(DiagID::parser_expected_colon);
-    return DeclResult::Error();
+    return Result<Decl*>::Error();
   }
 
   // <type>
@@ -308,7 +308,7 @@ Parser::DeclResult Parser::parseVarDecl() {
       // Recover to semicolon, return if recovery wasn't successful 
       if (!resyncToSign(SignType::S_SEMICOLON, 
 				/*stop@semi*/ false, /*consumeToken*/ false))
-        return DeclResult::Error();
+        return Result<Decl*>::Error();
     }
   }
 
@@ -319,7 +319,7 @@ Parser::DeclResult Parser::parseVarDecl() {
       
     if (!resyncToSign(SignType::S_SEMICOLON, 
 			/*stopAtSemi*/ false, /*consumeToken*/ false))
-      return DeclResult::Error();
+      return Result<Decl*>::Error();
 
     endLoc = consumeSign(SignType::S_SEMICOLON);
   }
@@ -331,23 +331,23 @@ Parser::DeclResult Parser::parseVarDecl() {
     type, kw, iExpr, range);
 
   actOnDecl(rtr);
-  return DeclResult(rtr);
+  return Result<Decl*>(rtr);
 }
 
-Parser::DeclResult Parser::parseDecl() {
+Parser::Result<Decl*> Parser::parseDecl() {
   // <declaration> = <var_decl> | <func_decl>
 
   // <var_decl>
   if (auto vdecl = parseVarDecl())
     return vdecl;
   else if (!vdecl.wasSuccessful())
-    return DeclResult::Error();
+    return Result<Decl*>::Error();
 
   // <func_decl>
   if (auto fdecl = parseFuncDecl())
     return fdecl;
   else if (!fdecl.wasSuccessful())
-    return DeclResult::Error();
+    return Result<Decl*>::Error();
 
-  return DeclResult::NotFound();
+  return Result<Decl*>::NotFound();
 }

@@ -13,7 +13,7 @@
 
 using namespace fox;
 
-Parser::ExprResult Parser::parseSuffix(Expr* base) {
+Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
   assert(base && "Base cannot be nullptr!");
 
   // <suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
@@ -26,13 +26,13 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
     // <id>
     if (auto id = consumeIdentifier()) {
       // found, return
-      return ExprResult(
+      return Result<Expr*>(
         MemberOfExpr::create(ctxt, base ,id.get(), id.getRange(), dotLoc)
       );
     }
     else  {
       reportErrorExpected(DiagID::parser_expected_iden);
-      return ExprResult::Error();
+      return Result<Expr*>::Error();
     }
   }
   // '[' <expr> ']
@@ -49,11 +49,11 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
           /*consumeToken*/ false))
           rSqBrLoc = consumeBracket(SignType::S_SQ_CLOSE);
         else
-          return ExprResult::Error();
+          return Result<Expr*>::Error();
       }
 
 
-      return ExprResult(
+      return Result<Expr*>(
         ArraySubscriptExpr::create(ctxt, base, expr.get(), rSqBrLoc)
       );
     }
@@ -66,37 +66,37 @@ Parser::ExprResult Parser::parseSuffix(Expr* base) {
       // , if it's not, return an Error.
       if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
         /*consumeToken*/ true))
-        return ExprResult(base);
+        return Result<Expr*>(base);
       else
-        return ExprResult::Error();
+        return Result<Expr*>::Error();
     }
   }
   // <parens_expr_list>
   else if (auto exprlist = parseParensExprList(&endLoc)) {
     assert(endLoc && "parseParensExprList didn't complete the endLoc?");
-    return ExprResult(
+    return Result<Expr*>(
       CallExpr::create(ctxt, base, exprlist.move(), endLoc)
     );
   }
   else if (!exprlist.wasSuccessful())
-    return ExprResult::Error();
-  return ExprResult::NotFound();
+    return Result<Expr*>::Error();
+  return Result<Expr*>::NotFound();
 }
 
-Parser::ExprResult Parser::parseDeclRef() {
+Parser::Result<Expr*> Parser::parseDeclRef() {
   // <decl_call> = <id> 
   if (auto id = consumeIdentifier())
-    return ExprResult(UnresolvedDeclRefExpr::create(ctxt, id.get(),
+    return Result<Expr*>(UnresolvedDeclRefExpr::create(ctxt, id.get(),
       id.getRange()));
-  return ExprResult::NotFound();
+  return Result<Expr*>::NotFound();
 }
 
-Parser::ExprResult Parser::parsePrimitiveLiteral() {
+Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   // <primitive_literal>  = One literal of the following type : Integer,
   //                        Floating-point, Boolean, String, Char
   auto tok = getCurtok();
   if (!tok.isLiteral())
-    return ExprResult::NotFound();
+    return Result<Expr*>::NotFound();
   
   next();
 
@@ -121,14 +121,14 @@ Parser::ExprResult Parser::parsePrimitiveLiteral() {
   else
     fox_unreachable("Unknown literal kind"); // Unknown literal
 
-  return ExprResult(expr);
+  return Result<Expr*>(expr);
 }
 
-Parser::ExprResult Parser::parseArrayLiteral() {
+Parser::Result<Expr*> Parser::parseArrayLiteral() {
   // <array_literal>  = '[' [<expr_list>] ']'
   auto begLoc = consumeBracket(SignType::S_SQ_OPEN);
   if (!begLoc)
-    return ExprResult::NotFound();
+    return Result<Expr*>::NotFound();
   
   // [<expr_list>]
   auto elist = parseExprList(); 
@@ -145,76 +145,76 @@ Parser::ExprResult Parser::parseArrayLiteral() {
       /*consumeToken*/ false))
       endLoc = consumeBracket(SignType::S_SQ_CLOSE);
     else
-      return ExprResult::Error();
+      return Result<Expr*>::Error();
   }
 
   SourceRange range(begLoc, endLoc);
   assert(range && "Invalid loc info");
 
-  return ExprResult(ArrayLiteralExpr::create(ctxt, elist.move(), range));
+  return Result<Expr*>(ArrayLiteralExpr::create(ctxt, elist.move(), range));
 }
 
-Parser::ExprResult Parser::parseLiteral() {
+Parser::Result<Expr*> Parser::parseLiteral() {
   // <literal>  = <primitive_literal> | <array_literal>
 
   // <primitive_literal>
   if (auto prim = parsePrimitiveLiteral())
     return prim;
   else if (!prim.wasSuccessful())
-    return ExprResult::Error();
+    return Result<Expr*>::Error();
 
   // <array_literal>
   if (auto arr = parseArrayLiteral())
     return arr;
   else if (!arr.wasSuccessful())
-    return ExprResult::Error();
+    return Result<Expr*>::Error();
 
-  return ExprResult::NotFound();
+  return Result<Expr*>::NotFound();
 }
 
-Parser::ExprResult Parser::parsePrimary() {
+Parser::Result<Expr*> Parser::parsePrimary() {
   // = <literal>
   if (auto lit = parseLiteral())
     return lit;
   else if(!lit.wasSuccessful())
-    return ExprResult::Error();
+    return Result<Expr*>::Error();
 
   // = <decl_call>
   if (auto declcall = parseDeclRef())
     return declcall;
   else if(!declcall.wasSuccessful())
-    return ExprResult::Error();
+    return Result<Expr*>::Error();
 
   // = '(' <expr> ')'
   if (auto parens_expr = parseParensExpr())
     return parens_expr;
   else if (!parens_expr.wasSuccessful())
-    return ExprResult::Error();
+    return Result<Expr*>::Error();
 
-  return ExprResult::NotFound();
+  return Result<Expr*>::NotFound();
 }
 
-Parser::ExprResult Parser::parseSuffixExpr() {
+Parser::Result<Expr*> Parser::parseSuffixExpr() {
   // <suffix_expr>  = <primary> { <suffix> }
   if (auto prim = parsePrimary()) {
     Expr* base = prim.get();
-    ExprResult suffix;
+    Result<Expr*> suffix;
     while ((suffix = parseSuffix(base)))
       base = suffix.get();
 
     if (suffix.wasSuccessful())
-      return ExprResult(base);
+      return Result<Expr*>(base);
     else
-      return ExprResult::Error();
+      return Result<Expr*>::Error();
   }
   else {
     if (!prim.wasSuccessful())
-      return ExprResult::Error();
-    return ExprResult::NotFound();
+      return Result<Expr*>::Error();
+    return Result<Expr*>::NotFound();
   }
 }
 
-Parser::ExprResult Parser::parseExponentExpr() {
+Parser::Result<Expr*> Parser::parseExponentExpr() {
   // <exp_expr>  = <suffix_expr> [ <exponent_operator> <prefix_expr> ]
 
   // <suffix_expr>
@@ -230,31 +230,31 @@ Parser::ExprResult Parser::parseExponentExpr() {
       if(rhs.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
         
-      return ExprResult::Error();
+      return Result<Expr*>::Error();
     }
 
-    return ExprResult(BinaryExpr::create(ctxt, BinaryExpr::OpKind::Exp,
+    return Result<Expr*>(BinaryExpr::create(ctxt, BinaryExpr::OpKind::Exp,
       lhs.get(), rhs.get(), expOp));
   }
 
   return lhs;
 }
 
-Parser::ExprResult Parser::parsePrefixExpr() {
+Parser::Result<Expr*> Parser::parsePrefixExpr() {
   // <prefix_expr>  = <unary_operator> <prefix_expr> | <exp_expr>
 
 	// <unary_operator>
   if (auto uop = parseUnaryOp()) {
 		// <prefix_expr>
     if (auto prefixexpr = parsePrefixExpr()) {
-      return ExprResult(UnaryExpr::create(ctxt, uop.get(), prefixexpr.get(),
+      return Result<Expr*>(UnaryExpr::create(ctxt, uop.get(), prefixexpr.get(),
         uop.getRange()));
     }
     else {
       if(prefixexpr.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
 
-      return ExprResult::Error();
+      return Result<Expr*>::Error();
     }
   }
 
@@ -262,19 +262,19 @@ Parser::ExprResult Parser::parsePrefixExpr() {
   if (auto expExpr = parseExponentExpr())
     return expExpr;
   else if (!expExpr.wasSuccessful())
-    return ExprResult::Error();
+    return Result<Expr*>::Error();
 
-  return ExprResult::NotFound();
+  return Result<Expr*>::NotFound();
 }
 
-Parser::ExprResult Parser::parseCastExpr() {
+Parser::Result<Expr*> Parser::parseCastExpr() {
   // <cast_expr>  = <prefix_expr> ["as" <type>]
   // <cast_expr>
   auto prefixexpr = parsePrefixExpr();
   if (!prefixexpr) {
     if (!prefixexpr.wasSuccessful())
-      return ExprResult::Error();
-    return ExprResult::NotFound();
+      return Result<Expr*>::Error();
+    return Result<Expr*>::NotFound();
   }
 
   // ["as" <type>]
@@ -288,22 +288,22 @@ Parser::ExprResult Parser::parseCastExpr() {
       SourceRange range(begLoc, endLoc);
       assert(range && "Invalid loc info");
 
-      return ExprResult(CastExpr::create(ctxt, tl, prefixexpr.get()));
+      return Result<Expr*>(CastExpr::create(ctxt, tl, prefixexpr.get()));
     }
     else {
       reportErrorExpected(DiagID::parser_expected_type);
-      return ExprResult::Error();
+      return Result<Expr*>::Error();
     }
   }
 
   return prefixexpr;
 }
 
-Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
+Parser::Result<Expr*> Parser::parseBinaryExpr(std::uint8_t precedence) {
   // <binary_expr>  = <cast_expr> { <binary_operator> <cast_expr> }  
 
   // <cast_expr> OR a binaryExpr of inferior priority.
-  ExprResult lhsResult;
+  Result<Expr*> lhsResult;
   if (precedence > 0)
     lhsResult = parseBinaryExpr(precedence - 1);
   else
@@ -311,8 +311,8 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
 
   if (!lhsResult) {
     if (!lhsResult.wasSuccessful())
-      return ExprResult::Error();
-    return ExprResult::NotFound();
+      return Result<Expr*>::Error();
+    return Result<Expr*>::NotFound();
   }
 
   Expr* lhs = lhsResult.get();
@@ -326,7 +326,7 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
       break;
 
     // <cast_expr> OR a binaryExpr of inferior priority.
-    ExprResult rhsResult;
+    Result<Expr*> rhsResult;
     if (precedence > 0)
       rhsResult = parseBinaryExpr(precedence - 1);
     else
@@ -339,7 +339,7 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
     if (!rhsResult) {
       if(rhsResult.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
-      return ExprResult::Error();
+      return Result<Expr*>::Error();
     }
 
     Expr* rhs = rhsResult.get();
@@ -352,12 +352,12 @@ Parser::ExprResult Parser::parseBinaryExpr(std::uint8_t precedence) {
 
   if (!rtr) {
     assert(lhs && "no rtr node + no lhs node?");
-    return ExprResult(lhs);
+    return Result<Expr*>(lhs);
   }
-  return ExprResult(rtr);
+  return Result<Expr*>(rtr);
 }
 
-Parser::ExprResult Parser::parseExpr() {
+Parser::Result<Expr*> Parser::parseExpr() {
   //  <expr> = <binary_expr> [<assign_operator> <expr>] 
   auto lhs = parseBinaryExpr();
   if (!lhs)
@@ -368,23 +368,23 @@ Parser::ExprResult Parser::parseExpr() {
     if (!rhs) {
       if(rhs.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_expr);
-      return ExprResult::Error();
+      return Result<Expr*>::Error();
     }
 
     SourceRange opRange = op.getRange();
-    return ExprResult(BinaryExpr::create(ctxt, op.get(), 
+    return Result<Expr*>(BinaryExpr::create(ctxt, op.get(), 
       lhs.get(), rhs.get(), opRange));
   }
-  return ExprResult(lhs);
+  return Result<Expr*>(lhs);
 }
 
-Parser::ExprResult Parser::parseParensExpr() {
+Parser::Result<Expr*> Parser::parseParensExpr() {
   // <parens_expr> = '(' <expr> ')'
 
   // '('
   auto leftParens = consumeBracket(SignType::S_ROUND_OPEN);
   if (!leftParens)
-    return ExprResult::NotFound();
+    return Result<Expr*>::NotFound();
 
   Expr* rtr = nullptr;
     
@@ -399,9 +399,9 @@ Parser::ExprResult Parser::parseParensExpr() {
 
     if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true,
       /*consumeToken*/ true))
-      return ExprResult::NotFound();
+      return Result<Expr*>::NotFound();
     else
-      return ExprResult::Error();
+      return Result<Expr*>::Error();
   }
 
   assert(rtr && "The return value shouldn't be null!");
@@ -414,13 +414,13 @@ Parser::ExprResult Parser::parseParensExpr() {
 
     if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, 
       /*consumeToken*/ false))
-      return ExprResult::Error();
+      return Result<Expr*>::Error();
       
     // If we recovered successfuly, place the Sloc into rightParens
     rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
   }
 
-  return ExprResult(rtr);
+  return Result<Expr*>(rtr);
 }
 
 Parser::Result<ExprVector> Parser::parseExprList() {

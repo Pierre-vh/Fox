@@ -47,20 +47,6 @@ namespace fox {
       using TokenIteratorTy = TokenVector::iterator;
 
     public:
-      // Result type for methods that parse Expressions
-      using ExprResult = Result<Expr*>;
-
-      // Result type for methods that parse Declarations
-      using DeclResult = Result<Decl*>;
-
-      // Result type for methods that parse Statements
-      using StmtResult = Result<Stmt*>;
-
-      // Result type for methods that parse Statements, Expressions or
-      // Declarations
-      using NodeResult = Result<ASTNode>;
-
-    public:
       //----------------------------------------------------------------------//
       // Public Parser Interface
       //----------------------------------------------------------------------//
@@ -75,13 +61,13 @@ namespace fox {
       UnitDecl* parseUnit(FileID fid, Identifier unitName);
 
       // Parse a single variable declaration
-      DeclResult parseVarDecl();
+      Result<Decl*> parseVarDecl();
 
       // Parse a single function declaration
-      DeclResult parseFuncDecl();
+      Result<Decl*> parseFuncDecl();
 
       // Parse a single function or variable declaration
-      DeclResult parseDecl();
+      Result<Decl*> parseDecl();
 
       //----------------------------------------------------------------------//
       // References to other important Fox classes
@@ -118,38 +104,38 @@ namespace fox {
 			parseParensExprList(SourceLoc *RParenLoc = nullptr);
 
       // Parse an expression between parentheses
-      ExprResult parseParensExpr();
+      Result<Expr*> parseParensExpr();
 
-      ExprResult parseSuffix(Expr* base);
-      ExprResult parseDeclRef();
-      ExprResult parsePrimitiveLiteral();
-      ExprResult parseArrayLiteral();
-      ExprResult parseLiteral();
-      ExprResult parsePrimary();
-      ExprResult parseSuffixExpr();
-      ExprResult parseExponentExpr();
-      ExprResult parsePrefixExpr();
-      ExprResult parseCastExpr();
-      ExprResult parseBinaryExpr(std::uint8_t precedence = 5);
-      ExprResult parseExpr(); 
+      Result<Expr*> parseSuffix(Expr* base);
+      Result<Expr*> parseDeclRef();
+      Result<Expr*> parsePrimitiveLiteral();
+      Result<Expr*> parseArrayLiteral();
+      Result<Expr*> parseLiteral();
+      Result<Expr*> parsePrimary();
+      Result<Expr*> parseSuffixExpr();
+      Result<Expr*> parseExponentExpr();
+      Result<Expr*> parsePrefixExpr();
+      Result<Expr*> parseCastExpr();
+      Result<Expr*> parseBinaryExpr(std::uint8_t precedence = 5);
+      Result<Expr*> parseExpr(); 
 
       //---------------------------------//
       // Statement parsing helpers
       //---------------------------------//
 
-      StmtResult parseReturnStmt();
-      NodeResult parseExprStmt();
-      StmtResult parseCompoundStatement();
-      NodeResult parseStmt();
-      StmtResult parseCondition();
-      StmtResult parseWhileLoop();
+      Result<Stmt*> parseReturnStmt();
+      Result<ASTNode> parseExprStmt();
+      Result<Stmt*> parseCompoundStatement();
+      Result<ASTNode> parseStmt();
+      Result<Stmt*> parseCondition();
+      Result<Stmt*> parseWhileLoop();
 
       //---------------------------------//
       // Declaration parsing helpers
       //---------------------------------//
 
       // Parses a parameter declaration.
-      DeclResult parseParamDecl();
+      Result<Decl*> parseParamDecl();
 
       //---------------------------------//
       // Type parsing helpers
@@ -390,7 +376,8 @@ namespace fox {
           // Extra function for Result<Type>, which creates a TypeLoc from
           // a Type stored in the ResultObject and it's range.
           template<typename Foo = DataTy>
-          auto createTypeLoc() const -> typename std::enable_if<std::is_same<Type, Foo>::value, TypeLoc>::type {
+          auto createTypeLoc() const -> typename 
+            std::enable_if<std::is_same<Type, Foo>::value, TypeLoc>::type {
             return TypeLoc(Inherited::get(), range_);
           }
 

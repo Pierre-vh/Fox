@@ -15,12 +15,12 @@
 
 using namespace fox;
 
-Parser::StmtResult Parser::parseCompoundStatement() {
+Parser::Result<Stmt*> Parser::parseCompoundStatement() {
   // Range will be filled up later, see line 67
   auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);
 
   if (!leftCurlyLoc)
-    return StmtResult::NotFound();
+    return Result<Stmt*>::NotFound();
   SmallVector<ASTNode, 4> nodes;
   SourceLoc rightCurlyLoc;
   while (!isDone()) {
@@ -56,7 +56,7 @@ Parser::StmtResult Parser::parseCompoundStatement() {
           break;
         }
         else
-          return StmtResult::Error();
+          return Result<Stmt*>::Error();
       }
     }
   }
@@ -64,23 +64,23 @@ Parser::StmtResult Parser::parseCompoundStatement() {
   if (!rightCurlyLoc.isValid()) {
     reportErrorExpected(DiagID::parser_expected_closing_curlybracket);
     // We can't recover since we probably reached EOF. return an error!
-    return StmtResult::Error();
+    return Result<Stmt*>::Error();
   }
 
   // Create & return the node
   SourceRange range(leftCurlyLoc, rightCurlyLoc);
   assert(range && "invalid loc info");
   auto* rtr = CompoundStmt::create(ctxt, nodes, range);
-  return StmtResult(rtr);
+  return Result<Stmt*>(rtr);
 }
 
-Parser::StmtResult Parser::parseWhileLoop() {
+Parser::Result<Stmt*> Parser::parseWhileLoop() {
   // <while_loop> = "while" <expr> <body>
 
   // "while"
   auto whKw = consumeKeyword(KeywordType::KW_WHILE);
   if (!whKw)
-    return StmtResult::NotFound();
+    return Result<Stmt*>::NotFound();
 
   // <expr>
   Expr* expr = nullptr;
@@ -88,7 +88,7 @@ Parser::StmtResult Parser::parseWhileLoop() {
     expr = exprResult.get();
   else {
     reportErrorExpected(DiagID::parser_expected_expr);
-    return StmtResult::Error();
+    return Result<Stmt*>::Error();
   }
 
   // <body>
@@ -98,16 +98,16 @@ Parser::StmtResult Parser::parseWhileLoop() {
   else {
     if (body_res.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
-    return StmtResult::Error();
+    return Result<Stmt*>::Error();
   }
 
   assert(expr && body->getEnd() && whKw.getBegin());
-  return StmtResult(
+  return Result<Stmt*>(
     WhileStmt::create(ctxt, whKw.getBegin(), expr, body)
   );
 }
 
-Parser::StmtResult Parser::parseCondition() {
+Parser::Result<Stmt*> Parser::parseCondition() {
   // <condition> = "if" <expr> <compound_stmt> ["else" <compound_stmt>]
   Expr* expr = nullptr;
   CompoundStmt* then_body = nullptr;
@@ -119,9 +119,9 @@ Parser::StmtResult Parser::parseCondition() {
     // check for a else without if
     if (auto elseKw = consumeKeyword(KeywordType::KW_ELSE)) {
       diags.report(DiagID::parser_else_without_if, elseKw);
-      return StmtResult::Error();
+      return Result<Stmt*>::Error();
     }
-    return StmtResult::NotFound();
+    return Result<Stmt*>::NotFound();
   }
 
   // <expr>
@@ -129,7 +129,7 @@ Parser::StmtResult Parser::parseCondition() {
     expr = exprResult.get();
   else {
     reportErrorExpected(DiagID::parser_expected_expr);
-    return StmtResult::Error();
+    return Result<Stmt*>::Error();
   }
     
   // <compound_stmt>
@@ -138,7 +138,7 @@ Parser::StmtResult Parser::parseCondition() {
   else {
     if (body.wasSuccessful())
       reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
-    return StmtResult::Error();
+    return Result<Stmt*>::Error();
   }
 
   // "else"
@@ -149,7 +149,7 @@ Parser::StmtResult Parser::parseCondition() {
     else {
       if(body.wasSuccessful())
         reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
-      return StmtResult::Error();
+      return Result<Stmt*>::Error();
     }
   }
 
@@ -157,17 +157,17 @@ Parser::StmtResult Parser::parseCondition() {
     && (else_body ? else_body->getRange().isValid() : true) 
     && "incomplete locs");
 
-  return StmtResult(
+  return Result<Stmt*>(
     ConditionStmt::create(ctxt, ifKw.getBegin(), expr, then_body, else_body)
   );
 }
 
-Parser::StmtResult Parser::parseReturnStmt() {
+Parser::Result<Stmt*> Parser::parseReturnStmt() {
   // <rtr_stmt> = "return" [<expr>] ';'
   // "return"
   auto rtrKw = consumeKeyword(KeywordType::KW_RETURN);
   if (!rtrKw)
-    return StmtResult::NotFound();
+    return Result<Stmt*>::NotFound();
   
   Expr* expr = nullptr;
   SourceLoc begLoc = rtrKw.getBegin();
@@ -180,7 +180,7 @@ Parser::StmtResult Parser::parseReturnStmt() {
     // expr failed? try to resync if possible. 
     if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
       /*consumeToken*/ true))
-      return StmtResult::Error();
+      return Result<Stmt*>::Error();
   }
 
   // ';'
@@ -191,59 +191,59 @@ Parser::StmtResult Parser::parseReturnStmt() {
     // Recover to semi, if recovery wasn't successful, return an error.
     if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
       /*consumeToken*/ true))
-      return StmtResult::Error();
+      return Result<Stmt*>::Error();
   }
     
   SourceRange range(begLoc, endLoc);
   assert(range && "Invalid loc info");
-  return StmtResult(
+  return Result<Stmt*>(
     ReturnStmt::create(ctxt, expr, range)
   );
 }
 
-Parser::NodeResult Parser::parseStmt() {
+Parser::Result<ASTNode> Parser::parseStmt() {
   // <stmt>  = <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
 
   // <var_decl
   if (auto vardecl = parseVarDecl())
-    return NodeResult(ASTNode(vardecl.get()));
+    return Result<ASTNode>(ASTNode(vardecl.get()));
   else if (!vardecl.wasSuccessful())
-    return NodeResult::Error();
+    return Result<ASTNode>::Error();
 
   // <expr_stmt>
   if (auto exprstmt = parseExprStmt())
     return exprstmt;
   else if (!exprstmt.wasSuccessful())
-    return NodeResult::Error();
+    return Result<ASTNode>::Error();
 
   // <condition>
   if(auto cond = parseCondition())
-    return NodeResult(ASTNode(cond.get()));
+    return Result<ASTNode>(ASTNode(cond.get()));
   else if (!cond.wasSuccessful())
-    return NodeResult::Error();
+    return Result<ASTNode>::Error();
 
   // <while_loop>
   if (auto wloop = parseWhileLoop())
-    return NodeResult(ASTNode(wloop.get()));
+    return Result<ASTNode>(ASTNode(wloop.get()));
   else if(!wloop.wasSuccessful())
-    return NodeResult::Error();
+    return Result<ASTNode>::Error();
 
   // <return_stmt>
   if (auto rtrstmt = parseReturnStmt())
-    return NodeResult(ASTNode(rtrstmt.get()));
+    return Result<ASTNode>(ASTNode(rtrstmt.get()));
   else if(!rtrstmt.wasSuccessful())
-    return NodeResult::Error();
+    return Result<ASTNode>::Error();
 
-  return NodeResult::NotFound();
+  return Result<ASTNode>::NotFound();
 }
 
-Parser::NodeResult Parser::parseExprStmt() {
+Parser::Result<ASTNode> Parser::parseExprStmt() {
   // <expr_stmt>  = ';' | <expr> ';'   
 
   // ';'
   if (auto semi = consumeSign(SignType::S_SEMICOLON)) {
     Stmt* nullstmt = NullStmt::create(ctxt, semi);
-    return NodeResult(ASTNode(nullstmt));
+    return Result<ASTNode>(ASTNode(nullstmt));
   }
 
   // <expr> 
@@ -255,11 +255,11 @@ Parser::NodeResult Parser::parseExprStmt() {
 
       if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
         /*consumeToken*/ true))
-        return NodeResult::Error();
+        return Result<ASTNode>::Error();
       // if recovery was successful, just return like nothing has happened!
     }
 
-    return NodeResult(ASTNode(expr.get()));
+    return Result<ASTNode>(ASTNode(expr.get()));
   }
   else if(!expr.wasSuccessful()) {
     // if the expression had an error, ignore it and try to recover to a semi.
@@ -267,10 +267,10 @@ Parser::NodeResult Parser::parseExprStmt() {
       /*stopAtSemi*/ false, /*consumeToken*/ false)) {
       Stmt* nullstmt = NullStmt::create(ctxt, 
         consumeSign(SignType::S_SEMICOLON));
-      return NodeResult(ASTNode(nullstmt));
+      return Result<ASTNode>(ASTNode(nullstmt));
     }
-    return NodeResult::Error();
+    return Result<ASTNode>::Error();
   }
 
-  return NodeResult::NotFound();
+  return Result<ASTNode>::NotFound();
 }
