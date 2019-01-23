@@ -1,0 +1,20 @@
+// RUN: %fox-verify
+
+func foo() {
+  // Ok
+  if true {} else {}
+  if (true) {} else {}
+  if ((true)) {} else {}
+  if 3+3**(33/2) {} else {}
+  if true {}
+  if (true) {}
+  if ((true)) {}
+  if 3+3**(33/2) {}
+
+  // Not ok
+  if true; // expect-error: expected '{'
+  if true false; // expect-error: expected '{'
+  if true {} else; // expect-error: expected '{'
+  if true {} else false; // expect-error: expected '{'
+  else {} // expect-error: else without matching if
+}

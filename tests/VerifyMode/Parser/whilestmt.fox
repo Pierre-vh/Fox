@@ -1,0 +1,13 @@
+// RUN: %fox-verify
+
+func foo() {
+  // Ok
+  while true {}
+  while (true) {}
+  while ((true)) {}
+  while 3+3**(33/2) {}
+
+  // Not ok
+  while(true); // expect-error: expected '{'
+  while(true) false; // expect-error: expected '{'
+}
