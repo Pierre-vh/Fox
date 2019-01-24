@@ -133,18 +133,8 @@ To-Do:
   > SourceManager rework/cleanup (Done)
   > TypeLoc update (Done)
   > Parser result object rework (Done)
-
-  > DeclContext rework: Split it in 2:
-      DeclContext: Doesn't record anything, just acts as a "marker" that a node begins a new semantic context.
-        e.g. FuncDecl
-      LookupContext: Record decls like the current DeclContext, in a Lexical/Semantic way.
-        I'll also move the Lookup logic there, so DeclContext will offer both restricted (only this DC) and
-        unrestricted (climbs parent) lookup methods.
-        The name is still to be decided, but I think LookupContext is an okay-ish name for this.
-        e.g. UnitDecl
-     
-  > Once FuncDecl is a DeclContext again, simplify the whole "parent" logic for Decls, and the parser
-    logic for that too.
+  > Split DeclContext into DeclContext and LookupContext (Done)
+  > FuncDecl is a DeclContext again + Simplify the Decl Parent logic (Done)
 
   > IR
   > IRGen
