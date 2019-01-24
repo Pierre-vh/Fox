@@ -297,7 +297,8 @@ void* ParamList::operator new(std::size_t, void* mem) {
 
 FuncDecl::FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId,
   SourceRange idRange, TypeLoc returnType): fnBegLoc_(fnBegLoc),
-  ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange), 
+  ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange),
+  DeclContext(DeclContextKind::FuncDecl, parent),
   returnTypeLoc_(returnType) {
   assert(returnType.isTypeValid() && "return type can't be null");
 }
@@ -352,7 +353,7 @@ void FuncDecl::setBody(CompoundStmt* body) {
 }
 
 void FuncDecl::calculateValueType() {
-  ASTContext& ctxt = getASTContext();
+  ASTContext& ctxt = DeclContext::getASTContext();
   assert(returnTypeLoc_.isTypeValid() && "ill-formed FuncDecl: "
     "no return type");
   // Collect the Parameter's type

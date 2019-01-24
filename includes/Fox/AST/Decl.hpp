@@ -269,7 +269,7 @@ namespace fox {
   
   /// FuncDecl
   ///    A function declaration
-  class FuncDecl final: public ValueDecl {
+  class FuncDecl final: public DeclContext, public ValueDecl {
     public:
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent,
         SourceLoc fnBegLoc, Identifier id, SourceRange idRange, 
