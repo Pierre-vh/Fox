@@ -293,7 +293,6 @@ namespace {
 TEST_F(ASTTest, DeclRTTI) {
   // Unit
   Identifier id; FileID fid;
-  DeclContext dc(ctxt, DeclContextKind::UnitDecl);
   UnitDecl* udecl = UnitDecl::create(ctxt, id, fid);
   EXPECT_EQ(udecl->getKind(), DeclKind::UnitDecl);
   EXPECT_EQ(udecl->getDeclContextKind(), DeclContextKind::UnitDecl);
@@ -325,8 +324,6 @@ TEST_F(ASTTest, DeclRTTI) {
 
 TEST_F(ASTTest, DeclDeclContextRTTI) {
   Identifier id; FileID fid;
-  DeclContext dc(ctxt, DeclContextKind::UnitDecl);
-
   // UnitDecl -> DeclContext -> UnitDecl
   UnitDecl* udecl = UnitDecl::create(ctxt, id, fid);
   DeclContext* tmp = udecl;

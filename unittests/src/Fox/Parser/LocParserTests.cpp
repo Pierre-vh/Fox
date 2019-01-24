@@ -21,8 +21,7 @@ using namespace fox;
 // Parser Preparator for LocTests
 class LocTests : public ::testing::Test {
   public:
-    LocTests() : diags(srcMgr), astContext(srcMgr, diags), 
-      declContext(astContext, DeclContextKind::UnitDecl) {}
+    LocTests() : diags(srcMgr), astContext(srcMgr, diags) {}
 
   protected:
     using ::testing::Test::SetUp;
@@ -57,7 +56,6 @@ class LocTests : public ::testing::Test {
     SourceManager srcMgr;
     UnitDecl* theUnit = nullptr;
     ASTContext astContext;
-    DeclContext declContext;
     std::unique_ptr<Lexer> lexer;
     std::unique_ptr<Parser> parser;
 };

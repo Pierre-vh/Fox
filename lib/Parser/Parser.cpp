@@ -25,30 +25,10 @@ Parser::Parser(ASTContext& ctxt, TokenVector& l, UnitDecl *unit):
 
 void Parser::actOnDecl(Decl* decl) {
   assert(decl && "decl is null!");
-
-  if(decl->isParentNull()) {
-    assert(isa<UnitDecl>(decl) && "Only UnitDecls are able to have a "
-      "null parent!");
-    return;
-  }
-
-  if(!decl->isLocal()) {
-    // Fetch the DeclContext
-    DeclContext* dc = decl->getDeclContext();
-    assert(dc && "Parent isn't null but getDeclContext returns nullptr?");
-    // Check that we can add it to the DeclContext safely
-    if(NamedDecl* named = dyn_cast<NamedDecl>(decl)) {
-      assert(named->hasIdentifier() 
-        && "NamedDecl must have a valid Identifier!");
-    }
-    // Add it to the DeclContext
-    dc->addDecl(decl);
-  }
-  else {
-    assert(!isa<FuncDecl>(decl) && "FuncDecls cannot be local");
-    assert(decl->getFuncDecl() && "Decl is local but doesn't have a non-null "
-      "FuncDecl as Parent?");
-  }
+  // Record the decl inside it's parent if it's a LookupContext.
+  DeclContext* dc = decl->getDeclContext();
+  if(LookupContext* lc = dyn_cast_or_null<LookupContext>(dc))
+    lc->addDecl(decl);
 }
 
 Optional<std::pair<Identifier, SourceRange>>

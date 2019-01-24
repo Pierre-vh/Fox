@@ -425,7 +425,7 @@ SourceRange VarDecl::getRange() const {
 
 UnitDecl::UnitDecl(ASTContext& ctxt, Identifier id, FileID file):
   Decl(DeclKind::UnitDecl, (DeclContext*)nullptr), identifier_(id), file_(file),
-  DeclContext(ctxt, DeclContextKind::UnitDecl), ctxt_(ctxt) {}
+  LookupContext(ctxt, DeclContextKind::UnitDecl), ctxt_(ctxt) {}
 
 UnitDecl* UnitDecl::create(ASTContext& ctxt,Identifier id, FileID file) {
   return new(ctxt) UnitDecl(ctxt, id, file);
@@ -444,7 +444,7 @@ ASTContext& UnitDecl::getASTContext() const {
 }
 
 SourceRange UnitDecl::getRange() const {
-  const auto& decls = cast<DeclContext>(this)->getDecls();
+  const auto& decls = cast<LookupContext>(this)->getDecls();
   Decl* first = decls.front();
   Decl* last = decls.back();
   if(!first)

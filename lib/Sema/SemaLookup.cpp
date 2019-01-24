@@ -30,15 +30,17 @@ namespace {
   //    > if we are done searching the whole DeclContext tree.
   void lookupInDeclContext(Identifier id, ResultFoundFn onFound, 
     DeclContext* dc) {
-    using LMap = DeclContext::LookupMap;
+    using LMap = LookupContext::LookupMap;
     DeclContext* cur = dc;
     while(cur) {
-      const LMap& map = cur->getLookupMap();
-      // Search all decls with the identifier "id" in the multimap
-      LMap::const_iterator beg, end;
-      std::tie(beg, end) = map.equal_range(id);
-      for(auto it = beg; it != end; ++it) {
-        if(!onFound(it->second)) return;
+      if(LookupContext* lookupContext = dyn_cast<LookupContext>(cur)) {
+        const LMap& map = lookupContext->getLookupMap();
+        // Search all decls with the identifier "id" in the multimap
+        LMap::const_iterator beg, end;
+        std::tie(beg, end) = map.equal_range(id);
+        for(auto it = beg; it != end; ++it) {
+          if(!onFound(it->second)) return;
+        }
       }
       // Continue climbing
       cur = dc->getParentDeclCtxt();

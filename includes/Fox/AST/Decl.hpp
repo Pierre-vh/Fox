@@ -370,7 +370,7 @@ namespace fox {
 
   /// UnitDecl
   ///    Represents a parsed Source file.
-  class UnitDecl final: public Decl, public DeclContext {
+  class UnitDecl final: public Decl, public LookupContext {
     public:
       static UnitDecl* create(ASTContext& ctxt, Identifier id, FileID file);
 
