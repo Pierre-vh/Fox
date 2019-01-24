@@ -332,7 +332,7 @@ void FuncDecl::setBody(CompoundStmt* body) {
 }
 
 void FuncDecl::calculateValueType() {
-  ASTContext& ctxt = DeclContext::getASTContext();
+  ASTContext& ctxt = getASTContext();
   assert(returnTypeLoc_.isTypeValid() && "ill-formed FuncDecl: "
     "no return type");
   // Collect the Parameter's type

@@ -276,6 +276,10 @@ namespace fox {
       // TODO: Remove this
       void setReturnTypeLoc(TypeLoc ty);
 
+      // Choose to use the DeclContext version of getASTContext() to
+      // avoid ambiguities
+      using DeclContext::getASTContext;
+
       TypeLoc getReturnTypeLoc() const;
       bool isReturnTypeImplicit() const;
 
