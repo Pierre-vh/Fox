@@ -18,7 +18,7 @@ using namespace fox;
 
 Parser::Parser(ASTContext& ctxt, TokenVector& l, UnitDecl *unit):
   ctxt(ctxt), tokens(l), srcMgr(ctxt.sourceMgr), diags(ctxt.diagEngine),
-  curParent_(unit) {
+  curDeclCtxt_(unit) {
   tokenIterator_ = tokens.begin();
   isAlive_ = true;
 }
@@ -440,36 +440,28 @@ bool Parser::isAlive() const {
 }
 
 bool Parser::isParsingFuncDecl() const {
-  return curParent_.is<FuncDecl*>();
+  return isa<FuncDecl>(curDeclCtxt_);
 }
 
-bool Parser::isDeclParentADeclCtxtOrNull() const {
-  if(!curParent_.isNull())
-    return curParent_.is<DeclContext*>();
-  return true;
+DeclContext* Parser::getCurrentDeclCtxt() const {
+  return curDeclCtxt_;
 }
 
-DeclContext* Parser::getDeclParentAsDeclCtxt() const {
-  assert(isDeclParentADeclCtxtOrNull() && "DeclParent must "
-    "be a DeclContext or nullptr!");
-  return getDeclParent().dyn_cast<DeclContext*>();
-}
-
-// RAIIDeclParent
-Parser::RAIIDeclParent::RAIIDeclParent(Parser *p, Decl::Parent parent):
+// RAIIDeclCtxt
+Parser::RAIIDeclCtxt::RAIIDeclCtxt(Parser *p, DeclContext* dc):
   parser_(p) {
   assert(p && "Parser instance can't be nullptr");
-  lastParent_ = p->curParent_;
-  p->curParent_ = parent;
+  lastDC_ = p->curDeclCtxt_;
+  p->curDeclCtxt_ = dc;
 }
 
-void Parser::RAIIDeclParent::restore() {
+void Parser::RAIIDeclCtxt::restore() {
   assert(parser_ && "Parser instance can't be nullptr");
-  parser_->curParent_ = lastParent_;
+  parser_->curDeclCtxt_ = lastDC_;
   parser_ = nullptr;
 }
 
-Parser::RAIIDeclParent::~RAIIDeclParent() {
+Parser::RAIIDeclCtxt::~RAIIDeclCtxt() {
   if(parser_) // parser_ will be nullptr if we restored early
     restore();
 }

@@ -25,8 +25,8 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
   // Create the unit
   auto* unit = UnitDecl::create(ctxt, unitName, fid);
 
-  // Create a RAIIDeclParent
-  RAIIDeclParent raiidr(this, unit);
+  // Create a RAIIDeclCtxt
+  RAIIDeclCtxt raiidr(this, unit);
 
   bool declHadError = false;
 
@@ -95,12 +95,12 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   //
   // Note that the FuncDecl's "shortened" create method automatically sets
   // the Return type to void.
-  auto* parentDC = getDeclParentAsDeclCtxt();
+  auto* parentDC = getCurrentDeclCtxt();
   FuncDecl* rtr = FuncDecl::create(ctxt, parentDC, fnKw.getBegin());
 
-  // Create a RAIIDeclParent to notify every parsing function that
+  // Create a RAIIDeclCtxt to notify every parsing function that
   // we're currently parsing a FuncDecl
-  RAIIDeclParent parentGuard(this, rtr);
+  RAIIDeclCtxt parentGuard(this, rtr);
 
   // Location information
   SourceLoc begLoc = fnKw.getBegin();
@@ -246,7 +246,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
 
   assert(idRange && tl.getRange() && "Invalid loc info");
 
-  auto* rtr = ParamDecl::create(ctxt, getDeclParent().get<FuncDecl*>(), 
+  auto* rtr = ParamDecl::create(ctxt, getCurrentDeclCtxt(), 
     id, idRange, tl, isMutable);
   actOnDecl(rtr);
   return Result<Decl*>(rtr);
@@ -337,7 +337,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   SourceRange range(begLoc, endLoc);
   assert(range && idRange && "Invalid loc info");
   assert(type.isComplete() && "Incomplete TypeLoc!");
-  auto rtr = VarDecl::create(ctxt, getDeclParent(), id, idRange,
+  auto rtr = VarDecl::create(ctxt, getCurrentDeclCtxt(), id, idRange,
     type, kw, iExpr, range);
 
   actOnDecl(rtr);

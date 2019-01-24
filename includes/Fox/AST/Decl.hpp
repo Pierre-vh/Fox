@@ -59,9 +59,6 @@ namespace fox {
         // There's room for 1 more CheckStates. If this enum is updated
         // beyond 4 elements, increase the size of it's bitfield in Decl.
       };
-
-      using Parent = llvm::PointerUnion<DeclContext*, FuncDecl*>;
-
       /// Returns the kind of Decl this is.
       DeclKind getKind() const;
 
@@ -71,13 +68,6 @@ namespace fox {
 
       /// Returns true if this is a local declaration
       bool isLocal() const;
-
-      /// For local decls, return the parent FuncDecl.
-      /// Returns nullptr for non local decls.
-      FuncDecl* getFuncDecl() const;
-
-      Parent getParent() const;
-      bool isParentNull() const;
 
       /// Returns the "closest" DeclContext.
       ///  -> If this Decl is also a DeclContext, returns 
@@ -127,10 +117,10 @@ namespace fox {
       void* operator new(std::size_t sz, ASTContext &ctxt, 
         std::uint8_t align = alignof(Decl));
 
-      Decl(DeclKind kind, Parent parent);
+      Decl(DeclKind kind, DeclContext* dc);
 
     private:
-      Parent parent_;
+      DeclContext* dc_ = nullptr;
 
       static_assert(toInt(DeclKind::LastDecl) < (1 << kindBits_),
         "kind_ bitfield doesn't have enough bits to represent every DeclKind");
@@ -161,7 +151,7 @@ namespace fox {
       }
 
     protected:
-      NamedDecl(DeclKind kind, Parent parent, Identifier id, 
+      NamedDecl(DeclKind kind, DeclContext* dc, Identifier id, 
         SourceRange idRange);
 
     private:
@@ -190,7 +180,7 @@ namespace fox {
       }
 
     protected:
-      ValueDecl(DeclKind kind, Parent parent, Identifier id, 
+      ValueDecl(DeclKind kind, DeclContext* dc, Identifier id, 
         SourceRange idRange);
   };
 
@@ -199,7 +189,7 @@ namespace fox {
   ///    and is constant by default.
   class ParamDecl final : public ValueDecl {
     public:
-      static ParamDecl* create(ASTContext& ctxt, FuncDecl* parent, 
+      static ParamDecl* create(ASTContext& ctxt, DeclContext* dc, 
         Identifier id, SourceRange idRange, TypeLoc type,
         bool isMutable);
 
@@ -215,7 +205,7 @@ namespace fox {
       }
 
     private:
-      ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
+      ParamDecl(DeclContext* dc, Identifier id, SourceRange idRange, 
         TypeLoc type, bool isMutable);
 
       const bool isMut_ : 1;
@@ -264,7 +254,7 @@ namespace fox {
       // (needed for class using trailing objects)
       void* operator new(std::size_t , void* mem);
 
-      SizeTy numParams_;
+      SizeTy numParams_ = 0;
   };
   
   /// FuncDecl
@@ -308,6 +298,10 @@ namespace fox {
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::FuncDecl;
       }
+
+      static bool classof(const DeclContext* dc) {
+        return dc->getDeclContextKind() == DeclContextKind::FuncDecl;
+      }
       
     private:
       FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId, 
@@ -333,7 +327,7 @@ namespace fox {
         // increase the size of the initAndKW_ pair.
       };
 
-      static VarDecl* create(ASTContext& ctxt, Parent parent,
+      static VarDecl* create(ASTContext& ctxt, DeclContext* parent,
         Identifier id, SourceRange idRange, TypeLoc type, 
         Keyword kw, Expr* init, SourceRange range);
 
@@ -358,8 +352,8 @@ namespace fox {
       }
 
     private:
-      VarDecl(Parent parent, Identifier id, SourceRange idRange, TypeLoc type,
-        Keyword kw, Expr* init, SourceRange range);
+      VarDecl(DeclContext* parent, Identifier id, SourceRange idRange, 
+        TypeLoc type, Keyword kw, Expr* init, SourceRange range);
 
       TypeLoc typeLoc_;
       SourceRange range_;

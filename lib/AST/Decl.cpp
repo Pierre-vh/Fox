@@ -26,9 +26,9 @@ using namespace fox;
 #include "Fox/AST/DeclNodes.def"
 
 
-Decl::Decl(DeclKind kind, Parent parent): parent_(parent),  kind_(kind),
+Decl::Decl(DeclKind kind, DeclContext* dc): dc_(dc),  kind_(kind),
   checkState_(CheckState::Unchecked) {
-  assert((parent || isa<UnitDecl>(this)) && "Every decl except UnitDecls must"
+  assert((dc || isa<UnitDecl>(this)) && "Every decl except UnitDecls must"
     " have a parent!");
 }
 
@@ -37,37 +37,16 @@ DeclKind Decl::getKind() const {
 }
 
 DeclContext* Decl::getDeclContext() const {
-  if(isParentNull()) return nullptr;
-  if(DeclContext* ptr = parent_.dyn_cast<DeclContext*>())
-    return ptr;
-  return nullptr;
+  return dc_;
 }
 
 bool Decl::isLocal() const {
-  return parent_.is<FuncDecl*>() && (!isParentNull());
-}
-
-FuncDecl* Decl::getFuncDecl() const {
-  if(isParentNull()) 
-    return nullptr;
-  if(FuncDecl* ptr = parent_.dyn_cast<FuncDecl*>())
-    return ptr;
-  return nullptr;
-}
-
-Decl::Parent Decl::getParent() const {
-  return parent_;
-}
-
-bool Decl::isParentNull() const {
-  return parent_.isNull();
+  return dc_ && isa<FuncDecl>(dc_);
 }
 
 DeclContext* Decl::getClosestDeclContext() const {
   if(auto* dc = dyn_cast<DeclContext>(const_cast<Decl*>(this)))
     return dc;
-  if(auto* fn = getFuncDecl())
-    return fn->getDeclContext();
   return getDeclContext();
 }
 
@@ -136,8 +115,8 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
 // NamedDecl
 //----------------------------------------------------------------------------//
 
-NamedDecl::NamedDecl(DeclKind kind, Parent parent, Identifier id, 
-                     SourceRange idRange): Decl(kind, parent),
+NamedDecl::NamedDecl(DeclKind kind, DeclContext* dc, Identifier id, 
+                     SourceRange idRange): Decl(kind, dc),
   identifier_(id), identifierRange_(idRange), illegalRedecl_(false){}
 
 Identifier NamedDecl::getIdentifier() const {
@@ -173,8 +152,8 @@ bool NamedDecl::hasIdentifierRange() const {
 // ValueDecl
 //----------------------------------------------------------------------------//
 
-ValueDecl::ValueDecl(DeclKind kind, Parent parent, Identifier id, 
-  SourceRange idRange):  NamedDecl(kind, parent, id, idRange) {}
+ValueDecl::ValueDecl(DeclKind kind, DeclContext* dc, Identifier id, 
+  SourceRange idRange):  NamedDecl(kind, dc, id, idRange) {}
 
 static std::int8_t checkHasGetValueType(Type (Decl::*)() const) {}
 template<typename Derived>
@@ -218,9 +197,9 @@ bool ValueDecl::isConst() const {
 // ParamDecl
 //----------------------------------------------------------------------------//
 
-ParamDecl* ParamDecl::create(ASTContext& ctxt, FuncDecl* parent, 
+ParamDecl* ParamDecl::create(ASTContext& ctxt, DeclContext* dc, 
   Identifier id, SourceRange idRange, TypeLoc type, bool isMutable) {
-  return new(ctxt) ParamDecl(parent, id, idRange, type, isMutable);
+  return new(ctxt) ParamDecl(dc, id, idRange, type, isMutable);
 }
 
 bool ParamDecl::isMutable() const {
@@ -239,9 +218,9 @@ SourceRange ParamDecl::getRange() const {
   return SourceRange(getIdentifierRange().getBegin(), typeLoc_.getEnd());
 }
 
-ParamDecl::ParamDecl(FuncDecl* parent, Identifier id, SourceRange idRange, 
+ParamDecl::ParamDecl(DeclContext* dc, Identifier id, SourceRange idRange, 
   TypeLoc type, bool isMutable):
-  ValueDecl(DeclKind::ParamDecl, parent, id, idRange), typeLoc_(type), 
+  ValueDecl(DeclKind::ParamDecl, dc, id, idRange), typeLoc_(type), 
   isMut_(isMutable) {}
 
 //----------------------------------------------------------------------------//
@@ -376,15 +355,15 @@ SourceRange FuncDecl::getRange() const {
 // VarDecl
 //----------------------------------------------------------------------------//
 
-VarDecl::VarDecl(Parent parent, Identifier id, SourceRange idRange, 
+VarDecl::VarDecl(DeclContext* dc, Identifier id, SourceRange idRange, 
   TypeLoc type, Keyword kw, Expr* init, SourceRange range):
-  ValueDecl(DeclKind::VarDecl, parent, id, idRange), typeLoc_(type),
+  ValueDecl(DeclKind::VarDecl, dc, id, idRange), typeLoc_(type),
   range_(range), initAndKW_(init, kw) {}
 
-VarDecl* VarDecl::create(ASTContext& ctxt, Parent parent, Identifier id,
+VarDecl* VarDecl::create(ASTContext& ctxt, DeclContext* dc, Identifier id,
   SourceRange idRange, TypeLoc type, Keyword kw, Expr* init, 
   SourceRange range) {
-  return new(ctxt) VarDecl(parent, id, idRange, type, kw, init, range);
+  return new(ctxt) VarDecl(dc, id, idRange, type, kw, init, range);
 }
 
 Expr* VarDecl::getInitExpr() const {

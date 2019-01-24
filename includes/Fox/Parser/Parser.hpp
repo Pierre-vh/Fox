@@ -184,15 +184,9 @@ namespace fox {
       // to be returned.
       void actOnDecl(Decl* decl);
 
-      // Returns true if state_.curParent.is<FuncDecl*>();
       bool isParsingFuncDecl() const;
-      // Returns true if state_.curParent is nullptr OR a 
-      // DeclContext
-      bool isDeclParentADeclCtxtOrNull() const;
 
-      // Asserts that the current decl parent is a DeclContext
-      // or nullptr, then returns state_.curParent().dyn_cast<DeclContext*>()
-      DeclContext* getDeclParentAsDeclCtxt() const;
+      DeclContext* getCurrentDeclCtxt() const;
 
       //---------------------------------//
       // Token consumption/manipulation helpers
@@ -298,13 +292,7 @@ namespace fox {
       std::uint8_t roundBracketsCount_  = 0;
       std::uint8_t squareBracketsCount_ = 0;
 
-      // The current Declaration parent, which is either a 
-      // DeclContext or a FuncDecl.
-      Decl::Parent curParent_;
-
-      Decl::Parent getDeclParent() const {
-        return curParent_;
-      }
+      DeclContext* curDeclCtxt_ = nullptr;
 
       bool isDone() const;
       bool isAlive() const;
@@ -317,24 +305,26 @@ namespace fox {
       //----------------------------------------------------------------------//
 
       //---------------------------------//
-      // RAIIDeclParent
+      // RAIIDeclCtxt
       //
-      // This class sets the current DeclParent at construction, 
+      // This class sets the current DeclContext at construction, 
 			// and restores the last one at destruction.
-      // If the undo parent wasn't null and the new parent passed
+      // If the previous parent wasn't null and the new parent passed
       // to the constructor is a DeclContext, set the parent of the
       // DC passed to the constructor to the last one active.
+      // (TL;DR: It automatically handles "parent" registration)
       //---------------------------------//
-      class RAIIDeclParent {
+      class RAIIDeclCtxt {
         public:
-          RAIIDeclParent(Parser *p, Decl::Parent parent);
+          RAIIDeclCtxt(Parser *p, DeclContext* dc);
           // Restores the origina DeclContext early, instead of waiting
           // for the destruction of this object.
           void restore();
-          ~RAIIDeclParent();
+          ~RAIIDeclCtxt();
+
         private:
           Parser* parser_;
-          Decl::Parent lastParent_;
+          DeclContext* lastDC_;
       };
       
       //----------------------------------------------------------------------//

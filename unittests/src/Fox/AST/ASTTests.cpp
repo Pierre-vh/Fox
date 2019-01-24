@@ -275,8 +275,8 @@ TEST_F(ASTTest, StmtRTTI) {
 }
 
 namespace {
-  VarDecl* createEmptyVarDecl(ASTContext& ctxt, Decl::Parent parent) {
-    return VarDecl::create(ctxt, parent, Identifier(), SourceRange(), TypeLoc(), 
+  VarDecl* createEmptyVarDecl(ASTContext& ctxt, DeclContext* dc) {
+    return VarDecl::create(ctxt, dc, Identifier(), SourceRange(), TypeLoc(), 
       VarDecl::Keyword::Let, nullptr, SourceRange());
   }
 
