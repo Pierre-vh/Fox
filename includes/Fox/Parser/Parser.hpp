@@ -323,8 +323,8 @@ namespace fox {
           ~RAIIDeclCtxt();
 
         private:
-          Parser* parser_;
-          DeclContext* lastDC_;
+          Parser* parser_ = nullptr;
+          DeclContext* lastDC_ = nullptr;
       };
       
       //----------------------------------------------------------------------//
