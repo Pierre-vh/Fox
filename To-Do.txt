@@ -136,17 +136,6 @@ To-Do:
   > Split DeclContext into DeclContext and LookupContext (Done)
   > FuncDecl is a DeclContext again + Simplify the Decl Parent logic (Done)
 
-  > Type system rework
-    > I'll shift away from the LLVM-like representation of types in which types
-      are singletons & immutables, to a more classic system where types aren't
-      singletons and are mutables. This will give me a lot more freedom when implementing
-      advanced language features (such as typealiases and structs) without sacrificing
-      making the implementation a headache.
-    > Goals of the reworks
-      > Types aren't immutable singletons anymore (except primitive types)
-      > Compare types using a TypeBase->equals(Type) method
-      > Maybe allow mutation of types (e.g. of an ArrayType's element type)
-
   > VM
   > IR
   > IRGen
