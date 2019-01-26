@@ -4,8 +4,6 @@
 // File : DiagsAll.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file is an include file used to group every diagnostic declaration in one file.
-//----------------------------------------------------------------------------//
 
 #ifndef DIAG
   #define DIAG(SEVERITY,ID,TEXT)

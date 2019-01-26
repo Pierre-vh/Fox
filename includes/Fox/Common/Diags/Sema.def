@@ -4,8 +4,6 @@
 // File : Parser.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Semantic Analysis (Sema/Parser) Diagnostics Message
-//----------------------------------------------------------------------------//
 
 ERROR(sema_unexpected_elem_in_arrlit, 
   "unexpected element of type '%0' in array literal of type '%1'")

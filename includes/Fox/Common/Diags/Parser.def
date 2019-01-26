@@ -4,12 +4,9 @@
 // File : Parser.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Parser Diagnostics Message
-//----------------------------------------------------------------------------//
 
 ERROR(parser_placeholder, "%0")
 
-// Error Expected
 ERROR(parser_expected_closing_squarebracket, "expected ']'")
 ERROR(parser_expected_closing_curlybracket, "expected '}'")
 ERROR(parser_expected_opening_curlybracket, "expected '{'")
@@ -24,18 +21,14 @@ ERROR(parser_expected_iden, "expected an identifier")
 ERROR(parser_expected_type_name, "expected a type name")
 ERROR(parser_expected_type, "expected a type")
 ERROR(parser_expected_paramdecl, "expected a parameter declaration")
-
-// Others
 ERROR(parser_else_without_if, "else without matching if")
 ERROR(parser_expected_decl_in_unit, "expected one or more declaration in unit")
 ERROR(parser_missing_curlybracket, "%0 unclosed '{' in file")
 ERROR(parser_missing_squarebracket, "%0 unclosed '[' in file")
 ERROR(parser_missing_roundbracket, "%0 unclosed '(' in file")
 
-// Special warnings
 WARNING(parser_ignored_ref_vardecl, "ignored reference qualifier '&' in variable declaration : variables cannot be references")
 
-// Fatal error
 FATAL(parser_roundbracket_overflow, "max round bracket depth exceeded")
 FATAL(parser_squarebracket_overflow, "max square bracket depth exceeded")
 FATAL(parser_curlybracket_overflow, "max curly bracket depth exceeded")

@@ -4,9 +4,6 @@
 // File : Common.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file registers general purpose Diagnostic Messages
-// and the Diagnostic Messages for /Common
-//----------------------------------------------------------------------------//
 
 //----------------------------------------------------------------------------//
 // Unit Tests

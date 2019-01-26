@@ -4,8 +4,6 @@
 // File : Parser.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Lexer Diagnostics Message
-//----------------------------------------------------------------------------//
 
 ERROR(lexer_missing_closing_quote, "missing closing quote")
 ERROR(lexer_unfinished_multiline_comment, "multiline comment missing closing '*/'")
