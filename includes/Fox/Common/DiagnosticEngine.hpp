@@ -39,14 +39,12 @@ namespace fox {
     // the Diagnostic class
   };
 
-  // Converts a severity to a user readable string in all
-  // lowercase.
+  // Converts a severity to a user readable string.
   std::string toString(DiagSeverity sev);
   std::ostream& operator<<(std::ostream& os, DiagSeverity sev);
 
-  // The DiagnosticEngine, which controls everything Diagnostic-Related:
-  //  Creation of Diagnostics, Emission (but not presentation, see
-  //  DiagnosticConsumer for that), silencing/promoting diagnostics, etc.
+  // The DiagnosticEngine, which controls the creation and emission of
+  // diagnostics.
   class DiagnosticEngine {
     public:
       // Constructor that will use the default Diagnostic Consumer
