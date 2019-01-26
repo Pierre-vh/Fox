@@ -43,106 +43,6 @@ namespace fox {
   std::string toString(DiagSeverity sev);
   std::ostream& operator<<(std::ostream& os, DiagSeverity sev);
 
-  // The DiagnosticEngine, which controls the creation and emission of
-  // diagnostics.
-  class DiagnosticEngine {
-    public:
-      // Constructor that will use the default Diagnostic Consumer
-      // which prints pretty-printed diagnostics to the desired ostream.
-      DiagnosticEngine(SourceManager& sm, std::ostream& os);
-
-      // Constructor that will use the default Diagnostic Consumer
-      // which prints pretty-printed diagnostics to std::cout
-      DiagnosticEngine(SourceManager& sm);
-
-      // Constructor that will use a pre-created DiagnosticConsumer
-      DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);
-
-      Diagnostic report(DiagID diagID);
-      Diagnostic report(DiagID diagID, FileID file);
-      Diagnostic report(DiagID diagID, SourceRange range);
-      Diagnostic report(DiagID diagID, SourceLoc loc);
-
-      void enableVerifyMode(DiagnosticVerifier* dv);
-      bool isVerifyModeEnabled() const;
-      void disableVerifyMode();
-
-      void setConsumer(std::unique_ptr<DiagnosticConsumer> ncons);
-      DiagnosticConsumer* getConsumer();
-      const DiagnosticConsumer* getConsumer() const;
-      std::unique_ptr<DiagnosticConsumer> takeConsumer();
-
-      // Returns true if a fatal errors has been emitted.
-      bool hasFatalErrorOccured() const;
-
-      // Getters for Number of warnings/errors that have been emitted.
-      std::uint16_t getWarningsCount() const;
-      std::uint16_t getErrorsCount() const;
-
-      // Set the max number of errors that can occur
-      // before a the context silences all future diagnostics
-      // and reports a fatal "Too many errors" error.
-      // Set to 0 for unlimited.
-      void setErrorLimit(std::uint16_t mErr);
-      std::uint16_t getErrorLimit() const;
-
-      bool getWarningsAreErrors() const;
-      void setWarningsAreErrors(bool val);
-
-      bool getErrorsAreFatal() const;
-      void setErrorsAreFatal(bool val);
-
-      bool getIgnoreWarnings() const;
-      void setIgnoreWarnings(bool val);
-
-      bool getIgnoreNotes() const;
-      void setIgnoreNotes(bool val);
-
-      bool getIgnoreAllAfterFatal() const;
-      void setIgnoreAllAfterFatal(bool val);
-
-      bool getIgnoreAll() const;
-      void setIgnoreAll(bool val);
-
-      static constexpr std::uint16_t defaultErrorLimit = 0;
-
-    private:
-      friend class Diagnostic;
-
-      // Called by Diagnostic::emit
-      void handleDiagnostic(Diagnostic& diag);
-
-      // Promotes the severity of the diagnostic if needed
-      DiagSeverity changeSeverityIfNeeded(DiagSeverity ds) const;
-
-      // Updates internal counters depending on the severity of a diagnostic
-      void updateInternalCounters(DiagSeverity ds);
-
-      // Bitfields : Options
-      bool warningsAreErrors_  : 1;
-      bool errorsAreFatal_ : 1;
-      bool ignoreWarnings_ : 1;
-      bool ignoreNotes_ : 1;
-      bool ignoreAllAfterFatalError_ : 1;
-      bool ignoreAll_ : 1;
-      bool hasFatalErrorOccured_ : 1;
-      bool errLimitReached_ : 1;
-      // 0 bits left
-
-      // Error limit
-      std::uint16_t errLimit_ = defaultErrorLimit;
-      // Number of errors
-      std::uint16_t errorCount_ = 0;
-      // Number of warnings
-      std::uint16_t warnCount_  = 0;
-
-      // The DiagnosticVerifier, if there's one
-      DiagnosticVerifier* verifier_ = nullptr;
-
-      // The DiagnosticConsumer
-      std::unique_ptr<DiagnosticConsumer> consumer_;
-  };
-
   // The Diagnostic object. It contains the Diagnostic's data and allow
   // the client to customize it before emitting it.
   //
@@ -270,5 +170,105 @@ namespace fox {
       std::string diagStr_;
       SourceRange range_;
       SourceRange extraRange_;
+  };
+
+  // The DiagnosticEngine, which controls the creation and emission of
+  // diagnostics.
+  class DiagnosticEngine {
+    public:
+      // Constructor that will use the default Diagnostic Consumer
+      // which prints pretty-printed diagnostics to the desired ostream.
+      DiagnosticEngine(SourceManager& sm, std::ostream& os);
+
+      // Constructor that will use the default Diagnostic Consumer
+      // which prints pretty-printed diagnostics to std::cout
+      DiagnosticEngine(SourceManager& sm);
+
+      // Constructor that will use a pre-created DiagnosticConsumer
+      DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);
+
+      Diagnostic report(DiagID diagID);
+      Diagnostic report(DiagID diagID, FileID file);
+      Diagnostic report(DiagID diagID, SourceRange range);
+      Diagnostic report(DiagID diagID, SourceLoc loc);
+
+      void enableVerifyMode(DiagnosticVerifier* dv);
+      bool isVerifyModeEnabled() const;
+      void disableVerifyMode();
+
+      void setConsumer(std::unique_ptr<DiagnosticConsumer> ncons);
+      DiagnosticConsumer* getConsumer();
+      const DiagnosticConsumer* getConsumer() const;
+      std::unique_ptr<DiagnosticConsumer> takeConsumer();
+
+      // Returns true if a fatal errors has been emitted.
+      bool hasFatalErrorOccured() const;
+
+      // Getters for Number of warnings/errors that have been emitted.
+      std::uint16_t getWarningsCount() const;
+      std::uint16_t getErrorsCount() const;
+
+      // Set the max number of errors that can occur
+      // before a the context silences all future diagnostics
+      // and reports a fatal "Too many errors" error.
+      // Set to 0 for unlimited.
+      void setErrorLimit(std::uint16_t mErr);
+      std::uint16_t getErrorLimit() const;
+
+      bool getWarningsAreErrors() const;
+      void setWarningsAreErrors(bool val);
+
+      bool getErrorsAreFatal() const;
+      void setErrorsAreFatal(bool val);
+
+      bool getIgnoreWarnings() const;
+      void setIgnoreWarnings(bool val);
+
+      bool getIgnoreNotes() const;
+      void setIgnoreNotes(bool val);
+
+      bool getIgnoreAllAfterFatal() const;
+      void setIgnoreAllAfterFatal(bool val);
+
+      bool getIgnoreAll() const;
+      void setIgnoreAll(bool val);
+
+      static constexpr std::uint16_t defaultErrorLimit = 0;
+
+    private:
+      friend class Diagnostic;
+
+      // Called by Diagnostic::emit
+      void handleDiagnostic(Diagnostic& diag);
+
+      // Promotes the severity of the diagnostic if needed
+      DiagSeverity changeSeverityIfNeeded(DiagSeverity ds) const;
+
+      // Updates internal counters depending on the severity of a diagnostic
+      void updateInternalCounters(DiagSeverity ds);
+
+      // Bitfields : Options
+      bool warningsAreErrors_  : 1;
+      bool errorsAreFatal_ : 1;
+      bool ignoreWarnings_ : 1;
+      bool ignoreNotes_ : 1;
+      bool ignoreAllAfterFatalError_ : 1;
+      bool ignoreAll_ : 1;
+      bool hasFatalErrorOccured_ : 1;
+      bool errLimitReached_ : 1;
+      // 0 bits left
+
+      // Error limit
+      std::uint16_t errLimit_ = defaultErrorLimit;
+      // Number of errors
+      std::uint16_t errorCount_ = 0;
+      // Number of warnings
+      std::uint16_t warnCount_  = 0;
+
+      // The DiagnosticVerifier, if there's one
+      DiagnosticVerifier* verifier_ = nullptr;
+
+      // The DiagnosticConsumer
+      std::unique_ptr<DiagnosticConsumer> consumer_;
   };
 }
