@@ -48,8 +48,11 @@ namespace {
 
   class DiagnosticsTest : public ::testing::Test {
     public:
-      DiagnosticsTest() : diagEng(srcMgr) {}
+      DiagnosticsTest() : diagEng(srcMgr, std::make_unique<StrDiagConsumer>()) {
+        cons = static_cast<StrDiagConsumer*>(diagEng.getConsumer());
+      }
     protected:
+      StrDiagConsumer* cons = nullptr;
       SourceManager srcMgr;
       DiagnosticEngine diagEng;
   };
@@ -83,7 +86,6 @@ TEST_F(DiagnosticsTest, fatals) {
 }
 
 TEST_F(DiagnosticsTest, emission) {
-  StrDiagConsumer* cons = static_cast<StrDiagConsumer*>(diagEng.getConsumer());
   EXPECT_EQ("", cons->getStr()) << "Consumer str wasn't empty at first.";
   // Test emission when diag goes out of scope
 	{
@@ -117,8 +119,6 @@ TEST_F(DiagnosticsTest, addArg4) {
 }
 
 TEST_F(DiagnosticsTest, errLimit) {
-  StrDiagConsumer* cons = static_cast<StrDiagConsumer*>(diagEng.getConsumer());
-
   diagEng.setErrorLimit(1);
   EXPECT_FALSE(diagEng.hasFatalErrorOccured());
 
