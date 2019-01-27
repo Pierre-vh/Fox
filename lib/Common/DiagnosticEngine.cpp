@@ -47,13 +47,14 @@ class Diagnostic::StaticAsserts {
 //----------------------------------------------------------------------------//
 
 DiagnosticEngine::DiagnosticEngine(SourceManager& sm, std::ostream& os):
-  DiagnosticEngine(std::make_unique<StreamDiagConsumer>(sm, os)) {}
+  DiagnosticEngine(sm, std::make_unique<StreamDiagConsumer>(os)) {}
 
 DiagnosticEngine::DiagnosticEngine(SourceManager& sm):
   DiagnosticEngine(sm, std::cout) {}
 
-DiagnosticEngine::DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons):
-  consumer_(std::move(ncons)) {
+DiagnosticEngine::DiagnosticEngine(SourceManager& sm, 
+                                   std::unique_ptr<DiagnosticConsumer> ncons):
+  consumer_(std::move(ncons)), srcMgr_(sm) {
   errLimitReached_ = false;
   hasFatalErrorOccured_ = false;
   errorsAreFatal_ = false;
@@ -197,7 +198,7 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
 
   // Let the consumer consume the diag if he can.
   if(canConsume)
-    consumer_->consume(diag);
+    consumer_->consume(srcMgr_, diag);
 
   // Update the internal state
   updateInternalCounters(diag.getSeverity());

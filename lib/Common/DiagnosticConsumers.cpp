@@ -55,16 +55,13 @@ std::size_t DiagnosticConsumer::removeIndent(string_view& str) const {
   return beg;
 }
 
-StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm, std::ostream & stream):
-  os_(stream), sm_(sm) 
-{}
+StreamDiagConsumer::StreamDiagConsumer(std::ostream & stream):
+  os_(stream) {}
 
-StreamDiagConsumer::StreamDiagConsumer(SourceManager &sm) :
-  StreamDiagConsumer(sm, std::cout)
-{}
+StreamDiagConsumer::StreamDiagConsumer() : StreamDiagConsumer(std::cout) {}
 
-void StreamDiagConsumer::consume(Diagnostic& diag) {
-  std::string locInfo = getLocInfo(sm_, diag.getRange(), diag.isFileWide());
+void StreamDiagConsumer::consume(SourceManager& sm, const Diagnostic& diag) {
+  std::string locInfo = getLocInfo(sm, diag.getRange(), diag.isFileWide());
   if (locInfo.size())
     os_ << locInfo << " - ";
   os_ << toString(diag.getSeverity()) 
@@ -73,7 +70,7 @@ void StreamDiagConsumer::consume(Diagnostic& diag) {
     << "\n";
 
   if (!diag.isFileWide() && diag.hasRange())
-    displayRelevantExtract(diag);
+    displayRelevantExtract(sm, diag);
 }
 
 // Helper method for "displayRelevantExtract" which creates the "underline" string. 
@@ -119,7 +116,8 @@ std::string embedString(const std::string& a, const std::string& b) {
   return out;
 }
 
-void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag) {
+void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm, 
+  const Diagnostic& diag) {
   assert(diag.hasRange() 
 		&& "Cannot use this if the diag does not have a valid range");
 
@@ -128,7 +126,7 @@ void StreamDiagConsumer::displayRelevantExtract(const Diagnostic& diag) {
   SourceLoc::IndexTy lineBeg = 0;
 
   // Get the line, remove it's indent and display it.
-  string_view line = sm_.getSourceLine(diag.getRange().getBegin(), &lineBeg);
+  string_view line = sm.getSourceLine(diag.getRange().getBegin(), &lineBeg);
 
   // Remove any indent, and offset the lineBeg accordingly
   lineBeg += removeIndent(line);

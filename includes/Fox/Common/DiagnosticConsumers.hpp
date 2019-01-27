@@ -22,7 +22,7 @@ namespace fox {
 
   class DiagnosticConsumer {
     public:
-      virtual void consume(Diagnostic& diag) = 0;
+      virtual void consume(SourceManager& sm, const Diagnostic& diag) = 0;
       virtual ~DiagnosticConsumer() = default;
 
     protected:
@@ -36,17 +36,16 @@ namespace fox {
 
   class StreamDiagConsumer : public DiagnosticConsumer {
     public:
-      StreamDiagConsumer(SourceManager& sm, std::ostream& stream); 
-      StreamDiagConsumer(SourceManager& sm); 
+      StreamDiagConsumer(std::ostream& stream); 
+      StreamDiagConsumer(); 
 
-      virtual void consume(Diagnostic& diag) override;
+      virtual void consume(SourceManager& sm, const Diagnostic& diag) override;
 
     private:
       // Displays a line of code along with the caret.
       // Note: this only displays the first line where the problem begins.
-      void displayRelevantExtract(const Diagnostic& diag);
+      void displayRelevantExtract(SourceManager& sm, const Diagnostic& diag);
 
-      SourceManager& sm_;
       std::ostream &os_;
   };
 }

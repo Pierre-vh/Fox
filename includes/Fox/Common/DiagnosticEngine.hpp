@@ -185,7 +185,7 @@ namespace fox {
       DiagnosticEngine(SourceManager& sm);
 
       // Constructor that will use a pre-created DiagnosticConsumer
-      DiagnosticEngine(std::unique_ptr<DiagnosticConsumer> ncons);
+      DiagnosticEngine(SourceManager& sm, std::unique_ptr<DiagnosticConsumer> ncons);
 
       Diagnostic report(DiagID diagID);
       Diagnostic report(DiagID diagID, FileID file);
@@ -267,6 +267,8 @@ namespace fox {
 
       // The DiagnosticVerifier, if there's one
       DiagnosticVerifier* verifier_ = nullptr;
+
+      SourceManager& srcMgr_;
 
       // The DiagnosticConsumer
       std::unique_ptr<DiagnosticConsumer> consumer_;
