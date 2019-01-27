@@ -167,3 +167,9 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
      to
        <while_loop> = "while" <expr> <compound_statement>
 
+* 0.15.1
+    ~ Changed <expr_stmt> rule (removed NullStmt)
+      from
+        <expr_stmt> = ';' | <expr> ';'
+      to
+        <expr_stmt> = <expr> ';' 

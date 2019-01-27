@@ -1,4 +1,4 @@
-Fox Grammar version 0.15
+Fox Grammar version 0.15.1
 
 // Note : { } means "0 or more", [ ] means "optional"
 
@@ -16,7 +16,7 @@ Fox Grammar version 0.15
 <primitive_literal> = One literal of the following type : Integer, Floating-point, Boolean, String, Char
 <expr_list> = <expr> {',' <expr> }
 <parens_expr_list> = '(' [ <expr_list> ] ')'
-<expr_stmt> = ';' | <expr> ';' 
+<expr_stmt> = <expr> ';' 
 <parens_expr> = '(' <expr> ')'
 
 <suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
@@ -64,6 +64,6 @@ Fox Grammar version 0.15
 
 ##Stmts##
 <compound_statement> = '{' {<stmt>} '}'
-<condition> = "if" <expr> <body> ["else" <body>]
-<while_loop> = "while" <expr> <body>
+<condition> = "if" <expr> <compound_statement> ["else" <compound_statement>]
+<while_loop> = "while" <expr> <compound_statement>
 <stmt> = <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
