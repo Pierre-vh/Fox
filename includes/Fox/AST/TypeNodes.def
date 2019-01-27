@@ -5,8 +5,8 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file uses Macro to "register" every Type nodes
-// When including this file, the user can define custom macros to gather various informations
-// about the nodes.
+// When including this file, the user can define custom macros 
+// to gather information about the nodes.
 //----------------------------------------------------------------------------//
 
 // Base macro for concrete classes of Type.
