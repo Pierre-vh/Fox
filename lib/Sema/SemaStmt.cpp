@@ -115,10 +115,9 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
     }
 
     void visitCompoundStmt(CompoundStmt* stmt) {
-			// Just visit the children
-      // Note that we don't open a scope for CompoundStmts, because
-      // they don't exist in the wild in Fox. They're always attached
-      // to Conditions, While, etc.
+      // Open the scope
+      auto scope = getSema().openNewScopeRAII();
+			// And just visit the children
       for (ASTNode& s : stmt->getNodes()) {
         s = checkNode(s);
       }
@@ -127,30 +126,18 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
     void visitWhileStmt(WhileStmt* stmt) {
 			// Fetch the cond, typecheck it and replace it.
       stmt->setCond(checkCond(stmt->getCond()));
-      {
-        // Open scope
-        auto scope = getSema().openNewScopeRAII();
-        // Check the body
-        visitCompoundStmt(stmt->getBody());
-      }
+      // Check the body
+      visitCompoundStmt(stmt->getBody());
     }
 
 		void visitConditionStmt(ConditionStmt* stmt) {
 			// Fetch the cond, typecheck it and replace it.
       stmt->setCond(checkCond(stmt->getCond()));
-      {
-        // Open scope
-        auto scope = getSema().openNewScopeRAII();
-        // Check the if's body
-        visitCompoundStmt(stmt->getThen());
-      }
+      // Check the if's body
+      visitCompoundStmt(stmt->getThen());
 			// Check the else's body if there is one and replace it
-			if(CompoundStmt* elseBody = stmt->getElse()) {
-        // Open scope
-        auto scope = getSema().openNewScopeRAII();
-        // Check the else's body
+			if(CompoundStmt* elseBody = stmt->getElse())
 				visitCompoundStmt(elseBody);
-			}
 		}
 			
 		//----------------------------------------------------------------------//
