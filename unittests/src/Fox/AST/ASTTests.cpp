@@ -245,11 +245,6 @@ TEST_F(ASTTest, ExprFlags) {
 }
 
 TEST_F(ASTTest, StmtRTTI) {
-  // NullStmt
-  auto* null = NullStmt::create(ctxt, SourceLoc());
-  EXPECT_EQ(null->getKind(), StmtKind::NullStmt);
-  EXPECT_TRUE(NullStmt::classof(null));
-
   // Return stmt
   auto* rtr = ReturnStmt::create(ctxt, nullptr, SourceRange());
   EXPECT_EQ(rtr->getKind(), StmtKind::ReturnStmt);

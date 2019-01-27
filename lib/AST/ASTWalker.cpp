@@ -163,11 +163,6 @@ namespace {
         return true;
       }
 
-      // Stmt
-      Stmt* visitNullStmt(NullStmt* stmt) {
-        return stmt;
-      }
-
       Stmt* visitReturnStmt(ReturnStmt* stmt) {
         if (Expr* expr = stmt->getExpr()) {
           if ((expr = doIt(expr)))

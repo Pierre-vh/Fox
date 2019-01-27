@@ -62,30 +62,6 @@ namespace fox {
       const StmtKind kind_;
   };
 
-  /// NullStmt
-  ///    A null statement ';'
-  ///    Often used as the body of a condition/loop
-  class NullStmt final : public Stmt {
-    public:
-      /// Creates a NullStmt.
-      /// \param ctxt The ASTContext in which memory will be allocated
-      /// \param semiLoc The SourceLoc at the semicolon
-      static NullStmt* create(ASTContext& ctxt, SourceLoc semiLoc);
-
-      SourceLoc getSemiLoc() const;
-
-      SourceRange getRange() const;
-
-      static bool classof(const Stmt* stmt) {
-        return (stmt->getKind() == StmtKind::NullStmt);
-      }
-
-    private:
-      NullStmt(SourceLoc semiLoc);
-
-      SourceLoc semiLoc_;
-  };
-
   /// ReturnStmt
   ///    A return statement
   class ReturnStmt final : public Stmt {

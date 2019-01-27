@@ -64,25 +64,6 @@ void* Stmt::operator new(std::size_t, void* mem) {
 }
 
 //----------------------------------------------------------------------------//
-// NullStmt
-//----------------------------------------------------------------------------//
-
-NullStmt::NullStmt(SourceLoc semiLoc): Stmt(StmtKind::NullStmt),
-  semiLoc_(semiLoc) {}
-
-NullStmt* NullStmt::create(ASTContext& ctxt, SourceLoc semiLoc) {
-  return new(ctxt) NullStmt(semiLoc);
-}
-
-SourceLoc NullStmt::getSemiLoc() const {
-  return getRange().getBegin();
-}
-
-SourceRange NullStmt::getRange() const {
-  return SourceRange(semiLoc_);
-}
-
-//----------------------------------------------------------------------------//
 // ReturnStmt
 //----------------------------------------------------------------------------//
 

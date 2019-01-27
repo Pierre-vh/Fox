@@ -16,33 +16,23 @@
 using namespace fox;
 
 Parser::Result<Stmt*> Parser::parseCompoundStatement() {
-  // Range will be filled up later, see line 67
+  // '{' {<stmt>} '}'
+  // '{'
   auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);
 
   if (!leftCurlyLoc)
     return Result<Stmt*>::NotFound();
   SmallVector<ASTNode, 4> nodes;
   SourceLoc rightCurlyLoc;
+  // {<stmt>}
   while (!isDone()) {
+    // '{'
     if ((rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE)))
       break;
 
-    // try to parse a statement
-    if(auto res = parseStmt()) {
-      // Push only if we don't have a standalone NullStmt
-      // this is done to avoid stacking them up, and since they're 
-      // a no-op in all cases so it's meaningless to ignore them.
-      ASTNode node = res.get();
-      if (!dyn_cast_or_null<NullStmt>(node.dyn_cast<Stmt*>()))
-        nodes.push_back(node);
-    }
-    // failure
+    if(auto res = parseStmt())
+      nodes.push_back(res.get());
     else {
-      /*
-        // if not found, report an error
-        if (stmt.wasSuccessful())
-          errorExpected("Expected a Statement");
-      */
       // In both case, attempt recovery to nearest semicolon.
       if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi*/ false,
         /*shouldConsumeToken*/ true))
@@ -61,6 +51,7 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
     }
   }
 
+  // '}'
   if (!rightCurlyLoc.isValid()) {
     reportErrorExpected(DiagID::parser_expected_closing_curlybracket);
     // We can't recover since we probably reached EOF. return an error!
@@ -238,16 +229,10 @@ Parser::Result<ASTNode> Parser::parseStmt() {
 }
 
 Parser::Result<ASTNode> Parser::parseExprStmt() {
-  // <expr_stmt>  = ';' | <expr> ';'   
-
-  // ';'
-  if (auto semi = consumeSign(SignType::S_SEMICOLON)) {
-    Stmt* nullstmt = NullStmt::create(ctxt, semi);
-    return Result<ASTNode>(ASTNode(nullstmt));
-  }
+  // <expr_stmt>  = <expr> ';'   
 
   // <expr> 
-  else if (auto expr = parseExpr()) {
+  if (auto expr = parseExpr()) {
     // ';'
     if (!consumeSign(SignType::S_SEMICOLON)) {
       reportErrorExpected(DiagID::parser_expected_semi);
@@ -263,10 +248,8 @@ Parser::Result<ASTNode> Parser::parseExprStmt() {
   else if(expr.isError()) {
     // if the expression had an error, ignore it and try to recover to a semi.
     if (resyncToSign(SignType::S_SEMICOLON,
-      /*stopAtSemi*/ false, /*consumeToken*/ false)) {
-      Stmt* nullstmt = NullStmt::create(ctxt, 
-        consumeSign(SignType::S_SEMICOLON));
-      return Result<ASTNode>(ASTNode(nullstmt));
+      /*stopAtSemi*/ false, /*consumeToken*/ true)) {
+      return Result<ASTNode>::NotFound();
     }
     return Result<ASTNode>::Error();
   }

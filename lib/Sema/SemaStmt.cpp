@@ -81,10 +81,6 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
     // ASTWalker like in the ExprChecker (SemaExpr.cpp))
     //----------------------------------------------------------------------//
       
-    void visitNullStmt(NullStmt*) {
-      // Nothing to check on a NullStmt
-    }
-
     void visitReturnStmt(ReturnStmt* stmt) {
       // Fetch the current FuncDecl
       LocalScope* scope = getSema().getLocalScope();

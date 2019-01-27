@@ -5,8 +5,8 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file uses Macro to "register" every Stmt nodes
-// When including this file, the user can define custom macros to gather various informations
-// about the nodes.
+// When including this file, the user can define custom macros to gather 
+// various informations about the nodes.
 //----------------------------------------------------------------------------//
 
 // Base macro for concrete classes of Stmt.
@@ -16,23 +16,20 @@
   #define STMT(ID,PARENT)
 #endif
 
-// Abstract stmts, just ignore them most of the time
 #ifndef ABSTRACT_STMT
   #define ABSTRACT_STMT(ID,PARENT)
 #endif
 
-/* Macros */
+#ifndef STMT_RANGE
+  #define STMT_RANGE(ID, FIRST, LAST)
+#endif
 
-// Basic statements
-STMT(NullStmt,Stmt)
 STMT(ReturnStmt,Stmt)
 STMT(ConditionStmt,Stmt)
 STMT(CompoundStmt,Stmt)
 STMT(WhileStmt,Stmt)
 
-/* Undef */
-
 #undef EXPR
-#undef ABSTRACT_STMT
 #undef STMT
+#undef ABSTRACT_STMT
 #undef STMT_RANGE

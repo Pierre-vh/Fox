@@ -57,7 +57,6 @@ namespace fox {
       void visitArrayLiteralExpr(ArrayLiteralExpr* node);
 
       // Stmts
-      void visitNullStmt(NullStmt* node);
       void visitCompoundStmt(CompoundStmt* node);
       void visitConditionStmt(ConditionStmt* node);
       void visitWhileStmt(WhileStmt* node);
