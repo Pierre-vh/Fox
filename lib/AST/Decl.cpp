@@ -9,7 +9,6 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Stmt.hpp"
 #include "Fox/AST/Types.hpp"
-#include "Fox/Common/Source.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include <sstream>
 #include <cassert>

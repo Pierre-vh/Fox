@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "PrintObjects.hpp"
-#include "Fox/Common/Source.hpp"
+#include "Fox/Common/SourceManager.hpp"
 
 using namespace fox;
 

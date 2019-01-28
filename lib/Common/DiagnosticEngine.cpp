@@ -7,7 +7,7 @@
 
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/DiagnosticVerifier.hpp"
-#include "Fox/Common/Source.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 #include <iostream>

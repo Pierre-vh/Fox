@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "Source.hpp"
+#include "SourceLoc.hpp"
 #include "DiagnosticEngine.hpp"
 #include "DiagnosticConsumers.hpp"
 #include "LLVM.hpp"
@@ -31,7 +31,7 @@ namespace fox {
   class DiagnosticEngine;
 
   class DiagnosticVerifier {
-    using LineTy = CompleteLoc::LineTy;
+    using LineTy = std::uint32_t;
     public:
       struct ExpectedDiag {
         ExpectedDiag() = default;

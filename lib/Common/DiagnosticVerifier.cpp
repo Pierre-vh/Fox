@@ -7,6 +7,7 @@
 
 #include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include "llvm/ADT/Optional.h"
 #include <cstdlib> // abs()
 #include <tuple>

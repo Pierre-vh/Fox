@@ -11,7 +11,7 @@
 
 #include "ASTAligns.hpp"
 #include "ASTNode.hpp"
-#include "Fox/Common/Source.hpp"
+#include "Fox/Common/SourceLoc.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"

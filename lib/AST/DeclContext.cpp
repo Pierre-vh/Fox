@@ -9,7 +9,7 @@
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/Errors.hpp"
-#include "Fox/Common/Source.hpp"
+#include "Fox/Common/SourceLoc.hpp"
 
 using namespace fox;
 

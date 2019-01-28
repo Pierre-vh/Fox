@@ -10,7 +10,7 @@
 #include <string>
 #include <sstream>
 #include "Fox/Common/StringManipulator.hpp"
-#include "Fox/Common/Source.hpp"
+#include "Fox/Common/SourceLoc.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/AST/ASTContext.hpp"

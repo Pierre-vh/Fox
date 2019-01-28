@@ -17,7 +17,7 @@
 #include "Fox/Common/string_view.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-#include "Fox/Common/Source.hpp"
+#include "Fox/Common/SourceManager.hpp"
 
 namespace fox {
   class Driver {

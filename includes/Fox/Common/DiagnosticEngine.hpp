@@ -10,15 +10,13 @@
 #pragma once
 
 #include "DiagnosticConsumers.hpp"
-#include "Source.hpp"
+#include "SourceLoc.hpp"
 #include "Typedefs.hpp"
 #include <string>
 #include <sstream>
 #include <memory>
 
 namespace fox {
-  class SourceLoc;
-  class SourceRange;
   class SourceManager;
   class DiagnosticVerifier;
   class Diagnostic;

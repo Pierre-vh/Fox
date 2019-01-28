@@ -7,6 +7,7 @@
 
 #include "Fox/Common/DiagnosticConsumers.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include "utfcpp/utf8.hpp"
 #include <cassert>
 #include <string>

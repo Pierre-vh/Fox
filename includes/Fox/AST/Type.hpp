@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Fox/Common/Source.hpp"
+#include "Fox/Common/SourceLoc.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTAligns.hpp"
 #include <iosfwd>

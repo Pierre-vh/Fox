@@ -7,7 +7,7 @@
 
 #include "Fox/AST/ASTNode.hpp"
 #include "Fox/Common/Errors.hpp"
-#include "Fox/Common/Source.hpp"
+#include "Fox/Common/SourceLoc.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Stmt.hpp"
 #include "Fox/AST/Decl.hpp"

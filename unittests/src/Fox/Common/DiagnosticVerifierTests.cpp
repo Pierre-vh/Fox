@@ -8,6 +8,7 @@
 #include "gtest/gtest.h"
 #include "Fox/Common/DiagnosticVerifier.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include "Support/TestUtils.hpp"
 
 using namespace fox;

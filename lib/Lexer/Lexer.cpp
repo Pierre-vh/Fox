@@ -11,6 +11,7 @@
 #include <sstream>    
 #include <cassert>
 #include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include "Fox/AST/ASTContext.hpp"
 
 using namespace fox;
