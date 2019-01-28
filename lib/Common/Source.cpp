@@ -194,12 +194,12 @@ std::string SourceRange::toString(const SourceManager& srcMgr) const {
 
 string_view SourceManager::getNameOfFile(FileID fid) const {
   auto data = getData(fid);
-  return data->str;
+  return data->content;
 }
 
 string_view SourceManager::getContentsOfFile(FileID fid) const {
   auto data = getData(fid);
-  return data->fileName;
+  return data->name;
 }
 
 const SourceManager::Data*
@@ -223,7 +223,7 @@ SourceRange SourceManager::getRangeOfFile(FileID file) const {
 
   // Calculate end
   const Data* data = getData(file);
-  std::size_t size = data->str.size();
+  std::size_t size = data->content.size();
 
   // Check that the size isn't too big, just to be sure.
   assert(size < std::numeric_limits<OffTy>::max() &&
@@ -237,11 +237,11 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
   const Data* fdata = getData(sloc.getFileID());
 
   auto idx = sloc.getRawIndex();
-  assert((idx <= fdata->str.size()) && "SourceLoc is Out-of-Range");
+  assert((idx <= fdata->content.size()) && "SourceLoc is Out-of-Range");
 
   // if the SourceLoc points to a fictive location just past the end
   // of the source, remove the extra column to avoid out_of_range errors
-  bool isOutOfRange = (idx == fdata->str.size());
+  bool isOutOfRange = (idx == fdata->content.size());
   if (isOutOfRange)
     idx--;
 
@@ -256,7 +256,7 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
   }
   else {
     line = entry.second;
-    auto str_beg = fdata->str.c_str(); // Pointer to the first 
+    auto str_beg = fdata->content.c_str(); // Pointer to the first 
                                        // character of the string
     auto raw_col = utf8::distance(str_beg + entry.first, str_beg + idx);
     col = static_cast<CompleteLoc::ColTy>(raw_col+1);
@@ -267,7 +267,7 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
     col++;
 
   return CompleteLoc(
-    fdata->fileName,
+    fdata->name,
     line,
     col
   );
@@ -280,7 +280,7 @@ SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
   // Check that our index is valid
   assert(isIndexValid(data, loc.getRawIndex()));
   // Retrieve the source
-  string_view source = data->str;
+  string_view source = data->content;
   // Search the line table
   auto pair = searchLineTable(data, loc);
   std::size_t beg = pair.first, end = beg;
@@ -304,9 +304,9 @@ SourceLoc SourceManager::getNextCodepointSourceLoc(SourceLoc loc) const {
   assert(isIndexValid(data, raw));
   
   // Prepare the iterators
-  auto cur = data->str.begin()+raw;
+  auto cur = data->content.begin()+raw;
   auto next = cur;
-  auto end = data->str.end();
+  auto end = data->content.end();
 
   // If this isn't a past-the-end SourceLoc
   if(cur != end) {
@@ -390,7 +390,7 @@ SourceManager::loadFromString(string_view str, string_view name) {
 }
 
 void SourceManager::calculateLineTable(const Data* data) const {
-  std::size_t size = data->str.size();
+  std::size_t size = data->content.size();
   CompleteLoc::LineTy line = 1;
   // Mark the index 0 as first line.
   data->lineTable_[0] = 1;
@@ -399,7 +399,7 @@ void SourceManager::calculateLineTable(const Data* data) const {
     // Supported line endings : \r\n, \n
     // Just need to add +1 to the index in both cases to mark the beginning
     // of the line as the first character after \n
-    if (data->str[idx] == '\n') {
+    if (data->content[idx] == '\n') {
       data->lineTable_[idx+1] = line;
       line++;
     }
@@ -412,7 +412,7 @@ bool
 SourceManager::isIndexValid(const Data* data, SourceLoc::IndexTy idx) const {
   // The index is valid if it's smaller or equal to .size(). It can be
   // equal to size in the case of a "past the end" loc.
-  return idx <= data->str.size();
+  return idx <= data->content.size();
 }
 
 std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>

@@ -259,14 +259,14 @@ namespace fox {
       // the includes (remove SmallVector, unique_ptr & map from the includes)
       struct Data {
         Data(string_view name, string_view content)
-          : fileName(name.to_string()), str(content.to_string()) {}
+          : name(name.to_string()), content(content.to_string()) {}
 
         template<typename Iterator>
         Data(string_view name, Iterator begin, Iterator end)
-          : fileName(name.to_string()), str(begin, end) {}
+          : name(name.to_string()), content(begin, end) {}
 
-        const std::string fileName;
-        const std::string str;
+        const std::string name;
+        const std::string content;
         protected:
           using IndexTy = SourceLoc::IndexTy;
           using LineTy = CompleteLoc::LineTy;
