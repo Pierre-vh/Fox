@@ -137,7 +137,22 @@ To-Do:
   > FuncDecl is a DeclContext again + Simplify the Decl Parent logic (Done)
   > Split SourceLoc & SourceManager headers (Done)
 
-  > Try to remove <string> from SourceLoc.hpp
+  > Rework how the SourceManager returns information to the user.
+    GOAL: Unification. There should be only one "trustworthy" source for
+      getting a formatted SourceLoc/Range, and presenting it to the user, so
+      it stays consistent across the compiler.
+      1) Add methods such as:
+          getLine(SourceLoc loc) 
+            // returns the line number
+          getLineAndColumn(SourceLoc loc) 
+            // returns a pair {line, col}
+          getFormattedString(SourceRange range, bool printFileName) 
+            // returns <filename>:line:col-line:col or line:col-line:col
+          getFormattedString(SourceLoc loc, bool printFileName) 
+            // returns getFormattedString(SourceRange(loc), etc..)
+          getFormattedString(FileID file) 
+            // returns <filename>
+      2) Remove CompleteLoc + .toString() methods (+ <string> include in SourceLoc.hpp)
 
   > VM
   > IR
