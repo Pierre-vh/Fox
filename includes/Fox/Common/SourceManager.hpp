@@ -19,10 +19,6 @@
 #include <tuple>
 
 namespace fox {
-  class SourceLoc;
-
-  class SourceManager;
-
   // POD-like struct containing a human-readable source loc information.
   struct CompleteLoc {
     using LineTy = std::uint32_t;
