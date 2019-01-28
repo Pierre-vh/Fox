@@ -18,18 +18,18 @@
 //    e.g. expect-error(3)@-1: 'foo' declared here
 //----------------------------------------------------------------------------//
 
-
 #pragma once
 
 #include "SourceLoc.hpp"
-#include "DiagnosticEngine.hpp"
-#include "DiagnosticConsumers.hpp"
 #include "LLVM.hpp"
+#include "string_view.hpp"
 #include <set>
 
 namespace fox {
   class DiagnosticEngine;
-
+  class SourceManager;
+  class Diagnostic;
+  enum class DiagSeverity : std::uint8_t;
   class DiagnosticVerifier {
     using LineTy = std::uint32_t;
     public:
@@ -38,7 +38,7 @@ namespace fox {
         ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line) :
           severity(sev), diagStr(str), file(file), line(line) {}
 
-        DiagSeverity severity = DiagSeverity::Ignore;
+        DiagSeverity severity = DiagSeverity(0);
         string_view diagStr;
         FileID file;
         LineTy line = 0;
