@@ -275,7 +275,7 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
 }
 
 string_view 
-SourceManager::getSourceLine(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
+SourceManager::getLineAt(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
   // Retrieve the data
   const Data* data = getData(loc.getFileID());
   // Check that our index is valid

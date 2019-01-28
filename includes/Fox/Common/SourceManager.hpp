@@ -104,7 +104,7 @@ namespace fox {
       // An optional argument (pointer) can be passed. If it is present,
       // the function will store the Index at which the line begins in 
       // this variable.
-      string_view getSourceLine(SourceLoc loc, 
+      string_view getLineAt(SourceLoc loc, 
         SourceLoc::IndexTy* lineBeg = nullptr) const;
 
       // Returns a SourceLoc that refers to the next code point
