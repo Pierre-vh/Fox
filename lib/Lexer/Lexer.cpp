@@ -23,7 +23,7 @@ Lexer::Lexer(ASTContext& astctxt): ctxt_(astctxt), diags_(ctxt_.diagEngine),
 void Lexer::lexFile(FileID file) {
   assert(file && "INVALID FileID!");
   currentFile_ = file;
-  auto source = ctxt_.sourceMgr.getFileName(currentFile_);
+  auto source = ctxt_.sourceMgr.getFileContent(currentFile_);
   manip_.setStr(source);
   manip_.reset();
   state_ = DFAState::S_BASE;

@@ -32,15 +32,15 @@ TEST(SourceManagerTest, LoadingFromFile) {
     << "': " << toString(bRes.second); 
 
   // The name is correctly stored
-  EXPECT_EQ(aPath, srcMgr.getFileContent(aFile));
-  EXPECT_EQ(bPath, srcMgr.getFileContent(bFile));
+  EXPECT_EQ(aPath, srcMgr.getFileName(aFile));
+  EXPECT_EQ(bPath, srcMgr.getFileName(bFile));
 
   // The content is correctly stored
   std::string content_a, content_b;
   ASSERT_TRUE(test::readFileToString("lexer/utf8/bronzehorseman.txt", content_a));
   ASSERT_TRUE(test::readFileToString("lexer/utf8/ascii.txt", content_b));
-  EXPECT_EQ(content_a, srcMgr.getFileName(aFile));
-  EXPECT_EQ(content_b, srcMgr.getFileName(bFile));
+  EXPECT_EQ(content_a, srcMgr.getFileContent(aFile));
+  EXPECT_EQ(content_b, srcMgr.getFileContent(bFile));
 }
 
 TEST(SourceManagerTest, LoadingFromString) {
@@ -58,8 +58,8 @@ TEST(SourceManagerTest, LoadingFromString) {
   EXPECT_TRUE(fid_a);
   EXPECT_TRUE(fid_b);
 
-  string_view r_str_a = srcMgr.getFileName(fid_a);
-  string_view r_str_b = srcMgr.getFileName(fid_b);
+  string_view r_str_a = srcMgr.getFileContent(fid_a);
+  string_view r_str_b = srcMgr.getFileContent(fid_b);
 
   EXPECT_EQ(content_a, r_str_a);
   EXPECT_EQ(content_b, r_str_b);
@@ -111,7 +111,7 @@ TEST(SourceManagerTest, PreciseLocation) {
     << "': " << toString(result.second);
 
   // Load file in StringManipulator
-  string_view ptr = srcMgr.getFileName(testFile);
+  string_view ptr = srcMgr.getFileContent(testFile);
   StringManipulator sm(ptr);
 
   // Loop until we reach the pi sign

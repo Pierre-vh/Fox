@@ -98,7 +98,7 @@ DiagnosticVerifier::DiagnosticVerifier(
 
 bool DiagnosticVerifier::parseFile(FileID fid) {
   // Fetch the content of the file
-  string_view fStr = srcMgr_.getFileName(fid);
+  string_view fStr = srcMgr_.getFileContent(fid);
   bool rtr = true;
   {
     std::size_t last = 0, idx = 0;

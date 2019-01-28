@@ -285,7 +285,7 @@ string_view
 ASTDumper::getFileNameOr(FileID file, string_view alternative) {
   if(!hasSrcMgr() || !file.isValid())
     return alternative;
-  return srcMgr_->getFileContent(file);
+  return srcMgr_->getFileName(file);
 }
 
 bool ASTDumper::hasSrcMgr() const {

@@ -80,11 +80,11 @@ namespace fox {
 
       // Returns a string_view of the Source file's content.
       // The FileID MUST be valid.
-      string_view getFileName(FileID fid) const;
+      string_view getFileContent(FileID fid) const;
 
       // Returns a string_view of the Source file's name.
       // The FileID MUST be valid.
-      string_view getFileContent(FileID fid) const;
+      string_view getFileName(FileID fid) const;
 
       // Returns the line number of a SourceLoc
       CompleteLoc::LineTy getLineNumber(SourceLoc loc) const;
