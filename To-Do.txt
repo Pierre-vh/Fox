@@ -135,8 +135,11 @@ To-Do:
   > Parser result object rework (Done)
   > Split DeclContext into DeclContext and LookupContext (Done)
   > FuncDecl is a DeclContext again + Simplify the Decl Parent logic (Done)
+  > Split SourceLoc & SourceManager headers (Done)
 
-  > Split SourceLoc & SourceManager headers
+  > Remove <string> include from SourceLoc
+      Rework toString() and the CompleteLoc thing. In general, make it easier
+      and cleaner to retrieve information about a SourceLoc/SourceRange.
 
   > VM
   > IR
