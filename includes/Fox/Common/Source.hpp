@@ -191,6 +191,14 @@ namespace fox {
 
   // The SourceManager, which manages source files. It reads
   // them, stores them and gives them a unique FileID.
+  //
+  // It allows the client to retrieve the data behind a FileID, like
+  // the name of the file or it's content. 
+  //
+  // As an implementation detail, accessing a File's data is pretty
+  // cheap since files are stored in a vector, so accessing the data
+  // of any file is just a bit of pointer arithmetic.
+  //  (data[theID.getIndex()] = the source file)
   class SourceManager {
     public:
       SourceManager() = default;
