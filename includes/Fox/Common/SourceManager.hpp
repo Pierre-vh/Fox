@@ -36,9 +36,9 @@ namespace fox {
         && (line == other.line) && (column == other.column);
     }
 
-    std::string fileName;
-    LineTy line;
-    ColTy column;
+    const std::string fileName;
+    const LineTy line;
+    const ColTy column;
   };
 
   // The SourceManager, which manages source files. It reads
@@ -94,10 +94,11 @@ namespace fox {
       SourceRange getRangeOfFile(FileID file) const;
 
       // Requests the human-readable location a SourceLoc points to.
+      //
       // This function will assert that the SourceLoc is valid;
+      //
       // This function accepts a SourceLoc that points right past 
       // the end of the file.
-      // Any value greater than that will trigger an assertion ("out of range")
       CompleteLoc getCompleteLoc(SourceLoc sloc) const;
 
       // Returns the complete line of source code for a given SourceLoc
