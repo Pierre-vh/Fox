@@ -362,8 +362,9 @@ static bool checkEncoding(std::ifstream& in, std::streampos size) {
 }
 
 std::pair<FileID, SourceManager::FileStatus>
-SourceManager::readFile(const std::string& path) {
-  std::ifstream in(path,  std::ios::in | std::ios::ate | std::ios::binary);
+SourceManager::readFile(string_view path) {
+  std::ifstream in(path.to_string(),  
+    std::ios::in | std::ios::ate | std::ios::binary);
   if(!in)
     return {FileID(), FileStatus::NotFound};
 
@@ -375,17 +376,17 @@ SourceManager::readFile(const std::string& path) {
   if(!checkEncoding(in, size))
     return {FileID(), FileStatus::InvalidEncoding};
 
-  // Read the file in memory
+  // Create the iterators
   auto beg = (std::istreambuf_iterator<char>(in));
   auto end = (std::istreambuf_iterator<char>());
-  std::string fileContent(beg, end);
-
-  return {insertData(path, fileContent), FileStatus::Ok};
+  // Insert the data
+  FileID file = insertData(std::make_unique<Data>(path, beg, end));
+  return {file, FileStatus::Ok};
 }
 
-FileID SourceManager::loadFromString(const std::string& str, 
-                                     const std::string& name) {
-  return insertData(name, str);
+FileID 
+SourceManager::loadFromString(string_view str, string_view name) {
+  return insertData(std::make_unique<Data>(name, str));
 }
 
 void SourceManager::calculateLineTable(const Data* data) const {
@@ -440,10 +441,9 @@ SourceManager::searchLineTable(const Data* data, const SourceLoc& loc) const {
   return rtr;
 }
 
-FileID SourceManager::insertData(const std::string& path,   
-                                 const std::string& filecontent) {
+FileID SourceManager::insertData(std::unique_ptr<Data> data) {
   // Construct a unique_ptr in place with the freshly created Data*.
-  datas_.emplace_back(new Data(path, filecontent));
+  datas_.emplace_back(std::move(data));
   // FileID is the index of the last element, so .size()-1
   return FileID(datas_.size()-1);
 }

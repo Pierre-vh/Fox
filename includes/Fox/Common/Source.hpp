@@ -211,12 +211,12 @@ namespace fox {
       //  Returns a pair. The first element is the FileID, it'll evaluate
       //  to false if the file was not loaded in memory.
       //  The second element contains a more detailed status (see FileStatus)
-      std::pair<FileID, FileStatus> readFile(const std::string& path);
+      std::pair<FileID, FileStatus> readFile(string_view path);
 
       // Load a string in the SM. First arg is the string to load, 
       // the second is the name we should give to the file.
-      FileID loadFromString(const std::string& str, 
-        const std::string& name = "in-memory");
+      FileID loadFromString(string_view str,
+                            string_view name = "<unknown>");
 
       // Returns a string_view of the Source file's content.
       // The FileID MUST be valid.
@@ -258,16 +258,20 @@ namespace fox {
       // TODO: Use Pimpl to move that out of the header and greatly reduce
       // the includes (remove SmallVector, unique_ptr & map from the includes)
       struct Data {
-        std::string fileName;
-        std::string str;
+        Data(string_view name, string_view content)
+          : fileName(name.to_string()), str(content.to_string()) {}
+
+        template<typename Iterator>
+        Data(string_view name, Iterator begin, Iterator end)
+          : fileName(name.to_string()), str(begin, end) {}
+
+        const std::string fileName;
+        const std::string str;
         protected:
           using IndexTy = SourceLoc::IndexTy;
           using LineTy = CompleteLoc::LineTy;
 
           friend class SourceManager;
-
-          Data(const std::string& name, const std::string& content)
-            : fileName(name), str(content) {}
 
           // This is the cached "line table", which is used to efficiently
           // calculate the line number of a SourceLoc.
@@ -301,8 +305,7 @@ namespace fox {
       searchLineTable(const Data* data, const SourceLoc& loc) const;
 
       // Inserts a new Data in the datas_ vector, returning it's FileID.
-      FileID insertData(const std::string& path, 
-        const std::string& filecontent);
+      FileID insertData(std::unique_ptr<Data> data);
 
       // Make it non copyable
       SourceManager(const SourceManager&) = delete;
