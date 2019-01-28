@@ -137,14 +137,11 @@ To-Do:
   > FuncDecl is a DeclContext again + Simplify the Decl Parent logic (Done)
   > Split SourceLoc & SourceManager headers (Done)
 
-  > Remove <string> include from SourceLoc
-      Rework toString() and the CompleteLoc thing. In general, make it easier
-      and cleaner to retrieve information about a SourceLoc/SourceRange.
+  > Try to remove <string> from SourceLoc.hpp
 
   > VM
   > IR
   > IRGen
-    > Note: Don't do IRGen in verify mode
 
   > UFCS
     > Parser additions (Remove MemberExpr, use UnresolvedDotExpr which resolves to a CallExpr)
