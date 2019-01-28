@@ -192,12 +192,12 @@ std::string SourceRange::toString(const SourceManager& srcMgr) const {
 // SourceManager
 //----------------------------------------------------------------------------//
 
-string_view SourceManager::getNameOfFile(FileID fid) const {
+string_view SourceManager::getFileName(FileID fid) const {
   auto data = getData(fid);
   return data->content;
 }
 
-string_view SourceManager::getContentsOfFile(FileID fid) const {
+string_view SourceManager::getFileContent(FileID fid) const {
   auto data = getData(fid);
   return data->name;
 }

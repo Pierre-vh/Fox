@@ -136,6 +136,10 @@ To-Do:
   > Split DeclContext into DeclContext and LookupContext (Done)
   > FuncDecl is a DeclContext again + Simplify the Decl Parent logic (Done)
 
+  > Reduce accesses to the Source data in DiagnosticConsumer, maybe even
+    allow access to the source data directly?
+  > Split SourceLoc & SourceManager headers
+
   > VM
   > IR
   > IRGen
