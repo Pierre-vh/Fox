@@ -150,14 +150,6 @@ bool SourceLoc::comesBefore(SourceLoc other) const {
   return idx_ < other.idx_;
 }
 
-std::string SourceLoc::toString(const SourceManager& srcMgr) const {
-  if (!isValid()) return "";
-  auto cloc = srcMgr.getCompleteLoc(*this);
-  std::stringstream ss;
-  ss << cloc.line << ":" << cloc.column;
-  return ss.str();
-}
-
 //----------------------------------------------------------------------------//
 // SourceRange
 //----------------------------------------------------------------------------//
@@ -229,25 +221,6 @@ bool SourceRange::contains(SourceRange range) const {
 
 FileID SourceRange::getFileID() const {
   return sloc_.getFileID();
-}
-
-std::string SourceRange::toString(const SourceManager& srcMgr) const {
-  std::stringstream ss;
-  if (!isValid()) return "";
-
-  auto beg = srcMgr.getCompleteLoc(getBegin());
-  ss << beg.line << ":" << beg.column;
-
-  if (offset_ == 0)
-    return ss.str();
-
-  auto end = srcMgr.getCompleteLoc(getEnd());
-
-  if (beg.line == end.line)
-    ss << "-" << end.column;
-  else
-    ss << "-" << end.line << ":" << end.column;
-  return ss.str();
 }
 
 //----------------------------------------------------------------------------//

@@ -24,14 +24,12 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm,
   // e.g. print "<MyModule> - Error - ..." instead of just "Error - ...."
 
   // Don't do anything if the range isn't valid.
-  if (!range) return "";
-
+  if (!range) return "<unknown>";
   std::stringstream ss;
-  ss << "<" << sm.getFileName(range.getFileID()) << ">";
-
-  // For FileWide diags, just use "1" as the line. For normal diags,
-  // use range.toString
-  ss << (isFileWide ? "" : (":" + range.toString(sm)));
+  if (isFileWide)
+    ss << '<' << sm.getFileName(range.getFileID()) << ">";
+  else 
+    ss << sm.getCompleteRange(range).toString();
   return ss.str();
 }
 
