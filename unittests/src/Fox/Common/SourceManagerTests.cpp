@@ -52,8 +52,8 @@ TEST(SourceManagerTest, LoadingFromString) {
   ASSERT_TRUE(test::readFileToString(file_path_b, content_b));
 
   SourceManager srcMgr;
-  auto fid_a = srcMgr.loadFromString(content_a);
-  auto fid_b = srcMgr.loadFromString(content_b);
+  auto fid_a = srcMgr.loadFromString(content_a, "a");
+  auto fid_b = srcMgr.loadFromString(content_b, "b");
 
   EXPECT_TRUE(fid_a);
   EXPECT_TRUE(fid_b);

@@ -96,7 +96,7 @@ namespace fox {
       // Load a string in the SM. First arg is the string to load, 
       // the second is the name we should give to the file.
       FileID loadFromString(string_view str,
-                            string_view name = "<unknown>");
+                            string_view name);
 
       // Returns a string_view of the Source file's content.
       // The FileID MUST be valid.
