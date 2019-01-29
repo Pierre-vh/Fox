@@ -130,20 +130,26 @@ TEST(SourceManagerTest, PreciseLocation) {
   }
 }
 
-TEST(SourceManagerTest, SourceLocToString) {
+TEST(SourceManagerTest, CompleteLocToString) {
   std::string testFilePath = test::getPath("sourcemanager/precise_test_1.txt");
   SourceManager srcMgr;
   auto result = srcMgr.readFile(testFilePath);
   FileID testFile = result.first;
   ASSERT_TRUE(testFile) << "Error while reading '" << testFilePath 
     << "': " << toString(result.second);
+
   SourceLoc loc_a(testFile);
+  CompleteLoc cloc_a = srcMgr.getCompleteLoc(loc_a);
+  EXPECT_EQ(cloc_a.toString(/*printFileName*/ false), "1:1");
+  EXPECT_EQ(cloc_a.toString(/*printFileName*/ true), "<" + testFilePath + ">:1:1");
+
   SourceLoc loc_b(testFile, 10);
-  EXPECT_EQ(loc_a.toString(srcMgr), "1:1");
-  EXPECT_EQ(loc_b.toString(srcMgr), "1:11");
+  CompleteLoc cloc_b = srcMgr.getCompleteLoc(loc_b);
+  EXPECT_EQ(cloc_b.toString(/*printFileName*/ false), "1:11");
+  EXPECT_EQ(cloc_b.toString(/*printFileName*/ true), "<" + testFilePath + ">:1:11");
 }
 
-TEST(SourceManagerTest, SourceRangeToString) {
+TEST(SourceManagerTest, CompleteRangeToString) {
   std::string testFilePath = test::getPath("sourcemanager/precise_test_1.txt");
   SourceManager srcMgr;
   auto result = srcMgr.readFile(testFilePath);
@@ -151,11 +157,20 @@ TEST(SourceManagerTest, SourceRangeToString) {
   ASSERT_TRUE(testFile) << "Error while reading '" << testFilePath 
     << "': " << toString(result.second);
   ASSERT_TRUE(testFile) << "File couldn't be read";
-  SourceRange r_a(SourceLoc(testFile), 10);
-  SourceRange r_b(SourceLoc(testFile, 14), 3);
-  SourceRange r_c(SourceLoc(testFile, 5));
 
-  EXPECT_EQ(r_a.toString(srcMgr), "1:1-11");
-  EXPECT_EQ(r_b.toString(srcMgr), "1:15-2:2");
-  EXPECT_EQ(r_c.toString(srcMgr), "1:6");
+  SourceRange r_a(SourceLoc(testFile), 10);
+  CompleteRange cr_a = srcMgr.getCompleteRange(r_a);
+  EXPECT_EQ(cr_a.toString(/*printFileName*/ false), "1:1-11");
+  EXPECT_EQ(cr_a.toString(/*printFileName*/ true), "<" + testFilePath + ">:1:1-11");
+
+  SourceRange r_b(SourceLoc(testFile, 14), 3);
+  CompleteRange cr_b = srcMgr.getCompleteRange(r_b);
+  EXPECT_EQ(cr_b.toString(/*printFileName*/ false), "1:15-2:2");
+  EXPECT_EQ(cr_b.toString(/*printFileName*/ true), "<" + testFilePath + ">:1:15-2:2");
+
+  SourceRange r_c(SourceLoc(testFile, 5));
+  CompleteRange cr_c = srcMgr.getCompleteRange(r_c);
+  EXPECT_EQ(cr_c.toString(/*printFileName*/ false), "1:6");
+  EXPECT_EQ(cr_c.toString(/*printFileName*/ true), "<" + testFilePath + ">:1:6");
+
 }
