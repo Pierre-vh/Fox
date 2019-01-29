@@ -24,6 +24,7 @@
 #include "LLVM.hpp"
 #include "string_view.hpp"
 #include <set>
+#include <map>
 
 namespace fox {
   class DiagnosticEngine;
@@ -60,7 +61,7 @@ namespace fox {
       // false otherwise.
       bool parseFile(FileID file);
 
-      DiagsSetTy& getExpectedDiags();
+      DiagsSetTy& getExpectedDiagsForFile(FileID file);
 
       // Finishes verification.
       //  If not all expected diagnostics were emitted, this will emit
@@ -75,8 +76,8 @@ namespace fox {
 
       // Performs verification of a single diagnostic.
       //  Returns false if the diagnostic shouldn't be consumed,
-      //  true if it can be consumed by the DiagnosticConsumer.
-      bool verify(Diagnostic& diag);
+      //  true if it can be consumed.
+      bool verify(const Diagnostic& diag);
 
     private:
       // Handles a verify instr, parsing it and processing it.
@@ -105,7 +106,8 @@ namespace fox {
 
       DiagnosticEngine& diags_;
       SourceManager& srcMgr_;
-      // Map of expected diagnostics
-      DiagsSetTy expectedDiags_;
+      // Map of expected diagnostics per file
+      std::map<FileID, DiagsSetTy> expectedDiags_;
+      std::set<FileID> failedVerifs_;
   };
 } // namespace fox

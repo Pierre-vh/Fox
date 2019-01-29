@@ -116,39 +116,40 @@ bool DiagnosticVerifier::parseFile(FileID fid) {
 }
 
 DiagnosticVerifier::DiagsSetTy&
-DiagnosticVerifier::getExpectedDiags() {
-  return expectedDiags_;
+DiagnosticVerifier::getExpectedDiagsForFile(FileID file) {
+  return expectedDiags_[file];
 }
 
 bool DiagnosticVerifier::finish() {
-  if (expectedDiags_.size()) {
-    // First, emit an error of the form "X expected diags weren't emitted"
-    diags_.report(DiagID::diagverif_errorExpectedDiagsNotEmitted)
-      .addArg(expectedDiags_.size());
-    // Then, emit a note for each diag
-    for (auto& diag : expectedDiags_) {
-      diags_.report(DiagID::diagverif_diagNotEmitted, diag.file)
-        .addArg(diag.diagStr)
-        .addArg(toString(diag.severity))
-        .addArg(diag.line);
+  bool success = true;
+  for (auto entry : expectedDiags_) {
+    auto& set = entry.second;
+    if (set.size()) {
+      // First, emit an error of the form "X expected diags weren't emitted"
+      diags_.report(DiagID::diagverif_errorExpectedDiagsNotEmitted, entry.first)
+        .addArg(expectedDiags_.size());
+      // Then, emit a note for each diag in the set
+      for (auto& diag : set) {
+        diags_.report(DiagID::diagverif_diagNotEmitted, diag.file)
+          .addArg(diag.diagStr)
+          .addArg(toString(diag.severity))
+          .addArg(diag.line);
+      }
+      // Some expected diags weren't emitted.
+      success = false;
     }
-    // Some expected diags weren't emitted.
-    return false;
   }
-  // All expected diags emitted, return true if no unexpected diags 
-  // were emitted.
-  if(hasEmittedUnexpectedDiagnostics_) {
-    diags_.report(DiagID::diagverif_unexpectedDiagsEmitted);
-    return false;
+  
+  // For each file where unexpected diagnostics were emitted, emit a diagnostic.
+  for (auto failedVerif : failedVerifs_) {
+    diags_.report(DiagID::diagverif_unexpectedDiagsEmitted, failedVerif);
+    success = false;
   }
-  return true;
+
+  return success;
 }
 
-bool DiagnosticVerifier::verify(Diagnostic& diag) {
-  // We can't expect a Diagnostic if it did not come from
-  // a valid file.
-  if(!diag.getFileID()) return true;
-
+bool DiagnosticVerifier::verify(const Diagnostic& diag) {
 	// Construct an ExpectedDiag to search the map
 	SourceLoc diagLoc = diag.getRange().getBegin();
   // Save the string in a local variable, because if we don't and we try
@@ -161,27 +162,22 @@ bool DiagnosticVerifier::verify(Diagnostic& diag) {
                   diagStr,
 									diagLoc.getFileID(), 
 									srcMgr_.getLineNumber(diagLoc));
-
-  auto it = expectedDiags_.find(ed);
-  if(it != expectedDiags_.end()) {
+  auto& diagsSet = expectedDiags_[diag.getFileID()];
+  auto it = diagsSet.find(ed);
+  if(it != diagsSet.end()) {
     // We expected this diag, erase the entry from the map and don't consume it
-    expectedDiags_.erase(it);
+    diagsSet.erase(it);
     return false;
   }
-  // We did not expect it
-  hasEmittedUnexpectedDiagnostics_ = true;
+  // We did not expect it, so verification is going to fail.
+  failedVerifs_.insert(diag.getFileID());
   return true;
 }
 
 bool DiagnosticVerifier::handleVerifyInstr(SourceLoc loc, string_view instr) {
 	auto parsingResult = parseVerifyInstr(loc, instr);
-
-	// Parsing failed? We can't do much more!
-	if (!parsingResult.hasValue()) return false;
-	auto diag = parsingResult.getValue();
-	
-  // Offset stuff
-	expectedDiags_.insert(diag);
+	if (!parsingResult.hasValue()) return false;	
+	expectedDiags_[loc.getFileID()].insert(parsingResult.getValue());
   return true;
 }
 
