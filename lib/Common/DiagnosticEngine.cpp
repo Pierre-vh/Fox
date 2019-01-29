@@ -55,7 +55,6 @@ DiagnosticEngine::DiagnosticEngine(SourceManager& sm):
 DiagnosticEngine::DiagnosticEngine(SourceManager& sm, 
                                    std::unique_ptr<DiagnosticConsumer> ncons):
   consumer_(std::move(ncons)), srcMgr_(sm) {
-  errLimitReached_ = false;
   hasFatalErrorOccured_ = false;
   errorsAreFatal_ = false;
   ignoreAll_ = false;
@@ -125,14 +124,6 @@ std::uint16_t DiagnosticEngine::getErrorsCount() const {
   return errorCount_;
 }
 
-std::uint16_t DiagnosticEngine::getErrorLimit() const {
-  return errLimit_;
-}
-
-void DiagnosticEngine::setErrorLimit(std::uint16_t mErr) {
-  errLimit_ = mErr;
-}
-
 bool DiagnosticEngine::getWarningsAreErrors() const {
   return warningsAreErrors_;
 }
@@ -199,19 +190,6 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
 
   // Update the internal state
   updateInternalCounters(diag.getSeverity());
-
-  // Now, check if we must emit a "too many errors" error.
-  if ((errLimit_ != 0) && (errorCount_ >= errLimit_)) {
-    // If we should emit one, check if we haven't emitted one already.
-    if (!errLimitReached_) {
-      // Set errLimitReached_ to true to avoid infinite recursion.
-      errLimitReached_ = true;
-      // Emit a "maximum error count exceeded" diagnostic in the file.
-      report(DiagID::diagengine_maxErrCountExceeded, diag.getFileID())
-        .addArg(errorCount_).emit();
-      setIgnoreAll(true);
-    }
-  }
 }
 
 DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const {

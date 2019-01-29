@@ -206,13 +206,6 @@ namespace fox {
       std::uint16_t getWarningsCount() const;
       std::uint16_t getErrorsCount() const;
 
-      // Set the max number of errors that can occur
-      // before a the context silences all future diagnostics
-      // and reports a fatal "Too many errors" error.
-      // Set to 0 for unlimited.
-      void setErrorLimit(std::uint16_t mErr);
-      std::uint16_t getErrorLimit() const;
-
       bool getWarningsAreErrors() const;
       void setWarningsAreErrors(bool val);
 
@@ -253,14 +246,11 @@ namespace fox {
       bool ignoreAllAfterFatalError_ : 1;
       bool ignoreAll_ : 1;
       bool hasFatalErrorOccured_ : 1;
-      bool errLimitReached_ : 1;
-      // 0 bits left
+      // 1 bit left
 
-      // Error limit
-      std::uint16_t errLimit_ = defaultErrorLimit;
-      // Number of errors
+      // Number of errors emitted
       std::uint16_t errorCount_ = 0;
-      // Number of warnings
+      // Number of warnings emitted.
       std::uint16_t warnCount_  = 0;
 
       // The DiagnosticVerifier, if there's one

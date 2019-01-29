@@ -126,38 +126,6 @@ TEST_F(DiagnosticsTest, addArg4) {
   EXPECT_EQ(str, "Hello, world");
 }
 
-TEST_F(DiagnosticsTest, errLimit) {
-  diagEng.setErrorLimit(1);
-  EXPECT_FALSE(diagEng.hasFatalErrorOccured());
-
-  auto diag1 = diagEng.report(DiagID::unittest_errtest, file);
-  ASSERT_EQ(diag1.getSeverity(), DiagSeverity::Error);
-  diag1.emit();
-  // The last emitted error should have been a fatal error
-  EXPECT_TRUE(diagEng.hasFatalErrorOccured());
-  EXPECT_EQ(cons->getSev(), DiagSeverity::Fatal);
-  EXPECT_EQ(cons->getID(), DiagID::diagengine_maxErrCountExceeded);
-
-  auto count = cons->getCount();
-  // Further diags should all be silenced.
-  auto test_note = diagEng.report(DiagID::unittest_notetest, file);
-  auto test_warn = diagEng.report(DiagID::unittest_warntest, file);
-  auto test_err = diagEng.report(DiagID::unittest_errtest, file);
-  auto test_fat = diagEng.report(DiagID::unittest_fataltest, file);
-
-  EXPECT_EQ(test_note.getSeverity(), DiagSeverity::Ignore);
-  EXPECT_EQ(test_warn.getSeverity(), DiagSeverity::Ignore);
-  EXPECT_EQ(test_err.getSeverity(), DiagSeverity::Ignore);
-  EXPECT_EQ(test_fat.getSeverity(), DiagSeverity::Ignore);
-
-  test_note.emit();
-  test_warn.emit();
-  test_err.emit();
-  test_fat.emit();
-
-  EXPECT_EQ(count, cons->getCount());
-}
-
 TEST_F(DiagnosticsTest, InactiveDiags) {
   auto diag = diagEng.report(DiagID::unittest_placeholderremoval1, file);
   EXPECT_EQ("[%0,%1]", diag.getStr()) 

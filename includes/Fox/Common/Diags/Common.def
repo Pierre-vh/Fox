@@ -43,11 +43,3 @@ ERROR(diagverif_unexpectedDiagsEmitted,
   "verification failed because unexpected diagnostics were emitted")
 NOTE(diagverif_diagNotEmitted,
   "diagnostic '%0' (%1) was expected at line %2 but not emitted")
-
-//----------------------------------------------------------------------------//
-// DiagnosticEngine
-//----------------------------------------------------------------------------//
-
-FATAL(diagengine_maxErrCountExceeded, 
-  "current error count exceeded the maximum thresold of %0")
-
