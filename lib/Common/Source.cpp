@@ -16,6 +16,67 @@
 using namespace fox;
 
 //----------------------------------------------------------------------------//
+// CompleteLoc
+//----------------------------------------------------------------------------//
+
+CompleteLoc::CompleteLoc(string_view fName, line_type ln, col_type col) 
+  : fileName(fName), line(ln), column(col) {}
+
+bool CompleteLoc::operator==(const CompleteLoc& other) const {
+  return (fileName == other.fileName)
+      && (line == other.line) 
+      && (column == other.column);
+}
+
+bool CompleteLoc::operator!=(const CompleteLoc& other) const {
+  return !((*this) == other);
+}
+
+std::string CompleteLoc::toString(bool printFilename) const {
+  std::stringstream ss;
+  if(printFilename)
+    ss << '<' << fileName << ">:";
+  ss << line << ":" << column;
+  return ss.str();
+}
+
+//----------------------------------------------------------------------------//
+// CompleteRange
+//----------------------------------------------------------------------------//
+
+CompleteRange::CompleteRange(string_view fName, line_type begLine, col_type begCol,
+  line_type endLine, col_type endCol) : fileName(fName), begLine(begLine),
+  begColumn(begCol), endLine(endLine), endColumn(endCol) {}
+
+bool CompleteRange::operator==(const CompleteRange& other) const {
+  return (fileName == other.fileName)
+    && (begLine == other.begLine)
+    && (begColumn == other.begColumn)
+    && (endLine == other.endLine)
+    && (endColumn == other.endColumn);
+}
+bool CompleteRange::operator!=(const CompleteRange& other) const {
+  return !((*this) == other);
+}
+
+std::string CompleteRange::toString(bool printFilename) const {
+  std::stringstream ss;
+  if (printFilename)
+    ss << '<' << fileName << ">:";
+  ss << begLine << ":" << begColumn;
+  // The range begins and ends at the same position
+  if((begLine == endLine) && (begColumn == endColumn))
+    return ss.str();
+  // Only columns differ
+  if(begLine == endLine)
+    ss << "-" << endColumn;
+  // Both lines and columns differ
+  else 
+    ss << "-" << endLine << ":" << endColumn;
+  return ss.str();
+}
+
+//----------------------------------------------------------------------------//
 // FileID
 //----------------------------------------------------------------------------//
 
@@ -203,53 +264,21 @@ string_view SourceManager::getFileName(FileID fid) const {
   return data->name;
 }
 
-const SourceManager::Data*
-SourceManager::getData(FileID file) const {
-  assert(file.isValid() && "FileID is not valid");
-  assert(file.getRaw() < datas_.size() && "out-of-range FileID");
-  return datas_[file.getRaw()].get();
-}
-
-CompleteLoc::LineTy SourceManager::getLineNumber(SourceLoc loc) const {
-  auto result = searchLineTable(
-    getData(loc.getFileID()), loc);
-  return result.second;
-}
-
-SourceRange SourceManager::getRangeOfFile(FileID file) const {
-  using OffTy = SourceRange::OffsetTy;
-  
-  // Begin SourceLoc is always (file, 0)
-  SourceLoc begin(file, 0);
-
-  // Calculate end
-  const Data* data = getData(file);
-  std::size_t size = data->content.size();
-
-  // Check that the size isn't too big, just to be sure.
-  assert(size < std::numeric_limits<OffTy>::max() &&
-    "Can't create a file-wide SourceRange for this file: file is too large!");
-  
-  // Return the SourceRange
-  return SourceRange(begin, static_cast<OffTy>(size));
-}
-
-CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
-  const Data* fdata = getData(sloc.getFileID());
-
-  auto idx = sloc.getRawIndex();
-  assert((idx <= fdata->content.size()) && "SourceLoc is Out-of-Range");
-
+std::pair<SourceManager::line_type, SourceManager::col_type>
+SourceManager::calculateLineAndColumn(const Data* data, 
+                                      SourceLoc::IndexTy idx) const {
+  assert(data && "null data!");
+  assert((idx <= data->content.size()) && "out-of-range index!");
   // if the SourceLoc points to a fictive location just past the end
   // of the source, remove the extra column to avoid out_of_range errors
-  bool isOutOfRange = (idx == fdata->content.size());
-  if (isOutOfRange)
+  bool isPastTheEnd = (idx == data->content.size());
+  if (isPastTheEnd)
     idx--;
 
-  CompleteLoc::ColTy col = 0;
-  CompleteLoc::LineTy line = 0;
+  line_type line = 0;
+  col_type col = 0;
 
-  auto entry = searchLineTable(fdata, sloc);
+  auto entry = searchLineTable(data, idx);
   bool exactMatch = (entry.first == idx);
   if (exactMatch) {
     line = entry.second;
@@ -257,20 +286,62 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
   }
   else {
     line = entry.second;
-    auto str_beg = fdata->content.c_str(); // Pointer to the first 
-                                       // character of the string
+    auto str_beg = data->content.c_str(); // Pointer to the first 
+                                          // character of the string
     auto raw_col = utf8::distance(str_beg + entry.first, str_beg + idx);
-    col = static_cast<CompleteLoc::ColTy>(raw_col+1);
+    col = static_cast<col_type>(raw_col + 1);
   }
 
-  // Add back the extra column if needed
-  if (isOutOfRange)
-    col++;
+  // Return, adding back the extra column if needed
+  return {line, (isPastTheEnd ? ++col : col)};
+}
 
+const SourceManager::Data*
+SourceManager::getData(FileID file) const {
+  assert(file.isValid() && "FileID is not valid");
+  assert(file.getRaw() < datas_.size() && "out-of-range FileID");
+  return datas_[file.getRaw()].get();
+}
+
+SourceManager::line_type SourceManager::getLineNumber(SourceLoc loc) const {
+  auto result = searchLineTable(
+    getData(loc.getFileID()), loc.getRawIndex());
+  return result.second;
+}
+
+CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
+  const Data* data = getData(sloc.getFileID());
+  auto lineAndCol = calculateLineAndColumn(data, sloc.getRawIndex());
   return CompleteLoc(
-    fdata->name,
-    line,
-    col
+    data->name,
+    lineAndCol.first,
+    lineAndCol.second
+  );
+}
+
+CompleteRange SourceManager::getCompleteRange(SourceRange range) const {
+  const Data* data = getData(range.getFileID());
+  auto begIdx = range.getBegin().getRawIndex();
+  auto endIdx = range.getEnd().getRawIndex();
+  
+  line_type begLine = 0, endLine = 0;
+  col_type begCol = 0, endCol = 0;
+
+  std::tie(begLine, begCol) = calculateLineAndColumn(data, begIdx);
+ 
+  if (range.getRawOffset() == 0) {
+    endLine = begLine;
+    endCol = begCol;
+  }
+  else
+    std::tie(endLine, endCol) = calculateLineAndColumn(data, endIdx);
+  
+  return CompleteRange(
+    data->name,
+    begLine,
+    begCol,
+    endLine,
+    endCol
   );
 }
 
@@ -283,7 +354,7 @@ SourceManager::getLineAt(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
   // Retrieve the source
   string_view source = data->content;
   // Search the line table
-  auto pair = searchLineTable(data, loc);
+  auto pair = searchLineTable(data, loc.getRawIndex());
   std::size_t beg = pair.first, end = beg;
   // Give the index of the beginning of the line to the caller if it wants it.
   if (lineBeg) (*lineBeg) = beg;
@@ -392,7 +463,7 @@ SourceManager::loadFromString(string_view str, string_view name) {
 
 void SourceManager::calculateLineTable(const Data* data) const {
   std::size_t size = data->content.size();
-  CompleteLoc::LineTy line = 1;
+  CompleteLoc::line_type line = 1;
   // Mark the index 0 as first line.
   data->lineTable_[0] = 1;
   line++;
@@ -416,29 +487,29 @@ SourceManager::isIndexValid(const Data* data, SourceLoc::IndexTy idx) const {
   return idx <= data->content.size();
 }
 
-std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
-SourceManager::searchLineTable(const Data* data, const SourceLoc& loc) const {
+std::pair<SourceLoc::IndexTy, SourceManager::line_type>
+SourceManager::searchLineTable(const Data* data, SourceLoc::IndexTy idx) const {
   if (!data->calculatedLineTable_)
     calculateLineTable(data);
   else {
     // Line table was already calculated, check if the cached search result matches.
     // if it does match, return it.
-    if(data->lastLTSearch_.first == loc)
+    if(data->lastLTSearch_.first == idx)
       return data->lastLTSearch_.second;
   }
 
-  auto it = data->lineTable_.lower_bound(loc.getRawIndex());
+  auto it = data->lineTable_.lower_bound(idx);
 
   bool exactMatch = false;
   if(it != data->lineTable_.end())
-    exactMatch = (it->first == loc.getRawIndex());
+    exactMatch = (it->first == idx);
 
-  std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy> rtr;
+  std::pair<SourceLoc::IndexTy, CompleteLoc::line_type> rtr;
   if (!exactMatch && (it != data->lineTable_.begin()))
     rtr = *(--it);
   else 
     rtr = *it;
-  data->lastLTSearch_ = {loc, rtr};
+  data->lastLTSearch_ = {idx, rtr};
   return rtr;
 }
 

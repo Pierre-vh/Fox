@@ -19,29 +19,50 @@
 #include <tuple>
 
 namespace fox {
-  // POD-like struct containing a human-readable source loc information.
+  // Object containing a human-readable version of a SourceLoc.
+  //
+  // Note that this structure does not own the "fileName" string.
   struct CompleteLoc {
-    using LineTy = std::uint32_t;
-    using ColTy = std::uint16_t;
+    using line_type = std::uint32_t;
+    using col_type = std::uint16_t;
 
-    CompleteLoc(const std::string& fName, LineTy ln, ColTy col)
-      : fileName(fName), line(ln), column(col) {}
+    CompleteLoc(string_view fName, line_type ln, col_type col);
 
-    bool operator==(const CompleteLoc& other) const {
-      return (fileName == other.fileName) 
-        && (line == other.line) && (column == other.column);
-    }
+    bool operator==(const CompleteLoc& other) const;
+    bool operator!=(const CompleteLoc& other) const;
 
-    const std::string fileName;
-    const LineTy line;
-    const ColTy column;
+    std::string toString(bool printFilename = true) const;
+
+    const string_view fileName;
+    const line_type line;
+    const col_type column;
+  };
+
+  // Object containing a human-readable version of a SourceRange.
+  struct CompleteRange {
+    using line_type = CompleteLoc::line_type;
+    using col_type = CompleteLoc::col_type;
+
+    CompleteRange(string_view fName, line_type begLine, col_type begCol,
+      line_type endLine, col_type endCol);
+
+    bool operator==(const CompleteRange& other) const;
+    bool operator!=(const CompleteRange& other) const;
+
+    std::string toString(bool printFilename = true) const;
+
+    const string_view fileName;
+    const line_type begLine;
+    const col_type begColumn;
+    const line_type endLine;
+    const col_type endColumn;
   };
 
   // The SourceManager, which manages source files. It reads
   // them, stores them and gives them a unique FileID.
   //
-  // It allows the client to retrieve the data behind a FileID, like
-  // the name of the file or it's content. 
+  // It also allows the client to retrieve the data behind a FileID,
+  // SourceLoc or SourceRange.
   //
   // As an implementation detail, accessing a File's data is pretty
   // cheap since files are stored in a vector, so accessing the data
@@ -49,6 +70,9 @@ namespace fox {
   //  (data[theID.getIndex()] = the source file)
   class SourceManager {
     public:
+      using line_type = CompleteLoc::line_type;
+      using col_type = CompleteLoc::col_type;
+
       SourceManager() = default;
 
       // Return enum for readFile
@@ -83,19 +107,15 @@ namespace fox {
       string_view getFileName(FileID fid) const;
 
       // Returns the line number of a SourceLoc
-      CompleteLoc::LineTy getLineNumber(SourceLoc loc) const;
+      line_type getLineNumber(SourceLoc loc) const;
 
-      // Returns a SourceRange that covers a whole file. 
-      // It begins at index 0, and ends at the last character.
-      SourceRange getRangeOfFile(FileID file) const;
-
-      // Requests the human-readable location a SourceLoc points to.
-      //
-      // This function will assert that the SourceLoc is valid;
-      //
-      // This function accepts a SourceLoc that points right past 
-      // the end of the file.
+      // Requests the "complete" version of a SourceLoc, which
+      // is presentable to the user.
       CompleteLoc getCompleteLoc(SourceLoc sloc) const;
+
+      // Requests the "complete" version of a SourceLoc, which
+      // is presentable to the user.
+      CompleteRange getCompleteRange(SourceRange range) const;
 
       // Returns the complete line of source code for a given SourceLoc
       // An optional argument (pointer) can be passed. If it is present,
@@ -126,23 +146,31 @@ namespace fox {
         const std::string content;
         protected:
           using IndexTy = SourceLoc::IndexTy;
-          using LineTy = CompleteLoc::LineTy;
 
           friend class SourceManager;
 
           // This is the cached "line table", which is used to efficiently
           // calculate the line number of a SourceLoc.
-          mutable std::map<IndexTy, LineTy> lineTable_;
+          mutable std::map<IndexTy, line_type> lineTable_;
 
           // Flag indicating whether we have calculated the LineTable.
           mutable bool calculatedLineTable_ = false;
 
           // We cache the last line table search here.
-          // The first element of the pair is the sourceloc that we
-          // searched for, the second is the result we returned.
-          mutable std::pair<SourceLoc, std::pair<IndexTy, LineTy>> 
+          // The first element of the pair is the raw index of
+          // the last SourceLoc that we
+          // searched for, the second is the result we returned for
+          // that search.
+          //
+          // TODO: Is this case common enough to warrant caching? Tests needed!
+          mutable std::pair<IndexTy, std::pair<IndexTy, line_type>> 
             lastLTSearch_;
       };
+
+      // Calculates the line and column number of a given position inside
+      // the file/data's content.
+      std::pair<line_type, col_type>
+      calculateLineAndColumn(const Data* data, SourceLoc::IndexTy idx) const;
 
       // Returns a pointer to the "Data" for a given File.
       // The result is always non null (guaranteed by an assertion)
@@ -157,9 +185,11 @@ namespace fox {
       // (or a past-the-end position) in the data.
       bool isIndexValid(const Data* data, SourceLoc::IndexTy idx) const;
 
-      // Searches the "line table" of a given Data.
-      std::pair<SourceLoc::IndexTy, CompleteLoc::LineTy>
-      searchLineTable(const Data* data, const SourceLoc& loc) const;
+      // Searches the "line table" of a given Data, returning
+      // the index at which the line begins and the line number
+      // at the position "idx"
+      std::pair<SourceLoc::IndexTy, line_type>
+      searchLineTable(const Data* data, SourceLoc::IndexTy idx) const;
 
       // Inserts a new Data in the datas_ vector, returning it's FileID.
       FileID insertData(std::unique_ptr<Data> data);
