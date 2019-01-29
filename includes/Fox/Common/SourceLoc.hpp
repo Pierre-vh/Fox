@@ -11,7 +11,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <string>
 
 namespace fox {
   class SourceManager;
@@ -91,13 +90,6 @@ namespace fox {
       // same file, or if it comes after this one.
       bool comesBefore(SourceLoc other) const;
 
-      // Returns a string representation of a SourceLoc:
-      //  Format: line:column
-      //  Example: 3:4
-      //
-      // Returns "" if this SourceLoc is invalid.
-      std::string toString(const SourceManager& srcMgr) const;
-
     private:
       FileID fid_;
       index_type idx_;
@@ -148,16 +140,6 @@ namespace fox {
       // Return false if the SourceRange doesn't belong to the same file,
       // or if it's not contained inside this SourceRange
       bool contains(SourceRange range) const;
-
-      // Returns a string representation of a SourceLoc:
-      //  Format: 
-      //    when offset == 0: line:column
-      //    when begLine == endLine: line:column-column
-      //    when begLine != endLine: line:column-line:column
-      //  Example: 3:4, 3:4-6, 3:4-4:5
-      //
-      // Returns "" if this SourceRange is invalid.
-      std::string toString(const SourceManager& srcMgr) const;
 
     private:
       SourceLoc sloc_;
