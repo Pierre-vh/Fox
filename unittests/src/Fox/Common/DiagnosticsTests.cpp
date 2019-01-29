@@ -51,36 +51,38 @@ namespace {
     public:
       DiagnosticsTest() : diagEng(srcMgr, std::make_unique<StrDiagConsumer>()) {
         cons = static_cast<StrDiagConsumer*>(diagEng.getConsumer());
+        file = srcMgr.loadFromString("", "foo");
       }
     protected:
+      FileID file;
       StrDiagConsumer* cons = nullptr;
       SourceManager srcMgr;
       DiagnosticEngine diagEng;
   };
 }
 TEST_F(DiagnosticsTest, notes) {
-  auto diag = diagEng.report(DiagID::unittest_notetest);
+  auto diag = diagEng.report(DiagID::unittest_notetest, file);
   EXPECT_EQ("Test note", diag.getStr()) << "Diagnostic string did not match";
   EXPECT_EQ(DiagSeverity::Note, diag.getSeverity()) << "Diagnostic severity did not match";
   EXPECT_EQ(DiagID::unittest_notetest, diag.getID()) << "Diagnostic id did not match";
 }
 
 TEST_F(DiagnosticsTest, warnings) {
-  auto diag = diagEng.report(DiagID::unittest_warntest);
+  auto diag = diagEng.report(DiagID::unittest_warntest, file);
   EXPECT_EQ("Test warning", diag.getStr()) << "Diagnostic string did not match";
   EXPECT_EQ(DiagSeverity::Warning, diag.getSeverity()) << "Diagnostic severity did not match";
   EXPECT_EQ(DiagID::unittest_warntest, diag.getID()) << "Diagnostic id did not match";
 }
 
 TEST_F(DiagnosticsTest, errors) {
-  auto diag = diagEng.report(DiagID::unittest_errtest);
+  auto diag = diagEng.report(DiagID::unittest_errtest, file);
   EXPECT_EQ("Test error", diag.getStr()) << "Diagnostic string did not match";
   EXPECT_EQ(DiagSeverity::Error, diag.getSeverity()) << "Diagnostic severity did not match";
   EXPECT_EQ(DiagID::unittest_errtest, diag.getID()) << "Diagnostic id did not match";
 }
 
 TEST_F(DiagnosticsTest, fatals) {
-  auto diag = diagEng.report(DiagID::unittest_fataltest);
+  auto diag = diagEng.report(DiagID::unittest_fataltest, file);
   EXPECT_EQ("Test fatal", diag.getStr()) << "Diagnostic string did not match";
   EXPECT_EQ(DiagSeverity::Fatal, diag.getSeverity()) << "Diagnostic severity did not match";
   EXPECT_EQ(DiagID::unittest_fataltest, diag.getID()) << "Diagnostic id did not match";
@@ -90,32 +92,37 @@ TEST_F(DiagnosticsTest, emission) {
   EXPECT_EQ("", cons->getStr()) << "Consumer str wasn't empty at first.";
   // Test emission when diag goes out of scope
 	{
-    diagEng.report(DiagID::unittest_fataltest);
+    diagEng.report(DiagID::unittest_fataltest, file);
   }
   EXPECT_EQ("Test fatal", cons->getStr()) << "Consumer string did not match.";
 }
 
 //   NOTE(unittest_placeholderremoval1, "[%0,%1]")
 TEST_F(DiagnosticsTest, addArg1) {
-  auto str = diagEng.report(DiagID::unittest_placeholderremoval1).addArg("foo").addArg(55.45f).getStr();
+  auto str = diagEng.report(DiagID::unittest_placeholderremoval1, file)
+    .addArg("foo").addArg(55.45f).getStr();
   EXPECT_EQ(str, "[foo,55.45]");
 }
 
 //   NOTE(unittest_placeholderremoval2, "[%0%0%0]")
 TEST_F(DiagnosticsTest, addArg2) {
-  auto str = diagEng.report(DiagID::unittest_placeholderremoval2).addArg('a').getStr();
+  auto str = diagEng.report(DiagID::unittest_placeholderremoval2, file)
+    .addArg('a').getStr();
   EXPECT_EQ(str, "[aaa]");
 }
 
 //   NOTE(unittest_placeholderremoval3, "[%5%4%3%2%1%0]")
 TEST_F(DiagnosticsTest, addArg3) {
-  auto str = diagEng.report(DiagID::unittest_placeholderremoval3).addArg('a').addArg('b').addArg('c').addArg('d').addArg('e').addArg('f').getStr();
+  auto str = diagEng.report(DiagID::unittest_placeholderremoval3, file)
+    .addArg('a').addArg('b').addArg('c')
+    .addArg('d').addArg('e').addArg('f').getStr();
   EXPECT_EQ(str, "[fedcba]");
 }
 
 //   NOTE(unittest_placeholderremoval4, "Hello, %0")
 TEST_F(DiagnosticsTest, addArg4) {
-  auto str = diagEng.report(DiagID::unittest_placeholderremoval4).addArg("world").getStr();
+  auto str = diagEng.report(DiagID::unittest_placeholderremoval4, file)
+    .addArg("world").getStr();
   EXPECT_EQ(str, "Hello, world");
 }
 
@@ -123,7 +130,7 @@ TEST_F(DiagnosticsTest, errLimit) {
   diagEng.setErrorLimit(1);
   EXPECT_FALSE(diagEng.hasFatalErrorOccured());
 
-  auto diag1 = diagEng.report(DiagID::unittest_errtest);
+  auto diag1 = diagEng.report(DiagID::unittest_errtest, file);
   ASSERT_EQ(diag1.getSeverity(), DiagSeverity::Error);
   diag1.emit();
   // The last emitted error should have been a fatal error
@@ -133,10 +140,10 @@ TEST_F(DiagnosticsTest, errLimit) {
 
   auto count = cons->getCount();
   // Further diags should all be silenced.
-  auto test_note = diagEng.report(DiagID::unittest_notetest);
-  auto test_warn = diagEng.report(DiagID::unittest_warntest);
-  auto test_err = diagEng.report(DiagID::unittest_errtest);
-  auto test_fat = diagEng.report(DiagID::unittest_fataltest);
+  auto test_note = diagEng.report(DiagID::unittest_notetest, file);
+  auto test_warn = diagEng.report(DiagID::unittest_warntest, file);
+  auto test_err = diagEng.report(DiagID::unittest_errtest, file);
+  auto test_fat = diagEng.report(DiagID::unittest_fataltest, file);
 
   EXPECT_EQ(test_note.getSeverity(), DiagSeverity::Ignore);
   EXPECT_EQ(test_warn.getSeverity(), DiagSeverity::Ignore);
@@ -152,7 +159,7 @@ TEST_F(DiagnosticsTest, errLimit) {
 }
 
 TEST_F(DiagnosticsTest, InactiveDiags) {
-  auto diag = diagEng.report(DiagID::unittest_placeholderremoval1);
+  auto diag = diagEng.report(DiagID::unittest_placeholderremoval1, file);
   EXPECT_EQ("[%0,%1]", diag.getStr()) 
     << "Diag str wasn't the one expected.";
   diag.addArg("foo");
@@ -171,7 +178,7 @@ TEST_F(DiagnosticsTest, SilencedWarnings) {
   // Set flag
   diagEng.setIgnoreWarnings(true);
   // Test.
-  auto diagWarn = diagEng.report(DiagID::unittest_warntest);
+  auto diagWarn = diagEng.report(DiagID::unittest_warntest, file);
   EXPECT_EQ(diagWarn.getSeverity(),DiagSeverity::Ignore) 
     << "Reported diagnostic wasn't a silenced diag";
   diagWarn.emit();
@@ -181,8 +188,9 @@ TEST_F(DiagnosticsTest, SilencedNotes) {
   // Set flag
   diagEng.setIgnoreNotes(true);
   // Test.
-  auto diagNote = diagEng.report(DiagID::unittest_notetest);
-  EXPECT_EQ(diagNote.getSeverity(), DiagSeverity::Ignore) << "Reported diagnostic wasn't a silenced diag";
+  auto diagNote = diagEng.report(DiagID::unittest_notetest, file);
+  EXPECT_EQ(diagNote.getSeverity(), DiagSeverity::Ignore) 
+    << "Reported diagnostic wasn't a silenced diag";
   diagNote.emit();
 }
 
@@ -190,48 +198,58 @@ TEST_F(DiagnosticsTest, SilenceAllAfterFatal) {
   // Set flag
   diagEng.setIgnoreAllAfterFatal(true);
   // Test emission of an error
-  diagEng.report(DiagID::unittest_errtest).emit();
+  diagEng.report(DiagID::unittest_errtest, file).emit();
   ASSERT_EQ(diagEng.getErrorsCount(), 1) << "Error wasn't recorded?";
   
   // Report a fatal error
-  diagEng.report(DiagID::unittest_fataltest).emit();
-  EXPECT_EQ(diagEng.getErrorsCount(), 1) << "Fatal error was counted like a normal error?";
-  ASSERT_TRUE(diagEng.hasFatalErrorOccured()) << "Fatal error didn't count?";
+  diagEng.report(DiagID::unittest_fataltest, file).emit();
+  EXPECT_EQ(diagEng.getErrorsCount(), 1) 
+    << "Fatal error was counted like a normal error";
+  ASSERT_TRUE(diagEng.hasFatalErrorOccured()) 
+    << "Fatal error didn't count?";
 
   // And try to emit another error
-  auto diagErrSilenced = diagEng.report(DiagID::unittest_errtest);
-  EXPECT_EQ(diagErrSilenced.getSeverity(), DiagSeverity::Ignore) << "Diag was supposed to be silenced an thus this DiagID was supposed to be a Dummy diag.";
+  auto diagErrSilenced = diagEng.report(DiagID::unittest_errtest, file);
+  EXPECT_EQ(diagErrSilenced.getSeverity(), DiagSeverity::Ignore)
+    << "Diag was supposed to be silenced";
   diagErrSilenced.emit();
 }
 
 TEST_F(DiagnosticsTest, SilenceAll) {
   diagEng.setIgnoreAll(true);
-  auto dg1 = diagEng.report(DiagID::unittest_errtest);
-  auto dg2 = diagEng.report(DiagID::unittest_warntest);
-  auto dg3 = diagEng.report(DiagID::unittest_fataltest);
+  auto dg1 = diagEng.report(DiagID::unittest_errtest, file);
+  auto dg2 = diagEng.report(DiagID::unittest_warntest, file);
+  auto dg3 = diagEng.report(DiagID::unittest_fataltest, file);
 
-  EXPECT_EQ(dg1.getSeverity(), DiagSeverity::Ignore) << "Diag was supposed to be silenced.";
-  EXPECT_EQ(dg2.getSeverity(), DiagSeverity::Ignore) << "Diag was supposed to be silenced.";
-  EXPECT_EQ(dg3.getSeverity(), DiagSeverity::Ignore) << "Diag was supposed to be silenced.";
+  EXPECT_EQ(dg1.getSeverity(), DiagSeverity::Ignore) 
+    << "Diag was supposed to be silenced.";
+  EXPECT_EQ(dg2.getSeverity(), DiagSeverity::Ignore) 
+    << "Diag was supposed to be silenced.";
+  EXPECT_EQ(dg3.getSeverity(), DiagSeverity::Ignore) 
+    << "Diag was supposed to be silenced.";
 }
 
 TEST_F(DiagnosticsTest, WarningsAreErrors) {
   diagEng.setWarningsAreErrors(true);
-  diagEng.report(DiagID::unittest_warntest).emit();
-  EXPECT_EQ(diagEng.getWarningsCount(), 0) << "Diag shouldn't have counted a normal warning";
-  EXPECT_EQ(diagEng.getErrorsCount(), 1) << "Diag didn't count as an error.";
+  diagEng.report(DiagID::unittest_warntest, file).emit();
+  EXPECT_EQ(diagEng.getWarningsCount(), 0)
+    << "Diag shouldn't have counted a normal warning";
+  EXPECT_EQ(diagEng.getErrorsCount(), 1) 
+    << "Diag didn't count as an error.";
 }
 
 TEST_F(DiagnosticsTest, ErrorsAreFatal) {
   diagEng.setErrorsAreFatal(true);
-  diagEng.report(DiagID::unittest_errtest).emit();
-  EXPECT_TRUE(diagEng.hasFatalErrorOccured()) << "Diag didn't count as a fatal error.";
-  EXPECT_EQ(diagEng.getErrorsCount(), 0) << "This error was supposed to be fatal and thus count as a fatal error, not a normal error.";
+  diagEng.report(DiagID::unittest_errtest, file).emit();
+  EXPECT_TRUE(diagEng.hasFatalErrorOccured()) 
+    << "Diag didn't count as a fatal error.";
+  EXPECT_EQ(diagEng.getErrorsCount(), 0) 
+    << "This error was supposed to be fatal and thus count as a fatal error, not a normal error.";
 }
 
 TEST_F(DiagnosticsTest, CopyingDiagKillsCopiedDiag) {
   // Test with copy constructor
-  auto diagA = diagEng.report(DiagID::unittest_errtest);
+  auto diagA = diagEng.report(DiagID::unittest_errtest, file);
   auto diagB(diagA);
   EXPECT_FALSE(diagA.isActive());
   EXPECT_FALSE(diagA);

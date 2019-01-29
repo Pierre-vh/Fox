@@ -65,15 +65,12 @@ DiagnosticEngine::DiagnosticEngine(SourceManager& sm,
   warningsAreErrors_ = false;
 }
 
-Diagnostic DiagnosticEngine::report(DiagID diagID) {
-  return report(diagID, SourceRange());
-}
-
 Diagnostic DiagnosticEngine::report(DiagID diagID, FileID file) {
   return report(diagID, SourceRange(SourceLoc(file))).setIsFileWide(true);
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, SourceRange range) {
+  assert(range && "invalid location information!");
   const auto idx = static_cast<std::underlying_type<DiagID>::type>(diagID);
   DiagSeverity sev = diagsSevs[idx];
   std::string str(diagsStrs[idx]);
@@ -207,9 +204,11 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
   if ((errLimit_ != 0) && (errorCount_ >= errLimit_)) {
     // If we should emit one, check if we haven't emitted one already.
     if (!errLimitReached_) {
-      // Important : set this to true to avoid infinite recursion.
+      // Set errLimitReached_ to true to avoid infinite recursion.
       errLimitReached_ = true;
-      report(DiagID::diagengine_maxErrCountExceeded).addArg(errorCount_).emit();
+      // Emit a "maximum error count exceeded" diagnostic in the file.
+      report(DiagID::diagengine_maxErrCountExceeded, diag.getFileID())
+        .addArg(errorCount_).emit();
       setIgnoreAll(true);
     }
   }
@@ -273,10 +272,11 @@ void DiagnosticEngine::updateInternalCounters(DiagSeverity ds) {
 //----------------------------------------------------------------------------//
 
 Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID,
-  DiagSeverity dSev, const std::string& dStr, const SourceRange& range) :
-  engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr),
+  DiagSeverity dSev, string_view dStr, SourceRange range) :
+  engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr.to_string()),
   range_(range) {
   assert(engine && "Engine cannot be null!");
+  assert(range && "Invalid location information");
   initBitFields();
 }
 

@@ -11,6 +11,7 @@
 
 #include "DiagnosticConsumers.hpp"
 #include "SourceLoc.hpp"
+#include "string_view.hpp"
 #include "Typedefs.hpp"
 #include <string>
 #include <sstream>
@@ -51,7 +52,7 @@ namespace fox {
     friend class DiagnosticEngine;
 
     Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,
-      const std::string& dStr, const SourceRange& range = SourceRange());
+      string_view dStr, SourceRange range = SourceRange());
     
     public:
       // Note : The copy constructor kills the copied diag.
@@ -185,7 +186,6 @@ namespace fox {
       // Constructor that will use a pre-created DiagnosticConsumer
       DiagnosticEngine(SourceManager& sm, std::unique_ptr<DiagnosticConsumer> ncons);
 
-      Diagnostic report(DiagID diagID);
       Diagnostic report(DiagID diagID, FileID file);
       Diagnostic report(DiagID diagID, SourceRange range);
       Diagnostic report(DiagID diagID, SourceLoc loc);
