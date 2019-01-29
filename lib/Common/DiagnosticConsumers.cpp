@@ -21,11 +21,12 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm,
   // TODO: Once I have something that resembles a "Project name" or "module name"
   // return that instead of an empty string so we have better diag handling
   // in that situation.
-  // e.g. print "<MyModule> - Error - ..." instead of just "Error - ...."
+  // e.g. print "<MyModule> - error - ..." instead of just "error - ...."
 
-  // Don't do anything if the range isn't valid.
-  if (!range) return "<unknown>";
+  // Don't display anything if the range isn't valid.
+  if (!range) return "";
   std::stringstream ss;
+  // Only display the file name for file-wide diagnostics
   if (isFileWide)
     ss << '<' << sm.getFileName(range.getFileID()) << ">";
   else 
