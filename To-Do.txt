@@ -136,6 +136,8 @@ To-Do:
   > Split DeclContext into DeclContext and LookupContext (Done)
   > FuncDecl is a DeclContext again + Simplify the Decl Parent logic (Done)
   > Split SourceLoc & SourceManager headers (Done)
+  > SourceManager interface improvements (Done)
+  > DiagnosticEngine interface improvements (Done)
 
   > VM
   > IR
@@ -167,9 +169,6 @@ Future:
   > Multifile support: It's coming, but the how is still to be decided
   > Structs/Objects
 
-Diagnostics improvements:
-  > When diagnosing a redecl, should I really print "first decl seen here" for each use?
-
 Other:
   Maybe someday: 
     This is a list of things that I don't know/I'm not sure yet how I'll fix.
@@ -184,7 +183,12 @@ Other:
   High priority:
     This is a list of "high-priority" stuff that needs to be done, but isn't part of the main
     "roadmap".
-  
+
+    > DiagnosticEngine overhaul: report(..) should return a Diagnostic::Builder object:
+      a lightweight RAII object. The actual Diagnostic data should be contained
+      inside the DiagnosticEngine. This avoids the large temporary object that is the
+      current Diagnostic object.  
+
     > ASTVerifier
       Asserts that the AST is well formed. Used as a debug tool (will only be enabled in Debug builds)
 
@@ -197,6 +201,9 @@ Other:
         Type maps
         The allocator
         Cleanups
+
+    > LinearAllocator should allocate large objects in custom pools instead of
+      flat-out refusing them.
 
     > Add an "Optional" class to the project, and use it to properly express optionality of
       return values in the SourceManager and other classes.
@@ -213,6 +220,9 @@ Other:
     This is a list of "medium-priority" stuff that needs to be done.
 
     > Lexer & Token rewrite + Parser rework.
+
+    > Add a "RAIIIgnoreAll" object to ignore all diagnostics temporarily, and
+      remove setIgnoreAll(value) (replace by ignoreAll() returning RAIIIgnoreAll)
 
     > DiagnosticVerifier: Add a syntax to expect a diag multiple times, e.g. 'expect-error(3)@+1'
       -> Use it in tests\VerifyMode\Sema\Expr\call.fox
