@@ -10,17 +10,27 @@
 #include <new>  // bad_alloc
 #include <iostream>
 
-void fox::detail::fox_unreachable_internal(const char* message, const char* file, unsigned line) {
-  std::cerr << "(" << file << ", l:" << line << ") UNREACHBLE INSTRUCTION EXECUTED: \"" << message << "\"\n";
+void fox::detail::fox_unreachable_internal(const char* message, 
+                                           const char* file, unsigned line) {
+  std::cerr << "(" << file << ", l:" << line 
+            << ") UNREACHBLE INSTRUCTION EXECUTED: \"" 
+            << message << "\"\n";
   abort();
 }
 
-void fox::detail::fox_unimpl_feat_internal(const char* message, const char* file, unsigned line) {
-  std::cerr << "(" << file << ", l:" << line << ") UNIMPLEMENTED FEATURE: \"" << message << "\"\n";
+void fox::detail::fox_unimpl_feat_internal(const char* message, 
+                                           const char* file, unsigned line) {
+  std::cerr << "(" << file << ", l:" << line 
+            << ") UNIMPLEMENTED FEATURE: \"" 
+            << message << "\"\n";
   abort();
 }
 
 void fox::reportBadAlloc(const char* message) {
   std::cerr << "bad_alloc: " << message << '\n';
+#if _HAS_EXCEPTIONS
   throw std::bad_alloc();
+#else
+  abort();
+#endif
 }

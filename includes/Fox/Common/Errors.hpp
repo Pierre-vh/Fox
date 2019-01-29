@@ -25,8 +25,8 @@ namespace detail {
 } // detail namespace
 
   // Report a bad alloc error (when an allocator fails)
-  // Currently this will print the error message to cerr
-  // and throw std::bad_alloc
+  // This throws a std::bad_alloc if exceptions are enabled, otherwise,
+  // it calls abort().
   void reportBadAlloc(const char* message);
 } // fox namespace
 
@@ -37,8 +37,7 @@ namespace detail {
     ::fox::detail::fox_unreachable_internal(msg,__FILE__,__LINE__)
 #endif
 
-
-// Macro to mark some functionality as unimplemented for now.
+// Macro to mark some functionality as unimplemented/unsupported (for now)
 #ifndef fox_unimplemented_feature
   #define fox_unimplemented_feature(msg) \
     ::fox::detail::fox_unimpl_feat_internal(msg,__FILE__,__LINE__)
