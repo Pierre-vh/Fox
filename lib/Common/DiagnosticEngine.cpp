@@ -177,7 +177,7 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
     consumer_->consume(srcMgr_, diag);
 
   // Update the internal state
-  updateInternalCounters(diag.getSeverity());
+  updateInternalState(diag.getSeverity());
 }
 
 DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const {
@@ -214,7 +214,7 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const {
   }
 }
 
-void DiagnosticEngine::updateInternalCounters(DiagSeverity ds) {
+void DiagnosticEngine::updateInternalState(DiagSeverity ds) {
   switch (ds) {
     case DiagSeverity::Warning:
       // no-op

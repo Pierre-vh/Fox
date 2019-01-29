@@ -230,8 +230,9 @@ namespace fox {
       // Promotes the severity of the diagnostic if needed
       DiagSeverity changeSeverityIfNeeded(DiagSeverity ds) const;
 
-      // Updates internal counters depending on the severity of a diagnostic
-      void updateInternalCounters(DiagSeverity ds);
+      // Updates the internal state depending on the severity of an
+      // emitted diagnostic
+      void updateInternalState(DiagSeverity ds);
 
       // Bitfields : Options
       bool warningsAreErrors_  : 1;
