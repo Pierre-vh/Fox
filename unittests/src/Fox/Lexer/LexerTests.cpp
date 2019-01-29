@@ -47,7 +47,7 @@ TEST_F(LexerTest,CorrectTest1) {
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
     "'\n\tReason:" << toString(result.second);
   lexer.lexFile(file);
-  EXPECT_FALSE(ctxt.hadErrors());
+  EXPECT_FALSE(ctxt.diagEngine.hadAnyError());
 }
 
 TEST_F(LexerTest, IncorrectTest1) {
@@ -56,7 +56,7 @@ TEST_F(LexerTest, IncorrectTest1) {
   FileID file = result.first;
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
     "'\n\tReason:" << toString(result.second);  lexer.lexFile(file);
-  EXPECT_TRUE(ctxt.hadErrors());
+  EXPECT_TRUE(ctxt.diagEngine.hadAnyError());
 }
 
 TEST_F(LexerTest, IncorrectTest2) {
@@ -65,7 +65,7 @@ TEST_F(LexerTest, IncorrectTest2) {
   FileID file = result.first;
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
     "'\n\tReason:" << toString(result.second);  lexer.lexFile(file);
-  EXPECT_TRUE(ctxt.hadErrors());
+  EXPECT_TRUE(ctxt.diagEngine.hadAnyError());
 }
 
 TEST_F(LexerTest, IncorrectTest3) {
@@ -74,7 +74,7 @@ TEST_F(LexerTest, IncorrectTest3) {
   FileID file = result.first;
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
     "'\n\tReason:" << toString(result.second);  lexer.lexFile(file);
-  EXPECT_TRUE(ctxt.hadErrors());
+  EXPECT_TRUE(ctxt.diagEngine.hadAnyError());
 }
 
 TEST_F(LexerTest, IncorrectTest4) {
@@ -83,7 +83,7 @@ TEST_F(LexerTest, IncorrectTest4) {
   FileID file = result.first;
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << 
     "'\n\tReason:" << toString(result.second);  lexer.lexFile(file);
-  EXPECT_TRUE(ctxt.hadErrors());
+  EXPECT_TRUE(ctxt.diagEngine.hadAnyError());
 }
 
 TEST_F(LexerTest, FloatTokens) {
@@ -219,7 +219,7 @@ TEST_F(LexerTest, Coordinates1) {
     << "\n\tReason:" << toString(result.second);
 
   lexer.lexFile(file);
-  ASSERT_FALSE(ctxt.hadErrors());
+  ASSERT_FALSE(ctxt.diagEngine.hadAnyError());
 
   TokenVector& output = lexer.getTokenVector();
   char varFounds = 0;

@@ -54,9 +54,6 @@ namespace fox {
       // Allocates a copy of "str" inside the main allocator.
       string_view allocateCopy(string_view str);
 
-      // Shortcut for diagEngine.getErrorCount() != 0
-      bool hadErrors() const;
-
       // Add a cleanup function to be called when the ASTContext's permanent
       // allocator frees it's memory.
       void addCleanup(std::function<void(void)> fn);

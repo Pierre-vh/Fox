@@ -38,7 +38,7 @@ class LocTests : public ::testing::Test {
       lexer = std::make_unique<Lexer>(astContext);
       lexer->lexFile(file);
 
-      if (astContext.hadErrors()) {
+      if (astContext.diagEngine.hadAnyError()) {
         FAIL() << "Lexing Error";
       }
 

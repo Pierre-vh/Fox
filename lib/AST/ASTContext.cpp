@@ -83,10 +83,6 @@ string_view ASTContext::allocateCopy(string_view str) {
   return string_view(static_cast<char*>(mem), size);
 }
 
-bool ASTContext::hadErrors() const {
-  return diagEngine.hadAnyError();
-}
-
 void ASTContext::addCleanup(std::function<void(void)> fn) {
   cleanups_.push_back(fn);
 }

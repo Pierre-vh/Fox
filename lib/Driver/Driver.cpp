@@ -64,7 +64,7 @@ bool Driver::processFile(const std::string& filepath) {
   }
 
   auto canContinue = [&](){
-    return (unit != nullptr) && !ctxt.hadErrors();
+    return (unit != nullptr) && !diags.hadAnyError();
   };
 
   // Dump alloc if needed
@@ -86,7 +86,7 @@ bool Driver::processFile(const std::string& filepath) {
     ASTDumper(srcMgr, getOS(), 1).print(unit);
   }
 
-  bool success = !ctxt.hadErrors();
+  bool success = !diags.hadAnyError();
 
   // (Verify mode) Check that all diags were emitted
   if (verify_) {
