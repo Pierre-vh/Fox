@@ -117,7 +117,7 @@ SourceLoc::SourceLoc() : fid_(FileID()), idx_(0) {
 
 }
 
-SourceLoc::SourceLoc(FileID fid, IndexTy idx):
+SourceLoc::SourceLoc(FileID fid, index_type idx):
   fid_(fid), idx_(idx) {
 }
 
@@ -141,7 +141,7 @@ FileID SourceLoc::getFileID() const {
   return fid_;
 }
 
-SourceLoc::IndexTy SourceLoc::getRawIndex() const {
+SourceLoc::index_type SourceLoc::getRawIndex() const {
   return idx_;
 }
 
@@ -266,7 +266,7 @@ string_view SourceManager::getFileName(FileID fid) const {
 
 std::pair<SourceManager::line_type, SourceManager::col_type>
 SourceManager::calculateLineAndColumn(const Data* data, 
-                                      SourceLoc::IndexTy idx) const {
+                                      SourceLoc::index_type idx) const {
   assert(data && "null data!");
   assert((idx <= data->content.size()) && "out-of-range index!");
   // if the SourceLoc points to a fictive location just past the end
@@ -346,7 +346,7 @@ CompleteRange SourceManager::getCompleteRange(SourceRange range) const {
 }
 
 string_view 
-SourceManager::getLineAt(SourceLoc loc, SourceLoc::IndexTy* lineBeg) const {
+SourceManager::getLineAt(SourceLoc loc, SourceLoc::index_type* lineBeg) const {
   // Retrieve the data
   const Data* data = getData(loc.getFileID());
   // Check that our index is valid
@@ -481,14 +481,14 @@ void SourceManager::calculateLineTable(const Data* data) const {
 }
 
 bool 
-SourceManager::isIndexValid(const Data* data, SourceLoc::IndexTy idx) const {
+SourceManager::isIndexValid(const Data* data, SourceLoc::index_type idx) const {
   // The index is valid if it's smaller or equal to .size(). It can be
   // equal to size in the case of a "past the end" loc.
   return idx <= data->content.size();
 }
 
-std::pair<SourceLoc::IndexTy, SourceManager::line_type>
-SourceManager::searchLineTable(const Data* data, SourceLoc::IndexTy idx) const {
+std::pair<SourceLoc::index_type, SourceManager::line_type>
+SourceManager::searchLineTable(const Data* data, SourceLoc::index_type idx) const {
   if (!data->calculatedLineTable_)
     calculateLineTable(data);
   else {
@@ -504,7 +504,7 @@ SourceManager::searchLineTable(const Data* data, SourceLoc::IndexTy idx) const {
   if(it != data->lineTable_.end())
     exactMatch = (it->first == idx);
 
-  std::pair<SourceLoc::IndexTy, CompleteLoc::line_type> rtr;
+  std::pair<SourceLoc::index_type, CompleteLoc::line_type> rtr;
   if (!exactMatch && (it != data->lineTable_.begin()))
     rtr = *(--it);
   else 

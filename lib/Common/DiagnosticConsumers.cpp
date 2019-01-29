@@ -124,7 +124,7 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
 
   auto range = diag.getRange();
   auto eRange = diag.getExtraRange();
-  SourceLoc::IndexTy lineBeg = 0;
+  SourceLoc::index_type lineBeg = 0;
 
   // Get the line, remove it's indent and display it.
   string_view line = sm.getLineAt(diag.getRange().getBegin(), &lineBeg);

@@ -122,7 +122,7 @@ namespace fox {
       // the function will store the Index at which the line begins in 
       // this variable.
       string_view getLineAt(SourceLoc loc, 
-        SourceLoc::IndexTy* lineBeg = nullptr) const;
+        SourceLoc::index_type* lineBeg = nullptr) const;
 
       // Returns a SourceLoc that refers to the next code point
       // after "loc".
@@ -145,13 +145,13 @@ namespace fox {
         const std::string name;
         const std::string content;
         protected:
-          using IndexTy = SourceLoc::IndexTy;
+          using index_type = SourceLoc::index_type;
 
           friend class SourceManager;
 
           // This is the cached "line table", which is used to efficiently
           // calculate the line number of a SourceLoc.
-          mutable std::map<IndexTy, line_type> lineTable_;
+          mutable std::map<index_type, line_type> lineTable_;
 
           // Flag indicating whether we have calculated the LineTable.
           mutable bool calculatedLineTable_ = false;
@@ -163,14 +163,14 @@ namespace fox {
           // that search.
           //
           // TODO: Is this case common enough to warrant caching? Tests needed!
-          mutable std::pair<IndexTy, std::pair<IndexTy, line_type>> 
+          mutable std::pair<index_type, std::pair<index_type, line_type>> 
             lastLTSearch_;
       };
 
       // Calculates the line and column number of a given position inside
       // the file/data's content.
       std::pair<line_type, col_type>
-      calculateLineAndColumn(const Data* data, SourceLoc::IndexTy idx) const;
+      calculateLineAndColumn(const Data* data, SourceLoc::index_type idx) const;
 
       // Returns a pointer to the "Data" for a given File.
       // The result is always non null (guaranteed by an assertion)
@@ -183,13 +183,13 @@ namespace fox {
 
       // Checks if a SourceLoc's index refers to a valid position
       // (or a past-the-end position) in the data.
-      bool isIndexValid(const Data* data, SourceLoc::IndexTy idx) const;
+      bool isIndexValid(const Data* data, SourceLoc::index_type idx) const;
 
       // Searches the "line table" of a given Data, returning
       // the index at which the line begins and the line number
       // at the position "idx"
-      std::pair<SourceLoc::IndexTy, line_type>
-      searchLineTable(const Data* data, SourceLoc::IndexTy idx) const;
+      std::pair<SourceLoc::index_type, line_type>
+      searchLineTable(const Data* data, SourceLoc::index_type idx) const;
 
       // Inserts a new Data in the datas_ vector, returning it's FileID.
       FileID insertData(std::unique_ptr<Data> data);

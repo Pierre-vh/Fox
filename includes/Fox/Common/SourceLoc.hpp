@@ -65,11 +65,11 @@ namespace fox {
       // Use 32 bits int for the Index. This shoud allow the interpreter
       // to load and work with files up to 4GB alone. This can be upgraded
       // to a int64 if needed.
-      using IndexTy = std::uint32_t;
+      using index_type = std::uint32_t;
 
       // Creates a new, invalid SourceLoc.
       SourceLoc();
-      explicit SourceLoc(FileID fid, IndexTy idx = 0);
+      explicit SourceLoc(FileID fid, index_type idx = 0);
 
       bool isValid() const;
       explicit operator bool() const; 
@@ -84,7 +84,7 @@ namespace fox {
       //
       // Note that this should never be used in place of a SourceLoc since
       // it doesn't preserve the FileID.
-      IndexTy getRawIndex() const;
+      index_type getRawIndex() const;
 
       // Returns true if this SourceLoc comes before the other SourceLoc.
       // Returns false if the other SourceLoc doesn't belong to the 
@@ -100,7 +100,7 @@ namespace fox {
 
     private:
       FileID fid_;
-      IndexTy idx_;
+      index_type idx_;
   };
 
   // The SourceRange is a wrapper around a SourceLoc and an offset, 
