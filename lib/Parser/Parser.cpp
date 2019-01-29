@@ -60,15 +60,18 @@ SourceLoc Parser::consumeBracket(SignType s) {
 	&& "This method should only be used on brackets! "
 	  	"Use consumeSign to match instead!");
   auto tok = getCurtok();
+  // Lambda to diagnose an overflow and kill the parser.
+  auto diagnoseOverflow = [&](DiagID id) {
+    diags.report(id, tok.getRange());
+    die();
+  };
   if (tok.is(s)) {
     switch (s) {
       case SignType::S_CURLY_OPEN:
         if (curlyBracketsCount_ < maxBraceDepth_)
           curlyBracketsCount_++;
-        else {
-          diags.report(DiagID::parser_curlybracket_overflow);
-          die();
-        }
+        else
+          diagnoseOverflow(DiagID::parser_curlybracket_overflow);
         break;
       case SignType::S_CURLY_CLOSE:
         if (curlyBracketsCount_)
@@ -77,10 +80,8 @@ SourceLoc Parser::consumeBracket(SignType s) {
       case SignType::S_SQ_OPEN:
         if (squareBracketsCount_ < maxBraceDepth_)
           squareBracketsCount_++;
-        else {
-          diags.report(DiagID::parser_squarebracket_overflow);
-          die();
-        }
+        else
+          diagnoseOverflow(DiagID::parser_squarebracket_overflow);
         break;
       case SignType::S_SQ_CLOSE:
         if (squareBracketsCount_)
@@ -89,10 +90,8 @@ SourceLoc Parser::consumeBracket(SignType s) {
       case SignType::S_ROUND_OPEN:
         if (roundBracketsCount_ < maxBraceDepth_)
           roundBracketsCount_++;
-        else {
-          diags.report(DiagID::parser_roundbracket_overflow);
-          die();
-        }
+        else 
+          diagnoseOverflow(DiagID::parser_roundbracket_overflow);
         break;
       case SignType::S_ROUND_CLOSE:
         if (roundBracketsCount_) 
@@ -130,7 +129,11 @@ void Parser::consumeAny() {
 void Parser::revertConsume() {
   undo();
   Token tok = getCurtok();
-
+  // Lambda to diagnose an overflow and kill the parser.
+  auto diagnoseOverflow = [&](DiagID id) {
+    diags.report(id, tok.getRange());
+    die();
+  };
   if (isBracket(tok.getSignType())) {
     // Update bracket counters
     // We will be doing the exact opposite of what consumeBracket does !
@@ -144,10 +147,8 @@ void Parser::revertConsume() {
       case SignType::S_CURLY_CLOSE:
         if (curlyBracketsCount_ < maxBraceDepth_)
           curlyBracketsCount_++;
-        else {
-          diags.report(DiagID::parser_curlybracket_overflow);
-          die();
-        }
+        else
+          diagnoseOverflow(DiagID::parser_curlybracket_overflow);
         break;
       case SignType::S_SQ_OPEN:
         if (squareBracketsCount_)
@@ -156,10 +157,8 @@ void Parser::revertConsume() {
       case SignType::S_SQ_CLOSE:
         if (squareBracketsCount_ < maxBraceDepth_)
           squareBracketsCount_++;
-        else {
-          diags.report(DiagID::parser_squarebracket_overflow);
-          die();
-        }
+        else
+          diagnoseOverflow(DiagID::parser_squarebracket_overflow);
         break;
       case SignType::S_ROUND_OPEN:
         if (roundBracketsCount_)
@@ -168,10 +167,8 @@ void Parser::revertConsume() {
       case SignType::S_ROUND_CLOSE:
         if (roundBracketsCount_ < maxBraceDepth_)
           roundBracketsCount_++;
-        else {
-          diags.report(DiagID::parser_roundbracket_overflow);
-          die();
-        }
+        else
+          diagnoseOverflow(DiagID::parser_roundbracket_overflow);
         break;
       default:
         fox_unreachable("unknown bracket type");
