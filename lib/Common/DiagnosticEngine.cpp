@@ -322,7 +322,7 @@ bool Diagnostic::isActive() const {
   return (bool)engine_;
 }
 
-Diagnostic& Diagnostic::replacePlaceholder(const std::string& replacement) {
+Diagnostic& Diagnostic::replacePlaceholder(string_view replacement) {
 
   // This method can be quite expensive, so, as an optimization,
   // don't do it if the diagnostic isn't active.
@@ -336,7 +336,7 @@ Diagnostic& Diagnostic::replacePlaceholder(const std::string& replacement) {
   std::string targetPH = "%" + std::to_string((int)index);
   std::size_t n = 0;
   while ((n = diagStr_.find(targetPH, n)) != std::string::npos) {
-    diagStr_.replace(n, targetPH.size(), replacement);
+    diagStr_.replace(n, targetPH.size(), replacement.to_string());
     n += replacement.size();
   }
   ++curPHIndex_;

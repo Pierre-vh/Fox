@@ -64,15 +64,14 @@ namespace fox {
       // Dtor that emits the diagnostic.
       ~Diagnostic();
       
-      // Emit this diagnostic, feeding it to the consumer.
+      // Emit this diagnostic, feeding it to the consumer and killing it.
       void emit();
 
       // Returns the DiagID of this diagnostic.
       DiagID getID() const;
 
       // Returns the string of this diagnostic in it's current
-      // form. The placeholders may or may not have been
-      // removed!
+      // form.
       std::string getStr() const;
 
       // Returns this diagnostic's severity.
@@ -102,19 +101,16 @@ namespace fox {
         return replacePlaceholder(ss.str());
       }
 
-      // addArg Implementation for std::strings 
       template<>
       Diagnostic& addArg(const std::string& value) {
         return replacePlaceholder(value);
       }
 
-      // addArg Implementation for string_view
       template<>
       Diagnostic& addArg(const string_view& value) {
         return replacePlaceholder(value.to_string());
       }
 
-      // addArg Implementation for FoxChar
       template<>
       Diagnostic& addArg(const FoxChar& value) {
         return replacePlaceholder(value);
@@ -125,8 +121,6 @@ namespace fox {
       // Active diagnostics can be modified & emitted, while
       // inactives ones can't.
       bool isActive() const;
-
-      // isActive shortcut
       explicit operator bool() const;
 
     private:
@@ -142,12 +136,12 @@ namespace fox {
       // replaces every occurence of "%(value of index)" 
       // in a string with the replacement value
       // e.g: replacePlaceholder("foo",0) replaces every %0 
-      // in the string with "foo"
-      Diagnostic& replacePlaceholder(const std::string& replacement);
+      //      in the string with "foo"
+      Diagnostic& replacePlaceholder(string_view replacement);
       Diagnostic& replacePlaceholder(FoxChar replacement);
 
-      // Kills this diagnostic, removing most of it's data, thus
-      // de-activating it.
+      // Kills this diagnostic, removing most of it's data and
+      // deactivating it.
       void kill(); 
       
       static constexpr unsigned placeholderIndexBits = 3;
