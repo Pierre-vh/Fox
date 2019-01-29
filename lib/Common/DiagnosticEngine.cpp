@@ -55,8 +55,8 @@ DiagnosticEngine::DiagnosticEngine(SourceManager& sm):
 DiagnosticEngine::DiagnosticEngine(SourceManager& sm, 
                                    std::unique_ptr<DiagnosticConsumer> ncons):
   consumer_(std::move(ncons)), srcMgr_(sm) {
-  hasFatalErrorOccured_ = false;
-  errorsAreFatal_ = false;
+  hadFatalError_ = false;
+  hadError_ = false;
   ignoreAll_ = false;
   ignoreAllAfterFatalError_ = false;
   ignoreNotes_ = false;
@@ -112,16 +112,12 @@ std::unique_ptr<DiagnosticConsumer> DiagnosticEngine::takeConsumer() {
   return std::move(consumer_);
 }
 
-bool DiagnosticEngine::hasFatalErrorOccured() const {
-  return hasFatalErrorOccured_;
+bool DiagnosticEngine::hadFatalError() const {
+  return hadFatalError_;
 }
 
-std::uint16_t DiagnosticEngine::getWarningsCount() const {
-  return warnCount_;
-}
-
-std::uint16_t DiagnosticEngine::getErrorsCount() const {
-  return errorCount_;
+bool DiagnosticEngine::hadAnyError() const {
+  return hadError_ || hadFatalError_;
 }
 
 bool DiagnosticEngine::getWarningsAreErrors() const {
@@ -130,14 +126,6 @@ bool DiagnosticEngine::getWarningsAreErrors() const {
 
 void DiagnosticEngine::setWarningsAreErrors(bool val) {
   warningsAreErrors_ = val;
-}
-
-bool DiagnosticEngine::getErrorsAreFatal() const {
-  return errorsAreFatal_;
-}
-
-void DiagnosticEngine::setErrorsAreFatal(bool val) {
-  errorsAreFatal_ = val;
 }
 
 bool DiagnosticEngine::getIgnoreWarnings() const {
@@ -198,7 +186,7 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const {
   if (getIgnoreAll())
     return Sev::Ignore;
 
-  if (getIgnoreAllAfterFatal() && hasFatalErrorOccured())
+  if (getIgnoreAllAfterFatal() && hadFatalError())
     return Sev::Ignore;
 
   switch (ds) {
@@ -215,11 +203,9 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const {
       if (getIgnoreWarnings())
         return Sev::Ignore;
       return getWarningsAreErrors() ? Sev::Error : Sev::Warning;
-    // Errors are Ignored if too many of them have occured.
-    // Else, it stays an error except if errors should be considered
-    // Fatal.
+    // Errors don't change
     case Sev::Error:
-      return getErrorsAreFatal() ? Sev::Fatal : Sev::Error;
+      return ds;
     // Fatal diags don't change
     case Sev::Fatal:
       return ds;
@@ -231,13 +217,13 @@ DiagSeverity DiagnosticEngine::changeSeverityIfNeeded(DiagSeverity ds) const {
 void DiagnosticEngine::updateInternalCounters(DiagSeverity ds) {
   switch (ds) {
     case DiagSeverity::Warning:
-      warnCount_++;
+      // no-op
       break;
     case DiagSeverity::Error:
-      errorCount_++;
+      hadError_ = true;
       break;
     case DiagSeverity::Fatal:
-      hasFatalErrorOccured_ = true;
+      hadFatalError_ = true;
       break;
     default:
       // no-op

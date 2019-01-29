@@ -199,18 +199,14 @@ namespace fox {
       const DiagnosticConsumer* getConsumer() const;
       std::unique_ptr<DiagnosticConsumer> takeConsumer();
 
-      // Returns true if a fatal errors has been emitted.
-      bool hasFatalErrorOccured() const;
+      // Returns true if a fatal error was emitted
+      bool hadFatalError() const;
 
-      // Getters for Number of warnings/errors that have been emitted.
-      std::uint16_t getWarningsCount() const;
-      std::uint16_t getErrorsCount() const;
+      // Returns true if any error, fatal or not, was emitted.
+      bool hadAnyError() const;
 
       bool getWarningsAreErrors() const;
       void setWarningsAreErrors(bool val);
-
-      bool getErrorsAreFatal() const;
-      void setErrorsAreFatal(bool val);
 
       bool getIgnoreWarnings() const;
       void setIgnoreWarnings(bool val);
@@ -223,8 +219,6 @@ namespace fox {
 
       bool getIgnoreAll() const;
       void setIgnoreAll(bool val);
-
-      static constexpr std::uint16_t defaultErrorLimit = 0;
 
     private:
       friend class Diagnostic;
@@ -240,18 +234,13 @@ namespace fox {
 
       // Bitfields : Options
       bool warningsAreErrors_  : 1;
-      bool errorsAreFatal_ : 1;
       bool ignoreWarnings_ : 1;
       bool ignoreNotes_ : 1;
       bool ignoreAllAfterFatalError_ : 1;
       bool ignoreAll_ : 1;
-      bool hasFatalErrorOccured_ : 1;
+      bool hadFatalError_ : 1;
+      bool hadError_ : 1;
       // 1 bit left
-
-      // Number of errors emitted
-      std::uint16_t errorCount_ = 0;
-      // Number of warnings emitted.
-      std::uint16_t warnCount_  = 0;
 
       // The DiagnosticVerifier, if there's one
       DiagnosticVerifier* verifier_ = nullptr;

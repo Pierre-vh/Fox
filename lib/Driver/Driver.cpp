@@ -51,7 +51,7 @@ bool Driver::processFile(const std::string& filepath) {
   }
 
   // Stop if we had errors
-  if (diags.getErrorsCount())
+  if (diags.hadAnyError())
     return false;
 
   Parser psr(ctxt, lex.getTokenVector());

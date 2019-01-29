@@ -84,7 +84,7 @@ string_view ASTContext::allocateCopy(string_view str) {
 }
 
 bool ASTContext::hadErrors() const {
-  return diagEngine.getErrorsCount();
+  return diagEngine.hadAnyError();
 }
 
 void ASTContext::addCleanup(std::function<void(void)> fn) {

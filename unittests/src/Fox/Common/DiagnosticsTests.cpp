@@ -167,14 +167,11 @@ TEST_F(DiagnosticsTest, SilenceAllAfterFatal) {
   diagEng.setIgnoreAllAfterFatal(true);
   // Test emission of an error
   diagEng.report(DiagID::unittest_errtest, file).emit();
-  ASSERT_EQ(diagEng.getErrorsCount(), 1) << "Error wasn't recorded?";
+  ASSERT_TRUE(diagEng.hadAnyError()) << "Error wasn't recorded?";
   
   // Report a fatal error
   diagEng.report(DiagID::unittest_fataltest, file).emit();
-  EXPECT_EQ(diagEng.getErrorsCount(), 1) 
-    << "Fatal error was counted like a normal error";
-  ASSERT_TRUE(diagEng.hasFatalErrorOccured()) 
-    << "Fatal error didn't count?";
+  EXPECT_TRUE(diagEng.hadFatalError());
 
   // And try to emit another error
   auto diagErrSilenced = diagEng.report(DiagID::unittest_errtest, file);
@@ -200,19 +197,7 @@ TEST_F(DiagnosticsTest, SilenceAll) {
 TEST_F(DiagnosticsTest, WarningsAreErrors) {
   diagEng.setWarningsAreErrors(true);
   diagEng.report(DiagID::unittest_warntest, file).emit();
-  EXPECT_EQ(diagEng.getWarningsCount(), 0)
-    << "Diag shouldn't have counted a normal warning";
-  EXPECT_EQ(diagEng.getErrorsCount(), 1) 
-    << "Diag didn't count as an error.";
-}
-
-TEST_F(DiagnosticsTest, ErrorsAreFatal) {
-  diagEng.setErrorsAreFatal(true);
-  diagEng.report(DiagID::unittest_errtest, file).emit();
-  EXPECT_TRUE(diagEng.hasFatalErrorOccured()) 
-    << "Diag didn't count as a fatal error.";
-  EXPECT_EQ(diagEng.getErrorsCount(), 0) 
-    << "This error was supposed to be fatal and thus count as a fatal error, not a normal error.";
+  EXPECT_TRUE(diagEng.hadAnyError());
 }
 
 TEST_F(DiagnosticsTest, CopyingDiagKillsCopiedDiag) {
