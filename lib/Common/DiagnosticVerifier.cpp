@@ -193,7 +193,7 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
   DiagSeverity severity;
   string_view diagStr;
   FileID file = loc.getFileID();
-  LineTy line = srcMgr_.getLineNumber(loc);
+  line_type line = srcMgr_.getLineNumber(loc);
 
 	std::size_t fullInstrSize = instr.size();
 	// Remove the prefix

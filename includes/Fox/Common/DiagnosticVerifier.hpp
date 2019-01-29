@@ -31,17 +31,17 @@ namespace fox {
   class Diagnostic;
   enum class DiagSeverity : std::uint8_t;
   class DiagnosticVerifier {
-    using LineTy = std::uint32_t;
+    using line_type = std::uint32_t;
     public:
       struct ExpectedDiag {
         ExpectedDiag() = default;
-        ExpectedDiag(DiagSeverity sev, string_view str, FileID file, LineTy line) :
+        ExpectedDiag(DiagSeverity sev, string_view str, FileID file, line_type line) :
           severity(sev), diagStr(str), file(file), line(line) {}
 
         DiagSeverity severity = DiagSeverity(0);
         string_view diagStr;
         FileID file;
-        LineTy line = 0;
+        line_type line = 0;
         
         // For STL Containers
         bool operator<(const ExpectedDiag& other) const {
