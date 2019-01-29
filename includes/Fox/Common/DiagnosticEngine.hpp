@@ -96,7 +96,7 @@ namespace fox {
 
       // addArg Implementation for any type that supports operator <<
       template<typename ReplTy>
-      Diagnostic& addArg(const ReplTy& value) {
+      Diagnostic& addArg(ReplTy&& value) {
         std::stringstream ss;
         ss << value;
         return replacePlaceholder(ss.str());
@@ -104,19 +104,19 @@ namespace fox {
 
       // addArg Implementation for std::strings 
       template<>
-      Diagnostic& addArg(const std::string& value) {
+      Diagnostic& addArg(std::string&& value) {
         return replacePlaceholder(value);
       }
 
       // addArg Implementation for string_view
       template<>
-      Diagnostic& addArg(const string_view& value) {
-        return replacePlaceholder(value.to_string());
+      Diagnostic& addArg(string_view&& value) {
+        return replacePlaceholder(value);
       }
 
       // addArg Implementation for FoxChar
       template<>
-      Diagnostic& addArg(const FoxChar& value) {
+      Diagnostic& addArg(FoxChar&& value) {
         return replacePlaceholder(value);
       }
 
@@ -142,12 +142,12 @@ namespace fox {
       // replaces every occurence of "%(value of index)" 
       // in a string with the replacement value
       // e.g: replacePlaceholder("foo",0) replaces every %0 
-      // in the string with "foo"
-      Diagnostic& replacePlaceholder(const std::string& replacement);
+      //      in the string with "foo"
+      Diagnostic& replacePlaceholder(string_view replacement);
       Diagnostic& replacePlaceholder(FoxChar replacement);
 
-      // Kills this diagnostic, removing most of it's data, thus
-      // de-activating it.
+      // Kills this diagnostic, removing most of it's data and
+      // deactivating it.
       void kill(); 
       
       static constexpr unsigned placeholderIndexBits = 3;
