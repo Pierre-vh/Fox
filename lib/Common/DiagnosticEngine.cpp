@@ -303,7 +303,7 @@ SourceRange Diagnostic::getExtraRange() const {
 }
 
 Diagnostic& Diagnostic::setExtraRange(SourceRange range) {
-  assert(range_ && "setting the extra range without a valid "
+  assert(hasRange() && "setting the extra range without a "
     "primary range");
   extraRange_ = range;
   return *this;
