@@ -239,7 +239,6 @@ Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID,
   engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr.to_string()),
   range_(range) {
   assert(engine && "Engine cannot be null!");
-  assert(range && "Invalid location information");
   initBitFields();
 }
 
@@ -292,7 +291,11 @@ Diagnostic& Diagnostic::setRange(SourceRange range) {
 }
 
 bool Diagnostic::hasRange() const {
-  return range_.isValid();
+  return (bool)range_ && !isFileWide();
+}
+
+bool Diagnostic::hasAnyLocInfo() const {
+  return (bool)range_;
 }
 
 SourceRange Diagnostic::getExtraRange() const {
@@ -300,15 +303,19 @@ SourceRange Diagnostic::getExtraRange() const {
 }
 
 Diagnostic& Diagnostic::setExtraRange(SourceRange range) {
+  assert(range_ && "setting the extra range without a valid "
+    "primary range");
   extraRange_ = range;
   return *this;
 }
 
 bool Diagnostic::hasExtraRange() const {
-  return extraRange_.isValid();
+  return (bool)extraRange_;
 }
 
 Diagnostic& Diagnostic::setIsFileWide(bool fileWide) {
+  assert(range_ && "a diagnostic cannot be file-wide "
+    "if it doesn't have a valid FileID!");
   fileWide_ = fileWide;
   return *this;
 }

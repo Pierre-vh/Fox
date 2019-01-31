@@ -82,11 +82,18 @@ namespace fox {
 
       SourceRange getRange() const;
       Diagnostic& setRange(SourceRange range);
+      // Returns true if this diagnostic contains a range.
+      // Returns false for file-wide diagnostics.
       bool hasRange() const;
 
       SourceRange getExtraRange() const;
       Diagnostic& setExtraRange(SourceRange range);
+      // Returns true if this Diagnostic contains an "extra range" 
       bool hasExtraRange() const;
+
+      // Returns true if this Diagnostic contains any kind of source location
+      // information, file-wide or not.
+      bool hasAnyLocInfo() const;
 
       // File-wide diagnostics are diagnostics that concern
       // a whole file. 
