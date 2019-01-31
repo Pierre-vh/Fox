@@ -69,8 +69,10 @@ void StreamDiagConsumer::consume(SourceManager& sm, const Diagnostic& diag) {
     << diag.getStr() 
     << "\n";
 
-  if (!diag.isFileWide() && diag.hasRange())
-    displayRelevantExtract(sm, diag);
+  // If the Diagnostic contains valid location information, and it
+  // isn't a file-wide diagnostic, display a snippet (a single line)
+  // of the source file with the Diagnostic message.
+  if (diag.hasRange()) displayRelevantExtract(sm, diag);
 }
 
 // Helper method for "displayRelevantExtract" which creates the "underline" string. 
@@ -119,7 +121,7 @@ std::string embedString(const std::string& a, const std::string& b) {
 void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm, 
   const Diagnostic& diag) {
   assert(diag.hasRange() 
-		&& "Cannot use this if the diag does not have a valid range");
+		&& "Cannot use this if the diag does not have SourceRange!");
 
   auto range = diag.getRange();
   auto eRange = diag.getExtraRange();

@@ -69,7 +69,7 @@ TEST_F(DVTest, Parsing) {
 
   SetUp(test::getPath("diagnosticsverifier/parse.txt"));
   ASSERT_TRUE(ok) << errStr;
-  auto& diags = dv.getExpectedDiagsForFile(file);
+  auto& diags = dv.getExpectedDiags();
   ASSERT_EQ(diags.size(), 4) << "Incorrect number of verify instrs found";
  
   bool foundNote = false;
@@ -112,7 +112,7 @@ TEST_F(DVTest, Parsing) {
 TEST_F(DVTest, Trim) {
   SetUp(test::getPath("diagnosticsverifier/trim.txt"));
   ASSERT_TRUE(ok) << errStr;
-  auto& diags = dv.getExpectedDiagsForFile(file);
+  auto& diags = dv.getExpectedDiags();
   for (auto& diag : diags) {
     EXPECT_EQ(diag.diagStr, "Lorem ipsum dolor sit amet") 
       << "Incorrect/Untrimmed diag string";
@@ -122,7 +122,7 @@ TEST_F(DVTest, Trim) {
 TEST_F(DVTest, Offset) {
   SetUp(test::getPath("diagnosticsverifier/offset.txt"));
   ASSERT_TRUE(ok) << errStr;
-  auto& diags = dv.getExpectedDiagsForFile(file);
+  auto& diags = dv.getExpectedDiags();
   ASSERT_EQ(diags.size(), 19) << "Incorrect number of verify instrs found";
 
   for (auto& diag : diags) {
@@ -139,7 +139,7 @@ TEST_F(DVTest, BadOffset) {
   }
   auto diagConsumer = static_cast<TestConsumer*>(diags.getConsumer());
   ASSERT_FALSE(ok);
-  auto& diags = dv.getExpectedDiagsForFile(file);
+  auto& diags = dv.getExpectedDiags();
   ASSERT_EQ(diags.size(), 0) << "Incorrect number of verify instrs found";
   ASSERT_EQ(diagConsumer->count, 2) << "Incorrect number of diags emitted";
   ASSERT_TRUE(diagConsumer->ok) << "Unknown diags emitted";
