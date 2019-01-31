@@ -69,7 +69,6 @@ Diagnostic DiagnosticEngine::report(DiagID diagID, FileID file) {
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, SourceRange range) {
-  assert(range && "invalid location information!");
   const auto idx = static_cast<std::underlying_type<DiagID>::type>(diagID);
   DiagSeverity sev = diagsSevs[idx];
   std::string str(diagsStrs[idx]);
