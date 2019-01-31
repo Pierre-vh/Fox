@@ -5,10 +5,15 @@
 // Author : Pierre van Houtryve
 //----------------------------------------------------------------------------//
 // This file contains the DiagnosticVerifier diagnostic consumer class.
-// The DV offers a tools to parse a file, finding every "expect-" instruction
-// to silence expected diagnostics in tests, and doubles as a DiagnosticConsumer
-// class which catches every diagnostic, checks if it was expected, and if
-// that's the case, silences it.
+// The DV offers a tools to parse "expect" instructions in a file, allowing
+// the user to expect diagnostics and silence them.
+//
+// An expect instruction's grammar is (roughly):
+//    "expect-" <severity> ['@' ('+' | '-') <digit>] ':' <string>
+// Examples:
+//    expect-error@+1: foo is not bar
+//    expect-note: foo declared here
+//
 //----------------------------------------------------------------------------//
 // Feature Ideas:
 //  - Allow raw line numbers as argument
@@ -61,7 +66,7 @@ namespace fox {
       // false otherwise.
       bool parseFile(FileID file);
 
-      DiagsSetTy& getExpectedDiagsForFile(FileID file);
+      DiagsSetTy& getExpectedDiags();
 
       // Finishes verification.
       //  If not all expected diagnostics were emitted, this will emit
@@ -107,7 +112,6 @@ namespace fox {
       DiagnosticEngine& diags_;
       SourceManager& srcMgr_;
       // Map of expected diagnostics per file
-      std::map<FileID, DiagsSetTy> expectedDiags_;
-      std::set<FileID> failedVerifs_;
+      DiagsSetTy expectedDiags_;
   };
 } // namespace fox
