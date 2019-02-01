@@ -120,11 +120,16 @@ namespace fox {
       // stop unwrapping once one of them becomes basic.
       static TypePair unwrapAll(Type a, Type b);
 
-      // Simplifies a type, replacing type variables with their substitutions.
+      // Simplifies "type", replacing type variables with their 
+      // substitution (using getSubstRecursive()). 
+      //
+      // This involves rebuilding the type.
+      //
       // If a type variable doesn't have a substitution, returns nullptr.
+      // If "type" doesn't contain a TypeVariable, returns "type".
       Type simplify(Type type);
 
-      // Tries to simplify a type, if it can't simplify it, returns the arg.
+      // Calls simplify(type). If it returns nullptr, returns "type"
       Type trySimplify(Type type);
 
       // Returns true if the type is considered "well formed".
