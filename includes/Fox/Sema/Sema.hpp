@@ -201,25 +201,6 @@ namespace fox {
       // Resets the TypeVariable counters & substitutions vector.
       void resetTypeVariables();
 
-      // Returns the substitution for the type variable tyVar.
-      // Constant time operation.
-      //
-      // If recursively is set to true and the substitution is another type
-      // variable, calls getSubstitution on that typevariable to get the final,
-      // non TypeVariable substitution.
-      Type 
-      getSubstitution(TypeVariableType* tyVar, bool recursively = false) const;
-
-      // Sets the substitution for the type variable tyVar to subst.
-      // If allowOverride is set to false and a substitution already exists,
-      // an assertion is triggered and the type isn't replaced.
-      void setSubstitution(TypeVariableType* tyVar, Type subst, 
-        bool allowOverride);
-
-      // The substitutions for each type variable.
-      // FIXME: Should I store a Type instead of a TypeBase?
-      SmallVector<TypeBase*, 8> typeVarsSubsts_;
-
       std::uint16_t tyVarsCounter_ = 0;
 
       //---------------------------------//

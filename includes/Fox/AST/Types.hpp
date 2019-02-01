@@ -390,11 +390,33 @@ namespace fox {
   // TypeVariableType
   //  A "Type Variable", e.g. "T0", introduced in places
   //  where type inference is required.
+  //
+  //  This type is actually mutable, because, as an optimization,
+  //  the current substitution is stored in the TypeVariableType, this avoids
+  //  map lookups when we want to retrieve the current substitution.
+  //
+  //  However, the current substitution should be ignored most of the time.
+  //  It shouldn't be used to print this type, for instance.
   class TypeVariableType final : public TypeBase {
     public:
       static TypeVariableType* create(ASTContext& ctxt, std::uint16_t number);
 
+      // Returns the number assigned to this TypeVariable.
       std::uint16_t getNumber() const;
+
+      // Returns the current substitution
+      Type getSubst() const;
+
+      // If the current substitution is a TypeVariable too, returns
+      // it's substitution. 
+      // 
+      // This recurses until we reach a nullptr or a substitution 
+      // that isn't a TypeVariable.
+      Type getSubstRecursively() const;
+
+      // Assigns a substitution to this TypeVariable.
+      // This asserts that the current substitution is null.
+      void assignSubst(Type type);
 
       static bool classof(const TypeBase* type) {
         return (type->getKind() == TypeKind::TypeVariableType);
@@ -403,6 +425,7 @@ namespace fox {
     private:
       TypeVariableType(std::uint16_t number);
 
+      Type currentSubst_;
       std::uint16_t number_ = 0;
   };
 }

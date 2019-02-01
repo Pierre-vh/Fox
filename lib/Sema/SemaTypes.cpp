@@ -43,24 +43,24 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
 
   // TypeVariable = (Something)
   if (auto* aTV = a->getAs<TypeVariableType>()) {
-    Type aTVSubst = getSubstitution(aTV);
+    Type aTVSubst = aTV->getSubst();
     // TypeVariable = TypeVariable
     //  Both are TypeVariable, check if they have substitutions
     if (auto* bTV = b->getAs<TypeVariableType>()) {
-      Type bTVSubst = getSubstitution(bTV);
+      Type bTVSubst = bTV->getSubst();
       // Both have a sub
       if (aTVSubst && bTVSubst)
         return unify(aTVSubst, bTVSubst, comparator);
       // A has a sub, B doesn't
       if (aTVSubst) {
         // Set B's substitution to A.
-        setSubstitution(bTV, aTV, false);
+        bTV->assignSubst(aTV);
         return true;
       }
       // B has a sub, A doesn't
       if (bTVSubst) {
         // Set A's substitution to B
-        setSubstitution(aTV, bTV, false);
+        aTV->assignSubst(bTV);
         return true;
       }
       // None of them have a substitution: set the
@@ -68,7 +68,7 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
       // 
       // e.g. if aTV = $Ta and bTV = $Tb, then
       // $Ta = $Tb causes $Ta to be bound to $Tb.
-      setSubstitution(aTV, bTV, false);
+      aTV->assignSubst(bTV);
       return true;
     }
     // TypeVariable = (Not TypeVariable)
@@ -77,18 +77,18 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
       // else, use b as the subst for aTV
       if (aTVSubst)
         return unify(aTVSubst, b, comparator);
-      setSubstitution(aTV, b, false);
+      aTV->assignSubst(b);
       return true;
     }
   }
   // (Not TypeVariable) = TypeVariable
   else if (auto* bTV = b->getAs<TypeVariableType>()) {
-    Type bTVSubst = getSubstitution(bTV);
+    Type bTVSubst = bTV->getSubst();
     // If bTV has a subst, unify the subst with a.
     // else, use a as the subst for bTV
     if (bTVSubst)
       return unify(a, bTVSubst, comparator);
-    setSubstitution(bTV, a, false);
+    bTV->assignSubst(a);
     return true;
   }
   // Can't unify.
@@ -150,11 +150,7 @@ Type Sema::simplify(Type type) {
       }
 
       Type visitTypeVariableType(TypeVariableType* type) {
-        // Just return the *real* substitution for that TypeVariable.
-        // If there's none (nullptr), the visitors will all 
-        // return nullptr too, notifying handleExprPre of the inference
-        // failure.
-        return sema.getSubstitution(type, /*recursively*/ true);
+        return type->getSubstRecursively();
       }
 
       Type visitErrorType(ErrorType* type) {
@@ -208,36 +204,10 @@ Type Sema::createNewTypeVariable() {
 
   // Create a new entry in the substitutions array for this 
   // new TypeVariable.
-  typeVarsSubsts_.push_back(nullptr);
   return TypeVariableType::create(ctxt_, tyVarsCounter_++);
 }
 
 void Sema::resetTypeVariables() {
   tyVarsCounter_ = 0;
-  typeVarsSubsts_.clear();
-  // TODO: Reset the allocator here
-}
-
-Type
-Sema::getSubstitution(TypeVariableType* tyVar, bool recursively) const {
-  auto num = tyVar->getNumber();
-  assert(num < typeVarsSubsts_.size() && "out-of-range");
-  Type sub = typeVarsSubsts_[num];
-  if(sub && recursively) {
-    if(auto* tv = sub->getAs<TypeVariableType>())
-      return getSubstitution(tv, true);
-  }  
-  return sub;
-}
-
-void Sema::setSubstitution(TypeVariableType* tyVar, Type subst, 
-                           bool allowOverride) {
-  auto num = tyVar->getNumber();
-  assert(num < typeVarsSubsts_.size() && "out-of-range");
-  TypeBase*& cur = typeVarsSubsts_[num];             
-  
-  if((!cur) || (cur && allowOverride))
-    cur = subst.getPtr();
-  else
-    assert("A substitution already exists and it can't be overriden");
+  // TODO: Reset the allocator here.
 }

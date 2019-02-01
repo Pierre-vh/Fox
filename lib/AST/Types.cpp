@@ -511,6 +511,25 @@ std::uint16_t TypeVariableType::getNumber() const {
   return number_;
 }
 
+Type TypeVariableType::getSubst() const {
+  return currentSubst_;
+}
+
+Type TypeVariableType::getSubstRecursively() const {
+  Type subst = getSubst();
+  // If the subst is non-null and it's a TypeVariable, return
+  // subst->getSubstRecursively()
+  if(subst && subst->is<TypeVariableType>())
+    return subst->getAs<TypeVariableType>()->getSubstRecursively();
+  return subst;
+}
+
+void TypeVariableType::assignSubst(Type type) {
+  assert(currentSubst_.isNull() && "This type already have a"
+    " substitution!");
+  currentSubst_ = type;
+}
+
 TypeVariableType::TypeVariableType(std::uint16_t number): 
   TypeBase(TypeKind::TypeVariableType), number_(number) {
   setProperties(Property::HasTypeVariable);
