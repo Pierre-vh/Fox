@@ -395,9 +395,10 @@ namespace fox {
   //  the current substitution is stored in the TypeVariableType, this avoids
   //  map lookups when we want to retrieve the current substitution.
   //
-  //  However, the current substitution should be ignored most of the time.
-  //  For instance, the substitution shouldn't be printed with the type, except
-  //  in dumps.
+  //  However, the current substitution should be ignored most of the time,
+  //  except in semantic analysis.
+  //  For instance, when printing this type for the user, don't show the 
+  //  substitution, just show "any".
   class TypeVariableType final : public TypeBase {
     public:
       static TypeVariableType* create(ASTContext& ctxt, std::uint16_t number);
