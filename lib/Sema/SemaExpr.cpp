@@ -105,7 +105,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         // extended range is the whole arrayliteral's.
         .report(DiagID::sema_unexpected_elem_in_arrlit, faultyElem->getRange())
         .addArg(faultyElem->getType())
-        .addArg(supposedType)
+        // Sometimes, the supposed type might contain a type variable.
+        // Try to simplify the type to produce a better diagnostic!
+        .addArg(getSema().trySimplify(supposedType))
         .setExtraRange(expr->getRange());
     }
 
@@ -736,9 +738,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // Set to false if the ArrayLiteral is considered invalid.
       bool isValid = true;
 
-      // The collection of tvExpr expression types.
-      SmallVector<Expr*, 4> typeVarExprs;
-
       for (auto& elem : expr->getExprs()) {
         // Check if the element's type can legally appear inside an
         // array literal. If it can't, skip the elem & mark the
@@ -750,13 +749,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
         // Retrieve the type as a RValue
         Type elemTy = elem->getType()->getRValue();
-
-        // Types that contains type variables are collected
-        // and checked later
-        if (elemTy->hasTypeVariable()) {
-          typeVarExprs.push_back(elem);
-          continue;
-        }
 
         // From this point, elemTy is guaranteed to be a bound type
         // First loop, set the proposed type and continue.
@@ -772,30 +764,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         }
       }
 
-      // Invalid expr
-      if(!isValid) {
-        // Set the typeVarExprs' types to ErrorType and just return.
-        Type err = ErrorType::get(getCtxt());
-        for(auto unbound : typeVarExprs)
-          unbound->setType(err);
-        return expr;
-      }
-
-      // Expr is valid: Unify typeVarExprs with the type, if there's one.
-      // If there isn't one, unify the element types with the first 
-      // typeVariableExpr.
-      for(auto tvExpr : typeVarExprs) {
-        // (First iter) set type if there isn't one
-        if(!proposedType) {
-          proposedType = tvExpr->getType();
-          continue;
-        }
-        // (Next iters) unify.
-        if(!getSema().unify(tvExpr->getType(), proposedType)) {
-          diagnoseHeteroArrLiteral(expr, tvExpr, proposedType);
-          isValid = false;
-        }
-      }
       // Set the type to an ArrayType of the
       // type if the expr is still considered valid.
       if(isValid)
