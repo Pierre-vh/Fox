@@ -91,22 +91,6 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
     setSubstitution(bTV, a, false);
     return true;
   }
-  // ArrayType = (Something)
-  //
-  // Note: We know that b isn't an ArrayType too, or it would
-  // have been handled by "unwrapAll"
-  else if(auto* aArr = a->getAs<ArrayType>()) {
-    // Only succeeds if B is an ArrayType
-    auto* bArr = b->getAs<ArrayType>();
-    if (!bArr) return false;
-
-    // Unify the element types.
-    Type aArr_elem = aArr->getElementType();
-    Type bArr_elem = bArr->getElementType();
-    assert(aArr_elem && bArr_elem 
-      && "Array element type cannot be null");
-    return unify(aArr_elem, bArr_elem);
-  }
   // Can't unify.
   return false;
 }
