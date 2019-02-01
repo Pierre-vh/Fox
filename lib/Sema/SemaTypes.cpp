@@ -20,14 +20,8 @@ using namespace fox;
 
 bool Sema::unify(Type a, Type b) {
   auto comparator = [](Type a, Type b) {
-    // Allow exact equality unless they're both
-    // typevariables.
-    if(a == b) {
-      // False if it's a TypeVariableType, as they're handled
-      // in the unification algorithm specifically.
-      return !a->is<TypeVariableType>();
-    }
-    return false;
+    // Only allow exact equality
+    return (a == b);
   };
   return unify(a, b, comparator);
 }
