@@ -105,8 +105,15 @@ namespace {
       }
 
       void visitTypeVariableType(TypeVariableType* type) {
-        if(debugPrint)
+        if (debugPrint) {
           out << "$T" << type->getNumber();
+          // In debug prints, print the substitution too, if
+          // there's one.
+          if (Type subst = type->getSubst()) {
+            out << "=";
+            visit(subst);
+          }
+        }
         else 
           out << "any";
       }
@@ -512,7 +519,11 @@ std::uint16_t TypeVariableType::getNumber() const {
 }
 
 Type TypeVariableType::getSubst() const {
-  return currentSubst_;
+  return subst_;
+}
+
+bool TypeVariableType::hasSubst() const {
+  return (bool)subst_;
 }
 
 Type TypeVariableType::getSubstRecursively() const {
@@ -525,9 +536,9 @@ Type TypeVariableType::getSubstRecursively() const {
 }
 
 void TypeVariableType::assignSubst(Type type) {
-  assert(currentSubst_.isNull() && "This type already have a"
+  assert(subst_.isNull() && "This type already have a"
     " substitution!");
-  currentSubst_ = type;
+  subst_ = type;
 }
 
 TypeVariableType::TypeVariableType(std::uint16_t number): 

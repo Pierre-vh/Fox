@@ -396,7 +396,8 @@ namespace fox {
   //  map lookups when we want to retrieve the current substitution.
   //
   //  However, the current substitution should be ignored most of the time.
-  //  It shouldn't be used to print this type, for instance.
+  //  For instance, the substitution shouldn't be printed with the type, except
+  //  in dumps.
   class TypeVariableType final : public TypeBase {
     public:
       static TypeVariableType* create(ASTContext& ctxt, std::uint16_t number);
@@ -406,6 +407,9 @@ namespace fox {
 
       // Returns the current substitution
       Type getSubst() const;
+
+      // Returns true if this type has a substitution.
+      bool hasSubst() const;
 
       // If the current substitution is a TypeVariable too, returns
       // it's substitution. 
@@ -425,7 +429,7 @@ namespace fox {
     private:
       TypeVariableType(std::uint16_t number);
 
-      Type currentSubst_;
+      Type subst_;
       std::uint16_t number_ = 0;
   };
 }
