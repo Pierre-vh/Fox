@@ -919,45 +919,42 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 };
 
-// ExprFinalizer, which rebuilds types to remove TypeVariables
-// and replace them with their substitution.
-//
-// Visit methods return Type objects. They return null Types
-// if the finalization failed for this expr.
-class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
+// ExprFinalizer
+//  This class walks the Expression tree, simplifying every type.
+//  When a type cannot be simplified (due to an inference error)
+//  it diagnoses it and replaces the type with ErrorType.
+class Sema::ExprFinalizer : ASTWalker {
   using Inherited = TypeVisitor<ExprFinalizer, Type>;
   friend Inherited;
-  Sema& sema_;
-  ASTContext& ctxt_;
-  DiagnosticEngine& diags_;
-
-  // This is a pointer to the expression which has an ErrorType and has 
-  // requested to mute every diagnostic that might be emitted when visiting
-  // it's children.
-  Expr* diagsMuter_ = nullptr;
 
   public:
+    Sema& sema;
+    ASTContext& ctxt;
+    DiagnosticEngine& diags;
+
+    // This is a pointer to the expression which has an ErrorType and has 
+    // requested to mute every diagnostic that might be emitted when visiting
+    // it's children.
+    Expr* diagsMuter = nullptr;
+
     void muteDiagsForChildren(Expr* expr) {
-      diags_.setIgnoreAll(true);
-      diagsMuter_ = expr;
+      diags.setIgnoreAll(true);
+      diagsMuter = expr;
     }
 
     void tryUnmuteDiags(Expr* expr) {
-      if(expr == diagsMuter_) {
-        diags_.setIgnoreAll(false);
-        diagsMuter_ = nullptr;
+      if(expr == diagsMuter) {
+        diags.setIgnoreAll(false);
+        diagsMuter = nullptr;
       }
     }
 
-    Type theErrorType;
-
-    ExprFinalizer(Sema& sema) : sema_(sema), ctxt_(sema.getASTContext()),
-      diags_(sema.getDiagnosticEngine()) {
-      theErrorType = ErrorType::get(ctxt_);
+    ExprFinalizer(Sema& sema) : sema(sema), ctxt(sema.getASTContext()),
+      diags(sema.getDiagnosticEngine()) {
     }
 
     ~ExprFinalizer() {
-      sema_.resetTypeVariables();
+      sema.resetTypeVariables();
     }
 
     Expr* finalize(Expr* expr) {
@@ -970,22 +967,23 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
       Type type = expr->getType();
       assert(type && "Expr has a null type!");
 
-      // Visit the type
-      type = visit(type);
-      // If the type is nullptr, this inference failed
-      // because of a lack of substitution somewhere.
-      // Set the type to ErrorType, diagnose it and move on.
-      if (!type) {
-        diags_.report(DiagID::sema_failed_infer, expr->getRange());
-        type = theErrorType;
-      } 
+      // Simplify the type.
+      type = sema.simplify(type);
 
-      // Don't diagnose the children of an Expr which has an ErrorType
-      // somewhere.
-      if(type->hasErrorType()) {
+      // If the type is nullptr, it means we have an inference error.
+      // Set the type to ErrorType and diagnose.
+      if (!type) {
+        diags.report(DiagID::sema_failed_infer, expr->getRange());
+        type = ErrorType::get(ctxt);
+        // Mute inference errors for the children.
         muteDiagsForChildren(expr);
       }
-
+      // Inference succeeded, but maybe we have an ErrorType somewhere in
+      // there. If that's the case, mute diagnostics for the children exprs.
+      else if(type->hasErrorType()) {
+        muteDiagsForChildren(expr);
+      }
+      // Set the type
       expr->setType(type);
       return {expr, true};
     }
@@ -993,87 +991,6 @@ class Sema::ExprFinalizer : TypeVisitor<ExprFinalizer, Type>, ASTWalker {
     Expr* handleExprPost(Expr* expr) {
       tryUnmuteDiags(expr);
       return expr;
-    }
-
-    /*
-      How to write a visit method:
-        -> if the type is a "container" (has a pointer to
-            another type inside it) and after calling visit
-            the type changed, rebuild the type with the returne type.
-            If the element type is ErrorType, don't rebuild and just
-            return the ErrorType.
-    */
-
-    Type visitPrimitiveType(PrimitiveType* type) {
-      return type;
-    }
-
-    Type visitArrayType(ArrayType* type) {
-      if (Type elem = visit(type->getElementType())) {
-        // If the (new?) element type contains an ErrorType, don't
-        // bother building an ArrayType.
-        if (elem->hasErrorType())
-          return theErrorType;
-        if (elem != type->getElementType())
-          return ArrayType::get(ctxt_, elem);
-        return type;
-      }
-      return nullptr;
-    }
-
-    Type visitLValueType(LValueType* type) {
-      if (Type elem = visit(type->getType())) {
-        // If the (new?) element type contains an ErrorType, don't
-        // bother building an ArrayType.
-        if (elem->hasErrorType())
-          return theErrorType;
-        if (elem != type->getType())
-          return LValueType::get(ctxt_, elem);
-        return type;
-      }
-      return nullptr;
-    }
-
-    Type visitTypeVariableType(TypeVariableType* type) {
-      // Just return the *real* substitution for that TypeVariable.
-      // If there's none (nullptr), the visitors will all 
-      // return nullptr too, notifying handleExprPre of the inference
-      // failure.
-      return sema_.getSubstitution(type, /*recursively*/ true);
-    }
-
-    Type visitErrorType(ErrorType* type) {
-      // Assert that we have emitted at least 1 error if
-      // we have a ErrorType present in the hierarchy.
-      assert(ctxt_.diagEngine.hadAnyError());
-      return type;
-    }
-
-    Type visitFunctionType(FunctionType* type) {
-      // Get return type
-      Type returnType = visit(type->getReturnType());
-
-      if(!returnType) return nullptr;
-      if(returnType->hasErrorType()) return theErrorType;
-      // Get Param types
-      SmallVector<Type, 4> paramTypes;
-      for(auto param : type->getParamTypes()) {
-        Type t = visit(param);
-        // If T isn't null and isn't an ErrorType,
-        // push it to the paramTypes. Return nullptr
-        // if T is null, or return the error type if
-        // t has an ErrorType too.
-        if(t) {
-          if(t->hasErrorType()) 
-            return theErrorType;
-          paramTypes.push_back(t);
-        }
-        else return nullptr;
-      }
-      // Recompute if needed
-      if(!type->isSame(paramTypes, returnType))
-        return FunctionType::get(ctxt_, paramTypes, returnType);
-      return type;
     }
 };
 
