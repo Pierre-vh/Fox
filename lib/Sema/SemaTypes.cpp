@@ -118,6 +118,79 @@ Sema::TypePair Sema::unwrapAll(Type a, Type b) {
   return {uwA, uwB};
 }
 
+Type Sema::simplify(Type type) {
+  class Impl : public TypeVisitor<Impl, Type> {
+    public:
+      ASTContext& ctxt;
+      const Sema& sema;
+
+      Impl(Sema& sema) : 
+        sema(sema), ctxt(sema.getASTContext()) {}
+
+      Type visitPrimitiveType(PrimitiveType* type) {
+        return type;
+      }
+
+      Type visitArrayType(ArrayType* type) {
+        if (Type elem = visit(type->getElementType())) {
+          if (elem != type->getElementType())
+            return ArrayType::get(ctxt, elem);
+          return type;
+        }
+        return nullptr;
+      }
+
+      Type visitLValueType(LValueType* type) {
+        if (Type elem = visit(type->getType())) {
+          if (elem != type->getType())
+            return ArrayType::get(ctxt, elem);
+          return type;
+        }
+        return nullptr;
+      }
+
+      Type visitTypeVariableType(TypeVariableType* type) {
+        // Just return the *real* substitution for that TypeVariable.
+        // If there's none (nullptr), the visitors will all 
+        // return nullptr too, notifying handleExprPre of the inference
+        // failure.
+        return sema.getSubstitution(type, /*recursively*/ true);
+      }
+
+      Type visitErrorType(ErrorType* type) {
+        // Assert that we have emitted at least 1 error if
+        // we have a ErrorType present in the hierarchy.
+        return type;
+      }
+
+      Type visitFunctionType(FunctionType* type) {
+        // Get return type
+        Type returnType = visit(type->getReturnType());
+
+        if (!returnType) return nullptr;
+        // Get Param types
+        SmallVector<Type, 4> paramTypes;
+        for (auto param : type->getParamTypes()) {
+          Type t = visit(param);
+          if (!t) return nullptr;
+          paramTypes.push_back(t);
+        }
+        // Recompute if needed
+        if (!type->isSame(paramTypes, returnType))
+          return FunctionType::get(ctxt, paramTypes, returnType);
+        return type;
+      }
+  };
+  assert(type && "arg is nullptr!");
+  return type->hasTypeVariable() ? Impl(*this).visit(type) : type;
+}
+
+Type Sema::trySimplify(Type type) {
+  if(Type simplified = simplify(type))
+   return simplified;
+  return type;
+}
+
 bool Sema::isWellFormed(Type type) {
   return !type->hasErrorType();
 }
