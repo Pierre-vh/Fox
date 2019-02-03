@@ -470,17 +470,19 @@ namespace fox {
         return Result<DataTy>(ResultKind::NotFound);
       }
       
-      template<typename Ty, typename = typename 
-               std::enable_if<isPointerType>::type>
-      Ty* castTo() {
+      template<typename Ty>
+      auto castTo() -> typename std::enable_if<isPointerType, Ty*>::type {
         DataTy ptr = storage_.data();
         assert(ptr && "Can't use this on a null pointer");
         return cast<Ty>(ptr);
       }
 
       template<typename Ty>
-      const auto castTo() const {
-        return const_cast<Result<DataTy>*>(this)->castTo<Ty>();
+      auto castTo() const -> 
+        typename std::enable_if<isPointerType, const Ty*>::type {
+        DataTy ptr = storage_.data();
+        assert(ptr && "Can't use this on a null pointer");
+        return cast<Ty>(ptr);
       }
 
       template<typename = typename std::enable_if<isPointerType, void*>::type>
