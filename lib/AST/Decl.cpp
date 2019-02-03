@@ -55,14 +55,22 @@ ASTContext& Decl::getASTContext() const {
   return closest->getASTContext();
 }
 
-static std::int8_t checkHasGetRange(SourceRange (Decl::*)() const) {}
-template<typename Derived>
-static std::int16_t checkHasGetRange(SourceRange (Derived::*)() const) {}
+namespace {
+  template<typename Rtr, typename Class>
+  constexpr bool isOverridenFromDecl(Rtr (Class::*)() const) {
+    return true;
+  }
+
+  template<typename Rtr>
+  constexpr bool isOverridenFromDecl(Rtr (Decl::*)() const) {
+    return false;
+  }
+}
 
 SourceRange Decl::getRange() const {
   switch(getKind()) {
     #define ASSERT_HAS_GETRANGE(ID)\
-      static_assert(sizeof(checkHasGetRange(&ID::getRange)) == 2,\
+      static_assert(isOverridenFromDecl(&ID::getRange),\
         #ID " does not reimplement getRange()")
     #define DECL(ID, PARENT) case DeclKind::ID:\
       ASSERT_HAS_GETRANGE(ID); \
@@ -154,14 +162,21 @@ bool NamedDecl::hasIdentifierRange() const {
 ValueDecl::ValueDecl(DeclKind kind, DeclContext* dc, Identifier id, 
   SourceRange idRange):  NamedDecl(kind, dc, id, idRange) {}
 
-static std::int8_t checkHasGetValueType(Type (Decl::*)() const) {}
-template<typename Derived>
-static std::int16_t checkHasGetValueType(Type (Derived::*)() const) {}
+namespace {
+  template<typename Rtr, typename Class>
+  constexpr bool isOverridenFromValueDecl(Rtr (Class::*)() const) {
+    return true;
+  }
 
+  template<typename Rtr>
+  constexpr bool isOverridenFromValueDecl(Rtr (Decl::*)() const) {
+    return false;
+  }
+}
 Type ValueDecl::getValueType() const {
   switch(getKind()) {
     #define ASSERT_HAS_GETVALUETYPE(ID)\
-      static_assert(sizeof(checkHasGetValueType(&ID::getValueType)) == 2,\
+      static_assert(isOverridenFromValueDecl(&ID::getValueType),\
         #ID " does not reimplement getValueType()")
     #define VALUE_DECL(ID, PARENT) case DeclKind::ID:\
       ASSERT_HAS_GETVALUETYPE(ID); \

@@ -27,14 +27,21 @@ StmtKind Stmt::getKind() const {
   return kind_;
 }
 
-static std::int8_t checkHasGetRange(SourceRange (Stmt::*)() const) {}
-template<typename Derived>
-static std::int16_t checkHasGetRange(SourceRange (Derived::*)() const) {}
+namespace {
+  template<typename Rtr, typename Class>
+  constexpr bool isOverridenFromStmt(Rtr (Class::*)() const) {
+    return true;
+  }
 
+  template<typename Rtr>
+  constexpr bool isOverridenFromStmt(Rtr (Stmt::*)() const) {
+    return false;
+  }
+}
 SourceRange Stmt::getRange() const {
   switch(getKind()) {
     #define ASSERT_HAS_GETRANGE(ID)\
-      static_assert(sizeof(checkHasGetRange(&ID::getRange)) == 2,\
+      static_assert(isOverridenFromStmt(&ID::getRange),\
         #ID " does not reimplement getRange()")
     #define STMT(ID, PARENT) case StmtKind::ID:\
       ASSERT_HAS_GETRANGE(ID); \

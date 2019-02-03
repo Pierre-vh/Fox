@@ -39,14 +39,22 @@ ExprKind Expr::getKind() const {
   return kind_;
 }
 
-static std::int8_t checkHasGetRange(SourceRange (Expr::*)() const) {}
-template<typename Derived>
-static std::int16_t checkHasGetRange(SourceRange (Derived::*)() const) {}
+namespace {
+  template<typename Rtr, typename Class>
+  constexpr bool isOverridenFromExpr(Rtr (Class::*)() const) {
+    return true;
+  }
+
+  template<typename Rtr>
+  constexpr bool isOverridenFromExpr(Rtr (Expr::*)() const) {
+    return false;
+  }
+}
 
 SourceRange Expr::getRange() const {
   switch(getKind()) {
     #define ASSERT_HAS_GETRANGE(ID)\
-      static_assert(sizeof(checkHasGetRange(&ID::getRange)) == 2,\
+      static_assert(isOverridenFromExpr(&ID::getRange),\
         #ID " does not reimplement getRange()")
     #define EXPR(ID, PARENT) case ExprKind::ID:\
       ASSERT_HAS_GETRANGE(ID); \
