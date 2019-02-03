@@ -311,7 +311,6 @@ namespace fox {
       // If FuncDecl is non null, it will be used as the parent of this
       // scope.
       RAIILocalScope(Sema& sema, FuncDecl* fn = nullptr) : sema_(sema) {
-        LocalScope::Parent parent;
         if(fn) scope_.setParent(fn);
         else  scope_.setParent(sema_.localScope_);
         sema_.localScope_ = &scope_;
