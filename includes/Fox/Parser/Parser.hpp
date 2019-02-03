@@ -354,8 +354,11 @@ namespace fox {
       DataTy data_ = DataTy();
       Parser::ResultKind kind_;
       public:
-        using default_value_type = DataTy; 
         using value_type = DataTy;
+
+        static value_type getDefaultValue() {
+          return value_type();
+        }
 
         ParserResultObjectDataStorage(const value_type& data, 
                                       Parser::ResultKind kind):
@@ -386,8 +389,11 @@ namespace fox {
     class ParserResultObjectDataStorage<DataTy*, true> {
       llvm::PointerIntPair<DataTy*, bitsForPRK, Parser::ResultKind> pair_;
       public:
-        using default_value_type = std::nullptr_t; 
         using value_type = DataTy*;
+
+        static value_type getDefaultValue() {
+          return nullptr;
+        }
 
         ParserResultObjectDataStorage(DataTy* data, Parser::ResultKind kind):
           pair_(data, kind) {}
@@ -426,7 +432,7 @@ namespace fox {
         storage_(data, kind) {}
 
       explicit Result(ResultKind kind) :
-        storage_(StorageType::default_value_type(), kind) {}
+        storage_(StorageType::getDefaultValue(), kind) {}
 
       bool isSuccess() const {
         return getResultKind() == ResultKind::Success;
