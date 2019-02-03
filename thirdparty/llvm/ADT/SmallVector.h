@@ -1,13 +1,23 @@
 //===- llvm/ADT/SmallVector.h - 'Normally small' vectors --------*- C++ -*-===//
 //
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
 //
 // This file defines the SmallVector class.
+//
+//===----------------------------------------------------------------------===//
+//
+// Modifications made to this file for the Fox Project:
+//  1 - Removed ErrorHandling.h include
+//  2 - Inlined grow_pod to remove the need for SmallVector.cpp
+//  3 - Added lines 43-45: If LLVM_NODISCARD is not defined, define it as an
+//      empty macro. This is needed to fix a compilation error on MSVC where
+//      LLVM_NODISCARD is recognized as the class name.
+//  4 - Replaced function call at line 35 and 271 : "report_bad_alloc" with
+//      call to llvm_bad_alloc
 //
 //===----------------------------------------------------------------------===//
 
@@ -16,8 +26,8 @@
 
 #include "llvm/ADT/iterator_range.h"
 #include "llvm/Support/AlignOf.h"
-#include "llvm/Support/MathExtras.h"
 #include "llvm/Support/Compiler.h"
+#include "llvm/Support/MathExtras.h"
 #include "llvm/Support/MemAlloc.h"
 #include "llvm/Support/type_traits.h"
 #include <algorithm>
@@ -31,6 +41,10 @@
 #include <new>
 #include <type_traits>
 #include <utility>
+
+#ifndef LLVM_NODISCARD
+  #define LLVM_NODISCARD
+#endif
 
 namespace llvm {
 
@@ -46,35 +60,35 @@ protected:
 
   /// This is an implementation of the grow() method which only works
   /// on POD-like data types and is out of line to reduce code duplication.
-void grow_pod(void *FirstEl, size_t MinCapacity,
-                               size_t TSize) {
-  // Ensure we can fit the new capacity in 32 bits.
-  if (MinCapacity > UINT32_MAX)
-    llvm_bad_alloc();
+  void grow_pod(void *FirstEl, size_t MinCapacity, size_t TSize) {
+    // Ensure we can fit the new capacity in 32 bits.
+    if (MinCapacity > UINT32_MAX)
+      llvm_bad_alloc("SmallVector capacity overflow during allocation");
 
-  size_t NewCapacity = 2 * capacity() + 1; // Always grow.
-  NewCapacity =
-      std::min(std::max(NewCapacity, MinCapacity), size_t(UINT32_MAX));
+    size_t NewCapacity = 2 * capacity() + 1; // Always grow.
+    NewCapacity =
+        std::min(std::max(NewCapacity, MinCapacity), size_t(UINT32_MAX));
 
-  void *NewElts;
-  if (BeginX == FirstEl) {
-    NewElts = safe_malloc(NewCapacity * TSize);
+    void *NewElts;
+    if (BeginX == FirstEl) {
+      NewElts = safe_malloc(NewCapacity * TSize);
 
-    // Copy the elements over.  No need to run dtors on PODs.
-    memcpy(NewElts, this->BeginX, size() * TSize);
-  } else {
-    // If this wasn't grown from the inline copy, grow the allocated space.
-    NewElts = safe_realloc(this->BeginX, NewCapacity * TSize);
+      // Copy the elements over.  No need to run dtors on PODs.
+      memcpy(NewElts, this->BeginX, size() * TSize);
+    } else {
+      // If this wasn't grown from the inline copy, grow the allocated space.
+      NewElts = safe_realloc(this->BeginX, NewCapacity * TSize);
+    }
+
+    this->BeginX = NewElts;
+    this->Capacity = NewCapacity;
   }
 
-  this->BeginX = NewElts;
-  this->Capacity = NewCapacity;
-}
 public:
   size_t size() const { return Size; }
   size_t capacity() const { return Capacity; }
 
-  bool empty() const { return !Size; }
+  LLVM_NODISCARD bool empty() const { return !Size; }
 
   /// Set the array size to \p N, which the current array must have enough
   /// capacity for.
@@ -146,13 +160,9 @@ public:
   using const_pointer = const T *;
 
   // forward iterator creation methods.
-  LLVM_ATTRIBUTE_ALWAYS_INLINE
   iterator begin() { return (iterator)this->BeginX; }
-  LLVM_ATTRIBUTE_ALWAYS_INLINE
   const_iterator begin() const { return (const_iterator)this->BeginX; }
-  LLVM_ATTRIBUTE_ALWAYS_INLINE
   iterator end() { return begin() + size(); }
-  LLVM_ATTRIBUTE_ALWAYS_INLINE
   const_iterator end() const { return begin() + size(); }
 
   // reverse iterator creation methods.
@@ -171,12 +181,10 @@ public:
   /// Return a pointer to the vector's buffer, even if empty().
   const_pointer data() const { return const_pointer(begin()); }
 
-  LLVM_ATTRIBUTE_ALWAYS_INLINE
   reference operator[](size_type idx) {
     assert(idx < size());
     return begin()[idx];
   }
-  LLVM_ATTRIBUTE_ALWAYS_INLINE
   const_reference operator[](size_type idx) const {
     assert(idx < size());
     return begin()[idx];
@@ -201,7 +209,7 @@ public:
   }
 };
 
-/// SmallVectorTemplateBase<isPodLike = false> - This is where we put method
+/// SmallVectorTemplateBase<TriviallyCopyable = false> - This is where we put method
 /// implementations that are designed to work with non-POD-like T's.
 template <typename T, bool = is_trivially_copyable<T>::value>
 class SmallVectorTemplateBase : public SmallVectorTemplateCommon<T> {
@@ -260,7 +268,7 @@ public:
 template <typename T, bool TriviallyCopyable>
 void SmallVectorTemplateBase<T, TriviallyCopyable>::grow(size_t MinSize) {
   if (MinSize > UINT32_MAX)
-    llvm_bad_alloc();
+    llvm_bad_alloc("SmallVector capacity overflow during allocation");
 
   // Always grow, even from zero.
   size_t NewCapacity = size_t(NextPowerOf2(this->capacity() + 2));
@@ -281,9 +289,8 @@ void SmallVectorTemplateBase<T, TriviallyCopyable>::grow(size_t MinSize) {
   this->Capacity = NewCapacity;
 }
 
-
-/// SmallVectorTemplateBase<isPodLike = true> - This is where we put method
-/// implementations that are designed to work with POD-like T's.
+/// SmallVectorTemplateBase<TriviallyCopyable = true> - This is where we put
+/// method implementations that are designed to work with POD-like T's.
 template <typename T>
 class SmallVectorTemplateBase<T, true> : public SmallVectorTemplateCommon<T> {
 protected:
@@ -399,7 +406,7 @@ public:
       this->grow(N);
   }
 
-  T pop_back_val() {
+  LLVM_NODISCARD T pop_back_val() {
     T Result = ::std::move(this->back());
     this->pop_back();
     return Result;

@@ -1,9 +1,8 @@
 //===-- llvm/ADT/Hashing.h - Utilities for hashing --------------*- C++ -*-===//
 //
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
 //
@@ -39,6 +38,16 @@
 // on a modern Intel "Gainestown" Xeon (Nehalem uarch) @2.2 GHz, these were
 // benchmarked at over 6.5 GiB/s for large keys, and <20 cycles/hash for keys
 // under 32-bytes.
+//
+//===----------------------------------------------------------------------===//
+//
+// Modifications made to this file for the Fox Project:
+//  1 - Removed fixed_seed_override and it's usages
+//      -> The implementation of get_execution_seed has been changed
+//         to always return 0xff51afd7ed558ccdULL
+//  2 - Removed set_fixed_execution_hash_seed
+//  3 - Line 547, 560 and 600 : Added explicit casts to size_t to silence 
+//        C4244 on MSVC
 //
 //===----------------------------------------------------------------------===//
 
@@ -296,12 +305,7 @@ inline uint64_t get_execution_seed() {
   // FIXME: This needs to be a per-execution seed. This is just a placeholder
   // implementation. Switching to a per-execution seed is likely to flush out
   // instability bugs and so will happen as its own commit.
-  //
-  // However, if there is a fixed seed override set the first time this is
-  // called, return that instead of the per-execution seed.
-  const uint64_t seed_prime = 0xff51afd7ed558ccdULL;
-  static uint64_t seed = seed_prime;
-  return seed;
+  return 0xff51afd7ed558ccdULL;
 }
 
 
@@ -542,7 +546,7 @@ public:
     // Check whether the entire set of values fit in the buffer. If so, we'll
     // use the optimized short hashing routine and skip state entirely.
     if (length == 0)
-      return hash_short(buffer, buffer_ptr - buffer, seed);
+      return (size_t)hash_short(buffer, buffer_ptr - buffer, seed);
 
     // Mix the final buffer, rotating it if we did a partial fill in order to
     // simulate doing a mix of the last 64-bytes. That is how the algorithm
@@ -554,7 +558,7 @@ public:
     state.mix(buffer);
     length += buffer_ptr - buffer;
 
-    return state.finalize(length);
+    return (size_t)state.finalize(length);
   }
 };
 
@@ -593,7 +597,7 @@ inline hash_code hash_integer_value(uint64_t value) {
   const uint64_t seed = get_execution_seed();
   const char *s = reinterpret_cast<const char *>(&value);
   const uint64_t a = fetch32(s);
-  return hash_16_bytes(seed + (a << 3), fetch32(s + 4));
+  return (size_t)hash_16_bytes(seed + (a << 3), fetch32(s + 4));
 }
 
 } // namespace detail

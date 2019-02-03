@@ -1,55 +1,15 @@
 LLVM on GitHub: https://github.com/llvm-mirror/llvm
 LLVM Website: https://llvm.org/
 
-Notice: This folder contains some files that I imported/extracted from the LLVM project.
-Theses files have sometimes been modified to remove dependencies, or remove some functionality that
-I did not need. They're all header only.
+Some files have been modified to remove dependencies or unneeded functionalities.
+Each file in this folder contains a notice at the top of the file that enumerates
+the changes made to the file. This notice is always found at the bottom
+of the header, before any code.
 
-Non exhaustive changes list:
-	Support/DataTypes.h
-		This file is the one found in llvm-c/DataTypes.h instead of the wrapper
-		located in llvm/Support/DataTypes.h
-
-  Support/Compiler.h
-    Removed llvm-config include
-
-  Support/MemAlloc.h
-    Removed include "ErrorHandling.h"
-    Replaced calls to report_bad_alloc with calls to a llvm_bad_alloc macro
-      defined at the top of the file.
-      The code for this macro is a shortened version of the one found in
-      /lib/Support/ErrorHandling.cpp
-
-  Support/MathExtras.h
-    Commented out lines 364-400 due to MSVC C4146  
-
-  Support/Host.h
-    Removed everything except the endianness related functionalities
-
-	ADT/PointerIntPair.h:
-		Removed DenseMapInfo features
-
-  ADT/PointerUnion.h
-    Removed include: "llvm/ADT/DenseMapInfo.h"
-    Removed lines 463-488 "Teach DenseMap how to use PointerUnions as keys."
-
-  ADT/SmallVector.h
-    Removed ErrorHandling. hinclude
-    Inlined grow_pod to remove need for SmallVector.cpp 
-    Removed LLVM_NODISCARDs (Caused compiler errors on MSVC)
-
-  ADT/type_traits.h
-    Added ~trivial_helper() = delete; at line 97 to silence a MSVC warning.
-
-  ADT/ArrayRef.h
-    Removed Hashing functions
-    Replaced include: "llvm/ADT/STLExtras.h" with "llvm/ADT/iterator.h"
-    Removed LLVM_NODISCARDs (Caused compiler errors on MSVC)
-
-  ADT/TrailingObjects.h
-    (Line 202) Adding static_cast<size_t> to alignTo's result to silence C4244 on MSVC
-    (Line 284) Removed the "Obj" parameter name to silence C4244 on MSVC
-
-  ADT/Hashing.h
-    Removing fixed_seed_override to remove dependency on .cpp file
-			
+Example:
+//===----------------------------------------------------------------------===//
+//
+// Modifications made to this file for the Fox Project:
+//  1 - Removed streaming operators for Optional
+//
+//===----------------------------------------------------------------------===//

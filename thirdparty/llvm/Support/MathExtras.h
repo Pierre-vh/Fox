@@ -1,13 +1,17 @@
 //===-- llvm/Support/MathExtras.h - Useful math functions -------*- C++ -*-===//
 //
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
 //
 // This file contains some functions that are useful for math stuff.
+//
+//===----------------------------------------------------------------------===//
+//
+// Modifications made to this file for the Fox Project:
+//  1 - Line 384: Added a (int64_t) explicit cast to silence C4244 on MSVC.
 //
 //===----------------------------------------------------------------------===//
 
@@ -361,7 +365,7 @@ constexpr inline bool isShiftedUInt(uint64_t x) {
   // 1 << S is not undefined behavior.
   return isUInt<N + S>(x) && (x % (UINT64_C(1) << S) == 0);
 }
-/*
+
 /// Gets the maximum value for a N-bit unsigned integer.
 inline uint64_t maxUIntN(uint64_t N) {
   assert(N > 0 && N <= 64 && "integer width out of range");
@@ -377,7 +381,7 @@ inline uint64_t maxUIntN(uint64_t N) {
 inline int64_t minIntN(int64_t N) {
   assert(N > 0 && N <= 64 && "integer width out of range");
 
-  return -(UINT64_C(1)<<(N-1));
+  return -(int64_t)(UINT64_C(1)<<(N-1));
 }
 
 /// Gets the maximum value for a N-bit signed integer.
@@ -397,7 +401,7 @@ inline bool isUIntN(unsigned N, uint64_t x) {
 /// Checks if an signed integer fits into the given (dynamic) bit width.
 inline bool isIntN(unsigned N, int64_t x) {
   return N >= 64 || (minIntN(N) <= x && x <= maxIntN(N));
-}*/
+}
 
 /// Return true if the argument is a non-empty sequence of ones starting at the
 /// least significant bit with the remainder zero (32 bit version).

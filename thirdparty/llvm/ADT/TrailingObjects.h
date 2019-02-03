@@ -1,9 +1,8 @@
 //===--- TrailingObjects.h - Variable-length classes ------------*- C++ -*-===//
 //
-//                     The LLVM Compiler Infrastructure
-//
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
 ///
@@ -42,6 +41,11 @@
 /// by the implementation of the class, not as part of its interface
 /// (thus, private inheritance is suggested).
 ///
+//===----------------------------------------------------------------------===//
+//
+// Modifications made to this file for the Fox Project:
+//  1 - Removed "Obj" parameter name at line 284 to silence C4244 on MSVC
+//
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_SUPPORT_TRAILINGOBJECTS_H
@@ -199,7 +203,7 @@ protected:
       size_t SizeSoFar, size_t Count1,
       typename ExtractSecondType<MoreTys, size_t>::type... MoreCounts) {
     return ParentType::additionalSizeToAllocImpl(
-        (requiresRealignment() ? static_cast<size_t>(llvm::alignTo<alignof(NextTy)>(SizeSoFar))
+        (requiresRealignment() ? llvm::alignTo<alignof(NextTy)>(SizeSoFar)
                                : SizeSoFar) +
             sizeof(NextTy) * Count1,
         MoreCounts...);
@@ -281,7 +285,7 @@ class TrailingObjects : private trailing_objects_internal::TrailingObjectsImpl<
   // TrailingObjects", and thus, only this class itself can call the
   // numTrailingObjects function.)
   static size_t
-  callNumTrailingObjects(const BaseTy*,
+  callNumTrailingObjects(const BaseTy *,
                          TrailingObjectsBase::OverloadToken<BaseTy>) {
     return 1;
   }

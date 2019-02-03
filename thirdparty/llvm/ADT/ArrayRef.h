@@ -1,18 +1,27 @@
 //===- ArrayRef.h - Array Reference Wrapper ---------------------*- C++ -*-===//
 //
-//                     The LLVM Compiler Infrastructure
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
-// This file is distributed under the University of Illinois Open Source
-// License. See LICENSE.TXT for details.
+//===----------------------------------------------------------------------===//
+//
+// Modifications made to this file for the Fox Project:
+//  1 - Replaced STLExtra.h include by iterator_range.h
+//  2 - Added lines 33-35: If LLVM_NODISCARD is not defined, define it as an
+//      empty macro. This is needed to fix a compilation error on MSVC where
+//      LLVM_NODISCARD is recognized as the class name.
 //
 //===----------------------------------------------------------------------===//
 
 #ifndef LLVM_ADT_ARRAYREF_H
 #define LLVM_ADT_ARRAYREF_H
 
+#include "llvm/ADT/Hashing.h"
 #include "llvm/ADT/None.h"
 #include "llvm/ADT/SmallVector.h"
-#include "llvm/ADT/iterator.h"
+#include "llvm/ADT/iterator_range.h"
+#include "llvm/Support/Compiler.h"
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -23,7 +32,12 @@
 #include <type_traits>
 #include <vector>
 
+#ifndef LLVM_NODISCARD
+  #define LLVM_NODISCARD
+#endif
+
 namespace llvm {
+
   /// ArrayRef - Represent a constant reference to an array (0 or more elements
   /// consecutively in memory), i.e. a start pointer and a length.  It allows
   /// various APIs to take consecutive elements easily and conveniently.
@@ -36,7 +50,7 @@ namespace llvm {
   /// This is intended to be trivially copyable, so it should be passed by
   /// value.
   template<typename T>
-  class ArrayRef {
+  class LLVM_NODISCARD ArrayRef {
   public:
     using iterator = const T *;
     using const_iterator = const T *;
@@ -285,7 +299,7 @@ namespace llvm {
   /// This is intended to be trivially copyable, so it should be passed by
   /// value.
   template<typename T>
-  class MutableArrayRef : public ArrayRef<T> {
+  class LLVM_NODISCARD MutableArrayRef : public ArrayRef<T> {
   public:
     using iterator = T *;
     using reverse_iterator = std::reverse_iterator<iterator>;
@@ -523,11 +537,9 @@ namespace llvm {
 
   /// @}
 
-  // ArrayRefs can be treated like a POD type.
-  template <typename T> struct isPodLike;
-  template <typename T> struct isPodLike<ArrayRef<T>> {
-    static const bool value = true;
-  };
+  template <typename T> hash_code hash_value(ArrayRef<T> S) {
+    return hash_combine_range(S.begin(), S.end());
+  }
 
 } // end namespace llvm
 

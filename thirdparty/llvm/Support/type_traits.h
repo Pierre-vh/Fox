@@ -9,6 +9,12 @@
 // This file provides useful additions to the standard type_traits library.
 //
 //===----------------------------------------------------------------------===//
+//
+// Modifications made to this file for the Fox Project:
+//  1 - Added a pragma_warning push/disable/pop for MSVC to disable
+//      w4624: "destructor was implicitly defined as deleted"
+//
+//===----------------------------------------------------------------------===//
 
 #ifndef LLVM_SUPPORT_TYPE_TRAITS_H
 #define LLVM_SUPPORT_TYPE_TRAITS_H
@@ -91,11 +97,20 @@ template<typename T> union move_construction_triviality_helper {
     ~move_construction_triviality_helper() = default;
 };
 
+#if _MSC_VER && !__INTEL_COMPILER
+#pragma warning( push )
+#pragma warning( disable : 4624)
+#endif
+
 template<class T>
 union trivial_helper {
     T t;
-    ~trivial_helper() = delete;
 };
+
+#if _MSC_VER && !__INTEL_COMPILER
+#pragma warning( pop ) 
+#endif
+
 } // end namespace detail
 
 /// An implementation of `std::is_trivially_copy_constructible` since we have
@@ -120,6 +135,24 @@ struct is_trivially_move_constructible<T &> : std::true_type {};
 template <typename T>
 struct is_trivially_move_constructible<T &&> : std::true_type {};
 
+
+template <typename T>
+struct is_copy_assignable {
+  template<class F>
+    static auto get(F*) -> decltype(std::declval<F &>() = std::declval<const F &>(), std::true_type{});
+    static std::false_type get(...);
+    static constexpr bool value = decltype(get((T*)nullptr))::value;
+};
+
+template <typename T>
+struct is_move_assignable {
+  template<class F>
+    static auto get(F*) -> decltype(std::declval<F &>() = std::declval<F &&>(), std::true_type{});
+    static std::false_type get(...);
+    static constexpr bool value = decltype(get((T*)nullptr))::value;
+};
+
+
 // An implementation of `std::is_trivially_copyable` since STL version
 // is not equally supported by all compilers, especially GCC 4.9.
 // Uniform implementation of this trait is important for ABI compatibility
@@ -141,15 +174,15 @@ class is_trivially_copyable {
 
   // copy assign
   static constexpr bool has_trivial_copy_assign =
-      std::is_copy_assignable<detail::trivial_helper<T>>::value;
+      is_copy_assignable<detail::trivial_helper<T>>::value;
   static constexpr bool has_deleted_copy_assign =
-      !std::is_copy_assignable<T>::value;
+      !is_copy_assignable<T>::value;
 
   // move assign
   static constexpr bool has_trivial_move_assign =
-      std::is_move_assignable<detail::trivial_helper<T>>::value;
+      is_move_assignable<detail::trivial_helper<T>>::value;
   static constexpr bool has_deleted_move_assign =
-      !std::is_move_assignable<T>::value;
+      !is_move_assignable<T>::value;
 
   // destructor
   static constexpr bool has_trivial_destructor =
@@ -164,9 +197,13 @@ class is_trivially_copyable {
       (has_deleted_copy_assign || has_trivial_copy_assign) &&
       (has_deleted_copy_constructor || has_trivial_copy_constructor);
 
-#if (__has_feature(is_trivially_copyable) || (defined(__GNUC__) && __GNUC__ >= 5))
-  static_assert(value == std::is_trivially_copyable<T>::value, "inconsistent behavior between llvm:: and std:: implementation of is_trivially_copyable");
+#ifdef HAVE_STD_IS_TRIVIALLY_COPYABLE
+  static_assert(value == std::is_trivially_copyable<T>::value,
+                "inconsistent behavior between llvm:: and std:: implementation of is_trivially_copyable");
 #endif
+};
+template <typename T>
+class is_trivially_copyable<T*> : public std::true_type {
 };
 
 
