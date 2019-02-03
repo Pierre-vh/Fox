@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(Fox)
 
+message("CMake version ${CMAKE_VERSION}")
+
 include(FindPythonInterp)
 
 # set minimal C++ standard 
@@ -32,38 +34,43 @@ add_subdirectory(unittests)
 
 message("Compiler ID is ${CMAKE_CXX_COMPILER_ID}")
 
-# check if clang-cl
+# fetch CXX environement variable
 if(DEFINED ENV{CXX})
-  message("Environment variable CXX is $ENV{CC}")
-  if($ENV{CXX} STREQUAL "clang-cl")
-    set(IS_CLANGCL TRUE CACHE BOOL "IS_CLANGCL")
-  else()
-    set(IS_CLANGCL FALSE CACHE BOOL "IS_CLANGCL")
-  endif()
+  set(CXX $ENV{CXX})
+  message("Environment variable CXX=${CXX}")
 else()
-  message("Environment variable CXX not set")
-  set(IS_CLANGCL FALSE CACHE BOOL "IS_CLANGCL")
+  message("Environment variable CXX not found")
+  set(CXX "")
 endif()
+
+# check if clang-cl
+if(CXX STREQUAL "clang-cl")
+  message("clang-cl detected")
+  set(IS_CLANGCL TRUE)
+else()
+  set(IS_CLANGCL FALSE)
+endif()
+
 
 # check if clang (can be clang-cl!)
 if(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
-  set(IS_CLANG TRUE CACHE BOOL "IS_CLANG")
+  set(IS_CLANG TRUE)
 else()
-  set(IS_CLANG FALSE CACHE BOOL "IS_CLANG")
+  set(IS_CLANG FALSE)
 endif()
 
 # check if MSVC
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-  set(IS_MSVC TRUE CACHE BOOL "IS_MSVC")
+  set(IS_MSVC TRUE)
 else()
-  set(IS_MSVC FALSE CACHE BOOL "IS_MSVC")
+  set(IS_MSVC FALSE)
 endif()
 
 # check if MSVC or clang-cl
 if(IS_MSVC OR IS_CLANGCL)
-  set(IS_MSVC_OR_CLANGCL TRUE CACHE BOOL "IS_MSVC_OR_CLANG_CL")
+  set(IS_MSVC_OR_CLANGCL TRUE)
 else()
-  set(IS_MSVC_OR_CLANGCL FALSE CACHE BOOL "IS_MSVC_OR_CLANG_CL")
+  set(IS_MSVC_OR_CLANGCL FALSE)
 endif()
 
 message("IS_MSVC=${IS_MSVC}")
@@ -138,7 +145,8 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
     endif()
   endfunction()
 
-  # some options will have been already passed in the previous
+  # sometimes, we need options to be passed only if the compiler
+  # is clang, not clang-cl!
   # e.g. if /GR- has already been passed, we should pass -fno-rtti
   function(add_clangonly_option arg)
     if(NOT IS_CLANGCL)
@@ -147,8 +155,11 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
   endfunction()
   
 
-  add_clang_option(-Wall)
   add_clang_option(-Wno-unused-parameter)
+
+  # don't add -Wall for clang-cl, as it maps to -Weverything.
+  # /W4 is used above instead.
+  add_clangonly_option(-Wall)
 
   add_clangonly_option(-fno-exceptions)
   add_clangonly_option(-fno-rtti)
