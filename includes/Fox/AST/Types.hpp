@@ -12,7 +12,7 @@
 #include "ASTAligns.hpp"
 #include "Type.hpp"
 #include "Fox/Common/LLVM.hpp"
-#include "llvm/ADT/TrailingObjects.h"
+#include "llvm/Support/TrailingObjects.h"
 #include "llvm/ADT/ArrayRef.h"
 #include <string>
 #include <cstdint>

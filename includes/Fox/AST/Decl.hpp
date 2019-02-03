@@ -13,7 +13,7 @@
 #include "ASTAligns.hpp"
 #include "Type.hpp"
 #include "Identifier.hpp"
-#include "llvm/ADT/TrailingObjects.h"
+#include "llvm/Support/TrailingObjects.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/PointerUnion.h"
 #include "llvm/ADT/SmallVector.h"

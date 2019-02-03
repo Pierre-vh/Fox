@@ -16,7 +16,7 @@
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/PointerIntPair.h"
-#include "llvm/ADT/TrailingObjects.h"
+#include "llvm/Support/TrailingObjects.h"
 
 namespace fox   {
   // Forward Declarations

@@ -15,7 +15,7 @@
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"
-#include "llvm/ADT/TrailingObjects.h"
+#include "llvm/Support/TrailingObjects.h"
 
 namespace fox {
   /// Enum representing every kind of statement that exist.
