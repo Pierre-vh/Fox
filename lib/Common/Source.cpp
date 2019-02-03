@@ -393,9 +393,9 @@ static bool checkEncoding(std::ifstream& in, std::streampos size) {
 
     bool hasUTF16Bom = false;
 
-    if((maybeBOM[0] == 0xFF) && (maybeBOM[1] == 0xFE))
+    if((maybeBOM[0] == '\xFF') && (maybeBOM[1] == '\xFE'))
       hasUTF16Bom = true;
-    else if((maybeBOM[0] == 0xFE) && (maybeBOM[1] == 0xFF))
+    else if((maybeBOM[0] == '\xFE') && (maybeBOM[1] == '\xFF'))
       hasUTF16Bom = true;
 
     in.seekg(0);
