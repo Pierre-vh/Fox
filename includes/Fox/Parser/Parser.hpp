@@ -424,11 +424,13 @@ namespace fox {
     public:
       Result() : storage_(DefaultValue(), ResultKind::Error) {}
 
-      explicit Result(const DataTy& data, ResultKind kind = ResultKind::Success):
+      explicit Result(const DataTy& data, 
+                      ResultKind kind = ResultKind::Success):
         storage_(data, kind) {}
 
-      template<typename = typename std::enable_if<!isPointerType>::type>
-      explicit Result(DataTy&& data, ResultKind kind = ResultKind::Success):
+      template<typename Ty = DataTy, 
+               typename = typename std::enable_if<!isPointerType, Ty>::type>
+      explicit Result(Ty&& data, ResultKind kind = ResultKind::Success):
         storage_(data, kind) {}
 
       explicit Result(ResultKind kind) :
@@ -485,13 +487,15 @@ namespace fox {
         return cast<Ty>(ptr);
       }
 
-      template<typename = typename std::enable_if<isPointerType, void*>::type>
+      template<typename FooTy = DataTy, 
+               typename = typename std::enable_if<isPointerType, FooTy>::type>
       void* getOpaque() const  {
         return (void*)storage_.data();
       }
 
-      template<typename = typename std::enable_if<!isPointerType>::type>
-      DataTy&& move() {
+      template<typename RtrTy = DataTy, 
+               typename = typename std::enable_if<!isPointerType, RtrTy>::type>
+      RtrTy&& move() {
         return storage_.move();
       }
 
