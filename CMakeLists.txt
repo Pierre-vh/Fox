@@ -44,7 +44,7 @@ else()
 endif()
 
 # check if clang-cl
-if(CXX STREQUAL "clang-cl")
+if(CXX STREQUAL "clang-cl" OR CXX MATCHES "clang-cl.exe")
   message("clang-cl detected")
   set(IS_CLANGCL TRUE)
 else()
