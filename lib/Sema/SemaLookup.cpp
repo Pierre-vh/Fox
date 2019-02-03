@@ -53,7 +53,6 @@ namespace {
   //   > if we are done searching the whole scope tree.
   void lookupInLocalScope(Identifier id, ResultFoundFn onFound, 
     LocalScope* scope) {
-    using LMap = LocalScope::Map;
     LocalScope* cur = scope;
     while(cur) {
       const auto& map = cur->getDeclsMap();

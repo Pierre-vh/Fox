@@ -89,8 +89,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type castTy = castTL.getType();
       if(!Sema::isWellFormed(castTy)) return;
 
-      SourceRange range = expr->getCastTypeLoc().getRange();
-
       getDiags()
         .report(DiagID::sema_useless_cast_redundant, castTL.getRange())
         .addArg(castTy)
