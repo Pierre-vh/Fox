@@ -205,10 +205,6 @@ Other:
     > LinearAllocator should allocate large objects in custom pools instead of
       flat-out refusing them.
 
-    > Add an "Optional" class to the project, and use it to properly express optionality of
-      return values in the SourceManager and other classes.
-      
-
     > Add a "Transaction" object in the Parser, which delays DeclContext registrations
       until the transaction is completed (with a new DeclContext) or abandonned.
         This will solve the problem of the "early creation" of FuncDecl! We
