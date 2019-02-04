@@ -8,15 +8,11 @@
 // This allocator does not inherit from std::allocator_traits
 //----------------------------------------------------------------------------//
 
-// LinearAllocator To-Do list:
-  // 1) Allow allocation of objects of any size in custom pools.
-  // 2) Increase the pool's size when many pools are allocated.
-
 #pragma once
 
-#include <cstddef>
-#include <memory>
+#include "llvm/Support/MemAlloc.h"
 #include "llvm/Support/Compiler.h"
+#include "llvm/ADT/SmallVector.h"
 #include "Errors.hpp"
 
 namespace fox {
@@ -33,12 +29,16 @@ namespace fox {
   * Once a block of memory is allocated, you cannot deallocate it 
   * (no Deallocate method).
   *
+  * The allocator is pretty similar to LLVM's BumpPtrAllocator.
+  *
   * This is useful for allocating lots of long lived object (such as AST Nodes)
   *
-  * Note: This class does not strive to be thread-safe.
   */
   template<
-      std::uint32_t poolSize = 4096 // Allocate 4096 byte pools by default
+      // Allocate 4096 byte pools by default
+      std::size_t poolSize = 4096,
+      // Force allocations of objects whose size is >4096 in their own pool.
+      std::size_t sizeThresold = poolSize
     >              
   class CustomLinearAllocator {
     public:
@@ -49,45 +49,34 @@ namespace fox {
 
       // Assertions
       static_assert(poolSize >= 64, "Poolsize cannot be smaller than 64 Bytes");
+      static_assert(sizeThresold <= poolSize, "sizeThresold must be <= poolSize");
 
     private:
-      using ThisType = CustomLinearAllocator<poolSize>;
+      using ThisType = CustomLinearAllocator<poolSize, sizeThresold>;
+      
+      /// A vector storing the pointers to every pool owned by
+      /// this allocator.
+      llvm::SmallVector<byte_type*, 8> pools_;
 
-      /*
-        \brief A Single Pool. They sort of act like 
-        a linked list, where each pool owns the next one.
-      */
-      struct Pool {
-        // Calculate the upperBound by adding the beginning 
-        // of the data + the size of the data
-        Pool(Pool* previous) : upperBound(data + poolSize), previous(previous) {
-          memset(data, 0, sizeof(data));
-        }
+      /// The number of "normal" pools created. This number
+      /// excludes custom pools.
+      ///
+      /// To calculate the number of custom pools allocated, do
+      /// pools_.size() - normalPoolsCreated_
+      size_type normalPoolsCreated_ = 0;
 
-        byte_type data[poolSize];
-        const byte_type* const upperBound = nullptr;
+      /// The current allocation pointer.
+      byte_type* allocPtr_ = nullptr;
 
-        // Each pool owns the next one
-        std::unique_ptr<Pool> next = nullptr;
-
-        // Pools keep a reference to the last pool, so
-        // we can walk back if needed
-        Pool* previous = nullptr;
-      };
-
-      std::unique_ptr<Pool> firstPool = nullptr;
-      Pool* curPool = nullptr;
-      size_type poolCount = 0;
-      void* allocPtr = nullptr;
+      /// The pointer to the end of the current pool
+      byte_type* endAllocPtr_ = nullptr;
 
     public:
+      /// The maximum size of a pool
+      static constexpr size_type maxPoolSize = 0xFFFFFFFF;
 
-      /**
-      * \brief Constructor. Calls setup.
-      */
-      CustomLinearAllocator() {
-        setup();
-      }
+      /// (Default) constructor
+      CustomLinearAllocator() = default;
 
       // Disable copy/move
       CustomLinearAllocator(ThisType&) = delete;
@@ -95,19 +84,16 @@ namespace fox {
       CustomLinearAllocator& operator=(ThisType&) = delete;
 
       /**
-      * \brief Setup the Allocator for use (creates the first pool)
-      */
-      void setup() {
-        if (!firstPool)
-          createPool();
-      }
-
-      /**
       * \brief Resets the allocator, freeing all previously allocated memory.
       */
       void reset() {
-        destroyAll();
-        setup();
+        // Free every pool
+        for (byte_type* pool : pools_)
+          std::free(pool);
+        // Clear the pool vector
+        pools_.clear();
+        // Reset the pool count
+        normalPoolsCreated_ = 0;
       }
 
       /**
@@ -117,25 +103,40 @@ namespace fox {
       LLVM_ATTRIBUTE_RETURNS_NONNULL 
       LLVM_ATTRIBUTE_RETURNS_NOALIAS 
       void* allocate(size_type size, align_type align = 1) {
-        // Check that the allocptr isn't null
-        assert(allocPtr && "AllocPtr cannot be null");
-
-        // Check if the object fits.
-        // No dump needed when calling reportBadAlloc
-        if (!willFitInPool(size, align))
-          reportBadAlloc("Object too big (size of object "
-            "is greater than size of a pool)");
-
-        // Create a new pool if we need to do so.
-        createNewPoolIfRequired(size, align);
-
-        // Allocate the memory
-        auto tmp = alignPtr(allocPtr, align);
-        allocPtr = static_cast<byte_type*>(tmp) + size;
-        
-        assert(tmp && "Pointer cannot be null now!");
-
-        return tmp;
+        // Allocate in a custom pool if the padded size is bigger
+        // than the thresold.
+        if ((size + align) >= sizeThresold) {
+          // Create a custom pool
+          byte_type* ptr = createCustomPool(size);
+          // Align its pointer
+          ptr = getAlignedPtr(ptr, align);
+          assert(ptr && "allocated memory is nullptr!");
+          // Return it.
+          return ptr;
+        }
+        // Check if we can allocate in the current pool
+        if(allocPtr_) {
+          assert(endAllocPtr_ && "We have an allocPtr_ but no endAllocPtr_?");
+          // Allocate in the current pool: check that alignedAllocPtr+size
+          // is within bounds.
+          byte_type* alignedAllocPtr = getAlignedPtr(allocPtr_, align);
+          if ((alignedAllocPtr + size) <= endAllocPtr_) {
+            // If we can alloc in the current pool, update the allocPtr_ and return
+            // alignAllocPtr.
+            allocPtr_ = alignedAllocPtr + size;
+            assert(alignedAllocPtr && "allocated memory is nullptr!");
+            return alignedAllocPtr;
+          }
+        }
+        // Can't allocate in this pool: create a new pool
+        createNewPool();
+        // Align the allocPtr_
+        byte_type* alignedAllocPtr = getAlignedPtr(allocPtr_, align);
+        // Calculate the new value of allocPtr
+        allocPtr_ = alignedAllocPtr + size;
+        // And return the aligned alloc ptr.
+        assert(alignedAllocPtr && "allocated memory is nullptr!");
+        return alignedAllocPtr;
       }
 
       
@@ -147,8 +148,6 @@ namespace fox {
       LLVM_ATTRIBUTE_RETURNS_NONNULL 
       LLVM_ATTRIBUTE_RETURNS_NOALIAS 
       DataTy* allocate() {
-        static_assert(willFitInPool(sizeof(DataTy), alignof(DataTy)),
-          "Object too big for allocator");
         return static_cast<DataTy*>(allocate(sizeof(DataTy), alignof(DataTy)));
       }
 
@@ -173,24 +172,10 @@ namespace fox {
       }
 
       /**
-      * \brief Destroys every pool, freeing all of the memory allocated.
-      */
-      void destroyAll() {
-        // Free the first pool, starting a chain reaction of destructor calls!
-        if (firstPool)
-          firstPool.reset();
-
-        // Set all the member variables to safe values.
-        curPool = nullptr;
-        poolCount = 0;
-        allocPtr = nullptr;
-      }
-
-      /**
       * \brief Destructor (just calls destroyAll())
       */
       ~CustomLinearAllocator() {
-        destroyAll();
+        reset();
       }
 
       /**
@@ -199,62 +184,30 @@ namespace fox {
       */
       void dump() const {
         std::size_t bytesInCurPool = getBytesInCurrentPool();
-        std::size_t totalBytes = (poolCount*poolSize) + bytesInCurPool;
+      #pragma message("fix total memory allocated count!")
         detail::doLinearAllocatorDump(getPoolCount(), poolSize,
-          bytesInCurPool, totalBytes);
-      }
-
-      /**
-      * \returns True if a pool can handle a chunk of size "sz"
-      *          and alignement "align"
-      */
-      static constexpr bool willFitInPool(size_type sz, align_type align) {
-        // We compare to size + (align-1), to make room for padding if needed
-        return (poolSize >= (sz + (align - 1)));
+          bytesInCurPool, 0);
       }
 
       /**
       * \brief Returns the number of pool
       */
       size_type getPoolCount() const {
-        return poolCount;
+        return pools_.size();
       }
 
       /**
       * \brief Returns the number of bytes in the current pool
       */
       size_type getBytesInCurrentPool() const {
-        return (size_type)(((byte_type*)allocPtr) - ((byte_type*)curPool));
+        if(allocPtr_)
+          return static_cast<std::size_t>(endAllocPtr_ - allocPtr_);
+        return 0;
       }
 
     private:
-      /**
-      * \brief Creates a pool. Will create the first one if that is not done yet, 
-      *        else, it'll just add another one at the end of the linked list of pools.
-      */
-      void createPool() {
-        if (curPool) {
-          assert(firstPool && "curPool isn't null, but firstPool is ?");
-          curPool->next = std::make_unique<Pool>(curPool);
-          curPool = curPool->next.get();
-        }
-        else {
-          assert(!firstPool && "curPool is null, but firstPool isn't?");
-          firstPool = std::make_unique<Pool>(nullptr);
-          curPool = firstPool.get();
-        }
-
-        poolCount++;
-        allocPtr = curPool->data;
-        assert(allocPtr && "allocPtr cannot be null");
-      }
-
-      /**
-      * \brief Aligns a pointer.
-      * \returns the aligned pointer
-      */
-      template<typename PtrTy>
-      PtrTy* alignPtr(PtrTy* ptr, align_type align) {
+      /// Returns ptr, aligned to align.
+      byte_type* getAlignedPtr(byte_type* ptr, align_type align) {
         // Alignement related checks
         assert((align > 0) 
           && "Alignement cannot be less or equal to zero");
@@ -263,32 +216,43 @@ namespace fox {
 
         // Don't bother calculating anything if no alignement
         // is required
-        if (align == 1)
-          return ptr;
+        if (align == 1) return ptr;
 
+        // Calculate the aligned ptr
         auto ptrInt = reinterpret_cast<std::uintptr_t>(ptr);
         ptrInt += align - (ptrInt % align);
-        return reinterpret_cast<PtrTy*>(ptrInt);
+        return reinterpret_cast<byte_type*>(ptrInt);
       }
 
-      /**
-      * \brief Creates a pool if the current pool can't support 
-      *        an allocation of size sz.
-      * \return true if a new pool was allocated, false if not.
-      */
-      bool createNewPoolIfRequired(size_type sz, align_type align) {
-        if (!firstPool) {
-          createPool();
-          return true;
-        }
+      /// Calculates the size that a new pool should have.
+      /// The size of the pool doubles every 128 allocations, and
+      /// maxes out at 4Gb (1 << 32)
+      size_type calculateNewPoolSize() const {
+        size_type factor = (normalPoolsCreated_ > 128) ? (normalPoolsCreated_ / 128) : 1;
+        assert(factor && "factor is zero!");
+        // Return either the size, or the maximum pool size, depending
+        // on whichever is smaller.
+        return std::min(factor*poolSize, maxPoolSize);
+      }
 
-        auto* ptr = alignPtr(static_cast<byte_type*>(allocPtr), align);
-        if ((ptr + sz) > curPool->upperBound) {
-          createPool();
-          return true;
-        }
+      /// Creates a new custom pool
+      /// \param poolSize The size of the pool to allocate
+      /// \return a pointer to the beginning of the pool
+      byte_type* createCustomPool(size_type poolSize) {
+        assert(poolSize >= sizeThresold && "doesn't deserve its own pool!");
+        // Allocate the memory
+        byte_type* ptr = (byte_type*)llvm::safe_malloc(poolSize);
+        pools_.push_back(ptr);
+        // Return it
+        return ptr;
+      }
 
-        return false;
+      /// Creates a new "normal" pool, and sets allocPtr_ and endAllocPtr_.
+      void createNewPool() {
+        size_type size = calculateNewPoolSize();
+        allocPtr_ = (byte_type*)llvm::safe_malloc(size);
+        endAllocPtr_ = allocPtr_ + size;
+        assert(allocPtr_ && endAllocPtr_);
       }
   };
 

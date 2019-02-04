@@ -54,7 +54,7 @@ TEST(LinearAllocatorTests, Spam) {
   }
 
   // Deallocate
-  alloc.destroyAll();
+  alloc.reset();
   EXPECT_EQ(alloc.getPoolCount(), 0) << "Pools weren't released";
   EXPECT_EQ(alloc.getBytesInCurrentPool(), 0) << "Something left in the pool?";
   #undef COUNT
@@ -108,7 +108,7 @@ TEST(LinearAllocatorTests, ManualAllocation) {
   EXPECT_EQ(alloc.getBytesInCurrentPool(), 32);
   
   // Deallocate, check that the deallocation was successful
-  alloc.destroyAll();
+  alloc.reset();
   EXPECT_EQ(alloc.getPoolCount(), 0) << "Pools weren't released";
   EXPECT_EQ(alloc.getBytesInCurrentPool(), 0) << "Something left in the pool?";
 }
@@ -138,7 +138,7 @@ TEST(LinearAllocatorTests, LargeObject) {
   (*ch) = 42;
 
   // Deallocate, check that the deallocation was successful
-  alloc.destroyAll();
+  alloc.reset();
   EXPECT_EQ(alloc.getPoolCount(), 0) << "Pools weren't released";
   EXPECT_EQ(alloc.getBytesInCurrentPool(), 0) << "Something left in the pool?";
 }
