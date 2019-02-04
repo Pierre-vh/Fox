@@ -158,7 +158,6 @@ namespace fox {
         return static_cast<DataTy*>(allocate(sizeof(DataTy), alignof(DataTy)));
       }
 
-      
       /// Deallocates the pointer. This just zeroes the memory 
       /// unless it's the last object allocated, then, it's actually freed.
       /// \param ptr The pointer which holds the chunk of memory you own.
@@ -182,7 +181,8 @@ namespace fox {
       void dump() const {
       #pragma message("fix total memory allocated count!")
         detail::doLinearAllocatorDump(getTotalPoolsCount(),
-                                      getBytesInCurrentPool(), 0);
+                                      getBytesInCurrentPool(), 
+                                      getTotalBytesAllocated());
       }
 
       /// Returns the total number of pools created.
@@ -207,6 +207,23 @@ namespace fox {
         return static_cast<size_type>(allocPtr_ - begPool_);
       }
 
+      /// Returns the total number of bytes used
+      size_type getTotalBytesAllocated() const {
+        size_t total = 0;
+        // iterate over every pool except the last one
+        for (size_t idx = 0, sz = (pools_.size()-1); idx < sz; ++idx) {
+          total += calculatePoolSize(idx);
+        }
+        // Add the number of bytes in the current pool
+        total += getBytesInCurrentPool();
+        // Add the bytes allocated in custom pools
+        for (auto it = customPools_.begin(), end = customPools_.end(); 
+             it != end; ++it) {
+          total += it->second;
+        }
+        return total;
+      }
+
     private:
       /// Returns ptr, aligned to align.
       byte_type* getAlignedPtr(byte_type* ptr, align_type align) {
@@ -226,11 +243,11 @@ namespace fox {
         return reinterpret_cast<byte_type*>(ptrInt);
       }
 
-      /// Calculates the size that a new pool should have
+      /// Calculates the size that a pool at index idx should have.
       /// The size of the pool doubles every 128 allocations, and
       /// maxes out at 4Gb (1 << 32)
-      size_type calculateNewPoolSize() const {
-        size_type factor = std::max<size_type>(pools_.size() / 128, 1);
+      size_type calculatePoolSize(size_type idx) const {
+        size_type factor = std::max<size_type>(idx / 128, 1);
         assert(factor && "factor is zero!");
         // Return either the size, or the maximum pool size, depending
         // on whichever is smaller.
@@ -255,7 +272,7 @@ namespace fox {
 
       /// Creates a new "normal" pool, and sets allocPtr_ and endPool_.
       void createNewPool() {
-        size_type size = calculateNewPoolSize();
+        size_type size = calculatePoolSize(pools_.size());
         // Allocate the new pool
         begPool_ = (byte_type*)llvm::safe_malloc(size);
         endPool_ = begPool_ + size;
