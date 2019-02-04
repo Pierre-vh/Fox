@@ -10,9 +10,9 @@
 
 using namespace fox;
 
-void detail::doLinearAllocatorDump(std::size_t numPools, std::size_t poolSize,
+void detail::doLinearAllocatorDump(std::size_t numPools,
   std::size_t bytesInCurrentPool, std::size_t totalBytesUsed) {
-  std::cerr << "(Pools Size: " << poolSize << ")\n"
+  std::cerr  
    << "Pools: " << numPools << "\n"
    << "Bytes in current pool: " << bytesInCurrentPool << "\n"
    << "Total bytes: " << totalBytesUsed << "\n";
