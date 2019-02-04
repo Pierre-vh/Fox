@@ -139,6 +139,11 @@ To-Do:
   > SourceManager interface improvements (Done)
   > DiagnosticEngine interface improvements (Done)
 
+  > Finish polishing LinearAllocator
+  > Write tests for LinearAllocator
+    > getTotalBytesInPool()
+    > More allocation tests
+
   > VM
   > IR
   > IRGen
