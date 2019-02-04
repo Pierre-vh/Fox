@@ -143,7 +143,9 @@ namespace {
 // TypeBase
 //----------------------------------------------------------------------------//
 
-TypeBase::TypeBase(TypeKind tc): kind_(tc) {}
+TypeBase::TypeBase(TypeKind tc): kind_(tc) {
+  propsValue_ = 0;
+}
 
 std::string TypeBase::toString() const {
   std::ostringstream oss;
