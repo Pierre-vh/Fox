@@ -217,7 +217,7 @@ namespace fox {
       size_type getTotalBytesAllocated() const {
         size_t total = 0;
         // iterate over every pool except the last one
-        for (size_t idx = 0, sz = (pools_.size()-1); idx < sz; ++idx) {
+        for (size_t idx = 0, sz = pools_.size(); (idx+1) < sz; ++idx) {
           total += calculatePoolSize(idx);
         }
         // Add the number of bytes in the current pool
@@ -254,8 +254,9 @@ namespace fox {
       ///
       /// \return the size of the pool
       size_type calculatePoolSize(size_type idx) const {
+        if(idx < 128) return poolSize;
         size_type factor = std::max<size_type>(idx / 128, 1);
-        assert(factor && "factor is zero!");
+        assert((factor > 0) && "factor is zero!");
         // Return either the size, or the maximum pool size, depending
         // on whichever is smaller.
         size_type size = std::min(factor*poolSize, maxPoolSize);
