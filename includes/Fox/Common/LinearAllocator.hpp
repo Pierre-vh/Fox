@@ -11,6 +11,7 @@
 #pragma once
 
 #include "llvm/Support/MemAlloc.h"
+#include "llvm/Support/MathExtras.h"
 #include "llvm/Support/Compiler.h"
 #include "llvm/ADT/SmallVector.h"
 #include "Errors.hpp"
@@ -244,7 +245,7 @@ namespace fox {
         if (align == 1) return ptr;
 
         // Calculate the aligned ptr.
-        return ptr + (align - (reinterpret_cast<std::uintptr_t>(ptr) % align));
+        return ptr + llvm::alignmentAdjustment(ptr, align);
       }
 
       /// Calculates the size of a pool at index idx.
@@ -273,7 +274,7 @@ namespace fox {
         // Register  it
         customPools_.push_back({ptr, size});
         // Return it
-        assert(ptr && customPools_.size());
+        assert(ptr);
         return ptr;
       }
 
