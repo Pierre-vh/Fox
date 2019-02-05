@@ -223,9 +223,8 @@ namespace fox {
         // Add the number of bytes in the current pool
         total += getBytesInCurrentPool();
         // Add the bytes allocated in custom pools
-        for (auto it = customPools_.begin(), end = customPools_.end(); 
-             it != end; ++it) {
-          total += it->second;
+        for (auto pair : customPools_) {
+          total += pair.second;
         }
         return total;
       }
