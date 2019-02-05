@@ -8,13 +8,21 @@
 //----------------------------------------------------------------------------//
 
 #include <iostream>
-
 #include "Fox/Driver/Driver.hpp"
 #include "Fox/Common/Version.hpp"
-
 #ifdef _WIN32
   #include <Windows.h>
 #endif
+
+// Check if we can leak-check using _Crt leak-checking tools
+#if defined(_MSC_VER) && !defined(_NDEBUG)
+  #define CAN_LEAK_CHECK_ON_MSVC 1
+  #define _CRTDBG_MAP_ALLOC  
+  #include <stdlib.h>  
+  #include <crtdbg.h>  
+#else
+  #define CAN_LEAK_CHECK_ON_MSVC 0
+#endif 
 
 void setConsoleEnv() {
   #ifdef _WIN32
@@ -40,7 +48,8 @@ int interactiveMain() {
     if (uinput == "*")
       break;
     Driver drv(std::cout);
-    drv.setDumpAST(true);
+    drv.setDumpAST(false);
+    drv.setDumpAlloc(true);
     drv.setVerifyModeEnabled(true);
     res = drv.processFile(uinput);
   }
@@ -52,6 +61,10 @@ int cliMain(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
+  // On MSVC, setup the leak-checking tool.
+  #if CAN_LEAK_CHECK_ON_MSVC
+    _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+  #endif
   setConsoleEnv();
   if (argc > 1) 
     return cliMain(argc, argv);
