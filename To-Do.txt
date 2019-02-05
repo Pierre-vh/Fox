@@ -138,11 +138,7 @@ To-Do:
   > Split SourceLoc & SourceManager headers (Done)
   > SourceManager interface improvements (Done)
   > DiagnosticEngine interface improvements (Done)
-
-  > Finish polishing LinearAllocator
-  > Write tests for LinearAllocator
-    > getTotalBytesInPool()
-    > More allocation tests
+  > LinearAllocator overhaul (Done)
 
   > VM
   > IR
@@ -206,9 +202,6 @@ Other:
         Type maps
         The allocator
         Cleanups
-
-    > LinearAllocator should allocate large objects in custom pools instead of
-      flat-out refusing them.
 
     > Add a "Transaction" object in the Parser, which delays DeclContext registrations
       until the transaction is completed (with a new DeclContext) or abandonned.
