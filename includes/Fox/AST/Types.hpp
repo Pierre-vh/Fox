@@ -201,12 +201,12 @@ namespace fox {
 
       Properties getProperties() const;
 
+      // Prohibit the use of builtin placement new & delete
+      void *operator new(std::size_t) noexcept = delete;
+      void operator delete(void *) noexcept = delete;
+
     protected:
       TypeBase(TypeKind tc);
-
-      // Prohibit the use of builtin placement new & delete
-      void *operator new(std::size_t) throw() = delete;
-      void operator delete(void *) throw() = delete;
 
       // Only allow allocation through the ASTContext
       void* operator new(std::size_t sz, ASTContext &ctxt, 
@@ -238,10 +238,7 @@ namespace fox {
 
   // BasicType
   //    Common base for "Basic" Types.
-  //    A basic type is a type that can't be unwrapped any further.
-  //    Every type is Fox is made of 1 or more Basic type used in conjuction
-  //    with other types, such as the LValueType or the ArrayType.
-  //  
+  //
   class BasicType : public TypeBase {
     public:
       static bool classof(const TypeBase* type) {

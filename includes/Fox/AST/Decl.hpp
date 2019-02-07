@@ -104,17 +104,14 @@ namespace fox {
       /// Debug method. Does a ASTDump of this node to std::cerr
       void dump() const;
 
-    protected:
-      // Operator new/delete overloads : They're protected as they should
-      // only be used through ::create
-
       // Prohibit the use of builtin placement new & delete
-      void* operator new(std::size_t) throw() = delete;
-      void operator delete(void *) throw() = delete;
+      void* operator new(std::size_t) noexcept = delete;
+      void operator delete(void *) noexcept = delete;
       void* operator new(std::size_t, void*) = delete;
 
+    protected:
       // Only allow allocation through the ASTContext
-      void* operator new(std::size_t sz, ASTContext &ctxt, 
+      void* operator new(std::size_t sz, ASTContext& ctxt,
         std::uint8_t align = alignof(Decl));
 
       Decl(DeclKind kind, DeclContext* dc);

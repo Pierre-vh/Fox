@@ -39,7 +39,6 @@ void ASTContext::reset() {
   idents_.clear();
 
   // Clear type singletons
-  theUnit_ = nullptr;
   theIntType_ = nullptr;
   theFloatType_ = nullptr;
   theCharType_ = nullptr;
