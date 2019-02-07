@@ -430,10 +430,6 @@ bool Parser::isAlive() const {
   return isAlive_;
 }
 
-bool Parser::isParsingFuncDecl() const {
-  return isa<FuncDecl>(curDeclCtxt_);
-}
-
 DeclContext* Parser::getCurrentDeclCtxt() const {
   return curDeclCtxt_;
 }

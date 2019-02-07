@@ -65,6 +65,7 @@ namespace fox {
       /// Return the DeclContext in which this Decl is referenced.
       /// Returns nullptr for local decls, or if the parent is null.
       DeclContext* getDeclContext() const;
+      void setDeclContext(DeclContext* dc);
 
       /// Returns true if this is a local declaration
       bool isLocal() const;
@@ -259,14 +260,8 @@ namespace fox {
   class FuncDecl final: public DeclContext, public ValueDecl {
     public:
       static FuncDecl* create(ASTContext& ctxt, DeclContext* parent,
-        SourceLoc fnBegLoc, Identifier id, SourceRange idRange, 
-        TypeLoc returnType);
-
-      /// Creates an "empty" FuncDecl that has no identifier, and is ill-formed
-      // TODO: Get rid of this. For now, it's needed by the parser so I keep it,
-      // but once I'll refresh the parser this must go away.
-      static FuncDecl* create(ASTContext& ctxt, DeclContext* parent, 
-        SourceLoc fnBegLoc);
+        SourceLoc fnBegLoc, Identifier id,SourceRange idRange,
+        ParamList* params, TypeLoc returnType);
 
       /// Sets the return type of this FuncDecl. 
       /// This will nullify the ValueDecl type.
@@ -306,7 +301,7 @@ namespace fox {
       
     private:
       FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId, 
-        SourceRange idRange, TypeLoc returnType);
+        SourceRange idRange, ParamList* params, TypeLoc returnType);
       
       Type valueType_;
       SourceLoc fnBegLoc_;

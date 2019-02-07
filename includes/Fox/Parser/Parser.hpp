@@ -137,6 +137,9 @@ namespace fox {
       //---------------------------------//
 
       // Parses a parameter declaration.
+      //
+      // Note that this method will not register the ParamDecl in any
+      // DeclContext. It'll simply set the DeclContext to nullptr.
       Result<Decl*> parseParamDecl();
 
       //---------------------------------//
@@ -182,8 +185,6 @@ namespace fox {
       // Should be called whenever a decl is done parsing and about 
       // to be returned.
       void actOnDecl(Decl* decl);
-
-      bool isParsingFuncDecl() const;
 
       DeclContext* getCurrentDeclCtxt() const;
 
@@ -316,7 +317,7 @@ namespace fox {
       class RAIIDeclCtxt {
         public:
           RAIIDeclCtxt(Parser *p, DeclContext* dc);
-          // Restores the origina DeclContext early, instead of waiting
+          // Restores the original DeclContext early, instead of waiting
           // for the destruction of this object.
           void restore();
           ~RAIIDeclCtxt();

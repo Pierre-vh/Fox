@@ -26,10 +26,7 @@ using namespace fox;
 
 
 Decl::Decl(DeclKind kind, DeclContext* dc): dc_(dc),  kind_(kind),
-  checkState_(CheckState::Unchecked) {
-  assert((dc || isa<UnitDecl>(this)) && "Every decl except UnitDecls must"
-    " have a parent!");
-}
+  checkState_(CheckState::Unchecked) {}
 
 DeclKind Decl::getKind() const {
   return kind_;
@@ -116,6 +113,10 @@ FileID Decl::getFileID() const {
 
 void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.allocate(sz, align);
+}
+
+void Decl::setDeclContext(DeclContext *dc) {
+  dc_ = dc;
 }
 
 //----------------------------------------------------------------------------//
@@ -289,23 +290,18 @@ void* ParamList::operator new(std::size_t, void* mem) {
 //----------------------------------------------------------------------------//
 
 FuncDecl::FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId,
-  SourceRange idRange, TypeLoc returnType): fnBegLoc_(fnBegLoc),
-  ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange),
+  SourceRange idRange, ParamList* params, TypeLoc returnType): fnBegLoc_
+  (fnBegLoc), ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange),
   DeclContext(DeclContextKind::FuncDecl, parent),
   returnTypeLoc_(returnType) {
+  setParams(params);
   assert(returnType.isTypeValid() && "return type can't be null");
 }
 
 FuncDecl* 
 FuncDecl::create(ASTContext& ctxt, DeclContext* parent, SourceLoc fnBegLoc,
-  Identifier id, SourceRange idRange, TypeLoc returnType) {
-  return new(ctxt) FuncDecl(parent, fnBegLoc, id, idRange, returnType);
-}
-
-FuncDecl* FuncDecl::create(ASTContext& ctxt, DeclContext* parent, 
-  SourceLoc fnBegLoc) {
-  TypeLoc voidTy(PrimitiveType::getVoid(ctxt), SourceRange());
-  return create(ctxt, parent, fnBegLoc, Identifier(), SourceRange(), voidTy);
+  Identifier id, SourceRange idRange, ParamList* params, TypeLoc returnType) {
+  return new(ctxt) FuncDecl(parent, fnBegLoc, id, idRange, params, returnType);
 }
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
@@ -326,7 +322,12 @@ CompoundStmt* FuncDecl::getBody() const {
 }
 
 void FuncDecl::setParams(ParamList* params) {
+  assert(params && "params are nullptr!");
   params_ = params;
+  // Set the DeclContext of each Parameter to this
+  // DeclContext instance.
+  for(ParamDecl* param : (*params))
+    param->setDeclContext(this);
 }
 
 bool FuncDecl::hasParams() const {
