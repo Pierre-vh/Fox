@@ -277,10 +277,8 @@ namespace {
   }
 
   FuncDecl* createEmptyFnDecl(ASTContext& ctxt, UnitDecl* unit) {
-    TypeLoc type(PrimitiveType::getVoid(ctxt), SourceRange());
-    ParamList* params = ParamList::create(ctxt, {});
     return FuncDecl::create(ctxt, unit, SourceLoc(), Identifier(),
-      SourceRange(), params, type);
+      SourceRange(), nullptr, TypeLoc());
   }
 
   ParamDecl* createEmptyParamDecl(ASTContext& ctxt, FuncDecl* func) {
