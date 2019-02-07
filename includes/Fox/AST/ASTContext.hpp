@@ -99,11 +99,8 @@ namespace fox {
       PrimitiveType* theStringType_ = nullptr;
       PrimitiveType* theVoidType_ = nullptr;
 
-      // The main unit
-      UnitDecl* theUnit_ = nullptr;
-
-			// The unique identifiers strings set
-			std::set<std::string> idents_;
+      // The unique identifiers strings set
+      std::set<std::string> idents_;
 
       // The main AST allocator, used for long lived objects.
       LinearAllocator permaAllocator_; 
