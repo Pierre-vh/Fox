@@ -5,7 +5,7 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file contains various constants to be used as the minimum
-// alignement for some AST classes
+// alignment for some AST classes
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -14,11 +14,11 @@
 #include "ASTFwdDecl.hpp"
 
 namespace fox {
-  // Declare the FreeBits and Alignement variables
+  // Declare the FreeBits and Alignment variables
   // Usage of DECLARE: DECLARE(Class name, Number of free bits desired)
   #define DECLARE(CLASS, FREE_BITS_DESIRED)\
-  constexpr std::size_t CLASS##FreeLowBits = FREE_BITS_DESIRED; \
-  constexpr std::size_t CLASS##Alignement = 1 << FREE_BITS_DESIRED
+  constexpr std::size_t CLASS##FreeLowBits = FREE_BITS_DESIRED##u; \
+  constexpr std::size_t CLASS##Alignement = 1u << FREE_BITS_DESIRED##u
 
   DECLARE(TypeBase, 1);
   DECLARE(Expr, 3);
