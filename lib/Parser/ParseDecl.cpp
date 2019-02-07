@@ -112,6 +112,12 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // [<param_decl> {',' <param_decl>}*]
   ParamList* params = nullptr;
   {
+    // Note: when parsing the ParamDecls, we don't want them to
+    // be registered in any DeclContext, since we'll do it ourselves
+    // later. To achieve that, we make the current decl context
+    // a nullptr.
+    RAIIDeclCtxt guard(this, nullptr);
+
     SmallVector<ParamDecl*, 4> paramsVec;
     if (auto first = parseParamDecl()) {
       paramsVec.push_back(first.castTo<ParamDecl>());
@@ -232,7 +238,8 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
 
   assert(idRange && tl.getRange() && "Invalid loc info");
 
-  auto* rtr = ParamDecl::create(ctxt, nullptr, id, idRange, tl, isMutable); 
+  auto* rtr = ParamDecl::create(ctxt, getCurrentDeclCtxt(), id, idRange, 
+                                tl, isMutable); 
   actOnDecl(rtr);
   return Result<Decl*>(rtr);
 }

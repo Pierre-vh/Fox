@@ -137,9 +137,6 @@ namespace fox {
       //---------------------------------//
 
       // Parses a parameter declaration.
-      //
-      // Note that this method will not register the ParamDecl in any
-      // DeclContext. It'll simply set the DeclContext to nullptr.
       Result<Decl*> parseParamDecl();
 
       //---------------------------------//
