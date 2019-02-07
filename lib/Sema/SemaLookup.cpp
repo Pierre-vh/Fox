@@ -83,19 +83,31 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   SourceLoc loc, const LookupOptions& options) {
   assert((results.size() == 0) && "'results' must be a fresh LookupResult");
   assert(id && "can't lookup with invalid id!");
+
+  // If this is set to false, we don't look inside the DeclContexts and 
+  // we limit the search to LocalScopes.
   bool lookInDeclCtxt = options.canLookInDeclContext;
+
+  // When this option is set to true, we can start ignoring the SourceLoc
+  // when performing the lookup. 
   bool canIgnoreLoc = options.canIgnoreLoc;
 
-  // If we find a VarDecl that's currently being checked, it's ignored, but
-  // if we don't find any result, we return this.
+  // If we find a VarDecl that's currently being checked, it's ignored and
+  // stored in "checkingVar". If we finish lookup and we still find nothing,
+  // we return checkingVar.
   //
   // This is needed to allow cases such as
   //  func foo(x : int) {
-  //    var x : int = x;
+  //    var x : int = x; // x binds to the Parameter, not the variable.
   //  }
+  // 
+  // And checkingVar is still returned when nothing is found so cases such as
+  //  let x : int = x;
+  // can still be diagnosed correctly.
+
   NamedDecl* checkingVar = nullptr;
 
-  // Lambda that returns true if the result should be ignored.
+  // Helper lambda that returns true if a lookup result should be ignored.
   auto shouldIgnore = [&](NamedDecl* decl) {
     if(!canIgnoreLoc) {
       // When we must consider the loc, ignore results that were
@@ -108,21 +120,23 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
     return fn ? fn(decl) : false;
   };
 
-  // Check in local scope, if there's one.
+  // Check in the local scope, if there's one.
   if(hasLocalScope()) {
     LocalScope* scope = getLocalScope();
-    // Handle results
+    // Helper lambda that handles results.
     auto handleResult = [&](NamedDecl* decl) {
       // If we should ignore this result, do so 
       if(shouldIgnore(decl)) return true;
       // If the decl is VarDecl that's currently being checked, and that
       // happens in a LocalScope, don't push it to the results just yet.
       if(isa<VarDecl>(decl) && decl->isChecking()) {
+        // Normally only 1 variable should be in the "checking" state.
         assert(!checkingVar && "more than 1 variable in the Checking state");
         checkingVar = decl;
-        // Keep looking
+        // Keep looking 
         return true;
       }
+      // In local scopes, we stop on the first result found.
       results.addResult(decl);
       return false;
     };
@@ -130,9 +144,9 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
     lookupInLocalScope(id, handleResult, scope);
     
     // If the caller actually wanted to us to look inside
-    // the DeclContext, check if it's needed. If we have found what
-    // we were looking for inside the scope, there's no need to keep
-    // looking.
+    // the DeclContext, check if it's still needed. If we have found what
+    // we were looking for inside the scope, there's no need to look
+    // in the DeclContext.
     lookInDeclCtxt &= (results.size() == 0);
 
     // If we have looked inside a LocalScope, we are now allowed
