@@ -240,12 +240,12 @@ namespace fox {
 
       ParamDecl* operator[](std::size_t idx) const;
 
+      // Prohibit the use of the vanilla new/delete
+      void *operator new(std::size_t) noexcept =  delete;
+      void operator delete(void *) noexcept = delete;
+
     private:
       ParamList(ArrayRef<ParamDecl*> params);
-
-      // Prohibit the use of the vanilla new/delete
-      void *operator new(std::size_t) throw() = delete;
-      void operator delete(void *) throw() = delete;
 
       // Also, allow allocation with a placement new
       // (needed for class using trailing objects)
