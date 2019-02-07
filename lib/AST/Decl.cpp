@@ -292,11 +292,8 @@ void* ParamList::operator new(std::size_t, void* mem) {
 FuncDecl::FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId,
   SourceRange idRange, ParamList* params, TypeLoc returnType): fnBegLoc_
   (fnBegLoc), ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange),
-  DeclContext(DeclContextKind::FuncDecl, parent),
-  returnTypeLoc_(returnType) {
-  setParams(params);
-  assert(returnType.isTypeValid() && "return type can't be null");
-}
+  DeclContext(DeclContextKind::FuncDecl, parent), params_(params),
+  returnTypeLoc_(returnType) {}
 
 FuncDecl* 
 FuncDecl::create(ASTContext& ctxt, DeclContext* parent, SourceLoc fnBegLoc,
@@ -305,7 +302,6 @@ FuncDecl::create(ASTContext& ctxt, DeclContext* parent, SourceLoc fnBegLoc,
 }
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
-  assert(ty.isTypeValid() && "return type can't be nullptr");
   returnTypeLoc_ = ty;
 }
 
@@ -322,12 +318,7 @@ CompoundStmt* FuncDecl::getBody() const {
 }
 
 void FuncDecl::setParams(ParamList* params) {
-  assert(params && "params are nullptr!");
   params_ = params;
-  // Set the DeclContext of each Parameter to this
-  // DeclContext instance.
-  for(ParamDecl* param : (*params))
-    param->setDeclContext(this);
 }
 
 bool FuncDecl::hasParams() const {
