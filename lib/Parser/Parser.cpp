@@ -20,14 +20,6 @@ Parser::Parser(ASTContext& ctxt, TokenVector& l, UnitDecl *unit):
   isAlive_ = true;
 }
 
-void Parser::actOnDecl(Decl* decl) {
-  assert(decl && "decl is null!");
-  // Record the decl inside it's parent if it's a LookupContext.
-  DeclContext* dc = decl->getDeclContext();
-  if(auto* lc = dyn_cast_or_null<LookupContext>(dc))
-    lc->addDecl(decl);
-}
-
 Optional<std::pair<Identifier, SourceRange>>
 Parser::consumeIdentifier() {
   Token tok = getCurtok();

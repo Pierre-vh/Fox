@@ -12,6 +12,14 @@
 
 using namespace fox;
 
+void Parser::actOnDecl(Decl* decl) {
+  assert(decl && "decl is null!");
+  // Record the decl inside it's parent if it's a LookupContext.
+  DeclContext* dc = decl->getDeclContext();
+  if(auto* lc = dyn_cast_or_null<LookupContext>(dc))
+    lc->addDecl(decl);
+}
+
 UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
   // <fox_unit>  = {<declaration>}1+
 
@@ -102,6 +110,15 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
     }
   }
 
+  // Once we know the Identifier, we can create the FuncDecl instance.
+  // That instance will be completed later, or simply discarded if
+  // parsing errors occur.
+  FuncDecl* func = FuncDecl::create(ctxt, getCurrentDeclCtxt(), begLoc,
+  id, idRange, nullptr, TypeLoc());
+
+  // Enter this func's DeclContext
+  RAIIDeclCtxt raiiDC(this, func);
+
   // '('
   if (!consumeBracket(SignType::S_ROUND_OPEN)) {
     if (invalid) return Result<Decl*>::Error();
@@ -110,14 +127,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   }
 
   // [<param_decl> {',' <param_decl>}*]
-  ParamList* params = nullptr;
   {
-    // Note: when parsing the ParamDecls, we don't want them to
-    // be registered in any DeclContext, since we'll do it ourselves
-    // later. To achieve that, we make the current decl context
-    // a nullptr.
-    RAIIDeclCtxt guard(this, nullptr);
-
     SmallVector<ParamDecl*, 4> paramsVec;
     if (auto first = parseParamDecl()) {
       paramsVec.push_back(first.castTo<ParamDecl>());
@@ -138,9 +148,8 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
     // Stop parsing if the argument couldn't parse correctly.
     else if (first.isError()) return Result<Decl*>::Error();
 
-    // Create the ParamList
-    params = ParamList::create(ctxt, paramsVec);
-    assert(params && "params are null!");
+    // Set the parameter list
+    func->setParams(ParamList::create(ctxt, paramsVec));
   }
 
   // ')'
@@ -157,10 +166,9 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   }
   
   // [':' <type>]
-  TypeLoc returnTypeLoc;
   if (auto colon = consumeSign(SignType::S_COLON)) {
     if (auto rtrTy = parseType())
-      returnTypeLoc = rtrTy.get();
+      func->setReturnTypeLoc(rtrTy.get());
     else {
       if (rtrTy.isNotFound())
         reportErrorExpected(DiagID::parser_expected_type);
@@ -168,38 +176,30 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
       if (!resyncToSign(SignType::S_CURLY_OPEN, true, false))
         return Result<Decl*>::Error();
     }
+  } 
+  else {
+    // No explicit return type, so the function returns void.
+    TypeLoc voidTL(PrimitiveType::getVoid(ctxt), SourceRange());
+    func->setReturnTypeLoc(voidTL);
   }
 
-  // If the function has no explicit return type, the return type is
-  // void.
-  if(!returnTypeLoc.isTypeValid())
-    returnTypeLoc = TypeLoc(PrimitiveType::getVoid(ctxt), SourceRange());
-
-  // Create the FuncDecl
-  assert(id && idRange && params && returnTypeLoc.isTypeValid() &&
-    "Can't create a FuncDecl with invalid data!");
-  FuncDecl* func = FuncDecl::create(ctxt, getCurrentDeclCtxt(), begLoc,
-    id, idRange, params, returnTypeLoc);
-
+  // <compound_statement>
   {
-    // Set this FuncDecl as the current DeclContext, so every decl
-    // parsed within it's body has this function as parent.
-    RAIIDeclCtxt guard(this, func);
-
-    // <compound_statement>
-    {
-      if(Result<Stmt*> compStmt = parseCompoundStatement())
-        func->setBody(cast<CompoundStmt>(compStmt.get()));
-      else {
-        if(compStmt.isNotFound()) // Display only if it was not found
-          reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
-        return Result<Decl*>::Error();
-      }
+    if(Result<Stmt*> compStmt = parseCompoundStatement())
+      func->setBody(cast<CompoundStmt>(compStmt.get()));
+    else {
+      if(compStmt.isNotFound()) // Display only if it was not found
+        reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
+      return Result<Decl*>::Error();
     }
   }
 
   // Finished parsing. If the decl is invalid, return an error.
   if (invalid) return Result<Decl*>::Error();
+
+  // Leave this func's scope, so we don't get into an infinite loop when calling
+  // actOnDecl.
+  raiiDC.restore();
 
   // Record the FuncDecl
   actOnDecl(func);
