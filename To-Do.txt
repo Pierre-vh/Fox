@@ -140,6 +140,15 @@ To-Do:
   > DiagnosticEngine interface improvements (Done)
   > LinearAllocator overhaul (Done)
 
+  > I'm currently not satisfied with my solution for handling the
+    ParamDecl/FuncDecl registration problem. This blocks me from
+    doing pretty much anything other than registering inside
+    a LookupContext in actOnFuncDecl.
+
+    I'd like to find a more elegant solution that:
+      a) Doesn't involve creating a FuncDecl prematurely
+      b) Doesn't involve creating a nullptr RAIIDeclCtxt
+
   > VM
   > IR
   > IRGen
