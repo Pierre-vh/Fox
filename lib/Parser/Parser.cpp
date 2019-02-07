@@ -24,7 +24,7 @@ void Parser::actOnDecl(Decl* decl) {
   assert(decl && "decl is null!");
   // Record the decl inside it's parent if it's a LookupContext.
   DeclContext* dc = decl->getDeclContext();
-  if(LookupContext* lc = dyn_cast_or_null<LookupContext>(dc))
+  if(auto* lc = dyn_cast_or_null<LookupContext>(dc))
     lc->addDecl(decl);
 }
 
@@ -49,7 +49,7 @@ SourceLoc Parser::consumeSign(SignType s) {
     next();
     return tok.getRange().getBegin();
   }
-  return SourceLoc();
+  return {};
 }
 
 SourceLoc Parser::consumeBracket(SignType s) {
@@ -100,9 +100,9 @@ SourceLoc Parser::consumeBracket(SignType s) {
     next();
     assert((tok.getRange().getRawOffset() == 0) 
       && "Token is a sign but it's SourceRange offset is greater than zero?");
-    return SourceLoc(tok.getRange().getBegin());
+    return tok.getRange().getBegin();
   }
-  return SourceLoc();
+  return {};
 }
 
 SourceRange Parser::consumeKeyword(KeywordType k) {
@@ -111,7 +111,7 @@ SourceRange Parser::consumeKeyword(KeywordType k) {
     next();
     return tok.getRange();
   }
-  return SourceRange();
+  return {};
 }
 
 void Parser::consumeAny() {
@@ -171,8 +171,6 @@ void Parser::revertConsume() {
         fox_unreachable("unknown bracket type");
     }
   }
-  // Else, we're done. For now, only brackets have counters 
-	// associated with them.
 }
 
 void Parser::next() {
@@ -273,7 +271,7 @@ Token Parser::getPreviousToken() const {
 
 bool 
 Parser::resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken) {
-  return resyncToSign(SmallVector<SignType, 4>({ sign }), 
+  return resyncToSign(SmallVector<SignType, 4>({ sign }),
     stopAtSemi, shouldConsumeToken);
 }
 
@@ -285,13 +283,12 @@ bool Parser::resyncToSign(const SmallVector<SignType, 4>& signs,
   bool isFirst = true;
   // Keep going until we reach EOF.
   while(!isDone()) {
-    // Check curtok
+    // Check the current token
     auto tok = getCurtok();
-    for (auto it = signs.begin(), end = signs.end(); it != end; it++) {
-      if (tok.is(*it)) {
+    for (const auto& sign : signs) {
+      if (tok.is(sign)) {
         if (shouldConsumeToken)
           consumeAny();
-
         return true;
       }
     }

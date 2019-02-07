@@ -26,7 +26,6 @@
 
 namespace fox {
   class ASTContext;
-  class IdentifierTable;
   class SourceManager;
   class DeclContext;
   class DiagnosticEngine;
@@ -119,7 +118,7 @@ namespace fox {
       Result<Expr*> parseExponentExpr();
       Result<Expr*> parsePrefixExpr();
       Result<Expr*> parseCastExpr();
-      Result<Expr*> parseBinaryExpr(std::uint8_t precedence = 5);
+      Result<Expr*> parseBinaryExpr(unsigned precedence = 5);
       Result<Expr*> parseExpr(); 
 
       //---------------------------------//
@@ -161,7 +160,7 @@ namespace fox {
       // because operators won't be parsed anymore, they'll be handled
       // by the lexer directly.
 
-      // Parses any assignement operator. The SourceRange of the operator
+      // Parses any assignment operator. The SourceRange of the operator
       // is placed in "range" if the parsing finishes successfully.
       Result<BinaryExpr::OpKind> parseAssignOp(SourceRange& range);
 
@@ -172,7 +171,7 @@ namespace fox {
       // Parses any binary operator. The SourceRange of the operator
       // is placed in "range" if the parsing finishes successfully.
       Result<BinaryExpr::OpKind> 
-      parseBinaryOp(std::uint8_t priority, SourceRange& range);
+      parseBinaryOp(unsigned priority, SourceRange& range);
 
       SourceRange parseExponentOp();
 
@@ -477,20 +476,6 @@ namespace fox {
         DataTy ptr = storage_.data();
         assert(ptr && "Can't use this on a null pointer");
         return cast<Ty>(ptr);
-      }
-
-      template<typename Ty>
-      auto castTo() const -> 
-        typename std::enable_if<isPointerType, const Ty*>::type {
-        DataTy ptr = storage_.data();
-        assert(ptr && "Can't use this on a null pointer");
-        return cast<Ty>(ptr);
-      }
-
-      template<typename FooTy = DataTy, 
-               typename = typename std::enable_if<isPointerType, FooTy>::type>
-      void* getOpaque() const  {
-        return (void*)storage_.data();
       }
 
       template<typename RtrTy = DataTy, 

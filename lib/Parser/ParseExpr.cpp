@@ -303,7 +303,7 @@ Parser::Result<Expr*> Parser::parseCastExpr() {
   return prefixexpr;
 }
 
-Parser::Result<Expr*> Parser::parseBinaryExpr(std::uint8_t precedence) {
+Parser::Result<Expr*> Parser::parseBinaryExpr(unsigned precedence) {
   // <binary_expr>  = <cast_expr> { <binary_operator> <cast_expr> }  
 
   // <cast_expr> OR a binaryExpr of inferior priority.
@@ -378,20 +378,17 @@ Parser::Result<Expr*> Parser::parseExpr() {
     return Result<Expr*>(BinaryExpr::create(ctxt, op.get(), 
       lhs.get(), rhs.get(), opRange));
   }
-  return Result<Expr*>(lhs);
+  return lhs;
 }
 
 Parser::Result<Expr*> Parser::parseParensExpr() {
   // <parens_expr> = '(' <expr> ')'
 
   // '('
-  auto leftParens = consumeBracket(SignType::S_ROUND_OPEN);
-  if (!leftParens)
-    return Result<Expr*>::NotFound();
+  if (!consumeBracket(SignType::S_ROUND_OPEN)) return Result<Expr*>::NotFound();
 
-  Expr* rtr = nullptr;
-    
   // <expr>
+  Expr* rtr = nullptr;
   if (auto expr = parseExpr())
     rtr = expr.get();
   else  {
@@ -410,17 +407,13 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
   assert(rtr && "The return value shouldn't be null!");
 
   // ')'
-  auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
-  if (!rightParens) {
+  if (!consumeBracket(SignType::S_ROUND_CLOSE)) {
     // no ), handle error & attempt to recover 
     reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
 
     if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, 
       /*consumeToken*/ false))
       return Result<Expr*>::Error();
-      
-    // If we recovered successfuly, place the Sloc into rightParens
-    rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
   }
 
   return Result<Expr*>(rtr);
@@ -428,13 +421,13 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
 
 Parser::Result<ExprVector> Parser::parseExprList() {
   // <expr_list> = <expr> {',' <expr> }
-  auto firstexpr = parseExpr();
-  if (!firstexpr)
+  auto firstExpr = parseExpr();
+  if (!firstExpr)
     return Result<ExprVector>::NotFound();
 
   ExprVector exprs;
-  exprs.push_back(firstexpr.get());
-  while (auto comma = consumeSign(SignType::S_COMMA)) {
+  exprs.push_back(firstExpr.get());
+  while (consumeSign(SignType::S_COMMA)) {
     if (auto expr = parseExpr())
       exprs.push_back(expr.get());
     else {
@@ -504,7 +497,7 @@ SourceRange Parser::parseExponentOp() {
       return SourceRange(t1,t2);
     revertConsume();
   }
-  return SourceRange();
+  return {};
 }
 
 Parser::Result<BinaryExpr::OpKind> 
@@ -547,7 +540,7 @@ Parser::parseUnaryOp(SourceRange& range) {
 
 // TODO: This should be handled by the lexer, not the parser.
 Parser::Result<BinaryExpr::OpKind> 
-Parser::parseBinaryOp(std::uint8_t priority, SourceRange& range) {
+Parser::parseBinaryOp(unsigned priority, SourceRange& range) {
   using BinOp = BinaryExpr::OpKind;
 
   // Check current Token validity, also check if it's a sign because if 
@@ -623,7 +616,6 @@ Parser::parseBinaryOp(std::uint8_t priority, SourceRange& range) {
       break;
     default:
       fox_unreachable("Unknown priority");
-      break;
   }
   return Result<BinOp>::NotFound();
 }

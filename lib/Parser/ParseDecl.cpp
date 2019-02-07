@@ -188,7 +188,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
     return Result<Decl*>::Error();
   }
 
-  CompoundStmt* body = dyn_cast<CompoundStmt>(compStmt.get());
+  auto* body = dyn_cast<CompoundStmt>(compStmt.get());
   assert(body && "Not a compound stmt");
 
   // Finished parsing. If the decl is invalid, return an error.
@@ -228,7 +228,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
     return Result<Decl*>::Error();
   }
 
-  bool isMutable = (bool)consumeKeyword(KeywordType::KW_MUT);
+  auto isMutable = (bool)consumeKeyword(KeywordType::KW_MUT);
 
   // <type>
   auto typeResult = parseType();
