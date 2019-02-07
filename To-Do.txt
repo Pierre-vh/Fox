@@ -202,13 +202,6 @@ Other:
         Type maps
         The allocator
         Cleanups
-
-    > Add a "Transaction" object in the Parser, which delays DeclContext registrations
-      until the transaction is completed (with a new DeclContext) or abandonned.
-        This will solve the problem of the "early creation" of FuncDecl! We
-        can use the "transaction" in place of the DeclContext and register decls in that,
-        then complete the transaction if/when we finally create the FuncDecl instance!
-          When that's done, remove the setTypeLoc of FuncDecl.
         
   Medium priority:
     This is a list of "medium-priority" stuff that needs to be done.
