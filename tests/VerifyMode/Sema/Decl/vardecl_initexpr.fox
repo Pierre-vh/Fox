@@ -29,5 +29,8 @@ let s : [[[double]]] = [];
 let t : int = u; // expect-error: undeclared identifier 'u'
 let u : int = t; // this one should be correct
 
-// Test that we can't use a variable inside it's own initial value
+// Test that we can't use a variable inside it's own initial value in both global and local contexts.
 let v : int = v; // expect-error: variable used inside its own initial value
+func foo() {
+  let w : int = w; // expect-error: variable used inside its own initial value
+}
