@@ -42,3 +42,6 @@
 # Visual Studio (Code) folders
 .vscode
 .vs
+
+# CLion folders
+.idea/
