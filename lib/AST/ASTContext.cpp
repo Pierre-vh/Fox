@@ -19,18 +19,6 @@ ASTContext::~ASTContext() {
   reset();
 }
 
-UnitDecl* ASTContext::getMainUnit() {
-  return theUnit_;
-}
-
-const UnitDecl* ASTContext::getMainUnit() const {
-  return theUnit_;
-}
-
-void ASTContext::setUnit(UnitDecl* decl) {
-  theUnit_ = decl;
-}
-
 LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
 void* ASTContext::allocate(std::size_t size, unsigned align) {
   void* mem = permaAllocator_.allocate(size, align);
@@ -72,7 +60,7 @@ Identifier ASTContext::getIdentifier(const std::string& str) {
 	auto it = idents_.insert(str).first;
 	assert((it != idents_.end()) && "Insertion error");
 	// Create the identifier object and return.
-	return Identifier(it->c_str());
+	return (it->c_str());
 }
 
 string_view ASTContext::allocateCopy(string_view str) {
@@ -88,7 +76,7 @@ void ASTContext::addCleanup(std::function<void(void)> fn) {
 }
 
 void ASTContext::callCleanups() {
-  for(auto cleanup : cleanups_) 
+  for(const auto& cleanup : cleanups_)
     cleanup();
   cleanups_.clear();
 }

@@ -39,10 +39,6 @@ namespace fox {
       ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags);
       ~ASTContext();
 
-      UnitDecl* getMainUnit();
-      const UnitDecl* getMainUnit() const;
-      void setUnit(UnitDecl* decl);
-
       // Allocates memory using the default allocator
       LLVM_ATTRIBUTE_RETURNS_NONNULL LLVM_ATTRIBUTE_RETURNS_NOALIAS
       void* allocate(std::size_t size, unsigned align);
