@@ -4,8 +4,6 @@
 // File : ParseStmt.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This file implements statements rules. parseStmt, parseVarDeclstmt,etc.                  
-//----------------------------------------------------------------------------//
 
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/AST/ASTNode.hpp"

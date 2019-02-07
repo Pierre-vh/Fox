@@ -4,8 +4,6 @@
 // File : ParseExpr.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file implements expressions related methods (rules)  
-//----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Parser/Parser.hpp"

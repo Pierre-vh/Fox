@@ -4,9 +4,6 @@
 // File : ParseDecl.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file implements decl, declstmt rules (methods)
-// and related helper functions
-//----------------------------------------------------------------------------//
 
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/AST/ASTContext.hpp"

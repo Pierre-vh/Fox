@@ -4,9 +4,6 @@
 // File : Parser.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This file implements methods that aren't tied to Expression,
-//  Statements or Declarations.
-//----------------------------------------------------------------------------//
 
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/AST/ASTContext.hpp"
