@@ -31,6 +31,11 @@ namespace fox {
   // and SourceManagers.
   class ASTContext {
     public:
+      // The ASTContext shouldn't be copyable.
+      ASTContext(const ASTContext&) = delete;
+      ASTContext& operator=(const ASTContext&) = delete;
+
+      // Constructor
       ASTContext(SourceManager& srcMgr, DiagnosticEngine& diags);
       ~ASTContext();
 
@@ -62,10 +67,6 @@ namespace fox {
       DiagnosticEngine& diagEngine;
 
     private:
-      // The ASTContext shouldn't be copyable.
-      ASTContext(const ASTContext&) = delete;
-      ASTContext& operator=(const ASTContext&) = delete;
-
       friend class ArrayType;
       friend class LValueType;
       friend class ErrorType;
