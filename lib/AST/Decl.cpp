@@ -115,10 +115,6 @@ void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
   return ctxt.allocate(sz, align);
 }
 
-void Decl::setDeclContext(DeclContext *dc) {
-  dc_ = dc;
-}
-
 //----------------------------------------------------------------------------//
 // NamedDecl
 //----------------------------------------------------------------------------//

@@ -65,7 +65,6 @@ namespace fox {
       /// Return the DeclContext in which this Decl is referenced.
       /// Returns nullptr for local decls, or if the parent is null.
       DeclContext* getDeclContext() const;
-      void setDeclContext(DeclContext* dc);
 
       /// Returns true if this is a local declaration
       bool isLocal() const;
