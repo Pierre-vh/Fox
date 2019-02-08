@@ -21,6 +21,7 @@ namespace fox {
   class SourceManager;
   class DiagnosticVerifier;
   class Diagnostic;
+  class DiagnosticEngine;
 
   // Diagnostic ID/Kinds
   enum class DiagID : std::uint16_t {
