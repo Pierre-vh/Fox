@@ -9,6 +9,9 @@ include(FindPythonInterp)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# generate the compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # include most used cmake utilities
 include(cmake/AddSource.cmake)
 include(cmake/MSVCUtils.cmake)
