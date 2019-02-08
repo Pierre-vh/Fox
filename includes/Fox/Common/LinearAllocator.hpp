@@ -291,6 +291,10 @@ namespace fox {
       }
   };
 
+  template<std::size_t poolSize, std::size_t sizeThresold>
+  constexpr typename CustomLinearAllocator<poolSize, sizeThresold>::size_type 
+  CustomLinearAllocator<poolSize, sizeThresold>::maxPoolSize;
+
   /// The basic linear allocator, which uses the default template parameter.
   using LinearAllocator = CustomLinearAllocator<>;
 }
