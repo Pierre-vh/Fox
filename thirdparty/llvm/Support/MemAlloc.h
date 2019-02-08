@@ -35,7 +35,7 @@
 #else 
   // Directly write an OOM to stderr and abort.
   #define llvm_bad_alloc(msg) do{\
-    char OOMMessage[] = "LLVM ERROR: out of memory (Allocation Failed):" 
+    char OOMMessage[] = "LLVM ERROR: out of memory (Allocation Failed):" \
                         + msg + "\n"; \
     ssize_t written = ::write(2, OOMMessage, strlen(OOMMessage)); \
     (void)written; \
