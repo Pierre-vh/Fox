@@ -61,7 +61,7 @@ namespace fox {
       class RAIIChrono {
         public:
           Driver& driver;
-          std::chrono::steady_clock::time_point beg;
+          std::chrono::high_resolution_clock::time_point beg;
           string_view label;
           RAIIChrono(Driver& driver, string_view label) :
             driver(driver), label(label) {
