@@ -32,14 +32,14 @@ bool Driver::processFile(const std::string& filepath) {
   }
 
 	// (Verify Mode) Create the DiagnosticVerifier
-	std::unique_ptr<DiagnosticVerifier> dv;
-	if (isVerifyModeEnabled()) {
-		dv = std::make_unique<DiagnosticVerifier>(diags, srcMgr);
+  std::unique_ptr<DiagnosticVerifier> dv;
+  if (isVerifyModeEnabled()) {
+    dv = std::make_unique<DiagnosticVerifier>(diags, srcMgr);
     // Parse the file
-		dv->parseFile(file);
+    dv->parseFile(file);
     // Enable the verify mode in the diagnostic engine
     diags.enableVerifyMode(dv.get());
-	}
+  }
 
 	// Do lexing
   Lexer lex(ctxt);
@@ -70,9 +70,9 @@ bool Driver::processFile(const std::string& filepath) {
     getOS() << "\nDumping allocator:\n";
     ctxt.dumpAllocator();
   }
-
+ 
   // Semantic analysis
-	if(canContinue() && !isParseOnly()) {
+  if(canContinue() && !isParseOnly()) {
     Sema s(ctxt);
     s.checkDecl(unit);
   }
