@@ -48,9 +48,7 @@ int interactiveMain() {
     if (uinput == "*")
       break;
     Driver drv(std::cout);
-    drv.setDumpAST(false);
-    drv.setDumpAlloc(true);
-    drv.setVerifyModeEnabled(true);
+    drv.setDumpAST(true);
     res = drv.processFile(uinput);
   }
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
