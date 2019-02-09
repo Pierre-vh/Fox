@@ -26,13 +26,16 @@ bool getTextStats(StringManipulator &manip, unsigned int& linecount,
     while (!manip.eof()) {
       const auto cur = manip.getCurrentChar();
       if (cur == '\n')
-        linecount++;
+        ++linecount;
+      else if (cur == '\r' && manip.peekNext() == '\n') {
+        manip.advance();
+        ++linecount;
+      }
       else {
         if (std::iswspace(static_cast<wchar_t>(cur)))
-          spacecount++;
-        charcount++;
+          ++spacecount;
+        ++charcount;
       }
-
       manip.advance();
     }
   }
@@ -62,12 +65,16 @@ TEST(UTF8Tests,BronzeHorseman) {
        "through the string. Exception details:" << exception_details;
   
   // Expected text statistics
-  // 11 lines
+  // 11 Lines
   // 278 Characters
   // 44 Spaces
-  EXPECT_EQ(11, linecount) << "Line count incorrect";
-  EXPECT_EQ(278, charcount) << "Char count incorrect";
-  EXPECT_EQ(44, spacecount) << "Spaces count incorrect";
+  // 511 Bytes
+  // 288 Codepoints
+  EXPECT_EQ(11, linecount);
+  EXPECT_EQ(268, charcount);
+  EXPECT_EQ(34, spacecount);
+  EXPECT_EQ(511, manip.getSizeInBytes());
+  EXPECT_EQ(288, manip.getSizeInCodepoints());
 }
 
 TEST(UTF8Tests, ASCIIDrawing) {
@@ -91,9 +98,13 @@ TEST(UTF8Tests, ASCIIDrawing) {
   // 18 lines
   // 1190 Characters
   // 847 Spaces
-  EXPECT_EQ(18, linecount) << "Line count incorrect";
-  EXPECT_EQ(1190, charcount) << "Char count incorrect";
-  EXPECT_EQ(847, spacecount) << "Spaces count incorrect";
+  // 1207 bytes
+  // 1207 codepoints
+  EXPECT_EQ(18, linecount);
+  EXPECT_EQ(1173, charcount);
+  EXPECT_EQ(830, spacecount);
+  EXPECT_EQ(1207, manip.getSizeInBytes());
+  EXPECT_EQ(1207, manip.getSizeInCodepoints());
 }
 
 TEST(UTF8Tests, Substring) {
