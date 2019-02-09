@@ -78,7 +78,7 @@ endif()
 
 message("IS_MSVC=${IS_MSVC}")
 message("IS_CLANGCL=${IS_CLANGCL}")
-message("IS_CLANG=${IS_CLANGCL}")
+message("IS_CLANG=${IS_CLANG}")
 message("IS_MSVC_OR_CLANGCL=${IS_MSVC_OR_CLANGCL}")
 
 # MSVC flags
