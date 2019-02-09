@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
-project(Fox)
+message("CMake version is '${CMAKE_VERSION}'")
 
-message("CMake version ${CMAKE_VERSION}")
+project(Fox)
 
 include(FindPythonInterp)
 
@@ -35,12 +35,13 @@ add_subdirectory(tools/CommandLine)
 # add test subdir
 add_subdirectory(unittests)
 
-message("Compiler ID is ${CMAKE_CXX_COMPILER_ID}")
+message("Compiler ID is '${CMAKE_CXX_COMPILER_ID}'")
+message("Build type is '${CMAKE_BUILD_TYPE}'")
 
 # fetch CXX environement variable
 if(DEFINED ENV{CXX})
   set(CXX $ENV{CXX})
-  message("Environment variable CXX=${CXX}")
+  message("Environment variable CXX is '${CXX}'")
 else()
   message("Environment variable CXX not found")
   set(CXX "")
@@ -48,7 +49,6 @@ endif()
 
 # check if clang-cl
 if(CXX STREQUAL "clang-cl" OR CXX MATCHES "clang-cl.exe")
-  message("clang-cl detected")
   set(IS_CLANGCL TRUE)
 else()
   set(IS_CLANGCL FALSE)
@@ -56,7 +56,7 @@ endif()
 
 
 # check if clang (can be clang-cl!)
-if(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
   set(IS_CLANG TRUE)
 else()
   set(IS_CLANG FALSE)
