@@ -10,40 +10,44 @@
 #include "gtest/gtest.h"
 #include "Support/TestUtils.hpp"
 #include "Fox/Common/StringManipulator.hpp"
+#include "llvm/ADT/Optional.h"
 #include <cwctype>    // std::iswspace
 
 using namespace fox;
 using namespace fox::test;
 
-/*
-  getTextStat : return false if exception happened, and puts e.what() inside exception_details.
-  returns true if success and places the results inside linecount, charcount, spacecount.
-*/
-bool getTextStats(StringManipulator &manip, unsigned int& linecount, 
-                  unsigned int& charcount, unsigned int& spacecount, 
-                  std::string exception_details = "") {
+struct TextStats {
+  unsigned linecount = 1;
+  unsigned charcount = 0;
+  unsigned spacecount = 0;
+  bool seenCRLF = false;
+};
+
+llvm::Optional<TextStats> 
+getTextStats(StringManipulator &manip) {
+  TextStats rtr;
   try {
     while (!manip.eof()) {
       const auto cur = manip.getCurrentChar();
       if (cur == '\n')
-        ++linecount;
+        ++rtr.linecount;
       else if (cur == '\r' && manip.peekNext() == '\n') {
+        rtr.seenCRLF = true;
         manip.advance();
-        ++linecount;
+        ++rtr.linecount;
       }
       else {
         if (std::iswspace(static_cast<wchar_t>(cur)))
-          ++spacecount;
-        ++charcount;
+          ++rtr.spacecount;
+        ++rtr.charcount;
       }
       manip.advance();
     }
   }
-  catch (std::exception& e) {
-    exception_details = e.what();
-    return false;
+  catch (std::exception&) {
+    return llvm::None;
   }
-  return true;
+  return rtr;
 }
 
 TEST(UTF8Tests,BronzeHorseman) {
@@ -55,26 +59,25 @@ TEST(UTF8Tests,BronzeHorseman) {
 
   // Prepare string manipulator & other variables
   StringManipulator manip(file_content);
-  unsigned int linecount = 1, charcount = 0, spacecount = 0;
-  std::string exception_details;
 
   // Get text statistics
-  EXPECT_TRUE(getTextStats(manip, linecount, charcount, 
-    spacecount, exception_details)) 
-    << "Test failed, exception thrown while iterating "
-       "through the string. Exception details:" << exception_details;
-  
+  auto statsResults = getTextStats(manip);
+  ASSERT_TRUE(statsResults.hasValue()) 
+    << "An error occured while calculating text statistics";
+  auto stats = statsResults.getValue();
+
   // Expected text statistics
   // 11 Lines
   // 278 Characters
   // 44 Spaces
   // 511 Bytes
   // 288 Codepoints
-  EXPECT_EQ(11, linecount);
-  EXPECT_EQ(268, charcount);
-  EXPECT_EQ(34, spacecount);
-  EXPECT_EQ(511, manip.getSizeInBytes());
-  EXPECT_EQ(288, manip.getSizeInCodepoints());
+  EXPECT_EQ(11, stats.linecount);
+  EXPECT_EQ(268, stats.charcount);
+  EXPECT_EQ(34, stats.spacecount);
+  // Remove 10 from the values if we don't use CRLF line endings.
+  EXPECT_EQ(511, manip.getSizeInBytes() - (stats.seenCRLF ? 0 : 10));
+  EXPECT_EQ(288, manip.getSizeInCodepoints() - (stats.seenCRLF ? 0 : 10));
 }
 
 TEST(UTF8Tests, ASCIIDrawing) {
@@ -85,14 +88,12 @@ TEST(UTF8Tests, ASCIIDrawing) {
 
   // Prepare string manipulator & other variables
   StringManipulator manip(file_content);
-  unsigned int linecount = 1, charcount = 0, spacecount = 0;
-  std::string exception_details;
 
   // Get text statistics
-  EXPECT_TRUE(getTextStats(manip, linecount, charcount, 
-    spacecount, exception_details)) 
-    << "Test failed, exception thrown while iterating "
-       "through the string. Exception details:" << exception_details;
+  auto statsResults = getTextStats(manip);
+  ASSERT_TRUE(statsResults.hasValue()) 
+    << "An error occured while calculating text statistics";
+  auto stats = statsResults.getValue();
 
   // Expected text statistics
   // 18 lines
@@ -100,11 +101,11 @@ TEST(UTF8Tests, ASCIIDrawing) {
   // 847 Spaces
   // 1207 bytes
   // 1207 codepoints
-  EXPECT_EQ(18, linecount);
-  EXPECT_EQ(1173, charcount);
-  EXPECT_EQ(830, spacecount);
-  EXPECT_EQ(1207, manip.getSizeInBytes());
-  EXPECT_EQ(1207, manip.getSizeInCodepoints());
+  EXPECT_EQ(18, stats.linecount);
+  EXPECT_EQ(1173, stats.charcount);
+  EXPECT_EQ(830, stats.spacecount);
+  EXPECT_EQ(1207, manip.getSizeInBytes() - (stats.seenCRLF ? 0 : 10));
+  EXPECT_EQ(1207, manip.getSizeInCodepoints() - (stats.seenCRLF ? 0 : 10));
 }
 
 TEST(UTF8Tests, Substring) {
