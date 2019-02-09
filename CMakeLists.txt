@@ -130,9 +130,10 @@ if(IS_MSVC_OR_CLANGCL)
   # don't deprecate theses functions
   add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
 
+  # TODO: Disable exceptions again. Unfortunately, nonstd/string_view and utf8_cpp needs them.
   # disable exceptions
-  add_compile_options(/D_HAS_EXCEPTIONS=0)
-  add_compile_options(/EHsc)
+  # add_compile_options(/D_HAS_EXCEPTIONS=0)
+  # add_compile_options(/EHsc)
 
   # disable rtti
   add_compile_options(/GR-)
@@ -164,7 +165,7 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
   # /W4 is used above instead.
   add_clangonly_option(-Wall)
 
-  # TODO: Disable exceptions again. Unfortunately, nonstd/string_view needs them.
+  # TODO: Disable exceptions again. Unfortunately, nonstd/string_view and utf8_cpp needs them.
   # add_clangonly_option(-fno-exceptions)
   add_clangonly_option(-fno-rtti)
 
