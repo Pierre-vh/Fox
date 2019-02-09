@@ -4,8 +4,7 @@
 // File : UTF8Tests.cpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  (Unit) Tests for the Lexer's UTF8 String manipulator.
-// In short, this tests verifies the capability of the lexer to work on UTF8 strings.
+// (Unit) Tests for the UTF8 String manipulator.
 //----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
@@ -20,7 +19,9 @@ using namespace fox::test;
   getTextStat : return false if exception happened, and puts e.what() inside exception_details.
   returns true if success and places the results inside linecount, charcount, spacecount.
 */
-bool getTextStats(StringManipulator &manip, unsigned int& linecount, unsigned int& charcount, unsigned int& spacecount, std::string exception_details = "") {
+bool getTextStats(StringManipulator &manip, unsigned int& linecount, 
+                  unsigned int& charcount, unsigned int& spacecount, 
+                  std::string exception_details = "") {
   try {
     while (!manip.eof()) {
       const auto cur = manip.getCurrentChar();
@@ -46,7 +47,8 @@ TEST(UTF8Tests,BronzeHorseman) {
   // Open test file
   std::string file_content;
   std::string file_path("lexer/utf8/bronzehorseman.txt");
-  ASSERT_TRUE(readFileToString(file_path, file_content)) << "Could not open test file \"" << file_path << '"';
+  ASSERT_TRUE(readFileToString(file_path, file_content)) 
+    << "Could not open test file \"" << file_path << '"';
 
   // Prepare string manipulator & other variables
   StringManipulator manip(file_content);
@@ -54,7 +56,10 @@ TEST(UTF8Tests,BronzeHorseman) {
   std::string exception_details;
 
   // Get text statistics
-  EXPECT_TRUE(getTextStats(manip, linecount, charcount, spacecount, exception_details)) << "Test failed, exception thrown while iterating through the string. Exception details:" << exception_details;
+  EXPECT_TRUE(getTextStats(manip, linecount, charcount, 
+    spacecount, exception_details)) 
+    << "Test failed, exception thrown while iterating "
+       "through the string. Exception details:" << exception_details;
   
   // Expected text statistics
   // 11 lines
@@ -77,7 +82,10 @@ TEST(UTF8Tests, ASCIIDrawing) {
   std::string exception_details;
 
   // Get text statistics
-  EXPECT_TRUE(getTextStats(manip, linecount, charcount, spacecount, exception_details)) << "Test failed, exception thrown while iterating through the string. Exception details:" << exception_details;
+  EXPECT_TRUE(getTextStats(manip, linecount, charcount, 
+    spacecount, exception_details)) 
+    << "Test failed, exception thrown while iterating "
+       "through the string. Exception details:" << exception_details;
 
   // Expected text statistics
   // 18 lines
@@ -92,12 +100,14 @@ TEST(UTF8Tests, Substring) {
   // Open test file : bronze
   std::string bronze_content;
   std::string bronze_path("lexer/utf8/bronzehorseman.txt");
-  ASSERT_TRUE(readFileToString(bronze_path, bronze_content)) << "Could not open test file \"" << bronze_path << '"';
+  ASSERT_TRUE(readFileToString(bronze_path, bronze_content)) 
+    << "Could not open test file \"" << bronze_path << '"';
 
   // Open test file : substr
   std::string expected_substr;
   std::string substr_path("lexer/utf8/bronzehorseman.substr.txt");
-  ASSERT_TRUE(readFileToString(substr_path, expected_substr)) << "Could not open test file \"" << substr_path << '"';
+  ASSERT_TRUE(readFileToString(substr_path, expected_substr)) 
+    << "Could not open test file \"" << substr_path << '"';
   StringManipulator::removeBOM(expected_substr);
 
   // Prepare string manipulator
@@ -112,7 +122,8 @@ TEST(UTF8Tests, IndexOfCurCharValidity) {
   // Open test file : bronze
   std::string bronze_content;
   std::string bronze_path("lexer/utf8/bronzehorseman.txt");
-  ASSERT_TRUE(readFileToString(bronze_path, bronze_content)) << "Could not open test file \"" << bronze_path << '"';
+  ASSERT_TRUE(readFileToString(bronze_path, bronze_content))
+    << "Could not open test file \"" << bronze_path << '"';
 
   
   // Prepare string manipulator
