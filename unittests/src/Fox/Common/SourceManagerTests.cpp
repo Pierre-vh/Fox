@@ -73,10 +73,10 @@ TEST(SourceManagerTest, SourceRange) {
 
   // Create sample source ranges
   SourceRange ra(a, 50);
-  ASSERT_EQ(ra.getRawOffset(), 50);
+  ASSERT_EQ(ra.getRawOffset(), 50u);
 
   SourceRange rb(a, b);
-  ASSERT_EQ(rb.getRawOffset(), 50);
+  ASSERT_EQ(rb.getRawOffset(), 50u);
 
   // Check if everything is preserved, as expected.
   EXPECT_EQ(rb.getBegin(), a);
@@ -122,8 +122,8 @@ TEST(SourceManagerTest, PreciseLocation) {
     auto completeLoc = srcMgr.getCompleteLoc(sloc);
 
     EXPECT_EQ(completeLoc.fileName, testFilePath);
-    EXPECT_EQ(completeLoc.line, 5);
-    EXPECT_EQ(completeLoc.column, 7);
+    EXPECT_EQ(completeLoc.line, 5u);
+    EXPECT_EQ(completeLoc.column, 7u);
   }
   else {
     FAIL() << "Couldn't find the pi sign.";

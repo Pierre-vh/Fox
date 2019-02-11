@@ -186,9 +186,9 @@ TEST_F(LexerTest, CharTokens) {
   ASSERT_TRUE(litInfo2.isChar() && litInfo2.is<FoxChar>());
   ASSERT_TRUE(litInfo3.isChar() && litInfo3.is<FoxChar>());
 
-  EXPECT_EQ(litInfo1.get<FoxChar>(), 'c');
-  EXPECT_EQ(litInfo2.get<FoxChar>(), ' ');
-  EXPECT_EQ(litInfo3.get<FoxChar>(), '!');
+  EXPECT_EQ(litInfo1.get<FoxChar>(), (FoxChar)'c');
+  EXPECT_EQ(litInfo2.get<FoxChar>(), (FoxChar)' ');
+  EXPECT_EQ(litInfo3.get<FoxChar>(), (FoxChar)'!');
 }
 
 TEST_F(LexerTest, BoolTokens) {
@@ -230,12 +230,12 @@ TEST_F(LexerTest, Coordinates1) {
       auto end_ploc = srcMgr.getCompleteLoc(elem.getRange().getEnd());
       
       // Line
-      EXPECT_EQ(beg_ploc.line, 7);
-      EXPECT_EQ(end_ploc.line, 7);
+      EXPECT_EQ(beg_ploc.line, 7u);
+      EXPECT_EQ(end_ploc.line, 7u);
 
       // Col
-      EXPECT_EQ(beg_ploc.column, 5);
-      EXPECT_EQ(end_ploc.column, 20);
+      EXPECT_EQ(beg_ploc.column, 5u);
+      EXPECT_EQ(end_ploc.column, 20u);
     }
     else if (elem.getAsString() == "_2NDVAR__") {
       varFounds++;
@@ -243,12 +243,12 @@ TEST_F(LexerTest, Coordinates1) {
       auto end_ploc = srcMgr.getCompleteLoc(elem.getRange().getEnd());
 
       // Line
-      EXPECT_EQ(beg_ploc.line, 10);
-      EXPECT_EQ(end_ploc.line, 10);
+      EXPECT_EQ(beg_ploc.line, 10u);
+      EXPECT_EQ(end_ploc.line, 10u);
 
       // Col
-      EXPECT_EQ(beg_ploc.column, 7);
-      EXPECT_EQ(end_ploc.column, 15);
+      EXPECT_EQ(beg_ploc.column, 7u);
+      EXPECT_EQ(end_ploc.column, 15u);
     }
     else if (elem.getAsString() == "ThirdVariable") {
       varFounds++;
@@ -256,12 +256,12 @@ TEST_F(LexerTest, Coordinates1) {
       auto end_ploc = srcMgr.getCompleteLoc(elem.getRange().getEnd());
 
       // Line
-      EXPECT_EQ(beg_ploc.line, 13);
-      EXPECT_EQ(end_ploc.line, 13);
+      EXPECT_EQ(beg_ploc.line, 13u);
+      EXPECT_EQ(end_ploc.line, 13u);
 
       // Col
-      EXPECT_EQ(beg_ploc.column, 5);
-      EXPECT_EQ(end_ploc.column, 17);
+      EXPECT_EQ(beg_ploc.column, 5u);
+      EXPECT_EQ(end_ploc.column, 17u);
     }
   }
   EXPECT_EQ(varFounds, 3) << "Did not find all 3 variables";

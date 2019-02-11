@@ -18,8 +18,8 @@ using namespace fox;
 // testing that the memory allocated "works".
 // This will 
 TEST(LinearAllocatorTest, Spam) {
-  #define COUNT 8192 // Number of TestObject to allocate 
-  #define NUM_VALUES 16  // Number of values in the TestObject 
+  #define COUNT 8192u // Number of TestObject to allocate 
+  #define NUM_VALUES 16u  // Number of values in the TestObject 
   // Size of this object: 16*64 bytes = 1024 bytes
   struct TestObject {
     std::uint64_t values[NUM_VALUES];
@@ -35,7 +35,7 @@ TEST(LinearAllocatorTest, Spam) {
     auto* ptr = alloc.allocate<TestObject>();
     ASSERT_NE(ptr, nullptr) 
         << "The allocator returned a null pointer after " << k << " allocations";
-    ASSERT_EQ(alloc.getCustomPoolsCount(), 0) 
+    ASSERT_EQ(alloc.getCustomPoolsCount(), 0u) 
         << "allocation shouldn't have been forced in it's own pool!";
     // Set every value to k+y, so they all
     // have sort of a unique value.
@@ -57,8 +57,8 @@ TEST(LinearAllocatorTest, Spam) {
 
   // Deallocate
   alloc.reset();
-  EXPECT_EQ(alloc.getTotalPoolsCount(), 0) << "Pools weren't released";
-  EXPECT_EQ(alloc.getBytesInCurrentPool(), 0) << "Something left in the pool?";
+  EXPECT_EQ(alloc.getTotalPoolsCount(), 0u) << "Pools weren't released";
+  EXPECT_EQ(alloc.getBytesInCurrentPool(), 0u) << "Something left in the pool?";
   #undef COUNT
   #undef NUM_VALUES
 }
@@ -96,10 +96,10 @@ TEST(LinearAllocatorTest, Alignement) {
 
 TEST(LinearAllocatorTest, ManualAllocation) {
   LinearAllocator alloc;
-  char *foo = static_cast<char*>(alloc.allocate(32));
+  unsigned char *foo = static_cast<unsigned char*>(alloc.allocate(32));
   
   // Set all values to an index
-  for (char k = 0; k < 32; k++)
+  for (unsigned char k = 0; k < 32; k++)
     foo[(unsigned)k] = k;
 
   // Check
@@ -107,12 +107,12 @@ TEST(LinearAllocatorTest, ManualAllocation) {
     ASSERT_EQ(foo[(unsigned)k], k);
   
   // Check that we have the correct number of bytes in the current pool
-  EXPECT_EQ(alloc.getBytesInCurrentPool(), 32);
+  EXPECT_EQ(alloc.getBytesInCurrentPool(), 32u);
   
   // Deallocate, check that the deallocation was successful
   alloc.reset();
-  EXPECT_EQ(alloc.getTotalPoolsCount(), 0) << "Pools weren't released";
-  EXPECT_EQ(alloc.getBytesInCurrentPool(), 0) << "Something left in the pool?";
+  EXPECT_EQ(alloc.getTotalPoolsCount(), 0u) << "Pools weren't released";
+  EXPECT_EQ(alloc.getBytesInCurrentPool(), 0u) << "Something left in the pool?";
 }
 
 // This test checks that an object of the size of the pool 
@@ -121,10 +121,10 @@ TEST(LinearAllocatorTest, LargeObject) {
   CustomLinearAllocator<200> alloc;
   std::uint8_t *buff = static_cast<std::uint8_t*>(alloc.allocate(200));
   EXPECT_NE(buff, nullptr) << "Buffer is null?";
-  EXPECT_EQ(alloc.getBytesInCurrentPool(), 200);
-  EXPECT_EQ(alloc.getTotalPoolsCount(), 1);
-  EXPECT_EQ(alloc.getNormalPoolsCount(), 1);
-  EXPECT_EQ(alloc.getCustomPoolsCount(), 0);
+  EXPECT_EQ(alloc.getBytesInCurrentPool(), 200u);
+  EXPECT_EQ(alloc.getTotalPoolsCount(), 1u);
+  EXPECT_EQ(alloc.getNormalPoolsCount(), 1u);
+  EXPECT_EQ(alloc.getCustomPoolsCount(), 0u);
 
   for (std::uint8_t k = 0; k < 200; k++)
     buff[k] = k;
@@ -134,16 +134,16 @@ TEST(LinearAllocatorTest, LargeObject) {
   
   // Now, allocating just one more byte should trigger the creation of a new pool
   char *ch = static_cast<char*>(alloc.allocate(1));
-  EXPECT_EQ(alloc.getBytesInCurrentPool(), 1);
-  EXPECT_EQ(alloc.getTotalPoolsCount(), 2);
+  EXPECT_EQ(alloc.getBytesInCurrentPool(), 1u);
+  EXPECT_EQ(alloc.getTotalPoolsCount(), 2u);
 
   // Simple test, write to that char, just to see if the memory is OK
   (*ch) = 42;
 
   // Deallocate, check that the deallocation was successful
   alloc.reset();
-  EXPECT_EQ(alloc.getTotalPoolsCount(), 0) << "Pools weren't released";
-  EXPECT_EQ(alloc.getBytesInCurrentPool(), 0) << "Something left in the pool?";
+  EXPECT_EQ(alloc.getTotalPoolsCount(), 0u) << "Pools weren't released";
+  EXPECT_EQ(alloc.getBytesInCurrentPool(), 0u) << "Something left in the pool?";
 }
 
 // Test that reset() is indeed called by the destructor
@@ -156,14 +156,14 @@ TEST(LinearAllocatorTest, DestructorCallsReset) {
   alloc.allocate(50);
   alloc.allocate(50);
   alloc.allocate(50);
-  EXPECT_EQ(alloc.getTotalBytesAllocated(), 250);
+  EXPECT_EQ(alloc.getTotalBytesAllocated(), 250u);
 
   // Call the destructor
   alloc.~CustomLinearAllocator();
-  EXPECT_EQ(alloc.getCustomPoolsCount(), 0);
-  EXPECT_EQ(alloc.getNormalPoolsCount(), 0);
-  EXPECT_EQ(alloc.getTotalPoolsCount(), 0);
-  EXPECT_EQ(alloc.getTotalBytesAllocated(), 0);
+  EXPECT_EQ(alloc.getCustomPoolsCount(), 0u);
+  EXPECT_EQ(alloc.getNormalPoolsCount(), 0u);
+  EXPECT_EQ(alloc.getTotalPoolsCount(), 0u);
+  EXPECT_EQ(alloc.getTotalBytesAllocated(), 0u);
 }
 
 // Test that large objects are allocated in custom pools.
@@ -172,23 +172,23 @@ TEST(LinearAllocatorTest, CustomPools) {
   // Allocating an object the size of a pool with an alignement
   // should trigger a custom pool allocation.
   alloc.allocate(4096, 2);
-  EXPECT_EQ(alloc.getCustomPoolsCount(), 1);
-  EXPECT_EQ(alloc.getNormalPoolsCount(), 0);
-  EXPECT_EQ(alloc.getTotalPoolsCount(), 1);
-  EXPECT_EQ(alloc.getTotalBytesAllocated(), 4096+1);
+  EXPECT_EQ(alloc.getCustomPoolsCount(), 1u);
+  EXPECT_EQ(alloc.getNormalPoolsCount(), 0u);
+  EXPECT_EQ(alloc.getTotalPoolsCount(), 1u);
+  EXPECT_EQ(alloc.getTotalBytesAllocated(), 4096u+1);
 
   // Allocating a large object
   // should trigger a custom pool allocation.
   alloc.allocate(10000);
-  EXPECT_EQ(alloc.getCustomPoolsCount(), 2);
-  EXPECT_EQ(alloc.getNormalPoolsCount(), 0);
-  EXPECT_EQ(alloc.getTotalPoolsCount(), 2);
-  EXPECT_EQ(alloc.getTotalBytesAllocated(), 4096+1+10000);
+  EXPECT_EQ(alloc.getCustomPoolsCount(), 2u);
+  EXPECT_EQ(alloc.getNormalPoolsCount(), 0u);
+  EXPECT_EQ(alloc.getTotalPoolsCount(), 2u);
+  EXPECT_EQ(alloc.getTotalBytesAllocated(), 4096u+1+10000);
 
   // Deallocate, check that the deallocation was successful
   alloc.reset();
-  EXPECT_EQ(alloc.getCustomPoolsCount(), 0);
-  EXPECT_EQ(alloc.getNormalPoolsCount(), 0);
-  EXPECT_EQ(alloc.getTotalPoolsCount(), 0);
-  EXPECT_EQ(alloc.getTotalBytesAllocated(), 0);
+  EXPECT_EQ(alloc.getCustomPoolsCount(), 0u);
+  EXPECT_EQ(alloc.getNormalPoolsCount(), 0u);
+  EXPECT_EQ(alloc.getTotalPoolsCount(), 0u);
+  EXPECT_EQ(alloc.getTotalBytesAllocated(), 0u);
 }

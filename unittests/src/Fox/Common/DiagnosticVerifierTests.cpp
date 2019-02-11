@@ -70,7 +70,7 @@ TEST_F(DVTest, Parsing) {
   SetUp(test::getPath("diagnosticsverifier/parse.txt"));
   ASSERT_TRUE(ok) << errStr;
   auto& diags = dv.getExpectedDiags();
-  ASSERT_EQ(diags.size(), 4) << "Incorrect number of verify instrs found";
+  ASSERT_EQ(diags.size(), 4u) << "Incorrect number of verify instrs found";
  
   bool foundNote = false;
   bool foundWarn = false;
@@ -79,22 +79,22 @@ TEST_F(DVTest, Parsing) {
   for (auto& diag : diags) {
     EXPECT_EQ(diag.file, file) << "File mismatch";
     if (diag.severity == DV::Note) {
-      EXPECT_EQ(diag.line, 1) << "Line mismatch";
+      EXPECT_EQ(diag.line, 1u) << "Line mismatch";
       EXPECT_EQ(diag.diagStr, "Note ipsum dolor sit") << "DiagStr mismatch";
       foundNote = true;
     }
     else if (diag.severity == DV::Warning) {
-      EXPECT_EQ(diag.line, 2) << "Line mismatch";
+      EXPECT_EQ(diag.line, 2u) << "Line mismatch";
       EXPECT_EQ(diag.diagStr, "Lorem Warn dolor sit") << "DiagStr mismatch";
       foundWarn = true;
     }
     else if (diag.severity == DV::Error) {
-      EXPECT_EQ(diag.line, 3) << "Line mismatch";
+      EXPECT_EQ(diag.line, 3u) << "Line mismatch";
       EXPECT_EQ(diag.diagStr, "Lorem ipsum Errror sit") << "DiagStr mismatch";
       foundError = true;
     }
     else if (diag.severity == DV::Fatal) {
-      EXPECT_EQ(diag.line, 4) << "Line mismatch";
+      EXPECT_EQ(diag.line, 4u) << "Line mismatch";
       EXPECT_EQ(diag.diagStr, "Lorem ipsum dolor Fatal") << "DiagStr mismatch";
       foundFatal = true;
     } 
@@ -123,11 +123,11 @@ TEST_F(DVTest, Offset) {
   SetUp(test::getPath("diagnosticsverifier/offset.txt"));
   ASSERT_TRUE(ok) << errStr;
   auto& diags = dv.getExpectedDiags();
-  ASSERT_EQ(diags.size(), 19) << "Incorrect number of verify instrs found";
+  ASSERT_EQ(diags.size(), 19u) << "Incorrect number of verify instrs found";
 
   for (auto& diag : diags) {
     // Every diag's line should be line 10.
-    ASSERT_EQ(diag.line, 10);
+    ASSERT_EQ(diag.line, 10u);
   }
 }
 
@@ -140,7 +140,7 @@ TEST_F(DVTest, BadOffset) {
   auto diagConsumer = static_cast<TestConsumer*>(diags.getConsumer());
   ASSERT_FALSE(ok);
   auto& diags = dv.getExpectedDiags();
-  ASSERT_EQ(diags.size(), 0) << "Incorrect number of verify instrs found";
-  ASSERT_EQ(diagConsumer->count, 2) << "Incorrect number of diags emitted";
+  ASSERT_EQ(diags.size(), 0u) << "Incorrect number of verify instrs found";
+  ASSERT_EQ(diagConsumer->count, 2u) << "Incorrect number of diags emitted";
   ASSERT_TRUE(diagConsumer->ok) << "Unknown diags emitted";
 }

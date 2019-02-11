@@ -72,12 +72,12 @@ TEST(UTF8Tests,BronzeHorseman) {
   // 44 Spaces
   // 511 Bytes (501 if LF line endings)
   // 288 Codepoints (278 if LF line endings)
-  EXPECT_EQ(11, stats.linecount);
-  EXPECT_EQ(268, stats.charcount);
-  EXPECT_EQ(34, stats.spacecount);
+  EXPECT_EQ(11u, stats.linecount);
+  EXPECT_EQ(268u, stats.charcount);
+  EXPECT_EQ(34u, stats.spacecount);
   // Remove 10 from the values if we don't use CRLF line endings.
-  EXPECT_EQ(511 - (stats.seenCRLF ? 0 : 10), manip.getSizeInBytes());
-  EXPECT_EQ(288 - (stats.seenCRLF ? 0 : 10), manip.getSizeInCodepoints());
+  EXPECT_EQ(511u - (stats.seenCRLF ? 0 : 10), manip.getSizeInBytes());
+  EXPECT_EQ(288u - (stats.seenCRLF ? 0 : 10), manip.getSizeInCodepoints());
 }
 
 TEST(UTF8Tests, ASCIIDrawing) {
@@ -101,11 +101,11 @@ TEST(UTF8Tests, ASCIIDrawing) {
   // 847 Spaces
   // 1207 bytes (1990 if LF line endings)
   // 1207 codepoints (1990 if LF line endings)
-  EXPECT_EQ(18, stats.linecount);
-  EXPECT_EQ(1173, stats.charcount);
-  EXPECT_EQ(830, stats.spacecount);
-  EXPECT_EQ(1207 - (stats.seenCRLF ? 0 : 17), manip.getSizeInBytes());
-  EXPECT_EQ(1207- (stats.seenCRLF ? 0 : 17), manip.getSizeInCodepoints());
+  EXPECT_EQ(18u, stats.linecount);
+  EXPECT_EQ(1173u, stats.charcount);
+  EXPECT_EQ(830u, stats.spacecount);
+  EXPECT_EQ(1207u - (stats.seenCRLF ? 0 : 17), manip.getSizeInBytes());
+  EXPECT_EQ(1207u- (stats.seenCRLF ? 0 : 17), manip.getSizeInCodepoints());
 }
 
 TEST(UTF8Tests, Substring) {
@@ -149,6 +149,6 @@ TEST(UTF8Tests, IndexOfCurCharValidity) {
   manip2.advance(15);
 
   // test if index is valid
-  EXPECT_EQ(15, manip1.getIndexInCodepoints());
+  EXPECT_EQ(15u, manip1.getIndexInCodepoints());
   EXPECT_EQ(manip1.getCurrentChar(), manip2.getCurrentChar());
 }
