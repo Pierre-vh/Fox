@@ -17,7 +17,7 @@ using namespace fox;
 namespace {
   class StrDiagConsumer : public DiagnosticConsumer {
     public:
-      virtual void consume(SourceManager& sm, const Diagnostic& diag) override {
+      virtual void consume(SourceManager&, const Diagnostic& diag) override {
         count_++;
         str_ = diag.getStr();
         sev_ = diag.getSeverity();

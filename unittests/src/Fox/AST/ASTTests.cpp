@@ -331,21 +331,21 @@ namespace {
   //ASTVisitor tests : Samples implementations to test if visitors works as intended
   class IsNamedDecl : public SimpleASTVisitor<IsNamedDecl, bool> {
     public:
-      bool visitNamedDecl(NamedDecl* node) {
+      bool visitNamedDecl(NamedDecl*) {
         return true;
       }
   };
 
   class IsExpr : public SimpleASTVisitor<IsExpr, bool> {
     public:
-      bool visitExpr(Expr* node) {
+      bool visitExpr(Expr*) {
         return true;
       }
   };
 
   class IsArrTy : public SimpleASTVisitor<IsArrTy, bool> {
     public:
-      bool visitArrayType(ArrayType* node) {
+      bool visitArrayType(ArrayType*) {
         return true;
       }
   };

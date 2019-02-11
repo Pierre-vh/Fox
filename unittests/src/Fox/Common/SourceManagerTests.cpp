@@ -119,11 +119,11 @@ TEST(SourceManagerTest, PreciseLocation) {
 
   if (sm.getCurrentChar() == 960) {
     SourceLoc sloc(testFile, sm.getIndexInBytes());
-    auto result = srcMgr.getCompleteLoc(sloc);
+    auto completeLoc = srcMgr.getCompleteLoc(sloc);
 
-    EXPECT_EQ(result.fileName, testFilePath);
-    EXPECT_EQ(result.line, 5);
-    EXPECT_EQ(result.column, 7);
+    EXPECT_EQ(completeLoc.fileName, testFilePath);
+    EXPECT_EQ(completeLoc.line, 5);
+    EXPECT_EQ(completeLoc.column, 7);
   }
   else {
     FAIL() << "Couldn't find the pi sign.";

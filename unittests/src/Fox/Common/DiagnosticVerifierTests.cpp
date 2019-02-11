@@ -57,7 +57,7 @@ namespace {
       std::size_t count = 0;
       bool ok = true;
 
-      virtual void consume(SourceManager& sm, const Diagnostic& diag) override {
+      virtual void consume(SourceManager&, const Diagnostic& diag) override {
         ++count;
         ok &= (diag.getStr() != expected);
       }
