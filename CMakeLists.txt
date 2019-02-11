@@ -74,11 +74,6 @@ message("IS_MSVC_OR_CLANGCL=${IS_MSVC_OR_CLANGCL}")
 
 # MSVC flags
 if(IS_MSVC_OR_CLANGCL)
-  # MSVC-only options
-  if(IS_MSVC)
-    add_compile_options(/Za)
-  endif()
-
   # warnings level 4
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
     string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -170,11 +165,19 @@ endif()
 get_directory_property(compile_opts COMPILE_OPTIONS)
 message("Compile options used : ${compile_opts}")
 
-# add main subdirs
-add_subdirectory(lib)
+# before disabling MSVC extensions, include the CommandLine
+# tool, because it requires extensions to work on MSVC.
+# FIXME: This is kind of a hack, it'd be better to add /Za  
+#        before, then remove it in CommandLine's CMakeLists
 add_subdirectory(tools/CommandLine)
 
-# add test subdir
+# Disables extensions on MSVC 
+if(IS_MSVC)
+  add_compile_options(/Za)
+endif()
+
+# add lib & test subdirs
+add_subdirectory(lib)
 add_subdirectory(unittests)
 
 # add lib target
