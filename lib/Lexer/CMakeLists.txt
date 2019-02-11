@@ -1,5 +1,4 @@
 add_source( 
-    lexer_src
-    Lexer.cpp
-    Token.cpp
+    "Lexer.cpp"
+    "Token.cpp"
 )

@@ -1,6 +1,4 @@
 add_source(
-  fox_unittests_src 
-
   "main.cpp"
 
   "Support/TestUtils.cpp"

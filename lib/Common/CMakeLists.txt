@@ -1,4 +1,4 @@
-add_source(common_src
+add_source(
   "DiagnosticEngine.cpp"
   "DiagnosticConsumers.cpp"
   "StringManipulator.cpp"
