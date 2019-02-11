@@ -1,4 +1,4 @@
-add_source(
+add_source(ast_src
   "Decl.cpp"
   "Expr.cpp"
   "Stmt.cpp"

@@ -1,4 +1,4 @@
-add_source( 
-    "Lexer.cpp"
-    "Token.cpp"
+add_source(lexer_src
+  "Lexer.cpp"
+  "Token.cpp"
 )

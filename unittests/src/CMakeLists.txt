@@ -1,9 +1,7 @@
-add_source(
+add_source(unittest_src
   "main.cpp"
-
   "Support/TestUtils.cpp"
   "Support/PrintObjects.cpp"
-
   "Fox/Lexer/LexerTests.cpp"
   "Fox/Common/UTF8Tests.cpp"
   "Fox/AST/ASTTests.cpp"

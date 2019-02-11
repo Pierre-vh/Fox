@@ -1,3 +1,3 @@
-add_source(
-    "Driver.cpp"
-  )
+add_source(driver_src
+  "Driver.cpp"
+)

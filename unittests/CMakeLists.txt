@@ -2,7 +2,7 @@
 add_subdirectory(src)
 
 # Add executable & link libmoonshot & gtest
-add_executable(fox_unittests ${src_src})
+add_executable(fox_unittests ${unittest_src})
 target_link_libraries(fox_unittests libfox gtest_main)
 
 # Add include subdir : testutils
