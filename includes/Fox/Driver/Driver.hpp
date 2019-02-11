@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <ostream>
+#include <iosfwd>
 #include <chrono>
 #include "Fox/Common/string_view.hpp"
 #include "Fox/AST/ASTContext.hpp"
