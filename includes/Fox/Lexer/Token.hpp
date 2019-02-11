@@ -28,59 +28,59 @@ namespace fox {
   enum class SignType : std::uint8_t {
     DEFAULT,      // Default value
     // Signs
-    S_EQUAL,      // =
-    S_PLUS,        // +
-    S_MINUS,      // -
-    S_ASTERISK,      // *
-    S_SLASH,      // /
-    S_VBAR,        // |
+    S_EQUAL,        // =
+    S_PLUS,         // +
+    S_MINUS,        // -
+    S_ASTERISK,     // *
+    S_SLASH,        // /
+    S_VBAR,         // |
     S_AMPERSAND,    // &
     S_LESS_THAN,    // <
-    S_GREATER_THAN,    // >
-    S_HASH,        // #
-    S_TILDE,      // ~
-    S_CARET,      // ^
+    S_GREATER_THAN, // >
+    S_HASH,         // #
+    S_TILDE,        // ~
+    S_CARET,        // ^
     S_PERCENT,      // %
 
     // BRACKETS
-    S_CURLY_OPEN,    // {
-    S_CURLY_CLOSE,    // }
+    S_CURLY_OPEN,   // {
+    S_CURLY_CLOSE,  // }
     S_SQ_OPEN,      // [
-    S_SQ_CLOSE,      // ]
-    S_ROUND_OPEN,    // (
-    S_ROUND_CLOSE,    // )
+    S_SQ_CLOSE,     // ]
+    S_ROUND_OPEN,   // (
+    S_ROUND_CLOSE,  // )
     // PUNCTUATION
     S_SEMICOLON,    // ;
-    S_COLON,      // :
+    S_COLON,        // :
     S_EXCL_MARK,    // !
-    S_INTER_MARK,    // ?
-    S_DOT,        // .
-    S_COMMA        // ,
+    S_INTER_MARK,   // ?
+    S_DOT,          // .
+    S_COMMA         // ,
   };
 
   enum class KeywordType : std::uint8_t {
     DEFAULT,  // Default value
     // TYPES
-    KW_INT,    // "int"
+    KW_INT,     // "int"
     KW_DOUBLE,  // "double"
-    KW_BOOL,   // "bool"
-    KW_STRING, // "string"
-    KW_CHAR,   // "char"
+    KW_BOOL,    // "bool"
+    KW_STRING,  // "string"
+    KW_CHAR,    // "char"
     // PARAMETER MODIFIERS
-    KW_MUT,    // "mut"
+    KW_MUT,     // "mut"
     // TYPE CONVERSION
-    KW_AS,     // "as"
+    KW_AS,      // "as"
     // DECLARATION / STATEMENT
-    KW_LET,    // "let"
-    KW_VAR,    // "var"
-    KW_FUNC,   // "func"
-    KW_IF,     // "if"
-    KW_ELSE,   // "else"
-    KW_WHILE,  // "while"
-    KW_RETURN, // "return"
+    KW_LET,     // "let"
+    KW_VAR,     // "var"
+    KW_FUNC,    // "func"
+    KW_IF,      // "if"
+    KW_ELSE,    // "else"
+    KW_WHILE,   // "while"
+    KW_RETURN,  // "return"
     // PACKAGE
-    KW_IMPORT, // "import"
-    KW_USING   // "using"
+    KW_IMPORT,  // "import"
+    KW_USING    // "using"
   };
 
   struct Token  {
@@ -218,32 +218,32 @@ namespace fox {
   namespace dicts {
     const std::map<std::string, KeywordType> kKeywords_dict = {
       // TYPES 
-      { "int", KeywordType::KW_INT },
+      { "int",    KeywordType::KW_INT },
       { "double", KeywordType::KW_DOUBLE },
-      { "bool", KeywordType::KW_BOOL },
+      { "bool",   KeywordType::KW_BOOL },
       { "string", KeywordType::KW_STRING },
-      { "char", KeywordType::KW_CHAR },
+      { "char",   KeywordType::KW_CHAR },
       // PARAM MODIFIERS 
-      { "mut", KeywordType::KW_MUT },
+      { "mut",    KeywordType::KW_MUT },
       // TYPE CONVERSION
-      { "as", KeywordType::KW_AS },
+      { "as",     KeywordType::KW_AS },
       // DECLARATIONS
-      { "let", KeywordType::KW_LET },
-      { "var", KeywordType::KW_VAR },
-      { "func", KeywordType::KW_FUNC },
+      { "let",    KeywordType::KW_LET },
+      { "var",    KeywordType::KW_VAR },
+      { "func",   KeywordType::KW_FUNC },
       // Statements 
-      { "if", KeywordType::KW_IF },
-      { "else", KeywordType::KW_ELSE }, 
-      { "while", KeywordType::KW_WHILE },
+      { "if",     KeywordType::KW_IF },
+      { "else",   KeywordType::KW_ELSE }, 
+      { "while",  KeywordType::KW_WHILE },
       // return
       { "return", KeywordType::KW_RETURN },
       // import
       { "import", KeywordType::KW_IMPORT },
-      { "using", KeywordType::KW_USING }
+      { "using",  KeywordType::KW_USING }
     };
 
     const std::map<FoxChar, SignType> kSign_dict = {
-      //signs
+      // signs
       { '=', SignType::S_EQUAL },
       { '+', SignType::S_PLUS },
       { '-', SignType::S_MINUS },
@@ -257,7 +257,7 @@ namespace fox {
       { '~', SignType::S_TILDE },
       { '^', SignType::S_CARET },
       { '%', SignType::S_PERCENT },
-      // bracket 
+      // brackets
       { '{', SignType::S_CURLY_OPEN },
       { '}', SignType::S_CURLY_CLOSE },
       { '[', SignType::S_SQ_OPEN },
@@ -274,6 +274,6 @@ namespace fox {
     };
   }
 
-  // a Vector of Tokens
-  using TokenVector = SmallVector<Token, 16>;
+  // A Vector of Tokens.
+  using TokenVector = SmallVector<Token, 4>;
 }
