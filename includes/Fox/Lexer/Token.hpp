@@ -131,6 +131,9 @@ namespace fox {
 
       // For StringLiteral tokens, return the String value.
 			//  Asserts that this token is an StringLiteral token.
+      // NOTE: This returns a string_view which is a view of a string
+      //       stored in the ASTContext. This means that the string_view
+      //       returned can be used to create ASTNodes without any issues.
       string_view getStringValue() const;
 
       // For CharLiteral tokens, return the Char value.
