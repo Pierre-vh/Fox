@@ -16,7 +16,6 @@
 #include <memory>
 #include <string>
 #include <map>
-#include <tuple>
 
 namespace fox {
   // Object containing a human-readable version of a SourceLoc.
