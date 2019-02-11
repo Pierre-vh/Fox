@@ -102,25 +102,24 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
     return Result<Expr*>::NotFound();
   
   next();
-
-  auto litinfo = tok.getLiteralInfo();
   Expr* expr = nullptr;
 
   SourceRange range = tok.getRange();
   assert(range && "Invalid loc info");
 
-  if (litinfo.isBool())
-    expr = BoolLiteralExpr::create(ctxt, litinfo.get<bool>(), range);
-  else if (litinfo.isString()) {
-    string_view copiedString = ctxt.allocateCopy(litinfo.get<std::string>());
-    expr = StringLiteralExpr::create(ctxt, copiedString, range);
+  if (tok.isBoolLiteral())
+    expr = BoolLiteralExpr::create(ctxt, tok.getBoolValue(), range);
+  else if (tok.isStringLiteral()) {
+    // The token class has already allocated of the string in the ASTContext,
+    // so it's safe to use the string_view given by getStringValue
+    expr = StringLiteralExpr::create(ctxt, tok.getStringValue(), range);
   }
-  else if (litinfo.isChar())
-    expr = CharLiteralExpr::create(ctxt, litinfo.get<FoxChar>(), range);
-  else if (litinfo.isInt())
-    expr = IntegerLiteralExpr::create(ctxt, litinfo.get<FoxInt>(), range);
-  else if (litinfo.isFloat())
-    expr = DoubleLiteralExpr::create(ctxt, litinfo.get<FoxDouble>(), range);
+  else if (tok.isCharLiteral())
+    expr = CharLiteralExpr::create(ctxt, tok.getCharValue(), range);
+  else if (tok.isIntLiteral())
+    expr = IntegerLiteralExpr::create(ctxt, tok.getIntValue(), range);
+  else if (tok.isDoubleLiteral())
+    expr = DoubleLiteralExpr::create(ctxt, tok.getDoubleValue(), range);
   else
     fox_unreachable("Unknown literal kind"); // Unknown literal
 

@@ -86,31 +86,18 @@ TEST_F(LexerTest, IncorrectTest4) {
   EXPECT_TRUE(ctxt.diagEngine.hadAnyError());
 }
 
-TEST_F(LexerTest, FloatTokens) {
-
+TEST_F(LexerTest, DoubleTokens) {
   Token tok1(ctxt, "3.14");
   Token tok2(ctxt, "0.0");
   Token tok3(ctxt, "0.3333333333333");
 
-  ASSERT_TRUE(tok1.isLiteral());
-  ASSERT_TRUE(tok2.isLiteral());
-  ASSERT_TRUE(tok3.isLiteral());
+  ASSERT_TRUE(tok1.isLiteral() && tok1.isDoubleLiteral());
+  ASSERT_TRUE(tok2.isLiteral() && tok2.isDoubleLiteral());
+  ASSERT_TRUE(tok3.isLiteral() && tok3.isDoubleLiteral());
 
-  LiteralInfo litInfo1 = tok1.getLiteralInfo();
-  LiteralInfo litInfo2 = tok2.getLiteralInfo();
-  LiteralInfo litInfo3 = tok3.getLiteralInfo();
-
-  ASSERT_FALSE(litInfo1.isNull());
-  ASSERT_FALSE(litInfo2.isNull());
-  ASSERT_FALSE(litInfo3.isNull());
-
-  EXPECT_TRUE(litInfo1.isFloat() && litInfo1.is<FoxDouble>());
-  EXPECT_TRUE(litInfo2.isFloat() && litInfo2.is<FoxDouble>());
-  EXPECT_TRUE(litInfo3.isFloat() && litInfo3.is<FoxDouble>());
-
-  EXPECT_EQ(litInfo1.get<FoxDouble>(), 3.14f);
-  EXPECT_EQ(litInfo2.get<FoxDouble>(), 0.0f);
-  EXPECT_EQ(litInfo3.get<FoxDouble>(), 0.3333333333333f);
+  EXPECT_EQ(tok1.getDoubleValue(), 3.14);
+  EXPECT_EQ(tok2.getDoubleValue(), 0.0);
+  EXPECT_EQ(tok3.getDoubleValue(), 0.3333333333333);
 }
 
 TEST_F(LexerTest, IntTokens) {
@@ -118,25 +105,13 @@ TEST_F(LexerTest, IntTokens) {
   Token tok2(ctxt,"9223372036854775000");
   Token tok3(ctxt,"4242424242424242");
 
-  ASSERT_TRUE(tok1.isLiteral());
-  ASSERT_TRUE(tok2.isLiteral());
-  ASSERT_TRUE(tok3.isLiteral());
+  ASSERT_TRUE(tok1.isLiteral() && tok1.isIntLiteral());
+  ASSERT_TRUE(tok2.isLiteral() && tok2.isIntLiteral());
+  ASSERT_TRUE(tok3.isLiteral() && tok3.isIntLiteral());
 
-  LiteralInfo litInfo1 = tok1.getLiteralInfo();
-  LiteralInfo litInfo2 = tok2.getLiteralInfo();
-  LiteralInfo litInfo3 = tok3.getLiteralInfo();
-
-  ASSERT_FALSE(litInfo1.isNull());
-  ASSERT_FALSE(litInfo2.isNull());
-  ASSERT_FALSE(litInfo3.isNull());
-
-  ASSERT_TRUE(litInfo1.isInt() && litInfo1.is<FoxInt>());
-  ASSERT_TRUE(litInfo2.isInt() && litInfo2.is<FoxInt>());
-  ASSERT_TRUE(litInfo3.isInt() && litInfo3.is<FoxInt>());
-
-  EXPECT_EQ(litInfo1.get<FoxInt>(), 0);
-  EXPECT_EQ(litInfo2.get<FoxInt>(), 9223372036854775000);
-  EXPECT_EQ(litInfo3.get<FoxInt>(), 4242424242424242);
+  EXPECT_EQ(tok1.getIntValue(), 0);
+  EXPECT_EQ(tok2.getIntValue(), 9223372036854775000);
+  EXPECT_EQ(tok3.getIntValue(), 4242424242424242);
 }
 
 TEST_F(LexerTest, StringTokens) {
@@ -144,25 +119,13 @@ TEST_F(LexerTest, StringTokens) {
   Token tok2(ctxt, "\"\"");
   Token tok3(ctxt, "\"!\"");
 
-  ASSERT_TRUE(tok1.isLiteral());
-  ASSERT_TRUE(tok2.isLiteral());
-  ASSERT_TRUE(tok3.isLiteral());
+  ASSERT_TRUE(tok1.isLiteral() && tok1.isStringLiteral());
+  ASSERT_TRUE(tok2.isLiteral() && tok2.isStringLiteral());
+  ASSERT_TRUE(tok3.isLiteral() && tok3.isStringLiteral());
 
-  LiteralInfo litInfo1 = tok1.getLiteralInfo();
-  LiteralInfo litInfo2 = tok2.getLiteralInfo();
-  LiteralInfo litInfo3 = tok3.getLiteralInfo();
-
-  ASSERT_FALSE(litInfo1.isNull());
-  ASSERT_FALSE(litInfo2.isNull());
-  ASSERT_FALSE(litInfo3.isNull());
-
-  ASSERT_TRUE(litInfo1.isString() && litInfo1.is<std::string>());
-  ASSERT_TRUE(litInfo2.isString() && litInfo2.is<std::string>());
-  ASSERT_TRUE(litInfo3.isString() && litInfo3.is<std::string>());
-
-  EXPECT_EQ(litInfo1.get<std::string>(), "Hello, world!");
-  EXPECT_EQ(litInfo2.get<std::string>(), "");
-  EXPECT_EQ(litInfo3.get<std::string>(), "!");
+  EXPECT_EQ(tok1.getStringValue(), "Hello, world!");
+  EXPECT_EQ(tok2.getStringValue(), "");
+  EXPECT_EQ(tok3.getStringValue(), "!");
 }
 
 TEST_F(LexerTest, CharTokens) {
@@ -170,45 +133,24 @@ TEST_F(LexerTest, CharTokens) {
   Token tok2(ctxt, "' '");
   Token tok3(ctxt, "'!'");
 
-  ASSERT_TRUE(tok1.isLiteral());
-  ASSERT_TRUE(tok2.isLiteral());
-  ASSERT_TRUE(tok3.isLiteral());
+  ASSERT_TRUE(tok1.isLiteral() && tok1.isCharLiteral());
+  ASSERT_TRUE(tok2.isLiteral() && tok2.isCharLiteral());
+  ASSERT_TRUE(tok3.isLiteral() && tok3.isCharLiteral());
 
-  LiteralInfo litInfo1 = tok1.getLiteralInfo();
-  LiteralInfo litInfo2 = tok2.getLiteralInfo();
-  LiteralInfo litInfo3 = tok3.getLiteralInfo();
-
-  ASSERT_FALSE(litInfo1.isNull());
-  ASSERT_FALSE(litInfo2.isNull());
-  ASSERT_FALSE(litInfo3.isNull());
-
-  ASSERT_TRUE(litInfo1.isChar() && litInfo1.is<FoxChar>());
-  ASSERT_TRUE(litInfo2.isChar() && litInfo2.is<FoxChar>());
-  ASSERT_TRUE(litInfo3.isChar() && litInfo3.is<FoxChar>());
-
-  EXPECT_EQ(litInfo1.get<FoxChar>(), (FoxChar)'c');
-  EXPECT_EQ(litInfo2.get<FoxChar>(), (FoxChar)' ');
-  EXPECT_EQ(litInfo3.get<FoxChar>(), (FoxChar)'!');
+  EXPECT_EQ(tok1.getCharValue(), (FoxChar)'c');
+  EXPECT_EQ(tok2.getCharValue(), (FoxChar)' ');
+  EXPECT_EQ(tok3.getCharValue(), (FoxChar)'!');
 }
 
 TEST_F(LexerTest, BoolTokens) {
   Token tok1(ctxt, "true");
   Token tok2(ctxt, "false");
 
-  ASSERT_TRUE(tok1.isLiteral());
-  ASSERT_TRUE(tok2.isLiteral());
+  ASSERT_TRUE(tok1.isLiteral() && tok1.isBoolLiteral());
+  ASSERT_TRUE(tok2.isLiteral() && tok2.isBoolLiteral());
 
-  LiteralInfo litInfo1 = tok1.getLiteralInfo();
-  LiteralInfo litInfo2 = tok2.getLiteralInfo();
-
-  ASSERT_FALSE(litInfo1.isNull());
-  ASSERT_FALSE(litInfo2.isNull());
-
-  ASSERT_TRUE(litInfo1.isBool() && litInfo1.is<bool>());
-  ASSERT_TRUE(litInfo2.isBool() && litInfo2.is<bool>());
-
-  EXPECT_TRUE(litInfo1.get<bool>());
-  EXPECT_FALSE(litInfo2.get<bool>());
+  EXPECT_TRUE(tok1.getBoolValue());
+  EXPECT_FALSE(tok2.getBoolValue());
 }
 
 TEST_F(LexerTest, Coordinates1) {
@@ -217,13 +159,13 @@ TEST_F(LexerTest, Coordinates1) {
   FileID file = result.first;
   ASSERT_TRUE(file) << "Could not open test file '" << fullPath << "'"
     << "\n\tReason:" << toString(result.second);
-
   lexer.lexFile(file);
   ASSERT_FALSE(ctxt.diagEngine.hadAnyError());
 
   TokenVector& output = lexer.getTokenVector();
   char varFounds = 0;
   for (const Token& elem : output) {
+    printf(elem.getAsString().c_str());
     if (elem.getAsString() == "_FIRST_VARIABLE_") {
       varFounds++;
       auto beg_ploc = srcMgr.getCompleteLoc(elem.getRange().getBegin());

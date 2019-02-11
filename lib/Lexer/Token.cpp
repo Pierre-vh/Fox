@@ -20,100 +20,17 @@ using namespace fox::dicts;
 
 // Regular expression used for identification 
 std::regex kInt_regex("\\d+");
-std::regex kFloat_regex("[0-9]*\\.?[0-9]+");
+std::regex kDouble_regex("[0-9]*\\.?[0-9]+");
 
 template<typename T>
 auto enumAsInt(T val) {
   return static_cast<typename std::underlying_type<T>::type>(val);
 }
 
-LiteralType LiteralInfo::getType() const {
-  if (mpark::holds_alternative<bool>(value_))
-    return LiteralType::Ty_Bool;
-  else if (mpark::holds_alternative<std::string>(value_))
-    return LiteralType::Ty_String;
-  else if (mpark::holds_alternative<FoxDouble>(value_))
-    return LiteralType::Ty_Float;
-  else if (mpark::holds_alternative<FoxInt>(value_))
-    return LiteralType::Ty_Int;
-  else if (mpark::holds_alternative<FoxChar>(value_))
-    return LiteralType::Ty_Char;
-  return LiteralType::DEFAULT;
-}
-
-bool LiteralInfo::isBool() const {
-  return mpark::holds_alternative<bool>(value_);
-}
-
-bool LiteralInfo::isString() const {
-  return mpark::holds_alternative<std::string>(value_);
-}
-
-bool LiteralInfo::isFloat() const {
-  return mpark::holds_alternative<FoxDouble>(value_);
-}
-
-bool LiteralInfo::isInt() const {
-  return mpark::holds_alternative<FoxInt>(value_);
-}
-
-bool LiteralInfo::isChar() const {
-  return mpark::holds_alternative<FoxChar>(value_);
-}
-
-std::string LiteralInfo::getAsString() const {
-  if (isBool())
-    return get<bool>() ? "true" : "false";
-  if (isString())
-    return get<std::string>();
-  if (isFloat())
-    return std::to_string(get<FoxDouble>());
-  if (isInt())
-    return std::to_string(get<FoxInt>());
-  if (isChar()) {
-    std::string tmp;
-    StringManipulator::append(tmp, get<FoxChar>());
-    return tmp;
-  }
-  return "";
-}
-
-LiteralInfo::LiteralInfo(bool bval) {
-  value_ = bval;
-}
-
-LiteralInfo::LiteralInfo(const std::string& sval) {
-  value_ = sval;
-}
-
-LiteralInfo::LiteralInfo(FoxDouble fval) {
-  value_ = fval;
-}
-
-LiteralInfo::LiteralInfo(FoxInt ival) {
-  value_ = ival;
-}
-
-LiteralInfo::LiteralInfo(FoxChar cval) {
-  value_ = cval;
-}
-
-bool LiteralInfo::isNull() const {
-  return mpark::holds_alternative<mpark::monostate>(value_);
-}
-
 Token::Token(ASTContext& ctxt, const std::string& tokstr,
-  SourceRange range):
+             SourceRange range):
   range_(range) {
   identify(ctxt, tokstr);
-}
-
-Token::Token(const Token& cpy):
-  range_(cpy.range_), tokenData_(cpy.tokenData_) {
-  if (cpy.literalData_)
-    literalData_ = std::make_unique<LiteralInfo>(*(cpy.literalData_));
-  else
-    literalData_ = nullptr;
 }
 
 std::string Token::showFormattedTokenData() const {
@@ -121,31 +38,20 @@ std::string Token::showFormattedTokenData() const {
     return "<INVALID TOKEN>"; // return nothing.
 
   std::stringstream ss;
-  ss << "[Token][String: \"" 
-		<< getAsString() << "\"][Type: " << getTokenTypeFriendlyName();
-  int enumInfo = -1;
-
+  ss << "[Token](" << getTokenTypeFriendlyName() << ") '" 
+		<< getAsString() << "'";
+  
+  // For keywords and sign, show the precise enum value
   if (isKeyword())
-    enumInfo = enumAsInt(mpark::get<KeywordType>(tokenData_));
-  else if (isLiteral()) {
-    assert(literalData_ 
-			&& "Token is a literal but does not have a literalInfo?");
-    enumInfo = enumAsInt(literalData_->getType());
-  }
+    ss << " (KeywordType:" << enumAsInt(data_.keyword) << ")";
   else if (isSign())
-    enumInfo = enumAsInt(mpark::get<SignType>(tokenData_));
-
-  if (enumInfo >= 0)
-    ss << " (" << enumInfo << ")";
-
-  ss << "]";
+    ss << " (SignType:" << enumAsInt(data_.keyword) << ")";
 
   return ss.str();
 }
 
 bool Token::isValid() const {
-  return (!(mpark::holds_alternative<mpark::monostate>(tokenData_)))
-		|| literalData_;
+  return data_.kind != Kind::Invalid;
 }
 
 Token::operator bool() const {
@@ -153,19 +59,48 @@ Token::operator bool() const {
 }
 
 bool Token::isLiteral() const {
-  return literalData_ != nullptr;
+  switch (data_.kind) {
+    case Kind::BoolLiteral:
+    case Kind::CharLiteral:
+    case Kind::DoubleLiteral:
+    case Kind::IntLiteral:
+    case Kind::StringLiteral:
+      return true;
+    default:
+      return false;
+  }
 }
 
 bool Token::isIdentifier() const {
-  return mpark::holds_alternative<Identifier>(tokenData_);
+  return data_.kind == Kind::Identifier;
 }
 
 bool Token::isSign() const {
-  return mpark::holds_alternative<SignType>(tokenData_);
+  return data_.kind == Kind::Sign;
 }
 
 bool Token::isKeyword() const {
-  return mpark::holds_alternative<KeywordType>(tokenData_);
+  return data_.kind == Kind::Keyword;
+}
+
+bool Token::isStringLiteral() const {
+  return data_.kind == Kind::StringLiteral;
+}
+
+bool Token::isBoolLiteral() const {
+  return data_.kind == Kind::BoolLiteral;
+}
+
+bool Token::isDoubleLiteral() const {
+  return data_.kind == Kind::DoubleLiteral;
+}
+
+bool Token::isIntLiteral() const {
+  return data_.kind == Kind::IntLiteral;
+}
+
+bool Token::isCharLiteral() const {
+  return data_.kind == Kind::CharLiteral;
 }
 
 bool Token::is(KeywordType ty) {
@@ -180,73 +115,108 @@ bool Token::is(SignType ty) {
   return false;
 }
 
-bool Token::is(LiteralType ty) {
-  if (isLiteral())
-    return getLiteralType() == ty;
-  return false;
-}
-
 KeywordType Token::getKeywordType() const {
-  if (isKeyword())
-    return mpark::get<KeywordType>(tokenData_);
-  return KeywordType::DEFAULT;
+  assert(isKeyword() && "not a sign!");
+  return data_.keyword;
 }
 
 SignType Token::getSignType() const {
-  if (isSign())
-    return mpark::get<SignType>(tokenData_);
-  return SignType::DEFAULT;
-}
-
-std::string Token::getAsString() const {
-  if (mpark::holds_alternative<KeywordType>(tokenData_)) {
-    auto kwtype = mpark::get<KeywordType>(tokenData_);
-    for (auto it = kKeywords_dict.begin(); it != kKeywords_dict.end(); it++) {
-      if (it->second == kwtype)
-        return it->first;
-    }
-    fox_unreachable("unknown keyword");
-  }
-  else if (mpark::holds_alternative<SignType>(tokenData_)) {
-    auto signtype = mpark::get<SignType>(tokenData_);
-    for (auto it = kSign_dict.begin(); it != kSign_dict.end(); it++) {
-      if (it->second == signtype)
-        return StringManipulator::charToStr(it->first);
-    }
-    fox_unreachable("unknown sign");
-  }
-  else if (literalData_)
-    return literalData_->getAsString();
-  else if (mpark::holds_alternative<Identifier>(tokenData_)) {
-    auto id = mpark::get<Identifier>(tokenData_);
-    assert(id && "Token's an identifier but the Identifier* is null?");
-    return id.getStr().to_string();
-  }
-  else
-    return "<empty>";
-}
-
-LiteralType Token::getLiteralType() const {
-  if (isLiteral()) {
-    assert(literalData_ 
-			&& "Token is a literal but does not have a literalInfo?");
-    return literalData_->getType();
-  }
-  return LiteralType::DEFAULT;
-}
-
-LiteralInfo Token::getLiteralInfo() const {
-  assert(literalData_);
-  return *literalData_;
+  assert(isSign() && "not a sign!");
+  return data_.sign;
 }
 
 Identifier Token::getIdentifier() const {
-  if (mpark::holds_alternative<Identifier>(tokenData_)) {
-    auto id = mpark::get<Identifier>(tokenData_);
-    assert(id && "Null Identifier object on a Identifier Token?");
-    return id;
+  assert(isIdentifier() && "not an identifier!");
+  auto id = data_.identifier;
+  assert(id && "Null Identifier object on a Identifier Token?");
+  return id;
+}
+
+bool Token::getBoolValue() const {
+  assert(isBoolLiteral() && "not a bool literal!");
+  return data_.boolLiteral;
+}
+
+string_view Token::getStringValue() const {
+  assert(isStringLiteral() && "not a string literal!");
+  return data_.stringLiteral;
+}
+
+FoxChar Token::getCharValue() const {
+  assert(isCharLiteral() && "not a char literal!");
+  return data_.charLiteral;
+}
+
+FoxInt Token::getIntValue() const {
+  assert(isIntLiteral() && "not an int literal!");
+  return data_.intLiteral;
+}
+
+FoxDouble Token::getDoubleValue() const {
+  assert(isDoubleLiteral() && "not a double literal!");
+  return data_.doubleLiteral;
+}
+
+std::string Token::getAsString() const {
+  std::stringstream ss;
+  switch (data_.kind) {
+    case Kind::BoolLiteral:
+      ss << (data_.boolLiteral ? "true" : "false");
+      break;
+    case Kind::StringLiteral:
+      ss << '"' << data_.stringLiteral << '"';
+      break;
+    case Kind::IntLiteral:
+      ss << data_.intLiteral;
+      break;
+    case Kind::DoubleLiteral:
+      ss << data_.doubleLiteral;
+      break;
+    case Kind::CharLiteral:
+      ss << "'" << StringManipulator::charToStr(data_.charLiteral) << "'";
+      break;
+    case Kind::Keyword: {
+      auto begin = kKeywords_dict.begin();
+      auto end = kKeywords_dict.end();
+      auto it = begin;
+      bool found = false;
+      while (it != end) {
+        if (it->second == data_.keyword) {
+          ss << it->first;
+          found = true;
+          break;
+        }
+        ++it;
+      }
+      assert(found && "Keyword not found in map!");
+      break;
+    }
+    case Kind::Identifier:
+      ss << data_.identifier.getStr();
+      break;
+    case Kind::Sign: {
+      auto begin = kSign_dict.begin();
+      auto end = kSign_dict.end();
+      auto it = begin;
+      bool found = false;
+      while (it != end) {
+        if (it->second == data_.sign) {
+          ss << it->first;
+          found = true;
+          break;
+        }
+        ++it;
+      }
+      assert(found && "Sign not found in map!");
+      break;
+    }
+    case Kind::Invalid:
+      ss << "invalid";
+      break;
+    default:
+      fox_unreachable("invalid kind");
   }
-  return Identifier();
+  return ss.str();
 }
 
 void 
@@ -256,7 +226,7 @@ Token::identify(ASTContext& ctxt, const std::string& str) {
 
   if (idSign(str));
   else if (idKeyword(str));
-  else if (idLiteral(ctxt.diagEngine, str));
+  else if (idLiteral(ctxt, ctxt.diagEngine, str));
   else if (idIdentifier(ctxt, str));
   else
     ctxt.diagEngine.report(DiagID::lexer_cant_id_tok, range_).addArg(str);
@@ -267,7 +237,7 @@ bool Token::idKeyword(const std::string& str) {
   if (i == kKeywords_dict.end())
     return false;
 
-  tokenData_ = i->second;
+  data_.setKeyword(i->second);
   return true;
 }
 
@@ -279,11 +249,12 @@ bool Token::idSign(const std::string& str) {
   if (i == kSign_dict.end())
     return false;
 
-  tokenData_ = i->second;
+  data_.setSign(i->second);
   return true;
 }
 
-bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
+bool Token::idLiteral(ASTContext& ctxt, DiagnosticEngine& diags, 
+                      const std::string& str) {
   StringManipulator strmanip(str);
   if (strmanip.peekFirst() == '\'') {
     if (strmanip.peekBack() == '\'') {
@@ -298,8 +269,7 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
         return false;
       }
       auto charlit = strmanip.getChar(1);
-      tokenData_ = mpark::monostate();
-      literalData_ = std::make_unique<LiteralInfo>(charlit);
+      data_.setCharLiteral(charlit);
       return true;
     }
     return false;
@@ -310,37 +280,31 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
 			// char we don't need to use the strmanip.
       string_view strlit = strmanip.substring(1, 
 				strmanip.getSizeInCodepoints() - 2);
-      tokenData_ = mpark::monostate();
-      literalData_ = std::make_unique<LiteralInfo>(strlit.to_string());
+      data_.setStringLiteral(ctxt.allocateCopy(strlit));
       return true;
     }
     return false;
   }
-  else if (str == "true" | str == "false") {
-    tokenData_ = mpark::monostate();
-    literalData_ = std::make_unique<LiteralInfo>(str == "true");
+  else if (str == "true" || str == "false") {
+    data_.setBoolLiteral(str == "true");
     return true;
   }
   else if (std::regex_match(str, kInt_regex)) {
     std::istringstream ss(str);
     FoxInt tmp;
-    if (ss >> tmp) {
-      tokenData_ = mpark::monostate();
-      literalData_ = std::make_unique<LiteralInfo>(tmp);
-    }
+    if (ss >> tmp)
+      data_.setIntLiteral(tmp);
     else {
       // If too big, put the value in a double instead.
       diags
 				.report(DiagID::lexer_int_too_big_considered_as_double, range_)
 				.addArg(str);
-      tokenData_ = mpark::monostate();
-      literalData_ = std::make_unique<LiteralInfo>(std::stof(str));
+      data_.setDoubleLiteral(std::stod(str));
     }
     return true;
   }
-  else if (std::regex_match(str, kFloat_regex)) {
-    tokenData_ = mpark::monostate();
-    literalData_ = std::make_unique<LiteralInfo>(std::stof(str));
+  else if (std::regex_match(str, kDouble_regex)) {
+    data_.setDoubleLiteral(std::stod(str));
     return true;
   }
   return false;
@@ -348,7 +312,7 @@ bool Token::idLiteral(DiagnosticEngine& diags, const std::string& str) {
 
 bool Token::idIdentifier(ASTContext& ctxt, const std::string& str) {
   if (validateIdentifier(ctxt.diagEngine, str)) {
-    tokenData_ = ctxt.getIdentifier(str);
+    data_.setIdentifier(ctxt.getIdentifier(str));
     return true;
   }
   return false;
@@ -377,15 +341,28 @@ bool Token::validateIdentifier(DiagnosticEngine& diags,
 }
 
 std::string Token::getTokenTypeFriendlyName() const {
-  if (isIdentifier())
-    return "Identifier";
-  else if (isKeyword())
-    return "Keyword";
-  else if (isLiteral())
-    return "Literal";
-  else if (isSign())
-    return "Sign";
-  return "Unknown Token Type";
+  switch (data_.kind) {
+    case Kind::BoolLiteral:
+      return "BoolLiteral";
+    case Kind::StringLiteral:
+      return "BoolLiteral";
+    case Kind::IntLiteral:
+      return "IntLiteral";
+    case Kind::DoubleLiteral:
+      return "DoubleLiteral";
+    case Kind::CharLiteral:
+      return "CharLiteral";
+    case Kind::Keyword:
+      return "Keyword";
+    case Kind::Identifier:
+      return "Identifier";
+    case Kind::Sign:
+      return "Sign";
+    case Kind::Invalid:
+      return "Invalid";
+    default:
+      fox_unreachable("invalid kind");
+  }
 }
 
 SourceRange Token::getRange() const {

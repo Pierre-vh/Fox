@@ -26,52 +26,6 @@ namespace fox {
   class ASTContext;
   class DiagnosticEngine;
 
-  enum class LiteralType : char {
-    DEFAULT,
-    Ty_Bool,
-    Ty_Float,
-    Ty_Char,
-    Ty_String,
-    Ty_Int
-  };
-
-  struct LiteralInfo {
-    public:
-      LiteralInfo() = default;
-      LiteralInfo(bool bval);
-      LiteralInfo(const std::string& sval);
-      LiteralInfo(FoxDouble fval);
-      LiteralInfo(FoxInt ival);
-      LiteralInfo(FoxChar cval);
-
-      bool isNull() const;
-      LiteralType getType() const;
-      
-      bool isBool() const;
-      bool isString() const;
-      bool isFloat() const;
-      bool isInt() const;
-      bool isChar() const;
-
-      std::string getAsString() const;
-
-      template<typename Ty>
-      inline bool is() const {
-        return mpark::holds_alternative<Ty>(value_);
-      }
-
-      template<typename Ty>
-      inline Ty get() const {
-        if (mpark::holds_alternative<Ty>(value_))
-          return mpark::get<Ty>(value_);
-        return Ty();
-      }
-    private:
-      mpark::variant<
-        mpark::monostate, bool, std::string, FoxDouble, FoxInt, FoxChar
-      > value_;
-  };
-
   enum class SignType : std::uint8_t {
     DEFAULT,      // Default value
     // Signs
@@ -130,20 +84,10 @@ namespace fox {
     KW_USING   // "using"
   };
 
-  enum class TokenType : std::uint8_t {
-    UNKNOWN,
-    LITERAL,
-    SIGN,
-    KEYWORD,
-    IDENTIFIER, 
-    COMMENT
-  };
-
   struct Token  {
     public:
-
+      // Creates an invalid token
       Token() = default;
-      Token(const Token& cpy);
 
       // Constructor to use to let the Token identify itself
       Token(ASTContext &astctxt, const std::string& tokstr, 
@@ -154,23 +98,52 @@ namespace fox {
       bool isValid() const;
       explicit operator bool() const;
 
+      // General categories
       bool isLiteral() const;
       bool isIdentifier() const;
       bool isSign() const;
       bool isKeyword() const;
+      // Literals
+      bool isStringLiteral() const;
+      bool isBoolLiteral() const;
+      bool isDoubleLiteral() const;
+      bool isIntLiteral() const;
+      bool isCharLiteral() const;
 
       bool is(KeywordType ty);
       bool is(SignType ty);
-      bool is(LiteralType ty);
 
+      // For Keyword tokens, return the Keyword type.
+			//  Asserts that this token is an Keyword token.
       KeywordType getKeywordType() const;
-      SignType getSignType() const;
-      LiteralType getLiteralType() const;
-      LiteralInfo getLiteralInfo() const;
 
-			// If this is an identifier, returns the valid Identifier object, else
-			// returns a null one.
+      // For Sign tokens, return the Sign type.
+			//  Asserts that this token is an Sign token.
+      SignType getSignType() const;
+
+      // For Identifier tokens, return the Identifier object.
+			//  Asserts that this token is an Identifier token.
       Identifier getIdentifier() const;
+
+      // For BoolLiteral tokens, return the Boolean value.
+			//  Asserts that this token is an BoolLiteral token.
+      bool getBoolValue() const;
+
+      // For StringLiteral tokens, return the String value.
+			//  Asserts that this token is an StringLiteral token.
+      string_view getStringValue() const;
+
+      // For CharLiteral tokens, return the Char value.
+			//  Asserts that this token is an CharLiteral token.
+      FoxChar getCharValue() const;
+
+      // For IntLiteral tokens, return the Int value.
+			//  Asserts that this token is an IntLiteral token.
+      FoxInt getIntValue() const;
+
+      // For DoubleLiteral tokens, return the Double value.
+			//  Asserts that this token is an DoubleLiteral token.
+      FoxDouble getDoubleValue() const;
 
       std::string getAsString() const;
       std::string getTokenTypeFriendlyName() const;
@@ -178,23 +151,68 @@ namespace fox {
       SourceRange getRange() const;
 
     private:
-      /* Member variables */
-      // Note: LiteralInfo is quite heavy, so it's dynamically allocated to save space, since
-      // most token won't need it. Same goes for CommentData.
+      enum class Kind : unsigned char {
+        Invalid,
+        Keyword,
+        Sign,
+        Identifier,
+        // Literals
+        IntLiteral,
+        DoubleLiteral,
+        BoolLiteral,
+        StringLiteral,
+        CharLiteral,
+      };
+
       const SourceRange range_;
-      mpark::variant<mpark::monostate, KeywordType, SignType, Identifier> tokenData_;
-      std::unique_ptr<LiteralInfo> literalData_ = nullptr;
+
+      struct Data {
+        Data() : kind(Kind::Invalid) {}
+        Kind kind;
+        union {
+          KeywordType keyword;
+          SignType sign;
+          Identifier identifier;
+          // Literals
+          FoxInt intLiteral;
+          FoxChar charLiteral;
+          bool boolLiteral;
+          string_view stringLiteral;
+          FoxDouble doubleLiteral;
+        };
+
+        #define SETTER(KIND, TYPE, MEMBER)\
+          void set##KIND(TYPE value) { \
+            kind = Kind::KIND;\
+            MEMBER = value; \
+          }
+
+        SETTER(Keyword, KeywordType, keyword)
+        SETTER(Sign, SignType, sign)
+        SETTER(Identifier, Identifier, identifier)
+        SETTER(IntLiteral, FoxInt, intLiteral)
+        SETTER(DoubleLiteral, double, doubleLiteral)
+        SETTER(BoolLiteral, bool, boolLiteral)
+        SETTER(StringLiteral, string_view, stringLiteral)
+        SETTER(CharLiteral, FoxChar, charLiteral)
+
+        #undef SETTER
+      } data_;
 
       /* Identification functions */
       void identify(ASTContext& astctxt, const std::string& str);
       bool idKeyword(const std::string& str);
       bool idSign(const std::string& str);
-      bool idLiteral(DiagnosticEngine& diags, const std::string& str);
-      bool idIdentifier(ASTContext& astctxt, const std::string& str);
-      bool validateIdentifier(DiagnosticEngine& diags, const std::string& str) const;
+      bool idLiteral(ASTContext& ctxt, DiagnosticEngine& diags, 
+                    const std::string& str);
+      bool idIdentifier(ASTContext& astctxt, 
+                        const std::string& str);
+      bool validateIdentifier(DiagnosticEngine& diags, 
+                              const std::string& str) const;
       // Helper for idIdentifier 
       bool hasAtLeastOneLetter(const std::string &str) const; // Checks if str_ has at least one upper/lower case letter.
   };
+
   namespace dicts {
     const std::map<std::string, KeywordType> kKeywords_dict = {
       // TYPES 
