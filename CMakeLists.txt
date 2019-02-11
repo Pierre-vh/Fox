@@ -14,7 +14,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # include most used cmake utilities
 include(cmake/AddSource.cmake)
-include(cmake/MSVCUtils.cmake)
 
 # include googletest related stuff 
 include(cmake/GoogleTest.cmake)
@@ -27,13 +26,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # set include directories
 include_directories(includes)   # Fox lib includes
 include_directories(thirdparty) # Third Party libraries includes
-
-# add main subdirs
-add_subdirectory(lib)
-add_subdirectory(tools/CommandLine)
-
-# add test subdir
-add_subdirectory(unittests)
 
 message("Compiler ID is '${CMAKE_CXX_COMPILER_ID}'")
 message("Build type is '${CMAKE_BUILD_TYPE}'")
@@ -53,7 +45,6 @@ if(CXX STREQUAL "clang-cl" OR CXX MATCHES "clang-cl.exe")
 else()
   set(IS_CLANGCL FALSE)
 endif()
-
 
 # check if clang (can be clang-cl!)
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
@@ -94,12 +85,14 @@ if(IS_MSVC_OR_CLANGCL)
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   endif()
+
   # disable RTTI
   if(CMAKE_CXX_FLAGS MATCHES "/GR")
       string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
   endif()
+
   # set compiler flags
   add_compile_options(/WX)
   add_compile_options(/permissive-)
@@ -173,6 +166,16 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
   add_clang_option(-Wno-reorder)
 endif()
 
+# print the compile options used (for debug purposes)
+get_directory_property(compile_opts COMPILE_OPTIONS)
+message("Compile options used : ${compile_opts}")
+
+# add main subdirs
+add_subdirectory(lib)
+add_subdirectory(tools/CommandLine)
+
+# add test subdir
+add_subdirectory(unittests)
 
 # add lib target
 add_library(libfox STATIC ${libfox_src})
