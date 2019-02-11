@@ -161,10 +161,6 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
   add_clang_option(-Wno-reorder)
 endif()
 
-# print the compile options used (for debug purposes)
-get_directory_property(compile_opts COMPILE_OPTIONS)
-message("Compile options used : ${compile_opts}")
-
 # before disabling MSVC extensions, include the CommandLine
 # tool, because it requires extensions to work on MSVC.
 # FIXME: This is kind of a hack, it'd be better to add /Za  
