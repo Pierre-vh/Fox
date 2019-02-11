@@ -1,24 +1,15 @@
-# add_to_list
-function(add_to_list variable_name)
-  #variable_name holds the name of the variable that we need to set
-  #so ${variable} == name, ${${variable}} == contents of said variable
-  set(srcs )
+# append_source_to_list
+macro(append_source variable_name)
   foreach(source_file ${ARGN})
-    list(APPEND srcs "${CMAKE_CURRENT_SOURCE_DIR}/${source_file}")
+    list(APPEND ${variable_name} "${CMAKE_CURRENT_SOURCE_DIR}/${source_file}")
   endforeach()
-  #Functions have local scope so we need to set the callers version of the
-  #variable to what our version has.
-  #Note the double dereference to get the contents of
-  #the variable whose name we are given
-  set(${variable_name} ${${variable_name}} ${srcs} PARENT_SCOPE)
-endfunction()
-
+endmacro()
 
 # add_source
 macro(add_source var_name)
   # add to list 
-  add_to_list(${var_name} ${ARGN})
-  # propagate
+  append_source(${var_name} ${ARGN})
+  # propagate the variable in parent directories
   set(${var_name} ${${var_name}} PARENT_SCOPE)
 endmacro()
 
