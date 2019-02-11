@@ -18,7 +18,6 @@
 #include "Fox/Common/SourceLoc.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
-#include "mpark/variant.hpp"
 #include <memory>
 #include <map>
 
