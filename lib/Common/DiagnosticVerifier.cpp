@@ -124,12 +124,12 @@ bool DiagnosticVerifier::finish() {
 
   // If some expected diags weren't emitted, emit an error.
   if(expectedDiags_.size() != 0)
-    diags_.report(DiagID::diagverif_errorExpectedDiagsNotEmitted, SourceRange())
+    diags_.report(DiagID::dv_errorExpectedDiagsNotEmitted, SourceRange())
     .addArg(expectedDiags_.size());
 
   // Emit a note for each diag in the set
   for (auto diag : expectedDiags_) {
-    diags_.report(DiagID::diagverif_diagNotEmitted, diag.file)
+    diags_.report(DiagID::dv_diagNotEmitted, diag.file)
       .addArg(diag.diagStr)
       .addArg(toString(diag.severity))
       .addArg(diag.line);
@@ -139,7 +139,7 @@ bool DiagnosticVerifier::finish() {
   
   // For each file where unexpected diagnostics were emitted, emit a diagnostic.
   if(hasEmittedUnexpectedDiagnostics_) {
-    diags_.report(DiagID::diagverif_unexpectedDiagsEmitted, SourceRange());
+    diags_.report(DiagID::dv_unexpectedDiagsEmitted, SourceRange());
     success = false;
   }
 
@@ -276,30 +276,30 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
 }
 
 void DiagnosticVerifier::diagnoseZeroOffset(SourceLoc offsetDigitLoc) {
-  diags_.report(DiagID::diagverif_offsetIsZero, offsetDigitLoc);
+  diags_.report(DiagID::dv_offsetIsZero, offsetDigitLoc);
 }
 
 void DiagnosticVerifier::diagnoseMissingStr(SourceLoc loc) {
-	diags_.report(DiagID::diagverif_expectedstr, loc);
+	diags_.report(DiagID::dv_expectedstr, loc);
 }
 
 void DiagnosticVerifier::diagnoseMissingColon(SourceLoc loc) {
-	diags_.report(DiagID::diagverif_expectedcolon, loc);
+	diags_.report(DiagID::dv_expectedcolon, loc);
 }
 
 void DiagnosticVerifier::diagnoseMissingSuffix(SourceLoc instrBeg) {
-  diags_.report(DiagID::diagverif_expectedsuffix,
+  diags_.report(DiagID::dv_expectedsuffix,
     offsetSourceLoc(instrBeg, vPrefixSize))
       .addArg(vPrefix)
       .setExtraRange(SourceRange(instrBeg, vPrefixSize - 1));
 }
 
 void DiagnosticVerifier::diagnoseIllFormedOffset(SourceRange argRange) {
-	diags_.report(DiagID::diagverif_illFormedOffset, argRange);
+	diags_.report(DiagID::dv_illFormedOffset, argRange);
 }
 
 void DiagnosticVerifier::diagnoseIllegalOffset(SourceRange argRange) {
-  diags_.report(DiagID::diagverif_illegalOffset, argRange);
+  diags_.report(DiagID::dv_illegalOffset, argRange);
 }
 
 bool 
