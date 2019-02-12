@@ -64,7 +64,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed(declType)) return;
 
       assert(id && range && "ill formed ValueDecl");
-      getDiags().report(DiagID::sema_declared_here_with_type, range)
+      getDiags().report(DiagID::declared_here_with_type, range)
         .addArg(id).addArg(declType);
     }
 
@@ -77,7 +77,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed({childTy, goalTy})) return;
 
       getDiags()
-        .report(DiagID::sema_invalid_cast, range)
+        .report(DiagID::invalid_cast, range)
         .addArg(childTy)
         .addArg(goalTy)
         .setExtraRange(expr->getExpr()->getRange());
@@ -90,7 +90,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed(castTy)) return;
 
       getDiags()
-        .report(DiagID::sema_useless_cast_redundant, castTL.getRange())
+        .report(DiagID::useless_cast_redundant, castTL.getRange())
         .addArg(castTy)
         .setExtraRange(expr->getExpr()->getRange());
     }
@@ -101,7 +101,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       getDiags()
         // Precise error loc is the first element that failed the inferrence,
         // extended range is the whole arrayliteral's.
-        .report(DiagID::sema_unexpected_elem_in_arrlit, faultyElem->getRange())
+        .report(DiagID::unexpected_elem_in_arrlit, faultyElem->getRange())
         .addArg(faultyElem->getType())
         // Sometimes, the supposed type might contain a type variable.
         // Try to simplify the type to produce a better diagnostic!
@@ -116,7 +116,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed(childTy)) return;
 
       getDiags()
-        .report(DiagID::sema_unaryop_bad_child_type, expr->getOpRange())
+        .report(DiagID::unaryop_bad_child_type, expr->getOpRange())
         // Use the child's range as the extra range.
         .setExtraRange(child->getRange())
         .addArg(expr->getOpSign()) // %0 is the operator's sign as text
@@ -134,7 +134,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed({childTy, idxETy})) return;
 
       getDiags()
-        .report(DiagID::sema_arrsub_invalid_types, range)
+        .report(DiagID::arrsub_invalid_types, range)
         // %0 is subscripted value's type, %1 is the index's expr type;
         .addArg(childTy)
         .addArg(idxETy)
@@ -154,7 +154,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return diagnoseInvalidAssignement(expr, lhsTy, rhsTy);
 
       getDiags()
-        .report(DiagID::sema_binexpr_invalid_operands, opRange)
+        .report(DiagID::binexpr_invalid_operands, opRange)
         .addArg(expr->getOpSign())
         .addArg(lhsTy)
         .addArg(rhsTy)
@@ -163,19 +163,19 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // Diagnoses an undeclared identifier
     void diagnoseUndeclaredIdentifier(SourceRange range, Identifier id) {
-      getDiags().report(DiagID::sema_undeclared_id, range).addArg(id);
+      getDiags().report(DiagID::undeclared_id, range).addArg(id);
     }
 
     // Diagnoses an ambiguous identifier
     void diagnoseAmbiguousIdentifier(SourceRange range, Identifier id,
       const LookupResult& results) {
       // First, display the "x" is ambiguous error
-      getDiags().report(DiagID::sema_ambiguous_ref, range).addArg(id);
+      getDiags().report(DiagID::ambiguous_ref, range).addArg(id);
       // Now, iterate over the lookup results and emit notes
       // for each candidate.
       assert(results.isAmbiguous());
       for(auto result : results) {
-        getDiags().report(DiagID::sema_potential_candidate_here, 
+        getDiags().report(DiagID::potential_candidate_here, 
           result->getIdentifierRange());
       }
     }
@@ -184,7 +184,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(expr->isAssignement());
       SourceRange lhsRange = expr->getLHS()->getRange();
       SourceRange opRange = expr->getOpRange();
-      getDiags().report(DiagID::sema_unassignable_expr, lhsRange)
+      getDiags().report(DiagID::unassignable_expr, lhsRange)
         .setExtraRange(opRange);
     }
 
@@ -196,7 +196,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed({lhsTy, rhsTy})) return;
 
       // Diag is (roughly) "can't assign a value of type (lhs) to type (rhs)
-      getDiags().report(DiagID::sema_invalid_assignement, rhsRange)
+      getDiags().report(DiagID::invalid_assignement, rhsRange)
         .setExtraRange(lhsRange)
         .addArg(rhsTy).addArg(lhsTy);
     }
@@ -206,7 +206,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       UnresolvedDeclRefExpr* udre) {
       SourceRange range = udre->getRange();
       SourceRange extra = decl->getIdentifierRange();
-      getDiags().report(DiagID::sema_var_init_self_ref, range)
+      getDiags().report(DiagID::var_init_self_ref, range)
         .setExtraRange(extra);
     }
 
@@ -216,7 +216,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       if(!Sema::isWellFormed(ty)) return;
 
-      getDiags().report(DiagID::sema_expr_isnt_func, range)
+      getDiags().report(DiagID::expr_isnt_func, range)
         .addArg(ty);
     }
 
@@ -233,11 +233,11 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       DiagID diag;
       // Use the most appropriate diagnostic based on the situation
       if(argsProvided == 0) 
-        diag = DiagID::sema_cannot_call_with_no_args;
+        diag = DiagID::cannot_call_with_no_args;
       else if(argsProvided < argsExpected) 
-        diag = DiagID::sema_not_enough_args_in_call_to;
+        diag = DiagID::not_enough_args_in_call_to;
       else 
-        diag = DiagID::sema_too_many_args_in_call_to;
+        diag = DiagID::too_many_args_in_call_to;
 
       // Report the diagnostic
       getDiags().report(diag, callee->getRange())
@@ -264,7 +264,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(argsRange && "argsRange is invalid in CallExpr with a non-zero "
         "number of arguments");
 
-      getDiags().report(DiagID::sema_cannot_call_func_with_args, callee->getRange())
+      getDiags().report(DiagID::cannot_call_func_with_args, callee->getRange())
         .addArg(callee->getDecl()->getIdentifier())
         .addArg(argsAsStr)
         .setExtraRange(argsRange);
@@ -273,7 +273,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     void diagnoseFunctionTypeInArrayLiteral(ArrayLiteralExpr* lit, Expr* fn) {
-      getDiags().report(DiagID::sema_fnty_in_array, fn->getRange())
+      getDiags().report(DiagID::fnty_in_array, fn->getRange())
         // Maybe displaying the whole array is too much? I think it's great
         // because it gives some context, but maybe I'm wrong.
         .setExtraRange(lit->getRange());
@@ -971,7 +971,7 @@ class Sema::ExprFinalizer : ASTWalker {
       // If the type is nullptr, it means we have an inference error.
       // Set the type to ErrorType and diagnose.
       if (!type) {
-        diags.report(DiagID::sema_failed_infer, expr->getRange());
+        diags.report(DiagID::failed_infer, expr->getRange());
         type = ErrorType::get(ctxt);
         // Mute inference errors for the children.
         muteDiagsForChildren(expr);

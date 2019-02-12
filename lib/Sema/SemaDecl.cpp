@@ -54,14 +54,14 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // This is a "classic" var redeclaration
       if (isVarOrParamDecl(original) && isVarOrParamDecl(redecl)) {
         return isa<ParamDecl>(original) ?
-          DiagID::sema_invalid_param_redecl : DiagID::sema_invalid_var_redecl;
+          DiagID::invalid_param_redecl : DiagID::invalid_var_redecl;
       }
       // Invalid function redeclaration
       else if (isa<FuncDecl>(original) && isa<FuncDecl>(redecl))
-        return DiagID::sema_invalid_redecl;
+        return DiagID::invalid_redecl;
       // Redecl as a different kind of symbol
       else
-        return DiagID::sema_invalid_redecl_diff_symbol_kind;
+        return DiagID::invalid_redecl_diff_symbol_kind;
     }
 
     // Diagnoses an illegal redeclaration where "redecl" is an illegal
@@ -78,7 +78,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         .report(diagID, redecl->getIdentifierRange())
         .addArg(id);
       getDiags()
-        .report(DiagID::sema_1stdecl_seen_here, original->getIdentifierRange())
+        .report(DiagID::first_decl_seen_here, original->getIdentifierRange())
         .addArg(id);
     }
 
@@ -90,7 +90,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       if(!Sema::isWellFormed({initType, declType})) return;
 
       getDiags()
-        .report(DiagID::sema_invalid_vardecl_init_expr, init->getRange())
+        .report(DiagID::invalid_vardecl_init_expr, init->getRange())
         .addArg(initType)
         .addArg(declType)
         .setExtraRange(decl->getTypeLoc().getRange());
