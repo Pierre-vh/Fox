@@ -5,8 +5,6 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-ERROR(parser_placeholder, "%0")
-
 ERROR(parser_expected_closing_squarebracket, "expected ']'")
 ERROR(parser_expected_closing_curlybracket, "expected '}'")
 ERROR(parser_expected_opening_curlybracket, "expected '{'")
