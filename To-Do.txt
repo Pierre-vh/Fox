@@ -214,13 +214,6 @@ Other:
     > DiagnosticVerifier: Add a syntax to expect a diag multiple times, e.g. 'expect-error(3)@+1'
       -> Use it in tests\VerifyMode\Sema\Expr\call.fox
 
-    > Simplify some AST constructors which are way too bloated and contain redundant information
-      Examples:
-      -> ParamDecl: Can deduce the full range with SourceRange(idRange.begin(), typeRange.end())
-      -> FuncDecl: Range can be deduced using the body's end loc. 
-                   Also, maybe it's a good idea to remove the "complete" ctor entirely, 
-                   as it's never used anyways.
-
     > Improve clarity of ASTDump, especially for ValueDecl/DeclRefExpr dumps.
       Maybe even rewrite it completely.
 
