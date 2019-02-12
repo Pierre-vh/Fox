@@ -60,7 +60,7 @@ SourceLoc Parser::consumeBracket(SignType s) {
         if (curlyBracketsCount_ < maxBraceDepth_)
           curlyBracketsCount_++;
         else
-          diagnoseOverflow(DiagID::parser_curlybracket_overflow);
+          diagnoseOverflow(DiagID::curlybracket_overflow);
         break;
       case SignType::S_CURLY_CLOSE:
         if (curlyBracketsCount_)
@@ -70,7 +70,7 @@ SourceLoc Parser::consumeBracket(SignType s) {
         if (squareBracketsCount_ < maxBraceDepth_)
           squareBracketsCount_++;
         else
-          diagnoseOverflow(DiagID::parser_squarebracket_overflow);
+          diagnoseOverflow(DiagID::squarebracket_overflow);
         break;
       case SignType::S_SQ_CLOSE:
         if (squareBracketsCount_)
@@ -80,7 +80,7 @@ SourceLoc Parser::consumeBracket(SignType s) {
         if (roundBracketsCount_ < maxBraceDepth_)
           roundBracketsCount_++;
         else 
-          diagnoseOverflow(DiagID::parser_roundbracket_overflow);
+          diagnoseOverflow(DiagID::roundbracket_overflow);
         break;
       case SignType::S_ROUND_CLOSE:
         if (roundBracketsCount_) 
@@ -137,7 +137,7 @@ void Parser::revertConsume() {
         if (curlyBracketsCount_ < maxBraceDepth_)
           curlyBracketsCount_++;
         else
-          diagnoseOverflow(DiagID::parser_curlybracket_overflow);
+          diagnoseOverflow(DiagID::curlybracket_overflow);
         break;
       case SignType::S_SQ_OPEN:
         if (squareBracketsCount_)
@@ -147,7 +147,7 @@ void Parser::revertConsume() {
         if (squareBracketsCount_ < maxBraceDepth_)
           squareBracketsCount_++;
         else
-          diagnoseOverflow(DiagID::parser_squarebracket_overflow);
+          diagnoseOverflow(DiagID::squarebracket_overflow);
         break;
       case SignType::S_ROUND_OPEN:
         if (roundBracketsCount_)
@@ -157,7 +157,7 @@ void Parser::revertConsume() {
         if (roundBracketsCount_ < maxBraceDepth_)
           roundBracketsCount_++;
         else
-          diagnoseOverflow(DiagID::parser_roundbracket_overflow);
+          diagnoseOverflow(DiagID::roundbracket_overflow);
         break;
       default:
         fox_unreachable("unknown bracket type");
@@ -223,11 +223,11 @@ Parser::Result<TypeLoc> Parser::parseType() {
     auto ty_res = parseType();
     bool error = !ty_res;
     if(error && ty_res.isNotFound())
-      reportErrorExpected(DiagID::parser_expected_type);
+      reportErrorExpected(DiagID::expected_type);
     auto rSQBLoc = consumeBracket(SignType::S_SQ_CLOSE);
     if(!rSQBLoc) {
       error = true;
-      reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
+      reportErrorExpected(DiagID::expected_closing_squarebracket);
       bool resync = resyncToSign(SignType::S_SQ_CLOSE,
         /*stop@semi*/ true, /*consume*/ false);
       if(resync)

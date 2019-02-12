@@ -57,7 +57,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
           Token curtok = getCurtok();
           assert(curtok 
             && "Curtok must be valid since we have not reached eof");
-          diags.report(DiagID::parser_expected_decl, curtok.getRange());
+          diags.report(DiagID::expected_decl, curtok.getRange());
         }
 
         if (resyncToNextDecl()) continue; 
@@ -68,7 +68,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
 
   if (unit->numDecls() == 0) {
     if(!declHadError)
-      diags.report(DiagID::parser_expected_decl_in_unit, fid);
+      diags.report(DiagID::expected_decl_in_unit, fid);
     return nullptr;
   }
   else {
@@ -105,7 +105,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
     if (auto idRes = consumeIdentifier())
       std::tie(id, idRange) = idRes.getValue();
     else {
-      reportErrorExpected(DiagID::parser_expected_iden);
+      reportErrorExpected(DiagID::expected_iden);
       invalid = true;
     }
   }
@@ -122,7 +122,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // '('
   if (!consumeBracket(SignType::S_ROUND_OPEN)) {
     if (invalid) return Result<Decl*>::Error();
-    reportErrorExpected(DiagID::parser_expected_opening_roundbracket);
+    reportErrorExpected(DiagID::expected_opening_roundbracket);
     return Result<Decl*>::Error();
   }
 
@@ -139,7 +139,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
             // IDEA: Maybe reporting the error after the "," would yield
             // better error messages?
             if (param.isNotFound())
-              reportErrorExpected(DiagID::parser_expected_paramdecl);
+              reportErrorExpected(DiagID::expected_paramdecl);
             return Result<Decl*>::Error();
           }
         } else break;
@@ -155,7 +155,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // ')'
   auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
   if (!rightParens) {
-    reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
+    reportErrorExpected(DiagID::expected_closing_roundbracket);
 
     // We'll attempt to recover to the '{' too,
 		// so if we find the body of the function
@@ -171,7 +171,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
       func->setReturnTypeLoc(rtrTy.get());
     else {
       if (rtrTy.isNotFound())
-        reportErrorExpected(DiagID::parser_expected_type);
+        reportErrorExpected(DiagID::expected_type);
 
       if (!resyncToSign(SignType::S_CURLY_OPEN, true, false))
         return Result<Decl*>::Error();
@@ -189,7 +189,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
       func->setBody(cast<CompoundStmt>(compStmt.get()));
     else {
       if(compStmt.isNotFound()) // Display only if it was not found
-        reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
+        reportErrorExpected(DiagID::expected_opening_curlybracket);
       return Result<Decl*>::Error();
     }
   }
@@ -220,7 +220,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
 
   // ':'
   if (!consumeSign(SignType::S_COLON)) {
-    reportErrorExpected(DiagID::parser_expected_colon);
+    reportErrorExpected(DiagID::expected_colon);
     return Result<Decl*>::Error();
   }
 
@@ -230,7 +230,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
   auto typeResult = parseType();
   if (!typeResult) {
     if (typeResult.isNotFound())
-      reportErrorExpected(DiagID::parser_expected_type);
+      reportErrorExpected(DiagID::expected_type);
     return Result<Decl*>::Error();
   }
 
@@ -275,7 +275,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   // <id>
   auto idRes = consumeIdentifier();
   if(!idRes) {
-    reportErrorExpected(DiagID::parser_expected_iden);
+    reportErrorExpected(DiagID::expected_iden);
     return tryRecoveryToSemi();
   }
 
@@ -284,7 +284,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
 
   // ':'
   if (!consumeSign(SignType::S_COLON)) {
-    reportErrorExpected(DiagID::parser_expected_colon);
+    reportErrorExpected(DiagID::expected_colon);
     return Result<Decl*>::Error();
   }
 
@@ -294,7 +294,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
     type = typeRes.get();
   else {
     if (typeRes.isNotFound())
-      reportErrorExpected(DiagID::parser_expected_type);
+      reportErrorExpected(DiagID::expected_type);
     return tryRecoveryToSemi();
   }
 
@@ -305,7 +305,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
       iExpr = expr.get();
     else {
       if (expr.isNotFound())
-        reportErrorExpected(DiagID::parser_expected_expr);
+        reportErrorExpected(DiagID::expected_expr);
       // Recover to semicolon, return if recovery wasn't successful 
       if (!resyncToSign(SignType::S_SEMICOLON, 
 				/*stop@semi*/ false, /*consumeToken*/ false))
@@ -316,7 +316,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   // ';'
   SourceLoc endLoc = consumeSign(SignType::S_SEMICOLON);
   if (!endLoc) {
-    reportErrorExpected(DiagID::parser_expected_semi);
+    reportErrorExpected(DiagID::expected_semi);
       
     if (!resyncToSign(SignType::S_SEMICOLON, 
 			/*stopAtSemi*/ false, /*consumeToken*/ false))

@@ -51,7 +51,7 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
 
   // '}'
   if (!rightCurlyLoc.isValid()) {
-    reportErrorExpected(DiagID::parser_expected_closing_curlybracket);
+    reportErrorExpected(DiagID::expected_closing_curlybracket);
     // We can't recover since we probably reached EOF. return an error!
     return Result<Stmt*>::Error();
   }
@@ -76,7 +76,7 @@ Parser::Result<Stmt*> Parser::parseWhileLoop() {
   if (auto exprResult = parseExpr())
     expr = exprResult.get();
   else {
-    reportErrorExpected(DiagID::parser_expected_expr);
+    reportErrorExpected(DiagID::expected_expr);
     return Result<Stmt*>::Error();
   }
 
@@ -86,7 +86,7 @@ Parser::Result<Stmt*> Parser::parseWhileLoop() {
     body = body_res.castTo<CompoundStmt>();
   else {
     if (body_res.isNotFound())
-      reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
+      reportErrorExpected(DiagID::expected_opening_curlybracket);
     return Result<Stmt*>::Error();
   }
 
@@ -107,7 +107,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
   if (!ifKw) {
     // check for a else without if
     if (auto elseKw = consumeKeyword(KeywordType::KW_ELSE)) {
-      diags.report(DiagID::parser_else_without_if, elseKw);
+      diags.report(DiagID::else_without_if, elseKw);
       return Result<Stmt*>::Error();
     }
     return Result<Stmt*>::NotFound();
@@ -117,7 +117,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
   if (auto exprResult = parseExpr())
     expr = exprResult.get();
   else {
-    reportErrorExpected(DiagID::parser_expected_expr);
+    reportErrorExpected(DiagID::expected_expr);
     return Result<Stmt*>::Error();
   }
     
@@ -126,7 +126,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
     then_body = body.castTo<CompoundStmt>();
   else {
     if (body.isNotFound())
-      reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
+      reportErrorExpected(DiagID::expected_opening_curlybracket);
     return Result<Stmt*>::Error();
   }
 
@@ -137,7 +137,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
       else_body = body.castTo<CompoundStmt>();
     else {
       if(body.isNotFound())
-        reportErrorExpected(DiagID::parser_expected_opening_curlybracket);
+        reportErrorExpected(DiagID::expected_opening_curlybracket);
       return Result<Stmt*>::Error();
     }
   }
@@ -176,7 +176,7 @@ Parser::Result<Stmt*> Parser::parseReturnStmt() {
   if (auto semi = consumeSign(SignType::S_SEMICOLON))
     endLoc = semi;
   else {
-    reportErrorExpected(DiagID::parser_expected_semi);
+    reportErrorExpected(DiagID::expected_semi);
     // Recover to semi, if recovery wasn't successful, return an error.
     if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
       /*consumeToken*/ true))
@@ -233,7 +233,7 @@ Parser::Result<ASTNode> Parser::parseExprStmt() {
   if (auto expr = parseExpr()) {
     // ';'
     if (!consumeSign(SignType::S_SEMICOLON)) {
-      reportErrorExpected(DiagID::parser_expected_semi);
+      reportErrorExpected(DiagID::expected_semi);
 
       if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
         /*consumeToken*/ true))

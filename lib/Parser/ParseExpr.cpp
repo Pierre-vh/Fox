@@ -31,7 +31,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       );
     }
     else  {
-      reportErrorExpected(DiagID::parser_expected_iden);
+      reportErrorExpected(DiagID::expected_iden);
       return Result<Expr*>::Error();
     }
   }
@@ -43,7 +43,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       // ']'
       SourceLoc rSqBrLoc = consumeBracket(SignType::S_SQ_CLOSE);
       if (!rSqBrLoc) {
-        reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
+        reportErrorExpected(DiagID::expected_closing_squarebracket);
 
         if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
           /*consumeToken*/ false))
@@ -59,7 +59,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
     }
     else {
       if (expr.isNotFound())
-        reportErrorExpected(DiagID::parser_expected_expr);
+        reportErrorExpected(DiagID::expected_expr);
 
       // Resync. if Resync is successful, return the base as the result 
       // (don't alter it) to fake a success
@@ -142,7 +142,7 @@ Parser::Result<Expr*> Parser::parseArrayLiteral() {
   SourceLoc endLoc = consumeBracket(SignType::S_SQ_CLOSE);
   if (!endLoc) {
     if (elist.isNotFound())
-      reportErrorExpected(DiagID::parser_expected_closing_squarebracket);
+      reportErrorExpected(DiagID::expected_closing_squarebracket);
 
     if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
       /*consumeToken*/ false))
@@ -230,7 +230,7 @@ Parser::Result<Expr*> Parser::parseExponentExpr() {
     auto rhs = parsePrefixExpr();
     if (!rhs) {
       if(rhs.isNotFound())
-        reportErrorExpected(DiagID::parser_expected_expr);
+        reportErrorExpected(DiagID::expected_expr);
         
       return Result<Expr*>::Error();
     }
@@ -255,7 +255,7 @@ Parser::Result<Expr*> Parser::parsePrefixExpr() {
     }
     else {
       if(prefixexpr.isNotFound())
-        reportErrorExpected(DiagID::parser_expected_expr);
+        reportErrorExpected(DiagID::expected_expr);
 
       return Result<Expr*>::Error();
     }
@@ -294,7 +294,7 @@ Parser::Result<Expr*> Parser::parseCastExpr() {
       return Result<Expr*>(CastExpr::create(ctxt, tl, prefixexpr.get()));
     }
     else {
-      reportErrorExpected(DiagID::parser_expected_type);
+      reportErrorExpected(DiagID::expected_type);
       return Result<Expr*>::Error();
     }
   }
@@ -342,7 +342,7 @@ Parser::Result<Expr*> Parser::parseBinaryExpr(unsigned precedence) {
     // we have an error ! 
     if (!rhsResult) {
       if(rhsResult.isNotFound())
-        reportErrorExpected(DiagID::parser_expected_expr);
+        reportErrorExpected(DiagID::expected_expr);
       return Result<Expr*>::Error();
     }
 
@@ -370,7 +370,7 @@ Parser::Result<Expr*> Parser::parseExpr() {
     auto rhs = parseExpr();
     if (!rhs) {
       if(rhs.isNotFound())
-        reportErrorExpected(DiagID::parser_expected_expr);
+        reportErrorExpected(DiagID::expected_expr);
       return Result<Expr*>::Error();
     }
 
@@ -394,7 +394,7 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
     // no expr, handle error & attempt to recover if it's allowed. 
     // If recovery is successful, return "not found"
     if(expr.isNotFound())
-      reportErrorExpected(DiagID::parser_expected_expr);
+      reportErrorExpected(DiagID::expected_expr);
 
     if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true,
       /*consumeToken*/ true))
@@ -408,7 +408,7 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
   // ')'
   if (!consumeBracket(SignType::S_ROUND_CLOSE)) {
     // no ), handle error & attempt to recover 
-    reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
+    reportErrorExpected(DiagID::expected_closing_roundbracket);
 
     if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, 
       /*consumeToken*/ false))
@@ -475,7 +475,7 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
   SourceLoc rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
   // ')'
   if (!rightParens) {
-    reportErrorExpected(DiagID::parser_expected_closing_roundbracket);
+    reportErrorExpected(DiagID::expected_closing_roundbracket);
 
     if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, 
       /*consumeToken*/ false))
