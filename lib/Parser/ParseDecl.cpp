@@ -122,7 +122,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // '('
   if (!consumeBracket(SignType::S_ROUND_OPEN)) {
     if (invalid) return Result<Decl*>::Error();
-    reportErrorExpected(DiagID::expected_opening_roundbracket);
+    reportErrorExpected(DiagID::expected_opening_round_bracket);
     return Result<Decl*>::Error();
   }
 
@@ -155,7 +155,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // ')'
   auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
   if (!rightParens) {
-    reportErrorExpected(DiagID::expected_closing_roundbracket);
+    reportErrorExpected(DiagID::expected_closing_round_bracket);
 
     // We'll attempt to recover to the '{' too,
 		// so if we find the body of the function
@@ -189,7 +189,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
       func->setBody(cast<CompoundStmt>(compStmt.get()));
     else {
       if(compStmt.isNotFound()) // Display only if it was not found
-        reportErrorExpected(DiagID::expected_opening_curlybracket);
+        reportErrorExpected(DiagID::expected_opening_curly_bracket);
       return Result<Decl*>::Error();
     }
   }

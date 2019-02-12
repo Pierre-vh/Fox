@@ -43,7 +43,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       // ']'
       SourceLoc rSqBrLoc = consumeBracket(SignType::S_SQ_CLOSE);
       if (!rSqBrLoc) {
-        reportErrorExpected(DiagID::expected_closing_squarebracket);
+        reportErrorExpected(DiagID::expected_closing_square_bracket);
 
         if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
           /*consumeToken*/ false))
@@ -142,7 +142,7 @@ Parser::Result<Expr*> Parser::parseArrayLiteral() {
   SourceLoc endLoc = consumeBracket(SignType::S_SQ_CLOSE);
   if (!endLoc) {
     if (elist.isNotFound())
-      reportErrorExpected(DiagID::expected_closing_squarebracket);
+      reportErrorExpected(DiagID::expected_closing_square_bracket);
 
     if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
       /*consumeToken*/ false))
@@ -408,7 +408,7 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
   // ')'
   if (!consumeBracket(SignType::S_ROUND_CLOSE)) {
     // no ), handle error & attempt to recover 
-    reportErrorExpected(DiagID::expected_closing_roundbracket);
+    reportErrorExpected(DiagID::expected_closing_round_bracket);
 
     if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, 
       /*consumeToken*/ false))
@@ -475,7 +475,7 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
   SourceLoc rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
   // ')'
   if (!rightParens) {
-    reportErrorExpected(DiagID::expected_closing_roundbracket);
+    reportErrorExpected(DiagID::expected_closing_round_bracket);
 
     if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, 
       /*consumeToken*/ false))

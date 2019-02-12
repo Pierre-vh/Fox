@@ -5,15 +5,15 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-ERROR(expected_closing_squarebracket,
+ERROR(expected_closing_square_bracket,
   "expected ']'")
-ERROR(expected_closing_curlybracket,
+ERROR(expected_closing_curly_bracket,
   "expected '}'")
-ERROR(expected_opening_curlybracket,
+ERROR(expected_opening_curly_bracket,
   "expected '{'")
-ERROR(expected_closing_roundbracket,
+ERROR(expected_closing_round_bracket,
   "expected ')'")
-ERROR(expected_opening_roundbracket,
+ERROR(expected_opening_round_bracket,
   "expected '('")
 ERROR(expected_stmt,
   "expected a statement")
@@ -36,9 +36,9 @@ ERROR(else_without_if,
 ERROR(expected_decl_in_unit,
   "expected one or more declaration in unit")
 
-FATAL(roundbracket_overflow,
+FATAL(round_bracket_overflow,
   "max round bracket depth exceeded")
-FATAL(squarebracket_overflow,
+FATAL(square_bracket_overflow,
   "max square bracket depth exceeded")
-FATAL(curlybracket_overflow,
+FATAL(curly_bracket_overflow,
   "max curly bracket depth exceeded")
