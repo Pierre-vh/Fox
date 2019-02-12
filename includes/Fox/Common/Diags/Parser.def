@@ -23,11 +23,6 @@ ERROR(parser_expected_type, "expected a type")
 ERROR(parser_expected_paramdecl, "expected a parameter declaration")
 ERROR(parser_else_without_if, "else without matching if")
 ERROR(parser_expected_decl_in_unit, "expected one or more declaration in unit")
-ERROR(parser_missing_curlybracket, "%0 unclosed '{' in file")
-ERROR(parser_missing_squarebracket, "%0 unclosed '[' in file")
-ERROR(parser_missing_roundbracket, "%0 unclosed '(' in file")
-
-WARNING(parser_ignored_ref_vardecl, "ignored reference qualifier '&' in variable declaration : variables cannot be references")
 
 FATAL(parser_roundbracket_overflow, "max round bracket depth exceeded")
 FATAL(parser_squarebracket_overflow, "max square bracket depth exceeded")
