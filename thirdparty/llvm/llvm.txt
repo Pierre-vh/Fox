@@ -1,3 +1,6 @@
+This folder contains a subset of the LLVM libraries to be used by 
+the Fox project.
+
 LLVM on GitHub: https://github.com/llvm-mirror/llvm
 LLVM Website: https://llvm.org/
 

@@ -19,6 +19,7 @@ endmacro()
 ##################################################################
 
 add_thirdparty_include_folder("")
+add_thirdparty_include_folder("LLVM/include")
 
 ##################################################################
 
