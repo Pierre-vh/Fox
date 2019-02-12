@@ -5,10 +5,10 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-ERROR(unexpected_elem_in_arrlit, 
+ERROR(unexpected_elem_of_type_in_arrlit, 
   "unexpected element of type '%0' in array literal of type '%1'")
-ERROR(failed_infer, "failed to infer the type of this expression")
-ERROR(invalid_cast, "cannot cast expression of type '%0' to type '%1'")
+ERROR(expr_failed_infer, "failed to infer the type of this expression")
+ERROR(invalid_explicit_cast, "cannot cast expression of type '%0' to type '%1'")
 ERROR(unaryop_bad_child_type, 
   "cannot use unary operator '%0' on an expression of type '%1'")
 ERROR(arrsub_invalid_types,
@@ -35,9 +35,9 @@ ERROR(expr_isnt_func,
   "expression of type '%0' is not a function")
 ERROR(cannot_call_with_no_args,
   "cannot call '%0' with no arguments") 
-ERROR(not_enough_args_in_call_to,
+ERROR(not_enough_args_in_func_call,
   "not enough arguments in call to '%0'")
-ERROR(too_many_args_in_call_to,
+ERROR(too_many_args_in_func_call,
   "too many arguments in call to '%0'")
 ERROR(var_init_self_ref,
   "variable used inside its own initial value")
@@ -49,10 +49,10 @@ ERROR(unexpected_non_void_rtr_expr,
   "unexpected non-void return expression in void function")
 ERROR(return_with_no_expr,
   "return statement with no expression in function returning '%0'")
-ERROR(fnty_in_array,
+ERROR(func_type_in_arrlit,
   "function types cannot be used within an array literals")
 
-WARNING(useless_cast_redundant,
+WARNING(useless_redundant_cast,
   "useless cast to '%0': expression is already of type '%0'")
 
 NOTE(declared_here_with_type, "'%0' declared here with type '%1'")

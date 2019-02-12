@@ -77,7 +77,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed({childTy, goalTy})) return;
 
       getDiags()
-        .report(DiagID::invalid_cast, range)
+        .report(DiagID::invalid_explicit_cast, range)
         .addArg(childTy)
         .addArg(goalTy)
         .setExtraRange(expr->getExpr()->getRange());
@@ -90,7 +90,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed(castTy)) return;
 
       getDiags()
-        .report(DiagID::useless_cast_redundant, castTL.getRange())
+        .report(DiagID::useless_redundant_cast, castTL.getRange())
         .addArg(castTy)
         .setExtraRange(expr->getExpr()->getRange());
     }
@@ -101,8 +101,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       getDiags()
         // Precise error loc is the first element that failed the inferrence,
         // extended range is the whole arrayliteral's.
-        .report(DiagID::unexpected_elem_in_arrlit, faultyElem->getRange())
-        .addArg(faultyElem->getType())
+        .report(DiagID::unexpected_elem_of_type_in_arrlit, 
+                faultyElem->getRange())
+          .addArg(faultyElem->getType())
         // Sometimes, the supposed type might contain a type variable.
         // Try to simplify the type to produce a better diagnostic!
         .addArg(getSema().trySimplify(supposedType))
@@ -235,9 +236,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(argsProvided == 0) 
         diag = DiagID::cannot_call_with_no_args;
       else if(argsProvided < argsExpected) 
-        diag = DiagID::not_enough_args_in_call_to;
+        diag = DiagID::not_enough_args_in_func_call;
       else 
-        diag = DiagID::too_many_args_in_call_to;
+        diag = DiagID::too_many_args_in_func_call;
 
       // Report the diagnostic
       getDiags().report(diag, callee->getRange())
@@ -273,7 +274,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     void diagnoseFunctionTypeInArrayLiteral(ArrayLiteralExpr* lit, Expr* fn) {
-      getDiags().report(DiagID::fnty_in_array, fn->getRange())
+      getDiags().report(DiagID::func_type_in_arrlit, fn->getRange())
         // Maybe displaying the whole array is too much? I think it's great
         // because it gives some context, but maybe I'm wrong.
         .setExtraRange(lit->getRange());
@@ -971,7 +972,7 @@ class Sema::ExprFinalizer : ASTWalker {
       // If the type is nullptr, it means we have an inference error.
       // Set the type to ErrorType and diagnose.
       if (!type) {
-        diags.report(DiagID::failed_infer, expr->getRange());
+        diags.report(DiagID::expr_failed_infer, expr->getRange());
         type = ErrorType::get(ctxt);
         // Mute inference errors for the children.
         muteDiagsForChildren(expr);
