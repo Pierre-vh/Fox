@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------//
-// This file is part of the Fox project.        
-// See LICENSE.txt for license info.            
+// Part of the Fox project, licensed under the MIT license.
+// See LICENSE.txt in the project root for license information.      
 // File : Type.cpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//

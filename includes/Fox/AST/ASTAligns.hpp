@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------//
-// This file is part of the Fox project.        
-// See the LICENSE.txt file at the root of the project for license information.            
+// Part of the Fox project, licensed under the MIT license.
+// See LICENSE.txt in the project root for license information.     
 // File : ASTAligns.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
