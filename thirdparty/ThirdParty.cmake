@@ -18,8 +18,9 @@ endmacro()
 # to add third-party build targets
 ##################################################################
 
-add_thirdparty_include_folder("")
+add_thirdparty_include_folder("utfcpp/include")
 add_thirdparty_include_folder("LLVM/include")
+add_thirdparty_include_folder("string-view-lite/include")
 
 ##################################################################
 

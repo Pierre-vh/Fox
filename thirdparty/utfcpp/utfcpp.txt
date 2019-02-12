@@ -1,1 +1,4 @@
-utfcpp on GitHub : https://github.com/nemtrif/utfcpp
+nemtrif/utfcpp on GitHub: https://github.com/nemtrif/utfcpp
+
+NOTE: The project's structure has been slightly modified 
+      (moved the sources to an "include" folder)
