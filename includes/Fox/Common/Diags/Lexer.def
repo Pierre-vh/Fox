@@ -5,13 +5,20 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-ERROR(missing_closing_quote, "missing closing quote")
-ERROR(unfinished_multiline_comment, "multiline comment missing closing '*/'")
-ERROR(newline_in_literal, "illegal newline character in %0 literal")
-ERROR(empty_char_literal, "empty char literal are illegal")
-ERROR(cant_id_tok, "couldn't identify token '%0'")
-ERROR(too_many_char_in_char_literal, "too many characters in char literal %0")
-ERROR(invalid_char_in_id, "the identifier '%0' contains invalid characters")
+ERROR(missing_closing_quote,
+  "missing closing quote")
+ERROR(unfinished_multiline_comment,
+  "multiline comment missing closing '*/'")
+ERROR(newline_in_literal,
+  "illegal newline character in %0 literal")
+ERROR(empty_char_literal,
+  "empty char literal are illegal")
+ERROR(cant_id_tok,
+  "couldn't identify token '%0'")
+ERROR(too_many_char_in_char_literal,
+  "too many characters in char literal %0")
+ERROR(invalid_char_in_id,
+  "the identifier '%0' contains invalid characters")
 
-WARNING(int_too_big_considered_as_double, 
+WARNING(int_too_big_considered_as_double,
   "large integer literal interpreted as a double literal")

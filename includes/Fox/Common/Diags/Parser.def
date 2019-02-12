@@ -5,22 +5,40 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-ERROR(expected_closing_squarebracket, "expected ']'")
-ERROR(expected_closing_curlybracket, "expected '}'")
-ERROR(expected_opening_curlybracket, "expected '{'")
-ERROR(expected_closing_roundbracket, "expected ')'")
-ERROR(expected_opening_roundbracket, "expected '('")
-ERROR(expected_stmt, "expected a statement")
-ERROR(expected_expr,  "expected an expression")
-ERROR(expected_decl, "expected a declaration")
-ERROR(expected_semi, "expected ';'")
-ERROR(expected_colon, "expected ':'")
-ERROR(expected_iden, "expected an identifier")
-ERROR(expected_type, "expected a type")
-ERROR(expected_paramdecl, "expected a parameter declaration")
-ERROR(else_without_if, "else without matching if")
-ERROR(expected_decl_in_unit, "expected one or more declaration in unit")
+ERROR(expected_closing_squarebracket,
+  "expected ']'")
+ERROR(expected_closing_curlybracket,
+  "expected '}'")
+ERROR(expected_opening_curlybracket,
+  "expected '{'")
+ERROR(expected_closing_roundbracket,
+  "expected ')'")
+ERROR(expected_opening_roundbracket,
+  "expected '('")
+ERROR(expected_stmt,
+  "expected a statement")
+ERROR(expected_expr,
+  "expected an expression")
+ERROR(expected_decl,
+  "expected a declaration")
+ERROR(expected_semi,
+  "expected ';'")
+ERROR(expected_colon,
+  "expected ':'")
+ERROR(expected_iden,
+  "expected an identifier")
+ERROR(expected_type,
+  "expected a type")
+ERROR(expected_paramdecl,
+  "expected a parameter declaration")
+ERROR(else_without_if,
+  "else without matching if")
+ERROR(expected_decl_in_unit,
+  "expected one or more declaration in unit")
 
-FATAL(roundbracket_overflow, "max round bracket depth exceeded")
-FATAL(squarebracket_overflow, "max square bracket depth exceeded")
-FATAL(curlybracket_overflow, "max curly bracket depth exceeded")
+FATAL(roundbracket_overflow,
+  "max round bracket depth exceeded")
+FATAL(squarebracket_overflow,
+  "max square bracket depth exceeded")
+FATAL(curlybracket_overflow,
+  "max curly bracket depth exceeded")

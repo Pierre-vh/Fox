@@ -9,15 +9,23 @@
 // Unit Tests
 //----------------------------------------------------------------------------//
 
-NOTE(unittest_notetest, "Test note")
-WARNING(unittest_warntest, "Test warning")
-ERROR(unittest_errtest, "Test error")
-FATAL(unittest_fataltest, "Test fatal")
+NOTE(unittest_notetest, 
+  "Test note")
+WARNING(unittest_warntest, 
+  "Test warning")
+ERROR(unittest_errtest, 
+  "Test error")
+FATAL(unittest_fataltest, 
+  "Test fatal")
 
-NOTE(unittest_placeholderremoval1, "[%0,%1]")
-NOTE(unittest_placeholderremoval2, "[%0%0%0]")
-NOTE(unittest_placeholderremoval3, "[%5%4%3%2%1%0]")
-NOTE(unittest_placeholderremoval4, "Hello, %0")
+NOTE(unittest_placeholderremoval1, 
+  "[%0,%1]")
+NOTE(unittest_placeholderremoval2, 
+  "[%0%0%0]")
+NOTE(unittest_placeholderremoval3, 
+  "[%5%4%3%2%1%0]")
+NOTE(unittest_placeholderremoval4, 
+  "Hello, %0")
 
 //----------------------------------------------------------------------------//
 // DiagnosticVerifier
