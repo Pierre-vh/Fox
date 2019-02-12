@@ -5,13 +5,13 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-ERROR(lexer_missing_closing_quote, "missing closing quote")
-ERROR(lexer_unfinished_multiline_comment, "multiline comment missing closing '*/'")
-ERROR(lexer_newline_in_literal, "illegal newline character in %0 literal")
-ERROR(lexer_empty_char_literal, "empty char literal are illegal")
-ERROR(lexer_cant_id_tok, "couldn't identify token '%0'")
-ERROR(lexer_too_many_char_in_char_literal, "too many characters in char literal %0")
-ERROR(lexer_invalid_char_in_id, "the identifier '%0' contains invalid characters")
+ERROR(missing_closing_quote, "missing closing quote")
+ERROR(unfinished_multiline_comment, "multiline comment missing closing '*/'")
+ERROR(newline_in_literal, "illegal newline character in %0 literal")
+ERROR(empty_char_literal, "empty char literal are illegal")
+ERROR(cant_id_tok, "couldn't identify token '%0'")
+ERROR(too_many_char_in_char_literal, "too many characters in char literal %0")
+ERROR(invalid_char_in_id, "the identifier '%0' contains invalid characters")
 
-WARNING(lexer_int_too_big_considered_as_double, 
-  "this int literal was interpreted as a double because it doesn't fit in a 64 bit signed int")
+WARNING(int_too_big_considered_as_double, 
+  "large integer literal interpreted as a double literal")

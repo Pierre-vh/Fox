@@ -229,7 +229,7 @@ Token::identify(ASTContext& ctxt, const std::string& str) {
   else if (idLiteral(ctxt, ctxt.diagEngine, str));
   else if (idIdentifier(ctxt, str));
   else
-    ctxt.diagEngine.report(DiagID::lexer_cant_id_tok, range_).addArg(str);
+    ctxt.diagEngine.report(DiagID::cant_id_tok, range_).addArg(str);
 }
 
 bool Token::idKeyword(const std::string& str) {
@@ -260,7 +260,7 @@ bool Token::idLiteral(ASTContext& ctxt, DiagnosticEngine& diags,
     if (strmanip.peekBack() == '\'') {
       if (strmanip.getSizeInCodepoints() > 3) {
         diags
-					.report(DiagID::lexer_too_many_char_in_char_literal, range_)
+					.report(DiagID::too_many_char_in_char_literal, range_)
 					.addArg(str);
         return false;
       }
@@ -297,7 +297,7 @@ bool Token::idLiteral(ASTContext& ctxt, DiagnosticEngine& diags,
     else {
       // If too big, put the value in a double instead.
       diags
-				.report(DiagID::lexer_int_too_big_considered_as_double, range_)
+				.report(DiagID::int_too_big_considered_as_double, range_)
 				.addArg(str);
       data_.setDoubleLiteral(std::stod(str));
     }
@@ -331,7 +331,7 @@ bool Token::validateIdentifier(DiagnosticEngine& diags,
     for (manip.advance() /* skip first char*/; !manip.eof(); manip.advance()) {
       auto ch = manip.getCurrentChar();
       if ((ch != '_') && !iswalnum((char)ch)) {
-        diags.report(DiagID::lexer_invalid_char_in_id, range_).addArg(str);
+        diags.report(DiagID::invalid_char_in_id, range_).addArg(str);
         return false;
       }
     }
