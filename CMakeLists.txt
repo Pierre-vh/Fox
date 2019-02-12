@@ -1,45 +1,45 @@
-cmake_minimum_required(VERSION 3.0)
 message("CMake version is '${CMAKE_VERSION}'")
+cmake_minimum_required(VERSION 3.0)
 
+# set project name
 project(Fox)
 
-include(FindPythonInterp)
-
-# set minimal C++ standard 
+# set minimal C++ standard: we need C++14 at a minimum.
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# generate the compile_commands.json
+# we'll want to export the compile commands as this is pretty 
+# useful for some IDE/text editors out there.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# include most used cmake utilities
-include(cmake/AddSource.cmake)
+# include the commonly used macros/helpers.
+include(cmake/AddSource.cmake) # defines the add_source macro
 
 # include googletest related stuff 
-include(cmake/GoogleTest.cmake)
+include(cmake/GoogleTest.cmake) # imports googletest 
 
-# set output directories
+# include third-party libraries script
+include(thirdparty/ThirdParty.cmake)
+
+# set the preferred output directories:
+#   Archives go in the /lib folder
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#   Libraries go in the /lib folder
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#   Executables go in the /bin folder
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# set include directories
-include_directories(includes)   # Fox lib includes
-include_directories(thirdparty) # Third Party libraries includes
+# determine our environment/compiler and put the results in variables.
+# these variables will be used to determine which compile flags to use.
 
-message("Compiler ID is '${CMAKE_CXX_COMPILER_ID}'")
-message("Build type is '${CMAKE_BUILD_TYPE}'")
-
-# fetch CXX environement variable
+# fetch CXX environment variable
 if(DEFINED ENV{CXX})
   set(CXX $ENV{CXX})
-  message("Environment variable CXX is '${CXX}'")
 else()
-  message("Environment variable CXX not found")
   set(CXX "")
 endif()
 
-# check if clang-cl
+# check if clang-cl (on windows)
 if(CXX STREQUAL "clang-cl" OR CXX MATCHES "clang-cl.exe")
   set(IS_CLANGCL TRUE)
 else()
@@ -67,12 +67,22 @@ else()
   set(IS_MSVC_OR_CLANGCL FALSE)
 endif()
 
+# print the variables we just gathered.
+message("")
+message("Compiler ID is '${CMAKE_CXX_COMPILER_ID}'")
+message("Build type is '${CMAKE_BUILD_TYPE}'")
 message("IS_MSVC=${IS_MSVC}")
 message("IS_CLANGCL=${IS_CLANGCL}")
 message("IS_CLANG=${IS_CLANG}")
 message("IS_MSVC_OR_CLANGCL=${IS_MSVC_OR_CLANGCL}")
+if(CXX STREQUAL "")
+  message("CXX environment variable not defined")
+else()
+  message("CXX=${CXX}")
+endif()
+message("")
 
-# MSVC flags
+# MSVC compile options
 if(IS_MSVC_OR_CLANGCL)
   # warnings level 4
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
@@ -127,7 +137,8 @@ if(IS_MSVC_OR_CLANGCL)
   add_compile_options(/GR-)
 endif()
 
-if(${CMAKE_CXX_COMPILER_ID} MATCHES Clang) 
+# Clang compile options 
+if(IS_CLANG) 
   # for clang-cl, we must pass -Xclang when passing an argument.
   function(add_clang_option arg)
     if(IS_CLANGCL)
@@ -161,9 +172,14 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
   add_clang_option(-Wno-reorder)
 endif()
 
+# add include paths 
+include_directories(includes)               # Fox library includes
+include_directories(${thirdparty_includes}) # Third Party libraries includes
+
 # before disabling MSVC extensions, include the CommandLine
-# tool, because it requires extensions to work on MSVC.
-# FIXME: This is kind of a hack, it'd be better to add /Za  
+# directory (= create its target) this is needed because the CommandLine
+# source file uses windows libraries (which use MSVC extensions)
+# FIXME: This is kind of a hack, it'd be better to add /Za with compile options
 #        before, then remove it in CommandLine's CMakeLists
 add_subdirectory(tools/CommandLine)
 
@@ -172,8 +188,10 @@ if(IS_MSVC)
   add_compile_options(/Za)
 endif()
 
-# add lib & test subdirs
+# add lib subdir (to define libfox_src)
 add_subdirectory(lib)
+
+# add unittests (creates the unittest target)
 add_subdirectory(unittests)
 
 # add lib target
