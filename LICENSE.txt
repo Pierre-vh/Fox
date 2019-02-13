@@ -34,7 +34,6 @@ Theses softwares have their own license file:
 |  Project                |      Path to License              |
 |-------------------------|-----------------------------------|
 | utfcpp                  | /thirdparty/utfcpp/LICENSE.txt    |
-| mpark/variant           | /thirdparty/mpark/LICENSE.txt     |
 | llvm                    | /thirdparty/llvm/LICENSE.txt      |
 | nonstd/string-view-lite | /thirdparty/nonstd/LICENSE.txt    |
 |-------------------------|-----------------------------------|
