@@ -426,13 +426,11 @@ ASTContext& UnitDecl::getASTContext() const {
 }
 
 SourceRange UnitDecl::getRange() const {
-  const auto& decls = cast<LookupContext>(this)->getDecls();
-  Decl* first = decls.front();
-  Decl* last = decls.back();
-  if(!first)
-    return SourceRange();
-  
-  SourceRange range(first->getBegin(), last->getEnd());
-  assert(range.getFileID() == file_ && "broken UnitDecl");
-  return range;
+  if (Decl* first = getFirstDecl()) {
+    Decl* last = getLastDecl();
+    SourceRange range(first->getBegin(), last->getEnd());
+    assert(range.getFileID() == file_ && "broken UnitDecl");
+    return range;
+  }
+  return SourceRange();
 }

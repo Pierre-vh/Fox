@@ -66,7 +66,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
     }
   }
 
-  if (unit->numDecls() == 0) {
+  if (unit->getDecls().isEmpty()) {
     if(!declHadError)
       diags.report(DiagID::expected_decl_in_unit, fid);
     return nullptr;

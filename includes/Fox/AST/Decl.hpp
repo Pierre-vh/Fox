@@ -117,7 +117,14 @@ namespace fox {
       Decl(DeclKind kind, DeclContext* dc);
 
     private:
+      friend class LookupContext;
+      friend class DeclIterator;
+
+      // Our parent DeclContext
       DeclContext* dc_ = nullptr;
+
+      // The next decl in this DeclContext
+      Decl* nextDecl_ = nullptr;
 
       static_assert(toInt(DeclKind::LastDecl) < (1 << kindBits_),
         "kind_ bitfield doesn't have enough bits to represent every DeclKind");

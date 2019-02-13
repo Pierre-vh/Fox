@@ -12,8 +12,8 @@
 #include "Identifier.hpp"
 #include "ASTAligns.hpp"
 #include "Fox/Common/LLVM.hpp"
-#include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/PointerIntPair.h"
+#include <iterator>
 #include <map>
 #include <memory>
 
@@ -68,6 +68,47 @@ namespace fox {
         "The PointerIntPair doesn't have enough bits to represent every "
         " DeclContextKind value");
   };
+  
+  // DeclIterator iterates over all Decls in a DeclContext
+  class DeclIterator {
+    public:
+      using iterator_category = std::forward_iterator_tag;
+      using value_type = Decl*;
+      using difference_type = std::ptrdiff_t;
+
+      DeclIterator() = default;
+      DeclIterator(Decl* cur);
+
+      // Pre-increment
+      DeclIterator& operator++();
+      // Post-increment
+      DeclIterator operator++(int);
+
+      Decl* operator*() const;
+      Decl* operator->() const; 
+
+      friend bool operator==(DeclIterator lhs, DeclIterator rhs);
+      friend bool operator!=(DeclIterator lhs, DeclIterator rhs);
+
+    private:
+      Decl* cur_ = nullptr;
+  };
+
+  // DeclRange represents the range of Decls belonging to a DeclContext.
+  // It provides a begin() and end() method, which enables usage in
+  // for loops using the range syntax.
+  class DeclRange {
+    public:
+      DeclRange(DeclIterator beg, DeclIterator end);
+
+      DeclIterator begin() const;
+      DeclIterator end() const;
+
+      bool isEmpty() const;
+
+    private:
+      DeclIterator beg_, end_;
+  };
 
   // The LookupContext is a class derived from DeclContext. It has
   // the added functionality of storing/recording Declarations and
@@ -77,23 +118,21 @@ namespace fox {
       // The type of the lookup map
       using LookupMap = std::multimap<Identifier, NamedDecl*>;
 
-      // The type of the vector used to store the declarations
-      using DeclVec = SmallVector<Decl*, 4>;
-
       // Adds a Decl in this LookupContext.
       // If "decl" is a NamedDecl, it is expected to have a valid identifier
       void addDecl(Decl* decl);
 
-      // Returns the vector of decls used internally by this DeclContext;
-      // This is a lexically accurate view since the declarations are in order
-      // of insertion (First element of the vector is the first decl added in
-      // this DeclContext, the 2nd element is the 2nd decl added, and so on..)
-      const DeclVec& getDecls() const;
+      // Returns the (half-open) range of Decls contained in
+      // this DeclContext.
+      DeclRange getDecls() const;
 
+      // Returns the first declaration of this Context.
+      Decl* getFirstDecl() const;
+      // Returns the last declaration of this Context.
+      Decl* getLastDecl() const;
+
+      // Returns the LookupMap
       const LookupMap& getLookupMap();
-
-      // Get the number of decls in this DeclContext
-      std::size_t numDecls()  const;
 
       static bool classof(const Decl* decl);
       static bool classof(const DeclContext* decl);
@@ -104,38 +143,17 @@ namespace fox {
 
     private:
       friend class ASTContext; // Needs to see DeclData
-      struct DeclData;
 
-      DeclData& data();
-      const DeclData& data() const;
-
-      // If the LookupMap has not been built yet, builds it from "data().decls_"
+      // Builds the lookup map if it's nullptr.
       void buildLookupMap();
 
-      DeclData* data_ = nullptr;
-  };
+      // The First and Last decl in the linked list of Decls
+      // contained inside this DeclContext.
+      Decl* firstDecl_ = nullptr;
+      Decl* lastDecl_ = nullptr;
 
-  // Contains the non trivially destructible objects that the
-  // DeclContext needs
-  struct LookupContext::DeclData {
-    // Creates a DeclData allocated inside the AST
-    static DeclData* create(ASTContext& ctxt, LookupContext* lc);
-    // Pointer to the DeclContext that this data belongs to
-    LookupContext* lc;
-    // The vector of declarations
-    DeclVec decls;
-    // The lazily generated lookup map
-    std::unique_ptr<LookupMap> lookupMap;
-    private:
-      DeclData(LookupContext* me) : lc(me) {}
-
-      // Prohibit the use of builtin placement new & delete
-      void* operator new(std::size_t) throw() = delete;
-      void operator delete(void *) throw() = delete;
-      void* operator new(std::size_t, void*) = delete;
-
-      // Only allow allocation through the ASTContext
-      void* operator new(std::size_t sz, ASTContext &ctxt, 
-        std::uint8_t align = alignof(DeclData));
+      // FIXME: Put the ASTContext in an union or something.
+      ASTContext& ctxt_;
+      LookupMap* lookupMap_ = nullptr;
   };
 }
