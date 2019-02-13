@@ -145,6 +145,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     void visitFuncDecl(FuncDecl* decl) {
       // Tell Sema that we enter this func's scope
       auto funcScope = getSema().enterFuncScopeRAII(decl);
+      // Also, tell it that we're entering its DeclContext.
+      auto raiiDC = getSema().enterDeclCtxtRAII(decl);
       // Check if this is an invalid redecl
       checkForIllegalRedecl(decl);
       // Check it's parameters
