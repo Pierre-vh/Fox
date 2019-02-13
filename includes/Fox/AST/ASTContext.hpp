@@ -16,7 +16,7 @@
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <map>
-#include <set>
+#include <unordered_set>
 #include <functional>
 
 namespace fox {
@@ -100,7 +100,7 @@ namespace fox {
       PrimitiveType* theVoidType_ = nullptr;
 
       // The unique identifiers strings set
-      std::set<std::string> idents_;
+      std::unordered_set<std::string> idents_;
 
       // The main AST allocator, used for long lived objects.
       LinearAllocator permaAllocator_; 
