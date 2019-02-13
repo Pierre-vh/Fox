@@ -175,10 +175,6 @@ namespace fox {
         // looking in the current LocalScope (if there is one).
         bool canLookInDeclContext = true;
 
-        // If this is set to true, the SourceLoc will be ignored
-        // when performing lookup.
-        bool canIgnoreLoc = false;
-
         // This lambda, if non-null, will be called each time
         // the lookup finds a valid lookup result.
         //

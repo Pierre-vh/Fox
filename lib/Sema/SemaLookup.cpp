@@ -43,7 +43,7 @@ namespace {
         }
       }
       // Continue climbing
-      cur = dc->getParentDeclCtxt();
+      cur = cur->getParentDeclCtxt();
     }
   }
 
@@ -88,10 +88,6 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   // we limit the search to LocalScopes.
   bool lookInDeclCtxt = options.canLookInDeclContext;
 
-  // When this option is set to true, we can start ignoring the SourceLoc
-  // when performing the lookup. 
-  bool canIgnoreLoc = options.canIgnoreLoc;
-
   // If we find a VarDecl that's currently being checked, it's ignored and
   // stored in "checkingVar". If we finish lookup and we still find nothing,
   // we return checkingVar.
@@ -109,13 +105,6 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
 
   // Helper lambda that returns true if a lookup result should be ignored.
   auto shouldIgnore = [&](NamedDecl* decl) {
-    if(!canIgnoreLoc) {
-      // When we must consider the loc, ignore results that were
-      // declared after the desired loc.
-      if(!decl->getBegin().comesBefore(loc))
-        return true;
-    }
-
     auto fn = options.shouldIgnore;
     return fn ? fn(decl) : false;
   };
@@ -148,26 +137,32 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
     // we were looking for inside the scope, there's no need to look
     // in the DeclContext.
     lookInDeclCtxt &= (results.size() == 0);
-
-    // If we have looked inside a LocalScope, we are now allowed
-    // to ignore the loc when looking inside the DeclContext
-    canIgnoreLoc = true;
   }
 
   // Check in decl context if allowed to
   if(lookInDeclCtxt) {
-    DeclContext* dc = getDeclCtxt();
-    // We should ALWAYS have a DC, else, something's broken.
-    assert(dc && "No DeclContext available?");
+    DeclContext* currentDeclContext = getDeclCtxt();
+    // We should ALWAYS have an active DC, else something's broken.
+    assert(currentDeclContext 
+      && "No DeclContext available?");
     // Handle results
     auto handleResult = [&](NamedDecl* decl) {
       // If we should ignore this result, do so and continue looking.
       if(shouldIgnore(decl)) return true;
+
+      // Check if this Decl has been found in the current DeclContext,
+      // if that's the case, lexical ordering matters.
+      if (decl->getDeclContext() == currentDeclContext) {
+        // The decl must be located before "loc".
+        if(!decl->getBegin().comesBefore(loc)) return false;
+      }
+
       // If not, add the decl to the results and continue looking
       results.addResult(decl);
       return true;
     };
-    lookupInDeclContext(id, handleResult, dc);
+    // Do the lookup
+    lookupInDeclContext(id, handleResult, currentDeclContext);
   }
 
   // Add the checkingVar if the result set is empty.
