@@ -33,8 +33,15 @@ namespace fox {
     return static_cast<std::underlying_type<DeclContextKind>::type>(kind);
   }
 
-  // DeclContext is a class that acts as a "semantic container for decls".
-  // TODO: Add doc
+  // DeclContext is a class that acts as a "semantic container for declarations"
+  //
+  // Nodes that introduce a new "Declaration Context" may inherit from
+  // this class, but there is no strict rule for that. For instance
+  // FuncDecl and UnitDecl both inherit from this class, but CompoundStmt
+  // doesn't.
+  //
+  // By default, DeclContext doesn't track anything. Its role is simply
+  // to represent Declaration Contexts within the AST.
   class alignas(DeclContextAlignement) DeclContext {
     public:
       // Returns the Kind of DeclContext this is
@@ -69,7 +76,7 @@ namespace fox {
         " DeclContextKind value");
   };
   
-  // DeclIterator iterates over all Decls in a DeclContext
+  // DeclIterator iterates over all Decls in a LookupContext
   class DeclIterator {
     public:
       using iterator_category = std::forward_iterator_tag;
@@ -94,7 +101,7 @@ namespace fox {
       Decl* cur_ = nullptr;
   };
 
-  // DeclRange represents the range of Decls belonging to a DeclContext.
+  // DeclRange represents the range of Decls belonging to a LookupContext.
   // It provides a begin() and end() method, which enables usage in
   // for loops using the range syntax.
   class DeclRange {
@@ -110,9 +117,9 @@ namespace fox {
       DeclIterator beg_, end_;
   };
 
-  // The LookupContext is a class derived from DeclContext. It has
-  // the added functionality of storing/recording Declarations and
-  // enabling Lookup through a LookupMap.
+  // The LookupContext is a DeclContext with the added functionality 
+  // of tracking the declarations it contains. It also offers
+  // a LookupMap which is used to perform qualified name lookup.
   class LookupContext : public DeclContext {
     public:
       // The type of the lookup map
