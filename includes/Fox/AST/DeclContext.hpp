@@ -144,16 +144,12 @@ namespace fox {
     private:
       friend class ASTContext; // Needs to see DeclData
 
-      // Builds the lookup map if it's nullptr.
-      void buildLookupMap();
-
       // The First and Last decl in the linked list of Decls
       // contained inside this DeclContext.
       Decl* firstDecl_ = nullptr;
       Decl* lastDecl_ = nullptr;
 
-      // FIXME: Put the ASTContext in an union or something.
-      ASTContext& ctxt_;
+      // The lookup map
       LookupMap* lookupMap_ = nullptr;
   };
 }

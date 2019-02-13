@@ -96,10 +96,7 @@ Decl* LookupContext::getLastDecl() const {
 }
 
 const LookupContext::LookupMap& LookupContext::getLookupMap() {
-  if(!lookupMap_)
-    buildLookupMap();
-  assert(lookupMap_ && "buildLookupMap() did not build the "
-    "LookupMap!");
+  assert(lookupMap_ && "no LookupMap available");
   return *lookupMap_;
 }
 
@@ -125,23 +122,15 @@ bool LookupContext::classof(const DeclContext* dc) {
 
 LookupContext::LookupContext(ASTContext& ctxt, DeclContextKind kind, 
                              DeclContext* parent):
-  DeclContext(kind, parent), ctxt_(ctxt) {}
-
-void LookupContext::buildLookupMap() {
-  // Don't do it if it's already built
-  if(lookupMap_) return;
-
-  // Allocate the LookupMap
-  void* mem = ctxt_.allocate(sizeof(LookupMap), alignof(LookupMap));
+  DeclContext(kind, parent) {
+  // Create the LookupMap
+  void* mem = ctxt.allocate(sizeof(LookupMap), alignof(LookupMap));
   lookupMap_ = new(mem) LookupMap();
-
-  // Iterate over decls_ and insert them in the lookup map
-  for(Decl* decl : getDecls()) {
-    if(NamedDecl* named = dyn_cast<NamedDecl>(decl)) {
-      Identifier id = named->getIdentifier();
-      lookupMap_->insert({id, named});
-    }
-  }
+  // Add its cleanup
+  ctxt.addCleanup([&](){
+    lookupMap_->~multimap();
+  });
+  assert(lookupMap_);
 }
 
 //----------------------------------------------------------------------------//
