@@ -130,17 +130,17 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       visitCompoundStmt(stmt->getBody());
     }
 
-		void visitConditionStmt(ConditionStmt* stmt) {
-			// Fetch the cond, typecheck it and replace it.
+    void visitConditionStmt(ConditionStmt* stmt) {
+	    // Fetch the cond, typecheck it and replace it.
       stmt->setCond(checkCond(stmt->getCond()));
       // Check the if's body
       visitCompoundStmt(stmt->getThen());
-			// Check the else's body if there is one and replace it
-			if(CompoundStmt* elseBody = stmt->getElse())
-				visitCompoundStmt(elseBody);
-		}
+	    // Check the else's body if there is one and replace it
+	    if(CompoundStmt* elseBody = stmt->getElse())
+		    visitCompoundStmt(elseBody);
+    }
 			
-		//----------------------------------------------------------------------//
+    //----------------------------------------------------------------------//
     // Helper checking methods
     //----------------------------------------------------------------------//
     // Various semantics-related helper methods 
