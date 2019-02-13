@@ -59,6 +59,14 @@ namespace fox {
       // allocator frees it's memory.
       void addCleanup(std::function<void(void)> fn);
 
+      // Adds a cleanup function that calls the object's destructor.
+      template<typename Ty>
+      void addDestructorCleanup(Ty& obj) {
+        addCleanup([&obj]() {
+          obj.~Ty();
+        });
+      }
+
       SourceManager& sourceMgr;
       DiagnosticEngine& diagEngine;
 

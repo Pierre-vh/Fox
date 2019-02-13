@@ -127,9 +127,7 @@ LookupContext::LookupContext(ASTContext& ctxt, DeclContextKind kind,
   void* mem = ctxt.allocate(sizeof(LookupMap), alignof(LookupMap));
   lookupMap_ = new(mem) LookupMap();
   // Add its cleanup
-  ctxt.addCleanup([&](){
-    lookupMap_->~multimap();
-  });
+  ctxt.addDestructorCleanup(*lookupMap_);
   assert(lookupMap_);
 }
 
