@@ -55,10 +55,10 @@ void ASTContext::reset() {
 }
 
 Identifier ASTContext::getIdentifier(const std::string& str) {
-	// Search the entry in the set
+	// Search (or create) the entry in the set
 	auto it = idents_.insert(str).first;
 	assert((it != idents_.end()) && "Insertion error");
-	// Create the identifier object and return.
+  // return it
 	return (it->c_str());
 }
 
