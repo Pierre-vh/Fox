@@ -91,9 +91,23 @@ Decl* DeclContext::getLastDecl() const {
   return lastDecl_;
 }
 
-const DeclContext::LookupMap& DeclContext::getLookupMap() {
-  assert(lookupMap_ && "no LookupMap available");
-  return *lookupMap_;
+bool DeclContext::lookup(Identifier id, SourceLoc loc, 
+                         ResultFoundCallback onFound) {
+  assert(id && "Identifier is invalid");
+  assert(onFound && "Callback is null, results will be discarded!");
+  assert(lookupMap_ && "No lookupMap?");
+  const LookupMap& map = *lookupMap_;
+  // Search all decls with the identifier "id" in the multimap
+  LookupMap::const_iterator beg, end;
+  std::tie(beg, end) = map.equal_range(id);
+  for(auto it = beg; it != end; ++it) {
+    // Skip if the decl has been declared after the loc.
+    if(loc && loc.comesBefore(it->second->getBegin()))
+      continue;
+    
+    if(!onFound(it->second)) return false;
+  }
+  return true;
 }
 
 bool DeclContext::classof(const Decl* decl) {

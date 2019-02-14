@@ -20,6 +20,7 @@
 namespace fox {
   class Decl;
   class NamedDecl;
+  class SourceLoc;
   class FileID;
   class ASTContext;
 
@@ -80,10 +81,9 @@ namespace fox {
   // This class is the centerpiece of name resolution in Fox. It is used to handle
   // any kind of lookup, both Unqualified and Qualified.
   class alignas(DeclContextAlignement) DeclContext {
+    // The type of the lookup map
+    using LookupMap = std::multimap<Identifier, NamedDecl*>;
     public:
-      // The type of the lookup map
-      using LookupMap = std::multimap<Identifier, NamedDecl*>;
-
       // Returns the Kind of DeclContext this is
       DeclContextKind getDeclContextKind() const;
 
@@ -110,8 +110,20 @@ namespace fox {
       // Returns the last declaration of this Context.
       Decl* getLastDecl() const;
 
-      // Returns the LookupMap
-      const LookupMap& getLookupMap();
+      using ResultFoundCallback = std::function<bool(NamedDecl*)>;
+
+      // Performs a lookup in this DeclContext.
+      // If loc is null, the SourceLoc is ignored and every
+      // result is returned, no matter the loc.
+      //
+      // Note that this only looks in this DeclContext, and does
+      // no climb parent DeclContexts.
+      //
+      // Returns true by default, false if the lookup was
+      // aborted due to onFound returning false.
+      // TODO: Improve doc
+      bool lookup(Identifier id, SourceLoc loc, 
+                  ResultFoundCallback onFound);
 
       static bool classof(const Decl* decl);
 

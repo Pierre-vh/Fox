@@ -29,18 +29,13 @@ namespace {
   //  *or*
   //    > if we are done searching the whole DeclContext tree.
   void lookupInDeclContext(Identifier id, ResultFoundFn onFound, 
-    DeclContext* dc) {
-    using LookupMap = DeclContext::LookupMap;
+                           SourceLoc loc, DeclContext* dc) {
     DeclContext* cur = dc;
     while(cur) {
       // FIXME: Remove this once lookup is working on local contexts
       if (!cur->isLocal()) {
-        const LookupMap& map = cur->getLookupMap();
-        // Search all decls with the identifier "id" in the multimap
-        LookupMap::const_iterator beg, end;
-        std::tie(beg, end) = map.equal_range(id);
-        for(auto it = beg; it != end; ++it) {
-          if(!onFound(it->second)) return;
+        if (!!cur->lookup(id, loc, onFound)) {
+          return;
         }
       }
       // Continue climbing
@@ -163,7 +158,9 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
       return true;
     };
     // Do the lookup
-    lookupInDeclContext(id, handleResult, currentDeclContext);
+    // FIXME: The SourceLoc passed should be the right one, not an invalid
+    // one.
+    lookupInDeclContext(id, handleResult, SourceLoc(), currentDeclContext);
   }
 
   // Add the checkingVar if the result set is empty.
