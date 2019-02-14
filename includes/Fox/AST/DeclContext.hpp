@@ -117,7 +117,7 @@ namespace fox {
 
     protected:
       DeclContext(ASTContext& ctxt, DeclContextKind kind, 
-                  DeclContext* parent = nullptr);
+                  DeclContext* parent);
 
     private:
       // The PointerIntPair used to represent the ParentAndKind bits

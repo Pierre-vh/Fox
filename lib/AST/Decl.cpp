@@ -409,7 +409,7 @@ SourceRange VarDecl::getRange() const {
 
 UnitDecl::UnitDecl(ASTContext& ctxt, Identifier id, FileID file):
   Decl(DeclKind::UnitDecl, (DeclContext*)nullptr), identifier_(id), file_(file),
-  ctxt_(ctxt), DeclContext(ctxt, DeclContextKind::UnitDecl) {}
+  ctxt_(ctxt), DeclContext(ctxt, DeclContextKind::UnitDecl, nullptr) {}
 
 UnitDecl* UnitDecl::create(ASTContext& ctxt,Identifier id, FileID file) {
   return new(ctxt) UnitDecl(ctxt, id, file);
