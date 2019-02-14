@@ -15,7 +15,6 @@
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/SourceManager.hpp"
-#include "Support/PrintObjects.hpp"
 #include "Support/TestUtils.hpp"
 #include <algorithm>
 #include <string>

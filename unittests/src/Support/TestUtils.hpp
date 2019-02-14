@@ -11,7 +11,6 @@
 
 #include <string>
 #include <vector>
-#include "PrintObjects.hpp"
 
 namespace fox {
   namespace test {
