@@ -311,30 +311,20 @@ bool Token::idLiteral(ASTContext& ctxt, DiagnosticEngine& diags,
 }
 
 bool Token::idIdentifier(ASTContext& ctxt, const std::string& str) {
-  if (validateIdentifier(ctxt.diagEngine, str)) {
+  if (validateIdentifier(str)) {
     data_.setIdentifier(ctxt.getIdentifier(str));
     return true;
   }
   return false;
 }
 
-bool Token::validateIdentifier(DiagnosticEngine& diags, 
-	const std::string& str) const {
+bool Token::validateIdentifier(string_view str) const {
   // Identifiers : An Identifier's first letter must 
-	// always be a underscore or an alphabetic letter
-  // The first character can then be followed 
-	// by an underscore, a letter or a number.
+	// always be a underscore or a letter.
+  // TODO: Support unicode letters
   StringManipulator manip(str);
   auto first_ch = manip.getCurrentChar();
   if ((first_ch == '_') || iswalpha((char)first_ch)) {
-    // First character is ok, proceed to identify the rest of the string
-    for (manip.advance() /* skip first char*/; !manip.eof(); manip.advance()) {
-      auto ch = manip.getCurrentChar();
-      if ((ch != '_') && !iswalnum((char)ch)) {
-        diags.report(DiagID::invalid_char_in_id, range_).addArg(str);
-        return false;
-      }
-    }
     return true;
   }
   return false;

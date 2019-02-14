@@ -209,8 +209,7 @@ namespace fox {
                     const std::string& str);
       bool idIdentifier(ASTContext& astctxt, 
                         const std::string& str);
-      bool validateIdentifier(DiagnosticEngine& diags, 
-                              const std::string& str) const;
+      bool validateIdentifier(string_view id) const;
       // Helper for idIdentifier 
       bool hasAtLeastOneLetter(const std::string &str) const; // Checks if str_ has at least one upper/lower case letter.
   };
