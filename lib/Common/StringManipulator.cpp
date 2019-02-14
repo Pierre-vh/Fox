@@ -52,37 +52,35 @@ std::size_t StringManipulator::getIndexInBytes() const {
 
 void StringManipulator::reset() {
   // set iterators
-  iter_ = str_.begin();
-  end_ = str_.end();
-  beg_ = str_.begin();
+  iter_ = beg_ = str_.begin();
   // skip  bom if there is one
-  if (utf8::starts_with_bom(iter_, end_))
-    utf8::next(iter_, end_);
+  if (utf8::starts_with_bom(iter_, str_.end()))
+    utf8::next(iter_, str_.end());
 }
 
-void StringManipulator::advance(const std::size_t & ind) {
-  if (iter_ != end_)
-    utf8::advance(iter_, ind, end_);
+void StringManipulator::advance(std::size_t ind) {
+  if (iter_ != str_.end())
+    utf8::advance(iter_, ind, str_.end());
 }
 
-void StringManipulator::goBack(const std::size_t& ind) {
+void StringManipulator::goBack(std::size_t ind) {
   for (std::size_t k = 0; k < ind; k++)
     utf8::prior(iter_, beg_);
 }
 
 FoxChar StringManipulator::getCurrentChar() const {
-  if (iter_ == end_)
+  if (iter_ == str_.end())
     return L'\0';
-  return utf8::peek_next(iter_,end_);
+  return utf8::peek_next(iter_, str_.end());
 }
 
 FoxChar StringManipulator::getChar(std::size_t ind) const {
   auto tmpit = beg_;
 
-  utf8::advance(tmpit,ind, end_);
+  utf8::advance(tmpit, ind, str_.end());
 
-  if (tmpit != end_)
-    return utf8::peek_next(tmpit, end_);
+  if (tmpit != str_.end())
+    return utf8::peek_next(tmpit, str_.end());
   return 0;
 }
 
@@ -92,8 +90,8 @@ StringManipulator::substring(std::size_t beg, std::size_t leng) const {
 	auto endIt = beg_;
 
 	// Advance the iterator to the beginning and the end of the substring
-  utf8::advance(begIt, beg, end_);
-	utf8::advance(endIt, beg+leng, end_);
+  utf8::advance(begIt, beg, str_.end());
+	utf8::advance(endIt, beg+leng, str_.end());
   
 	std::size_t begIdx = std::distance(beg_, begIt);
 	std::size_t endIdx = std::distance(beg_, endIt);
@@ -102,7 +100,7 @@ StringManipulator::substring(std::size_t beg, std::size_t leng) const {
 
 FoxChar StringManipulator::peekFirst() const {
   if (getSizeInCodepoints()) // string needs at least 1 char
-    return utf8::peek_next(beg_,end_);
+    return utf8::peek_next(beg_, str_.end());
   return L'\0';
 }
 
@@ -111,9 +109,11 @@ FoxChar StringManipulator::peekNext() const {
     return L'\0';
 
   auto tmpit = iter_;
-  utf8::advance(tmpit, 1,end_); // peek_next in utfcpp returns what we expect to be the "next" character, so we need to advance
+  // peek_next in utfcpp returns what we expect to be the
+  // "next" character, so we need to advance
+  utf8::advance(tmpit, 1, str_.end());
   if(tmpit != str_.end())
-    return utf8::peek_next(tmpit,end_);
+    return utf8::peek_next(tmpit, str_.end());
   return L'\0';
 }
 
@@ -122,18 +122,18 @@ FoxChar StringManipulator::peekPrevious() const {
     return L'\0';
 
   auto tmpiter = iter_;
-  return utf8::previous(tmpiter,beg_);
+  return utf8::previous(tmpiter, beg_);
 }
 
 FoxChar StringManipulator::peekBack() const {
-  auto tmp = end_;
+  auto tmp = str_.end();
   if (getSizeInCodepoints()) // string needs at least 1 char
-    return utf8::prior(tmp,beg_);
+    return utf8::prior(tmp, beg_);
   return L'\0';
 }
 
 std::size_t StringManipulator::getSizeInCodepoints() const {
-  return utf8::distance(beg_,end_);
+  return utf8::distance(beg_, str_.end());
 }
 
 std::size_t StringManipulator::getSizeInBytes() const {
@@ -141,5 +141,5 @@ std::size_t StringManipulator::getSizeInBytes() const {
 }
 
 bool StringManipulator::eof() const {
-  return iter_ == end_;
+  return iter_ == str_.end();
 }

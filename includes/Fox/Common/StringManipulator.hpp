@@ -6,20 +6,7 @@
 //----------------------------------------------------------------------------//
 // Implements a UTF-8 string manipulator based on the UTFCPP library.
 //
-// How it works :
-//
-// # = Current iterator iter_ position. It is always positioned at the end of the previous CP, and at the beginning of the current CP
-// CP = One codepoint. It's one or more bytes in the std::string.
-//    
-//                            getCurrentChar()
-//                              |->
-//                        peekPrevious()|  peekNext()
-//                          |->   |    |->
-//                 - - --------------------------------------------------------- - -
-//  str_(input string)         |  CP  |  CP  |  CP  #  CP  |  CP  |  CP  |  CP  |
-//                 - - --------------------------------------------------------- - -
-//
-//
+// FIXME: Rework this as an iterator
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -47,8 +34,8 @@ namespace fox {
         ITERATOR MANIPULATION
       */
       void reset();
-      void advance(const std::size_t& ind = 1);
-      void goBack(const std::size_t& ind = 1);
+      void advance(std::size_t ind = 1);
+      void goBack(std::size_t ind = 1);
 
       /*
         GET THE CURRENT CHARACTER
@@ -89,8 +76,10 @@ namespace fox {
       // DO NOT MIX THIS WITH std::string::operator[] AND STRING OPERATIONS!
       std::size_t getIndexInCodepoints() const;
 
-      // This uses std::distance to calculate the index at which the current codepoint begins in BYTES
-      // You can use this with std::string::operator[] to retrieve the first byte of the codepoint.
+      // This uses std::distance to calculate the index at which 
+      // the current codepoint begins in BYTES
+      // You can use this with std::string::operator[] to retrieve 
+      // the first byte of the codepoint.
       std::size_t getIndexInBytes() const;
 
       /*
@@ -107,11 +96,13 @@ namespace fox {
       static void append(std::string& str, FoxChar ch);
 
     private:
-      // The string currently stored
+      // The string currently being iterated
       string_view str_;
 
-      // Iterators
-      string_view::const_iterator iter_, end_, beg_;
+      // Iterators: we store the begin and current iterators,
+      // because the begin iterator might have been moved to
+      // skip a bom.
+      string_view::const_iterator iter_, beg_;
   };
 }
 
