@@ -140,10 +140,8 @@ To-Do:
   > DiagnosticEngine interface improvements (Done)
   > LinearAllocator overhaul (Done)
   > DeclContext - LookupContext merged + interface improvement/rework (Done)
-
-  > Tests don't pass
-  > BUG: There is a crash in this sample when trying to increment the sloc.
-      func bar(x: int, b : bool) {_Русский}
+  
+  > Refactor the code used to fix the lexer in getCurtokRange()
 
   > Add local lookups in DeclContext:
     > ScopeInfo class

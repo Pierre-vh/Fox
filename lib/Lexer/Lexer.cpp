@@ -266,9 +266,15 @@ bool Lexer::shouldIgnore(FoxChar c) const {
 }
 
 SourceLoc Lexer::getCurtokBegLoc() const {
-  return SourceLoc(currentFile_,currentTokenBeginIndex_);
+  return SourceLoc(currentFile_, currentTokenBeginIndex_);
 }
 
 SourceRange Lexer::getCurtokRange() const {
-  return SourceRange(getCurtokBegLoc(), static_cast<SourceRange::OffsetTy>(curtok_.size() - 1));
+  // FIXME: This is really hack-ish.
+  StringManipulator manipCopy = manip_;
+  manipCopy.goBack();
+  auto idx = manipCopy.getIndexInBytes();
+  assert(idx >= currentTokenBeginIndex_);
+  auto offset = idx - currentTokenBeginIndex_;
+  return SourceRange(getCurtokBegLoc(), offset);
 }
