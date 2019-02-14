@@ -406,7 +406,7 @@ SourceManager::getDifference(SourceLoc a, SourceLoc b) const {
   auto it_b = source.begin()+b.getRawIndex();
   // Increment it_b to convert the [it_a, it_b] (closed interval) range into
   // [it_a, it_b[ (half-closed interval)
-  if(it_b != source.end()) ++it_b;
+  if(it_b != source.end()) utf8::next(it_b, source.end());
 
   // Calculate the distance and return the distance minus one to get
   std::size_t distance = utf8::distance(it_a, it_b);
