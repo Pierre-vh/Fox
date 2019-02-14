@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <iosfwd>
 
 namespace fox {
   class SourceManager;
@@ -36,6 +37,8 @@ namespace fox {
 
       // For use in containers
       bool operator <(const FileID other) const;
+
+      friend std::ostream& operator<<(std::ostream& os, FileID file);
 
     private:
       friend class SourceManager;
@@ -81,6 +84,8 @@ namespace fox {
       // Returns false if the other SourceLoc doesn't belong to the 
       // same file, or if it comes after this one.
       bool comesBefore(SourceLoc other) const;
+
+      friend std::ostream& operator<<(std::ostream& os, SourceLoc loc);
 
     private:
       FileID fid_;
@@ -132,6 +137,8 @@ namespace fox {
       // Return false if the SourceRange doesn't belong to the same file,
       // or if it's not contained inside this SourceRange
       bool contains(SourceRange range) const;
+
+      friend std::ostream& operator<<(std::ostream& os, SourceRange range);
 
     private:
       SourceLoc sloc_;

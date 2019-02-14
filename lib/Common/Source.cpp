@@ -105,6 +105,12 @@ bool FileID::operator <(const FileID other) const {
   return (idx_ < other.idx_);
 }
 
+std::ostream& fox::operator<<(std::ostream& os, FileID file) {
+  os << "FileID(" << file.idx_ << ")";
+  return os;
+}
+
+
 //----------------------------------------------------------------------------//
 // SourceLoc
 //----------------------------------------------------------------------------//
@@ -144,6 +150,11 @@ SourceLoc::index_type SourceLoc::getRawIndex() const {
 bool SourceLoc::comesBefore(SourceLoc other) const {
   if(fid_ != other.fid_) return false;
   return idx_ < other.idx_;
+}
+
+std::ostream& fox::operator<<(std::ostream& os, SourceLoc loc) {
+  os << "SourceLoc(" << loc.getFileID() << ", " << loc.idx_ << ")";
+  return os;
 }
 
 //----------------------------------------------------------------------------//
@@ -217,6 +228,11 @@ bool SourceRange::contains(SourceRange range) const {
 
 FileID SourceRange::getFileID() const {
   return sloc_.getFileID();
+}
+
+std::ostream& fox::operator<<(std::ostream& os, SourceRange range) {
+  os << "SourceRange(" << range.getBegin() << ", " << range.getEnd() << ")";
+  return os;
 }
 
 //----------------------------------------------------------------------------//
