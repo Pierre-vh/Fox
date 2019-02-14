@@ -123,9 +123,10 @@ namespace fox {
       string_view getLineAt(SourceLoc loc, 
         SourceLoc::index_type* lineBeg = nullptr) const;
 
-      // Returns a SourceLoc that refers to the next code point
-      // after "loc".
-      SourceLoc getNextCodepointSourceLoc(SourceLoc loc) const;
+      // Increments the SourceLoc by "count" codepoints.
+      // This must be used carefully, as it may fail if you try to
+      // increment past thee end.
+      SourceLoc incrementSourceLoc(SourceLoc loc, std::size_t count = 1) const;
 
     private:
       // This class represents the data that is stored internally inside the

@@ -337,7 +337,10 @@ SourceManager::getLineAt(SourceLoc loc, SourceLoc::index_type* lineBeg) const {
   return source.substr(beg, end-beg);
 }
 
-SourceLoc SourceManager::getNextCodepointSourceLoc(SourceLoc loc) const {
+SourceLoc 
+SourceManager::incrementSourceLoc(SourceLoc loc, std::size_t count) const {
+  if(count == 0) return loc;
+
   // First, retrieve the Data.
   FileID file = loc.getFileID();
   const Data* data = getData(file);
@@ -350,15 +353,18 @@ SourceLoc SourceManager::getNextCodepointSourceLoc(SourceLoc loc) const {
   auto next = cur;
   auto end = data->content.end();
 
-  // If this isn't a past-the-end SourceLoc
-  if(cur != end) {
-    // Get the next character in the sequence
-    utf8::next(next, end);
+  if (cur != end) {
+    // If this isn't a past-the-end SourceLoc
+    for (std::size_t k = 0; k < count; k++) {
+      if(next == end) break;
+      utf8::next(next, end);
+    }
     // Calculate the offset
     std::size_t offset = std::distance(cur, next);
     // Recompose the SourceLoc
     return SourceLoc(file, raw+offset);
   }
+
   // If this is a past-the-end SourceLoc, just it since it cannot be
   // incremented.
   return loc;

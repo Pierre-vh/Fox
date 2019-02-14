@@ -400,7 +400,7 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
     SourceLoc loc = prevTok.getRange().getEnd();
     // Get the next character in the file. This will be our 
     // error's location.
-    loc = srcMgr.getNextCodepointSourceLoc(loc);
+    loc = srcMgr.incrementSourceLoc(loc);
     errorRange = SourceRange(loc);
   }
   else {
