@@ -139,6 +139,12 @@ To-Do:
   > SourceManager interface improvements (Done)
   > DiagnosticEngine interface improvements (Done)
   > LinearAllocator overhaul (Done)
+  > DeclContext - LookupContext merged + interface improvement/rework (Done)
+
+  > Add local lookups in DeclContext:
+    > ScopeInfo class
+    > Parser update
+    > SemaLookup update
 
   > VM
   > IR
@@ -205,6 +211,10 @@ Other:
         
   Medium priority:
     This is a list of "medium-priority" stuff that needs to be done.
+  
+    > Add "consistency" round-trip tests for the SourceManager's interface, for instance:
+        in a [beg, end] range containing some UTF8 characters:
+          sm.incrementSourceLoc(beg, sm.getDifference(beg, end)) == end
 
     > Lexer & Token rewrite + Parser rework.
 
