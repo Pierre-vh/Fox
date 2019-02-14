@@ -26,7 +26,6 @@ void Lexer::lexFile(FileID file) {
   fileID_ = file;
   auto source = ctxt_.sourceMgr.getFileContent(fileID_);
   strManip_.setStr(source);
-  strManip_.reset();
   state_ = DFAState::S_BASE;
   while(!strManip_.eof())
     cycle();
