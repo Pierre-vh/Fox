@@ -285,16 +285,18 @@ void* ParamList::operator new(std::size_t, void* mem) {
 // FuncDecl
 //----------------------------------------------------------------------------//
 
-FuncDecl::FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId,
-  SourceRange idRange, ParamList* params, TypeLoc returnType): fnBegLoc_
+FuncDecl::FuncDecl(ASTContext& ctxt, DeclContext* parent, SourceLoc fnBegLoc, 
+                    Identifier fnId, SourceRange idRange, ParamList* params, 
+                    TypeLoc returnType): fnBegLoc_
   (fnBegLoc), ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange),
-  DeclContext(DeclContextKind::FuncDecl, parent), params_(params),
+  DeclContext(ctxt, DeclContextKind::FuncDecl, parent), params_(params),
   returnTypeLoc_(returnType) {}
 
 FuncDecl* 
 FuncDecl::create(ASTContext& ctxt, DeclContext* parent, SourceLoc fnBegLoc,
   Identifier id, SourceRange idRange, ParamList* params, TypeLoc returnType) {
-  return new(ctxt) FuncDecl(parent, fnBegLoc, id, idRange, params, returnType);
+  return new(ctxt) 
+    FuncDecl(ctxt, parent, fnBegLoc, id, idRange, params, returnType);
 }
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
@@ -407,7 +409,7 @@ SourceRange VarDecl::getRange() const {
 
 UnitDecl::UnitDecl(ASTContext& ctxt, Identifier id, FileID file):
   Decl(DeclKind::UnitDecl, (DeclContext*)nullptr), identifier_(id), file_(file),
-  LookupContext(ctxt, DeclContextKind::UnitDecl), ctxt_(ctxt) {}
+  ctxt_(ctxt), DeclContext(ctxt, DeclContextKind::UnitDecl) {}
 
 UnitDecl* UnitDecl::create(ASTContext& ctxt,Identifier id, FileID file) {
   return new(ctxt) UnitDecl(ctxt, id, file);

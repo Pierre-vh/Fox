@@ -30,13 +30,14 @@ namespace {
   //    > if we are done searching the whole DeclContext tree.
   void lookupInDeclContext(Identifier id, ResultFoundFn onFound, 
     DeclContext* dc) {
-    using LMap = LookupContext::LookupMap;
+    using LookupMap = DeclContext::LookupMap;
     DeclContext* cur = dc;
     while(cur) {
-      if(LookupContext* lookupContext = dyn_cast<LookupContext>(cur)) {
-        const LMap& map = lookupContext->getLookupMap();
+      // FIXME: Remove this once lookup is working on local contexts
+      if (!cur->isLocal()) {
+        const LookupMap& map = cur->getLookupMap();
         // Search all decls with the identifier "id" in the multimap
-        LMap::const_iterator beg, end;
+        LookupMap::const_iterator beg, end;
         std::tie(beg, end) = map.equal_range(id);
         for(auto it = beg; it != end; ++it) {
           if(!onFound(it->second)) return;

@@ -33,12 +33,6 @@
   #endif
 #endif
 
-// This macro is used for lookup DeclContexts, the default
-// behaviour is to do the same as DECL_CTXT
-#ifndef LOOKUP_CTXT
-  #define LOOKUP_CTXT(ID,PARENT) DECL_CTXT(ID,PARENT)
-#endif
-
 // This macro is used for ValueDecls, the default
 // behaviour is to do the same as DECL
 #ifndef VALUE_DECL
@@ -76,7 +70,7 @@ ABSTRACT_DECL(NamedDecl,Decl)
     DECL_RANGE(ValueDecl, ParamDecl, FuncDecl)
   DECL_RANGE(NamedDecl, ParamDecl, FuncDecl)
 
-LOOKUP_CTXT(UnitDecl, Decl)
+DECL_CTXT(UnitDecl, Decl)
 LAST_DECL_CTXT(UnitDecl)
 
 LAST_DECL(UnitDecl)
@@ -86,7 +80,6 @@ LAST_DECL(UnitDecl)
 #undef DECL
 #undef DECL_CTXT
 #undef VALUE_DECL_CTXT
-#undef LOOKUP_CTXT
 #undef VALUE_DECL
 #undef DECL_RANGE
 #undef LAST_DECL_CTXT

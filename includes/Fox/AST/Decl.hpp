@@ -117,7 +117,7 @@ namespace fox {
       Decl(DeclKind kind, DeclContext* dc);
 
     private:
-      friend class LookupContext;
+      friend class DeclContext;
       friend class DeclIterator;
 
       // Our parent DeclContext
@@ -306,8 +306,9 @@ namespace fox {
       }
       
     private:
-      FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId, 
-        SourceRange idRange, ParamList* params, TypeLoc returnType);
+      FuncDecl(ASTContext& ctxt, DeclContext* parent, 
+               SourceLoc fnBegLoc, Identifier fnId, 
+               SourceRange idRange, ParamList* params, TypeLoc returnType);
       
       Type valueType_;
       SourceLoc fnBegLoc_;
@@ -366,7 +367,7 @@ namespace fox {
 
   /// UnitDecl
   ///    Represents a parsed Source file.
-  class UnitDecl final: public Decl, public LookupContext {
+  class UnitDecl final: public Decl, public DeclContext {
     public:
       static UnitDecl* create(ASTContext& ctxt, Identifier id, FileID file);
 

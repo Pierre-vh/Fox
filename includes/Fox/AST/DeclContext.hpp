@@ -33,50 +33,7 @@ namespace fox {
     return static_cast<std::underlying_type<DeclContextKind>::type>(kind);
   }
 
-  // DeclContext is a class that acts as a "semantic container for declarations"
-  //
-  // Nodes that introduce a new "Declaration Context" may inherit from
-  // this class, but there is no strict rule for that. For instance
-  // FuncDecl and UnitDecl both inherit from this class, but CompoundStmt
-  // doesn't.
-  //
-  // By default, DeclContext doesn't track anything. Its role is simply
-  // to represent Declaration Contexts within the AST.
-  class alignas(DeclContextAlignement) DeclContext {
-    public:
-      // Returns the Kind of DeclContext this is
-      DeclContextKind getDeclContextKind() const;
-
-      // Return the ASTContext by walking up to the root UnitDecl
-      // and returning it's ASTContext.
-      ASTContext& getASTContext() const;
-
-      bool hasParentDeclCtxt() const;
-      DeclContext* getParentDeclCtxt() const;
-
-      static bool classof(const Decl* decl);
-
-    protected:
-      DeclContext(DeclContextKind kind, DeclContext* parent = nullptr);
-
-    private:
-      // The PointerIntPair used to represent the ParentAndKind bits
-      using ParentAndKindTy 
-        = llvm::PointerIntPair<DeclContext*, DeclContextFreeLowBits>;
-      
-      // A PointerIntPair which contains the parent of this DeclContext + the
-      // kind of DeclContext this is.
-      const ParentAndKindTy parentAndKind_;
-
-      // Check that ParentAndKindTy has enough bits to represent
-      // every possible DeclContextKind
-      static_assert(
-        (1 << DeclContextFreeLowBits) > toInt(DeclContextKind::LastDeclCtxt),
-        "The PointerIntPair doesn't have enough bits to represent every "
-        " DeclContextKind value");
-  };
-  
-  // DeclIterator iterates over all Decls in a LookupContext
+  // DeclIterator iterates over all Decls in a DeclContext
   class DeclIterator {
     public:
       using iterator_category = std::forward_iterator_tag;
@@ -101,7 +58,7 @@ namespace fox {
       Decl* cur_ = nullptr;
   };
 
-  // DeclRange represents the range of Decls belonging to a LookupContext.
+  // DeclRange represents the range of Decls belonging to a DeclContext.
   // It provides a begin() and end() method, which enables usage in
   // for loops using the range syntax.
   class DeclRange {
@@ -117,15 +74,30 @@ namespace fox {
       DeclIterator beg_, end_;
   };
 
-  // The LookupContext is a DeclContext with the added functionality 
-  // of tracking the declarations it contains. It also offers
-  // a LookupMap which is used to perform qualified name lookup.
-  class LookupContext : public DeclContext {
+  // DeclContext is a class that acts as a "semantic container for declarations"
+  // It tracks the declaration it "owns", and provides lookup methods.
+  //
+  // This class is the centerpiece of name resolution in Fox. It is used to handle
+  // any kind of lookup, both Unqualified and Qualified.
+  class alignas(DeclContextAlignement) DeclContext {
     public:
       // The type of the lookup map
       using LookupMap = std::multimap<Identifier, NamedDecl*>;
 
-      // Adds a Decl in this LookupContext.
+      // Returns the Kind of DeclContext this is
+      DeclContextKind getDeclContextKind() const;
+
+      // Return the ASTContext by walking up to the root UnitDecl
+      // and returning it's ASTContext.
+      ASTContext& getASTContext() const;
+
+      bool hasParentDeclCtxt() const;
+      DeclContext* getParentDeclCtxt() const;
+
+      // Returns true if this DeclContext is a local DeclContext.
+      bool isLocal() const;
+
+      // Adds a Decl in this DeclContext.
       // If "decl" is a NamedDecl, it is expected to have a valid identifier
       void addDecl(Decl* decl);
 
@@ -142,14 +114,19 @@ namespace fox {
       const LookupMap& getLookupMap();
 
       static bool classof(const Decl* decl);
-      static bool classof(const DeclContext* decl);
 
     protected:
-      LookupContext(ASTContext& ctxt, DeclContextKind kind, 
-                    DeclContext* parent = nullptr);
+      DeclContext(ASTContext& ctxt, DeclContextKind kind, 
+                  DeclContext* parent = nullptr);
 
     private:
-      friend class ASTContext; // Needs to see DeclData
+      // The PointerIntPair used to represent the ParentAndKind bits
+      using ParentAndKindTy 
+        = llvm::PointerIntPair<DeclContext*, DeclContextFreeLowBits>;
+      
+      // A PointerIntPair which contains the parent of this DeclContext + the
+      // kind of DeclContext this is.
+      const ParentAndKindTy parentAndKind_;
 
       // The First and Last decl in the linked list of Decls
       // contained inside this DeclContext.
@@ -158,5 +135,12 @@ namespace fox {
 
       // The lookup map
       LookupMap* lookupMap_ = nullptr;
+
+      // Check that ParentAndKindTy has enough bits to represent
+      // every possible DeclContextKind
+      static_assert(
+        (1 << DeclContextFreeLowBits) > toInt(DeclContextKind::LastDeclCtxt),
+        "The PointerIntPair doesn't have enough bits to represent every "
+        " DeclContextKind value");
   };
 }

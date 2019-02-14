@@ -17,10 +17,17 @@ using namespace fox;
 // DeclContext
 //----------------------------------------------------------------------------//
 
-DeclContext::DeclContext(DeclContextKind kind, 
-  DeclContext* parent): parentAndKind_(parent, toInt(kind)) {
+DeclContext::DeclContext(ASTContext& ctxt, DeclContextKind kind, 
+                         DeclContext* parent):
+  parentAndKind_(parent, toInt(kind)) {
   assert((parent || isa<UnitDecl>(this)) && "Every DeclContexts except "
     "UnitDecls must have a parent!");
+  // Create the LookupMap
+  void* mem = ctxt.allocate(sizeof(LookupMap), alignof(LookupMap));
+  lookupMap_ = new(mem) LookupMap();
+  // Add its cleanup
+  ctxt.addDestructorCleanup(*lookupMap_);
+  assert(lookupMap_);
 }
 
 DeclContextKind DeclContext::getDeclContextKind() const {
@@ -41,28 +48,17 @@ DeclContext* DeclContext::getParentDeclCtxt() const {
   return parentAndKind_.getPointer();
 }
 
-bool DeclContext::classof(const Decl* decl) {
-  #define DECL_CTXT(ID, PARENT) case DeclKind::ID:
-  switch(decl->getKind()) {
-    #include "Fox/AST/DeclNodes.def"
-      return true;
-    default: 
-      return false;
-  }
+bool DeclContext::isLocal() const {
+  return getDeclContextKind() == DeclContextKind::FuncDecl
+  ;
 }
 
-//----------------------------------------------------------------------------//
-// LookupContext
-//----------------------------------------------------------------------------//
-
-void LookupContext::addDecl(Decl* decl) {
+void DeclContext::addDecl(Decl* decl) {
   // Run some checks.
   assert(decl && 
     "Declaration cannot be null!");
   assert(decl->getRange() && "Declaration must have valid source location"
     "information to be inserted in the DeclContext");
-  assert(!decl->isLocal() && 
-    "Can't add local declarations in a DeclContext!");
 
   // Insert the decl_ in the linked list of decls
   if (firstDecl_) {
@@ -83,52 +79,31 @@ void LookupContext::addDecl(Decl* decl) {
   }
 }
 
-DeclRange LookupContext::getDecls() const {
+DeclRange DeclContext::getDecls() const {
   return DeclRange(firstDecl_, nullptr);
 }
 
-Decl* LookupContext::getFirstDecl() const {
+Decl* DeclContext::getFirstDecl() const {
   return firstDecl_;
 }
 
-Decl* LookupContext::getLastDecl() const {
+Decl* DeclContext::getLastDecl() const {
   return lastDecl_;
 }
 
-const LookupContext::LookupMap& LookupContext::getLookupMap() {
+const DeclContext::LookupMap& DeclContext::getLookupMap() {
   assert(lookupMap_ && "no LookupMap available");
   return *lookupMap_;
 }
 
-bool LookupContext::classof(const Decl* decl) {
-  #define LOOKUP_CTXT(ID, PARENT) case DeclKind::ID:
+bool DeclContext::classof(const Decl* decl) {
+  #define DECL_CTXT(ID, PARENT) case DeclKind::ID:
   switch(decl->getKind()) {
     #include "Fox/AST/DeclNodes.def"
       return true;
     default: 
       return false;
   }
-}
-
-bool LookupContext::classof(const DeclContext* dc) {
-  #define LOOKUP_CTXT(ID, PARENT) case DeclContextKind::ID:
-  switch(dc->getDeclContextKind()) {
-    #include "Fox/AST/DeclNodes.def"
-      return true;
-    default: 
-      return false;
-  }
-}
-
-LookupContext::LookupContext(ASTContext& ctxt, DeclContextKind kind, 
-                             DeclContext* parent):
-  DeclContext(kind, parent) {
-  // Create the LookupMap
-  void* mem = ctxt.allocate(sizeof(LookupMap), alignof(LookupMap));
-  lookupMap_ = new(mem) LookupMap();
-  // Add its cleanup
-  ctxt.addDestructorCleanup(*lookupMap_);
-  assert(lookupMap_);
 }
 
 //----------------------------------------------------------------------------//
