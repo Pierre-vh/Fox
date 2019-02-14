@@ -18,12 +18,11 @@
 
 namespace fox {
   class DiagnosticEngine;
+  class SourceManager;
   class Lexer  {
     public:
       Lexer(ASTContext &astctxt);
 
-      // Lexs a file in the SourceManager.
-      // This will retrieve the file from the SourceManager from the current Context.
       void lexFile(FileID file);
   
       TokenVector& getTokenVector();
@@ -53,12 +52,19 @@ namespace fox {
       void fn_S_WORDS();  // "basic" state (push to tok until separator is met)
       void fn_S_CHR();  // Char literals
 
-      // Utils
-      FoxChar eatChar();            // returns the current char and run updatePos (returns inputstr_[pos_] and do pos_+=1)
-      void addToCurtok(FoxChar c);      // adds the current character to curtok
-      bool isSep(FoxChar c) const;      // is the current char a separator? (= a sign. see kSign_dict)
-      bool isEscapeChar(FoxChar c) const;  // Checks if C is \ AND if the state is adequate for it to be qualified as an escape char.
-      bool shouldIgnore(FoxChar c) const;  // Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
+      // returns the current char and run updatePos 
+      // (returns inputstr_[pos_] and do pos_+=1)
+      FoxChar eatChar();
+      // adds the current character to curtok
+      void addToCurtok(FoxChar c);
+      // is the current char a separator? (= a sign. see kSign_dict)
+      bool isSep(FoxChar c) const;
+      // Checks if C is \ AND if the state is adequate for it
+      // to be considered as an escape char.
+      bool isEscapeChar(FoxChar c) const;
+      // Checks if the char is valid to be pushed. 
+      // If it isn't and it should be ignored, returns true
+      bool shouldIgnore(FoxChar c) const;
 
       SourceLoc getCurtokBegLoc() const;
       SourceLoc getCurtokEndLoc() const;
@@ -67,7 +73,7 @@ namespace fox {
       ASTContext& ctxt_;
       DiagnosticEngine& diags_;
       SourceManager& sm_;
-      FileID currentFile_;
+      FileID fileID_;
 
       bool escapeFlag_ : 1;
       DFAState state_ = DFAState::S_BASE;    
@@ -76,6 +82,6 @@ namespace fox {
       std::size_t curTokBegIdx_ = 0, curTokEndIdx_ = 0;
 
       TokenVector tokens_;
-      StringManipulator manip_;
+      StringManipulator strManip_;
   };
 }

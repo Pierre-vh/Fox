@@ -23,12 +23,12 @@ Lexer::Lexer(ASTContext& astctxt): ctxt_(astctxt),
 
 void Lexer::lexFile(FileID file) {
   assert(file && "INVALID FileID!");
-  currentFile_ = file;
-  auto source = ctxt_.sourceMgr.getFileContent(currentFile_);
-  manip_.setStr(source);
-  manip_.reset();
+  fileID_ = file;
+  auto source = ctxt_.sourceMgr.getFileContent(fileID_);
+  strManip_.setStr(source);
+  strManip_.reset();
   state_ = DFAState::S_BASE;
-  while(!manip_.eof())
+  while(!strManip_.eof())
     cycle();
   pushTok();
   runFinalChecks();
@@ -43,7 +43,7 @@ std::size_t Lexer::resultSize() const {
 }
 
 FileID Lexer::getCurrentFile() const {
-  return currentFile_;
+  return fileID_;
 }
 
 void Lexer::pushTok() {
@@ -102,13 +102,13 @@ void Lexer::runStateFunc() {
 }
 
 void Lexer::fn_S_BASE() {
-  const FoxChar pk = manip_.peekNext();
-  const FoxChar c = manip_.getCurrentChar();  // current char
+  const FoxChar pk = strManip_.peekNext();
+  const FoxChar c = strManip_.getCurrentChar();  // current char
 
   assert((curtok_.size() == 0) && "Curtok not empty in base state");
 
   // Set the current token begin index
-  curTokBegIdx_ = manip_.getIndexInBytes();
+  curTokBegIdx_ = strManip_.getIndexInBytes();
 
   // IGNORE SPACES
   if (std::iswspace(static_cast<wchar_t>(c))) eatChar();
@@ -168,14 +168,14 @@ void Lexer::fn_S_LCOM() {
 
 void Lexer::fn_S_MCOM() {
   FoxChar c = eatChar();
-  if (c == '*' && manip_.getCurrentChar() == '/') {
+  if (c == '*' && strManip_.getCurrentChar() == '/') {
     eatChar(); // Consume the '/'
     dfa_goto(DFAState::S_BASE);
   }
 }
 
 void Lexer::fn_S_WORDS() {
-  if (isSep(manip_.getCurrentChar())) {    
+  if (isSep(strManip_.getCurrentChar())) {    
     pushTok();
     dfa_goto(DFAState::S_BASE);
   }
@@ -205,9 +205,9 @@ void Lexer::dfa_goto(DFAState ns) {
 }
 
 FoxChar Lexer::eatChar() {
-  const FoxChar c = manip_.getCurrentChar();
-  curTokEndIdx_ = manip_.getIndexInBytes();
-  manip_.advance();
+  const FoxChar c = strManip_.getCurrentChar();
+  curTokEndIdx_ = strManip_.getIndexInBytes();
+  strManip_.advance();
   return c;
 }
 
@@ -248,7 +248,7 @@ bool Lexer::isSep(FoxChar c) const {
   // Is separator ? Signs are the separators in the input. 
   // Separators mark the end and beginning of tokens, and are tokens themselves. 
   // Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
-  if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip_.peekNext()))) 
+  if (c == '.' && std::iswdigit(static_cast<wchar_t>(strManip_.peekNext()))) 
   // if the next character is a digit, don't treat the dot as a separator.
     return false;
   // To detect if C is a sign separator, we use the sign dictionary
@@ -266,11 +266,11 @@ bool Lexer::shouldIgnore(FoxChar c) const {
 }
 
 SourceLoc Lexer::getCurtokBegLoc() const {
-  return SourceLoc(currentFile_, curTokBegIdx_);
+  return SourceLoc(fileID_, curTokBegIdx_);
 }
 
 SourceLoc Lexer::getCurtokEndLoc() const {
-  return SourceLoc(currentFile_, curTokEndIdx_);
+  return SourceLoc(fileID_, curTokEndIdx_);
 }
 
 SourceRange Lexer::getCurtokRange() const {
