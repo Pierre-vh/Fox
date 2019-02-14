@@ -141,6 +141,7 @@ To-Do:
   > LinearAllocator overhaul (Done)
   > DeclContext - LookupContext merged + interface improvement/rework (Done)
 
+  > Tests don't pass
   > BUG: There is a crash in this sample when trying to increment the sloc.
       func bar(x: int, b : bool) {_Русский}
 
