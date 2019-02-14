@@ -15,9 +15,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # include the commonly used macros/helpers.
 include(cmake/AddSource.cmake) # defines the add_source macro
 
-# include googletest related stuff 
-include(cmake/GoogleTest.cmake) # imports googletest 
-
 # include third-party libraries script
 include(thirdparty/ThirdParty.cmake)
 
@@ -98,9 +95,9 @@ if(IS_MSVC_OR_CLANGCL)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
   endif()
 
-  # set compiler flags
+  # set warnings flag
   add_compile_options(/WX)
-  add_compile_options(/permissive-)
+
   # silence problematic warnings 
     # C4706 "assignement within conditional expression"
     #   Reason: This construct is used a lot in the code
@@ -176,23 +173,22 @@ endif()
 include_directories(includes)               # Fox library includes
 include_directories(${thirdparty_includes}) # Third Party libraries includes
 
-# before disabling MSVC extensions, include the CommandLine
-# directory (= create its target) this is needed because the CommandLine
-# source file uses windows libraries (which use MSVC extensions)
-# FIXME: This is kind of a hack, it'd be better to add /Za with compile options
-#        before, then remove it in CommandLine's CMakeLists
+# before disabling MSVC extensions, include the CommandLine and unittest
+# folders, because both of them need MSVC extensions enabled.
 add_subdirectory(tools/CommandLine)
+
+# add unittests (creates the unittest target)
+add_subdirectory(unittests)
 
 # Disables extensions on MSVC 
 if(IS_MSVC)
   add_compile_options(/Za)
+  add_compile_options(/permissive-)
 endif()
 
 # add lib subdir (to define libfox_src)
 add_subdirectory(lib)
 
-# add unittests (creates the unittest target)
-add_subdirectory(unittests)
 
 # add lib target
 add_library(libfox STATIC ${libfox_src})

@@ -69,10 +69,10 @@ void Lexer::runFinalChecks() {
     case DFAState::S_STR:
       // FALL THROUGH
     case DFAState::S_CHR:
-      diags_.report(DiagID::lexer_missing_closing_quote, getCurtokBegLoc());
+      diags_.report(DiagID::missing_closing_quote, getCurtokBegLoc());
       break;
     case DFAState::S_MCOM:
-      diags_.report(DiagID::lexer_unfinished_multiline_comment, getCurtokBegLoc());
+      diags_.report(DiagID::unfinished_multiline_comment, getCurtokBegLoc());
       break;
     default:
       // no-op
@@ -159,7 +159,7 @@ void Lexer::fn_S_STR() {
   }
   else if (c == '\n')
     diags_
-      .report(DiagID::lexer_newline_in_literal, getCurtokBegLoc())
+      .report(DiagID::newline_in_literal, getCurtokBegLoc())
       .addArg("string");
   else
     addToCurtok(c);
@@ -195,13 +195,13 @@ void Lexer::fn_S_CHR() {
     addToCurtok(c);
 
     if (curtok_.size() == 2)
-      diags_.report(DiagID::lexer_empty_char_literal, getCurtokRange());
+      diags_.report(DiagID::empty_char_literal, getCurtokRange());
 
     pushTok();
     dfa_goto(DFAState::S_BASE);
   }
   else if (c == '\n')
-    diags_.report(DiagID::lexer_newline_in_literal, getCurtokRange());
+    diags_.report(DiagID::newline_in_literal, getCurtokRange());
   else
     addToCurtok(c);
 }

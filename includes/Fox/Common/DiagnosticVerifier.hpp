@@ -98,7 +98,7 @@ namespace fox {
 			void diagnoseMissingColon(SourceLoc loc);
       void diagnoseMissingSuffix(SourceLoc instrBeg);
 			void diagnoseIllFormedOffset(SourceRange argRange);
-      void diagnoseIllegalOffset(SourceRange argRange);
+      void diagnoseBadNegativeOffset(SourceRange argRange);
 
 			// Parses the suffix string and puts the result inside "expected"
 			bool parseSeverity(string_view suffix, DiagSeverity& sev);

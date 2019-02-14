@@ -1,0 +1,8 @@
+This folder contains the googletest library. The project has been cleaned-up to minimize
+the amount of files checked in the Fox GitHub repository.
+
+1 - Only the "googletest" project folder is used (not googlemock).
+2 - Removed every folder and file inside the googletest project with the exception of
+    a - 'include' folder
+    b - 'src' folder (note: gtest-main.cc has been removed from that folder).
+    c - LICENSE file

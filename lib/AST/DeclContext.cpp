@@ -56,34 +56,48 @@ bool DeclContext::classof(const Decl* decl) {
 //----------------------------------------------------------------------------//
 
 void LookupContext::addDecl(Decl* decl) {
-  assert(decl  && "Declaration cannot be null!");
+  // Run some checks.
+  assert(decl && 
+    "Declaration cannot be null!");
   assert(decl->getRange() && "Declaration must have valid source location"
     "information to be inserted in the DeclContext");
-  assert(!decl->isLocal() && "Can't add local declarations in a DeclContext!");
-  // Insert in decls_
-  data().decls.push_back(decl);
+  assert(!decl->isLocal() && 
+    "Can't add local declarations in a DeclContext!");
+
+  // Insert the decl_ in the linked list of decls
+  if (firstDecl_) {
+    assert(lastDecl_ && "firstDecl_ is not null but lastDecl_ is");
+    lastDecl_ = lastDecl_->nextDecl_ = decl;
+  }
+  else {
+    assert(!lastDecl_ && "firstDecl_ is null but lastDecl_ isn't");
+    firstDecl_ = lastDecl_ = decl;
+  }
+  
   if(NamedDecl* named = dyn_cast<NamedDecl>(decl)) {
-    // Update the lookup map if it has been built
+    // Update the lookup map if we have one.
     Identifier id = named->getIdentifier();
     assert(id && "NameDecl with invalid identifier");
-    if(data().lookupMap) data().lookupMap->insert({id, named});
+    if(lookupMap_) 
+      lookupMap_->insert({id, named});
   }
 }
 
-const LookupContext::DeclVec& LookupContext::getDecls() const {
-  return data().decls;
+DeclRange LookupContext::getDecls() const {
+  return DeclRange(firstDecl_, nullptr);
+}
+
+Decl* LookupContext::getFirstDecl() const {
+  return firstDecl_;
+}
+
+Decl* LookupContext::getLastDecl() const {
+  return lastDecl_;
 }
 
 const LookupContext::LookupMap& LookupContext::getLookupMap() {
-  if(!data().lookupMap)
-    buildLookupMap();
-  assert(data().lookupMap && "buildLookupMap() did not build the "
-    "LookupMap!");
-  return *(data().lookupMap);
-}
-
-std::size_t LookupContext::numDecls() const {
-  return data().decls.size();
+  assert(lookupMap_ && "no LookupMap available");
+  return *lookupMap_;
 }
 
 bool LookupContext::classof(const Decl* decl) {
@@ -108,50 +122,64 @@ bool LookupContext::classof(const DeclContext* dc) {
 
 LookupContext::LookupContext(ASTContext& ctxt, DeclContextKind kind, 
                              DeclContext* parent):
-  DeclContext(kind, parent), data_(DeclData::create(ctxt, this)) {
-  assert(data_ && "LookupContext data not created");      
-}
-
-LookupContext::DeclData& LookupContext::data() {
-  assert(data_ && "Data cannot be nullptr!");
-  return (*data_);
-}
-
-const LookupContext::DeclData& LookupContext::data() const {
-  assert(data_ && "Data cannot be nullptr!");
-  return (*data_);
-}
-
-void LookupContext::buildLookupMap() {
-  // Don't do it if it's already built
-  if(data().lookupMap) return;
-  data().lookupMap = std::make_unique<LookupMap>();
-
-  // Iterate over decls_ and insert them in the lookup map
-  for(Decl* decl : data().decls) {
-    if(NamedDecl* named = dyn_cast<NamedDecl>(decl)) {
-      Identifier id = named->getIdentifier();
-      data().lookupMap->insert({id, named});
-    }
-  }
+  DeclContext(kind, parent) {
+  // Create the LookupMap
+  void* mem = ctxt.allocate(sizeof(LookupMap), alignof(LookupMap));
+  lookupMap_ = new(mem) LookupMap();
+  // Add its cleanup
+  ctxt.addDestructorCleanup(*lookupMap_);
+  assert(lookupMap_);
 }
 
 //----------------------------------------------------------------------------//
-// DeclData
+// DeclIterator
 //----------------------------------------------------------------------------//
 
-LookupContext::DeclData* 
-LookupContext::DeclData::create(ASTContext& ctxt, LookupContext* lc) {
-  DeclData* inst = new(ctxt) DeclData(lc);
-  // Important: register the cleanup, since this object isn't trivially
-  // destructible.
-  ctxt.addCleanup([inst](){inst->~DeclData();});
-  return inst;
+DeclIterator::DeclIterator(Decl* cur) : cur_(cur) {}
+
+DeclIterator& DeclIterator::operator++() {
+  assert(cur_ && "incrementing past the end");
+  cur_ = cur_->nextDecl_;
+  return *this;
 }
 
-void* LookupContext::DeclData::operator new(std::size_t sz, ASTContext& ctxt, 
-  std::uint8_t align) {
-  void* rawMem = ctxt.allocate(sz, align);
-  assert(rawMem);
-  return rawMem;
+DeclIterator fox::DeclIterator::operator++(int) {
+  DeclIterator old = *this;
+  ++(*this);
+  return old;
+}
+
+Decl* DeclIterator::operator*() const {
+  return cur_;
+}
+
+Decl* DeclIterator::operator->() const {
+  return cur_;
+}
+
+bool fox::operator==(DeclIterator lhs, DeclIterator rhs) {
+  return lhs.cur_ == rhs.cur_;
+}
+
+bool fox::operator!=(DeclIterator lhs, DeclIterator rhs) {
+  return lhs.cur_ != rhs.cur_;
+}
+
+//----------------------------------------------------------------------------//
+// DeclRange
+//----------------------------------------------------------------------------//
+
+DeclRange::DeclRange(DeclIterator beg, DeclIterator end) 
+  : beg_(beg), end_(end) {}
+
+DeclIterator DeclRange::begin() const {
+  return beg_;
+}
+
+DeclIterator DeclRange::end() const {
+  return end_;
+}
+
+bool DeclRange::isEmpty() const {
+  return beg_ == end_;
 }

@@ -9,37 +9,45 @@
 // Unit Tests
 //----------------------------------------------------------------------------//
 
-NOTE(unittest_notetest, "Test note")
-WARNING(unittest_warntest, "Test warning")
-ERROR(unittest_errtest, "Test error")
-FATAL(unittest_fataltest, "Test fatal")
+NOTE(unittest_notetest, 
+  "Test note")
+WARNING(unittest_warntest, 
+  "Test warning")
+ERROR(unittest_errtest, 
+  "Test error")
+FATAL(unittest_fataltest, 
+  "Test fatal")
 
-NOTE(unittest_placeholderremoval1, "[%0,%1]")
-NOTE(unittest_placeholderremoval2, "[%0%0%0]")
-NOTE(unittest_placeholderremoval3, "[%5%4%3%2%1%0]")
-NOTE(unittest_placeholderremoval4, "Hello, %0")
+NOTE(unittest_placeholderremoval1, 
+  "[%0,%1]")
+NOTE(unittest_placeholderremoval2, 
+  "[%0%0%0]")
+NOTE(unittest_placeholderremoval3, 
+  "[%5%4%3%2%1%0]")
+NOTE(unittest_placeholderremoval4, 
+  "Hello, %0")
 
 //----------------------------------------------------------------------------//
 // DiagnosticVerifier
 //----------------------------------------------------------------------------//
 
-ERROR(diagverif_expectedsuffix,
+ERROR(dv_expected_suffix,
 	"expected a suffix after '%0' prefix in verify instr")
-ERROR(diagverif_expectedcolon,
+ERROR(dv_expected_colon,
 	"expected a ':' in verify instr")
-ERROR(diagverif_expectedstr,
+ERROR(dv_expected_str,
 	"expected a diagnostic string in verify instr after ':'")
-ERROR(diagverif_illFormedOffset,
+ERROR(dv_ill_formed_offset,
 	"ill formed verify instr offset. should be '+' or '-' "
   "followed by a single digit between 1 and 9")
-ERROR(diagverif_offsetIsZero, 
+ERROR(dv_zero_offset, 
   "offset value must be between 1-9")
-ERROR(diagverif_illegalOffset,
+ERROR(dv_bad_negative_offset,
   "illegal offset value: cannot expect a diagnostic at a "
   "line number smaller than 1")
-ERROR(diagverif_errorExpectedDiagsNotEmitted,
+ERROR(dv_failure_diags_expected_not_emitted,
   "%0 diagnostics were expected but not emitted")
-ERROR(diagverif_unexpectedDiagsEmitted,
+ERROR(dv_failure_unexpected_diags_emitted,
   "verification failed because unexpected diagnostics were emitted")
-NOTE(diagverif_diagNotEmitted,
+NOTE(dv_note_diag_not_emitted,
   "diagnostic '%0' (%1) was expected at line %2 but not emitted")

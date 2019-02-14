@@ -5,30 +5,40 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-ERROR(parser_placeholder, "%0")
+ERROR(expected_closing_square_bracket,
+  "expected ']'")
+ERROR(expected_closing_curly_bracket,
+  "expected '}'")
+ERROR(expected_opening_curly_bracket,
+  "expected '{'")
+ERROR(expected_closing_round_bracket,
+  "expected ')'")
+ERROR(expected_opening_round_bracket,
+  "expected '('")
+ERROR(expected_stmt,
+  "expected a statement")
+ERROR(expected_expr,
+  "expected an expression")
+ERROR(expected_decl,
+  "expected a declaration")
+ERROR(expected_semi,
+  "expected ';'")
+ERROR(expected_colon,
+  "expected ':'")
+ERROR(expected_iden,
+  "expected an identifier")
+ERROR(expected_type,
+  "expected a type")
+ERROR(expected_paramdecl,
+  "expected a parameter declaration")
+ERROR(else_without_if,
+  "else without matching if")
+ERROR(expected_decl_in_unit,
+  "expected one or more declaration in unit")
 
-ERROR(parser_expected_closing_squarebracket, "expected ']'")
-ERROR(parser_expected_closing_curlybracket, "expected '}'")
-ERROR(parser_expected_opening_curlybracket, "expected '{'")
-ERROR(parser_expected_closing_roundbracket, "expected ')'")
-ERROR(parser_expected_opening_roundbracket, "expected '('")
-ERROR(parser_expected_stmt, "expected a statement")
-ERROR(parser_expected_expr,  "expected an expression")
-ERROR(parser_expected_decl, "expected a declaration")
-ERROR(parser_expected_semi, "expected ';'")
-ERROR(parser_expected_colon, "expected ':'")
-ERROR(parser_expected_iden, "expected an identifier")
-ERROR(parser_expected_type_name, "expected a type name")
-ERROR(parser_expected_type, "expected a type")
-ERROR(parser_expected_paramdecl, "expected a parameter declaration")
-ERROR(parser_else_without_if, "else without matching if")
-ERROR(parser_expected_decl_in_unit, "expected one or more declaration in unit")
-ERROR(parser_missing_curlybracket, "%0 unclosed '{' in file")
-ERROR(parser_missing_squarebracket, "%0 unclosed '[' in file")
-ERROR(parser_missing_roundbracket, "%0 unclosed '(' in file")
-
-WARNING(parser_ignored_ref_vardecl, "ignored reference qualifier '&' in variable declaration : variables cannot be references")
-
-FATAL(parser_roundbracket_overflow, "max round bracket depth exceeded")
-FATAL(parser_squarebracket_overflow, "max square bracket depth exceeded")
-FATAL(parser_curlybracket_overflow, "max curly bracket depth exceeded")
+FATAL(round_bracket_overflow,
+  "max round bracket depth exceeded")
+FATAL(square_bracket_overflow,
+  "max square bracket depth exceeded")
+FATAL(curly_bracket_overflow,
+  "max curly bracket depth exceeded")

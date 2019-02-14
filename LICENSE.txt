@@ -34,12 +34,7 @@ Theses softwares have their own license file:
 |  Project                |      Path to License              |
 |-------------------------|-----------------------------------|
 | utfcpp                  | /thirdparty/utfcpp/LICENSE.txt    |
-| mpark/variant           | /thirdparty/mpark/LICENSE.txt     |
 | llvm                    | /thirdparty/llvm/LICENSE.txt      |
 | nonstd/string-view-lite | /thirdparty/nonstd/LICENSE.txt    |
+| googletest              | /thirdparty/googlest/LICENSE      |
 |-------------------------|-----------------------------------|
-
-Addionally, Googletest is used for testing the project.
-Googletest's source code is automatically downloaded through CMake. (See  cmake/GoogleTest.cmake & cmake/GoogleTest.cmake.in)
-GoogleTest on Github: https://github.com/google/googletest
-Googletest's license: https://github.com/google/googletest/blob/master/LICENSE

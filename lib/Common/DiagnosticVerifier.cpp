@@ -124,12 +124,13 @@ bool DiagnosticVerifier::finish() {
 
   // If some expected diags weren't emitted, emit an error.
   if(expectedDiags_.size() != 0)
-    diags_.report(DiagID::diagverif_errorExpectedDiagsNotEmitted, SourceRange())
-    .addArg(expectedDiags_.size());
+    diags_
+      .report(DiagID::dv_failure_diags_expected_not_emitted, SourceRange())
+      .addArg(expectedDiags_.size());
 
   // Emit a note for each diag in the set
   for (auto diag : expectedDiags_) {
-    diags_.report(DiagID::diagverif_diagNotEmitted, diag.file)
+    diags_.report(DiagID::dv_note_diag_not_emitted, diag.file)
       .addArg(diag.diagStr)
       .addArg(toString(diag.severity))
       .addArg(diag.line);
@@ -139,7 +140,8 @@ bool DiagnosticVerifier::finish() {
   
   // For each file where unexpected diagnostics were emitted, emit a diagnostic.
   if(hasEmittedUnexpectedDiagnostics_) {
-    diags_.report(DiagID::diagverif_unexpectedDiagsEmitted, SourceRange());
+    diags_
+      .report(DiagID::dv_failure_unexpected_diags_emitted, SourceRange());
     success = false;
   }
 
@@ -256,7 +258,7 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
         // If absOffset >= line, that means that (line + offset)
         // will result in the line number being 0, or worse, underflowing.
         if(absOffset >= line) {
-          diagnoseIllegalOffset(argRange);
+          diagnoseBadNegativeOffset(argRange);
 		      return None;
         }
       }
@@ -276,30 +278,30 @@ DiagnosticVerifier::parseVerifyInstr(SourceLoc loc, string_view instr) {
 }
 
 void DiagnosticVerifier::diagnoseZeroOffset(SourceLoc offsetDigitLoc) {
-  diags_.report(DiagID::diagverif_offsetIsZero, offsetDigitLoc);
+  diags_.report(DiagID::dv_zero_offset, offsetDigitLoc);
 }
 
 void DiagnosticVerifier::diagnoseMissingStr(SourceLoc loc) {
-	diags_.report(DiagID::diagverif_expectedstr, loc);
+	diags_.report(DiagID::dv_expected_str, loc);
 }
 
 void DiagnosticVerifier::diagnoseMissingColon(SourceLoc loc) {
-	diags_.report(DiagID::diagverif_expectedcolon, loc);
+	diags_.report(DiagID::dv_expected_colon, loc);
 }
 
 void DiagnosticVerifier::diagnoseMissingSuffix(SourceLoc instrBeg) {
-  diags_.report(DiagID::diagverif_expectedsuffix,
+  diags_.report(DiagID::dv_expected_suffix,
     offsetSourceLoc(instrBeg, vPrefixSize))
       .addArg(vPrefix)
       .setExtraRange(SourceRange(instrBeg, vPrefixSize - 1));
 }
 
 void DiagnosticVerifier::diagnoseIllFormedOffset(SourceRange argRange) {
-	diags_.report(DiagID::diagverif_illFormedOffset, argRange);
+	diags_.report(DiagID::dv_ill_formed_offset, argRange);
 }
 
-void DiagnosticVerifier::diagnoseIllegalOffset(SourceRange argRange) {
-  diags_.report(DiagID::diagverif_illegalOffset, argRange);
+void DiagnosticVerifier::diagnoseBadNegativeOffset(SourceRange argRange) {
+  diags_.report(DiagID::dv_bad_negative_offset, argRange);
 }
 
 bool 

@@ -156,7 +156,7 @@ namespace {
       }
 
       bool visitUnitDecl(UnitDecl* decl) {
-        for (auto& elem : decl->getDecls()) {
+        for (auto elem : decl->getDecls()) {
           if (!doIt(elem))
             return false;
         }

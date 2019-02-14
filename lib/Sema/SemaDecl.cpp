@@ -54,14 +54,14 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // This is a "classic" var redeclaration
       if (isVarOrParamDecl(original) && isVarOrParamDecl(redecl)) {
         return isa<ParamDecl>(original) ?
-          DiagID::sema_invalid_param_redecl : DiagID::sema_invalid_var_redecl;
+          DiagID::invalid_param_redecl : DiagID::invalid_var_redecl;
       }
       // Invalid function redeclaration
       else if (isa<FuncDecl>(original) && isa<FuncDecl>(redecl))
-        return DiagID::sema_invalid_redecl;
+        return DiagID::invalid_redecl;
       // Redecl as a different kind of symbol
       else
-        return DiagID::sema_invalid_redecl_diff_symbol_kind;
+        return DiagID::invalid_redecl_diff_symbol_kind;
     }
 
     // Diagnoses an illegal redeclaration where "redecl" is an illegal
@@ -78,7 +78,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         .report(diagID, redecl->getIdentifierRange())
         .addArg(id);
       getDiags()
-        .report(DiagID::sema_1stdecl_seen_here, original->getIdentifierRange())
+        .report(DiagID::first_decl_seen_here, original->getIdentifierRange())
         .addArg(id);
     }
 
@@ -90,7 +90,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       if(!Sema::isWellFormed({initType, declType})) return;
 
       getDiags()
-        .report(DiagID::sema_invalid_vardecl_init_expr, init->getRange())
+        .report(DiagID::invalid_vardecl_init_expr, init->getRange())
         .addArg(initType)
         .addArg(declType)
         .setExtraRange(decl->getTypeLoc().getRange());
@@ -145,33 +145,33 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     void visitFuncDecl(FuncDecl* decl) {
       // Tell Sema that we enter this func's scope
       auto funcScope = getSema().enterFuncScopeRAII(decl);
+      // Also, tell it that we're entering its DeclContext.
+      auto raiiDC = getSema().enterDeclCtxtRAII(decl);
       // Check if this is an invalid redecl
       checkForIllegalRedecl(decl);
       // Check it's parameters
       for (ParamDecl* param : *decl->getParams())
         visit(param);
-      {
-        /*
-          Note: the body exists within it's own scope to 
-          avoid situations such as
+      /*
+        Note: In the StmtChecker, visitCompoundStmt() will create
+        a new LocalScope, this is intended so the body exists 
+        within it's own scope to avoid situations such as
 
-          func foo(x: int) { var x : int = x; }
+        func foo(x: int) { var x : int = x; }
 
-          If the body wasn't in its own scope, the local variable
-          would overwrite the ParamDecl before checking it's initializer,
-          emitting the following error:
-            "variable used inside its own initial value"
+        If the body wasn't in its own scope, the local variable
+        would overwrite the ParamDecl before checking it's initializer,
+        emitting the following error:
+          "variable used inside its own initial value"
 
-          This error isn't justified because it's valid code here.
-          We're simply shadowing the parameter to make it mutable.
+        This error isn't justified because it's valid code here.
+        We're simply shadowing the parameter to make it mutable.
 
-          However, this is kind of a dirty workaround, I can agree on
-          that. In the coming months, I'll make NameBinding a pass
-          on its own, so this code will go away soon™ anyway.
-        */
-        auto bodyScope = getSema().openNewScopeRAII();
-        getSema().checkStmt(decl->getBody());
-      }
+        However, this is kind of a dirty workaround, I can agree on
+        that. In the coming months, I'll make NameBinding a pass
+        on its own, so this code will go away soon™ anyway.
+      */
+      getSema().checkStmt(decl->getBody());
     }
 
     void visitUnitDecl(UnitDecl* unit) {
