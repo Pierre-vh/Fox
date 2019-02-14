@@ -82,11 +82,11 @@ std::string CompleteRange::toString(bool printFilename) const {
 
 FileID::FileID(std::size_t value) {
   assert(value < npos && "Index too big for FileID!");
-  value_ = static_cast<IDTy>(value);
+  idx_ = static_cast<IDTy>(value);
 }
 
 bool FileID::isValid() const {
-  return value_ != npos;
+  return idx_ != npos;
 }
 
 FileID::operator bool() const {
@@ -94,7 +94,7 @@ FileID::operator bool() const {
 }
 
 bool FileID::operator==(const FileID other) const {
-  return value_ == other.value_;
+  return idx_ == other.idx_;
 }
 
 bool FileID::operator!=(const FileID other) const {
@@ -102,11 +102,7 @@ bool FileID::operator!=(const FileID other) const {
 }
 
 bool FileID::operator <(const FileID other) const {
-  return (value_ < other.value_);
-}
-
-FileID::IDTy FileID::getRaw() const {
-  return value_;
+  return (idx_ < other.idx_);
 }
 
 //----------------------------------------------------------------------------//
@@ -271,9 +267,10 @@ SourceManager::calculateLineAndColumn(const Data* data,
 
 const SourceManager::Data*
 SourceManager::getData(FileID file) const {
+  auto idx = file.idx_;
   assert(file.isValid() && "FileID is not valid");
-  assert(file.getRaw() < datas_.size() && "out-of-range FileID");
-  return datas_[file.getRaw()].get();
+  assert(idx < datas_.size() && "out-of-range FileID");
+  return datas_[idx].get();
 }
 
 SourceManager::line_type SourceManager::getLineNumber(SourceLoc loc) const {

@@ -37,21 +37,13 @@ namespace fox {
       // For use in containers
       bool operator <(const FileID other) const;
 
-      // Returns the raw index contained inside the FileID
-      // which represents the file inside the SourceManager.
-      //
-      // If the index is equal to npos, the FileID is
-      // considered invalid.
-      IDTy getRaw() const;
-
-    protected:
+    private:
       friend class SourceManager;
 
       // Only the SourceManager can create valid FileIDs
       FileID(std::size_t value);
 
-    private:
-      IDTy value_ = npos;
+      IDTy idx_ = npos;
   };
 
   // The SourceLoc is a lightweight wrapper around a FileID and an index
