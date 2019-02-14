@@ -110,11 +110,13 @@ void DeclContext::addDecl(Decl* decl) {
   }
   
   if(NamedDecl* named = dyn_cast<NamedDecl>(decl)) {
-    // Update the lookup map if we have one.
+    // Create lookup map if we have one.
     Identifier id = named->getIdentifier();
     assert(id && "NameDecl with invalid identifier");
-    if(lookupMap_) 
-      lookupMap_->insert({id, named});
+    // Lazily build the lookup map when we add a NamedDecl for the
+    // first time.
+    if(!lookupMap_) createLookupMap();
+    lookupMap_->insert({id, named});
   }
 }
 
@@ -134,7 +136,11 @@ bool DeclContext::lookup(Identifier id, SourceLoc loc,
                          ResultFoundCallback onFound) {
   assert(id && "Identifier is invalid");
   assert(onFound && "Callback is null, results will be discarded!");
-  assert(lookupMap_ && "No lookupMap?");
+
+  // If we don't have a lookup map, we're empty, so we
+  // can't lookup anything.
+  if (!lookupMap_) return true;
+
   const LookupMap& map = *lookupMap_;
   // Search all decls with the identifier "id" in the multimap
   LookupMap::const_iterator beg, end;
@@ -159,15 +165,17 @@ bool DeclContext::classof(const Decl* decl) {
   }
 }
 
-DeclContext::DeclContext(ASTContext& ctxt, DeclContextKind kind, 
-                         DeclContext* parent):
+DeclContext::DeclContext(DeclContextKind kind, DeclContext* parent):
   parentAndKind_(parent, toInt(kind)) {
   assert((parent || isa<UnitDecl>(this)) && "Every DeclContexts except "
     "UnitDecls must have a parent!");
-  // Create the LookupMap
+}
+
+void DeclContext::createLookupMap() {
+  ASTContext& ctxt = getASTContext();
   void* mem = ctxt.allocate(sizeof(LookupMap), alignof(LookupMap));
   lookupMap_ = new(mem) LookupMap();
   // Add its cleanup
   ctxt.addDestructorCleanup(*lookupMap_);
-  assert(lookupMap_);
+  assert(lookupMap_ && "LookupMap not built!");
 }

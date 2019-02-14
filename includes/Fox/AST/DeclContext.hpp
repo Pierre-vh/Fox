@@ -128,10 +128,11 @@ namespace fox {
       static bool classof(const Decl* decl);
 
     protected:
-      DeclContext(ASTContext& ctxt, DeclContextKind kind, 
-                  DeclContext* parent);
+      DeclContext(DeclContextKind kind, DeclContext* parent);
 
     private:
+      void createLookupMap();
+      
       // The PointerIntPair used to represent the ParentAndKind bits
       using ParentAndKindTy 
         = llvm::PointerIntPair<DeclContext*, DeclContextFreeLowBits>;
