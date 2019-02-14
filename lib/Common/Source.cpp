@@ -257,7 +257,7 @@ SourceManager::calculateLineAndColumn(const Data* data,
     line = entry.second;
     auto str_beg = data->content.c_str(); // Pointer to the first 
                                           // character of the string
-    auto raw_col = utf8::distance(str_beg + entry.first, str_beg + idx);
+    auto raw_col = utf8::distance(str_beg + entry.first, str_beg);
     col = static_cast<col_type>(raw_col + 1);
   }
 
@@ -316,7 +316,7 @@ CompleteRange SourceManager::getCompleteRange(SourceRange range) const {
 }
 
 string_view 
-SourceManager::getLineAt(SourceLoc loc, SourceLoc::index_type* lineBeg) const {
+SourceManager::getLineAt(SourceLoc loc, SourceLoc* lineBeg) const {
   // Retrieve the data
   const Data* data = getData(loc.getFileID());
   // Check that our index is valid
@@ -326,8 +326,8 @@ SourceManager::getLineAt(SourceLoc loc, SourceLoc::index_type* lineBeg) const {
   // Search the line table
   auto pair = searchLineTable(data, loc.getRawIndex());
   std::size_t beg = pair.first, end = beg;
-  // Give the index of the beginning of the line to the caller if it wants it.
-  if (lineBeg) (*lineBeg) = beg;
+  // Give the loc of the beginning of the line to the caller if it wants it.
+  if (lineBeg) (*lineBeg) = SourceLoc(loc.getFileID(), beg);
   // Find the end of the line
   for (; end < source.size(); end++) {
     if (source[end] == '\n' || source[end] == '\r')
@@ -368,6 +368,34 @@ SourceManager::incrementSourceLoc(SourceLoc loc, std::size_t count) const {
   // If this is a past-the-end SourceLoc, just it since it cannot be
   // incremented.
   return loc;
+}
+
+std::size_t 
+SourceManager::getDifference(SourceLoc a, SourceLoc b) const {
+  assert((a.getFileID() == b.getFileID())  
+    && "a and b do not belong to the same file!");
+  // If the SourceLocs are identical, just return 0.
+  if(a == b) return 0;
+  // Retrieve the source file
+  FileID file = a.getFileID();
+  const Data* data = getData(file);
+  // Check that our locs are valid
+  assert(isIndexValid(data, a.getRawIndex()) && "a is not valid");
+  assert(isIndexValid(data, b.getRawIndex()) && "b is not valid");
+  // If a > b, swap.
+  if(a.getRawIndex() > b.getRawIndex()) std::swap(a, b);
+  // Compute the needed iterators
+  string_view source = data->content;
+  auto it_a = source.begin()+a.getRawIndex();
+  auto it_b = source.begin()+b.getRawIndex();
+  // Increment it_b to convert the [it_a, it_b] (closed interval) range into
+  // [it_a, it_b[ (half-closed interval)
+  if(it_b != source.end()) ++it_b;
+
+  // Calculate the distance and return the distance minus one to get
+  std::size_t distance = utf8::distance(it_a, it_b);
+  assert(distance && "distance is zero!");
+  return --distance;
 }
 
 // Checks the encoding of the file, skipping the UTF-8 bom if it's present.

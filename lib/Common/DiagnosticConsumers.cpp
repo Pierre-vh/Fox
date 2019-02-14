@@ -76,22 +76,14 @@ void StreamDiagConsumer::consume(SourceManager& sm, const Diagnostic& diag) {
 }
 
 // Helper method for "displayRelevantExtract" which creates the "underline" string. 
-// The beg/end args represent the range in the string where the underline should be.
-std::string createUnderline(char underlineChar, string_view str, 
-  string_view::const_iterator beg, string_view::const_iterator end) {
+// The "underline" begins at beg, and ends at "end". (it's a closed interval) 
+std::string createUnderline(char underlineChar, std::size_t beg, std::size_t end) {
   std::string line = "";
 
-  auto strBeg = str.begin();
-
-  // Calculate the number of spaces before the caret and add them
-  std::size_t spacesBeforeCaret = utf8::distance(strBeg, beg);
-
-  for (std::size_t k = 0; k < spacesBeforeCaret; k++)
+  for (std::size_t k = 0; k < beg; k++)
     line += ' ';
 
-  // Calculate the number fo carets we need
-  std::size_t numCarets = 1 + utf8::distance(beg, end);
-  for (std::size_t k = 0; k < numCarets; k++)
+  for (std::size_t k = beg; k < end; k++)
     line += underlineChar;
 
   return line;
@@ -125,28 +117,24 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
 
   auto range = diag.getRange();
   auto eRange = diag.getExtraRange();
-  SourceLoc::index_type lineBeg = 0;
 
-  // Get the line, remove it's indent and display it.
+  // Get the line
+  SourceLoc lineBeg;
   string_view line = sm.getLineAt(diag.getRange().getBegin(), &lineBeg);
+  std::size_t lineSize = utf8::distance(line.begin(), line.end());
 
-  // Remove any indent, and offset the lineBeg accordingly
-  lineBeg += removeIndent(line);
+  // Remove any indent, and offset the linebeg loc accordingly.
+  std::size_t offset = removeIndent(line);
+  lineBeg = sm.incrementSourceLoc(lineBeg, offset);
 
   std::string underline;
 
-  auto getOffsetIteratorFromLineBeg = [&](std::size_t idx) {
-    auto result = idx - lineBeg;
-    if (result > line.size())
-      result = line.size() - 1;
-    return line.begin() + result;
-  };
-
   // Create the carets underline (^)
 	{  
-    auto beg = getOffsetIteratorFromLineBeg(range.getBegin().getRawIndex());
-    auto end = getOffsetIteratorFromLineBeg(range.getEnd().getRawIndex());
-    underline = createUnderline('^', line, beg, end);
+    auto uBeg = sm.getDifference(lineBeg, range.getBegin());
+    auto uEnd = std::min(sm.getDifference(lineBeg, range.getEnd())+1, lineSize);
+    std::cout << "^ uBeg:" << uBeg << ", uEnd:" << uEnd << "\n";
+    underline = createUnderline('^', uBeg, uEnd);
   }
 
   // If needed, create the extra range underline (~)
@@ -154,9 +142,9 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     assert((diag.getExtraRange().getFileID() == diag.getRange().getFileID())
       && "Ranges don't belong to the same file");
 
-    auto beg = getOffsetIteratorFromLineBeg(eRange.getBegin().getRawIndex());
-    auto end = getOffsetIteratorFromLineBeg(eRange.getEnd().getRawIndex());
-    underline = embedString(underline, createUnderline('~', line, beg, end));
+    auto uBeg = sm.getDifference(lineBeg, eRange.getBegin());
+    auto uEnd = std::min(sm.getDifference(lineBeg, eRange.getEnd())+1, lineSize);
+    underline = embedString(underline, createUnderline('~', uBeg, uEnd));
   }
 
   // Display the line

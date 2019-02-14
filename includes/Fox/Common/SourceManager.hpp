@@ -117,16 +117,28 @@ namespace fox {
       CompleteRange getCompleteRange(SourceRange range) const;
 
       // Returns the complete line of source code for a given SourceLoc
-      // An optional argument (pointer) can be passed. If it is present,
-      // the function will store the Index at which the line begins in 
-      // this variable.
+      // An optional argument (SourceLoc*) can be passed. If it is present,
+      // the function will store the SourceLoc of the first
+      // character of the line in that loc.
       string_view getLineAt(SourceLoc loc, 
-        SourceLoc::index_type* lineBeg = nullptr) const;
+        SourceLoc* lineBeg = nullptr) const;
 
       // Increments the SourceLoc by "count" codepoints.
       // This must be used carefully, as it may fail if you try to
       // increment past thee end.
       SourceLoc incrementSourceLoc(SourceLoc loc, std::size_t count = 1) const;
+
+      // Returns the difference in codepoints between 'a' and 'b'.
+      // e.g. if
+      //    foobar
+      //    ^   ^
+      //    a   b
+      //
+      //  then getDifference(a, b) returns 4, because a needs
+      //  to be incremented 4 times to match b.
+      //
+      // Note: a and b must belong to the same file.
+      std::size_t getDifference(SourceLoc a, SourceLoc b) const;
 
     private:
       // This class represents the data that is stored internally inside the
