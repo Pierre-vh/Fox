@@ -139,7 +139,7 @@ namespace {
       }
 
       bool visitFuncDecl(FuncDecl* decl) {
-        for (ParamDecl* param : *decl->getParams()) {
+        for (auto& param : *decl->getParams()) {
           if (param) {
             if (!doIt(param))
               return false;
@@ -156,7 +156,7 @@ namespace {
       }
 
       bool visitUnitDecl(UnitDecl* decl) {
-        for (Decl* elem : decl->getDecls()) {
+        for (auto& elem : decl->getDecls()) {
           if (!doIt(elem))
             return false;
         }
@@ -199,7 +199,7 @@ namespace {
       }
 
       Stmt* visitCompoundStmt(CompoundStmt* stmt) {
-        for (ASTNode elem: stmt->getNodes()) {
+        for (auto& elem: stmt->getNodes()) {
           if (elem) {
             bool isDecl;
             if (ASTNode node = doIt(elem, &isDecl)) {
