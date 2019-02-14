@@ -4,7 +4,7 @@
 // File : DeclContext.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Contains the DeclContext & derived classes.
+// Contains the DeclContext class
 //----------------------------------------------------------------------------//
 
 #pragma once
