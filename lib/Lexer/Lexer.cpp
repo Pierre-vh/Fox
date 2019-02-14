@@ -49,8 +49,6 @@ void Lexer::pushTok() {
   if (curtok_ == "")  // Don't push empty tokens.
     return;
 
-  // Create a SourceLoc for the begin loc
-  SourceLoc sloc(currentFile_, currentTokenBeginIndex_);
   // Create the SourceRange of this token:
   Token t(ctxt_, curtok_, getCurtokRange());
 
