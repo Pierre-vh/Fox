@@ -273,7 +273,7 @@ SourceManager::calculateLineAndColumn(const Data* data,
     line = entry.second;
     auto str_beg = data->content.c_str(); // Pointer to the first 
                                           // character of the string
-    auto raw_col = utf8::distance(str_beg + entry.first, str_beg);
+    auto raw_col = utf8::distance(str_beg + entry.first, str_beg + idx);
     col = static_cast<col_type>(raw_col + 1);
   }
 
