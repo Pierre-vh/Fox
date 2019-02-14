@@ -75,15 +75,14 @@ void StreamDiagConsumer::consume(SourceManager& sm, const Diagnostic& diag) {
   if (diag.hasRange()) displayRelevantExtract(sm, diag);
 }
 
-// Helper method for "displayRelevantExtract" which creates the "underline" string. 
-// The "underline" begins at beg, and ends at "end". (it's a closed interval) 
+// Helper method for "displayRelevantExtract" that creates the "underline" string. 
 std::string createUnderline(char underlineChar, std::size_t beg, std::size_t end) {
   std::string line = "";
 
   for (std::size_t k = 0; k < beg; k++)
     line += ' ';
 
-  for (std::size_t k = beg; k <= end; k++)
+  for (std::size_t k = beg; k < end; k++)
     line += underlineChar;
 
   return line;
@@ -132,7 +131,12 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   // Create the carets underline (^)
 	{  
     auto uBeg = sm.getDifference(lineBeg, range.getBegin());
-    auto uEnd = std::min(sm.getDifference(lineBeg, range.getEnd()), lineSize);
+    // The number of character we want to print is the difference
+    // between the beginning of the line and the end of the range 
+    // plus one, because we must account for the first character in the range.
+    std::size_t uEnd = sm.getDifference(lineBeg, range.getEnd())+1;
+    // We don't want uEnd to exceed the line size though.
+    uEnd = std::min(uEnd, lineSize);
     underline = createUnderline('^', uBeg, uEnd);
   }
 
@@ -142,7 +146,12 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
       && "Ranges don't belong to the same file");
 
     auto uBeg = sm.getDifference(lineBeg, eRange.getBegin());
-    auto uEnd = std::min(sm.getDifference(lineBeg, eRange.getEnd())+1, lineSize);
+    // The number of character we want to print is the difference
+    // between the beginning of the line and the end of the range 
+    // plus one, because we must account for the first character in the range.
+    std::size_t uEnd = sm.getDifference(lineBeg, eRange.getEnd())+1;
+    // We don't want uEnd to exceed the line size though.
+    uEnd = std::min(uEnd, lineSize);
     underline = embedString(underline, createUnderline('~', uBeg, uEnd));
   }
 
