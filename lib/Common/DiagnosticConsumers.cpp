@@ -83,7 +83,7 @@ std::string createUnderline(char underlineChar, std::size_t beg, std::size_t end
   for (std::size_t k = 0; k < beg; k++)
     line += ' ';
 
-  for (std::size_t k = beg; k < end; k++)
+  for (std::size_t k = beg; k <= end; k++)
     line += underlineChar;
 
   return line;
@@ -132,8 +132,7 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   // Create the carets underline (^)
 	{  
     auto uBeg = sm.getDifference(lineBeg, range.getBegin());
-    auto uEnd = std::min(sm.getDifference(lineBeg, range.getEnd())+1, lineSize);
-    std::cout << "^ uBeg:" << uBeg << ", uEnd:" << uEnd << "\n";
+    auto uEnd = std::min(sm.getDifference(lineBeg, range.getEnd()), lineSize);
     underline = createUnderline('^', uBeg, uEnd);
   }
 
