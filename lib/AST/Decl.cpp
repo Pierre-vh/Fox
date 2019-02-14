@@ -10,8 +10,7 @@
 #include "Fox/AST/Stmt.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTContext.hpp"
-#include <sstream>
-#include <cassert>
+#include "Fox/Common/Errors.hpp"
 
 using namespace fox;
 
@@ -285,18 +284,18 @@ void* ParamList::operator new(std::size_t, void* mem) {
 // FuncDecl
 //----------------------------------------------------------------------------//
 
-FuncDecl::FuncDecl(ASTContext& ctxt, DeclContext* parent, SourceLoc fnBegLoc, 
+FuncDecl::FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, 
                     Identifier fnId, SourceRange idRange, ParamList* params, 
                     TypeLoc returnType): fnBegLoc_
   (fnBegLoc), ValueDecl(DeclKind::FuncDecl, parent, fnId, idRange),
-  DeclContext(ctxt, DeclContextKind::FuncDecl, parent), params_(params),
+  DeclContext(DeclContextKind::FuncDecl, parent), params_(params),
   returnTypeLoc_(returnType) {}
 
 FuncDecl* 
 FuncDecl::create(ASTContext& ctxt, DeclContext* parent, SourceLoc fnBegLoc,
   Identifier id, SourceRange idRange, ParamList* params, TypeLoc returnType) {
   return new(ctxt) 
-    FuncDecl(ctxt, parent, fnBegLoc, id, idRange, params, returnType);
+    FuncDecl(parent, fnBegLoc, id, idRange, params, returnType);
 }
 
 void FuncDecl::setReturnTypeLoc(TypeLoc ty) {
@@ -409,7 +408,7 @@ SourceRange VarDecl::getRange() const {
 
 UnitDecl::UnitDecl(ASTContext& ctxt, Identifier id, FileID file):
   Decl(DeclKind::UnitDecl, (DeclContext*)nullptr), identifier_(id), file_(file),
-  ctxt_(ctxt), DeclContext(ctxt, DeclContextKind::UnitDecl, nullptr) {}
+  ctxt_(ctxt), DeclContext(DeclContextKind::UnitDecl, nullptr) {}
 
 UnitDecl* UnitDecl::create(ASTContext& ctxt,Identifier id, FileID file) {
   return new(ctxt) UnitDecl(ctxt, id, file);

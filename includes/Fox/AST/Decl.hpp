@@ -306,8 +306,7 @@ namespace fox {
       }
       
     private:
-      FuncDecl(ASTContext& ctxt, DeclContext* parent, 
-               SourceLoc fnBegLoc, Identifier fnId, 
+      FuncDecl(DeclContext* parent, SourceLoc fnBegLoc, Identifier fnId, 
                SourceRange idRange, ParamList* params, TypeLoc returnType);
       
       Type valueType_;
