@@ -43,7 +43,6 @@ namespace fox {
       void pushTok();
       void cycle();          
       void runFinalChecks();
-      void markBeginningOfToken(); // sets currentTokenBeginIndex_ to the current index
 
       void runStateFunc();
       void dfa_goto(DFAState ns);
@@ -62,20 +61,21 @@ namespace fox {
       bool shouldIgnore(FoxChar c) const;  // Checks if the char is valid to be pushed. If it isn't and it should be ignored, returns true
 
       SourceLoc getCurtokBegLoc() const;
+      SourceLoc getCurtokEndLoc() const;
       SourceRange getCurtokRange() const;
 
       ASTContext& ctxt_;
       DiagnosticEngine& diags_;
+      SourceManager& sm_;
       FileID currentFile_;
 
       bool escapeFlag_ : 1;
       DFAState state_ = DFAState::S_BASE;    
       std::string curtok_;
 
-      // The index of the first character of the current token being processed.
-      SourceLoc::index_type currentTokenBeginIndex_;
+      std::size_t curTokBegIdx_ = 0, curTokEndIdx_ = 0;
 
-      TokenVector  tokens_;
+      TokenVector tokens_;
       StringManipulator manip_;
   };
 }

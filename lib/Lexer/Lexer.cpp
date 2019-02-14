@@ -17,7 +17,8 @@
 using namespace fox;
 using namespace fox::dicts;
 
-Lexer::Lexer(ASTContext& astctxt): ctxt_(astctxt), diags_(ctxt_.diagEngine),
+Lexer::Lexer(ASTContext& astctxt): ctxt_(astctxt), 
+  diags_(ctxt_.diagEngine), sm_(ctxt_.sourceMgr),
   escapeFlag_(false) {}
 
 void Lexer::lexFile(FileID file) {
@@ -49,7 +50,6 @@ void Lexer::pushTok() {
   if (curtok_ == "")  // Don't push empty tokens.
     return;
 
-  // Create the SourceRange of this token:
   Token t(ctxt_, curtok_, getCurtokRange());
 
   // Push the token if it was correctly identified
@@ -76,10 +76,6 @@ void Lexer::runFinalChecks() {
       // no-op
       break;
   }
-}
-
-void Lexer::markBeginningOfToken() {
-  currentTokenBeginIndex_ = manip_.getIndexInBytes();
 }
 
 void Lexer::runStateFunc() {
@@ -111,7 +107,8 @@ void Lexer::fn_S_BASE() {
 
   assert((curtok_.size() == 0) && "Curtok not empty in base state");
 
-  markBeginningOfToken();
+  // Set the current token begin index
+  curTokBegIdx_ = manip_.getIndexInBytes();
 
   // IGNORE SPACES
   if (std::iswspace(static_cast<wchar_t>(c))) eatChar();
@@ -142,9 +139,8 @@ void Lexer::fn_S_BASE() {
     dfa_goto(DFAState::S_STR);
   }
   // HANDLE IDs & Everything Else
-  else {
+  else
     dfa_goto(DFAState::S_WORDS);
-  }
 
 }
 
@@ -210,6 +206,7 @@ void Lexer::dfa_goto(DFAState ns) {
 
 FoxChar Lexer::eatChar() {
   const FoxChar c = manip_.getCurrentChar();
+  curTokEndIdx_ = manip_.getIndexInBytes();
   manip_.advance();
   return c;
 }
@@ -249,8 +246,10 @@ void Lexer::addToCurtok(FoxChar c) {
 
 bool Lexer::isSep(FoxChar c) const {
   // Is separator ? Signs are the separators in the input. 
-  // Separators mark the end and beginning of tokens, and are tokens themselves. Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
-  if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip_.peekNext()))) // if the next character is a digit, don't treat the dot as a separator.
+  // Separators mark the end and beginning of tokens, and are tokens themselves. 
+  // Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
+  if (c == '.' && std::iswdigit(static_cast<wchar_t>(manip_.peekNext()))) 
+  // if the next character is a digit, don't treat the dot as a separator.
     return false;
   // To detect if C is a sign separator, we use the sign dictionary
   auto i = kSign_dict.find(c);
@@ -258,7 +257,8 @@ bool Lexer::isSep(FoxChar c) const {
 }
 
 bool Lexer::isEscapeChar(FoxChar c) const {
-  return  (c == '\\') && ((state_ == DFAState::S_STR) || (state_ == DFAState::S_CHR));
+  return  (c == '\\') && ((state_ == DFAState::S_STR) 
+                       || (state_ == DFAState::S_CHR));
 }
 
 bool Lexer::shouldIgnore(FoxChar c) const {
@@ -266,15 +266,13 @@ bool Lexer::shouldIgnore(FoxChar c) const {
 }
 
 SourceLoc Lexer::getCurtokBegLoc() const {
-  return SourceLoc(currentFile_, currentTokenBeginIndex_);
+  return SourceLoc(currentFile_, curTokBegIdx_);
+}
+
+SourceLoc Lexer::getCurtokEndLoc() const {
+  return SourceLoc(currentFile_, curTokEndIdx_);
 }
 
 SourceRange Lexer::getCurtokRange() const {
-  // FIXME: This is really hack-ish.
-  StringManipulator manipCopy = manip_;
-  manipCopy.goBack();
-  auto idx = manipCopy.getIndexInBytes();
-  assert(idx >= currentTokenBeginIndex_);
-  auto offset = idx - currentTokenBeginIndex_;
-  return SourceRange(getCurtokBegLoc(), offset);
+  return SourceRange(getCurtokBegLoc(), getCurtokEndLoc());
 }
