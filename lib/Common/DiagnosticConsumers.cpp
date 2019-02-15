@@ -158,7 +158,7 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   }
 
   // Display the line
-  os_ << '\t' << line << '\n';
+  os_ << "    " << line << '\n';
   // Display the carets
-  os_ << '\t' << underline << '\n';
+  os_ << "    " << underline << '\n';
 }
