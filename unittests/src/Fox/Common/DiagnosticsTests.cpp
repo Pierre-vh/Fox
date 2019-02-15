@@ -1,10 +1,19 @@
-//----------------------------------------------------------------------------//
+﻿//----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.     
 // File : DiagnosticsTests.cpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 //  Unit tests for the DiagnosticsEngine
+//
+//  Several types of tests are contained in this file:
+//
+//    DiagnosticsTest -> General Diagnostic/DiagnosticEngine tests 
+//                      (e.g. formatting, emission)
+//
+//    PrettyDiagConsumerTest -> Tests for the "StreamDiagConsumer", which is
+//                              the default DiagnosticEngine that pretty prints
+//                              diagnostics to a stream.
 //----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
@@ -56,6 +65,16 @@ namespace {
     protected:
       FileID file;
       StrDiagConsumer* cons = nullptr;
+      SourceManager srcMgr;
+      DiagnosticEngine diagEng;
+  };
+
+  class PrettyDiagConsumerTest : public ::testing::Test {
+    public:
+      PrettyDiagConsumerTest() : diagEng(srcMgr, ss) {}
+
+    protected:
+      std::stringstream ss;
       SourceManager srcMgr;
       DiagnosticEngine diagEng;
   };
@@ -217,4 +236,132 @@ TEST_F(DiagnosticsTest, CopyingDiagKillsCopiedDiag) {
 
   EXPECT_TRUE(diagC.isActive());
   EXPECT_TRUE(diagC);
+}
+
+TEST_F(PrettyDiagConsumerTest, PrintTest) {
+  std::string theString = "LLVM is great!";
+  FileID theFile = srcMgr.loadFromString(
+    theString
+  , "tmp");
+  ASSERT_TRUE(theFile) << "String not correctly loaded in the SrcMgr!";
+  // Test
+  auto makeLoc = [theFile](std::size_t idx){return SourceLoc(theFile, idx);};
+  // rangeA is "LLVM"
+  SourceRange rangeA = SourceRange(makeLoc(0), makeLoc(3));
+  // rangeB is "great!"
+  SourceRange rangeB = SourceRange(makeLoc(8), makeLoc(13));
+  // locPTE is past the end
+  SourceLoc locPTE = makeLoc(14);
+  // Diagnostic test at rangeA
+  {
+    diagEng.report(DiagID::unittest_notetest, rangeA);
+    std::cout << "diag:" << ss.str() << "\n";
+    EXPECT_EQ(ss.str(), 
+      "<tmp>:1:1-4 - note - Test note\n"
+      "    LLVM is great!\n"
+      "    ^^^^\n"
+    );
+  
+    ss.str("");
+  }
+
+  // Diagnostic test at rangeB
+  {
+    diagEng.report(DiagID::unittest_notetest, rangeB);
+    std::cout << "diag:" << ss.str() << "\n";
+    EXPECT_EQ(ss.str(), 
+      "<tmp>:1:9-14 - note - Test note\n"
+      "    LLVM is great!\n"
+      "            ^^^^^^\n"
+    );
+  
+    ss.str("");
+  }
+
+  // Diagnostic test at locPTE
+  {
+    diagEng.report(DiagID::unittest_notetest, locPTE);
+    std::cout << "diag:" << ss.str() << "\n";
+    EXPECT_EQ(ss.str(), 
+      "<tmp>:1:15 - note - Test note\n"
+      "    LLVM is great!\n"
+      "                  ^\n"
+    );
+  
+    ss.str("");
+  }
+
+  // Diagnostic test at locPTE + rangeA
+  {
+    diagEng.report(DiagID::unittest_notetest, locPTE)
+           .setExtraRange(rangeA);
+    std::cout << "diag:" << ss.str() << "\n";
+    EXPECT_EQ(ss.str(), 
+      "<tmp>:1:15 - note - Test note\n"
+      "    LLVM is great!\n"
+      "    ~~~~          ^\n"
+    );
+  
+    ss.str("");
+  }
+}
+
+TEST_F(PrettyDiagConsumerTest, UTF8PrintTest) {
+  std::string theString = u8"This is a test: Γειά σου Κόσμε!";
+  FileID theFile = srcMgr.loadFromString(
+    theString
+  , "tmp");
+  ASSERT_TRUE(theFile) << "String not correctly loaded in the SrcMgr!";
+  // Test
+  auto makeLoc = [theFile](std::size_t idx){return SourceLoc(theFile, idx);};
+  // Loc a is the space between the first unicode char
+  SourceLoc locA(makeLoc(15));
+  // rangeA is "Γειά σου Κόσμε" (14 chars, 26 bytes)
+  // To calculate it, we substract the size of ε (2) = 24 
+  SourceRange rangeA = SourceRange(makeLoc(16), makeLoc(40));
+  // locB is the '!' after the unicode
+  SourceLoc locB(makeLoc(42));
+
+  std::stringstream compSS;
+
+  // Diagnostic test at locA
+  {
+    diagEng.report(DiagID::unittest_notetest, locA);
+
+    compSS << u8"<tmp>:1:16 - note - Test note\n"
+           << u8"    This is a test: Γειά σου Κόσμε!\n"
+           << u8"                   ^\n";
+
+    EXPECT_EQ(ss.str(), compSS.str());
+  
+    ss.str("");
+    compSS.str("");
+  }
+    // Diagnostic test at rangeA
+  {
+    diagEng.report(DiagID::unittest_notetest, rangeA);
+
+    compSS << u8"<tmp>:1:17-30 - note - Test note\n"
+           << u8"    This is a test: Γειά σου Κόσμε!\n"
+           << u8"                    ^^^^^^^^^^^^^^\n";
+
+    EXPECT_EQ(ss.str(), compSS.str());
+  
+    ss.str("");
+    compSS.str("");
+  }
+
+  // Diagnostic test at locB
+  {
+    diagEng.report(DiagID::unittest_notetest, locB);
+
+    compSS << u8"<tmp>:1:31 - note - Test note\n"
+           << u8"    This is a test: Γειά σου Κόσμε!\n"
+           << u8"                                  ^\n";
+
+    EXPECT_EQ(ss.str(), compSS.str());
+  
+    ss.str("");
+    compSS.str("");
+  }
 }
