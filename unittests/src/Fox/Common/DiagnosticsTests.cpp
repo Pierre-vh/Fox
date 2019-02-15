@@ -329,8 +329,7 @@ TEST_F(PrettyDiagConsumerTest, UTF8PrintTest) {
     diagEng.report(DiagID::unittest_notetest, locA);
 
     compSS << u8"<tmp>:1:16 - note - Test note\n"
-           << u8"    This is a test: Γειά σου Κόσμε!\n"
-           << u8"                   ^\n";
+           << u8"    This is a test: Γειά σου Κόσμε!\n";
 
     EXPECT_EQ(ss.str(), compSS.str());
   
@@ -342,8 +341,7 @@ TEST_F(PrettyDiagConsumerTest, UTF8PrintTest) {
     diagEng.report(DiagID::unittest_notetest, rangeA);
 
     compSS << u8"<tmp>:1:17-30 - note - Test note\n"
-           << u8"    This is a test: Γειά σου Κόσμε!\n"
-           << u8"                    ^^^^^^^^^^^^^^\n";
+           << u8"    This is a test: Γειά σου Κόσμε!\n";
 
     EXPECT_EQ(ss.str(), compSS.str());
   
@@ -356,8 +354,7 @@ TEST_F(PrettyDiagConsumerTest, UTF8PrintTest) {
     diagEng.report(DiagID::unittest_notetest, locB);
 
     compSS << u8"<tmp>:1:31 - note - Test note\n"
-           << u8"    This is a test: Γειά σου Κόσμε!\n"
-           << u8"                                  ^\n";
+           << u8"    This is a test: Γειά σου Κόσμε!\n";
 
     EXPECT_EQ(ss.str(), compSS.str());
   

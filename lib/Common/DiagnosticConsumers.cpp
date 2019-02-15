@@ -109,6 +109,23 @@ std::string embedString(const std::string& a, const std::string& b) {
   return out;
 }
 
+// Returns true if the caret line should be printed, false otherwise.
+//
+// In short, we won't print the caret line if the source extract contains
+// non-ascii characters, because having proper unicode support is really
+// hard. Some characters might be wider (full width chars, e.g. japanese ones)
+// than ascii ones, messing up the whole formatting.
+//
+// This is sort of a FIXME. One day, supporting non ascii characters
+// would be a great feature!
+static bool shouldPrintCaretLine(string_view sourceExtract) {
+  for (unsigned char byte : sourceExtract) {
+    // Don't the caret line for non ascii chars.
+    if (byte & 0x80) return false;
+  }
+  return true;
+}
+
 void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm, 
   const Diagnostic& diag) {
   assert(diag.hasRange() 
@@ -117,29 +134,35 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   auto range = diag.getRange();
   auto eRange = diag.getExtraRange();
 
-  // Get the line
+  // Get the sourceLine
   SourceLoc lineBeg;
-  string_view line = sm.getLineAt(diag.getRange().getBegin(), &lineBeg);
-  std::size_t lineSize = utf8::distance(line.begin(), line.end());
+  string_view sourceLine = sm.getLineAt(diag.getRange().getBegin(), &lineBeg);
+  std::size_t lineSize = utf8::distance(sourceLine.begin(), sourceLine.end());
 
   // Remove any indent, and offset the linebeg loc accordingly.
-  std::size_t offset = removeIndent(line);
+  std::size_t offset = removeIndent(sourceLine);
   lineBeg = sm.incrementSourceLoc(lineBeg, offset);
 
-  std::string underline;
+  // Display the source extract
+  os_ << "    " << sourceLine << '\n';
 
+  // Check if we must print the caret line. If we don't need
+  // to print it, we're done.
+  if(!shouldPrintCaretLine(sourceLine)) return;
+
+  std::string underline;
   // Create the carets underline (^)
 	{  
     SourceRange preRange(lineBeg, range.getBegin());
     // We'll begin the range at the last codepoint, so uBeg is
     // the number of codepoints in the range minus one.
     auto uBeg = sm.getLengthInCodepoints(preRange)-1;
-    // Change the beginning of the range so it begins where the line
+    // Change the beginning of the range so it begins where the sourceLine
     // begins.
     SourceRange rangeInLine = SourceRange(lineBeg, range.getEnd());
     // Calculate the number of codepoints in that range
     std::size_t uEnd = sm.getLengthInCodepoints(rangeInLine);
-    // But check that the number doesn't exceed the line size.
+    // But check that the number doesn't exceed sourceLine's size.
     uEnd = std::min(uEnd, lineSize+1);
     underline = createUnderline('^', uBeg, uEnd);
   }
@@ -154,18 +177,16 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     // the number of codepoints in the range minus one.
     auto uBeg = sm.getLengthInCodepoints(preRange)-1;
 
-    // Change the beginning of the range so it begins where the line
+    // Change the beginning of the range so it begins where the sourceLine
     // begins.
     SourceRange rangeInLine = SourceRange(lineBeg, eRange.getEnd());
     // Calculate the number of codepoints in that range
     std::size_t uEnd = sm.getLengthInCodepoints(rangeInLine);
-    // But check that the number doesn't exceed the line size.
+    // But check that the number doesn't exceed sourceLine's size.
     uEnd = std::min(uEnd, lineSize+1);
     underline = embedString(underline, createUnderline('~', uBeg, uEnd));
   }
 
-  // Display the line
-  os_ << "    " << line << '\n';
   // Display the carets
   os_ << "    " << underline << '\n';
 }
