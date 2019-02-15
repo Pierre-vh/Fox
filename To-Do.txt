@@ -148,17 +148,12 @@ To-Do:
     > SemaLookup update
 
   > Add tests for the Diagnostic Consumers's carets/text extract.
-    This will probably be a googletest test:
-      1 - Write a test script in valid fox, e.g.
-        func foo {
-          foobar;
-            _Россия;
-          if _республика 
-          {}
-        }
-      2 - Walk the AST, for each "UnresolvedDeclRef" node, emit 3 errors:
-            One before the beginning, One at the range, one past the end.
-      3 - Expect the exact diagnostic string emitted by the diagnostic consumer
+    This will probably be a unit test.
+      1 - Use a string, load it in the source manager
+      2 - Try to emit diagnostics in multiple places
+      3 - Check that the caret is at the correct place, and that the
+          range is correct.
+    Do at least 3 of them, and use unicodes characters when possible.
 
   > VM
   > IR
