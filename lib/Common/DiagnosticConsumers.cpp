@@ -133,12 +133,12 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     SourceRange preRange(lineBeg, range.getBegin());
     // We'll begin the range at the last codepoint, so uBeg is
     // the number of codepoints in the range minus one.
-    auto uBeg = sm.getNumberOfCodepointsInRange(preRange)-1;
+    auto uBeg = sm.getLengthInCodepoints(preRange)-1;
     // Change the beginning of the range so it begins where the line
     // begins.
     SourceRange rangeInLine = SourceRange(lineBeg, range.getEnd());
     // Calculate the number of codepoints in that range
-    std::size_t uEnd = sm.getNumberOfCodepointsInRange(rangeInLine);
+    std::size_t uEnd = sm.getLengthInCodepoints(rangeInLine);
     // But check that the number doesn't exceed the line size.
     uEnd = std::min(uEnd, lineSize+1);
     underline = createUnderline('^', uBeg, uEnd);
@@ -152,13 +152,13 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     SourceRange preRange(lineBeg, eRange.getBegin());
     // We'll begin the range at the last codepoint, so uBeg is
     // the number of codepoints in the range minus one.
-    auto uBeg = sm.getNumberOfCodepointsInRange(preRange)-1;
+    auto uBeg = sm.getLengthInCodepoints(preRange)-1;
 
     // Change the beginning of the range so it begins where the line
     // begins.
     SourceRange rangeInLine = SourceRange(lineBeg, eRange.getEnd());
     // Calculate the number of codepoints in that range
-    std::size_t uEnd = sm.getNumberOfCodepointsInRange(rangeInLine);
+    std::size_t uEnd = sm.getLengthInCodepoints(rangeInLine);
     // But check that the number doesn't exceed the line size.
     uEnd = std::min(uEnd, lineSize+1);
     underline = embedString(underline, createUnderline('~', uBeg, uEnd));

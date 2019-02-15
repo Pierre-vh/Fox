@@ -128,16 +128,23 @@ namespace fox {
       // increment past thee end.
       SourceLoc incrementSourceLoc(SourceLoc loc, std::size_t count = 1) const;
 
-      // Returns the number of codepoints contained in the closed interval
-      // [a, b].
-      // e.g. if
+      // Returns the number of codepoints contained in the range.
+      // e.g. Let's say that:
+      //  a = range.getBegin()
+      //  b = range.getEnd()
+      //
+      //  and that the range represents "fooba" in "foobar"
+      //
       //    foobar
       //    ^   ^
       //    a   b
       //
-      //  then getNumberOfCodepointsInRange(a, b) returns 5, because there's
-      //  5 characters in this range: fooba
-      std::size_t getNumberOfCodepointsInRange(SourceRange range) const;
+      //  then getLengthInCodepoints(a, b) returns 5, because there's
+      //  5 characters in this range: fooba.
+      //
+      // Note: this method still considers fullwidth unicode characters
+      //       as 1 codepoint, even if they take 2 characters on screen.
+      std::size_t getLengthInCodepoints(SourceRange range) const;
 
     private:
       // This class represents the data that is stored internally inside the

@@ -387,7 +387,7 @@ SourceManager::incrementSourceLoc(SourceLoc loc, std::size_t count) const {
 }
 
 std::size_t 
-SourceManager::getNumberOfCodepointsInRange(SourceRange range) const {
+SourceManager::getLengthInCodepoints(SourceRange range) const {
   SourceLoc beg = range.getBegin();
   SourceLoc end = range.getEnd();
   // If the SourceLocs are identical, just return 1.
