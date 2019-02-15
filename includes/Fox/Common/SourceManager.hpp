@@ -140,6 +140,17 @@ namespace fox {
       // Note: a and b must belong to the same file.
       std::size_t getDifference(SourceLoc a, SourceLoc b) const;
 
+      // Returns the number of codepoints contained in the closed interval
+      // [a, b].
+      // e.g. if
+      //    foobar
+      //    ^   ^
+      //    a   b
+      //
+      //  then getNumberOfCodepointsInRange(a, b) returns 5, because there's
+      //  5 characters in this range: fooba
+      std::size_t getNumberOfCodepointsInRange(SourceRange range) const;
+
     private:
       // This class represents the data that is stored internally inside the
       // SourceManager.

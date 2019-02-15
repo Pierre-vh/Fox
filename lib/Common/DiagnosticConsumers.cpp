@@ -131,11 +131,12 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   // Create the carets underline (^)
 	{  
     auto uBeg = sm.getDifference(lineBeg, range.getBegin());
-    // The number of character we want to print is the difference
-    // between the beginning of the line and the end of the range 
-    // plus one, because we must account for the first character in the range.
-    std::size_t uEnd = sm.getDifference(lineBeg, range.getEnd())+1;
-    // We don't want uEnd to exceed the line size though.
+    // Change the beginning of the range so it begins where the line
+    // begins.
+    SourceRange rangeInLine = SourceRange(lineBeg, range.getEnd());
+    // Calculate the number of codepoints in that range
+    std::size_t uEnd = sm.getNumberOfCodepointsInRange(rangeInLine);
+    // But check that the number doesn't exceed the line size.
     uEnd = std::min(uEnd, lineSize);
     underline = createUnderline('^', uBeg, uEnd);
   }
@@ -146,11 +147,12 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
       && "Ranges don't belong to the same file");
 
     auto uBeg = sm.getDifference(lineBeg, eRange.getBegin());
-    // The number of character we want to print is the difference
-    // between the beginning of the line and the end of the range 
-    // plus one, because we must account for the first character in the range.
-    std::size_t uEnd = sm.getDifference(lineBeg, eRange.getEnd())+1;
-    // We don't want uEnd to exceed the line size though.
+    // Change the beginning of the range so it begins where the line
+    // begins.
+    SourceRange rangeInLine = SourceRange(lineBeg, eRange.getEnd());
+    // Calculate the number of codepoints in that range
+    std::size_t uEnd = sm.getNumberOfCodepointsInRange(rangeInLine);
+    // But check that the number doesn't exceed the line size.
     uEnd = std::min(uEnd, lineSize);
     underline = embedString(underline, createUnderline('~', uBeg, uEnd));
   }

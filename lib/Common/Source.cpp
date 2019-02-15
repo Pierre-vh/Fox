@@ -414,6 +414,12 @@ SourceManager::getDifference(SourceLoc a, SourceLoc b) const {
   return --distance;
 }
 
+std::size_t 
+SourceManager::getNumberOfCodepointsInRange(SourceRange range) const {
+  // The number of codepoints is simply the difference +1.
+  return getDifference(range.getBegin(), range.getEnd())+1;
+}
+
 // Checks the encoding of the file, skipping the UTF-8 bom if it's present.
 // Returns false if the encoding of the file is not supported.
 static bool checkEncoding(std::ifstream& in, std::streampos size) {
