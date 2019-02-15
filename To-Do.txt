@@ -167,13 +167,17 @@ To-Do:
       > Build a CallExpr once the function is resolved, if not, leave it unresolved and mark 
         it as being an error.
 
-  > OVR (OVerload Resolution)
+  > Overloads support
 
-  > FFI & intrinsics
+  > FFI and some intrinsics
     > Foreign function interface = ability to call C++ functions in Fox code
+    > Intrinsics = some "builtin" foreign function available in any fox code.
 
   > Ternary operator
-    > You know it: "cond ? then : else"
+
+  > Multifile support:
+    > Exact model still to be decided. It'll probably be package/module based, but probably
+      not to the extreme of java (with less nesting).
 
   > Function types & Functions as first class citizens
 
@@ -221,12 +225,10 @@ Other:
   Medium priority:
     This is a list of "medium-priority" stuff that needs to be done.
   
-    > Fully support fullwidth characters in diagnostics printing. 
-      For now, they're supported, but considered as 1 codepoint (which is intended), but
-      they take 2 spaces on screen. I should have a method "getScreenSpaceOfRange"
-      that returns the number of "cells" taken on screen by characters in a range, and
-      use that instead of getLengthInCodepoints in displayRelevantExtract.
-      This could be helpful: https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
+    > Rework StringManipulator into an iterator
+
+    > Completely abstract-away the utfcpp library (create a wrapper (e.g. Common/UTF8.hpp))
+      so I can change the library used in the future without too much hassle.
 
     > Lexer & Token rewrite + Parser rework.
 
