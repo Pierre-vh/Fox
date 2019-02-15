@@ -130,7 +130,10 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
 
   // Create the carets underline (^)
 	{  
-    auto uBeg = sm.getDifference(lineBeg, range.getBegin());
+    SourceRange preRange(lineBeg, range.getBegin());
+    // We'll begin the range at the last codepoint, so uBeg is
+    // the number of codepoints in the range minus one.
+    auto uBeg = sm.getNumberOfCodepointsInRange(preRange)-1;
     // Change the beginning of the range so it begins where the line
     // begins.
     SourceRange rangeInLine = SourceRange(lineBeg, range.getEnd());
@@ -146,7 +149,11 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     assert((diag.getExtraRange().getFileID() == diag.getRange().getFileID())
       && "Ranges don't belong to the same file");
 
-    auto uBeg = sm.getDifference(lineBeg, eRange.getBegin());
+    SourceRange preRange(lineBeg, eRange.getBegin());
+    // We'll begin the range at the last codepoint, so uBeg is
+    // the number of codepoints in the range minus one.
+    auto uBeg = sm.getNumberOfCodepointsInRange(preRange)-1;
+
     // Change the beginning of the range so it begins where the line
     // begins.
     SourceRange rangeInLine = SourceRange(lineBeg, eRange.getEnd());

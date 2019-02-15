@@ -387,34 +387,30 @@ SourceManager::incrementSourceLoc(SourceLoc loc, std::size_t count) const {
 }
 
 std::size_t 
-SourceManager::getDifference(SourceLoc a, SourceLoc b) const {
-  assert((a.getFileID() == b.getFileID())  
-    && "a and b do not belong to the same file!");
-  // If the SourceLocs are identical, just return 0.
-  if(a == b) return 0;
-  // Retrieve the source file
-  FileID file = a.getFileID();
-  const Data* data = getData(file);
-  // Check that our locs are valid
-  assert(isIndexValid(data, a.getRawIndex()) && "a is not valid");
-  assert(isIndexValid(data, b.getRawIndex()) && "b is not valid");
-  // If a > b, swap.
-  if(a.getRawIndex() > b.getRawIndex()) std::swap(a, b);
-  // Compute the needed iterators
-  string_view source = data->content;
-  auto it_a = source.begin()+a.getRawIndex();
-  auto it_b = source.begin()+b.getRawIndex();
-  // Calculate the distance and return the distance minus one
-  // (that's the difference)
-  std::size_t distance = utf8::distance(it_a, it_b);
-  assert(distance && "distance is zero!");
-  return distance;
-}
-
-std::size_t 
 SourceManager::getNumberOfCodepointsInRange(SourceRange range) const {
-  // The number of codepoints is simply the difference +1.
-  return getDifference(range.getBegin(), range.getEnd())+1;
+  SourceLoc beg = range.getBegin();
+  SourceLoc end = range.getEnd();
+  // If the SourceLocs are identical, just return 1.
+  if(beg == end) return 1;
+
+  // Retrieve the source file
+  const Data* data = getData(range.getFileID());
+
+  // Check that our locs are valid
+  assert(isIndexValid(data, beg.getRawIndex()) && "a is not valid");
+  assert(isIndexValid(data, end.getRawIndex()) && "b is not valid");
+
+  // Calculate the needed iterators
+  string_view source = data->content;
+  auto begIt = source.begin()+beg.getRawIndex();
+  auto endIt = source.begin()+end.getRawIndex();
+
+  // Calculate the distance 
+  std::size_t distance = utf8::distance(begIt, endIt);
+  assert(distance && "distance is zero!");
+  // Return distance+1, because distance doesn't count the first
+  // character.
+  return distance+1;
 }
 
 // Checks the encoding of the file, skipping the UTF-8 bom if it's present.

@@ -128,18 +128,6 @@ namespace fox {
       // increment past thee end.
       SourceLoc incrementSourceLoc(SourceLoc loc, std::size_t count = 1) const;
 
-      // Returns the difference in codepoints between 'a' and 'b'.
-      // e.g. if
-      //    foobar
-      //    ^   ^
-      //    a   b
-      //
-      //  then getDifference(a, b) returns 4, because a needs
-      //  to be incremented 4 times to match b.
-      //
-      // Note: a and b must belong to the same file.
-      std::size_t getDifference(SourceLoc a, SourceLoc b) const;
-
       // Returns the number of codepoints contained in the closed interval
       // [a, b].
       // e.g. if
