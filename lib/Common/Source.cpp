@@ -404,14 +404,11 @@ SourceManager::getDifference(SourceLoc a, SourceLoc b) const {
   string_view source = data->content;
   auto it_a = source.begin()+a.getRawIndex();
   auto it_b = source.begin()+b.getRawIndex();
-  // Increment it_b to convert the [it_a, it_b] (closed interval) range into
-  // [it_a, it_b[ (half-closed interval)
-  if(it_b != source.end()) utf8::next(it_b, source.end());
-
-  // Calculate the distance and return the distance minus one to get
+  // Calculate the distance and return the distance minus one
+  // (that's the difference)
   std::size_t distance = utf8::distance(it_a, it_b);
   assert(distance && "distance is zero!");
-  return --distance;
+  return distance;
 }
 
 std::size_t 
