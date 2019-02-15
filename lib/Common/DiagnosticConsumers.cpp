@@ -137,7 +137,7 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     // Calculate the number of codepoints in that range
     std::size_t uEnd = sm.getNumberOfCodepointsInRange(rangeInLine);
     // But check that the number doesn't exceed the line size.
-    uEnd = std::min(uEnd, lineSize);
+    uEnd = std::min(uEnd, lineSize+1);
     underline = createUnderline('^', uBeg, uEnd);
   }
 
@@ -153,7 +153,7 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     // Calculate the number of codepoints in that range
     std::size_t uEnd = sm.getNumberOfCodepointsInRange(rangeInLine);
     // But check that the number doesn't exceed the line size.
-    uEnd = std::min(uEnd, lineSize);
+    uEnd = std::min(uEnd, lineSize+1);
     underline = embedString(underline, createUnderline('~', uBeg, uEnd));
   }
 
