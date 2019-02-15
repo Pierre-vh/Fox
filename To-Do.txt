@@ -221,9 +221,12 @@ Other:
   Medium priority:
     This is a list of "medium-priority" stuff that needs to be done.
   
-    > Add "consistency" round-trip tests for the SourceManager's interface, for instance:
-        in a [beg, end] range containing some UTF8 characters:
-          sm.incrementSourceLoc(beg, sm.getDifference(beg, end)) == end
+    > Fully support fullwidth characters in diagnostics printing. 
+      For now, they're supported, but considered as 1 codepoint (which is intended), but
+      they take 2 spaces on screen. I should have a method "getScreenSpaceOfRange"
+      that returns the number of "cells" taken on screen by characters in a range, and
+      use that instead of getLengthInCodepoints in displayRelevantExtract.
+      This could be helpful: https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
 
     > Lexer & Token rewrite + Parser rework.
 
