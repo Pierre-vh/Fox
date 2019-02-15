@@ -36,7 +36,7 @@ namespace fox {
       ASTContext ctxt;
 
       Driver(std::ostream& os);
-      bool processFile(const std::string& filepath);
+      bool processFile(string_view filepath);
 
       bool getPrintChrono() const;
       void setPrintChrono(bool val);
