@@ -147,14 +147,6 @@ To-Do:
     > Parser update
     > SemaLookup update
 
-  > Add tests for the Diagnostic Consumers's carets/text extract.
-    This will probably be a unit test.
-      1 - Use a string, load it in the source manager
-      2 - Try to emit diagnostics in multiple places
-      3 - Check that the caret is at the correct place, and that the
-          range is correct.
-    Do at least 3 of them, and use unicodes characters when possible.
-
   > VM
   > IR
   > IRGen
