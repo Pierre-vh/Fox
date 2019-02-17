@@ -84,6 +84,8 @@ namespace fox {
     // The type of the lookup map
     using LookupMap = std::multimap<Identifier, NamedDecl*>;
     public:
+      class Scope;
+
       // Returns the Kind of DeclContext this is
       DeclContextKind getDeclContextKind() const;
 
@@ -155,5 +157,55 @@ namespace fox {
         (1 << DeclContextFreeLowBits) > toInt(DeclContextKind::LastDeclCtxt),
         "The PointerIntPair doesn't have enough bits to represent every "
         " DeclContextKind value");
+  };
+
+  class CompoundStmt;
+  class SourceRange;
+
+  // The ScopeInfo class represents information about a scope. It assists
+  // local unqualified lookups.
+  class DeclContext::Scope {
+    public:
+      // The kind of scope this is.
+      enum class Kind : std::uint8_t {
+        Null,
+        CompoundStmt,
+        // Currently, this is pretty empty, because for now
+        // CompoundStmts are the only relevant scopes, but in the future
+        // I'll probably have to support several kinds of scopes, such as
+        // closures, ConditionStmts (with VarDecls as condition)
+        
+        // The last kind
+        LastKind = CompoundStmt
+      };
+
+      // Creates an null (empty, invalid) scope.
+      Scope();
+
+      // Creates a CompoundStmt scope.
+      Scope(CompoundStmt* stmt);
+
+      // Returns the kind of scope this is.
+      Kind getKind() const;
+
+      // Returns true if getKind() == Kind::Null
+      bool isNull() const;
+      
+      // If getKind() == Kind::CompoundStmt, returns the CompoundStmt*,
+      // else, nullptr.
+      CompoundStmt* getCompoundStmt() const;
+
+      // Returns the SourceRange of this scope.
+      SourceRange getRange() const;
+
+    private:
+      static constexpr unsigned kindBits = 2;
+      using KindUT = typename std::underlying_type<Kind>::type;
+
+      llvm::PointerIntPair<CompoundStmt*, kindBits, Kind> nodeAndKind_;
+
+      static_assert(static_cast<KindUT>(Kind::LastKind) < (1 << kindBits),
+        "kindBits is too small to represent all possible kinds." 
+        "Please increase kindBits!");
   };
 }

@@ -7,6 +7,7 @@
 
 #include "Fox/AST/DeclContext.hpp"
 #include "Fox/AST/Decl.hpp"
+#include "Fox/AST/Stmt.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/SourceLoc.hpp"
@@ -178,4 +179,41 @@ void DeclContext::createLookupMap() {
   // Add its cleanup
   ctxt.addDestructorCleanup(*lookupMap_);
   assert(lookupMap_ && "LookupMap not built!");
+}
+
+//----------------------------------------------------------------------------//
+// DeclContext::Scope
+//----------------------------------------------------------------------------//
+
+DeclContext::Scope::Scope() : nodeAndKind_(nullptr, Kind::Null) {}
+
+DeclContext::Scope::Scope(CompoundStmt* stmt) : 
+  nodeAndKind_(stmt, Kind::CompoundStmt) {}
+
+DeclContext::Scope::Kind DeclContext::Scope::getKind() const {
+  return nodeAndKind_.getInt();
+}
+
+bool DeclContext::Scope::isNull() const {
+  return getKind() == Kind::Null;
+}
+
+CompoundStmt* DeclContext::Scope::getCompoundStmt() const {
+  if (getKind() == Kind::CompoundStmt) {
+    CompoundStmt* ptr = nodeAndKind_.getPointer();
+    assert(ptr && "kind == CompoundStmt but CompoundStmt ptr is null?");
+    return ptr;
+  }
+  return nullptr;
+}
+
+SourceRange DeclContext::Scope::getRange() const {
+  switch (getKind()) {
+    case Kind::CompoundStmt:
+      return getCompoundStmt()->getRange();
+    case Kind::Null:
+      return SourceRange();
+    default:
+      fox_unreachable("Unknown Scope Kind");
+  }
 }

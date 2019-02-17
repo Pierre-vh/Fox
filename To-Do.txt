@@ -143,7 +143,8 @@ To-Do:
   > UTF8 Handling improvements
 
   > Add local lookups in DeclContext:
-    > ScopeInfo class
+    > Scope class (Done)
+    > DeclContext support of Scopes 
     > Parser update
     > SemaLookup update
 
