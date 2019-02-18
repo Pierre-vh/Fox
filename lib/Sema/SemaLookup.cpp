@@ -21,32 +21,14 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 namespace {
-  using ResultFoundFn = std::function<bool(NamedDecl*)>;
 
-  // Does lookup in a LocalScope.
-  //   > The lookup stop if onFound(...) returns false
-  // *or*
-  //   > if we are done searching the whole scope tree.
-  void lookupInLocalScope(Identifier id, ResultFoundFn onFound, 
-    LocalScope* scope) {
-    LocalScope* cur = scope;
-    while(cur) {
-      const auto& map = cur->getDeclsMap();
-      // Try to find a decl with the identifier "id" in the multimap
-      auto it = map.find(id);
-      if(it != map.end())
-        if(!onFound(it->second)) return;
-      // Climb parent scopes
-      cur = cur->getParentIfLocalScope();
-    }
-  }
 }
 
 //----------------------------------------------------------------------------//
 // Sema methods impl
 //----------------------------------------------------------------------------//
 
-std::pair<bool, bool>  Sema::addLocalDeclToScope(NamedDecl* decl) {
+std::pair<bool, bool> Sema::addLocalDeclToScope(NamedDecl* decl) {
   assert(decl->isLocal() && "This method is only available to local decls");
   if(hasLocalScope()) {
     bool result = getLocalScope()->insert(decl);
@@ -59,10 +41,6 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   SourceLoc loc, const LookupOptions& options) {
   assert((results.size() == 0) && "'results' must be a fresh LookupResult");
   assert(id && "can't lookup with invalid id!");
-
-  // If this is set to false, we don't look inside the DeclContexts and 
-  // we limit the search to LocalScopes.
-  bool lookInDeclCtxt = options.canLookInDeclContext;
 
   // If we find a VarDecl that's currently being checked, it's ignored and
   // stored in "checkingVar". If we finish lookup and we still find nothing,
@@ -79,81 +57,72 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
 
   NamedDecl* checkingVar = nullptr;
 
+  bool onlyLocalDCs = options.onlyLookInLocalDeclContexts;
+
   // Helper lambda that returns true if a lookup result should be ignored.
   auto shouldIgnore = [&](NamedDecl* decl) {
     auto fn = options.shouldIgnore;
     return fn ? fn(decl) : false;
   };
 
-  // Check in the local scope, if there's one.
-  if(hasLocalScope()) {
-    LocalScope* scope = getLocalScope();
-    // Helper lambda that handles results.
-    auto handleResult = [&](NamedDecl* decl) {
-      // If we should ignore this result, do so 
-      if(shouldIgnore(decl)) return true;
-      // If the decl is VarDecl that's currently being checked, and that
-      // happens in a LocalScope, don't push it to the results just yet.
-      if(isa<VarDecl>(decl) && decl->isChecking()) {
-        // Normally only 1 variable should be in the "checking" state.
-        assert(!checkingVar && "more than 1 variable in the Checking state");
-        checkingVar = decl;
-        // Keep looking 
-        return true;
-      }
-      // In local scopes, we stop on the first result found.
-      results.addResult(decl);
-      return false;
-    };
-    // Do the lookup in the local scope
-    lookupInLocalScope(id, handleResult, scope);
-    
-    // If the caller actually wanted to us to look inside
-    // the DeclContext, check if it's still needed. If we have found what
-    // we were looking for inside the scope, there's no need to look
-    // in the DeclContext.
-    lookInDeclCtxt &= (results.size() == 0);
-  }
-
   // Check in decl context if allowed to
-  if(lookInDeclCtxt) {
-    DeclContext* currentDeclContext = getDeclCtxt();
-    // We should ALWAYS have an active DC, else something's broken.
-    assert(currentDeclContext 
-      && "No DeclContext available?");
-    // Handle results
-    auto handleResult = [&](NamedDecl* decl) {
-      // If we should ignore this result, do so and continue looking.
-      if(shouldIgnore(decl)) return true;
+  DeclContext* currentDeclContext = getDeclCtxt();
+  // We should ALWAYS have an active DC, else something's broken.
+  assert(currentDeclContext 
+    && "No DeclContext available?");
 
-      // If not, add the decl to the results and continue looking
-      results.addResult(decl);
+  // Handle results
+  auto handleResult = [&](NamedDecl* decl) {
+    // If we should ignore this result, do so and continue looking.
+    if(shouldIgnore(decl)) return true;
+
+    // If this var is checking, set checkingvar and ignore it.
+    if (decl->isChecking()) {
+      assert(!checkingVar && "2 vars are already in the 'checking' state");
+      checkingVar = decl;
       return true;
-    };
-    // Do the lookup 
-    {
-      // We're going to iterate over each parent in the DeclContext
-      // hierarchy, but we'll stop once handleResult returns false.
-      while (currentDeclContext) {
-        // TODO: Remove this check once DeclContext supports local
-        // lookup.
-        if (!currentDeclContext->isLocal()) {
-          // The SourceLoc only matters when looking inside the currently
-          // active DeclContext.
-          SourceLoc theLoc = 
-            (currentDeclContext == getDeclCtxt()) ? loc : SourceLoc();
-          if(!currentDeclContext->lookup(id, theLoc, handleResult))
-            break;
-        }
-        // Climb
-        currentDeclContext = currentDeclContext->getParentDeclCtxt();
+    }
+    
+    // If not, add the decl to the results and continue looking
+    results.addResult(decl);
+    return true;
+  };
+
+  auto shouldLookIn = [&](DeclContext* dc) {
+    if(onlyLocalDCs)
+      return dc->isLocal();
+    return true;
+  };
+
+  // We're going to iterate over each parent in the DeclContext
+  // hierarchy, and stop when we're satisfied with the results.
+  while (currentDeclContext) {
+    if (shouldLookIn(currentDeclContext)) {
+      currentDeclContext->dump();
+      // The SourceLoc only matters when looking inside the currently
+      // active DeclContext.
+      SourceLoc theLoc = 
+        (currentDeclContext == getDeclCtxt()) ? loc : SourceLoc();
+      if(!currentDeclContext->lookup(id, theLoc, handleResult)) break;
+    
+      // Check if we're satisfied with the results.
+      if (results.size()) {
+        // If the current decl context is a local context,
+        // and we found results inside it, break here.
+        if(currentDeclContext->isLocal()) break;
+        // else, continue.
       }
     }
+
+    // Climb
+    currentDeclContext = currentDeclContext->getParentDeclCtxt();
   }
 
   // Add the checkingVar if the result set is empty.
   if(results.isEmpty() && checkingVar)
     results.addResult(checkingVar);
+
+  // Remove shadowed decls from the results set.
 }
 
 //----------------------------------------------------------------------------//
