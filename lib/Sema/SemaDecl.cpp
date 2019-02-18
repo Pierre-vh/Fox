@@ -227,7 +227,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
           return true;
         }
         // Else, diagnose.
-        bool isRedecl = diagnoseIllegalRedecl(decl, lookupResult.getResults());
+        bool isRedecl = diagnoseIllegalRedecl(decl, lookupResult.getDecls());
         decl->setIsIllegalRedecl(isRedecl);
         return false;
       }

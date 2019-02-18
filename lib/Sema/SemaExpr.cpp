@@ -909,11 +909,11 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(result.isAmbiguous() && "only ambiguous lookup results allowed");
       // FIXME: Can this be made more efficient?
       SmallVector<NamedDecl*, 4> newResults;
-      for (NamedDecl* decl : result.getResults()) {
+      for (NamedDecl* decl : result.getDecls()) {
         if(!decl->isIllegalRedecl())
           newResults.push_back(decl);
       }
-      result.getResults() = newResults;
+      result.getDecls() = newResults;
       return !result.isAmbiguous();
     }
 

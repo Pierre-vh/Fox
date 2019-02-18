@@ -329,8 +329,8 @@ namespace fox {
       // Add a result in this LookupResult
       void addResult(NamedDecl* decl);
 
-      NamedDeclVec& getResults();
-      const NamedDeclVec& getResults() const;
+      NamedDeclVec& getDecls();
+      const NamedDeclVec& getDecls() const;
 
       std::size_t size() const;
 

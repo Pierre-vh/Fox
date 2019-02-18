@@ -152,7 +152,7 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
     results.addResult(checkingVar);
 
   // Remove shadowed decls from the results set.
-  removeShadowedDecls(results.getResults());
+  removeShadowedDecls(results.getDecls());
 }
 
 //----------------------------------------------------------------------------//
@@ -163,11 +163,11 @@ void Sema::LookupResult::addResult(NamedDecl* decl) {
   results_.push_back(decl);
 }
 
-NamedDeclVec& Sema::LookupResult::getResults() {
+NamedDeclVec& Sema::LookupResult::getDecls() {
   return results_;
 }
 
-const NamedDeclVec& Sema::LookupResult::getResults() const {
+const NamedDeclVec& Sema::LookupResult::getDecls() const {
   return results_;
 }
 
