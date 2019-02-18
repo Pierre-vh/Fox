@@ -138,12 +138,17 @@ bool DeclContext::isLocal() const {
   return getDeclContextKind() == DeclContextKind::FuncDecl;
 }
 
-void DeclContext::addDecl(Decl* decl) {
+void DeclContext::addDecl(Decl* decl, ScopeInfo scope) {
   // Run some checks.
   assert(decl && 
     "Declaration cannot be null!");
   assert(decl->getRange() && "Declaration must have valid source location"
     "information to be inserted in the DeclContext");
+
+  // Assert that either our DeclContext is local, or that
+  // it isn't and that scope is null.
+  assert(isLocal() || (!isLocal() && !scope) &&
+    "Only local DeclContexts support Scope information!");
 
   // Insert the decl_ in the linked list of decls
   if (firstDecl_) {

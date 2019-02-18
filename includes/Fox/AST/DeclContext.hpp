@@ -151,8 +151,12 @@ namespace fox {
       bool isLocal() const;
 
       // Adds a Decl in this DeclContext.
-      // If "decl" is a NamedDecl, it is expected to have a valid identifier
-      void addDecl(Decl* decl);
+      // If "decl" is a NamedDecl, it is expected to have a valid identifier.
+      //
+      // For LocalScopes, you can optionally supply a ScopeInfo object
+      // to provide Scope information. It is forbidden to pass a ScopeInfo
+      // object for non local DeclContexts.
+      void addDecl(Decl* decl, ScopeInfo scopeInfo = ScopeInfo());
 
       // Returns the (half-open) range of Decls contained in
       // this DeclContext.
