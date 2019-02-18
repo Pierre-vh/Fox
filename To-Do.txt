@@ -148,6 +148,12 @@ To-Do:
     > Parser update
     > SemaLookup update
 
+  > DeclContext/NameLookup interface polishing?
+      Currently, it's a prototype. It needs some polish.
+      a) Get rid of the idiom of using callbacks to return results.
+      b) (maybe?) Split lookupmap implementation depending on if it needs
+           ScopeInfo or not, so not all DeclContext pay the price of
+           storing the ScopeInfo if they don't need it
   > VM
   > IR
   > IRGen

@@ -68,8 +68,53 @@ bool DeclRange::isEmpty() const {
 }
 
 //----------------------------------------------------------------------------//
+// ScopeInfo
+//----------------------------------------------------------------------------//
+
+ScopeInfo::ScopeInfo() : nodeAndKind_(nullptr, Kind::Null) {}
+
+ScopeInfo::ScopeInfo(CompoundStmt* stmt) : 
+  nodeAndKind_(stmt, Kind::CompoundStmt) {}
+
+ScopeInfo::Kind ScopeInfo::getKind() const {
+  return nodeAndKind_.getInt();
+}
+
+bool ScopeInfo::isNull() const {
+  return getKind() == Kind::Null;
+}
+
+ScopeInfo::operator bool() const {
+  return !isNull();
+}
+
+CompoundStmt* ScopeInfo::getCompoundStmt() const {
+  if (getKind() == Kind::CompoundStmt) {
+    CompoundStmt* ptr = nodeAndKind_.getPointer();
+    assert(ptr && "kind == CompoundStmt but CompoundStmt ptr is null?");
+    return ptr;
+  }
+  return nullptr;
+}
+
+SourceRange ScopeInfo::getRange() const {
+  switch (getKind()) {
+    case Kind::CompoundStmt:
+      return getCompoundStmt()->getRange();
+    case Kind::Null:
+      return SourceRange();
+    default:
+      fox_unreachable("Unknown Scope Kind");
+  }
+}
+
+//----------------------------------------------------------------------------//
 // DeclContext
 //----------------------------------------------------------------------------//
+
+//------------------------------------//
+// DeclContext
+//------------------------------------//
 
 DeclContextKind DeclContext::getDeclContextKind() const {
   return static_cast<DeclContextKind>(parentAndKind_.getInt());
@@ -117,7 +162,9 @@ void DeclContext::addDecl(Decl* decl) {
     // Lazily build the lookup map when we add a NamedDecl for the
     // first time.
     if(!lookupMap_) createLookupMap();
-    lookupMap_->insert({id, named});
+
+    // Add the result to the lookup map.
+    lookupMap_->insert({id, {ScopeInfo(), named}});
   }
 }
 
@@ -133,26 +180,42 @@ Decl* DeclContext::getLastDecl() const {
   return lastDecl_;
 }
 
-bool DeclContext::lookup(Identifier id, SourceLoc loc, 
-                         ResultFoundCallback onFound) {
+bool 
+DeclContext::lookup(Identifier id, SourceLoc loc, 
+                    ResultFoundCallback onFound) const {
   assert(id && "Identifier is invalid");
-  assert(onFound && "Callback is null, results will be discarded!");
 
   // If we don't have a lookup map, we're empty, so we
   // can't lookup anything.
   if (!lookupMap_) return true;
 
   const LookupMap& map = *lookupMap_;
+
   // Search all decls with the identifier "id" in the multimap
   LookupMap::const_iterator beg, end;
   std::tie(beg, end) = map.equal_range(id);
+
   for(auto it = beg; it != end; ++it) {
-    // Skip if the decl has been declared after the loc.
-    if(loc && loc.comesBefore(it->second->getBegin()))
-      continue;
+    ScopeInfo scope = it->second.first;
+    NamedDecl* decl = it->second.second;
+
+    // if the loc is valid, consider it.
+    if (loc) {
+      // First, check if the decl was declared
+      // before loc.
+      if (SourceLoc declBeg = decl->getBegin()) {
+        if(!declBeg.comesBefore(loc)) continue;
+      }
+
+      // Then, if we have a Scope, check if loc is inside
+      // the scope's range.
+      if(scope && (!scope.getRange().contains(loc))) continue;
+    }
     
-    if(!onFound(it->second)) return false;
+    // Else, consider the result.
+    if(!onFound(it->second.second)) return false;
   }
+
   return true;
 }
 
@@ -179,41 +242,4 @@ void DeclContext::createLookupMap() {
   // Add its cleanup
   ctxt.addDestructorCleanup(*lookupMap_);
   assert(lookupMap_ && "LookupMap not built!");
-}
-
-//----------------------------------------------------------------------------//
-// DeclContext::Scope
-//----------------------------------------------------------------------------//
-
-DeclContext::Scope::Scope() : nodeAndKind_(nullptr, Kind::Null) {}
-
-DeclContext::Scope::Scope(CompoundStmt* stmt) : 
-  nodeAndKind_(stmt, Kind::CompoundStmt) {}
-
-DeclContext::Scope::Kind DeclContext::Scope::getKind() const {
-  return nodeAndKind_.getInt();
-}
-
-bool DeclContext::Scope::isNull() const {
-  return getKind() == Kind::Null;
-}
-
-CompoundStmt* DeclContext::Scope::getCompoundStmt() const {
-  if (getKind() == Kind::CompoundStmt) {
-    CompoundStmt* ptr = nodeAndKind_.getPointer();
-    assert(ptr && "kind == CompoundStmt but CompoundStmt ptr is null?");
-    return ptr;
-  }
-  return nullptr;
-}
-
-SourceRange DeclContext::Scope::getRange() const {
-  switch (getKind()) {
-    case Kind::CompoundStmt:
-      return getCompoundStmt()->getRange();
-    case Kind::Null:
-      return SourceRange();
-    default:
-      fox_unreachable("Unknown Scope Kind");
-  }
 }

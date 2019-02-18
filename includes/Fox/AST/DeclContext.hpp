@@ -13,9 +13,11 @@
 #include "ASTAligns.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/PointerIntPair.h"
+#include "llvm/ADT/PointerUnion.h"
+#include "llvm/ADT/SmallVector.h"
 #include <iterator>
-#include <map>
 #include <memory>
+#include <map>
 
 namespace fox {
   class Decl;
@@ -23,6 +25,8 @@ namespace fox {
   class SourceLoc;
   class FileID;
   class ASTContext;
+  class CompoundStmt;
+  class SourceRange;
 
   enum class DeclContextKind : std::uint8_t {
     #define DECL_CTXT(ID, PARENT) ID,
@@ -75,17 +79,63 @@ namespace fox {
       DeclIterator beg_, end_;
   };
 
+  // The ScopeInfo class represents information about a scope. It assists
+  // local unqualified lookups.
+  class ScopeInfo {
+    public:
+      // The kind of scope this is.
+      enum class Kind : std::uint8_t {
+        Null,
+        CompoundStmt,
+        // Currently, this is pretty empty, because for now
+        // CompoundStmts are the only relevant scopes, but in the future
+        // I'll probably have to support several kinds of scopes, such as
+        // closures, ConditionStmts (with VarDecls as condition)
+        
+        // The last kind
+        LastKind = CompoundStmt
+      };
+
+      // Creates an null (empty, invalid) scope.
+      ScopeInfo();
+
+      // Creates a CompoundStmt scope.
+      ScopeInfo(CompoundStmt* stmt);
+
+      // Returns the kind of scope this is.
+      Kind getKind() const;
+
+      // Returns true if getKind() == Kind::Null
+      bool isNull() const;
+
+      // Operator bool that returns !isNull
+      explicit operator bool() const;
+
+      // If getKind() == Kind::CompoundStmt, returns the CompoundStmt*,
+      // else, nullptr.
+      CompoundStmt* getCompoundStmt() const;
+
+      // Returns the SourceRange of this scope.
+      SourceRange getRange() const;
+
+    private:
+      static constexpr unsigned kindBits = 2;
+      using KindUT = typename std::underlying_type<Kind>::type;
+
+      llvm::PointerIntPair<CompoundStmt*, kindBits, Kind> nodeAndKind_;
+
+      static_assert(static_cast<KindUT>(Kind::LastKind) < (1 << kindBits),
+        "kindBits is too small to represent all possible kinds." 
+        "Please increase kindBits!");
+  };
+
   // DeclContext is a class that acts as a "semantic container for declarations"
   // It tracks the declaration it "owns", and provides lookup methods.
   //
   // This class is the centerpiece of name resolution in Fox. It is used to handle
   // any kind of lookup, both Unqualified and Qualified.
   class alignas(DeclContextAlignement) DeclContext {
-    // The type of the lookup map
-    using LookupMap = std::multimap<Identifier, NamedDecl*>;
     public:
-      class Scope;
-
       // Returns the Kind of DeclContext this is
       DeclContextKind getDeclContextKind() const;
 
@@ -97,6 +147,7 @@ namespace fox {
       DeclContext* getParentDeclCtxt() const;
 
       // Returns true if this DeclContext is a local DeclContext.
+      // (getDeclContextKind() == FuncDecl)
       bool isLocal() const;
 
       // Adds a Decl in this DeclContext.
@@ -114,18 +165,22 @@ namespace fox {
 
       using ResultFoundCallback = std::function<bool(NamedDecl*)>;
 
-      // Performs a lookup in this DeclContext.
+      // Performs a "raw" lookup in this DeclContext.
+      //
       // If loc is null, the SourceLoc is ignored and every
       // result is returned, no matter the loc.
       //
-      // Note that this only looks in this DeclContext, and does
-      // no climb parent DeclContexts.
+      // When the loc is actually considered, only Decls that were
+      // declared before loc are returned, and, for local DCs, 
+      // only results that are in the same scope are returned.
       //
       // Returns true by default, false if the lookup was
       // aborted due to onFound returning false.
-      // TODO: Improve doc
+      //
+      // Note that this only looks in this DeclContext, and does
+      // no climb parent DeclContexts.
       bool lookup(Identifier id, SourceLoc loc, 
-                  ResultFoundCallback onFound);
+        ResultFoundCallback onFound) const;
 
       static bool classof(const Decl* decl);
 
@@ -133,6 +188,12 @@ namespace fox {
       DeclContext(DeclContextKind kind, DeclContext* parent);
 
     private:
+      using LookupMap = 
+        std::multimap<Identifier, std::pair<ScopeInfo, NamedDecl*>>;
+
+      // Creates the appropriate lookup map for this DeclContext:
+      //  for local DeclContexts, uses a LocalLookupMap.
+      //  for any other DeclContextk ind, uses a LookupMap
       void createLookupMap();
       
       // The PointerIntPair used to represent the ParentAndKind bits
@@ -148,7 +209,7 @@ namespace fox {
       Decl* firstDecl_ = nullptr;
       Decl* lastDecl_ = nullptr;
 
-      // The lookup map
+      // The LookupMap, which might be a Local LookupMap.
       LookupMap* lookupMap_ = nullptr;
 
       // Check that ParentAndKindTy has enough bits to represent
@@ -157,55 +218,5 @@ namespace fox {
         (1 << DeclContextFreeLowBits) > toInt(DeclContextKind::LastDeclCtxt),
         "The PointerIntPair doesn't have enough bits to represent every "
         " DeclContextKind value");
-  };
-
-  class CompoundStmt;
-  class SourceRange;
-
-  // The ScopeInfo class represents information about a scope. It assists
-  // local unqualified lookups.
-  class DeclContext::Scope {
-    public:
-      // The kind of scope this is.
-      enum class Kind : std::uint8_t {
-        Null,
-        CompoundStmt,
-        // Currently, this is pretty empty, because for now
-        // CompoundStmts are the only relevant scopes, but in the future
-        // I'll probably have to support several kinds of scopes, such as
-        // closures, ConditionStmts (with VarDecls as condition)
-        
-        // The last kind
-        LastKind = CompoundStmt
-      };
-
-      // Creates an null (empty, invalid) scope.
-      Scope();
-
-      // Creates a CompoundStmt scope.
-      Scope(CompoundStmt* stmt);
-
-      // Returns the kind of scope this is.
-      Kind getKind() const;
-
-      // Returns true if getKind() == Kind::Null
-      bool isNull() const;
-      
-      // If getKind() == Kind::CompoundStmt, returns the CompoundStmt*,
-      // else, nullptr.
-      CompoundStmt* getCompoundStmt() const;
-
-      // Returns the SourceRange of this scope.
-      SourceRange getRange() const;
-
-    private:
-      static constexpr unsigned kindBits = 2;
-      using KindUT = typename std::underlying_type<Kind>::type;
-
-      llvm::PointerIntPair<CompoundStmt*, kindBits, Kind> nodeAndKind_;
-
-      static_assert(static_cast<KindUT>(Kind::LastKind) < (1 << kindBits),
-        "kindBits is too small to represent all possible kinds." 
-        "Please increase kindBits!");
   };
 }
