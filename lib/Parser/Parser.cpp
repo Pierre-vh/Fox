@@ -482,6 +482,7 @@ void Parser::DelayedDeclRegistration::abandon() {
 
 void Parser::DelayedDeclRegistration::complete(ScopeInfo scope) {
   assert(parser_ && "transaction has already been completed/abandoned!");
+  assert(scope && "Cannot complete a transaction with a null ScopeInfo!");
   for(auto decl : decls_)
     parser_->doDeclRegistration(decl, scope);
   abandon();
