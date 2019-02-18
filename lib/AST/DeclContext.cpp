@@ -220,8 +220,12 @@ DeclContext::lookup(Identifier id, SourceLoc loc,
       }
 
       // Then, if we have a Scope, check if loc is inside
-      // the scope's range.
-      if(scope && (!scope.getRange().contains(loc))) continue;
+      // the scope's range. Skip this result if it isn't.
+      if (scope) {
+        assert(scope.getRange() && "Valid scope with invalid range?");
+        if(!scope.getRange().contains(loc))
+          continue;
+      }
     }
     
     // Else, consider the result.
