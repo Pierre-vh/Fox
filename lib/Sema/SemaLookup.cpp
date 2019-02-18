@@ -98,7 +98,6 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   // hierarchy, and stop when we're satisfied with the results.
   while (currentDeclContext) {
     if (shouldLookIn(currentDeclContext)) {
-      currentDeclContext->dump();
       // The SourceLoc only matters when looking inside the currently
       // active DeclContext.
       SourceLoc theLoc = 
