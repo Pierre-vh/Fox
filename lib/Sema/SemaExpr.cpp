@@ -22,7 +22,6 @@
 
 using namespace fox;
 
-
 // Expression checker: Classic visitor, the visitXXX functions
 // all check a single node. They do not orchestrate visitation of
 // the children, because that is done by the ASTWalker logic
@@ -614,14 +613,18 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         diagnoseUndeclaredIdentifier(range, id);
         return expr;
       }
-      // Ambiguous 
+      // Ambiguous result
       if(results.isAmbiguous()) {
-        diagnoseAmbiguousIdentifier(range, id, results);
-        return expr;
+        // Try to remove illegal redecls from the results
+        if (!removeIllegalRedecls(results)) {
+          diagnoseAmbiguousIdentifier(range, id, results);
+          return expr;
+        }
       }
-      // Correct
+      // Correct, unambiguous result.
       NamedDecl* decl = results.getIfSingleResult();
-      assert(decl && "not ambiguous, not empty, but not single?");
+      assert(decl 
+        && "not ambiguous, not empty, but doens't contain a single result?");
       if(ValueDecl* valueDecl = dyn_cast<ValueDecl>(decl)) 
         return finalizeReferenceToValueDecl(expr, valueDecl);
       // For now, every NamedDecl is also a ValueDecl
@@ -899,6 +902,20 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     //----------------------------------------------------------------------//
     // Various helper methods unrelated to semantics
     //----------------------------------------------------------------------//
+
+    // Removes illegal redeclarations from an ambigous lookup result.
+    // Returns true if the new LookupResult is now unambiguous.
+    bool removeIllegalRedecls(LookupResult& result) {
+      assert(result.isAmbiguous() && "only ambiguous lookup results allowed");
+      // FIXME: Can this be made more efficient?
+      SmallVector<NamedDecl*, 4> newResults;
+      for (NamedDecl* decl : result.getResults()) {
+        if(!decl->isIllegalRedecl())
+          newResults.push_back(decl);
+      }
+      result.getResults() = newResults;
+      return !result.isAmbiguous();
+    }
 
     // Returns a string containing the arguments passed to a CallExpr,
     // in round brackets, separated by commas.

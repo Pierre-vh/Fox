@@ -17,3 +17,11 @@ func bar(foo : [double]) {  // "foo" shadows the global variable "foo"
 
 let foo : bool; // Invalid redeclaration of foo declared at line 3
 // expect-error@-1: invalid redeclaration of variable 'foo'
+
+func another_test() {
+  let zoinks : double; // expect-note: first declaration of 'zoinks' seen here
+  let zoinks : double; // expect-error: invalid redeclaration of variable 'zoinks'
+  // Here, a reference to zoinks should unambiguously bind to the first, valid, decl,
+  // without any warnings or errors.
+  zoinks;
+}
