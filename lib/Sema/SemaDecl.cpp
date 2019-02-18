@@ -40,13 +40,17 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
     // Diagnoses an illegal variable redeclaration. 
     // "decl" is the illegal redecl, "decls" is the list of previous decls.
-    void diagnoseIllegalRedecl(NamedDecl* decl, const NamedDeclVec& decls) {
-      // Find the earliest candidate in file
-      NamedDecl* earliest = findEarliestInFile(decl->getBegin(), decls);
+    //
+    // If the decl shouldn't be considered a illegal redeclaration, returns
+    // false.
+    bool diagnoseIllegalRedecl(NamedDecl* decl, const NamedDeclVec& decls) {
+      // Find the original decl
+      NamedDecl* earliest = findOriginalDecl(decl->getBegin(), decls);
       // If there's a earliest decl, diagnose. 
       // (We might not have one if this is the first decl)
       if(earliest)
         diagnoseIllegalRedecl(earliest, decl);
+      return (bool)earliest;
     }
 
     // Helper diagnoseIllegalRedecl
@@ -223,8 +227,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
           return true;
         }
         // Else, diagnose.
-        diagnoseIllegalRedecl(decl, lookupResult.getResults());
-        decl->setIsIllegalRedecl(true);
+        bool isRedecl = diagnoseIllegalRedecl(decl, lookupResult.getResults());
+        decl->setIsIllegalRedecl(isRedecl);
         return false;
       }
     }
@@ -235,30 +239,45 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // Non semantics related helper methods
     //----------------------------------------------------------------------//
     
-    // Searches the vector "decls" to return the first decl that was
-    // declared before "loc".
+    // Searches a lookup result to find the decl that should be considered
+    // the "original" decl when diagnosing for illegal redeclarations.
+    //
+    // The return result may be nullptr!
     NamedDecl* 
-    findEarliestInFile(SourceLoc loc, const NamedDeclVec& decls) {
-      assert(decls.size() && "decls.size() > 0");
+    findOriginalDecl(SourceLoc loc, const NamedDeclVec& decls) {
+      assert(decls.size() && "Empty decl set");
+      // First, add the decls to our own vector, but ignore:
+      //  - unchecked decls
+      //  - illegal redecls
+      //  - decls that came after our decl
+      SmallVector<NamedDecl*, 4> candidates; 
+      candidates.reserve(decls.size());
+      for (NamedDecl* decl : decls) {
+        if(decl->isUnchecked()) continue;
+        if(decl->isIllegalRedecl()) continue;
+        if(decl->getBegin().comesBefore(loc))
+          candidates.push_back(decl);
+      }
+
+      // Maybe we already have our result
+      if(candidates.size() == 0) return nullptr;
+      if(candidates.size() == 1) return candidates[0];
+
+      // Else, find the latest decl in the vector
       NamedDecl* candidate = nullptr;
       FileID file = loc.getFileID();
-      for (NamedDecl* decl : decls) {
-        assert(decl && "cannot be null!");
-        if (decl->getFileID() == file) {
-          SourceLoc declLoc = decl->getBegin();
-          // If the decl was declared after our loc, ignore it.
-          if (loc.getRawIndex() < declLoc.getRawIndex())
-            continue;
-          if (!candidate)
-            candidate = decl;
-          else {
-            SourceLoc candLoc = candidate->getBegin();
-            // if decl has been declared before candidate, 
-            // decl becomes the candidate
-            if (declLoc.getRawIndex() < candLoc.getRawIndex())
-              candidate = decl;
-          }
+      for (NamedDecl* decl : candidates) {
+        SourceLoc declLoc = decl->getBegin();
+        // If we have no candidate, take this decl as the first candidate
+        if (!candidate) {
+          candidate = decl;
+          continue;
         }
+        SourceLoc candLoc = candidate->getBegin();
+        // if this decl has been declared after the candidate, it
+        // becomes the new candidate
+        if (candLoc.comesBefore(declLoc))
+          candidate = decl;
       }
       return candidate;
     }
