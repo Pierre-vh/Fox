@@ -14,9 +14,22 @@ using namespace fox;
 
 void Parser::actOnDecl(Decl* decl) {
   assert(decl && "decl is null!");
+  // If we have a currently active DDR, add it to the DDR instead of
+  // directly recording it.
+  if(curDDR_)
+    curDDR_->add(decl);
+  // Else, register it directly.
+  else 
+    doDeclRegistration(decl, curScopeInfo_);
+}
+
+void Parser::doDeclRegistration(Decl* decl, ScopeInfo scopeInfo) {
   // Record the decl in its DeclContext
-  if(DeclContext* dc = decl->getDeclContext())
-    dc->addDecl(decl);
+  if (DeclContext* dc = decl->getDeclContext()) {
+    assert(decl->isLocal() || (!decl->isLocal() && !scopeInfo) &&
+      "Non-null ScopeInfo is only supported for local decls!");
+    dc->addDecl(decl, scopeInfo);
+  }
 }
 
 UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {

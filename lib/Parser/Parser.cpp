@@ -455,3 +455,34 @@ Parser::RAIIScopeInfo::~RAIIScopeInfo() {
   if(parser_) // parser_ will be nullptr if we restored early
     parser_->curScopeInfo_ = oldInfo_;
 }
+
+// DelayedDeclRegistration
+Parser::DelayedDeclRegistration::DelayedDeclRegistration(Parser* p)
+  : parser_(p) {
+  assert(parser_ && "parser is nullptr!");
+  prevCurDDR_ = parser_->curDDR_;
+  parser_->curDDR_ = this;
+}
+
+Parser::DelayedDeclRegistration::~DelayedDeclRegistration() {
+  abandon();
+}
+
+void Parser::DelayedDeclRegistration::add(Decl* decl) {
+  decls_.push_back(decl);
+}
+
+void Parser::DelayedDeclRegistration::abandon() {
+  if (parser_) {
+    parser_->curDDR_ = prevCurDDR_;
+    parser_ = nullptr;
+    decls_.clear(); 
+  }
+}
+
+void Parser::DelayedDeclRegistration::complete(ScopeInfo scope) {
+  assert(parser_ && "transaction has already been completed/abandoned!");
+  for(auto decl : decls_)
+    parser_->doDeclRegistration(decl, scope);
+  abandon();
+}

@@ -176,8 +176,14 @@ namespace fox {
       //---------------------------------//
 
       // Should be called whenever a decl is done parsing and about 
-      // to be returned.
+      // to be returned. This will register the Decl in its parent
+      // DeclContext
+      // TODO: This should call decl->setParent(current DeclContext)
       void actOnDecl(Decl* decl);
+
+      // This is a method called by DelayedDeclRegistration and
+      // actOnDecl to perform the actual Decl registration.
+      void doDeclRegistration(Decl* decl, ScopeInfo scopeInfo);
 
       DeclContext* getCurrentDeclCtxt() const;
 
@@ -333,7 +339,52 @@ namespace fox {
           Parser* parser_ = nullptr;
           ScopeInfo oldInfo_;
       };
-      
+
+      //---------------------------------//
+      // DelayedDeclRegistration 
+      // 
+      // This class represents a "transaction" of delayed
+      // calls to actOnDecl. This is used by parseCompoundStmt.
+      // 
+      // TODO: Improve doc/explain this better.
+      //
+      // The transaction can be completed in 3 ways:
+      // - by calling "complete" with a Scope
+      //
+      // - by calling abandon(), which discards the decls.
+      //
+      // - by calling the destructor, which calls abandon()
+      //---------------------------------//      
+      class DelayedDeclRegistration {
+        public:
+          DelayedDeclRegistration(Parser* p);
+          ~DelayedDeclRegistration();
+
+          // Adds a Decl to this transaction, this should only be called
+          // by actOnDecl when it notices that a transaction is currently
+          // active.
+          void add(Decl* decl);
+
+          // Abandons this transaction.
+          void abandon();
+
+          // Completes this transaction.
+          void complete(ScopeInfo scope);
+
+        private:
+          // The parser instance, or nullptr if the transaction
+          // has already been completed.
+          Parser* parser_ = nullptr;
+
+          // The pending decls
+          SmallVector<Decl*, 4> decls_;
+          
+          // The previous curDDR_, if there's one.
+          DelayedDeclRegistration* prevCurDDR_ = nullptr;
+      };
+
+      DelayedDeclRegistration* curDDR_ = nullptr;
+
       //----------------------------------------------------------------------//
       // Parser constants
       //----------------------------------------------------------------------//

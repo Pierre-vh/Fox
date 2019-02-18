@@ -20,6 +20,9 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
 
   if (!leftCurlyLoc)
     return Result<Stmt*>::NotFound();
+
+  DelayedDeclRegistration ddr(this);
+
   SmallVector<ASTNode, 4> nodes;
   SourceLoc rightCurlyLoc;
   // {<stmt>}
@@ -60,6 +63,9 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
   SourceRange range(leftCurlyLoc, rightCurlyLoc);
   assert(range && "invalid loc info");
   auto* rtr = CompoundStmt::create(ctxt, nodes, range);
+
+  // Complete the delayed decl registration.
+  ddr.complete(ScopeInfo(rtr));
   return Result<Stmt*>(rtr);
 }
 
