@@ -83,10 +83,10 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       
     void visitReturnStmt(ReturnStmt* stmt) {
       // Fetch the current FuncDecl
-      LocalScope* scope = getSema().getLocalScope();
-      assert(scope && "scope shouldn't be nullptr!");
-      FuncDecl* fn = scope->getFuncDecl();
-      assert(fn && "should have root FuncDecl!");
+      DeclContext* dc = getSema().getDeclCtxt();
+      assert(dc && "no active decl context!");
+      FuncDecl* fn = dyn_cast<FuncDecl>(dc);
+      assert(fn && "ReturnStmt outside a FuncDecl?");
       // Fetch it's return type
       Type rtrTy = fn->getReturnTypeLoc().getType();
       bool isVoid = rtrTy->isVoidType();
@@ -115,9 +115,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
     }
 
     void visitCompoundStmt(CompoundStmt* stmt) {
-      // Open the scope
-      auto scope = getSema().openNewScopeRAII();
-			// And just visit the children
+			// Just visit the children
       for (ASTNode& s : stmt->getNodes()) {
         s = checkNode(s);
       }

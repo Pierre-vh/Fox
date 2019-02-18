@@ -16,12 +16,12 @@
 
 #pragma once
 
-#include "LocalScope.hpp"
 #include "Fox/AST/ASTFwdDecl.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <cstdint>
 #include <tuple>
+#include <functional>
 #include <memory>
 
 namespace fox {
@@ -29,6 +29,7 @@ namespace fox {
   class ASTContext;
   class DiagnosticEngine;
   class SourceLoc;
+  class Identifier;
   using NamedDeclVec = SmallVector<NamedDecl*, 4>;
 
   // This is the class that handles semantic analysis of the Fox AST.
@@ -103,7 +104,6 @@ namespace fox {
       // Also, this function is commutative.
       bool unify(Type a, Type b);
 
-
       // Unification with a custom comparator function
       //
       // Unification will consider the types equal iff 
@@ -145,23 +145,6 @@ namespace fox {
       //---------------------------------//
       // Name binding 
       //---------------------------------//
-
-      // Makes a local decl visible in the current scope. 
-      //
-      // If a decl with the same identifier already existed in this scope, 
-      // it is overwritten. (see the second value of the result pair
-      // to know if a Decl was overwritten or not)
-      //
-      // /!\ Asserts that decl->isLocal() returns true!
-      //
-      // Returns a pair of booleans:
-      //    {false, false} if no insertion occured because there is no active
-      //      local scope.
-      //    {true, true} if the insertion occured without overwriting any
-      //      previous declaration
-      //    {true, false} if the insertion occured and replaced a previous
-      //      decl.
-      std::pair<bool, bool> addLocalDeclToScope(NamedDecl* decl);
 
       // Class that encapsulates the result of a Lookup request.
       class LookupResult;
@@ -223,40 +206,11 @@ namespace fox {
       bool hasDeclCtxt() const;
 
       //---------------------------------//
-      // Scope Management
-      //---------------------------------//
-
-      // RAII object for openNewScopeRAII and enterFuncScopeRAII
-      class RAIILocalScope;
-
-      // Creates a new scope and set localScope_ to that new instance.
-      // Returns a RAII object that will, upon destruction, restore the LocalScope.
-      //
-      // Asserts that the current localScope is non nullptr.
-      RAIILocalScope openNewScopeRAII();
-
-      // Creates a new "root" scope for the FuncDecl fn.
-      // Returns a RAII object that will, upon destruction, restore the LocalScope.
-      //
-      // Asserts that the current localScope is nullptr and that fn is not nullptr.
-      RAIILocalScope enterFuncScopeRAII(FuncDecl* fn);
-
-      // Return the currently active local scope, or nullptr if none is active.
-      LocalScope* getLocalScope() const;
-
-      // Returns true if this Sema instance posseses an active local scope in
-      // which local declarations can be made visible
-      bool hasLocalScope() const;
-
-      //---------------------------------//
       // Other members
       //---------------------------------//
 
       // The current active DeclContext.
       DeclContext* currentDC_ = nullptr;
-
-      // The current active LocalScope
-      LocalScope* localScope_ = nullptr;
       
       // the ASTContext and DiagnosticEngine
       ASTContext &ctxt_;
@@ -292,31 +246,6 @@ namespace fox {
 
       ~RAIIDeclCtxt() {
         sema_.currentDC_ = oldDC_;
-      }
-  };
-
-  // A Small RAII object that sets the current LocalScope [in a Sema instance]
-  // to a new LocalScope instance, owned by this object.
-  class Sema::RAIILocalScope {
-    Sema& sema_;
-    LocalScope scope_;
-    public:
-      // Create a new LocalScope whose parent is the current active
-      // localScope (maybe null)
-      //
-      // If FuncDecl is non null, it will be used as the parent of this
-      // scope.
-      RAIILocalScope(Sema& sema, FuncDecl* fn = nullptr) : sema_(sema) {
-        if(fn) scope_.setParent(fn);
-        else  scope_.setParent(sema_.localScope_);
-        sema_.localScope_ = &scope_;
-      }
-
-      // Needed for openNewScopeRAII factory function
-      RAIILocalScope(RAIILocalScope&&) = default;
-
-      ~RAIILocalScope() {
-        sema_.localScope_ = scope_.getParentIfLocalScope();
       }
   };
 

@@ -119,20 +119,12 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
     void visitParamDecl(ParamDecl* decl) {
       // Check this decl for being an illegal redecl
-      if (checkForIllegalRedecl(decl)) {
-        // Not an illegal redeclaration, add it to the scope
-        getSema().addLocalDeclToScope(decl);
-      } 
+      checkForIllegalRedecl(decl);
     }
 
     void visitVarDecl(VarDecl* decl) {
       // Check this decl for being an illegal redecl
-      if (checkForIllegalRedecl(decl)) {
-        // Not an illegal redeclaration, if it's a local decl,
-        // add it to the scope
-        if (decl->isLocal())
-          getSema().addLocalDeclToScope(decl);
-      }
+      checkForIllegalRedecl(decl);
 
       // Check the init expr
       if (Expr* init = decl->getInitExpr()) {
@@ -147,8 +139,6 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     }
 
     void visitFuncDecl(FuncDecl* decl) {
-      // Tell Sema that we enter this func's scope
-      auto funcScope = getSema().enterFuncScopeRAII(decl);
       // Also, tell it that we're entering its DeclContext.
       auto raiiDC = getSema().enterDeclCtxtRAII(decl);
       // Check if this is an invalid redecl
@@ -197,7 +187,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // and this function returns false.
     // Returns true if "decl" is legal redeclaration or not a redeclaration
     // at all.
-    bool checkForIllegalRedecl(NamedDecl* decl) {        
+    void checkForIllegalRedecl(NamedDecl* decl) {        
       Identifier id = decl->getIdentifier();
       LookupResult lookupResult;
       // Build Lookup options:
@@ -215,7 +205,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
                                     options);
       // If there are no matches, this cannot be a redecl
       if (lookupResult.size() == 0)
-        return true;
+        return;
       else {
         // if we only have 1 result, and it's a ParamDecl
         NamedDecl* found = lookupResult.getIfSingleResult();
@@ -224,12 +214,13 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
                  "a parameter declaration?");
           // Redeclaration of a ParamDecl by non ParamDecl is allowed
           // (a variable decl can shadow a parameter)
-          return true;
+          return;
         }
         // Else, diagnose.
         bool isRedecl = diagnoseIllegalRedecl(decl, lookupResult.getDecls());
+        // If it's indeed an illegal redeclaration, mark it.
         decl->setIsIllegalRedecl(isRedecl);
-        return false;
+        return;
       }
     }
 

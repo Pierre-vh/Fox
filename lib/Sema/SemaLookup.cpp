@@ -58,15 +58,6 @@ namespace {
 // Sema methods impl
 //----------------------------------------------------------------------------//
 
-std::pair<bool, bool> Sema::addLocalDeclToScope(NamedDecl* decl) {
-  assert(decl->isLocal() && "This method is only available to local decls");
-  if(hasLocalScope()) {
-    bool result = getLocalScope()->insert(decl);
-    return {true, result};
-  }
-  return {false, false};
-}
-
 void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   SourceLoc loc, const LookupOptions& options) {
   assert((results.size() == 0) && "'results' must be a fresh LookupResult");

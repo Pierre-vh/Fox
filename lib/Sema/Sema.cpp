@@ -45,29 +45,3 @@ DeclContext* Sema::getDeclCtxt() const {
 bool Sema::hasDeclCtxt() const {
   return (currentDC_ != nullptr);
 }
-
-//----------------------------------------------------------------------------//
-// RAIILocalScope
-//----------------------------------------------------------------------------//
-
-Sema::RAIILocalScope Sema::openNewScopeRAII() {
-  assert(localScope_ 
-    && "LocalScope cannot be nullptr. Use enterFuncScopeRAII!");
-  return RAIILocalScope(*this);
-}
-
-Sema::RAIILocalScope Sema::enterFuncScopeRAII(FuncDecl* fn) {
-  assert(fn 
-    && "null fn");
-  assert(!localScope_ 
-    && "LocalScope must be nullptr. Use openNewScopeRAII!");
-  return RAIILocalScope(*this, fn);
-}
-
-LocalScope* Sema::getLocalScope() const {
-  return localScope_;
-}
-
-bool Sema::hasLocalScope() const {
-  return (bool)localScope_;
-}
