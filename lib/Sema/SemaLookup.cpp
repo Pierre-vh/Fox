@@ -21,7 +21,37 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 namespace {
+  // Removes shadowed declarations from a set of declarations.
+  // Shadowing is only allowed "2 times" in Fox.
+  //  1) when a parameter shadows a global declaration
+  //  2) when a local variable shadows a global variable or a parameter.
+  void removeShadowedDecls(SmallVectorImpl<NamedDecl*>& decls) {
+    // FIXME: I think this can be made more efficient.
 
+    // Collect the local decls (excluding param decls) and param decls.
+    SmallVector<NamedDecl*, 4> paramDecls, localDecls;
+    for (NamedDecl* decl : decls) {
+      if (decl->isLocal()) {
+        if(isa<ParamDecl>(decl))
+          paramDecls.push_back(decl);
+        else 
+          localDecls.push_back(decl);
+      }
+    }
+    
+    if (localDecls.size()) {
+      // if we found at least one local non-param decl, use them as the result
+      // since they always have priority.
+      decls = localDecls;
+    }
+    else if (paramDecls.size()) {
+      // Now, if we didn't find any local non-param decls, but we found 
+      // ParamDecls, use them as the result since they now have priority.
+      decls = paramDecls;
+    }
+    // Else, the vector only contained global decls, so we can't change
+    // anything.
+  }
 }
 
 //----------------------------------------------------------------------------//
@@ -122,6 +152,7 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
     results.addResult(checkingVar);
 
   // Remove shadowed decls from the results set.
+  removeShadowedDecls(results.getResults());
 }
 
 //----------------------------------------------------------------------------//

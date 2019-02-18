@@ -1,0 +1,28 @@
+// RUN: %fox -werr
+
+// This test should pass without any warning or error.
+func foo(x : int) {
+  if x == 0 {
+      if x == 0 {
+          if x == 0 {
+              if x == 0 {
+                  x;
+                  let x: int;
+                  x;
+              }
+              x;
+              let x: int;
+              x;
+          }
+          x;
+          let x: int;
+          x;
+      }
+      x;
+      let x: int;
+      x;
+  }
+  x;
+  let x: int;
+  x;
+} 
