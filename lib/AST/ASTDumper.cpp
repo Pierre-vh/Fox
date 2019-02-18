@@ -527,7 +527,7 @@ void DeclContext::dump() const {
         std::cerr << "    " << entry.first.getStr() << " -> {("
         // Dump the ScopeInfo
                   << +static_cast<typename std::underlying_type<ScopeInfo::Kind>::type>(scope.getKind())
-                  << ", " << scope.getRange() << "), "
+                  << ", " << scope.getRange() << "), 0x"
                   << entry.second.second << "}\n";
       }
       std::cerr << "  --END LOOKUP TABLE DUMP--\n";

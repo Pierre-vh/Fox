@@ -106,7 +106,10 @@ bool FileID::operator <(const FileID other) const {
 }
 
 std::ostream& fox::operator<<(std::ostream& os, FileID file) {
-  os << "FileID(" << file.idx_ << ")";
+  if(file.isValid())
+    os << "FileID(" << file.idx_ << ")";
+  else 
+    os << "FileID(invalid)";
   return os;
 }
 
@@ -153,7 +156,10 @@ bool SourceLoc::comesBefore(SourceLoc other) const {
 }
 
 std::ostream& fox::operator<<(std::ostream& os, SourceLoc loc) {
-  os << "SourceLoc(" << loc.getFileID() << ", " << loc.idx_ << ")";
+  if(loc.isValid())
+    os << "SourceLoc(" << loc.getFileID() << ", " << loc.idx_ << ")";
+  else 
+    os << "SourceLoc(invalid)";
   return os;
 }
 
@@ -231,7 +237,10 @@ FileID SourceRange::getFileID() const {
 }
 
 std::ostream& fox::operator<<(std::ostream& os, SourceRange range) {
-  os << "SourceRange(" << range.getBegin() << ", " << range.getEnd() << ")";
+  if(range.isValid())
+    os << "SourceRange(" << range.getBegin() << ", " << range.getEnd() << ")";
+  else 
+    os << "SourceRange(invalid)";
   return os;
 }
 
