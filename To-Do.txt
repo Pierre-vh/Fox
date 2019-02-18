@@ -145,8 +145,9 @@ To-Do:
   > Add local lookups in DeclContext:
     > Scope class (Done)
     > DeclContext support of Scopes (Done)
-    > Parser update
-    > SemaLookup update
+    > Parser update (Done)
+    > SemaLookup update (Done)
+    > Fix last tests that aren't passing
 
   > Polish the changes
       Currently, it's a prototype. It needs some polish.
