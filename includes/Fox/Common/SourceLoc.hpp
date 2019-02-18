@@ -88,6 +88,7 @@ namespace fox {
       friend std::ostream& operator<<(std::ostream& os, SourceLoc loc);
 
     private:
+      friend class SourceRange;
       FileID fid_;
       index_type idx_;
   };

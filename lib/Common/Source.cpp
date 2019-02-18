@@ -118,13 +118,9 @@ std::ostream& fox::operator<<(std::ostream& os, FileID file) {
 // SourceLoc
 //----------------------------------------------------------------------------//
 
-SourceLoc::SourceLoc() : fid_(FileID()), idx_(0) {
+SourceLoc::SourceLoc() : fid_(FileID()), idx_(0) {}
 
-}
-
-SourceLoc::SourceLoc(FileID fid, index_type idx):
-  fid_(fid), idx_(idx) {
-}
+SourceLoc::SourceLoc(FileID fid, index_type idx) : fid_(fid), idx_(idx) {}
 
 bool SourceLoc::isValid() const {
   return (bool)fid_;
@@ -209,7 +205,7 @@ SourceRange::OffsetTy SourceRange::getRawOffset() const {
 }
 
 SourceLoc SourceRange::getEndLoc() const {
-  return SourceLoc(sloc_.getFileID(), sloc_.getRawIndex() + offset_);
+  return SourceLoc(sloc_.fid_, sloc_.idx_ + offset_);
 }
 
 bool SourceRange::isOnlyOneCharacter() const {
