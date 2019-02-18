@@ -533,4 +533,6 @@ void DeclContext::dump() const {
       std::cerr << "  --END LOOKUP TABLE DUMP--\n";
     }
   }
+  else 
+    std::cerr << "  EMPTY\n";
 }
