@@ -198,8 +198,8 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       LookupResult lookupResult;
       // Build Lookup options:
       LookupOptions options;
-      // Don't look in the DeclContext if this is a local declaration
-      options.canLookInDeclContext = !decl->isLocal();
+      // If the Decl is local, only look in local decl contexts.
+      options.onlyLookInLocalDeclContexts = decl->isLocal();
       options.shouldIgnore = [&](NamedDecl* result){
         // Ignore if result == decl
         if(result == decl) return true;
