@@ -147,7 +147,35 @@ To-Do:
     > DeclContext support of Scopes (Done)
     > Parser update (Done)
     > SemaLookup update (Done)
-    > Fix last tests that aren't passing
+    > Fix last tests that aren't passing (Done)
+    > Fix shadowing: example: this doens't pass
+        func foo(x : int) {
+          if x == 0 {
+              if x == 0 {
+                  if x == 0 {
+                      if x == 0 {
+                          x;
+                          let x: int;
+                          x;
+                      }
+                      x;
+                      let x: int;
+                      x;
+                  }
+                  x;
+                  let x: int;
+                  x;
+              }
+              x;
+              let x: int;
+              x;
+          }
+          x;
+          let x: int;
+          x;
+      } 
+  -> add a method in doUnqualifiedLookup to prune shadowed results
+     from the result set.
 
   > Polish the changes
       Currently, it's a prototype. It needs some polish.
