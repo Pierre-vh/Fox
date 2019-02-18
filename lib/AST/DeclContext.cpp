@@ -169,7 +169,7 @@ void DeclContext::addDecl(Decl* decl, ScopeInfo scope) {
     if(!lookupMap_) createLookupMap();
 
     // Add the result to the lookup map.
-    lookupMap_->insert({id, {ScopeInfo(), named}});
+    lookupMap_->insert({id, {scope, named}});
   }
 }
 
