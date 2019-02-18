@@ -355,7 +355,7 @@ std::string Token::getTokenTypeFriendlyName() const {
   }
 }
 
-SourceRange Token::getRange() const {
+SourceRange Token::getSourceRange() const {
   return range_;
 }
 

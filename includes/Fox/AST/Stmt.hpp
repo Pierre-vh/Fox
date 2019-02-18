@@ -37,7 +37,7 @@ namespace fox {
       /// Returns the kind of statement this is
       StmtKind getKind() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
       SourceLoc getBegin() const;
       SourceLoc getEnd() const;
 
@@ -78,7 +78,7 @@ namespace fox {
       Expr* getExpr() const;
       bool hasExpr() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::ReturnStmt);
@@ -114,7 +114,7 @@ namespace fox {
       CompoundStmt* getElse() const;
       bool hasElse() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::ConditionStmt);
@@ -158,7 +158,7 @@ namespace fox {
       std::size_t getSize() const;
       bool isEmpty() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::CompoundStmt);
@@ -190,7 +190,7 @@ namespace fox {
       void setBody(CompoundStmt* body);
       CompoundStmt* getBody() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Stmt* stmt) {
         return (stmt->getKind() == StmtKind::WhileStmt);

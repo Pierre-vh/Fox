@@ -67,7 +67,7 @@ TEST_F(LocTests, FuncAndArgDecl) {
   ASSERT_TRUE(presult) << "parsing error";
 
   FuncDecl* func = presult.castTo<FuncDecl>();
-  auto funcRange = func->getRange();
+  auto funcRange = func->getSourceRange();
   // First, test the function itself
   CompleteLoc func_beg = srcMgr.getCompleteLoc(funcRange.getBegin());
   CompleteLoc func_end = srcMgr.getCompleteLoc(funcRange.getEnd());
@@ -108,16 +108,16 @@ TEST_F(LocTests, FuncAndArgDecl) {
   EXPECT_EQ(arg2_end, CompleteLoc(fullFilePath, 1, 45));
 
   // Extract arg type ranges
-  auto arg1_typeRange = arg1->getTypeLoc().getRange();
-  auto arg2_typeRange = arg2->getTypeLoc().getRange();
+  auto arg1_typeRange = arg1->getTypeLoc().getSourceRange();
+  auto arg2_typeRange = arg2->getTypeLoc().getSourceRange();
 
   // Extract locs
   auto arg1_tr_beg = srcMgr.getCompleteLoc(arg1_typeRange.getBegin());
   auto arg2_tr_beg = srcMgr.getCompleteLoc(arg2_typeRange.getBegin());
 
   // Check
-  EXPECT_EQ(arg1_typeRange.getEnd(), arg1->getRange().getEnd());
-  EXPECT_EQ(arg2_typeRange.getEnd(), arg2->getRange().getEnd());
+  EXPECT_EQ(arg1_typeRange.getEnd(), arg1->getSourceRange().getEnd());
+  EXPECT_EQ(arg2_typeRange.getEnd(), arg2->getSourceRange().getEnd());
 
   EXPECT_EQ(arg1_tr_beg, CompleteLoc(fullFilePath, 1, 26));
   EXPECT_EQ(arg2_tr_beg, CompleteLoc(fullFilePath, 1, 40));
@@ -143,7 +143,7 @@ TEST_F(LocTests, VarDecls) {
   EXPECT_EQ(var_ty_beg, CompleteLoc(fullFilePath, 1, 11));
   EXPECT_EQ(var_ty_end, CompleteLoc(fullFilePath, 1, 15));
 
-  auto range = var->getInitExpr()->getRange();
+  auto range = var->getInitExpr()->getSourceRange();
   CompleteLoc expr_beg = srcMgr.getCompleteLoc(range.getBegin());
   CompleteLoc expr_end = srcMgr.getCompleteLoc(range.getEnd());
 

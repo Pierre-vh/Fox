@@ -97,11 +97,11 @@ CompoundStmt* ScopeInfo::getCompoundStmt() const {
   return nullptr;
 }
 
-SourceRange ScopeInfo::getRange() const {
+SourceRange ScopeInfo::getSourceRange() const {
   SourceRange theRange;
   switch (getKind()) {
     case Kind::CompoundStmt:
-      theRange = getCompoundStmt()->getRange();
+      theRange = getCompoundStmt()->getSourceRange();
       assert(theRange && "non-null DeclContext with an invalid range");
       return theRange;
     case Kind::Null:
@@ -145,7 +145,7 @@ void DeclContext::addDecl(Decl* decl, ScopeInfo scope) {
   // Run some checks.
   assert(decl && 
     "Declaration cannot be null!");
-  assert(decl->getRange() && "Declaration must have valid source location"
+  assert(decl->getSourceRange() && "Declaration must have valid source location"
     "information to be inserted in the DeclContext");
 
   // Assert that either our DeclContext is local, or that
@@ -222,8 +222,8 @@ DeclContext::lookup(Identifier id, SourceLoc loc,
       // Then, if we have a Scope, check if loc is inside
       // the scope's range. Skip this result if it isn't.
       if (scope) {
-        assert(scope.getRange() && "Valid scope with invalid range?");
-        if(!scope.getRange().contains(loc))
+        assert(scope.getSourceRange() && "Valid scope with invalid range?");
+        if(!scope.getSourceRange().contains(loc))
           continue;
       }
     }

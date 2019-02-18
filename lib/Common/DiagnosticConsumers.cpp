@@ -61,7 +61,7 @@ StreamDiagConsumer::StreamDiagConsumer(std::ostream & stream):
 StreamDiagConsumer::StreamDiagConsumer() : StreamDiagConsumer(std::cout) {}
 
 void StreamDiagConsumer::consume(SourceManager& sm, const Diagnostic& diag) {
-  std::string locInfo = getLocInfo(sm, diag.getRange(), diag.isFileWide());
+  std::string locInfo = getLocInfo(sm, diag.getSourceRange(), diag.isFileWide());
   if (locInfo.size())
     os_ << locInfo << " - ";
   os_ << toString(diag.getSeverity()) 
@@ -131,12 +131,12 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   assert(diag.hasRange() 
 		&& "Cannot use this if the diag does not have SourceRange!");
 
-  auto range = diag.getRange();
+  auto range = diag.getSourceRange();
   auto eRange = diag.getExtraRange();
 
   // Get the sourceLine
   SourceLoc lineBeg;
-  string_view sourceLine = sm.getLineAt(diag.getRange().getBegin(), &lineBeg);
+  string_view sourceLine = sm.getLineAt(diag.getSourceRange().getBegin(), &lineBeg);
   std::size_t lineSize = utf8::distance(sourceLine.begin(), sourceLine.end());
 
   // Remove any indent, and offset the linebeg loc accordingly.
@@ -169,7 +169,7 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
 
   // If needed, create the extra range underline (~)
   if(diag.hasExtraRange()) {
-    assert((diag.getExtraRange().getFileID() == diag.getRange().getFileID())
+    assert((diag.getExtraRange().getFileID() == diag.getSourceRange().getFileID())
       && "Ranges don't belong to the same file");
 
     SourceRange preRange(lineBeg, eRange.getBegin());

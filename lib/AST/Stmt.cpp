@@ -38,14 +38,14 @@ namespace {
     return false;
   }
 }
-SourceRange Stmt::getRange() const {
+SourceRange Stmt::getSourceRange() const {
   switch(getKind()) {
     #define ASSERT_HAS_GETRANGE(ID)\
-      static_assert(isOverridenFromStmt(&ID::getRange),\
-        #ID " does not reimplement getRange()")
+      static_assert(isOverridenFromStmt(&ID::getSourceRange),\
+        #ID " does not reimplement getSourceRange()")
     #define STMT(ID, PARENT) case StmtKind::ID:\
       ASSERT_HAS_GETRANGE(ID); \
-      return cast<ID>(this)->getRange();
+      return cast<ID>(this)->getSourceRange();
     #include "Fox/AST/StmtNodes.def"
     #undef ASSERT_HAS_GETRANGE
     default:
@@ -54,11 +54,11 @@ SourceRange Stmt::getRange() const {
 }
 
 SourceLoc Stmt::getBegin() const {
-  return getRange().getBegin();
+  return getSourceRange().getBegin();
 }
 
 SourceLoc Stmt::getEnd() const {
-  return getRange().getEnd();
+  return getSourceRange().getEnd();
 }
 
 void* Stmt::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
@@ -81,7 +81,7 @@ bool ReturnStmt::hasExpr() const {
   return (bool)expr_;
 }
 
-SourceRange ReturnStmt::getRange() const {
+SourceRange ReturnStmt::getSourceRange() const {
   return range_;
 }
 
@@ -117,7 +117,7 @@ bool ConditionStmt::hasElse() const {
   return (bool)else_;
 }
 
-SourceRange ConditionStmt::getRange() const {
+SourceRange ConditionStmt::getSourceRange() const {
   // We should at least has a then_ node.
   assert(then_ && "ill-formed ConditionStmt");
   SourceLoc end = (else_ ? else_->getEnd() : then_->getEnd());
@@ -193,7 +193,7 @@ bool CompoundStmt::isEmpty() const {
   return (numNodes_ == 0);
 }
 
-SourceRange CompoundStmt::getRange() const {
+SourceRange CompoundStmt::getSourceRange() const {
   return bracesRange_;
 }
 
@@ -216,7 +216,7 @@ CompoundStmt* WhileStmt::getBody() const {
   return body_;
 }
 
-SourceRange WhileStmt::getRange() const {
+SourceRange WhileStmt::getSourceRange() const {
   assert(body_ && "ill formed WhileStmt");
   return SourceRange(whBegLoc_, body_->getEnd());
 }

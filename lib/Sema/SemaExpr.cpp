@@ -69,7 +69,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // (Error) Diagnoses an invalid cast 
     void diagnoseInvalidCast(CastExpr* expr) {
-      SourceRange range = expr->getCastTypeLoc().getRange();
+      SourceRange range = expr->getCastTypeLoc().getSourceRange();
       Type childTy = expr->getExpr()->getType();
       Type goalTy = expr->getCastTypeLoc().getType();
 
@@ -79,7 +79,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         .report(DiagID::invalid_explicit_cast, range)
         .addArg(childTy)
         .addArg(goalTy)
-        .setExtraRange(expr->getExpr()->getRange());
+        .setExtraRange(expr->getExpr()->getSourceRange());
     }
 
     // (Warning) Diagnoses a redudant cast (when the
@@ -89,9 +89,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed(castTy)) return;
 
       getDiags()
-        .report(DiagID::useless_redundant_cast, castTL.getRange())
+        .report(DiagID::useless_redundant_cast, castTL.getSourceRange())
         .addArg(castTy)
-        .setExtraRange(expr->getExpr()->getRange());
+        .setExtraRange(expr->getExpr()->getSourceRange());
     }
 
     void diagnoseHeteroArrLiteral(ArrayLiteralExpr* expr, Expr* faultyElem,
@@ -101,12 +101,12 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         // Precise error loc is the first element that failed the inferrence,
         // extended range is the whole arrayliteral's.
         .report(DiagID::unexpected_elem_of_type_in_arrlit, 
-                faultyElem->getRange())
+                faultyElem->getSourceRange())
           .addArg(faultyElem->getType())
         // Sometimes, the supposed type might contain a type variable.
         // Try to simplify the type to produce a better diagnostic!
         .addArg(getSema().trySimplify(supposedType))
-        .setExtraRange(expr->getRange());
+        .setExtraRange(expr->getSourceRange());
     }
 
     void diagnoseInvalidUnaryOpChildType(UnaryExpr* expr) {
@@ -118,7 +118,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       getDiags()
         .report(DiagID::unaryop_bad_child_type, expr->getOpRange())
         // Use the child's range as the extra range.
-        .setExtraRange(child->getRange())
+        .setExtraRange(child->getSourceRange())
         .addArg(expr->getOpSign()) // %0 is the operator's sign as text
         .addArg(childTy); // %1 is the type of the child
     }
@@ -143,7 +143,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     void diagnoseInvalidBinaryExpr(BinaryExpr* expr) {
       SourceRange opRange = expr->getOpRange();
-      SourceRange exprRange = expr->getRange();
+      SourceRange exprRange = expr->getSourceRange();
       Type lhsTy = expr->getLHS()->getType();
       Type rhsTy = expr->getRHS()->getType();
 
@@ -182,7 +182,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     void diagnoseUnassignableExpr(BinaryExpr* expr) {
       assert(expr->isAssignement());
-      SourceRange lhsRange = expr->getLHS()->getRange();
+      SourceRange lhsRange = expr->getLHS()->getSourceRange();
       SourceRange opRange = expr->getOpRange();
       getDiags().report(DiagID::unassignable_expr, lhsRange)
         .setExtraRange(opRange);
@@ -190,8 +190,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     void diagnoseInvalidAssignement(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert(expr->isAssignement());
-      SourceRange lhsRange = expr->getLHS()->getRange();
-      SourceRange rhsRange = expr->getRHS()->getRange();
+      SourceRange lhsRange = expr->getLHS()->getSourceRange();
+      SourceRange rhsRange = expr->getRHS()->getSourceRange();
 
       if(!Sema::isWellFormed({lhsTy, rhsTy})) return;
 
@@ -204,14 +204,14 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // Diagnoses a variable being used inside it's own initial value.
     void diagnoseVarInitSelfRef(VarDecl* decl, 
       UnresolvedDeclRefExpr* udre) {
-      SourceRange range = udre->getRange();
+      SourceRange range = udre->getSourceRange();
       SourceRange extra = decl->getIdentifierRange();
       getDiags().report(DiagID::var_init_self_ref, range)
         .setExtraRange(extra);
     }
 
     void diagnoseExprIsNotAFunction(Expr* callee) {
-      SourceRange range = callee->getRange();
+      SourceRange range = callee->getSourceRange();
       Type ty = callee->getType();
 
       if(!Sema::isWellFormed(ty)) return;
@@ -240,7 +240,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         diag = DiagID::too_many_args_in_func_call;
 
       // Report the diagnostic
-      getDiags().report(diag, callee->getRange())
+      getDiags().report(diag, callee->getSourceRange())
         .addArg(callee->getDecl()->getIdentifier());
       // Also emit a "is declared here with type" note.
       noteIsDeclaredHereWithType(callee->getDecl());
@@ -264,7 +264,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(argsRange && "argsRange is invalid in CallExpr with a non-zero "
         "number of arguments");
 
-      getDiags().report(DiagID::cannot_call_func_with_args, callee->getRange())
+      getDiags().report(DiagID::cannot_call_func_with_args, callee->getSourceRange())
         .addArg(callee->getDecl()->getIdentifier())
         .addArg(argsAsStr)
         .setExtraRange(argsRange);
@@ -273,10 +273,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     void diagnoseFunctionTypeInArrayLiteral(ArrayLiteralExpr* lit, Expr* fn) {
-      getDiags().report(DiagID::func_type_in_arrlit, fn->getRange())
+      getDiags().report(DiagID::func_type_in_arrlit, fn->getSourceRange())
         // Maybe displaying the whole array is too much? I think it's great
         // because it gives some context, but maybe I'm wrong.
-        .setExtraRange(lit->getRange());
+        .setExtraRange(lit->getSourceRange());
     }
 
     //----------------------------------------------------------------------//
@@ -372,7 +372,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
           // by conditions.
           Expr* init = var->getInitExpr();
           assert(init);
-          assert(init->getRange().contains(udre->getRange()));
+          assert(init->getSourceRange().contains(udre->getSourceRange()));
           diagnoseVarInitSelfRef(var, udre);
           // This is an error, so just return the UnresolvedDeclRefExpr
           return udre;
@@ -381,7 +381,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Resolved DeclRef
       DeclRefExpr* resolved = 
-        DeclRefExpr::create(getCtxt(), found, udre->getRange());
+        DeclRefExpr::create(getCtxt(), found, udre->getSourceRange());
       
       // Assign it's type
       Type valueType = found->getValueType();
@@ -582,14 +582,14 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       else if(childTy->isStringType())
         subscriptType = PrimitiveType::getChar(getCtxt());
       else {
-			  diagnoseInvalidArraySubscript(expr, child->getRange(), idxE->getRange());
+			  diagnoseInvalidArraySubscript(expr, child->getSourceRange(), idxE->getSourceRange());
         return expr;
       }
 
       // Idx type must be an int.
       if (!idxETy->isIntType()) {
         // Diagnose with the primary range being the idx's range
-			  diagnoseInvalidArraySubscript(expr, idxE->getRange(), child->getRange());
+			  diagnoseInvalidArraySubscript(expr, idxE->getSourceRange(), child->getSourceRange());
         return expr;
       }
         
@@ -605,7 +605,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     Expr* visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr* expr) {
       Identifier id = expr->getIdentifier();
-      SourceRange range = expr->getRange();
+      SourceRange range = expr->getSourceRange();
       LookupResult results;
       getSema().doUnqualifiedLookup(results, id, expr->getBegin());
       // No results -> undeclared identifier
@@ -989,7 +989,7 @@ class Sema::ExprFinalizer : ASTWalker {
       // If the type is nullptr, it means we have an inference error.
       // Set the type to ErrorType and diagnose.
       if (!type) {
-        diags.report(DiagID::expr_failed_infer, expr->getRange());
+        diags.report(DiagID::expr_failed_infer, expr->getSourceRange());
         type = ErrorType::get(ctxt);
         // Mute inference errors for the children.
         muteDiagsForChildren(expr);

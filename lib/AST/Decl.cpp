@@ -63,14 +63,14 @@ namespace {
   }
 }
 
-SourceRange Decl::getRange() const {
+SourceRange Decl::getSourceRange() const {
   switch(getKind()) {
     #define ASSERT_HAS_GETRANGE(ID)\
-      static_assert(isOverridenFromDecl(&ID::getRange),\
-        #ID " does not reimplement getRange()")
+      static_assert(isOverridenFromDecl(&ID::getSourceRange),\
+        #ID " does not reimplement getSourceRange()")
     #define DECL(ID, PARENT) case DeclKind::ID:\
       ASSERT_HAS_GETRANGE(ID); \
-      return cast<ID>(this)->getRange();
+      return cast<ID>(this)->getSourceRange();
     #include "Fox/AST/DeclNodes.def"
     #undef ASSERT_HAS_GETRANGE
     default:
@@ -79,11 +79,11 @@ SourceRange Decl::getRange() const {
 }
 
 SourceLoc Decl::getBegin() const {
-  return getRange().getBegin();
+  return getSourceRange().getBegin();
 }
 
 SourceLoc Decl::getEnd() const {
-  return getRange().getEnd();
+  return getSourceRange().getEnd();
 }
 
 bool Decl::isUnchecked() const {
@@ -107,7 +107,7 @@ void Decl::setCheckState(CheckState state) {
 }
 
 FileID Decl::getFileID() const {
-  return getRange().getBegin().getFileID();
+  return getSourceRange().getBegin().getFileID();
 }
 
 void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
@@ -224,7 +224,7 @@ Type ParamDecl::getValueType() const {
   return typeLoc_.getType();
 }
 
-SourceRange ParamDecl::getRange() const {
+SourceRange ParamDecl::getSourceRange() const {
   return SourceRange(getIdentifierRange().getBegin(), typeLoc_.getEnd());
 }
 
@@ -349,7 +349,7 @@ void FuncDecl::calculateValueType() {
   valueType_ = FunctionType::get(ctxt, paramTys, returnTypeLoc_.getType());
 }
 
-SourceRange FuncDecl::getRange() const {
+SourceRange FuncDecl::getSourceRange() const {
   assert(body_ && "ill formed FuncDecl");
   return SourceRange(fnBegLoc_, body_->getEnd());
 }
@@ -398,7 +398,7 @@ Type VarDecl::getValueType() const {
   return typeLoc_.getType();
 }
 
-SourceRange VarDecl::getRange() const {
+SourceRange VarDecl::getSourceRange() const {
   return range_;
 }
 
@@ -426,7 +426,7 @@ ASTContext& UnitDecl::getASTContext() const {
   return ctxt_;
 }
 
-SourceRange UnitDecl::getRange() const {
+SourceRange UnitDecl::getSourceRange() const {
   if (Decl* first = getFirstDecl()) {
     Decl* last = getLastDecl();
     SourceRange range(first->getBegin(), last->getEnd());

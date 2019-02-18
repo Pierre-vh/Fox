@@ -94,10 +94,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       if(!Sema::isWellFormed({initType, declType})) return;
 
       getDiags()
-        .report(DiagID::invalid_vardecl_init_expr, init->getRange())
+        .report(DiagID::invalid_vardecl_init_expr, init->getSourceRange())
         .addArg(initType)
         .addArg(declType)
-        .setExtraRange(decl->getTypeLoc().getRange());
+        .setExtraRange(decl->getTypeLoc().getSourceRange());
     }
 
     //----------------------------------------------------------------------//

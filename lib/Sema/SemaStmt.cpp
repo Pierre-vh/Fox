@@ -41,13 +41,13 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
     // Diagnoses an expression whose type cannot be used in a condition
     void diagnoseExprCantCond(Expr* expr) {
       getDiags()
-        .report(DiagID::cant_use_expr_as_cond, expr->getRange())
+        .report(DiagID::cant_use_expr_as_cond, expr->getSourceRange())
         .addArg(expr->getType());
     }
 
     void diagnoseEmptyReturnStmtInNonVoidFn(ReturnStmt* stmt, Type fnRtrTy) {
       getDiags()
-        .report(DiagID::return_with_no_expr, stmt->getRange())
+        .report(DiagID::return_with_no_expr, stmt->getSourceRange())
         .addArg(fnRtrTy);
     }
 
@@ -58,16 +58,16 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       if(!Sema::isWellFormed({exprTy, fnRetTy})) return;
 
       getDiags()
-        .report(DiagID::cannot_convert_return_expr, expr->getRange())
+        .report(DiagID::cannot_convert_return_expr, expr->getSourceRange())
         .addArg(exprTy)
         .addArg(fnRetTy)
-        .setExtraRange(stmt->getRange());
+        .setExtraRange(stmt->getSourceRange());
     }
 
     void diagnoseUnexpectedRtrExprForNonVoidFn(ReturnStmt* stmt, Expr* expr) {
       getDiags()
-        .report(DiagID::unexpected_non_void_rtr_expr, expr->getRange())
-        .setExtraRange(stmt->getRange());
+        .report(DiagID::unexpected_non_void_rtr_expr, expr->getSourceRange())
+        .setExtraRange(stmt->getSourceRange());
     }
 
     //----------------------------------------------------------------------//

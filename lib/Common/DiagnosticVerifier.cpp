@@ -154,7 +154,7 @@ bool DiagnosticVerifier::verify(const Diagnostic& diag) {
   if(!diag.hasAnyLocInfo()) return true;
 
 	// Construct an ExpectedDiag to search the map
-	SourceLoc diagLoc = diag.getRange().getBegin();
+	SourceLoc diagLoc = diag.getSourceRange().getBegin();
   // Save the string in a local variable, because if we don't and we try
   // to call diag.getStr() in the ExpectedDiag ctor, the call to diag.getStr() 
   // will generate a std::string temporary object. This temporary will be 

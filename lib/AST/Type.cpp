@@ -62,7 +62,7 @@ bool Type::operator<(const Type other) const {
 TypeLoc::TypeLoc(Type ty, SourceRange range) :
   ty_(ty), range_(range) {}
 
-SourceRange TypeLoc::getRange() const {
+SourceRange TypeLoc::getSourceRange() const {
   return range_;
 }
 

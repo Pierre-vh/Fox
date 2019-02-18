@@ -51,14 +51,14 @@ namespace {
   }
 }
 
-SourceRange Expr::getRange() const {
+SourceRange Expr::getSourceRange() const {
   switch(getKind()) {
     #define ASSERT_HAS_GETRANGE(ID)\
-      static_assert(isOverridenFromExpr(&ID::getRange),\
-        #ID " does not reimplement getRange()")
+      static_assert(isOverridenFromExpr(&ID::getSourceRange),\
+        #ID " does not reimplement getSourceRange()")
     #define EXPR(ID, PARENT) case ExprKind::ID:\
       ASSERT_HAS_GETRANGE(ID); \
-      return cast<ID>(this)->getRange();
+      return cast<ID>(this)->getSourceRange();
     #include "Fox/AST/ExprNodes.def"
     #undef ASSERT_HAS_GETRANGE
     default:
@@ -67,11 +67,11 @@ SourceRange Expr::getRange() const {
 }
 
 SourceLoc Expr::getBegin() const {
-  return getRange().getBegin();
+  return getSourceRange().getBegin();
 }
 
 SourceLoc Expr::getEnd() const {
-  return getRange().getEnd();
+  return getSourceRange().getEnd();
 }
 
 void Expr::setType(Type type) {
@@ -95,7 +95,7 @@ void* Expr::operator new(std::size_t, void* mem) {
 // AnyLiteralExpr 
 //----------------------------------------------------------------------------//
 
-SourceRange AnyLiteralExpr::getRange() const {
+SourceRange AnyLiteralExpr::getSourceRange() const {
   return range_;
 }
 
@@ -339,7 +339,7 @@ SourceRange BinaryExpr::getOpRange() const {
   return opRange_;
 }
 
-SourceRange BinaryExpr::getRange() const {
+SourceRange BinaryExpr::getSourceRange() const {
   assert(lhs_ && rhs_ && "ill formed BinaryExpr");
   return SourceRange(lhs_->getBegin(), rhs_->getEnd());
 }
@@ -403,7 +403,7 @@ SourceRange UnaryExpr::getOpRange() const {
   return opRange_;
 }
 
-SourceRange UnaryExpr::getRange() const {
+SourceRange UnaryExpr::getSourceRange() const {
   assert(opRange_ && expr_ && "ill formed UnaryExpr");
   return SourceRange(opRange_.getBegin(), expr_->getEnd());
 }
@@ -462,8 +462,8 @@ Expr* CastExpr::getExpr() const {
   return exprAndIsUseless_.getPointer();
 }
 
-SourceRange CastExpr::getRange() const {
-  SourceRange castTLRange = getCastTypeLoc().getRange();
+SourceRange CastExpr::getSourceRange() const {
+  SourceRange castTLRange = getCastTypeLoc().getSourceRange();
   assert(castTLRange && getExpr() && "ill-formed CastExpr");
   return SourceRange(getExpr()->getBegin(), castTLRange.getEnd());
 }
@@ -498,7 +498,7 @@ void DeclRefExpr::setDecl(ValueDecl* decl) {
   decl_ = decl;
 }
 
-SourceRange DeclRefExpr::getRange() const {
+SourceRange DeclRefExpr::getSourceRange() const {
   return range_;
 }
 
@@ -562,7 +562,7 @@ SourceRange CallExpr::getArgsRange() const {
   return SourceRange(beg, end);
 }
 
-SourceRange CallExpr::getRange() const {
+SourceRange CallExpr::getSourceRange() const {
   assert(callee_ && rightRoBrLoc_ && "ill-formed CallExpr");
   return SourceRange(callee_->getBegin(), rightRoBrLoc_);
 }
@@ -605,7 +605,7 @@ SourceLoc MemberOfExpr::getDotLoc() const {
   return dotLoc_;
 }
 
-SourceRange MemberOfExpr::getRange() const {
+SourceRange MemberOfExpr::getSourceRange() const {
   assert(base_ && membIDRange_ && "ill-formed MemberOfExpr");
   return SourceRange(base_->getBegin(), membIDRange_.getEnd());
 }
@@ -640,7 +640,7 @@ Expr* ArraySubscriptExpr::getIndex() const {
   return idxExpr_;
 }
 
-SourceRange ArraySubscriptExpr::getRange() const {
+SourceRange ArraySubscriptExpr::getSourceRange() const {
   assert(base_ && rightSqBrLoc_ && "ill-formed ArraySubscriptExpr");
   return SourceRange(base_->getBegin(), rightSqBrLoc_);
 }
@@ -673,6 +673,6 @@ Identifier UnresolvedDeclRefExpr::getIdentifier() const {
   return id_;
 }
 
-SourceRange UnresolvedDeclRefExpr::getRange() const {
+SourceRange UnresolvedDeclRefExpr::getSourceRange() const {
   return range_;
 }

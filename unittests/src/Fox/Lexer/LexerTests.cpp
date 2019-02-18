@@ -168,8 +168,8 @@ TEST_F(LexerTest, Coordinates1) {
     printf(elem.getAsString().c_str());
     if (elem.getAsString() == "_FIRST_VARIABLE_") {
       varFounds++;
-      auto beg_ploc = srcMgr.getCompleteLoc(elem.getRange().getBegin());
-      auto end_ploc = srcMgr.getCompleteLoc(elem.getRange().getEnd());
+      auto beg_ploc = srcMgr.getCompleteLoc(elem.getSourceRange().getBegin());
+      auto end_ploc = srcMgr.getCompleteLoc(elem.getSourceRange().getEnd());
       
       // Line
       EXPECT_EQ(beg_ploc.line, 7u);
@@ -181,8 +181,8 @@ TEST_F(LexerTest, Coordinates1) {
     }
     else if (elem.getAsString() == "_2NDVAR__") {
       varFounds++;
-      auto beg_ploc = srcMgr.getCompleteLoc(elem.getRange().getBegin());
-      auto end_ploc = srcMgr.getCompleteLoc(elem.getRange().getEnd());
+      auto beg_ploc = srcMgr.getCompleteLoc(elem.getSourceRange().getBegin());
+      auto end_ploc = srcMgr.getCompleteLoc(elem.getSourceRange().getEnd());
 
       // Line
       EXPECT_EQ(beg_ploc.line, 10u);
@@ -194,8 +194,8 @@ TEST_F(LexerTest, Coordinates1) {
     }
     else if (elem.getAsString() == "ThirdVariable") {
       varFounds++;
-      auto beg_ploc = srcMgr.getCompleteLoc(elem.getRange().getBegin());
-      auto end_ploc = srcMgr.getCompleteLoc(elem.getRange().getEnd());
+      auto beg_ploc = srcMgr.getCompleteLoc(elem.getSourceRange().getBegin());
+      auto end_ploc = srcMgr.getCompleteLoc(elem.getSourceRange().getEnd());
 
       // Line
       EXPECT_EQ(beg_ploc.line, 13u);

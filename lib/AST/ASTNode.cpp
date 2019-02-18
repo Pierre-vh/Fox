@@ -15,20 +15,20 @@
 using namespace fox;
 
 
-SourceRange ASTNode::getRange() const {
+SourceRange ASTNode::getSourceRange() const {
   if (is<Expr*>())
-    return get<Expr*>()->getRange();
+    return get<Expr*>()->getSourceRange();
   if (is<Decl*>())
-    return get<Decl*>()->getRange();
+    return get<Decl*>()->getSourceRange();
   if (is<Stmt*>())
-    return get<Stmt*>()->getRange();
+    return get<Stmt*>()->getSourceRange();
   fox_unreachable("Unsupported node");
 }
 
 SourceLoc ASTNode::getBegin() const {
-  return getRange().getBegin();
+  return getSourceRange().getBegin();
 }
 
 SourceLoc ASTNode::getEnd() const {
-  return getRange().getEnd();
+  return getSourceRange().getEnd();
 }

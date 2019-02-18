@@ -150,7 +150,7 @@ namespace fox {
       std::string getAsString() const;
       std::string getTokenTypeFriendlyName() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
     private:
       enum class Kind : unsigned char {

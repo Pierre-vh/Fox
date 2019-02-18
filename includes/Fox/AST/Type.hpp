@@ -60,7 +60,7 @@ namespace fox {
       TypeLoc() = default;
       explicit TypeLoc(Type ty, SourceRange range);
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
       SourceLoc getBegin() const;
       SourceLoc getEnd() const;
 

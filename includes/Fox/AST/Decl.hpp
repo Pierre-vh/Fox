@@ -83,7 +83,7 @@ namespace fox {
       ASTContext& getASTContext() const;
 
       /// Returns the range of this Decl, if it has one.
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       /// Returns the begin loc of this Decl, if it has one.
       SourceLoc getBegin() const;
@@ -202,7 +202,7 @@ namespace fox {
       TypeLoc getTypeLoc() const;
       Type getValueType() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::ParamDecl;
@@ -295,7 +295,7 @@ namespace fox {
       void calculateValueType();
       Type getValueType() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::FuncDecl;
@@ -340,7 +340,7 @@ namespace fox {
       TypeLoc getTypeLoc() const;
       Type getValueType() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       /// Returns true if this variable was declared using the "var" keyword
       /// (and thus, is mutable)
@@ -376,7 +376,7 @@ namespace fox {
       /// Return the ASTContext this UnitDecl lives in.
       ASTContext& getASTContext() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Decl* decl) {
         return decl->getKind() == DeclKind::UnitDecl;

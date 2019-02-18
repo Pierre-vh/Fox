@@ -272,7 +272,7 @@ std::string ASTDumper::toString(Type type) const {
 }
 
 std::string ASTDumper::toString(TypeLoc type) const {
-  return toString(type.getType()) + ":" + toString(type.getRange());
+  return toString(type.getType()) + ":" + toString(type.getSourceRange());
 }
 
 std::string ASTDumper::toString(SourceRange range) const {
@@ -352,7 +352,7 @@ std::string ASTDumper::getBasicStmtInfo(Stmt* stmt) const {
   ss << getStmtNodeName(stmt);
   if (isDebug())
     ss << " 0x" << (void*)stmt;
-  ss << " " << getSourceRangeDump("range", stmt->getRange());
+  ss << " " << getSourceRangeDump("range", stmt->getSourceRange());
   return ss.str();
 }
 
@@ -383,7 +383,7 @@ std::string ASTDumper::getBasicDeclInfo(Decl* decl) const {
      << " 0x" << (void*)decl
      << (decl->isLocal() ? " (local)" : "");
 
-  ss << " " << getSourceRangeDump("range", decl->getRange());
+  ss << " " << getSourceRangeDump("range", decl->getSourceRange());
   return ss.str();
 }
 
@@ -527,7 +527,7 @@ void DeclContext::dump() const {
         std::cerr << "    " << entry.first.getStr() << " -> {("
         // Dump the ScopeInfo
                   << +static_cast<typename std::underlying_type<ScopeInfo::Kind>::type>(scope.getKind())
-                  << ", " << scope.getRange() << "), 0x"
+                  << ", " << scope.getSourceRange() << "), 0x"
                   << entry.second.second << "}\n";
       }
       std::cerr << "  --END LOOKUP TABLE DUMP--\n";

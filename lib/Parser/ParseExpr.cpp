@@ -104,7 +104,7 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   next();
   Expr* expr = nullptr;
 
-  SourceRange range = tok.getRange();
+  SourceRange range = tok.getSourceRange();
   assert(range && "Invalid loc info");
 
   if (tok.isBoolLiteral())

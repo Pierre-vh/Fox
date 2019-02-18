@@ -69,7 +69,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
           Token curtok = getCurtok();
           assert(curtok 
             && "Curtok must be valid since we have not reached eof");
-          diags.report(DiagID::expected_decl, curtok.getRange());
+          diags.report(DiagID::expected_decl, curtok.getSourceRange());
         }
 
         if (resyncToNextDecl()) continue; 
@@ -248,7 +248,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
 
   TypeLoc tl = typeResult.get();
 
-  assert(idRange && tl.getRange() && "Invalid loc info");
+  assert(idRange && tl.getSourceRange() && "Invalid loc info");
 
   auto* rtr = ParamDecl::create(ctxt, getCurrentDeclCtxt(), id, idRange, 
                                 tl, isMutable); 

@@ -81,7 +81,7 @@ namespace fox {
       // Returns the FileID concerned by this diag.
       FileID getFileID() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
       Diagnostic& setRange(SourceRange range);
       // Returns true if this diagnostic contains a range.
       // Returns false for file-wide diagnostics.

@@ -116,7 +116,7 @@ namespace fox {
       CompoundStmt* getCompoundStmt() const;
 
       // Returns the SourceRange of this scope.
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
     private:
       static constexpr unsigned kindBits = 2;

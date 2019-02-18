@@ -40,7 +40,7 @@ namespace fox   {
     public:
       ExprKind getKind() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
       SourceLoc getBegin() const;
       SourceLoc getEnd() const;
 
@@ -114,7 +114,7 @@ namespace fox   {
       bool isLogical() const;
 
       SourceRange getOpRange() const;
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::BinaryExpr);
@@ -160,7 +160,7 @@ namespace fox   {
       void setOp(OpKind op);
 
       SourceRange getOpRange() const;
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::UnaryExpr);
@@ -195,7 +195,7 @@ namespace fox   {
       void setExpr(Expr* expr);
       Expr* getExpr() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       /// Returns true if this cast is considered "useless"
       ///  e.g. "0 as int" is a useless cast.
@@ -220,7 +220,7 @@ namespace fox   {
   ///  Common base class for any literal expression.
   class AnyLiteralExpr : public Expr {
     public:
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
         using EK = ExprKind;
@@ -385,7 +385,7 @@ namespace fox   {
       void setIdentifier(Identifier id);
       Identifier getIdentifier() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::UnresolvedDeclRefExpr);
@@ -407,7 +407,7 @@ namespace fox   {
       ValueDecl* getDecl() const;
       void setDecl(ValueDecl* decl);
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::DeclRefExpr);
@@ -435,7 +435,7 @@ namespace fox   {
       SourceRange getMemberIDRange() const;
       SourceLoc getDotLoc() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::MemberOfExpr);
@@ -464,7 +464,7 @@ namespace fox   {
       void setIndex(Expr* expr);
       Expr* getIndex() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::ArraySubscriptExpr);
@@ -503,7 +503,7 @@ namespace fox   {
       /// to the Call. Returns an invalid SourceRange if numArgs() == 0.
       SourceRange getArgsRange() const;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::CallExpr);

@@ -22,7 +22,7 @@ namespace fox {
     public:
       using PointerUnion3::PointerUnion3;
 
-      SourceRange getRange() const;
+      SourceRange getSourceRange() const;
       SourceLoc getBegin() const;
       SourceLoc getEnd() const;
   };

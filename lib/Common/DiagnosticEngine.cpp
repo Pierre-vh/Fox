@@ -281,7 +281,7 @@ FileID Diagnostic::getFileID() const {
   return range_.getFileID();
 }
 
-SourceRange Diagnostic::getRange() const {
+SourceRange Diagnostic::getSourceRange() const {
   return range_;
 }
 

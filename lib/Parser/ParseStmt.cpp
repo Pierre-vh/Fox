@@ -148,8 +148,8 @@ Parser::Result<Stmt*> Parser::parseCondition() {
     }
   }
 
-  assert(expr->getRange() && then_body->getRange() && ifKw.getBegin() 
-    && (else_body ? else_body->getRange().isValid() : true) 
+  assert(expr->getSourceRange() && then_body->getSourceRange() && ifKw.getBegin() 
+    && (else_body ? else_body->getSourceRange().isValid() : true) 
     && "incomplete locs");
 
   return Result<Stmt*>(
