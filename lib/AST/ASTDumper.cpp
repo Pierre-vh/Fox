@@ -511,3 +511,26 @@ void Type::dump() const {
   else
     std::cerr << "<nullptr>\n";
 }
+
+void DeclContext::dump() const {
+  std::cerr << "DeclContext 0x" << (void*)this << "\n";
+  if (hasDecls()) {
+    std::cerr << "  --BEGIN DECLS DUMP--\n";
+    for (auto decl : getDecls()) {
+      std::cerr << "    0x" << (void*)decl << "\n";
+    }
+    std::cerr << "  --END DECLS DUMP--\n";
+    if (lookupMap_) {
+      std::cerr << "  --BEGIN LOOKUP TABLE DUMP--\n";
+      for (auto entry : *lookupMap_) {
+        ScopeInfo scope = entry.second.first;
+        std::cerr << "    " << entry.first.getStr() << " -> {("
+        // Dump the ScopeInfo
+                  << +static_cast<typename std::underlying_type<ScopeInfo::Kind>::type>(scope.getKind())
+                  << ", " << scope.getRange() << "), "
+                  << entry.second.second << "}\n";
+      }
+      std::cerr << "  --END LOOKUP TABLE DUMP--\n";
+    }
+  }
+}

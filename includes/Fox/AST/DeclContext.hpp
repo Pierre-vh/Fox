@@ -166,6 +166,9 @@ namespace fox {
       Decl* getFirstDecl() const;
       // Returns the last declaration of this Context.
       Decl* getLastDecl() const;
+      // Returns true if this DeclContext contains at least
+      // one decl.
+      bool hasDecls() const;
 
       using ResultFoundCallback = std::function<bool(NamedDecl*)>;
 
@@ -185,6 +188,9 @@ namespace fox {
       // no climb parent DeclContexts.
       bool lookup(Identifier id, SourceLoc loc, 
         ResultFoundCallback onFound) const;
+
+      // Dumps this DeclContext to std::cerr
+      void dump() const;
 
       static bool classof(const Decl* decl);
 

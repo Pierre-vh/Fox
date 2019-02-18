@@ -185,6 +185,10 @@ Decl* DeclContext::getLastDecl() const {
   return lastDecl_;
 }
 
+bool DeclContext::hasDecls() const {
+  return (bool)firstDecl_;
+}
+
 bool 
 DeclContext::lookup(Identifier id, SourceLoc loc, 
                     ResultFoundCallback onFound) const {
