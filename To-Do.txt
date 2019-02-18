@@ -143,21 +143,19 @@ To-Do:
   > UTF8 Handling improvements (Done)
   > Add local lookups in DeclContext (Done)
   > Remove LocalScope
+  > Rename getBegin/getEnd/getRange to getBeginLoc/getEndLoc/getSourceRange (Done)
 
-  > Polish the changes
-      a) (maybe?) Split lookupmap implementation depending on if it needs
+  > Polish the DeclContext changes : maybe? Ideas:
+      a) Split lookupmap implementation depending on if it needs
            ScopeInfo or not, so not all DeclContext pay the price of
            storing the ScopeInfo if they don't need it
-      b) Maybe generalize RAII objects in the parser once and for all, maybe
+      b) Generalize RAII objects in the parser once and for all, maybe by
          using llvm:SaveAndRestore
-      d) Improve: 
+      d) Improve/review
           DelayedDeclRegistration 
           actOnDecl           | Theses 2 methods are pretty similar, rename them to
           doDeclRegistration  | better differentiate them
 
-  > Rename "getBegin()" and "getEnd()" to getBeginLoc() and getEndLoc()
-    and getRange() to getSourceRange() because they might be confused for
-    iterator getters.
 
   > VM
   > IR
