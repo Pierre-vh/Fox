@@ -162,6 +162,10 @@ To-Do:
           actOnDecl           | Theses 2 methods are pretty similar, rename them.
           doDeclRegistration  | 
 
+  > Rename "getBegin()" and "getEnd()" to getBeginLoc() and getEndLoc()
+    and getRange() to getSourceRange() because they might be confused for
+    iterator getters.
+
   > VM
   > IR
   > IRGen
