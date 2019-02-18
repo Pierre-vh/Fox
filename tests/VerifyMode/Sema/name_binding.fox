@@ -35,7 +35,7 @@ func test_shadowparam(foo_before: int) {
 //----------------------------------------------------------------------------//
 
 func test_scope() {
-  if(false) {let x : int;}
+  if false {let x : int;}
   // x shouldn't be visible here
   x; // expect-error: undeclared identifier 'x'
   
