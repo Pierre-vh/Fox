@@ -98,9 +98,12 @@ CompoundStmt* ScopeInfo::getCompoundStmt() const {
 }
 
 SourceRange ScopeInfo::getRange() const {
+  SourceRange theRange;
   switch (getKind()) {
     case Kind::CompoundStmt:
-      return getCompoundStmt()->getRange();
+      theRange = getCompoundStmt()->getRange();
+      assert(theRange && "non-null DeclContext with an invalid range");
+      return theRange;
     case Kind::Null:
       return SourceRange();
     default:
