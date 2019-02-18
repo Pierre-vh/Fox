@@ -144,16 +144,23 @@ To-Do:
 
   > Add local lookups in DeclContext:
     > Scope class (Done)
-    > DeclContext support of Scopes 
+    > DeclContext support of Scopes (Done)
     > Parser update
     > SemaLookup update
 
-  > DeclContext/NameLookup interface polishing?
+  > Polish the changes
       Currently, it's a prototype. It needs some polish.
       a) Get rid of the idiom of using callbacks to return results.
       b) (maybe?) Split lookupmap implementation depending on if it needs
            ScopeInfo or not, so not all DeclContext pay the price of
            storing the ScopeInfo if they don't need it
+      c) Maybe generalize RAII objects in the parser once and for all, maybe
+         using llvm:SaveAndRestore
+      d) Improve: 
+          DelayedDeclRegistration 
+          actOnDecl           | Theses 2 methods are pretty similar, rename them.
+          doDeclRegistration  | 
+
   > VM
   > IR
   > IRGen
