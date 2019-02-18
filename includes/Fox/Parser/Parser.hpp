@@ -286,6 +286,7 @@ namespace fox {
       std::uint8_t squareBracketsCount_ = 0;
 
       DeclContext* curDeclCtxt_ = nullptr;
+      ScopeInfo curScopeInfo_;
 
       bool isDone() const;
       bool isAlive() const;
@@ -318,6 +319,19 @@ namespace fox {
         private:
           Parser* parser_ = nullptr;
           DeclContext* lastDC_ = nullptr;
+      };
+
+      //---------------------------------//
+      // RAIIScopeInfo
+      //---------------------------------//
+      class RAIIScopeInfo {
+        public:
+          RAIIScopeInfo(Parser *p, ScopeInfo scope);
+          ~RAIIScopeInfo();
+
+        private:
+          Parser* parser_ = nullptr;
+          ScopeInfo oldInfo_;
       };
       
       //----------------------------------------------------------------------//

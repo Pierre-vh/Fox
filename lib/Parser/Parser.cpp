@@ -444,3 +444,14 @@ Parser::RAIIDeclCtxt::~RAIIDeclCtxt() {
   if(parser_) // parser_ will be nullptr if we restored early
     restore();
 }
+
+// RAIIScopeInfo
+Parser::RAIIScopeInfo::RAIIScopeInfo(Parser* p, ScopeInfo scope) : parser_(p) {
+  oldInfo_ = p->curScopeInfo_;
+  p->curScopeInfo_ = scope;
+}
+
+Parser::RAIIScopeInfo::~RAIIScopeInfo() {
+  if(parser_) // parser_ will be nullptr if we restored early
+    parser_->curScopeInfo_ = oldInfo_;
+}
