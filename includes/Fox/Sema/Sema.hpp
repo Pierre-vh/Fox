@@ -173,7 +173,7 @@ namespace fox {
 
         // If this is set to true, Lookup will only happen
         // in local DeclContexts.
-        bool onlyLookInLocalDeclContexts = true;
+        bool onlyLookInLocalDeclContexts = false;
 
         // This lambda, if non-null, will be called each time
         // the lookup finds a valid lookup result.
