@@ -53,12 +53,12 @@ SourceRange Stmt::getSourceRange() const {
   }
 }
 
-SourceLoc Stmt::getBegin() const {
-  return getSourceRange().getBegin();
+SourceLoc Stmt::getBeginLoc() const {
+  return getSourceRange().getBeginLoc();
 }
 
-SourceLoc Stmt::getEnd() const {
-  return getSourceRange().getEnd();
+SourceLoc Stmt::getEndLoc() const {
+  return getSourceRange().getEndLoc();
 }
 
 void* Stmt::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
@@ -120,7 +120,7 @@ bool ConditionStmt::hasElse() const {
 SourceRange ConditionStmt::getSourceRange() const {
   // We should at least has a then_ node.
   assert(then_ && "ill-formed ConditionStmt");
-  SourceLoc end = (else_ ? else_->getEnd() : then_->getEnd());
+  SourceLoc end = (else_ ? else_->getEndLoc() : then_->getEndLoc());
   return SourceRange(ifBegLoc_, end);
 }
 
@@ -218,7 +218,7 @@ CompoundStmt* WhileStmt::getBody() const {
 
 SourceRange WhileStmt::getSourceRange() const {
   assert(body_ && "ill formed WhileStmt");
-  return SourceRange(whBegLoc_, body_->getEnd());
+  return SourceRange(whBegLoc_, body_->getEndLoc());
 }
 
 WhileStmt* WhileStmt::create(ASTContext& ctxt, SourceLoc whBegLoc, Expr* cond, 

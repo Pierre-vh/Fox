@@ -200,7 +200,7 @@ SourceRange::operator bool() const {
   return isValid();
 }
 
-SourceLoc SourceRange::getBegin() const {
+SourceLoc SourceRange::getBeginLoc() const {
   return sloc_;
 }
 
@@ -208,7 +208,7 @@ SourceRange::OffsetTy SourceRange::getRawOffset() const {
   return offset_;
 }
 
-SourceLoc SourceRange::getEnd() const {
+SourceLoc SourceRange::getEndLoc() const {
   return SourceLoc(sloc_.getFileID(), sloc_.getRawIndex() + offset_);
 }
 
@@ -217,8 +217,8 @@ bool SourceRange::isOnlyOneCharacter() const {
 }
 
 bool SourceRange::contains(SourceLoc loc) const {
-  SourceLoc beg = getBegin();
-  SourceLoc end = getEnd();
+  SourceLoc beg = getBeginLoc();
+  SourceLoc end = getEndLoc();
   if(beg.getFileID() != loc.getFileID())
     return false;
   auto begIdx = beg.getRawIndex();
@@ -229,7 +229,7 @@ bool SourceRange::contains(SourceLoc loc) const {
 }
 
 bool SourceRange::contains(SourceRange range) const {
-  return contains(range.getBegin()) && contains(range.getEnd());
+  return contains(range.getBeginLoc()) && contains(range.getEndLoc());
 }
 
 FileID SourceRange::getFileID() const {
@@ -238,7 +238,7 @@ FileID SourceRange::getFileID() const {
 
 std::ostream& fox::operator<<(std::ostream& os, SourceRange range) {
   if(range.isValid())
-    os << "SourceRange(" << range.getBegin() << ", " << range.getEnd() << ")";
+    os << "SourceRange(" << range.getBeginLoc() << ", " << range.getEndLoc() << ")";
   else 
     os << "SourceRange(invalid)";
   return os;
@@ -316,8 +316,8 @@ CompleteLoc SourceManager::getCompleteLoc(SourceLoc sloc) const {
 
 CompleteRange SourceManager::getCompleteRange(SourceRange range) const {
   const Data* data = getData(range.getFileID());
-  auto begIdx = range.getBegin().getRawIndex();
-  auto endIdx = range.getEnd().getRawIndex();
+  auto begIdx = range.getBeginLoc().getRawIndex();
+  auto endIdx = range.getEndLoc().getRawIndex();
   
   line_type begLine = 0, endLine = 0;
   col_type begCol = 0, endCol = 0;
@@ -397,8 +397,8 @@ SourceManager::incrementSourceLoc(SourceLoc loc, std::size_t count) const {
 
 std::size_t 
 SourceManager::getLengthInCodepoints(SourceRange range) const {
-  SourceLoc beg = range.getBegin();
-  SourceLoc end = range.getEnd();
+  SourceLoc beg = range.getBeginLoc();
+  SourceLoc end = range.getEndLoc();
   // If the SourceLocs are identical, just return 1.
   if(beg == end) return 1;
 

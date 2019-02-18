@@ -99,10 +99,10 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // "func"
   auto fnKw = consumeKeyword(KeywordType::KW_FUNC);
   if (!fnKw) return Result<Decl*>::NotFound();
-  assert(fnKw.getBegin() && "invalid loc info for func token");
+  assert(fnKw.getBeginLoc() && "invalid loc info for func token");
 
   // Location information
-  SourceLoc begLoc = fnKw.getBegin();
+  SourceLoc begLoc = fnKw.getBeginLoc();
 
   // If invalid is set to true, it means that the declarations is missing
   // critical information and can't be considered as valid. If that's the case,
@@ -264,11 +264,11 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   SourceLoc begLoc;
   if (auto letKw = consumeKeyword(KeywordType::KW_LET)) {
     kw = VarDecl::Keyword::Let;
-    begLoc = letKw.getBegin();
+    begLoc = letKw.getBeginLoc();
   } 
   else if(auto varKw = consumeKeyword(KeywordType::KW_VAR)) {
     kw = VarDecl::Keyword::Var;
-    begLoc = varKw.getBegin();
+    begLoc = varKw.getBeginLoc();
   }
   else
     return Result<Decl*>::NotFound();

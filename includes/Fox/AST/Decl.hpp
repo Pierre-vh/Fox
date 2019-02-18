@@ -86,10 +86,10 @@ namespace fox {
       SourceRange getSourceRange() const;
 
       /// Returns the begin loc of this Decl, if it has one.
-      SourceLoc getBegin() const;
+      SourceLoc getBeginLoc() const;
 
       /// Returns the end loc of this Decl, if it has one.
-      SourceLoc getEnd() const;
+      SourceLoc getEndLoc() const;
 
       bool isUnchecked() const;
       bool isChecking() const;

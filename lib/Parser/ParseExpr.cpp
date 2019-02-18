@@ -285,8 +285,8 @@ Parser::Result<Expr*> Parser::parseCastExpr() {
     // <type>
     if (auto tyRes = parseType()) {
       TypeLoc tl = tyRes.get();
-      SourceLoc begLoc = prefixexpr.get()->getBegin();
-      SourceLoc endLoc = tl.getEnd();
+      SourceLoc begLoc = prefixexpr.get()->getBeginLoc();
+      SourceLoc endLoc = tl.getEndLoc();
 
       SourceRange range(begLoc, endLoc);
       assert(range && "Invalid loc info");

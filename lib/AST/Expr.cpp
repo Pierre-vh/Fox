@@ -66,12 +66,12 @@ SourceRange Expr::getSourceRange() const {
   }
 }
 
-SourceLoc Expr::getBegin() const {
-  return getSourceRange().getBegin();
+SourceLoc Expr::getBeginLoc() const {
+  return getSourceRange().getBeginLoc();
 }
 
-SourceLoc Expr::getEnd() const {
-  return getSourceRange().getEnd();
+SourceLoc Expr::getEndLoc() const {
+  return getSourceRange().getEndLoc();
 }
 
 void Expr::setType(Type type) {
@@ -341,7 +341,7 @@ SourceRange BinaryExpr::getOpRange() const {
 
 SourceRange BinaryExpr::getSourceRange() const {
   assert(lhs_ && rhs_ && "ill formed BinaryExpr");
-  return SourceRange(lhs_->getBegin(), rhs_->getEnd());
+  return SourceRange(lhs_->getBeginLoc(), rhs_->getEndLoc());
 }
 
 std::string BinaryExpr::getOpSign() const {
@@ -405,7 +405,7 @@ SourceRange UnaryExpr::getOpRange() const {
 
 SourceRange UnaryExpr::getSourceRange() const {
   assert(opRange_ && expr_ && "ill formed UnaryExpr");
-  return SourceRange(opRange_.getBegin(), expr_->getEnd());
+  return SourceRange(opRange_.getBeginLoc(), expr_->getEndLoc());
 }
 
 std::string UnaryExpr::getOpSign() const {
@@ -465,7 +465,7 @@ Expr* CastExpr::getExpr() const {
 SourceRange CastExpr::getSourceRange() const {
   SourceRange castTLRange = getCastTypeLoc().getSourceRange();
   assert(castTLRange && getExpr() && "ill-formed CastExpr");
-  return SourceRange(getExpr()->getBegin(), castTLRange.getEnd());
+  return SourceRange(getExpr()->getBeginLoc(), castTLRange.getEndLoc());
 }
 
 bool CastExpr::isUseless() const {
@@ -557,14 +557,14 @@ SourceRange CallExpr::getArgsRange() const {
   if(!numArgs_)
     return SourceRange();
   auto args = getArgs();
-  SourceLoc beg = args.front()->getBegin();
-  SourceLoc end = args.back()->getEnd();
+  SourceLoc beg = args.front()->getBeginLoc();
+  SourceLoc end = args.back()->getEndLoc();
   return SourceRange(beg, end);
 }
 
 SourceRange CallExpr::getSourceRange() const {
   assert(callee_ && rightRoBrLoc_ && "ill-formed CallExpr");
-  return SourceRange(callee_->getBegin(), rightRoBrLoc_);
+  return SourceRange(callee_->getBeginLoc(), rightRoBrLoc_);
 }
 
 //----------------------------------------------------------------------------//
@@ -607,7 +607,7 @@ SourceLoc MemberOfExpr::getDotLoc() const {
 
 SourceRange MemberOfExpr::getSourceRange() const {
   assert(base_ && membIDRange_ && "ill-formed MemberOfExpr");
-  return SourceRange(base_->getBegin(), membIDRange_.getEnd());
+  return SourceRange(base_->getBeginLoc(), membIDRange_.getEndLoc());
 }
 
 //----------------------------------------------------------------------------//
@@ -642,7 +642,7 @@ Expr* ArraySubscriptExpr::getIndex() const {
 
 SourceRange ArraySubscriptExpr::getSourceRange() const {
   assert(base_ && rightSqBrLoc_ && "ill-formed ArraySubscriptExpr");
-  return SourceRange(base_->getBegin(), rightSqBrLoc_);
+  return SourceRange(base_->getBeginLoc(), rightSqBrLoc_);
 }
 
 //----------------------------------------------------------------------------//

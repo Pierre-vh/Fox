@@ -96,9 +96,9 @@ Parser::Result<Stmt*> Parser::parseWhileLoop() {
     return Result<Stmt*>::Error();
   }
 
-  assert(expr && body->getEnd() && whKw.getBegin());
+  assert(expr && body->getEndLoc() && whKw.getBeginLoc());
   return Result<Stmt*>(
-    WhileStmt::create(ctxt, whKw.getBegin(), expr, body)
+    WhileStmt::create(ctxt, whKw.getBeginLoc(), expr, body)
   );
 }
 
@@ -148,12 +148,12 @@ Parser::Result<Stmt*> Parser::parseCondition() {
     }
   }
 
-  assert(expr->getSourceRange() && then_body->getSourceRange() && ifKw.getBegin() 
+  assert(expr->getSourceRange() && then_body->getSourceRange() && ifKw.getBeginLoc() 
     && (else_body ? else_body->getSourceRange().isValid() : true) 
     && "incomplete locs");
 
   return Result<Stmt*>(
-    ConditionStmt::create(ctxt, ifKw.getBegin(), expr, then_body, else_body)
+    ConditionStmt::create(ctxt, ifKw.getBeginLoc(), expr, then_body, else_body)
   );
 }
 
@@ -165,7 +165,7 @@ Parser::Result<Stmt*> Parser::parseReturnStmt() {
     return Result<Stmt*>::NotFound();
   
   Expr* expr = nullptr;
-  SourceLoc begLoc = rtrKw.getBegin();
+  SourceLoc begLoc = rtrKw.getBeginLoc();
   SourceLoc endLoc;
 
   // [<expr>]

@@ -101,7 +101,7 @@ namespace fox {
   //
   //  e.g. If the file content is "foo bar":
   //    auto loc = SourceLoc(fileID, 0) refers to "f"
-  //    SourceRange(loc, 0) refers to "f" (.getBegin() == .getEnd())
+  //    SourceRange(loc, 0) refers to "f" (.getBeginLoc() == .getEndLoc())
   //    SourceRange(loc, 2) refers to "foo"
   class SourceRange {
     public:
@@ -114,8 +114,8 @@ namespace fox {
       bool isValid() const;
       explicit operator bool() const; // Shortcut for isValid
 
-      SourceLoc getBegin() const;
-      SourceLoc getEnd() const;
+      SourceLoc getBeginLoc() const;
+      SourceLoc getEndLoc() const;
       FileID getFileID() const;
 
       // Returns the raw offset contained inside this SourceRange.
@@ -133,7 +133,7 @@ namespace fox {
       bool contains(SourceLoc loc) const;
 
       // Returns true if the SourceRange is contained inside this SourceRange.
-      // (contains(range.getBegin()) && (contains(range.getEnd()))
+      // (contains(range.getBeginLoc()) && (contains(range.getEndLoc()))
       // Return false if the SourceRange doesn't belong to the same file,
       // or if it's not contained inside this SourceRange
       bool contains(SourceRange range) const;

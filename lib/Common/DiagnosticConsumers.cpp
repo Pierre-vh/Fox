@@ -61,7 +61,8 @@ StreamDiagConsumer::StreamDiagConsumer(std::ostream & stream):
 StreamDiagConsumer::StreamDiagConsumer() : StreamDiagConsumer(std::cout) {}
 
 void StreamDiagConsumer::consume(SourceManager& sm, const Diagnostic& diag) {
-  std::string locInfo = getLocInfo(sm, diag.getSourceRange(), diag.isFileWide());
+  std::string locInfo = 
+    getLocInfo(sm, diag.getSourceRange(), diag.isFileWide());
   if (locInfo.size())
     os_ << locInfo << " - ";
   os_ << toString(diag.getSeverity()) 
@@ -136,7 +137,8 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
 
   // Get the sourceLine
   SourceLoc lineBeg;
-  string_view sourceLine = sm.getLineAt(diag.getSourceRange().getBegin(), &lineBeg);
+  string_view sourceLine = 
+    sm.getLineAt(diag.getSourceRange().getBeginLoc(), &lineBeg);
   std::size_t lineSize = utf8::distance(sourceLine.begin(), sourceLine.end());
 
   // Remove any indent, and offset the linebeg loc accordingly.
@@ -153,13 +155,13 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   std::string underline;
   // Create the carets underline (^)
 	{  
-    SourceRange preRange(lineBeg, range.getBegin());
+    SourceRange preRange(lineBeg, range.getBeginLoc());
     // We'll begin the range at the last codepoint, so uBeg is
     // the number of codepoints in the range minus one.
     auto uBeg = sm.getLengthInCodepoints(preRange)-1;
     // Change the beginning of the range so it begins where the sourceLine
     // begins.
-    SourceRange rangeInLine = SourceRange(lineBeg, range.getEnd());
+    SourceRange rangeInLine = SourceRange(lineBeg, range.getEndLoc());
     // Calculate the number of codepoints in that range
     std::size_t uEnd = sm.getLengthInCodepoints(rangeInLine);
     // But check that the number doesn't exceed sourceLine's size.
@@ -169,17 +171,18 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
 
   // If needed, create the extra range underline (~)
   if(diag.hasExtraRange()) {
-    assert((diag.getExtraRange().getFileID() == diag.getSourceRange().getFileID())
+    assert((diag.getExtraRange().getFileID() == 
+            diag.getSourceRange().getFileID())
       && "Ranges don't belong to the same file");
 
-    SourceRange preRange(lineBeg, eRange.getBegin());
+    SourceRange preRange(lineBeg, eRange.getBeginLoc());
     // We'll begin the range at the last codepoint, so uBeg is
     // the number of codepoints in the range minus one.
     auto uBeg = sm.getLengthInCodepoints(preRange)-1;
 
     // Change the beginning of the range so it begins where the sourceLine
     // begins.
-    SourceRange rangeInLine = SourceRange(lineBeg, eRange.getEnd());
+    SourceRange rangeInLine = SourceRange(lineBeg, eRange.getEndLoc());
     // Calculate the number of codepoints in that range
     std::size_t uEnd = sm.getLengthInCodepoints(rangeInLine);
     // But check that the number doesn't exceed sourceLine's size.

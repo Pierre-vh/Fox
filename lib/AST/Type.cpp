@@ -66,12 +66,12 @@ SourceRange TypeLoc::getSourceRange() const {
   return range_;
 }
 
-SourceLoc TypeLoc::getBegin() const {
-  return range_.getBegin();
+SourceLoc TypeLoc::getBeginLoc() const {
+  return range_.getBeginLoc();
 }
 
-SourceLoc TypeLoc::getEnd() const {
-  return range_.getEnd();
+SourceLoc TypeLoc::getEndLoc() const {
+  return range_.getEndLoc();
 }
 
 bool TypeLoc::isLocValid() const {

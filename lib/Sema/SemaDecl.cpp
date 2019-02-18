@@ -45,7 +45,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
     // false.
     bool diagnoseIllegalRedecl(NamedDecl* decl, const NamedDeclVec& decls) {
       // Find the original decl
-      NamedDecl* earliest = findOriginalDecl(decl->getBegin(), decls);
+      NamedDecl* earliest = findOriginalDecl(decl->getBeginLoc(), decls);
       // If there's a earliest decl, diagnose. 
       // (We might not have one if this is the first decl)
       if(earliest)
@@ -201,7 +201,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         if(result->getFileID() != decl->getFileID()) return true;
         return false;  // else, don't ignore.
       };
-      getSema().doUnqualifiedLookup(lookupResult, id, decl->getBegin(),
+      getSema().doUnqualifiedLookup(lookupResult, id, decl->getBeginLoc(),
                                     options);
       // If there are no matches, this cannot be a redecl
       if (lookupResult.size() == 0)
@@ -246,7 +246,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       for (NamedDecl* decl : decls) {
         if(decl->isUnchecked()) continue;
         if(decl->isIllegalRedecl()) continue;
-        if(decl->getBegin().comesBefore(loc))
+        if(decl->getBeginLoc().comesBefore(loc))
           candidates.push_back(decl);
       }
 
@@ -258,13 +258,13 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       NamedDecl* candidate = nullptr;
       FileID file = loc.getFileID();
       for (NamedDecl* decl : candidates) {
-        SourceLoc declLoc = decl->getBegin();
+        SourceLoc declLoc = decl->getBeginLoc();
         // If we have no candidate, take this decl as the first candidate
         if (!candidate) {
           candidate = decl;
           continue;
         }
-        SourceLoc candLoc = candidate->getBegin();
+        SourceLoc candLoc = candidate->getBeginLoc();
         // if this decl has been declared after the candidate, it
         // becomes the new candidate
         if (candLoc.comesBefore(declLoc))

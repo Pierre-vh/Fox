@@ -607,7 +607,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Identifier id = expr->getIdentifier();
       SourceRange range = expr->getSourceRange();
       LookupResult results;
-      getSema().doUnqualifiedLookup(results, id, expr->getBegin());
+      getSema().doUnqualifiedLookup(results, id, expr->getBeginLoc());
       // No results -> undeclared identifier
       if(results.isEmpty()) {
         diagnoseUndeclaredIdentifier(range, id);

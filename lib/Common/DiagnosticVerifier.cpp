@@ -154,7 +154,7 @@ bool DiagnosticVerifier::verify(const Diagnostic& diag) {
   if(!diag.hasAnyLocInfo()) return true;
 
 	// Construct an ExpectedDiag to search the map
-	SourceLoc diagLoc = diag.getSourceRange().getBegin();
+	SourceLoc diagLoc = diag.getSourceRange().getBeginLoc();
   // Save the string in a local variable, because if we don't and we try
   // to call diag.getStr() in the ExpectedDiag ctor, the call to diag.getStr() 
   // will generate a std::string temporary object. This temporary will be 
@@ -338,7 +338,7 @@ DiagnosticVerifier::parseOffset(SourceRange strRange, string_view str,
   // Digit must be between 1 and 9, so it can't be 0.
   if (digit == 0) {
     // The loc of the offset is the end of the range
-    diagnoseZeroOffset(strRange.getEnd());
+    diagnoseZeroOffset(strRange.getEndLoc());
     return false;
   }
 

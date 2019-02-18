@@ -78,12 +78,12 @@ SourceRange Decl::getSourceRange() const {
   }
 }
 
-SourceLoc Decl::getBegin() const {
-  return getSourceRange().getBegin();
+SourceLoc Decl::getBeginLoc() const {
+  return getSourceRange().getBeginLoc();
 }
 
-SourceLoc Decl::getEnd() const {
-  return getSourceRange().getEnd();
+SourceLoc Decl::getEndLoc() const {
+  return getSourceRange().getEndLoc();
 }
 
 bool Decl::isUnchecked() const {
@@ -107,7 +107,7 @@ void Decl::setCheckState(CheckState state) {
 }
 
 FileID Decl::getFileID() const {
-  return getSourceRange().getBegin().getFileID();
+  return getSourceRange().getBeginLoc().getFileID();
 }
 
 void* Decl::operator new(std::size_t sz, ASTContext& ctxt, std::uint8_t align) {
@@ -225,7 +225,7 @@ Type ParamDecl::getValueType() const {
 }
 
 SourceRange ParamDecl::getSourceRange() const {
-  return SourceRange(getIdentifierRange().getBegin(), typeLoc_.getEnd());
+  return SourceRange(getIdentifierRange().getBeginLoc(), typeLoc_.getEndLoc());
 }
 
 ParamDecl::ParamDecl(DeclContext* dc, Identifier id, SourceRange idRange, 
@@ -351,7 +351,7 @@ void FuncDecl::calculateValueType() {
 
 SourceRange FuncDecl::getSourceRange() const {
   assert(body_ && "ill formed FuncDecl");
-  return SourceRange(fnBegLoc_, body_->getEnd());
+  return SourceRange(fnBegLoc_, body_->getEndLoc());
 }
 
 //----------------------------------------------------------------------------//
@@ -429,7 +429,7 @@ ASTContext& UnitDecl::getASTContext() const {
 SourceRange UnitDecl::getSourceRange() const {
   if (Decl* first = getFirstDecl()) {
     Decl* last = getLastDecl();
-    SourceRange range(first->getBegin(), last->getEnd());
+    SourceRange range(first->getBeginLoc(), last->getEndLoc());
     assert(range.getFileID() == file_ && "broken UnitDecl");
     return range;
   }

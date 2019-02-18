@@ -39,7 +39,7 @@ SourceLoc Parser::consumeSign(SignType s) {
   auto tok = getCurtok();
   if (tok.is(s)) {
     next();
-    return tok.getSourceRange().getBegin();
+    return tok.getSourceRange().getBeginLoc();
   }
   return {};
 }
@@ -92,7 +92,7 @@ SourceLoc Parser::consumeBracket(SignType s) {
     next();
     assert((tok.getSourceRange().getRawOffset() == 0) 
       && "Token is a sign but it's SourceRange offset is greater than zero?");
-    return tok.getSourceRange().getBegin();
+    return tok.getSourceRange().getBeginLoc();
   }
   return {};
 }
@@ -397,7 +397,7 @@ void Parser::die() {
 Diagnostic Parser::reportErrorExpected(DiagID diag) {
   SourceRange errorRange;
   if (Token prevTok = getPreviousToken()) {
-    SourceLoc loc = prevTok.getSourceRange().getEnd();
+    SourceLoc loc = prevTok.getSourceRange().getEndLoc();
     // Get the next character in the file. This will be our 
     // error's location.
     loc = srcMgr.incrementSourceLoc(loc);

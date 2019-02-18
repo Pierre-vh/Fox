@@ -215,7 +215,7 @@ DeclContext::lookup(Identifier id, SourceLoc loc,
     if (loc) {
       // First, check if the decl was declared
       // before loc.
-      if (SourceLoc declBeg = decl->getBegin()) {
+      if (SourceLoc declBeg = decl->getBeginLoc()) {
         if(!declBeg.comesBefore(loc)) continue;
       }
 

@@ -130,8 +130,8 @@ namespace fox {
 
       // Returns the number of codepoints contained in the range.
       // e.g. Let's say that:
-      //  a = range.getBegin()
-      //  b = range.getEnd()
+      //  a = range.getBeginLoc()
+      //  b = range.getEndLoc()
       //
       //  and that the range represents "fooba" in "foobar"
       //

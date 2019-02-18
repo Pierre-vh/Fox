@@ -38,8 +38,8 @@ namespace fox {
       StmtKind getKind() const;
 
       SourceRange getSourceRange() const;
-      SourceLoc getBegin() const;
-      SourceLoc getEnd() const;
+      SourceLoc getBeginLoc() const;
+      SourceLoc getEndLoc() const;
 
       void dump() const;
 
