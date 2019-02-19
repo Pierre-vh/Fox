@@ -95,18 +95,17 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
   // Handle results
   auto handleResult = [&](NamedDecl* decl) {
     // If we should ignore this result, do so and continue looking.
-    if(shouldIgnore(decl)) return true;
+    if(shouldIgnore(decl)) return;
 
     // If this var is checking, set checkingvar and ignore it.
     if (decl->isChecking()) {
       assert(!checkingVar && "2 vars are already in the 'checking' state");
       checkingVar = decl;
-      return true;
+      return;
     }
     
     // If not, add the decl to the results and continue looking
     results.addResult(decl);
-    return true;
   };
 
   auto shouldLookIn = [&](DeclContext* dc) {
@@ -123,22 +122,25 @@ void Sema::doUnqualifiedLookup(LookupResult& results, Identifier id,
       // active DeclContext.
       SourceLoc theLoc = 
         (currentDeclContext == getDeclCtxt()) ? loc : SourceLoc();
-      if(!currentDeclContext->lookup(id, theLoc, handleResult)) break;
+
+      // Perform the lookuo
+      currentDeclContext->lookup(id, theLoc, handleResult);
     
-      // Check if we're satisfied with the results.
+      // Check if we're satisfied with the results. If we are,
+      // we'll stop the search here.
       if (results.size()) {
         // If the current decl context is a local context,
-        // and we found results inside it, break here.
+        // and we found results inside it, stop here to only
+        // keep local results.
         if(currentDeclContext->isLocal()) break;
-        // else, continue.
       }
     }
 
-    // Climb
+    // Search in the parent of this DC
     currentDeclContext = currentDeclContext->getParentDeclCtxt();
   }
 
-  // Add the checkingVar if the result set is empty.
+  // Add the checkingVar to the result set if it's empty.
   if(results.isEmpty() && checkingVar)
     results.addResult(checkingVar);
 

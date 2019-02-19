@@ -170,23 +170,20 @@ namespace fox {
       // one decl.
       bool hasDecls() const;
 
-      using ResultFoundCallback = std::function<bool(NamedDecl*)>;
+      using ResultFoundCallback = std::function<void(NamedDecl*)>;
 
-      // Performs a "raw" lookup in this DeclContext.
+      // Performs a lookup in this DeclContext.
       //
-      // If loc is null, the SourceLoc is ignored and every
-      // result is returned, no matter the loc.
+      // If the loc is null, every result is considered, no matter
+      // the loc.
       //
       // When the loc is actually considered, only Decls that were
       // declared before loc are returned, and, for local DCs, 
-      // only results that are in the same scope are returned.
-      //
-      // Returns true by default, false if the lookup was
-      // aborted due to onFound returning false.
+      // only results that are in the same scope are considered.
       //
       // Note that this only looks in this DeclContext, and does
       // no climb parent DeclContexts.
-      bool lookup(Identifier id, SourceLoc loc, 
+      void lookup(Identifier id, SourceLoc loc, 
         ResultFoundCallback onFound) const;
 
       // Dumps this DeclContext to std::cerr

@@ -192,14 +192,14 @@ bool DeclContext::hasDecls() const {
   return (bool)firstDecl_;
 }
 
-bool 
+void 
 DeclContext::lookup(Identifier id, SourceLoc loc, 
                     ResultFoundCallback onFound) const {
   assert(id && "Identifier is invalid");
 
   // If we don't have a lookup map, we're empty, so we
   // can't lookup anything.
-  if (!lookupMap_) return true;
+  if (!lookupMap_) return;
 
   const LookupMap& map = *lookupMap_;
 
@@ -229,10 +229,8 @@ DeclContext::lookup(Identifier id, SourceLoc loc,
     }
     
     // Else, consider the result.
-    if(!onFound(it->second.second)) return false;
+    onFound(it->second.second);
   }
-
-  return true;
 }
 
 bool DeclContext::classof(const Decl* decl) {
