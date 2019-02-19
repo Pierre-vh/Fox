@@ -175,15 +175,18 @@ namespace fox {
       // Current Decl Parent (curParent_) helpers
       //---------------------------------//
 
-      // Should be called whenever a decl is done parsing and about 
-      // to be returned. This will register the Decl in its parent
-      // DeclContext
-      // TODO: This should call decl->setParent(current DeclContext)
-      void actOnDecl(Decl* decl);
+      // This should always be called after successfully parsing a decl.
+      //
+      // This method will handle registration of the decl if possible,
+      // or it'll add it to the current instance of DelayedDeclRegistration.
+      void finishDecl(Decl* decl);
 
       // This is a method called by DelayedDeclRegistration and
-      // actOnDecl to perform the actual Decl registration.
-      void doDeclRegistration(Decl* decl, ScopeInfo scopeInfo);
+      // finishDecl to perform the actual Decl registration.
+      // 
+      // It should never be called by parsing methods directly.
+      // Always use finishDecl instead!
+      void registerDecl(Decl* decl, ScopeInfo scopeInfo);
 
       DeclContext* getCurrentDeclCtxt() const;
 
@@ -292,8 +295,7 @@ namespace fox {
       std::uint8_t squareBracketsCount_ = 0;
 
       DeclContext* curDeclCtxt_ = nullptr;
-      ScopeInfo curScopeInfo_;
-
+      
       bool isDone() const;
       bool isAlive() const;
 
@@ -331,7 +333,7 @@ namespace fox {
       // DelayedDeclRegistration 
       // 
       // This class represents a "transaction". It is used
-      // to delay calls to actOnDecl until the transaction
+      // to delay calls to finishDecl until the transaction
       // is completed or abandoned. 
       //
       // This class solves a very important problem: ScopeInfo
@@ -351,6 +353,10 @@ namespace fox {
       // - by calling abandon(), which discards the decls.
       //
       // - by destroying this object (that calls abandon())
+      //
+      // NOTE: Theses aren't nested. When a DDR completes its transaction,
+      //       it'll register the decls directly (registerDecl), it won't add
+      //       them to the previous DDR (e.g. by calling finishDecl)
       //---------------------------------//      
       class DelayedDeclRegistration {
         public:
@@ -358,14 +364,14 @@ namespace fox {
           ~DelayedDeclRegistration();
 
           // Adds a Decl to this transaction, this should only be called
-          // by actOnDecl when it notices that a transaction is currently
+          // by finishDecl when it notices that a transaction is currently
           // active.
-          void add(Decl* decl);
+          void addDecl(Decl* decl);
 
-          // Abandons this transaction.
+          // Abandons this transaction, discarding the stored decls.
           void abandon();
 
-          // Completes this transaction.
+          // Completes this transaction, registering the stored decls.
           void complete(ScopeInfo scope);
 
         private:

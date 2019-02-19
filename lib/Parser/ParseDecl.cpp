@@ -12,24 +12,24 @@
 
 using namespace fox;
 
-void Parser::actOnDecl(Decl* decl) {
-  assert(decl && "decl is null!");
-  // If we have a currently active DDR, add it to the DDR instead of
-  // directly recording it.
-  if(curDDR_)
-    curDDR_->add(decl);
-  // Else, register it directly.
-  else 
-    doDeclRegistration(decl, curScopeInfo_);
+void Parser::finishDecl(Decl* decl) {
+  assert(decl && "The Declaration is null!");
+  // If we have a currently active DDR, add it to the DDR, else
+  // register the decl directly.
+  curDDR_ ? curDDR_->addDecl(decl) : registerDecl(decl, ScopeInfo());
 }
 
-void Parser::doDeclRegistration(Decl* decl, ScopeInfo scopeInfo) {
+void Parser::registerDecl(Decl* decl, ScopeInfo scopeInfo) {
   // Record the decl in its DeclContext
   if (DeclContext* dc = decl->getDeclContext()) {
     assert(decl->isLocal() || (!decl->isLocal() && !scopeInfo) &&
       "Non-null ScopeInfo is only supported for local decls!");
     dc->addDecl(decl, scopeInfo);
   }
+  // Only UnitDecls shouldn't have parents.
+  else 
+    assert(isa<UnitDecl>(decl) && "Decl doesn't have a DeclContext "
+      "and it isn't a UnitDecl?");
 }
 
 UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
@@ -84,7 +84,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
     return nullptr;
   }
   else {
-    actOnDecl(unit);
+    finishDecl(unit);
     return unit;
   }
 }
@@ -210,11 +210,11 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   if (invalid) return Result<Decl*>::Error();
 
   // Leave this func's scope, so we don't get into an infinite loop when calling
-  // actOnDecl.
+  // finishDecl.
   raiiDC.restore();
 
   // Record the FuncDecl
-  actOnDecl(func);
+  finishDecl(func);
   // Calculate it's ValueType.
   func->calculateValueType();
   assert(func->getValueType() && "FuncDecl type not calculated");
@@ -252,7 +252,7 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
 
   auto* rtr = ParamDecl::create(ctxt, getCurrentDeclCtxt(), id, idRange, 
                                 tl, isMutable); 
-  actOnDecl(rtr);
+  finishDecl(rtr);
   return Result<Decl*>(rtr);
 }
 
@@ -343,7 +343,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   auto rtr = VarDecl::create(ctxt, getCurrentDeclCtxt(), id, idRange,
     type, kw, iExpr, range);
 
-  actOnDecl(rtr);
+  finishDecl(rtr);
   return Result<Decl*>(rtr);
 }
 

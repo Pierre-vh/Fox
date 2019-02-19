@@ -467,14 +467,18 @@ Parser::DelayedDeclRegistration::~DelayedDeclRegistration() {
   abandon();
 }
 
-void Parser::DelayedDeclRegistration::add(Decl* decl) {
+void Parser::DelayedDeclRegistration::addDecl(Decl* decl) {
   decls_.push_back(decl);
 }
 
 void Parser::DelayedDeclRegistration::abandon() {
   if (parser_) {
+    // Restore the previous DDR
     parser_->curDDR_ = prevCurDDR_;
+    // Set the parser instance to nullptr, so
+    // we don't abandon/complete twice.
     parser_ = nullptr;
+    // Clear the decls vector.
     decls_.clear(); 
   }
 }
@@ -483,6 +487,6 @@ void Parser::DelayedDeclRegistration::complete(ScopeInfo scope) {
   assert(parser_ && "transaction has already been completed/abandoned!");
   assert(scope && "Cannot complete a transaction with a null ScopeInfo!");
   for(auto decl : decls_)
-    parser_->doDeclRegistration(decl, scope);
+    parser_->registerDecl(decl, scope);
   abandon();
 }
