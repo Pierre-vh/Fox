@@ -13,6 +13,10 @@
 
 using namespace fox;
 
+//----------------------------------------------------------------------------//
+// Parser
+//----------------------------------------------------------------------------//
+
 Parser::Parser(ASTContext& ctxt, TokenVector& l, UnitDecl *unit):
   ctxt(ctxt), tokens(l), srcMgr(ctxt.sourceMgr), diags(ctxt.diagEngine),
   curDeclCtxt_(unit) {
@@ -426,7 +430,10 @@ DeclContext* Parser::getCurrentDeclCtxt() const {
   return curDeclCtxt_;
 }
 
-// RAIIDeclCtxt
+//----------------------------------------------------------------------------//
+// Parser::RAIIDeclCtxt
+//----------------------------------------------------------------------------//
+
 Parser::RAIIDeclCtxt::RAIIDeclCtxt(Parser *p, DeclContext* dc):
   parser_(p) {
   assert(p && "Parser instance can't be nullptr");
@@ -445,7 +452,10 @@ Parser::RAIIDeclCtxt::~RAIIDeclCtxt() {
     restore();
 }
 
-// DelayedDeclRegistration
+//----------------------------------------------------------------------------//
+// Parser::DelayedDeclRegistration
+//----------------------------------------------------------------------------//
+
 Parser::DelayedDeclRegistration::DelayedDeclRegistration(Parser* p)
   : parser_(p) {
   assert(parser_ && "parser is nullptr!");
