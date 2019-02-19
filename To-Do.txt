@@ -144,10 +144,7 @@ To-Do:
   > Add local lookups in DeclContext (Done)
   > Remove LocalScope
   > Rename getBegin/getEnd/getRange to getBeginLoc/getEndLoc/getSourceRange (Done)
-
-  > Polish the DeclContext changes :
-      > Rename/Document actOnDecl and doDeclRegistration. Theses method name
-        are pretty similar but they have different purposes!
+  > Polish the DeclContext changes (Done)
 
   > VM
   > IR
