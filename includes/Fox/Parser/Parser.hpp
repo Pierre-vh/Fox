@@ -330,17 +330,27 @@ namespace fox {
       //---------------------------------//
       // DelayedDeclRegistration 
       // 
-      // This class represents a "transaction" of delayed
-      // calls to actOnDecl. This is used by parseCompoundStmt.
-      // 
-      // TODO: Improve doc/explain this better.
+      // This class represents a "transaction". It is used
+      // to delay calls to actOnDecl until the transaction
+      // is completed or abandoned. 
       //
+      // This class solves a very important problem: ScopeInfo
+      // of CompoundStmts: To correctly parse the Decls inside
+      // a CompoundStmt, I need to have ScopeInfo of the CompoundStmt,
+      // but to create the CompoundStmt, I need to parse it all since
+      // it uses trailing objects. This chicken-and-egg problem is solved
+      // by this class that delays the registration of the declarations 
+      // that are direct children of the CompoundStmt.
+      //
+      // Note: this object is relatively large (8+2 pointers) in order to
+      //       minimize allocations in common cases.
+      // 
       // The transaction can be completed in 3 ways:
-      // - by calling "complete" with a Scope
+      // - by calling "complete" with a ScopeInfo instance
       //
       // - by calling abandon(), which discards the decls.
       //
-      // - by calling the destructor, which calls abandon()
+      // - by destroying this object (that calls abandon())
       //---------------------------------//      
       class DelayedDeclRegistration {
         public:
@@ -364,7 +374,7 @@ namespace fox {
           Parser* parser_ = nullptr;
 
           // The pending decls
-          SmallVector<Decl*, 4> decls_;
+          SmallVector<Decl*, 8> decls_;
           
           // The previous curDDR_, if there's one.
           DelayedDeclRegistration* prevCurDDR_ = nullptr;

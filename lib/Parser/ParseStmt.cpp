@@ -15,39 +15,48 @@ using namespace fox;
 
 Parser::Result<Stmt*> Parser::parseCompoundStatement() {
   // '{' {<stmt>} '}'
+
   // '{'
   auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);
 
-  if (!leftCurlyLoc)
-    return Result<Stmt*>::NotFound();
+  if (!leftCurlyLoc) return Result<Stmt*>::NotFound();
 
+  // Once we're sure that we're in a CompoundStmt, activate the 
+  // DelayedDeclRegistration.
   DelayedDeclRegistration ddr(this);
 
-  SmallVector<ASTNode, 4> nodes;
+  // The nodes of this CompoundStmt
+  SmallVector<ASTNode, 8> nodes;
+
+  // The SourceLoc of the '}'
   SourceLoc rightCurlyLoc;
   // {<stmt>}
   while (!isDone()) {
-    // '{'
+    // Try to consume the '}'
+    // '}'
     if ((rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE)))
       break;
 
+    // Try to parse a statement
     if(auto res = parseStmt())
       nodes.push_back(res.get());
+    // Parsing failed
     else {
       // In both case, attempt recovery to nearest semicolon.
+      // FIXME: Is this the right thing? Tests needed!
       if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi*/ false,
         /*shouldConsumeToken*/ true))
         continue;
       else {
         // If we couldn't recover, try to recover to our '}'
-        // to stop parsing this compound statement
+        // to stop the parsing of this compound statement early.
         if (resyncToSign(SignType::S_CURLY_CLOSE, /*stopAtSemi*/ false, 
           /*consume*/ false)) {
           rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE);
           break;
         }
-        else
-          return Result<Stmt*>::Error();
+        // Couldn't recover, error.
+        else return Result<Stmt*>::Error();
       }
     }
   }
@@ -64,7 +73,7 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
   assert(range && "invalid loc info");
   auto* rtr = CompoundStmt::create(ctxt, nodes, range);
 
-  // Complete the delayed decl registration.
+  // Complete the delayed decl registration and return the node.
   ddr.complete(ScopeInfo(rtr));
   return Result<Stmt*>(rtr);
 }
