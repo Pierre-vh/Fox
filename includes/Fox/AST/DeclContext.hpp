@@ -17,7 +17,7 @@
 #include "llvm/ADT/SmallVector.h"
 #include <iterator>
 #include <memory>
-#include <map>
+#include <unordered_map>
 
 namespace fox {
   class Decl;
@@ -196,7 +196,7 @@ namespace fox {
 
     private:
       using LookupMap = 
-        std::multimap<Identifier, std::pair<ScopeInfo, NamedDecl*>>;
+        std::unordered_multimap<Identifier, std::pair<ScopeInfo, NamedDecl*>>;
 
       // Creates the appropriate lookup map for this DeclContext:
       //  for local DeclContexts, uses a LocalLookupMap.
