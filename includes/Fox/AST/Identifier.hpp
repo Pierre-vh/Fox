@@ -1,10 +1,10 @@
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.     
-// File : Identifiers.hpp                      
+// File : Identifier.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the Identifier classes.
+// This file contains the Identifier class.
 //----------------------------------------------------------------------------//
 
 #pragma once 
@@ -44,13 +44,22 @@ namespace fox {
     private:
 			// Only the context can create a non null Identifier object.
 			friend class ASTContext;
-			// Creates a new Identifier object. 
-			// /!\ : the pointer must not be null, and point to a null-terminated
-			//			 c-style string!
+
+			// Creates a new Identifier object. The pointer can't be null,
+      // and must point to a null-terminated C-Style string.
       Identifier(const char* ptr);
 
+      // The stored pointer, either null, or pointing at
+      // a null-terminated C-Style string.
       const char* ptr_ = nullptr;
   };
 
   std::ostream& operator<<(std::ostream& os, Identifier id);
+}
+
+namespace std {
+  template<>
+  struct hash<::fox::Identifier> {
+    std::size_t operator()(::fox::Identifier ident) const;
+  };
 }

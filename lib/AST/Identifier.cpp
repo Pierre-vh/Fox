@@ -7,12 +7,14 @@
 
 #include "Fox/AST/Identifier.hpp"
 #include "Fox/Common/Errors.hpp"
+#include "llvm/ADT/Hashing.h"
 #include <ostream>
 
 using namespace fox;
 
 Identifier::Identifier(const char* ptr) : ptr_(ptr) {
-	assert(ptr && "Cannot create an identifier with a null string!");
+	assert(ptr && "Can't create an Identifier with a null string. "
+    "Use the default constructor for that!");
 }
 
 Identifier::Identifier() : ptr_(nullptr) {}
@@ -60,4 +62,8 @@ Identifier::operator bool() const {
 std::ostream& fox::operator<<(std::ostream& os, Identifier id) {
   os << (id.isNull() ? "<null id>" : id.getStr());
   return os;
+}
+
+std::size_t std::hash<Identifier>::operator()(Identifier ident) const {
+  return llvm::hash_value(ident.c_str());
 }
