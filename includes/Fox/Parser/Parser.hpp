@@ -328,19 +328,6 @@ namespace fox {
       };
 
       //---------------------------------//
-      // RAIIScopeInfo
-      //---------------------------------//
-      class RAIIScopeInfo {
-        public:
-          RAIIScopeInfo(Parser *p, ScopeInfo scope);
-          ~RAIIScopeInfo();
-
-        private:
-          Parser* parser_ = nullptr;
-          ScopeInfo oldInfo_;
-      };
-
-      //---------------------------------//
       // DelayedDeclRegistration 
       // 
       // This class represents a "transaction" of delayed

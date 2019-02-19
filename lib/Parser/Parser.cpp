@@ -445,17 +445,6 @@ Parser::RAIIDeclCtxt::~RAIIDeclCtxt() {
     restore();
 }
 
-// RAIIScopeInfo
-Parser::RAIIScopeInfo::RAIIScopeInfo(Parser* p, ScopeInfo scope) : parser_(p) {
-  oldInfo_ = p->curScopeInfo_;
-  p->curScopeInfo_ = scope;
-}
-
-Parser::RAIIScopeInfo::~RAIIScopeInfo() {
-  if(parser_) // parser_ will be nullptr if we restored early
-    parser_->curScopeInfo_ = oldInfo_;
-}
-
 // DelayedDeclRegistration
 Parser::DelayedDeclRegistration::DelayedDeclRegistration(Parser* p)
   : parser_(p) {

@@ -146,16 +146,12 @@ To-Do:
   > Rename getBegin/getEnd/getRange to getBeginLoc/getEndLoc/getSourceRange (Done)
 
   > Polish the DeclContext changes : maybe? Ideas:
-      a) Split lookupmap implementation depending on if it needs
-           ScopeInfo or not, so not all DeclContext pay the price of
-           storing the ScopeInfo if they don't need it
-      b) Generalize RAII objects in the parser once and for all, maybe by
+      a) Generalize RAII objects in the parser once and for all, maybe by
          using llvm:SaveAndRestore
       d) Improve/review
           DelayedDeclRegistration 
           actOnDecl           | Theses 2 methods are pretty similar, rename them to
           doDeclRegistration  | better differentiate them
-
 
   > VM
   > IR
@@ -205,6 +201,10 @@ Other:
   High priority:
     This is a list of "high-priority" stuff that needs to be done, but isn't part of the main
     "roadmap".
+
+    > Split lookupmap implementation depending on if it needs
+      ScopeInfo or not, so not all DeclContext pay the price of
+      storing the ScopeInfo if they don't need it
 
     > DiagnosticEngine overhaul: report(..) should return a Diagnostic::Builder object:
       a lightweight RAII object. The actual Diagnostic data should be contained
