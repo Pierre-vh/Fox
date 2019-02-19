@@ -145,13 +145,9 @@ To-Do:
   > Remove LocalScope
   > Rename getBegin/getEnd/getRange to getBeginLoc/getEndLoc/getSourceRange (Done)
 
-  > Polish the DeclContext changes : maybe? Ideas:
-      a) Generalize RAII objects in the parser once and for all, maybe by
-         using llvm:SaveAndRestore
-      d) Improve/review
-          DelayedDeclRegistration 
-          actOnDecl           | Theses 2 methods are pretty similar, rename them to
-          doDeclRegistration  | better differentiate them
+  > Polish the DeclContext changes :
+      > Rename/Document actOnDecl and doDeclRegistration. Theses method name
+        are pretty similar but they have different purposes!
 
   > VM
   > IR
