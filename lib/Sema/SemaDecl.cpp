@@ -280,6 +280,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
 };
 
+void Sema::checkUnitDecl(UnitDecl* decl) {
+  checkDecl(decl);
+}
+
 void Sema::checkDecl(Decl* decl) {
   DeclChecker(*this).check(decl);
 }

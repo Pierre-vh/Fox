@@ -40,8 +40,8 @@ namespace fox {
 
       Sema(ASTContext& ctxt);
 
-      // Performs semantic analysis on a single declaration and it's children
-      void checkDecl(Decl* decl);
+      // Performs semantic analysis on a UnitDecl
+      void checkUnitDecl(UnitDecl* decl);
 
       // Returns the DiagnosticEngine used by this Sema instance.
       DiagnosticEngine& getDiagnosticEngine();
@@ -62,13 +62,13 @@ namespace fox {
       // checkers
       //---------------------------------//
 
-      // Typechecks an expression and it's children.
+      // Typechecks an expression and its children.
       // 
       // Returns the expression or another equivalent expression that should
       // replace it. Never nullptr.
       Expr* typecheckExpr(Expr* expr);
 
-      // Performs semantic analysis on an expression and it's children.
+      // Performs semantic analysis on an expression and its children.
       //  Typechecks an expression that is expected to be of a certain type.
       //
       //  The expression is modified in place.
@@ -77,7 +77,7 @@ namespace fox {
       //  can be implicitely converted to that type), false otherwise.
       bool typecheckExprOfType(Expr*& expr, Type type);
 
-      // Performs semantic analysis on an expression and it's children.
+      // Performs semantic analysis on an expression and its children.
       //  Typechecks an expression which is used as a condition.
       //
       //  The expression is modified in place.
@@ -85,8 +85,11 @@ namespace fox {
       //  Returns true if the expr can be used as a condition, false otherwise.
       bool typecheckCondition(Expr*& expr);
 
-      // Performs semantic analysis on a single statement and it's children.
+      // Performs semantic analysis on a single statement and its children.
       void checkStmt(Stmt* stmt);
+
+      // Performs semantic analysis on a declaration and its children.
+      void checkDecl(Decl* decl);
 
       //---------------------------------//
       // Type related methods

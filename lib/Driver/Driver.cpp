@@ -74,7 +74,7 @@ bool Driver::processFile(string_view filepath) {
   // Semantic analysis
   if(canContinue() && !isParseOnly()) {
     Sema s(ctxt);
-    s.checkDecl(unit);
+    s.checkUnitDecl(unit);
   }
 
   // Dump AST if needed, and if the unit isn't null
