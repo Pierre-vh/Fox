@@ -95,27 +95,26 @@ bool Sema::unify(Type a, Type b, std::function<bool(Type, Type)> comparator)  {
   return false;
 }
 
-static Sema::TypePair unwrapArrays(Type a, Type b) {
-  assert(a && b && "args cannot be null");
-  Type uwA = a->unwrapIfArray();
-  Type uwB = b->unwrapIfArray();
-  // Unwrapping was performed, recurse.
-  if (uwA && uwB) return unwrapArrays(uwA, uwB);
-  // No unwrapping done, return.
-  return {a, b};
-}
-
 Sema::TypePair Sema::unwrapAll(Type a, Type b) {
   assert(a && b && "args cannot be null");
   // Ignore LValues 
-  auto uwA = a->getRValue();
-  auto uwB = b->getRValue();
+  a = a->getRValue();
+  b = b->getRValue();
+
   // Unwrap arrays
-  std::tie(uwA, uwB) = unwrapArrays(uwA, uwB);
-  // If both changed, recurse, else, return.
-  if ((uwA != a) && (uwB != b))
-    return unwrapAll(uwA, uwB);
-  return {uwA, uwB};
+  while (true) {
+    if (a->is<ArrayType>() && b->is<ArrayType>()) {
+      a = a->castTo<ArrayType>()->getElementType();
+      b = b->castTo<ArrayType>()->getElementType();
+      assert(a && 
+        "'a' had a null element type!");
+      assert(b && 
+        "'b' had a null element type!");
+    }
+    else break;
+  }
+
+  return {a, b};
 }
 
 Type Sema::simplify(Type type) {
