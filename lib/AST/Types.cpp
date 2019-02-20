@@ -168,12 +168,6 @@ TypeKind TypeBase::getKind() const {
   return kind_;
 }
 
-Type TypeBase::unwrapIfArray() {
-  if (ArrayType* tmp = dyn_cast<ArrayType>(this))
-    return tmp->getElementType();
-  return nullptr;
-}
-
 Type TypeBase::getRValue() {
   if (LValueType* tmp = dyn_cast<LValueType>(this))
     return tmp->getType();

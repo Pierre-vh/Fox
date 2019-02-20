@@ -53,10 +53,6 @@ namespace fox {
 
       TypeKind getKind() const;
 
-      // Returns the element type if this is an ArrayType, otherwise returns
-      // nullptr.
-      Type unwrapIfArray();
-
       // If this type is an LValue, returns it's element type, else
       // returns this.
       Type getRValue();
