@@ -35,9 +35,6 @@ namespace fox {
   // This is the class that handles semantic analysis of the Fox AST.
   class Sema {
     public:
-      // A shortened syntax for a std::pair of Type
-      using TypePair = std::pair<Type, Type>;
-
       Sema(ASTContext& ctxt);
 
       // Performs semantic analysis on a UnitDecl
@@ -116,6 +113,9 @@ namespace fox {
       // Unification will never alter type, as they are immutable, however
       // it might remove
       bool unify(Type a, Type b, std::function<bool(Type, Type)> comparator);
+
+      // A shortened syntax for a std::pair of Type
+      using TypePair = std::pair<Type, Type>;
 
       // Ignore LValue and removes layers of ArrayTypes
       // until this reaches a point where one of the types become basic.
