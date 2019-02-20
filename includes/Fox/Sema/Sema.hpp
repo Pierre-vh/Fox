@@ -4,15 +4,8 @@
 // File : Sema.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Contains the Sema class, which is used to perform 
-// most of the semantic analysis of a Fox AST.
+// Contains the public interface of the Fox Semantic Analysis class.
 //----------------------------------------------------------------------------//
-
-// TODO:
-//    Once the Semantic Analysis is more or less complete (it can fully
-//    check a UnitDecl*), move this class to /lib as an impl detail, and
-//    create another file in this folder which will contain the main entry
-//    points to begin checking a UnitDecl.
 
 #pragma once
 
