@@ -162,6 +162,10 @@ void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr* node) {
   dedent();
 }
 
+void ASTDumper::visitErrorExpr(ErrorExpr* expr) {
+  dumpLine() << getBasicExprInfo(expr) << "\n";
+}
+
 void ASTDumper::visitCompoundStmt(CompoundStmt* node) {
   dumpLine() << getBasicStmtInfo(node) << '\n';
   indent();

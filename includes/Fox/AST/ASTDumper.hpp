@@ -55,6 +55,7 @@ namespace fox {
       void visitBoolLiteralExpr(BoolLiteralExpr* node);
       void visitStringLiteralExpr(StringLiteralExpr* node);
       void visitArrayLiteralExpr(ArrayLiteralExpr* node);
+      void visitErrorExpr(ErrorExpr* expr);
 
       // Stmts
       void visitCompoundStmt(CompoundStmt* node);
