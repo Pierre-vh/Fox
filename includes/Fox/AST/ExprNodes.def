@@ -28,13 +28,10 @@
 
 /* Macros */
 
-// Basic operations
 EXPR(BinaryExpr, Expr)
 EXPR(UnaryExpr, Expr)
 EXPR(CastExpr, Expr)
 EXPR(ArraySubscriptExpr, Expr)
-
-// Literals
 ABSTRACT_EXPR(AnyLiteralExpr, Expr)
   EXPR(CharLiteralExpr, AnyLiteralExpr)
   EXPR(BoolLiteralExpr, AnyLiteralExpr)
@@ -43,16 +40,13 @@ ABSTRACT_EXPR(AnyLiteralExpr, Expr)
   EXPR(StringLiteralExpr, AnyLiteralExpr)
   EXPR(ArrayLiteralExpr, AnyLiteralExpr)
   EXPR_RANGE(AnyLiteralExpr, CharLiteralExpr, ArrayLiteralExpr)
-
-// Unresolved Exprs
 ABSTRACT_EXPR(UnresolvedExpr, Expr)
   EXPR(UnresolvedDeclRefExpr, UnresolvedExpr)
   EXPR_RANGE(UnresolvedExpr, UnresolvedDeclRefExpr, UnresolvedDeclRefExpr)
-
-// DeclRef & Function calls
 EXPR(DeclRefExpr,Expr)
 EXPR(MemberOfExpr,Expr)
 EXPR(CallExpr,Expr)
+EXPR(ErrorExpr, Expr)
 
 /* Undef */
 #undef EXPR

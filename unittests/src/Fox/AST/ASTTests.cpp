@@ -210,27 +210,27 @@ TEST_F(ASTTest, ExprRTTI) {
   EXPECT_EQ(undeclref->getKind(), ExprKind::UnresolvedDeclRefExpr);
   EXPECT_TRUE(UnresolvedDeclRefExpr::classof(undeclref));
 
-  // DeclRef
   auto* declref = DeclRefExpr::create(ctxt, nullptr, SourceRange());
   EXPECT_EQ(declref->getKind(), ExprKind::DeclRefExpr);
   EXPECT_TRUE(DeclRefExpr::classof(declref));
 
-  // MemberOfExpr
   auto* membof = MemberOfExpr::create(ctxt, nullptr, Identifier(),
     SourceRange(), SourceLoc());
   EXPECT_EQ(membof->getKind(), ExprKind::MemberOfExpr);
   EXPECT_TRUE(MemberOfExpr::classof(membof));
 
-  // Array Access
   auto* arracc = ArraySubscriptExpr::create(ctxt, nullptr, nullptr, SourceLoc());
   EXPECT_EQ(arracc->getKind(), ExprKind::ArraySubscriptExpr);
   EXPECT_TRUE(ArraySubscriptExpr::classof(arracc));
 
-  // Function calls
   auto* callexpr = CallExpr::create(ctxt, nullptr,
     ExprVector(), SourceLoc());
   EXPECT_EQ(callexpr->getKind(), ExprKind::CallExpr);
   EXPECT_TRUE(CallExpr::classof(callexpr));
+
+  auto* errExpr = ErrorExpr::create(ctxt);
+  EXPECT_EQ(errExpr->getKind(), ExprKind::ErrorExpr);
+  EXPECT_TRUE(ErrorExpr::classof(errExpr));
 }
 
 TEST_F(ASTTest, ExprFlags) {

@@ -676,3 +676,19 @@ Identifier UnresolvedDeclRefExpr::getIdentifier() const {
 SourceRange UnresolvedDeclRefExpr::getSourceRange() const {
   return range_;
 }
+
+//----------------------------------------------------------------------------//
+// ErrorExpr
+//----------------------------------------------------------------------------///
+
+ErrorExpr* ErrorExpr::create(ASTContext& ctxt) {
+  ErrorExpr* expr = new(ctxt) ErrorExpr();
+  expr->setType(ErrorType::get(ctxt));
+  return expr;
+}
+
+SourceRange ErrorExpr::getSourceRange() const {
+  return SourceRange();
+}
+
+ErrorExpr::ErrorExpr() : Expr(ExprKind::ErrorExpr) {}

@@ -516,5 +516,25 @@ namespace fox   {
       const SizeTy numArgs_ = 0;
       Expr* callee_ = nullptr;
   };
+
+  /// ErrorExpr
+  ///   Represents a failed expr that couldn't be resolved.
+  ///   This expression always has an ErrorType, and has no
+  ///   source location information.
+  class ErrorExpr final : public Expr {
+    public:
+      // Creates an ErrorExpr with ErrorType as the type.
+      static ErrorExpr* create(ASTContext& ctxt);
+
+      // Returns SourceRange()
+      SourceRange getSourceRange() const;
+
+      static bool classof(const Expr* expr) {
+        return (expr->getKind() == ExprKind::ErrorExpr);
+      }
+
+    private:
+      ErrorExpr();
+  };
 }
 
