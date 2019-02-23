@@ -562,8 +562,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     Expr* visitArraySubscriptExpr(ArraySubscriptExpr* expr) {
       // Get child expr and it's type
-      Expr* child = expr->getBase();
-      Type childTy = child->getType()->getRValue();
+      Expr* base = expr->getBase();
+      Type baseTy = base->getType()->getRValue();
       // Get idx expr and it's type
       Expr* idxE = expr->getIndex();
       Type idxETy = idxE->getType()->getRValue();
@@ -573,28 +573,33 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
 
       Type subscriptType;
-      // Check that the child is an array type
-      if (childTy->is<ArrayType>()) {
-        subscriptType = childTy->castTo<ArrayType>()->getElementType();
+      // Check that the base is an array type
+      if (baseTy->is<ArrayType>()) {
+        subscriptType = baseTy->castTo<ArrayType>()->getElementType();
         assert(subscriptType && "ArrayType had no element type!");
       }
       // Or a string
-      else if(childTy->isStringType())
+      else if(baseTy->isStringType())
         subscriptType = PrimitiveType::getChar(getCtxt());
       else {
-			  diagnoseInvalidArraySubscript(expr, child->getSourceRange(), idxE->getSourceRange());
+			  diagnoseInvalidArraySubscript(expr, base->getSourceRange(), 
+                                      idxE->getSourceRange());
         return expr;
       }
 
-      // Idx type must be an int.
+      // Idx type must be int.
       if (!idxETy->isIntType()) {
         // Diagnose with the primary range being the idx's range
-			  diagnoseInvalidArraySubscript(expr, idxE->getSourceRange(), child->getSourceRange());
+			  diagnoseInvalidArraySubscript(expr, idxE->getSourceRange(), 
+                                      base->getSourceRange());
         return expr;
       }
-        
-      // Set type + return
       assert(subscriptType);
+
+      // Note: When the base is an lvalue (= it's assignable), the subscript
+      // should be assignable too.
+      if(base->getType()->isAssignable())
+        subscriptType = LValueType::get(getCtxt(), subscriptType);
       expr->setType(subscriptType);
       return expr;
     }
@@ -823,12 +828,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         diagnoseUnassignableExpr(expr);
         return expr;
       }
-      
-      // For now, in the langage, the only kind of Expr that should be able
-      // to carry an LValue is a DeclRefExpr, so check that our LHS is 
-      // indeed that, just as a sanity check.
-      assert(isa<DeclRefExpr>(expr->getLHS()) && "Only DeclRefExprs can be "
-        "LValues!");
 
       // Get the bound RValue version of the LHS.
       lhsTy = lhsTy->getRValue();

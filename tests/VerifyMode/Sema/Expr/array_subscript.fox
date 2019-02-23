@@ -1,6 +1,6 @@
 // RUN: %fox-verify
 
-func foo() {
+func subscript() {
   // Valid examples
   [0,1,2][0];
   [[0,1,2],[]][0];
@@ -21,4 +21,14 @@ func foo() {
 
   // An error should be emitted if the index expr is not numeric
   [0]['c']; // expect-error: invalid types '[int]' and 'char' for array subscript
+}
+
+func subscript_set() {
+  // If the array isn't an lvalue, you can't assign to a subscript.
+  [0, 1, 2][0] = 2; // expect-error: expression is not assignable
+  let arr : [int] = [];
+  arr[0] = 2; // expect-error: expression is not assignable
+  // but if the type is an lvalue, you can.
+  var mutArr : [int] = [];
+  mutArr[0] = 2;
 }
