@@ -229,3 +229,12 @@ func assign_check() {
   deeperFoo = [[[],[],[]], [[],[],[]], [[],[],[]]];
   deeperFoo = [[[1, 2, 3]]];
 }
+
+func unassignable() {
+  let n : int = 3;
+  n = 4; // expect-error: expression is not assignable
+  "s" = 3; // expect-error: expression is not assignable
+  'c' = 'c'; // expect-error: expression is not assignable
+  0 = 1; // expect-error: expression is not assignable
+  false = true; // expect-error: expression is not assignable
+}
