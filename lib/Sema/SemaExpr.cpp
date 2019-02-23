@@ -440,6 +440,11 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // visit the Expression tree in postorder.
     //----------------------------------------------------------------------//
 
+    Expr* visitErrorExpr(ErrorExpr* expr) {
+      // no-op
+      return expr;
+    }
+
     Expr* visitBinaryExpr(BinaryExpr* expr) {
       using BOp = BinaryExpr::OpKind;
 
@@ -616,14 +621,16 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // No results -> undeclared identifier
       if(results.isEmpty()) {
         diagnoseUndeclaredIdentifier(range, id);
-        return expr;
+        // Return an ErrorExpr on error.
+        return ErrorExpr::create(getCtxt());
       }
       // Ambiguous result
       if(results.isAmbiguous()) {
         // Try to remove illegal redecls from the results
         if (!removeIllegalRedecls(results)) {
           diagnoseAmbiguousIdentifier(range, id, results);
-          return expr;
+          // Return an ErrorExpr on error.
+          return ErrorExpr::create(getCtxt());
         }
       }
       // Correct, unambiguous result.
