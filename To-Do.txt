@@ -151,20 +151,20 @@ To-Do:
   > IRGen
 
   > UFCS
-    > Parser additions (Remove MemberExpr, use UnresolvedDotExpr which resolves to a CallExpr)
-    > Semantic Analysis.
-      > Check for Args, no args -> diagnose (unimplemented feature)
-      > If args, check like a normal function call (always UFCS since no objects/multifile for now)
-      > Build a CallExpr once the function is resolved, if not, leave it unresolved and mark 
-        it as being an error.
+    > AST Structure still to be decided.
+
+  > Intrinsics (= builtin functions)
+    > Needed intrinsics:
+        Arrays: .slice(beg, end)
+        Arrays AND String: .append(elem)
+        Strings: .substring(beg, end) // works like slice, but with another name.
+    // More TBA
 
   > Overloads support
 
-  > FFI and some intrinsics
-    > Foreign function interface = ability to call C++ functions in Fox code
-    > Intrinsics = some "builtin" foreign function available in any fox code.
-
   > Ternary operator
+
+  > Proper FFI
 
   > Multifile support:
     > Exact model still to be decided. It'll probably be package/module based, but probably
