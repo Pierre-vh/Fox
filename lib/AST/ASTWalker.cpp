@@ -86,6 +86,7 @@ namespace {
       TRIVIAL_EXPR_VISIT(DoubleLiteralExpr)
       TRIVIAL_EXPR_VISIT(DeclRefExpr)
       TRIVIAL_EXPR_VISIT(UnresolvedDeclRefExpr)
+      TRIVIAL_EXPR_VISIT(ErrorExpr)
       #undef TRIVIAL_EXPR_VISIT
       
       Expr* visitArrayLiteralExpr(ArrayLiteralExpr* expr) {
