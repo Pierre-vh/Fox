@@ -1,0 +1,2 @@
+Work on this part of the project has just started, so expect the VM to be in
+a molten, unfinished state for quite some time. I'll be experimenting a lot!

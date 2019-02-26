@@ -12,5 +12,6 @@ set(libfox_src
   ${common_src}
   ${driver_src}
   ${sema_src}
+  ${vm_src}
   PARENT_SCOPE
 )

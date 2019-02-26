@@ -9,4 +9,5 @@ add_source(unittest_src
   "Fox/Common/DiagnosticsTests.cpp"
   "Fox/Common/AllocatorsTests.cpp"
   "Fox/Common/DiagnosticVerifierTests.cpp"
+  "Fox/VM/ValueTests.cpp"
   )
