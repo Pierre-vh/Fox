@@ -4,6 +4,7 @@ add_subdirectory(Common)
 add_subdirectory(AST)
 add_subdirectory(Driver)
 add_subdirectory(Sema)
+add_subdirectory(VM)
 
 set(libfox_src
   ${lexer_src} 
