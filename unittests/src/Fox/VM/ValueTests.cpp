@@ -12,8 +12,3 @@
 #include "Fox/VM/Value.hpp"
 
 using namespace fox;
-
-TEST(ValueTest, Constructors) {
-  // A Value created by the "default" constructor should always be "NullValue"
-  EXPECT_TRUE(Value().isNull());
-}
