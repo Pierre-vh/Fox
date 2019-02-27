@@ -1,2 +1,63 @@
 Work on this part of the project has just started, so expect the VM to be in
 a molten, unfinished state for quite some time. I'll be experimenting a lot!
+
+Basic VM data types and their mappings to Fox types:
+    Fox       VM
+    int       int
+    double    double
+    bool      int
+    char      TBA
+    string    TBA
+    []        TBA
+    
+
+Roadmap: Follows a "basic" plan - implement - test development cycle
+
+  -> Scaffolding: Registers data structure, basic methods such as run()
+
+---- Implementation of Int/Double/Bool and related functionalities ----
+
+  -> Implement basic binary operations on integers and doubles: + - * / %
+    -> Declare opcodes (in a Opcodes.hpp file).
+                    +     -     *     /    %     **     !
+        Integers: iadd, isub, imul, idiv, imod, ipow
+        Doubles:  dadd, dsub, dmul, ddiv, dmod, dpow
+        Both :                                          not
+
+        note: "not" takes 2 operands (r0 != r1), every other op takes 3. (r0 = r1 op r2)
+    -> Implement opcodes
+    -> Do unit tests
+       
+  -> Implement comparisons : >= <= > < == !=
+    -> Declare opcodes
+        // For integers, we only implement == >= and >, the rest can be
+        // implemented by adding "nots" or swapping operands as needed, but for
+        // doubles every op is implemented because of NaNs shenanigans
+                  ==   !=   <=   <   >=   >
+        Integers: ieq      ileq ilt
+        Doubles   deq      dleq dlt dgeq dgt
+    -> Implement
+    -> Test
+
+  -> Implement logic operators : || and &&
+    -> Declare opcodes
+        and 
+        or
+    -> Implement
+    -> Test
+
+---- Implementation of Char ----
+  
+  TBA. Will probably be implemented as an int in the VM unless I find
+  a good reason to not do it.
+
+---- Implementation of String & Arrays and GC ----
+  
+  TBA. Will be implemented as Objects, so the GC will be implemented at the same time.
+  Objects will be allocated in a special allocator which just uses new/delete, but it'll
+  also keep a list of allocated objects.
+  
+  -> Base "Object" class
+  -> Array and String objects (derived classes)
+  -> "ReferenceMap" to track registers that are/aren't references on the stack
+  -> Basic GC algorithm: mark and sweep + colored objects.
