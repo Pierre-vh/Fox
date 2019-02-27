@@ -12,3 +12,10 @@
 #include "Fox/VM/Value.hpp"
 
 using namespace fox;
+
+TEST(ValueTest, Constructors) {
+  EXPECT_TRUE(Value().isNull());
+  EXPECT_TRUE(Value(FoxInt(0)).isInt());
+  EXPECT_TRUE(Value(FoxDouble(0)).isDouble());
+  EXPECT_TRUE(Value(FoxChar(0)).isChar());
+}
