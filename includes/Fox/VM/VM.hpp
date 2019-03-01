@@ -4,8 +4,7 @@
 // File : VM.hpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This declares the Fox Virtual Machine (VM), which evaluates (runs) the Fox
-//  bytecode (BC).
+//  This contains the Fox Virtual Machine (VM), which runs Fox bytecode
 //----------------------------------------------------------------------------//
 
 namespace fox {
