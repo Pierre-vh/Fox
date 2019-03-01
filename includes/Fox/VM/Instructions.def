@@ -33,40 +33,38 @@
 */
 //----------------------------------------------------------------------------//
 
-// Instructions macros take 3 arguments: a Mnemonic, a long name, and the
-//  opcode (usually in hex). 
-//    - Opcode: The Opcode value in hexademical.    e.g. 0x2A
+// Instructions macros take 3 arguments: a Hex value, a Mnemonic and a long name
+//    - Hex: The Opcode value in hexademical.       e.g. 0x2A
 //    - Mnemonic: a short name in lowercase.        e.g. fmul
 //    - PrettyName: a prettier name in CamelCase.   e.g. AddInt
-//
 
 #ifndef INSTR
-  #define INSTR(Opcode, Mnemonic, PrettyName)
+  #define INSTR(Hex, Mnemonic, PrettyName)
 #endif
 
 #ifndef SIMPLE_INSTR
-  #define SIMPLE_INSTR(Opcode, Mnemonic, PrettyName)\
-                 INSTR(Opcode, Mnemonic, PrettyName)
+  #define SIMPLE_INSTR(Hex, Mnemonic, PrettyName)\
+                 INSTR(Hex, Mnemonic, PrettyName)
 #endif
 
 #ifndef ABC_INSTR
-  #define ABC_INSTR(Opcode, Mnemonic, PrettyName)\
-              INSTR(Opcode, Mnemonic, PrettyName)
+  #define ABC_INSTR(Hex, Mnemonic, PrettyName)\
+              INSTR(Hex, Mnemonic, PrettyName)
 #endif
 
 #ifndef AB_INSTR
-  #define AB_INSTR(Opcode, Mnemonic, PrettyName)\
-              INSTR(Opcode, Mnemonic, PrettyName)
+  #define AB_INSTR(Hex, Mnemonic, PrettyName)\
+              INSTR(Hex, Mnemonic, PrettyName)
 #endif
 
 #ifndef ABC_INSTR
-  #define ABC_INSTR(Opcode, Mnemonic, PrettyName)\
-              INSTR(Opcode, Mnemonic, PrettyName)
+  #define ABC_INSTR(Hex, Mnemonic, PrettyName)\
+              INSTR(Hex, Mnemonic, PrettyName)
 #endif
 
 #ifndef AD_INSTR
-  #define AD_INSTR(Opcode, Mnemonic, PrettyName)\
-             INSTR(Opcode, Mnemonic, PrettyName)
+  #define AD_INSTR(Hex, Mnemonic, PrettyName)\
+             INSTR(Hex, Mnemonic, PrettyName)
 #endif
 
 //----------------------------------------------------------------------------//
