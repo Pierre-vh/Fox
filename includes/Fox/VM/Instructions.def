@@ -1,0 +1,102 @@
+//----------------------------------------------------------------------------//
+// This file is part of the Fox project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Instructions.def                      
+// Author : Pierre van Houtryve                
+//----------------------------------------------------------------------------//
+// This file uses Macro to "register" every Opcode supported by the Fox VM.
+//----------------------------------------------------------------------------//
+/*
+  Instructions are fixed width and are 32 bits wide. They are pretty similar
+  to LuaJIT's instructions. The Opcode always occupies the first 8 bits
+  of the instruction. The rest of the instruction can be split in 2 ways:
+      - Divided in 3 8 bits chunk (A B C)
+      - Divided in 1 8 bits chunk and another 16 bits chunk.  (A D)
+
+  0      8     16    24    32
+  |  OP  |  A  |  B  |  C  |
+  |  OP  |  A  |     D     |
+
+  Some instructions may not use any operand at all. Such operations
+  are called "Simple" operations.
+
+  TL;DR: 4 instruction kind (for now)
+    - Simple: Just the opcode, no args.
+    - AB: Opcode + 2 Byte-sized operands (2 x 8 bits). Last 8 bits unused.
+    - ABC: Opcode + 3 Byte-sized operands (3 x 8 bits)
+    - AD: Opcode + 1 Byte-sized operand and another 2 bytes operand 
+          (1 x 8 bits + 1 x 16 bits)
+
+   An important thing to consider is that ops may not use all of their arguments.
+   Check the doc of the opcode (if I wrote it by the time you're reading this) to
+   know which operands are used.
+*/
+//----------------------------------------------------------------------------//
+
+// Instructions macros take 3 arguments: a Mnemonic, a long name, and the
+//  opcode (usually in hex). 
+//    - Opcode: The Opcode value in hexademical.    e.g. 0x2A
+//    - Mnemonic: a short name in lowercase.        e.g. fmul
+//    - PrettyName: a prettier name in CamelCase.   e.g. AddInt
+//
+
+#ifndef INSTR
+  #define INSTR(Opcode, Mnemonic, PrettyName)
+#endif
+
+#ifndef SIMPLE_INSTR
+  #define SIMPLE_INSTR(Opcode, Mnemonic, PrettyName)\
+                 INSTR(Opcode, Mnemonic, PrettyName)
+#endif
+
+#ifndef ABC_INSTR
+  #define ABC_INSTR(Opcode, Mnemonic, PrettyName)\
+              INSTR(Opcode, Mnemonic, PrettyName)
+#endif
+
+#ifndef AB_INSTR
+  #define AB_INSTR(Opcode, Mnemonic, PrettyName)\
+              INSTR(Opcode, Mnemonic, PrettyName)
+#endif
+
+#ifndef ABC_INSTR
+  #define ABC_INSTR(Opcode, Mnemonic, PrettyName)\
+              INSTR(Opcode, Mnemonic, PrettyName)
+#endif
+
+#ifndef AD_INSTR
+  #define AD_INSTR(Opcode, Mnemonic, PrettyName)\
+             INSTR(Opcode, Mnemonic, PrettyName)
+#endif
+
+//----------------------------------------------------------------------------//
+
+SIMPLE_INSTR(0x00, nop, NoOp)
+
+ABC_INSTR(0x01, iadd, AddInt)
+ABC_INSTR(0x02, dadd, AddDouble)
+
+ABC_INSTR(0x03, isub, SubInt)
+ABC_INSTR(0x04, dsub, SubDouble)
+
+ABC_INSTR(0x05, imul, MulInt)
+ABC_INSTR(0x06, dmul, MulDouble)
+
+ABC_INSTR(0x07, idiv, DivInt)
+ABC_INSTR(0x08, ddiv, DivDouble)
+
+ABC_INSTR(0x09, imod, ModInt)
+ABC_INSTR(0x0A, dmod, ModDouble)
+
+ABC_INSTR(0x0B, ipow, PowInt)
+ABC_INSTR(0x0C, dpow, PowDouble)
+
+AB_INSTR(0x0D, not, Not)
+
+//----------------------------------------------------------------------------//
+
+#undef INSTR
+#undef SIMPLE_INSTR
+#undef ABC_INSTR
+#undef AB_INSTR
+#undef AD_INSTR
