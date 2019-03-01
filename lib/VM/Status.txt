@@ -14,6 +14,8 @@ Basic VM data types and their mappings to Fox types:
 Roadmap: Follows a "basic" plan - implement - test development cycle
 
   -> Scaffolding: Registers data structure, basic methods such as run()
+  -> Opcodes.hpp File containing the "Opcodes" enum? (Non-class enum in a "vm" namespace? To be defined..)
+  -> InstructionBuilder.hpp: Class serving as a "builder" to create instruction buffers. (has "create" methods)
 
 ---- Implementation of Int/Double/Bool and related functionalities ----
 
