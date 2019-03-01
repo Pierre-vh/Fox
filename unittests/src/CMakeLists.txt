@@ -4,6 +4,7 @@ add_source(unittest_src
   "Fox/Lexer/LexerTests.cpp"
   "Fox/Common/UTF8Tests.cpp"
   "Fox/AST/ASTTests.cpp"
+  "Fox/VM/VMTests.cpp"
   "Fox/Common/SourceManagerTests.cpp"
   "Fox/Parser/LocParserTests.cpp"
   "Fox/Common/DiagnosticsTests.cpp"
