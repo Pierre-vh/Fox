@@ -550,15 +550,24 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if (!childTy) return expr;
 
       // The expression is valid iff:
-      //  -> The child type is a numeric type
-      //  OR
-      //  -> The child type is a boolean and the operation is a '!' (LNot)
-      if (childTy->isNumeric() || 
-         (childTy->isBoolType() && (expr->getOp() == UOp::LNot))) {
-        // If isNumeric returns true, we can safely assume that childTy is a
-        // PrimitiveType instance
-        PrimitiveType* primChildTy = childTy->castTo<PrimitiveType>();
-        return finalizeUnaryExpr(expr, primChildTy);
+      //  -> (for + and -) the child's type is a numeric type.
+      //  -> (for !) the child's type is a bool.
+      if (PrimitiveType* primChildTy = childTy->getAs<PrimitiveType>()) {
+        switch (expr->getOp()) {
+          case UOp::Invalid:
+            fox_unreachable("Invalid Unary Op found in Semantic analysis");
+          case UOp::LNot:
+            if(primChildTy->isBoolType())
+              return finalizeUnaryExpr(expr, primChildTy);
+            break;
+          case UOp::Minus:
+          case UOp::Plus:
+            if(primChildTy->isNumeric())
+              return finalizeUnaryExpr(expr, primChildTy);
+            break;
+          default:
+            fox_unreachable("Unhandled Unary Op kind");
+        }
       }
         
       diagnoseInvalidUnaryOpChildType(expr);
