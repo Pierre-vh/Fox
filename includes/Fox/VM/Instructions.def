@@ -33,63 +33,60 @@
 */
 //----------------------------------------------------------------------------//
 
-// Instructions macros take 3 arguments: a Hex value, a Mnemonic and a long name
-//    - Hex: The Opcode value in hexademical.       e.g. 0x2A
-//    - Mnemonic: a short name in lowercase.        e.g. fmul
-//    - PrettyName: a prettier name in CamelCase.   e.g. AddInt
-
 #ifndef INSTR
-  #define INSTR(Hex, Mnemonic, PrettyName)
+  #define INSTR(ID)
+#endif
+
+#ifndef LAST_INSTR
+  #define LAST_INSTR(ID)
 #endif
 
 #ifndef SIMPLE_INSTR
-  #define SIMPLE_INSTR(Hex, Mnemonic, PrettyName)\
-                 INSTR(Hex, Mnemonic, PrettyName)
+  #define SIMPLE_INSTR(ID) INSTR(ID)
 #endif
 
 #ifndef ABC_INSTR
-  #define ABC_INSTR(Hex, Mnemonic, PrettyName)\
-              INSTR(Hex, Mnemonic, PrettyName)
+  #define ABC_INSTR(ID) INSTR(ID)
 #endif
 
 #ifndef AB_INSTR
-  #define AB_INSTR(Hex, Mnemonic, PrettyName)\
-              INSTR(Hex, Mnemonic, PrettyName)
+  #define AB_INSTR(ID) INSTR(ID)
 #endif
 
 #ifndef ABC_INSTR
-  #define ABC_INSTR(Hex, Mnemonic, PrettyName)\
-              INSTR(Hex, Mnemonic, PrettyName)
+  #define ABC_INSTR(ID) INSTR(ID)
 #endif
 
 #ifndef AD_INSTR
-  #define AD_INSTR(Hex, Mnemonic, PrettyName)\
-             INSTR(Hex, Mnemonic, PrettyName)
+  #define AD_INSTR(ID) INSTR(ID)
 #endif
 
 //----------------------------------------------------------------------------//
 
-SIMPLE_INSTR(0x00, nop, NoOp)
+SIMPLE_INSTR(NoOp)
 
-ABC_INSTR(0x01, iadd, AddInt)
-ABC_INSTR(0x02, dadd, AddDouble)
+ABC_INSTR(AddInt)
+ABC_INSTR(AddDouble)
 
-ABC_INSTR(0x03, isub, SubInt)
-ABC_INSTR(0x04, dsub, SubDouble)
+ABC_INSTR(SubInt)
+ABC_INSTR(SubDouble)
 
-ABC_INSTR(0x05, imul, MulInt)
-ABC_INSTR(0x06, dmul, MulDouble)
+ABC_INSTR(MulInt)
+ABC_INSTR(MulDouble)
 
-ABC_INSTR(0x07, idiv, DivInt)
-ABC_INSTR(0x08, ddiv, DivDouble)
+ABC_INSTR(DivInt)
+ABC_INSTR(DivDouble)
 
-ABC_INSTR(0x09, imod, ModInt)
-ABC_INSTR(0x0A, dmod, ModDouble)
+ABC_INSTR(ModInt)
+ABC_INSTR(ModDouble)
 
-ABC_INSTR(0x0B, ipow, PowInt)
-ABC_INSTR(0x0C, dpow, PowDouble)
+ABC_INSTR(PowInt)
+ABC_INSTR(PowDouble)
 
-AB_INSTR(0x0D, not, Not)
+AB_INSTR(LNot)
+
+
+LAST_INSTR(LNot)
 
 //----------------------------------------------------------------------------//
 
@@ -98,3 +95,4 @@ AB_INSTR(0x0D, not, Not)
 #undef ABC_INSTR
 #undef AB_INSTR
 #undef AD_INSTR
+#undef LAST_INSTR
