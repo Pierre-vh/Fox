@@ -9,13 +9,18 @@ Basic VM data types and their mappings to Fox types:
     char      TBA
     string    TBA
     []        TBA
-    
+   
 
 Roadmap: Follows a "basic" plan - implement - test development cycle
 
-  -> Scaffolding: Registers data structure, basic methods such as run()
-  -> Opcodes.hpp File containing the "Opcodes" enum? (Non-class enum in a "vm" namespace? To be defined..)
+---- Initial Preparation and Scaffolding ----
+
+  -> Opcode (Done)
+  -> VM Scaffolding: Registers data structure, basic methods such as run()
   -> InstructionBuilder.hpp: Class serving as a "builder" to create instruction buffers. (has "create" methods)
+          Currently, make it simple: Just a buffer of i32, construct instructions using methods generated like
+          "create##PrettyName##Instr". Every method call a private "createABCInstr" to actually create the instr.
+          support chaining + a getBuffer (ArrayRef).
 
 ---- Implementation of Int/Double/Bool and related functionalities ----
 
