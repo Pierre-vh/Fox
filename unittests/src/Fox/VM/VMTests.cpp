@@ -230,6 +230,6 @@ TEST(VMTest, DoubleArithmetic) {
   EXPECT_DOUBLE_EQ(getReg(6), -42542.425)           << "Bad SubDouble";
   EXPECT_DOUBLE_EQ(getReg(7), -10.46666666666562)   << "Bad MulDouble";
   EXPECT_DOUBLE_EQ(getReg(8), 1)                    << "Bad DivDouble";
-  EXPECT_DOUBLE_EQ(getReg(9), 0.913333333329)       << "Bad ModDouble";
+  EXPECT_DOUBLE_EQ(getReg(9), -2.4200000000040021)  << "Bad ModDouble";
   EXPECT_DOUBLE_EQ(getReg(10), 9.8596)              << "Bad PowDouble";
 }
