@@ -9,13 +9,14 @@
 /*
   Instructions are fixed width and are 32 bits wide. They are pretty similar
   to LuaJIT's instructions. The Opcode always occupies the first 8 bits
-  of the instruction. The rest of the instruction can be split in 2 ways:
+  of the instruction. The rest of the instruction can then be split in 2 ways
+  depending on the opcode:
       - Divided in 3 8 bits chunk (A B C)
       - Divided in 1 8 bits chunk and another 16 bits chunk.  (A D)
 
-  0      8     16    24    32
-  |  OP  |  A  |  B  |  C  |
-  |  OP  |  A  |     D     |
+  32    24   16     8      0
+  |  C  |  B  |  A  |  OP  |
+  |     D     |  A  |  OP  |
 
   Some instructions may not use any operand at all. Such operations
   are called "Simple" operations.
