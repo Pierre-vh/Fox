@@ -7,6 +7,8 @@
 //  This contains the Fox Virtual Machine (VM), which runs Fox bytecode
 //----------------------------------------------------------------------------//
 
+#pragma once
+
 namespace fox {
 
 }

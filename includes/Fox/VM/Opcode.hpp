@@ -7,6 +7,8 @@
 //  This contains the "Opcode" enum as well as some utility functions.
 //----------------------------------------------------------------------------//
 
+#pragma once
+
 #include <cstdint>
 
 namespace fox {
