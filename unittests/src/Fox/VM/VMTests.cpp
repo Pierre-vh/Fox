@@ -23,3 +23,13 @@ TEST(OpcodeTest, IsLegal) {
   EXPECT_FALSE(isLegalOpcode(illegal));
   EXPECT_FALSE(isLegalOpcode(iIllegal));
 }
+
+TEST(OpcodeTest, ToString) {
+  Opcode illegal = static_cast<Opcode>(255);
+  Opcode nop = Opcode::NoOp;
+  Opcode addInt = Opcode::AddInt;
+
+  EXPECT_EQ(toString(illegal), nullptr);
+  EXPECT_STRCASEEQ(toString(nop), "NoOp");
+  EXPECT_STRCASEEQ(toString(addInt), "AddInt");
+}

@@ -35,6 +35,8 @@ namespace fox {
     return op <= static_cast<OpcodeInt>(Opcode::last_opcode);
   }
 
-  // TODO: toString(Opcode op)
+  // Converts an Opcode to a human-readable string representation.
+  // If the opcode is illegal, "<illegal opcode>" is returned instead.
+  const char* toString(Opcode op);
   
 }
