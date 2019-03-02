@@ -77,14 +77,36 @@ TEST(InstructionBuilderTest, ABInstr) {
 
 TEST(InstructionBuilderTest, ADInstr) {
   InstructionBuilder builder;
-  // Create an ABC instr
+  // Create an AD instr
   std::uint32_t instr = 
-    builder.createStoreSmallUIntInstr(42, 42042).getLastInstr();
+    builder.createStoreSmallIntInstr(42, 42042).getLastInstr();
   // Check if was encoded as expected.
   std::uint8_t op = instr & 0x000000FF;
   std::uint8_t a = (instr & 0x0000FF00) >> 8; 
   std::uint16_t d = (instr & 0xFFFF0000) >> 16;
-  EXPECT_EQ(+op, +static_cast<std::uint8_t>(Opcode::StoreSmallUInt));
+  EXPECT_EQ(+op, +static_cast<std::uint8_t>(Opcode::StoreSmallInt));
   EXPECT_EQ(+a, 42);
   EXPECT_EQ(d, 42042);
+}
+
+// This tests that we can use both signed and unsigned values in
+// StoreSmallInt. 
+//
+// I'm testi,g this because I'm a bit of a noob with signedness stuff
+// so I want to be sure that it works as expected. 
+//  - Pierre
+TEST(InstructionBuilderTest, StoreSmallInt) {
+  InstructionBuilder builder;
+  {
+    std::int32_t positive = 42042;
+    builder.createStoreSmallIntInstr(0, positive);
+    std::uint16_t theVal = (builder.getLastInstr() & 0xFFFF0000) >> 16;
+    EXPECT_EQ(theVal, positive);
+  }
+  {
+    std::int16_t negative = -4242;
+    builder.createStoreSmallIntInstr(0, negative);
+    std::uint16_t theVal = (builder.getLastInstr() & 0xFFFF0000) >> 16;
+    EXPECT_EQ(static_cast<std::int16_t>(theVal), negative);
+  }
 }

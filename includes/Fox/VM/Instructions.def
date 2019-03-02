@@ -62,8 +62,8 @@
 
 SIMPLE_INSTR(NoOp)
 
-// Load the value of D 
-AD_INSTR(StoreSmallUInt) // Can this work with signed ints too?
+// Loads the value of D (interpreted as a signed int16) in register A
+AD_INSTR(StoreSmallInt) // Can this work with signed ints too?
 
 // Arithmetic
 ABC_INSTR(AddInt)
