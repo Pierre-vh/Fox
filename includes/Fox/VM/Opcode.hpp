@@ -12,15 +12,13 @@
 #include <cstdint>
 
 namespace fox {
-  using OpcodeInt = std::uint8_t;
-
   // This enum contains every opcode. A enum class is used instead of
   // a traditional C enum to avoid polluting the global namespace. 
   // 
   // This shouldn't be an issue since we can:
-  //  - use static_cast<OpcodeInt>(op) to get the value of the opcode
+  //  - use static_cast<std::uint8_t>(op) to get the value of the opcode
   //  - use static_cast<Opcode>(num) to get an Opcode back from an int.
-  enum class Opcode : OpcodeInt {
+  enum class Opcode : std::uint8_t {
     #define INSTR(Op) Op,
     #define LAST_INSTR(Op) last_opcode = Op
     #include "Instructions.def"
@@ -33,8 +31,8 @@ namespace fox {
   }
 
   // Checks if an integer value is a legal opcode.
-  inline constexpr bool isLegalOpcode(OpcodeInt op) {
-    return op <= static_cast<OpcodeInt>(Opcode::last_opcode);
+  inline constexpr bool isLegalOpcode(std::uint8_t op) {
+    return op <= static_cast<std::uint8_t>(Opcode::last_opcode);
   }
 
   // Converts an Opcode to a human-readable string representation.

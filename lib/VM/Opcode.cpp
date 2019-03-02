@@ -14,6 +14,6 @@ static constexpr const char* const opcodeStrings[] = {
 
 const char* fox::toString(Opcode op) {
   if(isLegalOpcode(op))
-    return opcodeStrings[static_cast<OpcodeInt>(op)];
+    return opcodeStrings[static_cast<std::uint8_t>(op)];
   return nullptr;
 }
