@@ -13,6 +13,10 @@ Basic VM data types and their mappings to Fox types:
 
 Roadmap: Follows a "basic" plan - implement - test development cycle
 
+Current issues/todos:
+  -> Find something other than "AB_INSTR" "ABC_INSTR", etc. I need something more scalable and clean.
+      The ideal scenario would be to pass arguments to the macro like this: "INSTR(Foo, (INT8, INT8))"
+
 ---- Initial Preparation and Scaffolding ----
 
   -> Opcode (Done)
