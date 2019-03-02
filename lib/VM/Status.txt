@@ -20,22 +20,13 @@ Current issues/todos:
 ---- Initial Preparation and Scaffolding ----
 
   -> Opcode (Done)
+  -> InstructionBuilder (Done)
   -> VM Scaffolding: Registers data structure, basic methods such as run()
-  -> InstructionBuilder.hpp: Class serving as a "builder" to create instruction buffers. (has "create" methods)
-          Currently, make it simple: Just a buffer of i32, construct instructions using methods generated like
-          "create##PrettyName##Instr". Every method call a private "createABCInstr" to actually create the instr.
-          support chaining + a getBuffer (ArrayRef).
 
 ---- Implementation of Int/Double/Bool and related functionalities ----
 
   -> Implement basic binary operations on integers and doubles: + - * / %
-    -> Declare opcodes (in a Opcodes.hpp file).
-                    +     -     *     /    %     **     !
-        Integers: iadd, isub, imul, idiv, imod, ipow
-        Doubles:  dadd, dsub, dmul, ddiv, dmod, dpow
-        Both :                                          not
-
-        note: "not" takes 2 operands (r0 != r1), every other op takes 3. (r0 = r1 op r2)
+    -> Declare opcodes (Done)
     -> Implement opcodes
     -> Do unit tests
        
