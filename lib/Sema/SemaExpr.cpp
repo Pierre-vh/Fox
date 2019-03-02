@@ -370,9 +370,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
           // If one day Semantic analysis becomes more complex
           // and the assertions are triggered in valid code, replace them
           // by conditions.
-          Expr* init = var->getInitExpr();
-          assert(init);
-          assert(init->getSourceRange().contains(udre->getSourceRange()));
+          assert(var->getInitExpr() && var->getInitExpr()->getSourceRange()
+                  .contains(udre->getSourceRange()));
           diagnoseVarInitSelfRef(var, udre);
           // This is an error, so just return the UnresolvedDeclRefExpr
           return udre;
