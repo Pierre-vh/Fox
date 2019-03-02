@@ -117,9 +117,6 @@ void VM::run() {
         // ModDouble A B C: A = B % C where B and C are interpreted as FoxDoubles.
         // TO-DO: Handle this better
         assert(getReg<FoxDouble>(c) && "modulo by zero");
-        printf("b = %f\n", getReg<FoxDouble>(b));
-        printf("c = %f\n", getReg<FoxDouble>(c));
-        printf("fmod = %f\n", std::fmod(getReg<FoxDouble>(b), getReg<FoxDouble>(c)));
         setReg(a, static_cast<FoxDouble>(
           std::fmod(getReg<FoxDouble>(b), getReg<FoxDouble>(c))
         ));
