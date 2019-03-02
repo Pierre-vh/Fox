@@ -29,7 +29,7 @@ Current issues/todos:
   -> Implement basic binary operations on integers and doubles: + - * / % (Done)
     -> Declare opcodes (Done)
     -> Implement opcodes (Done)
-    -> Do unit tests (Done)
+    -> Do unit tests (Done) -> Add test for mod on negative numbers
        
   -> Implement comparisons : >= <= > < == !=
     -> Declare opcodes
