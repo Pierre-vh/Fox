@@ -21,7 +21,7 @@ Current issues/todos:
 
   -> Opcode (Done)
   -> InstructionBuilder (Done)
-  -> VM Scaffolding: Registers data structure, basic methods such as run()
+  -> VM Scaffolding: Registers data structure, basic methods such as run() (Done)
 
 ---- Implementation of Int/Double/Bool and related functionalities ----
 
