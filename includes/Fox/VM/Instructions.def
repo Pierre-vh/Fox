@@ -53,10 +53,6 @@
   #define AB_INSTR(ID) INSTR(ID)
 #endif
 
-#ifndef ABC_INSTR
-  #define ABC_INSTR(ID) INSTR(ID)
-#endif
-
 #ifndef AD_INSTR
   #define AD_INSTR(ID) INSTR(ID)
 #endif
