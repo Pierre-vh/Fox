@@ -6,7 +6,7 @@ Basic VM data types and their mappings to Fox types:
     int       int
     double    double
     bool      int
-    char      TBA
+    char      int
     string    TBA
     []        TBA
    
@@ -29,21 +29,15 @@ Current issues/todos:
     -> Implement opcodes (Done)
     -> Do unit tests (Done) -> Add test for mod on negative numbers
        
-  -> Implement comparisons : >= <= > < == !=
+  -> Implement comparisons & logic operators : >= <= > < == != || &&
     -> Declare opcodes
         // For integers, we only implement == >= and >, the rest can be
         // implemented by adding "nots" or swapping operands as needed, but for
-        // doubles every op is implemented because of NaNs shenanigans
-                  ==   !=   <=   <   >=   >
-        Integers: ieq      ileq ilt
+        // doubles every op is implemented because of NaNs stuff
+                  ==   !=   <=   <   >=   >     ||     &&
+        Integers: ieq      ileq ilt            lnot    or
         Doubles   deq      dleq dlt dgeq dgt
-    -> Implement
-    -> Test
-
-  -> Implement logic operators : || and &&
-    -> Declare opcodes
-        LAnd 
-        LOr
+      
     -> Implement
     -> Test
 
@@ -58,18 +52,17 @@ Current issues/todos:
   -> CodeGen of control flow statements (if/while)
   -> CodeGen entry point (basic decl codegen that just generates the 'main' function's body)
 
----- Implementation of Char ----
-  
-  TBA. Will probably be implemented as an int in the VM unless I find
-  a good reason to not do it.
-
----- Implementation of String & Arrays and GC ----
+---- Implementation of Object types and GC ----
   
   TBA. Will be implemented as Objects, so the GC will be implemented at the same time.
   Objects will be allocated in a special allocator which just uses new/delete, but it'll
-  also keep a list of allocated objects.
+  also keep a list of allocated objects. 
   
+  -> LinearAllocator.hpp will become Allocator.hpp and share a "MallocAllocator" with it.
+     Maybe they'll have a common CRTP base.
   -> Base "Object" class
   -> Array and String objects (derived classes)
   -> "ReferenceMap" to track registers that are/aren't references on the stack
   -> Basic GC algorithm: mark and sweep + colored objects.
+      white = unvisited/unmarked, grey = needs to be visited, black = visited
+      that deals with cycles fairly easily.
