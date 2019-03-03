@@ -251,7 +251,8 @@ ParamDecl* ParamList::get(std::size_t idx) const {
   assert((idx < numParams_) && "Out of range");
   return getArray()[idx];
 }
-ParamList::SizeTy ParamList::getNumParams() const {
+
+std::size_t ParamList::getNumParams() const {
   return numParams_;
 }
 
@@ -268,9 +269,7 @@ ParamDecl* ParamList::operator[](std::size_t idx) const {
 }
 
 ParamList::ParamList(ArrayRef<ParamDecl*> params) 
-  : numParams_(static_cast<SizeTy>(params.size())) {
-  assert((params.size() < maxParams) && "Too many parameters for ParamList. "
-    "Change the type of SizeTy to something bigger!");
+  : numParams_(params.size()) {
   std::uninitialized_copy(params.begin(), params.end(), 
     getTrailingObjects<ParamDecl*>());
 }

@@ -231,14 +231,11 @@ namespace fox {
     using TrailingObjects = llvm::TrailingObjects<ParamList, ParamDecl*>;
     friend TrailingObjects;
     public:
-      using SizeTy = std::uint8_t;
-      static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();
-
       static ParamList* create(ASTContext& ctxt, ArrayRef<ParamDecl*> params);
 
       ArrayRef<ParamDecl*> getArray() const;
       ParamDecl* get(std::size_t idx) const;
-      SizeTy getNumParams() const;
+      std::size_t getNumParams() const;
 
       using iterator = ArrayRef<ParamDecl*>::iterator;
 
@@ -258,7 +255,7 @@ namespace fox {
       // (needed for class using trailing objects)
       void* operator new(std::size_t , void* mem);
 
-      SizeTy numParams_ = 0;
+      std::size_t numParams_ = 0;
   };
   
   /// FuncDecl
