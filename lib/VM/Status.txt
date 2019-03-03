@@ -14,11 +14,9 @@ Basic VM data types and their mappings to Fox types:
 Roadmap: Follows a "basic" plan - implement - test development cycle
 
 Current issues/todos:
-  -> Find something other than "AB_INSTR" "ABC_INSTR", etc. I need something more scalable and clean.
-      The ideal scenario would be to pass arguments to the macro like this: "INSTR(Foo, (INT8, INT8))"
-  -> ModDouble doesn't really work/returns wrong results.
+  -> Find something other than "AB_INSTR" "ABC_INSTR", etc. 
 
----- Initial Preparation and Scaffolding ----
+---- Initial Preparation and Scaffolding ---- DONE ----
 
   -> Opcode (Done)
   -> InstructionBuilder (Done)
@@ -44,10 +42,21 @@ Current issues/todos:
 
   -> Implement logic operators : || and &&
     -> Declare opcodes
-        and 
-        or
+        LAnd 
+        LOr
     -> Implement
     -> Test
+
+---- Implementation of control flow ----
+  -> Declare opcodes
+      TBA - I don't know how I'll do it yet since there's many ways to do it.
+      Will probably be a "Jump" instruction with a 16 bit signed offset relative to the next
+      instruction.
+
+---- Implementation of CodeGen ----
+  -> Basic CodeGen of simple expressions : only double and int types.
+  -> CodeGen of control flow statements (if/while)
+  -> CodeGen entry point (basic decl codegen that just generates the 'main' function's body)
 
 ---- Implementation of Char ----
   
