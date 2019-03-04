@@ -44,19 +44,19 @@
   #define SIMPLE_INSTR(ID) INSTR(ID)
 #endif
 
-// Ternary instruction with three 8 bits arguments.
+// Ternary instruction with three 8 bits arguments: a, b and c.
 // Default behaviour is to do the same as INSTR
 #ifndef TERNARY_INSTR
   #define TERNARY_INSTR(ID) INSTR(ID)
 #endif
 
-// Binary instructions with one 8 + one 16 bit arguments.
+// Binary instructions with one 8 bit + one 16 bit arguments: a and d.
 // Default behaviour is to do the same as INSTR
 #ifndef BINARY_INSTR
   #define BINARY_INSTR(ID) INSTR(ID)
 #endif
 
-// Binary instructions with two 8 bit arguments.
+// Binary instructions with two 8 bit arguments: a and b.
 // Default behaviour is to do the same as BINARY_INSTR
 #ifndef SMALL_BINARY_INSTR    
   #define SMALL_BINARY_INSTR(ID) BINARY_INSTR(ID)
