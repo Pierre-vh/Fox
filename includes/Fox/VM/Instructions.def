@@ -23,13 +23,14 @@
 
   TL;DR: 4 instruction kind (for now)
     - Simple: Just the opcode, no args.
-    - AB: Opcode + 2 Byte-sized operands (2 x 8 bits). Last 8 bits unused.
-    - ABC: Opcode + 3 Byte-sized operands (3 x 8 bits)
-    - AD: Opcode + 1 Byte-sized operand and another 2 bytes operand 
+    - Ternary: Opcode + 3 Byte-sized operands (3 x 8 bits)
+    - Binary: Opcode + 1 Byte-sized operand and another 2 bytes operand 
           (1 x 8 bits + 1 x 16 bits)
+    - Small Binary: Opcode + 2 Byte-sized operands (2 x 8 bits). Last 8 bits unused.
 */
 //----------------------------------------------------------------------------//
 
+// Any instruction
 #ifndef INSTR
   #define INSTR(ID)
 #endif
@@ -38,21 +39,30 @@
   #define LAST_INSTR(ID)
 #endif
 
+// Simple instruction with no arguments.
+// Default behaviour is to do the same as INSTR
 #ifndef SIMPLE_INSTR
   #define SIMPLE_INSTR(ID) INSTR(ID)
 #endif
 
-#ifndef ABC_INSTR
-  #define ABC_INSTR(ID) INSTR(ID)
+// Ternary instruction with three 8 bits arguments.
+// Default behaviour is to do the same as INSTR
+#ifndef TERNARY_INSTR
+  #define TERNARY_INSTR(ID) INSTR(ID)
 #endif
 
-#ifndef AB_INSTR
-  #define AB_INSTR(ID) INSTR(ID)
+// Binary instructions with one 8 + one 16 bit arguments.
+// Default behaviour is to do the same as INSTR
+#ifndef BINARY_INSTR
+  #define BINARY_INSTR(ID) INSTR(ID)
 #endif
 
-#ifndef AD_INSTR
-  #define AD_INSTR(ID) INSTR(ID)
+// Binary instructions with two 8 bit arguments.
+// Default behaviour is to do the same as BINARY_INSTR
+#ifndef SMALL_BINARY_INSTR    
+  #define SMALL_BINARY_INSTR(ID) BINARY_INSTR(ID)
 #endif
+
 
 //----------------------------------------------------------------------------//
 
@@ -60,36 +70,36 @@ SIMPLE_INSTR(NoOp)
 SIMPLE_INSTR(Break)
 
 // Loads the value of D (interpreted as a signed int16) in register A
-AD_INSTR(StoreSmallInt) // Can this work with signed ints too?
+BINARY_INSTR(StoreSmallInt) // Can this work with signed ints too?
 
 // Arithmetic : a = b (op) c. Result's type is the type of the operand.
-ABC_INSTR(AddInt)     // Int Addition
-ABC_INSTR(AddDouble)  // Double Addition
-ABC_INSTR(SubInt)     // Int Substraction
-ABC_INSTR(SubDouble)  // Double Substraction
-ABC_INSTR(MulInt)     // Int Multiplication
-ABC_INSTR(MulDouble)  // Double Multiplication
-ABC_INSTR(DivInt)     // Int Division
-ABC_INSTR(DivDouble)  // Double Division
-ABC_INSTR(ModInt)     // Int Modulo
-ABC_INSTR(ModDouble)  // Double Modulo
-ABC_INSTR(PowInt)     // Int exponentiation
-ABC_INSTR(PowDouble)  // Double exponentiation
+TERNARY_INSTR(AddInt)     // Int Addition
+TERNARY_INSTR(AddDouble)  // Double Addition
+TERNARY_INSTR(SubInt)     // Int Substraction
+TERNARY_INSTR(SubDouble)  // Double Substraction
+TERNARY_INSTR(MulInt)     // Int Multiplication
+TERNARY_INSTR(MulDouble)  // Double Multiplication
+TERNARY_INSTR(DivInt)     // Int Division
+TERNARY_INSTR(DivDouble)  // Double Division
+TERNARY_INSTR(ModInt)     // Int Modulo
+TERNARY_INSTR(ModDouble)  // Double Modulo
+TERNARY_INSTR(PowInt)     // Int exponentiation
+TERNARY_INSTR(PowDouble)  // Double exponentiation
 
 // Comparisons a = b (cond) c. Result is always an int (1 for true, 0 for false)
-ABC_INSTR(EqInt)      // Int Equality
-ABC_INSTR(LEInt)      // Int Less or Equal
-ABC_INSTR(LTInt)      // Int Less Than
-ABC_INSTR(EqDouble)   // Double Equality
-ABC_INSTR(LEDouble)   // Double Less or Equal
-ABC_INSTR(LTDouble)   // Double Less Than
-ABC_INSTR(GEDouble)   // Double Greater or Equal
-ABC_INSTR(GTDouble)   // Double Greater Than
+TERNARY_INSTR(EqInt)      // Int Equality
+TERNARY_INSTR(LEInt)      // Int Less or Equal
+TERNARY_INSTR(LTInt)      // Int Less Than
+TERNARY_INSTR(EqDouble)   // Double Equality
+TERNARY_INSTR(LEDouble)   // Double Less or Equal
+TERNARY_INSTR(LTDouble)   // Double Less Than
+TERNARY_INSTR(GEDouble)   // Double Greater or Equal
+TERNARY_INSTR(GTDouble)   // Double Greater Than
 
 // Other arithmetic/logic ops that operate on raw values
-AB_INSTR(LNot)        // Logical NOT
-ABC_INSTR(LOr)        // Logical OR
-ABC_INSTR(LAnd)       // Logical AND
+SMALL_BINARY_INSTR(LNot)        // Logical NOT
+TERNARY_INSTR(LOr)        // Logical OR
+TERNARY_INSTR(LAnd)       // Logical AND
 
 LAST_INSTR(LAnd)
 
@@ -97,7 +107,7 @@ LAST_INSTR(LAnd)
 
 #undef INSTR
 #undef SIMPLE_INSTR
-#undef ABC_INSTR
-#undef AB_INSTR
-#undef AD_INSTR
+#undef TERNARY_INSTR
+#undef BINARY_INSTR
+#undef SMALL_BINARY_INSTR
 #undef LAST_INSTR

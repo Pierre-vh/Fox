@@ -14,8 +14,7 @@ Basic VM data types and their mappings to Fox types:
 Roadmap: Follows a "basic" plan - implement - test development cycle
 
 Current issues/todos:
-  -> Find something other than "AB_INSTR" "ABC_INSTR", etc. 
-  -> Similarly, it'd be great to have a single "Instr" struct that represents
+  -> It'd be great to have a single "Instr" struct that represents
      every instruction possible, using an union or something. This would avoid
      bitwise tricks to retrieve an instruction's data.
 

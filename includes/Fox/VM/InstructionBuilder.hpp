@@ -21,11 +21,11 @@ namespace fox {
   class InstructionBuilder {
     public:
       #define SIMPLE_INSTR(ID) InstructionBuilder& create##ID##Instr();
-      #define ABC_INSTR(ID) InstructionBuilder&\
+      #define TERNARY_INSTR(ID) InstructionBuilder&\
         create##ID##Instr(std::uint8_t a, std::uint8_t b, std::uint8_t c);
-      #define AB_INSTR(ID) InstructionBuilder&\
+      #define SMALL_BINARY_INSTR(ID) InstructionBuilder&\
         create##ID##Instr(std::uint8_t a, std::uint8_t b);
-      #define AD_INSTR(ID) InstructionBuilder&\
+      #define BINARY_INSTR(ID) InstructionBuilder&\
         create##ID##Instr(std::uint8_t a, std::uint16_t d);
       #include "Instructions.def"
 

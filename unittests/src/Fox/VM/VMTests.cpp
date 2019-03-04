@@ -59,9 +59,9 @@ TEST(InstructionBuilderTest, InstrBuff) {
   EXPECT_EQ(builder.getInstrs().size(), 0u);
 }
 
-TEST(InstructionBuilderTest, ABCInstr) {
+TEST(InstructionBuilderTest, TernaryInstr) {
   InstructionBuilder builder;
-  // Create an ABC instr
+  // Create an Ternary instr
   std::uint32_t instr = builder.createAddIntInstr(42, 84, 126).getLastInstr();
   // Check if was encoded as expected.
   std::uint8_t op = instr & 0x000000FF;
@@ -74,9 +74,9 @@ TEST(InstructionBuilderTest, ABCInstr) {
   EXPECT_EQ(+c, 126);
 }
 
-TEST(InstructionBuilderTest, ABInstr) {
+TEST(InstructionBuilderTest, SmallBinaryInstr) {
   InstructionBuilder builder;
-  // Create an ABC instr
+  // Create an Small Binary instr
   std::uint32_t instr = builder.createLNotInstr(42, 84).getLastInstr();
   // Check if was encoded as expected.
   std::uint8_t op = instr & 0x000000FF;
@@ -89,9 +89,9 @@ TEST(InstructionBuilderTest, ABInstr) {
   EXPECT_EQ(+c, 0);
 }
 
-TEST(InstructionBuilderTest, ADInstr) {
+TEST(InstructionBuilderTest, BinaryInstr) {
   InstructionBuilder builder;
-  // Create an AD instr
+  // Create a Binary instr
   std::uint32_t instr = 
     builder.createStoreSmallIntInstr(42, 42042).getLastInstr();
   // Check if was encoded as expected.

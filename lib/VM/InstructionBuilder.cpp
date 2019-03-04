@@ -18,17 +18,17 @@ using namespace fox;
   InstructionBuilder& InstructionBuilder::create##ID##Instr()\
     { return createSimpleInstr(Opcode::ID); }
 
-#define ABC_INSTR(ID)\
+#define TERNARY_INSTR(ID)\
   InstructionBuilder& InstructionBuilder::\
   create##ID##Instr(std::uint8_t a, std::uint8_t b, std::uint8_t c) {\
     return createABCInstr(Opcode::ID, a, b, c);\
   }
-#define AB_INSTR(ID)\
+#define SMALL_BINARY_INSTR(ID)\
   InstructionBuilder&\
   InstructionBuilder::create##ID##Instr(std::uint8_t a, std::uint8_t b) {\
     return createABCInstr(Opcode::ID, a, b, 0u);\
   }
-#define AD_INSTR(ID)\
+#define BINARY_INSTR(ID)\
   InstructionBuilder&\
   InstructionBuilder::create##ID##Instr(std::uint8_t a, std::uint16_t d) {\
     return createADInstr(Opcode::ID, a, d);\
