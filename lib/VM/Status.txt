@@ -36,7 +36,11 @@ Current issues/todos:
 
 ---- Implementation of control flow ----
   -> Declare opcodes
-      
+      JumpIf <24 bit signed offset> // Unconditional jump
+      CondJump <register> <16 bit signed offset>  // Jump if register != 0
+    Note: Offsets are relative to the next instruction.
+  -> Implement
+  -> Test
 
 ---- Implementation of CodeGen ----
   -> Basic CodeGen of simple expressions : only double and int types.
