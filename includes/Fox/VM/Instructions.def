@@ -66,24 +66,36 @@ SIMPLE_INSTR(Break)
 // Loads the value of D (interpreted as a signed int16) in register A
 AD_INSTR(StoreSmallInt) // Can this work with signed ints too?
 
-// Arithmetic : a = b (op) c
-ABC_INSTR(AddInt)
-ABC_INSTR(AddDouble)
-ABC_INSTR(SubInt)
-ABC_INSTR(SubDouble)
-ABC_INSTR(MulInt)
-ABC_INSTR(MulDouble)
-ABC_INSTR(DivInt)
-ABC_INSTR(DivDouble)
-ABC_INSTR(ModInt)
-ABC_INSTR(ModDouble)
-ABC_INSTR(PowInt)
-ABC_INSTR(PowDouble)
+// Arithmetic : a = b (op) c. Result's type is the type of the operand.
+ABC_INSTR(AddInt)     // Int Addition
+ABC_INSTR(AddDouble)  // Double Addition
+ABC_INSTR(SubInt)     // Int Substraction
+ABC_INSTR(SubDouble)  // Double Substraction
+ABC_INSTR(MulInt)     // Int Multiplication
+ABC_INSTR(MulDouble)  // Double Multiplication
+ABC_INSTR(DivInt)     // Int Division
+ABC_INSTR(DivDouble)  // Double Division
+ABC_INSTR(ModInt)     // Int Modulo
+ABC_INSTR(ModDouble)  // Double Modulo
+ABC_INSTR(PowInt)     // Int exponentiation
+ABC_INSTR(PowDouble)  // Double exponentiation
 
-// Logical not: a = !b
-AB_INSTR(LNot)
+// Comparisons a = b (cond) c. Result is always an int (1 for true, 0 for false)
+ABC_INSTR(EqInt)      // Int Equality
+ABC_INSTR(LEInt)      // Int Less or Equal
+ABC_INSTR(LTInt)      // Int Less Than
+ABC_INSTR(EqDouble)   // Double Equality
+ABC_INSTR(LEDouble)   // Double Less or Equal
+ABC_INSTR(LTDouble)   // Double Less Than
+ABC_INSTR(GEDouble)   // Double Greater or Equal
+ABC_INSTR(GTDouble)   // Double Greater Than
 
-LAST_INSTR(LNot)
+// Other arithmetic/logic ops that operate on raw values
+AB_INSTR(LNot)        // Logical NOT
+ABC_INSTR(LOr)        // Logical OR
+ABC_INSTR(LAnd)       // Logical AND
+
+LAST_INSTR(LAnd)
 
 //----------------------------------------------------------------------------//
 

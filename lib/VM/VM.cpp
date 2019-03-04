@@ -16,27 +16,6 @@ namespace {
   inline Opcode getInstrOpcode(std::uint32_t instr) {
     return static_cast<Opcode>(instr & 0x000000FF);
   }
-
-  // TODO: Clean this "InstrData" mess up.
-
-  // Small struct containing a few references to the current
-  // instruction's data.
-  struct InstrData {
-    const Opcode* opcode = nullptr;
-    const std::uint8_t* a = nullptr;
-    const std::uint8_t* b = nullptr;
-    const std::uint8_t* c = nullptr;
-    const std::uint16_t* d = nullptr;
-  };
-
-  inline void decode(const std::uint32_t* instr, InstrData& to) {
-    const std::uint8_t* ptr = reinterpret_cast<const std::uint8_t*>(instr);
-    to.opcode = reinterpret_cast<const Opcode*>(ptr);
-    to.a = ptr+1;
-    to.b = ptr+2;
-    to.c = ptr+3;
-    to.d = reinterpret_cast<const std::uint16_t*>(ptr+2);
-  }
 }
 
 void VM::load(ArrayRef<std::uint32_t> instrs) {
@@ -72,49 +51,49 @@ void VM::run() {
         setReg(a, static_cast<std::int16_t>(d));
         continue;
       case Opcode::AddInt: 
-        // AddInt A B C: A = B + C where B and C are interpreted as FoxInts.
+        // AddInt A B C: A = B + C with B and C interpreted as FoxInts.
         setReg(a, getReg<FoxInt>(b) + getReg<FoxInt>(c));
         continue;
       case Opcode::AddDouble:
-        // AddDouble A B C: A = B + C where B and C are interpreted as FoxDoubles.
+        // AddDouble A B C: A = B + C with B and C interpreted as FoxDoubles.
         setReg(a, getReg<FoxDouble>(b) + getReg<FoxDouble>(c));
         continue;
       case Opcode::SubInt:
-        // SubInt A B C: A = B - C where B and C are interpreted as FoxInts.
+        // SubInt A B C: A = B - C with B and C interpreted as FoxInts.
         setReg(a, getReg<FoxInt>(b) - getReg<FoxInt>(c));
         continue;
       case Opcode::SubDouble:
-        // SubDouble A B C: A = B - C where B and C are interpreted as FoxDoubles.
+        // SubDouble A B C: A = B - C with B and C interpreted as FoxDoubles.
         setReg(a, getReg<FoxDouble>(b) - getReg<FoxDouble>(c));
         continue;
       case Opcode::MulInt:
-        // DivInt A B C: A = B * C where B and C are interpreted as FoxInts.
+        // DivInt A B C: A = B * C with B and C interpreted as FoxInts.
         setReg(a, getReg<FoxInt>(b) * getReg<FoxInt>(c));
         continue;
       case Opcode::MulDouble:
-        // SubDouble A B C: A = B * C where B and C are interpreted as FoxDoubles.
+        // SubDouble A B C: A = B * C with B and C interpreted as FoxDoubles.
         setReg(a, getReg<FoxDouble>(b) * getReg<FoxDouble>(c));
         continue;
       case Opcode::DivInt:
-        // DivInt A B C: A = B / C where B and C are interpreted as FoxInts.
+        // DivInt A B C: A = B / C with B and C interpreted as FoxInts.
         // TO-DO: Handle this better
         assert(getReg<FoxInt>(c) && "division by zero");
         setReg(a, getReg<FoxInt>(b) / getReg<FoxInt>(c));
         continue;
       case Opcode::DivDouble:
-        // SubDouble A B C: A = B / C where B and C are interpreted as FoxDoubles.
+        // SubDouble A B C: A = B / C with B and C interpreted as FoxDoubles.
         // TO-DO: Handle this better
         assert(getReg<FoxDouble>(c) && "division by zero");
         setReg(a, getReg<FoxDouble>(b) / getReg<FoxDouble>(c));
         continue;
       case Opcode::ModInt:
-        // ModInt A B C: A = B % C where B and C are interpreted as FoxInts.
+        // ModInt A B C: A = B % C with B and C interpreted as FoxInts.
         // TO-DO: Handle this better
         assert(getReg<FoxInt>(c) && "modulo by zero");
         setReg(a, getReg<FoxInt>(b) % getReg<FoxInt>(c));
         continue;
       case Opcode::ModDouble:
-        // ModDouble A B C: A = B % C where B and C are interpreted as FoxDoubles.
+        // ModDouble A B C: A = B % C with B and C interpreted as FoxDoubles.
         // TO-DO: Handle this better
         assert(getReg<FoxDouble>(c) && "modulo by zero");
         setReg(a, static_cast<FoxDouble>(
@@ -122,16 +101,56 @@ void VM::run() {
         ));
         continue;
       case Opcode::PowInt:
-        // PowInt ModInt A B C: A = B pow C where B and C are interpreted as FoxInts.
+        // PowInt ModInt A B C: A = B pow C with B and C interpreted as FoxInts.
         setReg(a, static_cast<FoxInt>(
           std::pow(getReg<FoxInt>(b), getReg<FoxInt>(c))
         ));
         continue;
       case Opcode::PowDouble:
-        // PowDouble A B C: A = B pow C where B and C are interpreted as FoxDoubles.
+        // PowDouble A B C: A = B pow C with B and C interpreted as FoxDoubles.
         setReg(a, static_cast<FoxDouble>(
           std::pow(getReg<FoxDouble>(b), getReg<FoxDouble>(c))
         ));
+        continue;
+      case Opcode::EqInt:
+        // EqInt A B C: A = (B == C) with B and C interpreted as FoxInts.
+        setReg(a, (getReg<FoxInt>(b) == getReg<FoxInt>(c)));
+        continue;
+      case Opcode::LEInt:
+        // LEInt A B C: A = (B <= C) with B and C interpreted as FoxInts.
+        setReg(a, (getReg<FoxInt>(b) <= getReg<FoxInt>(c)));
+        continue;
+      case Opcode::LTInt:
+        // LTInt A B C: A = (B < C) with B and C interpreted as FoxInts.
+        setReg(a, (getReg<FoxInt>(b) < getReg<FoxInt>(c)));
+        continue;
+      case Opcode::EqDouble:
+        // EqDouble A B C: A = (B == C) with B and C interpreted as FoxDoubles.
+        setReg(a, (getReg<FoxDouble>(b) == getReg<FoxDouble>(c)));
+        continue;
+      case Opcode::LEDouble:
+        // LEDouble A B C: A = (B <= C) with B and C interpreted as FoxDoubles.
+        setReg(a, (getReg<FoxDouble>(b) <= getReg<FoxDouble>(c)));
+        continue;
+      case Opcode::LTDouble:
+        // LTDouble A B C: A = (B < C) with B and C interpreted as FoxDoubles.
+        setReg(a, (getReg<FoxDouble>(b) < getReg<FoxDouble>(c)));
+        continue;
+      case Opcode::GEDouble:
+        // GEDouble A B C: A = (B >= C) with B and C interpreted as FoxDoubles.
+        setReg(a, (getReg<FoxDouble>(b) >= getReg<FoxDouble>(c)));
+        continue;
+      case Opcode::GTDouble:
+        // GTDouble A B C: A = (B > C) with B and C interpreted as FoxDoubles.
+        setReg(a, (getReg<FoxDouble>(b) > getReg<FoxDouble>(c)));
+        continue;
+      case Opcode::LOr:
+        // LOr A B C: A = (B || C). B and C are raw register values.
+        setReg(a, (getReg(b) || getReg(c)));
+        continue;
+      case Opcode::LAnd:
+        // LAnd A B C: A = (B && C). B and C are raw register values.
+        setReg(a, (getReg(b) && getReg(c)));
         continue;
       case Opcode::LNot:
         // LNot A B: A = !B

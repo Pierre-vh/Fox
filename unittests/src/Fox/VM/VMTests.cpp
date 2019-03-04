@@ -150,8 +150,6 @@ TEST(VMTest, IntArithmetic) {
     .createModIntInstr(8, 2, 1)
     // r9 = r2 ** r0 --> 268435456
     .createPowIntInstr(9, 2, 0)
-    // r10 = !r0 --> 0
-    .createLNotInstr(10, 0)
     .createBreakInstr();
   // Prepare the VM & Load the code
   VM vm;
@@ -180,7 +178,6 @@ TEST(VMTest, IntArithmetic) {
   EXPECT_EQ(getReg(7), 256)       << "Bad DivInt";
   EXPECT_EQ(getReg(8), 0)         << "Bad ModInt";
   EXPECT_EQ(getReg(9), 268435456) << "Bad PowInt";
-  EXPECT_EQ(getReg(10), 0)        << "Bad LNot";
 }
 
 TEST(VMTest, DoubleArithmetic) {
@@ -232,4 +229,118 @@ TEST(VMTest, DoubleArithmetic) {
   EXPECT_DOUBLE_EQ(getReg(8), 1)                    << "Bad DivDouble";
   EXPECT_DOUBLE_EQ(getReg(9), -2.4200000000040021)  << "Bad ModDouble";
   EXPECT_DOUBLE_EQ(getReg(10), 9.8596)              << "Bad PowDouble";
+}
+
+TEST(VMTest, IntComparison) {
+  InstructionBuilder builder;
+  FoxInt r0 = 2;
+  FoxInt r1 = 64;
+  builder 
+    // r2 = (r0 == r1) --> false (0)
+    .createEqIntInstr(2, 0, 1)
+    // r3 = (r0 <= r1) --> true (1)
+    .createLEIntInstr(3, 0, 1)
+    // r4 = (r1 < r1) --> false (0)
+    .createLTIntInstr(4, 1, 1)
+    .createBreakInstr();
+  // Prepare the VM & Load the code
+  VM vm;
+  vm.load(builder.getInstrs());
+  // Load the initial values
+  auto regs = vm.getRegisterStack();
+  regs[0] = r0;
+  regs[1] = r1;
+  // Run the code
+  vm.run();
+  // Helper to get a register's value as a FoxInt
+  auto getReg = [&](std::size_t idx) {
+    return static_cast<FoxInt>(regs[idx]);
+  };
+  // Check the initial values
+  ASSERT_EQ(getReg(0), r0);
+  ASSERT_EQ(getReg(1), r1);
+  // Check the computed values
+  EXPECT_EQ(getReg(2), 0) << "Bad EqInt";
+  EXPECT_EQ(getReg(3), 1) << "Bad LEInt";
+  EXPECT_EQ(getReg(4), 0) << "Bad LTInt";
+}
+
+TEST(VMTest, DoubleComparison) {
+  InstructionBuilder builder;
+  FoxDouble r0 = -3.14;
+  FoxDouble r1 = 3.333333333333;
+  builder 
+    // r2 = r1 == r1 --> true (1)
+    .createEqDoubleInstr(2, 1, 1)
+    // r3 = r0 <= r1 --> true (1)
+    .createLEDoubleInstr(3, 0, 1)
+    // r4 = r1 < r1  --> false (0)
+    .createLTDoubleInstr(4, 1, 1)
+    // r5 = r1 >= r0 --> true (1)
+    .createGEDoubleInstr(5, 1, 0)
+    // r6 = r1 > r1  --> false (0)
+    .createGTDoubleInstr(6, 1, 1)
+    .createBreakInstr();
+  // Prepare the VM & Load the code
+  VM vm;
+  vm.load(builder.getInstrs());
+  auto regs = vm.getRegisterStack();
+  regs[0] = llvm::DoubleToBits(r0);
+  regs[1] = llvm::DoubleToBits(r1);
+  // Run the code
+  vm.run();
+  // Helper to get a register's value as a FoxDouble
+  auto getRegAsDouble = [&](std::size_t idx) {
+    return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
+  };
+  // Helper to get a raw register value
+  auto getReg = [&](std::size_t idx) {
+    return vm.getRegisterStack()[idx];
+  };
+  // Check the initial values
+  ASSERT_EQ(getRegAsDouble(0), r0);
+  ASSERT_EQ(getRegAsDouble(1), r1);
+  // Check the computed values
+  EXPECT_DOUBLE_EQ(getReg(2), 1)  << "Bad EqDouble";
+  EXPECT_DOUBLE_EQ(getReg(3), 1)  << "Bad LEDouble";
+  EXPECT_DOUBLE_EQ(getReg(4), 0)  << "Bad LTDouble";
+  EXPECT_DOUBLE_EQ(getReg(5), 1)  << "Bad GEDouble";
+  EXPECT_DOUBLE_EQ(getReg(6), 0)  << "Bad GTDouble";
+}
+
+TEST(VMTest, LogicOps) {
+  InstructionBuilder builder;
+  FoxInt r0 = 0;
+  FoxInt r1 = 1;
+  builder 
+    // r2 = (r0 && r1) --> 0
+    .createLAndInstr(2, 0, 1)
+    // r3 = (r0 || r1) --> 1
+    .createLOrInstr(3, 0, 1)
+    // r4 != r1 --> 0
+    .createLNotInstr(4, 1)
+    // r5 != r0 --> 1
+    .createLNotInstr(5, 0)
+    .createBreakInstr();
+  // Prepare the VM & Load the code
+  VM vm;
+  vm.load(builder.getInstrs());
+  // Load the initial values
+  auto regs = vm.getRegisterStack();
+  regs[0] = r0;
+  regs[1] = r1;
+  // Run the code
+  vm.run();
+  // Helper to get a register's value as a FoxInt
+  auto getReg = [&](std::size_t idx) {
+    return static_cast<FoxInt>(regs[idx]);
+  };
+  // Check the initial values
+  ASSERT_EQ(getReg(0), r0);
+  ASSERT_EQ(getReg(1), r1);
+  // Check the computed values
+  EXPECT_EQ(getReg(2), 0) << "Bad LOr";
+  EXPECT_EQ(getReg(3), 1) << "Bad LAnd";
+  EXPECT_EQ(getReg(4), 0) << "Bad LNot";
+  EXPECT_EQ(getReg(5), 1) << "Bad LNot";
 }

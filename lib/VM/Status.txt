@@ -30,22 +30,13 @@ Current issues/todos:
     -> Do unit tests (Done) -> Add test for mod on negative numbers
        
   -> Implement comparisons & logic operators : >= <= > < == != || &&
-    -> Declare opcodes
-        // For integers, we only implement == >= and >, the rest can be
-        // implemented by adding "nots" or swapping operands as needed, but for
-        // doubles every op is implemented because of NaNs stuff
-                  ==   !=   <=   <   >=   >     ||     &&
-        Integers: ieq      ileq ilt            lnot    or
-        Doubles   deq      dleq dlt dgeq dgt
-      
-    -> Implement
-    -> Test
+    -> Declare opcodes (Done)
+    -> Implement (Done)
+    -> Test (Done)
 
 ---- Implementation of control flow ----
   -> Declare opcodes
-      TBA - I don't know how I'll do it yet since there's many ways to do it.
-      Will probably be a "Jump" instruction with a 16 bit signed offset relative to the next
-      instruction.
+      
 
 ---- Implementation of CodeGen ----
   -> Basic CodeGen of simple expressions : only double and int types.
