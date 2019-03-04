@@ -29,13 +29,24 @@ TEST(OpcodeTest, IsLegal) {
 }
 
 TEST(OpcodeTest, ToString) {
+  Opcode a = Opcode::StoreSmallInt;
+  Opcode b = Opcode::NoOp;
+  Opcode c = Opcode::LAnd;
   Opcode illegal = static_cast<Opcode>(255);
-  Opcode nop = Opcode::NoOp;
-  Opcode addInt = Opcode::AddInt;
 
-  EXPECT_EQ(toString(illegal), nullptr);
-  EXPECT_STRCASEEQ(toString(nop), "NoOp");
-  EXPECT_STRCASEEQ(toString(addInt), "AddInt");
+  const char* strA = toString(a);
+  const char* strB = toString(b);
+  const char* strC = toString(c);
+  const char* strIllegal = toString(illegal);
+
+  EXPECT_NE(strA, nullptr);
+  EXPECT_NE(strB, nullptr);
+  EXPECT_NE(strC, nullptr);
+  EXPECT_EQ(strIllegal, nullptr);
+
+  EXPECT_STRCASEEQ(strA, "StoreSmallInt");
+  EXPECT_STRCASEEQ(strB, "NoOp");
+  EXPECT_STRCASEEQ(strC, "LAnd");
 }
 
 TEST(InstructionBuilderTest, InstrBuff) {
