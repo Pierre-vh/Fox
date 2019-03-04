@@ -21,12 +21,11 @@
   Some instructions may not use any operand at all. Such operations
   are called "Simple" operations.
 
-  TL;DR: 4 instruction kind (for now)
-    - Simple: Just the opcode, no args.
-    - Ternary: Opcode + 3 Byte-sized operands (3 x 8 bits)
-    - Binary: Opcode + 1 Byte-sized operand and another 2 bytes operand 
-          (1 x 8 bits + 1 x 16 bits)
-    - Small Binary: Opcode + 2 Byte-sized operands (2 x 8 bits). Last 8 bits unused.
+  TL;DR: 4 instruction kind (for now) (they all have the opcode as first byte)
+    - Simple: No args
+    - Ternary: 3 args: 1 byte (a) + 1 byte (b) + 1 byte (c)
+    - Binary: 2 args: 1 byte (a) + 2 byte (d)
+    - Small Binary: 2 args: 1 byte (a) + 1 byte (b)
 */
 //----------------------------------------------------------------------------//
 
@@ -97,7 +96,7 @@ TERNARY_INSTR(GEDouble)   // Double Greater or Equal
 TERNARY_INSTR(GTDouble)   // Double Greater Than
 
 // Other arithmetic/logic ops that operate on raw values
-SMALL_BINARY_INSTR(LNot)        // Logical NOT
+SMALL_BINARY_INSTR(LNot)  // Logical NOT
 TERNARY_INSTR(LOr)        // Logical OR
 TERNARY_INSTR(LAnd)       // Logical AND
 
