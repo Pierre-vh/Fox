@@ -12,6 +12,12 @@
 
 using namespace fox;
 
+// In many places of the VM, we assume that signed numbers are encoded using
+// 2's complement. Assert that it's the case.
+static_assert(-1 == 0xffffffff,
+  "Can't compile the Fox VM because signed integers"
+  " are not encoded using 2's complement");
+
 namespace {
   inline Opcode getInstrOpcode(std::uint32_t instr) {
     return static_cast<Opcode>(instr & 0x000000FF);
