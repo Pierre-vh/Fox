@@ -27,10 +27,6 @@
     - ABC: Opcode + 3 Byte-sized operands (3 x 8 bits)
     - AD: Opcode + 1 Byte-sized operand and another 2 bytes operand 
           (1 x 8 bits + 1 x 16 bits)
-
-   An important thing to consider is that ops may not use all of their arguments.
-   Check the doc of the opcode (if I wrote it by the time you're reading this) to
-   know which operands are used.
 */
 //----------------------------------------------------------------------------//
 
