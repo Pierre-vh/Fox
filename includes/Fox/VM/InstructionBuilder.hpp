@@ -7,11 +7,6 @@
 //  This file contains the InstructionBuilder, which is a class that helps
 //  build instructions buffers readable by the VM.
 //----------------------------------------------------------------------------//
-// TODO:
-//    - Add support for unowned buffer: a client should be able to pass
-//      its own buffer to the ctor, and InstructionBuilder should write to that
-//      buffer.
-//----------------------------------------------------------------------------//
 
 #pragma once
 
