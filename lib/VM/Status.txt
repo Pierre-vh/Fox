@@ -16,7 +16,11 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
 Current issues/todos:
   -> It'd be great to have a single "Instr" struct that represents
      every instruction possible, using an union or something. This would avoid
-     bitwise tricks to retrieve an instruction's data.
+     bitwise tricks to retrieve an instruction's data. Unfortunately, it's hard to do
+     something nice due to absence of anonymous structs and struct padding in C++.
+
+  -> The macros in "Instructions.def" are not ideal too. It'd be great to clean them up
+     so I have less of them and so that they're more flexible.
 
 ---- Initial Preparation and Scaffolding ---- DONE ----
 
@@ -31,7 +35,7 @@ Current issues/todos:
     -> Implement opcodes (Done)
     -> Do unit tests (Done) -> Add test for mod on negative numbers
        
-  -> Implement comparisons & logic operators : >= <= > < == != || &&
+  -> Implement comparisons & logic operators
     -> Declare opcodes (Done)
     -> Implement (Done)
     -> Test (Done)
