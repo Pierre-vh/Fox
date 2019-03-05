@@ -46,6 +46,9 @@ Current issues/todos:
   -> Test (Done)
 
 ---- Implementation of basic CodeGen ----
+  -> Scaffolding (Done)
+  -> Make InstructionBuilder work on external buffer. It should be able to work on both
+     an external and an internal buffer.
   -> Basic CodeGen of simple expressions : only double and int types.
   -> CodeGen of control flow statements (if/while)
   -> CodeGen entry point (basic decl codegen that just generates the 'main' function's body)
