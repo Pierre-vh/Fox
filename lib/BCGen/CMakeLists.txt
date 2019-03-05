@@ -1,2 +1,3 @@
 add_source(bcgen_src
-  "BCGen.cpp")
+  "BCGen.cpp"
+  "BCGenExpr.cpp")

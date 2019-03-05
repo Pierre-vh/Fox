@@ -11,22 +11,37 @@
 namespace fox {
   class ASTContext;
   class DiagnosticEngine;
+  class InstructionBuilder;
+  class Expr;
   class BCGen {
     public:
       BCGen(ASTContext& ctxt);
 
-      // TODO: Create the entry point for codegen of basic expressions
-      //       maybe "genExpr" is alright. Take a SmallVectorImpl as parameter
-      //       to write the expr's data there.
-      //       That entry point will be public, but will be made private
-      //       once code gen for top-level decls work. (will follow the same
-      //       plan as sema)
+      // Generates (emits) the bytecode for an expression "expr" using the 
+      // builder "builder".
+      void emitExpr(InstructionBuilder& builder, Expr* expr);
 
       DiagnosticEngine& getDiagnosticEngine() const;
 
       ASTContext& getASTContext() const;
 
     private:
+      class Generator;
+      class ExprGenerator;
+
       ASTContext& ctxt_;
+  };
+
+  class BCGen::Generator {
+    BCGen& bcGen_;
+    DiagnosticEngine& diags_;
+    ASTContext& ctxt_;
+    public:
+      Generator(BCGen& bcGen) : bcGen_(bcGen),
+        diags_(bcGen_.getDiagnosticEngine()), ctxt_(bcGen_.getASTContext()) {}
+
+      ASTContext& getCtxt() { return ctxt_; }
+      DiagnosticEngine& getDiags() { return diags_; }
+      BCGen& getBCGen() { return bcGen_; }
   };
 }
