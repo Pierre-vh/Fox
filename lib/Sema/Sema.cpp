@@ -22,11 +22,11 @@ using namespace fox;
 
 Sema::Sema(ASTContext& ctxt) : ctxt_(ctxt) {}
 
-DiagnosticEngine& Sema::getDiagnosticEngine() {
+DiagnosticEngine& Sema::getDiagnosticEngine() const {
   return ctxt_.diagEngine;
 }
 
-ASTContext& Sema::getASTContext() {
+ASTContext& Sema::getASTContext() const {
   return ctxt_;
 }
 
