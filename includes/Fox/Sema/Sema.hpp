@@ -33,11 +33,8 @@ namespace fox {
       // Performs semantic analysis on a UnitDecl
       void checkUnitDecl(UnitDecl* decl);
 
-      // Returns the DiagnosticEngine used by this Sema instance.
-      DiagnosticEngine& getDiagnosticEngine();
-
-      // Returns the ASTContext used by this Sema instance
-      ASTContext& getASTContext();
+      DiagnosticEngine& getDiagnosticEngine() const;
+      ASTContext& getASTContext() const;
 
     private:
       // Children checkers and others
