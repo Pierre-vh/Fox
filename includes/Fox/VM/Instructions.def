@@ -26,6 +26,7 @@
     - Ternary: 3 args: 1 byte (a) + 1 byte (b) + 1 byte (c)
     - Binary: 2 args: 1 byte (a) + 2 byte (d)
     - Small Binary: 2 args: 1 byte (a) + 1 byte (b)
+    - Unary: a single signed/unsigned 24 bit argument
 */
 //----------------------------------------------------------------------------//
 
@@ -62,6 +63,18 @@
   #define SMALL_BINARY_INSTR(ID) BINARY_INSTR(ID)
 #endif
 
+// Unary instruction with a single argument. That argument's name
+// is different depending on the instruction. Its argument
+// is signed or unsigned.
+#ifndef UNARY_INSTR
+  #define UNARY_INSTR(ID) INSTR(ID)
+#endif
+
+// Variant of UNARY_INSTR where the argument is always signed.
+// Default behaviour is to do the same as UNARY_INSTR
+#ifndef SIGNED_UNARY_INSTR
+  #define SIGNED_UNARY_INSTR(ID) UNARY_INSTR(ID)
+#endif
 
 //----------------------------------------------------------------------------//
 
@@ -100,7 +113,11 @@ SMALL_BINARY_INSTR(LNot)  // Logical NOT
 TERNARY_INSTR(LOr)        // Logical OR
 TERNARY_INSTR(LAnd)       // Logical AND
 
-LAST_INSTR(LAnd)
+// Jumps
+BINARY_INSTR(CondJump)    // Conditional Jumps : jump if register != 0
+SIGNED_UNARY_INSTR(Jump)  // Unconditional jump
+
+LAST_INSTR(Jump)
 
 //----------------------------------------------------------------------------//
 
@@ -109,4 +126,6 @@ LAST_INSTR(LAnd)
 #undef TERNARY_INSTR
 #undef BINARY_INSTR
 #undef SMALL_BINARY_INSTR
+#undef UNARY_INSTR
+#undef SIGNED_UNARY_INSTR
 #undef LAST_INSTR

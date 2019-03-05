@@ -30,6 +30,9 @@ namespace fox {
       // Runs the current program.
       void run();
 
+      // Returns the current value of the program counter.
+      std::size_t getPC() const;
+
       ArrayRef<std::uint64_t> getRegisterStack() const;
       MutableArrayRef<std::uint64_t> getRegisterStack();
 

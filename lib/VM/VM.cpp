@@ -33,9 +33,9 @@ void VM::load(ArrayRef<std::uint32_t> instrs) {
 
 void VM::run() {
   std::uint32_t instr = 0;
-  while (true) {
+  do {
     // Decode the current instruction
-    instr = program_[programCounter_++];
+    instr = program_[programCounter_];
     #define opcode static_cast<Opcode>(instr & 0x000000FF)
     // Maybe theses could be renamed so they aren't one letter identifiers?
     #define a static_cast<std::uint8_t>((instr & 0x0000FF00) >> 8)
@@ -162,6 +162,15 @@ void VM::run() {
         // LNot A B: A = !B
         setReg(a, !getReg(b));
         continue;
+      case Opcode::CondJump:
+        // CondJump A D: Add D (as a signed int) to programCounter if A != 0
+        if(getReg(a) != 0)
+          programCounter_ += static_cast<std::int16_t>(d);
+        continue;
+      case Opcode::Jump:
+        // Jump x: Add x (24 bit signed value) to programCounter
+        programCounter_ += llvm::SignExtend32<24>((instr & 0xFFFFFF00) >> 8);
+        continue;
       default:
         fox_unreachable("illegal or unimplemented instruction found");
     }
@@ -170,7 +179,12 @@ void VM::run() {
     #undef b
     #undef c
     #undef d
-  }
+    // Infinite loop where we increment the program counter
+  } while(++programCounter_);
+}
+
+std::size_t VM::getPC() const {
+  return programCounter_;
 }
 
 ArrayRef<std::uint64_t> VM::getRegisterStack() const {

@@ -103,12 +103,29 @@ TEST(InstructionBuilderTest, BinaryInstr) {
   EXPECT_EQ(d, 42042);
 }
 
+TEST(InstructionBuilderTest, UnaryInstr) {
+  InstructionBuilder builder;
+  // Create unary instrs
+  std::uint32_t positive_instr = builder.createJumpInstr(6000000).getLastInstr();
+  std::uint32_t negative_instr = builder.createJumpInstr(-6000000).getLastInstr();
+  // Check the positive one
+  {
+    std::uint8_t op = (positive_instr & 0x000000FF);
+    std::int32_t arg = llvm::SignExtend32<24>((positive_instr & 0xFFFFFF00) >> 8);
+    EXPECT_EQ(+op, +static_cast<std::uint8_t>(Opcode::Jump));
+    EXPECT_EQ(arg, 6000000);
+  }
+  // Check the negative one
+  {
+    std::uint8_t op = (negative_instr & 0x000000FF);
+    std::int32_t arg = llvm::SignExtend32<24>((negative_instr & 0xFFFFFF00) >> 8);
+    EXPECT_EQ(+op, +static_cast<std::uint8_t>(Opcode::Jump));
+    EXPECT_EQ(arg, -6000000);
+  }
+}
+
 // This tests that we can use both signed and unsigned values in
 // StoreSmallInt. 
-//
-// I'm testi,g this because I'm a bit of a noob with signedness stuff
-// so I want to be sure that it works as expected. 
-//  - Pierre
 TEST(InstructionBuilderTest, StoreSmallInt) {
   // Encoding test
   InstructionBuilder builder;
@@ -354,4 +371,60 @@ TEST(VMTest, LogicOps) {
   EXPECT_EQ(getReg(3), 1) << "Bad LAnd";
   EXPECT_EQ(getReg(4), 0) << "Bad LNot";
   EXPECT_EQ(getReg(5), 1) << "Bad LNot";
+}
+
+
+TEST(VMTest, Jumps) {
+  // Unconditional Jump test
+  {
+    InstructionBuilder builder;
+    // Create instructions like this:
+      // 0 Jump 2
+      // 1 Break
+      // 2 Break    // PC should end up here
+      // 3 Jump -2
+      // 4 Break
+    builder
+      .createJumpInstr(2)
+      .createBreakInstr()
+      .createBreakInstr()
+      .createJumpInstr(-2)
+      .createBreakInstr();
+
+    // Prepare the VM
+    VM vm;
+    vm.load(builder.getInstrs());
+    // Run the code
+    vm.run();
+    // Check that the PC ended up where we expected it to.
+    EXPECT_EQ(vm.getPC(), 2u) << "Bad Jump";
+  }
+  // Conditional Jump test
+  {
+    FoxInt r0 = 0;
+    FoxInt r1 = 1;
+    InstructionBuilder builder;
+    // Create instructions like this:
+      // 0 CondJump r0 1  // won't jump since r0 = 0
+      // 1 CondJump r1 1  // will jump since r1 = 1
+      // 2 Break    
+      // 3 Break    // PC should end up here
+    builder
+      .createCondJumpInstr(0, 1)
+      .createCondJumpInstr(1, 1)
+      .createBreakInstr()
+      .createBreakInstr();
+
+    // Prepare the VM
+    VM vm;
+    vm.load(builder.getInstrs());
+    // Setup initial values
+    auto regs = vm.getRegisterStack();
+    regs[0] = r0;
+    regs[1] = r1;
+    // Run the code
+    vm.run();
+    // Check that the PC ended up where we expected it to.
+    EXPECT_EQ(vm.getPC(), 3u) << "Bad CondJump";
+  }
 }

@@ -27,6 +27,10 @@ namespace fox {
         create##ID##Instr(std::uint8_t a, std::uint8_t b);
       #define BINARY_INSTR(ID) InstructionBuilder&\
         create##ID##Instr(std::uint8_t a, std::uint16_t d);
+      #define UNARY_INSTR(ID) InstructionBuilder&\
+        create##ID##Instr(std::uint32_t val);
+      #define SIGNED_UNARY_INSTR(ID) InstructionBuilder&\
+        create##ID##Instr(std::int32_t val);
       #include "Instructions.def"
 
       void reset();
@@ -42,6 +46,12 @@ namespace fox {
 
       InstructionBuilder& 
       createADInstr(Opcode op, std::uint8_t a, std::uint16_t d);
+
+      InstructionBuilder& 
+      createSignedUnaryInstr(Opcode op, std::int32_t val);
+
+      InstructionBuilder& 
+      createUnaryInstr(Opcode op, std::uint32_t val);
 
       void pushInstr(std::uint32_t instr);
 
