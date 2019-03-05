@@ -13,12 +13,15 @@
 
 using namespace fox;
 
-// TODO: Refactor the code here. It's pretty much a prototype, so the code
-//       needs to be cleaned up a bit.
+//----------------------------------------------------------------------------//
+// ExprGenerator
+//----------------------------------------------------------------------------//
 
 // The actual class responsible for generating the bytecode of expressions
 class BCGen::ExprGenerator : public Generator, private ASTWalker,
                       private ExprVisitor<ExprGenerator, void> {
+  using Visitor = ExprVisitor<ExprGenerator, void>;
+  friend Visitor;
   public:
     ExprGenerator(BCGen& gen, InstructionBuilder& builder) :
       Generator(gen, builder) {}
@@ -29,10 +32,46 @@ class BCGen::ExprGenerator : public Generator, private ASTWalker,
     }
 
   private:
-    // TODO : walk overrides
-    // TODO : visit methods
+    //----------------------------------------------------------------------//
+    // ASTWalker overrides
+    //----------------------------------------------------------------------//
+
+    virtual Expr* handleExprPost(Expr* expr) {
+      assert(expr && "Expr cannot be null!");
+      visit(expr);
+      return expr;
+    }
+
+    //----------------------------------------------------------------------//
+    // "visit" methods 
+    // 
+    // Theses methods will perfom the actual tasks required to emit
+    // the bytecode for a node.
+    //----------------------------------------------------------------------//
+
+    // Expressions
+    void visitBinaryExpr(BinaryExpr*) { /*TODO*/ }
+    void visitCastExpr(CastExpr*) { /*TODO*/ }
+    void visitUnaryExpr(UnaryExpr*) { /*TODO*/ }
+    void visitArraySubscriptExpr(ArraySubscriptExpr*) { /*TODO*/ }
+    void visitMemberOfExpr(MemberOfExpr*) { /*TODO*/ }
+    void visitDeclRefExpr(DeclRefExpr*) { /*TODO*/ }
+    void visitUnresolvedDeclRefExpr(UnresolvedDeclRefExpr*) { /*TODO*/ }
+    void visitCallExpr(CallExpr*) { /*TODO*/ }
+
+    // Expressions : Literals
+    void visitCharLiteralExpr(CharLiteralExpr*) { /*TODO*/ }
+    void visitIntegerLiteralExpr(IntegerLiteralExpr*) { /*TODO*/ }
+    void visitDoubleLiteralExpr(DoubleLiteralExpr*) { /*TODO*/ }
+    void visitBoolLiteralExpr(BoolLiteralExpr*) { /*TODO*/ }
+    void visitStringLiteralExpr(StringLiteralExpr*) { /*TODO*/ }
+    void visitArrayLiteralExpr(ArrayLiteralExpr*) { /*TODO*/ }
+    void visitErrorExpr(ErrorExpr*) { /*TODO*/ }
 };
 
+//----------------------------------------------------------------------------//
+// BCGen Entrypoints
+//----------------------------------------------------------------------------//
 
 void BCGen::emitExpr(InstructionBuilder& builder, Expr* expr) {
   ExprGenerator(*this, builder).generate(expr);
