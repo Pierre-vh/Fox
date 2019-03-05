@@ -1,3 +1,6 @@
+#include "..\..\includes\Fox\VM\InstructionBuilder.hpp"
+#include "..\..\includes\Fox\VM\InstructionBuilder.hpp"
+#include "..\..\includes\Fox\VM\InstructionBuilder.hpp"
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
@@ -53,15 +56,18 @@ InstructionBuilder::create##ID##Instr(std::int32_t val) {\
 //----------------------------------------------------------------------------//
 
 void InstructionBuilder::reset() {
-  instrsBuff_.clear();
+  if(hasBuffer())
+    getBuffer().clear();
 }
 
 std::uint32_t InstructionBuilder::getLastInstr() const {
-  return instrsBuff_.back();
+  if(hasBuffer())
+    return getBuffer().back();
+  return 0;
 }
 
 ArrayRef<std::uint32_t>InstructionBuilder::getInstrs() const {
-  return instrsBuff_;
+  return getBuffer();
 }
 
 InstructionBuilder&
@@ -111,5 +117,19 @@ InstructionBuilder::createUnaryInstr(Opcode op, std::uint32_t val) {
 }
 
 void InstructionBuilder::pushInstr(std::uint32_t instr) {
-  instrsBuff_.push_back(instr);
+  getBuffer().push_back(instr);
+}
+
+bool InstructionBuilder::hasBuffer() const {
+  return (bool)instrBuffer_;
+}
+
+InstructionBuilder::Buffer& InstructionBuilder::getBuffer() {
+  if(!instrBuffer_)
+    instrBuffer_ = std::make_unique<Buffer>();
+  return (*instrBuffer_);
+}
+
+const InstructionBuilder::Buffer& InstructionBuilder::getBuffer() const {
+  return const_cast<InstructionBuilder*>(this)->getBuffer();
 }
