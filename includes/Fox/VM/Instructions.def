@@ -4,7 +4,8 @@
 // File : Instructions.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file uses Macro to "register" every Opcode supported by the Fox VM.
+// This file uses Macro to "register" every bytecode instruction 
+// supported by the Fox VM.
 //----------------------------------------------------------------------------//
 /*
   Instructions are fixed width and are 32 bits wide. They are pretty similar
@@ -21,7 +22,7 @@
   Some instructions may not use any operand at all. Such operations
   are called "Simple" operations.
 
-  TL;DR: 4 instruction kind (for now) (they all have the opcode as first byte)
+  TL;DR: 5 instruction kind (for now) (they all have the opcode as first byte)
     - Simple: No args
     - Ternary: 3 args: 1 byte (a) + 1 byte (b) + 1 byte (c)
     - Binary: 2 args: 1 byte (a) + 2 byte (d)

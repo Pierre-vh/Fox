@@ -21,7 +21,9 @@ Current issues/todos:
 
   -> The macros in "Instructions.def" are not ideal too. It'd be great to clean them up
      so I have less of them and so that they're more flexible.
-
+      -> Current idea: Accept a "is signed" and a "is small" argument
+          e.g. BINARY_INSTR(Foo, /*signed*/ true, /*small*/ false)
+    
 ---- Initial Preparation and Scaffolding ---- DONE ----
 
   -> Opcode (Done)
@@ -47,11 +49,10 @@ Current issues/todos:
 
 ---- Implementation of basic CodeGen ----
   -> Scaffolding (Done)
-  -> Make InstructionBuilder work on external buffer. It should be able to work on both
-     an external and an internal buffer.
-  -> Basic CodeGen of simple expressions : only double and int types.
+  -> InstructionBuilder's buffer can be taken (Done)
+  -> Basic CodeGen of simple expressions : only compile time constant ops involving
+      doubles and ints.
   -> CodeGen of control flow statements (if/while)
-  -> CodeGen entry point (basic decl codegen that just generates the 'main' function's body)
 
 ---- Implementation of Object types and GC ----
   
