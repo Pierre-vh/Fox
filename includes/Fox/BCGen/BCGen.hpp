@@ -32,16 +32,20 @@ namespace fox {
       ASTContext& ctxt_;
   };
 
+  // Common base class for every "generator".
   class BCGen::Generator {
     BCGen& bcGen_;
     DiagnosticEngine& diags_;
     ASTContext& ctxt_;
-    public:
-      Generator(BCGen& bcGen) : bcGen_(bcGen),
+    InstructionBuilder& builder_;
+    protected:
+      Generator(BCGen& bcGen,  InstructionBuilder& builder) : 
+        bcGen_(bcGen), builder_(builder),
         diags_(bcGen_.getDiagnosticEngine()), ctxt_(bcGen_.getASTContext()) {}
 
       ASTContext& getCtxt() { return ctxt_; }
       DiagnosticEngine& getDiags() { return diags_; }
       BCGen& getBCGen() { return bcGen_; }
+      InstructionBuilder& getBuilder() { return builder_; }
   };
 }

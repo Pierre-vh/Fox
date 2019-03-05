@@ -16,21 +16,21 @@ using namespace fox;
 // TODO: Refactor the code here. It's pretty much a prototype, so the code
 //       needs to be cleaned up a bit.
 
-// The actual class responsible for generating the bytecode of expression
+// The actual class responsible for generating the bytecode of expressions
 class BCGen::ExprGenerator : public Generator, private ASTWalker,
                       private ExprVisitor<ExprGenerator, void> {
   public:
     ExprGenerator(BCGen& gen, InstructionBuilder& builder) :
-      Generator(gen), builder(builder) {}
+      Generator(gen, builder) {}
 
-    // Entry point
+    // Entry point of generation
     void generate(Expr* expr) {
       walk(expr);
     }
 
   private:
-    InstructionBuilder& builder;
-    // TODO
+    // TODO : walk overrides
+    // TODO : visit methods
 };
 
 
