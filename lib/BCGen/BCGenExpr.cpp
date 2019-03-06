@@ -18,8 +18,8 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 // The actual class responsible for generating the bytecode of expressions
-class BCGen::ExprGenerator : public Generator, private ASTWalker,
-                      private ExprVisitor<ExprGenerator, void> {
+class BCGen::ExprGenerator : public Generator,
+                             private ExprVisitor<ExprGenerator, void> {
   using Visitor = ExprVisitor<ExprGenerator, void>;
   friend Visitor;
   public:
@@ -28,20 +28,10 @@ class BCGen::ExprGenerator : public Generator, private ASTWalker,
 
     // Entry point of generation
     void generate(Expr* expr) {
-      walk(expr);
+      visit(expr);
     }
 
   private:
-    //----------------------------------------------------------------------//
-    // ASTWalker overrides
-    //----------------------------------------------------------------------//
-
-    virtual Expr* handleExprPost(Expr* expr) {
-      assert(expr && "Expr cannot be null!");
-      visit(expr);
-      return expr;
-    }
-
     //----------------------------------------------------------------------//
     // "visit" methods 
     // 
