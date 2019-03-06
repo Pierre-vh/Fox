@@ -26,11 +26,13 @@ using namespace fox;
   create##ID##Instr(std::uint8_t a, std::uint8_t b, std::uint8_t c) {\
     return createABCInstr(Opcode::ID, a, b, c);\
   }
+
 #define SMALL_BINARY_INSTR(ID)\
   InstructionBuilder&\
   InstructionBuilder::create##ID##Instr(std::uint8_t a, std::uint8_t b) {\
     return createABCInstr(Opcode::ID, a, b, 0u);\
   }
+
 #define BINARY_INSTR(ID)\
   InstructionBuilder&\
   InstructionBuilder::create##ID##Instr(std::uint8_t a, std::uint16_t d) {\
@@ -38,16 +40,16 @@ using namespace fox;
   }
 
 #define UNARY_INSTR(ID)\
-InstructionBuilder&\
-InstructionBuilder::create##ID##Instr(std::uint32_t val) {\
-  return createUnaryInstr(Opcode::ID, val);\
-}
+  InstructionBuilder&\
+  InstructionBuilder::create##ID##Instr(std::uint32_t val) {\
+    return createUnaryInstr(Opcode::ID, val);\
+  }
 
 #define SIGNED_UNARY_INSTR(ID)\
-InstructionBuilder&\
-InstructionBuilder::create##ID##Instr(std::int32_t val) {\
-  return createSignedUnaryInstr(Opcode::ID, val);\
-}
+  InstructionBuilder&\
+  InstructionBuilder::create##ID##Instr(std::int32_t val) {\
+    return createSignedUnaryInstr(Opcode::ID, val);\
+  }
 
 #include "Fox/VM/Instructions.def"
 
