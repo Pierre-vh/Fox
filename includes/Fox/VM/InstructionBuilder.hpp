@@ -31,6 +31,8 @@ namespace fox {
         create##ID##Instr(std::uint8_t a, std::uint8_t b);
       #define BINARY_INSTR(ID) InstructionBuilder&\
         create##ID##Instr(std::uint8_t a, std::uint16_t d);
+      #define SIGNED_BINARY_INSTR(ID) InstructionBuilder&\
+        create##ID##Instr(std::uint8_t a, std::int16_t d);
       #define UNARY_INSTR(ID) InstructionBuilder&\
         create##ID##Instr(std::uint32_t val);
       #define SIGNED_UNARY_INSTR(ID) InstructionBuilder&\

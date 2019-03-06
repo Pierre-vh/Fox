@@ -53,9 +53,19 @@
 #endif
 
 // Binary instructions with one 8 bit + one 16 bit arguments: a and d.
+// If SIGNED_BINARY_INSTR is not defined, the argument may be
+// signed or unsigned. If both BINARY_INSTR and SIGNED_BINARY_INSTR
+// are defined, BINARY_INSTR is used for unsigned arguments and
+// SIGNED_BINARY_INSTR for signed arguments.
 // Default behaviour is to do the same as INSTR
 #ifndef BINARY_INSTR
   #define BINARY_INSTR(ID) INSTR(ID)
+#endif
+
+// Variant of BINARY_INSTR where D is a signed number.
+// Default behaviour is to do the same as BINARY_INSTR
+#ifndef SIGNED_BINARY_INSTR
+  #define SIGNED_BINARY_INSTR(ID) BINARY_INSTR(ID)
 #endif
 
 // Binary instructions with two 8 bit arguments: a and b.
@@ -65,8 +75,11 @@
 #endif
 
 // Unary instruction with a single argument. That argument's name
-// is different depending on the instruction. Its argument
-// is signed or unsigned.
+// is different depending on the instruction. 
+// If SIGNED_UNARY_INSTR is not defined, the argument may be
+// signed or unsigned. If both UNARY_INSTR and SIGNED_UNARY_INSTR
+// are defined, UNARY_INSTR is used for unsigned arguments and
+// SIGNED_UNARY_INSTR for signed arguments.
 #ifndef UNARY_INSTR
   #define UNARY_INSTR(ID) INSTR(ID)
 #endif
@@ -83,7 +96,7 @@ SIMPLE_INSTR(NoOp)
 SIMPLE_INSTR(Break)
 
 // Stores D (a signed 16 bit int) in register A
-BINARY_INSTR(StoreSmallInt)
+SIGNED_BINARY_INSTR(StoreSmallInt)
 
 // Arithmetic : a = b (op) c. Result's type is the type of the operand.
 TERNARY_INSTR(AddInt)     // Int Addition
@@ -126,6 +139,7 @@ LAST_INSTR(Jump)
 #undef SIMPLE_INSTR
 #undef TERNARY_INSTR
 #undef BINARY_INSTR
+#undef SIGNED_BINARY_INSTR
 #undef SMALL_BINARY_INSTR
 #undef UNARY_INSTR
 #undef SIGNED_UNARY_INSTR

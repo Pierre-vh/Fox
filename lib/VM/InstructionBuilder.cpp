@@ -39,6 +39,12 @@ using namespace fox;
     return createADInstr(Opcode::ID, a, d);\
   }
 
+#define SIGNED_BINARY_INSTR(ID)\
+  InstructionBuilder&\
+  InstructionBuilder::create##ID##Instr(std::uint8_t a, std::int16_t d) {\
+    return createADInstr(Opcode::ID, a, d);\
+  }
+
 #define UNARY_INSTR(ID)\
   InstructionBuilder&\
   InstructionBuilder::create##ID##Instr(std::uint32_t val) {\

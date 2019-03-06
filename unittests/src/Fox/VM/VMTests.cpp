@@ -93,14 +93,14 @@ TEST(InstructionBuilderTest, BinaryInstr) {
   InstructionBuilder builder;
   // Create a Binary instr
   std::uint32_t instr = 
-    builder.createStoreSmallIntInstr(42, 42042).getLastInstr();
+    builder.createStoreSmallIntInstr(42, 16000).getLastInstr();
   // Check if was encoded as expected.
   std::uint8_t op = instr & 0x000000FF;
   std::uint8_t a = (instr & 0x0000FF00) >> 8; 
   std::uint16_t d = (instr & 0xFFFF0000) >> 16;
   EXPECT_EQ(+op, +static_cast<std::uint8_t>(Opcode::StoreSmallInt));
   EXPECT_EQ(+a, 42);
-  EXPECT_EQ(d, 42042);
+  EXPECT_EQ(d, 16000);
 }
 
 TEST(InstructionBuilderTest, UnaryInstr) {
