@@ -82,8 +82,8 @@
 SIMPLE_INSTR(NoOp)
 SIMPLE_INSTR(Break)
 
-// Loads the value of D (interpreted as a signed int16) in register A
-BINARY_INSTR(StoreSmallInt) // Can this work with signed ints too?
+// Stores D (a signed 16 bit int) in register A
+BINARY_INSTR(StoreSmallInt)
 
 // Arithmetic : a = b (op) c. Result's type is the type of the operand.
 TERNARY_INSTR(AddInt)     // Int Addition
@@ -115,8 +115,8 @@ TERNARY_INSTR(LOr)        // Logical OR
 TERNARY_INSTR(LAnd)       // Logical AND
 
 // Jumps
-BINARY_INSTR(CondJump)    // Conditional Jumps : jump if register != 0
-SIGNED_UNARY_INSTR(Jump)  // Unconditional jump
+BINARY_INSTR(CondJump)    // Conditional Jump : Jump iff register != 0
+SIGNED_UNARY_INSTR(Jump)  // Unconditional Jump
 
 LAST_INSTR(Jump)
 
