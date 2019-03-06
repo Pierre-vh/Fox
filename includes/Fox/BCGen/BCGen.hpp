@@ -43,7 +43,7 @@ namespace fox {
         bcGen_(bcGen), builder_(builder),
         diags_(bcGen_.getDiagnosticEngine()), ctxt_(bcGen_.getASTContext()) {}
 
-      ASTContext& getCtxt() { return ctxt_; }
+      ASTContext& getASTContext() { return ctxt_; }
       DiagnosticEngine& getDiags() { return diags_; }
       BCGen& getBCGen() { return bcGen_; }
       InstructionBuilder& getBuilder() { return builder_; }

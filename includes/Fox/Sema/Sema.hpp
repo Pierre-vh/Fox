@@ -220,7 +220,7 @@ namespace fox {
       Checker(Sema& sema) : sema_(sema),
         diags_(sema.getDiagnosticEngine()), ctxt_(sema.getASTContext()) {}
 
-      ASTContext& getCtxt() { return ctxt_; }
+      ASTContext& getASTContext() { return ctxt_; }
       DiagnosticEngine& getDiags() { return diags_; }
       Sema& getSema() { return sema_; }
   };

@@ -297,7 +297,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // Finalizes an expression whose type is boolean (e.g. conditional/logical
     // expressions such as LAnd, LNot, LE, GT, etc..)
     Expr* finalizeBooleanExpr(Expr* expr) {
-      expr->setType(PrimitiveType::getBool(getCtxt()));
+      expr->setType(PrimitiveType::getBool(getASTContext()));
       return expr;
     }
 
@@ -343,7 +343,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // For empty array literals, the type is going to be a fresh
       // TypeVariable inside an Array. e.g. [$T0]
       Type type = getSema().createNewTypeVariable();
-      type = ArrayType::get(getCtxt(), type); 
+      type = ArrayType::get(getASTContext(), type); 
       expr->setType(type);
       return expr;
     }
@@ -352,7 +352,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* finalizeConcatBinaryExpr(BinaryExpr* expr) {
       // For concatenation, the type is always string.
       // We'll also change the add operator to become the concat operator.
-      expr->setType(PrimitiveType::getString(getCtxt()));
+      expr->setType(PrimitiveType::getString(getASTContext()));
       expr->setOp(BinaryExpr::OpKind::Concat);
       return expr;
     }
@@ -380,7 +380,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Resolved DeclRef
       DeclRefExpr* resolved = 
-        DeclRefExpr::create(getCtxt(), found, udre->getSourceRange());
+        DeclRefExpr::create(getASTContext(), found, udre->getSourceRange());
       
       // Assign it's type
       Type valueType = found->getValueType();
@@ -388,7 +388,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // If it's a non const ValueDecl, wrap it in a LValue
       if(!found->isConst()) {
         assert(!isa<FuncDecl>(found) && "FuncDecl are always const!");
-        valueType = LValueType::get(getCtxt(), valueType);
+        valueType = LValueType::get(getASTContext(), valueType);
       }
 
       resolved->setType(valueType);
@@ -412,7 +412,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // means typechecking failed for this node, so set
       // it's type to ErrorType.
       if (!expr->getType()) {
-        expr->setType(ErrorType::get(getCtxt()));
+        expr->setType(ErrorType::get(getASTContext()));
       }
       return expr;
     }
@@ -593,7 +593,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
       // Or a string
       else if(baseTy->isStringType())
-        subscriptType = PrimitiveType::getChar(getCtxt());
+        subscriptType = PrimitiveType::getChar(getASTContext());
       else {
 			  diagnoseInvalidArraySubscript(expr, base->getSourceRange(), 
                                       idxE->getSourceRange());
@@ -612,7 +612,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // Note: When the base is an lvalue (= it's assignable), the subscript
       // should be assignable too.
       if(base->getType()->isAssignable())
-        subscriptType = LValueType::get(getCtxt(), subscriptType);
+        subscriptType = LValueType::get(getASTContext(), subscriptType);
       expr->setType(subscriptType);
       return expr;
     }
@@ -630,7 +630,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(results.isEmpty()) {
         diagnoseUndeclaredIdentifier(range, id);
         // Return an ErrorExpr on error.
-        return ErrorExpr::create(getCtxt());
+        return ErrorExpr::create(getASTContext());
       }
       // Ambiguous result
       if(results.isAmbiguous()) {
@@ -638,7 +638,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         if (!removeIllegalRedecls(results)) {
           diagnoseAmbiguousIdentifier(range, id, results);
           // Return an ErrorExpr on error.
-          return ErrorExpr::create(getCtxt());
+          return ErrorExpr::create(getASTContext());
         }
       }
       // Correct, unambiguous result.
@@ -697,27 +697,27 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // Trivial literals: the expr's type is simply the corresponding
     // type. Int for a Int literal, etc.
     Expr* visitCharLiteralExpr(CharLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getChar(getCtxt()));
+      expr->setType(PrimitiveType::getChar(getASTContext()));
       return expr;
     }
 
     Expr* visitIntegerLiteralExpr(IntegerLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getInt(getCtxt()));
+      expr->setType(PrimitiveType::getInt(getASTContext()));
       return expr;
     }
 
     Expr* visitDoubleLiteralExpr(DoubleLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getDouble(getCtxt()));
+      expr->setType(PrimitiveType::getDouble(getASTContext()));
       return expr;
     }
 
     Expr* visitBoolLiteralExpr(BoolLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getBool(getCtxt()));
+      expr->setType(PrimitiveType::getBool(getASTContext()));
       return expr;
     }
 
     Expr* visitStringLiteralExpr(StringLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getString(getCtxt()));
+      expr->setType(PrimitiveType::getString(getASTContext()));
       return expr;
     }
 
@@ -789,7 +789,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // Set the type to an ArrayType of the
       // type if the expr is still considered valid.
       if(isValid)
-        expr->setType(ArrayType::get(getCtxt(), proposedType));
+        expr->setType(ArrayType::get(getASTContext(), proposedType));
       return expr;
     }
 
