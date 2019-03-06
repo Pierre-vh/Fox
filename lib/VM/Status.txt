@@ -52,6 +52,7 @@ Current issues/todos:
 ---- Implementation of basic CodeGen ----
   -> Scaffolding (Done)
   -> InstructionBuilder's buffer can be taken (Done)
+  -> Bytecode Dumper
   -> Basic CodeGen of simple expressions : only compile time constant ops involving
       doubles and ints.
   -> CodeGen of control flow statements (if/while)
