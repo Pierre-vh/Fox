@@ -5,7 +5,7 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-#include "Fox/VM/Opcode.hpp"
+#include "Fox/VM/Instructions.hpp"
 
 static constexpr const char* const opcodeStrings[] = {
   #define INSTR(Op) #Op,

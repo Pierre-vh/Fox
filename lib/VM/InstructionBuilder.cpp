@@ -1,6 +1,3 @@
-#include "..\..\includes\Fox\VM\InstructionBuilder.hpp"
-#include "..\..\includes\Fox\VM\InstructionBuilder.hpp"
-#include "..\..\includes\Fox\VM\InstructionBuilder.hpp"
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
@@ -9,7 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/VM/InstructionBuilder.hpp"
-#include "Fox/VM/Opcode.hpp"
+#include "Fox/VM/Instructions.hpp"
 
 using namespace fox;
 

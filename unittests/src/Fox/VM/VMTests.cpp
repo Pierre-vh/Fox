@@ -8,7 +8,7 @@
 //----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
-#include "Fox/VM/Opcode.hpp"
+#include "Fox/VM/Instructions.hpp"
 #include "Fox/VM/InstructionBuilder.hpp"
 #include "Fox/VM/VM.hpp"
 #include "llvm/Support/MathExtras.h"
