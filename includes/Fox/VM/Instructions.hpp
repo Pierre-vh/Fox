@@ -4,12 +4,17 @@
 // File : Opcode.hpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This contains the "Opcode" enum as well as some utility functions.
+//  This file contains informations about the Fox VM instruction set.
 //----------------------------------------------------------------------------//
 
 #pragma once
 
 #include <cstdint>
+#include <iosfwd>
+
+namespace llvm {
+  template<typename T> class ArrayRef;
+}
 
 namespace fox {
   // This enum contains every opcode. A enum class is used instead of
@@ -18,6 +23,7 @@ namespace fox {
   // This shouldn't be an issue since we can:
   //  - use static_cast<std::uint8_t>(op) to get the value of the opcode
   //  - use static_cast<Opcode>(num) to get an Opcode back from an int.
+  // Both have no runtime cost.
   enum class Opcode : std::uint8_t {
     #define INSTR(Op) Op,
     #define LAST_INSTR(Op) last_opcode = Op
@@ -39,4 +45,9 @@ namespace fox {
   // If the opcode is illegal, "<illegal opcode>" is returned instead.
   const char* toString(Opcode op);
   
+  // Dumps a single instruction to "os".
+  void dumpInstruction(std::ostream& os, std::uint32_t instr);
+
+  // Dumps a series of instructions to "os"
+  void dumpInstructions(std::ostream& os, llvm::ArrayRef<std::uint32_t> instrs);
 }

@@ -13,6 +13,7 @@
 #include "Fox/VM/VM.hpp"
 #include "llvm/Support/MathExtras.h"
 #include "Fox/Common/Typedefs.hpp"
+#include <sstream>
 
 using namespace fox;
 
@@ -47,6 +48,39 @@ TEST(OpcodeTest, ToString) {
   EXPECT_STRCASEEQ(strA, "StoreSmallInt");
   EXPECT_STRCASEEQ(strB, "NoOp");
   EXPECT_STRCASEEQ(strC, "LAnd");
+}
+
+TEST(InstructionDumpTest, DumpInstructionsTest) {
+  // Create a series of instructions with at least one of each kind.
+  InstructionBuilder builder;
+  builder
+    // Simple
+    .createNoOpInstr()
+    // Ternary
+    .createAddIntInstr(0, 1, 2)
+    // Small Binary
+    .createLNotInstr(42, 84)
+    // (TO-DO) Unsigned Binary
+    // ---------------------- //
+    // Signed Binary
+    .createStoreSmallIntInstr(0, -4242)
+    // (TO-DO) Unsigned Unary
+    // ---------------------- // 
+    // Signed Unary
+    .createJumpInstr(-8388607);
+  // Check that we have the correct number of instructions
+  auto instrs = builder.getInstrs();
+  ASSERT_EQ(instrs.size(), 5u) << "Broken InstructionBuilder?";
+  // Dump to a stringstream
+  std::stringstream ss;
+  dumpInstructions(ss, instrs);
+  // Compare strings
+  EXPECT_EQ(ss.str(),
+    "NoOp\n"
+    "AddInt 0 1 2\n"
+    "LNot 42 84\n"
+    "StoreSmallInt 0 -4242\n"
+    "Jump -8388607");
 }
 
 TEST(InstructionBuilderTest, InstrBuff) {
