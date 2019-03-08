@@ -79,11 +79,11 @@ namespace fox {
       ASTContext& ctxt;
 
       // The DiagnosticEngine, used to emit diagnostics.
-      // This is a shortcut to ctxt.diagEngine
-      DiagnosticEngine& diags;
+      // This is a the same as ctxt.diagEngine
+      DiagnosticEngine& diagEngine;
 
       // The SourceManager, use to retrieve source information
-      // This is a shortcut to ctxt.sourceMgr
+      // This is a the same as ctxt.sourceMgr
       SourceManager& srcMgr;
 
       // The vector of tokens being considered by the parser

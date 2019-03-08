@@ -18,7 +18,7 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 Parser::Parser(ASTContext& ctxt, TokenVector& l, UnitDecl *unit):
-  ctxt(ctxt), tokens(l), srcMgr(ctxt.sourceMgr), diags(ctxt.diagEngine),
+  ctxt(ctxt), tokens(l), srcMgr(ctxt.sourceMgr), diagEngine(ctxt.diagEngine),
   curDeclCtxt_(unit) {
   tokenIterator_ = tokens.begin();
   isAlive_ = true;
@@ -55,7 +55,7 @@ SourceLoc Parser::consumeBracket(SignType s) {
   auto tok = getCurtok();
   // Lambda to diagnose an overflow and kill the parser.
   auto diagnoseOverflow = [&](DiagID id) {
-    diags.report(id, tok.getSourceRange());
+    diagEngine.report(id, tok.getSourceRange());
     die();
   };
   if (tok.is(s)) {
@@ -124,7 +124,7 @@ void Parser::revertConsume() {
   Token tok = getCurtok();
   // Lambda to diagnose an overflow and kill the parser.
   auto diagnoseOverflow = [&](DiagID id) {
-    diags.report(id, tok.getSourceRange());
+    diagEngine.report(id, tok.getSourceRange());
     die();
   };
   if (isBracket(tok.getSignType())) {
@@ -415,7 +415,7 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
     assert(curTok && "No valid previous token and no valid current token?");
     errorRange = curTok.getSourceRange();
   }
-  return diags.report(diag, errorRange);
+  return diagEngine.report(diag, errorRange);
 }
 
 bool Parser::isDone() const {

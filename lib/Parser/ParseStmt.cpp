@@ -122,7 +122,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
   if (!ifKw) {
     // check for a else without if
     if (auto elseKw = consumeKeyword(KeywordType::KW_ELSE)) {
-      diags.report(DiagID::else_without_if, elseKw);
+      diagEngine.report(DiagID::else_without_if, elseKw);
       return Result<Stmt*>::Error();
     }
     return Result<Stmt*>::NotFound();

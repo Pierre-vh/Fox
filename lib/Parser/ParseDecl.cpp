@@ -69,7 +69,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
           Token curtok = getCurtok();
           assert(curtok 
             && "Curtok must be valid since we have not reached eof");
-          diags.report(DiagID::expected_decl, curtok.getSourceRange());
+          diagEngine.report(DiagID::expected_decl, curtok.getSourceRange());
         }
 
         if (resyncToNextDecl()) continue; 
@@ -80,7 +80,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
 
   if (unit->getDecls().isEmpty()) {
     if(!declHadError)
-      diags.report(DiagID::expected_decl_in_unit, fid);
+      diagEngine.report(DiagID::expected_decl_in_unit, fid);
     return nullptr;
   }
   else {
