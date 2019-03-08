@@ -146,9 +146,7 @@ To-Do:
   > Rename getBegin/getEnd/getRange to getBeginLoc/getEndLoc/getSourceRange (Done)
   > Polish the DeclContext changes (Done)
 
-  > VM
-  > IR
-  > IRGen
+  > VM, Bytecode, BytecodeGen (Currently, see lib/VM/Status.md)
 
   > UFCS
     > AST Structure still to be decided.
@@ -189,7 +187,8 @@ Other:
         Right now I'm using const getters when returning pointers everytime except in some
         specific cases, but it kind of feels wrong. I'd need to adopt a stricter/cleaner
         policy, but the only "stricter" policy that I can think of is always returning
-        a const pointers when having const getters, but this feels too strict IMO.
+        a const pointers when having const getters, but this feels too strict IMHO, and there's
+        always the problem of "wrapper" types such as "Type".
 
   High priority:
     This is a list of "high-priority" stuff that needs to be done, but isn't part of the main
@@ -202,7 +201,7 @@ Other:
     > DiagnosticEngine overhaul: report(..) should return a Diagnostic::Builder object:
       a lightweight RAII object. The actual Diagnostic data should be contained
       inside the DiagnosticEngine. This avoids the large temporary object that is the
-      current Diagnostic object.  
+      current Diagnostic object, at the cost of only one "in-flight" diag allowed.
 
     > ASTVerifier
       Asserts that the AST is well formed. Used as a debug tool (will only be enabled in Debug builds)
@@ -216,6 +215,14 @@ Other:
         Type maps
         The allocator
         Cleanups
+
+    > Purge the codebase of trivial getters and setters.
+      e.g. getASTContext() and such can be replaced by making "ctxt_" a public member as "ctxt".
+      In the first time, just remove "getDiagnosticEngine", "getASTContext", "getSourceManager", "getSema"
+      and the likes. Then, maybe remove other trivial getters and setters.
+      Non-exhaustive list of classes/modules concerned by this change: Lexer, Parser (already done),
+      Sema, DiagnosticEngine, UnitDecl.
+      Note: Maybe use "astContext" or "astCtxt" for clarity?
         
   Medium priority:
     This is a list of "medium-priority" stuff that needs to be done.
