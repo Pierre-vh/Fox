@@ -44,8 +44,10 @@ namespace fox {
   void dumpInstructions(std::ostream& os, llvm::ArrayRef<Instruction> instrs);
 
   // An object representing a single Fox instruction.
+  //
+  // It is aligned in the same way as a 32 bits unsigned integer.
   LLVM_PACKED_START
-  struct Instruction {
+  struct alignas(std::uint32_t) Instruction {
     Instruction() = default;
     Instruction(Opcode op) : opcode(op) {}
 
