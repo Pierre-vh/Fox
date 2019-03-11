@@ -65,7 +65,7 @@ TAC_INSTR(PowDouble)  // Double exponentiation
 // Comparisons a = b (cond) c. Result is always an int (1 for true, 0 for false)
 TAC_INSTR(EqInt)      // Int Equality
 TAC_INSTR(LEInt)      // Int Less or Equal
-TAC_INSTR(LTInt)      // Int Less Than
+TAC_INSTR(LTInt)      // Int Less Than (Is it needed?)
 TAC_INSTR(EqDouble)   // Double Equality
 TAC_INSTR(LEDouble)   // Double Less or Equal
 TAC_INSTR(LTDouble)   // Double Less Than
