@@ -24,9 +24,10 @@ void VM::run() {
   do {
     // Decode the current instruction
     instr = program_[programCounter_];
-    // TODO: Rewrite doc withou "A B C D"s
     #define TRIVIAL_TAC_BINOP_IMPL(ID, TYPE, OP)\
-      setReg(instr.ID.arg0, getReg<TYPE>(instr.ID.arg1) OP getReg<TYPE>(instr.ID.arg2))
+      setReg(instr.ID.arg0,\
+      getReg<TYPE>(instr.ID.arg1) OP getReg<TYPE>(instr.ID.arg2))
+    // TODO: Rewrite the docs of each operands withou "A B C D"s
     switch (instr.opcode) {
       case Opcode::NoOp: 
         // NoOp: no-op: do nothing.
@@ -145,11 +146,13 @@ void VM::run() {
         continue;
       case Opcode::LOr:
         // LOr A B C: A = (B || C). B and C are raw register values.
-        setReg(instr.LOr.arg0, (getReg(instr.LOr.arg1) || getReg(instr.LOr.arg2)));
+        setReg(instr.LOr.arg0, 
+              (getReg(instr.LOr.arg1) || getReg(instr.LOr.arg2)));
         continue;
       case Opcode::LAnd:
         // LAnd A B C: A = (B && C). B and C are raw register values.
-        setReg(instr.LAnd.arg0, (getReg(instr.LAnd.arg1) && getReg(instr.LAnd.arg2)));
+        setReg(instr.LAnd.arg0, 
+              (getReg(instr.LAnd.arg1) && getReg(instr.LAnd.arg2)));
         continue;
       case Opcode::LNot:
         // LNot A B: A = !B
