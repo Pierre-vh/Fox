@@ -223,6 +223,8 @@ namespace fox {
       bool getIgnoreAll() const;
       void setIgnoreAll(bool val);
 
+      SourceManager& srcMgr;
+
     private:
       friend class Diagnostic;
 
@@ -248,8 +250,6 @@ namespace fox {
 
       // The DiagnosticVerifier, if there's one
       DiagnosticVerifier* verifier_ = nullptr;
-
-      SourceManager& srcMgr_;
 
       // The DiagnosticConsumer
       std::unique_ptr<DiagnosticConsumer> consumer_;

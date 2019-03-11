@@ -27,13 +27,14 @@ namespace fox {
       bool chrono_ = false;
       bool dumpAlloc_ = false;
       bool dumpAST_ = false;
-      bool parseOnly_ = false;
-      std::ostream& os_;
-      
+      bool parseOnly_ = false;   
+
+      SourceManager srcMgr_;
+      DiagnosticEngine diagEngine_;
+      ASTContext ctxt_;
+
     public:
-      SourceManager srcMgr;
-      DiagnosticEngine diags;
-      ASTContext ctxt;
+      std::ostream& out;
 
       Driver(std::ostream& os);
       bool processFile(string_view filepath);
@@ -52,8 +53,6 @@ namespace fox {
 
       bool isParseOnly() const;
       void setIsParseOnly(bool val);
-
-      std::ostream& getOS();
 
       bool doCL(int argc, char* argv[]);
 
@@ -76,7 +75,7 @@ namespace fox {
               <std::chrono::microseconds>(end-beg).count();
             auto milli = std::chrono::duration_cast
               <std::chrono::milliseconds>(end-beg).count();
-            driver.getOS() << label << " time:" << micro << " microseconds | "
+            driver.out << label << " time:" << micro << " microseconds | "
               << milli << " milliseconds\n";
           }
       };

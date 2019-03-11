@@ -10,12 +10,4 @@
 
 using namespace fox;
 
-BCGen::BCGen(ASTContext& ctxt) : ctxt_(ctxt) {}
-
-DiagnosticEngine& BCGen::getDiagnosticEngine() const {
-  return ctxt_.diagEngine;
-}
-
-ASTContext& BCGen::getASTContext() const {
-  return ctxt_;
-}
+BCGen::BCGen(ASTContext& ctxt) : ctxt(ctxt), diagEngine(ctxt.diagEngine) {}

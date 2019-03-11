@@ -18,15 +18,15 @@
 
 using namespace fox;
 
-Driver::Driver(std::ostream& os): os_(os), diags(srcMgr, os_),
-  ctxt(srcMgr, diags) {}
+Driver::Driver(std::ostream& os): out(os), diagEngine_(srcMgr_, os),
+  ctxt_(srcMgr_, diagEngine_) {}
 
 bool Driver::processFile(string_view filepath) {
   // Load the file in the source manager
-  auto result = srcMgr.readFile(filepath);
+  auto result = srcMgr_.readFile(filepath);
   FileID file = result.first;
   if (!file) {
-    getOS() << "Could not open file \"" << filepath << "\"\n"
+    out << "Could not open file \"" << filepath << "\"\n"
       "\tReason:" << toString(result.second) << '\n';
     return false;
   }
@@ -34,57 +34,57 @@ bool Driver::processFile(string_view filepath) {
 	// (Verify Mode) Create the DiagnosticVerifier
   std::unique_ptr<DiagnosticVerifier> dv;
   if (isVerifyModeEnabled()) {
-    dv = std::make_unique<DiagnosticVerifier>(diags, srcMgr);
+    dv = std::make_unique<DiagnosticVerifier>(diagEngine_, srcMgr_);
     // Parse the file
     dv->parseFile(file);
     // Enable the verify mode in the diagnostic engine
-    diags.enableVerifyMode(dv.get());
+    diagEngine_.enableVerifyMode(dv.get());
   }
 
 	// Do lexing
-  Lexer lex(ctxt);
+  Lexer lex(ctxt_);
   {
     auto chrono = createChrono("Lexing");
     lex.lexFile(file);
   }
 
   // Stop if we had errors
-  if (diags.hadAnyError())
+  if (diagEngine_.hadAnyError())
     return false;
 
-  Parser psr(ctxt, lex.getTokenVector());
+  Parser psr(ctxt_, lex.getTokenVector());
 
   UnitDecl* unit;
   // Do parsing
   {
     auto chrono = createChrono("Parsing");
-    unit = psr.parseUnit(file, ctxt.getIdentifier("TestUnit"));
+    unit = psr.parseUnit(file, ctxt_.getIdentifier("TestUnit"));
   }
 
   auto canContinue = [&](){
-    return (unit != nullptr) && !diags.hadAnyError();
+    return (unit != nullptr) && !diagEngine_.hadAnyError();
   };
 
   // Dump alloc if needed
   if (getDumpAlloc()) {
-    getOS() << "\nDumping allocator:\n";
-    ctxt.dumpAllocator();
+    out << "\nDumping allocator:\n";
+    ctxt_.dumpAllocator();
   }
  
   // Semantic analysis
   if(canContinue() && !isParseOnly()) {
-    Sema s(ctxt);
+    Sema s(ctxt_);
     s.checkUnitDecl(unit);
   }
 
   // Dump AST if needed, and if the unit isn't null
   if (unit && getDumpAST()) {
     auto chrono = createChrono("AST Printing");
-    getOS() << "\nAST Printing:\n";
-    ASTDumper(srcMgr, getOS(), 1).print(unit);
+    out << "\nAST Printing:\n";
+    ASTDumper(srcMgr_, out, 1).print(unit);
   }
 
-  bool success = !diags.hadAnyError();
+  bool success = !diagEngine_.hadAnyError();
 
   // (Verify mode) Check that all diags were emitted
   if (verify_) {
@@ -97,7 +97,7 @@ bool Driver::processFile(string_view filepath) {
   // Release the memory of the AST
   {
     auto chrono = createChrono("Release");
-    ctxt.reset();
+    ctxt_.reset();
   }
 
   return success;
@@ -147,15 +147,11 @@ Driver::RAIIChrono Driver::createChrono(string_view label) {
   return RAIIChrono(*this, label);
 }
 
-std::ostream& Driver::getOS() {
-  return os_;
-}
-
 bool Driver::doCL(int argc, char* argv[]) {
   // Must have 2 args, first is executable path, second should
   // be filepath => argc must be >= 2
   if (argc < 2) {
-    getOS() << "Not enough args\n";
+    out << "Not enough args\n";
     return false;
   }
 
@@ -169,13 +165,14 @@ bool Driver::doCL(int argc, char* argv[]) {
     if (str == "-verify")
       setVerifyModeEnabled(true);
     else if (str == "-werr")
-      diags.setWarningsAreErrors(true);
+      diagEngine_.setWarningsAreErrors(true);
     else if (str == "-dump-ast")
       setDumpAST(true);
     else if(str == "-parse-only")
       setIsParseOnly(true);
     else {
-      getOS() << "Unknown argument \"" << str << "\"\n";
+      // TODO: Emit a diagnostic for this.
+      out << "Unknown argument \"" << str << "\"\n";
       return false;
     }
   }

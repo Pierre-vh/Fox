@@ -211,28 +211,30 @@ namespace fox {
   // ASTContext and DiagnosticEngine
   class Sema::Checker {
     public:
-      Checker(Sema& sema) : sema(sema),
-        diagEngine(sema.diagEngine), ctxt(sema.ctxt) {}
-
       Sema& sema;
       DiagnosticEngine& diagEngine;
       ASTContext& ctxt;
+    protected:
+      Checker(Sema& sema) : sema(sema),
+        diagEngine(sema.diagEngine), ctxt(sema.ctxt) {}
+
   };
 
   // A Small RAII object that sets the currently active DeclContext
   // for a Sema instance. Upon destruction, it will restore the 
   // Sema's currently active DeclContext to what it was before.
   class Sema::RAIIDeclCtxt {
-      Sema& sema_;
-      DeclContext* oldDC_ = nullptr;
+    DeclContext* oldDC_ = nullptr;
     public:
-      RAIIDeclCtxt(Sema& sema, DeclContext* dc) : sema_(sema) {
+      Sema& sema;
+
+      RAIIDeclCtxt(Sema& sema, DeclContext* dc) : sema(sema) {
         oldDC_ = sema.getDeclCtxt();
-        sema_.currentDC_ = dc;
+        sema.currentDC_ = dc;
       }
 
       ~RAIIDeclCtxt() {
-        sema_.currentDC_ = oldDC_;
+        sema.currentDC_ = oldDC_;
       }
   };
 

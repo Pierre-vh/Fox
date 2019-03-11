@@ -21,31 +21,26 @@ namespace fox {
       // builder "builder".
       void emitExpr(InstructionBuilder& builder, Expr* expr);
 
-      DiagnosticEngine& getDiagnosticEngine() const;
-
-      ASTContext& getASTContext() const;
+      ASTContext& ctxt;
+      DiagnosticEngine& diagEngine;
 
     private:
       class Generator;
       class ExprGenerator;
 
-      ASTContext& ctxt_;
   };
 
   // Common base class for every "generator".
   class BCGen::Generator {
-    BCGen& bcGen_;
-    DiagnosticEngine& diags_;
-    ASTContext& ctxt_;
-    InstructionBuilder& builder_;
-    protected:
-      Generator(BCGen& bcGen,  InstructionBuilder& builder) : 
-        bcGen_(bcGen), builder_(builder),
-        diags_(bcGen_.getDiagnosticEngine()), ctxt_(bcGen_.getASTContext()) {}
+    public:
+      BCGen& bcGen;
+      DiagnosticEngine& diagEngine;
+      ASTContext& ctxt;
+      InstructionBuilder& builder;
 
-      ASTContext& getASTContext() { return ctxt_; }
-      DiagnosticEngine& getDiags() { return diags_; }
-      BCGen& getBCGen() { return bcGen_; }
-      InstructionBuilder& getBuilder() { return builder_; }
+    protected:
+      Generator(BCGen& bcGen, InstructionBuilder& builder) : 
+        bcGen(bcGen), builder(builder),
+        diagEngine(bcGen.diagEngine), ctxt(bcGen.ctxt) {}
   };
 }

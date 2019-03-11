@@ -54,7 +54,7 @@ DiagnosticEngine::DiagnosticEngine(SourceManager& sm):
 
 DiagnosticEngine::DiagnosticEngine(SourceManager& sm, 
                                    std::unique_ptr<DiagnosticConsumer> ncons):
-  consumer_(std::move(ncons)), srcMgr_(sm) {
+  consumer_(std::move(ncons)), srcMgr(sm) {
   hadFatalError_ = false;
   hadError_ = false;
   ignoreAll_ = false;
@@ -173,7 +173,7 @@ void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
 
   // Let the consumer consume the diag if he can.
   if(canConsume)
-    consumer_->consume(srcMgr_, diag);
+    consumer_->consume(srcMgr, diag);
 
   // Update the internal state
   updateInternalState(diag.getSeverity());
