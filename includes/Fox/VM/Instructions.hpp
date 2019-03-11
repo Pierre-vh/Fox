@@ -57,6 +57,9 @@ namespace fox {
   // An object representing a single Fox instruction.
   LLVM_PACKED_START
   struct Instruction {
+    Instruction() = default;
+    Instruction(Opcode op) : opcode(op) {}
+
     Opcode opcode = Opcode::NoOp;
     union {
       #define TERNARY_INSTR(ID, T1, T2, T3)                   \
