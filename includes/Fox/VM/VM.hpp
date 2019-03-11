@@ -9,13 +9,14 @@
 
 #pragma once
 
+#include "Fox/VM/Instructions.hpp"
+#include "Fox/Common/Typedefs.hpp"
+#include "Fox/Common/LLVM.hpp"
+#include "llvm/ADT/ArrayRef.h"
+#include "llvm/Support/MathExtras.h"
 #include <cstdint>
 #include <cstddef>
 #include <array>
-#include "llvm/ADT/ArrayRef.h"
-#include "Fox/Common/Typedefs.hpp"
-#include "llvm/Support/MathExtras.h"
-#include "Fox/Common/LLVM.hpp"
 
 namespace fox {
   class VM {
@@ -25,7 +26,7 @@ namespace fox {
       // Loads a program. 
       // Currently, the last instruction of the program must be a
       // "Break" instruction. This is enforced by an assertion.
-      void load(ArrayRef<std::uint32_t> instrs);
+      void load(ArrayRef<Instruction> instrs);
 
       // Runs the current program.
       void run();
@@ -88,7 +89,7 @@ namespace fox {
       }
 
       // The program currently being executed
-      ArrayRef<std::uint32_t> program_;
+      ArrayRef<Instruction> program_;
 
       // The program counter
       std::uint64_t programCounter_ = 0;

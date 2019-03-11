@@ -8,30 +8,10 @@
 // supported by the Fox VM.
 //----------------------------------------------------------------------------//
 /*
-  Instructions are fixed width and are 32 bits wide. They are pretty similar
-  to LuaJIT's instructions. The Opcode always occupies the first 8 bits
-  of the instruction. The rest of the instruction can then be split in 2 ways
-  depending on the opcode:
-      - Divided in 3 8 bits chunk (A B C)
-      - Divided in 1 8 bits chunk and another 16 bits chunk.  (A D)
-
-  32    24   16     8      0
-  |  C  |  B  |  A  |  OP  |
-  |     D     |  A  |  OP  |
-
-  Some instructions may not use any operand at all. Such operations
-  are called "Simple" operations.
-
-  TL;DR: 5 instruction kind (for now) (they all have the opcode as first byte)
-    - Simple: No args
-    - Ternary: 3 args: 1 byte (a) + 1 byte (b) + 1 byte (c)
-    - Binary: 2 args: 1 byte (a) + 2 byte (d)
-    - Small Binary: 2 args: 1 byte (a) + 1 byte (b)
-    - Unary: a single signed/unsigned 24 bit argument
+  TODO: Rewrite doc
 */
 //----------------------------------------------------------------------------//
 
-// Any instruction
 #ifndef INSTR
   #define INSTR(ID)
 #endif
@@ -40,54 +20,24 @@
   #define LAST_INSTR(ID)
 #endif
 
-// Simple instruction with no arguments.
-// Default behaviour is to do the same as INSTR
 #ifndef SIMPLE_INSTR
   #define SIMPLE_INSTR(ID) INSTR(ID)
 #endif
 
-// Ternary instruction with three 8 bits arguments: a, b and c.
-// Default behaviour is to do the same as INSTR
 #ifndef TERNARY_INSTR
-  #define TERNARY_INSTR(ID) INSTR(ID)
+  #define TERNARY_INSTR(ID, T1, T2, T3) INSTR(ID)
 #endif
 
-// Binary instructions with one 8 bit + one 16 bit arguments: a and d.
-// If SIGNED_BINARY_INSTR is not defined, the argument may be
-// signed or unsigned. If both BINARY_INSTR and SIGNED_BINARY_INSTR
-// are defined, BINARY_INSTR is used for unsigned arguments and
-// SIGNED_BINARY_INSTR for signed arguments.
-// Default behaviour is to do the same as INSTR
 #ifndef BINARY_INSTR
-  #define BINARY_INSTR(ID) INSTR(ID)
+  #define BINARY_INSTR(ID, T1, T2) INSTR(ID)
 #endif
 
-// Variant of BINARY_INSTR where D is a signed number.
-// Default behaviour is to do the same as BINARY_INSTR
-#ifndef SIGNED_BINARY_INSTR
-  #define SIGNED_BINARY_INSTR(ID) BINARY_INSTR(ID)
-#endif
-
-// Binary instructions with two 8 bit arguments: a and b.
-// Default behaviour is to do the same as BINARY_INSTR
-#ifndef SMALL_BINARY_INSTR    
-  #define SMALL_BINARY_INSTR(ID) BINARY_INSTR(ID)
-#endif
-
-// Unary instruction with a single argument. That argument's name
-// is different depending on the instruction. 
-// If SIGNED_UNARY_INSTR is not defined, the argument may be
-// signed or unsigned. If both UNARY_INSTR and SIGNED_UNARY_INSTR
-// are defined, UNARY_INSTR is used for unsigned arguments and
-// SIGNED_UNARY_INSTR for signed arguments.
 #ifndef UNARY_INSTR
-  #define UNARY_INSTR(ID) INSTR(ID)
+  #define UNARY_INSTR(ID, T1) INSTR(ID)
 #endif
 
-// Variant of UNARY_INSTR where the argument is always signed.
-// Default behaviour is to do the same as UNARY_INSTR
-#ifndef SIGNED_UNARY_INSTR
-  #define SIGNED_UNARY_INSTR(ID) UNARY_INSTR(ID)
+#ifndef TAC_INSTR
+  #define TAC_INSTR(ID) TERNARY_INSTR(ID, std::uint8_t, std::uint8_t, std::uint8_t)
 #endif
 
 //----------------------------------------------------------------------------//
@@ -96,40 +46,40 @@ SIMPLE_INSTR(NoOp)
 SIMPLE_INSTR(Break)
 
 // Stores D (a signed 16 bit int) in register A
-SIGNED_BINARY_INSTR(StoreSmallInt)
+BINARY_INSTR(StoreSmallInt, std::uint8_t, std::int16_t)
 
 // Arithmetic : a = b (op) c. Result's type is the type of the operand.
-TERNARY_INSTR(AddInt)     // Int Addition
-TERNARY_INSTR(AddDouble)  // Double Addition
-TERNARY_INSTR(SubInt)     // Int Substraction
-TERNARY_INSTR(SubDouble)  // Double Substraction
-TERNARY_INSTR(MulInt)     // Int Multiplication
-TERNARY_INSTR(MulDouble)  // Double Multiplication
-TERNARY_INSTR(DivInt)     // Int Division
-TERNARY_INSTR(DivDouble)  // Double Division
-TERNARY_INSTR(ModInt)     // Int Modulo
-TERNARY_INSTR(ModDouble)  // Double Modulo
-TERNARY_INSTR(PowInt)     // Int exponentiation
-TERNARY_INSTR(PowDouble)  // Double exponentiation
+TAC_INSTR(AddInt)     // Int Addition
+TAC_INSTR(AddDouble)  // Double Addition
+TAC_INSTR(SubInt)     // Int Substraction
+TAC_INSTR(SubDouble)  // Double Substraction
+TAC_INSTR(MulInt)     // Int Multiplication
+TAC_INSTR(MulDouble)  // Double Multiplication
+TAC_INSTR(DivInt)     // Int Division
+TAC_INSTR(DivDouble)  // Double Division
+TAC_INSTR(ModInt)     // Int Modulo
+TAC_INSTR(ModDouble)  // Double Modulo
+TAC_INSTR(PowInt)     // Int exponentiation
+TAC_INSTR(PowDouble)  // Double exponentiation
 
 // Comparisons a = b (cond) c. Result is always an int (1 for true, 0 for false)
-TERNARY_INSTR(EqInt)      // Int Equality
-TERNARY_INSTR(LEInt)      // Int Less or Equal
-TERNARY_INSTR(LTInt)      // Int Less Than
-TERNARY_INSTR(EqDouble)   // Double Equality
-TERNARY_INSTR(LEDouble)   // Double Less or Equal
-TERNARY_INSTR(LTDouble)   // Double Less Than
-TERNARY_INSTR(GEDouble)   // Double Greater or Equal
-TERNARY_INSTR(GTDouble)   // Double Greater Than
+TAC_INSTR(EqInt)      // Int Equality
+TAC_INSTR(LEInt)      // Int Less or Equal
+TAC_INSTR(LTInt)      // Int Less Than
+TAC_INSTR(EqDouble)   // Double Equality
+TAC_INSTR(LEDouble)   // Double Less or Equal
+TAC_INSTR(LTDouble)   // Double Less Than
+TAC_INSTR(GEDouble)   // Double Greater or Equal
+TAC_INSTR(GTDouble)   // Double Greater Than
 
 // Other arithmetic/logic ops that operate on raw values
-SMALL_BINARY_INSTR(LNot)  // Logical NOT
-TERNARY_INSTR(LOr)        // Logical OR
-TERNARY_INSTR(LAnd)       // Logical AND
+TAC_INSTR(LAnd)   // Logical AND
+TAC_INSTR(LOr)    // Logical OR
+BINARY_INSTR(LNot, std::uint8_t, std::uint8_t) // Logical NOT
 
 // Jumps
-BINARY_INSTR(CondJump)    // Conditional Jump : Jump iff register != 0
-SIGNED_UNARY_INSTR(Jump)  // Unconditional Jump
+BINARY_INSTR(CondJump, std::uint8_t, std::int16_t)  // Conditional Jump : Jump iff register != 0
+UNARY_INSTR(Jump, std::int16_t)                     // Unconditional Jump
 
 LAST_INSTR(Jump)
 
@@ -139,8 +89,6 @@ LAST_INSTR(Jump)
 #undef SIMPLE_INSTR
 #undef TERNARY_INSTR
 #undef BINARY_INSTR
-#undef SIGNED_BINARY_INSTR
-#undef SMALL_BINARY_INSTR
 #undef UNARY_INSTR
-#undef SIGNED_UNARY_INSTR
+#undef TAC_INSTR
 #undef LAST_INSTR

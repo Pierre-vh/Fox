@@ -11,12 +11,15 @@
 
 #include <cstdint>
 #include <iosfwd>
+#include "llvm/Support/Compiler.h"
 
 namespace llvm {
   template<typename T> class ArrayRef;
 }
 
 namespace fox {
+  struct Instruction;
+
   // This enum contains every opcode. A enum class is used instead of
   // a traditional C enum to avoid polluting the global namespace. 
   // 
@@ -46,8 +49,51 @@ namespace fox {
   const char* toString(Opcode op);
   
   // Dumps a single instruction to "os".
-  void dumpInstruction(std::ostream& os, std::uint32_t instr);
+  void dumpInstruction(std::ostream& os, Instruction instr);
 
   // Dumps a series of instructions to "os"
-  void dumpInstructions(std::ostream& os, llvm::ArrayRef<std::uint32_t> instrs);
+  void dumpInstructions(std::ostream& os, llvm::ArrayRef<Instruction> instrs);
+
+  // An object representing a single Fox instruction.
+  LLVM_PACKED_START
+  struct Instruction {
+    Opcode opcode = Opcode::NoOp;
+    union {
+      #define TERNARY_INSTR(ID, T1, T2, T3)                   \
+      struct ID##Instr {                                      \
+        T1 arg0;                                              \
+        T2 arg1;                                              \
+        T3 arg2;                                              \
+      };                                                      \
+      ID##Instr ID;                                           \
+      static_assert(sizeof(ID##Instr) <= 3, #ID "Instr has "  \
+        "too many arguments: their total size exceed 3 bytes/"\
+        "24 bits!");
+
+      #define BINARY_INSTR(ID, T1, T2)                        \
+      struct ID##Instr {                                      \
+        T1 arg0;                                              \
+        T2 arg1;                                              \
+      };                                                      \
+      ID##Instr ID;                                           \
+      static_assert(sizeof(ID##Instr) <= 3, #ID "Instr has "  \
+        "too many arguments: their total size exceed 3 bytes/"\
+        "24 bits!");
+
+      #define UNARY_INSTR(ID, T1)                             \
+      struct ID##Instr {                                      \
+        T1 arg;                                               \
+      };                                                      \
+      ID##Instr ID;                                           \
+      static_assert(sizeof(ID##Instr) <= 3, #ID "Instr has "  \
+        "too many arguments: their total size exceed 3 bytes/"\
+        "24 bits!");
+
+      #include "Instructions.def"
+    };
+  };
+  LLVM_PACKED_END
+
+  static_assert(sizeof(Instruction) == 4, "Instruction size not"
+    "4 Bytes/32 bits!");
 }

@@ -67,7 +67,7 @@ TEST(InstructionDumpTest, DumpInstructionsTest) {
     // (TO-DO) Unsigned Unary
     // ---------------------- // 
     // Signed Unary
-    .createJumpInstr(-8388607);
+    .createJumpInstr(-30000);
   // Check that we have the correct number of instructions
   auto instrs = builder.getInstrs();
   ASSERT_EQ(instrs.size(), 5u) << "Broken InstructionBuilder?";
@@ -80,7 +80,7 @@ TEST(InstructionDumpTest, DumpInstructionsTest) {
     "AddInt 0 1 2\n"
     "LNot 42 84\n"
     "StoreSmallInt 0 -4242\n"
-    "Jump -8388607");
+    "Jump -30000");
 }
 
 TEST(InstructionBuilderTest, InstrBuff) {
@@ -96,84 +96,50 @@ TEST(InstructionBuilderTest, InstrBuff) {
 TEST(InstructionBuilderTest, TernaryInstr) {
   InstructionBuilder builder;
   // Create an Ternary instr
-  std::uint32_t instr = builder.createAddIntInstr(42, 84, 126).getLastInstr();
-  // Check if was encoded as expected.
-  std::uint8_t op = instr & 0x000000FF;
-  std::uint8_t a = (instr & 0x0000FF00) >> 8; 
-  std::uint8_t b = (instr & 0x00FF0000) >> 16; 
-  std::uint8_t c = (instr & 0xFF000000) >> 24;
-  EXPECT_EQ(+op, +static_cast<std::uint8_t>(Opcode::AddInt));
-  EXPECT_EQ(+a, 42);
-  EXPECT_EQ(+b, 84);
-  EXPECT_EQ(+c, 126);
+  Instruction instr = builder.createAddIntInstr(42, 84, 126).getLastInstr();
+  // Check if it was encoded as expected.
+  EXPECT_EQ(instr.opcode, Opcode::AddInt);
+  EXPECT_EQ(instr.AddInt.arg0, 42);
+  EXPECT_EQ(instr.AddInt.arg1, 84);
+  EXPECT_EQ(instr.AddInt.arg2, 126);
 }
 
+// Test for Binary Instrs with two 8 bit args.
 TEST(InstructionBuilderTest, SmallBinaryInstr) {
   InstructionBuilder builder;
   // Create an Small Binary instr
-  std::uint32_t instr = builder.createLNotInstr(42, 84).getLastInstr();
-  // Check if was encoded as expected.
-  std::uint8_t op = instr & 0x000000FF;
-  std::uint8_t a = (instr & 0x0000FF00) >> 8; 
-  std::uint8_t b = (instr & 0x00FF0000) >> 16; 
-  std::uint8_t c = (instr & 0xFF000000) >> 24;
-  EXPECT_EQ(+op, +static_cast<std::uint8_t>(Opcode::LNot));
-  EXPECT_EQ(+a, 42);
-  EXPECT_EQ(+b, 84);
-  EXPECT_EQ(+c, 0);
+  Instruction instr = builder.createLNotInstr(42, 84).getLastInstr();
+  // Check if it was encoded as expected.
+  EXPECT_EQ(instr.opcode, Opcode::LNot);
+  EXPECT_EQ(instr.LNot.arg0, 42);
+  EXPECT_EQ(instr.LNot.arg1, 84);
 }
 
+// Test for Binary Instrs with one 8 bit arg and one 16 bit arg.
 TEST(InstructionBuilderTest, BinaryInstr) {
   InstructionBuilder builder;
   // Create a Binary instr
-  std::uint32_t instr = 
-    builder.createStoreSmallIntInstr(42, 16000).getLastInstr();
+  Instruction instr = builder.createStoreSmallIntInstr(42, 16000).getLastInstr();
   // Check if was encoded as expected.
-  std::uint8_t op = instr & 0x000000FF;
-  std::uint8_t a = (instr & 0x0000FF00) >> 8; 
-  std::uint16_t d = (instr & 0xFFFF0000) >> 16;
-  EXPECT_EQ(+op, +static_cast<std::uint8_t>(Opcode::StoreSmallInt));
-  EXPECT_EQ(+a, 42);
-  EXPECT_EQ(d, 16000);
+  EXPECT_EQ(instr.opcode, Opcode::StoreSmallInt);
+  EXPECT_EQ(instr.StoreSmallInt.arg0, 42);
+  EXPECT_EQ(instr.StoreSmallInt.arg1, 16000);
 }
 
 TEST(InstructionBuilderTest, UnaryInstr) {
   InstructionBuilder builder;
-  // Create unary instrs
-  std::uint32_t positive_instr = builder.createJumpInstr(6000000).getLastInstr();
-  std::uint32_t negative_instr = builder.createJumpInstr(-6000000).getLastInstr();
+  // Create unary instrs (this one uses a signed value)
+  Instruction positive_instr = builder.createJumpInstr(30000).getLastInstr();
+  Instruction negative_instr = builder.createJumpInstr(-30000).getLastInstr();
   // Check the positive one
   {
-    std::uint8_t op = (positive_instr & 0x000000FF);
-    std::int32_t arg = llvm::SignExtend32<24>((positive_instr & 0xFFFFFF00) >> 8);
-    EXPECT_EQ(+op, +static_cast<std::uint8_t>(Opcode::Jump));
-    EXPECT_EQ(arg, 6000000);
+    EXPECT_EQ(positive_instr.opcode, Opcode::Jump);
+    EXPECT_EQ(positive_instr.Jump.arg, 30000);
   }
   // Check the negative one
   {
-    std::uint8_t op = (negative_instr & 0x000000FF);
-    std::int32_t arg = llvm::SignExtend32<24>((negative_instr & 0xFFFFFF00) >> 8);
-    EXPECT_EQ(+op, +static_cast<std::uint8_t>(Opcode::Jump));
-    EXPECT_EQ(arg, -6000000);
-  }
-}
-
-// This tests that we can use both signed and unsigned values in
-// StoreSmallInt. 
-TEST(InstructionBuilderTest, StoreSmallInt) {
-  // Encoding test
-  InstructionBuilder builder;
-  FoxInt r0Value = -14242;
-  FoxInt r1Value = 24000;
-  {
-    builder.createStoreSmallIntInstr(1, r1Value);
-    std::int16_t theVal = (builder.getLastInstr() & 0xFFFF0000) >> 16;
-    EXPECT_EQ(theVal, r1Value);
-  }
-  {
-    builder.createStoreSmallIntInstr(0, r0Value);
-    std::int16_t theVal = (builder.getLastInstr() & 0xFFFF0000) >> 16;
-    EXPECT_EQ(theVal, r0Value);
+    EXPECT_EQ(negative_instr.opcode, Opcode::Jump);
+    EXPECT_EQ(negative_instr.Jump.arg, -30000);
   }
 }
 

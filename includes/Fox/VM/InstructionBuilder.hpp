@@ -13,6 +13,7 @@
 #include <cstdint>
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"
+#include "Fox/VM/Instructions.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include <memory>
 
@@ -22,26 +23,20 @@ namespace fox {
   class InstructionBuilder {
     public:
       // The type of an instruction buffer.
-      using Buffer = SmallVector<std::uint32_t, 4>;
+      using Buffer = SmallVector<Instruction, 4>;
 
       #define SIMPLE_INSTR(ID) InstructionBuilder& create##ID##Instr();
-      #define TERNARY_INSTR(ID) InstructionBuilder&\
-        create##ID##Instr(std::uint8_t a, std::uint8_t b, std::uint8_t c);
-      #define SMALL_BINARY_INSTR(ID) InstructionBuilder&\
-        create##ID##Instr(std::uint8_t a, std::uint8_t b);
-      #define BINARY_INSTR(ID) InstructionBuilder&\
-        create##ID##Instr(std::uint8_t a, std::uint16_t d);
-      #define SIGNED_BINARY_INSTR(ID) InstructionBuilder&\
-        create##ID##Instr(std::uint8_t a, std::int16_t d);
-      #define UNARY_INSTR(ID) InstructionBuilder&\
-        create##ID##Instr(std::uint32_t val);
-      #define SIGNED_UNARY_INSTR(ID) InstructionBuilder&\
-        create##ID##Instr(std::int32_t val);
+      #define TERNARY_INSTR(ID, T1, T2, T3) InstructionBuilder&\
+        create##ID##Instr(T1 arg0, T2 arg1, T3 arg2);
+      #define BINARY_INSTR(ID, T1, T2) InstructionBuilder&\
+        create##ID##Instr(T1 arg0, T2 arg1);
+      #define UNARY_INSTR(ID, T1) InstructionBuilder&\
+        create##ID##Instr(T1 arg);
       #include "Instructions.def"
 
       void reset();
-      std::uint32_t getLastInstr() const;
-      ArrayRef<std::uint32_t> getInstrs() const;
+      Instruction getLastInstr() const;
+      ArrayRef<Instruction> getInstrs() const;
       
       // Take the current instruction buffer. 
       //
@@ -49,22 +44,7 @@ namespace fox {
       std::unique_ptr<Buffer> takeBuffer();
 
     private:
-      InstructionBuilder& 
-      createSimpleInstr(Opcode op);
-
-      InstructionBuilder& 
-      createABCInstr(Opcode op, std::uint8_t a, std::uint8_t b, std::uint8_t c);
-
-      InstructionBuilder& 
-      createADInstr(Opcode op, std::uint8_t a, std::uint16_t d);
-
-      InstructionBuilder& 
-      createSignedUnaryInstr(Opcode op, std::int32_t val);
-
-      InstructionBuilder& 
-      createUnaryInstr(Opcode op, std::uint32_t val);
-
-      void pushInstr(std::uint32_t instr);
+      void pushInstr(Instruction instr);
 
       // Return true if we have a buffer, or false if one will
       // be created on the next getBuffer() call.

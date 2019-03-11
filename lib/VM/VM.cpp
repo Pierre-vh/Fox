@@ -12,36 +12,25 @@
 
 using namespace fox;
 
-// In many places of the VM, we assume that signed numbers are encoded using
-// 2's complement. Assert that it's the case.
-static_assert(-1 == 0xffffffff,
-  "Can't compile the Fox VM because signed integers"
-  " are not encoded using 2's complement");
-
-namespace {
-  inline Opcode getInstrOpcode(std::uint32_t instr) {
-    return static_cast<Opcode>(instr & 0x000000FF);
-  }
-}
-
-void VM::load(ArrayRef<std::uint32_t> instrs) {
-  assert((getInstrOpcode(instrs.back()) == Opcode::Break)
+void VM::load(ArrayRef<Instruction> instrs) {
+  assert((instrs.back().opcode == Opcode::Break)
     && "The last instruction of the program is not a 'break' instruction");
   program_ = instrs;
   programCounter_ = 0;
 }
 
 void VM::run() {
-  std::uint32_t instr = 0;
+  Instruction instr;
   do {
     // Decode the current instruction
     instr = program_[programCounter_];
-    #define opcode static_cast<Opcode>(instr & 0x000000FF)
+    #define opcode instr.opcode
     // Maybe theses could be renamed so they aren't one letter identifiers?
-    #define a static_cast<std::uint8_t>((instr & 0x0000FF00) >> 8)
-    #define b static_cast<std::uint8_t>((instr & 0x00FF0000) >> 16)
-    #define c static_cast<std::uint8_t>((instr & 0xFF000000) >> 24)
-    #define d static_cast<std::uint16_t>((instr & 0xFFFF0000) >> 16)
+    // TODO: Quick hack to make this work. Fix this
+    #define a instr.AddDouble.arg0
+    #define b instr.AddDouble.arg1
+    #define c instr.AddDouble.arg2
+    #define d instr.StoreSmallInt.arg1
     switch (opcode) {
       case Opcode::NoOp: 
         // NoOp: no-op: do nothing.
@@ -168,8 +157,8 @@ void VM::run() {
           programCounter_ += static_cast<std::int16_t>(d);
         continue;
       case Opcode::Jump:
-        // Jump x: Add x (24 bit signed value) to programCounter
-        programCounter_ += llvm::SignExtend32<24>((instr & 0xFFFFFF00) >> 8);
+        // Jump x: Add x to programCounter
+        programCounter_ += instr.Jump.arg;
         continue;
       default:
         fox_unreachable("illegal or unimplemented instruction found");
