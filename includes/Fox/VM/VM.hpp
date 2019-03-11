@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include "Fox/VM/Instructions.hpp"
 #include "Fox/Common/Typedefs.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/ArrayRef.h"
@@ -19,6 +18,8 @@
 #include <array>
 
 namespace fox {
+  struct Instruction;
+
   class VM {
     public:
       static constexpr unsigned numStackRegister = 255;

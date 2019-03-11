@@ -13,12 +13,12 @@
 #include <cstdint>
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"
-#include "Fox/VM/Instructions.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include <memory>
 
 namespace fox {
   enum class Opcode : std::uint8_t;
+  struct Instruction;
 
   class InstructionBuilder {
     public:
