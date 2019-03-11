@@ -16,43 +16,39 @@ using namespace fox;
 
 #define SIMPLE_INSTR(ID)\
   InstructionBuilder& InstructionBuilder::create##ID##Instr() {\
-    Instruction instr;                           \
-    instr.opcode = Opcode::ID;                   \
-    pushInstr(instr);                            \
-    return *this;                                \
+    Instruction instr(Opcode::ID);                \
+    pushInstr(instr);                             \
+    return *this;                                 \
   }
 
 #define TERNARY_INSTR(ID, T1, T2, T3)\
   InstructionBuilder& InstructionBuilder::\
-  create##ID##Instr(T1 arg0, T2 arg1, T3 arg2) {\
-    Instruction instr;                           \
-    instr.opcode = Opcode::ID;                   \
-    instr.ID.arg0 = arg0;                        \
-    instr.ID.arg1 = arg1;                        \
-    instr.ID.arg2 = arg2;                        \
-    pushInstr(instr);                            \
-    return *this;                                \
+  create##ID##Instr(T1 arg0, T2 arg1, T3 arg2) {  \
+    Instruction instr(Opcode::ID);                \
+    instr.ID.arg0 = arg0;                         \
+    instr.ID.arg1 = arg1;                         \
+    instr.ID.arg2 = arg2;                         \
+    pushInstr(instr);                             \
+    return *this;                                 \
   }
 
 #define BINARY_INSTR(ID, T1, T2)\
   InstructionBuilder&\
   InstructionBuilder::create##ID##Instr(T1 arg0, T2 arg1) {\
-    Instruction instr;                           \
-    instr.opcode = Opcode::ID;                   \
-    instr.ID.arg0 = arg0;                        \
-    instr.ID.arg1 = arg1;                        \
-    pushInstr(instr);                            \
-    return *this;                                \
+    Instruction instr(Opcode::ID);                \
+    instr.ID.arg0 = arg0;                         \
+    instr.ID.arg1 = arg1;                         \
+    pushInstr(instr);                             \
+    return *this;                                 \
   }
 
 #define UNARY_INSTR(ID, T1)\
   InstructionBuilder&\
-  InstructionBuilder::create##ID##Instr(T1 arg) {\
-    Instruction instr;                           \
-    instr.opcode = Opcode::ID;                   \
-    instr.ID.arg = arg;                          \
-    pushInstr(instr);                            \
-    return *this;                                \
+  InstructionBuilder::create##ID##Instr(T1 arg) { \
+    Instruction instr(Opcode::ID);                \
+    instr.ID.arg = arg;                           \
+    pushInstr(instr);                             \
+    return *this;                                 \
   }
 
 #include "Fox/VM/Instructions.def"
