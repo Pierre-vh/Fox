@@ -45,6 +45,12 @@ namespace fox {
 
   // An object representing a single Fox instruction.
   //
+  // The data of every non-simple instruction can be accessed
+  // using "<object>.<opcode>.<data>", e.g. instr.SmallStore.arg0.
+  //
+  // Arguments are always named "arg0, arg1 and arg2" for ternary instructions,
+  // "arg0 and arg1" for binary instructions and just "arg" for unary ones.
+  //
   // It is aligned in the same way as a 32 bits unsigned integer.
   LLVM_PACKED_START
   struct alignas(std::uint32_t) Instruction {
