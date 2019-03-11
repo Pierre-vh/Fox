@@ -24,14 +24,10 @@ void VM::run() {
   do {
     // Decode the current instruction
     instr = program_[programCounter_];
-    #define opcode instr.opcode
-    // Maybe theses could be renamed so they aren't one letter identifiers?
-    // TODO: Quick hack to make this work. Fix this
-    #define a instr.AddDouble.arg0
-    #define b instr.AddDouble.arg1
-    #define c instr.AddDouble.arg2
-    #define d instr.StoreSmallInt.arg1
-    switch (opcode) {
+    // TODO: Rewrite doc withou "A B C D"s
+    #define TRIVIAL_TAC_BINOP_IMPL(ID, TYPE, OP)\
+      setReg(instr.ID.arg0, getReg<TYPE>(instr.ID.arg1) OP getReg<TYPE>(instr.ID.arg2))
+    switch (instr.opcode) {
       case Opcode::NoOp: 
         // NoOp: no-op: do nothing.
         continue;
@@ -39,122 +35,130 @@ void VM::run() {
         // Break: stop the execution of the program.
         return;
       case Opcode::StoreSmallInt:
-        // StoreSmallInt A D: Stores a small signed 16 bits integer (D) in r[A]
+        // StoreSmallInt A B: Stores a small signed 16 bits integer (B) in r[A]
 
         // Note: D must be converted to a signed value before being placed
         // in r[A]
-        setReg(a, static_cast<std::int16_t>(d));
+        setReg(instr.StoreSmallInt.arg0, instr.StoreSmallInt.arg1);
         continue;
       case Opcode::AddInt: 
-        // AddInt A B C: A = B + C with B and C interpreted as FoxInts.
-        setReg(a, getReg<FoxInt>(b) + getReg<FoxInt>(c));
+        TRIVIAL_TAC_BINOP_IMPL(AddInt, FoxInt, +);
         continue;
       case Opcode::AddDouble:
         // AddDouble A B C: A = B + C with B and C interpreted as FoxDoubles.
-        setReg(a, getReg<FoxDouble>(b) + getReg<FoxDouble>(c));
+        TRIVIAL_TAC_BINOP_IMPL(AddDouble, FoxDouble, +);
         continue;
       case Opcode::SubInt:
         // SubInt A B C: A = B - C with B and C interpreted as FoxInts.
-        setReg(a, getReg<FoxInt>(b) - getReg<FoxInt>(c));
+        TRIVIAL_TAC_BINOP_IMPL(SubInt, FoxInt, -);
         continue;
       case Opcode::SubDouble:
         // SubDouble A B C: A = B - C with B and C interpreted as FoxDoubles.
-        setReg(a, getReg<FoxDouble>(b) - getReg<FoxDouble>(c));
+        TRIVIAL_TAC_BINOP_IMPL(SubDouble, FoxDouble, -);
         continue;
       case Opcode::MulInt:
         // DivInt A B C: A = B * C with B and C interpreted as FoxInts.
-        setReg(a, getReg<FoxInt>(b) * getReg<FoxInt>(c));
+        TRIVIAL_TAC_BINOP_IMPL(MulInt, FoxInt, *);
         continue;
       case Opcode::MulDouble:
         // SubDouble A B C: A = B * C with B and C interpreted as FoxDoubles.
-        setReg(a, getReg<FoxDouble>(b) * getReg<FoxDouble>(c));
+        TRIVIAL_TAC_BINOP_IMPL(MulDouble, FoxDouble, *);
         continue;
       case Opcode::DivInt:
         // DivInt A B C: A = B / C with B and C interpreted as FoxInts.
         // TO-DO: Handle this better
-        assert(getReg<FoxInt>(c) && "division by zero");
-        setReg(a, getReg<FoxInt>(b) / getReg<FoxInt>(c));
+        assert(getReg<FoxInt>(instr.DivInt.arg2) && "division by zero");
+        TRIVIAL_TAC_BINOP_IMPL(DivInt, FoxInt, /);
         continue;
       case Opcode::DivDouble:
         // SubDouble A B C: A = B / C with B and C interpreted as FoxDoubles.
         // TO-DO: Handle this better
-        assert(getReg<FoxDouble>(c) && "division by zero");
-        setReg(a, getReg<FoxDouble>(b) / getReg<FoxDouble>(c));
+        assert(getReg<FoxDouble>(instr.DivDouble.arg2) && "division by zero");
+        TRIVIAL_TAC_BINOP_IMPL(DivDouble, FoxDouble, /);
         continue;
       case Opcode::ModInt:
         // ModInt A B C: A = B % C with B and C interpreted as FoxInts.
         // TO-DO: Handle this better
-        assert(getReg<FoxInt>(c) && "modulo by zero");
-        setReg(a, getReg<FoxInt>(b) % getReg<FoxInt>(c));
+        assert(getReg<FoxInt>(instr.ModInt.arg2) && "Modulo by zero");
+        TRIVIAL_TAC_BINOP_IMPL(ModInt, FoxInt, %);
         continue;
       case Opcode::ModDouble:
         // ModDouble A B C: A = B % C with B and C interpreted as FoxDoubles.
         // TO-DO: Handle this better
-        assert(getReg<FoxDouble>(c) && "modulo by zero");
-        setReg(a, static_cast<FoxDouble>(
-          std::fmod(getReg<FoxDouble>(b), getReg<FoxDouble>(c))
+        assert(getReg<FoxDouble>(instr.ModDouble.arg2) && "Modulo by zero");
+        setReg(instr.ModDouble.arg0, static_cast<FoxDouble>(
+          std::fmod(
+            getReg<FoxDouble>(instr.ModDouble.arg1), 
+            getReg<FoxDouble>(instr.ModDouble.arg2)
+          )
         ));
         continue;
       case Opcode::PowInt:
         // PowInt ModInt A B C: A = B pow C with B and C interpreted as FoxInts.
-        setReg(a, static_cast<FoxInt>(
-          std::pow(getReg<FoxInt>(b), getReg<FoxInt>(c))
+        setReg(instr.PowInt.arg0, static_cast<FoxInt>(
+          std::pow(
+            getReg<FoxInt>(instr.PowInt.arg1), 
+            getReg<FoxInt>(instr.PowInt.arg2)
+          )
         ));
         continue;
       case Opcode::PowDouble:
         // PowDouble A B C: A = B pow C with B and C interpreted as FoxDoubles.
-        setReg(a, static_cast<FoxDouble>(
-          std::pow(getReg<FoxDouble>(b), getReg<FoxDouble>(c))
+        setReg(instr.PowDouble.arg0, static_cast<FoxDouble>(
+          std::pow(
+            getReg<FoxDouble>(instr.PowDouble.arg1), 
+            getReg<FoxDouble>(instr.PowDouble.arg2)
+          )
         ));
         continue;
       case Opcode::EqInt:
         // EqInt A B C: A = (B == C) with B and C interpreted as FoxInts.
-        setReg(a, (getReg<FoxInt>(b) == getReg<FoxInt>(c)));
+        TRIVIAL_TAC_BINOP_IMPL(EqInt, FoxInt, ==);
         continue;
       case Opcode::LEInt:
         // LEInt A B C: A = (B <= C) with B and C interpreted as FoxInts.
-        setReg(a, (getReg<FoxInt>(b) <= getReg<FoxInt>(c)));
+        TRIVIAL_TAC_BINOP_IMPL(LEInt, FoxInt, <=);
         continue;
       case Opcode::LTInt:
         // LTInt A B C: A = (B < C) with B and C interpreted as FoxInts.
-        setReg(a, (getReg<FoxInt>(b) < getReg<FoxInt>(c)));
+        TRIVIAL_TAC_BINOP_IMPL(LTInt, FoxInt, <);
         continue;
       case Opcode::EqDouble:
         // EqDouble A B C: A = (B == C) with B and C interpreted as FoxDoubles.
-        setReg(a, (getReg<FoxDouble>(b) == getReg<FoxDouble>(c)));
+        TRIVIAL_TAC_BINOP_IMPL(EqDouble, FoxDouble, ==);
         continue;
       case Opcode::LEDouble:
         // LEDouble A B C: A = (B <= C) with B and C interpreted as FoxDoubles.
-        setReg(a, (getReg<FoxDouble>(b) <= getReg<FoxDouble>(c)));
+        TRIVIAL_TAC_BINOP_IMPL(LEDouble, FoxDouble, <=);
         continue;
       case Opcode::LTDouble:
         // LTDouble A B C: A = (B < C) with B and C interpreted as FoxDoubles.
-        setReg(a, (getReg<FoxDouble>(b) < getReg<FoxDouble>(c)));
+        TRIVIAL_TAC_BINOP_IMPL(LTDouble, FoxDouble, <);
         continue;
       case Opcode::GEDouble:
         // GEDouble A B C: A = (B >= C) with B and C interpreted as FoxDoubles.
-        setReg(a, (getReg<FoxDouble>(b) >= getReg<FoxDouble>(c)));
+        TRIVIAL_TAC_BINOP_IMPL(GEDouble, FoxDouble, >=);
         continue;
       case Opcode::GTDouble:
         // GTDouble A B C: A = (B > C) with B and C interpreted as FoxDoubles.
-        setReg(a, (getReg<FoxDouble>(b) > getReg<FoxDouble>(c)));
+        TRIVIAL_TAC_BINOP_IMPL(GTDouble, FoxDouble, >);
         continue;
       case Opcode::LOr:
         // LOr A B C: A = (B || C). B and C are raw register values.
-        setReg(a, (getReg(b) || getReg(c)));
+        setReg(instr.LOr.arg0, (getReg(instr.LOr.arg1) || getReg(instr.LOr.arg2)));
         continue;
       case Opcode::LAnd:
         // LAnd A B C: A = (B && C). B and C are raw register values.
-        setReg(a, (getReg(b) && getReg(c)));
+        setReg(instr.LAnd.arg0, (getReg(instr.LAnd.arg1) && getReg(instr.LAnd.arg2)));
         continue;
       case Opcode::LNot:
         // LNot A B: A = !B
-        setReg(a, !getReg(b));
+        setReg(instr.LNot.arg0, !getReg(instr.LNot.arg1));
         continue;
       case Opcode::CondJump:
         // CondJump A D: Add D (as a signed int) to programCounter if A != 0
-        if(getReg(a) != 0)
-          programCounter_ += static_cast<std::int16_t>(d);
+        if(getReg(instr.CondJump.arg0) != 0)
+          programCounter_ += instr.CondJump.arg1;
         continue;
       case Opcode::Jump:
         // Jump x: Add x to programCounter
@@ -163,11 +167,7 @@ void VM::run() {
       default:
         fox_unreachable("illegal or unimplemented instruction found");
     }
-    #undef opcode
-    #undef a
-    #undef b
-    #undef c
-    #undef d
+    #undef TRIVIAL_TAC_BINOP_IMPL
     // Infinite loop where we increment the program counter
   } while(++programCounter_);
 }
