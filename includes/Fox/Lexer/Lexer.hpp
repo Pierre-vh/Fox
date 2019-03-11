@@ -29,6 +29,10 @@ namespace fox {
       std::size_t resultSize() const;  
       FileID getCurrentFile() const;
 
+      ASTContext& ctxt;
+      DiagnosticEngine& diagEngine;
+      SourceManager& srcMgr;
+
     private:
       enum class DFAState : std::uint8_t {
         S_BASE, // basestate
@@ -70,9 +74,6 @@ namespace fox {
       SourceLoc getCurtokEndLoc() const;
       SourceRange getCurtokRange() const;
 
-      ASTContext& ctxt_;
-      DiagnosticEngine& diags_;
-      SourceManager& sm_;
       FileID fileID_;
 
       bool escapeFlag_ : 1;

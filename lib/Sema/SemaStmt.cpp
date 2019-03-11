@@ -40,13 +40,13 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       
     // Diagnoses an expression whose type cannot be used in a condition
     void diagnoseExprCantCond(Expr* expr) {
-      getDiags()
+      diagEngine
         .report(DiagID::cant_use_expr_as_cond, expr->getSourceRange())
         .addArg(expr->getType());
     }
 
     void diagnoseEmptyReturnStmtInNonVoidFn(ReturnStmt* stmt, Type fnRtrTy) {
-      getDiags()
+      diagEngine
         .report(DiagID::return_with_no_expr, stmt->getSourceRange())
         .addArg(fnRtrTy);
     }
@@ -57,7 +57,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
 
       if(!Sema::isWellFormed({exprTy, fnRetTy})) return;
 
-      getDiags()
+      diagEngine
         .report(DiagID::cannot_convert_return_expr, expr->getSourceRange())
         .addArg(exprTy)
         .addArg(fnRetTy)
@@ -65,7 +65,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
     }
 
     void diagnoseUnexpectedRtrExprForNonVoidFn(ReturnStmt* stmt, Expr* expr) {
-      getDiags()
+      diagEngine
         .report(DiagID::unexpected_non_void_rtr_expr, expr->getSourceRange())
         .setExtraRange(stmt->getSourceRange());
     }
@@ -83,7 +83,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       
     void visitReturnStmt(ReturnStmt* stmt) {
       // Fetch the current FuncDecl
-      DeclContext* dc = getSema().getDeclCtxt();
+      DeclContext* dc = sema.getDeclCtxt();
       assert(dc && "no active decl context!");
       FuncDecl* fn = dyn_cast<FuncDecl>(dc);
       assert(fn && "ReturnStmt outside a FuncDecl?");
@@ -94,7 +94,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       // We'll check the stmt depending on whether it has an expression or not.
       if(Expr* expr = stmt->getExpr()) {
         // There is an expression, check it.
-        bool succ = getSema().typecheckExprOfType(expr, rtrTy);
+        bool succ = sema.typecheckExprOfType(expr, rtrTy);
         if(!succ) {
           // If this function returns void, and has an Expr of a non-void type
           if(isVoid)
@@ -147,9 +147,9 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
     ASTNode checkNode(ASTNode node) {
       assert(node && "node is null");
       if(node.is<Decl*>())
-        getSema().checkDecl(node.get<Decl*>());
+        sema.checkDecl(node.get<Decl*>());
       else if(node.is<Expr*>())
-        node = getSema().typecheckExpr(node.get<Expr*>());
+        node = sema.typecheckExpr(node.get<Expr*>());
       else {
         assert(node.is<Stmt*>() && "unknown ASTNode kind");
         Stmt* stmt = node.get<Stmt*>();
@@ -163,7 +163,7 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
 		// is used as a condition. Returns the Expr* that should replace
 		// the condition.
 		Expr* checkCond(Expr* cond) {
-			if(!getSema().typecheckCondition(cond)) {
+			if(!sema.typecheckCondition(cond)) {
         if(!(cond->getType()->is<ErrorType>()))
           diagnoseExprCantCond(cond);
       }

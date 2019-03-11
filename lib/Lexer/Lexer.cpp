@@ -17,14 +17,14 @@
 using namespace fox;
 using namespace fox::dicts;
 
-Lexer::Lexer(ASTContext& astctxt): ctxt_(astctxt), 
-  diags_(ctxt_.diagEngine), sm_(ctxt_.sourceMgr),
+Lexer::Lexer(ASTContext& astctxt): ctxt(astctxt), 
+  diagEngine(ctxt.diagEngine), srcMgr(ctxt.sourceMgr),
   escapeFlag_(false) {}
 
 void Lexer::lexFile(FileID file) {
   assert(file && "INVALID FileID!");
   fileID_ = file;
-  auto source = ctxt_.sourceMgr.getFileContent(fileID_);
+  auto source = ctxt.sourceMgr.getFileContent(fileID_);
   strManip_.setStr(source);
   state_ = DFAState::S_BASE;
   while(!strManip_.eof())
@@ -49,7 +49,7 @@ void Lexer::pushTok() {
   if (curtok_ == "")  // Don't push empty tokens.
     return;
 
-  Token t(ctxt_, curtok_, getCurtokRange());
+  Token t(ctxt, curtok_, getCurtokRange());
 
   // Push the token if it was correctly identified
   if (t) tokens_.push_back(t);
@@ -66,10 +66,10 @@ void Lexer::runFinalChecks() {
     case DFAState::S_STR:
       // FALL THROUGH
     case DFAState::S_CHR:
-      diags_.report(DiagID::missing_closing_quote, getCurtokBegLoc());
+      diagEngine.report(DiagID::missing_closing_quote, getCurtokBegLoc());
       break;
     case DFAState::S_MCOM:
-      diags_.report(DiagID::unfinished_multiline_comment, getCurtokBegLoc());
+      diagEngine.report(DiagID::unfinished_multiline_comment, getCurtokBegLoc());
       break;
     default:
       // no-op
@@ -151,7 +151,7 @@ void Lexer::fn_S_STR() {
     dfa_goto(DFAState::S_BASE);
   }
   else if (c == '\n')
-    diags_
+    diagEngine
       .report(DiagID::newline_in_literal, getCurtokBegLoc())
       .addArg("string");
   else
@@ -188,13 +188,13 @@ void Lexer::fn_S_CHR() {
     addToCurtok(c);
 
     if (curtok_.size() == 2)
-      diags_.report(DiagID::empty_char_literal, getCurtokRange());
+      diagEngine.report(DiagID::empty_char_literal, getCurtokRange());
 
     pushTok();
     dfa_goto(DFAState::S_BASE);
   }
   else if (c == '\n')
-    diags_.report(DiagID::newline_in_literal, getCurtokRange());
+    diagEngine.report(DiagID::newline_in_literal, getCurtokRange());
   else
     addToCurtok(c);
 }

@@ -63,7 +63,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed(declType)) return;
 
       assert(id && range && "ill formed ValueDecl");
-      getDiags().report(DiagID::declared_here_with_type, range)
+      diagEngine.report(DiagID::declared_here_with_type, range)
         .addArg(id).addArg(declType);
     }
 
@@ -75,7 +75,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       if(!Sema::isWellFormed({childTy, goalTy})) return;
 
-      getDiags()
+      diagEngine
         .report(DiagID::invalid_explicit_cast, range)
         .addArg(childTy)
         .addArg(goalTy)
@@ -88,7 +88,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Type castTy = castTL.getType();
       if(!Sema::isWellFormed(castTy)) return;
 
-      getDiags()
+      diagEngine
         .report(DiagID::useless_redundant_cast, castTL.getSourceRange())
         .addArg(castTy)
         .setExtraRange(expr->getExpr()->getSourceRange());
@@ -97,7 +97,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     void diagnoseHeteroArrLiteral(ArrayLiteralExpr* expr, Expr* faultyElem,
       Type supposedType) {
       assert(faultyElem && "no element pointed");
-      getDiags()
+      diagEngine
         // Precise error loc is the first element that failed the inferrence,
         // extended range is the whole arrayliteral's.
         .report(DiagID::unexpected_elem_of_type_in_arrlit, 
@@ -105,7 +105,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
           .addArg(faultyElem->getType())
         // Sometimes, the supposed type might contain a type variable.
         // Try to simplify the type to produce a better diagnostic!
-        .addArg(getSema().trySimplify(supposedType))
+        .addArg(sema.trySimplify(supposedType))
         .setExtraRange(expr->getSourceRange());
     }
 
@@ -115,7 +115,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       if(!Sema::isWellFormed(childTy)) return;
 
-      getDiags()
+      diagEngine
         .report(DiagID::unaryop_bad_child_type, expr->getOpRange())
         // Use the child's range as the extra range.
         .setExtraRange(child->getSourceRange())
@@ -133,7 +133,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       if(!Sema::isWellFormed({childTy, idxETy})) return;
 
-      getDiags()
+      diagEngine
         .report(DiagID::arrsub_invalid_types, range)
         // %0 is subscripted value's type, %1 is the index's expr type;
         .addArg(childTy)
@@ -153,7 +153,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(expr->isAssignement()) 
         return diagnoseInvalidAssignement(expr, lhsTy, rhsTy);
 
-      getDiags()
+      diagEngine
         .report(DiagID::binexpr_invalid_operands, opRange)
         .addArg(expr->getOpSign())
         .addArg(lhsTy)
@@ -163,19 +163,19 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // Diagnoses an undeclared identifier
     void diagnoseUndeclaredIdentifier(SourceRange range, Identifier id) {
-      getDiags().report(DiagID::undeclared_id, range).addArg(id);
+      diagEngine.report(DiagID::undeclared_id, range).addArg(id);
     }
 
     // Diagnoses an ambiguous identifier
     void diagnoseAmbiguousIdentifier(SourceRange range, Identifier id,
       const LookupResult& results) {
       // First, display the "x" is ambiguous error
-      getDiags().report(DiagID::ambiguous_ref, range).addArg(id);
+      diagEngine.report(DiagID::ambiguous_ref, range).addArg(id);
       // Now, iterate over the lookup results and emit notes
       // for each candidate.
       assert(results.isAmbiguous());
       for(auto result : results) {
-        getDiags().report(DiagID::potential_candidate_here, 
+        diagEngine.report(DiagID::potential_candidate_here, 
           result->getIdentifierRange());
       }
     }
@@ -184,7 +184,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(expr->isAssignement());
       SourceRange lhsRange = expr->getLHS()->getSourceRange();
       SourceRange opRange = expr->getOpRange();
-      getDiags().report(DiagID::unassignable_expr, lhsRange)
+      diagEngine.report(DiagID::unassignable_expr, lhsRange)
         .setExtraRange(opRange);
     }
 
@@ -196,7 +196,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       if(!Sema::isWellFormed({lhsTy, rhsTy})) return;
 
       // Diag is (roughly) "can't assign a value of type (lhs) to type (rhs)
-      getDiags().report(DiagID::invalid_assignement, rhsRange)
+      diagEngine.report(DiagID::invalid_assignement, rhsRange)
         .setExtraRange(lhsRange)
         .addArg(rhsTy).addArg(lhsTy);
     }
@@ -206,7 +206,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       UnresolvedDeclRefExpr* udre) {
       SourceRange range = udre->getSourceRange();
       SourceRange extra = decl->getIdentifierRange();
-      getDiags().report(DiagID::var_init_self_ref, range)
+      diagEngine.report(DiagID::var_init_self_ref, range)
         .setExtraRange(extra);
     }
 
@@ -216,7 +216,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       if(!Sema::isWellFormed(ty)) return;
 
-      getDiags().report(DiagID::expr_isnt_func, range)
+      diagEngine.report(DiagID::expr_isnt_func, range)
         .addArg(ty);
     }
 
@@ -240,7 +240,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         diag = DiagID::too_many_args_in_func_call;
 
       // Report the diagnostic
-      getDiags().report(diag, callee->getSourceRange())
+      diagEngine.report(diag, callee->getSourceRange())
         .addArg(callee->getDecl()->getIdentifier());
       // Also emit a "is declared here with type" note.
       noteIsDeclaredHereWithType(callee->getDecl());
@@ -264,7 +264,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert(argsRange && "argsRange is invalid in CallExpr with a non-zero "
         "number of arguments");
 
-      getDiags().report(DiagID::cannot_call_func_with_args, callee->getSourceRange())
+      diagEngine.report(DiagID::cannot_call_func_with_args, callee->getSourceRange())
         .addArg(callee->getDecl()->getIdentifier())
         .addArg(argsAsStr)
         .setExtraRange(argsRange);
@@ -273,7 +273,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     void diagnoseFunctionTypeInArrayLiteral(ArrayLiteralExpr* lit, Expr* fn) {
-      getDiags().report(DiagID::func_type_in_arrlit, fn->getSourceRange())
+      diagEngine.report(DiagID::func_type_in_arrlit, fn->getSourceRange())
         // Maybe displaying the whole array is too much? I think it's great
         // because it gives some context, but maybe I'm wrong.
         .setExtraRange(lit->getSourceRange());
@@ -297,7 +297,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // Finalizes an expression whose type is boolean (e.g. conditional/logical
     // expressions such as LAnd, LNot, LE, GT, etc..)
     Expr* finalizeBooleanExpr(Expr* expr) {
-      expr->setType(PrimitiveType::getBool(getASTContext()));
+      expr->setType(PrimitiveType::getBool(ctxt));
       return expr;
     }
 
@@ -342,8 +342,8 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       assert((expr->numElems() == 0) && "Only for empty Array Literals");
       // For empty array literals, the type is going to be a fresh
       // TypeVariable inside an Array. e.g. [$T0]
-      Type type = getSema().createNewTypeVariable();
-      type = ArrayType::get(getASTContext(), type); 
+      Type type = sema.createNewTypeVariable();
+      type = ArrayType::get(ctxt, type); 
       expr->setType(type);
       return expr;
     }
@@ -352,7 +352,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* finalizeConcatBinaryExpr(BinaryExpr* expr) {
       // For concatenation, the type is always string.
       // We'll also change the add operator to become the concat operator.
-      expr->setType(PrimitiveType::getString(getASTContext()));
+      expr->setType(PrimitiveType::getString(ctxt));
       expr->setOp(BinaryExpr::OpKind::Concat);
       return expr;
     }
@@ -380,7 +380,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
       // Resolved DeclRef
       DeclRefExpr* resolved = 
-        DeclRefExpr::create(getASTContext(), found, udre->getSourceRange());
+        DeclRefExpr::create(ctxt, found, udre->getSourceRange());
       
       // Assign it's type
       Type valueType = found->getValueType();
@@ -388,7 +388,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // If it's a non const ValueDecl, wrap it in a LValue
       if(!found->isConst()) {
         assert(!isa<FuncDecl>(found) && "FuncDecl are always const!");
-        valueType = LValueType::get(getASTContext(), valueType);
+        valueType = LValueType::get(ctxt, valueType);
       }
 
       resolved->setType(valueType);
@@ -412,7 +412,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // means typechecking failed for this node, so set
       // it's type to ErrorType.
       if (!expr->getType()) {
-        expr->setType(ErrorType::get(getASTContext()));
+        expr->setType(ErrorType::get(ctxt));
       }
       return expr;
     }
@@ -533,7 +533,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       };
 
       // Try unification
-      if (getSema().unify(childTy, goalTy, comparator))
+      if (sema.unify(childTy, goalTy, comparator))
         return finalizeCastExpr(expr, isPerfectEquality);      
 
       diagnoseInvalidCast(expr);
@@ -593,7 +593,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       }
       // Or a string
       else if(baseTy->isStringType())
-        subscriptType = PrimitiveType::getChar(getASTContext());
+        subscriptType = PrimitiveType::getChar(ctxt);
       else {
 			  diagnoseInvalidArraySubscript(expr, base->getSourceRange(), 
                                       idxE->getSourceRange());
@@ -612,7 +612,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // Note: When the base is an lvalue (= it's assignable), the subscript
       // should be assignable too.
       if(base->getType()->isAssignable())
-        subscriptType = LValueType::get(getASTContext(), subscriptType);
+        subscriptType = LValueType::get(ctxt, subscriptType);
       expr->setType(subscriptType);
       return expr;
     }
@@ -625,12 +625,12 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       Identifier id = expr->getIdentifier();
       SourceRange range = expr->getSourceRange();
       LookupResult results;
-      getSema().doUnqualifiedLookup(results, id, expr->getBeginLoc());
+      sema.doUnqualifiedLookup(results, id, expr->getBeginLoc());
       // No results -> undeclared identifier
       if(results.isEmpty()) {
         diagnoseUndeclaredIdentifier(range, id);
         // Return an ErrorExpr on error.
-        return ErrorExpr::create(getASTContext());
+        return ErrorExpr::create(ctxt);
       }
       // Ambiguous result
       if(results.isAmbiguous()) {
@@ -638,7 +638,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         if (!removeIllegalRedecls(results)) {
           diagnoseAmbiguousIdentifier(range, id, results);
           // Return an ErrorExpr on error.
-          return ErrorExpr::create(getASTContext());
+          return ErrorExpr::create(ctxt);
         }
       }
       // Correct, unambiguous result.
@@ -680,7 +680,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         Type expected = fnTy->getParamType(idx);
         Type got = expr->getArg(idx)->getType();
         assert(expected && got && "types cant be nullptrs!");
-        if(!getSema().unify(expected, got)) {
+        if(!sema.unify(expected, got)) {
           diagnoseBadFunctionCall(expr);
           return expr;
         }
@@ -697,27 +697,27 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // Trivial literals: the expr's type is simply the corresponding
     // type. Int for a Int literal, etc.
     Expr* visitCharLiteralExpr(CharLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getChar(getASTContext()));
+      expr->setType(PrimitiveType::getChar(ctxt));
       return expr;
     }
 
     Expr* visitIntegerLiteralExpr(IntegerLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getInt(getASTContext()));
+      expr->setType(PrimitiveType::getInt(ctxt));
       return expr;
     }
 
     Expr* visitDoubleLiteralExpr(DoubleLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getDouble(getASTContext()));
+      expr->setType(PrimitiveType::getDouble(ctxt));
       return expr;
     }
 
     Expr* visitBoolLiteralExpr(BoolLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getBool(getASTContext()));
+      expr->setType(PrimitiveType::getBool(ctxt));
       return expr;
     }
 
     Expr* visitStringLiteralExpr(StringLiteralExpr* expr) {
-      expr->setType(PrimitiveType::getString(getASTContext()));
+      expr->setType(PrimitiveType::getString(ctxt));
       return expr;
     }
 
@@ -780,7 +780,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         }
 
         // Next iterations: Unify the element's type with the proposed type.
-        if (!getSema().unify(proposedType, elemTy)) {
+        if (!sema.unify(proposedType, elemTy)) {
           diagnoseHeteroArrLiteral(expr, elem, proposedType);
           continue;
         }
@@ -789,7 +789,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // Set the type to an ArrayType of the
       // type if the expr is still considered valid.
       if(isValid)
-        expr->setType(ArrayType::get(getASTContext(), proposedType));
+        expr->setType(ArrayType::get(ctxt, proposedType));
       return expr;
     }
 
@@ -806,7 +806,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         
       // Check that lhs and rhs unify and that they're both numeric
       // types.
-      if(getSema().unify(lhsTy, rhsTy) && 
+      if(sema.unify(lhsTy, rhsTy) && 
         (lhsTy->isNumeric() && rhsTy->isNumeric())) {
         // lhsTy and rhsTy are equal
         assert((lhsTy == rhsTy) && "Unification succeeded, but lhs/rhs types "
@@ -856,7 +856,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       rhsTy = rhsTy->getRValue();
 
       // Unify
-      if(!getSema().unify(lhsTy, rhsTy)) {
+      if(!sema.unify(lhsTy, rhsTy)) {
         // Type mismatch
         diagnoseInvalidAssignement(expr, lhsTy, rhsTy);
         return expr;
@@ -874,7 +874,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     checkComparisonBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert(expr->isComparison() && "wrong function!");
 
-      if (!getSema().unify(lhsTy, rhsTy)) {
+      if (!sema.unify(lhsTy, rhsTy)) {
         diagnoseInvalidBinaryExpr(expr);
         return expr;
       }
@@ -979,8 +979,8 @@ class Sema::ExprFinalizer : ASTWalker {
       }
     }
 
-    ExprFinalizer(Sema& sema) : sema(sema), ctxt(sema.getASTContext()),
-      diags(sema.getDiagnosticEngine()) {
+    ExprFinalizer(Sema& sema) : sema(sema), ctxt(sema.ctxt),
+      diags(sema.diagEngine) {
     }
 
     ~ExprFinalizer() {

@@ -20,15 +20,7 @@ using namespace fox;
 // Sema Methods
 //----------------------------------------------------------------------------//
 
-Sema::Sema(ASTContext& ctxt) : ctxt_(ctxt) {}
-
-DiagnosticEngine& Sema::getDiagnosticEngine() const {
-  return ctxt_.diagEngine;
-}
-
-ASTContext& Sema::getASTContext() const {
-  return ctxt_;
-}
+Sema::Sema(ASTContext& ctxt) : ctxt(ctxt), diagEngine(ctxt.diagEngine) {}
 
 //----------------------------------------------------------------------------//
 // RAIIDeclCtxt

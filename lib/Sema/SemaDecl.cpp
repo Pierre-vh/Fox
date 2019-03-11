@@ -78,10 +78,10 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         && "it's a redeclaration but names are different?");
 
       DiagID diagID = getAppropriateDiagForRedecl(original, redecl);
-      getDiags()
+      diagEngine
         .report(diagID, redecl->getIdentifierRange())
         .addArg(id);
-      getDiags()
+      diagEngine
         .report(DiagID::first_decl_seen_here, original->getIdentifierRange())
         .addArg(id);
     }
@@ -93,7 +93,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
       if(!Sema::isWellFormed({initType, declType})) return;
 
-      getDiags()
+      diagEngine
         .report(DiagID::invalid_vardecl_init_expr, init->getSourceRange())
         .addArg(initType)
         .addArg(declType)
@@ -129,7 +129,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       // Check the init expr
       if (Expr* init = decl->getInitExpr()) {
         // Check the init expr
-        bool ok = getSema().typecheckExprOfType(init, decl->getValueType());
+        bool ok = sema.typecheckExprOfType(init, decl->getValueType());
         // Replace the expr
         decl->setInitExpr(init);
         // If the type didn't match, diagnose
@@ -140,18 +140,18 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
 
     void visitFuncDecl(FuncDecl* decl) {
       // Also, tell it that we're entering its DeclContext.
-      auto raiiDC = getSema().enterDeclCtxtRAII(decl);
+      auto raiiDC = sema.enterDeclCtxtRAII(decl);
       // Check if this is an invalid redecl
       checkForIllegalRedecl(decl);
       // Check it's parameters
       for (ParamDecl* param : *decl->getParams())
         visit(param);
-      getSema().checkStmt(decl->getBody());
+      sema.checkStmt(decl->getBody());
     }
 
     void visitUnitDecl(UnitDecl* unit) {
       // Tell Sema that we're inside this unit's DC
-      auto dcGuard = getSema().enterDeclCtxtRAII(unit);
+      auto dcGuard = sema.enterDeclCtxtRAII(unit);
       // And just visit every decl inside the UnitDecl
       for(Decl* decl : unit->getDecls())
         visit(decl);
@@ -182,7 +182,7 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
         if(result->getFileID() != decl->getFileID()) return true;
         return false;  // else, don't ignore.
       };
-      getSema().doUnqualifiedLookup(lookupResult, id, decl->getBeginLoc(),
+      sema.doUnqualifiedLookup(lookupResult, id, decl->getBeginLoc(),
                                     options);
       // If there are no matches, this cannot be a redecl
       if (lookupResult.size() == 0)

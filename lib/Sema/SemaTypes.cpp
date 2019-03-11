@@ -124,7 +124,7 @@ Type Sema::simplify(Type type) {
       const Sema& sema;
 
       Impl(Sema& sema) : 
-        sema(sema), ctxt(sema.getASTContext()) {}
+        sema(sema), ctxt(sema.ctxt) {}
 
       Type visitPrimitiveType(PrimitiveType* type) {
         return type;
@@ -203,7 +203,7 @@ Type Sema::createNewTypeVariable() {
 
   // Create a new entry in the substitutions array for this 
   // new TypeVariable.
-  return TypeVariableType::create(ctxt_, tyVarsCounter_++);
+  return TypeVariableType::create(ctxt, tyVarsCounter_++);
 }
 
 void Sema::resetTypeVariables() {

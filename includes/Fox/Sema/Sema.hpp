@@ -33,8 +33,8 @@ namespace fox {
       // Performs semantic analysis on a UnitDecl
       void checkUnitDecl(UnitDecl* decl);
 
-      DiagnosticEngine& getDiagnosticEngine() const;
-      ASTContext& getASTContext() const;
+      ASTContext& ctxt;
+      DiagnosticEngine& diagEngine;
 
     private:
       // Children checkers and others
@@ -204,25 +204,19 @@ namespace fox {
 
       // The current active DeclContext.
       DeclContext* currentDC_ = nullptr;
-      
-      // the ASTContext and DiagnosticEngine
-      ASTContext &ctxt_;
   };
 
   // Common base class for all Checker classes. This is used to DRY the code 
   // as every Checker class needs to access common classes such as the 
   // ASTContext and DiagnosticEngine
   class Sema::Checker {
-    Sema& sema_;
-    DiagnosticEngine& diags_;
-    ASTContext& ctxt_;
     public:
-      Checker(Sema& sema) : sema_(sema),
-        diags_(sema.getDiagnosticEngine()), ctxt_(sema.getASTContext()) {}
+      Checker(Sema& sema) : sema(sema),
+        diagEngine(sema.diagEngine), ctxt(sema.ctxt) {}
 
-      ASTContext& getASTContext() { return ctxt_; }
-      DiagnosticEngine& getDiags() { return diags_; }
-      Sema& getSema() { return sema_; }
+      Sema& sema;
+      DiagnosticEngine& diagEngine;
+      ASTContext& ctxt;
   };
 
   // A Small RAII object that sets the currently active DeclContext
