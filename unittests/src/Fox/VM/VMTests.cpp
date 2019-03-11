@@ -39,22 +39,13 @@ TEST(OpcodeTest, ToString) {
 }
 
 TEST(InstructionDumpTest, DumpInstructionsTest) {
-  // Create a series of instructions with at least one of each kind.
+  // Create a series of instructions 
   InstructionBuilder builder;
   builder
-    // Simple
     .createNoOpInstr()
-    // Ternary
     .createAddIntInstr(0, 1, 2)
-    // Small Binary
     .createLNotInstr(42, 84)
-    // (TO-DO) Unsigned Binary
-    // ---------------------- //
-    // Signed Binary
     .createStoreSmallIntInstr(0, -4242)
-    // (TO-DO) Unsigned Unary
-    // ---------------------- // 
-    // Signed Unary
     .createJumpInstr(-30000);
   // Check that we have the correct number of instructions
   auto instrs = builder.getInstrs();
