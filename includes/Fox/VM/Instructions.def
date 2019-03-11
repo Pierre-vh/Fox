@@ -7,35 +7,44 @@
 // This file uses Macro to "register" every bytecode instruction 
 // supported by the Fox VM.
 //----------------------------------------------------------------------------//
-/*
-  TODO: Rewrite doc
-*/
-//----------------------------------------------------------------------------//
 
+// Represents an "untyped" instruction. We don't know anything about it,
+// just its ID. All subsequent macros simplify to INSTR when they aren't defined,
+// so you can just define "INSTR" and know the ID of every instruction without
+// having to define all of the instruction macros.
 #ifndef INSTR
   #define INSTR(ID)
 #endif
 
+// The last instruction in the file.
 #ifndef LAST_INSTR
   #define LAST_INSTR(ID)
 #endif
 
+// A simple, trivial instruction that doesn't take any argument.
 #ifndef SIMPLE_INSTR
   #define SIMPLE_INSTR(ID) INSTR(ID)
 #endif
 
+// A ternary instruction is an instruction that takes three arguments.
+// (three 8 bits values)
 #ifndef TERNARY_INSTR
   #define TERNARY_INSTR(ID, T1, T2, T3) INSTR(ID)
 #endif
 
+// A binary instruction is an instruction that takes two arguments.
 #ifndef BINARY_INSTR
   #define BINARY_INSTR(ID, T1, T2) INSTR(ID)
 #endif
 
+// A unary instruction is an instruction that takes only one argument.
 #ifndef UNARY_INSTR
   #define UNARY_INSTR(ID, T1) INSTR(ID)
 #endif
 
+// A "TAC" instruction stands for three address code instruction. It's
+// an instruction that takes 3 addresses (3 registers) as
+// operands: a destination (arg0), a lhs (arg1) and a rhs (arg2).
 #ifndef TAC_INSTR
   #define TAC_INSTR(ID) TERNARY_INSTR(ID, std::uint8_t, std::uint8_t, std::uint8_t)
 #endif
