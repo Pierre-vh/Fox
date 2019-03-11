@@ -13,6 +13,16 @@ Basic VM data types and their mappings to Fox types:
 
 Roadmap: Follows a "basic" plan - implement - test development cycle
 
+  Ideas:
+    -> Maybe add labels to instructions, so they can be more expressive?
+      (e.g. we can have "dest lhs rhs" instead of "arg0 arg1 arg2")
+      -> See if it's worth it.
+
+    -> a VMTypes.hpp file with several typedefs (in a "vm" namespace) for:  
+        opcode_t (std::uint8_t)
+        reg_t (std::uint8_t)
+        etc...
+
 ---- Initial Preparation and Scaffolding ---- DONE ----
 
   -> Opcode (Done)
