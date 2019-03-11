@@ -29,6 +29,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # determine our environment/compiler and put the results in variables.
 # these variables will be used to determine which compile flags to use.
 
+# check if 64 bits or not
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(IS_64BITS TRUE)
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(IS_64BITS FALSE)
+endif()
+
 # fetch CXX environment variable
 if(DEFINED ENV{CXX})
   set(CXX $ENV{CXX})
@@ -72,6 +79,7 @@ message("IS_MSVC=${IS_MSVC}")
 message("IS_CLANGCL=${IS_CLANGCL}")
 message("IS_CLANG=${IS_CLANG}")
 message("IS_MSVC_OR_CLANGCL=${IS_MSVC_OR_CLANGCL}")
+message("IS_64BITS=${IS_64BITS}")
 if(CXX STREQUAL "")
   message("CXX environment variable not defined")
 else()
@@ -121,6 +129,14 @@ if(IS_MSVC_OR_CLANGCL)
     #   Reason: Usually intended because of compile time checks 
     #           e.g; "checkHasGetRange" in lib/AST/Stmt.cpp
     add_compile_options(/wd4505)
+
+    # C4276 "conversion from X to Y, possible loss of data"
+    #   Reason: Disabled only in 64bits mode because it becomes problematic in some 
+    #           LLVM libraries due to conversion from size_t to unsigned. (since size_t
+    #           is larger in 64 bits mode).
+    if(IS_64BITS)
+      add_compile_options(/wd4267)
+    endif()
   
   # don't deprecate theses functions
   add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
