@@ -86,6 +86,6 @@ namespace fox {
   };
   LLVM_PACKED_END
 
-  static_assert(sizeof(Instruction) == 4, "Instruction size not"
-    "4 Bytes/32 bits!");
+  static_assert(sizeof(Instruction) == 4, "Size of 'Instruction' object not"
+    " 4 Bytes/32 bits!");
 }
