@@ -33,19 +33,8 @@ namespace fox {
     #include "Instructions.def"
   };
 
-  // Checks if an Opcode legal. This is useful to check the actual validity
-  // of the Opcode if you converted an int to an Opcode.
-  inline constexpr bool isLegalOpcode(Opcode op) {
-    return op <= Opcode::last_opcode;
-  }
-
-  // Checks if an integer value is a legal opcode.
-  inline constexpr bool isLegalOpcode(std::uint8_t op) {
-    return op <= static_cast<std::uint8_t>(Opcode::last_opcode);
-  }
-
   // Converts an Opcode to a human-readable string representation.
-  // If the opcode is illegal, "<illegal opcode>" is returned instead.
+  // If the opcode is illegal, nullptr is returned instead.
   const char* toString(Opcode op);
   
   // Dumps a single instruction to "os".

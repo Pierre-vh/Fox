@@ -17,9 +17,13 @@ static constexpr const char* const opcodeStrings[] = {
   #include "Fox/VM/Instructions.def"
 };
 
+static bool isLegal(Opcode op) {
+  return std::uint8_t(op) <= std::uint8_t(Opcode::last_opcode);
+}
+
 const char* fox::toString(Opcode op) {
-  if(isLegalOpcode(op))
-    return opcodeStrings[static_cast<std::uint8_t>(op)];
+  if(isLegal(op))
+    return opcodeStrings[std::uint8_t(op)];
   return nullptr;
 }
 

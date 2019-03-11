@@ -17,18 +17,6 @@
 
 using namespace fox;
 
-TEST(OpcodeTest, IsLegal) {
-  std::uint8_t iLegal = 0, iIllegal = 255;
-  Opcode legal = static_cast<Opcode>(iLegal);
-  Opcode illegal = static_cast<Opcode>(iIllegal);
-
-  EXPECT_TRUE(isLegalOpcode(legal));
-  EXPECT_TRUE(isLegalOpcode(iLegal));
-
-  EXPECT_FALSE(isLegalOpcode(illegal));
-  EXPECT_FALSE(isLegalOpcode(iIllegal));
-}
-
 TEST(OpcodeTest, ToString) {
   Opcode a = Opcode::StoreSmallInt;
   Opcode b = Opcode::NoOp;
