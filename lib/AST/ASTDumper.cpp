@@ -36,13 +36,13 @@ namespace {
 
 ASTDumper::ASTDumper(SourceManager& srcMgr,
                      std::ostream& out,
-                     const uint8_t& offsettabs)
-    : out_(out), offsetTabs_(offsettabs), srcMgr_(&srcMgr) {
+                     std::uint8_t offsettabs)
+    : out(out), offsetTabs_(offsettabs), srcMgr_(&srcMgr) {
   recalculateOffset();
 }
 
 ASTDumper::ASTDumper(std::ostream& out, const uint8_t & offsettabs):
-  srcMgr_(nullptr), out_(out), offsetTabs_(offsettabs) {
+  srcMgr_(nullptr), out(out), offsetTabs_(offsettabs) {
 
 }
 
@@ -297,8 +297,8 @@ bool ASTDumper::hasSrcMgr() const {
 }
 
 std::ostream& ASTDumper::dumpLine(std::uint8_t num) {
-  out_ << offset_ << getIndent(num);
-  return out_;
+  out << offset_ << getIndent(num);
+  return out;
 }
 
 void ASTDumper::recalculateOffset() {

@@ -19,7 +19,7 @@ namespace fox {
     using Inherited = SimpleASTVisitor<ASTDumper, void>;
     friend Inherited;
     public:
-      ASTDumper(SourceManager& srcMgr, std::ostream& out, const uint8_t& offsettabs = 0);
+      ASTDumper(SourceManager& srcMgr, std::ostream& out, std::uint8_t offsettabs = 0);
       ASTDumper(std::ostream& out, const uint8_t& offsettabs = 0);
 
       // Prints the AST as a dump, which will create a highly detailed
@@ -36,6 +36,8 @@ namespace fox {
         debug_ = false;
         visit(std::forward<Ty>(value));
       }
+
+      std::ostream& out;
 
     private:
       // Expressions
@@ -125,7 +127,6 @@ namespace fox {
       void indent(std::uint8_t num = 1);
       void dedent(std::uint8_t num = 1);
 
-      std::ostream& out_;
       SourceManager* srcMgr_ = nullptr;
       std::string offset_;
       uint16_t curIndent_ = 0, offsetTabs_ = 0;
