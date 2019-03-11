@@ -51,6 +51,58 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": ""
+    },
+    {
+      "name": "x64-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [
+        "msvc_x64"
+      ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\Fox\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\Fox\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": ""
+    },
+    {
+      "name": "x64-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [
+        "msvc_x64"
+      ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\Fox\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\Fox\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": ""
+    },
+    {
+      "name": "x64-RelWithDebInfo",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [
+        "msvc_x64"
+      ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\Fox\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\Fox\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": ""
+    },
+    {
+      "name": "x64-MinSizeRel",
+      "generator": "Ninja",
+      "configurationType": "MinSizeRel",
+      "inheritEnvironments": [
+        "msvc_x64"
+      ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\Fox\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\Fox\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": ""
     }
   ]
 }
