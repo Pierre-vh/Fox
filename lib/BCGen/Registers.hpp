@@ -8,6 +8,7 @@
 //----------------------------------------------------------------------------//
 
 #include <cstdint>
+#include <set>
 
 namespace fox {
   class RegisterValue;
@@ -27,6 +28,10 @@ namespace fox {
     private:
       friend RegisterValue;
 
+      // The maximum number of registers that we can allocated=
+      static constexpr 
+      regnum_t maxRegNum = std::numeric_limits<regnum_t>::max();
+
       // Allocates a new register.
       // This should be used carefully as it returns the raw register
       // number. If that number is lost and freeRegister is never called,
@@ -36,13 +41,26 @@ namespace fox {
       // Marks the register 'reg' as being free and available again.
       void markRegisterAsFreed(regnum_t reg);
 
-      // TODO: compactFreedRegs() method that tries to decrease the 'highest'
-      // allocated register and remove stuff from the set of freed
-      // registers. Maybe run this every X frees/allocs, or at each free?
-      // (depends on how cheap the method is)
+      // This method tries to remove elements from the freeRegisters_
+      // set by decrementing biggestAllocatedReg_.
+      //
+      // It is called every register allocation, in the future, this
+      // may also be called before setting up a call to minimize
+      // register usage.
+      //
+      // Example:
+      // pre compacting:
+      //    freeRegisters_ = (4, 3, 1, 0) and biggestAllocatedReg_ = 5
+      // after compacting:
+      //    freeRegisters_ = (1, 0) and biggestAllocatedReg_ = 3
+      void compactFreeRegisterSet();
 
-      // TODO: Count of 'highest' register allocated.
-      // TODO: Set of freed register
+      // The biggest register number allocated.
+      regnum_t biggestAllocatedReg_ = 0;
+
+      // The set of free registers, sorted from the highest to the lowest
+      // one.
+      std::set<regnum_t, std::greater<regnum_t> > freeRegisters_;
   };
 
   // The register value, representing (maybe shared) ownership

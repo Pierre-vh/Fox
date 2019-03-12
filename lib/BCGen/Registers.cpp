@@ -16,34 +16,74 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 RegisterValue RegisterAllocator::allocateNewRegister() {
-  fox_unimplemented_feature("RegisterAllocator::allocateNewRegister() "
-    "isn't implemented yet");
-  // TODO: Check if it's correct, if no other operation are needed.
-  
-  // return RegisterValue(this, rawAllocateNewRegister());
+  return RegisterValue(this, rawAllocateNewRegister());
 }
 
 regnum_t RegisterAllocator::rawAllocateNewRegister() {
-  fox_unimplemented_feature("RegisterAllocator::rawAllocateNewRegister() "
-    "isn't implemented yet");
-  // Pick a register in freedRegs if it's not empty, else
-  // pick highestReg++
+  // Try to compact the freeRegisters_ set
+  // FIXME: Is this a good idea to call this every alloc? 
+  //        The method is fairly cheap so it shouldn't be an issue, 
+  //        but some profiling wouldn't hurt!
+  compactFreeRegisterSet();
 
-  // When we can't allocate a new registers (all regs are occupied)
-  // just assert and I'll add precise diagnostisc later when Functions 
-  // are actually being compiled.
-  //
-  // When functions are compiled, I can emit a diagnostic (error), like
-  // Function 'foo' to complex to be compiled:
-  // function requires too many registers to be compiled'
+  // If we have something in freeRegisters_, use that.
+  if (!freeRegisters_.empty()) {
+    // Take the smallest number possible (to reuse registers whose number
+    // is as small as possible, so compactFreeRegisterSet() is more
+    // efficient)
+    auto pick = --freeRegisters_.end();
+    regnum_t reg = (*pick);
+    freeRegisters_.erase(pick);
+    return reg;
+  }
+
+  // Check that we haven't allocated too many registers.
+  assert((biggestAllocatedReg_ != maxRegNum) && 
+    "Can't allocate more registers : Register number limit reached "
+    "(too much register pressure)");
+
+  // Return biggestAllocatedReg_ then increment it.
+  return biggestAllocatedReg_++;
+ 
 }
 
-void RegisterAllocator::markRegisterAsFreed(regnum_t /*reg*/) {
-  // Mark the register as freed:
-  //  if (reg+1 == highestReg) highestReg--;
-  //  else freedRegs.insert(reg);
-  fox_unimplemented_feature("RegisterAllocator::markRegisterAsFreed() "
-    "isn't implemented yet");
+void RegisterAllocator::markRegisterAsFreed(regnum_t reg) {
+  // Check if we can mark the register as freed by merely decrementing
+  // biggestAllocatedReg_
+  if((reg+1) == biggestAllocatedReg_)
+    biggestAllocatedReg_--;
+  // Else, add it to the free registers set
+  else {
+    assert((biggestAllocatedReg_ > reg) 
+      && "Register maybe freed twice");
+    // Only capture the result of std::set::insert in debug builds to avoid
+    // "unused variable" errors in release builds (where asserts are disabled)
+    #ifndef NDEBUG
+      auto insertResult =
+    #endif
+
+    freeRegisters_.insert(reg);
+
+    assert(insertResult.second && "Register maybe freed twice: "
+    " It was already in freeRegisters_");
+  }
+}
+
+void RegisterAllocator::compactFreeRegisterSet() {
+  // Compacting is not needed if we haven't allocated any regs yet,
+  // or if freeRegisters_ is empty.
+  if(biggestAllocatedReg_ == 0) return;
+  if(freeRegisters_.empty()) return;
+
+  while (true) {
+    // If the highest entry in freeRegisters_ is equivalent to
+    // biggestAllocatedReg_-1, remove it and decrement 
+    // biggestAllocatedReg_. Else, return.
+    auto it = freeRegisters_.begin();
+    if((*it) != (biggestAllocatedReg_-1)) return;
+    freeRegisters_.erase(it); // erase the element
+    --biggestAllocatedReg_;   // decrement biggestAllocatedReg_
+  }
 }
 
 //----------------------------------------------------------------------------//
