@@ -150,6 +150,8 @@ To-Do:
   > VM, Bytecode, BytecodeGen (Currently, see lib/VM/Status.md)
 
   > Add 'move' tests for Diagnostic object
+  > Remove the 'setIsFileWide' in report() by writing a single 'private'
+    report function and having all public ones call it
 
   > UFCS
     > AST Structure still to be decided.
