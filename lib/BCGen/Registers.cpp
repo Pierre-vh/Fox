@@ -7,6 +7,7 @@
 
 #include "Registers.hpp"
 #include "Fox/Common/Errors.hpp"
+#include <utility>
 
 using namespace fox;
 
@@ -53,10 +54,7 @@ RegisterValue::RegisterValue(RegisterAllocator* regAlloc, regnum_t reg) :
   regAlloc_(regAlloc), regNum_(reg) {}
 
 RegisterValue::RegisterValue(RegisterValue&& other) {
-  free();
-  regAlloc_ = other.regAlloc_;
-  regNum_ = other.regNum_;
-  other.kill();
+  (*this) = std::move(other);
 }
 
 RegisterValue::~RegisterValue() {
