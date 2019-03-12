@@ -37,6 +37,9 @@ namespace fox   {
   /// Expr
   ///    Common base class for every expression
   class alignas(ExprAlignement) Expr {
+    // Delete copy ctor/operator (can cause corruption with trailing objects)
+    Expr(const Expr&) = delete;
+    Expr& operator=(const Expr&) = delete;
     public:
       ExprKind getKind() const;
 

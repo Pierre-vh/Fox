@@ -39,6 +39,9 @@ namespace fox {
   // Usually, you should never use raw TypeBase* pointers unless you have
   // a valid reason. Always use the Type wrapper. (see Type.hpp)
   class alignas(TypeBaseAlignement) TypeBase {
+    // Delete copy ctor/operator (can cause corruption with trailing objects)
+    TypeBase(const TypeBase&) = delete;
+    TypeBase& operator=(const TypeBase&) = delete;
     public:
       // Returns the type's name in a user friendly form, 
       //   e.g. "int", "string"
