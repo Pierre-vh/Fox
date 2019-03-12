@@ -57,6 +57,9 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Scaffolding (Done)
   -> InstructionBuilder's buffer can be taken (Done)
   -> Bytecode Dumper (Done)
+  -> Registers.hpp
+    -> RegisterAllocator (Currently)
+    -> RegisterValue (Done) 
   -> Basic CodeGen of simple expressions : only compile time constant ops involving
       doubles and ints.
   -> CodeGen of control flow statements (if/while)
