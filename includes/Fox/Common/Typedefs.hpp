@@ -5,10 +5,7 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file declares Typedefs for various types to ensure
-// consistency between types. 
-//
-// For instance, it would be terrible if a class tried to store a int64_t, used by a literal token, in a
-// normal int ! To solve this, they would both use "FoxInt" !
+// consistency when handling Fox values.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -19,11 +16,7 @@
 namespace fox {
   // Type aliases for every type that Fox supports. Theses should only
   // be used when you want to make it clear that you'll be
-  // storing a value which was found in the source code fed to the interpreter. 
-  // Don't use theses in the wild to store arbitrary values.
-
-  // For instance, a AST node that holds a constant (a literal) will use the typedef
-  // when manipulating the value,  but your everyday boolean flag in a function shouldn't use it.
+  // storing a 'Fox Value' (a value entered by the user or something like that)
 
   // 64 Bit signed int.
   using FoxInt = std::int64_t;
@@ -33,4 +26,8 @@ namespace fox {
 
   // 64 Bits Double Precision floating point number.
   using FoxDouble = double;
+
+  // No type alias for bool because it's just a boolean.
+  
+  // No type alias for string because we usually use string_view
 }
