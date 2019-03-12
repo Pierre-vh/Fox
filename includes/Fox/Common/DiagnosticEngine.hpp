@@ -62,6 +62,10 @@ namespace fox {
       Diagnostic(Diagnostic &&other);
       Diagnostic(Diagnostic&) = delete;
       Diagnostic& operator=(Diagnostic&) = delete;
+
+      // Note: This move operator will not emit the overwritten diagnostic.
+      // e.g. if foo and bar are valid diagnostics, foo = std::move(bar) won't
+      // cause foo to be emitted
       Diagnostic& operator=(Diagnostic&& other);
      
       // Emits the diagnostic.
