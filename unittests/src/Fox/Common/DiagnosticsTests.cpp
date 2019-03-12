@@ -27,7 +27,7 @@ namespace {
   class StrDiagConsumer : public DiagnosticConsumer {
     public:
       virtual void consume(SourceManager&, const Diagnostic& diag) override {
-        count_++;
+        numDiagsEmitted_++;
         str_ = diag.getStr();
         sev_ = diag.getSeverity();
         id_ = diag.getID();
@@ -45,12 +45,12 @@ namespace {
         return id_;
       }
       
-      std::uint8_t getCount() const {
-        return count_;
+      std::uint8_t numDiagsEmitted() const {
+        return numDiagsEmitted_;
       }
 
     private:
-      std::uint8_t count_ = 0;
+      std::uint8_t numDiagsEmitted_ = 0;
       DiagID id_;
       DiagSeverity sev_;
       std::string str_;
@@ -159,6 +159,30 @@ TEST_F(DiagnosticsTest, InactiveDiags) {
   diag.emit();
   EXPECT_FALSE(diag.isActive()) 
     << "Diag was active after being emitted?";
+}
+
+TEST_F(DiagnosticsTest, MovingDiags) {
+  {
+    // Create 2 diagnostics and store them in variables
+    auto diagErr1 = diagEng.report(DiagID::unittest_errtest, file);
+    auto diagErr2 = diagEng.report(DiagID::unittest_errtest, file);
+
+    // No diags should have been emitted here
+    ASSERT_FALSE(diagEng.hadAnyError());
+    ASSERT_EQ(cons->numDiagsEmitted(), 0u);
+    {
+      // Create 2 new diags by moving theses diags. One uses the move ctor,
+      // another the copy ctor.
+      auto movedDiagErr1(std::move(diagErr1));
+      Diagnostic movedDiagErr2 = std::move(diagErr2);
+    }
+    // Check that only 2 diags were emitted.
+    EXPECT_TRUE(diagEng.hadAnyError());
+    EXPECT_EQ(cons->numDiagsEmitted(), 2u);
+  }
+  // And it shouldn't have changed even when diagErr1/2 have been destroyed
+  EXPECT_TRUE(diagEng.hadAnyError());
+  EXPECT_EQ(cons->numDiagsEmitted(), 2u);
 }
 
 TEST_F(DiagnosticsTest, SilencedWarnings) {
