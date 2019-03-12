@@ -98,7 +98,7 @@ if(IS_MSVC_OR_CLANGCL)
 
   # disable RTTI
   if(CMAKE_CXX_FLAGS MATCHES "/GR")
-      string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
   endif()
@@ -141,10 +141,17 @@ if(IS_MSVC_OR_CLANGCL)
   # don't deprecate theses functions
   add_compile_options(-D_SCL_SECURE_NO_WARNINGS)
 
-  # TODO: Disable exceptions again. Unfortunately, nonstd/string_view and utf8_cpp needs them.
+  # TODO: Disable exceptions again. Unfortunately utf8_cpp needs them.
+  #     When they're disabled again, nonstd/string-view will need some modifications,
+  #     or a nssv_CONFIG_NO_EXCEPTIONS macro defined to 1 so it works with exceptions 
+  #     disabled directly.
   # disable exceptions
   # add_compile_options(/D_HAS_EXCEPTIONS=0)
-  # add_compile_options(/EHsc)
+  # MSVC: Remove exceptions using /EHs-c-, but first remove /EHsc if present
+  # if(CMAKE_CXX_FLAGS MATCHES "/EHsc")
+  #  string(REGEX REPLACE "/EHsc" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  # endif()
+  # add_compile_options(/EHs-c-)
 
   # disable rtti
   add_compile_options(/GR-)
@@ -177,7 +184,7 @@ if(IS_CLANG)
   # /W4 is used above instead.
   add_clangonly_option(-Wall)
 
-  # TODO: Disable exceptions again. Unfortunately, nonstd/string_view and utf8_cpp needs them.
+  # TODO: Disable exceptions again. Unfortunately utf8_cpp needs them.
   # add_clangonly_option(-fno-exceptions)
   add_clangonly_option(-fno-rtti)
 
