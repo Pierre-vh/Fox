@@ -423,6 +423,8 @@ namespace fox   {
       ValueDecl* decl_ = nullptr;
   };
 
+  // NOTE: MemberOfExpr is currently unused and will be reworked
+  // when adding UFCS to Fox.
   /// MemberOfExpr
   ///    A member access : foo.bar
   class MemberOfExpr final : public Expr {
