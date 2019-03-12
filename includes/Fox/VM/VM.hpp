@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Fox/Common/Typedefs.hpp"
+#include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/Support/MathExtras.h"

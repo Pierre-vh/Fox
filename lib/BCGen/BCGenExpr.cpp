@@ -11,7 +11,7 @@
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
-#include "Fox/Common/Typedefs.hpp"
+#include "Fox/Common/FoxTypes.hpp"
 
 using namespace fox;
 

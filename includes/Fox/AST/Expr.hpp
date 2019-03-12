@@ -10,7 +10,7 @@
 #pragma once
 
 #include "ASTAligns.hpp"
-#include "Fox/Common/Typedefs.hpp"
+#include "Fox/Common/FoxTypes.hpp"
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Identifier.hpp"
 #include "llvm/ADT/SmallVector.h"

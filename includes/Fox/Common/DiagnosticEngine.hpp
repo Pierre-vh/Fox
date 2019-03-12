@@ -12,7 +12,7 @@
 #include "DiagnosticConsumers.hpp"
 #include "SourceLoc.hpp"
 #include "string_view.hpp"
-#include "Typedefs.hpp"
+#include "FoxTypes.hpp"
 #include <string>
 #include <sstream>
 #include <memory>
