@@ -46,6 +46,8 @@ namespace fox {
   // The Diagnostic object. It contains the Diagnostic's data and allow
   // the client to customize it before emitting it.
   //
+  // The class has only move semantics and thus isn't copyable.
+  //
   // Note: in this class, some methods will return a Diagnostic&. 
   // This is done to enable function chaining.
   // e.g. someDiag.addArg(..).addArg(...).freeze()
@@ -56,16 +58,17 @@ namespace fox {
       string_view dStr, SourceRange range = SourceRange());
     
     public:
-      // Note : The copy constructor kills the copied diag.
-      Diagnostic(Diagnostic &other);
-
-      // Note : The move ctors kill the moved diag.
+      // Only allow moving the diagnostic, not copying it.
       Diagnostic(Diagnostic &&other);
-
-      // Dtor that emits the diagnostic.
+      Diagnostic(Diagnostic&) = delete;
+      Diagnostic& operator=(Diagnostic&) = delete;
+      Diagnostic& operator=(Diagnostic&& other);
+     
+      // Emits the diagnostic.
       ~Diagnostic();
       
-      // Emit this diagnostic, feeding it to the consumer and killing it.
+      // Emit this diagnostic, feeding it to the consumer and killing it
+      // once emitted.
       void emit();
 
       // Returns the DiagID of this diagnostic.
@@ -139,8 +142,6 @@ namespace fox {
 
       void initBitFields();  
       
-      Diagnostic& operator=(const Diagnostic&) = default;
-
       // replaces every occurence of "%(value of index)" 
       // in a string with the replacement value
       // e.g: replacePlaceholder("foo",0) replaces every %0 

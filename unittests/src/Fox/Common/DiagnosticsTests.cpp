@@ -219,25 +219,6 @@ TEST_F(DiagnosticsTest, WarningsAreErrors) {
   EXPECT_TRUE(diagEng.hadAnyError());
 }
 
-TEST_F(DiagnosticsTest, CopyingDiagKillsCopiedDiag) {
-  // Test with copy constructor
-  auto diagA = diagEng.report(DiagID::unittest_errtest, file);
-  auto diagB(diagA);
-  EXPECT_FALSE(diagA.isActive());
-  EXPECT_FALSE(diagA);
-
-  EXPECT_TRUE(diagB.isActive());
-  EXPECT_TRUE(diagB);
-
-  // Test with move constructor
-  auto diagC(std::move(diagB));
-  EXPECT_FALSE(diagB.isActive());
-  EXPECT_FALSE(diagB);
-
-  EXPECT_TRUE(diagC.isActive());
-  EXPECT_TRUE(diagC);
-}
-
 TEST_F(PrettyDiagConsumerTest, PrintTest) {
   std::string theString = "LLVM is great!";
   FileID theFile = srcMgr.loadFromString(

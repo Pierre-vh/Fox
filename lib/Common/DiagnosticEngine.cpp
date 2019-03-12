@@ -65,7 +65,9 @@ DiagnosticEngine::DiagnosticEngine(SourceManager& sm,
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, FileID file) {
-  return report(diagID, SourceRange(SourceLoc(file))).setIsFileWide(true);
+  Diagnostic diag = report(diagID, SourceRange(SourceLoc(file)));
+  diag.setIsFileWide(true);
+  return diag;
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, SourceRange range) {
@@ -242,14 +244,21 @@ Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID,
   initBitFields();
 }
 
-Diagnostic::Diagnostic(Diagnostic &other) {
-  *this = other;
-  other.kill();
+Diagnostic::Diagnostic(Diagnostic&& other) {
+  (*this) = std::move(other);
 }
 
-Diagnostic::Diagnostic(Diagnostic&& other) {
-  *this = other;
+Diagnostic& Diagnostic::operator=(Diagnostic&& other) {
+  curPHIndex_ = other.curPHIndex_;
+  fileWide_ = other.fileWide_;
+  diagSeverity_= other.diagSeverity_;
+  diagID_ = other.diagID_;
+  engine_ = other.engine_;
+  diagStr_ = std::move(other.diagStr_);
+  range_ = other.range_;
+  extraRange_ = other.extraRange_;
   other.kill();
+  return *this;
 }
 
 Diagnostic::~Diagnostic() {
@@ -355,10 +364,10 @@ Diagnostic& Diagnostic::replacePlaceholder(FoxChar replacement) {
 
 void Diagnostic::kill() {
   if (isActive()) {
-    // Clear all variables
+    // Disable our diagnostic
     engine_ = nullptr;
+    // Clear variables worth cleaning (those that dynamically allocate memory)
     diagStr_.clear();
-    diagSeverity_ = DiagSeverity::Ignore;
   }
 }
 

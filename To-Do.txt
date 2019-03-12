@@ -149,6 +149,8 @@ To-Do:
 
   > VM, Bytecode, BytecodeGen (Currently, see lib/VM/Status.md)
 
+  > Add 'move' tests for Diagnostic object
+
   > UFCS
     > AST Structure still to be decided.
 
