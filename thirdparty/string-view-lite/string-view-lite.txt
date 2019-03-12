@@ -1,1 +1,1 @@
-martinmoene/string-view-lite on GitHub: https://github.com/martinmoene/string-view-lite
+martinmoene/string-view-lite v1.1 on GitHub: https://github.com/martinmoene/string-view-lite
