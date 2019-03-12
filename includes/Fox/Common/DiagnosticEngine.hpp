@@ -55,7 +55,7 @@ namespace fox {
     friend class DiagnosticEngine;
 
     Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,
-      string_view dStr, SourceRange range = SourceRange());
+      string_view dStr, SourceRange range, bool isFileWide);
     
     public:
       // Only allow moving the diagnostic, not copying it.
@@ -228,6 +228,10 @@ namespace fox {
 
     private:
       friend class Diagnostic;
+
+      // Internal overload of 'report'. Every public 'report'
+      // function calls this one.
+      Diagnostic report(DiagID diagID, SourceRange range, bool isFileWide);
 
       // Called by Diagnostic::emit
       void handleDiagnostic(Diagnostic& diag);

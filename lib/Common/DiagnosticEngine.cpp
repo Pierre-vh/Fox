@@ -65,23 +65,15 @@ DiagnosticEngine::DiagnosticEngine(SourceManager& sm,
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, FileID file) {
-  Diagnostic diag = report(diagID, SourceRange(SourceLoc(file)));
-  diag.setIsFileWide(true);
-  return diag;
+  return report(diagID, SourceRange(SourceLoc(file)), /*fileWide*/ true);
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, SourceRange range) {
-  const auto idx = static_cast<std::underlying_type<DiagID>::type>(diagID);
-  DiagSeverity sev = diagsSevs[idx];
-  std::string str(diagsStrs[idx]);
-
-  sev = changeSeverityIfNeeded(sev);
-
-  return Diagnostic(this, diagID, sev, str, range);
+  return report(diagID, range, /*fileWide*/ false);
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, SourceLoc loc) {
-  return report(diagID, SourceRange(loc));
+  return report(diagID, SourceRange(loc), /*fileWide*/ false);
 }
 
 void DiagnosticEngine::enableVerifyMode(DiagnosticVerifier* dv) {
@@ -161,6 +153,17 @@ void DiagnosticEngine::setIgnoreAll(bool val) {
   ignoreAll_ = val;
 }
 
+Diagnostic 
+DiagnosticEngine::report(DiagID diagID, SourceRange range, bool isFileWide) {
+  const auto idx = static_cast<std::underlying_type<DiagID>::type>(diagID);
+  DiagSeverity sev = diagsSevs[idx];
+  std::string str(diagsStrs[idx]);
+
+  sev = changeSeverityIfNeeded(sev);
+
+  return Diagnostic(this, diagID, sev, str, range, isFileWide);
+}
+
 void DiagnosticEngine::handleDiagnostic(Diagnostic& diag) {
   if (diag.getSeverity() == DiagSeverity::Ignore)
     return;
@@ -237,9 +240,9 @@ void DiagnosticEngine::updateInternalState(DiagSeverity ds) {
 //----------------------------------------------------------------------------//
 
 Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID,
-  DiagSeverity dSev, string_view dStr, SourceRange range) :
+  DiagSeverity dSev, string_view dStr, SourceRange range, bool isFileWide) :
   engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr.to_string()),
-  range_(range) {
+  fileWide_(isFileWide), range_(range) {
   assert(engine && "Engine cannot be null!");
   initBitFields();
 }
