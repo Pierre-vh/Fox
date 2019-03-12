@@ -149,6 +149,11 @@ To-Do:
 
   > VM, Bytecode, BytecodeGen (Currently, see lib/VM/Status.md)
 
+  > Split ASTVisitor into TypeVisitor and ASTVisitor. Often, I don't need
+    vanilla ASTVisitors to visit types. Also, remove the base "visitExpr", "visitStmt",
+    "visitDecl" and "visitTypeBase" implementations to require full AST coverage
+    and reduce the probability of bugs.
+
   > UFCS
     > AST Structure still to be decided.
 
