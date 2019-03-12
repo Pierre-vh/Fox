@@ -63,8 +63,8 @@ RegisterValue::~RegisterValue() {
 
 RegisterValue& RegisterValue::operator=(RegisterValue&& other) {
   free();
-  regAlloc_ = other.regAlloc_;
-  regNum_ = other.regNum_;
+  regAlloc_ = std::move(other.regAlloc_);
+  regNum_   = std::move(other.regNum_);
   other.kill();
   return *this;
 }

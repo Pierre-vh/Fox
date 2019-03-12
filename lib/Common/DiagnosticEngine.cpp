@@ -249,14 +249,14 @@ Diagnostic::Diagnostic(Diagnostic&& other) {
 }
 
 Diagnostic& Diagnostic::operator=(Diagnostic&& other) {
-  curPHIndex_ = other.curPHIndex_;
-  fileWide_ = other.fileWide_;
-  diagSeverity_= other.diagSeverity_;
-  diagID_ = other.diagID_;
-  engine_ = other.engine_;
-  diagStr_ = std::move(other.diagStr_);
-  range_ = other.range_;
-  extraRange_ = other.extraRange_;
+  curPHIndex_   = other.curPHIndex_;
+  fileWide_     = other.fileWide_;
+  diagSeverity_ = other.diagSeverity_;
+  diagID_       = other.diagID_;
+  engine_       = std::move(other.engine_);
+  diagStr_      = std::move(other.diagStr_);
+  range_        = std::move(other.range_);
+  extraRange_   = std::move(other.extraRange_);
   other.kill();
   return *this;
 }
