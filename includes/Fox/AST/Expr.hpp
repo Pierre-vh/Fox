@@ -246,7 +246,7 @@ namespace fox   {
       static CharLiteralExpr* create(ASTContext& ctxt,
         FoxChar val, SourceRange range);
 
-      FoxChar getVal() const;
+      FoxChar getValue() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::CharLiteralExpr);
@@ -265,7 +265,7 @@ namespace fox   {
       static IntegerLiteralExpr* create(ASTContext& ctxt, 
         FoxInt val, SourceRange range);
 
-      FoxInt getVal() const;
+      FoxInt getValue() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::IntegerLiteralExpr);
@@ -284,7 +284,7 @@ namespace fox   {
       static DoubleLiteralExpr* create(ASTContext& ctxt, FoxDouble val,
         SourceRange range);
 
-      FoxDouble getVal() const;
+      FoxDouble getValue() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::DoubleLiteralExpr);
@@ -303,7 +303,7 @@ namespace fox   {
       static StringLiteralExpr* create(ASTContext& ctxt, string_view val,
         SourceRange range);
 
-      string_view getVal() const;
+      string_view getValue() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::StringLiteralExpr);
@@ -322,7 +322,7 @@ namespace fox   {
       static BoolLiteralExpr* create(ASTContext& ctxt, bool val, 
         SourceRange range);
 
-      bool getVal() const;
+      bool getValue() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::BoolLiteralExpr);
