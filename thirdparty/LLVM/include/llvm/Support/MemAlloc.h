@@ -33,12 +33,12 @@
   // If exceptions are enabled, use <exception> and throw a std::bad_alloc
   #define llvm_bad_alloc(msg) do{throw std::bad_alloc();}while(0);
 #else 
+  #include <cstdio>
   // Directly write an OOM to stderr and abort.
   #define llvm_bad_alloc(msg) do{\
     char OOMMessage[] = "LLVM ERROR: out of memory (Allocation Failed):" \
-                        + msg + "\n"; \
-    ssize_t written = ::write(2, OOMMessage, strlen(OOMMessage)); \
-    (void)written; \
+                        msg "\n"; \
+    fprintf(stderr, OOMMessage); \
     abort();\
   }while(0);
 #endif
