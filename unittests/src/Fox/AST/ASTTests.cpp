@@ -328,7 +328,8 @@ TEST_F(ASTTest, DeclDeclContextRTTI) {
 }
 
 namespace {
-  //ASTVisitor tests : Samples implementations to test if visitors works as intended
+  // Sample AST/TypeVisitors to test that they work as intended.
+
   class IsNamedDecl : public SimpleASTVisitor<IsNamedDecl, bool> {
     public:
       bool visitStmt(Stmt*) { return false; };
