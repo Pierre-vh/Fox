@@ -14,8 +14,8 @@
 #include "Fox/AST/ASTFwdDecl.hpp"
 
 namespace fox {
-  // The ASTWalker which visits an AST in it's entirety, except TypeBases
-  // (for that, see TypeVisitor)
+  // The ASTWalker which traverses an AST, visiting every Expr/Decl and Stmt
+  // nodes.
   class ASTWalker {
     public:
       // Walks an ASTNode. 
@@ -40,8 +40,8 @@ namespace fox {
       // children. 
       // The first element of the return pair is the node that should
       // take this node's place, if it's nullptr, the traversal is terminated.
-      // The second element is a boolean indicating if we should visit this node's
-      // children.
+      // The second element is a boolean indicating if we should visit this
+      // node's children.
       virtual std::pair<Expr*, bool> handleExprPre(Expr* expr);
 
       // Called after visiting an expression's children.
@@ -54,8 +54,8 @@ namespace fox {
       // children. 
       // The first element of the return pair is the node that should
       // take this node's place, if it's nullptr, the traversal is terminated.
-      // The second element is a boolean indicating if we should visit this node's
-      // children.
+      // The second element is a boolean indicating if we should visit this 
+      // node's children.
       virtual std::pair<Stmt*, bool> handleStmtPre(Stmt* stmt);
 
 
@@ -77,20 +77,5 @@ namespace fox {
       // Return true if we should walk into the children of this decl,
       // false if the walk should be aborted.
       virtual bool handleDeclPost(Decl* decl);
-  };
-
-  // The TypeWalker, used to visit a Type hierarchy
-  class TypeWalker {
-    public:
-      bool walk(Type type);
-
-      // Called when first visiting a type before visiting it's
-      // children. 
-      // If the return value is false, the traversal is terminated.
-      virtual bool handleTypePre(Type type);
-
-      // Called after visiting a type's children.
-      // If the return value is false, the traversal is terminated.
-      virtual bool handleTypePost(Type type);
   };
 }

@@ -9,6 +9,7 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
+#include "Fox/AST/TypeVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 #include "llvm/ADT/Hashing.h"
 #include <sstream>

@@ -6,9 +6,11 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTDumper.hpp"
+#include "Fox/AST/Identifier.hpp"
+#include "Fox/AST/Type.hpp"
+#include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/SourceManager.hpp"
-#include "Fox/AST/Identifier.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 
 #include <sstream>
