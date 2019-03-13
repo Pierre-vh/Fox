@@ -86,21 +86,14 @@ namespace fox {
         }
       }
 
-      StmtRtrTy visitStmt(Stmt*, Args... args) {
-        return StmtRtrTy();
-      }
-
-      ExprRtrTy visitExpr(Expr*, Args... args) {
-        return ExprRtrTy();
-      }
-
-      DeclRtrTy visitDecl(Decl*, Args... args) {
-        return DeclRtrTy();
-      }
-
       // VisitXXX Methods
-      // The base implementations just chain back to the parent class, so visitors can just
-      // implement the parent class or an abstract class and still handle every derived class!
+      // The base implementations just chain back to the parent class, 
+      // so visitors can just implement the parent class or an abstract class
+      // and still handle every derived class!
+      // 
+      // Note that we don't provide a default implementation of 
+      // "visitExpr/visitStmt/visitDecl", this is because we require full
+      // coverage of the AST by the visitors.
       #define VISIT_METHOD(RTRTYPE, NODE, PARENT)             \
       RTRTYPE visit##NODE(NODE* node, Args... args){          \
         return static_cast<Derived*>(this)->                  \

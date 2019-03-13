@@ -331,6 +331,9 @@ namespace {
   //ASTVisitor tests : Samples implementations to test if visitors works as intended
   class IsNamedDecl : public SimpleASTVisitor<IsNamedDecl, bool> {
     public:
+      bool visitStmt(Stmt*) { return false; };
+      bool visitDecl(Decl*) { return false; };
+      bool visitExpr(Expr*) { return false; }
       bool visitNamedDecl(NamedDecl*) {
         return true;
       }
@@ -338,9 +341,9 @@ namespace {
 
   class IsExpr : public SimpleASTVisitor<IsExpr, bool> {
     public:
-      bool visitExpr(Expr*) {
-        return true;
-      }
+      bool visitStmt(Stmt*) { return false; };
+      bool visitDecl(Decl*) { return false; };
+      bool visitExpr(Expr*) { return true; }
   };
 
   class IsArrTy : public TypeVisitor<IsArrTy, bool> {
