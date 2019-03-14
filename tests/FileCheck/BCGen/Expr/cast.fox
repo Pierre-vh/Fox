@@ -1,0 +1,9 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+func foo() {
+  ((3 as double) as int) as double;
+  // CHECK:       StoreSmallInt 0 3
+  // CHECK-NEXT:  IntToDouble 0 0
+  // CHECK-NEXT:  DoubleToInt 0 0
+  // CHECK-NEXT:  IntToDouble 0 0
+}
