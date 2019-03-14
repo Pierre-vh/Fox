@@ -13,6 +13,7 @@
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
+#include "Fox/AST/TypeVisitor.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/SourceManager.hpp"
 #include "Support/TestUtils.hpp"
@@ -327,9 +328,13 @@ TEST_F(ASTTest, DeclDeclContextRTTI) {
 }
 
 namespace {
-  //ASTVisitor tests : Samples implementations to test if visitors works as intended
+  // Sample AST/TypeVisitors to test that they work as intended.
+
   class IsNamedDecl : public SimpleASTVisitor<IsNamedDecl, bool> {
     public:
+      bool visitStmt(Stmt*) { return false; };
+      bool visitDecl(Decl*) { return false; };
+      bool visitExpr(Expr*) { return false; }
       bool visitNamedDecl(NamedDecl*) {
         return true;
       }
@@ -337,16 +342,15 @@ namespace {
 
   class IsExpr : public SimpleASTVisitor<IsExpr, bool> {
     public:
-      bool visitExpr(Expr*) {
-        return true;
-      }
+      bool visitStmt(Stmt*) { return false; };
+      bool visitDecl(Decl*) { return false; };
+      bool visitExpr(Expr*) { return true; }
   };
 
-  class IsArrTy : public SimpleASTVisitor<IsArrTy, bool> {
+  class IsArrTy : public TypeVisitor<IsArrTy, bool> {
     public:
-      bool visitArrayType(ArrayType*) {
-        return true;
-      }
+      bool visitTypeBase(TypeBase*) { return false; }
+      bool visitArrayType(ArrayType*) { return true; }
   };
 }
 
@@ -366,18 +370,11 @@ TEST_F(ASTTest, BasicVisitor) {
   EXPECT_TRUE(exprVisitor.visit(intlit));
   EXPECT_FALSE(exprVisitor.visit(rtr));
   EXPECT_FALSE(exprVisitor.visit(vardecl));
-  EXPECT_FALSE(exprVisitor.visit(intTy));
-  EXPECT_FALSE(exprVisitor.visit(arrInt));
 
   EXPECT_FALSE(declVisitor.visit(intlit));
   EXPECT_FALSE(declVisitor.visit(rtr));
   EXPECT_TRUE(declVisitor.visit(vardecl));
-  EXPECT_FALSE(declVisitor.visit(intTy));
-  EXPECT_FALSE(declVisitor.visit(arrInt));
 
-  EXPECT_FALSE(tyVisitor.visit(intlit));
-  EXPECT_FALSE(tyVisitor.visit(rtr));
-  EXPECT_FALSE(tyVisitor.visit(vardecl));
   EXPECT_FALSE(tyVisitor.visit(intTy));
   EXPECT_TRUE(tyVisitor.visit(arrInt));
 

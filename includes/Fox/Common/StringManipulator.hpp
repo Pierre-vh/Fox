@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "Fox/Common/Typedefs.hpp"
+#include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/string_view.hpp"
 
 namespace fox {

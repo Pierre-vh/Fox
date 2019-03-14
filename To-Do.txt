@@ -146,15 +146,23 @@ To-Do:
   > Rename getBegin/getEnd/getRange to getBeginLoc/getEndLoc/getSourceRange (Done)
   > Polish the DeclContext changes (Done)
   > Purge the codebase of trivial getters and setters of references (Done)
+  > Move TypeWalker/TypeVisitor out of ASTWalker.hpp/ASTVisitor.hpp in their own files (Done)
 
   > VM, Bytecode, BytecodeGen (Currently, see lib/VM/Status.md)
+    -> Disable BCGen for -verify and -parse-only
 
-  > Add 'move' tests for Diagnostic object
-  > Remove the 'setIsFileWide' in report() by writing a single 'private'
-    report function and having all public ones call it
+
+  > Function Overloads on number and type of arguments. 
+    I don't know yet if I want to OVL based on return type because they might not bring value to Fox 
+      (since it isn't heavily inferred) and will be a pain to implement.
+    > To Implement function overloads, add another "SemaType" that represents a
+      disjunction of FunctionTypes* (the candidates) + the ID of the selected candidate.
+    > It'd also be a good idea to give 'TypeVariableType' and 'OverloadType' a common base
+      called 'SemaType'.
 
   > UFCS
-    > AST Structure still to be decided.
+
+  > FFI (just the basics to support intrinsics)
 
   > Intrinsics (= builtin functions)
     > Needed intrinsics:
@@ -163,21 +171,19 @@ To-Do:
         Strings: .substring(beg, end) // works like slice, but with another name.
     // More TBA
 
-  > Overloads support
-
   > Ternary operator
 
-  > Proper FFI
+  > Function types & Functions as first class citizens
 
   > Multifile support:
     > Exact model still to be decided. It'll probably be package/module based, but probably
       not to the extreme of java (with less nesting).
-
-  > Function types & Functions as first class citizens
+  
 
   > Type aliases
     > e.g. "typealias foo = [[int]]"
-    > Will have to introduce sugared & canonical types for this.
+    > Will have to introduce sugared & canonical types for this, so it'll be a pretty
+      major rework.
 
 Future:
   > Multifile support: It's coming, but the how is still to be decided

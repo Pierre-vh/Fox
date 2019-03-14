@@ -10,4 +10,5 @@ add_source(ast_src
   "Identifier.cpp"
   "DeclContext.cpp"
   "ASTNode.cpp"
+  "TypeWalker.cpp"
 )

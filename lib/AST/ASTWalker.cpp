@@ -4,10 +4,7 @@
 // File : ASTWalker.cpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the implementation of the ASTWalker and TypeWalker.
-// It is split in 2 parts : Traverse (for ASTWalker) and TypeTraverse 
-// (for TypeWalker)
-//----------------------------------------------------------------------------//
+
 
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
@@ -303,67 +300,7 @@ namespace {
         fox_unreachable("Unknown ASTNode kind");
       }
   };
-
-  // TypeTraverse, the traverse class for Typess
-  class TypeTraverse : public TypeVisitor<TypeTraverse, bool> {
-    TypeWalker &walker_;
-    public:
-      TypeTraverse(TypeWalker& walker) : walker_(walker) {}
-
-      // doIt method for types
-      bool doIt(Type type) {
-        // Call the walker, abort if failed.
-        if (!walker_.handleTypePre(type))
-          return false;
-
-        // Visit the children
-        if (visit(type))
-          // Call the walker (post)
-          return walker_.handleTypePost(type);
-        return false;
-      }
-
-      bool visitPrimitiveType(PrimitiveType*) {
-        return true;
-      }
-
-      bool visitArrayType(ArrayType* type) {
-        if (Type elem = type->getElementType())
-          return doIt(elem);
-        return true;
-      }
-
-      bool visitLValueType(LValueType* type) {
-        if (Type ty = type->getType())
-          return doIt(ty);
-        return true;
-      }
-
-      bool visitErrorType(ErrorType*) {
-        return true;
-      }
-
-      bool visitTypeVariableType(TypeVariableType*) {
-        return true;
-      }
-
-      bool visitFunctionType(FunctionType* type) {
-        if(Type rtr = type->getReturnType())
-          if(!doIt(rtr)) return false;
-
-        for(auto paramTy : type->getParamTypes()) {
-          if(paramTy) {
-            if(!doIt(paramTy)) return false;
-          }
-        }
-
-        return true;
-      }
-  };
-
-} // End anonymous namespace
-
-// ASTWalker
+} // end anonymous namespace
 
 void ASTWalker::walk(ASTNode node) {
   Traverse(*this).doIt(node, nullptr);
@@ -402,19 +339,5 @@ bool ASTWalker::handleDeclPre(Decl*) {
 }
 
 bool ASTWalker::handleDeclPost(Decl*) {
-  return true;
-}
-
-// TypeWalker
-
-bool TypeWalker::walk(Type type) {
-  return TypeTraverse(*this).doIt(type);
-}
-
-bool TypeWalker::handleTypePre(Type) {
-  return true;
-}
-
-bool TypeWalker::handleTypePost(Type) {
   return true;
 }

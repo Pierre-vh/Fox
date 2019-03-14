@@ -12,7 +12,7 @@
 #include "DiagnosticConsumers.hpp"
 #include "SourceLoc.hpp"
 #include "string_view.hpp"
-#include "Typedefs.hpp"
+#include "FoxTypes.hpp"
 #include <string>
 #include <sstream>
 #include <memory>
@@ -55,13 +55,17 @@ namespace fox {
     friend class DiagnosticEngine;
 
     Diagnostic(DiagnosticEngine *engine, DiagID dID, DiagSeverity dSev,
-      string_view dStr, SourceRange range = SourceRange());
+      string_view dStr, SourceRange range, bool isFileWide);
     
     public:
       // Only allow moving the diagnostic, not copying it.
       Diagnostic(Diagnostic &&other);
       Diagnostic(Diagnostic&) = delete;
       Diagnostic& operator=(Diagnostic&) = delete;
+
+      // Note: This move operator will not emit the overwritten diagnostic.
+      // e.g. if foo and bar are valid diagnostics, foo = std::move(bar) won't
+      // cause foo to be emitted
       Diagnostic& operator=(Diagnostic&& other);
      
       // Emits the diagnostic.
@@ -228,6 +232,10 @@ namespace fox {
 
     private:
       friend class Diagnostic;
+
+      // Internal overload of 'report'. Every public 'report'
+      // function calls this one.
+      Diagnostic report(DiagID diagID, SourceRange range, bool isFileWide);
 
       // Called by Diagnostic::emit
       void handleDiagnostic(Diagnostic& diag);

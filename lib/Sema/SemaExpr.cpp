@@ -10,9 +10,12 @@
 
 #include "Fox/Sema/Sema.hpp"
 #include "Fox/AST/Expr.hpp"
+#include "Fox/AST/Type.hpp"
+#include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTWalker.hpp"
+#include "Fox/AST/TypeVisitor.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"

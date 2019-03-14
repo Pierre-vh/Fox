@@ -10,7 +10,7 @@
 #pragma once
 
 #include "ASTAligns.hpp"
-#include "Fox/Common/Typedefs.hpp"
+#include "Fox/Common/FoxTypes.hpp"
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Identifier.hpp"
 #include "llvm/ADT/SmallVector.h"
@@ -37,6 +37,9 @@ namespace fox   {
   /// Expr
   ///    Common base class for every expression
   class alignas(ExprAlignement) Expr {
+    // Delete copy ctor/operator (can cause corruption with trailing objects)
+    Expr(const Expr&) = delete;
+    Expr& operator=(const Expr&) = delete;
     public:
       ExprKind getKind() const;
 
@@ -243,7 +246,7 @@ namespace fox   {
       static CharLiteralExpr* create(ASTContext& ctxt,
         FoxChar val, SourceRange range);
 
-      FoxChar getVal() const;
+      FoxChar getValue() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::CharLiteralExpr);
@@ -262,7 +265,7 @@ namespace fox   {
       static IntegerLiteralExpr* create(ASTContext& ctxt, 
         FoxInt val, SourceRange range);
 
-      FoxInt getVal() const;
+      FoxInt getValue() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::IntegerLiteralExpr);
@@ -281,7 +284,7 @@ namespace fox   {
       static DoubleLiteralExpr* create(ASTContext& ctxt, FoxDouble val,
         SourceRange range);
 
-      FoxDouble getVal() const;
+      FoxDouble getValue() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::DoubleLiteralExpr);
@@ -300,7 +303,7 @@ namespace fox   {
       static StringLiteralExpr* create(ASTContext& ctxt, string_view val,
         SourceRange range);
 
-      string_view getVal() const;
+      string_view getValue() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::StringLiteralExpr);
@@ -319,7 +322,7 @@ namespace fox   {
       static BoolLiteralExpr* create(ASTContext& ctxt, bool val, 
         SourceRange range);
 
-      bool getVal() const;
+      bool getValue() const;
 
       static bool classof(const Expr* expr) {
         return (expr->getKind() == ExprKind::BoolLiteralExpr);
@@ -420,6 +423,8 @@ namespace fox   {
       ValueDecl* decl_ = nullptr;
   };
 
+  // NOTE: MemberOfExpr is currently unused and will be reworked
+  // when adding UFCS to Fox.
   /// MemberOfExpr
   ///    A member access : foo.bar
   class MemberOfExpr final : public Expr {

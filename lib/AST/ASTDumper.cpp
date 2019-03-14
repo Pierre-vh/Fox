@@ -6,9 +6,11 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTDumper.hpp"
+#include "Fox/AST/Identifier.hpp"
+#include "Fox/AST/Type.hpp"
+#include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/SourceManager.hpp"
-#include "Fox/AST/Identifier.hpp"
 #include "Fox/Common/StringManipulator.hpp"
 
 #include <sstream>
@@ -128,26 +130,26 @@ void ASTDumper::visitCallExpr(CallExpr* node) {
 
 void ASTDumper::visitCharLiteralExpr(CharLiteralExpr* node) {
   std::string res;
-  StringManipulator::append(res, node->getVal());
+  StringManipulator::append(res, node->getValue());
   dumpLine() << getBasicExprInfo(node) << " " << addSingleQuotes(res) << "\n";
 }
 
 void ASTDumper::visitIntegerLiteralExpr(IntegerLiteralExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " " << node->getVal() << "\n";
+  dumpLine() << getBasicExprInfo(node) << " " << node->getValue() << "\n";
 }
 
 void ASTDumper::visitDoubleLiteralExpr(DoubleLiteralExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " " << node->getVal() << "\n";
+  dumpLine() << getBasicExprInfo(node) << " " << node->getValue() << "\n";
 }
 
 void ASTDumper::visitBoolLiteralExpr(BoolLiteralExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " "
-    << (node->getVal() ? "true" : "false") << "\n";
+    << (node->getValue() ? "true" : "false") << "\n";
 }
 
 void ASTDumper::visitStringLiteralExpr(StringLiteralExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " "
-    << addDoubleQuotes(node->getVal()) << "\n";
+    << addDoubleQuotes(node->getValue()) << "\n";
 }
 
 void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr* node) {

@@ -44,6 +44,9 @@ namespace fox {
   ///    Note that every Decl will take a DeclContext* argument. That DeclContext
   ///    should be their parent DeclContext.
   class alignas(DeclAlignement) Decl {
+    // Delete copy ctor/operator (can cause corruption with trailing objects)
+    Decl(const Decl&) = delete;
+    Decl& operator=(const Decl&) = delete;
     static constexpr unsigned kindBits_ = 4;
     public:
       /// The semantic analysis state for a Decl
@@ -57,7 +60,7 @@ namespace fox {
         /// The Decl has been checked
         Checked 
         // There's room for 1 more CheckStates. If this enum is updated
-        // beyond 4 elements, increase the size of it's bitfield in Decl.
+        // beyond 4 elements, increase the size of its bitfield.
       };
       /// Returns the kind of Decl this is.
       DeclKind getKind() const;

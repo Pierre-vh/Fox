@@ -33,6 +33,9 @@ namespace fox {
   /// Stmt
   ///    Common base for every statement
   class alignas(StmtAlignement) Stmt {
+    // Delete copy ctor/operator (can cause corruption with trailing objects)
+    Stmt(const Stmt&) = delete;
+    Stmt& operator=(const Stmt&) = delete;
     public:
       /// Returns the kind of statement this is
       StmtKind getKind() const;

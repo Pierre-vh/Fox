@@ -14,7 +14,7 @@
 #pragma once
 
 #include "Fox/AST/Identifier.hpp"
-#include "Fox/Common/Typedefs.hpp"
+#include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/SourceLoc.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"

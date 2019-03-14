@@ -15,6 +15,8 @@
 
 namespace fox {
   class SourceManager;
+  class Type;
+  class TypeLoc;
   class ASTDumper : /*private*/ SimpleASTVisitor<ASTDumper, void> {
     using Inherited = SimpleASTVisitor<ASTDumper, void>;
     friend Inherited;

@@ -30,7 +30,7 @@ std::ostream& fox::operator<<(std::ostream& os, ExprKind kind) {
 
 #define EXPR(ID, PARENT)\
   static_assert(std::is_trivially_destructible<ID>::value, \
-  #ID " is allocated in the ASTContext: It's destructor is never called!");
+  #ID " is allocated in the ASTContext: Its destructor is never called!");
 #include "Fox/AST/ExprNodes.def"
 
 Expr::Expr(ExprKind kind): kind_(kind){}
@@ -114,7 +114,7 @@ CharLiteralExpr::create(ASTContext& ctxt, FoxChar val, SourceRange range) {
   return new(ctxt) CharLiteralExpr(val, range);
 }
 
-FoxChar CharLiteralExpr::getVal() const {
+FoxChar CharLiteralExpr::getValue() const {
   return val_;
 }
 
@@ -130,7 +130,7 @@ IntegerLiteralExpr::create(ASTContext& ctxt, FoxInt val, SourceRange range) {
   return new(ctxt) IntegerLiteralExpr(val, range);
 }
 
-FoxInt IntegerLiteralExpr::getVal() const {
+FoxInt IntegerLiteralExpr::getValue() const {
   return val_;
 }
 
@@ -146,7 +146,7 @@ DoubleLiteralExpr::create(ASTContext& ctxt, FoxDouble val, SourceRange range) {
   return new(ctxt) DoubleLiteralExpr(val, range);
 }
 
-FoxDouble DoubleLiteralExpr::getVal() const {
+FoxDouble DoubleLiteralExpr::getValue() const {
   return val_;
 }
 
@@ -163,7 +163,7 @@ StringLiteralExpr::create(ASTContext& ctxt, string_view val,
   return new(ctxt) StringLiteralExpr(val, range);
 }
 
-string_view StringLiteralExpr::getVal() const {
+string_view StringLiteralExpr::getValue() const {
   return val_;
 }
 
@@ -179,7 +179,7 @@ BoolLiteralExpr::create(ASTContext& ctxt, bool val, SourceRange range) {
   return new(ctxt) BoolLiteralExpr(val, range);
 }
 
-bool BoolLiteralExpr::getVal() const {
+bool BoolLiteralExpr::getValue() const {
   return val_;
 }
 

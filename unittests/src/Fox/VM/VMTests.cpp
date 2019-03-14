@@ -12,7 +12,7 @@
 #include "Fox/VM/InstructionBuilder.hpp"
 #include "Fox/VM/VM.hpp"
 #include "llvm/Support/MathExtras.h"
-#include "Fox/Common/Typedefs.hpp"
+#include "Fox/Common/FoxTypes.hpp"
 #include <sstream>
 
 using namespace fox;

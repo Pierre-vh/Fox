@@ -14,6 +14,7 @@
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
+#include "Fox/AST/TypeVisitor.hpp"
 #include <tuple>
 
 using namespace fox;

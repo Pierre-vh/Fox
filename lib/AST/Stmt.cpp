@@ -18,7 +18,7 @@ using namespace fox;
 
 #define STMT(ID, PARENT)\
   static_assert(std::is_trivially_destructible<ID>::value, \
-  #ID " is allocated in the ASTContext: It's destructor is never called!");
+  #ID " is allocated in the ASTContext: Its destructor is never called!");
 #include "Fox/AST/StmtNodes.def"
 
 Stmt::Stmt(StmtKind skind): kind_(skind) {}

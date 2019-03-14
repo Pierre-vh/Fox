@@ -8,6 +8,8 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Sema/Sema.hpp"
+#include "Fox/AST/Type.hpp"
+#include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 #include "Fox/Common/Errors.hpp"

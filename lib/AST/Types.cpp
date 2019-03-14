@@ -9,6 +9,7 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
+#include "Fox/AST/TypeVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 #include "llvm/ADT/Hashing.h"
 #include <sstream>
@@ -17,7 +18,7 @@ using namespace fox;
 
 #define TYPE(ID, PARENT)\
   static_assert(std::is_trivially_destructible<ID>::value, \
-  #ID " is allocated in the ASTContext: It's destructor is never called!");
+  #ID " is allocated in the ASTContext: Its destructor is never called!");
 #include "Fox/AST/TypeNodes.def"
 
 //----------------------------------------------------------------------------//
