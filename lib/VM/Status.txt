@@ -70,10 +70,10 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
     -> RegisterValue (Done)
   -> Basic CodeGen of simple arithmetic expressions : only compile time constant ops involving
       doubles and ints. (Now)
-      - Binary Expr   (Done)
+      - Binary Expr : Ints done, Doubles still left to do.
       - CastExpr      (Done)
       - UnaryExpr     (Done)
-      -> Write FileCheck tests (Next)
+      -> Write FileCheck tests (Now)
 
   -> Add a BCGen logRegAlloc option to emit logs about register allocation after
       generating expressions, then, write FileCheck tests checking that the stats
