@@ -61,6 +61,7 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
     -> RegisterValue (Done)
   -> Basic CodeGen of simple expressions : only compile time constant ops involving
       doubles and ints. (Now)
+      -> Write FileCheck tests!
   -> CodeGen of control flow statements (if/while)
 
 ---- Implementation of Object types and GC ----
