@@ -48,11 +48,9 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Test (Done)
 
 ---- Implementation of casting opcodes ----
-  -> Declare opcodes
-    IntToDouble r1 r2
-    DoubleToInt r1 r2 // check if double isn't too large
-  -> Implement
-  -> Test
+  -> Declare opcodes (Done)
+  -> Implement (Done)
+  -> Test (Done)
 
 ---- Implementation of basic CodeGen ----
   -> Scaffolding (Done)
@@ -61,9 +59,8 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Registers.hpp
     -> RegisterAllocator (Currently)
     -> RegisterValue (Done)
-  -> Impl the casting operators (see above) (Next)
   -> Basic CodeGen of simple expressions : only compile time constant ops involving
-      doubles and ints.
+      doubles and ints. (Now)
   -> CodeGen of control flow statements (if/while)
 
 ---- Implementation of Object types and GC ----
