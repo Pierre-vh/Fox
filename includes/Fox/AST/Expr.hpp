@@ -106,7 +106,7 @@ namespace fox   {
       // *, % or /
       bool isMultiplicative() const;
       // **
-      bool isExponent() const;
+      bool isPower() const;
       // =
       bool isAssignement() const;
       // ==, !=, >=, <=, > or <

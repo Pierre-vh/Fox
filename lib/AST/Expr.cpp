@@ -297,8 +297,8 @@ bool BinaryExpr::isMultiplicative() const {
   }
 }
 
-bool BinaryExpr::isExponent() const {
-  return op_ == OpKind::Exp;
+bool BinaryExpr::isPower() const {
+  return op_ == OpKind::Pow;
 }
 
 bool BinaryExpr::isAssignement() const {

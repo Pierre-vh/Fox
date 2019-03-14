@@ -235,7 +235,7 @@ Parser::Result<Expr*> Parser::parseExponentExpr() {
       return Result<Expr*>::Error();
     }
 
-    return Result<Expr*>(BinaryExpr::create(ctxt, BinaryExpr::OpKind::Exp,
+    return Result<Expr*>(BinaryExpr::create(ctxt, BinaryExpr::OpKind::Pow,
       lhs.get(), rhs.get(), expOp));
   }
 

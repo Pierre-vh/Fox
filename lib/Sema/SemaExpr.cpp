@@ -488,7 +488,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         case BOp::Mul:
         case BOp::Div:
         case BOp::Mod:
-        case BOp::Exp:
+        case BOp::Pow:
           return checkBasicNumericBinaryExpr(expr, lhsTy, rhsTy);
         // Comparisons
         case BOp::Eq:
@@ -804,7 +804,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr*
     checkBasicNumericBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert((expr->isAdditive() 
-            || expr->isExponent() 
+            || expr->isPower() 
             || expr->isMultiplicative()) && "wrong function!");
         
       // Check that lhs and rhs unify and that they're both numeric
