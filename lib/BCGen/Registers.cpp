@@ -19,6 +19,13 @@ RegisterValue RegisterAllocator::allocateTemporary() {
   return RegisterValue(this, rawAllocateNewRegister());
 }
 
+regnum_t RegisterAllocator::numbersOfRegisterInUse() const {
+  regnum_t num = biggestAllocatedReg_;
+  for (auto elem : freeRegisters_)
+    if(elem < biggestAllocatedReg_) --num;
+  return num;
+}
+
 regnum_t RegisterAllocator::rawAllocateNewRegister() {
   // Try to compact the freeRegisters_ set
   // FIXME: Is this a good idea to call this every alloc? 

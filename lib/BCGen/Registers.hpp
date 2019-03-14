@@ -26,6 +26,9 @@ namespace fox {
       // managing the register. Once the RegisterValue dies, the register
       // is freed.
       RegisterValue allocateTemporary();
+      
+      // Returns the number of registers currently in use
+      regnum_t numbersOfRegisterInUse() const;
 
     private:
       friend RegisterValue;
