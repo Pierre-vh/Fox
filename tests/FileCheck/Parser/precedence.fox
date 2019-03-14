@@ -2,7 +2,7 @@
 
 func foo() {
   //  CHECK: UnaryExpr - (Unary Minus)
-  //    CHECK-NEXT: BinaryExpr ** (Exponentiation)
+  //    CHECK-NEXT: BinaryExpr ** (Power)
   //      CHECK-NEXT: IntegerLiteralExpr 3
   //      CHECK-NEXT: IntegerLiteralExpr 2
   -3**2;
