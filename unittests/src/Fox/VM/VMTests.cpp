@@ -407,3 +407,41 @@ TEST(VMTest, Jumps) {
     EXPECT_EQ(vm.getPC(), 3u) << "Bad CondJump";
   }
 }
+
+TEST(VMTest, Casts) {
+  InstructionBuilder builder;
+  FoxInt r0 = 42000;
+  FoxInt r1 = -42;
+  FoxDouble r2 = -3.3333;
+  FoxDouble r3 = 3.3333;
+  builder 
+    // IntToDouble r4 r0 -> r4 = 42000.00
+    .createIntToDoubleInstr(4, 0)
+    // IntToDouble r5 r1 -> r5 = -42.00
+    .createIntToDoubleInstr(5, 1)
+    // IntToDouble r6 r0 -> r6 = -3
+    .createDoubleToIntInstr(6, 2)
+    // IntToDouble r7 r1 -> r7 = 3
+    .createDoubleToIntInstr(7, 3)
+    .createBreakInstr();
+  VM vm;
+  auto regs = vm.getRegisterStack();
+  regs[0] = r0;
+  regs[1] = r1;
+  regs[2] = llvm::DoubleToBits(r2);
+  regs[3] = llvm::DoubleToBits(r3);
+  vm.load(builder.getInstrs());
+  vm.run();
+  // Helper to get a register's value as a FoxDouble
+  auto getRegAsDouble = [&](std::size_t idx) {
+    return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
+  };
+  // Helper to get a raw register value
+  auto getReg = [&](std::size_t idx) {
+    return vm.getRegisterStack()[idx];
+  };
+  EXPECT_DOUBLE_EQ(getRegAsDouble(4), 42000.00);
+  EXPECT_DOUBLE_EQ(getRegAsDouble(5), -42.00);
+  EXPECT_EQ(getReg(6), -3);
+  EXPECT_EQ(getReg(7), 3);
+}

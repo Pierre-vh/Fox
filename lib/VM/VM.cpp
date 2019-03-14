@@ -167,6 +167,16 @@ void VM::run() {
         // Jump x: Add x to programCounter
         programCounter_ += instr.Jump.arg;
         continue;
+      case Opcode::IntToDouble:
+        // IntToDouble r1 r2 : r1 = r2 as int with r2 interpreted as a FoxInt
+        setReg(instr.IntToDouble.arg0, 
+               FoxDouble(getReg<FoxInt>(instr.IntToDouble.arg1)));
+        continue;
+      case Opcode::DoubleToInt:
+        // IntToDouble r1 r2 : r1 = r2 as double with r2 interpreted as a FoxDouble
+        setReg(instr.DoubleToInt.arg0, 
+               FoxInt(getReg<FoxDouble>(instr.DoubleToInt.arg1)));
+        continue;
       default:
         fox_unreachable("illegal or unimplemented instruction found");
     }
