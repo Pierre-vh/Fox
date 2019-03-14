@@ -68,17 +68,6 @@ namespace fox {
       // in it's hierarchy.
       bool hasErrorType() const;
 
-      /*
-        A special note about the is/getAs/castTo
-        family of function : they're strictly helpers.
-        They won't see through LValues, CellTypes, Arrays, etc.
-
-        For instance :
-          (int)->isIntType() returns true
-          Cell(int)->isIntType() returns false
-          LValue(int)->isIntType() returns false
-      */
-
       //-------------------------//
       // Type categories
       //-------------------------//
@@ -92,7 +81,6 @@ namespace fox {
       bool isNumeric() const;
       bool isNumericOrBool() const;
 
-      // Return true if this type can appear on the LHS of an assignement.
       bool isAssignable() const;
 
       template<typename Ty>
