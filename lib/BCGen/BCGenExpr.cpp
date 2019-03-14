@@ -74,61 +74,59 @@ class BCGen::ExprGenerator : public Generator,
     }
     */
 
-    // Generates the adequate instruction to perform a given binary
-    // operation on 'lhs' and 'rhs' (registers containing ints), putting
-    // the result in 'rhs'
-    void genBinaryOperationOnInts(BinOp op, const RegisterValue& dest, 
-      RegisterValue lhs, RegisterValue rhs) {
-      // Fetch the addresses
-      regnum_t destAddr = dest.getAddress();
-      regnum_t lhsAddr = lhs.getAddress();
-      regnum_t rhsAddr = rhs.getAddress();
+    // Generates the adequate instruction(s) to perform a given binary
+    // operation on 'lhs' and 'rhs' (addresses of registers containing ints),
+    // putting the result in register 'dst'.
+    // dst may be equal to lhs or rhs
+    void emitIntegerBinaryOp(BinOp op, regnum_t dst, 
+                                  regnum_t lhs, regnum_t rhs) {
+      assert((lhs != rhs) && "lhs and rhs are identical");
       // Emit
       switch (op) {
         case BinOp::Add:  // +
-          builder.createAddIntInstr(destAddr, lhsAddr, rhsAddr);
+          builder.createAddIntInstr(dst, lhs, rhs);
           break;
         case BinOp::Sub:  // -
-          builder.createSubIntInstr(destAddr, lhsAddr, rhsAddr);
+          builder.createSubIntInstr(dst, lhs, rhs);
           break;
         case BinOp::Mul:  // *
-          builder.createMulIntInstr(destAddr, lhsAddr, rhsAddr);
+          builder.createMulIntInstr(dst, lhs, rhs);
           break;
         case BinOp::Div:  // /
-          builder.createDivIntInstr(destAddr, lhsAddr, rhsAddr);
+          builder.createDivIntInstr(dst, lhs, rhs);
           break;
         case BinOp::Mod:  // %
-          builder.createModIntInstr(destAddr, lhsAddr, rhsAddr);
+          builder.createModIntInstr(dst, lhs, rhs);
           break;
         case BinOp::Pow:  // **
-          builder.createPowIntInstr(destAddr, lhsAddr, rhsAddr);
+          builder.createPowIntInstr(dst, lhs, rhs);
           break;
         case BinOp::LE:   // <=
-          builder.createLEIntInstr(destAddr, lhsAddr, rhsAddr);
+          builder.createLEIntInstr(dst, lhs, rhs);
           break;
         case BinOp::GE:   // >=
           // For >=, it's not implemented in the VM, but
           // (a >= b) is the same as (b <= a)
-          builder.createLEIntInstr(destAddr, rhsAddr, lhsAddr);
+          builder.createLEIntInstr(dst, rhs, lhs);
         case BinOp::LT:   // <
-          builder.createLTIntInstr(destAddr, lhsAddr, rhsAddr);
+          builder.createLTIntInstr(dst, lhs, rhs);
           break;
         case BinOp::GT:   // >
           // > isn't implemented in the VM too, but
           // (a > b) is the same as !(a <= b). This requires 2 instructions.
           // dest = lhs <= rhs
-          builder.createLEIntInstr(destAddr, lhsAddr, rhsAddr);
+          builder.createLEIntInstr(dst, lhs, rhs);
           // dest != dest
-          builder.createLNotInstr(destAddr, destAddr);
+          builder.createLNotInstr(dst, dst);
           break;
         case BinOp::Eq:   // ==
-          builder.createEqIntInstr(destAddr, lhsAddr, rhsAddr);
+          builder.createEqIntInstr(dst, lhs, rhs);
           break;
         case BinOp::NEq:  // !=
           // != isn't implemented in the vm, it's just implemented
           // as !(a == b). This requires 2 instructions.
-          builder.createEqIntInstr(destAddr, lhsAddr, rhsAddr);
-          builder.createLNotInstr(destAddr, destAddr);
+          builder.createEqIntInstr(dst, lhs, rhs);
+          builder.createLNotInstr(dst, dst);
           break;
         default:
           fox_unreachable("Unhandled binary operation kind");
@@ -157,28 +155,40 @@ class BCGen::ExprGenerator : public Generator,
         rhsReg = visit(rhsExpr);
         assert(rhsReg.isAlive() && "Generated a dead register for the RHS");
       }
+      
+      regnum_t lhsAddr = lhsReg.getAddress();
+      regnum_t rhsAddr = rhsReg.getAddress();
 
-      // Gen the Op
-      // NOTE: I currently allocate a new register for the destination operand,
-      // but if one of the lhs/rhs is a temporary and not a variable, 
-      // I can use it and return it.
-      // For that, add a RegisterValue::isTemporary method and select
-      // the LHS/RHS depending on if they're temporaries or not. If both are,
-      // select the smaller one
-      RegisterValue destReg = regAlloc.allocateTemporary();
-      if (expr->getType()->isIntType()) {
-        genBinaryOperationOnInts(expr->getOp(), destReg, 
-                                 std::move(lhsReg), std::move(rhsReg));
-      } 
-      else if (expr->getType()->isDoubleType()) {
-        // TODO
-        fox_unimplemented_feature("Floating-point BinaryExpr BCGen");
-        /*genBinaryOperationOnDoubles(expr->getOp(), destReg, 
-                                 std::move(lhsReg), std::move(rhsReg));*/
+      // Select the destination register of the binary operation
+      RegisterValue dstReg;
+      // Both LHS and RHS are temporaries
+      if (lhsReg.isTemporary() && rhsReg.isTemporary()) {
+        // Reuse the smallest register possible
+        if(lhsAddr < rhsAddr)
+          dstReg = std::move(lhsReg);
+        else   
+          dstReg = std::move(rhsReg);
       }
+      // LHS is a temporary, but RHS isn't
+      else if (lhsReg.isTemporary())  dstReg = std::move(lhsReg);
+      // RHS is a temporary, but LHS isn't
+      else if (rhsReg.isTemporary())  dstReg = std::move(rhsReg);
+      // LHS and RHS aren't temporaries, so we must allocate a new register.
+      else dstReg = regAlloc.allocateTemporary();
+
+      assert(dstReg.isAlive() && "No destination register!");
+
+      regnum_t dstAddr = dstReg.getAddress();
+
+      // Generate instructions for Integral Binary Operations
+      if (expr->getType()->isIntType())
+        emitIntegerBinaryOp(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
+      // TODO: Generate instructions for Floating-Point Binary Operations
+      else if (expr->getType()->isDoubleType())
+        fox_unimplemented_feature("Floating-point BinaryExpr BCGen");
       else 
         fox_unreachable("Unknown Numeric Type Kind");
-      return destReg;
+      return dstReg;
     }
 
     //------------------------------------------------------------------------//
