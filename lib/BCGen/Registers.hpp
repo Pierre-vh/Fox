@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <set>
+#include <functional>
 
 namespace fox {
   class RegisterValue;
