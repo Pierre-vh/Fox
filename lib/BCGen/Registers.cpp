@@ -19,14 +19,14 @@ RegisterValue RegisterAllocator::allocateTemporary() {
   return RegisterValue(this, rawAllocateNewRegister());
 }
 
-regnum_t RegisterAllocator::numbersOfRegisterInUse() const {
-  regnum_t num = biggestAllocatedReg_;
+regaddr_t RegisterAllocator::numbersOfRegisterInUse() const {
+  regaddr_t num = biggestAllocatedReg_;
   for (auto elem : freeRegisters_)
     if(elem < biggestAllocatedReg_) --num;
   return num;
 }
 
-regnum_t RegisterAllocator::rawAllocateNewRegister() {
+regaddr_t RegisterAllocator::rawAllocateNewRegister() {
   // Try to compact the freeRegisters_ set
   // FIXME: Is this a good idea to call this every alloc? 
   //        The method is fairly cheap so it shouldn't be an issue, 
@@ -39,13 +39,13 @@ regnum_t RegisterAllocator::rawAllocateNewRegister() {
     // is as small as possible, so compactFreeRegisterSet() is more
     // efficient)
     auto pick = --freeRegisters_.end();
-    regnum_t reg = (*pick);
+    regaddr_t reg = (*pick);
     freeRegisters_.erase(pick);
     return reg;
   }
 
   // Check that we haven't allocated too many registers.
-  assert((biggestAllocatedReg_ != maxRegNum) && 
+  assert((biggestAllocatedReg_ != maxAddr) && 
     "Can't allocate more registers : Register number limit reached "
     "(too much register pressure)");
 
@@ -54,7 +54,7 @@ regnum_t RegisterAllocator::rawAllocateNewRegister() {
  
 }
 
-void RegisterAllocator::markRegisterAsFreed(regnum_t reg) {
+void RegisterAllocator::markRegisterAsFreed(regaddr_t reg) {
   // Check if we can mark the register as freed by merely decrementing
   // biggestAllocatedReg_
   if((reg+1) == biggestAllocatedReg_)
@@ -97,7 +97,7 @@ void RegisterAllocator::compactFreeRegisterSet() {
 // RegisterValue
 //----------------------------------------------------------------------------//
 
-RegisterValue::RegisterValue(RegisterAllocator* regAlloc, regnum_t reg) : 
+RegisterValue::RegisterValue(RegisterAllocator* regAlloc, regaddr_t reg) : 
   regAlloc_(regAlloc), regAddress_(reg) {}
 
 RegisterValue::RegisterValue(RegisterValue&& other) {
@@ -116,7 +116,7 @@ RegisterValue& RegisterValue::operator=(RegisterValue&& other) {
   return *this;
 }
 
-regnum_t RegisterValue::getAddress() const {
+regaddr_t RegisterValue::getAddress() const {
   return regAddress_;
 }
 

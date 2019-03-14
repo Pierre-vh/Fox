@@ -14,8 +14,9 @@
 namespace fox {
   class RegisterValue;
 
-  // An integer representing a register number
-  using regnum_t = std::uint8_t;
+  // An integer representing a register address (number).
+  // Currently a 8 bit integer (0-255 addressable registers)
+  using regaddr_t = std::uint8_t;
 
   // The (per function) register allocator. It manages allocation
   // a freeing of registers, striving to reuse registers (at smaller indexes)
@@ -28,23 +29,23 @@ namespace fox {
       RegisterValue allocateTemporary();
       
       // Returns the number of registers currently in use
-      regnum_t numbersOfRegisterInUse() const;
+      regaddr_t numbersOfRegisterInUse() const;
 
     private:
       friend RegisterValue;
 
-      // The maximum number of registers that we can allocated=
+      // The maximum address of a register.
       static constexpr 
-      regnum_t maxRegNum = std::numeric_limits<regnum_t>::max();
+      regaddr_t maxAddr = std::numeric_limits<regaddr_t>::max();
 
       // Allocates a new register.
       // This should be used carefully as it returns the raw register
       // number. If that number is lost and freeRegister is never called,
       // the register will never be freed (like a memory leak)
-      regnum_t rawAllocateNewRegister();
+      regaddr_t rawAllocateNewRegister();
 
       // Marks the register 'reg' as being free and available again.
-      void markRegisterAsFreed(regnum_t reg);
+      void markRegisterAsFreed(regaddr_t reg);
 
       // This method tries to remove elements from the freeRegisters_
       // set by decrementing biggestAllocatedReg_.
@@ -60,12 +61,14 @@ namespace fox {
       //    freeRegisters_ = (1, 0) and biggestAllocatedReg_ = 3
       void compactFreeRegisterSet();
 
-      // The biggest register number allocated.
-      regnum_t biggestAllocatedReg_ = 0;
+      // The address of the 'highest' allocated register + 1
+      //
+      // e.g. if we have allocated 5 registers, this value will be set to 6.
+      regaddr_t biggestAllocatedReg_ = 0;
 
       // The set of free registers, sorted from the highest to the lowest
       // one.
-      std::set<regnum_t, std::greater<regnum_t> > freeRegisters_;
+      std::set<regaddr_t, std::greater<regaddr_t> > freeRegisters_;
   };
 
   // The register value, representing (maybe shared) ownership
@@ -83,7 +86,7 @@ namespace fox {
 
       // Returns the 'address' of the register managed by this Registervalue.
       // The address is simply an integer for the register number.
-      regnum_t getAddress() const;
+      regaddr_t getAddress() const;
 
       // Returns true if this RegisterValue is still alive and
       // working.
@@ -106,7 +109,7 @@ namespace fox {
       friend RegisterAllocator;
 
       // Constructor, called by RegisterAllocator.
-      RegisterValue(RegisterAllocator* regAlloc, regnum_t reg);
+      RegisterValue(RegisterAllocator* regAlloc, regaddr_t reg);
 
       // "Kills" this RegisterValue, making it useless/ineffective.
       // Used by the move constructor/assignement operator.
@@ -116,6 +119,6 @@ namespace fox {
       void kill();
 
       RegisterAllocator* regAlloc_ = nullptr;
-      regnum_t regAddress_ = 0;
+      regaddr_t regAddress_ = 0;
   };
 }
