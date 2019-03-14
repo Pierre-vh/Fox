@@ -15,7 +15,7 @@ using namespace fox;
 // RegisterAllocator
 //----------------------------------------------------------------------------//
 
-RegisterValue RegisterAllocator::allocateNewRegister() {
+RegisterValue RegisterAllocator::allocateTemporary() {
   return RegisterValue(this, rawAllocateNewRegister());
 }
 
@@ -116,6 +116,11 @@ regnum_t RegisterValue::getAddress() const {
 bool RegisterValue::isAlive() const {
   // We're alive if our RegisterAllocator* is non null.
   return (bool)regAlloc_;
+}
+
+bool RegisterValue::isTemporary() const {
+  // There are only temp RegisterValues for now.
+  return true;
 }
 
 void RegisterValue::free() {

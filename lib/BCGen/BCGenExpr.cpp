@@ -165,7 +165,7 @@ class BCGen::ExprGenerator : public Generator,
       // For that, add a RegisterValue::isTemporary method and select
       // the LHS/RHS depending on if they're temporaries or not. If both are,
       // select the smaller one
-      RegisterValue destReg = regAlloc.allocateNewRegister();
+      RegisterValue destReg = regAlloc.allocateTemporary();
       if (expr->getType()->isIntType()) {
         genBinaryOperationOnInts(expr->getOp(), destReg, 
                                  std::move(lhsReg), std::move(rhsReg));
@@ -234,14 +234,14 @@ class BCGen::ExprGenerator : public Generator,
 
     RegisterValue visitCharLiteralExpr(CharLiteralExpr* expr) { 
       // Store the character as an integer in a new register.
-      RegisterValue value = regAlloc.allocateNewRegister();
+      RegisterValue value = regAlloc.allocateTemporary();
       emitStoreIntConstant(value, expr->getValue());
       return value;
     }
 
     RegisterValue visitIntegerLiteralExpr(IntegerLiteralExpr* expr) {
       // Store the integer in a new register.
-      RegisterValue value = regAlloc.allocateNewRegister();
+      RegisterValue value = regAlloc.allocateTemporary();
       emitStoreIntConstant(value, expr->getValue());
       return value;
     }
@@ -254,7 +254,7 @@ class BCGen::ExprGenerator : public Generator,
 
     RegisterValue visitBoolLiteralExpr(BoolLiteralExpr* expr) { 
       // Store the boolean as an integer in a new register.
-      RegisterValue value = regAlloc.allocateNewRegister();
+      RegisterValue value = regAlloc.allocateTemporary();
       emitStoreIntConstant(value, expr->getValue());
       return value;
     }

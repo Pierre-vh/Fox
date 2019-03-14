@@ -22,9 +22,10 @@ namespace fox {
   // and making register management as efficient as possible.
   class RegisterAllocator {
     public:
-      // Allocates a new register, returning a RegisterValue managing the
-      // register.
-      RegisterValue allocateNewRegister();
+      // Allocates a new temporary register, returning a RegisterValue 
+      // managing the register. Once the RegisterValue dies, the register
+      // is freed.
+      RegisterValue allocateTemporary();
 
     private:
       friend RegisterValue;
@@ -84,6 +85,11 @@ namespace fox {
       // Returns true if this RegisterValue is still alive and
       // working.
       bool isAlive() const;
+
+      // Returns true if this RegisterValue is a temporary
+      // one. If that's the case, the register will
+      // be freed once this instance dies.
+      bool isTemporary() const;
 
       // Frees the register and kills this RegisterValue.
       void free();
