@@ -27,6 +27,12 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
     -> Implement a Sethi-Ullman -like algorithm to decide the evaluation order
        of subexpressions to be a bit more register-efficient.
 
+    -> Potentially add a way of skipping 'useless' expressions on a case-by-case
+       basis. 
+       e.g. don't compile a 'Unary Not -> Unary Not -> Expr', just compile expr.
+       I need to see if there's more of them and if it'd be worthwhile to implement such 
+       a feature.
+
 ---- Initial Preparation and Scaffolding ---- DONE ----
 
   -> Opcode (Done)
