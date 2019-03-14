@@ -27,6 +27,7 @@ namespace fox {
       bool chrono_ = false;
       bool dumpAlloc_ = false;
       bool dumpAST_ = false;
+      bool dumpBCGen_ = false;
       bool parseOnly_ = false;   
 
       SourceManager srcMgr_;
@@ -47,6 +48,9 @@ namespace fox {
 
       bool getDumpAlloc() const;
       void setDumpAlloc(bool val);
+
+      bool getDumpBCGen() const;
+      void setDumpBCGen(bool val);
 
       bool getDumpAST() const;
       void setDumpAST(bool val);

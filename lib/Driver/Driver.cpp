@@ -16,6 +16,12 @@
 #include "Fox/Common/DiagnosticVerifier.hpp"
 #include <fstream>
 
+// TEST-Only! Remove later
+#include "Fox/VM/InstructionBuilder.hpp"
+#include "Fox/VM/Instructions.hpp"
+#include "Fox/BCGen/BCGen.hpp"
+#include "Fox/AST/ASTWalker.hpp"
+
 using namespace fox;
 
 Driver::Driver(std::ostream& os): out(os), diagEngine_(srcMgr_, os),
@@ -84,6 +90,40 @@ bool Driver::processFile(string_view filepath) {
     ASTDumper(srcMgr_, out, 1).print(unit);
   }
 
+  // TEST-Only! For now, I only do BCGen if we request
+  //            the bytecode to be dumped.
+  //            BCGen will be performed everytime once
+  //            it's complete (can handle a full AST)
+  if (canContinue() && getDumpBCGen()) {
+    BCGen gen(ctxt_);
+    InstructionBuilder builder;
+    // Walker to generate exprs, since for now only
+    // emitExpr is working
+    class Impl : public ASTWalker {
+      public:
+        BCGen& gen;
+        InstructionBuilder& builder;
+
+        Impl(InstructionBuilder& builder, BCGen& gen) :
+          gen(gen), builder(builder) {}
+
+        virtual bool handleDeclPost(Decl* decl) {
+          if (FuncDecl* func = dyn_cast<FuncDecl>(decl)) {
+            for (auto node : func->getBody()->getNodes()) {
+              if (Expr* expr = node.dyn_cast<Expr*>()) {
+                gen.emitExpr(builder, expr);
+              }
+            }
+          }
+          return true;
+        }
+    };
+    // Walk & gen exprs
+    Impl(builder, gen).walk(unit);
+    // Dump
+    dumpInstructions(out, builder.getInstrs());
+  }
+
   bool success = !diagEngine_.hadAnyError();
 
   // (Verify mode) Check that all diags were emitted
@@ -125,6 +165,14 @@ bool Driver::getDumpAlloc() const {
 
 void Driver::setDumpAlloc(bool val) {
   dumpAlloc_ = val;
+}
+
+bool Driver::getDumpBCGen() const {
+  return dumpBCGen_;
+}
+
+void Driver::setDumpBCGen(bool val) {
+  dumpBCGen_ = val;
 }
 
 bool Driver::getDumpAST() const {
@@ -170,6 +218,8 @@ bool Driver::doCL(int argc, char* argv[]) {
       setDumpAST(true);
     else if(str == "-parse-only")
       setIsParseOnly(true);
+    else if(str == "-dump-bcgen") 
+      setDumpBCGen(true);
     else {
       // TODO: Emit a diagnostic for this.
       out << "Unknown argument \"" << str << "\"\n";
