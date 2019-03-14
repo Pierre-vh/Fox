@@ -31,19 +31,59 @@ class BCGen::ExprGenerator : public Generator,
                   regAlloc(regAlloc) {}
 
     // Entry point of generation
-    void generate(Expr* expr) {
-      visit(expr);
+    RegisterValue generate(Expr* expr) {
+      return visit(expr);
     }
 
     RegisterAllocator& regAlloc;
 
   private:
     using BinOp = BinaryExpr::OpKind;
+    using UnOp = UnaryExpr::OpKind;
+    template<typename Ty>
+    using reference_initializer_list = std::initializer_list<std::reference_wrapper<Ty> >;
+
+    //------------------------------------------------------------------------//
+    // Helper methods
+    // 
+    // Helper functions performing various tasks. Generalizes/shortens
+    // some common patterns used in this generator.
+    //------------------------------------------------------------------------//
+
+    // If 'reg' is a live temporary register, returns std::move(reg).
+    // Else, returns a new allocated register.
+    RegisterValue tryReuseRegister(RegisterValue& reg) {
+      if(reg.isTemporary() && reg.isAlive())
+        return std::move(reg);
+      return regAlloc.allocateTemporary();
+    }
+
+    // If possible, reuses a live temporary register from the list. 
+    // In that case, the chosen register is moved and returned.
+    // 
+    // Else, returns a new temporary register.
+    RegisterValue 
+    tryReuseRegisters(reference_initializer_list<RegisterValue> regs) {
+      RegisterValue* best = nullptr;
+      for (auto& reg : regs) {
+        // Only reuse temp, alive regs
+        if (reg.get().isTemporary() && reg.get().isAlive()) {
+          // Can this become our best candidate?
+          if((!best) || (best->getAddress() > reg.get().getAddress())) 
+            best = &(reg.get());
+        }
+      }
+
+      // Reuse the best candidate
+      if(best)
+        return std::move(*best);
+      return regAlloc.allocateTemporary();
+    }
 
     //------------------------------------------------------------------------//
     // "emit" methods 
     // 
-    // Theses methods perform some generalized tasks related to bytecode
+    // These methods perform some generalized tasks related to bytecode
     // emission
     //------------------------------------------------------------------------//
 
@@ -160,25 +200,7 @@ class BCGen::ExprGenerator : public Generator,
       regaddr_t rhsAddr = rhsReg.getAddress();
        
       // TODO: Can't this be generalized? Like a 'tryReuseRegisters'
-
-      // Select the destination register of the binary operation
-      RegisterValue dstReg;
-      // Both LHS and RHS are temporaries
-      if (lhsReg.isTemporary() && rhsReg.isTemporary()) {
-        // Reuse the smallest register possible
-        if(lhsAddr < rhsAddr)
-          dstReg = std::move(lhsReg);
-        else   
-          dstReg = std::move(rhsReg);
-      }
-      // LHS is a temporary, but RHS isn't
-      else if (lhsReg.isTemporary())  dstReg = std::move(lhsReg);
-      // RHS is a temporary, but LHS isn't
-      else if (rhsReg.isTemporary())  dstReg = std::move(rhsReg);
-      // LHS and RHS aren't temporaries, so we must allocate a new register.
-      else dstReg = regAlloc.allocateTemporary();
-
-      assert(dstReg.isAlive() && "No destination register!");
+      RegisterValue dstReg = tryReuseRegisters({lhsReg, rhsReg});
 
       regaddr_t dstAddr = dstReg.getAddress();
 
@@ -201,6 +223,8 @@ class BCGen::ExprGenerator : public Generator,
     //------------------------------------------------------------------------//
 
     RegisterValue visitBinaryExpr(BinaryExpr* expr) { 
+      assert((expr->getOp() != BinOp::Invalid)
+        && "BinaryExpr with OpKind::Invalid past semantic analysis");
       if(expr->isAssignement())
         fox_unimplemented_feature("Assignement BinaryExpr BCGen");
       if (expr->getType()->isNumeric())
@@ -220,13 +244,8 @@ class BCGen::ExprGenerator : public Generator,
       Type ty = expr->getType();
       Type subTy = subExpr->getType();
       regaddr_t childRegAddr = childReg.getAddress();
-      RegisterValue dstReg;
 
-      // Try to reuse the child, or else create a temporary.
-      if(childReg.isTemporary())
-        dstReg = std::move(childReg);
-      else 
-        dstReg = regAlloc.allocateTemporary();
+      RegisterValue dstReg = tryReuseRegister(childReg);
 
       assert(dstReg.isAlive() && "no destination register selected");
       regaddr_t dstRegAddr = dstReg.getAddress();
@@ -263,9 +282,43 @@ class BCGen::ExprGenerator : public Generator,
       return dstReg;
     }
 
-    RegisterValue visitUnaryExpr(UnaryExpr*) { 
-      // TODO
-      fox_unimplemented_feature("UnaryExpr BCGen");
+    RegisterValue visitUnaryExpr(UnaryExpr* expr) { 
+      assert((expr->getOp() != UnOp::Invalid)
+        && "UnaryExpr with OpKind::Invalid past semantic analysis");
+
+      Expr* subExpr = expr->getExpr();
+
+      RegisterValue childReg = visit(subExpr);
+
+      // No-op
+      if(expr->getOp() == UnOp::Plus) return childReg;
+
+      regaddr_t childAddr = childReg.getAddress();
+
+      RegisterValue destReg = tryReuseRegister(childReg);
+      regaddr_t destAddr = destReg.getAddress();
+
+      // Unary LNot '!' is always applied on booleans, so we
+      // compile it to a LNot in every scenario.
+      if(expr->getOp() == UnOp::LNot)
+        builder.createLNotInstr(destAddr, childAddr);
+
+      // Unary Minus '-' is always applied on numeric types, and
+      // the child's type should be the same numeric kind
+      // as the expr's.
+      else if (expr->getOp() == UnOp::Minus) {
+        Type ty = expr->getType();
+        assert(ty->isNumeric() && "Unary Minus on non-numeric types");
+        // Decide what to emit based on the type of the UnaryExpr.
+        if(ty->isIntType())
+          builder.createNegIntInstr(destAddr, childAddr);
+        else if(ty->isDoubleType()) 
+          builder.createNegDoubleInstr(destAddr, childAddr);
+        else fox_unreachable("Unknown numeric type kind");
+      }
+      else fox_unreachable("Unknown Unary Operator");
+
+      return destReg;
     }
 
     RegisterValue visitArraySubscriptExpr(ArraySubscriptExpr*) { 
