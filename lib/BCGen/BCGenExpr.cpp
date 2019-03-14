@@ -176,6 +176,9 @@ class BCGen::ExprGenerator : public Generator,
     RegisterValue genNumericBinaryExpr(BinaryExpr* expr) {
       assert((expr->getType()->isNumeric()) && "expr is not numeric");
       
+      // TODO: The order in which the LHS and RHS are generated should be
+      // decided by their size, the larger one should always be generated first.
+
       // Gen the LHS
       RegisterValue lhsReg;
       {
