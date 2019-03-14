@@ -117,6 +117,8 @@ RegisterValue& RegisterValue::operator=(RegisterValue&& other) {
 }
 
 regaddr_t RegisterValue::getAddress() const {
+  assert(isAlive() 
+    && "Cannot take the address of a dead RegisterValue");
   return regAddress_;
 }
 
