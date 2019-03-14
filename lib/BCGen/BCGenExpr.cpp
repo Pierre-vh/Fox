@@ -159,6 +159,12 @@ class BCGen::ExprGenerator : public Generator,
       }
 
       // Gen the Op
+      // NOTE: I currently allocate a new register for the destination operand,
+      // but if one of the lhs/rhs is a temporary and not a variable, 
+      // I can use it and return it.
+      // For that, add a RegisterValue::isTemporary method and select
+      // the LHS/RHS depending on if they're temporaries or not. If both are,
+      // select the smaller one
       RegisterValue destReg = regAlloc.allocateNewRegister();
       if (expr->getType()->isIntType()) {
         genBinaryOperationOnInts(expr->getOp(), destReg, 
