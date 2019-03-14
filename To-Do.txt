@@ -151,6 +151,11 @@ To-Do:
   > VM, Bytecode, BytecodeGen (Currently, see lib/VM/Status.md)
     -> Disable BCGen for -verify and -parse-only
 
+  > Make TypeBase::isXXXType see-through RValues.
+    This is important because when I'll add canonical types, it'll get pretty redundant to have
+    stuff like "type->getRValue()->getCanonicalType()->isIntType()" everywhere when this can be
+    simply reduced to "type->isIntType()".
+    Once that's done, purge SemaExpr of all the useless getRValue() calls.
 
   > Function Overloads on number and type of arguments. 
     I don't know yet if I want to OVL based on return type because they might not bring value to Fox 
