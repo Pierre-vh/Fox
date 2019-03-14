@@ -71,6 +71,7 @@ namespace fox {
   // future, decreases its use count)
   class RegisterValue {
     public:
+      RegisterValue() = default;
       RegisterValue(RegisterValue&& other);
       ~RegisterValue();
 
