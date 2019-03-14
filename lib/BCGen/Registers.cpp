@@ -91,7 +91,7 @@ void RegisterAllocator::compactFreeRegisterSet() {
 //----------------------------------------------------------------------------//
 
 RegisterValue::RegisterValue(RegisterAllocator* regAlloc, regnum_t reg) : 
-  regAlloc_(regAlloc), regNum_(reg) {}
+  regAlloc_(regAlloc), regAddress_(reg) {}
 
 RegisterValue::RegisterValue(RegisterValue&& other) {
   (*this) = std::move(other);
@@ -104,13 +104,13 @@ RegisterValue::~RegisterValue() {
 RegisterValue& RegisterValue::operator=(RegisterValue&& other) {
   free();
   regAlloc_ = std::move(other.regAlloc_);
-  regNum_   = std::move(other.regNum_);
+  regAddress_   = std::move(other.regAddress_);
   other.kill();
   return *this;
 }
 
-regnum_t RegisterValue::getRegisterNumber() const {
-  return regNum_;
+regnum_t RegisterValue::getAddress() const {
+  return regAddress_;
 }
 
 bool RegisterValue::isAlive() const {
@@ -123,7 +123,7 @@ void RegisterValue::free() {
   if(!isAlive()) return;
   // Free our register and kill this object so the
   // register is not freed again by mistake.
-  regAlloc_->markRegisterAsFreed(regNum_);
+  regAlloc_->markRegisterAsFreed(regAddress_);
   kill();
 }
 

@@ -77,8 +77,9 @@ namespace fox {
 
       RegisterValue& operator=(RegisterValue&& other);
 
-      // Returns the number of the register managed by this Registervalue.
-      regnum_t getRegisterNumber() const;
+      // Returns the 'address' of the register managed by this Registervalue.
+      // The address is simply an integer for the register number.
+      regnum_t getAddress() const;
 
       // Returns true if this RegisterValue is still alive and
       // working.
@@ -106,6 +107,6 @@ namespace fox {
       void kill();
 
       RegisterAllocator* regAlloc_ = nullptr;
-      regnum_t regNum_ = 0;
+      regnum_t regAddress_ = 0;
   };
 }
