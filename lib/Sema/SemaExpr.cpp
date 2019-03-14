@@ -402,11 +402,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // ASTWalker overrides
     //----------------------------------------------------------------------//
 
-    virtual std::pair<Expr*, bool> handleExprPre(Expr* expr) {
-      // Not needed since we won't do preorder visitation
-      return { expr, true }; // Important for postorder visitation to be done
-    }
-
     virtual Expr* handleExprPost(Expr* expr) {
       assert(expr && "Expr cannot be null!");
       expr = visit(expr);
