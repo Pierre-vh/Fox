@@ -78,8 +78,8 @@ class BCGen::ExprGenerator : public Generator,
     // operation on 'lhs' and 'rhs' (addresses of registers containing ints),
     // putting the result in register 'dst'.
     // dst may be equal to lhs or rhs
-    void emitIntegerBinaryOp(BinOp op, regnum_t dst, 
-                                  regnum_t lhs, regnum_t rhs) {
+    void emitIntegerBinaryOp(BinOp op, regaddr_t dst, 
+                                  regaddr_t lhs, regaddr_t rhs) {
       assert((lhs != rhs) && "lhs and rhs are identical");
       // Emit
       switch (op) {
@@ -156,8 +156,10 @@ class BCGen::ExprGenerator : public Generator,
         assert(rhsReg.isAlive() && "Generated a dead register for the RHS");
       }
       
-      regnum_t lhsAddr = lhsReg.getAddress();
-      regnum_t rhsAddr = rhsReg.getAddress();
+      regaddr_t lhsAddr = lhsReg.getAddress();
+      regaddr_t rhsAddr = rhsReg.getAddress();
+       
+      // TODO: Can't this be generalized? Like a 'tryReuseRegisters'
 
       // Select the destination register of the binary operation
       RegisterValue dstReg;
@@ -178,7 +180,7 @@ class BCGen::ExprGenerator : public Generator,
 
       assert(dstReg.isAlive() && "No destination register!");
 
-      regnum_t dstAddr = dstReg.getAddress();
+      regaddr_t dstAddr = dstReg.getAddress();
 
       // Generate instructions for Integral Binary Operations
       if (expr->getType()->isIntType())
@@ -206,10 +208,59 @@ class BCGen::ExprGenerator : public Generator,
       fox_unimplemented_feature("Non-numeric BinaryExpr BCGen");
     }
 
-    RegisterValue visitCastExpr(CastExpr*) { 
-      // TODO: Numeric casts
-      // For the rest we need other things in the VM.
-      fox_unimplemented_feature("CastExpr BCGen");
+    RegisterValue visitCastExpr(CastExpr* expr) {
+      // Visit the child
+      Expr* subExpr = expr->getExpr();
+      RegisterValue childReg = visit(subExpr);
+
+      // If this is a useless cast (cast from a type to the same type)
+      // just return childReg
+      if(expr->isUseless()) return childReg;
+
+      Type ty = expr->getType();
+      Type subTy = subExpr->getType();
+      regaddr_t childRegAddr = childReg.getAddress();
+      RegisterValue dstReg;
+
+      // Try to reuse the child, or else create a temporary.
+      if(childReg.isTemporary())
+        dstReg = std::move(childReg);
+      else 
+        dstReg = regAlloc.allocateTemporary();
+
+      assert(dstReg.isAlive() && "no destination register selected");
+      regaddr_t dstRegAddr = dstReg.getAddress();
+
+      // Casts to numeric types
+      if (ty->isNumeric()) {
+        // Numeric -> Numeric
+        if (subTy->isNumeric()) {
+          // We know it's a non-useless cast from a numeric type
+          // to a different numeric type.
+          if (ty->isDoubleType()) {
+            assert(subTy->isIntType());
+            // It's a Int -> Double cast
+            builder.createIntToDoubleInstr(dstRegAddr, childRegAddr);
+          }
+          else if (ty->isIntType()) {
+            // It's a Double -> Int cast
+            builder.createDoubleToIntInstr(dstRegAddr, childRegAddr);
+          }
+          else 
+            fox_unreachable("Unhandled numeric type kind");
+        }
+        // Numeric -> ?
+        else {
+          fox_unreachable("Unhandled BCGen situation "
+            "(CastExpr from non-numeric to numeric");
+        }
+      }
+      // Other casts
+      else {
+        fox_unimplemented_feature("Non-numeric CastExpr BCGen");
+      }
+
+      return dstReg;
     }
 
     RegisterValue visitUnaryExpr(UnaryExpr*) { 
