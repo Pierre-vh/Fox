@@ -70,6 +70,8 @@ TAC_INSTR(ModInt)     // Int Modulo
 TAC_INSTR(ModDouble)  // Double Modulo
 TAC_INSTR(PowInt)     // Int exponentiation
 TAC_INSTR(PowDouble)  // Double exponentiation
+BINARY_INSTR(NegInt, std::uint8_t, std::uint8_t)    // Int unary minus
+BINARY_INSTR(NegDouble, std::uint8_t, std::uint8_t) // Double unary minus
 
 // Comparisons a = b (cond) c. Result is always an int (1 for true, 0 for false)
 TAC_INSTR(EqInt)      // Int Equality

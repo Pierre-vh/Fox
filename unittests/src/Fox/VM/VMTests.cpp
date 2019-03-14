@@ -157,6 +157,8 @@ TEST(VMTest, IntArithmetic) {
     .createModIntInstr(8, 2, 1)
     // r9 = r2 ** r0 --> 268435456
     .createPowIntInstr(9, 2, 0)
+    // r10 = -r2 = 16384
+    .createNegIntInstr(10, 2)
     .createBreakInstr();
   // Prepare the VM & Load the code
   VM vm;
@@ -185,6 +187,7 @@ TEST(VMTest, IntArithmetic) {
   EXPECT_EQ(getReg(7), 256)       << "Bad DivInt";
   EXPECT_EQ(getReg(8), 0)         << "Bad ModInt";
   EXPECT_EQ(getReg(9), 268435456) << "Bad PowInt";
+  EXPECT_EQ(getReg(10), 16384)    << "Bad NegInt";
 }
 
 TEST(VMTest, DoubleArithmetic) {
@@ -207,6 +210,8 @@ TEST(VMTest, DoubleArithmetic) {
     .createModDoubleInstr(9, 2, 1)
     // r10 = r0 ** r4 --> 9.8596
     .createPowDoubleInstr(10, 0, 4)
+    // r11 = -r2      --> 42.42
+    .createNegDoubleInstr(11, 2)
     .createBreakInstr();
   // Prepare the VM & Load the code
   VM vm;
@@ -236,6 +241,7 @@ TEST(VMTest, DoubleArithmetic) {
   EXPECT_DOUBLE_EQ(getReg(8), 1)                    << "Bad DivDouble";
   EXPECT_DOUBLE_EQ(getReg(9), -2.4200000000040021)  << "Bad ModDouble";
   EXPECT_DOUBLE_EQ(getReg(10), 9.8596)              << "Bad PowDouble";
+  EXPECT_EQ(getReg(11), 42.42)                      << "Bad NegDouble";
 }
 
 TEST(VMTest, IntComparison) {
