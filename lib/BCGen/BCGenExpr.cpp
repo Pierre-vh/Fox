@@ -112,10 +112,11 @@ class BCGen::ExprGenerator : public Generator,
       fox_unimplemented_feature("CallExpr Bytecode Generation");
     }
 
-    RegisterValue visitCharLiteralExpr(CharLiteralExpr*) { 
-      // The fate of chars in the VM isn't decided yet. They'll probably
-      // be emitted as integers for simplicity.
-      fox_unimplemented_feature("CharLiteralExpr Bytecode Generation");
+    RegisterValue visitCharLiteralExpr(CharLiteralExpr* expr) { 
+      // Store the character as an integer in a new register.
+      RegisterValue value = regAlloc.allocateNewRegister();
+      emitStoreIntConstant(value, expr->getValue());
+      return value;
     }
 
     RegisterValue visitIntegerLiteralExpr(IntegerLiteralExpr* expr) {
