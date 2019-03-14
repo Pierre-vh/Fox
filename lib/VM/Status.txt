@@ -71,6 +71,7 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Basic CodeGen of simple arithmetic expressions : only compile time constant ops involving
       doubles and ints. (Now)
       - Binary Expr : Ints done, Doubles still left to do.
+        -> TODO: Fix it (I broke it for now) and make it more robust.
       - CastExpr      (Done)
       - UnaryExpr     (Done)
       -> Write FileCheck tests (Now)

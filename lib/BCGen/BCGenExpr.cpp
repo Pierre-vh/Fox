@@ -50,6 +50,29 @@ class BCGen::ExprGenerator : public Generator,
     // some common patterns used in this generator.
     //------------------------------------------------------------------------//
 
+    // Returns true if the type is an integer or a boolean
+    bool isIntOrBool(Type type) {
+      return (type->isIntType() || type->isDoubleType());
+    }
+
+    // Returns true if this binary expression's operand are
+    // both integers or booleans.
+    bool areOperandsIntOrBools(BinaryExpr* expr) {
+      Type lhs = expr->getLHS()->getType();
+      Type rhs = expr->getRHS()->getType();
+      // Check int
+      if (lhs->isIntType()) {
+        assert(rhs->isIntType() && "LHS and RHS have different types");
+        return true;
+      }
+      // Check bool
+      if (lhs->isBoolType()) {
+        assert(rhs->isBoolType() && "LHS and RHS have different types");
+        return true;
+      }
+      return false;
+    }
+
     // If 'reg' is a live temporary register, returns std::move(reg).
     // Else, returns a new allocated register.
     RegisterValue tryReuseRegister(RegisterValue& reg) {
@@ -89,7 +112,6 @@ class BCGen::ExprGenerator : public Generator,
 
     // Emit an instruction to store the constant 'val' into the register
     // 'reg'.
-    // TODO: Maybe find a better name?
     void emitStoreIntConstant(const RegisterValue& dest, FoxInt val) {
       constexpr auto int16_min = std::numeric_limits<std::int16_t>::min(),
                      int16_max = std::numeric_limits<std::int16_t>::max();
@@ -104,21 +126,9 @@ class BCGen::ExprGenerator : public Generator,
         "16 bits");
     }
 
-    // Generates the adequate instruction to perform a given binary
-    // operation on 'lhs' and 'rhs' (registers containing doubles), putting
-    // the result in 'rhs'
-    /*
-    void genBinaryOperationOnDoubles(BinOp op, const RegisterValue& dest, 
-      RegisterValue lhs, RegisterValue rhs) {
-      // TODO
-    }
-    */
-
-    // Generates the adequate instruction(s) to perform a given binary
-    // operation on 'lhs' and 'rhs' (addresses of registers containing ints),
-    // putting the result in register 'dst'.
-    // dst may be equal to lhs or rhs
-    void emitIntegerBinaryOp(BinOp op, regaddr_t dst, 
+    // Generates the adequate instruction(s) to perform a binary
+    // operation on integers or boolean operands.
+    void emitIntegerOrBoolBinaryOp(BinOp op, regaddr_t dst, 
                                   regaddr_t lhs, regaddr_t rhs) {
       assert((lhs != rhs) && "lhs and rhs are identical");
       // Emit
@@ -168,53 +178,57 @@ class BCGen::ExprGenerator : public Generator,
           builder.createEqIntInstr(dst, lhs, rhs);
           builder.createLNotInstr(dst, dst);
           break;
+        case BinOp::LAnd: // &&
+          builder.createLAndInstr(dst, lhs, rhs);
+          break;
+        case BinOp::LOr:  // ||
+          builder.createLOrInstr(dst, lhs, rhs);
+          break;
         default:
           fox_unreachable("Unhandled binary operation kind");
       }
     }
 
-    RegisterValue genNumericBinaryExpr(BinaryExpr* expr) {
-      assert((expr->getType()->isNumeric()) && "expr is not numeric");
+    // Generates the code for a BinaryExpr whose type is a Numeric or
+    // Boolean Binary Expr.
+    RegisterValue genNumericOrBoolBinaryExpr(BinaryExpr* expr) {
+      assert((expr->getType()->isNumericOrBool()));
+      assert((expr->getLHS()->getType()->isNumericOrBool())
+          && (expr->getRHS()->getType()->isNumericOrBool()));
       
-      // TODO: The order in which the LHS and RHS are generated should be
-      // decided by their size, the larger one should always be generated first.
-
       // Gen the LHS
-      RegisterValue lhsReg;
-      {
-        Expr* lhsExpr = expr->getLHS();
-        assert(lhsExpr->getType()->isNumeric() 
-          && "BinaryExpr is numeric but the LHS isn't!");
-        lhsReg = visit(lhsExpr);
-        assert(lhsReg.isAlive() && "Generated a dead register for the LHS");
-      }
+      RegisterValue lhsReg = visit(expr->getLHS());
+      regaddr_t lhsAddr = lhsReg.getAddress();
+      assert(lhsReg.isAlive() && "Generated a dead register for the LHS");
 
       // Gen the RHS
-      RegisterValue rhsReg;
-      {
-        Expr* rhsExpr = expr->getRHS();
-        assert(rhsExpr->getType()->isNumeric() 
-          && "BinaryExpr is numeric but the RHS isn't!");
-        rhsReg = visit(rhsExpr);
-        assert(rhsReg.isAlive() && "Generated a dead register for the RHS");
-      }
-      
-      regaddr_t lhsAddr = lhsReg.getAddress();
+      RegisterValue rhsReg = visit(expr->getRHS());
       regaddr_t rhsAddr = rhsReg.getAddress();
-       
-      // TODO: Can't this be generalized? Like a 'tryReuseRegisters'
+      assert(rhsReg.isAlive() && "Generated a dead register for the RHS");
+      
+      // Decide on which register to use for the destination, maybe reusing
+      // the lhs or rhs.
       RegisterValue dstReg = tryReuseRegisters({lhsReg, rhsReg});
-
       regaddr_t dstAddr = dstReg.getAddress();
 
-      // Generate instructions for Integral Binary Operations
-      if (expr->getType()->isIntType())
-        emitIntegerBinaryOp(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
-      // TODO: Generate instructions for Floating-Point Binary Operations
-      else if (expr->getType()->isDoubleType())
-        fox_unimplemented_feature("Floating-point BinaryExpr BCGen");
+      // Dispatch to the appropriate generator function
+      Type lhsType = expr->getLHS()->getType();
+      // Double operands
+      if (lhsType->isDoubleType()) {
+        assert(expr->getRHS()->getType()->isDoubleType()
+          && "Inconsistent Operands");
+        // TODO
+        fox_unimplemented_feature("BCGen of BinaryExprs with Double operands");
+      }
+      // Integer or Boolean expressions
+      else if (isIntOrBool(lhsType)) {
+        assert(isIntOrBool(expr->getRHS()->getType())
+          && "Inconsistent Operands");
+        emitIntegerOrBoolBinaryOp(expr->getOp(), dstAddr, lhsAddr, rhsAddr);
+      }
       else 
-        fox_unreachable("Unknown Numeric Type Kind");
+        fox_unreachable("unhandled situation : operands are "
+          "neither int, bools or doubles");
       return dstReg;
     }
 
@@ -230,8 +244,8 @@ class BCGen::ExprGenerator : public Generator,
         && "BinaryExpr with OpKind::Invalid past semantic analysis");
       if(expr->isAssignement())
         fox_unimplemented_feature("Assignement BinaryExpr BCGen");
-      if (expr->getType()->isNumeric())
-        return genNumericBinaryExpr(expr);
+      if (expr->getType()->isNumericOrBool())
+        return genNumericOrBoolBinaryExpr(expr);
       fox_unimplemented_feature("Non-numeric BinaryExpr BCGen");
     }
 
