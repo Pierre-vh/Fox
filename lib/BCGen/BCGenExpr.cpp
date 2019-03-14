@@ -52,22 +52,14 @@ class BCGen::ExprGenerator : public Generator,
 
     // Returns true if the type is an integer or a boolean
     bool isIntOrBool(Type type) {
-      return (type->isIntType() || type->isDoubleType());
+      return (type->isIntType() || type->isBoolType());
     }
 
     // Returns true if this binary expression's operand are
     // both integers or booleans.
     bool areOperandsIntOrBools(BinaryExpr* expr) {
-      Type lhs = expr->getLHS()->getType();
-      Type rhs = expr->getRHS()->getType();
-      // Check int
-      if (lhs->isIntType()) {
-        assert(rhs->isIntType() && "LHS and RHS have different types");
-        return true;
-      }
-      // Check bool
-      if (lhs->isBoolType()) {
-        assert(rhs->isBoolType() && "LHS and RHS have different types");
+      if (isIntOrBool(expr->getLHS()->getType())) {
+        assert(isIntOrBool(expr->getRHS()->getType()) && "Inconsistent types");
         return true;
       }
       return false;

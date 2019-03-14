@@ -2,4 +2,30 @@
 
 func foo() {
   (3 == 2) || (3 <= 3) || (3 < 4) && (3 != 4) && (3 >= 4) || (3 > 0);
+  // CHECK:       StoreSmallInt 0 3
+  // CHECK-NEXT:  StoreSmallInt 1 2
+  // CHECK-NEXT:  EqInt 0 0 1
+  // CHECK-NEXT:  StoreSmallInt 1 3
+  // CHECK-NEXT:  StoreSmallInt 2 3
+  // CHECK-NEXT:  LEInt 1 1 2
+  // CHECK-NEXT:  LOr 0 0 1
+  // CHECK-NEXT:  StoreSmallInt 1 3
+  // CHECK-NEXT:  StoreSmallInt 2 4
+  // CHECK-NEXT:  LTInt 1 1 2
+  // CHECK-NEXT:  StoreSmallInt 2 3
+  // CHECK-NEXT:  StoreSmallInt 3 4
+  // CHECK-NEXT:  EqInt 2 2 3
+  // CHECK-NEXT:  LNot 2 2
+  // CHECK-NEXT:  LAnd 1 1 2
+  // CHECK-NEXT:  StoreSmallInt 2 3
+  // CHECK-NEXT:  StoreSmallInt 3 4
+  // CHECK-NEXT:  LEInt 2 3 2
+  // CHECK-NEXT:  LTInt 2 2 3
+  // CHECK-NEXT:  LAnd 1 1 2
+  // CHECK-NEXT:  LOr 0 0 1
+  // CHECK-NEXT:  StoreSmallInt 1 3
+  // CHECK-NEXT:  StoreSmallInt 2 0
+  // CHECK-NEXT:  LEInt 1 1 2
+  // CHECK-NEXT:  LNot 1 1
+  // CHECK-NEXT:  LOr 0 0 1
 }
