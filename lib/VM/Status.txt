@@ -71,13 +71,13 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Basic CodeGen of simple arithmetic expressions : only compile time constant ops involving
       doubles and ints. (Now)
       - Binary Expr : Ints done, Doubles still left to do.
-        -> TODO: Fix it (I broke it for now) and make it more robust.
       - CastExpr      (Done)
       - UnaryExpr     (Done)
-      -> Write FileCheck tests (Now)
+      -> Write FileCheck tests
+      -> Make CodeGen more robust. It should support LValues without a problem.
 
   -> Add a BCGen logRegAlloc option to emit logs about register allocation after
-      generating expressions, then, write FileCheck tests checking that the stats
+      generating expressions then write FileCheck tests checking that the stats
       are correct.
 
   -> Write more tests, seriously.
