@@ -56,6 +56,7 @@ class BCGen::ExprGenerator : public Generator,
       // Check if the value fits in a int16. In that case, emit a StoreSmallInt
       if ((val >= int16_min) && (val <= int16_max)) {
         builder.createStoreSmallIntInstr(dest.getAddress(), val);
+        return;
       }
       // Else, for now, do nothing because I need the constant table to 
       // emit constants large than that.
@@ -119,13 +120,16 @@ class BCGen::ExprGenerator : public Generator,
           builder.createLEIntInstr(destAddr, lhsAddr, rhsAddr);
           // dest != dest
           builder.createLNotInstr(destAddr, destAddr);
+          break;
         case BinOp::Eq:   // ==
           builder.createEqIntInstr(destAddr, lhsAddr, rhsAddr);
+          break;
         case BinOp::NEq:  // !=
           // != isn't implemented in the vm, it's just implemented
           // as !(a == b). This requires 2 instructions.
           builder.createEqIntInstr(destAddr, lhsAddr, rhsAddr);
           builder.createLNotInstr(destAddr, destAddr);
+          break;
         default:
           fox_unreachable("Unhandled binary operation kind");
       }
