@@ -28,6 +28,10 @@ Driver::Driver(std::ostream& os): out(os), diagEngine_(srcMgr_, os),
   ctxt_(srcMgr_, diagEngine_) {}
 
 bool Driver::processFile(string_view filepath) {
+  // Remove quotes if there's quotes around the file
+  if ((filepath.front() == '"') && (filepath.back() == '"'))
+    filepath = filepath.substr(1, filepath.size()-2);
+
   // Load the file in the source manager
   auto result = srcMgr_.readFile(filepath);
   FileID file = result.first;
