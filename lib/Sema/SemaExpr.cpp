@@ -317,29 +317,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       return expr;
     }
 
-    // Finalizes a UnaryExpr
-    // \param childTy The type of the child as a PrimitiveType.
-    Expr* finalizeUnaryExpr(UnaryExpr* expr, PrimitiveType* childTy) {
-      assert(childTy && "cannot be nullptr");
-      using OP = UnaryExpr::OpKind;
-      switch (expr->getOp()) {
-        // Logical NOT operator : '!'
-        case OP::LNot:
-          return finalizeBooleanExpr(expr);
-        // Unary Plus '+' and Minus '-'
-        case OP::Minus:
-        case OP::Plus:
-          // Always int or float
-          assert(!childTy->isBoolType());
-          expr->setType(childTy);
-          return expr;
-        case OP::Invalid:
-          fox_unreachable("Invalid Unary Operator");
-        default:
-          fox_unreachable("All cases handled");
-      }
-    }
-
     // Finalizes an empty Array Literal
     Expr* finalizeEmptyArrayLiteral(ArrayLiteralExpr* expr) {
       assert((expr->numElems() == 0) && "Only for empty Array Literals");
@@ -445,30 +422,20 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     Expr* visitBinaryExpr(BinaryExpr* expr) {
       using BOp = BinaryExpr::OpKind;
 
-      assert(expr->isValidOp() &&
-        "Operation is invalid");
+      assert(expr->isValidOp() && "BinaryExpr with Invalid Op found");
 
       // Fetch the types of the LHS and RHS 
       Type lhsTy = expr->getLHS()->getType();
       Type rhsTy = expr->getRHS()->getType();
+      assert(lhsTy && rhsTy && "untyped exprs");
 
       // Check that the types are well formed. If they aren't, don't
       // bother checking.
-      if (!Sema::isWellFormed({lhsTy, rhsTy}))
-        return expr;
+      if (!Sema::isWellFormed({lhsTy, rhsTy})) return expr;
 
       // Handle assignements early, let checkAssignementBinaryExpr do it.
       if (expr->isAssignement())
         return checkAssignementBinaryExpr(expr, lhsTy, rhsTy);
-
-      // For every other operator, we must use the bound RValue version
-      // of the types.
-      lhsTy = lhsTy->getRValue();
-      rhsTy = rhsTy->getRValue();
-
-      // If the types are not bound, just give up and let the ExprFinalizer
-      // display the errors.
-      if (!(lhsTy && rhsTy)) return expr;
 
       switch (BOp op = expr->getOp()) {
         // Multiplicative, additive and exponent binary expr
@@ -540,75 +507,75 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     Expr* visitUnaryExpr(UnaryExpr* expr) {
       using UOp = UnaryExpr::OpKind;
-      Expr* child = expr->getExpr();
-      Type childTy = child->getType()->getRValue();
+      Type childTy = expr->getExpr()->getType();
 
-      // If the type isn't bound, give up.
-      if (!childTy) return expr;
-
-      // The expression is valid iff:
-      //  -> (for + and -) the child's type is a numeric type.
-      //  -> (for !) the child's type is a bool.
-      if (PrimitiveType* primChildTy = childTy->getAs<PrimitiveType>()) {
-        switch (expr->getOp()) {
-          case UOp::Invalid:
-            fox_unreachable("Invalid Unary Op found in Semantic analysis");
-          case UOp::LNot:
-            if(primChildTy->isBoolType())
-              return finalizeUnaryExpr(expr, primChildTy);
-            break;
-          case UOp::Minus:
-          case UOp::Plus:
-            if(primChildTy->isNumeric())
-              return finalizeUnaryExpr(expr, primChildTy);
-            break;
-          default:
-            fox_unreachable("Unhandled Unary Op kind");
-        }
+      switch (expr->getOp()) {
+        case UOp::Invalid:
+          fox_unreachable("UnaryExpr with Invalid Op found");
+        // LNot '!' operator: Only applicable on booleans.
+        case UOp::LNot:
+          if(childTy->isBoolType())
+            return finalizeBooleanExpr(expr);
+          break;
+        // Unary Plus '+' and Minus '-' operators: only applicable
+        // on numeric types.
+        case UOp::Minus:
+        case UOp::Plus:
+          if (childTy->isNumeric()) {
+            // The type of the expr is the same as its child (without
+            // LValue if present)
+            expr->setType(childTy->getRValue());
+            return expr;
+          }
+          break;
+        default:
+          fox_unreachable("Unhandled Unary Op kind");
       }
-        
+
+      // If we get here, the expression is invalid.
       diagnoseInvalidUnaryOpChildType(expr);
       return expr;
     }
 
     Expr* visitArraySubscriptExpr(ArraySubscriptExpr* expr) {
-      // Get child expr and it's type
+      // Get child expr and its RValue type
       Expr* base = expr->getBase();
-      Type baseTy = base->getType()->getRValue();
-      // Get idx expr and it's type
-      Expr* idxE = expr->getIndex();
-      Type idxETy = idxE->getType()->getRValue();
-
-      // Unbound type as a idx: give up
-      if (!idxETy)
-        return expr;
+      Type baseTy = base->getType();
+      // Get idx expr
+      Expr* idx = expr->getIndex();
+      Type idxTy = idx->getType();
 
       Type subscriptType;
-      // Check that the base is an array type
-      if (baseTy->is<ArrayType>()) {
-        subscriptType = baseTy->castTo<ArrayType>()->getElementType();
+
+      // Check if the base is an Array Type, ignoring LValues if
+      // present.
+      // (in that case, the type of the subscript is the array's
+      //  element type)
+      if (auto arr  = baseTy->getRValue()->getAs<ArrayType>()) {
+        subscriptType = arr->getElementType();
         assert(subscriptType && "ArrayType had no element type!");
       }
-      // Or a string
+      // Or a String Type (in that case, the type of the subscript is 'char')
       else if(baseTy->isStringType())
         subscriptType = PrimitiveType::getChar(ctxt);
+      // if it's neither, we can't subscript.
       else {
 			  diagnoseInvalidArraySubscript(expr, base->getSourceRange(), 
-                                      idxE->getSourceRange());
+                                      idx->getSourceRange());
         return expr;
       }
 
       // Idx type must be int.
-      if (!idxETy->isIntType()) {
+      if (!idxTy->isIntType()) {
         // Diagnose with the primary range being the idx's range
-			  diagnoseInvalidArraySubscript(expr, idxE->getSourceRange(), 
+			  diagnoseInvalidArraySubscript(expr, idx->getSourceRange(), 
                                       base->getSourceRange());
         return expr;
       }
       assert(subscriptType);
 
       // Note: When the base is an lvalue (= it's assignable), the subscript
-      // should be assignable too.
+      // should be assignable too, so wrap it in a LValue if that's the case.
       if(base->getType()->isAssignable())
         subscriptType = LValueType::get(ctxt, subscriptType);
       expr->setType(subscriptType);
@@ -735,17 +702,14 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // visitArrayLiteralExpr helpers
     bool checkIfLegalWithinArrayLiteral(ArrayLiteralExpr* lit, Expr* expr) {
       Type ty = expr->getType()->getRValue();
-      assert(ty && "can't be nullptr!");
-      // check if not function type
+      // Functions aren't first-class yet, so we can't allow
+      // function types inside array literals.
       if(ty->is<FunctionType>()) {
         diagnoseFunctionTypeInArrayLiteral(lit, expr);
         return false;
       }
-      // check if not ill formed. If it's ill formed, it has already
-      // been diagnosed so just ignore it.
-      if(!Sema::isWellFormed(ty))
-        return false;
-      return true;
+      // We also forbid ill-formed types.
+      return Sema::isWellFormed(ty);
     }
 
     // Typechecks a non empty array literal and deduces it's type.
@@ -767,10 +731,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
           continue;
         }
 
-        // Retrieve the type as a RValue
+        // Retrieve the type of the element, ignoring LValues
+        // if present.
         Type elemTy = elem->getType()->getRValue();
 
-        // From this point, elemTy is guaranteed to be a bound type
         // First loop, set the proposed type and continue.
         if (!proposedType) {
           proposedType = elemTy;
@@ -794,8 +758,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     // Typecheck a basic binary expression that involves numeric types. 
     // This includes multiplicative/additive/exponent
     // operations (except concatenation).
-    //  \param lhsTy The type of the LHS as a Bound RValue (must not be null)
-    //  \param rhsTy The type of the RHS as a Bound RValue (must not be null)
+
     Expr*
     checkBasicNumericBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert((expr->isAdditive() 
@@ -819,7 +782,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
 
     // Returns true if this combination of operator/types
     // is eligible to be a concatenation operation
-    //  \param op The operation kind
     bool canConcat(BinaryExpr::OpKind op, Type lhsTy, Type rhsTy) {
       // It is eligible if the operator is a '+'
       if (op == BinaryExpr::OpKind::Add) {
@@ -832,8 +794,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     // Typechecks an assignement operation
-    //  \param lhsTy The type of the LHS (must not be null)
-    //  \param rhsTy The type of the RHS (must not be null)
     Expr* checkAssignementBinaryExpr(BinaryExpr* expr, Type lhsTy, Type rhsTy) {
       assert(expr->isAssignement() && "wrong function!");
       
@@ -842,16 +802,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
-      // Get the bound RValue version of the LHS.
-      lhsTy = lhsTy->getRValue();
-      // Some more sanity checks:
-        // Can't have unbound LValues
-      assert(lhsTy && "DeclRefExpr has a LValue to an unbound type?");
-        // Can't assign to a function
+      // Can't assign to a function, because DeclRefs to functions
+      // will always generate RValues, so we shouldn't even get here.
       assert((!lhsTy->is<FunctionType>()) && "Assigning to a function?");
-
-      // Ignore the LValue on the RHS.
-      rhsTy = rhsTy->getRValue();
 
       // Unify
       if(!sema.unify(lhsTy, rhsTy)) {
@@ -860,8 +813,9 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return expr;
       }
 
-      // Everything's fine, the type of the expr is the type of it's RHS.
-      expr->setType(rhsTy);
+      // Everything's fine, the type of the expr is the type of it's RHS,
+      // (as an RValue)
+      expr->setType(rhsTy->getRValue());
       return expr;
     }
 
@@ -1046,5 +1000,5 @@ bool Sema::typecheckCondition(Expr*& expr) {
   // ErrorType ? Return false.
   if(expr->getType()->hasErrorType()) return false;
   // Else, return true if we have a numeric or boolean type.
-  return expr->getType()->getRValue()->isNumericOrBool();
+  return expr->getType()->isNumericOrBool();
  }
