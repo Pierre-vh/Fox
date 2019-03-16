@@ -7,6 +7,8 @@
 // This file contains the RegisterAllocator and the RegisterValue classes.
 //----------------------------------------------------------------------------//
 
+#pragma once
+
 #include <cstdint>
 #include <set>
 #include <functional>

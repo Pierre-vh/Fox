@@ -8,6 +8,8 @@
 // converts a Fox AST into bytecode.
 //----------------------------------------------------------------------------//
 
+#pragma once
+
 namespace fox {
   class ASTContext;
   class DiagnosticEngine;
