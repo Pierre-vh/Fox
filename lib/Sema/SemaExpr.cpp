@@ -348,21 +348,20 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
           // the initializer, so we're going to assert that it's
           // the case. 
           // If one day Semantic analysis becomes more complex
-          // and the assertions are triggered in valid code, replace them
+          // and these assertions are triggered in valid code, replace them
           // by conditions.
           assert(var->getInitExpr() && var->getInitExpr()->getSourceRange()
                   .contains(udre->getSourceRange()));
           diagnoseVarInitSelfRef(var, udre);
-          // This is an error, so just return the UnresolvedDeclRefExpr
-          return udre;
+          // This is an error, so return an ErrorExpr
+          return ErrorExpr::create(ctxt);
         }
       }
 
-      // Resolved DeclRef
+      // Create the resolved DeclRef.
       DeclRefExpr* resolved = 
         DeclRefExpr::create(ctxt, found, udre->getSourceRange());
       
-      // Assign it's type
       Type valueType = found->getValueType();
       assert(valueType && "ValueDecl doesn't have a Type!");
       // If it's a non const ValueDecl, wrap it in a LValue
