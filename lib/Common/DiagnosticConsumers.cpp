@@ -16,21 +16,18 @@
 
 using namespace fox;
 
-std::string DiagnosticConsumer::getLocInfo(SourceManager& sm, 
-	SourceRange range, bool isFileWide) const {
-  // TODO: Once I have something that resembles a "Project name" or "module name"
-  // return that instead of an empty string so we have better diag handling
-  // in that situation.
-  // e.g. print "<MyModule> - error - ..." instead of just "error - ...."
-
-  // Don't display anything if the range isn't valid.
-  if (!range) return "";
+std::string 
+DiagnosticConsumer::getLocInfo(SourceManager& sm, SourceRange range, 
+                               bool isFileWide) const {
+  assert(range && "invalid range");
   std::stringstream ss;
   // Only display the file name for file-wide diagnostics
   if (isFileWide)
     ss << sm.getFileName(range.getFileID());
-  else 
-    ss << sm.getCompleteRange(range).toString();
+  else {
+    CompleteLoc full = sm.getCompleteLoc(range.getBeginLoc());
+    ss << full.fileName << ':' << full.line << ':' << full.column;
+  }
   return ss.str();
 }
 
@@ -61,12 +58,10 @@ StreamDiagConsumer::StreamDiagConsumer(std::ostream & stream):
 StreamDiagConsumer::StreamDiagConsumer() : StreamDiagConsumer(std::cout) {}
 
 void StreamDiagConsumer::consume(SourceManager& sm, const Diagnostic& diag) {
-  std::string locInfo = 
-    getLocInfo(sm, diag.getSourceRange(), diag.isFileWide());
-  if (locInfo.size())
-    os_ << locInfo << " - ";
+  if (SourceRange range = diag.getSourceRange())
+    os_ << getLocInfo(sm, diag.getSourceRange(), diag.isFileWide()) << ": ";
   os_ << toString(diag.getSeverity()) 
-    << " - " 
+    << ": " 
     << diag.getStr() 
     << "\n";
 

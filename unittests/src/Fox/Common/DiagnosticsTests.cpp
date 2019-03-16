@@ -262,7 +262,7 @@ TEST_F(PrettyDiagConsumerTest, PrintTest) {
     diagEng.report(DiagID::unittest_notetest, rangeA);
     std::cout << "diag:" << ss.str() << "\n";
     EXPECT_EQ(ss.str(), 
-      "<tmp>:1:1-4 - note - Test note\n"
+      "tmp:1:1: note: Test note\n"
       "    LLVM is great!\n"
       "    ^^^^\n"
     );
@@ -275,7 +275,7 @@ TEST_F(PrettyDiagConsumerTest, PrintTest) {
     diagEng.report(DiagID::unittest_notetest, rangeB);
     std::cout << "diag:" << ss.str() << "\n";
     EXPECT_EQ(ss.str(), 
-      "<tmp>:1:9-14 - note - Test note\n"
+      "tmp:1:9: note: Test note\n"
       "    LLVM is great!\n"
       "            ^^^^^^\n"
     );
@@ -288,7 +288,7 @@ TEST_F(PrettyDiagConsumerTest, PrintTest) {
     diagEng.report(DiagID::unittest_notetest, locPTE);
     std::cout << "diag:" << ss.str() << "\n";
     EXPECT_EQ(ss.str(), 
-      "<tmp>:1:15 - note - Test note\n"
+      "tmp:1:15: note: Test note\n"
       "    LLVM is great!\n"
       "                  ^\n"
     );
@@ -302,7 +302,7 @@ TEST_F(PrettyDiagConsumerTest, PrintTest) {
            .setExtraRange(rangeA);
     std::cout << "diag:" << ss.str() << "\n";
     EXPECT_EQ(ss.str(), 
-      "<tmp>:1:15 - note - Test note\n"
+      "tmp:1:15: note: Test note\n"
       "    LLVM is great!\n"
       "    ~~~~          ^\n"
     );
@@ -333,7 +333,7 @@ TEST_F(PrettyDiagConsumerTest, UTF8PrintTest) {
   {
     diagEng.report(DiagID::unittest_notetest, locA);
 
-    compSS << u8"<tmp>:1:16 - note - Test note\n"
+    compSS << u8"tmp:1:16: note: Test note\n"
            << u8"    This is a test: Γειά σου Κόσμε!\n";
 
     EXPECT_EQ(ss.str(), compSS.str());
@@ -345,7 +345,7 @@ TEST_F(PrettyDiagConsumerTest, UTF8PrintTest) {
   {
     diagEng.report(DiagID::unittest_notetest, rangeA);
 
-    compSS << u8"<tmp>:1:17-30 - note - Test note\n"
+    compSS << u8"tmp:1:17: note: Test note\n"
            << u8"    This is a test: Γειά σου Κόσμε!\n";
 
     EXPECT_EQ(ss.str(), compSS.str());
@@ -358,7 +358,7 @@ TEST_F(PrettyDiagConsumerTest, UTF8PrintTest) {
   {
     diagEng.report(DiagID::unittest_notetest, locB);
 
-    compSS << u8"<tmp>:1:31 - note - Test note\n"
+    compSS << u8"tmp:1:31: note: Test note\n"
            << u8"    This is a test: Γειά σου Κόσμε!\n";
 
     EXPECT_EQ(ss.str(), compSS.str());
