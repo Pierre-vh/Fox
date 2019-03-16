@@ -68,7 +68,7 @@ class BCGen::ExprGenerator : public Generator,
     // If 'reg' is a live temporary register, returns std::move(reg).
     // Else, returns a new allocated register.
     RegisterValue tryReuseRegister(RegisterValue& reg) {
-      if(reg.isTemporary() && reg.isAlive())
+      if(reg.isTemporary())
         return std::move(reg);
       return regAlloc.allocateTemporary();
     }
@@ -81,8 +81,8 @@ class BCGen::ExprGenerator : public Generator,
     tryReuseRegisters(reference_initializer_list<RegisterValue> regs) {
       RegisterValue* best = nullptr;
       for (auto& reg : regs) {
-        // Only reuse temp, alive regs
-        if (reg.get().isTemporary() && reg.get().isAlive()) {
+        // Only reuse alive temporary registers.
+        if (reg.get().isTemporary()) {
           // Can this become our best candidate?
           if((!best) || (best->getAddress() > reg.get().getAddress())) 
             best = &(reg.get());
@@ -191,12 +191,12 @@ class BCGen::ExprGenerator : public Generator,
       // Gen the LHS
       RegisterValue lhsReg = visit(expr->getLHS());
       regaddr_t lhsAddr = lhsReg.getAddress();
-      assert(lhsReg.isAlive() && "Generated a dead register for the LHS");
+      assert(lhsReg && "Generated a dead register for the LHS");
 
       // Gen the RHS
       RegisterValue rhsReg = visit(expr->getRHS());
       regaddr_t rhsAddr = rhsReg.getAddress();
-      assert(rhsReg.isAlive() && "Generated a dead register for the RHS");
+      assert(rhsReg && "Generated a dead register for the RHS");
       
       // Decide on which register to use for the destination, maybe reusing
       // the lhs or rhs.
@@ -256,7 +256,7 @@ class BCGen::ExprGenerator : public Generator,
 
       RegisterValue dstReg = tryReuseRegister(childReg);
 
-      assert(dstReg.isAlive() && "no destination register selected");
+      assert(dstReg && "no destination register selected");
       regaddr_t dstRegAddr = dstReg.getAddress();
 
       // Casts to numeric types

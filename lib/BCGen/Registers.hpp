@@ -15,7 +15,9 @@ namespace fox {
   class RegisterValue;
 
   // An integer representing a register address (number).
-  // Currently a 8 bit integer (0-255 addressable registers)
+  // Currently a 8 bit unsigned integer (0-255 addressable registers)
+  // TODO: Move this to the VM folder so Instruction.def can benefit
+  // from it too?
   using regaddr_t = std::uint8_t;
 
   // The (per function) register allocator. It manages allocation
@@ -95,7 +97,11 @@ namespace fox {
       // Returns true if this RegisterValue is a temporary
       // one. If that's the case, the register will
       // be freed once this instance dies.
+      // Returns false for dead registers.
       bool isTemporary() const;
+
+      // Calls isAlive()
+      explicit operator bool() const;
 
       // Frees the register and kills this RegisterValue.
       void free();

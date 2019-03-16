@@ -129,7 +129,11 @@ bool RegisterValue::isAlive() const {
 
 bool RegisterValue::isTemporary() const {
   // There are only temp RegisterValues for now.
-  return true;
+  return isAlive();
+}
+
+RegisterValue::operator bool() const {
+  return isAlive();
 }
 
 void RegisterValue::free() {
