@@ -24,7 +24,7 @@ func foo(a : char, mutParam : mut [string]) : int {
   mutParam;
   // CHECK-NEXT: DeclRefExpr '(char,[string]) -> int' foo <decl:[[foo_addr]]>
   foo;
-  // CHECK-NEXT: DeclRefExpr '[string]' c
+  // CHECK-NEXT: DeclRefExpr '[double]' c
   c;
   // CHECK-NEXT: DeclRefExpr '() -> void' some_func_before
   some_func_before;
@@ -32,8 +32,8 @@ func foo(a : char, mutParam : mut [string]) : int {
   another_func_after;
 }
 
-// CHECK: VarDecl {{0x([[:alnum:]]{8,12}) .*}} let c '[string]'
+// CHECK: VarDecl {{0x([[:alnum:]]{8,12}) .*}} let c '[double]'
 // CHECK: DeclRefExpr 'int' a <decl:[[global_a_addr]]>
-let c : [string] = [a as string];
+let c : [double] = [a as double];
 
 func another_func_after(baz: [bool], foz: string) : char{}

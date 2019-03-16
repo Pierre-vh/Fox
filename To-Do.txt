@@ -170,6 +170,7 @@ To-Do:
 
   > Intrinsics (= builtin functions)
     > Needed intrinsics:
+        toString for all types (primitives and objects)
         Arrays: .slice(beg, end)
         Arrays AND String: .append(elem)
         Strings: .substring(beg, end) // works like slice, but with another name.

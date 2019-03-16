@@ -470,21 +470,10 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
     }
 
     Expr* visitCastExpr(CastExpr* expr) {        
-      // Get the types & unwrap them
+      // Get the types
       Type childTy = expr->getExpr()->getType();
       Type goalTy = expr->getCastTypeLoc().getType();
-      std::tie(childTy, goalTy) = Sema::unwrapAll(childTy, goalTy);
 
-      // Check that the types are well formed. If they aren't, don't
-      // bother checking.
-      if (!Sema::isWellFormed({childTy, goalTy}))
-        return expr;
-
-      // "Stringifying" casts are a special case. To be
-      // eligible, the childTy must be a PrimitiveType.
-      if (goalTy->isStringType() && childTy->is<PrimitiveType>())
-        return finalizeCastExpr(expr, childTy->isStringType());
-        
       bool isPerfectEquality = false;
       // custom comparator which considers that a and b are
       // equal when they're both numeric or boolean types.
@@ -497,7 +486,7 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
         return a->isNumericOrBool() && b->isNumericOrBool();
       };
 
-      // Try unification
+      // Try unification with the custom comparator.
       if (sema.unify(childTy, goalTy, comparator))
         return finalizeCastExpr(expr, isPerfectEquality);      
 
