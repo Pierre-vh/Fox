@@ -149,6 +149,20 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   // to print it, we're done.
   if(!shouldPrintCaretLine(sourceLine)) return;
 
+  // This Checks that len isn't greater than the size of the line plus one.
+  // If it is, is sets it to lineSize.
+  // NOTE: We only allow that uEnd is in excess of 1 because that means
+  //  it's simply an 'out-of-range' diag, like those emitted by the parser
+  //  when a semicolon is missing. When it's in excess by more than one, it
+  //  usually means that the primary range of the diagnostic spans multiple
+  //  lines, and we don't want to have a past-the-end underline in that
+  //  scenario.
+  auto getUEnd = [&](std::size_t len) {
+    if(len > (lineSize+1))
+      return lineSize;
+    return len;
+  };
+
   std::string underline;
   // Create the carets underline (^)
 	{  
@@ -156,13 +170,12 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     // We'll begin the range at the last codepoint, so uBeg is
     // the number of codepoints in the range minus one.
     auto uBeg = sm.getLengthInCodepoints(preRange)-1;
-    // Change the beginning of the range so it begins where the sourceLine
-    // begins.
+    // Create a range that starts at the beginning of the line and
+    // ends at the end of the range.
     SourceRange rangeInLine = SourceRange(lineBeg, range.getEndLoc());
-    // Calculate the number of codepoints in that range
-    std::size_t uEnd = sm.getLengthInCodepoints(rangeInLine);
-    // But check that the number doesn't exceed sourceLine's size.
-    uEnd = std::min(uEnd, lineSize+1);
+    // Calculate uEnd using that.
+    std::size_t uEnd = getUEnd(sm.getLengthInCodepoints(rangeInLine));
+    // Create the underline
     underline = createUnderline('^', uBeg, uEnd);
   }
 
@@ -176,14 +189,12 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
     // We'll begin the range at the last codepoint, so uBeg is
     // the number of codepoints in the range minus one.
     auto uBeg = sm.getLengthInCodepoints(preRange)-1;
-
-    // Change the beginning of the range so it begins where the sourceLine
-    // begins.
+    // Create a range that starts at the beginning of the line and
+    // ends at the end of the range.
     SourceRange rangeInLine = SourceRange(lineBeg, eRange.getEndLoc());
-    // Calculate the number of codepoints in that range
-    std::size_t uEnd = sm.getLengthInCodepoints(rangeInLine);
-    // But check that the number doesn't exceed sourceLine's size.
-    uEnd = std::min(uEnd, lineSize+1);
+    // Calculate uEnd using that.
+    std::size_t uEnd = getUEnd(sm.getLengthInCodepoints(rangeInLine));
+    // Create the underline
     underline = embedString(underline, createUnderline('~', uBeg, uEnd));
   }
 
