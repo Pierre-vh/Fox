@@ -134,11 +134,13 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   SourceLoc lineBeg;
   string_view sourceLine = 
     sm.getLineAt(diag.getSourceRange().getBeginLoc(), &lineBeg);
-  std::size_t lineSize = utf8::distance(sourceLine.begin(), sourceLine.end());
 
   // Remove any indent, and offset the linebeg loc accordingly.
   std::size_t offset = removeIndent(sourceLine);
   lineBeg = sm.incrementSourceLoc(lineBeg, offset);
+
+  // Calculate the size of the line
+  std::size_t lineSize = utf8::distance(sourceLine.begin(), sourceLine.end());
 
   // Display the source extract
   os_ << "    " << sourceLine << '\n';
