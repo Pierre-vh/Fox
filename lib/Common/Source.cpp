@@ -386,7 +386,7 @@ SourceManager::incrementSourceLoc(SourceLoc loc, std::size_t count) const {
     return SourceLoc(file, raw+offset);
   }
 
-  // If this is a past-the-end SourceLoc, just it since it cannot be
+  // If this is a past-the-end SourceLoc, just return it since it cannot be
   // incremented.
   return loc;
 }
