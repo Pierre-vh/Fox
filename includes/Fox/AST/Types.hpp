@@ -54,33 +54,58 @@ namespace fox {
 
       void dump() const;
 
+      // Returns the kind of type this is.
       TypeKind getKind() const;
 
       // If this type is an LValue, returns it's element type, else
       // returns this.
       Type getRValue();
 
+      // If this type is an LValue, returns it's element type, else
+      // returns this.
+      const Type getRValue() const;
+
       // Returns true if this Type contains a TypeVariable somewhere
-      // in it's hierarchy.
+      // in the tree
       bool hasTypeVariable() const;
 
       // Returns true if this Type contains a ErrorType somewhere
-      // in it's hierarchy.
+      // in the tree.
       bool hasErrorType() const;
 
-      //-------------------------//
-      // Type categories
-      //-------------------------//
-
+      // Returns true if this type is the primitive 'string' type.
+      // Ignores LValues.
       bool isStringType() const;
+
+      // Returns true if this type is the primitive 'char' type.
+      // Ignores LValues.
       bool isCharType() const;
+
+      // Returns true if this type is the primitive 'double' type.
+      // Ignores LValues.
       bool isDoubleType() const;
+
+      // Returns true if this type is the primitive 'bool' type.
+      // Ignores LValues.
       bool isBoolType() const;
+
+      // Returns true if this type is the primitive 'int' type.
+      // Ignores LValues.
       bool isIntType() const;
+
+      // Returns true if this type is the primitive 'void' type.
+      // Ignores LValues.
       bool isVoidType() const;
+
+      // Returns true if this type is the primitive 'int' or 'double' type.
+      // Ignores LValues.
       bool isNumeric() const;
+
+      // Returns true if this type is the primitive 'int', 'double' or 'bool'
+      // type.
       bool isNumericOrBool() const;
 
+      // Returns true if this type is an LValue.
       bool isAssignable() const;
 
       template<typename Ty>
@@ -107,10 +132,6 @@ namespace fox {
       const Ty* castTo() const {
         return cast<Ty>(this);
       }
-
-      //-------------------------//
-      // Type properties
-      //-------------------------//
 
       // This class represent a type's properties.
       class Properties {
@@ -249,6 +270,9 @@ namespace fox {
         StringTy,
         BoolTy
       };
+
+      // Returns true if getPrimitiveKind() == kind.
+      bool is(Kind kind) const;
 
       static PrimitiveType* getString(ASTContext& ctxt);
       static PrimitiveType* getChar(ASTContext& ctxt);

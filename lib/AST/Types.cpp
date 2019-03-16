@@ -175,6 +175,10 @@ Type TypeBase::getRValue() {
   return this;
 }
 
+const Type TypeBase::getRValue() const {
+  return const_cast<TypeBase*>(this)->getRValue();
+}
+
 bool TypeBase::hasTypeVariable() const {
   return getProperties() & Property::HasTypeVariable;
 }
@@ -183,58 +187,60 @@ bool TypeBase::hasErrorType() const {
   return getProperties() & Property::HasErrorType;
 }
 
+// Implementation method for TypeBase::isXXX() methods.
+static const PrimitiveType* toPrimitiveType(const TypeBase* type) {
+  return type->getRValue()->getAs<PrimitiveType>();
+}
+
 bool TypeBase::isStringType() const {
-  if(auto* prim = dyn_cast<PrimitiveType>(this))
-    return (prim->getPrimitiveKind() == PrimitiveType::Kind::StringTy);
+  if (auto prim = toPrimitiveType(this))
+    return prim->is(PrimitiveType::Kind::StringTy);
   return false;
 }
 
 bool TypeBase::isCharType() const {
-  if (auto* prim = dyn_cast<PrimitiveType>(this))
-    return (prim->getPrimitiveKind() == PrimitiveType::Kind::CharTy);
+  if (auto prim = toPrimitiveType(this))
+    return prim->is(PrimitiveType::Kind::CharTy);
   return false;
 }
 
 bool TypeBase::isBoolType() const {
-  if (auto* prim = dyn_cast<PrimitiveType>(this))
-    return (prim->getPrimitiveKind() == PrimitiveType::Kind::BoolTy);
+  if (auto prim = toPrimitiveType(this))
+    return prim->is(PrimitiveType::Kind::BoolTy);
   return false;
 }
 
 bool TypeBase::isIntType() const {
-  if (auto* prim = dyn_cast<PrimitiveType>(this))
-    return (prim->getPrimitiveKind() == PrimitiveType::Kind::IntTy);
+  if (auto prim = toPrimitiveType(this))
+    return prim->is(PrimitiveType::Kind::IntTy);
   return false;
 }
 
 bool TypeBase::isDoubleType() const {
-  if (auto* prim = dyn_cast<PrimitiveType>(this))
-    return (prim->getPrimitiveKind() == PrimitiveType::Kind::DoubleTy);
+  if (auto prim = toPrimitiveType(this))
+    return prim->is(PrimitiveType::Kind::DoubleTy);
   return false;
 }
 
 bool TypeBase::isVoidType() const {
-  if (auto* prim = dyn_cast<PrimitiveType>(this))
-    return (prim->getPrimitiveKind() == PrimitiveType::Kind::VoidTy);
+  if (auto prim = toPrimitiveType(this))
+    return prim->is(PrimitiveType::Kind::VoidTy);
   return false;
 }
 
 bool TypeBase::isNumeric() const {
-  if (auto* prim = getAs<PrimitiveType>()) {
-    using Pk = PrimitiveType::Kind;
-    switch (prim->getPrimitiveKind()) {
-      case Pk::DoubleTy:
-      case Pk::IntTy:
-        return true;
-      default:
-        return false;
-    }
-  }
+  if (auto prim = toPrimitiveType(this))
+    return prim->is(PrimitiveType::Kind::IntTy)
+        || prim->is(PrimitiveType::Kind::DoubleTy);
   return false;
 }
 
 bool TypeBase::isNumericOrBool() const {
-  return isNumeric() || isBoolType();
+  if (auto prim = toPrimitiveType(this))
+    return prim->is(PrimitiveType::Kind::IntTy)
+        || prim->is(PrimitiveType::Kind::DoubleTy)
+        || prim->is(PrimitiveType::Kind::BoolTy);
+  return false;
 }
 
 bool TypeBase::isAssignable() const {
@@ -273,6 +279,10 @@ BasicType::BasicType(TypeKind tc): TypeBase(tc) {}
 
 PrimitiveType::PrimitiveType(Kind kd) : builtinKind_(kd), 
   BasicType(TypeKind::PrimitiveType) {}
+
+bool PrimitiveType::is(Kind kind) const {
+  return (getPrimitiveKind() == kind);
+}
 
 PrimitiveType* PrimitiveType::getString(ASTContext& ctxt) {
   if (!ctxt.theStringType_)
