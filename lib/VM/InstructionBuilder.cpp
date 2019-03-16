@@ -1,3 +1,4 @@
+#include "..\..\includes\Fox\VM\InstructionBuilder.hpp"
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
@@ -70,6 +71,10 @@ Instruction InstructionBuilder::getLastInstr() const {
 
 ArrayRef<Instruction> InstructionBuilder::getInstrs() const {
   return getBuffer();
+}
+
+std::unique_ptr<InstructionBuilder::Buffer> InstructionBuilder::takeBuffer() {
+  return std::move(instrBuffer_);
 }
 
 void InstructionBuilder::pushInstr(Instruction instr) {
