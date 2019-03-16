@@ -28,7 +28,7 @@ std::string DiagnosticConsumer::getLocInfo(SourceManager& sm,
   std::stringstream ss;
   // Only display the file name for file-wide diagnostics
   if (isFileWide)
-    ss << '<' << sm.getFileName(range.getFileID()) << ">";
+    ss << sm.getFileName(range.getFileID());
   else 
     ss << sm.getCompleteRange(range).toString();
   return ss.str();

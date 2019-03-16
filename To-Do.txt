@@ -264,7 +264,7 @@ Other:
   Low priority:
     This is a list of "low-priority" stuff that needs to be done.
 
-    > Better editor support for diagnostics
+    > Better editor support for diagnostics - print diagnostics in a more editor-friendly form
 
     > Add proper unicode support for StreamDiagConsumer's caret line, and re-enable it for
       every source line (even those with non ASCII char).

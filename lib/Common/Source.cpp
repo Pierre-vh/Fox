@@ -62,17 +62,17 @@ bool CompleteRange::operator!=(const CompleteRange& other) const {
 std::string CompleteRange::toString(bool printFilename) const {
   std::stringstream ss;
   if (printFilename)
-    ss << '<' << fileName << ">:";
-  ss << begLine << ":" << begColumn;
+    ss  << fileName << ':';
+  ss << begLine << ':' << begColumn;
   // The range begins and ends at the same position
   if((begLine == endLine) && (begColumn == endColumn))
     return ss.str();
   // Only columns differ
   if(begLine == endLine)
-    ss << "-" << endColumn;
+    ss << '-' << endColumn;
   // Both lines and columns differ
   else 
-    ss << "-" << endLine << ":" << endColumn;
+    ss << '-' << endLine << ':' << endColumn;
   return ss.str();
 }
 
