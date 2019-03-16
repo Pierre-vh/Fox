@@ -180,10 +180,14 @@ To-Do:
 
   > Function types & Functions as first class citizens
 
+  > Support omission of the type in local declarations (e.g. let foo = 3).
+    Maybe even for global ones too, but that gets a lot more complicated so I can't
+    promise anything yet. If it gets too complicated, I'll abandon it for now and come
+    back to it later.
+
   > Multifile support:
-    > Exact model still to be decided. It'll probably be package/module based, but probably
-      not to the extreme of java (with less nesting).
-  
+    > Exact model still to be decided. It'll probably be package/module based, like Java,
+      but with a lot less nesting.
 
   > Type aliases
     > e.g. "typealias foo = [[int]]"
