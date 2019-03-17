@@ -4,8 +4,7 @@
 // File : Instructions.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file uses Macro to "register" every bytecode instruction 
-// supported by the Fox VM.
+//  Macros for macro-metaprogramming with the Fox VM instruction set.
 //----------------------------------------------------------------------------//
 
 // Represents an "untyped" instruction. We don't know anything about it,

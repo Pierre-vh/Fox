@@ -4,14 +4,14 @@
 // File : Operators.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file uses Macro to "register" every Unary & Binary operators with
-// their name and sign.
+//  Macros for macro-metaprogramming with Binary and Unary operators.
+//----------------------------------------------------------------------------//
+
 // Every macro consists of 3 things: an ID for the operator,
 // it's sign (string), and a proper, user-friendly name (string).
 //
 // Note that each enum's first value should be an "Invalid"
 // operator, used as a default value for the enum
-//----------------------------------------------------------------------------//
 
 #ifndef BINARY_OP
   #define BINARY_OP(ID, SIGN, NAME)

@@ -4,9 +4,7 @@
 // File : ExprNodes.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file uses Macro to "register" every Expr nodes
-// When including this file, the user can define custom macros 
-// to gather information about the nodes.
+//  Macros for macro-metaprogramming with Expressions
 //----------------------------------------------------------------------------//
 
 // Base macro for concrete classes of Expr.
