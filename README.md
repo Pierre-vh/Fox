@@ -22,7 +22,7 @@ Required:
 ## Usage
 *Note: the project is in early development and thus is changing very rapidly. I won't document everything because things are certainly not definitive, but I'll try to keep this as up to date as I can*
 
-**Note:** Currently, only the Lexer, Parser and a small part of the Semantic analysis are complete, so files aren't executed and are just "compiled" with what's available.
+**Note:** Currently the interpreter is *not* functional. It's a work in progress, and I'm just starting to work on the VM. The language's features are also very limited for now (only a single file can be compiled, no objects, no tuples, no overloads, no UFCS, no FFI). For now, I'm working on getting the main pipeline working (*Make it work* phase: making the interpreter able to compile code and run the resulting bytecode). Once that's done, I'll add the rest of the features (UFCS/Overload/FFI/Multi-file support) and work on getting the interpreter 'usable' (*Make it right* phase).
 
 Assuming that the binaries are installed in your path:
 * `fox` will launch the "command line interface", which is a quick and easy way to test the interpreter. The interface is really simple: you can only enter paths to files for the interpreter to process. (This is only a testing tool. For more advanced use, invoke the compiler using command line options (see below))
