@@ -46,7 +46,7 @@
 // an instruction that takes 3 addresses (3 registers) as
 // operands: a destination (arg0), a lhs (arg1) and a rhs (arg2).
 #ifndef TAC_INSTR
-  #define TAC_INSTR(ID) TERNARY_INSTR(ID, std::uint8_t, std::uint8_t, std::uint8_t)
+  #define TAC_INSTR(ID) TERNARY_INSTR(ID, regaddr_t, regaddr_t, regaddr_t)
 #endif
 
 //----------------------------------------------------------------------------//
@@ -55,7 +55,7 @@ SIMPLE_INSTR(NoOp)
 SIMPLE_INSTR(Break)
 
 // Stores D (a signed 16 bit int) in register A
-BINARY_INSTR(StoreSmallInt, std::uint8_t, std::int16_t)
+BINARY_INSTR(StoreSmallInt, regaddr_t, std::int16_t)
 
 // Arithmetic : a = b (op) c. Result's type is the type of the operand.
 TAC_INSTR(AddInt)     // Int Addition
@@ -70,8 +70,8 @@ TAC_INSTR(ModInt)     // Int Modulo
 TAC_INSTR(ModDouble)  // Double Modulo
 TAC_INSTR(PowInt)     // Int exponentiation
 TAC_INSTR(PowDouble)  // Double exponentiation
-BINARY_INSTR(NegInt, std::uint8_t, std::uint8_t)    // Int unary minus
-BINARY_INSTR(NegDouble, std::uint8_t, std::uint8_t) // Double unary minus
+BINARY_INSTR(NegInt, regaddr_t, regaddr_t)    // Int unary minus
+BINARY_INSTR(NegDouble, regaddr_t, regaddr_t) // Double unary minus
 
 // Comparisons a = b (cond) c. Result is always an int (1 for true, 0 for false)
 TAC_INSTR(EqInt)      // Int Equality
@@ -86,15 +86,15 @@ TAC_INSTR(GTDouble)   // Double Greater Than
 // Other arithmetic/logic ops that operate on raw values
 TAC_INSTR(LAnd)   // Logical AND
 TAC_INSTR(LOr)    // Logical OR
-BINARY_INSTR(LNot, std::uint8_t, std::uint8_t) // Logical NOT
+BINARY_INSTR(LNot, regaddr_t, regaddr_t) // Logical NOT
 
 // Jumps
-BINARY_INSTR(CondJump, std::uint8_t, std::int16_t)  // Conditional Jump : Jump iff register != 0
+BINARY_INSTR(CondJump, regaddr_t, std::int16_t)  // Conditional Jump : Jump iff register != 0
 UNARY_INSTR(Jump, std::int16_t)                     // Unconditional Jump
 
 // Casts
-BINARY_INSTR(IntToDouble, std::uint8_t, std::uint8_t) // Converts an int to a double
-BINARY_INSTR(DoubleToInt, std::uint8_t, std::uint8_t) // Converts a double to an int
+BINARY_INSTR(IntToDouble, regaddr_t, regaddr_t) // Converts an int to a double
+BINARY_INSTR(DoubleToInt, regaddr_t, regaddr_t) // Converts a double to an int
 
 LAST_INSTR(Jump)
 

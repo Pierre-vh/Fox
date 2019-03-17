@@ -10,14 +10,14 @@
 
 #pragma once
 
-#include <cstdint>
+#include "VMUtils.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "Fox/Common/LLVM.hpp"
 #include <memory>
+#include <cstdint>
 
 namespace fox {
-  enum class Opcode : std::uint8_t;
   struct Instruction;
 
   class InstructionBuilder {

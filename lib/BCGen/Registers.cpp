@@ -45,7 +45,7 @@ regaddr_t RegisterAllocator::rawAllocateNewRegister() {
   }
 
   // Check that we haven't allocated too many registers.
-  assert((biggestAllocatedReg_ != maxAddr) && 
+  assert((biggestAllocatedReg_ != max_regaddr) && 
     "Can't allocate more registers : Register number limit reached "
     "(too much register pressure)");
 

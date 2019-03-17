@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "VMUtils.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/ArrayRef.h"
@@ -40,7 +41,7 @@ namespace fox {
 
     private:
       // Returns the raw value of the register idx.
-      std::uint64_t getReg(std::size_t idx) {
+      std::uint64_t getReg(regaddr_t idx) {
         assert((idx < numStackRegister) && "out-of-range");
         return regStack_[idx];
       }
@@ -49,7 +50,7 @@ namespace fox {
       // a value of type Ty. 
       // Only available for types whose size is less or equal to 8 Bytes
       template<typename Ty>
-      Ty getReg(std::size_t idx) {
+      Ty getReg(regaddr_t idx) {
         static_assert(sizeof(Ty) <= 8,
           "Can't cast a register to a type larger than 64 bits");
         assert((idx < numStackRegister) && "out-of-range");
@@ -59,13 +60,13 @@ namespace fox {
       // Special overload of the templated getReg for doubles, becauses
       // doubles can't be just reinterpret-cast'd. 
       template<>
-      FoxDouble getReg<FoxDouble>(std::size_t idx) {
+      FoxDouble getReg<FoxDouble>(regaddr_t idx) {
         assert((idx < numStackRegister) && "out-of-range");
         return llvm::BitsToDouble(regStack_[idx]);
       }
 
       // Sets the value of the register "idx" to value.
-      void setReg(std::size_t idx, std::uint64_t value) {
+      void setReg(regaddr_t idx, std::uint64_t value) {
         assert((idx < numStackRegister) && "out-of-range");
         regStack_[idx] = value;
       }
@@ -74,7 +75,7 @@ namespace fox {
       // static_cast<std::uint64_t>(value).
       // Only available for types whose size is less or equal to 8 Bytes
       template<typename Ty>
-      void setReg(std::size_t idx, Ty value) {
+      void setReg(regaddr_t idx, Ty value) {
         static_assert(sizeof(Ty) <= 8,
           "Can't put a type larger than 64 bits in a register");
         assert((idx < numStackRegister) && "out-of-range");
@@ -84,7 +85,7 @@ namespace fox {
       // Special overload of the templated setReg for doubles, becauses
       // doubles can't be just reinterpret-cast'd. 
       template<>
-      void setReg<FoxDouble>(std::size_t idx, FoxDouble value) {
+      void setReg<FoxDouble>(regaddr_t idx, FoxDouble value) {
         assert((idx < numStackRegister) && "out-of-range");
         regStack_[idx] = llvm::DoubleToBits(value);
       }

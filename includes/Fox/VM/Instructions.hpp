@@ -9,9 +9,10 @@
 
 #pragma once
 
+#include "VMUtils.hpp"
+#include "llvm/Support/Compiler.h"
 #include <cstdint>
 #include <iosfwd>
-#include "llvm/Support/Compiler.h"
 
 namespace llvm {
   template<typename T> class ArrayRef;
@@ -20,14 +21,8 @@ namespace llvm {
 namespace fox {
   struct Instruction;
 
-  // This enum contains every opcode. A enum class is used instead of
-  // a traditional C enum to avoid polluting the global namespace. 
-  // 
-  // This shouldn't be an issue since we can:
-  //  - use static_cast<std::uint8_t>(op) to get the value of the opcode
-  //  - use static_cast<Opcode>(num) to get an Opcode back from an int.
-  // Both have no runtime cost.
-  enum class Opcode : std::uint8_t {
+  // VM Op codes.
+  enum class Opcode : opcode_t {
     #define INSTR(Op) Op,
     #define LAST_INSTR(Op) last_opcode = Op
     #include "Instructions.def"

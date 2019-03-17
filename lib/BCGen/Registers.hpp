@@ -9,18 +9,13 @@
 
 #pragma once
 
+#include "Fox/VM/VMUtils.hpp"
 #include <cstdint>
 #include <set>
 #include <functional>
 
 namespace fox {
   class RegisterValue;
-
-  // An integer representing a register address (number).
-  // Currently a 8 bit unsigned integer (0-255 addressable registers)
-  // TODO: Move this to the VM folder so Instruction.def can benefit
-  // from it too?
-  using regaddr_t = std::uint8_t;
 
   // The (per function) register allocator. It manages allocation
   // a freeing of registers, striving to reuse registers (at smaller indexes)
@@ -37,10 +32,6 @@ namespace fox {
 
     private:
       friend RegisterValue;
-
-      // The maximum address of a register.
-      static constexpr 
-      regaddr_t maxAddr = std::numeric_limits<regaddr_t>::max();
 
       // Allocates a new register.
       // This should be used carefully as it returns the raw register
