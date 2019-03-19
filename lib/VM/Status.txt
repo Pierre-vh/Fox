@@ -68,66 +68,60 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Registers.hpp
     -> RegisterAllocator (Currently)
     -> RegisterValue (Done)
-  -> Basic CodeGen of simple arithmetic expressions : only compile time constant ops involving
-      doubles and ints. (Now)
-      - Binary Expr : Ints done, Doubles still left to do.
+  -> Basic CodeGen of simple integral expressions : only compile time constant ops involving
+       ints. (Now)
+      - Binary Expr : Ints done
       - CastExpr      (Done)
       - UnaryExpr     (Done)
-      -> Write FileCheck tests
-      -> Make CodeGen more robust. It should support LValues without a problem.
+      -> Write FileCheck tests (Done)
+      -> Make CodeGen more robust. It should support LValues without a problem. (Done)
+
+  -> VMModule
+
+  -> CodeGen entry points with genFunction, genGlobalVar, etc. None will be functional for now, it'll
+     just be an interface.
 
   -> Add a BCGen logRegAlloc option to emit logs about register allocation after
       generating expressions then write FileCheck tests checking that the stats
       are correct.
 
-  -> Write more tests, seriously.
+  -> Constant Table
+
+  -> Implement the rest of the arithmetic expressions involving Doubles
 
   -> Codegen of local variables 
       - LocalVariableUsageCounter walker in BCGenExpr
       - RegAlloc (getRegisterOfVariable, releaseVariable)
       - RegValue (Add a 'variable' kind, releaseVariable on death)
 
-  -> CodeGen of basic statements
+  -> CodeGen of Statements
 
----- Implementation of Object types and GC ----
-  
-  TBA. Will be implemented as Objects, so the GC will be implemented at the same time.
-  Objects will be allocated in a special allocator which just uses new/delete, but it'll
-  also keep a list of allocated objects. 
-  
-  -> LinearAllocator.hpp will become Allocator.hpp and share a "MallocAllocator" with it.
-     Maybe they'll have a common CRTP base.
-  -> Base "Object" class
-  -> Array and String objects (derived classes)
-  -> "ReferenceMap" to track registers that are/aren't references on the stack
-  -> Basic GC algorithm: mark and sweep + colored objects.
-      white = unvisited/unmarked, grey = needs to be visited, black = visited
-      that deals with cycles fairly easily.
 
----- The rest ----
-  -> Codegen of function & variable declarations
+---- Implementation of Object types ----
+  Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).
+    GC will come later when the language is officially "feature-complete", because writing a good, reliable
+    GC takes time and I'll probably write a better one with the full design of the language implemented.
+
+  -> Common "Object" base
+  -> ArrayObject: Always dynamically sized, essentially just a SmallVector (will maybe even inherit from it)
+  -> Strings: Similar to ArrayObject. I think they'll also be dynamically sized, but that's subject to change.
+ 
+  Note: In the future, I'll probably have a UserObject and a TupleObject.
+        UserObject for structs, TupleObject for tuples.
+
+---- Getting feature-complete (with the current feature set) ----
+  -> Codegen of functions
   -> Codegen of global variables
   -> Function calls
-  
-Note: I'll need a "VMModule" object or something like that. Because, for the VM & CodeGen, I'll need
-      to keep track of the number assigned to a function/global, I'll also need a jump table
-      to execute functions and globals initializers, etc.
-      This will be a tricky part of the design since I need to keep data locality. (all of the 
-      bytecode should be allocated in a single large buffer).
-      TODO: Find a better name than "VMModule"
+  -> Intrinsics
+  -> Basic debug information & trivial exception system for proper error management.
+  -> Test, Test, and Test!
+
+---- Implementing the GC ----
+  (Current ideas, highly subject to changes)
+  -> "ReferenceMap" (Safe points) to track register that contain references.
+  -> Basic GC algorithm: mark and sweep + colored objects (tri-color). Maybe compacting or generational.
       
-      Current idea:
-        -> InstructionBuilder will be split in multiple builders (Module, Function, GlobalInitializer, etc)
-        -> The "Master" Module Builder will keep the table of the globals/functions and will keep the 
-           full IR buffer
+Other notes:
+  -> InstructionBuilder will be split in multiple builders (Module, Function, GlobalInitializer, etc)
 
----- Later/More Advanced ----
-
-  -> Exceptions (only exceptions throwable by the VM, no try/catches for now) 
-    -> Relatively trivial for now. This is just to have a proper error handling system
-      for division/modulos by zero.
-
-  -> Intrisics/Builtin calls/FFI
-
-  -> Debug info for VM instructions (Optionally generated: accept a "-no-debug-info" switch)
-  
