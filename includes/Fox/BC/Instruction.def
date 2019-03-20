@@ -95,7 +95,10 @@ UNARY_INSTR(Jump, std::int16_t)                  // Unconditional Jump
 BINARY_INSTR(IntToDouble, regaddr_t, regaddr_t) // Converts an int to a double
 BINARY_INSTR(DoubleToInt, regaddr_t, regaddr_t) // Converts a double to an int
 
-LAST_INSTR(Jump)
+// Other
+BINARY_INSTR(Dup, regaddr_t, regaddr_t) // A = B
+
+LAST_INSTR(Dup)
 
 //----------------------------------------------------------------------------//
 

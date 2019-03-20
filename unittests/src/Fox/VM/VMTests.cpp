@@ -345,3 +345,31 @@ TEST(VMTest, Casts) {
   EXPECT_EQ(getReg(6), -3);
   EXPECT_EQ(getReg(7), 3);
 }
+
+TEST(VMTest, Dup) {
+  BCModuleBuilder builder;
+  FoxInt r0 = 42000;
+  FoxDouble r1 = -3.3333;
+  builder 
+    // Dup r2 r0 -> r2 = r0
+    .createDupInstr(2, 0)
+    // Dup r3 r1 -> r3 = r1
+    .createDupInstr(3, 1)
+    .createBreakInstr();
+  VM vm(builder.getModule());
+  auto regs = vm.getRegisterStack();
+  regs[0] = r0;
+  regs[1] = llvm::DoubleToBits(r1);
+
+  vm.run();
+  // Helper to get a register's value as a FoxDouble
+  auto getRegAsDouble = [&](std::size_t idx) {
+    return llvm::BitsToDouble(vm.getRegisterStack()[idx]);
+  };
+  // Helper to get a raw register value
+  auto getReg = [&](std::size_t idx) {
+    return static_cast<FoxInt>(vm.getRegisterStack()[idx]);
+  };
+  EXPECT_EQ(getReg(2), r0);
+  EXPECT_DOUBLE_EQ(getRegAsDouble(3), r1);
+}

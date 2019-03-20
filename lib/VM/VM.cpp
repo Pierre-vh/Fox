@@ -183,6 +183,10 @@ void VM::run() {
         setReg(instr.DoubleToInt.arg0, 
                FoxInt(getReg<FoxDouble>(instr.DoubleToInt.arg1)));
         continue;
+      case Opcode::Dup:
+        // Dup r0 r1 : r1 = r2 (r2 copied in r1, performed on raw registers)
+        setReg(instr.Dup.arg0, getReg(instr.Dup.arg1));
+        continue;
       default:
         fox_unreachable("illegal or unimplemented instruction found");
     }
