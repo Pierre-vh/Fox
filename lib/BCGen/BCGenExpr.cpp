@@ -65,10 +65,10 @@ class BCGen::ExprGenerator : public Generator,
       return false;
     }
 
-    // If 'reg' is a live temporary register, returns std::move(reg).
+    // If 'reg' is a register about to die, returns std::move(reg).
     // Else, returns a new allocated register.
     RegisterValue tryReuseRegister(RegisterValue& reg) {
-      if(reg.isTemporary())
+      if(reg.isLastUsage())
         return std::move(reg);
       return regAlloc.allocateTemporary();
     }
@@ -81,8 +81,8 @@ class BCGen::ExprGenerator : public Generator,
     tryReuseRegisters(reference_initializer_list<RegisterValue> regs) {
       RegisterValue* best = nullptr;
       for (auto& reg : regs) {
-        // Only reuse alive temporary registers.
-        if (reg.get().isTemporary()) {
+        // Only reuse registers about to die
+        if (reg.get().isLastUsage()) {
           // Can this become our best candidate?
           if((!best) || (best->getAddress() > reg.get().getAddress())) 
             best = &(reg.get());

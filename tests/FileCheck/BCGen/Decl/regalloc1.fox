@@ -16,7 +16,7 @@ func foo() {
   // CHECK-NEXT:  StoreSmallInt 2 2
   // CHECK-NEXT:  AddInt 2 0 2
   x+2;
-  // CHECK-NEXT:  PowInt 2 0 1
+  // CHECK-NEXT:  PowInt 1 0 1
   x**y;
   // CHECK-NEXT:  StoreSmallInt 1 3
   // CHECK-NEXT:  AddInt 1 0 1
@@ -36,4 +36,12 @@ func foo() {
   // since 'foo' is also dead.
   // CHECK-NEXT:  StoreSmallInt 0 42
   let zero : int = 42;
+  // this won't emit anything, the register allocator
+  // will just consider that 'bar' is now stored where
+  // zero was stored.
+  let bar : int = zero;
+  // Verify this
+  // CHECK-NEXT:  StoreSmallInt 1 256
+  // CHECK-NEXT:  AddInt 0 0 1
+  bar+256;
 }
