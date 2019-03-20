@@ -18,12 +18,10 @@
 #include <cstdint>
 
 namespace fox {
-  struct Instruction;
-
   class InstructionBuilder {
     public:
       // The type of an instruction buffer.
-      using Buffer = SmallVector<Instruction, 4>;
+      using Buffer = InstructionBuffer;
 
       #define SIMPLE_INSTR(ID) InstructionBuilder& create##ID##Instr();
       #define TERNARY_INSTR(ID, T1, T2, T3) InstructionBuilder&\

@@ -15,7 +15,13 @@
 
 #include <cstdint>
 
+namespace llvm {
+  template <typename T, unsigned N> class SmallVector;
+}
+
 namespace fox {
+  struct Instruction;
+
   // The type of a register address in an instruction
   using regaddr_t = std::uint8_t;
 
@@ -27,4 +33,7 @@ namespace fox {
 
   // Forward declaration of the 'Opcode' enum
   enum class Opcode : opcode_t;
+
+  // An instruction buffer
+  using InstructionBuffer = llvm::SmallVector<Instruction, 4>;
 }
