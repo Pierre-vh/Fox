@@ -5,30 +5,36 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 //  This file contains the VMModule class, which represents a VM program
-//  that can be executed by the Fox VM. 
+//  that can be executed by the Fox VM. This can be considered the
+//  top-level container for the bytecode.
 //----------------------------------------------------------------------------//
 
 #pragma once
 
 #include "Fox/VM/VMUtils.hpp"
+#include "Fox/VM/Instructions.hpp"
 #include "Fox/Common/LLVM.hpp"
-#include "llvm/ADT/ArrayRef.h"
-#include <memory>
+#include "llvm/ADT/SmallVector.h"
+#include <iosfwd>
 
 namespace fox {
   class VMModule {
     public:
-      VMModule();
-      ~VMModule();
+      // Returns the number of instructions in the instruction buffer
+      std::size_t numInstructions() const;
 
-      void setInstrs(std::unique_ptr<InstructionBuffer> buffer);
-      InstructionBuffer* getInstrs();
-      const InstructionBuffer* getInstrs() const;
-      std::unique_ptr<InstructionBuffer> takeInstrs();
+      // Returns a reference to the instruction buffer
+      InstructionBuffer& getInstructionBuffer();
+
+      // Returns a constant reference to the instruction buffer
+      const InstructionBuffer& getInstructionBuffer() const;
+
+      // Dumps the module to 'out'
+      void dumpModule(std::ostream& out) const;
 
     private:
-      friend class InstructionBuilder;
-
-      std::unique_ptr<InstructionBuffer> instrBuffer_;
+      // TODO: Move this out in the .cpp (using PIMPL) to reduce 
+      // the number of includes.
+      InstructionBuffer instrBuffer_;
   };
 }

@@ -6,27 +6,22 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/VM/VMModule.hpp"
-#include "Fox/VM/Instructions.hpp"
+#include "llvm/ADT/ArrayRef.h"
 
 using namespace fox;
 
-// Theses have to be defined here because the header only forward-declares
-// the Instruction struct.
-VMModule::VMModule() = default;
-VMModule::~VMModule() = default;
-
-void VMModule::setInstrs(std::unique_ptr<InstructionBuffer> buffer) {
-  instrBuffer_ = std::move(buffer);
+std::size_t VMModule::numInstructions() const {
+  return getInstructionBuffer().size();
 }
 
-InstructionBuffer* VMModule::getInstrs() {
-  return instrBuffer_.get();
+InstructionBuffer& VMModule::getInstructionBuffer() {
+  return instrBuffer_;
 }
 
-const InstructionBuffer* VMModule::getInstrs() const {
-  return instrBuffer_.get();
+const InstructionBuffer& VMModule::getInstructionBuffer() const {
+  return instrBuffer_;
 }
 
-std::unique_ptr<InstructionBuffer> VMModule::takeInstrs() {
-  return std::move(instrBuffer_);
+void VMModule::dumpModule(std::ostream& out) const {
+  dumpInstructions(out, getInstructionBuffer());
 }
