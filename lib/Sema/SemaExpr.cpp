@@ -757,9 +757,6 @@ class Sema::ExprChecker : Checker, ExprVisitor<ExprChecker, Expr*>,  ASTWalker {
       // types.
       if(sema.unify(lhsTy, rhsTy) && 
         (lhsTy->isNumeric() && rhsTy->isNumeric())) {
-        // lhsTy and rhsTy are equal
-        assert((lhsTy == rhsTy) && "Unification succeeded, but lhs/rhs types "
-          "are different?");
         expr->setType(lhsTy);
         return expr;
       }
