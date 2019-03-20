@@ -7,23 +7,20 @@
 
 #include "Fox/VM/VM.hpp"
 #include "Fox/VM/Instructions.hpp"
+#include "Fox/VM/VMModule.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <cmath>
 
 using namespace fox;
 
-void VM::load(ArrayRef<Instruction> instrs) {
-  assert((instrs.back().opcode == Opcode::Break)
-    && "The last instruction of the program is not a 'break' instruction");
-  program_ = instrs;
-  programCounter_ = 0;
-}
+VM::VM(VMModule& vmModule) : vmModule_(vmModule) {}
 
 void VM::run() {
   Instruction instr;
+  InstructionBuffer& program = vmModule_.getInstructionBuffer();
   do {
     // Decode the current instruction
-    instr = program_[programCounter_];
+    instr = program[programCounter_];
     #define TRIVIAL_TAC_BINOP_IMPL(ID, TYPE, OP)\
       setReg(instr.ID.arg0,\
       getReg<TYPE>(instr.ID.arg1) OP getReg<TYPE>(instr.ID.arg2))

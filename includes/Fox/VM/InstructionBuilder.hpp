@@ -11,15 +11,17 @@
 #pragma once
 
 #include "VMUtils.hpp"
-#include "llvm/ADT/SmallVector.h"
-#include "llvm/ADT/ArrayRef.h"
 #include "Fox/Common/LLVM.hpp"
 #include <memory>
 #include <cstdint>
 
 namespace fox {
+  class VMModule;
   class InstructionBuilder {
     public:
+      InstructionBuilder();
+      ~InstructionBuilder();
+
       // The type of an instruction buffer.
       using Buffer = InstructionBuffer;
 
@@ -32,28 +34,18 @@ namespace fox {
         create##ID##Instr(T1 arg);
       #include "Instructions.def"
 
-      void reset();
+      // Returns the last instruction pushed to the module.
       Instruction getLastInstr() const;
-      ArrayRef<Instruction> getInstrs() const;
-      
-      // Take the current instruction buffer. 
-      //
-      // Note: InstructionBuilder will lazily create a new buffer when needed.
-      std::unique_ptr<Buffer> takeBuffer();
+
+      // Takes the current VMModule from the builder.
+      // NOTE: The builder will create a new one when needed.
+      std::unique_ptr<VMModule> takeModule();
+      VMModule& getModule();
+      const VMModule& getModule() const;
 
     private:
       void pushInstr(Instruction instr);
 
-      // Return true if we have a buffer, or false if one will
-      // be created on the next getBuffer() call.
-      bool hasBuffer() const;
-
-      // Returns the Buffer, creating a new one if needed.
-      Buffer& getBuffer();
-
-      // Returns the Buffer, creating a new one if needed.
-      const Buffer& getBuffer() const;
-
-      std::unique_ptr<Buffer> instrBuffer_;
+      std::unique_ptr<VMModule> vmModule_;
   };
 }

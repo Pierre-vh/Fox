@@ -11,6 +11,7 @@
 #include "Fox/VM/Instructions.hpp"
 #include "Fox/VM/InstructionBuilder.hpp"
 #include "Fox/VM/VM.hpp"
+#include "Fox/VM/VMModule.hpp"
 #include "llvm/Support/MathExtras.h"
 #include "Fox/Common/FoxTypes.hpp"
 #include <sstream>
@@ -48,7 +49,7 @@ TEST(InstructionDumpTest, DumpInstructionsTest) {
     .createStoreSmallIntInstr(0, -4242)
     .createJumpInstr(-30000);
   // Check that we have the correct number of instructions
-  auto instrs = builder.getInstrs();
+  InstructionBuffer& instrs = builder.getModule().getInstructionBuffer();
   ASSERT_EQ(instrs.size(), 5u) << "Broken InstructionBuilder?";
   // Dump to a stringstream
   std::stringstream ss;
@@ -60,16 +61,6 @@ TEST(InstructionDumpTest, DumpInstructionsTest) {
     "LNot 42 84\n"
     "StoreSmallInt 0 -4242\n"
     "Jump -30000");
-}
-
-TEST(InstructionBuilderTest, InstrBuff) {
-  InstructionBuilder builder;
-  builder.createNoOpInstr().createNoOpInstr();
-  // Should have 2 instrs inside it
-  EXPECT_EQ(builder.getInstrs().size(), 2u);
-  builder.reset();
-  // Should have 0 now
-  EXPECT_EQ(builder.getInstrs().size(), 0u);
 }
 
 TEST(InstructionBuilderTest, TernaryInstr) {
@@ -129,8 +120,7 @@ TEST(VMTest, StoreSmallInt) {
   builder.createStoreSmallIntInstr(1, r1Value)
          .createStoreSmallIntInstr(0, r0Value)
          .createBreakInstr();
-  VM vm;
-  vm.load(builder.getInstrs());
+  VM vm(builder.getModule());
   vm.run();
   FoxInt r0 = vm.getRegisterStack()[0];
   FoxInt r1 = vm.getRegisterStack()[1];
@@ -161,8 +151,7 @@ TEST(VMTest, IntArithmetic) {
     .createNegIntInstr(10, 2)
     .createBreakInstr();
   // Prepare the VM & Load the code
-  VM vm;
-  vm.load(builder.getInstrs());
+  VM vm(builder.getModule());
   // Load the initial values
   auto regs = vm.getRegisterStack();
   regs[0] = r0;
@@ -214,8 +203,8 @@ TEST(VMTest, DoubleArithmetic) {
     .createNegDoubleInstr(11, 2)
     .createBreakInstr();
   // Prepare the VM & Load the code
-  VM vm;
-  vm.load(builder.getInstrs());
+  VM vm(builder.getModule());
+
   auto regs = vm.getRegisterStack();
   regs[0] = llvm::DoubleToBits(r0);
   regs[1] = llvm::DoubleToBits(r1);
@@ -257,8 +246,8 @@ TEST(VMTest, IntComparison) {
     .createLTIntInstr(4, 1, 1)
     .createBreakInstr();
   // Prepare the VM & Load the code
-  VM vm;
-  vm.load(builder.getInstrs());
+  VM vm(builder.getModule());
+
   // Load the initial values
   auto regs = vm.getRegisterStack();
   regs[0] = r0;
@@ -295,8 +284,8 @@ TEST(VMTest, DoubleComparison) {
     .createGTDoubleInstr(6, 1, 1)
     .createBreakInstr();
   // Prepare the VM & Load the code
-  VM vm;
-  vm.load(builder.getInstrs());
+  VM vm(builder.getModule());
+
   auto regs = vm.getRegisterStack();
   regs[0] = llvm::DoubleToBits(r0);
   regs[1] = llvm::DoubleToBits(r1);
@@ -336,8 +325,8 @@ TEST(VMTest, LogicOps) {
     .createLNotInstr(5, 0)
     .createBreakInstr();
   // Prepare the VM & Load the code
-  VM vm;
-  vm.load(builder.getInstrs());
+  VM vm(builder.getModule());
+
   // Load the initial values
   auto regs = vm.getRegisterStack();
   regs[0] = r0;
@@ -377,8 +366,8 @@ TEST(VMTest, Jumps) {
       .createBreakInstr();
 
     // Prepare the VM
-    VM vm;
-    vm.load(builder.getInstrs());
+    VM vm(builder.getModule());
+  
     // Run the code
     vm.run();
     // Check that the PC ended up where we expected it to.
@@ -401,8 +390,8 @@ TEST(VMTest, Jumps) {
       .createBreakInstr();
 
     // Prepare the VM
-    VM vm;
-    vm.load(builder.getInstrs());
+    VM vm(builder.getModule());
+  
     // Setup initial values
     auto regs = vm.getRegisterStack();
     regs[0] = r0;
@@ -430,13 +419,13 @@ TEST(VMTest, Casts) {
     // IntToDouble r7 r1 -> r7 = 3
     .createDoubleToIntInstr(7, 3)
     .createBreakInstr();
-  VM vm;
+  VM vm(builder.getModule());
   auto regs = vm.getRegisterStack();
   regs[0] = r0;
   regs[1] = r1;
   regs[2] = llvm::DoubleToBits(r2);
   regs[3] = llvm::DoubleToBits(r3);
-  vm.load(builder.getInstrs());
+
   vm.run();
   // Helper to get a register's value as a FoxDouble
   auto getRegAsDouble = [&](std::size_t idx) {

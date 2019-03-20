@@ -20,17 +20,14 @@
 
 namespace fox {
   struct Instruction;
-
+  class VMModule;
   class VM {
     public:
       static constexpr unsigned numStackRegister = 255;
 
-      // Loads a program. 
-      // Currently, the last instruction of the program must be a
-      // "Break" instruction. This is enforced by an assertion.
-      void load(ArrayRef<Instruction> instrs);
+      VM(VMModule& vmModule);
 
-      // Runs the current program.
+      // Runs the current module
       void run();
 
       // Returns the current value of the program counter.
@@ -90,8 +87,8 @@ namespace fox {
         regStack_[idx] = llvm::DoubleToBits(value);
       }
 
-      // The program currently being executed
-      ArrayRef<Instruction> program_;
+      // The module being executed
+      VMModule& vmModule_;
 
       // The program counter
       std::uint64_t programCounter_ = 0;

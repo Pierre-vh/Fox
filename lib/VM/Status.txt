@@ -76,7 +76,7 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
       -> Write FileCheck tests (Done)
       -> Make CodeGen more robust. It should support LValues without a problem. (Done)
 
-  -> VMModule
+  -> VMModule (Done)
 
   -> CodeGen entry points with genFunction, genGlobalVar, etc. None will be functional for now, it'll
      just be an interface.

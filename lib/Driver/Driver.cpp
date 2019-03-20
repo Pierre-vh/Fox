@@ -19,6 +19,7 @@
 // TEST-Only! Remove later
 #include "Fox/VM/InstructionBuilder.hpp"
 #include "Fox/VM/Instructions.hpp"
+#include "Fox/VM/VMModule.hpp"
 #include "Fox/BCGen/BCGen.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 
@@ -125,7 +126,7 @@ bool Driver::processFile(string_view filepath) {
     // Walk & gen exprs
     Impl(builder, gen).walk(unit);
     // Dump
-    dumpInstructions(out, builder.getInstrs());
+    builder.getModule().dumpModule(out);
   }
 
   bool success = !diagEngine_.hadAnyError();

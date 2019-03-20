@@ -1,4 +1,3 @@
-#include "..\..\includes\Fox\VM\InstructionBuilder.hpp"
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
@@ -8,6 +7,7 @@
 
 #include "Fox/VM/InstructionBuilder.hpp"
 #include "Fox/VM/Instructions.hpp"
+#include "Fox/VM/VMModule.hpp"
 
 using namespace fox;
 
@@ -58,39 +58,27 @@ using namespace fox;
 // InstructionBuilder
 //----------------------------------------------------------------------------//
 
-void InstructionBuilder::reset() {
-  if(hasBuffer())
-    getBuffer().clear();
-}
+InstructionBuilder::InstructionBuilder() = default;
+fox::InstructionBuilder::~InstructionBuilder() = default;
 
 Instruction InstructionBuilder::getLastInstr() const {
-  if(hasBuffer())
-    return getBuffer().back();
-  return Instruction();
+  return getModule().getInstructionBuffer().back();
 }
 
-ArrayRef<Instruction> InstructionBuilder::getInstrs() const {
-  return getBuffer();
+std::unique_ptr<VMModule> InstructionBuilder::takeModule() {
+  return std::move(vmModule_);
 }
 
-std::unique_ptr<InstructionBuilder::Buffer> InstructionBuilder::takeBuffer() {
-  return std::move(instrBuffer_);
+VMModule& InstructionBuilder::getModule() {
+  // Lazily create a new module if needed.
+  if(!vmModule_) vmModule_ = std::make_unique<VMModule>();
+  return *vmModule_;
+}
+
+const VMModule& InstructionBuilder::getModule() const {
+  return const_cast<InstructionBuilder*>(this)->getModule();
 }
 
 void InstructionBuilder::pushInstr(Instruction instr) {
-  getBuffer().push_back(instr);
-}
-
-bool InstructionBuilder::hasBuffer() const {
-  return (bool)instrBuffer_;
-}
-
-InstructionBuilder::Buffer& InstructionBuilder::getBuffer() {
-  if(!instrBuffer_)
-    instrBuffer_ = std::make_unique<Buffer>();
-  return (*instrBuffer_);
-}
-
-const InstructionBuilder::Buffer& InstructionBuilder::getBuffer() const {
-  return const_cast<InstructionBuilder*>(this)->getBuffer();
+  getModule().getInstructionBuffer().push_back(instr);
 }
