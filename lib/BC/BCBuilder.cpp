@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/BC/BCBuilder.hpp"
-#include "Fox/BC/Instructions.hpp"
+#include "Fox/BC/Instruction.hpp"
 #include "Fox/BC/BCModule.hpp"
 
 using namespace fox;
@@ -52,7 +52,7 @@ using namespace fox;
     return *this;                                 \
   }
 
-#include "Fox/BC/Instructions.def"
+#include "Fox/BC/Instruction.def"
 
 //----------------------------------------------------------------------------//
 // BCModuleBuilder

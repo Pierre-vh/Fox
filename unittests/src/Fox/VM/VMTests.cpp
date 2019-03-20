@@ -8,7 +8,7 @@
 //----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
-#include "Fox/BC/Instructions.hpp"
+#include "Fox/BC/Instruction.hpp"
 #include "Fox/BC/BCBuilder.hpp"
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/VM/VM.hpp"

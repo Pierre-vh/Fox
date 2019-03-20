@@ -1,11 +1,11 @@
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
-// File : Instructions.cpp                    
+// File : Instruction.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-#include "Fox/BC/Instructions.hpp"
+#include "Fox/BC/Instruction.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "llvm/ADT/ArrayRef.h"
@@ -14,7 +14,7 @@ using namespace fox;
 
 static constexpr const char* const opcodeStrings[] = {
   #define INSTR(Op) #Op,
-  #include "Fox/BC/Instructions.def"
+  #include "Fox/BC/Instruction.def"
 };
 
 static bool isLegal(Opcode op) {
@@ -43,7 +43,7 @@ void fox::dumpInstruction(std::ostream& os, Instruction instr) {
   #define UNARY_INSTR(ID, T1)\
     case Opcode::ID: os << #ID << " " << +instr.ID.arg; break;
   switch (instr.opcode) {
-    #include "Fox/BC/Instructions.def"
+    #include "Fox/BC/Instruction.def"
     default:
       os << "<invalid opcode>";
   }

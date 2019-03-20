@@ -9,7 +9,7 @@
 //  classes.
 //
 //  This allows clients to get some information about the bytecode without
-//  having to include larger files such as Instructions.hpp
+//  having to include larger files such as Instruction.hpp
 //----------------------------------------------------------------------------//
 
 #pragma once

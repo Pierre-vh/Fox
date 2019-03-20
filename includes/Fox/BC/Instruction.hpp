@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
-// File : Instructions.hpp                    
+// File : Instruction.hpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 //  This file contains the bytecode instructions-related classes.
@@ -25,7 +25,7 @@ namespace fox {
   enum class Opcode : opcode_t {
     #define INSTR(Op) Op,
     #define LAST_INSTR(Op) last_opcode = Op
-    #include "Instructions.def"
+    #include "Instruction.def"
   };
 
   // Converts an Opcode to a human-readable string representation.
@@ -84,7 +84,7 @@ namespace fox {
         "too many arguments: their total size exceed 3 bytes/"\
         "24 bits!");
 
-      #include "Instructions.def"
+      #include "Instruction.def"
     };
   };
   LLVM_PACKED_END

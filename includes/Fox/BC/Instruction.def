@@ -1,10 +1,10 @@
 //----------------------------------------------------------------------------//
 // This file is part of the Fox project.        
 // See the LICENSE.txt file at the root of the project for license information.            
-// File : Instructions.def                      
+// File : Instruction.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  Macros for macro-metaprogramming with the Fox VM instruction set.
+//  Macros for macro-metaprogramming with Fox Bytecode Instructions.
 //----------------------------------------------------------------------------//
 
 // Represents an "untyped" instruction. We don't know anything about it,

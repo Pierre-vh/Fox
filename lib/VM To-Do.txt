@@ -22,7 +22,7 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
         opcode_t (std::uint8_t)
         regnum_t (std::uint8_t)
         instr_int_t (std::uint32_t)
-        This will simplify some code in the VM and Instructions.def file
+        This will simplify some code in the VM and Instruction.def file
 
     -> Implement a Sethi-Ullman -like algorithm to decide the evaluation order
        of subexpressions to be a bit more register-efficient.

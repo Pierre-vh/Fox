@@ -32,7 +32,7 @@ namespace fox {
         create##ID##Instr(T1 arg0, T2 arg1);
       #define UNARY_INSTR(ID, T1) BCModuleBuilder&\
         create##ID##Instr(T1 arg);
-      #include "Instructions.def"
+      #include "Instruction.def"
 
       // Returns the last instruction inserted in the module.
       Instruction getLastInstr() const;

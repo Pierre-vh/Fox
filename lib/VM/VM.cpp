@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/VM/VM.hpp"
-#include "Fox/BC/Instructions.hpp"
+#include "Fox/BC/Instruction.hpp"
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <cmath>

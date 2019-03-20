@@ -12,7 +12,7 @@
 #pragma once
 
 #include "Fox/BC/BCUtils.hpp"
-#include "Fox/BC/Instructions.hpp"
+#include "Fox/BC/Instruction.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <iosfwd>
