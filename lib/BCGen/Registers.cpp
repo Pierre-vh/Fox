@@ -19,6 +19,22 @@ RegisterValue RegisterAllocator::allocateTemporary() {
   return RegisterValue(this, rawAllocateNewRegister());
 }
 
+void RegisterAllocator::addUsage(const VarDecl* var) {
+  ++(knownVars_[var].useCount);
+}
+
+RegisterValue RegisterAllocator::getRegisterOfVar(const VarDecl* var) {
+  // Search for the var
+  auto it = knownVars_.find(var);
+  assert((it != knownVars_.end()) && "Unknown Variable!");
+  // Check if the variable has been assigned a register.
+  // If it doesn't have a register, allocate one now.
+  VarData& data = it->second;
+  if(!data.hasAddress()) data.addr = rawAllocateNewRegister();
+  // Return a RegisterValue managing this RegisterValue
+  return RegisterValue(this, var);
+}
+
 regaddr_t RegisterAllocator::numbersOfRegisterInUse() const {
   regaddr_t num = biggestAllocatedReg_;
   for (auto elem : freeRegisters_)
@@ -76,6 +92,34 @@ void RegisterAllocator::markRegisterAsFreed(regaddr_t reg) {
   }
 }
 
+regaddr_t RegisterAllocator::getRegisterOfVar(const VarDecl* var) const {
+  // Search for the var
+  auto it = knownVars_.find(var);
+  assert((it != knownVars_.end()) && "Unknown Variable!");
+  // If this function is called, we should have a register reserved for this
+  // variable.
+  assert(it->second.hasAddress() && "Variable doesn't have an address!");
+  return it->second.addr.getValue();
+}
+
+void RegisterAllocator::release(const VarDecl* var) {
+  // Search for the var
+  auto it = knownVars_.find(var);
+  assert((it != knownVars_.end()) && "Unknown Variable!");
+  VarData& data = it->second;
+  // Decrement the use count
+  assert((data.useCount != 0) && "Variable is already dead");
+  --(data.useCount);
+  // Check if the variable is dead
+  if (data.useCount == 0) {
+    // Free the register
+    assert(data.hasAddress() && "Variable doesn't have an address!");
+    markRegisterAsFreed(data.addr.getValue());
+    // Remove the entry from the map
+    knownVars_.erase(it);
+  }
+}
+
 void RegisterAllocator::compactFreeRegisterSet() {
   // Compacting is not needed if we haven't allocated any regs yet,
   // or if freeRegisters_ is empty.
@@ -97,8 +141,6 @@ void RegisterAllocator::compactFreeRegisterSet() {
 // RegisterValue
 //----------------------------------------------------------------------------//
 
-RegisterValue::RegisterValue(RegisterAllocator* regAlloc, regaddr_t reg) : 
-  regAlloc_(regAlloc), regAddress_(reg) {}
 
 RegisterValue::RegisterValue(RegisterValue&& other) {
   (*this) = std::move(other);
@@ -108,10 +150,14 @@ RegisterValue::~RegisterValue() {
   free();
 }
 
+RegisterValue::Kind RegisterValue::getKind() const {
+  return regAllocAndKind_.getInt();
+}
+
 RegisterValue& RegisterValue::operator=(RegisterValue&& other) {
   free();
-  regAlloc_ = std::move(other.regAlloc_);
-  regAddress_   = std::move(other.regAddress_);
+  regAllocAndKind_ = std::move(other.regAllocAndKind_);
+  data_ = std::move(other.data_);
   other.kill();
   return *this;
 }
@@ -119,17 +165,32 @@ RegisterValue& RegisterValue::operator=(RegisterValue&& other) {
 regaddr_t RegisterValue::getAddress() const {
   assert(isAlive() 
     && "Cannot take the address of a dead RegisterValue");
-  return regAddress_;
+  switch (getKind()) {
+    case Kind::Temporary:
+      return data_.tempRegAddress;
+    case Kind::Var:
+      // Normally, having to lookup in the map each time shouldn't be a
+      // big deal since the result of getAddress is usually saved
+      // and lookup in hashmaps are pretty cheap. If it turns out to
+      // be a performance issue, cache the address in the RegisterValue
+      // directly, even if it increases its size.
+      return getRegisterAllocator()->getRegisterOfVar(data_.varDecl);
+    default:
+      fox_unreachable("unknown RegisterValue::Kind");
+  }
 }
 
 bool RegisterValue::isAlive() const {
-  // We're alive if our RegisterAllocator* is non null.
-  return (bool)regAlloc_;
+  // We're alive if our RegisterAllocator ptr is non null.
+  return (bool)getRegisterAllocator();
 }
 
 bool RegisterValue::isTemporary() const {
-  // There are only temp RegisterValues for now.
-  return isAlive();
+  return (getKind() == Kind::Temporary);
+}
+
+bool RegisterValue::isVar() const {
+  return (getKind() == Kind::Var);
 }
 
 RegisterValue::operator bool() const {
@@ -137,14 +198,41 @@ RegisterValue::operator bool() const {
 }
 
 void RegisterValue::free() {
-  // Can't free a dead RegisterValue
+  // We can't free dead RVs.
   if(!isAlive()) return;
-  // Free our register and kill this object so the
-  // register is not freed again by mistake.
-  regAlloc_->markRegisterAsFreed(regAddress_);
+  // Do what we have to do.
+  switch (getKind()) {
+    case Kind::Temporary:
+      getRegisterAllocator()->markRegisterAsFreed(data_.tempRegAddress);
+      break;
+    case Kind::Var:
+      getRegisterAllocator()->release(data_.varDecl);
+      break;
+    default:
+      fox_unreachable("unknown RegisterValue::Kind");
+  }
+  // Kill this object to doing it twice.
   kill();
 }
 
+RegisterAllocator* RegisterValue::getRegisterAllocator() {
+  return regAllocAndKind_.getPointer();
+}
+
+const RegisterAllocator* RegisterValue::getRegisterAllocator() const {
+  return regAllocAndKind_.getPointer();
+}
+
+RegisterValue::RegisterValue(RegisterAllocator* regAlloc, regaddr_t reg) :
+  regAllocAndKind_(regAlloc, Kind::Temporary) {
+  data_.tempRegAddress = reg;
+}
+
+RegisterValue::RegisterValue(RegisterAllocator* regAlloc, const VarDecl* var) :
+  regAllocAndKind_(regAlloc, Kind::Var) {
+  data_.varDecl = var;
+}
+
 void RegisterValue::kill() {
-  regAlloc_ = nullptr;
+  regAllocAndKind_.setPointer(nullptr);
 }
