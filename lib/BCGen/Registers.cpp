@@ -30,12 +30,9 @@ RegisterAllocator::initVar(const VarDecl* var, RegisterValue* hint) {
     "(initVar already called for this variable)");
   // Use the hint if possible
   if (hint) {
-    assert(hint->isAlive() && "Hint is already dead");
-    assert(hint->isLastUsage() && "Not the last usage of the 'hint' register!");
-    // Reuse the address and kill the hint so it won't destroy the
-    // register when it dies.
-    data.addr = hint->getAddress();
-    hint->kill();
+    assert(hint->canRecycle() && "Hint is not recyclable");
+    // Recycle the hint as the new address
+    data.addr = rawRecycleRegister(std::move(*hint));
   } 
   // Else just use a new register
   else 
@@ -60,11 +57,37 @@ RegisterValue RegisterAllocator::allocateTemporary() {
   return RegisterValue(this, rawAllocateNewRegister());
 }
 
+RegisterValue RegisterAllocator::recycle(RegisterValue value) {
+  return RegisterValue(this, rawRecycleRegister(std::move(value)));
+}
+
 regaddr_t RegisterAllocator::numbersOfRegisterInUse() const {
   regaddr_t num = biggestAllocatedReg_;
   for (auto elem : freeRegisters_)
     if(elem < biggestAllocatedReg_) --num;
   return num;
+}
+
+regaddr_t fox::RegisterAllocator::rawRecycleRegister(RegisterValue value) {
+  assert(value.canRecycle() && "register not recyclable");
+  regaddr_t addr = value.getAddress();
+  switch (value.getKind()) {
+    case RegisterValue::Kind::Temporary:
+      // Nothing to do for temporaries except killing it
+      value.kill();
+      return addr;
+    case RegisterValue::Kind::Var: {
+      // Search for the var
+      auto it = knownVars_.find(value.data_.varDecl);
+      assert((it != knownVars_.end()) && "Unknown Variable!");
+      // Forget it, kill 'value' and return
+      knownVars_.erase(it);
+      value.kill();
+      return addr;
+    }
+    default:
+      fox_unreachable("Unknown RegisterValue::Kind");
+  }
 }
 
 regaddr_t RegisterAllocator::rawAllocateNewRegister() {
@@ -225,8 +248,8 @@ bool RegisterValue::isVar() const {
   return (getKind() == Kind::Var);
 }
 
-bool RegisterValue::isLastUsage() const {
-  assert(isAlive() && "RegisterValue is already dead");
+bool RegisterValue::canRecycle() const {
+  if(!isAlive()) return false;
   switch (getKind()) {
     case Kind::Temporary:
       return true;

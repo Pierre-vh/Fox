@@ -50,7 +50,7 @@ class BCGen::LocalDeclGenerator : public Generator,
         initReg = bcGen.genExpr(builder, regAlloc, init);
 
         // If possible, store the variable directly in initReg.
-        if (initReg.isLastUsage()) {
+        if (initReg.canRecycle()) {
           regAlloc.initVar(decl, &initReg); // discard the RegisterValue directly
           assert(!initReg.isAlive() && "hint not consumed");
           return;

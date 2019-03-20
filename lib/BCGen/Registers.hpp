@@ -47,9 +47,9 @@ namespace fox {
       // var.
       //
       // Optionally, an hint can be provided. (Hint should be a register
-      // where .isLastUsage() returns true). When possible,
-      // this method will reuse the register of the hint to store
-      // the variable instead of allocating a new one.
+      // where .canRecycle() returns true). When possible,
+      // this method will recycle the hint, storing the variable inside
+      // hint instead of allocating a new register for it.
       RegisterValue initVar(const VarDecl* var, RegisterValue* hint = nullptr);
 
       // Returns a RegisterValue managing a use of "var". When the RV dies,
@@ -64,6 +64,10 @@ namespace fox {
       // managing the register. Once the RegisterValue dies, the register
       // is freed.
       RegisterValue allocateTemporary();
+
+      // Recycle a register that's about to die, transforming it into
+      // a temporar that has the same address.
+      RegisterValue recycle(RegisterValue value);
       
       // Returns the number of registers currently in use
       regaddr_t numbersOfRegisterInUse() const;
@@ -71,9 +75,16 @@ namespace fox {
     private:
       friend RegisterValue;
 
+      // This method will take care of recycling 'value', returning
+      // its address.
+      // This should be used carefully as it returns the raw register
+      // address. If address number is lost and freeRegister is never called,
+      // the register will never be freed (like a memory leak)
+      regaddr_t rawRecycleRegister(RegisterValue value);
+
       // Allocates a new register.
       // This should be used carefully as it returns the raw register
-      // number. If that number is lost and freeRegister is never called,
+      // address. If that address is lost and freeRegister is never called,
       // the register will never be freed (like a memory leak)
       regaddr_t rawAllocateNewRegister();
 
@@ -91,8 +102,7 @@ namespace fox {
       // if it reaches zero.
       void release(const VarDecl* var);
 
-      // Returns true if "var"'s register will be freed when release(var) is
-      // called.
+      // Returns true if var's usage count is 1.
       bool isLastUsage(const VarDecl* var) const;
 
       // This method tries to remove elements from the freeRegisters_
@@ -176,10 +186,9 @@ namespace fox {
       // Returns true if getKind() == Kind::Var
       bool isVar() const;
 
-      // Returns true if this RegisterValue represents the last
-      // usage of the register, meaning that the register will be freed
-      // when this instance dies.
-      bool isLastUsage() const;
+      // Returns true if this RegisterValue can be recycled by
+      // RegisterAllocator::recycle or RegisterAllocator::initVar
+      bool canRecycle() const;
 
       // Calls isAlive()
       explicit operator bool() const;
