@@ -86,7 +86,7 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
       Eliminate redundancy, rewrite comments, etc.
 
    -> tryReuseRegister should, instead of moving the register, use a method like
-      "regAlloc.recycleRegister(reg)", so the register allocator is notified of
+      "regAlloc.recycle(reg)", so the register allocator is notified of
       what's happening.
 
   -> Add a RegisterAllocator enableLogging option to emit logs about 
