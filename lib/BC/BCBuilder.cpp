@@ -1,13 +1,13 @@
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
-// File : InstructionBuilder.cpp                    
+// File : BCBuilder.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-#include "Fox/VM/InstructionBuilder.hpp"
-#include "Fox/VM/Instructions.hpp"
-#include "Fox/VM/VMModule.hpp"
+#include "Fox/BC/BCBuilder.hpp"
+#include "Fox/BC/Instructions.hpp"
+#include "Fox/BC/BCModule.hpp"
 
 using namespace fox;
 
@@ -52,7 +52,7 @@ using namespace fox;
     return *this;                                 \
   }
 
-#include "Fox/VM/Instructions.def"
+#include "Fox/BC/Instructions.def"
 
 //----------------------------------------------------------------------------//
 // InstructionBuilder
@@ -65,17 +65,17 @@ Instruction InstructionBuilder::getLastInstr() const {
   return getModule().getInstructionBuffer().back();
 }
 
-std::unique_ptr<VMModule> InstructionBuilder::takeModule() {
+std::unique_ptr<BCModule> InstructionBuilder::takeModule() {
   return std::move(vmModule_);
 }
 
-VMModule& InstructionBuilder::getModule() {
+BCModule& InstructionBuilder::getModule() {
   // Lazily create a new module if needed.
-  if(!vmModule_) vmModule_ = std::make_unique<VMModule>();
+  if(!vmModule_) vmModule_ = std::make_unique<BCModule>();
   return *vmModule_;
 }
 
-const VMModule& InstructionBuilder::getModule() const {
+const BCModule& InstructionBuilder::getModule() const {
   return const_cast<InstructionBuilder*>(this)->getModule();
 }
 

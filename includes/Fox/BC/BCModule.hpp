@@ -1,24 +1,24 @@
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
-// File : VMModule.hpp                    
+// File : BCModule.hpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This file contains the VMModule class, which represents a VM program
+//  This file contains the BCModule class, which represents a VM program
 //  that can be executed by the Fox VM. This can be considered the
 //  top-level container for the bytecode.
 //----------------------------------------------------------------------------//
 
 #pragma once
 
-#include "Fox/VM/VMUtils.hpp"
-#include "Fox/VM/Instructions.hpp"
+#include "Fox/BC/BCUtils.hpp"
+#include "Fox/BC/Instructions.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <iosfwd>
 
 namespace fox {
-  class VMModule {
+  class BCModule {
     public:
       // Returns the number of instructions in the instruction buffer
       std::size_t numInstructions() const;

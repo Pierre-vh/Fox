@@ -89,7 +89,7 @@ BINARY_INSTR(LNot, regaddr_t, regaddr_t) // Logical NOT
 
 // Jumps
 BINARY_INSTR(CondJump, regaddr_t, std::int16_t)  // Conditional Jump : Jump iff register != 0
-UNARY_INSTR(Jump, std::int16_t)                     // Unconditional Jump
+UNARY_INSTR(Jump, std::int16_t)                  // Unconditional Jump
 
 // Casts
 BINARY_INSTR(IntToDouble, regaddr_t, regaddr_t) // Converts an int to a double

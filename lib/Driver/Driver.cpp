@@ -17,9 +17,9 @@
 #include <fstream>
 
 // TEST-Only! Remove later
-#include "Fox/VM/InstructionBuilder.hpp"
-#include "Fox/VM/Instructions.hpp"
-#include "Fox/VM/VMModule.hpp"
+#include "Fox/BC/BCBuilder.hpp"
+#include "Fox/BC/Instructions.hpp"
+#include "Fox/BC/BCModule.hpp"
 #include "Fox/BCGen/BCGen.hpp"
 #include "Fox/AST/ASTWalker.hpp"
 

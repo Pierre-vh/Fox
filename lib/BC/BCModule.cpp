@@ -1,27 +1,27 @@
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
-// File : VMModule.cpp                    
+// File : BCModule.cpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-#include "Fox/VM/VMModule.hpp"
+#include "Fox/BC/BCModule.hpp"
 #include "llvm/ADT/ArrayRef.h"
 
 using namespace fox;
 
-std::size_t VMModule::numInstructions() const {
+std::size_t BCModule::numInstructions() const {
   return getInstructionBuffer().size();
 }
 
-InstructionBuffer& VMModule::getInstructionBuffer() {
+InstructionBuffer& BCModule::getInstructionBuffer() {
   return instrBuffer_;
 }
 
-const InstructionBuffer& VMModule::getInstructionBuffer() const {
+const InstructionBuffer& BCModule::getInstructionBuffer() const {
   return instrBuffer_;
 }
 
-void VMModule::dumpModule(std::ostream& out) const {
+void BCModule::dumpModule(std::ostream& out) const {
   dumpInstructions(out, getInstructionBuffer());
 }

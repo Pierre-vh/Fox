@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "VMUtils.hpp"
+#include "Fox/BC/BCUtils.hpp"
 #include "Fox/Common/FoxTypes.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/ArrayRef.h"
@@ -20,12 +20,12 @@
 
 namespace fox {
   struct Instruction;
-  class VMModule;
+  class BCModule;
   class VM {
     public:
       static constexpr unsigned numStackRegister = 255;
 
-      VM(VMModule& vmModule);
+      VM(BCModule& vmModule);
 
       // Runs the current module
       void run();
@@ -88,7 +88,7 @@ namespace fox {
       }
 
       // The module being executed
-      VMModule& vmModule_;
+      BCModule& bcModule_;
 
       // The program counter
       std::uint64_t programCounter_ = 0;

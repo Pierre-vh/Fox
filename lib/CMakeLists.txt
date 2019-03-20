@@ -1,4 +1,5 @@
 add_subdirectory(AST)
+add_subdirectory(BC)
 add_subdirectory(BCGen)
 add_subdirectory(Common)
 add_subdirectory(Driver)
@@ -9,6 +10,7 @@ add_subdirectory(VM)
 
 set(libfox_src
   ${ast_src} 
+  ${bc_src}
   ${bcgen_src}
   ${common_src}
   ${driver_src}

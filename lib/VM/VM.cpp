@@ -6,21 +6,22 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/VM/VM.hpp"
-#include "Fox/VM/Instructions.hpp"
-#include "Fox/VM/VMModule.hpp"
+#include "Fox/BC/Instructions.hpp"
+#include "Fox/BC/BCModule.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <cmath>
 
 using namespace fox;
 
-VM::VM(VMModule& vmModule) : vmModule_(vmModule) {}
+VM::VM(BCModule& vmModule) : bcModule_(vmModule) {}
 
 void VM::run() {
   Instruction instr;
-  InstructionBuffer& program = vmModule_.getInstructionBuffer();
+  InstructionBuffer& program = bcModule_.getInstructionBuffer();
   do {
-    // Decode the current instruction
+    // Fetch the current instruction
     instr = program[programCounter_];
+    // Macros uset to implement repetitive operations
     #define TRIVIAL_TAC_BINOP_IMPL(ID, TYPE, OP)\
       setReg(instr.ID.arg0,\
       getReg<TYPE>(instr.ID.arg1) OP getReg<TYPE>(instr.ID.arg2))
@@ -186,7 +187,6 @@ void VM::run() {
         fox_unreachable("illegal or unimplemented instruction found");
     }
     #undef TRIVIAL_TAC_BINOP_IMPL
-    // Infinite loop where we increment the program counter
   } while(++programCounter_);
 }
 

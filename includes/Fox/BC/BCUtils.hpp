@@ -1,14 +1,15 @@
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
-// File : VMUtils.hpp                    
+// File : BCUtils.hpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This file contains some general VM-related utilities: forward declarations
-//  constants and type-aliases for use by the VM classes and outside classes.
+//  This file contains some general bytecode-related utilities:
+//  forward declarations, constants and type-aliases for use by the bytecode
+//  classes.
 //
-//  This allows clients to get some information about the Fox VM without
-//  having to include larger files such as Instructions.hpp or VM.hpp.
+//  This allows clients to get some information about the bytecode without
+//  having to include larger files such as Instructions.hpp
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -25,7 +26,7 @@ namespace fox {
   // The type of a register address in an instruction
   using regaddr_t = std::uint8_t;
 
-  // The maximum register address possible
+  // The maximum register address possible in an instruction
   constexpr regaddr_t max_regaddr = 0xFF;
 
   // The underlying type of the 'Opcode' enum

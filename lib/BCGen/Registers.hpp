@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Fox/VM/VMUtils.hpp"
+#include "Fox/BC/BCUtils.hpp"
 #include <cstdint>
 #include <set>
 #include <functional>

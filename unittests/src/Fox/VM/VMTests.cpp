@@ -8,10 +8,10 @@
 //----------------------------------------------------------------------------//
 
 #include "gtest/gtest.h"
-#include "Fox/VM/Instructions.hpp"
-#include "Fox/VM/InstructionBuilder.hpp"
+#include "Fox/BC/Instructions.hpp"
+#include "Fox/BC/BCBuilder.hpp"
+#include "Fox/BC/BCModule.hpp"
 #include "Fox/VM/VM.hpp"
-#include "Fox/VM/VMModule.hpp"
 #include "llvm/Support/MathExtras.h"
 #include "Fox/Common/FoxTypes.hpp"
 #include <sstream>

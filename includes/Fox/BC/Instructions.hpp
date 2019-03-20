@@ -1,15 +1,15 @@
 //----------------------------------------------------------------------------//
 // Part of the Fox project, licensed under the MIT license.
 // See LICENSE.txt in the project root for license information.      
-// File : Opcode.hpp                    
+// File : Instructions.hpp                    
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  This file contains informations about the Fox VM instruction set.
+//  This file contains the bytecode instructions-related classes.
 //----------------------------------------------------------------------------//
 
 #pragma once
 
-#include "VMUtils.hpp"
+#include "BCUtils.hpp"
 #include "llvm/Support/Compiler.h"
 #include <cstdint>
 #include <iosfwd>

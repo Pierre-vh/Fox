@@ -7,7 +7,7 @@
 
 #include "Registers.hpp"
 #include "Fox/BCGen/BCGen.hpp"
-#include "Fox/VM/InstructionBuilder.hpp"
+#include "Fox/BC/BCBuilder.hpp"
 #include "Fox/AST/Expr.hpp"
 #include "Fox/AST/Types.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
