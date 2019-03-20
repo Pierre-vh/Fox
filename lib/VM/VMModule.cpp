@@ -15,14 +15,18 @@ using namespace fox;
 VMModule::VMModule() = default;
 VMModule::~VMModule() = default;
 
-void VMModule::setInstructionBuffer(std::unique_ptr<InstructionBuffer> buffer) {
+void VMModule::setInstrs(std::unique_ptr<InstructionBuffer> buffer) {
   instrBuffer_ = std::move(buffer);
 }
 
-ArrayRef<InstructionBuffer> fox::VMModule::getInstructionBuffer() const {
-  return (*instrBuffer_);
+InstructionBuffer* VMModule::getInstrs() {
+  return instrBuffer_.get();
 }
 
-std::unique_ptr<InstructionBuffer> VMModule::takeInstructionBuffer() {
+const InstructionBuffer* VMModule::getInstrs() const {
+  return instrBuffer_.get();
+}
+
+std::unique_ptr<InstructionBuffer> VMModule::takeInstrs() {
   return std::move(instrBuffer_);
 }

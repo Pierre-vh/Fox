@@ -21,9 +21,10 @@ namespace fox {
       VMModule();
       ~VMModule();
 
-      void setInstructionBuffer(std::unique_ptr<InstructionBuffer> buffer);
-      ArrayRef<InstructionBuffer> getInstructionBuffer() const;
-      std::unique_ptr<InstructionBuffer> takeInstructionBuffer();
+      void setInstrs(std::unique_ptr<InstructionBuffer> buffer);
+      InstructionBuffer* getInstrs();
+      const InstructionBuffer* getInstrs() const;
+      std::unique_ptr<InstructionBuffer> takeInstrs();
 
     private:
       std::unique_ptr<InstructionBuffer> instrBuffer_;
