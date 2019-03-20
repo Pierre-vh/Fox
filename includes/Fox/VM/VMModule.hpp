@@ -27,6 +27,8 @@ namespace fox {
       std::unique_ptr<InstructionBuffer> takeInstrs();
 
     private:
+      friend class InstructionBuilder;
+
       std::unique_ptr<InstructionBuffer> instrBuffer_;
   };
 }
