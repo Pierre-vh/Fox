@@ -80,26 +80,21 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
 
   -> Scaffoldign of BCGen entry points (Done)
 
-  -> Add a BCGen logRegAlloc option to emit logs about register allocation after
-      generating expressions then write FileCheck tests checking that the stats
-      are correct.
-
   -> Codegen of local variables (Done)
  
-  -> Make BCGen::LocalDeclGenerator::visitVarDecl reuse the initializer's register as the var's
-     register iff it is its last usage
+  -> Code review in Register.hpp/.cpp and BCGenDecl (Next)
+      Eliminate redundancy, rewrite comments, etc.
 
-  -> "Dest" RegisterValue for ExprGenerator
-
-  -> Make BCGen::LocalDeclGenerator::visitVarDecl generate Exprs directly to the var's reg 
-     when possible. Test for bugs in case like "let y : int = z"; 
-      (that y don't end up overwriting z)
+  -> Add a RegisterAllocator enableLogging option to emit logs about 
+     register allocation, such as "Assignated Register X to Var 'foo' 0xABCDEF"
+     or, upon death, emit the total of registers used, something like that.
+     Add a "-log-regalloc" option and use write FileCheck tests based on that option.
 
   -> Write more BCGen test related to vardecls
 
   -> CodeGen of Statements
 
-  -> Constant Table
+  -> Constants & Constant Table
 
   -> Implement the rest of the arithmetic bits of ExprGenerator:
     -> Double & Double operations

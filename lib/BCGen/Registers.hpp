@@ -31,16 +31,34 @@ namespace fox {
   // and making register management as efficient as possible.
   class alignas(8) RegisterAllocator {
     public:
+      // Preparation/Prologue methods
+
       // Initializes or Increments the use count of "var" in this
       // RegisterAllocator.
       void addUsage(const VarDecl* var);
 
+      // Usage/Register allocation methods
+
       // Returns a RegisterValue managing a use of "var". When the RV dies,
       // the usage count of "var" is decremented, potentially
       // freeing it if it reaches zero.
-      // This asserts that Var is known to this RegisterAllocator and that
-      // it is alive.
-      RegisterValue getRegisterOfVar(const VarDecl* var);
+      //
+      // This asserts that this is the first usage (the declaration) of
+      // var.
+      //
+      // Optionally, an hint can be provided. (Hint should be a register
+      // where .isLastUsage() returns true). When possible,
+      // this method will reuse the register of the hint to store
+      // the variable instead of allocating a new one.
+      RegisterValue initVar(const VarDecl* var, RegisterValue* hint = nullptr);
+
+      // Returns a RegisterValue managing a use of "var". When the RV dies,
+      // the usage count of "var" is decremented, potentially
+      // freeing it if it reaches zero.
+      //
+      // This asserts that Var has already been declared (that it has an 
+      // address) and that it is alive.
+      RegisterValue useVar(const VarDecl* var);
 
       // Allocates a new temporary register, returning a RegisterValue 
       // managing the register. Once the RegisterValue dies, the register
@@ -72,6 +90,10 @@ namespace fox {
       // Decrements the use count of "var", potentially freeing its register
       // if it reaches zero.
       void release(const VarDecl* var);
+
+      // Returns true if "var"'s register will be freed when release(var) is
+      // called.
+      bool isLastUsage(const VarDecl* var) const;
 
       // This method tries to remove elements from the freeRegisters_
       // set by decrementing biggestAllocatedReg_.
@@ -153,6 +175,11 @@ namespace fox {
       bool isTemporary() const;
       // Returns true if getKind() == Kind::Var
       bool isVar() const;
+
+      // Returns true if this RegisterValue represents the last
+      // usage of the register, meaning that the register will be freed
+      // when this instance dies.
+      bool isLastUsage() const;
 
       // Calls isAlive()
       explicit operator bool() const;

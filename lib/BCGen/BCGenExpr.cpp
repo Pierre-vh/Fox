@@ -347,7 +347,7 @@ class BCGen::ExprGenerator : public Generator,
         fox_unimplemented_feature("Global DeclRefExpr BCGen");
       // Reference to Local Variables
       if(VarDecl* var = dyn_cast<VarDecl>(decl))
-        return regAlloc.getRegisterOfVar(var);
+        return regAlloc.useVar(var);
       // Reference to Parameter decls
       if(ParamDecl* param = dyn_cast<ParamDecl>(decl))
         fox_unimplemented_feature("ParamDecl DeclRefExpr BCGen");

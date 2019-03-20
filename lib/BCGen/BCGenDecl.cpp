@@ -43,27 +43,26 @@ class BCGen::LocalDeclGenerator : public Generator,
     }
 
     void visitVarDecl(VarDecl* decl) {
-      // Optimization idea: Shouldn't it be possible to give a "hint" to
-      //  getRegisterOfVar so it reuses the register of the init expr if it's
-      //  a temporary? In that case create a special "genRegisterForVarDecl"
-      //  function (and rename the getRegisterOfVar to getRegisterOfVarUse)
-      //  that takes a RegisterValue as argument that can be used as an "hint".
-      //  (an a function called "isLastUse" must return true for the hint to
-      //  be considered)
-      
-      // This should be efficient in cases like "let x : int = z" where z dies
-      // after this use. x will simply take its register and no copy occurs.
+      RegisterValue initReg;
 
-      // Fetch the register
-      RegisterValue reg = regAlloc.getRegisterOfVar(decl);
-      // Generate the initialize if there's one
+      // Generate the initializer if there's one
       if (Expr* init = decl->getInitExpr()) {
-        // TODO: Once ExprGenerator is capable of accepting a destination
-        //       register for the result of the expression remove the createDup
-        //       and use that.
-        RegisterValue exprReg = bcGen.genExpr(builder, regAlloc, init);
-        builder.createDupInstr(reg.getAddress(), exprReg.getAddress());
+        initReg = bcGen.genExpr(builder, regAlloc, init);
+
+        // If possible, store the variable directly in initReg.
+        if (initReg.isLastUsage()) {
+          regAlloc.initVar(decl, &initReg); // discard the RegisterValue directly
+          assert(!initReg.isAlive() && "hint not consumed");
+          return;
+        } 
       }
+
+      // Initialize the variable normally, duplicating the register containing
+      // the initializer in the var's designated register.
+      RegisterValue var = regAlloc.initVar(decl);
+      // Init the var if we have an initializer
+      if(initReg)
+        builder.createDupInstr(var.getAddress(), initReg.getAddress());
     }
 
     void visitParamDecl(ParamDecl*) {

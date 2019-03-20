@@ -15,24 +15,49 @@ using namespace fox;
 // RegisterAllocator
 //----------------------------------------------------------------------------//
 
-RegisterValue RegisterAllocator::allocateTemporary() {
-  return RegisterValue(this, rawAllocateNewRegister());
-}
-
 void RegisterAllocator::addUsage(const VarDecl* var) {
   ++(knownVars_[var].useCount);
 }
 
-RegisterValue RegisterAllocator::getRegisterOfVar(const VarDecl* var) {
+RegisterValue 
+RegisterAllocator::initVar(const VarDecl* var, RegisterValue* hint) {
   // Search for the var
   auto it = knownVars_.find(var);
   assert((it != knownVars_.end()) && "Unknown Variable!");
-  // Check if the variable has been assigned a register.
-  // If it doesn't have a register, allocate one now.
+  // Assert that the variable has not been initialized yet
   VarData& data = it->second;
-  if(!data.hasAddress()) data.addr = rawAllocateNewRegister();
-  // Return a RegisterValue managing this RegisterValue
+  assert(!data.hasAddress() && "Var has already been initialized:"
+    "(initVar already called for this variable)");
+  // Use the hint if possible
+  if (hint) {
+    assert(hint->isAlive() && "Hint is already dead");
+    assert(hint->isLastUsage() && "Not the last usage of the 'hint' register!");
+    // Reuse the address and kill the hint so it won't destroy the
+    // register when it dies.
+    data.addr = hint->getAddress();
+    hint->kill();
+  } 
+  // Else just use a new register
+  else 
+    data.addr = rawAllocateNewRegister();
+  // Return a RegisterValue managing this Var
   return RegisterValue(this, var);
+}
+
+RegisterValue RegisterAllocator::useVar(const VarDecl* var) {
+  // Search for the var
+  auto it = knownVars_.find(var);
+  assert((it != knownVars_.end()) && "Unknown Variable!");
+  // Assert that the variable has been assigned a register.
+  VarData& data = it->second;
+  assert(data.hasAddress() && "Var has not been initialized "
+    "(initVar not called for this variable)");
+  // Return a RegisterValue managing this Var
+  return RegisterValue(this, var);
+}
+
+RegisterValue RegisterAllocator::allocateTemporary() {
+  return RegisterValue(this, rawAllocateNewRegister());
 }
 
 regaddr_t RegisterAllocator::numbersOfRegisterInUse() const {
@@ -120,6 +145,12 @@ void RegisterAllocator::release(const VarDecl* var) {
   }
 }
 
+bool RegisterAllocator::isLastUsage(const VarDecl* var) const {
+  auto it = knownVars_.find(var);
+  assert((it != knownVars_.end()) && "Unknown Variable!");
+  return (it->second.useCount == 1);
+}
+
 void RegisterAllocator::compactFreeRegisterSet() {
   // Compacting is not needed if we haven't allocated any regs yet,
   // or if freeRegisters_ is empty.
@@ -192,6 +223,18 @@ bool RegisterValue::isTemporary() const {
 
 bool RegisterValue::isVar() const {
   return (getKind() == Kind::Var);
+}
+
+bool RegisterValue::isLastUsage() const {
+  assert(isAlive() && "RegisterValue is already dead");
+  switch (getKind()) {
+    case Kind::Temporary:
+      return true;
+    case Kind::Var:
+      return getRegisterAllocator()->isLastUsage(data_.varDecl);
+    default:
+      fox_unreachable("unknown RegisterValue::Kind");
+  }
 }
 
 RegisterValue::operator bool() const {
