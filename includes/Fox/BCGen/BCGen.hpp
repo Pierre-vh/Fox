@@ -10,25 +10,46 @@
 
 #pragma once
 
+#include "Fox/AST/ASTFwdDecl.hpp"
+#include <memory>
+
 namespace fox {
   class ASTContext;
   class DiagnosticEngine;
   class BCModuleBuilder;
+  class BCModule;
   class Expr;
   class BCGen {
     public:
       BCGen(ASTContext& ctxt);
 
-      // Generates (emits) the bytecode for an expression "expr" using the 
-      // builder "builder".
-      void emitExpr(BCModuleBuilder& builder, Expr* expr);
+      // Performs codegen on a single unit and returns the
+      // resulting BCModule.
+      std::unique_ptr<BCModule> genUnit(UnitDecl* unit);
 
       ASTContext& ctxt;
       DiagnosticEngine& diagEngine;
 
     private:
+      // Generates (emits) the bytecode for a GLOBAL VarDecl "var" 
+      // using the builder "builder".
+      void genGlobalVar(BCModuleBuilder& builder, VarDecl* var);
+
+      // Generates (emits) the bytecode for a function declaration "func" 
+      // using the builder "builder".
+      void genFunc(BCModuleBuilder& builder, FuncDecl* func);
+
+      // Generates (emits) the bytecode for a statement "stmt" using the 
+      // builder "builder".
+      void genStmt(BCModuleBuilder& builder, Stmt* stmt);
+
+      // Generates (emits) the bytecode for an expression "expr" using the 
+      // builder "builder".
+      void genExpr(BCModuleBuilder& builder, Expr* expr);
+
       class Generator;
       class ExprGenerator;
+      class StmtGenerator;
 
   };
 

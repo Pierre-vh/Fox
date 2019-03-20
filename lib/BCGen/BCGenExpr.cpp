@@ -408,7 +408,7 @@ class BCGen::ExprGenerator : public Generator,
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-void BCGen::emitExpr(BCModuleBuilder& builder, Expr* expr) {
+void BCGen::genExpr(BCModuleBuilder& builder, Expr* expr) {
   // This is temporarily put here (until work starts on FuncDecl BCGen).
   // It'll be moved to an argument passed to this function after that
   RegisterAllocator regAlloc;

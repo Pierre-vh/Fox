@@ -97,36 +97,12 @@ bool Driver::processFile(string_view filepath) {
 
   // TEST-Only! For now, I only do BCGen if we request
   //            the bytecode to be dumped.
-  //            BCGen will be performed everytime once
-  //            it's complete (can handle a full AST)
   if (canContinue() && getDumpBCGen()) {
     BCGen gen(ctxt_);
-    BCModuleBuilder builder;
-    // Walker to generate exprs, since for now only
-    // emitExpr is working
-    class Impl : public ASTWalker {
-      public:
-        BCGen& gen;
-        BCModuleBuilder& builder;
-
-        Impl(BCModuleBuilder& builder, BCGen& gen) :
-          gen(gen), builder(builder) {}
-
-        virtual bool handleDeclPost(Decl* decl) {
-          if (FuncDecl* func = dyn_cast<FuncDecl>(decl)) {
-            for (auto node : func->getBody()->getNodes()) {
-              if (Expr* expr = node.dyn_cast<Expr*>()) {
-                gen.emitExpr(builder, expr);
-              }
-            }
-          }
-          return true;
-        }
-    };
-    // Walk & gen exprs
-    Impl(builder, gen).walk(unit);
+    // Do generation
+    auto theModule = gen.genUnit(unit);
     // Dump
-    builder.getModule().dumpModule(out);
+    theModule->dumpModule(out);
   }
 
   bool success = !diagEngine_.hadAnyError();
