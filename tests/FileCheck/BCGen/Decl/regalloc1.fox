@@ -1,0 +1,36 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+func foo() {
+  var x : int;
+  let y : int = ((3**2)+2)/5;
+  // CHECK:       StoreSmallInt 2 3
+  // CHECK-NEXT:  StoreSmallInt 3 2
+  // CHECK-NEXT:  PowInt 2 2 3
+  // CHECK-NEXT:  StoreSmallInt 3 2
+  // CHECK-NEXT:  AddInt 2 2 3
+  // CHECK-NEXT:  StoreSmallInt 3 5
+  // CHECK-NEXT:  DivInt 2 2 3
+  // CHECK-NEXT:  Dup 1 2
+  x+2;
+  // CHECK-NEXT: StoreSmallInt 2 2
+  // CHECK-NEXT: AddInt 2 0 2
+  x**y;
+  // CHECK-NEXT: PowInt 2 0 1
+  x+3;
+  // CHECK-NEXT: StoreSmallInt 1 3
+  // CHECK-NEXT: AddInt 1 0 1
+  // this new var should take y's register because y is now dead.
+  let z : int = 0;
+  // CHECK-NEXT: StoreSmallInt 2 0
+  // CHECK-NEXT: Dup 1 2
+  x;
+  // same but with x
+  let foo : int = 0;
+  // CHECK-NEXT: StoreSmallInt 2 0
+  // CHECK-NEXT: Dup 0 2
+  z;
+  // this one should have reg 0
+  let zero : int = 0;
+  // CHECK-NEXT: StoreSmallInt 1 0
+  // CHECK-NEXT: Dup 0 1
+}

@@ -19,6 +19,9 @@ namespace fox {
   class BCModuleBuilder;
   class BCModule;
   class Expr;
+  class RegisterAllocator;
+  class RegisterValue;
+
   class BCGen {
     public:
       BCGen(ASTContext& ctxt);
@@ -32,23 +35,33 @@ namespace fox {
 
     private:
       // Generates (emits) the bytecode for a GLOBAL VarDecl "var" 
-      // using the builder "builder".
       void genGlobalVar(BCModuleBuilder& builder, VarDecl* var);
 
       // Generates (emits) the bytecode for a function declaration "func" 
-      // using the builder "builder".
       void genFunc(BCModuleBuilder& builder, FuncDecl* func);
 
-      // Generates (emits) the bytecode for a statement "stmt" using the 
-      // builder "builder".
-      void genStmt(BCModuleBuilder& builder, Stmt* stmt);
+      // Generates (emits) the bytecode for a statement "stmt"
+      void genStmt(BCModuleBuilder& builder, 
+                   RegisterAllocator& regAlloc, Stmt* stmt);
 
-      // Generates (emits) the bytecode for an expression "expr" using the 
-      // builder "builder".
-      void genExpr(BCModuleBuilder& builder, Expr* expr);
+      // Generates (emits) the bytecode for an expression "expr".
+      // Returns the RegisterValue managing the register containing the
+      // result of the expr.
+      RegisterValue genExpr(BCModuleBuilder& builder, 
+                   RegisterAllocator& regAlloc, Expr* expr);
+
+      // Generates (emits) the bytecode for an expression "expr", but
+      // immediately discards the result.
+      void genDiscardedExpr(BCModuleBuilder& builder, 
+                            RegisterAllocator& regAlloc, Expr* expr);
+
+      // Generates (emits) the bytecode for a local declaration "decl"
+      void genLocalDecl(BCModuleBuilder& builder, 
+                        RegisterAllocator& regAlloc, Decl* decl);
 
       class Generator;
       class ExprGenerator;
+      class LocalDeclGenerator;
       class StmtGenerator;
 
   };

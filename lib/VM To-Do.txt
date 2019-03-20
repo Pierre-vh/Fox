@@ -84,10 +84,18 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
       generating expressions then write FileCheck tests checking that the stats
       are correct.
 
-  -> Codegen of local variables 
-      - LocalVariableUsageCounter walker in BCGenExpr
-      - RegAlloc (getRegisterOfVariable, releaseVariable)
-      - RegValue (Add a 'variable' kind, releaseVariable on death)
+  -> Codegen of local variables (Done)
+ 
+  -> Make BCGen::LocalDeclGenerator::visitVarDecl reuse the initializer's register as the var's
+     register iff it is its last usage
+
+  -> "Dest" RegisterValue for ExprGenerator
+
+  -> Make BCGen::LocalDeclGenerator::visitVarDecl generate Exprs directly to the var's reg 
+     when possible. Test for bugs in case like "let y : int = z"; 
+      (that y don't end up overwriting z)
+
+  -> Write more BCGen test related to vardecls
 
   -> CodeGen of Statements
 
@@ -111,6 +119,8 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
 
 ---- Getting feature-complete (with the current feature set) ----
   -> Codegen of functions
+    -> Don't forget to add support of ParamDecl/References to ParamDecl in RegisterAllocator 
+       and FuncGenPrologue.
   -> Codegen of global variables
   -> Function calls
   -> Intrinsics/FFI
@@ -125,4 +135,3 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
 Other notes:
   -> InstructionBuilder will be split in multiple builders (BCModuleBuilder, BCFunctionBuilder, etc)
      to be more organized.  
-

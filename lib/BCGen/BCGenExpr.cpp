@@ -22,7 +22,7 @@ using namespace fox;
 
 // The actual class responsible for generating the bytecode of expressions
 class BCGen::ExprGenerator : public Generator,
-                             private ExprVisitor<ExprGenerator, RegisterValue> {
+                             ExprVisitor<ExprGenerator, RegisterValue> {
   using Visitor = ExprVisitor<ExprGenerator, RegisterValue>;
   friend Visitor;
   public:
@@ -340,14 +340,18 @@ class BCGen::ExprGenerator : public Generator,
       fox_unimplemented_feature("MemberOfExpr BCGen");
     }
 
-    RegisterValue visitDeclRefExpr(DeclRefExpr*) { 
-      // Needs variable code generation, and for global decls, it needs
-      // globals implemented in the VM.
-
-      // NOTE: This won't take care of emitting DeclRefs used as
-      // the LHS of an assignement. It'll be handled by another
-      // visitor.
-      fox_unimplemented_feature("DeclRefExpr BCGen");
+    RegisterValue visitDeclRefExpr(DeclRefExpr* expr) { 
+      ValueDecl* decl = expr->getDecl();
+      // Reference to Global declarations
+      if(!decl->isLocal())
+        fox_unimplemented_feature("Global DeclRefExpr BCGen");
+      // Reference to Local Variables
+      if(VarDecl* var = dyn_cast<VarDecl>(decl))
+        return regAlloc.getRegisterOfVar(var);
+      // Reference to Parameter decls
+      if(ParamDecl* param = dyn_cast<ParamDecl>(decl))
+        fox_unimplemented_feature("ParamDecl DeclRefExpr BCGen");
+      fox_unimplemented_feature("Unknown Local Decl Kind");
     }
 
     RegisterValue visitCallExpr(CallExpr*) { 
@@ -408,10 +412,12 @@ class BCGen::ExprGenerator : public Generator,
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-void BCGen::genExpr(BCModuleBuilder& builder, Expr* expr) {
-  // This is temporarily put here (until work starts on FuncDecl BCGen).
-  // It'll be moved to an argument passed to this function after that
-  RegisterAllocator regAlloc;
+RegisterValue BCGen::genExpr(BCModuleBuilder& builder, 
+                             RegisterAllocator& regAlloc, Expr* expr) {
+  return ExprGenerator(*this, builder, regAlloc).generate(expr);
+}
 
+void BCGen::genDiscardedExpr(BCModuleBuilder& builder, 
+                             RegisterAllocator& regAlloc, Expr* expr) {
   ExprGenerator(*this, builder, regAlloc).generate(expr);
 }

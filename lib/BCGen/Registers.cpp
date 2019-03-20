@@ -131,6 +131,7 @@ void RegisterAllocator::compactFreeRegisterSet() {
     // biggestAllocatedReg_-1, remove it and decrement 
     // biggestAllocatedReg_. Else, return.
     auto it = freeRegisters_.begin();
+    if(it == freeRegisters_.end()) return;
     if((*it) != (biggestAllocatedReg_-1)) return;
     freeRegisters_.erase(it); // erase the element
     --biggestAllocatedReg_;   // decrement biggestAllocatedReg_

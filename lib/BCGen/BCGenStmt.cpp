@@ -11,17 +11,25 @@
 #include "Fox/Common/Errors.hpp"
 
 using namespace fox;
+
+//----------------------------------------------------------------------------//
+// StmtGenerator 
+//----------------------------------------------------------------------------//
+
 class BCGen::StmtGenerator : public Generator,
-                             private StmtVisitor<StmtGenerator, void> {
+                             StmtVisitor<StmtGenerator, void> {
   using Visitor = StmtVisitor<StmtGenerator, void>;
   friend Visitor;
   public:
-    StmtGenerator(BCGen& gen, BCModuleBuilder& builder): 
-      Generator(gen, builder) {}
+    StmtGenerator(BCGen& gen, BCModuleBuilder& builder,
+                  RegisterAllocator& regAlloc): 
+      Generator(gen, builder), regAlloc(regAlloc) {}
 
     void generate(Stmt* stmt) {
       visit(stmt);
     }
+
+    RegisterAllocator& regAlloc;
 
   private:
     //------------------------------------------------------------------------//
@@ -33,9 +41,9 @@ class BCGen::StmtGenerator : public Generator,
 
     void genNode(ASTNode node) {
       if(Decl* decl = node.dyn_cast<Decl*>())
-        fox_unimplemented_feature("Local Decl BCGen");
+        bcGen.genLocalDecl(builder, regAlloc, decl);
       else if(Expr* expr = node.dyn_cast<Expr*>()) 
-        bcGen.genExpr(builder, expr);
+        bcGen.genDiscardedExpr(builder, regAlloc, expr);
       else if(Stmt* stmt = node.dyn_cast<Stmt*>()) 
         visit(stmt);
       else 
@@ -72,7 +80,9 @@ class BCGen::StmtGenerator : public Generator,
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-void BCGen::genStmt(BCModuleBuilder& builder, Stmt* stmt) {
+void BCGen::genStmt(BCModuleBuilder& builder, 
+                    RegisterAllocator& regAlloc, 
+                    Stmt* stmt) {
   assert(stmt && "stmt is null");
-  StmtGenerator(*this, builder).generate(stmt);
+  StmtGenerator(*this, builder, regAlloc).generate(stmt);
 }
