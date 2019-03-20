@@ -78,16 +78,11 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
 
   -> VMModule (Done)
 
-  -> CodeGen entry points with genFunction, genGlobalVar, etc. None will be functional for now, it'll
-     just be an interface.
+  -> Scaffoldign of BCGen entry points (Done)
 
   -> Add a BCGen logRegAlloc option to emit logs about register allocation after
       generating expressions then write FileCheck tests checking that the stats
       are correct.
-
-  -> Constant Table
-
-  -> Implement the rest of the arithmetic expressions involving Doubles
 
   -> Codegen of local variables 
       - LocalVariableUsageCounter walker in BCGenExpr
@@ -96,6 +91,11 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
 
   -> CodeGen of Statements
 
+  -> Constant Table
+
+  -> Implement the rest of the arithmetic bits of ExprGenerator:
+    -> Double & Double operations
+    -> Assignements (AssignExprGenerator)
 
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).
@@ -113,9 +113,9 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Codegen of functions
   -> Codegen of global variables
   -> Function calls
-  -> Intrinsics
-  -> Basic debug information & trivial exception system for proper error management.
-  -> Test, Test, and Test!
+  -> Intrinsics/FFI
+  -> Basic debug information & trivial exception system (for proper error management).
+  -> Test/Document as much as possible.
 
 ---- Implementing the GC ----
   (Current ideas, highly subject to changes)
@@ -123,5 +123,6 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Basic GC algorithm: mark and sweep + colored objects (tri-color). Maybe compacting or generational.
       
 Other notes:
-  -> InstructionBuilder will be split in multiple builders (Module, Function, GlobalInitializer, etc
+  -> InstructionBuilder will be split in multiple builders (BCModuleBuilder, BCFunctionBuilder, etc)
+     to be more organized.  
 
