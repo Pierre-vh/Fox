@@ -26,7 +26,7 @@ class BCGen::ExprGenerator : public Generator,
   using Visitor = ExprVisitor<ExprGenerator, RegisterValue>;
   friend Visitor;
   public:
-    ExprGenerator(BCGen& gen, InstructionBuilder& builder, 
+    ExprGenerator(BCGen& gen, BCModuleBuilder& builder, 
                   RegisterAllocator& regAlloc) : Generator(gen, builder),
                   regAlloc(regAlloc) {}
 
@@ -408,7 +408,7 @@ class BCGen::ExprGenerator : public Generator,
 // BCGen Entrypoints
 //----------------------------------------------------------------------------//
 
-void BCGen::emitExpr(InstructionBuilder& builder, Expr* expr) {
+void BCGen::emitExpr(BCModuleBuilder& builder, Expr* expr) {
   // This is temporarily put here (until work starts on FuncDecl BCGen).
   // It'll be moved to an argument passed to this function after that
   RegisterAllocator regAlloc;

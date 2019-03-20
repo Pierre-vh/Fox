@@ -12,18 +12,18 @@
 using namespace fox;
 
 //----------------------------------------------------------------------------//
-// InstructionBuilder: Macro-generated methods
+// BCModuleBuilder: Macro-generated methods
 //----------------------------------------------------------------------------//
 
 #define SIMPLE_INSTR(ID)\
-  InstructionBuilder& InstructionBuilder::create##ID##Instr() {\
+  BCModuleBuilder& BCModuleBuilder::create##ID##Instr() {\
     Instruction instr(Opcode::ID);                \
     pushInstr(instr);                             \
     return *this;                                 \
   }
 
 #define TERNARY_INSTR(ID, T1, T2, T3)\
-  InstructionBuilder& InstructionBuilder::\
+  BCModuleBuilder& BCModuleBuilder::\
   create##ID##Instr(T1 arg0, T2 arg1, T3 arg2) {  \
     Instruction instr(Opcode::ID);                \
     instr.ID.arg0 = arg0;                         \
@@ -34,8 +34,8 @@ using namespace fox;
   }
 
 #define BINARY_INSTR(ID, T1, T2)\
-  InstructionBuilder&\
-  InstructionBuilder::create##ID##Instr(T1 arg0, T2 arg1) {\
+  BCModuleBuilder&\
+  BCModuleBuilder::create##ID##Instr(T1 arg0, T2 arg1) {\
     Instruction instr(Opcode::ID);                \
     instr.ID.arg0 = arg0;                         \
     instr.ID.arg1 = arg1;                         \
@@ -44,8 +44,8 @@ using namespace fox;
   }
 
 #define UNARY_INSTR(ID, T1)\
-  InstructionBuilder&\
-  InstructionBuilder::create##ID##Instr(T1 arg) { \
+  BCModuleBuilder&\
+  BCModuleBuilder::create##ID##Instr(T1 arg) { \
     Instruction instr(Opcode::ID);                \
     instr.ID.arg = arg;                           \
     pushInstr(instr);                             \
@@ -55,30 +55,30 @@ using namespace fox;
 #include "Fox/BC/Instructions.def"
 
 //----------------------------------------------------------------------------//
-// InstructionBuilder
+// BCModuleBuilder
 //----------------------------------------------------------------------------//
 
-InstructionBuilder::InstructionBuilder() = default;
-fox::InstructionBuilder::~InstructionBuilder() = default;
+BCModuleBuilder::BCModuleBuilder() = default;
+fox::BCModuleBuilder::~BCModuleBuilder() = default;
 
-Instruction InstructionBuilder::getLastInstr() const {
+Instruction BCModuleBuilder::getLastInstr() const {
   return getModule().getInstructionBuffer().back();
 }
 
-std::unique_ptr<BCModule> InstructionBuilder::takeModule() {
+std::unique_ptr<BCModule> BCModuleBuilder::takeModule() {
   return std::move(vmModule_);
 }
 
-BCModule& InstructionBuilder::getModule() {
+BCModule& BCModuleBuilder::getModule() {
   // Lazily create a new module if needed.
   if(!vmModule_) vmModule_ = std::make_unique<BCModule>();
   return *vmModule_;
 }
 
-const BCModule& InstructionBuilder::getModule() const {
-  return const_cast<InstructionBuilder*>(this)->getModule();
+const BCModule& BCModuleBuilder::getModule() const {
+  return const_cast<BCModuleBuilder*>(this)->getModule();
 }
 
-void InstructionBuilder::pushInstr(Instruction instr) {
+void BCModuleBuilder::pushInstr(Instruction instr) {
   getModule().getInstructionBuffer().push_back(instr);
 }

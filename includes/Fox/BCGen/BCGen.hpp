@@ -13,7 +13,7 @@
 namespace fox {
   class ASTContext;
   class DiagnosticEngine;
-  class InstructionBuilder;
+  class BCModuleBuilder;
   class Expr;
   class BCGen {
     public:
@@ -21,7 +21,7 @@ namespace fox {
 
       // Generates (emits) the bytecode for an expression "expr" using the 
       // builder "builder".
-      void emitExpr(InstructionBuilder& builder, Expr* expr);
+      void emitExpr(BCModuleBuilder& builder, Expr* expr);
 
       ASTContext& ctxt;
       DiagnosticEngine& diagEngine;
@@ -38,10 +38,10 @@ namespace fox {
       BCGen& bcGen;
       DiagnosticEngine& diagEngine;
       ASTContext& ctxt;
-      InstructionBuilder& builder;
+      BCModuleBuilder& builder;
 
     protected:
-      Generator(BCGen& bcGen, InstructionBuilder& builder) : 
+      Generator(BCGen& bcGen, BCModuleBuilder& builder) : 
         bcGen(bcGen), builder(builder),
         diagEngine(bcGen.diagEngine), ctxt(bcGen.ctxt) {}
   };

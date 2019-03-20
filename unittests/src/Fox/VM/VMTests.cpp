@@ -41,7 +41,7 @@ TEST(OpcodeTest, ToString) {
 
 TEST(InstructionDumpTest, DumpInstructionsTest) {
   // Create a series of instructions 
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   builder
     .createNoOpInstr()
     .createAddIntInstr(0, 1, 2)
@@ -50,7 +50,7 @@ TEST(InstructionDumpTest, DumpInstructionsTest) {
     .createJumpInstr(-30000);
   // Check that we have the correct number of instructions
   InstructionBuffer& instrs = builder.getModule().getInstructionBuffer();
-  ASSERT_EQ(instrs.size(), 5u) << "Broken InstructionBuilder?";
+  ASSERT_EQ(instrs.size(), 5u) << "Broken BCModuleBuilder?";
   // Dump to a stringstream
   std::stringstream ss;
   dumpInstructions(ss, instrs);
@@ -64,7 +64,7 @@ TEST(InstructionDumpTest, DumpInstructionsTest) {
 }
 
 TEST(InstructionBuilderTest, TernaryInstr) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   // Create an Ternary instr
   Instruction instr = builder.createAddIntInstr(42, 84, 126).getLastInstr();
   // Check if it was encoded as expected.
@@ -76,7 +76,7 @@ TEST(InstructionBuilderTest, TernaryInstr) {
 
 // Test for Binary Instrs with two 8 bit args.
 TEST(InstructionBuilderTest, SmallBinaryInstr) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   // Create an Small Binary instr
   Instruction instr = builder.createLNotInstr(42, 84).getLastInstr();
   // Check if it was encoded as expected.
@@ -87,7 +87,7 @@ TEST(InstructionBuilderTest, SmallBinaryInstr) {
 
 // Test for Binary Instrs with one 8 bit arg and one 16 bit arg.
 TEST(InstructionBuilderTest, BinaryInstr) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   // Create a Binary instr
   Instruction instr = builder.createStoreSmallIntInstr(42, 16000).getLastInstr();
   // Check if was encoded as expected.
@@ -97,7 +97,7 @@ TEST(InstructionBuilderTest, BinaryInstr) {
 }
 
 TEST(InstructionBuilderTest, UnaryInstr) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   // Create unary instrs (this one uses a signed value)
   Instruction positive_instr = builder.createJumpInstr(30000).getLastInstr();
   Instruction negative_instr = builder.createJumpInstr(-30000).getLastInstr();
@@ -114,7 +114,7 @@ TEST(InstructionBuilderTest, UnaryInstr) {
 }
 
 TEST(VMTest, StoreSmallInt) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   FoxInt r0Value = -14242;
   FoxInt r1Value = 24000;
   builder.createStoreSmallIntInstr(1, r1Value)
@@ -129,7 +129,7 @@ TEST(VMTest, StoreSmallInt) {
 }
 
 TEST(VMTest, IntArithmetic) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   FoxInt r0 = 2;
   FoxInt r1 = 64;
   FoxInt r2 = -16384;
@@ -180,7 +180,7 @@ TEST(VMTest, IntArithmetic) {
 }
 
 TEST(VMTest, DoubleArithmetic) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   FoxDouble r0 = -3.14;
   FoxDouble r1 = 3.333333333333;
   FoxDouble r2 = -42.42;
@@ -234,7 +234,7 @@ TEST(VMTest, DoubleArithmetic) {
 }
 
 TEST(VMTest, IntComparison) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   FoxInt r0 = 2;
   FoxInt r1 = 64;
   builder 
@@ -268,7 +268,7 @@ TEST(VMTest, IntComparison) {
 }
 
 TEST(VMTest, DoubleComparison) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   FoxDouble r0 = -3.14;
   FoxDouble r1 = 3.333333333333;
   builder 
@@ -311,7 +311,7 @@ TEST(VMTest, DoubleComparison) {
 }
 
 TEST(VMTest, LogicOps) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   FoxInt r0 = 0;
   FoxInt r1 = 1;
   builder 
@@ -351,7 +351,7 @@ TEST(VMTest, LogicOps) {
 TEST(VMTest, Jumps) {
   // Unconditional Jump test
   {
-    InstructionBuilder builder;
+    BCModuleBuilder builder;
     // Create instructions like this:
       // 0 Jump 2
       // 1 Break
@@ -377,7 +377,7 @@ TEST(VMTest, Jumps) {
   {
     FoxInt r0 = 0;
     FoxInt r1 = 1;
-    InstructionBuilder builder;
+    BCModuleBuilder builder;
     // Create instructions like this:
       // 0 CondJump r0 1  // won't jump since r0 = 0
       // 1 CondJump r1 1  // will jump since r1 = 1
@@ -404,7 +404,7 @@ TEST(VMTest, Jumps) {
 }
 
 TEST(VMTest, Casts) {
-  InstructionBuilder builder;
+  BCModuleBuilder builder;
   FoxInt r0 = 42000;
   FoxInt r1 = -42;
   FoxDouble r2 = -3.3333;

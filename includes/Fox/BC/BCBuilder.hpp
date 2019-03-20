@@ -17,20 +17,20 @@
 
 namespace fox {
   class BCModule;
-  class InstructionBuilder {
+  class BCModuleBuilder {
     public:
-      InstructionBuilder();
-      ~InstructionBuilder();
+      BCModuleBuilder();
+      ~BCModuleBuilder();
 
       // The type of an instruction buffer.
       using Buffer = InstructionBuffer;
 
-      #define SIMPLE_INSTR(ID) InstructionBuilder& create##ID##Instr();
-      #define TERNARY_INSTR(ID, T1, T2, T3) InstructionBuilder&\
+      #define SIMPLE_INSTR(ID) BCModuleBuilder& create##ID##Instr();
+      #define TERNARY_INSTR(ID, T1, T2, T3) BCModuleBuilder&\
         create##ID##Instr(T1 arg0, T2 arg1, T3 arg2);
-      #define BINARY_INSTR(ID, T1, T2) InstructionBuilder&\
+      #define BINARY_INSTR(ID, T1, T2) BCModuleBuilder&\
         create##ID##Instr(T1 arg0, T2 arg1);
-      #define UNARY_INSTR(ID, T1) InstructionBuilder&\
+      #define UNARY_INSTR(ID, T1) BCModuleBuilder&\
         create##ID##Instr(T1 arg);
       #include "Instructions.def"
 

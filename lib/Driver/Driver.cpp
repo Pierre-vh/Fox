@@ -101,15 +101,15 @@ bool Driver::processFile(string_view filepath) {
   //            it's complete (can handle a full AST)
   if (canContinue() && getDumpBCGen()) {
     BCGen gen(ctxt_);
-    InstructionBuilder builder;
+    BCModuleBuilder builder;
     // Walker to generate exprs, since for now only
     // emitExpr is working
     class Impl : public ASTWalker {
       public:
         BCGen& gen;
-        InstructionBuilder& builder;
+        BCModuleBuilder& builder;
 
-        Impl(InstructionBuilder& builder, BCGen& gen) :
+        Impl(BCModuleBuilder& builder, BCGen& gen) :
           gen(gen), builder(builder) {}
 
         virtual bool handleDeclPost(Decl* decl) {
