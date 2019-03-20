@@ -5,6 +5,11 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 //  This file contains the bytecode instructions-related classes.
+//
+// FIXME: Should 'Instruction' and 'Opcode' also have the 'BC' prefix? 
+//        (Instruction -> BCInstruction and Opcode -> BCOpcode)
+//        I don't think so (it adds unnecessary verbosity), 
+//        but maybe it's a good idea?
 //----------------------------------------------------------------------------//
 
 #pragma once
