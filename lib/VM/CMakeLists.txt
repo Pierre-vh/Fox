@@ -1,5 +1,6 @@
 add_source(vm_src
-  "VM.cpp"
   "Instructions.cpp"
   "InstructionBuilder.cpp"
+  "VM.cpp"
+  "VMModule.cpp"
 )
