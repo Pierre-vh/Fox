@@ -123,5 +123,5 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Basic GC algorithm: mark and sweep + colored objects (tri-color). Maybe compacting or generational.
       
 Other notes:
-  -> InstructionBuilder will be split in multiple builders (Module, Function, GlobalInitializer, etc)
+  -> InstructionBuilder will be split in multiple builders (Module, Function, GlobalInitializer, etc
 
