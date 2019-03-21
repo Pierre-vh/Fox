@@ -38,7 +38,7 @@ BCModule::instr_iterator BCModule::instrs_back() {
   return instr_iterator(*this, instrBuffer_.size()-1);
 }
 
-BCModule::instr_iterator BCModule::push_back(Instruction instr) {
+BCModule::instr_iterator BCModule::addInstr(Instruction instr) {
   instrBuffer_.push_back(instr);
   return instrs_back();
 }

@@ -44,7 +44,7 @@ namespace fox {
 
       // Appends an in instruction to this Module, returning
       // an iterator to the pushed element.
-      instr_iterator push_back(Instruction instr);
+      instr_iterator addInstr(Instruction instr);
 
       InstructionBuffer instrBuffer_;
   };

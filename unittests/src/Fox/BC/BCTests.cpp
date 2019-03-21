@@ -43,12 +43,11 @@ TEST(OpcodeTest, ToString) {
 TEST(InstructionDumpTest, DumpInstructionsTest) {
   // Create a series of instructions 
   BCModuleBuilder builder;
-  builder
-    .createNoOpInstr()
-    .createAddIntInstr(0, 1, 2)
-    .createLNotInstr(42, 84)
-    .createStoreSmallIntInstr(0, -4242)
-    .createJumpInstr(-30000);
+  builder.createNoOpInstr();
+  builder.createAddIntInstr(0, 1, 2);
+  builder.createLNotInstr(42, 84);
+  builder.createStoreSmallIntInstr(0, -4242);
+  builder.createJumpInstr(-30000);;
   // Check that we have the correct number of instructions
   InstructionBuffer& instrs = builder.getModule().getInstructionBuffer();
   ASSERT_EQ(instrs.size(), 5u) << "Broken BCModuleBuilder?";
@@ -67,50 +66,50 @@ TEST(InstructionDumpTest, DumpInstructionsTest) {
 TEST(BCBuilderTest, TernaryInstr) {
   BCModuleBuilder builder;
   // Create an Ternary instr
-  Instruction instr = builder.createAddIntInstr(42, 84, 126).getLastInstr();
+  auto it = builder.createAddIntInstr(42, 84, 126);
   // Check if it was encoded as expected.
-  EXPECT_EQ(instr.opcode, Opcode::AddInt);
-  EXPECT_EQ(instr.AddInt.arg0, 42);
-  EXPECT_EQ(instr.AddInt.arg1, 84);
-  EXPECT_EQ(instr.AddInt.arg2, 126);
+  EXPECT_EQ(it->opcode, Opcode::AddInt);
+  EXPECT_EQ(it->AddInt.arg0, 42);
+  EXPECT_EQ(it->AddInt.arg1, 84);
+  EXPECT_EQ(it->AddInt.arg2, 126);
 }
 
 // Test for Binary Instrs with two 8 bit args.
 TEST(BCBuilderTest, SmallBinaryInstr) {
   BCModuleBuilder builder;
   // Create an Small Binary instr
-  Instruction instr = builder.createLNotInstr(42, 84).getLastInstr();
+  auto it = builder.createLNotInstr(42, 84);
   // Check if it was encoded as expected.
-  EXPECT_EQ(instr.opcode, Opcode::LNot);
-  EXPECT_EQ(instr.LNot.arg0, 42);
-  EXPECT_EQ(instr.LNot.arg1, 84);
+  EXPECT_EQ(it->opcode, Opcode::LNot);
+  EXPECT_EQ(it->LNot.arg0, 42);
+  EXPECT_EQ(it->LNot.arg1, 84);
 }
 
 // Test for Binary Instrs with one 8 bit arg and one 16 bit arg.
 TEST(BCBuilderTest, BinaryInstr) {
   BCModuleBuilder builder;
   // Create a Binary instr
-  Instruction instr = builder.createStoreSmallIntInstr(42, 16000).getLastInstr();
+  auto it = builder.createStoreSmallIntInstr(42, 16000);
   // Check if was encoded as expected.
-  EXPECT_EQ(instr.opcode, Opcode::StoreSmallInt);
-  EXPECT_EQ(instr.StoreSmallInt.arg0, 42);
-  EXPECT_EQ(instr.StoreSmallInt.arg1, 16000);
+  EXPECT_EQ(it->opcode, Opcode::StoreSmallInt);
+  EXPECT_EQ(it->StoreSmallInt.arg0, 42);
+  EXPECT_EQ(it->StoreSmallInt.arg1, 16000);
 }
 
 TEST(BCBuilderTest, UnaryInstr) {
   BCModuleBuilder builder;
   // Create unary instrs (this one uses a signed value)
-  Instruction positive_instr = builder.createJumpInstr(30000).getLastInstr();
-  Instruction negative_instr = builder.createJumpInstr(-30000).getLastInstr();
+  auto positive = builder.createJumpInstr(30000);
+  auto negative = builder.createJumpInstr(-30000);
   // Check the positive one
   {
-    EXPECT_EQ(positive_instr.opcode, Opcode::Jump);
-    EXPECT_EQ(positive_instr.Jump.arg, 30000);
+    EXPECT_EQ(positive->opcode, Opcode::Jump);
+    EXPECT_EQ(positive->Jump.arg, 30000);
   }
   // Check the negative one
   {
-    EXPECT_EQ(negative_instr.opcode, Opcode::Jump);
-    EXPECT_EQ(negative_instr.Jump.arg, -30000);
+    EXPECT_EQ(negative->opcode, Opcode::Jump);
+    EXPECT_EQ(negative->Jump.arg, -30000);
   }
 }
 

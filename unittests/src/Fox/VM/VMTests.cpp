@@ -22,9 +22,9 @@ TEST(VMTest, StoreSmallInt) {
   BCModuleBuilder builder;
   FoxInt r0Value = -14242;
   FoxInt r1Value = 24000;
-  builder.createStoreSmallIntInstr(1, r1Value)
-         .createStoreSmallIntInstr(0, r0Value)
-         .createBreakInstr();
+  builder.createStoreSmallIntInstr(1, r1Value);
+  builder.createStoreSmallIntInstr(0, r0Value);
+  builder.createBreakInstr();;
   VM vm(builder.getModule());
   vm.run();
   FoxInt r0 = vm.getRegisterStack()[0];
@@ -39,22 +39,21 @@ TEST(VMTest, IntArithmetic) {
   FoxInt r1 = 64;
   FoxInt r2 = -16384;
   FoxInt r3 = 16384;
-  builder 
-    // r4 = r2 + r3 --> 0
-    .createAddIntInstr(4, 2, 3)
-    // r5 = r2 - r3 --> -32768
-    .createSubIntInstr(5, 2, 3)
-    // r6 = r0 * r1 --> 128
-    .createMulIntInstr(6, 0, 1)
-    // r7 = r3 / r1 --> 256
-    .createDivIntInstr(7, 3, 1)
-    // r8 = r2 % r1 --> 0
-    .createModIntInstr(8, 2, 1)
-    // r9 = r2 ** r0 --> 268435456
-    .createPowIntInstr(9, 2, 0)
-    // r10 = -r2 = 16384
-    .createNegIntInstr(10, 2)
-    .createBreakInstr();
+  // r4 = r2 + r3 --> 0
+  builder.createAddIntInstr(4, 2, 3);
+  // r5 = r2 - r3 --> -32768
+  builder.createSubIntInstr(5, 2, 3);
+  // r6 = r0 * r1 --> 128
+  builder.createMulIntInstr(6, 0, 1);
+  // r7 = r3 / r1 --> 256
+  builder.createDivIntInstr(7, 3, 1);
+  // r8 = r2 % r1 --> 0
+  builder.createModIntInstr(8, 2, 1);
+  // r9 = r2 ** r0 --> 268435456
+  builder.createPowIntInstr(9, 2, 0);
+  // r10 = -r2 = 16384
+  builder.createNegIntInstr(10, 2);
+  builder.createBreakInstr();
   // Prepare the VM & Load the code
   VM vm(builder.getModule());
   // Load the initial values
@@ -91,22 +90,21 @@ TEST(VMTest, DoubleArithmetic) {
   FoxDouble r2 = -42.42;
   FoxDouble r3 = 42500.005;
   FoxDouble r4 = 2;
-  builder 
-    // r5 = r2 + r3 --> 42457.585
-    .createAddDoubleInstr(5, 2, 3)
-    // r6 = r2 - r3 --> -42542.425
-    .createSubDoubleInstr(6, 2, 3)
-    // r7 = r0 * r1 --> -10.46666666666562
-    .createMulDoubleInstr(7, 0, 1)
-    // r8 = r1 / r1 --> 1
-    .createDivDoubleInstr(8, 1, 1)
-    // r9 = r2 % r1 --> 0.913333333329
-    .createModDoubleInstr(9, 2, 1)
-    // r10 = r0 ** r4 --> 9.8596
-    .createPowDoubleInstr(10, 0, 4)
-    // r11 = -r2      --> 42.42
-    .createNegDoubleInstr(11, 2)
-    .createBreakInstr();
+  // r5 = r2 + r3 --> 42457.585
+  builder.createAddDoubleInstr(5, 2, 3);
+  // r6 = r2 - r3 --> -42542.425
+  builder.createSubDoubleInstr(6, 2, 3);
+  // r7 = r0 * r1 --> -10.46666666666562
+  builder.createMulDoubleInstr(7, 0, 1);
+  // r8 = r1 / r1 --> 1
+  builder.createDivDoubleInstr(8, 1, 1);
+  // r9 = r2 % r1 --> 0.913333333329
+  builder.createModDoubleInstr(9, 2, 1);
+  // r10 = r0 ** r4 --> 9.8596
+  builder.createPowDoubleInstr(10, 0, 4);
+  // r11 = -r2      --> 42.42
+  builder.createNegDoubleInstr(11, 2);
+  builder.createBreakInstr();
   // Prepare the VM & Load the code
   VM vm(builder.getModule());
 
@@ -142,14 +140,13 @@ TEST(VMTest, IntComparison) {
   BCModuleBuilder builder;
   FoxInt r0 = 2;
   FoxInt r1 = 64;
-  builder 
-    // r2 = (r0 == r1) --> false (0)
-    .createEqIntInstr(2, 0, 1)
-    // r3 = (r0 <= r1) --> true (1)
-    .createLEIntInstr(3, 0, 1)
-    // r4 = (r1 < r1) --> false (0)
-    .createLTIntInstr(4, 1, 1)
-    .createBreakInstr();
+  // r2 = (r0 == r1) --> false (0)
+  builder.createEqIntInstr(2, 0, 1);
+  // r3 = (r0 <= r1) --> true (1)
+  builder.createLEIntInstr(3, 0, 1);
+  // r4 = (r1 < r1) --> false (0)
+  builder.createLTIntInstr(4, 1, 1);
+  builder.createBreakInstr();
   // Prepare the VM & Load the code
   VM vm(builder.getModule());
 
@@ -176,18 +173,17 @@ TEST(VMTest, DoubleComparison) {
   BCModuleBuilder builder;
   FoxDouble r0 = -3.14;
   FoxDouble r1 = 3.333333333333;
-  builder 
-    // r2 = r1 == r1 --> true (1)
-    .createEqDoubleInstr(2, 1, 1)
-    // r3 = r0 <= r1 --> true (1)
-    .createLEDoubleInstr(3, 0, 1)
-    // r4 = r1 < r1  --> false (0)
-    .createLTDoubleInstr(4, 1, 1)
-    // r5 = r1 >= r0 --> true (1)
-    .createGEDoubleInstr(5, 1, 0)
-    // r6 = r1 > r1  --> false (0)
-    .createGTDoubleInstr(6, 1, 1)
-    .createBreakInstr();
+  // r2 = r1 == r1 --> true (1)
+  builder.createEqDoubleInstr(2, 1, 1);
+  // r3 = r0 <= r1 --> true (1)
+  builder.createLEDoubleInstr(3, 0, 1);
+  // r4 = r1 < r1  --> false (0)
+  builder.createLTDoubleInstr(4, 1, 1);
+  // r5 = r1 >= r0 --> true (1)
+  builder.createGEDoubleInstr(5, 1, 0);
+  // r6 = r1 > r1  --> false (0)
+  builder.createGTDoubleInstr(6, 1, 1);
+  builder.createBreakInstr();
   // Prepare the VM & Load the code
   VM vm(builder.getModule());
 
@@ -219,16 +215,15 @@ TEST(VMTest, LogicOps) {
   BCModuleBuilder builder;
   FoxInt r0 = 0;
   FoxInt r1 = 1;
-  builder 
-    // r2 = (r0 && r1) --> 0
-    .createLAndInstr(2, 0, 1)
-    // r3 = (r0 || r1) --> 1
-    .createLOrInstr(3, 0, 1)
-    // r4 != r1 --> 0
-    .createLNotInstr(4, 1)
-    // r5 != r0 --> 1
-    .createLNotInstr(5, 0)
-    .createBreakInstr();
+  // r2 = (r0 && r1) --> 0
+  builder.createLAndInstr(2, 0, 1);
+  // r3 = (r0 || r1) --> 1
+  builder.createLOrInstr(3, 0, 1);
+  // r4 != r1 --> 0
+  builder.createLNotInstr(4, 1);
+  // r5 != r0 --> 1
+  builder.createLNotInstr(5, 0);
+  builder.createBreakInstr();
   // Prepare the VM & Load the code
   VM vm(builder.getModule());
 
@@ -263,12 +258,11 @@ TEST(VMTest, Jumps) {
       // 2 Break    // PC should end up here
       // 3 Jump -2
       // 4 Break
-    builder
-      .createJumpInstr(2)
-      .createBreakInstr()
-      .createBreakInstr()
-      .createJumpInstr(-2)
-      .createBreakInstr();
+    builder.createJumpInstr(2);
+    builder.createBreakInstr();
+    builder.createBreakInstr();
+    builder.createJumpInstr(-2);
+    builder.createBreakInstr();
 
     // Prepare the VM
     VM vm(builder.getModule());
@@ -288,11 +282,10 @@ TEST(VMTest, Jumps) {
       // 1 CondJump r1 1  // will jump since r1 = 1
       // 2 Break    
       // 3 Break    // PC should end up here
-    builder
-      .createCondJumpInstr(0, 1)
-      .createCondJumpInstr(1, 1)
-      .createBreakInstr()
-      .createBreakInstr();
+    builder.createCondJumpInstr(0, 1);
+    builder.createCondJumpInstr(1, 1);
+    builder.createBreakInstr();
+    builder.createBreakInstr();
 
     // Prepare the VM
     VM vm(builder.getModule());
@@ -314,16 +307,15 @@ TEST(VMTest, Casts) {
   FoxInt r1 = -42;
   FoxDouble r2 = -3.3333;
   FoxDouble r3 = 3.3333;
-  builder 
-    // IntToDouble r4 r0 -> r4 = 42000.00
-    .createIntToDoubleInstr(4, 0)
-    // IntToDouble r5 r1 -> r5 = -42.00
-    .createIntToDoubleInstr(5, 1)
-    // IntToDouble r6 r0 -> r6 = -3
-    .createDoubleToIntInstr(6, 2)
-    // IntToDouble r7 r1 -> r7 = 3
-    .createDoubleToIntInstr(7, 3)
-    .createBreakInstr();
+  // IntToDouble r4 r0 -> r4 = 42000.00
+  builder.createIntToDoubleInstr(4, 0);
+  // IntToDouble r5 r1 -> r5 = -42.00
+  builder.createIntToDoubleInstr(5, 1);
+  // IntToDouble r6 r0 -> r6 = -3
+  builder.createDoubleToIntInstr(6, 2);
+  // IntToDouble r7 r1 -> r7 = 3
+  builder.createDoubleToIntInstr(7, 3);
+  builder.createBreakInstr();
   VM vm(builder.getModule());
   auto regs = vm.getRegisterStack();
   regs[0] = r0;
@@ -350,12 +342,11 @@ TEST(VMTest, Copy) {
   BCModuleBuilder builder;
   FoxInt r0 = 42000;
   FoxDouble r1 = -3.3333;
-  builder 
-    // Copy r2 r0 -> r2 = r0
-    .createCopyInstr(2, 0)
-    // Copy r3 r1 -> r3 = r1
-    .createCopyInstr(3, 1)
-    .createBreakInstr();
+  // Copy r2 r0 -> r2 = r0
+  builder.createCopyInstr(2, 0);
+  // Copy r3 r1 -> r3 = r1
+  builder.createCopyInstr(3, 1);
+  builder.createBreakInstr();
   VM vm(builder.getModule());
   auto regs = vm.getRegisterStack();
   regs[0] = r0;

@@ -7,7 +7,6 @@
 
 #include "Fox/BC/BCBuilder.hpp"
 #include "Fox/BC/Instruction.hpp"
-#include "Fox/BC/BCModule.hpp"
 
 using namespace fox;
 
@@ -15,41 +14,35 @@ using namespace fox;
 // BCModuleBuilder: Macro-generated methods
 //----------------------------------------------------------------------------//
 
-#define SIMPLE_INSTR(ID)\
-  BCModuleBuilder& BCModuleBuilder::create##ID##Instr() {\
-    Instruction instr(Opcode::ID);                \
-    pushInstr(instr);                             \
-    return *this;                                 \
+#define SIMPLE_INSTR(ID)                                                       \
+  BCModule::instr_iterator BCModuleBuilder::create##ID##Instr() {              \
+    return getModule().addInstr(Instruction(Opcode::ID));                      \
   }
 
-#define TERNARY_INSTR(ID, T1, T2, T3)\
-  BCModuleBuilder& BCModuleBuilder::\
-  create##ID##Instr(T1 arg0, T2 arg1, T3 arg2) {  \
-    Instruction instr(Opcode::ID);                \
-    instr.ID.arg0 = arg0;                         \
-    instr.ID.arg1 = arg1;                         \
-    instr.ID.arg2 = arg2;                         \
-    pushInstr(instr);                             \
-    return *this;                                 \
+#define TERNARY_INSTR(ID, T1, T2, T3)                                          \
+  BCModule::instr_iterator                                                     \
+  BCModuleBuilder::create##ID##Instr(T1 arg0, T2 arg1, T3 arg2) {              \
+    Instruction instr(Opcode::ID);                                             \
+    instr.ID.arg0 = arg0;                                                      \
+    instr.ID.arg1 = arg1;                                                      \
+    instr.ID.arg2 = arg2;                                                      \
+    return getModule().addInstr(instr);                                        \
   }
 
-#define BINARY_INSTR(ID, T1, T2)\
-  BCModuleBuilder&\
-  BCModuleBuilder::create##ID##Instr(T1 arg0, T2 arg1) {\
-    Instruction instr(Opcode::ID);                \
-    instr.ID.arg0 = arg0;                         \
-    instr.ID.arg1 = arg1;                         \
-    pushInstr(instr);                             \
-    return *this;                                 \
+#define BINARY_INSTR(ID, T1, T2)                                               \
+  BCModule::instr_iterator                                                     \
+  BCModuleBuilder::create##ID##Instr(T1 arg0, T2 arg1) {                       \
+    Instruction instr(Opcode::ID);                                             \
+    instr.ID.arg0 = arg0;                                                      \
+    instr.ID.arg1 = arg1;                                                      \
+    return getModule().addInstr(instr);                                        \
   }
 
-#define UNARY_INSTR(ID, T1)\
-  BCModuleBuilder&\
-  BCModuleBuilder::create##ID##Instr(T1 arg) { \
-    Instruction instr(Opcode::ID);                \
-    instr.ID.arg = arg;                           \
-    pushInstr(instr);                             \
-    return *this;                                 \
+#define UNARY_INSTR(ID, T1)                                                    \
+  BCModule::instr_iterator BCModuleBuilder::create##ID##Instr(T1 arg) {        \
+    Instruction instr(Opcode::ID);                                             \
+    instr.ID.arg = arg;                                                        \
+    return getModule().addInstr(instr);                                        \
   }
 
 #include "Fox/BC/Instruction.def"
@@ -59,11 +52,7 @@ using namespace fox;
 //----------------------------------------------------------------------------//
 
 BCModuleBuilder::BCModuleBuilder() = default;
-fox::BCModuleBuilder::~BCModuleBuilder() = default;
-
-Instruction BCModuleBuilder::getLastInstr() const {
-  return getModule().getInstructionBuffer().back();
-}
+BCModuleBuilder::~BCModuleBuilder() = default;
 
 std::unique_ptr<BCModule> BCModuleBuilder::takeModule() {
   return std::move(bcModule_);
@@ -77,8 +66,4 @@ BCModule& BCModuleBuilder::getModule() {
 
 const BCModule& BCModuleBuilder::getModule() const {
   return const_cast<BCModuleBuilder*>(this)->getModule();
-}
-
-void BCModuleBuilder::pushInstr(Instruction instr) {
-  getModule().getInstructionBuffer().push_back(instr);
 }

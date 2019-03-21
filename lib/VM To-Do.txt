@@ -17,8 +17,12 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
     -> Maybe add labels to instructions, so they can be more expressive?
       (e.g. we can have "dest lhs rhs" instead of "arg0 arg1 arg2")
 
+    -> Maybe add some way to keep typing when returning iterators in the BCBuilder?
+       Right now it's a bit of a pain, but it's not too bad. However it'd be nicer
+       to not lose type information, but that'd require reworking the Instruction object.
+
     -> Implement a Sethi-Ullman -like algorithm to decide the evaluation order
-       of subexpressions to be a bit more register-efficient.
+       of subexpressions (to make regalloc a bit more efficient)
 
     -> Potentially add a way of skipping 'useless' expressions on a case-by-case
        basis. 
@@ -84,17 +88,11 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Code review in Register.hpp/.cpp and BCGenDecl (Done)
       Eliminate redundancy, rewrite comments, etc.
 
+  -> BCModule::instr_iterator (Done)
+
+  -> BCBuilder Update (Done)
+
   -> CodeGen of Statements
-    -> Problem: How will jump fixups be handled with the current ModuleBuilder?
-    -> The builder should be less automated, or, if possible, it should return
-       a pointer to the instruction so it can be modified later if needed.
-    -> Solution: Return a instr_iterator instead of a BCModuleBuilder&
-    // TODO: > Finish instr_iterator  (Done)
-             > Integrate it in BCModule (Done)
-                > add a "instrs()" method that returns a iterator range:
-                 -> Generalize DeclRange as a "iterator_range" class in /common/
-             > Test it
-             > Rework InstructionBuilder: return iterator
 
   -> Write more BCGen test related to vardecls
 

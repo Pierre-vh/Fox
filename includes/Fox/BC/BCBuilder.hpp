@@ -11,31 +11,29 @@
 #pragma once
 
 #include "BCUtils.hpp"
+#include "Fox/BC/BCModule.hpp"
 #include "Fox/Common/LLVM.hpp"
 #include <memory>
 #include <cstdint>
 
 namespace fox {
-  class BCModule;
   class BCModuleBuilder {
     public:
-      BCModuleBuilder();
-      ~BCModuleBuilder();
-
       // The type of an instruction buffer.
       using Buffer = InstructionBuffer;
 
-      #define SIMPLE_INSTR(ID) BCModuleBuilder& create##ID##Instr();
-      #define TERNARY_INSTR(ID, T1, T2, T3) BCModuleBuilder&\
-        create##ID##Instr(T1 arg0, T2 arg1, T3 arg2);
-      #define BINARY_INSTR(ID, T1, T2) BCModuleBuilder&\
-        create##ID##Instr(T1 arg0, T2 arg1);
-      #define UNARY_INSTR(ID, T1) BCModuleBuilder&\
-        create##ID##Instr(T1 arg);
-      #include "Instruction.def"
+      BCModuleBuilder();
+      ~BCModuleBuilder();
 
-      // Returns the last instruction inserted in the module.
-      Instruction getLastInstr() const;
+      #define TERNARY_INSTR(ID, T1, T2, T3)\
+        BCModule::instr_iterator create##ID##Instr(T1 arg0, T2 arg1, T3 arg2);
+      #define BINARY_INSTR(ID, T1, T2)\
+        BCModule::instr_iterator create##ID##Instr(T1 arg0, T2 arg1);
+      #define UNARY_INSTR(ID, T1)\
+        BCModule::instr_iterator create##ID##Instr(T1 arg);
+      #define SIMPLE_INSTR(ID)\
+        BCModule::instr_iterator create##ID##Instr();
+      #include "Instruction.def"
 
       // Takes the current BCModule from the builder.
       // NOTE: The builder will lazily create another module
@@ -45,8 +43,6 @@ namespace fox {
       const BCModule& getModule() const;
 
     private:
-      void pushInstr(Instruction instr);
-
       std::unique_ptr<BCModule> bcModule_;
   };
 }
