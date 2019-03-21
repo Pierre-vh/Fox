@@ -79,10 +79,12 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Code review in Register.hpp/.cpp and BCGenDecl (Next)
       Eliminate redundancy, rewrite comments, etc.
 
-  -> Bytecode Rework (Minor or Major?)
+  -> (Maybe) a Bytecode/BCModuleBuilder Rework (Minor or Major?)
       -> I'd like the ModuleBuilder to be less automated and more flexible.
-         for instance, it would be great if it could support jump fixups at least.
-      -> I'll probably have to give up call chaining
+         for instance, it would be great if it could support jump fixups.
+         The ideal scenario would be to return a Instruction& and be able
+         to modify the instruction easily, but as they're stored in a vector,
+         this impossible.
 
   -> Add a RegisterAllocator enableLogging option to emit logs about 
      register allocation, such as "Assignated Register X to Var 'foo' 0xABCDEF"
