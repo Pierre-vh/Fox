@@ -46,8 +46,7 @@ RegisterValue RegisterAllocator::useVar(const VarDecl* var) {
   auto it = knownVars_.find(var);
   assert((it != knownVars_.end()) && "Unknown Variable!");
   // Assert that the variable has been assigned a register.
-  VarData& data = it->second;
-  assert(data.hasAddress() && "Var has not been initialized "
+  assert(it->second.hasAddress() && "Var has not been initialized "
     "(initVar not called for this variable)");
   // Return a RegisterValue managing this Var
   return RegisterValue(this, var);
