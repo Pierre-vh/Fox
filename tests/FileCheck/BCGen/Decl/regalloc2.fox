@@ -1,0 +1,10 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// This test checks that y won't overwrite x.
+func foo() {
+  let x : int;
+  // CHECK:       Dup 1 0
+  let y : int = x;
+  // CHECK-NEXT:  AddInt 0 0 1
+  let z : int = x+y;
+}
