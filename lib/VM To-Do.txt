@@ -18,12 +18,6 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
       (e.g. we can have "dest lhs rhs" instead of "arg0 arg1 arg2")
       -> See if it's worth it.
 
-    -> a file with several typedefs (in a "vm" namespace maybe) for:  
-        opcode_t (std::uint8_t)
-        regnum_t (std::uint8_t)
-        instr_int_t (std::uint32_t)
-        This will simplify some code in the VM and Instruction.def file
-
     -> Implement a Sethi-Ullman -like algorithm to decide the evaluation order
        of subexpressions to be a bit more register-efficient.
 

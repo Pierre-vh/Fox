@@ -346,15 +346,15 @@ TEST(VMTest, Casts) {
   EXPECT_EQ(getReg(7), 3);
 }
 
-TEST(VMTest, Dup) {
+TEST(VMTest, Copy) {
   BCModuleBuilder builder;
   FoxInt r0 = 42000;
   FoxDouble r1 = -3.3333;
   builder 
-    // Dup r2 r0 -> r2 = r0
-    .createDupInstr(2, 0)
-    // Dup r3 r1 -> r3 = r1
-    .createDupInstr(3, 1)
+    // Copy r2 r0 -> r2 = r0
+    .createCopyInstr(2, 0)
+    // Copy r3 r1 -> r3 = r1
+    .createCopyInstr(3, 1)
     .createBreakInstr();
   VM vm(builder.getModule());
   auto regs = vm.getRegisterStack();

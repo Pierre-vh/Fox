@@ -96,9 +96,9 @@ BINARY_INSTR(IntToDouble, regaddr_t, regaddr_t) // Converts an int to a double
 BINARY_INSTR(DoubleToInt, regaddr_t, regaddr_t) // Converts a double to an int
 
 // Other
-BINARY_INSTR(Dup, regaddr_t, regaddr_t) // A = B
+BINARY_INSTR(Copy, regaddr_t, regaddr_t) // A = B
 
-LAST_INSTR(Dup)
+LAST_INSTR(Copy)
 
 //----------------------------------------------------------------------------//
 

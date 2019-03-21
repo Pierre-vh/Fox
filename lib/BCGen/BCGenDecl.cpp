@@ -62,7 +62,7 @@ class BCGen::LocalDeclGenerator : public Generator,
       RegisterValue var = regAlloc.initVar(decl);
       // Init the var if we have an initializer
       if(initReg)
-        builder.createDupInstr(var.getAddress(), initReg.getAddress());
+        builder.createCopyInstr(var.getAddress(), initReg.getAddress());
     }
 
     void visitParamDecl(ParamDecl*) {
