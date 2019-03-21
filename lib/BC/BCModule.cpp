@@ -78,9 +78,9 @@ BCModule::instr_iterator::operator*() const {
   return get();
 }
 
-BCModule::instr_iterator::reference_type 
+BCModule::instr_iterator::pointer_type 
 BCModule::instr_iterator::operator->() const {
-  return get();
+  return &(get());
 }
 
 bool 

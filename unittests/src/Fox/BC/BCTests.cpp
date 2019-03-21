@@ -113,3 +113,36 @@ TEST(BCBuilderTest, UnaryInstr) {
     EXPECT_EQ(negative_instr.Jump.arg, -30000);
   }
 }
+
+TEST(BCModuleTest, instr_iterator) {
+  // Create some instructions in the builder
+  BCModuleBuilder builder;
+  builder.createBreakInstr();
+  builder.createNoOpInstr();
+  builder.createAddIntInstr(0, 0, 0);
+  builder.createAddDoubleInstr(0, 0, 0);
+  // Create a vector of the expected opcodes
+  SmallVector<Opcode, 4> expectedOps;
+  expectedOps.push_back(Opcode::Break);
+  expectedOps.push_back(Opcode::NoOp);
+  expectedOps.push_back(Opcode::AddInt);
+  expectedOps.push_back(Opcode::AddDouble);
+  // Get the module
+  BCModule& theModule = builder.getModule();
+  // Check that the order matches what we expect, and that
+  // iteration is successful.
+  auto it = theModule.instrs_begin();
+  auto end = theModule.instrs_end();
+  {
+    int idx = 0;
+    for (; it != end; ++it) {
+      ASSERT_EQ(it->opcode, expectedOps[idx++]);
+    }
+  }
+  // Check that it == end
+  ASSERT_EQ(it, theModule.instrs_end());
+  // Check that --it == back
+  ASSERT_EQ(--it, theModule.instrs_back());
+  // Check that .back is indeed AddDouble
+  ASSERT_EQ(theModule.instrs_back()->opcode, Opcode::AddDouble);
+}

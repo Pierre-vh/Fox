@@ -61,6 +61,7 @@ namespace fox {
       using iterator_category = std::bidirectional_iterator_tag;
       using value_type = Instruction;
       using reference_type = Instruction&;
+      using pointer_type = Instruction*;
       using difference_type = idx_type;
 
       // Pre-increment
@@ -74,7 +75,7 @@ namespace fox {
       instr_iterator operator--(int);
 
       reference_type operator*() const;
-      reference_type operator->() const; 
+      pointer_type operator->() const; 
 
       friend bool operator==(instr_iterator lhs, instr_iterator rhs);
       friend bool operator!=(instr_iterator lhs, instr_iterator rhs);

@@ -91,6 +91,8 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
     -> Solution: Return a instr_iterator instead of a BCModuleBuilder&
     // TODO: > Finish instr_iterator  (Done)
              > Integrate it in BCModule (Done)
+                > add a "instrs()" method that returns a iterator range:
+                 -> Generalize DeclRange as a "iterator_range" class in /common/
              > Test it
              > Rework InstructionBuilder: return iterator
 
