@@ -166,8 +166,6 @@ void BCGen::genFunc(BCModuleBuilder& builder, FuncDecl* func) {
 }
 
 void BCGen::genGlobalVar(BCModuleBuilder&, VarDecl*) {
-  assert(var && "var is null");
-  assert((!var->isLocal()) && "var is not global!");
   fox_unimplemented_feature("BCGen::genGlobalVar");
 }
 
