@@ -89,9 +89,10 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
     -> The builder should be less automated, or, if possible, it should return
        a pointer to the instruction so it can be modified later if needed.
     -> Solution: Return a instr_iterator instead of a BCModuleBuilder&
-    // TODO: > Finish instr_iterator
-             > Integrate it in BCModule
-             > Rework InstructionBuilder
+    // TODO: > Finish instr_iterator  (Done)
+             > Integrate it in BCModule (Done)
+             > Test it
+             > Rework InstructionBuilder: return iterator
 
   -> Write more BCGen test related to vardecls
 

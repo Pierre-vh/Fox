@@ -32,30 +32,33 @@ namespace fox {
       // Returns a constant reference to the instruction buffer
       const InstructionBuffer& getInstructionBuffer() const;
 
-      instr_iterator instrs_beg();
-
       // Dumps the module to 'out'
       void dumpModule(std::ostream& out) const;
 
+      instr_iterator instrs_begin();
+      instr_iterator instrs_end();
+      instr_iterator instrs_back();
+
     private:
-      // TODO: Move this out in the .cpp (using PIMPL) to reduce 
-      // the number of includes.
+      friend class BCModuleBuilder;
+
+      // Appends an in instruction to this Module, returning
+      // an iterator to the pushed element.
+      instr_iterator push_back(Instruction instr);
+
       InstructionBuffer instrBuffer_;
   };
 
-  // TODO: Constant iterator version + integrate it in BCModule
-  //       with 'instrs_beg' 'instrs_end' and 'instrs_back'
-  //       For the constant iterator, maybe use a common template base.
-
   // An iterator to an instruction in a BCModule. 
   //
-  // This wraps a BCModule* + an index because traditional vector iterators
-  // cannot be used safely due to potential reallocations.
+  // This wraps a BCModule* + an index because classic vector iterators
+  // cannot be used safely due to potential reallocations 
+  // (iterator invalidation)
   class BCModule::instr_iterator {
     // Use a 32 bit unsigned int as index type to save a bit of space.
     using idx_type = std::uint32_t;
     public:
-      using iterator_category = std::random_access_iterator_tag;
+      using iterator_category = std::bidirectional_iterator_tag;
       using value_type = Instruction;
       using reference_type = Instruction&;
       using difference_type = idx_type;
@@ -65,6 +68,11 @@ namespace fox {
       // Post-increment
       instr_iterator operator++(int);
 
+      // Pre-decrement
+      instr_iterator& operator--();
+      // Post-decrement
+      instr_iterator operator--(int);
+
       reference_type operator*() const;
       reference_type operator->() const; 
 
@@ -72,10 +80,10 @@ namespace fox {
       friend bool operator!=(instr_iterator lhs, instr_iterator rhs);
 
     private:
-      friend class BCModuleBuilder;
+      // Only the BCModule should be able to create these iterators.
+      friend class BCModule;
 
-      reference_type& get();
-      const reference_type& get() const;
+      reference_type& get() const;
       
       instr_iterator(BCModule& bcModule, idx_type idx);
 
