@@ -88,6 +88,10 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
     -> Problem: How will jump fixups be handled with the current ModuleBuilder?
     -> The builder should be less automated, or, if possible, it should return
        a pointer to the instruction so it can be modified later if needed.
+    -> Solution: Return a instr_iterator instead of a BCModuleBuilder&
+    // TODO: > Finish instr_iterator
+             > Integrate it in BCModule
+             > Rework InstructionBuilder
 
   -> Write more BCGen test related to vardecls
 
