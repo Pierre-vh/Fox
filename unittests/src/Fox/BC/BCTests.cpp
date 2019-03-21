@@ -113,6 +113,49 @@ TEST(BCBuilderTest, UnaryInstr) {
   }
 }
 
+TEST(BCBuilderTest, createdInstrIterators) {
+  BCModuleBuilder builder;
+  // Create a few instructions, checking that iterators are valid
+  auto a = builder.createJumpInstr(30000);
+  EXPECT_EQ(a->opcode, Opcode::Jump);
+  EXPECT_EQ(a->Jump.arg, 30000);
+  auto b = builder.createCondJumpInstr(5, -4200);
+  EXPECT_EQ(b->opcode, Opcode::CondJump);
+  EXPECT_EQ(b->CondJump.arg0, 5u);
+  EXPECT_EQ(b->CondJump.arg1, -4200);
+  auto c = builder.createDivDoubleInstr(1, 2, 3);
+  EXPECT_EQ(c->opcode, Opcode::DivDouble);
+  EXPECT_EQ(c->DivDouble.arg0, 1u);
+  EXPECT_EQ(c->DivDouble.arg1, 2u);
+  EXPECT_EQ(c->DivDouble.arg2, 3u);
+  // Insert a few instructions, then tests the iterators again
+  builder.createBreakInstr();
+  builder.createNoOpInstr();
+  auto last = builder.createBreakInstr();
+  // a
+  EXPECT_EQ(a->opcode, Opcode::Jump);
+  EXPECT_EQ(a->Jump.arg, 30000);
+  // b
+  EXPECT_EQ(b->opcode, Opcode::CondJump);
+  EXPECT_EQ(b->CondJump.arg0, 5u);
+  EXPECT_EQ(b->CondJump.arg1, -4200);
+  // c
+  EXPECT_EQ(c->opcode, Opcode::DivDouble);
+  EXPECT_EQ(c->DivDouble.arg0, 1u);
+  EXPECT_EQ(c->DivDouble.arg1, 2u);
+  EXPECT_EQ(c->DivDouble.arg2, 3u);
+  // ++c should be the break instr
+  EXPECT_EQ((++c)->opcode, Opcode::Break);
+  BCModule& theModule = builder.getModule();
+  // ++last should be equal to end
+  auto end = ++BCModule::instr_iterator(last);
+  EXPECT_EQ(end, theModule.instrs_end());
+  // last should be equal to back
+  EXPECT_EQ(last, theModule.instrs_back());
+  // last should be equal to --end
+  EXPECT_EQ(last, --theModule.instrs_end());
+}
+
 TEST(BCModuleTest, instr_iterator) {
   // Create some instructions in the builder
   BCModuleBuilder builder;
