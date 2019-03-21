@@ -16,7 +16,6 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   Ideas:
     -> Maybe add labels to instructions, so they can be more expressive?
       (e.g. we can have "dest lhs rhs" instead of "arg0 arg1 arg2")
-      -> See if it's worth it.
 
     -> Implement a Sethi-Ullman -like algorithm to decide the evaluation order
        of subexpressions to be a bit more register-efficient.
@@ -26,6 +25,12 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
        e.g. don't compile a 'Unary Not -> Unary Not -> Expr', just compile expr.
        I need to see if there's more of them and if it'd be worthwhile to implement such 
        a feature.
+
+    -> Add a RegisterAllocator enableLogging option to emit logs about 
+       register allocation, such as "Assignated Register X to Var 'foo' 0xABCDEF"
+       or, upon death, emit the total of registers used, something like that.
+       Add a "-log-regalloc" option and use write FileCheck tests based on that option.
+
 
 ---- Initial Preparation and Scaffolding ---- DONE ----
 
@@ -76,37 +81,25 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
 
   -> Codegen of local variables (Done)
  
-  -> Code review in Register.hpp/.cpp and BCGenDecl (Next)
+  -> Code review in Register.hpp/.cpp and BCGenDecl (Done)
       Eliminate redundancy, rewrite comments, etc.
 
-  -> (Maybe) a Bytecode/BCModuleBuilder Rework (Minor or Major?)
-      -> I'd like the ModuleBuilder to be less automated and more flexible.
-         for instance, it would be great if it could support jump fixups.
-         The ideal scenario would be to return a Instruction& and be able
-         to modify the instruction easily, but as they're stored in a vector,
-         this impossible.
-
-  -> Add a RegisterAllocator enableLogging option to emit logs about 
-     register allocation, such as "Assignated Register X to Var 'foo' 0xABCDEF"
-     or, upon death, emit the total of registers used, something like that.
-     Add a "-log-regalloc" option and use write FileCheck tests based on that option.
+  -> CodeGen of Statements
+    -> Problem: How will jump fixups be handled with the current ModuleBuilder?
+    -> The builder should be less automated, or, if possible, it should return
+       a pointer to the instruction so it can be modified later if needed.
 
   -> Write more BCGen test related to vardecls
-
-  -> Think more thoroughly about how the Savepoints will be generated. I must be
-     able to tell precisely if a register is holding a reference or not.
-     Bulletproof my code now when it is still simple!
-     e.g. always make sure that the RegisterAllocator knows about register reuses/swaps/etc
-     Note: a point of interest is createDupInstr. It needs to be encapsulated.
-     e.g. BCGen::emitCopy(RegisterValue& dest, RegisterValue src)
-
-  -> CodeGen of Statements
 
   -> Constants & Constant Table
 
   -> Implement the rest of the arithmetic bits of ExprGenerator:
     -> Double & Double operations
     -> Assignements (AssignExprGenerator)
+
+  -> Think more thoroughly about how the Savepoints will be generated. I must be
+     able to tell precisely if a register is holding a reference or not.
+     Bulletproof my code now when it is still simple!
 
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).
