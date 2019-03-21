@@ -145,22 +145,22 @@ regaddr_t RegisterAllocator::getRegisterOfVar(const VarDecl* var) const {
   auto it = knownVars_.find(var);
   assert((it != knownVars_.end()) && "Unknown Variable!");
   // If this function is called, we should have a register reserved for this
-  // variable.
+  // variable
   assert(it->second.hasAddress() && "Variable doesn't have an address!");
   return it->second.addr.getValue();
 }
 
 void RegisterAllocator::release(const VarDecl* var) {
-  // Search for the var
+  // Search for the var and fetch its data
   auto it = knownVars_.find(var);
   assert((it != knownVars_.end()) && "Unknown Variable!");
   VarData& data = it->second;
-  // Decrement the use count
+  // Decrement the use count, asserting that it isn't 0 already
   assert((data.useCount != 0) && "Variable is already dead");
   --(data.useCount);
-  // Check if the variable is dead
+  // Check if the variable is dead after decrementation
   if (data.useCount == 0) {
-    // Free the register
+    // If so, free the register
     assert(data.hasAddress() && "Variable doesn't have an address!");
     markRegisterAsFreed(data.addr.getValue());
     // Remove the entry from the map
