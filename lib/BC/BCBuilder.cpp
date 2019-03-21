@@ -66,13 +66,13 @@ Instruction BCModuleBuilder::getLastInstr() const {
 }
 
 std::unique_ptr<BCModule> BCModuleBuilder::takeModule() {
-  return std::move(vmModule_);
+  return std::move(bcModule_);
 }
 
 BCModule& BCModuleBuilder::getModule() {
   // Lazily create a new module if needed.
-  if(!vmModule_) vmModule_ = std::make_unique<BCModule>();
-  return *vmModule_;
+  if(!bcModule_) bcModule_ = std::make_unique<BCModule>();
+  return *bcModule_;
 }
 
 const BCModule& BCModuleBuilder::getModule() const {

@@ -47,6 +47,6 @@ namespace fox {
     private:
       void pushInstr(Instruction instr);
 
-      std::unique_ptr<BCModule> vmModule_;
+      std::unique_ptr<BCModule> bcModule_;
   };
 }
