@@ -43,6 +43,9 @@ namespace fox {
       // Erases all instructions in the range [beg, end)
       void erase(instr_iterator beg, instr_iterator end);
 
+      // Returns true if 'it' == instrs_back().
+      bool isLastInstr(instr_iterator it) const;
+
       // Removes the last instruction added to this module.
       void popInstr();
 

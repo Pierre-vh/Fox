@@ -32,6 +32,12 @@ void BCModule::erase(instr_iterator beg, instr_iterator end) {
   instrBuffer_.erase(true_beg, true_end);
 }
 
+bool BCModule::isLastInstr(instr_iterator it) const {
+  // TODO: Once I have a const version of instrs_back, remove
+  // the const_cast.
+  return (it == const_cast<BCModule*>(this)->instrs_back());
+}
+
 void BCModule::popInstr() {
   instrBuffer_.pop_back();
 }
