@@ -1,0 +1,21 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// Test a basic condition
+func foo() {
+  // CHECK:       StoreSmallInt 0 1
+  // CHECK-NEXT:  CondJump 0 1
+  // CHECK-NEXT:  Jump 4
+  if true {
+  // CHECK-NEXT:  StoreSmallInt 0 3
+  // CHECK-NEXT:  StoreSmallInt 1 2
+  // CHECK-NEXT:  AddInt 0 0 1
+  // CHECK-NEXT:  Jump 3
+    3+2;
+  }
+  // CHECK-NEXT:  StoreSmallInt 0 3
+  // CHECK-NEXT:  StoreSmallInt 1 2
+  // CHECK-NEXT:  SubInt 0 0 1
+  else {
+    3-2;
+  }
+}

@@ -1,0 +1,11 @@
+// RUN: %fox-dump-bcgen | %filecheck
+
+// Test a condition with no else and an empty if
+// TODO: Needs to be optimized since this is relatively innefficient.
+//  (the 2 Jumps are useless and should be removed)
+func foo() {
+  // CHECK:      StoreSmallInt 0 0
+  // CHECK-NEXT: CondJump 0 1
+  // CHECK-NEXT: Jump 0
+  if false {}
+}
