@@ -110,47 +110,86 @@ class BCGen::StmtGenerator : public Generator,
     void visitConditionStmt(ConditionStmt* stmt) {
       BCModule& theModule = builder.getModule();
 
-      {
-        // First, generate the condition
-        RegisterValue condReg = 
-          bcGen.genExpr(builder, regAlloc, stmt->getCond());
+      // Gen the condition 
+      RegisterValue condReg = 
+        bcGen.genExpr(builder, regAlloc, stmt->getCond());
 
-        // Then generate a condjump. This condjump will, if true, skip the jump
-        // to the else, so we'll just jump 1 instruction (since jump offsets
-        // are relative to the next instruction)
-        builder.createCondJumpInstr(condReg.getAddress(), 1);
-      }
+      // Create a conditional jump (to skip the jump to the 'else'
+      // in case the condition is true)
+      auto condJump = builder.createCondJumpInstr(condReg.getAddress(), 1);
+
+      // Free the register of the condition
+      condReg.free();
 
       // Now, create a jump to the code that needs to be executed
-      // if the condition isn't satisfied.
+      // if the condition isn't satisfied. It will be completed later.
       auto jumpIfNot = builder.createJumpInstr(0);
 
-      // Compile the 'then'
+      // Gen the 'then'
       visit(stmt->getThen());
 
-      auto lastThenInstr = theModule.instrs_back();
+      bool isThenEmpty = (jumpIfNot == theModule.instrs_back());
+
+      // If the 'then' is empty, remove the 'jumpIfNot'
+      if (isThenEmpty) {
+        theModule.popInstr();
+        assert((jumpIfNot == theModule.instrs_end()) 
+          && "jumpIfNot was removed but its iterator doesn't point "
+              " past the end of the instruction buffer");
+      }
 
       // Compile the 'else' if present
       if (CompoundStmt* elseBody = stmt->getElse()) {
-        // Create a jump to the end of the condition (same as 'jumpToElse')
-        // so the if's code doesn't fall-through and executes the else too.
-        auto jumpEnd = builder.createJumpInstr(0);
-        // Now we can complete 'jumpIfNot' so it executes the else.
-        jumpIfNot->Jump.arg = calculateJumpOffset(jumpIfNot, jumpEnd);
-        // Compile the else
-        visit(elseBody);
-        // Complete 'jumpEnd' so it jumps to the last instruction emitted.
-        jumpEnd->Jump.arg = calculateJumpOffset(jumpEnd, 
-                                                theModule.instrs_back());
+        bool isElseEmpty = false;
+        if(isThenEmpty) {
+          auto prev = theModule.instrs_back();
+          // Gen the 'else'
+          visit(elseBody);
+          isElseEmpty = (prev == theModule.instrs_back());
+          if (!isElseEmpty) {
+            // When the then is empty, we'll adjust the condJump so it
+            // skips the entire else.
+            condJump->CondJump.arg1 = 
+              calculateJumpOffset(condJump, theModule.instrs_back());
+          }
+        }
+        else {
+          // Create a jump to the end of the condition (same as 'jumpToElse')
+          // so the if's code doesn't fall-through and executes the else too.
+          auto jumpEnd = builder.createJumpInstr(0);
+          // Now we can complete 'jumpIfNot' so it executes the else.
+          jumpIfNot->Jump.arg = calculateJumpOffset(jumpIfNot, jumpEnd);
+          // Gen the 'else'
+          visit(elseBody);
+          isElseEmpty = (jumpEnd == theModule.instrs_end());
+          if (!isElseEmpty) {
+            // Complete 'jumpEnd' so it jumps to the last instruction emitted.
+            jumpEnd->Jump.arg = calculateJumpOffset(jumpEnd, 
+                                                    theModule.instrs_back());
+          }
+        }
+
+        // If both if and then were empty, remove everything after the condJump,
+        // leaving only the condition
+        if (isThenEmpty && isElseEmpty) {
+          theModule.erase(condJump, theModule.instrs_end());
+        }
       }
       // No 'else'
       else {
-        // Just complete 'jumpToElse' to jump after the last instruction
-        // emitted.
-        // FIXME: Is this safe? We'll probably have instruction be generated
-        // after (at least a return) but it can't be guaranteed here.
-        jumpIfNot->Jump.arg = calculateJumpOffset(jumpIfNot, 
-                                                  theModule.instrs_back());
+        if (isThenEmpty) {
+          // In this case, remove the condJump too.
+          theModule.popInstr();
+          assert((condJump == theModule.instrs_end()) 
+            && "condJump was removed but its iterator doesn't point "
+                " past the end of the instruction buffer");
+        }
+        else {
+          // Complete 'jumpToElse' to jump after the last instruction
+          // emitted.
+          jumpIfNot->Jump.arg = calculateJumpOffset(jumpIfNot, 
+                                                    theModule.instrs_back());
+        }
       }
     }
 

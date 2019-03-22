@@ -1,13 +1,8 @@
 // RUN: %fox-dump-bcgen | %filecheck
 
 // Test an empty if-then-else  condition
-// TODO: Needs to be optimized since this is relatively innefficient.
-// (the 3 Jumps are useless and should be removed)
 func foo() {
   // CHECK:      StoreSmallInt 0 0
-  // CHECK-NEXT: CondJump 0 1
-  // CHECK-NEXT: Jump 1
   if false {} 
-  // CHECK-NEXT: Jump 0
   else {}
 }

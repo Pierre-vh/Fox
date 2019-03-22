@@ -139,12 +139,3 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
 Other notes:
   -> InstructionBuilder will be split in multiple builders (BCModuleBuilder, BCFunctionBuilder, etc)
      to be more organized.  
-
-Optimization areas for bytecode generation:
-  a) BCGen for ConditionStmt with an empty if and/or else is relatively innefficient 
-     because it inserts useless jumps. See cond 3, 4, 5 and 6 tests in test/FileCheck/Stmt/
-
-     Ideally, it should just generate the condition and nothing else. To do that, add
-     a way of "popping" instructions (remove everything after an iterator) to remove 
-     the useless jumps if we detect that no code was generated for the if/else.
-     
