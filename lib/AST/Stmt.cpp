@@ -103,13 +103,13 @@ void ReturnStmt::setExpr(Expr* e) {
 //----------------------------------------------------------------------------//
 
 ConditionStmt::ConditionStmt(SourceLoc ifBegLoc, Expr* cond, CompoundStmt* then, 
-                             CompoundStmt* elseBody): 
+                             Stmt* elseBody): 
   Stmt(StmtKind::ConditionStmt), ifBegLoc_(ifBegLoc), cond_(cond), then_(then),
   else_(elseBody) {}
 
 ConditionStmt* 
 ConditionStmt::create(ASTContext& ctxt, SourceLoc ifBegLoc, Expr* cond, 
-  CompoundStmt* then, CompoundStmt* elseBody) {
+  CompoundStmt* then, Stmt* elseBody) {
   return new(ctxt) ConditionStmt(ifBegLoc, cond, then, elseBody);
 }
 
@@ -132,7 +132,7 @@ CompoundStmt* ConditionStmt::getThen() const {
   return then_;
 }
 
-CompoundStmt* ConditionStmt::getElse() const {
+Stmt* ConditionStmt::getElse() const {
   return else_;
 }
 
@@ -146,7 +146,7 @@ void ConditionStmt::setThen(CompoundStmt* node) {
   then_ = node;
 }
 
-void ConditionStmt::setElse(CompoundStmt* node) {
+void ConditionStmt::setElse(Stmt* node) {
   // can be nullptr
   else_ = node;
 }

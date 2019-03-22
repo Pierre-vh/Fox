@@ -112,10 +112,11 @@ Parser::Result<Stmt*> Parser::parseWhileLoop() {
 }
 
 Parser::Result<Stmt*> Parser::parseCondition() {
-  // <condition> = "if" <expr> <compound_stmt> ["else" <compound_stmt>]
+  // <condition> = "if" <expr> <compound_statement> 
+  //                ["else" (<compound_statement> | <condition>)]
   Expr* expr = nullptr;
   CompoundStmt* then_body = nullptr;
-  CompoundStmt* else_body = nullptr;
+  Stmt* else_node = nullptr;
 
   // "if"
   auto ifKw = consumeKeyword(KeywordType::KW_IF);
@@ -136,7 +137,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
     return Result<Stmt*>::Error();
   }
     
-  // <compound_stmt>
+  // <compound_statement>
   if (auto body = parseCompoundStatement())
     then_body = body.castTo<CompoundStmt>();
   else {
@@ -147,22 +148,30 @@ Parser::Result<Stmt*> Parser::parseCondition() {
 
   // "else"
   if (consumeKeyword(KeywordType::KW_ELSE)) {
-    // <compound_stmt>
-    if (auto body = parseCompoundStatement())
-      else_body = body.castTo<CompoundStmt>();
-    else {
-      if(body.isNotFound())
-        reportErrorExpected(DiagID::expected_opening_curly_bracket);
+    // <condition>
+    if (auto cond = parseCondition())
+      else_node = cond.castTo<ConditionStmt>();
+    else if(cond.isError())
+      return Result<Stmt*>::Error();
+
+    // <compound_statement>
+    if (auto compound = parseCompoundStatement())
+      else_node = compound.castTo<CompoundStmt>();
+    else if(compound.isError())
+      return Result<Stmt*>::Error();
+
+    if (!else_node) {
+      reportErrorExpected(DiagID::expected_opening_curly_bracket);
       return Result<Stmt*>::Error();
     }
   }
 
   assert(expr->getSourceRange() && then_body->getSourceRange() && ifKw.getBeginLoc() 
-    && (else_body ? else_body->getSourceRange().isValid() : true) 
+    && (else_node ? else_node->getSourceRange().isValid() : true) 
     && "incomplete locs");
 
   return Result<Stmt*>(
-    ConditionStmt::create(ctxt, ifKw.getBeginLoc(), expr, then_body, else_body)
+    ConditionStmt::create(ctxt, ifKw.getBeginLoc(), expr, then_body, else_node)
   );
 }
 

@@ -105,7 +105,7 @@ namespace fox {
       /// \param then The then's body
       /// \param condElse The else's body, if there is one.
       static ConditionStmt* create(ASTContext& ctxt, SourceLoc ifBegLoc,
-        Expr* cond, CompoundStmt* then, CompoundStmt* condElse);
+        Expr* cond, CompoundStmt* then, Stmt* condElse);
 
       void setCond(Expr* expr);
       Expr* getCond() const;
@@ -113,8 +113,8 @@ namespace fox {
       void setThen(CompoundStmt* node);
       CompoundStmt* getThen() const;
 
-      void setElse(CompoundStmt* node);
-      CompoundStmt* getElse() const;
+      void setElse(Stmt* node);
+      Stmt* getElse() const;
       bool hasElse() const;
 
       SourceRange getSourceRange() const;
@@ -125,12 +125,12 @@ namespace fox {
 
     private:
       ConditionStmt(SourceLoc ifBegLoc, Expr* cond, CompoundStmt* then, 
-        CompoundStmt* elsenode);
+        Stmt* elsenode);
 
       SourceLoc ifBegLoc_;
       Expr* cond_ = nullptr;
       CompoundStmt* then_ = nullptr;
-      CompoundStmt* else_ = nullptr;
+      Stmt* else_ = nullptr;
   };
 
   /// CompoundStmt

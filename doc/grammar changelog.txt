@@ -173,3 +173,9 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
         <expr_stmt> = ';' | <expr> ';'
       to
         <expr_stmt> = <expr> ';' 
+* 0.15.2
+   ~ Changed <condition> rule
+     from
+       <condition> = "if" <parens_expr> <body> ["else" <body>]
+     to
+       <condition> = "if" <expr> <compound_statement> ["else" (<compound_statement> | <condition>)]

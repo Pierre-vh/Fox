@@ -139,7 +139,7 @@ class BCGen::StmtGenerator : public Generator,
       }
 
       // Compile the 'else' if present
-      if (CompoundStmt* elseBody = stmt->getElse()) {
+      if (Stmt* elseBody = stmt->getElse()) {
         bool isElseEmpty = false;
         if(isThenEmpty) {
           // Since 'jumpIfNot' has been removed, condJump should

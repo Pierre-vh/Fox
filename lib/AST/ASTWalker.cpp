@@ -186,7 +186,7 @@ namespace {
           else return nullptr;
         }
 
-        if (CompoundStmt* elseBody = stmt->getElse()) {
+        if (Stmt* elseBody = stmt->getElse()) {
           if ((elseBody = doIt(elseBody))) {
             stmt->setElse(elseBody);
           }

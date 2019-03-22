@@ -135,9 +135,9 @@ class Sema::StmtChecker : Checker, StmtVisitor<StmtChecker, void>{
       stmt->setCond(checkCond(stmt->getCond()));
       // Check the if's body
       visitCompoundStmt(stmt->getThen());
-	    // Check the else's body if there is one and replace it
-	    if(CompoundStmt* elseBody = stmt->getElse())
-		    visitCompoundStmt(elseBody);
+	    // Check the else's body if there is one
+	    if(Stmt* elseBody = stmt->getElse())
+		    visit(elseBody);
     }
 			
     //----------------------------------------------------------------------//

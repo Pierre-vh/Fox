@@ -1,4 +1,4 @@
-Fox Grammar version 0.15.1
+Fox Grammar version 0.15.2
 
 // Note : { } means "0 or more", [ ] means "optional"
 
@@ -64,6 +64,6 @@ Fox Grammar version 0.15.1
 
 ##Stmts##
 <compound_statement> = '{' {<stmt>} '}'
-<condition> = "if" <expr> <compound_statement> ["else" <compound_statement>]
+<condition> = "if" <expr> <compound_statement> ["else" (<compound_statement> | <condition>)]
 <while_loop> = "while" <expr> <compound_statement>
 <stmt> = <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
