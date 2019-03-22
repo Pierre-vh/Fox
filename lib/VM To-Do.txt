@@ -96,6 +96,8 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> CodeGen of Statements
       -> Conditions (Done)
       -> Loops
+        -> Don't forget to "protect" the liveliness of variables declared outside the loop.
+           I'll need a "RegisterAllocator::LoopLVP" (liveliness protector) or something like that.
 
   -> Add index when dumping instructions, e.g. [42] StoreSmallInt 3 50
 
