@@ -166,7 +166,9 @@ Parser::Result<Stmt*> Parser::parseCondition() {
     }
   }
 
-  assert(expr->getSourceRange() && then_body->getSourceRange() && ifKw.getBeginLoc() 
+  assert(expr->getSourceRange() 
+    && then_body->getSourceRange() 
+    && ifKw.getBeginLoc() 
     && (else_node ? else_node->getSourceRange().isValid() : true) 
     && "incomplete locs");
 
@@ -215,7 +217,8 @@ Parser::Result<Stmt*> Parser::parseReturnStmt() {
 }
 
 Parser::Result<ASTNode> Parser::parseStmt() {
-  // <stmt>  = <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
+  // <stmt>  = <var_decl> | <expr_stmt> | 
+  //           <condition> | <while_loop> | <rtr_stmt> 
 
   // <var_decl
   if (auto vardecl = parseVarDecl())
