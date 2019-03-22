@@ -32,6 +32,10 @@ void BCModule::erase(instr_iterator beg, instr_iterator end) {
   instrBuffer_.erase(true_beg, true_end);
 }
 
+void BCModule::popInstr() {
+  instrBuffer_.pop_back();
+}
+
 BCModule::instr_iterator BCModule::instrs_begin() {
   return instr_iterator(*this, 0);
 }
