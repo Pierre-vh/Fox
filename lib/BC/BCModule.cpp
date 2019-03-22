@@ -26,6 +26,12 @@ void BCModule::dumpModule(std::ostream& out) const {
   dumpInstructions(out, getInstructionBuffer());
 }
 
+void BCModule::erase(instr_iterator beg, instr_iterator end) {
+  auto true_beg = beg.toIBiterator();
+  auto true_end = end.toIBiterator();
+  instrBuffer_.erase(true_beg, true_end);
+}
+
 BCModule::instr_iterator BCModule::instrs_begin() {
   return instr_iterator(*this, 0);
 }
@@ -132,7 +138,11 @@ fox::distance(BCModule::instr_iterator first, BCModule::instr_iterator last) {
   return (last.idx_ - first.idx_);
 }
 
-bool 
+InstructionBuffer::iterator BCModule::instr_iterator::toIBiterator() const {
+  return bcModule_.get().instrBuffer_.begin() + idx_;
+}
+
+bool
 BCModule::instr_iterator::usesSameModuleAs(const instr_iterator& other) const {
   return &(bcModule_.get()) == &(other.bcModule_.get());
 }

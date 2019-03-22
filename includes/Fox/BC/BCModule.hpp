@@ -40,6 +40,9 @@ namespace fox {
       // Dumps the module to 'out'
       void dumpModule(std::ostream& out) const;
 
+      // Erases all instructions in the range [beg, end)
+      void erase(instr_iterator beg, instr_iterator end);
+
       instr_iterator instrs_begin();
       instr_iterator instrs_end();
       instr_iterator instrs_back();
@@ -98,6 +101,8 @@ namespace fox {
       distance(instr_iterator first, instr_iterator last);
 
     private:
+      InstructionBuffer::iterator toIBiterator() const;
+
       // Only the BCModule should be able to create these iterators.
       friend class BCModule;
 
