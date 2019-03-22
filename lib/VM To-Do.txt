@@ -35,6 +35,7 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
        or, upon death, emit the total of registers used, something like that.
        Add a "-log-regalloc" option and use write FileCheck tests based on that option.
 
+    -> Properly diagnose out of range jumps in BCGen::StmtGenerator::calculateJumpOffset
 
 ---- Initial Preparation and Scaffolding ---- DONE ----
 
@@ -93,8 +94,10 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> BCBuilder Update (Done)
 
   -> CodeGen of Statements
+      -> Conditions (Done)
+      -> Loops
 
-  -> Write more BCGen test related to vardecls
+  -> Add index when dumping instructions, e.g. [42] StoreSmallInt 3 50
 
   -> Constants & Constant Table
 
