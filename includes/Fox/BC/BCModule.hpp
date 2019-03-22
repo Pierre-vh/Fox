@@ -16,11 +16,16 @@
 #include "Fox/Common/LLVM.hpp"
 #include "llvm/ADT/SmallVector.h"
 #include <iterator>
+#include <functional>
 #include <iosfwd>
 
 namespace fox {
   class BCModule {
     public:
+      BCModule() = default;
+      BCModule(const BCModule&) = delete;
+      BCModule& operator=(const BCModule&) = delete;
+
       class instr_iterator;
 
       // Returns the number of instructions in the instruction buffer
@@ -55,14 +60,15 @@ namespace fox {
   // cannot be used safely due to potential reallocations 
   // (iterator invalidation)
   class BCModule::instr_iterator {
-    // Use a 32 bit unsigned int as index type to save a bit of space.
-    using idx_type = std::uint32_t;
+    using idx_type = std::size_t;
     public:
       using iterator_category = std::bidirectional_iterator_tag;
       using value_type = Instruction;
       using reference_type = Instruction&;
       using pointer_type = Instruction*;
       using difference_type = idx_type;
+
+      instr_iterator& operator=(const instr_iterator& other);
 
       // Pre-increment
       instr_iterator& operator++();
@@ -77,18 +83,33 @@ namespace fox {
       reference_type operator*() const;
       pointer_type operator->() const; 
 
-      friend bool operator==(instr_iterator lhs, instr_iterator rhs);
-      friend bool operator!=(instr_iterator lhs, instr_iterator rhs);
+      friend bool operator==(const instr_iterator& lhs, 
+                             const instr_iterator& rhs);
+      friend bool operator!=(const instr_iterator& lhs, 
+                             const instr_iterator& rhs);
+
+      friend bool operator<(const instr_iterator& lhs, 
+                            const instr_iterator& rhs);
+      friend bool operator>(const instr_iterator& lhs, 
+                            const instr_iterator& rhs);
+
+      // std::distance equivalent method for BCModule::instr_iterator.
+      friend difference_type
+      distance(instr_iterator first, instr_iterator last);
 
     private:
       // Only the BCModule should be able to create these iterators.
       friend class BCModule;
 
+      // Returns true if this iterator and the other
+      // share the same module.
+      bool usesSameModuleAs(const instr_iterator& other) const;
+
       reference_type& get() const;
       
       instr_iterator(BCModule& bcModule, idx_type idx);
 
-      BCModule& bcModule_;
+      std::reference_wrapper<BCModule> bcModule_;
       idx_type idx_;
   };
 }

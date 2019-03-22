@@ -47,8 +47,15 @@ BCModule::instr_iterator BCModule::addInstr(Instruction instr) {
 // BCModule::instr_iterator
 //----------------------------------------------------------------------------//
 
+BCModule::instr_iterator& 
+BCModule::instr_iterator::operator=(const BCModule::instr_iterator& other) {
+  bcModule_ = other.bcModule_;
+  idx_ = other.idx_;
+  return *this;
+}
+
 BCModule::instr_iterator& BCModule::instr_iterator::operator++() {
-  assert((idx_ < bcModule_.getInstructionBuffer().size()) 
+  assert((idx_ < bcModule_.get().getInstructionBuffer().size()) 
     && "Incrementing a past-the-end iterator");
   ++idx_;
   return *this;
@@ -84,20 +91,54 @@ BCModule::instr_iterator::operator->() const {
 }
 
 bool 
-fox::operator==(BCModule::instr_iterator lhs, BCModule::instr_iterator rhs){
+fox::operator==(const BCModule::instr_iterator& lhs, 
+               const BCModule::instr_iterator& rhs) {
   // Check if the modules are the same (same instance)
-  if(&(lhs.bcModule_) == &(rhs.bcModule_))
+  if(lhs.usesSameModuleAs(rhs))
     return lhs.idx_ == rhs.idx_;
   return false;
 }
 
 bool 
-fox::operator!=(BCModule::instr_iterator lhs, BCModule::instr_iterator rhs) {
+fox::operator!=(const BCModule::instr_iterator& lhs, 
+               const BCModule::instr_iterator& rhs) {
   return !(lhs == rhs);
 }
 
+bool 
+fox::operator<(const BCModule::instr_iterator& lhs, 
+               const BCModule::instr_iterator& rhs) {
+  assert(lhs.usesSameModuleAs(rhs) 
+    && "iterators are for different BCModules!");
+  return lhs.idx_ < rhs.idx_;
+}
+
+bool 
+fox::operator>(const BCModule::instr_iterator& lhs, 
+               const BCModule::instr_iterator& rhs) {
+  assert(lhs.usesSameModuleAs(rhs) 
+    && "iterators are for different BCModules!");
+  return lhs.idx_ > rhs.idx_;
+}
+
+BCModule::instr_iterator::difference_type 
+fox::distance(BCModule::instr_iterator first, BCModule::instr_iterator last) {
+  // First assert that they both share the same module* and that
+  // first < last.
+  assert(first.usesSameModuleAs(last) 
+    && "iterators are for different BCModules!");
+  assert((first.idx_ < last.idx_) 
+    && "last > first!");
+  return (last.idx_ - first.idx_);
+}
+
+bool 
+BCModule::instr_iterator::usesSameModuleAs(const instr_iterator& other) const {
+  return &(bcModule_.get()) == &(other.bcModule_.get());
+}
+
 BCModule::instr_iterator::reference_type BCModule::instr_iterator::get() const {
-  auto& iBuff = bcModule_.instrBuffer_;
+  auto& iBuff = bcModule_.get().instrBuffer_;
   assert(idx_ < iBuff.size() 
     && "Dereferencing past-the-end iterator");
   return iBuff[idx_];
