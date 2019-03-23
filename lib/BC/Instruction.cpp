@@ -48,13 +48,13 @@ void fox::dumpInstruction(std::ostream& os, Instruction instr) {
       os << "<invalid opcode>";
   }
   #undef CASE
+  os << '\n';
 }
 
 void fox::dumpInstructions(std::ostream& os, ArrayRef<Instruction> instrs) {
-  bool first = true;
+  std::size_t count = 0;
   for (auto instr : instrs) {
-    if(first) first = false;
-    else os << "\n";
+    os << " " << (count++) << "\t| ";
     dumpInstruction(os, instr);
   }
 }
