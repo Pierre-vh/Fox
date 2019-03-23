@@ -1,5 +1,5 @@
-Work on this part of the project has just started, so expect the VM to be in
-a molten, unfinished state for quite some time. I'll be experimenting a lot!
+Work on this part of the project has just started, so expect the BC, BCGen and VM parts
+to be incomplete for a bit of time. 
 
 Basic VM data types and their mappings to Fox types:
     Fox       VM
@@ -9,29 +9,17 @@ Basic VM data types and their mappings to Fox types:
     char      int
     string    TBA
     []        TBA
-   
-
-Roadmap: Follows a "basic" plan - implement - test development cycle
 
 ---- Initial Preparation and Scaffolding ---- DONE ----
-
   -> Opcode (Done)
   -> InstructionBuilder (Done)
   -> VM Scaffolding: Registers data structure, basic methods such as run() (Done)
 
----- Implementation of Int/Double/Bool and related functionalities ----
-
+---- Implementation of Int/Double/Bool and related functionalities ---- DONE ----
   -> Implement basic binary operations on integers and doubles: + - * / % (Done)
-    -> Declare opcodes (Done)
-    -> Implement opcodes (Done)
-    -> Do unit tests (Done) -> Add test for mod on negative numbers
-       
-  -> Implement comparisons & logic operators
-    -> Declare opcodes (Done)
-    -> Implement (Done)
-    -> Test (Done)
+  -> Implement comparisons & logic operators (Done)
 
----- Implementation of control flow ----
+---- Implementation of control flow ---- DONE ----
   -> Declare opcodes (Done)
   -> Implement (Done)
   -> Test (Done)
@@ -45,47 +33,39 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
   -> Scaffolding (Done)
   -> InstructionBuilder's buffer can be taken (Done)
   -> Bytecode Dumper (Done)
-  -> Registers.hpp
-    -> RegisterAllocator (Currently)
-    -> RegisterValue (Done)
-  -> Basic CodeGen of simple integral expressions : only compile time constant ops involving
-       ints. (Now)
-      - Binary Expr : Ints done
-      - CastExpr      (Done)
-      - UnaryExpr     (Done)
-      -> Write FileCheck tests (Done)
-      -> Make CodeGen more robust. It should support LValues without a problem. (Done)
-
+  -> RegisterAllocator & RegisterValue (Done)
+  -> Basic CodeGen of simple integral expressions (only ints, bool and char) (Done)
   -> VMModule (Done)
-
   -> Scaffoldign of BCGen entry points (Done)
-
   -> Codegen of local variables (Done)
- 
   -> Code review in Register.hpp/.cpp and BCGenDecl (Done)
-      Eliminate redundancy, rewrite comments, etc.
-
   -> BCModule::instr_iterator (Done)
-
   -> BCBuilder Update (Done)
+  -> Add index when dumping instructions, e.g. [42] StoreSmallInt 3 50 (Done)
 
   -> CodeGen of Statements
       -> Conditions (Done)
       -> Loops
         -> Don't forget to "protect" the liveliness of variables declared outside the loop.
-           I'll need a "RegisterAllocator::LoopLVP" (liveliness protector) or something like that.
+           I'll need a "RegisterAllocator::LoopContext" to prevent variable declared outside a loop from dying inside it.
 
-  -> Add index when dumping instructions, e.g. [42] StoreSmallInt 3 50
+  -> Destination register for ExprGenerator: Require a destination register for an expression. If present, the result
+     must be stored there. Will be used for calling functions. Just pass an extra "RegisterValue" as parameter, maybe
+     even an "Optional<RegisterValue>" one to make optionality obvious.
 
   -> Constants & Constant Table
+    -> "Constant" object ?
+    -> BCModule 
+    -> BCGen 
+    -> Instructions + VM
 
-  -> Implement the rest of the arithmetic bits of ExprGenerator:
+  -> Implement the rest of ExprGenerator
     -> Double & Double operations
     -> Assignements (AssignExprGenerator)
 
-  -> Think more thoroughly about how the Savepoints will be generated. I must be
-     able to tell precisely if a register is holding a reference or not.
-     Bulletproof my code now when it is still simple!
+  -> Codegen of functions
+    -> Don't forget to add support of ParamDecl/References to ParamDecl in RegisterAllocator 
+       and FuncGenPrologue.
 
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).
@@ -93,16 +73,13 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
     GC takes time and I'll probably write a better one with the full design of the language implemented.
 
   -> Common "Object" base
-  -> ArrayObject: Always dynamically sized, essentially just a SmallVector (will maybe even inherit from it)
+  -> ArrayObject: Always dynamically sized, essentially just a SmallVector (will maybe even inherit from it). Has a "isReference" flag.
   -> Strings: Similar to ArrayObject. I think they'll also be dynamically sized, but that's subject to change.
  
   Note: In the future, I'll probably have a UserObject and a TupleObject.
         UserObject for structs, TupleObject for tuples.
 
 ---- Getting feature-complete (with the current feature set) ----
-  -> Codegen of functions
-    -> Don't forget to add support of ParamDecl/References to ParamDecl in RegisterAllocator 
-       and FuncGenPrologue.
   -> Codegen of global variables
   -> Function calls
   -> Intrinsics/FFI
@@ -112,7 +89,10 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
 ---- Implementing the GC ----
   (Current ideas, highly subject to changes)
   -> "ReferenceMap" (Safe points) to track register that contain references if I decide to do a precise GC.
-  -> Basic GC algorithm: mark and sweep + colored objects (tri-color)
+    -> Implemented in the RegisterAllocator. I'll just need an extra arg to "allocateTemporary" like "RegisterPurpose" to track
+       registers holding refs. When a register dies, the corresponding bit is cleared. Import/use llvm::BitVector for that!
+  -> Basic GC algorithm: mark and sweep, colored object. Non-generational/non-compacting at first. 
+      (I'll try to get decent perf without compacting/generational and then only think about the rest)
 
 ---- Other To-Dos ----
   -> Implement a Sethi-Ullman -like algorithm to decide the evaluation order
