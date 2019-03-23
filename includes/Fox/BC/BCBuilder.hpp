@@ -25,12 +25,12 @@ namespace fox {
       BCModuleBuilder();
       ~BCModuleBuilder();
 
-      #define TERNARY_INSTR(ID, T1, T2, T3)\
-        BCModule::instr_iterator create##ID##Instr(T1 arg0, T2 arg1, T3 arg2);
-      #define BINARY_INSTR(ID, T1, T2)\
-        BCModule::instr_iterator create##ID##Instr(T1 arg0, T2 arg1);
-      #define UNARY_INSTR(ID, T1)\
-        BCModule::instr_iterator create##ID##Instr(T1 arg);
+      #define TERNARY_INSTR(ID, I1, T1, I2, T2, I3, T3)\
+        BCModule::instr_iterator create##ID##Instr(T1 I1, T2 I2, T3 I3);
+      #define BINARY_INSTR(ID, I1, T1, I2, T2)\
+        BCModule::instr_iterator create##ID##Instr(T1 I1, T2 I2);
+      #define UNARY_INSTR(ID, I1, T1)\
+        BCModule::instr_iterator create##ID##Instr(T1 I1);
       #define SIMPLE_INSTR(ID)\
         BCModule::instr_iterator create##ID##Instr();
       #include "Instruction.def"

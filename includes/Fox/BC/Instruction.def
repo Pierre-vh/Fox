@@ -28,24 +28,28 @@
 // A ternary instruction is an instruction that takes three arguments.
 // (three 8 bits values)
 #ifndef TERNARY_INSTR
-  #define TERNARY_INSTR(ID, T1, T2, T3) INSTR(ID)
+  #define TERNARY_INSTR(ID, I1, T1, I2, T2, I3, T3) INSTR(ID)
 #endif
 
 // A binary instruction is an instruction that takes two arguments.
 #ifndef BINARY_INSTR
-  #define BINARY_INSTR(ID, T1, T2) INSTR(ID)
+  #define BINARY_INSTR(ID, I1, T1, I2, T2) INSTR(ID)
 #endif
 
 // A unary instruction is an instruction that takes only one argument.
 #ifndef UNARY_INSTR
-  #define UNARY_INSTR(ID, T1) INSTR(ID)
+  #define UNARY_INSTR(ID, I1, T1) INSTR(ID)
 #endif
 
-// A "TAC" instruction stands for three address code instruction. It's
-// an instruction that takes 3 addresses (3 registers) as
-// operands: a destination (arg0), a lhs (arg1) and a rhs (arg2).
-#ifndef TAC_INSTR
-  #define TAC_INSTR(ID) TERNARY_INSTR(ID, regaddr_t, regaddr_t, regaddr_t)
+// A "binary" operation on registers, with 2 operands and a destination.
+#ifndef BINARY_REG_OP
+  #define BINARY_REG_OP(ID)\
+    TERNARY_INSTR(ID, dest, regaddr_t, lhs, regaddr_t, rhs, regaddr_t)
+#endif
+
+// A "unary" operation on registers, with a single operand and a destination.
+#ifndef UNARY_REG_OP
+  #define UNARY_REG_OP(ID) BINARY_INSTR(ID, dest, regaddr_t, src, regaddr_t)
 #endif
 
 //----------------------------------------------------------------------------//
@@ -54,49 +58,51 @@ SIMPLE_INSTR(NoOp)
 SIMPLE_INSTR(Break)
 
 // Stores D (a signed 16 bit int) in register A
-BINARY_INSTR(StoreSmallInt, regaddr_t, std::int16_t)
+BINARY_INSTR(StoreSmallInt, dest, regaddr_t, value, std::int16_t)
 
 // Arithmetic : a = b (op) c. Result's type is the type of the operand.
-TAC_INSTR(AddInt)     // Int Addition
-TAC_INSTR(AddDouble)  // Double Addition
-TAC_INSTR(SubInt)     // Int Substraction
-TAC_INSTR(SubDouble)  // Double Substraction
-TAC_INSTR(MulInt)     // Int Multiplication
-TAC_INSTR(MulDouble)  // Double Multiplication
-TAC_INSTR(DivInt)     // Int Division
-TAC_INSTR(DivDouble)  // Double Division
-TAC_INSTR(ModInt)     // Int Modulo
-TAC_INSTR(ModDouble)  // Double Modulo
-TAC_INSTR(PowInt)     // Int exponentiation
-TAC_INSTR(PowDouble)  // Double exponentiation
-BINARY_INSTR(NegInt, regaddr_t, regaddr_t)    // Int unary minus
-BINARY_INSTR(NegDouble, regaddr_t, regaddr_t) // Double unary minus
+BINARY_REG_OP(AddInt)       // Int Addition
+BINARY_REG_OP(AddDouble)    // Double Addition
+BINARY_REG_OP(SubInt)       // Int Substraction
+BINARY_REG_OP(SubDouble)    // Double Substraction
+BINARY_REG_OP(MulInt)       // Int Multiplication
+BINARY_REG_OP(MulDouble)    // Double Multiplication
+BINARY_REG_OP(DivInt)       // Int Division
+BINARY_REG_OP(DivDouble)    // Double Division
+BINARY_REG_OP(ModInt)       // Int Modulo
+BINARY_REG_OP(ModDouble)    // Double Modulo
+BINARY_REG_OP(PowInt)       // Int exponentiation
+BINARY_REG_OP(PowDouble)    // Double exponentiation
+UNARY_REG_OP(NegInt)        // Int unary minus
+UNARY_REG_OP(NegDouble)     // Double unary minus
 
 // Comparisons a = b (cond) c. Result is always an int (1 for true, 0 for false)
-TAC_INSTR(EqInt)      // Int Equality
-TAC_INSTR(LEInt)      // Int Less or Equal
-TAC_INSTR(LTInt)      // Int Less Than (Is it needed?)
-TAC_INSTR(EqDouble)   // Double Equality
-TAC_INSTR(LEDouble)   // Double Less or Equal
-TAC_INSTR(LTDouble)   // Double Less Than
-TAC_INSTR(GEDouble)   // Double Greater or Equal
-TAC_INSTR(GTDouble)   // Double Greater Than
+BINARY_REG_OP(EqInt)      // Int Equality
+BINARY_REG_OP(LEInt)      // Int Less or Equal
+BINARY_REG_OP(LTInt)      // Int Less Than (Is it needed?)
+BINARY_REG_OP(EqDouble)   // Double Equality
+BINARY_REG_OP(LEDouble)   // Double Less or Equal
+BINARY_REG_OP(LTDouble)   // Double Less Than
+BINARY_REG_OP(GEDouble)   // Double Greater or Equal
+BINARY_REG_OP(GTDouble)   // Double Greater Than
 
 // Other arithmetic/logic ops that operate on raw values
-TAC_INSTR(LAnd)   // Logical AND
-TAC_INSTR(LOr)    // Logical OR
-BINARY_INSTR(LNot, regaddr_t, regaddr_t) // Logical NOT
+BINARY_REG_OP(LAnd)     // Logical AND
+BINARY_REG_OP(LOr)      // Logical OR
+UNARY_REG_OP(LNot)  // Logical NOT
 
 // Jumps
-BINARY_INSTR(CondJump, regaddr_t, std::int16_t)  // Conditional Jump : Jump iff register != 0
-UNARY_INSTR(Jump, std::int16_t)                  // Unconditional Jump
+//    Conditional Jump : Jump iff condReg != 0
+BINARY_INSTR(CondJump, condReg, regaddr_t, offset, std::int16_t)
+//    Unconditional Jump
+UNARY_INSTR(Jump, offset, std::int16_t)
 
 // Casts
-BINARY_INSTR(IntToDouble, regaddr_t, regaddr_t) // Converts an int to a double
-BINARY_INSTR(DoubleToInt, regaddr_t, regaddr_t) // Converts a double to an int
+UNARY_REG_OP(IntToDouble) // Converts an int to a double
+UNARY_REG_OP(DoubleToInt) // Converts a double to an int
 
 // Other
-BINARY_INSTR(Copy, regaddr_t, regaddr_t) // A = B
+UNARY_REG_OP(Copy) // A = B
 
 LAST_INSTR(Copy)
 
@@ -107,5 +113,6 @@ LAST_INSTR(Copy)
 #undef TERNARY_INSTR
 #undef BINARY_INSTR
 #undef UNARY_INSTR
-#undef TAC_INSTR
+#undef BINARY_REG_OP
+#undef UNARY_REG_OP
 #undef LAST_INSTR

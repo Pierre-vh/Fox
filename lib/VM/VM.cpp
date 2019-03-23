@@ -23,8 +23,8 @@ void VM::run() {
     instr = program[programCounter_];
     // Macros uset to implement repetitive operations
     #define TRIVIAL_TAC_BINOP_IMPL(ID, TYPE, OP)\
-      setReg(instr.ID.arg0,\
-      getReg<TYPE>(instr.ID.arg1) OP getReg<TYPE>(instr.ID.arg2))
+      setReg(instr.ID.dest,\
+      getReg<TYPE>(instr.ID.lhs) OP getReg<TYPE>(instr.ID.rhs))
     // TODO: Rewrite the docs of each operands withou "A B C D"s
     switch (instr.opcode) {
       case Opcode::NoOp: 
@@ -38,7 +38,7 @@ void VM::run() {
 
         // Note: D must be converted to a signed value before being placed
         // in r[A]
-        setReg(instr.StoreSmallInt.arg0, instr.StoreSmallInt.arg1);
+        setReg(instr.StoreSmallInt.dest, instr.StoreSmallInt.value);
         continue;
       case Opcode::AddInt: 
         TRIVIAL_TAC_BINOP_IMPL(AddInt, FoxInt, +);
@@ -66,57 +66,57 @@ void VM::run() {
       case Opcode::DivInt:
         // DivInt A B C: A = B / C with B and C treated as FoxInts.
         // TO-DO: Handle this better
-        assert(getReg<FoxInt>(instr.DivInt.arg2) && "division by zero");
+        assert(getReg<FoxInt>(instr.DivInt.rhs) && "division by zero");
         TRIVIAL_TAC_BINOP_IMPL(DivInt, FoxInt, /);
         continue;
       case Opcode::DivDouble:
         // SubDouble A B C: A = B / C with B and C treated as FoxDoubles.
         // TO-DO: Handle this better
-        assert(getReg<FoxDouble>(instr.DivDouble.arg2) && "division by zero");
+        assert(getReg<FoxDouble>(instr.DivDouble.rhs) && "division by zero");
         TRIVIAL_TAC_BINOP_IMPL(DivDouble, FoxDouble, /);
         continue;
       case Opcode::ModInt:
         // ModInt A B C: A = B % C with B and C treated as FoxInts.
         // TO-DO: Handle this better
-        assert(getReg<FoxInt>(instr.ModInt.arg2) && "Modulo by zero");
+        assert(getReg<FoxInt>(instr.ModInt.rhs) && "Modulo by zero");
         TRIVIAL_TAC_BINOP_IMPL(ModInt, FoxInt, %);
         continue;
       case Opcode::ModDouble:
         // ModDouble A B C: A = B % C with B and C treated as FoxDoubles.
         // TO-DO: Handle this better
-        assert(getReg<FoxDouble>(instr.ModDouble.arg2) && "Modulo by zero");
-        setReg(instr.ModDouble.arg0, static_cast<FoxDouble>(
+        assert(getReg<FoxDouble>(instr.ModDouble.rhs) && "Modulo by zero");
+        setReg(instr.ModDouble.dest, static_cast<FoxDouble>(
           std::fmod(
-            getReg<FoxDouble>(instr.ModDouble.arg1), 
-            getReg<FoxDouble>(instr.ModDouble.arg2)
+            getReg<FoxDouble>(instr.ModDouble.lhs), 
+            getReg<FoxDouble>(instr.ModDouble.rhs)
           )
         ));
         continue;
       case Opcode::PowInt:
         // PowInt ModInt A B C: A = B pow C with B and C treated as FoxInts.
-        setReg(instr.PowInt.arg0, static_cast<FoxInt>(
+        setReg(instr.PowInt.dest, static_cast<FoxInt>(
           std::pow(
-            getReg<FoxInt>(instr.PowInt.arg1), 
-            getReg<FoxInt>(instr.PowInt.arg2)
+            getReg<FoxInt>(instr.PowInt.lhs), 
+            getReg<FoxInt>(instr.PowInt.rhs)
           )
         ));
         continue;
       case Opcode::PowDouble:
         // PowDouble A B C: A = B pow C, with B and C treated as FoxDoubles.
-        setReg(instr.PowDouble.arg0, static_cast<FoxDouble>(
+        setReg(instr.PowDouble.dest, static_cast<FoxDouble>(
           std::pow(
-            getReg<FoxDouble>(instr.PowDouble.arg1), 
-            getReg<FoxDouble>(instr.PowDouble.arg2)
+            getReg<FoxDouble>(instr.PowDouble.lhs), 
+            getReg<FoxDouble>(instr.PowDouble.rhs)
           )
         ));
         continue;
       case Opcode::NegInt:
         // NegInt A B : A = -B, with B = FoxInt
-        setReg(instr.NegInt.arg0, -getReg<FoxInt>(instr.NegInt.arg1));
+        setReg(instr.NegInt.dest, -getReg<FoxInt>(instr.NegInt.src));
         continue;
       case Opcode::NegDouble:
         // NegDouble A B : A = -B, with B = FoxDouble
-        setReg(instr.NegInt.arg0, -getReg<FoxDouble>(instr.NegInt.arg1));
+        setReg(instr.NegInt.dest, -getReg<FoxDouble>(instr.NegInt.src));
         continue;
       case Opcode::EqInt:
         // EqInt A B C: A = (B == C) with B and C treated as FoxInts.
@@ -152,40 +152,40 @@ void VM::run() {
         continue;
       case Opcode::LOr:
         // LOr A B C: A = (B || C). B and C are raw register values.
-        setReg(instr.LOr.arg0, 
-              (getReg(instr.LOr.arg1) || getReg(instr.LOr.arg2)));
+        setReg(instr.LOr.dest, 
+              (getReg(instr.LOr.lhs) || getReg(instr.LOr.rhs)));
         continue;
       case Opcode::LAnd:
         // LAnd A B C: A = (B && C). B and C are raw register values.
-        setReg(instr.LAnd.arg0, 
-              (getReg(instr.LAnd.arg1) && getReg(instr.LAnd.arg2)));
+        setReg(instr.LAnd.dest, 
+              (getReg(instr.LAnd.lhs) && getReg(instr.LAnd.rhs)));
         continue;
       case Opcode::LNot:
         // LNot A B: A = !B
-        setReg(instr.LNot.arg0, !getReg(instr.LNot.arg1));
+        setReg(instr.LNot.dest, !getReg(instr.LNot.src));
         continue;
       case Opcode::CondJump:
         // CondJump A D: Add D (as a signed int) to programCounter if A != 0
-        if(getReg(instr.CondJump.arg0) != 0)
-          programCounter_ += instr.CondJump.arg1;
+        if(getReg(instr.CondJump.condReg) != 0)
+          programCounter_ += instr.CondJump.offset;
         continue;
       case Opcode::Jump:
         // Jump x: Add x to programCounter
-        programCounter_ += instr.Jump.arg;
+        programCounter_ += instr.Jump.offset;
         continue;
       case Opcode::IntToDouble:
         // IntToDouble r1 r2 : r1 = r2 as int with r2 treated as a FoxInt
-        setReg(instr.IntToDouble.arg0, 
-               FoxDouble(getReg<FoxInt>(instr.IntToDouble.arg1)));
+        setReg(instr.IntToDouble.dest, 
+               FoxDouble(getReg<FoxInt>(instr.IntToDouble.src)));
         continue;
       case Opcode::DoubleToInt:
         // IntToDouble r1 r2 : r1 = r2 as double with r2 treated as a FoxDouble
-        setReg(instr.DoubleToInt.arg0, 
-               FoxInt(getReg<FoxDouble>(instr.DoubleToInt.arg1)));
+        setReg(instr.DoubleToInt.dest, 
+               FoxInt(getReg<FoxDouble>(instr.DoubleToInt.src)));
         continue;
       case Opcode::Copy:
         // Copy r0 r1 : r1 = r2 (r2 copied in r1, performed on raw registers)
-        setReg(instr.Copy.arg0, getReg(instr.Copy.arg1));
+        setReg(instr.Copy.dest, getReg(instr.Copy.src));
         continue;
       default:
         fox_unreachable("illegal or unimplemented instruction found");

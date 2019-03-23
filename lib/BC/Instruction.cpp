@@ -34,14 +34,14 @@ const char* fox::toString(Opcode op) {
 void fox::dumpInstruction(std::ostream& os, Instruction instr) {
   #define SIMPLE_INSTR(ID)\
     case Opcode::ID: os << #ID; break;
-  #define TERNARY_INSTR(ID, T1, T2, T3)\
-    case Opcode::ID: os << #ID << " " << +instr.ID.arg0 << " "\
-                        << +instr.ID.arg1 << " " << +instr.ID.arg2; break;
-  #define BINARY_INSTR(ID, T1, T2)\
-    case Opcode::ID: os << #ID << " " << +instr.ID.arg0 << " "\
-                        << +instr.ID.arg1; break;
-  #define UNARY_INSTR(ID, T1)\
-    case Opcode::ID: os << #ID << " " << +instr.ID.arg; break;
+  #define TERNARY_INSTR(ID, I1, T1, I2, T2, I3, T3)\
+    case Opcode::ID: os << #ID << " " << +instr.ID.I1 << " "\
+                        << +instr.ID.I2 << " " << +instr.ID.I3; break;
+  #define BINARY_INSTR(ID, I1, T1, I2, T2)\
+    case Opcode::ID: os << #ID << " " << +instr.ID.I1 << " "\
+                        << +instr.ID.I2; break;
+  #define UNARY_INSTR(ID, I1, T1)\
+    case Opcode::ID: os << #ID << " " << +instr.ID.I1; break;
   switch (instr.opcode) {
     #include "Fox/BC/Instruction.def"
     default:

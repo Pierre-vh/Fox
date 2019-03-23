@@ -36,8 +36,8 @@ class BCGen::StmtGenerator : public Generator,
     BCModule& theModule;
 
   private:
-    using jump_offset_t = decltype(Instruction::Jump.arg);
-    using condjump_offset_t = decltype(Instruction::CondJump.arg1);
+    using jump_offset_t = decltype(Instruction::Jump.offset);
+    using condjump_offset_t = decltype(Instruction::CondJump.offset);
     
     static constexpr jump_offset_t 
     max_jump_offset = std::numeric_limits<jump_offset_t>::max();
@@ -150,7 +150,7 @@ class BCGen::StmtGenerator : public Generator,
           // Check if we have generated something
           isElseEmpty = theModule.isLastInstr(condJump);
           // Adjust the CondJump to skip the else's code.
-          condJump->CondJump.arg1 = 
+          condJump->CondJump.offset = 
             calculateJumpOffset(condJump, theModule.instrs_back());
         }
         else {
@@ -158,14 +158,14 @@ class BCGen::StmtGenerator : public Generator,
           // skips the else's code.
           auto jumpEnd = builder.createJumpInstr(0);
           // Now we can complete 'jumpIfNot' so it executes the else.
-          jumpIfNot->Jump.arg = calculateJumpOffset(jumpIfNot, jumpEnd);
+          jumpIfNot->Jump.offset = calculateJumpOffset(jumpIfNot, jumpEnd);
           // Gen the 'else'
           visit(elseBody);
           // Check if we have generated something
           isElseEmpty = theModule.isLastInstr(jumpEnd);
           // Complete 'jumpEnd' so it jumps to the last instruction emitted.
-          jumpEnd->Jump.arg = calculateJumpOffset(jumpEnd, 
-                                                  theModule.instrs_back());
+          jumpEnd->Jump.offset = calculateJumpOffset(jumpEnd, 
+                                                     theModule.instrs_back());
         }
 
         // If both the 'then' and the 'else' were empty, remove everything after
@@ -184,8 +184,8 @@ class BCGen::StmtGenerator : public Generator,
         }
         // Else, complete 'jumpToElse' to jump after the last instr emitted.
         else 
-          jumpIfNot->Jump.arg = calculateJumpOffset(jumpIfNot, 
-                                                    theModule.instrs_back());
+          jumpIfNot->Jump.offset = calculateJumpOffset(jumpIfNot, 
+                                                       theModule.instrs_back());
       }
     }
 

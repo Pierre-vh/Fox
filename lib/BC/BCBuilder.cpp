@@ -19,29 +19,29 @@ using namespace fox;
     return getModule().addInstr(Instruction(Opcode::ID));                      \
   }
 
-#define TERNARY_INSTR(ID, T1, T2, T3)                                          \
+#define TERNARY_INSTR(ID, I1, T1, I2, T2, I3, T3)                              \
   BCModule::instr_iterator                                                     \
-  BCModuleBuilder::create##ID##Instr(T1 arg0, T2 arg1, T3 arg2) {              \
+  BCModuleBuilder::create##ID##Instr(T1 I1, T2 I2, T3 I3) {                    \
     Instruction instr(Opcode::ID);                                             \
-    instr.ID.arg0 = arg0;                                                      \
-    instr.ID.arg1 = arg1;                                                      \
-    instr.ID.arg2 = arg2;                                                      \
+    instr.ID.I1 = I1;                                                          \
+    instr.ID.I2 = I2;                                                          \
+    instr.ID.I3 = I3;                                                          \
     return getModule().addInstr(instr);                                        \
   }
 
-#define BINARY_INSTR(ID, T1, T2)                                               \
+#define BINARY_INSTR(ID, I1, T1, I2, T2)                                       \
   BCModule::instr_iterator                                                     \
-  BCModuleBuilder::create##ID##Instr(T1 arg0, T2 arg1) {                       \
+  BCModuleBuilder::create##ID##Instr(T1 I1, T2 I2) {                           \
     Instruction instr(Opcode::ID);                                             \
-    instr.ID.arg0 = arg0;                                                      \
-    instr.ID.arg1 = arg1;                                                      \
+    instr.ID.I1 = I1;                                                          \
+    instr.ID.I2 = I2;                                                          \
     return getModule().addInstr(instr);                                        \
   }
 
-#define UNARY_INSTR(ID, T1)                                                    \
-  BCModule::instr_iterator BCModuleBuilder::create##ID##Instr(T1 arg) {        \
+#define UNARY_INSTR(ID, I1, T1)                                                \
+  BCModule::instr_iterator BCModuleBuilder::create##ID##Instr(T1 I1) {         \
     Instruction instr(Opcode::ID);                                             \
-    instr.ID.arg = arg;                                                        \
+    instr.ID.I1 = I1;                                                          \
     return getModule().addInstr(instr);                                        \
   }
 

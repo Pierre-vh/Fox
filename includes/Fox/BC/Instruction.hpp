@@ -54,30 +54,30 @@ namespace fox {
 
     Opcode opcode = Opcode::NoOp;
     union {
-      #define TERNARY_INSTR(ID, T1, T2, T3)                   \
+      #define TERNARY_INSTR(ID, I1, T1, I2, T2, I3, T3)       \
       struct ID##Instr {                                      \
-        T1 arg0;                                              \
-        T2 arg1;                                              \
-        T3 arg2;                                              \
+        T1 I1;                                                \
+        T2 I2;                                                \
+        T3 I3;                                                \
       };                                                      \
       ID##Instr ID;                                           \
       static_assert(sizeof(ID##Instr) <= 3, #ID "Instr has "  \
         "too many arguments: their total size exceed 3 bytes/"\
         "24 bits!");
 
-      #define BINARY_INSTR(ID, T1, T2)                        \
+      #define BINARY_INSTR(ID, I1, T1, I2, T2)                \
       struct ID##Instr {                                      \
-        T1 arg0;                                              \
-        T2 arg1;                                              \
+        T1 I1;                                                \
+        T2 I2;                                                \
       };                                                      \
       ID##Instr ID;                                           \
       static_assert(sizeof(ID##Instr) <= 3, #ID "Instr has "  \
         "too many arguments: their total size exceed 3 bytes/"\
         "24 bits!");
 
-      #define UNARY_INSTR(ID, T1)                             \
+      #define UNARY_INSTR(ID, I1, T1)                         \
       struct ID##Instr {                                      \
-        T1 arg;                                               \
+        T1 I1;                                                \
       };                                                      \
       ID##Instr ID;                                           \
       static_assert(sizeof(ID##Instr) <= 3, #ID "Instr has "  \

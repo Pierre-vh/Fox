@@ -69,9 +69,9 @@ TEST(BCBuilderTest, TernaryInstr) {
   auto it = builder.createAddIntInstr(42, 84, 126);
   // Check if it was encoded as expected.
   EXPECT_EQ(it->opcode, Opcode::AddInt);
-  EXPECT_EQ(it->AddInt.arg0, 42);
-  EXPECT_EQ(it->AddInt.arg1, 84);
-  EXPECT_EQ(it->AddInt.arg2, 126);
+  EXPECT_EQ(it->AddInt.dest, 42);
+  EXPECT_EQ(it->AddInt.lhs, 84);
+  EXPECT_EQ(it->AddInt.rhs, 126);
 }
 
 // Test for Binary Instrs with two 8 bit args.
@@ -81,8 +81,8 @@ TEST(BCBuilderTest, SmallBinaryInstr) {
   auto it = builder.createLNotInstr(42, 84);
   // Check if it was encoded as expected.
   EXPECT_EQ(it->opcode, Opcode::LNot);
-  EXPECT_EQ(it->LNot.arg0, 42);
-  EXPECT_EQ(it->LNot.arg1, 84);
+  EXPECT_EQ(it->LNot.dest, 42);
+  EXPECT_EQ(it->LNot.src, 84);
 }
 
 // Test for Binary Instrs with one 8 bit arg and one 16 bit arg.
@@ -92,8 +92,8 @@ TEST(BCBuilderTest, BinaryInstr) {
   auto it = builder.createStoreSmallIntInstr(42, 16000);
   // Check if was encoded as expected.
   EXPECT_EQ(it->opcode, Opcode::StoreSmallInt);
-  EXPECT_EQ(it->StoreSmallInt.arg0, 42);
-  EXPECT_EQ(it->StoreSmallInt.arg1, 16000);
+  EXPECT_EQ(it->StoreSmallInt.dest, 42);
+  EXPECT_EQ(it->StoreSmallInt.value, 16000);
 }
 
 TEST(BCBuilderTest, UnaryInstr) {
@@ -104,12 +104,12 @@ TEST(BCBuilderTest, UnaryInstr) {
   // Check the positive one
   {
     EXPECT_EQ(positive->opcode, Opcode::Jump);
-    EXPECT_EQ(positive->Jump.arg, 30000);
+    EXPECT_EQ(positive->Jump.offset, 30000);
   }
   // Check the negative one
   {
     EXPECT_EQ(negative->opcode, Opcode::Jump);
-    EXPECT_EQ(negative->Jump.arg, -30000);
+    EXPECT_EQ(negative->Jump.offset, -30000);
   }
 }
 
@@ -118,32 +118,32 @@ TEST(BCBuilderTest, createdInstrIterators) {
   // Create a few instructions, checking that iterators are valid
   auto a = builder.createJumpInstr(30000);
   EXPECT_EQ(a->opcode, Opcode::Jump);
-  EXPECT_EQ(a->Jump.arg, 30000);
+  EXPECT_EQ(a->Jump.offset, 30000);
   auto b = builder.createCondJumpInstr(5, -4200);
   EXPECT_EQ(b->opcode, Opcode::CondJump);
-  EXPECT_EQ(b->CondJump.arg0, 5u);
-  EXPECT_EQ(b->CondJump.arg1, -4200);
+  EXPECT_EQ(b->CondJump.condReg, 5u);
+  EXPECT_EQ(b->CondJump.offset, -4200);
   auto c = builder.createDivDoubleInstr(1, 2, 3);
   EXPECT_EQ(c->opcode, Opcode::DivDouble);
-  EXPECT_EQ(c->DivDouble.arg0, 1u);
-  EXPECT_EQ(c->DivDouble.arg1, 2u);
-  EXPECT_EQ(c->DivDouble.arg2, 3u);
+  EXPECT_EQ(c->DivDouble.dest, 1u);
+  EXPECT_EQ(c->DivDouble.lhs, 2u);
+  EXPECT_EQ(c->DivDouble.rhs, 3u);
   // Insert a few instructions, then tests the iterators again
   builder.createBreakInstr();
   builder.createNoOpInstr();
   auto last = builder.createBreakInstr();
   // a
   EXPECT_EQ(a->opcode, Opcode::Jump);
-  EXPECT_EQ(a->Jump.arg, 30000);
+  EXPECT_EQ(a->Jump.offset, 30000);
   // b
   EXPECT_EQ(b->opcode, Opcode::CondJump);
-  EXPECT_EQ(b->CondJump.arg0, 5u);
-  EXPECT_EQ(b->CondJump.arg1, -4200);
+  EXPECT_EQ(b->CondJump.condReg, 5u);
+  EXPECT_EQ(b->CondJump.offset, -4200);
   // c
   EXPECT_EQ(c->opcode, Opcode::DivDouble);
-  EXPECT_EQ(c->DivDouble.arg0, 1u);
-  EXPECT_EQ(c->DivDouble.arg1, 2u);
-  EXPECT_EQ(c->DivDouble.arg2, 3u);
+  EXPECT_EQ(c->DivDouble.dest, 1u);
+  EXPECT_EQ(c->DivDouble.lhs, 2u);
+  EXPECT_EQ(c->DivDouble.rhs, 3u);
   // ++c should be the break instr
   EXPECT_EQ((++c)->opcode, Opcode::Break);
   BCModule& theModule = builder.getModule();
