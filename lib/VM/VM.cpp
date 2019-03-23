@@ -21,11 +21,10 @@ void VM::run() {
   do {
     // Fetch the current instruction
     instr = program[programCounter_];
-    // Macros uset to implement repetitive operations
+    // Macros used to implement repetitive operations
     #define TRIVIAL_TAC_BINOP_IMPL(ID, TYPE, OP)\
       setReg(instr.ID.dest,\
       getReg<TYPE>(instr.ID.lhs) OP getReg<TYPE>(instr.ID.rhs))
-    // TODO: Rewrite the docs of each operands withou "A B C D"s
     switch (instr.opcode) {
       case Opcode::NoOp: 
         // NoOp: no-op: do nothing.
@@ -34,56 +33,54 @@ void VM::run() {
         // Break: stop the execution of the program.
         return;
       case Opcode::StoreSmallInt:
-        // StoreSmallInt A B: Stores a small signed 16 bits integer (B) in r[A]
-
-        // Note: D must be converted to a signed value before being placed
-        // in r[A]
+        // StoreSmallInt dest value: Stores value in dest (value: int16)
         setReg(instr.StoreSmallInt.dest, instr.StoreSmallInt.value);
         continue;
       case Opcode::AddInt: 
+        // AddInt dest lhs C: dest = lhs + rhs (FoxInts)
         TRIVIAL_TAC_BINOP_IMPL(AddInt, FoxInt, +);
         continue;
       case Opcode::AddDouble:
-        // AddDouble A B C: A = B + C with B and C treated as FoxDoubles.
+        // AddDouble dest lhs C: dest = lhs + rhs (FoxDoubles)
         TRIVIAL_TAC_BINOP_IMPL(AddDouble, FoxDouble, +);
         continue;
       case Opcode::SubInt:
-        // SubInt A B C: A = B - C with B and C treated as FoxInts.
+        // SubInt dest lhs C: dest = lhs - rhs (FoxInts)
         TRIVIAL_TAC_BINOP_IMPL(SubInt, FoxInt, -);
         continue;
       case Opcode::SubDouble:
-        // SubDouble A B C: A = B - C with B and C treated as FoxDoubles.
+        // SubDouble dest lhs C: dest = lhs - rhs (FoxDoubles)
         TRIVIAL_TAC_BINOP_IMPL(SubDouble, FoxDouble, -);
         continue;
       case Opcode::MulInt:
-        // DivInt A B C: A = B * C with B and C treated as FoxInts.
+        // DivInt dest lhs C: dest = lhs * rhs (FoxInts)
         TRIVIAL_TAC_BINOP_IMPL(MulInt, FoxInt, *);
         continue;
       case Opcode::MulDouble:
-        // SubDouble A B C: A = B * C with B and C treated as FoxDoubles.
+        // SubDouble dest lhs C: dest = lhs * rhs (FoxDoubles)
         TRIVIAL_TAC_BINOP_IMPL(MulDouble, FoxDouble, *);
         continue;
       case Opcode::DivInt:
-        // DivInt A B C: A = B / C with B and C treated as FoxInts.
-        // TO-DO: Handle this better
+        // DivInt dest lhs C: dest = lhs / rhs (FoxInts)
+        // TO-DO: Handle division by zero with something else than an assert
         assert(getReg<FoxInt>(instr.DivInt.rhs) && "division by zero");
         TRIVIAL_TAC_BINOP_IMPL(DivInt, FoxInt, /);
         continue;
       case Opcode::DivDouble:
-        // SubDouble A B C: A = B / C with B and C treated as FoxDoubles.
-        // TO-DO: Handle this better
+        // SubDouble dest lhs C: dest = lhs / rhs (FoxDoubles)
+        // TO-DO: Handle division by zero with something else than an assert
         assert(getReg<FoxDouble>(instr.DivDouble.rhs) && "division by zero");
         TRIVIAL_TAC_BINOP_IMPL(DivDouble, FoxDouble, /);
         continue;
       case Opcode::ModInt:
-        // ModInt A B C: A = B % C with B and C treated as FoxInts.
-        // TO-DO: Handle this better
+        // ModInt dest lhs rhs: dest = lhs % rhs (FoxInts)
+        // TO-DO: Handle modulo by zero with something else than an assert
         assert(getReg<FoxInt>(instr.ModInt.rhs) && "Modulo by zero");
         TRIVIAL_TAC_BINOP_IMPL(ModInt, FoxInt, %);
         continue;
       case Opcode::ModDouble:
-        // ModDouble A B C: A = B % C with B and C treated as FoxDoubles.
-        // TO-DO: Handle this better
+        // ModDouble dest lhs rhs: dest = lhs % rhs (FoxDoubles)
+        // TO-DO: Handle modulo by zero with something else than an assert
         assert(getReg<FoxDouble>(instr.ModDouble.rhs) && "Modulo by zero");
         setReg(instr.ModDouble.dest, static_cast<FoxDouble>(
           std::fmod(
@@ -93,7 +90,7 @@ void VM::run() {
         ));
         continue;
       case Opcode::PowInt:
-        // PowInt ModInt A B C: A = B pow C with B and C treated as FoxInts.
+        // PowInt dest lhs rhs: dest = pow(lhs, rhs) (FoxInts)
         setReg(instr.PowInt.dest, static_cast<FoxInt>(
           std::pow(
             getReg<FoxInt>(instr.PowInt.lhs), 
@@ -102,7 +99,7 @@ void VM::run() {
         ));
         continue;
       case Opcode::PowDouble:
-        // PowDouble A B C: A = B pow C, with B and C treated as FoxDoubles.
+        // PowDouble dest lhs rhs: dest = pow(lhs, rhs) (FoxDoubles)
         setReg(instr.PowDouble.dest, static_cast<FoxDouble>(
           std::pow(
             getReg<FoxDouble>(instr.PowDouble.lhs), 
@@ -111,80 +108,89 @@ void VM::run() {
         ));
         continue;
       case Opcode::NegInt:
-        // NegInt A B : A = -B, with B = FoxInt
+        // NegInt dest src : dest = -src (FoxInts)
         setReg(instr.NegInt.dest, -getReg<FoxInt>(instr.NegInt.src));
         continue;
       case Opcode::NegDouble:
-        // NegDouble A B : A = -B, with B = FoxDouble
+        // NegDouble dest src : dest = -src (FoxDoubles)
         setReg(instr.NegInt.dest, -getReg<FoxDouble>(instr.NegInt.src));
         continue;
       case Opcode::EqInt:
-        // EqInt A B C: A = (B == C) with B and C treated as FoxInts.
+        // EqInt dest lhs rhs: dest = (lhs == rhs) 
+        //          (lhs/rhs: FoxInts, dest: raw)
         TRIVIAL_TAC_BINOP_IMPL(EqInt, FoxInt, ==);
         continue;
       case Opcode::LEInt:
-        // LEInt A B C: A = (B <= C) with B and C treated as FoxInts.
+        // LEInt dest lhs rhs: dest = (lhs <= rhs) 
+        //          (lhs/rhs: FoxInts, dest: raw)
         TRIVIAL_TAC_BINOP_IMPL(LEInt, FoxInt, <=);
         continue;
       case Opcode::LTInt:
-        // LTInt A B C: A = (B < C) with B and C treated as FoxInts.
+        // LTInt dest lhs rhs: dest = (lhs < rhs) 
+        //          (lhs/rhs: FoxInts, dest: raw)
         TRIVIAL_TAC_BINOP_IMPL(LTInt, FoxInt, <);
         continue;
       case Opcode::EqDouble:
-        // EqDouble A B C: A = (B == C) with B and C treated as FoxDoubles.
+        // EqDouble dest lhs rhs: dest = (lhs == rhs) 
+        //          (lhs/rhs: FoxDoubles, dest: raw)
         TRIVIAL_TAC_BINOP_IMPL(EqDouble, FoxDouble, ==);
         continue;
       case Opcode::LEDouble:
-        // LEDouble A B C: A = (B <= C) with B and C treated as FoxDoubles.
+        // LEDouble dest lhs rhs: dest = (lhs <= rhs) 
+        //          (lhs/rhs: FoxDoubles, dest: raw)
         TRIVIAL_TAC_BINOP_IMPL(LEDouble, FoxDouble, <=);
         continue;
       case Opcode::LTDouble:
-        // LTDouble A B C: A = (B < C) with B and C treated as FoxDoubles.
+        // LTDouble dest lhs rhs: dest = (lhs < rhs) 
+        //          (lhs/rhs: FoxDoubles, dest: raw)
         TRIVIAL_TAC_BINOP_IMPL(LTDouble, FoxDouble, <);
         continue;
       case Opcode::GEDouble:
-        // GEDouble A B C: A = (B >= C) with B and C treated as FoxDoubles.
+        // GEDouble dest lhs rhs: dest = (lhs >= rhs) 
+        //          (lhs/rhs: FoxDoubles, dest: raw)
         TRIVIAL_TAC_BINOP_IMPL(GEDouble, FoxDouble, >=);
         continue;
       case Opcode::GTDouble:
-        // GTDouble A B C: A = (B > C) with B and C treated as FoxDoubles.
+        // GTDouble dest lhs rhs: dest = (lhs > rhs) 
+        //          (lhs/rhs: FoxDoubles, dest: raw)
         TRIVIAL_TAC_BINOP_IMPL(GTDouble, FoxDouble, >);
         continue;
       case Opcode::LOr:
-        // LOr A B C: A = (B || C). B and C are raw register values.
+        // LOr dest lhs rhs: dest = (lhs || rhs) (raw registers)
         setReg(instr.LOr.dest, 
               (getReg(instr.LOr.lhs) || getReg(instr.LOr.rhs)));
         continue;
       case Opcode::LAnd:
-        // LAnd A B C: A = (B && C). B and C are raw register values.
+        // LAnd dest lhs rhs: dest = (lhs && rhs) (raw registers)
         setReg(instr.LAnd.dest, 
               (getReg(instr.LAnd.lhs) && getReg(instr.LAnd.rhs)));
         continue;
       case Opcode::LNot:
-        // LNot A B: A = !B
+        // LNot dest src: dest = !src
         setReg(instr.LNot.dest, !getReg(instr.LNot.src));
         continue;
       case Opcode::CondJump:
-        // CondJump A D: Add D (as a signed int) to programCounter if A != 0
+        // CondJump condReg offset : Add offset (int16) to programCounter 
+        //    if condReg != 0
         if(getReg(instr.CondJump.condReg) != 0)
           programCounter_ += instr.CondJump.offset;
         continue;
       case Opcode::Jump:
-        // Jump x: Add x to programCounter
+        // Jump offset: Add offset (int16) to programCounter
         programCounter_ += instr.Jump.offset;
         continue;
       case Opcode::IntToDouble:
-        // IntToDouble r1 r2 : r1 = r2 as int with r2 treated as a FoxInt
+        // IntToDouble dest src: dest = (src as FoxDouble) (src: FoxInt)
         setReg(instr.IntToDouble.dest, 
                FoxDouble(getReg<FoxInt>(instr.IntToDouble.src)));
         continue;
       case Opcode::DoubleToInt:
-        // IntToDouble r1 r2 : r1 = r2 as double with r2 treated as a FoxDouble
+        // DoubleToInt dest src: dest = (src as FoxInt) (src: FoxDouble)
         setReg(instr.DoubleToInt.dest, 
                FoxInt(getReg<FoxDouble>(instr.DoubleToInt.src)));
         continue;
       case Opcode::Copy:
-        // Copy r0 r1 : r1 = r2 (r2 copied in r1, performed on raw registers)
+        // Copy dest src : dest = src
         setReg(instr.Copy.dest, getReg(instr.Copy.src));
         continue;
       default:
