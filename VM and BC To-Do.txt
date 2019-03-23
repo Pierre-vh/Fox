@@ -13,30 +13,6 @@ Basic VM data types and their mappings to Fox types:
 
 Roadmap: Follows a "basic" plan - implement - test development cycle
 
-  Ideas:
-    -> Maybe add labels to instructions, so they can be more expressive?
-      (e.g. we can have "dest lhs rhs" instead of "arg0 arg1 arg2")
-
-    -> Maybe add some way to keep typing when returning iterators in the BCBuilder?
-       Right now it's a bit of a pain, but it's not too bad. However it'd be nicer
-       to not lose type information, but that'd require reworking the Instruction object.
-
-    -> Implement a Sethi-Ullman -like algorithm to decide the evaluation order
-       of subexpressions (to make regalloc a bit more efficient)
-
-    -> Potentially add a way of skipping 'useless' expressions on a case-by-case
-       basis. 
-       e.g. don't compile a 'Unary Not -> Unary Not -> Expr', just compile expr.
-       I need to see if there's more of them and if it'd be worthwhile to implement such 
-       a feature.
-
-    -> Add a RegisterAllocator enableLogging option to emit logs about 
-       register allocation, such as "Assignated Register X to Var 'foo' 0xABCDEF"
-       or, upon death, emit the total of registers used, something like that.
-       Add a "-log-regalloc" option and use write FileCheck tests based on that option.
-
-    -> Properly diagnose out of range jumps in BCGen::StmtGenerator::calculateJumpOffset
-
 ---- Initial Preparation and Scaffolding ---- DONE ----
 
   -> Opcode (Done)
@@ -135,9 +111,22 @@ Roadmap: Follows a "basic" plan - implement - test development cycle
 
 ---- Implementing the GC ----
   (Current ideas, highly subject to changes)
-  -> "ReferenceMap" (Safe points) to track register that contain references.
-  -> Basic GC algorithm: mark and sweep + colored objects (tri-color). Maybe compacting or generational.
-      
-Other notes:
-  -> InstructionBuilder will be split in multiple builders (BCModuleBuilder, BCFunctionBuilder, etc)
-     to be more organized.  
+  -> "ReferenceMap" (Safe points) to track register that contain references if I decide to do a precise GC.
+  -> Basic GC algorithm: mark and sweep + colored objects (tri-color)
+
+---- Other To-Dos ----
+  -> Implement a Sethi-Ullman -like algorithm to decide the evaluation order
+      of subexpressions (to make regalloc a bit more efficient)
+
+  -> Potentially add a way of skipping 'useless' expressions on a case-by-case
+      basis. 
+      e.g. don't compile a 'Unary Not -> Unary Not -> Expr', just compile expr.
+      I need to see if there's more of them and if it'd be worthwhile to implement such 
+      a feature.
+
+  -> Add a RegisterAllocator enableLogging option to emit logs about 
+      register allocation, such as "Assignated Register X to Var 'foo' 0xABCDEF"
+      or, upon death, emit the total of registers used, something like that.
+      Add a "-log-regalloc" option and use write FileCheck tests based on that option.
+
+  -> Properly diagnose out of range jumps in BCGen::StmtGenerator::calculateJumpOffset
