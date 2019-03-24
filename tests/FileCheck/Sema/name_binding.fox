@@ -6,14 +6,14 @@
 
 func some_func_before() {}
 
-// CHECK: VarDecl [[global_a_addr:0x([[:alnum:]]{8,12})]] {{.*}} let a 'int'
+// CHECK: VarDecl [[global_a_addr:0x([[:alnum:]]{8,16})]] {{.*}} let a 'int'
 let a : int;
-// CHECK-NEXT: VarDecl [[global_b_addr:0x([[:alnum:]]{8,12})]] {{.*}} var b 'double'
+// CHECK-NEXT: VarDecl [[global_b_addr:0x([[:alnum:]]{8,16})]] {{.*}} var b 'double'
 var b : double;
 
-// CHECK-NEXT: FuncDecl [[foo_addr:0x([[:alnum:]]{8,12})]] {{.*}} foo '(char,[string]) -> int'
-// CHECK-NEXT: ParamDecl [[param_a_addr:0x([[:alnum:]]{8,12})]] {{.*}} a 'char'
-// CHECK-NEXT: ParamDecl [[mutParam_addr:0x([[:alnum:]]{8,12})]] {{.*}} mut mutParam '[string]'
+// CHECK-NEXT: FuncDecl [[foo_addr:0x([[:alnum:]]{8,16})]] {{.*}} foo '(char,[string]) -> int'
+// CHECK-NEXT: ParamDecl [[param_a_addr:0x([[:alnum:]]{8,16})]] {{.*}} a 'char'
+// CHECK-NEXT: ParamDecl [[mutParam_addr:0x([[:alnum:]]{8,16})]] {{.*}} mut mutParam '[string]'
 func foo(a : char, mutParam : mut [string]) : int {
   // CHECK: DeclRefExpr 'char' a <decl:[[param_a_addr]]>
   a;
@@ -32,7 +32,7 @@ func foo(a : char, mutParam : mut [string]) : int {
   another_func_after;
 }
 
-// CHECK: VarDecl {{0x([[:alnum:]]{8,12}) .*}} let c '[double]'
+// CHECK: VarDecl {{0x([[:alnum:]]{8,16}) .*}} let c '[double]'
 // CHECK: DeclRefExpr 'int' a <decl:[[global_a_addr]]>
 let c : [double] = [a as double];
 
