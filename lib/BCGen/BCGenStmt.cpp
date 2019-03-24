@@ -111,25 +111,22 @@ class BCGen::StmtGenerator : public Generator,
 
     void visitConditionStmt(ConditionStmt* stmt) {
       // Gen the condition 
-      RegisterValue condReg = 
-        bcGen.genExpr(builder, regAlloc, stmt->getCond());
+      RegisterValue condReg = bcGen.genExpr(builder, regAlloc, stmt->getCond());
 
       // Create a conditional jump (so we can skip the jump to the else's code 
-      // when the condition is true)
+      // when the condition is met)
       auto condJump = builder.createCondJumpInstr(condReg.getAddress(), 1);
 
       // Free the register of the condition
       condReg.free();
 
-      // Now, create a jump to the code that needs to be executed
-      // if the condition isn't satisfied. It will be completed later.
+      // Now, create a jump to the else's code. It'll be completed later.
       auto jumpIfNot = builder.createJumpInstr(0);
 
       // Gen the 'then'
       visit(stmt->getThen());
 
       bool isThenEmpty = theModule.isLastInstr(jumpIfNot);
-
       // If the 'then' is empty, remove the 'jumpIfNot'
       if (isThenEmpty) {
         theModule.popInstr();
@@ -147,11 +144,11 @@ class BCGen::StmtGenerator : public Generator,
           assert(theModule.isLastInstr(condJump));
           // Gen the 'else'
           visit(elseBody);
-          // Check if we have generated something
+          // Check if we have generated something. If yes, ajust the CondJump
+          // to skip the else's code.
           isElseEmpty = theModule.isLastInstr(condJump);
-          // Adjust the CondJump to skip the else's code.
-          condJump->CondJump.offset = 
-            calculateJumpOffset(condJump, theModule.instrs_back());
+          auto off = calculateJumpOffset(condJump, theModule.instrs_back());
+          condJump->CondJump.offset = off;
         }
         else {
           // Create a jump to the end of the condition so the then's code
@@ -161,9 +158,9 @@ class BCGen::StmtGenerator : public Generator,
           jumpIfNot->Jump.offset = calculateJumpOffset(jumpIfNot, jumpEnd);
           // Gen the 'else'
           visit(elseBody);
-          // Check if we have generated something
+          // Check if we have generated something.
           isElseEmpty = theModule.isLastInstr(jumpEnd);
-          // Complete 'jumpEnd' so it jumps to the last instruction emitted.
+          // complete 'jumpEnd' so it jumps to the last instruction emitted.
           jumpEnd->Jump.offset = calculateJumpOffset(jumpEnd, 
                                                      theModule.instrs_back());
         }
@@ -175,13 +172,10 @@ class BCGen::StmtGenerator : public Generator,
       }
       // No 'else' statement
       else {
-        // If the 'then' was empty too, remove the CondJump so
-        // nothing is left except the condition.
-        if (isThenEmpty) {
-          theModule.popInstr();
-          assert((condJump == theModule.instrs_end())
-            && "instrs left after the expression's instrs");
-        }
+        // If the 'then' was empty too, remove all of the code we've generated
+        // related to the then/else, so only the condition's code is left.
+        if (isThenEmpty) 
+          theModule.erase(condJump, theModule.instrs_end());
         // Else, complete 'jumpToElse' to jump after the last instr emitted.
         else 
           jumpIfNot->Jump.offset = calculateJumpOffset(jumpIfNot, 
@@ -191,6 +185,8 @@ class BCGen::StmtGenerator : public Generator,
 
     void visitWhileStmt(WhileStmt*) {
       fox_unimplemented_feature("WhileStmt BCGen");
+      // Don't forget about variable liveliness: I'll need a
+      // RegisterAllocator::LoopContext or something like that.
     }
 
     void visitReturnStmt(ReturnStmt*) {
