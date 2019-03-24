@@ -65,9 +65,11 @@ namespace fox {
 
   // An iterator to an instruction in a BCModule. 
   //
-  // This wraps a BCModule* + an index because classic vector iterators
+  // This wraps a BCModule& + an index because classic vector iterators
   // cannot be used safely due to potential reallocations 
   // (iterator invalidation)
+  //
+  // TODO: Should * and -> be const or non const?
   class BCModule::instr_iterator {
     using idx_type = std::size_t;
     public:
@@ -107,7 +109,8 @@ namespace fox {
       distance(instr_iterator first, instr_iterator last);
 
     private:
-      InstructionBuffer::iterator toIBiterator() const;
+      InstructionBuffer& getBuffer() const;
+      InstructionBuffer::const_iterator toIBiterator() const;
 
       // Only the BCModule should be able to create these iterators.
       friend class BCModule;
@@ -116,7 +119,8 @@ namespace fox {
       // share the same module.
       bool usesSameModuleAs(const instr_iterator& other) const;
 
-      reference_type& get() const;
+      reference_type getRef() const;
+      pointer_type getPtr() const;
       
       instr_iterator(BCModule& bcModule, idx_type idx);
 

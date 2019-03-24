@@ -96,12 +96,12 @@ BCModule::instr_iterator BCModule::instr_iterator::operator--(int) {
 
 BCModule::instr_iterator::reference_type 
 BCModule::instr_iterator::operator*() const {
-  return get();
+  return getRef();
 }
 
 BCModule::instr_iterator::pointer_type 
 BCModule::instr_iterator::operator->() const {
-  return &(get());
+  return getPtr();
 }
 
 bool 
@@ -146,9 +146,12 @@ fox::distance(BCModule::instr_iterator first, BCModule::instr_iterator last) {
   return (last.idx_ - first.idx_);
 }
 
-InstructionBuffer::iterator BCModule::instr_iterator::toIBiterator() const {
-  InstructionBuffer& buffer = bcModule_.get().instrBuffer_;
-  return buffer.begin() + std::min(idx_, buffer.size());
+InstructionBuffer& BCModule::instr_iterator::getBuffer() const {
+  return bcModule_.get().instrBuffer_;
+}
+
+InstructionBuffer::const_iterator BCModule::instr_iterator::toIBiterator() const {
+  return getBuffer().begin() + std::min(idx_, getBuffer().size());
 }
 
 bool
@@ -156,11 +159,15 @@ BCModule::instr_iterator::usesSameModuleAs(const instr_iterator& other) const {
   return &(bcModule_.get()) == &(other.bcModule_.get());
 }
 
-BCModule::instr_iterator::reference_type BCModule::instr_iterator::get() const {
-  auto& iBuff = bcModule_.get().instrBuffer_;
-  assert(idx_ < iBuff.size() 
-    && "Dereferencing past-the-end iterator");
-  return iBuff[idx_];
+BCModule::instr_iterator::reference_type 
+BCModule::instr_iterator::getRef() const {
+  assert(idx_ < getBuffer().size() && "Dereferencing past-the-end iterator");
+  return getBuffer()[idx_];
+}
+
+BCModule::instr_iterator::pointer_type 
+BCModule::instr_iterator::getPtr() const {
+  return &(getRef());
 }
 
 BCModule::instr_iterator::instr_iterator(BCModule& bcModule, idx_type idx)
