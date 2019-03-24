@@ -11,7 +11,7 @@
 #include "utfcpp/utf8.hpp"
 #include <cassert>
 #include <string>
-#include <iostream>
+#include <ostream>
 #include <sstream>
 
 using namespace fox;
@@ -52,10 +52,8 @@ std::size_t DiagnosticConsumer::removeIndent(string_view& str) const {
   return beg;
 }
 
-StreamDiagConsumer::StreamDiagConsumer(std::ostream & stream):
+StreamDiagConsumer::StreamDiagConsumer(std::ostream& stream):
   os_(stream) {}
-
-StreamDiagConsumer::StreamDiagConsumer() : StreamDiagConsumer(std::cout) {}
 
 void StreamDiagConsumer::consume(SourceManager& sm, const Diagnostic& diag) {
   if (SourceRange range = diag.getSourceRange())

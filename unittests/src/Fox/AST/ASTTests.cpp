@@ -20,13 +20,14 @@
 #include <algorithm>
 #include <string>
 #include <random>
+#include <iostream>
 
 using namespace fox;
 
 namespace {
   class ASTTest : public testing::Test {
     public:
-      ASTTest() : diags(srcMgr), ctxt(srcMgr, diags) {}
+      ASTTest() : diags(srcMgr, std::cout), ctxt(srcMgr, diags) {}
 
     protected:
       SourceManager srcMgr;

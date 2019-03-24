@@ -10,6 +10,7 @@
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/SourceManager.hpp"
 #include "Support/TestUtils.hpp"
+#include <iostream>
 
 using namespace fox;
 
@@ -26,7 +27,7 @@ namespace {
       FileID file;
       bool ok = true;
       std::string errStr;
-      DVTest(): diags(srcMgr), dv(DiagnosticVerifier(diags, srcMgr)) {}
+      DVTest(): diags(srcMgr, std::cout), dv(DiagnosticVerifier(diags, srcMgr)) {}
 
       using ::testing::Test::SetUp;
 

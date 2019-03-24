@@ -10,7 +10,6 @@
 #include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/StringManipulator.hpp"
-#include <iostream>
 
 using namespace fox;
 
@@ -48,9 +47,6 @@ class Diagnostic::StaticAsserts {
 
 DiagnosticEngine::DiagnosticEngine(SourceManager& sm, std::ostream& os):
   DiagnosticEngine(sm, std::make_unique<StreamDiagConsumer>(os)) {}
-
-DiagnosticEngine::DiagnosticEngine(SourceManager& sm):
-  DiagnosticEngine(sm, std::cout) {}
 
 DiagnosticEngine::DiagnosticEngine(SourceManager& sm, 
                                    std::unique_ptr<DiagnosticConsumer> ncons):

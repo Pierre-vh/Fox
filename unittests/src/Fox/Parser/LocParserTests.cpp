@@ -15,13 +15,14 @@
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/Identifier.hpp"
 #include "Support/TestUtils.hpp"
+#include <iostream>
 
 using namespace fox;
 
 // Parser Preparator for LocTests
 class LocTests : public ::testing::Test {
   public:
-    LocTests() : diags(srcMgr), astContext(srcMgr, diags) {}
+    LocTests() : diags(srcMgr, std::cout), astContext(srcMgr, diags) {}
 
   protected:
     using ::testing::Test::SetUp;

@@ -14,6 +14,7 @@
 #include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Support/TestUtils.hpp"
+#include <iostream>
 
 using namespace fox;
 using namespace fox::test;
@@ -21,7 +22,7 @@ using namespace fox::test;
 namespace {
   class LexerTest : public testing::Test {
     public:
-      LexerTest() : diags(srcMgr), ctxt(srcMgr, diags), lexer(ctxt) {}
+      LexerTest() : diags(srcMgr, std::cout), ctxt(srcMgr, diags), lexer(ctxt) {}
 
     protected:
       // C++ Standard 12.6.2.10:

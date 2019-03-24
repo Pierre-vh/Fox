@@ -37,7 +37,6 @@ namespace fox {
   class StreamDiagConsumer : public DiagnosticConsumer {
     public:
       StreamDiagConsumer(std::ostream& stream); 
-      StreamDiagConsumer(); 
 
       virtual void consume(SourceManager& sm, const Diagnostic& diag) override;
 
