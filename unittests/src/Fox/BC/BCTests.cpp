@@ -56,11 +56,11 @@ TEST(InstructionDumpTest, DumpInstructionsTest) {
   dumpInstructions(ss, instrs);
   // Compare strings
   EXPECT_EQ(ss.str(),
-    "NoOp\n"
-    "AddInt 0 1 2\n"
-    "LNot 42 84\n"
-    "StoreSmallInt 0 -4242\n"
-    "Jump -30000");
+    " 0\t| NoOp\n"
+    " 1\t| AddInt 0 1 2\n"
+    " 2\t| LNot 42 84\n"
+    " 3\t| StoreSmallInt 0 -4242\n"
+    " 4\t| Jump -30000\n");
 }
 
 TEST(BCBuilderTest, TernaryInstr) {
