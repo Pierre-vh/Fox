@@ -43,10 +43,8 @@ ASTDumper::ASTDumper(SourceManager& srcMgr,
   recalculateOffset();
 }
 
-ASTDumper::ASTDumper(std::ostream& out, const uint8_t & offsettabs):
-  srcMgr_(nullptr), out(out), offsetTabs_(offsettabs) {
-
-}
+ASTDumper::ASTDumper(std::ostream& out, std::uint8_t offsettabs):
+  srcMgr_(nullptr), out(out), offsetTabs_(offsettabs) {}
 
 void ASTDumper::visitBinaryExpr(BinaryExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node)

@@ -22,7 +22,7 @@ namespace fox {
     friend Inherited;
     public:
       ASTDumper(SourceManager& srcMgr, std::ostream& out, std::uint8_t offsettabs = 0);
-      ASTDumper(std::ostream& out, const uint8_t& offsettabs = 0);
+      ASTDumper(std::ostream& out, std::uint8_t offsettabs = 0);
 
       // Prints the AST as a dump, which will create a highly detailed
       // dump of the AST
