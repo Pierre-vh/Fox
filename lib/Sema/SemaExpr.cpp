@@ -19,9 +19,7 @@
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
-
 #include <utility>
-#include <iostream>
 
 using namespace fox;
 
