@@ -8,7 +8,7 @@
 //----------------------------------------------------------------------------//
 
 // Every macro consists of 3 things: an ID for the operator,
-// it's sign (string), and a proper, user-friendly name (string).
+// its sign (string), and a proper, user-friendly name (string).
 //
 // Note that each enum's first value should be an "Invalid"
 // operator, used as a default value for the enum
