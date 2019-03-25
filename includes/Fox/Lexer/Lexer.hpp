@@ -26,20 +26,20 @@ namespace fox {
       void lexFile(FileID file);
   
       TokenVector& getTokenVector();
-      std::size_t resultSize() const;  
-      FileID getCurrentFile() const;
+      std::size_t numTokens() const;  
 
       ASTContext& ctxt;
       DiagnosticEngine& diagEngine;
       SourceManager& srcMgr;
 
     private:
-      // Pushes the current token with the kind 'kind'
+      // Pushes the current token with the kind 'kind' and advances.
       template<typename Kind>
       void pushTok(Kind kind) {
-        assert((tokBegPtr_ != curPtr_) && "empty token");
         // Push the token
         tokens_.push_back(Token(kind, getCurtokStringView(), getCurtokRange()));
+        // advance
+        advance();
         // Reset the iterators
         tokBegPtr_ = curPtr_;
       }
@@ -59,12 +59,18 @@ namespace fox {
         pushTok(kind);
       }
 
+      // Returns true if we reached EOF.
+      bool isEOF() const;
+
       // Begins a new token
       void beginToken();
 
       void lex();
-      void lexIdentifierOrKeyword();
+      // Lexes an identifier or reserved keyword.
+      void lexMaybeReservedIdentifier();
       void lexIntOrDoubleLiteral();
+      void lexCharLiteral();
+      void lexStringLiteral();
       void lexIntLiteral();
 
       // Handles a single-line comment
@@ -74,6 +80,8 @@ namespace fox {
 
       // Returns true if 'ch' is a valid identifier head.
       bool isValidIdentifierHead(FoxChar ch) const;
+      // Returns true if 'ch' is a valid identifier character.
+      bool isValidIdentifierChar(FoxChar ch) const;
 
       // Returns the current character being considered
       FoxChar getCurChar() const;

@@ -20,7 +20,7 @@ Lexer::Lexer(ASTContext& astctxt): ctxt(astctxt),
 
 void Lexer::lexFile(FileID file) {
   assert(file 
-    && "INVALID FileID!");
+    && "invalid FileID!");
   assert((tokens_.size() == 0) 
     && "There are tokens left in the token vector!");
   fileID_ = file;
@@ -28,18 +28,19 @@ void Lexer::lexFile(FileID file) {
   // init the iterator/pointers
   fileBeg_ = tokBegPtr_ = curPtr_ = content.begin();
   fileEnd_ = content.end();
+  lex();
 }
 
 TokenVector& Lexer::getTokenVector() {
   return tokens_; // return empty Token
 }
 
-std::size_t Lexer::resultSize() const {
+std::size_t Lexer::numTokens() const {
   return tokens_.size();
 }
 
-FileID Lexer::getCurrentFile() const {
-  return fileID_;
+bool Lexer::isEOF() const {
+  return (curPtr_ == fileEnd_);
 }
 
 void Lexer::beginToken() {
@@ -48,14 +49,19 @@ void Lexer::beginToken() {
 
 void Lexer::lex() {
   FoxChar cur;
-  do {
+  while(!isEOF()) {
     cur = getCurChar();
     switch (cur) {
-      // Spaces/ignored characters
+      // Ignored characters
+      case 0:
       case ' ':
       case '\t':
       case '\r':
       case '\n':
+      case '\v':
+      case '\f':
+        // skip them
+        advance();
         break;
       // Operators
       case '/':
@@ -172,30 +178,52 @@ void Lexer::lex() {
         break;
       default:
         if(isValidIdentifierHead(cur)) 
-          lexIdentifierOrKeyword();
+          lexMaybeReservedIdentifier();
         else
           beginAndPushToken(TKind::Invalid);
         break;
     }
   // Keep going until we run out of codepoints to evaluate
-  } while(advance());
+  }
 }
 
-void Lexer::lexIdentifierOrKeyword() {
+void Lexer::lexMaybeReservedIdentifier() {
+  fox_unimplemented_feature("Lexer::lexMaybeReservedIdentifier");
 }
 
 void Lexer::lexIntOrDoubleLiteral() {
+  fox_unimplemented_feature("Lexer::lexIntOrDoubleLiteral");
+}
+
+void Lexer::lexCharLiteral() {
+  fox_unimplemented_feature("Lexer::lexCharLiteral");
+}
+
+void Lexer::lexStringLiteral() {
+  fox_unimplemented_feature("Lexer::lexStringLiteral");
 }
 
 void Lexer::lexIntLiteral() {
+  fox_unimplemented_feature("Lexer::lexIntLiteral");
 }
 
 void Lexer::skipLineComment() {
-
+  // <line_comment> = '/' '/' (any character except '\n')
+  while (char cur = *(curPtr_++)) {
+    if(curPtr_ == fileEnd_) return;
+    if (cur == '\n') return;
+  }
 }
 
 void Lexer::skipBlockComment() {
-
+  // <block_comment> = '/' '*' (any character except ('*' + '/'))
+  while (char cur = *(curPtr_++)) {
+    if(curPtr_ == fileEnd_) return;
+    if ((cur == '*') && ((*curPtr_) == '/')) {
+      ++curPtr_;
+      return;
+    }
+  }
 }
 
 bool Lexer::isValidIdentifierHead(FoxChar ch) const {
@@ -203,6 +231,12 @@ bool Lexer::isValidIdentifierHead(FoxChar ch) const {
   if(ch == '_') return true;
   if((ch >= 'a') && (ch <= 'z')) return true;
   if((ch >= 'A') && (ch <= 'Z')) return true;
+  return false;
+}
+
+bool Lexer::isValidIdentifierChar(FoxChar ch) const {
+  if(isValidIdentifierHead(ch)) return true;
+  if((ch >= '0') && (ch <= '9')) return true;
   return false;
 }
 
@@ -220,7 +254,7 @@ FoxChar Lexer::peekNextChar() const {
 
 bool Lexer::advance() {
   utf8::next(curPtr_, fileEnd_);
-  return (curPtr_ != fileEnd_);
+  return !isEOF();
 }
 
 SourceLoc Lexer::getCurPtrLoc() const {
@@ -232,7 +266,11 @@ SourceLoc Lexer::getCurtokBegLoc() const {
 }
 
 SourceRange Lexer::getCurtokRange() const {
-  SourceRange range(getCurtokBegLoc(), getCurPtrLoc());
+  SourceRange range;
+  if(curPtr_ == tokBegPtr_)
+    range = SourceRange(getCurPtrLoc());
+  else 
+    range = SourceRange(getCurtokBegLoc(), getCurPtrLoc());
   assert(range && "invalid location information");
   return range;
 }

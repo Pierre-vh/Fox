@@ -106,6 +106,5 @@ SignType Token::getSignType() const {
 }
 
 void Token::dump(std::ostream& out) const {
-  // TODO: More elaborate dumps
   out << str;
 }
