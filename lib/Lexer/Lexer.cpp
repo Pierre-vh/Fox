@@ -188,7 +188,13 @@ void Lexer::lex() {
 }
 
 void Lexer::lexMaybeReservedIdentifier() {
-  fox_unimplemented_feature("Lexer::lexMaybeReservedIdentifier");
+  assert(isValidIdentifierHead(getCurChar()) 
+    && "Not a valid identifier head!");
+  beginToken();
+  while(isValidIdentifierChar(peekNextChar()))
+    advance();
+  // TODO: ID reserved identifiers/keyword.
+  pushTok(TKind::Identifier);
 }
 
 void Lexer::lexIntOrDoubleLiteral() {
@@ -209,6 +215,8 @@ void Lexer::lexIntLiteral() {
 
 void Lexer::skipLineComment() {
   // <line_comment> = '/' '/' (any character except '\n')
+  assert(((*curPtr_) == '/') 
+    && "not a comment");
   while (char cur = *(curPtr_++)) {
     if(curPtr_ == fileEnd_) return;
     if (cur == '\n') return;
@@ -217,8 +225,14 @@ void Lexer::skipLineComment() {
 
 void Lexer::skipBlockComment() {
   // <block_comment> = '/' '*' (any character except ('*' + '/'))
+  assert(((*curPtr_) == '/') 
+    && "not a comment");
+  const char* beg = curPtr_;
   while (char cur = *(curPtr_++)) {
-    if(curPtr_ == fileEnd_) return;
+    if (curPtr_ == fileEnd_) {
+      diagEngine.report(DiagID::unterminated_block_comment, getLocOfPtr(beg));
+      return;
+    }
     if ((cur == '*') && ((*curPtr_) == '/')) {
       ++curPtr_;
       return;
@@ -257,12 +271,16 @@ bool Lexer::advance() {
   return !isEOF();
 }
 
+SourceLoc Lexer::getLocOfPtr(const char* ptr) const {
+  return SourceLoc(fileID_, std::distance(fileBeg_, ptr));
+}
+
 SourceLoc Lexer::getCurPtrLoc() const {
-  return SourceLoc(fileID_, std::distance(fileBeg_, curPtr_));
+  return getLocOfPtr(curPtr_);
 }
 
 SourceLoc Lexer::getCurtokBegLoc() const {
-  return SourceLoc(fileID_, std::distance(fileBeg_, tokBegPtr_));
+  return getLocOfPtr(tokBegPtr_);
 }
 
 SourceRange Lexer::getCurtokRange() const {

@@ -91,6 +91,7 @@ namespace fox {
       // Advances to the next codepoint in the input.
       bool advance();
 
+      SourceLoc getLocOfPtr(const char* ptr) const;
       SourceLoc getCurPtrLoc() const;
       SourceLoc getCurtokBegLoc() const;
       SourceRange getCurtokRange() const;

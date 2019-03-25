@@ -4,3 +4,6 @@
 // File : Parser.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
+
+ERROR(unterminated_block_comment,
+  "unterminated block comment (found end of file before '*/')")
