@@ -29,13 +29,8 @@ namespace fox {
     S_MINUS,        // -
     S_ASTERISK,     // *
     S_SLASH,        // /
-    S_VBAR,         // |
-    S_AMPERSAND,    // &
     S_LESS_THAN,    // <
     S_GREATER_THAN, // >
-    S_HASH,         // #
-    S_TILDE,        // ~
-    S_CARET,        // ^
     S_PERCENT,      // %
 
     // BRACKETS
@@ -47,12 +42,22 @@ namespace fox {
     S_ROUND_CLOSE,  // )
 
     // PUNCTUATION
+    S_EXCL_MARK,    // '!'
     S_SEMICOLON,    // ;
     S_COLON,        // :
-    S_EXCL_MARK,    // !
-    S_INTER_MARK,   // ?
     S_DOT,          // .
-    S_COMMA         // ,
+    S_COMMA,        // ,
+
+    // Operators
+    // FIXME: This is a quick hack to get the new lexer working.
+    // Remove this from here later.
+    S_OP_EXP,       // **
+    S_OP_EQ,        // ==
+    S_OP_INEQ,      // !=
+    S_OP_LTEQ,      // <=
+    S_OP_GTEQ,      // >=
+    S_OP_LAND,      // &&
+    S_OP_LOR,       // ||
   };
 
   enum class KeywordType : std::uint8_t {

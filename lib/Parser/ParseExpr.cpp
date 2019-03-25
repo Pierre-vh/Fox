@@ -588,81 +588,58 @@ Parser::parseUnaryOp(SourceRange& range) {
   return Result<UOp>::NotFound();
 }
 
-// TODO: This should be handled by the lexer, not the parser.
 Parser::Result<BinaryExpr::OpKind> 
 Parser::parseBinaryOp(unsigned priority, SourceRange& range) {
   using BinOp = BinaryExpr::OpKind;
 
-  // Check current Token validity, also check if it's a sign because if 
-  // it isn't we can return directly!
-  if (!getCurtok().isValid() || !getCurtok().isSign())
+  Token cur = getCurtok();
+
+  if (!cur || !cur.isSign())
     return Result<BinOp>::NotFound();
 
-  auto success = [&](BinOp op, SourceRange opRange) {
-    range = opRange;
+  auto success = [&](BinOp op) {
+    range = cur.range;
     return Result<BinOp>(op);
   };
 
   switch (priority) {
     case 0: // * / %
-      if (auto asterisk = consumeSign(SignType::S_ASTERISK)) {
-        // Disambiguation between '**' and '*'
-        if (!consumeSign(SignType::S_ASTERISK))
-          return success(BinOp::Mul, SourceRange(asterisk));
-        // undo if not found
-        undo();
-      }
-      else if (auto slash = consumeSign(SignType::S_SLASH))
-        return success(BinOp::Div, SourceRange(slash));
-      else if (auto percent = consumeSign(SignType::S_PERCENT))
-        return success(BinOp::Mod, SourceRange(percent));
+      if (consumeSign(SignType::S_ASTERISK))
+        return success(BinOp::Mul);
+      else if (consumeSign(SignType::S_SLASH))
+        return success(BinOp::Div);
+      else if (consumeSign(SignType::S_PERCENT))
+        return success(BinOp::Mod);
       break;
     case 1: // + -
-      if (auto plus = consumeSign(SignType::S_PLUS))
-        return success(BinOp::Add, SourceRange(plus));
-      else if (auto minus = consumeSign(SignType::S_MINUS))
-        return success(BinOp::Sub, SourceRange(minus));
+      if (consumeSign(SignType::S_PLUS))
+        return success(BinOp::Add);
+      else if (consumeSign(SignType::S_MINUS))
+        return success(BinOp::Sub);
       break;
     case 2: // > >= < <=
-      if (auto lessthan = consumeSign(SignType::S_LESS_THAN)) {
-        if (auto equal = consumeSign(SignType::S_EQUAL))
-          return success(BinOp::LE, SourceRange(lessthan,equal));
-        return success(BinOp::LT, SourceRange(lessthan));
-      }
-      else if (auto grthan = consumeSign(SignType::S_GREATER_THAN)) {
-        if (auto equal = consumeSign(SignType::S_EQUAL))
-          return success(BinOp::GE, SourceRange(grthan,equal));
-        return success(BinOp::GT, SourceRange(grthan));
-      }
+      if (consumeSign(SignType::S_LESS_THAN))
+        return success(BinOp::LT);
+      else if (consumeSign(SignType::S_OP_LTEQ))
+        return success(BinOp::LE);
+      else if (consumeSign(SignType::S_GREATER_THAN))
+        return success(BinOp::GT);
+      else if (consumeSign(SignType::S_OP_GTEQ))
+        return success(BinOp::GE);
       break;
     case 3:  // == !=
-      // try to match '=' twice.
-      if (auto equal1 = consumeSign(SignType::S_EQUAL)) {
-        if (auto equal2 = consumeSign(SignType::S_EQUAL))
-          return success(BinOp::Eq, SourceRange(equal1,equal2));
-        // undo if not found
-        undo();
-      }
-      else if (auto excl = consumeSign(SignType::S_EXCL_MARK)) {
-        if (auto equal =consumeSign(SignType::S_EQUAL))
-          return success(BinOp::NEq, SourceRange(excl,equal));
-        // undo if not found
-        undo();
-      }
+      if (consumeSign(SignType::S_OP_EQ))
+        return success(BinOp::Eq);
+      else if (consumeSign(SignType::S_OP_INEQ))
+        return success(BinOp::NEq);
       break;
     case 4: // &&
-      if (auto amp1 = consumeSign(SignType::S_AMPERSAND)) {
-        if (auto amp2 = consumeSign(SignType::S_AMPERSAND))
-          return success(BinOp::LAnd, SourceRange(amp1,amp2));
-      }
+      if (consumeSign(SignType::S_OP_LAND))
+        return success(BinOp::LAnd);
       break;
     case 5: // ||
-      if (auto vbar1 = consumeSign(SignType::S_VBAR)) {
-        if (auto vbar2 = consumeSign(SignType::S_VBAR))
-          return success(BinOp::LOr, SourceRange(vbar1,vbar2));
-        // undo if not found
-        undo();
-      }
+      if (consumeSign(SignType::S_OP_LOR))
+        return success(BinOp::LOr);
       break;
     default:
       fox_unreachable("Unknown priority");

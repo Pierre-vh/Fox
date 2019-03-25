@@ -34,55 +34,70 @@ namespace fox {
       SourceManager& srcMgr;
 
     private:
-      enum class DFAState : std::uint8_t {
-        S_BASE, // basestate
-        S_STR,  // string literals
-        S_LCOM,  // line comment
-        S_MCOM,  // multiline comment
-        S_WORDS,// basic (keywords,signs) state
-        S_CHR  // char literals
-      };
+      // Pushes the current token with the kind 'kind'
+      template<typename Kind>
+      void pushTok(Kind kind) {
+        assert((tokBegPtr_ != curPtr_) && "empty token");
+        // Push the token
+        tokens_.push_back(Token(kind, getCurtokStringView(), getCurtokRange()));
+        // Reset the iterators
+        tokBegPtr_ = curPtr_;
+      }
 
-      void pushTok();
-      void cycle();          
-      void runFinalChecks();
+      // Pushes a token of kind 'kind' consisting of a single codepoint
+      // (calls beginToken() + pushToken())
+      template<typename Kind>
+      void beginAndPushToken(Kind kind) {
+        beginToken();
+        pushTok(kind);
+      }
 
-      void runStateFunc();
-      void dfa_goto(DFAState ns);
-      void fn_S_BASE();  // base state
-      void fn_S_STR();  // string literals
-      void fn_S_LCOM();  // one line comment
-      void fn_S_MCOM();  // Multiple line comments
-      void fn_S_WORDS();  // "basic" state (push to tok until separator is met)
-      void fn_S_CHR();  // Char literals
+      // Calls advance(), then pushes the current token with the kind 'kind'
+      template<typename Kind>
+      void advanceAndPushTok(Kind kind) {
+        advance();
+        pushTok(kind);
+      }
 
-      // returns the current char and run updatePos 
-      // (returns inputstr_[pos_] and do pos_+=1)
-      FoxChar eatChar();
-      // adds the current character to curtok
-      void addToCurtok(FoxChar c);
-      // is the current char a separator? (= a sign. see kSign_dict)
-      bool isSep(FoxChar c) const;
-      // Checks if C is \ AND if the state is adequate for it
-      // to be considered as an escape char.
-      bool isEscapeChar(FoxChar c) const;
-      // Checks if the char is valid to be pushed. 
-      // If it isn't and it should be ignored, returns true
-      bool shouldIgnore(FoxChar c) const;
+      // Begins a new token
+      void beginToken();
 
+      void lex();
+      void lexIdentifierOrKeyword();
+      void lexIntOrDoubleLiteral();
+      void lexIntLiteral();
+
+      // Handles a single-line comment
+      void skipLineComment();
+      // Handles a multi-line comment
+      void skipBlockComment();
+
+      // Returns true if 'ch' is a valid identifier head.
+      bool isValidIdentifierHead(FoxChar ch) const;
+
+      // Returns the current character being considered
+      FoxChar getCurChar() const;
+      // Peeks the next character that will be considered
+      FoxChar peekNextChar() const;
+
+      // Advances to the next codepoint in the input.
+      bool advance();
+
+      SourceLoc getCurPtrLoc() const;
       SourceLoc getCurtokBegLoc() const;
-      SourceLoc getCurtokEndLoc() const;
       SourceRange getCurtokRange() const;
+      string_view getCurtokStringView() const;
 
       FileID fileID_;
 
-      bool escapeFlag_ : 1;
-      DFAState state_ = DFAState::S_BASE;    
-      std::string curtok_;
-
-      std::size_t curTokBegIdx_ = 0, curTokEndIdx_ = 0;
+      const char* fileBeg_  = nullptr;
+      const char* fileEnd_ = nullptr;
+      // The pointer to the first byte of the token
+      const char* tokBegPtr_  = nullptr;
+      // The pointer to the current character being considered.
+      // (pointer to the first byte in the UTF8 codepoint)
+      const char* curPtr_  = nullptr;
 
       TokenVector tokens_;
-      StringManipulator strManip_;
   };
 }

@@ -154,6 +154,14 @@ To-Do:
     > Rewrite tests
       > Test "error while interpreting this integer literal: maybe it is too big?"
       > Test "error while interpreting this double literal: maybe it is too big?"
+    > Maybe Remove StringManipulator? Is it still needed?
+    > Cleanup/Code review in Lexer/Token.hpp files
+      > Rename SignType, split it in 2 (operators and signs) OR add operators to Token::Kind
+      > Also, change enum values from all uppercase to CamelCase.
+    > Stop storing tokens in a huge vector, lex on demand instead.
+    > Perform some refactoring/minor reworks in the Parser
+      > Rework areas where sign are assumed to only have a SourceLoc and no range, also
+        rework operator-related things.
 
   > Make TypeBase::isXXXType see-through RValues.
     This is important because when I'll add canonical types, it'll get pretty redundant to have

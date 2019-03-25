@@ -6,30 +6,28 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/Lexer/Lexer.hpp"
-#include <string>
-#include <cwctype>
-#include <sstream>    
-#include <cassert>
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/SourceManager.hpp"
+#include "Fox/Common/Errors.hpp"
 #include "Fox/AST/ASTContext.hpp"
+#include "utfcpp/utf8.hpp"
 
 using namespace fox;
+using TKind = Token::Kind;
 
 Lexer::Lexer(ASTContext& astctxt): ctxt(astctxt), 
-  diagEngine(ctxt.diagEngine), srcMgr(ctxt.sourceMgr),
-  escapeFlag_(false) {}
+  diagEngine(ctxt.diagEngine), srcMgr(ctxt.sourceMgr) {}
 
 void Lexer::lexFile(FileID file) {
-  assert(file && "INVALID FileID!");
+  assert(file 
+    && "INVALID FileID!");
+  assert((tokens_.size() == 0) 
+    && "There are tokens left in the token vector!");
   fileID_ = file;
-  auto source = ctxt.sourceMgr.getFileContent(fileID_);
-  strManip_.setStr(source);
-  state_ = DFAState::S_BASE;
-  while(!strManip_.eof())
-    cycle();
-  pushTok();
-  runFinalChecks();
+  string_view content = ctxt.sourceMgr.getFileContent(file);
+  // init the iterator/pointers
+  fileBeg_ = tokBegPtr_ = curPtr_ = content.begin();
+  fileEnd_ = content.end();
 }
 
 TokenVector& Lexer::getTokenVector() {
@@ -44,233 +42,204 @@ FileID Lexer::getCurrentFile() const {
   return fileID_;
 }
 
-void Lexer::pushTok() {
-  if (curtok_ == "")  // Don't push empty tokens.
-    return;
-
-  Token t(ctxt, curtok_, getCurtokRange());
-
-  // Push the token if it was correctly identified
-  if (t) tokens_.push_back(t);
-
-  curtok_ = "";
+void Lexer::beginToken() {
+  tokBegPtr_ = curPtr_;
 }
 
-void Lexer::cycle() {
-  runStateFunc();          
-}
-
-void Lexer::runFinalChecks() {
-  switch (state_) {
-    case DFAState::S_STR:
-      // FALL THROUGH
-    case DFAState::S_CHR:
-      diagEngine.report(DiagID::missing_closing_quote, getCurtokBegLoc());
-      break;
-    case DFAState::S_MCOM:
-      diagEngine.report(DiagID::unfinished_multiline_comment, getCurtokBegLoc());
-      break;
-    default:
-      // no-op
-      break;
-  }
-}
-
-void Lexer::runStateFunc() {
-  switch (state_) {
-    case DFAState::S_BASE:
-      fn_S_BASE();
-      break;
-    case DFAState::S_STR:
-      fn_S_STR();
-      break;
-    case DFAState::S_LCOM:
-      fn_S_LCOM();
-      break;
-    case DFAState::S_MCOM:
-      fn_S_MCOM();
-      break;
-    case DFAState::S_WORDS:
-      fn_S_WORDS();
-      break;
-    case DFAState::S_CHR:
-      fn_S_CHR();
-      break;
-  }
-}
-
-void Lexer::fn_S_BASE() {
-  const FoxChar pk = strManip_.peekNext();
-  const FoxChar c = strManip_.getCurrentChar();  // current char
-
-  assert((curtok_.size() == 0) && "Curtok not empty in base state");
-
-  // Set the current token begin index
-  curTokBegIdx_ = strManip_.getIndexInBytes();
-
-  // IGNORE SPACES
-  if (std::iswspace(static_cast<wchar_t>(c))) eatChar();
-  // HANDLE COMMENTS
-  else if (c == '/' && pk == '/') {
-    eatChar();  // '/'
-    eatChar();  // '/'
-    dfa_goto(DFAState::S_LCOM);
-  }
-  else if (c == '/' && pk == '*') {
-    eatChar();  // '/'
-    eatChar();  // '*'
-    dfa_goto(DFAState::S_MCOM);
-  }
-  // HANDLE SINGLE SEPARATOR
-	/* is the current char a separator, but not a space ?*/
-  else if (isSep(c))  {
-    addToCurtok(eatChar());
-    pushTok();
-  }
-  // HANDLE STRINGS AND CHARS
-  else if (c == '\'') /* Delimiter? */ {
-    addToCurtok(eatChar());
-    dfa_goto(DFAState::S_CHR);
-  }
-  else if (c == '"') {
-    addToCurtok(eatChar());
-    dfa_goto(DFAState::S_STR);
-  }
-  // HANDLE IDs & Everything Else
-  else
-    dfa_goto(DFAState::S_WORDS);
-
-}
-
-void Lexer::fn_S_STR() {
-  FoxChar c = eatChar();
-  if (c == '"' && !escapeFlag_) {
-    addToCurtok(c);
-    pushTok();
-    dfa_goto(DFAState::S_BASE);
-  }
-  else if (c == '\n')
-    diagEngine
-      .report(DiagID::newline_in_literal, getCurtokBegLoc())
-      .addArg("string");
-  else
-    addToCurtok(c);
-}
-
-void Lexer::fn_S_LCOM() {
-  FoxChar c = eatChar();
-  if (c == '\n') {
-    dfa_goto(DFAState::S_BASE);
-  }
-}
-
-void Lexer::fn_S_MCOM() {
-  FoxChar c = eatChar();
-  if (c == '*' && strManip_.getCurrentChar() == '/') {
-    eatChar(); // Consume the '/'
-    dfa_goto(DFAState::S_BASE);
-  }
-}
-
-void Lexer::fn_S_WORDS() {
-  if (isSep(strManip_.getCurrentChar())) {    
-    pushTok();
-    dfa_goto(DFAState::S_BASE);
-  }
-  else 
-    addToCurtok(eatChar());
-}
-
-void Lexer::fn_S_CHR() {
-  FoxChar c = eatChar();
-  if (c == '\'' && !escapeFlag_) {
-    addToCurtok(c);
-
-    if (curtok_.size() == 2)
-      diagEngine.report(DiagID::empty_char_literal, getCurtokRange());
-
-    pushTok();
-    dfa_goto(DFAState::S_BASE);
-  }
-  else if (c == '\n')
-    diagEngine.report(DiagID::newline_in_literal, getCurtokRange());
-  else
-    addToCurtok(c);
-}
-
-void Lexer::dfa_goto(DFAState ns) {
-  state_ = ns;
-}
-
-FoxChar Lexer::eatChar() {
-  const FoxChar c = strManip_.getCurrentChar();
-  curTokEndIdx_ = strManip_.getIndexInBytes();
-  strManip_.advance();
-  return c;
-}
-
-void Lexer::addToCurtok(FoxChar c) {
-  if (isEscapeChar(c) && !escapeFlag_) {
-    StringManipulator::append(curtok_, c);
-    escapeFlag_ = true;
-  }
-  else if(!shouldIgnore(c)) {
-    if (escapeFlag_) /* last char was an escape char */ {
-      switch (c) {
-        case 't':
-          c = '\t';
-          curtok_.pop_back();
-          break;
-        case 'n':
-          c = '\n';
-          curtok_.pop_back();
-          break;
-        case 'r':
-          curtok_.pop_back();
-          c = '\r';
-          break;
-        case '\\':
-        case '\'':
-        case '"':
-          curtok_.pop_back();
-          break;
-      }
-
+void Lexer::lex() {
+  FoxChar cur;
+  do {
+    cur = getCurChar();
+    switch (cur) {
+      // Spaces/ignored characters
+      case ' ':
+      case '\t':
+      case '\r':
+      case '\n':
+        break;
+      // Operators
+      case '/':
+        // "//" -> Beginning of a line comment
+        if(peekNextChar() == '/')
+          skipLineComment();
+        // "/*" -> Beginning of a block comment
+        else if(peekNextChar() == '*')
+          skipBlockComment();
+        // "/" -> A slash
+        else 
+         beginAndPushToken(SignType::S_SLASH);
+        break;
+      case '*':
+        beginToken();
+        // "**" -> Exponent operator
+        if (peekNextChar() == '*')
+          advanceAndPushTok(SignType::S_OP_EXP);
+        // "*" -> Asterisk
+        else 
+          pushTok(SignType::S_ASTERISK);
+        break;
+      case '=': 
+        beginToken();
+        // "==" -> Equality operator
+        if(peekNextChar() == '=')
+          advanceAndPushTok(SignType::S_OP_EQ);
+        // "=" -> Equal
+        else 
+          pushTok(SignType::S_EQUAL);
+        break;
+      case '.':
+        beginAndPushToken(SignType::S_DOT);
+        break;
+      case '+':
+        beginAndPushToken(SignType::S_PLUS);
+        break;
+      case '-':
+        beginAndPushToken(SignType::S_MINUS);
+        break;
+      case '&':
+        beginToken();
+        if(peekNextChar() == '&') // "&&" -> Logical And operator
+          advanceAndPushTok(SignType::S_OP_LAND);
+        else
+          pushTok(TKind::Invalid);
+        break;
+      case '|':
+        beginToken();
+        if(peekNextChar() == '|') // "||" -> Logical Or operator
+          advanceAndPushTok(SignType::S_OP_LOR);
+        else
+          pushTok(TKind::Invalid);
+        break;
+      case '%':
+        beginAndPushToken(SignType::S_PERCENT);
+        break;
+      case '!':
+        beginToken();
+        if(peekNextChar() == '=') // "!=" -> Inequality operator
+          advanceAndPushTok(SignType::S_OP_INEQ);
+        else
+          pushTok(SignType::S_EXCL_MARK);
+        break;
+      case '<':
+        beginToken();
+        if(peekNextChar() == '=') // "<=" -> Less or Equal
+          advanceAndPushTok(SignType::S_OP_LTEQ);
+        else
+          pushTok(SignType::S_LESS_THAN);
+        break;
+      case '>':
+        beginToken();
+        if(peekNextChar() == '=') // ">=" -> Greater or Equal
+          advanceAndPushTok(SignType::S_OP_GTEQ);
+        else
+          pushTok(SignType::S_GREATER_THAN);
+        break;
+      // Brackets
+      case '(':
+        beginAndPushToken(SignType::S_ROUND_OPEN);
+        break;
+      case ')':
+        beginAndPushToken(SignType::S_ROUND_CLOSE);
+        break;
+      case '[':
+        beginAndPushToken(SignType::S_SQ_OPEN);
+        break;
+      case ']':
+        beginAndPushToken(SignType::S_SQ_CLOSE);
+        break;
+      case '{':
+        beginAndPushToken(SignType::S_CURLY_OPEN);
+        break;
+      case '}':
+        beginAndPushToken(SignType::S_CURLY_CLOSE);
+        break;
+      // Other signs
+      case ';':
+        beginAndPushToken(SignType::S_SEMICOLON);
+        break;
+      case ':':
+        beginAndPushToken(SignType::S_COLON);
+        break;
+      case ',':
+        beginAndPushToken(SignType::S_COMMA);
+        break;
+      // Numbers/literals
+      case '0': 
+      case '1': case '2': case '3':
+      case '4': case '5': case '6':
+      case '7': case '8': case '9':
+        lexIntOrDoubleLiteral();
+        break;
+      default:
+        if(isValidIdentifierHead(cur)) 
+          lexIdentifierOrKeyword();
+        else
+          beginAndPushToken(TKind::Invalid);
+        break;
     }
-    StringManipulator::append(curtok_, c);
-    escapeFlag_ = false;
-  }
+  // Keep going until we run out of codepoints to evaluate
+  } while(advance());
 }
 
-bool Lexer::isSep(FoxChar c) const {
-  // Is separator ? Signs are the separators in the input. 
-  // Separators mark the end and beginning of tokens, and are tokens themselves. 
-  // Examples : Hello.World -> 3 Tokens. "Hello", "." and "World."
-  if (c == '.' && std::iswdigit(static_cast<wchar_t>(strManip_.peekNext()))) 
-  // if the next character is a digit, don't treat the dot as a separator.
-    return false;
-  // To detect if C is a sign separator, we use the sign dictionary
-  auto i = kSign_dict.find(c);
-  return (i != kSign_dict.end()) || std::iswspace((wchar_t)c);
+void Lexer::lexIdentifierOrKeyword() {
 }
 
-bool Lexer::isEscapeChar(FoxChar c) const {
-  return  (c == '\\') && ((state_ == DFAState::S_STR) 
-                       || (state_ == DFAState::S_CHR));
+void Lexer::lexIntOrDoubleLiteral() {
 }
 
-bool Lexer::shouldIgnore(FoxChar c) const {
-  return (c == '\r'); // don't push carriage returns
+void Lexer::lexIntLiteral() {
+}
+
+void Lexer::skipLineComment() {
+
+}
+
+void Lexer::skipBlockComment() {
+
+}
+
+bool Lexer::isValidIdentifierHead(FoxChar ch) const {
+  // <identifier_head> = '_' | (Upper/Lowercase letter A through Z)
+  if(ch == '_') return true;
+  if((ch >= 'a') && (ch <= 'z')) return true;
+  if((ch >= 'A') && (ch <= 'Z')) return true;
+  return false;
+}
+
+FoxChar Lexer::getCurChar() const {
+  return utf8::peek_next(curPtr_, fileEnd_);
+}
+
+FoxChar Lexer::peekNextChar() const {
+  auto it = curPtr_;
+  utf8::advance(it, 1, fileEnd_);
+  if(it != fileEnd_)
+    return utf8::peek_next(it, fileEnd_);
+  return 0;
+}
+
+bool Lexer::advance() {
+  utf8::next(curPtr_, fileEnd_);
+  return (curPtr_ != fileEnd_);
+}
+
+SourceLoc Lexer::getCurPtrLoc() const {
+  return SourceLoc(fileID_, std::distance(fileBeg_, curPtr_));
 }
 
 SourceLoc Lexer::getCurtokBegLoc() const {
-  return SourceLoc(fileID_, curTokBegIdx_);
-}
-
-SourceLoc Lexer::getCurtokEndLoc() const {
-  return SourceLoc(fileID_, curTokEndIdx_);
+  return SourceLoc(fileID_, std::distance(fileBeg_, tokBegPtr_));
 }
 
 SourceRange Lexer::getCurtokRange() const {
-  return SourceRange(getCurtokBegLoc(), getCurtokEndLoc());
+  SourceRange range(getCurtokBegLoc(), getCurPtrLoc());
+  assert(range && "invalid location information");
+  return range;
+}
+
+string_view Lexer::getCurtokStringView() const {
+  if(curPtr_ == fileEnd_) return string_view(curPtr_, 0);
+  const char* it = curPtr_;
+  utf8::advance(it, 1, fileEnd_);
+  return string_view(tokBegPtr_, std::distance(tokBegPtr_, it));
 }
