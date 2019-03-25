@@ -151,6 +151,11 @@ To-Do:
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
   > Lexer Rework:
+    > Add "TokenKinds.def" registering every token kind. Use that to automate token dumps.
+    > Fuse Token::Kind, KeywordType and SignType in a single "TokenKind" enum
+        (not nested). Replace parser methods accordingly and provide methods like 
+        "isAnyBracket", "isLiteral" and "isKeyword"
+    > Update Parser/Lexer
     > Rewrite tests
       > Test "error while interpreting this integer literal: maybe it is too big?"
       > Test "error while interpreting this double literal: maybe it is too big?"
@@ -160,10 +165,6 @@ To-Do:
     > Cleanup/Code review in:
       > Lexer
         > Maybe try to have less "pushTok" methods?
-      > Token
-        > Rename SignType, split it in 2 (operators and signs) OR add operators to Token::Kind
-          (and completely remove SignType)
-        > Also, change enum values from all uppercase to CamelCase.
 
     > Perform some refactoring/minor reworks in the Parser
       > Rework areas where sign are assumed to only have a SourceLoc and no range, also
