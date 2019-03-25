@@ -324,6 +324,8 @@ namespace fox {
           void restore();
           ~RAIIDeclCtxt();
 
+          RAIIDeclCtxt(const RAIIDeclCtxt&) = delete;
+          RAIIDeclCtxt& operator=(const RAIIDeclCtxt&) = delete;
         private:
           Parser* parser_ = nullptr;
           DeclContext* lastDC_ = nullptr;
@@ -371,9 +373,13 @@ namespace fox {
           // Abandons this transaction, discarding the stored decls.
           void abandon();
 
-          // Completes this transaction, registering the stored decls.
+          // Completes this 'transaction', registering the stored decls using
+          // the ScopeInfo passed as parameter.
           void complete(ScopeInfo scope);
 
+          DelayedDeclRegistration(const DelayedDeclRegistration&) = delete;
+          DelayedDeclRegistration& 
+          operator=(const DelayedDeclRegistration&) = delete;
         private:
           // The parser instance, or nullptr if the transaction
           // has already been completed.
