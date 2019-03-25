@@ -109,8 +109,8 @@ FoxChar StringManipulator::peekNext() const {
     return L'\0';
 
   auto tmpit = iter_;
-  // peek_next in utfcpp returns what we expect to be the
-  // "next" character, so we need to advance
+  // peek_next in utfcpp returns what we consider to be the
+  // current character, so we need to advance
   utf8::advance(tmpit, 1, str_.end());
   if(tmpit != str_.end())
     return utf8::peek_next(tmpit, str_.end());
