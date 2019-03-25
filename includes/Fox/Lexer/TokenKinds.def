@@ -1,0 +1,36 @@
+//----------------------------------------------------------------------------//
+// This file is part of the Fox project.        
+// See the LICENSE.txt file at the root of the project for license information.            
+// File : Instruction.def                      
+// Author : Pierre van Houtryve                
+//----------------------------------------------------------------------------//
+//  Macros for macro-metaprogramming with Token Kinds
+//----------------------------------------------------------------------------//
+
+#ifndef TOKEN
+  #define TOKEN(ID)
+#endif
+
+#ifndef KEYWORD
+  #define KEYWORD(ID, TEXT) TOKEN(ID)
+#endif
+
+#ifndef PUNCTUATOR
+  #define PUNCTUATOR(ID) TOKEN(ID)
+#endif
+
+//----------------------------------------------------------------------------//
+
+TOKEN(Invalid)
+TOKEN(Identifier)
+TOKEN(IntLiteral)
+TOKEN(DoubleLiteral)
+TOKEN(CharLiteral)
+TOKEN(BoolLiteral)
+TOKEN(StringLiteral)
+
+//----------------------------------------------------------------------------//
+
+#undef TOKEN
+#undef KEYWORD
+#undef PUNCTUATOR
