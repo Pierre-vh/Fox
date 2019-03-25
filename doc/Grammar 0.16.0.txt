@@ -1,0 +1,76 @@
+Fox Grammar version 0.16
+
+// Note : { } means "0 or more", [ ] means "optional"
+
+## Lexical Structure
+// identifiers
+<identifier_head>   = '_' | (Upper/Lowercase letter A through Z)
+<identifier_char>   = <identifier_head> | (Digit 0 through 9)
+<identifier>        = <identifier_head> {<identifier_char>}
+// literals
+<char_item>         = Any character except ''' without a preceding '\'
+<char_literal>      = ''' <char_item> '''
+<string_text>       = Any character except '"' without a preceding '\'
+<string_literal>    = '"' <string_text> '"'
+<float_literal>     = <int_literal> '.' <int_literal>
+<int_literal>       = {(Digit 0 through 9)}
+<bool_literal>      = "true" | "false"
+<primitive_literal> = <bool_literal> | <int_literal> | <float_literal> 
+                                     | <string_literal> | <char_literal> 
+
+// operators
+<binary_operator>   = '*' '*' | '=' | '+' | '-' | '*' | '/' | '%' | ('&' '&') | ('|' '|') 
+                        | '<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 
+<unary_operator>    = '!' | '-' | '+'
+
+## Types
+<builtin_type_name> = "int" | "float" | "bool" | "string" | "char"
+<type>              = ('[' <type> ']') | <builtin_type_name>
+
+## Expressions
+<expr_list>         = <expr> {',' <expr> }
+<parens_expr_list>  = '(' [ <expr_list> ] ')'
+<expr_stmt>         = <expr> ';' 
+<parens_expr>       = '(' <expr> ')'
+<suffix>            = <dot_operator> <identifier> | '[' <expr> ']' | <parens_expr_list>
+<array_literal>     = '[' [<expr_list>] ']'
+<literal>           = <primitive_literal> | <array_literal>
+<declref>           = <identifier>
+<primary>           = <literal> | <parens_expr> | <declref>
+<suffix_expr>       = <primary> { <suffix> }
+<exp_expr>          = <suffix_expr> [ <exponent_operator> <prefix_expr> ]
+<prefix_expr>       = <unary_operator> <prefix_expr> | <exp_expr>
+<cast_expr>         = <prefix_expr> ["as" <type>]
+<binary_expr>       = <cast_expr> { <binary_operator> <cast_expr> }
+<expr>              = <binary_expr> [<assign_operator> <expr>] 
+
+/*
+  Operation precedence, in descending order. 
+      Member access ".", Array Access "[]", Function call "()"
+      **
+      unary - ! +
+      cast "as"
+      * / % 
+      + -
+      < > <= >= 
+      == !=
+      &&
+      ||
+      = 
+*/
+
+## Declarations
+<fox_unit>          = {<declaration>}1+
+<declaration>       = <func_decl> | <var_decl>
+<func_decl>         = "func" <identifier> '(' [<param_decl> {',' <param_decl>}] ') 
+                       [':' <type>] <compound_stmt>
+<param_decl>        = <identifier> ':' ["mut"] <type>
+<expr_list>         = '(' [<expr> {',' <expr>}] ')'
+<var_decl>          = ("let" | "var") <identifier> ':' <type> ['=' <expr>] ';'
+
+## Statements
+<compound_stmt>     = '{' {<stmt>} '}'
+<condition>         = "if" <expr> <compound_stmt> ["else" (<compound_stmt> | <condition>)]
+<while_loop>        = "while" <expr> <compound_stmt>
+<stmt>              = <var_decl> | <expr_stmt> | <condition> | <while_loop> | <rtr_stmt> 
+<rtr_stmt>          = "return" [<expr>] ';'

@@ -179,3 +179,25 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
        <condition> = "if" <parens_expr> <body> ["else" <body>]
      to
        <condition> = "if" <expr> <compound_statement> ["else" (<compound_statement> | <condition>)]
+
+* 0.16.0
+    + Added lexical structure (moved <binary_operator> and <unary_operator> in this category too)
+      // identifiers
+      <identifier_head>   = '_' | (Upper/Lowercase letter A through Z)
+      <identifier_char>   = <identifier_head> | (Digit 0 through 9)
+      <identifier>        = <identifier_head> {<identifier_char>}
+      // literals
+      <char_item>         = Any character except ''' without a preceding '\'
+      <char_literal>      = ''' <char_item> '''
+      <string_text>       = Any character except '"' without a preceding '\'
+      <string_literal>    = '"' <string_text> '"'
+      <float_literal>     = <int_literal> '.' <int_literal>
+      <int_literal>       = {(Digit 0 through 9)}
+      <bool_literal>      = "true" | "false"
+      <primitive_literal> = <bool_literal> | <int_literal> | <float_literal> 
+                                           | <string_literal> | <char_literal> 
+
+      // operators
+      <binary_operator>   = '*' '*' | '=' | '+' | '-' | '*' | '/' | '%' | ('&' '&') | ('|' '|') 
+                              | '<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 
+      <unary_operator>    = '!' | '-' | '+'
