@@ -3,6 +3,9 @@ Fox Grammar version 0.16
 // Note : { } means "0 or more", [ ] means "optional"
 
 ## Lexical Structure
+// comments
+<line_comment>      = '/' '/' (any character except '\n')
+<block_comment>     = '/' '*' (any character except ('*' + '/'))
 // identifiers
 <identifier_head>   = '_' | (Upper/Lowercase letter A through Z)
 <identifier_char>   = <identifier_head> | (Digit 0 through 9)

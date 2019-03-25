@@ -182,6 +182,9 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
 
 * 0.16.0
     + Added lexical structure (moved <binary_operator> and <unary_operator> in this category too)
+      // comments
+      <line_comment>      = '/' '/' (any character except '\n')
+      <block_comment>     = '/' '*' (any character except ('*' + '/'))
       // identifiers
       <identifier_head>   = '_' | (Upper/Lowercase letter A through Z)
       <identifier_char>   = <identifier_head> | (Digit 0 through 9)
