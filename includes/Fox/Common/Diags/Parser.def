@@ -36,6 +36,11 @@ ERROR(else_without_if,
 ERROR(expected_decl_in_unit,
   "expected one or more declaration in unit")
 
+ERROR(err_while_inter_int_lit,
+  "error while interpreting this integer literal: maybe it is too big?")
+ERROR(err_while_inter_double_lit,
+  "error while interpreting this double literal: maybe it is too big?")
+
 FATAL(round_bracket_overflow,
   "max round bracket depth exceeded")
 FATAL(square_bracket_overflow,

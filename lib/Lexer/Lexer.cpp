@@ -15,7 +15,6 @@
 #include "Fox/AST/ASTContext.hpp"
 
 using namespace fox;
-using namespace fox::dicts;
 
 Lexer::Lexer(ASTContext& astctxt): ctxt(astctxt), 
   diagEngine(ctxt.diagEngine), srcMgr(ctxt.sourceMgr),

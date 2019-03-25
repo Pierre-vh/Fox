@@ -150,6 +150,11 @@ To-Do:
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
+  > Lexer Rework:
+    > Rewrite tests
+      > Test "error while interpreting this integer literal: maybe it is too big?"
+      > Test "error while interpreting this double literal: maybe it is too big?"
+
   > Make TypeBase::isXXXType see-through RValues.
     This is important because when I'll add canonical types, it'll get pretty redundant to have
     stuff like "type->getRValue()->getCanonicalType()->isIntType()" everywhere when this can be
