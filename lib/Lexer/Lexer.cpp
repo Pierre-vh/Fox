@@ -13,7 +13,7 @@
 #include "utfcpp/utf8.hpp"
 
 using namespace fox;
-using TKind = Token::Kind;
+using Tok = Token::Kind;
 
 Lexer::Lexer(ASTContext& astctxt): ctxt(astctxt), 
   diagEngine(ctxt.diagEngine), srcMgr(ctxt.sourceMgr) {}
@@ -107,14 +107,14 @@ void Lexer::lex() {
         if(peekNextChar() == '&') // "&&" -> Logical And operator
           advanceAndPushTok(SignType::S_OP_LAND);
         else
-          pushTok(TKind::Invalid);
+          pushTok(Tok::Invalid);
         break;
       case '|':
         beginToken();
         if(peekNextChar() == '|') // "||" -> Logical Or operator
           advanceAndPushTok(SignType::S_OP_LOR);
         else
-          pushTok(TKind::Invalid);
+          pushTok(Tok::Invalid);
         break;
       case '%':
         beginAndPushToken(SignType::S_PERCENT);
@@ -180,7 +180,7 @@ void Lexer::lex() {
         if(isValidIdentifierHead(cur)) 
           lexMaybeReservedIdentifier();
         else
-          beginAndPushToken(TKind::Invalid);
+          beginAndPushToken(Tok::Invalid);
         break;
     }
   // Keep going until we run out of codepoints to evaluate
@@ -194,7 +194,7 @@ void Lexer::lexMaybeReservedIdentifier() {
   while(isValidIdentifierChar(peekNextChar()))
     advance();
   // TODO: ID reserved identifiers/keyword.
-  pushTok(TKind::Identifier);
+  pushTok(Tok::Identifier);
 }
 
 void Lexer::lexIntOrDoubleLiteral() {
