@@ -50,7 +50,7 @@ namespace fox {
       void reset();
 
 			// Returns the unique, ASTContext-owned version of the identifier "str"
-			Identifier getIdentifier(const std::string& str);
+			Identifier getIdentifier(string_view str);
 
       // Allocates a copy of "str" inside the main allocator.
       string_view allocateCopy(string_view str);

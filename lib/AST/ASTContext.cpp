@@ -54,11 +54,11 @@ void ASTContext::reset() {
   permaAllocator_.reset();
 }
 
-Identifier ASTContext::getIdentifier(const std::string& str) {
+Identifier ASTContext::getIdentifier(string_view str) {
 	// Search (or create) the entry in the set
-	auto it = idents_.insert(str).first;
+  // TODO: Get rid of the .to_string()? (hash the id directly?)
+	auto it = idents_.insert(str.to_string()).first;
 	assert((it != idents_.end()) && "Insertion error");
-  // return it
 	return (it->c_str());
 }
 
