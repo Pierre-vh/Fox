@@ -45,6 +45,7 @@ namespace fox {
     S_SQ_CLOSE,     // ]
     S_ROUND_OPEN,   // (
     S_ROUND_CLOSE,  // )
+
     // PUNCTUATION
     S_SEMICOLON,    // ;
     S_COLON,        // :
@@ -95,6 +96,8 @@ namespace fox {
       Token() = default;
       // Creates a normal token
       Token(Kind kind, string_view str, SourceRange range);
+      Token(SignType sign, string_view str, SourceRange range);
+      Token(KeywordType kw, string_view str, SourceRange range);
 
       bool isValid() const;
       explicit operator bool() const;

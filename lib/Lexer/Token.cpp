@@ -20,6 +20,16 @@ Token::Token(Kind kind, string_view str, SourceRange range) :
   assert(range && "Token constructed with invalid an SourceRange");
 }
 
+Token::Token(SignType sign, string_view str, SourceRange range) 
+  : Token(Kind::Sign, str, range) {
+  signType_ = sign;
+}
+
+Token::Token(KeywordType kw, string_view str, SourceRange range) 
+  : Token(Kind::Keyword, str, range) {
+  kwType_ = kw;
+}
+
 bool Token::isValid() const {
   return kind != Kind::Invalid;
 }
