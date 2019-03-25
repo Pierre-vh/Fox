@@ -21,13 +21,64 @@
 
 //----------------------------------------------------------------------------//
 
+// Misc. tokens
 TOKEN(Invalid)
+
+// Identifier
 TOKEN(Identifier)
+
+// Literals
 TOKEN(IntLiteral)
 TOKEN(DoubleLiteral)
 TOKEN(CharLiteral)
 TOKEN(BoolLiteral)
 TOKEN(StringLiteral)
+
+// Punctuators : Signs
+PUNCTUATOR(Equal)         // =
+PUNCTUATOR(Plus)          // +
+PUNCTUATOR(Minus)         // -
+PUNCTUATOR(Star)          // *
+PUNCTUATOR(Slash)         // /
+PUNCTUATOR(Percent)       // %
+PUNCTUATOR(Less)          // <
+PUNCTUATOR(Greater)       // >
+PUNCTUATOR(Dot)           // .
+PUNCTUATOR(Comma)         // ,
+PUNCTUATOR(Semi)          // ;
+PUNCTUATOR(Exclaim)       // ;
+PUNCTUATOR(Colon)         // :
+PUNCTUATOR(LSquare)       // [
+PUNCTUATOR(RSquare)       // ]
+PUNCTUATOR(LParen)        // (
+PUNCTUATOR(RParen)        // )
+PUNCTUATOR(LBrace)        // {
+PUNCTUATOR(RBrace)        // }
+
+// Punctuators : Operators
+PUNCTUATOR(StarStar)      // **
+PUNCTUATOR(EqualEqual)    // ==
+PUNCTUATOR(ExclaimEqual)  // !=
+PUNCTUATOR(GreaterEqual)  // >=
+PUNCTUATOR(LessEqual)     // <=
+PUNCTUATOR(PipePipe)      // ||
+PUNCTUATOR(AmpAmp)        // &&
+
+// Keywords
+KEYWORD(AsKw,     "as")
+KEYWORD(BoolKw,   "bool")
+KEYWORD(CharKw,   "char")
+KEYWORD(DoubleKw, "double")
+KEYWORD(ElseKw,   "else")
+KEYWORD(FuncKw,   "func")
+KEYWORD(IfKw,     "if")
+KEYWORD(IntKw,    "int")
+KEYWORD(LetKw,    "let")
+KEYWORD(MutKw,    "mut")
+KEYWORD(ReturnKw, "return")
+KEYWORD(StringKw, "string")
+KEYWORD(VarKw,    "var")
+KEYWORD(WhileKw,  "while")
 
 //----------------------------------------------------------------------------//
 
