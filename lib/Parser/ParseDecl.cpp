@@ -92,7 +92,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
 Parser::Result<Decl*> Parser::parseFuncDecl() {
   /*
     <func_decl>  = "func" <id> '(' [<param_decl> {',' <param_decl>}*] ')
-									 '[':' <type>] <compound_statement>
+									 '[':' <type>] <compound_stmt>
     // Note about [':' <type>], if it isn't present, the function returns void
   */
 
@@ -195,7 +195,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
     func->setReturnTypeLoc(voidTL);
   }
 
-  // <compound_statement>
+  // <compound_stmt>
   {
     if(Result<Stmt*> compStmt = parseCompoundStatement())
       func->setBody(cast<CompoundStmt>(compStmt.get()));

@@ -112,8 +112,8 @@ Parser::Result<Stmt*> Parser::parseWhileLoop() {
 }
 
 Parser::Result<Stmt*> Parser::parseCondition() {
-  // <condition> = "if" <expr> <compound_statement> 
-  //                ["else" (<compound_statement> | <condition>)]
+  // <condition> = "if" <expr> <compound_stmt> 
+  //                ["else" (<compound_stmt> | <condition>)]
   Expr* expr = nullptr;
   CompoundStmt* then_body = nullptr;
   Stmt* else_node = nullptr;
@@ -137,7 +137,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
     return Result<Stmt*>::Error();
   }
     
-  // <compound_statement>
+  // <compound_stmt>
   if (auto body = parseCompoundStatement())
     then_body = body.castTo<CompoundStmt>();
   else {
@@ -154,7 +154,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
     else if(cond.isError())
       return Result<Stmt*>::Error();
 
-    // <compound_statement>
+    // <compound_stmt>
     if (auto compound = parseCompoundStatement())
       else_node = compound.castTo<CompoundStmt>();
     else if(compound.isError())
