@@ -183,7 +183,6 @@ void Lexer::lex() {
           beginAndPushToken(Tok::Invalid);
         break;
     }
-  // Keep going until we run out of codepoints to evaluate
   }
 }
 
