@@ -28,10 +28,10 @@ Optional<std::pair<Identifier, SourceRange>>
 Parser::consumeIdentifier() {
   Token tok = getCurtok();
   if (tok.isIdentifier()) {
-    Identifier id = tok.getIdentifier();
+    Identifier id = ctxt.getIdentifier(tok.str);
     assert(id && "Token's an identifier but contains a null Identifier?");
     next();
-    return std::make_pair(id, tok.getSourceRange());
+    return std::make_pair(id, tok.range);
   }
   return None;
 }
@@ -43,7 +43,7 @@ SourceLoc Parser::consumeSign(SignType s) {
   auto tok = getCurtok();
   if (tok.is(s)) {
     next();
-    return tok.getSourceRange().getBeginLoc();
+    return tok.range.getBeginLoc();
   }
   return {};
 }
@@ -55,7 +55,7 @@ SourceLoc Parser::consumeBracket(SignType s) {
   auto tok = getCurtok();
   // Lambda to diagnose an overflow and kill the parser.
   auto diagnoseOverflow = [&](DiagID id) {
-    diagEngine.report(id, tok.getSourceRange());
+    diagEngine.report(id, tok.range);
     die();
   };
   if (tok.is(s)) {
@@ -94,9 +94,9 @@ SourceLoc Parser::consumeBracket(SignType s) {
         fox_unreachable("unknown bracket type");
     }
     next();
-    assert((tok.getSourceRange().getRawOffset() == 0) 
+    assert((tok.range.getRawOffset() == 0) 
       && "Token is a sign but it's SourceRange offset is greater than zero?");
-    return tok.getSourceRange().getBeginLoc();
+    return tok.range.getBeginLoc();
   }
   return {};
 }
@@ -105,7 +105,7 @@ SourceRange Parser::consumeKeyword(KeywordType k) {
   auto tok = getCurtok();
   if (tok.is(k)) {
     next();
-    return tok.getSourceRange();
+    return tok.range;
   }
   return {};
 }
@@ -124,7 +124,7 @@ void Parser::revertConsume() {
   Token tok = getCurtok();
   // Lambda to diagnose an overflow and kill the parser.
   auto diagnoseOverflow = [&](DiagID id) {
-    diagEngine.report(id, tok.getSourceRange());
+    diagEngine.report(id, tok.range);
     die();
   };
   if (isBracket(tok.getSignType())) {
@@ -401,7 +401,7 @@ void Parser::die() {
 Diagnostic Parser::reportErrorExpected(DiagID diag) {
   SourceRange errorRange;
   if (Token prevTok = getPreviousToken()) {
-    SourceLoc loc = prevTok.getSourceRange().getEndLoc();
+    SourceLoc loc = prevTok.range.getEndLoc();
     // Get the next character in the file. This will be our 
     // error's location.
     loc = srcMgr.incrementSourceLoc(loc);
@@ -413,7 +413,7 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
 		// or never happen at all. tests needed)
     Token curTok = getCurtok();
     assert(curTok && "No valid previous token and no valid current token?");
-    errorRange = curTok.getSourceRange();
+    errorRange = curTok.range;
   }
   return diagEngine.report(diag, errorRange);
 }

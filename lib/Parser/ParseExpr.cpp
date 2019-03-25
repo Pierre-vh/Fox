@@ -8,6 +8,8 @@
 #include "Fox/AST/ASTContext.hpp"
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Common/StringManipulator.hpp"
+#include <sstream>
 
 using namespace fox;
 
@@ -94,6 +96,53 @@ Parser::Result<Expr*> Parser::parseDeclRef() {
   return Result<Expr*>::NotFound();
 }
 
+namespace {
+  bool tokToBoolLit(Token tok) {
+    assert(tok.isBoolLiteral());
+    string_view str = tok.str;
+    if(str == "true") return true;
+    if(str == "false") return false;
+    fox_unreachable("unhandled bool literal token string");
+  }
+
+  string_view tokToStringLit(Token tok) {
+    string_view str = tok.str;
+    assert((str.front() == '"') && (str.back() == '"') 
+      && "unhandled string literal token string");
+    return str.substr(1, str.size()-2);
+  }
+
+  FoxChar tokToCharLit(Token tok) {
+    string_view str = tok.str;
+    assert((str.front() == '\'') && (str.back() == '\'') 
+      && "unhandled char literal token string");
+    StringManipulator manip(str);
+    assert((manip.getSizeInCodepoints() == 3) 
+      && "unexpected char literal token string (not 3 chars long)");
+    return manip.getChar(1);
+  }
+
+  // Tries to convert a token to an int literal.
+  // If cannot be converted to a int (because it's too large)
+  FoxInt tokToIntLit(DiagnosticEngine& engine, Token tok) {
+    std::istringstream iss;
+    FoxInt tmp;
+    if(iss >> tmp) return tmp;
+    engine.report(DiagID::err_while_inter_int_lit, tok.range);
+    return 0;
+  }
+
+  // Tries to convert a token to an double literal.
+  // If cannot be converted to a int (because it's too large)
+  FoxInt tokToDoubleLit(DiagnosticEngine& engine, Token tok) {
+    std::istringstream iss;
+    FoxDouble tmp;
+    if(iss >> tmp) return tmp;
+    engine.report(DiagID::err_while_inter_double_lit, tok.range);
+    return 0.0;
+  }
+}
+
 Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   // <primitive_literal>  = One literal of the following type : Integer,
   //                        Floating-point, Boolean, String, Char
@@ -104,22 +153,24 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   next();
   Expr* expr = nullptr;
 
-  SourceRange range = tok.getSourceRange();
+  SourceRange range = tok.range;
   assert(range && "Invalid loc info");
 
   if (tok.isBoolLiteral())
-    expr = BoolLiteralExpr::create(ctxt, tok.getBoolValue(), range);
+    expr = BoolLiteralExpr::create(ctxt, tokToBoolLit(tok), range);
   else if (tok.isStringLiteral()) {
     // The token class has already allocated of the string in the ASTContext,
     // so it's safe to use the string_view given by getStringValue
-    expr = StringLiteralExpr::create(ctxt, tok.getStringValue(), range);
+    expr = StringLiteralExpr::create(ctxt, tokToStringLit(tok), range);
   }
   else if (tok.isCharLiteral())
-    expr = CharLiteralExpr::create(ctxt, tok.getCharValue(), range);
+    expr = CharLiteralExpr::create(ctxt, tokToCharLit(tok), range);
   else if (tok.isIntLiteral())
-    expr = IntegerLiteralExpr::create(ctxt, tok.getIntValue(), range);
+    expr = IntegerLiteralExpr::create(ctxt, 
+                                      tokToIntLit(diagEngine, tok), range);
   else if (tok.isDoubleLiteral())
-    expr = DoubleLiteralExpr::create(ctxt, tok.getDoubleValue(), range);
+    expr = DoubleLiteralExpr::create(ctxt, 
+                                     tokToDoubleLit(diagEngine, tok), range);
   else
     fox_unreachable("Unknown literal kind"); // Unknown literal
 
