@@ -156,23 +156,26 @@ To-Do:
     > Rename Token kinds CharLiteral and StringLiteral to 
       SingleQuoteTextLiteral and DoubleQuoteTextLiteral (Done)
     > Merge Token::Kind, KeywordType and SignType in a new TokenKind enum (Done)
-    > Update parser methods (Now)
-    > Change diagnostic to also use brace/bracket/paren instead of round/square/curly brackets
+    > Update parser methods (Done)
+    > Change diagnostic to also use brace/bracket/paren instead of round/square/curly brackets (Done)
 
-    > Implement Char/String normalization in the parser 
+    > Implement Char/String normalization in the parser (Now)
       (consider escape sequences, check proper lengths, etc)
 
     > Replace manual increments of ++curPtr and *curPtr_ calls by 
       a "getChar()", advance(0)" etc. but add fast paths when the char is ascii.
       -> Don't use raw pointers in the methods
     > Rewrite lexer tests (one for each diagnostic that can be emitted by the lexer)
-    > Write lexer filecheck tests (test kind + loc accuracy of each token in a file)
+    > Rewrite parser text normalization tests
+    > Write lexer filecheck tests (test kinds using a -dump-toks option)
 
     > Maybe Remove StringManipulator if it's not needed anymore.
 
     > Cleanup/Code review in:
       > Lexer
         > Maybe try to have less "pushTok" methods?
+      > Parser
+        > Re-read the code: check for errors/inconsistencies, update docs.
    
     > Grammar cleanup
 
