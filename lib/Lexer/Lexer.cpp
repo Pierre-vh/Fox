@@ -40,6 +40,22 @@ std::size_t Lexer::numTokens() const {
   return tokens_.size();
 }
 
+void Lexer::pushTok(TokenKind kind) {
+  tokens_.push_back(Token(kind, getCurtokStringView(), getCurtokRange()));
+  advance();
+  resetToken();
+}
+
+void Lexer::beginAndPushToken(TokenKind kind) {
+  resetToken();
+  pushTok(kind);
+}
+
+void Lexer::advanceAndPushTok(TokenKind kind) {
+  advance();
+  pushTok(kind);
+}
+
 bool Lexer::isEOF() const {
   return (curPtr_ == fileEnd_);
 }
@@ -182,7 +198,7 @@ void Lexer::lex() {
       case '1': case '2': case '3':
       case '4': case '5': case '6':
       case '7': case '8': case '9':
-        lexIntOrDoubleLiteral();
+        lexIntOrDoubleConstant();
         break;
       default:
         if(isValidIdentifierHead(cur)) 
@@ -211,17 +227,17 @@ void Lexer::lexIdentifierOrKeyword() {
   pushTok(TokenKind::Identifier);
 }
 
-void Lexer::lexIntOrDoubleLiteral() {
+void Lexer::lexIntOrDoubleConstant() {
   assert(std::isdigit(*curPtr_) && "not a digit");
   // <int_literal> = {(Digit 0 through 9)}
   // <float_literal> = <int_literal> '.' <int_literal>
   resetToken();
-  lexIntLiteral();
+  lexIntConstant();
   // Check if we have a '.' followed by a digit, if so,
-  // eat the '.' and call lexIntLiteral()
+  // eat the '.' and call lexIntConstant()
   if ((*(curPtr_+1) == '.') && std::isdigit(*(curPtr_+2))) {
     curPtr_ += 2;
-    lexIntLiteral();
+    lexIntConstant();
     pushTok(TokenKind::DoubleConstant);
   }
   else 
@@ -291,7 +307,7 @@ void Lexer::lexDoubleQuoteText() {
   diagEngine.report(DiagID::unterminated_str_lit, getCurtokBegLoc());
 }
 
-void Lexer::lexIntLiteral() {
+void Lexer::lexIntConstant() {
   assert(std::isdigit(*curPtr_) && "not a digit");
   // <int_literal> = {(Digit 0 through 9)}
   while (!isEOF()) {
@@ -355,10 +371,14 @@ bool Lexer::isValidIdentifierChar(FoxChar ch) const {
 }
 
 FoxChar Lexer::getCurChar() const {
+  // If the current character isn't an utf8 character,
+  // just return *curPtr_.
+  if(!((*curPtr_) & 0x80)) return (*curPtr_);
   return utf8::peek_next(curPtr_, fileEnd_);
 }
 
 FoxChar Lexer::peekNextChar() const {
+  // TODO: Cache this somewhere.
   auto it = curPtr_;
   utf8::advance(it, 1, fileEnd_);
   if(it != fileEnd_)

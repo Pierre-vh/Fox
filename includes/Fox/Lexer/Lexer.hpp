@@ -33,28 +33,15 @@ namespace fox {
       SourceManager& srcMgr;
 
     private:
-      // Pushes the current token with the kind 'kind' and advances.
-      template<typename Kind>
-      void pushTok(Kind kind) {
-        tokens_.push_back(Token(kind, getCurtokStringView(), getCurtokRange()));
-        advance();
-        resetToken();
-      }
+      // Pushes the current token with the kind "kind"
+      void pushTok(TokenKind kind);
 
-      // Pushes a token of kind 'kind' consisting of a single codepoint
+      // Pushes the current token character as a token with the kind "kind" 
       // (calls resetToken() + pushToken())
-      template<typename Kind>
-      void beginAndPushToken(Kind kind) {
-        resetToken();
-        pushTok(kind);
-      }
+      void beginAndPushToken(TokenKind kind);
 
       // Calls advance(), then pushes the current token with the kind 'kind'
-      template<typename Kind>
-      void advanceAndPushTok(Kind kind) {
-        advance();
-        pushTok(kind);
-      }
+      void advanceAndPushTok(TokenKind kind);
 
       // Returns true if we reached EOF.
       bool isEOF() const;
@@ -64,10 +51,11 @@ namespace fox {
 
       // Entry point of the lexing process
       void lex();
+
       // Lex an identifier or keyword
       void lexIdentifierOrKeyword();
       // Lex an int or double literal
-      void lexIntOrDoubleLiteral();
+      void lexIntOrDoubleConstant();
       // Lex any number of char items until we find a char that can't be
       // a char item, or if we find the (unescaped) delimiter or EOF.
       // Returns true if the delimiter was found
@@ -77,7 +65,7 @@ namespace fox {
       // Lex a piece of text delimited by double quotes "
       void lexDoubleQuoteText();
       // Lex an integer literal
-      void lexIntLiteral();
+      void lexIntConstant();
 
       // Handles a single-line comment
       void skipLineComment();
