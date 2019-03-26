@@ -32,9 +32,9 @@ std::pair<Identifier, SourceRange> Parser::consumeIdentifier() {
   return std::make_pair(id, tok.range);
 }
 
-SourceRange Parser::consume(TokenKind kind) {
+SourceRange Parser::consume() {
   auto tok = getCurtok();
-  assert(tok.is(kind) && "incorrect kind");
+  assert(tok && "Parser is dead?");
   // Lambda to diagnose an overflow and kill the parser.
   auto diagnoseOverflow = [&](DiagID id) {
     diagEngine.report(id, tok.range);
@@ -80,12 +80,8 @@ SourceRange Parser::consume(TokenKind kind) {
 
 SourceRange Parser::tryConsume(TokenKind kind) {
   if(getCurtok().is(kind)) 
-    return consume(kind);
+    return consume();
   return SourceRange();
-}
-
-void Parser::consumeAny() {
-  consume(getCurtok().kind);
 }
 
 void Parser::next() {
@@ -189,7 +185,7 @@ bool Parser::resyncTo(const SmallVector<TokenKind, 4>& kinds,
       // Consume if it matches
       if (tok.is(kind)) {
         if(shouldConsumeToken)
-          consume(kind);
+          consume();
         return true;
       }
     }
@@ -197,15 +193,15 @@ bool Parser::resyncTo(const SmallVector<TokenKind, 4>& kinds,
   switch (tok.kind) {
     // Skip '{', '(' or '['
     case TokenKind::LBrace:
-      consumeAny();
+      consume();
       resyncTo(TokenKind::RBrace, false, true);
       break;
     case TokenKind::LSquare:
-      consumeAny();
+      consume();
       resyncTo(TokenKind::RSquare, false, true);
       break;
     case TokenKind::LParen:
-      consumeAny();
+      consume();
       resyncTo(TokenKind::LParen, false, true);
       break;
     // Skip '}', ')' or ']' only if they're unbalanced,
@@ -213,24 +209,24 @@ bool Parser::resyncTo(const SmallVector<TokenKind, 4>& kinds,
     case TokenKind::RBrace:
       if (curlyBracketsCount_ && !isFirst)
         return false;
-      consumeAny();
+      consume();
       break;
     case TokenKind::RSquare:
       if (squareBracketsCount_ && !isFirst)
         return false;
-      consumeAny();
+      consume();
       break;
     case TokenKind::RParen:
       if (roundBracketsCount_ && !isFirst)
         return false;
-      consumeAny();
+      consume();
       break;
     case TokenKind::Semi:
       if (stopAtSemi)
         return false;
       // fallthrough
     default:
-      consumeAny();
+      consume();
       break;
     }
 
@@ -249,7 +245,7 @@ bool Parser::resyncToNextDecl() {
     // if it's let/func, return.
     if (tok.is(TokenKind::FuncKw) || tok.is(TokenKind::LetKw))
       return true;
-    consumeAny();
+    consume();
     // Skip nested parens braces, brackets or parens.
     switch (tok.kind) {
       case TokenKind::LBrace:

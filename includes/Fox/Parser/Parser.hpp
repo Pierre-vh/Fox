@@ -208,19 +208,16 @@ namespace fox {
       // isCurTokAnIdentifier() must return true.
       std::pair<Identifier, SourceRange> consumeIdentifier();
 
-      // Consumes a token of known type.
-      // Returns the range of the token
-      //
-      // getCurtok().is(kind) must return true.
-      SourceRange consume(TokenKind kind);
+      // Consumes the current token, correctly updating counters
+      // if needed.
+      // 
+      // Returns the range of the token.
+      SourceRange consume();
 
-      // Tries to consume a token of kind "kind".
+      // Consumes the current tok iff (tok.kind == kind)
+      //
       // Returns a valid SourceRange on success, false otherwise.
       SourceRange tryConsume(TokenKind kind);
-
-      // Consumes any token.
-      // Used to skip a token, updating any necessary counters.
-      void consumeAny();
 
       // NOTE: This has been removed because most users know what kind of token
       //       they want to unconsume and none actually need to unconsume 
