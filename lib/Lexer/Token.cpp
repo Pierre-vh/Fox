@@ -38,13 +38,13 @@ Token::operator bool() const {
   return isValid();
 }
 
-bool Token::isLiteral() const {
+bool Token::isAnyLiteral() const {
   switch (kind) {
     case Kind::BoolLiteral:
-    case Kind::CharLiteral:
+    case Kind::SingleQuoteTextLiteral:
     case Kind::DoubleLiteral:
     case Kind::IntLiteral:
-    case Kind::StringLiteral:
+    case Kind::DoubleQuoteTextLiteral:
       return true;
     default:
       return false;
@@ -63,8 +63,8 @@ bool Token::isKeyword() const {
   return kind == Kind::Keyword;
 }
 
-bool Token::isStringLiteral() const {
-  return kind == Kind::StringLiteral;
+bool Token::isDoubleQuoteTextLiteral() const {
+  return kind == Kind::DoubleQuoteTextLiteral;
 }
 
 bool Token::isBoolLiteral() const {
@@ -79,8 +79,8 @@ bool Token::isIntLiteral() const {
   return kind == Kind::IntLiteral;
 }
 
-bool Token::isCharLiteral() const {
-  return kind == Kind::CharLiteral;
+bool Token::isSingleQuoteTextLiteral() const {
+  return kind == Kind::SingleQuoteTextLiteral;
 }
 
 bool Token::is(KeywordType ty) {

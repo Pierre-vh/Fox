@@ -93,8 +93,8 @@ namespace fox {
         IntLiteral,
         DoubleLiteral,
         BoolLiteral,
-        StringLiteral,
-        CharLiteral,
+        DoubleQuoteTextLiteral,
+        SingleQuoteTextLiteral
       };
 
       // Creates an invalid token
@@ -107,15 +107,15 @@ namespace fox {
       bool isValid() const;
       explicit operator bool() const;
 
-      bool isLiteral() const;
+      bool isAnyLiteral() const;
       bool isIdentifier() const;
       bool isSign() const;
       bool isKeyword() const;
-      bool isStringLiteral() const;
       bool isBoolLiteral() const;
       bool isDoubleLiteral() const;
       bool isIntLiteral() const;
-      bool isCharLiteral() const;
+      bool isSingleQuoteTextLiteral() const;
+      bool isDoubleQuoteTextLiteral() const;
 
       bool is(KeywordType ty);
       bool is(SignType ty);

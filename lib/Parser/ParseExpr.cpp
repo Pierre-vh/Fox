@@ -98,6 +98,7 @@ Parser::Result<Expr*> Parser::parseDeclRef() {
 
 namespace {
   bool tokToBoolLit(Token tok) {
+    // <bool_literal> = "true" | "false"
     assert(tok.isBoolLiteral());
     string_view str = tok.str;
     if(str == "true") return true;
@@ -106,6 +107,7 @@ namespace {
   }
 
   string_view tokToStringLit(Token tok) {
+    // <string_literal> = '"' {<char_item>} '"'
     // FIXME: Normalize string literals here.
     string_view str = tok.str;
     assert((str.front() == '"') && (str.back() == '"') 
@@ -114,6 +116,7 @@ namespace {
   }
 
   FoxChar tokToCharLit(Token tok) {
+    // <char_literal> = ''' <char_item> '''
     // FIXME: Normalize char literal here, handle empty char literals
     // and the ones that are too long.
     string_view str = tok.str;
@@ -126,6 +129,7 @@ namespace {
   // Tries to convert a token to an int literal.
   // If cannot be converted to a int (because it's too large)
   FoxInt tokToIntLit(DiagnosticEngine& engine, Token tok) { 
+    // <int_literal> = {(Digit 0 through 9)}
     // TODO: Use something other than stringstream to avoid conversion
     // to std::string
     std::istringstream iss(tok.str.to_string());
@@ -138,6 +142,7 @@ namespace {
   // Tries to convert a token to an double literal.
   // If cannot be converted to a int (because it's too large)
   FoxInt tokToDoubleLit(DiagnosticEngine& engine, Token tok) {
+    // <double_literal> = <int_literal> '.' <int_literal>
     // TODO: Use something other than stringstream to avoid conversion
     // to std::string
     std::istringstream iss(tok.str.to_string());
@@ -152,7 +157,7 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   // <primitive_literal>  = One literal of the following type : Integer,
   //                        Floating-point, Boolean, String, Char
   auto tok = getCurtok();
-  if (!tok.isLiteral())
+  if (!tok.isAnyLiteral())
     return Result<Expr*>::NotFound();
   
   next();
@@ -161,18 +166,23 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   SourceRange range = tok.range;
   assert(range && "Invalid loc info");
 
+  // <bool_literal> = "true" | "false"
   if (tok.isBoolLiteral())
     expr = BoolLiteralExpr::create(ctxt, tokToBoolLit(tok), range);
-  else if (tok.isStringLiteral()) {
+  // <string_literal> = '"' {<char_item>} '"'
+  else if (tok.isDoubleQuoteTextLiteral()) {
     // The token class has already allocated of the string in the ASTContext,
     // so it's safe to use the string_view given by getStringValue
     expr = StringLiteralExpr::create(ctxt, tokToStringLit(tok), range);
   }
-  else if (tok.isCharLiteral())
+  // <char_literal> = ''' <char_item> '''
+  else if (tok.isSingleQuoteTextLiteral())
     expr = CharLiteralExpr::create(ctxt, tokToCharLit(tok), range);
+  // <int_literal> = {(Digit 0 through 9)}
   else if (tok.isIntLiteral())
     expr = IntegerLiteralExpr::create(ctxt, 
                                       tokToIntLit(diagEngine, tok), range);
+  // <double_literal> = <int_literal> '.' <int_literal>
   else if (tok.isDoubleLiteral())
     expr = DoubleLiteralExpr::create(ctxt, 
                                      tokToDoubleLit(diagEngine, tok), range);

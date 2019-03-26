@@ -173,10 +173,10 @@ void Lexer::lex() {
         break;
       // char/string literals
       case '\'':
-        lexCharLiteral();
+        lexSingleQuoteTextLiteral();
         break;
       case '"':
-        lexStringLiteral();
+        lexDoubleQuoteTextLiteral();
         break;
       // Numbers/literals
       case '0': 
@@ -276,11 +276,8 @@ bool Lexer::lexCharItems(FoxChar delimiter) {
   }
 }
 
-void Lexer::lexCharLiteral() {
+void Lexer::lexSingleQuoteTextLiteral() {
   assert((getCurChar() == '\'') && "not a quote");
-  // <char_literal> = ''' <char_item> '''
-  // Note: here we don't check that there's exactly one char item in the literal
-  // This is done in the parser during normalization.
   resetToken();
   // Lex the body of the literal
   bool foundDelimiter = lexCharItems('\'');
@@ -289,15 +286,14 @@ void Lexer::lexCharLiteral() {
     assert((getCurChar() == '\'') 
       && "Found the delimiter but the current char is not the delimiter?");
     // Push the token
-    pushTok(Tok::CharLiteral);
+    pushTok(Tok::SingleQuoteTextLiteral);
     return;
   }
   diagEngine.report(DiagID::unterminated_char_lit, getCurtokBegLoc());
 }
 
-void Lexer::lexStringLiteral() {
+void Lexer::lexDoubleQuoteTextLiteral() {
   assert((getCurChar() == '"') && "not a double quote");
-  // <string_literal> = '"' {<char_item>} '"'
   resetToken();
   // Lex the body of the literal
   bool foundDelimiter = lexCharItems('"');
@@ -306,7 +302,7 @@ void Lexer::lexStringLiteral() {
     assert((getCurChar() == '"') 
       && "Found the delimiter but the current char is not the delimiter?");
     // Push the token
-    pushTok(Tok::StringLiteral);
+    pushTok(Tok::DoubleQuoteTextLiteral);
     return;
   }
   diagEngine.report(DiagID::unterminated_str_lit, getCurtokBegLoc());
@@ -353,7 +349,7 @@ void Lexer::skipBlockComment() {
 
 bool Lexer::canBeCharItem(FoxChar c) const {
   switch (c) {
-    // Disallow newlines
+    // Newlines are forbidden
     case '\n': case '\r':
       return false;
     default:

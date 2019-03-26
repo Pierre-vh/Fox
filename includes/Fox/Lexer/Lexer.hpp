@@ -72,10 +72,10 @@ namespace fox {
       // a char item, or if we find the (unescaped) delimiter or EOF.
       // Returns true if the delimiter was found
       bool lexCharItems(FoxChar delimiter);
-      // Lex a character literal
-      void lexCharLiteral();
-      // Lex a string literal
-      void lexStringLiteral();
+      // Lex a text literal delimited by single quotes '
+      void lexSingleQuoteTextLiteral();
+      // Lex a text literal delimited by double quotes "
+      void lexDoubleQuoteTextLiteral();
       // Lex an integer literal
       void lexIntLiteral();
 
