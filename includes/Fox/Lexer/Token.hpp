@@ -4,7 +4,7 @@
 // File : Token.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the Token class and Token kinds enums.
+// This file contains the Token class and TokenKind enum.
 //----------------------------------------------------------------------------//
 
 #pragma once
