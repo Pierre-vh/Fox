@@ -123,6 +123,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
     // check for a else without if
     if (auto elseKw = tryConsume(TokenKind::ElseKw)) {
       diagEngine.report(DiagID::else_without_if, elseKw);
+      // FIXME: Recover more?
       return Result<Stmt*>::Error();
     }
     return Result<Stmt*>::NotFound();
