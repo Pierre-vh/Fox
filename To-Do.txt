@@ -161,12 +161,12 @@ To-Do:
 
     > Implement Char/String normalization in the parser (Now)
       (consider escape sequences, check proper lengths, etc)
+      > Don't forget to diagnose incorrect escape sequences correctly.
+      > Add a SourceManager "getSourceLocForPtr(FileID, ptr)", maybe even a getSourceRangeForPtrs() if needed.
 
-    > Replace manual increments of ++curPtr and *curPtr_ calls by 
-      a "getChar()", advance(0)" etc. but add fast paths when the char is ascii.
-      -> Don't use raw pointers in the methods
+    > Replace ++curPtr and *curPtr_ by "advance(0)" "getCurChar()"
     > Rewrite lexer tests (one for each diagnostic that can be emitted by the lexer)
-    > Rewrite parser text normalization tests
+    > Write parser text normalization tests
     > Write lexer filecheck tests (test kinds using a -dump-toks option)
 
     > Maybe Remove StringManipulator if it's not needed anymore.
