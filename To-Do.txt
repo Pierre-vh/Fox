@@ -171,6 +171,8 @@ To-Do:
     > Cleanup/Code review in:
       > Lexer
         > Maybe try to have less "pushTok" methods?
+   
+    > Grammar cleanup
 
     > Perform some refactoring/minor reworks in the Parser
       > Rework areas where sign are assumed to only have a SourceLoc and no range, also

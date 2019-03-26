@@ -175,6 +175,9 @@ void Lexer::lex() {
       case '\'':
         lexCharLiteral();
         break;
+      case '"':
+        lexStringLiteral();
+        break;
       // Numbers/literals
       case '0': 
       case '1': case '2': case '3':
@@ -225,32 +228,43 @@ bool Lexer::lexCharItem() {
   // If the current character is a quote, the literal is empty.
   // Don't eat the quote (to not trigger a missing quote error)
   // and diagnose it.
-  char cur = *curPtr_;
+  FoxChar cur = getCurChar();
   if (cur == '\'') {
     diagEngine.report(DiagID::empty_char_lit, getCurtokRange());
     return false;
   }
   // Check for escape sequences
   if (cur == '\\') {
+    // Save the pointer to the backlash.
     const char* backslashPtr = curPtr_;
-    cur = *(++curPtr_);
-    switch (cur) {
+    // Skip it
+    advance();
+    // Check for valid escape sequences.
+    switch (getCurChar()) {
       case '\\':
       case 'n':
       case 'r':
       case 't':
-        ++curPtr_; // ok
+        advance(); // skip them and we're done.
         return true;
       default:
-        diagEngine
-          .report(DiagID::unknown_escape_seq, getLocOfPtr(backslashPtr));
         // eat all subsequent alphanumeric characters so we can recover.
         while(!isEOF() && std::isalnum(*(++curPtr_)));
+        // prepare a diagnostic at the backlash's loc, with the
+        // extra range highlighting the rest of the escape sequence.
+        const char* escapeSeqEndPtr = (curPtr_-1);
+        SourceRange extraRange(getLocOfPtr(backslashPtr+1),
+                               getLocOfPtr(escapeSeqEndPtr));
+        diagEngine
+          .report(DiagID::unknown_escape_seq, getLocOfPtr(backslashPtr))
+          .setExtraRange(extraRange);
+        // As the escape sequence is invalid, return false.
         return false;
     }
   }
-  // Check for forbidden characters
-  if (std::isspace(cur)) return false;
+  // Check for other forbidden characters
+  if (isBannedTextItem(cur)) return false;
+  if (cur == '\t') return false;
   // Else we should be good.
   advance();
   return true;
@@ -270,8 +284,7 @@ void Lexer::lexCharLiteral() {
     // Only push successful tokens.
     if(succ)
       pushTok(Tok::CharLiteral);
-    // If the literal isn't valid, eat the quote
-    // and reset the token.
+    // If the literal isn't valid, eat the quote and reset the token.
     else {
       ++curPtr_;
       resetToken();
@@ -281,8 +294,40 @@ void Lexer::lexCharLiteral() {
   diagEngine.report(DiagID::unterminated_char_lit, getCurtokBegLoc());
 }
 
+// TODO - UNFINISHED
+bool Lexer::lexStringItem() {
+  // <string_item> = '\"' | Any unicode character except '\r', '\n' and "
+  bool escaped = false;
+  while (!isEOF()) {
+    // Check for forbidden characters
+    // Otherwise, ignore escaped characters
+    if(escaped) escaped = false;
+    else {
+
+    }
+  }
+  // Return true except if we reached EOF.
+  return !isEOF();
+}
+
 void Lexer::lexStringLiteral() {
-  fox_unimplemented_feature("Lexer::lexStringLiteral");
+  assert(((*curPtr_) == '"') && "not a string");
+  // <string_literal> = '"' {<string_item>} '"'
+  resetToken();
+  ++curPtr_; // skip the '"'
+  // Lex the body of the litera
+  bool succ = lexStringItem();
+  if ((*curPtr_) == '"') {
+    if(succ)
+      pushTok(Tok::StringLiteral);
+    // If the literal isn't valid, eat the quote and reset the token.
+    else {
+      ++curPtr_;
+      resetToken();
+    }
+    return;
+  }
+  diagEngine.report(DiagID::unterminated_str_lit, getCurtokBegLoc());
 }
 
 void Lexer::lexIntLiteral() {
@@ -323,6 +368,16 @@ void Lexer::skipBlockComment() {
       ++curPtr_;
       return;
     }
+  }
+}
+
+bool Lexer::isBannedTextItem(char c) const {
+  // <banned_text_item>  = 0x0a (LF) | 0x0b (VT) | 0x0c (FF) | 0x0d (CR)
+  switch (c) {
+    case '\n': case '\r': case '\v': case '\f':
+      return true;
+    default:
+      return false;
   }
 }
 

@@ -13,3 +13,5 @@ ERROR(empty_char_lit,
   "empty char literal")
 ERROR(unknown_escape_seq,
   "unknown escape sequence")
+ERROR(unterminated_str_lit,
+  "unterminated string literal")

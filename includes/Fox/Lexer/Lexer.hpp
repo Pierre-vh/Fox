@@ -68,6 +68,7 @@ namespace fox {
       void lexIntOrDoubleLiteral();
       bool lexCharItem();
       void lexCharLiteral();
+      bool lexStringItem();
       void lexStringLiteral();
       void lexIntLiteral();
 
@@ -75,6 +76,9 @@ namespace fox {
       void skipLineComment();
       // Handles a multi-line comment
       void skipBlockComment();
+
+      // Returns true if the character is a <banned_text_item>
+      bool isBannedTextItem(char c) const;
 
       // Returns true if 'ch' is a valid identifier head.
       bool isValidIdentifierHead(FoxChar ch) const;
