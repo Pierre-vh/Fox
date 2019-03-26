@@ -62,7 +62,7 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
 
   // '}'
   if (!rbrace.isValid()) {
-    reportErrorExpected(DiagID::expected_closing_curly_bracket);
+    reportErrorExpected(DiagID::expected_rbrace);
     // We can't recover since we probably reached EOF. return an error!
     return Result<Stmt*>::Error();
   }
@@ -100,7 +100,7 @@ Parser::Result<Stmt*> Parser::parseWhileLoop() {
     body = body_res.castTo<CompoundStmt>();
   else {
     if (body_res.isNotFound())
-      reportErrorExpected(DiagID::expected_opening_curly_bracket);
+      reportErrorExpected(DiagID::expected_lbrace);
     return Result<Stmt*>::Error();
   }
 
@@ -141,7 +141,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
     then_body = body.castTo<CompoundStmt>();
   else {
     if (body.isNotFound())
-      reportErrorExpected(DiagID::expected_opening_curly_bracket);
+      reportErrorExpected(DiagID::expected_lbrace);
     return Result<Stmt*>::Error();
   }
 
@@ -160,7 +160,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
       return Result<Stmt*>::Error();
 
     if (!else_node) {
-      reportErrorExpected(DiagID::expected_opening_curly_bracket);
+      reportErrorExpected(DiagID::expected_lbrace);
       return Result<Stmt*>::Error();
     }
   }

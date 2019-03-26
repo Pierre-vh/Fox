@@ -134,7 +134,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // '('
   if (!tryConsume(TokenKind::LParen)) {
     if (invalid) return Result<Decl*>::Error();
-    reportErrorExpected(DiagID::expected_opening_round_bracket);
+    reportErrorExpected(DiagID::expected_lparen);
     return Result<Decl*>::Error();
   }
 
@@ -167,7 +167,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // ')'
   auto rightParens = tryConsume(TokenKind::RParen);
   if (!rightParens) {
-    reportErrorExpected(DiagID::expected_closing_round_bracket);
+    reportErrorExpected(DiagID::expected_rparen);
 
     // We'll attempt to recover to the '{' too,
 		// so if we find the body of the function
@@ -200,7 +200,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
       func->setBody(cast<CompoundStmt>(compStmt.get()));
     else {
       if(compStmt.isNotFound()) // Display only if it was not found
-        reportErrorExpected(DiagID::expected_opening_curly_bracket);
+        reportErrorExpected(DiagID::expected_lbrace);
       return Result<Decl*>::Error();
     }
   }

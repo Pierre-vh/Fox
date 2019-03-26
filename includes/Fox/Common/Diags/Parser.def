@@ -5,15 +5,15 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 
-ERROR(expected_closing_square_bracket,
+ERROR(expected_rbracket,
   "expected ']'")
-ERROR(expected_closing_curly_bracket,
+ERROR(expected_rbrace,
   "expected '}'")
-ERROR(expected_opening_curly_bracket,
+ERROR(expected_lbrace,
   "expected '{'")
-ERROR(expected_closing_round_bracket,
+ERROR(expected_rparen,
   "expected ')'")
-ERROR(expected_opening_round_bracket,
+ERROR(expected_lparen,
   "expected '('")
 ERROR(expected_stmt,
   "expected a statement")
@@ -41,9 +41,9 @@ ERROR(err_while_inter_int_lit,
 ERROR(err_while_inter_double_lit,
   "error while interpreting this double literal: maybe it is too big?")
 
-FATAL(round_bracket_overflow,
-  "max round bracket depth exceeded")
-FATAL(square_bracket_overflow,
-  "max square bracket depth exceeded")
-FATAL(curly_bracket_overflow,
-  "max curly bracket depth exceeded")
+FATAL(parens_overflow,
+  "max parenthese depth exceeded")
+FATAL(bracket_overflow,
+  "max bracket depth exceeded")
+FATAL(brace_overflow,
+  "max brace depth exceeded")

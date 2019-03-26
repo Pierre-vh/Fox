@@ -45,7 +45,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       // ']'
       SourceLoc rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
       if (!rsquare) {
-        reportErrorExpected(DiagID::expected_closing_square_bracket);
+        reportErrorExpected(DiagID::expected_rbracket);
 
         if (resyncTo(TokenKind::RSquare, /* stopAtSemi */ true, 
           /*consumeToken*/ false))
@@ -196,7 +196,7 @@ Parser::Result<Expr*> Parser::parseArrayLiteral() {
   SourceLoc endLoc = tryConsume(TokenKind::RSquare).getBeginLoc();
   if (!endLoc) {
     if (elist.isNotFound())
-      reportErrorExpected(DiagID::expected_closing_square_bracket);
+      reportErrorExpected(DiagID::expected_rbracket);
 
     if (resyncTo(TokenKind::RSquare, /* stopAtSemi */ true, 
       /*consumeToken*/ false))
@@ -462,7 +462,7 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
   // ')'
   if (!tryConsume(TokenKind::RParen)) {
     // no ), handle error & attempt to recover 
-    reportErrorExpected(DiagID::expected_closing_round_bracket);
+    reportErrorExpected(DiagID::expected_rparen);
 
     if (!resyncTo(TokenKind::RParen, /* stopAtSemi */ true, /*consume*/ false))
       return Result<Expr*>::Error();
@@ -527,7 +527,7 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
   SourceLoc rightParens = tryConsume(TokenKind::RParen).getBeginLoc();
   // ')'
   if (!rightParens) {
-    reportErrorExpected(DiagID::expected_closing_round_bracket);
+    reportErrorExpected(DiagID::expected_rparen);
 
     if (resyncTo(TokenKind::RParen, /* stopAtSemi */ true, 
       /*consumeToken*/ false))

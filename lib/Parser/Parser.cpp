@@ -49,7 +49,7 @@ SourceRange Parser::consume(TokenKind kind) {
       if (curlyBracketsCount_ < maxBraceDepth_)
         curlyBracketsCount_++;
       else
-        diagnoseOverflow(DiagID::curly_bracket_overflow);
+        diagnoseOverflow(DiagID::brace_overflow);
       break;
     case TokenKind::RBrace:
       if (curlyBracketsCount_)
@@ -59,7 +59,7 @@ SourceRange Parser::consume(TokenKind kind) {
       if (squareBracketsCount_ < maxBraceDepth_)
         squareBracketsCount_++;
       else
-        diagnoseOverflow(DiagID::square_bracket_overflow);
+        diagnoseOverflow(DiagID::brace_overflow);
       break;
     case TokenKind::RSquare:
       if (squareBracketsCount_)
@@ -69,7 +69,7 @@ SourceRange Parser::consume(TokenKind kind) {
       if (roundBracketsCount_ < maxBraceDepth_)
         roundBracketsCount_++;
       else 
-        diagnoseOverflow(DiagID::round_bracket_overflow);
+        diagnoseOverflow(DiagID::parens_overflow);
       break;
     case TokenKind::RParen:
       if (roundBracketsCount_) 
@@ -139,7 +139,7 @@ Parser::Result<TypeLoc> Parser::parseType() {
     auto rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
     if(!rsquare) {
       error = true;
-      reportErrorExpected(DiagID::expected_closing_square_bracket);
+      reportErrorExpected(DiagID::expected_rbracket);
       bool resync = resyncTo(TokenKind::RSquare, 
                              /*stop@semi*/ true, /*consume*/ false);
       if(resync)
