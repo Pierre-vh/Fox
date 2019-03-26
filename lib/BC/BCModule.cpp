@@ -26,8 +26,8 @@ void BCModule::dumpModule(std::ostream& out) const {
   dumpInstructions(out, getInstructionBuffer());
 }
 
-void BCModule::erase(instr_iterator beg, instr_iterator end) {
-  instrBuffer_.erase(beg.toIBiterator(), end.toIBiterator());
+void BCModule::truncate_instrs(instr_iterator beg) {
+  instrBuffer_.erase(beg.toIBiterator(), instrBuffer_.end());
 }
 
 bool BCModule::isLastInstr(instr_iterator it) const {
