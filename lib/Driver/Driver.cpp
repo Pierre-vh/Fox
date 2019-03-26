@@ -53,7 +53,7 @@ bool Driver::processFile(string_view filepath) {
   }
 
 	// Do lexing
-  Lexer lex(ctxt_);
+  Lexer lex(srcMgr_, diagEngine_);
   {
     auto chrono = createChrono("Lexing");
     lex.lexFile(file);

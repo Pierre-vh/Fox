@@ -36,7 +36,7 @@ class LocTests : public ::testing::Test {
           "\n\tReason: " + toString(result.second);
       }
 
-      lexer = std::make_unique<Lexer>(astContext);
+      lexer = std::make_unique<Lexer>(srcMgr, diags);
       lexer->lexFile(file);
 
       if (astContext.diagEngine.hadAnyError()) {

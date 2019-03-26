@@ -4,7 +4,7 @@
 // File : Lexer.cpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Implements the Token and Lexer interfaces.
+// Implements the Token and Lexer classes
 //----------------------------------------------------------------------------//
 
 #include "Fox/Lexer/Lexer.hpp"
@@ -12,7 +12,6 @@
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/Errors.hpp"
-#include "Fox/AST/ASTContext.hpp"
 #include "utfcpp/utf8.hpp"
 #include <cctype>
 
@@ -56,8 +55,8 @@ void Token::dump(std::ostream& out) const {
 // Lexer
 //----------------------------------------------------------------------------//
 
-Lexer::Lexer(ASTContext& astctxt): ctxt(astctxt), 
-  diagEngine(ctxt.diagEngine), srcMgr(ctxt.sourceMgr) {}
+Lexer::Lexer(SourceManager& srcMgr, DiagnosticEngine& diags): 
+  diagEngine(diags), sourceMgr(srcMgr) {}
 
 void Lexer::lexFile(FileID file) {
   assert(file 
@@ -65,7 +64,7 @@ void Lexer::lexFile(FileID file) {
   assert((tokens_.size() == 0) 
     && "There are tokens left in the token vector!");
   fileID_ = file;
-  string_view content = ctxt.sourceMgr.getFileContent(file);
+  string_view content = sourceMgr.getFileContent(file);
   // init the iterator/pointers
   fileBeg_ = tokBegPtr_ = curPtr_ = content.begin();
   fileEnd_ = content.end();

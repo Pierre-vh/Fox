@@ -160,8 +160,9 @@ To-Do:
     > Change diagnostic to also use brace/bracket/paren instead of round/square/curly brackets (Done)
 
     > Implement Char/String normalization in the parser (Now)
-      > Diagnose/check escape sequences in the lexer: only allow n, r, t, \, ", ', 0.
       > Normalize them in the Parser
+        > To diagnose things, make "getLocFromPtr" public in the lexer (and add a 
+          getRangeFromPtr too maybe)
      
     > Diagnose invalid tokens + add a "Error" token kind
 

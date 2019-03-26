@@ -14,21 +14,19 @@
 #include "Fox/Common/string_view.hpp"
 
 namespace fox {
-  class ASTContext;
   class DiagnosticEngine;
   class SourceManager;
   class Lexer  {
     public:
-      Lexer(ASTContext &astctxt);
+      Lexer(SourceManager& srcMgr, DiagnosticEngine& diags);
 
       void lexFile(FileID file);
   
       TokenVector& getTokens();
       std::size_t numTokens() const;  
 
-      ASTContext& ctxt;
       DiagnosticEngine& diagEngine;
-      SourceManager& srcMgr;
+      SourceManager& sourceMgr;
 
     private:
       // Pushes the current token with the kind "kind"

@@ -22,14 +22,11 @@ using namespace fox::test;
 namespace {
   class LexerTest : public testing::Test {
     public:
-      LexerTest() : diags(srcMgr, std::cout), ctxt(srcMgr, diags), lexer(ctxt) {}
+      LexerTest() : 
+        diags(srcMgr, std::cout), ctxt(srcMgr, diags), lexer(srcMgr, diags) {}
 
     protected:
-      // C++ Standard 12.6.2.10:
-      //    [...] non-static data members are initialized in the order
-      //    they were declared in the class definition [...]
-      //
-      // So here, the order of declaration of the members must be strictly
+      // Here, the order of declaration of the members must be strictly
       // respected, because:
       //    diags depends on srcMgr
       //    ctxt depends on both srcMgr and diags
