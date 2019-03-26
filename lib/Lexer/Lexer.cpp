@@ -208,9 +208,6 @@ void Lexer::lexIdentifierOrKeyword() {
   string_view str = getCurtokStringView();
   #define KEYWORD(ID, STR) if(str == STR) return pushTok(TokenKind::ID);
   #include "Fox/Lexer/TokenKinds.def"
-  // TODO: Remov this once they're keywords
-  if(str == "true") return pushTok(TokenKind::BoolLiteral);
-  if(str == "false") return pushTok(TokenKind::BoolLiteral);
   pushTok(TokenKind::Identifier);
 }
 
@@ -225,10 +222,10 @@ void Lexer::lexIntOrDoubleLiteral() {
   if ((*(curPtr_+1) == '.') && std::isdigit(*(curPtr_+2))) {
     curPtr_ += 2;
     lexIntLiteral();
-    pushTok(TokenKind::DoubleLiteral);
+    pushTok(TokenKind::DoubleConstant);
   }
   else 
-    pushTok(TokenKind::IntLiteral);
+    pushTok(TokenKind::IntConstant);
 }
 
 bool Lexer::lexCharItems(FoxChar delimiter) {

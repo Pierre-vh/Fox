@@ -27,10 +27,11 @@ TOKEN(Invalid)
 // Identifier
 TOKEN(Identifier)
 
-// Literals
-TOKEN(IntLiteral)
-TOKEN(DoubleLiteral)
-TOKEN(BoolLiteral)
+// Constants
+TOKEN(IntConstant)
+TOKEN(DoubleConstant)
+
+// Text
 TOKEN(SingleQuoteText)
 TOKEN(DoubleQuoteText)
 
@@ -70,6 +71,7 @@ KEYWORD(BoolKw,   "bool")
 KEYWORD(CharKw,   "char")
 KEYWORD(DoubleKw, "double")
 KEYWORD(ElseKw,   "else")
+KEYWORD(FalseKw,  "false")
 KEYWORD(FuncKw,   "func")
 KEYWORD(IfKw,     "if")
 KEYWORD(IntKw,    "int")
@@ -77,6 +79,7 @@ KEYWORD(LetKw,    "let")
 KEYWORD(MutKw,    "mut")
 KEYWORD(ReturnKw, "return")
 KEYWORD(StringKw, "string")
+KEYWORD(TrueKw,   "true")
 KEYWORD(VarKw,    "var")
 KEYWORD(WhileKw,  "while")
 

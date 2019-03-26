@@ -96,14 +96,6 @@ Parser::Result<Expr*> Parser::parseDeclRef() {
 }
 
 namespace {
-  bool tokToBoolLit(Token tok) {
-    // <bool_literal> = "true" | "false"
-    string_view str = tok.str;
-    if(str == "true") return true;
-    if(str == "false") return false;
-    fox_unreachable("unhandled bool literal token string");
-  }
-
   string_view tokToStringLit(Token tok) {
     // <string_literal> = '"' {<char_item>} '"'
     // FIXME: Normalize string literals here.
@@ -159,8 +151,10 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   SourceRange range = tok.range;
 
   // <bool_literal> = "true" | "false"
-  if (tok.is(TokenKind::BoolLiteral))
-    expr = BoolLiteralExpr::create(ctxt, tokToBoolLit(tok), range);
+  if (tok.is(TokenKind::TrueKw))
+    expr = BoolLiteralExpr::create(ctxt, true, range);
+  else if (tok.is(TokenKind::FalseKw))
+    expr = BoolLiteralExpr::create(ctxt, false, range);
   // <string_literal> = '"' {<char_item>} '"'
   else if (tok.is(TokenKind::DoubleQuoteText)) {
     // The token class has already allocated of the string in the ASTContext,
@@ -171,11 +165,11 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   else if (tok.is(TokenKind::SingleQuoteText))
     expr = CharLiteralExpr::create(ctxt, tokToCharLit(tok), range);
   // <int_literal> = {(Digit 0 through 9)}
-  else if (tok.is(TokenKind::IntLiteral))
+  else if (tok.is(TokenKind::IntConstant))
     expr = IntegerLiteralExpr::create(ctxt, 
                                       tokToIntLit(diagEngine, tok), range);
   // <double_literal> = <int_literal> '.' <int_literal>
-  else if (tok.is(TokenKind::DoubleLiteral))
+  else if (tok.is(TokenKind::DoubleConstant))
     expr = DoubleLiteralExpr::create(ctxt, 
                                      tokToDoubleLit(diagEngine, tok), range);
   // Not a literal
