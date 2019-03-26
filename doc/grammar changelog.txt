@@ -190,16 +190,12 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
       <identifier_char>   = <identifier_head> | (Digit 0 through 9)
       <identifier>        = <identifier_head> {<identifier_char>}
       // literals
-      <banned_text_item>  = 0x0a (LF) | 0x0b (VT) | 0x0c (FF) | 0x0d (CR)
-      <char_item>         = (A single unicode character except a single quote "'", 
-                              0x09 (TAB) or a <banned_text_item> )
-                            | "\n" | "\r" | "\t" | "\\"
-      <string_item>       = (A single unicode character except a <banned_text_item> 
-                              or a double quote '"') | "\""
+      <escape_seq>        = '\' ('n' | 'r' | 't' | '\' | ''' | '"')
+      <char_item>         = A single unicode character except CR or LF | <escape_seq> 
       <char_literal>      = ''' <char_item> '''
-      <string_literal>    = '"' {<string_item>} '"'
+      <string_literal>    = '"' {<char_item>} '"'
       <float_literal>     = <int_literal> '.' <int_literal>
       <int_literal>       = {(Digit 0 through 9)}
       <bool_literal>      = "true" | "false"
       <primitive_literal> = <bool_literal> | <int_literal> | <float_literal> 
-                                            | <string_literal> | <char_literal> 
+                                           | <string_literal> | <char_literal> 
