@@ -30,6 +30,9 @@ namespace fox {
     bool operator==(const CompleteLoc& other) const;
     bool operator!=(const CompleteLoc& other) const;
 
+    // Returns the CompleteLoc as a string formatted like this:
+    //  file:line:column  (if printFilename = true)
+    //  line:column       (if printFilename = false)
     std::string toString(bool printFilename = true) const;
 
     const string_view fileName;
@@ -48,6 +51,9 @@ namespace fox {
     bool operator==(const CompleteRange& other) const;
     bool operator!=(const CompleteRange& other) const;
 
+    // Returns the CompleteRange as a string formatted like this:
+    //  file:line:column-line:column (if printFilename = true)
+    //  line:column-line:column      (if printFilename = true)
     std::string toString(bool printFilename = true) const;
 
     const string_view fileName;

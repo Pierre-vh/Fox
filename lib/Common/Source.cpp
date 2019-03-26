@@ -35,7 +35,7 @@ bool CompleteLoc::operator!=(const CompleteLoc& other) const {
 std::string CompleteLoc::toString(bool printFilename) const {
   std::stringstream ss;
   if(printFilename)
-    ss << '<' << fileName << ">:";
+    ss << fileName << ':';
   ss << line << ":" << column;
   return ss.str();
 }
@@ -63,16 +63,7 @@ std::string CompleteRange::toString(bool printFilename) const {
   std::stringstream ss;
   if (printFilename)
     ss  << fileName << ':';
-  ss << begLine << ':' << begColumn;
-  // The range begins and ends at the same position
-  if((begLine == endLine) && (begColumn == endColumn))
-    return ss.str();
-  // Only columns differ
-  if(begLine == endLine)
-    ss << '-' << endColumn;
-  // Both lines and columns differ
-  else 
-    ss << '-' << endLine << ':' << endColumn;
+  ss << begLine << ':' << begColumn << '-' << endLine << ':' << endColumn;
   return ss.str();
 }
 

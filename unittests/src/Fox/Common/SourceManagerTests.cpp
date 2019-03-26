@@ -141,12 +141,12 @@ TEST(SourceManagerTest, CompleteLocToString) {
   SourceLoc loc_a(testFile);
   CompleteLoc cloc_a = srcMgr.getCompleteLoc(loc_a);
   EXPECT_EQ(cloc_a.toString(/*printFileName*/ false), "1:1");
-  EXPECT_EQ(cloc_a.toString(/*printFileName*/ true), "<" + testFilePath + ">:1:1");
+  EXPECT_EQ(cloc_a.toString(/*printFileName*/ true), testFilePath + ":1:1");
 
   SourceLoc loc_b(testFile, 10);
   CompleteLoc cloc_b = srcMgr.getCompleteLoc(loc_b);
   EXPECT_EQ(cloc_b.toString(/*printFileName*/ false), "1:11");
-  EXPECT_EQ(cloc_b.toString(/*printFileName*/ true), "<" + testFilePath + ">:1:11");
+  EXPECT_EQ(cloc_b.toString(/*printFileName*/ true), testFilePath + ":1:11");
 }
 
 bool isCRLF(string_view str) {
@@ -172,8 +172,8 @@ TEST(SourceManagerTest, CompleteRangeToString) {
 
   SourceRange r_a(SourceLoc(testFile), 10);
   CompleteRange cr_a = srcMgr.getCompleteRange(r_a);
-  EXPECT_EQ(cr_a.toString(/*printFileName*/ false), "1:1-11");
-  EXPECT_EQ(cr_a.toString(/*printFileName*/ true),  testFilePath + ":1:1-11");
+  EXPECT_EQ(cr_a.toString(/*printFileName*/ false), "1:1-1:11");
+  EXPECT_EQ(cr_a.toString(/*printFileName*/ true),  testFilePath + ":1:1-1:11");
 
   // Here, we want to land at 3-2, to achieve that with CRLF, we must 
   // end the range at loc+5, but with LF, we must end the range at +3.
@@ -184,7 +184,7 @@ TEST(SourceManagerTest, CompleteRangeToString) {
 
   SourceRange r_c(SourceLoc(testFile, 5));
   CompleteRange cr_c = srcMgr.getCompleteRange(r_c);
-  EXPECT_EQ(cr_c.toString(/*printFileName*/ false), "1:6");
-  EXPECT_EQ(cr_c.toString(/*printFileName*/ true), testFilePath + ":1:6");
+  EXPECT_EQ(cr_c.toString(/*printFileName*/ false), "1:6-1:6");
+  EXPECT_EQ(cr_c.toString(/*printFileName*/ true), testFilePath + ":1:6-1:6");
 
 }
