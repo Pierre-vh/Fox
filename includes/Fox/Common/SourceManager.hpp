@@ -126,7 +126,7 @@ namespace fox {
       // Increments the SourceLoc by "count" codepoints.
       // This must be used carefully, as it may fail if you try to
       // increment past thee end.
-      SourceLoc incrementSourceLoc(SourceLoc loc, std::size_t count = 1) const;
+      SourceLoc advance(SourceLoc loc, std::size_t count = 1) const;
 
       // Returns the number of codepoints contained in the range.
       // e.g. Let's say that:

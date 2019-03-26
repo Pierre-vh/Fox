@@ -359,7 +359,7 @@ SourceManager::getLineAt(SourceLoc loc, SourceLoc* lineBeg) const {
 }
 
 SourceLoc 
-SourceManager::incrementSourceLoc(SourceLoc loc, std::size_t count) const {
+SourceManager::advance(SourceLoc loc, std::size_t count) const {
   if(count == 0) return loc;
 
   // First, retrieve the Data.

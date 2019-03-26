@@ -135,7 +135,7 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
 
   // Remove any indent, and offset the linebeg loc accordingly.
   std::size_t offset = removeIndent(sourceLine);
-  lineBeg = sm.incrementSourceLoc(lineBeg, offset);
+  lineBeg = sm.advance(lineBeg, offset);
 
   // Calculate the size of the line
   std::size_t lineSize = utf8::distance(sourceLine.begin(), sourceLine.end());
