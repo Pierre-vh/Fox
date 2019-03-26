@@ -160,9 +160,8 @@ To-Do:
     > Change diagnostic to also use brace/bracket/paren instead of round/square/curly brackets (Done)
 
     > Implement Char/String normalization in the parser (Now)
-      (consider escape sequences, check proper lengths, etc)
-      > Don't forget to diagnose incorrect escape sequences correctly.
-      > Add a SourceManager "getSourceLocForPtr(FileID, ptr)", maybe even a getSourceRangeForPtrs() if needed.
+      > Diagnose/check escape sequences in the lexer: only allow n, r, t, \, ", ', 0.
+      > Normalize them in the Parser
 
     > Replace ++curPtr and *curPtr_ by "advance(0)" "getCurChar()"
     > Rewrite lexer tests (one for each diagnostic that can be emitted by the lexer)
