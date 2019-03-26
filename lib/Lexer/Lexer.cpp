@@ -187,7 +187,7 @@ void Lexer::lex() {
         break;
       default:
         if(isValidIdentifierHead(cur)) 
-          lexMaybeReservedIdentifier();
+          lexIdentifierOrKeyword();
         else
           beginAndPushToken(Tok::Invalid);
         break;
@@ -195,13 +195,36 @@ void Lexer::lex() {
   }
 }
 
-void Lexer::lexMaybeReservedIdentifier() {
+namespace {
+}
+
+void Lexer::lexIdentifierOrKeyword() {
   assert(isValidIdentifierHead(getCurChar()) 
     && "Not a valid identifier head!");
   resetToken();
   while(isValidIdentifierChar(peekNextChar()))
     advance();
-  // TODO: ID reserved identifiers/keyword.
+  // TODO: Automatically generate this using TokenKinds.def once
+  // all token kinds enums are merged.
+  string_view str = getCurtokStringView();
+  #define HANDLE_RESERVED(KW, KIND) if(str == KW) return pushTok(KIND);
+  HANDLE_RESERVED("int",    KeywordType::KW_INT);
+  HANDLE_RESERVED("double", KeywordType::KW_DOUBLE);
+  HANDLE_RESERVED("bool",   KeywordType::KW_BOOL);
+  HANDLE_RESERVED("string", KeywordType::KW_STRING);
+  HANDLE_RESERVED("char",   KeywordType::KW_CHAR);
+  HANDLE_RESERVED("mut",    KeywordType::KW_MUT);
+  HANDLE_RESERVED("as",     KeywordType::KW_AS);
+  HANDLE_RESERVED("let",    KeywordType::KW_LET);
+  HANDLE_RESERVED("var",    KeywordType::KW_VAR);
+  HANDLE_RESERVED("func",   KeywordType::KW_FUNC);
+  HANDLE_RESERVED("if",     KeywordType::KW_IF);
+  HANDLE_RESERVED("else",   KeywordType::KW_ELSE);
+  HANDLE_RESERVED("while",  KeywordType::KW_WHILE);
+  HANDLE_RESERVED("return", KeywordType::KW_RETURN);
+  HANDLE_RESERVED("true",   Token::Kind::BoolLiteral);
+  HANDLE_RESERVED("false",   Token::Kind::BoolLiteral);
+  #undef HANDLE_KW
   pushTok(Tok::Identifier);
 }
 
@@ -222,109 +245,68 @@ void Lexer::lexIntOrDoubleLiteral() {
     pushTok(Tok::IntLiteral);
 }
 
-bool Lexer::lexCharItem() {
-  // <char_item> = Any non-space unicode character except '
-  //             | "\n" | "\r" | "\t" | "\\"
-  // If the current character is a quote, the literal is empty.
-  // Don't eat the quote (to not trigger a missing quote error)
-  // and diagnose it.
-  FoxChar cur = getCurChar();
-  if (cur == '\'') {
-    diagEngine.report(DiagID::empty_char_lit, getCurtokRange());
-    return false;
-  }
-  // Check for escape sequences
-  if (cur == '\\') {
-    // Save the pointer to the backlash.
-    const char* backslashPtr = curPtr_;
-    // Skip it
-    advance();
-    // Check for valid escape sequences.
-    switch (getCurChar()) {
-      case '\\':
-      case 'n':
-      case 'r':
-      case 't':
-        advance(); // skip them and we're done.
-        return true;
-      default:
-        // eat all subsequent alphanumeric characters so we can recover.
-        while(!isEOF() && std::isalnum(*(++curPtr_)));
-        // prepare a diagnostic at the backlash's loc, with the
-        // extra range highlighting the rest of the escape sequence.
-        const char* escapeSeqEndPtr = (curPtr_-1);
-        SourceRange extraRange(getLocOfPtr(backslashPtr+1),
-                               getLocOfPtr(escapeSeqEndPtr));
-        diagEngine
-          .report(DiagID::unknown_escape_seq, getLocOfPtr(backslashPtr))
-          .setExtraRange(extraRange);
-        // As the escape sequence is invalid, return false.
-        return false;
+bool Lexer::lexCharItems(FoxChar delimiter) {
+  assert((getCurChar() == delimiter)
+    && "current char is not the delimiter!");
+  FoxChar cur;
+  bool isEscaping = false;
+  while (true) {
+    // Advance if possible
+    if(!advance()) return false;
+
+    // Fetch the current character
+    cur = getCurChar();
+
+    // Check for forbidden characters
+    if(!canBeCharItem(cur)) 
+      return false;
+
+    // If this character is escaped, continue
+    if (isEscaping) {
+      isEscaping = false;
+      continue;
     }
+
+    // Handle the delimiter
+    if (cur == delimiter)
+      return true;
+    // Handle the escape char '\'.
+    else if (cur == '\\')
+      isEscaping = true;
   }
-  // Check for other forbidden characters
-  if (isBannedTextItem(cur)) return false;
-  if (cur == '\t') return false;
-  // Else we should be good.
-  advance();
-  return true;
 }
 
 void Lexer::lexCharLiteral() {
-  assert(((*curPtr_) == '\'') && "not a quote");
+  assert((getCurChar() == '\'') && "not a quote");
   // <char_literal> = ''' <char_item> '''
+  // Note: here we don't check that there's exactly one char item in the literal
+  // This is done in the parser during normalization.
   resetToken();
-  // Skip the '
-  ++curPtr_; 
   // Lex the body of the literal
-  bool succ = lexCharItem();
-  // Find the closing quote. If we have it, push the token. if we don't,
-  // diagnose it.
-  if ((*curPtr_) == '\'') {
-    // Only push successful tokens.
-    if(succ)
-      pushTok(Tok::CharLiteral);
-    // If the literal isn't valid, eat the quote and reset the token.
-    else {
-      ++curPtr_;
-      resetToken();
-    }
+  bool foundDelimiter = lexCharItems('\'');
+  // Check if we were successful.
+  if (foundDelimiter) {
+    assert((getCurChar() == '\'') 
+      && "Found the delimiter but the current char is not the delimiter?");
+    // Push the token
+    pushTok(Tok::CharLiteral);
     return;
   }
   diagEngine.report(DiagID::unterminated_char_lit, getCurtokBegLoc());
 }
 
-// TODO - UNFINISHED
-bool Lexer::lexStringItem() {
-  // <string_item> = '\"' | Any unicode character except '\r', '\n' and "
-  bool escaped = false;
-  while (!isEOF()) {
-    // Check for forbidden characters
-    // Otherwise, ignore escaped characters
-    if(escaped) escaped = false;
-    else {
-
-    }
-  }
-  // Return true except if we reached EOF.
-  return !isEOF();
-}
-
 void Lexer::lexStringLiteral() {
-  assert(((*curPtr_) == '"') && "not a string");
-  // <string_literal> = '"' {<string_item>} '"'
+  assert((getCurChar() == '"') && "not a double quote");
+  // <string_literal> = '"' {<char_item>} '"'
   resetToken();
-  ++curPtr_; // skip the '"'
-  // Lex the body of the litera
-  bool succ = lexStringItem();
-  if ((*curPtr_) == '"') {
-    if(succ)
-      pushTok(Tok::StringLiteral);
-    // If the literal isn't valid, eat the quote and reset the token.
-    else {
-      ++curPtr_;
-      resetToken();
-    }
+  // Lex the body of the literal
+  bool foundDelimiter = lexCharItems('"');
+  // Check if we were successful.
+  if (foundDelimiter) {
+    assert((getCurChar() == '"') 
+      && "Found the delimiter but the current char is not the delimiter?");
+    // Push the token
+    pushTok(Tok::StringLiteral);
     return;
   }
   diagEngine.report(DiagID::unterminated_str_lit, getCurtokBegLoc());
@@ -339,15 +321,13 @@ void Lexer::lexIntLiteral() {
     if(std::isdigit(*(curPtr_+1)))
       ++curPtr_;
     // if the next char isn't a digit, stop.
-    else 
-      break;
+    else break;
   }
 }
 
 void Lexer::skipLineComment() {
   // <line_comment> = '/' '/' (any character except '\n')
-  assert(((*curPtr_) == '/') 
-    && "not a comment");
+  assert((getCurChar() == '/') && "not a comment");
   while (char cur = *(curPtr_++)) {
     if(curPtr_ == fileEnd_) return;
     if (cur == '\n') return;
@@ -371,13 +351,13 @@ void Lexer::skipBlockComment() {
   }
 }
 
-bool Lexer::isBannedTextItem(char c) const {
-  // <banned_text_item>  = 0x0a (LF) | 0x0b (VT) | 0x0c (FF) | 0x0d (CR)
+bool Lexer::canBeCharItem(FoxChar c) const {
   switch (c) {
-    case '\n': case '\r': case '\v': case '\f':
-      return true;
-    default:
+    // Disallow newlines
+    case '\n': case '\r':
       return false;
+    default:
+      return true;
   }
 }
 

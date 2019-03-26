@@ -94,9 +94,9 @@ SourceLoc Parser::consumeBracket(SignType s) {
         fox_unreachable("unknown bracket type");
     }
     next();
-    assert((tok.range.getRawOffset() == 0) 
-      && "Token is a sign but it's SourceRange offset is greater than zero?");
-    return tok.range.getBeginLoc();
+    SourceLoc begLoc = tok.range.getBeginLoc();
+    assert(begLoc && "Token doesn't have loc info");
+    return begLoc;
   }
   return {};
 }

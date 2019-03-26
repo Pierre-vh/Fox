@@ -153,7 +153,9 @@ To-Do:
 
   > Lexer Rework:
     > (Important) Finish lexer implementation first, make all tests pass again.
-    > (After) Merge Token::Kind, KeywordType and SignType in a new TokenKind enum (using TokenKinds)
+    > Rename Token kinds CharLiteral and StringLiteral to SingleQuoteTextLiteral and DoubleQuoteTextLiteral?
+      > Since they aren't checked in the lexer anymore, they can't really be called char/string literal.
+    > Merge Token::Kind, KeywordType and SignType in a new TokenKind enum (using TokenKinds)
       > Update parser methods?
         > merge consumeSign, consumeKeyword, consumeBracket and consumeIdentifier into "tryConsume"
         > add another "consume()" method that asserts that the token is correct.

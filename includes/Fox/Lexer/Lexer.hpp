@@ -62,14 +62,21 @@ namespace fox {
       // Begins a new token
       void resetToken();
 
+      // Entry point of the lexing process
       void lex();
-      // Lexes an identifier or reserved keyword.
-      void lexMaybeReservedIdentifier();
+      // Lex an identifier or keyword
+      void lexIdentifierOrKeyword();
+      // Lex an int or double literal
       void lexIntOrDoubleLiteral();
-      bool lexCharItem();
+      // Lex any number of char items until we find a char that can't be
+      // a char item, or if we find the (unescaped) delimiter or EOF.
+      // Returns true if the delimiter was found
+      bool lexCharItems(FoxChar delimiter);
+      // Lex a character literal
       void lexCharLiteral();
-      bool lexStringItem();
+      // Lex a string literal
       void lexStringLiteral();
+      // Lex an integer literal
       void lexIntLiteral();
 
       // Handles a single-line comment
@@ -77,8 +84,8 @@ namespace fox {
       // Handles a multi-line comment
       void skipBlockComment();
 
-      // Returns true if the character is a <banned_text_item>
-      bool isBannedTextItem(char c) const;
+      // Returns false if the character cannot be considered a <char_item>
+      bool canBeCharItem(FoxChar ch) const;
 
       // Returns true if 'ch' is a valid identifier head.
       bool isValidIdentifierHead(FoxChar ch) const;
@@ -91,6 +98,7 @@ namespace fox {
       FoxChar peekNextChar() const;
 
       // Advances to the next codepoint in the input.
+      // Returns false if we reached EOF.
       bool advance();
 
       SourceLoc getLocOfPtr(const char* ptr) const;

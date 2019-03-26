@@ -106,6 +106,7 @@ namespace {
   }
 
   string_view tokToStringLit(Token tok) {
+    // FIXME: Normalize string literals here.
     string_view str = tok.str;
     assert((str.front() == '"') && (str.back() == '"') 
       && "unhandled string literal token string");
@@ -113,19 +114,21 @@ namespace {
   }
 
   FoxChar tokToCharLit(Token tok) {
+    // FIXME: Normalize char literal here, handle empty char literals
+    // and the ones that are too long.
     string_view str = tok.str;
     assert((str.front() == '\'') && (str.back() == '\'') 
       && "unhandled char literal token string");
     StringManipulator manip(str);
-    assert((manip.getSizeInCodepoints() == 3) 
-      && "unexpected char literal token string (not 3 chars long)");
     return manip.getChar(1);
   }
 
   // Tries to convert a token to an int literal.
   // If cannot be converted to a int (because it's too large)
-  FoxInt tokToIntLit(DiagnosticEngine& engine, Token tok) {
-    std::istringstream iss;
+  FoxInt tokToIntLit(DiagnosticEngine& engine, Token tok) { 
+    // TODO: Use something other than stringstream to avoid conversion
+    // to std::string
+    std::istringstream iss(tok.str.to_string());
     FoxInt tmp;
     if(iss >> tmp) return tmp;
     engine.report(DiagID::err_while_inter_int_lit, tok.range);
@@ -135,7 +138,9 @@ namespace {
   // Tries to convert a token to an double literal.
   // If cannot be converted to a int (because it's too large)
   FoxInt tokToDoubleLit(DiagnosticEngine& engine, Token tok) {
-    std::istringstream iss;
+    // TODO: Use something other than stringstream to avoid conversion
+    // to std::string
+    std::istringstream iss(tok.str.to_string());
     FoxDouble tmp;
     if(iss >> tmp) return tmp;
     engine.report(DiagID::err_while_inter_double_lit, tok.range);
@@ -542,12 +547,12 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
 }
 
 SourceRange Parser::parseExponentOp() {
-  if (auto t1 = consumeSign(SignType::S_ASTERISK)) {
-    if (auto t2 = consumeSign(SignType::S_ASTERISK))
-      return SourceRange(t1,t2);
-    revertConsume();
+  if (getCurtok().is(SignType::S_OP_EXP)) {
+    SourceRange range = getCurtok().range;
+    next();
+    return range;
   }
-  return {};
+  return SourceRange();
 }
 
 Parser::Result<BinaryExpr::OpKind> 
