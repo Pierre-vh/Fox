@@ -26,7 +26,7 @@ Parser::Parser(ASTContext& ctxt, TokenVector& l, UnitDecl *unit):
 
 std::pair<Identifier, SourceRange> Parser::consumeIdentifier() {
   Token tok = getCurtok();
-  assert(tok.is(TokenKind::Identifier) && "not an identifier");
+  assert(isCurTokAnIdentifier() && "not an identifier");
   Identifier id = ctxt.getIdentifier(tok.str);
   next();
   return std::make_pair(id, tok.range);

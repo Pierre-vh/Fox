@@ -205,7 +205,7 @@ namespace fox {
       // and the range of the token.
       // The current token must be of the correct kind.
       //
-      // getCurtok().is(TokenKind::Identifier) must return true.
+      // isCurTokAnIdentifier() must return true.
       std::pair<Identifier, SourceRange> consumeIdentifier();
 
       // Consumes a token of known type.
