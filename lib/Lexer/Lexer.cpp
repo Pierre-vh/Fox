@@ -14,7 +14,6 @@
 #include <cctype>
 
 using namespace fox;
-using Tok = Token::Kind;
 
 Lexer::Lexer(ASTContext& astctxt): ctxt(astctxt), 
   diagEngine(ctxt.diagEngine), srcMgr(ctxt.sourceMgr) {}
@@ -73,110 +72,110 @@ void Lexer::lex() {
         // "/*" -> Beginning of a block comment
         else if(peekNextChar() == '*')
           skipBlockComment();
-        // "/" -> A slash
+        // "/"
         else 
-         beginAndPushToken(SignType::S_SLASH);
+         beginAndPushToken(TokenKind::Slash);
         break;
       case '*':
         resetToken();
-        // "**" -> Exponent operator
+        // "**"
         if (peekNextChar() == '*')
-          advanceAndPushTok(SignType::S_OP_EXP);
-        // "*" -> Asterisk
+          advanceAndPushTok(TokenKind::StarStar);
+        // "*"
         else 
-          pushTok(SignType::S_ASTERISK);
+          pushTok(TokenKind::Star);
         break;
       case '=': 
         resetToken();
-        // "==" -> Equality operator
+        // "=="
         if(peekNextChar() == '=')
-          advanceAndPushTok(SignType::S_OP_EQ);
-        // "=" -> Equal
+          advanceAndPushTok(TokenKind::EqualEqual);
+        // "="
         else 
-          pushTok(SignType::S_EQUAL);
+          pushTok(TokenKind::Equal);
         break;
       case '.':
-        beginAndPushToken(SignType::S_DOT);
+        beginAndPushToken(TokenKind::Dot);
         break;
       case '+':
-        beginAndPushToken(SignType::S_PLUS);
+        beginAndPushToken(TokenKind::Plus);
         break;
       case '-':
-        beginAndPushToken(SignType::S_MINUS);
+        beginAndPushToken(TokenKind::Minus);
         break;
       case '&':
         resetToken();
         if(peekNextChar() == '&') // "&&" -> Logical And operator
-          advanceAndPushTok(SignType::S_OP_LAND);
+          advanceAndPushTok(TokenKind::AmpAmp);
         else
-          pushTok(Tok::Invalid);
+          pushTok(TokenKind::Invalid);
         break;
       case '|':
         resetToken();
         if(peekNextChar() == '|') // "||" -> Logical Or operator
-          advanceAndPushTok(SignType::S_OP_LOR);
+          advanceAndPushTok(TokenKind::PipePipe);
         else
-          pushTok(Tok::Invalid);
+          pushTok(TokenKind::Invalid);
         break;
       case '%':
-        beginAndPushToken(SignType::S_PERCENT);
+        beginAndPushToken(TokenKind::Percent);
         break;
       case '!':
         resetToken();
         if(peekNextChar() == '=') // "!=" -> Inequality operator
-          advanceAndPushTok(SignType::S_OP_INEQ);
+          advanceAndPushTok(TokenKind::ExclaimEqual);
         else
-          pushTok(SignType::S_EXCL_MARK);
+          pushTok(TokenKind::Exclaim);
         break;
       case '<':
         resetToken();
         if(peekNextChar() == '=') // "<=" -> Less or Equal
-          advanceAndPushTok(SignType::S_OP_LTEQ);
+          advanceAndPushTok(TokenKind::LessEqual);
         else
-          pushTok(SignType::S_LESS_THAN);
+          pushTok(TokenKind::Less);
         break;
       case '>':
         resetToken();
         if(peekNextChar() == '=') // ">=" -> Greater or Equal
-          advanceAndPushTok(SignType::S_OP_GTEQ);
+          advanceAndPushTok(TokenKind::GreaterEqual);
         else
-          pushTok(SignType::S_GREATER_THAN);
+          pushTok(TokenKind::Greater);
         break;
       // Brackets
       case '(':
-        beginAndPushToken(SignType::S_ROUND_OPEN);
+        beginAndPushToken(TokenKind::LParen);
         break;
       case ')':
-        beginAndPushToken(SignType::S_ROUND_CLOSE);
+        beginAndPushToken(TokenKind::RParen);
         break;
       case '[':
-        beginAndPushToken(SignType::S_SQ_OPEN);
+        beginAndPushToken(TokenKind::LSquare);
         break;
       case ']':
-        beginAndPushToken(SignType::S_SQ_CLOSE);
+        beginAndPushToken(TokenKind::RSquare);
         break;
       case '{':
-        beginAndPushToken(SignType::S_CURLY_OPEN);
+        beginAndPushToken(TokenKind::LBrace);
         break;
       case '}':
-        beginAndPushToken(SignType::S_CURLY_CLOSE);
+        beginAndPushToken(TokenKind::RBrace);
         break;
       // Other signs
       case ';':
-        beginAndPushToken(SignType::S_SEMICOLON);
+        beginAndPushToken(TokenKind::Semi);
         break;
       case ':':
-        beginAndPushToken(SignType::S_COLON);
+        beginAndPushToken(TokenKind::Colon);
         break;
       case ',':
-        beginAndPushToken(SignType::S_COMMA);
+        beginAndPushToken(TokenKind::Comma);
         break;
-      // char/string literals
+      // Single/Double quote text
       case '\'':
-        lexSingleQuoteTextLiteral();
+        lexSingleQuoteText();
         break;
       case '"':
-        lexDoubleQuoteTextLiteral();
+        lexDoubleQuoteText();
         break;
       // Numbers/literals
       case '0': 
@@ -189,7 +188,7 @@ void Lexer::lex() {
         if(isValidIdentifierHead(cur)) 
           lexIdentifierOrKeyword();
         else
-          beginAndPushToken(Tok::Invalid);
+          beginAndPushToken(TokenKind::Invalid);
         break;
     }
   }
@@ -207,25 +206,12 @@ void Lexer::lexIdentifierOrKeyword() {
   // TODO: Automatically generate this using TokenKinds.def once
   // all token kinds enums are merged.
   string_view str = getCurtokStringView();
-  #define HANDLE_RESERVED(KW, KIND) if(str == KW) return pushTok(KIND);
-  HANDLE_RESERVED("int",    KeywordType::KW_INT);
-  HANDLE_RESERVED("double", KeywordType::KW_DOUBLE);
-  HANDLE_RESERVED("bool",   KeywordType::KW_BOOL);
-  HANDLE_RESERVED("string", KeywordType::KW_STRING);
-  HANDLE_RESERVED("char",   KeywordType::KW_CHAR);
-  HANDLE_RESERVED("mut",    KeywordType::KW_MUT);
-  HANDLE_RESERVED("as",     KeywordType::KW_AS);
-  HANDLE_RESERVED("let",    KeywordType::KW_LET);
-  HANDLE_RESERVED("var",    KeywordType::KW_VAR);
-  HANDLE_RESERVED("func",   KeywordType::KW_FUNC);
-  HANDLE_RESERVED("if",     KeywordType::KW_IF);
-  HANDLE_RESERVED("else",   KeywordType::KW_ELSE);
-  HANDLE_RESERVED("while",  KeywordType::KW_WHILE);
-  HANDLE_RESERVED("return", KeywordType::KW_RETURN);
-  HANDLE_RESERVED("true",   Token::Kind::BoolLiteral);
-  HANDLE_RESERVED("false",   Token::Kind::BoolLiteral);
-  #undef HANDLE_KW
-  pushTok(Tok::Identifier);
+  #define KEYWORD(ID, STR) if(str == STR) return pushTok(TokenKind::ID);
+  #include "Fox/Lexer/TokenKinds.def"
+  // TODO: Remov this once they're keywords
+  if(str == "true") return pushTok(TokenKind::BoolLiteral);
+  if(str == "false") return pushTok(TokenKind::BoolLiteral);
+  pushTok(TokenKind::Identifier);
 }
 
 void Lexer::lexIntOrDoubleLiteral() {
@@ -239,10 +225,10 @@ void Lexer::lexIntOrDoubleLiteral() {
   if ((*(curPtr_+1) == '.') && std::isdigit(*(curPtr_+2))) {
     curPtr_ += 2;
     lexIntLiteral();
-    pushTok(Tok::DoubleLiteral);
+    pushTok(TokenKind::DoubleLiteral);
   }
   else 
-    pushTok(Tok::IntLiteral);
+    pushTok(TokenKind::IntLiteral);
 }
 
 bool Lexer::lexCharItems(FoxChar delimiter) {
@@ -276,7 +262,7 @@ bool Lexer::lexCharItems(FoxChar delimiter) {
   }
 }
 
-void Lexer::lexSingleQuoteTextLiteral() {
+void Lexer::lexSingleQuoteText() {
   assert((getCurChar() == '\'') && "not a quote");
   resetToken();
   // Lex the body of the literal
@@ -286,13 +272,13 @@ void Lexer::lexSingleQuoteTextLiteral() {
     assert((getCurChar() == '\'') 
       && "Found the delimiter but the current char is not the delimiter?");
     // Push the token
-    pushTok(Tok::SingleQuoteTextLiteral);
+    pushTok(TokenKind::SingleQuoteText);
     return;
   }
   diagEngine.report(DiagID::unterminated_char_lit, getCurtokBegLoc());
 }
 
-void Lexer::lexDoubleQuoteTextLiteral() {
+void Lexer::lexDoubleQuoteText() {
   assert((getCurChar() == '"') && "not a double quote");
   resetToken();
   // Lex the body of the literal
@@ -302,7 +288,7 @@ void Lexer::lexDoubleQuoteTextLiteral() {
     assert((getCurChar() == '"') 
       && "Found the delimiter but the current char is not the delimiter?");
     // Push the token
-    pushTok(Tok::DoubleQuoteTextLiteral);
+    pushTok(TokenKind::DoubleQuoteText);
     return;
   }
   diagEngine.report(DiagID::unterminated_str_lit, getCurtokBegLoc());

@@ -10,24 +10,18 @@
 
 using namespace fox;
 
-template<typename T>
-auto enumAsInt(T val) {
-  return static_cast<typename std::underlying_type<T>::type>(val);
+static const char* getKindSpelling(TokenKind kind) {
+  switch (kind) {
+    #define TOKEN(ID) case TokenKind::ID: return #ID;
+    #include "Fox/Lexer/TokenKinds.def"
+    default: 
+      fox_unreachable("unhandled token kind");
+  }
 }
 
 Token::Token(Kind kind, string_view str, SourceRange range) :
   kind(kind), str(str), range(range) {
   assert(range && "Token constructed with invalid an SourceRange");
-}
-
-Token::Token(SignType sign, string_view str, SourceRange range) 
-  : Token(Kind::Sign, str, range) {
-  signType_ = sign;
-}
-
-Token::Token(KeywordType kw, string_view str, SourceRange range) 
-  : Token(Kind::Keyword, str, range) {
-  kwType_ = kw;
 }
 
 bool Token::isValid() const {
@@ -38,73 +32,10 @@ Token::operator bool() const {
   return isValid();
 }
 
-bool Token::isAnyLiteral() const {
-  switch (kind) {
-    case Kind::BoolLiteral:
-    case Kind::SingleQuoteTextLiteral:
-    case Kind::DoubleLiteral:
-    case Kind::IntLiteral:
-    case Kind::DoubleQuoteTextLiteral:
-      return true;
-    default:
-      return false;
-  }
-}
-
-bool Token::isIdentifier() const {
-  return kind == Kind::Identifier;
-}
-
-bool Token::isSign() const {
-  return kind == Kind::Sign;
-}
-
-bool Token::isKeyword() const {
-  return kind == Kind::Keyword;
-}
-
-bool Token::isDoubleQuoteTextLiteral() const {
-  return kind == Kind::DoubleQuoteTextLiteral;
-}
-
-bool Token::isBoolLiteral() const {
-  return kind == Kind::BoolLiteral;
-}
-
-bool Token::isDoubleLiteral() const {
-  return kind == Kind::DoubleLiteral;
-}
-
-bool Token::isIntLiteral() const {
-  return kind == Kind::IntLiteral;
-}
-
-bool Token::isSingleQuoteTextLiteral() const {
-  return kind == Kind::SingleQuoteTextLiteral;
-}
-
-bool Token::is(KeywordType ty) {
-  if (isKeyword())
-    return getKeywordType() == ty;
-  return false;
-}
-
-bool Token::is(SignType ty) {
-  if (isSign())
-    return getSignType() == ty;
-  return false;
-}
-
-KeywordType Token::getKeywordType() const {
-  assert(isKeyword() && "not a sign!");
-  return kwType_;
-}
-
-SignType Token::getSignType() const {
-  assert(isSign() && "not a sign!");
-  return signType_;
+bool Token::is(Kind kind) const {
+  return (this->kind == kind);
 }
 
 void Token::dump(std::ostream& out) const {
-  out << str;
+  out << str << " [" << getKindSpelling(kind) << "]\n";
 }

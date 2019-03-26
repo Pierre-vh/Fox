@@ -97,7 +97,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   */
 
   // "func"
-  auto fnKw = consumeKeyword(KeywordType::KW_FUNC);
+  auto fnKw = tryConsume(TokenKind::FuncKw);
   if (!fnKw) return Result<Decl*>::NotFound();
   assert(fnKw.getBeginLoc() && "invalid loc info for func token");
 
@@ -132,7 +132,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   RAIIDeclCtxt raiiDC(this, func);
 
   // '('
-  if (!consumeBracket(SignType::S_ROUND_OPEN)) {
+  if (!tryConsume(TokenKind::LParen)) {
     if (invalid) return Result<Decl*>::Error();
     reportErrorExpected(DiagID::expected_opening_round_bracket);
     return Result<Decl*>::Error();
@@ -144,7 +144,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
     if (auto first = parseParamDecl()) {
       paramsVec.push_back(first.castTo<ParamDecl>());
       while (true) {
-        if (consumeSign(SignType::S_COMMA)) {
+        if (tryConsume(TokenKind::Comma)) {
           if (auto param = parseParamDecl())
             paramsVec.push_back(param.castTo<ParamDecl>());
           else {
@@ -165,27 +165,26 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   }
 
   // ')'
-  auto rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
+  auto rightParens = tryConsume(TokenKind::RParen);
   if (!rightParens) {
     reportErrorExpected(DiagID::expected_closing_round_bracket);
 
     // We'll attempt to recover to the '{' too,
 		// so if we find the body of the function
     // we can at least parse that.
-    if (!resyncToSign(SignType::S_ROUND_CLOSE, /*stop@semi*/ true, 
-      /*consume*/ true))
+    if (!resyncTo(TokenKind::RParen, /*stop@semi*/ true, /*consume*/ true))
       return Result<Decl*>::Error();
   }
   
   // [':' <type>]
-  if (auto colon = consumeSign(SignType::S_COLON)) {
+  if (auto colon = tryConsume(TokenKind::Colon)) {
     if (auto rtrTy = parseType())
       func->setReturnTypeLoc(rtrTy.get());
     else {
       if (rtrTy.isNotFound())
         reportErrorExpected(DiagID::expected_type);
 
-      if (!resyncToSign(SignType::S_CURLY_OPEN, true, false))
+      if (!resyncTo(TokenKind::LBrace, true, false))
         return Result<Decl*>::Error();
     }
   } 
@@ -231,12 +230,12 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
   SourceRange idRange = idRes.getValue().second;
 
   // ':'
-  if (!consumeSign(SignType::S_COLON)) {
+  if (!tryConsume(TokenKind::Colon)) {
     reportErrorExpected(DiagID::expected_colon);
     return Result<Decl*>::Error();
   }
 
-  auto isMutable = (bool)consumeKeyword(KeywordType::KW_MUT);
+  auto isMutable = (bool)tryConsume(TokenKind::MutKw);
 
   // <type>
   auto typeResult = parseType();
@@ -262,11 +261,11 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   // ("let" | "var")
   VarDecl::Keyword kw;
   SourceLoc begLoc;
-  if (auto letKw = consumeKeyword(KeywordType::KW_LET)) {
+  if (auto letKw = tryConsume(TokenKind::LetKw)) {
     kw = VarDecl::Keyword::Let;
     begLoc = letKw.getBeginLoc();
   } 
-  else if(auto varKw = consumeKeyword(KeywordType::KW_VAR)) {
+  else if(auto varKw = tryConsume(TokenKind::VarKw)) {
     kw = VarDecl::Keyword::Var;
     begLoc = varKw.getBeginLoc();
   }
@@ -275,7 +274,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   
   // Helper lambda
   auto tryRecoveryToSemi = [&]() {
-    if (resyncToSign(SignType::S_SEMICOLON, /*stop@semi*/false,
+    if (resyncTo(TokenKind::Semi, /*stop@semi*/false,
         /*consumeToken*/true)) {
       // If we recovered to a semicon, simply return not found.
       return Result<Decl*>::NotFound();
@@ -295,7 +294,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   SourceRange idRange = idRes.getValue().second;
 
   // ':'
-  if (!consumeSign(SignType::S_COLON)) {
+  if (!tryConsume(TokenKind::Colon)) {
     reportErrorExpected(DiagID::expected_colon);
     return Result<Decl*>::Error();
   }
@@ -312,29 +311,27 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
 
   // ['=' <expr>]
   Expr* iExpr = nullptr;
-  if (consumeSign(SignType::S_EQUAL)) {
+  if (tryConsume(TokenKind::Equal)) {
     if (auto expr = parseExpr())
       iExpr = expr.get();
     else {
       if (expr.isNotFound())
         reportErrorExpected(DiagID::expected_expr);
       // Recover to semicolon, return if recovery wasn't successful 
-      if (!resyncToSign(SignType::S_SEMICOLON, 
-				/*stop@semi*/ false, /*consumeToken*/ false))
+      if (!resyncTo(TokenKind::Semi, /*stop@semi*/ false, /*consume*/ false))
         return Result<Decl*>::Error();
     }
   }
 
   // ';'
-  SourceLoc endLoc = consumeSign(SignType::S_SEMICOLON);
+  SourceLoc endLoc = tryConsume(TokenKind::Semi).getBeginLoc();
   if (!endLoc) {
     reportErrorExpected(DiagID::expected_semi);
       
-    if (!resyncToSign(SignType::S_SEMICOLON, 
-			/*stopAtSemi*/ false, /*consumeToken*/ false))
+    if (!resyncTo(TokenKind::Semi, /*stop@Semi*/ false, /*consume*/ false))
       return Result<Decl*>::Error();
 
-    endLoc = consumeSign(SignType::S_SEMICOLON);
+    endLoc = tryConsume(TokenKind::Semi).getBeginLoc();
   }
 
   SourceRange range(begLoc, endLoc);

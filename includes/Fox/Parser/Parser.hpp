@@ -209,62 +209,52 @@ namespace fox {
       //
       // Returns a pair of the Identifier + the SourceRange of the Identifier
       // on success.
+      // TODO: Remove this
       Optional<std::pair<Identifier, SourceRange>>
       consumeIdentifier();
 
-      // Consumes any sign but brackets.
-      //
-      // Returns a valid SourceLoc if the token was consumed successfully.
-      SourceLoc consumeSign(SignType s);
+      // Consumes a token of known type.
+      // Returns the range of the token
+      SourceRange consume(TokenKind kind);
 
-      // Consumes a bracket and keeps the bracket count up to date.
-      // Returns an invalid SourceLoc if the bracket was not found.
-      // Note : In the US, a Bracket is a [], however, here the bracket noun 
-      // is used in the strict sense, where 
-      // Round B. = (), Square B. = [] and Curly B. = {}
-      //
-      // Returns a valid SourceLoc if the token was consumed successfully.
-      SourceLoc consumeBracket(SignType s);
-
-      // Consumes a keyword. Returns an invalid SourceRange if not found.
-      SourceRange consumeKeyword(KeywordType k);
+      // Tries to consume a token of kind "kind".
+      // Returns a valid SourceRange on success, false otherwise.
+      SourceRange tryConsume(TokenKind kind);
 
       // Dispatch to the appriate consume method. Won't return any loc information.
       // Used to skip a token, updating any necessary counters.
       void consumeAny();
 
-      // Reverts the last consume operation, updates counters if needed.
-      void revertConsume();
+      // NOTE: This has been removed because most users know what kind of token they
+      //       want to unconsume and none actually need to unconsume bracket/braces/paren
+      //       so undo() works just fine for the current users.
+      //       Rewrite this if needed. Take paren/brace/bracket balancing in account!
+      // Reverts the last consume operation, updating counters if needed.
+      // void unconsume();
 
       // Increments the iterator if possible. Used to skip a token 
       // without updating any counters.
       void next();
 
-      // Decrements the iterator if possible. Used to revert a consume operation. 
-			// Won't change updated counters.
-      // Only use in cases where a counter wasn't updated by the
-      // last consume operation. 
-			// Else (or when in doubt), use revertConsume
+      // Decrements the iterator if possible. Used to go back to the last token
+      // without updating counters.
       void undo();  
 
-      // Helper for consumeSign & consumeBracket
-      // Brackets are one of the following : '(' ')' '[' ']' '{' '}'
-      bool isBracket(SignType s) const;
-
-      // Returns the current token (*tokenIterator_)
+      // Returns the current token (*tokenIterator_) without incrementing
+      // the current iterator.
       Token getCurtok() const;
       
-      // Returns the previous token (*(--tokenIterator))
+      // Returns the previous token (*(--tokenIterator)) without decrementing
+      // the current iterator.
       Token getPreviousToken() const;
       
       //---------------------------------//
       // Resynchronization helpers
       //---------------------------------//
 
-      bool resyncToSign(SignType sign, bool stopAtSemi, 
-        bool shouldConsumeToken);
-      bool resyncToSign(const SmallVector<SignType, 4>& signs, bool stopAtSemi,
-				bool shouldConsumeToken);
+      bool resyncTo(TokenKind kind, bool stopAtSemi, bool shouldConsumeToken);
+      bool resyncTo(const SmallVector<TokenKind, 4>& kinds, bool stopAtSemi,
+				            bool shouldConsumeToken);
       bool resyncToNextDecl();
 
       //---------------------------------//

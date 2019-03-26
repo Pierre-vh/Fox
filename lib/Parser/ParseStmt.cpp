@@ -17,9 +17,9 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
   // '{' {<stmt>} '}'
 
   // '{'
-  auto leftCurlyLoc = consumeBracket(SignType::S_CURLY_OPEN);
+  auto lbrace = tryConsume(TokenKind::LBrace).getBeginLoc();
 
-  if (!leftCurlyLoc) return Result<Stmt*>::NotFound();
+  if (!lbrace) return Result<Stmt*>::NotFound();
 
   // Once we're sure that we're in a CompoundStmt, activate the 
   // DelayedDeclRegistration.
@@ -29,12 +29,12 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
   SmallVector<ASTNode, 8> nodes;
 
   // The SourceLoc of the '}'
-  SourceLoc rightCurlyLoc;
+  SourceLoc rbrace;
   // {<stmt>}
   while (!isDone()) {
     // Try to consume the '}'
     // '}'
-    if ((rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE)))
+    if ((rbrace = tryConsume(TokenKind::RBrace).getBeginLoc()))
       break;
 
     // Try to parse a statement
@@ -44,15 +44,14 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
     else {
       // In both case, attempt recovery to nearest semicolon.
       // FIXME: Is this the right thing? Tests needed!
-      if (resyncToSign(SignType::S_SEMICOLON,/*stopAtSemi*/ false,
-        /*shouldConsumeToken*/ true))
+      if (resyncTo(TokenKind::Semi,/*stopAtSemi*/ false, /*consume*/ true))
         continue;
       else {
         // If we couldn't recover, try to recover to our '}'
         // to stop the parsing of this compound statement early.
-        if (resyncToSign(SignType::S_CURLY_CLOSE, /*stopAtSemi*/ false, 
-          /*consume*/ false)) {
-          rightCurlyLoc = consumeBracket(SignType::S_CURLY_CLOSE);
+        if (resyncTo(TokenKind::RBrace, 
+                     /*stopAtSemi*/ false, /*consume*/ false)) {
+          rbrace = tryConsume(TokenKind::RBrace).getBeginLoc();
           break;
         }
         // Couldn't recover, error.
@@ -62,14 +61,14 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
   }
 
   // '}'
-  if (!rightCurlyLoc.isValid()) {
+  if (!rbrace.isValid()) {
     reportErrorExpected(DiagID::expected_closing_curly_bracket);
     // We can't recover since we probably reached EOF. return an error!
     return Result<Stmt*>::Error();
   }
 
   // Create & return the node
-  SourceRange range(leftCurlyLoc, rightCurlyLoc);
+  SourceRange range(lbrace, rbrace);
   assert(range && "invalid loc info");
   auto* rtr = CompoundStmt::create(ctxt, nodes, range);
 
@@ -82,7 +81,7 @@ Parser::Result<Stmt*> Parser::parseWhileLoop() {
   // <while_loop> = "while" <expr> <body>
 
   // "while"
-  auto whKw = consumeKeyword(KeywordType::KW_WHILE);
+  auto whKw = tryConsume(TokenKind::WhileKw);
   if (!whKw)
     return Result<Stmt*>::NotFound();
 
@@ -119,10 +118,10 @@ Parser::Result<Stmt*> Parser::parseCondition() {
   Stmt* else_node = nullptr;
 
   // "if"
-  auto ifKw = consumeKeyword(KeywordType::KW_IF);
+  auto ifKw = tryConsume(TokenKind::IfKw);
   if (!ifKw) {
     // check for a else without if
-    if (auto elseKw = consumeKeyword(KeywordType::KW_ELSE)) {
+    if (auto elseKw = tryConsume(TokenKind::ElseKw)) {
       diagEngine.report(DiagID::else_without_if, elseKw);
       return Result<Stmt*>::Error();
     }
@@ -147,7 +146,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
   }
 
   // "else"
-  if (consumeKeyword(KeywordType::KW_ELSE)) {
+  if (tryConsume(TokenKind::ElseKw)) {
     // <condition>
     if (auto cond = parseCondition())
       else_node = cond.castTo<ConditionStmt>();
@@ -180,7 +179,7 @@ Parser::Result<Stmt*> Parser::parseCondition() {
 Parser::Result<Stmt*> Parser::parseReturnStmt() {
   // <rtr_stmt> = "return" [<expr>] ';'
   // "return"
-  auto rtrKw = consumeKeyword(KeywordType::KW_RETURN);
+  auto rtrKw = tryConsume(TokenKind::ReturnKw);
   if (!rtrKw)
     return Result<Stmt*>::NotFound();
   
@@ -192,20 +191,18 @@ Parser::Result<Stmt*> Parser::parseReturnStmt() {
   if (auto expr_res = parseExpr())
     expr = expr_res.get();
   else if(expr_res.isError()) {
-    // expr failed? try to resync if possible. 
-    if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
-      /*consumeToken*/ true))
+    // expr failed? try to resync to a ';' if possible
+    if (!resyncTo(TokenKind::Semi, /* stopAtSemi */ false, /*consume*/ true))
       return Result<Stmt*>::Error();
   }
 
   // ';'
-  if (auto semi = consumeSign(SignType::S_SEMICOLON))
+  if (auto semi = tryConsume(TokenKind::Semi).getBeginLoc())
     endLoc = semi;
   else {
     reportErrorExpected(DiagID::expected_semi);
-    // Recover to semi, if recovery wasn't successful, return an error.
-    if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
-      /*consumeToken*/ true))
+    // Recover to a ';', if recovery wasn't successful -> error
+    if (!resyncTo(TokenKind::Semi, /* stopAtSemi */ false,  /*consume*/ true))
       return Result<Stmt*>::Error();
   }
     
@@ -259,11 +256,11 @@ Parser::Result<ASTNode> Parser::parseExprStmt() {
   // <expr> 
   if (auto expr = parseExpr()) {
     // ';'
-    if (!consumeSign(SignType::S_SEMICOLON)) {
+    if (!tryConsume(TokenKind::Semi)) {
       reportErrorExpected(DiagID::expected_semi);
 
-      if (!resyncToSign(SignType::S_SEMICOLON, /* stopAtSemi */ false, 
-        /*consumeToken*/ true))
+      if (!resyncTo(TokenKind::Semi, /* stopAtSemi */ false, 
+        /*consume*/ true))
         return Result<ASTNode>::Error();
       // if recovery was successful, just return like nothing has happened!
     }
@@ -272,8 +269,7 @@ Parser::Result<ASTNode> Parser::parseExprStmt() {
   }
   else if(expr.isError()) {
     // if the expression had an error, ignore it and try to recover to a semi.
-    if (resyncToSign(SignType::S_SEMICOLON,
-      /*stopAtSemi*/ false, /*consumeToken*/ true)) {
+    if (resyncTo(TokenKind::Semi, /*stopAtSemi*/ false, /*consume*/ true)) {
       return Result<ASTNode>::NotFound();
     }
     return Result<ASTNode>::Error();

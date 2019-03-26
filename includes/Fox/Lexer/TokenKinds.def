@@ -30,9 +30,9 @@ TOKEN(Identifier)
 // Literals
 TOKEN(IntLiteral)
 TOKEN(DoubleLiteral)
-TOKEN(CharLiteral)
 TOKEN(BoolLiteral)
-TOKEN(StringLiteral)
+TOKEN(SingleQuoteText)
+TOKEN(DoubleQuoteText)
 
 // Punctuators : Signs
 PUNCTUATOR(Equal)         // =

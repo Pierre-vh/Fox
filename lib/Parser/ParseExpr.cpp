@@ -22,7 +22,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
 
   // "." <id> 
   // '.'
-  if (auto dotLoc = consumeSign(SignType::S_DOT)) {
+  if (auto dotLoc = tryConsume(TokenKind::Dot).getBeginLoc()) {
     // <id>
     if (auto idRes = consumeIdentifier()) {
       // found, return
@@ -39,24 +39,24 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
   }
   // '[' <expr> ']
   // '['
-  else if (consumeBracket(SignType::S_SQ_OPEN)) {
+  else if (tryConsume(TokenKind::LSquare)) {
     // <expr>
     if (auto expr = parseExpr()) {
       // ']'
-      SourceLoc rSqBrLoc = consumeBracket(SignType::S_SQ_CLOSE);
-      if (!rSqBrLoc) {
+      SourceLoc rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
+      if (!rsquare) {
         reportErrorExpected(DiagID::expected_closing_square_bracket);
 
-        if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
+        if (resyncTo(TokenKind::RSquare, /* stopAtSemi */ true, 
           /*consumeToken*/ false))
-          rSqBrLoc = consumeBracket(SignType::S_SQ_CLOSE);
+          rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
         else
           return Result<Expr*>::Error();
       }
 
 
       return Result<Expr*>(
-        ArraySubscriptExpr::create(ctxt, base, expr.get(), rSqBrLoc)
+        ArraySubscriptExpr::create(ctxt, base, expr.get(), rsquare)
       );
     }
     else {
@@ -66,8 +66,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       // Resync. if Resync is successful, return the base as the result 
       // (don't alter it) to fake a success
       // , if it's not, return an Error.
-      if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
-        /*consumeToken*/ true))
+      if (resyncTo(TokenKind::RSquare, /* stopAtSemi */ true, /*consume*/ true))
         return Result<Expr*>(base);
       else
         return Result<Expr*>::Error();
@@ -99,7 +98,6 @@ Parser::Result<Expr*> Parser::parseDeclRef() {
 namespace {
   bool tokToBoolLit(Token tok) {
     // <bool_literal> = "true" | "false"
-    assert(tok.isBoolLiteral());
     string_view str = tok.str;
     if(str == "true") return true;
     if(str == "false") return false;
@@ -157,44 +155,40 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   // <primitive_literal>  = One literal of the following type : Integer,
   //                        Floating-point, Boolean, String, Char
   auto tok = getCurtok();
-  if (!tok.isAnyLiteral())
-    return Result<Expr*>::NotFound();
-  
-  next();
   Expr* expr = nullptr;
-
   SourceRange range = tok.range;
-  assert(range && "Invalid loc info");
 
   // <bool_literal> = "true" | "false"
-  if (tok.isBoolLiteral())
+  if (tok.is(TokenKind::BoolLiteral))
     expr = BoolLiteralExpr::create(ctxt, tokToBoolLit(tok), range);
   // <string_literal> = '"' {<char_item>} '"'
-  else if (tok.isDoubleQuoteTextLiteral()) {
+  else if (tok.is(TokenKind::DoubleQuoteText)) {
     // The token class has already allocated of the string in the ASTContext,
     // so it's safe to use the string_view given by getStringValue
     expr = StringLiteralExpr::create(ctxt, tokToStringLit(tok), range);
   }
   // <char_literal> = ''' <char_item> '''
-  else if (tok.isSingleQuoteTextLiteral())
+  else if (tok.is(TokenKind::SingleQuoteText))
     expr = CharLiteralExpr::create(ctxt, tokToCharLit(tok), range);
   // <int_literal> = {(Digit 0 through 9)}
-  else if (tok.isIntLiteral())
+  else if (tok.is(TokenKind::IntLiteral))
     expr = IntegerLiteralExpr::create(ctxt, 
                                       tokToIntLit(diagEngine, tok), range);
   // <double_literal> = <int_literal> '.' <int_literal>
-  else if (tok.isDoubleLiteral())
+  else if (tok.is(TokenKind::DoubleLiteral))
     expr = DoubleLiteralExpr::create(ctxt, 
                                      tokToDoubleLit(diagEngine, tok), range);
+  // Not a literal
   else
-    fox_unreachable("Unknown literal kind"); // Unknown literal
-
+    return Result<Expr*>::NotFound();
+  assert(expr && "no expr");
+  next();
   return Result<Expr*>(expr);
 }
 
 Parser::Result<Expr*> Parser::parseArrayLiteral() {
   // <array_literal>  = '[' [<expr_list>] ']'
-  auto begLoc = consumeBracket(SignType::S_SQ_OPEN);
+  auto begLoc = tryConsume(TokenKind::LSquare).getBeginLoc();
   if (!begLoc)
     return Result<Expr*>::NotFound();
   
@@ -205,14 +199,14 @@ Parser::Result<Expr*> Parser::parseArrayLiteral() {
   // will construct a empty ExprList for us!
 
   // ']'
-  SourceLoc endLoc = consumeBracket(SignType::S_SQ_CLOSE);
+  SourceLoc endLoc = tryConsume(TokenKind::RSquare).getBeginLoc();
   if (!endLoc) {
     if (elist.isNotFound())
       reportErrorExpected(DiagID::expected_closing_square_bracket);
 
-    if (resyncToSign(SignType::S_SQ_CLOSE, /* stopAtSemi */ true, 
+    if (resyncTo(TokenKind::RSquare, /* stopAtSemi */ true, 
       /*consumeToken*/ false))
-      endLoc = consumeBracket(SignType::S_SQ_CLOSE);
+      endLoc = tryConsume(TokenKind::RSquare).getBeginLoc();
     else
       return Result<Expr*>::Error();
   }
@@ -347,7 +341,7 @@ Parser::Result<Expr*> Parser::parseCastExpr() {
   }
 
   // ["as" <type>]
-  if (consumeKeyword(KeywordType::KW_AS)) {
+  if (tryConsume(TokenKind::AsKw)) {
     // <type>
     if (auto tyRes = parseType()) {
       TypeLoc tl = tyRes.get();
@@ -450,7 +444,8 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
   // <parens_expr> = '(' <expr> ')'
 
   // '('
-  if (!consumeBracket(SignType::S_ROUND_OPEN)) return Result<Expr*>::NotFound();
+  if (!tryConsume(TokenKind::LParen)) 
+    return Result<Expr*>::NotFound();
 
   // <expr>
   Expr* rtr = nullptr;
@@ -462,8 +457,7 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
     if(expr.isNotFound())
       reportErrorExpected(DiagID::expected_expr);
 
-    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true,
-      /*consumeToken*/ true))
+    if (resyncTo(TokenKind::RParen, /* stopAtSemi */ true, /*consume*/ true))
       return Result<Expr*>::NotFound();
     else
       return Result<Expr*>::Error();
@@ -472,12 +466,11 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
   assert(rtr && "The return value shouldn't be null!");
 
   // ')'
-  if (!consumeBracket(SignType::S_ROUND_CLOSE)) {
+  if (!tryConsume(TokenKind::RParen)) {
     // no ), handle error & attempt to recover 
     reportErrorExpected(DiagID::expected_closing_round_bracket);
 
-    if (!resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, 
-      /*consumeToken*/ false))
+    if (!resyncTo(TokenKind::RParen, /* stopAtSemi */ true, /*consume*/ false))
       return Result<Expr*>::Error();
   }
 
@@ -492,14 +485,14 @@ Parser::Result<ExprVector> Parser::parseExprList() {
 
   ExprVector exprs;
   exprs.push_back(firstExpr.get());
-  while (consumeSign(SignType::S_COMMA)) {
+  while (tryConsume(TokenKind::Comma)) {
     if (auto expr = parseExpr())
       exprs.push_back(expr.get());
     else {
       if (expr.isNotFound()) {
         // if the expression was just not found, revert the comma consuming and
         // let the caller deal with the extra comma after the expression list.
-        revertConsume();
+        undo();
         break;
       }
 
@@ -513,7 +506,7 @@ Parser::Result<ExprVector> Parser::parseExprList() {
 Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
   // <parens_expr_list>  = '(' [ <expr_list> ] ')'
   // '('
-  auto leftParens = consumeBracket(SignType::S_ROUND_OPEN);
+  auto leftParens = tryConsume(TokenKind::LParen).getBeginLoc();
   if (!leftParens)
     return Result<ExprVector>::NotFound();
 
@@ -525,9 +518,8 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
   else if (exprlist.isError()) {
     // error? Try to recover from it, if success, just discard the expr list,
     // if no success return error.
-    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true,
-      /*consumeToken*/ false)) {
-      SourceLoc loc = consumeBracket(SignType::S_ROUND_CLOSE);
+    if (resyncTo(TokenKind::RParen, /*stopAtSemi*/ true, /*consume*/ false)) {
+      SourceLoc loc = tryConsume(TokenKind::RParen).getBeginLoc();
 
       if (RParenLoc)
         *RParenLoc = loc;
@@ -538,14 +530,14 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
     return Result<ExprVector>::Error();
   }
 
-  SourceLoc rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
+  SourceLoc rightParens = tryConsume(TokenKind::RParen).getBeginLoc();
   // ')'
   if (!rightParens) {
     reportErrorExpected(DiagID::expected_closing_round_bracket);
 
-    if (resyncToSign(SignType::S_ROUND_CLOSE, /* stopAtSemi */ true, 
+    if (resyncTo(TokenKind::RParen, /* stopAtSemi */ true, 
       /*consumeToken*/ false))
-      rightParens = consumeBracket(SignType::S_ROUND_CLOSE);
+      rightParens = tryConsume(TokenKind::RParen).getBeginLoc();
     else 
       return Result<ExprVector>::Error();
   }
@@ -557,7 +549,7 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
 }
 
 SourceRange Parser::parseExponentOp() {
-  if (getCurtok().is(SignType::S_OP_EXP)) {
+  if (getCurtok().is(TokenKind::StarStar)) {
     SourceRange range = getCurtok().range;
     next();
     return range;
@@ -574,14 +566,8 @@ Parser::parseAssignOp(SourceRange& range) {
     return Result<BinOp>(op);
   };
 
-  if (auto equal = consumeSign(SignType::S_EQUAL)) {
-    // Try to match a S_EQUAL. If failed, that means that the next token isn't a =
-    // If it succeeds, we found a '==' (=> this is the comparison operator) and
-    // we must undo 
-    if (!consumeSign(SignType::S_EQUAL))
-      return success(BinOp::Assign, SourceRange(equal));
-    undo();
-  }
+  if (auto equal = tryConsume(TokenKind::Equal)) 
+    return success(BinOp::Assign, equal);
   return Result<BinOp>::NotFound();
 }
 
@@ -594,12 +580,12 @@ Parser::parseUnaryOp(SourceRange& range) {
     return Result<UOp>(op);
   };
 
-  if (auto excl = consumeSign(SignType::S_EXCL_MARK))
-    return success(UOp::LNot, SourceRange(excl));
-  else if (auto minus = consumeSign(SignType::S_MINUS))
-    return success(UOp::Minus, SourceRange(minus));
-  else if (auto plus = consumeSign(SignType::S_PLUS))
-    return success(UOp::Plus, SourceRange(plus));
+  if (auto excl = tryConsume(TokenKind::Exclaim))
+    return success(UOp::LNot, excl);
+  else if (auto minus = tryConsume(TokenKind::Minus))
+    return success(UOp::Minus, minus);
+  else if (auto plus = tryConsume(TokenKind::Plus))
+    return success(UOp::Plus, plus);
   return Result<UOp>::NotFound();
 }
 
@@ -609,9 +595,6 @@ Parser::parseBinaryOp(unsigned priority, SourceRange& range) {
 
   Token cur = getCurtok();
 
-  if (!cur || !cur.isSign())
-    return Result<BinOp>::NotFound();
-
   auto success = [&](BinOp op) {
     range = cur.range;
     return Result<BinOp>(op);
@@ -619,41 +602,41 @@ Parser::parseBinaryOp(unsigned priority, SourceRange& range) {
 
   switch (priority) {
     case 0: // * / %
-      if (consumeSign(SignType::S_ASTERISK))
+      if (tryConsume(TokenKind::Star))
         return success(BinOp::Mul);
-      else if (consumeSign(SignType::S_SLASH))
+      else if (tryConsume(TokenKind::Slash))
         return success(BinOp::Div);
-      else if (consumeSign(SignType::S_PERCENT))
+      else if (tryConsume(TokenKind::Percent))
         return success(BinOp::Mod);
       break;
     case 1: // + -
-      if (consumeSign(SignType::S_PLUS))
+      if (tryConsume(TokenKind::Plus))
         return success(BinOp::Add);
-      else if (consumeSign(SignType::S_MINUS))
+      else if (tryConsume(TokenKind::Minus))
         return success(BinOp::Sub);
       break;
     case 2: // > >= < <=
-      if (consumeSign(SignType::S_LESS_THAN))
+      if (tryConsume(TokenKind::Less))
         return success(BinOp::LT);
-      else if (consumeSign(SignType::S_OP_LTEQ))
+      else if (tryConsume(TokenKind::LessEqual))
         return success(BinOp::LE);
-      else if (consumeSign(SignType::S_GREATER_THAN))
+      else if (tryConsume(TokenKind::Greater))
         return success(BinOp::GT);
-      else if (consumeSign(SignType::S_OP_GTEQ))
+      else if (tryConsume(TokenKind::GreaterEqual))
         return success(BinOp::GE);
       break;
     case 3:  // == !=
-      if (consumeSign(SignType::S_OP_EQ))
+      if (tryConsume(TokenKind::EqualEqual))
         return success(BinOp::Eq);
-      else if (consumeSign(SignType::S_OP_INEQ))
+      else if (tryConsume(TokenKind::ExclaimEqual))
         return success(BinOp::NEq);
       break;
     case 4: // &&
-      if (consumeSign(SignType::S_OP_LAND))
+      if (tryConsume(TokenKind::AmpAmp))
         return success(BinOp::LAnd);
       break;
     case 5: // ||
-      if (consumeSign(SignType::S_OP_LOR))
+      if (tryConsume(TokenKind::PipePipe))
         return success(BinOp::LOr);
       break;
     default:

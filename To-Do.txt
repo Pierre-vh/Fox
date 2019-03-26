@@ -152,18 +152,18 @@ To-Do:
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
   > Lexer Rework:
-    > (Important) Finish lexer implementation first, make all tests pass again.
-    > Rename Token kinds CharLiteral and StringLiteral to SingleQuoteTextLiteral and DoubleQuoteTextLiteral?
-      > Since they aren't checked in the lexer anymore, they can't really be called char/string literal.
-    > Merge Token::Kind, KeywordType and SignType in a new TokenKind enum (using TokenKinds)
-      > Update parser methods?
-        > merge consumeSign, consumeKeyword, consumeBracket and consumeIdentifier into "tryConsume"
-        > add another "consume()" method that asserts that the token is correct.
-          > Let this method handle paren/brace/bracket balacing too
-        > revertConsume becomes unconsume()
-        > Update parser diagnostics too (opening_round_bracket = lparen, etc)
+    > Finish lexer implementation first, make all tests pass again. (Done)
+    > Rename Token kinds CharLiteral and StringLiteral to 
+      SingleQuoteTextLiteral and DoubleQuoteTextLiteral (Done)
+    > Merge Token::Kind, KeywordType and SignType in a new TokenKind enum (Done)
+    > Update parser methods (Now)
+    > Change diagnostic to also use brace/bracket/paren instead of round/square/curly brackets
+
+    > Implement Char/String normalization in the parser 
+      (consider escape sequences, check proper lengths, etc)
+
     > Replace manual increments of ++curPtr and *curPtr_ calls by 
-      a "getChar(Mode::ASCII)", advance(Mode::ASCII, 0)" etc.
+      a "getChar()", advance(0)" etc. but add fast paths when the char is ascii.
       -> Don't use raw pointers in the methods
     > Rewrite lexer tests (one for each diagnostic that can be emitted by the lexer)
     > Write lexer filecheck tests (test kind + loc accuracy of each token in a file)
@@ -238,8 +238,13 @@ Other:
 
   High priority:
     This is a list of "high-priority" stuff that needs to be done, but isn't part of the main
-    "roadmap".
-
+    "roadmap", so it probably will be done later.
+  
+    > Rework/Refactor or even rewrite the Parser. There's a lot of ugly things in it!
+      > resyncTo should have a special "resyncToSemi" version
+      > consume/tryConsume should have a variant for single-char tokens 
+        (so a SourceLoc can be returned instead)
+  
     > Split lookupmap implementation depending on if it needs
       ScopeInfo or not, so not all DeclContext pay the price of
       storing the ScopeInfo if they don't need it

@@ -27,146 +27,68 @@ Parser::Parser(ASTContext& ctxt, TokenVector& l, UnitDecl *unit):
 Optional<std::pair<Identifier, SourceRange>>
 Parser::consumeIdentifier() {
   Token tok = getCurtok();
-  if (tok.isIdentifier()) {
+  if (tok.is(TokenKind::Identifier)) {
     Identifier id = ctxt.getIdentifier(tok.str);
-    assert(id && "Token's an identifier but contains a null Identifier?");
     next();
     return std::make_pair(id, tok.range);
   }
   return None;
 }
 
-SourceLoc Parser::consumeSign(SignType s) {
-  assert(!isBracket(s) 
-		&& "This method shouldn't be used to match brackets ! "
-			  "Use consumeBracket instead!");
+SourceRange Parser::consume(TokenKind kind) {
   auto tok = getCurtok();
-  if (tok.is(s)) {
-    next();
-    return tok.range.getBeginLoc();
-  }
-  return {};
-}
-
-SourceLoc Parser::consumeBracket(SignType s) {
-  assert(isBracket(s) 
-	&& "This method should only be used on brackets! "
-	  	"Use consumeSign to match instead!");
-  auto tok = getCurtok();
+  assert(tok.is(kind) && "incorrect kind");
   // Lambda to diagnose an overflow and kill the parser.
   auto diagnoseOverflow = [&](DiagID id) {
     diagEngine.report(id, tok.range);
     die();
   };
-  if (tok.is(s)) {
-    switch (s) {
-      case SignType::S_CURLY_OPEN:
-        if (curlyBracketsCount_ < maxBraceDepth_)
-          curlyBracketsCount_++;
-        else
-          diagnoseOverflow(DiagID::curly_bracket_overflow);
-        break;
-      case SignType::S_CURLY_CLOSE:
-        if (curlyBracketsCount_)
-          curlyBracketsCount_--;
-        break;
-      case SignType::S_SQ_OPEN:
-        if (squareBracketsCount_ < maxBraceDepth_)
-          squareBracketsCount_++;
-        else
-          diagnoseOverflow(DiagID::square_bracket_overflow);
-        break;
-      case SignType::S_SQ_CLOSE:
-        if (squareBracketsCount_)
-          squareBracketsCount_--;
-        break;
-      case SignType::S_ROUND_OPEN:
-        if (roundBracketsCount_ < maxBraceDepth_)
-          roundBracketsCount_++;
-        else 
-          diagnoseOverflow(DiagID::round_bracket_overflow);
-        break;
-      case SignType::S_ROUND_CLOSE:
-        if (roundBracketsCount_) 
-          roundBracketsCount_--;
-        break;
-      default:
-        fox_unreachable("unknown bracket type");
-    }
-    next();
-    SourceLoc begLoc = tok.range.getBeginLoc();
-    assert(begLoc && "Token doesn't have loc info");
-    return begLoc;
+  // Handle parens and other special tokens
+  switch (tok.kind) {
+    case TokenKind::LBrace:
+      if (curlyBracketsCount_ < maxBraceDepth_)
+        curlyBracketsCount_++;
+      else
+        diagnoseOverflow(DiagID::curly_bracket_overflow);
+      break;
+    case TokenKind::RBrace:
+      if (curlyBracketsCount_)
+        curlyBracketsCount_--;
+      break;
+    case TokenKind::LSquare:
+      if (squareBracketsCount_ < maxBraceDepth_)
+        squareBracketsCount_++;
+      else
+        diagnoseOverflow(DiagID::square_bracket_overflow);
+      break;
+    case TokenKind::RSquare:
+      if (squareBracketsCount_)
+        squareBracketsCount_--;
+      break;
+    case TokenKind::LParen:
+      if (roundBracketsCount_ < maxBraceDepth_)
+        roundBracketsCount_++;
+      else 
+        diagnoseOverflow(DiagID::round_bracket_overflow);
+      break;
+    case TokenKind::RParen:
+      if (roundBracketsCount_) 
+        roundBracketsCount_--;
+      break;
   }
-  return {};
+  // Skip the token & return
+  next();
+  return tok.range;
 }
 
-SourceRange Parser::consumeKeyword(KeywordType k) {
-  auto tok = getCurtok();
-  if (tok.is(k)) {
-    next();
-    return tok.range;
-  }
-  return {};
+SourceRange Parser::tryConsume(TokenKind kind) {
+  if(getCurtok().is(kind)) 
+    return consume(kind);
+  return SourceRange();
 }
 
 void Parser::consumeAny() {
-  Token tok = getCurtok();
-  // If it's a bracket, dispatch to consumeBracket. Else, just skip it.
-  if (tok.isSign() && isBracket(tok.getSignType()))
-    consumeBracket(tok.getSignType());
-  else
-    next();
-}
-
-void Parser::revertConsume() {
-  undo();
-  Token tok = getCurtok();
-  // Lambda to diagnose an overflow and kill the parser.
-  auto diagnoseOverflow = [&](DiagID id) {
-    diagEngine.report(id, tok.range);
-    die();
-  };
-  if (isBracket(tok.getSignType())) {
-    // Update bracket counters
-    // We will be doing the exact opposite of what consumeBracket does !
-    // That means : Decrementing the counter if a ( { [ is found, 
-		// and incrementing it if a } ] ) is found.
-    switch (tok.getSignType()) {
-      case SignType::S_CURLY_OPEN:
-        if (curlyBracketsCount_)
-          curlyBracketsCount_--;
-        break;
-      case SignType::S_CURLY_CLOSE:
-        if (curlyBracketsCount_ < maxBraceDepth_)
-          curlyBracketsCount_++;
-        else
-          diagnoseOverflow(DiagID::curly_bracket_overflow);
-        break;
-      case SignType::S_SQ_OPEN:
-        if (squareBracketsCount_)
-          squareBracketsCount_--;
-        break;
-      case SignType::S_SQ_CLOSE:
-        if (squareBracketsCount_ < maxBraceDepth_)
-          squareBracketsCount_++;
-        else
-          diagnoseOverflow(DiagID::square_bracket_overflow);
-        break;
-      case SignType::S_ROUND_OPEN:
-        if (roundBracketsCount_)
-          roundBracketsCount_--;
-        break;
-      case SignType::S_ROUND_CLOSE:
-        if (roundBracketsCount_ < maxBraceDepth_)
-          roundBracketsCount_++;
-        else
-          diagnoseOverflow(DiagID::round_bracket_overflow);
-        break;
-      default:
-        fox_unreachable("unknown bracket type");
-    }
-  }
+  consume(getCurtok().kind);
 }
 
 void Parser::next() {
@@ -179,42 +101,28 @@ void Parser::undo() {
     tokenIterator_--;
 }
 
-bool Parser::isBracket(SignType s) const {
-  switch (s) {
-    case SignType::S_CURLY_OPEN:
-    case SignType::S_CURLY_CLOSE:
-    case SignType::S_SQ_OPEN:
-    case SignType::S_SQ_CLOSE:
-    case SignType::S_ROUND_OPEN:
-    case SignType::S_ROUND_CLOSE:
-      return true;
-    default:
-      return false;
-  }
-}
-
 Parser::Result<TypeLoc> Parser::parseBuiltinTypename() {
   // <builtin_type_name>   = "int" | "float" | "bool" | "string" | "char"
   using RtrTy = Result<TypeLoc>;
 
   // "int"
-  if (auto range = consumeKeyword(KeywordType::KW_INT))
+  if (auto range = tryConsume(TokenKind::IntKw))
     return RtrTy(TypeLoc(PrimitiveType::getInt(ctxt), range));
   
   // "float"
-  if (auto range = consumeKeyword(KeywordType::KW_DOUBLE))
+  if (auto range = tryConsume(TokenKind::DoubleKw))
     return RtrTy(TypeLoc(PrimitiveType::getDouble(ctxt), range));
 
   // "bool"
-  if (auto range = consumeKeyword(KeywordType::KW_BOOL))
+  if (auto range = tryConsume(TokenKind::BoolKw))
     return RtrTy(TypeLoc(PrimitiveType::getBool(ctxt), range));
 
   // "string"
-  if (auto range = consumeKeyword(KeywordType::KW_STRING))
+  if (auto range = tryConsume(TokenKind::StringKw))
     return RtrTy(TypeLoc(PrimitiveType::getString(ctxt), range));
 
   // "char"
-  if (auto range = consumeKeyword(KeywordType::KW_CHAR))
+  if (auto range = tryConsume(TokenKind::CharKw))
     return RtrTy(TypeLoc(PrimitiveType::getChar(ctxt), range));
 
   return RtrTy::NotFound();
@@ -223,24 +131,24 @@ Parser::Result<TypeLoc> Parser::parseBuiltinTypename() {
 Parser::Result<TypeLoc> Parser::parseType() {
   // <type> =  ('[' <type> ']') | <builtin_type_name>
   // ('[' <type> ']')
-  if(auto lSQBLoc = consumeBracket(SignType::S_SQ_OPEN)) {
+  if(auto lsquare = tryConsume(TokenKind::LSquare).getBeginLoc()) {
     auto ty_res = parseType();
     bool error = !ty_res;
     if(error && ty_res.isNotFound())
       reportErrorExpected(DiagID::expected_type);
-    auto rSQBLoc = consumeBracket(SignType::S_SQ_CLOSE);
-    if(!rSQBLoc) {
+    auto rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
+    if(!rsquare) {
       error = true;
       reportErrorExpected(DiagID::expected_closing_square_bracket);
-      bool resync = resyncToSign(SignType::S_SQ_CLOSE,
-        /*stop@semi*/ true, /*consume*/ false);
+      bool resync = resyncTo(TokenKind::RSquare, 
+                             /*stop@semi*/ true, /*consume*/ false);
       if(resync)
-        rSQBLoc = consumeBracket(SignType::S_SQ_CLOSE);
+        rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
     }
     if(error)
       return Result<TypeLoc>::Error();
     
-    SourceRange range(lSQBLoc, rSQBLoc);
+    SourceRange range(lsquare, rsquare);
     assert(range && "range should be valid");
     Type ty = ty_res.get().getType();
     ty = ArrayType::get(ctxt, ty);
@@ -266,72 +174,68 @@ Token Parser::getPreviousToken() const {
 }
 
 bool 
-Parser::resyncToSign(SignType sign, bool stopAtSemi, bool shouldConsumeToken) {
-  return resyncToSign(SmallVector<SignType, 4>({ sign }),
-    stopAtSemi, shouldConsumeToken);
+Parser::resyncTo(TokenKind kind, bool stopAtSemi, bool shouldConsumeToken) {
+  return resyncTo(SmallVector<TokenKind, 4>({kind}), 
+                  stopAtSemi, shouldConsumeToken);
 }
 
-bool Parser::resyncToSign(const SmallVector<SignType, 4>& signs,
-	bool stopAtSemi, bool shouldConsumeToken) {
-  if (!isAlive())
-    return false;
+bool Parser::resyncTo(const SmallVector<TokenKind, 4>& kinds,
+	                    bool stopAtSemi, bool shouldConsumeToken) {
+  if (!isAlive()) return false;
 
   bool isFirst = true;
   // Keep going until we reach EOF.
   while(!isDone()) {
     // Check the current token
     auto tok = getCurtok();
-    for (const auto& sign : signs) {
-      if (tok.is(sign)) {
-        if (shouldConsumeToken)
-          consumeAny();
+    for (TokenKind kind : kinds) {
+      // Consume if it matches
+      if (tok.is(kind)) {
+        if(shouldConsumeToken)
+          consume(kind);
         return true;
       }
     }
 
-    if (tok.isSign()) {
-      switch (tok.getSignType()) {
-        // Skip nested brackets
-        case SignType::S_CURLY_OPEN:
-          consumeBracket(SignType::S_CURLY_OPEN);
-          resyncToSign(SignType::S_CURLY_CLOSE, false, true);
-          break;
-        case SignType::S_SQ_OPEN:
-          consumeBracket(SignType::S_SQ_OPEN);
-          resyncToSign(SignType::S_SQ_CLOSE, false, true);
-          break;
-        case SignType::S_ROUND_OPEN:
-          consumeBracket(SignType::S_ROUND_OPEN);
-          resyncToSign(SignType::S_ROUND_CLOSE, false, true);
-          break;
-        // Skip closing brackets if they're unbalanced, else
-        // return to avoid escaping the current block.
-        case SignType::S_CURLY_CLOSE:
-          if (curlyBracketsCount_ && !isFirst)
-            return false;
-          consumeBracket(SignType::S_CURLY_CLOSE);
-          break;
-        case SignType::S_SQ_CLOSE:
-          if (squareBracketsCount_ && !isFirst)
-            return false;
-          consumeBracket(SignType::S_SQ_CLOSE);
-          break;
-        case SignType::S_ROUND_CLOSE:
-          if (roundBracketsCount_ && !isFirst)
-            return false;
-          consumeBracket(SignType::S_ROUND_CLOSE);
-          break;
-        case SignType::S_SEMICOLON:
-          if (stopAtSemi)
-            return false;
-          // fallthrough
-        default:
-          consumeAny();
-          break;
-      }
-    } // (tok.isSign())
-    else 
+  switch (tok.kind) {
+    // Skip '{', '(' or '['
+    case TokenKind::LBrace:
       consumeAny();
+      resyncTo(TokenKind::RBrace, false, true);
+      break;
+    case TokenKind::LSquare:
+      consumeAny();
+      resyncTo(TokenKind::RSquare, false, true);
+      break;
+    case TokenKind::LParen:
+      consumeAny();
+      resyncTo(TokenKind::LParen, false, true);
+      break;
+    // Skip '}', ')' or ']' only if they're unbalanced,
+    // else return to avoid escaping the current block.
+    case TokenKind::RBrace:
+      if (curlyBracketsCount_ && !isFirst)
+        return false;
+      consumeAny();
+      break;
+    case TokenKind::RSquare:
+      if (squareBracketsCount_ && !isFirst)
+        return false;
+      consumeAny();
+      break;
+    case TokenKind::RParen:
+      if (roundBracketsCount_ && !isFirst)
+        return false;
+      consumeAny();
+      break;
+    case TokenKind::Semi:
+      if (stopAtSemi)
+        return false;
+      // fallthrough
+    default:
+      consumeAny();
+      break;
+    }
 
     isFirst = false;
   }
@@ -341,54 +245,31 @@ bool Parser::resyncToSign(const SmallVector<SignType, 4>& signs,
 }
 
 bool Parser::resyncToNextDecl() {
-  // This method skips everything until it finds a "let" or a "func".
-
-  // Return immediately if recovery is not allowed, 
-	// or the parser isn't alive anymore.
-  if (!isAlive())
-    return false;
+  if (!isAlive()) return false;
 
   while(!isDone()) {
     auto tok = getCurtok();
     // if it's let/func, return.
-    if (tok.is(KeywordType::KW_FUNC) || tok.is(KeywordType::KW_LET))
+    if (tok.is(TokenKind::FuncKw) || tok.is(TokenKind::LetKw))
       return true;
-    // Check if it's a sign for special behaviours
-    if (tok.isSign()) {
-      switch (tok.getSignType()) {
-          // If we find a '(', '{' or '[', 
-					// call resyncToSign to skip to it's counterpart.
-        case SignType::S_CURLY_OPEN:
-          consumeBracket(SignType::S_CURLY_OPEN);
-          resyncToSign(SignType::S_CURLY_CLOSE, false, true);
-          break;
-        case SignType::S_SQ_OPEN:
-          consumeBracket(SignType::S_SQ_OPEN);
-          resyncToSign(SignType::S_SQ_CLOSE, false, true);
-          break;
-        case SignType::S_ROUND_OPEN:
-          consumeBracket(SignType::S_ROUND_OPEN);
-          resyncToSign(SignType::S_ROUND_CLOSE, false, true);
-          break;
-          // If we find a ')', '}' or ']' we just consume it.
-        case SignType::S_CURLY_CLOSE:
-          consumeBracket(SignType::S_CURLY_CLOSE);
-          break;
-        case SignType::S_SQ_CLOSE:
-          consumeBracket(SignType::S_SQ_CLOSE);
-          break;
-        case SignType::S_ROUND_CLOSE:
-          consumeBracket(SignType::S_ROUND_CLOSE);
-          break;
-        default:
-          consumeAny();
-          break;
-      }
-    } // (tok.isSign())
-    else 
-      consumeAny();
+    consumeAny();
+    // Skip nested parens braces, brackets or parens.
+    switch (tok.kind) {
+      case TokenKind::LBrace:
+        resyncTo(TokenKind::RBrace, false, true);
+        break;
+      case TokenKind::LSquare:
+        resyncTo(TokenKind::RSquare, false, true);
+        break;
+      case TokenKind::LParen:
+        resyncTo(TokenKind::RParen, false, true);
+        break;
+      default:
+        // nothing
+        break;
+    }
   }
-  // If reached eof, die & return false.
+  // If we get here, we reached eof.
   die();
   return false;
 }
