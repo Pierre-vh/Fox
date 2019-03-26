@@ -24,10 +24,10 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
   // '.'
   if (auto dotLoc = tryConsume(TokenKind::Dot).getBeginLoc()) {
     // <id>
-    if (auto idRes = consumeIdentifier()) {
-      // found, return
-      Identifier id = idRes.getValue().first;
-      SourceRange idRange = idRes.getValue().second;
+    if (isCurTokAnIdentifier()) {
+      Identifier id;
+      SourceRange idRange;
+      std::tie(id, idRange) = consumeIdentifier();
       return Result<Expr*>(
         MemberOfExpr::create(ctxt, base , id, idRange, dotLoc)
       );
@@ -86,11 +86,12 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
 
 Parser::Result<Expr*> Parser::parseDeclRef() {
   // <decl_call> = <id> 
-  if (auto idRes = consumeIdentifier()) {
-    Identifier id = idRes.getValue().first;
-    SourceRange idRange = idRes.getValue().second;
+  if (isCurTokAnIdentifier()) {
+    Identifier id;
+    SourceRange idRange;
+    std::tie(id, idRange) = consumeIdentifier();
     return Result<Expr*>(UnresolvedDeclRefExpr::create(ctxt, id,
-      idRange));
+                         idRange));
   }
   return Result<Expr*>::NotFound();
 }

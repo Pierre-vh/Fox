@@ -113,13 +113,11 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // <id>
   Identifier id;
   SourceRange idRange;
-  {
-    if (auto idRes = consumeIdentifier())
-      std::tie(id, idRange) = idRes.getValue();
-    else {
-      reportErrorExpected(DiagID::expected_iden);
-      invalid = true;
-    }
+  if (isCurTokAnIdentifier())
+    std::tie(id, idRange) = consumeIdentifier();
+  else {
+    reportErrorExpected(DiagID::expected_iden);
+    invalid = true;
   }
 
   // Once we know the Identifier, we can create the FuncDecl instance.
@@ -224,10 +222,12 @@ Parser::Result<Decl*> Parser::parseParamDecl() {
   // <param_decl> = <id> ':' ["mut"] <type>
 
   // <id>
-  auto idRes = consumeIdentifier();
-  if (!idRes) return Result<Decl*>::NotFound();
-  Identifier id = idRes.getValue().first;
-  SourceRange idRange = idRes.getValue().second;
+  if (!isCurTokAnIdentifier())
+    return Result<Decl*>::NotFound();
+
+  Identifier id;
+  SourceRange idRange;
+  std::tie(id, idRange) = consumeIdentifier();
 
   // ':'
   if (!tryConsume(TokenKind::Colon)) {
@@ -284,14 +284,14 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   };
 
   // <id>
-  auto idRes = consumeIdentifier();
-  if(!idRes) {
+  if(!isCurTokAnIdentifier()) {
     reportErrorExpected(DiagID::expected_iden);
     return tryRecoveryToSemi();
   }
 
-  Identifier id = idRes.getValue().first;
-  SourceRange idRange = idRes.getValue().second;
+  Identifier id;
+  SourceRange idRange;
+  std::tie(id, idRange) = consumeIdentifier();
 
   // ':'
   if (!tryConsume(TokenKind::Colon)) {

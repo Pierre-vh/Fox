@@ -24,15 +24,12 @@ Parser::Parser(ASTContext& ctxt, TokenVector& l, UnitDecl *unit):
   isAlive_ = true;
 }
 
-Optional<std::pair<Identifier, SourceRange>>
-Parser::consumeIdentifier() {
+std::pair<Identifier, SourceRange> Parser::consumeIdentifier() {
   Token tok = getCurtok();
-  if (tok.is(TokenKind::Identifier)) {
-    Identifier id = ctxt.getIdentifier(tok.str);
-    next();
-    return std::make_pair(id, tok.range);
-  }
-  return None;
+  assert(tok.is(TokenKind::Identifier) && "not an identifier");
+  Identifier id = ctxt.getIdentifier(tok.str);
+  next();
+  return std::make_pair(id, tok.range);
 }
 
 SourceRange Parser::consume(TokenKind kind) {
@@ -309,6 +306,10 @@ bool Parser::isAlive() const {
 
 DeclContext* Parser::getCurrentDeclCtxt() const {
   return curDeclCtxt_;
+}
+
+bool Parser::isCurTokAnIdentifier() const {
+  return getCurtok().is(TokenKind::Identifier);
 }
 
 //----------------------------------------------------------------------------//

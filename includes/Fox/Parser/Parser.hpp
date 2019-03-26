@@ -191,44 +191,42 @@ namespace fox {
       DeclContext* getCurrentDeclCtxt() const;
 
       //---------------------------------//
-      // Token consumption/manipulation helpers
+      // Token consumption
       //---------------------------------//
 
-      /*  
-        Note: Token consuming methods
-          Consume methods all return a result that evaluates to true 
-				  if the "consume" operation finished successfully 
-          (found the requested token), false otherwise
+      // Returns true if the current token is an identifier
+      bool isCurTokAnIdentifier() const;
 
-          Note: SourceLocs and SourceRanges can be both evaluated in 
-				  a condition to check their validity 
-          (operator bool is implemented on both)
-      */
+      //---------------------------------//
+      // Token consumption
+      //---------------------------------//
 
-      // Consumes an Identifier
+      // Consumes an identifier, returning the Identifier object
+      // and the range of the token.
+      // The current token must be of the correct kind.
       //
-      // Returns a pair of the Identifier + the SourceRange of the Identifier
-      // on success.
-      // TODO: Remove this
-      Optional<std::pair<Identifier, SourceRange>>
-      consumeIdentifier();
+      // getCurtok().is(TokenKind::Identifier) must return true.
+      std::pair<Identifier, SourceRange> consumeIdentifier();
 
       // Consumes a token of known type.
       // Returns the range of the token
+      //
+      // getCurtok().is(kind) must return true.
       SourceRange consume(TokenKind kind);
 
       // Tries to consume a token of kind "kind".
       // Returns a valid SourceRange on success, false otherwise.
       SourceRange tryConsume(TokenKind kind);
 
-      // Dispatch to the appriate consume method. Won't return any loc information.
+      // Consumes any token.
       // Used to skip a token, updating any necessary counters.
       void consumeAny();
 
-      // NOTE: This has been removed because most users know what kind of token they
-      //       want to unconsume and none actually need to unconsume bracket/braces/paren
-      //       so undo() works just fine for the current users.
-      //       Rewrite this if needed. Take paren/brace/bracket balancing in account!
+      // NOTE: This has been removed because most users know what kind of token
+      //       they want to unconsume and none actually need to unconsume 
+      //       bracket/braces/paren so undo() works just fine for the current
+      //       users. Rewrite this if needed. Take paren/brace/bracket balancing 
+      //       in account!
       // Reverts the last consume operation, updating counters if needed.
       // void unconsume();
 
