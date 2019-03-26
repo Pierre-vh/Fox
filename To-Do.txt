@@ -162,6 +162,8 @@ To-Do:
     > Implement Char/String normalization in the parser (Now)
       > Diagnose/check escape sequences in the lexer: only allow n, r, t, \, ", ', 0.
       > Normalize them in the Parser
+     
+    > Diagnose invalid tokens + add a "Error" token kind
 
     > Replace ++curPtr and *curPtr_ by "advance(0)" "getCurChar()"
     > Rewrite lexer tests (one for each diagnostic that can be emitted by the lexer)
