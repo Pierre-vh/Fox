@@ -7,3 +7,9 @@
 
 ERROR(unterminated_block_comment,
   "unterminated block comment (found end of file before '*/')")
+ERROR(unterminated_char_lit,
+  "unterminated char literal")
+ERROR(empty_char_lit,
+  "empty char literal")
+ERROR(unknown_escape_seq,
+  "unknown escape sequence")

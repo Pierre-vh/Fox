@@ -63,7 +63,7 @@ bool Driver::processFile(string_view filepath) {
   if (diagEngine_.hadAnyError())
     return false;
 
-  Parser psr(ctxt_, lex.getTokenVector());
+  Parser psr(ctxt_, lex.getTokens());
 
   UnitDecl* unit;
   // Do parsing

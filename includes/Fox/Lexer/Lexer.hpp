@@ -25,7 +25,7 @@ namespace fox {
 
       void lexFile(FileID file);
   
-      TokenVector& getTokenVector();
+      TokenVector& getTokens();
       std::size_t numTokens() const;  
 
       ASTContext& ctxt;
@@ -36,19 +36,16 @@ namespace fox {
       // Pushes the current token with the kind 'kind' and advances.
       template<typename Kind>
       void pushTok(Kind kind) {
-        // Push the token
         tokens_.push_back(Token(kind, getCurtokStringView(), getCurtokRange()));
-        // advance
         advance();
-        // Reset the iterators
-        tokBegPtr_ = curPtr_;
+        resetToken();
       }
 
       // Pushes a token of kind 'kind' consisting of a single codepoint
-      // (calls beginToken() + pushToken())
+      // (calls resetToken() + pushToken())
       template<typename Kind>
       void beginAndPushToken(Kind kind) {
-        beginToken();
+        resetToken();
         pushTok(kind);
       }
 
@@ -63,12 +60,13 @@ namespace fox {
       bool isEOF() const;
 
       // Begins a new token
-      void beginToken();
+      void resetToken();
 
       void lex();
       // Lexes an identifier or reserved keyword.
       void lexMaybeReservedIdentifier();
       void lexIntOrDoubleLiteral();
+      bool lexCharItem();
       void lexCharLiteral();
       void lexStringLiteral();
       void lexIntLiteral();

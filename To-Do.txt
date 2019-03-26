@@ -160,7 +160,9 @@ To-Do:
           > Let this method handle paren/brace/bracket balacing too
         > revertConsume becomes unconsume()
         > Update parser diagnostics too (opening_round_bracket = lparen, etc)
-
+    > Replace manual increments of ++curPtr and *curPtr_ calls by 
+      a "getChar(Mode::ASCII)", advance(Mode::ASCII, 0)" etc.
+      -> Don't use raw pointers in the methods
     > Rewrite lexer tests (one for each diagnostic that can be emitted by the lexer)
     > Write lexer filecheck tests (test kind + loc accuracy of each token in a file)
 

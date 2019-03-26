@@ -190,17 +190,13 @@ Removed the <eoi> nonterminal. It was completly useless. I just replaced all of 
       <identifier_char>   = <identifier_head> | (Digit 0 through 9)
       <identifier>        = <identifier_head> {<identifier_char>}
       // literals
-      <char_item>         = Any character except ''' without a preceding '\'
+      <char_item>         = Any non-space unicode character except '
+                          | "\n" | "\r" | "\t" | "\\"
+      <string_item>       = '\"' | Any unicode character except '\r', '\n' and " 
       <char_literal>      = ''' <char_item> '''
-      <string_text>       = Any character except '"' without a preceding '\'
-      <string_literal>    = '"' <string_text> '"'
+      <string_literal>    = '"' {<string_item>} '"'
       <float_literal>     = <int_literal> '.' <int_literal>
       <int_literal>       = {(Digit 0 through 9)}
       <bool_literal>      = "true" | "false"
       <primitive_literal> = <bool_literal> | <int_literal> | <float_literal> 
                                            | <string_literal> | <char_literal> 
-
-      // operators
-      <binary_operator>   = '*' '*' | '=' | '+' | '-' | '*' | '/' | '%' | ('&' '&') | ('|' '|') 
-                              | '<' | '>' | ('=' '=') | ('>' '=') | ('<' '=') | ('!' '=') 
-      <unary_operator>    = '!' | '-' | '+'

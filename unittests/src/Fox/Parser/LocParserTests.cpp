@@ -45,7 +45,7 @@ class LocTests : public ::testing::Test {
 
       theUnit = UnitDecl::create(astContext, Identifier(), FileID());
 
-      parser = std::make_unique<Parser>(astContext, lexer->getTokenVector(), theUnit);
+      parser = std::make_unique<Parser>(astContext, lexer->getTokens(), theUnit);
       ok = true;
     }
 

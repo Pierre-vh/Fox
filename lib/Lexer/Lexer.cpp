@@ -11,6 +11,7 @@
 #include "Fox/Common/Errors.hpp"
 #include "Fox/AST/ASTContext.hpp"
 #include "utfcpp/utf8.hpp"
+#include <cctype>
 
 using namespace fox;
 using Tok = Token::Kind;
@@ -28,10 +29,11 @@ void Lexer::lexFile(FileID file) {
   // init the iterator/pointers
   fileBeg_ = tokBegPtr_ = curPtr_ = content.begin();
   fileEnd_ = content.end();
+  // lex
   lex();
 }
 
-TokenVector& Lexer::getTokenVector() {
+TokenVector& Lexer::getTokens() {
   return tokens_; // return empty Token
 }
 
@@ -43,7 +45,7 @@ bool Lexer::isEOF() const {
   return (curPtr_ == fileEnd_);
 }
 
-void Lexer::beginToken() {
+void Lexer::resetToken() {
   tokBegPtr_ = curPtr_;
 }
 
@@ -76,7 +78,7 @@ void Lexer::lex() {
          beginAndPushToken(SignType::S_SLASH);
         break;
       case '*':
-        beginToken();
+        resetToken();
         // "**" -> Exponent operator
         if (peekNextChar() == '*')
           advanceAndPushTok(SignType::S_OP_EXP);
@@ -85,7 +87,7 @@ void Lexer::lex() {
           pushTok(SignType::S_ASTERISK);
         break;
       case '=': 
-        beginToken();
+        resetToken();
         // "==" -> Equality operator
         if(peekNextChar() == '=')
           advanceAndPushTok(SignType::S_OP_EQ);
@@ -103,14 +105,14 @@ void Lexer::lex() {
         beginAndPushToken(SignType::S_MINUS);
         break;
       case '&':
-        beginToken();
+        resetToken();
         if(peekNextChar() == '&') // "&&" -> Logical And operator
           advanceAndPushTok(SignType::S_OP_LAND);
         else
           pushTok(Tok::Invalid);
         break;
       case '|':
-        beginToken();
+        resetToken();
         if(peekNextChar() == '|') // "||" -> Logical Or operator
           advanceAndPushTok(SignType::S_OP_LOR);
         else
@@ -120,21 +122,21 @@ void Lexer::lex() {
         beginAndPushToken(SignType::S_PERCENT);
         break;
       case '!':
-        beginToken();
+        resetToken();
         if(peekNextChar() == '=') // "!=" -> Inequality operator
           advanceAndPushTok(SignType::S_OP_INEQ);
         else
           pushTok(SignType::S_EXCL_MARK);
         break;
       case '<':
-        beginToken();
+        resetToken();
         if(peekNextChar() == '=') // "<=" -> Less or Equal
           advanceAndPushTok(SignType::S_OP_LTEQ);
         else
           pushTok(SignType::S_LESS_THAN);
         break;
       case '>':
-        beginToken();
+        resetToken();
         if(peekNextChar() == '=') // ">=" -> Greater or Equal
           advanceAndPushTok(SignType::S_OP_GTEQ);
         else
@@ -169,6 +171,10 @@ void Lexer::lex() {
       case ',':
         beginAndPushToken(SignType::S_COMMA);
         break;
+      // char/string literals
+      case '\'':
+        lexCharLiteral();
+        break;
       // Numbers/literals
       case '0': 
       case '1': case '2': case '3':
@@ -189,7 +195,7 @@ void Lexer::lex() {
 void Lexer::lexMaybeReservedIdentifier() {
   assert(isValidIdentifierHead(getCurChar()) 
     && "Not a valid identifier head!");
-  beginToken();
+  resetToken();
   while(isValidIdentifierChar(peekNextChar()))
     advance();
   // TODO: ID reserved identifiers/keyword.
@@ -197,11 +203,82 @@ void Lexer::lexMaybeReservedIdentifier() {
 }
 
 void Lexer::lexIntOrDoubleLiteral() {
-  fox_unimplemented_feature("Lexer::lexIntOrDoubleLiteral");
+  assert(std::isdigit(*curPtr_) && "not a digit");
+  // <int_literal> = {(Digit 0 through 9)}
+  // <float_literal> = <int_literal> '.' <int_literal>
+  resetToken();
+  lexIntLiteral();
+  // Check if we have a '.' followed by a digit, if so,
+  // eat the '.' and call lexIntLiteral()
+  if ((*(curPtr_+1) == '.') && std::isdigit(*(curPtr_+2))) {
+    curPtr_ += 2;
+    lexIntLiteral();
+    pushTok(Tok::DoubleLiteral);
+  }
+  else 
+    pushTok(Tok::IntLiteral);
+}
+
+bool Lexer::lexCharItem() {
+  // <char_item> = Any non-space unicode character except '
+  //             | "\n" | "\r" | "\t" | "\\"
+  // If the current character is a quote, the literal is empty.
+  // Don't eat the quote (to not trigger a missing quote error)
+  // and diagnose it.
+  char cur = *curPtr_;
+  if (cur == '\'') {
+    diagEngine.report(DiagID::empty_char_lit, getCurtokRange());
+    return false;
+  }
+  // Check for escape sequences
+  if (cur == '\\') {
+    const char* backslashPtr = curPtr_;
+    cur = *(++curPtr_);
+    switch (cur) {
+      case '\\':
+      case 'n':
+      case 'r':
+      case 't':
+        ++curPtr_; // ok
+        return true;
+      default:
+        diagEngine
+          .report(DiagID::unknown_escape_seq, getLocOfPtr(backslashPtr));
+        // eat all subsequent alphanumeric characters so we can recover.
+        while(!isEOF() && std::isalnum(*(++curPtr_)));
+        return false;
+    }
+  }
+  // Check for forbidden characters
+  if (std::isspace(cur)) return false;
+  // Else we should be good.
+  advance();
+  return true;
 }
 
 void Lexer::lexCharLiteral() {
-  fox_unimplemented_feature("Lexer::lexCharLiteral");
+  assert(((*curPtr_) == '\'') && "not a quote");
+  // <char_literal> = ''' <char_item> '''
+  resetToken();
+  // Skip the '
+  ++curPtr_; 
+  // Lex the body of the literal
+  bool succ = lexCharItem();
+  // Find the closing quote. If we have it, push the token. if we don't,
+  // diagnose it.
+  if ((*curPtr_) == '\'') {
+    // Only push successful tokens.
+    if(succ)
+      pushTok(Tok::CharLiteral);
+    // If the literal isn't valid, eat the quote
+    // and reset the token.
+    else {
+      ++curPtr_;
+      resetToken();
+    }
+    return;
+  }
+  diagEngine.report(DiagID::unterminated_char_lit, getCurtokBegLoc());
 }
 
 void Lexer::lexStringLiteral() {
@@ -209,7 +286,17 @@ void Lexer::lexStringLiteral() {
 }
 
 void Lexer::lexIntLiteral() {
-  fox_unimplemented_feature("Lexer::lexIntLiteral");
+  assert(std::isdigit(*curPtr_) && "not a digit");
+  // <int_literal> = {(Digit 0 through 9)}
+  while (!isEOF()) {
+    // Keep incrementing curPtr until the next char
+    // isn't a digit.
+    if(std::isdigit(*(curPtr_+1)))
+      ++curPtr_;
+    // if the next char isn't a digit, stop.
+    else 
+      break;
+  }
 }
 
 void Lexer::skipLineComment() {
