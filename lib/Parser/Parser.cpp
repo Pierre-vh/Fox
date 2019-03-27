@@ -7,9 +7,10 @@
 
 #include "Fox/Parser/Parser.hpp"
 #include "Fox/AST/ASTContext.hpp"
-#include "Fox/Common/SourceManager.hpp"
 #include "Fox/AST/Types.hpp"
+#include "Fox/Common/SourceManager.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
+#include "Fox/Lexer/Lexer.hpp"
 
 using namespace fox;
 
@@ -17,10 +18,10 @@ using namespace fox;
 // Parser
 //----------------------------------------------------------------------------//
 
-Parser::Parser(ASTContext& ctxt, TokenVector& l, UnitDecl *unit):
-  ctxt(ctxt), tokens(l), srcMgr(ctxt.sourceMgr), diagEngine(ctxt.diagEngine),
+Parser::Parser(ASTContext& ctxt, Lexer& lexer, UnitDecl *unit):
+  ctxt(ctxt), lexer(lexer), srcMgr(ctxt.sourceMgr), diagEngine(ctxt.diagEngine),
   curDeclCtxt_(unit) {
-  tokenIterator_ = tokens.begin();
+  tokenIterator_ = getTokens().begin();
   isAlive_ = true;
 }
 
@@ -85,12 +86,12 @@ SourceRange Parser::tryConsume(TokenKind kind) {
 }
 
 void Parser::next() {
-  if (tokenIterator_ != tokens.end())
+  if (tokenIterator_ != getTokens().end())
     tokenIterator_++;
 }
 
 void Parser::undo() {
-  if (tokenIterator_ != tokens.begin())
+  if (tokenIterator_ != getTokens().begin())
     tokenIterator_--;
 }
 
@@ -161,9 +162,17 @@ Token Parser::getCurtok() const {
 
 Token Parser::getPreviousToken() const {
   auto it = tokenIterator_;
-  if (it != tokens.begin())
+  if (it != getTokens().begin())
     return *(--it);
   return Token();
+}
+
+TokenVector& Parser::getTokens() {
+  return lexer.getTokens();
+}
+
+const TokenVector& Parser::getTokens() const {
+  return lexer.getTokens();
 }
 
 bool 
@@ -268,7 +277,7 @@ bool Parser::resyncToNextDecl() {
 }
 
 void Parser::die() {
-  tokenIterator_ = tokens.end();
+  tokenIterator_ = getTokens().end();
   isAlive_ = false;
 }
 
@@ -293,7 +302,7 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
 }
 
 bool Parser::isDone() const {
-  return (tokenIterator_ == tokens.end()) || (!isAlive());
+  return (tokenIterator_ == getTokens().end()) || (!isAlive());
 }
 
 bool Parser::isAlive() const {

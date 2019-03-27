@@ -7,15 +7,11 @@
 // This file implements the recursive descent parser for Fox.
 //                              
 // The grammar can be found in  /doc/ 
-//
-// Terminology note:
-//      Parens always mean Round Brackets only.
-//      Brackets always mean Round/Curly/Square Bracket (Every kind of bracket)
 //----------------------------------------------------------------------------//
 
 #pragma once
 
-#include "Fox/Lexer/Token.hpp"          
+#include "Fox/Lexer/Token.hpp"
 #include "Fox/AST/Type.hpp"
 #include "Fox/AST/Decl.hpp"
 #include "Fox/AST/Expr.hpp"
@@ -31,6 +27,7 @@ namespace fox {
   class DiagnosticEngine;
   class Diagnostic;
   class ASTNode;
+  class Lexer;
   enum class DiagID : std::uint16_t;
   class Parser {
     public:
@@ -56,8 +53,7 @@ namespace fox {
       // Constructor for the Parser. 
       // If you plan to use the parser by calling parseDecl/parseFuncDecl/
       // parseVarDecl directly, you MUST pass a UnitDecl to the constructor.
-      Parser(ASTContext& astctxt, TokenVector& l, 
-        UnitDecl* parentUnit = nullptr);
+      Parser(ASTContext& astctxt, Lexer& lex, UnitDecl* parentUnit = nullptr);
 
 			// Parse a complete Unit
       UnitDecl* parseUnit(FileID fid, Identifier unitName);
@@ -86,8 +82,8 @@ namespace fox {
       // This is a the same as ctxt.sourceMgr
       SourceManager& srcMgr;
 
-      // The vector of tokens being considered by the parser
-      TokenVector& tokens;
+      // The Lexer instance tied to the Parser
+      Lexer& lexer;
 
     private:
       //---------------------------------//
@@ -197,10 +193,6 @@ namespace fox {
       // Returns true if the current token is an identifier
       bool isCurTokAnIdentifier() const;
 
-      //---------------------------------//
-      // Token consumption
-      //---------------------------------//
-
       // Consumes an identifier, returning the Identifier object
       // and the range of the token.
       // The current token must be of the correct kind.
@@ -251,6 +243,13 @@ namespace fox {
       bool resyncTo(const SmallVector<TokenKind, 4>& kinds, bool stopAtSemi,
 				            bool shouldConsumeToken);
       bool resyncToNextDecl();
+
+      //---------------------------------//
+      // Error reporting
+      //---------------------------------//
+
+      TokenVector& getTokens();
+      const TokenVector& getTokens() const;
 
       //---------------------------------//
       // Error reporting
