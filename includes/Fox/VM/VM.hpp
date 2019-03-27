@@ -25,13 +25,15 @@ namespace fox {
     public:
       static constexpr unsigned numStackRegister = 255;
 
-      VM(BCModule& vmModule);
+      VM(BCModule& bcModule);
 
       // Runs the current module
       void run();
 
-      // Returns the current value of the program counter.
-      std::size_t getPC() const;
+      // Returns the program counter as an index in the module's
+      // instruction buffer.
+      std::size_t getPCIndex() const;
+      const Instruction* getPC() const;
 
       ArrayRef<std::uint64_t> getRegisterStack() const;
       MutableArrayRef<std::uint64_t> getRegisterStack();
@@ -91,7 +93,7 @@ namespace fox {
       BCModule& bcModule_;
 
       // The program counter
-      std::uint64_t programCounter_ = 0;
+      const Instruction* programCounter_ = nullptr;
 
       // The registers
       std::array<std::uint64_t, numStackRegister> regStack_;

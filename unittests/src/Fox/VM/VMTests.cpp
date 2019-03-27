@@ -270,7 +270,7 @@ TEST(VMTest, Jumps) {
     // Run the code
     vm.run();
     // Check that the PC ended up where we expected it to.
-    EXPECT_EQ(vm.getPC(), 2u) << "Bad Jump";
+    EXPECT_EQ(vm.getPCIndex(), 2u) << "Bad Jump";
   }
   // Conditional Jump test
   {
@@ -297,7 +297,7 @@ TEST(VMTest, Jumps) {
     // Run the code
     vm.run();
     // Check that the PC ended up where we expected it to.
-    EXPECT_EQ(vm.getPC(), 3u) << "Bad CondJump";
+    EXPECT_EQ(vm.getPCIndex(), 3u) << "Bad CondJump";
   }
 }
 

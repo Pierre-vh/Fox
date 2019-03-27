@@ -10,17 +10,19 @@
 #include "Fox/BC/BCModule.hpp"
 #include "Fox/Common/Errors.hpp"
 #include <cmath>
+#include <iterator>
 
 using namespace fox;
 
-VM::VM(BCModule& vmModule) : bcModule_(vmModule) {}
+VM::VM(BCModule& bcModule) : bcModule_(bcModule) {
+  programCounter_ = bcModule_.getInstructions().begin();
+}
 
 void VM::run() {
   Instruction instr;
-  InstructionBuffer& program = bcModule_.getInstructions();
   do {
     // Fetch the current instruction
-    instr = program[programCounter_];
+    instr = *programCounter_;
     // Macros used to implement repetitive operations
     #define TRIVIAL_TAC_BINOP_IMPL(ID, TYPE, OP)\
       setReg(instr.ID.dest,\
@@ -170,13 +172,13 @@ void VM::run() {
         setReg(instr.LNot.dest, !getReg(instr.LNot.src));
         continue;
       case Opcode::CondJump:
-        // CondJump condReg offset : Add offset (int16) to programCounter 
+        // CondJump condReg offset : Add offset (int16) to pc 
         //    if condReg != 0
         if(getReg(instr.CondJump.condReg) != 0)
           programCounter_ += instr.CondJump.offset;
         continue;
       case Opcode::Jump:
-        // Jump offset: Add offset (int16) to programCounter
+        // Jump offset: Add offset (int16) to pc
         programCounter_ += instr.Jump.offset;
         continue;
       case Opcode::IntToDouble:
@@ -200,7 +202,12 @@ void VM::run() {
   } while(++programCounter_);
 }
 
-std::size_t VM::getPC() const {
+std::size_t VM::getPCIndex() const {
+  const Instruction* beg = bcModule_.getInstructions().begin();
+  return std::distance(beg, programCounter_);
+}
+
+const Instruction* VM::getPC() const {
   return programCounter_;
 }
 
