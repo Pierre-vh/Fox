@@ -1,0 +1,21 @@
+// RUN: %fox-verify
+
+func foo() {
+    '\0';
+    '\r';
+    '\n';
+    '\t';
+    '\'';
+    '\"';
+    '\\';
+    "\"\'";
+    '';       // expect-error: empty character literal
+    'foo';    // expect-error: char literal may only contain a single codepoint
+    "\0\r\n\t\\\'\"";
+    "";
+    "\k";     // expect-error: unknown escape sequence '\k' 
+    ' ';
+    '\z';     // expect-error: unknown escape sequence '\z' 
+    '\zzz';   // expect-error: unknown escape sequence '\z' 
+              // expect-error@-1: char literal may only contain a single codepoint
+}
