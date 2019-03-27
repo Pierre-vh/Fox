@@ -125,14 +125,10 @@ namespace {
   }
 }
 
-std::string Parser::normalizeString(string_view str, char delimiter) {
-  assert((str.size() >= 2) 
-      && (str.front() == delimiter) 
-      && (str.back() == delimiter)
-      && "String does not contain the delimiter");
+std::string Parser::normalizeString(string_view str) {
   // Remove the delimiters
-  // If the string has 2 only characters, that means it's empty so return it 
-  // directly.
+  // If the string has 2 only characters, that means it's empty 
+  // (there's only the delimiters)
   if (str.size() == 2) return "";
   // Else remove the delimiters
   str = str.substr(1, str.size()-2);
@@ -206,8 +202,11 @@ Parser::createStringLiteralExprFromToken(const Token& tok) {
   // <string_literal> = '"' {<string_item>} '"'
   assert(tok.is(TokenKind::StringLiteral)
     && "incorrect token kind");
+  assert((tok.str.size() >= 2) && (tok.str.front() == '"')
+    && (tok.str.back() == '"') 
+    && "ill-formed StringLiteral token");
   // Normalize the string
-  std::string normalized = normalizeString(tok.str, '"');
+  std::string normalized = normalizeString(tok.str);
   string_view str;
   // If it's not empty, allocate a copy of it in the ASTContext.
   if(normalized.size()) str = ctxt.allocateCopy(normalized);
@@ -220,8 +219,11 @@ Parser::createCharLiteralExprFromToken(const Token& tok) {
   // <char_literal> = ''' {<char_item>} '''
   assert(tok.is(TokenKind::CharLiteral)
     && "incorrect token kind");
+  assert((tok.str.size() >= 2) && (tok.str.front() == '\'')
+    && (tok.str.back() == '\'') 
+    && "ill-formed CharLiteral token");
   // Normalize the string
-  std::string normalized = normalizeString(tok.str, '\'');
+  std::string normalized = normalizeString(tok.str);
   const auto normBeg = normalized.begin();
   const auto normEnd = normalized.end();
   // Check that the size is acceptable

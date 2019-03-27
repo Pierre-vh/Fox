@@ -91,8 +91,8 @@ namespace fox {
       //---------------------------------//
 
       // Normalizes the literal "str". 
-      //  1) Removes the delimiter "delimiter". It must be present
-      //     at the front and back of the string.
+      //  1) Removes the delimiter 
+      //      (remove the first and last char of the string)
       //  2) Replaces valid escape sequences with the correct character
       //      '\' + 'n' becomes \n
       //      '\' + 'r' becomes \r
@@ -103,7 +103,7 @@ namespace fox {
       //      '\' + '0' becomes 0
       //  This method will also diagnose invalid escape sequences
       //  and ignore them.
-      std::string normalizeString(string_view str, char delimiter);
+      std::string normalizeString(string_view str);
 
       // Creates a string literal from a "DoubleQuoteText" token.
       StringLiteralExpr* createStringLiteralExprFromToken(const Token& tok);
