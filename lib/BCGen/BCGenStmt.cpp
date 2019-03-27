@@ -63,22 +63,21 @@ class BCGen::StmtGenerator : public Generator,
         fox_unreachable("Unknown ASTNode kind");
     }
 
-    // This calculates the offset needed to jump to the first
-    // instruction after 'last'. It also checks that the jump
-    // offset isn't too large.
-    jump_offset_t calculateJumpOffset(BCModule::instr_iterator first,
-                                      BCModule::instr_iterator last) {
-      if(first == last) 
+    // This calculates the offset needed to jump from 'a' to 'b' so
+    // 'b' is the next instruction that will be executed.
+    jump_offset_t calculateJumpOffset(BCModule::instr_iterator a,
+                                      BCModule::instr_iterator b) {
+      if(a == b) 
         return 0;
 
       bool isNegative = false;
-      if (last < first) {
-        std::swap(first, last);
+      if (b < a) {
+        std::swap(a, b);
         isNegative = true;
       }
 
-      // Calculate the distance between the first and the last iterator
-      auto diff = distance(first, last);
+      // Calculate the distance between the a and the b iterator
+      auto diff = distance(a, b);
 
       // TODO: Replace this assertion by a proper 'fatal' diagnostic explaining
       // the problem. Maybe pass a lambda 'onOutOfRange' as parameter to
@@ -136,7 +135,7 @@ class BCGen::StmtGenerator : public Generator,
         bool isElseEmpty = false;
         if(isThenEmpty) {
           // Since 'jumpIfNot' has been removed, condJump should
-          // be the last instruction we have emitted.
+          // be the b instruction we have emitted.
           assert(builder.isLastInstr(condJump));
           // Gen the 'else'
           visit(elseBody);
@@ -157,7 +156,7 @@ class BCGen::StmtGenerator : public Generator,
           visit(elseBody);
           // Check if we have generated something.
           isElseEmpty = builder.isLastInstr(jumpEnd);
-          // complete 'jumpEnd' so it jumps to the last instruction emitted.
+          // complete 'jumpEnd' so it jumps to the b instruction emitted.
           jumpEnd->Jump.offset = calculateJumpOffset(jumpEnd, 
                                                      builder.getLastInstr());
         }
@@ -173,7 +172,7 @@ class BCGen::StmtGenerator : public Generator,
         // related to the then/else, so only the condition's code is left.
         if (isThenEmpty) 
           builder.truncate_instrs(condJump);
-        // Else, complete 'jumpToElse' to jump after the last instr emitted.
+        // Else, complete 'jumpToElse' to jump after the b instr emitted.
         else 
           jumpIfNot->Jump.offset = calculateJumpOffset(jumpIfNot, 
                                                        builder.getLastInstr());
