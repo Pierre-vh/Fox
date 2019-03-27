@@ -11,19 +11,19 @@
 using namespace fox;
 
 std::size_t BCModule::numInstructions() const {
-  return getInstructionBuffer().size();
+  return getInstructions().size();
 }
 
-InstructionBuffer& BCModule::getInstructionBuffer() {
+InstructionBuffer& BCModule::getInstructions() {
   return instrBuffer_;
 }
 
-const InstructionBuffer& BCModule::getInstructionBuffer() const {
+const InstructionBuffer& BCModule::getInstructions() const {
   return instrBuffer_;
 }
 
 void BCModule::dumpModule(std::ostream& out) const {
-  dumpInstructions(out, getInstructionBuffer());
+  dumpInstructions(out, getInstructions());
 }
 
 BCModule::instr_iterator BCModule::instrs_begin() {
@@ -55,7 +55,7 @@ BCModule::instr_iterator::operator=(const BCModule::instr_iterator& other) {
 }
 
 BCModule::instr_iterator& BCModule::instr_iterator::operator++() {
-  assert((idx_ < bcModule_.get().getInstructionBuffer().size()) 
+  assert((idx_ < bcModule_.get().getInstructions().size()) 
     && "Incrementing a past-the-end iterator");
   ++idx_;
   return *this;

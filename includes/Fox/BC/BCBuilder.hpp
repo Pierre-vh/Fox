@@ -22,9 +22,6 @@ namespace fox {
       // The type of an interator of instructions
       using instr_iterator = BCModule::instr_iterator;
 
-      // The type of an instruction buffer.
-      using Buffer = InstructionBuffer;
-
       BCModuleBuilder();
       ~BCModuleBuilder();
 

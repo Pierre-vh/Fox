@@ -17,7 +17,7 @@ VM::VM(BCModule& vmModule) : bcModule_(vmModule) {}
 
 void VM::run() {
   Instruction instr;
-  InstructionBuffer& program = bcModule_.getInstructionBuffer();
+  InstructionBuffer& program = bcModule_.getInstructions();
   do {
     // Fetch the current instruction
     instr = program[programCounter_];

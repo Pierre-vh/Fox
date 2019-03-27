@@ -49,7 +49,7 @@ TEST(InstructionDumpTest, DumpInstructionsTest) {
   builder.createStoreSmallIntInstr(0, -4242);
   builder.createJumpInstr(-30000);;
   // Check that we have the correct number of instructions
-  InstructionBuffer& instrs = builder.getModule().getInstructionBuffer();
+  InstructionBuffer& instrs = builder.getModule().getInstructions();
   ASSERT_EQ(instrs.size(), 5u) << "Broken BCModuleBuilder?";
   // Dump to a stringstream
   std::stringstream ss;

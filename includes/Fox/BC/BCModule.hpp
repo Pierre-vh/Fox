@@ -32,10 +32,10 @@ namespace fox {
       std::size_t numInstructions() const;
 
       // Returns a reference to the instruction buffer
-      InstructionBuffer& getInstructionBuffer();
+      InstructionBuffer& getInstructions();
 
       // Returns a constant reference to the instruction buffer
-      const InstructionBuffer& getInstructionBuffer() const;
+      const InstructionBuffer& getInstructions() const;
 
       // Dumps the module to 'out'
       void dumpModule(std::ostream& out) const;

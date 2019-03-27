@@ -64,7 +64,7 @@ bool BCModuleBuilder::isLastInstr(instr_iterator it) const {
 }
 
 void BCModuleBuilder::popInstr() {
-  getModule().getInstructionBuffer().pop_back();
+  getModule().getInstructions().pop_back();
 }
 
 std::unique_ptr<BCModule> BCModuleBuilder::takeModule() {
@@ -82,9 +82,9 @@ const BCModule& BCModuleBuilder::getModule() const {
 }
 
 InstructionBuffer& BCModuleBuilder::getInstrBuffer() {
-  return getModule().getInstructionBuffer();
+  return getModule().getInstructions();
 }
 
 const InstructionBuffer& BCModuleBuilder::getInstrBuffer() const {
-  return getModule().getInstructionBuffer();
+  return getModule().getInstructions();
 }
