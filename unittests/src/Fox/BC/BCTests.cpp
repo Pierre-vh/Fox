@@ -151,7 +151,7 @@ TEST(BCBuilderTest, createdInstrIterators) {
   auto end = ++BCModule::instr_iterator(last);
   EXPECT_EQ(end, theModule.instrs_end());
   // last should be equal to back
-  EXPECT_EQ(last, theModule.instrs_back());
+  EXPECT_EQ(last, theModule.instrs_last());
   // last should be equal to --end
   EXPECT_EQ(last, --theModule.instrs_end());
 }
@@ -184,7 +184,7 @@ TEST(BCModuleTest, instr_iterator) {
   // Check that it == end
   ASSERT_EQ(it, theModule.instrs_end());
   // Check that --it == back
-  ASSERT_EQ(--it, theModule.instrs_back());
+  ASSERT_EQ(--it, theModule.instrs_last());
   // Check that .back is indeed AddDouble
-  ASSERT_EQ(theModule.instrs_back()->opcode, Opcode::AddDouble);
+  ASSERT_EQ(theModule.instrs_last()->opcode, Opcode::AddDouble);
 }

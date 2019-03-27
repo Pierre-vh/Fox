@@ -34,13 +34,13 @@ BCModule::instr_iterator BCModule::instrs_end() {
   return instr_iterator(*this, instrBuffer_.size());
 }
 
-BCModule::instr_iterator BCModule::instrs_back() {
+BCModule::instr_iterator BCModule::instrs_last() {
   return instr_iterator(*this, instrBuffer_.size()-1);
 }
 
 BCModule::instr_iterator BCModule::addInstr(Instruction instr) {
   instrBuffer_.push_back(instr);
-  return instrs_back();
+  return instrs_last();
 }
 
 //----------------------------------------------------------------------------//

@@ -42,11 +42,11 @@ namespace fox {
 
       // Returns an iterator to the first instruction in this module
       instr_iterator instrs_begin();
-      // Returns an iterator to the last instruction in this module
-      instr_iterator instrs_end();
       // Returns a past-the-end iterator for this module's instruction buffer
       // This iterator is invalidated on insertion
-      instr_iterator instrs_back();
+      instr_iterator instrs_end();
+      // Returns an iterator to the last instruction in this module
+      instr_iterator instrs_last();
 
     private:
       friend class BCModuleBuilder;

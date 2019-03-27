@@ -38,14 +38,10 @@ namespace fox {
         BCModule::instr_iterator create##ID##Instr();
       #include "Instruction.def"
 
-      // Returns an iterator to the last instruction inserted
-      // in this vector.
-      instr_iterator getLastInstr();
-
       // Erases all instructions in the range [beg, end)
       void truncate_instrs(instr_iterator beg);
 
-      // Returns true if 'it' == instrs_back().
+      // Returns true if 'it' == instrs_last().
       bool isLastInstr(instr_iterator it) const;
 
       // Removes the last instruction added to this module.

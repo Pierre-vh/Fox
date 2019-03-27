@@ -143,7 +143,7 @@ class BCGen::StmtGenerator : public Generator,
           // to skip the else's code.
           isElseEmpty = builder.isLastInstr(condJump);
           auto off = calculateJumpOffset(condJump, 
-                                         builder.getLastInstr());
+                                         theModule.instrs_last());
           condJump->CondJump.offset = off;
         }
         else {
@@ -158,7 +158,7 @@ class BCGen::StmtGenerator : public Generator,
           isElseEmpty = builder.isLastInstr(jumpEnd);
           // complete 'jumpEnd' so it jumps to the b instruction emitted.
           jumpEnd->Jump.offset = calculateJumpOffset(jumpEnd, 
-                                                     builder.getLastInstr());
+                                                     theModule.instrs_last());
         }
 
         // If both the 'then' and the 'else' were empty, remove everything after
@@ -175,7 +175,7 @@ class BCGen::StmtGenerator : public Generator,
         // Else, complete 'jumpToElse' to jump after the b instr emitted.
         else 
           jumpIfNot->Jump.offset = calculateJumpOffset(jumpIfNot, 
-                                                       builder.getLastInstr());
+                                                       theModule.instrs_last());
       }
     }
 
