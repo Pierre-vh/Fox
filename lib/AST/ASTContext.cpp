@@ -64,8 +64,9 @@ Identifier ASTContext::getIdentifier(string_view str) {
 
 string_view ASTContext::allocateCopy(string_view str) {
   std::size_t size = str.size();
+  assert(size > 0 && "string is empty");
   const char* const buffer = str.data();
-  void* const mem = permaAllocator_.allocate(size, alignof(char));
+  void* const mem = permaAllocator_.allocate(size);
   std::memcpy(mem, buffer, size);
   return string_view(static_cast<char*>(mem), size);
 }
