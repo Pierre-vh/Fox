@@ -12,9 +12,10 @@ Fox Grammar version 0.16
 <identifier>        = <identifier_head> {<identifier_char>}
 // literals
 <escape_seq>        = '\' ('n' | 'r' | 't' | '\' | ''' | '"' | '0')
-<char_item>         = A single unicode character except CR or LF | <escape_seq> 
-<char_literal>      = ''' <char_item> '''
-<string_literal>    = '"' {<char_item>} '"'
+<string_item>       = Any character except the double quote ", backslash or newline character | <escape_seq> 
+<string_literal>    = '"' {<string_item>} '"'
+<char_item>         = Any character except the single quote ', backslash or newline character | <escape_seq> 
+<char_literal>      = ''' {<char_item>} '''
 <float_literal>     = <int_literal> '.' <int_literal>
 <int_literal>       = {(Digit 0 through 9)}
 <bool_literal>      = "true" | "false"

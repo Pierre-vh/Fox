@@ -19,7 +19,6 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
   assert(base && "Base cannot be nullptr!");
 
   // <suffix> = '.' <id> | '[' <expr> ']' | <parens_expr_list>
-
   SourceLoc endLoc;
 
   // "." <id> 
@@ -141,6 +140,7 @@ std::string Parser::normalizeString(string_view str, char delimiter) {
   // characters.
   std::string normalized;
   for (auto it = str.begin(), end = str.end(); it != end; ++it) {
+    // <escape_seq> = '\' ('n' | 'r' | 't' | '\' | ''' | '"' | '0')
     if ((*it) == '\\') {
       // Save the loc of the backslash
       const char* backslashPtr = it;
@@ -203,7 +203,8 @@ std::string Parser::normalizeString(string_view str, char delimiter) {
 
 StringLiteralExpr*
 Parser::createStringLiteralExprFromToken(const Token& tok) {
-  assert(tok.is(TokenKind::DoubleQuoteText)
+  // <string_literal> = '"' {<string_item>} '"'
+  assert(tok.is(TokenKind::StringLiteral)
     && "incorrect token kind");
   // Normalize the string
   std::string normalized = normalizeString(tok.str, '"');
@@ -216,7 +217,8 @@ Parser::createStringLiteralExprFromToken(const Token& tok) {
 
 Expr* 
 Parser::createCharLiteralExprFromToken(const Token& tok) {
-  assert(tok.is(TokenKind::SingleQuoteText)
+  // <char_literal> = ''' {<char_item>} '''
+  assert(tok.is(TokenKind::CharLiteral)
     && "incorrect token kind");
   // Normalize the string
   std::string normalized = normalizeString(tok.str, '\'');
@@ -257,10 +259,10 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   else if (tok.is(TokenKind::FalseKw))
     expr = BoolLiteralExpr::create(ctxt, false, range);
   // <string_literal> = '"' {<char_item>} '"'
-  else if (tok.is(TokenKind::DoubleQuoteText))
+  else if (tok.is(TokenKind::StringLiteral))
     expr = createStringLiteralExprFromToken(tok);
   // <char_literal> = ''' <char_item> '''
-  else if (tok.is(TokenKind::SingleQuoteText))
+  else if (tok.is(TokenKind::CharLiteral))
     expr = createCharLiteralExprFromToken(tok);
   // <int_literal> = {(Digit 0 through 9)}
   else if (tok.is(TokenKind::IntConstant))

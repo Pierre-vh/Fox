@@ -86,14 +86,15 @@ namespace fox {
       void lexIdentifierOrKeyword();
       // Lex an int or double literal
       void lexIntOrDoubleConstant();
-      // Lex any number of char items until we find a char that can't be
-      // a char item, or if we find the (unescaped) delimiter or EOF.
-      // Returns true if the delimiter was found
-      bool lexCharItems(FoxChar delimiter);
+      /// Lex any number of text items (a string_item or char_item,
+      /// depending on \p delimiter)
+      /// \p delimiter The delimiter. Can only be ' or ".
+      /// \return true if the delimiter was found, false otherwise
+      bool lexTextItems(FoxChar delimiter);
       // Lex a piece of text delimited by single quotes '
-      void lexSingleQuoteText();
+      void lexCharLiteral();
       // Lex a piece of text delimited by double quotes "
-      void lexDoubleQuoteText();
+      void lexStringLiteral();
       // Lex an integer literal
       void lexIntConstant();
 

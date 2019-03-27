@@ -241,10 +241,10 @@ void Lexer::lexImpl() {
         break;
       // Single/Double quote text
       case '\'':
-        lexSingleQuoteText();
+        lexCharLiteral();
         break;
       case '"':
-        lexDoubleQuoteText();
+        lexStringLiteral();
         break;
       // Numbers/literals
       case '0': 
@@ -297,7 +297,17 @@ void Lexer::lexIntOrDoubleConstant() {
     pushTok(TokenKind::IntConstant);
 }
 
-bool Lexer::lexCharItems(FoxChar delimiter) {
+// <string_item>    = Any character except the double quote ", backslash or newline character | <escape_seq> 
+// <string_literal> = '"' {<string_item>} '"'
+// <char_item>      = Any character except the single quote ', backslash or newline character | <escape_seq> 
+// <char_literal>   = ''' {<char_item>} '''
+//
+// The only difference between <char_item> and <string_item> is 
+// the forbidden delimiter, that's why there's a single method
+// for both (because the lexing logic is mostly the same)
+bool Lexer::lexTextItems(FoxChar delimiter) {
+  assert(((delimiter == '\'') || (delimiter == '"'))
+    && "unknown/unsupported delimiter");
   assert((getCurChar() == delimiter)
     && "current char is not the delimiter!");
   FoxChar cur;
@@ -328,33 +338,34 @@ bool Lexer::lexCharItems(FoxChar delimiter) {
   }
 }
 
-void Lexer::lexSingleQuoteText() {
+void Lexer::lexCharLiteral() {
   assert((getCurChar() == '\'') && "not a quote");
+  // <char_literal> = ''' {<char_item>} '''
   resetToken();
   // Lex the body of the literal
-  bool foundDelimiter = lexCharItems('\'');
+  bool foundDelimiter = lexTextItems('\'');
   // Check if we were successful.
   if (foundDelimiter) {
     assert((getCurChar() == '\'') 
       && "Found the delimiter but the current char is not the delimiter?");
     // Push the token
-    pushTok(TokenKind::SingleQuoteText);
+    pushTok(TokenKind::CharLiteral);
     return;
   }
   diagEngine.report(DiagID::unterminated_char_lit, getCurtokBegLoc());
 }
 
-void Lexer::lexDoubleQuoteText() {
+void Lexer::lexStringLiteral() {
   assert((getCurChar() == '"') && "not a double quote");
   resetToken();
   // Lex the body of the literal
-  bool foundDelimiter = lexCharItems('"');
+  bool foundDelimiter = lexTextItems('"');
   // Check if we were successful.
   if (foundDelimiter) {
     assert((getCurChar() == '"') 
       && "Found the delimiter but the current char is not the delimiter?");
     // Push the token
-    pushTok(TokenKind::DoubleQuoteText);
+    pushTok(TokenKind::StringLiteral);
     return;
   }
   diagEngine.report(DiagID::unterminated_str_lit, getCurtokBegLoc());
@@ -403,7 +414,7 @@ void Lexer::skipBlockComment() {
 bool Lexer::canBeCharItem(FoxChar c) const {
   switch (c) {
     // Newlines are forbidden
-    case '\n': case '\r':
+    case '\n':
       return false;
     default:
       return true;

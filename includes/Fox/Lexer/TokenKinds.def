@@ -27,13 +27,11 @@ TOKEN(Invalid)
 // Identifier
 TOKEN(Identifier)
 
-// Constants
+// Constants & Literals
 TOKEN(IntConstant)
 TOKEN(DoubleConstant)
-
-// Text
-TOKEN(SingleQuoteText)
-TOKEN(DoubleQuoteText)
+TOKEN(CharLiteral)
+TOKEN(StringLiteral)
 
 // Punctuators : Signs
 PUNCTUATOR(Equal)         // =
