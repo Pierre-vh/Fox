@@ -78,7 +78,7 @@ bool Driver::processFile(string_view filepath) {
 
   // Dump alloc if needed
   if (getDumpAlloc()) {
-    out << "\nDumping allocator:\n";
+    out << "Allocator Dump:\n";
     ctxt_.dumpAllocator();
   }
  
@@ -90,8 +90,8 @@ bool Driver::processFile(string_view filepath) {
 
   // Dump AST if needed, and if the unit isn't null
   if (unit && getDumpAST()) {
-    auto chrono = createChrono("AST Printing");
-    out << "\nAST Printing:\n";
+    auto chrono = createChrono("ASTDumper");
+    out << "AST Dump:\n";
     ASTDumper(srcMgr_, out, 1).print(unit);
   }
 
@@ -117,7 +117,7 @@ bool Driver::processFile(string_view filepath) {
 
   // Release the memory of the AST
   {
-    auto chrono = createChrono("Release");
+    auto chrono = createChrono("AST Release");
     ctxt_.reset();
   }
 
