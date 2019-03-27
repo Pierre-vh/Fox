@@ -122,6 +122,7 @@ namespace fox {
       LLVM_ATTRIBUTE_RETURNS_NONNULL 
       LLVM_ATTRIBUTE_RETURNS_NOALIAS 
       void* allocate(size_type size, align_type align = 1) {
+        assert((size > 0) && "allocating an object of size 0");
         // The size of the allocation + some spare size for padding that might
         // be needed.
         auto paddedSize = size + (align - 1);
