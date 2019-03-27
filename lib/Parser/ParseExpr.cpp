@@ -6,9 +6,11 @@
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTContext.hpp"
-#include "Fox/Parser/Parser.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include "Fox/Common/StringManipulator.hpp"
+#include "Fox/Lexer/Lexer.hpp"
+#include "Fox/Parser/Parser.hpp"
+#include "utfcpp/utf8.hpp"
 #include <sstream>
 
 using namespace fox;
@@ -97,26 +99,6 @@ Parser::Result<Expr*> Parser::parseDeclRef() {
 }
 
 namespace {
-  string_view tokToStringLit(Token tok) {
-    // <string_literal> = '"' {<char_item>} '"'
-    // FIXME: Normalize string literals here.
-    string_view str = tok.str;
-    assert((str.front() == '"') && (str.back() == '"') 
-      && "unhandled string literal token string");
-    return str.substr(1, str.size()-2);
-  }
-
-  FoxChar tokToCharLit(Token tok) {
-    // <char_literal> = ''' <char_item> '''
-    // FIXME: Normalize char literal here, handle empty char literals
-    // and the ones that are too long.
-    string_view str = tok.str;
-    assert((str.front() == '\'') && (str.back() == '\'') 
-      && "unhandled char literal token string");
-    StringManipulator manip(str);
-    return manip.getChar(1);
-  }
-
   // Tries to convert a token to an int literal.
   // If cannot be converted to a int (because it's too large)
   FoxInt tokToIntLit(DiagnosticEngine& engine, Token tok) { 
@@ -144,6 +126,121 @@ namespace {
   }
 }
 
+std::string Parser::normalizeString(string_view str, char delimiter) {
+  assert((str.size() >= 2) 
+      && (str.front() == delimiter) 
+      && (str.back() == delimiter)
+      && "String does not contain the delimiter");
+  // Remove the delimiters
+  // If the string has 2 only characters, that means it's empty so return it 
+  // directly.
+  if (str.size() == 2) return "";
+  // Else remove the delimiters
+  str = str.substr(1, str.size()-2);
+  // Normalize the string, converting all escape sequences to the correct
+  // characters.
+  std::string normalized;
+  for (auto it = str.begin(), end = str.end(); it != end; ++it) {
+    if ((*it) == '\\') {
+      // Save the loc of the backslash
+      const char* backslashPtr = it;
+      // Advance and save the loc of the escape character
+      const char* escapeCharPtr = ++it;
+      // If we have an escape character, we should always have something
+      // after it. If we don't, that means that the lexer considered
+      // an escaped delimiter (such as \') as the end of the lexer.
+      // (and that'd be a bug)
+      assert((it != end) && "unfinished escape sequences");
+      switch (*it) {
+        // \0 becomes 0
+        case '0':
+          normalized.push_back(0);
+          break;
+        // \n becomes LF
+        case 'n':
+          normalized.push_back('\n');
+          break;
+        // \r becomes CR
+        case 'r':
+          normalized.push_back('\r');
+          break;
+        // \t becomes TAB
+        case 't':
+          normalized.push_back('\t');
+          break;
+        // \\ becomes a single backslash
+        case '\\':
+          normalized.push_back('\\');
+          break;
+        // \' becomes '
+        case '\'':
+          normalized.push_back('\'');
+          break;
+        // \" becomes "
+        case '"':
+          normalized.push_back('"');
+          break;
+        // Else this escape sequence is not valid, diagnose and
+        // ignore it.
+        default:
+          SourceLoc loc = lexer.getLocFromPtr(backslashPtr);
+          SourceLoc extra = lexer.getLocFromPtr(escapeCharPtr);
+          diagEngine
+            .report(DiagID::invalid_escape_seq, loc)
+            .setExtraRange(SourceRange(extra))
+            .addArg(string_view(backslashPtr, 2));
+          break;
+      }
+    }
+    else
+      normalized.push_back(*it);
+  }
+  return normalized;
+}
+
+StringLiteralExpr*
+Parser::createStringLiteralExprFromToken(const Token& tok) {
+  assert(tok.is(TokenKind::DoubleQuoteText)
+    && "incorrect token kind");
+  // Normalize the string
+  std::string normalized = normalizeString(tok.str, '"');
+  string_view str;
+  // If it's not empty, allocate a copy of it in the ASTContext.
+  if(normalized.size()) str = ctxt.allocateCopy(normalized);
+  // Create the node and return it.
+  return StringLiteralExpr::create(ctxt, str, tok.range);
+}
+
+Expr* 
+Parser::createCharLiteralExprFromToken(const Token& tok) {
+  assert(tok.is(TokenKind::SingleQuoteText)
+    && "incorrect token kind");
+  // Normalize the string
+  std::string normalized = normalizeString(tok.str, '\'');
+  const auto normBeg = normalized.begin();
+  const auto normEnd = normalized.end();
+  // Check that the size is acceptable
+  std::size_t numCPs = utf8::distance(normBeg, normEnd);
+  Expr* theExpr = nullptr;
+  // A Char literal cannot be empty
+  if (numCPs == 0) {
+    diagEngine.report(DiagID::empty_char_lit, tok.range);
+    theExpr = ErrorExpr::create(ctxt);
+  }
+  // A Char literal cannot contain more than one codepoint
+  else if (numCPs > 1) {
+    diagEngine.report(DiagID::multiple_cp_in_char_lit, tok.range);
+    theExpr = ErrorExpr::create(ctxt);
+  }
+  // Else we're good, create a valid CharLiteralExpr.
+  else {
+    FoxChar theChar = static_cast<FoxChar>(utf8::peek_next(normBeg, normEnd));
+    theExpr = CharLiteralExpr::create(ctxt, theChar, tok.range);
+  }
+  assert(theExpr && "Return Expr is nullptr");
+  return theExpr;
+}
+
 Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   // <primitive_literal>  = One literal of the following type : Integer,
   //                        Floating-point, Boolean, String, Char
@@ -157,14 +254,11 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   else if (tok.is(TokenKind::FalseKw))
     expr = BoolLiteralExpr::create(ctxt, false, range);
   // <string_literal> = '"' {<char_item>} '"'
-  else if (tok.is(TokenKind::DoubleQuoteText)) {
-    // The token class has already allocated of the string in the ASTContext,
-    // so it's safe to use the string_view given by getStringValue
-    expr = StringLiteralExpr::create(ctxt, tokToStringLit(tok), range);
-  }
+  else if (tok.is(TokenKind::DoubleQuoteText))
+    expr = createStringLiteralExprFromToken(tok);
   // <char_literal> = ''' <char_item> '''
   else if (tok.is(TokenKind::SingleQuoteText))
-    expr = CharLiteralExpr::create(ctxt, tokToCharLit(tok), range);
+    expr = createCharLiteralExprFromToken(tok);
   // <int_literal> = {(Digit 0 through 9)}
   else if (tok.is(TokenKind::IntConstant))
     expr = IntegerLiteralExpr::create(ctxt, 

@@ -90,6 +90,28 @@ namespace fox {
       // Expression parsing helpers
       //---------------------------------//
 
+      // Normalizes the literal "str". 
+      //  1) Removes the delimiter "delimiter". It must be present
+      //     at the front and back of the string.
+      //  2) Replaces valid escape sequences with the correct character
+      //      '\' + 'n' becomes \n
+      //      '\' + 'r' becomes \r
+      //      '\' + 't' becomes \t
+      //      '\' + ''' becomes '
+      //      '\' + '"' becomes "
+      //      '\' + '\' becomes \
+      //      '\' + '0' becomes 0
+      //  This method will also diagnose invalid escape sequences
+      //  and ignore them.
+      std::string normalizeString(string_view str, char delimiter);
+
+      // Creates a string literal from a "DoubleQuoteText" token.
+      StringLiteralExpr* createStringLiteralExprFromToken(const Token& tok);
+
+      // Attempts to create a char literal from a "SingleQuoteText" token.
+      // Returns ErrorExpr on error, never nullptr.
+      Expr* createCharLiteralExprFromToken(const Token& tok);
+
       // Parses a list of expressions
       Result<ExprVector> parseExprList();
 
