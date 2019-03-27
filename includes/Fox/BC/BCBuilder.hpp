@@ -46,7 +46,7 @@ namespace fox {
       void truncate_instrs(instr_iterator beg);
 
       // Returns true if 'it' == instrs_back().
-      bool isLastInstr(const instr_iterator it) const;
+      bool isLastInstr(instr_iterator it) const;
 
       // Removes the last instruction added to this module.
       void popInstr();
