@@ -16,18 +16,34 @@
 namespace fox {
   class DiagnosticEngine;
   class SourceManager;
+
+  // Lexer
+  //    The Fox Lexer. An instance of the lexer is tied to a SourceFile 
+  //    (FileID). The lexing process can be initiated by calling lex(), and
+  //    the resulting tokens will be found in the token vector returned by
+  //    getTokens()
   class Lexer  {
     public:
-      Lexer(SourceManager& srcMgr, DiagnosticEngine& diags);
+      Lexer(SourceManager& srcMgr, DiagnosticEngine& diags, FileID file);
 
-      void lexFile(FileID file);
+      // Lex the full file
+      void lex();
   
+      // Return the tokens
       TokenVector& getTokens();
+
+      // Returns the number of tokens in the vector
       std::size_t numTokens() const;  
 
       DiagnosticEngine& diagEngine;
       SourceManager& sourceMgr;
+      const FileID theFile;
 
+      // The Lexer should be movable but not copyable.
+      Lexer(const Lexer&) = delete;
+      Lexer& operator=(const Lexer&) = delete;
+      Lexer(Lexer&&) = default;
+      Lexer& operator=(Lexer&&) = default;
     private:
       // Pushes the current token with the kind "kind"
       void pushTok(TokenKind kind);
@@ -46,7 +62,7 @@ namespace fox {
       void resetToken();
 
       // Entry point of the lexing process
-      void lex();
+      void lexImpl();
 
       // Lex an identifier or keyword
       void lexIdentifierOrKeyword();
@@ -90,8 +106,6 @@ namespace fox {
       SourceLoc getCurtokBegLoc() const;
       SourceRange getCurtokRange() const;
       string_view getCurtokStringView() const;
-
-      FileID fileID_;
 
       const char* fileBeg_  = nullptr;
       const char* fileEnd_ = nullptr;

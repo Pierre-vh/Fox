@@ -55,21 +55,20 @@ void Token::dump(std::ostream& out) const {
 // Lexer
 //----------------------------------------------------------------------------//
 
-Lexer::Lexer(SourceManager& srcMgr, DiagnosticEngine& diags): 
-  diagEngine(diags), sourceMgr(srcMgr) {}
+Lexer::Lexer(SourceManager& srcMgr, DiagnosticEngine& diags, FileID file) : 
+  theFile(file), diagEngine(diags), sourceMgr(srcMgr) {
+  assert(theFile && "File isn't valid!");
+}
 
-void Lexer::lexFile(FileID file) {
-  assert(file 
-    && "invalid FileID!");
+void Lexer::lex() {
   assert((tokens_.size() == 0) 
-    && "There are tokens left in the token vector!");
-  fileID_ = file;
-  string_view content = sourceMgr.getFileContent(file);
+    && "There are tokens in the token vector!");
+  string_view content = sourceMgr.getFileContent(theFile);
   // init the iterator/pointers
   fileBeg_ = tokBegPtr_ = curPtr_ = content.begin();
   fileEnd_ = content.end();
   // lex
-  lex();
+  lexImpl();
 }
 
 TokenVector& Lexer::getTokens() {
@@ -104,7 +103,7 @@ void Lexer::resetToken() {
   tokBegPtr_ = curPtr_;
 }
 
-void Lexer::lex() {
+void Lexer::lexImpl() {
   FoxChar cur;
   while(!isEOF()) {
     cur = getCurChar();
@@ -432,7 +431,7 @@ bool Lexer::advance() {
 }
 
 SourceLoc Lexer::getLocOfPtr(const char* ptr) const {
-  return SourceLoc(fileID_, std::distance(fileBeg_, ptr));
+  return SourceLoc(theFile, std::distance(fileBeg_, ptr));
 }
 
 SourceLoc Lexer::getCurPtrLoc() const {
