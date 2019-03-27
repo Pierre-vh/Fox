@@ -168,14 +168,14 @@ class BCGen::StmtGenerator : public Generator,
         // If both the 'then' and the 'else' were empty, remove everything after
         // (and including) the CondJump so only the condition's code is left.
         if (isThenEmpty && isElseEmpty)
-          theModule.erase(condJump, theModule.instrs_end());
+          theModule.truncate_instrs(condJump);
       }
       // No 'else' statement
       else {
         // If the 'then' was empty too, remove all of the code we've generated
         // related to the then/else, so only the condition's code is left.
         if (isThenEmpty) 
-          theModule.erase(condJump, theModule.instrs_end());
+          theModule.truncate_instrs(condJump);
         // Else, complete 'jumpToElse' to jump after the last instr emitted.
         else 
           jumpIfNot->Jump.offset = calculateJumpOffset(jumpIfNot, 

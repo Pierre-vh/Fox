@@ -41,7 +41,7 @@ namespace fox {
       void dumpModule(std::ostream& out) const;
 
       // Erases all instructions in the range [beg, end)
-      void erase(instr_iterator beg, instr_iterator end);
+      void truncate_instrs(instr_iterator beg);
 
       // Returns true if 'it' == instrs_back().
       bool isLastInstr(instr_iterator it) const;
