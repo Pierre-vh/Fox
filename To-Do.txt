@@ -148,27 +148,15 @@ To-Do:
   > Purge the codebase of trivial getters and setters of references (Done)
   > Move TypeWalker/TypeVisitor out of ASTWalker.hpp/ASTVisitor.hpp in their own files (Done)
   > Make TypeBase::isXXXType see through LValues (Done)
+  > Lexer Rework (Done)
+  > String Normalization (Done)
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
-  > Lexer Rework:
-    > Finish lexer implementation first, make all tests pass again. (Done)
-    > Rename Token kinds CharLiteral and StringLiteral to 
-      SingleQuoteTextLiteral and DoubleQuoteTextLiteral (Done)
-    > Merge Token::Kind, KeywordType and SignType in a new TokenKind enum (Done)
-    > Update parser methods (Done)
-    > Change diagnostic to also use brace/bracket/paren instead of round/square/curly brackets (Done)
-
-    > Implement Char/String normalization in the parser (Now)
-      > Normalize them in the Parser
-        > To diagnose things, make "getLocFromPtr" public in the lexer (and add a 
-          getRangeFromPtr too maybe)
-     
-    > Diagnose invalid tokens + add a "Error" token kind
-
+  > Polishing the Lexer Rework (Next)
     > Replace ++curPtr and *curPtr_ by "advance(0)" "getCurChar()"
-    > Rewrite lexer tests (one for each diagnostic that can be emitted by the lexer)
-    > Write parser text normalization tests
+    > Rewrite lexer tests (Done)
+    > Write parser text normalization tests (Done)
     > Write lexer filecheck tests (test kinds using a -dump-toks option)
 
     > Maybe Remove StringManipulator if it's not needed anymore.
@@ -179,8 +167,6 @@ To-Do:
       > Parser
         > Re-read the code: check for errors/inconsistencies, update docs.
    
-    > Grammar cleanup
-
     > Perform some refactoring/minor reworks in the Parser
       > Rework areas where sign are assumed to only have a SourceLoc and no range, also
         rework operator-related things.
