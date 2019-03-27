@@ -54,6 +54,24 @@ using namespace fox;
 BCModuleBuilder::BCModuleBuilder() = default;
 BCModuleBuilder::~BCModuleBuilder() = default;
 
+BCModuleBuilder::instr_iterator BCModuleBuilder::getLastInstr() {
+  return getModule().instrs_back();
+}
+
+void BCModuleBuilder::truncate_instrs(instr_iterator beg) {
+  getInstrBuffer().erase(beg.toIBiterator(), getInstrBuffer().end());
+}
+
+bool BCModuleBuilder::isLastInstr(instr_iterator it) const {
+  // TODO: Once I have a const version of instrs_back, remove
+  // the const_cast.
+  return (it == const_cast<BCModuleBuilder*>(this)->getLastInstr());
+}
+
+void BCModuleBuilder::popInstr() {
+  getModule().getInstructionBuffer().pop_back();
+}
+
 std::unique_ptr<BCModule> BCModuleBuilder::takeModule() {
   return std::move(bcModule_);
 }
@@ -66,4 +84,12 @@ BCModule& BCModuleBuilder::getModule() {
 
 const BCModule& BCModuleBuilder::getModule() const {
   return const_cast<BCModuleBuilder*>(this)->getModule();
+}
+
+InstructionBuffer& BCModuleBuilder::getInstrBuffer() {
+  return getModule().getInstructionBuffer();
+}
+
+const InstructionBuffer& BCModuleBuilder::getInstrBuffer() const {
+  return getModule().getInstructionBuffer();
 }

@@ -26,20 +26,6 @@ void BCModule::dumpModule(std::ostream& out) const {
   dumpInstructions(out, getInstructionBuffer());
 }
 
-void BCModule::truncate_instrs(instr_iterator beg) {
-  instrBuffer_.erase(beg.toIBiterator(), instrBuffer_.end());
-}
-
-bool BCModule::isLastInstr(instr_iterator it) const {
-  // TODO: Once I have a const version of instrs_back, remove
-  // the const_cast.
-  return (it == const_cast<BCModule*>(this)->instrs_back());
-}
-
-void BCModule::popInstr() {
-  instrBuffer_.pop_back();
-}
-
 BCModule::instr_iterator BCModule::instrs_begin() {
   return instr_iterator(*this, 0);
 }

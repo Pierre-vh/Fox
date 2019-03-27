@@ -22,11 +22,11 @@
 namespace fox {
   class BCModule {
     public:
+      class instr_iterator;
+
       BCModule() = default;
       BCModule(const BCModule&) = delete;
       BCModule& operator=(const BCModule&) = delete;
-
-      class instr_iterator;
 
       // Returns the number of instructions in the instruction buffer
       std::size_t numInstructions() const;
@@ -40,41 +40,39 @@ namespace fox {
       // Dumps the module to 'out'
       void dumpModule(std::ostream& out) const;
 
-      // Erases all instructions in the range [beg, end)
-      void truncate_instrs(instr_iterator beg);
-
-      // Returns true if 'it' == instrs_back().
-      bool isLastInstr(instr_iterator it) const;
-
-      // Removes the last instruction added to this module.
-      void popInstr();
-
+      // Returns an iterator to the first instruction in this module
       instr_iterator instrs_begin();
+      // Returns an iterator to the last instruction in this module
       instr_iterator instrs_end();
+      // Returns a past-the-end iterator for this module's instruction buffer
+      // This iterator is invalidated on insertion
       instr_iterator instrs_back();
 
     private:
       friend class BCModuleBuilder;
 
       // Appends an in instruction to this Module, returning
-      // an iterator to the pushed element.
+      // an iterator to the pushed element
       instr_iterator addInstr(Instruction instr);
 
       InstructionBuffer instrBuffer_;
   };
 
-  // An iterator to an instruction in a BCModule. 
+  // An iterator for a BCModule's instruction buffer.
   //
   // This wraps a BCModule& + an index because classic vector iterators
-  // cannot be used safely due to potential reallocations 
-  // (iterator invalidation)
+  // cannot be used safely due to potential reallocations when appending to
+  // the vector.
+  // 
+  // NOTE: This iterator only pretends to keep its validity when inserting
+  //       *after* it. Insertions always invalidate the iterators after the point
+  //       of insertion.
   //
-  // TODO: Should * and -> be const or non const?
+  // TODO: Add a const variant of this iterator
   class BCModule::instr_iterator {
     using idx_type = std::size_t;
     public:
       using iterator_category = std::bidirectional_iterator_tag;
-      using value_type = Instruction;
       using reference_type = Instruction&;
       using pointer_type = Instruction*;
       using difference_type = idx_type;
@@ -109,11 +107,11 @@ namespace fox {
       distance(instr_iterator first, instr_iterator last);
 
     private:
+      friend class BCModule;
+      friend class BCModuleBuilder;
+
       InstructionBuffer& getBuffer() const;
       InstructionBuffer::const_iterator toIBiterator() const;
-
-      // Only the BCModule should be able to create these iterators.
-      friend class BCModule;
 
       // Returns true if this iterator and the other
       // share the same module.

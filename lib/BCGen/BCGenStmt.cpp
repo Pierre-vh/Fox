@@ -126,14 +126,10 @@ class BCGen::StmtGenerator : public Generator,
       // Gen the 'then'
       visit(stmt->getThen());
 
-      bool isThenEmpty = theModule.isLastInstr(jumpIfNot);
+      bool isThenEmpty = builder.isLastInstr(jumpIfNot);
       // If the 'then' is empty, remove the 'jumpIfNot'
-      if (isThenEmpty) {
-        theModule.popInstr();
-        assert((jumpIfNot == theModule.instrs_end()) 
-          && "jumpIfNot was removed but its iterator doesn't point "
-              " past the end of the instruction buffer");
-      }
+      if (isThenEmpty) 
+        builder.popInstr();
 
       // Compile the 'else' if present
       if (Stmt* elseBody = stmt->getElse()) {
@@ -141,13 +137,14 @@ class BCGen::StmtGenerator : public Generator,
         if(isThenEmpty) {
           // Since 'jumpIfNot' has been removed, condJump should
           // be the last instruction we have emitted.
-          assert(theModule.isLastInstr(condJump));
+          assert(builder.isLastInstr(condJump));
           // Gen the 'else'
           visit(elseBody);
           // Check if we have generated something. If yes, ajust the CondJump
           // to skip the else's code.
-          isElseEmpty = theModule.isLastInstr(condJump);
-          auto off = calculateJumpOffset(condJump, theModule.instrs_back());
+          isElseEmpty = builder.isLastInstr(condJump);
+          auto off = calculateJumpOffset(condJump, 
+                                         builder.getLastInstr());
           condJump->CondJump.offset = off;
         }
         else {
@@ -159,27 +156,27 @@ class BCGen::StmtGenerator : public Generator,
           // Gen the 'else'
           visit(elseBody);
           // Check if we have generated something.
-          isElseEmpty = theModule.isLastInstr(jumpEnd);
+          isElseEmpty = builder.isLastInstr(jumpEnd);
           // complete 'jumpEnd' so it jumps to the last instruction emitted.
           jumpEnd->Jump.offset = calculateJumpOffset(jumpEnd, 
-                                                     theModule.instrs_back());
+                                                     builder.getLastInstr());
         }
 
         // If both the 'then' and the 'else' were empty, remove everything after
         // (and including) the CondJump so only the condition's code is left.
         if (isThenEmpty && isElseEmpty)
-          theModule.truncate_instrs(condJump);
+          builder.truncate_instrs(condJump);
       }
       // No 'else' statement
       else {
         // If the 'then' was empty too, remove all of the code we've generated
         // related to the then/else, so only the condition's code is left.
         if (isThenEmpty) 
-          theModule.truncate_instrs(condJump);
+          builder.truncate_instrs(condJump);
         // Else, complete 'jumpToElse' to jump after the last instr emitted.
         else 
           jumpIfNot->Jump.offset = calculateJumpOffset(jumpIfNot, 
-                                                       theModule.instrs_back());
+                                                       builder.getLastInstr());
       }
     }
 

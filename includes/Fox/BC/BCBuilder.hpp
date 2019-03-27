@@ -19,6 +19,9 @@
 namespace fox {
   class BCModuleBuilder {
     public:
+      // The type of an interator of instructions
+      using instr_iterator = BCModule::instr_iterator;
+
       // The type of an instruction buffer.
       using Buffer = InstructionBuffer;
 
@@ -35,6 +38,19 @@ namespace fox {
         BCModule::instr_iterator create##ID##Instr();
       #include "Instruction.def"
 
+      // Returns an iterator to the last instruction inserted
+      // in this vector.
+      instr_iterator getLastInstr();
+
+      // Erases all instructions in the range [beg, end)
+      void truncate_instrs(instr_iterator beg);
+
+      // Returns true if 'it' == instrs_back().
+      bool isLastInstr(const instr_iterator it) const;
+
+      // Removes the last instruction added to this module.
+      void popInstr();
+
       // Takes the current BCModule from the builder.
       // NOTE: The builder will lazily create another module
       // when getModule (const or not) is called.
@@ -43,6 +59,9 @@ namespace fox {
       const BCModule& getModule() const;
 
     private:
+      InstructionBuffer& getInstrBuffer();
+      const InstructionBuffer& getInstrBuffer() const;
+
       std::unique_ptr<BCModule> bcModule_;
   };
 }
