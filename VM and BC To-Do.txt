@@ -84,6 +84,11 @@ Basic VM data types and their mappings to Fox types:
   -> Function calls
   -> Intrinsics/FFI
   -> Basic debug information & trivial exception system (for proper error management).
+  -> Properly diagnose maximum register pressure exceeded:
+    > When the RegisterAllocator runs out of registers, it should call a handler (a BCGen method?)
+      that will emit a diagnostic when possible, or at least tell something like
+      "ran out of registers while compiling function 'foo'"
+      "note: when compiling this <expr/decl/stmt>" <last stmt/expr/decl compiled>
   -> Test/Document as much as possible.
 
 ---- Implementing the GC ----
