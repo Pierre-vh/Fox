@@ -39,8 +39,8 @@ ERROR(err_while_inter_int_lit,
   "error while interpreting this integer literal: maybe it is too big?")
 ERROR(err_while_inter_double_lit,
   "error while interpreting this double literal: maybe it is too big?")
-ERROR(invalid_escape_seq,
-  "invalid escape sequence '%0'")
+ERROR(unknown_escape_seq,
+  "unknown escape sequence '%0'")
 ERROR(empty_char_lit,
   "empty character literal")
 ERROR(multiple_cp_in_char_lit,

@@ -186,9 +186,12 @@ std::string Parser::normalizeString(string_view str, char delimiter) {
           SourceLoc loc = lexer.getLocFromPtr(backslashPtr);
           SourceLoc extra = lexer.getLocFromPtr(escapeCharPtr);
           diagEngine
-            .report(DiagID::invalid_escape_seq, loc)
+            .report(DiagID::unknown_escape_seq, loc)
             .setExtraRange(SourceRange(extra))
             .addArg(string_view(backslashPtr, 2));
+          // We're still going to add the escaped character
+          // without the backslash to avoid cascading errors.
+          normalized.push_back(*it);
           break;
       }
     }
