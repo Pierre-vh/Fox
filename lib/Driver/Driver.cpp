@@ -59,15 +59,11 @@ bool Driver::processFile(string_view filepath) {
     lex.lex();
   }
 
-  // Stop if we had errors
-  if (diagEngine_.hadAnyError())
-    return false;
-
   Parser psr(ctxt_, lex);
 
-  UnitDecl* unit;
-  // Do parsing
-  {
+  UnitDecl* unit = nullptr;
+  // If Lexing was successfull, do parsing.
+  if(!diagEngine_.hadAnyError()) {
     auto chrono = createChrono("Parsing");
     unit = psr.parseUnit(file, ctxt_.getIdentifier("TestUnit"));
   }
