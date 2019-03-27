@@ -33,6 +33,20 @@ namespace fox {
       // Return the tokens
       TokenVector& getTokens();
 
+      /// Returns a SourceLoc for the character (or codepoint beginning) at
+      /// \p ptr.
+      ///
+      /// \p ptr cannot be null and must be contained in the buffer of
+      /// \ref theFile
+      SourceLoc getLocFromPtr(const char* ptr) const;
+
+      /// Returns a SourceRange for the range beginning at \p a and ending
+      /// at \p b (range [a, b])
+      ///
+      /// Both pointers must satisfy the same constraint as the argument of
+      /// \ref getLocFromPtr 
+      SourceRange getRangeFromPtrs(const char* a, const char* b) const;
+
       // Returns the number of tokens in the vector
       std::size_t numTokens() const;  
 
@@ -105,7 +119,6 @@ namespace fox {
       // Returns false if we reached EOF.
       bool advance();
 
-      SourceLoc getLocOfPtr(const char* ptr) const;
       SourceLoc getCurPtrLoc() const;
       SourceLoc getCurtokBegLoc() const;
       SourceRange getCurtokRange() const;

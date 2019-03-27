@@ -67,12 +67,26 @@ void Lexer::lex() {
   // init the iterator/pointers
   fileBeg_ = tokBegPtr_ = curPtr_ = content.begin();
   fileEnd_ = content.end();
-  // lex
+  assert(fileBeg_ && tokBegPtr_ && curPtr_ && fileEnd_ 
+    && "Iterators are null");
+  // Do the actual lexing
   lexImpl();
 }
 
 TokenVector& Lexer::getTokens() {
   return tokens_; // return empty Token
+}
+
+SourceLoc Lexer::getLocFromPtr(const char* ptr) const {
+  assert(ptr 
+    && "pointer is null!");
+  assert((ptr >= fileBeg_) && (ptr <= fileEnd_)
+    && "Pointer not contained in the current file's buffer");
+  return SourceLoc(theFile, std::distance(fileBeg_, ptr));
+}
+
+SourceRange Lexer::getRangeFromPtrs(const char* a, const char* b) const {
+  return SourceRange(getLocFromPtr(a), getLocFromPtr(b));
 }
 
 std::size_t Lexer::numTokens() const {
@@ -375,7 +389,8 @@ void Lexer::skipBlockComment() {
   const char* beg = curPtr_;
   while (char cur = *(curPtr_++)) {
     if (curPtr_ == fileEnd_) {
-      diagEngine.report(DiagID::unterminated_block_comment, getLocOfPtr(beg));
+      SourceLoc loc = getLocFromPtr(beg);
+      diagEngine.report(DiagID::unterminated_block_comment, loc);
       return;
     }
     if ((cur == '*') && ((*curPtr_) == '/')) {
@@ -430,16 +445,12 @@ bool Lexer::advance() {
   return !isEOF();
 }
 
-SourceLoc Lexer::getLocOfPtr(const char* ptr) const {
-  return SourceLoc(theFile, std::distance(fileBeg_, ptr));
-}
-
 SourceLoc Lexer::getCurPtrLoc() const {
-  return getLocOfPtr(curPtr_);
+  return getLocFromPtr(curPtr_);
 }
 
 SourceLoc Lexer::getCurtokBegLoc() const {
-  return getLocOfPtr(tokBegPtr_);
+  return getLocFromPtr(tokBegPtr_);
 }
 
 SourceRange Lexer::getCurtokRange() const {
