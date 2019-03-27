@@ -11,8 +11,7 @@
 #include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/SourceManager.hpp"
-#include "Fox/Common/StringManipulator.hpp"
-
+#include "utfcpp/utf8.hpp"
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -126,10 +125,59 @@ void ASTDumper::visitCallExpr(CallExpr* node) {
   }
 }
 
+namespace {
+  void dumpNormalized(char ch, std::ostream& out, bool forChar = true) {
+    switch (ch) {
+      case 0:
+        out << "\\0";
+        break;
+      case '\n':
+        out << "\\n";
+        break;
+      case '\r':
+        out << "\\r";
+        break;
+      case '\t':
+        out << "\\t";
+        break;
+      case '\\':
+        out << "\\\\";
+        break;
+      case '\'':
+        if(forChar)
+          out << "\\'";
+        else 
+          out << "'"; // Don't escape single quotes for strings
+        break;
+      case '\"':
+        if(forChar)
+          out << '"'; // Don't escape double quotes for chars
+        else 
+          out << "\\\"";
+        break;
+      default:
+        out << ch;
+        break;
+    }
+  }
+
+  void dumpNormalized(string_view str, std::ostream& out) {
+    for (char ch : str)
+      dumpNormalized(ch, out, false);
+  }
+}
+
 void ASTDumper::visitCharLiteralExpr(CharLiteralExpr* node) {
   std::string res;
-  StringManipulator::append(res, node->getValue());
-  dumpLine() << getBasicExprInfo(node) << " " << addSingleQuotes(res) << "\n";
+  dumpLine() << getBasicExprInfo(node) << " '";
+  dumpNormalized(node->getValue(), out);
+  out << "' (" << +(node->getValue()) << ")\n";
+}
+
+void ASTDumper::visitStringLiteralExpr(StringLiteralExpr* node) {
+  dumpLine() << getBasicExprInfo(node) << " \"";
+  dumpNormalized(node->getValue(), out);
+  out << "\"\n";
 }
 
 void ASTDumper::visitIntegerLiteralExpr(IntegerLiteralExpr* node) {
@@ -143,11 +191,6 @@ void ASTDumper::visitDoubleLiteralExpr(DoubleLiteralExpr* node) {
 void ASTDumper::visitBoolLiteralExpr(BoolLiteralExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " "
     << (node->getValue() ? "true" : "false") << "\n";
-}
-
-void ASTDumper::visitStringLiteralExpr(StringLiteralExpr* node) {
-  dumpLine() << getBasicExprInfo(node) << " "
-    << addDoubleQuotes(node->getValue()) << "\n";
 }
 
 void ASTDumper::visitArrayLiteralExpr(ArrayLiteralExpr* node) {
@@ -272,7 +315,7 @@ bool ASTDumper::isDebug() const {
 
 std::string ASTDumper::toString(Type type) const {
   std::string typeStr = isDebug() ? type->toDebugString() : type->toString();
-  return addSingleQuotes(typeStr);
+  return "'" + typeStr + "'";
 }
 
 std::string ASTDumper::toString(TypeLoc type) const {
@@ -465,18 +508,6 @@ std::string ASTDumper::getSourceRangeDump(string_view label,
   if(hasSrcMgr())
     return makeKeyPairDump(label, toString(range));
   return "";
-}
-
-std::string ASTDumper::addDoubleQuotes(string_view str) const {
-  std::stringstream ss;
-  ss << '"' << str << '"';
-  return ss.str();
-}
-
-std::string ASTDumper::addSingleQuotes(string_view str) const {
-  std::stringstream ss;
-  ss << "'" << str << "'";
-  return ss.str();
 }
 
 void ASTDumper::indent(std::uint8_t num) {

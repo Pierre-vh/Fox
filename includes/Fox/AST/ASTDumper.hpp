@@ -121,10 +121,6 @@ namespace fox {
       std::string getSourceLocDump(string_view label, SourceLoc sloc) const;
       // Returns a formatted string: <label:beg_line:beg_col-end_line:end_col>
       std::string getSourceRangeDump(string_view label, SourceRange range) const;
-      // Returns value enclosed with "".
-      std::string addDoubleQuotes(string_view str) const;
-      // Returns the value enclosed with ''
-      std::string addSingleQuotes(string_view str) const;
 
       void indent(std::uint8_t num = 1);
       void dedent(std::uint8_t num = 1);

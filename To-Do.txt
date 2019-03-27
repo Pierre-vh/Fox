@@ -149,17 +149,16 @@ To-Do:
   > Move TypeWalker/TypeVisitor out of ASTWalker.hpp/ASTVisitor.hpp in their own files (Done)
   > Make TypeBase::isXXXType see through LValues (Done)
   > Lexer Rework (Done)
-  > String Normalization (Done)
+  > String Normalization + ASTDump of normalized strings (Done)
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
   > Polishing the Lexer Rework (Next)
-    > Replace ++curPtr and *curPtr_ by "advance(0)" "getCurChar()"
     > Rewrite lexer tests (Done)
     > Write parser text normalization tests (Done)
     > Write lexer filecheck tests (test kinds using a -dump-toks option)
 
-    > Maybe Remove StringManipulator if it's not needed anymore.
+    > Remove or Rework StringManipulator, maybe as a UTF8StringIterator?
 
     > Cleanup/Code review in:
       > Lexer
