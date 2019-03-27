@@ -1,0 +1,6 @@
+// RUN: %fox-verify
+
+func foo() {
+  // expect-error@+1: unterminated char literal
+  '
+}

@@ -1,0 +1,6 @@
+// RUN: %fox-verify
+
+func foo() {
+  // expect-error@+1: unterminated block comment (found end of file before '*/')
+  /*
+}
