@@ -24,6 +24,7 @@ namespace fox {
   //    getTokens()
   class Lexer  {
     public:
+      // Constructor for the Lexer.
       Lexer(SourceManager& srcMgr, DiagnosticEngine& diags, FileID file);
 
       // Lex the full file
@@ -35,8 +36,11 @@ namespace fox {
       // Returns the number of tokens in the vector
       std::size_t numTokens() const;  
 
+      // The DiagnosticEngine instance tied to this Lexer
       DiagnosticEngine& diagEngine;
+      // The SourceManager instance tied to this Lexer
       SourceManager& sourceMgr;
+      // The FileID of the file being lexed
       const FileID theFile;
 
       // The Lexer should be movable but not copyable.
