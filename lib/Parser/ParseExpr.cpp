@@ -113,7 +113,7 @@ namespace {
 
   // Tries to convert a token to an double literal.
   // If cannot be converted to a int (because it's too large)
-  FoxInt tokToDoubleLit(DiagnosticEngine& engine, Token tok) {
+  FoxDouble tokToDoubleLit(DiagnosticEngine& engine, Token tok) {
     // <double_literal> = <int_literal> '.' <int_literal>
     // TODO: Use something other than stringstream to avoid conversion
     // to std::string
