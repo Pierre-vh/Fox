@@ -36,14 +36,14 @@ class BCGen::StmtGenerator : public Generator,
     BCModule& theModule;
 
   private:
-    using jump_offset_t = decltype(Instruction::Jump.offset);
-    using condjump_offset_t = decltype(Instruction::JumpIf.offset);
-    
-    static constexpr jump_offset_t 
-    max_jump_offset = std::numeric_limits<jump_offset_t>::max();
+    // The type used to store jump offsets. Doesn't necessarily
+    // match the one of the instructions.
+    using jump_offset_t = std::int32_t;
 
-    static constexpr jump_offset_t 
-    min_jump_offset = std::numeric_limits<jump_offset_t>::min();
+    // The current maximum jump offset possible (positive or negative)
+    // is the max (positive or negative) value of a 16 bit signed number:
+    // 2^15-1
+    static constexpr jump_offset_t max_jump_offset = (1 << 15)-1;
 
     //------------------------------------------------------------------------//
     // "emit" and "gen" methods 
@@ -77,7 +77,7 @@ class BCGen::StmtGenerator : public Generator,
       }
 
       // Calculate the distance between the a and the b iterator
-      auto diff = distance(a, b);
+      std::size_t diff = distance(a, b);
 
       // TODO: Replace this assertion by a proper 'fatal' diagnostic explaining
       // the problem. Maybe pass a lambda 'onOutOfRange' as parameter to
