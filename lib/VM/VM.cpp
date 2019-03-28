@@ -177,6 +177,12 @@ void VM::run() {
         if(getReg(instr.JumpIf.condReg))
           programCounter_ += instr.JumpIf.offset;
         continue;
+      case Opcode::JumpIfNot:
+        // JumpIfNot condReg offset : Add offset (int16) to pc 
+        //    if condReg == 0
+        if(!getReg(instr.JumpIfNot.condReg))
+          programCounter_ += instr.JumpIfNot.offset;
+        continue;
       case Opcode::Jump:
         // Jump offset: Add offset (int16) to pc
         programCounter_ += instr.Jump.offset;

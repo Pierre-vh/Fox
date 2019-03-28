@@ -248,58 +248,83 @@ TEST(VMTest, LogicOps) {
 }
 
 
-TEST(VMTest, Jumps) {
-  // Unconditional Jump test
-  {
-    BCModuleBuilder builder;
-    // Create instructions like this:
-      // 0 Jump 2
-      // 1 Break
-      // 2 Break    // PC should end up here
-      // 3 Jump -2
-      // 4 Break
-    builder.createJumpInstr(2);
-    builder.createBreakInstr();
-    builder.createBreakInstr();
-    builder.createJumpInstr(-2);
-    builder.createBreakInstr();
+TEST(VMTest, Jump) {
+  BCModuleBuilder builder;
+  // Create instructions like this:
+    // 0 Jump 2
+    // 1 Break
+    // 2 Break    // PC should end up here
+    // 3 Jump -2
+    // 4 Break
+  builder.createJumpInstr(2);
+  builder.createBreakInstr();
+  builder.createBreakInstr();
+  builder.createJumpInstr(-2);
+  builder.createBreakInstr();
 
-    // Prepare the VM
-    VM vm(builder.getModule());
+  // Prepare the VM
+  VM vm(builder.getModule());
   
-    // Run the code
-    vm.run();
-    // Check that the PC ended up where we expected it to.
-    EXPECT_EQ(vm.getPCIndex(), 2u) << "Bad Jump";
-  }
-  // Conditional Jump test
-  {
-    FoxInt r0 = 0;
-    FoxInt r1 = 1;
-    BCModuleBuilder builder;
-    // Create instructions like this:
-      // 0 JumpIf r0 1  // won't jump since r0 = 0
-      // 1 JumpIf r1 1  // will jump since r1 = 1
-      // 2 Break    
-      // 3 Break    // PC should end up here
-    builder.createJumpIfInstr(0, 1);
-    builder.createJumpIfInstr(1, 1);
-    builder.createBreakInstr();
-    builder.createBreakInstr();
-
-    // Prepare the VM
-    VM vm(builder.getModule());
-  
-    // Setup initial values
-    auto regs = vm.getRegisterStack();
-    regs[0] = r0;
-    regs[1] = r1;
-    // Run the code
-    vm.run();
-    // Check that the PC ended up where we expected it to.
-    EXPECT_EQ(vm.getPCIndex(), 3u) << "Bad CondJump";
-  }
+  // Run the code
+  vm.run();
+  // Check that the PC ended up where we expected it to.
+  EXPECT_EQ(vm.getPCIndex(), 2u) << "Bad Jump";
 }
+
+TEST(VMTest, JumpIf) {
+  FoxInt r0 = 0;
+  FoxInt r1 = 1;
+  BCModuleBuilder builder;
+  // Create instructions like this:
+    // 0 JumpIf r0 1  // won't jump since r0 = 0
+    // 1 JumpIf r1 1  // will jump since r1 = 1
+    // 2 Break    
+    // 3 Break    // PC should end up here
+  builder.createJumpIfInstr(0, 1);
+  builder.createJumpIfInstr(1, 1);
+  builder.createBreakInstr();
+  builder.createBreakInstr();
+
+  // Prepare the VM
+  VM vm(builder.getModule());
+  
+  // Setup initial values
+  auto regs = vm.getRegisterStack();
+  regs[0] = r0;
+  regs[1] = r1;
+  // Run the code
+  vm.run();
+  // Check that the PC ended up where we expected it to.
+  EXPECT_EQ(vm.getPCIndex(), 3u) << "Bad JumpIf";
+}
+
+TEST(VMTest, JumpIfNot) {
+  FoxInt r0 = 0;
+  FoxInt r1 = 1;
+  BCModuleBuilder builder;
+  // Create instructions like this:
+    // 0 JumpIfNot r0 1  // will jump jump since r0 = 0
+    // 2 Break    
+    // 1 JumpIfNot r1 1  // won't jump since r1 = 1
+    // 3 Break    // PC should end up here
+  builder.createJumpIfNotInstr(0, 1);
+  builder.createBreakInstr();
+  builder.createJumpIfNotInstr(1, 1);
+  builder.createBreakInstr();
+
+  // Prepare the VM
+  VM vm(builder.getModule());
+  
+  // Setup initial values
+  auto regs = vm.getRegisterStack();
+  regs[0] = r0;
+  regs[1] = r1;
+  // Run the code
+  vm.run();
+  // Check that the PC ended up where we expected it to.
+  EXPECT_EQ(vm.getPCIndex(), 3u) << "Bad JumpIfNot";
+}
+
 
 TEST(VMTest, Casts) {
   BCModuleBuilder builder;
