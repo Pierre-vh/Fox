@@ -37,6 +37,7 @@ class BCGen::StmtGenerator : public Generator,
 
   private:
     using instr_iterator = BCModule::instr_iterator;
+
     // The type used to store jump offsets. Doesn't necessarily
     // match the one of the instructions.
     using jump_offset_t = std::int32_t;
@@ -96,7 +97,7 @@ class BCGen::StmtGenerator : public Generator,
       jump_offset_t offset = absoluteDistance;
       // Reapply the minus sign if needed
       if(isBackward) offset = -offset;
-      // Adjust the jump
+      // Fix the Jump
       switch (jump->opcode) {
         case Opcode::Jump:
           jump->Jump.offset = offset;
@@ -133,77 +134,75 @@ class BCGen::StmtGenerator : public Generator,
 
     void visitConditionStmt(ConditionStmt* stmt) {
       // Gen the condition and save its address
-      RegisterValue condReg = bcGen.genExpr(builder, regAlloc, stmt->getCond());
-      regaddr_t regAddr = condReg.getAddress();
+      // The RegisterValue is intentionally discarded so it is immediately freed
+      regaddr_t regAddr = 
+        bcGen.genExpr(builder, regAlloc, stmt->getCond()).getAddress();
 
-      // Create a conditional jump (so we can jump to the else's code if the
-      // condition is false)
+      // Create a "JumpIfNot" so we can jump to the else's code
+      // when the instruction is false.
       auto jumpIfFalse = builder.createJumpIfNotInstr(regAddr, 0);
 
-      // Free the register of the condition
-      condReg.free();
-
       // Gen the 'then'
-      visit(stmt->getThen());
+      visitCompoundStmt(stmt->getThen());
 
       // Check if the "then" emitted any instruction,
       bool isThenEmpty = builder.isLastInstr(jumpIfFalse);
 
-      // Compile the 'else' if present
-      if (Stmt* elseBody = stmt->getElse()) {
-        // The then is empty
-        if(isThenEmpty) {
-          // If the then is empty, remove jumpIfFalse and replace it with a JumpIf. 
-          // It will be completed later.
-          builder.truncate_instrs(jumpIfFalse);
-          auto jumpIfTrue = builder.createJumpIfInstr(regAddr, 0);
-          // Gen the 'else'
-          visit(elseBody);
-          // Check if we have generated something.
-          if (builder.isLastInstr(jumpIfTrue)) {
-            // If the else was empty too, remove everything, including jumpIfTrue, so
-            // just the condition's code is left.
-            builder.truncate_instrs(jumpIfTrue);
-          }
-          else {
-            // Adjust the jump if we generated something
-            fixJump(jumpIfTrue, theModule.instrs_last());
-          }
-        }
-        // The then is not empty
-        else {
-          // Create a jump to the end of the condition so the then's code
-          // skips the else's code.
-          auto jumpEnd = builder.createJumpInstr(0);
-
-          // Gen the 'else'
-          visit(elseBody);
-          // Check if we have generated something.
-          if (builder.isLastInstr(jumpEnd)) {
-            // If we generated nothing, remove everything from jumpEnd
-            builder.truncate_instrs(jumpEnd);
-            // And make jumpIfFalse jump after the last instruction emitted.
-            fixJump(jumpIfFalse, theModule.instrs_last());
-          }
-          else {
-            // If we did generate something, complete both jumps.
-            //    jumpIfFalse must execute the else, so jump after jumpEnd
-            fixJump(jumpIfFalse, jumpEnd);
-            //    jumpEnd must skip the else, so jump after the last instruction
-            //    emitted.
-            fixJump(jumpEnd, theModule.instrs_last());
-          }
-        }
-      }
-      // No 'else' statement
-      else {
-        // If the 'then' was empty too, remove all of the code we've generated
+      // Conditions without elses
+      if(!stmt->hasElse()) {
+        // If the 'then' was empty, remove all of the code we've generated
         // related to the then/else, so only the condition's code is left.
         if (isThenEmpty) 
           builder.truncate_instrs(jumpIfFalse);
         // Else, complete 'jumpToElse' to jump after the last instr emitted.
         else 
           fixJump(jumpIfFalse, theModule.instrs_last());
+        return;
+      }
+
+      Stmt* elseBody = stmt->getElse();
+
+      // We have a else, and the then was empty
+      if(isThenEmpty) {
+        // If the then is empty, remove JumpIfNot and replace it with a JumpIf
+        builder.truncate_instrs(jumpIfFalse);
+        auto jumpIfTrue = builder.createJumpIfInstr(regAddr, 0);
+        // Gen the 'else'
+        visit(elseBody);
+        // Check if we have generated something
+        if (builder.isLastInstr(jumpIfTrue)) {
+          // If we didn't: Remove everything, including jumpIfTrue, so just the
+          // condition's code is left
+          builder.truncate_instrs(jumpIfTrue);
+        }
+        else {
+          // If we did: Fix the jump
+          fixJump(jumpIfTrue, theModule.instrs_last());
+        }
+      }
+      // We have a else, and the then was not empty.
+      else {
+        // Create a jump to the end of the condition so the then's code
+        // skips the else's code.
+        auto jumpEnd = builder.createJumpInstr(0);
+
+        // Gen the 'else'
+        visit(elseBody);
+
+        // Check if we have generated something.
+        if (builder.isLastInstr(jumpEnd)) {
+          // If we generated nothing, remove everything including jumpEnd...
+          builder.truncate_instrs(jumpEnd);
+          // ...and make jumpIfFalse jump after the last instruction emitted.
+          fixJump(jumpIfFalse, theModule.instrs_last());
+        }
+        else {
+          // If generated something, complete both jumps:
+          //    jumpIfFalse should jump past JumpEnd
+          fixJump(jumpIfFalse, jumpEnd);
+          //    jumpEnd should jump to the last instruction emitted
+          fixJump(jumpEnd, theModule.instrs_last());
+        }
       }
     }
 
