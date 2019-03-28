@@ -119,10 +119,10 @@ TEST(BCBuilderTest, createdInstrIterators) {
   auto a = builder.createJumpInstr(30000);
   EXPECT_EQ(a->opcode, Opcode::Jump);
   EXPECT_EQ(a->Jump.offset, 30000);
-  auto b = builder.createCondJumpInstr(5, -4200);
-  EXPECT_EQ(b->opcode, Opcode::CondJump);
-  EXPECT_EQ(b->CondJump.condReg, 5u);
-  EXPECT_EQ(b->CondJump.offset, -4200);
+  auto b = builder.createJumpIfInstr(5, -4200);
+  EXPECT_EQ(b->opcode, Opcode::JumpIf);
+  EXPECT_EQ(b->JumpIf.condReg, 5u);
+  EXPECT_EQ(b->JumpIf.offset, -4200);
   auto c = builder.createDivDoubleInstr(1, 2, 3);
   EXPECT_EQ(c->opcode, Opcode::DivDouble);
   EXPECT_EQ(c->DivDouble.dest, 1u);
@@ -136,9 +136,9 @@ TEST(BCBuilderTest, createdInstrIterators) {
   EXPECT_EQ(a->opcode, Opcode::Jump);
   EXPECT_EQ(a->Jump.offset, 30000);
   // b
-  EXPECT_EQ(b->opcode, Opcode::CondJump);
-  EXPECT_EQ(b->CondJump.condReg, 5u);
-  EXPECT_EQ(b->CondJump.offset, -4200);
+  EXPECT_EQ(b->opcode, Opcode::JumpIf);
+  EXPECT_EQ(b->JumpIf.condReg, 5u);
+  EXPECT_EQ(b->JumpIf.offset, -4200);
   // c
   EXPECT_EQ(c->opcode, Opcode::DivDouble);
   EXPECT_EQ(c->DivDouble.dest, 1u);

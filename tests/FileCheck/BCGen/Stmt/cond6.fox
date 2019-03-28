@@ -4,7 +4,7 @@
 
 func foo() {
   // CHECK:      StoreSmallInt 0 0
-  // CHECK-NEXT: CondJump 0 3
+  // CHECK-NEXT: JumpIf 0 3
   if false {} 
   // CHECK-NEXT: StoreSmallInt 0 1
   // CHECK-NEXT: StoreSmallInt 1 2

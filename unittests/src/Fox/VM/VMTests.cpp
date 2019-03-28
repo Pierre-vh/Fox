@@ -278,12 +278,12 @@ TEST(VMTest, Jumps) {
     FoxInt r1 = 1;
     BCModuleBuilder builder;
     // Create instructions like this:
-      // 0 CondJump r0 1  // won't jump since r0 = 0
-      // 1 CondJump r1 1  // will jump since r1 = 1
+      // 0 JumpIf r0 1  // won't jump since r0 = 0
+      // 1 JumpIf r1 1  // will jump since r1 = 1
       // 2 Break    
       // 3 Break    // PC should end up here
-    builder.createCondJumpInstr(0, 1);
-    builder.createCondJumpInstr(1, 1);
+    builder.createJumpIfInstr(0, 1);
+    builder.createJumpIfInstr(1, 1);
     builder.createBreakInstr();
     builder.createBreakInstr();
 

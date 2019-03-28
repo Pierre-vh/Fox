@@ -171,11 +171,11 @@ void VM::run() {
         // LNot dest src: dest = !src
         setReg(instr.LNot.dest, !getReg(instr.LNot.src));
         continue;
-      case Opcode::CondJump:
-        // CondJump condReg offset : Add offset (int16) to pc 
+      case Opcode::JumpIf:
+        // JumpIf condReg offset : Add offset (int16) to pc 
         //    if condReg != 0
-        if(getReg(instr.CondJump.condReg) != 0)
-          programCounter_ += instr.CondJump.offset;
+        if(getReg(instr.JumpIf.condReg))
+          programCounter_ += instr.JumpIf.offset;
         continue;
       case Opcode::Jump:
         // Jump offset: Add offset (int16) to pc

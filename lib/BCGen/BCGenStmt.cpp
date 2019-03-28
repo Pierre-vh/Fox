@@ -37,7 +37,7 @@ class BCGen::StmtGenerator : public Generator,
 
   private:
     using jump_offset_t = decltype(Instruction::Jump.offset);
-    using condjump_offset_t = decltype(Instruction::CondJump.offset);
+    using condjump_offset_t = decltype(Instruction::JumpIf.offset);
     
     static constexpr jump_offset_t 
     max_jump_offset = std::numeric_limits<jump_offset_t>::max();
@@ -106,10 +106,10 @@ class BCGen::StmtGenerator : public Generator,
       // Just visit all the nodes
       for (ASTNode node : stmt->getNodes()) {
         genNode(node);
-        if (Stmt* stmt = node.dyn_cast<Stmt*>()) {
+        if (Stmt* nodeAsStmt = node.dyn_cast<Stmt*>()) {
           // If this is a ReturnStmt, stop here so we don't emit
           // the code after it (since it's unreachable anyway).
-          if(isa<ReturnStmt>(stmt)) return;
+          if(isa<ReturnStmt>(nodeAsStmt)) return;
         }
       }
     }
@@ -120,7 +120,7 @@ class BCGen::StmtGenerator : public Generator,
 
       // Create a conditional jump (so we can skip the jump to the else's code 
       // when the condition is met)
-      auto condJump = builder.createCondJumpInstr(condReg.getAddress(), 1);
+      auto condJump = builder.createJumpIfInstr(condReg.getAddress(), 1);
 
       // Free the register of the condition
       condReg.free();
@@ -150,7 +150,7 @@ class BCGen::StmtGenerator : public Generator,
           isElseEmpty = builder.isLastInstr(condJump);
           auto off = calculateJumpOffset(condJump, 
                                          theModule.instrs_last());
-          condJump->CondJump.offset = off;
+          condJump->JumpIf.offset = off;
         }
         else {
           // Create a jump to the end of the condition so the then's code

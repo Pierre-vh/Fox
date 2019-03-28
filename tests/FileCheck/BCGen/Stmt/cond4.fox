@@ -3,7 +3,7 @@
 // Test a condition with an if-then-else but an empty else.
 func foo() {
   // CHECK:      StoreSmallInt 0 0
-  // CHECK-NEXT: CondJump 0 1
+  // CHECK-NEXT: JumpIf 0 1
   // CHECK-NEXT: Jump 4
   if false {
   // CHECK-NEXT: StoreSmallInt 0 1

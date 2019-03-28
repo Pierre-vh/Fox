@@ -92,8 +92,10 @@ BINARY_REG_OP(LOr)      // Logical OR
 UNARY_REG_OP(LNot)  // Logical NOT
 
 // Jumps
-//    Conditional Jump : Jump iff condReg != 0
-BINARY_INSTR(CondJump, condReg, regaddr_t, offset, std::int16_t)
+//    Conditional "If" Jump : Jump iff condReg != 0
+BINARY_INSTR(JumpIf, condReg, regaddr_t, offset, std::int16_t)
+//    Conditional "If Not" Jump : Jump iff condReg == 0
+BINARY_INSTR(JumpIfNot, condReg, regaddr_t, offset, std::int16_t)
 //    Unconditional Jump
 UNARY_INSTR(Jump, offset, std::int16_t)
 
