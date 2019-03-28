@@ -47,6 +47,18 @@ namespace fox {
     Instruction() = default;
     Instruction(Opcode op) : opcode(op) {}
 
+    // Return true if this instruction is any kind of jump.
+    bool isAnyJump() const {
+      switch (opcode) {
+        case Opcode::Jump:
+        case Opcode::JumpIf:
+        case Opcode::JumpIfNot:
+          return true;
+        default:
+          return false;
+      }
+    }
+
     Opcode opcode = Opcode::NoOp;
     union {
       #define TERNARY_INSTR(ID, I1, T1, I2, T2, I3, T3)       \
