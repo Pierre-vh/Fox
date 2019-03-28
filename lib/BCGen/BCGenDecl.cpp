@@ -163,6 +163,10 @@ void BCGen::genFunc(BCModuleBuilder& builder, FuncDecl* func) {
   FuncGenPrologue(regAlloc).doPrologue(func);
   // For now, only gen the body.
   genStmt(builder, regAlloc, func->getBody());
+  // TODO: Once we gen the function properly, check that the last instruction
+  // emitted was a Return, if it wasn't, insert a return void instruction.
+  // (we can assert that the function's return type is void because
+  //  else the error would have been caught by Semantic Analysis)
 }
 
 void BCGen::genGlobalVar(BCModuleBuilder&, VarDecl*) {
