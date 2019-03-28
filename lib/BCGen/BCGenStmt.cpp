@@ -36,6 +36,7 @@ class BCGen::StmtGenerator : public Generator,
     BCModule& theModule;
 
   private:
+    using instr_iterator = BCModule::instr_iterator;
     // The type used to store jump offsets. Doesn't necessarily
     // match the one of the instructions.
     using jump_offset_t = std::int32_t;
@@ -43,7 +44,7 @@ class BCGen::StmtGenerator : public Generator,
     // The current maximum jump offset possible (positive or negative)
     // is the max (positive or negative) value of a 16 bit signed number:
     // 2^15-1
-    static constexpr jump_offset_t max_jump_offset = (1 << 15)-1;
+    static constexpr std::size_t max_jump_offset = (1 << 15)-1;
 
     //------------------------------------------------------------------------//
     // "emit" and "gen" methods 
@@ -63,36 +64,52 @@ class BCGen::StmtGenerator : public Generator,
         fox_unreachable("Unknown ASTNode kind");
     }
 
-    // This calculates the offset needed to jump from 'a' to 'b' so
-    // the instruction after 'b' will be the next instruction to be executed.
-    jump_offset_t calculateJumpOffset(BCModule::instr_iterator a,
-                                      BCModule::instr_iterator b) {
-      if(a == b) 
-        return 0;
-
-      bool isNegative = false;
-      if (b < a) {
-        std::swap(a, b);
-        isNegative = true;
+    /// Fix a jump \p jump so it jumps to the instruction AFTER \p target.
+    /// \param jump The jump to adjust. Must be a jump of some kind.
+    /// \param target The last instruction that should be skipped by the jump,
+    ///               so '++jump' is the next instruction that will be executed.
+    void fixJump(instr_iterator jump, instr_iterator target) {
+      assert(jump->isAnyJump() && "not a jump!");
+      assert((jump != target) && "useless jump");
+      std::size_t absoluteDistance;
+      bool isBackward = false;
+      // Calculate the absolute distance
+      {
+        auto start = jump, end = target;
+        // Check if we try to jump backward. If we do, swap
+        // start and end because the distance function expects that
+        // its first argument is smaller than the second.
+        if (start > end) {
+          std::swap(start, end);
+          isBackward = true;
+        }
+        absoluteDistance = distance(start, end);
       }
-
-      // Calculate the distance between the a and the b iterator
-      std::size_t diff = distance(a, b);
-
+      // Check if the distance is acceptable
       // TODO: Replace this assertion by a proper 'fatal' diagnostic explaining
       // the problem. Maybe pass a lambda 'onOutOfRange' as parameter to
       // this function and call onOutOfRange() + return 0; when we try to
       // jump too far.
-      assert((diff <= static_cast<std::size_t>(max_jump_offset))
-        && "Jump is out of range!");
-
-      // Convert it to jump_offset_t now that we know that it's safe.
-      auto offset = static_cast<jump_offset_t>(diff);
-
-      assert((offset != 0) && "offset cannot be zero");
-
-      // Return, applying the minus if needed
-      return isNegative ? (-offset) : offset;
+      assert((absoluteDistance <= max_jump_offset) && "Jump is too large!");
+      // Now that we know that the conversion is safe, convert the absolute 
+      // distance to jump_offset_t
+      jump_offset_t offset = absoluteDistance;
+      // Reapply the minus sign if needed
+      if(isBackward) offset = -offset;
+      // Adjust the jump
+      switch (jump->opcode) {
+        case Opcode::Jump:
+          jump->Jump.offset = offset;
+          break;
+        case Opcode::JumpIf:
+          jump->JumpIf.offset = offset;
+          break;
+        case Opcode::JumpIfNot:
+          jump->JumpIfNot.offset = offset;
+          break;
+        default:
+          fox_unreachable("Unknown Jump Kind!");
+      }
     }
 
     //------------------------------------------------------------------------//
@@ -150,8 +167,7 @@ class BCGen::StmtGenerator : public Generator,
           }
           else {
             // Adjust the jump if we generated something
-            auto off = calculateJumpOffset(jumpIfTrue, theModule.instrs_last());
-            jumpIfTrue->JumpIf.offset = off;
+            fixJump(jumpIfTrue, theModule.instrs_last());
           }
         }
         // The then is not empty
@@ -166,19 +182,16 @@ class BCGen::StmtGenerator : public Generator,
           if (builder.isLastInstr(jumpEnd)) {
             // If we generated nothing, remove everything from jumpEnd
             builder.truncate_instrs(jumpEnd);
-            // And make jumpIfFalse jump after the last instruction emitteD.
-            jumpIfFalse->JumpIfNot.offset =
-              calculateJumpOffset(jumpIfFalse, theModule.instrs_last());
+            // And make jumpIfFalse jump after the last instruction emitted.
+            fixJump(jumpIfFalse, theModule.instrs_last());
           }
           else {
             // If we did generate something, complete both jumps.
             //    jumpIfFalse must execute the else, so jump after jumpEnd
-            jumpIfFalse->JumpIfNot.offset = 
-              calculateJumpOffset(jumpIfFalse, jumpEnd);
+            fixJump(jumpIfFalse, jumpEnd);
             //    jumpEnd must skip the else, so jump after the last instruction
             //    emitted.
-            jumpEnd->Jump.offset = 
-              calculateJumpOffset(jumpEnd, theModule.instrs_last());
+            fixJump(jumpEnd, theModule.instrs_last());
           }
         }
       }
@@ -190,8 +203,7 @@ class BCGen::StmtGenerator : public Generator,
           builder.truncate_instrs(jumpIfFalse);
         // Else, complete 'jumpToElse' to jump after the last instr emitted.
         else 
-          jumpIfFalse->JumpIfNot.offset = 
-            calculateJumpOffset(jumpIfFalse, theModule.instrs_last());
+          fixJump(jumpIfFalse, theModule.instrs_last());
       }
     }
 
