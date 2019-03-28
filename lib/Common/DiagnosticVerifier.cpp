@@ -122,6 +122,13 @@ DiagnosticVerifier::DiagsSetTy& DiagnosticVerifier::getExpectedDiags() {
 bool DiagnosticVerifier::finish() {
   bool success = true;
 
+  // For each file where unexpected diagnostics were emitted, emit a diagnostic.
+  if(hasEmittedUnexpectedDiagnostics_) {
+    diags_
+      .report(DiagID::dv_failure_unexpected_diags_emitted, SourceRange());
+    success = false;
+  }
+
   // If some expected diags weren't emitted, emit an error.
   if(expectedDiags_.size() != 0)
     diags_
@@ -133,15 +140,8 @@ bool DiagnosticVerifier::finish() {
     diags_.report(DiagID::dv_note_diag_not_emitted, diag.file)
       .addArg(diag.diagStr)
       .addArg(toString(diag.severity))
-      .addArg(diag.line);
+      .addArg(diag.line).isFileWide();
     // Some expected diags weren't emitted.
-    success = false;
-  }
-  
-  // For each file where unexpected diagnostics were emitted, emit a diagnostic.
-  if(hasEmittedUnexpectedDiagnostics_) {
-    diags_
-      .report(DiagID::dv_failure_unexpected_diags_emitted, SourceRange());
     success = false;
   }
 
