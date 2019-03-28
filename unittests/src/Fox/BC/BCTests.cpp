@@ -40,7 +40,7 @@ TEST(OpcodeTest, ToString) {
   EXPECT_STRCASEEQ(strC, "LAnd");
 }
 
-TEST(InstructionDumpTest, DumpInstructionsTest) {
+TEST(InstructionTest, dumpInstructions) {
   // Create a series of instructions 
   BCModuleBuilder builder;
   builder.createNoOpInstr();
@@ -61,6 +61,25 @@ TEST(InstructionDumpTest, DumpInstructionsTest) {
     " 2\t| LNot 42 84\n"
     " 3\t| StoreSmallInt 0 -4242\n"
     " 4\t| Jump -30000\n");
+}
+
+TEST(InstructionTest, isAnyJump) {
+  #define TEST_JUMP(OP)\
+    EXPECT_TRUE(Instruction(Opcode::OP).isAnyJump())\
+    << #OP " is a jump but isAnyJump returns false";
+  #define TEST_NONJUMP(OP)\
+    EXPECT_FALSE(Instruction(Opcode::OP).isAnyJump())\
+    << #OP " isn't a jump but isAnyJump returns true";
+  //---------------------------------------------------//
+  TEST_JUMP(JumpIf);
+  TEST_JUMP(JumpIfNot);
+  TEST_JUMP(Jump);
+  TEST_NONJUMP(StoreSmallInt);
+  TEST_NONJUMP(AddInt);
+  TEST_NONJUMP(LNot);
+  //---------------------------------------------------//
+  #undef TEST_JUMP
+  #undef TEST_NONJUMP
 }
 
 TEST(BCBuilderTest, TernaryInstr) {
