@@ -67,9 +67,11 @@ Basic VM data types and their mappings to Fox types:
     -> Double & Double operations
     -> Assignements (AssignExprGenerator)
 
-  -> Codegen of functions
+  -> Codegen of functions & return statements
     -> Don't forget to add support of ParamDecl/References to ParamDecl in RegisterAllocator 
        and FuncGenPrologue.
+    -> Add tests for:
+      -> Stopping emission after a "ReturnStmt" was emitted in a CompoundStmt.
 
 ---- Implementation of Object types ----
   Note: At first, objects won't be freed. I'll use a leak-forever allocator (LinearAllocator).

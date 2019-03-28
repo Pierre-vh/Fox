@@ -104,8 +104,14 @@ class BCGen::StmtGenerator : public Generator,
 
     void visitCompoundStmt(CompoundStmt* stmt) {
       // Just visit all the nodes
-      for(ASTNode node : stmt->getNodes())
+      for (ASTNode node : stmt->getNodes()) {
         genNode(node);
+        if (Stmt* stmt = node.dyn_cast<Stmt*>()) {
+          // If this is a ReturnStmt, stop here so we don't emit
+          // the code after it (since it's unreachable anyway).
+          if(isa<ReturnStmt>(stmt)) return;
+        }
+      }
     }
 
     void visitConditionStmt(ConditionStmt* stmt) {
