@@ -5,27 +5,50 @@ func returnsVoid() {}
 func foo() {
   // Here, no return value is allowed
   return;
+}
+
+func foo2() {
   // We should allow return expression of type void too
   return returnsVoid();
-  // not ok
+}
+
+func foo3() {
   return 3; // expect-error: unexpected non-void return expression in void function
 }
 
 func bar() : int {
   // ok
   return 1;
-  // not ok
+}
+
+func bar2() : int {
   return; // expect-error: return statement with no expression in function returning 'int'
+}
+
+func bar3() : int {
   return "s"; // expect-error: cannot convert return expression of type 'string' to return type 'int'
+}
+
+func bar4() : int {
   return 3.14; // expect-error: cannot convert return expression of type 'double' to return type 'int'
 }
 
-func infer() : [[int]] {
-  // ok
+func error0() : [[int]] {
   return [];
+}
+
+func error1() : [[int]] {
   return [[3]];
-  // not ok
+}
+
+func error2() : [[int]] {
   return; // expect-error: return statement with no expression in function returning '[[int]]'
+}
+
+func error3() : [[int]] {
   return [false]; // expect-error: cannot convert return expression of type '[bool]' to return type '[[int]]'
+}
+
+func error4() : [[int]] {
   return [[3.14]]; // expect-error: cannot convert return expression of type '[[double]]' to return type '[[int]]'
 }

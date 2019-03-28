@@ -1,0 +1,26 @@
+// RUN: %fox-verify
+
+func foo() : int {
+  while true {
+    return 3;
+    "this is madness";   // expect-warning: code after 'return' will never be executed
+  }
+  return 0; 
+  "no, this is sparta!"; // expect-warning: code after 'return' will never be executed
+}
+
+func bar() : int {
+  if true {
+    return 0;
+    "hello there";       // expect-warning: code after 'return' will never be executed
+  }
+  else if false {
+    return 1;
+    "general kenobi!";   // expect-warning: code after 'return' will never be executed
+  }
+  else {
+    return 2;
+    "beep boop";         // expect-warning: code after 'return' will never be executed
+  }
+  "the end";  // expect-warning: code after 'return' will never be executed
+}

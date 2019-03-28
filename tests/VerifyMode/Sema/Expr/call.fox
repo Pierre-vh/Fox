@@ -12,9 +12,9 @@ func takesInt(x: int) {}
 
 // expect-note@+2: 'takesIntsReturnString' declared here with type '(int,int) -> string'
 // expect-note@+1: 'takesIntsReturnString' declared here with type '(int,int) -> string'
-func takesIntsReturnString(x: int, y: mut int) : string {}
+func takesIntsReturnString(x: int, y: mut int) : string { return ""; }
 
-func takesArrayReturnsArray(x: [int]) : [int] {}
+func takesArrayReturnsArray(x: [int]) : [int] { return []; }
 
 // Test that theses functions can be called
 func callsTest() {

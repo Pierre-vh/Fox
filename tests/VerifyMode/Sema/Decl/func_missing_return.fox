@@ -1,0 +1,46 @@
+// RUN: %fox-verify
+
+func void_func() {}
+
+func int_func() : int { return 0; }
+
+// Error cases
+
+func a() : int {
+  
+} // expect-error: missing return statement in function 'a' expected to return 'int'
+
+func b() : bool {
+  if true {
+    return false;
+  }
+  else {
+  }
+} // expect-error: missing return statement in function 'b' expected to return 'bool'
+
+func c() : double {
+  // Even if the function returns at some point, it should still emit an error.
+  while true {
+    return 0.0;
+  }
+} // expect-error: missing return statement in function 'c' expected to return 'double'
+
+func d() : int {
+  // Even if the condition is always true, it should still emit an error.
+  if true {
+    return 0;
+  }
+}  // expect-error: missing return statement in function 'd' expected to return 'int'
+
+// Valid cases
+
+func e() : int {
+  // When both branches of an if return on all paths, no error should
+  // be emitted.
+  if 0 == 1 {
+    return 0;
+  }
+  else {
+    return 1;
+  }
+}

@@ -11,12 +11,113 @@
 #include "Fox/Sema/Sema.hpp"
 #include "Fox/AST/ASTVisitor.hpp"
 #include "Fox/AST/ASTWalker.hpp"
+#include "Fox/AST/Types.hpp"
 #include "Fox/Common/Errors.hpp"
 #include "Fox/Common/DiagnosticEngine.hpp"
 #include <map>
 
 using namespace fox;
 
+//----------------------------------------------------------------------------//
+//  Sema::FuncFlowChecker
+//----------------------------------------------------------------------------//
+
+namespace {
+  // The "Function Flow Checker", which checks that a function body correctly
+  // returns on all control path, and warns about code after return statements.
+  //
+  // Every "visit" function return true if the node returns on all
+  // control paths, false otherwise.
+  class FuncFlowChecker : StmtVisitor<FuncFlowChecker, bool> {
+    using Inherited = StmtVisitor<FuncFlowChecker, bool>;
+    friend Inherited;
+    public:
+      FuncFlowChecker(FuncDecl* decl, DiagnosticEngine& diagEngine) 
+        : theFunc(decl), diagEngine(diagEngine) { }
+        
+      void check() {
+        bool returnsOnAllPaths = visit(theFunc->getBody());
+        if (!returnsOnAllPaths) {
+          Type rtrTy = theFunc->getReturnTypeLoc().getType();
+          // Function doesn't return void, and doesn't return
+          // on all control paths.
+          if (!rtrTy->isVoidType()) {
+            // Diagnose at the } of the body
+            SourceLoc loc = theFunc->getBody()->getEndLoc();
+            Identifier ident = theFunc->getIdentifier();
+            diagEngine.report(DiagID::missing_return_in_func, loc)
+              .addArg(ident).addArg(rtrTy);
+          }
+        }
+      }
+
+      FuncDecl* theFunc;
+      DiagnosticEngine& diagEngine;
+
+    private:
+      bool visitNode(ASTNode node) {
+        // Only visit statements
+        if(Stmt* stmt = node.dyn_cast<Stmt*>())
+          return visit(stmt);
+        return false;
+      }
+
+      bool visitCompoundStmt(CompoundStmt* stmt) {
+        bool returnsOnAllPaths = false;
+        MutableArrayRef<ASTNode> nodes = stmt->getNodes();
+        auto it = nodes.begin();
+        auto end = nodes.end();
+        for(; it != end; ++it) {
+          // If we hit a node that returns on all control paths, set
+          // returnsOnAllPaths to true and break the loop
+          if (visitNode(*it)) {
+            returnsOnAllPaths = true;
+            break;
+          }
+        }
+        // If the function returns on all control paths, check if there are
+        // statements left. If there are, warn about unreachable code.
+        if (returnsOnAllPaths) {
+          if ((++it) != end) {
+            SourceLoc beg = it->getBeginLoc();
+            diagEngine.report(DiagID::code_after_return_not_reachable, beg);
+          }
+        }
+        return returnsOnAllPaths;
+      }
+
+      bool visitReturnStmt(ReturnStmt*) {
+        // Obviously, a return statement always returns.
+        return true;
+      }
+
+      bool visitWhileStmt(WhileStmt* stmt) {
+        // Unfortunately, we can't do anything here, so just visit
+        // the body and return false.
+        visitCompoundStmt(stmt->getBody());
+        // We might do something in the future when we can understand
+        // infinite loops at compile time.
+        // Then, for infinitel loops, check the body and stop the whole search.
+        return false;
+      }
+
+      bool visitConditionStmt(ConditionStmt* stmt) {
+        // For if-then-else statements, return true if both
+        // return on all control paths.
+        //
+        // Else, just return "false" since we don't know if
+        // the if's code will actually be executed.
+        bool thenReturns = visitCompoundStmt(stmt->getThen());
+        if (Stmt* elseStmt = stmt->getElse())
+          return visit(elseStmt) && thenReturns;
+        return false;
+      }
+  };
+}
+
+//----------------------------------------------------------------------------//
+//  Sema::DeclChecker
+//----------------------------------------------------------------------------//
 
 class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
   using Inherited = DeclVisitor<DeclChecker, void>;
@@ -143,10 +244,16 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       auto raiiDC = sema.enterDeclCtxtRAII(decl);
       // Check if this is an invalid redecl
       checkForIllegalRedecl(decl);
-      // Check it's parameters
+      // Check its parameters
       for (ParamDecl* param : *decl->getParams())
         visit(param);
+      // Check the body
       sema.checkStmt(decl->getBody());
+      // Check the flow
+      // NOTE: Ideally this check shouldn't run if the body of the func 
+      // emitted errors. Unfortunately, there's no way to know that
+      // for now. 
+      FuncFlowChecker(decl, diagEngine).check();
     }
 
     void visitUnitDecl(UnitDecl* unit) {

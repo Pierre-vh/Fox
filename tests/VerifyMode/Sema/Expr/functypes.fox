@@ -1,6 +1,6 @@
 // RUN: %fox-verify
 
-func intToDouble(x: int) : double {}
+func intToDouble(x: int) : double { return 0.0; }
 func voidFn() {}
 
 func test() {

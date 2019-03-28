@@ -11,10 +11,10 @@ let a : int;
 // CHECK-NEXT: VarDecl [[global_b_addr:0x([[:alnum:]]{8,16})]] {{.*}} var b 'double'
 var b : double;
 
-// CHECK-NEXT: FuncDecl [[foo_addr:0x([[:alnum:]]{8,16})]] {{.*}} foo '(char,[string]) -> int'
+// CHECK-NEXT: FuncDecl [[foo_addr:0x([[:alnum:]]{8,16})]] {{.*}} foo '(char,[string]) -> void'
 // CHECK-NEXT: ParamDecl [[param_a_addr:0x([[:alnum:]]{8,16})]] {{.*}} a 'char'
 // CHECK-NEXT: ParamDecl [[mutParam_addr:0x([[:alnum:]]{8,16})]] {{.*}} mut mutParam '[string]'
-func foo(a : char, mutParam : mut [string]) : int {
+func foo(a : char, mutParam : mut [string]) {
   // CHECK: DeclRefExpr 'char' a <decl:[[param_a_addr]]>
   a;
   // Check that a reference to a mutable variable has a "lvalue"
@@ -22,13 +22,13 @@ func foo(a : char, mutParam : mut [string]) : int {
   b;
   // CHECK: DeclRefExpr lvalue '[string]' mutParam <decl:[[mutParam_addr]]>
   mutParam;
-  // CHECK-NEXT: DeclRefExpr '(char,[string]) -> int' foo <decl:[[foo_addr]]>
+  // CHECK-NEXT: DeclRefExpr '(char,[string]) -> void' foo <decl:[[foo_addr]]>
   foo;
   // CHECK-NEXT: DeclRefExpr '[double]' c
   c;
   // CHECK-NEXT: DeclRefExpr '() -> void' some_func_before
   some_func_before;
-  // CHECK-NEXT: DeclRefExpr '([bool],string) -> char' another_func_after
+  // CHECK-NEXT: DeclRefExpr '([bool],string) -> void' another_func_after
   another_func_after;
 }
 
@@ -36,4 +36,4 @@ func foo(a : char, mutParam : mut [string]) : int {
 // CHECK: DeclRefExpr 'int' a <decl:[[global_a_addr]]>
 let c : [double] = [a as double];
 
-func another_func_after(baz: [bool], foz: string) : char{}
+func another_func_after(baz: [bool], foz: string) {}
