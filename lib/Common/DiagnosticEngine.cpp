@@ -154,9 +154,7 @@ DiagnosticEngine::report(DiagID diagID, SourceRange range, bool isFileWide) {
   const auto idx = static_cast<std::underlying_type<DiagID>::type>(diagID);
   DiagSeverity sev = diagsSevs[idx];
   std::string str(diagsStrs[idx]);
-
   sev = changeSeverityIfNeeded(sev);
-
   return Diagnostic(this, diagID, sev, str, range, isFileWide);
 }
 
@@ -237,10 +235,12 @@ void DiagnosticEngine::updateInternalState(DiagSeverity ds) {
 
 Diagnostic::Diagnostic(DiagnosticEngine* engine, DiagID dID,
   DiagSeverity dSev, string_view dStr, SourceRange range, bool isFileWide) :
+  // init attributes
   engine_(engine), diagID_(dID), diagSeverity_(dSev), diagStr_(dStr.to_string()),
-  fileWide_(isFileWide), range_(range) {
+  range_(range), fileWide_(isFileWide),
+  // init other bitfields to zero
+  curPHIndex_(0) {
   assert(engine && "Engine cannot be null!");
-  initBitFields();
 }
 
 Diagnostic::Diagnostic(Diagnostic&& other) {
@@ -372,11 +372,6 @@ void Diagnostic::kill() {
 
 Diagnostic::operator bool() const {
   return isActive();
-}
-
-void Diagnostic::initBitFields() {
-  curPHIndex_ = 0;
-  fileWide_ = false;
 }
 
 //----------------------------------------------------------------------------//

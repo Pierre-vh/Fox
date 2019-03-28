@@ -143,8 +143,6 @@ namespace fox {
       // class is used to access the private data of the Diagnostic object
       // inside the .cpp without being in a function.
       class StaticAsserts;
-
-      void initBitFields();  
       
       // replaces every occurence of "%(value of index)" 
       // in a string with the replacement value
