@@ -240,9 +240,20 @@ namespace fox {
       Token getPreviousToken() const;
       
       //---------------------------------//
-      // Resynchronization helpers
+      // Recovery helpers
       //---------------------------------//
       
+      // \param tok the token to check
+      // \return true if 'tok' is a token that begins a declaration
+      static bool isStartOfDecl(const Token& tok);
+
+      // Checks if a token that begins a statement. This is "conservative".
+      // It will only look for var, let, while, if and return and won't try
+      // to guess the beginning of expression statements.
+      // \param tok the token to check
+      // \return true if 'tok' is a token that begins a statement.
+      static bool isStartOfStmt(const Token& tok);
+
       // Skips a token, eventually matching parentheses, brackets or brace,
       // skipping to the next token past the closing parenthese/bracket/brace.
       void skip();
@@ -251,14 +262,15 @@ namespace fox {
       // semi (if stopAtSemi == true).
       // Consumes the token if shouldConsumeToken == true.
       //
-      // Returns true if the desired token was found.
+      // Returns true if the desired token was found (= the recovery was successful)
+      // false otherwise.
       bool skipUntil(TokenKind kind, bool stopAtSemi, bool shouldConsumeToken);
 
-      // Skips to the next 'let', 'var' or 'func' keyword.
+      // Skips to the next token that starts a declaration.
       bool skipToNextDecl();
 
       //---------------------------------//
-      // Error reporting
+      // Other
       //---------------------------------//
 
       TokenVector& getTokens();
@@ -274,25 +286,16 @@ namespace fox {
 
       //---------------------------------//
       // Parser "state" variables & methods
-      //
-      // The variables are part of what I call the "Parser State".
       //---------------------------------//
 
-      // Iterator to the current token being considered
-      // by the parser.
+      // Iterator to the current token being considered by the parser.
       TokenIteratorTy tokenIterator_;
 
-      // isAlive
-		  //  This is set to false when the parser dies (=gives up)
-      bool isAlive_ : 1;
-      
+      // The currently active DeclContext
       DeclContext* curDeclCtxt_ = nullptr;
-      
-      bool isDone() const;
-      bool isAlive() const;
 
-      // Stops the parsing
-      void die();
+      // Returns true if the parser is done parsing.
+      bool isDone() const;
 
       //----------------------------------------------------------------------//
       // Private parser objects

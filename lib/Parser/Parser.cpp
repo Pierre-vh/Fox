@@ -22,7 +22,6 @@ Parser::Parser(ASTContext& ctxt, Lexer& lexer, UnitDecl *unit):
   ctxt(ctxt), lexer(lexer), srcMgr(ctxt.sourceMgr), diagEngine(ctxt.diagEngine),
   curDeclCtxt_(unit) {
   tokenIterator_ = getTokens().begin();
-  isAlive_ = true;
 }
 
 std::pair<Identifier, SourceRange> Parser::consumeIdentifier() {
@@ -118,6 +117,30 @@ Token Parser::getPreviousToken() const {
   return Token();
 }
 
+bool Parser::isStartOfDecl(const Token& tok) {
+  switch (tok.kind) {
+    case TokenKind::FuncKw:
+    case TokenKind::VarKw:
+    case TokenKind::LetKw:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool Parser::isStartOfStmt(const Token & tok) {
+  switch (tok.kind) {
+    case TokenKind::VarKw:
+    case TokenKind::LetKw:
+    case TokenKind::IfKw:
+    case TokenKind::WhileKw:
+    case TokenKind::ReturnKw:
+      return true;
+    default:
+      return false;
+  }
+}
+
 TokenVector& Parser::getTokens() {
   return lexer.getTokens();
 }
@@ -125,6 +148,7 @@ TokenVector& Parser::getTokens() {
 const TokenVector& Parser::getTokens() const {
   return lexer.getTokens();
 }
+
 
 void Parser::skip() {
   Token tok = getCurtok();
@@ -150,39 +174,24 @@ Parser::skipUntil(TokenKind kind, bool stopAtSemi, bool shouldConsumeToken) {
     assert(curtok && "curtok is invalid");
     // Match the desired token
     if (curtok.is(kind)) {
-      if(shouldConsumeToken)
-        consume();
+      if(shouldConsumeToken) consume();
       return true;
     }
-    // Stop at semi if required
     if(stopAtSemi && curtok.is(TokenKind::Semi))
       return false;
-    // Else, skip
     skip();
   }
-  die();
   return false;
 }
 
 bool Parser::skipToNextDecl() {
   while(!isDone()) {
     auto tok = getCurtok();
-    // if it's let/var/func, return.
-    if (tok.is(TokenKind::FuncKw) 
-     || tok.is(TokenKind::LetKw) 
-     || tok.is(TokenKind::VarKw))
+    if (isStartOfDecl(tok))
       return true;
-    // else, keep skipping.
     skip();
   }
-  // If we get here, we reached eof.
-  die();
   return false;
-}
-
-void Parser::die() {
-  tokenIterator_ = getTokens().end();
-  isAlive_ = false;
 }
 
 Diagnostic Parser::reportErrorExpected(DiagID diag) {
@@ -206,11 +215,7 @@ Diagnostic Parser::reportErrorExpected(DiagID diag) {
 }
 
 bool Parser::isDone() const {
-  return (tokenIterator_ == getTokens().end()) || (!isAlive());
-}
-
-bool Parser::isAlive() const {
-  return isAlive_;
+  return (tokenIterator_ == getTokens().end());
 }
 
 DeclContext* Parser::getCurrentDeclCtxt() const {
