@@ -244,9 +244,11 @@ class Sema::DeclChecker : Checker, DeclVisitor<DeclChecker, void> {
       auto raiiDC = sema.enterDeclCtxtRAII(decl);
       // Check if this is an invalid redecl
       checkForIllegalRedecl(decl);
-      // Check its parameters
-      for (ParamDecl* param : *decl->getParams())
-        visit(param);
+      // Check parameters
+      if (ParamList* params = decl->getParams()) {
+        for (ParamDecl* param : *params)
+          visit(param);
+      }
       // Check the body
       sema.checkStmt(decl->getBody());
       // Check the flow

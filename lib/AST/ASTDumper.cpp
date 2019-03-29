@@ -291,10 +291,12 @@ void ASTDumper::visitParamDecl(ParamDecl* node) {
 void ASTDumper::visitFuncDecl(FuncDecl* node) {
   dumpLine() << getValueDeclInfo(node) << "\n";
 
-  for (auto decl : *node->getParams()) {
-    indent();
-    visitParamDecl(decl);
-    dedent();
+  if (ParamList* params = node->getParams()) {
+    for (auto decl : *params) {
+      indent();
+      visitParamDecl(decl);
+      dedent();
+    }
   }
 
   // Visit the compound statement
