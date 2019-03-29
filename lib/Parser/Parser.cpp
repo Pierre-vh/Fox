@@ -29,7 +29,7 @@ std::pair<Identifier, SourceRange> Parser::consumeIdentifier() {
   Token tok = getCurtok();
   assert(isCurTokAnIdentifier() && "not an identifier");
   Identifier id = ctxt.getIdentifier(tok.str);
-  next();
+  consume();
   return std::make_pair(id, tok.range);
 }
 
@@ -74,8 +74,9 @@ SourceRange Parser::consume() {
         roundBracketsCount_--;
       break;
   }
-  // Skip the token & return
-  next();
+  // Advance
+  if (tokenIterator_ != getTokens().end())
+    tokenIterator_++;
   return tok.range;
 }
 
@@ -83,16 +84,6 @@ SourceRange Parser::tryConsume(TokenKind kind) {
   if(getCurtok().is(kind)) 
     return consume();
   return SourceRange();
-}
-
-void Parser::next() {
-  if (tokenIterator_ != getTokens().end())
-    tokenIterator_++;
-}
-
-void Parser::undo() {
-  if (tokenIterator_ != getTokens().begin())
-    tokenIterator_--;
 }
 
 Parser::Result<TypeLoc> Parser::parseBuiltinTypename() {

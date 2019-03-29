@@ -187,8 +187,6 @@ namespace fox {
       Result<BinaryExpr::OpKind> 
       parseBinaryOp(unsigned priority, SourceRange& range);
 
-      SourceRange parseExponentOp();
-
       //---------------------------------//
       // Current Decl Parent (curParent_) helpers
       //---------------------------------//
@@ -232,22 +230,6 @@ namespace fox {
       //
       // Returns a valid SourceRange on success, false otherwise.
       SourceRange tryConsume(TokenKind kind);
-
-      // NOTE: This has been removed because most users know what kind of token
-      //       they want to unconsume and none actually need to unconsume 
-      //       bracket/braces/paren so undo() works just fine for the current
-      //       users. Rewrite this if needed. Take paren/brace/bracket balancing 
-      //       in account!
-      // Reverts the last consume operation, updating counters if needed.
-      // void unconsume();
-
-      // Increments the iterator if possible. Used to skip a token 
-      // without updating any counters.
-      void next();
-
-      // Decrements the iterator if possible. Used to go back to the last token
-      // without updating counters.
-      void undo();  
 
       // Returns the current token (*tokenIterator_) without incrementing
       // the current iterator.

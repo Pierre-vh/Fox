@@ -278,7 +278,7 @@ Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
   else
     return Result<Expr*>::NotFound();
   assert(expr && "no expr");
-  next();
+  consume();
   return Result<Expr*>(expr);
 }
 
@@ -380,8 +380,8 @@ Parser::Result<Expr*> Parser::parseExponentExpr() {
   if (!lhs)
     return lhs; 
 
-  // <exponent_operator> 
-  if (auto expOp = parseExponentOp()) {
+  // <exponent_operator>  ('*' '*')
+  if (auto expOp = tryConsume(TokenKind::StarStar)) {
     // <prefix_expr>
     auto rhs = parsePrefixExpr();
     if (!rhs) {
@@ -585,13 +585,9 @@ Parser::Result<ExprVector> Parser::parseExprList() {
     if (auto expr = parseExpr())
       exprs.push_back(expr.get());
     else {
-      if (expr.isNotFound()) {
-        // if the expression was just not found, revert the comma consuming and
-        // let the caller deal with the extra comma after the expression list.
-        undo();
-        break;
-      }
-
+      // Diagnose if the expression was not found
+      if (expr.isNotFound())
+        reportErrorExpected(DiagID::expected_expr);
       return Result<ExprVector>::Error();
     }
   }
@@ -642,15 +638,6 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
     *RParenLoc = rightParens;
 
   return Result<ExprVector>(exprs);
-}
-
-SourceRange Parser::parseExponentOp() {
-  if (getCurtok().is(TokenKind::StarStar)) {
-    SourceRange range = getCurtok().range;
-    next();
-    return range;
-  }
-  return SourceRange();
 }
 
 Parser::Result<BinaryExpr::OpKind> 
