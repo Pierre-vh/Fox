@@ -153,6 +153,18 @@ To-Do:
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
+  > Recovery improvements (now)
+    > Rework recovery methods (Done)
+    > Add new recovery methods:
+      > skipToSemiOrRBrace() -> Skip to a semicolon or RBrace (to avoid escaping the current block)
+    > (Maybe) even add recovery based on newlines (newlines can easily be detected with the next lexer)
+      (e.g. skipToSemiOrEOL)
+  > add tests: check that recovery catches all possible situations (all diagnostics possible).
+      > test as many parsing rules as possible. if possible, all of them. check that recovery works
+        fine in a files, etc.
+      > use filecheck AND verify (verify errors, check that ast nodes are present)
+    
+
   > Polishing the Lexer Rework (Next)
     > Rewrite lexer tests (Done)
     > Write parser text normalization tests (Done)

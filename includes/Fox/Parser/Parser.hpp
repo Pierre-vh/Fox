@@ -242,11 +242,20 @@ namespace fox {
       //---------------------------------//
       // Resynchronization helpers
       //---------------------------------//
+      
+      // Skips a token, eventually matching parentheses, brackets or brace,
+      // skipping to the next token past the closing parenthese/bracket/brace.
+      void skip();
 
-      bool resyncTo(TokenKind kind, bool stopAtSemi, bool shouldConsumeToken);
-      bool resyncTo(const SmallVector<TokenKind, 4>& kinds, bool stopAtSemi,
-				            bool shouldConsumeToken);
-      bool resyncToNextDecl();
+      // Keeps skipping tokens until we reach a token of kind 'kind', or a
+      // semi (if stopAtSemi == true).
+      // Consumes the token if shouldConsumeToken == true.
+      //
+      // Returns true if the desired token was found.
+      bool skipUntil(TokenKind kind, bool stopAtSemi, bool shouldConsumeToken);
+
+      // Skips to the next 'let', 'var' or 'func' keyword.
+      bool skipToNextDecl();
 
       //---------------------------------//
       // Error reporting
@@ -277,11 +286,6 @@ namespace fox {
 		  //  This is set to false when the parser dies (=gives up)
       bool isAlive_ : 1;
       
-      // Brackets counters
-      std::uint8_t curlyBracketsCount_  = 0;
-      std::uint8_t roundBracketsCount_  = 0;
-      std::uint8_t squareBracketsCount_ = 0;
-
       DeclContext* curDeclCtxt_ = nullptr;
       
       bool isDone() const;

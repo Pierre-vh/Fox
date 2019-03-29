@@ -35,48 +35,8 @@ std::pair<Identifier, SourceRange> Parser::consumeIdentifier() {
 
 SourceRange Parser::consume() {
   auto tok = getCurtok();
-  assert(tok && "Parser is dead?");
-  // Lambda to diagnose an overflow and kill the parser.
-  auto diagnoseOverflow = [&](DiagID id) {
-    diagEngine.report(id, tok.range);
-    die();
-  };
-  // Handle parens and other special tokens
-  switch (tok.kind) {
-    case TokenKind::LBrace:
-      if (curlyBracketsCount_ < maxBraceDepth_)
-        curlyBracketsCount_++;
-      else
-        diagnoseOverflow(DiagID::brace_overflow);
-      break;
-    case TokenKind::RBrace:
-      if (curlyBracketsCount_)
-        curlyBracketsCount_--;
-      break;
-    case TokenKind::LSquare:
-      if (squareBracketsCount_ < maxBraceDepth_)
-        squareBracketsCount_++;
-      else
-        diagnoseOverflow(DiagID::brace_overflow);
-      break;
-    case TokenKind::RSquare:
-      if (squareBracketsCount_)
-        squareBracketsCount_--;
-      break;
-    case TokenKind::LParen:
-      if (roundBracketsCount_ < maxBraceDepth_)
-        roundBracketsCount_++;
-      else 
-        diagnoseOverflow(DiagID::parens_overflow);
-      break;
-    case TokenKind::RParen:
-      if (roundBracketsCount_) 
-        roundBracketsCount_--;
-      break;
-  }
-  // Advance
-  if (tokenIterator_ != getTokens().end())
-    tokenIterator_++;
+  assert(tok && "Consuming EOF token");
+  if (tokenIterator_ != getTokens().end()) tokenIterator_++;
   return tok.range;
 }
 
@@ -125,7 +85,7 @@ Parser::Result<TypeLoc> Parser::parseType() {
     if(!rsquare) {
       error = true;
       reportErrorExpected(DiagID::expected_rbracket);
-      bool resync = resyncTo(TokenKind::RSquare, 
+      bool resync = skipUntil(TokenKind::RSquare, 
                              /*stop@semi*/ true, /*consume*/ false);
       if(resync)
         rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
@@ -166,101 +126,54 @@ const TokenVector& Parser::getTokens() const {
   return lexer.getTokens();
 }
 
-bool 
-Parser::resyncTo(TokenKind kind, bool stopAtSemi, bool shouldConsumeToken) {
-  return resyncTo(SmallVector<TokenKind, 4>({kind}), 
-                  stopAtSemi, shouldConsumeToken);
-}
-
-bool Parser::resyncTo(const SmallVector<TokenKind, 4>& kinds,
-	                    bool stopAtSemi, bool shouldConsumeToken) {
-  if (!isAlive()) return false;
-
-  bool isFirst = true;
-  // Keep going until we reach EOF.
-  while(!isDone()) {
-    // Check the current token
-    auto tok = getCurtok();
-    for (TokenKind kind : kinds) {
-      // Consume if it matches
-      if (tok.is(kind)) {
-        if(shouldConsumeToken)
-          consume();
-        return true;
-      }
-    }
-
+void Parser::skip() {
+  Token tok = getCurtok();
+  assert(tok && "Skipping EOF Token");
+  consume();
   switch (tok.kind) {
-    // Skip '{', '(' or '['
     case TokenKind::LBrace:
-      consume();
-      resyncTo(TokenKind::RBrace, false, true);
-      break;
-    case TokenKind::LSquare:
-      consume();
-      resyncTo(TokenKind::RSquare, false, true);
+      skipUntil(TokenKind::RBrace, /*stopAtSemi*/ false, /*consume*/ true);
       break;
     case TokenKind::LParen:
-      consume();
-      resyncTo(TokenKind::LParen, false, true);
+      skipUntil(TokenKind::RParen, /*stopAtSemi*/ false, /*consume*/ true);
       break;
-    // Skip '}', ')' or ']' only if they're unbalanced,
-    // else return to avoid escaping the current block.
-    case TokenKind::RBrace:
-      if (curlyBracketsCount_ && !isFirst)
-        return false;
-      consume();
+    case TokenKind::LSquare:
+      skipUntil(TokenKind::RSquare, /*stopAtSemi*/ false, /*consume*/ true);
       break;
-    case TokenKind::RSquare:
-      if (squareBracketsCount_ && !isFirst)
-        return false;
-      consume();
-      break;
-    case TokenKind::RParen:
-      if (roundBracketsCount_ && !isFirst)
-        return false;
-      consume();
-      break;
-    case TokenKind::Semi:
-      if (stopAtSemi)
-        return false;
-      // fallthrough
-    default:
-      consume();
-      break;
-    }
-
-    isFirst = false;
   }
-  // If reached eof, die & return false.
+}
+
+bool
+Parser::skipUntil(TokenKind kind, bool stopAtSemi, bool shouldConsumeToken) {
+  while (!isDone()) {
+    Token curtok = getCurtok();
+    assert(curtok && "curtok is invalid");
+    // Match the desired token
+    if (curtok.is(kind)) {
+      if(shouldConsumeToken)
+        consume();
+      return true;
+    }
+    // Stop at semi if required
+    if(stopAtSemi && curtok.is(TokenKind::Semi))
+      return false;
+    // Else, skip
+    skip();
+  }
   die();
   return false;
 }
 
-bool Parser::resyncToNextDecl() {
-  if (!isAlive()) return false;
-
+bool Parser::skipToNextDecl() {
   while(!isDone()) {
     auto tok = getCurtok();
-    // if it's let/func, return.
-    if (tok.is(TokenKind::FuncKw) || tok.is(TokenKind::LetKw))
+    // if it's let/var/func, return.
+    if (tok.is(TokenKind::FuncKw) 
+     || tok.is(TokenKind::LetKw) 
+     || tok.is(TokenKind::VarKw))
       return true;
-    consume();
-    // Skip nested parens braces, brackets or parens.
-    switch (tok.kind) {
-      case TokenKind::LBrace:
-        resyncTo(TokenKind::RBrace, false, true);
-        break;
-      case TokenKind::LSquare:
-        resyncTo(TokenKind::RSquare, false, true);
-        break;
-      case TokenKind::LParen:
-        resyncTo(TokenKind::RParen, false, true);
-        break;
-      default:
-        // nothing
-        break;
-    }
+    // else, keep skipping.
+    skip();
   }
   // If we get here, we reached eof.
   die();

@@ -72,7 +72,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
           diagEngine.report(DiagID::expected_decl, curtok.range);
         }
 
-        if (resyncToNextDecl()) continue; 
+        if (skipToNextDecl()) continue; 
         else break;
       }
     }
@@ -170,7 +170,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
     // We'll attempt to recover to the '{' too,
 		// so if we find the body of the function
     // we can at least parse that.
-    if (!resyncTo(TokenKind::RParen, /*stop@semi*/ true, /*consume*/ true))
+    if (!skipUntil(TokenKind::RParen, /*stop@semi*/ true, /*consume*/ true))
       return Result<Decl*>::Error();
   }
   
@@ -182,7 +182,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
       if (rtrTy.isNotFound())
         reportErrorExpected(DiagID::expected_type);
 
-      if (!resyncTo(TokenKind::LBrace, true, false))
+      if (!skipUntil(TokenKind::LBrace, true, false))
         return Result<Decl*>::Error();
     }
   } 
@@ -274,7 +274,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   
   // Helper lambda
   auto tryRecoveryToSemi = [&]() {
-    if (resyncTo(TokenKind::Semi, /*stop@semi*/false,
+    if (skipUntil(TokenKind::Semi, /*stop@semi*/false,
         /*consumeToken*/true)) {
       // If we recovered to a semicon, simply return not found.
       return Result<Decl*>::NotFound();
@@ -318,7 +318,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
       if (expr.isNotFound())
         reportErrorExpected(DiagID::expected_expr);
       // Recover to semicolon, return if recovery wasn't successful 
-      if (!resyncTo(TokenKind::Semi, /*stop@semi*/ false, /*consume*/ false))
+      if (!skipUntil(TokenKind::Semi, /*stop@semi*/ false, /*consume*/ false))
         return Result<Decl*>::Error();
     }
   }
@@ -328,7 +328,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   if (!endLoc) {
     reportErrorExpected(DiagID::expected_semi);
       
-    if (!resyncTo(TokenKind::Semi, /*stop@Semi*/ false, /*consume*/ false))
+    if (!skipUntil(TokenKind::Semi, /*stop@Semi*/ false, /*consume*/ false))
       return Result<Decl*>::Error();
 
     endLoc = tryConsume(TokenKind::Semi).getBeginLoc();

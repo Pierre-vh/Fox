@@ -44,12 +44,12 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
     else {
       // In both case, attempt recovery to nearest semicolon.
       // FIXME: Is this the right thing? Tests needed!
-      if (resyncTo(TokenKind::Semi,/*stopAtSemi*/ false, /*consume*/ true))
+      if (skipUntil(TokenKind::Semi,/*stopAtSemi*/ false, /*consume*/ true))
         continue;
       else {
         // If we couldn't recover, try to recover to our '}'
         // to stop the parsing of this compound statement early.
-        if (resyncTo(TokenKind::RBrace, 
+        if (skipUntil(TokenKind::RBrace, 
                      /*stopAtSemi*/ false, /*consume*/ false)) {
           rbrace = tryConsume(TokenKind::RBrace).getBeginLoc();
           break;
@@ -193,7 +193,7 @@ Parser::Result<Stmt*> Parser::parseReturnStmt() {
     expr = expr_res.get();
   else if(expr_res.isError()) {
     // expr failed? try to resync to a ';' if possible
-    if (!resyncTo(TokenKind::Semi, /* stopAtSemi */ false, /*consume*/ true))
+    if (!skipUntil(TokenKind::Semi, /* stopAtSemi */ false, /*consume*/ true))
       return Result<Stmt*>::Error();
   }
 
@@ -203,7 +203,7 @@ Parser::Result<Stmt*> Parser::parseReturnStmt() {
   else {
     reportErrorExpected(DiagID::expected_semi);
     // Recover to a ';', if recovery wasn't successful -> error
-    if (!resyncTo(TokenKind::Semi, /* stopAtSemi */ false,  /*consume*/ true))
+    if (!skipUntil(TokenKind::Semi, /* stopAtSemi */ false,  /*consume*/ true))
       return Result<Stmt*>::Error();
   }
     
@@ -260,7 +260,7 @@ Parser::Result<ASTNode> Parser::parseExprStmt() {
     if (!tryConsume(TokenKind::Semi)) {
       reportErrorExpected(DiagID::expected_semi);
 
-      if (!resyncTo(TokenKind::Semi, /* stopAtSemi */ false, 
+      if (!skipUntil(TokenKind::Semi, /* stopAtSemi */ false, 
         /*consume*/ true))
         return Result<ASTNode>::Error();
       // if recovery was successful, just return like nothing has happened!
@@ -270,7 +270,7 @@ Parser::Result<ASTNode> Parser::parseExprStmt() {
   }
   else if(expr.isError()) {
     // if the expression had an error, ignore it and try to recover to a semi.
-    if (resyncTo(TokenKind::Semi, /*stopAtSemi*/ false, /*consume*/ true)) {
+    if (skipUntil(TokenKind::Semi, /*stopAtSemi*/ false, /*consume*/ true)) {
       return Result<ASTNode>::NotFound();
     }
     return Result<ASTNode>::Error();
