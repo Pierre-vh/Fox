@@ -166,10 +166,6 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   auto rightParens = tryConsume(TokenKind::RParen);
   if (!rightParens) {
     reportErrorExpected(DiagID::expected_rparen);
-
-    // We'll attempt to recover to the '{' too,
-		// so if we find the body of the function
-    // we can at least parse that.
     if (!skipUntil(TokenKind::RParen, /*stop@semi*/ true, /*consume*/ true))
       return Result<Decl*>::Error();
   }
