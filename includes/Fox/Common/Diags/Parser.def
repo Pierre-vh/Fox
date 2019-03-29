@@ -45,10 +45,3 @@ ERROR(empty_char_lit,
   "empty character literal")
 ERROR(multiple_cp_in_char_lit,
   "char literal may only contain a single codepoint")
-
-FATAL(parens_overflow,
-  "max parenthese depth exceeded")
-FATAL(bracket_overflow,
-  "max bracket depth exceeded")
-FATAL(brace_overflow,
-  "max brace depth exceeded")
