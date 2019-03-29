@@ -210,64 +210,71 @@ namespace fox {
       // Token consumption
       //---------------------------------//
 
-      // Returns true if the current token is an identifier
+      /// \returns true if the current token is an identifier
       bool isCurTokAnIdentifier() const;
 
-      // Consumes an identifier, returning the Identifier object
-      // and the range of the token.
-      // The current token must be of the correct kind.
-      //
-      // isCurTokAnIdentifier() must return true.
+      /// Consumes an identifier, returning the Identifier object
+      /// and the range of the token.
+      /// The current token must be of the correct kind.
+      ///
+      /// isCurTokAnIdentifier() must return true.
+      /// \returns the identifier object and the range of the identifier token.
       std::pair<Identifier, SourceRange> consumeIdentifier();
 
-      // Consumes the current token, correctly updating counters
-      // if needed.
-      // 
-      // Returns the range of the token.
+      /// Consumes the current token.
+      /// \returns the range of the token.
       SourceRange consume();
 
-      // Consumes the current tok iff (tok.kind == kind)
-      //
-      // Returns a valid SourceRange on success, false otherwise.
+      /// Consumes the current tok iff it is of kind \p kind
+      /// \returns a valid SourceRange on success, false otherwise.
       SourceRange tryConsume(TokenKind kind);
 
-      // Returns the current token (*tokenIterator_) without incrementing
-      // the current iterator.
+      /// \returns the current token
       Token getCurtok() const;
       
-      // Returns the previous token (*(--tokenIterator)) without decrementing
-      // the current iterator.
+      /// \returns the previous token
       Token getPreviousToken() const;
       
       //---------------------------------//
       // Recovery helpers
       //---------------------------------//
       
-      // \param tok the token to check
-      // \return true if 'tok' is a token that begins a declaration
+      /// \param tok the token to check
+      /// \return true if 'tok' is a token that begins a declaration
       static bool isStartOfDecl(const Token& tok);
 
-      // Checks if a token that begins a statement. This is "conservative".
-      // It will only look for var, let, while, if and return and won't try
-      // to guess the beginning of expression statements.
-      // \param tok the token to check
-      // \return true if 'tok' is a token that begins a statement.
+      /// Checks if a token that begins a statement. This is "conservative".
+      /// It will only look for var, let, while, if and return and won't try
+      /// to guess the beginning of expression statements.
+      /// \param tok the token to check
+      /// \return true if 'tok' is a token that begins a statement.
       static bool isStartOfStmt(const Token& tok);
 
-      // Skips a token, eventually matching parentheses, brackets or brace,
-      // skipping to the next token past the closing parenthese/bracket/brace.
+      /// Skips the current token, eventually matching parentheses, braces
+      /// or brackets (to skip the entire block)
       void skip();
 
-      // Keeps skipping tokens until we reach a token of kind 'kind', or a
-      // semi (if stopAtSemi == true).
-      // Consumes the token if shouldConsumeToken == true.
-      //
-      // Returns true if the desired token was found (= the recovery was successful)
-      // false otherwise.
-      bool skipUntil(TokenKind kind, bool stopAtSemi, bool shouldConsumeToken);
+      /// Skips tokens until the current token is of kind \p kind
+      /// \param kind the kind of token to look for
+      /// \returns true if the current token is of kind \p kind, false otherwise.
+      bool skipUntil(TokenKind kind);
 
-      // Skips to the next token that starts a declaration.
-      bool skipToNextDecl();
+      /// Skips tokens until the current token begins a statement, or until
+      /// a RBrace '}'
+      /// \returns true if the current token begins a statement or is a '}', false
+      ///               otherwise.
+      bool skipUntilStmt();
+
+      /// Skips tokens until the current token is of kind \p kind.
+      /// Else, stops searching when the current token begins a new statement or
+      /// if it's a RBrace '}'
+      /// \param kind the kind of token to look for
+      /// \returns true if the current token is of kind \p kind, false otherwise.
+      bool stmtSkipUntil(TokenKind kind);
+
+      /// Skips to the next token that starts a declaration.
+      /// \returns true on successful recovery
+      bool skipUntilDecl();
 
       //---------------------------------//
       // Other

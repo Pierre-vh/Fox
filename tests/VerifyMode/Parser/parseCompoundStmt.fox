@@ -1,0 +1,11 @@
+// RUN: %fox-verify
+
+func foo() {
+  // It should gracefully recover, so both of theses errors should be picked up
+  let x : int // expect-error: expected ';'
+  let y : int // expect-error: expected ';'
+}
+
+// It should also have recovered at the '}', so this should be picked up too.
+func bar() {  // expect-error: expected '}'
+              // expect-note@-1: to match this '{'

@@ -40,21 +40,20 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
   }
   // '[' <expr> ']
   // '['
-  else if (tryConsume(TokenKind::LSquare)) {
+  else if (SourceLoc lsquare = tryConsume(TokenKind::LSquare).getBeginLoc()) {
     // <expr>
     if (auto expr = parseExpr()) {
       // ']'
       SourceLoc rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
       if (!rsquare) {
         reportErrorExpected(DiagID::expected_rbracket);
-
-        if (skipUntil(TokenKind::RSquare, /* stopAtSemi */ true, 
-          /*consumeToken*/ false))
-          rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
+        diagEngine.report(DiagID::to_match_this_bracket, lsquare);
+        // Try to recover to a ']'
+        if (stmtSkipUntil(TokenKind::RSquare))
+          rsquare = consume().getBeginLoc();
         else
           return Result<Expr*>::Error();
       }
-
 
       return Result<Expr*>(
         ArraySubscriptExpr::create(ctxt, base, expr.get(), rsquare)
@@ -64,11 +63,11 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
       if (expr.isNotFound())
         reportErrorExpected(DiagID::expected_expr);
 
-      // Resync. if Resync is successful, return the base as the result 
-      // (don't alter it) to fake a success
-      // , if it's not, return an Error.
-      if (skipUntil(TokenKind::RSquare, /* stopAtSemi */ true, /*consume*/ true))
+      // Try to recover
+      if (stmtSkipUntil(TokenKind::RSquare)) {
+        consume();
         return Result<Expr*>(base);
+      }
       else
         return Result<Expr*>::Error();
     }
@@ -249,8 +248,8 @@ Parser::createCharLiteralExprFromToken(const Token& tok) {
 }
 
 Parser::Result<Expr*> Parser::parsePrimitiveLiteral() {
-  // <primitive_literal>  = One literal of the following type : Integer,
-  //                        Floating-point, Boolean, String, Char
+  // <primitive_literal>  = <bool_literal> | <int_literal> | <float_literal> |
+  //                      <string_literal> | <char_literal> 
   auto tok = getCurtok();
   Expr* expr = nullptr;
   SourceRange range = tok.range;
@@ -297,12 +296,13 @@ Parser::Result<Expr*> Parser::parseArrayLiteral() {
   // ']'
   SourceLoc endLoc = tryConsume(TokenKind::RSquare).getBeginLoc();
   if (!endLoc) {
-    if (elist.isNotFound())
+    if (elist.isNotFound()) {
       reportErrorExpected(DiagID::expected_rbracket);
+      diagEngine.report(DiagID::to_match_this_bracket, begLoc);
+    }
 
-    if (skipUntil(TokenKind::RSquare, /* stopAtSemi */ true, 
-      /*consumeToken*/ false))
-      endLoc = tryConsume(TokenKind::RSquare).getBeginLoc();
+    if (stmtSkipUntil(TokenKind::RSquare))
+      endLoc = consume().getBeginLoc();
     else
       return Result<Expr*>::Error();
   }
@@ -540,33 +540,31 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
   // <parens_expr> = '(' <expr> ')'
 
   // '('
-  if (!tryConsume(TokenKind::LParen)) 
-    return Result<Expr*>::NotFound();
+  SourceLoc lparen = tryConsume(TokenKind::LParen).getBeginLoc();
+  if (!lparen) return Result<Expr*>::NotFound();
 
   // <expr>
   Expr* rtr = nullptr;
   if (auto expr = parseExpr())
     rtr = expr.get();
   else  {
-    // no expr, handle error & attempt to recover if it's allowed. 
-    // If recovery is successful, return "not found"
     if(expr.isNotFound())
       reportErrorExpected(DiagID::expected_expr);
 
-    if (skipUntil(TokenKind::RParen, /* stopAtSemi */ true, /*consume*/ true))
-      return Result<Expr*>::NotFound();
-    else
+    if (!stmtSkipUntil(TokenKind::RParen))
       return Result<Expr*>::Error();
   }
-
   assert(rtr && "The return value shouldn't be null!");
 
   // ')'
   if (!tryConsume(TokenKind::RParen)) {
-    // no ), handle error & attempt to recover 
+    // Diagnose
     reportErrorExpected(DiagID::expected_rparen);
-
-    if (!skipUntil(TokenKind::RParen, /* stopAtSemi */ true, /*consume*/ false))
+    diagEngine.report(DiagID::to_match_this_paren, lparen);
+    // Attempt to recover
+    if (stmtSkipUntil(TokenKind::RParen))
+      consume();
+    else
       return Result<Expr*>::Error();
   }
 
@@ -608,32 +606,24 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
   if (auto exprlist = parseExprList())
     exprs = exprlist.get();
   else if (exprlist.isError()) {
-    // error? Try to recover from it, if success, just discard the expr list,
-    // if no success return error.
-    if (skipUntil(TokenKind::RParen, /*stopAtSemi*/ true, /*consume*/ false)) {
-      SourceLoc loc = tryConsume(TokenKind::RParen).getBeginLoc();
-
-      if (RParenLoc)
-        *RParenLoc = loc;
-
-        // if recovery is successful, return an empty expression list.
-      return Result<ExprVector>(ExprVector());
-    }
-    return Result<ExprVector>::Error();
+    // Try to recover to our ')'
+    if (!stmtSkipUntil(TokenKind::RParen))
+      return Result<ExprVector>::Error();
   }
 
   SourceLoc rightParens = tryConsume(TokenKind::RParen).getBeginLoc();
   // ')'
   if (!rightParens) {
     reportErrorExpected(DiagID::expected_rparen);
+    diagEngine.report(DiagID::to_match_this_paren, leftParens);
 
-    if (skipUntil(TokenKind::RParen, /* stopAtSemi */ true, 
-      /*consumeToken*/ false))
-      rightParens = tryConsume(TokenKind::RParen).getBeginLoc();
+    if (stmtSkipUntil(TokenKind::RParen))
+      rightParens = consume().getBeginLoc();
     else 
       return Result<ExprVector>::Error();
   }
 
+  assert(rightParens && "invalid loc");
   if (RParenLoc)
     *RParenLoc = rightParens;
 

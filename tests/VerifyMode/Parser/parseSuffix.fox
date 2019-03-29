@@ -1,0 +1,9 @@
+// RUN: %fox-verify
+
+func foo() {
+  "hello"[0  // expect-error: expected ']'
+             // expect-note@-1: to match this '['
+}
+func foo() {
+  "hello"[  // expect-error: expected an expression
+}

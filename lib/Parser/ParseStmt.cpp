@@ -40,30 +40,17 @@ Parser::Result<Stmt*> Parser::parseCompoundStatement() {
     // Try to parse a statement
     if(auto res = parseStmt())
       nodes.push_back(res.get());
-    // Parsing failed
-    else {
-      // In both case, attempt recovery to nearest semicolon.
-      // FIXME: Is this the right thing? Tests needed!
-      if (skipUntil(TokenKind::Semi,/*stopAtSemi*/ false, /*consume*/ true))
-        continue;
-      else {
-        // If we couldn't recover, try to recover to our '}'
-        // to stop the parsing of this compound statement early.
-        if (skipUntil(TokenKind::RBrace, 
-                     /*stopAtSemi*/ false, /*consume*/ false)) {
-          rbrace = tryConsume(TokenKind::RBrace).getBeginLoc();
-          break;
-        }
-        // Couldn't recover, error.
-        else return Result<Stmt*>::Error();
-      }
+    // Parsing failed, try to skip to a statement
+    else if(!skipUntilStmt()) {
+      // Stop here if it fails.
+      return Result<Stmt*>::Error();
     }
   }
 
   // '}'
   if (!rbrace.isValid()) {
     reportErrorExpected(DiagID::expected_rbrace);
-    // We can't recover since we probably reached EOF. return an error!
+    diagEngine.report(DiagID::to_match_this_brace, lbrace);
     return Result<Stmt*>::Error();
   }
 
@@ -191,20 +178,15 @@ Parser::Result<Stmt*> Parser::parseReturnStmt() {
   // [<expr>]
   if (auto expr_res = parseExpr())
     expr = expr_res.get();
-  else if(expr_res.isError()) {
-    // expr failed? try to resync to a ';' if possible
-    if (!skipUntil(TokenKind::Semi, /* stopAtSemi */ false, /*consume*/ true))
-      return Result<Stmt*>::Error();
-  }
+  else if(expr_res.isError())
+    return Result<Stmt*>::Error();
 
   // ';'
   if (auto semi = tryConsume(TokenKind::Semi).getBeginLoc())
     endLoc = semi;
   else {
     reportErrorExpected(DiagID::expected_semi);
-    // Recover to a ';', if recovery wasn't successful -> error
-    if (!skipUntil(TokenKind::Semi, /* stopAtSemi */ false,  /*consume*/ true))
-      return Result<Stmt*>::Error();
+    return Result<Stmt*>::Error();
   }
     
   SourceRange range(begLoc, endLoc);
@@ -253,28 +235,18 @@ Parser::Result<ASTNode> Parser::parseStmt() {
 
 Parser::Result<ASTNode> Parser::parseExprStmt() {
   // <expr_stmt>  = <expr> ';'   
-
-  // <expr> 
-  if (auto expr = parseExpr()) {
-    // ';'
-    if (!tryConsume(TokenKind::Semi)) {
-      reportErrorExpected(DiagID::expected_semi);
-
-      if (!skipUntil(TokenKind::Semi, /* stopAtSemi */ false, 
-        /*consume*/ true))
-        return Result<ASTNode>::Error();
-      // if recovery was successful, just return like nothing has happened!
-    }
-
-    return Result<ASTNode>(ASTNode(expr.get()));
+  // <expr>
+  auto exprResult = parseExpr();
+  // On failure, return the same result kind as the expr.
+  if (!exprResult)
+    return Result<ASTNode>(exprResult.getResultKind());
+  // ';'
+  if (tryConsume(TokenKind::Semi)) {
+    // Success
+    ASTNode node = exprResult.get();
+    return Result<ASTNode>(node);
   }
-  else if(expr.isError()) {
-    // if the expression had an error, ignore it and try to recover to a semi.
-    if (skipUntil(TokenKind::Semi, /*stopAtSemi*/ false, /*consume*/ true)) {
-      return Result<ASTNode>::NotFound();
-    }
-    return Result<ASTNode>::Error();
-  }
-
-  return Result<ASTNode>::NotFound();
+  // Failure
+  reportErrorExpected(DiagID::expected_semi);
+  return Result<ASTNode>::Error();
 }

@@ -1,5 +1,0 @@
-// RUN: %fox-verify
-
-func foo // expect-error: expected '('
-
-func foo( // expect-error: expected ')'

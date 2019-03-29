@@ -150,12 +150,10 @@ To-Do:
   > Make TypeBase::isXXXType see through LValues (Done)
   > Lexer Rework (Done)
   > String Normalization + ASTDump of normalized strings (Done)
+  > Parser Recovery Improvements (Done)
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
-  > Recovery improvements (now)
-    > Rework recovery methods (Done)
-    > Rework recovery method usage, add new recover methods, etc.
  
   > add tests: check that recovery catches all possible situations (all diagnostics possible).
       > test as many parsing rules as possible. if possible, all of them. check that recovery works
@@ -284,13 +282,7 @@ Other:
       -> Use it in tests\VerifyMode\Sema\Expr\call.fox
 
     > Improve clarity of ASTDump, especially for ValueDecl/DeclRefExpr dumps.
-      Maybe even rewrite it completely.
-
-    > Investigate how the parser handles recovery to a ';' in a stmt: should the statement handle it
-      or should parseStmt handle it?
-
-    > Improve recovery for top-level decls : stop recovery attempt at first let or func keyword
-        if not inside a function body (create isParsingTopLevelCode() && beginsTopLevelDecl(token))
+      Maybe even rewrite ASTDumper completely.
 
   Low priority:
     This is a list of "low-priority" stuff that needs to be done.

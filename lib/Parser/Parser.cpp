@@ -76,31 +76,32 @@ Parser::Result<TypeLoc> Parser::parseType() {
   // <type> =  ('[' <type> ']') | <builtin_type_name>
   // ('[' <type> ']')
   if(auto lsquare = tryConsume(TokenKind::LSquare).getBeginLoc()) {
-    auto ty_res = parseType();
-    bool error = !ty_res;
-    if(error && ty_res.isNotFound())
+    // <type>
+    auto typeResult = parseType();
+    if(typeResult.isNotFound())
       reportErrorExpected(DiagID::expected_type);
+    TypeLoc typeloc = typeResult.get();
+
+    // ']'
     auto rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
     if(!rsquare) {
-      error = true;
       reportErrorExpected(DiagID::expected_rbracket);
-      bool resync = skipUntil(TokenKind::RSquare, 
-                             /*stop@semi*/ true, /*consume*/ false);
-      if(resync)
-        rsquare = tryConsume(TokenKind::RSquare).getBeginLoc();
-    }
-    if(error)
+      diagEngine.report(DiagID::to_match_this_bracket, lsquare);
       return Result<TypeLoc>::Error();
-    
+    }
+
+    // Can't build the ArrayType if we don't have a type.
+    if(!typeloc.isTypeValid())
+      return Result<TypeLoc>::Error();
+
     SourceRange range(lsquare, rsquare);
     assert(range && "range should be valid");
-    Type ty = ty_res.get().getType();
-    ty = ArrayType::get(ctxt, ty);
-    return Result<TypeLoc>(TypeLoc(ty, range));
+    Type type = ArrayType::get(ctxt, typeloc.getType());
+    return Result<TypeLoc>(TypeLoc(type, range));
   }
   // <builtin_type_name> 
-  if (auto ty_res = parseBuiltinTypename()) 
-    return ty_res;
+  if (auto typeResult = parseBuiltinTypename()) 
+    return typeResult;
   return Result<TypeLoc>::NotFound();
 }
 
@@ -149,45 +150,82 @@ const TokenVector& Parser::getTokens() const {
   return lexer.getTokens();
 }
 
-
 void Parser::skip() {
   Token tok = getCurtok();
   assert(tok && "Skipping EOF Token");
   consume();
   switch (tok.kind) {
     case TokenKind::LBrace:
-      skipUntil(TokenKind::RBrace, /*stopAtSemi*/ false, /*consume*/ true);
+      skipUntil(TokenKind::RBrace);
+      consume();
       break;
     case TokenKind::LParen:
-      skipUntil(TokenKind::RParen, /*stopAtSemi*/ false, /*consume*/ true);
+      skipUntil(TokenKind::RParen);
+      consume();
       break;
     case TokenKind::LSquare:
-      skipUntil(TokenKind::RSquare, /*stopAtSemi*/ false, /*consume*/ true);
+      skipUntil(TokenKind::RSquare);
+      consume();
       break;
   }
 }
 
 bool
-Parser::skipUntil(TokenKind kind, bool stopAtSemi, bool shouldConsumeToken) {
+Parser::skipUntil(TokenKind kind) {
   while (!isDone()) {
     Token curtok = getCurtok();
     assert(curtok && "curtok is invalid");
-    // Match the desired token
-    if (curtok.is(kind)) {
-      if(shouldConsumeToken) consume();
+    // Stop at the desired token
+    if (curtok.is(kind))
       return true;
-    }
-    if(stopAtSemi && curtok.is(TokenKind::Semi))
-      return false;
+    // Else skip the next stmt/block.
     skip();
   }
   return false;
 }
 
-bool Parser::skipToNextDecl() {
+bool Parser::skipUntilStmt() {
   while(!isDone()) {
-    auto tok = getCurtok();
-    if (isStartOfDecl(tok))
+    Token tok = getCurtok();
+    if (isStartOfStmt(tok) || tok.is(TokenKind::RBrace))
+      return true;
+    // Stop when we find a semicolon and consume it.
+    // Consider this a success if the parser is not done because
+    // the next token is always the beginning of a statement.
+    if (tok.is(TokenKind::Semi)) {
+      consume();
+      return !isDone();
+    }
+    skip();
+  }
+  return false;
+}
+
+bool Parser::stmtSkipUntil(TokenKind kind) {
+  while (!isDone()) {
+    Token tok = getCurtok();
+    assert(tok && "curtok is invalid");
+    // Match the desired token
+    if (tok.is(kind))
+      return true;
+    // Stop when we find a semicolon and consume it (so the current token
+    // is "guaranteed" to be EOF or to begin a statement)
+    if (tok.is(TokenKind::Semi)) {
+      consume();
+      return false;
+    }
+    // Stop at the start of statements, or if the token is a RBrace '}'
+    if(isStartOfStmt(tok) || tok.is(TokenKind::RBrace)) 
+      return false;
+    // else, skip the token/block.
+    skip();
+  }
+  return false;
+}
+
+bool Parser::skipUntilDecl() {
+  while(!isDone()) {
+    if (isStartOfDecl(getCurtok()))
       return true;
     skip();
   }
