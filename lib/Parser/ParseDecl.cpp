@@ -114,6 +114,8 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // Enter this func's DeclContext
   RAIIDeclCtxt raiiDC(this, func);
 
+  // When parsing a FuncDecl, we don't return immediatly on error, instead
+  // we try hard to parse the whole function (or at least its body).
   bool hadError = false;
 
   // '('
@@ -125,6 +127,8 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
 
   // [<param_decl> {',' <param_decl>}*]
   {
+    bool paramHadError = false;
+    // try to parse the first argument
     if (auto first = parseParamDecl()) {
       SmallVector<ParamDecl*, 4> paramsVec;
       paramsVec.push_back(first.castTo<ParamDecl>());
@@ -133,20 +137,26 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
           if (auto param = parseParamDecl())
             paramsVec.push_back(param.castTo<ParamDecl>());
           else {
-            // IDEA: Maybe reporting the error after the "," would yield
-            // better error messages?
+            paramHadError = true;
             if (param.isNotFound())
               reportErrorExpected(DiagID::expected_paramdecl);
-            return Result<Decl*>::Error();
+            break;
           }
-        } else break;
+        } 
+        else
+          break;
       }
-      // Set the parameter list
       func->setParams(ParamList::create(ctxt, paramsVec));
     }
-    // Stop parsing if an arg had a parsing error.
-    else if (first.isError()) 
-      return Result<Decl*>::Error();
+    else 
+      paramHadError = first.isError();
+
+    // Try to recover if any param had an error.
+    if (paramHadError) {
+      if(!skipUntilDeclStmtOr(TokenKind::LBrace))
+        return Result<Decl*>::Error();
+      hadError = true;
+    }
   }
 
   // ')'
@@ -174,15 +184,14 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   }
 
   // <compound_stmt>
-  {
-    if(Result<Stmt*> compStmt = parseCompoundStatement())
-      func->setBody(cast<CompoundStmt>(compStmt.get()));
-    else {
-      if(compStmt.isNotFound() && !hadError)
-        reportErrorExpected(DiagID::expected_lbrace);
-      return Result<Decl*>::Error();
-    }
+  if(Result<Stmt*> compStmt = parseCompoundStatement())
+    func->setBody(cast<CompoundStmt>(compStmt.get()));
+  else {
+    if(compStmt.isNotFound() && !hadError)
+      reportErrorExpected(DiagID::expected_lbrace);
+    return Result<Decl*>::Error();
   }
+
 
   // Leave this func's scope, so we don't get into an infinite loop when calling
   // finishDecl.

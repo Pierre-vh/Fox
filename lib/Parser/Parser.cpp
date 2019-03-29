@@ -201,7 +201,7 @@ bool Parser::skipUntilStmt() {
   return false;
 }
 
-bool Parser::stmtSkipUntil(TokenKind kind) {
+bool Parser::skipUntilDeclStmtOr(TokenKind kind) {
   while (!isDone()) {
     Token tok = getCurtok();
     assert(tok && "curtok is invalid");
@@ -216,6 +216,9 @@ bool Parser::stmtSkipUntil(TokenKind kind) {
     }
     // Stop at the start of statements, or if the token is a RBrace '}'
     if(isStartOfStmt(tok) || tok.is(TokenKind::RBrace)) 
+      return false;
+    // Also, stop at the start of decls.
+    if(isStartOfDecl(tok))
       return false;
     // else, skip the token/block.
     skip();

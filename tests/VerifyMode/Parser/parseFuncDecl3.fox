@@ -1,3 +1,19 @@
 // RUN: %fox-verify
 
 func foo(x:int, // expect-error: expected a parameter declaration
+{
+  // The body should still be parsed, so this error should be picked up
+  let x : int // expect-error: expected ';'
+}
+
+func foo(x: // expect-error: expected a type
+{
+  // The body should still be parsed, so this error should be picked up
+  let x : int // expect-error: expected ';'
+}
+
+func foo(x: int, x: // expect-error: expected a type
+{
+  // The body should still be parsed, so this error should be picked up
+  let x : int // expect-error: expected ';'
+}

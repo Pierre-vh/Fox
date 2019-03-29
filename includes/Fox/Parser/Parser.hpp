@@ -265,12 +265,11 @@ namespace fox {
       ///               otherwise.
       bool skipUntilStmt();
 
-      /// Skips tokens until the current token is of kind \p kind.
-      /// Else, stops searching when the current token begins a new statement or
-      /// if it's a RBrace '}'
+      /// Skips tokens until the current token is of kind \p kind, or if it
+      /// begins a new stmt/decl or if it's a RBrace '}'
       /// \param kind the kind of token to look for
       /// \returns true if the current token is of kind \p kind, false otherwise.
-      bool stmtSkipUntil(TokenKind kind);
+      bool skipUntilDeclStmtOr(TokenKind kind);
 
       /// Skips to the next token that starts a declaration.
       /// \returns true on successful recovery

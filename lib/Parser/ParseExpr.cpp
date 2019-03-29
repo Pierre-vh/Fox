@@ -49,7 +49,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
         reportErrorExpected(DiagID::expected_rbracket);
         diagEngine.report(DiagID::to_match_this_bracket, lsquare);
         // Try to recover to a ']'
-        if (stmtSkipUntil(TokenKind::RSquare))
+        if (skipUntilDeclStmtOr(TokenKind::RSquare))
           rsquare = consume().getBeginLoc();
         else
           return Result<Expr*>::Error();
@@ -64,7 +64,7 @@ Parser::Result<Expr*> Parser::parseSuffix(Expr* base) {
         reportErrorExpected(DiagID::expected_expr);
 
       // Try to recover
-      if (stmtSkipUntil(TokenKind::RSquare)) {
+      if (skipUntilDeclStmtOr(TokenKind::RSquare)) {
         consume();
         return Result<Expr*>(base);
       }
@@ -301,7 +301,7 @@ Parser::Result<Expr*> Parser::parseArrayLiteral() {
       diagEngine.report(DiagID::to_match_this_bracket, begLoc);
     }
 
-    if (stmtSkipUntil(TokenKind::RSquare))
+    if (skipUntilDeclStmtOr(TokenKind::RSquare))
       endLoc = consume().getBeginLoc();
     else
       return Result<Expr*>::Error();
@@ -551,7 +551,7 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
     if(expr.isNotFound())
       reportErrorExpected(DiagID::expected_expr);
 
-    if (!stmtSkipUntil(TokenKind::RParen))
+    if (!skipUntilDeclStmtOr(TokenKind::RParen))
       return Result<Expr*>::Error();
   }
   assert(rtr && "The return value shouldn't be null!");
@@ -562,7 +562,7 @@ Parser::Result<Expr*> Parser::parseParensExpr() {
     reportErrorExpected(DiagID::expected_rparen);
     diagEngine.report(DiagID::to_match_this_paren, lparen);
     // Attempt to recover
-    if (stmtSkipUntil(TokenKind::RParen))
+    if (skipUntilDeclStmtOr(TokenKind::RParen))
       consume();
     else
       return Result<Expr*>::Error();
@@ -607,7 +607,7 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
     exprs = exprlist.get();
   else if (exprlist.isError()) {
     // Try to recover to our ')'
-    if (!stmtSkipUntil(TokenKind::RParen))
+    if (!skipUntilDeclStmtOr(TokenKind::RParen))
       return Result<ExprVector>::Error();
   }
 
@@ -617,7 +617,7 @@ Parser::Result<ExprVector> Parser::parseParensExprList(SourceLoc *RParenLoc) {
     reportErrorExpected(DiagID::expected_rparen);
     diagEngine.report(DiagID::to_match_this_paren, leftParens);
 
-    if (stmtSkipUntil(TokenKind::RParen))
+    if (skipUntilDeclStmtOr(TokenKind::RParen))
       rightParens = consume().getBeginLoc();
     else 
       return Result<ExprVector>::Error();
