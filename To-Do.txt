@@ -154,10 +154,7 @@ To-Do:
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
-
   > Polishing the Lexer Rework (Next)
-    > Rewrite lexer tests (Done)
-    > Write parser text normalization tests (Done)
     > Write lexer filecheck tests (test kinds using a -dump-toks option)
 
     > Remove or Rework StringManipulator, maybe as a UTF8StringIterator?
@@ -168,17 +165,13 @@ To-Do:
       > Parser
         > Re-read the code: check for errors/inconsistencies, update docs.
    
-    > Perform some refactoring/minor reworks in the Parser
-      > Rework areas where sign are assumed to only have a SourceLoc and no range, also
-        rework operator-related things.
-
     > (Maybe now) Stop storing tokens in a huge vector, lex on demand instead.
 
   > Document all headers with Doxygen-style comments
 
+  > Break Statement
+
   > Function Overloads on number and type of arguments. 
-    I don't know yet if I want to OVL based on return type because they might not bring value to Fox 
-      (since it isn't heavily inferred) and will be a pain to implement.
     > To Implement function overloads, add another "SemaType" that represents a
       disjunction of FunctionTypes* (the candidates) + the ID of the selected candidate.
     > It'd also be a good idea to give 'TypeVariableType' and 'OverloadType' a common base
@@ -215,8 +208,7 @@ To-Do:
       major rework.
 
 Future:
-  > Multifile support: It's coming, but the how is still to be decided
-  > Structs/Objects
+  > Structs/Tuple/Union
 
 Other:
   Maybe someday: 
