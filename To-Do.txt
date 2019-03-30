@@ -169,7 +169,8 @@ To-Do:
 
   > Document all headers with Doxygen-style comments
 
-  > Break Statement
+  > Break and Continue Statements
+    > They're not too hard to add, I just forgot to add them!
 
   > Function Overloads on number and type of arguments. 
     > To Implement function overloads, add another "SemaType" that represents a
