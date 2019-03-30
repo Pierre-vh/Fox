@@ -615,13 +615,13 @@ SourceRange MemberOfExpr::getSourceRange() const {
 //----------------------------------------------------------------------------//
 
 ArraySubscriptExpr::ArraySubscriptExpr(Expr* expr, Expr* idxexpr, 
-SourceLoc rightSqBrLoc): base_(expr), idxExpr_(idxexpr),
-  rightSqBrLoc_(rightSqBrLoc), Expr(ExprKind::ArraySubscriptExpr) {}
+SourceLoc rightBracketLoc): base_(expr), idxExpr_(idxexpr),
+  rightBracketLoc_(rightBracketLoc), Expr(ExprKind::ArraySubscriptExpr) {}
 
 ArraySubscriptExpr* 
 ArraySubscriptExpr::create(ASTContext& ctxt, Expr* base, Expr* idx, 
-  SourceLoc rightSqBrLoc) {
-  return new(ctxt) ArraySubscriptExpr(base, idx, rightSqBrLoc);
+  SourceLoc rightBracketLoc) {
+  return new(ctxt) ArraySubscriptExpr(base, idx, rightBracketLoc);
 }
 
 void ArraySubscriptExpr::setBase(Expr* expr) {
@@ -641,8 +641,8 @@ Expr* ArraySubscriptExpr::getIndex() const {
 }
 
 SourceRange ArraySubscriptExpr::getSourceRange() const {
-  assert(base_ && rightSqBrLoc_ && "ill-formed ArraySubscriptExpr");
-  return SourceRange(base_->getBeginLoc(), rightSqBrLoc_);
+  assert(base_ && rightBracketLoc_ && "ill-formed ArraySubscriptExpr");
+  return SourceRange(base_->getBeginLoc(), rightBracketLoc_);
 }
 
 //----------------------------------------------------------------------------//
