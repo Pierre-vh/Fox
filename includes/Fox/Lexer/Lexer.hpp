@@ -103,9 +103,6 @@ namespace fox {
       // Handles a multi-line comment
       void skipBlockComment();
 
-      // Returns false if the character cannot be considered a <char_item>
-      bool canBeCharItem(FoxChar ch) const;
-
       // Returns true if 'ch' is a valid identifier head.
       bool isValidIdentifierHead(FoxChar ch) const;
       // Returns true if 'ch' is a valid identifier character.

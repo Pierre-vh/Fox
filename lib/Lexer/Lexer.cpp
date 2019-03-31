@@ -270,13 +270,14 @@ void Lexer::lexIdentifierOrKeyword() {
   assert(isValidIdentifierHead(getCurChar()) 
     && "Not a valid identifier head!");
   resetToken();
+  // Lex every character
   while(isValidIdentifierChar(peekNextChar()))
     advance();
-  // TODO: Automatically generate this using TokenKinds.def once
-  // all token kinds enums are merged.
+  // Identify keywords
   string_view str = getCurtokStringView();
   #define KEYWORD(ID, STR) if(str == STR) return pushTok(TokenKind::ID);
   #include "Fox/Lexer/TokenKinds.def"
+  // Else it's just an identifier.
   pushTok(TokenKind::Identifier);
 }
 
@@ -297,14 +298,17 @@ void Lexer::lexIntOrDoubleConstant() {
     pushTok(TokenKind::IntConstant);
 }
 
-// <string_item>    = Any character except the double quote ", backslash or newline character | <escape_seq> 
+// <string_item>    = Any character except the double quote ", 
+//                    backslash or newline character | <escape_seq> 
 // <string_literal> = '"' {<string_item>} '"'
-// <char_item>      = Any character except the single quote ', backslash or newline character | <escape_seq> 
+// <char_item>      = Any character except the single quote ',
+//                    backslash or newline character | <escape_seq> 
 // <char_literal>   = ''' {<char_item>} '''
 //
 // The only difference between <char_item> and <string_item> is 
-// the forbidden delimiter, that's why there's a single method
-// for both (because the lexing logic is mostly the same)
+// the forbidden delimiter, so we can use the same lexing
+// method. We just pass the delimiter as parameter to know
+// when to stop.
 bool Lexer::lexTextItems(FoxChar delimiter) {
   assert(((delimiter == '\'') || (delimiter == '"'))
     && "unknown/unsupported delimiter");
@@ -320,7 +324,9 @@ bool Lexer::lexTextItems(FoxChar delimiter) {
     cur = getCurChar();
 
     // Check for forbidden characters
-    if(!canBeCharItem(cur)) 
+    if(cur == '\n') 
+      return false;
+    if((cur == '\r') && (peekNextChar() == '\n'))
       return false;
 
     // If this character is escaped, continue
@@ -408,16 +414,6 @@ void Lexer::skipBlockComment() {
       ++curPtr_;
       return;
     }
-  }
-}
-
-bool Lexer::canBeCharItem(FoxChar c) const {
-  switch (c) {
-    // Newlines are forbidden
-    case '\n':
-      return false;
-    default:
-      return true;
   }
 }
 
