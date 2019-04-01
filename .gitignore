@@ -45,3 +45,6 @@
 
 # CLion folders
 .idea/
+
+# Doxygen output
+doxygen
