@@ -6,6 +6,8 @@
 //----------------------------------------------------------------------------//
 // This file contains the "ASTDumper" class, which is used to 
 // print the ast to any ostream.
+//
+// TODO: Rewrite this class completely.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -21,24 +23,35 @@ namespace fox {
     using Inherited = SimpleASTVisitor<ASTDumper, void>;
     friend Inherited;
     public:
-      ASTDumper(SourceManager& srcMgr, std::ostream& out, std::uint8_t offsettabs = 0);
-      ASTDumper(std::ostream& out, std::uint8_t offsettabs = 0);
+      /// Creates a new ASTDumper 
+      /// \param srcMgr the SourceManager to use to convert SourceLocs into
+      ///        human-readable location information.
+      /// \param out the output stream
+      /// \param baseIndent the base identation of the AST dump.
+      ASTDumper(SourceManager& srcMgr, std::ostream& out,
+                std::uint16_t baseIndent = 0);
 
-      // Prints the AST as a dump, which will create a highly detailed
-      // dump of the AST
+      /// Creates a new ASTDumper that doesn't use a SourceManager.
+      /// Dumps will be less precise and won't show the loc information.
+      /// \param out the output stream
+      /// \param baseIndent the base identation of the AST dump.
+      ASTDumper(std::ostream& out, std::uint16_t baseIndent = 0);
+
+      /// Prints a detailed dump of the AST. Mostly for debug use.
       template<typename Ty>
       void dump(Ty&& value) {
         debug_ = true;
         visit(std::forward<Ty>(value));
       }
 
-      // Prints the AST in a more compact, user friendly fashion.
+      /// Prints the AST in a more compact/user-friendly form.
       template<typename Ty>
       void print(Ty&& value) {
         debug_ = false;
         visit(std::forward<Ty>(value));
       }
 
+      /// The output stream
       std::ostream& out;
 
     private:
@@ -73,13 +86,6 @@ namespace fox {
       void visitParamDecl(ParamDecl* node);
       void visitFuncDecl(FuncDecl* node);
 
-      // We need a custom visit method for Type to avoid
-      // calling visitXXXType and just use Type->toString()
-      void visit(Type type);
-
-      // We also want to use the base class's visit methods
-      using Inherited::visit;
-
       bool isDebug() const;
 
       std::string toString(Type type) const;
@@ -91,45 +97,45 @@ namespace fox {
       string_view getFileNameOr(FileID file, string_view alternative);
       bool hasSrcMgr() const;
 
-      // Prints getRawOffset() and getIndent() to out_ then returns out_
-      // Can add a number as parameter to add a "temporary" indent, just for this line.
+      /// Prints the indentation to \out and returns \ref out
+      /// \param num additional indentation depth to use
+      /// \returns \ref out
       std::ostream& dumpLine(std::uint8_t num = 0);
 
-      // sets offset_ to the correct number of tabs required.
-      void recalculateOffset();
-
-      // returns the indent required by curIndent_
-      std::string getIndent(const uint8_t& num = 0) const;
+      /// \param num additional indentation depth to use
+      /// \returns the string containing the indentation.
+      std::string getIndent(std::uint8_t num = 0) const;
 
       // Returns the name of the node by using it's pointer
       std::string getStmtNodeName(Stmt* stmt) const;
       std::string getExprNodeName(Expr* expr) const;
       std::string getDeclNodeName(Decl* decl) const;
 
-      // Returns a string containing basic information about a node : It's name followed by it's adress. Maybe more in the future.
+      // Returns a string containing basic information about a node
+      // Its name followed by its address.
       std::string getBasicStmtInfo(Stmt* stmt) const;
       std::string getBasicExprInfo(Expr* expr) const;
       std::string getBasicDeclInfo(Decl* decl) const;
       std::string getValueDeclInfo(ValueDecl* decl) const;
 
+      // Operator dumps
       std::string getOperatorDump(BinaryExpr* expr) const;
       std::string getOperatorDump(UnaryExpr* expr) const;
 
-      // Returns a formatted string "<DeclContext: adress, Parent: adress>"
+      /// \returns a formatted string "<DeclContext: address, Parent: address>"
       std::string getDeclCtxtDump(DeclContext* dr) const;
-      // Returns a formatted string: <label:coords>
+      /// \returns a formatted string: "<label:coords>"
       std::string getSourceLocDump(string_view label, SourceLoc sloc) const;
-      // Returns a formatted string: <label:beg_line:beg_col-end_line:end_col>
+      /// \returns a formatted string: "<label:beg_line:beg_col-end_line:end_col>"
       std::string getSourceRangeDump(string_view label, SourceRange range) const;
 
       void indent(std::uint8_t num = 1);
       void dedent(std::uint8_t num = 1);
 
       SourceManager* srcMgr_ = nullptr;
-      std::string offset_;
-      uint16_t curIndent_ = 0, offsetTabs_ = 0;
+      std::uint16_t curIndent_ = 0;
 
-      // Options
+      /// debug flag
       bool debug_ = false;
   };
 }

@@ -17,7 +17,6 @@
 #include <string>
 
 #define INDENT "    "
-#define OFFSET_INDENT "\t"
 
 using namespace fox;
 
@@ -37,13 +36,11 @@ namespace {
 
 ASTDumper::ASTDumper(SourceManager& srcMgr,
                      std::ostream& out,
-                     std::uint8_t offsettabs)
-    : out(out), offsetTabs_(offsettabs), srcMgr_(&srcMgr) {
-  recalculateOffset();
-}
+                     std::uint16_t baseIndent)
+    : out(out), srcMgr_(&srcMgr), curIndent_(baseIndent) {}
 
-ASTDumper::ASTDumper(std::ostream& out, std::uint8_t offsettabs):
-  srcMgr_(nullptr), out(out), offsetTabs_(offsettabs) {}
+ASTDumper::ASTDumper(std::ostream& out, std::uint16_t baseIndent)
+    : srcMgr_(nullptr), out(out), curIndent_(baseIndent) {}
 
 void ASTDumper::visitBinaryExpr(BinaryExpr* node) {
   dumpLine() << getBasicExprInfo(node) << " " << getOperatorDump(node)
@@ -305,10 +302,6 @@ void ASTDumper::visitFuncDecl(FuncDecl* node) {
   }
 }
 
-void ASTDumper::visit(Type type) {
-  dumpLine() << toString(type);
-}
-
 bool ASTDumper::isDebug() const {
   return debug_;
 }
@@ -340,17 +333,11 @@ bool ASTDumper::hasSrcMgr() const {
 }
 
 std::ostream& ASTDumper::dumpLine(std::uint8_t num) {
-  out << offset_ << getIndent(num);
+  out << getIndent(num);
   return out;
 }
 
-void ASTDumper::recalculateOffset() {
-  offset_ = "";
-  for (auto idx = offsetTabs_; idx > 0; idx--)
-    offset_ += OFFSET_INDENT;
-}
-
-std::string ASTDumper::getIndent(const uint8_t& num) const {
+std::string ASTDumper::getIndent(std::uint8_t num) const {
   auto totalIndent = curIndent_ + num;
   if (totalIndent) {
     std::string rtr;
