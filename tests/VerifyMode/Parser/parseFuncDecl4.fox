@@ -1,0 +1,6 @@
+// RUN: %fox-verify
+
+func foo // expect-error: expected '('
+
+func foo( // expect-error: expected ')'
+          // expect-note@-1: to match this '('

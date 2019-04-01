@@ -1,3 +1,0 @@
-// RUN: %fox-verify
-
-let foo // expect-error: expected ':'

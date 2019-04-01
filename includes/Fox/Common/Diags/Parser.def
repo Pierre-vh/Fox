@@ -19,8 +19,6 @@ ERROR(expected_stmt,
   "expected a statement")
 ERROR(expected_expr,
   "expected an expression")
-ERROR(expected_decl,
-  "expected a declaration")
 ERROR(expected_semi,
   "expected ';'")
 ERROR(expected_colon,
@@ -45,3 +43,10 @@ ERROR(empty_char_lit,
   "empty character literal")
 ERROR(multiple_cp_in_char_lit,
   "char literal may only contain a single codepoint")
+
+NOTE(to_match_this_bracket,
+  "to match this '['")
+NOTE(to_match_this_brace,
+  "to match this '{'")
+NOTE(to_match_this_paren,
+  "to match this '('")

@@ -39,37 +39,37 @@ void VM::run() {
         setReg(instr.StoreSmallInt.dest, instr.StoreSmallInt.value);
         continue;
       case Opcode::AddInt: 
-        // AddInt dest lhs C: dest = lhs + rhs (FoxInts)
+        // AddInt dest lhs rhs: dest = lhs + rhs (FoxInts)
         TRIVIAL_TAC_BINOP_IMPL(AddInt, FoxInt, +);
         continue;
       case Opcode::AddDouble:
-        // AddDouble dest lhs C: dest = lhs + rhs (FoxDoubles)
+        // AddDouble dest lhs rhs: dest = lhs + rhs (FoxDoubles)
         TRIVIAL_TAC_BINOP_IMPL(AddDouble, FoxDouble, +);
         continue;
       case Opcode::SubInt:
-        // SubInt dest lhs C: dest = lhs - rhs (FoxInts)
+        // SubInt dest lhs rhs: dest = lhs - rhs (FoxInts)
         TRIVIAL_TAC_BINOP_IMPL(SubInt, FoxInt, -);
         continue;
       case Opcode::SubDouble:
-        // SubDouble dest lhs C: dest = lhs - rhs (FoxDoubles)
+        // SubDouble dest lhs rhs: dest = lhs - rhs (FoxDoubles)
         TRIVIAL_TAC_BINOP_IMPL(SubDouble, FoxDouble, -);
         continue;
       case Opcode::MulInt:
-        // DivInt dest lhs C: dest = lhs * rhs (FoxInts)
+        // DivInt dest lhs rhs: dest = lhs * rhs (FoxInts)
         TRIVIAL_TAC_BINOP_IMPL(MulInt, FoxInt, *);
         continue;
       case Opcode::MulDouble:
-        // SubDouble dest lhs C: dest = lhs * rhs (FoxDoubles)
+        // SubDouble dest lhs rhs: dest = lhs * rhs (FoxDoubles)
         TRIVIAL_TAC_BINOP_IMPL(MulDouble, FoxDouble, *);
         continue;
       case Opcode::DivInt:
-        // DivInt dest lhs C: dest = lhs / rhs (FoxInts)
+        // DivInt dest lhs rhs: dest = lhs / rhs (FoxInts)
         // TO-DO: Handle division by zero with something else than an assert
         assert(getReg<FoxInt>(instr.DivInt.rhs) && "division by zero");
         TRIVIAL_TAC_BINOP_IMPL(DivInt, FoxInt, /);
         continue;
       case Opcode::DivDouble:
-        // SubDouble dest lhs C: dest = lhs / rhs (FoxDoubles)
+        // SubDouble dest lhs rhs: dest = lhs / rhs (FoxDoubles)
         // TO-DO: Handle division by zero with something else than an assert
         assert(getReg<FoxDouble>(instr.DivDouble.rhs) && "division by zero");
         TRIVIAL_TAC_BINOP_IMPL(DivDouble, FoxDouble, /);
@@ -168,7 +168,7 @@ void VM::run() {
               (getReg(instr.LAnd.lhs) && getReg(instr.LAnd.rhs)));
         continue;
       case Opcode::LNot:
-        // LNot dest src: dest = !src
+        // LNot dest srrhs: dest = !src
         setReg(instr.LNot.dest, !getReg(instr.LNot.src));
         continue;
       case Opcode::JumpIf:
@@ -188,12 +188,12 @@ void VM::run() {
         programCounter_ += instr.Jump.offset;
         continue;
       case Opcode::IntToDouble:
-        // IntToDouble dest src: dest = (src as FoxDouble) (src: FoxInt)
+        // IntToDouble dest srrhs: dest = (src as FoxDouble) (srrhs: FoxInt)
         setReg(instr.IntToDouble.dest, 
                FoxDouble(getReg<FoxInt>(instr.IntToDouble.src)));
         continue;
       case Opcode::DoubleToInt:
-        // DoubleToInt dest src: dest = (src as FoxInt) (src: FoxDouble)
+        // DoubleToInt dest srrhs: dest = (src as FoxInt) (srrhs: FoxDouble)
         setReg(instr.DoubleToInt.dest, 
                FoxInt(getReg<FoxDouble>(instr.DoubleToInt.src)));
         continue;

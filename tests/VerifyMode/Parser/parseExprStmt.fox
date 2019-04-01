@@ -1,0 +1,15 @@
+// RUN: %fox-verify
+
+func foo() {
+  3 // expect-error: expected ';'
+  if false {
+    // the error here should be successfully picked up too since
+    // the parser has recovered to the 'if' keyword.
+    42 // expect-error: expected ';'
+  }
+}
+
+// check that this function parses ok too
+func bar() {
+  4**4 // expect-error: expected ';'
+}

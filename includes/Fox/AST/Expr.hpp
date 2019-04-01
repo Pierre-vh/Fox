@@ -461,7 +461,7 @@ namespace fox   {
   class ArraySubscriptExpr final : public Expr {
     public:
       static ArraySubscriptExpr* create(ASTContext& ctxt, Expr* base, 
-        Expr* idx, SourceLoc rightSqBrLoc);
+        Expr* idx, SourceLoc rightBracketLoc);
       
       void setBase(Expr* expr);
       Expr* getBase() const;
@@ -476,9 +476,12 @@ namespace fox   {
       }
 
     private:
-      ArraySubscriptExpr(Expr* base, Expr* idx, SourceLoc rightSqBrLoc);
+      ArraySubscriptExpr(Expr* base, Expr* idx, SourceLoc rightBracketLoc);
 
-      SourceLoc rightSqBrLoc_;
+      // The loc of the ']'. We only keep this one because it's only
+      // used to generate the SourceRange of this node, which is calculated
+      // from the beginning of the base expression and the loc of the ']'.
+      SourceLoc rightBracketLoc_;
       Expr* base_ = nullptr;
       Expr* idxExpr_ = nullptr;
   };

@@ -1,0 +1,8 @@
+// RUN: %fox-verify
+
+let // expect-error: expected an identifier
+let foo // expect-error: expected ':'
+let foo : // expect-error: expected a type
+let foo : int // expect-error: expected ';'
+let foo : int = // expect-error: expected an expression
+let foo : int = 3 // expect-error: expected ';'

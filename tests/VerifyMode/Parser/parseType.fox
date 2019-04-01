@@ -1,0 +1,10 @@
+// RUN: %fox-verify
+
+let x : []; // expect-error: expected a type
+
+let y: [int; // expect-error: expected ']'
+             // expect-note@-1: to match this '['
+
+let z : [;  // expect-error: expected a type
+            // expect-error@-1: expected ']'
+            // expect-note@-2: to match this '['

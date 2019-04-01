@@ -1,0 +1,7 @@
+// RUN: %fox-verify
+
+func foo() {
+  let x: int = (;  // expect-error: expected an expression
+  let x: int = (0; // expect-error: expected ')'
+                   // expect-note@-1: to match this '('
+} 

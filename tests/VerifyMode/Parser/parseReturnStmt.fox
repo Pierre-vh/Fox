@@ -1,0 +1,8 @@
+// RUN: %fox-verify
+
+func foo() : int {
+  // Test that the error is correctly emitted, and test that
+  // recovery works as expected.
+  return // expect-error: expected ';'
+  return // expect-error: expected ';'
+}

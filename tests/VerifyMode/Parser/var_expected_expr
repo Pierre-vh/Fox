@@ -1,4 +1,0 @@
-// RUN: %fox-verify
-
-// expect-warning@+1: expected an expression
-let foo: int = 

@@ -1,3 +1,0 @@
-// RUN: %fox-verify
-
-func foo(x:int, // expect-error: expected a parameter declaration

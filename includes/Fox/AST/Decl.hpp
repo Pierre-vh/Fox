@@ -271,7 +271,6 @@ namespace fox {
 
       /// Sets the return type of this FuncDecl. 
       /// This will nullify the ValueDecl type.
-      // TODO: Remove this
       void setReturnTypeLoc(TypeLoc ty);
 
       // Choose to use the DeclContext version of getASTContext() to
@@ -287,7 +286,10 @@ namespace fox {
       /// Sets the parameters of this FuncDecl. 
       /// This will nullify the ValueDecl type.
       void setParams(ParamList* params);
+      /// \returns the parameter list of this function, can be nullptr
+      ///          if there are no parameters.
       ParamList* getParams() const;
+      /// \returns true if this function has a ParamList.
       bool hasParams() const;
 
       /// (Re)calculates the ValueDecl type for this FuncDecl

@@ -57,24 +57,14 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
     else {
       if (parsedDecl.isError()) declHadError = true;
 
-      // EOF/Died -> Break.
+      // EOF -> Break.
       if (isDone()) break;
-
       // No EOF? There's an unexpected token on the way that 
-			// prevents us from finding the decl.
-      else {
-        // Report an error in case of "not found";
-        if (parsedDecl.isNotFound()) {
-          // Report the error with the current token being the error location
-          Token curtok = getCurtok();
-          assert(curtok 
-            && "Curtok must be valid since we have not reached eof");
-          diagEngine.report(DiagID::expected_decl, curtok.range);
-        }
-
-        if (skipToNextDecl()) continue; 
-        else break;
-      }
+			// prevents us from finding the decl, so try to recover.
+      if (skipUntilDecl()) 
+        continue; 
+      else 
+        break;
     }
   }
 
@@ -101,14 +91,9 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   if (!fnKw) return Result<Decl*>::NotFound();
   assert(fnKw.getBeginLoc() && "invalid loc info for func token");
 
+
   // Location information
   SourceLoc begLoc = fnKw.getBeginLoc();
-
-  // If invalid is set to true, it means that the declarations is missing
-  // critical information and can't be considered as valid. If that's the case,
-  // we won't return the declaration and we'll just return an error after
-  // emitting all of our diagnostics.
-  bool invalid = false;
 
   // <id>
   Identifier id;
@@ -117,7 +102,7 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
     std::tie(id, idRange) = consumeIdentifier();
   else {
     reportErrorExpected(DiagID::expected_iden);
-    invalid = true;
+    return Result<Decl*>::Error();
   }
 
   // Once we know the Identifier, we can create the FuncDecl instance.
@@ -129,57 +114,67 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   // Enter this func's DeclContext
   RAIIDeclCtxt raiiDC(this, func);
 
+  // When parsing a FuncDecl, we don't return immediatly on error, instead
+  // we try hard to parse the whole function (or at least its body).
+  bool hadError = false;
+
   // '('
-  if (!tryConsume(TokenKind::LParen)) {
-    if (invalid) return Result<Decl*>::Error();
+  SourceLoc leftParen = tryConsume(TokenKind::LParen).getBeginLoc();
+  if (!leftParen) {
     reportErrorExpected(DiagID::expected_lparen);
-    return Result<Decl*>::Error();
+    hadError = true;
   }
 
   // [<param_decl> {',' <param_decl>}*]
   {
-    SmallVector<ParamDecl*, 4> paramsVec;
+    bool paramHadError = false;
+    // try to parse the first argument
     if (auto first = parseParamDecl()) {
+      SmallVector<ParamDecl*, 4> paramsVec;
       paramsVec.push_back(first.castTo<ParamDecl>());
       while (true) {
         if (tryConsume(TokenKind::Comma)) {
           if (auto param = parseParamDecl())
             paramsVec.push_back(param.castTo<ParamDecl>());
           else {
-            // IDEA: Maybe reporting the error after the "," would yield
-            // better error messages?
+            paramHadError = true;
             if (param.isNotFound())
               reportErrorExpected(DiagID::expected_paramdecl);
-            return Result<Decl*>::Error();
+            break;
           }
-        } else break;
+        } 
+        else
+          break;
       }
+      func->setParams(ParamList::create(ctxt, paramsVec));
     }
-    // Stop parsing if the argument couldn't parse correctly.
-    else if (first.isError()) return Result<Decl*>::Error();
+    else 
+      paramHadError = first.isError();
 
-    // Set the parameter list
-    func->setParams(ParamList::create(ctxt, paramsVec));
+    // Try to recover if any param had an error.
+    if (paramHadError) {
+      if(!skipUntilDeclStmtOr(TokenKind::LBrace))
+        return Result<Decl*>::Error();
+      hadError = true;
+    }
   }
 
   // ')'
   auto rightParens = tryConsume(TokenKind::RParen);
-  if (!rightParens) {
+  // Diagnose if we had a '('
+  if (!rightParens && leftParen && !hadError) {
     reportErrorExpected(DiagID::expected_rparen);
-    if (!skipUntil(TokenKind::RParen, /*stop@semi*/ true, /*consume*/ true))
-      return Result<Decl*>::Error();
+    diagEngine.report(DiagID::to_match_this_paren, leftParen);
+    hadError = true;
   }
   
   // [':' <type>]
   if (auto colon = tryConsume(TokenKind::Colon)) {
     if (auto rtrTy = parseType())
       func->setReturnTypeLoc(rtrTy.get());
-    else {
-      if (rtrTy.isNotFound())
-        reportErrorExpected(DiagID::expected_type);
-
-      if (!skipUntil(TokenKind::LBrace, true, false))
-        return Result<Decl*>::Error();
+    else if (rtrTy.isNotFound() && !hadError) {
+      reportErrorExpected(DiagID::expected_type);
+      hadError = true;
     }
   } 
   else {
@@ -189,22 +184,21 @@ Parser::Result<Decl*> Parser::parseFuncDecl() {
   }
 
   // <compound_stmt>
-  {
-    if(Result<Stmt*> compStmt = parseCompoundStatement())
-      func->setBody(cast<CompoundStmt>(compStmt.get()));
-    else {
-      if(compStmt.isNotFound()) // Display only if it was not found
-        reportErrorExpected(DiagID::expected_lbrace);
-      return Result<Decl*>::Error();
-    }
+  if(Result<Stmt*> compStmt = parseCompoundStatement())
+    func->setBody(cast<CompoundStmt>(compStmt.get()));
+  else {
+    if(compStmt.isNotFound() && !hadError)
+      reportErrorExpected(DiagID::expected_lbrace);
+    return Result<Decl*>::Error();
   }
 
-  // Finished parsing. If the decl is invalid, return an error.
-  if (invalid) return Result<Decl*>::Error();
 
   // Leave this func's scope, so we don't get into an infinite loop when calling
   // finishDecl.
   raiiDC.restore();
+
+  if(hadError)
+    return Result<Decl*>::Error();
 
   // Record the FuncDecl
   finishDecl(func);
@@ -267,22 +261,12 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   }
   else
     return Result<Decl*>::NotFound();
-  
-  // Helper lambda
-  auto tryRecoveryToSemi = [&]() {
-    if (skipUntil(TokenKind::Semi, /*stop@semi*/false,
-        /*consumeToken*/true)) {
-      // If we recovered to a semicon, simply return not found.
-      return Result<Decl*>::NotFound();
-    }
-    // Else, return an error.
-    return Result<Decl*>::Error();
-  };
+ 
 
   // <id>
   if(!isCurTokAnIdentifier()) {
     reportErrorExpected(DiagID::expected_iden);
-    return tryRecoveryToSemi();
+    Result<Decl*>::Error();
   }
 
   Identifier id;
@@ -302,7 +286,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   else {
     if (typeRes.isNotFound())
       reportErrorExpected(DiagID::expected_type);
-    return tryRecoveryToSemi();
+    return Result<Decl*>::Error();
   }
 
   // ['=' <expr>]
@@ -313,9 +297,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
     else {
       if (expr.isNotFound())
         reportErrorExpected(DiagID::expected_expr);
-      // Recover to semicolon, return if recovery wasn't successful 
-      if (!skipUntil(TokenKind::Semi, /*stop@semi*/ false, /*consume*/ false))
-        return Result<Decl*>::Error();
+      return Result<Decl*>::Error();
     }
   }
 
@@ -323,11 +305,7 @@ Parser::Result<Decl*> Parser::parseVarDecl() {
   SourceLoc endLoc = tryConsume(TokenKind::Semi).getBeginLoc();
   if (!endLoc) {
     reportErrorExpected(DiagID::expected_semi);
-      
-    if (!skipUntil(TokenKind::Semi, /*stop@Semi*/ false, /*consume*/ false))
-      return Result<Decl*>::Error();
-
-    endLoc = tryConsume(TokenKind::Semi).getBeginLoc();
+    return Result<Decl*>::Error();
   }
 
   SourceRange range(begLoc, endLoc);

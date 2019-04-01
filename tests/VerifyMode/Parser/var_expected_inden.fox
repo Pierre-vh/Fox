@@ -1,3 +1,0 @@
-// RUN: %fox-verify
-
-let // expect-error: expected an identifier
