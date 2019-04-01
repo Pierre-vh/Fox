@@ -419,9 +419,18 @@ TEST_F(ASTTest, identifiersUniqueness) {
 
   Identifier idA = ctxt.getIdentifier(rawIdA);
   Identifier idB = ctxt.getIdentifier(rawIdB);
-
+  // Check that the pointers are different
   ASSERT_NE(idA, idB);
   ASSERT_NE(idA.getStr(), idB.getStr());
+  // Check that comparison succeeds
+  for (unsigned k = 0; k < 10; ++k) {
+    Identifier newIDA = ctxt.getIdentifier(rawIdA);
+    EXPECT_EQ(idA.c_str(), newIDA.c_str());
+    EXPECT_EQ(idA, newIDA);
+    Identifier newIDB = ctxt.getIdentifier(rawIdB);
+    EXPECT_EQ(idB.c_str(), newIDB.c_str());
+    EXPECT_EQ(idB, newIDB);
+  }
 }
 
 // Checks if the ASTContext supports large identifiers 

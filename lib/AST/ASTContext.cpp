@@ -27,9 +27,8 @@ void* ASTContext::allocate(std::size_t size, unsigned align) {
 }
 
 void ASTContext::dumpAllocator() const {
-  return const_cast<ASTContext*>(this)->getAllocator().dump();
+  return permaAllocator_.dump();
 }
-
 
 void ASTContext::reset() {
   // Clear sets/maps
@@ -55,19 +54,31 @@ void ASTContext::reset() {
 }
 
 Identifier ASTContext::getIdentifier(string_view str) {
-	// Search (or create) the entry in the set
-  // TODO: Get rid of the .to_string()? (hash the id directly?)
-	auto it = idents_.insert(str.to_string()).first;
-	assert((it != idents_.end()) && "Insertion error");
-	return (it->c_str());
+	// Search the identifiers set (this will use the hash
+  // of the string, not its pointer)
+	auto it = idents_.find(str);
+  // Found, return.
+  if(it != idents_.end())
+    return Identifier(it->data());
+  // The entry doesn't exist yet, so allocate a copy of 
+  // the string in the ASTContext and insert it in the set.
+  str = allocateCopy(str);
+  idents_.insert(str);
+  // Return an identifier object using a pointer to that
+  // allocated string.
+  return Identifier(str.data());
 }
 
 string_view ASTContext::allocateCopy(string_view str) {
   std::size_t size = str.size();
   assert(size > 0 && "string is empty");
-  const char* const buffer = str.data();
-  void* const mem = permaAllocator_.allocate(size);
+  const char* buffer = str.data();
+  // Allocate a block of the size of the string + 1, so we can add
+  // a null terminator.
+  char* mem = static_cast<char*>(permaAllocator_.allocate(size+1));
   std::memcpy(mem, buffer, size);
+  // Add a null terminator
+  static_cast<char*>(mem)[str.size()] = 0;
   return string_view(static_cast<char*>(mem), size);
 }
 
@@ -79,8 +90,4 @@ void ASTContext::callCleanups() {
   for(const auto& cleanup : cleanups_)
     cleanup();
   cleanups_.clear();
-}
-
-LinearAllocator& ASTContext::getAllocator() {
-  return permaAllocator_;
 }
