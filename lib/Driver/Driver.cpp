@@ -65,7 +65,7 @@ bool Driver::processFile(string_view filepath) {
   // If Lexing was successfull, do parsing.
   if(!diagEngine_.hadAnyError()) {
     auto chrono = createChrono("Parsing");
-    unit = psr.parseUnit(file, ctxt_.getIdentifier("TestUnit"));
+    unit = psr.parseUnit(ctxt_.getIdentifier("TestUnit"));
   }
 
   auto canContinue = [&](){

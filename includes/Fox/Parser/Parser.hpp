@@ -4,8 +4,8 @@
 // File : Parser.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file implements the recursive descent parser for Fox.
-//                              
+// This file declares the recursive descent parser for Fox.
+//
 // The grammar can be found in  /doc/ 
 //----------------------------------------------------------------------------//
 
@@ -29,8 +29,11 @@ namespace fox {
   class ASTNode;
   class Lexer;
   enum class DiagID : std::uint16_t;
+
+  /// The Fox Parser
   class Parser {
     public:
+      /// The kind of results for the \ref Result class
       enum class ResultKind : std::uint8_t {
         Success, Error, NotFound
         // There's still room for one more ParserResultKind. If more is 
@@ -50,42 +53,51 @@ namespace fox {
       // Public Parser Interface
       //----------------------------------------------------------------------//
 
-      // Constructor for the Parser. 
-      // If you plan to use the parser by calling parseDecl/parseFuncDecl/
-      // parseVarDecl directly, you MUST pass a UnitDecl to the constructor.
+      /// Constructor for the Parser. 
+      /// If you plan to use the parser by calling parseDecl/parseFuncDecl/
+      /// parseVarDecl directly, you MUST pass a UnitDecl to the constructor.
+      /// \param astctxt the ASTContext instance to use
+      /// \param lex the Lexer instance to work with
+      /// \param parentUnit the parent UnitDecl to use (when the parser is used
+      ///        to parse local declarations directly)
       Parser(ASTContext& astctxt, Lexer& lex, UnitDecl* parentUnit = nullptr);
 
-			// Parse a complete Unit
-      UnitDecl* parseUnit(FileID fid, Identifier unitName);
+			/// Parses a complete Unit. The Unit's FileID will be the same
+      /// as the Lexer's
+      UnitDecl* parseUnit(Identifier unitName);
 
-      // Parse a single variable declaration
+      /// Parses a single Variable Declaration
       Result<Decl*> parseVarDecl();
 
-      // Parse a single function declaration
+      /// Parse a single function declaration
       Result<Decl*> parseFuncDecl();
 
-      // Parse a single function or variable declaration
+      /// Parse a single function or variable declaration
       Result<Decl*> parseDecl();
 
       //----------------------------------------------------------------------//
       // References to other important Fox classes
       //----------------------------------------------------------------------//
 
-      // The ASTContext, used to allocate every node in the AST.
+      /// The ASTContext, used to allocate every node in the AST.
       ASTContext& ctxt;
 
-      // The DiagnosticEngine, used to emit diagnostics.
-      // This is a the same as ctxt.diagEngine
+      /// The DiagnosticEngine, used to emit diagnostics.
+      /// This is a the same as ctxt.diagEngine
       DiagnosticEngine& diagEngine;
 
-      // The SourceManager, use to retrieve source information
-      // This is a the same as ctxt.sourceMgr
+      /// The SourceManager, use to retrieve source information
+      /// This is a the same as ctxt.sourceMgr
       SourceManager& srcMgr;
 
-      // The Lexer instance tied to the Parser
+      /// The Lexer instance
       Lexer& lexer;
 
     private:
+
+      /// \returns the FileID of the current File (same as lexer.theFile)
+      FileID getFileID() const;
+
       //---------------------------------//
       // Expression parsing helpers
       //---------------------------------//

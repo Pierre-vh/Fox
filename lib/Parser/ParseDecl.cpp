@@ -32,15 +32,14 @@ void Parser::registerDecl(Decl* decl, ScopeInfo scopeInfo) {
       "and it isn't a UnitDecl?");
 }
 
-UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
+UnitDecl* Parser::parseUnit(Identifier unitName) {
   // <fox_unit>  = {<declaration>}1+
-
-  // Assert that unitName != nullptr
+  FileID file = getFileID();
   assert(unitName && "Unit name cannot be nullptr!");
-  assert(fid && "FileID cannot be invalid!");
+  assert(file && "FileID cannot be invalid!");
 
   // Create the unit
-  auto* unit = UnitDecl::create(ctxt, unitName, fid);
+  auto* unit = UnitDecl::create(ctxt, unitName, file);
 
   // Create a RAIIDeclCtxt
   RAIIDeclCtxt raiidr(this, unit);
@@ -70,7 +69,7 @@ UnitDecl* Parser::parseUnit(FileID fid, Identifier unitName) {
 
   if (unit->getDecls().isEmpty()) {
     if(!declHadError)
-      diagEngine.report(DiagID::expected_decl_in_unit, fid);
+      diagEngine.report(DiagID::expected_decl_in_unit, file);
     return nullptr;
   }
   else {

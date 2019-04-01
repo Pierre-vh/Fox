@@ -21,15 +21,15 @@ namespace fox {
   class ASTContext;
   class DiagnosticEngine;
 
-  // TokenKind
-  //    The different kind of tokens that exist
+  /// TokenKind
+  ///    The different kind of tokens that exist
   enum class TokenKind : std::uint8_t {
     #define TOKEN(ID) ID,
     #include "TokenKinds.def"
   };
 
-  // Token
-  //    Provides information about a lexed token: its string, location and kind.
+  /// Token
+  ///    Provides information about a lexed token: its string, location and kind.
   struct Token  {
     public:
       using Kind = TokenKind;
@@ -50,6 +50,6 @@ namespace fox {
       const Kind kind = Kind::Invalid;
   };
 
-  // A Vector of Tokens.
+  /// A Vector of Tokens.
   using TokenVector = SmallVector<Token, 4>;
 }

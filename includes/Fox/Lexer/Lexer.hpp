@@ -4,7 +4,7 @@
 // File : Lexer.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the Fox Lexer.
+// This file declares the Fox Lexer.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -17,20 +17,24 @@ namespace fox {
   class DiagnosticEngine;
   class SourceManager;
 
-  // Lexer
-  //    The Fox Lexer. An instance of the lexer is tied to a SourceFile 
-  //    (FileID). The lexing process can be initiated by calling lex(), and
-  //    the resulting tokens will be found in the token vector returned by
-  //    getTokens()
+  /// Lexer
+  ///    The Fox Lexer. An instance of the lexer is tied to a SourceFile 
+  ///    (FileID). The lexing process can be initiated by calling lex(), and
+  ///    the resulting tokens will be found in the token vector returned by
+  ///    getTokens()
   class Lexer  {
     public:
-      // Constructor for the Lexer.
+      /// Constructor for the Lexer.
+      /// \param srcMgr The SourceManager instance to use
+      /// \param diags the DiagnosticEngine instance to use for diagnostics
+      /// \param file the File that's going to be lexed. It must be a file
+      ///        owned by \p srcMgr.
       Lexer(SourceManager& srcMgr, DiagnosticEngine& diags, FileID file);
 
-      // Lex the full file
+      /// lex the full file
       void lex();
   
-      // Return the tokens
+      /// \returns the vector of tokens
       TokenVector& getTokens();
 
       /// Returns a SourceLoc for the character (or codepoint beginning) at
@@ -47,14 +51,14 @@ namespace fox {
       /// \ref getLocFromPtr 
       SourceRange getRangeFromPtrs(const char* a, const char* b) const;
 
-      // Returns the number of tokens in the vector
+      /// \returns the number of tokens in the vector
       std::size_t numTokens() const;  
 
-      // The DiagnosticEngine instance tied to this Lexer
+      /// The DiagnosticEngine instance used by this Lexer
       DiagnosticEngine& diagEngine;
-      // The SourceManager instance tied to this Lexer
+      /// The SourceManager instance used by this Lexer
       SourceManager& sourceMgr;
-      // The FileID of the file being lexed
+      /// The FileID of the file being lexed
       const FileID theFile;
 
       // The Lexer should be movable but not copyable.
@@ -62,6 +66,7 @@ namespace fox {
       Lexer& operator=(const Lexer&) = delete;
       Lexer(Lexer&&) = default;
       Lexer& operator=(Lexer&&) = default;
+
     private:
       // Pushes the current token with the kind "kind"
       void pushTok(TokenKind kind);

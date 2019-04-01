@@ -24,6 +24,10 @@ Parser::Parser(ASTContext& ctxt, Lexer& lexer, UnitDecl *unit):
   tokenIterator_ = getTokens().begin();
 }
 
+FileID Parser::getFileID() const {
+  return lexer.theFile;
+}
+
 std::pair<Identifier, SourceRange> Parser::consumeIdentifier() {
   Token tok = getCurtok();
   assert(isCurTokAnIdentifier() && "not an identifier");

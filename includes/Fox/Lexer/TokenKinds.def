@@ -4,7 +4,7 @@
 // File : Instruction.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  Macros for macro-metaprogramming with Token Kinds
+//  x-macros for macro-metaprogramming with Tokens
 //----------------------------------------------------------------------------//
 
 #ifndef TOKEN
