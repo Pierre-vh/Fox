@@ -1,8 +1,7 @@
 # The Fox Programming Language
-Fox is a language that aims to be easily embeddable in other projects and easy to dive into. In Fox, you won't
-see any complicated or confusing semantics. Everything should be clear at a glance!
+NOTE: This is a project that I started to learn more about compilers and interpreter but even if the main goal is to learn, I'm still developing it seriously, hoping that (if I do finish it entirely) it might be useful to someone someday.
 
-Note: This is currently a work in progress, only a fraction of the project is completed.
+Fox is a language that aims to be easily embeddable in other projects and easy to dive into. Fox is still under development and is not functional as of now.
 
 ## Building the project
 Required:
@@ -20,9 +19,6 @@ Required:
     * The executables will be available in the `bin/(Build Type)/` folder.
 
 ## Usage
-*Note: the project is in early development and thus is changing very rapidly. I won't document everything because things are certainly not definitive, but I'll try to keep this as up to date as I can*
-
-**Note:** Currently the interpreter is *not* functional. It's a work in progress, and I'm just starting to work on the VM. The language's features are also very limited for now (only a single file can be compiled, no objects, no tuples, no overloads, no UFCS, no FFI). For now, I'm working on getting the main pipeline working (*Make it work* phase: making the interpreter able to compile code and run the resulting bytecode). Once that's done, I'll add the rest of the features (UFCS/Overload/FFI/Multi-file support) and work on getting the interpreter 'usable' (*Make it right* phase).
 
 Assuming that the binaries are installed in your path:
 * `fox` will launch the "command line interface", which is a quick and easy way to test the interpreter. The interface is really simple: you can only enter paths to files for the interpreter to process. (This is only a testing tool. For more advanced use, invoke the compiler using command line options (see below))
@@ -52,6 +48,7 @@ If you have any questions don't hesitate to send me a mail at `pierre.vanhoutryv
 
 ## Acknowledgments
 * CLang and Swift
-  * These well written open source projects have been of immense help when I was in doubt, or in need of help. I've spent countless
-    hours digging through the source code of Swift and Clang, and that helped me improve my programming and compiler designing skills.
+  * These well written open source projects have been of immense help when I was in doubt, or in need of help.
     The design of the Fox interpreter has been highly influenced by the design of theses compilers. 
+* /r/programminglanguages (Reddit & Discord server)
+  * Friendly, passionate people that have helped me countless times. Can't thank them enough!
