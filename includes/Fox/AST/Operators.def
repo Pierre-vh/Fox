@@ -4,7 +4,7 @@
 // File : Operators.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  Macros for macro-metaprogramming with Binary and Unary operators.
+//  x-macros for macro-metaprogramming with Binary and Unary operators
 //----------------------------------------------------------------------------//
 
 // Every macro consists of 3 things: an ID for the operator,

@@ -4,7 +4,7 @@
 // File : DeclContext.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// Contains the DeclContext class
+// This file declares the DeclContext class and DeclContextKind enum
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -28,6 +28,7 @@ namespace fox {
   class CompoundStmt;
   class SourceRange;
 
+  /// Represents the different kinds of DeclContexts there is.
   enum class DeclContextKind : std::uint8_t {
     #define DECL_CTXT(ID, PARENT) ID,
     #define LAST_DECL_CTXT(ID) LastDeclCtxt = ID
@@ -83,39 +84,40 @@ namespace fox {
   // local unqualified lookups.
   class ScopeInfo {
     public:
-      // The kind of scope this is.
+      /// The kind of scope this is.
       enum class Kind : std::uint8_t {
+        /// Null ScopeInfo, when we don't have/need scope information
         Null,
+        /// For \ref CompoundStmt
         CompoundStmt,
-        // Currently, this is pretty empty, because for now
-        // CompoundStmts are the only relevant scopes, but in the future
-        // I'll probably have to support several kinds of scopes, such as
-        // closures, ConditionStmts (with VarDecls as condition)
+
+        // Otherwise this is pretty empty, because for now
+        // CompoundStmts are the only relevant scopes for local lookups.
         
-        // The last kind
-        LastKind = CompoundStmt
+        /// The last kind
+        last_scope_kind = CompoundStmt
       };
 
-      // Creates an null (empty, invalid) scope.
+      /// Creates an null (empty, invalid) scope.
       ScopeInfo();
 
-      // Creates a CompoundStmt scope.
+      /// Creates a CompoundStmt scope.
       ScopeInfo(CompoundStmt* stmt);
 
-      // Returns the kind of scope this is.
+      /// \returns the kind of scope this is.
       Kind getKind() const;
 
-      // Returns true if getKind() == Kind::Null
+      /// \returns true if getKind() == Kind::Null
       bool isNull() const;
 
-      // Operator bool that returns !isNull
+      /// \returns !isNull()
       explicit operator bool() const;
 
-      // If getKind() == Kind::CompoundStmt, returns the CompoundStmt*,
-      // else, nullptr.
+      /// If getKind() == Kind::CompoundStmt, returns the CompoundStmt*,
+      /// else, nullptr.
       CompoundStmt* getCompoundStmt() const;
 
-      // Returns the SourceRange of this scope.
+      /// \returns the SourceRange of this scope.
       SourceRange getSourceRange() const;
 
     private:
@@ -124,69 +126,80 @@ namespace fox {
 
       llvm::PointerIntPair<CompoundStmt*, kindBits, Kind> nodeAndKind_;
 
-      static_assert(static_cast<KindUT>(Kind::LastKind) < (1 << kindBits),
+      static_assert(
+        static_cast<KindUT>(Kind::last_scope_kind) < (1 << kindBits),
         "kindBits is too small to represent all possible kinds." 
         "Please increase kindBits!");
   };
 
-  // DeclContext is a class that acts as a "semantic container for declarations"
-  // It tracks the declaration it "owns", and provides lookup methods.
-  //
-  // This class is the centerpiece of name resolution in Fox. It is used to handle
-  // any kind of lookup, both Unqualified and Qualified.
+  /// DeclContext is a class that acts as a "semantic container for 
+  /// declarations". It tracks the declaration inside it, and provides 
+  /// lookup methods.
+  ///
+  /// This class is the centerpiece of name resolution in Fox. It is used to 
+  /// handle any kind of lookup, both (Local and Global) Unqualified and
+  /// Qualified lookups.
   class alignas(DeclContextAlignement) DeclContext {
     public:
-      // Returns the Kind of DeclContext this is
+      /// \returns the Kind of DeclContext this is
       DeclContextKind getDeclContextKind() const;
 
-      // Return the ASTContext by walking up to the root UnitDecl
-      // and returning it's ASTContext.
+      /// \returns the ASTContext by walking up to the root UnitDecl DeclContext
+      ///          and returning its ASTContext.
       ASTContext& getASTContext() const;
 
+      /// \returns true if this DeclContexth as a parent
       bool hasParentDeclCtxt() const;
+
+      /// \returns the parent of this DeclContext, or nullptr if it doesn't have one
       DeclContext* getParentDeclCtxt() const;
 
-      // Returns true if this DeclContext is a local DeclContext.
-      // (getDeclContextKind() == FuncDecl)
+      /// \returns true if this DeclContext is a local DeclContext.
       bool isLocal() const;
 
-      // Adds a Decl in this DeclContext.
-      // If "decl" is a NamedDecl, it is expected to have a valid identifier.
-      //
-      // For LocalScopes, you can optionally supply a ScopeInfo object
-      // to provide Scope information. It is forbidden to pass a ScopeInfo
-      // object for non local DeclContexts.
+      /// Adds a Decl in this DeclContext.
+      /// If "decl" is a NamedDecl, it is expected to have a valid identifier.
+      ///
+      /// For LocalScopes, you can optionally supply a ScopeInfo object
+      /// to provide Scope information. It is forbidden to pass a ScopeInfo
+      /// object for non local DeclContexts.
+      /// \param decl the Decl to add
+      /// \param scopeInfo (optional) the ScopeInfo for local DeclContexts.
       void addDecl(Decl* decl, ScopeInfo scopeInfo = ScopeInfo());
 
-      // Returns the (half-open) range of Decls contained in
-      // this DeclContext.
+      /// \returns an Iterator range for all of the decls in this DeclContext
       DeclRange getDecls() const;
 
-      // Returns the first declaration of this Context.
+      /// \return the first declaration of this Context.
       Decl* getFirstDecl() const;
-      // Returns the last declaration of this Context.
+      /// \return the last declaration of this Context.
       Decl* getLastDecl() const;
-      // Returns true if this DeclContext contains at least
-      // one decl.
+      /// \return true if this DeclContext contains at least one decl.
       bool hasDecls() const;
 
+      /// The type of the callback function called when a lookup
+      /// result is found.
       using ResultFoundCallback = std::function<void(NamedDecl*)>;
 
-      // Performs a lookup in this DeclContext.
-      //
-      // If the loc is null, every result is considered, no matter
-      // the loc.
-      //
-      // When the loc is actually considered, only Decls that were
-      // declared before loc are returned, and, for local DCs, 
-      // only results that are in the same scope are considered.
-      //
-      // Note that this only looks in this DeclContext, and does
-      // no climb parent DeclContexts.
+      /// Performs a lookup in this DeclContext.
+      ///
+      /// If the loc is null, every result is considered, no matter
+      /// the loc.
+      ///
+      /// When the loc is actually considered, only Decls that were
+      /// declared before loc are returned, and, additionally, for local 
+      /// DeclContexts only results that are in the same scope are
+      /// considered.
+      ///
+      /// Note that this only looks in this DeclContext, and does
+      /// no climb parent DeclContexts.
+      /// \param id the identifier to look for
+      /// \param loc (optional) the SourceLoc
+      /// \param onFound the callback to call when a result is found
       void lookup(Identifier id, SourceLoc loc, 
-        ResultFoundCallback onFound) const;
+                  ResultFoundCallback onFound) const;
 
-      // Dumps this DeclContext to std::cerr
+      /// Dumps this DeclContext to std::cerr
       void dump() const;
 
       static bool classof(const Decl* decl);

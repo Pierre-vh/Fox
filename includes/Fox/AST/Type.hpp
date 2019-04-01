@@ -17,16 +17,17 @@
 namespace fox {
   class TypeBase;
   class TypeLoc;
-  // The Type class is an observing pointer to a TypeBase*
-  //
-  // This design comes from the Swift compiler. I've chosen to adopt it too
-  // because I'd like to add typealiases to Fox one day (since it's pretty
-  // handy with function types, which I plan to add too), so I'll need
-  // to have a concept of canonical and sugared type to perform
-  // typechecking properly while still emitting good diagnostics.
-  // This class will be incredibely helpful because I can disable non-canonical
-  // type comparison just by removing the operator== (and refactoring the code
-  // that it broke)
+
+  /// The Type class is an observing pointer to a TypeBase*
+  ///
+  /// This design comes from the Swift compiler. I've chosen to adopt it too
+  /// because I'd like to add typealiases to Fox one day (since it's pretty
+  /// handy with function types, which I plan to add too), so I'll need
+  /// to have a concept of canonical and sugared type to perform
+  /// typechecking properly while still emitting good diagnostics.
+  /// When this time comes, this class will be incredibely helpful because 
+  /// I can disable non-canonical type comparison just by removing the 
+  /// operator== (and refactoring the code that it broke)
   class Type {
     TypeBase* ty_ = nullptr;
     public:
@@ -51,8 +52,8 @@ namespace fox {
       bool operator<(const Type other) const;
   };
 
-  // A Type with its associated location information, which is
-  //  stored as a SourceRange.
+  /// A Type with its associated location information, which is
+  ///  stored as a SourceRange.
   class TypeLoc  {
     SourceRange range_;
     Type ty_;
@@ -64,17 +65,16 @@ namespace fox {
       SourceLoc getBeginLoc() const;
       SourceLoc getEndLoc() const;
 
-      // Checks that the location information is valid.
+      /// Checks that the location information is valid.
       bool isLocValid() const;
-      // Checks that the type is valid
+      /// Checks that the type is valid
       bool isTypeValid() const;
-      // Checks that both the location information & type are valid
+      /// Checks that both the location information & type are valid
       bool isComplete() const;
 
       // TypeLoc doesn't have it's own dump() method because we cannot dump
       // any meaningful information about our range_ without a SourceManager.
 
-      // Conversion functions
       Type getType();
       const Type getType() const; 
 

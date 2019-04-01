@@ -4,7 +4,7 @@
 // File : Types.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the TypeBase hierarchy.
+// This file declares the TypeBase hierarchy.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -33,79 +33,70 @@ namespace fox {
   // Forward Declarations
   class ASTContext;
 
-  // TypeBase
-  //    Common base for types
-  //
-  // Usually, you should never use raw TypeBase* pointers unless you have
-  // a valid reason. Always use the Type wrapper. (see Type.hpp)
+  /// TypeBase
+  ///    Common base for types
   class alignas(TypeBaseAlignement) TypeBase {
     // Delete copy ctor/operator (can cause corruption with trailing objects)
     TypeBase(const TypeBase&) = delete;
     TypeBase& operator=(const TypeBase&) = delete;
     public:
-      // Returns the type's name in a user friendly form, 
-      //   e.g. "int", "string"
+      /// \returns the type's name in a user friendly form, 
+      ///          e.g. "int", "string"
       std::string toString() const;
 
-      // Returns the type's name in a more "developer-friendly"
-      // form, which provides more information.
-      //   e.g. "Array(int)" instead of [int]"
+      /// \returns the type's name in a more "developer-friendly"
+      ///          form, which provides more information.
+      ///          e.g. "Array(int)" instead of [int]"
       std::string toDebugString() const;
 
       void dump() const;
 
-      // Returns the kind of type this is.
+      /// \returns the kind of type this is.
       TypeKind getKind() const;
 
-      // If this type is an LValue, returns it's element type, else
-      // returns this.
+      /// \returns for LValues, return the element's type of the LValue, else
+      ///          returns this.
       Type getRValue();
 
-      // If this type is an LValue, returns it's element type, else
-      // returns this.
-      const Type getRValue() const;
-
-      // Returns true if this Type contains a TypeVariable somewhere
-      // in the tree
+      /// \returns true if this Type tree contains a TypeVariable somewhere
       bool hasTypeVariable() const;
 
-      // Returns true if this Type contains a ErrorType somewhere
-      // in the tree.
+      /// \returns true if this Type tree contains an ErrorType somewhere
       bool hasErrorType() const;
 
-      // Returns true if this type is the primitive 'string' type.
-      // Ignores LValues.
+      /// \returns true if this type is the primitive 'string' type.
+      /// Ignores LValues.
       bool isStringType() const;
 
-      // Returns true if this type is the primitive 'char' type.
-      // Ignores LValues.
+      /// \returns true if this type is the primitive 'char' type.
+      /// Ignores LValues.
       bool isCharType() const;
 
-      // Returns true if this type is the primitive 'double' type.
-      // Ignores LValues.
+      /// \returns true if this type is the primitive 'double' type.
+      /// Ignores LValues.
       bool isDoubleType() const;
 
-      // Returns true if this type is the primitive 'bool' type.
-      // Ignores LValues.
+      /// \returns true if this type is the primitive 'bool' type.
+      /// Ignores LValues.
       bool isBoolType() const;
 
-      // Returns true if this type is the primitive 'int' type.
-      // Ignores LValues.
+      /// \returns true if this type is the primitive 'int' type.
+      /// Ignores LValues.
       bool isIntType() const;
 
-      // Returns true if this type is the primitive 'void' type.
-      // Ignores LValues.
+      /// \returns true if this type is the primitive 'void' type.
+      /// Ignores LValues
       bool isVoidType() const;
 
-      // Returns true if this type is the primitive 'int' or 'double' type.
-      // Ignores LValues.
+      /// \returns true if this type is either the primitive 'int' or 
+      /// 'double' type. Ignores LValues.
       bool isNumeric() const;
 
-      // Returns true if this type is the primitive 'int', 'double' or 'bool'
-      // type.
+      /// \returns true if this type is either the primitive 'int', 
+      /// 'double' or 'bool' type. Ignores LValues.
       bool isNumericOrBool() const;
 
-      // Returns true if this type is an LValue.
+      /// \returns true if this type is assignable (if it's an LValue)
       bool isAssignable() const;
 
       template<typename Ty>
@@ -133,30 +124,29 @@ namespace fox {
         return cast<Ty>(this);
       }
 
-      // This class represent a type's properties.
+      /// Represent a type's properties.
       class Properties {
         public:
-          // The integer type used internally to store
-          // the properties.
+          /// The integer type used to store the properties
           using ValueType = std::uint8_t;
           
           Properties(ValueType value = 0) : value_(value) {}
 
-          // The properties enum
+          /// Type properties
           enum Property : ValueType {
-            // This type contains a TypeVariableType somewhere
-            // in it's hierarchy
+            /// This type contains a TypeVariableType somewhere
+            /// in its hierarchy
             HasTypeVariable = 0x01,
 
-            // This type contains an ErrorType somewhere in it's
-            // hierarchy.
+            /// This type contains an ErrorType somewhere in it's
+            /// hierarchy.
             HasErrorType = 0x02,
 
-            LastProperty = HasErrorType
+            last_property = HasErrorType
           };
 
-          // Intentionally implicit operator
-          // bool which simply checks that the value is non-zero.
+          /// Intentionally implicit operator
+          /// bool that checks that the value is non-zero.
           /*implicit*/ operator bool() const {
             return value_ != 0;
           }
@@ -235,7 +225,7 @@ namespace fox {
         "Too many types in TypeKind. Increase the number of bits used"
         " to store the TypeKind in TypeBase");
 
-      static_assert(Property::LastProperty < (1 << propsBits),
+      static_assert(Property::last_property < (1 << propsBits),
         "Too many properties in Properties::Property. "
         "Increase the number of bits used to store the properties' value "
         "in TypeBase. (Increase propsBits)");
@@ -244,9 +234,8 @@ namespace fox {
       Properties::ValueType propsValue_ : propsBits;
   };
 
-  // BasicType
-  //    Common base for "Basic" Types.
-  //
+  /// BasicType
+  ///    Common base for "Basic" Types.
   class BasicType : public TypeBase {
     public:
       static bool classof(const TypeBase* type) {
@@ -258,29 +247,49 @@ namespace fox {
       BasicType(TypeKind tc);
   };
 
-  // PrimitiveType 
-  //    A primitive type (void/int/float/char/bool/string)
+  /// PrimitiveType 
+  ///    A primitive type (void/int/float/char/bool/string)
   class PrimitiveType final : public BasicType {
     public:
+      /// Kinds of primitive types
       enum class Kind : std::uint8_t {
+        /// 'void'
         VoidTy,
+        /// 'int'
         IntTy,
+        /// 'double'
         DoubleTy,
+        /// 'char'
         CharTy,
+        /// 'string'
         StringTy,
+        /// 'bool'
         BoolTy
       };
 
-      // Returns true if getPrimitiveKind() == kind.
+      /// \returns true if getPrimitiveKind() == kind.
       bool is(Kind kind) const;
 
+      /// \returns the unique instance of PrimitiveType for the 'string'
+      /// type, for \p ctxt.
       static PrimitiveType* getString(ASTContext& ctxt);
+      /// \returns the unique instance of PrimitiveType for the 'char'
+      /// type, for \p ctxt.
       static PrimitiveType* getChar(ASTContext& ctxt);
+      /// \returns the unique instance of PrimitiveType for the 'double'
+      /// type, for \p ctxt.
       static PrimitiveType* getDouble(ASTContext& ctxt);
+      /// \returns the unique instance of PrimitiveType for the 'bool'
+      /// type, for \p ctxt.
       static PrimitiveType* getBool(ASTContext& ctxt);
+      /// \returns the unique instance of PrimitiveType for the 'int'
+      /// type, for \p ctxt.
       static PrimitiveType* getInt(ASTContext& ctxt);
+      /// \returns the unique instance of PrimitiveType for the 'void'
+      /// type, for \p ctxt.
       static PrimitiveType* getVoid(ASTContext& ctxt);
 
+      /// \returns the primitive type kind
       Kind getPrimitiveKind() const;
 
       static bool classof(const TypeBase* type) {
@@ -293,12 +302,12 @@ namespace fox {
       const Kind builtinKind_;
   };
 
- // ErrorType
-  //    A type used to represent that a expression's type
-  //    cannot be determined because of an error.
+  /// ErrorType
+  ///    A type used to represent that a expression's type
+  ///    cannot be determined because of an error.
   class ErrorType final : public BasicType {
     public:
-      // Gets the unique ErrorType instance for the current context.
+      /// \returns the unique ErrorType instance for \p ctxt
       static ErrorType* get(ASTContext& ctxt);
 
       static bool classof(const TypeBase* type) {
@@ -309,30 +318,25 @@ namespace fox {
       ErrorType();
   };
 
-  // FunctionType
-  //    Represents the type of a function. 
-  //    Example: (int, int) -> int
-  //
-  //  Note: Currently, the FunctionType doesn't represent the "mut"
-  //    qualifier, simply because there is no point in representing it.
-  //    Why? For now, the mut qualifier is only important in 
-  //    semantic analysis: It's considered when the params are pushed to the
-  //    scope. If it's a mut param -> use an lvalue, otherwise don't use one.
-  //    I wouldn't gain anything by representing it in types since I don't have
-  //    functions as first class citizens (for now)
+  /// FunctionType
+  ///    Represents the type of a function. 
+  ///    Example: (int, int) -> int
+  ///
+  ///  Note: Currently, the FunctionType doesn't represent the "mut" qualifier
+  ///        because there is no need for it.
   class FunctionType final : public TypeBase, 
     llvm::TrailingObjects<FunctionType, Type> {
     using TrailingObjects = llvm::TrailingObjects<FunctionType, Type>;
     friend TrailingObjects;
     public:
-      using SizeTy = std::uint8_t;
+      using SizeTy = std::size_t;
       static constexpr auto maxParams = std::numeric_limits<SizeTy>::max();
 
       static FunctionType* 
       get(ASTContext& ctxt, ArrayRef<Type> params, Type rtr);
 
-      // Return true if this FunctionType's parameter types and return
-      // type match the ones passed as parameters.
+      /// \returns true if this FunctionType's parameter types and return
+      /// type match the ones passed as parameters.
       bool isSame(ArrayRef<Type> params, Type rtr);
 
       Type getReturnType() const;
@@ -353,13 +357,12 @@ namespace fox {
       const SizeTy numParams_;
   };
 
-  // ArrayType
-  //    An array of a certain type (can be any type, 
-  //    even another ArrayType)
+  /// ArrayType
+  ///    An array of a certain type (can be any type, even another ArrayType)
   class ArrayType final : public TypeBase {
     public:
-      // Returns the unique ArrayType instance for the given
-      // type ty.
+      /// \returns the unique ArrayType instance for the given type \p ty
+      /// in the context \p ctxt
       static ArrayType* get(ASTContext& ctxt, Type ty);
 
       Type getElementType() const;
@@ -374,13 +377,12 @@ namespace fox {
       Type elementTy_= nullptr;
   };
 
-  // LValueType
-  //    C/C++-like LValue. e.g. This type is the one
-  //    of a DeclRef when the declaration it refers to
-  //    is not const.
+  /// LValueType
+  ///   A type that can appear on the LHS of an assignement.
   class LValueType final : public TypeBase {
     public:
-      // Returns the unique LValueType instance for the given type "ty"
+      /// \returns the unique LValueType instance for the given type \p ty
+      /// in the context \p ctxt
       static LValueType* get(ASTContext& ctxt, Type ty);
 
       Type getType() const;
@@ -395,40 +397,40 @@ namespace fox {
       Type ty_ = nullptr;
   };
 
-  // TypeVariableType
-  //  A "Type Variable", e.g. "T0", introduced in places
-  //  where type inference is required.
-  //
-  //  This type is actually mutable, because, as an optimization,
-  //  the current substitution is stored in the TypeVariableType, this avoids
-  //  map lookups when we want to retrieve the current substitution.
-  //
-  //  However, the current substitution should be ignored most of the time,
-  //  except in semantic analysis.
-  //  For instance, when printing this type for the user, don't show the 
-  //  substitution, just show "any".
+  /// TypeVariableType
+  ///  A "Type Variable is introduced in places where type inference is needed.
+  ///
+  ///  This type is actually mutable, because, as an optimization,
+  ///  the current substitution is stored in the TypeVariableType itself.
+  ///  NOTE: The substitution is ignored in every TypeBase function, for
+  ///  instance if the current subst is an ErrorType, we ->hasErrorType
+  ///  will not return true.
   class TypeVariableType final : public TypeBase {
     public:
+      /// Create a new TypeVariableType allocated in the context \p ctxt
+      /// \param ctxt the ASTContext used to allocate the type variable
+      /// \param number the number that this type variable should have
       static TypeVariableType* create(ASTContext& ctxt, std::uint16_t number);
 
-      // Returns the number assigned to this TypeVariable.
+      /// \returns the number assigned to this TypeVariable.
       std::uint16_t getNumber() const;
 
-      // Returns the current substitution
+      /// \returns the current substitution
       Type getSubst() const;
 
-      // Returns true if this type has a substitution.
+      /// \returns true if this type has a substitution.
       bool hasSubst() const;
 
-      // If the current substitution is a TypeVariable too, returns
-      // it's substitution. 
-      // 
-      // This recurses until we reach a nullptr or a substitution 
-      // that isn't a TypeVariable.
+      /// If the current substitution is a TypeVariable too, returns
+      /// its substitution. 
+      /// 
+      /// This recurses until we reach a nullptr or a substitution 
+      /// that isn't a TypeVariable.
       Type getSubstRecursively() const;
 
-      // Assigns a substitution to this TypeVariable.
-      // This asserts that the current substitution is null.
+      /// Assigns a substitution to this TypeVariable.
+      /// This asserts that the current substitution is null (to
+      /// avoid overwriting substitutions)
       void assignSubst(Type type);
 
       static bool classof(const TypeBase* type) {

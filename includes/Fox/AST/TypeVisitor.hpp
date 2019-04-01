@@ -4,7 +4,7 @@
 // File : TypeVisitor.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the TypeVisitor class
+// This file declares the TypeVisitor class
 //----------------------------------------------------------------------------//
 
 #include "Type.hpp"
@@ -13,8 +13,8 @@
 #include <utility>
 
 namespace fox {
-  // TypeVisitor
-  //    A visitor class for the TypeBase hierarchy.
+  /// TypeVisitor
+  ///    A visitor class for the TypeBase hierarchy.
   template<typename Derived, typename Rtr = void, typename ... Args>
   class TypeVisitor {
     public:

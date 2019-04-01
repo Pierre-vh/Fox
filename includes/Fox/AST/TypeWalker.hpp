@@ -4,7 +4,7 @@
 // File : TypeWalker.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the TypeWalker class
+// This file declares the TypeWalker class
 //----------------------------------------------------------------------------//
 
 #include "Fox/AST/ASTFwdDecl.hpp"
@@ -12,20 +12,21 @@
 namespace fox {
   class Type;
 
-  // The TypeWalker, used to traverse a Type hierarchy
+  /// The TypeWalker, used to traverse a Type hierarchy
   class TypeWalker {
     public:
-      // Walks a Type.
-      // Return true if the traversal was successful, false otherwise.
+      /// Walks a Type.
+      /// \param type the type to walk
+      /// \returns true if the traversal was successful, false if it
+      /// was terminated early.
       bool walk(Type type);
 
-      // Called when first visiting a type before visiting its
-      // children. 
-      // If the return value is false, the traversal is terminated.
+      /// Called when first visiting a type before visiting its children. 
+      /// \returns true to continue, false to terminate the traversal
       virtual bool handleTypePre(Type type);
 
-      // Called after visiting a type's children.
-      // If the return value is false, the traversal is terminated.
+      /// Called after visiting a type's children
+      /// \returns true to continue, false to terminate the traversal
       virtual bool handleTypePost(Type type);
   };
 }

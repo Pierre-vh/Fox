@@ -4,7 +4,7 @@
 // File : DeclNodes.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  Macros for macro-metaprogramming with Declarations
+//  x-macros for macro-metaprogramming with Declarations
 //----------------------------------------------------------------------------//
 
 // Base macro for concrete classes of Decl.

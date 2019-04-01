@@ -4,7 +4,7 @@
 // File : ASTDumper.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the "ASTDumper" class, which is used to 
+// This file declares the "ASTDumper" class, which is used to 
 // print the ast to any ostream.
 //
 // TODO: Rewrite this class completely.

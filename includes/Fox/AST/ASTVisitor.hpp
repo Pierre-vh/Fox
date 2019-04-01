@@ -4,8 +4,7 @@
 // File : ASTVisitor.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file implements the "Visitor" class, which dispatchs Stmt,Decls and Types
-// to their appropriate "visit" method.
+// This declares and implements the ASTVisitor class.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -18,7 +17,7 @@
 #include <utility>
 
 namespace fox {
-  // A basic visitor class for the Fox AST.
+  /// A basic visitor class for Expr, Stmt and Decls.
   template<
     typename Derived, 
     typename DeclRtrTy,
@@ -28,7 +27,7 @@ namespace fox {
   >
   class ASTVisitor {
     public:
-      // Visit ASTNode
+      /// Visits an ASTNode
       void visit(ASTNode node, Args... args) {
         assert(!node.isNull() && "Cannot be used on a null pointer");
         if (node.is<Decl*>())
@@ -41,7 +40,7 @@ namespace fox {
           fox_unreachable("Unsupported ASTNode variant");
       }
 
-      // Visit Decl "Dispatch" Method
+      /// Visits a declaration
       DeclRtrTy visit(Decl* decl, Args... args) {
         assert(decl && "Cannot be used on a null pointer");
         switch (decl->getKind()) {
@@ -56,7 +55,7 @@ namespace fox {
         }
       }
 
-      // Visit Stmt dispatch method
+      /// Visits a statement
       StmtRtrTy visit(Stmt* stmt, Args... args) {
         assert(stmt && "Cannot be used on a null pointer");
         switch (stmt->getKind()) {
@@ -71,7 +70,7 @@ namespace fox {
         }
       }
 
-      // Visit Expr dispatch method
+      /// Visits an expression
       ExprRtrTy visit(Expr* expr, Args... args) {
         assert(expr && "Cannot be used on a null pointer");
         switch (expr->getKind()) {
@@ -118,19 +117,20 @@ namespace fox {
       #undef VISIT_METHOD
   };
 
-  // Simple visitor
+  /// A Simple AST Visitor that uses the same return type
+  /// for each node kind
   template<typename Derived, typename RtrTy, typename ... Args>
   using SimpleASTVisitor = ASTVisitor<Derived, RtrTy, RtrTy, RtrTy, Args...>;
 
-  // Visitor for Decls
+  /// An AST Visitor that only visits declarations
   template<typename Derived, typename RtrTy, typename ... Args>
   using DeclVisitor = ASTVisitor<Derived, RtrTy, void, void, Args...>;
 
-  // Visitor for Exprs
+  /// An AST Visitor that only visits Expressions
   template<typename Derived, typename RtrTy, typename ... Args>
   using ExprVisitor = ASTVisitor<Derived, void, RtrTy, void, Args...>;
 
-  // Visitor for Stmts
+  /// An AST Visitor that only visits Statements
   template<typename Derived, typename RtrTy, typename ... Args>
   using StmtVisitor = ASTVisitor<Derived, void, void, RtrTy, Args...>;
 }

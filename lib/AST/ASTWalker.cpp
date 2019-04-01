@@ -246,36 +246,27 @@ namespace {
         return expr;
       }
 
-      // doIt method for declarations: handles call to the walker &
-      // requests visitation of the children of a given node.
+      // doIt method for declarations: handles call to the walker & visits
+      // the children of the node if needed.
       bool doIt(Decl* decl) {
-        // Call the walker, abort if failed.
         if (!walker_.handleDeclPre(decl))
           return false;
-
-        // Visit the children
         if (visit(decl))
-          // Call the walker (post)
           return walker_.handleDeclPost(decl);
         return false;
       }
 
-      // doIt method for statements: handles call to the walker &
-      // requests visitation of the children of a given node.
+      // doIt method for statements: handles call to the walker & visits
+      // the children of the node if needed.
       Stmt* doIt(Stmt* expr) {
-        // Let the walker handle the pre visitation stuff.
         auto rtr = walker_.handleStmtPre(expr);
-
         // Return if we have a nullptr or if we're instructed
         // to not visit the children.
         if (!rtr.first || !rtr.second)
           return rtr.first;
-
-        // visit the node's children, and if the traversal wasn't aborted,
-        // let the walker handle post visitation stuff.
+        // visit the node's children and call handleStmtPost if needed
         if ((expr = visit(rtr.first)))
           expr = walker_.handleStmtPost(expr);
-
         return expr;
       }
 
@@ -284,6 +275,8 @@ namespace {
         return dyn_cast_or_null<CompoundStmt>(doIt((Stmt*)stmt));
       }
 
+      // doIt method for ASTNodes: handles call to the walker & visits
+      // the children of the node if needed.
       ASTNode doIt(ASTNode node, bool* isDecl) {
         if (Decl* decl = node.dyn_cast<Decl*>()) {
           // Important: Never change decls. Just return the

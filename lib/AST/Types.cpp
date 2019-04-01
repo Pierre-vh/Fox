@@ -175,10 +175,6 @@ Type TypeBase::getRValue() {
   return this;
 }
 
-const Type TypeBase::getRValue() const {
-  return const_cast<TypeBase*>(this)->getRValue();
-}
-
 bool TypeBase::hasTypeVariable() const {
   return getProperties() & Property::HasTypeVariable;
 }
@@ -189,7 +185,7 @@ bool TypeBase::hasErrorType() const {
 
 // Implementation method for TypeBase::isXXX() methods.
 static const PrimitiveType* toPrimitiveType(const TypeBase* type) {
-  return type->getRValue()->getAs<PrimitiveType>();
+  return const_cast<TypeBase*>(type)->getRValue()->getAs<PrimitiveType>();
 }
 
 bool TypeBase::isStringType() const {

@@ -4,7 +4,7 @@
 // File : ExprNodes.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  Macros for macro-metaprogramming with Expressions
+//  x-macros for macro-metaprogramming with Expressions
 //----------------------------------------------------------------------------//
 
 // Base macro for concrete classes of Expr.

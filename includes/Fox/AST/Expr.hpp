@@ -230,7 +230,7 @@ namespace fox   {
         EK k = expr->getKind();
         return (k >= EK::First_AnyLiteralExpr) 
           && (k <= EK::Last_AnyLiteralExpr);
-       }
+      }
 
     protected:
       AnyLiteralExpr(ExprKind kind, SourceRange range);

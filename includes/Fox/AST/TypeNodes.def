@@ -4,7 +4,7 @@
 // File : TypeNodes.def                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-//  Macros for macro-metaprogramming with Types
+//  x-macros for macro-metaprogramming with Types
 //----------------------------------------------------------------------------//
 
 // Base macro for concrete classes of Type.
