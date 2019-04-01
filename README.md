@@ -32,9 +32,10 @@ Assuming that the binaries are installed in your path:
   TODO
 
 ## Doc
-I try to document the code as much as possible using Doxygen-style doc, however I don't generate Doxygen doc regularly, so I can't
-guarantee that it works as intended for now. However, the documentation in the code should be enough to understand what's going on
-most of the time.
+I try to re-document the code as much as possible using Doxygen-style doc, but not all the code uses it for now.
+
+Also, I don't generate Doxygen doc regularly, so I can't guarantee that it works as intended.
+However, the documentation in the code should be enough to understand what's going on most of the time.
 
 ## License
 Licensed under the terms of the MIT license. 
