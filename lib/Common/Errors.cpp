@@ -25,12 +25,3 @@ void fox::detail::fox_unimpl_feat_internal(const char* message,
             << message << "\"\n";
   abort();
 }
-
-void fox::reportBadAlloc(const char* message) {
-  std::cerr << "bad_alloc: " << message << '\n';
-#if _HAS_EXCEPTIONS
-  throw std::bad_alloc();
-#else
-  abort();
-#endif
-}

@@ -4,9 +4,10 @@
 // File : DiagnosticVerifier.hpp
 // Author : Pierre van Houtryve
 //----------------------------------------------------------------------------//
-// This file contains the DiagnosticVerifier diagnostic consumer class.
+// This file declares the DiagnosticVerifier class.
 // The DV offers a tools to parse "expect" instructions in a file, allowing
 // the user to expect diagnostics and silence them.
+// This tool is used to test the intepreter's diagnostics.
 //
 // An expect instruction's grammar is (roughly):
 //    "expect-" <severity> ['@' ('+' | '-') <digit>] ':' <string>
@@ -60,36 +61,37 @@ namespace fox {
 
       DiagnosticVerifier(DiagnosticEngine& engine, SourceManager& srcMgr);
 
-      // Parses a file, searching for "expect-" directives, parsing them and 
-      // adding them to the list of expected diagnostics.
-      // Returns true if the file was parsed successfully (no diags emitted),
-      // false otherwise.
+      /// Parses a file, searching for "expect-" directives, parsing them and 
+      /// adding them to the list of expected diagnostics.
+      /// \returns true if the file was parsed successfully, false otherwise.
       bool parseFile(FileID file);
 
+      /// \returns the set of expected diagnostics
       DiagsSetTy& getExpectedDiags();
 
-      // Finishes verification.
-      //  If not all expected diagnostics were emitted, this will emit
-      //  an error + a note for each expected diagnostic that wasn't emitted.
-      //
-      // Returns true if the verification is considered successful
-      // (all expected diags emitted), false otherwise.
+      /// Finishes verification.
+      ///  If not all expected diagnostics were emitted, this will emit
+      ///  an error + a unique note for each expected diagnostic that wasn't
+      ///  emitted.
+      ///
+      /// \returns true if the verification is considered successful
+      /// (all expected diags emitted), false otherwise.
       bool finish();
 
     protected:
       friend class DiagnosticEngine;
 
-      // Performs verification of a single diagnostic.
-      //  Returns false if the diagnostic shouldn't be consumed,
-      //  true if it can be consumed.
+      /// Performs verification of a single diagnostic.
+      ///  Returns false if the diagnostic shouldn't be consumed,
+      ///  true if it can be consumed.
       bool verify(const Diagnostic& diag);
 
-    private:
-      // Handles a verify instr, parsing it and processing it.
-      // The first argument is the loc of the first char of the instr.
+      /// Handles a verify instr, parsing it and processing it.
+      /// \param loc the loc of the first char of the instr.
+      /// \param instr the instruction string
       bool handleVerifyInstr(SourceLoc loc, string_view instr);
 
-			// Parses a verify instr, returning a ParsedInstr on success.
+			/// Parses a verify instr, returning a ParsedInstr on success.
 			Optional<ExpectedDiag> parseVerifyInstr(SourceLoc loc,
 																								 string_view instr);
 
@@ -100,10 +102,10 @@ namespace fox {
 			void diagnoseIllFormedOffset(SourceRange argRange);
       void diagnoseBadNegativeOffset(SourceRange argRange);
 
-			// Parses the suffix string and puts the result inside "expected"
+			/// Parses the suffix string and puts the result inside "expected"
 			bool parseSeverity(string_view suffix, DiagSeverity& sev);
 
-			// Parses the offset string (e.g. "+3) and applies the offset
+			/// Parses the offset string (e.g. "+3) and applies the offset
 			bool parseOffset(SourceRange strRange,
 										string_view str, std::int8_t& offset);
 
@@ -111,7 +113,6 @@ namespace fox {
 
       DiagnosticEngine& diags_;
       SourceManager& srcMgr_;
-      // Map of expected diagnostics per file
       DiagsSetTy expectedDiags_;
   };
 } // namespace fox

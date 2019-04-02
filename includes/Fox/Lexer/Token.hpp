@@ -33,20 +33,29 @@ namespace fox {
   struct Token  {
     public:
       using Kind = TokenKind;
-      // Creates an invalid token
+      /// Creates an invalid token
       Token() = default;
-      // Creates a normal token
+      /// Creates a normal token
       Token(Kind kind, string_view str, SourceRange range);
 
+      /// \returns true if this token's kind != TokenKind::Invalid
       bool isValid() const;
+      /// \returns isValid()
       explicit operator bool() const;
 
+      /// \returns true if this token's kind matches "kind"
       bool is(Kind kind) const;
 
+      /// dumps this token's data to out
       void dump(std::ostream& out) const;
 
+      /// The SourceRange of this token
       const SourceRange range;
+
+      /// A string-view (in the file's buffer) of this token.
       const string_view str;
+
+      /// The Kind of token this is
       const Kind kind = Kind::Invalid;
   };
 

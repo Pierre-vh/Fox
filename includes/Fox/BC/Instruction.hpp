@@ -21,33 +21,34 @@ namespace llvm {
 namespace fox {
   struct Instruction;
 
-  // VM Op codes.
+  /// VM Op codes
   enum class Opcode : opcode_t {
     #define INSTR(Op) Op,
     #define LAST_INSTR(Op) last_opcode = Op
     #include "Instruction.def"
   };
 
-  // Converts an Opcode to a human-readable string representation.
-  // If the opcode is illegal, nullptr is returned instead.
+  /// Converts an Opcode to a human-readable string representation.
+  /// \return A C-String of the Opcode's name, or nullptr if the
+  /// opcode isn't valid.
   const char* toString(Opcode op);
   
-  // Dumps a single instruction to "os".
+  /// Dumps a single instruction to os
   void dumpInstruction(std::ostream& os, Instruction instr);
 
-  // Dumps a series of instructions to "os"
+  /// Dumps an array of instructions to os
   void dumpInstructions(std::ostream& os, llvm::ArrayRef<Instruction> instrs);
 
-  // An object representing a single Fox instruction.
-  //
-  // The data of every non-simple instruction can be accessed
-  // using "<object>.<opcode>.<data>", e.g. instr.SmallStore.value.
+  /// An object representing a single Fox instruction.
+  ///
+  /// The data of every non-simple instruction can be accessed
+  /// using "object.opcode.data", e.g. instr.SmallStore.value.
   LLVM_PACKED_START
   struct alignas(std::uint32_t) Instruction {
     Instruction() = default;
     Instruction(Opcode op) : opcode(op) {}
 
-    // Return true if this instruction is any kind of jump.
+    /// \returns true if this instruction is any kind of jump.
     bool isAnyJump() const {
       switch (opcode) {
         case Opcode::Jump:
@@ -59,7 +60,9 @@ namespace fox {
       }
     }
 
+    /// The Opcode
     Opcode opcode = Opcode::NoOp;
+
     union {
       #define TERNARY_INSTR(ID, I1, T1, I2, T2, I3, T3)       \
       struct ID##Instr {                                      \

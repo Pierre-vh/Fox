@@ -38,6 +38,8 @@ namespace fox {
       std::ostream& out;
 
       Driver(std::ostream& os);
+      /// Processes a single file whose path is filepath
+      /// \returns true if the file was processed successfully, false otherwise
       bool processFile(string_view filepath);
 
       bool getPrintChrono() const;

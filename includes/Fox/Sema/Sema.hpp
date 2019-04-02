@@ -25,15 +25,20 @@ namespace fox {
   class Identifier;
   using NamedDeclVec = SmallVector<NamedDecl*, 4>;
 
-  // This is the class that handles semantic analysis of the Fox AST.
+  /// This is the class that handles Semantic Analysis of the Fox AST.
   class Sema {
     public:
+      /// \param ctxt the ASTContext instance to use. ctxt.diagEngine
+      /// will be the Diagnostic Engine used to emit diagnostics.
       Sema(ASTContext& ctxt);
 
-      // Performs semantic analysis on a UnitDecl
+      /// Performs Semantic Analysis on a UnitDecl
       void checkUnitDecl(UnitDecl* decl);
 
+      /// The ASTContext used to allocate nodes, etc.
       ASTContext& ctxt;
+
+      /// The DiagnosticEngine used to emit diagnostics.
       DiagnosticEngine& diagEngine;
 
     private:

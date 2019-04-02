@@ -23,7 +23,7 @@ namespace fox {
   class Diagnostic;
   class DiagnosticEngine;
 
-  // Diagnostic ID/Kinds
+  /// Diagnostic ID/Kinds
   enum class DiagID : std::uint16_t {
     // Important : first value must always be 0 to keep sync
     // with the severities and strs arrays.
@@ -31,7 +31,7 @@ namespace fox {
     #include "Diags/All.def"
   };
 
-  // Diagnostic Severities 
+  /// Diagnostic Severities 
   enum class DiagSeverity : std::uint8_t {
     Ignore, Note, Warning, Error, Fatal    
     // Note: There's still room for 3 more severities.
@@ -39,18 +39,12 @@ namespace fox {
     // the Diagnostic class
   };
 
-  // Converts a severity to a user readable string.
+  /// Converts a severity to a user readable string.
   std::string toString(DiagSeverity sev);
   std::ostream& operator<<(std::ostream& os, DiagSeverity sev);
 
-  // The Diagnostic object. It contains the Diagnostic's data and allow
-  // the client to customize it before emitting it.
-  //
-  // The class has only move semantics and thus isn't copyable.
-  //
-  // Note: in this class, some methods will return a Diagnostic&. 
-  // This is done to enable function chaining.
-  // e.g. someDiag.addArg(..).addArg(...).freeze()
+  /// The Diagnostic object. It contains the Diagnostic's data and allow
+  /// the client to customize it before emitting it.
   class Diagnostic {
     friend class DiagnosticEngine;
 
@@ -62,50 +56,45 @@ namespace fox {
       Diagnostic(Diagnostic &&other);
       Diagnostic(Diagnostic&) = delete;
       Diagnostic& operator=(Diagnostic&) = delete;
-
-      // Note: This move operator will not emit the overwritten diagnostic.
-      // e.g. if foo and bar are valid diagnostics, foo = std::move(bar) won't
-      // cause foo to be emitted
       Diagnostic& operator=(Diagnostic&& other);
      
-      // Emits the diagnostic.
+      /// Dtor that emits the diagnostic.
       ~Diagnostic();
       
-      // Emit this diagnostic, feeding it to the consumer and killing it
-      // once emitted.
+      /// Emit this diagnostic, feeding it to the consumer and killing it
+      /// once emitted.
       void emit();
 
-      // Returns the DiagID of this diagnostic.
+      /// \returns the DiagID of this diagnostic.
       DiagID getID() const;
 
-      // Returns the string of this diagnostic in it's current
-      // form.
+      /// \returns the string of this diagnostic in its current form.
       std::string getStr() const;
 
-      // Returns this diagnostic's severity.
+      /// \returns this diagnostic's severity.
       DiagSeverity getSeverity() const;
 
-      // Returns the FileID concerned by this diag.
+      /// \returns the FileID of the file concerned by this diagnostic
       FileID getFileID() const;
 
       SourceRange getSourceRange() const;
       Diagnostic& setRange(SourceRange range);
-      // Returns true if this diagnostic contains a range.
-      // Returns false for file-wide diagnostics.
-      bool hasRange() const;
+
+      /// \returns true if this diagnostic contains precise location
+      /// information
+      bool hasPreciseLoc() const;
+      /// \returns true if this Diagnostic contains an additional location
+      /// information.
+      bool hasExtraLoc() const;
 
       SourceRange getExtraRange() const;
       Diagnostic& setExtraRange(SourceRange range);
-      // Returns true if this Diagnostic contains an "extra range" 
-      bool hasExtraRange() const;
 
-      // Returns true if this Diagnostic contains any kind of source location
-      // information, file-wide or not.
+      /// \returns true if this Diagnostic contains any kind of source location
+      /// information, file-wide or not.
       bool hasAnyLocInfo() const;
 
-      // File-wide diagnostics are diagnostics that concern
-      // a whole file. 
-      Diagnostic& setIsFileWide(bool fileWide);
+      /// \returns true if this diagnostic is "file-wide" (it concerns a whole file)
       bool isFileWide() const;
 
       // addArg Implementation for any type that supports operator <<
@@ -131,11 +120,12 @@ namespace fox {
         return replacePlaceholder(value);
       }
 
-      // Returns true if this Diagnostic is active, false otherwise.
-      //
-      // Active diagnostics can be modified & emitted, while
-      // inactives ones can't.
+      /// \returns true if this Diagnostic is active, false otherwise.
+      ///
+      /// Active diags can be augmented & emitted, while inactives ones can't.
       bool isActive() const;
+
+      /// \returns isActive()
       explicit operator bool() const;
 
     private:
@@ -176,15 +166,14 @@ namespace fox {
       SourceRange extraRange_;
   };
 
-  // The DiagnosticEngine, which controls the creation and emission of
-  // diagnostics.
+  /// The DiagnosticEngine controls the creation and emission of diagnostics.
   class DiagnosticEngine {
     public:
-      // Constructor that will use the default Diagnostic Consumer
-      // which prints pretty-printed diagnostics to the desired ostream.
+      /// Constructor that will use the default Diagnostic Consumer
+      /// which prints pretty-printed diagnostics to \p os
       DiagnosticEngine(SourceManager& sm, std::ostream& os);
 
-      // Constructor that will use a pre-created DiagnosticConsumer
+      /// Constructor for when you want to use a pre-created DiagnosticConsumer
       DiagnosticEngine(SourceManager& sm, 
                        std::unique_ptr<DiagnosticConsumer> ncons);
 
@@ -201,10 +190,10 @@ namespace fox {
       const DiagnosticConsumer* getConsumer() const;
       std::unique_ptr<DiagnosticConsumer> takeConsumer();
 
-      // Returns true if a fatal error was emitted
+      /// \returns true if a fatal error was emitted
       bool hadFatalError() const;
 
-      // Returns true if any error, fatal or not, was emitted.
+      /// \returns true if any error, fatal or not, was emitted.
       bool hadAnyError() const;
 
       bool getWarningsAreErrors() const;

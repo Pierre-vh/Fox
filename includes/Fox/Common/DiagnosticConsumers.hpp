@@ -5,7 +5,7 @@
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
 // This file contains the DiagnosticConsumer interface as well
-// as some builtin implementations.
+// as some builtin DiagnosticConsumers.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -20,6 +20,7 @@ namespace fox {
   class SourceManager;
   enum class DiagSeverity : std::uint8_t;
 
+  /// The base class of every diagnostic consumer
   class DiagnosticConsumer {
     public:
       virtual void consume(SourceManager& sm, const Diagnostic& diag) = 0;
@@ -34,6 +35,8 @@ namespace fox {
       std::size_t removeIndent(string_view& str) const;
   };
 
+  /// The StreamDiagConsumer which prints pretty printed diagnostics to
+  /// a desired ostream.
   class StreamDiagConsumer : public DiagnosticConsumer {
     public:
       StreamDiagConsumer(std::ostream& stream); 

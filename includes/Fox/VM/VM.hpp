@@ -23,20 +23,31 @@ namespace fox {
   class BCModule;
   class VM {
     public:
+      /// The number of registers on the register stack
       static constexpr unsigned numStackRegister = 255;
 
+      /// \param bcModule the BCModule to execute
       VM(BCModule& bcModule);
 
-      // Runs the current module
+      /// executes/runs the current module
       void run();
 
-      // Returns the program counter as an index in the module's
-      // instruction buffer.
+      /// \returns the program counter as an index in the module's
+      /// Bytecode buffer.
       std::size_t getPCIndex() const;
+
+      /// \returns the program counter as a pointer into the module's
+      /// instruction buffeR.
       const Instruction* getPC() const;
 
+      /// \returns a view of the register stack
       ArrayRef<std::uint64_t> getRegisterStack() const;
+
+      /// \returns a mutable view of the register stack
       MutableArrayRef<std::uint64_t> getRegisterStack();
+
+      /// The Bytecode module executed by this VM instance.
+      BCModule& bcModule;
 
     private:
       // Returns the raw value of the register idx.
@@ -88,9 +99,6 @@ namespace fox {
         assert((idx < numStackRegister) && "out-of-range");
         regStack_[idx] = llvm::DoubleToBits(value);
       }
-
-      // The module being executed
-      BCModule& bcModule_;
 
       // The program counter
       const Instruction* programCounter_ = nullptr;

@@ -111,7 +111,7 @@ std::ostream& fox::operator<<(std::ostream& os, FileID file) {
 
 SourceLoc::SourceLoc() : fid_(FileID()), idx_(0) {}
 
-SourceLoc::SourceLoc(FileID fid, index_type idx) : fid_(fid), idx_(idx) {}
+SourceLoc::SourceLoc(FileID fid, IndexTy idx) : fid_(fid), idx_(idx) {}
 
 bool SourceLoc::isValid() const {
   return (bool)fid_;
@@ -133,12 +133,12 @@ FileID SourceLoc::getFileID() const {
   return fid_;
 }
 
-SourceLoc::index_type SourceLoc::getRawIndex() const {
+SourceLoc::IndexTy SourceLoc::getRawIndex() const {
   return idx_;
 }
 
 bool SourceLoc::comesBefore(SourceLoc other) const {
-  if(fid_ != other.fid_) return false;
+  assert((fid_ == other.fid_) && "SourceLocs cannot be compared!");
   return idx_ < other.idx_;
 }
 
@@ -155,32 +155,32 @@ std::ostream& fox::operator<<(std::ostream& os, SourceLoc loc) {
 //----------------------------------------------------------------------------//
 
 SourceRange::SourceRange(SourceLoc sloc, OffsetTy offset):
-  sloc_(sloc), offset_(offset) {}
+  loc_(sloc), offset_(offset) {}
 
 SourceRange::SourceRange(SourceLoc a, SourceLoc b) {
   // a and b must belong to the same file in all cases!
   assert(a.getFileID() == b.getFileID() && "A and B are from different files");
   if (a.getRawIndex() < b.getRawIndex()) {
     // a is the first sloc
-    sloc_ = a;
+    loc_ = a;
     offset_ = static_cast<OffsetTy>(b.getRawIndex() - a.getRawIndex());
   }
   else if (a.getRawIndex() > b.getRawIndex()) {
     // b is the first sloc
-    sloc_ = b;
+    loc_ = b;
     offset_ = static_cast<OffsetTy>(a.getRawIndex() - b.getRawIndex());
   }
   else  {
     // a == b
-    sloc_ = a;
+    loc_ = a;
     offset_ = 0;
   }
 }
 
-SourceRange::SourceRange(): sloc_(SourceLoc()), offset_(0) {}
+SourceRange::SourceRange(): loc_(SourceLoc()), offset_(0) {}
 
 bool SourceRange::isValid() const {
-  return (bool)sloc_;
+  return (bool)loc_;
 }
 
 SourceRange::operator bool() const {
@@ -188,7 +188,7 @@ SourceRange::operator bool() const {
 }
 
 SourceLoc SourceRange::getBeginLoc() const {
-  return sloc_;
+  return loc_;
 }
 
 SourceRange::OffsetTy SourceRange::getRawOffset() const {
@@ -196,22 +196,17 @@ SourceRange::OffsetTy SourceRange::getRawOffset() const {
 }
 
 SourceLoc SourceRange::getEndLoc() const {
-  return SourceLoc(sloc_.fid_, sloc_.idx_ + offset_);
-}
-
-bool SourceRange::isOnlyOneCharacter() const {
-  return (offset_ == 0);
+  return SourceLoc(loc_.fid_, loc_.idx_ + offset_);
 }
 
 bool SourceRange::contains(SourceLoc loc) const {
   SourceLoc beg = getBeginLoc();
   SourceLoc end = getEndLoc();
-  if(beg.getFileID() != loc.getFileID())
-    return false;
+  assert((beg.getFileID() == loc.getFileID()) && 
+    "'loc' is not in the same file as this SourceRange");
   auto begIdx = beg.getRawIndex();
   auto endIdx = end.getRawIndex();
   auto locIdx = loc.getRawIndex();
-  assert(true);
   return (begIdx <= locIdx) && (locIdx <= endIdx);
 }
 
@@ -220,7 +215,7 @@ bool SourceRange::contains(SourceRange range) const {
 }
 
 FileID SourceRange::getFileID() const {
-  return sloc_.getFileID();
+  return loc_.getFileID();
 }
 
 std::ostream& fox::operator<<(std::ostream& os, SourceRange range) {
@@ -247,7 +242,7 @@ string_view SourceManager::getFileName(FileID fid) const {
 
 std::pair<SourceManager::line_type, SourceManager::col_type>
 SourceManager::calculateLineAndColumn(const Data* data, 
-                                      SourceLoc::index_type idx) const {
+                                      SourceLoc::IndexTy idx) const {
   assert(data && "null data!");
   assert((idx <= data->content.size()) && "out-of-range index!");
   // if the SourceLoc points to a fictive location just past the end
@@ -448,12 +443,12 @@ static bool checkEncoding(std::ifstream& in, std::streampos size) {
   return true;
 }
 
-std::pair<FileID, SourceManager::FileStatus>
+std::pair<FileID, SourceManager::ReadFileResult>
 SourceManager::readFile(string_view path) {
   std::ifstream in(path.to_string(),  
     std::ios::in | std::ios::ate | std::ios::binary);
   if(!in)
-    return {FileID(), FileStatus::NotFound};
+    return {FileID(), ReadFileResult::NotFound};
 
   // Get size of file + rewind
   auto size = in.tellg();
@@ -461,14 +456,14 @@ SourceManager::readFile(string_view path) {
 
   // Skip the UTF8 BOM if there's one
   if(!checkEncoding(in, size))
-    return {FileID(), FileStatus::InvalidEncoding};
+    return {FileID(), ReadFileResult::InvalidEncoding};
 
   // Create the iterators
   auto beg = (std::istreambuf_iterator<char>(in));
   auto end = (std::istreambuf_iterator<char>());
   // Insert the data
   FileID file = insertData(std::make_unique<Data>(path, beg, end));
-  return {file, FileStatus::Ok};
+  return {file, ReadFileResult::Ok};
 }
 
 FileID 
@@ -496,14 +491,14 @@ void SourceManager::calculateLineTable(const Data* data) const {
 }
 
 bool 
-SourceManager::isIndexValid(const Data* data, SourceLoc::index_type idx) const {
+SourceManager::isIndexValid(const Data* data, SourceLoc::IndexTy idx) const {
   // The index is valid if it's smaller or equal to .size(). It can be
   // equal to size in the case of a "past the end" loc.
   return idx <= data->content.size();
 }
 
-std::pair<SourceLoc::index_type, SourceManager::line_type>
-SourceManager::searchLineTable(const Data* data, SourceLoc::index_type idx) const {
+std::pair<SourceLoc::IndexTy, SourceManager::line_type>
+SourceManager::searchLineTable(const Data* data, SourceLoc::IndexTy idx) const {
   if (!data->calculatedLineTable_)
     calculateLineTable(data);
   else {
@@ -519,7 +514,7 @@ SourceManager::searchLineTable(const Data* data, SourceLoc::index_type idx) cons
   if(it != data->lineTable_.end())
     exactMatch = (it->first == idx);
 
-  std::pair<SourceLoc::index_type, CompleteLoc::line_type> rtr;
+  std::pair<SourceLoc::IndexTy, CompleteLoc::line_type> rtr;
   if (!exactMatch && (it != data->lineTable_.begin()))
     rtr = *(--it);
   else 
@@ -539,8 +534,8 @@ FileID SourceManager::insertData(std::unique_ptr<Data> data) {
 // Others
 //----------------------------------------------------------------------------//
 
-std::string fox::toString(SourceManager::FileStatus status) {
-  using FS = SourceManager::FileStatus;
+std::string fox::toString(SourceManager::ReadFileResult status) {
+  using FS = SourceManager::ReadFileResult;
   switch(status) {
     case FS::Ok:
       return "Ok";
@@ -549,6 +544,6 @@ std::string fox::toString(SourceManager::FileStatus status) {
     case FS::InvalidEncoding:
       return "File Encoding Not Supported";
     default:
-      fox_unreachable("unknown FileStatus");
+      fox_unreachable("unknown ReadFileResult");
   }
 }

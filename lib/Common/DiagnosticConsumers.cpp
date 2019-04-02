@@ -66,7 +66,7 @@ void StreamDiagConsumer::consume(SourceManager& sm, const Diagnostic& diag) {
   // If the Diagnostic contains valid location information, and it
   // isn't a file-wide diagnostic, display a snippet (a single line)
   // of the source file with the Diagnostic message.
-  if (diag.hasRange()) displayRelevantExtract(sm, diag);
+  if (diag.hasPreciseLoc()) displayRelevantExtract(sm, diag);
 }
 
 // Helper method for "displayRelevantExtract" that creates the "underline" string. 
@@ -121,10 +121,7 @@ static bool shouldPrintCaretLine(string_view sourceExtract) {
 }
 
 void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm, 
-  const Diagnostic& diag) {
-  assert(diag.hasRange() 
-		&& "Cannot use this if the diag does not have SourceRange!");
-
+                                                const Diagnostic& diag) {
   auto range = diag.getSourceRange();
   auto eRange = diag.getExtraRange();
 
@@ -178,7 +175,7 @@ void StreamDiagConsumer::displayRelevantExtract(SourceManager& sm,
   }
 
   // If needed, create the extra range underline (~)
-  if(diag.hasExtraRange()) {
+  if(diag.hasExtraLoc()) {
     assert((diag.getExtraRange().getFileID() == 
             diag.getSourceRange().getFileID())
       && "Ranges don't belong to the same file");

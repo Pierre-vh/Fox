@@ -4,7 +4,7 @@
 // File : SourceManager.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file contains the SourceManager class
+// This file contains the SourceManager and associated classes.
 //----------------------------------------------------------------------------//
 
 #pragma once
@@ -18,9 +18,9 @@
 #include <map>
 
 namespace fox {
-  // Object containing a human-readable version of a SourceLoc.
-  //
-  // Note that this structure does not own the "fileName" string.
+  /// Object representing a human-readable version of a SourceLoc.
+  ///
+  /// Note that this structure does not own the "fileName" string.
   struct CompleteLoc {
     using line_type = std::uint32_t;
     using col_type = std::uint16_t;
@@ -30,17 +30,21 @@ namespace fox {
     bool operator==(const CompleteLoc& other) const;
     bool operator!=(const CompleteLoc& other) const;
 
-    // Returns the CompleteLoc as a string formatted like this:
-    //  file:line:column  (if printFilename = true)
-    //  line:column       (if printFilename = false)
+    /// \returns the CompleteLoc as a string formatted like this:
+    ///  file:line:column  (if printFilename = true)
+    ///  line:column       (if printFilename = false)
     std::string toString(bool printFilename = true) const;
 
+    /// The name of the file
     const string_view fileName;
+    /// The line number
     const line_type line;
+    /// The column number
     const col_type column;
   };
 
-  // Object containing a human-readable version of a SourceRange.
+  /// Object representing a human-readable version of a SourceRange.
+  /// Note that this structure does not own the "fileName" string.
   struct CompleteRange {
     using line_type = CompleteLoc::line_type;
     using col_type = CompleteLoc::col_type;
@@ -51,28 +55,30 @@ namespace fox {
     bool operator==(const CompleteRange& other) const;
     bool operator!=(const CompleteRange& other) const;
 
-    // Returns the CompleteRange as a string formatted like this:
-    //  file:line:column-line:column (if printFilename = true)
-    //  line:column-line:column      (if printFilename = true)
+    /// \returns the CompleteRange as a string formatted like this:
+    ///  file:line:column-line:column (if printFilename = true)
+    ///  line:column-line:column      (if printFilename = true)
     std::string toString(bool printFilename = true) const;
 
+    /// The name of the file
     const string_view fileName;
+    /// The line number of the beginning of the loc
     const line_type begLine;
+    /// The column number of the beginning of the loc
     const col_type begColumn;
+    /// The line number of the end of the loc
     const line_type endLine;
+    /// The column number of the end of the loc
     const col_type endColumn;
   };
 
-  // The SourceManager, which manages source files. It reads
-  // them, stores them and gives them a unique FileID.
-  //
-  // It also allows the client to retrieve the data behind a FileID,
-  // SourceLoc or SourceRange.
-  //
-  // As an implementation detail, accessing a File's data is pretty
-  // cheap since files are stored in a vector, so accessing the data
-  // of any file is just a bit of pointer arithmetic.
-  //  (data[theID.getIndex()] = the source file)
+  /// The SourceManager manages source files. It reads
+  /// them, stores them and assigns a unique FileID to each of them.
+  /// It also offers multiple functionalities related to File and SourceLocs,
+  /// such as converting them into human-readable representations
+  ///
+  /// As an implementation detail, accessing a File's data is pretty
+  /// cheap since files are stored in a vector.
   class SourceManager {
     public:
       using line_type = CompleteLoc::line_type;
@@ -80,76 +86,78 @@ namespace fox {
 
       SourceManager() = default;
 
-      // Return enum for readFile
-      enum class FileStatus : std::uint8_t {
-        // The file was successfully read and loaded in memory.
-        // It's FileID is the first element of the pair.
+      /// Return enum for readFile
+      enum class ReadFileResult : std::uint8_t {
+        /// The file was successfully read and loaded in memory.
+        /// Its FileID is the first element of the pair.
         Ok,
-        // The file couldn't be found.
+        /// The file couldn't be found.
         NotFound,
-        // The file had an invalid encoding. Currently, only
-        // ASCII and UTF8 are supported.
+        /// The file had an invalid encoding. 
+        /// (Currently, only ASCII and UTF8 are supported.)
         InvalidEncoding
       };
 
-      // Load a file in memory. 
-      //  Returns a pair. The first element is the FileID, it'll evaluate
-      //  to false if the file was not loaded in memory.
-      //  The second element contains a more detailed status (see FileStatus)
-      std::pair<FileID, FileStatus> readFile(string_view path);
+      /// Loads a file in memory. 
+      ///  \returns a pair. The first element is the FileID, it'll evaluate
+      ///  to false if the file was not loaded in memory.
+      ///  The second element contains the result information.
+      std::pair<FileID, ReadFileResult> readFile(string_view path);
 
-      // Load a string in the SM. First arg is the string to load, 
-      // the second is the name we should give to the file.
+      /// Loads (copies) a string in the SourceManager
+      /// \param str the string to load
+      /// \param name the name the string should have
+      /// \returns the FileID assigned to the string.
       FileID loadFromString(string_view str,
                             string_view name);
 
-      // Returns a string_view of the Source file's content.
-      // The FileID MUST be valid.
+      /// \returns a string_view of \p fid 's buffer.
+      /// (the string is owned by the SourceManager)
       string_view getFileContent(FileID fid) const;
 
-      // Returns a string_view of the Source file's name.
-      // The FileID MUST be valid.
+      /// \returns a string_view of \p fid 's file name.
+      /// (the string is owned by the SourceManager)
       string_view getFileName(FileID fid) const;
 
-      // Returns the line number of a SourceLoc
+      /// \returns the line number of \p loc
       line_type getLineNumber(SourceLoc loc) const;
 
-      // Requests the "complete" version of a SourceLoc, which
-      // is presentable to the user.
+      /// \returns a complete, presentable version of \p sloc
       CompleteLoc getCompleteLoc(SourceLoc sloc) const;
 
-      // Requests the "complete" version of a SourceLoc, which
-      // is presentable to the user.
+      /// \returns a complete, presentable version of \p range
       CompleteRange getCompleteRange(SourceRange range) const;
 
-      // Returns the complete line of source code for a given SourceLoc
-      // An optional argument (SourceLoc*) can be passed. If it is present,
-      // the function will store the SourceLoc of the first
-      // character of the line in that loc.
+      /// \param loc the loc
+      /// \param lineBeg If it is present, the function will store the SourceLoc
+      /// of the first character of the line in that loc.
+      /// \returns the complete line of code in which \p loc is located.
       string_view getLineAt(SourceLoc loc, 
         SourceLoc* lineBeg = nullptr) const;
 
-      // Increments the SourceLoc by "count" codepoints.
-      // This must be used carefully, as it may fail if you try to
-      // increment past thee end.
+      /// Increments \p loc by \p count codepoints.
+      /// \returns the incremented version of \p loc
+      /// NOTE: This may fail if you try to increment past the end.
       SourceLoc advance(SourceLoc loc, std::size_t count = 1) const;
 
-      // Returns the number of codepoints contained in the range.
-      // e.g. Let's say that:
-      //  a = range.getBeginLoc()
-      //  b = range.getEndLoc()
-      //
-      //  and that the range represents "fooba" in "foobar"
-      //
-      //    foobar
-      //    ^   ^
-      //    a   b
-      //
-      //  then getLengthInCodepoints(a, b) returns 5, because there's
-      //  5 characters in this range: fooba.
-      //
-      // Note: this method still considers fullwidth unicode characters
-      //       as 1 codepoint, even if they take 2 characters on screen.
+      /// \returns the number of codepoints contained in the range.
+      /// \verbatim
+      /// e.g. Let's say that:
+      ///  a = range.getBeginLoc()
+      ///  b = range.getEndLoc()
+      ///
+      ///  and that the range represents "fooba" in "foobar"
+      ///
+      ///    foobar
+      ///    ^   ^
+      ///    a   b
+      ///
+      ///  then getLengthInCodepoints(a, b) returns 5, because there's
+      ///  5 characters in this range: fooba.
+      ///
+      /// Note: this method considers fullwidth unicode characters
+      ///       as 1 codepoint, even if they take 2 characters on screen.
+      /// \endverbatim
       std::size_t getLengthInCodepoints(SourceRange range) const;
 
     private:
@@ -169,13 +177,13 @@ namespace fox {
         const std::string name;
         const std::string content;
         protected:
-          using index_type = SourceLoc::index_type;
+          using IndexTy = SourceLoc::IndexTy;
 
           friend class SourceManager;
 
           // This is the cached "line table", which is used to efficiently
           // calculate the line number of a SourceLoc.
-          mutable std::map<index_type, line_type> lineTable_;
+          mutable std::map<IndexTy, line_type> lineTable_;
 
           // Flag indicating whether we have calculated the LineTable.
           mutable bool calculatedLineTable_ = false;
@@ -187,14 +195,14 @@ namespace fox {
           // that search.
           //
           // TODO: Is this case common enough to warrant caching? Tests needed!
-          mutable std::pair<index_type, std::pair<index_type, line_type>> 
+          mutable std::pair<IndexTy, std::pair<IndexTy, line_type>> 
             lastLTSearch_;
       };
 
       // Calculates the line and column number of a given position inside
       // the file/data's content.
       std::pair<line_type, col_type>
-      calculateLineAndColumn(const Data* data, SourceLoc::index_type idx) const;
+      calculateLineAndColumn(const Data* data, SourceLoc::IndexTy idx) const;
 
       // Returns a pointer to the "Data" for a given File.
       // The result is always non null (guaranteed by an assertion)
@@ -207,13 +215,13 @@ namespace fox {
 
       // Checks if a SourceLoc's index refers to a valid position
       // (or a past-the-end position) in the data.
-      bool isIndexValid(const Data* data, SourceLoc::index_type idx) const;
+      bool isIndexValid(const Data* data, SourceLoc::IndexTy idx) const;
 
       // Searches the "line table" of a given Data, returning
       // the index at which the line begins and the line number
       // at the position "idx"
-      std::pair<SourceLoc::index_type, line_type>
-      searchLineTable(const Data* data, SourceLoc::index_type idx) const;
+      std::pair<SourceLoc::IndexTy, line_type>
+      searchLineTable(const Data* data, SourceLoc::IndexTy idx) const;
 
       // Inserts a new Data in the datas_ vector, returning it's FileID.
       FileID insertData(std::unique_ptr<Data> data);
@@ -226,6 +234,6 @@ namespace fox {
       SmallVector<std::unique_ptr<Data>, 4> datas_;
   };
   
-  // Converts a SourceManager::FileStatus to a string.
-  std::string toString(SourceManager::FileStatus status);
+  // Converts a SourceManager::ReadFileResult to a string.
+  std::string toString(SourceManager::ReadFileResult status);
 }

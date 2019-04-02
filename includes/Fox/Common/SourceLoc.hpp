@@ -16,26 +16,23 @@
 namespace fox {
   class SourceManager;
 
-  // The FileID is an opaque object that packs a 16 bits int which
-  // represents a file index inside the SourceManager.
+  /// The FileID is an opaque object that represents an unique identifier given
+  /// to a file stored in a SourceManageR.
   class FileID {
+    using IDTy = std::uint16_t;
+    static constexpr IDTy npos = 0xFFFF;
     public:
-      using IDTy = std::uint16_t;
-      static constexpr IDTy npos = 0xFFFF;
-
-      // Creates a new invalid FileID.
+      /// Creates a new, invalid FileID.
       FileID() = default;
 
-      // Checks if this FileID should be considered valid.
+      /// \returns true if this FileID is valid.
       bool isValid() const;
 
-      // Calls isValid()
+      /// \returns isValid()
       explicit operator bool() const;
 
       bool operator ==(const FileID other) const;
       bool operator !=(const FileID other) const;
-
-      // For use in containers
       bool operator <(const FileID other) const;
 
       friend std::ostream& operator<<(std::ostream& os, FileID file);
@@ -49,40 +46,33 @@ namespace fox {
       IDTy idx_ = npos;
   };
 
-  // The SourceLoc is a lightweight wrapper around a FileID and an index
-  // which, combined, locate a byte in the source file. 
-  //
-  // The byte can be a single ASCII character, or the beginning of a UTF-8
-  // code point.
+  /// The SourceLoc packs a FileID with an offset in the source file.
+  /// Together, they represent a byte in the source file. That byte can
+  /// be an ASCII character or the beginning of a UTF-8 codepoint.
   class SourceLoc {
     public:
-      // Use 32 bits int for the Index. This shoud allow the interpreter
-      // to load and work with files up to 4GB alone. This can be upgraded
-      // to a int64 if needed.
-      using index_type = std::uint32_t;
+      /// The type of the offset/index
+      using IndexTy = std::uint32_t;
 
-      // Creates a new, invalid SourceLoc.
+      /// Creates a new, invalid SourceLoc.
       SourceLoc();
-      explicit SourceLoc(FileID fid, index_type idx = 0);
+      /// Creates a SourceLoc from a FileID and an index.
+      explicit SourceLoc(FileID fid, IndexTy idx = 0);
 
+      /// \returns true if this SourceLoc is valid
       bool isValid() const;
+      /// \returns isValid()
       explicit operator bool() const; 
 
       bool operator ==(const SourceLoc other) const;
       bool operator !=(const SourceLoc other) const;
 
-      // Returns the ID of the file in which this SourceLoc lives.
+      /// \returns the FileID of this SourceLoc
       FileID getFileID() const;
+      /// \returns the raw offset/index
+      IndexTy getRawIndex() const;
 
-      // Returns the raw index of the SourceLoc.
-      //
-      // Note that this should never be used in place of a SourceLoc since
-      // it doesn't preserve the FileID.
-      index_type getRawIndex() const;
-
-      // Returns true if this SourceLoc comes before the other SourceLoc.
-      // Returns false if the other SourceLoc doesn't belong to the 
-      // same file, or if it comes after this one.
+      /// \returns true if this SourceLoc comes before the other SourceLoc.
       bool comesBefore(SourceLoc other) const;
 
       friend std::ostream& operator<<(std::ostream& os, SourceLoc loc);
@@ -90,59 +80,59 @@ namespace fox {
     private:
       friend class SourceRange;
       FileID fid_;
-      index_type idx_;
+      IndexTy idx_;
   };
 
-  // The SourceRange is a wrapper around a SourceLoc and an offset, 
-  // which combined represent a range of bytes in the file.
-  //
-  // IMPORTANT: The SourceRange IS NOT a half-open range. This means that
-  // the first loc represents the first byte in the range, and the last loc
-  // represents the last byte in the range.
-  //
-  //  e.g. If the file content is "foo bar":
-  //    auto loc = SourceLoc(fileID, 0) refers to "f"
-  //    SourceRange(loc, 0) refers to "f" (.getBeginLoc() == .getEndLoc())
-  //    SourceRange(loc, 2) refers to "foo"
+  /// The SourceRange is a wrapper around a SourceLoc and another offset, 
+  /// which combined represent a range of bytes in the file.
+  ///
+  /// The SourceRange IS NOT a half-open range. This means that
+  /// the first loc represents the first byte in the range, and the last loc
+  /// represents the last byte in the range. Note that that last byte may
+  /// be the first byte of an UTF-8 codepoint too.
+  /// \verbatim
+  ///  e.g. If the file content is "foo bar":
+  ///    auto loc = SourceLoc(fileID, 0) refers to "f"
+  ///    SourceRange(loc, 0) refers to "f" (.getBeginLoc() == .getEndLoc())
+  ///    SourceRange(loc, 2) refers to "foo"
+  /// \endverbatim
   class SourceRange {
     public:
-      using OffsetTy = std::uint32_t;
+      /// The type of the offset
+      using OffsetTy = SourceLoc::IndexTy;
 
+      /// Creates a SourceRange from a SourceLoc \p sloc and a
+      /// "raw" offset \p offset
       explicit SourceRange(SourceLoc sloc, OffsetTy offset = 0);
+      /// Creates a SourceRange from 2 SourceLocs \p a and \p b
       explicit SourceRange(SourceLoc a, SourceLoc b);
+      /// Creates an invalid SourceRange
       SourceRange();
 
+      /// \returns true if this SourceRange is valid
       bool isValid() const;
-      explicit operator bool() const; // Shortcut for isValid
+      /// \returns isValid()
+      explicit operator bool() const;
 
       SourceLoc getBeginLoc() const;
       SourceLoc getEndLoc() const;
       FileID getFileID() const;
 
-      // Returns the raw offset contained inside this SourceRange.
+      /// \returns the raw offset 
       OffsetTy getRawOffset() const;
 
-      // Returns true if this SourceRange only covers one characters
-      // (and thus can be converted to a SourceLoc without losing
-      // information)
-      bool isOnlyOneCharacter() const;
-
-      // Return true if the SourceLoc is contained inside this SourceRange.
-      // (beg >= loc <= end)
-      // Return false if the SourceLoc doesn't belong to the same file,
-      // or if it's not contained inside this SourceRange
+      /// \returns true if the SourceLoc is contained inside this SourceRange.
+      /// (getBeginLoc() >= \p loc <= getEndLoc())
       bool contains(SourceLoc loc) const;
 
-      // Returns true if the SourceRange is contained inside this SourceRange.
-      // (contains(range.getBeginLoc()) && (contains(range.getEndLoc()))
-      // Return false if the SourceRange doesn't belong to the same file,
-      // or if it's not contained inside this SourceRange
+      /// \returns true if the SourceRange is contained inside this SourceRange.
+      /// (contains(range.getBeginLoc()) && (contains(range.getEndLoc()))
       bool contains(SourceRange range) const;
 
       friend std::ostream& operator<<(std::ostream& os, SourceRange range);
 
     private:
-      SourceLoc sloc_;
+      SourceLoc loc_;
       OffsetTy offset_;
   };
 }

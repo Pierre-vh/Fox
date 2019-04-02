@@ -299,7 +299,7 @@ Diagnostic& Diagnostic::setRange(SourceRange range) {
   return *this;
 }
 
-bool Diagnostic::hasRange() const {
+bool Diagnostic::hasPreciseLoc() const {
   return (bool)range_ && !isFileWide();
 }
 
@@ -312,21 +312,14 @@ SourceRange Diagnostic::getExtraRange() const {
 }
 
 Diagnostic& Diagnostic::setExtraRange(SourceRange range) {
-  assert(hasRange() && "setting the extra range without a "
+  assert(hasPreciseLoc() && "setting the extra range without a "
     "primary range");
   extraRange_ = range;
   return *this;
 }
 
-bool Diagnostic::hasExtraRange() const {
+bool Diagnostic::hasExtraLoc() const {
   return (bool)extraRange_;
-}
-
-Diagnostic& Diagnostic::setIsFileWide(bool fileWide) {
-  assert(range_ && "a diagnostic cannot be file-wide "
-    "if it doesn't have a valid FileID!");
-  fileWide_ = fileWide;
-  return *this;
 }
 
 bool Diagnostic::isFileWide() const {

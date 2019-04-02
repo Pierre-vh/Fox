@@ -4,16 +4,15 @@
 // File : LLVM.hpp                      
 // Author : Pierre van Houtryve                
 //----------------------------------------------------------------------------//
-// This file imports the most commonly used LLVM functions that
-// we want to use unqualified.
+// This file imports/forward declares some commonly used LLVM classes/functions 
+// that we want to use unqualified.
 //----------------------------------------------------------------------------//
 
 // We need to import some classes because they can't be easily forward
 // declared
-#include "llvm/Support/Casting.h" // reason: complex templates
-#include "llvm/ADT/None.h"        // reason: can't fwd-decl without defining
+#include "llvm/Support/Casting.h" // complex templates
+#include "llvm/ADT/None.h"        // can't forward declare
 
-// Forward-declare some llvm classes 
 namespace llvm {
   template <typename T> class SmallVectorImpl;
   template <typename T, unsigned N> class SmallVector;

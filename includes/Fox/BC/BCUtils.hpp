@@ -23,18 +23,18 @@ namespace llvm {
 namespace fox {
   struct Instruction;
 
-  // The type of a register address in an instruction
+  /// The type of a register address in an instruction
   using regaddr_t = std::uint8_t;
 
-  // The maximum register address possible in an instruction
+  /// The maximum register address possible in an instruction
   constexpr regaddr_t max_regaddr = 0xFF;
 
-  // The underlying type of the 'Opcode' enum
+  /// The underlying type of the 'Opcode' enum
   using opcode_t = std::uint8_t;
 
-  // Forward declaration of the 'Opcode' enum
+  /// Forward declaration of the 'Opcode' enum
   enum class Opcode : opcode_t;
 
-  // An instruction buffer
+  /// An instruction buffer
   using InstructionBuffer = llvm::SmallVector<Instruction, 4>;
 }

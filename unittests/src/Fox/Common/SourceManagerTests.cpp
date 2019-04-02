@@ -90,10 +90,6 @@ TEST(SourceManagerTest, SourceRange) {
   SourceRange onechar_range_b(b, b);
   SourceRange onechar_range_c(a);
 
-  EXPECT_TRUE(onechar_range_a.isOnlyOneCharacter());
-  EXPECT_TRUE(onechar_range_b.isOnlyOneCharacter());
-  EXPECT_TRUE(onechar_range_c.isOnlyOneCharacter());
-
   EXPECT_EQ(onechar_range_a.getBeginLoc(), onechar_range_a.getEndLoc());
   EXPECT_EQ(onechar_range_b.getBeginLoc(), onechar_range_b.getEndLoc());
   EXPECT_EQ(onechar_range_c.getBeginLoc(), onechar_range_c.getEndLoc());
