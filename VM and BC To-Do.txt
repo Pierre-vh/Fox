@@ -49,9 +49,7 @@ Basic VM data types and their mappings to Fox types:
         -> Don't forget to "protect" the liveliness of variables declared outside the loop.
            I'll need a "RegisterAllocator::LoopContext" to prevent variable declared outside a loop from dying inside it.
 
-  > Refactor BCModule/BCModuleBuilder -> Currently, it's a mess. Concerns should be separated more clearly. 
-    Plan ahead and implement the function builder and others.
-      > Create a base "InstructionBuilder" class that builds a buffer of instruction, BCFunctionBuilder will derive from it
+  > BCModule/BCModuleBuilder rework, adding BCFunction, etc.
 
   -> Destination register for ExprGenerator: Require a destination register for an expression. If present, the result
      must be stored there. Will be used for calling functions. Just pass an extra "RegisterValue" as parameter, maybe

@@ -151,23 +151,16 @@ To-Do:
   > Lexer Rework (Done)
   > String Normalization + ASTDump of normalized strings (Done)
   > Parser Recovery Improvements (Done)
+  > Document the public interface with Doxygen-style comments (Done)
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
   > Polishing the Lexer Rework (Next)
     > Write lexer filecheck tests (test kinds using a -dump-toks option)
-
     > Remove or Rework StringManipulator, maybe as a UTF8StringIterator?
-
-    > Cleanup/Code review in:
-      > Lexer
-        > Maybe try to have less "pushTok" methods?
-      > Parser
-        > Re-read the code: check for errors/inconsistencies, update docs.
-   
+    > Operator tests (FileCheck - check that basic binary operations have the correct operators)
+    > Cleanup/Code review (Mostly Done)
     > (Maybe now) Stop storing tokens in a huge vector, lex on demand instead.
-
-  > Document all headers with Doxygen-style comments
 
   > Break and Continue Statements
     > They're not too hard to add, I just forgot to add them!
