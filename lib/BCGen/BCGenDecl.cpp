@@ -79,7 +79,8 @@ class BCGen::LocalDeclGenerator : public Generator,
 // This performs some tasks that are needed in order to correctly generate
 // the bytecode for the body of a FuncDecl. One such task is notifying the
 // RegisterAllocator of every local variable declaration/usage so it can
-// maintain its use count for the variable.
+// know the number of uses a variable has (to free its register after its last
+// use)
 //----------------------------------------------------------------------------//
 
 namespace {
@@ -99,11 +100,13 @@ namespace {
     private:
       virtual bool handleDeclPre(Decl* decl) override {
         visit(decl);
+        // We want to visit the children
         return true;
       }
 
       virtual std::pair<Expr*, bool> handleExprPre(Expr* expr) override {
         visit(expr);
+        // We want to continue the walk and visit the children
         return {expr, true};
       }
 
@@ -111,8 +114,13 @@ namespace {
         // no-op
       }
 
-      void visitDecl(Decl*) {
-        fox_unreachable("Unhandled Decl in FuncGenPrologue");
+      void visitFuncDecl(FuncDecl*) {
+        // Fox does not currently allow functions in a local scope.
+        fox_unreachable("FuncDecl found inside a FuncDecl");
+      }
+
+      void visitUnitDecl(UnitDecl*) {
+        fox_unreachable("UnitDecl found inside a FuncDecl");
       }
 
       void visitParamDecl(ParamDecl*) {
