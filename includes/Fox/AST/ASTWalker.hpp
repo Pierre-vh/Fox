@@ -17,15 +17,14 @@ namespace fox {
   /// of the AST, visiting every Expr/Stmt/Decl.
   class ASTWalker {
     public:
-      /// Walks an ASTNode. 
-      /// NOTE: The return value of the walk will be discarded.
+      /// Walks any node. The return value of the walk will be discarded.
       /// \param node the node to visit
       void walk(ASTNode node);
 
       /// Walks an Expr
       /// \param expr the expr to visit
       /// \returns its parameter, another expr that should take its place or
-      ///          nullptr if the walk was terminated early.
+      ///          nullptr if the walk was aborted.
       Expr* walk(Expr* expr);
 
       /// Walks a Decl
@@ -51,7 +50,7 @@ namespace fox {
       /// Called after visiting an expression's children
       /// \param expr the expr we're visiting
       /// \returns its parameter, another expr that should take its place or
-      ///          nullptr to abort the walk.
+      ///          nullptr to terminate the walk.
       virtual Expr* handleExprPost(Expr* expr);
 
       /// Called when first visiting a statement before visiting its
@@ -64,20 +63,24 @@ namespace fox {
       virtual std::pair<Stmt*, bool> handleStmtPre(Stmt* stmt);
 
 
-      /// Called after visiting an statement's children
+      /// Called after visiting an statement's children. If it returns nullptr,
+      /// the walk is terminated.
       /// \param stmt the stmt we're visiting
       /// \returns its parameter, another stmt that should take its place or
-      ///          nullptr if the walk was aborted.
+      ///          nullptr if the remaining traversal should be terminated.
       virtual Stmt* handleStmtPost(Stmt* stmt);
 
-      /// Called before visiting a declaration's children.
+      /// Called before visiting a declaration's children. If it returns false,
+      /// the children of the Decl won't be traversed.
       /// \param decl the Decl that we're visiting
-      /// \returns true if we should continue the traversal, false otherwise.
+      /// \returns true if we should traverse the children of this decl, false
+      ///          otherwise.
       virtual bool handleDeclPre(Decl* decl);
 
-      /// Called after visiting a declaration's children.
+      /// Called after visiting a declaration's children. If it returns
+      /// false, the walk is terminated.
       /// \param decl the Decl that we're visiting
-      /// \returns true if we should continue the traversal, false otherwise.
+      /// \returns true if we should continue the walk, false otherwise.
       virtual bool handleDeclPost(Decl* decl);
   };
 }

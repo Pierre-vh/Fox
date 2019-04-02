@@ -13,22 +13,18 @@
 using namespace fox;
 
 namespace {
-  // TypeTraverse, the traverse class for Types.
+  /// TypeTraverse, the traverse class for Types.
   class TypeTraverse : public TypeVisitor<TypeTraverse, bool> {
-    TypeWalker &walker_;
     public:
-      TypeTraverse(TypeWalker& walker) : walker_(walker) {}
+      TypeTraverse(TypeWalker& walker) : walker(walker) {}
 
-      // doIt method for types
+      TypeWalker &walker;
+
       bool doIt(Type type) {
-        // Call the walker, abort if failed.
-        if (!walker_.handleTypePre(type))
-          return false;
-
-        // Visit the children
+        if (!walker.handleTypePre(type))
+          return true;
         if (visit(type))
-          // Call the walker (post)
-          return walker_.handleTypePost(type);
+          return walker.handleTypePost(type);
         return false;
       }
 
@@ -61,9 +57,8 @@ namespace {
           if(!doIt(rtr)) return false;
 
         for(auto paramTy : type->getParamTypes()) {
-          if(paramTy) {
+          if(paramTy)
             if(!doIt(paramTy)) return false;
-          }
         }
 
         return true;

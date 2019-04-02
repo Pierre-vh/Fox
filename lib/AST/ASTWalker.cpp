@@ -14,25 +14,34 @@
 using namespace fox;
 
 namespace {
-  // The traverse class for Expr, Decl and Stmts
+  /// The traverse class for Expr, Decl and Stmts
+  /// This is an implementation class for the \ref ASTWalker.
+  /// Visit methods return non-null (or true) on success, nullptr (or false)
+  /// when the walk should be aborted.
   class Traverse:
   public ASTVisitor<Traverse, bool, Expr*, Stmt*> {    
-    ASTWalker& walker_;
     public:
-      Traverse(ASTWalker& walker) : walker_(walker) {}
-       
-      // Exprs
+      Traverse(ASTWalker& walker) : walker(walker) {}
+
+      ASTWalker& walker;
+
+      //----------------------------------------------------------------------//
+      // Expressions
+      //----------------------------------------------------------------------//
+
       Expr* visitBinaryExpr(BinaryExpr* expr) {
         if (Expr* lhs = expr->getLHS()) {
           if((lhs = doIt(lhs)))
             expr->setLHS(lhs);
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         if (Expr* rhs = expr->getRHS()) {
           if ((rhs = doIt(rhs)))
             expr->setRHS(rhs);
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         return expr;
@@ -42,7 +51,8 @@ namespace {
         if (Expr* child = expr->getExpr()) {
           if ((child = doIt(child)))
             expr->setExpr(child);
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         return expr;
@@ -52,7 +62,8 @@ namespace {
         if (Expr* child = expr->getExpr()) {
           if ((child = doIt(child)))
             expr->setExpr(child);
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         return expr;
@@ -62,13 +73,15 @@ namespace {
         if (Expr* base = expr->getBase()) {
           if ((base = doIt(base)))
             expr->setBase(base);
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         if (Expr* idx = expr->getIndex()) {
           if ((idx = doIt(idx)))
             expr->setIndex(idx);
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         return expr;
@@ -102,7 +115,8 @@ namespace {
         if (Expr* child = expr->getExpr()) {
           if ((child = doIt(child)))
             expr->setExpr(child);
-          else return nullptr;
+          else 
+            return nullptr;
         }
         return expr;
       }
@@ -111,21 +125,26 @@ namespace {
         if (Expr* callee = expr->getCallee()) {
           if ((callee = doIt(callee)))
             expr->setCallee(callee);
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         for (auto& elem : expr->getArgs()) {
           if (elem) {
             if (Expr* node = doIt(elem))
               elem = node;
-            else return nullptr;
+            else 
+              return nullptr;
           }
         }
 
         return expr;
       }
 
-      // Decls
+      //----------------------------------------------------------------------//
+      // Declarations
+      //----------------------------------------------------------------------//
+
       bool visitParamDecl(ParamDecl*) {
         return true;
       }
@@ -147,7 +166,8 @@ namespace {
         if (Stmt* body = decl->getBody()) {
           if ((body = doIt(body)))
             decl->setBody(cast<CompoundStmt>(body));
-          else return false;
+          else 
+            return false;
         }
 
         return true;
@@ -161,11 +181,16 @@ namespace {
         return true;
       }
 
+      //----------------------------------------------------------------------//
+      // Statements
+      //----------------------------------------------------------------------//
+
       Stmt* visitReturnStmt(ReturnStmt* stmt) {
         if (Expr* expr = stmt->getExpr()) {
           if ((expr = doIt(expr)))
             stmt->setExpr(expr);
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         return stmt;
@@ -175,22 +200,23 @@ namespace {
         if (Expr* cond = stmt->getCond()) {
           if ((cond = doIt(cond)))
             stmt->setCond(cond);
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         if (Stmt* then = stmt->getThen()) {
-          if ((then = doIt(then))) {
-            assert(isa<CompoundStmt>(then) && "not a compound statement");
+          if ((then = doIt(then)))
             stmt->setThen(cast<CompoundStmt>(then));
-          }
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         if (Stmt* elseBody = stmt->getElse()) {
           if ((elseBody = doIt(elseBody))) {
             stmt->setElse(elseBody);
           }
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
         return stmt;
@@ -199,11 +225,10 @@ namespace {
       Stmt* visitCompoundStmt(CompoundStmt* stmt) {
         for (ASTNode& elem: stmt->getNodes()) {
           if (elem) {
-            bool isDecl;
-            if (ASTNode node = doIt(elem, &isDecl)) {
-              if(!isDecl) elem = node;
-            }
-            else return nullptr;
+            if (ASTNode node = doIt(elem))
+              elem = node;
+            else 
+              return nullptr;
           }
         }
 
@@ -214,78 +239,68 @@ namespace {
         if (Expr* cond = stmt->getCond()) {
           if ((cond = doIt(cond)))
             stmt->setCond(cond);
-          else return nullptr;
+          else 
+            return nullptr;
         }
 
-        if (CompoundStmt* body = stmt->getBody()) {
-          if ((body = doIt(body))) {
-            stmt->setBody(body);
-          }
-          else return nullptr;
+        if (Stmt* body = stmt->getBody()) {
+          if (body = doIt(body))
+            stmt->setBody(cast<CompoundStmt>(body));
+          else 
+            return nullptr;
         }
 
         return stmt;
       }
 
-      // doIt method for expression: handles call to the walker &
-      // requests visitation of the children of a given node.
+      /// doIt method for expressions
+      /// \returns nullptr if the walk should be terminated
       Expr* doIt(Expr* expr) {
-        // Let the walker handle the pre visitation stuff.
-        auto rtr = walker_.handleExprPre(expr);
-
-        // Return if we have a nullptr or if we're instructed
-        // to not visit the children.
+        auto rtr = walker.handleExprPre(expr);
+        // Return if we have a nullptr or if we shouldn't visit the children
         if (!rtr.first || !rtr.second)
           return rtr.first;
-
-        // visit the node's childre, and if the traversal wasn't aborted,
-        // let the walker handle post visitation stuff.
-        if ((expr = visit(rtr.first)))
-          expr = walker_.handleExprPost(expr);
+        // visit the children
+        if ((expr = visit(rtr.first))) 
+          // On success, call handleExprPost
+          expr = walker.handleExprPost(expr);
 
         return expr;
       }
 
-      // doIt method for declarations: handles call to the walker & visits
-      // the children of the node if needed.
+      /// doIt method for declarations
+      /// \returns false if the walk should be terminated
       bool doIt(Decl* decl) {
-        if (!walker_.handleDeclPre(decl))
+        // When handleDeclPre returns false, this means we should skip children,
+        // not that the walk failed, so return "true" instead of false.
+        if (!walker.handleDeclPre(decl))
           return false;
         if (visit(decl))
-          return walker_.handleDeclPost(decl);
+          return walker.handleDeclPost(decl);
         return false;
       }
 
-      // doIt method for statements: handles call to the walker & visits
-      // the children of the node if needed.
-      Stmt* doIt(Stmt* expr) {
-        auto rtr = walker_.handleStmtPre(expr);
+      /// doIt method for statements
+      /// \returns nullptr if the walk should be terminated.
+      Stmt* doIt(Stmt* stmt) {
+        auto rtr = walker.handleStmtPre(stmt);
         // Return if we have a nullptr or if we're instructed
         // to not visit the children.
         if (!rtr.first || !rtr.second)
           return rtr.first;
         // visit the node's children and call handleStmtPost if needed
-        if ((expr = visit(rtr.first)))
-          expr = walker_.handleStmtPost(expr);
-        return expr;
+        if ((stmt = visit(rtr.first)))
+          stmt = walker.handleStmtPost(stmt);
+        return stmt;
       }
 
-      CompoundStmt* doIt(CompoundStmt* stmt) {
-        // FIXME: Is this the correct way to do this?
-        return dyn_cast_or_null<CompoundStmt>(doIt((Stmt*)stmt));
-      }
-
-      // doIt method for ASTNodes: handles call to the walker & visits
-      // the children of the node if needed.
-      ASTNode doIt(ASTNode node, bool* isDecl) {
-        if (Decl* decl = node.dyn_cast<Decl*>()) {
-          // Important: Never change decls. Just return the
-          // argument.
-          doIt(decl);
-          if(isDecl) (*isDecl) = true;
-          return node;
-        }
-        if (isDecl) (*isDecl) = false;
+      /// doIt method for ASTNodes : dispatchs to the correct
+      /// 'doIt' method.
+      /// \returns nullptr if the walk should be terminated.
+      ASTNode doIt(ASTNode node) {
+        if (Decl* decl = node.dyn_cast<Decl*>())
+          // Important: for Decls, never replace them, always return the arg.
+          return doIt(decl) ? decl : nullptr;
         if (Stmt* stmt = node.dyn_cast<Stmt*>())
           return doIt(stmt);
         if (Expr* expr = node.dyn_cast<Expr*>())
@@ -296,7 +311,7 @@ namespace {
 } // end anonymous namespace
 
 void ASTWalker::walk(ASTNode node) {
-  Traverse(*this).doIt(node, nullptr);
+  Traverse(*this).doIt(node);
 }
 
 Expr* ASTWalker::walk(Expr* expr) {

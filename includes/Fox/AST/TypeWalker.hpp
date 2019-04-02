@@ -22,11 +22,11 @@ namespace fox {
       bool walk(Type type);
 
       /// Called when first visiting a type before visiting its children. 
-      /// \returns true to continue, false to terminate the traversal
+      /// \returns true to visit this type's children, false otherwise.
       virtual bool handleTypePre(Type type);
 
       /// Called after visiting a type's children
-      /// \returns true to continue, false to terminate the traversal
+      /// \returns true to continue the walk, false to terminate it.
       virtual bool handleTypePost(Type type);
   };
 }
