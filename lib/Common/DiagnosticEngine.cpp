@@ -61,6 +61,7 @@ DiagnosticEngine::DiagnosticEngine(SourceManager& sm,
 }
 
 Diagnostic DiagnosticEngine::report(DiagID diagID, FileID file) {
+  assert(file && "A valid FileID is required to emit a File-Wide diagnostic");
   return report(diagID, SourceRange(SourceLoc(file)), /*fileWide*/ true);
 }
 
