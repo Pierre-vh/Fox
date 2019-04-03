@@ -93,6 +93,8 @@ void Lexer::lex() {
 }
 
 TokenVector& Lexer::getTokens() {
+  assert(tokens_.size() && "lex() has not been called!");
+  assert(tokens_.back().isEOF() && "last token is not EOF");
   return tokens_; // return empty Token
 }
 

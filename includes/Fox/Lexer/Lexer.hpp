@@ -22,6 +22,7 @@ namespace fox {
   ///    (FileID). The lexing process can be initiated by calling lex(), and
   ///    the resulting tokens will be found in the token vector returned by
   ///    getTokens()
+  ///    The Token Vector's last token will always be TokenKind::EndOfFile.
   class Lexer  {
     public:
       /// Constructor for the Lexer.
@@ -31,10 +32,12 @@ namespace fox {
       ///        owned by \p srcMgr.
       Lexer(SourceManager& srcMgr, DiagnosticEngine& diags, FileID file);
 
-      /// lex the full file
+      /// lex the full file. the tokens can be retrieved using getTokens()
       void lex();
   
-      /// \returns the vector of tokens
+      /// \returns the vector of tokens, can only be called if lex() has
+      /// been called. The token vector is guaranteed to have a EOF token
+      /// as the last token.
       TokenVector& getTokens();
 
       /// Returns a SourceLoc for the character (or codepoint beginning) at
