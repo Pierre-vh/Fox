@@ -157,11 +157,6 @@ To-Do:
 
   > VM, Bytecode, BytecodeGen (Currently being worked on, see lib/VM/Status.md)
 
-  > Implement "lex on demand"
-    > Adding EOF token (Done)
-    > Parser recognizes EOF token as the end of parsing (Done)
-    > Lex on demand
-
   > Break and Continue Statements
     > They're not too hard to add, I just forgot to add them!
 
@@ -219,11 +214,16 @@ Other:
   High priority:
     This is a list of "high-priority" stuff that needs to be done, but isn't part of the main
     "roadmap", so it probably will be done later.
-  
-    > Rework/Refactor or even rewrite the Parser. There's a lot of ugly things in it!
-      > resyncTo should have a special "resyncToSemi" version
-      > consume/tryConsume should have a variant for single-char tokens 
-        (so a SourceLoc can be returned instead)
+
+    > Implement "lex on demand" + Improve the parser
+      > Adding EOF token (Done)
+      > Parser recognizes EOF token as the end of parsing (Done)
+      > Lex on demand, Remove TokenVector
+      > Parser consume methods should return a SourceLoc instead of a range to eliminate
+        the dozen of .getBeginLoc() calls in the parser. This change is just to reduce
+        verbosity and make the code more readable.
+        Ideally, I should have 2 consume methods, one that returns locs, and one that
+        returns range
   
     > Split lookupmap implementation depending on if it needs
       ScopeInfo or not, so not all DeclContext pay the price of
