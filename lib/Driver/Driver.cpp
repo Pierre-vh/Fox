@@ -52,30 +52,32 @@ bool Driver::processFile(string_view filepath) {
     diagEngine_.enableVerifyMode(dv.get());
   }
 
-	// Do lexing
-  Lexer lex(srcMgr_, diagEngine_, file);
-  {
-    auto chrono = createChrono("Lexing");
-    lex.lex();
-  }
-
-  // Dump tokens if needed
-  if (getDumpTokens()) {
-    auto& toks = lex.getTokens();
-    out << toks.size() << " tokens found in '" << srcMgr_.getFileName(file) << "'\n";
-    for (Token& tok : toks) {
-      out << "    ";
-      tok.dump(out, srcMgr_, /*printFileName*/ false);
-    }
-  }
-
-  Parser psr(ctxt_, lex);
-
+  // The parsed unit
   UnitDecl* unit = nullptr;
-  // If Lexing was successfull, do parsing.
-  if(!diagEngine_.hadAnyError()) {
-    auto chrono = createChrono("Parsing");
-    unit = psr.parseUnit(ctxt_.getIdentifier("TestUnit"));
+
+  {
+    // Do lexing
+    Lexer lex(srcMgr_, diagEngine_, file);
+    {
+      auto chrono = createChrono("Lexing");
+      lex.lex();
+    }
+
+    // Dump tokens if needed
+    if (getDumpTokens()) {
+      auto& toks = lex.getTokens();
+      out << toks.size() << " tokens found in '" << srcMgr_.getFileName(file) << "'\n";
+      for (Token& tok : toks) {
+        out << "    ";
+        tok.dump(out, srcMgr_, /*printFileName*/ false);
+      }
+    }
+
+    // Parse the file if we did not have any error
+    if(!diagEngine_.hadAnyError()) {
+      auto chrono = createChrono("Parsing");
+      unit = Parser(ctxt_, lex).parseUnit(ctxt_.getIdentifier("TestUnit"));
+    }
   }
 
   auto canContinue = [&](){
